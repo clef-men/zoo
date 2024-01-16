@@ -143,7 +143,7 @@ Section atomic_update.
 End atomic_update.
 
 Section atomic_wp.
-  Context `{!irisGS Λ Σ} {TA TB : tele}.
+  Context `{iris_GS : !irisGS Λ Σ} {TA TB : tele}.
 
   Implicit Types α : TA → iProp Σ.
   Implicit Types β Ψ : TA → TB → iProp Σ.
