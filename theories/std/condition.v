@@ -29,7 +29,7 @@ Definition condition_broadcast : val :=
 
 #[local] Definition condition_wait_until_aux : val :=
   rec: "condition_wait_until_aux" "t" "mtx" "cond" :=
-    if: "cond" #() then #() else (
+    ifnot: "cond" #() then (
       condition_wait "t" "mtx" ;;
       "condition_wait_until_aux" "t" "mtx" "cond"
     ).

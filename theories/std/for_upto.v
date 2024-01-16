@@ -13,9 +13,7 @@ Implicit Types fn : val.
 
 Definition for_upto : val :=
   rec: "for_upto" "beg" "end" "fn" :=
-    if: "end" ≤ "beg" then (
-      #()
-    ) else (
+    ifnot: "end" ≤ "beg" then (
       "fn" "beg" ;;
       "for_upto" (#1 + "beg") "end" "fn"
     ).

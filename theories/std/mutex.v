@@ -20,9 +20,7 @@ Definition mutex_create : val :=
 
 Definition mutex_lock : val :=
   rec: "mutex_lock" "t" :=
-    if: Cas "t" #false #true then (
-      #()
-    ) else (
+    ifnot: Cas "t" #false #true then (
       "mutex_lock" "t"
     ).
 

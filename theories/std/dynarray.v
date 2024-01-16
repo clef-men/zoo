@@ -73,9 +73,7 @@ Definition dynarray_reserve : val :=
   λ: "t" "n",
     let: "data" := !"t".[data] in
     let: "cap" := array_size "data" in
-    if: "n" ≤ "cap" then (
-      #()
-    ) else (
+    ifnot: "n" ≤ "cap" then (
       let: "new_cap" := maximum "n" (dynarray_next_capacity "cap") in
       let: "new_data" := array_make "new_cap" #() in
       array_blit "data" #0 "new_data" #0 !"t".[size] ;;
@@ -85,8 +83,6 @@ Definition dynarray_reserve_extra : val :=
   λ: "t" "n",
     if: #0 ≤ "n" then (
       dynarray_reserve "t" (!"t".[size] + "n")
-    ) else (
-      #()
     ).
 
 Definition dynarray_push : val :=
@@ -109,9 +105,7 @@ Definition dynarray_fit_capacity : val :=
   λ: "t",
     let: "sz" := !"t".[size] in
     let: "data" := !"t".[data] in
-    if: "sz" = array_size "data" then (
-      #()
-    ) else (
+    ifnot: "sz" = array_size "data" then (
       "t".[data] <- array_shrink "data" "sz"
     ).
 

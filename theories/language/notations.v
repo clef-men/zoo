@@ -197,10 +197,31 @@ Notation "e1 || e2" := (
 )(only parsing
 ) : expr_scope.
 
-Notation "'if:' e1 'then' e2 'else' e3" := (
-  If e1%E e2%E e3%E
-)(at level 200,
-  e1, e2, e3 at level 200
+Notation "'if:' e0 'then' e1 'else' e2" := (
+  If e0%E e1%E e2%E
+)(at level 1,
+  e0, e1 at level 200,
+  e2 at level 1,
+  only parsing
+) : expr_scope.
+Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
+  If e0%E e1%E e2%E
+)(at level 1,
+  e0, e1, e2 at level 200,
+  only printing,
+  format "'[hv' if:  e0  then  (  '/  ' '[' e1 ']'  '/' )  else  (  '/  ' '[' e2 ']'  '/' ) ']'"
+) : expr_scope.
+Notation "'if:' e0 'then' e1" := (
+  If e0%E e1%E #()
+)(at level 1,
+  e0, e1 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'ifnot:' e0 'then' e2" := (
+  If e0%E #() e2%E
+)(at level 1,
+  e0, e2 at level 200,
+  only parsing
 ) : expr_scope.
 
 Notation "( e1 , e2 , .. , en )" := (

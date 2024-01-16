@@ -12,7 +12,8 @@ From zebra Require Import
 
 Definition assume : val :=
   λ: "b",
-    if: "b" then #() else diverge #().
+    ifnot: "b" then
+      diverge #().
 
 Section zebra_G.
   Context `{zebra_G : !ZebraG Σ}.

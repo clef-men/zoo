@@ -104,9 +104,7 @@ Definition safe_dynarray_reserve : val :=
     assume (#0 ≤ "n") ;;
     let: "data" := safe_dynarray_data "t" in
     let: "cap" := array_size "data" in
-    if: "n" ≤ "cap" then (
-      #()
-    ) else (
+    ifnot: "n" ≤ "cap" then (
       let: "new_cap" := maximum "n" (safe_dynarray_next_capacity "cap") in
       let: "new_data" := array_make "new_cap" &&None in
       array_blit "data" #0 "new_data" #0 (safe_dynarray_size "t") ;;
@@ -131,17 +129,13 @@ Definition safe_dynarray_reserve_extra : val :=
 #[local] Definition safe_dynarray_push_aux : val :=
   rec: "safe_dynarray_push_aux" "t" "slot" :=
     safe_dynarray_reserve_extra "t" #1 ;;
-    if: safe_dynarray_try_push "t" "slot" then (
-      #()
-    ) else (
+    ifnot: safe_dynarray_try_push "t" "slot" then (
       "safe_dynarray_push_aux" "t" "slot"
     ).
 Definition safe_dynarray_push : val :=
   λ: "t" "v",
     let: "slot" := &Some (ref "v") in
-    if: safe_dynarray_try_push "t" "slot" then (
-      #()
-    ) else (
+    ifnot: safe_dynarray_try_push "t" "slot" then (
       safe_dynarray_push_aux "t" "slot"
     ).
 
@@ -165,9 +159,7 @@ Definition safe_dynarray_fit_capacity : val :=
   λ: "t",
     let: "sz" := safe_dynarray_size "t" in
     let: "data" := safe_dynarray_data "t" in
-    if: array_size "data" = "sz" then (
-      #()
-    ) else (
+    ifnot: array_size "data" = "sz" then (
       safe_dynarray_set_data "t" (array_shrink "data" "sz")
     ).
 

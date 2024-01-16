@@ -181,16 +181,10 @@ Definition rcfd_make : val :=
       | Open <> =>
           #()
       | Closing "no_users" =>
-          if: #0 < !"t".[ops] then (
-            #()
-          ) else if: Cas "t".[fd] "prev" (rcfd_closed #()) then (
-            "no_users" #()
-          ) else (
-            #()
-          )
+          ifnot: #0 < !"t".[ops] then
+            if: Cas "t".[fd] "prev" (rcfd_closed #()) then
+              "no_users" #()
       end
-    ) else (
-      #()
     ).
 
 #[local] Definition rcfd_get : val :=
@@ -212,11 +206,11 @@ Definition rcfd_close : val :=
         let: "close" := λ: <>, unix_close "fd" in
         let: "next" := ref (&Closing "close") in
         if: Cas "t".[fd] "prev" "next" then (
-          (if: (!"t".[ops] = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (
+          if: (!"t".[ops] = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (
             "close" #()
           ) else (
             #()
-          )) ;;
+          ) ;;
           #true
         ) else (
           #false
