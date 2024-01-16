@@ -42,7 +42,7 @@ Record wise_strong_prophet `{zebra_G : !ZebraG Σ} := {
     wise_strong_prophet_lb γ lb -∗
     ⌜∃ past1 past2, past = past1 ++ past2 ∧ lb = past2 ++ prophs⌝ ;
 
-  wise_strong_prophet_wp_new_proph E :
+  wise_strong_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
     {{{ p γ prophs,
@@ -145,7 +145,7 @@ Section make_wise_prophet_G.
   Qed.
   Next Obligation.
     iIntros "* _ HΦ".
-    iApply wp_fupd. wp_apply (make_wise_strong_prophet_typed_prophet.(typed_strong_prophet_wp_new_proph) with "[//]") as "%p %prophs Hp".
+    iApply wp_fupd. wp_apply (make_wise_strong_prophet_typed_prophet.(typed_strong_prophet_wp_proph) with "[//]") as "%p %prophs Hp".
     iMod (agree_alloc (agree_G := wise_strong_prophet_G_full_G) prophs) as "(%γ_full & #Hfull)".
     iMod (mono_list_alloc []) as "(%γ_past & Hpast_auth)".
     set γ := {|
@@ -201,7 +201,7 @@ Record wise_prophet `{zebra_G : !ZebraG Σ} := {
     wise_prophet_lb γ lb -∗
     ⌜∃ past1 past2, past = past1 ++ past2 ∧ lb = past2 ++ prophs⌝ ;
 
-  wise_prophet_wp_new_proph E :
+  wise_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
     {{{ p γ prophs,
@@ -305,7 +305,7 @@ Section make_wise_prophet.
   Qed.
   Next Obligation.
     iIntros "* _ HΦ".
-    wp_apply (make_wise_prophet_strong_prophet.(wise_strong_prophet_wp_new_proph) with "[//]") as "%p %γ %sprophs Hmodel".
+    wp_apply (make_wise_prophet_strong_prophet.(wise_strong_prophet_wp_proph) with "[//]") as "%p %γ %sprophs Hmodel".
     iApply "HΦ". iExists [], sprophs.
     iSteps.
   Qed.

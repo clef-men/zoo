@@ -38,7 +38,7 @@ Section zebra_G.
     iSteps.
   Qed.
 
-  Lemma wp_new_id E :
+  Lemma wp_id E :
     {{{ True }}}
       Id @ E
     {{{ id,

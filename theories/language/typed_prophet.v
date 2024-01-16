@@ -31,7 +31,7 @@ Record typed_strong_prophet `{zebra_G : !ZebraG Σ} := {
     typed_strong_prophet_model p prophs2 -∗
     False ;
 
-  typed_strong_prophet_wp_new_proph E :
+  typed_strong_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
     {{{ p prophs, RET #p; typed_strong_prophet_model p prophs }}} ;
@@ -124,7 +124,7 @@ Record typed_prophet `{zebra_G : !ZebraG Σ} := {
     typed_prophet_model p prophs2 -∗
     False ;
 
-  typed_prophet_wp_new_proph E :
+  typed_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
     {{{ p prophs, RET #p; typed_prophet_model p prophs }}} ;
@@ -186,7 +186,7 @@ Section make_typed_prophet.
   Qed.
   Next Obligation.
     iIntros "* _ HΦ".
-    wp_apply (make_typed_prophet_strong_prophet.(typed_strong_prophet_wp_new_proph) with "[//]").
+    wp_apply (make_typed_prophet_strong_prophet.(typed_strong_prophet_wp_proph) with "[//]").
     iSteps.
   Qed.
   Next Obligation.
@@ -237,7 +237,7 @@ Record typed_prophet1 `{zebra_G : !ZebraG Σ} := {
     typed_prophet1_model p proph2 -∗
     False ;
 
-  typed_prophet1_wp_new_proph E :
+  typed_prophet1_wp_proph E :
     {{{ True }}}
       Proph @ E
     {{{ p proph, RET #p; typed_prophet1_model p proph }}} ;
@@ -281,7 +281,7 @@ Section make_typed_prophet1.
   Qed.
   Next Obligation.
     iIntros "* _ HΦ".
-    wp_apply (make_typed_prophet1_prophet.(typed_prophet_wp_new_proph) with "[//]") as "%p %prophs Hmodel".
+    wp_apply (make_typed_prophet1_prophet.(typed_prophet_wp_proph) with "[//]") as "%p %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
     1: iApply ("HΦ" $! p inhabitant).
     2: iApply ("HΦ" $! p proph).
