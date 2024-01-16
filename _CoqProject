@@ -85,3 +85,6 @@ theories/std/mutex.v
 theories/std/condition.v
 theories/std/latch1.v
 theories/std/unix.v
+
+theories/eio/base.v
+theories/eio/rcfd.v
