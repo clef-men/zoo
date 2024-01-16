@@ -181,8 +181,8 @@ Section zebra_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_rec. wp_pures.
-    wp_apply (wp_alloc with "[//]") as "%l (Hmeta & Hl)"; first done.
+    wp_rec.
+    wp_smart_apply (wp_alloc with "[//]") as "%l (Hmeta & Hl)"; first done.
     iSteps.
   Qed.
 

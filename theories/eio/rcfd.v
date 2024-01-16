@@ -203,7 +203,9 @@ Definition rcfd_close : val :=
     let: "prev" := !"t".[fd] in
     match: !"prev" with
     | Open "fd" =>
-        let: "close" := λ: <>, unix_close "fd" in
+        let: "close" <> :=
+          unix_close "fd"
+        in
         let: "next" := ref (&Closing "close") in
         if: Cas "t".[fd] "prev" "next" then (
           if: (!"t".[ops] = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (

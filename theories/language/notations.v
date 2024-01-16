@@ -122,15 +122,29 @@ Notation "λ: x0 x1 .. xn , e" := (
 ) : val_scope.
 
 Notation "'let:' x := e1 'in' e2" := (
-  Lam x%binder e2%E e1%E
+  App (Lam x%binder e2%E) e1%E
 )(at level 200,
   x at level 1,
   e1, e2 at level 200,
   format "'[' 'let:'  x  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
+Notation "'let:' f x := e1 'in' e2" := (
+  App (Lam f%binder e2%E) (Rec f%binder x%binder e1%E)
+)(at level 200,
+  f, x at level 1,
+  e1, e2 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'let:' f x0 x1 .. xn := e1 'in' e2" := (
+  App (Lam f%binder e2%E) (Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e1%E) ..))
+)(at level 200,
+  f, x0, x1, xn at level 1,
+  e1, e2 at level 200,
+  only parsing
+) : expr_scope.
 
 Notation "e1 ;; e2" := (
-  Lam BAnon e2%E e1%E
+  App (Lam BAnon e2%E) e1%E
 )(at level 100,
   e2 at level 200,
   format "'[' '[hv' '[' e1 ']'  ;;  ']' '/' e2 ']'"
