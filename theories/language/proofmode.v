@@ -7,7 +7,7 @@ From zebra Require Import
   prelude.
 From zebra.iris Require Import
   diaframe.
-From zebra.iris.program_logic Require Import
+From zebra.iris.program_logic Require Export
   atomic.
 From zebra.language Require Export
   tactics
@@ -133,17 +133,22 @@ Section zebra_G.
     iApply ("HΔ'" with "Hl").
   Qed.
 
-  Lemma tac_wp_load Δ Δ' id K l dq v E Φ :
+  Lemma tac_wp_load Δ Δ' id b K l dq v E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    envs_lookup id Δ' = Some (false, l ↦{dq} v)%I →
+    envs_lookup id Δ' = Some (b, l ↦{dq} v)%I →
     envs_entails Δ' (WP fill K v @ E {{ Φ }}) →
     envs_entails Δ (WP fill K !#l @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
     rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
-    iIntros "(Hl & H)".
-    iApply (wp_load with "Hl").
-    iSteps.
+    destruct b; simpl.
+    - iIntros "(#Hl & H)".
+      rewrite bi.later_intuitionistically.
+      iApply (wp_load with "Hl").
+      iSteps.
+    - iIntros "(Hl & H)".
+      iApply (wp_load with "Hl").
+      iSteps.
   Qed.
 
   Lemma tac_wp_store Δ Δ' id K l v w E Φ :
@@ -397,7 +402,7 @@ Tactic Notation "wp_load" :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
-    [ reshape_expr e ltac:(fun K e' => eapply (tac_wp_load _ _ _ K))
+    [ reshape_expr e ltac:(fun K e' => eapply (tac_wp_load _ _ _ _ K))
     | fail 1 "wp_load: cannot find 'Load' in" e
     ];
     [ tc_solve
