@@ -86,5 +86,10 @@ theories/std/condition.v
 theories/std/latch1.v
 theories/std/unix.v
 
+theories/persistent/base.v
+theories/persistent/pstack.v
+theories/persistent/pqueue.v
+theories/persistent/parray.v
+
 theories/eio/base.v
 theories/eio/rcfd.v
