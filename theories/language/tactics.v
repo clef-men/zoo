@@ -1,14 +1,14 @@
 From stdpp Require Import
   fin_maps.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Export
+From zebre Require Export
   language.
-From zebra Require Import
+From zebre Require Import
   options.
 
-Create HintDb zebra.
+Create HintDb zebre.
 
 Ltac reshape_expr e tac :=
   let rec go K vs e :=
@@ -99,30 +99,30 @@ Ltac invert_head_step :=
 ) =>
   eexists _, _, _, _;
   simpl
-: zebra.
+: zebre.
 #[global] Hint Extern 0 (
   head_reducible_no_obs _ _
 ) =>
   eexists _, _, _;
   simpl
-: zebra.
+: zebre.
 
 #[global] Hint Extern 1 (
   head_step _ _ _ _ _ _
 ) =>
   econstructor
-: zebra.
+: zebre.
 #[global] Hint Extern 0 (
   head_step (Cas _ _ _) _ _ _ _ _
 ) =>
   eapply head_step_cas
-: zebra.
+: zebre.
 #[global] Hint Extern 0 (
   head_step (Alloc _ _) _ _ _ _ _
 ) => apply head_step_alloc'
-: zebra.
+: zebre.
 #[global] Hint Extern 0 (
   head_step Proph _ _ _ _ _
 ) =>
   apply head_step_proph'
-: zebra.
+: zebre.

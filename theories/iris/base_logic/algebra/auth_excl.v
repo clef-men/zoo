@@ -3,11 +3,11 @@ From iris.bi Require Import
 From iris.base_logic Require Import
   bi.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.algebra Require Import
+From zebre.iris.algebra Require Import
   lib.auth_excl.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Section upred.

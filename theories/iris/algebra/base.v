@@ -4,7 +4,7 @@ From iris.algebra Require Export
   frac
   dfrac.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Import
+From zebre Require Import
   options.

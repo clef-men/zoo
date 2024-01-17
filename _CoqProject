@@ -2,7 +2,7 @@
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 
--Q theories zebra
+-Q theories zebre
 
 theories/prelude/base.v
 theories/prelude/tactics.v

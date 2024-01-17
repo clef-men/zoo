@@ -1,9 +1,9 @@
 From stdpp Require Export
   relations.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Import
+From zebre Require Import
   options.
 
 #[global] Instance ge_reflexive :

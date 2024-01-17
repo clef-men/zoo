@@ -1,14 +1,14 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   opt
   lst.
-From zebra.persistent Require Export
+From zebre.persistent Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types v t lst : val.
@@ -32,8 +32,8 @@ Definition pstack_pop : val :=
         &Some ("v", "t'")
     end.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Definition pstack_model t vs : iProp Σ :=
     lst_model t vs.
@@ -108,7 +108,7 @@ Section zebra_G.
     - iApply (wp_lst_match_Cons with "Hlst"); first done. iIntros "%lst' #Hlst' /=".
       iSpecialize ("HΦ" $! (Some (v, lst')%V)). iSteps. iFrame "#∗".
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque pstack_empty.
 #[global] Opaque pstack_is_empty.

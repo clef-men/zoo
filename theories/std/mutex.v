@@ -1,13 +1,13 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   excl.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.
@@ -35,14 +35,14 @@ Definition mutex_protect : val :=
     mutex_unlock "t" ;;
     "res".
 
-Class MutexG Σ `{zebra_G : !ZebraG Σ} := {
+Class MutexG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] mutex_G :: ExclG Σ unitO ;
 }.
 
 Definition mutex_Σ := #[
   excl_Σ unitO
 ].
-#[global] Instance subG_mutex_Σ Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_mutex_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG mutex_Σ Σ →
   MutexG Σ.
 Proof.

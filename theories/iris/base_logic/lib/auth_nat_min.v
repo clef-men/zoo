@@ -1,14 +1,14 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   relations.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.auth_mono.
-From zebra.iris.base_logic Require Export
+From zebre.iris.base_logic Require Export
   lib.base.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Class AuthNatMinG Σ := {

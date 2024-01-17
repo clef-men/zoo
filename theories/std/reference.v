@@ -1,15 +1,15 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition reference_type t : iProp Σ :=
@@ -61,4 +61,4 @@ Section zebra_G.
   Proof.
     iSteps.
   Qed.
-End zebra_G.
+End zebre_G.

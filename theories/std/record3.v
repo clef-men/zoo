@@ -1,11 +1,11 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types l : loc.
@@ -17,8 +17,8 @@ Definition record3_make : val :=
     "l".[#2] <- "v₂" ;;
     "l".
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Definition record3_model l dq₀ v₀ dq₁ v₁ dq₂ v₂ : iProp Σ :=
     l.[0] ↦{dq₀} v₀ ∗
@@ -282,7 +282,7 @@ Section zebra_G.
   Proof.
     iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque record3_make.
 

@@ -1,8 +1,8 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   rules.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Class iType (PROP : bi) (τ : val → PROP) := {
@@ -72,7 +72,7 @@ Section basic_types.
 End basic_types.
 
 Section other_types.
-  Context `{zebra_G : !ZebraG Σ}.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Implicit Types v fn : val.
 

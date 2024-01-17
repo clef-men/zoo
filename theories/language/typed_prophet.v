@@ -1,8 +1,8 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   rules.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
 
@@ -17,7 +17,7 @@ Record typed_strong_prophet_spec := {
 }.
 #[global] Arguments Build_typed_strong_prophet_spec {_ _ _} _ : assert.
 
-Record typed_strong_prophet `{zebra_G : !ZebraG Σ} := {
+Record typed_strong_prophet `{zebre_G : !ZebreG Σ} := {
   typed_strong_prophet_type : Type ;
   typed_strong_prophet_to_val : typed_strong_prophet_type → val * val ;
 
@@ -55,7 +55,7 @@ Record typed_strong_prophet `{zebra_G : !ZebraG Σ} := {
 #[global] Opaque typed_strong_prophet_model.
 
 Section make_typed_strong_prophet.
-  Context `{zebra_G : !ZebraG Σ} (spec : typed_strong_prophet_spec).
+  Context `{zebre_G : !ZebreG Σ} (spec : typed_strong_prophet_spec).
 
   #[local] Fixpoint make_typed_strong_prophet_process prophs :=
     match prophs with
@@ -110,7 +110,7 @@ Record typed_prophet_spec := {
 }.
 #[global] Arguments Build_typed_prophet_spec {_ _ _} _ : assert.
 
-Record typed_prophet `{zebra_G : !ZebraG Σ} := {
+Record typed_prophet `{zebre_G : !ZebreG Σ} := {
   typed_prophet_type : Type ;
   typed_prophet_to_val : typed_prophet_type → val ;
 
@@ -147,7 +147,7 @@ Record typed_prophet `{zebra_G : !ZebraG Σ} := {
 #[global] Opaque typed_prophet_model.
 
 Section make_typed_prophet.
-  Context `{zebra_G : !ZebraG Σ} (spec : typed_prophet_spec).
+  Context `{zebre_G : !ZebreG Σ} (spec : typed_prophet_spec).
 
   #[local] Program Definition make_typed_prophet_strong_prophet_spec := {|
     typed_strong_prophet_spec_type :=
@@ -223,7 +223,7 @@ Next Obligation.
   apply typed_prophet1_spec_of_to_val.
 Qed.
 
-Record typed_prophet1 `{zebra_G : !ZebraG Σ} := {
+Record typed_prophet1 `{zebre_G : !ZebreG Σ} := {
   typed_prophet1_type : Type ;
   typed_prophet1_to_val : typed_prophet1_type → val ;
 
@@ -255,7 +255,7 @@ Record typed_prophet1 `{zebra_G : !ZebraG Σ} := {
 #[global] Opaque typed_prophet1_model.
 
 Section make_typed_prophet1.
-  Context `{zebra_G : !ZebraG Σ} (spec : typed_prophet1_spec).
+  Context `{zebre_G : !ZebreG Σ} (spec : typed_prophet1_spec).
 
   #[local] Definition make_typed_prophet1_prophet :=
     make_typed_prophet spec.

@@ -1,20 +1,20 @@
 From Coq Require Import
   ZifyNat.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   math.
-From zebra.iris.bi Require Import
+From zebre.iris.bi Require Import
   big_op.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   for_upto.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i j n : nat.
@@ -121,8 +121,8 @@ Definition chunk_cset : val :=
   λ: "t" "sz" "i" "v",
 "t".["i" `rem` "sz"] <- "v".
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Section chunk_model.
     Definition chunk_model l dq vs : iProp Σ :=
@@ -3857,7 +3857,7 @@ Section zebra_G.
     iModIntro. iSplitR "HΦ"; last iSteps. iExists (<[i `mod` sz := v]> vs).
     iSteps. rewrite insert_length //.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque chunk_make.
 #[global] Opaque chunk_foldli.

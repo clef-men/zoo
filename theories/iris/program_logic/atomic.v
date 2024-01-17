@@ -7,11 +7,11 @@ From iris.base_logic Require Import
 From iris.program_logic Require Export
   weakestpre.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Section atomic_acc.

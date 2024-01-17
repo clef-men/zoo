@@ -1,16 +1,16 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.bi Require Import
+From zebre.iris.bi Require Import
   big_op.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   assume
   chunk.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i j n : nat.
@@ -149,8 +149,8 @@ Definition array_cset : val :=
   λ: "t" "i" "v",
     chunk_cset (array_data "t") (array_size "t") "i" "v".
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Section array_inv.
     Definition array_inv t (sz : nat) : iProp Σ :=
@@ -2523,7 +2523,7 @@ Section zebra_G.
     wp_smart_apply (chunk_cget_type with "Hdata"); [done.. |].
     iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque array_create.
 #[global] Opaque array_make.

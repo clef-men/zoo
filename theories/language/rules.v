@@ -6,18 +6,18 @@ From iris.program_logic Require Export
 From iris.program_logic Require Import
   ectx_lifting.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra.iris.bi Require Import
+From zebre.iris.bi Require Import
   big_op.
-From zebra.language Require Export
+From zebre.language Require Export
   typeclass_instances.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   notations.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types l : loc.
@@ -28,39 +28,39 @@ Implicit Types v w : val.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
 
-Class ZebraGpre Σ := {
-  #[global] zebra_Gpre_inv_Gpre :: invGpreS Σ;
-  #[local] zebra_Gpre_heap_Gpre :: gen_heapGpreS loc val Σ;
-  #[local] zebra_Gpre_prophecy_Gpre :: proph_mapGpreS prophecy_id (val * val) Σ;
+Class ZebreGpre Σ := {
+  #[global] zebre_Gpre_inv_Gpre :: invGpreS Σ;
+  #[local] zebre_Gpre_heap_Gpre :: gen_heapGpreS loc val Σ;
+  #[local] zebre_Gpre_prophecy_Gpre :: proph_mapGpreS prophecy_id (val * val) Σ;
 }.
 
-Definition zebra_Σ := #[
+Definition zebre_Σ := #[
   invΣ ;
   gen_heapΣ loc val ;
   proph_mapΣ prophecy_id (val * val)
 ].
-#[global] Instance subG_zebra_Σ Σ :
-  subG zebra_Σ Σ →
-  ZebraGpre Σ.
+#[global] Instance subG_zebre_Σ Σ :
+  subG zebre_Σ Σ →
+  ZebreGpre Σ.
 Proof.
   solve_inG.
 Qed.
 
-Class ZebraG Σ := {
-  zebra_G_inv_G : invGS Σ ;
-  #[global] zebra_G_heap_G :: gen_heapGS loc val Σ ;
-  #[global] zebra_G_prophecy_map_G :: proph_mapGS prophecy_id (val * val) Σ ;
+Class ZebreG Σ := {
+  zebre_G_inv_G : invGS Σ ;
+  #[global] zebre_G_heap_G :: gen_heapGS loc val Σ ;
+  #[global] zebre_G_prophecy_map_G :: proph_mapGS prophecy_id (val * val) Σ ;
 }.
-#[global] Arguments Build_ZebraG _ {_ _ _} : assert.
+#[global] Arguments Build_ZebreG _ {_ _ _} : assert.
 
-Definition zebra_state_interp `{zebra_G : !ZebraG Σ} σ (_ : nat) κ (_ : nat) : iProp Σ :=
+Definition zebre_state_interp `{zebre_G : !ZebreG Σ} σ (_ : nat) κ (_ : nat) : iProp Σ :=
   gen_heap_interp σ.(state_heap) ∗
   proph_map_interp κ σ.(state_prophs).
-#[global] Program Instance zebra_G_iris_G `{zebra_G : !ZebraG Σ} : irisGS zebra Σ := {
+#[global] Program Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : irisGS zebre Σ := {
   iris_invGS :=
-    zebra_G_inv_G ;
+    zebre_G_inv_G ;
   state_interp :=
-    zebra_state_interp ;
+    zebre_state_interp ;
   fork_post _ :=
     True%I ;
   num_laters_per_step n :=
@@ -70,14 +70,14 @@ Next Obligation.
   intros. iSteps.
 Qed.
 
-Lemma zebra_init `{zebra_Gpre : !ZebraGpre Σ} `{inv_G : !invGS Σ} σ ns κ nt :
+Lemma zebre_init `{zebre_Gpre : !ZebreGpre Σ} `{inv_G : !invGS Σ} σ ns κ nt :
   ⊢ |==>
-    ∃ zebra_G : ZebraG Σ,
+    ∃ zebre_G : ZebreG Σ,
     state_interp σ ns κ nt.
 Proof.
   iMod (gen_heap_init σ.(state_heap)) as (?) "(Hσ & _)".
   iMod (proph_map_init κ σ.(state_prophs)) as "(% & Hκ)".
-  iExists (Build_ZebraG Σ). iFrame. iSteps.
+  iExists (Build_ZebreG Σ). iFrame. iSteps.
 Qed.
 
 Notation "l ↦ dq v" := (
@@ -94,8 +94,8 @@ Notation "l ↦∗ dq vs" :=
   format "l  ↦∗ dq  vs"
 ) : bi_scope.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Lemma big_sepM_heap_array (Φ : loc → val → iProp Σ) l vs :
     ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
@@ -122,7 +122,7 @@ Section zebra_G.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
-    iSplit; first auto with zebra. iIntros "!> %e2 %σ2 %es %Hstep _".
+    iSplit; first auto with zebre. iIntros "!> %e2 %σ2 %es %Hstep _".
     invert_head_step.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ (replicate (Z.to_nat n) v)) with "Hσ1") as "($ & Hl & Hmeta)".
@@ -159,7 +159,7 @@ Section zebra_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     iFrame. iSteps.
   Qed.
@@ -177,7 +177,7 @@ Section zebra_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -198,7 +198,7 @@ Section zebra_G.
     iIntros "%Hw %Hcomparable %Φ >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     rewrite bool_decide_false //.
     iFrame. iSteps.
@@ -218,7 +218,7 @@ Section zebra_G.
     iIntros (->) "%Hcomparable %Φ >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     rewrite bool_decide_true //.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
@@ -238,7 +238,7 @@ Section zebra_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -251,7 +251,7 @@ Section zebra_G.
   Proof.
     iIntros "Hwp HΦ".
     iApply wp_lift_atomic_head_step; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
-    iSplit; first auto with zebra. iIntros "!> %v2 %σ2 %es %Hstep _".
+    iSplit; first auto with zebre. iIntros "!> %v2 %σ2 %es %Hstep _".
     invert_head_step.
     iFrame. iSteps.
   Qed.
@@ -266,7 +266,7 @@ Section zebra_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    iSplit; first eauto with zebra. iIntros "%e2 %σ2 %es %Hstep !> _".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
     invert_head_step.
     iMod (proph_map_new_proph p with "Hκ") as "(Hκ & Hp)"; first done.
     iFrame. iSteps.
@@ -348,4 +348,4 @@ Section zebra_G.
       iDestruct "Hwp" as "(HΦ & $)".
       iSteps.
   Qed.
-End zebra_G.
+End zebre_G.

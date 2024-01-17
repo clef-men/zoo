@@ -2,11 +2,11 @@ From stdpp Require Import
   gmap
   stringmap.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Export
+From zebre Require Export
   language.
-From zebra Require Import
+From zebre Require Import
   options.
 
 #[local] Definition set_binder_insert x X : stringset :=

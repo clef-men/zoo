@@ -1,13 +1,13 @@
 From iris.algebra Require Import
   excl.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.base_logic Require Export
+From zebre.iris.base_logic Require Export
   lib.base.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Class ExclG Σ F := {

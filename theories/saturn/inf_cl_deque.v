@@ -4,27 +4,27 @@ From Coq.Logic Require Import
 From iris.algebra Require Import
   list.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   list.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.excl
   lib.auth_excl
   lib.auth_nat_max
   lib.mono_list.
-From zebra.language Require Import
+From zebre.language Require Import
   identifier
   wise_prophet
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   record4
   inf_array
   opt.
-From zebra.saturn Require Export
+From zebre.saturn Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types front : nat.
@@ -88,7 +88,7 @@ Next Obligation.
   intros (front & id) v ->. simplify. rewrite Nat2Z.id //.
 Qed.
 
-Class InfClDequeG Σ `{zebra_G : !ZebraG Σ} := {
+Class InfClDequeG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_cl_deque_G_inf_array_G :: InfArrayG Σ ;
   #[local] inf_cl_deque_G_ctl_G :: AuthExclG Σ (ZO * (nat -d> valO)) ;
   #[local] inf_cl_deque_G_front_G :: AuthNatMaxG Σ ;
@@ -109,7 +109,7 @@ Definition inf_cl_deque_Σ := #[
   wise_prophet_Σ inf_cl_deque_prophet_spec ;
   auth_excl_Σ (natO * (valO -d> ▶ ∙))
 ].
-#[global] Instance subG_inf_cl_deque_Σ Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_inf_cl_deque_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG inf_cl_deque_Σ Σ →
   InfClDequeG Σ .
 Proof.

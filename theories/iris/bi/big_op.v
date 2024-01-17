@@ -1,13 +1,13 @@
 From iris.bi Require Export
   big_op.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra.common Require Import
+From zebre.common Require Import
   list.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Section bi.

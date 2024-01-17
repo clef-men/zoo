@@ -1,9 +1,9 @@
 From stdpp Require Export
   list.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Section basic.

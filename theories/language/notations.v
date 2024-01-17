@@ -1,8 +1,8 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Export
+From zebre Require Export
   language.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Coercion LiteralBool : bool >-> literal.

@@ -1,20 +1,20 @@
 From Coq.Logic Require Import
   FunctionalExtensionality.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.auth_excl.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   record3
   array
   mutex.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types l : loc.
@@ -80,7 +80,7 @@ Definition inf_array_set : val :=
       )
     ).
 
-Class InfArrayG Σ `{zebra_G : !ZebraG Σ} := {
+Class InfArrayG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_array_G_mutex_G :: MutexG Σ ;
   #[local] inf_array_G_model_G :: AuthExclG Σ (nat -d> valO) ;
 }.
@@ -89,7 +89,7 @@ Definition inf_array_Σ := #[
   mutex_Σ ;
   auth_excl_Σ (nat -d> valO)
 ].
-#[global] Instance subG_inf_array_Σ Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_inf_array_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG inf_array_Σ Σ →
   InfArrayG Σ .
 Proof.

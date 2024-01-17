@@ -1,15 +1,15 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.agree
   lib.mono_list.
-From zebra.language Require Export
+From zebre.language Require Export
   typed_prophet.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
 
-Record wise_strong_prophet `{zebra_G : !ZebraG Σ} := {
+Record wise_strong_prophet `{zebre_G : !ZebreG Σ} := {
   wise_strong_prophet_type : Type ;
   wise_strong_prophet_to_val : wise_strong_prophet_type → val * val ;
 
@@ -69,7 +69,7 @@ Record wise_strong_prophet `{zebra_G : !ZebraG Σ} := {
 #[global] Opaque wise_strong_prophet_model.
 #[global] Opaque wise_strong_prophet_lb.
 
-Class WiseStrongProphetG Σ `{zebra_G : !ZebraG Σ} spec := {
+Class WiseStrongProphetG Σ `{zebre_G : !ZebreG Σ} spec := {
   #[local] wise_strong_prophet_G_full_G :: AgreeG Σ (leibnizO (list spec.(typed_strong_prophet_spec_type))) ;
   #[local] wise_strong_prophet_G_past_G :: MonoListG Σ spec.(typed_strong_prophet_spec_type) ;
 }.
@@ -78,7 +78,7 @@ Definition wise_strong_prophet_Σ spec := #[
   agree_Σ (leibnizO (list spec.(typed_strong_prophet_spec_type))) ;
   mono_list_Σ spec.(typed_strong_prophet_spec_type)
 ].
-#[global] Instance subG_wise_strong_prophet_Σ Σ `{zebra_G : !ZebraG Σ} spec :
+#[global] Instance subG_wise_strong_prophet_Σ Σ `{zebre_G : !ZebreG Σ} spec :
   subG (wise_strong_prophet_Σ spec) Σ →
   WiseStrongProphetG Σ spec.
 Proof.
@@ -86,7 +86,7 @@ Proof.
 Qed.
 
 Section make_wise_prophet_G.
-  Context `{zebra_G : !ZebraG Σ} spec `{wise_prophet_G : !WiseStrongProphetG Σ spec}.
+  Context `{zebre_G : !ZebreG Σ} spec `{wise_prophet_G : !WiseStrongProphetG Σ spec}.
 
   Definition make_wise_strong_prophet_typed_prophet :=
     make_typed_strong_prophet spec.
@@ -168,7 +168,7 @@ Section make_wise_prophet_G.
   Qed.
 End make_wise_prophet_G.
 
-Record wise_prophet `{zebra_G : !ZebraG Σ} := {
+Record wise_prophet `{zebre_G : !ZebreG Σ} := {
   wise_prophet_type : Type ;
   wise_prophet_to_val : wise_prophet_type → val ;
 
@@ -227,7 +227,7 @@ Record wise_prophet `{zebra_G : !ZebraG Σ} := {
 #[global] Opaque wise_prophet_model.
 #[global] Opaque wise_prophet_lb.
 
-Class WiseProphetG Σ `{zebra_G : !ZebraG Σ} spec := {
+Class WiseProphetG Σ `{zebre_G : !ZebreG Σ} spec := {
   #[local] wise_prophet_G_full_G :: AgreeG Σ (leibnizO (list (val * spec.(typed_prophet_spec_type)))) ;
   #[local] wise_prophet_G_past_G :: MonoListG Σ (val * spec.(typed_prophet_spec_type)) ;
 }.
@@ -236,7 +236,7 @@ Definition wise_prophet_Σ spec := #[
   agree_Σ (leibnizO (list (val * spec.(typed_prophet_spec_type)))) ;
   mono_list_Σ (val * spec.(typed_prophet_spec_type))
 ].
-#[global] Instance subG_wise_prophet_Σ Σ `{zebra_G : !ZebraG Σ} spec :
+#[global] Instance subG_wise_prophet_Σ Σ `{zebre_G : !ZebreG Σ} spec :
   subG (wise_prophet_Σ spec) Σ →
   WiseProphetG Σ spec.
 Proof.
@@ -244,7 +244,7 @@ Proof.
 Qed.
 
 Section make_wise_prophet.
-  Context `{zebra_G : !ZebraG Σ} spec `{wise_prophet_G : !WiseProphetG Σ spec}.
+  Context `{zebre_G : !ZebreG Σ} spec `{wise_prophet_G : !WiseProphetG Σ spec}.
 
   #[local] Program Definition make_wise_prophet_strong_prophet_spec := {|
     typed_strong_prophet_spec_type :=

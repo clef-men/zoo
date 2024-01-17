@@ -1,22 +1,22 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   gmultiset.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.auth_gmultiset
   lib.auth_mono.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   record2
   opt
   latch1
   unix.
-From zebra.eio Require Export
+From zebre.eio Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b closing : bool.
@@ -286,7 +286,7 @@ Inductive rcfd_lstep : relation rcfd_lstate :=
       rcfd_lstep RcfdLstateClosingUsers RcfdLstateClosingNoUsers.
 #[local] Hint Constructors rcfd_lstep : core.
 
-Class RcfdG Σ `{zebra_G : !ZebraG Σ} := {
+Class RcfdG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] rcfd_G_latch1_G :: Latch1G Σ ;
   #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp ;
   #[local] rcfd_G_lstate_G :: AuthMonoG Σ rcfd_lstep ;
@@ -297,7 +297,7 @@ Definition rcfd_Σ := #[
   auth_gmultiset_Σ Qp ;
   auth_mono_Σ rcfd_lstep
 ].
-#[global] Instance subG_rcfd_Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_rcfd_Σ `{zebre_G : !ZebreG Σ} :
   subG rcfd_Σ Σ →
   RcfdG Σ.
 Proof.

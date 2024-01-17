@@ -3,11 +3,11 @@ From iris.program_logic Require Export
   ectx_language
   ectxi_language.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   semantics.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types e : expr.
@@ -17,7 +17,7 @@ Implicit Types K : ectx.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
 
-Lemma zebra_mixin :
+Lemma zebre_mixin :
   EctxiLanguageMixin of_val to_val ectxi_fill head_step.
 Proof.
   split.
@@ -31,12 +31,12 @@ Proof.
     head_step_ectxi_fill_val.
 Qed.
 
-Canonical zebra_ectxi_lang :=
-  EctxiLanguage zebra_mixin.
-Canonical zebra_ectx_lang :=
-  EctxLanguageOfEctxi zebra_ectxi_lang.
-Canonical zebra :=
-  LanguageOfEctx zebra_ectx_lang.
+Canonical zebre_ectxi_lang :=
+  EctxiLanguage zebre_mixin.
+Canonical zebre_ectx_lang :=
+  EctxLanguageOfEctxi zebre_ectxi_lang.
+Canonical zebre :=
+  LanguageOfEctx zebre_ectx_lang.
 
 Lemma to_val_fill_some K e v :
   to_val (fill K e) = Some v →

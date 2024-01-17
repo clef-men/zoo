@@ -1,17 +1,17 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.oneshot
   lib.excl.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   record3
   condition.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.
@@ -64,7 +64,7 @@ Definition latch1_wait : val :=
       condition_wait_until "cond" "mtx" (λ: <>, !"t".[flag])
     ).
 
-Class Latch1G Σ `{zebra_G : !ZebraG Σ} := {
+Class Latch1G Σ `{zebre_G : !ZebreG Σ} := {
   #[local] latch1_G_mutex_G :: MutexG Σ ;
   #[local] latch1_G_producer_G :: OneshotG Σ unit unit ;
   #[local] latch1_G_consumer_G :: ExclG Σ unitO ;
@@ -75,7 +75,7 @@ Definition latch1_Σ := #[
   oneshot_Σ unit unit ;
   excl_Σ unitO
 ].
-#[global] Instance subG_latch1_Σ Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_latch1_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG latch1_Σ Σ →
   Latch1G Σ .
 Proof.

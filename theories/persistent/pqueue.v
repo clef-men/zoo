@@ -1,14 +1,14 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   opt
   lst.
-From zebra.persistent Require Export
+From zebre.persistent Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types v t back front : val.
@@ -46,8 +46,8 @@ Definition pqueue_pop : val :=
       &Some (lst_head "t".[front], ("t".[back], lst_tail "t".[front]))
     ).
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Definition pqueue_model t vs : iProp Σ :=
     ∃ back vs_back front vs_front,
@@ -151,7 +151,7 @@ Section zebra_G.
       { iSteps. list_simplifier. rewrite reverse_cons //. }
       iSteps; iFrame "#∗".
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque pqueue_empty.
 #[global] Opaque pqueue_is_empty.

@@ -1,11 +1,11 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types δ : nat.
@@ -25,8 +25,8 @@ Notation "'for:' i = beg 'to' _end 'begin' e 'end'" :=
   format "'[hv' for:  i  =  beg  to  _end  begin  '/  ' '[' e ']'  '/' end ']'"
 ) : expr_scope.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   #[local] Lemma for_upto_spec_stronger beg i δ Ψ _end fn :
     i = (beg + δ)%Z →
@@ -391,6 +391,6 @@ Section zebra_G.
     iIntros "%Φ #Hfn HΦ".
     wp_apply (for_upto_spec_disentangled (λ _ _, True%I)); iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque for_upto.

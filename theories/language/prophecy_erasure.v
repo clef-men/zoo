@@ -1,12 +1,12 @@
 From iris.program_logic Require Export
   adequacy.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   tactics
   notations.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i : nat.
@@ -20,7 +20,7 @@ Implicit Types k : ectxi.
 Implicit Types K : ectx.
 Implicit Types h : gmap loc val.
 Implicit Types σ : state.
-Implicit Types ρ : cfg zebra.
+Implicit Types ρ : cfg zebre.
 
 Definition erase_literal lit :=
   match lit with
@@ -186,7 +186,7 @@ Definition erase_state σ :=
     state_prophs := ∅ ;
   |}.
 
-Definition erase_cfg ρ : cfg zebra :=
+Definition erase_cfg ρ : cfg zebre :=
   (erase_tp ρ.1, erase_state ρ.2).
 
 Lemma erase_to_val e v :

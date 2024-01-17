@@ -1,13 +1,13 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   dynarray.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types v t : val.
@@ -24,8 +24,8 @@ Definition stack_push :=
 Definition stack_pop :=
   dynarray_pop.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Definition stack_model t vs :=
     dynarray_model t (reverse vs).
@@ -92,7 +92,7 @@ Section zebra_G.
     wp_apply (dynarray_pop_spec with "Ht"); last iSteps.
     rewrite reverse_cons //.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque stack_create.
 #[global] Opaque stack_is_empty.

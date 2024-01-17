@@ -1,12 +1,12 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i j : nat.
@@ -102,8 +102,8 @@ Fixpoint lst_to_val vs :=
 Definition lst_model' t vs :=
   t = lst_to_val vs.
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Definition lst_model t vs : iProp Σ :=
     ⌜lst_model' t vs⌝.
@@ -138,7 +138,7 @@ Section zebra_G.
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 Definition lst_singleton : val :=
   λ: "v",
@@ -262,8 +262,8 @@ Definition lst_map : val :=
   λ: "t" "fn",
     lst_mapi "t" (λ: <>, "fn").
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Lemma lst_singleton_spec v :
     {{{ True }}}
@@ -1432,7 +1432,7 @@ Section zebra_G.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque lst_singleton.
 #[global] Opaque lst_head.

@@ -1,11 +1,11 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Definition minimum : val :=
@@ -16,8 +16,8 @@ Definition maximum : val :=
   λ: "n1" "n2",
     if: "n1" < "n2" then "n2" else "n1".
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Section Z.
     Implicit Types n : Z.
@@ -58,7 +58,7 @@ Section zebra_G.
       iIntros "HΦ". iApply maximum_spec. rewrite Nat2Z.inj_max //.
     Qed.
   End nat.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque minimum.
 #[global] Opaque maximum.

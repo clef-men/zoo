@@ -1,26 +1,26 @@
 From iris.algebra Require Import
   list.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   relations
   list.
-From zebra.iris.base_logic Require Import
+From zebre.iris.base_logic Require Import
   lib.excl
   lib.auth_excl
   lib.auth_nat_max
   lib.mono_list.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   record3
   opt
   array.
-From zebra.saturn Require Export
+From zebre.saturn Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i sz : nat.
@@ -84,7 +84,7 @@ Definition spsc_queue_pop : val :=
       &&None
     ).
 
-Class SpscQueueG Σ `{zebra_G : !ZebraG Σ} := {
+Class SpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] spsc_queue_G_model_G :: AuthExclG Σ (listO valO) ;
   #[local] spsc_queue_G_history_G :: MonoListG Σ val ;
   #[local] spsc_queue_G_ctl_G :: AuthNatMaxG Σ ;
@@ -97,7 +97,7 @@ Definition spsc_queue_Σ := #[
   auth_nat_max_Σ ;
   excl_Σ unitO
 ].
-Lemma subG_spsc_queue_Σ Σ `{zebra_G : !ZebraG Σ} :
+Lemma subG_spsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG spsc_queue_Σ Σ →
   SpscQueueG Σ.
 Proof.

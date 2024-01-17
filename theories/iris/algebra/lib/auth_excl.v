@@ -2,13 +2,13 @@ From iris.algebra Require Import
   excl
   proofmode_classes.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.algebra Require Export
+From zebre.iris.algebra Require Export
   base.
-From zebra.iris.algebra Require Import
+From zebre.iris.algebra Require Import
   lib.auth_option.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Definition auth_excl A :=

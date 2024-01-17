@@ -13,21 +13,21 @@ From diaframe Require Import
 From diaframe Require Export
   spec_notation.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   proofmode.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Class PureExecNoRec ϕ n e1 e2 :=
-  is_pure_exec : PureExec (Λ := zebra) ϕ n e1 e2.
+  is_pure_exec : PureExec (Λ := zebre) ϕ n e1 e2.
 
 Unset Universe Polymorphism.
 
 Section instances.
-  Context `{zebra_G : !ZebraG Σ}.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Open Scope expr_scope.
 
@@ -214,7 +214,7 @@ Section instances.
 End instances.
 
 Section unfold_functions.
-  Context `{zebra_G : !ZebraG Σ}.
+  Context `{zebre_G : !ZebreG Σ}.
 
   Fixpoint occurs_in (s : string) (body : expr) : bool :=
     match body with
@@ -312,11 +312,11 @@ Ltac find_reshape e K e' TC :=
 #[global] Hint Extern 4 (
   ReshapeExprAnd (language.expr ?L) ?e ?K ?e' ?TC
 ) =>
-  unify L zebra;
+  unify L zebre;
   find_reshape e K e' TC
 : typeclass_instances.
 
-#[global] Arguments zebra : simpl never.
+#[global] Arguments zebre : simpl never.
 
 Unset Universe Polymorphism.
 

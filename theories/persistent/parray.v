@@ -1,17 +1,17 @@
 From iris.base_logic Require Import
   lib.ghost_map.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   notations
   diaframe.
-From zebra.std Require Import
+From zebre.std Require Import
   array.
-From zebra.persistent Require Export
+From zebre.persistent Require Export
   base.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types i : nat.
@@ -149,14 +149,14 @@ Definition parray_set : val :=
       "t'"
     ).
 
-Class ParrayG Σ `{zebra_G : !ZebraG Σ} := {
+Class ParrayG Σ `{zebre_G : !ZebreG Σ} := {
   parray_G_map_G : ghost_mapG Σ loc (list val) ;
 }.
 
 Definition parray_Σ := #[
   ghost_mapΣ loc (list val)
 ].
-#[global] Instance subG_parray_Σ Σ `{zebra_G : !ZebraG Σ} :
+#[global] Instance subG_parray_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG parray_Σ Σ →
   ParrayG Σ.
 Proof.

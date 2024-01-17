@@ -1,6 +1,6 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   rules.
-From zebra Require Import
+From zebre Require Import
   options.

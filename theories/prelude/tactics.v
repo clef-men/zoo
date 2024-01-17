@@ -1,7 +1,7 @@
 From Coq.Program Require Import
   Tactics.
 
-From zebra.prelude Require Export
+From zebre.prelude Require Export
   base.
 
 Ltac done :=

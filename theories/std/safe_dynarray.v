@@ -1,15 +1,15 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.common Require Import
+From zebre.common Require Import
   list.
-From zebra.iris.bi Require Import
+From zebre.iris.bi Require Import
   big_op.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   diverge
   assume
   record2
@@ -17,7 +17,7 @@ From zebra.std Require Import
   reference
   opt
   array.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.
@@ -168,8 +168,8 @@ Definition safe_dynarray_reset : val :=
     safe_dynarray_set_size "t" #0 ;;
     safe_dynarray_set_data "t" (array_create #()).
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
@@ -999,7 +999,7 @@ Section zebra_G.
     wp_apply (safe_dynarray_set_data_type with "[$Htype $Hdata_type']").
     iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque safe_dynarray_create.
 #[global] Opaque safe_dynarray_make.

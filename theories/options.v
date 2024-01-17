@@ -1,4 +1,4 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
 
 #[export] Set Default Proof Using "Type*".

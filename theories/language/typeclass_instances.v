@@ -1,12 +1,12 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Export
+From zebre Require Export
   language.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   metatheory
   notations.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types e : expr.

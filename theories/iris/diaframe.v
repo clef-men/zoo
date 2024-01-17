@@ -4,9 +4,9 @@ From iris.proofmode Require Export
 From diaframe Require Export
   proofmode_base.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Import
+From zebre Require Import
   options.
 
 (* FIXME: some goals are solved by [done] but not by [iSmash] *)

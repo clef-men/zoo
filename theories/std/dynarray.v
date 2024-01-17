@@ -1,15 +1,15 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   base.
-From zebra.std Require Import
+From zebre.std Require Import
   record2
   math
   array.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.
@@ -114,8 +114,8 @@ Definition dynarray_reset : val :=
     "t".[size] <- #0 ;;
     "t".[data] <- array_create #().
 
-Section zebra_G.
-  Context `{zebra_G : !ZebraG Σ}.
+Section zebre_G.
+  Context `{zebre_G : !ZebreG Σ}.
 
   #[local] Definition dynarray_model_inner l (sz : nat) data vs : iProp Σ :=
     l.[size] ↦ #sz ∗
@@ -544,7 +544,7 @@ Section zebra_G.
     wp_store.
     iSteps. iExists 0. iSteps.
   Qed.
-End zebra_G.
+End zebre_G.
 
 #[global] Opaque dynarray_create.
 #[global] Opaque dynarray_make.

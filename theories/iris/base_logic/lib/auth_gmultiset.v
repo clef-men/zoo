@@ -1,15 +1,15 @@
 From iris.algebra Require Import
   gmultiset.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris.algebra Require Import
+From zebre.iris.algebra Require Import
   auth.
-From zebra.iris.base_logic Require Export
+From zebre.iris.base_logic Require Export
   lib.base.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Class AuthGmultisetG Σ A `{Countable A} := {

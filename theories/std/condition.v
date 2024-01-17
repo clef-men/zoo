@@ -1,11 +1,11 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   notations
   diaframe.
-From zebra.std Require Export
+From zebre.std Require Export
   mutex.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.

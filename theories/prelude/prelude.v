@@ -1,3 +1,3 @@
-From zebra.prelude Require Export
+From zebre.prelude Require Export
   base
   tactics.

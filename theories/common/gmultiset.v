@@ -1,9 +1,9 @@
 From stdpp Require Export
   gmultiset.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Section lemmas.

@@ -1,23 +1,23 @@
 From iris.program_logic Require Export
   adequacy.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.iris Require Import
+From zebre.iris Require Import
   diaframe.
-From zebra Require Export
+From zebre Require Export
   language.
-From zebra.language Require Import
+From zebre.language Require Import
   rules.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types σ : state.
 
-Definition zebra_adequacy Σ `{zebra_Gpre : !ZebraGpre Σ} e σ ϕ :
-  ( ∀ `{zebra_G : !ZebraG Σ},
+Definition zebre_adequacy Σ `{zebre_Gpre : !ZebreGpre Σ} e σ ϕ :
+  ( ∀ `{zebre_G : !ZebreG Σ},
     ⊢ WP e @ ⊤ {{ v, ⌜ϕ v⌝ }}
   ) →
   adequate NotStuck e σ (λ v σ, ϕ v).
@@ -26,10 +26,10 @@ Proof.
   apply adequate_alt. intros t2 σ2 (n & (κ & ?))%erased_steps_nsteps.
   eapply (wp_strong_adequacy Σ _); last done.
   iIntros "%Hinv_G".
-  iMod zebra_init as "(%zebra_G & Hsi)".
-  iDestruct (Hwp (Build_ZebraG Σ)) as "Hwp".
+  iMod zebre_init as "(%zebre_G & Hsi)".
+  iDestruct (Hwp (Build_ZebreG Σ)) as "Hwp".
   iModIntro.
-  iExists zebra_state_interp, [(λ v, ⌜ϕ v⌝%I)], (λ _, True%I), _ => /=.
+  iExists zebre_state_interp, [(λ v, ⌜ϕ v⌝%I)], (λ _, True%I), _ => /=.
   iFrame. iStep. iIntros (es' t2' -> Hes' Hnot_stuck) " _ Hϕ _".
   iApply fupd_mask_intro_discard; first done. iSplit; last done.
   iDestruct (big_sepL2_cons_inv_r with "Hϕ") as (e' ? ->) "(Hϕ & _)".

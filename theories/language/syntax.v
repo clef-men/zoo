@@ -6,11 +6,11 @@ From stdpp Require Export
 From iris.algebra Require Import
   ofe.
 
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Export
+From zebre.language Require Export
   loc.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types b : bool.

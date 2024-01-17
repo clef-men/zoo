@@ -1,12 +1,12 @@
-From zebra Require Import
+From zebre Require Import
   prelude.
-From zebra.language Require Import
+From zebre.language Require Import
   tactics
   notations.
-From zebra.std Require Import
+From zebre.std Require Import
   record2
   record3.
-From zebra Require Import
+From zebre Require Import
   options.
 
 Implicit Types r : loc.
@@ -217,12 +217,12 @@ Definition store_restore : val :=
       )
     ).
 
-Class StoreG Σ `{zebra_G : !ZebraG Σ} := {
+Class StoreG Σ `{zebre_G : !ZebreG Σ} := {
 }.
 
 Definition store_Σ := #[
 ].
-Lemma subG_store_Σ Σ `{zebra_G : !ZebraG Σ} :
+Lemma subG_store_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG store_Σ Σ →
   StoreG Σ.
 Proof.

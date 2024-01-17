@@ -1,7 +1,7 @@
 name:
-  "coq-zebra"
+  "coq-zebre"
 synopsis:
-  "Zebra"
+  "Zebre"
 opam-version:
   "2.0"
 maintainer:
@@ -10,9 +10,9 @@ authors: [
   "Clément Allain"
 ]
 homepage:
-  "https://github.com/clef-men/zebra"
+  "https://github.com/clef-men/zebre"
 bug-reports:
-  "https://github.com/clef-men/zebra/issues"
+  "https://github.com/clef-men/zebre/issues"
 depends: [
   "coq" {= "8.17.1"}
   "coq-stdpp" {= "dev.2023-06-01.0.d1254759"}
