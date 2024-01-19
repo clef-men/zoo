@@ -856,14 +856,14 @@ Section inf_cl_deque_G.
     iApply "HΦ". iFrame.
   Qed.
 
-  #[local] Lemma inf_cl_deque_wp_resolve_inconsistent_1 l γ ι data p front id prophs_lb v1 v2 :
+  #[local] Lemma inf_cl_deque_wp_resolve_inconsistent_1 l γ ι data p front id prophs_lb (front1 front2 : Z) :
     head $ filter (λ '(front', _), front' = front) prophs_lb = None →
     {{{
       inf_array_inv data ∗
       inv ι (inf_cl_deque_inv_inner l γ ι data p) ∗
       inf_cl_deque_prophet.(wise_prophet_lb) γ.(inf_cl_deque_meta_prophet) prophs_lb
     }}}
-      Resolve (Cas #l.[front] v1 v2) #p (#front, #id)%V
+      Resolve (Cas #l.[front] #front1 #front2) #p (#front, #id)%V
     {{{ v,
       RET v; False
     }}}.
@@ -906,7 +906,7 @@ Section inf_cl_deque_G.
     (* do resolve *)
     wp_apply (inf_cl_deque_prophet.(wise_prophet_wp_resolve) (front, id) with "Hprophet_model"); [done.. |].
     (* Cas must fail as we are not the winner: [id ≠ id'] *)
-    wp_cas as ? | _Hfront; first simplify.
+    wp_cas as _Hfront | ?; last simplify; last first.
     { iModIntro. iIntros "%prophs' -> Hprophet_model".
       rewrite filter_app filter_cons_True // in Hprophs_lb.
       destruct (filter _ past2) as [| (__front & id'')] eqn:Hpast2; first naive_solver.
@@ -1066,8 +1066,6 @@ Section inf_cl_deque_G.
     { repeat iExists _. iFrame. done. }
     clear- Hback.
 
-    wp_pures.
-
     (* → [!#l.[data]] *)
     wp_load.
 
@@ -1180,10 +1178,10 @@ Section inf_cl_deque_G.
     iIntros "!> %Φ (%l & %γ & %data & %p & -> & #Hmeta & #Hdata & #Hp & #Harray_inv & #Hinv) HΦ".
     iLöb as "IH".
 
-    wp_rec. wp_pures.
+    wp_rec.
 
     (* → [Id] *)
-    wp_apply (wp_id with "[//]") as "%id Hid".
+    wp_smart_apply (wp_id with "[//]") as "%id Hid".
 
     wp_pures.
 
@@ -1249,8 +1247,6 @@ Section inf_cl_deque_G.
       (* → [if: #(bool_decide (front1 < back2))] *)
       rewrite bool_decide_eq_true_2; first done.
 
-      wp_pures.
-
       (* → [!#l.[prophecy]] *)
       wp_load.
 
@@ -1263,7 +1259,7 @@ Section inf_cl_deque_G.
       (* do resolve *)
       wp_apply (inf_cl_deque_prophet.(wise_prophet_wp_resolve) (front1, id) with "Hprophet_model"); [done.. |].
       (* branching 3: Cas must fail as we have seen [front2] such that [front1 < front2] *)
-      wp_cas as ? | _Hbranch3; first simplify.
+      wp_cas as _Hbranch3 | ?; last simplify; last first.
       { iDestruct (inf_cl_deque_front_valid with "Hfront_auth Hfront_lb") as %?.
         lia.
       }
@@ -1287,10 +1283,8 @@ Section inf_cl_deque_G.
       }
       clear- Hbranch1 Hbranch2 Hbranch3.
 
-      wp_pures.
-
       (* → [inf_cl_deque_steal #l] *)
-      wp_apply ("IH" with "HΦ").
+      wp_smart_apply ("IH" with "HΦ").
     }
     (* we are in state 2 *)
     unfold_state. iDestruct "Hstate" as "[(%Hstate & _) | [(_ & Hhist_auth & %Hhist & Hstate) | (_ & [(%Hstate & _) | (%Hstate & _)])]]"; try lia.
@@ -1317,15 +1311,11 @@ Section inf_cl_deque_G.
       (* → [if: #(bool_decide (front1 < back2))] *)
       rewrite bool_decide_eq_true_2; first done.
 
-      wp_pures.
-
       (* → [!#l.[prophecy]] *)
       wp_load.
 
-      wp_pures.
-
       (* inconsistent prophecy resolution *)
-      wp_apply (inf_cl_deque_wp_resolve_inconsistent_1 with "[$Harray_inv $Hinv $Hprophet_lb]") as "% []"; first done.
+      wp_smart_apply (inf_cl_deque_wp_resolve_inconsistent_1 with "[$Harray_inv $Hinv $Hprophet_lb]") as "% []"; first done.
     }
     (* branching 4: enforce [id' = id] *)
     destruct (decide (id' = id)) as [-> | Hbranch4]; first last.
@@ -1343,20 +1333,14 @@ Section inf_cl_deque_G.
       (* → [if: #(bool_decide (front1 < back2))] *)
       rewrite bool_decide_eq_true_2; first done.
 
-      wp_pures.
-
       (* → [!#l.[prophecy]] *)
       wp_load.
 
-      wp_pures.
-
       (* Cas must fail as we are not the winner *)
-      wp_apply (inf_cl_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]") as "_"; [done.. |].
-
-      wp_pures.
+      wp_smart_apply (inf_cl_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]") as "_"; [done.. |].
 
       (* → [inf_cl_deque_steal #l] *)
-      wp_apply ("IH" with "HΦ").
+      wp_smart_apply ("IH" with "HΦ").
     }
     (* we now know we are the next winner *)
     (* we own the winner tokens *)
@@ -1387,8 +1371,6 @@ Section inf_cl_deque_G.
 
     (* → [if: #(bool_decide (front1 < back2))] *)
     rewrite bool_decide_eq_true_2; first done.
-
-    wp_pures.
 
     (* → [!#l.[prophecy]] *)
     wp_load.
@@ -1454,10 +1436,8 @@ Section inf_cl_deque_G.
       iModIntro.
       clear- Hbranch1 Hbranch3.
 
-      wp_pures.
-
       (* → [array.(inf_array_get) !#l.[data] #front1] *)
-      wp_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
 
       wp_pures.
 
@@ -1490,10 +1470,8 @@ Section inf_cl_deque_G.
       }
       clear- Hbranch1 Hbranch3.
 
-      wp_pures.
-
       (* → [array.(inf_array_get) !#l.[data] #front1] *)
-      wp_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
 
       wp_pures.
 
@@ -1695,10 +1673,8 @@ Section inf_cl_deque_G.
       + (* → [if: #(bool_decide (back - 1 < front3))] *)
         rewrite bool_decide_eq_true_2; first lia.
 
-        wp_pures.
-
         (* → [array.(inf_array_get) !#l.[data] #(back - 1)] *)
-        wp_apply (inf_cl_deque_wp_get_priv with "[$Harray_inv $Hinv $Hdata $Hctl₂ $Hlock]") as "(Hctl₂ & Hlock)"; first done.
+        wp_smart_apply (inf_cl_deque_wp_get_priv with "[$Harray_inv $Hinv $Hdata $Hctl₂ $Hlock]") as "(Hctl₂ & Hlock)"; first done.
 
         wp_pures.
 
@@ -1708,8 +1684,6 @@ Section inf_cl_deque_G.
       (* branch 2.2: [front3 = back - 1] *)
       + (* → [if: #(bool_decide (front3 < front3))] *)
         rewrite bool_decide_eq_false_2; first lia.
-
-        wp_pures.
 
         (* → [!#l.[prophecy]] *)
         wp_load.
@@ -1788,10 +1762,8 @@ Section inf_cl_deque_G.
         }
         clear.
 
-        wp_pures.
-
         (* → [array.(inf_array_get) !#l.[data] #front3] *)
-        wp_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
 
         wp_pures.
 
@@ -1865,15 +1837,11 @@ Section inf_cl_deque_G.
         (* → [if: #(bool_decide (front2 < front2))] *)
         rewrite bool_decide_eq_false_2; first lia.
 
-        wp_pures.
-
         (* → [!#l.[prophecy]] *)
         wp_load.
 
-        wp_pures.
-
         (* inconsistent prophecy resolution *)
-        wp_apply (inf_cl_deque_wp_resolve_inconsistent_1 with "[$Harray_inv $Hinv $Hprophet_lb]") as "% []"; first done.
+        wp_smart_apply (inf_cl_deque_wp_resolve_inconsistent_1 with "[$Harray_inv $Hinv $Hprophet_lb]") as "% []"; first done.
       }
       (* branching 3 *)
       destruct (decide (id' = id)) as [-> | Hbranch3].
@@ -1932,8 +1900,6 @@ Section inf_cl_deque_G.
 
         (* → [if: #(bool_decide (front2 < front2))] *)
         rewrite bool_decide_eq_false_2; first lia.
-
-        wp_pures.
 
         (* → [!#l.[prophecy]] *)
         wp_load.
@@ -1994,10 +1960,8 @@ Section inf_cl_deque_G.
         }
         clear- Hbranch2.
 
-        wp_pures.
-
         (* → [array.(inf_array_get) !#l.[data] #front2] *)
-        wp_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
 
         wp_pures.
 
@@ -2061,15 +2025,11 @@ Section inf_cl_deque_G.
           (* → [if: #(bool_decide (front2 < front2))] *)
           rewrite bool_decide_eq_false_2; first lia.
 
-          wp_pures.
-
           (* → [!#l.[prophecy]] *)
           wp_load.
 
-          wp_pures.
-
           (* inconsistent prophecy resolution *)
-          wp_apply (inf_cl_deque_wp_resolve_inconsistent_2 with "[$Harray_inv $Hinv $Hctl₂ $Hfront_lb $Hprophet_lb $Hwinner₂]"); [done.. |]. iIntros "[]".
+          wp_smart_apply (inf_cl_deque_wp_resolve_inconsistent_2 with "[$Harray_inv $Hinv $Hctl₂ $Hfront_lb $Hprophet_lb $Hwinner₂]"); [done.. |]. iIntros "[]".
 
         (* branch 4.2: winning thief did show up *)
         * iDestruct "Hstate" as "(Hid' & %Φ' & Hwinner₁ & HΦ')".
@@ -2144,15 +2104,11 @@ Section inf_cl_deque_G.
               (* → [if: #(bool_decide (front2 < front2))] *)
               rewrite bool_decide_eq_false_2; first lia.
 
-              wp_pures.
-
               (* → [!#l.[prophecy]] *)
               wp_load.
 
-              wp_pures.
-
               (* Cas must fail as we are not the winner *)
-              wp_apply (inf_cl_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]"); [done.. |]. iClear "Hfront_lb". iIntros "Hfront_lb".
+              wp_smart_apply (inf_cl_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]"); [done.. |]. iClear "Hfront_lb". iIntros "Hfront_lb".
 
               wp_pures.
 

@@ -552,7 +552,7 @@ Section rcfd_G.
     wp_rec. wp_pures.
 
     wp_bind (Faa _ _).
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops1 & Hfd1 & Hstate1 & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops & Hfd & Hstate1 & Hlstate_auth & Hlstate1)".
     wp_faa.
     iSplitR "HΦ".
     { iDestruct "H" as "[(%q & Htokens_frag & Hmodel) | #Hlstate_lb]".
@@ -597,7 +597,7 @@ Section rcfd_G.
     wp_pures. destruct (decide (ops1 = 1)) as [-> | Hops]; wp_pures; last iSteps.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops2 & Hfd2 & #Hstate2 & Hlstate_auth & Hlstate2)".
+    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops & Hfd & #Hstate2 & Hlstate_auth & Hlstate2)".
     wp_load.
     destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2].
 
@@ -621,7 +621,7 @@ Section rcfd_G.
       wp_load. wp_pures.
 
       wp_bind (!_)%E.
-      iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & %l_state3 & Hops3 & Hfd3 & #Hstate3 & Hlstate_auth & Hlstate3)".
+      iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & %l_state3 & Hops & Hfd & #Hstate3 & Hlstate_auth & Hlstate3)".
       wp_load.
       iDestruct (rcfd_lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
 
@@ -643,8 +643,8 @@ Section rcfd_G.
         wp_rec. wp_alloc closed as "Hclosed". wp_pures.
 
         wp_bind (Cas _ _ _).
-        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & %l_state4 & Hops4 & Hfd4 & #Hstate4 & Hlstate_auth & Hlstate4)".
-        wp_cas as [= <-] | Hcas; last iSteps.
+        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & %l_state4 & Hops & Hfd & #Hstate4 & Hlstate_auth & Hlstate4)".
+        wp_cas as Hcas | [= <-]; first iSteps.
         iDestruct (rcfd_lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
         iDestruct (mapsto_agree with "Hstate2 Hstate4") as %[= <-]%(inj _).
@@ -691,7 +691,7 @@ Section rcfd_G.
     wp_rec. wp_pures.
 
     wp_bind (Faa _ _).
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops1 & Hfd1 & Hstate1 & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops & Hfd & Hstate1 & Hlstate_auth & Hlstate1)".
     wp_faa.
     iAssert (|==>
       rcfd_inv_inner l γ fd chars ∗
@@ -726,7 +726,7 @@ Section rcfd_G.
     iModIntro. wp_pures. clear.
 
     wp_bind (!#l.[fd])%E.
-    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops2 & Hfd2 & #Hstate2 & Hlstate_auth & Hlstate2)".
+    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops & Hfd & #Hstate2 & Hlstate_auth & Hlstate2)".
     wp_load.
     destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2].
 
@@ -768,7 +768,7 @@ Section rcfd_G.
     wp_rec. wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops1 & Hfd1 & #Hstate1 & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops & Hfd & #Hstate1 & Hlstate_auth & Hlstate1)".
     wp_load.
     destruct (decide (lstate1 = RcfdLstateOpen)) as [-> | Hlstate1].
 
@@ -786,8 +786,19 @@ Section rcfd_G.
       wp_pures.
 
       wp_bind (Cas _ _ _).
-      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops2 & Hfd2 & #Hstate2 & Hlstate_auth & Hlstate2)".
-      wp_cas as [= <-] | Hcas.
+      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops & Hfd & #Hstate2 & Hlstate_auth & Hlstate2)".
+      wp_cas as Hcas | [= <-].
+
+      + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
+        { destruct lstate2; iDecompose "Hlstate2".
+          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
+            iSteps.
+          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
+            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
+            iSteps.
+        }
+        iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
+        iSteps.
 
       + iDestruct (mapsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
         destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2]; last first.
@@ -812,7 +823,7 @@ Section rcfd_G.
         wp_pures.
 
         wp_bind (!_)%E.
-        iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & %l_state3 & Hops3 & Hfd3 & #Hstate3 & Hlstate_auth & Hlstate3)".
+        iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & %l_state3 & Hops & Hfd & #Hstate3 & Hlstate_auth & Hlstate3)".
         wp_load.
         destruct (decide (ops3 = 0)) as [-> | Hops3]; last iSteps.
         iDestruct (rcfd_lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
@@ -827,8 +838,8 @@ Section rcfd_G.
         wp_rec. wp_alloc closed as "Hclosed". wp_pures.
 
         wp_bind (Cas _ _ _).
-        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & %l_state4 & Hops4 & Hfd4 & #Hstate4 & Hlstate_auth & Hlstate4)".
-        wp_cas as [= <-] | Hcas; last iSteps.
+        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & %l_state4 & Hops & Hfd & #Hstate4 & Hlstate_auth & Hlstate4)".
+        wp_cas as Hcas | [= <-]; first iSteps.
 
         iDestruct (rcfd_lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
@@ -837,17 +848,6 @@ Section rcfd_G.
         iModIntro. clear.
 
         wp_smart_apply (wp_wand with "Hfn4").
-        iSteps.
-
-      + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2".
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
-            iSteps.
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
-            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
-            iSteps.
-        }
-        iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iSteps.
 
     - iAssert (⌜∃ fn1, state1 = RcfdStateClosing fn1⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn1 & ->) & #Hlstate_lb)".
@@ -919,7 +919,7 @@ Section rcfd_G.
     wp_rec. wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops1 & Hfd1 & #Hstate1 & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & %l_state1 & Hops & Hfd & #Hstate1 & Hlstate_auth & Hlstate1)".
     wp_load.
     destruct (decide (lstate1 = RcfdLstateOpen)) as [-> | Hlstate1].
 
@@ -939,8 +939,19 @@ Section rcfd_G.
       wp_pures.
 
       wp_bind (Cas _ _ _).
-      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops2 & Hfd2 & #Hstate2 & Hlstate_auth & Hlstate2)".
-      wp_cas as [= <-] | Hcas.
+      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & %l_state2 & Hops & Hfd & #Hstate2 & Hlstate_auth & Hlstate2)".
+      wp_cas as Hcas | [= <-].
+
+      + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
+        { destruct lstate2; iDecompose "Hlstate2".
+          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
+            iSteps.
+          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
+            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
+            iSteps.
+        }
+        iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
+        iSteps. iApply ("HΦ" $! None). iSteps.
 
       + iDestruct (mapsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
         destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2]; last first.
@@ -964,17 +975,6 @@ Section rcfd_G.
 
         wp_smart_apply (latch1_wait_spec with "[$Hchan_inv $Hchan_consumer]") as "Hmodel".
         iSteps. iApply ("HΦ" $! (Some _)). iSteps.
-
-      + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2".
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
-            iSteps.
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
-            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
-            iSteps.
-        }
-        iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
-        iSteps. iApply ("HΦ" $! None). iSteps.
 
     - iAssert (⌜∃ fn1, state1 = RcfdStateClosing fn1⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn1 & ->) & #Hlstate_lb)".
       { destruct lstate1; iDecompose "Hlstate1".

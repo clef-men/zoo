@@ -50,6 +50,11 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+  #[global] Instance equal_atomic a v1 v2 :
+    Atomic a (Equal (Val v1) (v2)).
+  Proof.
+    solve_atomic.
+  Qed.
   #[global] Instance if_true_atomic a v1 e2 :
     Atomic a (If (Val $ ValLiteral $ LiteralBool true) (Val v1) e2).
   Proof.
@@ -155,12 +160,16 @@ Definition ValRec_as_ValRec f x e : AsValRec (ValRec f x e) f x e :=
 
 Section pure_exec.
   #[local] Ltac solve_exec_safe :=
-    intros; subst; do 3 eexists; econstructor; eauto.
+    intros; subst;
+    eauto 10 with zebre.
   #[local] Ltac solve_exec_puredet :=
-    simpl; intros; by invert_head_step.
+    intros;
+    invert_head_step; done.
   #[local] Ltac solve_pure_exec :=
-    subst; intros ?; apply nsteps_once, pure_head_step_pure_step;
-    constructor; [solve_exec_safe | solve_exec_puredet].
+    intros ?; destruct_and?;
+    apply nsteps_once, pure_head_step_pure_step;
+    try (case_bool_decide; first subst);
+    (split; [solve_exec_safe | solve_exec_puredet]).
 
   #[global] Instance pure_rec f x e :
     PureExec
@@ -194,23 +203,39 @@ Section pure_exec.
       (binop_eval op v1 v2 = Some v')
       1
       (Binop op (Val v1) (Val v2))
-      (Val v')
+      (Val v').
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_literal lit1 lit2 :
+    PureExec
+      (literal_physical lit1 ∧ literal_physical lit2)
+      1
+      (Equal (Val $ ValLiteral lit1) (Val $ ValLiteral lit2))
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (lit1 = lit2))
+  | 1.
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_literal_not_literal lit1 v2 :
+    PureExec
+      (literal_physical lit1 ∧ val_not_literal v2)
+      1
+      (Equal (Val $ ValLiteral lit1) (Val v2))
+      (Val $ ValLiteral $ LiteralBool false)
   | 10.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_eqop v1 v2 :
+  #[global] Instance pure_equal_not_literal_literal v1 lit2 :
     PureExec
-      (val_comparable v1 v2)
+      (val_not_literal v1 ∧ literal_physical lit2)
       1
-      (Binop BinopEq (Val v1) (Val v2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (v1 = v2))
-  | 1.
+      (Equal (Val v1) (Val $ ValLiteral lit2))
+      (Val $ ValLiteral $ LiteralBool false)
+  | 10.
   Proof.
-    intros Hcompare.
-    cut (binop_eval BinopEq v1 v2 = Some $ ValLiteral $ LiteralBool $ bool_decide (v1 = v2)).
-    { intros. revert Hcompare. solve_pure_exec. }
-    rewrite /binop_eval /= decide_True //.
+    solve_pure_exec.
   Qed.
   #[global] Instance pure_if_true e1 e2 :
     PureExec

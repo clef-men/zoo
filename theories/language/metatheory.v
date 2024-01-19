@@ -25,11 +25,26 @@ Fixpoint expr_closed X e :=
       bool_decide (x ∈ X)
   | Rec f x e =>
       expr_closed (set_binder_insert f (set_binder_insert x X)) e
-  | Unop _ e | Fst e | Snd e | Injl e | Injr e | Fork e | Load e =>
+  | Unop _ e
+  | Fst e
+  | Snd e
+  | Injl e
+  | Injr e
+  | Fork e
+  | Load e =>
      expr_closed X e
-  | App e1 e2 | Binop _ e1 e2 | Pair e1 e2 | Alloc e1 e2 | Store e1 e2 | Faa e1 e2 =>
+  | App e1 e2
+  | Binop _ e1 e2
+  | Equal e1 e2
+  | Pair e1 e2
+  | Alloc e1 e2
+  | Store e1 e2
+  | Faa e1 e2 =>
      expr_closed X e1 && expr_closed X e2
-  | If e0 e1 e2 | Case e0 e1 e2 | Cas e0 e1 e2 | Resolve e0 e1 e2 =>
+  | If e0 e1 e2
+  | Case e0 e1 e2
+  | Cas e0 e1 e2
+  | Resolve e0 e1 e2 =>
      expr_closed X e0 && expr_closed X e1 && expr_closed X e2
   | Proph =>
       true
@@ -42,7 +57,8 @@ with val_closed v :=
       expr_closed (set_binder_insert f (set_binder_insert x ∅)) e
   | ValPair v1 v2 =>
       val_closed v1 && val_closed v2
-  | ValInjl v | ValInjr v =>
+  | ValInjl v
+  | ValInjr v =>
       val_closed v
   end.
 
@@ -60,6 +76,8 @@ Fixpoint subst_map (vs : gmap string val) e :=
       Unop op (subst_map vs e)
   | Binop op e1 e2 =>
       Binop op (subst_map vs e1) (subst_map vs e2)
+  | Equal e1 e2 =>
+      Equal (subst_map vs e1) (subst_map vs e2)
   | If e0 e1 e2 =>
       If (subst_map vs e0) (subst_map vs e1) (subst_map vs e2)
   | Pair e1 e2 =>

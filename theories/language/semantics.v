@@ -19,7 +19,7 @@ Implicit Types e : expr.
 Implicit Types v w : val.
 Implicit Types vs : list val.
 
-Definition literal_unboxed lit :=
+Definition literal_physical lit :=
   match lit with
   | LiteralUnit
   | LiteralBool _
@@ -30,24 +30,39 @@ Definition literal_unboxed lit :=
   | LiteralPoison =>
       False
   end.
-#[global] Arguments literal_unboxed !_ / : assert.
+#[global] Arguments literal_physical !_ / : assert.
 
-Definition val_unboxed v :=
+Definition val_physical v :=
   match v with
   | ValLiteral lit =>
-      literal_unboxed lit
+      literal_physical lit
   | _ =>
-      False
+      True
   end.
-#[global] Arguments val_unboxed !_ / : assert.
+#[global] Arguments val_physical !_ / : assert.
 
-#[global] Instance literal_unboxed_dec lit : Decision (literal_unboxed lit) :=
-  ltac:(destruct lit; simpl; exact (decide _)).
-#[global] Instance val_unboxed_dec v : Decision (val_unboxed v) :=
-  ltac:(destruct v as [ | | | [] | []]; simpl; exact (decide _)).
+Lemma val_not_literal_physical v :
+  val_not_literal v →
+  val_physical v.
+Proof.
+  destruct v; done.
+Qed.
 
-Definition val_comparable v1 v2 :=
-  val_unboxed v2 ∨ val_unboxed v1.
+Definition val_physically_distinct v1 v2 :=
+  match v1, v2 with
+  | ValLiteral lit1, ValLiteral lit2 =>
+      lit1 ≠ lit2
+  | _, _ =>
+      True
+  end.
+#[global] Arguments val_physically_distinct !_ !_ / : assert.
+
+Lemma val_not_literal_physically_distinct v1 v2 :
+  val_not_literal v1 ∨ val_not_literal v2 →
+  val_physically_distinct v1 v2.
+Proof.
+  destruct v1, v2; naive_solver.
+Qed.
 
 Definition unop_eval op v :=
   match op, v with
@@ -80,30 +95,20 @@ Definition binop_eval_int op n1 n2 :=
       LiteralBool (bool_decide (n1 >= n2))
   | BinopGt =>
       LiteralBool (bool_decide (n1 > n2))
-  | BinopEq =>
-      LiteralBool (bool_decide (n1 = n2))
-  | BinopNe =>
-      LiteralBool (bool_decide (n1 ≠ n2))
   end%Z.
 #[global] Arguments binop_eval_int !_ _ _ / : assert.
 Definition binop_eval op v1 v2 :=
-  if decide (op = BinopEq) then
-    if decide (val_comparable v1 v2) then
-      Some $ ValLiteral $ LiteralBool $ bool_decide (v1 = v2)
-    else
+  match v1, v2 with
+  | ValLiteral (LiteralInt n1), ValLiteral (LiteralInt n2) =>
+      Some $ ValLiteral $ binop_eval_int op n1 n2
+  | ValLiteral (LiteralLoc l), ValLiteral (LiteralInt n) =>
+      if decide (op = BinopPlus) then
+        Some $ ValLiteral $ LiteralLoc (l +ₗ n)
+      else
+        None
+  | _, _ =>
       None
-    else
-      match v1, v2 with
-      | ValLiteral (LiteralInt n1), ValLiteral (LiteralInt n2) =>
-          Some $ ValLiteral $ binop_eval_int op n1 n2
-      | ValLiteral (LiteralLoc l), ValLiteral (LiteralInt n) =>
-          if decide (op = BinopPlus) then
-            Some $ ValLiteral $ LiteralLoc (l +ₗ n)
-          else
-            None
-      | _, _ =>
-          None
-      end.
+  end.
 #[global] Arguments binop_eval !_ !_ !_ / : assert.
 
 Fixpoint subst (x : string) v e :=
@@ -120,6 +125,8 @@ Fixpoint subst (x : string) v e :=
       Unop op (subst x v e)
   | Binop op e1 e2 =>
       Binop op (subst x v e1) (subst x v e2)
+  | Equal e1 e2 =>
+      Equal (subst x v e1) (subst x v e2)
   | If e0 e1 e2 =>
       If (subst x v e0) (subst x v e1) (subst x v e2)
   | Pair e1 e2 =>
@@ -276,6 +283,23 @@ Inductive head_step : expr → state → list observation → expr → state →
         []
         (Val v') σ
         []
+  | head_step_equal_fail v1 v2 σ :
+      val_physical v1 →
+      val_physical v2 →
+      val_physically_distinct v1 v2 →
+      head_step
+        (Equal (Val v1) (Val v2)) σ
+        []
+        (Val $ ValLiteral $ LiteralBool false) σ
+        []
+  | head_step_equal_suc v1 v2 σ :
+      val_physical v1 →
+      v1 = v2 →
+      head_step
+        (Equal (Val v1) (Val v2)) σ
+        []
+        (Val $ ValLiteral $ LiteralBool true) σ
+        []
   | head_step_if_true e1 e2 σ :
       head_step
         (If (Val $ ValLiteral $ LiteralBool true) e1 e2) σ
@@ -356,14 +380,24 @@ Inductive head_step : expr → state → list observation → expr → state →
         []
         (Val $ ValLiteral LiteralUnit) (state_update_heap <[l := v]> σ)
         []
-  | head_step_cas l v1 v2 v σ b :
+  | head_step_cas_fail l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
-      val_comparable v v1 →
-      b = bool_decide (v = v1) →
+      val_physical v →
+      val_physical v1 →
+      val_physically_distinct v v1 →
       head_step
         (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2)) σ
         []
-        (Val $ ValLiteral $ LiteralBool b) (if b then state_update_heap <[l := v2]> σ else σ)
+        (Val $ ValLiteral $ LiteralBool false) σ
+        []
+  | head_step_cas_suc l v1 v2 v σ :
+      σ.(state_heap) !! l = Some v →
+      val_physical v →
+      v = v1 →
+      head_step
+        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2)) σ
+        []
+        (Val $ ValLiteral $ LiteralBool true) (state_update_heap <[l := v2]> σ)
         []
   | head_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValLiteral $ LiteralInt m →
@@ -429,6 +463,8 @@ Inductive ectxi :=
   | CtxUnop (op : unop)
   | CtxBinopL (op : binop) v2
   | CtxBinopR (op : binop) e1
+  | CtxEqualL v2
+  | CtxEqualR e1
   | CtxIf e1 e2
   | CtxPairL v2
   | CtxPairR e1
@@ -464,6 +500,10 @@ Fixpoint ectxi_fill k e : expr :=
       Binop op e (Val v2)
   | CtxBinopR op e1 =>
       Binop op e1 e
+  | CtxEqualL v2 =>
+      Equal e (Val v2)
+  | CtxEqualR e1 =>
+      Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
   | CtxPairL v2 =>

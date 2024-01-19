@@ -193,12 +193,12 @@ Notation "e1 > e2" := (
   Binop BinopGt e1%E e2%E
 ) : expr_scope.
 Notation "e1 = e2" := (
-  Binop BinopEq e1%E e2%E
+  Equal e1%E e2%E
 )(at level 70,
   no associativity
 ) : expr_scope.
 Notation "e1 ≠ e2" := (
-  Binop BinopNe e1%E e2%E
+  Unop UnopNeg (Equal e1%E e2%E)
 )(at level 70,
   no associativity
 ) : expr_scope.

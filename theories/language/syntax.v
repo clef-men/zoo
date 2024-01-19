@@ -93,7 +93,7 @@ Qed.
 
 Inductive binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
-  | BinopLe | BinopLt | BinopGe | BinopGt | BinopEq | BinopNe.
+  | BinopLe | BinopLt | BinopGe | BinopGt.
 
 #[global] Instance binop_eq_dec : EqDecision binop :=
   ltac:(solve_decision).
@@ -111,8 +111,6 @@ Proof.
     | BinopLt => 6
     | BinopGe => 7
     | BinopGt => 8
-    | BinopEq => 9
-    | BinopNe => 10
   end.
   pose decode op :=
     match op with
@@ -124,9 +122,7 @@ Proof.
     | 5 => BinopLe
     | 6 => BinopLt
     | 7 => BinopGe
-    | 8 => BinopGt
-    | 9 => BinopEq
-    | _ => BinopNe
+    | _ => BinopGt
   end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -138,6 +134,7 @@ Inductive expr :=
   | App (e1 e2 : expr)
   | Unop (op : unop) (e : expr)
   | Binop (op : binop) (e1 e2 : expr)
+  | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
   | Pair (e1 e2 : expr)
   | Fst (e : expr)
@@ -166,6 +163,21 @@ Canonical valO :=
   leibnizO val.
 Canonical exprO :=
   leibnizO expr.
+
+Definition val_not_literal v :=
+  match v with
+  | ValLiteral _ =>
+      False
+  | _ =>
+      True
+  end.
+#[global] Arguments val_not_literal !_ / : assert.
+
+Lemma val_literal_or_not_literal v :
+  (∃ lit, v = ValLiteral lit) ∨ val_not_literal v.
+Proof.
+  destruct v; naive_solver.
+Qed.
 
 Notation of_val :=
   Val
@@ -229,6 +241,10 @@ Proof.
            (decide (op1 = op2))
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | Equal e11 e12, Equal e21 e22 =>
+          cast_if_and
+            (decide (e11 = e21))
+            (decide (e12 = e22))
       | If e10 e11 e12, If e20 e21 e22 =>
          cast_if_and3
            (decide (e10 = e20))
@@ -317,6 +333,45 @@ Proof.
 Defined.
 #[global] Instance val_eq_dec : EqDecision val :=
   ltac:(solve_decision).
+Variant encode_leaf :=
+  | EncodeString (x : string)
+  | EncodeBinder x
+  | EncodeUnop (op : unop)
+  | EncodeBinop (op : binop)
+  | EncodeLiteral lit.
+#[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
+  ltac:(solve_decision).
+#[local] Instance encode_leaf_countable :
+  Countable encode_leaf.
+Proof.
+  pose encode leaf :=
+    match leaf with
+    | EncodeString x =>
+        inl $ inl $ inl $ inl x
+    | EncodeBinder x =>
+        inl $ inl $ inl $ inr x
+    | EncodeUnop op =>
+        inl $ inl $ inr op
+    | EncodeBinop op =>
+        inl $ inr op
+    | EncodeLiteral lit =>
+        inr lit
+    end.
+  pose decode leaf :=
+    match leaf with
+    | inl (inl (inl (inl x))) =>
+        EncodeString x
+    | inl (inl (inl (inr x))) =>
+        EncodeBinder x
+    | inl (inl (inr op)) =>
+        EncodeUnop op
+    | inl (inr op) =>
+        EncodeBinop op
+    | inr lit =>
+        EncodeLiteral lit
+    end.
+  refine (inj_countable' encode decode _); intros []; done.
+Qed.
 #[global] Instance expr_countable :
   Countable expr.
 Proof.
@@ -326,52 +381,54 @@ Proof.
       | Val v =>
           GenNode 0 [val_go v]
       | Var x =>
-          GenLeaf (inl (inl x))
+          GenLeaf (EncodeString x)
       | Rec f x e =>
-          GenNode 1 [GenLeaf (inl (inr f)); GenLeaf (inl (inr x)); go e]
+          GenNode 1 [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | App e1 e2 =>
           GenNode 2 [go e1; go e2]
       | Unop op e =>
-          GenNode 3 [GenLeaf (inr (inr (inl op))); go e]
+          GenNode 3 [GenLeaf (EncodeUnop op); go e]
       | Binop op e1 e2 =>
-          GenNode 4 [GenLeaf (inr (inr (inr op))); go e1; go e2]
+          GenNode 4 [GenLeaf (EncodeBinop op); go e1; go e2]
+      | Equal e1 e2 =>
+          GenNode 5 [go e1; go e2]
       | If e0 e1 e2 =>
-          GenNode 5 [go e0; go e1; go e2]
+          GenNode 6 [go e0; go e1; go e2]
       | Pair e1 e2 =>
-          GenNode 6 [go e1; go e2]
+          GenNode 7 [go e1; go e2]
       | Fst e =>
-          GenNode 7 [go e]
-      | Snd e =>
           GenNode 8 [go e]
-      | Injl e =>
+      | Snd e =>
           GenNode 9 [go e]
-      | Injr e =>
+      | Injl e =>
           GenNode 10 [go e]
+      | Injr e =>
+          GenNode 11 [go e]
       | Case e0 e1 e2 =>
-          GenNode 11 [go e0; go e1; go e2]
+          GenNode 12 [go e0; go e1; go e2]
       | Alloc e1 e2 =>
-          GenNode 12 [go e1; go e2]
+          GenNode 13 [go e1; go e2]
       | Load e =>
-          GenNode 13 [go e]
+          GenNode 14 [go e]
       | Store e1 e2 =>
-          GenNode 14 [go e1; go e2]
+          GenNode 15 [go e1; go e2]
       | Cas e0 e1 e2 =>
-          GenNode 15 [go e0; go e1; go e2]
+          GenNode 16 [go e0; go e1; go e2]
       | Faa e1 e2 =>
-          GenNode 16 [go e1; go e2]
+          GenNode 17 [go e1; go e2]
       | Fork e =>
-          GenNode 17 [go e]
+          GenNode 18 [go e]
       | Proph =>
-          GenNode 18 []
+          GenNode 19 []
       | Resolve e0 e1 e2 =>
-          GenNode 19 [go e0; go e1; go e2]
+          GenNode 20 [go e0; go e1; go e2]
       end
     with val_go v :=
       match v with
       | ValLiteral lit =>
-          GenLeaf (inr (inl lit))
+          GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
-         GenNode 0 [GenLeaf (inl (inr f)); GenLeaf (inl (inr x)); go e]
+         GenNode 0 [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | ValPair v1 v2 =>
           GenNode 1 [val_go v1; val_go v2]
       | ValInjl v =>
@@ -385,54 +442,56 @@ Proof.
       match _e with
       | GenNode 0 [v] =>
           Val (val_go v)
-      | GenLeaf (inl (inl x)) =>
+      | GenLeaf (EncodeString x) =>
           Var x
-      | GenNode 1 [GenLeaf (inl (inr f)); GenLeaf (inl (inr x)); e] =>
+      | GenNode 1 [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           Rec f x (go e)
       | GenNode 2 [e1; e2] =>
           App (go e1) (go e2)
-      | GenNode 3 [GenLeaf (inr (inr (inl op))); e] =>
+      | GenNode 3 [GenLeaf (EncodeUnop op); e] =>
           Unop op (go e)
-      | GenNode 4 [GenLeaf (inr (inr (inr op))); e1; e2] =>
+      | GenNode 4 [GenLeaf (EncodeBinop op); e1; e2] =>
           Binop op (go e1) (go e2)
-      | GenNode 5 [e0; e1; e2] =>
+      | GenNode 5 [e1; e2] =>
+          Equal (go e1) (go e2)
+      | GenNode 6 [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode 6 [e1; e2] =>
+      | GenNode 7 [e1; e2] =>
           Pair (go e1) (go e2)
-      | GenNode 7 [e] =>
-          Fst (go e)
       | GenNode 8 [e] =>
-          Snd (go e)
+          Fst (go e)
       | GenNode 9 [e] =>
-          Injl (go e)
+          Snd (go e)
       | GenNode 10 [e] =>
+          Injl (go e)
+      | GenNode 11 [e] =>
           Injr (go e)
-      | GenNode 11 [e0; e1; e2] =>
+      | GenNode 12 [e0; e1; e2] =>
           Case (go e0) (go e1) (go e2)
-      | GenNode 12 [e1; e2] =>
+      | GenNode 13 [e1; e2] =>
           Alloc (go e1) (go e2)
-      | GenNode 13 [e] =>
+      | GenNode 14 [e] =>
           Load (go e)
-      | GenNode 14 [e1; e2] =>
+      | GenNode 15 [e1; e2] =>
           Store (go e1) (go e2)
-      | GenNode 15 [e0; e1; e2] =>
+      | GenNode 16 [e0; e1; e2] =>
           Cas (go e0) (go e1) (go e2)
-      | GenNode 16 [e1; e2] =>
+      | GenNode 17 [e1; e2] =>
           Faa (go e1) (go e2)
-      | GenNode 17 [e] =>
+      | GenNode 18 [e] =>
           Fork (go e)
-      | GenNode 18 [] =>
+      | GenNode 19 [] =>
           Proph
-      | GenNode 19 [e0; e1; e2] =>
+      | GenNode 20 [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
       | _ =>
           Val (ValLiteral LiteralUnit)
       end
     with val_go _v :=
       match _v with
-      | GenLeaf (inr (inl lit)) =>
+      | GenLeaf (EncodeLiteral lit) =>
           ValLiteral lit
-      | GenNode 0 [GenLeaf (inl (inr f)); GenLeaf (inl (inr x)); e] =>
+      | GenNode 0 [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
       | GenNode 1 [v1; v2] =>
           ValPair (val_go v1) (val_go v2)
@@ -446,7 +505,7 @@ Proof.
     for go.
   refine (inj_countable' encode decode _).
   refine (fix go e := _ with val_go v := _ for go).
-  - destruct e as [v | | | | | | | | | | | | | | | | | | | |]; simpl; f_equal; [| done..].
+  - destruct e as [v | | | | | | | | | | | | | | | | | | | | |]; simpl; f_equal; [| done..].
     exact (val_go v).
   - destruct v; f_equal; done.
 Qed.

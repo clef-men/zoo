@@ -516,8 +516,12 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar v1);
       assert_fails (has_evar v2);
       eapply injr_neq_val_neq; solve [pure_solver.trySolvePure]
-  | |- val_comparable _ _ =>
-      (by left) || (by right)
+  | |- val_not_literal _ =>
+      done
+  | |- literal_physical _ =>
+      done
+  | |- val_physical _ =>
+      done
   end.
 
 #[global] Hint Extern 4 => trySolvePureAdd1 : solve_pure_add.

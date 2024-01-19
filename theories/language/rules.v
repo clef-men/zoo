@@ -22,6 +22,7 @@ From zebre Require Import
 
 Implicit Types l : loc.
 Implicit Types p : prophecy_id.
+Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types es : list expr.
 Implicit Types v w : val.
@@ -97,6 +98,64 @@ Notation "l ↦∗ dq vs" :=
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
+  Lemma wp_equal v1 v2 E Φ :
+    val_physical v1 →
+    val_physical v2 →
+    ▷ (
+      ( ⌜val_physically_distinct v1 v2⌝ -∗
+        Φ #false
+      ) ∧ (
+        ⌜v1 = v2⌝ -∗
+        Φ #true
+      )
+    ) ⊢
+    WP v1 = v2 @ E {{ Φ }}.
+  Proof.
+    iIntros "% % HΦ".
+    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    destruct
+      (val_literal_or_not_literal v1) as [(lit1 & ->) | Hv1],
+      (val_literal_or_not_literal v2) as [(lit2 & ->) | Hv2].
+    1: destruct (decide (lit1 = lit2)) as [-> | Hne].
+    all: iSplit; first eauto 10 with zebre.
+    all: iIntros "%e2 %σ2 %es %Hstep !> _".
+    - invert_head_step.
+      iDestruct "HΦ" as "(_ & HΦ)".
+      iFrame. iSteps.
+    - invert_head_step.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step; last done.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step; last done.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step.
+      + iDestruct "HΦ" as "(HΦ & _)".
+        iFrame. iSteps.
+      + iDestruct "HΦ" as "(_ & HΦ)".
+        iFrame. iSteps.
+  Qed.
+  Lemma wp_equal_not_literal v1 v2 E Φ :
+    val_not_literal v1 →
+    val_not_literal v2 →
+    ▷ (
+      ( Φ #false
+      ) ∧ (
+        ⌜v1 = v2⌝ -∗
+        Φ #true
+      )
+    ) ⊢
+    WP v1 = v2 @ E {{ Φ }}.
+  Proof.
+    iIntros "%Hv1 %Hv2 HΦ".
+    iApply wp_equal; [eauto with zebre.. |].
+    iSplit.
+    - iDestruct "HΦ" as "(HΦ & _)". iSteps.
+    - iDestruct "HΦ" as "(_ & HΦ)". iSteps.
+  Qed.
+
   Lemma big_sepM_heap_array (Φ : loc → val → iProp Σ) l vs :
     ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
     [∗ list] i ↦ v ∈ vs, Φ l.[i] v.
@@ -110,7 +169,7 @@ Section zebre_G.
     rewrite loc_add_0. iSteps.
     setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- loc_add_assoc. iSteps.
   Qed.
-  Lemma wp_alloc E v n :
+  Lemma wp_alloc n v E :
     (0 < n)%Z →
     {{{ True }}}
       Alloc #n v @ E
@@ -132,7 +191,7 @@ Section zebre_G.
     destruct (Nat.lt_exists_pred 0 (Z.to_nat n)) as (n' & -> & _); first lia.
     iDestruct "Hmeta" as "(Hmeta & _)". rewrite loc_add_0 //.
   Qed.
-  Lemma wp_ref E v :
+  Lemma wp_ref v E :
     {{{ True }}}
       ref v @ E
     {{{ l,
@@ -146,7 +205,7 @@ Section zebre_G.
     iSteps. rewrite loc_add_0 //.
   Qed.
 
-  Lemma wp_load E l dq v :
+  Lemma wp_load l dq v E :
     {{{
       ▷ l ↦{dq} v
     }}}
@@ -164,7 +223,7 @@ Section zebre_G.
     iFrame. iSteps.
   Qed.
 
-  Lemma wp_store E l w v :
+  Lemma wp_store l w v E :
     {{{
       ▷ l ↦ w
     }}}
@@ -183,49 +242,144 @@ Section zebre_G.
     iFrame. iSteps.
   Qed.
 
-  Lemma wp_cas_fail E l dq w v1 v2 :
-    w ≠ v1 →
-    val_comparable w v1 →
+  Lemma wp_cas l dq v v1 v2 E Φ :
+    val_physical v →
+    val_physical v1 →
+    ▷ l ↦{dq} v -∗
+    ▷ (
+      ( ⌜val_physically_distinct v v1⌝ -∗
+        l ↦{dq} v -∗
+        Φ #false
+      ) ∧ (
+        ⌜v = v1⌝ -∗
+        l ↦{dq} v1 -∗
+          ⌜dq = DfracOwn 1⌝ ∗
+          l ↦{dq} v1 ∗
+          ( l ↦ v2 -∗
+            Φ #true
+          )
+      )
+    ) -∗
+    WP Cas #l v1 v2 @ E {{ Φ }}.
+  Proof.
+    iIntros "% % >Hl HΦ".
+    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
+    destruct
+      (val_literal_or_not_literal v) as [(lit & ->) | Hv],
+      (val_literal_or_not_literal v1) as [(lit1 & ->) | Hv1].
+    1: destruct (decide (lit = lit1)) as [-> | Hne].
+    all: iSplit; first eauto 10 with zebre.
+    all: iIntros "%e2 %σ2 %es %Hstep !> _".
+    - invert_head_step.
+      iDestruct "HΦ" as "(_ & HΦ)".
+      iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
+      iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+      iFrame. iSteps.
+    - invert_head_step.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step; last done.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step; last done.
+      iDestruct "HΦ" as "(HΦ & _)".
+      iFrame. iSteps.
+    - invert_head_step.
+      + iDestruct "HΦ" as "(HΦ & _)".
+        iFrame. iSteps.
+      + iDestruct "HΦ" as "(_ & HΦ)".
+        iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
+        iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+        iFrame. iSteps.
+  Qed.
+  Lemma wp_cas_literal l dq lit lit1 v2 E Φ :
+    literal_physical lit →
+    literal_physical lit1 →
+    ▷ l ↦{dq} #lit -∗
+    ▷ (
+      ( ⌜lit ≠ lit1⌝ -∗
+        l ↦{dq} #lit -∗
+        Φ #false
+      ) ∧ (
+        ⌜lit = lit1⌝ -∗
+        l ↦{dq} #lit1 -∗
+          ⌜dq = DfracOwn 1⌝ ∗
+          l ↦{dq} #lit1 ∗
+          ( l ↦ v2 -∗
+            Φ #true
+          )
+      )
+    ) -∗
+    WP Cas #l #lit1 v2 @ E {{ Φ }}.
+  Proof.
+    iIntros "% % >Hl HΦ".
+    iApply (wp_cas with "Hl"); [done.. |].
+    iSplit.
+    - iDestruct "HΦ" as "($ & _)".
+    - iIntros "!>" ([= ->]).
+      iApply ("HΦ" with "[//]").
+  Qed.
+  Lemma wp_cas_not_literal l dq v v1 v2 E Φ :
+    val_not_literal v →
+    val_not_literal v1 →
+    ▷ l ↦{dq} v -∗
+    ▷ (
+      ( l ↦{dq} v -∗
+        Φ #false
+      ) ∧ (
+        ⌜v = v1⌝ -∗
+        l ↦{dq} v1 -∗
+          ⌜dq = DfracOwn 1⌝ ∗
+          l ↦{dq} v1 ∗
+          ( l ↦ v2 -∗
+            Φ #true
+          )
+      )
+    ) -∗
+    WP Cas #l v1 v2 @ E {{ Φ }}.
+  Proof.
+    iIntros "% % >Hl HΦ".
+    iApply (wp_cas with "Hl"); [eauto with zebre.. |].
+    iSplit.
+    - iDestruct "HΦ" as "($ & _)". iSteps.
+    - iDestruct "HΦ" as "(_ & $)".
+  Qed.
+  Lemma wp_cas_fail l dq v v1 v2 E :
+    val_physical v →
+    val_physical v1 →
+    v ≠ v1 →
     {{{
-      ▷ l ↦{dq} w
+      ▷ l ↦{dq} v
     }}}
       Cas #l v1 v2 @ E
     {{{
       RET #false;
-      l ↦{dq} w
+      l ↦{dq} v
     }}}.
   Proof.
-    iIntros "%Hw %Hcomparable %Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
-    rewrite bool_decide_false //.
-    iFrame. iSteps.
+    iIntros "% % %Hne %Φ Hl HΦ".
+    iApply (wp_cas with "Hl"); [done.. |].
+    iSteps.
   Qed.
-  Lemma wp_cas_suc E l v1 v2 w :
-    w = v1 →
-    val_comparable w v1 →
+  Lemma wp_cas_suc l lit lit1 v2 E :
+    literal_physical lit →
+    lit = lit1 →
     {{{
-      ▷ l ↦ w
+      ▷ l ↦ #lit
     }}}
-      Cas #l v1 v2 @ E
+      Cas #l #lit1 v2 @ E
     {{{
       RET #true;
       l ↦ v2
     }}}.
   Proof.
-    iIntros (->) "%Hcomparable %Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
-    rewrite bool_decide_true //.
-    iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
-    iFrame. iSteps.
+    iIntros (Hlit ->) "%Φ >Hl HΦ".
+    iApply (wp_cas_literal with "Hl"); [done.. |].
+    iSteps.
   Qed.
 
-  Lemma wp_faa E l (i1 i2 : Z) :
+  Lemma wp_faa l (i1 i2 : Z) E :
     {{{
       ▷ l ↦ #i1
     }}}
@@ -244,7 +398,7 @@ Section zebre_G.
     iFrame. iSteps.
   Qed.
 
-  Lemma wp_fork E e Φ :
+  Lemma wp_fork e E Φ :
     ▷ WP e @ ⊤ {{ _, True }} -∗
     ▷ Φ #() -∗
     WP Fork e @ E {{ Φ }}.
@@ -310,7 +464,7 @@ Section zebre_G.
         apply to_val_fill_some in Hfill_v2 as (-> & ->).
         invert_head_step.
   Qed.
-  Lemma wp_resolve E e Φ p v pvs :
+  Lemma wp_resolve e p v pvs E Φ :
     Atomic StronglyAtomic e →
     to_val e = None →
     proph p pvs -∗

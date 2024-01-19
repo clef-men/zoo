@@ -144,22 +144,28 @@ Section instances.
   (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
   (* Qed. *)
 
-  Opaque val_comparable.
-
-  #[global] Instance cas_step_wp_stronger l v1 v2 E1 E2 :
-    SPEC ⟨E1, E2⟩ (v : val),
-      {{ ▷ l ↦ v ∗ ⌜val_comparable v v1⌝ }}
-        Cas #l v1 v2
-      {{ (b : bool), RET #b;
-          ⌜b = true⌝ ∗ ⌜v = v1⌝ ∗ l ↦ v2 ∨
-          ⌜b = false⌝ ∗ ⌜v ≠ v1⌝ ∗ l ↦ v }}.
+  #[global] Instance cas_step_wp_stronger l lit1 v2 E1 E2 :
+    SPEC ⟨E1, E2⟩ lit dq,
+      {{
+        ▷ l ↦{dq} #lit ∗
+        ⌜literal_physical lit⌝ ∗
+        ⌜literal_physical lit1⌝ ∗
+        ⌜dq = DfracOwn 1 ∨ lit ≠ lit1⌝
+      }}
+        Cas #l #lit1 v2
+      {{ (b : bool),
+        RET #b;
+          ⌜b = false⌝ ∗
+          ⌜lit ≠ lit1⌝ ∗
+          l ↦{dq} #lit
+        ∨ ⌜b = true⌝ ∗
+          ⌜lit = lit1⌝ ∗
+          l ↦ v2
+      }}.
   Proof.
-    iStep 2 as (v Hv1) "Hl".
-    - destruct (decide (v = v1)) as [->|Hneq].
-      + iApply (wp_cas_suc with "Hl") => //.
-        iSteps.
-      + iApply (wp_cas_fail with "Hl") => //.
-        iSteps.
+    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
+    wp_cas as ? | ?; iSteps.
+    destruct H; last done. iSteps.
   Qed.
 
   #[global] Instance faa_step_wp l i E1 E2 :
@@ -229,6 +235,8 @@ Section unfold_functions.
     | Unop _ e =>
         occurs_in s e
     | Binop _ l r =>
+        (occurs_in s l) || (occurs_in s r)
+    | Equal l r =>
         (occurs_in s l) || (occurs_in s r)
     | If c t e =>
         (occurs_in s c) || (occurs_in s t) || (occurs_in s e)
