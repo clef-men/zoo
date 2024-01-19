@@ -96,6 +96,18 @@ Coercion opt_to_val o :=
   | Some v =>
       &&Some v
   end.
+#[global] Arguments opt_to_val !_ / : assert.
+
+#[global] Instance opt_to_val_inj :
+  Inj (=) (=) opt_to_val.
+Proof.
+  intros [] []; naive_solver.
+Qed.
+Lemma lst_to_val_not_literal o :
+  val_not_literal (opt_to_val o).
+Proof.
+  destruct o; done.
+Qed.
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
