@@ -1311,7 +1311,7 @@ Section zebre_G.
     iApply fupd_wp. iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & Hslice) & HΦ & _)".
     iMod ("HΦ" with "[Hslice]") as "HΦ"; first iSteps.
     iModIntro. clear.
-    wp_rec. wp_pure credit:"H£".
+    wp_rec. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %i & %dq & %vs & (%_l & %Heq & #Hsz & Hmodel) & _ & HΦ)". injection Heq as <-.
     wp_load.
     iApply ("HΦ" with "[Hmodel] H£").
@@ -1350,7 +1350,7 @@ Section zebre_G.
     iApply fupd_wp. iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & Hcslice) & HΦ & _)".
     iMod ("HΦ" with "[Hcslice]") as "HΦ"; first iSteps.
     iModIntro. clear.
-    wp_rec. wp_pure credit:"H£".
+    wp_rec. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %i & %dq & %vs & (%_l & %Heq & #Hsz & Hcslice) & _ & HΦ)". injection Heq as <-.
     wp_load.
     iApply ("HΦ" with "[Hcslice] H£").
@@ -1410,7 +1410,7 @@ Section zebre_G.
     iApply fupd_wp. iMod "HΦ" as "(%sz & %dq & %vs & %i & %v & ((%Hi & %Hlookup) & (%l & -> & Hmodel)) & HΦ & _)".
     iMod ("HΦ" with "[Hmodel]") as "HΦ"; first iSteps.
     iModIntro. clear.
-    wp_rec. rewrite /array_data. wp_pure credit:"H£". wp_pures.
+    wp_rec. rewrite /array_data. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %dq & %vs & %i & %v & ((%Hi & %Hlookup) & (%_l & %Heq & #Hsz & Hmodel)) & _ & HΦ)". injection Heq as <-.
     iApply (chunk_get_spec' with "Hmodel"); [lia | done | lia |]. iIntros "!> Hmodel".
     iApply ("HΦ" with "[Hmodel] H£").
@@ -1575,7 +1575,7 @@ Section zebre_G.
     iApply fupd_wp. iMod "HΦ" as "(%sz & %vs & %i & (%Hj & (%l & -> & Hmodel)) & HΦ & _)".
     iMod ("HΦ" with "[Hmodel]") as "HΦ"; first iSteps.
     iModIntro. clear.
-    wp_rec. rewrite /array_data. wp_pure credit:"H£". wp_pures.
+    wp_rec. rewrite /array_data. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %vs & %i & (%Hj & (%_l & %Heq & #Hsz & Hmodel)) & _ & HΦ)". injection Heq as <-.
     iApply (chunk_set_spec' with "Hmodel"); first lia. iIntros "!> Hmodel".
     iApply ("HΦ" with "[Hmodel] [H£]"); last iSteps.

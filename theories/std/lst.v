@@ -759,7 +759,7 @@ Section zebre_G.
     iInduction vs_right as [| v vs_right] "IH" forall (vs_left t acc i).
     all: iIntros (->); rewrite app_length.
     all: iIntros "%Hi %Φ (%Ht & HΨ & #Hfn) HΦ"; invert Ht.
-    all: wp_rec; wp_pure credit:"H£"; wp_pures.
+    all: wp_rec; wp_pures credit:"H£".
     - rewrite Nat.add_0_r. iSteps.
     - rewrite Z.add_1_l -Nat2Z.inj_succ.
       wp_apply ("IH" with "[] [] [$HΨ $Hfn //]").

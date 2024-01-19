@@ -51,7 +51,7 @@ Section zebre_G.
     iIntros "%Hi %Φ (HΨ & #Hfn) HΦ".
     remember (Z.to_nat (_end - i)) as ϵ eqn:Hϵ.
     iInduction ϵ as [| ϵ] "IH" forall (i δ Hi Hϵ);
-      wp_rec; wp_pure credit:"H£"; wp_pures.
+      wp_rec; wp_pures credit:"H£".
     - assert (i `max` _end = i)%Z as -> by lia. rewrite Nat.add_0_r. iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
       wp_apply (wp_wand with "(Hfn [] HΨ)") as "%res (-> & HΨ)"; first iSteps.

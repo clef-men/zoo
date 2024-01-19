@@ -1108,7 +1108,7 @@ Section zebre_G.
     iIntros "%Hi1 %Hi2 %Φ (HΨ & #H) HΦ".
     remember (Z.to_nat sz - i) as j eqn:Hj.
     iInduction j as [| j] "IH" forall (i vs acc Hi1 Hi2 Hj);
-      wp_rec; wp_pure credit:"H£"; wp_pures.
+      wp_rec; wp_pures credit:"H£".
     - rewrite bool_decide_eq_true_2; first (repeat f_equal; lia). wp_pures.
       iApply ("HΦ" $! []).
       rewrite !right_id. assert (Z.to_nat sz = i) as -> by lia. iSteps.
@@ -1345,7 +1345,7 @@ Section zebre_G.
     iIntros "%Hi %Φ (HΨ & #H) HΦ".
     remember (Z.to_nat i) as j eqn:Hj.
     iInduction j as [| j] "IH" forall (i vs acc Hi Hj);
-      wp_rec; wp_pure credit:"H£"; wp_pures.
+      wp_rec; wp_pures credit:"H£".
     - rewrite bool_decide_eq_true_2; first lia. wp_pures.
       iApply ("HΦ" $! _ []).
       iSteps.
@@ -2489,7 +2489,7 @@ Section zebre_G.
     }
     iSplit. { iExists []. iSteps. }
     iIntros "!> %i %ws (%Hi1 & %Hi2) (%vs & %Hvs & HΨ)".
-    wp_pure credit:"H£". wp_pures. wp_bind (!_)%E.
+    wp_pures credit:"H£". wp_bind (!_)%E.
     iMod ("H" with "[] HΨ") as "(%dq & %v & H↦ & _ & HΨ)"; first iSteps.
     wp_load.
     iMod ("HΨ" with "H↦") as "HΨ". iModIntro.
@@ -3157,7 +3157,7 @@ Section zebre_G.
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
-    wp_rec. wp_pure credit:"H£". wp_pures.
+    wp_rec. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %i & %dq & %v & ((-> & ->) & Hcslice) & _ & HΦ)".
     rewrite -chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_load.
@@ -3201,7 +3201,7 @@ Section zebre_G.
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
-    wp_rec. wp_pure credit:"H£". wp_pures.
+    wp_rec. wp_pures credit:"H£".
     iMod "HΦ" as "(%sz & %i & %w & ((-> & ->) & Hcslice) & _ & HΦ)".
     rewrite -!chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_store.
