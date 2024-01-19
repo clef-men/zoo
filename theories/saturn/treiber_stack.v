@@ -28,9 +28,7 @@ Definition treiber_stack_push : val :=
   rec: "treiber_stack_push" "t" "v" :=
     let: "old" := !"t" in
     let: "new" := &Cons "v" "old" in
-    if: Cas "t" "old" "new" then (
-      #()
-    ) else (
+    ifnot: Cas "t" "old" "new" then (
       "treiber_stack_push" "t" "v"
     ).
 
