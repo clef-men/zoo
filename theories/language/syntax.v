@@ -93,7 +93,8 @@ Qed.
 
 Inductive binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
-  | BinopLe | BinopLt | BinopGe | BinopGt.
+  | BinopLe | BinopLt | BinopGe | BinopGt
+  | BinopOffset.
 
 #[global] Instance binop_eq_dec : EqDecision binop :=
   ltac:(solve_decision).
@@ -111,6 +112,7 @@ Proof.
     | BinopLt => 6
     | BinopGe => 7
     | BinopGt => 8
+    | BinopOffset => 9
   end.
   pose decode op :=
     match op with
@@ -122,7 +124,8 @@ Proof.
     | 5 => BinopLe
     | 6 => BinopLt
     | 7 => BinopGe
-    | _ => BinopGt
+    | 8 => BinopGt
+    | _ => BinopOffset
   end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.

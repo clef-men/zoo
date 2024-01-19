@@ -78,31 +78,33 @@ Definition unop_eval op v :=
 Definition binop_eval_int op n1 n2 :=
   match op with
   | BinopPlus =>
-      LiteralInt (n1 + n2)
+      Some $ LiteralInt (n1 + n2)
   | BinopMinus =>
-      LiteralInt (n1 - n2)
+      Some $ LiteralInt (n1 - n2)
   | BinopMult =>
-      LiteralInt (n1 * n2)
+      Some $ LiteralInt (n1 * n2)
   | BinopQuot =>
-      LiteralInt (n1 `quot` n2)
+      Some $ LiteralInt (n1 `quot` n2)
   | BinopRem =>
-      LiteralInt (n1 `rem` n2)
+      Some $ LiteralInt (n1 `rem` n2)
   | BinopLe =>
-      LiteralBool (bool_decide (n1 ≤ n2))
+      Some $ LiteralBool (bool_decide (n1 ≤ n2))
   | BinopLt =>
-      LiteralBool (bool_decide (n1 < n2))
+      Some $ LiteralBool (bool_decide (n1 < n2))
   | BinopGe =>
-      LiteralBool (bool_decide (n1 >= n2))
+      Some $ LiteralBool (bool_decide (n1 >= n2))
   | BinopGt =>
-      LiteralBool (bool_decide (n1 > n2))
+      Some $ LiteralBool (bool_decide (n1 > n2))
+  | _ =>
+      None
   end%Z.
 #[global] Arguments binop_eval_int !_ _ _ / : assert.
 Definition binop_eval op v1 v2 :=
   match v1, v2 with
   | ValLiteral (LiteralInt n1), ValLiteral (LiteralInt n2) =>
-      Some $ ValLiteral $ binop_eval_int op n1 n2
+      ValLiteral <$> binop_eval_int op n1 n2
   | ValLiteral (LiteralLoc l), ValLiteral (LiteralInt n) =>
-      if decide (op = BinopPlus) then
+      if decide (op = BinopOffset) then
         Some $ ValLiteral $ LiteralLoc (l +ₗ n)
       else
         None

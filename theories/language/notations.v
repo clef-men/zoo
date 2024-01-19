@@ -162,12 +162,6 @@ Notation "- e" := (
 Notation "e1 + e2" := (
   Binop BinopPlus e1%E e2%E
 ) : expr_scope.
-Notation "e1 .[ e2 ]" := (
-  Binop BinopPlus e1%E e2%E
-)(at level 2,
-  e2 at level 200,
-  left associativity
-) : expr_scope.
 Notation "e1 - e2" := (
   Binop BinopMinus e1%E e2%E
 ) : expr_scope.
@@ -191,6 +185,12 @@ Notation "e1 ≥ e2" := (
 ) : expr_scope.
 Notation "e1 > e2" := (
   Binop BinopGt e1%E e2%E
+) : expr_scope.
+Notation "e1 .[ e2 ]" := (
+  Binop BinopOffset e1%E e2%E
+)(at level 2,
+  e2 at level 200,
+  left associativity
 ) : expr_scope.
 Notation "e1 = e2" := (
   Equal e1%E e2%E
