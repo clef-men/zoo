@@ -223,7 +223,7 @@ Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
 )(at level 1,
   e0, e1, e2 at level 200,
   only printing,
-  format "'[hv' if:  e0  then  (  '/  ' '[' e1 ']'  '/' )  else  (  '/  ' '[' e2 ']'  '/' ) ']'"
+  format "'[hv' if:  e0  then  ( '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
 ) : expr_scope.
 Notation "'if:' e0 'then' e1" := (
   If e0%E e1%E #()
