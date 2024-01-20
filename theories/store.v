@@ -153,33 +153,34 @@ Definition store_get : val :=
 
 Definition store_set : val :=
   λ: "t" "r" "v",
-    let: "g" := !"t".[gen] in
-    if: "g" = !"r".[ref_gen] then (
+    let: "t_gen" := !"t".[gen] in
+    let: "r_gen" := !"r".[ref_gen] in
+    if: "t_gen" = "r_gen" then (
       "r".[ref_value] <- "v"
     ) else (
       let: "root" := ref &&Root in
-      !"t".[root] <- &Diff "r" !"r".[ref_value] !"r".[ref_gen] "root" ;;
+      !"t".[root] <- &Diff "r" !"r".[ref_value] "r_gen" "root" ;;
       "r".[ref_value] <- "v" ;;
-      "r".[ref_gen] <- "g" ;;
+      "r".[ref_gen] <- "t_gen" ;;
       "t".[root] <- "root"
     ).
 
 Definition store_capture : val :=
   λ: "t",
-    let: "g" := !"t".[gen] in
-    "t".[gen] <- #1 + "g" ;;
-    ("t", !"t".[root], "g").
+    let: "gen" := !"t".[gen] in
+    "t".[gen] <- #1 + "gen" ;;
+    ("t", !"t".[root], "gen").
 
 #[local] Definition store_reroot : val :=
   rec: "store_reroot" "node" :=
     match: !"node" with
     | Root =>
         #()
-    | Diff "r" "v" "g" "node'" =>
+    | Diff "r" "v" "gen" "node'" =>
         "store_reroot" "node'" ;;
         "node'" <- &Diff "r" !"r".[ref_value] !"r".[gen] "node" ;;
         "r".[ref_value] <- "v" ;;
-        "r".[ref_gen] <- "g" ;;
+        "r".[ref_gen] <- "gen" ;;
         "node" <- &&Root
     end.
 
@@ -188,11 +189,11 @@ Definition store_capture : val :=
     match: !"node" with
     | Root =>
         #()
-    | Diff "r" "v" "g" "node'" =>
+    | Diff "r" "v" "gen" "node'" =>
         "store_reroot_opt_aux" "node'" ;;
         "node'" <- &Diff "r" !"r".[ref_value] !"r".[ref_gen] "node" ;;
         "r".[ref_value] <- "v" ;;
-        "r".[ref_gen] <- "g"
+        "r".[ref_gen] <- "gen"
     end.
 #[local] Definition store_reroot_opt : val :=
   λ: "node",
