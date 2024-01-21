@@ -147,6 +147,7 @@ Inductive expr :=
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
   | Store (e1 e2 : expr)
+  | Xchg (e1 e2 : expr)
   | Cas (e0 e1 e2 : expr)
   | Faa (e1 e2 : expr)
   | Fork (e : expr)
@@ -279,6 +280,10 @@ Proof.
          cast_if_and
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | Xchg e11 e12, Xchg e21 e22 =>
+          cast_if_and
+            (decide (e11 = e21))
+            (decide (e12 = e22))
       | Cas e10 e11 e12, Cas e20 e21 e22 =>
          cast_if_and3
            (decide (e10 = e20))
@@ -398,23 +403,25 @@ Proof.
   Notation tag_Constr :=
     10.
   Notation tag_Case :=
-    13.
+    11.
   Notation tag_Alloc :=
-    14.
+    12.
   Notation tag_Load :=
-    15.
+    13.
   Notation tag_Store :=
-    16.
+    14.
+  Notation tag_Xchg :=
+    15.
   Notation tag_Cas :=
-    19.
+    16.
   Notation tag_Faa :=
-    20.
+    17.
   Notation tag_Fork :=
-    21.
+    18.
   Notation tag_Proph :=
-    22.
+    19.
   Notation tag_Resolve :=
-    23.
+    20.
   Notation tag_ValRec :=
     0.
   Notation tag_ValPair :=
@@ -456,6 +463,8 @@ Proof.
           GenNode tag_Load [go e]
       | Store e1 e2 =>
           GenNode tag_Store [go e1; go e2]
+      | Xchg e1 e2 =>
+          GenNode tag_Xchg [go e1; go e2]
       | Cas e0 e1 e2 =>
           GenNode tag_Cas [go e0; go e1; go e2]
       | Faa e1 e2 =>
@@ -514,6 +523,8 @@ Proof.
           Load (go e)
       | GenNode tag_Store [e1; e2] =>
           Store (go e1) (go e2)
+      | GenNode tag_Xchg [e1; e2] =>
+          Xchg (go e1) (go e2)
       | GenNode tag_Cas [e0; e1; e2] =>
           Cas (go e0) (go e1) (go e2)
       | GenNode tag_Faa [e1; e2] =>

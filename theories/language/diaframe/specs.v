@@ -55,48 +55,85 @@ Section instances.
   Qed.
 
   #[global] Instance load_step_wp l E1 E2 :
-    SPEC ⟨E1, E2⟩ v dq, {{ ▷ l ↦{dq} v }} !#l {{ RET v; l ↦{dq} v }}.
+    SPEC ⟨E1, E2⟩ v dq,
+    {{
+      ▷ l ↦{dq} v
+    }}
+      !#l
+    {{
+      RET v;
+      l ↦{dq} v
+    }}.
   Proof.
     iSteps as (v dq) "Hl".
-    iApply (wp_load with "Hl").
+    wp_load.
     iSteps.
   Qed.
 
   #[global] Instance ref_step_wp e v :
     IntoVal e v →
-    SPEC {{ True }} ref e {{ l, RET #l; l ↦ v }}
+    SPEC
+    {{ True }}
+      ref e
+    {{ l,
+      RET #l;
+      l ↦ v
+    }}
   | 20.
   Proof.
     move => <-.
     iSteps.
-    iApply wp_alloc => //.
-    iSteps. rewrite loc_add_0. iSteps.
+    wp_alloc l as "Hl".
+    iSteps.
   Qed.
 
   #[global] Instance alloc_step_wp e v E1 E2 n :
     IntoVal e v →
-    SPEC ⟨E1, E2⟩ {{ ⌜0 < n⌝%Z }} Alloc #n e {{ l, RET #l; l ↦∗ replicate (Z.to_nat n) v }}
+    SPEC ⟨E1, E2⟩
+    {{
+      ⌜0 < n⌝%Z
+    }}
+      Alloc #n e
+    {{ l,
+      RET #l;
+      l ↦∗ replicate (Z.to_nat n) v
+    }}
   | 30.
   Proof.
     move => <- /=.
     iSteps.
-    iApply wp_alloc => //.
+    wp_alloc l as "Hl"; first done.
     iSteps.
   Qed.
 
-  #[global] Instance store_step_wp l v' E1 E2 :
-    SPEC ⟨E1, E2⟩ v, {{ ▷ l ↦ v }} #l <- v' {{ RET #(); l ↦ v' }}.
+  #[global] Instance store_step_wp l v E1 E2 :
+    SPEC ⟨E1, E2⟩ w,
+    {{
+      ▷ l ↦ w
+    }}
+      #l <- v
+    {{
+      RET #();
+      l ↦ v
+    }}.
   Proof.
-    iSteps as (v) "Hl".
-    iApply (wp_store with "Hl").
+    iSteps as (w) "Hl".
+    wp_store.
     iSteps.
   Qed.
 
   #[global] Instance proph_step :
-    SPEC {{ True }} Proph {{ pvs (p : prophecy_id), RET #p; proph p pvs }}.
+    SPEC
+    {{ True }}
+      Proph
+    {{ pvs (p : prophecy_id),
+      RET #p;
+      proph p pvs
+    }}.
   Proof.
     iSteps.
-    iApply wp_proph; iSteps.
+    iApply (wp_proph with "[//]").
+    iSteps.
   Qed.
 
   (* #[global] Instance abduct_resolve_atomic_spec K (e e_in : expr) (p : prophecy_id) (v : val) Φ pre n E1 E2 (TT1 TT2 : tele) *)
@@ -144,24 +181,40 @@ Section instances.
   (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
   (* Qed. *)
 
-  #[global] Instance cas_step_wp_stronger l v1 v2 E1 E2 :
+  #[global] Instance xchg_step_wp l v E1 E2 :
+    SPEC ⟨E1, E2⟩ w,
+    {{
+      ▷ l ↦ w
+    }}
+      Xchg #l v
+    {{
+      RET w;
+      l ↦ v
+    }}.
+  Proof.
+    iSteps as (w) "Hl".
+    wp_xchg.
+    iSteps.
+  Qed.
+
+  #[global] Instance cas_step_wp l v1 v2 E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
-      {{
-        ▷ l ↦{dq} v ∗
-        ⌜val_physical v⌝ ∗
-        ⌜val_physical v1⌝ ∗
-        ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
-      }}
-        Cas #l v1 v2
-      {{ (b : bool),
-        RET #b;
-          ⌜b = false⌝ ∗
-          ⌜val_physically_distinct v v1⌝ ∗
-          l ↦{dq} v
-        ∨ ⌜b = true⌝ ∗
-          ⌜v = v1⌝ ∗
-          l ↦ v2
-      }}.
+    {{
+      ▷ l ↦{dq} v ∗
+      ⌜val_physical v⌝ ∗
+      ⌜val_physical v1⌝ ∗
+      ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
+    }}
+      Cas #l v1 v2
+    {{ (b : bool),
+      RET #b;
+        ⌜b = false⌝ ∗
+        ⌜val_physically_distinct v v1⌝ ∗
+        l ↦{dq} v
+      ∨ ⌜b = true⌝ ∗
+        ⌜v = v1⌝ ∗
+        l ↦ v2
+    }}.
   Proof.
     iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
     wp_cas as ? | ?; iSteps.
@@ -169,10 +222,18 @@ Section instances.
   Qed.
 
   #[global] Instance faa_step_wp l i E1 E2 :
-    SPEC ⟨E1, E2⟩ (z : Z), {{ ▷ l ↦ #z }} Faa #l #i {{ RET #z; l ↦ #(z + i) }}.
+    SPEC ⟨E1, E2⟩ (z : Z),
+    {{
+      ▷ l ↦ #z
+    }}
+      Faa #l #i
+    {{
+      RET #z;
+      l ↦ #(z + i)
+    }}.
   Proof.
     iSteps as (z) "Hl".
-    iApply (wp_faa with "Hl").
+    wp_faa.
     iSteps.
   Qed.
 
@@ -259,6 +320,8 @@ Section unfold_functions.
     | Load e =>
         occurs_in s e
     | Store l e =>
+        (occurs_in s l) || (occurs_in s e)
+    | Xchg l e =>
         (occurs_in s l) || (occurs_in s e)
     | Cas l e1 e2 =>
         (occurs_in s l) || (occurs_in s e1) || (occurs_in s e2)

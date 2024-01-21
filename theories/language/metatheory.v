@@ -38,6 +38,7 @@ Fixpoint expr_closed X e :=
   | Pair e1 e2
   | Alloc e1 e2
   | Store e1 e2
+  | Xchg e1 e2
   | Faa e1 e2 =>
      expr_closed X e1 && expr_closed X e2
   | If e0 e1 e2
@@ -96,6 +97,8 @@ Fixpoint subst_map (vs : gmap string val) e :=
       Load (subst_map vs e)
   | Store e1 e2 =>
       Store (subst_map vs e1) (subst_map vs e2)
+  | Xchg e1 e2 =>
+      Xchg (subst_map vs e1) (subst_map vs e2)
   | Cas e0 e1 e2 =>
       Cas (subst_map vs e0) (subst_map vs e1) (subst_map vs e2)
   | Faa e1 e2 =>

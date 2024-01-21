@@ -185,6 +185,25 @@ Section zebre_G.
     iSteps.
   Qed.
 
+  Lemma tac_wp_xchg Δ Δ' id K l v w E Φ :
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    envs_lookup id Δ' = Some (false, l ↦ w)%I →
+    match envs_simple_replace id false (Esnoc Enil id (l ↦ v)) Δ' with
+    | Some Δ'' =>
+        envs_entails Δ'' (WP fill K w @ E {{ Φ }})
+    | None =>
+        False
+    end →
+    envs_entails Δ (WP fill K (Xchg #l v) @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
+    destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
+    rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ'.
+    iIntros "(Hl & H)".
+    iApply (wp_xchg with "Hl").
+    iSteps.
+  Qed.
+
   Lemma tac_wp_cas Δ Δ' Δ'' id p K l dq v v1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup_delete true id Δ' = Some (p, l ↦{dq} v, Δ'')%I →
@@ -490,6 +509,23 @@ Tactic Notation "wp_store" :=
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
       iAssumptionCore || fail "wp_store: cannot find" l "↦ ?"
+    | pm_reduce;
+      wp_finish
+    ]
+  ).
+
+Tactic Notation "wp_xchg" :=
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_xchg _ _ _ K)
+      )
+    | fail 1 "wp_xchg: cannot find 'Xchg in" e
+    ];
+    [ tc_solve
+    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+      iAssumptionCore || fail "wp_xchg: cannot find" l "↦ ?"
     | pm_reduce;
       wp_finish
     ]

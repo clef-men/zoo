@@ -108,6 +108,12 @@ Section atomic.
     solve_atomic.
   Qed.
 
+  #[global] Instance xchg_atomic a v1 v2 :
+    Atomic a (Xchg (Val v1) (Val v2)).
+  Proof.
+    solve_atomic.
+  Qed.
+
   #[global] Instance cas_atomic a v0 v1 v2 :
     Atomic a (Cas (Val v0) (Val v1) (Val v2)).
   Proof.

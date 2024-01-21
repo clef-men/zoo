@@ -135,6 +135,8 @@ Fixpoint subst (x : string) v e :=
       Load (subst x v e)
   | Store e1 e2 =>
       Store (subst x v e1) (subst x v e2)
+  | Xchg e1 e2 =>
+      Xchg (subst x v e1) (subst x v e2)
   | Cas e0 e1 e2 =>
       Cas (subst x v e0) (subst x v e1) (subst x v e2)
   | Faa e1 e2 =>
@@ -356,6 +358,13 @@ Inductive head_step : expr → state → list observation → expr → state →
         []
         (Val $ ValLiteral LiteralUnit) (state_update_heap <[l := v]> σ)
         []
+  | head_step_xchg l v w σ :
+      σ.(state_heap) !! l = Some w →
+      head_step
+        (Xchg (Val $ ValLiteral $ LiteralLoc l) (Val v)) σ
+        []
+        (Val w) (state_update_heap <[l := v]> σ)
+        []
   | head_step_cas_fail l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
       val_physical v →
@@ -453,6 +462,8 @@ Inductive ectxi :=
   | CtxLoad
   | CtxStoreL v2
   | CtxStoreR e1
+  | CtxXchgL v2
+  | CtxXchgR e1
   | CtxCasL v1 v2
   | CtxCasM e0 v2
   | CtxCasR e0 e1
@@ -503,6 +514,10 @@ Fixpoint ectxi_fill k e : expr :=
       Store e (Val v2)
   | CtxStoreR e1 =>
       Store e1 e
+  | CtxXchgL v2 =>
+      Xchg e (Val v2)
+  | CtxXchgR e1 =>
+      Xchg e1 e
   | CtxCasL v1 v2 =>
       Cas e (Val v1) (Val v2)
   | CtxCasM e0 v2 =>

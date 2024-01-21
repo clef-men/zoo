@@ -58,6 +58,10 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxStoreL v2) vs K e1
     | Store ?e1 ?e2 =>
         add_ectxi (CtxStoreR e1) vs K e2
+    | Xchg ?e1 (Val ?v2) =>
+        add_ectxi (CtxXchgL v2) vs K e1
+    | Xchg ?e1 ?e2 =>
+        add_ectxi (CtxXchgR e1) vs K e2
     | Cas ?e0 (Val ?v1) (Val ?v2) =>
         add_ectxi (CtxCasL v1 v2) vs K e0
     | Cas ?e0 ?e1 (Val ?v2) =>

@@ -217,6 +217,25 @@ Section zebre_G.
     iFrame. iSteps.
   Qed.
 
+  Lemma wp_xchg l w v E :
+    {{{
+      ▷ l ↦ w
+    }}}
+      Xchg #l v @ E
+    {{{
+      RET w;
+      l ↦ v
+    }}}.
+  Proof.
+    iIntros "%Φ >Hl HΦ".
+    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
+    invert_head_step.
+    iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+    iFrame. iSteps.
+  Qed.
+
   Lemma wp_cas l dq v v1 v2 E Φ :
     val_physical v →
     val_physical v1 →
