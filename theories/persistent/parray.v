@@ -27,27 +27,27 @@ Implicit Types vs : list val.
     | Injr "y" =>
         "Diff" "y".𝟙.𝟙 "y".𝟙.𝟚 "y".𝟚
     end.
-#[local] Notation "'match:' e0 'with' | 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" :=
-  (descr_match e0 (λ: x, e1) (λ: y1 y2 y3, e2))%E
-( x, y1, y2, y3 at level 1,
+#[local] Notation "'match:' e0 'with' | 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" := (
+  (Val descr_match) e0 (Lam x e1) (Lam y1 (Lam y2 (Lam y3 e2)))
+)(x, y1, y2, y3 at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match:  e0  with  '/' '[' |  Root  x  =>  '/    ' e1 ']'  '/' '[' |  Diff  y1  y2  y3  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-#[local] Notation "'match:' e0 'with' 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" :=
-  (descr_match e0 (λ: x, e1) (λ: y1 y2 y3, e2))%E
-( x, y1, y2, y3 at level 1,
+#[local] Notation "'match:' e0 'with' 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" := (
+  (Val descr_match) e0 (Lam x e1) (Lam y1 (Lam y2 (Lam y3 e2)))
+)(x, y1, y2, y3 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
-#[local] Notation "'match::' e0 'with' | 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" :=
-  (descr_match e0 (λ: x, e1)%V (λ: y1 y2 y3, e2)%V)%E
-( x, y1, y2, y3 at level 1,
+#[local] Notation "'match::' e0 'with' | 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" := (
+  (Val descr_match) e0 (Val (ValLam x e1)) (Val (ValLam y1 (Lam y2 (Lam y3 e2))))
+)(x, y1, y2, y3 at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match::  e0  with  '/' '[' |  Root  x  =>  '/    ' e1 ']'  '/' '[' |  Diff  y1  y2  y3  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-#[local] Notation "'match::' e0 'with' 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" :=
-  (descr_match e0 (λ: x, e1)%V (λ: y1 y2 y3, e2)%V)%E
-( x, y1, y2, y3 at level 1,
+#[local] Notation "'match::' e0 'with' 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" := (
+  (Val descr_match) e0 (Val (ValLam x e1)) (Val (ValLam y1 (Lam y2 (Lam y3 e2))))
+)(x, y1, y2, y3 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
@@ -73,7 +73,7 @@ Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_descr_match_Root v x e1 y1 y2 y3 e2 :
-  PureExec True 9
+  PureExec True 11
     (match:: &&Root v with Root x => e1 | Diff y1 y2 y3 => e2 end)
     (subst' x v e1).
 Proof.
@@ -102,7 +102,7 @@ Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_descr_match_Diff v1 v2 v3 x e1 y1 y2 y3 e2 :
-  PureExec True 18
+  PureExec True 20
     (match:: &&Diff v1 v2 v3 with Root x => e1 | Diff y1 y2 y3 => e2 end)
     (subst' y1 v1 (subst' y2 v2 (subst' y3 v3 e2))).
 Proof.

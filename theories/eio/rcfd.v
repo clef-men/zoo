@@ -35,27 +35,27 @@ Implicit Types o : option val.
     | Injr "x2" =>
         "Closing" "x2"
     end.
-#[local] Notation "'match:' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" :=
-  (state_match e0 (λ: x1, e1) (λ: x2, e2))%E
-( x1, x2 at level 1,
+#[local] Notation "'match:' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
+  (Val state_match) e0 (Lam x1 e1) (Lam x2 e2)
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match:  e0  with  '/' '[' |  Open  x1  =>  '/    ' e1 ']'  '/' '[' |  Closing  x2  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-#[local] Notation "'match:' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" :=
-  (state_match e0 (λ: x1, e1) (λ: x2, e2))%E
-( x1, x2 at level 1,
+#[local] Notation "'match:' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
+  (Val state_match) e0 (Lam x1 e1) (Lam x2 e2)
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
-#[local] Notation "'match::' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" :=
-  (state_match e0 (λ: x1, e1)%V (λ: x2, e2)%V)%E
-( x1, x2 at level 1,
+#[local] Notation "'match::' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
+  (Val state_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x2 e2))
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match::  e0  with  '/' '[' |  Open  x1  =>  '/    ' e1 ']'  '/' '[' |  Closing  x2  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-#[local] Notation "'match::' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" :=
-  (state_match e0 (λ: x1, e1)%V (λ: x2, e2)%V)%E
-( x1, x2 at level 1,
+#[local] Notation "'match::' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
+  (Val state_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x2 e2))
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
@@ -81,7 +81,7 @@ Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_state_match_Open v x1 e1 x2 e2 :
-  PureExec True 9
+  PureExec True 11
     (match:: &&Open v with Open x1 => e1 | Closing x2 => e2 end)
     (subst' x1 v e1).
 Proof.
@@ -109,7 +109,7 @@ Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_state_match_Closing v x1 e1 x2 e2 :
-  PureExec True 9
+  PureExec True 11
     (match:: &&Closing v with Open x1 => e1 | Closing x2 => e2 end)
     (subst' x2 v e2).
 Proof.

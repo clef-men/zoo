@@ -18,11 +18,17 @@ Definition for_upto : val :=
       "for_upto" (#1 + "beg") "end" "fn"
     ).
 
-Notation "'for:' i = beg 'to' _end 'begin' e 'end'" :=
-  (for_upto beg _end (λ: i, e))%E
-( i at level 1,
+Notation "'for:' i = beg 'to' _end 'begin' e 'end'" := (
+  (Val for_upto) beg _end (Lam i e)
+)(i at level 1,
   beg, _end, e at level 200,
   format "'[hv' for:  i  =  beg  to  _end  begin  '/  ' '[' e ']'  '/' end ']'"
+) : expr_scope.
+Notation "'for::' i = beg 'to' _end 'begin' e 'end'" := (
+  (Val for_upto) beg _end (Val (ValLam i e))
+)(i at level 1,
+  beg, _end, e at level 200,
+  format "'[hv' for::  i  =  beg  to  _end  begin  '/  ' '[' e ']'  '/' end ']'"
 ) : expr_scope.
 
 Section zebre_G.

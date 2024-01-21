@@ -328,7 +328,7 @@ Inductive head_step : expr → state → list observation → expr → state →
       head_step
         (Case (Val $ ValConstr b v) e1 e2) σ
         []
-        (App (if b then e1 else e2) (Val v)) σ
+        (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v)) σ
         []
   | head_step_alloc n v σ l :
       (0 < n)%Z →

@@ -48,8 +48,12 @@ Notation CtxSeq e2 := (
 )(only parsing
 ).
 
-Notation Match e0 x1 e1 x2 e2 := (
-  Case e0 (Lam x1 e1) (Lam x2 e2)
+Notation Match e0 x11 x12 e1 x21 x22 e2 := (
+  Case e0 (Lam x11 (Lam x12 e1)) (Lam x21 (Lam x22 e2))
+)(only parsing
+).
+Notation Match' e0 x1 e1 x2 e2 := (
+  Match e0 x1 BAnon e1 x2 BAnon e2
 )(only parsing
 ).
 
@@ -258,13 +262,23 @@ Notation "e .𝟚" := (
   format "e .𝟚"
 ) : expr_scope.
 
+Notation "'match:' e0 'with' | 'Injl' x11 'as' x12 => e1 | 'Injr' x21 'as' x22 => e2 'end'" := (
+  Match e0 x11%binder x12%binder e1 x21%binder x22%binder e2
+)(e0, x11, x12, e1, x21, x22, e2 at level 200,
+  format "'[hv' 'match:'  e0  'with'  '/' '[' |  'Injl'  x11  'as'  x12  =>  '/    ' e1 ']'  '/' '[' |  'Injr'  x21  'as'  x22  =>  '/    ' e2 ']'  '/' 'end' ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' 'Injl' x11 'as' x12 => e1 | 'Injr' x21 'as' x22 => e2 'end'" := (
+  Match e0 x11%binder x12%binder e1 x21%binder x22%binder e2
+)(e0, x11, x12, e1, x21, x22, e2 at level 200,
+  only parsing
+) : expr_scope.
 Notation "'match:' e0 'with' | 'Injl' x1 => e1 | 'Injr' x2 => e2 'end'" := (
-  Match e0 x1%binder e1 x2%binder e2
+  Match' e0 x1%binder e1 x2%binder e2
 )(e0, x1, e1, x2, e2 at level 200,
   format "'[hv' 'match:'  e0  'with'  '/' '[' |  'Injl'  x1  =>  '/    ' e1 ']'  '/' '[' |  'Injr'  x2  =>  '/    ' e2 ']'  '/' 'end' ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' 'Injl' x1 => e1 | 'Injr' x2 => e2 'end'" := (
-  Match e0 x1%binder e1 x2%binder e2
+  Match' e0 x1%binder e1 x2%binder e2
 )(e0, x1, e1, x2, e2 at level 200,
   only parsing
 ) : expr_scope.

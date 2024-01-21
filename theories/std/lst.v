@@ -16,32 +16,56 @@ Implicit Types vs vs_left vs_right ws : list val.
 Definition lst_match : val :=
   λ: "t" "Nil" "Cons",
     match: "t" with
-      Injl <> =>
-        "Nil" #()
-    | Injr "x" =>
-        "Cons" "x".𝟙 "x".𝟚
+      Injl <> as "x" =>
+        "Nil" "x"
+    | Injr "x1" as "x2" =>
+        "Cons" "x1".𝟙 "x1".𝟚 "x2"
     end.
-Notation "'match:' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" :=
-  (lst_match e0 (λ: <>, e1) (λ: x1 x2, e2))%E
-( x1, x2 at level 1,
+Notation "'match:' e0 'with' | 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
+  (Val lst_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 (Lam x23 e2)))
+)(x1, x21, x22, x23 at level 1,
   e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  Nil  =>  '/    ' e1 ']'  '/' '[' |  Cons  x1  x2  =>  '/    ' e2  ']' '/' end ']'"
+  format "'[hv' match:  e0  with  '/' '[' |  Nil  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Cons  x21  x22  as  x23  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" :=
-  (lst_match e0 (λ: <>, e1) (λ: x1 x2, e2))%E
-( x1, x2 at level 1,
+Notation "'match:' e0 'with' 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
+  (Val lst_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 (Lam x23 e2)))
+)(x1, x21, x22, x23 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match::' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" :=
-  (lst_match e0 (λ: <>, e1)%V (λ: x1 x2, e2)%V)%E
-( x1, x2 at level 1,
+Notation "'match::' e0 'with' | 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
+  (Val lst_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 (Lam x23 e2))))
+)(x1, x21, x22, x23 at level 1,
+  e0, e1, e2 at level 200,
+  format "'[hv' match::  e0  with  '/' '[' |  Nil  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Cons  x21  x22  as  x23  =>  '/    ' e2  ']' '/' end ']'"
+) : expr_scope.
+Notation "'match::' e0 'with' 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
+  (Val lst_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 (Lam x23 e2))))
+)(x1, x21, x22, x23 at level 1,
+  e0, e1, e2 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match:' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
+  (Val lst_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam BAnon e2)))
+)(x1, x2 at level 1,
+  e0, e1, e2 at level 200,
+  format "'[hv' match:  e0  with  '/' '[' |  Nil  =>  '/    ' e1 ']'  '/' '[' |  Cons  x1  x2  =>  '/    ' e2  ']' '/' end ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
+  (Val lst_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam BAnon e2)))
+)(x1, x2 at level 1,
+  e0, e1, e2 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match::' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
+  (Val lst_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam BAnon e2))))
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match::  e0  with  '/' '[' |  Nil  =>  '/    ' e1 ']'  '/' '[' |  Cons  x1  x2  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-Notation "'match::' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" :=
-  (lst_match e0 (λ: <>, e1)%V (λ: x1 x2, e2)%V)%E
-( x1, x2 at level 1,
+Notation "'match::' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
+  (Val lst_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam BAnon e2))))
+)(x1, x2 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
@@ -50,10 +74,10 @@ Definition ValNil :=
   ValInjl #().
 Notation "'&&Nil'" :=
   ValNil.
-#[global] Instance pure_lst_match_Nil e1 x1 x2 e2 :
-  PureExec True 9
-    (match:: &&Nil with Nil => e1 | Cons x1 x2 => e2 end)
-    e1.
+#[global] Instance pure_lst_match_Nil x1 e1 x21 x22 x23 e2 :
+  PureExec True 11
+    (match:: &&Nil with Nil as x1 => e1 | Cons x21 x22 as x23 => e2 end)
+    (subst' x1 &&Nil e1).
 Proof.
   solve_pure_exec.
 Qed.
@@ -78,10 +102,10 @@ Qed.
 Proof.
   solve_pure_exec.
 Qed.
-#[global] Instance pure_lst_match_Cons v1 v2 e1 x1 x2 e2 :
-  PureExec True 13
-    (match:: &&Cons v1 v2 with Nil => e1 | Cons x1 x2 => e2 end)
-    (subst' x1 v1 (subst' x2 v2 e2)).
+#[global] Instance pure_lst_match_Cons v1 v2 x1 e1 x21 x22 x23 e2 :
+  PureExec True 17
+    (match:: &&Cons v1 v2 with Nil as x1 => e1 | Cons x21 x22 as x23 => e2 end)
+    (subst' x21 v1 (subst' x22 v2 (subst' x23 (&&Cons v1 v2) e2))).
 Proof.
   solve_pure_exec.
 Qed.

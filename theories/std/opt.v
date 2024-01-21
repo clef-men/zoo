@@ -14,32 +14,56 @@ Implicit Types v : val.
 Definition opt_match : val :=
   λ: "t" "None" "Some",
     match: "t" with
-      Injl <> =>
-        "None" #()
-    | Injr "x" =>
-        "Some" "x"
+      Injl <> as "x" =>
+        "None" "x"
+    | Injr "x1" as "x2" =>
+        "Some" "x1" "x2"
     end.
-Notation "'match:' e0 'with' | 'None' => e1 | 'Some' x => e2 'end'" :=
-  (opt_match e0 (λ: <>, e1) (λ: x, e2))%E
-( x at level 1,
+Notation "'match:' e0 'with' | 'None' 'as' x1 => e1 | 'Some' x21 'as' x22 => e2 'end'" := (
+  (Val opt_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 e2))
+)(x1, x21, x22 at level 1,
   e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  None  =>  '/    ' e1 ']'  '/' '[' |  Some  x  =>  '/    ' e2  ']' '/' end ']'"
+  format "'[hv' match:  e0  with  '/' '[' |  None  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Some  x21  as  x22  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' 'None' => e1 | 'Some' x => e2 'end'" :=
-  (opt_match e0 (λ: <>, e1) (λ: x, e2))%E
-( x at level 1,
+Notation "'match:' e0 'with' 'None' 'as' x1 => e1 | 'Some' x21 'as' x22 => e2 'end'" := (
+  (Val opt_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 e2))
+)(x1, x21, x22 at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match::' e0 'with' | 'None' => e1 | 'Some' x => e2 'end'" :=
-  (opt_match e0 (λ: <>, e1)%V (λ: x, e2)%V)%E
-( x at level 1,
+Notation "'match::' e0 'with' | 'None' 'as' x1 => e1 | 'Some' x21 'as' x22 => e2 'end'" := (
+  (Val opt_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 e2)))
+)(x1, x21, x22 at level 1,
+  e0, e1, e2 at level 200,
+  format "'[hv' match::  e0  with  '/' '[' |  None  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Some  x21  as  x22  =>  '/    ' e2  ']' '/' end ']'"
+) : expr_scope.
+Notation "'match::' e0 'with' 'None' 'as' x1 => e1 | 'Some' x21 'as' x22 => e2 'end'" := (
+  (Val opt_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 e2)))
+)(x1, x21, x22 at level 1,
+  e0, e1, e2 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match:' e0 'with' | 'None' => e1 | 'Some' x => e2 'end'" := (
+  (Val opt_match) e0 (Lam BAnon e1) (Lam x (Lam BAnon e2))
+)(x at level 1,
+  e0, e1, e2 at level 200,
+  format "'[hv' match:  e0  with  '/' '[' |  None  =>  '/    ' e1 ']'  '/' '[' |  Some  x  =>  '/    ' e2  ']' '/' end ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' 'None' => e1 | 'Some' x => e2 'end'" := (
+  (Val opt_match) e0 (Lam BAnon e1) (Lam x (Lam BAnon e2))
+)(x at level 1,
+  e0, e1, e2 at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match::' e0 'with' | 'None' => e1 | 'Some' x => e2 'end'" := (
+  (Val opt_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x (Lam BAnon e2)))
+)(x at level 1,
   e0, e1, e2 at level 200,
   format "'[hv' match::  e0  with  '/' '[' |  None  =>  '/    ' e1 ']'  '/' '[' |  Some  x  =>  '/    ' e2  ']' '/' end ']'"
 ) : expr_scope.
-Notation "'match::' e0 'with' 'None' => e1 | 'Some' x => e2 'end'" :=
-  (opt_match e0 (λ: <>, e1)%V (λ: x, e2)%V)%E
-( x at level 1,
+Notation "'match::' e0 'with' 'None' => e1 | 'Some' x => e2 'end'" := (
+  (Val opt_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x (Lam BAnon e2)))
+)(x at level 1,
   e0, e1, e2 at level 200,
   only parsing
 ) : expr_scope.
@@ -48,10 +72,10 @@ Definition ValNone :=
   ValInjl #().
 Notation "'&&None'" :=
   ValNone.
-#[global] Instance pure_opt_match_None e1 x e2 :
-  PureExec True 9
-    (match:: &&None with None => e1 | Some x => e2 end)
-    e1.
+#[global] Instance pure_opt_match_None x1 e1 x21 x22 e2 :
+  PureExec True 11
+    (match:: &&None with None as x1 => e1 | Some x21 as x22 => e2 end)
+    (subst' x1 &&None e1).
 Proof.
   solve_pure_exec.
 Qed.
@@ -76,10 +100,10 @@ Qed.
 Proof.
   solve_pure_exec.
 Qed.
-#[global] Instance pure_opt_match_Some v e1 x e2 :
-  PureExec True 9
-    (match:: &&Some v with None => e1 | Some x => e2 end)
-    (subst' x v e2).
+#[global] Instance pure_opt_match_Some v x1 e1 x21 x22 e2 :
+  PureExec True 13
+    (match:: &&Some v with None as x1 => e1 | Some x21 as x22 => e2 end)
+    (subst' x21 v (subst' x22 (&&Some v) e2)).
 Proof.
   solve_pure_exec.
 Qed.

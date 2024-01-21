@@ -287,7 +287,7 @@ Section pure_exec.
       True
       1
       (Case (Val $ ValConstr b v) e1 e2)
-      (App (if b then e1 else e2) (Val v)).
+      (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v)).
   Proof.
     solve_pure_exec.
   Qed.
