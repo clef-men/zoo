@@ -178,7 +178,7 @@ Definition store_capture : val :=
         #()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot" "node'" ;;
-        "node'" <- &Diff "r" !"r".[ref_value] !"r".[gen] "node" ;;
+        "node'" <- &Diff "r" !"r".[ref_value] !"r".[ref_gen] "node" ;;
         "r".[ref_value] <- "v" ;;
         "r".[ref_gen] <- "gen" ;;
         "node" <- &&Root
