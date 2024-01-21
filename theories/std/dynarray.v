@@ -6,7 +6,7 @@ From zebre.language Require Import
 From zebre.std Require Export
   base.
 From zebre.std Require Import
-  record2
+  record
   math
   array.
 From zebre Require Import
@@ -37,15 +37,15 @@ Implicit Types vs : list val.
 
 Definition dynarray_create : val :=
   λ: <>,
-    record2_make #0 (array_create #()).
+    record2 #0 (array_create #()).
 
 Definition dynarray_make : val :=
   λ: "sz" "v",
-    record2_make "sz" (array_make "sz" "v").
+    record2 "sz" (array_make "sz" "v").
 
 Definition dynarray_initi : val :=
   λ: "sz" "fn",
-    record2_make "sz" (array_initi "sz" "fn").
+    record2 "sz" (array_initi "sz" "fn").
 
 Definition dynarray_size : val :=
   λ: "t",
@@ -142,8 +142,7 @@ Section zebre_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hdata_model".
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iApply "HΦ". iExists l, data, 0. iSteps.
   Qed.
 
@@ -160,8 +159,7 @@ Section zebre_G.
     Z_to_nat sz. rewrite Nat2Z.id.
     wp_rec.
     wp_smart_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iApply "HΦ". iExists l, data, 0. iStep. rewrite replicate_length right_id Nat2Z.id. iSteps.
   Qed.
 
@@ -189,8 +187,7 @@ Section zebre_G.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     wp_smart_apply (array_initi_spec Ψ with "[$HΨ]") as "%data %vs (%Hvs & Hdata_model & HΨ)"; [done | iSteps |].
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iApply "HΦ". iFrame. iStep. iExists l, data, 0. iSteps. rewrite right_id //.
   Qed.
   Lemma dynarray_initi_spec' Ψ sz fn :

@@ -12,7 +12,7 @@ From zebre.std Require Export
 From zebre.std Require Import
   diverge
   assume
-  record2
+  record
   math
   reference
   opt
@@ -45,17 +45,17 @@ Implicit Types vs : list val.
 
 Definition safe_dynarray_create : val :=
   λ: <>,
-    record2_make #0 (array_create #()).
+    record2 #0 (array_create #()).
 
 Definition safe_dynarray_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
-    record2_make "sz" (array_initi "sz" (λ: <>, &Some (ref "v"))).
+    record2 "sz" (array_initi "sz" (λ: <>, &Some (ref "v"))).
 
 Definition safe_dynarray_initi : val :=
   λ: "sz" "fn",
     assume (#0 ≤ "sz") ;;
-    record2_make "sz" (array_initi "sz" (λ: "i", &Some (ref ("fn" "i")))).
+    record2 "sz" (array_initi "sz" (λ: "i", &Some (ref ("fn" "i")))).
 
 Definition safe_dynarray_size : val :=
   λ: "t",
@@ -199,8 +199,7 @@ Section zebre_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hdata_model".
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iApply "HΦ". iExists l, data, [], 0. iSteps.
   Qed.
 
@@ -218,8 +217,7 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_initi_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hslots & Hdata_model & Hslots)"; [done | iSteps |].
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iApply "HΦ". iExists l, data, slots, 0. iFrame. iSplit; first iSteps.
     rewrite replicate_length right_id. iFrame.
     iApply (big_sepL2_replicate_r_2 _ _ (λ _, slot_model) with "Hslots"). lia.
@@ -261,8 +259,7 @@ Section zebre_G.
       wp_alloc r as "Hr". wp_pures.
       iExists (vs ++ [v]). iFrame. iSteps.
     }
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iDestruct (big_sepL2_length with "Hslots") as %Hslots'.
     iApply "HΦ". iFrame. iSplit; first iSteps.
     iExists l, data, slots, 0. iFrame. iSplitR; first iSteps. iSplitL "Hsz"; first iSteps.
@@ -691,8 +688,7 @@ Section zebre_G.
     wp_rec.
     wp_apply (array_create_type slot_type with "[//]") as "%data Hdata_type".
     iApply wp_fupd.
-    wp_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iSteps.
   Qed.
 
@@ -712,8 +708,7 @@ Section zebre_G.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_initi_type slot_type) as "%data (_ & Hdata_type)"; first iSteps.
     iApply wp_fupd.
-    wp_smart_apply (record2_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hsz & Hdata)".
+    wp_smart_apply (record2_spec with "[//]") as "%l (_ & Hsz & Hdata)".
     iSteps.
   Qed.
 

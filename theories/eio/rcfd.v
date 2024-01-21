@@ -10,7 +10,7 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Import
-  record2
+  record
   opt
   latch1
   unix.
@@ -166,7 +166,7 @@ Qed.
 
 Definition rcfd_make : val :=
   λ: "fd",
-    record2_make #0 (ref (&Open "fd")).
+    record2 #0 (ref (&Open "fd")).
 
 #[local] Definition rcfd_closed : val :=
   λ: <>,
@@ -518,8 +518,7 @@ Section rcfd_G.
     wp_rec.
     wp_alloc l_state as "Hstate". iMod (mapsto_persist with "Hstate") as "Hstate".
     iApply wp_fupd.
-    wp_smart_apply (record2_make_spec with "[//]") as "%l (Hl & Hmeta)".
-    iDestruct (record2_model_eq_1 with "Hl") as "(Hops & Hfd)".
+    wp_smart_apply (record2_spec with "[//]") as "%l (Hmeta & Hops & Hfd)".
     iMod rcfd_tokens_alloc as "(%γ_tokens & Htokens_auth)".
     iMod rcfd_lstate_alloc as "(%γ_lstate & Hlstate_auth)".
     pose γ := {|

@@ -67,9 +67,7 @@ theories/language/wise_prophet.v
 theories/std/base.v
 theories/std/diverge.v
 theories/std/assume.v
-theories/std/record2.v
-theories/std/record3.v
-theories/std/record4.v
+theories/std/record.v
 theories/std/for_upto.v
 theories/std/math.v
 theories/std/reference.v

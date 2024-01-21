@@ -11,7 +11,7 @@ From zebre.language Require Import
 From zebre.std Require Export
   base.
 From zebre.std Require Import
-  record3
+  record
   array
   mutex.
 From zebre Require Import
@@ -50,7 +50,7 @@ Implicit Types vs : nat → val.
 Definition inf_array_create : val :=
   λ: "default",
     let: "data" := array_create #() in
-    let: "t" := record3_make "data" "default" #() in
+    let: "t" := record3 "data" "default" #() in
     let: "mtx" := mutex_create #() in
     "t".[mutex] <- "mtx" ;;
     "t".
@@ -207,8 +207,7 @@ Section inf_array_G.
 
     wp_apply (array_create_spec with "[//]") as "%data Hmodel_data".
 
-    wp_smart_apply (record3_make_spec with "[//]") as "%l (Hl & Hmeta)".
-    iDestruct (record3_model_eq_1 with "Hl") as "(Hdata & Hdefault & Hmtx)".
+    wp_smart_apply (record3_spec with "[//]") as "%l (Hmeta & Hdata & Hdefault & Hmtx)".
     iMod (mapsto_persist with "Hdefault") as "#Hdefault".
 
     set (vs _ := default).
