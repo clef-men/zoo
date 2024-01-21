@@ -107,8 +107,8 @@ Definition lst_model' t vs :=
 Proof.
   intros lst1. induction lst1; intros []; naive_solver.
 Qed.
-Lemma lst_to_val_not_literal vs :
-  val_not_literal (lst_to_val vs).
+#[global] Instance lst_to_val_physical vs :
+  ValPhysical (lst_to_val vs).
 Proof.
   destruct vs; done.
 Qed.

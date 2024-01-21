@@ -44,10 +44,8 @@ Ltac reshape_expr e tac :=
         add_ectxi CtxFst vs K e
     | Snd ?e =>
         add_ectxi CtxSnd vs K e
-    | Injl ?e =>
-        add_ectxi CtxInjl vs K e
-    | Injr ?e =>
-        add_ectxi CtxInjr vs K e
+    | Constr ?b ?e =>
+        add_ectxi (CtxConstr b) vs K e
     | Case ?e0 ?e1 ?e2 =>
         add_ectxi (CtxCase e1 e2) vs K e0
     | Alloc ?e1 (Val ?v2) =>
@@ -97,17 +95,6 @@ Ltac invert_head_step :=
      try (is_var e; fail 1);
      invert H
   end.
-
-#[global] Hint Extern 0 (
-  val_physical _
-) =>
-  apply val_not_literal_physical
-: zebre.
-#[global] Hint Extern 0 (
-  val_physically_distinct _ _
-) =>
-  apply val_not_literal_physically_distinct
-: zebre.
 
 #[global] Hint Extern 0 (
   head_reducible _ _

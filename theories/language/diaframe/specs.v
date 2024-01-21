@@ -144,22 +144,22 @@ Section instances.
   (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
   (* Qed. *)
 
-  #[global] Instance cas_step_wp_stronger l lit1 v2 E1 E2 :
-    SPEC ⟨E1, E2⟩ lit dq,
+  #[global] Instance cas_step_wp_stronger l v1 v2 E1 E2 :
+    SPEC ⟨E1, E2⟩ v dq,
       {{
-        ▷ l ↦{dq} #lit ∗
-        ⌜literal_physical lit⌝ ∗
-        ⌜literal_physical lit1⌝ ∗
-        ⌜dq = DfracOwn 1 ∨ lit ≠ lit1⌝
+        ▷ l ↦{dq} v ∗
+        ⌜val_physical v⌝ ∗
+        ⌜val_physical v1⌝ ∗
+        ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
       }}
-        Cas #l #lit1 v2
+        Cas #l v1 v2
       {{ (b : bool),
         RET #b;
           ⌜b = false⌝ ∗
-          ⌜lit ≠ lit1⌝ ∗
-          l ↦{dq} #lit
+          ⌜val_physically_distinct v v1⌝ ∗
+          l ↦{dq} v
         ∨ ⌜b = true⌝ ∗
-          ⌜lit = lit1⌝ ∗
+          ⌜v = v1⌝ ∗
           l ↦ v2
       }}.
   Proof.

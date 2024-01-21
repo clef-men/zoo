@@ -103,8 +103,8 @@ Coercion opt_to_val o :=
 Proof.
   intros [] []; naive_solver.
 Qed.
-Lemma lst_to_val_not_literal o :
-  val_not_literal (opt_to_val o).
+#[global] Instance lst_to_val_physical o :
+  ValPhysical (opt_to_val o).
 Proof.
   destruct o; done.
 Qed.

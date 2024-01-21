@@ -28,8 +28,7 @@ Fixpoint expr_closed X e :=
   | Unop _ e
   | Fst e
   | Snd e
-  | Injl e
-  | Injr e
+  | Constr _ e
   | Fork e
   | Load e =>
      expr_closed X e
@@ -57,8 +56,7 @@ with val_closed v :=
       expr_closed (set_binder_insert f (set_binder_insert x ∅)) e
   | ValPair v1 v2 =>
       val_closed v1 && val_closed v2
-  | ValInjl v
-  | ValInjr v =>
+  | ValConstr _ v =>
       val_closed v
   end.
 
@@ -86,10 +84,8 @@ Fixpoint subst_map (vs : gmap string val) e :=
       Fst (subst_map vs e)
   | Snd e =>
       Snd (subst_map vs e)
-  | Injl e =>
-      Injl (subst_map vs e)
-  | Injr e =>
-      Injr (subst_map vs e)
+  | Constr b e =>
+      Constr b (subst_map vs e)
   | Case e0 e1 e2 =>
       Case (subst_map vs e0) (subst_map vs e1) (subst_map vs e2)
   | Fork e =>

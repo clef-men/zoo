@@ -140,7 +140,7 @@ Section zebre_G.
 
     wp_bind (Cas _ _ _).
     iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-    wp_cas as ->%(inj _); [apply lst_to_val_not_literal.. | iSteps |].
+    wp_cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
@@ -194,7 +194,7 @@ Section zebre_G.
 
       wp_bind (Cas _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-      wp_cas as Hcas; [apply lst_to_val_not_literal.. | iSteps |].
+      wp_cas as _ | Hcas; first iSteps.
       destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".

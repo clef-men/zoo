@@ -40,13 +40,8 @@ Definition val_physical v :=
       True
   end.
 #[global] Arguments val_physical !_ / : assert.
-
-Lemma val_not_literal_physical v :
-  val_not_literal v →
-  val_physical v.
-Proof.
-  destruct v; done.
-Qed.
+Class ValPhysical v :=
+  val_physical' : val_physical v.
 
 Definition val_physically_distinct v1 v2 :=
   match v1, v2 with
@@ -56,13 +51,6 @@ Definition val_physically_distinct v1 v2 :=
       True
   end.
 #[global] Arguments val_physically_distinct !_ !_ / : assert.
-
-Lemma val_not_literal_physically_distinct v1 v2 :
-  val_not_literal v1 ∨ val_not_literal v2 →
-  val_physically_distinct v1 v2.
-Proof.
-  destruct v1, v2; naive_solver.
-Qed.
 
 Definition unop_eval op v :=
   match op, v with
@@ -137,10 +125,8 @@ Fixpoint subst (x : string) v e :=
       Fst (subst x v e)
   | Snd e =>
       Snd (subst x v e)
-  | Injl e =>
-      Injl (subst x v e)
-  | Injr e =>
-      Injr (subst x v e)
+  | Constr b e =>
+      Constr b (subst x v e)
   | Case e0 e1 e2 =>
       Case (subst x v e0) (subst x v e1) (subst x v e2)
   | Alloc e1 e2 =>
@@ -179,12 +165,6 @@ Implicit Types σ : state.
 Canonical stateO :=
   leibnizO state.
 
-#[global] Instance state_inhabited : Inhabited state :=
-  populate
-    {|state_heap := inhabitant ;
-      state_prophs := inhabitant ;
-    |}.
-
 Definition state_update_heap f σ : state :=
   {|state_heap := f σ.(state_heap) ;
     state_prophs := σ.(state_prophs) ;
@@ -195,6 +175,12 @@ Definition state_update_prophs f σ : state :=
     state_prophs := f σ.(state_prophs) ;
   |}.
 #[global] Arguments state_update_prophs _ !_ / : assert.
+
+#[global] Instance state_inhabited : Inhabited state :=
+  populate
+    {|state_heap := inhabitant ;
+      state_prophs := inhabitant ;
+    |}.
 
 Fixpoint heap_array l vs : gmap loc val :=
   match vs with
@@ -332,29 +318,17 @@ Inductive head_step : expr → state → list observation → expr → state →
         []
         (Val v2) σ
         []
-  | head_step_injl v σ :
+  | head_step_constr b v σ :
       head_step
-        (Injl $ Val v) σ
+        (Constr b $ Val v) σ
         []
-        (Val $ ValInjl v) σ
+        (Val $ ValConstr b v) σ
         []
-  | head_step_injr v σ :
+  | head_step_case b v e1 e2 σ :
       head_step
-        (Injr $ Val v) σ
+        (Case (Val $ ValConstr b v) e1 e2) σ
         []
-        (Val $ ValInjr v) σ
-        []
-  | head_step_case_1 v e1 e2 σ :
-      head_step
-        (Case (Val $ ValInjl v) e1 e2) σ
-        []
-        (App e1 (Val v)) σ
-        []
-  | head_step_case_2 v e1 e2 σ :
-      head_step
-        (Case (Val $ ValInjr v) e1 e2) σ
-        []
-        (App e2 (Val v)) σ
+        (App (if b then e1 else e2) (Val v)) σ
         []
   | head_step_alloc n v σ l :
       (0 < n)%Z →
@@ -472,8 +446,7 @@ Inductive ectxi :=
   | CtxPairR e1
   | CtxFst
   | CtxSnd
-  | CtxInjl
-  | CtxInjr
+  | CtxConstr b
   | CtxCase e1 e2
   | CtxAllocL v2
   | CtxAllocR e1
@@ -516,10 +489,8 @@ Fixpoint ectxi_fill k e : expr :=
       Fst e
   | CtxSnd =>
       Snd e
-  | CtxInjl =>
-      Injl e
-  | CtxInjr =>
-      Injr e
+  | CtxConstr b =>
+      Constr b e
   | CtxCase e1 e2 =>
       Case e e1 e2
   | CtxAllocL v2 =>

@@ -35,13 +35,15 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance beta_atomic a f x v1 v2 :
     Atomic a (App (ValRec f x (Val v1)) (Val v2)).
   Proof.
     destruct f, x; solve_atomic.
   Qed.
+
   #[global] Instance unop_atomic a op v :
-    Atomic a (Unop op (Val v)).
+    Atomic a (Unop op $ Val v).
   Proof.
     solve_atomic.
   Qed.
@@ -50,11 +52,13 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance equal_atomic a v1 v2 :
-    Atomic a (Equal (Val v1) (v2)).
+    Atomic a (Equal (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance if_true_atomic a v1 e2 :
     Atomic a (If (Val $ ValLiteral $ LiteralBool true) (Val v1) e2).
   Proof.
@@ -65,38 +69,36 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance pair_atomic a v1 v2 :
     Atomic a (Pair (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
   #[global] Instance fst_atomic a v :
-    Atomic a (Fst (Val v)).
+    Atomic a (Fst $ Val v).
   Proof.
     solve_atomic.
   Qed.
   #[global] Instance snd_atomic a v :
-    Atomic a (Snd (Val v)).
+    Atomic a (Snd $ Val v).
   Proof.
     solve_atomic.
   Qed.
-  #[global] Instance injl_atomic a v :
-    Atomic a (Injl (Val v)).
+
+  #[global] Instance constr_atomic a b v :
+    Atomic a (Constr b $ Val v).
   Proof.
     solve_atomic.
   Qed.
-  #[global] Instance injr_atomic a v :
-    Atomic a (Injr (Val v)).
-  Proof.
-    solve_atomic.
-  Qed.
+
   #[global] Instance alloc_atomic a v w :
     Atomic a (Alloc (Val v) (Val w)).
   Proof.
     solve_atomic.
   Qed.
   #[global] Instance load_atomic a v :
-    Atomic a (Load (Val v)).
+    Atomic a (Load $ Val v).
   Proof.
     solve_atomic.
   Qed.
@@ -105,21 +107,25 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance cas_atomic a v0 v1 v2 :
     Atomic a (Cas (Val v0) (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance faa_atomic a v1 v2 :
     Atomic a (Faa (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance fork_atomic a e :
     Atomic a (Fork e).
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance proph_atomic a :
     Atomic a Proph.
   Proof.
@@ -180,6 +186,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
+
   #[global] Instance pure_beta f x e v1 v2 `{!AsValRec v1 f x e} :
     PureExec
       True
@@ -189,6 +196,7 @@ Section pure_exec.
   Proof.
     unfold AsValRec in *. solve_pure_exec.
   Qed.
+
   #[global] Instance pure_unop op v v' :
     PureExec
       (unop_eval op v = Some v')
@@ -207,36 +215,17 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_literal lit1 lit2 :
+
+  #[global] Instance pure_equal lit1 lit2 :
     PureExec
       (literal_physical lit1 ∧ literal_physical lit2)
       1
       (Equal (Val $ ValLiteral lit1) (Val $ ValLiteral lit2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (lit1 = lit2))
-  | 1.
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (lit1 = lit2)).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_literal_not_literal lit1 v2 :
-    PureExec
-      (literal_physical lit1 ∧ val_not_literal v2)
-      1
-      (Equal (Val $ ValLiteral lit1) (Val v2))
-      (Val $ ValLiteral $ LiteralBool false)
-  | 10.
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_equal_not_literal_literal v1 lit2 :
-    PureExec
-      (val_not_literal v1 ∧ literal_physical lit2)
-      1
-      (Equal (Val v1) (Val $ ValLiteral lit2))
-      (Val $ ValLiteral $ LiteralBool false)
-  | 10.
-  Proof.
-    solve_pure_exec.
-  Qed.
+
   #[global] Instance pure_if_true e1 e2 :
     PureExec
       True
@@ -255,6 +244,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
+
   #[global] Instance pure_pair v1 v2 :
     PureExec
       True
@@ -282,39 +272,22 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_injl v :
+
+  #[global] Instance pure_constr b v :
     PureExec
       True
       1
-      (Injl $ Val v)
-      (Val $ ValInjl v).
+      (Constr b $ Val v)
+      (Val $ ValConstr b v).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_injr v :
+  #[global] Instance pure_case b v e1 e2 :
     PureExec
       True
       1
-      (Injr $ Val v)
-      (Val $ ValInjr v).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_case_injl v e1 e2 :
-    PureExec
-      True
-      1
-      (Case (Val $ ValInjl v) e1 e2)
-      (App e1 (Val v)).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_case_injr v e1 e2 :
-    PureExec
-      True
-      1
-      (Case (Val $ ValInjr v) e1 e2)
-      (App e2 (Val v)).
+      (Case (Val $ ValConstr b v) e1 e2)
+      (App (if b then e1 else e2) (Val v)).
   Proof.
     solve_pure_exec.
   Qed.

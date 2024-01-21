@@ -113,47 +113,22 @@ Section zebre_G.
   Proof.
     iIntros "% % HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    destruct
-      (val_literal_or_not_literal v1) as [(lit1 & ->) | Hv1],
-      (val_literal_or_not_literal v2) as [(lit2 & ->) | Hv2].
-    1: destruct (decide (lit1 = lit2)) as [-> | Hne].
-    all: iSplit; first eauto 10 with zebre.
+    destruct v1 as [lit1 | | |], v2 as [lit2 | | |].
+    1: destruct (decide (lit1 = lit2)); first subst.
+    all: iSplit; first auto with zebre.
     all: iIntros "%e2 %σ2 %es %Hstep !> _".
-    - invert_head_step.
-      iDestruct "HΦ" as "(_ & HΦ)".
-      iFrame. iSteps.
-    - invert_head_step.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step; last done.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step; last done.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step.
-      + iDestruct "HΦ" as "(HΦ & _)".
-        iFrame. iSteps.
-      + iDestruct "HΦ" as "(_ & HΦ)".
-        iFrame. iSteps.
-  Qed.
-  Lemma wp_equal_not_literal v1 v2 E Φ :
-    val_not_literal v1 →
-    val_not_literal v2 →
-    ▷ (
-      ( Φ #false
-      ) ∧ (
-        ⌜v1 = v2⌝ -∗
-        Φ #true
-      )
-    ) ⊢
-    WP v1 = v2 @ E {{ Φ }}.
-  Proof.
-    iIntros "%Hv1 %Hv2 HΦ".
-    iApply wp_equal; [eauto with zebre.. |].
-    iSplit.
-    - iDestruct "HΦ" as "(HΦ & _)". iSteps.
-    - iDestruct "HΦ" as "(_ & HΦ)". iSteps.
+    all: invert_head_step; last try done.
+    all:
+      match goal with |- _ _ ?P =>
+        lazymatch P with
+        | context [false] =>
+            iDestruct "HΦ" as "(HΦ & _)";
+            iFrame; iSteps
+        | context [true] =>
+            iDestruct "HΦ" as "(_ & HΦ)";
+            iFrame; iSteps
+        end
+      end.
   Qed.
 
   Lemma big_sepM_heap_array (Φ : loc → val → iProp Σ) l vs :
@@ -265,33 +240,24 @@ Section zebre_G.
     iIntros "% % >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    destruct
-      (val_literal_or_not_literal v) as [(lit & ->) | Hv],
-      (val_literal_or_not_literal v1) as [(lit1 & ->) | Hv1].
-    1: destruct (decide (lit = lit1)) as [-> | Hne].
-    all: iSplit; first eauto 10 with zebre.
+    destruct v as [lit | | |], v1 as [lit1 | | |].
+    1: destruct (decide (lit = lit1)); first subst.
+    all: iSplit; first eauto with zebre.
     all: iIntros "%e2 %σ2 %es %Hstep !> _".
-    - invert_head_step.
-      iDestruct "HΦ" as "(_ & HΦ)".
-      iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
-      iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
-      iFrame. iSteps.
-    - invert_head_step.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step; last done.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step; last done.
-      iDestruct "HΦ" as "(HΦ & _)".
-      iFrame. iSteps.
-    - invert_head_step.
-      + iDestruct "HΦ" as "(HΦ & _)".
-        iFrame. iSteps.
-      + iDestruct "HΦ" as "(_ & HΦ)".
-        iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
-        iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
-        iFrame. iSteps.
+    all: invert_head_step; last try done.
+    all:
+      match goal with |- _ _ ?P =>
+        lazymatch P with
+        | context [false] =>
+            iDestruct "HΦ" as "(HΦ & _)";
+            iFrame; iSteps
+        | context [true] =>
+            iDestruct "HΦ" as "(_ & HΦ)";
+            iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)";
+            iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)";
+            iFrame; iSteps
+        end
+      end.
   Qed.
   Lemma wp_cas_literal l dq lit lit1 v2 E Φ :
     literal_physical lit →
@@ -319,31 +285,6 @@ Section zebre_G.
     - iDestruct "HΦ" as "($ & _)".
     - iIntros "!>" ([= ->]).
       iApply ("HΦ" with "[//]").
-  Qed.
-  Lemma wp_cas_not_literal l dq v v1 v2 E Φ :
-    val_not_literal v →
-    val_not_literal v1 →
-    ▷ l ↦{dq} v -∗
-    ▷ (
-      ( l ↦{dq} v -∗
-        Φ #false
-      ) ∧ (
-        ⌜v = v1⌝ -∗
-        l ↦{dq} v1 -∗
-          ⌜dq = DfracOwn 1⌝ ∗
-          l ↦{dq} v1 ∗
-          ( l ↦ v2 -∗
-            Φ #true
-          )
-      )
-    ) -∗
-    WP Cas #l v1 v2 @ E {{ Φ }}.
-  Proof.
-    iIntros "% % >Hl HΦ".
-    iApply (wp_cas with "Hl"); [eauto with zebre.. |].
-    iSplit.
-    - iDestruct "HΦ" as "($ & _)". iSteps.
-    - iDestruct "HΦ" as "(_ & $)".
   Qed.
   Lemma wp_cas_fail l dq v v1 v2 E :
     val_physical v →
