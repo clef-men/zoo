@@ -1,6 +1,6 @@
 From zebre Require Import
   prelude.
-From zebre Require Export
+From zebre.language Require Export
   language.
 From zebre Require Import
   options.

@@ -5,7 +5,7 @@ From zebre Require Import
   prelude.
 From zebre.iris Require Import
   diaframe.
-From zebre Require Export
+From zebre.language Require Export
   language.
 From zebre.language Require Import
   rules.
