@@ -4,8 +4,7 @@ From zebre.language Require Import
   tactics
   notations.
 From zebre.std Require Import
-  record2
-  record3.
+  record.
 From zebre Require Import
   options.
 
@@ -141,11 +140,11 @@ Qed.
 
 Definition store_create : val :=
   λ: <>,
-    record2_make (ref &&Root) #0.
+    record2 (ref &&Root) #0.
 
 Definition store_ref : val :=
   λ: "t" "v",
-    record2_make "v" #0.
+    record2 "v" #0.
 
 Definition store_get : val :=
   λ: "t" "r",
