@@ -210,11 +210,14 @@ Definition store_restore : val :=
       Fail
     ) else (
       let: "root" := "s".[snap_root] in
-      ifnot: !"root" = &&Root then (
-        store_reroot "root" ;;
-        "t".[root] <- "root" ;;
-        "t".[gen] <- #1 + "s".[snap_gen]
-      )
+      match: !"root" with
+      | Root =>
+          #()
+      | Diff <> <> <> <> =>
+          store_reroot "root" ;;
+          "t".[root] <- "root" ;;
+          "t".[gen] <- #1 + "s".[snap_gen]
+      end
     ).
 
 Class StoreG Σ `{zebre_G : !ZebreG Σ} := {
