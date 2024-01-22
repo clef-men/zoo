@@ -13,7 +13,7 @@ From zebre Require Import
   options.
 
 Implicit Types l r root : loc.
-Implicit Types v t eq : val.
+Implicit Types v t : val.
 Implicit Types σ : gmap loc val.
 Implicit Types map : gmap loc (gmap loc val).
 
@@ -155,8 +155,9 @@ Section pstore_G.
   #[local] Definition pstore_map_elem γ l σ :=
     @ghost_map_elem _ _ _ _ _ pstore_G_map_G γ l DfracDiscarded σ.
 
-  #[local] Definition pstore_store σ0 σ :=
+  Definition pstore_store σ0 σ :=
     union_with (λ _, Some) σ0 σ.
+
   #[local] Definition pstore_inv_inner γ σ0 map root : iProp Σ :=
     ∃ σ_root,
     ⌜map !! root = Some σ_root⌝ ∗
