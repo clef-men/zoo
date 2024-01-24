@@ -126,7 +126,7 @@ Section mutex_G.
   Proof.
     iIntros "%Φ HP HΦ".
     wp_rec.
-    iApply wp_fupd. wp_apply (wp_ref with "[//]") as "%l (Hmeta & Hl)".
+    wp_alloc l as "Hmeta" "Hl".
     iMod excl_alloc as "(%γ & Hlocked)".
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.

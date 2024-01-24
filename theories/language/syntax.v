@@ -130,6 +130,7 @@ Proof.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
 
+Unset Elimination Schemes.
 Inductive expr :=
   | Val (v : val)
   | Var (x : string)
@@ -144,6 +145,7 @@ Inductive expr :=
   | Snd (e : expr)
   | Constr b (e : expr)
   | Case (e0 e1 e2 : expr)
+  | Record (es : list expr)
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
   | Store (e1 e2 : expr)
@@ -158,8 +160,188 @@ with val :=
   | ValRec f x (e : expr)
   | ValPair (v1 v2 : val)
   | ValConstr b (v : val).
+Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types v : val.
+Implicit Types vs : list val.
+
+Scheme val_ind :=
+  Induction for val Sort Prop.
+Scheme val_rec :=
+  Induction for val Sort Type.
+
+Section expr_ind.
+  Variable P : expr → Prop.
+
+  Variable HVal : ∀ v,
+    P (Val v).
+  Variable HVar : ∀ (x : string),
+    P (Var x).
+  Variable HRec : ∀ f x,
+    ∀ e, P e →
+    P (Rec f x e).
+  Variable HApp :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (App e1 e2).
+  Variable HUnop : ∀ op,
+    ∀ e, P e →
+    P (Unop op e).
+  Variable HBinop : ∀ op,
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Binop op e1 e2).
+  Variable HEqual :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Equal e1 e2).
+  Variable HIf :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (If e0 e1 e2).
+  Variable HPair :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Pair e1 e2).
+  Variable HFst :
+    ∀ e, P e →
+    P (Fst e).
+  Variable HSnd :
+    ∀ e, P e →
+    P (Snd e).
+  Variable HConstr : ∀ b,
+    ∀ e, P e →
+    P (Constr b e).
+  Variable HCase :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Case e0 e1 e2).
+  Variable HRecord :
+    ∀ es, Forall P es →
+    P (Record es).
+  Variable HAlloc :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Alloc e1 e2).
+  Variable HLoad :
+    ∀ e, P e →
+    P (Load e).
+  Variable HStore :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Store e1 e2).
+  Variable HXchg :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Xchg e1 e2).
+  Variable HCas :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Cas e0 e1 e2).
+  Variable HFaa :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Faa e1 e2).
+  Variable HFork :
+    ∀ e, P e →
+    P (Fork e).
+  Variable HProph :
+    P Proph.
+  Variable HResolve :
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Resolve e0 e1 e2).
+
+  Fixpoint expr_ind e :=
+    match e with
+    | Val v =>
+        HVal v
+    | Var x =>
+        HVar x
+    | Rec f x e =>
+        HRec f x
+          e (expr_ind e)
+    | App e1 e2 =>
+        HApp
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Unop op e =>
+        HUnop op
+          e (expr_ind e)
+    | Binop op e1 e2 =>
+        HBinop op
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Equal e1 e2 =>
+        HEqual
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | If e0 e1 e2 =>
+        HIf
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Pair e1 e2 =>
+        HPair
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Fst e =>
+        HFst
+          e (expr_ind e)
+    | Snd e =>
+        HSnd
+          e (expr_ind e)
+    | Constr b e =>
+        HConstr b
+          e (expr_ind e)
+    | Case e0 e1 e2 =>
+        HCase
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Record es =>
+        HRecord
+          es (Forall_true P es expr_ind)
+    | Alloc e1 e2 =>
+        HAlloc
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Load e =>
+        HLoad
+          e (expr_ind e)
+    | Store e1 e2 =>
+        HStore
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Xchg e1 e2 =>
+        HXchg
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Cas e0 e1 e2 =>
+        HCas
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Faa e1 e2 =>
+        HFaa
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Fork e =>
+        HFork
+          e (expr_ind e)
+    | Proph =>
+        HProph
+    | Resolve e0 e1 e2 =>
+        HResolve
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    end.
+End expr_ind.
 
 Canonical valO :=
   leibnizO val.
@@ -208,14 +390,65 @@ Proof.
   intros ?*. congruence.
 Qed.
 
+Definition of_vals vs :=
+  of_val <$> vs.
+Fixpoint to_vals es :=
+  match es with
+  | [] =>
+      Some []
+  | e :: es =>
+      v ← to_val e ;
+      es ← to_vals es ;
+      mret $ v :: es
+  end.
+
+Lemma to_of_vals vs :
+  to_vals (of_vals vs) = Some vs.
+Proof.
+  induction vs as [| v vs IH]; first done.
+  rewrite /= IH. naive_solver.
+Qed.
+Lemma of_to_vals es vs :
+  to_vals es = Some vs →
+  of_vals vs = es.
+Proof.
+  revert vs. induction es as [| e es IH]; first naive_solver. move=> [| v vs] /= H.
+  all: destruct (to_val e) eqn:Heq, (to_vals es); try done.
+  invert H.
+  f_equal; last naive_solver.
+  destruct e; naive_solver.
+Qed.
+#[global] Instance of_vals_inj :
+  Inj (=) (=) of_vals.
+Proof.
+  apply _.
+Qed.
+Lemma of_vals_length vs :
+  length (of_vals vs) = length vs.
+Proof.
+  rewrite map_length //.
+Qed.
+
 #[global] Instance val_inhabited : Inhabited val :=
   populate (ValLiteral LiteralUnit).
 #[global] Instance expr_inhabited : Inhabited expr :=
   populate (Val inhabitant).
 #[global] Instance expr_eq_dec : EqDecision expr.
 Proof.
-  refine (
+  unshelve refine (
     fix go e1 e2 : Decision (e1 = e2) :=
+      let fix go_list es1 es2 : Decision (es1 = es2) :=
+        match es1, es2 with
+        | [], [] =>
+            left _
+        | e1 :: es1, e2 :: es2 =>
+            cast_if_and
+              (decide (e1 = e2))
+              (decide (es1 = es2))
+        | _, _ =>
+            right _
+        end
+      in
       match e1, e2 with
       | Val v1, Val v2 =>
           cast_if
@@ -269,6 +502,8 @@ Proof.
             (decide (e10 = e20))
             (decide (e11 = e21))
             (decide (e12 = e22))
+      | Record es1, Record es2 =>
+          cast_if (decide (es1 = es2))
       | Alloc e11 e12, Alloc e21 e22 =>
          cast_if_and
            (decide (e11 = e21))
@@ -306,7 +541,7 @@ Proof.
       | _, _ =>
           right _
       end
-    with gov v1 v2 : Decision (v1 = v2) :=
+    with go_val v1 v2 : Decision (v1 = v2) :=
       match v1, v2 with
       | ValLiteral l1, ValLiteral l2 =>
           cast_if
@@ -329,7 +564,7 @@ Proof.
       end
     for go
   );
-  clear go gov; abstract intuition congruence.
+  try clear go_list; clear go go_val; abstract intuition congruence.
 Defined.
 #[global] Instance val_eq_dec : EqDecision val :=
   ltac:(solve_decision).
@@ -404,24 +639,26 @@ Proof.
     10.
   Notation tag_Case :=
     11.
-  Notation tag_Alloc :=
+  Notation tag_Record :=
     12.
-  Notation tag_Load :=
+  Notation tag_Alloc :=
     13.
-  Notation tag_Store :=
+  Notation tag_Load :=
     14.
-  Notation tag_Xchg :=
+  Notation tag_Store :=
     15.
-  Notation tag_Cas :=
+  Notation tag_Xchg :=
     16.
-  Notation tag_Faa :=
+  Notation tag_Cas :=
     17.
-  Notation tag_Fork :=
+  Notation tag_Faa :=
     18.
-  Notation tag_Proph :=
+  Notation tag_Fork :=
     19.
-  Notation tag_Resolve :=
+  Notation tag_Proph :=
     20.
+  Notation tag_Resolve :=
+    21.
   Notation tag_ValRec :=
     0.
   Notation tag_ValPair :=
@@ -432,7 +669,7 @@ Proof.
     fix go e :=
       match e with
       | Val v =>
-          GenNode tag_Val [val_go v]
+          GenNode tag_Val [go_val v]
       | Var x =>
           GenLeaf (EncodeString x)
       | Rec f x e =>
@@ -457,6 +694,8 @@ Proof.
           GenNode tag_Constr [GenLeaf (EncodeBool b); go e]
       | Case e0 e1 e2 =>
           GenNode tag_Case [go e0; go e1; go e2]
+      | Record es =>
+          GenNode tag_Record (map go es)
       | Alloc e1 e2 =>
           GenNode tag_Alloc [go e1; go e2]
       | Load e =>
@@ -476,23 +715,23 @@ Proof.
       | Resolve e0 e1 e2 =>
           GenNode tag_Resolve [go e0; go e1; go e2]
       end
-    with val_go v :=
+    with go_val v :=
       match v with
       | ValLiteral lit =>
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | ValPair v1 v2 =>
-          GenNode tag_ValPair [val_go v1; val_go v2]
+          GenNode tag_ValPair [go_val v1; go_val v2]
       | ValConstr b v =>
-          GenNode tag_ValConstr [GenLeaf (EncodeBool b); val_go v]
+          GenNode tag_ValConstr [GenLeaf (EncodeBool b); go_val v]
       end
     for go.
   pose decode :=
     fix go _e :=
       match _e with
       | GenNode tag_Val [v] =>
-          Val (val_go v)
+          Val (go_val v)
       | GenLeaf (EncodeString x) =>
           Var x
       | GenNode tag_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
@@ -517,6 +756,8 @@ Proof.
           Constr b (go e)
       | GenNode tag_Case [e0; e1; e2] =>
           Case (go e0) (go e1) (go e2)
+      | GenNode tag_Record es =>
+          Record (map go es)
       | GenNode tag_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
       | GenNode tag_Load [e] =>
@@ -538,24 +779,29 @@ Proof.
       | _ =>
           Val (ValLiteral LiteralUnit)
       end
-    with val_go _v :=
+    with go_val _v :=
       match _v with
       | GenLeaf (EncodeLiteral lit) =>
           ValLiteral lit
       | GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
       | GenNode tag_ValPair [v1; v2] =>
-          ValPair (val_go v1) (val_go v2)
+          ValPair (go_val v1) (go_val v2)
       | GenNode tag_ValConstr [GenLeaf (EncodeBool b); v] =>
-          ValConstr b (val_go v)
+          ValConstr b (go_val v)
       | _ =>
           ValLiteral LiteralUnit
       end
     for go.
   refine (inj_countable' encode decode _).
-  refine (fix go e := _ with val_go v := _ for go).
-  - destruct e; simpl; f_equal; [| done..].
-    match goal with |- _ = ?v => exact (val_go v) end.
+  refine (fix go e := _ with go_val v := _ for go).
+  - destruct e; simpl; f_equal; [| try done..].
+    + match goal with |- _ = ?v =>
+        exact (go_val v)
+      end.
+    + match goal with |- _ = ?es =>
+        rewrite /map; induction es as [| ? ? ->]; simpl; f_equal; done
+      end.
   - destruct v; f_equal; done.
 Qed.
 #[global] Instance val_countable :

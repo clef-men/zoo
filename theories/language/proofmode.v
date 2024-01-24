@@ -109,11 +109,34 @@ Section zebre_G.
     all: rewrite bi.pure_wand_forall // -bi.forall_intro //.
   Qed.
 
-  Lemma tac_wp_alloc Δ Δ' id K n v E Φ :
+  Lemma tac_wp_record Δ Δ' id1 id2 K es vs E Φ :
+    0 < length es →
+    to_vals es = Some vs →
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    ( ∀ l,
+      match envs_app false (Esnoc (Esnoc Enil id1 (meta_token l ⊤)) id2 (l ↦∗ vs)) Δ' with
+      | Some Δ'' =>
+          envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
+      | None =>
+          False
+      end
+    ) →
+    envs_entails Δ (WP fill K (Record es) @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => Hlen Hes HΔ HΔ''.
+    rewrite into_laterN_env_sound -wp_bind.
+    iIntros "HΔ'".
+    iApply (wp_record with "[//]"); [done.. |]. iIntros "!> %l (Hmeta & Hl)".
+    specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
+    rewrite -HΔ'' envs_app_sound //= right_id.
+    iApply ("HΔ'" with "[$Hl $Hmeta]").
+  Qed.
+
+  Lemma tac_wp_alloc Δ Δ' id1 id2 K n v E Φ :
     (0 < n)%Z →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
-      match envs_app false (Esnoc Enil id (l ↦∗ replicate (Z.to_nat n) v)) Δ' with
+      match envs_app false (Esnoc (Esnoc Enil id1 (meta_token l ⊤)) id2 (l ↦∗ replicate (Z.to_nat n) v)) Δ' with
       | Some Δ'' =>
           envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
       | None =>
@@ -125,15 +148,15 @@ Section zebre_G.
     rewrite envs_entails_unseal => Hn HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_alloc with "[//]"); first done. iIntros "!> %l (_ & Hl)".
+    iApply (wp_alloc with "[//]"); first done. iIntros "!> %l (Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= right_id.
-    iApply ("HΔ'" with "Hl").
+    iApply ("HΔ'" with "[$Hl $Hmeta]").
   Qed.
-  Lemma tac_wp_ref Δ Δ' id K v E Φ :
+  Lemma tac_wp_ref Δ Δ' id1 id2 K v E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
-      match envs_app false (Esnoc Enil id (l ↦ v)) Δ' with
+      match envs_app false (Esnoc (Esnoc Enil id1 (meta_token l ⊤)) id2 (l ↦ v)) Δ' with
       | Some Δ'' =>
           envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
       | None =>
@@ -145,10 +168,10 @@ Section zebre_G.
     rewrite envs_entails_unseal => HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_alloc with "[//]"); first done. iIntros "!> %l (_ & Hl)".
+    iApply (wp_alloc with "[//]"); first done. iIntros "!> %l (Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= !right_id loc_add_0.
-    iApply ("HΔ'" with "Hl").
+    iApply ("HΔ'" with "[$Hl $Hmeta]").
   Qed.
 
   Lemma tac_wp_load Δ Δ' id p K l dq v E Φ :
@@ -369,7 +392,10 @@ Tactic Notation "wp_pure" open_constr(e_foc) "credit:" constr(H) :=
       | split_and?; fast_done
       | tc_solve
       | pm_reduce;
-        (iDestructHyp Htmp as H || fail 2 "wp_pure:" H "is not fresh");
+        first
+        [ iDestructHyp Htmp as H
+        | fail 2 "wp_pure:" H "is not fresh"
+        ];
         wp_finish
       ]
     )
@@ -435,28 +461,66 @@ Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropatte
     ]
   ).
 
-Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
-  let Htmp := iFresh in
+Tactic Notation "wp_record" ident(l) "as" constr(Hmeta) constr(Hl) :=
+  let Hmeta' := iFresh in
+  let Hl' := iFresh in
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_record _ _ Hmeta' Hl' K)
+      )
+    | fail 1 "wp_record: cannot find 'Record' in" e
+    ];
+    [ try (simpl; lia)
+    | try fast_done
+    | tc_solve
+    | first
+      [ intros l
+      | fail 1 "wp_record:" l "not fresh"
+      ];
+      pm_reduce;
+      first
+      [ iDestructHyp Hmeta' as Hmeta
+      | fail 1 "wp_record:" Hmeta "is not fresh"
+      ];
+      first
+      [ iDestructHyp Hl' as Hl
+      | fail 1 "wp_record:" Hl "is not fresh"
+      ];
+      wp_finish
+    ]
+  ).
+Tactic Notation "wp_record" ident(l) "as" constr(Hl) :=
+  wp_record l as "_" Hl.
+Tactic Notation "wp_record" ident(l) :=
+  wp_record l as "?".
+
+Tactic Notation "wp_alloc" ident(l) "as" constr(Hmeta) constr(Hl) :=
+  let Hmeta' := iFresh in
+  let Hl' := iFresh in
   let finish _ :=
     first
     [ intros l
     | fail 1 "wp_alloc:" l "not fresh"
     ];
     pm_reduce;
-    lazymatch goal with
-    | |- False =>
-        fail 1 "wp_alloc:" H "not fresh"
-    | _ =>
-        iDestructHyp Htmp as H;
-        wp_finish
-    end
+    first
+    [ iDestructHyp Hmeta' as Hmeta
+    | fail 1 "wp_alloc:" Hmeta "is not fresh"
+    ];
+    first
+    [ iDestructHyp Hl' as Hl
+    | fail 1 "wp_alloc:" Hl "is not fresh"
+    ];
+    wp_finish
   in
   wp_pures;
   wp_start ltac:(fun e =>
     let process_single _ :=
       first
       [ reshape_expr e ltac:(fun K e' =>
-          eapply (tac_wp_ref _ _ Htmp K)
+          eapply (tac_wp_ref _ _ Hmeta' Hl' K)
         )
       | fail 1 "wp_alloc: cannot find 'Alloc' in" e
       ];
@@ -467,7 +531,7 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
     let process_array _ :=
       first
       [ reshape_expr e ltac:(fun K e' =>
-          eapply (tac_wp_alloc _ _ Htmp K)
+          eapply (tac_wp_alloc _ _ Hmeta' Hl' K)
         )
       | fail 1 "wp_alloc: cannot find 'Alloc' in" e
       ];
@@ -476,8 +540,10 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
       | finish ()
       ]
     in
-    (process_single ()) || (process_array ())
+    process_single () || process_array ()
   ).
+Tactic Notation "wp_alloc" ident(l) "as" constr(Hl) :=
+  wp_alloc l as "_" Hl.
 Tactic Notation "wp_alloc" ident(l) :=
   wp_alloc l as "?".
 
@@ -492,7 +558,10 @@ Tactic Notation "wp_load" :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_load: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_load: cannot find" l "↦ ?"
+      ]
     | wp_finish
     ]
   ).
@@ -508,7 +577,10 @@ Tactic Notation "wp_store" :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_store: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_store: cannot find" l "↦ ?"
+      ]
     | pm_reduce;
       wp_finish
     ]
@@ -525,7 +597,10 @@ Tactic Notation "wp_xchg" :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_xchg: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_xchg: cannot find" l "↦ ?"
+      ]
     | pm_reduce;
       wp_finish
     ]
@@ -542,7 +617,10 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _), _) => l end in
-      iAssumptionCore || fail "wp_cas: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_cas: cannot find" l "↦ ?"
+      ]
     | solve_val_physical
     | solve_val_physical
     | intros Hfail;
@@ -565,7 +643,10 @@ Ltac wp_cas_fail :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_cas_fail: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_cas_fail: cannot find" l "↦ ?"
+      ]
     | solve_val_physical
     | solve_val_physical
     | try (simpl; congruence)
@@ -583,7 +664,10 @@ Ltac wp_cas_suc :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_cas_suc: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_cas_suc: cannot find" l "↦ ?"
+      ]
     | try fast_done
     | try fast_done
     | try (simpl; congruence)
@@ -603,7 +687,10 @@ Ltac wp_faa :=
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      iAssumptionCore || fail "wp_faa: cannot find" l "↦ ?"
+      first
+      [ iAssumptionCore
+      | fail "wp_faa: cannot find" l "↦ ?"
+      ]
     | pm_reduce;
       wp_finish
     ]

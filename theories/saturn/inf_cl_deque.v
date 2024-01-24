@@ -19,7 +19,6 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Import
-  record
   inf_array
   opt.
 From zebre.saturn Require Export
@@ -123,7 +122,7 @@ Section inf_cl_deque_G.
 
   Definition inf_cl_deque_create : val :=
     λ: <>,
-      record4 #0 #0 (inf_array_create #()) Proph.
+      { #0; #0; inf_array_create #(); Proph }.
 
   Definition inf_cl_deque_push : val :=
     λ: "t" "v",
@@ -986,15 +985,14 @@ Section inf_cl_deque_G.
 
     wp_rec.
 
-    (* → [Proph] *)
-    wp_apply (wise_prophet_wp_proph with "[//]") as "%p %γ_prophet %prophs Hprophet_model".
-
     (* → [inf_array_create #()] *)
     wp_apply (inf_array_create_spec with "[//]") as "%data (#Harray_inv & Harray_model)".
 
-    (* → [record4 #0 #0 data #p] *)
-    iApply wp_fupd.
-    wp_apply (record4_spec with "[//]") as "%l (Hmeta & Hfront & Hback & Hdata & Hp)".
+    (* → [Proph] *)
+    wp_apply (wise_prophet_wp_proph with "[//]") as "%p %γ_prophet %prophs Hprophet_model".
+
+    (* → [{ #0; #0; data; #p }] *)
+    wp_record l as "Hmeta" "(Hfront & Hback & Hdata & Hp & _)".
     iMod (mapsto_persist with "Hdata") as "#Hdata".
     iMod (mapsto_persist with "Hp") as "#Hp".
 

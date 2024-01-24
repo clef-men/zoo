@@ -106,7 +106,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    iApply wp_fupd. wp_apply (wp_ref with "[//]") as (l) "(Hmeta & Hl)".
+    wp_alloc l as "Hmeta" "Hl".
     iMod (auth_excl_alloc' (auth_excl_G := treiber_stack_G_model_G) []) as "(%γ & Hmodel₁ & Hmodel₂)".
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
     iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.

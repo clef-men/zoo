@@ -1,10 +1,8 @@
 From zebre Require Import
   prelude.
 From zebre.language Require Import
-  tactics
-  notations.
-From zebre.std Require Import
-  record.
+  notations
+  diaframe.
 From zebre Require Import
   options.
 
@@ -140,11 +138,11 @@ Qed.
 
 Definition store_create : val :=
   λ: <>,
-    record2 (ref &&Root) #0.
+    { ref &&Root; #0 }.
 
 Definition store_ref : val :=
   λ: "t" "v",
-    record2 "v" #0.
+    { "v"; #0 }.
 
 Definition store_get : val :=
   λ: "t" "r",

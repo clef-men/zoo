@@ -16,6 +16,7 @@ Implicit Types n m : Z.
 Implicit Types l : loc.
 Implicit Types lit : literal.
 Implicit Types e : expr.
+Implicit Types es : list expr.
 Implicit Types v w : val.
 Implicit Types vs : list val.
 
@@ -129,6 +130,8 @@ Fixpoint subst (x : string) v e :=
       Constr b (subst x v e)
   | Case e0 e1 e2 =>
       Case (subst x v e0) (subst x v e1) (subst x v e2)
+  | Record es =>
+      Record (subst x v <$> es)
   | Alloc e1 e2 =>
       Alloc (subst x v e1) (subst x v e2)
   | Load e =>
@@ -232,15 +235,8 @@ Proof.
   rewrite Z2Nat.id // in Hj. naive_solver.
 Qed.
 
-Definition state_init_heap l n v σ :=
-  state_update_heap (λ h, heap_array l (replicate (Z.to_nat n) v) ∪ h) σ.
-
-Lemma state_init_heap_singleton l v σ :
-  state_init_heap l 1 v σ = state_update_heap <[l := v]> σ.
-Proof.
-  destruct σ as [h p]. rewrite /state_init_heap /=. f_equiv.
-  rewrite insert_empty insert_union_singleton_l //.
-Qed.
+Definition state_init_heap l vs σ :=
+  state_update_heap (λ h, heap_array l vs ∪ h) σ.
 
 Definition observation : Set :=
   prophecy_id * (val * val).
@@ -248,122 +244,169 @@ Definition observation : Set :=
 Inductive head_step : expr → state → list observation → expr → state → list expr → Prop :=
   | head_step_rec f x e σ :
       head_step
-        (Rec f x e) σ
+        (Rec f x e)
+        σ
         []
-        (Val $ ValRec f x e) σ
+        (Val $ ValRec f x e)
+        σ
         []
   | head_step_beta f x e v e' σ :
       e' = subst' f (ValRec f x e) (subst' x v e) →
       head_step
-        (App (Val $ ValRec f x e) (Val v)) σ
+        (App (Val $ ValRec f x e) (Val v))
+        σ
         []
-        e' σ
+        e'
+        σ
         []
   | head_step_unop op v v' σ :
       unop_eval op v = Some v' →
       head_step
-        (Unop op $ Val v) σ
+        (Unop op $ Val v)
+        σ
         []
-        (Val v') σ
+        (Val v')
+        σ
         []
   | head_step_binop op v1 v2 v' σ :
       binop_eval op v1 v2 = Some v' →
       head_step
-        (Binop op (Val v1) (Val v2)) σ
+        (Binop op (Val v1) (Val v2))
+        σ
         []
-        (Val v') σ
+        (Val v')
+        σ
         []
   | head_step_equal_fail v1 v2 σ :
       val_physical v1 →
       val_physical v2 →
       val_physically_distinct v1 v2 →
       head_step
-        (Equal (Val v1) (Val v2)) σ
+        (Equal (Val v1) (Val v2))
+        σ
         []
-        (Val $ ValLiteral $ LiteralBool false) σ
+        (Val $ ValLiteral $ LiteralBool false)
+        σ
         []
   | head_step_equal_suc v1 v2 σ :
       val_physical v1 →
       v1 = v2 →
       head_step
-        (Equal (Val v1) (Val v2)) σ
+        (Equal (Val v1) (Val v2))
+        σ
         []
-        (Val $ ValLiteral $ LiteralBool true) σ
+        (Val $ ValLiteral $ LiteralBool true)
+        σ
         []
   | head_step_if_true e1 e2 σ :
       head_step
-        (If (Val $ ValLiteral $ LiteralBool true) e1 e2) σ
+        (If (Val $ ValLiteral $ LiteralBool true) e1 e2)
+        σ
         []
-        e1 σ
+        e1
+        σ
         []
   | head_step_if_false e1 e2 σ :
       head_step
-        (If (Val $ ValLiteral $ LiteralBool false) e1 e2) σ
+        (If (Val $ ValLiteral $ LiteralBool false) e1 e2)
+        σ
         []
-        e2 σ
+        e2
+        σ
         []
   | head_step_pair v1 v2 σ :
       head_step
-        (Pair (Val v1) (Val v2)) σ
+        (Pair (Val v1) (Val v2))
+        σ
         []
-        (Val $ ValPair v1 v2) σ
+        (Val $ ValPair v1 v2)
+        σ
         []
   | head_step_fst v1 v2 σ :
       head_step
-        (Fst $ Val $ ValPair v1 v2) σ
+        (Fst $ Val $ ValPair v1 v2)
+        σ
         []
-        (Val v1) σ
+        (Val v1)
+        σ
         []
   | head_step_snd v1 v2 σ :
       head_step
-        (Snd $ Val $ ValPair v1 v2) σ
+        (Snd $ Val $ ValPair v1 v2)
+        σ
         []
-        (Val v2) σ
+        (Val v2)
+        σ
         []
   | head_step_constr b v σ :
       head_step
-        (Constr b $ Val v) σ
+        (Constr b $ Val v)
+        σ
         []
-        (Val $ ValConstr b v) σ
+        (Val $ ValConstr b v)
+        σ
         []
   | head_step_case b v e1 e2 σ :
       head_step
-        (Case (Val $ ValConstr b v) e1 e2) σ
+        (Case (Val $ ValConstr b v) e1 e2)
+        σ
         []
-        (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v)) σ
+        (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v))
+        σ
+        []
+  | head_step_record es vs σ l :
+      0 < length es →
+      es = of_vals vs →
+      ( ∀ i,
+        (0 ≤ i < length es)%Z →
+        σ.(state_heap) !! (l +ₗ i) = None
+      ) →
+      head_step
+        (Record es)
+        σ
+        []
+        (Val $ ValLiteral $ LiteralLoc l)
+        (state_init_heap l vs σ)
         []
   | head_step_alloc n v σ l :
       (0 < n)%Z →
       ( ∀ i,
-        (0 ≤ i)%Z →
-        (i < n)%Z →
+        (0 ≤ i < n)%Z →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       head_step
-        (Alloc (Val $ ValLiteral $ LiteralInt n) (Val v)) σ
+        (Alloc (Val $ ValLiteral $ LiteralInt n) (Val v))
+        σ
         []
-        (Val $ ValLiteral $ LiteralLoc l) (state_init_heap l n v σ)
+        (Val $ ValLiteral $ LiteralLoc l)
+        (state_init_heap l (replicate (Z.to_nat n) v) σ)
         []
   | head_step_load l v σ :
       σ.(state_heap) !! l = Some v →
       head_step
-        (Load $ Val $ ValLiteral $ LiteralLoc l) σ
+        (Load $ Val $ ValLiteral $ LiteralLoc l)
+        σ
         []
-        (Val v) σ
+        (Val v)
+        σ
         []
   | head_step_store l v w σ :
       σ.(state_heap) !! l = Some w →
       head_step
-        (Store (Val $ ValLiteral $ LiteralLoc l) (Val v)) σ
+        (Store (Val $ ValLiteral $ LiteralLoc l) (Val v))
+        σ
         []
-        (Val $ ValLiteral LiteralUnit) (state_update_heap <[l := v]> σ)
+        (Val $ ValLiteral LiteralUnit)
+        (state_update_heap <[l := v]> σ)
         []
   | head_step_xchg l v w σ :
       σ.(state_heap) !! l = Some w →
       head_step
-        (Xchg (Val $ ValLiteral $ LiteralLoc l) (Val v)) σ
+        (Xchg (Val $ ValLiteral $ LiteralLoc l) (Val v))
+        σ
         []
-        (Val w) (state_update_heap <[l := v]> σ)
+        (Val w)
+        (state_update_heap <[l := v]> σ)
         []
   | head_step_cas_fail l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
@@ -371,65 +414,96 @@ Inductive head_step : expr → state → list observation → expr → state →
       val_physical v1 →
       val_physically_distinct v v1 →
       head_step
-        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2)) σ
+        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
+        σ
         []
-        (Val $ ValLiteral $ LiteralBool false) σ
+        (Val $ ValLiteral $ LiteralBool false)
+        σ
         []
   | head_step_cas_suc l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
       val_physical v →
       v = v1 →
       head_step
-        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2)) σ
+        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
+        σ
         []
-        (Val $ ValLiteral $ LiteralBool true) (state_update_heap <[l := v2]> σ)
+        (Val $ ValLiteral $ LiteralBool true)
+        (state_update_heap <[l := v2]> σ)
         []
   | head_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValLiteral $ LiteralInt m →
       head_step
-        (Faa (Val $ ValLiteral $ LiteralLoc l) (Val $ ValLiteral $ LiteralInt n)) σ
+        (Faa (Val $ ValLiteral $ LiteralLoc l) (Val $ ValLiteral $ LiteralInt n))
+        σ
         []
-        (Val $ ValLiteral $ LiteralInt m) (state_update_heap <[l := ValLiteral $ LiteralInt (m + n)]> σ)
+        (Val $ ValLiteral $ LiteralInt m)
+        (state_update_heap <[l := ValLiteral $ LiteralInt (m + n)]> σ)
         []
   | head_step_fork e σ :
       head_step
-        (Fork e) σ
+        (Fork e)
+        σ
         []
-        (Val $ ValLiteral LiteralUnit) σ
+        (Val $ ValLiteral LiteralUnit)
+        σ
         [e]
   | head_step_proph σ p :
       p ∉ σ.(state_prophs) →
       head_step
-        Proph σ
+        Proph
+        σ
         []
-        (Val $ ValLiteral $ LiteralProphecy p) (state_update_prophs ({[p]} ∪.) σ)
+        (Val $ ValLiteral $ LiteralProphecy p)
+        (state_update_prophs ({[p]} ∪.) σ)
         []
   | head_step_resolve e p v σ κ w σ' es :
       head_step e σ κ (Val w) σ' es →
       head_step
-        (Resolve e (Val $ ValLiteral $ LiteralProphecy p) (Val v)) σ
+        (Resolve e (Val $ ValLiteral $ LiteralProphecy p) (Val v))
+        σ
         (κ ++ [(p, (w, v))])
-        (Val w) σ'
+        (Val w)
+        σ'
         es.
 
+Lemma head_step_record' es vs σ :
+  let l := loc_fresh (dom σ.(state_heap)) in
+  0 < length es →
+  es = of_vals vs →
+  head_step
+    (Record es)
+    σ
+    []
+    (Val $ ValLiteral $ LiteralLoc l)
+    (state_init_heap l vs σ)
+    [].
+Proof.
+  intros. apply head_step_record; [done.. |].
+  intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
+Qed.
 Lemma head_step_alloc' v n σ :
   let l := loc_fresh (dom σ.(state_heap)) in
   (0 < n)%Z →
   head_step
-    (Alloc ((Val $ ValLiteral $ LiteralInt $ n)) (Val v)) σ
+    (Alloc ((Val $ ValLiteral $ LiteralInt $ n)) (Val v))
+    σ
     []
-    (Val $ ValLiteral $ LiteralLoc l) (state_init_heap l n v σ)
+    (Val $ ValLiteral $ LiteralLoc l)
+    (state_init_heap l (replicate (Z.to_nat n) v) σ)
     [].
 Proof.
   intros. apply head_step_alloc; first done.
-  intros. apply not_elem_of_dom, loc_fresh_fresh. done.
+  intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
 Qed.
 Lemma head_step_proph' σ :
   let p := fresh σ.(state_prophs) in
   head_step
-    Proph σ
+    Proph
+    σ
     []
-    (Val $ ValLiteral $ LiteralProphecy p) (state_update_prophs ({[p]} ∪.) σ)
+    (Val $ ValLiteral $ LiteralProphecy p)
+    (state_update_prophs ({[p]} ∪.) σ)
     [].
 Proof.
   constructor. apply is_fresh.
@@ -457,6 +531,7 @@ Inductive ectxi :=
   | CtxSnd
   | CtxConstr b
   | CtxCase e1 e2
+  | CtxRecord vs es
   | CtxAllocL v2
   | CtxAllocR e1
   | CtxLoad
@@ -477,23 +552,23 @@ Implicit Types k : ectxi.
 Fixpoint ectxi_fill k e : expr :=
   match k with
   | CtxAppL v2 =>
-      App e (Val v2)
+      App e $ Val v2
   | CtxAppR e1 =>
       App e1 e
   | CtxUnop op =>
       Unop op e
   | CtxBinopL op v2 =>
-      Binop op e (Val v2)
+      Binop op e $ Val v2
   | CtxBinopR op e1 =>
       Binop op e1 e
   | CtxEqualL v2 =>
-      Equal e (Val v2)
+      Equal e $ Val v2
   | CtxEqualR e1 =>
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
   | CtxPairL v2 =>
-      Pair e (Val v2)
+      Pair e $ Val v2
   | CtxPairR e1 =>
       Pair e1 e
   | CtxFst =>
@@ -504,34 +579,36 @@ Fixpoint ectxi_fill k e : expr :=
       Constr b e
   | CtxCase e1 e2 =>
       Case e e1 e2
+  | CtxRecord vs es =>
+      Record $ of_vals vs ++ e :: es
   | CtxAllocL v2 =>
-      Alloc e (Val v2)
+      Alloc e $ Val v2
   | CtxAllocR e1 =>
       Alloc e1 e
   | CtxLoad =>
       Load e
   | CtxStoreL v2 =>
-      Store e (Val v2)
+      Store e $ Val v2
   | CtxStoreR e1 =>
       Store e1 e
   | CtxXchgL v2 =>
-      Xchg e (Val v2)
+      Xchg e $ Val v2
   | CtxXchgR e1 =>
       Xchg e1 e
   | CtxCasL v1 v2 =>
       Cas e (Val v1) (Val v2)
   | CtxCasM e0 v2 =>
-      Cas e0 e (Val v2)
+      Cas e0 e $ Val v2
   | CtxCasR e0 e1 =>
       Cas e0 e1 e
   | CtxFaaL v2 =>
-      Faa e (Val v2)
+      Faa e $ Val v2
   | CtxFaaR e1 =>
       Faa e1 e
   | CtxResolveL k v1 v2 =>
       Resolve (ectxi_fill k e) (Val v1) (Val v2)
   | CtxResolveM e0 v2 =>
-      Resolve e0 e (Val v2)
+      Resolve e0 e $ Val v2
   | CtxResolveR e0 e1 =>
       Resolve e0 e1 e
   end.
@@ -540,7 +617,7 @@ Fixpoint ectxi_fill k e : expr :=
 #[global] Instance ectxi_fill_inj k :
   Inj (=) (=) (ectxi_fill k).
 Proof.
-  induction k; intros ? ? ?; simplify_eq/=; auto with f_equal.
+  induction k; intros ? ? ?; simplify; auto with f_equal.
 Qed.
 Lemma ectxi_fill_val k e :
   is_Some (to_val (ectxi_fill k e)) →
@@ -554,13 +631,23 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   ectxi_fill k1 e1 = ectxi_fill k2 e2 →
   k1 = k2.
 Proof.
-  revert k1. induction k2; intros k1; induction k1; naive_solver eauto with f_equal.
+  move: k1. induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
+  move=> /= H1 H2 H. invert H as [H'].
+  apply app_inj_1 in H'; first naive_solver.
+  clear- H1 H2 H'.
+  match goal with |- length (of_vals ?vs1) = length (of_vals ?vs2) =>
+    move: vs2 H'; induction vs1; intros []; naive_solver
+  end.
 Qed.
 Lemma head_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
   head_step (ectxi_fill k e) σ1 κ e2 σ2 es →
   is_Some (to_val e).
 Proof.
-  revert κ e2. induction k; inversion_clear 1; simplify_option_eq; eauto.
+  move: κ e2. induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
+  inversion_clear 1.
+  match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>
+    clear- H; move: vs H; induction vs'; intros []; naive_solver
+  end.
 Qed.
 
 Definition ectx :=

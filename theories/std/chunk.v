@@ -1002,7 +1002,6 @@ Section zebre_G.
     wp_rec. wp_pures.
     case_bool_decide; wp_pures.
     - setoid_rewrite decide_True; [| done..].
-      wp_apply (wp_alloc with "[//]") as "%l (Hmeta & H↦)"; first done.
       iSteps.
     - iApply "HΦ".
       rewrite Z2Nat.nonpos; first lia. rewrite decide_False; first lia. rewrite right_id.

@@ -283,6 +283,12 @@ Notation "'match:' e0 'with' 'Injl' x1 => e1 | 'Injr' x2 => e2 'end'" := (
   only parsing
 ) : expr_scope.
 
+Notation "{ e1 ; .. ; en }" := (
+  Record (@cons expr e1 .. (@cons expr en (@nil expr)) ..)
+)(e1, en at level 200,
+  format "'[hv' {  '[' e1 ']' '/' ;  .. '/' ;  '[' en ']'  '/' } ']'"
+) : expr_scope.
+
 Notation "'ref' e" := (
   Alloc (Val (ValLiteral (LiteralInt 1))) e
 )(at level 10

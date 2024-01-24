@@ -21,6 +21,8 @@ From zebre.language Require Import
 From zebre Require Import
   options.
 
+Implicit Types e : expr.
+
 Class PureExecNoRec ϕ n e1 e2 :=
   is_pure_exec : PureExec (Λ := zebre) ϕ n e1 e2.
 
@@ -31,7 +33,7 @@ Section instances.
 
   Open Scope expr_scope.
 
-  #[global] Instance pure_wp_step_exec_inst1 (e : expr) ϕ n e' E :
+  #[global] Instance pure_wp_step_exec_inst1 e ϕ n e' E :
     (* TODO: prevent unfolding explicit recs *)
     PureExecNoRec ϕ n e e' →
     ReductionTemplateStep wp_red_cond (TeleO*TeleO) (ε₀)%I [tele_arg3 E; NotStuck] e
@@ -45,7 +47,7 @@ Section instances.
     refine (pure_wp_step_exec _ _ _ _ _ _ _ _ _). exact H.
   Qed.
 
-  #[global] Instance pure_wp_step_exec_inst2 (e : expr) ϕ n e' E :
+  #[global] Instance pure_wp_step_exec_inst2 e ϕ n e' E :
     PureExecNoRec ϕ n e e' →
     SolveSepSideCondition ϕ →
     ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E; NotStuck] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))%I
@@ -70,6 +72,23 @@ Section instances.
     iSteps.
   Qed.
 
+  #[global] Instance record_step_wp es :
+    SPEC vs,
+    {{
+      ⌜0 < length es⌝%nat ∗
+      ⌜to_vals es = Some vs⌝
+    }}
+      Record es
+    {{ l,
+      RET #l;
+      l ↦∗ vs
+    }}.
+  Proof.
+    iSteps.
+    wp_record l as "Hl".
+    iSteps.
+  Qed.
+
   #[global] Instance ref_step_wp e v :
     IntoVal e v →
     SPEC
@@ -77,13 +96,14 @@ Section instances.
       ref e
     {{ l,
       RET #l;
+      meta_token l ⊤ ∗
       l ↦ v
     }}
   | 20.
   Proof.
     move => <-.
     iSteps.
-    wp_alloc l as "Hl".
+    wp_alloc l as "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -96,13 +116,14 @@ Section instances.
       Alloc #n e
     {{ l,
       RET #l;
+      meta_token l ⊤ ∗
       l ↦∗ replicate (Z.to_nat n) v
     }}
   | 30.
   Proof.
     move => <- /=.
     iSteps.
-    wp_alloc l as "Hl"; first done.
+    wp_alloc l as "Hmeta" "Hl"; first done.
     iSteps.
   Qed.
 
@@ -283,67 +304,69 @@ End instances.
 Section unfold_functions.
   Context `{zebre_G : !ZebreG Σ}.
 
-  Fixpoint occurs_in (s : string) (body : expr) : bool :=
-    match body with
+  Fixpoint occurs x e :=
+    match e with
     | Val _ =>
         false
-    | Var s' =>
-        if decide (s = s') then true else false
-    | Rec b x e =>
-        if decide (BNamed s ≠ b ∧ BNamed s ≠ x) then occurs_in s e else false
-    | App f a =>
-        (occurs_in s f) || (occurs_in s a)
+    | Var y =>
+        bool_decide (x = y)
+    | Rec f y e =>
+        if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then occurs x e else false
+    | App e1 e2 =>
+        (occurs x e1) || (occurs x e2)
     | Unop _ e =>
-        occurs_in s e
-    | Binop _ l r =>
-        (occurs_in s l) || (occurs_in s r)
-    | Equal l r =>
-        (occurs_in s l) || (occurs_in s r)
-    | If c t e =>
-        (occurs_in s c) || (occurs_in s t) || (occurs_in s e)
-    | Pair l r =>
-        (occurs_in s l) || (occurs_in s r)
+        occurs x e
+    | Binop _ e1 e2 =>
+        (occurs x e1) || (occurs x e2)
+    | Equal e1 e2 =>
+        (occurs x e1) || (occurs x e2)
+    | If e0 e1 e2 =>
+        (occurs x e0) || (occurs x e1) || (occurs x e2)
+    | Pair e1 e2 =>
+        (occurs x e1) || (occurs x e2)
     | Fst e =>
-        occurs_in s e
+        occurs x e
     | Snd e =>
-        occurs_in s e
+        occurs x e
     | Injl e =>
-        occurs_in s e
+        occurs x e
     | Injr e =>
-        occurs_in s e
-    | Case c l r =>
-        (occurs_in s c) || (occurs_in s l) || (occurs_in s r)
+        occurs x e
+    | Case e0 e1 e2 =>
+        (occurs x e0) || (occurs x e1) || (occurs x e2)
     | Fork e =>
-        (occurs_in s e)
-    | Alloc n e =>
-        (occurs_in s n) || (occurs_in s e)
+        (occurs x e)
+    | Record es =>
+        existsb (occurs x) es
+    | Alloc e1 e2 =>
+        (occurs x e1) || (occurs x e2)
     | Load e =>
-        occurs_in s e
+        occurs x e
     | Store l e =>
-        (occurs_in s l) || (occurs_in s e)
-    | Xchg l e =>
-        (occurs_in s l) || (occurs_in s e)
-    | Cas l e1 e2 =>
-        (occurs_in s l) || (occurs_in s e1) || (occurs_in s e2)
-    | Faa l n =>
-        (occurs_in s l) || (occurs_in s n)
+        (occurs x l) || (occurs x e)
+    | Xchg e1 e2 =>
+        (occurs x e1) || (occurs x e2)
+    | Cas e0 e1 e2 =>
+        (occurs x e0) || (occurs x e1) || (occurs x e2)
+    | Faa e1 e2 =>
+        (occurs x e1) || (occurs x e2)
     | Proph =>
         false
-    | Resolve a1 a2 a3 =>
-        (occurs_in s a1) || (occurs_in s a2) || (occurs_in s a3)
+    | Resolve e0 e1 e2 =>
+        (occurs x e0) || (occurs x e1) || (occurs x e2)
     end.
 
-  Definition is_recursive_fun (v : val) :=
+  Definition val_recursive v :=
     match v with
     | ValRec (BNamed f) x e =>
-        occurs_in f e
+        occurs f e
     | _ =>
         false
     end.
 
-  #[global] Instance pure_wp_step_exec_inst_last (e : expr) ϕ n e' E s :
+  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E s :
     ( ( ∀ f x e,
-        SolveSepSideCondition (is_recursive_fun (ValRec f x e) = false) →
+        SolveSepSideCondition (val_recursive (ValRec f x e) = false) →
         AsValRec (ValRec f x e) f x e
       ) →
       PureExec ϕ n e e'
@@ -399,7 +422,7 @@ Unset Universe Polymorphism.
       assert_fails (assert (∃ f x erec,
         TCAnd (AsValRec v1 f x erec) $
         TCAnd (TCIf (TCEq f BAnon) False TCTrue) $
-        SolveSepSideCondition (is_recursive_fun (ValRec f x erec) = true)
+        SolveSepSideCondition (val_recursive (ValRec f x erec) = true)
       )
       by (do 3 eexists; tc_solve));
       unfold PureExecNoRec;

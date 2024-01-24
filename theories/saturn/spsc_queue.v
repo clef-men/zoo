@@ -15,7 +15,6 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Import
-  record
   opt
   array.
 From zebre.saturn Require Export
@@ -55,7 +54,7 @@ Implicit Types vs hist : list val.
 
 Definition spsc_queue_create : val :=
   λ: "sz",
-    record3 (array_make "sz" &&None) #0 #0.
+    { array_make "sz" &&None; #0; #0 }.
 
 Definition spsc_queue_push : val :=
   λ: "t" "v",
@@ -470,7 +469,7 @@ Section spsc_queue_G.
     wp_rec.
     iApply wp_fupd.
     wp_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
-    wp_apply (record3_spec with "[//]") as "%l (Hmeta & Hdata & Hfront & Hback)".
+    wp_record l as "Hmeta" "(Hdata & Hfront & Hback & _)".
     iMod (mapsto_persist with "Hdata") as "#Hdata".
 
     iMod spsc_queue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".

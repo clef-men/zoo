@@ -144,6 +144,31 @@ Section zebre_G.
     rewrite loc_add_0. iSteps.
     setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- loc_add_assoc. iSteps.
   Qed.
+
+  Lemma wp_record {es} vs E :
+    0 < length es →
+    to_vals es = Some vs →
+    {{{ True }}}
+      Record es @ E
+    {{{ l,
+      RET #l;
+      meta_token l ⊤ ∗
+      l ↦∗ vs
+    }}}.
+  Proof.
+    iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
+    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
+    iSplit; first auto with zebre. iIntros "!> %e2 %σ2 %es %Hstep _".
+    invert_head_step. rename select (list val) into vs.
+    iStep. iFrame.
+    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
+    { apply heap_array_map_disjoint. rewrite -> of_vals_length in *. auto. }
+    iApply "HΦ".
+    rewrite !big_sepM_heap_array. iFrame.
+    destruct vs; first naive_solver lia.
+    iDestruct "Hmeta" as "(Hmeta & _)". rewrite loc_add_0 //.
+  Qed.
+
   Lemma wp_alloc n v E :
     (0 < n)%Z →
     {{{ True }}}
@@ -159,7 +184,7 @@ Section zebre_G.
     iSplit; first auto with zebre. iIntros "!> %e2 %σ2 %es %Hstep _".
     invert_head_step.
     iStep. iFrame.
-    iMod (gen_heap_alloc_big _ (heap_array _ (replicate (Z.to_nat n) v)) with "Hσ1") as "($ & Hl & Hmeta)".
+    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
     { apply heap_array_map_disjoint. rewrite replicate_length Z2Nat.id; auto with lia. }
     iApply "HΦ".
     rewrite !big_sepM_heap_array. iFrame.

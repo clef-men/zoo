@@ -1,7 +1,6 @@
 From zebre Require Import
   prelude.
 From zebre.language Require Import
-  tactics
   notations
   diaframe.
 From zebre.std Require Export

@@ -9,7 +9,6 @@ From zebre.language Require Import
 From zebre.std Require Export
   base.
 From zebre.std Require Import
-  record
   condition.
 From zebre Require Import
   options.
@@ -44,7 +43,7 @@ Implicit Types l : loc.
 
 Definition latch1_create : val :=
   λ: <>,
-    let: "t" := record3 #false #() #() in
+    let: "t" := { #false; #(); #() } in
     "t".[mutex] <- mutex_create #() ;;
     "t".[condition] <- condition_create #() ;;
     "t".
@@ -188,7 +187,7 @@ Section latch1_G.
 
     wp_rec.
 
-    wp_apply (record3_spec with "[//]") as "%l (Hmeta & Hflag & Hmtx & Hcond)".
+    wp_record l as "Hmeta" "(Hflag & Hmtx & Hcond & _)".
 
     iMod (oneshot_alloc ()) as "(%γ_producer & Hpending)".
     iEval (assert (1 = 2/3 + 1/3)%Qp as -> by compute_done) in "Hpending".

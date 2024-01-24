@@ -6,11 +6,9 @@ From zebre.iris.base_logic Require Import
   lib.auth_gmultiset
   lib.auth_mono.
 From zebre.language Require Import
-  tactics
   notations
   diaframe.
 From zebre.std Require Import
-  record
   opt
   latch1
   unix.
@@ -166,7 +164,7 @@ Qed.
 
 Definition rcfd_make : val :=
   λ: "fd",
-    record2 #0 (ref (&Open "fd")).
+    { #0; ref (&Open "fd") }.
 
 #[local] Definition rcfd_closed : val :=
   λ: <>,
@@ -517,8 +515,7 @@ Section rcfd_G.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
     wp_alloc l_state as "Hstate". iMod (mapsto_persist with "Hstate") as "Hstate".
-    iApply wp_fupd.
-    wp_smart_apply (record2_spec with "[//]") as "%l (Hmeta & Hops & Hfd)".
+    wp_record l as "Hmeta" "(Hops & Hfd & _)".
     iMod rcfd_tokens_alloc as "(%γ_tokens & Htokens_auth)".
     iMod rcfd_lstate_alloc as "(%γ_lstate & Hlstate_auth)".
     pose γ := {|
