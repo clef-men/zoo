@@ -133,7 +133,7 @@ Section zebre_G.
 
   Lemma big_sepM_heap_array (Φ : loc → val → iProp Σ) l vs :
     ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
-    [∗ list] i ↦ v ∈ vs, Φ l.[i] v.
+    [∗ list] i ↦ v ∈ vs, Φ (l +ₗ i) v.
   Proof.
     iInduction vs as [| v vs] "IH" forall (l) => /=; first iSteps.
     iIntros "H".

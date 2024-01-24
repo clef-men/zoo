@@ -10,49 +10,33 @@ Implicit Types r : loc.
 Implicit Types v t s : val.
 Implicit Types σ : gmap loc val.
 
-#[local] Notation "t '.[root]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[gen]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[root]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[gen]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'root'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'gen'" :=
+  1
+( in custom zebre_field
+).
 
-#[local] Notation "r '.[ref_value]'" :=
-  r.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "r '.[ref_gen]'" :=
-  r.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "r '.[ref_value]'" :=
-  r.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "r '.[ref_gen]'" :=
-  r.[#1]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'ref_value'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'ref_gen'" :=
+  1
+( in custom zebre_field
+).
 
-#[local] Notation "s '.[snap_store]'" :=
+#[local] Notation "s '.<snap_store>'" :=
   s.𝟙.𝟙%E
 ( at level 5
 ) : expr_scope.
-#[local] Notation "s '.[snap_root]'" :=
+#[local] Notation "s '.<snap_root>'" :=
   s.𝟙.𝟚%E
 ( at level 5
 ) : expr_scope.
-#[local] Notation "s '.[snap_gen]'" :=
+#[local] Notation "s '.<snap_gen>'" :=
   s.𝟚%E
 ( at level 5
 ) : expr_scope.
@@ -150,23 +134,23 @@ Definition store_get : val :=
 
 Definition store_set : val :=
   λ: "t" "r" "v",
-    let: "t_gen" := !"t".[gen] in
+    let: "t_gen" := "t".{gen} in
     let: "r_gen" := !"r".[ref_gen] in
     if: "t_gen" = "r_gen" then (
       "r".[ref_value] <- "v"
     ) else (
       let: "root" := ref &&Root in
-      !"t".[root] <- &Diff "r" !"r".[ref_value] "r_gen" "root" ;;
+      "t".{root} <- &Diff "r" !"r".[ref_value] "r_gen" "root" ;;
       "r".[ref_value] <- "v" ;;
       "r".[ref_gen] <- "t_gen" ;;
-      "t".[root] <- "root"
+      "t" <-{root}- "root"
     ).
 
 Definition store_capture : val :=
   λ: "t",
-    let: "gen" := !"t".[gen] in
-    "t".[gen] <- #1 + "gen" ;;
-    ("t", !"t".[root], "gen").
+    let: "gen" := "t".{gen} in
+    "t" <-{gen}- #1 + "gen" ;;
+    ("t", "t".{root}, "gen").
 
 #[local] Definition store_reroot : val :=
   rec: "store_reroot" "node" :=
@@ -204,17 +188,17 @@ Definition store_capture : val :=
 
 Definition store_restore : val :=
   λ: "t" "s",
-    if: "t" ≠ "s".[snap_store] then (
+    if: "t" ≠ "s".<snap_store> then (
       Fail
     ) else (
-      let: "root" := "s".[snap_root] in
+      let: "root" := "s".<snap_root> in
       match: !"root" with
       | Root =>
           #()
       | Diff <> <> <> <> =>
           store_reroot "root" ;;
-          "t".[root] <- "root" ;;
-          "t".[gen] <- #1 + "s".[snap_gen]
+          "t" <-{root}- "root" ;;
+          "t" <-{gen}- #1 + "s".<snap_gen>
       end
     ).
 

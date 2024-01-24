@@ -18,22 +18,14 @@ Implicit Types l : loc.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
-#[local] Notation "t '.[size]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[size]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'size'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'data'" :=
+  1
+( in custom zebre_field
+).
 
 Definition array_create : val :=
   λ: <>,
@@ -43,7 +35,7 @@ Definition array_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
     let: "t" := chunk_make (#1 + "sz") "v" in
-    "t".[size] <- "sz" ;;
+    "t" <-{size}- "sz" ;;
     "t".
 
 Definition array_initi : val :=
@@ -58,14 +50,14 @@ Definition array_init : val :=
 
 Definition array_size : val :=
   λ: "t",
-    !"t".[size].
+    "t".{size}.
 #[local] Definition array_data : val :=
   λ: "t",
     "t".[data].
 
 Definition array_unsafe_get : val :=
   λ: "t" "i",
-    !(array_data "t").["i"].
+    !(array_data "t" +ₗ "i").
 Definition array_get : val :=
   λ: "t" "i",
     assume (#0 ≤ "i") ;;
@@ -74,7 +66,7 @@ Definition array_get : val :=
 
 Definition array_unsafe_set : val :=
   λ: "t" "i" "v",
-    (array_data "t").["i"] <- "v".
+    array_data "t" +ₗ "i" <- "v".
 Definition array_set : val :=
   λ: "t" "i" "v",
     assume (#0 ≤ "i") ;;
@@ -105,7 +97,7 @@ Definition array_blit : val :=
     assume (#0 ≤ "n") ;;
     assume ("i1" + "n" ≤ "sz1") ;;
     assume ("i2" + "n" ≤ "sz2") ;;
-    chunk_copy (array_data "t1").["i1"] "n" (array_data "t2").["i2"].
+    chunk_copy (array_data "t1" +ₗ "i1") "n" (array_data "t2" +ₗ "i2").
 Definition array_copy : val :=
   λ: "t1" "t2" "i2",
     array_blit "t1" #0 "t2" "i2" (array_size "t1").
@@ -122,7 +114,7 @@ Definition array_sub : val :=
     assume (#0 ≤ "n") ;;
     assume ("i" + "n" ≤ "sz") ;;
     let: "t'" := array_make "n" #() in
-    chunk_copy (array_data "t").["i"] "n" (array_data "t'") ;;
+    chunk_copy (array_data "t" +ₗ "i") "n" (array_data "t'") ;;
     "t'".
 Definition array_shrink : val :=
   λ: "t" "n",
@@ -137,7 +129,7 @@ Definition array_fill_slice : val :=
     assume (#0 ≤ "i") ;;
     assume (#0 ≤ "n") ;;
     assume ("i" + "n" ≤ "sz") ;;
-    chunk_fill (array_data "t").["i"] "n" "v".
+    chunk_fill (array_data "t" +ₗ "i") "n" "v".
 Definition array_fill : val :=
   λ: "t" "v",
     array_fill_slice "t" #0 (array_size "t") "v".
@@ -175,7 +167,7 @@ Section zebre_G.
       ∃ l,
       ⌜t = #l⌝ ∗
       l.[size] ↦□ #sz ∗
-      chunk_model l.[data].[i] dq vs.
+      chunk_model (l.[data] +ₗ i) dq vs.
 
     #[global] Instance array_slice_timeless t sz i dq vs :
       Timeless (array_slice t sz i dq vs).
@@ -364,7 +356,10 @@ Section zebre_G.
       vs !! j = Some v →
       array_slice t sz i dq vs ⊢
         array_slice t sz (i + j) dq [v] ∗
-        (∀ w, array_slice t sz (i + j) dq [w] -∗ array_slice t sz i dq (<[j := w]> vs)).
+        ( ∀ w,
+          array_slice t sz (i + j) dq [w] -∗
+          array_slice t sz i dq (<[j := w]> vs)
+        ).
     Proof.
       iIntros "%Hlookup Hslice".
       pose proof Hlookup as Hj%lookup_lt_Some.
@@ -379,7 +374,9 @@ Section zebre_G.
       vs !! j = Some v →
       array_slice t sz i dq vs ⊢
         array_slice t sz (i + j) dq [v] ∗
-        (array_slice t sz (i + j) dq [v] -∗ array_slice t sz i dq vs).
+        ( array_slice t sz (i + j) dq [v] -∗
+          array_slice t sz i dq vs
+        ).
     Proof.
       iIntros "%Hlookup Hslice".
       iDestruct (array_slice_update with "Hslice") as "(Hv & Hslice)"; first done.
@@ -515,7 +512,10 @@ Section zebre_G.
       vs !! i = Some v →
       array_model t dq vs ⊢
         array_slice t (length vs) i dq [v] ∗
-        (∀ w, array_slice t (length vs) i dq [w] -∗ array_model t dq (<[i := w]> vs)).
+        ( ∀ w,
+          array_slice t (length vs) i dq [w] -∗
+          array_model t dq (<[i := w]> vs)
+        ).
     Proof.
       rewrite /array_model. setoid_rewrite insert_length. rewrite -(Nat.add_0_l i).
       apply array_slice_update.
@@ -524,7 +524,9 @@ Section zebre_G.
       vs !! i = Some v →
       array_model t dq vs ⊢
         array_slice t (length vs) i dq [v] ∗
-        (array_slice t (length vs) i dq [v] -∗ array_model t dq vs).
+        ( array_slice t (length vs) i dq [v] -∗
+          array_model t dq vs
+        ).
     Proof.
       rewrite /array_model -(Nat.add_0_l i).
       apply array_slice_lookup_acc.
@@ -763,7 +765,10 @@ Section zebre_G.
       array_span t sz i dq n ⊢
         ∃ v,
         array_slice t sz (i + j) dq [v] ∗
-        (∀ w, array_slice t sz (i + j) dq [w] -∗ array_span t sz i dq n).
+        ( ∀ w,
+          array_slice t sz (i + j) dq [w] -∗
+          array_span t sz i dq n
+        ).
     Proof.
       iIntros "%Hj (%vs & %Hv & Hslice)".
       iDestruct (array_slice_update j with "Hslice") as "(Hv & Hslice)".
@@ -777,7 +782,9 @@ Section zebre_G.
       array_span t sz i dq n ⊢
         ∃ v,
         array_slice t sz (i + j) dq [v] ∗
-        (array_slice t sz (i + j) dq [v] -∗ array_span t sz i dq n).
+        ( array_slice t sz (i + j) dq [v] -∗
+          array_span t sz i dq n
+        ).
     Proof.
       iIntros "%Hj Hspan".
       iDestruct (array_span_update with "Hspan") as "(%v & Hv & Hspan)"; first done.
@@ -880,7 +887,10 @@ Section zebre_G.
       vs !! k = Some v →
       array_cslice t sz i dq vs ⊢
         array_cslice t sz (i + k) dq [v] ∗
-        (∀ w, array_cslice t sz (i + k) dq [w] -∗ array_cslice t sz i dq (<[k := w]> vs)).
+        ( ∀ w,
+          array_cslice t sz (i + k) dq [w] -∗
+          array_cslice t sz i dq (<[k := w]> vs)
+        ).
     Proof.
       intros.
       rewrite /array_cslice.
@@ -892,7 +902,9 @@ Section zebre_G.
       vs !! k = Some v →
       array_cslice t sz i dq vs ⊢
         array_cslice t sz (i + k) dq [v] ∗
-        (array_cslice t sz (i + k) dq [v] -∗ array_cslice t sz i dq vs).
+        ( array_cslice t sz (i + k) dq [v] -∗
+          array_cslice t sz i dq vs
+        ).
     Proof.
       intros.
       rewrite /array_cslice.

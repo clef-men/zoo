@@ -16,6 +16,15 @@ Definition maximum : val :=
   λ: "n1" "n2",
     if: "n1" < "n2" then "n2" else "n1".
 
+Notation "e1 `min` e2" := (
+  (Val minimum) e1%E e2%E
+)(at level 35
+) : expr_scope.
+Notation "e1 `max` e2" := (
+  (Val maximum) e1%E e2%E
+)(at level 35
+) : expr_scope.
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -24,7 +33,7 @@ Section zebre_G.
 
     Lemma minimum_spec n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2) -∗
-      WP minimum #n1 #n2 @ E {{ Φ }}.
+      WP #n1 `min` #n2 @ E {{ Φ }}.
     Proof.
       iSteps.
       - rewrite Z.min_l; [lia; done | done].
@@ -33,7 +42,7 @@ Section zebre_G.
 
     Lemma maximum_spec n1 n2 E Φ :
       ▷ Φ #(n1 `max` n2) -∗
-      WP maximum #n1 #n2 @ E {{ Φ }}.
+      WP #n1 `max` #n2 @ E {{ Φ }}.
     Proof.
       iSteps.
       - rewrite Z.max_r; [lia; done | done].
@@ -46,14 +55,14 @@ Section zebre_G.
 
     Lemma minimum_spec_nat n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2)%nat -∗
-      WP minimum #n1 #n2 @ E {{ Φ }}.
+      WP #n1 `min` #n2 @ E {{ Φ }}.
     Proof.
       iIntros "HΦ". iApply minimum_spec. rewrite Nat2Z.inj_min //.
     Qed.
 
     Lemma maximum_spec_nat n1 n2 E Φ :
       ▷ Φ #(n1 `max` n2)%nat -∗
-      WP maximum #n1 #n2 @ E {{ Φ }}.
+      WP #n1 `max` #n2 @ E {{ Φ }}.
     Proof.
       iIntros "HΦ". iApply maximum_spec. rewrite Nat2Z.inj_max //.
     Qed.

@@ -13,11 +13,11 @@ From zebre Require Import
 
 Implicit Types v t back front : val.
 
-#[local] Notation "t '.[back]'" :=
+#[local] Notation "t '.<back>'" :=
   t.𝟙%E
 ( at level 5
 ) : expr_scope.
-#[local] Notation "t '.[front]'" :=
+#[local] Notation "t '.<front>'" :=
   t.𝟚%E
 ( at level 5
 ) : expr_scope.
@@ -27,23 +27,23 @@ Definition pqueue_empty : val :=
 
 Definition pqueue_is_empty : val :=
   λ: "t",
-    lst_is_empty "t".[front] && lst_is_empty "t".[back].
+    lst_is_empty "t".<front> && lst_is_empty "t".<back>.
 
 Definition pqueue_push : val :=
   λ: "t" "v",
-    (&Cons "v" "t".[back], "t".[front]).
+    (&Cons "v" "t".<back>, "t".<front>).
 
 Definition pqueue_pop : val :=
   λ: "t",
-    if: lst_is_empty "t".[front] then (
-      let: "front" := lst_rev "t".[back] in
+    if: lst_is_empty "t".<front> then (
+      let: "front" := lst_rev "t".<back> in
       if: lst_is_empty "front" then (
         &&None
       ) else (
         &Some (lst_head "front", (&&Nil, lst_tail "front"))
       )
     ) else (
-      &Some (lst_head "t".[front], ("t".[back], lst_tail "t".[front]))
+      &Some (lst_head "t".<front>, ("t".<back>, lst_tail "t".<front>))
     ).
 
 Section zebre_G.

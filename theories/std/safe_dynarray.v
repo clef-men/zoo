@@ -25,22 +25,14 @@ Implicit Types l r : loc.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
-#[local] Notation "t '.[size]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[size]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'size'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'data'" :=
+  1
+( in custom zebre_field
+).
 
 Definition safe_dynarray_create : val :=
   λ: <>,
@@ -58,20 +50,20 @@ Definition safe_dynarray_initi : val :=
 
 Definition safe_dynarray_size : val :=
   λ: "t",
-    !"t".[size].
+    "t".{size}.
 #[local] Definition safe_dynarray_data : val :=
   λ: "t",
-    !"t".[data].
+    "t".{data}.
 Definition safe_dynarray_capacity : val :=
   λ: "t",
     array_size (safe_dynarray_data "t").
 
 #[local] Definition safe_dynarray_set_size : val :=
   λ: "t" "sz",
-    "t".[size] <- "sz".
+    "t" <-{size}- "sz".
 #[local] Definition safe_dynarray_set_data : val :=
   λ: "t" "data",
-    "t".[data] <- "data".
+    "t" <-{data}- "data".
 
 Definition safe_dynarray_is_empty : val :=
   λ: "t",
@@ -97,14 +89,14 @@ Definition safe_dynarray_set : val :=
 
 #[local] Definition safe_dynarray_next_capacity : val :=
   λ: "n",
-    maximum #8 (if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2).
+    #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
 Definition safe_dynarray_reserve : val :=
   λ: "t" "n",
     assume (#0 ≤ "n") ;;
     let: "data" := safe_dynarray_data "t" in
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
-      let: "new_cap" := maximum "n" (safe_dynarray_next_capacity "cap") in
+      let: "new_cap" := "n" `max` safe_dynarray_next_capacity "cap" in
       let: "new_data" := array_make "new_cap" &&None in
       array_blit "data" #0 "new_data" #0 (safe_dynarray_size "t") ;;
       safe_dynarray_set_data "t" "new_data"

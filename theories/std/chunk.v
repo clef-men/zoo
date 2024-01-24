@@ -35,7 +35,7 @@ Definition chunk_make : val :=
     if: "sz" ≤ "i" then (
       "acc"
     ) else (
-      "chunk_foldli_aux" "t" "sz" ("fn" "acc" "i" !"t".["i"]) "fn" (#1 + "i")
+      "chunk_foldli_aux" "t" "sz" ("fn" "acc" "i" !("t" +ₗ "i")) "fn" (#1 + "i")
     ).
 Definition chunk_foldli : val :=
   λ: "t" "sz" "acc" "fn",
@@ -50,7 +50,7 @@ Definition chunk_foldl : val :=
       "acc"
     ) else (
       let: "i" := "i" - #1 in
-      "chunk_foldri_aux" "t" "fn" ("fn" "i" !"t".["i"] "acc") "i"
+      "chunk_foldri_aux" "t" "fn" ("fn" "i" !("t" +ₗ "i") "acc") "i"
     ).
 Definition chunk_foldri : val :=
   λ: "t" "sz" "fn" "acc",
@@ -68,7 +68,7 @@ Definition chunk_iter : val :=
 
 Definition chunk_applyi : val :=
   λ: "t" "sz" "fn",
-    chunk_iteri "t" "sz" (λ: "i" "v", "t".["i"] <- "fn" "i" "v").
+    chunk_iteri "t" "sz" (λ: "i" "v", "t" +ₗ "i" <- "fn" "i" "v").
 Definition chunk_apply : val :=
   λ: "t" "sz" "fn",
     chunk_applyi "t" "sz" (λ: <>, "fn").
@@ -84,14 +84,14 @@ Definition chunk_init : val :=
 
 Definition chunk_mapi : val :=
   λ: "t" "sz" "fn",
-    chunk_initi "sz" (λ: "i", "fn" "i" !"t".["i"]).
+    chunk_initi "sz" (λ: "i", "fn" "i" !("t" +ₗ "i")).
 Definition chunk_map : val :=
   λ: "t" "sz" "fn",
     chunk_mapi "t" "sz" (λ: <>, "fn").
 
 Definition chunk_copy : val :=
   λ: "t" "sz" "t'",
-    chunk_iteri "t" "sz" (λ: "i" "v", "t'".["i"] <- "v").
+    chunk_iteri "t" "sz" (λ: "i" "v", "t'" +ₗ "i" <- "v").
 
 Definition chunk_resize : val :=
   λ: "t" "sz" "sz'" "n" "v'",
@@ -111,22 +111,22 @@ Definition chunk_clone : val :=
 Definition chunk_fill : val :=
   λ: "t" "sz" "v",
     for: "i" = #0 to "sz" begin
-      "t".["i"] <- "v"
+      "t" +ₗ "i" <- "v"
     end.
 
 Definition chunk_cget : val :=
-λ: "t" "sz" "i",
-   !"t".["i" `rem` "sz"].
+  λ: "t" "sz" "i",
+    !("t" +ₗ "i" `rem` "sz").
 Definition chunk_cset : val :=
   λ: "t" "sz" "i" "v",
-"t".["i" `rem` "sz"] <- "v".
+    "t" +ₗ "i" `rem` "sz" <- "v".
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
   Section chunk_model.
     Definition chunk_model l dq vs : iProp Σ :=
-      [∗ list] i ↦ v ∈ vs, l.[i] ↦{dq} v.
+      [∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v.
 
     #[global] Instance chunk_model_timeless l dq vs :
       Timeless (chunk_model l dq vs).
@@ -177,7 +177,7 @@ Section zebre_G.
 
     Lemma chunk_model_app l dq vs1 vs2 :
       chunk_model l dq vs1 ∗
-      chunk_model l.[length vs1] dq vs2 ⊣⊢
+      chunk_model (l +ₗ length vs1) dq vs2 ⊣⊢
       chunk_model l dq (vs1 ++ vs2).
     Proof.
       setoid_rewrite big_sepL_app.
@@ -185,7 +185,7 @@ Section zebre_G.
       setoid_rewrite <- loc_add_assoc. done.
     Qed.
     Lemma chunk_model_app_1 dq l1 vs1 l2 vs2 :
-      l2 = l1.[length vs1] →
+      l2 = l1 +ₗ length vs1 →
       chunk_model l1 dq vs1 -∗
       chunk_model l2 dq vs2 -∗
       chunk_model l1 dq (vs1 ++ vs2).
@@ -196,22 +196,22 @@ Section zebre_G.
       vs = vs1 ++ vs2 →
       chunk_model l dq vs ⊢
         chunk_model l dq vs1 ∗
-        chunk_model l.[length vs1] dq vs2.
+        chunk_model (l +ₗ length vs1) dq vs2.
     Proof.
       rewrite chunk_model_app. iSteps.
     Qed.
 
     Lemma chunk_model_app3 l dq vs1 vs2 vs3 :
       chunk_model l dq vs1 ∗
-      chunk_model l.[length vs1] dq vs2 ∗
-      chunk_model l.[(length vs1 + length vs2)%nat] dq vs3 ⊣⊢
+      chunk_model (l +ₗ length vs1) dq vs2 ∗
+      chunk_model (l +ₗ (length vs1 + length vs2)%nat) dq vs3 ⊣⊢
       chunk_model l dq (vs1 ++ vs2 ++ vs3).
     Proof.
       rewrite -!chunk_model_app loc_add_assoc Nat2Z.inj_add //.
     Qed.
     Lemma chunk_model_app3_1 dq l1 vs1 l2 vs2 l3 vs3 :
-      l2 = l1.[length vs1] →
-      l3 = l1.[(length vs1 + length vs2)%nat] →
+      l2 = l1 +ₗ length vs1 →
+      l3 = l1 +ₗ (length vs1 + length vs2)%nat →
       chunk_model l1 dq vs1 -∗
       chunk_model l2 dq vs2 -∗
       chunk_model l3 dq vs3 -∗
@@ -223,15 +223,15 @@ Section zebre_G.
       vs = vs1 ++ vs2 ++ vs3 →
       chunk_model l dq vs ⊢
         chunk_model l dq vs1 ∗
-        chunk_model l.[length vs1] dq vs2 ∗
-        chunk_model l.[(length vs1 + length vs2)%nat] dq vs3.
+        chunk_model (l +ₗ length vs1) dq vs2 ∗
+        chunk_model (l +ₗ (length vs1 + length vs2)%nat) dq vs3.
     Proof.
       intros ->. rewrite chunk_model_app3 //.
     Qed.
 
     Lemma chunk_model_cons l dq v vs :
       l ↦{dq} v ∗
-      chunk_model l.[1] dq vs ⊣⊢
+      chunk_model (l +ₗ 1) dq vs ⊣⊢
       chunk_model l dq (v :: vs).
     Proof.
       assert (v :: vs = [v] ++ vs) as -> by done.
@@ -239,7 +239,7 @@ Section zebre_G.
     Qed.
     Lemma chunk_model_cons_1 l dq v vs :
       l ↦{dq} v -∗
-      chunk_model l.[1] dq vs -∗
+      chunk_model (l +ₗ 1) dq vs -∗
       chunk_model l dq (v :: vs).
     Proof.
       rewrite -chunk_model_cons. iSteps.
@@ -247,12 +247,12 @@ Section zebre_G.
     Lemma chunk_model_cons_2 l dq v vs :
       chunk_model l dq (v :: vs) ⊢
         l ↦{dq} v ∗
-        chunk_model l.[1] dq vs.
+        chunk_model (l +ₗ 1) dq vs.
     Proof.
       rewrite chunk_model_cons //.
     Qed.
     #[global] Instance chunk_model_cons_frame l dq v vs R Q :
-      Frame false R (l ↦{dq} v ∗ chunk_model l.[1] dq vs) Q →
+      Frame false R (l ↦{dq} v ∗ chunk_model (l +ₗ 1) dq vs) Q →
       Frame false R (chunk_model l dq (v :: vs)) Q
     | 2.
     Proof.
@@ -264,8 +264,11 @@ Section zebre_G.
       vs !! i_ = Some v →
       i_ = Z.to_nat i →
       chunk_model l dq vs ⊢
-        l.[i] ↦{dq} v ∗
-        (∀ w, l.[i] ↦{dq} w -∗ chunk_model l dq (<[i_ := w]> vs)).
+        (l +ₗ i) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ i) ↦{dq} w -∗
+          chunk_model l dq (<[i_ := w]> vs)
+        ).
     Proof.
       intros Hi Hlookup ->.
       Z_to_nat i. rewrite Nat2Z.id in Hlookup |- *.
@@ -276,8 +279,10 @@ Section zebre_G.
       vs !! i_ = Some v →
       i_ = Z.to_nat i →
       chunk_model l dq vs ⊢
-        l.[i] ↦{dq} v ∗
-        (l.[i] ↦{dq} v -∗ chunk_model l dq vs).
+        (l +ₗ i) ↦{dq} v ∗
+        ( (l +ₗ i) ↦{dq} v -∗
+          chunk_model l dq vs
+        ).
     Proof.
       intros Hi Hlookup ->.
       Z_to_nat i. rewrite Nat2Z.id in Hlookup |- *.
@@ -288,7 +293,7 @@ Section zebre_G.
       vs !! i_ = Some v →
       i_ = Z.to_nat i →
       chunk_model l dq vs ⊢
-      l.[i] ↦{dq} v.
+      (l +ₗ i) ↦{dq} v.
     Proof.
       intros Hi Hlookup ->.
       Z_to_nat i. rewrite Nat2Z.id in Hlookup |- *.
@@ -299,9 +304,12 @@ Section zebre_G.
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
       k = Z.to_nat j - Z.to_nat i →
-      chunk_model l.[i] dq vs ⊢
-        l.[j] ↦{dq} v ∗
-        (∀ w, l.[j] ↦{dq} w -∗ chunk_model l.[i] dq (<[k := w]> vs)).
+      chunk_model (l +ₗ i) dq vs ⊢
+        (l +ₗ j) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ j) ↦{dq} w -∗
+          chunk_model (l +ₗ i) dq (<[k := w]> vs)
+        ).
     Proof.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
@@ -312,9 +320,11 @@ Section zebre_G.
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
       k = Z.to_nat j - Z.to_nat i →
-      chunk_model l.[i] dq vs ⊢
-        l.[j] ↦{dq} v ∗
-        (l.[j] ↦{dq} v -∗ chunk_model l.[i] dq vs).
+      chunk_model (l +ₗ i) dq vs ⊢
+        (l +ₗ j) ↦{dq} v ∗
+        ( (l +ₗ j) ↦{dq} v -∗
+          chunk_model (l +ₗ i) dq vs
+        ).
     Proof.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
@@ -325,8 +335,8 @@ Section zebre_G.
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
       k = Z.to_nat j - Z.to_nat i →
-      chunk_model l.[i] dq vs ⊢
-      l.[j] ↦{dq} v.
+      chunk_model (l +ₗ i) dq vs ⊢
+      (l +ₗ j) ↦{dq} v.
     Proof.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
@@ -482,7 +492,7 @@ Section zebre_G.
     Lemma chunk_span_cons l dq n :
       ( ∃ v,
         l ↦{dq} v ∗
-        chunk_span l.[1] dq n
+        chunk_span (l +ₗ 1) dq n
       ) ⊣⊢
       chunk_span l dq (S n).
     Proof.
@@ -497,7 +507,7 @@ Section zebre_G.
     Qed.
     Lemma chunk_span_cons_1 l dq v n :
       l ↦{dq} v -∗
-      chunk_span l.[1] dq n -∗
+      chunk_span (l +ₗ 1) dq n -∗
       chunk_span l dq (S n).
     Proof.
       rewrite -chunk_span_cons. iSteps.
@@ -506,12 +516,12 @@ Section zebre_G.
       chunk_span l dq (S n) ⊢
         ∃ v,
         l ↦{dq} v ∗
-        chunk_span l.[1] dq n.
+        chunk_span (l +ₗ 1) dq n.
     Proof.
       rewrite chunk_span_cons //.
     Qed.
     #[global] Instance chunk_span_cons_frame l dq v n R Q :
-      Frame false R (l ↦{dq} v ∗ chunk_span l.[1] dq n) Q →
+      Frame false R (l ↦{dq} v ∗ chunk_span (l +ₗ 1) dq n) Q →
       Frame false R (chunk_span l dq (S n)) Q
     | 2.
     Proof.
@@ -521,7 +531,7 @@ Section zebre_G.
 
     Lemma chunk_span_app l dq n1 n2 :
       chunk_span l dq n1 ∗
-      chunk_span l.[n1] dq n2 ⊣⊢
+      chunk_span (l +ₗ n1) dq n2 ⊣⊢
       chunk_span l dq (n1 + n2).
     Proof.
       iSplit.
@@ -536,7 +546,7 @@ Section zebre_G.
           rewrite drop_length. iSteps.
     Qed.
     Lemma chunk_span_app_1 dq l1 (n1 : nat) l2 n2 :
-      l2 = l1.[n1] →
+      l2 = l1 +ₗ n1 →
       chunk_span l1 dq n1 -∗
       chunk_span l2 dq n2 -∗
       chunk_span l1 dq (n1 + n2).
@@ -547,22 +557,22 @@ Section zebre_G.
       n = n1 + n2 →
       chunk_span l dq n ⊢
         chunk_span l dq n1 ∗
-        chunk_span l.[n1] dq n2.
+        chunk_span (l +ₗ n1) dq n2.
     Proof.
       intros ->. rewrite chunk_span_app //.
     Qed.
 
     Lemma chunk_span_app3 l dq n1 (n2 : nat) n3 :
       chunk_span l dq n1 ∗
-      chunk_span l.[n1] dq n2 ∗
-      chunk_span l.[(n1 + n2)%nat] dq n3 ⊣⊢
+      chunk_span (l +ₗ n1) dq n2 ∗
+      chunk_span (l +ₗ (n1 + n2)%nat) dq n3 ⊣⊢
       chunk_span l dq (n1 + n2 + n3).
     Proof.
       rewrite -!chunk_span_app. iSteps.
     Qed.
-    Lemma chunk_span_app3_1 dq l1 (n1 : nat) l2 n2 l3 n3 :
-      l2 = l1.[n1] →
-      l3 = l1.[(n1 + n2)%nat] →
+    Lemma chunk_span_app3_1 dq l1 n1 l2 n2 l3 n3 :
+      l2 = l1 +ₗ n1 →
+      l3 = l1 +ₗ (n1 + n2)%nat →
       chunk_span l1 dq n1 -∗
       chunk_span l2 dq n2 -∗
       chunk_span l3 dq n3 -∗
@@ -574,8 +584,8 @@ Section zebre_G.
       n = n1 + n2 + n3 →
       chunk_span l dq n ⊢
         chunk_span l dq n1 ∗
-        chunk_span l.[n1] dq n2 ∗
-        chunk_span l.[(n1 + n2)%nat] dq n3.
+        chunk_span (l +ₗ n1) dq n2 ∗
+        chunk_span (l +ₗ (n1 + n2)%nat) dq n3.
     Proof.
       intros ->. rewrite chunk_span_app3 //.
     Qed.
@@ -584,8 +594,11 @@ Section zebre_G.
       (0 ≤ i < n)%Z →
       chunk_span l dq n ⊢
         ∃ v,
-        l.[i] ↦{dq} v ∗
-        (∀ w, l.[i] ↦{dq} w -∗ chunk_span l dq n).
+        (l +ₗ i) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ i) ↦{dq} w -∗
+          chunk_span l dq n
+        ).
     Proof.
       iIntros "%Hi (%vs & %Hvs & Hmodel)".
       iDestruct (chunk_model_update i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
@@ -598,8 +611,10 @@ Section zebre_G.
       (0 ≤ i < n)%Z →
       chunk_span l dq n ⊢
         ∃ v,
-        l.[i] ↦{dq} v ∗
-        (l.[i] ↦{dq} v -∗ chunk_span l dq n).
+        (l +ₗ i) ↦{dq} v ∗
+        ( (l +ₗ i) ↦{dq} v -∗
+          chunk_span l dq n
+        ).
     Proof.
       iIntros "%Hi Hspan".
       iDestruct (chunk_span_update with "Hspan") as "(%v & H↦ & Hspan)"; first done.
@@ -609,7 +624,7 @@ Section zebre_G.
       (0 ≤ i < n)%Z →
       chunk_span l dq n ⊢
         ∃ v,
-        l.[i] ↦{dq} v.
+        (l +ₗ i) ↦{dq} v.
     Proof.
       iIntros "%Hi Hspan".
       iDestruct (chunk_span_lookup_acc with "Hspan") as "(%v & H↦ & _)"; first done.
@@ -618,10 +633,13 @@ Section zebre_G.
 
     Lemma chunk_span_update' {l} {i : Z} {dq n} (j : Z) :
       (0 ≤ i ≤ j ∧ j < i + n)%Z →
-      chunk_span l.[i] dq n ⊢
+      chunk_span (l +ₗ i) dq n ⊢
         ∃ v,
-        l.[j] ↦{dq} v ∗
-        (∀ w, l.[j] ↦{dq} w -∗ chunk_span l.[i] dq n).
+        (l +ₗ j) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ j) ↦{dq} w -∗
+          chunk_span (l +ₗ i) dq n
+        ).
     Proof.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
@@ -630,10 +648,12 @@ Section zebre_G.
     Qed.
     Lemma chunk_span_lookup_acc' {l} {i : Z} {dq n} (j : Z) :
       (0 ≤ i ≤ j ∧ j < i + n)%Z →
-      chunk_span l.[i] dq n ⊢
+      chunk_span (l +ₗ i) dq n ⊢
         ∃ v,
-        l.[j] ↦{dq} v ∗
-        (l.[j] ↦{dq} v -∗ chunk_span l.[i] dq n).
+        (l +ₗ j) ↦{dq} v ∗
+        ( (l +ₗ j) ↦{dq} v -∗
+          chunk_span (l +ₗ i) dq n
+        ).
     Proof.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
@@ -642,9 +662,9 @@ Section zebre_G.
     Qed.
     Lemma chunk_span_lookup' {l} {i : Z} {dq n} (j : Z) :
       (0 ≤ i ≤ j ∧ j < i + n)%Z →
-      chunk_span l.[i] dq n ⊢
+      chunk_span (l +ₗ i) dq n ⊢
         ∃ v,
-        l.[j] ↦{dq} v.
+        (l +ₗ j) ↦{dq} v.
     Proof.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
@@ -727,7 +747,7 @@ Section zebre_G.
     Implicit Types sz : nat.
 
     Definition chunk_cslice l sz i dq vs : iProp Σ :=
-      [∗ list] k ↦ v ∈ vs, l.[(i + k) `mod` sz] ↦{dq} v.
+      [∗ list] k ↦ v ∈ vs, (l +ₗ (i + k) `mod` sz) ↦{dq} v.
 
     (* Lemma chunk_cslice_eq l sz i dq vs : *)
     (*   chunk_cslice l sz i dq vs ⊣⊢ *)
@@ -775,20 +795,20 @@ Section zebre_G.
     Qed.
 
     Lemma chunk_cslice_singleton l sz i dq v :
-      l.[i `mod` sz] ↦{dq} v ⊣⊢
+      (l +ₗ i `mod` sz) ↦{dq} v ⊣⊢
       chunk_cslice l sz i dq [v].
     Proof.
       setoid_rewrite big_sepL_singleton. rewrite right_id //.
     Qed.
     Lemma chunk_cslice_singleton_1 l sz i dq v :
-      l.[i `mod` sz] ↦{dq} v ⊢
+      (l +ₗ i `mod` sz) ↦{dq} v ⊢
       chunk_cslice l sz i dq [v].
     Proof.
       rewrite chunk_cslice_singleton //.
     Qed.
     Lemma chunk_cslice_singleton_2 l sz i dq v :
       chunk_cslice l sz i dq [v] ⊢
-      l.[i `mod` sz] ↦{dq} v.
+      (l +ₗ i `mod` sz) ↦{dq} v.
     Proof.
       rewrite chunk_cslice_singleton //.
     Qed.
@@ -821,7 +841,7 @@ Section zebre_G.
     Qed.
 
     Lemma chunk_cslice_cons l sz i dq v vs :
-      l.[i `mod` sz] ↦{dq} v ∗
+      (l +ₗ i `mod` sz) ↦{dq} v ∗
       chunk_cslice l sz (S i) dq vs ⊣⊢
       chunk_cslice l sz i dq (v :: vs).
     Proof.
@@ -829,7 +849,7 @@ Section zebre_G.
       rewrite -chunk_cslice_app chunk_cslice_singleton Nat.add_1_r //.
     Qed.
     Lemma chunk_cslice_cons_1 l sz i dq v vs :
-      l.[i `mod` sz] ↦{dq} v -∗
+      (l +ₗ i `mod` sz) ↦{dq} v -∗
       chunk_cslice l sz (S i) dq vs -∗
       chunk_cslice l sz i dq (v :: vs).
     Proof.
@@ -837,7 +857,7 @@ Section zebre_G.
     Qed.
     Lemma chunk_cslice_cons_2 l sz i dq v vs :
       chunk_cslice l sz i dq (v :: vs) ⊢
-        l.[i `mod` sz] ↦{dq} v ∗
+        (l +ₗ i `mod` sz) ↦{dq} v ∗
         chunk_cslice l sz (S i) dq vs.
     Proof.
       rewrite chunk_cslice_cons //.
@@ -846,23 +866,28 @@ Section zebre_G.
     Lemma chunk_cslice_update {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-        l.[(i + k)%nat `mod` sz] ↦{dq} v ∗
-        (∀ w, l.[(i + k)%nat `mod` sz] ↦{dq} w -∗ chunk_cslice l sz i dq (<[k := w]> vs)).
+        (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ (i + k)%nat `mod` sz) ↦{dq} w -∗
+          chunk_cslice l sz i dq (<[k := w]> vs)
+        ).
     Proof.
       rewrite Nat2Z.inj_add. apply: big_sepL_insert_acc.
     Qed.
     Lemma chunk_cslice_lookup_acc {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-        l.[(i + k)%nat `mod` sz] ↦{dq} v ∗
-        (l.[(i + k)%nat `mod` sz] ↦{dq} v -∗ chunk_cslice l sz i dq vs).
+        (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v ∗
+        ( (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v -∗
+          chunk_cslice l sz i dq vs
+        ).
     Proof.
       rewrite Nat2Z.inj_add. apply: big_sepL_lookup_acc.
     Qed.
     Lemma chunk_cslice_lookup {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-      l.[(i + k)%nat `mod` sz] ↦{dq} v.
+      (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v.
     Proof.
       rewrite Nat2Z.inj_add. apply: big_sepL_lookup.
     Qed.
@@ -972,18 +997,18 @@ Section zebre_G.
 
   Notation chunk_au_load l i Φ := (
     AU << ∃∃ dq v,
-      l.[i] ↦{dq} v
+      (l +ₗ i) ↦{dq} v
     >> @ ⊤, ∅ <<
-      l.[i] ↦{dq} v,
+      (l +ₗ i) ↦{dq} v,
     COMM
       Φ v
     >>
   )%I.
   Notation chunk_au_store l i v P := (
     AU << ∃∃ v',
-      l.[i] ↦ v'
+      (l +ₗ i) ↦ v'
     >> @ ⊤, ∅ <<
-      l.[i] ↦ v,
+      (l +ₗ i) ↦ v,
     COMM
       P
     >>
@@ -1015,7 +1040,7 @@ Section zebre_G.
     {{{
       chunk_model l dq vs
     }}}
-      !#l.[i] @ E
+      !#(l +ₗ i) @ E
     {{{
       RET v;
       chunk_model l dq vs
@@ -1030,12 +1055,12 @@ Section zebre_G.
     vs !! k = Some v →
     k = Z.to_nat j - Z.to_nat i →
     {{{
-      chunk_model l.[i] dq vs
+      chunk_model (l +ₗ i) dq vs
     }}}
-      !#l.[j] @ E
+      !#(l +ₗ j) @ E
     {{{
       RET v;
-      chunk_model l.[i] dq vs
+      chunk_model (l +ₗ i) dq vs
     }}}.
   Proof.
     iIntros (Hj Hlookup ->) "%Φ Hmodel HΦ".
@@ -1048,7 +1073,7 @@ Section zebre_G.
     {{{
       chunk_model l (DfracOwn 1) vs
     }}}
-      #l.[i] <- v @ E
+      #(l +ₗ i) <- v @ E
     {{{
       RET #();
       chunk_model l (DfracOwn 1) (<[Z.to_nat i := v]> vs)
@@ -1062,12 +1087,12 @@ Section zebre_G.
   Lemma chunk_set_spec' l (i j : Z) vs v E :
     (0 ≤ i ≤ j ∧ j < i + length vs)%Z →
     {{{
-      chunk_model l.[i] (DfracOwn 1) vs
+      chunk_model (l +ₗ i) (DfracOwn 1) vs
     }}}
-      #l.[j] <- v @ E
+      #(l +ₗ j) <- v @ E
     {{{
       RET #();
-      chunk_model l.[i] (DfracOwn 1) (<[Z.to_nat j - Z.to_nat i := v]> vs)
+      chunk_model (l +ₗ i) (DfracOwn 1) (<[Z.to_nat j - Z.to_nat i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ Hmodel HΦ".
@@ -3252,7 +3277,7 @@ Section zebre_G.
   Lemma chunk_type_shift (i : Z) τ `{!iType _ τ} (sz : nat) l :
     (0 ≤ i ≤ sz)%Z →
     chunk_type τ sz l ⊢
-    chunk_type τ (sz - Z.to_nat i) l.[i].
+    chunk_type τ (sz - Z.to_nat i) (l +ₗ i).
   Proof.
     iIntros "%Hi #Hl".
     Z_to_nat i. rewrite Nat2Z.id.
@@ -3319,7 +3344,7 @@ Section zebre_G.
     {{{
       chunk_type τ sz l
     }}}
-      !#l.[i]
+      !#(l +ₗ i)
     {{{ v,
       RET v;
       τ v
@@ -3341,7 +3366,7 @@ Section zebre_G.
       chunk_type τ sz l ∗
       τ v
     }}}
-      #l.[i] <- v
+      #(l +ₗ i) <- v
     {{{
       RET #(); True
     }}}.

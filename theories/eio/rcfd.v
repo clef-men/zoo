@@ -25,6 +25,15 @@ Implicit Types l l_state : loc.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
+#[local] Notation "'ops'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'fd'" :=
+  1
+( in custom zebre_field
+).
+
 #[local] Definition state_match : val :=
   λ: "state" "Open" "Closing",
     match: "state" with
@@ -145,23 +154,6 @@ Proof.
   intros [] []; naive_solver.
 Qed.
 
-#[local] Notation "t '.[ops]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[fd]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[ops]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[fd]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
-
 Definition rcfd_make : val :=
   λ: "fd",
     { #0; ref (&Open "fd") }.
@@ -174,12 +166,12 @@ Definition rcfd_make : val :=
   λ: "t",
     let: "old" := Faa "t".[ops] #-1 in
     if: "old" = #1 then (
-      let: "prev" := !"t".[fd] in
+      let: "prev" := "t".{fd} in
       match: !"prev" with
       | Open <> =>
           #()
       | Closing "no_users" =>
-          ifnot: #0 < !"t".[ops] then
+          ifnot: #0 < "t".{ops} then
             if: Cas "t".[fd] "prev" (rcfd_closed #()) then
               "no_users" #()
       end
@@ -188,7 +180,7 @@ Definition rcfd_make : val :=
 #[local] Definition rcfd_get : val :=
   λ: "t",
     Faa "t".[ops] #1 ;;
-    match: ! !"t".[fd] with
+    match: !"t".{fd} with
     | Open "fd" =>
         &Some "fd"
     | Closing <> =>
@@ -198,7 +190,7 @@ Definition rcfd_make : val :=
 
 Definition rcfd_close : val :=
   λ: "t",
-    let: "prev" := !"t".[fd] in
+    let: "prev" := "t".{fd} in
     match: !"prev" with
     | Open "fd" =>
         let: "close" <> :=
@@ -206,7 +198,7 @@ Definition rcfd_close : val :=
         in
         let: "next" := ref (&Closing "close") in
         if: Cas "t".[fd] "prev" "next" then (
-          if: (!"t".[ops] = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (
+          if: ("t".{ops} = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (
             "close" #()
           ) else (
             #()
@@ -221,7 +213,7 @@ Definition rcfd_close : val :=
 
 Definition rcfd_remove : val :=
   λ: "t",
-    let: "prev" := !"t".[fd] in
+    let: "prev" := "t".{fd} in
     match: !"prev" with
     | Open "fd" =>
         let: "flag" := ref #false in
@@ -250,7 +242,7 @@ Definition rcfd_use : val :=
 
 Definition rcfd_is_open : val :=
   λ: "t",
-    match: ! !"t".[fd] with
+    match: !"t".{fd} with
     | Open <> =>
         #true
     | Closing <> =>
@@ -259,7 +251,7 @@ Definition rcfd_is_open : val :=
 
 Definition rcfd_peek : val :=
   λ: "t",
-    match: ! !"t".[fd] with
+    match: !"t".{fd} with
     | Open "fd" =>
         &Some "fd"
     | Closing <> =>

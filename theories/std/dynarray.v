@@ -17,22 +17,14 @@ Implicit Types l : loc.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
-#[local] Notation "t '.[size]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[size]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'size'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'data'" :=
+  1
+( in custom zebre_field
+).
 
 Definition dynarray_create : val :=
   λ: <>,
@@ -48,10 +40,10 @@ Definition dynarray_initi : val :=
 
 Definition dynarray_size : val :=
   λ: "t",
-    !"t".[size].
+    "t".{size}.
 Definition dynarray_capacity : val :=
   λ: "t",
-    array_size !"t".[data].
+    array_size "t".{data}.
 
 Definition dynarray_is_empty : val :=
   λ: "t",
@@ -59,59 +51,59 @@ Definition dynarray_is_empty : val :=
 
 Definition dynarray_get : val :=
   λ: "t" "i",
-    array_unsafe_get !"t".[data] "i".
+    array_unsafe_get "t".{data} "i".
 
 Definition dynarray_set : val :=
   λ: "t" "i" "v",
-    array_unsafe_set !"t".[data] "i" "v".
+    array_unsafe_set "t".{data} "i" "v".
 
 #[local] Definition dynarray_next_capacity : val :=
   λ: "n",
-    maximum #8 (if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2).
+    #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
 Definition dynarray_reserve : val :=
   λ: "t" "n",
-    let: "data" := !"t".[data] in
+    let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
-      let: "new_cap" := maximum "n" (dynarray_next_capacity "cap") in
+      let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
       let: "new_data" := array_make "new_cap" #() in
-      array_blit "data" #0 "new_data" #0 !"t".[size] ;;
-      "t".[data] <- "new_data"
+      array_blit "data" #0 "new_data" #0 "t".{size} ;;
+      "t" <-{data}- "new_data"
     ).
 Definition dynarray_reserve_extra : val :=
   λ: "t" "n",
     if: #0 ≤ "n" then (
-      dynarray_reserve "t" (!"t".[size] + "n")
+      dynarray_reserve "t" ("t".{size} + "n")
     ).
 
 Definition dynarray_push : val :=
   λ: "t" "v",
     dynarray_reserve_extra "t" #1 ;;
-    let: "sz" := !"t".[size] in
-    "t".[size] <- "sz" + #1 ;;
-    array_unsafe_set !"t".[data] "sz" "v".
+    let: "sz" := "t".{size} in
+    "t" <-{size}- "sz" + #1 ;;
+    array_unsafe_set "t".{data} "sz" "v".
 
 Definition dynarray_pop : val :=
   λ: "t",
-    let: "sz" := !"t".[size] - #1 in
-    "t".[size] <- "sz" ;;
-    let: "data" := !"t".[data] in
+    let: "sz" := "t".{size} - #1 in
+    "t" <-{size}- "sz" ;;
+    let: "data" := "t".{data} in
     let: "v" := array_unsafe_get "data" "sz" in
     array_unsafe_set "data" "sz" #() ;;
     "v".
 
 Definition dynarray_fit_capacity : val :=
   λ: "t",
-    let: "sz" := !"t".[size] in
-    let: "data" := !"t".[data] in
+    let: "sz" := "t".{size} in
+    let: "data" := "t".{data} in
     ifnot: "sz" = array_size "data" then (
-      "t".[data] <- array_shrink "data" "sz"
+      "t" <-{data}- array_shrink "data" "sz"
     ).
 
 Definition dynarray_reset : val :=
   λ: "t",
-    "t".[size] <- #0 ;;
-    "t".[data] <- array_create #().
+    "t" <-{size}- #0 ;;
+    "t" <-{data}- array_create #().
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.

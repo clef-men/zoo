@@ -35,38 +35,22 @@ Implicit Types v t data : val.
 Implicit Types hist model : list val.
 Implicit Types priv : nat → val.
 
-#[local] Notation "t '.[front]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[back]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[2]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[prophecy]'" :=
-  t.[3]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[front]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[back]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#2]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[prophecy]'" :=
-  t.[#3]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'front'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'back'" :=
+  1
+( in custom zebre_field
+).
+#[local] Notation "'data'" :=
+  2
+( in custom zebre_field
+).
+#[local] Notation "'prophecy'" :=
+  3
+( in custom zebre_field
+).
 
 #[local] Program Definition inf_cl_deque_prophet_spec := {|
   typed_prophet_spec_type :=
@@ -126,18 +110,18 @@ Section inf_cl_deque_G.
 
   Definition inf_cl_deque_push : val :=
     λ: "t" "v",
-      let: "back" := !"t".[back] in
-      inf_array_set !"t".[data] "back" "v" ;;
-      "t".[back] <- "back" + #1.
+      let: "back" := "t".{back} in
+      inf_array_set "t".{data} "back" "v" ;;
+      "t" <-{back}- "back" + #1.
 
   Definition inf_cl_deque_steal : val :=
     rec: "inf_cl_deque_steal" "t" :=
       let: "id" := Id in
-      let: "front" := !"t".[front] in
-      let: "back" := !"t".[back] in
+      let: "front" := "t".{front} in
+      let: "back" := "t".{back} in
       if: "front" < "back" then (
-        if: Resolve (Cas "t".[front] "front" ("front" + #1)) !"t".[prophecy] ("front", "id") then (
-          &Some (inf_array_get !"t".[data] "front")
+        if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophecy} ("front", "id") then (
+          &Some (inf_array_get "t".{data} "front")
         ) else (
           "inf_cl_deque_steal" "t"
         )
@@ -148,21 +132,21 @@ Section inf_cl_deque_G.
   Definition inf_cl_deque_pop : val :=
     λ: "t",
       let: "id" := Id in
-      let: "back" := !"t".[back] - #1 in
-      "t".[back] <- "back" ;;
-      let: "front" := !"t".[front] in
+      let: "back" := "t".{back} - #1 in
+      "t" <-{back}- "back" ;;
+      let: "front" := "t".{front} in
       if: "back" < "front" then (
-        "t".[back] <- "front" ;;
+        "t" <-{back}- "front" ;;
         &&None
       ) else (
         if: "front" < "back" then (
-          &Some (inf_array_get !"t".[data] "back")
+          &Some (inf_array_get "t".{data} "back")
         ) else (
-          if: Resolve (Cas "t".[front] "front" ("front" + #1)) !"t".[prophecy] ("front", "id") then (
-            "t".[back] <- "front" + #1 ;;
-            &Some (inf_array_get !"t".[data] "back")
+          if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophecy} ("front", "id") then (
+            "t" <-{back}- "front" + #1 ;;
+            &Some (inf_array_get "t".{data} "back")
           ) else (
-            "t".[back] <- "front" + #1 ;;
+            "t" <-{back}- "front" + #1 ;;
             &&None
           )
         )
@@ -1098,7 +1082,7 @@ Section inf_cl_deque_G.
 
     wp_pures.
 
-    (* → [#l.[back] <- #(back + 1)] *)
+    (* → [#l <-{back}- #(back + 1)] *)
     (* open invariant *)
     iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (inf_cl_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).

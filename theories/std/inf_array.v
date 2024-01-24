@@ -21,60 +21,48 @@ Implicit Types v t : val.
 Implicit Types us : list val.
 Implicit Types vs : nat → val.
 
-#[local] Notation "t '.[data]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[default]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[mutex]'" :=
-  t.[2]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[default]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[mutex]'" :=
-  t.[#2]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'data'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'default'" :=
+  1
+( in custom zebre_field
+).
+#[local] Notation "'mutex'" :=
+  2
+( in custom zebre_field
+).
 
 Definition inf_array_create : val :=
   λ: "default",
     let: "data" := array_create #() in
     let: "t" := { "data"; "default"; #() } in
     let: "mtx" := mutex_create #() in
-    "t".[mutex] <- "mtx" ;;
+    "t" <-{mutex}- "mtx" ;;
     "t".
 
 Definition inf_array_get : val :=
   λ: "t" "i",
-    mutex_protect !"t".[mutex] (λ: <>,
-      let: "data" := !"t".[data] in
+    mutex_protect "t".{mutex} (λ: <>,
+      let: "data" := "t".{data} in
       if: "i" < array_size "data" then (
         array_unsafe_get "data" "i"
       ) else (
-        !"t".[default]
+        "t".{default}
       )
     ).
 
 Definition inf_array_set : val :=
   λ: "t" "i" "v",
-    mutex_protect !"t".[mutex] (λ: <>,
-      let: "data" := !"t".[data] in
+    mutex_protect "t".{mutex} (λ: <>,
+      let: "data" := "t".{data} in
       let: "sz" := array_size "data" in
       if: "i" < "sz" then (
         array_unsafe_set "data" "i" "v"
       ) else (
-        let: "data" := array_grow "data" (#1 + "i") !"t".[default] in
-        "t".[data] <- "data" ;;
+        let: "data" := array_grow "data" (#1 + "i") "t".{default} in
+        "t" <-{data}- "data" ;;
         array_unsafe_set "data" "i" "v"
       )
     ).

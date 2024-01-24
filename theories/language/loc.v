@@ -50,12 +50,13 @@ Notation "l +ₗ i" := (
 )(at level 50,
   left associativity
 ) : stdpp_scope.
-Notation "l .[ i ]" := (
-  loc_add l i
+
+Declare Custom Entry zebre_field.
+Notation "l .[ fld ]" := (
+  loc_add l (Z.of_nat fld)
 )(at level 2,
-  i at level 200,
-  left associativity,
-  format "l .[ i ]"
+  fld custom zebre_field,
+  format "l .[ fld ]"
 ) : stdpp_scope.
 
 #[global] Instance loc_add_inj l :

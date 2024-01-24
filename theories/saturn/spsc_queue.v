@@ -27,30 +27,18 @@ Implicit Types l : loc.
 Implicit Types v w t : val.
 Implicit Types vs hist : list val.
 
-#[local] Notation "t '.[data]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[front]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[back]'" :=
-  t.[2]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[data]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[front]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[back]'" :=
-  t.[#2]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'data'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'front'" :=
+  1
+( in custom zebre_field
+).
+#[local] Notation "'back'" :=
+  2
+( in custom zebre_field
+).
 
 Definition spsc_queue_create : val :=
   λ: "sz",
@@ -58,12 +46,12 @@ Definition spsc_queue_create : val :=
 
 Definition spsc_queue_push : val :=
   λ: "t" "v",
-    let: "data" := !"t".[data] in
-    let: "back" := !"t".[back] in
-    let: "front" := !"t".[front] in
+    let: "data" := "t".{data} in
+    let: "back" := "t".{back} in
+    let: "front" := "t".{front} in
     if: "back" < "front" + array_size "data" then (
       array_cset "data" "back" (&Some "v") ;;
-      "t".[back] <- #1 + "back" ;;
+      "t" <-{back}- #1 + "back" ;;
       #false
     ) else (
       #true
@@ -71,13 +59,13 @@ Definition spsc_queue_push : val :=
 
 Definition spsc_queue_pop : val :=
   λ: "t",
-    let: "front" := !"t".[front] in
-    let: "back" := !"t".[back] in
+    let: "front" := "t".{front} in
+    let: "back" := "t".{back} in
     if: "front" < "back" then (
-      let: "data" := !"t".[data] in
+      let: "data" := "t".{data} in
       let: "res" := array_cget "data" "front" in
       array_cset "data" "front" &&None ;;
-      "t".[front] <- #1 + "front" ;;
+      "t" <-{front}- #1 + "front" ;;
       "res"
     ) else (
       &&None

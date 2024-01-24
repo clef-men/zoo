@@ -16,51 +16,39 @@ From zebre Require Import
 Implicit Types b : bool.
 Implicit Types l : loc.
 
-#[local] Notation "t '.[flag]'" :=
-  t.[0]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[mutex]'" :=
-  t.[1]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[condition]'" :=
-  t.[2]%stdpp
-( at level 5
-) : stdpp_scope.
-#[local] Notation "t '.[flag]'" :=
-  t.[#0]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[mutex]'" :=
-  t.[#1]%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.[condition]'" :=
-  t.[#2]%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'flag'" :=
+  0
+( in custom zebre_field
+).
+#[local] Notation "'mutex'" :=
+  1
+( in custom zebre_field
+).
+#[local] Notation "'condition'" :=
+  2
+( in custom zebre_field
+).
 
 Definition latch1_create : val :=
   λ: <>,
     let: "t" := { #false; #(); #() } in
-    "t".[mutex] <- mutex_create #() ;;
-    "t".[condition] <- condition_create #() ;;
+    "t" <-{mutex}- mutex_create #() ;;
+    "t" <-{condition}- condition_create #() ;;
     "t".
 
 Definition latch1_signal : val :=
   λ: "t",
-    mutex_protect !"t".[mutex] (λ: <>,
-      "t".[flag] <- #true
+    mutex_protect "t".{mutex} (λ: <>,
+      "t" <-{flag}- #true
     ) ;;
-    condition_signal !"t".[condition].
+    condition_signal "t".{condition}.
 
 Definition latch1_wait : val :=
   λ: "t",
-    let: "mtx" := !"t".[mutex] in
-    let: "cond" := !"t".[condition] in
+    let: "mtx" := "t".{mutex} in
+    let: "cond" := "t".{condition} in
     mutex_protect "mtx" (λ: <>,
-      condition_wait_until "cond" "mtx" (λ: <>, !"t".[flag])
+      condition_wait_until "cond" "mtx" (λ: <>, "t".{flag})
     ).
 
 Class Latch1G Σ `{zebre_G : !ZebreG Σ} := {
