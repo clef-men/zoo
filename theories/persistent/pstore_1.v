@@ -76,14 +76,14 @@ Proof.
   naive_solver.
 Qed.
 #[local] Instance pure_descr_Diff v1 v2 v3 :
-  PureExec True 8
+  PureExec True 7
     (&Diff v1 v2 v3)
     (&&Diff v1 v2 v3).
 Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_descr_match_Diff v1 v2 v3 e1 x1 x2 x3 e2 :
-  PureExec True 20
+  PureExec True 18
     (match:: &&Diff v1 v2 v3 with Root => e1 | Diff x1 x2 x3 => e2 end)
     (subst' x1 v1 (subst' x2 v2 (subst' x3 v3 e2))).
 Proof.

@@ -28,18 +28,18 @@ Implicit Types σ : gmap loc val.
 ( in custom zebre_field
 ).
 
-#[local] Notation "s '.<snap_store>'" :=
-  s.𝟙.𝟙%E
-( at level 5
-) : expr_scope.
-#[local] Notation "s '.<snap_root>'" :=
-  s.𝟙.𝟚%E
-( at level 5
-) : expr_scope.
-#[local] Notation "s '.<snap_gen>'" :=
-  s.𝟚%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'snap_store'" :=
+  0
+( in custom zebre_proj
+).
+#[local] Notation "'snap_root'" :=
+  1
+( in custom zebre_proj
+).
+#[local] Notation "'snap_gen'" :=
+  2
+( in custom zebre_proj
+).
 
 #[local] Definition descr_match : val :=
   λ: "descr" "Root" "Diff",
@@ -101,14 +101,14 @@ Proof.
   naive_solver.
 Qed.
 #[local] Instance pure_descr_Diff v1 v2 v3 v4 :
-  PureExec True 11
+  PureExec True 9
     (&Diff v1 v2 v3 v4)
     (&&Diff v1 v2 v3 v4).
 Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_descr_match_Diff v1 v2 v3 v4 e1 x1 x2 x3 x4 e2 :
-  PureExec True 26
+  PureExec True 21
     (match:: &&Diff v1 v2 v3 v4 with Root => e1 | Diff x1 x2 x3 x4 => e2 end)
     (subst' x1 v1 (subst' x2 v2 (subst' x3 v3 (subst' x4 v4 e2)))).
 Proof.
