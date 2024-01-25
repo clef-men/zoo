@@ -253,6 +253,44 @@ Proof.
   by apply Hi. by apply IHrtcl.
 Qed.
 
+Lemma reachable_add_end_inv g (r0 r r':A) x ds :
+  r ≠ r' ->
+  r' ∉ vertices g ->
+  reachable ({[(r, x, r')]} ∪ g) r0 ds r' ->
+  r0 = r /\ ds = [x].
+Proof.
+  intros Hneq Hr' Hreach.
+Admitted.
+
+Lemma reachable_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
+  r ≠ r' ->
+  x2 ≠ r' ->
+  r' ∉ vertices g ->
+  reachable ({[(r, b, r')]} ∪ g) x1 ds x2 ->
+  reachable g x1 ds x2.
+Proof.
+  induction 4.
+  { apply rtcl_refl. }
+  { eapply rtcl_l with a2.
+    { rewrite /edge elem_of_union elem_of_singleton in H4.
+      destruct H4 as [|]; last done.
+      inversion H4. subst. inversion H5. congruence. subst.
+      exfalso. apply H3. apply elem_of_vertices. set_solver. }
+    by eapply IHrtcl. }
+Qed.
+
+Lemma reachable_cycle_end_inv g (r r':A) b ds x :
+  r ≠ r' ->
+  r' ∉ vertices g ->
+  reachable ({[(r, b, r')]} ∪ g) x ds x ->
+  reachable g x ds x.
+Proof.
+  intros.
+  destruct_decide (decide (x=r')).
+  { subst. inversion H3. apply rtcl_refl. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
+  eapply reachable_cycle_end_inv_aux; last done. all:done.
+Qed.
+
 End Graph.
 
 Section pstore_G.
@@ -498,8 +536,15 @@ Section pstore_G.
 
     iSpecialize ("Hσ0" with "[$]").
 
+    iAssert ⌜r ≠ r'⌝%I as %?.
+    { iClear "Ht0". iDestruct (mapsto_ne with "[$][$]") as %?. done. }
+
     iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
-    { admit. (* only one root? *) }
+    { iClear "Ht0". iIntros (Hr'). destruct Hinv as [X1 X2 X3 X4].
+      apply X3 in Hr'. destruct Hr' as (?&Hr'). inversion Hr'; subst.
+      { done. }
+      { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
+        iDestruct (mapsto_ne with "[$][$]") as %?. congruence. } }
 
     iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M).
     rewrite big_sepS_union.
@@ -521,13 +566,21 @@ Section pstore_G.
             eapply rtcl_r.
             { eapply reachable_weak; eauto. set_solver. }
             { set_solver. } } }
-        { intros x ds. admit. } }
+        { intros x ds σ' Hreach. apply reachable_add_end_inv in Hreach; eauto.
+          destruct Hreach as (->&->).
+          rewrite lookup_insert_ne //. intros Hσ'.
+          rewrite /apply_diffs. simpl. rewrite insert_insert.
+          destruct Hcoh as [Z1 _ _]. rewrite insert_id.
+          { specialize (Z1 l). rewrite Hl0 in Z1.
+            apply elem_of_dom in Hl. destruct Hl as (?&Hl).
+            rewrite Hl in Z1. inversion Z1. subst. done. }
+          { eapply X4  with (ds:=nil) in Hσ'. done. apply rtcl_refl. } } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
-        { set_solver. }
-        { admit. } } }
-  Abort.
+        { intros ?. set_solver. }
+        { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } } }
+  Qed.
 
   Lemma pstore_catpure_spec t σ0 σ :
     {{{
