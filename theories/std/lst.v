@@ -1,6 +1,7 @@
 From zebre Require Import
   prelude.
 From zebre.language Require Import
+  metatheory
   notations
   diaframe.
 From zebre.std Require Export
@@ -12,114 +13,21 @@ Implicit Types i j : nat.
 Implicit Types v w t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
-Definition lst_match : val :=
-  λ: "t" "Nil" "Cons",
-    match: "t" with
-      Injl <> as "x" =>
-        "Nil" "x"
-    | Injr "x1" as "x2" =>
-        "Cons" "x1".<0> "x1".<1> "x2"
-    end.
-Notation "'match:' e0 'with' | 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
-  (Val lst_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 (Lam x23 e2)))
-)(x1, x21, x22, x23 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  Nil  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Cons  x21  x22  as  x23  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-Notation "'match:' e0 'with' 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
-  (Val lst_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 (Lam x23 e2)))
-)(x1, x21, x22, x23 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-Notation "'match::' e0 'with' | 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
-  (Val lst_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 (Lam x23 e2))))
-)(x1, x21, x22, x23 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match::  e0  with  '/' '[' |  Nil  as  x1  =>  '/    ' e1 ']'  '/' '[' |  Cons  x21  x22  as  x23  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-Notation "'match::' e0 'with' 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
-  (Val lst_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x21 (Lam x22 (Lam x23 e2))))
-)(x1, x21, x22, x23 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-Notation "'match:' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
-  (Val lst_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam BAnon e2)))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  Nil  =>  '/    ' e1 ']'  '/' '[' |  Cons  x1  x2  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-Notation "'match:' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
-  (Val lst_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam BAnon e2)))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-Notation "'match::' e0 'with' | 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
-  (Val lst_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam BAnon e2))))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match::  e0  with  '/' '[' |  Nil  =>  '/    ' e1 ']'  '/' '[' |  Cons  x1  x2  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-Notation "'match::' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
-  (Val lst_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam BAnon e2))))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-
-Definition ValNil :=
-  ValInjl ().
-Notation "'&&Nil'" :=
-  ValNil.
-#[global] Instance pure_lst_match_Nil x1 e1 x21 x22 x23 e2 :
-  PureExec True 11
-    (match:: &&Nil with Nil as x1 => e1 | Cons x21 x22 as x23 => e2 end)
-    (subst' x1 &&Nil e1).
-Proof.
-  solve_pure_exec.
-Qed.
-
-Definition lst_Cons : val :=
-  λ: "v1" "v2", Injr ("v1", "v2").
-Definition ValCons v1 v2 :=
-  ValInjr (v1, v2).
-Notation "'&Cons'" :=
-  lst_Cons.
-Notation "'&&Cons'" :=
-  ValCons.
-#[global] Instance lst_Cons_inj :
-  Inj2 (=) (=) (=) &&Cons.
-Proof.
-  rewrite /Inj2. naive_solver.
-Qed.
-#[global] Instance pure_lst_Cons v1 v2 :
-  PureExec True 5
-    (&Cons v1 v2)
-    (&&Cons v1 v2).
-Proof.
-  solve_pure_exec.
-Qed.
-#[global] Instance pure_lst_match_Cons v1 v2 x1 e1 x21 x22 x23 e2 :
-  PureExec True 17
-    (match:: &&Cons v1 v2 with Nil as x1 => e1 | Cons x21 x22 as x23 => e2 end)
-    (subst' x21 v1 (subst' x22 v2 (subst' x23 (&&Cons v1 v2) e2))).
-Proof.
-  solve_pure_exec.
-Qed.
-
-#[global] Opaque lst_match.
-#[global] Opaque ValNil.
-#[global] Opaque lst_Cons.
-#[global] Opaque ValCons.
+Notation "'Nil'" :=
+  ("lst", 0)
+( in custom zebre_tag
+).
+Notation "'Cons'" :=
+  ("lst", 1)
+( in custom zebre_tag
+).
 
 Fixpoint lst_to_val vs :=
   match vs with
   | [] =>
-      &&Nil
+      §Nil
   | v :: vs =>
-      &&Cons v (lst_to_val vs)
+      ’Cons{v, lst_to_val vs}
   end.
 #[global] Arguments lst_to_val !_ / : assert.
 Definition lst_model' t vs :=
@@ -143,21 +51,21 @@ Section zebre_G.
     ⌜lst_model' t vs⌝.
 
   Lemma lst_model_Nil :
-    ⊢ lst_model &&Nil [].
+    ⊢ lst_model §Nil [].
   Proof.
     iSteps.
   Qed.
   Lemma wp_lst_match_Nil t e1 x1 x2 e2 Φ :
     lst_model t [] -∗
     WP e1 {{ Φ }} -∗
-    WP match:: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
+    WP match: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
   Qed.
 
   Lemma lst_model_Cons v t vs :
     lst_model t vs ⊢
-    lst_model (&&Cons v t) (v :: vs).
+    lst_model ’Cons{v, t} (v :: vs).
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
   Qed.
@@ -166,17 +74,23 @@ Section zebre_G.
     lst_model t vs -∗
     ( ∀ t',
       lst_model t' vs' -∗
-      WP subst x1 v (subst x2 t' e2) {{ Φ }}
+      WP subst' x1 v (subst' x2 t' e2) {{ Φ }}
     ) -∗
-    WP match:: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
+    WP match: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
+    destruct x1 as [| x1], x2 as [| x2]; iSteps.
+    destruct (decide (x1 = x2)) => /=.
+    - rewrite decide_False; first naive_solver.
+      iSteps. setoid_rewrite subst_subst. iSteps.
+    - rewrite decide_True; first naive_solver.
+      iSteps. rewrite subst_subst_ne //. iSteps.
   Qed.
 End zebre_G.
 
 Definition lst_singleton : val :=
   λ: "v",
-    &Cons "v" &&Nil.
+    ‘Cons{"v", §Nil}.
 
 Definition lst_head : val :=
   λ: "t",
@@ -215,10 +129,10 @@ Definition lst_get : val :=
 #[local] Definition lst_initi_aux : val :=
   rec: "lst_initi_aux" "sz" "fn" "i" :=
     if: "sz" ≤ "i" then (
-      &&Nil
+      §Nil
     ) else (
       let: "v" := "fn" "i" in
-      &Cons "v" ("lst_initi_aux" "sz" "fn" (#1 + "i"))
+      ‘Cons{"v", "lst_initi_aux" "sz" "fn" (#1 + "i")}
     ).
 Definition lst_initi : val :=
   λ: "sz" "fn",
@@ -263,11 +177,11 @@ Definition lst_size : val :=
 
 Definition lst_rev : val :=
   λ: "t",
-    lst_foldl "t" &&Nil (λ: "acc" "v", &Cons "v" "acc").
+    lst_foldl "t" §Nil (λ: "acc" "v", ‘Cons{"v", "acc"}).
 
 Definition lst_app : val :=
   λ: "t1" "t2",
-    lst_foldr "t1" &Cons "t2".
+    lst_foldr "t1" (λ: "v" "acc", ‘Cons{"v", "acc"}) "t2".
 Definition lst_snoc : val :=
   λ: "t" "v",
     lst_app "t" (lst_singleton "v").
@@ -283,11 +197,11 @@ Definition lst_iter : val :=
   rec: "lst_mapi_aux" "t" "fn" "i" :=
     match: "t" with
     | Nil =>
-        &&Nil
+        §Nil
     | Cons "v" "t" =>
         let: "v" := "fn" "i" "v" in
         let: "t" := "lst_mapi_aux" "t" "fn" (#1 + "i") in
-        &Cons "v" "t"
+        ‘Cons{"v", "t"}
     end.
 Definition lst_mapi : val :=
   λ: "t" "fn",
@@ -409,7 +323,7 @@ Section zebre_G.
       wp_pures.
       rewrite Z.add_1_l -Nat2Z.inj_succ.
       wp_apply ("IH" $! (vs_left ++ [v]) (S i) with "[] [] [] [$HΨ //]"); rewrite ?app_length /=; [iSteps.. |].
-      iIntros "%t %vs_right (%Hvs_right & -> & HΨ)".
+      iIntros "%t %vs_right (%Hvs_right & %Ht & HΨ)". rewrite {}Ht.
       wp_pures.
       iApply ("HΦ" $! _ (v :: vs_right)).
       rewrite -assoc. iSteps.
@@ -948,7 +862,7 @@ Section zebre_G.
       lst_model acc (reverse vs')
     )%I.
     wp_smart_apply (lst_foldl_spec Ψ with "[$Ht]"); last iSteps.
-    iSteps. rewrite reverse_app /lst_model'. iSteps.
+    iSteps. unfold lst_model' in *. rewrite reverse_app . iSteps.
   Qed.
 
   Lemma lst_app_spec t1 vs1 t2 vs2 :

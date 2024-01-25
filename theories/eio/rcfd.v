@@ -34,99 +34,14 @@ Implicit Types o : option val.
 ( in custom zebre_field
 ).
 
-#[local] Definition state_match : val :=
-  λ: "state" "Open" "Closing",
-    match: "state" with
-      Injl "x1" =>
-        "Open" "x1"
-    | Injr "x2" =>
-        "Closing" "x2"
-    end.
-#[local] Notation "'match:' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
-  (Val state_match) e0 (Lam x1 e1) (Lam x2 e2)
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  Open  x1  =>  '/    ' e1 ']'  '/' '[' |  Closing  x2  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-#[local] Notation "'match:' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
-  (Val state_match) e0 (Lam x1 e1) (Lam x2 e2)
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-#[local] Notation "'match::' e0 'with' | 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
-  (Val state_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x2 e2))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match::  e0  with  '/' '[' |  Open  x1  =>  '/    ' e1 ']'  '/' '[' |  Closing  x2  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-#[local] Notation "'match::' e0 'with' 'Open' x1 => e1 | 'Closing' x2 => e2 'end'" := (
-  (Val state_match) e0 (Val (ValLam x1 e1)) (Val (ValLam x2 e2))
-)(x1, x2 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-
-#[local] Definition state_Open : val :=
-  λ: "v", Injl "v".
-#[local] Definition ValOpen :=
-  ValInjl.
-#[local] Notation "'&Open'" :=
-  state_Open.
-#[local] Notation "'&&Open'" :=
-  ValOpen.
-#[local] Instance state_Open_inj :
-  Inj (=) (=) &&Open.
-Proof.
-  rewrite /Inj. naive_solver.
-Qed.
-#[local] Instance pure_state_Open v :
-  PureExec True 2
-    (&Open v)
-    (&&Open v).
-Proof.
-  solve_pure_exec.
-Qed.
-#[local] Instance pure_state_match_Open v x1 e1 x2 e2 :
-  PureExec True 11
-    (match:: &&Open v with Open x1 => e1 | Closing x2 => e2 end)
-    (subst' x1 v e1).
-Proof.
-  solve_pure_exec.
-Qed.
-
-#[local] Definition state_Closing : val :=
-  λ: "v", Injr "v".
-#[local] Definition ValClosing :=
-  ValInjr.
-#[local] Notation "'&Closing'" :=
-  state_Closing.
-#[local] Notation "'&&Closing'" :=
-  ValClosing.
-#[local] Instance state_Closing_inj :
-  Inj (=) (=) &&Closing.
-Proof.
-  rewrite /Inj. naive_solver.
-Qed.
-#[local] Instance pure_state_Closing v :
-  PureExec True 2
-    (&Closing v)
-    (&&Closing v).
-Proof.
-  solve_pure_exec.
-Qed.
-#[local] Instance pure_state_match_Closing v x1 e1 x2 e2 :
-  PureExec True 11
-    (match:: &&Closing v with Open x1 => e1 | Closing x2 => e2 end)
-    (subst' x2 v e2).
-Proof.
-  solve_pure_exec.
-Qed.
-
-#[global] Opaque state_match.
-#[global] Opaque ValOpen.
-#[global] Opaque state_Closing.
-#[global] Opaque ValClosing.
+#[local] Notation "'Open'" :=
+  ("state", 0)
+( in custom zebre_tag
+).
+#[local] Notation "'Closing'" :=
+  ("state", 1)
+( in custom zebre_tag
+).
 
 Inductive rcfd_state :=
   | RcfdStateOpen fd
@@ -141,9 +56,9 @@ Implicit Types state : rcfd_state.
 #[local] Definition state_to_val state :=
   match state with
   | RcfdStateOpen fd =>
-      &&Open fd
+      ’Open{fd}
   | RcfdStateClosing fn =>
-      &&Closing fn
+      ’Closing{fn}
   end.
 #[local] Arguments state_to_val !_ / : assert.
 #[local] Coercion state_to_val : rcfd_state >-> val.
@@ -156,11 +71,11 @@ Qed.
 
 Definition rcfd_make : val :=
   λ: "fd",
-    { #0; ref (&Open "fd") }.
+    { #0; ref ‘Open{"fd"} }.
 
 #[local] Definition rcfd_closed : val :=
   λ: <>,
-    ref (&Closing (λ: <>, ())).
+    ref ‘Closing{λ: <>, ()}.
 
 #[local] Definition rcfd_put : val :=
   λ: "t",
@@ -182,10 +97,10 @@ Definition rcfd_make : val :=
     Faa "t".[ops] #1 ;;
     match: !"t".{fd} with
     | Open "fd" =>
-        &Some "fd"
+        ‘Some{"fd"}
     | Closing <> =>
         rcfd_put "t" ;;
-        &&None
+        §None
     end.
 
 Definition rcfd_close : val :=
@@ -196,7 +111,7 @@ Definition rcfd_close : val :=
         let: "close" <> :=
           unix_close "fd"
         in
-        let: "next" := ref (&Closing "close") in
+        let: "next" := ref ‘Closing{"close"} in
         if: Cas "t".[fd] "prev" "next" then (
           if: ("t".{ops} = #0) && Cas "t".[fd] "next" (rcfd_closed ()) then (
             "close" ()
@@ -218,15 +133,15 @@ Definition rcfd_remove : val :=
     | Open "fd" =>
         let: "flag" := ref #false in
         let: "chan" := latch1_create () in
-        let: "next" := ref (&Closing (λ: <>, latch1_signal "chan")) in
+        let: "next" := ref ‘Closing{λ: <>, latch1_signal "chan"} in
         if: Cas "t".[fd] "prev" "next" then (
           latch1_wait "chan" ;;
-          &Some "fd"
+          ‘Some{"fd"}
         ) else (
-          &&None
+          §None
         )
     | Closing <> =>
-        &&None
+        §None
     end.
 
 Definition rcfd_use : val :=
@@ -253,9 +168,9 @@ Definition rcfd_peek : val :=
   λ: "t",
     match: !"t".{fd} with
     | Open "fd" =>
-        &Some "fd"
+        ‘Some{"fd"}
     | Closing <> =>
-        &&None
+        §None
     end.
 
 Inductive rcfd_lstate :=
@@ -831,7 +746,7 @@ Section rcfd_G.
 
         iDestruct (rcfd_lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
-        iDestruct (mapsto_agree with "Hstate Hstate4") as %Hfn4. simpl in Hfn4. apply (inj _) in Hfn4 as <-.
+        iDestruct (mapsto_agree with "Hstate Hstate4") as %[=<-].
         iSplitR "Hfn4 HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iModIntro. clear.
 
@@ -1003,7 +918,7 @@ Section rcfd_G.
     }}}
       rcfd_remove t
     {{{
-      RET &&None; True
+      RET §None; True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
@@ -1210,7 +1125,7 @@ Section rcfd_G.
     }}}
       rcfd_peek t
     {{{
-      RET &&None; True
+      RET §None; True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".

@@ -326,12 +326,10 @@ Section unfold_functions.
         existsb (occurs x) es
     | Proj _ e =>
         occurs x e
-    | Injl e =>
-        occurs x e
-    | Injr e =>
-        occurs x e
-    | Case e0 e1 e2 =>
-        (occurs x e0) || (occurs x e1) || (occurs x e2)
+    | Constr _ es =>
+        existsb (occurs x) es
+    | Case e brs =>
+        (occurs x e) || existsb (λ br, occurs x br.2) brs
     | Fork e =>
         (occurs x e)
     | Record es =>

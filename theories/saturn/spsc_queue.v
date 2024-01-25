@@ -42,7 +42,7 @@ Implicit Types vs hist : list val.
 
 Definition spsc_queue_create : val :=
   λ: "sz",
-    { array_make "sz" &&None; #0; #0 }.
+    { array_make "sz" §None; #0; #0 }.
 
 Definition spsc_queue_push : val :=
   λ: "t" "v",
@@ -50,7 +50,7 @@ Definition spsc_queue_push : val :=
     let: "back" := "t".{back} in
     let: "front" := "t".{front} in
     if: "back" < "front" + array_size "data" then (
-      array_cset "data" "back" (&Some "v") ;;
+      array_cset "data" "back" ‘Some{"v"} ;;
       "t" <-{back} #1 + "back" ;;
       #false
     ) else (
@@ -64,11 +64,11 @@ Definition spsc_queue_pop : val :=
     if: "front" < "back" then (
       let: "data" := "t".{data} in
       let: "res" := array_cget "data" "front" in
-      array_cset "data" "front" &&None ;;
+      array_cset "data" "front" §None ;;
       "t" <-{front} #1 + "front" ;;
       "res"
     ) else (
-      &&None
+      §None
     ).
 
 Class SpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
@@ -186,14 +186,14 @@ Section spsc_queue_G.
     spsc_queue_producer_ctl₂ γ back ∗
     spsc_queue_model₂ γ vs ∗
     spsc_queue_history_auth γ hist ∗
-    ( array_cslice data sz front (DfracOwn 1) (&&Some <$> take 1 vs)
+    ( array_cslice data sz front (DfracOwn 1) ((λ v, ’Some{v}) <$> take 1 vs)
     ∨ spsc_queue_consumer_region γ
     ) ∗
-    array_cslice data sz (S front) (DfracOwn 1) (&&Some <$> drop 1 vs) ∗
-    ( array_cslice data sz back (DfracOwn 1) (if decide (back = front + sz) then [] else [&&None])
+    array_cslice data sz (S front) (DfracOwn 1) ((λ v, ’Some{v}) <$> drop 1 vs) ∗
+    ( array_cslice data sz back (DfracOwn 1) (if decide (back = front + sz) then [] else [§None])
     ∨ spsc_queue_producer_region γ
     ) ∗
-    array_cslice data sz (S back) (DfracOwn 1) (replicate (sz - (back - front) - 1) &&None).
+    array_cslice data sz (S back) (DfracOwn 1) (replicate (sz - (back - front) - 1) §None).
   Definition spsc_queue_inv t ι sz : iProp Σ :=
     ∃ l γ data,
     ⌜t = #l⌝ ∗
@@ -568,7 +568,7 @@ Section spsc_queue_G.
             rewrite fmap_length. naive_solver lia.
         - case_decide.
           + assert (sz - (S back - front3) - 1 = 0) as -> by lia. iSteps.
-          + iDestruct (array_cslice_app_2 [&&None] (replicate (sz - (S back - front3) - 1) &&None) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
+          + iDestruct (array_cslice_app_2 [§None] (replicate (sz - (S back - front3) - 1) §None) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
             { rewrite /= -replicate_S. f_equal. lia. }
             rewrite Nat.add_1_r. iSteps.
       }

@@ -396,81 +396,67 @@ Section instances.
 End instances.
 
 Section side_condition_lemmas.
-  Lemma val_neq_lit_neq (l1 l2 : literal) :
-    l1 ≠ l2 →
-    ValLiteral l1 ≠ ValLiteral l2.
+  Lemma val_neq_lit_neq lit1 lit2 :
+    lit1 ≠ lit2 →
+    ValLiteral lit1 ≠ ValLiteral lit2.
   Proof.
-    move => H [= /H //].
+    congruence.
   Qed.
 
-  Lemma lit_neq_Z_neq (l1 l2 : Z) :
-    l1 ≠ l2 →
-    LiteralInt l1 ≠ LiteralInt l2.
+  Lemma lit_neq_Z_neq n1 n2 :
+    n1 ≠ n2 →
+    LiteralInt n1 ≠ LiteralInt n2.
   Proof.
-    move => H [= /H //].
+    congruence.
   Qed.
 
-  Lemma lit_neq_bool_neq (l1 l2 : bool) :
-    l1 ≠ l2 →
-    LiteralBool l1 ≠ LiteralBool l2.
+  Lemma lit_neq_bool_neq b1 b2 :
+    b1 ≠ b2 →
+    LiteralBool b1 ≠ LiteralBool b2.
   Proof.
-    move => H [= /H //].
+    congruence.
   Qed.
 
-  Lemma injl_neq_val_neq (v1 v2 : val) :
-    v1 ≠ v2 →
-    ValInjl v1 ≠ ValInjl v2.
+  Lemma val_constr_neq tag1 vs1 tag2 vs2 :
+    tag1 ≠ tag2 →
+    vs1 ≠ vs2 →
+    Constr tag1 vs1 ≠ Constr tag2 vs2.
   Proof.
-    move => H [= /H //].
+    congruence.
   Qed.
 
-  Lemma injr_neq_val_neq (v1 v2 : val) :
-    v1 ≠ v2 →
-    ValInjr v1 ≠ ValInjr v2.
+  #[global] Instance simplify_lit_loc_neq l1 l2 :
+    SimplifyPureHypSafe
+      (ValLiteral l1 ≠ ValLiteral l2)
+      (l1 ≠ l2).
   Proof.
-    move => H [= /H //].
+    split; congruence.
   Qed.
 
-  #[global] Instance simplify_lit_val_neq (l1 l2 : literal) :
-    SimplifyPureHypSafe (ValLiteral l1 ≠ ValLiteral l2) (l1 ≠ l2).
+  #[global] Instance simplify_lit_int_neq n1 n2 :
+    SimplifyPureHypSafe
+      (LiteralInt n1 ≠ LiteralInt n2)
+      (n1 ≠ n2).
   Proof.
-    split; first (move => + Hl; by subst). apply val_neq_lit_neq.
+    split; congruence.
   Qed.
 
-  #[global] Instance simplify_lit_int_neq (l1 l2 : Z) :
-    SimplifyPureHypSafe (LiteralInt l1 ≠ LiteralInt l2) (l1 ≠ l2).
+  #[global] Instance simplify_lit_bool_neq b1 b2 :
+    SimplifyPureHypSafe
+      (LiteralBool b1 ≠ LiteralBool b2)
+      (b1 ≠ b2).
   Proof.
-    split; first (move => + Hl; by subst). apply lit_neq_Z_neq.
+    split; congruence.
   Qed.
 
-  #[global] Instance simplify_lit_bool_neq (l1 l2 : bool) :
-    SimplifyPureHypSafe (LiteralBool l1 ≠ LiteralBool l2) (l1 ≠ l2).
+  #[global] Instance simplify_constr_neq tag1 vs1 tag2 vs2 :
+    SimplifyPureHypSafe
+      (ValConstr tag1 vs1 ≠ ValConstr tag2 vs2)
+      (tag1 ≠ tag2 ∨ vs1 ≠ vs2).
   Proof.
-    split; first (move => + Hl; by subst). apply lit_neq_bool_neq.
-  Qed.
-
-  #[global] Instance simplify_injl_neq (l1 l2 : val) :
-    SimplifyPureHypSafe (ValInjl l1 ≠ ValInjl l2) (l1 ≠ l2).
-  Proof.
-    split; first (move => + Hl; by subst). apply injl_neq_val_neq.
-  Qed.
-
-  #[global] Instance simplify_injr_neq (l1 l2 : val) :
-    SimplifyPureHypSafe (ValInjr l1 ≠ ValInjr l2) (l1 ≠ l2).
-  Proof.
-    split; first (move => + Hl; by subst). apply injr_neq_val_neq.
-  Qed.
-
-  #[global] Instance simplify_injl_injr_eq (l1 l2 : val) :
-    SimplifyPureHypSafe (ValInjl l1 = ValInjr l2) False.
-  Proof.
-    split => H; last done. inversion H.
-  Qed.
-
-  #[global] Instance simplify_injl_injl_eq (l1 l2 : val) :
-    SimplifyPureHypSafe (ValInjr l1 = ValInjl l2) False.
-  Proof.
-    split => H; last done. inversion H.
+    split.
+    - rewrite -not_and_l. naive_solver.
+    - naive_solver.
   Qed.
 End side_condition_lemmas.
 
@@ -496,29 +482,29 @@ Ltac trySolvePureEqAdd1 :=
 
 Ltac trySolvePureAdd1 :=
   match goal with
-  | |- ValLiteral ?v1 ≠ ValLiteral ?v2 =>
-      assert_fails (has_evar v1);
-      assert_fails (has_evar v2);
+  | |- ValLiteral ?lit1 ≠ ValLiteral ?lit2 =>
+      assert_fails (has_evar lit1);
+      assert_fails (has_evar lit2);
       eapply val_neq_lit_neq; solve [pure_solver.trySolvePure]
-  | |- LiteralInt ?v1 ≠ LiteralInt ?v2 =>
-      assert_fails (has_evar v1);
-      assert_fails (has_evar v2);
+  | |- LiteralInt ?n1 ≠ LiteralInt ?n2 =>
+      assert_fails (has_evar n1);
+      assert_fails (has_evar n2);
       eapply lit_neq_Z_neq; solve [pure_solver.trySolvePure]
-  | |- LiteralBool ?v1 ≠ LiteralBool ?v2 =>
-      assert_fails (has_evar v1);
-      assert_fails (has_evar v2);
+  | |- LiteralBool ?b1 ≠ LiteralBool ?b2 =>
+      assert_fails (has_evar b1);
+      assert_fails (has_evar b2);
       eapply lit_neq_bool_neq; solve [pure_solver.trySolvePure]
-  | |- ValInjl ?v1 ≠ ValInjl ?v2 =>
-      assert_fails (has_evar v1);
-      assert_fails (has_evar v2);
-      eapply injl_neq_val_neq; solve [pure_solver.trySolvePure]
-  | |- ValInjr ?v1 ≠ ValInjr ?v2 =>
-      assert_fails (has_evar v1);
-      assert_fails (has_evar v2);
-      eapply injr_neq_val_neq; solve [pure_solver.trySolvePure]
+  | |- ValConstr ?tag1 ?vs1 ≠ ValConstr ?tag2 ?vs2 =>
+      assert_fails (has_evar tag1);
+      assert_fails (has_evar tag2);
+      assert_fails (has_evar vs1);
+      assert_fails (has_evar vs2);
+      eapply val_constr_neq; solve [pure_solver.trySolvePure]
   end.
 
-#[global] Hint Extern 4 => trySolvePureAdd1 : solve_pure_add.
+#[global] Hint Extern 4 =>
+  trySolvePureAdd1
+: solve_pure_add.
 
 #[global] Hint Extern 4 (
   length _ ≤ length _

@@ -48,15 +48,6 @@ Notation CtxSeq e2 := (
 )(only parsing
 ).
 
-Notation Match e0 x11 x12 e1 x21 x22 e2 := (
-  Case e0 (Lam x11 (Lam x12 e1)) (Lam x21 (Lam x22 e2))
-)(only parsing
-).
-Notation Match' e0 x1 e1 x2 e2 := (
-  Match e0 x1 BAnon e1 x2 BAnon e2
-)(only parsing
-).
-
 Notation "# l" := (
   ValLiteral l%Z%V%stdpp
 )(at level 8,
@@ -327,24 +318,69 @@ Notation "e .< proj >" := (
   format "e .< proj >"
 ) : expr_scope.
 
-Notation "'match:' e0 'with' | 'Injl' x11 'as' x12 => e1 | 'Injr' x21 'as' x22 => e2 'end'" := (
-  Match e0 x11%binder x12%binder e1 x21%binder x22%binder e2
-)(e0, x11, x12, e1, x21, x22, e2 at level 200,
-  format "'[hv' 'match:'  e0  'with'  '/' '[' |  'Injl'  x11  'as'  x12  =>  '/    ' e1 ']'  '/' '[' |  'Injr'  x21  'as'  x22  =>  '/    ' e2 ']'  '/' 'end' ']'"
+Declare Custom Entry zebre_tag.
+Notation "‘ tag { e1 , .. , en }" := (
+  Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+)(at level 2,
+  tag custom zebre_tag,
+  format "‘ tag { e1 ,  .. ,  en }"
+).
+Notation "’ tag { v1 , .. , vn }" := (
+  ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+)(at level 2,
+  tag custom zebre_tag,
+  format "’ tag { v1 ,  .. ,  vn }"
+).
+Notation "§ tag" := (
+  ValConstr tag%core (@nil val)
+)(at level 2,
+  tag custom zebre_tag,
+  format "§ tag"
+).
+
+Declare Custom Entry zebre_br.
+Notation "tag => e" := (
+  @pair constr_tag expr tag%core (Lam BAnon e%E)
+)(in custom zebre_br at level 200,
+  tag custom zebre_tag,
+  e constr at level 200,
+  format "tag  =>  '/    ' '[' e ']'"
+).
+Notation "tag 'as' y => e" := (
+  @pair constr_tag expr tag%core (Lam y%binder e%E)
+)(in custom zebre_br at level 200,
+  tag custom zebre_tag,
+  y constr at level 1,
+  e constr at level 200,
+  format "tag  as  y  =>  '/    ' '[' e ']'"
+).
+Notation "tag x1 .. xn => e" := (
+  @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam BAnon e%E)) ..))
+)(in custom zebre_br at level 200,
+  tag custom zebre_tag,
+  x1 constr at level 1, xn constr at level 1,
+  e constr at level 200,
+  format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
+).
+Notation "tag x1 .. xn 'as' y => e" := (
+  @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam y%binder e%E)) ..))
+)(in custom zebre_br at level 200,
+  tag custom zebre_tag,
+  x1 constr at level 1, xn constr at level 1,
+  y constr at level 1,
+  e constr at level 200,
+  format "tag  x1  ..  xn  as  y  =>  '/    ' '[' e ']'"
+).
+Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
+  Case e%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e at level 200,
+  br_1 custom zebre_br at level 200, br_n custom zebre_br at level 200,
+  format "'[hv' match:  e  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' 'Injl' x11 'as' x12 => e1 | 'Injr' x21 'as' x22 => e2 'end'" := (
-  Match e0 x11%binder x12%binder e1 x21%binder x22%binder e2
-)(e0, x11, x12, e1, x21, x22, e2 at level 200,
-  only parsing
-) : expr_scope.
-Notation "'match:' e0 'with' | 'Injl' x1 => e1 | 'Injr' x2 => e2 'end'" := (
-  Match' e0 x1%binder e1 x2%binder e2
-)(e0, x1, e1, x2, e2 at level 200,
-  format "'[hv' 'match:'  e0  'with'  '/' '[' |  'Injl'  x1  =>  '/    ' e1 ']'  '/' '[' |  'Injr'  x2  =>  '/    ' e2 ']'  '/' 'end' ']'"
-) : expr_scope.
-Notation "'match:' e0 'with' 'Injl' x1 => e1 | 'Injr' x2 => e2 'end'" := (
-  Match' e0 x1%binder e1 x2%binder e2
-)(e0, x1, e1, x2, e2 at level 200,
+Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
+  Case e%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e at level 200,
+  br_1 custom zebre_br at level 200, br_n custom zebre_br at level 200,
   only parsing
 ) : expr_scope.
 

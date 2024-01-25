@@ -14,22 +14,22 @@ From zebre Require Import
 Implicit Types v t lst : val.
 
 Definition pstack_empty :=
-  &&Nil.
+  §Nil.
 
 Definition pstack_is_empty :=
   lst_is_empty.
 
 Definition pstack_push : val :=
   λ: "t" "v",
-    &Cons "v" "t".
+    ‘Cons{"v", "t"}.
 
 Definition pstack_pop : val :=
   λ: "t",
     match: "t" with
     | Nil =>
-        &&None
+        §None
     | Cons "v" "t'" =>
-        &Some ("v", "t'")
+        ‘Some{("v", "t'")}
     end.
 
 Section zebre_G.
@@ -52,7 +52,7 @@ Section zebre_G.
   Lemma pstack_model_nil :
     ⊢ pstack_model pstack_empty [].
   Proof.
-    apply lst_model_Nil.
+    iSteps.
   Qed.
 
   Lemma pstack_is_empty_spec t vs :
@@ -77,10 +77,8 @@ Section zebre_G.
       pstack_model t' (v :: vs)
     }}}.
   Proof.
-    iIntros "%Φ #Hlst HΦ".
-    wp_rec. wp_pures.
-    iApply "HΦ".
-    iApply (lst_model_Cons with "Hlst").
+    iIntros "%Φ -> HΦ".
+    iSteps.
   Qed.
 
   Lemma pstack_pop_spec t vs :
@@ -100,13 +98,11 @@ Section zebre_G.
       end
     }}}.
   Proof.
-    iIntros "%Φ #Hlst HΦ".
+    iIntros "%Φ -> HΦ".
     wp_rec.
     destruct vs as [| v vs]; wp_pures.
-    - iApply (wp_lst_match_Nil with "Hlst").
-      iSpecialize ("HΦ" $! None). iSteps.
-    - iApply (wp_lst_match_Cons with "Hlst"); first done. iIntros "%lst' #Hlst' /=".
-      iSpecialize ("HΦ" $! (Some (v, lst')%V)). iSteps. iFrame "#∗".
+    - iSpecialize ("HΦ" $! None). iSteps.
+    - iSpecialize ("HΦ" $! (Some _)). iSteps.
   Qed.
 End zebre_G.
 

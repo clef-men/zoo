@@ -41,12 +41,12 @@ Definition safe_dynarray_create : val :=
 Definition safe_dynarray_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
-    { "sz"; array_initi "sz" (λ: <>, &Some (ref "v")) }.
+    { "sz"; array_initi "sz" (λ: <>, ‘Some{ref "v"}) }.
 
 Definition safe_dynarray_initi : val :=
   λ: "sz" "fn",
     assume (#0 ≤ "sz") ;;
-    { "sz"; array_initi "sz" (λ: "i", &Some (ref ("fn" "i"))) }.
+    { "sz"; array_initi "sz" (λ: "i", ‘Some{ref ("fn" "i")}) }.
 
 Definition safe_dynarray_size : val :=
   λ: "t",
@@ -97,7 +97,7 @@ Definition safe_dynarray_reserve : val :=
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
       let: "new_cap" := "n" `max` safe_dynarray_next_capacity "cap" in
-      let: "new_data" := array_make "new_cap" &&None in
+      let: "new_data" := array_make "new_cap" §None in
       array_blit "data" #0 "new_data" #0 (safe_dynarray_size "t") ;;
       safe_dynarray_set_data "t" "new_data"
     ).
@@ -125,7 +125,7 @@ Definition safe_dynarray_reserve_extra : val :=
     ).
 Definition safe_dynarray_push : val :=
   λ: "t" "v",
-    let: "slot" := &Some (ref "v") in
+    let: "slot" := ‘Some{ref "v"} in
     ifnot: safe_dynarray_try_push "t" "slot" then (
       safe_dynarray_push_aux "t" "slot"
     ).
@@ -141,7 +141,7 @@ Definition safe_dynarray_pop : val :=
     | None =>
         diverge ()
     | Some "ref" =>
-        array_unsafe_set "data" "sz" &&None ;;
+        array_unsafe_set "data" "sz" §None ;;
         safe_dynarray_set_size "t" "sz" ;;
         !"ref"
     end.
@@ -164,13 +164,13 @@ Section zebre_G.
 
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
-    ⌜slot = &&Some #r⌝ ∗
+    ⌜slot = ’Some{ #r}⌝ ∗
     r ↦ v.
   Definition safe_dynarray_model t vs : iProp Σ :=
     ∃ l data slots extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
-    l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra &&None) ∗
+    l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra §None) ∗
     [∗ list] slot; v ∈ slots; vs, slot_model slot v.
 
   #[global] Instance safe_dynarray_model_timeless t vs :
@@ -207,7 +207,8 @@ Section zebre_G.
     Z_to_nat sz. rewrite Nat2Z.id.
     wp_rec.
     wp_smart_apply assume_spec' as "_".
-    wp_smart_apply (array_initi_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hslots & Hdata_model & Hslots)"; [done | iSteps |].
+    wp_smart_apply (array_initi_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hslots & Hdata_model & Hslots)"; first done.
+    { iStep 5. iModIntro. wp_alloc r as "Hr". iSteps. }
     wp_record l as "(Hsz & Hdata & _)".
     iApply "HΦ". iExists l, data, slots, 0. iFrame. iSplitR; first iSteps.
     rewrite replicate_length right_id. iFrame.
@@ -695,7 +696,8 @@ Section zebre_G.
     iIntros "%Φ #Hv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_initi_type slot_type) as "%data (_ & Hdata_type)"; first iSteps.
+    wp_smart_apply (array_initi_type slot_type) as "%data (_ & Hdata_type)".
+    { iStep 5. iModIntro. wp_alloc r. iSteps. }
     iSteps.
   Qed.
 
@@ -911,7 +913,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec. wp_alloc r as "Hr".
-    iAssert (|={⊤}=> slot_type (&&Some #r))%I with "[Hr]" as ">#Hslot"; first iSteps.
+    iAssert (|={⊤}=> slot_type (’Some{ #r}))%I with "[Hr]" as ">#Hslot"; first iSteps.
     wp_smart_apply (safe_dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply (safe_dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.
