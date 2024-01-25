@@ -281,9 +281,13 @@ Section pstore_G.
         reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffs ds σ)
     }.
 
+  Definition locs_of_edges_in g (X:gset loc) :=
+    forall r l v r', edge g r (l,v) r' -> l ∈ X.
+
   Record coherent (σ0 σ:gmap loc val) (g:graph_store) :=
     { coh1 : σ ⊆ σ0;
-      coh2 : forall r l v r', edge g r (l,v) r' -> l ∈ dom σ
+      coh2 : locs_of_edges_in g (dom σ0);
+      coh3 : forall r ds, reachable g r ds r -> ds = nil (* acyclicity. *)
     }.
 
   Lemma gmap_included_insert `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
@@ -295,11 +299,21 @@ Section pstore_G.
     { rewrite !lookup_insert_ne //. }
   Qed.
 
-  Lemma coherent_dom_incl σ0 σ g  :
-    coherent σ0 σ g ->
+  Lemma gmap_included_insert_notin `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
+    l ∉ dom σ1 ->
+    σ1 ⊆ σ2 ->
+    σ1 ⊆ <[l:=v]>σ2.
+  Proof.
+    intros ?? l'. destruct_decide (decide (l=l')).
+    { subst. rewrite lookup_insert // not_elem_of_dom_1 //. }
+    { rewrite !lookup_insert_ne //. }
+  Qed.
+
+  Lemma incl_dom_incl σ0 σ  :
+    σ ⊆ σ0 ->
     dom σ ⊆ dom σ0.
   Proof.
-    intros [X1 X2].
+    intros X1.
     intros l Hl. apply elem_of_dom in Hl. destruct Hl as (?&Hl).
     eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
   Qed.
@@ -350,7 +364,35 @@ Section pstore_G.
         inversion Hr.
         { subst. rewrite lookup_singleton //. set_solver. }
         { exfalso. subst. set_solver. } } }
-    { constructor. set_solver. set_solver. }
+    { constructor. set_solver.
+      { intros ????. set_solver. }
+      { intros ??. inversion 1; subst. done. set_solver. } }
+  Qed.
+
+  Lemma use_locs_of_edges_in  g r ds r' X :
+    locs_of_edges_in g X ->
+    reachable g r ds r' ->
+    (list_to_set ds.*1) ⊆ X.
+  Proof.
+    intros He.
+    induction 1. set_solver.
+    apply He in H. set_solver.
+  Qed.
+
+  Lemma dom_apply_diffs ds σ :
+    dom (apply_diffs ds σ) = dom σ ∪ (list_to_set ds.*1).
+  Proof.
+    induction ds as [|(?&?)]; set_solver.
+  Qed.
+
+  Lemma apply_diff_insert_ne ds l v σ :
+    l ∉ ds.*1 ->
+    apply_diffs ds (<[l:=v]> σ) = <[l:=v]> (apply_diffs ds σ).
+  Proof.
+    induction ds as [|(?&?)].
+    { intros ?. reflexivity. }
+    { intros. simpl. rewrite IHds. set_solver.
+      rewrite insert_commute //. set_solver. }
   Qed.
 
   Lemma pstore_ref_spec t σ v :
@@ -376,7 +418,7 @@ Section pstore_G.
       iDestruct (mapsto_ne with "Hl Hl_") as %?. done. }
     assert (σ !! l = None) as Hl.
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.
-      intros ?. apply Hl0. eapply coherent_dom_incl; eauto. }
+      intros ?. apply Hl0. destruct Hcoh. eapply incl_dom_incl; eauto. }
     iDestruct (mapsto_ne with "Hl Hr") as %Hlr.
 
 
@@ -391,14 +433,23 @@ Section pstore_G.
       { rewrite lookup_insert //. }
       { eauto. }
       { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
-        { subst. rewrite lookup_insert. admit. (* acyclic, ds=nil. *) }
+        { subst. rewrite lookup_insert. eapply coh3 in Hr; eauto. set_solver. }
         { rewrite lookup_insert_ne //.
-          intros Hreach. eapply X4 in Hreach; eauto. admit. (* I think I have to know that ds ⊆ dom σ0 *) } } }
+          intros Hreach. eapply X4 in Hreach; eauto.
+          destruct Hcoh as [Z1 Z2].
+          eapply use_locs_of_edges_in in Z2. 2:done.
+          rewrite apply_diff_insert_ne.
+          { apply not_elem_of_dom in Hl0. set_solver. }
+          apply gmap_included_insert_notin; last done.
+          apply incl_dom_incl in Z1. apply incl_dom_incl in Hreach.
+          rewrite dom_apply_diffs in Hreach.
+          apply not_elem_of_dom in Hl0,Hl. set_solver. } } }
     { destruct Hcoh as [X1 X2].
       constructor.
       { eauto using gmap_included_insert. }
-      { intros. rewrite dom_insert_L. set_solver. } }
-  Abort.
+      { intros. rewrite dom_insert_L. intros ??. set_solver. }
+      { eauto. } }
+  Qed.
 
 
   Lemma pstore_get_spec {t σ l} v :
@@ -438,7 +489,7 @@ Section pstore_G.
     wp_alloc r' as "Hr'".
 
     assert (l ∈ dom σ0) as Hl0.
-    { eapply coherent_dom_incl in Hl; eauto. }
+    { destruct Hcoh as [Z1 _ _]. apply incl_dom_incl in Z1. eauto. }
     apply elem_of_dom in Hl0. destruct Hl0 as (w&Hl0).
 
     iDestruct (big_sepM_insert_acc with "[$]") as "(?&Hσ0)". done.
@@ -447,9 +498,13 @@ Section pstore_G.
 
     iSpecialize ("Hσ0" with "[$]").
 
+    iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
+    { admit. (* only one root? *) }
+
     iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M).
     rewrite big_sepS_union.
-    { admit. }
+    { apply disjoint_singleton_l. intros ?. apply Hr'.
+      apply elem_of_vertices. eauto. }
     rewrite big_sepS_singleton. iFrame.
     iPureIntro.
     { split_and!; first done.
@@ -470,7 +525,8 @@ Section pstore_G.
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
-        { set_solver. } } }
+        { set_solver. }
+        { admit. } } }
   Abort.
 
   Lemma pstore_catpure_spec t σ0 σ :
