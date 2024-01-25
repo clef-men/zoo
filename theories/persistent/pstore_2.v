@@ -189,6 +189,26 @@ Proof.
   { intros. rewrite -app_comm_cons. eauto using rtcl_l. }
 Qed.
 
+
+Lemma rtcl_ind_r_weak (P : A -> list B → A → Prop)
+  (Prefl : ∀ x, P x [] x) (Pstep : ∀ x bs y b z, rtcl x bs y → R y b z → P x bs y → P x (bs++[b]) z) :
+  ∀ x bs z, rtcl x bs z → P x bs z.
+Proof.
+  cut (∀ y bs z, rtcl y bs z → ∀ x bs', rtcl x bs' y → P x bs' y → P x (bs'++bs) z).
+  { intros. specialize (H x bs z H0 x nil). simpl in *. eauto using rtcl_refl. }
+  { induction 1.
+    { intros. rewrite right_id_L //. }
+    { intros. rewrite cons_middle assoc_L. eauto using rtcl_r. } }
+Qed.
+
+Lemma rtcl_ind_r (P : list B -> A → Prop) (x : A)
+  (Prefl : P nil x) (Pstep : ∀ bs y b z, rtcl x bs y → R y b z → P bs y → P (bs++[b]) z) :
+  ∀ bs z, rtcl x bs z → P bs z.
+Proof.
+  intros bs z p. revert x bs z p Prefl Pstep.
+  refine (rtcl_ind_r_weak _ _ _); eauto.
+Qed.
+
 End rtc_lab.
 
 Section Graph.
@@ -252,15 +272,6 @@ Proof.
   induction 1; intros Hi. apply rtcl_refl. eapply rtcl_l.
   by apply Hi. by apply IHrtcl.
 Qed.
-
-Lemma reachable_add_end_inv g (r0 r r':A) x ds :
-  r ≠ r' ->
-  r' ∉ vertices g ->
-  reachable ({[(r, x, r')]} ∪ g) r0 ds r' ->
-  r0 = r /\ ds = [x].
-Proof.
-  intros Hneq Hr' Hreach.
-Admitted.
 
 Lemma reachable_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
   r ≠ r' ->
@@ -566,7 +577,9 @@ Section pstore_G.
             eapply rtcl_r.
             { eapply reachable_weak; eauto. set_solver. }
             { set_solver. } } }
-        { intros x ds σ' Hreach. apply reachable_add_end_inv in Hreach; eauto.
+        { intros x ds σ' Hreach. (*....... HERE *)
+          destruct_decide (decide (x=r')).
+          apply reachable_add_end_inv in Hreach; eauto.
           destruct Hreach as (->&->).
           rewrite lookup_insert_ne //. intros Hσ'.
           rewrite /apply_diffs. simpl. rewrite insert_insert.
