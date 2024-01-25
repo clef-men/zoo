@@ -179,6 +179,16 @@ Inductive rtcl : A -> list B -> A -> Prop :=
     rtcl a2 bs a3 ->
     rtcl a1 (b::bs) a3.
 
+Lemma rtcl_r a1 b a2 bs a3 :
+  rtcl a1 bs a2 ->
+  R a2 b a3 ->
+  rtcl a1 (bs++[b]) a3.
+Proof.
+  induction 1.
+  { eauto using rtcl_refl,rtcl_l. }
+  { intros. rewrite -app_comm_cons. eauto using rtcl_l. }
+Qed.
+
 End rtc_lab.
 
 Section Graph.
@@ -192,8 +202,56 @@ Lemma vertices_empty :
   vertices ∅ = ∅.
 Proof. compute_done. Qed.
 
+Definition vin {A B C:Type} (x:(A*B*C)) := match x with (a,_,_) => a end.
+Definition vout {A B C:Type} (x:(A*B*C)) := match x with (_,_,c) => c end.
+
+Lemma elem_of_vertices x (g:graph A B) :
+  x ∈ vertices g <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g).
+Proof.
+  apply set_fold_ind_L with (P := fun f g => x ∈ f  <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g)).
+  set_solver.
+  intros ((?,?),?). set_solver.
+Qed.
+
+Lemma vertices_singleton (x:(A*B*A)) :
+  vertices {[x]} = {[vin x; vout x]}.
+Proof.
+  rewrite /vertices set_fold_singleton. destruct x as ((?&?)&?); set_solver.
+Qed.
+
+Lemma vertices_union (g1 g2:graph A B) :
+  vertices (g1 ∪ g2) = vertices g1 ∪ vertices g2.
+Proof.
+  revert g2. induction g1 using set_ind_L; intros g2.
+  { rewrite /vertices set_fold_empty !left_id_L //. }
+  replace ({[x]} ∪ X ∪ g2) with (X ∪ ({[x]} ∪ g2)) by set_solver.
+  rewrite (union_comm_L _  X).
+  rewrite !IHg1. rewrite -union_assoc_L. f_equal.
+  destruct_decide (decide (x ∈ g2)).
+  { replace ({[x]} ∪ g2) with g2 by set_solver.
+    rewrite vertices_singleton.
+    assert ({[vin x; vout x]} ⊆ vertices g2); last by set_solver.
+    intros l Hl. apply elem_of_vertices.
+    rewrite elem_of_union !elem_of_singleton in Hl. destruct x as ((?,?),?). set_solver. }
+  rewrite {1}/vertices /set_fold. simpl.
+  rewrite (foldr_permutation _ _ _ _ (x::elements g2)).
+  { intros. destruct a1 as ((?,?),?),a2 as ((?,?),?); set_solver. }
+  { by apply elements_union_singleton. }
+  { simpl. rewrite vertices_singleton. destruct x as ((?,?),?). set_solver. }
+Qed.
+
+
 Definition edge (g:graph A B) x c y := (x,c,y) ∈ g.
 Definition reachable (g:graph A B) x bs y := rtcl (edge g) x bs y.
+
+Lemma reachable_weak g1 g2 x bs y :
+  reachable g1 x bs y ->
+  g1 ⊆ g2 ->
+  reachable g2 x bs y.
+Proof.
+  induction 1; intros Hi. apply rtcl_refl. eapply rtcl_l.
+  by apply Hi. by apply IHrtcl.
+Qed.
 
 End Graph.
 
@@ -228,6 +286,15 @@ Section pstore_G.
       coh2 : forall r l v r', edge g r (l,v) r' -> l ∈ dom σ
     }.
 
+  Lemma gmap_included_insert `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
+    σ1 ⊆ σ2 ->
+    <[l:=v]>σ1 ⊆ <[l:=v]>σ2.
+  Proof.
+    intros ? l'. destruct_decide (decide (l=l')).
+    { subst. rewrite !lookup_insert //. }
+    { rewrite !lookup_insert_ne //. }
+  Qed.
+
   Lemma coherent_dom_incl σ0 σ g  :
     coherent σ0 σ g ->
     dom σ ⊆ dom σ0.
@@ -237,19 +304,18 @@ Section pstore_G.
     eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
   Qed.
 
-  #[local] Definition pstore γ (t:val) (σ:gmap loc val) : iProp Σ :=
+  #[local] Definition pstore (t:val) (σ:gmap loc val) : iProp Σ :=
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store)
       (M:map_model),
     ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ &&Root ∗
-    pstore_map_auth γ (delete r M) ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
     ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')).
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh)&Ht0&Hr&Hauth&Hσ0&Hg)]]]]]".
+    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh)&Ht0&Hr&Hσ0&Hg)]]]]]".
 
   Definition pstore_snapshot γ l σ : iProp Σ :=
     pstore_map_elem γ l σ.
@@ -263,16 +329,15 @@ Section pstore_G.
   Lemma pstore_create_spec :
     {{{ True }}}
       pstore_create ()
-    {{{ t γ,
+    {{{ t,
       RET t;
-        pstore γ t ∅
+        pstore t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_alloc r as "Hroot".
     wp_alloc t0 as "Ht0".
-    iMod (map_agree_alloc {[r:=∅]}) as "[%γ ?]".
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
     rewrite big_sepM_empty big_sepS_empty !right_id.
@@ -288,15 +353,15 @@ Section pstore_G.
     { constructor. set_solver. set_solver. }
   Qed.
 
-  Lemma pstore_ref_spec γ t σ v :
+  Lemma pstore_ref_spec t σ v :
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_ref v
     {{{ l,
       RET #l;
       ⌜σ !! l = None⌝ ∗
-      pstore γ t (<[l := v]> σ)
+      pstore t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (ϕ) open_inv. iIntros "HΦ".
@@ -318,7 +383,7 @@ Section pstore_G.
     iModIntro. iStep.
     iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M).
 
-    rewrite delete_insert_delete big_sepM_insert //. iFrame.
+    rewrite big_sepM_insert //. iFrame.
     iPureIntro. split_and !; first done.
     { destruct Hinv as [X1 X2 X3 X4].
       constructor.
@@ -335,15 +400,15 @@ Section pstore_G.
   Abort.
 
 
-  Lemma pstore_get_spec {γ t σ l} v :
+  Lemma pstore_get_spec {t σ l} v :
     σ !! l = Some v →
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_get t #l
     {{{
       RET v;
-      pstore γ t σ
+      pstore t σ
     }}}.
   Proof.
     iIntros (? ϕ) open_inv. iIntros "HΦ".
@@ -351,15 +416,15 @@ Section pstore_G.
     admit. (* wp_load. *)
   Abort.
 
-  Lemma pstore_set_spec γ t σ l v :
+  Lemma pstore_set_spec t σ l v :
     l ∈ dom σ →
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_set t #l v
     {{{
       RET ();
-      pstore γ t (<[l := v]> σ)
+      pstore t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
@@ -375,6 +440,31 @@ Section pstore_G.
     wp_store. wp_store. iApply "HΦ".
 
     iSpecialize ("Hσ0" with "[$]").
+
+    iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M).
+    rewrite big_sepS_union.
+    { admit. }
+    rewrite big_sepS_singleton. iFrame.
+    iPureIntro.
+    { split_and!; first done.
+      { destruct Hinv as [X1 X2 X3 X4].
+        constructor.
+        { rewrite dom_insert_L vertices_union vertices_singleton //. set_solver. }
+        { rewrite lookup_insert //. }
+        { rewrite vertices_union vertices_singleton. intros x.
+          rewrite !elem_of_union !elem_of_singleton.
+          intros [[-> | ->] | Hx].
+          { exists [(l,w)]. simpl. eapply rtcl_l. 2:apply rtcl_refl. set_solver. }
+          { exists nil. apply rtcl_refl. }
+          { apply X3 in Hx. destruct Hx as (ds,Hx). exists (ds++[(l,w)]).
+            eapply rtcl_r.
+            { eapply reachable_weak; eauto. set_solver. }
+            { set_solver. } } }
+        { intros x ds. admit. } }
+      { destruct Hcoh as [X1 X2].
+        constructor.
+        { eauto using gmap_included_insert. }
+        { set_solver. } } }
   Abort.
 
   Lemma pstore_catpure_spec t σ0 σ :
