@@ -68,7 +68,7 @@ Notation "'match::' e0 'with' 'None' => e1 | 'Some' x => e2 'end'" := (
 ) : expr_scope.
 
 Definition ValNone :=
-  ValInjl #().
+  ValInjl ().
 Notation "'&&None'" :=
   ValNone.
 #[global] Instance pure_opt_match_None x1 e1 x21 x22 e2 :

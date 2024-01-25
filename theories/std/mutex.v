@@ -31,7 +31,7 @@ Definition mutex_unlock : val :=
 Definition mutex_protect : val :=
   λ: "t" "fn",
     mutex_lock "t" ;;
-    let: "res" := "fn" #() in
+    let: "res" := "fn" () in
     mutex_unlock "t" ;;
     "res".
 
@@ -118,7 +118,7 @@ Section mutex_G.
     {{{
       P
     }}}
-      mutex_create #()
+      mutex_create ()
     {{{ t,
       RET t;
       mutex_inv t P
@@ -138,7 +138,7 @@ Section mutex_G.
     }}}
       mutex_lock t
     {{{
-      RET #();
+      RET ();
       mutex_locked t ∗
       P
     }}}.
@@ -165,7 +165,7 @@ Section mutex_G.
     }}}
       mutex_unlock t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.
@@ -178,7 +178,7 @@ Section mutex_G.
       mutex_inv t P ∗
       ( mutex_locked t -∗
         P -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           mutex_locked t ∗
           P ∗
           Ψ v

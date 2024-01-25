@@ -31,9 +31,9 @@ Implicit Types l : loc.
 
 Definition latch1_create : val :=
   λ: <>,
-    let: "t" := { #false; #(); #() } in
-    "t" <-{mutex}- mutex_create #() ;;
-    "t" <-{condition}- condition_create #() ;;
+    let: "t" := { #false; (); () } in
+    "t" <-{mutex}- mutex_create () ;;
+    "t" <-{condition}- condition_create () ;;
     "t".
 
 Definition latch1_signal : val :=
@@ -163,7 +163,7 @@ Section latch1_G.
 
   Lemma latch1_create_spec P :
     {{{ True }}}
-      latch1_create #()
+      latch1_create ()
     {{{ t,
       RET t;
       latch1_inv t P ∗
@@ -208,7 +208,7 @@ Section latch1_G.
     }}}
       latch1_signal t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
@@ -236,7 +236,7 @@ Section latch1_G.
     }}}
       latch1_wait t
     {{{
-      RET #();
+      RET ();
       P
     }}}.
   Proof.
@@ -244,7 +244,7 @@ Section latch1_G.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_rec.
     do 2 wp_load.
-    wp_smart_apply (mutex_protect_spec (λ res, ⌜res = #()⌝ ∗ P)%I with "[$Hmtx_inv Hexcl]").
+    wp_smart_apply (mutex_protect_spec (λ res, ⌜res = ()%V⌝ ∗ P)%I with "[$Hmtx_inv Hexcl]").
     { iIntros "Hmtx_locked Hsignal_inv".
       pose (Ψ b := (
         if b then

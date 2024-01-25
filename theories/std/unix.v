@@ -30,5 +30,5 @@ Axiom unix_close_spec : ∀ `{zebre_G : !ZebreG Σ} fd chars,
   }}}
     unix_close fd
   {{{
-    RET #(); True
+    RET (); True
   }}}.

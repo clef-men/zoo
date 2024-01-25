@@ -18,7 +18,7 @@ Bind Scope expr_scope with expr.
 Bind Scope val_scope with val.
 
 Notation Fail := (
-  App (Val (ValLiteral LiteralUnit)) (Val (ValLiteral LiteralUnit))
+  App (Val ValUnit) (Val ValUnit)
 ).
 
 Notation Lam x e := (
@@ -56,10 +56,6 @@ Notation Match' e0 x1 e1 x2 e2 := (
   Match e0 x1 BAnon e1 x2 BAnon e2
 )(only parsing
 ).
-
-Notation "()" :=
-  LiteralUnit
-: val_scope.
 
 Notation "# l" := (
   ValLiteral l%Z%V%stdpp
@@ -256,36 +252,79 @@ Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
   format "'[hv' if:  e0  then  ( '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
 ) : expr_scope.
 Notation "'if:' e0 'then' e1" := (
-  If e0%E e1%E #()
+  If e0%E e1%E (Val ValUnit)
 )(at level 1,
   e0, e1 at level 200,
   only parsing
 ) : expr_scope.
 Notation "'ifnot:' e0 'then' e2" := (
-  If e0%E #() e2%E
+  If e0%E (Val ValUnit) e2%E
 )(at level 1,
   e0, e2 at level 200,
   only parsing
 ) : expr_scope.
 
+Notation "()" := (
+  Val ValUnit
+) : expr_scope.
 Notation "( e1 , e2 , .. , en )" := (
-  Pair .. (Pair e1 e2) .. en
+  Tuple (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
+Notation "()" :=
+  ValUnit
+: val_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValPair .. (ValPair v1 v2) .. vn
+  ValTuple (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 
-Notation "e .𝟙" := (
-  Fst e
+Declare Custom Entry zebre_proj.
+Notation "0" :=
+  0
+( in custom zebre_proj
+).
+Notation "1" :=
+  1
+( in custom zebre_proj
+).
+Notation "2" :=
+  2
+( in custom zebre_proj
+).
+Notation "3" :=
+  3
+( in custom zebre_proj
+).
+Notation "4" :=
+  4
+( in custom zebre_proj
+).
+Notation "5" :=
+  5
+( in custom zebre_proj
+).
+Notation "6" :=
+  6
+( in custom zebre_proj
+).
+Notation "7" :=
+  7
+( in custom zebre_proj
+).
+Notation "8" :=
+  8
+( in custom zebre_proj
+).
+Notation "9" :=
+  9
+( in custom zebre_proj
+).
+Notation "e .< proj >" := (
+  Proj proj e
 )(at level 2,
-  format "e .𝟙"
-) : expr_scope.
-Notation "e .𝟚" := (
-  Snd e
-)(at level 2,
-  format "e .𝟚"
+  proj custom zebre_proj,
+  format "e .< proj >"
 ) : expr_scope.
 
 Notation "'match:' e0 'with' | 'Injl' x11 'as' x12 => e1 | 'Injr' x21 'as' x22 => e2 'end'" := (

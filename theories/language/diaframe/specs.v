@@ -134,7 +134,7 @@ Section instances.
     }}
       #l <- v
     {{
-      RET #();
+      RET ();
       l ↦ v
     }}.
   Proof.
@@ -322,11 +322,9 @@ Section unfold_functions.
         (occurs x e1) || (occurs x e2)
     | If e0 e1 e2 =>
         (occurs x e0) || (occurs x e1) || (occurs x e2)
-    | Pair e1 e2 =>
-        (occurs x e1) || (occurs x e2)
-    | Fst e =>
-        occurs x e
-    | Snd e =>
+    | Tuple es =>
+        existsb (occurs x) es
+    | Proj _ e =>
         occurs x e
     | Injl e =>
         occurs x e

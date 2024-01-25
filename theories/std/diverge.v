@@ -10,7 +10,7 @@ From zebre Require Import
 
 Definition diverge : val :=
   rec: "diverge" <> :=
-    "diverge" #().
+    "diverge" ().
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
@@ -18,7 +18,7 @@ Section zebre_G.
   Implicit Types Φ : val → iProp Σ.
 
   Lemma diverge_spec E Φ :
-    ⊢ WP diverge #() @ E {{ Φ }}.
+    ⊢ WP diverge () @ E {{ Φ }}.
   Proof.
     iLöb as "IH". wp_rec. iSteps.
   Qed.

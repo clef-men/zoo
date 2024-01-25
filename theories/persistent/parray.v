@@ -24,7 +24,7 @@ Implicit Types vs : list val.
       Injl "x" =>
         "Root" "x"
     | Injr "y" =>
-        "Diff" "y".𝟙.𝟙 "y".𝟙.𝟚 "y".𝟚
+        "Diff" "y".<0> "y".<1> "y".<2>
     end.
 #[local] Notation "'match:' e0 'with' | 'Root' x => e1 | 'Diff' y1 y2 y3 => e2 'end'" := (
   (Val descr_match) e0 (Lam x e1) (Lam y1 (Lam y2 (Lam y3 e2)))
@@ -94,14 +94,14 @@ Proof.
   naive_solver.
 Qed.
 #[local] Instance pure_descr_Diff v1 v2 v3 :
-  PureExec True 8
+  PureExec True 7
     (&Diff v1 v2 v3)
     (&&Diff v1 v2 v3).
 Proof.
   solve_pure_exec.
 Qed.
 #[local] Instance pure_descr_match_Diff v1 v2 v3 x e1 y1 y2 y3 e2 :
-  PureExec True 20
+  PureExec True 18
     (match:: &&Diff v1 v2 v3 with Root x => e1 | Diff y1 y2 y3 => e2 end)
     (subst' y1 v1 (subst' y2 v2 (subst' y3 v3 e2))).
 Proof.

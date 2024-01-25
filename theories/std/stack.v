@@ -38,7 +38,7 @@ Section zebre_G.
 
   Lemma stack_make_spec :
     {{{ True }}}
-      stack_create #()
+      stack_create ()
     {{{ t,
       RET t;
       stack_model t []
@@ -68,7 +68,7 @@ Section zebre_G.
     }}}
       stack_push t v
     {{{
-      RET #();
+      RET ();
       stack_model t (v :: vs)
     }}}.
   Proof.

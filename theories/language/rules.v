@@ -229,7 +229,7 @@ Section zebre_G.
     }}}
       #l <- v @ E
     {{{
-      RET #();
+      RET ();
       l ↦ v
     }}}.
   Proof.
@@ -385,7 +385,7 @@ Section zebre_G.
 
   Lemma wp_fork e E Φ :
     ▷ WP e @ ⊤ {{ _, True }} -∗
-    ▷ Φ #() -∗
+    ▷ Φ ()%V -∗
     WP Fork e @ E {{ Φ }}.
   Proof.
     iIntros "Hwp HΦ".

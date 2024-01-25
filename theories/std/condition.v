@@ -13,23 +13,23 @@ Implicit Types t cond : val.
 
 Definition condition_create : val :=
   λ: <>,
-    #().
+    ().
 
 Definition condition_wait : val :=
   λ: "t" "mtx",
-    #().
+    ().
 
 Definition condition_signal : val :=
   λ: "t",
-    #().
+    ().
 
 Definition condition_broadcast : val :=
   λ: "t",
-    #().
+    ().
 
 #[local] Definition condition_wait_until_aux : val :=
   rec: "condition_wait_until_aux" "t" "mtx" "cond" :=
-    ifnot: "cond" #() then (
+    ifnot: "cond" () then (
       condition_wait "t" "mtx" ;;
       "condition_wait_until_aux" "t" "mtx" "cond"
     ).
@@ -39,7 +39,7 @@ Definition condition_wait_until : val :=
 
 Definition condition_wait_while : val :=
   λ: "t" "mtx" "cond",
-    condition_wait_until "t" "mtx" (λ: <>, ~ "cond" #()).
+    condition_wait_until "t" "mtx" (λ: <>, ~ "cond" ()).
 
 Section mutex_G.
   Context `{mutex_G : MutexG Σ}.
@@ -55,7 +55,7 @@ Section mutex_G.
 
   Lemma condition_create_spec :
     {{{ True }}}
-      condition_create #()
+      condition_create ()
     {{{ t,
       RET t;
       condition_inv t
@@ -73,7 +73,7 @@ Section mutex_G.
     }}}
       condition_wait t mtx
     {{{
-      RET #();
+      RET ();
       mutex_locked mtx ∗
       P
     }}}.
@@ -87,7 +87,7 @@ Section mutex_G.
     }}}
       condition_signal t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iSteps.
@@ -99,7 +99,7 @@ Section mutex_G.
     }}}
       condition_broadcast t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iSteps.
@@ -117,7 +117,7 @@ Section mutex_G.
         P ∗
         Ψ false
       }}}
-        cond #()
+        cond ()
       {{{ b,
         RET #b;
         mutex_locked mtx ∗
@@ -127,7 +127,7 @@ Section mutex_G.
     }}}
       condition_wait_until t mtx cond
     {{{
-      RET #();
+      RET ();
       mutex_locked mtx ∗
       P ∗
       Ψ true
@@ -155,7 +155,7 @@ Section mutex_G.
         P ∗
         Ψ true
       }}}
-        cond #()
+        cond ()
       {{{ b,
         RET #b;
         mutex_locked mtx ∗
@@ -165,7 +165,7 @@ Section mutex_G.
     }}}
       condition_wait_while t mtx cond
     {{{
-      RET #();
+      RET ();
       mutex_locked mtx ∗
       P ∗
       Ψ false

@@ -46,7 +46,7 @@ Definition array_initi : val :=
     "t".
 Definition array_init : val :=
   λ: "sz" "fn",
-    array_initi "sz" (λ: <>, "fn" #()).
+    array_initi "sz" (λ: <>, "fn" ()).
 
 Definition array_size : val :=
   λ: "t",
@@ -113,7 +113,7 @@ Definition array_sub : val :=
     assume (#0 ≤ "i") ;;
     assume (#0 ≤ "n") ;;
     assume ("i" + "n" ≤ "sz") ;;
-    let: "t'" := array_make "n" #() in
+    let: "t'" := array_make "n" () in
     chunk_copy (array_data "t" +ₗ "i") "n" (array_data "t'") ;;
     "t'".
 Definition array_shrink : val :=
@@ -1019,7 +1019,7 @@ Section zebre_G.
 
   Lemma array_create_spec :
     {{{ True }}}
-      array_create #()
+      array_create ()
     {{{ t,
       RET t;
       array_model t (DfracOwn 1) []
@@ -1199,7 +1199,7 @@ Section zebre_G.
         ∀ i vs,
         ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v, ▷
+        WP fn () {{ v, ▷
           Ψ (S i) (vs ++ [v])
         }}
       )
@@ -1225,7 +1225,7 @@ Section zebre_G.
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v, ▷
+        WP fn () {{ v, ▷
           Ψ (S i) (vs ++ [v])
         }}
       )
@@ -1250,7 +1250,7 @@ Section zebre_G.
       □ (
         ∀ i,
         ⌜i < Z.to_nat sz⌝ -∗
-        WP fn #() {{ v, ▷
+        WP fn () {{ v, ▷
           Ψ i v
         }}
       )
@@ -1274,7 +1274,7 @@ Section zebre_G.
     (0 ≤ sz)%Z →
     {{{
       ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
-        WP fn #() {{ v, ▷
+        WP fn () {{ v, ▷
           Ψ i v
         }}
       )
@@ -1580,7 +1580,7 @@ Section zebre_G.
       array_unsafe_set t #j v
     <<<
       array_slice t sz i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
@@ -1604,7 +1604,7 @@ Section zebre_G.
       array_unsafe_set t #i v
     <<<
       array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "%Hi !> %Φ _ HΦ".
@@ -1622,7 +1622,7 @@ Section zebre_G.
     }}}
       array_unsafe_set t #j v
     {{{
-      RET #();
+      RET ();
       array_slice t sz i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
     }}}.
   Proof.
@@ -1643,7 +1643,7 @@ Section zebre_G.
     }}}
       array_unsafe_set t #i v
     {{{
-      RET #();
+      RET ();
       array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -1662,7 +1662,7 @@ Section zebre_G.
       array_set t #j v
     <<<
       array_slice t sz i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
@@ -1686,7 +1686,7 @@ Section zebre_G.
       array_set t #i v
     <<<
       array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "%Hi !> %Φ _ HΦ".
@@ -1704,7 +1704,7 @@ Section zebre_G.
     }}}
       array_set t #j v
     {{{
-      RET #();
+      RET ();
       array_slice t sz i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
     }}}.
   Proof.
@@ -1722,7 +1722,7 @@ Section zebre_G.
     }}}
       array_set t #i v
     {{{
-      RET #();
+      RET ();
       array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -1742,7 +1742,7 @@ Section zebre_G.
     }}}
       array_blit t1 #i1_ t2 #i2_ #n
     {{{
-      RET #();
+      RET ();
       array_slice t1 sz1 i1 dq1 vs1 ∗
       array_slice t2 sz2 i2 (DfracOwn 1) vs1
     }}}.
@@ -1769,7 +1769,7 @@ Section zebre_G.
     }}}
       array_blit t1 #j1 t2 #j2 #n
     {{{
-      RET #();
+      RET ();
       let j1 := Z.to_nat j1 in
       let j2 := Z.to_nat j2 in
       let n := Z.to_nat n in
@@ -1811,7 +1811,7 @@ Section zebre_G.
     }}}
       array_blit t1 #i1 t2 #i2 #n
     {{{
-      RET #();
+      RET ();
       let i1 := Z.to_nat i1 in
       let i2 := Z.to_nat i2 in
       let n := Z.to_nat n in
@@ -1843,7 +1843,7 @@ Section zebre_G.
     }}}
       array_copy t1 t2 #i2_
     {{{
-      RET #();
+      RET ();
       array_model t1 dq1 vs1 ∗
       array_slice t2 sz2 i2 (DfracOwn 1) vs1
     }}}.
@@ -1863,7 +1863,7 @@ Section zebre_G.
     }}}
       array_copy t1 t2 #j2
     {{{
-      RET #();
+      RET ();
       array_model t1 dq1 vs1 ∗
       array_slice t2 sz2 i2 (DfracOwn 1) (
         take (Z.to_nat j2 - i2) vs2 ++
@@ -1887,7 +1887,7 @@ Section zebre_G.
     }}}
       array_copy t1 t2 #i2
     {{{
-      RET #();
+      RET ();
       array_model t1 dq1 vs1 ∗
       array_model t2 (DfracOwn 1) (
         take (Z.to_nat i2) vs2 ++
@@ -2037,7 +2037,7 @@ Section zebre_G.
     }}}
       array_fill_slice t #i_ #n v
     {{{
-      RET #();
+      RET ();
       array_slice t sz i (DfracOwn 1) (replicate (Z.to_nat n) v)
     }}}.
   Proof.
@@ -2055,7 +2055,7 @@ Section zebre_G.
     }}}
       array_fill t v
     {{{
-      RET #();
+      RET ();
       array_model t (DfracOwn 1) (replicate (length vs) v)
     }}}.
   Proof.
@@ -2121,7 +2121,7 @@ Section zebre_G.
       array_cset t #i_ v
     <<<
       array_cslice t sz i (DfracOwn 1) [v]
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
@@ -2140,7 +2140,7 @@ Section zebre_G.
     }}}
       array_cset t #i_ v
     {{{
-      RET #();
+      RET ();
       array_cslice t sz i (DfracOwn 1) [v]
     }}}.
   Proof.
@@ -2170,7 +2170,7 @@ Section zebre_G.
 
   Lemma array_create_type :
     {{{ True }}}
-      array_create #()
+      array_create ()
     {{{ t,
       RET t;
       array_type 0 t
@@ -2325,7 +2325,7 @@ Section zebre_G.
     }}}
       array_unsafe_set t #i v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Hi %Φ (#Ht & #Hv) HΦ".
@@ -2342,7 +2342,7 @@ Section zebre_G.
     }}}
       array_set t #i v
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ i < sz⌝%Z
     }}}.
   Proof.
@@ -2362,7 +2362,7 @@ Section zebre_G.
     }}}
       array_blit t1 #i1 t2 #i2 #n
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ i1 ∧ 0 ≤ i2 ∧ 0 ≤ n ∧ i1 + n ≤ sz1 ∧ i2 + n ≤ sz2⌝%Z
     }}}.
   Proof.
@@ -2387,7 +2387,7 @@ Section zebre_G.
     }}}
       array_copy t1 t2 #i2
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ i2 ∧ i2 + sz1 ≤ sz2⌝%Z
     }}}.
   Proof.
@@ -2487,7 +2487,7 @@ Section zebre_G.
     }}}
       array_fill_slice t i n v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ (#Ht & (%i_ & ->) & (%n_ & ->) & #Hv) HΦ".
@@ -2507,7 +2507,7 @@ Section zebre_G.
     }}}
       array_fill t v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ (#Ht & #Hv) HΦ".

@@ -56,7 +56,7 @@ Section zebre_G.
     }}}
       t <- v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iSteps.

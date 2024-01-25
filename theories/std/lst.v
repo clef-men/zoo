@@ -18,7 +18,7 @@ Definition lst_match : val :=
       Injl <> as "x" =>
         "Nil" "x"
     | Injr "x1" as "x2" =>
-        "Cons" "x1".𝟙 "x1".𝟚 "x2"
+        "Cons" "x1".<0> "x1".<1> "x2"
     end.
 Notation "'match:' e0 'with' | 'Nil' 'as' x1 => e1 | 'Cons' x21 x22 'as' x23 => e2 'end'" := (
   (Val lst_match) e0 (Lam x1 e1) (Lam x21 (Lam x22 (Lam x23 e2)))
@@ -70,7 +70,7 @@ Notation "'match::' e0 'with' 'Nil' => e1 | 'Cons' x1 x2 => e2 'end'" := (
 ) : expr_scope.
 
 Definition ValNil :=
-  ValInjl #().
+  ValInjl ().
 Notation "'&&Nil'" :=
   ValNil.
 #[global] Instance pure_lst_match_Nil x1 e1 x21 x22 x23 e2 :
@@ -225,7 +225,7 @@ Definition lst_initi : val :=
     lst_initi_aux "sz" "fn" #0.
 Definition lst_init : val :=
   λ: "sz" "fn",
-    lst_initi "sz" (λ: <>, "fn" #()).
+    lst_initi "sz" (λ: <>, "fn" ()).
 
 #[local] Definition lst_foldli_aux : val :=
   rec: "lst_foldli_aux" "t" "acc" "fn" "i" :=
@@ -274,7 +274,7 @@ Definition lst_snoc : val :=
 
 Definition lst_iteri : val :=
   λ: "t" "fn",
-    lst_foldli "t" #() (λ: <>, "fn").
+    lst_foldli "t" () (λ: <>, "fn").
 Definition lst_iter : val :=
   λ: "t" "fn",
     lst_iteri "t" (λ: <>, "fn").
@@ -534,7 +534,7 @@ Section zebre_G.
         ∀ i vs,
         ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ (S i) (vs ++ [v])
         }}
       )
@@ -559,7 +559,7 @@ Section zebre_G.
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ (S i) (vs ++ [v])
         }}
       )
@@ -583,7 +583,7 @@ Section zebre_G.
       □ (
         ∀ i,
         ⌜i < Z.to_nat sz⌝ -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ i v
         }}
       )
@@ -606,7 +606,7 @@ Section zebre_G.
   Lemma lst_init_spec_disentangled' Ψ sz fn :
     {{{
       ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ i v
         }}
       )
@@ -997,21 +997,21 @@ Section zebre_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       lst_iteri t fn
     {{{
-      RET #();
+      RET ();
       Ψ (length vs) vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Ht & #Hfn) HΦ".
     wp_rec.
     pose Ψ' i vs acc := (
-      ⌜acc = #()⌝ ∗
+      ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
     wp_smart_apply (lst_foldli_spec Ψ' with "[$HΨ $Ht]"); iSteps.
@@ -1023,21 +1023,21 @@ Section zebre_G.
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       lst_iteri t fn
     {{{
-      RET #();
+      RET ();
       Ψ (length vs) vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Ht & Hfn) HΦ".
     wp_rec.
     pose Ψ' i vs acc := (
-      ⌜acc = #()⌝ ∗
+      ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
     wp_smart_apply (lst_foldli_spec' Ψ' with "[$HΨ $Ht Hfn]"); iSteps.
@@ -1051,14 +1051,14 @@ Section zebre_G.
         ∀ i v,
         ⌜vs !! i = Some v⌝ -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       lst_iteri t fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -1078,14 +1078,14 @@ Section zebre_G.
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       lst_iteri t fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -1111,14 +1111,14 @@ Section zebre_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       lst_iter t fn
     {{{
-      RET #();
+      RET ();
       Ψ (length vs) vs
     }}}.
   Proof.
@@ -1134,14 +1134,14 @@ Section zebre_G.
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i (take i vs) -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       lst_iter t fn
     {{{
-      RET #();
+      RET ();
       Ψ (length vs) vs
     }}}.
   Proof.
@@ -1158,14 +1158,14 @@ Section zebre_G.
         ∀ i v,
         ⌜vs !! i = Some v⌝ -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       lst_iter t fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -1181,14 +1181,14 @@ Section zebre_G.
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       lst_iter t fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )

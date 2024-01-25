@@ -26,8 +26,7 @@ Fixpoint expr_closed X e :=
   | Rec f x e =>
       expr_closed (set_binder_insert f (set_binder_insert x X)) e
   | Unop _ e
-  | Fst e
-  | Snd e
+  | Proj _ e
   | Constr _ e
   | Fork e
   | Load e =>
@@ -35,7 +34,6 @@ Fixpoint expr_closed X e :=
   | App e1 e2
   | Binop _ e1 e2
   | Equal e1 e2
-  | Pair e1 e2
   | Alloc e1 e2
   | Store e1 e2
   | Xchg e1 e2
@@ -46,6 +44,7 @@ Fixpoint expr_closed X e :=
   | Cas e0 e1 e2
   | Resolve e0 e1 e2 =>
       expr_closed X e0 && expr_closed X e1 && expr_closed X e2
+  | Tuple es
   | Record es =>
       forallb (expr_closed X) es
   | Proph =>
@@ -57,8 +56,8 @@ with val_closed v :=
       true
   | ValRec f x e =>
       expr_closed (set_binder_insert f (set_binder_insert x ∅)) e
-  | ValPair v1 v2 =>
-      val_closed v1 && val_closed v2
+  | ValTuple vs =>
+      forallb val_closed vs
   | ValConstr _ v =>
       val_closed v
   end.
@@ -81,12 +80,10 @@ Fixpoint subst_map (vs : gmap string val) e :=
       Equal (subst_map vs e1) (subst_map vs e2)
   | If e0 e1 e2 =>
       If (subst_map vs e0) (subst_map vs e1) (subst_map vs e2)
-  | Pair e1 e2 =>
-      Pair (subst_map vs e1) (subst_map vs e2)
-  | Fst e =>
-      Fst $ subst_map vs e
-  | Snd e =>
-      Snd $ subst_map vs e
+  | Tuple es =>
+      Tuple $ subst_map vs <$> es
+  | Proj i e =>
+      Proj i $ subst_map vs e
   | Constr b e =>
       Constr b $ subst_map vs e
   | Case e0 e1 e2 =>
@@ -128,8 +125,8 @@ Proof.
   move: X. induction e => X /=;
     rewrite ?bool_decide_spec ?andb_True => ? ?;
     repeat case_decide; simplify_eq/=; f_equal; intuition eauto with set_solver.
-  select (Forall _ _) ltac:(fun H => induction H; first done).
-  rewrite fmap_cons. f_equal; naive_solver.
+  all: select (Forall _ _) ltac:(fun H => induction H; first done).
+  all: rewrite fmap_cons; f_equal; naive_solver.
 Qed.
 
 Lemma subst_closed_empty e x v :
@@ -144,8 +141,8 @@ Lemma subst_subst e x v v' :
 Proof.
   intros. induction e; simpl; try (f_equal; auto; done);
     simplify_option_eq; auto using subst_closed_empty with f_equal.
-  select (Forall _ _) ltac:(fun H => induction H; first done).
-  rewrite !fmap_cons. do 2 f_equal; naive_solver.
+  all: select (Forall _ _) ltac:(fun H => induction H; first done).
+  all: rewrite !fmap_cons; do 2 f_equal; naive_solver.
 Qed.
 Lemma subst_subst' e x v v' :
   subst' x v (subst' x v' e) = subst' x v' e.
@@ -159,8 +156,8 @@ Lemma subst_subst_ne e x y v v' :
 Proof.
   intros. induction e; simpl; try (f_equal; by auto);
     simplify_option_eq; auto using eq_sym, subst_closed_empty with f_equal.
-  select (Forall _ _) ltac:(fun H => induction H; first done).
-  rewrite !fmap_cons. do 2 f_equal; naive_solver.
+  all: select (Forall _ _) ltac:(fun H => induction H; first done).
+  all: rewrite !fmap_cons; do 2 f_equal; naive_solver.
 Qed.
 Lemma subst_subst_ne' e x y v v' :
   x ≠ y →

@@ -43,14 +43,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (1 + i)%Z (S δ)
         }}
       )
     }}}
       for_upto #i #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ (i `max` _end)%Z (δ + Z.to_nat (_end - i))
     }}}.
   Proof.
@@ -73,14 +73,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (1 + i)%Z (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ (beg `max` _end)%Z (Z.to_nat (_end - beg))
     }}}.
   Proof.
@@ -97,14 +97,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (1 + i)%Z (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ _end (Z.to_nat (_end - beg))
     }}}.
   Proof.
@@ -120,14 +120,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%Z⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (1 + i)%Z (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ (beg `max` _end)%Z (Z.to_nat (_end - beg))
     }}}.
   Proof.
@@ -151,14 +151,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%Z⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (1 + i)%Z (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ _end (Z.to_nat (_end - beg))
     }}}.
   Proof.
@@ -172,14 +172,14 @@ Section zebre_G.
         ∀ i δ,
         ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
         Ψ (beg + δ)%Z δ
       )
@@ -199,14 +199,14 @@ Section zebre_G.
         ∀ i,
         ⌜i = (beg + δ)%Z⌝ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
         Ψ (beg + δ)%Z δ
       )
@@ -230,14 +230,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ (beg `max` _end) (_end - beg)
     }}}.
   Proof.
@@ -258,14 +258,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ _end (_end - beg)
     }}}.
   Proof.
@@ -281,14 +281,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%nat⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ (beg `max` _end) (_end - beg)
     }}}.
   Proof.
@@ -310,14 +310,14 @@ Section zebre_G.
         ⌜i = (beg + δ)%nat⌝ -∗
         Ψ i δ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (S δ)
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       Ψ _end (_end - beg)
     }}}.
   Proof.
@@ -331,14 +331,14 @@ Section zebre_G.
         ∀ i δ,
         ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ()%V;
       ( [∗ list] δ ∈ seq 0 (_end - beg),
         Ψ (beg + δ) δ
       )
@@ -360,14 +360,14 @@ Section zebre_G.
         ∀ i,
         ⌜i = (beg + δ)%nat⌝ -∗
         WP fn #i {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
         }}
       )
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #();
+      RET ();
       ( [∗ list] δ ∈ seq 0 (_end - beg),
         Ψ (beg + δ) δ
       )
@@ -391,7 +391,7 @@ Section zebre_G.
     }}}
       for_upto #beg #_end fn
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".

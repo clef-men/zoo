@@ -388,7 +388,7 @@ Section instances.
 
   Section abds.
     #[global] Instance fork_abduct e (Φ : val → iPropI Σ) E :
-      HINT1 ε₁ ✱ [▷ Φ #() ∗ ▷ WP e @ ⊤ {{ _, True }}] ⊫ [id]; WP Fork e @ E {{ Φ }}.
+      HINT1 ε₁ ✱ [▷ Φ ()%V ∗ ▷ WP e @ ⊤ {{ _, True }}] ⊫ [id]; WP Fork e @ E {{ Φ }}.
     Proof.
       iSteps as "HΦ HWP". iApply (wp_fork with "HWP"). iSteps.
     Qed.

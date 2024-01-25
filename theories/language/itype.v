@@ -23,7 +23,7 @@ Section basic_types.
   Qed.
 
   Definition unit_type v : PROP :=
-    ⌜v = ValLiteral LiteralUnit⌝.
+    ⌜v = ValUnit⌝.
   #[global] Instance unit_type_itype :
     iType _ unit_type.
   Proof.

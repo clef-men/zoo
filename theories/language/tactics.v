@@ -36,14 +36,10 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxEqualR e1) K pvs e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K pvs e0
-    | Pair ?e1 (Val ?v2) =>
-        add_ectxi (CtxPairL v2) K pvs e1
-    | Pair ?e1 ?e2 =>
-        add_ectxi (CtxPairR e1) K pvs e2
-    | Fst ?e =>
-        add_ectxi CtxFst K pvs e
-    | Snd ?e =>
-        add_ectxi CtxSnd K pvs e
+    | Tuple ?es =>
+        go_list K pvs CtxTuple es
+    | Proj ?i ?e =>
+        add_ectxi (CtxProj i) K pvs e
     | Constr ?b ?e =>
         add_ectxi (CtxConstr b) K pvs e
     | Case ?e0 ?e1 ?e2 =>

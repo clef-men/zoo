@@ -1,5 +1,7 @@
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  list.
 From zebre.language Require Import
   notations
   diaframe.
@@ -11,16 +13,17 @@ From zebre.persistent Require Export
 From zebre Require Import
   options.
 
-Implicit Types v t back front : val.
+Implicit Types v t : val.
+Implicit Types back front : list val.
 
-#[local] Notation "t '.<back>'" :=
-  t.𝟙%E
-( at level 5
-) : expr_scope.
-#[local] Notation "t '.<front>'" :=
-  t.𝟚%E
-( at level 5
-) : expr_scope.
+#[local] Notation "'back'" :=
+  0
+( in custom zebre_proj
+).
+#[local] Notation "'front'" :=
+  1
+( in custom zebre_proj
+).
 
 Definition pqueue_empty : val :=
   (&&Nil, &&Nil).
@@ -35,25 +38,24 @@ Definition pqueue_push : val :=
 
 Definition pqueue_pop : val :=
   λ: "t",
-    if: lst_is_empty "t".<front> then (
-      let: "front" := lst_rev "t".<back> in
-      if: lst_is_empty "front" then (
-        &&None
-      ) else (
-        &Some (lst_head "front", (&&Nil, lst_tail "front"))
-      )
-    ) else (
-      &Some (lst_head "t".<front>, ("t".<back>, lst_tail "t".<front>))
-    ).
+    match: "t".<front> with
+    | Nil =>
+        match: lst_rev "t".<back> with
+        | Nil =>
+            &&None
+        | Cons "v" "vs" =>
+            &Some ("v", (&&Nil, "vs"))
+        end
+    | Cons "v" "vs" =>
+        &Some ("v", ("t".<back>, "vs"))
+    end.
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
   Definition pqueue_model t vs : iProp Σ :=
-    ∃ back vs_back front vs_front,
-    ⌜t = (back, front)%V ∧ vs = vs_back ++ reverse vs_front⌝ ∗
-    lst_model back vs_back ∗
-    lst_model front vs_front.
+    ∃ back front,
+    ⌜t = (lst_to_val back, lst_to_val front)%V ∧ vs = back ++ reverse front⌝.
 
   #[global] Instance pqueue_model_persistent t vs :
     Persistent (pqueue_model t vs).
@@ -69,7 +71,7 @@ Section zebre_G.
   Lemma pqueue_model_nil :
     ⊢ pqueue_model pqueue_empty [].
   Proof.
-    iExists &&Nil, [], &&Nil, []. iStep. iSplit; iApply lst_model_Nil.
+    iExists [], []. iSteps.
   Qed.
 
   Lemma pqueue_is_empty_spec t vs :
@@ -81,12 +83,12 @@ Section zebre_G.
       RET #(bool_decide (vs = [])); True
     }}}.
   Proof.
-    iIntros "%Φ (%back & %vs_back & %front & %vs_front & (-> & ->) & #Hback & #Hfront) HΦ".
+    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
     wp_rec.
-    wp_smart_apply (lst_is_empty_spec with "Hfront") as "_".
-    destruct vs_front as [| v_front vs_front]; wp_pures.
-    - wp_apply (lst_is_empty_spec with "Hback") as "_".
-      destruct vs_back; iSteps.
+    wp_smart_apply (lst_is_empty_spec with "[//]") as "_".
+    destruct front as [| v front]; wp_pures.
+    - wp_apply (lst_is_empty_spec with "[//]") as "_".
+      destruct back; iSteps.
     - rewrite bool_decide_eq_false_2.
       { rewrite reverse_cons. intros (_ & (_ & [=])%app_eq_nil)%app_eq_nil. }
       iSteps.
@@ -102,10 +104,9 @@ Section zebre_G.
       pqueue_model t' (v :: vs)
     }}}.
   Proof.
-    iIntros "%Φ (%back & %vs_back & %front & %vs_front & (-> & ->) & #Hback & #Hfront) HΦ".
+    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
     wp_rec. wp_pures.
-    iApply "HΦ". iExists _, (v :: vs_back), front, vs_front. iFrame "#∗". iStep.
-    iApply (lst_model_Cons with "Hback").
+    iApply "HΦ". iExists (v :: back), front. iSteps.
   Qed.
 
   Lemma pqueue_pop_spec t vs :
@@ -125,31 +126,20 @@ Section zebre_G.
       end
     }}}.
   Proof.
-    iIntros "%Φ (%back & %vs_back & %front & %vs_front & (-> & ->) & #Hback & #Hfront) HΦ".
+    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
     wp_rec.
-    wp_smart_apply (lst_is_empty_spec with "Hfront") as "_".
-    destruct vs_front as [| v_front vs_front]; wp_pures.
-    - iClear "Hfront". clear.
-      wp_apply (lst_rev_spec with "Hback") as "%front #Hfront".
-      wp_smart_apply (lst_is_empty_spec with "Hfront") as "_".
-      destruct (reverse vs_back) as [| v vs_front] eqn:Heq;
-        apply (f_equal reverse) in Heq; rewrite reverse_involutive in Heq; subst;
-        wp_pures.
-      + iApply ("HΦ" $! None with "[//]").
-      + wp_apply (lst_tail_spec with "Hfront") as "%front' #Hfront'"; first done.
-        wp_smart_apply (lst_head_spec with "Hfront") as "_"; first done.
-        wp_pures.
-        iApply ("HΦ" $! (Some (_, _)%V)). iExists (reverse vs_front), v, _. iSplitR.
-        { iPureIntro. split; last done.
-          rewrite reverse_nil reverse_cons. list_simplifier. done.
-        }
-        iExists &&Nil, [], front', vs_front. iFrame "#∗". iStep. iApply lst_model_Nil.
-    - wp_apply (lst_tail_spec with "Hfront") as "%front' Hfront'"; first done.
-      wp_smart_apply (lst_head_spec with "Hfront") as "_"; first done.
-      wp_pures.
-      iApply ("HΦ" $! (Some (_, _)%V)). iExists (vs_back ++ reverse vs_front), v_front, _. iSplitR.
+    destruct front as [| v front]; wp_pures.
+    - wp_apply (lst_rev_spec with "[//]") as "%front ->".
+      destruct (rev_elim back) as [-> | (back' & v & ->)].
+      + wp_pures.
+        iApply ("HΦ" $! None with "[//]").
+      + rewrite reverse_snoc. wp_pures.
+        iApply ("HΦ" $! (Some (_, _)%V)). iExists back', v, _. iSplitR.
+        { iPureIntro. rewrite reverse_nil right_id //. }
+        iExists [], _. iSteps. rewrite reverse_involutive //.
+    - iApply ("HΦ" $! (Some (_, _)%V)). iExists (back ++ reverse front), v, _. iSplitR.
       { iSteps. list_simplifier. rewrite reverse_cons //. }
-      iSteps; iFrame "#∗".
+      iSteps.
   Qed.
 End zebre_G.
 

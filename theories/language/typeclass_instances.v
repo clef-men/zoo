@@ -70,18 +70,8 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance pair_atomic a v1 v2 :
-    Atomic a (Pair (Val v1) (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance fst_atomic a v :
-    Atomic a (Fst $ Val v).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance snd_atomic a v :
-    Atomic a (Snd $ Val v).
+  #[global] Instance proj_atomic a i vs :
+    Atomic a (Proj i $ Val $ ValTuple vs).
   Proof.
     solve_atomic.
   Qed.
@@ -251,30 +241,23 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_pair v1 v2 :
+  #[global] Instance pure_tuple es vs :
     PureExec
-      True
+      (to_vals es = Some vs)
       1
-      (Pair (Val v1) (Val v2))
-      (Val $ ValPair v1 v2).
+      (Tuple es)
+      (Val $ ValTuple vs).
   Proof.
-    solve_pure_exec.
+    intros <-%of_to_vals.
+    apply nsteps_once, pure_head_step_pure_step.
+    split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_fst v1 v2 :
+  #[global] Instance pure_proj i vs v :
     PureExec
-      True
+      (vs !! i = Some v)
       1
-      (Fst (Val $ ValPair v1 v2))
-      (Val v1).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_snd v1 v2 :
-    PureExec
-      True
-      1
-      (Snd (Val $ ValPair v1 v2))
-      (Val v2).
+      (Proj i $ Val $ ValTuple vs)
+      (Val v).
   Proof.
     solve_pure_exec.
   Qed.

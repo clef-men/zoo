@@ -20,9 +20,9 @@ Implicit Types map : gmap loc (gmap loc val).
   λ: "descr" "Root" "Diff",
     match: "descr" with
     | Injl <> =>
-        "Root" #()
+        "Root" ()
     | Injr "x" =>
-        "Diff" "x".𝟙.𝟙 "x".𝟙.𝟚 "x".𝟚
+        "Diff" "x".<0> "x".<1> "x".<2>
     end.
 #[local] Notation "'match:' e0 'with' | 'Root' => e1 | 'Diff' x1 x2 x3 => e2 'end'" := (
   (Val descr_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam x3 e2)))
@@ -50,7 +50,7 @@ Implicit Types map : gmap loc (gmap loc val).
 ) : expr_scope.
 
 #[local] Definition ValRoot :=
-  ValInjl #().
+  ValInjl ().
 #[local] Notation "'&&Root'" :=
   ValRoot.
 #[local] Instance pure_descr_match_Root e1 x1 x2 x3 e2 :
@@ -107,7 +107,7 @@ Definition pstore_ref : val :=
   rec: "pstore_reroot" "t" :=
     match: !"t" with
     | Root =>
-        #()
+        ()
     | Diff "r" "v" "t'" =>
         "pstore_reroot" "t'" ;;
         "t'" <- &Diff "r" !"r" "t" ;;
@@ -248,7 +248,7 @@ Section pstore_G.
 
   Lemma pstore_create_spec :
     {{{ True }}}
-      pstore_create #()
+      pstore_create ()
     {{{ t γ,
       RET t;
       pstore_inv γ ∅ ∗
@@ -319,7 +319,7 @@ Section pstore_G.
     }}}
       pstore_reroot #l
     {{{
-      RET #();
+      RET ();
       pstore_inv_inner γ σ0 map l
     }}}.
   Proof.

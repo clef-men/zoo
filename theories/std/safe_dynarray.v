@@ -36,7 +36,7 @@ Implicit Types vs : list val.
 
 Definition safe_dynarray_create : val :=
   λ: <>,
-    { #0; array_create #() }.
+    { #0; array_create () }.
 
 Definition safe_dynarray_make : val :=
   λ: "sz" "v",
@@ -73,7 +73,7 @@ Definition safe_dynarray_get : val :=
   λ: "t" "i",
     match: array_get (safe_dynarray_data "t") "i" with
     | None =>
-        diverge #()
+        diverge ()
     | Some "ref" =>
         !"ref"
     end.
@@ -82,7 +82,7 @@ Definition safe_dynarray_set : val :=
   λ: "t" "i" "v",
     match: array_get (safe_dynarray_data "t") "i" with
     | None =>
-        diverge #()
+        diverge ()
     | Some "ref" =>
         "ref" <- "v"
     end.
@@ -139,7 +139,7 @@ Definition safe_dynarray_pop : val :=
     let: "sz" := "sz" - #1 in
     match: array_unsafe_get "data" "sz" with
     | None =>
-        diverge #()
+        diverge ()
     | Some "ref" =>
         array_unsafe_set "data" "sz" &&None ;;
         safe_dynarray_set_size "t" "sz" ;;
@@ -157,7 +157,7 @@ Definition safe_dynarray_fit_capacity : val :=
 Definition safe_dynarray_reset : val :=
   λ: "t",
     safe_dynarray_set_size "t" #0 ;;
-    safe_dynarray_set_data "t" (array_create #()).
+    safe_dynarray_set_data "t" (array_create ()).
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
@@ -181,7 +181,7 @@ Section zebre_G.
 
   Lemma safe_dynarray_create_spec :
     {{{ True }}}
-      safe_dynarray_create #()
+      safe_dynarray_create ()
     {{{ t,
       RET t;
       safe_dynarray_model t []
@@ -427,7 +427,7 @@ Section zebre_G.
     }}}
       safe_dynarray_set t #i v
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -466,7 +466,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reserve t #n
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t vs
     }}}.
   Proof.
@@ -496,7 +496,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reserve_extra t #n
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t vs
     }}}.
   Proof.
@@ -547,7 +547,7 @@ Section zebre_G.
     }}}
       safe_dynarray_push_aux t slot
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t (vs ++ [v])
     }}}.
   Proof.
@@ -564,7 +564,7 @@ Section zebre_G.
     }}}
       safe_dynarray_push t v
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t (vs ++ [v])
     }}}.
   Proof.
@@ -614,7 +614,7 @@ Section zebre_G.
     }}}
       safe_dynarray_fit_capacity t
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t vs
     }}}.
   Proof.
@@ -638,7 +638,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reset t
     {{{
-      RET #();
+      RET ();
       safe_dynarray_model t []
     }}}.
   Proof.
@@ -669,7 +669,7 @@ Section zebre_G.
 
   Lemma safe_dynarray_create_type :
     {{{ True }}}
-      safe_dynarray_create #()
+      safe_dynarray_create ()
     {{{ t,
       RET t;
       safe_dynarray_type t
@@ -743,7 +743,7 @@ Section zebre_G.
     }}}
       safe_dynarray_set_size t #sz
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iSteps.
@@ -756,7 +756,7 @@ Section zebre_G.
     }}}
       safe_dynarray_set_data t data
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iSteps.
@@ -803,7 +803,7 @@ Section zebre_G.
     }}}
       safe_dynarray_set t #i v
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ i⌝%Z
     }}}.
   Proof.
@@ -824,7 +824,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reserve t #n
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ n⌝%Z
     }}}.
   Proof.
@@ -849,7 +849,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reserve_extra t #n
     {{{
-      RET #();
+      RET ();
       ⌜0 ≤ n⌝%Z
     }}}.
   Proof.
@@ -889,7 +889,7 @@ Section zebre_G.
     }}}
       safe_dynarray_push_aux t slot
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
@@ -906,7 +906,7 @@ Section zebre_G.
     }}}
       safe_dynarray_push t v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
@@ -950,7 +950,7 @@ Section zebre_G.
     }}}
       safe_dynarray_fit_capacity t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".
@@ -971,7 +971,7 @@ Section zebre_G.
     }}}
       safe_dynarray_reset t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".

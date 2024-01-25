@@ -160,7 +160,7 @@ Definition rcfd_make : val :=
 
 #[local] Definition rcfd_closed : val :=
   λ: <>,
-    ref (&Closing (λ: <>, #())).
+    ref (&Closing (λ: <>, ())).
 
 #[local] Definition rcfd_put : val :=
   λ: "t",
@@ -169,11 +169,11 @@ Definition rcfd_make : val :=
       let: "prev" := "t".{fd} in
       match: !"prev" with
       | Open <> =>
-          #()
+          ()
       | Closing "no_users" =>
           ifnot: #0 < "t".{ops} then
-            if: Cas "t".[fd] "prev" (rcfd_closed #()) then
-              "no_users" #()
+            if: Cas "t".[fd] "prev" (rcfd_closed ()) then
+              "no_users" ()
       end
     ).
 
@@ -198,10 +198,10 @@ Definition rcfd_close : val :=
         in
         let: "next" := ref (&Closing "close") in
         if: Cas "t".[fd] "prev" "next" then (
-          if: ("t".{ops} = #0) && Cas "t".[fd] "next" (rcfd_closed #()) then (
-            "close" #()
+          if: ("t".{ops} = #0) && Cas "t".[fd] "next" (rcfd_closed ()) then (
+            "close" ()
           ) else (
-            #()
+            ()
           ) ;;
           #true
         ) else (
@@ -217,7 +217,7 @@ Definition rcfd_remove : val :=
     match: !"prev" with
     | Open "fd" =>
         let: "flag" := ref #false in
-        let: "chan" := latch1_create #() in
+        let: "chan" := latch1_create () in
         let: "next" := ref (&Closing (λ: <>, latch1_signal "chan")) in
         if: Cas "t".[fd] "prev" "next" then (
           latch1_wait "chan" ;;
@@ -233,7 +233,7 @@ Definition rcfd_use : val :=
   λ: "t" "closed" "open",
     match: rcfd_get "t" with
     | None =>
-        "closed" #()
+        "closed" ()
     | Some "fd" =>
         let: "res" := "open" "fd" in
         rcfd_put "t" ;;
@@ -354,11 +354,11 @@ Section rcfd_G.
         ⌜state = RcfdStateClosing fn⌝ ∗
         rcfd_tokens_auth γ qs ∗
         unix_fd_model fd (DfracOwn q) chars ∗
-        (unix_fd_model fd (DfracOwn 1) chars -∗ WP fn #() {{ res, ⌜res = #()⌝ }})
+        (unix_fd_model fd (DfracOwn 1) chars -∗ WP fn () {{ res, ⌜res = ()%V⌝ }})
     | RcfdLstateClosingNoUsers =>
         ∃ fn,
         ⌜state = RcfdStateClosing fn⌝ ∗
-        WP fn #() {{ res, ⌜res = #()⌝ }}
+        WP fn () {{ res, ⌜res = ()%V⌝ }}
     end.
   Definition rcfd_inv t fd chars : iProp Σ :=
     ∃ l γ,
@@ -532,7 +532,7 @@ Section rcfd_G.
     }}}
       rcfd_put #l
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
@@ -647,7 +647,7 @@ Section rcfd_G.
     }}}
       rcfd_put t
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Htokens_frag) & Hmodel) HΦ". injection Heq as <-.
@@ -1014,15 +1014,15 @@ Section rcfd_G.
   Lemma rcfd_use_spec Ψ t fd chars (closed open : val) :
     {{{
       rcfd_inv t fd chars ∗
-      WP closed #() {{ res,
-        ⌜res = #()⌝ ∗
+      WP closed () {{ res,
+        ⌜res = ()%V⌝ ∗
         Ψ false
       }} ∗
       ( ∀ q,
         rcfd_token t q -∗
         unix_fd_model fd (DfracOwn q) chars -∗
         WP open fd {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           rcfd_token t q ∗
           unix_fd_model fd (DfracOwn q) chars ∗
           Ψ true
@@ -1031,7 +1031,7 @@ Section rcfd_G.
     }}}
       rcfd_use t closed open
     {{{ b,
-      RET #();
+      RET ();
       Ψ b
     }}}.
   Proof.

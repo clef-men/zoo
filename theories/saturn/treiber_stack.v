@@ -97,7 +97,7 @@ Section zebre_G.
 
   Lemma treiber_stack_create_spec ι :
     {{{ True }}}
-      treiber_stack_create #()
+      treiber_stack_create ()
     {{{ t,
       RET t;
       treiber_stack_inv t ι ∗
@@ -122,7 +122,7 @@ Section zebre_G.
       treiber_stack_push t v @ ↑ι
     <<<
       treiber_stack_model t (v :: vs)
-    | RET #(); True
+    | RET (); True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".

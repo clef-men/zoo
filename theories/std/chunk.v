@@ -61,7 +61,7 @@ Definition chunk_foldr : val :=
 
 Definition chunk_iteri : val :=
   λ: "t" "sz" "fn",
-    chunk_foldli "t" "sz" #() (λ: <>, "fn").
+    chunk_foldli "t" "sz" () (λ: <>, "fn").
 Definition chunk_iter : val :=
   λ: "t" "sz" "fn",
     chunk_iteri "t" "sz" (λ: <>, "fn").
@@ -75,12 +75,12 @@ Definition chunk_apply : val :=
 
 Definition chunk_initi : val :=
   λ: "sz" "fn",
-    let: "t" := chunk_make "sz" #() in
+    let: "t" := chunk_make "sz" () in
     chunk_applyi "t" "sz" (λ: "i" <>, "fn" "i") ;;
     "t".
 Definition chunk_init : val :=
   λ: "sz" "fn",
-    chunk_initi "sz" (λ: <>, "fn" #()).
+    chunk_initi "sz" (λ: <>, "fn" ()).
 
 Definition chunk_mapi : val :=
   λ: "t" "sz" "fn",
@@ -1075,7 +1075,7 @@ Section zebre_G.
     }}}
       #(l +ₗ i) <- v @ E
     {{{
-      RET #();
+      RET ();
       chunk_model l (DfracOwn 1) (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -1091,7 +1091,7 @@ Section zebre_G.
     }}}
       #(l +ₗ j) <- v @ E
     {{{
-      RET #();
+      RET ();
       chunk_model (l +ₗ i) (DfracOwn 1) (<[Z.to_nat j - Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -1594,7 +1594,7 @@ Section zebre_G.
             )
         | Some v =>
             WP fn #i v {{ res,
-              ⌜res = #()⌝ ∗
+              ⌜res = ()%V⌝ ∗
               ▷ Ψ (S i) (vs ++ [v]) None
             }}
         end
@@ -1602,7 +1602,7 @@ Section zebre_G.
     }}}
       chunk_iteri #l #sz fn
     {{{ vs,
-      RET #();
+      RET ();
       ⌜length vs = Z.to_nat sz⌝ ∗
       Ψ (Z.to_nat sz) vs None
     }}}.
@@ -1610,7 +1610,7 @@ Section zebre_G.
     iIntros "%Φ (HΨ & #H) HΦ".
     wp_rec.
     pose Ψ' i vs o acc := (
-      ⌜acc = #()⌝ ∗
+      ⌜acc = ()%V⌝ ∗
       Ψ i vs o
     )%I.
     wp_smart_apply (chunk_foldli_spec_atomic Ψ' with "[$HΨ]"); last iSteps.
@@ -1631,14 +1631,14 @@ Section zebre_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       chunk_iteri #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
@@ -1646,7 +1646,7 @@ Section zebre_G.
     iIntros "%Hsz %Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
     pose Ψ' i vs acc := (
-      ⌜acc = #()⌝ ∗
+      ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
     wp_smart_apply (chunk_foldli_spec Ψ' with "[$HΨ $Hmodel]"); [done | iSteps..].
@@ -1659,14 +1659,14 @@ Section zebre_G.
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       chunk_iteri #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
@@ -1674,7 +1674,7 @@ Section zebre_G.
     iIntros "%Hsz %Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
     pose Ψ' i vs acc := (
-      ⌜acc = #()⌝ ∗
+      ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
     wp_smart_apply (chunk_foldli_spec' Ψ' with "[$HΨ $Hmodel Hfn]"); [done | iSteps..].
@@ -1689,14 +1689,14 @@ Section zebre_G.
         ∀ i v,
         ⌜vs !! i = Some v⌝ -∗
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       chunk_iteri #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -1718,14 +1718,14 @@ Section zebre_G.
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         WP fn #i v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       chunk_iteri #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -1757,7 +1757,7 @@ Section zebre_G.
             )
         | Some v =>
             WP fn v {{ res,
-              ⌜res = #()⌝ ∗
+              ⌜res = ()%V⌝ ∗
               ▷ Ψ (S i) (vs ++ [v]) None
             }}
         end
@@ -1765,7 +1765,7 @@ Section zebre_G.
     }}}
       chunk_iter #l #sz fn
     {{{ vs,
-      RET #();
+      RET ();
       ⌜length vs = Z.to_nat sz⌝ ∗
       Ψ (Z.to_nat sz) vs None
     }}}.
@@ -1785,14 +1785,14 @@ Section zebre_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       chunk_iter #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
@@ -1810,14 +1810,14 @@ Section zebre_G.
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i (take i vs) -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ (S i) (take i vs ++ [v])
         }}
       )
     }}}
       chunk_iter #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
@@ -1836,14 +1836,14 @@ Section zebre_G.
         ∀ i v,
         ⌜vs !! i = Some v⌝ -∗
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       chunk_iter #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -1861,14 +1861,14 @@ Section zebre_G.
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         WP fn v {{ res,
-          ⌜res = #()⌝ ∗
+          ⌜res = ()%V⌝ ∗
           ▷ Ψ i v
         }}
       )
     }}}
       chunk_iter #l #sz fn
     {{{
-      RET #();
+      RET ();
       chunk_model l dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -1907,7 +1907,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz fn
     {{{ vs ws,
-      RET #();
+      RET ();
       ⌜length vs = Z.to_nat sz ∧ length vs = length ws⌝ ∗
       Ψ (Z.to_nat sz) vs None ws
     }}}.
@@ -1949,7 +1949,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       Ψ (Z.to_nat sz) vs ws
@@ -2018,7 +2018,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       Ψ (Z.to_nat sz) vs ws
@@ -2050,7 +2050,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -2078,7 +2078,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -2120,7 +2120,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz fn
     {{{ vs ws,
-      RET #();
+      RET ();
       ⌜length vs = Z.to_nat sz ∧ length vs = length ws⌝ ∗
       Ψ (Z.to_nat sz) vs None ws
     }}}.
@@ -2146,7 +2146,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       Ψ (Z.to_nat sz) vs ws
@@ -2173,7 +2173,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       Ψ (Z.to_nat sz) vs ws
@@ -2199,7 +2199,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -2224,7 +2224,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz fn
     {{{ ws,
-      RET #();
+      RET ();
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -2374,7 +2374,7 @@ Section zebre_G.
         ∀ i vs,
         ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ (S i) (vs ++ [v])
         }}
       )
@@ -2400,7 +2400,7 @@ Section zebre_G.
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ (S i) (vs ++ [v])
         }}
       )
@@ -2425,7 +2425,7 @@ Section zebre_G.
       □ (
         ∀ i,
         ⌜i < Z.to_nat sz⌝ -∗
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ i v
         }}
       )
@@ -2449,7 +2449,7 @@ Section zebre_G.
   Lemma chunk_init_spec_disentangled' Ψ sz fn :
     {{{
       ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
-        WP fn #() {{ v,
+        WP fn () {{ v,
           ▷ Ψ i v
         }}
       )
@@ -2840,7 +2840,7 @@ Section zebre_G.
     }}}
       chunk_copy #l1 #sz #l2
     {{{ vs,
-      RET #();
+      RET ();
       ⌜length vs = Z.to_nat sz⌝ ∗
       Ψ (Z.to_nat sz) vs None
     }}}.
@@ -2864,7 +2864,7 @@ Section zebre_G.
     }}}
       chunk_copy #l1 #sz #l2
     {{{
-      RET #();
+      RET ();
       chunk_model l1 dq1 vs1 ∗
       chunk_model l2 (DfracOwn 1) vs1
     }}}.
@@ -3125,7 +3125,7 @@ Section zebre_G.
     }}}
       chunk_fill #l #sz v
     {{{
-      RET #();
+      RET ();
       Ψ (Z.to_nat sz)
     }}}.
   Proof.
@@ -3148,7 +3148,7 @@ Section zebre_G.
     }}}
       chunk_fill #l #sz v
     {{{
-      RET #();
+      RET ();
       chunk_model l (DfracOwn 1) (replicate (Z.to_nat sz) v)
     }}}.
   Proof.
@@ -3221,7 +3221,7 @@ Section zebre_G.
       chunk_cset #l #sz_ #i_ v
     <<<
       chunk_cslice l sz i (DfracOwn 1) [v]
-    | RET #(); £ 1
+    | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
@@ -3240,7 +3240,7 @@ Section zebre_G.
     }}}
       chunk_cset #l #sz_ #i_ v
     {{{
-      RET #();
+      RET ();
       chunk_cslice l sz i (DfracOwn 1) [v]
     }}}.
   Proof.
@@ -3368,7 +3368,7 @@ Section zebre_G.
     }}}
       #(l +ₗ i) <- v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Hi %Φ (#Hl & #Hv) HΦ".
@@ -3494,7 +3494,7 @@ Section zebre_G.
     }}}
       chunk_iteri #l #sz_ fn
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3510,7 +3510,7 @@ Section zebre_G.
     }}}
       chunk_iter #l #sz_ fn
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3526,7 +3526,7 @@ Section zebre_G.
     }}}
       chunk_applyi #l #sz_ fn
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3547,7 +3547,7 @@ Section zebre_G.
     }}}
       chunk_apply #l #sz_ fn
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3643,7 +3643,7 @@ Section zebre_G.
     }}}
       chunk_copy #l1 #sz1_ #l2
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Hsz %Φ (#Hl1 & #Hl2) HΦ".
@@ -3662,7 +3662,7 @@ Section zebre_G.
     }}}
       chunk_copy #l1 #sz1_ #l2
     {{{
-      RET #();
+      RET ();
       chunk_type τ sz1 l2
     }}}.
   Proof.
@@ -3815,7 +3815,7 @@ Section zebre_G.
     }}}
       chunk_fill #l #sz_ v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hv) HΦ".
@@ -3867,7 +3867,7 @@ Section zebre_G.
     }}}
       chunk_cset #l #sz #i v
     {{{
-      RET #(); True
+      RET (); True
     }}}.
   Proof.
     iIntros "%Hsz %Hi %Φ (#Hl & #Hv) HΦ".

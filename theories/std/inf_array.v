@@ -36,9 +36,9 @@ Implicit Types vs : nat → val.
 
 Definition inf_array_create : val :=
   λ: "default",
-    let: "data" := array_create #() in
-    let: "t" := { "data"; "default"; #() } in
-    let: "mtx" := mutex_create #() in
+    let: "data" := array_create () in
+    let: "t" := { "data"; "default"; () } in
+    let: "mtx" := mutex_create () in
     "t" <-{mutex}- "mtx" ;;
     "t".
 
@@ -284,7 +284,7 @@ Section inf_array_G.
       inf_array_set t #i v
     <<<
       inf_array_model t (<[Z.to_nat i := v]> vs)
-    | RET #(); True
+    | RET (); True
     >>>.
   Proof.
     iIntros "% !> %Φ (%l & %γ & %default & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
@@ -377,7 +377,7 @@ Section inf_array_G.
       if decide (i < length vsₗ)
       then inf_array_model' t (<[i := v]> vsₗ) vsᵣ
       else inf_array_model' t vsₗ (<[i - length vsₗ := v]> vsᵣ)
-    | RET #(); True
+    | RET (); True
     >>>.
   Proof.
     iIntros "% !> %Φ Hinv HΦ".

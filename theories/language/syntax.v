@@ -23,7 +23,6 @@ Definition prophecy_id :=
 Implicit Types p : prophecy_id.
 
 Inductive literal :=
-  | LiteralUnit
   | LiteralBool b
   | LiteralInt n
   | LiteralLoc l
@@ -38,32 +37,28 @@ Implicit Types lit : literal.
 Proof.
   pose encode lit :=
     match lit with
-    | LiteralUnit =>
-        (inr (inl false), None)
     | LiteralBool b =>
-        (inl (inr b), None)
+        inl $ inl $ inl $ inl b
     | LiteralInt n =>
-        (inl (inl n), None)
+        inl $ inl $ inl $ inr n
     | LiteralLoc l =>
-        (inr (inr l), None)
+        inl $ inl $ inr l
     | LiteralProphecy p =>
-        (inr (inl false), Some p)
+        inl $ inr p
     | LiteralPoison =>
-        (inr (inl true), None)
+        inr ()
     end.
   pose decode _lit :=
     match _lit with
-    | (inr (inl false), None) =>
-        LiteralUnit
-    | (inl (inr b), None) =>
+    | inl (inl (inl (inl b))) =>
         LiteralBool b
-    | (inl (inl n), None) =>
+    | inl (inl (inl (inr n))) =>
         LiteralInt n
-    | (inr (inr l), None) =>
+    | inl (inl (inr l)) =>
         LiteralLoc l
-    | (_, Some p) =>
+    | inl (inr p) =>
         LiteralProphecy p
-    | (inr (inl true), None) =>
+    | inr () =>
         LiteralPoison
     end.
   refine (inj_countable' encode decode _); intros []; done.
@@ -140,9 +135,8 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
-  | Pair (e1 e2 : expr)
-  | Fst (e : expr)
-  | Snd (e : expr)
+  | Tuple (es : list expr)
+  | Proj (i : nat) (e : expr)
   | Constr b (e : expr)
   | Case (e0 e1 e2 : expr)
   | Record (es : list expr)
@@ -158,17 +152,41 @@ Inductive expr :=
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
-  | ValPair (v1 v2 : val)
+  | ValTuple (vs : list val)
   | ValConstr b (v : val).
 Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Scheme val_ind :=
-  Induction for val Sort Prop.
-Scheme val_rec :=
-  Induction for val Sort Type.
+Section val_ind.
+  Variable P : val → Prop.
+
+  Variable HValLiteral : ∀ lit,
+    P (ValLiteral lit).
+  Variable HValRec : ∀ f x e,
+    P (ValRec f x e).
+  Variable HValTuple :
+    ∀ vs, Forall P vs →
+    P (ValTuple vs).
+  Variable HValConstr : ∀ b,
+    ∀ v, P v →
+    P (ValConstr b v).
+
+  Fixpoint val_ind v :=
+    match v with
+    | ValLiteral lit =>
+        HValLiteral lit
+    | ValRec f x e =>
+        HValRec f x e
+    | ValTuple vs =>
+        HValTuple
+          vs (Forall_true P vs val_ind)
+    | ValConstr b v =>
+        HValConstr b
+          v (val_ind v)
+    end.
+End val_ind.
 
 Section expr_ind.
   Variable P : expr → Prop.
@@ -200,16 +218,12 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (If e0 e1 e2).
-  Variable HPair :
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Pair e1 e2).
-  Variable HFst :
+  Variable HTuple :
+    ∀ es, Forall P es →
+    P (Tuple es).
+  Variable HProj : ∀ i,
     ∀ e, P e →
-    P (Fst e).
-  Variable HSnd :
-    ∀ e, P e →
-    P (Snd e).
+    P (Proj i e).
   Variable HConstr : ∀ b,
     ∀ e, P e →
     P (Constr b e).
@@ -285,15 +299,11 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Pair e1 e2 =>
-        HPair
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
-    | Fst e =>
-        HFst
-          e (expr_ind e)
-    | Snd e =>
-        HSnd
+    | Tuple es =>
+        HTuple
+          es (Forall_true P es expr_ind)
+    | Proj i e =>
+        HProj i
           e (expr_ind e)
     | Constr b e =>
         HConstr b
@@ -354,10 +364,14 @@ Notation Injl := (
 Notation Injr := (
   Constr false
 ).
-Definition ValInjl := (
+
+Notation ValUnit := (
+  ValTuple []
+).
+Notation ValInjl := (
   ValConstr true
 ).
-Definition ValInjr := (
+Notation ValInjr := (
   ValConstr false
 ).
 
@@ -430,7 +444,7 @@ Proof.
 Qed.
 
 #[global] Instance val_inhabited : Inhabited val :=
-  populate (ValLiteral LiteralUnit).
+  populate ValUnit.
 #[global] Instance expr_inhabited : Inhabited expr :=
   populate (Val inhabitant).
 #[global] Instance expr_eq_dec : EqDecision expr.
@@ -483,15 +497,12 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Pair e11 e12, Pair e21 e22 =>
-         cast_if_and
-           (decide (e11 = e21))
-           (decide (e12 = e22))
-      | Fst e1, Fst e2 =>
+      | Tuple es1, Tuple es2 =>
           cast_if
-            (decide (e1 = e2))
-      | Snd e1, Snd e2 =>
-          cast_if
+            (decide (es1 = es2))
+      | Proj i1 e1, Proj i2 e2 =>
+          cast_if_and
+            (decide (i1 = i2))
             (decide (e1 = e2))
       | Constr b1 e1, Constr b2 e2 =>
           cast_if_and
@@ -503,7 +514,8 @@ Proof.
             (decide (e11 = e21))
             (decide (e12 = e22))
       | Record es1, Record es2 =>
-          cast_if (decide (es1 = es2))
+          cast_if
+            (decide (es1 = es2))
       | Alloc e11 e12, Alloc e21 e22 =>
          cast_if_and
            (decide (e11 = e21))
@@ -542,6 +554,18 @@ Proof.
           right _
       end
     with go_val v1 v2 : Decision (v1 = v2) :=
+      let fix go_list vs1 vs2 : Decision (vs1 = vs2) :=
+        match vs1, vs2 with
+        | [], [] =>
+            left _
+        | v1 :: vs1, v2 :: vs2 =>
+            cast_if_and
+              (decide (v1 = v2))
+              (decide (vs1 = vs2))
+        | _, _ =>
+            right _
+        end
+      in
       match v1, v2 with
       | ValLiteral l1, ValLiteral l2 =>
           cast_if
@@ -551,10 +575,9 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValPair e11 e12, ValPair e21 e22 =>
-          cast_if_and
-            (decide (e11 = e21))
-            (decide (e12 = e22))
+      | ValTuple vs1, ValTuple vs2 =>
+          cast_if
+            (decide (vs1 = vs2))
       | ValConstr b1 e1, ValConstr b2 e2 =>
           cast_if_and
             (decide (b1 = b2))
@@ -564,15 +587,52 @@ Proof.
       end
     for go
   );
-  try clear go_list; clear go go_val; abstract intuition congruence.
+  clear go go_val go_list; abstract intuition congruence.
 Defined.
-#[global] Instance val_eq_dec : EqDecision val :=
-  ltac:(solve_decision).
+#[global] Instance val_eq_dec : EqDecision val.
+Proof.
+  unshelve refine (
+    fix go_val v1 v2 : Decision (v1 = v2) :=
+      let fix go_list vs1 vs2 : Decision (vs1 = vs2) :=
+        match vs1, vs2 with
+        | [], [] =>
+            left _
+        | v1 :: vs1, v2 :: vs2 =>
+            cast_if_and
+              (decide (v1 = v2))
+              (decide (vs1 = vs2))
+        | _, _ =>
+            right _
+        end
+      in
+      match v1, v2 with
+      | ValLiteral l1, ValLiteral l2 =>
+          cast_if
+            (decide (l1 = l2))
+      | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
+          cast_if_and3
+            (decide (f1 = f2))
+            (decide (x1 = x2))
+            (decide (e1 = e2))
+      | ValTuple vs1, ValTuple vs2 =>
+          cast_if
+            (decide (vs1 = vs2))
+      | ValConstr b1 e1, ValConstr b2 e2 =>
+          cast_if_and
+            (decide (b1 = b2))
+            (decide (e1 = e2))
+      | _, _ =>
+          right _
+      end
+  );
+  clear go_val go_list; abstract intuition congruence.
+Defined.
 Variant encode_leaf :=
   | EncodeString (x : string)
   | EncodeBinder x
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
+  | EncodeNat (i : nat)
   | EncodeBool b
   | EncodeLiteral lit.
 #[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
@@ -583,13 +643,15 @@ Proof.
   pose encode leaf :=
     match leaf with
     | EncodeString x =>
-        inl $ inl $ inl $ inl $ inl x
+        inl $ inl $ inl $ inl $ inl $ inl x
     | EncodeBinder x =>
-        inl $ inl $ inl $ inl $ inr x
+        inl $ inl $ inl $ inl $ inl $ inr x
     | EncodeUnop op =>
-        inl $ inl $ inl $ inr op
+        inl $ inl $ inl $ inl $ inr op
     | EncodeBinop op =>
-        inl $ inl $ inr op
+        inl $ inl $ inl $ inr op
+    | EncodeNat i =>
+        inl $ inl $ inr i
     | EncodeBool b =>
         inl $ inr b
     | EncodeLiteral lit =>
@@ -597,14 +659,16 @@ Proof.
     end.
   pose decode leaf :=
     match leaf with
-    | inl (inl (inl (inl (inl x)))) =>
+    | inl (inl (inl (inl (inl (inl x))))) =>
         EncodeString x
-    | inl (inl (inl (inl (inr x)))) =>
+    | inl (inl (inl (inl (inl (inr x))))) =>
         EncodeBinder x
-    | inl (inl (inl (inr op))) =>
+    | inl (inl (inl (inl (inr op)))) =>
         EncodeUnop op
-    | inl (inl (inr op)) =>
+    | inl (inl (inl (inr op))) =>
         EncodeBinop op
+    | inl (inl (inr i)) =>
+        EncodeNat i
     | inl (inr b) =>
         EncodeBool b
     | inr lit =>
@@ -629,39 +693,37 @@ Proof.
     5.
   Notation tag_If :=
     6.
-  Notation tag_Pair :=
+  Notation tag_Tuple :=
     7.
-  Notation tag_Fst :=
+  Notation tag_Proj :=
     8.
-  Notation tag_Snd :=
-    9.
   Notation tag_Constr :=
-    10.
+    9.
   Notation tag_Case :=
-    11.
+    10.
   Notation tag_Record :=
-    12.
+    11.
   Notation tag_Alloc :=
-    13.
+    12.
   Notation tag_Load :=
-    14.
+    13.
   Notation tag_Store :=
-    15.
+    14.
   Notation tag_Xchg :=
-    16.
+    15.
   Notation tag_Cas :=
-    17.
+    16.
   Notation tag_Faa :=
-    18.
+    17.
   Notation tag_Fork :=
-    19.
+    18.
   Notation tag_Proph :=
-    20.
+    19.
   Notation tag_Resolve :=
-    21.
+    20.
   Notation tag_ValRec :=
     0.
-  Notation tag_ValPair :=
+  Notation tag_ValTuple :=
     1.
   Notation tag_ValConstr :=
     2.
@@ -684,12 +746,10 @@ Proof.
           GenNode tag_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode tag_If [go e0; go e1; go e2]
-      | Pair e1 e2 =>
-          GenNode tag_Pair [go e1; go e2]
-      | Fst e =>
-          GenNode tag_Fst [go e]
-      | Snd e =>
-          GenNode tag_Snd [go e]
+      | Tuple es =>
+          GenNode tag_Tuple (map go es)
+      | Proj i e =>
+          GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Constr b e =>
           GenNode tag_Constr [GenLeaf (EncodeBool b); go e]
       | Case e0 e1 e2 =>
@@ -721,8 +781,8 @@ Proof.
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | ValPair v1 v2 =>
-          GenNode tag_ValPair [go_val v1; go_val v2]
+      | ValTuple vs =>
+          GenNode tag_ValTuple (map go_val vs)
       | ValConstr b v =>
           GenNode tag_ValConstr [GenLeaf (EncodeBool b); go_val v]
       end
@@ -746,12 +806,10 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode tag_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode tag_Pair [e1; e2] =>
-          Pair (go e1) (go e2)
-      | GenNode tag_Fst [e] =>
-          Fst (go e)
-      | GenNode tag_Snd [e] =>
-          Snd (go e)
+      | GenNode tag_Tuple es =>
+          Tuple (map go es)
+      | GenNode tag_Proj [GenLeaf (EncodeNat i); e] =>
+          Proj i (go e)
       | GenNode tag_Constr [GenLeaf (EncodeBool b); e] =>
           Constr b (go e)
       | GenNode tag_Case [e0; e1; e2] =>
@@ -777,7 +835,7 @@ Proof.
       | GenNode tag_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
       | _ =>
-          Val (ValLiteral LiteralUnit)
+          Val ValUnit
       end
     with go_val _v :=
       match _v with
@@ -785,24 +843,29 @@ Proof.
           ValLiteral lit
       | GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode tag_ValPair [v1; v2] =>
-          ValPair (go_val v1) (go_val v2)
+      | GenNode tag_ValTuple vs =>
+          ValTuple (map go_val vs)
       | GenNode tag_ValConstr [GenLeaf (EncodeBool b); v] =>
           ValConstr b (go_val v)
       | _ =>
-          ValLiteral LiteralUnit
+          ValUnit
       end
     for go.
   refine (inj_countable' encode decode _).
   refine (fix go e := _ with go_val v := _ for go).
-  - destruct e; simpl; f_equal; [| try done..].
-    + match goal with |- _ = ?v =>
+  - destruct e; simpl; f_equal; try done.
+    1:
+      match goal with |- _ = ?v =>
         exact (go_val v)
       end.
-    + match goal with |- _ = ?es =>
+    all:
+      match goal with |- _ = ?es =>
         rewrite /map; induction es as [| ? ? ->]; simpl; f_equal; done
       end.
-  - destruct v; f_equal; done.
+  - destruct v; simpl; f_equal; try done.
+    match goal with |- _ = ?vs =>
+      rewrite /map; induction vs as [| ? ? ->]; simpl; f_equal; done
+    end.
 Qed.
 #[global] Instance val_countable :
   Countable val.

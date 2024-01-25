@@ -22,7 +22,6 @@ Implicit Types vs : list val.
 
 Definition literal_physical lit :=
   match lit with
-  | LiteralUnit
   | LiteralBool _
   | LiteralInt _
   | LiteralLoc _ =>
@@ -113,29 +112,27 @@ Fixpoint subst (x : string) v e :=
   | App e1 e2 =>
       App (subst x v e1) (subst x v e2)
   | Unop op e =>
-      Unop op (subst x v e)
+      Unop op $ subst x v e
   | Binop op e1 e2 =>
       Binop op (subst x v e1) (subst x v e2)
   | Equal e1 e2 =>
       Equal (subst x v e1) (subst x v e2)
   | If e0 e1 e2 =>
       If (subst x v e0) (subst x v e1) (subst x v e2)
-  | Pair e1 e2 =>
-      Pair (subst x v e1) (subst x v e2)
-  | Fst e =>
-      Fst (subst x v e)
-  | Snd e =>
-      Snd (subst x v e)
+  | Tuple es =>
+      Tuple $ subst x v <$> es
+  | Proj i e =>
+      Proj i $ subst x v e
   | Constr b e =>
-      Constr b (subst x v e)
+      Constr b $ subst x v e
   | Case e0 e1 e2 =>
       Case (subst x v e0) (subst x v e1) (subst x v e2)
   | Record es =>
-      Record (subst x v <$> es)
+      Record $ subst x v <$> es
   | Alloc e1 e2 =>
       Alloc (subst x v e1) (subst x v e2)
   | Load e =>
-      Load (subst x v e)
+      Load $ subst x v e
   | Store e1 e2 =>
       Store (subst x v e1) (subst x v e2)
   | Xchg e1 e2 =>
@@ -145,7 +142,7 @@ Fixpoint subst (x : string) v e :=
   | Faa e1 e2 =>
       Faa (subst x v e1) (subst x v e2)
   | Fork e =>
-      Fork (subst x v e)
+      Fork $ subst x v e
   | Proph =>
       Proph
   | Resolve e0 e1 e2 =>
@@ -314,28 +311,22 @@ Inductive head_step : expr → state → list observation → expr → state →
         e2
         σ
         []
-  | head_step_pair v1 v2 σ :
+  | head_step_tuple es vs σ :
+      es = of_vals vs →
       head_step
-        (Pair (Val v1) (Val v2))
+        (Tuple es)
         σ
         []
-        (Val $ ValPair v1 v2)
+        (Val $ ValTuple vs)
         σ
         []
-  | head_step_fst v1 v2 σ :
+  | head_step_proj i vs v σ :
+      vs !! i = Some v →
       head_step
-        (Fst $ Val $ ValPair v1 v2)
+        (Proj i $ Val $ ValTuple vs)
         σ
         []
-        (Val v1)
-        σ
-        []
-  | head_step_snd v1 v2 σ :
-      head_step
-        (Snd $ Val $ ValPair v1 v2)
-        σ
-        []
-        (Val v2)
+        (Val v)
         σ
         []
   | head_step_constr b v σ :
@@ -396,7 +387,7 @@ Inductive head_step : expr → state → list observation → expr → state →
         (Store (Val $ ValLiteral $ LiteralLoc l) (Val v))
         σ
         []
-        (Val $ ValLiteral LiteralUnit)
+        (Val ValUnit)
         (state_update_heap <[l := v]> σ)
         []
   | head_step_xchg l v w σ :
@@ -445,7 +436,7 @@ Inductive head_step : expr → state → list observation → expr → state →
         (Fork e)
         σ
         []
-        (Val $ ValLiteral LiteralUnit)
+        (Val ValUnit)
         σ
         [e]
   | head_step_proph σ p :
@@ -525,10 +516,8 @@ Inductive ectxi :=
   | CtxEqualL v2
   | CtxEqualR e1
   | CtxIf e1 e2
-  | CtxPairL v2
-  | CtxPairR e1
-  | CtxFst
-  | CtxSnd
+  | CtxTuple vs es
+  | CtxProj (i : nat)
   | CtxConstr b
   | CtxCase e1 e2
   | CtxRecord vs es
@@ -567,14 +556,10 @@ Fixpoint ectxi_fill k e : expr :=
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
-  | CtxPairL v2 =>
-      Pair e $ Val v2
-  | CtxPairR e1 =>
-      Pair e1 e
-  | CtxFst =>
-      Fst e
-  | CtxSnd =>
-      Snd e
+  | CtxTuple vs es =>
+      Tuple $ of_vals vs ++ e :: es
+  | CtxProj i =>
+      Proj i e
   | CtxConstr b =>
       Constr b e
   | CtxCase e1 e2 =>
@@ -632,22 +617,24 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   k1 = k2.
 Proof.
   move: k1. induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
-  move=> /= H1 H2 H. invert H as [H'].
-  apply app_inj_1 in H'; first naive_solver.
-  clear- H1 H2 H'.
-  match goal with |- length (of_vals ?vs1) = length (of_vals ?vs2) =>
-    move: vs2 H'; induction vs1; intros []; naive_solver
-  end.
+  all: move=> /= H1 H2 H; invert H as [H'].
+  all: apply app_inj_1 in H'; first naive_solver.
+  all: clear- H1 H2 H'.
+  all:
+    match goal with |- length (of_vals ?vs1) = length (of_vals ?vs2) =>
+      move: vs2 H'; induction vs1; intros []; naive_solver
+    end.
 Qed.
 Lemma head_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
   head_step (ectxi_fill k e) σ1 κ e2 σ2 es →
   is_Some (to_val e).
 Proof.
   move: κ e2. induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
-  inversion_clear 1.
-  match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>
-    clear- H; move: vs H; induction vs'; intros []; naive_solver
-  end.
+  all: inversion_clear 1.
+  all:
+    match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>
+      clear- H; move: vs H; induction vs'; intros []; naive_solver
+    end.
 Qed.
 
 Definition ectx :=

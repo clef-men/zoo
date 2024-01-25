@@ -45,9 +45,9 @@ Implicit Types σ : gmap loc val.
   λ: "descr" "Root" "Diff",
     match: "descr" with
       Injl <> =>
-        "Root" #()
+        "Root" ()
     | Injr "x" =>
-        "Diff" "x".𝟙.𝟙.𝟙 "x".𝟙.𝟙.𝟚 "x".𝟙.𝟚 "x".𝟚
+        "Diff" "x".<0> "x".<1> "x".<2> "x".<3>
     end.
 #[local] Notation "'match:' e0 'with' | 'Root' => e1 | 'Diff' x1 x2 x3 x4 => e2 'end'" := (
   (Val descr_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam x3 (Lam x4 e2))))
@@ -75,7 +75,7 @@ Implicit Types σ : gmap loc val.
 ) : expr_scope.
 
 #[local] Definition ValRoot :=
-  ValInjl #().
+  ValInjl ().
 #[local] Notation "'&&Root'" :=
   ValRoot.
 #[local] Instance pure_descr_match_Root e1 x1 x2 x3 x4 e2 :
@@ -156,7 +156,7 @@ Definition store_capture : val :=
   rec: "store_reroot" "node" :=
     match: !"node" with
     | Root =>
-        #()
+        ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot" "node'" ;;
         "node'" <- &Diff "r" !"r".[ref_value] !"r".[ref_gen] "node" ;;
@@ -169,7 +169,7 @@ Definition store_capture : val :=
   rec: "store_reroot_opt_aux" "node" :=
     match: !"node" with
     | Root =>
-        #()
+        ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot_opt_aux" "node'" ;;
         "node'" <- &Diff "r" !"r".[ref_value] !"r".[ref_gen] "node" ;;
@@ -180,7 +180,7 @@ Definition store_capture : val :=
   λ: "node",
     match: !"node" with
     | Root =>
-        #()
+        ()
     | Diff <> <> <> <> =>
         store_reroot_opt_aux "node" ;;
         "node" <- &&Root
@@ -194,7 +194,7 @@ Definition store_restore : val :=
       let: "root" := "s".<snap_root> in
       match: !"root" with
       | Root =>
-          #()
+          ()
       | Diff <> <> <> <> =>
           store_reroot "root" ;;
           "t" <-{root}- "root" ;;
@@ -237,7 +237,7 @@ Section store_G.
 
   Lemma store_create_spec :
     {{{ True }}}
-      store_create #()
+      store_create ()
     {{{ t,
       RET t;
       store_model t ∅ ∅
@@ -277,7 +277,7 @@ Section store_G.
     }}}
       store_set t #r v
     {{{
-      RET #();
+      RET ();
       store_model t σ0 (<[r := v]> σ)
     }}}.
   Proof.
@@ -303,7 +303,7 @@ Section store_G.
     }}}
       store_restore t s
     {{{
-      RET #();
+      RET ();
       store_model t σ0 σ'
     }}}.
   Proof.

@@ -194,7 +194,7 @@ Section zebre_G.
     envs_lookup id Δ' = Some (false, l ↦ w)%I →
     match envs_simple_replace id false (Esnoc Enil id (l ↦ v)) Δ' with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K #() @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K () @ E {{ Φ }})
     | None =>
         False
     end →

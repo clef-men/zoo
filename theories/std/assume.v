@@ -13,13 +13,13 @@ From zebre Require Import
 Definition assume : val :=
   λ: "b",
     ifnot: "b" then
-      diverge #().
+      diverge ().
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
   Lemma assume_spec (b : bool) Φ :
-    ▷ (⌜b = true⌝ → Φ #()) -∗
+    ▷ (⌜b = true⌝ → Φ ()%V) -∗
     WP assume #b {{ Φ }}.
   Proof.
     iIntros "HΦ".
@@ -27,7 +27,7 @@ Section zebre_G.
     wp_smart_apply diverge_spec.
   Qed.
   Lemma assume_spec' ϕ `{!Decision ϕ} Φ :
-    ▷ (⌜ϕ⌝ → Φ #()) -∗
+    ▷ (⌜ϕ⌝ → Φ ()%V) -∗
     WP assume #(bool_decide ϕ) {{ Φ }}.
   Proof.
     iIntros "HΦ".

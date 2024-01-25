@@ -28,7 +28,7 @@ Implicit Types vs : list val.
 
 Definition dynarray_create : val :=
   λ: <>,
-    { #0; array_create #() }.
+    { #0; array_create () }.
 
 Definition dynarray_make : val :=
   λ: "sz" "v",
@@ -66,7 +66,7 @@ Definition dynarray_reserve : val :=
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
       let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
-      let: "new_data" := array_make "new_cap" #() in
+      let: "new_data" := array_make "new_cap" () in
       array_blit "data" #0 "new_data" #0 "t".{size} ;;
       "t" <-{data}- "new_data"
     ).
@@ -89,7 +89,7 @@ Definition dynarray_pop : val :=
     "t" <-{size}- "sz" ;;
     let: "data" := "t".{data} in
     let: "v" := array_unsafe_get "data" "sz" in
-    array_unsafe_set "data" "sz" #() ;;
+    array_unsafe_set "data" "sz" () ;;
     "v".
 
 Definition dynarray_fit_capacity : val :=
@@ -103,7 +103,7 @@ Definition dynarray_fit_capacity : val :=
 Definition dynarray_reset : val :=
   λ: "t",
     "t" <-{size}- #0 ;;
-    "t" <-{data}- array_create #().
+    "t" <-{data}- array_create ().
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
@@ -114,7 +114,7 @@ Section zebre_G.
   Definition dynarray_model t vs : iProp Σ :=
     ∃ l data extra,
     ⌜t = #l⌝ ∗
-    dynarray_model_inner l (length vs) data (vs ++ replicate extra #()).
+    dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V).
 
   #[global] Instance dynarray_model_timeless t vs :
     Timeless (dynarray_model t vs).
@@ -124,7 +124,7 @@ Section zebre_G.
 
   Lemma dynarray_create_spec :
     {{{ True }}}
-      dynarray_create #()
+      dynarray_create ()
     {{{ t,
       RET t;
       dynarray_model t []
@@ -346,7 +346,7 @@ Section zebre_G.
     }}}
       dynarray_set t #i v
     {{{
-      RET #();
+      RET ();
       dynarray_model t (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
@@ -373,13 +373,13 @@ Section zebre_G.
   #[local] Lemma dynarray_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model_inner l (length vs) data (vs ++ replicate extra #())
+      dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V)
     }}}
       dynarray_reserve #l #n
     {{{ data' extra',
-      RET #();
+      RET ();
       ⌜Z.to_nat n ≤ length vs + extra'⌝ ∗
-      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' #())
+      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
@@ -407,7 +407,7 @@ Section zebre_G.
     }}}
       dynarray_reserve t #n
     {{{
-      RET #();
+      RET ();
       dynarray_model t vs
     }}}.
   Proof.
@@ -418,13 +418,13 @@ Section zebre_G.
   #[local] Lemma dynarray_reserve_extra_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model_inner l (length vs) data (vs ++ replicate extra #())
+      dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V)
     }}}
       dynarray_reserve_extra #l #n
     {{{ data' extra',
-      RET #();
+      RET ();
       ⌜Z.to_nat n ≤ extra'⌝ ∗
-      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' #())
+      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
@@ -442,7 +442,7 @@ Section zebre_G.
     }}}
       dynarray_reserve_extra t #n
     {{{
-      RET #();
+      RET ();
       dynarray_model t vs
     }}}.
   Proof.
@@ -457,7 +457,7 @@ Section zebre_G.
     }}}
       dynarray_push t v
     {{{
-      RET #();
+      RET ();
       dynarray_model t (vs ++ [v])
     }}}.
   Proof.
@@ -502,7 +502,7 @@ Section zebre_G.
     }}}
       dynarray_fit_capacity t
     {{{
-      RET #();
+      RET ();
       dynarray_model t vs
     }}}.
   Proof.
@@ -522,7 +522,7 @@ Section zebre_G.
     }}}
       dynarray_reset t
     {{{
-      RET #();
+      RET ();
       dynarray_model t []
     }}}.
   Proof.

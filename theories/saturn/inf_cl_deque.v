@@ -57,7 +57,7 @@ Implicit Types priv : nat → val.
     nat * identifier ;
   typed_prophet_spec_of_val v :=
     match v with
-    | (ValLiteral (LiteralInt front), ValLiteral (LiteralProphecy id))%V =>
+    | ValTuple [ValLiteral (LiteralInt front); ValLiteral (LiteralProphecy id)] =>
         Some (Z.to_nat front, id)
     | _ =>
         None
@@ -106,7 +106,7 @@ Section inf_cl_deque_G.
 
   Definition inf_cl_deque_create : val :=
     λ: <>,
-      { #0; #0; inf_array_create #(); Proph }.
+      { #0; #0; inf_array_create (); Proph }.
 
   Definition inf_cl_deque_push : val :=
     λ: "t" "v",
@@ -406,8 +406,8 @@ Section inf_cl_deque_G.
   #[local] Lemma inf_cl_deque_ctl_alloc :
     ⊢ |==>
       ∃ γ_ctl,
-      inf_cl_deque_ctl₁' γ_ctl 0 (λ _, #()) ∗
-      inf_cl_deque_ctl₂' γ_ctl 0 (λ _, #()).
+      inf_cl_deque_ctl₁' γ_ctl 0 (λ _, ()%V) ∗
+      inf_cl_deque_ctl₂' γ_ctl 0 (λ _, ()%V).
   Proof.
     apply auth_excl_alloc'.
   Qed.
@@ -957,7 +957,7 @@ Section inf_cl_deque_G.
 
   Lemma inf_cl_deque_create_spec ι :
     {{{ True }}}
-      inf_cl_deque_create #()
+      inf_cl_deque_create ()
     {{{ t,
       RET t;
       inf_cl_deque_inv t ι ∗
@@ -969,7 +969,7 @@ Section inf_cl_deque_G.
 
     wp_rec.
 
-    (* → [inf_array_create #()] *)
+    (* → [inf_array_create ()] *)
     wp_apply (inf_array_create_spec with "[//]") as "%data (#Harray_inv & Harray_model)".
 
     (* → [Proph] *)
@@ -1002,13 +1002,13 @@ Section inf_cl_deque_G.
 
     iSplitR "Hctl₂ Hmodel₂ Hlock".
     { repeat iExists _. iFrame "#∗". iSplitR; first done.
-      iApply inv_alloc. iExists 0, 0%Z, [], [], (λ _, #()), [], prophs. iFrame.
+      iApply inv_alloc. iExists 0, 0%Z, [], [], (λ _, ()%V), [], prophs. iFrame.
       do 2 (iSplit; first done).
       unfold_state. iLeft. iFrame. unfold_state. iFrame. done.
     }
     iSplitL "Hmodel₂".
     { iExists l, γ. naive_solver. }
-    iExists l, γ, 0%Z, (λ _, #()). iFrame "#∗". done.
+    iExists l, γ, 0%Z, (λ _, ()%V). iFrame "#∗". done.
   Qed.
 
   Lemma inf_cl_deque_push_spec t ι v :
@@ -1021,7 +1021,7 @@ Section inf_cl_deque_G.
       inf_cl_deque_push t v @ ↑ι
     <<<
       inf_cl_deque_model t (model ++ [v])
-    | RET #();
+    | RET ();
       inf_cl_deque_owner t
     >>>.
   Proof.
