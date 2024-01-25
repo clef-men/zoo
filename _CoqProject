@@ -87,6 +87,7 @@ theories/persistent/base.v
 theories/persistent/pstack.v
 theories/persistent/pqueue.v
 theories/persistent/parray.v
+theories/persistent/map_agree.v
 
 theories/saturn/base.v
 theories/saturn/treiber_stack.v

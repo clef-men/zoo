@@ -1,5 +1,6 @@
 From zebre Require Import
   prelude.
+From iris.algebra Require Import gmap.
 From zebre.language Require Import
   notations
   diaframe.
@@ -7,6 +8,9 @@ From zebre.persistent Require Export
   base.
 From zebre Require Import
   options.
+
+From zebre.persistent Require Import
+  map_agree.
 
 Implicit Types l r : loc.
 Implicit Types v t s : val.
@@ -151,83 +155,226 @@ Definition pstore_restore : val :=
     ).
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
+  pstore_G_map_G : map_agreeG Σ loc (gmap loc val) ;
 }.
 
 Definition pstore_Σ := #[
+  map_agreeΣ loc (gmap loc val)
 ].
 #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →
   PstoreG Σ.
 Proof.
+  solve_inG.
 Qed.
+
+Section rtc_lab.
+Context {A B:Type}.
+Context (R:A -> B -> A -> Prop).
+
+Inductive rtcl : A -> list B -> A -> Prop :=
+| rtcl_refl : forall a, rtcl a [] a
+| rtcl_l : forall a1 b a2 bs a3,
+    R a1 b a2 ->
+    rtcl a2 bs a3 ->
+    rtcl a1 (b::bs) a3.
+
+End rtc_lab.
+
+Section Graph.
+Definition graph (A B:Type) `{Countable A} `{Countable B} := gset (A*B*A).
+
+Context `{Countable A} `{Countable B}.
+Definition vertices (g:graph A B) : gset A :=
+  set_fold (fun '(x,_,y) acc => {[x;y]} ∪ acc) ∅ g.
+
+Lemma vertices_empty :
+  vertices ∅ = ∅.
+Proof. compute_done. Qed.
+
+Definition edge (g:graph A B) x c y := (x,c,y) ∈ g.
+Definition reachable (g:graph A B) x bs y := rtcl (edge g) x bs y.
+
+End Graph.
 
 Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
 
+#[local] Definition pstore_map_auth γ map :=
+    @map_agree_auth _ _ _ _ _ pstore_G_map_G γ map.
+  #[local] Definition pstore_map_elem γ l σ :=
+    @map_agree_elem _ _ _ _ _ pstore_G_map_G γ l σ.
+
   Definition pstore_store σ0 σ :=
     union_with (λ _, Some) σ0 σ.
 
-  Definition pstore_model t σ0 σ : iProp Σ.
-  Proof. Admitted.
+  Notation diff := (loc*val)%type. (* the loc and its old value. *)
+  Notation graph_store := (graph loc diff).
+  Notation map_model := (gmap loc (gmap loc val)).
 
-  Definition pstore_snapshot_model s t σ : iProp Σ.
-  Proof. Admitted.
+  Definition apply_diffs (ds:list diff) (σ:gmap loc val) : gmap loc val :=
+    foldr (fun '(l,v) σ => <[l:=v]> σ) σ ds.
 
-  #[global] Instance pstore_model_timeless t σ0 σ :
-    Timeless (pstore_model t σ0 σ).
+  Record store_inv (M:map_model) (g:graph_store) (r:loc) (σ:gmap loc val) :=
+    { si1 : dom M = vertices g ∪ {[r]};
+      si2 : M !! r = Some σ;
+      si3 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r;
+      si4 : forall r' ds,
+        reachable g r' ds r -> M !! r' = Some (apply_diffs ds σ)
+    }.
+
+  Record coherent (σ0 σ:gmap loc val) (g:graph_store) :=
+    { coh1 : σ ⊆ σ0;
+      coh2 : forall r l v r', edge g r (l,v) r' -> l ∈ dom σ
+    }.
+
+  Lemma coherent_dom_incl σ0 σ g  :
+    coherent σ0 σ g ->
+    dom σ ⊆ dom σ0.
   Proof.
-  Abort.
-  #[global] Instance pstore_snapshot_persistent s t σ :
-    Persistent (pstore_snapshot_model s t σ).
+    intros [X1 X2].
+    intros l Hl. apply elem_of_dom in Hl. destruct Hl as (?&Hl).
+    eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
+  Qed.
+
+  #[local] Definition pstore γ (t:val) (σ:gmap loc val) : iProp Σ :=
+    ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
+      (g:graph_store)
+      (M:map_model),
+    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g⌝ ∗
+    t0 ↦ #(LiteralLoc r) ∗
+    r ↦ &&Root ∗
+    pstore_map_auth γ (delete r M) ∗
+    ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')).
+
+  Definition open_inv : string :=
+    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh)&Ht0&Hr&Hauth&Hσ0&Hg)]]]]]".
+
+  Definition pstore_snapshot γ l σ : iProp Σ :=
+    pstore_map_elem γ l σ.
+
+  #[global] Instance pstore_snapshot_persistent γ l σ :
+    Persistent (pstore_snapshot γ l σ).
   Proof.
-  Abort.
+    apply _.
+  Qed.
 
   Lemma pstore_create_spec :
     {{{ True }}}
       pstore_create ()
-    {{{ t,
+    {{{ t γ,
       RET t;
-      pstore_model t ∅ ∅
+        pstore γ t ∅
     }}}.
   Proof.
-  Abort.
+    iIntros "%Φ _ HΦ".
+    wp_rec.
+    wp_alloc r as "Hroot".
+    wp_alloc t0 as "Ht0".
+    iMod (map_agree_alloc {[r:=∅]}) as "[%γ ?]".
+    iApply "HΦ". iModIntro.
+    iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
+    rewrite big_sepM_empty big_sepS_empty !right_id.
+    iPureIntro. split_and!; first done.
+    { constructor.
+      { rewrite dom_singleton_L vertices_empty //. set_solver. }
+      { rewrite lookup_singleton //. }
+      { intros ?. rewrite vertices_empty. set_solver. }
+      { intros ?? Hr.
+        inversion Hr.
+        { subst. rewrite lookup_singleton //. }
+        { exfalso. subst. set_solver. } } }
+    { constructor. set_solver. set_solver. }
+  Qed.
 
-  Lemma pstore_ref_spec t σ0 σ v :
+  Lemma pstore_ref_spec γ t σ v :
     {{{
-      pstore_model t σ0 σ
+      pstore γ t σ
     }}}
-      pstore_ref t v
-    {{{ r,
-      RET #r;
-      pstore_model t (<[r := v]> σ0) σ
+      pstore_ref v
+    {{{ l,
+      RET #l;
+      ⌜σ !! l = None⌝ ∗
+      pstore γ t (<[l := v]> σ)
     }}}.
   Proof.
+    iIntros (ϕ) open_inv. iIntros "HΦ".
+
+    wp_rec. wp_alloc l as "Hl".
+    iApply "HΦ".
+
+    iAssert ⌜σ0 !! l = None⌝%I as %Hl0.
+    { rewrite -not_elem_of_dom. iIntros (Hl).
+      apply elem_of_dom in Hl. destruct Hl.
+      iDestruct (big_sepM_lookup with "[$]") as "Hl_"; first done.
+      iDestruct (mapsto_ne with "Hl Hl_") as %?. done. }
+    assert (σ !! l = None) as Hl.
+    { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.
+      intros ?. apply Hl0. eapply coherent_dom_incl; eauto. }
+    iDestruct (mapsto_ne with "Hl Hr") as %Hlr.
+
+
+    iModIntro. iStep.
+    iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M).
+
+    rewrite delete_insert_delete big_sepM_insert //. iFrame.
+    iPureIntro. split_and !; first done.
+    { destruct Hinv as [X1 X2 X3 X4].
+      constructor.
+      { rewrite dom_insert_L; set_solver. }
+      { rewrite lookup_insert //. }
+      { eauto. }
+      { intros r' ds Hr. destruct_decide (decide (r=r')).
+        { subst. rewrite lookup_insert. admit. (* acyclic *) }
+        { rewrite lookup_insert_ne //. erewrite X4; eauto. admit. (* have to switch to inclusion. *) } } }
+    { destruct Hcoh as [X1 X2].
+      constructor.
+      { admit. }
+      { intros. rewrite dom_insert_L. set_solver. } }
   Abort.
 
-  Lemma pstore_get_spec {t σ0 σ r} v :
-    pstore_store σ0 σ !! r = Some v →
+
+  Lemma pstore_get_spec {γ t σ l} v :
+    σ !! l = Some v →
     {{{
-      pstore_model t σ0 σ
+      pstore γ t σ
     }}}
-      pstore_get t #r
+      pstore_get t #l
     {{{
       RET v;
-      pstore_model t σ0 σ
+      pstore γ t σ
     }}}.
   Proof.
+    iIntros (? ϕ) open_inv. iIntros "HΦ".
+    wp_rec. iStep 4. iModIntro.
+    admit. (* wp_load. *)
   Abort.
 
-  Lemma pstore_set_spec t σ0 σ r v :
-    r ∈ dom σ0 →
+  Lemma pstore_set_spec γ t σ l v :
+    l ∈ dom σ →
     {{{
-      pstore_model t σ0 σ
+      pstore γ t σ
     }}}
-      pstore_set t #r v
+      pstore_set t #l v
     {{{
       RET ();
-      pstore_model t σ0 (<[r := v]> σ)
+      pstore γ t (<[l := v]> σ)
     }}}.
   Proof.
+    iIntros (Hl Φ) open_inv. iIntros "HΦ".
+    wp_rec. iStep 8. iModIntro.
+    wp_alloc r' as "Hr'".
+
+    assert (l ∈ dom σ0) as Hl0.
+    { eapply coherent_dom_incl in Hl; eauto. }
+    apply elem_of_dom in Hl0. destruct Hl0 as (w&Hl0).
+
+    iDestruct (big_sepM_insert_acc with "[$]") as "(?&Hσ0)". done.
+    wp_load. wp_load. wp_store. iStep 4. iModIntro.
+    wp_store. wp_store. iApply "HΦ".
+
+    iSpecialize ("Hσ0" with "[$]").
   Abort.
 
   Lemma pstore_catpure_spec t σ0 σ :
