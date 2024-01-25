@@ -277,8 +277,8 @@ Section pstore_G.
     { si1 : dom M = vertices g ∪ {[r]};
       si2 : M !! r = Some σ;
       si3 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r;
-      si4 : forall r' ds,
-        reachable g r' ds r -> M !! r' = Some (apply_diffs ds σ)
+      si4 : forall r' ds σ',
+        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffs ds σ)
     }.
 
   Record coherent (σ0 σ:gmap loc val) (g:graph_store) :=
@@ -346,9 +346,9 @@ Section pstore_G.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
       { rewrite lookup_singleton //. }
       { intros ?. rewrite vertices_empty. set_solver. }
-      { intros ?? Hr.
+      { intros ??? Hr.
         inversion Hr.
-        { subst. rewrite lookup_singleton //. }
+        { subst. rewrite lookup_singleton //. set_solver. }
         { exfalso. subst. set_solver. } } }
     { constructor. set_solver. set_solver. }
   Qed.
@@ -390,9 +390,10 @@ Section pstore_G.
       { rewrite dom_insert_L; set_solver. }
       { rewrite lookup_insert //. }
       { eauto. }
-      { intros r' ds Hr. destruct_decide (decide (r=r')).
-        { subst. rewrite lookup_insert. admit. (* acyclic *) }
-        { rewrite lookup_insert_ne //. erewrite X4; eauto. admit. (* have to switch to inclusion. *) } } }
+      { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
+        { subst. rewrite lookup_insert. admit. (* acyclic, ds=nil. *) }
+        { rewrite lookup_insert_ne //.
+          intros Hreach. eapply X4 in Hreach; eauto. admit. (* I think I have to know that ds ⊆ dom σ0 *) } } }
     { destruct Hcoh as [X1 X2].
       constructor.
       { eauto using gmap_included_insert. }
