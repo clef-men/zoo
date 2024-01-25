@@ -395,7 +395,7 @@ Section pstore_G.
         { rewrite lookup_insert_ne //. erewrite X4; eauto. admit. (* have to switch to inclusion. *) } } }
     { destruct Hcoh as [X1 X2].
       constructor.
-      { admit. }
+      { eauto using gmap_included_insert. }
       { intros. rewrite dom_insert_L. set_solver. } }
   Abort.
 
@@ -411,10 +411,15 @@ Section pstore_G.
       pstore t σ
     }}}.
   Proof.
-    iIntros (? ϕ) open_inv. iIntros "HΦ".
+    iIntros (Hl ϕ) open_inv. iIntros "HΦ".
     wp_rec. iStep 4. iModIntro.
-    admit. (* wp_load. *)
-  Abort.
+
+    iDestruct (big_sepM_lookup_acc _ _ l v with "[$]") as "(?&Hσ0)".
+    { destruct Hcoh as [X1 X2].
+      specialize (X1 l). rewrite Hl in X1. destruct (σ0!!l); naive_solver. }
+
+    iSteps.
+  Qed.
 
   Lemma pstore_set_spec t σ l v :
     l ∈ dom σ →
