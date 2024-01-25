@@ -51,7 +51,7 @@ Definition spsc_queue_push : val :=
     let: "front" := "t".{front} in
     if: "back" < "front" + array_size "data" then (
       array_cset "data" "back" (&Some "v") ;;
-      "t" <-{back}- #1 + "back" ;;
+      "t" <-{back} #1 + "back" ;;
       #false
     ) else (
       #true
@@ -65,7 +65,7 @@ Definition spsc_queue_pop : val :=
       let: "data" := "t".{data} in
       let: "res" := array_cget "data" "front" in
       array_cset "data" "front" &&None ;;
-      "t" <-{front}- #1 + "front" ;;
+      "t" <-{front} #1 + "front" ;;
       "res"
     ) else (
       &&None

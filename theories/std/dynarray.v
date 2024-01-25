@@ -68,7 +68,7 @@ Definition dynarray_reserve : val :=
       let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
       let: "new_data" := array_make "new_cap" () in
       array_blit "data" #0 "new_data" #0 "t".{size} ;;
-      "t" <-{data}- "new_data"
+      "t" <-{data} "new_data"
     ).
 Definition dynarray_reserve_extra : val :=
   λ: "t" "n",
@@ -80,13 +80,13 @@ Definition dynarray_push : val :=
   λ: "t" "v",
     dynarray_reserve_extra "t" #1 ;;
     let: "sz" := "t".{size} in
-    "t" <-{size}- "sz" + #1 ;;
+    "t" <-{size} "sz" + #1 ;;
     array_unsafe_set "t".{data} "sz" "v".
 
 Definition dynarray_pop : val :=
   λ: "t",
     let: "sz" := "t".{size} - #1 in
-    "t" <-{size}- "sz" ;;
+    "t" <-{size} "sz" ;;
     let: "data" := "t".{data} in
     let: "v" := array_unsafe_get "data" "sz" in
     array_unsafe_set "data" "sz" () ;;
@@ -97,13 +97,13 @@ Definition dynarray_fit_capacity : val :=
     let: "sz" := "t".{size} in
     let: "data" := "t".{data} in
     ifnot: "sz" = array_size "data" then (
-      "t" <-{data}- array_shrink "data" "sz"
+      "t" <-{data} array_shrink "data" "sz"
     ).
 
 Definition dynarray_reset : val :=
   λ: "t",
-    "t" <-{size}- #0 ;;
-    "t" <-{data}- array_create ().
+    "t" <-{size} #0 ;;
+    "t" <-{data} array_create ().
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.

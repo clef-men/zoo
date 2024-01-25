@@ -112,7 +112,7 @@ Section inf_cl_deque_G.
     λ: "t" "v",
       let: "back" := "t".{back} in
       inf_array_set "t".{data} "back" "v" ;;
-      "t" <-{back}- "back" + #1.
+      "t" <-{back} "back" + #1.
 
   Definition inf_cl_deque_steal : val :=
     rec: "inf_cl_deque_steal" "t" :=
@@ -133,20 +133,20 @@ Section inf_cl_deque_G.
     λ: "t",
       let: "id" := Id in
       let: "back" := "t".{back} - #1 in
-      "t" <-{back}- "back" ;;
+      "t" <-{back} "back" ;;
       let: "front" := "t".{front} in
       if: "back" < "front" then (
-        "t" <-{back}- "front" ;;
+        "t" <-{back} "front" ;;
         &&None
       ) else (
         if: "front" < "back" then (
           &Some (inf_array_get "t".{data} "back")
         ) else (
           if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophecy} ("front", "id") then (
-            "t" <-{back}- "front" + #1 ;;
+            "t" <-{back} "front" + #1 ;;
             &Some (inf_array_get "t".{data} "back")
           ) else (
-            "t" <-{back}- "front" + #1 ;;
+            "t" <-{back} "front" + #1 ;;
             &&None
           )
         )
@@ -1082,7 +1082,7 @@ Section inf_cl_deque_G.
 
     wp_pures.
 
-    (* → [#l <-{back}- #(back + 1)] *)
+    (* → [#l <-{back} #(back + 1)] *)
     (* open invariant *)
     iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (inf_cl_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).

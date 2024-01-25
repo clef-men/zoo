@@ -35,7 +35,7 @@ Definition array_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
     let: "t" := chunk_make (#1 + "sz") "v" in
-    "t" <-{size}- "sz" ;;
+    "t" <-{size} "sz" ;;
     "t".
 
 Definition array_initi : val :=

@@ -32,14 +32,14 @@ Implicit Types l : loc.
 Definition latch1_create : val :=
   λ: <>,
     let: "t" := { #false; (); () } in
-    "t" <-{mutex}- mutex_create () ;;
-    "t" <-{condition}- condition_create () ;;
+    "t" <-{mutex} mutex_create () ;;
+    "t" <-{condition} condition_create () ;;
     "t".
 
 Definition latch1_signal : val :=
   λ: "t",
     mutex_protect "t".{mutex} (λ: <>,
-      "t" <-{flag}- #true
+      "t" <-{flag} #true
     ) ;;
     condition_signal "t".{condition}.
 

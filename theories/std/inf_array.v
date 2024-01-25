@@ -39,7 +39,7 @@ Definition inf_array_create : val :=
     let: "data" := array_create () in
     let: "t" := { "data"; "default"; () } in
     let: "mtx" := mutex_create () in
-    "t" <-{mutex}- "mtx" ;;
+    "t" <-{mutex} "mtx" ;;
     "t".
 
 Definition inf_array_get : val :=
@@ -62,7 +62,7 @@ Definition inf_array_set : val :=
         array_unsafe_set "data" "i" "v"
       ) else (
         let: "data" := array_grow "data" (#1 + "i") "t".{default} in
-        "t" <-{data}- "data" ;;
+        "t" <-{data} "data" ;;
         array_unsafe_set "data" "i" "v"
       )
     ).

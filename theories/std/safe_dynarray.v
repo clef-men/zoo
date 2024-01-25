@@ -60,10 +60,10 @@ Definition safe_dynarray_capacity : val :=
 
 #[local] Definition safe_dynarray_set_size : val :=
   λ: "t" "sz",
-    "t" <-{size}- "sz".
+    "t" <-{size} "sz".
 #[local] Definition safe_dynarray_set_data : val :=
   λ: "t" "data",
-    "t" <-{data}- "data".
+    "t" <-{data} "data".
 
 Definition safe_dynarray_is_empty : val :=
   λ: "t",

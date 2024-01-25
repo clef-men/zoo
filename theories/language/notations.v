@@ -375,9 +375,9 @@ Notation "e1 <- e2" := (
   Store e1%E e2%E
 )(at level 80
 ) : expr_scope.
-Notation "e1 <-{ fld }- e2" := (
+Notation "e1 <-{ fld } e2" := (
   Store (Binop BinopOffset e1%E (Val (ValLiteral (LiteralInt (Z.of_nat fld))))) e2%E
 )(at level 80,
   fld custom zebre_field,
-  format "e1  <-{ fld }-  e2"
+  format "e1  <-{ fld }  e2"
 ) : expr_scope.
