@@ -165,8 +165,9 @@ Implicit Types es : list expr.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Definition branch : Set :=
-  constr_tag * expr.
+Notation branch := (
+  prod constr_tag expr
+).
 Implicit Types br : branch.
 Implicit Types brs : list branch.
 

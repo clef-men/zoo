@@ -398,7 +398,8 @@ Notation "'ref' e" := (
 Notation "! e" := (
   Load e%E
 )(at level 9,
-  right associativity
+  right associativity,
+  format "! e"
 ) : expr_scope.
 Notation "e .{ fld }" := (
   Load (Binop BinopOffset e%E (Val (ValLiteral (LiteralInt (Z.of_nat fld)))))
