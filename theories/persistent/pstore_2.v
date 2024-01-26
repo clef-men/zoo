@@ -59,16 +59,16 @@ Definition pstore_capture : val :=
   λ: "t",
     ("t", !"t").
 
-Definition store_collect : val :=
-  rec: "store_collect" "node" "acc" :=
+Definition pstore_collect : val :=
+  rec: "pstore_collect" "node" "acc" :=
     match: !"node" with
     | Root =>
         ("node", "acc")
     | Diff <> <> "node'" =>
-        "store_collect" "node'" ‘Cons{"node", "acc"}
+        "pstore_collect" "node'" ‘Cons{"node", "acc"}
     end.
-#[local] Definition store_revert : val :=
-  rec: "store_revert" "node" "seg" :=
+Definition pstore_revert : val :=
+  rec: "pstore_revert" "node" "seg" :=
     match: "seg" with
     | Nil =>
         "node" <- §Root
@@ -80,13 +80,13 @@ Definition store_collect : val :=
  (*           assert ("node_" = "node") ;; *)
             "node" <- ‘Diff{"r", !"r", "node'"} ;;
             "r" <- "v" ;;
-            "store_revert" "node'" "seg"
+            "pstore_revert" "node'" "seg"
         end
     end.
-#[local] Definition store_reroot : val :=
+Definition pstore_reroot : val :=
   λ: "node",
-    let: "collect" := store_collect "node" §Nil in
-    store_revert "collect".<0> "collect".<1>.
+    let: "collect" := pstore_collect "node" §Nil in
+    pstore_revert "collect".<0> "collect".<1>.
 
 Definition pstore_restore : val :=
   λ: "t" "s",
@@ -290,6 +290,35 @@ Proof.
   eexists. split; first done.
   eauto using reachable_cycle_end_inv_aux.
 Qed.
+
+Inductive path : A -> list (A*B*A) -> A -> Prop :=
+| path_nil : forall a, path a [] a
+| path_cons : forall a1 b a2 bs a3,
+    path a2 bs a3 ->
+    path a1 ((a1,b,a2)::bs) a3.
+
+Definition proj1 {A B C:Type} (x:(A*B*C)) : A :=
+  match x with (x,_,_) => x end.
+Definition proj2 {A B C:Type} (x:(A*B*C)) : B :=
+  match x with (_,x,_) => x end.
+Definition proj3 {A B C:Type} (x:(A*B*C)) : C :=
+  match x with (_,_,x) => x end.
+
+Definition acyclic g := forall (r:A) ds, reachable g r ds r -> ds = nil.
+
+Lemma reachable_path g a1 a2 ds :
+  reachable g a1 ds a2 ->
+  exists xs, path a1 xs a2 /\ (list_to_set xs ⊆ g) /\ (proj2 <$> xs = ds).
+Proof.
+  intros Hreach. induction Hreach.
+  { exists nil. split_and !; try done. eauto using path_nil. }
+  { destruct IHHreach as (xs&?&?&Hxs).
+    exists ((a1,b,a2)::xs). split_and !.
+    { eauto using path_cons. }
+    { set_solver. }
+    { rewrite fmap_cons Hxs //. } }
+Qed.
+
 End Graph.
 
 Section pstore_G.
@@ -646,6 +675,57 @@ Section pstore_G.
       { apply elem_of_dom. set_solver. }
       exists σ'. split; first done. naive_solver. }
     { rewrite lookup_insert_ne // in HC. eauto using Hsnap. }
+  Qed.
+
+  Lemma pstore_collect_spec_aux r r' t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+    path r ys r' ->
+    list_to_set ys ⊆ g ->
+    {{{ r' ↦ §Root ∗
+        lst_model t' xs ∗
+        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+    }}}
+      pstore_collect #r t'
+    {{{ t,
+      RET (#r',t);
+      r' ↦ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      lst_model t (rev_append ((fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys) xs)
+    }}}.
+  Proof.
+    iIntros (Hpath Hg Φ) "(Hr'&HL&Hg) HΦ".
+    iInduction ys as [|] "IH" forall (r xs r' Hpath Hg t'); wp_rec.
+    { inversion Hpath. subst. wp_load. simpl.
+      iSteps. rewrite /lst_model //. }
+    { inversion Hpath. subst.
+
+      iDestruct (big_sepS_elem_of_acc _ _ (r,b,a2) with "[$]") as "(?&Hg)".
+      { set_solver. } destruct b.
+      wp_load.
+      iSpecialize ("Hg" with "[$]").
+      iDestruct (lst_model_Cons (ValLiteral (LiteralLoc r)) with "[$]") as "?".
+      iSpecialize ("IH" with "[%][%][$][$][$]"). done. set_solver.
+      iStep 19. iModIntro. iStep 3. iApply "IH". iModIntro. iIntros (?) "(?&?&?)".
+      iApply ("HΦ"). iFrame. }
+  Qed.
+
+ Lemma pstore_collect_spec r r' (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+   path r ys r' ->
+   list_to_set ys ⊆ g ->
+   {{{ r' ↦ §Root ∗
+        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+   }}}
+     pstore_collect #r §Nil
+   {{{ t,
+      RET (#r',t);
+      r' ↦ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      lst_model t (rev ((fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys))
+   }}}.
+  Proof.
+    iIntros (?? Φ) "(?&?) Hϕ".
+    iDestruct lst_model_Nil as "?".
+    iDestruct (pstore_collect_spec_aux with "[$]") as "Go". done. done.
+    iApply "Go". rewrite -rev_alt //. Unshelve. apply _.
   Qed.
 
   Lemma pstore_restore_spec γ t σ s σ' :
