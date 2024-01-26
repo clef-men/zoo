@@ -66,6 +66,7 @@ theories/language/wise_prophet.v
 
 theories/std/base.v
 theories/std/diverge.v
+theories/std/assert.v
 theories/std/assume.v
 theories/std/for_upto.v
 theories/std/math.v
@@ -96,3 +97,7 @@ theories/saturn/inf_cl_deque.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
+
+theories/store.v
+theories/persistent/pstore_1.v
+theories/persistent/pstore_2.v

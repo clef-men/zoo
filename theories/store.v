@@ -3,6 +3,9 @@ From zebre Require Import
 From zebre.language Require Import
   notations
   diaframe.
+From zebre.std Require Import
+  assert
+  lst.
 From zebre Require Import
   options.
 
@@ -115,6 +118,36 @@ Definition store_capture : val :=
         store_reroot_opt_aux "node" ;;
         "node" <- §Root
     end.
+
+#[local] Definition store_collect : val :=
+  rec: "store_collect" "node" "acc" :=
+    match: !"node" with
+    | Root =>
+        ("node", "acc")
+    | Diff <> <> <> "node'" =>
+        "store_collect" "node'" ‘Cons{"node", "acc"}
+    end.
+#[local] Definition store_revert : val :=
+  rec: "store_revert" "node" "seg" :=
+    match: "seg" with
+    | Nil =>
+        "node" <- §Root
+    | Cons "node'" "seg" =>
+        match: !"node'" with
+        | Root =>
+            Fail
+        | Diff "r" "v" "gen" "node_" =>
+            assert ("node_" = "node") ;;
+            "node" <- ‘Diff{"r", "r".{ref_value}, "r".{ref_gen}, "node'"} ;;
+            "r" <-{ref_value} "v" ;;
+            "r" <-{ref_gen} "gen" ;;
+            "store_revert" "node'" "seg"
+        end
+    end.
+#[local] Definition store_reroot_opt2 : val :=
+  λ: "node",
+    let: "collect" := store_collect "node" §Nil in
+    store_revert "collect".<0> "collect".<1>.
 
 Definition store_restore : val :=
   λ: "t" "s",
