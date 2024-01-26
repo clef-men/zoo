@@ -209,6 +209,15 @@ Proof.
   refine (rtcl_ind_r_weak _ _ _); eauto.
 Qed.
 
+Lemma rtcl_inv_r x bs z :
+  rtcl x bs z → (x = z /\ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [b] /\ rtcl x bs' y ∧ R y b z.
+Proof.
+  revert bs z. apply rtcl_ind_r; eauto.
+  intros ?????? [(->&->)|(bs'&b&y&->&?&?)]; right.
+  { exists nil. eauto using rtcl_refl. }
+  { exists (bs' ++ [b]). eauto. }
+Qed.
+
 End rtc_lab.
 
 Section Graph.
@@ -300,6 +309,23 @@ Proof.
   destruct_decide (decide (x=r')).
   { subst. inversion H3. apply rtcl_refl. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
   eapply reachable_cycle_end_inv_aux; last done. all:done.
+Qed.
+
+Lemma reachable_add_end (r r':A) b x ds g :
+  r ≠ r' ->
+  r' ∉ vertices g ->
+  reachable ({[(r, b, r')]} ∪ g) x ds r' ->
+  (ds = nil /\ x = r') \/ (exists ds', ds = ds' ++ [b] /\ reachable g x ds' r).
+Proof.
+  intros Hrr' Hr' Hreach. apply rtcl_inv_r in Hreach.
+  destruct Hreach as [(->&->)|(bs'&b0&y&->&Hreach&Hedge)].
+  { eauto. }
+  right.
+  assert (b0=b /\ y=r) as (->&->).
+  { rewrite /edge elem_of_union elem_of_singleton in Hedge.
+    destruct Hedge. naive_solver. exfalso. apply Hr', elem_of_vertices. eauto. }
+  eexists. split; first done.
+  eauto using reachable_cycle_end_inv_aux.
 Qed.
 
 End Graph.
@@ -444,6 +470,10 @@ Section pstore_G.
       rewrite insert_commute //. set_solver. }
   Qed.
 
+  Lemma apply_diff_app ds ds' σ :
+    apply_diffs (ds++ds') σ = apply_diffs ds (apply_diffs ds' σ).
+  Proof. rewrite /apply_diffs foldr_app //. Qed.
+
   Lemma pstore_ref_spec t σ v :
     {{{
       pstore t σ
@@ -577,17 +607,18 @@ Section pstore_G.
             eapply rtcl_r.
             { eapply reachable_weak; eauto. set_solver. }
             { set_solver. } } }
-        { intros x ds σ' Hreach. (*....... HERE *)
-          destruct_decide (decide (x=r')).
-          apply reachable_add_end_inv in Hreach; eauto.
-          destruct Hreach as (->&->).
-          rewrite lookup_insert_ne //. intros Hσ'.
-          rewrite /apply_diffs. simpl. rewrite insert_insert.
-          destruct Hcoh as [Z1 _ _]. rewrite insert_id.
+        { intros x ds σ' Hreach.
+          apply reachable_add_end in Hreach. 2,3:eauto.
+          destruct Hreach as [(->&->)|(ds'&->&Hreach)].
+          { rewrite lookup_insert. naive_solver. }
+          rewrite lookup_insert_ne.
+          { (* XXX lemma *) intros ->. inversion Hreach. eauto. subst. apply Hr', elem_of_vertices. eauto. }
+          intros Hx. specialize (X4 _ _ _ Hreach Hx). etrans. apply X4.
+          rewrite apply_diff_app. simpl. rewrite insert_insert.
+          destruct Hcoh as [Z1 _ _]. rewrite insert_id //.
           { specialize (Z1 l). rewrite Hl0 in Z1.
             apply elem_of_dom in Hl. destruct Hl as (?&Hl).
-            rewrite Hl in Z1. inversion Z1. subst. done. }
-          { eapply X4  with (ds:=nil) in Hσ'. done. apply rtcl_refl. } } }
+            rewrite Hl in Z1. inversion Z1. subst. done. }  } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
