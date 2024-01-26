@@ -155,11 +155,11 @@ Definition pstore_restore : val :=
     ).
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-  pstore_G_map_G : map_agreeG Σ loc (gmap loc val) ;
+    pstore_G_map_G : inG Σ (agreeR (loc * gmap loc val)%type);
 }.
 
 Definition pstore_Σ := #[
-  map_agreeΣ loc (gmap loc val)
+  GFunctor (agreeR (loc * gmap loc val)%type)
 ].
 #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →
@@ -167,6 +167,8 @@ Definition pstore_Σ := #[
 Proof.
   solve_inG.
 Qed.
+
+#[local] Existing Instance pstore_G_map_G.
 
 (* Define [rtcl]: a rtc in a labeled transition system. *)
 Section rtc_lab.
@@ -344,11 +346,6 @@ End Graph.
 Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
 
-  #[local] Definition pstore_map_auth γ map :=
-    @map_agree_auth _ _ _ _ _ pstore_G_map_G γ map.
-  #[local] Definition pstore_map_elem γ l σ :=
-    @map_agree_elem _ _ _ _ _ pstore_G_map_G γ l σ.
-
   Notation diff := (loc*val)%type. (* the loc and its old value. *)
   Notation graph_store := (graph loc diff).
   Notation map_model := (gmap loc (gmap loc val)).
@@ -404,21 +401,27 @@ Section pstore_G.
     eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
   Qed.
 
+  Definition pstore_snapshot γ l σ : iProp Σ :=
+    own γ (to_agree (l,σ)).
+
+  Definition snap_inv (M:map_model) (C:gmap gname (loc * gmap loc val)) :=
+    forall γ l σ, C !! γ = Some (l,σ) -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
+
   #[local] Definition pstore (t:val) (σ:gmap loc val) : iProp Σ :=
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store)
-      (M:map_model),
-    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r⌝ ∗
+      (M:map_model)
+      (C:gmap gname (loc * gmap loc val)),
+    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r /\ snap_inv M C⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ &&Root ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')).
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')) ∗
+    ([∗ map] γ ↦ x ∈ C, pstore_snapshot γ x.1 x.2)
+  .
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&Hσ0&Hg)]]]]]".
-
-  Definition pstore_snapshot γ l σ : iProp Σ :=
-    pstore_map_elem γ l σ.
+    "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&Hσ0&Hg&HC)]]]]]]".
 
   #[global] Instance pstore_snapshot_persistent γ l σ :
     Persistent (pstore_snapshot γ l σ).
@@ -439,8 +442,8 @@ Section pstore_G.
     wp_alloc r as "Hroot".
     wp_alloc t0 as "Ht0".
     iApply "HΦ". iModIntro.
-    iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
-    rewrite big_sepM_empty big_sepS_empty !right_id.
+    iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
+    rewrite !big_sepM_empty big_sepS_empty !right_id.
     iPureIntro. split_and!; first done.
     { constructor.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
@@ -454,6 +457,7 @@ Section pstore_G.
     { constructor.
       { intros ?. rewrite vertices_empty. set_solver. }
       { intros ??. inversion 1; subst. done. set_solver. } }
+    { intros ??. set_solver. }
   Qed.
 
   Lemma use_locs_of_edges_in  g r ds r' X :
@@ -505,7 +509,7 @@ Section pstore_G.
     iAssert ⌜σ0 !! l = None⌝%I as %Hl0.
     { rewrite -not_elem_of_dom. iIntros (Hl).
       apply elem_of_dom in Hl. destruct Hl.
-      iDestruct (big_sepM_lookup with "[$]") as "Hl_"; first done.
+      iDestruct (big_sepM_lookup with "Hσ0") as "Hl_"; first done.
       iDestruct (mapsto_ne with "Hl Hl_") as %?. done. }
     assert (σ !! l = None) as Hl.
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.
@@ -514,7 +518,7 @@ Section pstore_G.
 
 
     iModIntro. iStep.
-    iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M).
+    iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M),C.
 
     rewrite big_sepM_insert //. iFrame.
     iPureIntro. split_and !; eauto.
@@ -538,6 +542,13 @@ Section pstore_G.
       constructor.
       { eauto using gmap_included_insert. }
       { intros. rewrite dom_insert_L. intros ??. set_solver. } }
+    { intros ? r' ? HC. apply Hsnap in HC. destruct HC as (?&?&?).
+      destruct_decide (decide (r'=r)).
+      { subst. eexists. rewrite lookup_insert. split; first done.
+        destruct Hinv as [X1 X2 X3]. specialize (X3 r nil _ (rtcl_refl _ _) H).
+        etrans. apply H0. etrans. apply X3. simpl.
+        apply gmap_included_insert_notin; eauto. by apply not_elem_of_dom. }
+      { eexists. rewrite lookup_insert_ne //. } }
   Qed.
 
 
@@ -581,7 +592,7 @@ Section pstore_G.
     { destruct Hcoh as [Z1 _ _]. apply incl_dom_incl in Z1. eauto. }
     apply elem_of_dom in Hl0. destruct Hl0 as (w&Hl0).
 
-    iDestruct (big_sepM_insert_acc with "[$]") as "(?&Hσ0)". done.
+    iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
     wp_load. wp_load. wp_store. iStep 4. iModIntro.
     wp_store. wp_store. iApply "HΦ".
 
@@ -597,7 +608,7 @@ Section pstore_G.
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
         iDestruct (mapsto_ne with "[$][$]") as %?. congruence. } }
 
-    iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M).
+    iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M),C.
     rewrite big_sepS_union.
     { apply disjoint_singleton_l. intros ?. apply Hr'.
       apply elem_of_vertices. eauto. }
@@ -634,7 +645,12 @@ Section pstore_G.
             eapply rtcl_r.
             { eapply reachable_weak; eauto. set_solver. }
             { set_solver. } } }
-        { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } } }
+        { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } }
+      { intros ? r0 ? HC. apply Hsnap in HC. destruct HC as (?&HC&?).
+        destruct_decide (decide (r0=r')).
+        { exfalso. subst. destruct Hinv as [X1 X2 X3].
+          assert (r' ∉ dom M) as F by set_solver. apply F. by eapply elem_of_dom. }
+        rewrite lookup_insert_ne //. eauto. } }
   Qed.
 
   Lemma pstore_capture_spec t σ0 σ :
