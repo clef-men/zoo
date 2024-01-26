@@ -12,6 +12,7 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
+Implicit Types tag : constr_tag.
 Implicit Types n m : Z.
 Implicit Types l : loc.
 Implicit Types lit : literal.
@@ -19,6 +20,8 @@ Implicit Types e : expr.
 Implicit Types es : list expr.
 Implicit Types v w : val.
 Implicit Types vs : list val.
+Implicit Types br : branch.
+Implicit Types brs : list branch.
 
 Definition literal_physical lit :=
   match lit with
@@ -123,10 +126,10 @@ Fixpoint subst (x : string) v e :=
       Tuple $ subst x v <$> es
   | Proj i e =>
       Proj i $ subst x v e
-  | Constr b e =>
-      Constr b $ subst x v e
-  | Case e0 e1 e2 =>
-      Case (subst x v e0) (subst x v e1) (subst x v e2)
+  | Constr tag es =>
+      Constr tag $ subst x v <$> es
+  | Case e brs =>
+      Case (subst x v e) $ (λ br, (br.1, subst x v br.2)) <$> brs
   | Record es =>
       Record $ subst x v <$> es
   | Alloc e1 e2 =>
@@ -157,6 +160,18 @@ Definition subst' x v :=
       id
   end.
 #[global] Arguments subst' !_ _ / _ : assert.
+
+Fixpoint case_select tag brs :=
+  match brs with
+  | [] =>
+      None
+  | br :: brs =>
+      if decide (br.1.2 = tag.2) then
+        Some br.2
+      else
+        case_select tag brs
+  end.
+#[global] Arguments case_select _ !_ / : assert.
 
 Record state : Type := {
   state_heap : gmap loc val ;
@@ -329,20 +344,22 @@ Inductive head_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-  | head_step_constr b v σ :
+  | head_step_constr tag es vs σ :
+      es = of_vals vs →
       head_step
-        (Constr b $ Val v)
+        (Constr tag es)
         σ
         []
-        (Val $ ValConstr b v)
+        (Val $ ValConstr tag vs)
         σ
         []
-  | head_step_case b v e1 e2 σ :
+  | head_step_br tag vs brs e σ :
+      case_select tag brs = Some e →
       head_step
-        (Case (Val $ ValConstr b v) e1 e2)
+        (Case (Val $ ValConstr tag vs) brs)
         σ
         []
-        (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v))
+        (App (apps e (of_vals vs)) (Val $ ValConstr tag vs))
         σ
         []
   | head_step_record es vs σ l :
@@ -518,8 +535,8 @@ Inductive ectxi :=
   | CtxIf e1 e2
   | CtxTuple vs es
   | CtxProj (i : nat)
-  | CtxConstr b
-  | CtxCase e1 e2
+  | CtxConstr tag vs es
+  | CtxCase brs
   | CtxRecord vs es
   | CtxAllocL v2
   | CtxAllocR e1
@@ -560,10 +577,10 @@ Fixpoint ectxi_fill k e : expr :=
       Tuple $ of_vals vs ++ e :: es
   | CtxProj i =>
       Proj i e
-  | CtxConstr b =>
-      Constr b e
-  | CtxCase e1 e2 =>
-      Case e e1 e2
+  | CtxConstr tag vs es =>
+      Constr tag $ of_vals vs ++ e :: es
+  | CtxCase brs =>
+      Case e brs
   | CtxRecord vs es =>
       Record $ of_vals vs ++ e :: es
   | CtxAllocL v2 =>
@@ -617,7 +634,7 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   k1 = k2.
 Proof.
   move: k1. induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
-  all: move=> /= H1 H2 H; invert H as [H'].
+  all: move=> /= H1 H2 H; injection H => {H} H' *; subst.
   all: apply app_inj_1 in H'; first naive_solver.
   all: clear- H1 H2 H'.
   all:

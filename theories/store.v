@@ -41,88 +41,18 @@ Implicit Types σ : gmap loc val.
 ( in custom zebre_proj
 ).
 
-#[local] Definition descr_match : val :=
-  λ: "descr" "Root" "Diff",
-    match: "descr" with
-      Injl <> =>
-        "Root" ()
-    | Injr "x" =>
-        "Diff" "x".<0> "x".<1> "x".<2> "x".<3>
-    end.
-#[local] Notation "'match:' e0 'with' | 'Root' => e1 | 'Diff' x1 x2 x3 x4 => e2 'end'" := (
-  (Val descr_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam x3 (Lam x4 e2))))
-)(x1, x2, x3, x4 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match:  e0  with  '/' '[' |  Root  =>  '/    ' e1 ']'  '/' '[' |  Diff  x1  x2  x3  x4  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-#[local] Notation "'match:' e0 'with' 'Root' => e1 | 'Diff' x1 x2 x3 x4 => e2 'end'" := (
-  (Val descr_match) e0 (Lam BAnon e1) (Lam x1 (Lam x2 (Lam x3 (Lam x4 e2))))
-)(x1, x2, x3, x4 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-#[local] Notation "'match::' e0 'with' | 'Root' => e1 | 'Diff' x1 x2 x3 x4 => e2 'end'" := (
-  (Val descr_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam x3 (Lam x4 e2)))))
-)(x1, x2, x3, x4 at level 1,
-  e0, e1, e2 at level 200,
-  format "'[hv' match::  e0  with  '/' '[' |  Root  =>  '/    ' e1 ']'  '/' '[' |  Diff  x1  x2  x3  x4  =>  '/    ' e2  ']' '/' end ']'"
-) : expr_scope.
-#[local] Notation "'match::' e0 'with' 'Root' => e1 | 'Diff' x1 x2 x3 x4 => e2 'end'" := (
-  (Val descr_match) e0 (Val (ValLam BAnon e1)) (Val (ValLam x1 (Lam x2 (Lam x3 (Lam x4 e2)))))
-)(x1, x2, x3, x4 at level 1,
-  e0, e1, e2 at level 200,
-  only parsing
-) : expr_scope.
-
-#[local] Definition ValRoot :=
-  ValInjl ().
-#[local] Notation "'&&Root'" :=
-  ValRoot.
-#[local] Instance pure_descr_match_Root e1 x1 x2 x3 x4 e2 :
-  PureExec True 11
-    (match:: &&Root with Root => e1 | Diff x1 x2 x3 x4 => e2 end)
-    e1.
-Proof.
-  solve_pure_exec.
-Qed.
-
-#[local] Definition descr_Diff : val :=
-  λ: "v1" "v2" "v3" "v4", Injr ("v1", "v2", "v3", "v4").
-#[local] Definition ValDiff v1 v2 v3 v4 :=
-  ValInjr (v1, v2, v3, v4).
-#[local] Notation "'&Diff'" :=
-  descr_Diff.
-#[local] Notation "'&&Diff'" :=
-  ValDiff.
-#[local] Lemma descr_Diff_inj v1 v2 v3 v4 w1 w2 w3 w4 :
-  &&Diff v1 v2 v3 v4 = &&Diff w1 w2 w3 w4 →
-  v1 = w1 ∧ v2 = w2 ∧ v3 = w3 ∧ v4 = w4.
-Proof.
-  naive_solver.
-Qed.
-#[local] Instance pure_descr_Diff v1 v2 v3 v4 :
-  PureExec True 9
-    (&Diff v1 v2 v3 v4)
-    (&&Diff v1 v2 v3 v4).
-Proof.
-  solve_pure_exec.
-Qed.
-#[local] Instance pure_descr_match_Diff v1 v2 v3 v4 e1 x1 x2 x3 x4 e2 :
-  PureExec True 21
-    (match:: &&Diff v1 v2 v3 v4 with Root => e1 | Diff x1 x2 x3 x4 => e2 end)
-    (subst' x1 v1 (subst' x2 v2 (subst' x3 v3 (subst' x4 v4 e2)))).
-Proof.
-  solve_pure_exec.
-Qed.
-
-#[global] Opaque descr_match.
-#[global] Opaque ValRoot.
-#[global] Opaque descr_Diff.
-#[global] Opaque ValDiff.
+#[local] Notation "'Root'" :=
+  ("descr", 0)
+( in custom zebre_tag
+).
+#[local] Notation "'Diff'" :=
+  ("descr", 1)
+( in custom zebre_tag
+).
 
 Definition store_create : val :=
   λ: <>,
-    { ref &&Root; #0 }.
+    { ref §Root; #0 }.
 
 Definition store_ref : val :=
   λ: "t" "v",
@@ -139,8 +69,8 @@ Definition store_set : val :=
     if: "t_gen" = "r_gen" then (
       "r" <-{ref_value} "v"
     ) else (
-      let: "root" := ref &&Root in
-      "t".{root} <- &Diff "r" "r".{ref_value} "r_gen" "root" ;;
+      let: "root" := ref §Root in
+      "t".{root} <- ‘Diff{"r", "r".{ref_value}, "r_gen", "root"} ;;
       "r" <-{ref_value} "v" ;;
       "r" <-{ref_gen} "t_gen" ;;
       "t" <-{root} "root"
@@ -159,10 +89,10 @@ Definition store_capture : val :=
         ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot" "node'" ;;
-        "node'" <- &Diff "r" "r".{ref_value} "r".{ref_gen} "node" ;;
+        "node'" <- ‘Diff{"r", "r".{ref_value}, "r".{ref_gen}, "node"} ;;
         "r" <-{ref_value} "v" ;;
         "r" <-{ref_gen} "gen" ;;
-        "node" <- &&Root
+        "node" <- §Root
     end.
 
 #[local] Definition store_reroot_opt_aux : val :=
@@ -172,7 +102,7 @@ Definition store_capture : val :=
         ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot_opt_aux" "node'" ;;
-        "node'" <- &Diff "r" "r".{ref_value} "r".{ref_gen} "node" ;;
+        "node'" <- ‘Diff{"r", "r".{ref_value}, "r".{ref_gen}, "node"} ;;
         "r" <-{ref_value} "v" ;;
         "r" <-{ref_gen} "gen"
     end.
@@ -183,7 +113,7 @@ Definition store_capture : val :=
         ()
     | Diff <> <> <> <> =>
         store_reroot_opt_aux "node" ;;
-        "node" <- &&Root
+        "node" <- §Root
     end.
 
 Definition store_restore : val :=

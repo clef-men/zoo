@@ -26,7 +26,7 @@ Implicit Types back front : list val.
 ).
 
 Definition pqueue_empty : val :=
-  (&&Nil, &&Nil).
+  (§Nil, §Nil).
 
 Definition pqueue_is_empty : val :=
   λ: "t",
@@ -34,7 +34,7 @@ Definition pqueue_is_empty : val :=
 
 Definition pqueue_push : val :=
   λ: "t" "v",
-    (&Cons "v" "t".<back>, "t".<front>).
+    (‘Cons{"v", "t".<back>}, "t".<front>).
 
 Definition pqueue_pop : val :=
   λ: "t",
@@ -42,12 +42,12 @@ Definition pqueue_pop : val :=
     | Nil =>
         match: lst_rev "t".<back> with
         | Nil =>
-            &&None
+            §None
         | Cons "v" "vs" =>
-            &Some ("v", (&&Nil, "vs"))
+            ‘Some{("v", (§Nil, "vs"))}
         end
     | Cons "v" "vs" =>
-        &Some ("v", ("t".<back>, "vs"))
+        ‘Some{("v", ("t".<back>, "vs"))}
     end.
 
 Section zebre_G.
@@ -134,7 +134,7 @@ Section zebre_G.
       + wp_pures.
         iApply ("HΦ" $! None with "[//]").
       + rewrite reverse_snoc. wp_pures.
-        iApply ("HΦ" $! (Some (_, _)%V)). iExists back', v, _. iSplitR.
+        iApply ("HΦ" $! (Some _)). iExists back', v, _. iSplitR.
         { iPureIntro. rewrite reverse_nil right_id //. }
         iExists [], _. iSteps. rewrite reverse_involutive //.
     - iApply ("HΦ" $! (Some (_, _)%V)). iExists (back ++ reverse front), v, _. iSplitR.

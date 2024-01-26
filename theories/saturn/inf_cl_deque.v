@@ -121,12 +121,12 @@ Section inf_cl_deque_G.
       let: "back" := "t".{back} in
       if: "front" < "back" then (
         if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophecy} ("front", "id") then (
-          &Some (inf_array_get "t".{data} "front")
+          ‘Some{inf_array_get "t".{data} "front"}
         ) else (
           "inf_cl_deque_steal" "t"
         )
       ) else (
-        &&None
+        §None
       ).
 
   Definition inf_cl_deque_pop : val :=
@@ -137,17 +137,17 @@ Section inf_cl_deque_G.
       let: "front" := "t".{front} in
       if: "back" < "front" then (
         "t" <-{back} "front" ;;
-        &&None
+        §None
       ) else (
         if: "front" < "back" then (
-          &Some (inf_array_get "t".{data} "back")
+          ‘Some{inf_array_get "t".{data} "back"}
         ) else (
           if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophecy} ("front", "id") then (
             "t" <-{back} "front" + #1 ;;
-            &Some (inf_array_get "t".{data} "back")
+            ‘Some{inf_array_get "t".{data} "back"}
           ) else (
             "t" <-{back} "front" + #1 ;;
-            &&None
+            §None
           )
         )
       ).
@@ -275,7 +275,7 @@ Section inf_cl_deque_G.
       @ ⊤ ∖ ↑ι, ∅
     << ∀∀ v model',
       ⌜model = v :: model'⌝ ∗ inf_cl_deque_model₂ γ model',
-      COMM Φ (&&Some v)
+      COMM Φ ’Some{v}
     >>.
   #[local] Definition inf_cl_deque_state_inner₁ γ :=
     inf_cl_deque_winner γ.
@@ -314,7 +314,7 @@ Section inf_cl_deque_G.
     | _ =>
         ∃ Φ,
         inf_cl_deque_winner₁ γ front Φ ∗
-        Φ (&&Some (hist !!! front))
+        Φ ’Some{hist !!! front}
     end.
   #[local] Definition inf_cl_deque_state₃₁ γ front back hist prophs : iProp Σ :=
     (* physical configuration *)
@@ -680,7 +680,7 @@ Section inf_cl_deque_G.
           ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
           inf_cl_deque_winner₁ γ front Φ' ∗
           inf_cl_deque_winner₂ γ front Φ ∗
-          Φ' (&&Some (hist !!! front))
+          Φ' ’Some{hist !!! front}
         )
       ).
   Proof.
@@ -714,7 +714,7 @@ Section inf_cl_deque_G.
         ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
         inf_cl_deque_winner₁ γ front Φ' ∗
         inf_cl_deque_winner₂ γ front Φ ∗
-        Φ' (&&Some (hist !!! front)).
+        Φ' ’Some{hist !!! front}.
   Proof.
     iIntros "Hwinner₂ Hstate".
     iDestruct (inf_cl_deque_winner₂_state with "Hwinner₂ Hstate") as "($ & [Hstate | Hstate])".
@@ -1373,7 +1373,7 @@ Section inf_cl_deque_G.
 
     (* branch 5.1: state 2 *)
     - iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & Hid' & HΦ')".
-      iDestruct (inf_cl_deque_winner_agree (&&Some v) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+      iDestruct (inf_cl_deque_winner_agree ’Some{v} with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
       iModIntro. iIntros "%prophs3' -> Hprophet_model".
       (* update front *)
       iMod (inf_cl_deque_front_auth_update (S front1) with "Hfront_auth") as "Hfront_auth"; first lia.
@@ -1426,7 +1426,7 @@ Section inf_cl_deque_G.
 
     (* branch 5.2: state 3.1 *)
     - iDestruct "Hstate" as "(-> & Hlock & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & HΦ')".
-      iDestruct (inf_cl_deque_winner_agree (&&Some v) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+      iDestruct (inf_cl_deque_winner_agree ’Some{v} with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
       iModIntro. iIntros "%prophs3' -> Hprophet_model".
       (* we know there is no model value and [hist !!! front1 = v] *)
       destruct (nil_or_length_pos model) as [-> |]; last lia.
@@ -1894,7 +1894,7 @@ Section inf_cl_deque_G.
         iDestruct (inf_cl_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* we are in state 3.1 *)
         iDestruct (inf_cl_deque_winner₂_state' with "Hwinner₂ Hstate") as "(>-> & Hlock & >Hhist_auth & >%Hhist & %id' & %Ψ' & >%Hprophs4 & Hwinner₁ & Hwinner₂ & HΨ')".
-        iDestruct (inf_cl_deque_winner_agree (&&Some v) with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
+        iDestruct (inf_cl_deque_winner_agree ’Some{v} with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
         (* exploit history fragment *)
         iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %->%list_lookup_total_correct.
         (* do resolve *)

@@ -4,7 +4,6 @@ From zebre.language Require Export
   language.
 From zebre.language Require Import
   tactics
-  metatheory
   notations.
 From zebre Require Import
   options.
@@ -72,12 +71,6 @@ Section atomic.
 
   #[global] Instance proj_atomic a i vs :
     Atomic a (Proj i $ Val $ ValTuple vs).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance constr_atomic a b v :
-    Atomic a (Constr b $ Val v).
   Proof.
     solve_atomic.
   Qed.
@@ -262,97 +255,24 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_constr b v :
+  #[global] Instance pure_constr tag es vs :
     PureExec
-      True
+      (to_vals es = Some vs)
       1
-      (Constr b $ Val v)
-      (Val $ ValConstr b v).
+      (Constr tag es)
+      (Val $ ValConstr tag vs).
   Proof.
-    solve_pure_exec.
+    intros <-%of_to_vals.
+    apply nsteps_once, pure_head_step_pure_step.
+    split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_case b v e1 e2 :
+  #[global] Instance pure_case tag vs brs e :
     PureExec
-      True
+      (case_select tag brs = Some e)
       1
-      (Case (Val $ ValConstr b v) e1 e2)
-      (App (App (if b then e1 else e2) (Val v)) (Val $ ValConstr b v)).
+      (Case (Val $ ValConstr tag vs) brs)
+      (App (apps e (of_vals vs)) (Val $ ValConstr tag vs)).
   Proof.
     solve_pure_exec.
   Qed.
 End pure_exec.
-
-Lemma pure_exec_0 {Λ} ϕ (e : language.expr Λ) :
-  PureExec ϕ 0 e e.
-Proof.
-  intros _. apply nsteps_O.
-Qed.
-Lemma pure_exec_add {n} {ϕ : Prop} {e1} ψ m e2 e3 :
-  PureExec ψ m e1 e2 →
-  (ϕ → ψ) →
-  m ≤ n →
-  PureExec ϕ (n - m) e2 e3 →
-  PureExec ϕ n e1 e3.
-Proof.
-  intros Hpure1 Hψ Hle Hpure2 Hϕ.
-  rewrite (Nat.le_add_sub m n) //. eapply nsteps_trans; naive_solver.
-Qed.
-
-#[local] Ltac solve_pure_exec' :=
-  simpl;
-  match goal with |- PureExec True ?n ?e1 ?e2 =>
-    lazymatch n with
-    | O =>
-        apply pure_exec_0
-    | S _ =>
-        eapply pure_exec_add;
-        [ reshape_expr e1 ltac:(fun K e1_foc =>
-            apply (pure_exec_fill K _ _ e1_foc);
-            apply _
-          )
-        | naive_solver
-        | lia
-        | idtac
-        ]
-    end
-  end.
-Ltac solve_pure_exec :=
-  let H := fresh in
-  pose (H := ValRec_as_ValRec);
-  repeat solve_pure_exec';
-  simpl;
-  clear H.
-
-#[global] Instance pure_exec_subst_lam x1 v1 x2 v2 e :
-  PureExec True 2
-    ((subst' x1 v1 (λ: x2, e)) v2)
-    (subst' x1 v1 (subst' x2 v2 e)).
-Proof.
-  destruct (decide (x1 = x2)) as [<- |].
-  - rewrite subst_subst' subst_rec'; first naive_solver.
-    solve_pure_exec.
-  - rewrite (subst_subst_ne' _ x1 x2) // subst_rec_ne'; [naive_solver.. |].
-    solve_pure_exec.
-Qed.
-#[global] Instance pure_exec_subst2_lam x1 v1 x2 v2 x3 v3 e :
-  PureExec True 2
-    ((subst' x1 v1 (subst' x2 v2 (λ: x3, e))) v3)
-    (subst' x1 v1 (subst' x2 v2 (subst' x3 v3 e))).
-Proof.
-  destruct (decide (x2 = x3)) as [<- |].
-  - rewrite subst_subst' subst_rec'; first naive_solver.
-    solve_pure_exec.
-  - rewrite (subst_subst_ne' _ x2 x3) // subst_rec_ne'; [naive_solver.. |].
-    solve_pure_exec.
-Qed.
-#[global] Instance pure_exec_subst3_lam x1 v1 x2 v2 x3 v3 x4 v4 e :
-  PureExec True 2
-    ((subst' x1 v1 (subst' x2 v2 (subst' x3 v3 (λ: x4, e)))) v4)
-    (subst' x1 v1 (subst' x2 v2 (subst' x3 v3 (subst' x4 v4 e)))).
-Proof.
-  destruct (decide (x3 = x4)) as [<- |].
-  - rewrite subst_subst' subst_rec'; first naive_solver.
-    solve_pure_exec.
-  - rewrite (subst_subst_ne' _ x3 x4) // subst_rec_ne'; [naive_solver.. |].
-    solve_pure_exec.
-Qed.
