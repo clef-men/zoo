@@ -283,18 +283,19 @@ Section pstore_G.
   Definition apply_diffl (ds:list diff) (σ:gmap loc val) : gmap loc val :=
     foldr (fun '(l,v) σ => <[l:=v]> σ) σ ds.
 
-  Record store_inv (M:map_model) (g:graph_store) (r:loc) (σ:gmap loc val) :=
+  Record store_inv (M:map_model) (g:graph_store) (r:loc) (σ σr:gmap loc val) :=
     { si1 : dom M = vertices g ∪ {[r]};
-      si2 : M !! r = Some σ;
-      si3 : forall r' ds σ',
-        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffl ds σ)
+      si2 : σ ⊆ σr;
+      si3 : M !! r = Some σr ;
+      si4 : forall r' ds σ',
+        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffl ds σr)
     }.
 
   Definition locs_of_edges_in g (X:gset loc) :=
     forall r l v r', edge g r (l,v) r' -> l ∈ X.
 
-  Record coherent (σ0 σ:gmap loc val) (g:graph_store) :=
-    { coh1 : σ ⊆ σ0;
+  Record coherent (σ0 σr:gmap loc val) (g:graph_store) :=
+    { coh1 : σr ⊆ σ0;
       coh2 : locs_of_edges_in g (dom σ0);
     }.
 
@@ -341,10 +342,11 @@ Section pstore_G.
 
   #[local] Definition pstore (γ:gname) (t:val) (σ:gmap loc val) : iProp Σ :=
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
+      (σr:gmap loc val) (* The largest model of the root *)
       (g:graph_store)
       (M:map_model)
       (C:gmap nat (loc * gmap loc val)),
-    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r /\ snap_inv M C⌝ ∗
+    ⌜t=#t0 /\ store_inv M g r σ σr /\ coherent σ0 σr g /\ graph_inv g r /\ snap_inv M C⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ §Root ∗
     pstore_map_auth γ C ∗
@@ -352,7 +354,7 @@ Section pstore_G.
     ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) .
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]".
+    "[%t0 [%r [%σ0 [%σr [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]]".
 
   Lemma pstore_create_spec :
     {{{ True }}}
@@ -368,12 +370,13 @@ Section pstore_G.
     wp_alloc t0 as "Ht0".
     iMod (map_agree_alloc ∅) as "[%γ ?]".
     iApply "HΦ". iModIntro.
-    iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
+    iExists t0,r,∅,∅,∅,{[r := ∅]},∅. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
     iPureIntro. split_and!; first done.
     { constructor.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
-      { rewrite lookup_singleton //. }
+      { set_solver. }
+      { rewrite lookup_insert //. }
       { intros ??? Hr.
         inversion Hr.
         { subst. rewrite lookup_singleton //. set_solver. }
@@ -437,25 +440,30 @@ Section pstore_G.
       apply elem_of_dom in Hl. destruct Hl.
       iDestruct (big_sepM_lookup with "Hσ0") as "Hl_"; first done.
       iDestruct (mapsto_ne with "Hl Hl_") as %?. done. }
-    assert (σ !! l = None) as Hl.
+    assert (σr !! l = None) as Hl.
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.
       intros ?. apply Hl0. destruct Hcoh. eapply incl_dom_incl; eauto. }
+    assert (σ !! l = None).
+    { eapply not_elem_of_dom. intros ?. apply not_elem_of_dom in Hl. apply Hl.
+      destruct Hinv.
+      eapply incl_dom_incl. 2:done. done. }
     iDestruct (mapsto_ne with "Hl Hr") as %Hlr.
 
 
     iModIntro. iStep.
-    iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M),C.
+    iExists t0,r, (<[l:=v]>σ0),(<[l := v]> σr),g,(<[r:=<[l:=v]>σr]>M),C.
 
     rewrite big_sepM_insert //. iFrame.
     iPureIntro. split_and !; eauto.
-    { destruct Hinv as [X1 X2 X3].
+    { destruct Hinv as [X1 X2 X3 X4].
       constructor.
       { rewrite dom_insert_L; set_solver. }
+      { eauto using gmap_included_insert. }
       { rewrite lookup_insert //. }
       { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
         { subst. rewrite lookup_insert. eapply gi2 in Hr; eauto. set_solver. }
         { rewrite lookup_insert_ne //.
-          intros Hreach. eapply X3 in Hreach; eauto.
+          intros Hreach. eapply X4 in Hreach; eauto.
           destruct Hcoh as [Z1 Z2].
           eapply use_locs_of_edges_in in Z2. 2:done.
           rewrite apply_diff_insert_ne.
@@ -471,8 +479,8 @@ Section pstore_G.
     { intros ? r' ? HC. apply Hsnap in HC. destruct HC as (?&?&?).
       destruct_decide (decide (r'=r)).
       { subst. eexists. rewrite lookup_insert. split; first done.
-        destruct Hinv as [X1 X2 X3]. specialize (X3 r nil _ (rtcl_refl _ _) H).
-        etrans. apply H0. etrans. apply X3. simpl.
+        destruct Hinv as [X1 X2 X3 X4]. specialize (X4 r nil _ (rtcl_refl _ _) H0).
+        etrans. apply H1. etrans. apply X4. simpl.
         apply gmap_included_insert_notin; eauto. by apply not_elem_of_dom. }
       { eexists. rewrite lookup_insert_ne //. } }
   Qed.
@@ -494,7 +502,9 @@ Section pstore_G.
 
     iDestruct (big_sepM_lookup_acc _ _ l v with "[$]") as "(?&Hσ0)".
     { destruct Hcoh as [X1 X2].
-      specialize (X1 l). rewrite Hl in X1. destruct (σ0!!l); naive_solver. }
+      destruct Hinv as [Z1 Z2 Z3].
+      assert (σ ⊆ σ0) as T. etrans; eauto.
+      specialize (T l). rewrite Hl in T. destruct (σ0!!l); naive_solver. }
 
     iSteps.
   Qed.
@@ -515,7 +525,7 @@ Section pstore_G.
     wp_alloc r' as "Hr'".
 
     assert (l ∈ dom σ0) as Hl0.
-    { destruct Hcoh as [Z1 _ _]. apply incl_dom_incl in Z1. eauto. }
+    { destruct Hcoh as [Z1 _]. destruct Hinv as [_ Z2]. apply incl_dom_incl in Z1,Z2. eauto. }
     apply elem_of_dom in Hl0. destruct Hl0 as (w&Hl0).
 
     iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
@@ -534,29 +544,30 @@ Section pstore_G.
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
         iDestruct (mapsto_ne with "[$][$]") as %?. congruence. } }
 
-    iModIntro. iExists t0,r',(<[l:=v]> σ0), ({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ]>M),C.
+    iModIntro. iExists t0,r',(<[l:=v]> σ0),(<[l:=v]> σr),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σr]>M),C.
     rewrite big_sepS_union.
     { apply disjoint_singleton_l. intros ?. apply Hr'.
       apply elem_of_vertices. eauto. }
     rewrite big_sepS_singleton. iFrame.
     iPureIntro.
     { split_and!; first done.
-      { destruct Hinv as [X1 X2 X3].
+      { destruct Hinv as [X1 X2 X3 X4].
         constructor.
         { rewrite dom_insert_L vertices_union vertices_singleton //. set_solver. }
+        { apply gmap_included_insert. done. }
         { rewrite lookup_insert //. }
         { intros x ds σ' Hreach.
           apply reachable_add_end in Hreach. 2,3:eauto.
           destruct Hreach as [(->&->)|(ds'&->&Hreach)].
-          { rewrite lookup_insert. naive_solver. }
+          { rewrite lookup_insert. inversion 1. subst. simpl. eauto using gmap_included_insert. }
           rewrite lookup_insert_ne.
           { apply reachable_inv_in_invertices in Hreach. naive_solver. }
-          intros Hx. specialize (X3 _ _ _ Hreach Hx). etrans. apply X3.
+          intros Hx. specialize (X4 _ _ _ Hreach Hx). etrans. apply X4.
           rewrite apply_diff_app. simpl. rewrite insert_insert.
           destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
-          { specialize (Z1 l). rewrite Hl0 in Z1.
-            apply elem_of_dom in Hl. destruct Hl as (?&Hl).
-            rewrite Hl in Z1. inversion Z1. subst. done. }  } }
+          assert (exists z, σr !! l = Some z) as (?&Hz).
+          { apply elem_of_dom. eapply incl_dom_incl. done. done. }
+          specialize (Z1 l). rewrite Hl0 Hz in Z1. naive_solver. } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
@@ -606,12 +617,15 @@ Section pstore_G.
     { apply not_elem_of_dom. apply is_fresh. }
     iModIntro.
     iSplitR "Hsnap". 2:iSteps.
-    iExists _,_,_,_,_,_. iFrame.
+    iExists _,_,_,_,_,_,_. iFrame.
     iPureIntro. split_and!; eauto.
     intros ? r' ? HC.
     destruct_decide (decide (n=fresh (dom C))).
-    { subst. rewrite lookup_insert in HC. inversion HC. subst. exists σ1.
-      split; last done. destruct Hinv; eauto. }
+    { subst. rewrite lookup_insert in HC. inversion HC. subst r' σ1.
+      destruct Hinv as [X1 X2 X3 X4].
+      assert (exists σ', M!! r = Some σ') as (σ',HM).
+      { apply elem_of_dom. set_solver. }
+      exists σ'. split; first done. naive_solver. }
     { rewrite lookup_insert_ne // in HC. eauto using Hsnap. }
   Qed.
 
@@ -635,18 +649,13 @@ Section pstore_G.
     apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
 
     destruct_decide (decide (rs=r)).
-    { subst. assert (σ1=σ) as ?.
-      { destruct Hinv. naive_solver. }
+    { subst.
       subst.
       wp_load. iStep 9. iModIntro.
-      iExists _,_,_,_,(<[r:=σ']>M),_. iFrame. iPureIntro. split_and!; eauto.
-      { destruct Hinv. constructor; eauto.
-        { rewrite dom_insert_lookup_L //. }
-        { rewrite lookup_insert //. }
-        { intros ????. destruct_decide (decide (r=r')).
-          { subst. rewrite lookup_insert. injection 1. intros ->. eapply gi2 in H0; eauto. naive_solver. }
-          { rewrite lookup_insert_ne //. eauto. intros. admit. } } }
-  Abort.
+      iExists _,_,_,_,_,_,_. iFrame. iPureIntro. split_and!; eauto.
+      { destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver. } }
+
+  Qed.
 
 End pstore_G.
 
