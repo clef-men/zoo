@@ -346,10 +346,10 @@ Section pstore_G.
       (C:gmap nat (loc * gmap loc val)),
     ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r /\ snap_inv M C⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
-    r ↦ &&Root ∗
+    r ↦ §Root ∗
     pstore_map_auth γ C ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')) .
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]".
@@ -638,7 +638,7 @@ Section pstore_G.
     { subst. assert (σ1=σ) as ?.
       { destruct Hinv. naive_solver. }
       subst.
-      wp_load. iStep 15. iModIntro. clear x.
+      wp_load. iStep 9. iModIntro.
       iExists _,_,_,_,(<[r:=σ']>M),_. iFrame. iPureIntro. split_and!; eauto.
       { destruct Hinv. constructor; eauto.
         { rewrite dom_insert_lookup_L //. }
