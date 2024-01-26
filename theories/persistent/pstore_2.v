@@ -168,6 +168,7 @@ Proof.
   solve_inG.
 Qed.
 
+(* Define [rtcl]: a rtc in a labeled transition system. *)
 Section rtc_lab.
 Context {A B:Type}.
 Context (R:A -> B -> A -> Prop).
@@ -220,6 +221,7 @@ Qed.
 
 End rtc_lab.
 
+(* Define a labeled graph, as a set of edges. *)
 Section Graph.
 Definition graph (A B:Type) `{Countable A} `{Countable B} := gset (A*B*A).
 
@@ -327,33 +329,28 @@ Proof.
   eexists. split; first done.
   eauto using reachable_cycle_end_inv_aux.
 Qed.
-
 End Graph.
 
 Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
 
-#[local] Definition pstore_map_auth γ map :=
+  #[local] Definition pstore_map_auth γ map :=
     @map_agree_auth _ _ _ _ _ pstore_G_map_G γ map.
   #[local] Definition pstore_map_elem γ l σ :=
     @map_agree_elem _ _ _ _ _ pstore_G_map_G γ l σ.
-
-  Definition pstore_store σ0 σ :=
-    union_with (λ _, Some) σ0 σ.
 
   Notation diff := (loc*val)%type. (* the loc and its old value. *)
   Notation graph_store := (graph loc diff).
   Notation map_model := (gmap loc (gmap loc val)).
 
-  Definition apply_diffs (ds:list diff) (σ:gmap loc val) : gmap loc val :=
+  Definition apply_diffl (ds:list diff) (σ:gmap loc val) : gmap loc val :=
     foldr (fun '(l,v) σ => <[l:=v]> σ) σ ds.
 
   Record store_inv (M:map_model) (g:graph_store) (r:loc) (σ:gmap loc val) :=
     { si1 : dom M = vertices g ∪ {[r]};
       si2 : M !! r = Some σ;
-      si3 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r;
-      si4 : forall r' ds σ',
-        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffs ds σ)
+      si3 : forall r' ds σ',
+        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffl ds σ)
     }.
 
   Definition locs_of_edges_in g (X:gset loc) :=
@@ -362,7 +359,11 @@ Section pstore_G.
   Record coherent (σ0 σ:gmap loc val) (g:graph_store) :=
     { coh1 : σ ⊆ σ0;
       coh2 : locs_of_edges_in g (dom σ0);
-      coh3 : forall r ds, reachable g r ds r -> ds = nil (* acyclicity. *)
+    }.
+
+  Record graph_inv (g:graph_store) (r:loc) :=
+    { gi1 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r; (* Everyone can reach the root. *)
+      gi2 : forall r ds, reachable g r ds r -> ds = nil (* acyclicity. *)
     }.
 
   Lemma gmap_included_insert `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
@@ -397,14 +398,14 @@ Section pstore_G.
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store)
       (M:map_model),
-    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g⌝ ∗
+    ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ &&Root ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
     ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')).
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh)&Ht0&Hr&Hσ0&Hg)]]]]]".
+    "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&Hσ0&Hg)]]]]]".
 
   Definition pstore_snapshot γ l σ : iProp Σ :=
     pstore_map_elem γ l σ.
@@ -434,13 +435,14 @@ Section pstore_G.
     { constructor.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
       { rewrite lookup_singleton //. }
-      { intros ?. rewrite vertices_empty. set_solver. }
       { intros ??? Hr.
         inversion Hr.
         { subst. rewrite lookup_singleton //. set_solver. }
         { exfalso. subst. set_solver. } } }
     { constructor. set_solver.
-      { intros ????. set_solver. }
+      { intros ????. set_solver. } }
+    { constructor.
+      { intros ?. rewrite vertices_empty. set_solver. }
       { intros ??. inversion 1; subst. done. set_solver. } }
   Qed.
 
@@ -454,15 +456,15 @@ Section pstore_G.
     apply He in H. set_solver.
   Qed.
 
-  Lemma dom_apply_diffs ds σ :
-    dom (apply_diffs ds σ) = dom σ ∪ (list_to_set ds.*1).
+  Lemma dom_apply_diffl ds σ :
+    dom (apply_diffl ds σ) = dom σ ∪ (list_to_set ds.*1).
   Proof.
     induction ds as [|(?&?)]; set_solver.
   Qed.
 
   Lemma apply_diff_insert_ne ds l v σ :
     l ∉ ds.*1 ->
-    apply_diffs ds (<[l:=v]> σ) = <[l:=v]> (apply_diffs ds σ).
+    apply_diffl ds (<[l:=v]> σ) = <[l:=v]> (apply_diffl ds σ).
   Proof.
     induction ds as [|(?&?)].
     { intros ?. reflexivity. }
@@ -471,8 +473,8 @@ Section pstore_G.
   Qed.
 
   Lemma apply_diff_app ds ds' σ :
-    apply_diffs (ds++ds') σ = apply_diffs ds (apply_diffs ds' σ).
-  Proof. rewrite /apply_diffs foldr_app //. Qed.
+    apply_diffl (ds++ds') σ = apply_diffl ds (apply_diffl ds' σ).
+  Proof. rewrite /apply_diffl foldr_app //. Qed.
 
   Lemma pstore_ref_spec t σ v :
     {{{
@@ -505,29 +507,27 @@ Section pstore_G.
     iExists t0,r, (<[l:=v]>σ0),g,(<[r:=<[l:=v]>σ]>M).
 
     rewrite big_sepM_insert //. iFrame.
-    iPureIntro. split_and !; first done.
-    { destruct Hinv as [X1 X2 X3 X4].
+    iPureIntro. split_and !; eauto.
+    { destruct Hinv as [X1 X2 X3].
       constructor.
       { rewrite dom_insert_L; set_solver. }
       { rewrite lookup_insert //. }
-      { eauto. }
       { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
-        { subst. rewrite lookup_insert. eapply coh3 in Hr; eauto. set_solver. }
+        { subst. rewrite lookup_insert. eapply gi2 in Hr; eauto. set_solver. }
         { rewrite lookup_insert_ne //.
-          intros Hreach. eapply X4 in Hreach; eauto.
+          intros Hreach. eapply X3 in Hreach; eauto.
           destruct Hcoh as [Z1 Z2].
           eapply use_locs_of_edges_in in Z2. 2:done.
           rewrite apply_diff_insert_ne.
           { apply not_elem_of_dom in Hl0. set_solver. }
           apply gmap_included_insert_notin; last done.
           apply incl_dom_incl in Z1. apply incl_dom_incl in Hreach.
-          rewrite dom_apply_diffs in Hreach.
+          rewrite dom_apply_diffl in Hreach.
           apply not_elem_of_dom in Hl0,Hl. set_solver. } } }
     { destruct Hcoh as [X1 X2].
       constructor.
       { eauto using gmap_included_insert. }
-      { intros. rewrite dom_insert_L. intros ??. set_solver. }
-      { eauto. } }
+      { intros. rewrite dom_insert_L. intros ??. set_solver. } }
   Qed.
 
 
@@ -581,8 +581,8 @@ Section pstore_G.
     { iClear "Ht0". iDestruct (mapsto_ne with "[$][$]") as %?. done. }
 
     iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
-    { iClear "Ht0". iIntros (Hr'). destruct Hinv as [X1 X2 X3 X4].
-      apply X3 in Hr'. destruct Hr' as (?&Hr'). inversion Hr'; subst.
+    { iClear "Ht0". iIntros (Hr'). destruct Hgraph as [X1 X2].
+      apply X1 in Hr'. destruct Hr' as (?&Hr'). inversion Hr'; subst.
       { done. }
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
         iDestruct (mapsto_ne with "[$][$]") as %?. congruence. } }
@@ -594,35 +594,36 @@ Section pstore_G.
     rewrite big_sepS_singleton. iFrame.
     iPureIntro.
     { split_and!; first done.
-      { destruct Hinv as [X1 X2 X3 X4].
+      { destruct Hinv as [X1 X2 X3].
         constructor.
         { rewrite dom_insert_L vertices_union vertices_singleton //. set_solver. }
         { rewrite lookup_insert //. }
-        { rewrite vertices_union vertices_singleton. intros x.
-          rewrite !elem_of_union !elem_of_singleton.
-          intros [[-> | ->] | Hx].
-          { exists [(l,w)]. simpl. eapply rtcl_l. 2:apply rtcl_refl. set_solver. }
-          { exists nil. apply rtcl_refl. }
-          { apply X3 in Hx. destruct Hx as (ds,Hx). exists (ds++[(l,w)]).
-            eapply rtcl_r.
-            { eapply reachable_weak; eauto. set_solver. }
-            { set_solver. } } }
         { intros x ds σ' Hreach.
           apply reachable_add_end in Hreach. 2,3:eauto.
           destruct Hreach as [(->&->)|(ds'&->&Hreach)].
           { rewrite lookup_insert. naive_solver. }
           rewrite lookup_insert_ne.
           { (* XXX lemma *) intros ->. inversion Hreach. eauto. subst. apply Hr', elem_of_vertices. eauto. }
-          intros Hx. specialize (X4 _ _ _ Hreach Hx). etrans. apply X4.
+          intros Hx. specialize (X3 _ _ _ Hreach Hx). etrans. apply X3.
           rewrite apply_diff_app. simpl. rewrite insert_insert.
-          destruct Hcoh as [Z1 _ _]. rewrite insert_id //.
+          destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
           { specialize (Z1 l). rewrite Hl0 in Z1.
             apply elem_of_dom in Hl. destruct Hl as (?&Hl).
             rewrite Hl in Z1. inversion Z1. subst. done. }  } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
-        { intros ?. set_solver. }
+        { intros ?. set_solver. } }
+      { destruct Hgraph as [X1 X2]. constructor.
+        { rewrite vertices_union vertices_singleton. intros x.
+          rewrite !elem_of_union !elem_of_singleton.
+          intros [[-> | ->] | Hx].
+          { exists [(l,w)]. simpl. eapply rtcl_l. 2:apply rtcl_refl. set_solver. }
+          { exists nil. apply rtcl_refl. }
+          { apply X1 in Hx. destruct Hx as (ds,Hx). exists (ds++[(l,w)]).
+            eapply rtcl_r.
+            { eapply reachable_weak; eauto. set_solver. }
+            { set_solver. } } }
         { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } } }
   Qed.
 
