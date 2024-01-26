@@ -655,6 +655,15 @@ Section pstore_G.
       iExists _,_,_,_,_,_,_. iFrame. iPureIntro. split_and!; eauto.
       { destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver. } }
 
+    assert (rs ∈ vertices g) as Hrs.
+    { destruct Hinv. apply elem_of_dom_2 in HMrs. set_solver. }
+
+    eapply gi1 in Hrs; eauto. destruct Hrs as (ds,Hrs).
+    inversion Hrs. congruence. subst. rename a2 into r'. destruct b.
+    iDestruct (big_sepS_elem_of_acc with "[$]") as "(?&Hg)". done. simpl.
+    wp_load. iStep 19. iModIntro.
+    iSpecialize ("Hg" with "[$]").
+
   Qed.
 
 End pstore_G.
