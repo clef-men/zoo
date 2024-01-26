@@ -284,6 +284,16 @@ Proof.
   by apply Hi. by apply IHrtcl.
 Qed.
 
+Lemma reachable_inv_in_invertices g x1 ds x2 :
+  reachable g x1 ds x2 ->
+  (x1 = x2) \/ (x1 ∈ vertices g /\ x2 ∈ vertices g).
+Proof.
+  inversion 1. eauto. subst. right.
+  split. apply elem_of_vertices. eauto.
+  apply rtcl_inv_r in H3. destruct H3 as [(->&->)|(?&?&?&->&?&?)].
+  all:apply elem_of_vertices; eauto.
+Qed.
+
 Lemma reachable_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
   r ≠ r' ->
   x2 ≠ r' ->
@@ -603,7 +613,7 @@ Section pstore_G.
           destruct Hreach as [(->&->)|(ds'&->&Hreach)].
           { rewrite lookup_insert. naive_solver. }
           rewrite lookup_insert_ne.
-          { (* XXX lemma *) intros ->. inversion Hreach. eauto. subst. apply Hr', elem_of_vertices. eauto. }
+          { apply reachable_inv_in_invertices in Hreach. naive_solver. }
           intros Hx. specialize (X3 _ _ _ Hreach Hx). etrans. apply X3.
           rewrite apply_diff_app. simpl. rewrite insert_insert.
           destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
@@ -627,9 +637,9 @@ Section pstore_G.
         { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } } }
   Qed.
 
-  Lemma pstore_catpure_spec t σ0 σ :
+  Lemma pstore_capture_spec t σ0 σ :
     {{{
-      pstore_model t σ0 σ
+      pstore t σ
     }}}
       pstore_capture t
     {{{ s,
