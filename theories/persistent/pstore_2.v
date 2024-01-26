@@ -7,6 +7,8 @@ From zebre.language Require Import
 From zebre.persistent Require Export
   base.
 From zebre Require Import
+  lst.
+From zebre Require Import
   options.
 
 From zebre.persistent Require Import
@@ -57,17 +59,34 @@ Definition pstore_capture : val :=
   λ: "t",
     ("t", !"t").
 
-#[local] Definition pstore_reroot : val :=
-  rec: "pstore_reroot" "node" :=
+Definition store_collect : val :=
+  rec: "store_collect" "node" "acc" :=
     match: !"node" with
     | Root =>
-        ()
-    | Diff "r" "v" "node'" =>
-        "pstore_reroot" "node'" ;;
-        "node'" <- ‘Diff{"r", !"r", "node"} ;;
-        "r" <- "v" ;;
-        "node" <- §Root
+        ("node", "acc")
+    | Diff <> <> "node'" =>
+        "store_collect" "node'" ‘Cons{"node", "acc"}
     end.
+#[local] Definition store_revert : val :=
+  rec: "store_revert" "node" "seg" :=
+    match: "seg" with
+    | Nil =>
+        "node" <- §Root
+    | Cons "node'" "seg" =>
+        match: !"node'" with
+        | Root =>
+            Fail
+        | Diff "r" "v" "node_" =>
+ (*           assert ("node_" = "node") ;; *)
+            "node" <- ‘Diff{"r", !"r", "node'"} ;;
+            "r" <- "v" ;;
+            "store_revert" "node'" "seg"
+        end
+    end.
+#[local] Definition store_reroot : val :=
+  λ: "node",
+    let: "collect" := store_collect "node" §Nil in
+    store_revert "collect".<0> "collect".<1>.
 
 Definition pstore_restore : val :=
   λ: "t" "s",
