@@ -155,11 +155,11 @@ Definition pstore_restore : val :=
     ).
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-    pstore_G_map_G : inG Σ (agreeR (loc * gmap loc val)%type);
+    pstore_G_map_G : map_agreeG Σ nat (loc * gmap loc val)%type;
 }.
 
 Definition pstore_Σ := #[
-  GFunctor (agreeR (loc * gmap loc val)%type)
+  map_agreeΣ nat (loc * gmap loc val)%type
 ].
 #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →
@@ -401,46 +401,42 @@ Section pstore_G.
     eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
   Qed.
 
-  Definition pstore_snapshot γ l σ : iProp Σ :=
-    own γ (to_agree (l,σ)).
+  Definition snap_inv (M:map_model) (C:gmap nat (loc * gmap loc val)) :=
+    forall n l σ, C !! n = Some (l,σ) -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
-  Definition snap_inv (M:map_model) (C:gmap gname (loc * gmap loc val)) :=
-    forall γ l σ, C !! γ = Some (l,σ) -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
+  #[local] Definition pstore_map_auth γ map :=
+    @map_agree_auth _ _ _ _ _ pstore_G_map_G γ map.
+  #[local] Definition pstore_map_elem γ n l σ :=
+    @map_agree_elem _ _ _ _ _ pstore_G_map_G γ n (l,σ).
 
-  #[local] Definition pstore (t:val) (σ:gmap loc val) : iProp Σ :=
+  #[local] Definition pstore (γ:gname) (t:val) (σ:gmap loc val) : iProp Σ :=
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store)
       (M:map_model)
-      (C:gmap gname (loc * gmap loc val)),
+      (C:gmap nat (loc * gmap loc val)),
     ⌜t=#t0 /\ store_inv M g r σ /\ coherent σ0 σ g /\ graph_inv g r /\ snap_inv M C⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ &&Root ∗
+    pstore_map_auth γ C ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')) ∗
-    ([∗ map] γ ↦ x ∈ C, pstore_snapshot γ x.1 x.2)
-  .
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ &&Diff #(LiteralLoc l) v #(LiteralLoc r')) .
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&Hσ0&Hg&HC)]]]]]]".
-
-  #[global] Instance pstore_snapshot_persistent γ l σ :
-    Persistent (pstore_snapshot γ l σ).
-  Proof.
-    apply _.
-  Qed.
+    "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]".
 
   Lemma pstore_create_spec :
     {{{ True }}}
       pstore_create ()
-    {{{ t,
+    {{{ t γ,
       RET t;
-        pstore t ∅
+        pstore γ t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_alloc r as "Hroot".
     wp_alloc t0 as "Ht0".
+    iMod (map_agree_alloc ∅) as "[%γ ?]".
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
@@ -490,15 +486,15 @@ Section pstore_G.
     apply_diffl (ds++ds') σ = apply_diffl ds (apply_diffl ds' σ).
   Proof. rewrite /apply_diffl foldr_app //. Qed.
 
-  Lemma pstore_ref_spec t σ v :
+  Lemma pstore_ref_spec γ t σ v :
     {{{
-      pstore t σ
+      pstore γ t σ
     }}}
       pstore_ref v
     {{{ l,
       RET #l;
       ⌜σ !! l = None⌝ ∗
-      pstore t (<[l := v]> σ)
+      pstore γ t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (ϕ) open_inv. iIntros "HΦ".
@@ -552,15 +548,15 @@ Section pstore_G.
   Qed.
 
 
-  Lemma pstore_get_spec {t σ l} v :
+  Lemma pstore_get_spec {γ t σ l} v :
     σ !! l = Some v →
     {{{
-      pstore t σ
+      pstore γ t σ
     }}}
       pstore_get t #l
     {{{
       RET v;
-      pstore t σ
+      pstore γ t σ
     }}}.
   Proof.
     iIntros (Hl ϕ) open_inv. iIntros "HΦ".
@@ -573,15 +569,15 @@ Section pstore_G.
     iSteps.
   Qed.
 
-  Lemma pstore_set_spec t σ l v :
+  Lemma pstore_set_spec γ t σ l v :
     l ∈ dom σ →
     {{{
-      pstore t σ
+      pstore γ t σ
     }}}
       pstore_set t #l v
     {{{
       RET ();
-      pstore t (<[l := v]> σ)
+      pstore γ t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
@@ -653,31 +649,75 @@ Section pstore_G.
         rewrite lookup_insert_ne //. eauto. } }
   Qed.
 
-  Lemma pstore_capture_spec t σ0 σ :
+  Definition pstore_snapshot γ t s σ : iProp Σ :=
+    ∃ l n, ⌜s=ValTuple [t;#l]⌝ ∗ pstore_map_elem γ n l σ.
+
+  #[global] Instance pstore_snapshot_persistent γ t s σ :
+    Persistent (pstore_snapshot γ t s σ).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma pstore_capture_spec γ t σ :
     {{{
-      pstore t σ
+      pstore γ t σ
     }}}
       pstore_capture t
     {{{ s,
       RET s;
-      pstore_model t σ0 σ ∗
-      pstore_snapshot_model s t σ
+      pstore γ t σ ∗
+      pstore_snapshot γ t s σ
     }}}.
   Proof.
-  Abort.
+    iIntros (Φ) open_inv. iIntros "HΦ".
+    wp_rec. wp_load. do 5 iStep.
 
-  Lemma pstore_repstore_spec t σ0 σ s σ' :
+    iMod (map_agree_insert _ _ (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
+    { apply not_elem_of_dom. apply is_fresh. }
+    iModIntro.
+    iSplitR "Hsnap". 2:iSteps.
+    iExists _,_,_,_,_,_. iFrame.
+    iPureIntro. split_and!; eauto.
+    intros ? r' ? HC.
+    destruct_decide (decide (n=fresh (dom C))).
+    { subst. rewrite lookup_insert in HC. inversion HC. subst. exists σ1.
+      split; last done. destruct Hinv; eauto. }
+    { rewrite lookup_insert_ne // in HC. eauto using Hsnap. }
+  Qed.
+
+  Lemma pstore_restore_spec γ t σ s σ' :
     {{{
-      pstore_model t σ0 σ ∗
-      pstore_snapshot_model s t σ'
+      pstore γ t σ ∗
+      pstore_snapshot γ t s σ'
     }}}
       pstore_restore t s
     {{{
       RET ();
-      pstore_model t σ0 σ'
+      pstore γ t σ'
     }}}.
   Proof.
+    iIntros (Φ) "(HI&Hsnap) HΦ".
+    iDestruct "HI" as open_inv.
+    iDestruct "Hsnap" as "(%rs&%&->&Hsnap)".
+    wp_rec. iStep 20.
+
+    iDestruct (map_agree_lookup with "[$][$]") as "%Hrs".
+    apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
+
+    destruct_decide (decide (rs=r)).
+    { subst. assert (σ1=σ) as ?.
+      { destruct Hinv. naive_solver. }
+      subst.
+      wp_load. iStep 15. iModIntro. clear x.
+      iExists _,_,_,_,(<[r:=σ']>M),_. iFrame. iPureIntro. split_and!; eauto.
+      { destruct Hinv. constructor; eauto.
+        { rewrite dom_insert_lookup_L //. }
+        { rewrite lookup_insert //. }
+        { intros ????. destruct_decide (decide (r=r')).
+          { subst. rewrite lookup_insert. injection 1. intros ->. eapply gi2 in H0; eauto. naive_solver. }
+          { rewrite lookup_insert_ne //. eauto. intros. admit. } } }
   Abort.
+
 End pstore_G.
 
 #[global] Opaque pstore_create.
@@ -687,5 +727,5 @@ End pstore_G.
 #[global] Opaque pstore_capture.
 #[global] Opaque pstore_restore.
 
-#[global] Opaque pstore_model.
-#[global] Opaque pstore_snapshot_model.
+#[global] Opaque pstore.
+#[global] Opaque pstore_snapshot.
