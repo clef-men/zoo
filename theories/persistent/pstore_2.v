@@ -319,6 +319,14 @@ Proof.
     { rewrite fmap_cons Hxs //. } }
 Qed.
 
+Lemma path_rev a1 bs a2 :
+  path a1 bs a2 ->
+  path a2 (rev bs) a1.
+Proof.
+  induction 1. apply path_nil. simpl.
+  (* XXX need path_app. *)
+Abort.
+
 End Graph.
 
 Section pstore_G.
@@ -677,6 +685,9 @@ Section pstore_G.
     { rewrite lookup_insert_ne // in HC. eauto using Hsnap. }
   Qed.
 
+  Definition fsts  (ys:list (loc*(loc*val)*loc)) : list val :=
+    (fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys.
+
   Lemma pstore_collect_spec_aux r r' t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
     path r ys r' ->
     list_to_set ys ⊆ g ->
@@ -689,7 +700,7 @@ Section pstore_G.
       RET (#r',t);
       r' ↦ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-      lst_model t (rev_append ((fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys) xs)
+      lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
     iIntros (Hpath Hg Φ) "(Hr'&HL&Hg) HΦ".
@@ -719,7 +730,7 @@ Section pstore_G.
       RET (#r',t);
       r' ↦ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-      lst_model t (rev ((fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys))
+      lst_model t (rev (fsts ys))
    }}}.
   Proof.
     iIntros (?? Φ) "(?&?) Hϕ".
@@ -727,6 +738,50 @@ Section pstore_G.
     iDestruct (pstore_collect_spec_aux with "[$]") as "Go". done. done.
     iApply "Go". rewrite -rev_alt //. Unshelve. apply _.
   Qed.
+
+
+  Lemma pstore_revert_spec_aux r t g1 g2 xs r' :
+    g2 = list_to_set xs ->
+    path r' xs r ->
+    {{{
+       lst_model t (fsts xs) ∗
+       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+    }}}
+      pstore_revert #r t
+    {{{ RET (); False }}}.
+  Proof.
+    iIntros (Hg Hpath Φ) "(HL&Hg1&Hg2) HΦ".
+    iInduction xs as [|] "IH" forall (r r' Hpath g1 g2 Hg).
+    { wp_rec. simpl.
+      admit. }
+    { wp_rec. admit. }
+  Admitted.
+
+  Lemma rev_fsts xs :
+    rev (fsts xs) = fsts (rev xs).
+  Proof.
+    induction xs as [|((?,?),?)]; simpl; eauto.
+    rewrite IHxs /fsts fmap_app //.
+  Qed.
+
+  Lemma pstore_reroot_spec r (xs:list (loc*(loc*val)*loc)) r' g :
+    path r xs r' ->
+    list_to_set xs ⊆ g ->
+    {{{
+       r' ↦ §Root ∗
+       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+    }}}
+      pstore_reroot #r
+    {{{ RET ();
+        False
+    }}}.
+  Proof.
+    iIntros (Hpath Hg Φ) "Hr' HΦ".
+    wp_rec. wp_apply (pstore_collect_spec with "[$]"). 1,2:done.
+    iIntros (t) "(Hr'&Hg&HL)". iStep 10. rewrite rev_fsts.
+  Admitted.
+
 
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
@@ -762,6 +817,10 @@ Section pstore_G.
     iDestruct (big_sepS_elem_of_acc with "[$]") as "(?&Hg)". done. simpl.
     wp_load. iStep 19. iModIntro.
     iSpecialize ("Hg" with "[$]").
+
+    apply reachable_path in Hrs.
+    destruct Hrs as (xs&Hpath&Hg&Hproj).
+    Search reachable.
 
   Qed.
 
