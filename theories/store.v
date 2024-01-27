@@ -73,7 +73,7 @@ Definition store_set : val :=
       "r" <-{ref_value} "v"
     ) else (
       let: "root" := ref §Root in
-      "t".{root} <- ‘Diff {"r", "r".{ref_value}, "r_gen", "root"} ;;
+      "t".{root} <- ‘Diff{ "r", "r".{ref_value}, "r_gen", "root" } ;;
       "r" <-{ref_value} "v" ;;
       "r" <-{ref_gen} "t_gen" ;;
       "t" <-{root} "root"
@@ -92,7 +92,7 @@ Definition store_capture : val :=
         ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot" "node'" ;;
-        "node'" <- ‘Diff {"r", "r".{ref_value}, "r".{ref_gen}, "node"} ;;
+        "node'" <- ‘Diff{ "r", "r".{ref_value}, "r".{ref_gen}, "node" } ;;
         "r" <-{ref_value} "v" ;;
         "r" <-{ref_gen} "gen" ;;
         "node" <- §Root
@@ -105,7 +105,7 @@ Definition store_capture : val :=
         ()
     | Diff "r" "v" "gen" "node'" =>
         "store_reroot_opt_aux" "node'" ;;
-        "node'" <- ‘Diff {"r", "r".{ref_value}, "r".{ref_gen}, "node"} ;;
+        "node'" <- ‘Diff{ "r", "r".{ref_value}, "r".{ref_gen}, "node" } ;;
         "r" <-{ref_value} "v" ;;
         "r" <-{ref_gen} "gen"
     end.
@@ -125,7 +125,7 @@ Definition store_capture : val :=
     | Root =>
         ("node", "acc")
     | Diff <> <> <> "node'" =>
-        "store_collect" "node'" ‘Cons {"node", "acc"}
+        "store_collect" "node'" ‘Cons{ "node", "acc" }
     end.
 #[local] Definition store_revert : val :=
   rec: "store_revert" "node" "seg" :=
@@ -138,7 +138,7 @@ Definition store_capture : val :=
             Fail
         | Diff "r" "v" "gen" "node_" =>
             assert ("node_" = "node") ;;
-            "node" <- ‘Diff {"r", "r".{ref_value}, "r".{ref_gen}, "node'"} ;;
+            "node" <- ‘Diff{ "r", "r".{ref_value}, "r".{ref_gen}, "node'" } ;;
             "r" <-{ref_value} "v" ;;
             "r" <-{ref_gen} "gen" ;;
             "store_revert" "node'" "seg"

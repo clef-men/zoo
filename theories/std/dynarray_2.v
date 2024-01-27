@@ -41,12 +41,12 @@ Definition dynarray_create : val :=
 Definition dynarray_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
-    { "sz"; array_initi "sz" (λ: <>, ‘Some {ref "v"}) }.
+    { "sz"; array_initi "sz" (λ: <>, ‘Some{ ref "v" }) }.
 
 Definition dynarray_initi : val :=
   λ: "sz" "fn",
     assume (#0 ≤ "sz") ;;
-    { "sz"; array_initi "sz" (λ: "i", ‘Some {ref ("fn" "i")}) }.
+    { "sz"; array_initi "sz" (λ: "i", ‘Some{ ref ("fn" "i") }) }.
 
 Definition dynarray_size : val :=
   λ: "t",
@@ -125,7 +125,7 @@ Definition dynarray_reserve_extra : val :=
     ).
 Definition dynarray_push : val :=
   λ: "t" "v",
-    let: "slot" := ‘Some {ref "v"} in
+    let: "slot" := ‘Some{ ref "v" } in
     ifnot: dynarray_try_push "t" "slot" then (
       dynarray_push_aux "t" "slot"
     ).
@@ -164,7 +164,7 @@ Section zebre_G.
 
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
-    ⌜slot = ’Some { #r}⌝ ∗
+    ⌜slot = ’Some{ #r }⌝ ∗
     r ↦ v.
   Definition dynarray_model t vs : iProp Σ :=
     ∃ l data slots extra,
@@ -913,7 +913,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec. wp_alloc r as "Hr".
-    iAssert (|={⊤}=> slot_type (’Some { #r}))%I with "[Hr]" as ">#Hslot"; first iSteps.
+    iAssert (|={⊤}=> slot_type ’Some{ #r })%I with "[Hr]" as ">#Hslot"; first iSteps.
     wp_smart_apply (dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply (dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.

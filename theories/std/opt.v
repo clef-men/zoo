@@ -24,7 +24,7 @@ Coercion opt_to_val o :=
   | None =>
       §None
   | Some v =>
-      ’Some {v}
+      ’Some{ v }
   end.
 #[global] Arguments opt_to_val !_ / : assert.
 
@@ -45,7 +45,7 @@ Section zebre_G.
 
   Definition opt_type t : iProp Σ :=
       ⌜t = §None⌝
-    ∨ ∃ v, ⌜t = ’Some {v}⌝ ∗ τ v.
+    ∨ ∃ v, ⌜t = ’Some{ v }⌝ ∗ τ v.
   #[global] Instance opt_type_itype :
     iType _ opt_type.
   Proof.
