@@ -30,78 +30,82 @@ Definition erase_literal lit :=
       lit
   end.
 
-Definition erase_resolve e0 e1 e2 :=
-  Fst (Fst (e0, e1, e2)).
-
-Definition erased_proph :=
-  (λ: <>, #LiteralPoison)%V #().
-
+Definition erase_resolve e0 e1 e2 : expr :=
+  (e0, e1, e2).<0>.
 Fixpoint erase_expr e :=
   match e with
   | Val v =>
-      Val (erase_val v)
+      Val $ erase_val v
   | Var x =>
       Var x
   | Rec f x e =>
-      Rec f x (erase_expr e)
+      Rec f x $ erase_expr e
   | App e1 e2 =>
       App (erase_expr e1) (erase_expr e2)
   | Unop op e =>
-      Unop op (erase_expr e)
+      Unop op $ erase_expr e
   | Binop op e1 e2 =>
       Binop op (erase_expr e1) (erase_expr e2)
+  | Equal e1 e2 =>
+      Equal (erase_expr e1) (erase_expr e2)
   | If e0 e1 e2 =>
       If (erase_expr e0) (erase_expr e1) (erase_expr e2)
-  | Pair e1 e2 =>
-      Pair (erase_expr e1) (erase_expr e2)
-  | Fst e =>
-      Fst (erase_expr e)
-  | Snd e =>
-      Snd (erase_expr e)
-  | Injl e =>
-      Injl (erase_expr e)
-  | Injr e =>
-      Injr (erase_expr e)
-  | Case e0 e1 e2 =>
-      Case (erase_expr e0) (erase_expr e1) (erase_expr e2)
-  | Fork e =>
-      Fork (erase_expr e)
+  | Tuple es =>
+      Tuple $ erase_expr <$> es
+  | Proj i e =>
+      Proj i $ erase_expr e
+  | Constr tag es =>
+      Constr tag $ erase_expr <$> es
+  | Case e brs =>
+      Case (erase_expr e) $ (λ br, (br.1, erase_expr br.2)) <$> brs
+  | Record es =>
+      Record $ erase_expr <$> es
   | Alloc e1 e2 =>
       Alloc (erase_expr e1) (erase_expr e2)
   | Load e =>
-      Load (erase_expr e)
+      Load $ erase_expr e
   | Store e1 e2 =>
       Store (erase_expr e1) (erase_expr e2)
+  | Xchg e1 e2 =>
+      Xchg (erase_expr e1) (erase_expr e2)
   | Cas e0 e1 e2 =>
       Cas (erase_expr e0) (erase_expr e1) (erase_expr e2)
   | Faa e1 e2 =>
       Faa (erase_expr e1) (erase_expr e2)
+  | Fork e =>
+      Fork $ erase_expr e
   | Proph =>
-      erased_proph
+      (λ: <>, #LiteralPoison)%V ()%V
   | Resolve e0 e1 e2 =>
       erase_resolve (erase_expr e0) (erase_expr e1) (erase_expr e2)
   end
 with erase_val v :=
   match v with
   | ValLiteral lit =>
-      ValLiteral (erase_literal lit)
+      ValLiteral $ erase_literal lit
   | ValRec f x e =>
-      ValRec f x (erase_expr e)
-  | ValPair v1 v2 =>
-      ValPair (erase_val v1) (erase_val v2)
-  | ValInjl v =>
-      ValInjl (erase_val v)
-  | ValInjr v =>
-      ValInjr (erase_val v)
+      ValRec f x $ erase_expr e
+  | ValTuple vs =>
+      ValTuple $ erase_val <$> vs
+  | ValConstr tag vs =>
+      ValConstr tag $ erase_val <$> vs
   end.
 
 Lemma erase_expr_subst x v e :
   erase_expr (subst x v e) = subst x (erase_val v) (erase_expr e)
-with erase_val_subst x v (w : val) :
+with erase_val_subst x v w :
   erase_expr (subst x v w) = subst x (erase_val v) (erase_val w).
 Proof.
-  - destruct e; simpl; try case_decide; rewrite ?erase_expr_subst ?erase_val_subst; auto.
-  - by destruct v.
+  2: done.
+  destruct e.
+  all: simpl; try case_decide; rewrite ?erase_expr_subst ?erase_val_subst; auto.
+  all:
+    try select (list expr) ltac:(fun es =>
+      induction es; [done | naive_solver congruence]
+    ).
+  select (list branch) ltac:(fun brs =>
+    induction brs; [done | naive_solver congruence]
+  ).
 Qed.
 
 Lemma erase_expr_subst' x v e :
