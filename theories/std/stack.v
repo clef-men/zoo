@@ -6,7 +6,7 @@ From zebre.language Require Import
 From zebre.std Require Export
   base.
 From zebre.std Require Import
-  dynarray.
+  dynarray_1.
 From zebre Require Import
   options.
 

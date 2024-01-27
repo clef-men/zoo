@@ -75,8 +75,8 @@ theories/std/opt.v
 theories/std/lst.v
 theories/std/chunk.v
 theories/std/array.v
-theories/std/dynarray.v
-theories/std/safe_dynarray.v
+theories/std/dynarray_1.v
+theories/std/dynarray_2.v
 theories/std/inf_array.v
 theories/std/stack.v
 theories/std/mutex.v

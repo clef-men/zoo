@@ -34,106 +34,106 @@ Implicit Types vs : list val.
 ( in custom zebre_field
 ).
 
-Definition safe_dynarray_create : val :=
+Definition dynarray_create : val :=
   λ: <>,
     { #0; array_create () }.
 
-Definition safe_dynarray_make : val :=
+Definition dynarray_make : val :=
   λ: "sz" "v",
     assume (#0 ≤ "sz") ;;
     { "sz"; array_initi "sz" (λ: <>, ‘Some {ref "v"}) }.
 
-Definition safe_dynarray_initi : val :=
+Definition dynarray_initi : val :=
   λ: "sz" "fn",
     assume (#0 ≤ "sz") ;;
     { "sz"; array_initi "sz" (λ: "i", ‘Some {ref ("fn" "i")}) }.
 
-Definition safe_dynarray_size : val :=
+Definition dynarray_size : val :=
   λ: "t",
     "t".{size}.
-#[local] Definition safe_dynarray_data : val :=
+#[local] Definition dynarray_data : val :=
   λ: "t",
     "t".{data}.
-Definition safe_dynarray_capacity : val :=
+Definition dynarray_capacity : val :=
   λ: "t",
-    array_size (safe_dynarray_data "t").
+    array_size (dynarray_data "t").
 
-#[local] Definition safe_dynarray_set_size : val :=
+#[local] Definition dynarray_set_size : val :=
   λ: "t" "sz",
     "t" <-{size} "sz".
-#[local] Definition safe_dynarray_set_data : val :=
+#[local] Definition dynarray_set_data : val :=
   λ: "t" "data",
     "t" <-{data} "data".
 
-Definition safe_dynarray_is_empty : val :=
+Definition dynarray_is_empty : val :=
   λ: "t",
-    safe_dynarray_size "t" = #0.
+    dynarray_size "t" = #0.
 
-Definition safe_dynarray_get : val :=
+Definition dynarray_get : val :=
   λ: "t" "i",
-    match: array_get (safe_dynarray_data "t") "i" with
+    match: array_get (dynarray_data "t") "i" with
     | None =>
         diverge ()
     | Some "ref" =>
         !"ref"
     end.
 
-Definition safe_dynarray_set : val :=
+Definition dynarray_set : val :=
   λ: "t" "i" "v",
-    match: array_get (safe_dynarray_data "t") "i" with
+    match: array_get (dynarray_data "t") "i" with
     | None =>
         diverge ()
     | Some "ref" =>
         "ref" <- "v"
     end.
 
-#[local] Definition safe_dynarray_next_capacity : val :=
+#[local] Definition dynarray_next_capacity : val :=
   λ: "n",
     #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
-Definition safe_dynarray_reserve : val :=
+Definition dynarray_reserve : val :=
   λ: "t" "n",
     assume (#0 ≤ "n") ;;
-    let: "data" := safe_dynarray_data "t" in
+    let: "data" := dynarray_data "t" in
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
-      let: "new_cap" := "n" `max` safe_dynarray_next_capacity "cap" in
+      let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
       let: "new_data" := array_make "new_cap" §None in
-      array_blit "data" #0 "new_data" #0 (safe_dynarray_size "t") ;;
-      safe_dynarray_set_data "t" "new_data"
+      array_blit "data" #0 "new_data" #0 (dynarray_size "t") ;;
+      dynarray_set_data "t" "new_data"
     ).
-Definition safe_dynarray_reserve_extra : val :=
+Definition dynarray_reserve_extra : val :=
   λ: "t" "n",
     assume (#0 ≤ "n") ;;
-    safe_dynarray_reserve "t" (safe_dynarray_size "t" + "n").
+    dynarray_reserve "t" (dynarray_size "t" + "n").
 
-#[local] Definition safe_dynarray_try_push : val :=
+#[local] Definition dynarray_try_push : val :=
   λ: "t" "slot",
-    let: "sz" := safe_dynarray_size "t" in
-    let: "data" := safe_dynarray_data "t" in
+    let: "sz" := dynarray_size "t" in
+    let: "data" := dynarray_data "t" in
     if: array_size "data" ≤ "sz" then (
       #false
     ) else (
-      safe_dynarray_set_size "t" (#1 + "sz") ;;
+      dynarray_set_size "t" (#1 + "sz") ;;
       array_unsafe_set "data" "sz" "slot" ;;
       #true
     ).
-#[local] Definition safe_dynarray_push_aux : val :=
-  rec: "safe_dynarray_push_aux" "t" "slot" :=
-    safe_dynarray_reserve_extra "t" #1 ;;
-    ifnot: safe_dynarray_try_push "t" "slot" then (
-      "safe_dynarray_push_aux" "t" "slot"
+#[local] Definition dynarray_push_aux : val :=
+  rec: "dynarray_push_aux" "t" "slot" :=
+    dynarray_reserve_extra "t" #1 ;;
+    ifnot: dynarray_try_push "t" "slot" then (
+      "dynarray_push_aux" "t" "slot"
     ).
-Definition safe_dynarray_push : val :=
+Definition dynarray_push : val :=
   λ: "t" "v",
     let: "slot" := ‘Some {ref "v"} in
-    ifnot: safe_dynarray_try_push "t" "slot" then (
-      safe_dynarray_push_aux "t" "slot"
+    ifnot: dynarray_try_push "t" "slot" then (
+      dynarray_push_aux "t" "slot"
     ).
 
-Definition safe_dynarray_pop : val :=
+Definition dynarray_pop : val :=
   λ: "t",
-    let: "sz" := safe_dynarray_size "t" in
-    let: "data" := safe_dynarray_data "t" in
+    let: "sz" := dynarray_size "t" in
+    let: "data" := dynarray_data "t" in
     assume ("sz" ≤ array_size "data") ;;
     assume (#0 < "sz") ;;
     let: "sz" := "sz" - #1 in
@@ -142,22 +142,22 @@ Definition safe_dynarray_pop : val :=
         diverge ()
     | Some "ref" =>
         array_unsafe_set "data" "sz" §None ;;
-        safe_dynarray_set_size "t" "sz" ;;
+        dynarray_set_size "t" "sz" ;;
         !"ref"
     end.
 
-Definition safe_dynarray_fit_capacity : val :=
+Definition dynarray_fit_capacity : val :=
   λ: "t",
-    let: "sz" := safe_dynarray_size "t" in
-    let: "data" := safe_dynarray_data "t" in
+    let: "sz" := dynarray_size "t" in
+    let: "data" := dynarray_data "t" in
     ifnot: array_size "data" = "sz" then (
-      safe_dynarray_set_data "t" (array_shrink "data" "sz")
+      dynarray_set_data "t" (array_shrink "data" "sz")
     ).
 
-Definition safe_dynarray_reset : val :=
+Definition dynarray_reset : val :=
   λ: "t",
-    safe_dynarray_set_size "t" #0 ;;
-    safe_dynarray_set_data "t" (array_create ()).
+    dynarray_set_size "t" #0 ;;
+    dynarray_set_data "t" (array_create ()).
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
@@ -166,25 +166,25 @@ Section zebre_G.
     ∃ r,
     ⌜slot = ’Some { #r}⌝ ∗
     r ↦ v.
-  Definition safe_dynarray_model t vs : iProp Σ :=
+  Definition dynarray_model t vs : iProp Σ :=
     ∃ l data slots extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
     l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra §None) ∗
     [∗ list] slot; v ∈ slots; vs, slot_model slot v.
 
-  #[global] Instance safe_dynarray_model_timeless t vs :
-    Timeless (safe_dynarray_model t vs).
+  #[global] Instance dynarray_model_timeless t vs :
+    Timeless (dynarray_model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma safe_dynarray_create_spec :
+  Lemma dynarray_create_spec :
     {{{ True }}}
-      safe_dynarray_create ()
+      dynarray_create ()
     {{{ t,
       RET t;
-      safe_dynarray_model t []
+      dynarray_model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -194,13 +194,13 @@ Section zebre_G.
     iApply "HΦ". iExists l, data, [], 0. iSteps.
   Qed.
 
-  Lemma safe_dynarray_make_spec sz v :
+  Lemma dynarray_make_spec sz v :
     (0 ≤ sz)%Z →
     {{{ True }}}
-      safe_dynarray_make #sz v
+      dynarray_make #sz v
     {{{ t,
       RET t;
-      safe_dynarray_model t (replicate (Z.to_nat sz) v)
+      dynarray_model t (replicate (Z.to_nat sz) v)
     }}}.
   Proof.
     iIntros "% %Φ _ HΦ".
@@ -215,7 +215,7 @@ Section zebre_G.
     iApply (big_sepL2_replicate_r_2 _ _ (λ _, slot_model) with "Hslots"). lia.
   Qed.
 
-  Lemma safe_dynarray_initi_spec Ψ sz fn :
+  Lemma dynarray_initi_spec Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
@@ -228,11 +228,11 @@ Section zebre_G.
         }}
       )
     }}}
-      safe_dynarray_initi #sz fn
+      dynarray_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
   Proof.
@@ -257,7 +257,7 @@ Section zebre_G.
     iExists l, data, slots, 0. iFrame. iSplitR; first iSteps. iSplitL "Hsz"; first iSteps.
     rewrite right_id //.
   Qed.
-  Lemma safe_dynarray_initi_spec' Ψ sz fn :
+  Lemma dynarray_initi_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
@@ -270,11 +270,11 @@ Section zebre_G.
         }}
       )
     }}}
-      safe_dynarray_initi #sz fn
+      dynarray_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
   Proof.
@@ -284,14 +284,14 @@ Section zebre_G.
       Ψ i vs ∗
       [∗ list] j ∈ seq i (Z.to_nat sz - i), Ξ j
     )%I).
-    wp_apply (safe_dynarray_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
+    wp_apply (dynarray_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
     destruct (Nat.lt_exists_pred 0 (Z.to_nat sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
     wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
   Qed.
-  Lemma safe_dynarray_initi_spec_disentangled Ψ sz fn :
+  Lemma dynarray_initi_spec_disentangled Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       □ (
@@ -302,11 +302,11 @@ Section zebre_G.
         }}
       )
     }}}
-      safe_dynarray_initi #sz fn
+      dynarray_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -316,11 +316,11 @@ Section zebre_G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp_apply (safe_dynarray_initi_spec Ψ'); [done | | iSteps].
+    wp_apply (dynarray_initi_spec Ψ'); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
-  Lemma safe_dynarray_initi_spec_disentangled' Ψ sz fn :
+  Lemma dynarray_initi_spec_disentangled' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
@@ -329,11 +329,11 @@ Section zebre_G.
         }}
       )
     }}}
-      safe_dynarray_initi #sz fn
+      dynarray_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -343,70 +343,70 @@ Section zebre_G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp_apply (safe_dynarray_initi_spec' Ψ' with "[Hfn]"); [done | | iSteps].
+    wp_apply (dynarray_initi_spec' Ψ' with "[Hfn]"); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn"). iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma safe_dynarray_size_spec t vs :
+  Lemma dynarray_size_spec t vs :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_size t
+      dynarray_size t
     {{{
       RET #(length vs);
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_capacity_spec t vs :
+  Lemma dynarray_capacity_spec t vs :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_capacity t
+      dynarray_capacity t
     {{{ cap,
       RET #cap;
       ⌜length vs ≤ cap⌝ ∗
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hmodel & Hslots) HΦ".
-    wp_rec. rewrite /safe_dynarray_data. wp_load.
+    wp_rec. rewrite /dynarray_data. wp_load.
     wp_apply (array_size_spec with "Hmodel") as "Hmodel".
     rewrite app_length. iDestruct (big_sepL2_length with "Hslots") as %->.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_is_empty_spec t vs :
+  Lemma dynarray_is_empty_spec t vs :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_is_empty t
+      dynarray_is_empty t
     {{{
       RET #(bool_decide (vs = []));
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (safe_dynarray_size_spec with "Hmodel") as "Hmodel".
+    wp_smart_apply (dynarray_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     destruct vs; iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma safe_dynarray_get_spec t vs (i : Z) v :
+  Lemma dynarray_get_spec t vs (i : Z) v :
     (0 ≤ i)%Z →
     vs !! Z.to_nat i = Some v →
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_get t #i
+      dynarray_get t #i
     {{{
       RET v;
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Hi %Hvs_lookup %Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
@@ -415,21 +415,21 @@ Section zebre_G.
     iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
     destruct (lookup_lt_is_Some_2 slots i) as (slot & Hslots_lookup); first lia.
     iDestruct (big_sepL2_lookup_acc with "Hslots") as "((%r & %Hr & Hr) & Hslots)"; [done.. | subst slot].
-    wp_rec. rewrite /safe_dynarray_data. wp_load.
+    wp_rec. rewrite /dynarray_data. wp_load.
     wp_smart_apply (array_get_spec with "Hdata_model"); [lia | | done |].
     { rewrite Nat2Z.id lookup_app_l //. lia. }
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_set_spec t vs (i : Z) v :
+  Lemma dynarray_set_spec t vs (i : Z) v :
     (0 ≤ i < length vs)%Z →
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_set t #i v
+      dynarray_set t #i v
     {{{
       RET ();
-      safe_dynarray_model t (<[Z.to_nat i := v]> vs)
+      dynarray_model t (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
@@ -439,7 +439,7 @@ Section zebre_G.
     { apply lookup_lt_is_Some_2. lia. }
     destruct (lookup_lt_is_Some_2 slots i) as (slot & Hslots_lookup); first lia.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "((%r & %Hr & Hr) & Hslots)"; [done.. | subst slot].
-    wp_rec. rewrite /safe_dynarray_data. wp_load.
+    wp_rec. rewrite /dynarray_data. wp_load.
     wp_smart_apply (array_get_spec with "Hdata_model") as "Hdata_model"; [lia | | done |].
     { rewrite Nat2Z.id lookup_app_l //. lia. }
     wp_store.
@@ -448,10 +448,10 @@ Section zebre_G.
     iApply "HΦ". iExists l, data, slots, extra. rewrite insert_length. iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_next_capacity_spec n :
+  #[local] Lemma dynarray_next_capacity_spec n :
     (0 ≤ n)%Z →
     {{{ True }}}
-      safe_dynarray_next_capacity #n
+      dynarray_next_capacity #n
     {{{ m,
       RET #m;
       ⌜n ≤ m⌝%Z
@@ -460,73 +460,73 @@ Section zebre_G.
     Ltac Zify.zify_post_hook ::= Z.quot_rem_to_equations.
     iSteps; wp_apply maximum_spec; iSteps.
   Qed.
-  Lemma safe_dynarray_reserve_spec t vs n :
+  Lemma dynarray_reserve_spec t vs n :
     (0 ≤ n)%Z →
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_reserve t #n
+      dynarray_reserve t #n
     {{{
       RET ();
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Hn %Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
-    wp_rec. rewrite /safe_dynarray_data.
+    wp_rec. rewrite /dynarray_data.
     wp_smart_apply assume_spec' as "_".
     wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures.
     case_bool_decide; wp_pures; first iSteps.
-    wp_smart_apply (safe_dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
+    wp_smart_apply (dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
     wp_apply maximum_spec.
     wp_smart_apply (array_make_spec with "[//]") as "%data' Hdata_model'"; first lia.
-    rewrite /safe_dynarray_size. wp_load.
+    rewrite /dynarray_size. wp_load.
     iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
     wp_smart_apply (array_blit_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.
     { rewrite app_length. lia. }
     { rewrite replicate_length. rewrite app_length in Hn'. lia. }
-    rewrite /safe_dynarray_set_data. wp_store.
+    rewrite /dynarray_set_data. wp_store.
     iApply "HΦ". iExists l, data', slots, _. iFrame. iSplitR; first iSteps.
     rewrite !Nat2Z.id drop_replicate take_app_alt //.
   Qed.
-  Lemma safe_dynarray_reserve_extra_spec t vs n :
+  Lemma dynarray_reserve_extra_spec t vs n :
     (0 ≤ n)%Z →
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_reserve_extra t #n
+      dynarray_reserve_extra t #n
     {{{
       RET ();
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Hn %Φ Hmodel HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "_".
-    wp_smart_apply (safe_dynarray_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply (safe_dynarray_reserve_spec with "Hmodel"); first lia.
+    wp_smart_apply (dynarray_size_spec with "Hmodel") as "Hmodel".
+    wp_smart_apply (dynarray_reserve_spec with "Hmodel"); first lia.
     iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_try_push_spec t vs slot v :
+  #[local] Lemma dynarray_try_push_spec t vs slot v :
     {{{
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       slot_model slot v
     }}}
-      safe_dynarray_try_push t slot
+      dynarray_try_push t slot
     {{{ b,
       RET #b;
       if b then
-        safe_dynarray_model t (vs ++ [v])
+        dynarray_model t (vs ++ [v])
       else
-        safe_dynarray_model t vs ∗
+        dynarray_model t vs ∗
         slot_model slot v
     }}}.
   Proof.
     iIntros "%Φ ((%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) & Hslot) HΦ".
     iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
-    wp_rec. rewrite /safe_dynarray_size /safe_dynarray_data /safe_dynarray_set_size. do 2 wp_load.
+    wp_rec. rewrite /dynarray_size /dynarray_data /dynarray_set_size. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures.
     case_bool_decide as Htest; wp_pures.
@@ -541,54 +541,54 @@ Section zebre_G.
     - rewrite app_length in Htest. naive_solver lia.
     - rewrite -(assoc (++)) /= Nat.sub_0_r. iSteps.
   Qed.
-  #[local] Lemma safe_dynarray_push_aux_spec t vs slot v :
+  #[local] Lemma dynarray_push_aux_spec t vs slot v :
     {{{
-      safe_dynarray_model t vs ∗
+      dynarray_model t vs ∗
       slot_model slot v
     }}}
-      safe_dynarray_push_aux t slot
+      dynarray_push_aux t slot
     {{{
       RET ();
-      safe_dynarray_model t (vs ++ [v])
+      dynarray_model t (vs ++ [v])
     }}}.
   Proof.
     iIntros "%Φ (Hmodel & Hslot) HΦ".
     iLöb as "HLöb".
     wp_rec.
-    wp_smart_apply (safe_dynarray_reserve_extra_spec with "Hmodel") as "Hmodel"; first lia.
-    wp_smart_apply (safe_dynarray_try_push_spec with "[$Hmodel $Hslot]") as ([]) ""; first iSteps. iIntros "(Hmodel & Hslot)".
+    wp_smart_apply (dynarray_reserve_extra_spec with "Hmodel") as "Hmodel"; first lia.
+    wp_smart_apply (dynarray_try_push_spec with "[$Hmodel $Hslot]") as ([]) ""; first iSteps. iIntros "(Hmodel & Hslot)".
     wp_smart_apply ("HLöb" with "Hmodel Hslot HΦ").
   Qed.
-  Lemma safe_dynarray_push_spec t vs v :
+  Lemma dynarray_push_spec t vs v :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_push t v
+      dynarray_push t v
     {{{
       RET ();
-      safe_dynarray_model t (vs ++ [v])
+      dynarray_model t (vs ++ [v])
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec. wp_alloc r as "Hr".
-    wp_smart_apply (safe_dynarray_try_push_spec with "[$Hmodel Hr]") as ([]) ""; [iSteps.. |]. iIntros "(Hmodel & Hslot)".
-    wp_smart_apply (safe_dynarray_push_aux_spec with "[$Hmodel $Hslot]").
+    wp_smart_apply (dynarray_try_push_spec with "[$Hmodel Hr]") as ([]) ""; [iSteps.. |]. iIntros "(Hmodel & Hslot)".
+    wp_smart_apply (dynarray_push_aux_spec with "[$Hmodel $Hslot]").
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_pop_spec {t vs} vs' v :
+  Lemma dynarray_pop_spec {t vs} vs' v :
     vs = vs' ++ [v] →
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_pop t
+      dynarray_pop t
     {{{
       RET v;
-      safe_dynarray_model t vs'
+      dynarray_model t vs'
     }}}.
   Proof.
     iIntros (->) "%Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
-    wp_rec. rewrite /safe_dynarray_size /safe_dynarray_data /safe_dynarray_set_size. do 2 wp_load.
+    wp_rec. rewrite /dynarray_size /dynarray_data /dynarray_set_size. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     do 2 (wp_smart_apply assume_spec' as "_").
     wp_pures.
@@ -609,18 +609,18 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_fit_capacity_spec t vs :
+  Lemma dynarray_fit_capacity_spec t vs :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_fit_capacity t
+      dynarray_fit_capacity t
     {{{
       RET ();
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
-    wp_rec. rewrite /safe_dynarray_size /safe_dynarray_data /safe_dynarray_set_data. do 2 wp_load.
+    wp_rec. rewrite /dynarray_size /dynarray_data /dynarray_set_data. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     iDestruct (big_sepL2_length with "Hslots") as %Hslots.
     wp_pures.
@@ -633,18 +633,18 @@ Section zebre_G.
     rewrite right_id. iSteps.
   Qed.
 
-  Lemma safe_dynarray_reset_spec t vs :
+  Lemma dynarray_reset_spec t vs :
     {{{
-      safe_dynarray_model t vs
+      dynarray_model t vs
     }}}
-      safe_dynarray_reset t
+      dynarray_reset t
     {{{
       RET ();
-      safe_dynarray_model t []
+      dynarray_model t []
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & _ & _) HΦ".
-    wp_rec. rewrite /safe_dynarray_set_size /safe_dynarray_set_data. wp_store.
+    wp_rec. rewrite /dynarray_set_size /dynarray_set_data. wp_store.
     wp_smart_apply (array_create_spec with "[//]") as "%data' Hdata_model'".
     wp_store.
     iSteps. iExists [], 0. iSteps.
@@ -654,7 +654,7 @@ Section zebre_G.
 
   #[local] Definition slot_type :=
     opt_type (reference_type τ).
-  Definition safe_dynarray_type t : iProp Σ :=
+  Definition dynarray_type t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     inv nroot (
@@ -662,18 +662,18 @@ Section zebre_G.
       l.[size] ↦ #sz ∗
       l.[data] ↦ data ∗ array_type slot_type cap data
     ).
-  #[global] Instance safe_dynarray_type_itype :
-    iType _ safe_dynarray_type.
+  #[global] Instance dynarray_type_itype :
+    iType _ dynarray_type.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma safe_dynarray_create_type :
+  Lemma dynarray_create_type :
     {{{ True }}}
-      safe_dynarray_create ()
+      dynarray_create ()
     {{{ t,
       RET t;
-      safe_dynarray_type t
+      dynarray_type t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -682,15 +682,15 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_make_type (sz : Z) v :
+  Lemma dynarray_make_type (sz : Z) v :
     {{{
       τ v
     }}}
-      safe_dynarray_make #sz v
+      dynarray_make #sz v
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      safe_dynarray_type t
+      dynarray_type t
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
@@ -701,11 +701,11 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_size_type t :
+  Lemma dynarray_size_type t :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_size t
+      dynarray_size t
     {{{ (sz : nat),
       RET #sz; True
     }}}.
@@ -713,11 +713,11 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_capacity_type t :
+  Lemma dynarray_capacity_type t :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_size t
+      dynarray_size t
     {{{ (cap : nat),
       RET #cap; True
     }}}.
@@ -725,11 +725,11 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_data_type t :
+  #[local] Lemma dynarray_data_type t :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_data t
+      dynarray_data t
     {{{ cap data,
       RET data;
       array_type slot_type cap data
@@ -738,12 +738,12 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_set_size_type t sz :
+  #[local] Lemma dynarray_set_size_type t sz :
     (0 ≤ sz)%Z →
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_set_size t #sz
+      dynarray_set_size t #sz
     {{{
       RET (); True
     }}}.
@@ -751,12 +751,12 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_set_data_type t cap data :
+  #[local] Lemma dynarray_set_data_type t cap data :
     {{{
-      safe_dynarray_type t ∗
+      dynarray_type t ∗
       array_type slot_type cap data
     }}}
-      safe_dynarray_set_data t data
+      dynarray_set_data t data
     {{{
       RET (); True
     }}}.
@@ -764,11 +764,11 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_is_empty_type t :
+  Lemma dynarray_is_empty_type t :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_is_empty t
+      dynarray_is_empty t
     {{{ b,
       RET #b; True
     }}}.
@@ -776,11 +776,11 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_get_type t (i : Z) :
+  Lemma dynarray_get_type t (i : Z) :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_get t #i
+      dynarray_get t #i
     {{{ v,
       RET v;
       ⌜0 ≤ i⌝%Z ∗
@@ -789,7 +789,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
     wp_apply (opt_type_match with "Hslot"). iSplit.
     - wp_apply diverge_spec.
@@ -798,12 +798,12 @@ Section zebre_G.
       iSteps.
   Qed.
 
-  Lemma safe_dynarray_set_type t (i : Z) v :
+  Lemma dynarray_set_type t (i : Z) v :
     {{{
-      safe_dynarray_type t ∗
+      dynarray_type t ∗
       τ v
     }}}
-      safe_dynarray_set t #i v
+      dynarray_set t #i v
     {{{
       RET ();
       ⌜0 ≤ i⌝%Z
@@ -811,7 +811,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
     wp_apply (opt_type_match with "Hslot"). iSplit.
     - wp_apply diverge_spec.
@@ -820,11 +820,11 @@ Section zebre_G.
       iSteps.
   Qed.
 
-  Lemma safe_dynarray_reserve_type t n :
+  Lemma dynarray_reserve_type t n :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_reserve t #n
+      dynarray_reserve t #n
     {{{
       RET ();
       ⌜0 ≤ n⌝%Z
@@ -833,23 +833,23 @@ Section zebre_G.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hn".
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_pures.
     case_bool_decide; wp_pures; first iSteps.
-    wp_smart_apply (safe_dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
+    wp_smart_apply (dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
     wp_apply maximum_spec.
     wp_smart_apply (array_make_type slot_type) as "%data' (_ & #Hdata_type')"; first iSteps.
-    wp_smart_apply safe_dynarray_size_type as "%sz _"; first iSmash+.
+    wp_smart_apply dynarray_size_type as "%sz _"; first iSmash+.
     wp_smart_apply (array_blit_type slot_type) as "_"; first iSteps.
-    wp_smart_apply (safe_dynarray_set_data_type with "[$Htype $Hdata_type']") as "_".
+    wp_smart_apply (dynarray_set_data_type with "[$Htype $Hdata_type']") as "_".
     iSteps.
   Qed.
-  Lemma safe_dynarray_reserve_extra_type t n :
+  Lemma dynarray_reserve_extra_type t n :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_reserve_extra t #n
+      dynarray_reserve_extra t #n
     {{{
       RET ();
       ⌜0 ≤ n⌝%Z
@@ -858,38 +858,38 @@ Section zebre_G.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hn".
-    wp_smart_apply (safe_dynarray_size_type with "Htype") as "%sz _".
-    wp_smart_apply (safe_dynarray_reserve_type with "Htype").
+    wp_smart_apply (dynarray_size_type with "Htype") as "%sz _".
+    wp_smart_apply (dynarray_reserve_type with "Htype").
     iSteps.
   Qed.
 
-  #[local] Lemma safe_dynarray_try_push_type t slot :
+  #[local] Lemma dynarray_try_push_type t slot :
     {{{
-      safe_dynarray_type t ∗
+      dynarray_type t ∗
       slot_type slot
     }}}
-      safe_dynarray_try_push t slot
+      dynarray_try_push t slot
     {{{ b,
       RET #b; True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
     wp_rec.
-    wp_smart_apply (safe_dynarray_size_type with "Htype") as "%sz _".
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_smart_apply (dynarray_size_type with "Htype") as "%sz _".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_pures.
     case_bool_decide; wp_pures; first iSteps.
-    wp_apply (safe_dynarray_set_size_type with "Htype") as "_"; first lia.
+    wp_apply (dynarray_set_size_type with "Htype") as "_"; first lia.
     wp_smart_apply (array_unsafe_set_type with "[$Hdata_type $Hslot]") as "_"; first lia.
     iSteps.
   Qed.
-  #[local] Lemma safe_dynarray_push_aux_type t slot :
+  #[local] Lemma dynarray_push_aux_type t slot :
     {{{
-      safe_dynarray_type t ∗
+      dynarray_type t ∗
       slot_type slot
     }}}
-      safe_dynarray_push_aux t slot
+      dynarray_push_aux t slot
     {{{
       RET (); True
     }}}.
@@ -897,16 +897,16 @@ Section zebre_G.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
     iLöb as "HLöb".
     wp_rec.
-    wp_smart_apply (safe_dynarray_reserve_extra_type with "Htype") as "_".
-    wp_smart_apply (safe_dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
+    wp_smart_apply (dynarray_reserve_extra_type with "Htype") as "_".
+    wp_smart_apply (dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply ("HLöb" with "HΦ").
   Qed.
-  Lemma safe_dynarray_push_type t v :
+  Lemma dynarray_push_type t v :
     {{{
-      safe_dynarray_type t ∗
+      dynarray_type t ∗
       τ v
     }}}
-      safe_dynarray_push t v
+      dynarray_push t v
     {{{
       RET (); True
     }}}.
@@ -914,16 +914,16 @@ Section zebre_G.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec. wp_alloc r as "Hr".
     iAssert (|={⊤}=> slot_type (’Some { #r}))%I with "[Hr]" as ">#Hslot"; first iSteps.
-    wp_smart_apply (safe_dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
-    wp_smart_apply (safe_dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
+    wp_smart_apply (dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
+    wp_smart_apply (dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_pop_type t :
+  Lemma dynarray_pop_type t :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_pop t
+      dynarray_pop t
     {{{ v,
       RET v;
       τ v
@@ -931,8 +931,8 @@ Section zebre_G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_apply (safe_dynarray_size_type with "Htype") as "%sz _".
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_apply (dynarray_size_type with "Htype") as "%sz _".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_smart_apply assume_spec' as "%Hcap".
     wp_smart_apply assume_spec' as "%Hsz".
@@ -941,64 +941,64 @@ Section zebre_G.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
       wp_smart_apply (array_unsafe_set_type with "[$Hdata_type]") as "_"; [lia | iSteps |].
-      wp_smart_apply (safe_dynarray_set_size_type with "Htype") as "_"; first lia.
+      wp_smart_apply (dynarray_set_size_type with "Htype") as "_"; first lia.
       wp_smart_apply (reference_get_type with "Hr").
       iSteps.
   Qed.
 
-  Lemma safe_dynarray_fit_capacity_type t v :
+  Lemma dynarray_fit_capacity_type t v :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_fit_capacity t
+      dynarray_fit_capacity t
     {{{
       RET (); True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_apply (safe_dynarray_size_type with "Htype") as "%sz _".
-    wp_smart_apply (safe_dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
+    wp_apply (dynarray_size_type with "Htype") as "%sz _".
+    wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_pures.
     case_decide; wp_pures; first iSteps.
     wp_apply (array_shrink_type with "Hdata_type") as "%t' (_ & #Hdata_type')".
-    wp_apply (safe_dynarray_set_data_type with "[$Htype $Hdata_type']").
+    wp_apply (dynarray_set_data_type with "[$Htype $Hdata_type']").
     iSteps.
   Qed.
 
-  Lemma safe_dynarray_reset_type t v :
+  Lemma dynarray_reset_type t v :
     {{{
-      safe_dynarray_type t
+      dynarray_type t
     }}}
-      safe_dynarray_reset t
+      dynarray_reset t
     {{{
       RET (); True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_apply (safe_dynarray_set_size_type with "Htype") as "_"; first done.
+    wp_apply (dynarray_set_size_type with "Htype") as "_"; first done.
     wp_smart_apply (array_create_type with "[//]") as "%data' #Hdata_type'".
-    wp_apply (safe_dynarray_set_data_type with "[$Htype $Hdata_type']").
+    wp_apply (dynarray_set_data_type with "[$Htype $Hdata_type']").
     iSteps.
   Qed.
 End zebre_G.
 
-#[global] Opaque safe_dynarray_create.
-#[global] Opaque safe_dynarray_make.
-#[global] Opaque safe_dynarray_initi.
-#[global] Opaque safe_dynarray_size.
-#[global] Opaque safe_dynarray_capacity.
-#[global] Opaque safe_dynarray_is_empty.
-#[global] Opaque safe_dynarray_get.
-#[global] Opaque safe_dynarray_set.
-#[global] Opaque safe_dynarray_reserve.
-#[global] Opaque safe_dynarray_reserve_extra.
-#[global] Opaque safe_dynarray_push.
-#[global] Opaque safe_dynarray_pop.
-#[global] Opaque safe_dynarray_fit_capacity.
-#[global] Opaque safe_dynarray_reset.
+#[global] Opaque dynarray_create.
+#[global] Opaque dynarray_make.
+#[global] Opaque dynarray_initi.
+#[global] Opaque dynarray_size.
+#[global] Opaque dynarray_capacity.
+#[global] Opaque dynarray_is_empty.
+#[global] Opaque dynarray_get.
+#[global] Opaque dynarray_set.
+#[global] Opaque dynarray_reserve.
+#[global] Opaque dynarray_reserve_extra.
+#[global] Opaque dynarray_push.
+#[global] Opaque dynarray_pop.
+#[global] Opaque dynarray_fit_capacity.
+#[global] Opaque dynarray_reset.
 
-#[global] Opaque safe_dynarray_model.
-#[global] Opaque safe_dynarray_type.
+#[global] Opaque dynarray_model.
+#[global] Opaque dynarray_type.
