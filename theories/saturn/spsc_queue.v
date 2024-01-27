@@ -50,7 +50,7 @@ Definition spsc_queue_push : val :=
     let: "back" := "t".{back} in
     let: "front" := "t".{front} in
     if: "back" < "front" + array_size "data" then (
-      array_cset "data" "back" ‘Some{"v"} ;;
+      array_cset "data" "back" ‘Some {"v"} ;;
       "t" <-{back} #1 + "back" ;;
       #false
     ) else (
@@ -186,10 +186,10 @@ Section spsc_queue_G.
     spsc_queue_producer_ctl₂ γ back ∗
     spsc_queue_model₂ γ vs ∗
     spsc_queue_history_auth γ hist ∗
-    ( array_cslice data sz front (DfracOwn 1) ((λ v, ’Some{v}) <$> take 1 vs)
+    ( array_cslice data sz front (DfracOwn 1) ((λ v, ’Some {v}) <$> take 1 vs)
     ∨ spsc_queue_consumer_region γ
     ) ∗
-    array_cslice data sz (S front) (DfracOwn 1) ((λ v, ’Some{v}) <$> drop 1 vs) ∗
+    array_cslice data sz (S front) (DfracOwn 1) ((λ v, ’Some {v}) <$> drop 1 vs) ∗
     ( array_cslice data sz back (DfracOwn 1) (if decide (back = front + sz) then [] else [§None])
     ∨ spsc_queue_producer_region γ
     ) ∗

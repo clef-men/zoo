@@ -40,7 +40,7 @@ Definition pstore_ref : val :=
         ()
     | Diff "r" "v" "t'" =>
         "pstore_reroot" "t'" ;;
-        "t'" <- ‘Diff{"r", !"r", "t"} ;;
+        "t'" <- ‘Diff {"r", !"r", "t"} ;;
         "r" <- "v" ;;
         "t" <- §Root
     end.
@@ -54,7 +54,7 @@ Definition pstore_set : val :=
   λ: "t" "r" "v",
     pstore_reroot "t" ;;
     let: "t'" := ref §Root in
-    "t" <- ‘Diff{"r", !"r", "t'"} ;;
+    "t" <- ‘Diff {"r", !"r", "t'"} ;;
     "r" <- "v" ;;
     "t'".
 
@@ -100,7 +100,7 @@ Section pstore_G.
       ∃ r v l' σ',
       ⌜map !! l' = Some σ'⌝ ∗
       ⌜pstore_store σ0 σ = <[r := v]> (pstore_store σ0 σ')⌝ ∗
-      l ↦ ’Diff{ #r, v, #l'}
+      l ↦ ’Diff { #r, v, #l'}
     ).
   Definition pstore_inv γ σ0 : iProp Σ :=
     ∃ map root,

@@ -27,7 +27,7 @@ Fixpoint lst_to_val vs :=
   | [] =>
       §Nil
   | v :: vs =>
-      ’Cons{v, lst_to_val vs}
+      ’Cons {v, lst_to_val vs}
   end.
 #[global] Arguments lst_to_val !_ / : assert.
 Definition lst_model' t vs :=
@@ -65,7 +65,7 @@ Section zebre_G.
 
   Lemma lst_model_Cons v t vs :
     lst_model t vs ⊢
-    lst_model ’Cons{v, t} (v :: vs).
+    lst_model ’Cons {v, t} (v :: vs).
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
   Qed.
@@ -90,7 +90,7 @@ End zebre_G.
 
 Definition lst_singleton : val :=
   λ: "v",
-    ‘Cons{"v", §Nil}.
+    ‘Cons {"v", §Nil}.
 
 Definition lst_head : val :=
   λ: "t",
@@ -132,7 +132,7 @@ Definition lst_get : val :=
       §Nil
     ) else (
       let: "v" := "fn" "i" in
-      ‘Cons{"v", "lst_initi_aux" "sz" "fn" (#1 + "i")}
+      ‘Cons {"v", "lst_initi_aux" "sz" "fn" (#1 + "i")}
     ).
 Definition lst_initi : val :=
   λ: "sz" "fn",
@@ -177,11 +177,11 @@ Definition lst_size : val :=
 
 Definition lst_rev : val :=
   λ: "t",
-    lst_foldl "t" §Nil (λ: "acc" "v", ‘Cons{"v", "acc"}).
+    lst_foldl "t" §Nil (λ: "acc" "v", ‘Cons {"v", "acc"}).
 
 Definition lst_app : val :=
   λ: "t1" "t2",
-    lst_foldr "t1" (λ: "v" "acc", ‘Cons{"v", "acc"}) "t2".
+    lst_foldr "t1" (λ: "v" "acc", ‘Cons {"v", "acc"}) "t2".
 Definition lst_snoc : val :=
   λ: "t" "v",
     lst_app "t" (lst_singleton "v").
@@ -201,7 +201,7 @@ Definition lst_iter : val :=
     | Cons "v" "t" =>
         let: "v" := "fn" "i" "v" in
         let: "t" := "lst_mapi_aux" "t" "fn" (#1 + "i") in
-        ‘Cons{"v", "t"}
+        ‘Cons {"v", "t"}
     end.
 Definition lst_mapi : val :=
   λ: "t" "fn",

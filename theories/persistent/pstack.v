@@ -21,7 +21,7 @@ Definition pstack_is_empty :=
 
 Definition pstack_push : val :=
   λ: "t" "v",
-    ‘Cons{"v", "t"}.
+    ‘Cons {"v", "t"}.
 
 Definition pstack_pop : val :=
   λ: "t",
@@ -29,7 +29,7 @@ Definition pstack_pop : val :=
     | Nil =>
         §None
     | Cons "v" "t'" =>
-        ‘Some{("v", "t'")}
+        ‘Some {("v", "t'")}
     end.
 
 Section zebre_G.

@@ -29,7 +29,7 @@ Implicit Types vs : list val.
 
 Definition parray_make : val :=
   λ: "sz" "v",
-    ref ‘Root{array_make "sz" "v"}.
+    ref ‘Root {array_make "sz" "v"}.
 
 #[local] Definition parray_reroot : val :=
   rec: "parray_reroot" "t" :=
@@ -38,9 +38,9 @@ Definition parray_make : val :=
         "arr"
     | Diff "i" "v" "t'" =>
         let: "arr" := "parray_reroot" "t'" in
-        "t'" <- ‘Diff{"i", array_unsafe_get "arr" "i", "t"} ;;
+        "t'" <- ‘Diff {"i", array_unsafe_get "arr" "i", "t"} ;;
         array_unsafe_set "arr" "i" "v" ;;
-        "t" <- ‘Root{"arr"} ;;
+        "t" <- ‘Root {"arr"} ;;
         "arr"
     end.
 
@@ -57,7 +57,7 @@ Definition parray_set : val :=
     ) else (
       array_unsafe_set "arr" "i" "v" ;;
       let: "t'" := ref !"t" in
-      "t" <- ‘Diff{"i", "v'", "t'"} ;;
+      "t" <- ‘Diff {"i", "v'", "t'"} ;;
       "t'"
     ).
 
@@ -101,13 +101,13 @@ Section parray_G.
       ⌜length vs = γ.(parray_meta_size)⌝ ∗
       l ↦ descr ∗
       if (decide (l = root)) then (
-        ⌜descr = ’Root{γ.(parray_meta_array)}⌝ ∗
+        ⌜descr = ’Root {γ.(parray_meta_array)}⌝ ∗
         array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗
         [∗ list] v ∈ vs, τ v
       ) else (
         ∃ i v l' vs',
         ⌜i < γ.(parray_meta_size) ∧ vs = <[i := v]> vs'⌝ ∗
-        ⌜descr = ’Diff{ #i, v, #l'}⌝ ∗
+        ⌜descr = ’Diff { #i, v, #l'}⌝ ∗
         parray_map_elem γ l' vs' ∗
         τ v
       ).

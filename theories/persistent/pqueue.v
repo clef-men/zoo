@@ -34,7 +34,7 @@ Definition pqueue_is_empty : val :=
 
 Definition pqueue_push : val :=
   λ: "t" "v",
-    (‘Cons{"v", "t".<back>}, "t".<front>).
+    (‘Cons {"v", "t".<back>}, "t".<front>).
 
 Definition pqueue_pop : val :=
   λ: "t",
@@ -44,10 +44,10 @@ Definition pqueue_pop : val :=
         | Nil =>
             §None
         | Cons "v" "vs" =>
-            ‘Some{("v", (§Nil, "vs"))}
+            ‘Some {("v", (§Nil, "vs"))}
         end
     | Cons "v" "vs" =>
-        ‘Some{("v", ("t".<back>, "vs"))}
+        ‘Some {("v", ("t".<back>, "vs"))}
     end.
 
 Section zebre_G.

@@ -51,7 +51,7 @@ Definition pstore_get : val :=
 Definition pstore_set : val :=
   λ: "t" "r" "v",
     let: "root" := ref §Root in
-    !"t" <- ‘Diff{"r", !"r", "root"} ;;
+    !"t" <- ‘Diff {"r", !"r", "root"} ;;
     "r" <- "v" ;;
     "t" <- "root".
 
@@ -65,7 +65,7 @@ Definition pstore_collect : val :=
     | Root =>
         ("node", "acc")
     | Diff <> <> "node'" =>
-        "pstore_collect" "node'" ‘Cons{"node", "acc"}
+        "pstore_collect" "node'" ‘Cons {"node", "acc"}
     end.
 Definition pstore_revert : val :=
   rec: "pstore_revert" "node" "seg" :=
@@ -78,7 +78,7 @@ Definition pstore_revert : val :=
             Fail
         | Diff "r" "v" "node_" =>
  (*           assert ("node_" = "node") ;; *)
-            "node" <- ‘Diff{"r", !"r", "node'"} ;;
+            "node" <- ‘Diff {"r", !"r", "node'"} ;;
             "r" <- "v" ;;
             "pstore_revert" "node'" "seg"
         end
@@ -407,7 +407,7 @@ Section pstore_G.
     r ↦ §Root ∗
     pstore_map_auth γ C ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) .
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')}) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%σr [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]]".
@@ -693,13 +693,13 @@ Section pstore_G.
     list_to_set ys ⊆ g ->
     {{{ r' ↦ §Root ∗
         lst_model t' xs ∗
-        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')})
     }}}
       pstore_collect #r t'
     {{{ t,
       RET (#r',t);
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')}) ∗
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
@@ -723,13 +723,13 @@ Section pstore_G.
    path r ys r' ->
    list_to_set ys ⊆ g ->
    {{{ r' ↦ §Root ∗
-        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')})
    }}}
      pstore_collect #r §Nil
    {{{ t,
       RET (#r',t);
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')}) ∗
       lst_model t (rev (fsts ys))
    }}}.
   Proof.
@@ -745,8 +745,8 @@ Section pstore_G.
     path r' xs r ->
     {{{
        lst_model t (fsts xs) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')}) ∗
+       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')})
     }}}
       pstore_revert #r t
     {{{ RET (); False }}}.
@@ -770,7 +770,7 @@ Section pstore_G.
     list_to_set xs ⊆ g ->
     {{{
        r' ↦ §Root ∗
-       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff { #(LiteralLoc l), v, #(LiteralLoc r')})
     }}}
       pstore_reroot #r
     {{{ RET ();

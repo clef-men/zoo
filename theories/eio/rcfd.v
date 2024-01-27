@@ -56,9 +56,9 @@ Implicit Types state : rcfd_state.
 #[local] Definition state_to_val state :=
   match state with
   | RcfdStateOpen fd =>
-      ’Open{fd}
+      ’Open {fd}
   | RcfdStateClosing fn =>
-      ’Closing{fn}
+      ’Closing {fn}
   end.
 #[local] Arguments state_to_val !_ / : assert.
 #[local] Coercion state_to_val : rcfd_state >-> val.
@@ -71,11 +71,11 @@ Qed.
 
 Definition rcfd_make : val :=
   λ: "fd",
-    { #0; ref ‘Open{"fd"} }.
+    { #0; ref ‘Open {"fd"} }.
 
 #[local] Definition rcfd_closed : val :=
   λ: <>,
-    ref ‘Closing{λ: <>, ()}.
+    ref ‘Closing {λ: <>, ()}.
 
 #[local] Definition rcfd_put : val :=
   λ: "t",
@@ -97,7 +97,7 @@ Definition rcfd_make : val :=
     Faa "t".[ops] #1 ;;
     match: !"t".{fd} with
     | Open "fd" =>
-        ‘Some{"fd"}
+        ‘Some {"fd"}
     | Closing <> =>
         rcfd_put "t" ;;
         §None
@@ -111,7 +111,7 @@ Definition rcfd_close : val :=
         let: "close" <> :=
           unix_close "fd"
         in
-        let: "next" := ref ‘Closing{"close"} in
+        let: "next" := ref ‘Closing {"close"} in
         if: Cas "t".[fd] "prev" "next" then (
           if: ("t".{ops} = #0) && Cas "t".[fd] "next" (rcfd_closed ()) then (
             "close" ()
@@ -133,10 +133,10 @@ Definition rcfd_remove : val :=
     | Open "fd" =>
         let: "flag" := ref #false in
         let: "chan" := latch1_create () in
-        let: "next" := ref ‘Closing{λ: <>, latch1_signal "chan"} in
+        let: "next" := ref ‘Closing {λ: <>, latch1_signal "chan"} in
         if: Cas "t".[fd] "prev" "next" then (
           latch1_wait "chan" ;;
-          ‘Some{"fd"}
+          ‘Some {"fd"}
         ) else (
           §None
         )
@@ -168,7 +168,7 @@ Definition rcfd_peek : val :=
   λ: "t",
     match: !"t".{fd} with
     | Open "fd" =>
-        ‘Some{"fd"}
+        ‘Some {"fd"}
     | Closing <> =>
         §None
     end.
