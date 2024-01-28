@@ -7,6 +7,7 @@ From zebre.language Require Import
 From zebre.persistent Require Export
   base.
 From zebre Require Import
+  assert
   lst.
 From zebre Require Import
   options.
@@ -77,7 +78,7 @@ Definition pstore_revert : val :=
         | Root =>
             Fail
         | Diff "r" "v" "node_" =>
- (*           assert ("node_" = "node") ;; *)
+            assert ("node_" = "node") ;;
             "node" <- ‘Diff{ "r", !"r", "node'" } ;;
             "r" <- "v" ;;
             "pstore_revert" "node'" "seg"
@@ -754,47 +755,50 @@ Section pstore_G.
   Lemma pstore_revert_spec_aux r t g1 g2 xs r' w σ :
     locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
-    path r' xs r ->
+    path r xs r' ->
     {{{
        lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
        ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
        ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
        ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
-      pstore_revert #r t
+      pstore_revert #r' t
     {{{ RET (); [∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0  }}}.
   Proof.
     iIntros (Hlocs Hg Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
-    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (r r' Hpath g1 g2 Hg Hlocs).
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' Hpath g1 g2 Hg Hlocs).
     { wp_rec. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Nil with "[$]") .
       inversion Hpath. subst. wp_store.
       admit. }
     { wp_rec. simpl. rewrite rev_unit. simpl.
-      apply path_snoc_inv in Hpath. destruct Hpath as (?&->).
       iStep 4. iModIntro.
       iApply (wp_lst_match_Cons with "[$]") . done.
       iIntros (t') "HL". simpl.
       rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
-      iDestruct (big_sepS_union with "Hg2") as "(?&?)".
+      iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
       { admit. }
       rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
 
+      rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
       assert (exists v', σ !! l = Some v') as (v',Hl).
       { apply elem_of_dom. eapply Hlocs. rewrite /edge.
-        rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+
         rewrite elem_of_union elem_of_singleton. right. reflexivity. }
 
+      apply path_snoc_inv in Hpath. destruct Hpath as (?&->).
+      wp_smart_apply assert_spec. rewrite bool_decide_eq_true_2 //.
+      iStep 4. iModIntro.
+
       iDestruct (big_sepM_insert_acc with "Hσ") as "(?&Hσ)". done.
-      wp_load.
+      wp_load. wp_store. wp_store. iStep 4. iModIntro.
 
-      apply elem_of_dom in Hl. destr
-
-
-
-      admit. }
-  Admitted.
+      iSpecialize ("Hσ" with "[$]").
+      iSpecialize ("IH" with "[%//][%//][%][$][$][$] Hg1 Hg2").
+      { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4. specialize (Hlocs x1 x2 x3 x4).
+        set_solver. }
+  Abort.
 
   Lemma rev_fsts xs :
     rev (fsts xs) = fsts (rev xs).
@@ -818,7 +822,7 @@ Section pstore_G.
     iIntros (Hpath Hg Φ) "Hr' HΦ".
     wp_rec. wp_apply (pstore_collect_spec with "[$]"). 1,2:done.
     iIntros (t) "(Hr'&Hg&HL)". iStep 10. rewrite rev_fsts.
-  Admitted.
+  Abort.
 
 
   Lemma pstore_restore_spec γ t σ s σ' :
@@ -858,7 +862,6 @@ Section pstore_G.
 
     apply reachable_path in Hrs.
     destruct Hrs as (xs&Hpath&Hg&Hproj).
-    Search reachable.
 
   Qed.
 
