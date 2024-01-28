@@ -319,13 +319,24 @@ Proof.
     { rewrite fmap_cons Hxs //. } }
 Qed.
 
-Lemma path_rev a1 bs a2 :
-  path a1 bs a2 ->
-  path a2 (rev bs) a1.
+Lemma path_app_inv a1 a2 xs ys :
+  path a1 (xs ++ ys) a2 ->
+  exists a, path a1 xs a /\ path a ys a2.
 Proof.
-  induction 1. apply path_nil. simpl.
-  (* XXX need path_app. *)
-Abort.
+  revert a1 ys a2. induction xs as [| ((?,?),?)].
+  { eauto using path_nil. }
+  { intros. rewrite -app_comm_cons in H1. inversion H1. subst.
+    apply IHxs in H8. destruct H8 as (?&?&?).
+    eauto using path_cons. }
+Qed.
+
+Lemma path_snoc_inv a1 a2 a3 a4 b xs :
+  path a1 (xs ++ [(a2,b,a3)]) a4 ->
+  path a1 xs a2 /\ a3 = a4.
+Proof.
+  intros Hpath. apply path_app_inv in Hpath. destruct Hpath as (?&?&Hpath).
+  inversion Hpath. subst. inversion H8. naive_solver.
+Qed.
 
 End Graph.
 
@@ -740,22 +751,34 @@ Section pstore_G.
   Qed.
 
 
-  Lemma pstore_revert_spec_aux r t g1 g2 xs r' :
+  Lemma pstore_revert_spec_aux r t g1 g2 xs r' w :
     g2 = list_to_set xs ->
     path r' xs r ->
     {{{
-       lst_model t (fsts xs) ∗
+       lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
        ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
        ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r t
     {{{ RET (); False }}}.
   Proof.
-    iIntros (Hg Hpath Φ) "(HL&Hg1&Hg2) HΦ".
-    iInduction xs as [|] "IH" forall (r r' Hpath g1 g2 Hg).
+    iIntros (Hg Hpath Φ) "(HL&Hr'&Hg1&Hg2) HΦ".
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (r r' Hpath g1 g2 Hg).
     { wp_rec. simpl.
+      iStep 4. iModIntro.
+      iApply (wp_lst_match_Nil with "[$]") .
+      inversion Hpath. subst. wp_store.
       admit. }
-    { wp_rec. admit. }
+    { wp_rec. simpl. rewrite rev_unit. simpl.
+      apply path_snoc_inv in Hpath. destruct Hpath as (?&->).
+      iStep 4. iModIntro.
+      iApply (wp_lst_match_Cons with "[$]") . done.
+      iIntros (t') "HL". simpl.
+      rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+      iDestruct (big_sepS_union with "Hg2") as "(?&?)".
+      { admit. }
+      rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
+      admit. }
   Admitted.
 
   Lemma rev_fsts xs :
