@@ -473,7 +473,7 @@ Section pstore_G.
     induction ds as [|(?&?)]; set_solver.
   Qed.
 
-  Lemma apply_diff_insert_ne ds l v σ :
+  Lemma apply_diffl_insert_ne ds l v σ :
     l ∉ ds.*1 ->
     apply_diffl ds (<[l:=v]> σ) = <[l:=v]> (apply_diffl ds σ).
   Proof.
@@ -483,7 +483,7 @@ Section pstore_G.
       rewrite insert_commute //. set_solver. }
   Qed.
 
-  Lemma apply_diff_app ds ds' σ :
+  Lemma apply_diffl_app ds ds' σ :
     apply_diffl (ds++ds') σ = apply_diffl ds (apply_diffl ds' σ).
   Proof. rewrite /apply_diffl foldr_app //. Qed.
 
@@ -534,7 +534,7 @@ Section pstore_G.
           intros Hreach. eapply X4 in Hreach; eauto.
           destruct Hcoh as [Z1 Z2].
           eapply use_locs_of_edges_in in Z2. 2:done.
-          rewrite apply_diff_insert_ne.
+          rewrite apply_diffl_insert_ne.
           { apply not_elem_of_dom in Hl0. set_solver. }
           apply gmap_included_insert_notin; last done.
           apply incl_dom_incl in Z1. apply incl_dom_incl in Hreach.
@@ -631,7 +631,7 @@ Section pstore_G.
           rewrite lookup_insert_ne.
           { apply reachable_inv_in_invertices in Hreach. naive_solver. }
           intros Hx. specialize (X4 _ _ _ Hreach Hx). etrans. apply X4.
-          rewrite apply_diff_app. simpl. rewrite insert_insert.
+          rewrite apply_diffl_app. simpl. rewrite insert_insert.
           destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
           assert (exists z, σr !! l = Some z) as (?&Hz).
           { apply elem_of_dom. eapply incl_dom_incl. done. done. }
@@ -751,6 +751,32 @@ Section pstore_G.
     iApply "Go". rewrite -rev_alt //. Unshelve. apply _.
   Qed.
 
+  Lemma apply_diffl_snoc_notin x xs σ :
+    x.1 ∉ xs.*1 ->
+    apply_diffl (xs ++ [x]) σ = apply_diffl (x::xs) σ.
+  Proof.
+    revert σ. induction xs; intros σ.
+    { done. }
+    rewrite -app_comm_cons =>?. destruct a. simpl.
+    rewrite IHxs. set_solver. destruct x. simpl.
+    rewrite insert_commute //. set_solver.
+  Qed.
+
+  Lemma apply_diffl_snoc xs l v σ :
+    apply_diffl (xs ++ [(l,v)]) σ = apply_diffl xs (<[l:=v]> σ).
+  Proof.
+    revert σ. induction xs. done.
+    intros σ. rewrite -app_comm_cons. simpl.
+    rewrite IHxs //.
+  Qed.
+
+  Record revset (g1 g2:gset (loc*(loc*val)*loc)) σ :=
+    { re1 :  forall r l r' v,
+        (r,(l,v),r') ∈ g1 -> (exists v', σ !! l = Some v' /\ (r',(l,v'),r) ∈ g2);
+      re2 : forall r l r' v',
+        σ !! l = Some v' ->
+        (r',(l,v'),r) ∈ g2 ->
+        exists v, (r,(l,v),r') ∈ g1 }.
 
   Lemma pstore_revert_spec_aux r t g1 g2 xs r' w σ :
     locs_of_edges_in g2 (dom σ) ->
@@ -763,15 +789,19 @@ Section pstore_G.
        ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r' t
-    {{{ RET (); [∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0  }}}.
+    {{{ RET (); ∃ g', ⌜revset g2 g' σ⌝ ∗ (* not true. Duplicates may appear in the labels of xs. Need a predicate for "undo". Something like "∃ ys, undo xs ys σ ∗ [∗ set] list_to_set ys....." *)
+        ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ g'), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+    }}}.
   Proof.
     iIntros (Hlocs Hg Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
     iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' Hpath g1 g2 Hg Hlocs).
     { wp_rec. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Nil with "[$]") .
-      inversion Hpath. subst. wp_store.
-      admit. }
+      inversion Hpath. subst. wp_store. iModIntro.
+      iApply "HΦ". iExists ∅. rewrite right_id_L. iFrame.
+      iPureIntro. constructor; set_solver. }
     { wp_rec. simpl. rewrite rev_unit. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Cons with "[$]") . done.
@@ -796,8 +826,30 @@ Section pstore_G.
 
       iSpecialize ("Hσ" with "[$]").
       iSpecialize ("IH" with "[%//][%//][%][$][$][$] Hg1 Hg2").
-      { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4. specialize (Hlocs x1 x2 x3 x4).
-        set_solver. }
+      { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4.
+        specialize (Hlocs x1 x2 x3 x4). set_solver. }
+
+      rewrite fmap_app -apply_diffl_snoc. simpl.
+      iApply "IH". iModIntro.
+      iIntros "[%g (%Hrev&?&?)]". iApply "HΦ".
+      iExists (g ∪ {[(r',(l,v'),r0)]}). iFrame.
+      iSplitR.
+      { iPureIntro.
+        constructor.
+        { intros x l' x' ?.
+          rewrite elem_of_union elem_of_singleton.
+          intros [X|X].
+          { apply Hrev in X. admit. }
+          { inversion X. subst. eexists. split. eauto. set_solver. } }
+        { intros x' l' x ?.
+          rewrite elem_of_union elem_of_singleton.
+          intros ?  [X|X].
+          { apply Hrev in X. set_solver. admit. }
+          { set_solver. } } }
+      rewrite assoc_L.
+      iApply big_sepS_union.
+      { admit. }
+      iFrame. rewrite big_sepS_singleton //.
   Abort.
 
   Lemma rev_fsts xs :
