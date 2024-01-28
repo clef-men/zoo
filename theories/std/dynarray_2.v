@@ -13,7 +13,7 @@ From zebre.std Require Import
   diverge
   assume
   math
-  reference
+  ref_
   opt
   array.
 From zebre Require Import
@@ -652,18 +652,18 @@ Section zebre_G.
 
   Context τ `{!iType (iPropI Σ) τ}.
 
-  #[local] Definition slot_type :=
-    opt_type (reference_type τ).
-  Definition dynarray_type t : iProp Σ :=
+  #[local] Definition itype_slot :=
+    itype_opt (itype_ref τ).
+  Definition itype_dynarray t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     inv nroot (
       ∃ (sz : nat) cap data,
       l.[size] ↦ #sz ∗
-      l.[data] ↦ data ∗ array_type slot_type cap data
+      l.[data] ↦ data ∗ itype_array itype_slot cap data
     ).
-  #[global] Instance dynarray_type_itype :
-    iType _ dynarray_type.
+  #[global] Instance itype_dynarray_itype :
+    iType _ itype_dynarray.
   Proof.
     split. apply _.
   Qed.
@@ -673,12 +673,12 @@ Section zebre_G.
       dynarray_create ()
     {{{ t,
       RET t;
-      dynarray_type t
+      itype_dynarray t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_apply (array_create_type slot_type with "[//]") as "%data Hdata_type".
+    wp_apply (array_create_type itype_slot with "[//]") as "%data Hdata_type".
     iSteps.
   Qed.
 
@@ -690,20 +690,20 @@ Section zebre_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      dynarray_type t
+      itype_dynarray t
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_initi_type slot_type) as "%data (_ & Hdata_type)".
+    wp_smart_apply (array_initi_type itype_slot) as "%data (_ & Hdata_type)".
     { iStep 5. iModIntro. wp_alloc r. iSteps. }
     iSteps.
   Qed.
 
   Lemma dynarray_size_type t :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_size t
     {{{ (sz : nat),
@@ -715,7 +715,7 @@ Section zebre_G.
 
   Lemma dynarray_capacity_type t :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_size t
     {{{ (cap : nat),
@@ -727,12 +727,12 @@ Section zebre_G.
 
   #[local] Lemma dynarray_data_type t :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_data t
     {{{ cap data,
       RET data;
-      array_type slot_type cap data
+      itype_array itype_slot cap data
     }}}.
   Proof.
     iSteps.
@@ -741,7 +741,7 @@ Section zebre_G.
   #[local] Lemma dynarray_set_size_type t sz :
     (0 ≤ sz)%Z →
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_set_size t #sz
     {{{
@@ -753,8 +753,8 @@ Section zebre_G.
 
   #[local] Lemma dynarray_set_data_type t cap data :
     {{{
-      dynarray_type t ∗
-      array_type slot_type cap data
+      itype_dynarray t ∗
+      itype_array itype_slot cap data
     }}}
       dynarray_set_data t data
     {{{
@@ -766,7 +766,7 @@ Section zebre_G.
 
   Lemma dynarray_is_empty_type t :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_is_empty t
     {{{ b,
@@ -778,7 +778,7 @@ Section zebre_G.
 
   Lemma dynarray_get_type t (i : Z) :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_get t #i
     {{{ v,
@@ -791,16 +791,16 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (opt_type_match with "Hslot"). iSplit.
+    wp_apply (itype_opt_match with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
-      wp_apply (reference_get_type with "Hr").
+      wp_apply (ref_get_type with "Hr").
       iSteps.
   Qed.
 
   Lemma dynarray_set_type t (i : Z) v :
     {{{
-      dynarray_type t ∗
+      itype_dynarray t ∗
       τ v
     }}}
       dynarray_set t #i v
@@ -813,16 +813,16 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (opt_type_match with "Hslot"). iSplit.
+    wp_apply (itype_opt_match with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
-      wp_apply (reference_set_type with "[$Hr $Hv]").
+      wp_apply (ref_set_type with "[$Hr $Hv]").
       iSteps.
   Qed.
 
   Lemma dynarray_reserve_type t n :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_reserve t #n
     {{{
@@ -839,15 +839,15 @@ Section zebre_G.
     case_bool_decide; wp_pures; first iSteps.
     wp_smart_apply (dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
     wp_apply maximum_spec.
-    wp_smart_apply (array_make_type slot_type) as "%data' (_ & #Hdata_type')"; first iSteps.
+    wp_smart_apply (array_make_type itype_slot) as "%data' (_ & #Hdata_type')"; first iSteps.
     wp_smart_apply dynarray_size_type as "%sz _"; first iSmash+.
-    wp_smart_apply (array_blit_type slot_type) as "_"; first iSteps.
+    wp_smart_apply (array_blit_type itype_slot) as "_"; first iSteps.
     wp_smart_apply (dynarray_set_data_type with "[$Htype $Hdata_type']") as "_".
     iSteps.
   Qed.
   Lemma dynarray_reserve_extra_type t n :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_reserve_extra t #n
     {{{
@@ -865,8 +865,8 @@ Section zebre_G.
 
   #[local] Lemma dynarray_try_push_type t slot :
     {{{
-      dynarray_type t ∗
-      slot_type slot
+      itype_dynarray t ∗
+      itype_slot slot
     }}}
       dynarray_try_push t slot
     {{{ b,
@@ -886,8 +886,8 @@ Section zebre_G.
   Qed.
   #[local] Lemma dynarray_push_aux_type t slot :
     {{{
-      dynarray_type t ∗
-      slot_type slot
+      itype_dynarray t ∗
+      itype_slot slot
     }}}
       dynarray_push_aux t slot
     {{{
@@ -903,7 +903,7 @@ Section zebre_G.
   Qed.
   Lemma dynarray_push_type t v :
     {{{
-      dynarray_type t ∗
+      itype_dynarray t ∗
       τ v
     }}}
       dynarray_push t v
@@ -913,7 +913,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec. wp_alloc r as "Hr".
-    iAssert (|={⊤}=> slot_type ’Some{ #r })%I with "[Hr]" as ">#Hslot"; first iSteps.
+    iAssert (|={⊤}=> itype_slot ’Some{ #r })%I with "[Hr]" as ">#Hslot"; first iSteps.
     wp_smart_apply (dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply (dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.
@@ -921,7 +921,7 @@ Section zebre_G.
 
   Lemma dynarray_pop_type t :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_pop t
     {{{ v,
@@ -937,18 +937,18 @@ Section zebre_G.
     wp_smart_apply assume_spec' as "%Hcap".
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_get_type with "Hdata_type") as "%slot #Hslot"; first lia.
-    wp_apply (opt_type_match with "Hslot"). iSplit.
+    wp_apply (itype_opt_match with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
       wp_smart_apply (array_unsafe_set_type with "[$Hdata_type]") as "_"; [lia | iSteps |].
       wp_smart_apply (dynarray_set_size_type with "Htype") as "_"; first lia.
-      wp_smart_apply (reference_get_type with "Hr").
+      wp_smart_apply (ref_get_type with "Hr").
       iSteps.
   Qed.
 
   Lemma dynarray_fit_capacity_type t v :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_fit_capacity t
     {{{
@@ -969,7 +969,7 @@ Section zebre_G.
 
   Lemma dynarray_reset_type t v :
     {{{
-      dynarray_type t
+      itype_dynarray t
     }}}
       dynarray_reset t
     {{{
@@ -1001,4 +1001,4 @@ End zebre_G.
 #[global] Opaque dynarray_reset.
 
 #[global] Opaque dynarray_model.
-#[global] Opaque dynarray_type.
+#[global] Opaque itype_dynarray.

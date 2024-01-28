@@ -43,17 +43,17 @@ Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition opt_type t : iProp Σ :=
+  Definition itype_opt t : iProp Σ :=
       ⌜t = §None⌝
     ∨ ∃ v, ⌜t = ’Some{ v }⌝ ∗ τ v.
-  #[global] Instance opt_type_itype :
-    iType _ opt_type.
+  #[global] Instance itype_opt_itype :
+    iType _ itype_opt.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma opt_type_match t e1 x e2 Φ :
-    opt_type t -∗
+  Lemma itype_opt_match t e1 x e2 Φ :
+    itype_opt t -∗
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}
     ) -∗

@@ -12,34 +12,34 @@ Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition reference_type t : iProp Σ :=
+  Definition itype_ref t : iProp Σ :=
     ∃ (l : loc),
     ⌜t = #l⌝ ∗
     inv nroot (
       ∃ w,
       l ↦ w ∗ τ w
     ).
-  #[global] Instance reference_type_itype :
-    iType _ reference_type.
+  #[global] Instance itype_ref_itype :
+    iType _ itype_ref.
   Proof.
     split. apply _.
   Qed.
 
-  Lemma reference_make_type v :
+  Lemma ref_make_type v :
     {{{
       τ v
     }}}
       ref v
     {{{ t,
-      RET t; reference_type t
+      RET t; itype_ref t
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma reference_get_type t :
+  Lemma ref_get_type t :
     {{{
-      reference_type t
+      itype_ref t
     }}}
       !t
     {{{ v,
@@ -49,9 +49,9 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma reference_set_type t v :
+  Lemma ref_set_type t v :
     {{{
-      reference_type t ∗
+      itype_ref t ∗
       τ v
     }}}
       t <- v

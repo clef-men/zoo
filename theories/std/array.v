@@ -2157,13 +2157,13 @@ Section zebre_G.
 
   Context τ `{!iType (iPropI Σ) τ}.
 
-  Definition array_type (sz : nat) t : iProp Σ :=
+  Definition itype_array (sz : nat) t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     l.[size] ↦□ #sz ∗
-    chunk_type τ sz l.[data].
-  #[global] Instance array_type_itype sz :
-    iType _ (array_type sz).
+    itype_chunk τ sz l.[data].
+  #[global] Instance itype_array_itype sz :
+    iType _ (itype_array sz).
   Proof.
     split. apply _.
   Qed.
@@ -2173,7 +2173,7 @@ Section zebre_G.
       array_create ()
     {{{ t,
       RET t;
-      array_type 0 t
+      itype_array 0 t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -2183,7 +2183,7 @@ Section zebre_G.
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & _)".
     rewrite -{1}(loc_add_0 l). iMod (mapsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iExists l. repeat iSplitR; [iSteps.. |].
-    iApply chunk_type_0.
+    iApply itype_chunk_0.
   Qed.
 
   Lemma array_make_type sz v :
@@ -2194,7 +2194,7 @@ Section zebre_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      array_type (Z.to_nat sz) t
+      itype_array (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
@@ -2214,13 +2214,13 @@ Section zebre_G.
 
   Lemma array_initi_type sz fn :
     {{{
-      (nat_type --> τ)%T fn
+      (itype_nat --> τ)%T fn
     }}}
       array_initi #sz fn
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      array_type (Z.to_nat sz) t
+      itype_array (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -2239,13 +2239,13 @@ Section zebre_G.
 
   Lemma array_init_type sz fn :
     {{{
-      (unit_type --> τ)%T fn
+      (itype_unit --> τ)%T fn
     }}}
       array_init #sz fn
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      array_type (Z.to_nat sz) t
+      itype_array (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -2256,7 +2256,7 @@ Section zebre_G.
 
   Lemma array_size_type t sz :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_size t
     {{{
@@ -2268,12 +2268,12 @@ Section zebre_G.
 
   #[local] Lemma array_data_type t sz :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_data t
     {{{ l,
       RET #l;
-      chunk_type τ sz l
+      itype_chunk τ sz l
     }}}.
   Proof.
     iSteps.
@@ -2282,7 +2282,7 @@ Section zebre_G.
   Lemma array_unsafe_get_type t (sz : nat) (i : Z) :
     (0 ≤ i < sz)%Z →
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_unsafe_get t #i
     {{{ v,
@@ -2299,7 +2299,7 @@ Section zebre_G.
 
   Lemma array_get_type t sz (i : Z) :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_get t #i
     {{{ v,
@@ -2320,7 +2320,7 @@ Section zebre_G.
   Lemma array_unsafe_set_type t (sz : nat) (i : Z) v :
     (0 ≤ i < sz)%Z →
     {{{
-      array_type sz t ∗
+      itype_array sz t ∗
       τ v
     }}}
       array_unsafe_set t #i v
@@ -2337,7 +2337,7 @@ Section zebre_G.
 
   Lemma array_set_type t sz (i : Z) v :
     {{{
-      array_type sz t ∗
+      itype_array sz t ∗
       τ v
     }}}
       array_set t #i v
@@ -2357,8 +2357,8 @@ Section zebre_G.
 
   Lemma array_blit_type t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
     {{{
-      array_type sz1 t1 ∗
-      array_type sz2 t2
+      itype_array sz1 t1 ∗
+      itype_array sz2 t2
     }}}
       array_blit t1 #i1 t2 #i2 #n
     {{{
@@ -2373,17 +2373,17 @@ Section zebre_G.
     repeat (wp_smart_apply assume_spec' as "%").
     wp_smart_apply (array_data_type with "Ht2") as "%data2 Hdata2".
     wp_smart_apply (array_data_type with "Ht1") as "%data1 Hdata1".
-    iDestruct (chunk_type_shift i1 with "Hdata1") as "Hdata1"; first lia.
-    iDestruct (chunk_type_shift i2 with "Hdata2") as "Hdata2"; first lia.
-    iDestruct (chunk_type_le (Z.to_nat n) with "Hdata1") as "Hdata1"; first lia.
+    iDestruct (itype_chunk_shift i1 with "Hdata1") as "Hdata1"; first lia.
+    iDestruct (itype_chunk_shift i2 with "Hdata2") as "Hdata2"; first lia.
+    iDestruct (itype_chunk_le (Z.to_nat n) with "Hdata1") as "Hdata1"; first lia.
     wp_smart_apply (chunk_copy_type with "[$Hdata1 $Hdata2]"); [lia.. |].
     iSteps.
   Qed.
 
   Lemma array_copy_type t1 sz1 t2 sz2 (i2 : Z) :
     {{{
-      array_type sz1 t1 ∗
-      array_type sz2 t2
+      itype_array sz1 t1 ∗
+      itype_array sz2 t2
     }}}
       array_copy t1 t2 #i2
     {{{
@@ -2400,14 +2400,14 @@ Section zebre_G.
 
   Lemma array_grow_type t sz sz' v' :
     {{{
-      array_type sz t ∗
+      itype_array sz t ∗
       τ v'
     }}}
       array_grow t #sz' v'
     {{{ t',
       RET t';
       ⌜sz ≤ sz'⌝ ∗
-      array_type (Z.to_nat sz') t'
+      itype_array (Z.to_nat sz') t'
     }}}.
   Proof.
     iIntros "%Φ (#Ht & #Hv') HΦ".
@@ -2421,13 +2421,13 @@ Section zebre_G.
 
   Lemma array_sub_type t sz (i n : Z) :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_sub t #i #n
     {{{ t',
       RET t';
       ⌜0 ≤ i ∧ 0 ≤ n ∧ i + n ≤ sz⌝%Z ∗
-      array_type (Z.to_nat n) t'
+      itype_array (Z.to_nat n) t'
     }}}.
   Proof.
     iIntros "%Φ #Ht HΦ".
@@ -2436,8 +2436,8 @@ Section zebre_G.
     repeat (wp_smart_apply assume_spec' as "%").
     wp_smart_apply (array_make_spec with "[//]") as "%t' (%l' & -> & #Hsz' & Hdata')"; first done.
     wp_smart_apply (array_data_type with "Ht") as "%data Hdata".
-    iDestruct (chunk_type_shift i with "Hdata") as "Hdata"; first lia.
-    iDestruct (chunk_type_le (Z.to_nat n) with "Hdata") as "Hdata"; first lia.
+    iDestruct (itype_chunk_shift i with "Hdata") as "Hdata"; first lia.
+    iDestruct (itype_chunk_le (Z.to_nat n) with "Hdata") as "Hdata"; first lia.
     iEval (rewrite loc_add_0) in "Hdata'".
     wp_smart_apply (chunk_copy_type' with "[$Hdata $Hdata']"); first lia.
     { rewrite replicate_length //. }
@@ -2446,13 +2446,13 @@ Section zebre_G.
 
   Lemma array_shrink_type t sz (n : Z) :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_shrink t #n
     {{{ t',
       RET t';
       ⌜0 ≤ n ≤ sz⌝%Z ∗
-      array_type (Z.to_nat n) t'
+      itype_array (Z.to_nat n) t'
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
@@ -2463,12 +2463,12 @@ Section zebre_G.
 
   Lemma array_clone_type t sz :
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_clone t
     {{{ t',
       RET t';
-      array_type sz t'
+      itype_array sz t'
     }}}.
   Proof.
     iIntros "%Φ #Ht HΦ".
@@ -2480,9 +2480,9 @@ Section zebre_G.
 
   Lemma array_fill_slice_type t sz (i n : val) v :
     {{{
-      array_type sz t ∗
-      int_type i ∗
-      int_type n ∗
+      itype_array sz t ∗
+      itype_int i ∗
+      itype_int n ∗
       τ v
     }}}
       array_fill_slice t i n v
@@ -2495,14 +2495,14 @@ Section zebre_G.
     wp_smart_apply (array_size_type with "Ht") as "_".
     repeat (wp_smart_apply assume_spec' as "%").
     wp_smart_apply (array_data_type with "Ht") as "%l Hl".
-    iDestruct (chunk_type_shift i_ with "Hl") as "Hl"; first lia.
-    iDestruct (chunk_type_le (Z.to_nat n_) with "Hl") as "Hl"; first lia.
+    iDestruct (itype_chunk_shift i_ with "Hl") as "Hl"; first lia.
+    iDestruct (itype_chunk_le (Z.to_nat n_) with "Hl") as "Hl"; first lia.
     wp_smart_apply (chunk_fill_type with "[$Hl $Hv] HΦ"); first lia.
   Qed.
 
   Lemma array_fill_type t sz v :
     {{{
-      array_type sz t ∗
+      itype_array sz t ∗
       τ v
     }}}
       array_fill t v
@@ -2520,7 +2520,7 @@ Section zebre_G.
     0 < sz →
     (0 ≤ i)%Z →
     {{{
-      array_type sz t
+      itype_array sz t
     }}}
       array_cget t #i
     {{{ v,
@@ -2562,4 +2562,4 @@ End zebre_G.
 #[global] Opaque array_model.
 #[global] Opaque array_span.
 #[global] Opaque array_cslice.
-#[global] Opaque array_type.
+#[global] Opaque itype_array.

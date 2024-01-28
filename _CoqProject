@@ -70,7 +70,7 @@ theories/std/assert.v
 theories/std/assume.v
 theories/std/for_upto.v
 theories/std/math.v
-theories/std/reference.v
+theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
 theories/std/chunk.v

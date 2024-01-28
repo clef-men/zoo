@@ -387,7 +387,7 @@ Section zebre_G.
 
   Lemma for_upto_type τ `{!iType (iProp Σ) τ} beg _end fn :
     {{{
-      (int_range_type beg _end --> unit_type)%T fn
+      (itype_int_range beg _end --> itype_unit)%T fn
     }}}
       for_upto #beg #_end fn
     {{{

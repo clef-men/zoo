@@ -3255,29 +3255,29 @@ Section zebre_G.
     iApply ("HΦ" with "Hslice").
   Qed.
 
-  Definition chunk_type τ `{!iType _ τ} (sz : nat) l : iProp Σ :=
+  Definition itype_chunk τ `{!iType _ τ} (sz : nat) l : iProp Σ :=
     inv nroot (
       ∃ vs,
       ⌜sz = length vs⌝ ∗
       chunk_model l (DfracOwn 1) vs ∗ [∗ list] v ∈ vs, τ v
     ).
-  #[global] Instance chunk_type_persistent τ `{!iType _ τ} sz l :
-    Persistent (chunk_type τ sz l).
+  #[global] Instance itype_chunk_persistent τ `{!iType _ τ} sz l :
+    Persistent (itype_chunk τ sz l).
   Proof.
     apply _.
   Qed.
 
-  Lemma chunk_type_0 τ `{!iType _ τ} l :
+  Lemma itype_chunk_0 τ `{!iType _ τ} l :
     ⊢ |={⊤}=>
-      chunk_type τ 0 l.
+      itype_chunk τ 0 l.
   Proof.
     iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma chunk_type_shift (i : Z) τ `{!iType _ τ} (sz : nat) l :
+  Lemma itype_chunk_shift (i : Z) τ `{!iType _ τ} (sz : nat) l :
     (0 ≤ i ≤ sz)%Z →
-    chunk_type τ sz l ⊢
-    chunk_type τ (sz - Z.to_nat i) (l +ₗ i).
+    itype_chunk τ sz l ⊢
+    itype_chunk τ (sz - Z.to_nat i) (l +ₗ i).
   Proof.
     iIntros "%Hi #Hl".
     Z_to_nat i. rewrite Nat2Z.id.
@@ -3295,10 +3295,10 @@ Section zebre_G.
       rewrite app_length take_length Nat.min_l; first lia. iSteps.
   Qed.
 
-  Lemma chunk_type_le sz' τ `{!iType _ τ} sz l :
+  Lemma itype_chunk_le sz' τ `{!iType _ τ} sz l :
     (sz' ≤ sz) →
-    chunk_type τ sz l ⊢
-    chunk_type τ sz' l.
+    itype_chunk τ sz l ⊢
+    itype_chunk τ sz' l.
   Proof.
     iIntros "%Hsz #Hl".
     iApply (inv_alter with "Hl"). iIntros "!> !> (%vs & %Hvs & Hmodel & Hvs)".
@@ -3322,7 +3322,7 @@ Section zebre_G.
       chunk_make #sz v
     {{{ l,
       RET #l;
-      chunk_type τ (Z.to_nat sz) l
+      itype_chunk τ (Z.to_nat sz) l
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
@@ -3342,7 +3342,7 @@ Section zebre_G.
   Lemma chunk_get_type τ `{!iType _ τ} (sz : nat) l (i : Z) :
     (0 ≤ i < sz)%Z →
     {{{
-      chunk_type τ sz l
+      itype_chunk τ sz l
     }}}
       !#(l +ₗ i)
     {{{ v,
@@ -3363,7 +3363,7 @@ Section zebre_G.
   Lemma chunk_set_type τ `{!iType _ τ} (sz : nat) l (i : Z) v :
     (0 ≤ i < sz)%Z →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       τ v
     }}}
       #(l +ₗ i) <- v
@@ -3385,9 +3385,9 @@ Section zebre_G.
   Lemma chunk_foldli_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ acc fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       υ acc ∗
-      (υ --> nat_upto_type sz --> τ --> υ)%T fn
+      (υ --> itype_nat_upto sz --> τ --> υ)%T fn
     }}}
       chunk_foldli #l #sz_ acc fn
     {{{ acc',
@@ -3419,7 +3419,7 @@ Section zebre_G.
   Lemma chunk_foldl_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ acc fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       υ acc ∗
       (υ --> τ --> υ)%T fn
     }}}
@@ -3437,9 +3437,9 @@ Section zebre_G.
   Lemma chunk_foldri_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ acc fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       υ acc ∗
-      (nat_upto_type sz --> τ --> υ --> υ)%T fn
+      (itype_nat_upto sz --> τ --> υ --> υ)%T fn
     }}}
       chunk_foldri #l #sz_ fn acc
     {{{ acc',
@@ -3471,7 +3471,7 @@ Section zebre_G.
   Lemma chunk_foldr_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ acc fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       υ acc ∗
       (τ --> υ --> υ)%T fn
     }}}
@@ -3489,8 +3489,8 @@ Section zebre_G.
   Lemma chunk_iteri_type τ `{!iType _ τ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
-      (nat_upto_type sz --> τ --> unit_type)%T fn
+      itype_chunk τ sz l ∗
+      (itype_nat_upto sz --> τ --> itype_unit)%T fn
     }}}
       chunk_iteri #l #sz_ fn
     {{{
@@ -3499,14 +3499,14 @@ Section zebre_G.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (chunk_foldli_type τ unit_type with "[$Hl]"); [done | iSteps..].
+    wp_smart_apply (chunk_foldli_type τ itype_unit with "[$Hl]"); [done | iSteps..].
   Qed.
 
   Lemma chunk_iter_type τ `{!iType _ τ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
-      (τ --> unit_type)%T fn
+      itype_chunk τ sz l ∗
+      (τ --> itype_unit)%T fn
     }}}
       chunk_iter #l #sz_ fn
     {{{
@@ -3521,8 +3521,8 @@ Section zebre_G.
   Lemma chunk_applyi_type τ `{!iType _ τ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
-      (nat_upto_type sz --> τ --> τ)%T fn
+      itype_chunk τ sz l ∗
+      (itype_nat_upto sz --> τ --> τ)%T fn
     }}}
       chunk_applyi #l #sz_ fn
     {{{
@@ -3542,7 +3542,7 @@ Section zebre_G.
   Lemma chunk_apply_type τ `{!iType _ τ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       (τ --> τ)%T fn
     }}}
       chunk_apply #l #sz_ fn
@@ -3557,12 +3557,12 @@ Section zebre_G.
 
   Lemma chunk_initi_type τ `{!iType _ τ} (sz : Z) fn :
     {{{
-      (nat_upto_type (Z.to_nat sz) --> τ)%T fn
+      (itype_nat_upto (Z.to_nat sz) --> τ)%T fn
     }}}
       chunk_initi #sz fn
     {{{ l,
       RET #l;
-      chunk_type τ (Z.to_nat sz) l
+      itype_chunk τ (Z.to_nat sz) l
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -3580,12 +3580,12 @@ Section zebre_G.
 
   Lemma chunk_init_type τ `{!iType _ τ} (sz : Z) fn :
     {{{
-      (unit_type --> τ)%T fn
+      (itype_unit --> τ)%T fn
     }}}
       chunk_init #sz fn
     {{{ l,
       RET #l;
-      chunk_type τ (Z.to_nat sz) l
+      itype_chunk τ (Z.to_nat sz) l
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -3597,13 +3597,13 @@ Section zebre_G.
   Lemma chunk_mapi_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
-      (nat_upto_type sz --> τ --> υ)%T fn
+      itype_chunk τ sz l ∗
+      (itype_nat_upto sz --> τ --> υ)%T fn
     }}}
       chunk_mapi #l #sz_ fn
     {{{ l',
       RET #l';
-      chunk_type υ sz l'
+      itype_chunk υ sz l'
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3619,13 +3619,13 @@ Section zebre_G.
   Lemma chunk_map_type τ `{!iType _ τ} υ `{!iType _ υ} l sz sz_ fn :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       (τ --> υ)%T fn
     }}}
       chunk_map #l #sz_ fn
     {{{ l',
       RET #l';
-      chunk_type υ sz l'
+      itype_chunk υ sz l'
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hl & #Hfn) HΦ".
@@ -3638,8 +3638,8 @@ Section zebre_G.
     sz1_ = Z.of_nat sz1 →
     sz1 ≤ sz2 →
     {{{
-      chunk_type τ sz1 l1 ∗
-      chunk_type τ sz2 l2
+      itype_chunk τ sz1 l1 ∗
+      itype_chunk τ sz2 l2
     }}}
       chunk_copy #l1 #sz1_ #l2
     {{{
@@ -3657,13 +3657,13 @@ Section zebre_G.
     sz1_ = Z.of_nat sz1 →
     sz1 = length vs2 →
     {{{
-      chunk_type τ sz1 l1 ∗
+      itype_chunk τ sz1 l1 ∗
       chunk_model l2 (DfracOwn 1) vs2
     }}}
       chunk_copy #l1 #sz1_ #l2
     {{{
       RET ();
-      chunk_type τ sz1 l2
+      itype_chunk τ sz1 l2
     }}}.
   Proof.
     iIntros (-> ->) "%Φ (#Hl1 & Hmodel2) HΦ".
@@ -3704,13 +3704,13 @@ Section zebre_G.
     (n ≤ sz)%Z →
     (n ≤ sz')%Z →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       if decide (n < sz')%Z then τ v' else True
     }}}
       chunk_resize #l #sz_ #sz' #n v'
     {{{ l',
       RET #l';
-      chunk_type τ (Z.to_nat sz') l'
+      itype_chunk τ (Z.to_nat sz') l'
     }}}.
   Proof.
     iIntros (->) "%Hn1 %Hn2 %Φ (#Hl & Hv') HΦ".
@@ -3757,13 +3757,13 @@ Section zebre_G.
     sz_ = Z.of_nat sz →
     (sz ≤ sz')%Z →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       τ v'
     }}}
       chunk_grow #l #sz_ #sz' v'
     {{{ l',
       RET #l';
-      chunk_type τ (Z.to_nat sz') l'
+      itype_chunk τ (Z.to_nat sz') l'
     }}}.
   Proof.
     iIntros (->) "%Hsz %Φ (#Hl & #Hv') HΦ".
@@ -3776,12 +3776,12 @@ Section zebre_G.
     sz_ = Z.of_nat sz →
     (sz' ≤ sz)%Z →
     {{{
-      chunk_type τ sz l
+      itype_chunk τ sz l
     }}}
       chunk_shrink #l #sz_ #sz'
     {{{ l',
       RET #l';
-      chunk_type τ (Z.to_nat sz') l'
+      itype_chunk τ (Z.to_nat sz') l'
     }}}.
   Proof.
     iIntros (->) "%Hsz %Φ #Hl HΦ".
@@ -3793,12 +3793,12 @@ Section zebre_G.
   Lemma chunk_clone_type τ `{!iType _ τ} l sz sz_ :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l
+      itype_chunk τ sz l
     }}}
       chunk_clone #l #sz_
     {{{ l',
       RET #l';
-      chunk_type τ sz l'
+      itype_chunk τ sz l'
     }}}.
   Proof.
     iIntros (->) "%Φ #Hl HΦ".
@@ -3810,7 +3810,7 @@ Section zebre_G.
   Lemma chunk_fill_type τ `{!iType _ τ} l sz sz_ v :
     sz_ = Z.of_nat sz →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       τ v
     }}}
       chunk_fill #l #sz_ v
@@ -3839,7 +3839,7 @@ Section zebre_G.
     0 < sz →
     (0 ≤ i)%Z →
     {{{
-      chunk_type τ sz l
+      itype_chunk τ sz l
     }}}
       chunk_cget #l #sz #i
     {{{ v,
@@ -3862,7 +3862,7 @@ Section zebre_G.
     0 < sz →
     (0 ≤ i)%Z →
     {{{
-      chunk_type τ sz l ∗
+      itype_chunk τ sz l ∗
       τ v
     }}}
       chunk_cset #l #sz #i v
