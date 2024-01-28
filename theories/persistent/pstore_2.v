@@ -751,19 +751,21 @@ Section pstore_G.
   Qed.
 
 
-  Lemma pstore_revert_spec_aux r t g1 g2 xs r' w :
+  Lemma pstore_revert_spec_aux r t g1 g2 xs r' w σ :
+    locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
     path r' xs r ->
     {{{
        lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
        ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
        ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r t
-    {{{ RET (); False }}}.
+    {{{ RET (); [∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0  }}}.
   Proof.
-    iIntros (Hg Hpath Φ) "(HL&Hr'&Hg1&Hg2) HΦ".
-    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (r r' Hpath g1 g2 Hg).
+    iIntros (Hlocs Hg Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (r r' Hpath g1 g2 Hg Hlocs).
     { wp_rec. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Nil with "[$]") .
@@ -778,6 +780,19 @@ Section pstore_G.
       iDestruct (big_sepS_union with "Hg2") as "(?&?)".
       { admit. }
       rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
+
+      assert (exists v', σ !! l = Some v') as (v',Hl).
+      { apply elem_of_dom. eapply Hlocs. rewrite /edge.
+        rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+        rewrite elem_of_union elem_of_singleton. right. reflexivity. }
+
+      iDestruct (big_sepM_insert_acc with "Hσ") as "(?&Hσ)". done.
+      wp_load.
+
+      apply elem_of_dom in Hl. destr
+
+
+
       admit. }
   Admitted.
 
