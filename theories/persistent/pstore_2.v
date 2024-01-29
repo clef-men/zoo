@@ -961,6 +961,16 @@ Section pstore_G.
     intros Z ? a b c d ?. eapply (Z a b c d). set_solver.
   Qed.
 
+
+  Lemma undo_vertices xs ys σ :
+    undo xs ys σ ->
+    vertices (list_to_set ys) = vertices (list_to_set xs).
+  Proof.
+    revert xs σ. induction ys; intros xs σ; inversion 1; subst. done.
+    simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
+    erewrite IHys; last done. rewrite vertices_empty. set_solver.
+  Qed.
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -996,8 +1006,9 @@ Section pstore_G.
     wp_load. iStep 19. iModIntro.
     iSpecialize ("Hg" with "[$]").
 
-    apply reachable_path in Hrs.
-    destruct Hrs as (xs&Hpath&Hg&Hproj).
+    generalize Hrs. intros Hrsold.
+    apply reachable_path in Hrsold.
+    destruct Hrsold as (xs&Hpath&Hg&Hproj).
     rewrite (union_difference_L (list_to_set xs) g) //.
     iDestruct (big_sepS_union with "Hg") as "(Hxs&Hg)". set_solver.
     wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]"). 2,4:done. 3:iFrame.
@@ -1007,8 +1018,22 @@ Section pstore_G.
     iIntros "[%ys (%Hundo&?&?&?)]".
     iStep 8. do 2 iModIntro.
     iApply "HΦ".
+    iDestruct (big_sepS_union_2 with "[$][$]") as "?".
 
-
+    iExists _,_,_,(apply_diffl (proj2 <$> xs) σ0),_,(<[rs:=apply_diffl (proj2 <$> xs) σ0]> M),_. iFrame.
+    iPureIntro. split_and !.
+    { done. }
+    { destruct Hinv as [X1 X2 X3 X4]. constructor.
+      { rewrite dom_insert_L X1. apply undo_vertices in Hundo.
+        rewrite vertices_union Hundo -vertices_union -union_difference_L //.
+        apply elem_of_dom_2 in X3,HMrs. apply reachable_inv_in_invertices in Hrs.
+        set_solver. }
+      { eapply X4 in Hrs; last done. rewrite Hproj. admit. }
+      { rewrite lookup_insert //. }
+      { admit. } }
+    { destruct Hcoh as [X1 X2]. constructor. all:admit. }
+    { admit. }
+    { admit. }
   Qed.
 
 End pstore_G.
