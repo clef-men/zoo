@@ -979,6 +979,19 @@ Section pstore_G.
       [ done | eauto using gmap_included_insert ].
   Qed.
 
+  Lemma undo_same_fst_label xs ys σ r l v r' :
+    undo xs ys σ ->
+    (r, (l, v), r') ∈ (list_to_set ys :  gset (loc*(loc*val)*loc)) ->
+    l ∈ (list_to_set (proj2 <$> xs).*1 : gset loc).
+  Proof.
+    revert xs σ. induction ys as [|(?,?)]. set_solver.
+    intros xs σ. inversion 1. subst.
+    simpl. rewrite !fmap_app list_to_set_app_L.
+    destruct_decide (decide ((r, (l, v), r') = (r'0, (l1, v'), l0))) as Heq.
+    { inversion Heq. subst. intros _. set_solver. }
+    intros ?. simpl. apply elem_of_union. left. eapply IHys. done. set_solver.
+  Qed.
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -1050,7 +1063,11 @@ Section pstore_G.
       { admit. } }
     { destruct Hcoh as [X1 X2]. constructor.
       { reflexivity. }
-      { admit. (* easy. *) } }
+      { rewrite dom_apply_diffl. intros ???? Hedge.
+        rewrite /edge elem_of_union in Hedge. rewrite elem_of_union.
+        destruct Hedge as [Hedge|Hedge].
+        { right. eauto using undo_same_fst_label. }
+        { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. } } }
     { destruct Hgraph as [X1 X2].
       constructor.
       { rewrite Hvg. intros x Hx.
