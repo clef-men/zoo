@@ -821,6 +821,14 @@ Section pstore_G.
       eapply reachable_weak. done. set_solver. }
   Qed.
 
+  Lemma acyclic_weak `{Countable A} `{Countable B} (g1 g2:graph A B) :
+    acyclic g1 ->
+    g2 ⊆ g1 ->
+    acyclic g2.
+  Proof.
+    intros Hacy ? ???. eapply Hacy. by eapply reachable_weak.
+  Qed.
+
   Lemma pstore_revert_spec_aux g1 r t g2 xs r' w σ σ0 :
     locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
@@ -875,7 +883,7 @@ Section pstore_G.
       iSpecialize ("IH" with "[%//][%//][%][%][$][$][$] Hg1 Hg2").
       { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4.
         specialize (Hlocs x1 x2 x3 x4). set_solver. }
-      { intros ???. eapply Hacy. eapply reachable_weak. done. rewrite list_to_set_app. set_solver. }
+      { eapply acyclic_weak; eauto. rewrite list_to_set_app. set_solver. }
 
       rewrite fmap_app -apply_diffl_snoc. simpl.
       iApply "IH". iModIntro.
@@ -945,6 +953,14 @@ Section pstore_G.
     iApply (pstore_revert_spec with "[-HΦ]"); try done. iFrame.
   Qed.
 
+  Lemma locs_of_edges_weak g1 g2 X :
+    locs_of_edges_in g1 X ->
+    g2 ⊆ g1 ->
+    locs_of_edges_in g2 X.
+  Proof.
+    intros Z ? a b c d ?. eapply (Z a b c d). set_solver.
+  Qed.
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -982,6 +998,16 @@ Section pstore_G.
 
     apply reachable_path in Hrs.
     destruct Hrs as (xs&Hpath&Hg&Hproj).
+    rewrite (union_difference_L (list_to_set xs) g) //.
+    iDestruct (big_sepS_union with "Hg") as "(Hxs&Hg)". set_solver.
+    wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]"). 2,4:done. 3:iFrame.
+    { destruct Hcoh as [_ X]. eapply locs_of_edges_weak; eauto. }
+    { destruct Hgraph. eapply acyclic_weak; eauto. }
+
+    iIntros "[%ys (%Hundo&?&?&?)]".
+    iStep 8. do 2 iModIntro.
+    iApply "HΦ".
+
 
   Qed.
 
