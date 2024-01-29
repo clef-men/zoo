@@ -320,6 +320,17 @@ Proof.
     { rewrite fmap_cons Hxs //. } }
 Qed.
 
+Lemma reachable_path2 g a1 a2 xs :
+  path a1 xs a2 ->
+  list_to_set xs ⊆ g ->
+  reachable g a1 (proj2 <$> xs) a2.
+Proof.
+  intros Hpath. revert g. induction Hpath.
+  { intros. apply rtcl_refl. }
+  { intros g Hg. simpl. apply rtcl_l with a2. set_solver.
+    eapply IHHpath. set_solver. }
+Qed.
+
 Lemma path_app_inv a1 a2 xs ys :
   path a1 (xs ++ ys) a2 ->
   exists a, path a1 xs a /\ path a ys a2.
@@ -369,7 +380,7 @@ Section pstore_G.
 
   Record graph_inv (g:graph_store) (r:loc) :=
     { gi1 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r; (* Everyone can reach the root. *)
-      gi2 : forall r ds, reachable g r ds r -> ds = nil (* acyclicity. *)
+      gi2 : acyclic g (* acyclicity. *)
     }.
 
   Lemma gmap_included_insert `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
@@ -770,17 +781,50 @@ Section pstore_G.
     rewrite IHxs //.
   Qed.
 
-  Record revset (g1 g2:gset (loc*(loc*val)*loc)) σ :=
+  Record revset (xs ys: list (loc*(loc*val)*loc)) σ :=
     { re1 :  forall r l r' v,
-        (r,(l,v),r') ∈ g1 -> (exists v', σ !! l = Some v' /\ (r',(l,v'),r) ∈ g2);
+        (r,(l,v),r') ∈ xs -> (exists v', σ !! l = Some v' /\ (r',(l,v'),r) ∈ ys);
       re2 : forall r l r' v',
         σ !! l = Some v' ->
-        (r',(l,v'),r) ∈ g2 ->
-        exists v, (r,(l,v),r') ∈ g1 }.
+        (r',(l,v'),r) ∈ ys ->
+        exists v, (r,(l,v),r') ∈ xs }.
 
-  Lemma pstore_revert_spec_aux r t g1 g2 xs r' w σ :
+  (* undo applied generated orig_store *)
+  Inductive undo :
+    list (loc*(loc*val)*loc) -> list (loc*(loc*val)*loc) -> gmap loc val -> Prop :=
+  | undo_nil :
+    forall σ, undo [] [] σ
+  | undo_cons :
+    forall σ r l v v' r' xs ys,
+      σ !! l = Some v' ->
+      undo xs ys (<[l:=v]> σ) ->
+      undo (xs++[(r,(l,v),r')]) ((r',(l,v'),r)::ys) σ
+  .
+
+  Lemma use_path r (xs:list (loc*(loc*val)*loc)) r0 x r1 r':
+    path r (xs ++ [(r0, x, r1)]) r' ->
+    (r0, x, r1) ∈ (list_to_set xs : gset (loc*(loc*val)*loc)) ->
+    exists ds, reachable (list_to_set (xs ++ [(r0, x, r1)])) r0 ds r0 /\ ds ≠ nil.
+  Proof.
+    revert r. induction xs; intros r. set_solver.
+    rewrite -app_comm_cons. inversion 1. subst.
+    rewrite list_to_set_cons.
+    destruct_decide (decide ((r0, x, r1) = (r, b, a2))) as X.
+    { inversion X. subst. intros _. clear IHxs.
+      rewrite app_comm_cons in H. apply path_snoc_inv in H.
+      destruct H as (?&?). subst a2.
+      exists (proj2 <$> ((r, b, r') :: xs)). split.
+      { eapply reachable_path2. done. set_solver. }
+      { done. } }
+    { intros ?. apply IHxs in H4. 2:set_solver.
+      destruct H4 as (?&?&?). eexists. split; last done.
+      eapply reachable_weak. done. set_solver. }
+  Qed.
+
+  Lemma pstore_revert_spec_aux g1 r t g2 xs r' w σ σ0 :
     locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
+    acyclic g2 ->
     path r xs r' ->
     {{{
        lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
@@ -789,26 +833,29 @@ Section pstore_G.
        ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r' t
-    {{{ RET (); ∃ g', ⌜revset g2 g' σ⌝ ∗ (* not true. Duplicates may appear in the labels of xs. Need a predicate for "undo". Something like "∃ ys, undo xs ys σ ∗ [∗ set] list_to_set ys....." *)
-        ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ g'), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+    {{{ RET (); ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
+        ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
         ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
-    iIntros (Hlocs Hg Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
-    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' Hpath g1 g2 Hg Hlocs).
+    iIntros (Hlocs Hg Hacy Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' Hpath g1 g2 Hg Hlocs Hacy).
     { wp_rec. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Nil with "[$]") .
       inversion Hpath. subst. wp_store. iModIntro.
-      iApply "HΦ". iExists ∅. rewrite right_id_L. iFrame.
-      iPureIntro. constructor; set_solver. }
+      iApply "HΦ". iExists nil. rewrite right_id_L. iFrame.
+      iPureIntro. eauto using undo_nil. }
     { wp_rec. simpl. rewrite rev_unit. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Cons with "[$]") . done.
       iIntros (t') "HL". simpl.
       rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+      assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (loc * diff * loc))).
+      { intros ?. apply use_path in Hpath; last done. destruct Hpath as (?&Hpath&?).
+        apply Hacy in Hpath. congruence. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
-      { admit. }
+      { set_solver. }
       rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
 
       rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
@@ -825,32 +872,47 @@ Section pstore_G.
       wp_load. wp_store. wp_store. iStep 4. iModIntro.
 
       iSpecialize ("Hσ" with "[$]").
-      iSpecialize ("IH" with "[%//][%//][%][$][$][$] Hg1 Hg2").
+      iSpecialize ("IH" with "[%//][%//][%][%][$][$][$] Hg1 Hg2").
       { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4.
         specialize (Hlocs x1 x2 x3 x4). set_solver. }
+      { intros ???. eapply Hacy. eapply reachable_weak. done. rewrite list_to_set_app. set_solver. }
 
       rewrite fmap_app -apply_diffl_snoc. simpl.
       iApply "IH". iModIntro.
-      iIntros "[%g (%Hrev&?&?)]". iApply "HΦ".
-      iExists (g ∪ {[(r',(l,v'),r0)]}). iFrame.
+      iIntros "[%ys (%Hundo&?&?&?)]". iApply "HΦ".
+      iExists ((r',(l,v'),r0)::ys). iFrame.
       iSplitR.
-      { iPureIntro.
-        constructor.
-        { intros x l' x' ?.
-          rewrite elem_of_union elem_of_singleton.
-          intros [X|X].
-          { apply Hrev in X. admit. }
-          { inversion X. subst. eexists. split. eauto. set_solver. } }
-        { intros x' l' x ?.
-          rewrite elem_of_union elem_of_singleton.
-          intros ?  [X|X].
-          { apply Hrev in X. set_solver. admit. }
-          { set_solver. } } }
-      rewrite assoc_L.
-      iApply big_sepS_union.
-      { admit. }
-      iFrame. rewrite big_sepS_singleton //.
-  Abort.
+      { iPureIntro. eauto using undo_cons. }
+      rewrite list_to_set_cons.
+      iAssert ⌜(r', (l, v'), r0) ∉ g1 ∪ list_to_set ys⌝%I as "%".
+      { iIntros (?). iDestruct (big_sepS_elem_of with "[$]") as "?". done.
+        iDestruct (mapsto_ne r' r' with "[$][$]") as "%". congruence. }
+      replace (g1 ∪ ({[(r', (l, v'), r0)]} ∪ list_to_set ys)) with ({[(r', (l, v'), r0)]} ∪ ((g1 ∪ list_to_set ys))). 2:set_solver.
+      iApply big_sepS_union. set_solver.
+      iFrame. rewrite big_sepS_singleton //. }
+  Qed.
+
+  Lemma pstore_revert_spec r t g xs r' w σ σ0 :
+    locs_of_edges_in g (dom σ) ->
+    g = list_to_set xs ->
+    acyclic g ->
+    path r xs r' ->
+    {{{
+       lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
+       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+    }}}
+      pstore_revert #r' t
+    {{{ RET (); ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
+        ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+    }}}.
+  Proof.
+    iIntros (???? Φ) "(?&?&?&?) HΦ".
+    iApply (pstore_revert_spec_aux ∅ with "[-HΦ]"); try done.
+    { rewrite big_sepS_empty. iFrame. }
+    { iModIntro. iIntros "[% ?]". iApply "HΦ". iExists _. rewrite left_id_L //. }
+  Qed.
 
   Lemma rev_fsts xs :
     rev (fsts xs) = fsts (rev xs).
@@ -859,23 +921,29 @@ Section pstore_G.
     rewrite IHxs /fsts fmap_app //.
   Qed.
 
-  Lemma pstore_reroot_spec r (xs:list (loc*(loc*val)*loc)) r' g :
+  Lemma pstore_reroot_spec r (xs:list (loc*(loc*val)*loc)) r' g σ :
+    locs_of_edges_in g (dom σ) ->
+    g = list_to_set xs ->
+    acyclic g ->
     path r xs r' ->
-    list_to_set xs ⊆ g ->
     {{{
        r' ↦ §Root ∗
+       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_reroot #r
     {{{ RET ();
-        False
+        ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
+        ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
-    iIntros (Hpath Hg Φ) "Hr' HΦ".
-    wp_rec. wp_apply (pstore_collect_spec with "[$]"). 1,2:done.
-    iIntros (t) "(Hr'&Hg&HL)". iStep 10. rewrite rev_fsts.
-  Abort.
-
+    iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
+    wp_rec. wp_apply (pstore_collect_spec with "[$]"). done. set_solver.
+    iIntros (?) "(?&?&?)".
+    iStep 10. rewrite rev_fsts.
+    iApply (pstore_revert_spec with "[-HΦ]"); try done. iFrame.
+  Qed.
 
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
