@@ -323,13 +323,13 @@ Notation "‘ tag { e1 , .. , en }" := (
   Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zebre_tag,
-  format "‘ tag { e1 ,  .. ,  en }"
+  format "‘ tag {  e1 ,  .. ,  en  }"
 ).
 Notation "’ tag { v1 , .. , vn }" := (
   ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zebre_tag,
-  format "’ tag { v1 ,  .. ,  vn }"
+  format "’ tag {  v1 ,  .. ,  vn  }"
 ).
 Notation "§ tag" := (
   ValConstr tag%core (@nil val)
