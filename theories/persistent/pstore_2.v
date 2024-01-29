@@ -971,6 +971,14 @@ Section pstore_G.
     erewrite IHys; last done. rewrite vertices_empty. set_solver.
   Qed.
 
+  Lemma apply_diffl_included xs σ1 σ2 :
+    σ1 ⊆ σ2 ->
+    apply_diffl xs σ1 ⊆ apply_diffl xs σ2.
+  Proof.
+    revert σ1 σ2. induction xs as [|(?,?)]; intros;
+      [ done | eauto using gmap_included_insert ].
+  Qed.
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -1021,19 +1029,40 @@ Section pstore_G.
     iDestruct (big_sepS_union_2 with "[$][$]") as "?".
 
     iExists _,_,_,(apply_diffl (proj2 <$> xs) σ0),_,(<[rs:=apply_diffl (proj2 <$> xs) σ0]> M),_. iFrame.
+
+    assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
+    { apply undo_vertices in Hundo.
+      rewrite vertices_union Hundo -vertices_union -union_difference_L //. }
+
+    assert (σ1 ⊆ apply_diffl (proj2 <$> xs) σ0).
+    { destruct Hinv as [X1 X2 X3 X4].
+      eapply X4 in Hrs; last done. etrans. apply Hrs.
+      rewrite Hproj. destruct Hcoh. eauto using apply_diffl_included. }
+
     iPureIntro. split_and !.
     { done. }
     { destruct Hinv as [X1 X2 X3 X4]. constructor.
-      { rewrite dom_insert_L X1. apply undo_vertices in Hundo.
-        rewrite vertices_union Hundo -vertices_union -union_difference_L //.
+      { rewrite dom_insert_L X1 Hvg.
         apply elem_of_dom_2 in X3,HMrs. apply reachable_inv_in_invertices in Hrs.
         set_solver. }
-      { eapply X4 in Hrs; last done. rewrite Hproj. admit. }
+      { by etrans. }
       { rewrite lookup_insert //. }
       { admit. } }
-    { destruct Hcoh as [X1 X2]. constructor. all:admit. }
-    { admit. }
-    { admit. }
+    { destruct Hcoh as [X1 X2]. constructor.
+      { reflexivity. }
+      { admit. (* easy. *) } }
+    { destruct Hgraph as [X1 X2].
+      constructor.
+      { rewrite Hvg. intros x Hx.
+        apply X1 in Hx. admit.  }
+      { admit. } }
+    { intros n' l' σ_ HC.
+      destruct_decide (decide (l'=rs)).
+      { subst. eexists. split. rewrite lookup_insert //.
+        eapply Hsnap in HC. destruct HC as (x&HC&?).
+        rewrite HMrs in HC. inversion HC. subst x. by etrans. }
+      { eapply Hsnap in HC. destruct HC as (?&?&?).
+        eexists. rewrite lookup_insert_ne //. } }
   Qed.
 
 End pstore_G.
