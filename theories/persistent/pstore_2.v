@@ -15,7 +15,7 @@ From zebre Require Import
 From zebre.persistent Require Import
   map_agree.
 
-Implicit Types l r : loc.
+Implicit Types l : loc.
 Implicit Types v t s : val.
 Implicit Types σ : gmap loc val.
 
@@ -292,11 +292,12 @@ Proof.
   eauto using reachable_cycle_end_inv_aux.
 Qed.
 
-Inductive path : A -> list (A*B*A) -> A -> Prop :=
-| path_nil : forall a, path a [] a
+Inductive path (g:graph A B) : A -> list (A*B*A) -> A -> Prop :=
+| path_nil : forall a, path g a [] a
 | path_cons : forall a1 b a2 bs a3,
-    path a2 bs a3 ->
-    path a1 ((a1,b,a2)::bs) a3.
+    (a1,b,a2) ∈ g ->
+    path g a2 bs a3 ->
+    path g a1 ((a1,b,a2)::bs) a3.
 
 Definition proj1 {A B C:Type} (x:(A*B*C)) : A :=
   match x with (x,_,_) => x end.
@@ -305,51 +306,165 @@ Definition proj2 {A B C:Type} (x:(A*B*C)) : B :=
 Definition proj3 {A B C:Type} (x:(A*B*C)) : C :=
   match x with (_,_,x) => x end.
 
-Definition acyclic g := forall (r:A) ds, reachable g r ds r -> ds = nil.
-
 Lemma reachable_path g a1 a2 ds :
   reachable g a1 ds a2 ->
-  exists xs, path a1 xs a2 /\ (list_to_set xs ⊆ g) /\ (proj2 <$> xs = ds).
+  exists xs, path g a1 xs a2 /\ (proj2 <$> xs = ds).
 Proof.
   intros Hreach. induction Hreach.
   { exists nil. split_and !; try done. eauto using path_nil. }
-  { destruct IHHreach as (xs&?&?&Hxs).
+  { destruct IHHreach as (xs&?&Hxs).
     exists ((a1,b,a2)::xs). split_and !.
     { eauto using path_cons. }
-    { set_solver. }
-    { rewrite fmap_cons Hxs //. } }
+    { set_solver. } }
 Qed.
 
 Lemma reachable_path2 g a1 a2 xs :
-  path a1 xs a2 ->
-  list_to_set xs ⊆ g ->
+  path g a1 xs a2 ->
   reachable g a1 (proj2 <$> xs) a2.
 Proof.
-  intros Hpath. revert g. induction Hpath.
+  induction 1.
   { intros. apply rtcl_refl. }
-  { intros g Hg. simpl. apply rtcl_l with a2. set_solver.
-    eapply IHHpath. set_solver. }
+  { apply rtcl_l with a2. set_solver. done. }
 Qed.
 
-Lemma path_app_inv a1 a2 xs ys :
-  path a1 (xs ++ ys) a2 ->
-  exists a, path a1 xs a /\ path a ys a2.
+Lemma path_app_inv g a1 a2 xs ys :
+  path g a1 (xs ++ ys) a2 ->
+  exists a, path g a1 xs a /\ path g a ys a2.
 Proof.
   revert a1 ys a2. induction xs as [| ((?,?),?)].
   { eauto using path_nil. }
   { intros. rewrite -app_comm_cons in H1. inversion H1. subst.
-    apply IHxs in H8. destruct H8 as (?&?&?).
+    apply IHxs in H9. destruct H9 as (?&?&?).
     eauto using path_cons. }
 Qed.
 
-Lemma path_snoc_inv a1 a2 a3 a4 b xs :
-  path a1 (xs ++ [(a2,b,a3)]) a4 ->
-  path a1 xs a2 /\ a3 = a4.
+Lemma path_snoc_inv g a1 a2 a3 a4 b xs :
+  path g a1 (xs ++ [(a2,b,a3)]) a4 ->
+  path g a1 xs a2 /\ a3 = a4 /\ (a2,b,a3) ∈ g.
 Proof.
   intros Hpath. apply path_app_inv in Hpath. destruct Hpath as (?&?&Hpath).
-  inversion Hpath. subst. inversion H8. naive_solver.
+  inversion Hpath. subst. inversion H9. naive_solver.
 Qed.
 
+Definition acyclic g := forall a xs, path g a xs a -> xs = nil.
+
+Record rooted_dag g (r:A) :=
+  { ti1 : forall a, a ∈ vertices g -> exists xs, path g a xs r;
+    ti2 : acyclic g
+  }.
+
+Lemma rooted_dag_empty (r:A) :
+    rooted_dag (∅ : graph A B) r.
+Proof.
+  constructor.
+  { intros ?. rewrite vertices_empty. set_solver. }
+  { intros ??. inversion 1; set_solver. }
+Qed.
+
+Lemma path_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
+  r ≠ r' ->
+  x2 ≠ r' ->
+  r' ∉ vertices g ->
+  path ({[(r, b, r')]} ∪ g) x1 ds x2 ->
+  path g x1 ds x2.
+Proof.
+  induction 4.
+  { apply path_nil. }
+  { eapply path_cons.
+    { rewrite /edge elem_of_union elem_of_singleton in H4.
+      destruct H4 as [|]; last done.
+      inversion H4. subst. inversion H5. congruence. subst.
+      exfalso. apply H3. apply elem_of_vertices. set_solver. }
+    by eapply IHpath. }
+Qed.
+
+Lemma path_cycle_end_inv g (r r':A) b ds x :
+  r ≠ r' ->
+  r' ∉ vertices g ->
+  path ({[(r, b, r')]} ∪ g) x ds x ->
+  path g x ds x.
+Proof.
+  intros.
+  destruct_decide (decide (x=r')).
+  { subst. inversion H3. apply path_nil. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
+  eapply path_cycle_end_inv_aux; last done. all:done.
+Qed.
+
+Lemma path_r g a1 b a2 bs a3 :
+  path g a1 bs a2 ->
+  (a2,b,a3) ∈ g ->
+  path g a1 (bs++[(a2,b,a3)]) a3.
+Proof.
+  induction 1.
+  { intros. apply path_cons. done. apply path_nil. }
+  { intros. rewrite -app_comm_cons. eauto using path_cons. }
+Qed.
+
+Lemma path_weak g1 g2 x bs y :
+  path g1 x bs y ->
+  g1 ⊆ g2 ->
+  path g2 x bs y.
+Proof.
+  induction 1; intros Hi. apply path_nil. eapply path_cons.
+  by apply Hi. by apply IHpath.
+Qed.
+
+Definition kindofinj (g:graph A B) :=
+    forall r x1 r1 x2 r2,
+    (r,x1,r1) ∈ g ->
+    (r,x2,r2) ∈ g ->
+    x1 = x2 /\ r1 = r2.
+
+Lemma use_kindofinj g a1 xs ys a2 :
+  acyclic g ->
+  kindofinj g ->
+  path g a1 xs a2 ->
+  path g a1 ys a2 ->
+  xs = ys.
+Proof.
+  intros Hacy Hinj Hpath. revert ys. induction Hpath; intros ys.
+  { intros Hpath. apply Hacy in Hpath. done. }
+  { inversion 1; subst.
+    { exfalso.
+      assert (path g a3 ((a3, b, a2)::bs) a3) as Z.
+      { apply path_cons. done. eauto. }
+      apply Hacy in Z. congruence. }
+    destruct (Hinj _ _ _ _ _ H1 H3). subst.
+    f_equal. eapply IHHpath. done. }
+Qed.
+
+Lemma rooted_dag_root_no_succ g r x r' :
+  rooted_dag g r ->
+  (r,x,r') ∉ g.
+Proof.
+  intros [X1 X2] Hg.
+  assert (r' ∈ vertices g) as E4.
+  { apply elem_of_vertices. set_solver. }
+  apply X1 in E4. destruct E4 as (zs&?).
+  assert (path g r ((r, x, r')::zs) r) as Hpath.
+  { apply path_cons. set_solver. done. }
+  eapply X2 in Hpath. congruence.
+Qed.
+
+Lemma rooted_dag_add (r r':A) g x:
+  r ≠ r' ->
+  r' ∉ vertices g ->
+  rooted_dag g r ->
+  rooted_dag ({[(r, x, r')]} ∪ g) r'.
+Proof.
+  intros Hne Hg Hroot. inversion Hroot as [X1 X2].
+  constructor.
+  { rewrite vertices_union vertices_singleton. intros a.
+    rewrite !elem_of_union !elem_of_singleton.
+    intros [[-> | ->] | Hx].
+    { exists [(r, x, r')]. simpl. eapply path_cons. set_solver. apply path_nil. }
+    { exists nil. apply path_nil. }
+    { apply X1 in Hx. destruct Hx as (ds,Hx). exists (ds++[(r, x, r')]).
+      eapply path_r.
+      { eapply path_weak; eauto. set_solver. }
+      { set_solver. } } }
+  { intros ?? Hpath. apply  path_cycle_end_inv in Hpath; eauto. }
+Qed.
 End Graph.
 
 Section pstore_G.
@@ -371,17 +486,13 @@ Section pstore_G.
     }.
 
   Definition locs_of_edges_in g (X:gset loc) :=
-    forall r l v r', edge g r (l,v) r' -> l ∈ X.
+    forall (r:loc) l v r', edge g r (l,v) r' -> l ∈ X.
 
   Record coherent (σ0 σr:gmap loc val) (g:graph_store) :=
     { coh1 : σr ⊆ σ0;
       coh2 : locs_of_edges_in g (dom σ0);
     }.
 
-  Record graph_inv (g:graph_store) (r:loc) :=
-    { gi1 : forall r', r' ∈ vertices g -> exists ds, reachable g r' ds r; (* Everyone can reach the root. *)
-      gi2 : acyclic g (* acyclicity. *)
-    }.
 
   Lemma gmap_included_insert `{Countable K} {V} (σ1 σ2:gmap K V) (l:K) (v:V) :
     σ1 ⊆ σ2 ->
@@ -419,13 +530,30 @@ Section pstore_G.
   #[local] Definition pstore_map_elem γ n l σ :=
     @map_agree_elem _ _ _ _ _ pstore_G_map_G γ n (l,σ).
 
+  Lemma extract_kindofinj g :
+    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) -∗
+    ⌜kindofinj g⌝.
+  Proof.
+    iIntros "Hg" (???????).
+    destruct_decide (decide (a0 = a2 ∧ a1 = a3)). done.
+    rewrite (big_sepS_delete _ _ (a, a0, a1)). set_solver.
+    rewrite (big_sepS_delete _ _ (a, a2, a3)). set_solver.
+    iDestruct "Hg" as "(?&?&_)". destruct a0,a2.
+    iDestruct (mapsto_ne with "[$][$]") as "%". congruence.
+  Qed.
+
+  (* NB our invariant asserts that g is indeed a rooted tree: a rooted DAG
+     with unicity of paths. Indeed, from the set of pointsto we can extract [kindofinj],
+     (see [extract_kindofinj]), and a DAG with kindofinj guarantees unicity of paths
+     (see [use_kindofinj] ) *)
+
   #[local] Definition pstore (γ:gname) (t:val) (σ:gmap loc val) : iProp Σ :=
     ∃ (t0 r:loc) (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (σr:gmap loc val) (* The largest model of the root *)
       (g:graph_store)
       (M:map_model)
       (C:gmap nat (loc * gmap loc val)),
-    ⌜t=#t0 /\ store_inv M g r σ σr /\ coherent σ0 σr g /\ graph_inv g r /\ snap_inv M C⌝ ∗
+    ⌜t=#t0 /\ store_inv M g r σ σr /\ coherent σ0 σr g /\ rooted_dag g r /\ snap_inv M C⌝ ∗
     t0 ↦ #(LiteralLoc r) ∗
     r ↦ §Root ∗
     pstore_map_auth γ C ∗
@@ -462,9 +590,7 @@ Section pstore_G.
         { exfalso. subst. set_solver. } } }
     { constructor. set_solver.
       { intros ????. set_solver. } }
-    { constructor.
-      { intros ?. rewrite vertices_empty. set_solver. }
-      { intros ??. inversion 1; subst. done. set_solver. } }
+    { eauto using rooted_dag_empty. }
     { intros ??. set_solver. }
   Qed.
 
@@ -540,7 +666,10 @@ Section pstore_G.
       { eauto using gmap_included_insert. }
       { rewrite lookup_insert //. }
       { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
-        { subst. rewrite lookup_insert. eapply gi2 in Hr; eauto. set_solver. }
+        { subst. rewrite lookup_insert.
+          assert (ds=nil) as ->; last set_solver.
+          apply reachable_path in Hr. destruct Hr as (?&Hpath&?).
+          eapply ti2 in Hpath; last done. subst. done. }
         { rewrite lookup_insert_ne //.
           intros Hreach. eapply X4 in Hreach; eauto.
           destruct Hcoh as [Z1 Z2].
@@ -651,17 +780,7 @@ Section pstore_G.
         constructor.
         { eauto using gmap_included_insert. }
         { intros ?. set_solver. } }
-      { destruct Hgraph as [X1 X2]. constructor.
-        { rewrite vertices_union vertices_singleton. intros x.
-          rewrite !elem_of_union !elem_of_singleton.
-          intros [[-> | ->] | Hx].
-          { exists [(l,w)]. simpl. eapply rtcl_l. 2:apply rtcl_refl. set_solver. }
-          { exists nil. apply rtcl_refl. }
-          { apply X1 in Hx. destruct Hx as (ds,Hx). exists (ds++[(l,w)]).
-            eapply rtcl_r.
-            { eapply reachable_weak; eauto. set_solver. }
-            { set_solver. } } }
-        { intros x ds Hreach. apply reachable_cycle_end_inv in Hreach; eauto. } }
+      { eauto using rooted_dag_add. }
       { intros ? r0 ? HC. apply Hsnap in HC. destruct HC as (?&HC&?).
         destruct_decide (decide (r0=r')).
         { exfalso. subst. destruct Hinv as [X1 X2 X3].
@@ -711,9 +830,8 @@ Section pstore_G.
   Definition fsts  (ys:list (loc*(loc*val)*loc)) : list val :=
     (fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys.
 
-  Lemma pstore_collect_spec_aux r r' t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
-    path r ys r' ->
-    list_to_set ys ⊆ g ->
+  Lemma pstore_collect_spec_aux (r r':loc) t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+    path g r ys r' ->
     {{{ r' ↦ §Root ∗
         lst_model t' xs ∗
         ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
@@ -726,8 +844,8 @@ Section pstore_G.
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
-    iIntros (Hpath Hg Φ) "(Hr'&HL&Hg) HΦ".
-    iInduction ys as [|] "IH" forall (r xs r' Hpath Hg t'); wp_rec.
+    iIntros (Hpath Φ) "(Hr'&HL&Hg) HΦ".
+    iInduction ys as [|] "IH" forall (r xs r' Hpath t'); wp_rec.
     { inversion Hpath. subst. wp_load. simpl.
       iSteps. rewrite /lst_model //. }
     { inversion Hpath. subst.
@@ -737,14 +855,13 @@ Section pstore_G.
       wp_load.
       iSpecialize ("Hg" with "[$]").
       iDestruct (lst_model_Cons (ValLiteral (LiteralLoc r)) with "[$]") as "?".
-      iSpecialize ("IH" with "[%][%][$][$][$]"). done. set_solver.
+      iSpecialize ("IH" with "[%//][$][$][$]").
       iStep 19. iModIntro. iStep 3. iApply "IH". iModIntro. iIntros (?) "(?&?&?)".
       iApply ("HΦ"). iFrame. }
   Qed.
 
- Lemma pstore_collect_spec r r' (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
-   path r ys r' ->
-   list_to_set ys ⊆ g ->
+ Lemma pstore_collect_spec (r r':loc) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+   path g r ys r' ->
    {{{ r' ↦ §Root ∗
         ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
    }}}
@@ -756,9 +873,9 @@ Section pstore_G.
       lst_model t (rev (fsts ys))
    }}}.
   Proof.
-    iIntros (?? Φ) "(?&?) Hϕ".
+    iIntros (? Φ) "(?&?) Hϕ".
     iDestruct lst_model_Nil as "?".
-    iDestruct (pstore_collect_spec_aux with "[$]") as "Go". done. done.
+    iDestruct (pstore_collect_spec_aux with "[$]") as "Go". done.
     iApply "Go". rewrite -rev_alt //. Unshelve. apply _.
   Qed.
 
@@ -801,24 +918,24 @@ Section pstore_G.
       undo (xs++[(r,(l,v),r')]) ((r',(l,v'),r)::ys) σ
   .
 
-  Lemma use_path r (xs:list (loc*(loc*val)*loc)) r0 x r1 r':
-    path r (xs ++ [(r0, x, r1)]) r' ->
-    (r0, x, r1) ∈ (list_to_set xs : gset (loc*(loc*val)*loc)) ->
-    exists ds, reachable (list_to_set (xs ++ [(r0, x, r1)])) r0 ds r0 /\ ds ≠ nil.
+  Lemma use_path r g (xs:list (loc*(loc*val)*loc)) r0 x r1 r':
+    list_to_set xs ⊆ g ->
+    path g r (xs ++ [(r0, x, r1)]) r' ->
+    (r0, x, r1) ∈ (list_to_set xs : gset(loc*(loc*val)*loc) ) ->
+    exists ds, path g r0 ds r0 /\ ds ≠ nil.
   Proof.
-    revert r. induction xs; intros r. set_solver.
+    revert r r0 r1 r' x. induction xs; intros r r0 r1 r' x ?.
+    { set_solver. }
     rewrite -app_comm_cons. inversion 1. subst.
     rewrite list_to_set_cons.
     destruct_decide (decide ((r0, x, r1) = (r, b, a2))) as X.
     { inversion X. subst. intros _. clear IHxs.
-      rewrite app_comm_cons in H. apply path_snoc_inv in H.
-      destruct H as (?&?). subst a2.
-      exists (proj2 <$> ((r, b, r') :: xs)). split.
-      { eapply reachable_path2. done. set_solver. }
-      { done. } }
-    { intros ?. apply IHxs in H4. 2:set_solver.
-      destruct H4 as (?&?&?). eexists. split; last done.
-      eapply reachable_weak. done. set_solver. }
+      rewrite app_comm_cons in H0. apply path_snoc_inv in H0.
+      destruct H0 as (?&?&?). subst a2.
+      exists (((r, b, r') :: xs)). done. }
+    { intros ?. apply IHxs in H6. 2,3:set_solver.
+      destruct H6 as (?&?&?). eexists. split; last done.
+      eapply path_weak. done. set_solver. }
   Qed.
 
   Lemma acyclic_weak `{Countable A} `{Countable B} (g1 g2:graph A B) :
@@ -826,14 +943,15 @@ Section pstore_G.
     g2 ⊆ g1 ->
     acyclic g2.
   Proof.
-    intros Hacy ? ???. eapply Hacy. by eapply reachable_weak.
+    intros Hacy ? ???. eapply Hacy. by eapply path_weak.
   Qed.
 
-  Lemma pstore_revert_spec_aux g1 r t g2 xs r' w σ σ0 :
+  Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
     locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
-    acyclic g2 ->
-    path r xs r' ->
+    acyclic g ->
+    g2 ⊆ g ->
+    path g r xs r' ->
     {{{
        lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
        ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
@@ -846,8 +964,8 @@ Section pstore_G.
         ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
-    iIntros (Hlocs Hg Hacy Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
-    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' Hpath g1 g2 Hg Hlocs Hacy).
+    iIntros (Hlocs Hg Hacy Hsub Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
     { wp_rec. simpl.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Nil with "[$]") .
@@ -859,9 +977,10 @@ Section pstore_G.
       iApply (wp_lst_match_Cons with "[$]") . done.
       iIntros (t') "HL". simpl.
       rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+      rewrite list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (loc * diff * loc))).
       { intros ?. apply use_path in Hpath; last done. destruct Hpath as (?&Hpath&?).
-        apply Hacy in Hpath. congruence. }
+        apply Hacy in Hpath. congruence. set_solver. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
       { set_solver. }
       rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
@@ -872,7 +991,7 @@ Section pstore_G.
 
         rewrite elem_of_union elem_of_singleton. right. reflexivity. }
 
-      apply path_snoc_inv in Hpath. destruct Hpath as (?&->).
+      apply path_snoc_inv in Hpath. destruct Hpath as (?&->&?).
       wp_smart_apply assert_spec. rewrite bool_decide_eq_true_2 //.
       iStep 4. iModIntro.
 
@@ -880,10 +999,10 @@ Section pstore_G.
       wp_load. wp_store. wp_store. iStep 4. iModIntro.
 
       iSpecialize ("Hσ" with "[$]").
-      iSpecialize ("IH" with "[%//][%//][%][%][$][$][$] Hg1 Hg2").
+      iSpecialize ("IH" with "[%//][%//][%][%//][%][$][$][$] Hg1 Hg2").
       { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4.
         specialize (Hlocs x1 x2 x3 x4). set_solver. }
-      { eapply acyclic_weak; eauto. rewrite list_to_set_app. set_solver. }
+      { set_solver. }
 
       rewrite fmap_app -apply_diffl_snoc. simpl.
       iApply "IH". iModIntro.
@@ -904,7 +1023,7 @@ Section pstore_G.
     locs_of_edges_in g (dom σ) ->
     g = list_to_set xs ->
     acyclic g ->
-    path r xs r' ->
+    path g r xs r' ->
     {{{
        lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
        ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
@@ -917,7 +1036,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (???? Φ) "(?&?&?&?) HΦ".
-    iApply (pstore_revert_spec_aux ∅ with "[-HΦ]"); try done.
+    iApply (pstore_revert_spec_aux g ∅ with "[-HΦ]"); try done.
     { rewrite big_sepS_empty. iFrame. }
     { iModIntro. iIntros "[% ?]". iApply "HΦ". iExists _. rewrite left_id_L //. }
   Qed.
@@ -933,7 +1052,7 @@ Section pstore_G.
     locs_of_edges_in g (dom σ) ->
     g = list_to_set xs ->
     acyclic g ->
-    path r xs r' ->
+    path g r xs r' ->
     {{{
        r' ↦ §Root ∗
        ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
@@ -947,7 +1066,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
-    wp_rec. wp_apply (pstore_collect_spec with "[$]"). done. set_solver.
+    wp_rec. wp_apply (pstore_collect_spec with "[$]"). done.
     iIntros (?) "(?&?&?)".
     iStep 10. rewrite rev_fsts.
     iApply (pstore_revert_spec with "[-HΦ]"); try done. iFrame.
@@ -961,15 +1080,6 @@ Section pstore_G.
     intros Z ? a b c d ?. eapply (Z a b c d). set_solver.
   Qed.
 
-
-  Lemma undo_vertices xs ys σ :
-    undo xs ys σ ->
-    vertices (list_to_set ys) = vertices (list_to_set xs).
-  Proof.
-    revert xs σ. induction ys; intros xs σ; inversion 1; subst. done.
-    simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
-    erewrite IHys; last done. rewrite vertices_empty. set_solver.
-  Qed.
 
   Lemma apply_diffl_included xs σ1 σ2 :
     σ1 ⊆ σ2 ->
@@ -992,6 +1102,421 @@ Section pstore_G.
     intros ?. simpl. apply elem_of_union. left. eapply IHys. done. set_solver.
   Qed.
 
+  Lemma path_restrict  `{Countable A} `{Countable B} (g:graph A B) r xs r' :
+    path g r xs r' ->
+    path (list_to_set xs) r xs r'.
+  Proof.
+    induction 1.
+    { apply path_nil. }
+    { apply path_cons. set_solver.
+      eapply path_weak. done. set_solver. }
+  Qed.
+
+  Lemma path_all_in `{Countable A} `{Countable B} (g:graph A B) a1 xs a2 :
+    path g a1 xs a2 ->
+    list_to_set xs ⊆ g.
+  Proof.
+    induction 1; simpl; set_solver.
+  Qed.
+
+  Lemma path_inv_r (g:gset (loc*(loc*val)*loc)) x bs z :
+    path g x bs z ->
+    (x = z /\ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] /\ path g x bs' y ∧ (y,b,z) ∈ g.
+  Proof.
+    induction 1.
+    { naive_solver.  }
+    right. destruct IHpath as [(->&->)|(bs'&b'&y&->&?&?)].
+    { exists nil. eexists _,_. split; first done. split. eauto using path_nil. naive_solver. }
+    { exists ((a1, b, a2) :: bs'). eexists _,_. rewrite app_comm_cons //. split_and !; try done.
+      apply path_cons; eauto. }
+  Qed.
+
+  Definition diff_last {A:Type} (ys1 ys2:list A) :=
+    match last ys1,last ys2 with Some x,Some y => x ≠ y | _,_ => True end.
+
+  Lemma path_extract_suffix (g:gset (loc*(loc*val)*loc)) a1 a2 xs1 r xs2 :
+    kindofinj g ->
+    path g a1 xs1 r ->
+    path g a2 xs2 r  ->
+    exists ys1 ys2 xs,
+      xs1 = ys1 ++ xs /\
+      xs2 = ys2 ++ xs /\ diff_last ys1 ys2.
+  Proof.
+    intros Hinj.
+    revert r a1 a2 xs2. induction xs1 using rev_ind; intros r a1 a2 xs2.
+    { inversion 1. subst. intros. exists nil,xs2,nil.
+      simpl. rewrite right_id_L. set_solver. }
+    intros Hp1 Hp2. apply path_inv_r in Hp1.
+    destruct Hp1 as [? | (bs'&b'&y&X1&X2&X3)].
+    { destruct xs1; naive_solver. }
+    apply app_inj_tail in X1. destruct X1 as (<-&->).
+
+    apply path_inv_r in Hp2. destruct Hp2 as [(->&->) | (bs'&b&y'&->&?&?)].
+    { exists (xs1 ++ [(y, b', r)]),nil,nil. rewrite right_id. split_and !; try done.
+      unfold diff_last. destruct (last (xs1 ++ [(y, b', r)])); try done. }
+
+    destruct_decide (decide (y'=y)); last first.
+    { eexists _,_,nil. rewrite !right_id_L. split_and!; try done.
+      unfold diff_last. rewrite !last_app. simpl. naive_solver. }
+    subst.
+
+    destruct (IHxs1 _ _ _ _ X2 H) as (ys1&ys2&xs&->&->&Hdiff).
+    destruct (Hinj _ _ _ _ _ X3 H0) as (->&_).
+    eexists _,_,(xs++[(y, b, r)]). rewrite !assoc_L. done.
+  Qed.
+
+  Lemma elem_of_middle {A:Type} (x:A) (xs:list A) :
+    x ∈ xs ->
+    exists (l1 l2:list A), xs = l1 ++ x::l2.
+  Proof.
+    intros Hx. apply elem_of_list_lookup_1 in Hx.
+    destruct Hx as (?&?).
+    eexists _,_. symmetry. eapply take_drop_middle. done.
+  Qed.
+
+  Lemma diff_last_app_middle {A:Type} x (l1' l2' l1 l2:list A) :
+    diff_last (l1' ++ x :: l2') (l1 ++ x :: l2) ->
+    diff_last (x :: l2') (x :: l2).
+  Proof.
+    unfold diff_last. rewrite !last_app !last_cons.
+    destruct (last l2),(last l2'); eauto.
+  Qed.
+
+  Lemma list_case_r {A:Type} (l:list A) :
+    l = nil \/ exists (l':list A) x, l = l' ++ [x].
+  Proof.
+    induction l using rev_ind.
+    naive_solver. right.
+    destruct IHl as [-> | (?&?&->)]; eauto.
+  Qed.
+
+  Lemma diff_last_irrefl {A:Type} (l:list A) :
+    l ≠ nil ->
+    ¬ (diff_last l l).
+  Proof.
+    destruct (list_case_r l) as [|(?&?&->)]. naive_solver.
+    intros _. unfold diff_last.
+    rewrite !last_app //. simpl. naive_solver.
+  Qed.
+
+  Lemma path_use_diff_last (g:gset (loc*(loc*val)*loc)) a1 a2 ys1 ys2 xs r :
+    acyclic g ->
+    kindofinj g ->
+    path g a1 (ys1 ++ xs) r ->
+    path g a2 (ys2 ++ xs) r  ->
+    diff_last ys1 ys2 ->
+    forall x, x ∈ ys2 -> x ∉ (ys1 ++ xs).
+  Proof.
+    intros Hacy Hroot Hp1 Hp2 Hdiff x Hx Hx'.
+    apply elem_of_app in Hx'. destruct Hx' as [Hx'|Hx'].
+    (* contradicts diff_last. *)
+    { apply elem_of_middle in Hx,Hx'.
+      destruct Hx as (l1&l2&->).
+      destruct Hx' as (l1'&l2'&->).
+      rewrite -!assoc_L in Hp1,Hp2.
+      apply path_app_inv in Hp1,Hp2.
+      destruct Hp1 as (x1&_&Hp1).
+      destruct Hp2 as (x2&_&Hp2).
+      rewrite -!app_comm_cons in Hp1,Hp2.
+      assert (x1=proj1 x).
+      { inversion Hp1. subst. done. }
+      assert (x2=proj1 x).
+      { inversion Hp2. subst. done. }
+      subst.
+      eapply use_kindofinj in Hp1; eauto.
+      rewrite !app_comm_cons in Hp1.
+      apply app_inv_tail in Hp1.
+      apply diff_last_app_middle in Hdiff.
+      rewrite Hp1 in Hdiff.
+      eapply diff_last_irrefl; last done. done. }
+    (* There is a loop. *)
+    { apply elem_of_middle in Hx,Hx'.
+      destruct Hx as (l1&l2&->).
+      destruct Hx' as (l1'&l2'&->).
+      rewrite -assoc_L in Hp2.
+      apply path_app_inv in Hp2.
+      destruct Hp2 as (?&_&Hp2).
+      rewrite assoc_L  in Hp2.
+      apply path_app_inv in Hp2.
+      destruct Hp2 as (?&Hp2&Hp2').
+      assert (x0 = proj1 x) as ->.
+      { inversion Hp2. subst. done. }
+      assert (x1 = proj1 x) as ->.
+      { inversion Hp2'. subst. done. }
+      rewrite -app_comm_cons in Hp2.
+      eapply Hacy in Hp2. congruence. }
+  Qed.
+
+  Lemma path_middle (g:graph loc (loc*val)) x xs ys z :
+    path g x (xs ++ ys) z ->
+    exists y, path g x xs y /\ path g y ys z.
+  Proof.
+    revert g x ys z. induction xs; intros g x ys z.
+    { simpl. eauto using path_nil. }
+    inversion 1; simpl in *; subst.
+    apply IHxs in H5. destruct H5 as (y,(?&?)).
+    exists y. split; last done. eauto using path_cons.
+  Qed.
+
+  Definition undo_weak (xs ys:list (loc*(loc*val)*loc)) :=
+    forall r x r', (r,x,r') ∈ xs -> exists x', (r',x',r) ∈ ys.
+
+  Lemma path_app (g:graph loc (loc*val)) x3 x1 xs ys x2 :
+    path g x1 xs x3 ->
+    path g x3 ys x2 ->
+    path g x1 (xs++ys) x2.
+  Proof.
+    intros Hp.
+    revert x2 ys. induction Hp. eauto.
+    intros. rewrite -app_comm_cons. apply path_cons. set_solver.
+    eauto.
+  Qed.
+
+  Lemma use_undo ys2 us ys g r y :
+    undo_weak (ys2 ++ us) ys ->
+    path g r ys2 y ->
+    exists zs, path (list_to_set ys) y zs r.
+  Proof.
+    intros Hundo Hpath.
+    revert us ys Hundo. induction Hpath; intros us' ys Hundo.
+    { exists nil. apply path_nil. }
+    assert (exists b', (a2,b',a1) ∈ ys) as (b'&Hb').
+    { eapply (Hundo _ b). set_solver. }
+    assert (undo_weak (bs ++ us') ys) as Hundo'.
+    { intros ????. eapply (Hundo _ x). set_solver. }
+    apply IHHpath in Hundo'.
+    destruct Hundo' as (π&?).
+    exists (π ++ [(a2, b', a1)]). eapply path_app; first done.
+    apply path_cons. 2:apply path_nil. set_solver.
+  Qed.
+
+  Lemma diff_last_comm {A:Type} (l1 l2:list A) :
+    diff_last l1 l2 <-> diff_last l2 l1.
+  Proof.
+    unfold diff_last.
+    destruct (last l1),(last l2); naive_solver.
+  Qed.
+
+  Lemma path_union_inv (g1: graph loc (loc*val)) g2 a1 xs a2 :
+    path (g1 ∪ g2) a1 xs a2 ->
+    path g1 a1 xs a2 \/ exists x, x ∈ g2 /\ x ∈ xs /\ path (g1 ∪ g2) a1 xs a2.
+  Proof.
+    induction 1.
+    left. eauto using path_nil.
+    destruct IHpath as [|(x&?&?&?)].
+    { destruct_decide (decide ((a1,b,a2) ∈ g1)).
+      { left. apply path_cons; eauto. }
+      { right. exists (a1,b,a2). split_and !. set_solver. set_solver.
+        apply path_cons. set_solver. eauto. } }
+    { right. exists x. split_and !;eauto. set_solver. apply path_cons; eauto. }
+  Qed.
+
+
+  Lemma use_undo_weak' xs ys g r y :
+    undo_weak xs ys ->
+    path g r xs y ->
+    exists zs, path (list_to_set ys) y zs r /\ length xs = length zs.
+  Proof.
+    intros Hweak.
+    induction 1.
+    { exists nil. split. apply path_nil. done. }
+    { destruct IHpath as (zs&Hzs&?).
+      { intros ????. eapply Hweak. apply elem_of_cons. eauto. }
+      destruct (Hweak a1 b a2) as (b'&Hb'). set_solver.
+      exists (zs ++ [(a2, b', a1)]). split.
+      { eapply path_app. done.
+        apply path_cons. set_solver. apply path_nil. }
+      { rewrite app_length. simpl. lia. } }
+  Qed.
+
+  Inductive undo0 :
+    list (loc*(loc*val)*loc) -> list (loc*(loc*val)*loc) -> Prop :=
+  | undo0_nil :
+    undo0 [] []
+  | undo0_cons :
+    forall r x x' r' xs ys,
+      undo0 xs ys  ->
+      undo0 (xs++[(r,x,r')]) ((r',x',r)::ys).
+
+  Lemma undo_undo0 xs ys σ :
+    undo xs ys σ ->
+    undo0 xs ys.
+  Proof.
+    induction 1; eauto using undo0_nil, undo0_cons.
+  Qed.
+
+  Lemma undo0_snoc ys xs a a' x x' :
+    undo0 ys xs ->
+    undo0 ((a,x,a') :: ys) (xs ++ [(a',x',a)]).
+  Proof.
+    induction 1.
+    { apply (undo0_cons _ _ _ _ nil nil). apply undo0_nil. }
+    rewrite -!app_comm_cons app_comm_cons. by apply undo0_cons.
+  Qed.
+
+  Lemma undo0_symm xs ys :
+    undo0 xs ys -> undo0 ys xs.
+  Proof.
+    induction 1. eauto using undo0_nil.
+    apply undo0_snoc. eauto.
+  Qed.
+
+  Lemma undo0_undo_weak xs ys :
+    undo0 xs ys ->
+    undo_weak xs ys.
+  Proof.
+    induction 1. intros ?. set_solver.
+    intros ???. rewrite elem_of_app elem_of_list_singleton.
+    intros [X|X].
+    { apply IHundo0 in X. set_solver. }
+    { set_solver. }
+  Qed.
+
+  Lemma use_undo' g r xs ys y :
+    path g r xs y ->
+    undo0 xs ys ->
+    forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
+  Proof.
+    intros Hpath Hundo. generalize Hundo. intros Hundo'.
+    apply undo0_symm in Hundo.
+    apply undo0_undo_weak in Hundo.
+    intros ??? Hys. apply Hundo in Hys. destruct Hys as (?&?).
+    apply elem_of_middle in H. destruct H as (l1&l2&->).
+    apply path_app_inv in Hpath. destruct Hpath as (r'&E1&E2).
+    assert (r'=a') as ->.
+    { inversion E2. subst. done. }
+    apply path_inv_r in E1.
+    destruct E1 as [|(?&?&?&->&Hpath&?)].
+    naive_solver.
+    apply undo0_undo_weak in Hundo'.
+    destruct (Hundo' x2 x1 a'). set_solver. set_solver.
+  Qed.
+
+  Lemma path_cannot_escape (x:(loc * diff * loc)) (xs ys:list (loc * diff * loc)) (g1: graph loc (loc*val)) a a' r :
+    (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) ->
+    kindofinj (g1 ∪ list_to_set ys) ->
+    x ∈ (list_to_set ys : gset _) ->
+    (forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys) ->
+    path (g1 ∪ list_to_set ys) a (x :: xs) a' ->
+    path (list_to_set ys) a (x::xs) a'.
+  Proof.
+    intros ? X1 X2 X3. remember (x::xs) as zs.
+    revert a a' x xs Heqzs X1 X2 X3.
+    induction zs; intros a0 a' x xs Heqzs X1 X2 X3. congruence.
+    inversion 1. subst. inversion Heqzs. subst. apply path_cons. eauto.
+    destruct xs as [|((?,?),?)].
+    { inversion H6. subst. eauto using path_nil. }
+    eapply IHzs; eauto. inversion H6. subst.
+    apply elem_of_list_to_set in X2. apply X3 in X2.
+    destruct X2 as [|(?&?&?)]. naive_solver.
+    assert ((l, x, x0) ∈  g1 ∪ list_to_set ys) as Z. set_solver.
+    destruct (X1 _ _ _ _ _ H9 Z). set_solver.
+  Qed.
+
+  Lemma path_in_seg_complete (r a a':loc) (x:(loc * diff * loc)) (xs0 xs1 ys: list (loc * diff * loc)) (g1:graph loc (loc*val)) :
+    (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) -> (* root has no succ *)
+    kindofinj (g1 ∪ list_to_set ys) ->
+    (forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys) -> (* ys is "closed "*)
+    path (g1 ∪ list_to_set ys) a xs0 a' ->
+    path (list_to_set ys) a' (x :: xs1) a ->
+    exists zs, path (list_to_set ys) a zs a'.
+  Proof.
+    intros Hroot Hinj Hclosed Hp1 Hp2.
+    inversion Hp1.
+    { subst. exists nil. apply path_nil. }
+    subst. eapply path_cannot_escape in Hp1; eauto.
+    apply path_inv_r in Hp2.
+    destruct Hp2 as [|(?&?&?&Heq&Hp2&Hys)].
+    { exfalso. destruct xs1; naive_solver. }
+    apply elem_of_list_to_set in Hys.
+    apply Hclosed in Hys. destruct Hys as [->|(?&?&Hys)].
+    { naive_solver. }
+    assert ((a, x3, x4) ∈  g1 ∪ list_to_set ys) as Z. set_solver.
+    destruct (Hinj _ _ _ _ _ H Z). set_solver.
+  Qed.
+
+  Lemma undo0_vertices xs ys :
+    undo0 xs ys ->
+    vertices (list_to_set ys) = vertices (list_to_set xs).
+  Proof.
+    revert xs. induction ys; intros xs; inversion 1; subst. done.
+    simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
+    erewrite IHys; last done. rewrite vertices_empty. set_solver.
+  Qed.
+
+  Lemma undo_preserves_rooted_dag g xs ys rs r :
+    (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
+    kindofinj g ->
+    kindofinj (list_to_set ys ∪ g ∖ list_to_set xs) ->
+    path g rs xs r ->
+    undo0 xs ys ->
+    rooted_dag g r ->
+    rooted_dag (list_to_set ys ∪ g ∖ list_to_set xs) rs.
+  Proof.
+    intros Hnr Hinj Hinj' Hpath Hundo Hroot. inversion Hroot as [X1 X2].
+    assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
+    { apply undo0_vertices in Hundo.
+      rewrite vertices_union Hundo -vertices_union -union_difference_L //.
+      eauto using path_all_in. }
+
+    constructor.
+    { intros a. rewrite Hvg => Ha.
+      apply X1 in Ha. destruct Ha as (zs&Ha).
+      edestruct (path_extract_suffix g a rs) as (ys1&ys2&us&?&?&Hlast); eauto. subst.
+
+      apply path_middle in Ha. destruct Ha as (y&Hy1&Hy2).
+      apply path_middle in Hpath. destruct Hpath as (y'&Hy'1&Hy'2).
+      assert (y'=y) as ->.
+      { inversion Hy'2; subst; inversion Hy2; naive_solver. }
+      edestruct use_undo as (zs&Hzs). eauto using undo0_undo_weak. done.
+      exists (ys1++zs). eapply path_app.
+      2:{ eapply path_weak. done. set_solver. }
+      { clear X2. induction Hy1.
+        { apply path_nil. }
+        apply path_cons.
+        { rewrite elem_of_union elem_of_difference. right. split. set_solver.
+          apply not_elem_of_list_to_set.
+          eapply path_use_diff_last. 1,2: eauto using ti2.
+          3:{ apply diff_last_comm. done. }
+          { eapply path_app; eauto. }
+          { rewrite -app_comm_cons. eapply path_cons. done.
+            eapply path_app; eauto. }
+          { set_solver. } }
+        { apply IHHy1; eauto.  unfold diff_last in *. rewrite last_cons in Hlast.
+          destruct (last bs), (last ys2); try done. } } }
+    { intros a zs Hzs. rewrite comm_L in Hzs.
+      apply path_union_inv in Hzs. destruct Hzs as [Hsz|(x&?&?&Hzs)].
+      (* The cycle is only in g, easy. *)
+      { eapply X2. eapply path_weak. done. set_solver. }
+      (* There is at least a vertex in ys.
+         We are going to construct a cycle in ys, implying a cycle in xs. *)
+      exfalso. apply elem_of_middle in H0. destruct H0 as (?&?&->).
+      apply path_app_inv in Hzs. destruct Hzs as (?&E1&E2).
+
+      apply path_cannot_escape with (r:=rs) in E2; last first.
+      { eapply use_undo'; eauto using undo_undo0. }
+      { done. }
+      { rewrite comm_L //. }
+      { set_solver. }
+
+      eapply path_in_seg_complete with (r:=rs) in E1; last first. done.
+      { eapply use_undo'; eauto using undo_undo0. }
+      { rewrite comm_L //. }
+      { set_solver. }
+      destruct E1 as (?&E1).
+
+      assert (path (list_to_set ys) a (x3 ++ x::x1) a ) as Hcycle.
+      { eapply path_app. done. done. }
+
+      eapply use_undo_weak' with (ys:=xs) in Hcycle.
+      2:{ apply undo0_symm in Hundo.
+          apply undo0_undo_weak in Hundo. apply path_all_in in Hcycle.
+          intros ????. eapply (Hundo _ x4); eauto. set_solver. }
+      destruct Hcycle as (?&Hcycle&F).
+      eapply path_weak in Hcycle. 2:eapply path_all_in; done.
+      eapply ti2 in Hcycle; eauto. subst. destruct x3; simpl in *; lia. }
+  Qed.
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -1008,6 +1533,8 @@ Section pstore_G.
     iDestruct "Hsnap" as "(%rs&%&->&Hsnap)".
     wp_rec. iStep 20.
 
+    iDestruct (extract_kindofinj with "Hg") as "%".
+
     iDestruct (map_agree_lookup with "[$][$]") as "%Hrs".
     apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
 
@@ -1021,58 +1548,85 @@ Section pstore_G.
     assert (rs ∈ vertices g) as Hrs.
     { destruct Hinv. apply elem_of_dom_2 in HMrs. set_solver. }
 
-    eapply gi1 in Hrs; eauto. destruct Hrs as (ds,Hrs).
+    eapply ti1 in Hrs; eauto. destruct Hrs as (ds,Hrs).
     inversion Hrs. congruence. subst. rename a2 into r'. destruct b.
     iDestruct (big_sepS_elem_of_acc with "[$]") as "(?&Hg)". done. simpl.
     wp_load. iStep 19. iModIntro.
     iSpecialize ("Hg" with "[$]").
 
-    generalize Hrs. intros Hrsold.
-    apply reachable_path in Hrsold.
-    destruct Hrsold as (xs&Hpath&Hg&Hproj).
+    remember ((rs, (l, v), r') :: bs) as xs.
+    assert (list_to_set xs ⊆ g).
+    { eauto using path_all_in. }
+
     rewrite (union_difference_L (list_to_set xs) g) //.
+
     iDestruct (big_sepS_union with "Hg") as "(Hxs&Hg)". set_solver.
-    wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]"). 2,4:done. 3:iFrame.
+    wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]").
+    4:{ eapply path_restrict. done. }
+    2:done.
     { destruct Hcoh as [_ X]. eapply locs_of_edges_weak; eauto. }
-    { destruct Hgraph. eapply acyclic_weak; eauto. }
+    { eapply acyclic_weak; eauto using ti2. }
+    { iFrame. }
 
     iIntros "[%ys (%Hundo&?&?&?)]".
     iStep 8. do 2 iModIntro.
     iApply "HΦ".
-    iDestruct (big_sepS_union_2 with "[$][$]") as "?".
+    iDestruct (big_sepS_union_2 with "[$][$]") as "Hs".
+
+    remember ((rs, (l, v), r') :: bs) as xs.
+
+    iDestruct (extract_kindofinj with "Hs") as "%".
+
+    assert (({[(rs, (l, v), r')]} ∪ list_to_set bs) = (list_to_set xs : gset _)) as Hbs.
+    { subst xs. reflexivity. }
+    rewrite Hbs. rewrite Hbs in H5.
+
+    iAssert ⌜forall x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
+    { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "?". done.
+      iClear "H17".
+      iDestruct (mapsto_ne with "[$][$]") as "%". congruence. }
 
     iExists _,_,_,(apply_diffl (proj2 <$> xs) σ0),_,(<[rs:=apply_diffl (proj2 <$> xs) σ0]> M),_. iFrame.
 
     assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
-    { apply undo_vertices in Hundo.
+    { apply undo_undo0, undo0_vertices in Hundo.
       rewrite vertices_union Hundo -vertices_union -union_difference_L //. }
 
     assert (σ1 ⊆ apply_diffl (proj2 <$> xs) σ0).
     { destruct Hinv as [X1 X2 X3 X4].
+      apply reachable_path2 in Hrs.
       eapply X4 in Hrs; last done. etrans. apply Hrs.
-      rewrite Hproj. destruct Hcoh. eauto using apply_diffl_included. }
+      destruct Hcoh. eauto using apply_diffl_included. }
 
-    iPureIntro. split_and !.
-    { done. }
+    assert (rooted_dag (list_to_set ys ∪ g ∖ list_to_set xs) rs) as Hroot.
+    { eapply undo_preserves_rooted_dag; eauto using undo_undo0. }
+
+    iPureIntro. split_and !; try done.
     { destruct Hinv as [X1 X2 X3 X4]. constructor.
       { rewrite dom_insert_L X1 Hvg.
-        apply elem_of_dom_2 in X3,HMrs. apply reachable_inv_in_invertices in Hrs.
+        apply elem_of_dom_2 in X3,HMrs.
+        apply reachable_path2,reachable_inv_in_invertices in Hrs.
         set_solver. }
       { by etrans. }
       { rewrite lookup_insert //. }
-      { admit. } }
+      { intros x ds μ Hreach.
+        destruct_decide (decide (x=rs)).
+        { subst. rewrite lookup_insert. inversion 1. subst.
+          assert (ds=nil).
+          { apply reachable_path in Hreach. destruct Hreach as (?&Hreach&Z).
+            eapply ti2 in Hreach. subst . done. eauto. }
+          subst. done. }
+        { rewrite lookup_insert_ne //. intros HMx.
+          admit. } } }
     { destruct Hcoh as [X1 X2]. constructor.
-      { reflexivity. }
-      { rewrite dom_apply_diffl. intros ???? Hedge.
+      { subst xs. reflexivity. }
+      { replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (proj2 <$> bs))) with (apply_diffl (proj2 <$> xs) σ0).
+        2:{ subst xs. reflexivity. }
+        rewrite dom_apply_diffl. intros ???? Hedge.
         rewrite /edge elem_of_union in Hedge. rewrite elem_of_union.
         destruct Hedge as [Hedge|Hedge].
         { right. eauto using undo_same_fst_label. }
         { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. } } }
-    { destruct Hgraph as [X1 X2].
-      constructor.
-      { rewrite Hvg. intros x Hx.
-        apply X1 in Hx. admit.  }
-      { admit. } }
     { intros n' l' σ_ HC.
       destruct_decide (decide (l'=rs)).
       { subst. eexists. split. rewrite lookup_insert //.
