@@ -46,8 +46,8 @@ Fixpoint expr_closed X e :=
   | Constr _ es
   | Record es =>
       forallb (expr_closed X) es
-  | Case e brs =>
-      expr_closed X e && forallb (λ br, expr_closed X br.2) brs
+  | Case e0 e1 brs =>
+      expr_closed X e0 && expr_closed X e1 && forallb (λ br, expr_closed X br.2) brs
   | Proph =>
       true
   end

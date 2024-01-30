@@ -266,12 +266,12 @@ Section pure_exec.
     apply nsteps_once, pure_head_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_case tag vs brs e :
+  #[global] Instance pure_case tag vs e brs sel :
     PureExec
-      (case_select tag brs = Some e)
+      (case_select tag brs = sel)
       1
-      (Case (Val $ ValConstr tag vs) brs)
-      (App (apps e (of_vals vs)) (Val $ ValConstr tag vs)).
+      (Case (Val $ ValConstr tag vs) e brs)
+      (App (from_option (λ e, apps e (of_vals vs)) e sel) (Val $ ValConstr tag vs)).
   Proof.
     solve_pure_exec.
   Qed.

@@ -372,15 +372,41 @@ Notation "tag x1 .. xn 'as' y => e" := (
   format "tag  x1  ..  xn  as  y  =>  '/    ' '[' e ']'"
 ).
 Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
-  Case e%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e%E (Lam BAnon Fail) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   format "'[hv' match:  e  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
-  Case e%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e%E (Lam BAnon Fail) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
+  Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  =>  '/    ' '[' e1 ']'  '/' end ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
+  Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  only parsing
+) : expr_scope.
+Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
+  Case e0%E (Lam x%binder e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  x at level 1,
+  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
+  Case e0%E (Lam x%binder e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  x at level 1,
   only parsing
 ) : expr_scope.
 

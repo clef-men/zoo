@@ -128,8 +128,8 @@ Fixpoint subst (x : string) v e :=
       Proj i $ subst x v e
   | Constr tag es =>
       Constr tag $ subst x v <$> es
-  | Case e brs =>
-      Case (subst x v e) $ (λ br, (br.1, subst x v br.2)) <$> brs
+  | Case e0 e1 brs =>
+      Case (subst x v e0) (subst x v e1) $ (λ br, (br.1, subst x v br.2)) <$> brs
   | Record es =>
       Record $ subst x v <$> es
   | Alloc e1 e2 =>
@@ -353,13 +353,13 @@ Inductive head_step : expr → state → list observation → expr → state →
         (Val $ ValConstr tag vs)
         σ
         []
-  | head_step_br tag vs brs e σ :
-      case_select tag brs = Some e →
+  | head_step_br tag vs e brs sel σ :
+      case_select tag brs = sel →
       head_step
-        (Case (Val $ ValConstr tag vs) brs)
+        (Case (Val $ ValConstr tag vs) e brs)
         σ
         []
-        (App (apps e (of_vals vs)) (Val $ ValConstr tag vs))
+        (App (from_option (λ e, apps e (of_vals vs)) e sel) (Val $ ValConstr tag vs))
         σ
         []
   | head_step_record es vs σ l :
@@ -536,7 +536,7 @@ Inductive ectxi :=
   | CtxTuple vs es
   | CtxProj (i : nat)
   | CtxConstr tag vs es
-  | CtxCase brs
+  | CtxCase e brs
   | CtxRecord vs es
   | CtxAllocL v2
   | CtxAllocR e1
@@ -579,8 +579,8 @@ Fixpoint ectxi_fill k e : expr :=
       Proj i e
   | CtxConstr tag vs es =>
       Constr tag $ of_vals vs ++ e :: es
-  | CtxCase brs =>
-      Case e brs
+  | CtxCase e' brs =>
+      Case e e' brs
   | CtxRecord vs es =>
       Record $ of_vals vs ++ e :: es
   | CtxAllocL v2 =>

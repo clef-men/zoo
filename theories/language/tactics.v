@@ -42,8 +42,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxProj i) K pvs e
     | Constr ?tag ?es =>
         go_list K pvs (CtxConstr tag) es
-    | Case ?e ?brs =>
-        add_ectxi (CtxCase brs) K pvs e
+    | Case ?e0 ?e1 ?brs =>
+        add_ectxi (CtxCase e1 brs) K pvs e0
     | Record ?es =>
         go_list K pvs CtxRecord es
     | Alloc ?e1 (Val ?v2) =>

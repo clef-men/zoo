@@ -143,7 +143,7 @@ Inductive expr :=
   | Tuple (es : list expr)
   | Proj i (e : expr)
   | Constr tag (es : list expr)
-  | Case (e : expr) (brs : list (constr_tag * expr))
+  | Case (e0 e1 : expr) (brs : list (constr_tag * expr))
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
@@ -240,9 +240,10 @@ Section expr_ind.
     ∀ es, Forall P es →
     P (Constr tag es).
   Variable HCase :
-    ∀ e, P e →
+    ∀ e0, P e0 →
+    ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
-    P (Case e brs).
+    P (Case e0 e1 brs).
   Variable HRecord :
     ∀ es, Forall P es →
     P (Record es).
@@ -319,9 +320,10 @@ Section expr_ind.
     | Constr tag es =>
         HConstr tag
           es (Forall_true P es expr_ind)
-    | Case e brs =>
+    | Case e0 e1 brs =>
         HCase
-          e (expr_ind e)
+          e0 (expr_ind e0)
+          e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
     | Record es =>
         HRecord
@@ -518,9 +520,10 @@ Proof.
           cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
-      | Case e1 brs1, Case e2 brs2 =>
-          cast_if_and
-            (decide (e1 = e2))
+      | Case e10 e11 brs1, Case e20 e21 brs2 =>
+          cast_if_and3
+            (decide (e10 = e20))
+            (decide (e11 = e21))
             (decide (brs1 = brs2))
       | Record es1, Record es2 =>
           cast_if
@@ -769,8 +772,8 @@ Proof.
           GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Constr tag es =>
           GenNode tag_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
-      | Case e brs =>
-          GenNode tag_Case $ go e :: go_brs brs
+      | Case e0 e1 brs =>
+          GenNode tag_Case $ go e0 :: go e1 :: go_brs brs
       | Record es =>
           GenNode tag_Record $ go_list es
       | Alloc e1 e2 =>
@@ -819,15 +822,15 @@ Proof.
       let go_brs := map go_br in
       match _e with
       | GenNode tag_Val [v] =>
-          Val (go_val v)
+          Val $ go_val v
       | GenLeaf (EncodeString x) =>
           Var x
       | GenNode tag_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
-          Rec f x (go e)
+          Rec f x $ go e
       | GenNode tag_App [e1; e2] =>
           App (go e1) (go e2)
       | GenNode tag_Unop [GenLeaf (EncodeUnop op); e] =>
-          Unop op (go e)
+          Unop op $ go e
       | GenNode tag_Binop [GenLeaf (EncodeBinop op); e1; e2] =>
           Binop op (go e1) (go e2)
       | GenNode tag_Equal [e1; e2] =>
@@ -837,17 +840,17 @@ Proof.
       | GenNode tag_Tuple es =>
           Tuple $ go_list es
       | GenNode tag_Proj [GenLeaf (EncodeNat i); e] =>
-          Proj i (go e)
+          Proj i $ go e
       | GenNode tag_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
           Constr tag $ go_list es
-      | GenNode tag_Case (e :: brs) =>
-          Case (go e) $ go_brs brs
+      | GenNode tag_Case (e0 :: e1 :: brs) =>
+          Case (go e0) (go e1) (go_brs brs)
       | GenNode tag_Record es =>
           Record $ go_list es
       | GenNode tag_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
       | GenNode tag_Load [e] =>
-          Load (go e)
+          Load $ go e
       | GenNode tag_Store [e1; e2] =>
           Store (go e1) (go e2)
       | GenNode tag_Xchg [e1; e2] =>
@@ -857,7 +860,7 @@ Proof.
       | GenNode tag_Faa [e1; e2] =>
           Faa (go e1) (go e2)
       | GenNode tag_Fork [e] =>
-          Fork (go e)
+          Fork $ go e
       | GenNode tag_Proph [] =>
           Proph
       | GenNode tag_Resolve [e0; e1; e2] =>
