@@ -1402,10 +1402,13 @@ Section pstore_G.
     { set_solver. }
   Qed.
 
+  Definition pathlike (ys:list (loc*(loc*val)*loc)) r :=
+    forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
+
   Lemma use_undo' g r xs ys y :
     path g r xs y ->
     undo0 xs ys ->
-    forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
+    pathlike ys r.
   Proof.
     intros Hpath Hundo. generalize Hundo. intros Hundo'.
     apply undo0_symm in Hundo.
@@ -1548,7 +1551,52 @@ Section pstore_G.
       eapply ti2 in Hcycle; eauto. subst. destruct x0; simpl in *; lia. }
   Qed.
 
-  Lemma undo_preserves_model g (M:map_model) (xs ys:list (loc* (loc*val)*loc)) (r1 r2:loc) ds σ1 σ2 rs σ0 r:
+  Lemma undo_app_inv xs ys1 ys2 σ :
+    undo xs (ys1 ++ ys2) σ ->
+    exists xs1 xs2, xs = xs2 ++ xs1 /\ undo xs2 ys2 (apply_diffl (proj2 <$> xs1) σ) /\ undo xs1 ys1 σ.
+  Proof.
+    revert xs ys2 σ. induction ys1; intros xs ys2 σ Hundo.
+    { exists nil,xs. rewrite right_id_L. split; eauto using undo_nil. }
+    rewrite -app_comm_cons in Hundo. inversion Hundo. subst.
+    apply IHys1 in H4. destruct H4 as (xs1&xs2&->&?&?).
+    eexists _,xs2. split_and !.
+    { rewrite -assoc_L //. }
+    { rewrite fmap_app apply_diffl_app. done. }
+    { apply undo_cons. done. done. }
+  Qed.
+
+  Lemma undo_app_inv1 xs ys1 ys2 σ :
+    undo xs (ys1 ++ ys2) σ ->
+    exists xs1 xs2, xs = xs2 ++ xs1 /\ undo xs1 ys1 σ.
+  Proof.
+    intros Hundo. apply undo_app_inv in Hundo. naive_solver.
+  Qed.
+
+  Lemma use_undo0 xs ys g r y :
+    undo0 xs ys ->
+    path g r xs y ->
+    path (list_to_set ys) y ys r.
+  Proof.
+    intros Hu. revert r y. induction Hu; intros r0 y.
+    { inversion 1. subst. apply path_nil. }
+    intros Hp. apply path_snoc_inv in Hp. destruct Hp as (?&?&?). subst.
+    apply path_cons. set_solver. eapply path_weak. apply IHHu; eauto. set_solver.
+  Qed.
+
+  Lemma same_path g (xs:list (loc* (loc*val)*loc)) a1 a2 a3 a4 :
+    path g a1 xs a2 ->
+    path g a3 xs a4 ->
+    xs ≠ nil ->
+    a1 = a3 /\ a2=a4.
+  Proof.
+    intros Hp1. revert a3 a4. induction Hp1.
+    { intros. congruence. }
+    intros a3' a4'. inversion 1. subst. intros _. destruct bs.
+    { inversion Hp1; inversion H8. subst. done. }
+    apply IHHp1 in H8. 2:done. naive_solver.
+  Qed.
+
+  Lemma undo_preserves_model g (M:map_model) (xs ys:list (loc* (loc*val)*loc)) (r1 r2:loc) ds σ1 σ2 rs σ0 σr r:
      dom M = vertices g ∪ {[r]} ->
     (forall r1 ds r2 σ1 σ2, reachable g r1 ds r2 -> M !! r1 = Some σ1 -> M !! r2 = Some σ2 -> σ1 ⊆ (apply_diffl ds σ2)) -> (* this is a part of _inv *)
     (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
@@ -1556,19 +1604,24 @@ Section pstore_G.
     path g rs xs r ->
     undo xs ys σ0 ->
     reachable (list_to_set ys ∪ g ∖ list_to_set xs) r1 ds r2 ->
+    M !! r = Some σr -> σr ⊆ σ0 ->
     M !! r1 = Some σ1 →
     M !! r2 = Some σ2 →
     σ1 ⊆ apply_diffl ds σ2.
   Proof.
-    intros Hdom Hinv Hroot Hinj' Hrs Hundo Hreach E1 E2. rewrite comm_L in Hreach.
+    intros Hdom Hinv Hroot Hinj' Hrs Hundo Hreach E0 R0 E1 E2. rewrite comm_L in Hreach.
     apply reachable_path in Hreach. destruct Hreach as (zs&Hpath&<-).
     apply path_union_inv in Hpath. destruct Hpath as [Hpath|Hpath].
+
+    (* If the path is entirely in g, easy. *)
     { eapply Hinv; eauto. eapply reachable_path2. eapply path_weak. done. set_solver. }
 
     destruct Hpath as (a'&x&l1&l2&X1&Hx&X2&Hzs).
     eapply path_cannot_escape with (r:=rs) in X2; eauto; last first.
     { eapply use_undo'; eauto using undo_undo0. }
     { set_solver. }
+
+    (* otherwise the path includes a part in g, and a part in ys. *)
 
     assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
     { apply undo_undo0, undo0_vertices in Hundo.
@@ -1583,10 +1636,66 @@ Section pstore_G.
     { apply reachable_path2 in X1.
       eapply reachable_weak in X1.
       eapply (Hinv _ _ _ _ _ X1 E1 Ea'). set_solver. }
-    etrans. done. rewrite Hzs. rewrite fmap_app apply_diffl_app.
-    apply apply_diffl_included. clear dependent σ1.
-    Search apply_diffl.
 
+    (* The part in g is preserved. *)
+    etrans. done. rewrite Hzs. rewrite fmap_app apply_diffl_app.
+    apply apply_diffl_included. clear dependent σ1 l1.
+
+    assert (exists u1 u2, ys = u1 ++ (x::l2) ++ u2) as (u1&u2&Hys).
+    { admit. }
+
+    generalize Hundo. intros Hpath.
+    rewrite Hys assoc_L in Hundo. apply undo_app_inv in Hundo.
+    destruct Hundo as (xs1&xs2&->&Hundo1&Hundo2).
+    apply undo_app_inv in Hundo2.
+    destruct Hundo2 as (xs4&xs3&->&Hundo2&Hundo3).
+
+    eapply undo_undo0,use_undo0 in Hpath. 2:done.
+    rewrite {2}Hys in Hpath.
+    apply path_app_inv in Hpath. destruct Hpath as (n1&T1&T2).
+    apply path_app_inv in T2. destruct T2 as (n2&T2&T3).
+    edestruct (same_path (list_to_set ys) (x::l2) n1 n2 a') as (?&?); try done.
+    subst n1 n2.
+
+    assert (reachable g a' (proj2 <$> xs4) r) as R1.
+    { apply reachable_path2. eapply path_weak.
+      eapply use_undo0. eapply undo0_symm,undo_undo0. done. done.
+      apply path_all_in in Hrs. set_solver. }
+    eapply Hinv in R1; try done.
+
+    assert (reachable g r2 (proj2 <$> xs3) a') as R2.
+    { apply reachable_path2. eapply path_weak.
+      eapply use_undo0. eapply undo0_symm,undo_undo0. done. done.
+      apply path_all_in in Hrs. set_solver. }
+    eapply Hinv in R2; try done.
+    etrans. apply R1.
+
+    remember (apply_diffl (proj2 <$> xs4) σr) as μ.
+
+    Lemma undo_apply_diff xs ys σ σ' :
+    undo xs ys σ' ->
+    σ ⊆ apply_diffl (proj2 <$> ys) σ' ->
+    apply_diffl (proj2 <$> xs) σ ⊆ σ'.
+  Proof.
+    induction 1.
+    Abort.
+
+
+
+    Admitted.
+
+    path g a1 ys a2 ->
+         undo xs ys σ0
+
+    Search undo.
+
+    Search undo.
+
+    Search path.
+    }
+
+
+    Search undo.
   Qed.
 
 
