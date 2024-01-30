@@ -1323,18 +1323,24 @@ Section pstore_G.
 
   Lemma path_union_inv (g1: graph loc (loc*val)) g2 a1 xs a2 :
     path (g1 ∪ g2) a1 xs a2 ->
-    path g1 a1 xs a2 \/ exists x, x ∈ g2 /\ x ∈ xs /\ path (g1 ∪ g2) a1 xs a2.
+    path g1 a1 xs a2 \/ exists a' x xs1 xs2, path g1 a1 xs1 a' /\ x ∈ g2 /\ path (g1 ∪ g2) a' (x::xs2) a2 /\ xs=xs1++x::xs2.
   Proof.
     induction 1.
     left. eauto using path_nil.
-    destruct IHpath as [|(x&?&?&?)].
+    destruct IHpath as [|(x&?&?&?&?&?&?&->)].
     { destruct_decide (decide ((a1,b,a2) ∈ g1)).
       { left. apply path_cons; eauto. }
-      { right. exists (a1,b,a2). split_and !. set_solver. set_solver.
-        apply path_cons. set_solver. eauto. } }
-    { right. exists x. split_and !;eauto. set_solver. apply path_cons; eauto. }
+      { right. exists a1,(a1,b,a2),nil. eexists. split_and !. apply path_nil. set_solver.
+        apply path_cons. set_solver. eauto. done. } }
+    { right.
+      destruct_decide (decide ((a1,b,a2) ∈ g1)).
+      { eexists _,_,_,_. split_and !;eauto.
+        2:{ rewrite app_comm_cons. reflexivity. }
+        apply path_cons. set_solver. done. }
+      eexists _,_,_,_. split_and !. apply path_nil.
+      3:{ simpl. reflexivity. }
+      set_solver. apply path_cons. set_solver. done. }
   Qed.
-
 
   Lemma use_undo_weak' xs ys g r y :
     undo_weak xs ys ->
@@ -1509,13 +1515,12 @@ Section pstore_G.
         { apply IHHy1; eauto.  unfold diff_last in *. rewrite last_cons in Hlast.
           destruct (last bs), (last ys2); try done. } } }
     { intros a zs Hzs. rewrite comm_L in Hzs.
-      apply path_union_inv in Hzs. destruct Hzs as [Hsz|(x&?&?&Hzs)].
+      apply path_union_inv in Hzs. destruct Hzs as [Hsz|Hsz].
       (* The cycle is only in g, easy. *)
       { eapply X2. eapply path_weak. done. set_solver. }
       (* There is at least a vertex in ys.
          We are going to construct a cycle in ys, implying a cycle in xs. *)
-      exfalso. apply elem_of_middle in H0. destruct H0 as (?&?&->).
-      apply path_app_inv in Hzs. destruct Hzs as (?&E1&E2).
+      exfalso. destruct Hsz as (a'&x&l1&l2&E1&Hx&E2&->).
 
       apply path_cannot_escape with (r:=rs) in E2; last first.
       { eapply use_undo'; eauto using undo_undo0. }
@@ -1523,45 +1528,67 @@ Section pstore_G.
       { rewrite comm_L //. }
       { set_solver. }
 
+      eapply path_weak in E1.
       eapply path_in_seg_complete with (r:=rs) in E1; last first. done.
       { eapply use_undo'; eauto using undo_undo0. }
       { rewrite comm_L //. }
       { set_solver. }
+      2:{ set_solver. }
       destruct E1 as (?&E1).
 
-      assert (path (list_to_set ys) a (x3 ++ x::x1) a ) as Hcycle.
+      assert (path (list_to_set ys) a (x0 ++ x::l2) a ) as Hcycle.
       { eapply path_app. done. done. }
 
       eapply use_undo_weak' with (ys:=xs) in Hcycle.
       2:{ apply undo0_symm in Hundo.
           apply undo0_undo_weak in Hundo. apply path_all_in in Hcycle.
-          intros ????. eapply (Hundo _ x4); eauto. set_solver. }
+          intros ????. eapply (Hundo _ x1); eauto. set_solver. }
       destruct Hcycle as (?&Hcycle&F).
       eapply path_weak in Hcycle. 2:eapply path_all_in; done.
-      eapply ti2 in Hcycle; eauto. subst. destruct x3; simpl in *; lia. }
+      eapply ti2 in Hcycle; eauto. subst. destruct x0; simpl in *; lia. }
   Qed.
 
-  (*
-  Lemma undo_preserves_models (M:gmap loc (gmap loc val)) g σ (r rs x:loc) μ (xs ys:list (loc * diff * loc)) ds :
-    (∀ (r' : loc) (ds : list diff) σ', reachable g r' ds r → M !! r' = Some σ' → σ' ⊆ apply_diffl ds σ ) ->
-    M !! x = Some μ →
-    rs ≠ r -> x ≠ rs ->
+  Lemma undo_preserves_model g (M:map_model) (xs ys:list (loc* (loc*val)*loc)) (r1 r2:loc) ds σ1 σ2 rs σ0 r:
+     dom M = vertices g ∪ {[r]} ->
+    (forall r1 ds r2 σ1 σ2, reachable g r1 ds r2 -> M !! r1 = Some σ1 -> M !! r2 = Some σ2 -> σ1 ⊆ (apply_diffl ds σ2)) -> (* this is a part of _inv *)
+    (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
+    kindofinj (g ∖ list_to_set xs ∪ list_to_set ys) ->
     path g rs xs r ->
-    undo xs ys σ ->
-    kindofinj g ->
-    reachable (list_to_set ys ∪ g ∖ list_to_set xs) x ds rs ->
-    μ ⊆ apply_diffl ds (apply_diffl (proj2 <$> xs) σ).
+    undo xs ys σ0 ->
+    reachable (list_to_set ys ∪ g ∖ list_to_set xs) r1 ds r2 ->
+    M !! r1 = Some σ1 →
+    M !! r2 = Some σ2 →
+    σ1 ⊆ apply_diffl ds σ2.
   Proof.
-    intros Hold Hx Hr Hnx Hpath Hundo Hinj Hreach.
-    apply reachable_path in Hreach. destruct Hreach as (zs&Hreach&<-).
-    rewrite comm_L in Hreach. apply path_union_inv in Hreach.
-    destruct Hreach as [Hreach|(x'&?&?&Hreach)].
-    { exfalso. apply path_inv_r in Hreach.
-      destruct Hreach as [|(?&?&?&->&_&Hrs)]. naive_solver.
-      admit.
-    }
-  Admitted.
-*)
+    intros Hdom Hinv Hroot Hinj' Hrs Hundo Hreach E1 E2. rewrite comm_L in Hreach.
+    apply reachable_path in Hreach. destruct Hreach as (zs&Hpath&<-).
+    apply path_union_inv in Hpath. destruct Hpath as [Hpath|Hpath].
+    { eapply Hinv; eauto. eapply reachable_path2. eapply path_weak. done. set_solver. }
+
+    destruct Hpath as (a'&x&l1&l2&X1&Hx&X2&Hzs).
+    eapply path_cannot_escape with (r:=rs) in X2; eauto; last first.
+    { eapply use_undo'; eauto using undo_undo0. }
+    { set_solver. }
+
+    assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
+    { apply undo_undo0, undo0_vertices in Hundo.
+      rewrite vertices_union Hundo -vertices_union -union_difference_L //.
+      eauto using path_all_in. }
+
+    assert (a' ∈ dom M) as Ha'.
+    { rewrite Hdom -Hvg elem_of_union. left. apply elem_of_vertices.
+      inversion X2. set_solver. }
+    apply elem_of_dom in Ha'. destruct Ha' as (σ',Ea').
+    assert (σ1 ⊆ apply_diffl (proj2 <$> l1) σ').
+    { apply reachable_path2 in X1.
+      eapply reachable_weak in X1.
+      eapply (Hinv _ _ _ _ _ X1 E1 Ea'). set_solver. }
+    etrans. done. rewrite Hzs. rewrite fmap_app apply_diffl_app.
+    apply apply_diffl_included. clear dependent σ1.
+    Search apply_diffl.
+
+  Qed.
+
 
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
@@ -1632,7 +1659,7 @@ Section pstore_G.
       iClear "H17".
       iDestruct (mapsto_ne with "[$][$]") as "%". congruence. }
 
-    iExists _,_,_,(apply_diffl (proj2 <$> xs) σ0),_,(<[rs:=apply_diffl (proj2 <$> xs) σ0]> M),_. iFrame.
+    iExists _,_,_,σ1,_,M,_. iFrame.
 
     assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
     { apply undo_undo0, undo0_vertices in Hundo.
@@ -1641,7 +1668,7 @@ Section pstore_G.
     assert (σ1 ⊆ apply_diffl (proj2 <$> xs) σ0).
     { destruct Hinv as [X1 X2 X3 X4].
       apply reachable_path2 in Hrs.
-      eapply X4 in Hrs; last done. etrans. apply Hrs.
+      eapply X4 in Hrs. 2,3:done. etrans. apply Hrs.
       destruct Hcoh. eauto using apply_diffl_included. }
 
     assert (rooted_dag (list_to_set ys ∪ g ∖ list_to_set xs) rs) as Hroot.
@@ -1649,25 +1676,15 @@ Section pstore_G.
 
     iPureIntro. split_and !; try done.
     { destruct Hinv as [X1 X2 X3 X4]. constructor.
-      { rewrite dom_insert_L X1 Hvg.
+      { rewrite X1 Hvg.
         apply elem_of_dom_2 in X3,HMrs.
         apply reachable_path2,reachable_inv_in_invertices in Hrs.
         set_solver. }
       { by etrans. }
-      { rewrite lookup_insert //. }
-      { intros x ds μ Hreach.
-        destruct_decide (decide (x=rs)).
-        { subst. rewrite lookup_insert. inversion 1. subst.
-          assert (ds=nil).
-          { apply reachable_path in Hreach. destruct Hreach as (?&Hreach&Z).
-            eapply ti2 in Hreach. subst . done. eauto. }
-          subst. done. }
-        { rewrite lookup_insert_ne //. destruct Hcoh.
-          intros HMx.
-          eapply undo_preserves_models; eauto.
-          { intros ?????. etrans. eapply X4; eauto. eauto using apply_diffl_included. } } } }
+      { done. }
+      { intros. eapply undo_preserves_model; eauto. rewrite comm_L //. } }
     { destruct Hcoh as [X1 X2]. constructor.
-      { subst xs. reflexivity. }
+      { subst xs. simpl in *. done. }
       { replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (proj2 <$> bs))) with (apply_diffl (proj2 <$> xs) σ0).
         2:{ subst xs. reflexivity. }
         rewrite dom_apply_diffl. intros ???? Hedge.
@@ -1675,13 +1692,6 @@ Section pstore_G.
         destruct Hedge as [Hedge|Hedge].
         { right. eauto using undo_same_fst_label. }
         { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. } } }
-    { intros n' l' σ_ HC.
-      destruct_decide (decide (l'=rs)).
-      { subst. eexists. split. rewrite lookup_insert //.
-        eapply Hsnap in HC. destruct HC as (x&HC&?).
-        rewrite HMrs in HC. inversion HC. subst x. by etrans. }
-      { eapply Hsnap in HC. destruct HC as (?&?&?).
-        eexists. rewrite lookup_insert_ne //. } }
   Qed.
 
 End pstore_G.
