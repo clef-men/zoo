@@ -481,8 +481,8 @@ Section pstore_G.
     { si1 : dom M = vertices g ∪ {[r]};
       si2 : σ ⊆ σr;
       si3 : M !! r = Some σr ;
-      si4 : forall r' ds σ',
-        reachable g r' ds r -> M !! r' = Some σ' -> σ' ⊆ (apply_diffl ds σr)
+      si4 : forall r1 ds r2 σ1 σ2,
+        reachable g r1 ds r2 -> M !! r1 = Some σ1 -> M !! r2 = Some σ2 -> σ1 ⊆ (apply_diffl ds σ2)
     }.
 
   Definition locs_of_edges_in g (X:gset loc) :=
@@ -584,10 +584,9 @@ Section pstore_G.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
       { set_solver. }
       { rewrite lookup_insert //. }
-      { intros ??? Hr.
-        inversion Hr.
-        { subst. rewrite lookup_singleton //. set_solver. }
-        { exfalso. subst. set_solver. } } }
+      { intros ????? Hr.
+        rewrite !lookup_singleton_Some.
+        inversion Hr; set_solver. } }
     { constructor. set_solver.
       { intros ????. set_solver. } }
     { eauto using rooted_dag_empty. }
@@ -654,6 +653,11 @@ Section pstore_G.
       eapply incl_dom_incl. 2:done. done. }
     iDestruct (mapsto_ne with "Hl Hr") as %Hlr.
 
+    iAssert ⌜forall x y, (r,x,y) ∉ g⌝%I as "%Hrg".
+    { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hg") as "?". done.
+      iClear "Ht0 Hl".
+      iDestruct (mapsto_ne with "[$][$]") as "%". congruence. }
+
 
     iModIntro. iStep.
     iExists t0,r, (<[l:=v]>σ0),(<[l := v]> σr),g,(<[r:=<[l:=v]>σr]>M),C.
@@ -665,21 +669,25 @@ Section pstore_G.
       { rewrite dom_insert_L; set_solver. }
       { eauto using gmap_included_insert. }
       { rewrite lookup_insert //. }
-      { intros r' ds σ' Hr. destruct_decide (decide (r=r')).
-        { subst. rewrite lookup_insert.
-          assert (ds=nil) as ->; last set_solver.
-          apply reachable_path in Hr. destruct Hr as (?&Hpath&?).
-          eapply ti2 in Hpath; last done. subst. done. }
-        { rewrite lookup_insert_ne //.
-          intros Hreach. eapply X4 in Hreach; eauto.
-          destruct Hcoh as [Z1 Z2].
-          eapply use_locs_of_edges_in in Z2. 2:done.
-          rewrite apply_diffl_insert_ne.
-          { apply not_elem_of_dom in Hl0. set_solver. }
-          apply gmap_included_insert_notin; last done.
-          apply incl_dom_incl in Z1. apply incl_dom_incl in Hreach.
-          rewrite dom_apply_diffl in Hreach.
-          apply not_elem_of_dom in Hl0,Hl. set_solver. } } }
+      { intros r1 ds r2 σ1 σ2 Hr. generalize Hr. intros Hreach.
+        destruct_decide (decide (r1=r)).
+        { subst. rewrite lookup_insert. inversion 1. subst.
+          inversion Hr; subst.
+          2:{ exfalso. set_solver. }
+          rewrite lookup_insert. inversion 1. done. }
+        { rewrite lookup_insert_ne //. intros Hr1.
+          destruct_decide (decide (r2=r)).
+          { subst. rewrite lookup_insert. inversion 1. subst.
+            eapply X4 in Hr. 2,3:done.
+            destruct Hcoh as [Z1 Z2].
+            eapply use_locs_of_edges_in in Z2. 2:done.
+            rewrite apply_diffl_insert_ne.
+            { apply not_elem_of_dom in Hl0. set_solver. }
+            apply gmap_included_insert_notin; last done.
+            apply incl_dom_incl in Z1. apply incl_dom_incl in Hr.
+            rewrite dom_apply_diffl in Hr.
+            apply not_elem_of_dom in Hl0,Hl. set_solver. }
+          { rewrite lookup_insert_ne //. eauto. } } } }
     { destruct Hcoh as [X1 X2].
       constructor.
       { eauto using gmap_included_insert. }
@@ -687,9 +695,11 @@ Section pstore_G.
     { intros ? r' ? HC. apply Hsnap in HC. destruct HC as (?&?&?).
       destruct_decide (decide (r'=r)).
       { subst. eexists. rewrite lookup_insert. split; first done.
-        destruct Hinv as [X1 X2 X3 X4]. specialize (X4 r nil _ (rtcl_refl _ _) H0).
-        etrans. apply H1. etrans. apply X4. simpl.
-        apply gmap_included_insert_notin; eauto. by apply not_elem_of_dom. }
+        destruct Hinv as [X1 X2 X3 X4].
+        rewrite X3 in H0. inversion H0. subst.
+        apply gmap_included_insert_notin; last done.
+        apply incl_dom_incl in H1. intros X. apply H1 in X.
+        apply not_elem_of_dom in Hl. done. }
       { eexists. rewrite lookup_insert_ne //. } }
   Qed.
 
@@ -752,6 +762,11 @@ Section pstore_G.
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
         iDestruct (mapsto_ne with "[$][$]") as %?. congruence. } }
 
+    iAssert ⌜forall x y, (r,x,y) ∉ g⌝%I as "%Hrg".
+    { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hg") as "?". done.
+      iClear "Ht0 Hr'".
+      iDestruct (mapsto_ne with "[$][$]") as "%". congruence. }
+
     iModIntro. iExists t0,r',(<[l:=v]> σ0),(<[l:=v]> σr),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σr]>M),C.
     rewrite big_sepS_union.
     { apply disjoint_singleton_l. intros ?. apply Hr'.
@@ -764,18 +779,27 @@ Section pstore_G.
         { rewrite dom_insert_L vertices_union vertices_singleton //. set_solver. }
         { apply gmap_included_insert. done. }
         { rewrite lookup_insert //. }
-        { intros x ds σ' Hreach.
-          apply reachable_add_end in Hreach. 2,3:eauto.
-          destruct Hreach as [(->&->)|(ds'&->&Hreach)].
-          { rewrite lookup_insert. inversion 1. subst. simpl. eauto using gmap_included_insert. }
-          rewrite lookup_insert_ne.
-          { apply reachable_inv_in_invertices in Hreach. naive_solver. }
-          intros Hx. specialize (X4 _ _ _ Hreach Hx). etrans. apply X4.
-          rewrite apply_diffl_app. simpl. rewrite insert_insert.
-          destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
-          assert (exists z, σr !! l = Some z) as (?&Hz).
-          { apply elem_of_dom. eapply incl_dom_incl. done. done. }
-          specialize (Z1 l). rewrite Hl0 Hz in Z1. naive_solver. } }
+        { intros r1 ds r2 σ1 σ2 Hreach.
+          destruct_decide (decide (r'=r1)).
+          { subst. rewrite lookup_insert. inversion_clear 1.
+            inversion Hreach. subst.
+            2:{ exfalso. subst. rewrite /edge elem_of_union in H0.
+                destruct H0. set_solver. apply Hr'. apply elem_of_vertices. set_solver. }
+            rewrite lookup_insert. inversion 1. done. }
+          rewrite lookup_insert_ne //. intros E1.
+          destruct_decide (decide (r2=r')).
+          { subst. rewrite lookup_insert. inversion 1. subst.
+            apply reachable_add_end in Hreach. 2,3:eauto.
+            destruct Hreach as [(->&->)|(ds'&->&Hreach)].
+            { congruence. }
+            specialize (X4 _ _ _ _ _ Hreach E1 X3). etrans. apply X4.
+            rewrite apply_diffl_app. simpl. rewrite insert_insert.
+            destruct Hcoh as [Z1 _ ]. rewrite insert_id //.
+            assert (exists z, σr !! l = Some z) as (?&Hz).
+            { apply elem_of_dom. eapply incl_dom_incl. done. done. }
+            specialize (Z1 l). rewrite Hl0 Hz in Z1. naive_solver. }
+          { rewrite lookup_insert_ne //. intros. eapply X4; eauto.
+            apply reachable_cycle_end_inv_aux in Hreach; eauto. } } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { eauto using gmap_included_insert. }
@@ -1517,6 +1541,28 @@ Section pstore_G.
       eapply ti2 in Hcycle; eauto. subst. destruct x3; simpl in *; lia. }
   Qed.
 
+  (*
+  Lemma undo_preserves_models (M:gmap loc (gmap loc val)) g σ (r rs x:loc) μ (xs ys:list (loc * diff * loc)) ds :
+    (∀ (r' : loc) (ds : list diff) σ', reachable g r' ds r → M !! r' = Some σ' → σ' ⊆ apply_diffl ds σ ) ->
+    M !! x = Some μ →
+    rs ≠ r -> x ≠ rs ->
+    path g rs xs r ->
+    undo xs ys σ ->
+    kindofinj g ->
+    reachable (list_to_set ys ∪ g ∖ list_to_set xs) x ds rs ->
+    μ ⊆ apply_diffl ds (apply_diffl (proj2 <$> xs) σ).
+  Proof.
+    intros Hold Hx Hr Hnx Hpath Hundo Hinj Hreach.
+    apply reachable_path in Hreach. destruct Hreach as (zs&Hreach&<-).
+    rewrite comm_L in Hreach. apply path_union_inv in Hreach.
+    destruct Hreach as [Hreach|(x'&?&?&Hreach)].
+    { exfalso. apply path_inv_r in Hreach.
+      destruct Hreach as [|(?&?&?&->&_&Hrs)]. naive_solver.
+      admit.
+    }
+  Admitted.
+*)
+
   Lemma pstore_restore_spec γ t σ s σ' :
     {{{
       pstore γ t σ ∗
@@ -1616,8 +1662,10 @@ Section pstore_G.
           { apply reachable_path in Hreach. destruct Hreach as (?&Hreach&Z).
             eapply ti2 in Hreach. subst . done. eauto. }
           subst. done. }
-        { rewrite lookup_insert_ne //. intros HMx.
-          admit. } } }
+        { rewrite lookup_insert_ne //. destruct Hcoh.
+          intros HMx.
+          eapply undo_preserves_models; eauto.
+          { intros ?????. etrans. eapply X4; eauto. eauto using apply_diffl_included. } } } }
     { destruct Hcoh as [X1 X2]. constructor.
       { subst xs. reflexivity. }
       { replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (proj2 <$> bs))) with (apply_diffl (proj2 <$> xs) σ0).
