@@ -93,6 +93,7 @@ theories/persistent/map_agree.v
 
 theories/saturn/base.v
 theories/saturn/treiber_stack.v
+theories/saturn/bag.v
 theories/saturn/spsc_queue.v
 theories/saturn/inf_cl_deque.v
 
