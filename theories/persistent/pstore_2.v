@@ -1,3 +1,8 @@
+(*
+   Based on:
+   https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
+*)
+
 From zebre Require Import
   prelude.
 From iris.algebra Require Import gmap.

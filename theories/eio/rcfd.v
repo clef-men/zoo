@@ -1,3 +1,8 @@
+(*
+   Based on:
+   https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/unix/rcfd.ml
+*)
+
 From zebre Require Import
   prelude.
 From zebre.common Require Import
