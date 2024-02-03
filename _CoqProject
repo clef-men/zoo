@@ -74,11 +74,13 @@ theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
+theories/std/chain.v
 theories/std/chunk.v
 theories/std/array.v
 theories/std/dynarray_1.v
 theories/std/dynarray_2.v
 theories/std/inf_array.v
+theories/std/queue.v
 theories/std/stack.v
 theories/std/mutex.v
 theories/std/condition.v
