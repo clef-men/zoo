@@ -80,7 +80,7 @@ Section zebre_G.
   Lemma chain_physically_distinct t1 dq1 vs1 dst1 t2 dq2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
-    val_physically_distinct t1 t2 →
+    val_neq t1 t2 →
     chain_model t1 dq1 vs1 dst1 -∗
     chain_model t2 dq2 vs2 dst2 -∗
     ⌜t1 ≠ t2⌝.
@@ -90,7 +90,7 @@ Section zebre_G.
   Qed.
   Lemma chain_physically_distinct' t dq vs dst :
     0 < length vs →
-    val_physically_distinct t t →
+    val_neq t t →
     chain_model t dq vs dst ⊢
     False.
   Proof.

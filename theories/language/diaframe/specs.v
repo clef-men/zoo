@@ -224,16 +224,16 @@ Section instances.
       ▷ l ↦{dq} v ∗
       ⌜val_physical v⌝ ∗
       ⌜val_physical v1⌝ ∗
-      ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
+      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
     }}
       Cas #l v1 v2
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
-        ⌜val_physically_distinct v v1⌝ ∗
+        ⌜val_neq v v1⌝ ∗
         l ↦{dq} v
       ∨ ⌜b = true⌝ ∗
-        ⌜v = v1⌝ ∗
+        ⌜val_eq v v1⌝ ∗
         l ↦ v2
     }}.
   Proof.

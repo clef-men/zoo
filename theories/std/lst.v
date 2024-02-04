@@ -33,10 +33,16 @@ Fixpoint lst_to_val vs :=
 Definition lst_model' t vs :=
   t = lst_to_val vs.
 
+#[global] Instance lst_to_val_inj' :
+  Inj (=) val_eq lst_to_val.
+Proof.
+  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [naive_solver.. |].
+  intros (_ & [= -> ->%eq_val_eq%IH]). done.
+Qed.
 #[global] Instance lst_to_val_inj :
   Inj (=) (=) lst_to_val.
 Proof.
-  intros lst1. induction lst1; intros []; naive_solver.
+  intros ?* ->%eq_val_eq%(inj _). done.
 Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).

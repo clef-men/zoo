@@ -123,6 +123,17 @@ Ltac invert_head_step :=
   end.
 
 #[global] Hint Extern 0 (
+  val_neq _ _
+) => (
+  progress simpl; try injection
+) : zebre.
+#[global] Hint Extern 0 (
+  val_eq _ _
+) => (
+  progress simpl
+) : zebre.
+
+#[global] Hint Extern 0 (
   head_reducible _ _
 ) =>
   do 4 eexists; simpl
@@ -141,12 +152,12 @@ Ltac invert_head_step :=
 #[global] Hint Extern 0 (
   head_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply head_step_equal_fail
+  eapply head_step_equal_fail; simpl; [| | try injection]
 : zebre.
 #[global] Hint Extern 0 (
   head_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply head_step_equal_suc
+  eapply head_step_equal_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
   head_step (Record  _) _ _ _ _ _
@@ -161,12 +172,12 @@ Ltac invert_head_step :=
 #[global] Hint Extern 0 (
   head_step (Cas _ _ _) _ _ _ _ _
 ) =>
-  eapply head_step_cas_fail
+  eapply head_step_cas_fail; simpl; [| | | try injection]
 : zebre.
 #[global] Hint Extern 0 (
   head_step (Cas _ _ _) _ _ _ _ _
 ) =>
-  eapply head_step_cas_suc
+  eapply head_step_cas_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
   head_step Proph _ _ _ _ _

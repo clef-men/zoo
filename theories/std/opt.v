@@ -28,10 +28,15 @@ Coercion opt_to_val o :=
   end.
 #[global] Arguments opt_to_val !_ / : assert.
 
+#[global] Instance opt_to_val_inj' :
+  Inj (=) val_eq opt_to_val.
+Proof.
+  intros [] []; naive_solver.
+Qed.
 #[global] Instance opt_to_val_inj :
   Inj (=) (=) opt_to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros ?* ->%eq_val_eq%(inj _). done.
 Qed.
 #[global] Instance lst_to_val_physical o :
   ValPhysical (opt_to_val o).

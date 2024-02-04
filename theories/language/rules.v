@@ -28,14 +28,31 @@ Implicit Types κ : list observation.
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
+  Lemma head_reducible_equal v1 v2 σ :
+    val_physical v1 →
+    val_physical v2 →
+    head_reducible (v1 = v2) σ.
+  Proof.
+    destruct
+      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
+      v2 as [[b2 | i2 | l2 | |] | | [] | (? & tag2) []].
+    all:
+      try first
+      [ destruct (decide (b1 = b2)); first subst
+      | destruct (decide (i1 = i2)); first subst
+      | destruct (decide (l1 = l2)); first subst
+      | destruct (decide (tag1 = tag2)); first subst
+      ].
+    all: auto with zebre.
+  Qed.
   Lemma wp_equal v1 v2 E Φ :
     val_physical v1 →
     val_physical v2 →
     ▷ (
-      ( ⌜val_physically_distinct v1 v2⌝ -∗
+      ( ⌜val_neq v1 v2⌝ -∗
         Φ #false
       ) ∧ (
-        ⌜v1 = v2⌝ -∗
+        ⌜val_eq v1 v2⌝ -∗
         Φ #true
       )
     ) ⊢
@@ -43,20 +60,28 @@ Section zebre_G.
   Proof.
     iIntros "% % HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    destruct v1 as [lit1 | | |], v2 as [lit2 | | |].
-    1: destruct (decide (lit1 = lit2)); first subst.
-    all: iSplit; first auto with zebre.
-    all: iIntros "%e2 %σ2 %es %Hstep !> _".
-    all: invert_head_step; last try done.
+    iSplit. { iPureIntro. apply head_reducible_equal; done. }
+    iIntros "%e2 %σ2 %es %Hstep !> _".
+    destruct
+      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
+      v2 as [[b2 | i2 | l2 | |] | | [] | (? & tag2) []].
+    all:
+      try first
+      [ destruct (decide (b1 = b2)); first subst
+      | destruct (decide (i1 = i2)); first subst
+      | destruct (decide (l1 = l2)); first subst
+      | destruct (decide (tag1 = tag2)); first subst
+      ].
+    all: invert_head_step; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
         | context [false] =>
             iDestruct "HΦ" as "(HΦ & _)";
-            iFrame; iSteps
+            iFrame; iSteps; naive_solver
         | context [true] =>
             iDestruct "HΦ" as "(_ & HΦ)";
-            iFrame; iSteps
+            iFrame; iSteps; naive_solver
         end
       end.
   Qed.
@@ -191,19 +216,38 @@ Section zebre_G.
     iFrame. iSteps.
   Qed.
 
+  Lemma head_reducible_cas l v v1 v2 σ :
+    σ.(state_heap) !! l = Some v →
+    val_physical v →
+    val_physical v1 →
+    head_reducible (Cas #l v1 v2) σ.
+  Proof.
+    intros.
+    destruct
+      v as [[b | i | l' | |] | | [] | (? & tag) []],
+      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []].
+    all:
+      try first
+      [ destruct (decide (b = b1)); first subst
+      | destruct (decide (i = i1)); first subst
+      | destruct (decide (l' = l1)); first subst
+      | destruct (decide (tag = tag1)); first subst
+      ].
+    all: eauto with zebre.
+  Qed.
   Lemma wp_cas l dq v v1 v2 E Φ :
     val_physical v →
     val_physical v1 →
     ▷ l ↦{dq} v -∗
     ▷ (
-      ( ⌜val_physically_distinct v v1⌝ -∗
+      ( ⌜val_neq v v1⌝ -∗
         l ↦{dq} v -∗
         Φ #false
       ) ∧ (
-        ⌜v = v1⌝ -∗
-        l ↦{dq} v1 -∗
+        ⌜val_eq v v1⌝ -∗
+        l ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
-          l ↦{dq} v1 ∗
+          l ↦{dq} v ∗
           ( l ↦ v2 -∗
             Φ #true
           )
@@ -214,22 +258,31 @@ Section zebre_G.
     iIntros "% % >Hl HΦ".
     iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    destruct v as [lit | | |], v1 as [lit1 | | |].
-    1: destruct (decide (lit = lit1)); first subst.
-    all: iSplit; first eauto with zebre.
-    all: iIntros "%e2 %σ2 %es %Hstep !> _".
-    all: invert_head_step; last try done.
+
+    iSplit. { iPureIntro. eapply head_reducible_cas; done. }
+    iIntros "%e2 %σ2 %es %Hstep !> _".
+    destruct
+      v as [[b | i | l' | |] | | [] | (? & tag) []],
+      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []].
+    all:
+      try first
+      [ destruct (decide (b = b1)); first subst
+      | destruct (decide (i = i1)); first subst
+      | destruct (decide (l' = l1)); first subst
+      | destruct (decide (tag = tag1)); first subst
+      ].
+    all: invert_head_step; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
         | context [false] =>
             iDestruct "HΦ" as "(HΦ & _)";
-            iFrame; iSteps
+            iFrame; iSteps; naive_solver
         | context [true] =>
             iDestruct "HΦ" as "(_ & HΦ)";
             iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)";
             iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)";
-            iFrame; iSteps
+            iFrame; iSteps; naive_solver
         end
       end.
   Qed.
@@ -242,10 +295,10 @@ Section zebre_G.
         l ↦{dq} #lit -∗
         Φ #false
       ) ∧ (
-        ⌜lit = lit1⌝ -∗
-        l ↦{dq} #lit1 -∗
+        ⌜literal_eq lit lit1⌝ -∗
+        l ↦{dq} #lit -∗
           ⌜dq = DfracOwn 1⌝ ∗
-          l ↦{dq} #lit1 ∗
+          l ↦{dq} #lit ∗
           ( l ↦ v2 -∗
             Φ #true
           )
@@ -257,25 +310,7 @@ Section zebre_G.
     iApply (wp_cas with "Hl"); [done.. |].
     iSplit.
     - iDestruct "HΦ" as "($ & _)".
-    - iIntros "!>" ([= ->]).
-      iApply ("HΦ" with "[//]").
-  Qed.
-  Lemma wp_cas_fail l dq v v1 v2 E :
-    val_physical v →
-    val_physical v1 →
-    v ≠ v1 →
-    {{{
-      ▷ l ↦{dq} v
-    }}}
-      Cas #l v1 v2 @ E
-    {{{
-      RET #false;
-      l ↦{dq} v
-    }}}.
-  Proof.
-    iIntros "% % %Hne %Φ Hl HΦ".
-    iApply (wp_cas with "Hl"); [done.. |].
-    iSteps.
+    - iDestruct "HΦ" as "(_ & $)".
   Qed.
   Lemma wp_cas_suc l lit lit1 v2 E :
     literal_physical lit →

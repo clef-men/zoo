@@ -156,10 +156,11 @@ Definition ValRec_as_ValRec f x e : AsValRec (ValRec f x e) f x e :=
 Section pure_exec.
   #[local] Ltac solve_exec_safe :=
     intros; subst;
-    eauto 10 with zebre.
+    eauto with zebre.
   #[local] Ltac solve_exec_puredet :=
     intros;
-    invert_head_step; done.
+    invert_head_step;
+    naive_solver.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
     apply nsteps_once, pure_head_step_pure_step;
@@ -205,12 +206,84 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_equal lit1 lit2 :
+  #[global] Instance pure_equal_bool b1 b2 :
     PureExec
-      (literal_physical lit1 ∧ literal_physical lit2)
+      True
       1
-      (Equal (Val $ ValLiteral lit1) (Val $ ValLiteral lit2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (lit1 = lit2)).
+      (Equal (Val $ ValLiteral $ LiteralBool b1) (Val $ ValLiteral $ LiteralBool b2))
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (b1 = b2)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_int i1 i2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValLiteral $ LiteralInt i1) (Val $ ValLiteral $ LiteralInt i2))
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (i1 = i2)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_loc l1 l2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValLiteral $ LiteralLoc l1) (Val $ ValLiteral $ LiteralLoc l2))
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (l1 = l2)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_loc_unit l :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValLiteral $ LiteralLoc l) (Val $ ValUnit))
+      (Val $ ValLiteral $ LiteralBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_unit_loc l :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValUnit) (Val $ ValLiteral $ LiteralLoc l))
+      (Val $ ValLiteral $ LiteralBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_unit :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValUnit) (Val $ ValUnit))
+      (Val $ ValLiteral $ LiteralBool true).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_constr tag1 tag2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 []))
+      (Val $ ValLiteral $ LiteralBool $ bool_decide (tag1.2 = tag2.2)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_constr_1 tag1 tag2 v2 vs2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 (v2 :: vs2)))
+      (Val $ ValLiteral $ LiteralBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_constr_2 tag1 v1 vs1 tag2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValConstr tag1 (v1 :: vs1)) (Val $ ValConstr tag2 []))
+      (Val $ ValLiteral $ LiteralBool false).
   Proof.
     solve_pure_exec.
   Qed.

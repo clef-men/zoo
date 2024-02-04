@@ -67,6 +67,7 @@ Lemma head_step_to_val e1 σ1 κ e2 σ2 es σ1' κ' e2' σ2' es' :
 Proof.
   destruct 1; inversion 1; naive_solver.
 Qed.
+
 Lemma irreducible_resolve e v1 v2 σ :
   irreducible e σ →
   irreducible (Resolve e (Val v1) (Val v2)) σ.

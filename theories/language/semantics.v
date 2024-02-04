@@ -35,6 +35,33 @@ Definition literal_physical lit :=
   end.
 #[global] Arguments literal_physical !_ / : assert.
 
+Definition literal_eq lit1 lit2 :=
+  match lit1, lit2 with
+  | LiteralBool b1, LiteralBool b2 =>
+      b1 = b2
+  | LiteralInt i1, LiteralInt i2 =>
+      i1 = i2
+  | LiteralLoc l1, LiteralLoc l2 =>
+      l1 = l2
+  | LiteralLoc _, _
+  | _, LiteralLoc _ =>
+      False
+  | _, _ =>
+      True
+  end.
+#[global] Arguments literal_eq !_ !_ / : assert.
+
+#[global] Instance literal_eq_refl :
+  Reflexive literal_eq.
+Proof.
+  intros []; done.
+Qed.
+#[global] Instance literal_eq_sym :
+  Symmetric literal_eq.
+Proof.
+  do 2 intros []; done.
+Qed.
+
 Definition val_physical v :=
   match v with
   | ValLiteral lit =>
@@ -46,14 +73,104 @@ Definition val_physical v :=
 Class ValPhysical v :=
   val_physical' : val_physical v.
 
-Definition val_physically_distinct v1 v2 :=
+Definition val_neq v1 v2 :=
   match v1, v2 with
   | ValLiteral lit1, ValLiteral lit2 =>
       lit1 ≠ lit2
+  | ValTuple [], ValTuple [] =>
+      False
+  | ValConstr tag1 [], ValConstr tag2 [] =>
+      tag1.2 ≠ tag2.2
   | _, _ =>
       True
   end.
-#[global] Arguments val_physically_distinct !_ !_ / : assert.
+#[global] Arguments val_neq !_ !_ / : assert.
+
+#[global] Instance val_neq_sym :
+  Symmetric val_neq.
+Proof.
+  do 2 intros [| | [] | ? []]; done.
+Qed.
+
+Definition val_eq v1 v2 :=
+  match v1 with
+  | ValLiteral lit1 =>
+      match v2 with
+      | ValLiteral lit2 =>
+          literal_eq lit1 lit2
+      | ValTuple []
+      | ValConstr _ [] =>
+          match lit1 with
+          | LiteralBool _
+          | LiteralInt _ =>
+              True
+          | _ =>
+              False
+          end
+      | _ =>
+          False
+      end
+  | ValRec f1 x1 e1 =>
+      match v2 with
+      | ValRec f2 x2 e2 =>
+          f1 = f2 ∧ x1 = x2 ∧ e1 = e2
+      | _ =>
+          False
+      end
+  | ValTuple [] =>
+      match v2 with
+      | ValLiteral (LiteralBool _)
+      | ValLiteral (LiteralInt _)
+      | ValTuple []
+      | ValConstr _ [] =>
+          True
+      | _ =>
+          False
+      end
+  | ValTuple es1 =>
+      match v2 with
+      | ValTuple es2 =>
+          es1 = es2
+      | _ =>
+          False
+      end
+  | ValConstr tag1 [] =>
+      match v2 with
+      | ValLiteral (LiteralBool _)
+      | ValLiteral (LiteralInt _)
+      | ValTuple [] =>
+          True
+      | ValConstr tag2 [] =>
+          tag1.2 = tag2.2
+      | _ =>
+          False
+      end
+  | ValConstr tag1 es1 =>
+      match v2 with
+      | ValConstr tag2 es2 =>
+          tag1.2 = tag2.2 ∧ es1 = es2
+      | _ =>
+          False
+      end
+  end.
+#[global] Arguments val_eq !_ !_ / : assert.
+
+#[global] Instance val_eq_refl :
+  Reflexive val_eq.
+Proof.
+  intros [[] | | [] | ? []]; done.
+Qed.
+#[global] Instance val_eq_sym :
+  Symmetric val_eq.
+Proof.
+  do 2 intros [| | [] | ? []]; naive_solver congruence.
+Qed.
+Lemma eq_val_eq v1 v2 :
+  v1 = v2 →
+  val_eq v1 v2.
+Proof.
+  destruct v1 as [| | [] | ? []]; naive_solver.
+Qed.
 
 Definition unop_eval op v :=
   match op, v with
@@ -292,7 +409,7 @@ Inductive head_step : expr → state → list observation → expr → state →
   | head_step_equal_fail v1 v2 σ :
       val_physical v1 →
       val_physical v2 →
-      val_physically_distinct v1 v2 →
+      val_neq v1 v2 →
       head_step
         (Equal (Val v1) (Val v2))
         σ
@@ -302,7 +419,7 @@ Inductive head_step : expr → state → list observation → expr → state →
         []
   | head_step_equal_suc v1 v2 σ :
       val_physical v1 →
-      v1 = v2 →
+      val_eq v1 v2 →
       head_step
         (Equal (Val v1) (Val v2))
         σ
@@ -420,7 +537,7 @@ Inductive head_step : expr → state → list observation → expr → state →
       σ.(state_heap) !! l = Some v →
       val_physical v →
       val_physical v1 →
-      val_physically_distinct v v1 →
+      val_neq v v1 →
       head_step
         (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
         σ
@@ -431,7 +548,7 @@ Inductive head_step : expr → state → list observation → expr → state →
   | head_step_cas_suc l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
       val_physical v →
-      v = v1 →
+      val_eq v v1 →
       head_step
         (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
         σ

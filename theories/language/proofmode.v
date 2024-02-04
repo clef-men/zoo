@@ -95,10 +95,10 @@ Section zebre_G.
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ValPhysical v1 →
     ValPhysical v2 →
-    ( val_physically_distinct v1 v2 →
+    ( val_neq v1 v2 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
-    ( v1 = v2 →
+    ( val_eq v1 v2 →
       envs_entails Δ' (WP fill K #true @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (v1 = v2) @ E {{ Φ }}).
@@ -232,15 +232,15 @@ Section zebre_G.
     envs_lookup_delete true id Δ' = Some (p, l ↦{dq} v, Δ'')%I →
     ValPhysical v →
     ValPhysical v1 →
-    ( val_physically_distinct v v1 →
+    ( val_neq v v1 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
-    ( v = v1 →
+    ( val_eq v v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
     ) →
     match envs_app false (Esnoc Enil id (l ↦ v2)) Δ'' with
     | Some Δ''' =>
-        v = v1 →
+        val_eq v v1 →
         envs_entails Δ''' (WP fill K #true @ E {{ Φ }})
     | None =>
         False
@@ -258,33 +258,16 @@ Section zebre_G.
     { destruct p; iSteps. }
     iApply (wp_cas with "Hl"); [done.. |].
     iSplit.
-    - iIntros "!> %Hne Hl".
+    - iIntros "!> %Hneq Hl".
       iDestruct (envs_lookup_sound_2 with "[Hl HΔ'']") as "HΔ'"; [done.. | |].
       { iFrame. destruct p; iSteps. }
       iApply (Hfail with "HΔ'"); first done.
-    - iIntros "!> -> Hl".
+    - iIntros "!> %Heq Hl".
       iDestruct (envs_lookup_sound_2 with "[Hl HΔ'']") as "HΔ'"; [done.. | |].
       { iFrame. destruct p; iSteps. }
       iDestruct (Hsuc1 with "HΔ'") as %->; first done.
       iDestruct (envs_lookup_sound with "HΔ'") as "(Hl & HΔ'')"; first done.
       rewrite envs_app_sound //= Hsuc2 // bi.intuitionistically_if_elim. iSteps.
-  Qed.
-  Lemma tac_wp_cas_fail Δ Δ' id p K l dq v v1 v2 E Φ :
-    MaybeIntoLaterNEnvs 1 Δ Δ' →
-    envs_lookup id Δ' = Some (p, l ↦{dq} v)%I →
-    ValPhysical v →
-    ValPhysical v1 →
-    v ≠ v1 →
-    envs_entails Δ' (WP fill K #false @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (Cas #l v1 v2) @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => HΔ Hlookup Hv Hv1 Hne HΔ'.
-    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
-    iIntros "(Hl & H)".
-    iAssert (▷ (□ (if p then l ↦{dq} v else True) ∗ l ↦{dq} v))%I with "[Hl]" as "(#Hl_ & Hl)".
-    { destruct p; iSteps. }
-    iApply (wp_cas_fail with "Hl"); [done.. |].
-    iSteps. destruct p; iSteps.
   Qed.
   Lemma tac_wp_cas_suc Δ Δ' id K l lit lit1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -630,27 +613,6 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
     | pm_reduce;
       intros Hsuc;
       wp_finish
-    ]
-  ).
-Ltac wp_cas_fail :=
-  wp_pures;
-  wp_start ltac:(fun e =>
-    first
-    [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_cas_fail _ _ _ _ K)
-      )
-    | fail 1 "wp_cas_fail: cannot find 'Cas' in" e
-    ];
-    [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
-      first
-      [ iAssumptionCore
-      | fail 1 "wp_cas_fail: cannot find" l "↦ ?"
-      ]
-    | solve_val_physical
-    | solve_val_physical
-    | try (simpl; congruence)
-    | wp_finish
     ]
   ).
 Ltac wp_cas_suc :=
