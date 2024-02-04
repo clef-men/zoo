@@ -684,7 +684,7 @@ Section pstore_G.
     rewrite (big_sepS_delete _ _ (a, a0, a1)). set_solver.
     rewrite (big_sepS_delete _ _ (a, a2, a3)). set_solver.
     iDestruct "Hg" as "(?&?&_)". destruct a0,a2.
-    iDestruct (mapsto_ne with "[$][$]") as "%". congruence.
+    iDestruct (pointsto_ne with "[$][$]") as "%". congruence.
   Qed.
 
   (* NB our invariant asserts that g is indeed a rooted tree: a rooted DAG
@@ -779,11 +779,11 @@ Section pstore_G.
     { rewrite -not_elem_of_dom. iIntros (Hl).
       apply elem_of_dom in Hl. destruct Hl.
       iDestruct (big_sepM_lookup with "Hσ0") as "Hl_"; first done.
-      iDestruct (mapsto_ne with "Hl Hl_") as %?. done. }
+      iDestruct (pointsto_ne with "Hl Hl_") as %?. done. }
     assert (σ !! l = None).
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.  destruct Hinv as [_ X].
       apply incl_dom_incl in X. set_solver. }
-    iDestruct (mapsto_ne with "Hl Hr") as %Hlr.
+    iDestruct (pointsto_ne with "Hl Hr") as %Hlr.
 
     iModIntro. iSplitR. iPureIntro. by eapply not_elem_of_dom.
     iExists t0,r, (<[l:=v]>σ0),g,((fun σ => <[l:=v]>σ)<$> M),C.
@@ -868,14 +868,14 @@ Section pstore_G.
     iSpecialize ("Hσ0" with "[$]").
 
     iAssert ⌜r ≠ r'⌝%I as %?.
-    { iClear "Ht0". iDestruct (mapsto_ne with "[$][$]") as %?. done. }
+    { iClear "Ht0". iDestruct (pointsto_ne with "[$][$]") as %?. done. }
 
     iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
     { iIntros (Hr'). destruct Hgraph as [X1 X2].
       apply X1 in Hr'. destruct Hr' as (?&Hr'). inversion Hr'; subst.
       { done. }
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
-        iDestruct (mapsto_ne r' r' with "[$][$]") as %?. congruence. } }
+        iDestruct (pointsto_ne r' r' with "[$][$]") as %?. congruence. } }
 
     iModIntro. iExists t0,r',(<[l:=v]> σ0),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ0]>M),C.
     rewrite big_sepS_union.
@@ -967,10 +967,8 @@ Section pstore_G.
   Proof.
     iIntros (Hpath Φ) "(Hr'&HL&Hg) HΦ".
     iInduction ys as [|] "IH" forall (r xs r' Hpath t'); wp_rec.
-    { inversion Hpath. subst. wp_load. simpl.
-      iSteps. rewrite /lst_model //. }
+    { inversion Hpath. subst. iSteps. }
     { inversion Hpath. subst.
-
       iDestruct (big_sepS_elem_of_acc _ _ (r,b,a2) with "[$]") as "(?&Hg)".
       { set_solver. } destruct b.
       wp_load.
@@ -978,7 +976,8 @@ Section pstore_G.
       iDestruct (lst_model_Cons (ValLiteral (LiteralLoc r)) with "[$]") as "?".
       iSpecialize ("IH" with "[%//][$][$][$]").
       iStep 19. iModIntro. iStep 3. iApply "IH". iModIntro. iIntros (?) "(?&?&?)".
-      iApply ("HΦ"). iFrame. }
+      iApply ("HΦ"). iFrame.
+    }
   Qed.
 
  Lemma pstore_collect_spec (r r':loc) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
@@ -1079,8 +1078,8 @@ Section pstore_G.
       iStep 4. iModIntro.
       iApply (wp_lst_match_Cons with "[$]") . done.
       iIntros (t') "HL". simpl.
-      rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
-      rewrite list_to_set_app_L in Hsub.
+      rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
+      rewrite Hg list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (loc * diff * loc))).
       { intros ?. apply use_path in Hpath; last done. destruct Hpath as (?&Hpath&?).
         apply Hacy in Hpath. congruence. set_solver. }
@@ -1088,7 +1087,7 @@ Section pstore_G.
       { set_solver. }
       rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
 
-      rewrite list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
+      rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
       assert (exists v', σ !! l = Some v') as (v',Hl).
       { apply elem_of_dom. eapply Hlocs. rewrite /edge.
 
@@ -1116,7 +1115,7 @@ Section pstore_G.
       rewrite list_to_set_cons.
       iAssert ⌜(r', (l, v'), r0) ∉ g1 ∪ list_to_set ys⌝%I as "%".
       { iIntros (?). iDestruct (big_sepS_elem_of with "[$]") as "?". done.
-        iDestruct (mapsto_ne r' r' with "[$][$]") as "%". congruence. }
+        iDestruct (pointsto_ne r' r' with "[$][$]") as "%". congruence. }
       replace (g1 ∪ ({[(r', (l, v'), r0)]} ∪ list_to_set ys)) with ({[(r', (l, v'), r0)]} ∪ ((g1 ∪ list_to_set ys))). 2:set_solver.
       iApply big_sepS_union. set_solver.
       iFrame. rewrite big_sepS_singleton //. }
@@ -1626,7 +1625,7 @@ Section pstore_G.
 
     iAssert ⌜forall x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
     { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "?". done.
-      iDestruct (mapsto_ne rs rs with "[$][$]") as "%". congruence. }
+      iDestruct (pointsto_ne rs rs with "[$][$]") as "%". congruence. }
 
     iExists _,_,_,_,M,_. iFrame.
 
@@ -1648,21 +1647,25 @@ Section pstore_G.
         set_solver. }
       { subst xs. set_solver. }
       { set_solver. }
-      { intros. eapply undo_preserves_model; eauto. rewrite comm_L //. } }
-    { replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (proj2 <$> bs))) with (apply_diffl (proj2 <$> xs) σ0).
+      { intros. eapply undo_preserves_model; eauto. rewrite comm_L //. }
+    } {
+      rewrite /apply_diffl.
+      replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (list_fmap (loc * diff * loc)%type diff proj2 bs))) with (apply_diffl (proj2 <$> xs) σ0).
       2:{ subst xs. reflexivity. }
 
       destruct Hcoh as [X1 X2]. constructor.
       { intros ???. rewrite dom_apply_diffl. apply X1 in H8.
         eapply use_locs_of_edges_in in Hrs. 2:done.
-        set_solver. }
-      { rewrite dom_apply_diffl. intros ???? Hedge.
+        set_solver.
+      } {
+        rewrite dom_apply_diffl. intros ???? Hedge.
         rewrite /edge elem_of_union in Hedge. rewrite elem_of_union.
         destruct Hedge as [Hedge|Hedge].
         { right. eauto using undo_same_fst_label. }
-        { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. } } }
+        { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. }
+      }
+    }
   Qed.
-
 End pstore_G.
 
 #[global] Opaque pstore_create.

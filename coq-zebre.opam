@@ -14,10 +14,10 @@ homepage:
 bug-reports:
   "https://github.com/clef-men/zebre/issues"
 depends: [
-  "coq" {= "8.17.1"}
-  "coq-stdpp" {= "dev.2023-06-01.0.d1254759"}
-  "coq-iris" {= "dev.2023-06-14.0.f0e415b6"}
-  "coq-diaframe" {= "dev.2023-06-15.0.1c3b5549"}
+  "coq" {= "8.18.0"}
+  "coq-stdpp" {= "dev.2023-11-16.0.809926b5"}
+  "coq-iris" {= "dev.2024-01-11.0.838322ad"}
+  "coq-diaframe" {= "dev.2024-01-30.0.cd2f6756"}
 ]
 build: [
   make "-j%{jobs}%"

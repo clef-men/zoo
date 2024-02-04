@@ -71,7 +71,7 @@ Proof.
 Qed.
 
 Notation "l ↦ dq v" := (
-  mapsto (L := loc) (V := val) l dq v%V
+  pointsto (L := loc) (V := val) l dq v%V
 )(at level 20,
   dq custom dfrac at level 1,
   format "l  ↦ dq  v"
@@ -84,7 +84,7 @@ Notation "l ↦∗ dq vs" :=
   format "l  ↦∗ dq  vs"
 ) : bi_scope.
 
-Lemma mapsto_relax `{zebre_G : !ZebreG Σ} dq l v :
+Lemma pointsto_relax `{zebre_G : !ZebreG Σ} dq l v :
   ✓ dq →
   l ↦ v ⊢ |==>
   l ↦{dq} v.
@@ -95,10 +95,10 @@ Proof.
       iDestruct (fractional_split with "H↦") as "(H↦1 & _)".
       iSteps.
     + apply dfrac_valid_own, Qp.le_lteq in Hdq as [| ->]; done.
-  - iApply (mapsto_persist with "H↦").
+  - iApply (pointsto_persist with "H↦").
   - apply Qp.lt_sum in Hdq as (q2 & ->).
     iDestruct (fractional_split with "H↦") as "(H↦1 & H↦2)".
-    iMod (mapsto_persist with "H↦2") as "H↦2".
-    iDestruct (mapsto_combine with "H↦1 H↦2") as "($ & _)".
+    iMod (pointsto_persist with "H↦2") as "H↦2".
+    iDestruct (pointsto_combine with "H↦1 H↦2") as "($ & _)".
     iSteps.
 Qed.

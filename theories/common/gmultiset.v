@@ -31,7 +31,7 @@ Section lemmas.
     destruct (gmultiset_size_pos_elem_of X) as (x & Hx); first lia. exists x.
     assert ({[+x+]} ⊆ X) by multiset_solver.
     rewrite (gmultiset_disj_union_difference {[+x+]} X) //.
-    assert (X ∖ {[+x+]} = ∅) as ->; last multiset_solver.
+    assert (X ∖ {[+x+]} = ∅) as ->; last rewrite right_id //.
     rewrite -gmultiset_size_empty_iff gmultiset_size_difference // gmultiset_size_singleton. lia.
   Qed.
 End lemmas.

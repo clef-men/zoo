@@ -208,7 +208,7 @@ Section zebre_G.
       ⌜sz1 = sz2⌝.
     Proof.
       iIntros "(%l & -> & #Hsz1 & Hmodel1) (%_l & %Heq & #Hsz2 & Hmodel2)". injection Heq as <-.
-      iDestruct (mapsto_agree with "Hsz1 Hsz2") as %[= <-%(inj _)].
+      iDestruct (pointsto_agree with "Hsz1 Hsz2") as %[= <-%(inj _)].
       iSteps.
     Qed.
 
@@ -228,7 +228,7 @@ Section zebre_G.
         array_slice t sz1 i (dq1 ⋅ dq2) vs1.
     Proof.
       iIntros "% (%l & -> & #Hsz1 & Hmodel1) (%_l & %Heq & #Hsz2 & Hmodel2)". injection Heq as <-.
-      iDestruct (mapsto_agree with "Hsz1 Hsz2") as %[= <-%(inj _)].
+      iDestruct (pointsto_agree with "Hsz1 Hsz2") as %[= <-%(inj _)].
       iDestruct (chunk_model_combine with "Hmodel1 Hmodel2") as "(<- & Hmodel)"; first done.
       iSteps.
     Qed.
@@ -1030,7 +1030,7 @@ Section zebre_G.
     iApply wp_fupd.
     wp_apply (chunk_make_spec with "[//]") as "%l (Hl & _)".
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & Hdata)". rewrite -{1}(loc_add_0 l).
-    iMod (mapsto_persist with "Hsz") as "#Hsz".
+    iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iSteps. rewrite loc_add_0 //.
   Qed.
 
@@ -1053,7 +1053,7 @@ Section zebre_G.
     iDestruct (chunk_model_cons with "Hmodel") as "(Hsz & Hmodel)".
     iEval (setoid_rewrite <- (loc_add_0 l)) in "Hsz".
     wp_store. wp_pures.
-    iMod (mapsto_persist with "Hsz") as "#Hsz".
+    iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iExists l.
     rewrite replicate_length !loc_add_0. iSteps.
   Qed.
@@ -1086,7 +1086,7 @@ Section zebre_G.
     wp_pures.
     rewrite Z.add_1_l Z2Nat.inj_succ //.
     iDestruct (chunk_model_cons with "Hmodel") as "(Hsz & Hmodel)".
-    iMod (mapsto_persist with "Hsz") as "#Hsz".
+    iMod (pointsto_persist with "Hsz") as "#Hsz".
     pose Ψ' i (_ : list val) vs := (
       Ψ i vs
     )%I.
@@ -2181,7 +2181,7 @@ Section zebre_G.
     iApply wp_fupd.
     wp_apply (chunk_make_spec with "[//]") as "%l (Hl & _)".
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & _)".
-    rewrite -{1}(loc_add_0 l). iMod (mapsto_persist with "Hsz") as "#Hsz".
+    rewrite -{1}(loc_add_0 l). iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iExists l. repeat iSplitR; [iSteps.. |].
     iApply itype_chunk_0.
   Qed.
@@ -2206,7 +2206,7 @@ Section zebre_G.
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & Hdata)".
     rewrite -{1}(loc_add_0 l).
     wp_store. wp_pures.
-    iMod (mapsto_persist with "Hsz") as "#Hsz".
+    iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iStep. iExists l. repeat iSplitR; [iSteps.. |].
     iApply inv_alloc. iExists _. iFrame. rewrite replicate_length. iSteps.
     iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate). iSteps.
@@ -2229,7 +2229,7 @@ Section zebre_G.
     wp_smart_apply (chunk_make_spec with "[//]") as "%l (Hmodel & _)".
     rewrite Z.add_1_l Z2Nat.inj_succ //.
     iDestruct (chunk_model_cons with "Hmodel") as "(Hsz & Hmodel)".
-    iMod (mapsto_persist with "Hsz") as "#Hsz".
+    iMod (pointsto_persist with "Hsz") as "#Hsz".
     wp_smart_apply (chunk_applyi_spec_disentangled (λ _, τ) with "[$Hmodel]"); rewrite ?replicate_length; [lia | iSteps |].
     iIntros "%vs (%Hvs & Hmodel & #Hτ)".
     wp_pures.

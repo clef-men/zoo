@@ -48,7 +48,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_apply (wp_proph with "[//]").
-    iSteps.
+    rewrite /identifier_model. iSteps.
   Qed.
 End zebre_G.
 

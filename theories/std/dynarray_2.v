@@ -440,7 +440,7 @@ Section zebre_G.
     iIntros "%Hi %Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hdata_model & Hslots) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
     iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
-    feed pose proof (lookup_lookup_total vs i) as Hvs_lookup.
+    opose proof* (lookup_lookup_total vs i) as Hvs_lookup.
     { apply lookup_lt_is_Some_2. lia. }
     destruct (lookup_lt_is_Some_2 slots i) as (slot & Hslots_lookup); first lia.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "((%r & %Hr & Hr) & Hslots)"; [done.. | subst slot].
@@ -493,7 +493,7 @@ Section zebre_G.
     { rewrite replicate_length. rewrite app_length in Hn'. lia. }
     rewrite /dynarray_set_data. wp_store.
     iApply "HΦ". iExists l, data', slots, _. iFrame. iSplitR; first iSteps.
-    rewrite !Nat2Z.id drop_replicate take_app_alt //.
+    rewrite !Nat2Z.id drop_replicate take_app_length' //.
   Qed.
   Lemma dynarray_reserve_extra_spec t vs n :
     (0 ≤ n)%Z →
@@ -633,7 +633,7 @@ Section zebre_G.
     wp_apply (array_shrink_spec with "Hdata_model") as "%data' (_ & Hdata_model')".
     { rewrite app_length. lia. }
     wp_store.
-    iEval (rewrite -Hslots Nat2Z.id take_app) in "Hdata_model'".
+    iEval (rewrite -Hslots Nat2Z.id take_app_length) in "Hdata_model'".
     iApply "HΦ". iExists l, data', slots, 0.
     rewrite right_id. iSteps.
   Qed.

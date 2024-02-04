@@ -191,11 +191,11 @@ Section latch1_G.
 
     wp_smart_apply (mutex_create_spec (latch1_inv_inner l γ P) with "[Hflag Hpending2]") as "%mtx #Hmtx_inv"; first iSteps.
     wp_store.
-    iMod (mapsto_persist with "Hmtx") as "Hmtx".
+    iMod (pointsto_persist with "Hmtx") as "Hmtx".
 
     wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcond_inv".
     wp_store.
-    iMod (mapsto_persist with "Hcond") as "Hcond".
+    iMod (pointsto_persist with "Hcond") as "Hcond".
 
     iSteps.
   Qed.

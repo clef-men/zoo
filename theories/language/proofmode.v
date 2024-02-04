@@ -540,7 +540,7 @@ Tactic Notation "wp_load" :=
     | fail 1 "wp_load: cannot find 'Load' in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_load: cannot find" l "↦ ?"
@@ -559,7 +559,7 @@ Tactic Notation "wp_store" :=
     | fail 1 "wp_store: cannot find 'Store' in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_store: cannot find" l "↦ ?"
@@ -579,7 +579,7 @@ Tactic Notation "wp_xchg" :=
     | fail 1 "wp_xchg: cannot find 'Xchg in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_xchg: cannot find" l "↦ ?"
@@ -599,7 +599,7 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
     | fail 1 "wp_cas: cannot find 'Cas' with literal arguments in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _), _) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _), _) => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_cas: cannot find" l "↦ ?"
@@ -625,7 +625,7 @@ Ltac wp_cas_suc :=
     | fail 1 "wp_cas_suc: cannot find 'Cas' with literal arguments in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_cas_suc: cannot find" l "↦ ?"
@@ -648,7 +648,7 @@ Ltac wp_faa :=
     | fail 1 "wp_faa: cannot find 'Faa' in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (mapsto ?l _ _)) => l end in
+    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
       first
       [ iAssumptionCore
       | fail "wp_faa: cannot find" l "↦ ?"

@@ -672,7 +672,7 @@ Proof.
                       (fill [PairLCtx _; PairLCtx _; FstCtx; FstCtx])). }
         apply projs_pure_steps.
       * (** e1 is of the form ([Resolve] e10 v v0) and e10 takes a
-           (non-head) prim_step. *)
+           (non-base) prim_step. *)
         rewrite fill_app in Hrs; simplify_eq/=.
         edestruct (IH K) as (?&?&?&?&?&Hpstp&Hprstps&?&?&?);
           [rewrite !app_length; lia|done| |].
@@ -826,7 +826,7 @@ Qed.
 
 (**
 [Resolve] is translated as a projection out of a triple.
-Therefore, when resolve takes a head step, the erasure of [Resolve] takes a
+Therefore, when resolve takes a base step, the erasure of [Resolve] takes a
 prim step inside the triple.
 *)
 Lemma base_step_erased_prim_step e1 σ1 κ e2 σ2 ef:

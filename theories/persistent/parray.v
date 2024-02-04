@@ -253,7 +253,7 @@ Section parray_G.
     iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem'") as %Hmap_lookup'.
     iDestruct (big_sepM_delete with "Hmap") as "((%descr' & %Hvs'_len & Hl' & Hdescr') & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr'" as "(-> & Harr & Hvs')".
-    feed pose proof (list_lookup_lookup_total_lt vs' i) as Hvs'_lookup; first lia.
+    opose proof* (list_lookup_lookup_total_lt vs' i) as Hvs'_lookup; first lia.
     wp_apply (array_unsafe_get_spec i with "Harr") as "Harr"; [lia | | lia |]; first done.
     wp_store.
     wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr"; first lia.
@@ -261,7 +261,7 @@ Section parray_G.
     destruct (decide (l = l')) as [<- | Hcase2].
     - wp_store.
       iDestruct (big_sepM_delete with "[$Hmap Hl' Harr Hvs']") as "Hmap"; first done.
-      { iExists _. rewrite decide_True //. clear Hvs. iSteps. }
+      { iExists _. rewrite decide_True //. clear Hvs. simplify. iSteps. }
       iSteps.
     - iDestruct (big_sepM_delete _ _ l with "Hmap") as "((%descr & _ & Hl & Hdescr) & Hmap)"; first rewrite lookup_delete_ne //.
       rewrite decide_False //. iDestruct "Hdescr" as "(%i'' & %w & %l'' & %vs'' & _ & -> & _ & _)".
@@ -270,10 +270,13 @@ Section parray_G.
       iDestruct (big_sepL_insert_acc with "Hvs'") as "(Hvs'!!!i & Hvs')"; first done.
       iApply (big_sepM_delete _ _ l'); first done. iSplitL "Hl' Hvs'!!!i".
       { iExists _. rewrite decide_False //. iFrame. iSplitR; first iSteps. iExists i, (vs' !!! i), l, vs. iSteps.
-        iPureIntro. rewrite list_insert_insert list_insert_id //.
+        iPureIntro. rewrite Hvs list_insert_insert list_insert_id //.
       }
       iApply (big_sepM_delete _ _ l); first rewrite lookup_delete_ne //. iSplitL "Hl Harr Hvs'".
-      { iExists _. rewrite decide_True //. iSteps. }
+      { iExists _. rewrite decide_True //.
+        iSpecialize ("Hvs'" $! v). rewrite -Hvs.
+        iSteps.
+      }
       iApply (big_sepM_impl with "Hmap"). clear. iIntros "!> !>" (l'' vs'' (Hl''1 & (Hl''2 & Hmap_lookup'')%lookup_delete_Some)%lookup_delete_Some) "(%descr'' & %Hvs''_len & Hl'' & Hdescr'')".
       iExists _. rewrite decide_False // decide_False //. iFrame. iSteps.
   Qed.
@@ -298,7 +301,7 @@ Section parray_G.
     iDestruct (big_sepM_lookup_acc with "Hmap") as "((%descr & %Hvs_len & Hl & Hdescr) & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr" as "(-> & Harr & Hvs)".
     wp_apply (array_unsafe_get_spec with "Harr"); [done.. |].
-    setoid_rewrite decide_True at 1; last done. iSteps. iExists l. iSteps.
+    setoid_rewrite decide_True at 1; last done. iSteps.
   Qed.
 
   Lemma parray_set_spec τ `{!iType _ τ} t γ vs eq (i : Z) v :
@@ -329,7 +332,7 @@ Section parray_G.
     iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
     iDestruct (big_sepM_delete _ _ l with "Hmap") as "((%descr & %Hvs_len & Hl & Hdescr) & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr" as "(-> & Harr & Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     wp_smart_apply (array_unsafe_get_spec i with "Harr") as "Harr"; [lia | done | lia |].
     iDestruct (big_sepL_insert_acc with "Hvs") as "(#Hvs!!!i & Hvs)"; first done.
     wp_smart_apply (wp_wand with "(Heq Hv Hvs!!!i)") as "% ->".
@@ -344,9 +347,9 @@ Section parray_G.
       iApply "HΦ".
       iAssert ⌜map !! root = None⌝%I as %Hmap_lookup_root.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root %Hmap_lookup_root".
-        iDestruct (mapsto_ne with "Hroot Hl") as %Hne.
+        iDestruct (pointsto_ne with "Hroot Hl") as %Hne.
         iDestruct (big_sepM_lookup _ _ root with "Hmap") as "(%descr & _ & Hroot_ & _)"; first rewrite lookup_delete_ne //.
-        iDestruct (mapsto_ne with "Hroot Hroot_") as %[]. done.
+        iDestruct (pointsto_ne with "Hroot Hroot_") as %[]. done.
       }
       set vs_root := <[i := v]> vs.
       iMod (parray_map_insert with "Hmap_auth") as "(Hmap_auth & #Hmap_elem_root)"; first done.

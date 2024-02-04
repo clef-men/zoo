@@ -26,7 +26,7 @@ Section instances.
   Context `{zebre_G : !ZebreG Σ}.
 
   Section mergable.
-    #[global] Instance mergable_consume_mapsto_persist l v1 v2 :
+    #[global] Instance mergable_consume_pointsto_persist l v1 v2 :
       MergableConsume
         (l ↦□ v1)%I
         true
@@ -43,7 +43,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_consume_mapsto_own q1 q2 q l v1 v2 :
+    #[global] Instance mergable_consume_pointsto_own q1 q2 q l v1 v2 :
       MergableConsume
         (l ↦{#q1} v1)%I
         true
@@ -63,7 +63,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_mapsto_dfrac_own q1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist_pointsto_dfrac_own q1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{#q1} v1)%I
         (λ p Pin Pout,
@@ -79,7 +79,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_mapsto_dfrac_own2 q1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist_pointsto_dfrac_own2 q1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{dq2} v1)%I
         (λ p Pin Pout,
@@ -93,7 +93,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance mergable_persist_mapsto_last_resort dq1 dq2 l v1 v2 :
+    #[global] Instance mergable_persist_pointsto_last_resort dq1 dq2 l v1 v2 :
       MergablePersist
         (l ↦{dq1} v1)%I
         (λ p Pin Pout,
@@ -137,8 +137,8 @@ Section instances.
     Qed.
   End mergable.
 
-  Section biabds_mapsto.
-    #[global] Instance mapsto_val_may_need_more (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq q :
+  Section biabds_pointsto.
+    #[global] Instance pointsto_val_may_need_more (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq q :
       FracSub q2 q1 mq →
       TCEq mq (Some q) →
       HINT l ↦{#q1} v1 ✱ [v'; ⌜v1 = v2⌝ ∗ l ↦{#q} v'] ⊫ [id]; l ↦{#q2} v2 ✱ [⌜v1 = v2⌝ ∗ ⌜v' = v1⌝]
@@ -148,7 +148,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance mapsto_val_have_enough (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq :
+    #[global] Instance pointsto_val_have_enough (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq :
       FracSub q1 q2 mq →
       HINT l ↦{#q1} v1 ✱ [- ; ⌜v1 = v2⌝] ⊫ [id]; l ↦{#q2}v2 ✱ [⌜v1 = v2⌝ ∗ match mq with | Some q => l ↦{#q} v1 | _ => True end]
     | 54.
@@ -159,18 +159,18 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance as_persistent_mapsto p l q v :
+    #[global] Instance as_persistent_pointsto p l q v :
       HINT □⟨p⟩ l ↦{q} v ✱ [- ; emp] ⊫ [bupd]; l ↦□ v ✱ [l ↦□ v]
     | 100.
     Proof.
       iIntros "Hl" => /=.
       rewrite /= right_id bi.intuitionistically_if_elim.
-      iMod (mapsto_persist with "Hl") as "#Hl".
+      iMod (pointsto_persist with "Hl") as "#Hl".
       iSteps.
     Qed.
-  End biabds_mapsto.
+  End biabds_pointsto.
 
-  Section biabds_mapsto_array.
+  Section biabds_pointsto_array.
     Class BaseLoc li lb i :=
       offset_loc_eq : li = lb +ₗ i.
     #[global] Hint Mode BaseLoc + - - : typeclass_instances.
@@ -245,7 +245,7 @@ Section instances.
       move => ? ? /TCEq_eq; split; subst; eapply tc_no_backtrack.
     Qed.
 
-    (* #[global] Instance array_mapsto_index l1 vs l2 v lb j1 j2 lo q : *)
+    (* #[global] Instance array_pointsto_index l1 vs l2 v lb j1 j2 lo q : *)
     (*   SharedBaseLoc l1 l2 lb j1 j2 → *)
     (*   SolveSepSideCondition (j1 ≤ j2 < j1 + length vs)%Z → *)
     (*   ComputeOffsetLoc lb (Z.succ j2) lo → *)
@@ -264,7 +264,7 @@ Section instances.
     (*   iSteps. *)
     (* Qed. *)
 
-    (* Lemma array_mapsto_head l v vs q l' : *)
+    (* Lemma array_pointsto_head l v vs q l' : *)
     (*   ComputeOffsetLoc l 1 l' → *)
     (*   HINT l ↦∗{q} vs ✱ [- ; ⌜vs !! 0 = Some v⌝] ⊫ [id]; l ↦{q} v ✱ [l' ↦∗{q} tail vs ∗ ⌜vs !! 0 = Some v⌝]. *)
     (* Proof. *)
@@ -273,7 +273,7 @@ Section instances.
     (*   iSteps. *)
     (* Qed. *)
 
-    (* #[global] Instance head_mapsto_array_better l1 l2 lb j1 j2 v vs q l' : *)
+    (* #[global] Instance head_pointsto_array_better l1 l2 lb j1 j2 v vs q l' : *)
     (*   SharedBaseLoc l1 l2 lb j1 j2 → *)
     (*   SolveSepSideCondition (j1 = j2) → (1* i.e., l1 and l2 are aliases up to lia *1) *)
     (*   ComputeOffsetLoc lb (Z.succ j1) l' → *)
@@ -287,7 +287,7 @@ Section instances.
     (*   iSteps. *)
     (* Qed. *)
 
-    (* Lemma head_mapsto_array l v vs q l' : *)
+    (* Lemma head_pointsto_array l v vs q l' : *)
     (*   ComputeOffsetLoc l 1 l' → *)
     (*   HINT l ↦{q} v ✱ [- ; ⌜vs !! 0 = Some v⌝ ∗ l' ↦∗{q} tail vs] ⊫ [id]; l ↦∗{q} vs ✱ [emp]. *)
     (* Proof. *)
@@ -295,7 +295,7 @@ Section instances.
     (*   iSteps. *)
     (* Qed. *)
 
-    (* Lemma array_mapsto_head_offset l v vs q i l': *)
+    (* Lemma array_pointsto_head_offset l v vs q i l': *)
     (*   SolveSepSideCondition (0 ≤ i < length vs)%Z → *)
     (*   ComputeOffsetLoc l (Z.succ i) l' → *)
     (*   HINT l ↦∗{q} vs ✱ [ - ; ⌜vs !! Z.to_nat i = Some v⌝] ⊫ [id]; (l +ₗ i) ↦{q} v ✱ [ *)
@@ -384,7 +384,7 @@ Section instances.
     (*   replace (Z.to_nat (0 + length vs1 - 0)) with (length vs1) by lia. *)
     (*   rewrite firstn_all. iSteps. *)
     (* Qed. *)
-  End biabds_mapsto_array.
+  End biabds_pointsto_array.
 
   Section abds.
     #[global] Instance fork_abduct e (Φ : val → iPropI Σ) E :

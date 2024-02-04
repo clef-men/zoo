@@ -224,7 +224,7 @@ Section pstore_G.
       assert (∃ w, pstore_store σ0 σ_root !! r = Some w) as (w & Hunion_lookup).
       { eexists. apply lookup_lookup_total_dom. rewrite pstore_store_dom //. }
       iDestruct (big_sepM_lookup with "Hσ_root") as "Hr_"; first done.
-      iDestruct (mapsto_ne with "Hr Hr_") as %[]. done.
+      iDestruct (pointsto_ne with "Hr Hr_") as %[]. done.
     }
     assert (σ_root !! r = None).
     { rewrite -!not_elem_of_dom in Hσ0_lookup |- *. set_solver. }

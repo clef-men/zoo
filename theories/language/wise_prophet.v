@@ -141,7 +141,7 @@ Section make_wise_prophet_G.
     iIntros "* (#Hfull & Hpast_auth & Hmodel) (%past1 & #Hfull' & #Hpast_lb)".
     iDestruct (agree_on_agree_L with "Hfull Hfull'") as %Hfull.
     iDestruct (mono_list_auth_lb_valid with "Hpast_auth Hpast_lb") as %(_ & past2 & ->).
-    rewrite -assoc in Hfull. iSteps.
+    iPureIntro. rewrite -assoc in Hfull. naive_solver.
   Qed.
   Next Obligation.
     iIntros "* _ HΦ".

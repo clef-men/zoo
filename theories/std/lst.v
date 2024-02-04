@@ -86,7 +86,7 @@ Section zebre_G.
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
     destruct x1 as [| x1], x2 as [| x2]; iSteps.
-    destruct (decide (x1 = x2)) => /=.
+    destruct (decide (x1 = x2)) as [-> | Hne] => /=.
     - rewrite decide_False; first naive_solver.
       iSteps. setoid_rewrite subst_subst. iSteps.
     - rewrite decide_True; first naive_solver.
@@ -288,7 +288,7 @@ Section zebre_G.
     all: wp_rec; wp_pures.
     - rewrite bool_decide_eq_true_2; first lia. wp_pures.
       wp_apply lst_head_spec; [done | iSteps |].
-      apply (inj Some) in Hlookup. iSteps.
+      apply (inj Some) in Hlookup as ->. iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
       wp_apply lst_tail_spec as "%t' %Ht'"; [done | iSteps |].
       wp_apply ("IH" with "[] [//] [//] HΦ").
@@ -576,12 +576,12 @@ Section zebre_G.
     - rewrite !right_id. iSteps.
     - wp_apply (wp_wand with "(Hfn [] [HΨ])").
       { rewrite list_lookup_middle //. }
-      { rewrite take_app //. }
+      { rewrite take_app_length //. }
       clear acc. iIntros "%acc HΨ".
-      rewrite Z.add_1_l -Nat2Z.inj_succ.
+      rewrite Z.add_1_l -Nat2Z.inj_succ take_app_length.
       wp_apply ("IH" with "[] [] [$HΨ $Hfn //]").
-      { rewrite take_app -assoc //. }
-      { rewrite app_length take_length app_length. iSteps. }
+      { rewrite -assoc //. }
+      { rewrite app_length //. iSteps. }
       iSteps.
   Qed.
   Lemma lst_foldli_spec Ψ t vs acc fn :
@@ -722,7 +722,7 @@ Section zebre_G.
       clear acc. iIntros "%acc HΨ".
       iApply wp_fupd. wp_apply (wp_wand with "(Hfn [] [HΨ])").
       { rewrite list_lookup_middle //. }
-      all: rewrite (assoc (++) _ [_]) drop_app_alt //; first (rewrite app_length /=; lia).
+      all: rewrite (assoc (++) _ [_]) drop_app_length' //; first (rewrite app_length /=; lia).
       clear acc. iIntros "%acc HΨ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       iSteps.
@@ -868,7 +868,7 @@ Section zebre_G.
       lst_model acc (reverse vs')
     )%I.
     wp_smart_apply (lst_foldl_spec Ψ with "[$Ht]"); last iSteps.
-    iSteps. unfold lst_model' in *. rewrite reverse_app . iSteps.
+    iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
   Qed.
 
   Lemma lst_app_spec t1 vs1 t2 vs2 :
@@ -888,7 +888,7 @@ Section zebre_G.
       lst_model acc (vs ++ vs2)
     )%I.
     wp_smart_apply (lst_foldr_spec Ψ with "[$Ht1]"); last iSteps.
-    iSteps; unfold lst_model' in *; iSteps; done.
+    iSplit; first iSteps. iSteps as (? ? ? ? [= ->]). iSteps.
   Qed.
 
   Lemma lst_snoc_spec t vs v :
@@ -1153,16 +1153,16 @@ Section zebre_G.
       rewrite !right_id. iSteps.
     - wp_apply (wp_wand with "(Hfn [] [HΨ])") as "%w HΨ".
       { rewrite list_lookup_middle //. }
-      { rewrite take_app //. }
+      { rewrite take_app_length //. }
       wp_pures.
-      rewrite Z.add_1_l -Nat2Z.inj_succ.
+      rewrite Z.add_1_l -Nat2Z.inj_succ take_app_length.
       wp_apply ("IH" with "[] [] [] [$HΨ $Hfn //]") as "%t' %ws_right (%Hvs & %Ht' & HΨ)".
-      { rewrite take_app -assoc //. }
-      { rewrite app_length take_length app_length. iSteps. }
+      { rewrite -assoc //. }
+      { rewrite app_length. iSteps. }
       { rewrite app_length. iSteps. }
       wp_pures.
       iApply ("HΦ" $! _ (w :: ws_right)).
-      rewrite -!assoc. rewrite app_length /= in Hvs. rewrite /lst_model' in Ht'. iSteps.
+      rewrite -!assoc. rewrite app_length /= in Hvs. rewrite Ht'. iSteps.
   Qed.
   Lemma lst_mapi_spec Ψ t vs fn :
     {{{

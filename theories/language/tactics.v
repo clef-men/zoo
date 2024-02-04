@@ -111,13 +111,13 @@ Ltac reshape_expr e tac :=
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
-Ltac invert_head_step :=
+Ltac invert_base_step :=
   repeat match goal with
   | _ =>
       progress simplify_map_eq/=
   | H: to_val _ = Some _ |- _ =>
       apply of_to_val in H
-  | H: head_step ?e _ _ _ _ _ |- _ =>
+  | H: base_step ?e _ _ _ _ _ |- _ =>
      try (is_var e; fail 1);
      invert H
   end.
@@ -134,53 +134,53 @@ Ltac invert_head_step :=
 ) : zebre.
 
 #[global] Hint Extern 0 (
-  head_reducible _ _
+  base_reducible _ _
 ) =>
   do 4 eexists; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  head_reducible_no_obs _ _
+  base_reducible_no_obs _ _
 ) =>
   do 3 eexists; simpl
 : zebre.
 
 #[global] Hint Extern 1 (
-  head_step _ _ _ _ _ _
+  base_step _ _ _ _ _ _
 ) =>
   econstructor
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Equal _ _) _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply head_step_equal_fail; simpl; [| | try injection]
+  eapply base_step_equal_fail; simpl; [| | try injection]
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Equal _ _) _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply head_step_equal_suc; simpl
+  eapply base_step_equal_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Record  _) _ _ _ _ _
+  base_step (Record  _) _ _ _ _ _
 ) =>
-  eapply head_step_record'
+  eapply base_step_record'
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Alloc _ _) _ _ _ _ _
+  base_step (Alloc _ _) _ _ _ _ _
 ) =>
-  apply head_step_alloc'
+  apply base_step_alloc'
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Cas _ _ _) _ _ _ _ _
+  base_step (Cas _ _ _) _ _ _ _ _
 ) =>
-  eapply head_step_cas_fail; simpl; [| | | try injection]
+  eapply base_step_cas_fail; simpl; [| | | try injection]
 : zebre.
 #[global] Hint Extern 0 (
-  head_step (Cas _ _ _) _ _ _ _ _
+  base_step (Cas _ _ _) _ _ _ _ _
 ) =>
-  eapply head_step_cas_suc; simpl
+  eapply base_step_cas_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  head_step Proph _ _ _ _ _
+  base_step Proph _ _ _ _ _
 ) =>
-  apply head_step_proph'
+  apply base_step_proph'
 : zebre.

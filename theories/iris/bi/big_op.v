@@ -32,8 +32,8 @@ Section bi.
       iIntros "%Hl2 HΦ1 HΦ". remember (length l1) as sz eqn:Hl1.
       iInduction sz as [| sz] "IH" forall (l1 l2 Hl1 Hl2).
       { apply symmetry, nil_length_inv in Hl2 as ->. iSteps. }
-      destruct (rev_elim l1) as [-> | (x1 & l1' & ->)]; first iSteps.
-      destruct (rev_elim l2) as [-> | (x2 & l2' & ->)]; first iSteps.
+      destruct (rev_elim l1) as [-> | (x1 & l1' & ->)]; first done.
+      destruct (rev_elim l2) as [-> | (x2 & l2' & ->)]; first done.
       rewrite !app_length !Nat.add_1_r !Nat.succ_inj_wd in Hl1 Hl2.
       rewrite List.seq_S /=. iDestruct (big_sepL_snoc with "HΦ") as "(HΦ & HΦ')".
       iDestruct (big_sepL_snoc with "HΦ1") as "(HΦ1 & HΦ1')".

@@ -179,19 +179,19 @@ Section cmra.
     ✓{n} (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 ≡{n}≡ a2.
   Proof.
-    intros. eapply (inj Some), auth_auth_dfrac_op_invN. done.
+    intros. apply (inj Some). apply: auth_auth_dfrac_op_invN. done.
   Qed.
   Lemma auth_option_auth_dfrac_op_inv dq1 a1 dq2 a2 :
     ✓ (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 ≡ a2.
   Proof.
-    intros. eapply (inj Some), auth_auth_dfrac_op_inv. done.
+    intros. apply (inj Some). apply: auth_auth_dfrac_op_inv. done.
   Qed.
   Lemma auth_option_auth_dfrac_op_inv_L `{!LeibnizEquiv A} dq1 a1 dq2 a2 :
     ✓ (●O{dq1} a1 ⋅ ●O{dq2} a2) →
     a1 = a2.
   Proof.
-    intros. eapply (inj Some), auth_auth_dfrac_op_inv_L. done.
+    intros. apply (inj Some). apply: auth_auth_dfrac_op_inv_L. done.
   Qed.
 
   Lemma auth_option_auth_dfrac_validN n dq a :

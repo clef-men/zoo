@@ -351,7 +351,7 @@ Section zebre_G.
     Proof.
       intros Hvs. destruct vs as [| v vs]; first naive_solver lia.
       iIntros "(H↦ & _)".
-      iApply (mapsto_valid with "H↦").
+      iApply (pointsto_valid with "H↦").
     Qed.
     Lemma chunk_model_combine l dq1 vs1 dq2 vs2 :
       length vs1 = length vs2 →
@@ -362,10 +362,10 @@ Section zebre_G.
     Proof.
       iInduction vs1 as [| v1 vs1] "IH" forall (l vs2); iIntros "% Hmodel1 Hmodel2".
       - rewrite (nil_length_inv vs2) //. naive_solver.
-      - destruct vs2 as [| v2 vs2]; first iSteps.
+      - destruct vs2 as [| v2 vs2]; first done.
         iDestruct (chunk_model_cons_2 with "Hmodel1") as "(H↦1 & Hmodel1)".
         iDestruct (chunk_model_cons_2 with "Hmodel2") as "(H↦2 & Hmodel2)".
-        iDestruct (mapsto_combine with "H↦1 H↦2") as "(H↦ & ->)".
+        iDestruct (pointsto_combine with "H↦1 H↦2") as "(H↦ & ->)".
         iDestruct ("IH" with "[] Hmodel1 Hmodel2") as "(-> & Hmodel)"; first iSteps. iSplit; first iSteps.
         iApply (chunk_model_cons_1 with "H↦ Hmodel").
     Qed.
@@ -473,7 +473,7 @@ Section zebre_G.
       - iIntros "(%v & Hmodel)".
         iExists [v]. iSteps.
       - iIntros "(%vs & % & Hmodel)".
-        destruct vs as [| v vs]; first iSteps. destruct vs; iSteps.
+        destruct vs as [| v []]; try done. iSteps.
     Qed.
     Lemma chunk_span_singleton_1 l dq v :
       l ↦{dq} v ⊢
@@ -501,7 +501,7 @@ Section zebre_G.
         iExists (v :: vs). iSplit; first iSteps.
         iApply (chunk_model_cons_1 with "H↦ Hmodel").
       - iIntros "(%vs & % & Hmodel)".
-        destruct vs as [| v vs]; first iSteps.
+        destruct vs as [| v vs]; first done.
         iDestruct (chunk_model_cons_2 with "Hmodel") as "(H↦ & Hmodel)".
         iExists v. iFrame. iExists vs. auto.
     Qed.
@@ -914,7 +914,7 @@ Section zebre_G.
     Proof.
       intros Hvs. destruct vs as [| v vs]; first naive_solver lia.
       iIntros "(H↦ & _)".
-      iApply (mapsto_valid with "H↦").
+      iApply (pointsto_valid with "H↦").
     Qed.
     Lemma chunk_cslice_combine l sz i dq1 vs1 dq2 vs2 :
       length vs1 = length vs2 →
@@ -925,10 +925,10 @@ Section zebre_G.
     Proof.
       iInduction vs1 as [| v1 vs1] "IH" forall (i vs2); iIntros "% Hcslice1 Hcslice2".
       - rewrite (nil_length_inv vs2) //. naive_solver.
-      - destruct vs2 as [| v2 vs2]; first iSteps.
+      - destruct vs2 as [| v2 vs2]; first done.
         iDestruct (chunk_cslice_cons_2 with "Hcslice1") as "(H↦1 & Hcslice1)".
         iDestruct (chunk_cslice_cons_2 with "Hcslice2") as "(H↦2 & Hcslice2)".
-        iDestruct (mapsto_combine with "H↦1 H↦2") as "(H↦ & ->)".
+        iDestruct (pointsto_combine with "H↦1 H↦2") as "(H↦ & ->)".
         iDestruct ("IH" with "[] Hcslice1 Hcslice2") as "(-> & Hcslice)"; first iSteps. iSplit; first iSteps.
         iApply (chunk_cslice_cons_1 with "H↦ Hcslice").
     Qed.
@@ -996,22 +996,22 @@ Section zebre_G.
   End chunk_cslice.
 
   Notation chunk_au_load l i Φ := (
-    AU << ∃∃ dq v,
+    AU <{ ∃∃ dq v,
       (l +ₗ i) ↦{dq} v
-    >> @ ⊤, ∅ <<
+    }> @ ⊤, ∅ <{
       (l +ₗ i) ↦{dq} v,
     COMM
       Φ v
-    >>
+    }>
   )%I.
   Notation chunk_au_store l i v P := (
-    AU << ∃∃ v',
+    AU <{ ∃∃ v',
       (l +ₗ i) ↦ v'
-    >> @ ⊤, ∅ <<
+    }> @ ⊤, ∅ <{
       (l +ₗ i) ↦ v,
     COMM
       P
-    >>
+    }>
   )%I.
 
   Lemma chunk_make_spec sz v :
@@ -1214,7 +1214,7 @@ Section zebre_G.
     }
     iSplitR; first iSteps.
     clear acc. iIntros "!> %i %vs_left %o %acc (%Hi1 & %Hi2) (-> & Hmodel & HΨ & %Ho)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     destruct o as [v |].
     - rewrite Ho.
       wp_apply (wp_wand with "(Hfn [] HΨ)"); first iSteps. clear acc. iIntros "%acc HΨ". iFrame.
@@ -1450,7 +1450,7 @@ Section zebre_G.
     iSplitR.
     - rewrite Hsz drop_all. iSteps.
     - clear acc. iIntros "!> %i %acc %o %vs_right %Hi (-> & Hmodel & HΨ & %Ho)".
-      feed pose proof (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
+      opose proof* (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
       destruct o as [v |].
       + rewrite Ho.
         wp_apply (wp_wand with "(Hfn [] HΨ)").
@@ -1977,7 +1977,7 @@ Section zebre_G.
     }
     iSplit; first iSteps. repeat iSplit.
     iIntros "!> %i %vs_left %o %ws (%Hvs_left & %Hi & %Hws) (-> & Hmodel & HΨ)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     destruct o as [[v | (v & w)] |].
     - iDestruct "HΨ" as "(-> & HΨ)".
       wp_apply (wp_wand with "(Hfn [] HΨ)"); iSteps.
@@ -2559,7 +2559,7 @@ Section zebre_G.
     }
     iSplitR; first iSteps.
     iIntros "!> %i %vs_left %o %ws (%Hi1 & %Hi2 & %Hws) (-> & Hmodel & HΨ & %Ho)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     destruct o as [v |].
     - rewrite Ho.
       wp_apply (wp_wand with "(Hfn [] HΨ)") as "%w HΨ"; first iSteps. iFrame.
@@ -2882,9 +2882,9 @@ Section zebre_G.
     }
     iSplit; first iSteps.
     iIntros "!> %i %vs1_done %o (%Hi & _) (-> & Hmodel1 & Hmodel2 & %Hlookup)".
-    feed pose proof (list_lookup_lookup_total_lt vs2 i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs2 i); first lia.
     destruct o as [v1 |].
-    - feed pose proof (list_lookup_lookup_total_lt vs2 i); first lia.
+    - opose proof* (list_lookup_lookup_total_lt vs2 i); first lia.
       iDestruct (chunk_model_update i i with "Hmodel2") as "(H↦2 & Hmodel2)"; [lia | | lia |].
       { rewrite lookup_app_r take_length Nat.min_l //; try lia.
         rewrite Nat.sub_diag lookup_drop right_id list_lookup_lookup_total_lt //. lia.
@@ -2895,7 +2895,7 @@ Section zebre_G.
       rewrite insert_app_r_alt take_length Nat.min_l //; try lia.
       rewrite Nat.sub_diag. erewrite drop_S; last done. rewrite -(assoc (++)).
       iSteps.
-    - feed pose proof (list_lookup_lookup_total_lt vs1 i); first lia.
+    - opose proof* (list_lookup_lookup_total_lt vs1 i); first lia.
       iDestruct (chunk_model_lookup_acc i with "Hmodel1") as "(H↦1 & Hmodel1)"; [lia | done | lia |].
       iAuIntro. iAaccIntro with "H↦1"; iSteps.
   Qed.
@@ -2967,7 +2967,7 @@ Section zebre_G.
     )%I.
     wp_apply (chunk_resize_spec_atomic Ψ with "[$Hmodel]"); [done.. | | iSteps].
     iStep. iIntros "!> %i %vs_left (%Hi1 & %Hi2) (-> & Hmodel)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
     iAuIntro. iAaccIntro with "H↦"; first iSteps.
     rewrite -take_S_r //. iSteps.
@@ -3158,7 +3158,7 @@ Section zebre_G.
     wp_apply (chunk_fill_spec_atomic Ψ with "[$Hmodel]"); last first.
     { rewrite /Ψ skipn_all2; first lia. rewrite right_id //. }
     iIntros "!> %i %Hi Hmodel".
-    efeed pose proof (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
     iDestruct (chunk_model_update i i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | lia |].
     { rewrite lookup_app_r replicate_length // lookup_drop Nat.sub_diag right_id //. }
     iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦".
@@ -3353,7 +3353,7 @@ Section zebre_G.
     iIntros "%Hi %Φ #Hl HΦ".
     Z_to_nat i.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & #Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
     wp_load.
     iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
@@ -3374,7 +3374,7 @@ Section zebre_G.
     iIntros "%Hi %Φ (#Hl & #Hv) HΦ".
     Z_to_nat i.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     iDestruct (chunk_model_update i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
     wp_store.
     iDestruct (big_sepL_insert_acc with "Hvs") as "(_ & Hvs)"; first done.
@@ -3409,7 +3409,7 @@ Section zebre_G.
       iSteps.
     - iAuIntro.
       iInv "Hl" as "(%vs & >%Hvs & >Hmodel & #Hvs)".
-      feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+      opose proof* (list_lookup_lookup_total_lt vs i); first lia.
       iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
       iAaccIntro with "H↦"; first iSteps.
       iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
@@ -3461,7 +3461,7 @@ Section zebre_G.
       iSteps.
     - iAuIntro.
       iInv "Hl" as "(%vs & >%Hvs & >Hmodel & #Hvs)".
-      feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+      opose proof* (list_lookup_lookup_total_lt vs i); first lia.
       iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
       iAaccIntro with "H↦"; first iSteps.
       iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
@@ -3688,11 +3688,11 @@ Section zebre_G.
       iDestruct ("Hmodel2" with "H↦2") as "Hmodel2".
       iStep. iFrame.
       rewrite /= right_id insert_app_r_alt; first lia.
-      rewrite Nat.sub_diag insert_take_drop; first (rewrite drop_length; lia).
+      rewrite Hi2 Nat.sub_diag insert_take_drop; first (rewrite drop_length; lia).
       rewrite drop_drop Nat.add_1_r -(assoc (++)) //.
     - iAuIntro.
       iInv "Hl1" as "(%vs1 & >%Hvs1 & >Hmodel1 & #Hvs1)".
-      feed pose proof (list_lookup_lookup_total_lt vs1 i); first lia.
+      opose proof* (list_lookup_lookup_total_lt vs1 i); first lia.
       iDestruct (chunk_model_lookup_acc i with "Hmodel1") as "(H↦1 & Hmodel1)"; [lia | done | lia |].
       iAaccIntro with "H↦1"; first iSteps.
       iDestruct (big_sepL_lookup with "Hvs1") as "Hv1"; first done.
@@ -3747,7 +3747,7 @@ Section zebre_G.
         iSteps.
       + iAuIntro.
         iInv "Hl" as "(%vs & >%Hvs & >Hmodel & #Hvs)".
-        feed pose proof (list_lookup_lookup_total_lt vs i); first lia.
+        opose proof* (list_lookup_lookup_total_lt vs i); first lia.
         iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
         iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
         iAaccIntro with "H↦"; iSteps.
@@ -3824,7 +3824,7 @@ Section zebre_G.
     wp_apply (chunk_fill_spec_atomic Ψ); last iSteps.
     iStep. iIntros "!> %i %Hi _". iAuIntro.
     iInv "Hl" as "(%vs & >%Hvs & >Hmodel & #Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
+    opose proof* (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
     iDestruct (chunk_model_update i i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | lia |].
     { apply list_lookup_lookup_total_lt. lia. }
     iAaccIntro with "H↦"; iIntros "H↦ !>".
@@ -3851,7 +3851,7 @@ Section zebre_G.
     Z_to_nat i.
     wp_rec. wp_pures.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & #Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
     iDestruct (chunk_model_lookup_acc (i `rem` sz) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
     wp_load.
     iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
@@ -3874,7 +3874,7 @@ Section zebre_G.
     Z_to_nat i.
     wp_rec. wp_pures.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & Hvs)".
-    feed pose proof (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
+    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
     iDestruct (chunk_model_update (i `rem` sz) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
     wp_store.
     iDestruct (big_sepL_insert_acc with "Hvs") as "(_ & Hvs)"; first done.

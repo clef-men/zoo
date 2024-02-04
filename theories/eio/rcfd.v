@@ -426,7 +426,7 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_alloc l_state as "Hstate". iMod (mapsto_persist with "Hstate") as "Hstate".
+    wp_alloc l_state as "Hstate". iMod (pointsto_persist with "Hstate") as "Hstate".
     wp_record l as "Hmeta" "(Hops & Hfd & _)".
     iMod rcfd_tokens_alloc as "(%γ_tokens & Htokens_auth)".
     iMod rcfd_lstate_alloc as "(%γ_lstate & Hlstate_auth)".
@@ -555,7 +555,7 @@ Section rcfd_G.
         wp_cas as Hcas | [= <-]; first iSteps.
         iDestruct (rcfd_lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
-        iDestruct (mapsto_agree with "Hstate2 Hstate4") as %[= <-]%(inj _).
+        iDestruct (pointsto_agree with "Hstate2 Hstate4") as %[= <-]%(inj _).
         iSplitR "Hfn4 HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iSteps.
   Qed.
@@ -690,7 +690,7 @@ Section rcfd_G.
       iModIntro. clear.
 
       wp_load.
-      wp_alloc l_state as "Hstate". iMod (mapsto_persist with "Hstate") as "#Hstate".
+      wp_alloc l_state as "Hstate". iMod (pointsto_persist with "Hstate") as "#Hstate".
       wp_pures.
 
       wp_bind (Cas _ _ _).
@@ -708,7 +708,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iSteps.
 
-      + iDestruct (mapsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
+      + iDestruct (pointsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
         destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate2"; iSteps. }
         iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & _ & Htokens_auth & Hmodel)".
@@ -751,7 +751,7 @@ Section rcfd_G.
 
         iDestruct (rcfd_lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
-        iDestruct (mapsto_agree with "Hstate Hstate4") as %[=<-].
+        iDestruct (pointsto_agree with "Hstate Hstate4") as %[=<-].
         iSplitR "Hfn4 HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iModIntro. clear.
 
@@ -843,7 +843,7 @@ Section rcfd_G.
       wp_load.
       wp_alloc flag as "Hflag".
       wp_smart_apply (latch1_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
-      wp_alloc l_state as "Hstate". iMod (mapsto_persist with "Hstate") as "#Hstate".
+      wp_alloc l_state as "Hstate". iMod (pointsto_persist with "Hstate") as "#Hstate".
       wp_pures.
 
       wp_bind (Cas _ _ _).
@@ -861,7 +861,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
         iSteps. iApply ("HΦ" $! None). iSteps.
 
-      + iDestruct (mapsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
+      + iDestruct (pointsto_agree with "Hstate1 Hstate2") as %[= <-]%(inj _).
         destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate2"; iSteps. }
         iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & _ & Htokens_auth & Hmodel)".

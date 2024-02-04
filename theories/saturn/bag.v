@@ -8,8 +8,6 @@ From iris.algebra Require Import
 
 From zebre Require Import
   prelude.
-From zebre.common Require Import
-  list.
 From zebre.iris.base_logic Require Import
   lib.auth_excl.
 From zebre.language Require Import
@@ -279,8 +277,8 @@ Section bag_G.
       iSplitR "HΦ".
       { iExists front, back, os', vs'. iSteps. iPureIntro.
         rewrite /vs' /os' insert_take_drop; first congruence.
-        rewrite -{1}(take_drop_middle os i None) // !foldr_app /=.
-        rewrite -foldr_comm_acc_strong //. { intros []; multiset_solver. }
+        rewrite Hvs -{1}(take_drop_middle os i None) // !foldr_app /=.
+        rewrite -foldr_comm_acc_strong //. { intros []; set_solver by lia. }
       }
       iSteps.
   Qed.
@@ -372,7 +370,7 @@ Section bag_G.
       { iSplit; last iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.
         rewrite Hvs -(take_drop_middle os i (Some v)) // foldr_app /=.
-        rewrite foldr_comm_acc_strong. { intros []; multiset_solver. }
+        rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
         multiset_solver.
       }
       iDestruct ("Hslots" $! _ None with "Hslot") as "Hslots".
@@ -380,8 +378,8 @@ Section bag_G.
       iSplitR "HΦ".
       { iExists front, back, os', vs'. iSteps. iPureIntro.
         rewrite /vs' /os' insert_take_drop; first congruence.
-        rewrite -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
-        rewrite foldr_comm_acc_strong. { intros []; multiset_solver. }
+        rewrite Hvs -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
+        rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
         multiset_solver.
       }
       iSteps.

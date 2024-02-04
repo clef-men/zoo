@@ -134,12 +134,12 @@ Section zebre_G.
     Fractional (λ q, chain_model t (DfracOwn q) vs dst).
   Proof.
     intros q1 q2. move: t. induction vs as [| v vs IH] => t /=; first iSteps.
-    setoid_rewrite IH. setoid_rewrite mapsto_fractional.
+    setoid_rewrite IH. setoid_rewrite pointsto_fractional.
     iSplit.
     - iIntros "(%l & %t' & -> & (Hhd1 & Hhd2) & (Htl1 & Htl2) & Hmodel1 & Hmodel2)".
       iSteps.
     - iIntros "((%l & %t' & -> & Hhd1 & Htl1 & Hmodel1) & (%_l & %_t' & %Heq & Hhd2 & Htl2 & Hmodel2))". injection Heq as <-.
-      iDestruct (mapsto_agree with "Htl1 Htl2") as %<-.
+      iDestruct (pointsto_agree with "Htl1 Htl2") as %<-.
       iSteps.
   Qed.
   #[global] Instance chain_model_as_fractional t q vs dst :
@@ -202,7 +202,7 @@ Section zebre_G.
   Proof.
     intros Hlen. destruct vs as [| v vs]; first naive_solver lia.
     iIntros "(%l & %t' & -> & Hhd & Htl & Hmodel')".
-    iApply (mapsto_valid with "Hhd").
+    iApply (pointsto_valid with "Hhd").
   Qed.
   Lemma chain_model_combine t dq1 vs1 dst1 dq2 vs2 dst2 :
     length vs1 ≤ length vs2 →
@@ -217,8 +217,8 @@ Section zebre_G.
     - iSteps. lia.
     - iIntros "%Hlen (%l & %t' & -> & Hhd1 & Htl1 & Hmodel'1) (%_l & %_t' & %Heq & Hhd2 & Htl2 & Hmodel'2)". injection Heq as <-.
       simpl in Hlen. apply le_S_n in Hlen.
-      iDestruct (mapsto_combine with "Hhd1 Hhd2") as "(Hhd & <-)".
-      iDestruct (mapsto_combine with "Htl1 Htl2") as "(Htl & <-)".
+      iDestruct (pointsto_combine with "Hhd1 Hhd2") as "(Hhd & <-)".
+      iDestruct (pointsto_combine with "Htl1 Htl2") as "(Htl & <-)".
       iDestruct ("IH" with "[] Hmodel'1 Hmodel'2") as "(Hmodel' & Hmodel'2 & ->)"; first done.
       rewrite /= take_length min_l //. iSteps.
   Qed.
@@ -313,8 +313,8 @@ Section zebre_G.
   Proof.
     iInduction vs as [| v vs] "IH" forall (t); first iSteps.
     iIntros "%Hdq (%l & %t' & -> & Hhd & Htl & Hmodel')".
-    iMod (mapsto_relax with "Hhd") as "Hhd"; first done.
-    iMod (mapsto_relax with "Htl") as "Htl"; first done.
+    iMod (pointsto_relax with "Hhd") as "Hhd"; first done.
+    iMod (pointsto_relax with "Htl") as "Htl"; first done.
     iSteps.
   Qed.
 
@@ -440,7 +440,7 @@ Section zebre_G.
   Proof.
     iIntros "%Hi %Hlookup %Φ Hmodel HΦ".
     Z_to_nat i. clear Hi. rewrite Nat2Z.id in Hlookup.
-    efeed pose proof (lookup_lt_Some vs i); first done.
+    opose proof* (lookup_lt_Some vs i); first done.
     wp_rec.
     wp_smart_apply (chain_advance_spec with "Hmodel") as (t') "(Hmodel & Hmodel')"; first lia.
     rewrite Nat2Z.id.
@@ -466,7 +466,7 @@ Section zebre_G.
   Proof.
     iIntros "%Hi %Hlookup %Φ Hmodel HΦ".
     Z_to_nat i. clear Hi. rewrite Nat2Z.id in Hlookup.
-    efeed pose proof (lookup_lt_Some vs i); first done.
+    opose proof* (lookup_lt_Some vs i); first done.
     wp_rec.
     wp_smart_apply (chain_advance_spec with "Hmodel") as (t') "(Hmodel & Hmodel')"; first lia.
     rewrite Nat2Z.id.

@@ -221,8 +221,8 @@ Section inf_cl_deque_G.
     mono_list_auth γ_hist 1 hist.
   #[local] Definition inf_cl_deque_hist_auth γ hist :=
     inf_cl_deque_hist_auth' γ.(inf_cl_deque_meta_hist) hist.
-  #[local] Definition inf_cl_deque_hist_mapsto γ i v :=
-    mono_list_mapsto γ.(inf_cl_deque_meta_hist) i v.
+  #[local] Definition inf_cl_deque_hist_pointsto γ i v :=
+    mono_list_pointsto γ.(inf_cl_deque_meta_hist) i v.
 
   #[local] Definition inf_cl_deque_model₁' γ_model model :=
     auth_excl_frag (auth_excl_G := inf_cl_deque_G_model_G) γ_model model.
@@ -274,14 +274,13 @@ Section inf_cl_deque_G.
     inf_cl_deque_lock γ.
 
   #[local] Definition inf_cl_deque_atomic_update γ ι Φ : iProp Σ :=
-    AU << ∃∃ model,
+    AU <{ ∃∃ model,
       inf_cl_deque_model₂ γ model
-    >>
-      @ ⊤ ∖ ↑ι, ∅
-    << ∀∀ v model',
+    }> @ ⊤ ∖ ↑ι, ∅ <{
+      ∀∀ v model',
       ⌜model = v :: model'⌝ ∗ inf_cl_deque_model₂ γ model',
       COMM Φ ’Some{ v }
-    >>.
+    }>.
   #[local] Definition inf_cl_deque_state_inner₁ γ :=
     inf_cl_deque_winner γ.
   #[local] Definition inf_cl_deque_state₁ γ front back hist : iProp Σ :=
@@ -493,19 +492,19 @@ Section inf_cl_deque_G.
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma inf_cl_deque_hist_mapsto_get {γ hist} i v :
+  #[local] Lemma inf_cl_deque_hist_pointsto_get {γ hist} i v :
     hist !! i = Some v →
     inf_cl_deque_hist_auth γ hist ⊢
-    inf_cl_deque_hist_mapsto γ i v.
+    inf_cl_deque_hist_pointsto γ i v.
   Proof.
-    setoid_rewrite mono_list_lb_get. apply mono_list_mapsto_get.
+    setoid_rewrite mono_list_lb_get. apply mono_list_pointsto_get.
   Qed.
   #[local] Lemma inf_cl_deque_hist_agree γ hist i v :
     inf_cl_deque_hist_auth γ hist -∗
-    inf_cl_deque_hist_mapsto γ i v -∗
+    inf_cl_deque_hist_pointsto γ i v -∗
     ⌜hist !! i = Some v⌝.
   Proof.
-    apply mono_list_auth_mapsto_lookup.
+    apply mono_list_auth_pointsto_lookup.
   Qed.
   #[local] Lemma inf_cl_deque_hist_update {γ hist} v :
     inf_cl_deque_hist_auth γ hist ⊢ |==>
@@ -742,14 +741,14 @@ Section inf_cl_deque_G.
       inf_array_inv data ∗
       inv ι (inf_cl_deque_inv_inner l γ ι data p) ∗
       l.[data] ↦□ data ∗
-      inf_cl_deque_hist_mapsto γ i v
+      inf_cl_deque_hist_pointsto γ i v
     }}}
       inf_array_get !#l.[data] #i
     {{{
       RET v; True
     }}}.
   Proof.
-    iIntros "%Φ (#Harray_inv & #Hinv & #Hdata & #Hhist_mapsto) HΦ".
+    iIntros "%Φ (#Harray_inv & #Hinv & #Hdata & #Hhist_pointsto) HΦ".
 
     (* → [!#l.[data]] *)
     wp_load.
@@ -763,7 +762,7 @@ Section inf_cl_deque_G.
     { unfold_state. iDestruct "Hstate" as "[Hstate | [Hstate | (_ & [Hstate | Hstate])]]";
         iDestruct "Hstate" as "(>%Hstate & >Hhist_auth & >%Hhist & _)";
         iModIntro;
-        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %?;
+        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_pointsto") as %?;
         iPureIntro.
       - erewrite lookup_app_l_Some; done.
       - destruct model as [| w model]; simpl in *; first lia.
@@ -982,8 +981,8 @@ Section inf_cl_deque_G.
 
     (* → [{ #0; #0; data; #p }] *)
     wp_record l as "Hmeta" "(Hfront & Hback & Hdata & Hp & _)".
-    iMod (mapsto_persist with "Hdata") as "#Hdata".
-    iMod (mapsto_persist with "Hp") as "#Hp".
+    iMod (pointsto_persist with "Hdata") as "#Hdata".
+    iMod (pointsto_persist with "Hp") as "#Hp".
 
     iApply "HΦ".
 
@@ -1277,7 +1276,7 @@ Section inf_cl_deque_G.
     (* hence there is at least one model value *)
     destruct model as [| v model]; first naive_solver lia.
     (* emit history fragment at [front1] *)
-    iDestruct (inf_cl_deque_hist_mapsto_get front1 v with "Hhist_auth") as "#Hhist_mapsto".
+    iDestruct (inf_cl_deque_hist_pointsto_get front1 v with "Hhist_auth") as "#Hhist_pointsto".
     { rewrite lookup_app_r; first lia. rewrite Hhist Nat.sub_diag //. }
     (* emit prophet lower bound at [prophs2] *)
     iDestruct (wise_prophet_lb_get with "Hprophet_model") as "#Hprophet_lb".
@@ -1389,7 +1388,7 @@ Section inf_cl_deque_G.
       destruct model as [| _v model]; first naive_solver lia.
       iAssert ⌜_v = v⌝%I as %->.
       { (* exploit history fragment *)
-        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %Hlookup.
+        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_pointsto") as %Hlookup.
         iPureIntro.
         rewrite lookup_app_r in Hlookup; first lia.
         rewrite list_lookup_singleton_Some in Hlookup. naive_solver.
@@ -1423,7 +1422,7 @@ Section inf_cl_deque_G.
       clear- Hbranch1 Hbranch3.
 
       (* → [array.(inf_array_get) !#l.[data] #front1] *)
-      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_pointsto]") as "_".
 
       wp_pures.
 
@@ -1437,7 +1436,7 @@ Section inf_cl_deque_G.
       destruct (nil_or_length_pos model) as [-> |]; last lia.
       iAssert ⌜hist !!! front1 = v⌝%I as %->.
       { (* exploit history fragment *)
-        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %Hlookup.
+        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_pointsto") as %Hlookup.
         iPureIntro. apply list_lookup_total_correct. done.
       }
       (* update front *)
@@ -1457,7 +1456,7 @@ Section inf_cl_deque_G.
       clear- Hbranch1 Hbranch3.
 
       (* → [array.(inf_array_get) !#l.[data] #front1] *)
-      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+      wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_pointsto]") as "_".
 
       wp_pures.
 
@@ -1706,7 +1705,7 @@ Section inf_cl_deque_G.
         set (hist' := hist ++ [v]).
         iMod (inf_cl_deque_hist_update v with "Hhist_auth") as "Hhist_auth".
         (* emit history fragment at [front3] *)
-        iDestruct (inf_cl_deque_hist_mapsto_get front3 v with "Hhist_auth") as "#Hhist_mapsto".
+        iDestruct (inf_cl_deque_hist_pointsto_get front3 v with "Hhist_auth") as "#Hhist_pointsto".
         { rewrite lookup_app_r; first lia. rewrite Hhist Nat.sub_diag //. }
         (* update private values in control tokens *)
         iMod (inf_cl_deque_ctl_update front3 priv with "Hctl₁ Hctl₂") as "(Hctl₁ & Hctl₂)".
@@ -1749,7 +1748,7 @@ Section inf_cl_deque_G.
         clear.
 
         (* → [array.(inf_array_get) !#l.[data] #front3] *)
-        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_pointsto]") as "_".
 
         wp_pures.
 
@@ -1763,7 +1762,7 @@ Section inf_cl_deque_G.
       (* emit front fragment at [front2] *)
       iDestruct (inf_cl_deque_front_lb_get with "Hfront_auth") as "#Hfront_lb".
       (* emit history fragment at [front2] *)
-      iDestruct (inf_cl_deque_hist_mapsto_get front2 v with "Hhist_auth") as "#Hhist_mapsto".
+      iDestruct (inf_cl_deque_hist_pointsto_get front2 v with "Hhist_auth") as "#Hhist_pointsto".
       { rewrite lookup_app_r; first lia. rewrite Hhist Nat.sub_diag //. }
       (* emit prophet lower bound at [prophs2] *)
       iDestruct (wise_prophet_lb_get with "Hprophet_model") as "#Hprophet_lb".
@@ -1901,7 +1900,7 @@ Section inf_cl_deque_G.
         iDestruct (inf_cl_deque_winner₂_state' with "Hwinner₂ Hstate") as "(>-> & Hlock & >Hhist_auth & >%Hhist & %id' & %Ψ' & >%Hprophs4 & Hwinner₁ & Hwinner₂ & HΨ')".
         iDestruct (inf_cl_deque_winner_agree ’Some{ v } with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
         (* exploit history fragment *)
-        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %->%list_lookup_total_correct.
+        iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_pointsto") as %->%list_lookup_total_correct.
         (* do resolve *)
         wp_apply (inf_cl_deque_prophet.(wise_prophet_wp_resolve) (front2, id) with "Hprophet_model"); [done.. |].
         (* Cas must succeed *)
@@ -1947,7 +1946,7 @@ Section inf_cl_deque_G.
         clear- Hbranch2.
 
         (* → [array.(inf_array_get) !#l.[data] #front2] *)
-        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_mapsto]") as "_".
+        wp_smart_apply (inf_cl_deque_wp_get_hist with "[$Harray_inv $Hinv $Hdata $Hhist_pointsto]") as "_".
 
         wp_pures.
 
@@ -2060,7 +2059,7 @@ Section inf_cl_deque_G.
             [iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & Hstate)".. |].
           { simplify- front3.
             (* exploit history fragment *)
-            iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_mapsto") as %?%lookup_lt_Some.
+            iDestruct (inf_cl_deque_hist_agree with "Hhist_auth Hhist_pointsto") as %?%lookup_lt_Some.
             lia.
           } {
             iDestruct (inf_cl_deque_front_valid with "Hfront_auth Hfront_lb") as %?.

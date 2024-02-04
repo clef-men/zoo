@@ -174,8 +174,8 @@ Section spsc_queue_G.
     mono_list_auth γ_history 1 hist.
   #[local] Definition spsc_queue_history_auth γ hist :=
     spsc_queue_history_auth' γ.(spsc_queue_meta_history) hist.
-  #[local] Definition spsc_queue_history_mapsto γ i v :=
-    mono_list_mapsto γ.(spsc_queue_meta_history) i v.
+  #[local] Definition spsc_queue_history_pointsto γ i v :=
+    mono_list_pointsto γ.(spsc_queue_meta_history) i v.
 
   #[local] Definition spsc_queue_producer_ctl₁' γ_producer_ctl back :=
     auth_nat_max_auth γ_producer_ctl (DfracOwn (1/2)) back.
@@ -315,19 +315,19 @@ Section spsc_queue_G.
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma spsc_queue_history_mapsto_get {γ hist} i v :
+  #[local] Lemma spsc_queue_history_pointsto_get {γ hist} i v :
     hist !! i = Some v →
     spsc_queue_history_auth γ hist ⊢
-    spsc_queue_history_mapsto γ i v.
+    spsc_queue_history_pointsto γ i v.
   Proof.
-    setoid_rewrite mono_list_lb_get. apply mono_list_mapsto_get.
+    setoid_rewrite mono_list_lb_get. apply mono_list_pointsto_get.
   Qed.
   #[local] Lemma spsc_queue_history_agree γ hist i v :
     spsc_queue_history_auth γ hist -∗
-    spsc_queue_history_mapsto γ i v -∗
+    spsc_queue_history_pointsto γ i v -∗
     ⌜hist !! i = Some v⌝.
   Proof.
-    apply mono_list_auth_mapsto_lookup.
+    apply mono_list_auth_pointsto_lookup.
   Qed.
   #[local] Lemma spsc_queue_history_update {γ hist} v :
     spsc_queue_history_auth γ hist ⊢ |==>
@@ -491,7 +491,7 @@ Section spsc_queue_G.
     iApply wp_fupd.
     wp_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
     wp_record l as "Hmeta" "(Hdata & Hfront & Hfront_cache & Hback & Hback_cache & _)".
-    iMod (mapsto_persist with "Hdata") as "#Hdata".
+    iMod (pointsto_persist with "Hdata") as "#Hdata".
 
     iMod spsc_queue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod spsc_queue_history_alloc as "(%γ_history & Hhistory_auth)".
@@ -527,15 +527,15 @@ Section spsc_queue_G.
   Qed.
 
   #[local] Definition spsc_queue_queue_push_au l ι sz v Φ : iProp Σ :=
-    AU <<
+    AU <{
       ∃∃ vs,
       spsc_queue_model #l vs
-    >> @ ⊤ ∖ ↑ι, ∅ <<
+    }> @ ⊤ ∖ ↑ι, ∅ <{
       spsc_queue_model #l (if decide (length vs = sz) then vs else vs ++ [v]),
     COMM
       spsc_queue_producer #l -∗
       Φ #(bool_decide (length vs = sz))
-    >>.
+    }>.
   #[local] Lemma spsc_queue_push_aux_spec l ι γ sz data front_cache back v Ψ :
     {{{
       meta l nroot γ ∗
@@ -660,7 +660,7 @@ Section spsc_queue_G.
     iSplitR "Hfront_cache Hproducer_ctl₁ Hproducer_region HΦ".
     { do 2 iModIntro. iExists front3, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
       iSplit. { rewrite app_length. iSteps. }
-      iSplit. { rewrite app_length drop_app_le; first lia. iSteps. }
+      iSplit. { rewrite Hvs3 app_length drop_app_le; first lia. iSteps. }
       iSplitL "Hback"; first iSteps.
       rewrite assoc. iSplitL "Hdata_front Hdata_vs Hdata_back".
       - destruct vs3 as [| v' vs3].
@@ -674,14 +674,16 @@ Section spsc_queue_G.
           { rewrite /= -replicate_S. f_equal. lia. }
           rewrite Nat.add_1_r. iSteps.
     }
+    iModIntro. clear.
+
     iSteps.
   Qed.
 
   #[local] Definition spsc_queue_queue_pop_au l ι Φ : iProp Σ :=
-    AU <<
+    AU <{
       ∃∃ vs,
       spsc_queue_model #l vs
-    >> @ ⊤ ∖ ↑ι, ∅ <<
+    }> @ ⊤ ∖ ↑ι, ∅ <{
       ∀∀ o : option val,
       match o with
       | Some v =>
@@ -695,7 +697,7 @@ Section spsc_queue_G.
     COMM
       spsc_queue_consumer #l -∗
       Φ o
-    >>.
+    }>.
   #[local] Lemma spsc_queue_pop_aux_spec l ι γ sz data front back_cache Ψ :
     {{{
       meta l nroot γ ∗
@@ -801,7 +803,7 @@ Section spsc_queue_G.
     destruct vs2 as [| v vs2]; first naive_solver lia.
     iDestruct "Hdata_front" as "[Hdata_front | Hconsumer_region']"; last first.
     { iDestruct (spsc_queue_consumer_region_exclusive with "Hconsumer_region Hconsumer_region'") as %[]. }
-    iDestruct (spsc_queue_history_mapsto_get front v with "Hhistory_auth") as "#Hhistory_mapsto".
+    iDestruct (spsc_queue_history_pointsto_get front v with "Hhistory_auth") as "#Hhistory_pointsto".
     { rewrite -(take_drop front hist2) -Hvs2 lookup_app_r take_length; first lia.
       rewrite Nat.min_l; first lia.
       rewrite Nat.sub_diag //.
@@ -821,7 +823,7 @@ Section spsc_queue_G.
     iDestruct (spsc_queue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
     iDestruct (spsc_queue_back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2.
     destruct vs3 as [| _v vs3]; first naive_solver lia.
-    iDestruct (spsc_queue_history_agree with "Hhistory_auth Hhistory_mapsto") as %Hhist3_lookup.
+    iDestruct (spsc_queue_history_agree with "Hhistory_auth Hhistory_pointsto") as %Hhist3_lookup.
     assert (_v = v) as ->.
     { move: Hhist3_lookup.
       rewrite -(take_drop front hist3) -Hvs3 lookup_app_r take_length; first lia.
@@ -840,7 +842,7 @@ Section spsc_queue_G.
     iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
     { do 2 iModIntro. iExists (S front), back3, vs3, hist3. iFrame. simpl in *.
       iSplit; first iSteps.
-      iSplit. { erewrite drop_S in Hvs3; last done. iSteps. }
+      iSplit. { erewrite drop_S in Hvs3; last done. naive_solver. }
       iSplitL "Hfront"; first iSteps.
       rewrite assoc. iSplitL "Hdata_vs".
       - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app fmap_length take_length.

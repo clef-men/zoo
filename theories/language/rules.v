@@ -28,10 +28,10 @@ Implicit Types κ : list observation.
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
-  Lemma head_reducible_equal v1 v2 σ :
+  Lemma base_reducible_equal v1 v2 σ :
     val_physical v1 →
     val_physical v2 →
-    head_reducible (v1 = v2) σ.
+    base_reducible (v1 = v2) σ.
   Proof.
     destruct
       v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
@@ -59,8 +59,8 @@ Section zebre_G.
     WP v1 = v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
-    iSplit. { iPureIntro. apply head_reducible_equal; done. }
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %Hstep !> _".
     destruct
       v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
@@ -72,7 +72,7 @@ Section zebre_G.
       | destruct (decide (l1 = l2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
-    all: invert_head_step; last try by exfalso.
+    all: invert_base_step; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
@@ -112,9 +112,9 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
     iSplit; first auto with zebre. iIntros "!> %e2 %σ2 %es %Hstep _".
-    invert_head_step. rename select (list val) into vs.
+    invert_base_step. rename select (list val) into vs.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
     { apply heap_array_map_disjoint. rewrite -> of_vals_length in *. auto. }
@@ -135,9 +135,9 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
     iSplit; first auto with zebre. iIntros "!> %e2 %σ2 %es %Hstep _".
-    invert_head_step.
+    invert_base_step.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
     { apply heap_array_map_disjoint. rewrite replicate_length Z2Nat.id; auto with lia. }
@@ -171,10 +171,10 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
+    invert_base_step.
     iFrame. iSteps.
   Qed.
 
@@ -189,10 +189,10 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
+    invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
@@ -208,19 +208,19 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
+    invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
 
-  Lemma head_reducible_cas l v v1 v2 σ :
+  Lemma base_reducible_cas l v v1 v2 σ :
     σ.(state_heap) !! l = Some v →
     val_physical v →
     val_physical v1 →
-    head_reducible (Cas #l v1 v2) σ.
+    base_reducible (Cas #l v1 v2) σ.
   Proof.
     intros.
     destruct
@@ -256,10 +256,10 @@ Section zebre_G.
     WP Cas #l v1 v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
 
-    iSplit. { iPureIntro. eapply head_reducible_cas; done. }
+    iSplit. { iPureIntro. eapply base_reducible_cas; done. }
     iIntros "%e2 %σ2 %es %Hstep !> _".
     destruct
       v as [[b | i | l' | |] | | [] | (? & tag) []],
@@ -271,7 +271,7 @@ Section zebre_G.
       | destruct (decide (l' = l1)); first subst
       | destruct (decide (tag = tag1)); first subst
       ].
-    all: invert_head_step; last try by exfalso.
+    all: invert_base_step; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
@@ -340,10 +340,10 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
+    invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
@@ -354,9 +354,9 @@ Section zebre_G.
     WP Fork e @ E {{ Φ }}.
   Proof.
     iIntros "Hwp HΦ".
-    iApply wp_lift_atomic_head_step; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
+    iApply wp_lift_atomic_base_step; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ1 & Hκ) !>".
     iSplit; first auto with zebre. iIntros "!> %v2 %σ2 %es %Hstep _".
-    invert_head_step.
+    invert_base_step.
     iFrame. iSteps.
   Qed.
 
@@ -369,9 +369,9 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %ns %κ %κ' %nt (Hσ & Hκ) !>".
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %Hstep !> _".
-    invert_head_step.
+    invert_base_step.
     iMod (proph_map_new_proph p with "Hκ") as "(Hκ & Hp)"; first done.
     iFrame. iSteps.
   Qed.
@@ -388,16 +388,16 @@ Section zebre_G.
     { unfold Atomic in A. apply (A σ e' κ σ' es) in H. unfold is_Some in H.
       destruct H as [w H]. exists w. simpl in H. by apply (of_to_val _ _ H).
     }
-    simpl. constructor. by apply prim_step_to_val_is_head_step.
+    simpl. constructor. by apply prim_step_to_val_is_base_step.
   Qed.
   Lemma step_resolve e v1 v2 σ1 κ e2 σ2 es :
     Atomic StronglyAtomic e →
     prim_step (Resolve e v1 v2) σ1 κ e2 σ2 es →
-    head_step (Resolve e v1 v2) σ1 κ e2 σ2 es.
+    base_step (Resolve e v1 v2) σ1 κ e2 σ2 es.
   Proof.
     intros A [K e1' e2' Hfill -> step]. simpl in *.
     induction K as [| k K _] using rev_ind.
-    + simpl in *. subst. invert_head_step. constructor. done.
+    + simpl in *. subst. invert_base_step. constructor. done.
     + rewrite fill_app /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
       - assert (fill_item k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fill_app.
         assert (fill_item k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fill_app.
@@ -408,11 +408,11 @@ Section zebre_G.
       - rename select (of_val v1 = _) into Hv1.
         assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
         apply to_val_fill_some in Hfill_v1 as (-> & ->).
-        invert_head_step.
+        invert_base_step.
       - rename select (of_val v2 = _) into Hv2.
         assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
         apply to_val_fill_some in Hfill_v2 as (-> & ->).
-        invert_head_step.
+        invert_base_step.
   Qed.
   Lemma wp_resolve e p v pvs E Φ :
     Atomic StronglyAtomic e →
@@ -434,14 +434,14 @@ Section zebre_G.
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
       iIntros "!> %e2 %σ2 %es %Hstep".
       exfalso. apply step_resolve in Hstep; last done.
-      invert_head_step.
+      invert_base_step.
       destruct κ; done.
     - rewrite -assoc.
       iMod ("Hwp" $! σ1 ns _ _ nt with "[$Hσ $Hκ]") as "(%Hreducible & Hwp)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
       iIntros "!> %e2 %σ2 %es %Hstep H£".
       apply step_resolve in Hstep; last done.
-      invert_head_step. simplify_list_eq.
+      invert_base_step. simplify_list_eq.
       iMod ("Hwp" $! (Val w') σ2 es with "[%] H£") as "Hwp".
       { eexists [] _ _; done. }
       do 2 iModIntro.

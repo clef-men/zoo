@@ -398,7 +398,7 @@ Section zebre_G.
       { rewrite replicate_length. lia. }
       wp_store.
       iApply ("HΦ" $! data' (Z.to_nat (n `max` n') - length vs)).
-      iSteps. rewrite Nat2Z.id drop_replicate take_app //.
+      iSteps. rewrite Nat2Z.id drop_replicate take_app_length //.
   Qed.
   Lemma dynarray_reserve_spec t vs n :
     (0 ≤ n)%Z →
@@ -429,7 +429,7 @@ Section zebre_G.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
     wp_rec. wp_pures.
-    case_bool_decide; wp_pures; last iSmash.
+    case_bool_decide; wp_pures; last done.
     wp_load.
     wp_smart_apply (dynarray_reserve_spec' with "[Hsz Hdata Hdata_model]") as "%data' %extra' (%Hextra' & Hmodel)"; [lia | iSteps |].
     iApply ("HΦ" $! data' extra').
@@ -513,7 +513,7 @@ Section zebre_G.
     wp_apply (array_shrink_spec with "Hdata_model") as "%data' (_ & Hdata_model')".
     { rewrite app_length. lia. }
     wp_store.
-    iSteps. iExists 0. rewrite Nat2Z.id take_app right_id //.
+    iSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.
   Qed.
 
   Lemma dynarray_reset_spec t vs :

@@ -195,7 +195,7 @@ Section inf_array_G.
     wp_apply (array_create_spec with "[//]") as "%data Hmodel_data".
 
     wp_record l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
-    iMod (mapsto_persist with "Hdefault") as "#Hdefault".
+    iMod (pointsto_persist with "Hdefault") as "#Hdefault".
 
     set (vs _ := default).
     iMod (auth_excl_alloc' (auth_excl_G := inf_array_G_model_G) vs) as "(%γ & Hmodel₁ & Hmodel₂)".

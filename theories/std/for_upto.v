@@ -191,7 +191,7 @@ Section zebre_G.
     )%I).
     wp_apply (for_upto_spec_strong Ψ'); last iSteps. iSplit; first iSteps. iIntros "!> %i %δ (%Hi1 & %Hi2) HΨ'".
     wp_apply (wp_wand with "(Hfn [//])") as "%res (-> & HΨ)". iStep.
-    rewrite /Ψ' seq_S big_sepL_snoc. iSteps.
+    rewrite /Ψ' seq_S big_sepL_snoc Hi1. iSteps.
   Qed.
   Lemma for_upto_spec_disentangled' Ψ beg _end fn :
     {{{

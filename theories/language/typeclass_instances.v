@@ -126,7 +126,7 @@ Section atomic.
   Proof.
     rename e into e1. intros H σ1 e2 κ σ2 es [K e1' e2' Hfill -> step].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
-    - subst. inversion_clear step. by eapply (H σ1 (Val _) _ σ2 es), head_prim_step.
+    - subst. inversion_clear step. by eapply (H σ1 (Val _) _ σ2 es), base_prim_step.
     - rewrite fill_app. rewrite fill_app in Hfill.
       assert (∀ v, Val v = fill K e1' → False) as fill_absurd.
       { intros v Hv. assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
@@ -159,11 +159,11 @@ Section pure_exec.
     eauto with zebre.
   #[local] Ltac solve_exec_puredet :=
     intros;
-    invert_head_step;
+    invert_base_step;
     naive_solver.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
-    apply nsteps_once, pure_head_step_pure_step;
+    apply nsteps_once, pure_base_step_pure_step;
     try (case_bool_decide; first subst);
     (split; [solve_exec_safe | solve_exec_puredet]).
 
@@ -315,7 +315,7 @@ Section pure_exec.
       (Val $ ValTuple vs).
   Proof.
     intros <-%of_to_vals.
-    apply nsteps_once, pure_head_step_pure_step.
+    apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
   #[global] Instance pure_proj i vs v :
@@ -336,7 +336,7 @@ Section pure_exec.
       (Val $ ValConstr tag vs).
   Proof.
     intros <-%of_to_vals.
-    apply nsteps_once, pure_head_step_pure_step.
+    apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
   #[global] Instance pure_case tag vs e brs sel :
