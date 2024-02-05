@@ -3,22 +3,23 @@
    https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
 *)
 
+From iris.algebra Require Import
+  gmap.
+
 From zebre Require Import
   prelude.
-From iris.algebra Require Import gmap.
+From zebre.iris.base_logic Require Import
+  lib.mono_map.
 From zebre.language Require Import
   notations
   diaframe.
+From zebre.std Require Import
+  assert
+  lst.
 From zebre.persistent Require Export
   base.
 From zebre Require Import
-  assert
-  lst.
-From zebre Require Import
   options.
-
-From zebre.persistent Require Import
-  map_agree.
 
 Implicit Types l : loc.
 Implicit Types v t s : val.
@@ -43,7 +44,7 @@ Implicit Types σ : gmap loc val.
 ).
 
 (* ------------------------------------------------------------------------ *)
-(* The code *)
+(* Code. *)
 
 Definition pstore_create : val :=
   λ: <>,
@@ -112,27 +113,12 @@ Definition pstore_restore : val :=
       end
     ).
 
-Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-    pstore_G_map_G : map_agreeG Σ nat (loc * gmap loc val)%type;
-}.
-
-Definition pstore_Σ := #[
-  map_agreeΣ nat (loc * gmap loc val)%type
-].
-#[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
-  subG pstore_Σ Σ →
-  PstoreG Σ.
-Proof.
-  solve_inG.
-Qed.
-
-#[local] Existing Instance pstore_G_map_G.
-
 (* ------------------------------------------------------------------------ *)
-(* More lemmas on maps and lists *)
-Section more_map.
+(* Lemmas on maps and lists. *)
+
+Section map.
   Context `{Countable K}.
-  Context {V:Type}.
+  Context {V : Type}.
 
   Lemma gmap_included_insert (σ1 σ2:gmap K V) (l:K) (v:V) :
     σ1 ⊆ σ2 ->
@@ -161,10 +147,10 @@ Section more_map.
     intros l Hl. apply elem_of_dom in Hl. destruct Hl as (?&Hl).
     eapply map_subseteq_spec in X1; last done. by eapply elem_of_dom.
   Qed.
-End more_map.
+End map.
 
-Section more_list.
-  Context {A:Type}.
+Section list.
+  Context {A : Type}.
 
   Lemma list_case_r (l:list A) :
     l = nil \/ exists (l':list A) x, l = l' ++ [x].
@@ -182,430 +168,439 @@ Section more_list.
     destruct Hx as (?&?).
     eexists _,_. symmetry. eapply take_drop_middle. done.
   Qed.
-End more_list.
+End list.
 
 (* ------------------------------------------------------------------------ *)
-(* Define a labeled graph, as a set of edges. *)
+(* Define a labeled graph as a set of edges. *)
 
-Section Graph.
-Definition graph (A B:Type) `{Countable A} `{Countable B} := gset (A*B*A).
+Section graph.
+  Definition graph (A B : Type) `{Countable A} `{Countable B} :=
+    gset (A * B * A).
 
-Context `{Countable A} `{Countable B}.
-Definition vertices (g:graph A B) : gset A :=
-  set_fold (fun '(x,_,y) acc => {[x;y]} ∪ acc) ∅ g.
+  Context `{Countable A} `{Countable B}.
+  Definition vertices (g:graph A B) : gset A :=
+    set_fold (fun '(x,_,y) acc => {[x;y]} ∪ acc) ∅ g.
 
-Lemma vertices_empty :
-  vertices ∅ = ∅.
-Proof. compute_done. Qed.
+  Lemma vertices_empty :
+    vertices ∅ = ∅.
+  Proof.
+    compute_done.
+  Qed.
 
-Definition proj1 {A B C:Type} (x:(A*B*C)) : A :=
-  match x with (x,_,_) => x end.
-Definition proj2 {A B C:Type} (x:(A*B*C)) : B :=
-  match x with (_,x,_) => x end.
-Definition proj3 {A B C:Type} (x:(A*B*C)) : C :=
-  match x with (_,_,x) => x end.
+  Definition proj1 {A B C:Type} (x:(A*B*C)) : A :=
+    match x with (x,_,_) => x end.
+  Definition proj2 {A B C:Type} (x:(A*B*C)) : B :=
+    match x with (_,x,_) => x end.
+  Definition proj3 {A B C:Type} (x:(A*B*C)) : C :=
+    match x with (_,_,x) => x end.
 
-Lemma elem_of_vertices x (g:graph A B) :
-  x ∈ vertices g <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g).
-Proof.
-  apply set_fold_ind_L with (P := fun f g => x ∈ f  <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g)).
-  set_solver.
-  intros ((?,?),?). set_solver.
-Qed.
+  Lemma elem_of_vertices x (g:graph A B) :
+    x ∈ vertices g <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g).
+  Proof.
+    apply set_fold_ind_L with (P := fun f g => x ∈ f  <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g)).
+    set_solver.
+    intros ((?,?),?). set_solver.
+  Qed.
 
-Lemma vertices_singleton (x:(A*B*A)) :
-  vertices {[x]} = {[proj1 x; proj3 x]}.
-Proof.
-  rewrite /vertices set_fold_singleton. destruct x as ((?&?)&?); set_solver.
-Qed.
+  Lemma vertices_singleton (x:(A*B*A)) :
+    vertices {[x]} = {[proj1 x; proj3 x]}.
+  Proof.
+    rewrite /vertices set_fold_singleton. destruct x as ((?&?)&?); set_solver.
+  Qed.
 
-Lemma vertices_union (g1 g2:graph A B) :
-  vertices (g1 ∪ g2) = vertices g1 ∪ vertices g2.
-Proof.
-  revert g2. induction g1 using set_ind_L; intros g2.
-  { rewrite /vertices set_fold_empty !left_id_L //. }
-  replace ({[x]} ∪ X ∪ g2) with (X ∪ ({[x]} ∪ g2)) by set_solver.
-  rewrite (union_comm_L _  X).
-  rewrite !IHg1. rewrite -union_assoc_L. f_equal.
-  destruct_decide (decide (x ∈ g2)).
-  { replace ({[x]} ∪ g2) with g2 by set_solver.
-    rewrite vertices_singleton.
-    assert ({[proj1 x; proj3 x]} ⊆ vertices g2); last by set_solver.
-    intros l Hl. apply elem_of_vertices.
-    rewrite elem_of_union !elem_of_singleton in Hl. destruct x as ((?,?),?). set_solver. }
-  rewrite {1}/vertices /set_fold. simpl.
-  rewrite (foldr_permutation _ _ _ _ (x::elements g2)).
-  { intros. destruct a1 as ((?,?),?),a2 as ((?,?),?); set_solver. }
-  { by apply elements_union_singleton. }
-  { simpl. rewrite vertices_singleton. destruct x as ((?,?),?). set_solver. }
-Qed.
+  Lemma vertices_union (g1 g2:graph A B) :
+    vertices (g1 ∪ g2) = vertices g1 ∪ vertices g2.
+  Proof.
+    revert g2. induction g1 using set_ind_L; intros g2.
+    { rewrite /vertices set_fold_empty !left_id_L //. }
+    replace ({[x]} ∪ X ∪ g2) with (X ∪ ({[x]} ∪ g2)) by set_solver.
+    rewrite (union_comm_L _  X).
+    rewrite !IHg1. rewrite -union_assoc_L. f_equal.
+    destruct_decide (decide (x ∈ g2)).
+    { replace ({[x]} ∪ g2) with g2 by set_solver.
+      rewrite vertices_singleton.
+      assert ({[proj1 x; proj3 x]} ⊆ vertices g2); last by set_solver.
+      intros l Hl. apply elem_of_vertices.
+      rewrite elem_of_union !elem_of_singleton in Hl. destruct x as ((?,?),?). set_solver. }
+    rewrite {1}/vertices /set_fold. simpl.
+    rewrite (foldr_permutation _ _ _ _ (x::elements g2)).
+    { intros. destruct a1 as ((?,?),?),a2 as ((?,?),?); set_solver. }
+    { by apply elements_union_singleton. }
+    { simpl. rewrite vertices_singleton. destruct x as ((?,?),?). set_solver. }
+  Qed.
 
-Definition edge (g:graph A B) x c y := (x,c,y) ∈ g.
+  Definition edge (g:graph A B) x c y :=
+    (x,c,y) ∈ g.
 
-Inductive path (g:graph A B) : A -> list (A*B*A) -> A -> Prop :=
-| path_nil : forall a, path g a [] a
-| path_cons : forall a1 b a2 bs a3,
-    (a1,b,a2) ∈ g ->
-    path g a2 bs a3 ->
-    path g a1 ((a1,b,a2)::bs) a3.
+  Inductive path (g:graph A B) : A -> list (A*B*A) -> A -> Prop :=
+  | path_nil : forall a, path g a [] a
+  | path_cons : forall a1 b a2 bs a3,
+      (a1,b,a2) ∈ g ->
+      path g a2 bs a3 ->
+      path g a1 ((a1,b,a2)::bs) a3.
 
-Lemma path_app_inv g a1 a2 xs ys :
-  path g a1 (xs ++ ys) a2 ->
-  exists a, path g a1 xs a /\ path g a ys a2.
-Proof.
-  revert a1 ys a2. induction xs as [| ((?,?),?)].
-  { eauto using path_nil. }
-  { intros. rewrite -app_comm_cons in H1. inversion H1. subst.
-    apply IHxs in H9. destruct H9 as (?&?&?).
-    eauto using path_cons. }
-Qed.
+  Lemma path_app_inv g a1 a2 xs ys :
+    path g a1 (xs ++ ys) a2 ->
+    exists a, path g a1 xs a /\ path g a ys a2.
+  Proof.
+    revert a1 ys a2. induction xs as [| ((?,?),?)].
+    { eauto using path_nil. }
+    { intros. rewrite -app_comm_cons in H1. inversion H1. subst.
+      apply IHxs in H9. destruct H9 as (?&?&?).
+      eauto using path_cons. }
+  Qed.
 
-Lemma path_snoc_inv g a1 a2 a3 a4 b xs :
-  path g a1 (xs ++ [(a2,b,a3)]) a4 ->
-  path g a1 xs a2 /\ a3 = a4 /\ (a2,b,a3) ∈ g.
-Proof.
-  intros Hpath. apply path_app_inv in Hpath. destruct Hpath as (?&?&Hpath).
-  inversion Hpath. subst. inversion H9. naive_solver.
-Qed.
+  Lemma path_snoc_inv g a1 a2 a3 a4 b xs :
+    path g a1 (xs ++ [(a2,b,a3)]) a4 ->
+    path g a1 xs a2 /\ a3 = a4 /\ (a2,b,a3) ∈ g.
+  Proof.
+    intros Hpath. apply path_app_inv in Hpath. destruct Hpath as (?&?&Hpath).
+    inversion Hpath. subst. inversion H9. naive_solver.
+  Qed.
 
-Definition acyclic g := forall a xs, path g a xs a -> xs = nil.
+  Definition acyclic g := forall a xs, path g a xs a -> xs = nil.
 
-Record rooted_dag g (r:A) :=
-  { ti1 : forall a, a ∈ vertices g -> exists xs, path g a xs r;
-    ti2 : acyclic g
-  }.
+  Record rooted_dag g (r:A) :=
+    { ti1 : forall a, a ∈ vertices g -> exists xs, path g a xs r;
+      ti2 : acyclic g
+    }.
 
-Definition unaliased (g:graph A B) :=
-    forall r x1 r1 x2 r2,
-    (r,x1,r1) ∈ g ->
-    (r,x2,r2) ∈ g ->
-    x1 = x2 /\ r1 = r2.
+  Definition unaliased (g:graph A B) :=
+      forall r x1 r1 x2 r2,
+      (r,x1,r1) ∈ g ->
+      (r,x2,r2) ∈ g ->
+      x1 = x2 /\ r1 = r2.
 
-Lemma path_app (g:graph A B) x3 x1 xs ys x2 :
-  path g x1 xs x3 ->
-  path g x3 ys x2 ->
-  path g x1 (xs++ys) x2.
-Proof.
-  intros Hp.
-  revert x2 ys. induction Hp. eauto.
-  intros. rewrite -app_comm_cons. apply path_cons. set_solver.
-  eauto.
-Qed.
+  Lemma path_app (g:graph A B) x3 x1 xs ys x2 :
+    path g x1 xs x3 ->
+    path g x3 ys x2 ->
+    path g x1 (xs++ys) x2.
+  Proof.
+    intros Hp.
+    revert x2 ys. induction Hp. eauto.
+    intros. rewrite -app_comm_cons. apply path_cons. set_solver.
+    eauto.
+  Qed.
 
-Definition all_uniq_path g :=
-  forall a1 a2 xs ys, path g a1 xs a2 -> path g a1 ys a2 -> xs = ys.
+  Definition all_uniq_path g :=
+    forall a1 a2 xs ys, path g a1 xs a2 -> path g a1 ys a2 -> xs = ys.
 
-Lemma rooted_tree_impl_acyclic_unaliased g r :
-  (forall a, a ∈ vertices g -> exists xs, path g a xs r) -> (* If every vertex can reach the root, *)
-  all_uniq_path g -> (* then the property of uniq path *)
-  acyclic g /\ unaliased g. (* implies acyclicity + unalising *)
-Proof.
-  intros Hroot  Huniq. split.
-  { intros ?? Hpath.
-    assert (path g a (xs++xs) a) as Hloop.
-    { by eapply path_app. }
-    specialize (Huniq a a xs (xs++xs) Hpath Hloop).
-    apply (@f_equal _ _ length) in Huniq. rewrite app_length in Huniq.
-    assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
-  { intros ????? X1 X2.
-    destruct (Hroot r1) as (xs1&Hxs1).
-    { eapply elem_of_vertices. eauto. }
-    destruct (Hroot r2) as (xs2&Hxs2).
-    { eapply elem_of_vertices. eauto. }
-    assert (path g r0 ((r0,x1,r1)::xs1) r) as Hp1. by eapply path_cons.
-    assert (path g r0 ((r0,x2,r2)::xs2) r) as Hp2. by eapply path_cons.
-    specialize (Huniq _ _ _ _ Hp1 Hp2). naive_solver. }
-Qed.
+  Lemma rooted_tree_impl_acyclic_unaliased g r :
+    (forall a, a ∈ vertices g -> exists xs, path g a xs r) -> (* If every vertex can reach the root, *)
+    all_uniq_path g -> (* then the property of uniq path *)
+    acyclic g /\ unaliased g. (* implies acyclicity + unalising *)
+  Proof.
+    intros Hroot  Huniq. split.
+    { intros ?? Hpath.
+      assert (path g a (xs++xs) a) as Hloop.
+      { by eapply path_app. }
+      specialize (Huniq a a xs (xs++xs) Hpath Hloop).
+      apply (@f_equal _ _ length) in Huniq. rewrite app_length in Huniq.
+      assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
+    { intros ????? X1 X2.
+      destruct (Hroot r1) as (xs1&Hxs1).
+      { eapply elem_of_vertices. eauto. }
+      destruct (Hroot r2) as (xs2&Hxs2).
+      { eapply elem_of_vertices. eauto. }
+      assert (path g r0 ((r0,x1,r1)::xs1) r) as Hp1. by eapply path_cons.
+      assert (path g r0 ((r0,x2,r2)::xs2) r) as Hp2. by eapply path_cons.
+      specialize (Huniq _ _ _ _ Hp1 Hp2). naive_solver. }
+  Qed.
 
-Lemma acyclic_unaliased_impl_uniq_path g :
-  acyclic g ->
-  unaliased g ->
-  all_uniq_path g.
-Proof.
-  intros Hacy Hinj. intros ???? Hpath.
-  revert ys. induction Hpath; intros ys.
-  { intros Hpath. apply Hacy in Hpath. done. }
-  { inversion 1; subst.
-    { exfalso.
-      assert (path g a3 ((a3, b, a2)::bs) a3) as Z.
-      { apply path_cons. done. eauto. }
-      apply Hacy in Z. congruence. }
-    destruct (Hinj _ _ _ _ _ H1 H3). subst.
-    f_equal. eapply IHHpath. done. }
-Qed.
+  Lemma acyclic_unaliased_impl_uniq_path g :
+    acyclic g ->
+    unaliased g ->
+    all_uniq_path g.
+  Proof.
+    intros Hacy Hinj. intros ???? Hpath.
+    revert ys. induction Hpath; intros ys.
+    { intros Hpath. apply Hacy in Hpath. done. }
+    { inversion 1; subst.
+      { exfalso.
+        assert (path g a3 ((a3, b, a2)::bs) a3) as Z.
+        { apply path_cons. done. eauto. }
+        apply Hacy in Z. congruence. }
+      destruct (Hinj _ _ _ _ _ H1 H3). subst.
+      f_equal. eapply IHHpath. done. }
+  Qed.
 
-Lemma rooted_dag_empty (r:A) :
-    rooted_dag (∅ : graph A B) r.
-Proof.
-  constructor.
-  { intros ?. rewrite vertices_empty. set_solver. }
-  { intros ??. inversion 1; set_solver. }
-Qed.
+  Lemma rooted_dag_empty (r:A) :
+      rooted_dag (∅ : graph A B) r.
+  Proof.
+    constructor.
+    { intros ?. rewrite vertices_empty. set_solver. }
+    { intros ??. inversion 1; set_solver. }
+  Qed.
 
-Lemma path_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
-  r ≠ r' ->
-  x2 ≠ r' ->
-  r' ∉ vertices g ->
-  path ({[(r, b, r')]} ∪ g) x1 ds x2 ->
-  path g x1 ds x2.
-Proof.
-  induction 4.
-  { apply path_nil. }
-  { eapply path_cons.
-    { rewrite /edge elem_of_union elem_of_singleton in H4.
-      destruct H4 as [|]; last done.
-      inversion H4. subst. inversion H5. congruence. subst.
-      exfalso. apply H3. apply elem_of_vertices. set_solver. }
-    by eapply IHpath. }
-Qed.
+  Lemma path_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
+    r ≠ r' ->
+    x2 ≠ r' ->
+    r' ∉ vertices g ->
+    path ({[(r, b, r')]} ∪ g) x1 ds x2 ->
+    path g x1 ds x2.
+  Proof.
+    induction 4.
+    { apply path_nil. }
+    { eapply path_cons.
+      { rewrite /edge elem_of_union elem_of_singleton in H4.
+        destruct H4 as [|]; last done.
+        inversion H4. subst. inversion H5. congruence. subst.
+        exfalso. apply H3. apply elem_of_vertices. set_solver. }
+      by eapply IHpath. }
+  Qed.
 
-Lemma path_cycle_end_inv g (r r':A) b ds x :
-  r ≠ r' ->
-  r' ∉ vertices g ->
-  path ({[(r, b, r')]} ∪ g) x ds x ->
-  path g x ds x.
-Proof.
-  intros.
-  destruct_decide (decide (x=r')).
-  { subst. inversion H3. apply path_nil. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
-  eapply path_cycle_end_inv_aux; last done. all:done.
-Qed.
+  Lemma path_cycle_end_inv g (r r':A) b ds x :
+    r ≠ r' ->
+    r' ∉ vertices g ->
+    path ({[(r, b, r')]} ∪ g) x ds x ->
+    path g x ds x.
+  Proof.
+    intros.
+    destruct_decide (decide (x=r')).
+    { subst. inversion H3. apply path_nil. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
+    eapply path_cycle_end_inv_aux; last done. all:done.
+  Qed.
 
-Lemma path_snoc g a1 b a2 bs a3 :
-  path g a1 bs a2 ->
-  (a2,b,a3) ∈ g ->
-  path g a1 (bs++[(a2,b,a3)]) a3.
-Proof.
-  induction 1.
-  { intros. apply path_cons. done. apply path_nil. }
-  { intros. rewrite -app_comm_cons. eauto using path_cons. }
-Qed.
+  Lemma path_snoc g a1 b a2 bs a3 :
+    path g a1 bs a2 ->
+    (a2,b,a3) ∈ g ->
+    path g a1 (bs++[(a2,b,a3)]) a3.
+  Proof.
+    induction 1.
+    { intros. apply path_cons. done. apply path_nil. }
+    { intros. rewrite -app_comm_cons. eauto using path_cons. }
+  Qed.
 
-Lemma path_weak g1 g2 x bs y :
-  path g1 x bs y ->
-  g1 ⊆ g2 ->
-  path g2 x bs y.
-Proof.
-  induction 1; intros Hi. apply path_nil. eapply path_cons.
-  by apply Hi. by apply IHpath.
-Qed.
+  Lemma path_weak g1 g2 x bs y :
+    path g1 x bs y ->
+    g1 ⊆ g2 ->
+    path g2 x bs y.
+  Proof.
+    induction 1; intros Hi. apply path_nil. eapply path_cons.
+    by apply Hi. by apply IHpath.
+  Qed.
 
-Lemma rooted_dag_add (r r':A) g x:
-  r ≠ r' ->
-  r' ∉ vertices g ->
-  rooted_dag g r ->
-  rooted_dag ({[(r, x, r')]} ∪ g) r'.
-Proof.
-  intros Hne Hg Hroot. inversion Hroot as [X1 X2].
-  constructor.
-  { rewrite vertices_union vertices_singleton. intros a.
-    rewrite !elem_of_union !elem_of_singleton.
-    intros [[-> | ->] | Hx].
-    { exists [(r, x, r')]. simpl. eapply path_cons. set_solver. apply path_nil. }
-    { exists nil. apply path_nil. }
-    { apply X1 in Hx. destruct Hx as (ds,Hx). exists (ds++[(r, x, r')]).
-      eapply path_snoc.
-      { eapply path_weak; eauto. set_solver. }
-      { set_solver. } } }
-  { intros ?? Hpath. apply  path_cycle_end_inv in Hpath; eauto. }
-Qed.
+  Lemma rooted_dag_add (r r':A) g x:
+    r ≠ r' ->
+    r' ∉ vertices g ->
+    rooted_dag g r ->
+    rooted_dag ({[(r, x, r')]} ∪ g) r'.
+  Proof.
+    intros Hne Hg Hroot. inversion Hroot as [X1 X2].
+    constructor.
+    { rewrite vertices_union vertices_singleton. intros a.
+      rewrite !elem_of_union !elem_of_singleton.
+      intros [[-> | ->] | Hx].
+      { exists [(r, x, r')]. simpl. eapply path_cons. set_solver. apply path_nil. }
+      { exists nil. apply path_nil. }
+      { apply X1 in Hx. destruct Hx as (ds,Hx). exists (ds++[(r, x, r')]).
+        eapply path_snoc.
+        { eapply path_weak; eauto. set_solver. }
+        { set_solver. } } }
+    { intros ?? Hpath. apply  path_cycle_end_inv in Hpath; eauto. }
+  Qed.
 
-Lemma acyclic_weak (g1 g2:graph A B) :
-  acyclic g1 ->
-  g2 ⊆ g1 ->
-  acyclic g2.
-Proof.
-  intros Hacy ? ???. eapply Hacy. by eapply path_weak.
-Qed.
+  Lemma acyclic_weak (g1 g2:graph A B) :
+    acyclic g1 ->
+    g2 ⊆ g1 ->
+    acyclic g2.
+  Proof.
+    intros Hacy ? ???. eapply Hacy. by eapply path_weak.
+  Qed.
 
-Lemma path_all_in (g:graph A B) a1 xs a2 :
-  path g a1 xs a2 ->
-  list_to_set xs ⊆ g.
-Proof.
-  induction 1; simpl; set_solver.
-Qed.
+  Lemma path_all_in (g:graph A B) a1 xs a2 :
+    path g a1 xs a2 ->
+    list_to_set xs ⊆ g.
+  Proof.
+    induction 1; simpl; set_solver.
+  Qed.
 
-Lemma path_restrict (g:graph A B) r xs r' :
-  path g r xs r' ->
-  path (list_to_set xs) r xs r'.
-Proof.
-  induction 1; eauto using path_nil.
-  apply path_cons. set_solver.
-  eapply path_weak. done. set_solver.
-Qed.
+  Lemma path_restrict (g:graph A B) r xs r' :
+    path g r xs r' ->
+    path (list_to_set xs) r xs r'.
+  Proof.
+    induction 1; eauto using path_nil.
+    apply path_cons. set_solver.
+    eapply path_weak. done. set_solver.
+  Qed.
 
-Lemma path_inv_r (g:graph A B) x bs z :
-  path g x bs z ->
-  (x = z /\ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] /\ path g x bs' y ∧ (y,b,z) ∈ g.
-Proof.
-  induction 1.
-  { naive_solver.  }
-  right. destruct IHpath as [(->&->)|(bs'&b'&y&->&?&?)].
-  { exists nil. eexists _,_. split; first done. split. eauto using path_nil. naive_solver. }
-  { exists ((a1, b, a2) :: bs'). eexists _,_. rewrite app_comm_cons //. split_and !; try done.
-    apply path_cons; eauto. }
-Qed.
+  Lemma path_inv_r (g:graph A B) x bs z :
+    path g x bs z ->
+    (x = z /\ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] /\ path g x bs' y ∧ (y,b,z) ∈ g.
+  Proof.
+    induction 1.
+    { naive_solver.  }
+    right. destruct IHpath as [(->&->)|(bs'&b'&y&->&?&?)].
+    { exists nil. eexists _,_. split; first done. split. eauto using path_nil. naive_solver. }
+    { exists ((a1, b, a2) :: bs'). eexists _,_. rewrite app_comm_cons //. split_and !; try done.
+      apply path_cons; eauto. }
+  Qed.
 
-Lemma path_add_inv_r (r r':A) b x xs g :
-  r ≠ r' ->
-  r' ∉ vertices g ->
-  path ({[(r, b, r')]} ∪ g) x xs r' ->
-  (xs = nil /\ x = r') \/ (exists xs', xs = xs' ++ [(r, b, r')] /\ path g x xs' r).
-Proof.
-  intros Hrr' Hr' Hreach. apply path_inv_r in Hreach.
-  destruct Hreach as [(->&->)|(bs'&b0&y&->&Hreach&Hedge)].
-  { eauto. }
-  right.
-  assert (b0=b /\ y=r) as (->&->).
-  { rewrite /edge elem_of_union elem_of_singleton in Hedge.
-    destruct Hedge. naive_solver. exfalso. apply Hr', elem_of_vertices. eauto. }
-  eexists. split; first done.
-  eauto using path_cycle_end_inv_aux.
-Qed.
+  Lemma path_add_inv_r (r r':A) b x xs g :
+    r ≠ r' ->
+    r' ∉ vertices g ->
+    path ({[(r, b, r')]} ∪ g) x xs r' ->
+    (xs = nil /\ x = r') \/ (exists xs', xs = xs' ++ [(r, b, r')] /\ path g x xs' r).
+  Proof.
+    intros Hrr' Hr' Hreach. apply path_inv_r in Hreach.
+    destruct Hreach as [(->&->)|(bs'&b0&y&->&Hreach&Hedge)].
+    { eauto. }
+    right.
+    assert (b0=b /\ y=r) as (->&->).
+    { rewrite /edge elem_of_union elem_of_singleton in Hedge.
+      destruct Hedge. naive_solver. exfalso. apply Hr', elem_of_vertices. eauto. }
+    eexists. split; first done.
+    eauto using path_cycle_end_inv_aux.
+  Qed.
 
-(* [mirror xs ys] asserts that, up-to labels, the path xs is the reverse of ys *)
-Inductive mirror :
-  list (A*B*A) -> list (A*B*A) -> Prop :=
-| mirror_nil :
-  mirror [] []
-| mirror_cons :
-  forall r x x' r' xs ys,
-    mirror xs ys  ->
-    mirror (xs++[(r,x,r')]) ((r',x',r)::ys).
+  (* [mirror xs ys] asserts that, up-to labels, the path xs is the reverse of ys *)
+  Inductive mirror :
+    list (A*B*A) -> list (A*B*A) -> Prop :=
+  | mirror_nil :
+    mirror [] []
+  | mirror_cons :
+    forall r x x' r' xs ys,
+      mirror xs ys  ->
+      mirror (xs++[(r,x,r')]) ((r',x',r)::ys).
 
-Lemma mirror_snoc ys xs a a' x x' :
-  mirror ys xs ->
-  mirror ((a,x,a') :: ys) (xs ++ [(a',x',a)]).
-Proof.
-  induction 1.
-  { apply (mirror_cons _ _ _ _ nil nil). apply mirror_nil. }
-  rewrite -!app_comm_cons app_comm_cons. by apply mirror_cons.
-Qed.
+  Lemma mirror_snoc ys xs a a' x x' :
+    mirror ys xs ->
+    mirror ((a,x,a') :: ys) (xs ++ [(a',x',a)]).
+  Proof.
+    induction 1.
+    { apply (mirror_cons _ _ _ _ nil nil). apply mirror_nil. }
+    rewrite -!app_comm_cons app_comm_cons. by apply mirror_cons.
+  Qed.
 
-Lemma mirror_symm xs ys :
-  mirror xs ys -> mirror ys xs.
-Proof.
-  induction 1. eauto using mirror_nil.
-  apply mirror_snoc; eauto.
-Qed.
+  Lemma mirror_symm xs ys :
+    mirror xs ys -> mirror ys xs.
+  Proof.
+    induction 1. eauto using mirror_nil.
+    apply mirror_snoc; eauto.
+  Qed.
 
-Lemma use_mirror xs ys (g:graph A B) r y :
-  mirror xs ys ->
-  path g r xs y ->
-  path (list_to_set ys) y ys r.
-Proof.
-  intros Hu. revert r y. induction Hu; intros r0 y.
-  { inversion 1. subst. apply path_nil. }
-  intros Hp. apply path_snoc_inv in Hp. destruct Hp as (?&?&?). subst.
-  apply path_cons. set_solver. eapply path_weak. apply IHHu; eauto. set_solver.
-Qed.
+  Lemma use_mirror xs ys (g:graph A B) r y :
+    mirror xs ys ->
+    path g r xs y ->
+    path (list_to_set ys) y ys r.
+  Proof.
+    intros Hu. revert r y. induction Hu; intros r0 y.
+    { inversion 1. subst. apply path_nil. }
+    intros Hp. apply path_snoc_inv in Hp. destruct Hp as (?&?&?). subst.
+    apply path_cons. set_solver. eapply path_weak. apply IHHu; eauto. set_solver.
+  Qed.
 
-Lemma mirror_vertices (xs ys:list (A*B*A)) :
-  mirror xs ys ->
-  vertices (list_to_set ys) = vertices (list_to_set xs).
-Proof.
-  revert xs. induction ys; intros xs; inversion 1; subst. done.
-  simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
-  erewrite IHys; last done. rewrite vertices_empty. set_solver.
-Qed.
+  Lemma mirror_vertices (xs ys:list (A*B*A)) :
+    mirror xs ys ->
+    vertices (list_to_set ys) = vertices (list_to_set xs).
+  Proof.
+    revert xs. induction ys; intros xs; inversion 1; subst. done.
+    simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
+    erewrite IHys; last done. rewrite vertices_empty. set_solver.
+  Qed.
 
-Lemma mirror_same_length (xs ys:list (A*B*A)):
-  mirror xs ys ->
-  length xs = length ys.
-Proof. induction 1. done. rewrite app_length. simpl. lia. Qed.
+  Lemma mirror_same_length (xs ys:list (A*B*A)):
+    mirror xs ys ->
+    length xs = length ys.
+  Proof. induction 1. done. rewrite app_length. simpl. lia. Qed.
 
-Lemma mirror_mirrored_edges xs ys r x r' :
-  mirror xs ys ->
-  (r,x,r') ∈ xs -> exists x', (r',x',r) ∈ ys.
-Proof.
-  induction 1. intros ?. set_solver.
-  rewrite elem_of_app elem_of_list_singleton.
-  intros [X|X].
-  { apply IHmirror in X. set_solver. }
-  { set_solver. }
-Qed.
-
-Lemma path_middle (g:graph A B) x xs ys z :
-  path g x (xs ++ ys) z ->
-  exists y, path g x xs y /\ path g y ys z.
-Proof.
-  revert g x ys z. induction xs; intros g x ys z.
-  { simpl. eauto using path_nil. }
-  inversion 1; simpl in *; subst.
-  apply IHxs in H7. destruct H7 as (y,(?&?)).
-  exists y. split; last done. eauto using path_cons.
-Qed.
-
-Lemma use_mirror_subset xs ys xs' g r y :
-  xs' ⊆ xs ->
-  mirror xs ys ->
-  path g r xs' y ->
-  exists zs, path (list_to_set ys) y zs r /\ length xs' = length zs.
-Proof.
-  intros Hincl Hundo Hpath.
-  induction Hpath.
-  { exists nil. split. apply path_nil. done. }
-  { destruct IHHpath as (zs&Hzs&?).
+  Lemma mirror_mirrored_edges xs ys r x r' :
+    mirror xs ys ->
+    (r,x,r') ∈ xs -> exists x', (r',x',r) ∈ ys.
+  Proof.
+    induction 1. intros ?. set_solver.
+    rewrite elem_of_app elem_of_list_singleton.
+    intros [X|X].
+    { apply IHmirror in X. set_solver. }
     { set_solver. }
-    eapply (mirror_mirrored_edges _ _ a1 b a2) in Hundo. 2:set_solver.
-    destruct Hundo as (b'&?).
-    exists (zs ++ [(a2, b', a1)]). split.
-    { eapply path_app. done.
-      apply path_cons.  set_solver. apply path_nil. }
-    { rewrite app_length. simpl. lia. } }
-Qed.
+  Qed.
 
-Definition pathlike (ys:list (A*B*A)) r :=
-  forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
+  Lemma path_middle (g:graph A B) x xs ys z :
+    path g x (xs ++ ys) z ->
+    exists y, path g x xs y /\ path g y ys z.
+  Proof.
+    revert g x ys z. induction xs; intros g x ys z.
+    { simpl. eauto using path_nil. }
+    inversion 1; simpl in *; subst.
+    apply IHxs in H7. destruct H7 as (y,(?&?)).
+    exists y. split; last done. eauto using path_cons.
+  Qed.
 
-Lemma path_pathlike g r ys y :
-  path g y ys r ->
-  pathlike ys r.
-Proof.
-  intros Hpath a b a' Hedge.
-  apply elem_of_middle in Hedge. destruct Hedge as (?&?&->).
-  rewrite cons_middle assoc_L in Hpath.
-  apply path_app_inv in Hpath. destruct Hpath as (?&Hpath&Hp').
-  apply path_snoc_inv in Hpath. destruct Hpath as (?&?&?). subst.
-  inversion Hp'; set_solver.
-Qed.
+  Lemma use_mirror_subset xs ys xs' g r y :
+    xs' ⊆ xs ->
+    mirror xs ys ->
+    path g r xs' y ->
+    exists zs, path (list_to_set ys) y zs r /\ length xs' = length zs.
+  Proof.
+    intros Hincl Hundo Hpath.
+    induction Hpath.
+    { exists nil. split. apply path_nil. done. }
+    { destruct IHHpath as (zs&Hzs&?).
+      { set_solver. }
+      eapply (mirror_mirrored_edges _ _ a1 b a2) in Hundo. 2:set_solver.
+      destruct Hundo as (b'&?).
+      exists (zs ++ [(a2, b', a1)]). split.
+      { eapply path_app. done.
+        apply path_cons.  set_solver. apply path_nil. }
+      { rewrite app_length. simpl. lia. } }
+  Qed.
 
-Lemma same_path g (xs:list (A*B*A)) a1 a2 a3 a4 :
-  path g a1 xs a2 ->
-  path g a3 xs a4 ->
-  xs ≠ nil ->
-  a1 = a3 /\ a2=a4.
-Proof.
-  intros Hp1. revert a3 a4. induction Hp1.
-  { intros. congruence. }
-  intros a3' a4'. inversion 1. subst. intros _. destruct bs.
-  { inversion Hp1; inversion H10. subst. done. }
-  apply IHHp1 in H10. 2:done. naive_solver.
-Qed.
+  Definition pathlike (ys:list (A*B*A)) r :=
+    forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
 
-Lemma path_ends_vertices g x1 xs x2 :
-  path g x1 xs x2 ->
-  (x1 = x2) \/ (x1 ∈ vertices g /\ x2 ∈ vertices g).
-Proof.
-   inversion 1. eauto. subst. right.
-   split. apply elem_of_vertices. eauto.
-   apply path_inv_r in H3. destruct H3 as [(->&->)|(?&?&?&->&?&?)].
-   all:apply elem_of_vertices; eauto.
-Qed.
+  Lemma path_pathlike g r ys y :
+    path g y ys r ->
+    pathlike ys r.
+  Proof.
+    intros Hpath a b a' Hedge.
+    apply elem_of_middle in Hedge. destruct Hedge as (?&?&->).
+    rewrite cons_middle assoc_L in Hpath.
+    apply path_app_inv in Hpath. destruct Hpath as (?&Hpath&Hp').
+    apply path_snoc_inv in Hpath. destruct Hpath as (?&?&?). subst.
+    inversion Hp'; set_solver.
+  Qed.
 
-End Graph.
+  Lemma same_path g (xs:list (A*B*A)) a1 a2 a3 a4 :
+    path g a1 xs a2 ->
+    path g a3 xs a4 ->
+    xs ≠ nil ->
+    a1 = a3 /\ a2=a4.
+  Proof.
+    intros Hp1. revert a3 a4. induction Hp1.
+    { intros. congruence. }
+    intros a3' a4'. inversion 1. subst. intros _. destruct bs.
+    { inversion Hp1; inversion H10. subst. done. }
+    apply IHHp1 in H10. 2:done. naive_solver.
+  Qed.
+
+  Lemma path_ends_vertices g x1 xs x2 :
+    path g x1 xs x2 ->
+    (x1 = x2) \/ (x1 ∈ vertices g /\ x2 ∈ vertices g).
+  Proof.
+     inversion 1. eauto. subst. right.
+     split. apply elem_of_vertices. eauto.
+     apply path_inv_r in H3. destruct H3 as [(->&->)|(?&?&?&->&?&?)].
+     all:apply elem_of_vertices; eauto.
+  Qed.
+End graph.
 
 (* ------------------------------------------------------------------------ *)
 (* Define apply_diffl, a function applying a list of diff. *)
+
 Section adiffl.
-  Notation diff := (loc*val)%type. (* the loc and its old value. *)
+  Notation diff := (
+    (* loc and its old value *)
+    loc*val
+  )%type.
 
   Definition apply_diffl (ds:list diff) (σ:gmap loc val) : gmap loc val :=
     foldr (fun '(l,v) σ => <[l:=v]> σ) σ ds.
 
   Lemma dom_apply_diffl ds σ :
     dom (apply_diffl ds σ) = dom σ ∪ (list_to_set ds.*1).
-  Proof. induction ds as [|(?&?)]; set_solver. Qed.
+  Proof.
+    induction ds as [|(?&?)]; set_solver.
+  Qed.
 
   Lemma apply_diffl_insert_ne ds l v σ :
     l ∉ ds.*1 ->
@@ -619,15 +614,21 @@ Section adiffl.
 
   Lemma apply_diffl_app ds ds' σ :
     apply_diffl (ds++ds') σ = apply_diffl ds (apply_diffl ds' σ).
-  Proof. rewrite /apply_diffl foldr_app //. Qed.
+  Proof.
+    rewrite /apply_diffl foldr_app //.
+  Qed.
 
   Lemma apply_diffl_snoc xs l v σ :
     apply_diffl (xs ++ [(l,v)]) σ = apply_diffl xs (<[l:=v]> σ).
-  Proof. rewrite apply_diffl_app //. Qed.
+  Proof.
+    rewrite apply_diffl_app //.
+  Qed.
 
   Lemma apply_diffl_cons l v xs σ :
     apply_diffl ((l,v)::xs) σ = <[l:=v]> (apply_diffl xs σ).
-  Proof. done. Qed.
+  Proof.
+    done.
+  Qed.
 
   Lemma apply_diffl_included xs σ1 σ2 :
     σ1 ⊆ σ2 ->
@@ -639,13 +640,35 @@ Section adiffl.
 End adiffl.
 
 (* ------------------------------------------------------------------------ *)
-(* Starting the proof. *)
+(* Proof. *)
+
+Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
+  #[local] pstore_G_map_G :: MonoMapG Σ nat (loc * gmap loc val)%type ;
+}.
+
+Definition pstore_Σ := #[
+  mono_map_Σ nat (loc * gmap loc val)%type
+].
+#[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
+  subG pstore_Σ Σ →
+  PstoreG Σ.
+Proof.
+  solve_inG.
+Qed.
+
 Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
 
-  Notation diff := (loc*val)%type. (* the loc and its old value. *)
-  Notation graph_store := (graph loc diff).
-  Notation map_model := (gmap loc (gmap loc val)).
+  Notation diff := (
+    (* loc and its old value. *)
+    loc*val
+  )%type.
+  Notation graph_store := (
+    graph loc diff
+  ).
+  Notation map_model := (
+    gmap loc (gmap loc val)
+  ).
 
   Definition correct_path_diff (M:map_model) (g:graph_store) :=
     forall r1 ds r2 σ1 σ2,
@@ -671,9 +694,9 @@ Section pstore_G.
     forall n l σ, C !! n = Some (l,σ) -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
   #[local] Definition pstore_map_auth γ map :=
-    @map_agree_auth _ _ _ _ _ pstore_G_map_G γ map.
+    mono_map_auth γ map.
   #[local] Definition pstore_map_elem γ n l σ :=
-    @map_agree_elem _ _ _ _ _ pstore_G_map_G γ n (l,σ).
+    mono_map_elem γ n (l, σ).
 
   Lemma extract_unaliased g :
     ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) -∗
@@ -713,10 +736,14 @@ Section pstore_G.
 
   #[global] Instance pstore_snapshot_timeless γ t s σ :
     Timeless (pstore_snapshot γ t s σ).
-  Proof. apply _. Qed.
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance pstore_snapshot_persistent γ t s σ :
     Persistent (pstore_snapshot γ t s σ).
-  Proof. apply _. Qed.
+  Proof.
+    apply _.
+  Qed.
 
   Lemma pstore_create_spec :
     {{{ True }}}
@@ -730,7 +757,7 @@ Section pstore_G.
     wp_rec.
     wp_alloc r as "Hroot".
     wp_alloc t0 as "Ht0".
-    iMod (map_agree_alloc ∅) as "[%γ ?]".
+    iMod (mono_map_alloc ∅) as "[%γ ?]".
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
@@ -934,7 +961,7 @@ Section pstore_G.
     iIntros (Φ) open_inv. iIntros "HΦ".
     wp_rec. wp_load. do 5 iStep.
 
-    iMod (map_agree_insert _ _ (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
+    iMod (mono_map_insert _ _ (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
     { apply not_elem_of_dom. apply is_fresh. }
     iModIntro.
     iSplitR "Hsnap". 2:iSteps.
@@ -953,9 +980,9 @@ Section pstore_G.
   Lemma pstore_collect_spec_aux (r r':loc) t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
     path g r ys r' ->
     {{{
-        r' ↦ §Root ∗
-        lst_model t' xs ∗
-        ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+      r' ↦ §Root ∗
+      lst_model t' xs ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_collect #r t'
     {{{ t,
@@ -980,19 +1007,19 @@ Section pstore_G.
     }
   Qed.
 
- Lemma pstore_collect_spec (r r':loc) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
-   path g r ys r' ->
-   {{{
+  Lemma pstore_collect_spec (r r':loc) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+    path g r ys r' ->
+    {{{
       r' ↦ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
-   }}}
-     pstore_collect #r §Nil
-   {{{ t,
+    }}}
+      pstore_collect #r §Nil
+    {{{ t,
       RET (#r',t);
       r' ↦ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
       lst_model t (rev (fsts ys))
-   }}}.
+    }}}.
   Proof.
     iIntros (? Φ) "(?&?) Hϕ".
     iDestruct lst_model_Nil as "?".
@@ -1046,7 +1073,9 @@ Section pstore_G.
   Lemma undo_mirror xs ys g :
     undo xs ys g ->
     mirror xs ys.
-  Proof. induction 1; eauto using mirror_cons,mirror_nil. Qed.
+  Proof.
+    induction 1; eauto using mirror_cons,mirror_nil.
+  Qed.
 
   Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
     locs_of_edges_in g2 (dom σ) ->
@@ -1055,15 +1084,19 @@ Section pstore_G.
     g2 ⊆ g ->
     path g r xs r' ->
     {{{
-       lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
-       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+      lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r' t
-    {{{ RET (); ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
-        ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+    {{{
+      RET ();
+      ∃ ys,
+      ⌜undo xs ys σ⌝ ∗
+      r ↦ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
     iIntros (Hlocs Hg Hacy Hsub Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
@@ -1127,14 +1160,18 @@ Section pstore_G.
     acyclic g ->
     path g r xs r' ->
     {{{
-       lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
-       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+      lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_revert #r' t
-    {{{ RET (); ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
-        ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+    {{{
+      RET ();
+      ∃ ys,
+      ⌜undo xs ys σ⌝ ∗
+      r ↦ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
     iIntros (???? Φ) "(?&?&?&?) HΦ".
@@ -1156,15 +1193,18 @@ Section pstore_G.
     acyclic g ->
     path g r xs r' ->
     {{{
-       r' ↦ §Root ∗
-       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
+      r' ↦ §Root ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_reroot #r
-    {{{ RET ();
-        ∃ ys, ⌜undo xs ys σ⌝ ∗ r ↦ §Root ∗
-        ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
-        ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+    {{{
+      RET ();
+      ∃ ys,
+      ⌜undo xs ys σ⌝ ∗
+      r ↦ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
@@ -1196,7 +1236,12 @@ Section pstore_G.
   Qed.
 
   Definition diff_last {A:Type} (ys1 ys2:list A) :=
-    match last ys1,last ys2 with Some x,Some y => x ≠ y | _,_ => True end.
+    match last ys1, last ys2 with
+    | Some x, Some y =>
+        x ≠ y
+    | _, _ =>
+        True
+    end.
 
   Lemma path_extract_suffix (g:gset (loc*(loc*val)*loc)) a1 a2 xs1 r xs2 :
     unaliased g ->
@@ -1576,7 +1621,7 @@ Section pstore_G.
 
     iDestruct (extract_unaliased with "Hg") as "%".
 
-    iDestruct (map_agree_lookup with "[$][$]") as "%Hrs".
+    iDestruct (mono_map_lookup with "[$][$]") as "%Hrs".
     apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
 
     destruct_decide (decide (rs=r)).
