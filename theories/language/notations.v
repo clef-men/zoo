@@ -138,7 +138,7 @@ Notation "e1 ;; e2" := (
   App (Lam BAnon e2%E) e1%E
 )(at level 100,
   e2 at level 200,
-  format "'[' '[hv' '[' e1 ']'  ;;  ']' '/' e2 ']'"
+  format "'[v' '[hv' '[' e1 ']'  ;;  ']' '/' e2 ']'"
 ) : expr_scope.
 
 Notation "~ e" := (
@@ -323,13 +323,15 @@ Notation "‘ tag { e1 , .. , en }" := (
   Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zebre_tag,
-  format "‘ tag {  e1 ,  .. ,  en  }"
+  e1, en at level 200,
+  format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ).
 Notation "’ tag { v1 , .. , vn }" := (
   ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zebre_tag,
-  format "’ tag {  v1 ,  .. ,  vn  }"
+  v1, vn at level 200,
+  format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
 ).
 Notation "§ tag" := (
   ValConstr tag%core (@nil val)
@@ -344,15 +346,15 @@ Notation "tag => e" := (
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
   e constr at level 200,
-  format "tag  =>  '/    ' '[' e ']'"
+  only parsing
 ).
-Notation "tag 'as' y => e" := (
-  @pair constr_tag expr tag%core (Lam y%binder e%E)
+Notation "tag 'as' x => e" := (
+  @pair constr_tag expr tag%core (Lam x%binder e%E)
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
-  y constr at level 1,
+  x constr at level 1,
   e constr at level 200,
-  format "tag  as  y  =>  '/    ' '[' e ']'"
+  format "tag  as  x  =>  '/    ' '[' e ']'"
 ).
 Notation "tag x1 .. xn => e" := (
   @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam BAnon e%E)) ..))
@@ -360,7 +362,7 @@ Notation "tag x1 .. xn => e" := (
   tag custom zebre_tag,
   x1 constr at level 1, xn constr at level 1,
   e constr at level 200,
-  format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
+  only parsing
 ).
 Notation "tag x1 .. xn 'as' y => e" := (
   @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam y%binder e%E)) ..))
@@ -387,7 +389,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
   Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
-  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
   Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
