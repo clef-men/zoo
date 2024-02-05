@@ -12,6 +12,7 @@ From zebre Require Import
 
 Implicit Types l : loc.
 Implicit Types t v front sent : val.
+Implicit Types vs : list val.
 
 #[local] Notation "'front'" :=
   0
@@ -132,30 +133,20 @@ Section zebre_G.
       queue_model t vs
     }}}
       queue_pop t
-    {{{ o,
-      RET o : val;
-      match o with
-      | None =>
-          ⌜vs = []⌝ ∗
-          queue_model t []
-      | Some v =>
-          ∃ vs', ⌜vs = v :: vs'⌝ ∗
-          queue_model t vs'
-      end
+    {{{
+      RET (head vs : val);
+      queue_model t (tail vs)
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
     wp_apply (queue_is_empty_spec with "Hmodel") as "(%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model)".
-    destruct vs as [| v vs]; wp_pures.
-    - iApply ("HΦ" $! None).
-      iSteps.
-    - wp_load.
-      wp_apply (chain_head_spec with "Hfront_model") as "Hfront_model".
-      wp_load.
-      wp_apply (chain_tail_spec with "Hfront_model") as (front') "(Hfront_model & Hfront'_model)".
-      wp_store. wp_pures.
-      iApply ("HΦ" $! (Some v)). iSteps.
+    destruct vs as [| v vs]; first iSteps.
+    wp_load.
+    wp_apply (chain_head_spec with "Hfront_model") as "Hfront_model".
+    wp_load.
+    wp_apply (chain_tail_spec with "Hfront_model") as (front') "(Hfront_model & Hfront'_model)".
+    iSteps.
   Qed.
 End zebre_G.
 

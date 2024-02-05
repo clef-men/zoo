@@ -127,7 +127,7 @@ Section mpsc_queue_G.
     ∃ front back,
     mpsc_queue_front₂ γ front ∗
     l.[back] ↦ lst_to_val back ∗
-    mpsc_queue_model₂ γ (back ++ reverse front).
+    mpsc_queue_model₂ γ (front ++ reverse back).
   Definition mpsc_queue_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -258,7 +258,7 @@ Section mpsc_queue_G.
     >>>
       mpsc_queue_push t v @ ↑ι
     <<<
-      mpsc_queue_model t (v :: vs)
+      mpsc_queue_model t (vs ++ [v])
     | RET (); True
     >>>.
   Proof.
@@ -282,9 +282,10 @@ Section mpsc_queue_G.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
-    iMod (mpsc_queue_model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (mpsc_queue_model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-    iSplitR "HΦ". { iExists front, (v :: back). rewrite Hvs. iSteps. }
+    iSplitR "HΦ".
+    { iSteps. iExists (v :: back). iSteps. rewrite reverse_cons -assoc //. }
     iSteps.
   Qed.
 
@@ -297,17 +298,8 @@ Section mpsc_queue_G.
     >>>
       mpsc_queue_pop t @ ↑ι
     <<<
-      ∃∃ o,
-      match o with
-      | None =>
-          ⌜vs = []⌝ ∗
-          mpsc_queue_model t []
-      | Some v =>
-          ∃ vs',
-          ⌜vs = vs' ++ [v]⌝ ∗
-          mpsc_queue_model t vs'
-      end
-    | RET o;
+      mpsc_queue_model t (tail vs)
+    | RET head vs;
       mpsc_queue_consumer t
     >>>.
   Proof.
@@ -323,10 +315,10 @@ Section mpsc_queue_G.
       iDestruct (mpsc_queue_front_agree with "Hfront₁ Hfront₂") as %<-.
       iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
+      iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
       destruct (rev_elim back) as [-> | (back' & v & ->)].
 
-      + iMod ("HΦ" $! None with "[Hmodel₁]") as "HΦ"; first iSteps.
+      + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
         iSplitR "Hfront Hfront₁ HΦ". { iExists [], []. iSteps. }
         iModIntro. clear.
 
@@ -336,13 +328,13 @@ Section mpsc_queue_G.
         iApply "HΦ".
         iExists l, γ, []. iSteps.
 
-      + rewrite reverse_nil right_id /= in Hvs |- *.
-        set front := reverse back'.
+      + set front := reverse back'.
         iMod (mpsc_queue_front_update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
-        iMod (mpsc_queue_model_update back' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
+        iMod (mpsc_queue_model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
+        { rewrite reverse_snoc. iSteps. }
         iSplitR "Hfront Hfront₁ HΦ".
-        { iExists front, []. rewrite reverse_involutive. iSteps. }
+        { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
         wp_apply (lst_rev_spec with "[//]") as "%back ->". rewrite reverse_snoc.
@@ -355,10 +347,9 @@ Section mpsc_queue_G.
       iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
-      set vs' := back ++ reverse front.
+      set vs' := front ++ reverse back.
       iMod (mpsc_queue_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ".
-      { iExists vs'. iSteps. rewrite Hvs reverse_cons assoc //. }
+      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
 End mpsc_queue_G.

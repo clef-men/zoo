@@ -1147,17 +1147,9 @@ Section inf_cl_deque_G.
       inf_cl_deque_model t model
     >>>
       inf_cl_deque_steal t @ ↑ι
-    <<< ∃∃ o,
-      match o with
-      | None =>
-          ⌜model = []⌝ ∗
-          inf_cl_deque_model t []
-      | Some v =>
-          ∃ model',
-          ⌜model = v :: model'⌝ ∗
-          inf_cl_deque_model t model'
-      end
-    | RET o; True
+    <<<
+      inf_cl_deque_model t (tail model)
+    | RET head model; True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & %data & %p & -> & #Hmeta & #Hdata & #Hp & #Harray_inv & #Hinv) HΦ".
@@ -1202,8 +1194,8 @@ Section inf_cl_deque_G.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (inf_cl_deque_model_agree with "Hmodel₁ Hmodel₂") as %<-.
       (* end transation *)
-      iMod ("HΦ" $! None with "[Hmodel₂] [//]") as "HΦ".
-      { iSplit; first done. repeat iExists _. naive_solver. }
+      iMod ("HΦ" with "[Hmodel₂] [//]") as "HΦ".
+      { repeat iExists _. naive_solver. }
       (* close invariant *)
       iModIntro. iSplitR "Hid HΦ".
       { repeat iExists _. iFrame. done. }
@@ -1346,7 +1338,7 @@ Section inf_cl_deque_G.
       { iIntros "Hmodel₂ !>". iSplitL "Hmodel₂"; last auto.
         repeat iExists _. iFrame "#∗". done.
       }
-      iIntros "%w %model' (-> & Hmodel₂) !>". iExists (Some w). iSplitL.
+      iIntros "%w %model' (-> & Hmodel₂) !>". iSplitL.
       - repeat iExists _. iSplit; first done. repeat iExists _. naive_solver.
       - iIntros "HΦ". iApply ("HΦ" with "[//]").
     }
@@ -1471,7 +1463,8 @@ Section inf_cl_deque_G.
       inf_cl_deque_model t model
     >>>
       inf_cl_deque_pop t @ ↑ι
-    <<< ∃∃ o,
+    <<<
+      ∃∃ o,
       match o with
       | None =>
           ⌜model = []⌝ ∗

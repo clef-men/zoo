@@ -977,11 +977,10 @@ Section rcfd_G.
       RET #b;
       if closing then
         ⌜b = false⌝
+      else if b then
+        True
       else
-        if b then
-          True
-        else
-          rcfd_closing t
+        rcfd_closing t
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & Hclosing) HΦ".

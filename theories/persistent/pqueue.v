@@ -16,11 +16,11 @@ From zebre Require Import
 Implicit Types v t : val.
 Implicit Types back front : list val.
 
-#[local] Notation "'back'" :=
+#[local] Notation "'front'" :=
   0
 ( in custom zebre_proj
 ).
-#[local] Notation "'front'" :=
+#[local] Notation "'back'" :=
   1
 ( in custom zebre_proj
 ).
@@ -34,7 +34,7 @@ Definition pqueue_is_empty : val :=
 
 Definition pqueue_push : val :=
   λ: "t" "v",
-    (‘Cons{ "v", "t".<back> }, "t".<front>).
+    ("t".<front>, ‘Cons{ "v", "t".<back> }).
 
 Definition pqueue_pop : val :=
   λ: "t",
@@ -44,18 +44,18 @@ Definition pqueue_pop : val :=
         | Nil =>
             §None
         | Cons "v" "vs" =>
-            ‘Some{ ("v", (§Nil, "vs")) }
+            ‘Some{ ("v", ("vs", §Nil)) }
         end
     | Cons "v" "vs" =>
-        ‘Some{ ("v", ("t".<back>, "vs")) }
+        ‘Some{ ("v", ("vs", "t".<back>)) }
     end.
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
   Definition pqueue_model t vs : iProp Σ :=
-    ∃ back front,
-    ⌜t = (lst_to_val back, lst_to_val front)%V ∧ vs = back ++ reverse front⌝.
+    ∃ front back,
+    ⌜t = (lst_to_val front, lst_to_val back)%V ∧ vs = front ++ reverse back⌝.
 
   #[global] Instance pqueue_model_persistent t vs :
     Persistent (pqueue_model t vs).
@@ -83,15 +83,13 @@ Section zebre_G.
       RET #(bool_decide (vs = [])); True
     }}}.
   Proof.
-    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
+    iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
     wp_smart_apply (lst_is_empty_spec with "[//]") as "_".
     destruct front as [| v front]; wp_pures.
     - wp_apply (lst_is_empty_spec with "[//]") as "_".
-      destruct back; iSteps.
-    - rewrite bool_decide_eq_false_2.
-      { rewrite reverse_cons. intros (_ & (_ & [=])%app_eq_nil)%app_eq_nil. }
-      iSteps.
+      erewrite bool_decide_ext; last apply reverse_nil_iff. iSteps.
+    - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
 
   Lemma pqueue_push_spec t vs v :
@@ -101,12 +99,13 @@ Section zebre_G.
       pqueue_push t v
     {{{ t',
       RET t';
-      pqueue_model t' (v :: vs)
+      pqueue_model t' (vs ++ [v])
     }}}.
   Proof.
-    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
+    iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec. wp_pures.
-    iApply "HΦ". iExists (v :: back), front. iSteps.
+    iApply "HΦ".
+    iExists front, (v :: back). iSteps. rewrite reverse_cons assoc //.
   Qed.
 
   Lemma pqueue_pop_spec t vs :
@@ -120,13 +119,13 @@ Section zebre_G.
       | None =>
           ⌜vs = []⌝
       | Some p =>
-          ∃ vs' v t',
-          ⌜vs = vs' ++ [v] ∧ p = (v, t')%V⌝ ∗
+          ∃ v vs' t',
+          ⌜vs = v :: vs' ∧ p = (v, t')%V⌝ ∗
           pqueue_model t' vs'
       end
     }}}.
   Proof.
-    iIntros "%Φ (%back & %front & (-> & ->)) HΦ".
+    iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
     destruct front as [| v front]; wp_pures.
     - wp_apply (lst_rev_spec with "[//]") as "%front ->".
@@ -134,11 +133,10 @@ Section zebre_G.
       + wp_pures.
         iApply ("HΦ" $! None with "[//]").
       + rewrite reverse_snoc. wp_pures.
-        iApply ("HΦ" $! (Some _)). iExists back', v, _. iSplitR.
-        { iPureIntro. rewrite reverse_nil right_id //. }
-        iExists [], _. iSteps. rewrite reverse_involutive //.
-    - iApply ("HΦ" $! (Some (_, _)%V)). iExists (back ++ reverse front), v, _. iSplitR.
-      { iSteps. list_simplifier. rewrite reverse_cons //. }
+        iApply ("HΦ" $! (Some _)).
+        iExists v, (reverse back'), _. iSplitR; first iSteps.
+        iExists _, []. iSteps. rewrite right_id //.
+    - iApply ("HΦ" $! (Some (_, _)%V)).
       iSteps.
   Qed.
 End zebre_G.

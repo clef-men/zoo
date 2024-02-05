@@ -526,7 +526,7 @@ Section spsc_queue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  #[local] Definition spsc_queue_queue_push_au l ι sz v Φ : iProp Σ :=
+  #[local] Definition spsc_queue_push_au l ι sz v Φ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_queue_model #l vs
@@ -544,7 +544,7 @@ Section spsc_queue_G.
       l.[front_cache] ↦ #front_cache ∗
       spsc_queue_producer_ctl₁ γ back ∗
       spsc_queue_front_lb γ front_cache ∗
-      spsc_queue_queue_push_au l ι sz v Ψ
+      spsc_queue_push_au l ι sz v Ψ
     }}}
       spsc_queue_push_aux #l data #back
     {{{ b front_cache',
@@ -554,7 +554,7 @@ Section spsc_queue_G.
       spsc_queue_producer_ctl₁ γ back ∗
       spsc_queue_front_lb γ front_cache' ∗
       if b then
-        spsc_queue_queue_push_au l ι sz v Ψ
+        spsc_queue_push_au l ι sz v Ψ
       else
         spsc_queue_producer #l -∗
         Ψ #true
@@ -679,24 +679,15 @@ Section spsc_queue_G.
     iSteps.
   Qed.
 
-  #[local] Definition spsc_queue_queue_pop_au l ι Φ : iProp Σ :=
+  #[local] Definition spsc_queue_pop_au l ι Φ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_queue_model #l vs
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      ∀∀ o : option val,
-      match o with
-      | Some v =>
-          ∃ vs',
-          ⌜vs = v :: vs'⌝ ∗
-          spsc_queue_model #l vs'
-      | None =>
-          ⌜vs = []⌝ ∗
-          spsc_queue_model #l []
-      end,
+      spsc_queue_model #l (tail vs),
     COMM
       spsc_queue_consumer #l -∗
-      Φ o
+      Φ (head vs : val)
     }>.
   #[local] Lemma spsc_queue_pop_aux_spec l ι γ sz data front back_cache Ψ :
     {{{
@@ -705,7 +696,7 @@ Section spsc_queue_G.
       l.[back_cache] ↦ #back_cache ∗
       spsc_queue_consumer_ctl₁ γ front ∗
       spsc_queue_back_lb γ back_cache ∗
-      spsc_queue_queue_pop_au l ι Ψ
+      spsc_queue_pop_au l ι Ψ
     }}}
       spsc_queue_pop_aux #l #front
     {{{ b back_cache',
@@ -715,7 +706,7 @@ Section spsc_queue_G.
       spsc_queue_consumer_ctl₁ γ front ∗
       spsc_queue_back_lb γ back_cache' ∗
       if b then
-        spsc_queue_queue_pop_au l ι Ψ
+        spsc_queue_pop_au l ι Ψ
       else
         spsc_queue_consumer #l -∗
         Ψ None
@@ -737,7 +728,8 @@ Section spsc_queue_G.
       iClear "Hback_lb". iDestruct (spsc_queue_back_lb_get with "Hproducer_ctl₂") as "#Hback_lb".
       destruct (decide (front < back)) as [Hbranch2 | Hbranch2].
 
-      + iSplitR "Hback_cache Hconsumer_ctl₁ HΨ HΦ". { iExists front, back, vs, hist. iSteps. }
+      + iSplitR "Hback_cache Hconsumer_ctl₁ HΨ HΦ".
+        { iExists front, back, vs, hist. iSteps. }
         iModIntro. clear- Hbranch2.
 
         wp_store. wp_pures.
@@ -749,7 +741,7 @@ Section spsc_queue_G.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (spsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
         assert (length vs = 0) as ->%nil_length_inv by lia.
-        iMod ("HΨ" $! None with "[Hmodel₁]") as "HΨ"; first iSteps.
+        iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
         iSplitR "Hback_cache Hconsumer_ctl₁ HΨ HΦ"; first iSteps.
         iModIntro. clear- Hbranch2.
 
@@ -766,17 +758,8 @@ Section spsc_queue_G.
     >>>
       spsc_queue_pop t @ ↑ι
     <<<
-      ∃∃ o,
-      match o with
-      | None =>
-          ⌜vs = []⌝ ∗
-          spsc_queue_model t []
-      | Some v =>
-          ∃ vs',
-          ⌜vs = v :: vs'⌝ ∗
-          spsc_queue_model t vs'
-      end
-    | RET o;
+      spsc_queue_model t (tail vs)
+    | RET head vs;
       spsc_queue_consumer t
     >>>.
   Proof.
@@ -790,7 +773,8 @@ Section spsc_queue_G.
     wp_load.
     iDestruct (spsc_queue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
     iDestruct (array_cslice_to_inv with "Hdata_vs") as "#Hdata_inv".
-    iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ". { iExists front, back1, vs1, hist1. iSteps. }
+    iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
+    { iExists front, back1, vs1, hist1. iSteps. }
     iModIntro. clear.
 
     iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_queue_pop_aux_spec with "[$]") as (? back_cache') "(-> & Hback_cache & Hconsumer_ctl₁ & #Hback_lb & HΦ)".
@@ -838,7 +822,7 @@ Section spsc_queue_G.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (spsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (spsc_queue_model_update vs3 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
     { do 2 iModIntro. iExists (S front), back3, vs3, hist3. iFrame. simpl in *.
       iSplit; first iSteps.

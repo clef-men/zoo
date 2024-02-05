@@ -163,16 +163,8 @@ Section zebre_G.
     >>>
       treiber_stack_pop t @ ↑ι
     <<<
-      ∃∃ o,
-      match o with
-      | None =>
-          treiber_stack_model t []
-      | Some v =>
-          ∃ vs',
-          ⌜vs = v :: vs'⌝ ∗
-          treiber_stack_model t vs'
-      end
-    | RET o; True
+      treiber_stack_model t (tail vs)
+    | RET head vs; True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -188,7 +180,7 @@ Section zebre_G.
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" $! None with "[Hmodel₁]") as "HΦ"; first iSteps.
+      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
 
@@ -205,7 +197,7 @@ Section zebre_G.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
       iMod (auth_excl_update' (auth_excl_G := treiber_stack_G_model_G) vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iSteps.
+      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
   Qed.

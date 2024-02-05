@@ -17,4 +17,12 @@ Section basic.
   Proof.
     revert l. refine (rev_ind _ _ _); [| intros x l _]; naive_solver.
   Qed.
+
+  Lemma reverse_nil_iff l :
+    reverse l = [] ↔
+    l = [].
+  Proof.
+    destruct (rev_elim l) as [-> | (l' & x & ->)]; first done.
+    rewrite reverse_snoc app_nil. naive_solver.
+  Qed.
 End basic.
