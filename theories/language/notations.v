@@ -342,30 +342,38 @@ Notation "§ tag" := (
 
 Declare Custom Entry zebre_branch.
 Notation "tag => e" := (
-  @pair constr_tag expr tag%core (Lam BAnon e%E)
+  @pair pattern expr (Build_pattern tag%core (@nil binder) BAnon) e%E
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
   e constr at level 200,
-  only parsing
+  format "tag  =>  '/    ' '[' e ']'"
 ).
 Notation "tag 'as' x => e" := (
-  @pair constr_tag expr tag%core (Lam x%binder e%E)
+  @pair pattern expr (Build_pattern tag%core (@nil binder) (BNamed x%string)) e%E
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
   x constr at level 1,
   e constr at level 200,
   format "tag  as  x  =>  '/    ' '[' e ']'"
 ).
+Notation "tag 'as:' x => e" := (
+  @pair pattern expr (Build_pattern tag%core (@nil binder) x%binder) e%E
+)(in custom zebre_branch at level 200,
+  tag custom zebre_tag,
+  x constr at level 1,
+  e constr at level 200,
+  format "tag  as:  x  =>  '/    ' '[' e ']'"
+).
 Notation "tag x1 .. xn => e" := (
-  @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam BAnon e%E)) ..))
+  @pair pattern expr (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) BAnon) e%E
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
   x1 constr at level 1, xn constr at level 1,
   e constr at level 200,
-  only parsing
+  format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
 ).
 Notation "tag x1 .. xn 'as' y => e" := (
-  @pair constr_tag expr tag%core (Lam x1%binder (.. (Lam xn%binder (Lam y%binder e%E)) ..))
+  @pair pattern expr (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) (BNamed y%string)) e%E
 )(in custom zebre_branch at level 200,
   tag custom zebre_tag,
   x1 constr at level 1, xn constr at level 1,
@@ -373,39 +381,62 @@ Notation "tag x1 .. xn 'as' y => e" := (
   e constr at level 200,
   format "tag  x1  ..  xn  as  y  =>  '/    ' '[' e ']'"
 ).
+Notation "tag x1 .. xn 'as:' y => e" := (
+  @pair pattern expr (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) y%binder) e%E
+)(in custom zebre_branch at level 200,
+  tag custom zebre_tag,
+  x1 constr at level 1, xn constr at level 1,
+  y constr at level 1,
+  e constr at level 200,
+  format "tag  x1  ..  xn  as:  y  =>  '/    ' '[' e ']'"
+).
 Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
-  Case e%E (Lam BAnon Fail) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e%E BAnon Fail (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   format "'[hv' match:  e  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
-  Case e%E (Lam BAnon Fail) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e%E BAnon Fail (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
-  Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e0%E BAnon e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
-  only parsing
+  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
-  Case e0%E (Lam BAnon e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e0%E BAnon e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
-  Case e0%E (Lam x%binder e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e0%E (BNamed x%string) e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   x at level 1,
   format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
-  Case e0%E (Lam x%binder e1%E) (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+  Case e0%E (BNamed x%string) e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  x at level 1,
+  only parsing
+) : expr_scope.
+Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
+  Case e0%E x%binder e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
+)(e0, e1 at level 200,
+  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  x at level 1,
+  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+) : expr_scope.
+Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
+  Case e0%E x%binder e1%E (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   x at level 1,

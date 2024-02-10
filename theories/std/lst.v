@@ -1,7 +1,6 @@
 From zebre Require Import
   prelude.
 From zebre.language Require Import
-  metatheory
   notations
   diaframe.
 From zebre.std Require Export
@@ -30,8 +29,6 @@ Fixpoint lst_to_val vs :=
       ’Cons{ v, lst_to_val vs }
   end.
 #[global] Arguments lst_to_val !_ / : assert.
-Definition lst_model' t vs :=
-  t = lst_to_val vs.
 
 #[global] Instance lst_to_val_inj' :
   Inj (=) val_eq lst_to_val.
@@ -49,50 +46,16 @@ Qed.
 Proof.
   destruct vs; done.
 Qed.
-
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
-
-  Definition lst_model t vs : iProp Σ :=
-    ⌜lst_model' t vs⌝.
-
-  Lemma lst_model_Nil :
-    ⊢ lst_model §Nil [].
-  Proof.
-    iSteps.
-  Qed.
-  Lemma wp_lst_match_Nil t e1 x1 x2 e2 Φ :
-    lst_model t [] -∗
-    WP e1 {{ Φ }} -∗
-    WP match: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
-  Proof.
-    rewrite /lst_model /lst_model'. iSteps.
-  Qed.
-
-  Lemma lst_model_Cons v t vs :
-    lst_model t vs ⊢
-    lst_model ’Cons{ v, t } (v :: vs).
-  Proof.
-    rewrite /lst_model /lst_model'. iSteps.
-  Qed.
-  Lemma wp_lst_match_Cons {t vs} v vs' e1 x1 x2 e2 Φ :
-    vs = v :: vs' →
-    lst_model t vs -∗
-    ( ∀ t',
-      lst_model t' vs' -∗
-      WP subst' x1 v (subst' x2 t' e2) {{ Φ }}
-    ) -∗
-    WP match: t with Nil => e1 | Cons x1 x2 => e2 end {{ Φ }}.
-  Proof.
-    rewrite /lst_model /lst_model'. iSteps.
-    destruct x1 as [| x1], x2 as [| x2]; iSteps.
-    destruct (decide (x1 = x2)) as [-> | Hne] => /=.
-    - rewrite decide_False; first naive_solver.
-      iSteps. setoid_rewrite subst_subst. iSteps.
-    - rewrite decide_True; first naive_solver.
-      iSteps. rewrite subst_subst_ne //. iSteps.
-  Qed.
-End zebre_G.
+Lemma lst_to_val_nil :
+  lst_to_val [] = §Nil.
+Proof.
+  done.
+Qed.
+Lemma lst_to_val_cons v vs :
+  lst_to_val (v :: vs) = ’Cons{ v, lst_to_val vs }.
+Proof.
+  done.
+Qed.
 
 Definition lst_singleton : val :=
   λ: "v",
@@ -218,6 +181,11 @@ Definition lst_map : val :=
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
+
+  Definition lst_model' t vs :=
+    t = lst_to_val vs.
+  Definition lst_model t vs : iProp Σ :=
+    ⌜lst_model' t vs⌝.
 
   Lemma lst_singleton_spec v :
     {{{ True }}}

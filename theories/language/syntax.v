@@ -130,6 +130,36 @@ Proof.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
 
+Record pattern := {
+  pattern_tag : constr_tag ;
+  pattern_fields : list binder ;
+  pattern_as : binder ;
+}.
+
+#[global] Instance pattern_inhabited : Inhabited pattern :=
+  populate {|
+    pattern_tag := inhabitant ;
+    pattern_fields := inhabitant ;
+    pattern_as := inhabitant ;
+  |}.
+#[global] Instance pattern_eq_dec : EqDecision pattern :=
+  ltac:(solve_decision).
+#[global] Instance pattern_countable :
+  Countable pattern.
+Proof.
+  pose encode pat := (
+    pat.(pattern_tag),
+    pat.(pattern_fields),
+    pat.(pattern_as)
+  ).
+  pose decode := λ '(tag, fields, as_), {|
+    pattern_tag := tag ;
+    pattern_fields := fields ;
+    pattern_as := as_ ;
+  |}.
+  refine (inj_countable' encode decode _); intros []. done.
+Qed.
+
 Unset Elimination Schemes.
 Inductive expr :=
   | Val (v : val)
@@ -143,7 +173,7 @@ Inductive expr :=
   | Tuple (es : list expr)
   | Proj i (e : expr)
   | Constr tag (es : list expr)
-  | Case (e0 e1 : expr) (brs : list (constr_tag * expr))
+  | Case (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
@@ -165,23 +195,25 @@ Implicit Types es : list expr.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Notation branch := (
-  prod constr_tag expr
-).
+Notation branch :=
+  (pattern * expr)%type.
 Implicit Types br : branch.
 Implicit Types brs : list branch.
 
 Section val_ind.
   Variable P : val → Prop.
 
-  Variable HValLiteral : ∀ lit,
+  Variable HValLiteral :
+    ∀ lit,
     P (ValLiteral lit).
-  Variable HValRec : ∀ f x e,
+  Variable HValRec :
+    ∀ f x e,
     P (ValRec f x e).
   Variable HValTuple :
     ∀ vs, Forall P vs →
     P (ValTuple vs).
-  Variable HValConstr : ∀ tag,
+  Variable HValConstr :
+    ∀ tag,
     ∀ vs, Forall P vs →
     P (ValConstr tag vs).
 
@@ -203,21 +235,26 @@ End val_ind.
 Section expr_ind.
   Variable P : expr → Prop.
 
-  Variable HVal : ∀ v,
+  Variable HVal :
+    ∀ v,
     P (Val v).
-  Variable HVar : ∀ (x : string),
+  Variable HVar :
+    ∀ (x : string),
     P (Var x).
-  Variable HRec : ∀ f x,
+  Variable HRec :
+    ∀ f x,
     ∀ e, P e →
     P (Rec f x e).
   Variable HApp :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (App e1 e2).
-  Variable HUnop : ∀ op,
+  Variable HUnop :
+    ∀ op,
     ∀ e, P e →
     P (Unop op e).
-  Variable HBinop : ∀ op,
+  Variable HBinop :
+    ∀ op,
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Binop op e1 e2).
@@ -233,17 +270,20 @@ Section expr_ind.
   Variable HTuple :
     ∀ es, Forall P es →
     P (Tuple es).
-  Variable HProj : ∀ i,
+  Variable HProj :
+    ∀ i,
     ∀ e, P e →
     P (Proj i e).
-  Variable HConstr : ∀ tag,
+  Variable HConstr :
+    ∀ tag,
     ∀ es, Forall P es →
     P (Constr tag es).
   Variable HCase :
     ∀ e0, P e0 →
+    ∀ x,
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
-    P (Case e0 e1 brs).
+    P (Case e0 x e1 brs).
   Variable HRecord :
     ∀ es, Forall P es →
     P (Record es).
@@ -320,9 +360,10 @@ Section expr_ind.
     | Constr tag es =>
         HConstr tag
           es (Forall_true P es expr_ind)
-    | Case e0 e1 brs =>
+    | Case e0 x e1 brs =>
         HCase
           e0 (expr_ind e0)
+          x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
     | Record es =>
@@ -462,13 +503,13 @@ Proof.
             right _
         end
       in
-      let fix go_brs brs1 brs2 : Decision (brs1 = brs2) :=
+      let fix go_branches brs1 brs2 : Decision (brs1 = brs2) :=
         match brs1, brs2 with
         | [], [] =>
             left _
-        | (tag1, e1) :: brs1, (tag2, e2) :: brs2 =>
+        | (pat1, e1) :: brs1, (pat2, e2) :: brs2 =>
             cast_if_and3
-              (decide (tag1 = tag2))
+              (decide (pat1 = pat2))
               (decide (e1 = e2))
               (decide (brs1 = brs2))
         | _, _ =>
@@ -520,9 +561,10 @@ Proof.
           cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
-      | Case e10 e11 brs1, Case e20 e21 brs2 =>
-          cast_if_and3
+      | Case e10 x1 e11 brs1, Case e20 x2 e21 brs2 =>
+          cast_if_and4
             (decide (e10 = e20))
+            (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
       | Record es1, Record es2 =>
@@ -599,7 +641,7 @@ Proof.
       end
     for go
   );
-  try clear go_brs; clear go go_val go_list;
+  try clear go_branches; clear go go_val go_list;
   abstract intuition congruence.
 Defined.
 #[global] Instance val_eq_dec : EqDecision val.
@@ -641,12 +683,12 @@ Proof.
   clear go_val go_list; abstract intuition congruence.
 Defined.
 Variant encode_leaf :=
-  | EncodeString (x : string)
   | EncodeBinder x
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodeNat (i : nat)
   | EncodeConstrTag tag
+  | EncodePattern (pat : pattern)
   | EncodeLiteral lit.
 #[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
   ltac:(solve_decision).
@@ -655,40 +697,43 @@ Variant encode_leaf :=
 Proof.
   pose encode leaf :=
     match leaf with
-    | EncodeString x =>
-        inl $ inl $ inl $ inl $ inl $ inl x
     | EncodeBinder x =>
-        inl $ inl $ inl $ inl $ inl $ inr x
+        inl $ inl $ inl $ inl $ inl $ inl x
     | EncodeUnop op =>
-        inl $ inl $ inl $ inl $ inr op
+        inl $ inl $ inl $ inl $ inl $ inr op
     | EncodeBinop op =>
-        inl $ inl $ inl $ inr op
+        inl $ inl $ inl $ inl $ inr op
     | EncodeNat i =>
-        inl $ inl $ inr i
+        inl $ inl $ inl $ inr i
     | EncodeConstrTag tag =>
-        inl $ inr tag
+        inl $ inl $ inr tag
+    | EncodePattern pat =>
+        inl $ inr pat
     | EncodeLiteral lit =>
         inr lit
     end.
   pose decode leaf :=
     match leaf with
     | inl (inl (inl (inl (inl (inl x))))) =>
-        EncodeString x
-    | inl (inl (inl (inl (inl (inr x))))) =>
         EncodeBinder x
-    | inl (inl (inl (inl (inr op)))) =>
+    | inl (inl (inl (inl (inl (inr op))))) =>
         EncodeUnop op
-    | inl (inl (inl (inr op))) =>
+    | inl (inl (inl (inl (inr op)))) =>
         EncodeBinop op
-    | inl (inl (inr i)) =>
+    | inl (inl (inl (inr i))) =>
         EncodeNat i
-    | inl (inr tag) =>
+    | inl (inl (inr tag)) =>
         EncodeConstrTag tag
+    | inl (inr pat) =>
+        EncodePattern pat
     | inr lit =>
         EncodeLiteral lit
     end.
-  refine (inj_countable' encode decode _); intros []; done.
+  refine (inj_countable' encode decode _). intros []; done.
 Qed.
+Notation EncodeString str := (
+  EncodeBinder (BNamed str)
+).
 #[global] Instance expr_countable :
   Countable expr.
 Proof.
@@ -714,7 +759,7 @@ Proof.
     9.
   Notation tag_Case :=
     10.
-  Notation tag_br :=
+  Notation tag_branch :=
     11.
   Notation tag_Record :=
     12.
@@ -745,10 +790,10 @@ Proof.
   pose encode :=
     fix go e :=
       let go_list := map go in
-      let go_br '(tag, e) :=
-        GenNode tag_br [GenLeaf (EncodeConstrTag tag); go e]
+      let go_branch '(pat, e) :=
+        GenNode tag_branch [GenLeaf (EncodePattern pat); go e]
       in
-      let go_brs := map go_br in
+      let go_branches := map go_branch in
       match e with
       | Val v =>
           GenNode tag_Val [go_val v]
@@ -772,8 +817,8 @@ Proof.
           GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Constr tag es =>
           GenNode tag_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
-      | Case e0 e1 brs =>
-          GenNode tag_Case $ go e0 :: go e1 :: go_brs brs
+      | Case e0 x e1 brs =>
+          GenNode tag_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | Record es =>
           GenNode tag_Record $ go_list es
       | Alloc e1 e2 =>
@@ -811,15 +856,15 @@ Proof.
   pose decode :=
     fix go _e :=
       let go_list := map go in
-      let go_br _br :=
+      let go_branch _br :=
         match _br with
-        | GenNode tag_br [GenLeaf (EncodeConstrTag tag); e] =>
-            (tag, go e)
+        | GenNode tag_branch [GenLeaf (EncodePattern pat); e] =>
+            (pat, go e)
         | _ =>
-            (("", 0), Val ValUnit)
+            (@inhabitant _ pattern_inhabited, Val ValUnit)
         end
       in
-      let go_brs := map go_br in
+      let go_branches := map go_branch in
       match _e with
       | GenNode tag_Val [v] =>
           Val $ go_val v
@@ -843,8 +888,8 @@ Proof.
           Proj i $ go e
       | GenNode tag_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
           Constr tag $ go_list es
-      | GenNode tag_Case (e0 :: e1 :: brs) =>
-          Case (go e0) (go e1) (go_brs brs)
+      | GenNode tag_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
+          Case (go e0) x (go e1) (go_branches brs)
       | GenNode tag_Record es =>
           Record $ go_list es
       | GenNode tag_Alloc [e1; e2] =>
@@ -866,7 +911,7 @@ Proof.
       | GenNode tag_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
       | _ =>
-          Val ValUnit
+          @inhabitant _ expr_inhabited
       end
     with go_val _v :=
       let go_list := map go_val in
@@ -880,7 +925,7 @@ Proof.
       | GenNode tag_ValConstr (GenLeaf (EncodeConstrTag tag) :: vs) =>
           ValConstr tag $ go_list vs
       | _ =>
-          ValUnit
+          @inhabitant _ val_inhabited
       end
     for go.
   refine (inj_countable' encode decode _).
@@ -906,12 +951,3 @@ Qed.
 Proof.
   refine (inj_countable of_val to_val _); auto using to_of_val.
 Qed.
-
-Fixpoint apps e es :=
-  match es with
-  | [] =>
-      e
-  | e' :: es =>
-      apps (App e e') es
-  end.
-#[global] Arguments apps _ !_ / : assert.

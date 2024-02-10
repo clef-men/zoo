@@ -978,10 +978,10 @@ Section pstore_G.
     (fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys.
 
   Lemma pstore_collect_spec_aux (r r':loc) t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+    lst_model' t' xs ->
     path g r ys r' ->
     {{{
       r' ↦ §Root ∗
-      lst_model t' xs ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
       pstore_collect #r t'
@@ -992,18 +992,16 @@ Section pstore_G.
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
-    iIntros (Hpath Φ) "(Hr'&HL&Hg) HΦ".
-    iInduction ys as [|] "IH" forall (r xs r' Hpath t'); wp_rec.
+    iIntros (-> Hpath Φ) "(Hr'&Hg) HΦ".
+    iInduction ys as [|] "IH" forall (r xs r' Hpath); wp_rec.
     { inversion Hpath. subst. iSteps. }
     { inversion Hpath. subst.
       iDestruct (big_sepS_elem_of_acc _ _ (r,b,a2) with "[$]") as "(?&Hg)".
       { set_solver. } destruct b.
       wp_load.
       iSpecialize ("Hg" with "[$]").
-      iDestruct (lst_model_Cons (ValLiteral (LiteralLoc r)) with "[$]") as "?".
       iSpecialize ("IH" with "[%//][$][$][$]").
-      iStep 19. iModIntro. iStep 3. iApply "IH". iModIntro. iIntros (?) "(?&?&?)".
-      iApply ("HΦ"). iFrame.
+      iSteps.
     }
   Qed.
 
@@ -1021,10 +1019,10 @@ Section pstore_G.
       lst_model t (rev (fsts ys))
     }}}.
   Proof.
-    iIntros (? Φ) "(?&?) Hϕ".
-    iDestruct lst_model_Nil as "?".
-    iDestruct (pstore_collect_spec_aux with "[$]") as "Go". done.
-    iApply "Go". rewrite -rev_alt //. Unshelve. apply _.
+    iIntros (? Φ) "(?&?) HΦ".
+    iDestruct (pstore_collect_spec_aux with "[$]") as "Go"; [done.. |].
+    rewrite -lst_to_val_nil.
+    iApply "Go". rewrite -rev_alt //.
   Qed.
 
   Lemma use_path r g (xs:list (loc*(loc*val)*loc)) r0 x r1 r':
@@ -1078,13 +1076,14 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
+    lst_model' t (fsts (rev xs)) ->
     locs_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
     acyclic g ->
     g2 ⊆ g ->
     path g r xs r' ->
     {{{
-      lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+      r' ↦ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') }) ∗
       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
@@ -1099,18 +1098,15 @@ Section pstore_G.
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
-    iIntros (Hlocs Hg Hacy Hsub Hpath Φ) "(HL&Hr'&Hσ&Hg1&Hg2) HΦ".
-    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (t σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
+    iIntros (-> Hlocs Hg Hacy Hsub Hpath Φ) "(Hr'&Hσ&Hg1&Hg2) HΦ".
+    iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
     { wp_rec. simpl.
       iStep 4. iModIntro.
-      iApply (wp_lst_match_Nil with "[$]") .
       inversion Hpath. subst. wp_store. iModIntro.
       iApply "HΦ". iExists nil. rewrite !right_id_L. iFrame.
       iPureIntro. eauto using undo_nil. }
     { wp_rec. simpl. rewrite rev_unit. simpl.
       iStep 4. iModIntro.
-      iApply (wp_lst_match_Cons with "[$]") . done.
-      iIntros (t') "HL". simpl.
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
       rewrite Hg list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (loc * diff * loc))).
@@ -1118,7 +1114,7 @@ Section pstore_G.
         apply Hacy in Hpath. congruence. set_solver. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
       { set_solver. }
-      rewrite big_sepS_singleton. wp_load. iStep 19. iModIntro.
+      rewrite big_sepS_singleton. wp_load. iStep 4. iModIntro.
 
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
       assert (exists v', σ !! l = Some v') as (v',Hl).
@@ -1134,7 +1130,7 @@ Section pstore_G.
       wp_load. wp_store. wp_store. iStep 4. iModIntro.
 
       iSpecialize ("Hσ" with "[$]").
-      iSpecialize ("IH" with "[%//][%//][%][%//][%][$][$][$] Hg1 Hg2").
+      iSpecialize ("IH" with "[%//][%//][%][%//][%][$][$] Hg1 Hg2").
       { rewrite dom_insert_lookup_L //. intros x1 x2 x3 x4.
         specialize (Hlocs x1 x2 x3 x4). set_solver. }
       { set_solver. }
@@ -1155,12 +1151,13 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_revert_spec r t g xs r' w σ σ0 :
+    lst_model' t (fsts (rev xs)) ->
     locs_of_edges_in g (dom σ) ->
     g = list_to_set xs ->
     acyclic g ->
     path g r xs r' ->
     {{{
-      lst_model t (fsts (rev xs)) ∗ r' ↦ w ∗
+      r' ↦ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(LiteralLoc l), v, #(LiteralLoc r') })
     }}}
@@ -1174,7 +1171,7 @@ Section pstore_G.
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
-    iIntros (???? Φ) "(?&?&?&?) HΦ".
+    iIntros (->???? Φ) "(?&?&?) HΦ".
     iApply (pstore_revert_spec_aux g ∅ with "[-HΦ]"); try done.
     { rewrite big_sepS_empty. iFrame. }
     { iModIntro. iIntros "[% ?]". iApply "HΦ". iExists _. rewrite left_id_L //. }
@@ -1209,7 +1206,7 @@ Section pstore_G.
   Proof.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
     wp_rec. wp_apply (pstore_collect_spec with "[$]"). done.
-    iIntros (?) "(?&?&?)".
+    iIntros (?) "(?&?&%Heq)". rewrite {}Heq.
     iStep 10. rewrite rev_fsts.
     iApply (pstore_revert_spec with "[-HΦ]"); try done. iFrame.
   Qed.
@@ -1627,7 +1624,7 @@ Section pstore_G.
     destruct_decide (decide (rs=r)).
     { subst.
       subst.
-      wp_load. iStep 9. iModIntro.
+      wp_load. iStep 4. iModIntro.
       iExists _,_,_,_,_,_. iFrame. iPureIntro. split_and!; eauto.
       { destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver. } }
 
@@ -1637,7 +1634,7 @@ Section pstore_G.
     eapply ti1 in Hrs; eauto. destruct Hrs as (ds,Hrs).
     inversion Hrs. congruence. subst. rename a2 into r'. destruct b.
     iDestruct (big_sepS_elem_of_acc with "[$]") as "(?&Hg)". done. simpl.
-    wp_load. iStep 19. iModIntro.
+    wp_load. iStep 2. iModIntro.
     iSpecialize ("Hg" with "[$]").
 
     remember ((rs, (l, v), r') :: bs) as xs.

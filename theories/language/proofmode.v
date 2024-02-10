@@ -1,3 +1,5 @@
+From iris.proofmode Require Export
+  proofmode.
 From iris.proofmode Require Import
   coq_tactics
   reduction

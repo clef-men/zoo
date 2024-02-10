@@ -2,8 +2,6 @@ From iris.bi Require Export
   bi
   telescopes
   derived_laws.
-From iris.proofmode Require Import
-  proofmode.
 
 From diaframe Require Import
   proofmode_base
@@ -16,6 +14,7 @@ From diaframe Require Export
 From zebre Require Import
   prelude.
 From zebre.language Require Import
+  metatheory
   notations
   proofmode.
 From zebre Require Import
@@ -303,65 +302,6 @@ End instances.
 
 Section unfold_functions.
   Context `{zebre_G : !ZebreG Σ}.
-
-  Fixpoint occurs x e :=
-    match e with
-    | Val _ =>
-        false
-    | Var y =>
-        bool_decide (x = y)
-    | Rec f y e =>
-        if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
-          occurs x e
-        else
-          false
-    | App e1 e2 =>
-        occurs x e1 || occurs x e2
-    | Unop _ e =>
-        occurs x e
-    | Binop _ e1 e2 =>
-        occurs x e1 || occurs x e2
-    | Equal e1 e2 =>
-        occurs x e1 || occurs x e2
-    | If e0 e1 e2 =>
-        occurs x e0 || occurs x e1 || occurs x e2
-    | Tuple es =>
-        existsb (occurs x) es
-    | Proj _ e =>
-        occurs x e
-    | Constr _ es =>
-        existsb (occurs x) es
-    | Case e0 e1 brs =>
-        occurs x e0 || occurs x e1 || existsb (λ br, occurs x br.2) brs
-    | Fork e =>
-        occurs x e
-    | Record es =>
-        existsb (occurs x) es
-    | Alloc e1 e2 =>
-        occurs x e1 || occurs x e2
-    | Load e =>
-        occurs x e
-    | Store l e =>
-        occurs x l || occurs x e
-    | Xchg e1 e2 =>
-        occurs x e1 || occurs x e2
-    | Cas e0 e1 e2 =>
-        occurs x e0 || occurs x e1 || occurs x e2
-    | Faa e1 e2 =>
-        occurs x e1 || occurs x e2
-    | Proph =>
-        false
-    | Resolve e0 e1 e2 =>
-        occurs x e0 || occurs x e1 || occurs x e2
-    end.
-
-  Definition val_recursive v :=
-    match v with
-    | ValRec (BNamed f) x e =>
-        occurs f e
-    | _ =>
-        false
-    end.
 
   #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E s :
     ( ( ∀ f x e,

@@ -172,7 +172,7 @@ Section zebre_G.
 
   #[local] Lemma wp_match_clist_open lst e1 x2 e2 Φ :
     WP subst' x2 (list_to_clist_open lst) e2 {{ Φ }} ⊢
-    WP match: list_to_clist_open lst with Closed => e1 | _ as x2 => e2 end {{ Φ }}.
+    WP match: list_to_clist_open lst with Closed => e1 | _ as: x2 => e2 end {{ Φ }}.
   Proof.
     destruct lst; iSteps.
   Qed.

@@ -12,9 +12,10 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types tag : constr_tag.
+Implicit Types x : binder.
 Implicit Types n m : Z.
 Implicit Types l : loc.
+Implicit Types tag : constr_tag.
 Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -226,47 +227,100 @@ Fixpoint subst (x : string) v e :=
   | Val _ =>
       e
   | Var y =>
-      if decide (x = y) then Val v else Var y
+      if decide (x = y) then
+        Val v
+      else
+        Var y
   | Rec f y e =>
-     Rec f y $ if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then subst x v e else e
+     Rec f y
+       ( if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
+           subst x v e
+         else
+           e
+       )
   | App e1 e2 =>
-      App (subst x v e1) (subst x v e2)
+      App
+        (subst x v e1)
+        (subst x v e2)
   | Unop op e =>
-      Unop op $ subst x v e
+      Unop op
+        (subst x v e)
   | Binop op e1 e2 =>
-      Binop op (subst x v e1) (subst x v e2)
+      Binop op
+        (subst x v e1)
+        (subst x v e2)
   | Equal e1 e2 =>
-      Equal (subst x v e1) (subst x v e2)
+      Equal
+        (subst x v e1)
+        (subst x v e2)
   | If e0 e1 e2 =>
-      If (subst x v e0) (subst x v e1) (subst x v e2)
+      If
+      (subst x v e0)
+      (subst x v e1)
+      (subst x v e2)
   | Tuple es =>
-      Tuple $ subst x v <$> es
+      Tuple
+        (subst x v <$> es)
   | Proj i e =>
-      Proj i $ subst x v e
+      Proj i
+        (subst x v e)
   | Constr tag es =>
-      Constr tag $ subst x v <$> es
-  | Case e0 e1 brs =>
-      Case (subst x v e0) (subst x v e1) $ (λ br, (br.1, subst x v br.2)) <$> brs
+      Constr tag
+        (subst x v <$> es)
+  | Case e0 y e1 brs =>
+      Case
+        (subst x v e0)
+        y
+        (subst x v e1)
+        ( ( λ br,
+              ( br.1,
+                if decide (
+                  Forall (BNamed x ≠.) br.1.(pattern_fields) ∧
+                  BNamed x ≠ br.1.(pattern_as)
+                ) then
+                  subst x v br.2
+                else
+                  br.2
+              )
+          ) <$> brs
+        )
   | Record es =>
-      Record $ subst x v <$> es
+      Record
+        (subst x v <$> es)
   | Alloc e1 e2 =>
-      Alloc (subst x v e1) (subst x v e2)
+      Alloc
+        (subst x v e1)
+        (subst x v e2)
   | Load e =>
-      Load $ subst x v e
+      Load
+        (subst x v e)
   | Store e1 e2 =>
-      Store (subst x v e1) (subst x v e2)
+      Store
+        (subst x v e1)
+        (subst x v e2)
   | Xchg e1 e2 =>
-      Xchg (subst x v e1) (subst x v e2)
+      Xchg
+        (subst x v e1)
+        (subst x v e2)
   | Cas e0 e1 e2 =>
-      Cas (subst x v e0) (subst x v e1) (subst x v e2)
+      Cas
+        (subst x v e0)
+        (subst x v e1)
+        (subst x v e2)
   | Faa e1 e2 =>
-      Faa (subst x v e1) (subst x v e2)
+      Faa
+        (subst x v e1)
+        (subst x v e2)
   | Fork e =>
-      Fork $ subst x v e
+      Fork
+        (subst x v e)
   | Proph =>
       Proph
   | Resolve e0 e1 e2 =>
-      Resolve (subst x v e0) (subst x v e1) (subst x v e2)
+      Resolve
+        (subst x v e0)
+        (subst x v e1)
+        (subst x v e2)
   end.
 #[global] Arguments subst _ _ !_ / : assert.
 Definition subst' x v :=
@@ -277,18 +331,28 @@ Definition subst' x v :=
       id
   end.
 #[global] Arguments subst' !_ _ / _ : assert.
+Fixpoint subst_list xs vs e :=
+  match xs, vs with
+  | x :: xs, v :: vs =>
+      subst' x v (subst_list xs vs e)
+  | _, _ =>
+      e
+  end.
+#[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint case_select tag brs :=
+Fixpoint case_apply tag vs x e brs :=
   match brs with
   | [] =>
-      None
+      subst' x (ValConstr tag vs) e
   | br :: brs =>
-      if decide (br.1.2 = tag.2) then
-        Some br.2
+      let pat := br.1 in
+      if decide (pat.(pattern_tag).2 = tag.2) then
+        subst_list pat.(pattern_fields) vs $
+        subst' pat.(pattern_as) (ValConstr tag vs) br.2
       else
-        case_select tag brs
+        case_apply tag vs x e brs
   end.
-#[global] Arguments case_select _ !_ / : assert.
+#[global] Arguments case_apply _ _ _ _ !_ / : assert.
 
 Record state : Type := {
   state_heap : gmap loc val ;
@@ -470,13 +534,12 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValConstr tag vs)
         σ
         []
-  | base_step_br tag vs e brs sel σ :
-      case_select tag brs = sel →
+  | base_step_br tag vs x e brs σ :
       base_step
-        (Case (Val $ ValConstr tag vs) e brs)
+        (Case (Val $ ValConstr tag vs) x e brs)
         σ
         []
-        (App (from_option (λ e, apps e (of_vals vs)) e sel) (Val $ ValConstr tag vs))
+        (case_apply tag vs x e brs)
         σ
         []
   | base_step_record es vs σ l :
@@ -653,7 +716,7 @@ Inductive ectxi :=
   | CtxTuple vs es
   | CtxProj (i : nat)
   | CtxConstr tag vs es
-  | CtxCase e brs
+  | CtxCase x e1 brs
   | CtxRecord vs es
   | CtxAllocL v2
   | CtxAllocR e1
@@ -696,8 +759,8 @@ Fixpoint ectxi_fill k e : expr :=
       Proj i e
   | CtxConstr tag vs es =>
       Constr tag $ of_vals vs ++ e :: es
-  | CtxCase e' brs =>
-      Case e e' brs
+  | CtxCase x e1 brs =>
+      Case e x e1 brs
   | CtxRecord vs es =>
       Record $ of_vals vs ++ e :: es
   | CtxAllocL v2 =>

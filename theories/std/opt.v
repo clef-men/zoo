@@ -57,7 +57,7 @@ Section zebre_G.
     split. apply _.
   Qed.
 
-  Lemma itype_opt_match t e1 x e2 Φ :
+  Lemma wp_match_opt t e1 x e2 Φ :
     itype_opt t -∗
     ( WP e1 {{ Φ }} ∧
       ∀ v, τ v -∗ WP subst' x v e2 {{ Φ }}
@@ -67,6 +67,5 @@ Section zebre_G.
     iIntros "[-> | (%v & -> & #Hv)] H";
       [rewrite bi.and_elim_l | rewrite bi.and_elim_r];
       iSteps.
-    destruct x; iSteps.
   Qed.
 End zebre_G.

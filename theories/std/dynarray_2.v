@@ -796,7 +796,7 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (itype_opt_match with "Hslot"). iSplit.
+    wp_apply (wp_match_opt with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
       wp_apply (ref_get_type with "Hr").
@@ -818,7 +818,7 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply (dynarray_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (itype_opt_match with "Hslot"). iSplit.
+    wp_apply (wp_match_opt with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
       wp_apply (ref_set_type with "[$Hr $Hv]").
@@ -942,7 +942,7 @@ Section zebre_G.
     wp_smart_apply assume_spec' as "%Hcap".
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_get_type with "Hdata_type") as "%slot #Hslot"; first lia.
-    wp_apply (itype_opt_match with "Hslot"). iSplit.
+    wp_apply (wp_match_opt with "Hslot"). iSplit.
     - wp_apply diverge_spec.
     - iIntros "%r #Hr /=".
       wp_smart_apply (array_unsafe_set_type with "[$Hdata_type]") as "_"; [lia | iSteps |].
