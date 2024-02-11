@@ -1,5 +1,4 @@
-(*
-   Based on:
+(* Based on:
    https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/treiber_stack.ml
 *)
 
