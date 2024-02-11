@@ -255,20 +255,42 @@ Notation "'ifnot:' e0 'then' e2" := (
   only parsing
 ) : expr_scope.
 
+Declare Custom Entry zebre_tag.
+Notation "‘ tag { e1 , .. , en }" := (
+  Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+)(at level 2,
+  tag custom zebre_tag,
+  e1, en at level 200,
+  format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
+).
+Notation "’ tag { v1 , .. , vn }" := (
+  ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+)(at level 2,
+  tag custom zebre_tag,
+  v1, vn at level 200,
+  format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
+).
+Notation "§ tag" := (
+  ValConstr tag%core (@nil val)
+)(at level 2,
+  tag custom zebre_tag,
+  format "§ tag"
+).
+
+Notation "( e1 , e2 , .. , en )" := (
+  Constr (@pair string nat "" 0) (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
+)(at level 0
+) : expr_scope.
+Notation "( v1 , v2 , .. , vn )" := (
+  ValConstr (@pair string nat "" 0) (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+)(at level 0
+) : val_scope.
 Notation "()" := (
   Val ValUnit
-) : expr_scope.
-Notation "( e1 , e2 , .. , en )" := (
-  Tuple (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
-)(at level 0
 ) : expr_scope.
 Notation "()" :=
   ValUnit
 : val_scope.
-Notation "( v1 , v2 , .. , vn )" := (
-  ValTuple (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
-)(at level 0
-) : val_scope.
 
 Declare Custom Entry zebre_proj.
 Notation "0" :=
@@ -317,28 +339,6 @@ Notation "e .< proj >" := (
   proj custom zebre_proj,
   format "e .< proj >"
 ) : expr_scope.
-
-Declare Custom Entry zebre_tag.
-Notation "‘ tag { e1 , .. , en }" := (
-  Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(at level 2,
-  tag custom zebre_tag,
-  e1, en at level 200,
-  format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
-).
-Notation "’ tag { v1 , .. , vn }" := (
-  ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
-  tag custom zebre_tag,
-  v1, vn at level 200,
-  format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
-).
-Notation "§ tag" := (
-  ValConstr tag%core (@nil val)
-)(at level 2,
-  tag custom zebre_tag,
-  format "§ tag"
-).
 
 Declare Custom Entry zebre_branch.
 Notation "tag => e" := (

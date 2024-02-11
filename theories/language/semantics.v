@@ -78,8 +78,6 @@ Definition val_neq v1 v2 :=
   match v1, v2 with
   | ValLiteral lit1, ValLiteral lit2 =>
       lit1 ≠ lit2
-  | ValTuple [], ValTuple [] =>
-      False
   | ValConstr tag1 [], ValConstr tag2 [] =>
       tag1.2 ≠ tag2.2
   | _, _ =>
@@ -90,7 +88,7 @@ Definition val_neq v1 v2 :=
 #[global] Instance val_neq_sym :
   Symmetric val_neq.
 Proof.
-  do 2 intros [| | [] | ? []]; done.
+  do 2 intros [| | ? []]; done.
 Qed.
 
 Definition val_eq v1 v2 :=
@@ -99,7 +97,6 @@ Definition val_eq v1 v2 :=
       match v2 with
       | ValLiteral lit2 =>
           literal_eq lit1 lit2
-      | ValTuple []
       | ValConstr _ [] =>
           match lit1 with
           | LiteralBool _
@@ -118,28 +115,10 @@ Definition val_eq v1 v2 :=
       | _ =>
           False
       end
-  | ValTuple [] =>
-      match v2 with
-      | ValLiteral (LiteralBool _)
-      | ValLiteral (LiteralInt _)
-      | ValTuple []
-      | ValConstr _ [] =>
-          True
-      | _ =>
-          False
-      end
-  | ValTuple es1 =>
-      match v2 with
-      | ValTuple es2 =>
-          es1 = es2
-      | _ =>
-          False
-      end
   | ValConstr tag1 [] =>
       match v2 with
       | ValLiteral (LiteralBool _)
-      | ValLiteral (LiteralInt _)
-      | ValTuple [] =>
+      | ValLiteral (LiteralInt _) =>
           True
       | ValConstr tag2 [] =>
           tag1.2 = tag2.2
@@ -159,18 +138,18 @@ Definition val_eq v1 v2 :=
 #[global] Instance val_eq_refl :
   Reflexive val_eq.
 Proof.
-  intros [[] | | [] | ? []]; done.
+  intros [[] | | ? []]; done.
 Qed.
 #[global] Instance val_eq_sym :
   Symmetric val_eq.
 Proof.
-  do 2 intros [| | [] | ? []]; naive_solver congruence.
+  do 2 intros [| | ? []]; naive_solver congruence.
 Qed.
 Lemma eq_val_eq v1 v2 :
   v1 = v2 →
   val_eq v1 v2.
 Proof.
-  destruct v1 as [| | [] | ? []]; naive_solver.
+  destruct v1 as [| | ? []]; naive_solver.
 Qed.
 
 Definition unop_eval op v :=
@@ -258,15 +237,12 @@ Fixpoint subst (x : string) v e :=
       (subst x v e0)
       (subst x v e1)
       (subst x v e2)
-  | Tuple es =>
-      Tuple
+  | Constr tag es =>
+      Constr tag
         (subst x v <$> es)
   | Proj i e =>
       Proj i
         (subst x v e)
-  | Constr tag es =>
-      Constr tag
-        (subst x v <$> es)
   | Case e0 y e1 brs =>
       Case
         (subst x v e0)
@@ -507,24 +483,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         e2
         σ
         []
-  | base_step_tuple es vs σ :
-      es = of_vals vs →
-      base_step
-        (Tuple es)
-        σ
-        []
-        (Val $ ValTuple vs)
-        σ
-        []
-  | base_step_proj i vs v σ :
-      vs !! i = Some v →
-      base_step
-        (Proj i $ Val $ ValTuple vs)
-        σ
-        []
-        (Val v)
-        σ
-        []
   | base_step_constr tag es vs σ :
       es = of_vals vs →
       base_step
@@ -534,7 +492,16 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValConstr tag vs)
         σ
         []
-  | base_step_br tag vs x e brs σ :
+  | base_step_proj i tag vs v σ :
+      vs !! i = Some v →
+      base_step
+        (Proj i $ Val $ ValConstr tag vs)
+        σ
+        []
+        (Val v)
+        σ
+        []
+  | base_step_case tag vs x e brs σ :
       base_step
         (Case (Val $ ValConstr tag vs) x e brs)
         σ
@@ -713,9 +680,8 @@ Inductive ectxi :=
   | CtxEqualL v2
   | CtxEqualR e1
   | CtxIf e1 e2
-  | CtxTuple vs es
-  | CtxProj (i : nat)
   | CtxConstr tag vs es
+  | CtxProj (i : nat)
   | CtxCase x e1 brs
   | CtxRecord vs es
   | CtxAllocL v2
@@ -753,12 +719,10 @@ Fixpoint ectxi_fill k e : expr :=
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
-  | CtxTuple vs es =>
-      Tuple $ of_vals vs ++ e :: es
-  | CtxProj i =>
-      Proj i e
   | CtxConstr tag vs es =>
       Constr tag $ of_vals vs ++ e :: es
+  | CtxProj i =>
+      Proj i e
   | CtxCase x e1 brs =>
       Case e x e1 brs
   | CtxRecord vs es =>

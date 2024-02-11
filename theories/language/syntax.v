@@ -170,9 +170,8 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
-  | Tuple (es : list expr)
-  | Proj i (e : expr)
   | Constr tag (es : list expr)
+  | Proj i (e : expr)
   | Case (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
@@ -187,7 +186,6 @@ Inductive expr :=
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
-  | ValTuple (vs : list val)
   | ValConstr tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
@@ -209,9 +207,6 @@ Section val_ind.
   Variable HValRec :
     ∀ f x e,
     P (ValRec f x e).
-  Variable HValTuple :
-    ∀ vs, Forall P vs →
-    P (ValTuple vs).
   Variable HValConstr :
     ∀ tag,
     ∀ vs, Forall P vs →
@@ -223,9 +218,6 @@ Section val_ind.
         HValLiteral lit
     | ValRec f x e =>
         HValRec f x e
-    | ValTuple vs =>
-        HValTuple
-          vs (Forall_true P vs val_ind)
     | ValConstr tag vs =>
         HValConstr tag
           vs (Forall_true P vs val_ind)
@@ -267,17 +259,14 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (If e0 e1 e2).
-  Variable HTuple :
-    ∀ es, Forall P es →
-    P (Tuple es).
-  Variable HProj :
-    ∀ i,
-    ∀ e, P e →
-    P (Proj i e).
   Variable HConstr :
     ∀ tag,
     ∀ es, Forall P es →
     P (Constr tag es).
+  Variable HProj :
+    ∀ i,
+    ∀ e, P e →
+    P (Proj i e).
   Variable HCase :
     ∀ e0, P e0 →
     ∀ x,
@@ -351,15 +340,12 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Tuple es =>
-        HTuple
+    | Constr tag es =>
+        HConstr tag
           es (Forall_true P es expr_ind)
     | Proj i e =>
         HProj i
           e (expr_ind e)
-    | Constr tag es =>
-        HConstr tag
-          es (Forall_true P es expr_ind)
     | Case e0 x e1 brs =>
         HCase
           e0 (expr_ind e0)
@@ -411,6 +397,12 @@ Canonical valO :=
 Canonical exprO :=
   leibnizO expr.
 
+Notation Tuple := (
+  Constr ("", 0)
+).
+Notation ValTuple := (
+  ValConstr ("", 0)
+).
 Notation ValUnit := (
   ValTuple []
 ).
@@ -550,17 +542,14 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Tuple es1, Tuple es2 =>
-          cast_if
+      | Constr tag1 es1, Constr tag2 es2 =>
+          cast_if_and
+            (decide (tag1 = tag2))
             (decide (es1 = es2))
       | Proj i1 e1, Proj i2 e2 =>
           cast_if_and
             (decide (i1 = i2))
             (decide (e1 = e2))
-      | Constr tag1 es1, Constr tag2 es2 =>
-          cast_if_and
-            (decide (tag1 = tag2))
-            (decide (es1 = es2))
       | Case e10 x1 e11 brs1, Case e20 x2 e21 brs2 =>
           cast_if_and4
             (decide (e10 = e20))
@@ -629,9 +618,6 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValTuple vs1, ValTuple vs2 =>
-          cast_if
-            (decide (vs1 = vs2))
       | ValConstr tag1 es1, ValConstr tag2 es2 =>
           cast_if_and
             (decide (tag1 = tag2))
@@ -669,9 +655,6 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValTuple vs1, ValTuple vs2 =>
-          cast_if
-            (decide (vs1 = vs2))
       | ValConstr tag1 es1, ValConstr tag2 es2 =>
           cast_if_and
             (decide (tag1 = tag2))
@@ -751,42 +734,38 @@ Proof.
     5.
   Notation tag_If :=
     6.
-  Notation tag_Tuple :=
+  Notation tag_Constr :=
     7.
   Notation tag_Proj :=
     8.
-  Notation tag_Constr :=
-    9.
   Notation tag_Case :=
-    10.
+    9.
   Notation tag_branch :=
-    11.
+    10.
   Notation tag_Record :=
-    12.
+    11.
   Notation tag_Alloc :=
-    13.
+    12.
   Notation tag_Load :=
-    14.
+    13.
   Notation tag_Store :=
-    15.
+    14.
   Notation tag_Xchg :=
-    16.
+    15.
   Notation tag_Cas :=
-    17.
+    16.
   Notation tag_Faa :=
-    18.
+    17.
   Notation tag_Fork :=
-    19.
+    18.
   Notation tag_Proph :=
-    20.
+    19.
   Notation tag_Resolve :=
-    21.
+    20.
   Notation tag_ValRec :=
     0.
-  Notation tag_ValTuple :=
-    1.
   Notation tag_ValConstr :=
-    2.
+    1.
   pose encode :=
     fix go e :=
       let go_list := map go in
@@ -811,12 +790,10 @@ Proof.
           GenNode tag_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode tag_If [go e0; go e1; go e2]
-      | Tuple es =>
-          GenNode tag_Tuple $ go_list es
-      | Proj i e =>
-          GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Constr tag es =>
           GenNode tag_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
+      | Proj i e =>
+          GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Case e0 x e1 brs =>
           GenNode tag_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | Record es =>
@@ -847,8 +824,6 @@ Proof.
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | ValTuple vs =>
-          GenNode tag_ValTuple $ go_list vs
       | ValConstr tag vs =>
           GenNode tag_ValConstr $ GenLeaf (EncodeConstrTag tag) :: go_list vs
       end
@@ -882,12 +857,10 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode tag_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode tag_Tuple es =>
-          Tuple $ go_list es
-      | GenNode tag_Proj [GenLeaf (EncodeNat i); e] =>
-          Proj i $ go e
       | GenNode tag_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
           Constr tag $ go_list es
+      | GenNode tag_Proj [GenLeaf (EncodeNat i); e] =>
+          Proj i $ go e
       | GenNode tag_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Case (go e0) x (go e1) (go_branches brs)
       | GenNode tag_Record es =>
@@ -920,8 +893,6 @@ Proof.
           ValLiteral lit
       | GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode tag_ValTuple vs =>
-          ValTuple $ go_list vs
       | GenNode tag_ValConstr (GenLeaf (EncodeConstrTag tag) :: vs) =>
           ValConstr tag $ go_list vs
       | _ =>

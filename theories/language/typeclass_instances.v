@@ -69,8 +69,8 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic a i vs :
-    Atomic a (Proj i $ Val $ ValTuple vs).
+  #[global] Instance proj_atomic a i tag vs :
+    Atomic a (Proj i $ Val $ ValConstr tag vs).
   Proof.
     solve_atomic.
   Qed.
@@ -307,27 +307,6 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_tuple es vs :
-    PureExec
-      (to_vals es = Some vs)
-      1
-      (Tuple es)
-      (Val $ ValTuple vs).
-  Proof.
-    intros <-%of_to_vals.
-    apply nsteps_once, pure_base_step_pure_step.
-    split; [solve_exec_safe | solve_exec_puredet].
-  Qed.
-  #[global] Instance pure_proj i vs v :
-    PureExec
-      (vs !! i = Some v)
-      1
-      (Proj i $ Val $ ValTuple vs)
-      (Val v).
-  Proof.
-    solve_pure_exec.
-  Qed.
-
   #[global] Instance pure_constr tag es vs :
     PureExec
       (to_vals es = Some vs)
@@ -338,6 +317,15 @@ Section pure_exec.
     intros <-%of_to_vals.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
+  Qed.
+  #[global] Instance pure_proj i tag vs v :
+    PureExec
+      (vs !! i = Some v)
+      1
+      (Proj i $ Val $ ValConstr tag vs)
+      (Val v).
+  Proof.
+    solve_pure_exec.
   Qed.
   #[global] Instance pure_case tag vs x e brs :
     PureExec

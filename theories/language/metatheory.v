@@ -30,12 +30,10 @@ Fixpoint occurs x e :=
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
-  | Tuple es =>
+  | Constr _ es =>
       existsb (occurs x) es
   | Proj _ e =>
       occurs x e
-  | Constr _ es =>
-      existsb (occurs x) es
   | Case e0 y e1 brs =>
       occurs x e0 ||
       bool_decide (BNamed x ≠ y) && occurs x e1 ||

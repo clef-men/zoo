@@ -34,8 +34,8 @@ Section zebre_G.
     base_reducible (v1 = v2) σ.
   Proof.
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
-      v2 as [[b2 | i2 | l2 | |] | | [] | (? & tag2) []].
+      v1 as [[b1 | i1 | l1 | |] | | (? & tag1) []],
+      v2 as [[b2 | i2 | l2 | |] | | (? & tag2) []].
     all:
       try first
       [ destruct (decide (b1 = b2)); first subst
@@ -63,8 +63,8 @@ Section zebre_G.
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %Hstep !> _".
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []],
-      v2 as [[b2 | i2 | l2 | |] | | [] | (? & tag2) []].
+      v1 as [[b1 | i1 | l1 | |] | | (? & tag1) []],
+      v2 as [[b2 | i2 | l2 | |] | | (? & tag2) []].
     all:
       try first
       [ destruct (decide (b1 = b2)); first subst
@@ -224,8 +224,8 @@ Section zebre_G.
   Proof.
     intros.
     destruct
-      v as [[b | i | l' | |] | | [] | (? & tag) []],
-      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []].
+      v as [[b | i | l' | |] | | (? & tag) []],
+      v1 as [[b1 | i1 | l1 | |] | | (? & tag1) []].
     all:
       try first
       [ destruct (decide (b = b1)); first subst
@@ -262,8 +262,8 @@ Section zebre_G.
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
     iIntros "%e2 %σ2 %es %Hstep !> _".
     destruct
-      v as [[b | i | l' | |] | | [] | (? & tag) []],
-      v1 as [[b1 | i1 | l1 | |] | | [] | (? & tag1) []].
+      v as [[b | i | l' | |] | | (? & tag) []],
+      v1 as [[b1 | i1 | l1 | |] | | (? & tag1) []].
     all:
       try first
       [ destruct (decide (b = b1)); first subst
