@@ -147,23 +147,28 @@ Qed.
 Proof.
   rewrite (clist_app_closed []) // right_id //.
 Qed.
+#[local] Lemma clist_app_assoc lst1 lst2 clst :
+  clist_app (lst1 ++ lst2) clst = clist_app lst1 (clist_app lst2 clst).
+Proof.
+  induction lst1; f_equal/=; done.
+Qed.
 
-#[local] Definition clst_rev_append : val :=
-  rec: "clst_rev_append" "clst1" "clst2" :=
+#[local] Definition clst_app : val :=
+  rec: "clst_app" "clst1" "clst2" :=
     match: "clst1" with
     | Open =>
         "clst2"
     | Cons "v" "clst1" =>
-        "clst_rev_append" "clst1" ‘Cons{ "v", "clst2" }
+        ‘Cons{ "v", "clst_app" "clst1" "clst2" }
     end.
 
-#[local] Definition clst_append : val :=
-  rec: "clst_append" "clst1" "clst2" :=
+#[local] Definition clst_rev_app : val :=
+  rec: "clst_rev_app" "clst1" "clst2" :=
     match: "clst1" with
     | Open =>
         "clst2"
     | Cons "v" "clst1" =>
-        ‘Cons{ "v", "clst_append" "clst1" "clst2" }
+        "clst_rev_app" "clst1" ‘Cons{ "v", "clst2" }
     end.
 
 Section zebre_G.
@@ -176,27 +181,38 @@ Section zebre_G.
     destruct lst; iSteps.
   Qed.
 
-  #[local] Lemma clst_rev_append_spec {t1} lst1 {t2} clst2 :
+  #[local] Lemma clst_app_spec {t1} lst1 {t2} clst2 :
     t1 = list_to_clist_open lst1 →
     t2 = clst2 →
     {{{ True }}}
-      clst_rev_append t1 t2
-    {{{
-      RET (clist_app (reverse lst1) clst2 : val); True
-    }}}.
-  Proof.
-  Admitted.
-
-  #[local] Lemma clst_append_spec {t1} lst1 {t2} clst2 :
-    t1 = list_to_clist_open lst1 →
-    t2 = clst2 →
-    {{{ True }}}
-      clst_append t1 t2
+      clst_app t1 t2
     {{{
       RET (clist_app lst1 clst2 : val); True
     }}}.
   Proof.
-  Admitted.
+    iInduction lst1 as [| v1 lst1] "IH" forall (t1 t2 clst2).
+    all: iIntros (-> ->) "%Φ _ HΦ".
+    all: wp_rec.
+    - iSteps.
+    - wp_smart_apply ("IH" with "[//]"); iSteps.
+  Qed.
+
+  #[local] Lemma clst_rev_app_spec {t1} lst1 {t2} clst2 :
+    t1 = list_to_clist_open lst1 →
+    t2 = clst2 →
+    {{{ True }}}
+      clst_rev_app t1 t2
+    {{{
+      RET (clist_app (reverse lst1) clst2 : val); True
+    }}}.
+  Proof.
+    iInduction lst1 as [| v1 lst1] "IH" forall (t1 t2 clst2).
+    all: iIntros (-> ->) "%Φ _ HΦ".
+    all: wp_rec.
+    - iSteps.
+    - wp_smart_apply ("IH" $! _ _ (ClistCons v1 clst2) with "[//]"); iSteps.
+      rewrite reverse_cons clist_app_assoc. iSteps.
+  Qed.
 End zebre_G.
 
 Definition mpsc_queue_create : val :=
@@ -239,7 +255,7 @@ Definition mpsc_queue_pop_front : val :=
         | Open =>
             §None
         | _ as "back" =>
-            match: clst_rev_append "back" §Open with
+            match: clst_rev_app "back" §Open with
             | Cons "v" "front" =>
                 "t" <-{front} "front" ;;
                 ‘Some{ "v" }
@@ -253,7 +269,7 @@ Definition mpsc_queue_close : val :=
     | Closed =>
         #true
     | _ as "back" =>
-        "t" <-{front} clst_append "t".{front} (clst_rev_append "back" §Closed) ;;
+        "t" <-{front} clst_app "t".{front} (clst_rev_app "back" §Closed) ;;
         #false
     end.
 
@@ -742,7 +758,7 @@ Section mpsc_queue_G.
 
         remember (back' ++ [v']) as back eqn:Hback.
         destruct back as [| v'' back'']; first by eelim app_cons_not_nil.
-        wp_smart_apply (clst_rev_append_spec (v'' :: back'') ClistOpen with "[//]") as "_"; [done.. |].
+        wp_smart_apply (clst_rev_app_spec (v'' :: back'') ClistOpen with "[//]") as "_"; [done.. |].
         rewrite clist_app_Open {}Hback reverse_snoc.
         iSteps.
 
@@ -838,9 +854,9 @@ Section mpsc_queue_G.
     iModIntro. clear.
 
     iApply wp_match_clist_open. simpl.
-    wp_apply (clst_rev_append_spec _ ClistClosed with "[//]") as "_"; [done.. |].
+    wp_apply (clst_rev_app_spec _ ClistClosed with "[//]") as "_"; [done.. |].
     wp_load.
-    wp_apply (clst_append_spec with "[//]") as "_"; [done.. |].
+    wp_apply (clst_app_spec with "[//]") as "_"; [done.. |].
     wp_store.
 
     iSteps. rewrite clist_app_Closed. erewrite clist_app_closed; done.
