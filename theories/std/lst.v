@@ -144,9 +144,12 @@ Definition lst_size : val :=
   λ: "t",
     lst_foldl "t" #0 (λ: "acc" <>, #1 + "acc").
 
+Definition lst_rev_app : val :=
+  λ: "t1" "t2",
+    lst_foldl "t1" "t2" (λ: "acc" "v", ‘Cons{ "v", "acc" }).
 Definition lst_rev : val :=
   λ: "t",
-    lst_foldl "t" §Nil (λ: "acc" "v", ‘Cons{ "v", "acc" }).
+    lst_rev_app "t" §Nil.
 
 Definition lst_app : val :=
   λ: "t1" "t2",
@@ -820,6 +823,26 @@ Section zebre_G.
     iSteps. rewrite app_length. iSteps.
   Qed.
 
+  Lemma lst_rev_app_spec t1 vs1 t2 vs2 :
+    {{{
+      lst_model t1 vs1 ∗
+      lst_model t2 vs2
+    }}}
+      lst_rev_app t1 t2
+    {{{ t,
+      RET t;
+      lst_model t (reverse vs1 ++ vs2)
+    }}}.
+  Proof.
+    iIntros "%Φ (Ht1 & Ht2) HΦ".
+    wp_rec.
+    pose Ψ i vs acc : iProp Σ := (
+      lst_model acc (reverse vs ++ vs2)
+    )%I.
+    wp_smart_apply (lst_foldl_spec Ψ with "[$Ht1 $Ht2]"); last iSteps.
+    iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
+  Qed.
+
   Lemma lst_rev_spec t vs :
     {{{
       lst_model t vs
@@ -832,11 +855,8 @@ Section zebre_G.
   Proof.
     iIntros "%Φ Ht HΦ".
     wp_rec.
-    pose Ψ i vs' acc : iProp Σ := (
-      lst_model acc (reverse vs')
-    )%I.
-    wp_smart_apply (lst_foldl_spec Ψ with "[$Ht]"); last iSteps.
-    iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
+    wp_apply (lst_rev_app_spec _ _ _ [] with "[$Ht //]").
+    rewrite right_id //.
   Qed.
 
   Lemma lst_app_spec t1 vs1 t2 vs2 :
@@ -1368,6 +1388,7 @@ End zebre_G.
 #[global] Opaque lst_foldri.
 #[global] Opaque lst_foldr.
 #[global] Opaque lst_size.
+#[global] Opaque lst_rev_app.
 #[global] Opaque lst_rev.
 #[global] Opaque lst_app.
 #[global] Opaque lst_snoc.
