@@ -255,11 +255,9 @@ Definition mpsc_queue_pop_front : val :=
         | Open =>
             §None
         | _ as "back" =>
-            match: clst_rev_app "back" §Open with
-            | Cons "v" "front" =>
-                "t" <-{front} "front" ;;
-                ‘Some{ "v" }
-            end
+            let: ‘Cons "v" "front" := clst_rev_app "back" §Open in
+            "t" <-{front} "front" ;;
+            ‘Some{ "v" }
         end
     end.
 
