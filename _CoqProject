@@ -99,6 +99,7 @@ theories/saturn/treiber_stack.v
 theories/saturn/spsc_queue.v
 theories/saturn/mpsc_queue_1.v
 theories/saturn/mpsc_queue_2.v
+theories/saturn/mpmc_queue.v
 theories/saturn/inf_cl_deque.v
 
 theories/eio/base.v
