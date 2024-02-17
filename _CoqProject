@@ -92,6 +92,10 @@ theories/persistent/base.v
 theories/persistent/pstack.v
 theories/persistent/pqueue.v
 theories/persistent/parray.v
+theories/persistent/pstore_1.v
+theories/persistent/pstore_2.v
+
+theories/store.v
 
 theories/saturn/base.v
 theories/saturn/bag.v
@@ -104,7 +108,3 @@ theories/saturn/inf_cl_deque.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
-
-theories/store.v
-theories/persistent/pstore_1.v
-theories/persistent/pstore_2.v
