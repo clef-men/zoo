@@ -974,7 +974,7 @@ Section pstore_G.
   Qed.
 
   Definition fsts  (ys:list (loc*(loc*val)*loc)) : list val :=
-    (fun '(x,_,_) => ValLiteral (LiteralLoc x)) <$> ys.
+    (fun '(x,_,_) => ValLoc x) <$> ys.
 
   Lemma pstore_collect_spec_aux (r r':loc) t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
     lst_model' t' xs ->

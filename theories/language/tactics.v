@@ -21,19 +21,19 @@ Ltac reshape_expr e tac :=
             fail
         end
     | App ?e1 (Val ?v2) =>
-        add_ectxi (CtxAppL v2) K pvs e1
+        add_ectxi (CtxApp1 v2) K pvs e1
     | App ?e1 ?e2 =>
-        add_ectxi (CtxAppR e1) K pvs e2
+        add_ectxi (CtxApp2 e1) K pvs e2
     | Unop ?op ?e =>
         add_ectxi (CtxUnop op) K pvs e
     | Binop ?op ?e1 (Val ?v2) =>
-        add_ectxi (CtxBinopL op v2) K pvs e1
+        add_ectxi (CtxBinop1 op v2) K pvs e1
     | Binop ?op ?e1 ?e2 =>
-        add_ectxi (CtxBinopR op e1) K pvs e2
+        add_ectxi (CtxBinop2 op e1) K pvs e2
     | Equal ?e1 (Val ?v2) =>
-        add_ectxi (CtxEqualL v2) K pvs e1
+        add_ectxi (CtxEqual1 v2) K pvs e1
     | Equal ?e1 ?e2 =>
-        add_ectxi (CtxEqualR e1) K pvs e2
+        add_ectxi (CtxEqual2 e1) K pvs e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K pvs e0
     | Constr ?tag ?es =>
@@ -42,38 +42,42 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxProj i) K pvs e
     | Case ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxCase x e1 brs) K pvs e0
+    | For (Val ?v1) ?e2 ?e3 =>
+        add_ectxi (CtxFor2 v1 e3) K pvs e2
+    | For ?e1 ?e2 ?e3 =>
+        add_ectxi (CtxFor1 e2 e3) K pvs e1
     | Record ?es =>
         go_list K pvs CtxRecord es
     | Alloc ?e1 (Val ?v2) =>
-        add_ectxi (CtxAllocL v2) K pvs e1
+        add_ectxi (CtxAlloc1 v2) K pvs e1
     | Alloc ?e1 ?e2 =>
-        add_ectxi (CtxAllocR e1) K pvs e2
+        add_ectxi (CtxAlloc2 e1) K pvs e2
     | Load ?e =>
         add_ectxi CtxLoad K pvs e
     | Store ?e1 (Val ?v2) =>
-        add_ectxi (CtxStoreL v2) K pvs e1
+        add_ectxi (CtxStore1 v2) K pvs e1
     | Store ?e1 ?e2 =>
-        add_ectxi (CtxStoreR e1) K pvs e2
+        add_ectxi (CtxStore2 e1) K pvs e2
     | Xchg ?e1 (Val ?v2) =>
-        add_ectxi (CtxXchgL v2) K pvs e1
+        add_ectxi (CtxXchg1 v2) K pvs e1
     | Xchg ?e1 ?e2 =>
-        add_ectxi (CtxXchgR e1) K pvs e2
+        add_ectxi (CtxXchg2 e1) K pvs e2
     | Cas ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxCasL v1 v2) K pvs e0
+        add_ectxi (CtxCas0 v1 v2) K pvs e0
     | Cas ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxCasM e0 v2) K pvs e1
+        add_ectxi (CtxCas1 e0 v2) K pvs e1
     | Cas ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxCasR e0 e1) K pvs e2
+        add_ectxi (CtxCas2 e0 e1) K pvs e2
     | Faa ?e1 (Val ?v2) =>
-        add_ectxi (CtxFaaL v2) K pvs e1
+        add_ectxi (CtxFaa1 v2) K pvs e1
     | Faa ?e1 ?e2 =>
-        add_ectxi (CtxFaaR e1) K pvs e2
+        add_ectxi (CtxFaa2 e1) K pvs e2
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
         go K (cons (v1, v2) pvs) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxResolveM e0 v2) K pvs e1
+        add_ectxi (CtxResolve1 e0 v2) K pvs e1
     | Resolve ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxResolveR e0 e1) K pvs e2
+        add_ectxi (CtxResolve2 e0 e1) K pvs e2
     end
   with go_list K pvs ctx es :=
     go_list' K pvs ctx (@nil val) es
@@ -104,7 +108,7 @@ Ltac reshape_expr e tac :=
     | nil =>
         go (cons k K) (@nil (val * val)) e
     | cons (?v1, ?v2) ?pvs =>
-        add_ectxi (CtxResolveL k v1 v2) K pvs e
+        add_ectxi (CtxResolve0 k v1 v2) K pvs e
     end
   in
   go (@nil ectxi) (@nil (val * val)) e.

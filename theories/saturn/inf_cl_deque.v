@@ -61,7 +61,7 @@ Implicit Types priv : nat → val.
     nat * identifier ;
   typed_prophet_spec_of_val v :=
     match v with
-    | ValTuple [ValLiteral (LiteralInt front); ValLiteral (LiteralProphecy id)] =>
+    | ValTuple [ValInt front; ValProphecy id] =>
         Some (Z.to_nat front, id)
     | _ =>
         None

@@ -117,8 +117,8 @@ Definition val_eq v1 v2 :=
       end
   | ValConstr tag1 [] =>
       match v2 with
-      | ValLiteral (LiteralBool _)
-      | ValLiteral (LiteralInt _) =>
+      | ValBool _
+      | ValInt _ =>
           True
       | ValConstr tag2 [] =>
           tag1.2 = tag2.2
@@ -154,10 +154,10 @@ Qed.
 
 Definition unop_eval op v :=
   match op, v with
-  | UnopNeg, ValLiteral (LiteralBool b) =>
-      Some $ ValLiteral $ LiteralBool (negb b)
-  | UnopMinus, ValLiteral (LiteralInt n) =>
-      Some $ ValLiteral $ LiteralInt (- n)
+  | UnopNeg, ValBool b =>
+      Some $ ValBool (negb b)
+  | UnopMinus, ValInt n =>
+      Some $ ValInt (- n)
   | _, _ =>
       None
   end.
@@ -189,11 +189,11 @@ Definition binop_eval_int op n1 n2 :=
 #[global] Arguments binop_eval_int !_ _ _ / : assert.
 Definition binop_eval op v1 v2 :=
   match v1, v2 with
-  | ValLiteral (LiteralInt n1), ValLiteral (LiteralInt n2) =>
+  | ValInt n1, ValInt n2 =>
       ValLiteral <$> binop_eval_int op n1 n2
-  | ValLiteral (LiteralLoc l), ValLiteral (LiteralInt n) =>
+  | ValLoc l, ValInt n =>
       if decide (op = BinopOffset) then
-        Some $ ValLiteral $ LiteralLoc (l +ₗ n)
+        Some $ ValLoc (l +ₗ n)
       else
         None
   | _, _ =>
@@ -211,12 +211,12 @@ Fixpoint subst (x : string) v e :=
       else
         Var y
   | Rec f y e =>
-     Rec f y
-       ( if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
-           subst x v e
-         else
-           e
-       )
+      Rec f y
+        ( if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
+            subst x v e
+          else
+            e
+        )
   | App e1 e2 =>
       App
         (subst x v e1)
@@ -260,6 +260,11 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
+  | For e1 e2 e3 =>
+      For
+        (subst x v e1)
+        (subst x v e2)
+        (subst x v e3)
   | Record es =>
       Record
         (subst x v <$> es)
@@ -454,7 +459,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Equal (Val v1) (Val v2))
         σ
         []
-        (Val $ ValLiteral $ LiteralBool false)
+        (Val $ ValBool false)
         σ
         []
   | base_step_equal_suc v1 v2 σ :
@@ -464,12 +469,12 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Equal (Val v1) (Val v2))
         σ
         []
-        (Val $ ValLiteral $ LiteralBool true)
+        (Val $ ValBool true)
         σ
         []
   | base_step_if_true e1 e2 σ :
       base_step
-        (If (Val $ ValLiteral $ LiteralBool true) e1 e2)
+        (If (Val $ ValBool true) e1 e2)
         σ
         []
         e1
@@ -477,7 +482,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_if_false e1 e2 σ :
       base_step
-        (If (Val $ ValLiteral $ LiteralBool false) e1 e2)
+        (If (Val $ ValBool false) e1 e2)
         σ
         []
         e2
@@ -509,6 +514,14 @@ Inductive base_step : expr → state → list observation → expr → state →
         (case_apply tag vs x e brs)
         σ
         []
+  | base_step_for n1 n2 e σ :
+      base_step
+        (For (Val $ ValInt n1) (Val $ ValInt n2) e)
+        σ
+        []
+        (if decide (n2 ≤ n1)%Z then Val ValUnit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
+        σ
+        []
   | base_step_record es vs σ l :
       0 < length es →
       es = of_vals vs →
@@ -520,7 +533,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Record es)
         σ
         []
-        (Val $ ValLiteral $ LiteralLoc l)
+        (Val $ ValLoc l)
         (state_init_heap l vs σ)
         []
   | base_step_alloc n v σ l :
@@ -530,16 +543,16 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
-        (Alloc (Val $ ValLiteral $ LiteralInt n) (Val v))
+        (Alloc (Val $ ValInt n) (Val v))
         σ
         []
-        (Val $ ValLiteral $ LiteralLoc l)
+        (Val $ ValLoc l)
         (state_init_heap l (replicate (Z.to_nat n) v) σ)
         []
   | base_step_load l v σ :
       σ.(state_heap) !! l = Some v →
       base_step
-        (Load $ Val $ ValLiteral $ LiteralLoc l)
+        (Load $ Val $ ValLoc l)
         σ
         []
         (Val v)
@@ -548,7 +561,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_store l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
-        (Store (Val $ ValLiteral $ LiteralLoc l) (Val v))
+        (Store (Val $ ValLoc l) (Val v))
         σ
         []
         (Val ValUnit)
@@ -557,7 +570,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_xchg l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
-        (Xchg (Val $ ValLiteral $ LiteralLoc l) (Val v))
+        (Xchg (Val $ ValLoc l) (Val v))
         σ
         []
         (Val w)
@@ -569,10 +582,10 @@ Inductive base_step : expr → state → list observation → expr → state →
       val_physical v1 →
       val_neq v v1 →
       base_step
-        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
+        (Cas (Val $ ValLoc l) (Val v1) (Val v2))
         σ
         []
-        (Val $ ValLiteral $ LiteralBool false)
+        (Val $ ValBool false)
         σ
         []
   | base_step_cas_suc l v1 v2 v σ :
@@ -580,20 +593,20 @@ Inductive base_step : expr → state → list observation → expr → state →
       val_physical v →
       val_eq v v1 →
       base_step
-        (Cas (Val $ ValLiteral $ LiteralLoc l) (Val v1) (Val v2))
+        (Cas (Val $ ValLoc l) (Val v1) (Val v2))
         σ
         []
-        (Val $ ValLiteral $ LiteralBool true)
+        (Val $ ValBool true)
         (state_update_heap <[l := v2]> σ)
         []
   | base_step_faa l n m σ :
-      σ.(state_heap) !! l = Some $ ValLiteral $ LiteralInt m →
+      σ.(state_heap) !! l = Some $ ValInt m →
       base_step
-        (Faa (Val $ ValLiteral $ LiteralLoc l) (Val $ ValLiteral $ LiteralInt n))
+        (Faa (Val $ ValLoc l) (Val $ ValInt n))
         σ
         []
-        (Val $ ValLiteral $ LiteralInt m)
-        (state_update_heap <[l := ValLiteral $ LiteralInt (m + n)]> σ)
+        (Val $ ValInt m)
+        (state_update_heap <[l := ValInt (m + n)]> σ)
         []
   | base_step_fork e σ :
       base_step
@@ -609,13 +622,13 @@ Inductive base_step : expr → state → list observation → expr → state →
         Proph
         σ
         []
-        (Val $ ValLiteral $ LiteralProphecy p)
+        (Val $ ValProphecy p)
         (state_update_prophs ({[p]} ∪.) σ)
         []
   | base_step_resolve e p v σ κ w σ' es :
       base_step e σ κ (Val w) σ' es →
       base_step
-        (Resolve e (Val $ ValLiteral $ LiteralProphecy p) (Val v))
+        (Resolve e (Val $ ValProphecy p) (Val v))
         σ
         (κ ++ [(p, (w, v))])
         (Val w)
@@ -630,7 +643,7 @@ Lemma base_step_record' es vs σ :
     (Record es)
     σ
     []
-    (Val $ ValLiteral $ LiteralLoc l)
+    (Val $ ValLoc l)
     (state_init_heap l vs σ)
     [].
 Proof.
@@ -641,10 +654,10 @@ Lemma base_step_alloc' v n σ :
   let l := loc_fresh (dom σ.(state_heap)) in
   (0 < n)%Z →
   base_step
-    (Alloc ((Val $ ValLiteral $ LiteralInt $ n)) (Val v))
+    (Alloc ((Val $ ValInt n)) (Val v))
     σ
     []
-    (Val $ ValLiteral $ LiteralLoc l)
+    (Val $ ValLoc l)
     (state_init_heap l (replicate (Z.to_nat n) v) σ)
     [].
 Proof.
@@ -657,7 +670,7 @@ Lemma base_step_proph' σ :
     Proph
     σ
     []
-    (Val $ ValLiteral $ LiteralProphecy p)
+    (Val $ ValProphecy p)
     (state_update_prophs ({[p]} ∪.) σ)
     [].
 Proof.
@@ -672,50 +685,62 @@ Proof.
 Qed.
 
 Inductive ectxi :=
-  | CtxAppL v2
-  | CtxAppR e1
+  | CtxApp1 v2
+  | CtxApp2 e1
   | CtxUnop (op : unop)
-  | CtxBinopL (op : binop) v2
-  | CtxBinopR (op : binop) e1
-  | CtxEqualL v2
-  | CtxEqualR e1
+  | CtxBinop1 (op : binop) v2
+  | CtxBinop2 (op : binop) e1
+  | CtxEqual1 v2
+  | CtxEqual2 e1
   | CtxIf e1 e2
   | CtxConstr tag vs es
   | CtxProj (i : nat)
   | CtxCase x e1 brs
+  | CtxFor1 e2 e3
+  | CtxFor2 v1 e3
   | CtxRecord vs es
-  | CtxAllocL v2
-  | CtxAllocR e1
+  | CtxAlloc1 v2
+  | CtxAlloc2 e1
   | CtxLoad
-  | CtxStoreL v2
-  | CtxStoreR e1
-  | CtxXchgL v2
-  | CtxXchgR e1
-  | CtxCasL v1 v2
-  | CtxCasM e0 v2
-  | CtxCasR e0 e1
-  | CtxFaaL v2
-  | CtxFaaR e1
-  | CtxResolveL (k : ectxi) v1 v2
-  | CtxResolveM e0 v2
-  | CtxResolveR e0 e1.
+  | CtxStore1 v2
+  | CtxStore2 e1
+  | CtxXchg1 v2
+  | CtxXchg2 e1
+  | CtxCas0 v1 v2
+  | CtxCas1 e0 v2
+  | CtxCas2 e0 e1
+  | CtxFaa1 v2
+  | CtxFaa2 e1
+  | CtxResolve0 (k : ectxi) v1 v2
+  | CtxResolve1 e0 v2
+  | CtxResolve2 e0 e1.
 Implicit Types k : ectxi.
+
+Notation CtxLet x e2 := (
+  CtxApp2 (ValLam x e2)
+)(only parsing
+).
+
+Notation CtxSeq e2 := (
+  CtxLet BAnon e2
+)(only parsing
+).
 
 Fixpoint ectxi_fill k e : expr :=
   match k with
-  | CtxAppL v2 =>
+  | CtxApp1 v2 =>
       App e $ Val v2
-  | CtxAppR e1 =>
+  | CtxApp2 e1 =>
       App e1 e
   | CtxUnop op =>
       Unop op e
-  | CtxBinopL op v2 =>
+  | CtxBinop1 op v2 =>
       Binop op e $ Val v2
-  | CtxBinopR op e1 =>
+  | CtxBinop2 op e1 =>
       Binop op e1 e
-  | CtxEqualL v2 =>
+  | CtxEqual1 v2 =>
       Equal e $ Val v2
-  | CtxEqualR e1 =>
+  | CtxEqual2 e1 =>
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
@@ -725,37 +750,41 @@ Fixpoint ectxi_fill k e : expr :=
       Proj i e
   | CtxCase x e1 brs =>
       Case e x e1 brs
+  | CtxFor1 e2 e3 =>
+      For e e2 e3
+  | CtxFor2 v1 e3 =>
+      For (Val v1) e e3
   | CtxRecord vs es =>
       Record $ of_vals vs ++ e :: es
-  | CtxAllocL v2 =>
+  | CtxAlloc1 v2 =>
       Alloc e $ Val v2
-  | CtxAllocR e1 =>
+  | CtxAlloc2 e1 =>
       Alloc e1 e
   | CtxLoad =>
       Load e
-  | CtxStoreL v2 =>
+  | CtxStore1 v2 =>
       Store e $ Val v2
-  | CtxStoreR e1 =>
+  | CtxStore2 e1 =>
       Store e1 e
-  | CtxXchgL v2 =>
+  | CtxXchg1 v2 =>
       Xchg e $ Val v2
-  | CtxXchgR e1 =>
+  | CtxXchg2 e1 =>
       Xchg e1 e
-  | CtxCasL v1 v2 =>
+  | CtxCas0 v1 v2 =>
       Cas e (Val v1) (Val v2)
-  | CtxCasM e0 v2 =>
+  | CtxCas1 e0 v2 =>
       Cas e0 e $ Val v2
-  | CtxCasR e0 e1 =>
+  | CtxCas2 e0 e1 =>
       Cas e0 e1 e
-  | CtxFaaL v2 =>
+  | CtxFaa1 v2 =>
       Faa e $ Val v2
-  | CtxFaaR e1 =>
+  | CtxFaa2 e1 =>
       Faa e1 e
-  | CtxResolveL k v1 v2 =>
+  | CtxResolve0 k v1 v2 =>
       Resolve (ectxi_fill k e) (Val v1) (Val v2)
-  | CtxResolveM e0 v2 =>
+  | CtxResolve1 e0 v2 =>
       Resolve e0 e $ Val v2
-  | CtxResolveR e0 e1 =>
+  | CtxResolve2 e0 e1 =>
       Resolve e0 e1 e
   end.
 #[global] Arguments ectxi_fill !_ _ / : assert.

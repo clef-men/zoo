@@ -23,7 +23,7 @@ Section basic.
   Qed.
 
   Definition itype_bool v : PROP :=
-    ∃ b, ⌜v = ValLiteral (LiteralBool b)⌝.
+    ∃ b, ⌜v = ValBool b⌝.
   #[global] Instance itype_bool_itype :
     iType _ itype_bool.
   Proof.
@@ -31,7 +31,7 @@ Section basic.
   Qed.
 
   Definition itype_int v : PROP :=
-    ∃ i, ⌜v = ValLiteral (LiteralInt i)⌝.
+    ∃ i, ⌜v = ValInt i⌝.
   #[global] Instance itype_int_itype :
     iType _ itype_int.
   Proof.
@@ -39,7 +39,7 @@ Section basic.
   Qed.
 
   Definition itype_refined_int ϕ v : PROP :=
-    ∃ i, ⌜v = ValLiteral (LiteralInt i) ∧ ϕ i⌝.
+    ∃ i, ⌜v = ValInt i ∧ ϕ i⌝.
   #[global] Instance itype_refined_int_itype ϕ :
     iType _ (itype_refined_int ϕ).
   Proof.
@@ -50,7 +50,7 @@ Section basic.
     itype_refined_int (λ i, (lb ≤ i < ub)%Z).
 
   Definition itype_nat v : PROP :=
-    ∃ i, ⌜v = ValLiteral (LiteralInt (Z.of_nat i))⌝.
+    ∃ i, ⌜v = ValInt (Z.of_nat i)⌝.
   #[global] Instance itype_nat_itype :
     iType _ itype_nat.
   Proof.
@@ -58,7 +58,7 @@ Section basic.
   Qed.
 
   Definition itype_refined_nat ϕ v : PROP :=
-    ∃ i, ⌜v = ValLiteral (LiteralInt (Z.of_nat i)) ∧ ϕ i⌝.
+    ∃ i, ⌜v = ValInt (Z.of_nat i) ∧ ϕ i⌝.
   #[global] Instance itype_refined_nat_itype ϕ :
     iType _ (itype_refined_nat ϕ).
   Proof.

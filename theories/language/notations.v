@@ -17,37 +17,6 @@ Coercion App : expr >-> Funclass.
 Bind Scope expr_scope with expr.
 Bind Scope val_scope with val.
 
-Notation Fail := (
-  App (Val ValUnit) (Val ValUnit)
-).
-
-Notation Lam x e := (
-  Rec BAnon x e
-)(only parsing
-).
-Notation ValLam x e := (
-  ValRec BAnon x e
-)(only parsing
-).
-
-Notation Let x e1 e2 := (
-  App (Lam x e2) e1
-)(only parsing
-).
-Notation CtxLet x e2 := (
-  CtxAppR (ValLam x e2)
-)(only parsing
-).
-
-Notation Seq e1 e2 := (
-  Let BAnon e1 e2
-)(only parsing
-).
-Notation CtxSeq e2 := (
-  CtxLet BAnon e2
-)(only parsing
-).
-
 Notation "# l" := (
   ValLiteral l%Z%V%stdpp
 )(at level 8,
@@ -201,7 +170,7 @@ Notation "e1 +ₗ e2" := (
   left associativity
 ) : expr_scope.
 Notation "e .[ fld ]" := (
-  Binop BinopOffset e%E (Val (ValLiteral (LiteralInt (Z.of_nat fld))))
+  Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld)))
 )(at level 2,
   fld custom zebre_field
 ) : expr_scope.
@@ -216,13 +185,13 @@ Notation "e1 ≠ e2" := (
   no associativity
 ) : expr_scope.
 Notation "e1 && e2" := (
-  If e1%E e2%E (ValLiteral (LiteralBool false))
+  If e1%E e2%E (ValBool false)
 )(at level 40,
   left associativity,
   only parsing
 ) : expr_scope.
 Notation "e1 || e2" := (
-  If e1%E (ValLiteral (LiteralBool true)) e2%E
+  If e1%E (ValBool true) e2%E
 )(at level 50,
   left associativity,
   only parsing
@@ -506,6 +475,13 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   format "'[' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 
+Notation "'for:' x = e1 'to' e2 'begin' e3 'end'" := (
+  For e1%E e2%E (Lam x%binder e3%E)
+)(x at level 1,
+  e1, e2, e3 at level 200,
+  format "'[v' for:  x  =  e1  to  e2  begin  '/  ' '[' e3 ']'  '/' end ']'"
+) : expr_scope.
+
 Notation "{ e1 ; .. ; en }" := (
   Record (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(e1, en at level 200,
@@ -513,7 +489,7 @@ Notation "{ e1 ; .. ; en }" := (
 ) : expr_scope.
 
 Notation "'ref' e" := (
-  Alloc (Val (ValLiteral (LiteralInt 1))) e
+  Alloc (Val (ValInt 1)) e
 )(at level 10
 ) : expr_scope.
 
@@ -524,7 +500,7 @@ Notation "! e" := (
   format "! e"
 ) : expr_scope.
 Notation "e .{ fld }" := (
-  Load (Binop BinopOffset e%E (Val (ValLiteral (LiteralInt (Z.of_nat fld)))))
+  Load (Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld))))
 )(at level 2,
   fld custom zebre_field,
   format "e .{ fld }"
@@ -535,7 +511,7 @@ Notation "e1 <- e2" := (
 )(at level 80
 ) : expr_scope.
 Notation "e1 <-{ fld } e2" := (
-  Store (Binop BinopOffset e1%E (Val (ValLiteral (LiteralInt (Z.of_nat fld))))) e2%E
+  Store (Binop BinopOffset e1%E (Val (ValInt (Z.of_nat fld)))) e2%E
 )(at level 80,
   fld custom zebre_field,
   format "e1  <-{ fld }  e2"

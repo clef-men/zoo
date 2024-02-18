@@ -59,12 +59,12 @@ Section atomic.
   Qed.
 
   #[global] Instance if_true_atomic a v1 e2 :
-    Atomic a (If (Val $ ValLiteral $ LiteralBool true) (Val v1) e2).
+    Atomic a (If (Val $ ValBool true) (Val v1) e2).
   Proof.
     solve_atomic.
   Qed.
   #[global] Instance if_false_atomic a e1 v2 :
-    Atomic a (If (Val $ ValLiteral $ LiteralBool false) e1 (Val v2)).
+    Atomic a (If (Val $ ValBool false) e1 (Val v2)).
   Proof.
     solve_atomic.
   Qed.
@@ -210,8 +210,8 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValLiteral $ LiteralBool b1) (Val $ ValLiteral $ LiteralBool b2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (b1 = b2)).
+      (Equal (Val $ ValBool b1) (Val $ ValBool b2))
+      (Val $ ValBool (bool_decide (b1 = b2))).
   Proof.
     solve_pure_exec.
   Qed.
@@ -219,8 +219,8 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValLiteral $ LiteralInt i1) (Val $ ValLiteral $ LiteralInt i2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (i1 = i2)).
+      (Equal (Val $ ValInt i1) (Val $ ValInt i2))
+      (Val $ ValBool (bool_decide (i1 = i2))).
   Proof.
     solve_pure_exec.
   Qed.
@@ -228,8 +228,8 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValLiteral $ LiteralLoc l1) (Val $ ValLiteral $ LiteralLoc l2))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (l1 = l2)).
+      (Equal (Val $ ValLoc l1) (Val $ ValLoc l2))
+      (Val $ ValBool (bool_decide (l1 = l2))).
   Proof.
     solve_pure_exec.
   Qed.
@@ -237,8 +237,8 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValLiteral $ LiteralLoc l) (Val $ ValUnit))
-      (Val $ ValLiteral $ LiteralBool false).
+      (Equal (Val $ ValLoc l) (Val $ ValUnit))
+      (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
@@ -246,8 +246,8 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValUnit) (Val $ ValLiteral $ LiteralLoc l))
-      (Val $ ValLiteral $ LiteralBool false).
+      (Equal (Val $ ValUnit) (Val $ ValLoc l))
+      (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
@@ -256,7 +256,7 @@ Section pure_exec.
       True
       1
       (Equal (Val $ ValUnit) (Val $ ValUnit))
-      (Val $ ValLiteral $ LiteralBool true).
+      (Val $ ValBool true).
   Proof.
     solve_pure_exec.
   Qed.
@@ -265,7 +265,7 @@ Section pure_exec.
       True
       1
       (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 []))
-      (Val $ ValLiteral $ LiteralBool $ bool_decide (tag1.2 = tag2.2)).
+      (Val $ ValBool (bool_decide (tag1.2 = tag2.2))).
   Proof.
     solve_pure_exec.
   Qed.
@@ -274,7 +274,7 @@ Section pure_exec.
       True
       1
       (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 (v2 :: vs2)))
-      (Val $ ValLiteral $ LiteralBool false).
+      (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
@@ -283,7 +283,7 @@ Section pure_exec.
       True
       1
       (Equal (Val $ ValConstr tag1 (v1 :: vs1)) (Val $ ValConstr tag2 []))
-      (Val $ ValLiteral $ LiteralBool false).
+      (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
@@ -292,7 +292,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (If (Val $ ValLiteral $ LiteralBool true) e1 e2)
+      (If (Val $ ValBool true) e1 e2)
       e1.
   Proof.
     solve_pure_exec.
@@ -301,7 +301,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (If (Val $ ValLiteral  $ LiteralBool false) e1 e2)
+      (If (Val $ ValBool false) e1 e2)
       e2.
   Proof.
     solve_pure_exec.
@@ -333,6 +333,16 @@ Section pure_exec.
       1
       (Case (Val $ ValConstr tag vs) x e brs)
       (case_apply tag vs x e brs).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  Lemma pure_for n1 n2 e :
+    PureExec
+      True
+      1
+      (For (Val $ ValInt n1) (Val $ ValInt n2) e)
+      (if decide (n2 ≤ n1)%Z then Val ValUnit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
   Proof.
     solve_pure_exec.
   Qed.

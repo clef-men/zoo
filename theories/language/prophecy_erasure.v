@@ -746,9 +746,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_resolve e w σ :
   (∃ e2' σ2' ef', prim_step (erase_expr e) (erase_state σ) [] e2' σ2' ef') →
-  ∃ e2' σ2' ef',
-    prim_step (erase_resolve (erase_expr e) #LitPoison (erase_val w))
-              (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (erase_resolve (erase_expr e) #LitPoison (erase_val w)) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   intros (?&?&?&?).
   by eexists _, _, _;
@@ -757,7 +756,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_un_op σ op v v':
   un_op_eval op v = Some v' →
-  ∃ e2' σ2' ef', prim_step (Unop op (erase_val v)) (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (Unop op (erase_val v)) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   do 3 eexists; apply base_prim_step; econstructor.
   apply un_op_eval_erase; eauto.
@@ -765,8 +765,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_bin_op σ op v1 v2 v':
   bin_op_eval op v1 v2 = Some v' →
-  ∃ e2' σ2' ef', prim_step (Binop op (erase_val v1) (erase_val v2))
-                           (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (Binop op (erase_val v1) (erase_val v2)) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   do 3 eexists; apply base_prim_step; econstructor.
   apply bin_op_eval_erase; eauto.
@@ -775,7 +775,7 @@ Qed.
 Lemma base_step_erased_prim_step_allocN σ l n v:
   (0 < n)%Z →
   (∀ i : Z, (0 ≤ i)%Z → (i < n)%Z → heap σ !! (l +ₗ i) = None) →
-  ∃ e2' σ2' ef',
+    ∃ e2' σ2' ef',
     prim_step (AllocN #n (erase_val v)) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   do 3 eexists; apply base_prim_step; econstructor; eauto.
@@ -784,7 +784,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_free σ l v :
   heap σ !! l = Some (Some v) →
-  ∃ e2' σ2' ef', prim_step (Free #l) (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (Free #l) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   intros Hw. do 3 eexists; apply base_prim_step; econstructor.
   rewrite /erase_state /state_upd_heap /= lookup_erase_heap Hw; eauto.
@@ -792,7 +793,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_load σ l v:
   heap σ !! l = Some (Some v) →
-  ∃ e2' σ2' ef', prim_step (! #l) (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (! #l) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   do 3 eexists; apply base_prim_step; econstructor.
   rewrite /erase_state /state_upd_heap /= lookup_erase_heap.
@@ -801,7 +803,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_xchg σ l v w :
   heap σ !! l = Some (Some v) →
-  ∃ e2' σ2' ef', prim_step (Xchg #l (erase_val w)) (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (Xchg #l (erase_val w)) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   intros Hl. do 3 eexists; apply base_prim_step; econstructor.
   rewrite /erase_state /state_upd_heap /= lookup_erase_heap Hl; eauto.
@@ -809,7 +812,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_store σ l v w :
   heap σ !! l = Some (Some v) →
-  ∃ e2' σ2' ef', prim_step (#l <- erase_val w) (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (#l <- erase_val w) (erase_state σ) [] e2' σ2' ef'.
 Proof.
   intros Hw. do 3 eexists; apply base_prim_step; econstructor.
   rewrite /erase_state /state_upd_heap /= lookup_erase_heap Hw; eauto.
@@ -817,7 +821,8 @@ Qed.
 
 Lemma base_step_erased_prim_step_FAA σ l n n':
   heap σ !! l = Some (Some #n) →
-  ∃ e2' σ2' ef', prim_step (FAA #l #n') (erase_state σ) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (FAA #l #n') (erase_state σ) [] e2' σ2' ef'.
 Proof.
   intros Hl.
   do 3 eexists; apply base_prim_step. econstructor.
@@ -831,7 +836,8 @@ prim step inside the triple.
 *)
 Lemma base_step_erased_prim_step e1 σ1 κ e2 σ2 ef:
   base_step e1 σ1 κ e2 σ2 ef →
-  ∃ e2' σ2' ef', prim_step (erase_expr e1) (erase_state σ1) [] e2' σ2' ef'.
+    ∃ e2' σ2' ef',
+    prim_step (erase_expr e1) (erase_state σ1) [] e2' σ2' ef'.
 Proof.
   induction 1; simplify_eq/=;
     eauto using base_step_erased_prim_step_Cas,
@@ -848,7 +854,8 @@ Proof.
 Qed.
 
 Lemma reducible_erased_reducible e σ :
-  reducible e σ → reducible (erase_expr e) (erase_state σ).
+  reducible e σ →
+  reducible (erase_expr e) (erase_state σ).
 Proof.
   intros (?&?&?&?&Hpstp); simpl in *.
   inversion Hpstp; simplify_eq/=.
@@ -858,7 +865,8 @@ Proof.
 Qed.
 
 Lemma pure_step_tp_safe t1 t2 e1 σ :
-  (∀ e2, e2 ∈ t2 → not_stuck e2 σ) → pure_steps_tp t1 (erase_tp t2) →
+  (∀ e2, e2 ∈ t2 → not_stuck e2 σ) →
+  pure_steps_tp t1 (erase_tp t2) →
   e1 ∈ t1 → not_stuck e1 (erase_state σ).
 Proof.
   intros Ht2 Hpr [i He1]%elem_of_list_lookup_1.

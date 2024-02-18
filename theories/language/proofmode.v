@@ -397,10 +397,26 @@ Tactic Notation "wp_pures" "credit:" constr(H) :=
   wp_pure credit:H;
   wp_pures.
 
-Ltac wp_rec :=
+Tactic Notation "wp_rec" :=
   let H := fresh in
   assert (H := ValRec_as_ValRec);
   wp_pure (App _ _);
+  clear H.
+Tactic Notation "wp_rec" "credit:" constr(Hcredit) :=
+  let H := fresh in
+  assert (H := ValRec_as_ValRec);
+  wp_pure (App _ _) credit:Hcredit;
+  clear H.
+
+Tactic Notation "wp_for" :=
+  let H := fresh in
+  assert (H := pure_for);
+  wp_pure (For _ _ _);
+  clear H.
+Tactic Notation "wp_for" "credit:" constr(Hcredit) :=
+  let H := fresh in
+  assert (H := pure_for);
+  wp_pure (For _ _ _) credit:Hcredit;
   clear H.
 
 Ltac wp_bind_core K :=

@@ -173,6 +173,7 @@ Inductive expr :=
   | Constr tag (es : list expr)
   | Proj i (e : expr)
   | Case (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
+  | For (e1 e2 e3 : expr)
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
@@ -273,6 +274,11 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
     P (Case e0 x e1 brs).
+  Variable HFor :
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    ∀ e3, P e3 →
+    P (For e1 e2 e3).
   Variable HRecord :
     ∀ es, Forall P es →
     P (Record es).
@@ -352,6 +358,11 @@ Section expr_ind.
           x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
+    | For e1 e2 e3 =>
+        HFor
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+          e3 (expr_ind e3)
     | Record es =>
         HRecord
           es (Forall_true P es expr_ind)
@@ -397,6 +408,23 @@ Canonical valO :=
 Canonical exprO :=
   leibnizO expr.
 
+Notation ValBool b := (
+  ValLiteral (LiteralBool b)
+)(only parsing
+).
+Notation ValInt n := (
+  ValLiteral (LiteralInt n)
+)(only parsing
+).
+Notation ValLoc l := (
+  ValLiteral (LiteralLoc l)
+)(only parsing
+).
+Notation ValProphecy p := (
+  ValLiteral (LiteralProphecy p)
+)(only parsing
+).
+
 Notation Tuple := (
   Constr ("", 0)
 ).
@@ -405,6 +433,29 @@ Notation ValTuple := (
 ).
 Notation ValUnit := (
   ValTuple []
+).
+
+Notation Fail := (
+  App (Val ValUnit) (Val ValUnit)
+).
+
+Notation Lam x e := (
+  Rec BAnon x e
+)(only parsing
+).
+Notation ValLam x e := (
+  ValRec BAnon x e
+)(only parsing
+).
+
+Notation Let x e1 e2 := (
+  App (Lam x e2) e1
+)(only parsing
+).
+
+Notation Seq e1 e2 := (
+  Let BAnon e1 e2
+)(only parsing
 ).
 
 Notation of_val :=
@@ -556,6 +607,11 @@ Proof.
             (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
+      | For e11 e12 e13, For e21 e22 e23 =>
+          cast_if_and3
+            (decide (e11 = e21))
+            (decide (e12 = e22))
+            (decide (e13 = e23))
       | Record es1, Record es2 =>
           cast_if
             (decide (es1 = es2))
@@ -740,28 +796,30 @@ Proof.
     8.
   Notation tag_Case :=
     9.
-  Notation tag_branch :=
+  Notation tag_For :=
     10.
-  Notation tag_Record :=
+  Notation tag_branch :=
     11.
-  Notation tag_Alloc :=
+  Notation tag_Record :=
     12.
-  Notation tag_Load :=
+  Notation tag_Alloc :=
     13.
-  Notation tag_Store :=
+  Notation tag_Load :=
     14.
-  Notation tag_Xchg :=
+  Notation tag_Store :=
     15.
-  Notation tag_Cas :=
+  Notation tag_Xchg :=
     16.
-  Notation tag_Faa :=
+  Notation tag_Cas :=
     17.
-  Notation tag_Fork :=
+  Notation tag_Faa :=
     18.
-  Notation tag_Proph :=
+  Notation tag_Fork :=
     19.
-  Notation tag_Resolve :=
+  Notation tag_Proph :=
     20.
+  Notation tag_Resolve :=
+    21.
   Notation tag_ValRec :=
     0.
   Notation tag_ValConstr :=
@@ -796,6 +854,8 @@ Proof.
           GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
       | Case e0 x e1 brs =>
           GenNode tag_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
+      | For e1 e2 e3 =>
+          GenNode tag_For [go e1; go e2; go e3]
       | Record es =>
           GenNode tag_Record $ go_list es
       | Alloc e1 e2 =>
@@ -863,6 +923,8 @@ Proof.
           Proj i $ go e
       | GenNode tag_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Case (go e0) x (go e1) (go_branches brs)
+      | GenNode tag_For [e1; e2; e3] =>
+          For (go e1) (go e2) (go e3)
       | GenNode tag_Record es =>
           Record $ go_list es
       | GenNode tag_Alloc [e1; e2] =>
