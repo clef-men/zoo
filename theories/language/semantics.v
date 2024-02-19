@@ -519,7 +519,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
         σ
         []
-        (if decide (n2 ≤ n1)%Z then Val ValUnit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
+        (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
         σ
         []
   | base_step_record es vs σ l :
@@ -564,7 +564,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Store (Val $ ValLoc l) (Val v))
         σ
         []
-        (Val ValUnit)
+        Unit
         (state_update_heap <[l := v]> σ)
         []
   | base_step_xchg l v w σ :
@@ -613,7 +613,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Fork e)
         σ
         []
-        (Val ValUnit)
+        Unit
         σ
         [e]
   | base_step_proph σ p :

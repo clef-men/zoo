@@ -237,7 +237,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValLoc l) (Val $ ValUnit))
+      (Equal (Val $ ValLoc l) Unit)
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -246,7 +246,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValUnit) (Val $ ValLoc l))
+      (Equal Unit (Val $ ValLoc l))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -255,7 +255,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValUnit) (Val $ ValUnit))
+      (Equal Unit Unit)
       (Val $ ValBool true).
   Proof.
     solve_pure_exec.
@@ -342,7 +342,7 @@ Section pure_exec.
       True
       1
       (For (Val $ ValInt n1) (Val $ ValInt n2) e)
-      (if decide (n2 ≤ n1)%Z then Val ValUnit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
+      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
   Proof.
     solve_pure_exec.
   Qed.

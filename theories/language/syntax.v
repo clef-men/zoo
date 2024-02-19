@@ -431,12 +431,18 @@ Notation Tuple := (
 Notation ValTuple := (
   ValConstr ("", 0)
 ).
+
 Notation ValUnit := (
   ValTuple []
+)(only parsing
+).
+Notation Unit := (
+  Val ValUnit
+)(only parsing
 ).
 
 Notation Fail := (
-  App (Val ValUnit) (Val ValUnit)
+  App Unit Unit
 ).
 
 Notation Lam x e := (
@@ -896,7 +902,7 @@ Proof.
         | GenNode tag_branch [GenLeaf (EncodePattern pat); e] =>
             (pat, go e)
         | _ =>
-            (@inhabitant _ pattern_inhabited, Val ValUnit)
+            (@inhabitant _ pattern_inhabited, Unit)
         end
       in
       let go_branches := map go_branch in

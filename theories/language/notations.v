@@ -212,13 +212,13 @@ Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
   format "'[hv' if:  e0  then  ( '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
 ) : expr_scope.
 Notation "'if:' e0 'then' e1" := (
-  If e0%E e1%E (Val ValUnit)
+  If e0%E e1%E Unit
 )(at level 1,
   e0, e1 at level 200,
   only parsing
 ) : expr_scope.
 Notation "'ifnot:' e0 'then' e2" := (
-  If e0%E (Val ValUnit) e2%E
+  If e0%E Unit e2%E
 )(at level 1,
   e0, e2 at level 200,
   only parsing
@@ -255,7 +255,7 @@ Notation "( v1 , v2 , .. , vn )" := (
 )(at level 0
 ) : val_scope.
 Notation "()" := (
-  Val ValUnit
+  Unit
 ) : expr_scope.
 Notation "()" :=
   ValUnit
