@@ -69,8 +69,8 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic a i tag vs :
-    Atomic a (Proj i $ Val $ ValConstr tag vs).
+  #[global] Instance proj_atomic a proj tag vs :
+    Atomic a (Proj proj $ Val $ ValConstr tag vs).
   Proof.
     solve_atomic.
   Qed.
@@ -318,11 +318,11 @@ Section pure_exec.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_proj i tag vs v :
+  #[global] Instance pure_proj proj tag vs v :
     PureExec
-      (vs !! i = Some v)
+      (vs !! proj.2 = Some v)
       1
-      (Proj i $ Val $ ValConstr tag vs)
+      (Proj proj $ Val $ ValConstr tag vs)
       (Val v).
   Proof.
     solve_pure_exec.

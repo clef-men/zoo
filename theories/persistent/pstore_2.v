@@ -25,11 +25,11 @@ Implicit Types v t s : val.
 Implicit Types σ : gmap loc val.
 
 #[local] Notation "'snap_store'" :=
-  0
+  ("snap", 0)
 ( in custom zebre_proj
 ).
 #[local] Notation "'snap_root'" :=
-  1
+  ("snap", 1)
 ( in custom zebre_proj
 ).
 

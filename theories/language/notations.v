@@ -169,11 +169,6 @@ Notation "e1 +ₗ e2" := (
 )(at level 50,
   left associativity
 ) : expr_scope.
-Notation "e .[ fld ]" := (
-  Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld)))
-)(at level 2,
-  fld custom zebre_field
-) : expr_scope.
 Notation "e1 = e2" := (
   Equal e1%E e2%E
 )(at level 70,
@@ -195,6 +190,19 @@ Notation "e1 || e2" := (
 )(at level 50,
   left associativity,
   only parsing
+) : expr_scope.
+
+Declare Custom Entry zebre_field.
+Notation "l .[ fld ]" := (
+  loc_add l (Z.of_nat fld)
+)(at level 2,
+  fld custom zebre_field,
+  format "l .[ fld ]"
+) : stdpp_scope.
+Notation "e .[ fld ]" := (
+  Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld)))
+)(at level 2,
+  fld custom zebre_field
 ) : expr_scope.
 
 Notation "'if:' e0 'then' e1 'else' e2" := (
@@ -263,43 +271,43 @@ Notation "()" :=
 
 Declare Custom Entry zebre_proj.
 Notation "0" :=
-  0
+  ("", 0)
 ( in custom zebre_proj
 ).
 Notation "1" :=
-  1
+  ("", 1)
 ( in custom zebre_proj
 ).
 Notation "2" :=
-  2
+  ("", 2)
 ( in custom zebre_proj
 ).
 Notation "3" :=
-  3
+  ("", 3)
 ( in custom zebre_proj
 ).
 Notation "4" :=
-  4
+  ("", 4)
 ( in custom zebre_proj
 ).
 Notation "5" :=
-  5
+  ("", 5)
 ( in custom zebre_proj
 ).
 Notation "6" :=
-  6
+  ("", 6)
 ( in custom zebre_proj
 ).
 Notation "7" :=
-  7
+  ("", 7)
 ( in custom zebre_proj
 ).
 Notation "8" :=
-  8
+  ("", 8)
 ( in custom zebre_proj
 ).
 Notation "9" :=
-  9
+  ("", 9)
 ( in custom zebre_proj
 ).
 Notation "e .< proj >" := (

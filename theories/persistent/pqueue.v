@@ -17,11 +17,11 @@ Implicit Types v t : val.
 Implicit Types back front : list val.
 
 #[local] Notation "'front'" :=
-  0
+  ("t", 0)
 ( in custom zebre_proj
 ).
 #[local] Notation "'back'" :=
-  1
+  ("t", 1)
 ( in custom zebre_proj
 ).
 

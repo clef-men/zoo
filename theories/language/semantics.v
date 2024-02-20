@@ -16,6 +16,7 @@ Implicit Types x : binder.
 Implicit Types n m : Z.
 Implicit Types l : loc.
 Implicit Types tag : constr_tag.
+Implicit Types proj : projection.
 Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -240,8 +241,8 @@ Fixpoint subst (x : string) v e :=
   | Constr tag es =>
       Constr tag
         (subst x v <$> es)
-  | Proj i e =>
-      Proj i
+  | Proj proj e =>
+      Proj proj
         (subst x v e)
   | Case e0 y e1 brs =>
       Case
@@ -497,10 +498,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValConstr tag vs)
         σ
         []
-  | base_step_proj i tag vs v σ :
-      vs !! i = Some v →
+  | base_step_proj proj tag vs v σ :
+      vs !! proj.2 = Some v →
       base_step
-        (Proj i $ Val $ ValConstr tag vs)
+        (Proj proj $ Val $ ValConstr tag vs)
         σ
         []
         (Val v)
@@ -694,7 +695,7 @@ Inductive ectxi :=
   | CtxEqual2 e1
   | CtxIf e1 e2
   | CtxConstr tag vs es
-  | CtxProj (i : nat)
+  | CtxProj proj
   | CtxCase x e1 brs
   | CtxFor1 e2 e3
   | CtxFor2 v1 e3
@@ -746,8 +747,8 @@ Fixpoint ectxi_fill k e : expr :=
       If e e1 e2
   | CtxConstr tag vs es =>
       Constr tag $ of_vals vs ++ e :: es
-  | CtxProj i =>
-      Proj i e
+  | CtxProj proj =>
+      Proj proj e
   | CtxCase x e1 brs =>
       Case e x e1 brs
   | CtxFor1 e2 e3 =>

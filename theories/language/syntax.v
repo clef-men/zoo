@@ -23,6 +23,10 @@ Definition constr_tag : Set :=
   string * nat.
 Implicit Types tag : constr_tag.
 
+Definition projection : Set :=
+  string * nat.
+Implicit Types proj : projection.
+
 Definition prophecy_id :=
   positive.
 Implicit Types p : prophecy_id.
@@ -80,13 +84,17 @@ Inductive unop :=
 Proof.
   pose encode op :=
     match op with
-    | UnopNeg => 0
-    | UnopMinus => 1
+    | UnopNeg =>
+        0
+    | UnopMinus =>
+        1
     end.
   pose decode op :=
     match op with
-    | 0 => UnopNeg
-    | _ => UnopMinus
+    | 0 =>
+        UnopNeg
+    | _ =>
+        UnopMinus
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -171,7 +179,7 @@ Inductive expr :=
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
   | Constr tag (es : list expr)
-  | Proj i (e : expr)
+  | Proj proj (e : expr)
   | Case (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | For (e1 e2 e3 : expr)
   | Record (es : list expr)
@@ -265,9 +273,9 @@ Section expr_ind.
     ∀ es, Forall P es →
     P (Constr tag es).
   Variable HProj :
-    ∀ i,
+    ∀ proj,
     ∀ e, P e →
-    P (Proj i e).
+    P (Proj proj e).
   Variable HCase :
     ∀ e0, P e0 →
     ∀ x,
@@ -349,8 +357,8 @@ Section expr_ind.
     | Constr tag es =>
         HConstr tag
           es (Forall_true P es expr_ind)
-    | Proj i e =>
-        HProj i
+    | Proj proj e =>
+        HProj proj
           e (expr_ind e)
     | Case e0 x e1 brs =>
         HCase
@@ -603,9 +611,9 @@ Proof.
           cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
-      | Proj i1 e1, Proj i2 e2 =>
+      | Proj proj1 e1, Proj proj2 e2 =>
           cast_if_and
-            (decide (i1 = i2))
+            (decide (proj1 = proj2))
             (decide (e1 = e2))
       | Case e10 x1 e11 brs1, Case e20 x2 e21 brs2 =>
           cast_if_and4
@@ -731,7 +739,7 @@ Variant encode_leaf :=
   | EncodeBinder x
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
-  | EncodeNat (i : nat)
+  | EncodeProjection proj
   | EncodeConstrTag tag
   | EncodePattern (pat : pattern)
   | EncodeLiteral lit.
@@ -748,8 +756,8 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inr op
     | EncodeBinop op =>
         inl $ inl $ inl $ inl $ inr op
-    | EncodeNat i =>
-        inl $ inl $ inl $ inr i
+    | EncodeProjection proj =>
+        inl $ inl $ inl $ inr proj
     | EncodeConstrTag tag =>
         inl $ inl $ inr tag
     | EncodePattern pat =>
@@ -765,8 +773,8 @@ Proof.
         EncodeUnop op
     | inl (inl (inl (inl (inr op)))) =>
         EncodeBinop op
-    | inl (inl (inl (inr i))) =>
-        EncodeNat i
+    | inl (inl (inl (inr proj))) =>
+        EncodeProjection proj
     | inl (inl (inr tag)) =>
         EncodeConstrTag tag
     | inl (inr pat) =>
@@ -856,8 +864,8 @@ Proof.
           GenNode tag_If [go e0; go e1; go e2]
       | Constr tag es =>
           GenNode tag_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
-      | Proj i e =>
-          GenNode tag_Proj [GenLeaf (EncodeNat i); go e]
+      | Proj proj e =>
+          GenNode tag_Proj [GenLeaf (EncodeProjection proj); go e]
       | Case e0 x e1 brs =>
           GenNode tag_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | For e1 e2 e3 =>
@@ -925,8 +933,8 @@ Proof.
           If (go e0) (go e1) (go e2)
       | GenNode tag_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
           Constr tag $ go_list es
-      | GenNode tag_Proj [GenLeaf (EncodeNat i); e] =>
-          Proj i $ go e
+      | GenNode tag_Proj [GenLeaf (EncodeProjection proj); e] =>
+          Proj proj $ go e
       | GenNode tag_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Case (go e0) x (go e1) (go_branches brs)
       | GenNode tag_For [e1; e2; e3] =>
