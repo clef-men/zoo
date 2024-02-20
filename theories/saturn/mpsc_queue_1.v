@@ -27,13 +27,13 @@ Implicit Types v t : val.
 Implicit Types vs front back : list val.
 Implicit Types o : option val.
 
-#[local] Notation "'front'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'front'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'back'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'back'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 Definition mpsc_queue_create : val :=

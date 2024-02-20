@@ -17,22 +17,22 @@ Implicit Types r : loc.
 Implicit Types v t s : val.
 Implicit Types σ : gmap loc val.
 
-#[local] Notation "'root'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'root'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'gen'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'gen'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
-#[local] Notation "'ref_value'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'ref_value'" := (
+  annotate "ref" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'ref_gen'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'ref_gen'" := (
+  annotate "ref" 1
+)(in custom zebre_field
 ).
 
 #[local] Notation "'snap_store'" :=

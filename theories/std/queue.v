@@ -14,13 +14,13 @@ Implicit Types l : loc.
 Implicit Types t v front sent : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'front'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'front'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'sentinel'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'sentinel'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 Definition queue_create : val :=

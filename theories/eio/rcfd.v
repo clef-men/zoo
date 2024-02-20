@@ -29,13 +29,13 @@ Implicit Types l l_state : loc.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
-#[local] Notation "'ops'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'ops'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'fd'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'fd'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 #[local] Notation "'Open'" :=

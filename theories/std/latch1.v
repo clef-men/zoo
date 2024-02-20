@@ -16,17 +16,17 @@ From zebre Require Import
 Implicit Types b : bool.
 Implicit Types l : loc.
 
-#[local] Notation "'flag'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'flag'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'mutex'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'mutex'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
-#[local] Notation "'condition'" :=
-  2
-( in custom zebre_field
+#[local] Notation "'condition'" := (
+  annotate "t" 2
+)(in custom zebre_field
 ).
 
 Definition latch1_create : val :=

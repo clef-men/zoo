@@ -87,21 +87,21 @@ Proof.
 Qed.
 
 Module raw.
-  #[local] Notation "'front'" :=
-    0
-  ( in custom zebre_field
+  #[local] Notation "'front'" := (
+    annotate "t" 0
+  )(in custom zebre_field
   ).
-  #[local] Notation "'back'" :=
-    1
-  ( in custom zebre_field
+  #[local] Notation "'back'" := (
+    annotate "t" 1
+  )(in custom zebre_field
   ).
-  #[local] Notation "'data'" :=
-    2
-  ( in custom zebre_field
+  #[local] Notation "'data'" := (
+    annotate "t" 2
+  )(in custom zebre_field
   ).
-  #[local] Notation "'prophecy'" :=
-    3
-  ( in custom zebre_field
+  #[local] Notation "'prophecy'" := (
+    annotate "t" 3
+  )(in custom zebre_field
   ).
 
   Definition inf_cl_deque_create : val :=

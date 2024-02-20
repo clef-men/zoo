@@ -5,6 +5,10 @@ From zebre.language Require Export
 From zebre Require Import
   options.
 
+Definition annotate (_ : string) (n : nat) :=
+  n.
+#[global] Arguments annotate : simpl never.
+
 Coercion LiteralBool : bool >-> literal.
 Coercion LiteralInt : Z >-> literal.
 Coercion LiteralLoc : loc >-> literal.

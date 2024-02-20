@@ -34,13 +34,13 @@ Implicit Types vs : list val.
 ( in custom zebre_tag
 ).
 
-#[local] Notation "'front'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'front'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'back'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'back'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 #[local] Definition truc_rev_aux : val :=

@@ -21,17 +21,17 @@ Implicit Types v t : val.
 Implicit Types us : list val.
 Implicit Types vs : nat → val.
 
-#[local] Notation "'data'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'data'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'default'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'default'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
-#[local] Notation "'mutex'" :=
-  2
-( in custom zebre_field
+#[local] Notation "'mutex'" := (
+  annotate "t" 2
+)(in custom zebre_field
 ).
 
 Definition inf_array_create : val :=

@@ -18,13 +18,13 @@ Implicit Types l : loc.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'size'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'size'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'data'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'data'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 Definition array_create : val :=

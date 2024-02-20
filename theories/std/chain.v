@@ -11,13 +11,13 @@ From zebre Require Import
 Implicit Types l : loc.
 Implicit Types v w t hd tl dst : val.
 
-#[local] Notation "'head'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'head'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'tail'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'tail'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
 
 Definition chain_cons : val :=

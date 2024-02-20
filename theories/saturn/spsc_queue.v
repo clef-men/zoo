@@ -32,25 +32,25 @@ Implicit Types l : loc.
 Implicit Types v w t data : val.
 Implicit Types vs hist : list val.
 
-#[local] Notation "'data'" :=
-  0
-( in custom zebre_field
+#[local] Notation "'data'" := (
+  annotate "t" 0
+)(in custom zebre_field
 ).
-#[local] Notation "'front'" :=
-  1
-( in custom zebre_field
+#[local] Notation "'front'" := (
+  annotate "t" 1
+)(in custom zebre_field
 ).
-#[local] Notation "'front_cache'" :=
-  2
-( in custom zebre_field
+#[local] Notation "'front_cache'" := (
+  annotate "t" 2
+)(in custom zebre_field
 ).
-#[local] Notation "'back'" :=
-  3
-( in custom zebre_field
+#[local] Notation "'back'" := (
+  annotate "t" 3
+)(in custom zebre_field
 ).
-#[local] Notation "'back_cache'" :=
-  4
-( in custom zebre_field
+#[local] Notation "'back_cache'" := (
+  annotate "t" 4
+)(in custom zebre_field
 ).
 
 Definition spsc_queue_create : val :=
