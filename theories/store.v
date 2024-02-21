@@ -105,7 +105,7 @@ Definition store_capture : val :=
         match: !"node'" with
         | Root =>
             Fail
-        | Diff "r" "v" "g" "node_" =>
+        | Diff "r" "g" "v" "node_" =>
             assert ("node_" = "node") ;;
             "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
             "r" <-{ref_gen} "g" ;;
@@ -219,6 +219,7 @@ Section store_G.
       r.[ref_gen] ↦ #data.1 ∗
       r.[ref_value] ↦ data.2
     ) ∗
+    ⌜store_generation g ς⌝ ∗
     if g is 0 then
       cnodes_pointsto γ root (0, ς)
     else
