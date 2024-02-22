@@ -83,6 +83,7 @@ theories/std/dynarray_2.v
 theories/std/inf_array.v
 theories/std/queue.v
 theories/std/stack.v
+theories/std/xdeque.v
 theories/std/mutex.v
 theories/std/condition.v
 theories/std/latch1.v
@@ -111,3 +112,4 @@ theories/eio/rcfd.v
 
 theories/boxroot/base.v
 theories/boxroot/gc.v
+theories/boxroot/boxroot.v
