@@ -435,9 +435,11 @@ Notation ValProphecy p := (
 
 Notation Tuple := (
   Constr ("", 0)
+)(only parsing
 ).
 Notation ValTuple := (
   ValConstr ("", 0)
+)(only parsing
 ).
 
 Notation ValUnit := (
