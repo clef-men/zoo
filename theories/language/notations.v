@@ -90,7 +90,7 @@ Notation "'let:' x := e1 'in' e2" := (
 )(at level 200,
   x at level 1,
   e1, e2 at level 200,
-  format "'[' 'let:'  x  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' 'let:'  x  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' f x := e1 'in' e2" := (
   App (Lam f%binder e2%E) (Rec f%binder x%binder e1%E)
@@ -488,7 +488,7 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   tag custom zebre_tag,
   x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
   Case
@@ -509,7 +509,7 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
 )(at level 200,
   x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 
 Notation "'for:' x = e1 'to' e2 'begin' e3 'end'" := (
