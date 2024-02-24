@@ -792,106 +792,106 @@ Notation EncodeString str := (
 #[global] Instance expr_countable :
   Countable expr.
 Proof.
-  Notation tag_Val :=
+  Notation code_Val :=
     0.
-  Notation tag_Rec :=
+  Notation code_Rec :=
     1.
-  Notation tag_App :=
+  Notation code_App :=
     2.
-  Notation tag_Unop :=
+  Notation code_Unop :=
     3.
-  Notation tag_Binop :=
+  Notation code_Binop :=
     4.
-  Notation tag_Equal :=
+  Notation code_Equal :=
     5.
-  Notation tag_If :=
+  Notation code_If :=
     6.
-  Notation tag_Constr :=
+  Notation code_Constr :=
     7.
-  Notation tag_Proj :=
+  Notation code_Proj :=
     8.
-  Notation tag_Case :=
+  Notation code_Case :=
     9.
-  Notation tag_For :=
+  Notation code_For :=
     10.
-  Notation tag_branch :=
+  Notation code_branch :=
     11.
-  Notation tag_Record :=
+  Notation code_Record :=
     12.
-  Notation tag_Alloc :=
+  Notation code_Alloc :=
     13.
-  Notation tag_Load :=
+  Notation code_Load :=
     14.
-  Notation tag_Store :=
+  Notation code_Store :=
     15.
-  Notation tag_Xchg :=
+  Notation code_Xchg :=
     16.
-  Notation tag_Cas :=
+  Notation code_Cas :=
     17.
-  Notation tag_Faa :=
+  Notation code_Faa :=
     18.
-  Notation tag_Fork :=
+  Notation code_Fork :=
     19.
-  Notation tag_Proph :=
+  Notation code_Proph :=
     20.
-  Notation tag_Resolve :=
+  Notation code_Resolve :=
     21.
-  Notation tag_ValRec :=
+  Notation code_ValRec :=
     0.
-  Notation tag_ValConstr :=
+  Notation code_ValConstr :=
     1.
   pose encode :=
     fix go e :=
       let go_list := map go in
       let go_branch '(pat, e) :=
-        GenNode tag_branch [GenLeaf (EncodePattern pat); go e]
+        GenNode code_branch [GenLeaf (EncodePattern pat); go e]
       in
       let go_branches := map go_branch in
       match e with
       | Val v =>
-          GenNode tag_Val [go_val v]
+          GenNode code_Val [go_val v]
       | Var x =>
           GenLeaf (EncodeString x)
       | Rec f x e =>
-          GenNode tag_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
+          GenNode code_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | App e1 e2 =>
-          GenNode tag_App [go e1; go e2]
+          GenNode code_App [go e1; go e2]
       | Unop op e =>
-          GenNode tag_Unop [GenLeaf (EncodeUnop op); go e]
+          GenNode code_Unop [GenLeaf (EncodeUnop op); go e]
       | Binop op e1 e2 =>
-          GenNode tag_Binop [GenLeaf (EncodeBinop op); go e1; go e2]
+          GenNode code_Binop [GenLeaf (EncodeBinop op); go e1; go e2]
       | Equal e1 e2 =>
-          GenNode tag_Equal [go e1; go e2]
+          GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
-          GenNode tag_If [go e0; go e1; go e2]
+          GenNode code_If [go e0; go e1; go e2]
       | Constr tag es =>
-          GenNode tag_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
+          GenNode code_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
       | Proj proj e =>
-          GenNode tag_Proj [GenLeaf (EncodeProjection proj); go e]
+          GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
       | Case e0 x e1 brs =>
-          GenNode tag_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
+          GenNode code_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | For e1 e2 e3 =>
-          GenNode tag_For [go e1; go e2; go e3]
+          GenNode code_For [go e1; go e2; go e3]
       | Record es =>
-          GenNode tag_Record $ go_list es
+          GenNode code_Record $ go_list es
       | Alloc e1 e2 =>
-          GenNode tag_Alloc [go e1; go e2]
+          GenNode code_Alloc [go e1; go e2]
       | Load e =>
-          GenNode tag_Load [go e]
+          GenNode code_Load [go e]
       | Store e1 e2 =>
-          GenNode tag_Store [go e1; go e2]
+          GenNode code_Store [go e1; go e2]
       | Xchg e1 e2 =>
-          GenNode tag_Xchg [go e1; go e2]
+          GenNode code_Xchg [go e1; go e2]
       | Cas e0 e1 e2 =>
-          GenNode tag_Cas [go e0; go e1; go e2]
+          GenNode code_Cas [go e0; go e1; go e2]
       | Faa e1 e2 =>
-          GenNode tag_Faa [go e1; go e2]
+          GenNode code_Faa [go e1; go e2]
       | Fork e =>
-          GenNode tag_Fork [go e]
+          GenNode code_Fork [go e]
       | Proph =>
-          GenNode tag_Proph []
+          GenNode code_Proph []
       | Resolve e0 e1 e2 =>
-          GenNode tag_Resolve [go e0; go e1; go e2]
+          GenNode code_Resolve [go e0; go e1; go e2]
       end
     with go_val v :=
       let go_list := map go_val in
@@ -899,9 +899,9 @@ Proof.
       | ValLiteral lit =>
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
-         GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
+         GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | ValConstr tag vs =>
-          GenNode tag_ValConstr $ GenLeaf (EncodeConstrTag tag) :: go_list vs
+          GenNode code_ValConstr $ GenLeaf (EncodeConstrTag tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -909,7 +909,7 @@ Proof.
       let go_list := map go in
       let go_branch _br :=
         match _br with
-        | GenNode tag_branch [GenLeaf (EncodePattern pat); e] =>
+        | GenNode code_branch [GenLeaf (EncodePattern pat); e] =>
             (pat, go e)
         | _ =>
             (@inhabitant _ pattern_inhabited, Unit)
@@ -917,49 +917,49 @@ Proof.
       in
       let go_branches := map go_branch in
       match _e with
-      | GenNode tag_Val [v] =>
+      | GenNode code_Val [v] =>
           Val $ go_val v
       | GenLeaf (EncodeString x) =>
           Var x
-      | GenNode tag_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
+      | GenNode code_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           Rec f x $ go e
-      | GenNode tag_App [e1; e2] =>
+      | GenNode code_App [e1; e2] =>
           App (go e1) (go e2)
-      | GenNode tag_Unop [GenLeaf (EncodeUnop op); e] =>
+      | GenNode code_Unop [GenLeaf (EncodeUnop op); e] =>
           Unop op $ go e
-      | GenNode tag_Binop [GenLeaf (EncodeBinop op); e1; e2] =>
+      | GenNode code_Binop [GenLeaf (EncodeBinop op); e1; e2] =>
           Binop op (go e1) (go e2)
-      | GenNode tag_Equal [e1; e2] =>
+      | GenNode code_Equal [e1; e2] =>
           Equal (go e1) (go e2)
-      | GenNode tag_If [e0; e1; e2] =>
+      | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode tag_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
+      | GenNode code_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
           Constr tag $ go_list es
-      | GenNode tag_Proj [GenLeaf (EncodeProjection proj); e] =>
+      | GenNode code_Proj [GenLeaf (EncodeProjection proj); e] =>
           Proj proj $ go e
-      | GenNode tag_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
+      | GenNode code_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Case (go e0) x (go e1) (go_branches brs)
-      | GenNode tag_For [e1; e2; e3] =>
+      | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
-      | GenNode tag_Record es =>
+      | GenNode code_Record es =>
           Record $ go_list es
-      | GenNode tag_Alloc [e1; e2] =>
+      | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
-      | GenNode tag_Load [e] =>
+      | GenNode code_Load [e] =>
           Load $ go e
-      | GenNode tag_Store [e1; e2] =>
+      | GenNode code_Store [e1; e2] =>
           Store (go e1) (go e2)
-      | GenNode tag_Xchg [e1; e2] =>
+      | GenNode code_Xchg [e1; e2] =>
           Xchg (go e1) (go e2)
-      | GenNode tag_Cas [e0; e1; e2] =>
+      | GenNode code_Cas [e0; e1; e2] =>
           Cas (go e0) (go e1) (go e2)
-      | GenNode tag_Faa [e1; e2] =>
+      | GenNode code_Faa [e1; e2] =>
           Faa (go e1) (go e2)
-      | GenNode tag_Fork [e] =>
+      | GenNode code_Fork [e] =>
           Fork $ go e
-      | GenNode tag_Proph [] =>
+      | GenNode code_Proph [] =>
           Proph
-      | GenNode tag_Resolve [e0; e1; e2] =>
+      | GenNode code_Resolve [e0; e1; e2] =>
           Resolve (go e0) (go e1) (go e2)
       | _ =>
           @inhabitant _ expr_inhabited
@@ -969,9 +969,9 @@ Proof.
       match _v with
       | GenLeaf (EncodeLiteral lit) =>
           ValLiteral lit
-      | GenNode tag_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
+      | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode tag_ValConstr (GenLeaf (EncodeConstrTag tag) :: vs) =>
+      | GenNode code_ValConstr (GenLeaf (EncodeConstrTag tag) :: vs) =>
           ValConstr tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
