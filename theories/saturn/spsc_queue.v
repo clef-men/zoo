@@ -33,23 +33,23 @@ Implicit Types v w t data : val.
 Implicit Types vs hist : list val.
 
 #[local] Notation "'data'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'front'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 #[local] Notation "'front_cache'" := (
-  annotate "t" 2
+  in_type "t" 2
 )(in custom zebre_field
 ).
 #[local] Notation "'back'" := (
-  annotate "t" 3
+  in_type "t" 3
 )(in custom zebre_field
 ).
 #[local] Notation "'back_cache'" := (
-  annotate "t" 4
+  in_type "t" 4
 )(in custom zebre_field
 ).
 

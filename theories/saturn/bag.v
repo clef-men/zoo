@@ -29,15 +29,15 @@ Implicit Types o : option val.
 Implicit Types os : list (option val).
 
 Notation "'data'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 Notation "'front'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 Notation "'back'" := (
-  annotate "t" 2
+  in_type "t" 2
 )(in custom zebre_field
 ).
 

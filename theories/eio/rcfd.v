@@ -30,11 +30,11 @@ Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
 #[local] Notation "'ops'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'fd'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 

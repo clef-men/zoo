@@ -22,15 +22,15 @@ Implicit Types us : list val.
 Implicit Types vs : nat → val.
 
 #[local] Notation "'data'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'default'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 #[local] Notation "'mutex'" := (
-  annotate "t" 2
+  in_type "t" 2
 )(in custom zebre_field
 ).
 

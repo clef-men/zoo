@@ -19,11 +19,11 @@ Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
 #[local] Notation "'size'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'data'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 

@@ -17,15 +17,15 @@ Implicit Types b : bool.
 Implicit Types l : loc.
 
 #[local] Notation "'flag'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'mutex'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 #[local] Notation "'condition'" := (
-  annotate "t" 2
+  in_type "t" 2
 )(in custom zebre_field
 ).
 

@@ -88,19 +88,19 @@ Qed.
 
 Module raw.
   #[local] Notation "'front'" := (
-    annotate "t" 0
+    in_type "t" 0
   )(in custom zebre_field
   ).
   #[local] Notation "'back'" := (
-    annotate "t" 1
+    in_type "t" 1
   )(in custom zebre_field
   ).
   #[local] Notation "'data'" := (
-    annotate "t" 2
+    in_type "t" 2
   )(in custom zebre_field
   ).
   #[local] Notation "'prophecy'" := (
-    annotate "t" 3
+    in_type "t" 3
   )(in custom zebre_field
   ).
 

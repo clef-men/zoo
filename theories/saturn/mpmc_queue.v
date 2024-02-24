@@ -35,11 +35,11 @@ Implicit Types vs : list val.
 ).
 
 #[local] Notation "'front'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'back'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 

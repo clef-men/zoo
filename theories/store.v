@@ -17,20 +17,20 @@ From zebre Require Import
   options.
 
 #[local] Notation "'gen'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'root'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 
 #[local] Notation "'ref_gen'" := (
-  annotate "ref" 0
+  in_type "ref" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'ref_value'" := (
-  annotate "ref" 1
+  in_type "ref" 1
 )(in custom zebre_field
 ).
 

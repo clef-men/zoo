@@ -5,9 +5,9 @@ From zebre.language Require Export
 From zebre Require Import
   options.
 
-Definition annotate (_ : string) (n : nat) :=
+Definition in_type (_ : string) (n : nat) :=
   n.
-#[global] Arguments annotate : simpl never.
+#[global] Arguments in_type : simpl never.
 
 Coercion LiteralBool : bool >-> literal.
 Coercion LiteralInt : Z >-> literal.

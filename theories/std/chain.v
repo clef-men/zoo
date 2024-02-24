@@ -12,11 +12,11 @@ Implicit Types l : loc.
 Implicit Types v w t hd tl dst : val.
 
 #[local] Notation "'head'" := (
-  annotate "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'tail'" := (
-  annotate "t" 1
+  in_type "t" 1
 )(in custom zebre_field
 ).
 
