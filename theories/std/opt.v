@@ -10,13 +10,13 @@ From zebre Require Import
 
 Implicit Types v : val.
 
-Notation "'None'" :=
-  ("opt", 0)
-( in custom zebre_tag
+Notation "'None'" := (
+  in_type "opt" 0
+)(in custom zebre_tag
 ).
-Notation "'Some'" :=
-  ("opt", 1)
-( in custom zebre_tag
+Notation "'Some'" := (
+  in_type "opt" 1
+)(in custom zebre_tag
 ).
 
 Coercion opt_to_val o :=

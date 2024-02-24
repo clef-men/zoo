@@ -34,26 +34,26 @@ From zebre Require Import
 )(in custom zebre_field
 ).
 
-#[local] Notation "'snap_store'" :=
-  ("snap", 0)
-( in custom zebre_proj
+#[local] Notation "'snap_store'" := (
+  in_type "snap" 0
+)(in custom zebre_proj
 ).
-#[local] Notation "'snap_gen'" :=
-  ("snap", 1)
-( in custom zebre_proj
+#[local] Notation "'snap_gen'" := (
+  in_type "snap" 1
+)(in custom zebre_proj
 ).
-#[local] Notation "'snap_root'" :=
-  ("snap", 2)
-( in custom zebre_proj
+#[local] Notation "'snap_root'" := (
+  in_type "snap" 2
+)(in custom zebre_proj
 ).
 
-#[local] Notation "'Root'" :=
-  ("descr", 0)
-( in custom zebre_tag
+#[local] Notation "'Root'" := (
+  in_type "descr" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Diff'" :=
-  ("descr", 1)
-( in custom zebre_tag
+#[local] Notation "'Diff'" := (
+  in_type "descr" 1
+)(in custom zebre_tag
 ).
 
 Definition store_create : val :=

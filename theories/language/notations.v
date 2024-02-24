@@ -259,11 +259,11 @@ Notation "§ tag" := (
 ).
 
 Notation "( e1 , e2 , .. , en )" := (
-  Constr (@pair string nat "" 0) (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
+  Constr 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValConstr (@pair string nat "" 0) (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValConstr 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (
@@ -275,44 +275,44 @@ Notation "()" :=
 
 Declare Custom Entry zebre_proj.
 Notation "0" :=
-  ("", 0)
-( in custom zebre_proj
+  0
+(in custom zebre_proj
 ).
 Notation "1" :=
-  ("", 1)
-( in custom zebre_proj
+  1
+(in custom zebre_proj
 ).
 Notation "2" :=
-  ("", 2)
-( in custom zebre_proj
+  2
+(in custom zebre_proj
 ).
 Notation "3" :=
-  ("", 3)
-( in custom zebre_proj
+  3
+(in custom zebre_proj
 ).
 Notation "4" :=
-  ("", 4)
-( in custom zebre_proj
+  4
+(in custom zebre_proj
 ).
 Notation "5" :=
-  ("", 5)
-( in custom zebre_proj
+  5
+(in custom zebre_proj
 ).
 Notation "6" :=
-  ("", 6)
-( in custom zebre_proj
+  6
+(in custom zebre_proj
 ).
 Notation "7" :=
-  ("", 7)
-( in custom zebre_proj
+  7
+(in custom zebre_proj
 ).
 Notation "8" :=
-  ("", 8)
-( in custom zebre_proj
+  8
+(in custom zebre_proj
 ).
 Notation "9" :=
-  ("", 9)
-( in custom zebre_proj
+  9
+(in custom zebre_proj
 ).
 Notation "e .< proj >" := (
   Proj proj e
@@ -498,7 +498,7 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
     ( @cons branch
       ( @pair pattern expr
         ( Build_pattern
-          (@pair string nat "" 0)
+          0
           (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
           BAnon
         )

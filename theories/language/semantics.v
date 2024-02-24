@@ -12,12 +12,11 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types x : binder.
+Implicit Types tag proj : nat.
 Implicit Types n m : Z.
 Implicit Types l : loc.
-Implicit Types tag : constr_tag.
-Implicit Types proj : projection.
 Implicit Types lit : literal.
+Implicit Types x : binder.
 Implicit Types e : expr.
 Implicit Types es : list expr.
 Implicit Types v w : val.
@@ -80,7 +79,7 @@ Definition val_neq v1 v2 :=
   | ValLiteral lit1, ValLiteral lit2 =>
       lit1 ≠ lit2
   | ValConstr tag1 [], ValConstr tag2 [] =>
-      tag1.2 ≠ tag2.2
+      tag1 ≠ tag2
   | _, _ =>
       True
   end.
@@ -122,14 +121,14 @@ Definition val_eq v1 v2 :=
       | ValInt _ =>
           True
       | ValConstr tag2 [] =>
-          tag1.2 = tag2.2
+          tag1 = tag2
       | _ =>
           False
       end
   | ValConstr tag1 es1 =>
       match v2 with
       | ValConstr tag2 es2 =>
-          tag1.2 = tag2.2 ∧ es1 = es2
+          tag1 = tag2 ∧ es1 = es2
       | _ =>
           False
       end
@@ -328,7 +327,7 @@ Fixpoint case_apply tag vs x e brs :=
       subst' x (ValConstr tag vs) e
   | br :: brs =>
       let pat := br.1 in
-      if decide (pat.(pattern_tag).2 = tag.2) then
+      if decide (pat.(pattern_tag) = tag) then
         subst_list pat.(pattern_fields) vs $
         subst' pat.(pattern_as) (ValConstr tag vs) br.2
       else
@@ -499,7 +498,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_proj proj tag vs v σ :
-      vs !! proj.2 = Some v →
+      vs !! proj = Some v →
       base_step
         (Proj proj $ Val $ ValConstr tag vs)
         σ

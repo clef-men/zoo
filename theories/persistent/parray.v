@@ -22,13 +22,13 @@ Implicit Types l root : loc.
 Implicit Types v t eq : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'Root'" :=
-  ("descr", 0)
-( in custom zebre_tag
+#[local] Notation "'Root'" := (
+  in_type "descr" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Diff'" :=
-  ("descr", 1)
-( in custom zebre_tag
+#[local] Notation "'Diff'" := (
+  in_type "descr" 1
+)(in custom zebre_tag
 ).
 
 Definition parray_make : val :=

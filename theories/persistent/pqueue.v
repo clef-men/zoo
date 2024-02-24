@@ -16,13 +16,13 @@ From zebre Require Import
 Implicit Types v t : val.
 Implicit Types back front : list val.
 
-#[local] Notation "'front'" :=
-  ("t", 0)
-( in custom zebre_proj
+#[local] Notation "'front'" := (
+  in_type "t" 0
+)(in custom zebre_proj
 ).
-#[local] Notation "'back'" :=
-  ("t", 1)
-( in custom zebre_proj
+#[local] Notation "'back'" := (
+  in_type "t" 1
+)(in custom zebre_proj
 ).
 
 Definition pqueue_empty : val :=

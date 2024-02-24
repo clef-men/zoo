@@ -14,18 +14,10 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types i : nat.
+Implicit Types i tag proj : nat.
 Implicit Types n : Z.
 Implicit Types l : loc.
 Implicit Types f x : binder.
-
-Definition constr_tag : Set :=
-  string * nat.
-Implicit Types tag : constr_tag.
-
-Definition projection : Set :=
-  string * nat.
-Implicit Types proj : projection.
 
 Definition prophecy_id :=
   positive.
@@ -139,7 +131,7 @@ Proof.
 Qed.
 
 Record pattern := {
-  pattern_tag : constr_tag ;
+  pattern_tag : nat ;
   pattern_fields : list binder ;
   pattern_as : binder ;
 }.
@@ -434,11 +426,11 @@ Notation ValProphecy p := (
 ).
 
 Notation Tuple := (
-  Constr ("", 0)
+  Constr 0
 )(only parsing
 ).
 Notation ValTuple := (
-  ValConstr ("", 0)
+  ValConstr 0
 )(only parsing
 ).
 

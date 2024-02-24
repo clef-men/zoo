@@ -265,7 +265,7 @@ Section pure_exec.
       True
       1
       (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 []))
-      (Val $ ValBool (bool_decide (tag1.2 = tag2.2))).
+      (Val $ ValBool (bool_decide (tag1 = tag2))).
   Proof.
     solve_pure_exec.
   Qed.
@@ -320,7 +320,7 @@ Section pure_exec.
   Qed.
   #[global] Instance pure_proj proj tag vs v :
     PureExec
-      (vs !! proj.2 = Some v)
+      (vs !! proj = Some v)
       1
       (Proj proj $ Val $ ValConstr tag vs)
       (Val v).

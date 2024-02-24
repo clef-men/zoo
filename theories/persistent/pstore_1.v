@@ -20,13 +20,13 @@ Implicit Types v t : val.
 Implicit Types σ : gmap loc val.
 Implicit Types map : gmap loc (gmap loc val).
 
-#[local] Notation "'Root'" :=
-  ("descr", 0)
-( in custom zebre_tag
+#[local] Notation "'Root'" := (
+  in_type "descr" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Diff'" :=
-  ("descr", 1)
-( in custom zebre_tag
+#[local] Notation "'Diff'" := (
+  in_type "descr" 1
+)(in custom zebre_tag
 ).
 
 Definition pstore_create : val :=

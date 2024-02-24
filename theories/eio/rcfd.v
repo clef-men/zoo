@@ -38,13 +38,13 @@ Implicit Types o : option val.
 )(in custom zebre_field
 ).
 
-#[local] Notation "'Open'" :=
-  ("state", 0)
-( in custom zebre_tag
+#[local] Notation "'Open'" := (
+  in_type "state" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Closing'" :=
-  ("state", 1)
-( in custom zebre_tag
+#[local] Notation "'Closing'" := (
+  in_type "state" 1
+)(in custom zebre_tag
 ).
 
 Inductive rcfd_state :=

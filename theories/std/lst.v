@@ -12,13 +12,13 @@ Implicit Types i j : nat.
 Implicit Types v w t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
-Notation "'Nil'" :=
-  ("lst", 0)
-( in custom zebre_tag
+Notation "'Nil'" := (
+  in_type "lst" 0
+)(in custom zebre_tag
 ).
-Notation "'Cons'" :=
-  ("lst", 1)
-( in custom zebre_tag
+Notation "'Cons'" := (
+  in_type "lst" 1
+)(in custom zebre_tag
 ).
 
 Fixpoint lst_to_val vs :=

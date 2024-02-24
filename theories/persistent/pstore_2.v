@@ -24,22 +24,22 @@ Implicit Types l : loc.
 Implicit Types v t s : val.
 Implicit Types σ : gmap loc val.
 
-#[local] Notation "'snap_store'" :=
-  ("snap", 0)
-( in custom zebre_proj
+#[local] Notation "'snap_store'" := (
+  in_type "snap" 0
+)(in custom zebre_proj
 ).
-#[local] Notation "'snap_root'" :=
-  ("snap", 1)
-( in custom zebre_proj
+#[local] Notation "'snap_root'" := (
+  in_type "snap" 1
+)(in custom zebre_proj
 ).
 
-#[local] Notation "'Root'" :=
-  ("descr", 0)
-( in custom zebre_tag
+#[local] Notation "'Root'" := (
+  in_type "descr" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Diff'" :=
-  ("descr", 1)
-( in custom zebre_tag
+#[local] Notation "'Diff'" := (
+  in_type "descr" 1
+)(in custom zebre_tag
 ).
 
 (* ------------------------------------------------------------------------ *)

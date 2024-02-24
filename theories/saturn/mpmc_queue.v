@@ -17,21 +17,21 @@ From zebre Require Import
 Implicit Types v t : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'Front'" :=
-  ("truc", 0)
-( in custom zebre_tag
+#[local] Notation "'Front'" := (
+  in_type "truc" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Cons'" :=
-  ("truc", 1)
-( in custom zebre_tag
+#[local] Notation "'Cons'" := (
+  in_type "truc" 1
+)(in custom zebre_tag
 ).
-#[local] Notation "'Back'" :=
-  ("truc", 2)
-( in custom zebre_tag
+#[local] Notation "'Back'" := (
+  in_type "truc" 2
+)(in custom zebre_tag
 ).
-#[local] Notation "'Snoc'" :=
-  ("truc", 3)
-( in custom zebre_tag
+#[local] Notation "'Snoc'" := (
+  in_type "truc" 3
+)(in custom zebre_tag
 ).
 
 #[local] Notation "'front'" := (

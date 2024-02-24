@@ -37,17 +37,17 @@ Implicit Types ws : option (list val).
 )(in custom zebre_field
 ).
 
-#[local] Notation "'Closed'" :=
-  ("clst", 0)
-( in custom zebre_tag
+#[local] Notation "'Closed'" := (
+  in_type "clst" 0
+)(in custom zebre_tag
 ).
-#[local] Notation "'Open'" :=
-  ("clst", 1)
-( in custom zebre_tag
+#[local] Notation "'Open'" := (
+  in_type "clst" 1
+)(in custom zebre_tag
 ).
-#[local] Notation "'Cons'" :=
-  ("clst", 2)
-( in custom zebre_tag
+#[local] Notation "'Cons'" := (
+  in_type "clst" 2
+)(in custom zebre_tag
 ).
 
 Inductive clist :=
