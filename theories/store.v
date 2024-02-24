@@ -115,8 +115,8 @@ Definition store_capture : val :=
     end.
 #[local] Definition store_reroot : val :=
   λ: "node",
-    let: "collect" := store_collect "node" §Nil in
-    store_revert "collect".<0> "collect".<1>.
+    let: "root", "nodes" := store_collect "node" §Nil in
+    store_revert "root" "nodes".
 
 Definition store_restore : val :=
   λ: "t" "s",

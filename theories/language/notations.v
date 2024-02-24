@@ -475,7 +475,11 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
     Fail
     ( @cons branch
       ( @pair pattern expr
-        (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) BAnon)
+        ( Build_pattern
+          tag%core
+          (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
+          BAnon
+        )
         e2%E
       )
       (@nil branch)
@@ -485,6 +489,27 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   x1, xn at level 1,
   e1, e2 at level 200,
   format "'[' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+) : expr_scope.
+Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
+  Case
+    e1%E
+    BAnon
+    Fail
+    ( @cons branch
+      ( @pair pattern expr
+        ( Build_pattern
+          (@pair string nat "" 0)
+          (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+          BAnon
+        )
+        e2%E
+      )
+      (@nil branch)
+    )
+)(at level 200,
+  x0, x1, xn at level 1,
+  e1, e2 at level 200,
+  format "'[' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 
 Notation "'for:' x = e1 'to' e2 'begin' e3 'end'" := (

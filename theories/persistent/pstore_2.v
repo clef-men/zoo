@@ -94,8 +94,8 @@ Definition pstore_revert : val :=
     end.
 Definition pstore_reroot : val :=
   λ: "node",
-    let: "collect" := pstore_collect "node" §Nil in
-    pstore_revert "collect".<0> "collect".<1>.
+    let: "root", "nodes" := pstore_collect "node" §Nil in
+    pstore_revert "root" "nodes".
 
 Definition pstore_restore : val :=
   λ: "t" "s",
