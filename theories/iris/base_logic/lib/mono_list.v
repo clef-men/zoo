@@ -45,12 +45,12 @@ Definition mono_list_lb :=
   mono_list_lb_aux.(seal_eq).
 #[global] Arguments mono_list_lb {_ _ _} _ _ : assert.
 
-Definition mono_list_pointsto `{mono_list_G : !MonoListG Σ A} γ i a : iProp Σ :=
+Definition mono_list_elem `{mono_list_G : !MonoListG Σ A} γ i a : iProp Σ :=
   ∃ l, ⌜l !! i = Some a⌝ ∗ mono_list_lb γ l.
 
 #[local] Ltac unseal :=
   rewrite
-    /mono_list_pointsto ?mono_list_auth_unseal /mono_list_auth_def
+    /mono_list_elem ?mono_list_auth_unseal /mono_list_auth_def
     ?mono_list_lb_unseal /mono_list_lb_def.
 
 Section mono_list_G.
@@ -74,13 +74,13 @@ Section mono_list_G.
   Proof.
     unseal. apply _.
   Qed.
-  #[global] Instance mono_list_pointsto_timeless γ i a :
-    Timeless (mono_list_pointsto γ i a).
+  #[global] Instance mono_list_elem_timeless γ i a :
+    Timeless (mono_list_elem γ i a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_pointsto_persistent γ i a :
-    Persistent (mono_list_pointsto γ i a).
+  #[global] Instance mono_list_elem_persistent γ i a :
+    Persistent (mono_list_elem γ i a).
   Proof.
     apply _.
   Qed.
@@ -131,9 +131,9 @@ Section mono_list_G.
     by iDestruct (own_valid_2 with "H1 H2") as %?%mono_list_lb_op_valid_L.
   Qed.
 
-  Lemma mono_list_pointsto_agree γ i a1 a2 :
-    mono_list_pointsto γ i a1 -∗
-    mono_list_pointsto γ i a2 -∗
+  Lemma mono_list_elem_agree γ i a1 a2 :
+    mono_list_elem γ i a1 -∗
+    mono_list_elem γ i a2 -∗
     ⌜a1 = a2⌝.
   Proof.
     iDestruct 1 as (l1 Hl1) "H1". iDestruct 1 as (l2 Hl2) "H2".
@@ -142,9 +142,9 @@ Section mono_list_G.
     destruct Hpre as [Hpre|Hpre]; eapply prefix_lookup_Some in Hpre; eauto; congruence.
   Qed.
 
-  Lemma mono_list_auth_pointsto_lookup γ q l i a :
+  Lemma mono_list_auth_elem_lookup γ q l i a :
     mono_list_auth γ q l -∗
-    mono_list_pointsto γ i a -∗
+    mono_list_elem γ i a -∗
     ⌜l !! i = Some a⌝.
   Proof.
     iIntros "Hauth". iDestruct 1 as (l1 Hl1) "Hl1".
@@ -167,10 +167,10 @@ Section mono_list_G.
     unseal. intros. by apply own_mono, mono_list_lb_mono.
   Qed.
 
-  Lemma mono_list_pointsto_get {γ l} i a :
+  Lemma mono_list_elem_get {γ l} i a :
     l !! i = Some a →
     mono_list_lb γ l ⊢
-    mono_list_pointsto γ i a.
+    mono_list_elem γ i a.
   Proof.
     iIntros (Hli) "Hl". iExists l. by iFrame.
   Qed.
