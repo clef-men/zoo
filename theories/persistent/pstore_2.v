@@ -1206,8 +1206,8 @@ Section pstore_G.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
     wp_rec. wp_apply (pstore_collect_spec with "[$]"). done.
     iIntros (?) "(?&?&%Heq)". rewrite {}Heq.
-    iStep 10. rewrite rev_fsts.
-    iApply (pstore_revert_spec with "[-HΦ]"); try done. iFrame.
+    wp_smart_apply (pstore_revert_spec with "[-HΦ]"); try done; first rewrite rev_fsts //.
+    iSteps.
   Qed.
 
   Lemma locs_of_edges_weak g1 g2 X :
