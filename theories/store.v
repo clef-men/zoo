@@ -8,7 +8,7 @@ From iris.base_logic Require Import
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
-  lib.mono_map_.
+  lib.mono_map.
 From zebre.language Require Import
   notations
   diaframe.
@@ -776,11 +776,11 @@ Section store_G.
     mono_map_lb γ σ0 ∗
     raw.store_snapshot_model s t ς.
 
-  (* #[global] Instance store_model_timeless t σ : *)
-  (*   Timeless (store_model t σ). *)
-  (* Proof. *)
-  (*   apply _. *)
-  (* Qed. *)
+  #[global] Instance store_model_timeless t σ :
+    Timeless (store_model t σ).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance store_snapshot_persistent s t σ :
     Persistent (store_snapshot_model s t σ).
   Proof.
@@ -896,7 +896,7 @@ Section store_G.
     iIntros "%Φ ((%l & %γ & %σ0 & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) & (%_l & %_γ & %σ0' & %ς' & %Heq & %Hσ' & _Hmeta & #Hlb & Hs)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_apply (raw.store_restore_spec with "[$Ht $Hs]") as "Ht".
-    iDestruct (mono_map_valid with "Hauth Hlb") as %Hσ0'.
+    iDestruct (mono_map_lb_valid with "Hauth Hlb") as %Hσ0'.
     iApply "HΦ".
     iExists l, γ, σ0, ς'. iSteps. iPureIntro.
     trans (ς' ∪ σ0'); first done. apply map_union_mono_l. done.

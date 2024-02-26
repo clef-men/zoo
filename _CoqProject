@@ -42,7 +42,6 @@ theories/iris/base_logic/lib/auth_mono.v
 theories/iris/base_logic/lib/auth_mono_annotated.v
 theories/iris/base_logic/lib/mono_list.v
 theories/iris/base_logic/lib/mono_map.v
-theories/iris/base_logic/lib/mono_map_.v
 
 theories/iris/program_logic/atomic.v
 

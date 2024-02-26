@@ -960,7 +960,7 @@ Section pstore_G.
     iIntros (Φ) open_inv. iIntros "HΦ".
     wp_rec. wp_load. do 5 iStep.
 
-    iMod (mono_map_insert _ _ (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
+    iMod (mono_map_insert' (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
     { apply not_elem_of_dom. apply is_fresh. }
     iModIntro.
     iSplitR "Hsnap". 2:iSteps.
@@ -1617,7 +1617,7 @@ Section pstore_G.
 
     iDestruct (extract_unaliased with "Hg") as "%".
 
-    iDestruct (mono_map_lookup with "[$][$]") as "%Hrs".
+    iDestruct (mono_map_elem_valid with "[$][$]") as "%Hrs".
     apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
 
     destruct_decide (decide (rs=r)).
