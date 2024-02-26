@@ -858,7 +858,7 @@ Section store_G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ0 & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (mono_map_lb_get with "Hauth") as "#Hlb".
+    iMod (mono_map_lb_get with "Hauth") as "(Hauth&#Hlb)".
     wp_apply (raw.store_capture_spec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.
