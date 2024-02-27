@@ -78,16 +78,14 @@ Section mono_map_G.
     iDestruct (own_valid_2 with "Ha Hf") as "%Hv".
     iPureIntro.
     apply auth_both_valid_discrete in Hv. destruct Hv as (Hv&_).
-    intros i. eapply lookup_included with (i:=i) in Hv.
+    intros i. eapply lookup_included with (i := i) in Hv.
     rewrite !lookup_fmap in Hv.
-    destruct (m1!!i),(m2!!i); try done; simpl in *.
-    { apply Some_included in Hv. simpl. eapply (@leibniz_equiv (leibnizO V)). apply _.
+    destruct (m1 !! i), (m2 !! i); try done; simpl in *.
+    - apply Some_included in Hv. simpl. eapply (@leibniz_equiv (leibnizO V)). apply _.
       destruct Hv as [Hv|Hv].
-      - by apply to_agree_inj.
-      - by apply to_agree_included.
-    } {
-      apply Some_included_is_Some in Hv. by inversion Hv.
-    }
+      + by apply to_agree_inj.
+      + by apply to_agree_included.
+    - apply Some_included_is_Some in Hv. by inversion Hv.
   Qed.
   Lemma mono_map_elem_valid γ m i v :
     mono_map_auth γ m -∗
@@ -99,19 +97,30 @@ Section mono_map_G.
     iSteps.
   Qed.
 
+  Lemma mono_map_lb_get' {γ m} m' :
+    m' ⊆ m →
+    mono_map_auth γ m ⊢ |==>
+      mono_map_auth γ m ∗
+      mono_map_lb γ m'.
+  Proof.
+    intros Hm'. rewrite -own_op.
+    apply own_update, auth_update_alloc.
+    apply local_update_unital. intros n z Hv Hz.
+    rewrite mixin_ucmra_unit_left_id in Hz; first apply gmap_ucmra_mixin.
+    split; eauto.
+    rewrite -Hz.
+    intros k. rewrite lookup_merge !lookup_fmap.
+    destruct (m' !! k) eqn:Hm'_lookup; simpl.
+    - eapply lookup_weaken in Hm'_lookup as ->; last done.
+      rewrite -Some_op agree_idemp //.
+    - destruct (m !! k); done.
+  Qed.
   Lemma mono_map_lb_get γ m :
     mono_map_auth γ m ⊢ |==>
       mono_map_auth γ m ∗
       mono_map_lb γ m.
   Proof.
-    rewrite /mono_map_auth /mono_map_lb -own_op.
-    iApply own_update. apply auth_update_alloc.
-    apply local_update_unital. intros n z Hv Hz.
-    rewrite mixin_ucmra_unit_left_id in Hz. apply gmap_ucmra_mixin.
-    split. eauto.
-    rewrite -Hz gmap_op.
-    intros l. rewrite lookup_merge lookup_fmap.
-    destruct (m !! l); last done. simpl. rewrite -Some_op agree_idemp //.
+    apply mono_map_lb_get'. done.
   Qed.
   Lemma mono_map_elem_get {γ m} i v :
     m !! i = Some v →
@@ -119,16 +128,7 @@ Section mono_map_G.
       mono_map_auth γ m ∗
       mono_map_elem γ i v.
   Proof.
-    iIntros (Hi) "He". rewrite /mono_map_elem /mono_map_auth.
-    rewrite -own_op. iApply (own_update with "[$]").
-    apply auth_update_alloc.
-    apply local_update_unital. intros n z Hv Hz.
-    rewrite mixin_ucmra_unit_left_id in Hz; first apply gmap_ucmra_mixin.
-    split. eauto.
-    rewrite -Hz.
-    rewrite -{2}(insert_id m i v) // fmap_insert map_fmap_singleton -insert_op.
-    rewrite agree_idemp left_id // insert_id //.
-    rewrite lookup_fmap Hi //.
+    intros. apply mono_map_lb_get'. rewrite map_singleton_subseteq_l //.
   Qed.
 
   Lemma mono_map_insert {γ m} i v :
