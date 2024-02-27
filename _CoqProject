@@ -96,8 +96,6 @@ theories/persistent/parray.v
 theories/persistent/pstore_1.v
 theories/persistent/pstore_2.v
 
-theories/store.v
-
 theories/saturn/base.v
 theories/saturn/bag.v
 theories/saturn/treiber_stack.v
