@@ -69,6 +69,36 @@ Section mono_map_G.
     intros i. rewrite lookup_fmap. by destruct (m !! i).
   Qed.
 
+  Lemma mono_map_lb_valid γ m1 m2 :
+    mono_map_auth γ m1 -∗
+    mono_map_lb γ m2 -∗
+    ⌜m2 ⊆ m1⌝.
+  Proof.
+    iIntros "Ha Hf".
+    iDestruct (own_valid_2 with "Ha Hf") as "%Hv".
+    iPureIntro.
+    apply auth_both_valid_discrete in Hv. destruct Hv as (Hv&_).
+    intros i. eapply lookup_included with (i:=i) in Hv.
+    rewrite !lookup_fmap in Hv.
+    destruct (m1!!i),(m2!!i); try done; simpl in *.
+    { apply Some_included in Hv. simpl. eapply (@leibniz_equiv (leibnizO V)). apply _.
+      destruct Hv as [Hv|Hv].
+      - by apply to_agree_inj.
+      - by apply to_agree_included.
+    } {
+      apply Some_included_is_Some in Hv. by inversion Hv.
+    }
+  Qed.
+  Lemma mono_map_elem_valid γ m i v :
+    mono_map_auth γ m -∗
+    mono_map_elem γ i v -∗
+    ⌜m !! i = Some v⌝.
+  Proof.
+    iIntros "Hauth Helem".
+    iDestruct (mono_map_lb_valid with "Hauth Helem") as %?%map_singleton_subseteq_l.
+    iSteps.
+  Qed.
+
   Lemma mono_map_lb_get γ m :
     mono_map_auth γ m ⊢ |==>
       mono_map_auth γ m ∗
@@ -121,36 +151,6 @@ Section mono_map_G.
     iIntros "%Hlookup Hauth".
     iMod (mono_map_insert with "Hauth") as "Hauth"; first done.
     iApply (mono_map_elem_get with "Hauth"); first rewrite lookup_insert //.
-  Qed.
-
-  Lemma mono_map_lb_valid γ m1 m2 :
-    mono_map_auth γ m1 -∗
-    mono_map_lb γ m2 -∗
-    ⌜m2 ⊆ m1⌝.
-  Proof.
-    iIntros "Ha Hf".
-    iDestruct (own_valid_2 with "Ha Hf") as "%Hv".
-    iPureIntro.
-    apply auth_both_valid_discrete in Hv. destruct Hv as (Hv&_).
-    intros i. eapply lookup_included with (i:=i) in Hv.
-    rewrite !lookup_fmap in Hv.
-    destruct (m1!!i),(m2!!i); try done; simpl in *.
-    { apply Some_included in Hv. simpl. eapply (@leibniz_equiv (leibnizO V)). apply _.
-      destruct Hv as [Hv|Hv].
-      - by apply to_agree_inj.
-      - by apply to_agree_included.
-    } {
-      apply Some_included_is_Some in Hv. by inversion Hv.
-    }
-  Qed.
-  Lemma mono_map_elem_valid γ m i v :
-    mono_map_auth γ m -∗
-    mono_map_elem γ i v -∗
-    ⌜m !! i = Some v⌝.
-  Proof.
-    iIntros "Hauth Helem".
-    iDestruct (mono_map_lb_valid with "Hauth Helem") as %?%map_singleton_subseteq_l.
-    iSteps.
   Qed.
 End mono_map_G.
 
