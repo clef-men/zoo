@@ -95,35 +95,26 @@ Definition store_capture : val :=
     "t" <-{gen} #1 + "g" ;;
     ("t", "g", "t".{root}).
 
-#[local] Definition store_collect : val :=
-  rec: "store_collect" "node" "acc" :=
+#[local] Definition store_reroot_aux : val :=
+  rec: "store_reroot_aux" "node" :=
     match: !"node" with
     | Root =>
-        ("node", "acc")
-    | Diff <> <> <> "node'" =>
-        "store_collect" "node'" ‘Cons{ "node", "acc" }
-    end.
-#[local] Definition store_revert : val :=
-  rec: "store_revert" "node" "seg" :=
-    match: "seg" with
-    | Nil =>
-        "node" <- §Root
-    | Cons "node'" "seg" =>
-        match: !"node'" with
-        | Root =>
-            Fail
-        | Diff "r" "g" "v" "node_" =>
-            assert ("node_" = "node") ;;
-            "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
-            "r" <-{ref_gen} "g" ;;
-            "r" <-{ref_value} "v" ;;
-            "store_revert" "node'" "seg"
-        end
+        ()
+    | Diff "r" "v" "gen" "node'" =>
+        "store_reroot_opt_aux" "node'" ;;
+        "node'" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node" } ;;
+        "r" <-{ref_gen} "gen" ;;
+        "r" <-{ref_value} "v"
     end.
 #[local] Definition store_reroot : val :=
   λ: "node",
-    let: "root", "nodes" := store_collect "node" §Nil in
-    store_revert "root" "nodes".
+    match: !"node" with
+    | Root =>
+        ()
+    | Diff <> <> <> <> =>
+        store_reroot_aux "node" ;;
+        "node" <- §Root
+    end.
 
 Definition store_restore : val :=
   λ: "t" "s",
