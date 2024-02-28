@@ -69,15 +69,7 @@ theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
-theories/std/chain.v
-theories/std/chunk.v
-theories/std/array.v
-theories/std/inf_array.v
-theories/std/queue.v
 theories/std/xdeque.v
-theories/std/mutex.v
-theories/std/condition.v
-theories/std/latch1.v
 
 theories/persistent/base.v
 theories/persistent/pstore_1.v
