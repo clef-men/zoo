@@ -10,7 +10,6 @@ theories/prelude/prelude.v
 
 theories/options.v
 
-theories/common/relations.v
 theories/common/list.v
 
 theories/iris/algebra/base.v
@@ -45,11 +44,9 @@ theories/language/adequacy.v
 # theories/language/prophecy_erasure.v
 theories/language/identifier.v
 theories/language/itype.v
-theories/language/typed_prophet.v
 
 theories/std/base.v
 theories/std/assert.v
-theories/std/opt.v
 theories/std/lst.v
 
 theories/persistent/base.v
