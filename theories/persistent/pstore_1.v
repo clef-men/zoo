@@ -2,13 +2,10 @@
    https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
 *)
 
-From iris.algebra Require Import
-  gmap.
-
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
-  lib.mono_map.
+  lib.mono_set.
 From zebre.language Require Import
   notations
   diaframe.
@@ -642,11 +639,11 @@ End adiffl.
 (* Proof. *)
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] pstore_G_map_G :: MonoMapG Σ nat (loc * gmap loc val)%type ;
+  #[local] pstore_G_set_G :: MonoSetG Σ (loc * gmap loc val)%type ;
 }.
 
 Definition pstore_Σ := #[
-  mono_map_Σ nat (loc * gmap loc val)%type
+  mono_set_Σ (loc * gmap loc val)%type
 ].
 #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →
@@ -689,13 +686,13 @@ Section pstore_G.
       coh2 : locs_of_edges_in g (dom σ0);
     }.
 
-  Definition snap_inv (M:map_model) (C:gmap nat (loc * gmap loc val)) :=
-    forall n l σ, C !! n = Some (l,σ) -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
+  Definition snap_inv (M:map_model) (C:gset (loc * gmap loc val)) :=
+    forall l σ, (l,σ) ∈ C -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
-  #[local] Definition pstore_map_auth γ map :=
-    mono_map_auth γ map.
-  #[local] Definition pstore_map_elem γ n l σ :=
-    mono_map_elem γ n (l, σ).
+  #[local] Definition pstore_map_auth (γ:gname) (s:gset (loc*(gmap loc val))) :=
+    mono_set_auth γ s.
+  #[local] Definition pstore_map_elem γ l σ :=
+    mono_set_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
     ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) -∗
@@ -719,7 +716,7 @@ Section pstore_G.
       (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
       (M:map_model) (* the map model, associating to each node its model *)
-      (C:gmap nat (loc * gmap loc val)), (* the model of snapshots *)
+      (C:gset (loc * gmap loc val)), (* the model of snapshots *)
     ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r /\ snap_inv M C⌝ ∗
     t0 ↦ #r ∗
     r ↦ §Root ∗
@@ -731,7 +728,7 @@ Section pstore_G.
     "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]".
 
   Definition pstore_snapshot γ t s σ : iProp Σ :=
-    ∃ l n, ⌜s=ValTuple [t;#l]⌝ ∗ pstore_map_elem γ n l σ.
+    ∃ l, ⌜s=ValTuple [t;#l]⌝ ∗ pstore_map_elem γ l σ.
 
   #[global] Instance pstore_snapshot_timeless γ t s σ :
     Timeless (pstore_snapshot γ t s σ).
@@ -756,7 +753,7 @@ Section pstore_G.
     wp_rec.
     wp_alloc r as "Hroot".
     wp_alloc t0 as "Ht0".
-    iMod (mono_map_alloc ∅) as "[%γ ?]".
+    iMod (mono_set_alloc ∅) as "[%γ ?]".
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
@@ -838,7 +835,7 @@ Section pstore_G.
         destruct (M !! r') eqn:Hor. 2:simpl in *; congruence.
         inversion E. subst. rewrite !dom_insert_L. set_solver. }
       { intros. rewrite dom_insert_L. intros ??. set_solver. } }
-    { intros ? r' ? HC. apply Hsnap in HC. destruct HC as (x&Hx&?).
+    { intros r' ? HC. apply Hsnap in HC. destruct HC as (x&Hx&?).
       exists (<[l:=v]>x). rewrite lookup_fmap Hx. split. done.
       apply gmap_included_insert_notin; last done.
       apply incl_dom_incl in H0. intros X. apply H0 in X.
@@ -939,7 +936,7 @@ Section pstore_G.
         apply X1 in HM. rewrite dom_insert_lookup_L //. }
       { intros ?. set_solver. } }
     { eauto using rooted_dag_add. }
-    { intros ? r0 ? HC. apply Hsnap in HC. destruct HC as (?&HC&?).
+    { intros r0 ? HC. apply Hsnap in HC. destruct HC as (?&HC&?).
       destruct_decide (decide (r0=r')).
       { exfalso. subst. destruct Hinv as [X1 X2 X3].
         assert (r' ∉ dom M) as F by set_solver. apply F. by eapply elem_of_dom. }
@@ -960,17 +957,14 @@ Section pstore_G.
     iIntros (Φ) open_inv. iIntros "HΦ".
     wp_rec. wp_load. do 5 iStep.
 
-    iMod (mono_map_insert' (fresh (dom C)) (r,σ) with "HC") as "(HC&Hsnap)".
-    { apply not_elem_of_dom. apply is_fresh. }
+    iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
     iModIntro.
     iSplitR "Hsnap". 2:iSteps.
     iExists _,_,_,_,_,_. iFrame.
     iPureIntro. split_and!; eauto.
-    intros ? r' ? HC.
-    destruct_decide (decide (n=fresh (dom C))).
-    { subst. rewrite lookup_insert in HC. inversion HC. subst.
-      destruct Hinv. eauto. }
-    { rewrite lookup_insert_ne // in HC. eauto. }
+    intros r' ? HC. rewrite elem_of_union elem_of_singleton in HC.
+    destruct HC as [HC|HC]; last eauto.
+    inversion HC. subst. destruct Hinv. eauto.
   Qed.
 
   Definition fsts  (ys:list (loc*(loc*val)*loc)) : list val :=
@@ -1612,12 +1606,12 @@ Section pstore_G.
   Proof.
     iIntros (Φ) "(HI&Hsnap) HΦ".
     iDestruct "HI" as open_inv.
-    iDestruct "Hsnap" as "(%rs&%&->&Hsnap)".
+    iDestruct "Hsnap" as "(%rs&->&Hsnap)".
     wp_rec. iStep 20.
 
     iDestruct (extract_unaliased with "Hg") as "%".
 
-    iDestruct (mono_map_elem_valid with "[$][$]") as "%Hrs".
+    iDestruct (mono_set_elem_valid with "[$][$]") as "%Hrs".
     apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
 
     destruct_decide (decide (rs=r)).
