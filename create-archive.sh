@@ -20,12 +20,10 @@ make clean
 cp -r \
    Makefile \
    README.md \
-   coq-store.opam \
+   coq-zebre.opam \
    _CoqProject \
    theories \
    $ARCHIVE
-
-cd $ARCHIVE
 
 $TAR cvfz $ARCHIVE.tar.gz \
      --exclude-vcs-ignores \
