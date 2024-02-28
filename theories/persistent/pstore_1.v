@@ -711,13 +711,13 @@ Section pstore_G.
      (see [extract_unaliased]), and a DAG with unaliased guarantees unicity of paths
      (see [acyclic_unaliased_impl_uniq_path] ) *)
 
-  #[local] Definition pstore (γ:gname) (t:val) (σ:gmap loc val) : iProp Σ :=
-    ∃ (t0 r:loc)
+  #[local] Definition pstore (t:val) (σ:gmap loc val) : iProp Σ :=
+    ∃ (γ:gname) (t0 r:loc)
       (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
       (M:map_model) (* the map model, associating to each node its model *)
       (C:gset (loc * gmap loc val)), (* the model of snapshots *)
-    ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r /\ snap_inv M C⌝ ∗
+    ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r /\ snap_inv M C⌝ ∗ meta t0 nroot γ ∗
     t0 ↦ #r ∗
     r ↦ §Root ∗
     pstore_map_auth γ C ∗
@@ -725,18 +725,18 @@ Section pstore_G.
     ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) .
 
   Definition open_inv : string :=
-    "[%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&Ht0&Hr&HC&Hσ0&Hg)]]]]]]".
+    "[%γ [%t0 [%r [%σ0 [%g [%M [%C ((->&%Hinv&%Hcoh&%Hgraph&%Hsnap)&#Hmeta&Ht0&Hr&HC&Hσ0&Hg)]]]]]]]".
 
-  Definition pstore_snapshot γ t s σ : iProp Σ :=
-    ∃ l, ⌜s=ValTuple [t;#l]⌝ ∗ pstore_map_elem γ l σ.
+  Definition pstore_snapshot t s σ : iProp Σ :=
+    ∃ γ (t0:loc) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
 
-  #[global] Instance pstore_snapshot_timeless γ t s σ :
-    Timeless (pstore_snapshot γ t s σ).
+  #[global] Instance pstore_snapshot_timeless t s σ :
+    Timeless (pstore_snapshot t s σ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pstore_snapshot_persistent γ t s σ :
-    Persistent (pstore_snapshot γ t s σ).
+  #[global] Instance pstore_snapshot_persistent t s σ :
+    Persistent (pstore_snapshot t s σ).
   Proof.
     apply _.
   Qed.
@@ -744,18 +744,19 @@ Section pstore_G.
   Lemma pstore_create_spec :
     {{{ True }}}
       pstore_create ()
-    {{{ t γ,
+    {{{ t,
       RET t;
-        pstore γ t ∅
+        pstore t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_alloc r as "Hroot".
-    wp_alloc t0 as "Ht0".
+    wp_alloc t0 as "Hmeta" "Ht0".
     iMod (mono_set_alloc ∅) as "[%γ ?]".
+    iMod (meta_set _ _ _ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.
-    iExists t0,r,∅,∅,{[r := ∅]},∅. iFrame.
+    iExists γ,t0,r,∅,∅,{[r := ∅]},∅. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
     iPureIntro. split_and!; first done.
     { constructor.
@@ -782,15 +783,15 @@ Section pstore_G.
     apply He in H. set_solver.
   Qed.
 
-  Lemma pstore_ref_spec γ t σ v :
+  Lemma pstore_ref_spec t σ v :
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_ref v
     {{{ l,
       RET #l;
       ⌜l ∉ dom σ⌝ ∗
-      pstore γ t (<[l := v]> σ)
+      pstore t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (ϕ) open_inv. iIntros "HΦ".
@@ -809,9 +810,9 @@ Section pstore_G.
     iDestruct (pointsto_ne with "Hl Hr") as %Hlr.
 
     iModIntro. iSplitR. iPureIntro. by eapply not_elem_of_dom.
-    iExists t0,r, (<[l:=v]>σ0),g,((fun σ => <[l:=v]>σ)<$> M),C.
+    iExists γ,t0,r, (<[l:=v]>σ0),g,((fun σ => <[l:=v]>σ)<$> M),C.
 
-    rewrite big_sepM_insert //. iFrame.
+    rewrite big_sepM_insert //. iFrame "#∗".
     iPureIntro. split_and !; eauto.
     { destruct Hinv as [X1 X2 X3 X4].
       constructor.
@@ -843,15 +844,15 @@ Section pstore_G.
       apply not_elem_of_dom in Hl0. set_solver. }
   Qed.
 
-  Lemma pstore_get_spec {γ t σ l} v :
+  Lemma pstore_get_spec {t σ l} v :
     σ !! l = Some v →
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_get t #l
     {{{
       RET v;
-      pstore γ t σ
+      pstore t σ
     }}}.
   Proof.
     iIntros (Hl ϕ) open_inv. iIntros "HΦ".
@@ -864,15 +865,15 @@ Section pstore_G.
     iSteps.
   Qed.
 
-  Lemma pstore_set_spec γ t σ l v :
+  Lemma pstore_set_spec t σ l v :
     l ∈ dom σ →
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_set t #l v
     {{{
       RET ();
-      pstore γ t (<[l := v]> σ)
+      pstore t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
@@ -900,11 +901,11 @@ Section pstore_G.
       { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
         iDestruct (pointsto_ne r' r' with "[$][$]") as %?. congruence. } }
 
-    iModIntro. iExists t0,r',(<[l:=v]> σ0),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ0]>M),C.
+    iModIntro. iExists γ,t0,r',(<[l:=v]> σ0),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ0]>M),C.
     rewrite big_sepS_union.
     { apply disjoint_singleton_l. intros ?. apply Hr'.
       apply elem_of_vertices. eauto. }
-    rewrite big_sepS_singleton. iFrame. iPureIntro.
+    rewrite big_sepS_singleton. iFrame "#∗". iPureIntro.
     split_and!; first done.
     { destruct Hinv as [X1 X2 X3 X4].
       constructor.
@@ -943,15 +944,15 @@ Section pstore_G.
       rewrite lookup_insert_ne //. eauto. }
   Qed.
 
-  Lemma pstore_capture_spec γ t σ :
+  Lemma pstore_capture_spec t σ :
     {{{
-      pstore γ t σ
+      pstore t σ
     }}}
       pstore_capture t
     {{{ s,
       RET s;
-      pstore γ t σ ∗
-      pstore_snapshot γ t s σ
+      pstore t σ ∗
+      pstore_snapshot t s σ
     }}}.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
@@ -960,7 +961,7 @@ Section pstore_G.
     iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
     iModIntro.
     iSplitR "Hsnap". 2:iSteps.
-    iExists _,_,_,_,_,_. iFrame.
+    iExists γ,_,_,_,_,_,_. iFrame "#∗".
     iPureIntro. split_and!; eauto.
     intros r' ? HC. rewrite elem_of_union elem_of_singleton in HC.
     destruct HC as [HC|HC]; last eauto.
@@ -1593,20 +1594,22 @@ Section pstore_G.
     eapply use_undo. rewrite R1. done.
   Qed.
 
-  Lemma pstore_restore_spec γ t σ s σ' :
+  Lemma pstore_restore_spec t σ s σ' :
     {{{
-      pstore γ t σ ∗
-      pstore_snapshot γ t s σ'
+      pstore t σ ∗
+      pstore_snapshot t s σ'
     }}}
       pstore_restore t s
     {{{
       RET ();
-      pstore γ t σ'
+      pstore t σ'
     }}}.
   Proof.
     iIntros (Φ) "(HI&Hsnap) HΦ".
     iDestruct "HI" as open_inv.
-    iDestruct "Hsnap" as "(%rs&->&Hsnap)".
+    iDestruct "Hsnap" as "[%γ' [%t0' [%rs ((%Eq&->)&Hmeta'&Hsnap)]]]".
+    inversion Eq. subst t0'.
+    iDestruct (meta_agree with "Hmeta' Hmeta") as "->".
     wp_rec. iStep 20.
 
     iDestruct (extract_unaliased with "Hg") as "%".
@@ -1618,7 +1621,7 @@ Section pstore_G.
     { subst.
       subst.
       wp_load. iStep 4. iModIntro.
-      iExists _,_,_,_,_,_. iFrame. iPureIntro. split_and!; eauto.
+      iExists _,_,_,_,_,_,_. iFrame "#∗". iPureIntro. split_and!; eauto.
       { destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver. } }
 
     assert (rs ∈ vertices g) as Hrs.
@@ -1662,7 +1665,7 @@ Section pstore_G.
     { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "?". done.
       iDestruct (pointsto_ne rs rs with "[$][$]") as "%". congruence. }
 
-    iExists _,_,_,_,M,_. iFrame.
+    iExists γ,_,_,_,_,M,_. iFrame.
 
     assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
     { apply mirror_vertices in Hmirror.
