@@ -13,7 +13,6 @@ theories/options.v
 theories/common/relations.v
 theories/common/math.v
 theories/common/list.v
-theories/common/gmultiset.v
 
 theories/iris/algebra/base.v
 theories/iris/algebra/view.v
@@ -25,9 +24,6 @@ theories/iris/diaframe.v
 theories/iris/bi/big_op.v
 
 theories/iris/base_logic/lib/base.v
-theories/iris/base_logic/lib/agree.v
-theories/iris/base_logic/lib/excl.v
-theories/iris/base_logic/lib/ghost_var.v
 theories/iris/base_logic/lib/mono_set.v
 
 theories/iris/program_logic/atomic.v
@@ -55,8 +51,6 @@ theories/language/typed_prophet.v
 theories/std/base.v
 theories/std/diverge.v
 theories/std/assert.v
-theories/std/assume.v
-theories/std/for_upto.v
 theories/std/math.v
 theories/std/opt.v
 theories/std/lst.v
