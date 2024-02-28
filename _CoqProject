@@ -44,8 +44,6 @@ theories/iris/base_logic/lib/mono_list.v
 theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
 
-theories/iris/program_logic/atomic.v
-
 theories/language/loc.v
 theories/language/syntax.v
 theories/language/semantics.v
@@ -79,8 +77,6 @@ theories/std/lst.v
 theories/std/chain.v
 theories/std/chunk.v
 theories/std/array.v
-theories/std/dynarray_1.v
-theories/std/dynarray_2.v
 theories/std/inf_array.v
 theories/std/queue.v
 theories/std/stack.v
@@ -88,27 +84,6 @@ theories/std/xdeque.v
 theories/std/mutex.v
 theories/std/condition.v
 theories/std/latch1.v
-theories/std/unix.v
 
 theories/persistent/base.v
-theories/persistent/pstack.v
-theories/persistent/pqueue.v
-theories/persistent/parray.v
 theories/persistent/pstore_1.v
-theories/persistent/pstore_2.v
-
-theories/saturn/base.v
-theories/saturn/bag.v
-theories/saturn/treiber_stack.v
-theories/saturn/spsc_queue.v
-theories/saturn/mpsc_queue_1.v
-theories/saturn/mpsc_queue_2.v
-theories/saturn/mpmc_queue.v
-theories/saturn/inf_cl_deque.v
-
-theories/eio/base.v
-theories/eio/rcfd.v
-
-theories/boxroot/base.v
-theories/boxroot/gc.v
-theories/boxroot/boxroot.v
