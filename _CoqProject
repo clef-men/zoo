@@ -19,8 +19,6 @@ theories/iris/algebra/base.v
 theories/iris/algebra/view.v
 theories/iris/algebra/auth.v
 theories/iris/algebra/mono.v
-theories/iris/algebra/lib/auth_option.v
-theories/iris/algebra/lib/auth_mono.v
 
 theories/iris/diaframe.v
 
@@ -30,9 +28,6 @@ theories/iris/base_logic/lib/base.v
 theories/iris/base_logic/lib/agree.v
 theories/iris/base_logic/lib/excl.v
 theories/iris/base_logic/lib/ghost_var.v
-theories/iris/base_logic/lib/oneshot.v
-theories/iris/base_logic/lib/auth_mono.v
-theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
 
 theories/iris/program_logic/atomic.v
