@@ -20,20 +20,17 @@ theories/iris/algebra/view.v
 theories/iris/algebra/auth.v
 theories/iris/algebra/mono.v
 theories/iris/algebra/lib/auth_option.v
-theories/iris/algebra/lib/auth_excl.v
 theories/iris/algebra/lib/auth_mono.v
 
 theories/iris/diaframe.v
 
 theories/iris/bi/big_op.v
 
-theories/iris/base_logic/algebra/auth_excl.v
 theories/iris/base_logic/lib/base.v
 theories/iris/base_logic/lib/agree.v
 theories/iris/base_logic/lib/excl.v
 theories/iris/base_logic/lib/ghost_var.v
 theories/iris/base_logic/lib/oneshot.v
-theories/iris/base_logic/lib/auth_excl.v
 theories/iris/base_logic/lib/auth_mono.v
 theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
@@ -66,10 +63,8 @@ theories/std/assert.v
 theories/std/assume.v
 theories/std/for_upto.v
 theories/std/math.v
-theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
-theories/std/xdeque.v
 
 theories/persistent/base.v
 theories/persistent/pstore_1.v
