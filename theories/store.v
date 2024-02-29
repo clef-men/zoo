@@ -1565,7 +1565,6 @@ Section store_G.
     etrans. done. rewrite Hzs. rewrite fmap_app apply_diffl_app.
     f_equal. clear dependent σ1 l1.
 
-    (* XXX facto a lemma. *)
     assert (exists u1 u2, ys = u1 ++ (x::l2) ++ u2) as (u1&u2&Hys).
     { eapply use_mirror in Hrs. 2:done.
       apply elem_of_list_to_set, elem_of_middle in Hx.
