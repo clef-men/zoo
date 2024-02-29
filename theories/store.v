@@ -687,8 +687,8 @@ Section store_G.
   Definition snap_inv (M:map_model) (C:gset (loc * gmap loc val)) :=
     forall l σ, (l,σ) ∈ C -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
-  #[local] Definition store_map_auth (γ:gname) (s:gset (loc*(gmap loc val))) :=
-    mono_set_auth γ s.
+  #[local] Definition store_map_auth (γ:gname) (x:gset (loc*(gmap loc val))) :=
+    mono_set_auth γ x.
   #[local] Definition store_map_elem γ l σ :=
     mono_set_elem γ (l,σ).
 
@@ -709,35 +709,35 @@ Section store_G.
      (see [extract_unaliased]), and a DAG with unaliased guarantees unicity of paths
      (see [acyclic_unaliased_impl_uniq_path] ) *)
 
-  #[local] Definition snapshosts_model (t0:loc) (M:map_model) : iProp Σ :=
+  #[local] Definition snapshosts_model (s0:loc) (M:map_model) : iProp Σ :=
     ∃ (γ:gname) (C:gset (loc * gmap loc val)), (* the model of snapshots *)
-      ⌜snap_inv M C⌝ ∗ meta t0 nroot γ ∗ store_map_auth γ C.
+      ⌜snap_inv M C⌝ ∗ meta s0 nroot γ ∗ store_map_auth γ C.
 
-  #[local] Definition store (t:val) (σ:gmap loc val) : iProp Σ :=
-    ∃ (t0 r:loc)
+  #[local] Definition store (s:val) (σ:gmap loc val) : iProp Σ :=
+    ∃ (s0 r:loc)
       (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
       (M:map_model), (* the map model, associating to each node its model *)
-    ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r⌝ ∗
-    t0 ↦ #r ∗
+    ⌜s=#s0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r⌝ ∗
+    s0 ↦ #r ∗
     r ↦ §Root ∗
-    snapshosts_model t0 M ∗
+    snapshosts_model s0 M ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
     ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
-  Definition snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:loc) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ store_map_elem γ l σ.
+  Definition snapshot s t σ : iProp Σ :=
+    ∃ γ (s0:loc) l, ⌜s=#s0 /\ t=ValTuple [s;#l]⌝ ∗ meta s0 nroot γ ∗ store_map_elem γ l σ.
 
-  #[global] Instance snapshot_timeless t s σ :
-    Timeless (snapshot t s σ).
+  #[global] Instance snapshot_timeless s t σ :
+    Timeless (snapshot s t σ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance snapshot_persistent t s σ :
-    Persistent (snapshot t s σ).
+  #[global] Instance snapshot_persistent s t σ :
+    Persistent (snapshot s t σ).
   Proof.
     apply _.
   Qed.
@@ -745,9 +745,9 @@ Section store_G.
   Lemma store_create_spec :
     {{{ True }}}
       store_create ()
-    {{{ t,
-      RET t;
-        store t ∅
+    {{{ s,
+      RET s;
+        store s ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -785,15 +785,15 @@ Section store_G.
     apply He in H. set_solver.
   Qed.
 
-  Lemma store_ref_spec t σ v :
+  Lemma store_ref_spec s σ v :
     {{{
-      store t σ
+      store s σ
     }}}
       store_ref v
     {{{ l,
       RET #l;
       ⌜l ∉ dom σ⌝ ∗
-      store t (<[l := v]> σ)
+      store s (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (ϕ) open_inv. iIntros "HΦ".
@@ -849,15 +849,15 @@ Section store_G.
       apply not_elem_of_dom in Hl0. set_solver. }
   Qed.
 
-  Lemma store_get_spec {t σ l} v :
+  Lemma store_get_spec {s σ l} v :
     σ !! l = Some v →
     {{{
-      store t σ
+      store s σ
     }}}
-      store_get t #l
+      store_get s #l
     {{{
       RET v;
-      store t σ
+      store s σ
     }}}.
   Proof.
     iIntros (Hl ϕ) open_inv. iIntros "HΦ".
@@ -870,15 +870,15 @@ Section store_G.
     iStep 8. iFrame. iSteps.
   Qed.
 
-  Lemma store_set_spec t σ l v :
+  Lemma store_set_spec s σ l v :
     l ∈ dom σ →
     {{{
-      store t σ
+      store s σ
     }}}
-      store_set t #l v
+      store_set s #l v
     {{{
       RET ();
-      store t (<[l := v]> σ)
+      store s (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
@@ -954,15 +954,15 @@ Section store_G.
       rewrite lookup_insert_ne //. eauto. }
   Qed.
 
-  Lemma store_capture_spec t σ :
+  Lemma store_capture_spec s σ :
     {{{
-      store t σ
+      store s σ
     }}}
-      store_capture t
-    {{{ s,
-      RET s;
-      store t σ ∗
-      snapshot t s σ
+      store_capture s
+    {{{ t,
+      RET t;
+      store s σ ∗
+      snapshot s t σ
     }}}.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
@@ -1622,13 +1622,13 @@ Section store_G.
 
   Lemma store_restore_spec t σ s σ' :
     {{{
-      store t σ ∗
-      snapshot t s σ'
+      store s σ ∗
+      snapshot s t σ'
     }}}
-      store_restore t s
+      store_restore s t
     {{{
       RET ();
-      store t σ'
+      store s σ'
     }}}.
   Proof.
     iIntros (Φ) "(HI&Hsnap) HΦ".
