@@ -24,18 +24,6 @@ Implicit Types vs : list val.
 Implicit Types br : branch.
 Implicit Types brs : list branch.
 
-Definition literal_physical lit :=
-  match lit with
-  | LiteralBool _
-  | LiteralInt _
-  | LiteralLoc _ =>
-      True
-  | LiteralProphecy _
-  | LiteralPoison =>
-      False
-  end.
-#[global] Arguments literal_physical !_ / : assert.
-
 Definition literal_eq lit1 lit2 :=
   match lit1, lit2 with
   | LiteralBool b1, LiteralBool b2 =>
@@ -62,17 +50,6 @@ Qed.
 Proof.
   do 2 intros []; done.
 Qed.
-
-Definition val_physical v :=
-  match v with
-  | ValLiteral lit =>
-      literal_physical lit
-  | _ =>
-      True
-  end.
-#[global] Arguments val_physical !_ / : assert.
-Class ValPhysical v :=
-  val_physical' : val_physical v.
 
 Definition val_neq v1 v2 :=
   match v1, v2 with
@@ -295,13 +272,6 @@ Fixpoint subst (x : string) v e :=
   | Fork e =>
       Fork
         (subst x v e)
-  | Proph =>
-      Proph
-  | Resolve e0 e1 e2 =>
-      Resolve
-        (subst x v e0)
-        (subst x v e1)
-        (subst x v e2)
   end.
 #[global] Arguments subst _ _ !_ / : assert.
 Definition subst' x v :=
@@ -335,31 +305,12 @@ Fixpoint case_apply tag vs x e brs :=
   end.
 #[global] Arguments case_apply _ _ _ _ !_ / : assert.
 
-Record state : Type := {
-  state_heap : gmap loc val ;
-  state_prophs : gset prophecy_id ;
-}.
+Definition state :=
+  gmap loc val.
 Implicit Types σ : state.
 
 Canonical stateO :=
   leibnizO state.
-
-Definition state_update_heap f σ : state :=
-  {|state_heap := f σ.(state_heap) ;
-    state_prophs := σ.(state_prophs) ;
-  |}.
-#[global] Arguments state_update_heap _ !_ / : assert.
-Definition state_update_prophs f σ : state :=
-  {|state_heap := σ.(state_heap) ;
-    state_prophs := f σ.(state_prophs) ;
-  |}.
-#[global] Arguments state_update_prophs _ !_ / : assert.
-
-#[global] Instance state_inhabited : Inhabited state :=
-  populate
-    {|state_heap := inhabitant ;
-      state_prophs := inhabitant ;
-    |}.
 
 Fixpoint heap_array l vs : gmap loc val :=
   match vs with
@@ -410,12 +361,9 @@ Proof.
 Qed.
 
 Definition state_init_heap l vs σ :=
-  state_update_heap (λ h, heap_array l vs ∪ h) σ.
+  heap_array l vs ∪ σ.
 
-Definition observation : Set :=
-  prophecy_id * (val * val).
-
-Inductive base_step : expr → state → list observation → expr → state → list expr → Prop :=
+Inductive base_step : expr → state → list () → expr → state → list expr → Prop :=
   | base_step_rec f x e σ :
       base_step
         (Rec f x e)
@@ -452,8 +400,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_equal_fail v1 v2 σ :
-      val_physical v1 →
-      val_physical v2 →
       val_neq v1 v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -463,7 +409,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_equal_suc v1 v2 σ :
-      val_physical v1 →
       val_eq v1 v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -527,7 +472,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       es = of_vals vs →
       ( ∀ i,
         (0 ≤ i < length es)%Z →
-        σ.(state_heap) !! (l +ₗ i) = None
+        σ !! (l +ₗ i) = None
       ) →
       base_step
         (Record es)
@@ -540,7 +485,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       (0 < n)%Z →
       ( ∀ i,
         (0 ≤ i < n)%Z →
-        σ.(state_heap) !! (l +ₗ i) = None
+        σ !! (l +ₗ i) = None
       ) →
       base_step
         (Alloc (Val $ ValInt n) (Val v))
@@ -550,7 +495,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (state_init_heap l (replicate (Z.to_nat n) v) σ)
         []
   | base_step_load l v σ :
-      σ.(state_heap) !! l = Some v →
+      σ !! l = Some v →
       base_step
         (Load $ Val $ ValLoc l)
         σ
@@ -559,27 +504,25 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_store l v w σ :
-      σ.(state_heap) !! l = Some w →
+      σ !! l = Some w →
       base_step
         (Store (Val $ ValLoc l) (Val v))
         σ
         []
         Unit
-        (state_update_heap <[l := v]> σ)
+        (<[l := v]> σ)
         []
   | base_step_xchg l v w σ :
-      σ.(state_heap) !! l = Some w →
+      σ !! l = Some w →
       base_step
         (Xchg (Val $ ValLoc l) (Val v))
         σ
         []
         (Val w)
-        (state_update_heap <[l := v]> σ)
+        (<[l := v]> σ)
         []
   | base_step_cas_fail l v1 v2 v σ :
-      σ.(state_heap) !! l = Some v →
-      val_physical v →
-      val_physical v1 →
+      σ !! l = Some v →
       val_neq v v1 →
       base_step
         (Cas (Val $ ValLoc l) (Val v1) (Val v2))
@@ -589,24 +532,23 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_cas_suc l v1 v2 v σ :
-      σ.(state_heap) !! l = Some v →
-      val_physical v →
+      σ !! l = Some v →
       val_eq v v1 →
       base_step
         (Cas (Val $ ValLoc l) (Val v1) (Val v2))
         σ
         []
         (Val $ ValBool true)
-        (state_update_heap <[l := v2]> σ)
+        (<[l := v2]> σ)
         []
   | base_step_faa l n m σ :
-      σ.(state_heap) !! l = Some $ ValInt m →
+      σ !! l = Some $ ValInt m →
       base_step
         (Faa (Val $ ValLoc l) (Val $ ValInt n))
         σ
         []
         (Val $ ValInt m)
-        (state_update_heap <[l := ValInt (m + n)]> σ)
+        (<[l := ValInt (m + n)]> σ)
         []
   | base_step_fork e σ :
       base_step
@@ -615,28 +557,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
         Unit
         σ
-        [e]
-  | base_step_proph σ p :
-      p ∉ σ.(state_prophs) →
-      base_step
-        Proph
-        σ
-        []
-        (Val $ ValProphecy p)
-        (state_update_prophs ({[p]} ∪.) σ)
-        []
-  | base_step_resolve e p v σ κ w σ' es :
-      base_step e σ κ (Val w) σ' es →
-      base_step
-        (Resolve e (Val $ ValProphecy p) (Val v))
-        σ
-        (κ ++ [(p, (w, v))])
-        (Val w)
-        σ'
-        es.
+        [e].
 
 Lemma base_step_record' es vs σ :
-  let l := loc_fresh (dom σ.(state_heap)) in
+  let l := loc_fresh (dom σ) in
   0 < length es →
   es = of_vals vs →
   base_step
@@ -651,7 +575,7 @@ Proof.
   intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
 Qed.
 Lemma base_step_alloc' v n σ :
-  let l := loc_fresh (dom σ.(state_heap)) in
+  let l := loc_fresh (dom σ) in
   (0 < n)%Z →
   base_step
     (Alloc ((Val $ ValInt n)) (Val v))
@@ -663,18 +587,6 @@ Lemma base_step_alloc' v n σ :
 Proof.
   intros. apply base_step_alloc; first done.
   intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
-Qed.
-Lemma base_step_proph' σ :
-  let p := fresh σ.(state_prophs) in
-  base_step
-    Proph
-    σ
-    []
-    (Val $ ValProphecy p)
-    (state_update_prophs ({[p]} ∪.) σ)
-    [].
-Proof.
-  constructor. apply is_fresh.
 Qed.
 
 Lemma val_base_stuck e1 σ1 κ e2 σ2 es :
@@ -710,10 +622,7 @@ Inductive ectxi :=
   | CtxCas1 e0 v2
   | CtxCas2 e0 e1
   | CtxFaa1 v2
-  | CtxFaa2 e1
-  | CtxResolve0 (k : ectxi) v1 v2
-  | CtxResolve1 e0 v2
-  | CtxResolve2 e0 e1.
+  | CtxFaa2 e1.
 Implicit Types k : ectxi.
 
 Notation CtxLet x e2 := (
@@ -726,7 +635,7 @@ Notation CtxSeq e2 := (
 )(only parsing
 ).
 
-Fixpoint ectxi_fill k e : expr :=
+Definition ectxi_fill k e : expr :=
   match k with
   | CtxApp1 v2 =>
       App e $ Val v2
@@ -780,12 +689,6 @@ Fixpoint ectxi_fill k e : expr :=
       Faa e $ Val v2
   | CtxFaa2 e1 =>
       Faa e1 e
-  | CtxResolve0 k v1 v2 =>
-      Resolve (ectxi_fill k e) (Val v1) (Val v2)
-  | CtxResolve1 e0 v2 =>
-      Resolve e0 e $ Val v2
-  | CtxResolve2 e0 e1 =>
-      Resolve e0 e1 e
   end.
 #[global] Arguments ectxi_fill !_ _ / : assert.
 

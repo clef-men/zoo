@@ -142,65 +142,6 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance proph_step :
-    SPEC
-    {{ True }}
-      Proph
-    {{ pvs (p : prophecy_id),
-      RET #p;
-      proph p pvs
-    }}.
-  Proof.
-    iSteps.
-    iApply (wp_proph with "[//]").
-    iSteps.
-  Qed.
-
-  (* #[global] Instance abduct_resolve_atomic_spec K (e e_in : expr) (p : prophecy_id) (v : val) Φ pre n E1 E2 (TT1 TT2 : tele) *)
-  (*     L e' v' U M1 M2 : *)
-  (*   ReshapeExprAnd expr e_in K (Resolve e #p v) (TCAnd (LanguageCtx K) $ *)
-  (*                                                TCAnd (Atomic StronglyAtomic e) $ *)
-  (*                                                TCAnd (Atomic WeaklyAtomic e) $ (SolveSepSideCondition (to_val e = None))) → *)
-  (*   ReductionStep' wp_red_cond pre n M1 M2 TT1 TT2 L U e e' [tele_arg3 E2; NotStuck] → (1* does not work for pure since that is a ReductionTemplateStep *1) *)
-  (*   IntroducableModality M1 → IntroducableModality M2 → *)
-  (*   (TC∀.. ttl, TC∀.. ttr, IntoVal (tele_app (tele_app e' ttl) ttr) (tele_app (tele_app v' ttl) ttr)) → *)
-  (*   HINT1 pre ✱ [|={E1, E2}=> ∃ pvs, proph p pvs ∗ ∃.. ttl, tele_app L ttl ∗ *)
-  (*     ▷^n (∀ pvs', ∀.. ttr, ⌜pvs = (pair (tele_app (tele_app v' ttl) ttr) v)::pvs'⌝ ∗ proph p pvs' ∗ tele_app (tele_app U ttl) ttr ={E2,E1}=∗ *)
-  (*           WP K $ tele_app (tele_app e' ttl) ttr @ E1 {{ Φ }} ) ] *)
-  (*         ⊫ [id]; WP e_in @ E1 {{ Φ }} *)
-  (* | 45. *)
-  (* Proof. *)
-  (*   case => -> [HK [He1 [He3 He2]]] HLU HM1 HM2 Hev'. *)
-  (*   iStep as "Hpre HL". iApply wp_bind. iMod "HL" as (pvs) "[Hp Hwp]". *)
-  (*   { apply resolve_atomic. destruct s; try tc_solve. } *)
-  (*   iApply (wp_resolve with "Hp"). apply He2. simpl. *)
-  (*   iDestruct "Hwp" as (ttl) "[Hl HΦ]". *)
-  (*   rewrite /ReductionStep' /ReductionTemplateStep in HLU. *)
-  (*   iPoseProof (HLU with "Hpre") as "HWP". simpl. *)
-  (*   iApply "HWP". iApply HM1 => /=. *)
-  (*   iExists ttl. iFrame. iIntros "!>" (tt2) "HU". iApply HM2 => /=. *)
-  (*   revert Hev'. rewrite /TCTForall /IntoVal => /(dep_eval_tele ttl) /(dep_eval_tele tt2) => Hev'. *)
-  (*   rewrite -Hev'. *)
-  (*   iApply wp_value. iIntros (pvs'). *)
-  (*   iStep 2 as "Hpost Hproph". *)
-  (*   iSpecialize ("Hpost" $! pvs' tt2). rewrite -Hev'. iApply "Hpost". *)
-  (*   iSteps. *)
-  (* Qed. *)
-
-  (* #[global] Instance abduct_resolve_skip K (e_in : expr) (p : proph_id) (v : val) s E1 E2 Φ : *)
-  (*   ReshapeExprAnd expr e_in K (Resolve Skip #p v) (LanguageCtx K) → *)
-  (*   HINT1 ε₀ ✱ [|={E1, E2}=> ∃ pvs, proph p pvs ∗ *)
-  (*     ▷ (∀ pvs', ⌜pvs = (pair (#()) v)::pvs'⌝ ∗ proph p pvs' ={E2,E1}=∗ *)
-  (*           WP K $ #() @ s ; E1 {{ Φ }} ) ] *)
-  (*         ⊫ [id]; WP e_in @ s ; E1 {{ Φ }} | 45. *)
-  (* Proof. *)
-  (*   case => -> HK. *)
-  (*   iStep as "H". iApply wp_bind. iMod "H". iDecompose "H" as (ps) "Hproph Hpost". *)
-  (*   iApply (wp_resolve with "Hproph"). done. *)
-  (*   wp_pures. iStep 3 as (ps') "Hpost Hproph". *)
-  (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
-  (* Qed. *)
-
   #[global] Instance xchg_step_wp l v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
@@ -221,8 +162,6 @@ Section instances.
     SPEC ⟨E1, E2⟩ v dq,
     {{
       ▷ l ↦{dq} v ∗
-      ⌜val_physical v⌝ ∗
-      ⌜val_physical v1⌝ ∗
       ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
     }}
       Cas #l v1 v2
@@ -236,7 +175,7 @@ Section instances.
         l ↦ v2
     }}.
   Proof.
-    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
+    iStep as (lit). iIntros "%dq (_ & Hl & %H)".
     wp_cas as ? | ?; iSteps.
     destruct H; last done. iSteps.
   Qed.

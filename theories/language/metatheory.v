@@ -69,12 +69,6 @@ Fixpoint occurs x e :=
   | Faa e1 e2 =>
       occurs x e1 ||
       occurs x e2
-  | Proph =>
-      false
-  | Resolve e0 e1 e2 =>
-      occurs x e0 ||
-      occurs x e1 ||
-      occurs x e2
   end.
 
 Definition val_recursive v :=

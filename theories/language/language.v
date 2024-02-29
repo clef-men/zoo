@@ -15,7 +15,7 @@ Implicit Types es : list expr.
 Implicit Types v : val.
 Implicit Types K : ectx.
 Implicit Types σ : state.
-Implicit Types κ : list observation.
+Implicit Types κ : list ().
 
 Lemma zebre_mixin :
   EctxiLanguageMixin of_val to_val ectxi_fill base_step.
@@ -66,22 +66,4 @@ Lemma base_step_to_val e1 σ1 κ e2 σ2 es σ1' κ' e2' σ2' es' :
   is_Some (to_val e2').
 Proof.
   destruct 1; inversion 1; naive_solver.
-Qed.
-
-Lemma irreducible_resolve e v1 v2 σ :
-  irreducible e σ →
-  irreducible (Resolve e (Val v1) (Val v2)) σ.
-Proof.
-  intros H κ ? σ' es [K' e1' e2' Hfill -> step]. simpl in *.
-  induction K' as [| K K' _] using rev_ind; simpl in Hfill.
-  - subst e1'. inversion step. eapply H. apply base_prim_step. done.
-  - rewrite fill_app /= in Hfill.
-    destruct K;
-      inversion Hfill; subst; clear Hfill;
-      try match goal with H : Val ?v = fill K' ?e |- _ =>
-        assert (to_val (fill K' e) = Some v) as HEq by rewrite -H //;
-        apply to_val_fill_some in HEq; destruct HEq as [-> ->]; inversion step
-      end.
-    eapply (H κ (fill_item _ (foldl (flip fill_item) e2' K')) σ' es).
-    eapply (Ectx_step (K' ++ [_])); last done; simpl; rewrite fill_app //.
 Qed.

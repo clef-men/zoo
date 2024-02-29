@@ -108,33 +108,6 @@ Section instances.
       iCombine "Hl1 Hl2" gives %[_ ->].
       iSteps.
     Qed.
-
-    #[global] Instance proph_exclusive p vs vs' :
-      MergableConsume
-        (proph p vs)
-        true
-        (λ b Pin Pout,
-          TCAnd (TCEq Pin (proph p vs')) $
-          TCEq Pout (False%I)
-        ).
-    Proof.
-      move => b Pin Pout [-> ->].
-      rewrite bi.intuitionistically_if_elim.
-      iIntros "[Hp1 Hp2]". by iApply (proph_exclusive with "[$]").
-    Qed.
-
-    #[global] Instance prophs_are_ne p vs p' vs' :
-      MergablePersist
-      (proph p vs)
-      (λ b Pin Pout,
-        TCAnd (TCEq Pin (proph p' vs')) $
-        TCEq Pout ⌜p ≠ p'⌝
-      )%I.
-    Proof.
-      move => b Pin Pout [-> ->].
-      rewrite bi.intuitionistically_if_elim.
-      destruct (decide (p = p')) as [->|Hneq]; iSteps.
-    Qed.
   End mergable.
 
   Section biabds_pointsto.

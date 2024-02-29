@@ -6,7 +6,6 @@ From iris.base_logic Require Export
 From zebre Require Import
   prelude.
 From zebre.language Require Export
-  rules
-  itype.
+  rules.
 From zebre Require Import
   options.

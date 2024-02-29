@@ -19,16 +19,10 @@ Implicit Types n : Z.
 Implicit Types l : loc.
 Implicit Types f x : binder.
 
-Definition prophecy_id :=
-  positive.
-Implicit Types p : prophecy_id.
-
 Inductive literal :=
   | LiteralBool b
   | LiteralInt n
-  | LiteralLoc l
-  | LiteralProphecy p
-  | LiteralPoison.
+  | LiteralLoc l.
 Implicit Types lit : literal.
 
 #[global] Instance literal_eq_dec : EqDecision literal :=
@@ -39,28 +33,20 @@ Proof.
   pose encode lit :=
     match lit with
     | LiteralBool b =>
-        inl $ inl $ inl $ inl b
+        inl $ inl b
     | LiteralInt n =>
-        inl $ inl $ inl $ inr n
+        inl $ inr n
     | LiteralLoc l =>
-        inl $ inl $ inr l
-    | LiteralProphecy p =>
-        inl $ inr p
-    | LiteralPoison =>
-        inr ()
+        inr l
     end.
   pose decode _lit :=
     match _lit with
-    | inl (inl (inl (inl b))) =>
+    | inl (inl b) =>
         LiteralBool b
-    | inl (inl (inl (inr n))) =>
+    | inl (inr n) =>
         LiteralInt n
-    | inl (inl (inr l)) =>
+    | inr l =>
         LiteralLoc l
-    | inl (inr p) =>
-        LiteralProphecy p
-    | inr () =>
-        LiteralPoison
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -182,8 +168,6 @@ Inductive expr :=
   | Cas (e0 e1 e2 : expr)
   | Faa (e1 e2 : expr)
   | Fork (e : expr)
-  | Proph
-  | Resolve (e0 e1 e2 : expr)
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
@@ -309,13 +293,6 @@ Section expr_ind.
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
-  Variable HProph :
-    P Proph.
-  Variable HResolve :
-    ∀ e0, P e0 →
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Resolve e0 e1 e2).
 
   Fixpoint expr_ind e :=
     match e with
@@ -393,13 +370,6 @@ Section expr_ind.
     | Fork e =>
         HFork
           e (expr_ind e)
-    | Proph =>
-        HProph
-    | Resolve e0 e1 e2 =>
-        HResolve
-          e0 (expr_ind e0)
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
     end.
 End expr_ind.
 
@@ -418,10 +388,6 @@ Notation ValInt n := (
 ).
 Notation ValLoc l := (
   ValLiteral (LiteralLoc l)
-)(only parsing
-).
-Notation ValProphecy p := (
-  ValLiteral (LiteralProphecy p)
 )(only parsing
 ).
 
@@ -650,13 +616,6 @@ Proof.
       | Fork e1, Fork e2 =>
           cast_if
             (decide (e1 = e2))
-      | Proph, Proph =>
-          left _
-      | Resolve e10 e11 e12, Resolve e20 e21 e22 =>
-         cast_if_and3
-           (decide (e10 = e20))
-           (decide (e11 = e21))
-           (decide (e12 = e22))
       | _, _ =>
           right _
       end
@@ -824,10 +783,6 @@ Proof.
     18.
   Notation code_Fork :=
     19.
-  Notation code_Proph :=
-    20.
-  Notation code_Resolve :=
-    21.
   Notation code_ValRec :=
     0.
   Notation code_ValConstr :=
@@ -880,10 +835,6 @@ Proof.
           GenNode code_Faa [go e1; go e2]
       | Fork e =>
           GenNode code_Fork [go e]
-      | Proph =>
-          GenNode code_Proph []
-      | Resolve e0 e1 e2 =>
-          GenNode code_Resolve [go e0; go e1; go e2]
       end
     with go_val v :=
       let go_list := map go_val in
@@ -949,10 +900,6 @@ Proof.
           Faa (go e1) (go e2)
       | GenNode code_Fork [e] =>
           Fork $ go e
-      | GenNode code_Proph [] =>
-          Proph
-      | GenNode code_Resolve [e0; e1; e2] =>
-          Resolve (go e0) (go e1) (go e2)
       | _ =>
           @inhabitant _ expr_inhabited
       end

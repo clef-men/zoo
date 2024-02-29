@@ -41,11 +41,6 @@ Qed.
 Proof.
   intros ?* ->%eq_val_eq%(inj _). done.
 Qed.
-#[global] Instance lst_to_val_physical vs :
-  ValPhysical (lst_to_val vs).
-Proof.
-  destruct vs; done.
-Qed.
 Lemma lst_to_val_nil :
   lst_to_val [] = §Nil.
 Proof.

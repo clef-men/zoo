@@ -1,8 +1,7 @@
 From iris.bi Require Import
   lib.fractional.
 From iris.base_logic Require Export
-  lib.gen_heap
-  lib.proph_map.
+  lib.gen_heap.
 From iris.program_logic Require Export
   weakestpre.
 
@@ -16,18 +15,16 @@ From zebre Require Import
   options.
 
 Implicit Types σ : state.
-Implicit Types κ : list observation.
+Implicit Types κ : list ().
 
 Class ZebreGpre Σ := {
   #[global] zebre_Gpre_inv_Gpre :: invGpreS Σ ;
   #[local] zebre_Gpre_heap_Gpre :: gen_heapGpreS loc val Σ ;
-  #[local] zebre_Gpre_prophecy_Gpre :: proph_mapGpreS prophecy_id (val * val) Σ ;
 }.
 
 Definition zebre_Σ := #[
   invΣ ;
-  gen_heapΣ loc val ;
-  proph_mapΣ prophecy_id (val * val)
+  gen_heapΣ loc val
 ].
 #[global] Instance subG_zebre_Σ Σ :
   subG zebre_Σ Σ →
@@ -39,13 +36,11 @@ Qed.
 Class ZebreG Σ := {
   zebre_G_inv_G : invGS Σ ;
   #[global] zebre_G_heap_G :: gen_heapGS loc val Σ ;
-  #[global] zebre_G_prophecy_map_G :: proph_mapGS prophecy_id (val * val) Σ ;
 }.
-#[global] Arguments Build_ZebreG _ {_ _ _} : assert.
+#[global] Arguments Build_ZebreG _ {_ _} : assert.
 
 Definition zebre_state_interp `{zebre_G : !ZebreG Σ} σ (_ : nat) κ (_ : nat) : iProp Σ :=
-  gen_heap_interp σ.(state_heap) ∗
-  proph_map_interp κ σ.(state_prophs).
+  gen_heap_interp σ.
 #[global] Program Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : irisGS zebre Σ := {
   iris_invGS :=
     zebre_G_inv_G ;
@@ -65,8 +60,7 @@ Lemma zebre_init `{zebre_Gpre : !ZebreGpre Σ} `{inv_G : !invGS Σ} σ ns κ nt 
     ∃ zebre_G : ZebreG Σ,
     state_interp σ ns κ nt.
 Proof.
-  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hσ & _)".
-  iMod (proph_map_init κ σ.(state_prophs)) as "(% & Hκ)".
+  iMod (gen_heap_init σ) as (?) "(Hσ & _)".
   iExists (Build_ZebreG Σ). iFrame. iSteps.
 Qed.
 
@@ -83,22 +77,3 @@ Notation "l ↦∗ dq vs" :=
   dq custom dfrac at level 1,
   format "l  ↦∗ dq  vs"
 ) : bi_scope.
-
-Lemma pointsto_relax `{zebre_G : !ZebreG Σ} dq l v :
-  ✓ dq →
-  l ↦ v ⊢ |==>
-  l ↦{dq} v.
-Proof.
-  iIntros "%Hdq H↦". destruct dq as [q1 | | q1].
-  - destruct (decide (q1 < 1)%Qp) as [Hq1 | Hq1].
-    + apply Qp.lt_sum in Hq1 as (q2 & ->).
-      iDestruct (fractional_split with "H↦") as "(H↦1 & _)".
-      iSteps.
-    + apply dfrac_valid_own, Qp.le_lteq in Hdq as [| ->]; done.
-  - iApply (pointsto_persist with "H↦").
-  - apply Qp.lt_sum in Hdq as (q2 & ->).
-    iDestruct (fractional_split with "H↦") as "(H↦1 & H↦2)".
-    iMod (pointsto_persist with "H↦2") as "H↦2".
-    iDestruct (pointsto_combine with "H↦1 H↦2") as "($ & _)".
-    iSteps.
-Qed.

@@ -12,7 +12,6 @@ Definition in_type (_ : string) (n : nat) :=
 Coercion LiteralBool : bool >-> literal.
 Coercion LiteralInt : Z >-> literal.
 Coercion LiteralLoc : loc >-> literal.
-Coercion LiteralProphecy : prophecy_id >-> literal.
 
 Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.

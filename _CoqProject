@@ -12,19 +12,12 @@ theories/options.v
 
 theories/common/list.v
 
-theories/iris/algebra/base.v
-theories/iris/algebra/view.v
-theories/iris/algebra/auth.v
-theories/iris/algebra/mono.v
-
 theories/iris/diaframe.v
 
 theories/iris/bi/big_op.v
 
 theories/iris/base_logic/lib/base.v
 theories/iris/base_logic/lib/mono_set.v
-
-theories/iris/program_logic/atomic.v
 
 theories/language/loc.v
 theories/language/syntax.v
@@ -41,13 +34,9 @@ theories/language/diaframe/hints.v
 theories/language/diaframe/specs.v
 theories/language/diaframe/diaframe.v
 theories/language/adequacy.v
-# theories/language/prophecy_erasure.v
-theories/language/identifier.v
-theories/language/itype.v
 
 theories/std/base.v
 theories/std/assert.v
 theories/std/lst.v
 
-theories/persistent/base.v
-theories/persistent/pstore_1.v
+theories/store.v
