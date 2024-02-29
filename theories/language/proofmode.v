@@ -9,8 +9,6 @@ From zebre Require Import
   prelude.
 From zebre.iris Require Import
   diaframe.
-From zebre.iris.program_logic Require Export
-  atomic.
 From zebre.language Require Export
   tactics
   rules.
@@ -914,51 +912,3 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   constr(pat)
 :=
   wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 ) pat.
-
-Tactic Notation "awp_apply" open_constr(lemma) :=
-  wp_apply_core lemma
-    ltac:(fun H => iApplyHyp H; pm_prettify)
-    ltac:(fun _ => fail);
-  last iAuIntro.
-Tactic Notation "awp_apply" open_constr(lemma) "without" constr(Hs) :=
-  let Hs := words Hs in
-  let Hs := eval vm_compute in (INamed <$> Hs) in
-  wp_apply_core lemma
-    ltac:(fun H =>
-      iApply (wp_frame_wand with [SGoal $ SpecGoal GSpatial false [] Hs false]);
-      [ iAccu
-      | iApplyHyp H;
-        pm_prettify
-      ]
-    )
-    ltac:(fun _ =>
-      fail
-    );
-  last iAuIntro.
-
-Tactic Notation "awp_smart_apply" open_constr(lemma) :=
-  wp_apply_core lemma
-    ltac:(fun H =>
-      iApplyHyp H
-    )
-    ltac:(fun retry =>
-      wp_pure _; [];
-      retry ()
-    );
-  last iAuIntro.
-Tactic Notation "awp_smart_apply" open_constr(lemma) "without" constr(Hs) :=
-  let Hs := words Hs in
-  let Hs := eval vm_compute in (INamed <$> Hs) in
-  wp_apply_core lemma
-    ltac:(fun H =>
-      iApply (wp_frame_wand with [SGoal $ SpecGoal GSpatial false [] Hs false]);
-      [ iAccu
-      | iApplyHyp H;
-        pm_prettify
-      ]
-    )
-    ltac:(fun retry =>
-      wp_pure _; [];
-      retry ()
-    );
-  last iAuIntro.

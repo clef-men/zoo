@@ -728,16 +728,16 @@ Section store_G.
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
-  Definition store_snapshot t s σ : iProp Σ :=
+  Definition snapshot t s σ : iProp Σ :=
     ∃ γ (t0:loc) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ store_map_elem γ l σ.
 
-  #[global] Instance store_snapshot_timeless t s σ :
-    Timeless (store_snapshot t s σ).
+  #[global] Instance snapshot_timeless t s σ :
+    Timeless (snapshot t s σ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance store_snapshot_persistent t s σ :
-    Persistent (store_snapshot t s σ).
+  #[global] Instance snapshot_persistent t s σ :
+    Persistent (snapshot t s σ).
   Proof.
     apply _.
   Qed.
@@ -962,7 +962,7 @@ Section store_G.
     {{{ s,
       RET s;
       store t σ ∗
-      store_snapshot t s σ
+      snapshot t s σ
     }}}.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
@@ -1623,7 +1623,7 @@ Section store_G.
   Lemma store_restore_spec t σ s σ' :
     {{{
       store t σ ∗
-      store_snapshot t s σ'
+      snapshot t s σ'
     }}}
       store_restore t s
     {{{
@@ -1737,4 +1737,4 @@ End store_G.
 #[global] Opaque store_restore.
 
 #[global] Opaque store.
-#[global] Opaque store_snapshot.
+#[global] Opaque snapshot.
