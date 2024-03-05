@@ -445,8 +445,7 @@ Section zebre_G.
       iMod ("Hwp" $! (Val w') σ2 es with "[%] H£") as "Hwp".
       { eexists [] _ _; done. }
       do 2 iModIntro.
-      iMod "Hwp" as "Hwp".
-      iApply (step_fupdN_wand with "Hwp"). iIntros "!> > (($ & Hκ) & Hwp)".
+      iDestruct "Hwp" as ">>(($ & Hκ) & Hwp)".
       iMod (proph_map_resolve_proph p' (w', v') κ' with "[$Hκ $Hp]") as (vs' ->) "($ & Hp')".
       rewrite !wp_unfold /wp_pre /=.
       iDestruct "Hwp" as "(HΦ & $)".

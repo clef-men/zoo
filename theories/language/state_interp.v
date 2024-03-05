@@ -43,27 +43,26 @@ Class ZebreG Σ := {
 }.
 #[global] Arguments Build_ZebreG _ {_ _ _} : assert.
 
-Definition zebre_state_interp `{zebre_G : !ZebreG Σ} σ (_ : nat) κ (_ : nat) : iProp Σ :=
+Definition zebre_state_interp `{zebre_G : !ZebreG Σ} σ κ : iProp Σ :=
   gen_heap_interp σ.(state_heap) ∗
   proph_map_interp κ σ.(state_prophs).
-#[global] Program Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : irisGS zebre Σ := {
+#[global] Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : irisGS zebre Σ := {
   iris_invGS :=
     zebre_G_inv_G ;
-  state_interp :=
-    zebre_state_interp ;
+  state_interp σ _ κ _ :=
+    zebre_state_interp σ κ ;
   fork_post _ :=
     True%I ;
-  num_laters_per_step n :=
-    n ;
+  num_laters_per_step _ :=
+    0 ;
+  state_interp_mono _ _ _ _ :=
+    fupd_intro _ _ ;
 }.
-Next Obligation.
-  intros. iSteps.
-Qed.
 
-Lemma zebre_init `{zebre_Gpre : !ZebreGpre Σ} `{inv_G : !invGS Σ} σ ns κ nt :
+Lemma zebre_init `{zebre_Gpre : !ZebreGpre Σ} `{inv_G : !invGS Σ} σ κ :
   ⊢ |==>
     ∃ zebre_G : ZebreG Σ,
-    state_interp σ ns κ nt.
+    zebre_state_interp σ κ.
 Proof.
   iMod (gen_heap_init σ.(state_heap)) as (?) "(Hσ & _)".
   iMod (proph_map_init κ σ.(state_prophs)) as "(% & Hκ)".
