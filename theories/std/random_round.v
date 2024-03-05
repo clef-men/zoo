@@ -62,7 +62,7 @@ Section zebre_G.
     l.[array] ↦ arr ∗
     l.[index] ↦ #(length nexts) ∗
     random_inv rand ∗
-    array_model arr (DfracOwn 1) ((λ i, #i) <$> nexts ++ reverse prevs).
+    array_model arr (DfracOwn 1) (#@{nat} <$> nexts ++ reverse prevs).
 
   Lemma random_round_create_spec sz :
     (0 ≤ sz)%Z →
@@ -77,7 +77,7 @@ Section zebre_G.
     wp_rec.
     wp_apply (random_create_spec with "[//]") as (rand) "#Hrand".
     pose (Ψ := λ i vs, (
-      ⌜vs = (λ i, #i) <$> seq 0 i⌝
+      ⌜vs = #@{nat} <$> seq 0 i⌝
     )%I : iProp Σ).
     wp_smart_apply (array_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
     { iSplit; first iSteps. iIntros "!> %i %vs _ ->".

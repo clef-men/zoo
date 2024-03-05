@@ -2202,7 +2202,7 @@ Section inf_cl_deque_G.
 
   Definition inf_cl_deque_model t vs : iProp Σ :=
       ∃ slots,
-      raw.inf_cl_deque_model t ((λ slot, #slot) <$> slots) ∗
+      raw.inf_cl_deque_model t (#@{location} <$> slots) ∗
       [∗ list] slot; v ∈ slots; vs,
         slot ↦ v.
 

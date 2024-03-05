@@ -136,7 +136,7 @@ Section bag_G.
     ⌜0 < length γ.(bag_meta_slots)⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ data ∗
-    array_model data DfracDiscarded ((λ slot, #slot) <$> γ.(bag_meta_slots)) ∗
+    array_model data DfracDiscarded (#@{location} <$> γ.(bag_meta_slots)) ∗
     inv ι (bag_inv_inner l γ).
 
   Definition bag_model t vs : iProp Σ :=
@@ -196,7 +196,7 @@ Section bag_G.
 
     pose (Ψ := λ (_ : nat) (vs : list val), (
       ∃ slots,
-      ⌜vs = (λ slot, #slot) <$> slots⌝ ∗
+      ⌜vs = #@{location} <$> slots⌝ ∗
       [∗ list] slot ∈ slots,
         slot ↦ §None
     )%I).

@@ -26,6 +26,10 @@ Notation "# l" := (
 )(at level 8,
   format "# l"
 ).
+Notation "'#@{' X }" := (
+  λ x : X, ValLiteral x
+)(only parsing
+).
 
 Notation "'rec:' f x := e" := (
   Rec f%binder x%binder e%E
