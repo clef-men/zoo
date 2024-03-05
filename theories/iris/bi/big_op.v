@@ -174,6 +174,25 @@ Section bi.
 
     Implicit Types Φ Ψ : nat → A1 → A2 → PROP.
 
+    Lemma big_sepL2_lookup_Some_l Φ i x1 l1 l2 :
+      l1 !! i = Some x1 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+      ⌜is_Some (l2 !! i)⌝.
+    Proof.
+      iIntros (Hi%lookup_lt_Some) "H".
+      iDestruct (big_sepL2_length with "H") as %Hlength.
+      iPureIntro. apply lookup_lt_is_Some_2. lia.
+    Qed.
+    Lemma big_sepL2_lookup_Some_r Φ i x2 l1 l2 :
+      l2 !! i = Some x2 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+      ⌜is_Some (l1 !! i)⌝.
+    Proof.
+      iIntros (Hi%lookup_lt_Some) "H".
+      iDestruct (big_sepL2_length with "H") as %Hlength.
+      iPureIntro. apply lookup_lt_is_Some_2. lia.
+    Qed.
+
     Lemma big_sepL2_delete_1 Φ l1 l2 i x1 x2 :
       l1 !! i = Some x1 →
       l2 !! i = Some x2 →
