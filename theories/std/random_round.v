@@ -160,16 +160,6 @@ Section zebre_G.
           rewrite skipn_all2; first lia.
           rewrite -insert_app_l // take_length; first lia.
       }
-      (* assert (<[i - 1 := prev]> (<[j := next]> nexts) ≡ₚ nexts) as H2. *)
-      (* { rewrite Permutation_inj. split. *)
-      (*   - rewrite !insert_length //. *)
-      (*   - exists (λ k, if decide (k = i - 1) then j else if decide (k = j) then i - 1 else k). split. *)
-      (*     + intros k1 k2. repeat case_decide; naive_solver. *)
-      (*     + intros k. repeat case_decide; subst. *)
-      (*       * rewrite list_lookup_insert // insert_length. lia. *)
-      (*       * rewrite list_lookup_insert_ne // list_lookup_insert //. lia. *)
-      (*       * rewrite list_lookup_insert_ne // list_lookup_insert_ne //. *)
-      (* } *)
       iSteps. iExists (<[j := next]> (take (i - 1) nexts)). iSteps.
       + iPureIntro.
         rewrite -Hpermutation reverse_snoc (assoc _ _ [_]) Heq Permutation_swap' //.
