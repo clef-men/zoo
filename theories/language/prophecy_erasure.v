@@ -11,14 +11,14 @@ From zebre Require Import
 
 Implicit Types i : nat.
 Implicit Types n m : Z.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types es : list expr.
 Implicit Types v w : val.
 Implicit Types k : ectxi.
 Implicit Types K : ectx.
-Implicit Types h : gmap loc val.
+Implicit Types h : gmap location val.
 Implicit Types σ : state.
 Implicit Types ρ : cfg zebre.
 

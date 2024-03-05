@@ -7,8 +7,8 @@ From zebre.std Require Export
 From zebre Require Import
   options.
 
-Implicit Types l slot : loc.
-Implicit Types slots : list loc.
+Implicit Types l slot : location.
+Implicit Types slots : list location.
 Implicit Types t fn : val.
 
 Parameter xdeque_create : val.
@@ -19,7 +19,7 @@ Parameter xdeque_remove : val.
 
 Parameter xdeque_iter : val.
 
-Parameter xdeque_model : ∀ `{zebre_G : !ZebreG Σ}, val → list loc → iProp Σ.
+Parameter xdeque_model : ∀ `{zebre_G : !ZebreG Σ}, val → list location → iProp Σ.
 
 Axiom xdeque_model_no_dup : ∀ `{zebre_G : !ZebreG Σ} t slots,
   xdeque_model t slots ⊢

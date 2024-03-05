@@ -21,8 +21,8 @@ From zebre Require Import
   options.
 
 Implicit Types front back : nat.
-Implicit Types l slot : loc.
-Implicit Types slots : list loc.
+Implicit Types l slot : location.
+Implicit Types slots : list location.
 Implicit Types v t data : val.
 Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
@@ -93,7 +93,7 @@ Section bag_G.
 
   Record bag_meta := {
     bag_meta_model : gname ;
-    bag_meta_slots : list loc ;
+    bag_meta_slots : list location ;
   }.
   Implicit Types γ : bag_meta.
 

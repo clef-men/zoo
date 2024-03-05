@@ -16,7 +16,7 @@ From zebre.language Require Import
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types p : prophecy_id.
 Implicit Types lit : literal.
 Implicit Types e : expr.
@@ -86,7 +86,7 @@ Section zebre_G.
       end.
   Qed.
 
-  Lemma big_sepM_heap_array (Φ : loc → val → iProp Σ) l vs :
+  Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
     ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
     [∗ list] i ↦ v ∈ vs, Φ (l +ₗ i) v.
   Proof.
@@ -94,10 +94,10 @@ Section zebre_G.
     iIntros "H".
     rewrite big_sepM_insert.
     { clear. apply eq_None_ne_Some. intros v (k & Hk & Hl & _)%heap_array_lookup.
-      rewrite -{1}(loc_add_0 l) in Hl. naive_solver lia.
+      rewrite -{1}(location_add_0 l) in Hl. naive_solver lia.
     }
-    rewrite loc_add_0. iSteps.
-    setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- loc_add_assoc. iSteps.
+    rewrite location_add_0. iSteps.
+    setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- location_add_assoc. iSteps.
   Qed.
 
   Lemma wp_record {es} vs E :
@@ -121,7 +121,7 @@ Section zebre_G.
     iApply "HΦ".
     rewrite !big_sepM_heap_array. iFrame.
     destruct vs; first naive_solver lia.
-    iDestruct "Hmeta" as "(Hmeta & _)". rewrite loc_add_0 //.
+    iDestruct "Hmeta" as "(Hmeta & _)". rewrite location_add_0 //.
   Qed.
 
   Lemma wp_alloc n v E :
@@ -144,7 +144,7 @@ Section zebre_G.
     iApply "HΦ".
     rewrite !big_sepM_heap_array. iFrame.
     destruct (Nat.lt_exists_pred 0 (Z.to_nat n)) as (n' & -> & _); first lia.
-    iDestruct "Hmeta" as "(Hmeta & _)". rewrite loc_add_0 //.
+    iDestruct "Hmeta" as "(Hmeta & _)". rewrite location_add_0 //.
   Qed.
   Lemma wp_ref v E :
     {{{ True }}}
@@ -157,7 +157,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_alloc; [lia | done |].
-    iSteps. rewrite loc_add_0 //.
+    iSteps. rewrite location_add_0 //.
   Qed.
 
   Lemma wp_load l dq v E :

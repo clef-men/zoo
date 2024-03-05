@@ -15,7 +15,7 @@ From zebre Require Import
 
 Implicit Types i n : nat.
 Implicit Types prevs nexts : list nat.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types t rand : val.
 
 #[local] Notation "'random'" := (

@@ -138,7 +138,7 @@ Section instances.
   End mergable.
 
   Section biabds_pointsto.
-    #[global] Instance pointsto_val_may_need_more (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq q :
+    #[global] Instance pointsto_val_may_need_more (l : location) (v1 v2 : val) (q1 q2 : Qp) mq q :
       FracSub q2 q1 mq →
       TCEq mq (Some q) →
       HINT l ↦{#q1} v1 ✱ [v'; ⌜v1 = v2⌝ ∗ l ↦{#q} v'] ⊫ [id]; l ↦{#q2} v2 ✱ [⌜v1 = v2⌝ ∗ ⌜v' = v1⌝]
@@ -148,7 +148,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance pointsto_val_have_enough (l : loc) (v1 v2 : val) (q1 q2 : Qp) mq :
+    #[global] Instance pointsto_val_have_enough (l : location) (v1 v2 : val) (q1 q2 : Qp) mq :
       FracSub q1 q2 mq →
       HINT l ↦{#q1} v1 ✱ [- ; ⌜v1 = v2⌝] ⊫ [id]; l ↦{#q2}v2 ✱ [⌜v1 = v2⌝ ∗ match mq with | Some q => l ↦{#q} v1 | _ => True end]
     | 54.
@@ -172,71 +172,71 @@ Section instances.
 
   Section biabds_pointsto_array.
     Class BaseLoc li lb i :=
-      offset_loc_eq : li = lb +ₗ i.
+      offset_location_eq : li = lb +ₗ i.
     #[global] Hint Mode BaseLoc + - - : typeclass_instances.
 
-    #[global] Instance base_loc_default l :
+    #[global] Instance base_location_default l :
       BaseLoc l l 0 | 50.
     Proof.
-      unfold BaseLoc. by rewrite loc_add_0.
+      unfold BaseLoc. by rewrite location_add_0.
     Qed.
 
-    #[global] Instance base_loc_add li j1 lb j2 :
+    #[global] Instance base_location_add li j1 lb j2 :
       BaseLoc li lb j2 →
       BaseLoc (li +ₗ j1) lb (j2 + j1)
     | 30.
     Proof.
-      unfold BaseLoc => ->. by rewrite loc_add_assoc.
+      unfold BaseLoc => ->. by rewrite location_add_assoc.
     Qed.
 
     Class ComputeOffsetLoc lb j lo :=
-      compute_offset_loc_eq : lb +ₗ j = lo.
+      compute_offset_location_eq : lb +ₗ j = lo.
     #[global] Hint Mode ComputeOffsetLoc + + - : typeclass_instances.
 
-    Lemma compute_offset_from_base_loc li ji lb i :
+    Lemma compute_offset_from_base_location li ji lb i :
       BaseLoc li lb i →
       ComputeOffsetLoc li ji (lb +ₗ (i + ji)).
     Proof.
-      rewrite /BaseLoc /ComputeOffsetLoc -loc_add_assoc => -> //.
+      rewrite /BaseLoc /ComputeOffsetLoc -location_add_assoc => -> //.
     Qed.
 
-    #[global] Instance compute_offset_loc_default0 l :
+    #[global] Instance compute_offset_location_default0 l :
       ComputeOffsetLoc l 0 l
     | 10.
     Proof.
-      rewrite /ComputeOffsetLoc loc_add_0 //.
+      rewrite /ComputeOffsetLoc location_add_0 //.
     Qed.
 
-    #[global] Instance compute_offset_loc_default1 l i :
+    #[global] Instance compute_offset_location_default1 l i :
       ComputeOffsetLoc l i (l +ₗ i)
     | 100.
     Proof.
       done.
     Qed.
 
-    #[global] Instance compute_offset_loc_default2 l j i :
+    #[global] Instance compute_offset_location_default2 l j i :
       ComputeOffsetLoc (l +ₗ j) i (l +ₗ (j + i))
     | 50.
     Proof.
-      rewrite /ComputeOffsetLoc -loc_add_assoc //.
+      rewrite /ComputeOffsetLoc -location_add_assoc //.
     Qed.
 
-    #[global] Instance compute_offset_loc_offset_add l i j lo1 lo2 :
+    #[global] Instance compute_offset_location_offset_add l i j lo1 lo2 :
       ComputeOffsetLoc l i lo1 →
       ComputeOffsetLoc lo1 j lo2 →
       ComputeOffsetLoc l (i + j) lo2
     | 30.
     Proof.
-      rewrite /ComputeOffsetLoc -loc_add_assoc => <- <- //.
+      rewrite /ComputeOffsetLoc -location_add_assoc => <- <- //.
     Qed.
 
     Class SharedBaseLoc l1 l2 lb j1 j2 := {
-      shared_base_loc_eq1 : BaseLoc l1 lb j1;
-      shared_base_loc_eq2 : BaseLoc l2 lb j2
+      shared_base_location_eq1 : BaseLoc l1 lb j1;
+      shared_base_location_eq2 : BaseLoc l2 lb j2
     }.
     #[global] Hint Mode SharedBaseLoc + + - - - : typeclass_instances.
 
-    #[global] Instance shared_base_loc_gen l1 lb1 j1 l2 lb2 j2 :
+    #[global] Instance shared_base_location_gen l1 lb1 j1 l2 lb2 j2 :
       TCNoBackTrack (BaseLoc l1 lb1 j1) →
       TCNoBackTrack (BaseLoc l2 lb2 j2) →
       TCEq lb1 lb2 →
@@ -260,7 +260,7 @@ Section instances.
     (*   rewrite array_app array_cons. *)
     (*   iDecompose "Hlvs" as "Hlhd Hlv Hltl". *)
     (*   rewrite take_length min_l; last lia. *)
-    (*   rewrite !loc_add_assoc. replace (j1 + Z.to_nat (j2 - j1))%Z with j2 by lia. *)
+    (*   rewrite !location_add_assoc. replace (j1 + Z.to_nat (j2 - j1))%Z with j2 by lia. *)
     (*   iSteps. *)
     (* Qed. *)
 
@@ -283,7 +283,7 @@ Section instances.
     (*   iIntros "(H & % & Htl) /=". *)
     (*   destruct vs => //. *)
     (*   case: H => ->. *)
-    (*   rewrite array_cons loc_add_assoc. *)
+    (*   rewrite array_cons location_add_assoc. *)
     (*   iSteps. *)
     (* Qed. *)
 
@@ -332,12 +332,12 @@ Section instances.
     (*   move => [-> ->] jub jlb. *)
     (*   rewrite /SolveSepSideCondition => Hjs <- <-. *)
     (*   iStep as (Hvs) "Hj1 Hl2h Hl2t". *)
-    (*   rewrite -{3}(take_drop (Z.to_nat (j1 - j2)) vs2) array_app -assoc loc_add_assoc. *)
-    (*   iStep. rewrite -{1}(take_drop (Z.to_nat (j2 - j1)) vs1) array_app loc_add_assoc. *)
+    (*   rewrite -{3}(take_drop (Z.to_nat (j1 - j2)) vs2) array_app -assoc location_add_assoc. *)
+    (*   iStep. rewrite -{1}(take_drop (Z.to_nat (j2 - j1)) vs1) array_app location_add_assoc. *)
     (*   iDestruct "Hj1" as "[$ Hjtl]". *)
-    (*   rewrite -{1}(take_drop (Z.to_nat (jub - jlb)) (drop _ vs1)) array_app loc_add_assoc {1}Hvs. *)
+    (*   rewrite -{1}(take_drop (Z.to_nat (jub - jlb)) (drop _ vs1)) array_app location_add_assoc {1}Hvs. *)
     (*   iDestruct "Hjtl" as "[Hjtl1 Hjtl2]". *)
-    (*   rewrite -{2}(take_drop (Z.to_nat (jub - jlb)) (drop (Z.to_nat (j1 - j2)) vs2)) array_app loc_add_assoc. *)
+    (*   rewrite -{2}(take_drop (Z.to_nat (jub - jlb)) (drop (Z.to_nat (j1 - j2)) vs2)) array_app location_add_assoc. *)
     (*   rewrite -bi.sep_assoc. *)
     (*   rewrite !take_length !drop_length. *)
     (*   replace ( (j1 + (Z.to_nat (j2 - j1) `min` length vs1)%nat))%Z with (j2 + (Z.to_nat (j1 - j2) `min` length vs2)%nat)%Z by lia. *)
@@ -425,7 +425,7 @@ Section side_condition_lemmas.
     congruence.
   Qed.
 
-  #[global] Instance simplify_lit_loc_neq l1 l2 :
+  #[global] Instance simplify_lit_location_neq l1 l2 :
     SimplifyPureHypSafe
       (ValLiteral l1 ≠ ValLiteral l2)
       (l1 ≠ l2).

@@ -32,7 +32,7 @@ From zebre Require Import
 
 Implicit Types front : nat.
 Implicit Types back : Z.
-Implicit Types l slot : loc.
+Implicit Types l slot : location.
 Implicit Types p : prophecy_id.
 Implicit Types id : identifier.
 Implicit Types v t data : val.

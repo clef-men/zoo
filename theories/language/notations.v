@@ -11,7 +11,7 @@ Definition in_type (_ : string) (n : nat) :=
 
 Coercion LiteralBool : bool >-> literal.
 Coercion LiteralInt : Z >-> literal.
-Coercion LiteralLoc : loc >-> literal.
+Coercion LiteralLoc : location >-> literal.
 Coercion LiteralProphecy : prophecy_id >-> literal.
 
 Coercion Val : val >-> expr.
@@ -198,7 +198,7 @@ Notation "e1 || e2" := (
 
 Declare Custom Entry zebre_field.
 Notation "l .[ fld ]" := (
-  loc_add l (Z.of_nat fld)
+  location_add l (Z.of_nat fld)
 )(at level 2,
   fld custom zebre_field,
   format "l .[ fld ]"

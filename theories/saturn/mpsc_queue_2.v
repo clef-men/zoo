@@ -23,7 +23,7 @@ From zebre Require Import
   options.
 
 Implicit Types b closed : bool.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types vs front back : list val.
 Implicit Types ws : option (list val).

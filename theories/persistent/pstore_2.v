@@ -18,10 +18,10 @@ From zebre.std Require Import
 From zebre Require Import
   options.
 
-Implicit Types l r node cnode base root dst : loc.
-Implicit Types nodes : list loc.
+Implicit Types l r node cnode base root dst : location.
+Implicit Types nodes : list location.
 Implicit Types v t s : val.
-Implicit Types σ : gmap loc val.
+Implicit Types σ : gmap location val.
 
 #[local] Notation "'gen'" := (
   in_type "t" 0
@@ -138,21 +138,21 @@ Module raw.
   Implicit Types g : generation.
 
   #[local] Definition store :=
-    gmap loc (generation * val).
+    gmap location (generation * val).
   Implicit Types ς : store.
   Implicit Types data : generation * val.
 
   #[local] Definition descriptor : Set :=
     generation * store.
   Implicit Types descr : descriptor.
-  Implicit Types descrs : gmap loc descriptor.
+  Implicit Types descrs : gmap location descriptor.
 
   Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-    #[local] pstore_G_nodes_G :: ghost_mapG Σ loc descriptor ;
+    #[local] pstore_G_nodes_G :: ghost_mapG Σ location descriptor ;
   }.
 
   Definition pstore_Σ := #[
-    ghost_mapΣ loc descriptor
+    ghost_mapΣ location descriptor
   ].
   #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
     subG pstore_Σ Σ →
@@ -174,7 +174,7 @@ Module raw.
       store_generation descr.1 descr.2.
 
     #[local] Definition delta : Set :=
-      loc * (generation * val).
+      location * (generation * val).
     Implicit Types δ : delta.
     Implicit Types δs : list delta.
 
@@ -192,9 +192,9 @@ Module raw.
       end.
 
     #[local] Definition edge : Set :=
-      loc * (list loc * list delta).
+      location * (list location * list delta).
     Implicit Types edg : edge.
-    Implicit Types edgs : gmap loc edge.
+    Implicit Types edgs : gmap location edge.
 
     #[local] Definition descriptors_auth γ descrs :=
       ghost_map_auth γ 1 descrs.
@@ -734,12 +734,12 @@ End raw.
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] pstore_G_raw_G :: raw.PstoreG Σ ;
-  #[local] pstore_G_support_G :: MonoMapG Σ loc val ;
+  #[local] pstore_G_support_G :: MonoMapG Σ location val ;
 }.
 
 Definition pstore_Σ := #[
   raw.pstore_Σ ;
-  mono_map_Σ loc val
+  mono_map_Σ location val
 ].
 Lemma subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →

@@ -8,7 +8,7 @@ From zebre.std Require Export
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v w t hd tl dst : val.
 
 #[local] Notation "'head'" := (

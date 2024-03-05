@@ -25,7 +25,7 @@ Implicit Types b closing : bool.
 Implicit Types ops : Z.
 Implicit Types q : Qp.
 Implicit Types qs : gmultiset Qp.
-Implicit Types l l_state : loc.
+Implicit Types l l_state : location.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
@@ -219,7 +219,7 @@ Section rcfd_G.
   Record rcfd_meta := {
     rcfd_meta_tokens : gname ;
     rcfd_meta_lstate : gname ;
-    rcfd_meta_open_state : loc ;
+    rcfd_meta_open_state : location ;
   }.
   Implicit Types γ : rcfd_meta.
 

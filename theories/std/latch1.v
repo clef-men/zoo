@@ -14,7 +14,7 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types l : loc.
+Implicit Types l : location.
 
 #[local] Notation "'flag'" := (
   in_type "t" 0

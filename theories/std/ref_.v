@@ -8,12 +8,14 @@ From zebre.std Require Export
 From zebre Require Import
   options.
 
+Implicit Types l : location.
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype_ref t : iProp Σ :=
-    ∃ (l : loc),
+    ∃ l,
     ⌜t = #l⌝ ∗
     inv nroot (
       ∃ w,

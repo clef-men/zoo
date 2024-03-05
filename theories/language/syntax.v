@@ -9,14 +9,14 @@ From iris.algebra Require Import
 From zebre Require Import
   prelude.
 From zebre.language Require Export
-  loc.
+  location.
 From zebre Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types i tag proj : nat.
 Implicit Types n : Z.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types f x : binder.
 
 Definition prophecy_id :=

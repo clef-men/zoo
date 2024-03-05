@@ -28,7 +28,7 @@ From zebre Require Import
 
 Implicit Types b : bool.
 Implicit Types i sz front front_cache back back_cache : nat.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v w t data : val.
 Implicit Types vs hist : list val.
 

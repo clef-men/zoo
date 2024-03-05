@@ -224,7 +224,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_loc l1 l2 :
+  #[global] Instance pure_equal_location l1 l2 :
     PureExec
       True
       1
@@ -233,7 +233,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_loc_unit l :
+  #[global] Instance pure_equal_location_unit l :
     PureExec
       True
       1
@@ -242,7 +242,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_unit_loc l :
+  #[global] Instance pure_equal_unit_location l :
     PureExec
       True
       1

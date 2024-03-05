@@ -35,11 +35,11 @@ Section list_to_map.
   Admitted.
 End list_to_map.
 
-Implicit Types l l_global root : loc.
-Implicit Types roots : list loc.
+Implicit Types l l_global root : location.
+Implicit Types roots : list location.
 Implicit Types v t global : val.
-Implicit Types ω : gc_loc.
-Implicit Types map : gmap loc gc_loc.
+Implicit Types ω : gc_location.
+Implicit Types map : gmap location gc_location.
 
 Definition boxroot_init : val :=
   λ: <>,
@@ -64,11 +64,11 @@ Definition boxroot_set : val :=
     "t" <- "v".
 
 Class BoxrootG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] boxroot_G_roots_G :: ghost_mapG Σ loc gc_loc ;
+  #[local] boxroot_G_roots_G :: ghost_mapG Σ location gc_location ;
 }.
 
 Definition boxroot_Σ := #[
-  ghost_mapΣ loc gc_loc
+  ghost_mapΣ location gc_location
 ].
 #[global] Instance subG_boxroot_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG boxroot_Σ Σ →
@@ -233,7 +233,7 @@ Section boxroot_G.
     iApply wp_fupd.
     iDestruct (boxroot_roots_lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
-    { rewrite -elem_of_list_lookup -(elem_of_list_to_set (C := gset loc)) -Hmap_dom elem_of_dom //. }
+    { rewrite -elem_of_list_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
     iDestruct (xdeque_model_no_dup with "Hroots") as %Hnodup.
     wp_smart_apply (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
     iMod (boxroot_roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".

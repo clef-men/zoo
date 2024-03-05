@@ -13,7 +13,7 @@ From zebre Require Import
 
 Implicit Types b : bool.
 Implicit Types i : nat.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 

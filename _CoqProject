@@ -46,7 +46,7 @@ theories/iris/base_logic/lib/mono_set.v
 
 theories/iris/program_logic/atomic.v
 
-theories/language/loc.v
+theories/language/location.v
 theories/language/syntax.v
 theories/language/semantics.v
 theories/language/language.v

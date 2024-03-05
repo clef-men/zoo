@@ -18,7 +18,7 @@ From zebre Require Import
   options.
 
 Implicit Types i : nat.
-Implicit Types l root : loc.
+Implicit Types l root : location.
 Implicit Types v t eq : val.
 Implicit Types vs : list val.
 
@@ -66,11 +66,11 @@ Definition parray_set : val :=
     ).
 
 Class ParrayG Σ `{zebre_G : !ZebreG Σ} := {
-  parray_G_map_G : ghost_mapG Σ loc (list val) ;
+  parray_G_map_G : ghost_mapG Σ location (list val) ;
 }.
 
 Definition parray_Σ := #[
-  ghost_mapΣ loc (list val)
+  ghost_mapΣ location (list val)
 ].
 #[global] Instance subG_parray_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG parray_Σ Σ →

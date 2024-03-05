@@ -22,7 +22,7 @@ From zebre.saturn Require Export
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types vs front back : list val.
 Implicit Types o : option val.

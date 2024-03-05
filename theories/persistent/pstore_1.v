@@ -17,9 +17,9 @@ From zebre.persistent Require Export
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t s : val.
-Implicit Types σ : gmap loc val.
+Implicit Types σ : gmap location val.
 
 #[local] Notation "'snap_store'" := (
   in_type "snap" 0
@@ -585,11 +585,11 @@ End graph.
 
 Section adiffl.
   Notation diff := (
-    (* loc and its old value *)
-    loc*val
+    (* location and its old value *)
+    location*val
   )%type.
 
-  Definition apply_diffl (ds:list diff) (σ:gmap loc val) : gmap loc val :=
+  Definition apply_diffl (ds:list diff) (σ:gmap location val) : gmap location val :=
     foldr (fun '(l,v) σ => <[l:=v]> σ) σ ds.
 
   Lemma dom_apply_diffl ds σ :
@@ -639,11 +639,11 @@ End adiffl.
 (* Proof. *)
 
 Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] pstore_G_set_G :: MonoSetG Σ (loc * gmap loc val)%type ;
+  #[local] pstore_G_set_G :: MonoSetG Σ (location * gmap location val)%type ;
 }.
 
 Definition pstore_Σ := #[
-  mono_set_Σ (loc * gmap loc val)%type
+  mono_set_Σ (location * gmap location val)%type
 ].
 #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG pstore_Σ Σ →
@@ -656,14 +656,14 @@ Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
 
   Notation diff := (
-    (* loc and its old value. *)
-    loc*val
+    (* location and its old value. *)
+    location*val
   )%type.
   Notation graph_store := (
-    graph loc diff
+    graph location diff
   ).
   Notation map_model := (
-    gmap loc (gmap loc val)
+    gmap location (gmap location val)
   ).
 
   Definition correct_path_diff (M:map_model) (g:graph_store) :=
@@ -671,31 +671,31 @@ Section pstore_G.
       path g r1 ds r2 -> M !! r1 = Some σ1 -> M !! r2 = Some σ2 ->
       σ1 = (apply_diffl (proj2 <$> ds) σ2).
 
-  Record store_inv (M:map_model) (g:graph_store) (r:loc) (σ σ0:gmap loc val) :=
+  Record store_inv (M:map_model) (g:graph_store) (r:location) (σ σ0:gmap location val) :=
     { si1 : dom M = vertices g ∪ {[r]};
       si2 : σ ⊆ σ0;
       si3 : M !! r = Some σ0 ;
       si4 : correct_path_diff M g
     }.
 
-  Definition locs_of_edges_in g (X:gset loc) :=
-    forall (r:loc) l v r', edge g r (l,v) r' -> l ∈ X.
+  Definition locations_of_edges_in g (X:gset location) :=
+    forall (r:location) l v r', edge g r (l,v) r' -> l ∈ X.
 
-  Record coherent (M:map_model) (σ0:gmap loc val) (g:graph_store) :=
+  Record coherent (M:map_model) (σ0:gmap location val) (g:graph_store) :=
     { coh1 : forall r σ, M !! r = Some σ -> dom σ = dom σ0;
-      coh2 : locs_of_edges_in g (dom σ0);
+      coh2 : locations_of_edges_in g (dom σ0);
     }.
 
-  Definition snap_inv (M:map_model) (C:gset (loc * gmap loc val)) :=
+  Definition snap_inv (M:map_model) (C:gset (location * gmap location val)) :=
     forall l σ, (l,σ) ∈ C -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
-  #[local] Definition pstore_map_auth (γ:gname) (s:gset (loc*(gmap loc val))) :=
+  #[local] Definition pstore_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
     mono_set_auth γ s.
   #[local] Definition pstore_map_elem γ l σ :=
     mono_set_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
-    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) -∗
+    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) }) -∗
     ⌜unaliased g⌝.
   Proof.
     iIntros "Hg" (???????).
@@ -711,13 +711,13 @@ Section pstore_G.
      (see [extract_unaliased]), and a DAG with unaliased guarantees unicity of paths
      (see [acyclic_unaliased_impl_uniq_path] ) *)
 
-  #[local] Definition snapshosts_model (t0:loc) (M:map_model) : iProp Σ :=
-    ∃ (γ:gname) (C:gset (loc * gmap loc val)), (* the model of snapshots *)
+  #[local] Definition snapshosts_model (t0:location) (M:map_model) : iProp Σ :=
+    ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
       ⌜snap_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_map_auth γ C.
 
-  #[local] Definition pstore (t:val) (σ:gmap loc val) : iProp Σ :=
-    ∃ (t0 r:loc)
-      (σ0:gmap loc val) (* the global map, with all the points-to ever allocated *)
+  #[local] Definition pstore (t:val) (σ:gmap location val) : iProp Σ :=
+    ∃ (t0 r:location)
+      (σ0:gmap location val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
       (M:map_model), (* the map model, associating to each node its model *)
     ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r⌝ ∗
@@ -725,13 +725,13 @@ Section pstore_G.
     r ↦ §Root ∗
     snapshosts_model t0 M ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) .
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff{ #(l : location), v, #(r' : location) }) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
   Definition pstore_snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:loc) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
+    ∃ γ (t0:location) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
 
   #[global] Instance pstore_snapshot_timeless t s σ :
     Timeless (pstore_snapshot t s σ).
@@ -777,8 +777,8 @@ Section pstore_G.
     { eauto using rooted_dag_empty. }
   Qed.
 
-  Lemma use_locs_of_edges_in g r xs r' X :
-    locs_of_edges_in g X ->
+  Lemma use_locations_of_edges_in g r xs r' X :
+    locations_of_edges_in g X ->
     path g r xs r' ->
     (list_to_set (proj2 <$> xs).*1) ⊆ X.
   Proof.
@@ -831,7 +831,7 @@ Section pstore_G.
         destruct (M !! r2) eqn:Hor2. 2:simpl in *; congruence.
         inversion Hr2. subst.
         destruct Hcoh as [Z1 Z2].
-        eapply use_locs_of_edges_in in Z2. 2:done.
+        eapply use_locations_of_edges_in in Z2. 2:done.
         rewrite apply_diffl_insert_ne.
         { apply not_elem_of_dom in Hl0. set_solver. }
         { f_equal. eauto. } } }
@@ -983,21 +983,21 @@ Section pstore_G.
     inversion HC. subst. destruct Hinv. eauto.
   Qed.
 
-  Definition fsts  (ys:list (loc*(loc*val)*loc)) : list val :=
+  Definition fsts  (ys:list (location*(location*val)*location)) : list val :=
     (fun '(x,_,_) => ValLoc x) <$> ys.
 
-  Lemma pstore_collect_spec_aux (r r':loc) t' (xs:list val) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+  Lemma pstore_collect_spec_aux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
     lst_model' t' xs ->
     path g r ys r' ->
     {{{
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) })
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) })
     }}}
       pstore_collect #r t'
     {{{ t,
       RET (#r',t);
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
@@ -1014,17 +1014,17 @@ Section pstore_G.
     }
   Qed.
 
-  Lemma pstore_collect_spec (r r':loc) (ys:list (loc*(loc*val)*loc)) (g:graph_store) :
+  Lemma pstore_collect_spec (r r':location) (ys:list (location*(location*val)*location)) (g:graph_store) :
     path g r ys r' ->
     {{{
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) })
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) })
     }}}
       pstore_collect #r §Nil
     {{{ t,
       RET (#r',t);
       r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
       lst_model t (rev (fsts ys))
     }}}.
   Proof.
@@ -1034,10 +1034,10 @@ Section pstore_G.
     iApply "Go". rewrite -rev_alt //.
   Qed.
 
-  Lemma use_path r g (xs:list (loc*(loc*val)*loc)) r0 x r1 r':
+  Lemma use_path r g (xs:list (location*(location*val)*location)) r0 x r1 r':
     list_to_set xs ⊆ g ->
     path g r (xs ++ [(r0, x, r1)]) r' ->
-    (r0, x, r1) ∈ (list_to_set xs : gset(loc*(loc*val)*loc) ) ->
+    (r0, x, r1) ∈ (list_to_set xs : gset(location*(location*val)*location) ) ->
     exists ds, path g r0 ds r0 /\ ds ≠ nil.
   Proof.
     revert r r0 r1 r' x. induction xs; intros r r0 r1 r' x ?.
@@ -1057,7 +1057,7 @@ Section pstore_G.
   (* [undo xs ys σ] asserts [mirror xs ys] and that [σ = apply_diffl (proj2 <$> ys ++ xs) σ],
      ie, ys undo the changes of xs *)
   Inductive undo :
-    list (loc*(loc*val)*loc) -> list (loc*(loc*val)*loc) -> gmap loc val -> Prop :=
+    list (location*(location*val)*location) -> list (location*(location*val)*location) -> gmap location val -> Prop :=
   | undo_nil :
     forall σ, undo [] [] σ
   | undo_cons :
@@ -1086,7 +1086,7 @@ Section pstore_G.
 
   Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
     lst_model' t (fsts (rev xs)) ->
-    locs_of_edges_in g2 (dom σ) ->
+    locations_of_edges_in g2 (dom σ) ->
     g2 = list_to_set xs ->
     acyclic g ->
     g2 ⊆ g ->
@@ -1094,8 +1094,8 @@ Section pstore_G.
     {{{
       r' ↦ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) })
+      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff{ #(l : location), v, #(r' : location) })
     }}}
       pstore_revert #r' t
     {{{
@@ -1103,7 +1103,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
@@ -1118,7 +1118,7 @@ Section pstore_G.
       iStep 4. iModIntro.
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
       rewrite Hg list_to_set_app_L in Hsub.
-      assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (loc * diff * loc))).
+      assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (location * diff * location))).
       { intros ?. apply use_path in Hpath; last done. destruct Hpath as (?&Hpath&?).
         apply Hacy in Hpath. congruence. set_solver. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
@@ -1161,14 +1161,14 @@ Section pstore_G.
 
   Lemma pstore_revert_spec r t g xs r' w σ σ0 :
     lst_model' t (fsts (rev xs)) ->
-    locs_of_edges_in g (dom σ) ->
+    locations_of_edges_in g (dom σ) ->
     g = list_to_set xs ->
     acyclic g ->
     path g r xs r' ->
     {{{
       r' ↦ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) })
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) })
     }}}
       pstore_revert #r' t
     {{{
@@ -1176,7 +1176,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
@@ -1193,15 +1193,15 @@ Section pstore_G.
     rewrite IHxs /fsts fmap_app //.
   Qed.
 
-  Lemma pstore_reroot_spec r (xs:list (loc*(loc*val)*loc)) r' g σ :
-    locs_of_edges_in g (dom σ) ->
+  Lemma pstore_reroot_spec r (xs:list (location*(location*val)*location)) r' g σ :
+    locations_of_edges_in g (dom σ) ->
     g = list_to_set xs ->
     acyclic g ->
     path g r xs r' ->
     {{{
       r' ↦ §Root ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : loc), v, #(r' : loc) })
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff{ #(l : location), v, #(r' : location) })
     }}}
       pstore_reroot #r
     {{{
@@ -1209,7 +1209,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(l : loc), v, #(r' : loc) }) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff{ #(l : location), v, #(r' : location) }) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
     }}}.
   Proof.
@@ -1220,18 +1220,18 @@ Section pstore_G.
     iSteps.
   Qed.
 
-  Lemma locs_of_edges_weak g1 g2 X :
-    locs_of_edges_in g1 X ->
+  Lemma locations_of_edges_weak g1 g2 X :
+    locations_of_edges_in g1 X ->
     g2 ⊆ g1 ->
-    locs_of_edges_in g2 X.
+    locations_of_edges_in g2 X.
   Proof.
     intros Z ? a b c d ?. eapply (Z a b c d). set_solver.
   Qed.
 
   Lemma undo_same_fst_label xs ys r l v r' σ :
     undo xs ys σ ->
-    (r, (l, v), r') ∈ (list_to_set ys :  gset (loc*(loc*val)*loc)) ->
-    l ∈ (list_to_set (proj2 <$> xs).*1 : gset loc).
+    (r, (l, v), r') ∈ (list_to_set ys :  gset (location*(location*val)*location)) ->
+    l ∈ (list_to_set (proj2 <$> xs).*1 : gset location).
   Proof.
     revert xs σ. induction ys as [|(?,?)]. set_solver.
     intros xs σ. inversion 1. subst.
@@ -1249,7 +1249,7 @@ Section pstore_G.
         True
     end.
 
-  Lemma path_extract_suffix (g:gset (loc*(loc*val)*loc)) a1 a2 xs1 r xs2 :
+  Lemma path_extract_suffix (g:gset (location*(location*val)*location)) a1 a2 xs1 r xs2 :
     unaliased g ->
     path g a1 xs1 r ->
     path g a2 xs2 r  ->
@@ -1297,7 +1297,7 @@ Section pstore_G.
     rewrite !last_app //. simpl. naive_solver.
   Qed.
 
-  Lemma path_use_diff_last (g:gset (loc*(loc*val)*loc)) a1 a2 ys1 ys2 xs r :
+  Lemma path_use_diff_last (g:gset (location*(location*val)*location)) a1 a2 ys1 ys2 xs r :
     acyclic g ->
     unaliased g ->
     path g a1 (ys1 ++ xs) r ->
@@ -1353,7 +1353,7 @@ Section pstore_G.
     destruct (last l1),(last l2); naive_solver.
   Qed.
 
-  Lemma path_union_inv (g1: graph loc (loc*val)) g2 a1 xs a2 :
+  Lemma path_union_inv (g1: graph location (location*val)) g2 a1 xs a2 :
     path (g1 ∪ g2) a1 xs a2 ->
     path g1 a1 xs a2 \/ exists a' x xs1 xs2, path g1 a1 xs1 a' /\ x ∈ g2 /\ path (g1 ∪ g2) a' (x::xs2) a2 /\ xs=xs1++x::xs2.
   Proof.
@@ -1374,7 +1374,7 @@ Section pstore_G.
       set_solver. apply path_cons. set_solver. done. }
   Qed.
 
-  Lemma path_cannot_escape (x:(loc * diff * loc)) (xs ys:list (loc * diff * loc)) (g1: graph loc (loc*val)) a a' r :
+  Lemma path_cannot_escape (x:(location * diff * location)) (xs ys:list (location * diff * location)) (g1: graph location (location*val)) a a' r :
     (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) ->
     unaliased (g1 ∪ list_to_set ys) ->
     x ∈ (list_to_set ys : gset _) ->
@@ -1395,7 +1395,7 @@ Section pstore_G.
     destruct (X1 _ _ _ _ _ H9 Z). set_solver.
   Qed.
 
-  Lemma path_in_seg_complete (r a a':loc) (x:(loc * diff * loc)) (xs0 xs1 ys: list (loc * diff * loc)) (g1:graph loc (loc*val)) :
+  Lemma path_in_seg_complete (r a a':location) (x:(location * diff * location)) (xs0 xs1 ys: list (location * diff * location)) (g1:graph location (location*val)) :
     (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) -> (* root has no succ *)
     unaliased (g1 ∪ list_to_set ys) ->
     pathlike ys r ->
@@ -1417,7 +1417,7 @@ Section pstore_G.
     destruct (Hinj _ _ _ _ _ H Z). set_solver.
   Qed.
 
-  Lemma undo_preserves_rooted_dag (g:graph loc (loc*val)) xs ys rs r :
+  Lemma undo_preserves_rooted_dag (g:graph location (location*val)) xs ys rs r :
     (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
     unaliased g ->
     unaliased (list_to_set ys ∪ g ∖ list_to_set xs) ->
@@ -1505,7 +1505,7 @@ Section pstore_G.
     { apply undo_cons. done. done. }
   Qed.
 
-  Lemma construct_middlepoint (g:graph loc (loc*val)) a1 xs ys a2 a2' :
+  Lemma construct_middlepoint (g:graph location (location*val)) a1 xs ys a2 a2' :
     unaliased g ->
     (forall x l', ¬ (a2,x,l') ∈ g) -> (* root has no succ *)
     path g a1 xs a2 ->
@@ -1523,7 +1523,7 @@ Section pstore_G.
   Qed.
 
 
-  Lemma undo_preserves_model g (M:map_model) (xs ys:list (loc* (loc*val)*loc)) rs σ0 r:
+  Lemma undo_preserves_model g (M:map_model) (xs ys:list (location* (location*val)*location)) rs σ0 r:
     dom M = vertices g ∪ {[r]} ->
     correct_path_diff M g ->
     (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
@@ -1609,7 +1609,7 @@ Section pstore_G.
     eapply use_undo. rewrite R1. done.
   Qed.
 
-  Lemma use_snapshots_model γ (t0:loc) M r σ :
+  Lemma use_snapshots_model γ (t0:location) M r σ :
     meta t0 nroot γ -∗
     snapshosts_model t0 M -∗
     pstore_map_elem γ r σ -∗
@@ -1669,7 +1669,7 @@ Section pstore_G.
     wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]").
     4:{ eapply path_restrict. done. }
     2:done.
-    { destruct Hcoh as [_ X]. eapply locs_of_edges_weak; eauto. }
+    { destruct Hcoh as [_ X]. eapply locations_of_edges_weak; eauto. }
     { eapply acyclic_weak; eauto using ti2. }
     { iFrame. }
 
@@ -1714,12 +1714,12 @@ Section pstore_G.
       { intros. eapply undo_preserves_model; eauto. rewrite comm_L //. }
     } {
       rewrite /apply_diffl.
-      replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (list_fmap (loc * diff * loc)%type diff proj2 bs))) with (apply_diffl (proj2 <$> xs) σ0).
+      replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (list_fmap (location * diff * location)%type diff proj2 bs))) with (apply_diffl (proj2 <$> xs) σ0).
       2:{ subst xs. reflexivity. }
 
       destruct Hcoh as [X1 X2]. constructor.
       { intros ???. rewrite dom_apply_diffl. apply X1 in H8.
-        eapply use_locs_of_edges_in in Hrs. 2:done.
+        eapply use_locations_of_edges_in in Hrs. 2:done.
         set_solver.
       } {
         rewrite dom_apply_diffl. intros ???? Hedge.

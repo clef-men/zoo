@@ -18,7 +18,7 @@ From zebre Require Import
   options.
 
 Implicit Types i j n : nat.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
@@ -27,7 +27,7 @@ Definition chunk_make : val :=
     if: #0 < "sz" then (
       Alloc "sz" "v"
     ) else (
-      #(inhabitant : loc)
+      #(inhabitant : location)
     ).
 
 #[local] Definition chunk_foldli_aux : val :=
@@ -160,7 +160,7 @@ Section zebre_G.
       l ↦{dq} v ⊣⊢
       chunk_model l dq [v].
     Proof.
-      setoid_rewrite big_sepL_singleton. rewrite loc_add_0 //.
+      setoid_rewrite big_sepL_singleton. rewrite location_add_0 //.
     Qed.
     Lemma chunk_model_singleton_1 l dq v :
       l ↦{dq} v ⊢
@@ -182,7 +182,7 @@ Section zebre_G.
     Proof.
       setoid_rewrite big_sepL_app.
       setoid_rewrite Nat2Z.inj_add.
-      setoid_rewrite <- loc_add_assoc. done.
+      setoid_rewrite <- location_add_assoc. done.
     Qed.
     Lemma chunk_model_app_1 dq l1 vs1 l2 vs2 :
       l2 = l1 +ₗ length vs1 →
@@ -207,7 +207,7 @@ Section zebre_G.
       chunk_model (l +ₗ (length vs1 + length vs2)%nat) dq vs3 ⊣⊢
       chunk_model l dq (vs1 ++ vs2 ++ vs3).
     Proof.
-      rewrite -!chunk_model_app loc_add_assoc Nat2Z.inj_add //.
+      rewrite -!chunk_model_app location_add_assoc Nat2Z.inj_add //.
     Qed.
     Lemma chunk_model_app3_1 dq l1 vs1 l2 vs2 l3 vs3 :
       l2 = l1 +ₗ length vs1 →
@@ -314,7 +314,7 @@ Section zebre_G.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_model_update k); [lia | done | lia |].
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
     Lemma chunk_model_lookup_acc' {l} {i : Z} {dq vs} (j : Z) k v :
       (0 ≤ i ≤ j)%Z →
@@ -329,7 +329,7 @@ Section zebre_G.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_model_lookup_acc k); [lia | done | lia |].
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
     Lemma chunk_model_lookup' {l} {i : Z} {dq vs} (j : Z) k v :
       (0 ≤ i ≤ j)%Z →
@@ -341,7 +341,7 @@ Section zebre_G.
       intros Hij Hlookup ->.
       Z_to_nat i. Z_to_nat j. rewrite !Nat2Z.id in Hlookup |- *. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_model_lookup k); [lia | done | lia |].
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
 
     Lemma chunk_model_valid l dq vs :
@@ -644,7 +644,7 @@ Section zebre_G.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_span_update k); first lia.
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
     Lemma chunk_span_lookup_acc' {l} {i : Z} {dq n} (j : Z) :
       (0 ≤ i ≤ j ∧ j < i + n)%Z →
@@ -658,7 +658,7 @@ Section zebre_G.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_span_lookup_acc k); first lia.
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
     Lemma chunk_span_lookup' {l} {i : Z} {dq n} (j : Z) :
       (0 ≤ i ≤ j ∧ j < i + n)%Z →
@@ -669,7 +669,7 @@ Section zebre_G.
       intros Hij.
       Z_to_nat i. Z_to_nat j. remember (j - i) as k eqn:Hk.
       rewrite {1}(chunk_span_lookup k); first lia.
-      rewrite loc_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
+      rewrite location_add_assoc -Nat2Z.inj_add Hk -Nat.le_add_sub //. lia.
     Qed.
 
     Lemma chunk_span_valid l dq n :

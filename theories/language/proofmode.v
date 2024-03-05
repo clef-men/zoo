@@ -19,7 +19,7 @@ From zebre.language Require Import
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types v : val.
@@ -172,7 +172,7 @@ Section zebre_G.
     iIntros "HΔ'".
     iApply (wp_alloc with "[//]"); first done. iIntros "!> %l (Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
-    rewrite -HΔ'' envs_app_sound //= !right_id loc_add_0.
+    rewrite -HΔ'' envs_app_sound //= !right_id location_add_0.
     iApply ("HΔ'" with "[$Hl $Hmeta]").
   Qed.
 

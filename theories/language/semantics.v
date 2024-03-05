@@ -14,7 +14,7 @@ From zebre Require Import
 Implicit Types b : bool.
 Implicit Types tag proj : nat.
 Implicit Types n m : Z.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types lit : literal.
 Implicit Types x : binder.
 Implicit Types e : expr.
@@ -336,7 +336,7 @@ Fixpoint case_apply tag vs x e brs :=
 #[global] Arguments case_apply _ _ _ _ !_ / : assert.
 
 Record state : Type := {
-  state_heap : gmap loc val ;
+  state_heap : gmap location val ;
   state_prophs : gset prophecy_id ;
 }.
 Implicit Types σ : state.
@@ -361,7 +361,7 @@ Definition state_update_prophs f σ : state :=
       state_prophs := inhabitant ;
     |}.
 
-Fixpoint heap_array l vs : gmap loc val :=
+Fixpoint heap_array l vs : gmap location val :=
   match vs with
   | [] =>
       ∅
@@ -385,16 +385,16 @@ Proof.
   { rewrite lookup_empty. naive_solver lia. }
   rewrite lookup_insert_Some IH. split.
   - intros [[-> ?] | (Hl & j & ? & -> & ?)].
-    { eexists 0. rewrite loc_add_0. naive_solver lia. }
-    eexists (1 + j)%Z. rewrite loc_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
+    { eexists 0. rewrite location_add_0. naive_solver lia. }
+    eexists (1 + j)%Z. rewrite location_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
   - intros (j & ? & -> & Hil). destruct (decide (j = 0)); simplify_eq/=.
-    { rewrite loc_add_0; eauto. }
+    { rewrite location_add_0; eauto. }
     right. split.
-    { rewrite -{1}(loc_add_0 l). intros ?%(inj (loc_add _)); lia. }
+    { rewrite -{1}(location_add_0 l). intros ?%(inj (location_add _)); lia. }
     assert (Z.to_nat j = S (Z.to_nat (j - 1))) as Hj.
     { rewrite -Z2Nat.inj_succ; last lia. f_equal; lia. }
     rewrite Hj /= in Hil.
-    eexists (j - 1)%Z. rewrite loc_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
+    eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
 Qed.
 Lemma heap_array_map_disjoint h l vs :
   ( ∀ i,
@@ -636,7 +636,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         es.
 
 Lemma base_step_record' es vs σ :
-  let l := loc_fresh (dom σ.(state_heap)) in
+  let l := location_fresh (dom σ.(state_heap)) in
   0 < length es →
   es = of_vals vs →
   base_step
@@ -648,10 +648,10 @@ Lemma base_step_record' es vs σ :
     [].
 Proof.
   intros. apply base_step_record; [done.. |].
-  intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
+  intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
 Qed.
 Lemma base_step_alloc' v n σ :
-  let l := loc_fresh (dom σ.(state_heap)) in
+  let l := location_fresh (dom σ.(state_heap)) in
   (0 < n)%Z →
   base_step
     (Alloc ((Val $ ValInt n)) (Val v))
@@ -662,7 +662,7 @@ Lemma base_step_alloc' v n σ :
     [].
 Proof.
   intros. apply base_step_alloc; first done.
-  intros. apply not_elem_of_dom, loc_fresh_fresh. naive_solver.
+  intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
 Qed.
 Lemma base_step_proph' σ :
   let p := fresh σ.(state_prophs) in

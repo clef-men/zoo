@@ -8,31 +8,31 @@ From zebre.boxroot Require Export
 From zebre Require Import
   options.
 
-Implicit Types l root : loc.
-Implicit Types roots : list loc.
+Implicit Types l root : location.
+Implicit Types roots : list location.
 Implicit Types fn iter : val.
 
 Parameter gc_state : Type.
 Implicit Types gc : gc_state.
 
-Parameter gc_loc : Type.
-Implicit Types ω : gc_loc.
-Implicit Types ωs : list gc_loc.
+Parameter gc_location : Type.
+Implicit Types ω : gc_location.
+Implicit Types ωs : list gc_location.
 
-Parameter gc_loc_inhabited : Inhabited gc_loc.
-#[global] Existing Instance gc_loc_inhabited.
+Parameter gc_location_inhabited : Inhabited gc_location.
+#[global] Existing Instance gc_location_inhabited.
 
 Parameter gc_val : Type.
 Parameter GcInt : Z → gc_val.
-Parameter GcLoc : gc_loc → gc_val.
+Parameter GcLoc : gc_location → gc_val.
 Parameter gc_val_to_val : gc_val → val.
 Parameter gc_val_of_val : val → option gc_val.
 Implicit Types ν : gc_val.
 Implicit Types νs : list gc_val.
 
 Parameter gc_model : ∀ `{zebre_G : !ZebreG Σ}, gc_state → iProp Σ.
-Parameter gc_pointsto : ∀ `{zebre_G : !ZebreG Σ}, gc_loc → list gc_val → iProp Σ.
-Parameter gc_realized : gc_state → gc_loc → loc → Prop.
+Parameter gc_pointsto : ∀ `{zebre_G : !ZebreG Σ}, gc_location → list gc_val → iProp Σ.
+Parameter gc_realized : gc_state → gc_location → location → Prop.
 Definition gc_root `{zebre_G : !ZebreG Σ} gc root ω : iProp Σ :=
   ∃ l,
   root ↦ #l ∗

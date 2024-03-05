@@ -10,7 +10,7 @@ From zebre.std Require Import
 From zebre Require Import
   options.
 
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types t v front sent : val.
 Implicit Types vs : list val.
 

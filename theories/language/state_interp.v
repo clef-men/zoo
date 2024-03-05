@@ -20,13 +20,13 @@ Implicit Types κ : list observation.
 
 Class ZebreGpre Σ := {
   #[global] zebre_Gpre_inv_Gpre :: invGpreS Σ ;
-  #[local] zebre_Gpre_heap_Gpre :: gen_heapGpreS loc val Σ ;
+  #[local] zebre_Gpre_heap_Gpre :: gen_heapGpreS location val Σ ;
   #[local] zebre_Gpre_prophecy_Gpre :: proph_mapGpreS prophecy_id (val * val) Σ ;
 }.
 
 Definition zebre_Σ := #[
   invΣ ;
-  gen_heapΣ loc val ;
+  gen_heapΣ location val ;
   proph_mapΣ prophecy_id (val * val)
 ].
 #[global] Instance subG_zebre_Σ Σ :
@@ -38,7 +38,7 @@ Qed.
 
 Class ZebreG Σ := {
   zebre_G_inv_G : invGS Σ ;
-  #[global] zebre_G_heap_G :: gen_heapGS loc val Σ ;
+  #[global] zebre_G_heap_G :: gen_heapGS location val Σ ;
   #[global] zebre_G_prophecy_map_G :: proph_mapGS prophecy_id (val * val) Σ ;
 }.
 #[global] Arguments Build_ZebreG _ {_ _ _} : assert.
@@ -71,7 +71,7 @@ Proof.
 Qed.
 
 Notation "l ↦ dq v" := (
-  pointsto (L := loc) (V := val) l dq v%V
+  pointsto (L := location) (V := val) l dq v%V
 )(at level 20,
   dq custom dfrac at level 1,
   format "l  ↦ dq  v"

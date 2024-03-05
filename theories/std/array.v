@@ -14,7 +14,7 @@ From zebre Require Import
   options.
 
 Implicit Types i j n : nat.
-Implicit Types l : loc.
+Implicit Types l : location.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
@@ -299,13 +299,13 @@ Section zebre_G.
     Proof.
       iSplit.
       - iIntros "((%l & -> & #Hsz & Hmodel1) & (%_l & %Heq & _ & Hmodel2))". injection Heq as <-.
-        rewrite Nat2Z.inj_add -loc_add_assoc.
+        rewrite Nat2Z.inj_add -location_add_assoc.
         iDestruct (chunk_model_app_1 with "Hmodel1 Hmodel2") as "Hmodel"; first done.
         iSteps.
       - iIntros "(%l & -> & #Hsz & Hmodel)".
         iDestruct (chunk_model_app with "Hmodel") as "(Hmodel1 & Hmodel2)".
         iSplitL "Hmodel1"; iExists l; first iSteps.
-        rewrite loc_add_assoc -Nat2Z.inj_add. iSteps.
+        rewrite location_add_assoc -Nat2Z.inj_add. iSteps.
     Qed.
     Lemma array_slice_app_1 t sz i dq sz1 vs1 vs2 :
       sz1 = length vs1 →
@@ -847,7 +847,7 @@ Section zebre_G.
     Proof.
       rewrite /array_model /array_slice /array_cslice.
       setoid_rewrite chunk_model_to_cslice.
-      setoid_rewrite loc_add_0.
+      setoid_rewrite location_add_0.
       done.
     Qed.
 
@@ -1029,9 +1029,9 @@ Section zebre_G.
     wp_rec.
     iApply wp_fupd.
     wp_apply (chunk_make_spec with "[//]") as "%l (Hl & _)".
-    iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & Hdata)". rewrite -{1}(loc_add_0 l).
+    iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & Hdata)". rewrite -{1}(location_add_0 l).
     iMod (pointsto_persist with "Hsz") as "#Hsz".
-    iApply "HΦ". iSteps. rewrite loc_add_0 //.
+    iApply "HΦ". iSteps. rewrite location_add_0 //.
   Qed.
 
   Lemma array_make_spec sz v :
@@ -1051,11 +1051,11 @@ Section zebre_G.
     wp_pures.
     rewrite Z.add_1_l -Nat2Z.inj_succ !Nat2Z.id.
     iDestruct (chunk_model_cons with "Hmodel") as "(Hsz & Hmodel)".
-    iEval (setoid_rewrite <- (loc_add_0 l)) in "Hsz".
+    iEval (setoid_rewrite <- (location_add_0 l)) in "Hsz".
     wp_store. wp_pures.
     iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iExists l.
-    rewrite replicate_length !loc_add_0. iSteps.
+    rewrite replicate_length !location_add_0. iSteps.
   Qed.
 
   Lemma array_initi_spec Ψ sz fn :
@@ -1097,7 +1097,7 @@ Section zebre_G.
     iIntros "%vs (%Hvs & Hmodel & HΨ)".
     wp_pures.
     iApply ("HΦ" $! #l vs). iFrame. iSteps.
-    rewrite !loc_add_0 -Hvs Z2Nat.id //. iSteps.
+    rewrite !location_add_0 -Hvs Z2Nat.id //. iSteps.
   Qed.
   Lemma array_initi_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
@@ -1939,12 +1939,12 @@ Section zebre_G.
     wp_rec. rewrite /array_size /array_data. wp_load.
     repeat (wp_smart_apply assume_spec' as "_").
     wp_smart_apply (array_make_spec with "[//]") as "%t' (%l' & -> & #Hsz' & Hmodel')"; first lia.
-    iEval (rewrite loc_add_0) in "Hmodel'".
+    iEval (rewrite location_add_0) in "Hmodel'".
     wp_smart_apply (chunk_copy_spec with "[$Hmodel $Hmodel']") as "(Hmodel & Hmodel')"; first lia.
     { rewrite replicate_length //. }
     wp_pures.
     iApply "HΦ". iSplitL "Hmodel"; first iSteps. iExists l'.
-    rewrite replicate_length take_length Nat2Z.id Nat.min_id !loc_add_0 firstn_all. iSteps.
+    rewrite replicate_length take_length Nat2Z.id Nat.min_id !location_add_0 firstn_all. iSteps.
   Qed.
   Lemma array_sub_spec_slice t sz dq vs i (j n : Z) :
     (i ≤ j)%Z →
@@ -2181,7 +2181,7 @@ Section zebre_G.
     iApply wp_fupd.
     wp_apply (chunk_make_spec with "[//]") as "%l (Hl & _)".
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & _)".
-    rewrite -{1}(loc_add_0 l). iMod (pointsto_persist with "Hsz") as "#Hsz".
+    rewrite -{1}(location_add_0 l). iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iExists l. repeat iSplitR; [iSteps.. |].
     iApply itype_chunk_0.
   Qed.
@@ -2204,7 +2204,7 @@ Section zebre_G.
     wp_smart_apply (chunk_make_spec with "[//]") as "%l (Hl & _)".
     rewrite Z.add_1_l Z2Nat.inj_succ; first lia. rewrite Nat2Z.id.
     iDestruct (chunk_model_cons_2 with "Hl") as "(Hsz & Hdata)".
-    rewrite -{1}(loc_add_0 l).
+    rewrite -{1}(location_add_0 l).
     wp_store. wp_pures.
     iMod (pointsto_persist with "Hsz") as "#Hsz".
     iApply "HΦ". iStep. iExists l. repeat iSplitR; [iSteps.. |].
@@ -2234,7 +2234,7 @@ Section zebre_G.
     iIntros "%vs (%Hvs & Hmodel & #Hτ)".
     wp_pures.
     iApply "HΦ". iStep. iExists l. repeat iSplitR; try iSteps.
-    rewrite loc_add_0 Z2Nat.id //.
+    rewrite location_add_0 Z2Nat.id //.
   Qed.
 
   Lemma array_init_type sz fn :
@@ -2438,7 +2438,7 @@ Section zebre_G.
     wp_smart_apply (array_data_type with "Ht") as "%data Hdata".
     iDestruct (itype_chunk_shift i with "Hdata") as "Hdata"; first lia.
     iDestruct (itype_chunk_le (Z.to_nat n) with "Hdata") as "Hdata"; first lia.
-    iEval (rewrite loc_add_0) in "Hdata'".
+    iEval (rewrite location_add_0) in "Hdata'".
     wp_smart_apply (chunk_copy_type' with "[$Hdata $Hdata']"); first lia.
     { rewrite replicate_length //. }
     rewrite replicate_length. iSteps.
