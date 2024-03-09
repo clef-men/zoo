@@ -40,7 +40,7 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
 
   ws_deques_create_spec ι sz :
     let sz' := Z.to_nat sz in
-(0 ≤ sz)%Z →
+    (0 ≤ sz)%Z →
     {{{ True }}}
       ws_deques_create #sz
     {{{ t,
