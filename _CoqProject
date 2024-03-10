@@ -39,7 +39,6 @@ theories/iris/base_logic/lib/auth_nat_min.v
 theories/iris/base_logic/lib/auth_dgset.v
 theories/iris/base_logic/lib/auth_gmultiset.v
 theories/iris/base_logic/lib/auth_mono.v
-theories/iris/base_logic/lib/auth_mono_annotated.v
 theories/iris/base_logic/lib/mono_list.v
 theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
