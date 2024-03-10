@@ -13,9 +13,15 @@ From zebre Require Import
 Section upred.
   Context {M : ucmra}.
 
-  Notation "P ⊢ Q" := (bi_entails (PROP := uPredI M) P Q).
-  Notation "P ⊣⊢ Q" := (equiv (A := uPredI M) P%I Q%I).
-  Notation "⊢ Q" := (bi_entails (PROP := uPredI M) True Q).
+  Notation "P ⊢ Q" := (
+    bi_entails (PROP := uPredI M) P Q
+  ).
+  Notation "P ⊣⊢ Q" := (
+    equiv (A := uPredI M) P%I Q%I
+  ).
+  Notation "⊢ Q" := (
+    bi_entails (PROP := uPredI M) True Q
+  ).
 
   Section ofe.
     Context {A : ofe}.

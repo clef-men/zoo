@@ -22,22 +22,16 @@ Definition auth_option_auth {A : cmra} dq (a : A) : auth_option_UR A :=
   ●{dq} (Some a).
 Definition auth_option_frag {A : cmra} (a : A) : auth_option_UR A :=
   ◯ (Some a).
-Notation "●O{ dq } a" := (auth_option_auth dq a)
-( at level 20,
-  format "●O{ dq } a"
+
+Notation "●O dq a" := (
+  auth_option_auth dq a
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "●O dq  a"
 ).
-Notation "●O{# q } a" := (●O{DfracOwn q} a)
-( at level 20,
-  format "●O{# q } a"
-).
-Notation "●O a" := (●O{#1} a)
-( at level 20
-).
-Notation "●O□ a" := (●O{DfracDiscarded} a)
-( at level 20
-).
-Notation "◯O a" := (auth_option_frag a)
-( at level 20
+Notation "◯O a" := (
+  auth_option_frag a
+)(at level 20
 ).
 
 Section cmra.

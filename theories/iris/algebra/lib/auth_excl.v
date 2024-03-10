@@ -22,22 +22,16 @@ Definition auth_excl_auth {A : ofe} dq (a : A) : auth_excl_UR A :=
   ●O{dq} (Excl a).
 Definition auth_excl_frag {A : ofe} (a : A) : auth_excl_UR A :=
   ◯O (Excl a).
-Notation "●E{ dq } a" := (auth_excl_auth dq a)
-( at level 20,
-  format "●E{ dq }  a"
+
+Notation "●E dq a" := (
+  auth_excl_auth dq a
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "●E dq  a"
 ).
-Notation "●E{# q } a" := (●E{DfracOwn q} a)
-( at level 20,
-  format "●E{# q }  a"
-).
-Notation "●E a" := (●E{#1} a)
-( at level 20
-).
-Notation "●E□ a" := (●E{DfracDiscarded} a)
-( at level 20
-).
-Notation "◯E a" := (auth_excl_frag a)
-( at level 20
+Notation "◯E a" := (
+  auth_excl_frag a
+)(at level 20
 ).
 
 Section ofe.
