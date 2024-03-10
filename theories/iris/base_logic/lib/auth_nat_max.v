@@ -153,7 +153,7 @@ Section auth_nat_max_G.
   Proof.
     iIntros "Hauth Hlb".
     iDestruct (auth_mono_valid with "Hauth Hlb") as %Hrtc.
-    rewrite reflexive_transitive_rtc in Hrtc. iSteps.
+    rewrite preorder_rtc in Hrtc. iSteps.
   Qed.
 
   Lemma auth_nat_max_update {γ n} n' :

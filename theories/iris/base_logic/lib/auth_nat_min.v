@@ -153,7 +153,7 @@ Section auth_nat_min_G.
   Proof.
     iIntros "Hauth Hub".
     iDestruct (auth_mono_valid with "Hauth Hub") as %Hrtc.
-    rewrite reflexive_transitive_rtc in Hrtc. iSteps.
+    rewrite preorder_rtc in Hrtc. iSteps.
   Qed.
 
   Lemma auth_nat_min_update {γ n} n' :
