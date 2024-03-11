@@ -96,25 +96,43 @@ Section auth_mono_G.
     iDestruct (own_valid with "Hauth") as %(_ & ->)%auth_mono_auth_dfrac_op_valid_L.
     rewrite -auth_mono_auth_dfrac_op. iSteps.
   Qed.
-  Lemma auth_mono_auth_valid_2 `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
+  Lemma auth_mono_auth_valid_2 `{!AntiSymm (≡) Rs} γ dq1 a1 dq2 a2 :
+    auth_mono_auth γ dq1 a1 -∗
+    auth_mono_auth γ dq2 a2 -∗
+    ⌜✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2⌝.
+  Proof.
+    iIntros "Hauth1 Hauth2".
+    iCombine "Hauth1 Hauth2" as "Hauth".
+    iDestruct (own_valid with "Hauth") as %?%auth_mono_auth_dfrac_op_valid.
+    done.
+  Qed.
+  Lemma auth_mono_auth_valid_2_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
     auth_mono_auth γ dq1 a1 -∗
     auth_mono_auth γ dq2 a2 -∗
     ⌜✓ (dq1 ⋅ dq2) ∧ a1 = a2⌝.
   Proof.
     iIntros "Hauth1 Hauth2".
-    iDestruct (auth_mono_auth_combine with "Hauth1 Hauth2") as "(Hauth & ->)".
-    iDestruct (auth_mono_auth_valid with "Hauth") as %?.
-    iSteps.
+    iCombine "Hauth1 Hauth2" as "Hauth".
+    iDestruct (own_valid with "Hauth") as %?%auth_mono_auth_dfrac_op_valid_L.
+    done.
   Qed.
-  Lemma auth_mono_auth_agree `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
+  Lemma auth_mono_auth_agree `{!AntiSymm (≡) Rs} γ dq1 a1 dq2 a2 :
+    auth_mono_auth γ dq1 a1 -∗
+    auth_mono_auth γ dq2 a2 -∗
+    ⌜a1 ≡ a2⌝.
+  Proof.
+    iIntros "Hauth1 Hauth2".
+    iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as "(_ & $)".
+  Qed.
+  Lemma auth_mono_auth_agree_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
     auth_mono_auth γ dq1 a1 -∗
     auth_mono_auth γ dq2 a2 -∗
     ⌜a1 = a2⌝.
   Proof.
     iIntros "Hauth1 Hauth2".
-    iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as "(_ & $)".
+    iDestruct (auth_mono_auth_valid_2_L with "Hauth1 Hauth2") as "(_ & $)".
   Qed.
-  Lemma auth_mono_auth_dfrac_ne `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 dq1 a1 γ2 dq2 a2 :
+  Lemma auth_mono_auth_dfrac_ne `{!AntiSymm (≡) Rs} γ1 dq1 a1 γ2 dq2 a2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     auth_mono_auth γ1 dq1 a1 -∗
     auth_mono_auth γ2 dq2 a2 -∗
@@ -124,7 +142,17 @@ Section auth_mono_G.
     iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as %?.
     naive_solver.
   Qed.
-  Lemma auth_mono_auth_ne `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 a1 γ2 dq2 a2 :
+  Lemma auth_mono_auth_dfrac_ne_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 dq1 a1 γ2 dq2 a2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    auth_mono_auth γ1 dq1 a1 -∗
+    auth_mono_auth γ2 dq2 a2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    iIntros "% Hauth1 Hauth2" (->).
+    iDestruct (auth_mono_auth_valid_2_L with "Hauth1 Hauth2") as %?.
+    naive_solver.
+  Qed.
+  Lemma auth_mono_auth_ne `{!AntiSymm (≡) Rs} γ1 a1 γ2 dq2 a2 :
     auth_mono_auth γ1 (DfracOwn 1) a1 -∗
     auth_mono_auth γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
@@ -132,13 +160,30 @@ Section auth_mono_G.
     intros.
     iApply auth_mono_auth_dfrac_ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma auth_mono_auth_exclusive `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
+  Lemma auth_mono_auth_ne_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 a1 γ2 dq2 a2 :
+    auth_mono_auth γ1 (DfracOwn 1) a1 -∗
+    auth_mono_auth γ2 dq2 a2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    intros.
+    iApply auth_mono_auth_dfrac_ne_L; [done.. | intros []%(exclusive_l _)].
+  Qed.
+  Lemma auth_mono_auth_exclusive `{!AntiSymm (≡) Rs} γ a1 a2 :
     auth_mono_auth γ (DfracOwn 1) a1 -∗
     auth_mono_auth γ (DfracOwn 1) a2 -∗
     False.
   Proof.
     iIntros "Hauth1 Hauth2".
     iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as "(% & _)".
+    iSmash.
+  Qed.
+  Lemma auth_mono_auth_exclusive_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
+    auth_mono_auth γ (DfracOwn 1) a1 -∗
+    auth_mono_auth γ (DfracOwn 1) a2 -∗
+    False.
+  Proof.
+    iIntros "Hauth1 Hauth2".
+    iDestruct (auth_mono_auth_valid_2_L with "Hauth1 Hauth2") as "(% & _)".
     iSmash.
   Qed.
   Lemma auth_mono_auth_persist γ dq a :

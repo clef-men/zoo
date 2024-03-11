@@ -36,4 +36,10 @@ Section relation.
   Proof.
     intros x1 x2 H1%preorder_rtc H2%preorder_rtc. naive_solver.
   Qed.
+
+  Lemma rtc_equivalence_antisymm R' `{!Equivalence R'} `{!AntiSymm (=) (rtc R)} :
+    AntiSymm R' (rtc R).
+  Proof.
+    intros a1 a2 ? ?. rewrite (anti_symm _ a1 a2) //.
+  Qed.
 End relation.

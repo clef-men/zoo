@@ -3,6 +3,8 @@ From iris.algebra Require Import
 
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  relations.
 From zebre.iris.algebra Require Export
   base.
 From zebre.iris.algebra Require Import
@@ -23,7 +25,7 @@ Section ofe.
   #[local] Instance Rs_antisymm `{!AntiSymm (=) Rs} :
     AntiSymm (≡) Rs.
   Proof.
-    intros a1 a2 ? ?. rewrite (anti_symm _ a1 a2) //.
+    apply: rtc_equivalence_antisymm.
   Qed.
 
   Definition auth_mono :=
