@@ -8,10 +8,10 @@ From zebre.language Require Import
 From zebre.std Require Import
   opt
   array.
-From zebre.saturn Require Export
-  ws_deques.
 From zebre.saturn Require Import
-  inf_cl_deque.
+  inf_ws_deque.
+From zebre.scheduling Require Export
+  ws_deques.
 From zebre Require Import
   options.
 
@@ -21,29 +21,29 @@ Implicit Types vss : list (list val).
 
 Definition ws_deques_public_create : val :=
   λ: "sz",
-    array_init "sz" (λ: <>, inf_cl_deque_create ()).
+    array_init "sz" (λ: <>, inf_ws_deque_create ()).
 
 Definition ws_deques_public_size : val :=
   array_size.
 
 Definition ws_deques_public_push : val :=
   λ: "t" "i" "v",
-    inf_cl_deque_push (array_unsafe_get "t" "i") "v".
+    inf_ws_deque_push (array_unsafe_get "t" "i") "v".
 
 Definition ws_deques_public_pop : val :=
   λ: "t" "i",
-    inf_cl_deque_pop (array_unsafe_get "t" "i").
+    inf_ws_deque_pop (array_unsafe_get "t" "i").
 
 Definition ws_deques_public_steal_to : val :=
   λ: "t" "i",
-    inf_cl_deque_steal (array_unsafe_get "t" "i").
+    inf_ws_deque_steal (array_unsafe_get "t" "i").
 
 Class WsDequesPublicG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] ws_deques_public_G_cl_deque_G :: InfClDequeG Σ ;
+  #[local] ws_deques_public_G_ws_deque_G :: InfWsDequeG Σ ;
 }.
 
 Definition ws_deques_public_Σ := #[
-  inf_cl_deque_Σ
+  inf_ws_deque_Σ
 ].
 #[global] Instance subG_ws_deques_public_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG ws_deques_public_Σ Σ →
@@ -60,19 +60,19 @@ Section ws_deques_public_G.
     ⌜sz = length deques⌝ ∗
     array_model t DfracDiscarded deques ∗
     [∗ list] deque ∈ deques,
-      inf_cl_deque_inv deque ι.
+      inf_ws_deque_inv deque ι.
 
   Definition ws_deques_public_model t vss : iProp Σ :=
     ∃ deques,
     array_model t DfracDiscarded deques ∗
     [∗ list] i ↦ deque; vs ∈ deques; vss,
-      inf_cl_deque_model deque vs.
+      inf_ws_deque_model deque vs.
 
   Definition ws_deques_public_owner t i : iProp Σ :=
     ∃ deques deque,
     ⌜deques !! i = Some deque⌝ ∗
     array_model t DfracDiscarded deques ∗
-    inf_cl_deque_owner deque.
+    inf_ws_deque_owner deque.
 
   #[global] Instance ws_deques_public_model_timeless t vss :
     Timeless (ws_deques_public_model t vss).
@@ -98,7 +98,7 @@ Section ws_deques_public_G.
     iIntros "(%deques & %deque & %Hlookup & #Hdeques & Hdeque_owner) (%_deques & %_deque & %_Hlookup & _Hdeques & _Hdeque_owner)".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     simplify.
-    iApply (inf_cl_deque_owner_exclusive with "Hdeque_owner _Hdeque_owner").
+    iApply (inf_ws_deque_owner_exclusive with "Hdeque_owner _Hdeque_owner").
   Qed.
 
   Lemma ws_deques_public_create_spec ι sz :
@@ -118,19 +118,19 @@ Section ws_deques_public_G.
     wp_rec.
     pose (Ψ (_ : nat) deques := (
       ( [∗ list] deque ∈ deques,
-        inf_cl_deque_inv deque ι
+        inf_ws_deque_inv deque ι
       ) ∗
       ( [∗ list] deque ∈ deques,
-        inf_cl_deque_model deque []
+        inf_ws_deque_model deque []
       ) ∗
       ( [∗ list] deque ∈ deques,
-        inf_cl_deque_owner deque
+        inf_ws_deque_owner deque
       )
     )%I).
     iApply wp_fupd.
     wp_smart_apply (array_init_spec Ψ) as (t deques) "(%Hdeques_length & Hdeques & (Hinv & Hmodel & Howner))"; first done.
     { iSteps. iModIntro.
-      wp_apply (inf_cl_deque_create_spec with "[//]").
+      wp_apply (inf_ws_deque_create_spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }
     iMod (array_model_persist with "Hdeques") as "#Hdeques".
@@ -178,7 +178,7 @@ Section ws_deques_public_G.
     wp_rec.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "Hdeque_inv"; first done.
-    awp_apply (inf_cl_deque_push_spec with "[$Hdeque_inv $Hdeque_owner]").
+    awp_apply (inf_ws_deque_push_spec with "[$Hdeque_inv $Hdeque_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (%_deques & _Hdeques & Hdeques_model)".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     iDestruct (big_sepL2_lookup_Some_l with "Hdeques_model") as %(vs & Hvss_lookup); first done.
@@ -222,7 +222,7 @@ Section ws_deques_public_G.
     wp_rec.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "Hdeque_inv"; first done.
-    awp_apply (inf_cl_deque_pop_spec with "[$Hdeque_inv $Hdeque_owner]").
+    awp_apply (inf_ws_deque_pop_spec with "[$Hdeque_inv $Hdeque_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (%_deques & _Hdeques & Hdeques_model)".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     iDestruct (big_sepL2_lookup_Some_l with "Hdeques_model") as %(vs & Hvss_lookup); first done.
@@ -268,7 +268,7 @@ Section ws_deques_public_G.
     destruct (lookup_lt_is_Some_2 deques i') as (deque & Hdeque_lookup); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "#Hdeque_inv"; first done.
-    awp_apply (inf_cl_deque_steal_spec with "Hdeque_inv").
+    awp_apply (inf_ws_deque_steal_spec with "Hdeque_inv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (%_deques & _Hdeques & Hdeques_model)".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     iDestruct (big_sepL2_lookup_Some_l with "Hdeques_model") as %(vs & Hvss_lookup); first done.

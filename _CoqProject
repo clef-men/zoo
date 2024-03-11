@@ -106,9 +106,11 @@ theories/saturn/spsc_queue.v
 theories/saturn/mpsc_queue_1.v
 theories/saturn/mpsc_queue_2.v
 theories/saturn/mpmc_queue.v
-theories/saturn/inf_cl_deque.v
-theories/saturn/ws_deques.v
-theories/saturn/ws_deques_public.v
+theories/saturn/inf_ws_deque.v
+
+theories/scheduling/base.v
+theories/scheduling/ws_deques.v
+theories/scheduling/ws_deques_public.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
