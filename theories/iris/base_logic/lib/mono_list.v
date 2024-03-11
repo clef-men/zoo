@@ -1,20 +1,22 @@
-From iris.proofmode Require Import
-  tactics.
-From iris.algebra Require Import
-  lib.mono_list.
-From iris.bi Require Import
-  lib.fractional.
-From iris.base_logic Require Export
-  lib.own.
-From iris.prelude Require Import
+From zebre Require Import
+  prelude.
+From zebre.common Require Import
+  relations.
+From zebre.iris.base_logic Require Export
+  lib.base.
+From zebre.iris.base_logic Require Import
+  lib.auth_mono.
+From zebre.iris Require Import
+  diaframe.
+From zebre Require Import
   options.
 
 Class MonoListG Σ A := {
-  #[local] mono_list_G_inG :: inG Σ (mono_listR $ leibnizO A) ;
+  #[local] mono_list_G :: AuthMonoG Σ (A := leibnizO (list A)) prefix ;
 }.
 
 Definition mono_list_Σ A := #[
-  GFunctor (mono_listR $ leibnizO A)
+  auth_mono_Σ (A := leibnizO (list A)) prefix
 ].
 #[global] Instance subG_mono_list_Σ Σ A :
   subG (mono_list_Σ A) Σ →
@@ -23,56 +25,36 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition mono_list_auth_def `{mono_list_G : !MonoListG Σ A} γ q (l : list A) :=
-  own γ (●ML{#q} (l : listO (leibnizO A))).
-#[local] Definition mono_list_auth_aux :
-  seal (@mono_list_auth_def).
-Proof. by eexists. Qed.
-Definition mono_list_auth :=
-  mono_list_auth_aux.(unseal).
-#[local] Definition mono_list_auth_unseal : @mono_list_auth = @mono_list_auth_def :=
-  mono_list_auth_aux.(seal_eq).
-#[global] Arguments mono_list_auth {_ _ _} _ _ _ : assert.
-
-#[local] Definition mono_list_lb_def `{mono_list_G : !MonoListG Σ A} γ (l : list A) :=
-  own γ (◯ML (l : listO (leibnizO A))).
-#[local] Definition mono_list_lb_aux :
-  seal (@mono_list_lb_def).
-Proof. by eexists. Qed.
-Definition mono_list_lb :=
-  mono_list_lb_aux.(unseal).
-#[local] Definition mono_list_lb_unseal : @mono_list_lb = @mono_list_lb_def :=
-  mono_list_lb_aux.(seal_eq).
-#[global] Arguments mono_list_lb {_ _ _} _ _ : assert.
-
-Definition mono_list_elem `{mono_list_G : !MonoListG Σ A} γ i a : iProp Σ :=
-  ∃ l, ⌜l !! i = Some a⌝ ∗ mono_list_lb γ l.
-
-#[local] Ltac unseal :=
-  rewrite
-    /mono_list_elem ?mono_list_auth_unseal /mono_list_auth_def
-    ?mono_list_lb_unseal /mono_list_lb_def.
-
 Section mono_list_G.
   Context `{mono_list_G : !MonoListG Σ A}.
+
   Implicit Types i : nat.
   Implicit Types a : A.
   Implicit Types l : list A.
 
-  #[global] Instance mono_list_auth_timeless γ q l :
-    Timeless (mono_list_auth γ q l).
+  Definition mono_list_auth γ dq l :=
+    auth_mono_auth (A := leibnizO (list A)) prefix γ dq l.
+  Definition mono_list_lb γ l :=
+    auth_mono_lb (A := leibnizO (list A)) prefix γ l.
+  Definition mono_list_elem γ i a : iProp Σ :=
+    ∃ l,
+    ⌜l !! i = Some a⌝ ∗
+    mono_list_lb γ l.
+
+  #[global] Instance mono_list_auth_timeless γ dq l :
+    Timeless (mono_list_auth γ dq l).
   Proof.
-    unseal. apply _.
+    apply _.
   Qed.
   #[global] Instance mono_list_lb_timeless γ l :
     Timeless (mono_list_lb γ l).
   Proof.
-    unseal. apply _.
+    apply _.
   Qed.
   #[global] Instance mono_list_lb_persistent γ l :
     Persistent (mono_list_lb γ l).
   Proof.
-    unseal. apply _.
+    apply _.
   Qed.
   #[global] Instance mono_list_elem_timeless γ i a :
     Timeless (mono_list_elem γ i a).
@@ -86,115 +68,137 @@ Section mono_list_G.
   Qed.
 
   #[global] Instance mono_list_auth_fractional γ l :
-    Fractional (λ q, mono_list_auth γ q l).
+    Fractional (λ q, mono_list_auth γ (DfracOwn q) l).
   Proof.
-    unseal. intros p q. by rewrite -own_op -mono_list_auth_dfrac_op.
+    apply _.
   Qed.
   #[global] Instance mono_list_auth_as_fractional γ q l :
-    AsFractional (mono_list_auth γ q l) (λ q, mono_list_auth γ q l) q.
+    AsFractional (mono_list_auth γ (DfracOwn q) l) (λ q, mono_list_auth γ (DfracOwn q) l) q.
   Proof.
-    split; [auto | apply _].
+    apply _.
   Qed.
 
-  Lemma mono_list_auth_agree γ q1 q2 l1 l2 :
-    mono_list_auth γ q1 l1 -∗
-    mono_list_auth γ q2 l2 -∗
-    ⌜(q1 + q2 ≤ 1)%Qp ∧ l1 = l2⌝.
+  Lemma mono_list_alloc l :
+    ⊢ |==>
+      ∃ γ,
+      mono_list_auth γ (DfracOwn 1) l.
   Proof.
-    unseal. iIntros "H1 H2".
-    by iDestruct (own_valid_2 with "H1 H2") as %?%mono_list_auth_dfrac_op_valid_L.
+    apply auth_mono_alloc.
+  Qed.
+
+  Lemma mono_list_auth_valid γ dq l :
+    mono_list_auth γ dq l ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    apply auth_mono_auth_valid.
+  Qed.
+  Lemma mono_list_auth_combine γ dq1 l1 dq2 l2 :
+    mono_list_auth γ dq1 l1 -∗
+    mono_list_auth γ dq2 l2 -∗
+      mono_list_auth γ (dq1 ⋅ dq2) l1 ∗
+      ⌜l1 = l2⌝.
+  Proof.
+    apply: auth_mono_auth_combine.
+  Qed.
+  Lemma mono_list_auth_valid_2 γ dq1 l1 dq2 l2 :
+    mono_list_auth γ dq1 l1 -∗
+    mono_list_auth γ dq2 l2 -∗
+    ⌜✓ (dq1 ⋅ dq2) ∧ l1 = l2⌝.
+  Proof.
+    apply: auth_mono_auth_valid_2.
+  Qed.
+  Lemma mono_list_auth_agree γ dq1 l1 dq2 l2 :
+    mono_list_auth γ dq1 l1 -∗
+    mono_list_auth γ dq2 l2 -∗
+    ⌜l1 = l2⌝.
+  Proof.
+    apply: auth_mono_auth_agree.
+  Qed.
+  Lemma mono_list_auth_dfrac_ne γ1 dq1 l1 γ2 dq2 l2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    mono_list_auth γ1 dq1 l1 -∗
+    mono_list_auth γ2 dq2 l2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    apply: auth_mono_auth_dfrac_ne.
+  Qed.
+  Lemma mono_list_auth_ne γ1 l1 γ2 dq2 l2 :
+    mono_list_auth γ1 (DfracOwn 1) l1 -∗
+    mono_list_auth γ2 dq2 l2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    apply: auth_mono_auth_ne.
   Qed.
   Lemma mono_list_auth_exclusive γ l1 l2 :
-    mono_list_auth γ 1 l1 -∗
-    mono_list_auth γ 1 l2 -∗
+    mono_list_auth γ (DfracOwn 1) l1 -∗
+    mono_list_auth γ (DfracOwn 1) l2 -∗
     False.
   Proof.
-    iIntros "H1 H2".
-    iDestruct (mono_list_auth_agree with "H1 H2") as %[]; done.
+    apply: auth_mono_auth_exclusive.
   Qed.
-
-  Lemma mono_list_auth_lb_valid γ q l1 l2 :
-    mono_list_auth γ q l1 -∗
-    mono_list_lb γ l2 -∗
-    ⌜(q ≤ 1)%Qp ∧ l2 `prefix_of` l1⌝.
+  Lemma mono_list_auth_persist γ dq l :
+    mono_list_auth γ dq l ⊢ |==>
+    mono_list_auth γ DfracDiscarded l.
   Proof.
-    unseal. iIntros "Hauth Hlb".
-    by iDestruct (own_valid_2 with "Hauth Hlb") as %?%mono_list_both_dfrac_valid_L.
-  Qed.
-
-  Lemma mono_list_lb_valid γ l1 l2 :
-    mono_list_lb γ l1 -∗
-    mono_list_lb γ l2 -∗
-    ⌜l1 `prefix_of` l2 ∨ l2 `prefix_of` l1⌝.
-  Proof.
-    unseal. iIntros "H1 H2".
-    by iDestruct (own_valid_2 with "H1 H2") as %?%mono_list_lb_op_valid_L.
-  Qed.
-
-  Lemma mono_list_elem_agree γ i a1 a2 :
-    mono_list_elem γ i a1 -∗
-    mono_list_elem γ i a2 -∗
-    ⌜a1 = a2⌝.
-  Proof.
-    iDestruct 1 as (l1 Hl1) "H1". iDestruct 1 as (l2 Hl2) "H2".
-    iDestruct (mono_list_lb_valid with "H1 H2") as %Hpre.
-    iPureIntro.
-    destruct Hpre as [Hpre|Hpre]; eapply prefix_lookup_Some in Hpre; eauto; congruence.
-  Qed.
-
-  Lemma mono_list_auth_elem_lookup γ q l i a :
-    mono_list_auth γ q l -∗
-    mono_list_elem γ i a -∗
-    ⌜l !! i = Some a⌝.
-  Proof.
-    iIntros "Hauth". iDestruct 1 as (l1 Hl1) "Hl1".
-    iDestruct (mono_list_auth_lb_valid with "Hauth Hl1") as %[_ Hpre].
-    iPureIntro.
-    eapply prefix_lookup_Some in Hpre; eauto; congruence.
+    apply auth_mono_auth_persist.
   Qed.
 
   Lemma mono_list_lb_get γ q l :
     mono_list_auth γ q l ⊢
     mono_list_lb γ l.
   Proof.
-    intros. unseal. by apply own_mono, mono_list_included.
+    apply auth_mono_lb_get.
   Qed.
-  Lemma mono_list_lb_le {γ l} l' :
-    l' `prefix_of` l →
-    mono_list_lb γ l ⊢
-    mono_list_lb γ l'.
-  Proof.
-    unseal. intros. by apply own_mono, mono_list_lb_mono.
-  Qed.
-
   Lemma mono_list_elem_get {γ l} i a :
     l !! i = Some a →
     mono_list_lb γ l ⊢
     mono_list_elem γ i a.
   Proof.
-    iIntros (Hli) "Hl". iExists l. by iFrame.
+    iSteps.
   Qed.
 
-  Lemma mono_list_alloc l :
-    ⊢ |==>
-      ∃ γ,
-      mono_list_auth γ 1 l.
+  Lemma mono_list_lb_mono {γ l} l' :
+    l' `prefix_of` l →
+    mono_list_lb γ l ⊢
+    mono_list_lb γ l'.
   Proof.
-    unseal. by apply own_alloc, mono_list_auth_valid.
+    apply auth_mono_lb_mono'.
   Qed.
 
-  Lemma mono_list_auth_update {γ l} l' :
+  Lemma mono_list_lb_valid γ dq l l' :
+    mono_list_auth γ dq l -∗
+    mono_list_lb γ l' -∗
+    ⌜l' `prefix_of` l⌝.
+  Proof.
+    iIntros "Hauth Hlb".
+    iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %Hl'.
+    rewrite preorder_rtc in Hl'. iSteps.
+  Qed.
+  Lemma mono_list_lookup γ q l i a :
+    mono_list_auth γ q l -∗
+    mono_list_elem γ i a -∗
+    ⌜l !! i = Some a⌝.
+  Proof.
+    iIntros "Hauth (%l1 & %Hlookup & Hl1)".
+    iDestruct (mono_list_lb_valid with "Hauth Hl1") as %(l2 & ->).
+    iPureIntro. apply lookup_app_l_Some. done.
+  Qed.
+
+  Lemma mono_list_update {γ l} l' :
     l `prefix_of` l' →
-    mono_list_auth γ 1 l ⊢ |==>
-    mono_list_auth γ 1 l'.
+    mono_list_auth γ (DfracOwn 1) l ⊢ |==>
+    mono_list_auth γ (DfracOwn 1) l'.
   Proof.
-    iIntros (?) "Hauth".
-    unseal. iApply (own_update with "Hauth"). by apply mono_list_update.
+    apply auth_mono_update'.
   Qed.
-  Lemma mono_list_auth_update_app {γ l} l' :
-    mono_list_auth γ 1 l ⊢ |==>
-    mono_list_auth γ 1 (l ++ l').
+  Lemma mono_list_update_app {γ l} l' :
+    mono_list_auth γ (DfracOwn 1) l ⊢ |==>
+    mono_list_auth γ (DfracOwn 1) (l ++ l').
   Proof.
-    by apply mono_list_auth_update, prefix_app_r.
+    apply mono_list_update, prefix_app_r. done.
   Qed.
 End mono_list_G.
+
+#[global] Opaque mono_list_auth.
+#[global] Opaque mono_list_lb.
+#[global] Opaque mono_list_elem.

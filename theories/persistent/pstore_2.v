@@ -756,7 +756,7 @@ Section pstore_G.
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ0⌝ ∗
     meta l (nroot.@"user") γ ∗
-    mono_map_auth γ σ0 ∗
+    mono_map_auth γ (DfracOwn 1) σ0 ∗
     raw.pstore_model t σ0 ς.
 
   Definition pstore_snapshot_model s t σ : iProp Σ :=
@@ -868,7 +868,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ0 & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iMod (mono_map_lb_get with "Hauth") as "(Hauth & #Hlb)".
+    iDestruct (mono_map_lb_get with "Hauth") as "#Hlb".
     wp_apply (raw.pstore_capture_spec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.

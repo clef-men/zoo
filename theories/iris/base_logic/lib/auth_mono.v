@@ -9,14 +9,14 @@ From zebre.iris Require Import
 From zebre Require Import
   options.
 
-Class AuthMonoG Σ `(R : relation A) := {
+Class AuthMonoG Σ {A : ofe} (R : relation A) := {
   #[local] auth_mono_G :: inG Σ (auth_mono_UR R) ;
 }.
 
-Definition auth_mono_Σ `(R : relation A) := #[
+Definition auth_mono_Σ {A : ofe} (R : relation A) := #[
   GFunctor (auth_mono_UR R)
 ].
-#[global] Instance subG_auth_mono_Σ Σ `(R : relation A) :
+#[global] Instance subG_auth_mono_Σ Σ {A : ofe} (R : relation A) :
   subG (auth_mono_Σ R) Σ →
   AuthMonoG Σ R.
 Proof.
@@ -24,9 +24,13 @@ Proof.
 Qed.
 
 Section auth_mono_G.
-  Context `(R : relation A) `{auth_mono_G : !AuthMonoG Σ R}.
+  Context {A : ofe} (R : relation A) `{auth_mono_G : !AuthMonoG Σ R}.
 
   Implicit Types a : A.
+
+  Notation Rs := (
+    rtc R
+  ).
 
   Definition auth_mono_auth γ dq a :=
     own γ (auth_mono_auth R dq a).
@@ -81,17 +85,18 @@ Section auth_mono_G.
     iDestruct (own_valid with "Hauth") as %?%auth_mono_auth_dfrac_valid.
     iSteps.
   Qed.
-  Lemma auth_mono_auth_combine `{!AntiSymm (=) (rtc R)} γ dq1 a1 dq2 a2 :
+  Lemma auth_mono_auth_combine `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
     auth_mono_auth γ dq1 a1 -∗
     auth_mono_auth γ dq2 a2 -∗
       auth_mono_auth γ (dq1 ⋅ dq2) a1 ∗
       ⌜a1 = a2⌝.
   Proof.
-    iIntros "Hauth1 Hauth2". iCombine "Hauth1 Hauth2" as "Hauth".
-    iDestruct (own_valid with "Hauth") as %(_ & ->)%auth_mono_auth_dfrac_op_valid.
+    iIntros "Hauth1 Hauth2".
+    iCombine "Hauth1 Hauth2" as "Hauth".
+    iDestruct (own_valid with "Hauth") as %(_ & ->)%auth_mono_auth_dfrac_op_valid_L.
     rewrite -auth_mono_auth_dfrac_op. iSteps.
   Qed.
-  Lemma auth_mono_auth_valid_2 `{!AntiSymm (=) (rtc R)} γ dq1 a1 dq2 a2 :
+  Lemma auth_mono_auth_valid_2 `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
     auth_mono_auth γ dq1 a1 -∗
     auth_mono_auth γ dq2 a2 -∗
     ⌜✓ (dq1 ⋅ dq2) ∧ a1 = a2⌝.
@@ -101,7 +106,7 @@ Section auth_mono_G.
     iDestruct (auth_mono_auth_valid with "Hauth") as %?.
     iSteps.
   Qed.
-  Lemma auth_mono_auth_agree `{!AntiSymm (=) (rtc R)} γ dq1 a1 dq2 a2 :
+  Lemma auth_mono_auth_agree `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ dq1 a1 dq2 a2 :
     auth_mono_auth γ dq1 a1 -∗
     auth_mono_auth γ dq2 a2 -∗
     ⌜a1 = a2⌝.
@@ -109,7 +114,7 @@ Section auth_mono_G.
     iIntros "Hauth1 Hauth2".
     iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as "(_ & $)".
   Qed.
-  Lemma auth_mono_auth_dfrac_ne `{!AntiSymm (=) (rtc R)} γ1 dq1 a1 γ2 dq2 a2 :
+  Lemma auth_mono_auth_dfrac_ne `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 dq1 a1 γ2 dq2 a2 :
     ¬ ✓ (dq1 ⋅ dq2) →
     auth_mono_auth γ1 dq1 a1 -∗
     auth_mono_auth γ2 dq2 a2 -∗
@@ -119,7 +124,7 @@ Section auth_mono_G.
     iDestruct (auth_mono_auth_valid_2 with "Hauth1 Hauth2") as %?.
     naive_solver.
   Qed.
-  Lemma auth_mono_auth_ne `{!AntiSymm (=) (rtc R)} γ1 a1 γ2 dq2 a2 :
+  Lemma auth_mono_auth_ne `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ1 a1 γ2 dq2 a2 :
     auth_mono_auth γ1 (DfracOwn 1) a1 -∗
     auth_mono_auth γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
@@ -127,7 +132,7 @@ Section auth_mono_G.
     intros.
     iApply auth_mono_auth_dfrac_ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma auth_mono_auth_exclusive `{!AntiSymm (=) (rtc R)} γ a1 a2 :
+  Lemma auth_mono_auth_exclusive `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
     auth_mono_auth γ (DfracOwn 1) a1 -∗
     auth_mono_auth γ (DfracOwn 1) a2 -∗
     False.
@@ -150,7 +155,7 @@ Section auth_mono_G.
     apply own_mono, auth_mono_lb_included'.
   Qed.
   Lemma auth_mono_lb_mono {γ a} a' :
-    rtc R a' a →
+    Rs a' a →
     auth_mono_lb γ a ⊢
     auth_mono_lb γ a'.
   Proof.
@@ -164,18 +169,18 @@ Section auth_mono_G.
     intros. apply auth_mono_lb_mono, rtc_once. done.
   Qed.
 
-  Lemma auth_mono_valid γ dq a a' :
+  Lemma auth_mono_lb_valid γ dq a a' :
     auth_mono_auth γ dq a -∗
     auth_mono_lb γ a' -∗
-    ⌜rtc R a' a⌝.
+    ⌜Rs a' a⌝.
   Proof.
-    iIntros "Hauth1 Hauth2".
-    iDestruct (own_valid_2 with "Hauth1 Hauth2") as %?%auth_mono_both_dfrac_valid.
+    iIntros "Hauth Hlb".
+    iDestruct (own_valid_2 with "Hauth Hlb") as %?%auth_mono_both_dfrac_valid.
     naive_solver.
   Qed.
 
   Lemma auth_mono_update {γ a} a' :
-    rtc R a a' →
+    Rs a a' →
     auth_mono_auth γ (DfracOwn 1) a ⊢ |==>
     auth_mono_auth γ (DfracOwn 1) a'.
   Proof.

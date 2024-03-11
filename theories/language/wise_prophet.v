@@ -119,7 +119,7 @@ Section make_wise_prophet_G.
 
     wise_strong_prophet_model p γ past prophs := (
       agree_on γ.(make_wise_strong_prophet_name_full) (past ++ prophs) ∗
-      mono_list_auth γ.(make_wise_strong_prophet_name_past) 1 past ∗
+      mono_list_auth γ.(make_wise_strong_prophet_name_past) (DfracOwn 1) past ∗
       make_wise_strong_prophet_typed_prophet.(typed_strong_prophet_model) p prophs
     )%I ;
     wise_strong_prophet_lb γ lb := (
@@ -140,7 +140,7 @@ Section make_wise_prophet_G.
   Next Obligation.
     iIntros "* (#Hfull & Hpast_auth & Hmodel) (%past1 & #Hfull' & #Hpast_lb)".
     iDestruct (agree_on_agree_L with "Hfull Hfull'") as %Hfull.
-    iDestruct (mono_list_auth_lb_valid with "Hpast_auth Hpast_lb") as %(_ & past2 & ->).
+    iDestruct (mono_list_lb_valid with "Hpast_auth Hpast_lb") as %(past2 & ->).
     iPureIntro. rewrite -assoc in Hfull. naive_solver.
   Qed.
   Next Obligation.
@@ -161,7 +161,7 @@ Section make_wise_prophet_G.
     iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w HΦ".
     iDestruct "HΦ" as "(%proph & % & HΦ)".
     iExists proph. iSplitR; first done.
-    iMod (mono_list_auth_update_app [proph] with "Hpast_auth") as "Hpast_auth".
+    iMod (mono_list_update_app [proph] with "Hpast_auth") as "Hpast_auth".
     iIntros "!> %prophs' -> Hp".
     iApply ("HΦ" with "[//]").
     list_simplifier. iSteps.

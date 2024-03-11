@@ -146,13 +146,13 @@ Section auth_nat_max_G.
     apply auth_mono_lb_mono'.
   Qed.
 
-  Lemma auth_nat_max_valid γ dq n m :
+  Lemma auth_nat_max_lb_valid γ dq n m :
     auth_nat_max_auth γ dq n -∗
     auth_nat_max_lb γ m -∗
     ⌜m ≤ n⌝.
   Proof.
     iIntros "Hauth Hlb".
-    iDestruct (auth_mono_valid with "Hauth Hlb") as %Hrtc.
+    iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %Hrtc.
     rewrite preorder_rtc in Hrtc. iSteps.
   Qed.
 

@@ -198,13 +198,13 @@ Inductive rcfd_lstep : relation rcfd_lstate :=
 Class RcfdG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] rcfd_G_latch1_G :: Latch1G Σ ;
   #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp ;
-  #[local] rcfd_G_lstate_G :: AuthMonoG Σ rcfd_lstep ;
+  #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO rcfd_lstate) rcfd_lstep ;
 }.
 
 Definition rcfd_Σ := #[
   latch1_Σ ;
   auth_gmultiset_Σ Qp ;
-  auth_mono_Σ rcfd_lstep
+  auth_mono_Σ (A := leibnizO rcfd_lstate) rcfd_lstep
 ].
 #[global] Instance subG_rcfd_Σ `{zebre_G : !ZebreG Σ} :
   subG rcfd_Σ Σ →
@@ -249,11 +249,11 @@ Section rcfd_G.
     auth_gmultiset_frag γ.(rcfd_meta_tokens) {[+q+]}.
 
   #[local] Definition rcfd_lstate_auth' γ_lstate lstate :=
-    auth_mono_auth rcfd_lstep γ_lstate (DfracOwn 1) lstate.
+    auth_mono_auth (A := leibnizO rcfd_lstate) rcfd_lstep γ_lstate (DfracOwn 1) lstate.
   #[local] Definition rcfd_lstate_auth γ lstate :=
     rcfd_lstate_auth' γ.(rcfd_meta_lstate) lstate.
   #[local] Definition rcfd_lstate_lb γ lstate :=
-    auth_mono_lb rcfd_lstep γ.(rcfd_meta_lstate) lstate.
+    auth_mono_lb (A := leibnizO rcfd_lstate) rcfd_lstep γ.(rcfd_meta_lstate) lstate.
 
   #[local] Definition rcfd_inv_inner l γ fd chars : iProp Σ :=
     ∃ state lstate ops l_state,
@@ -379,7 +379,7 @@ Section rcfd_G.
     rcfd_lstate_lb γ lstate' -∗
     ⌜rtc rcfd_lstep lstate' lstate⌝.
   Proof.
-    apply auth_mono_valid.
+    apply: auth_mono_lb_valid.
   Qed.
   #[local] Lemma rcfd_lstate_valid_closing_users γ lstate :
     rcfd_lstate_auth γ lstate -∗

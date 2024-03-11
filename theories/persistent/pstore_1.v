@@ -690,7 +690,7 @@ Section pstore_G.
     forall l σ, (l,σ) ∈ C -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
 
   #[local] Definition pstore_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
-    mono_set_auth γ s.
+    mono_set_auth γ (DfracOwn 1) s.
   #[local] Definition pstore_map_elem γ l σ :=
     mono_set_elem γ (l,σ).
 

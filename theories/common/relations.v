@@ -6,17 +6,8 @@ From zebre Require Import
 From zebre Require Import
   options.
 
-#[global] Instance ge_partialorder :
-  PartialOrder ge.
-Proof.
-  split; first split.
-  - auto.
-  - intros ?**. lia.
-  - intros ?**. lia.
-Qed.
-
 Section relation.
-  Context `(R : relation A).
+  Context {A} (R : relation A).
 
   Lemma transitive_tc `{!Transitive R} x1 x2 :
     tc R x1 x2 ↔
@@ -35,13 +26,13 @@ Section relation.
     - apply rtc_once.
   Qed.
 
-  #[global] Instance transitive_tc_antisymm `{!Transitive R} `{!AntiSymm (=) R} :
-    AntiSymm (=) (tc R).
+  #[global] Instance transitive_tc_antisymm `{!Transitive R} `{!AntiSymm R' R} :
+    AntiSymm R' (tc R).
   Proof.
     intros x1 x2 H1%transitive_tc H2%transitive_tc. naive_solver.
   Qed.
-  #[global] Instance preorder_rtc_antisymm `{!PreOrder R} `{!AntiSymm (=) R} :
-    AntiSymm (=) (rtc R).
+  #[global] Instance preorder_rtc_antisymm `{!PreOrder R} `{!AntiSymm R' R} :
+    AntiSymm R' (rtc R).
   Proof.
     intros x1 x2 H1%preorder_rtc H2%preorder_rtc. naive_solver.
   Qed.

@@ -218,7 +218,7 @@ Module raw.
       auth_nat_max_lb γ.(inf_cl_deque_meta_front) front.
 
     #[local] Definition inf_cl_deque_hist_auth' γ_hist hist :=
-      mono_list_auth γ_hist 1 hist.
+      mono_list_auth γ_hist (DfracOwn 1) hist.
     #[local] Definition inf_cl_deque_hist_auth γ hist :=
       inf_cl_deque_hist_auth' γ.(inf_cl_deque_meta_hist) hist.
     #[local] Definition inf_cl_deque_hist_elem γ i v :=
@@ -445,7 +445,7 @@ Module raw.
       inf_cl_deque_front_lb γ front2 -∗
       ⌜front2 ≤ front1⌝.
     Proof.
-      apply auth_nat_max_valid.
+      apply auth_nat_max_lb_valid.
     Qed.
     #[local] Lemma inf_cl_deque_front_auth_update {γ front} front' :
       front ≤ front' →
@@ -504,13 +504,13 @@ Module raw.
       inf_cl_deque_hist_elem γ i v -∗
       ⌜hist !! i = Some v⌝.
     Proof.
-      apply mono_list_auth_elem_lookup.
+      apply mono_list_lookup.
     Qed.
     #[local] Lemma inf_cl_deque_hist_update {γ hist} v :
       inf_cl_deque_hist_auth γ hist ⊢ |==>
       inf_cl_deque_hist_auth γ (hist ++ [v]).
     Proof.
-      apply mono_list_auth_update_app.
+      apply mono_list_update_app.
     Qed.
 
     #[local] Lemma inf_cl_deque_model_alloc :

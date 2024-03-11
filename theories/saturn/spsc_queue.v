@@ -170,7 +170,7 @@ Section spsc_queue_G.
     spsc_queue_model₂' γ.(spsc_queue_meta_model) vs.
 
   #[local] Definition spsc_queue_history_auth' γ_history hist :=
-    mono_list_auth γ_history 1 hist.
+    mono_list_auth γ_history (DfracOwn 1) hist.
   #[local] Definition spsc_queue_history_auth γ hist :=
     spsc_queue_history_auth' γ.(spsc_queue_meta_history) hist.
   #[local] Definition spsc_queue_history_elem γ i v :=
@@ -326,13 +326,13 @@ Section spsc_queue_G.
     spsc_queue_history_elem γ i v -∗
     ⌜hist !! i = Some v⌝.
   Proof.
-    apply mono_list_auth_elem_lookup.
+    apply mono_list_lookup.
   Qed.
   #[local] Lemma spsc_queue_history_update {γ hist} v :
     spsc_queue_history_auth γ hist ⊢ |==>
     spsc_queue_history_auth γ (hist ++ [v]).
   Proof.
-    apply mono_list_auth_update_app.
+    apply mono_list_update_app.
   Qed.
 
   #[local] Lemma spsc_queue_producer_ctl_alloc :
@@ -374,7 +374,7 @@ Section spsc_queue_G.
     spsc_queue_back_lb γ back2 -∗
     ⌜back2 ≤ back1⌝.
   Proof.
-    apply auth_nat_max_valid.
+    apply auth_nat_max_lb_valid.
   Qed.
 
   #[local] Lemma spsc_queue_producer_region_alloc :
@@ -432,7 +432,7 @@ Section spsc_queue_G.
     ⌜front2 ≤ front1⌝.
   Proof.
     iIntros "Hconsumer_ctl₁ Hfront_lb".
-    iApply (auth_nat_max_valid with "Hconsumer_ctl₁ Hfront_lb").
+    iApply (auth_nat_max_lb_valid with "Hconsumer_ctl₁ Hfront_lb").
   Qed.
 
   #[local] Lemma spsc_queue_consumer_region_alloc :

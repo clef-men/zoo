@@ -249,23 +249,24 @@ End cmra.
 #[global] Arguments mraR {_} _.
 #[global] Arguments mraUR {_} _.
 
-(* Might be useful if the type of elements is an OFE. *)
 Section mra_over_ofe.
   Context {A : ofe} {R : relation A}.
 
   Implicit Types a b : A.
   Implicit Types x y : mra R.
 
-  #[global] Instance principal_ne `{!∀ n, Proper ((dist n) ==> (dist n) ==> iff) R} :
+  #[global] Instance principal_ne :
+    (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
     NonExpansive (principal R).
   Proof.
-    intros n a1 a2 Ha; split; rewrite !below_principal !Ha; done.
+    intros ? n a1 a2 Ha; split; rewrite !below_principal !Ha //.
   Qed.
-
-  #[global] Instance principal_proper `{!∀ n, Proper ((dist n) ==> (dist n) ==> iff) R} :
-    Proper ((≡) ==> (≡)) (principal R)
-  :=
-    ne_proper _.
+  #[global] Instance principal_proper :
+    (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
+    Proper ((≡) ==> (≡)) (principal R).
+  Proof.
+    intros ?. apply: ne_proper.
+  Qed.
 
   Lemma principal_inj_related a b :
     principal R a ≡ principal R b →
@@ -288,18 +289,17 @@ Section mra_over_ofe.
     intros ??? Has; apply Has; apply principal_inj_related; auto.
   Qed.
 
-  #[global] Instance principal_inj_instance `{!Reflexive R} `{!AntiSymm (≡) R} :
+  #[global] Instance principal_inj `{!Reflexive R} `{!AntiSymm (≡) R} :
     Inj (≡) (≡) (principal R).
   Proof.
     intros ???; apply principal_inj_general; auto.
   Qed.
-
-  #[global] Instance principal_injN `{!Reflexive R} {Has : AntiSymm (≡) R} n :
-    Inj (dist n) (dist n) (principal R).
+  #[global] Instance principal_inj' `{!Reflexive R} `{!AntiSymm (≡) R} n :
+    Inj (≡{n}≡) (≡{n}≡) (principal R).
   Proof.
     intros x y Hxy%discrete_iff; last apply _.
     eapply equiv_dist; revert Hxy; apply inj; apply _.
   Qed.
 End mra_over_ofe.
 
-#[global] Typeclasses Opaque principal.
+#[global] Opaque principal.

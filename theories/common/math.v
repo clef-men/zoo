@@ -3,6 +3,15 @@ From zebre Require Import
 From zebre Require Import
   options.
 
+#[global] Instance ge_partialorder :
+  PartialOrder ge.
+Proof.
+  split; first split.
+  - auto.
+  - intros ?**. lia.
+  - intros ?**. lia.
+Qed.
+
 Section Z.
   #[local] Open Scope Z_scope.
 

@@ -1,6 +1,7 @@
 From zebre Require Import
   prelude.
 From zebre.common Require Import
+  math
   relations.
 From zebre.iris.base_logic Require Import
   lib.auth_mono.
@@ -146,13 +147,13 @@ Section auth_nat_min_G.
     intros. apply auth_mono_lb_mono'. lia.
   Qed.
 
-  Lemma auth_nat_min_valid γ dq n m :
+  Lemma auth_nat_min_ub_valid γ dq n m :
     auth_nat_min_auth γ dq n -∗
     auth_nat_min_ub γ m -∗
     ⌜n ≤ m⌝.
   Proof.
     iIntros "Hauth Hub".
-    iDestruct (auth_mono_valid with "Hauth Hub") as %Hrtc.
+    iDestruct (auth_mono_lb_valid with "Hauth Hub") as %Hrtc.
     rewrite preorder_rtc in Hrtc. iSteps.
   Qed.
 

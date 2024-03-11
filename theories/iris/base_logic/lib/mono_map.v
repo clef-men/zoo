@@ -1,26 +1,22 @@
-From iris.algebra Require Import
-  auth
-  gmap
-  agree.
-
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  relations.
 From zebre.iris.base_logic Require Export
   lib.base.
+From zebre.iris.base_logic Require Import
+  lib.auth_mono.
 From zebre.iris Require Import
   diaframe.
 From zebre Require Import
   options.
 
-#[local] Definition mono_map_UR K V `{Countable K} :=
-  authUR $ gmapUR K $ agreeR $ leibnizO V.
-
 Class MonoMapG Σ K V `{Countable K} := {
-  #[local] mono_map_G_inG :: inG Σ (mono_map_UR K V) ;
+  #[local] mono_map_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V)) ;
 }.
 
 Definition mono_map_Σ K V `{Countable K} := #[
-  GFunctor (mono_map_UR K V)
+  auth_mono_Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
 ].
 #[global] Instance subG_mono_map_Σ Σ K V `{Countable K} :
   subG (mono_map_Σ K V) Σ →
@@ -32,20 +28,29 @@ Qed.
 Section mono_map_G.
   Context `{mono_map_G : MonoMapG Σ K V}.
 
+  Implicit Types v : V.
   Implicit Types m : gmap K V.
 
-  #[local] Canonical V_O :=
-    leibnizO V.
+  #[local] Instance map_subseteq_partialorder :
+    PartialOrder (A := gmap K V) subseteq.
+  Proof.
+    apply _.
+  Qed.
 
-  Definition mono_map_auth γ m :=
-    @own _ _ mono_map_G_inG γ (● (to_agree <$> m)).
+  Definition mono_map_auth γ dq m :=
+    auth_mono_auth subseteq γ dq m.
   Definition mono_map_lb γ m :=
-    @own _ _ mono_map_G_inG γ (◯ (to_agree <$> m)).
+    auth_mono_lb subseteq γ m.
   Definition mono_map_elem γ i v :=
     mono_map_lb γ {[i := v]}.
 
-  #[global] Instance mono_map_auth_timeless γ m :
-    Timeless (mono_map_auth γ m).
+  #[global] Instance mono_map_auth_timeless γ dq m :
+    Timeless (mono_map_auth γ dq m).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_map_auth_persistent γ m :
+    Persistent (mono_map_auth γ DfracDiscarded m).
   Proof.
     apply _.
   Qed.
@@ -60,35 +65,117 @@ Section mono_map_G.
     apply _.
   Qed.
 
+  #[global] Instance mono_map_auth_fractional γ m :
+    Fractional (λ q, mono_map_auth γ (DfracOwn q) m).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_map_auth_as_fractional γ q m :
+    AsFractional (mono_map_auth γ (DfracOwn q) m) (λ q, mono_map_auth γ (DfracOwn q) m) q.
+  Proof.
+    apply _.
+  Qed.
+
   Lemma mono_map_alloc m :
     ⊢ |==>
       ∃ γ,
-      mono_map_auth γ m.
+      mono_map_auth γ (DfracOwn 1) m.
   Proof.
-    iApply own_alloc. apply auth_auth_valid.
-    intros i. rewrite lookup_fmap. by destruct (m !! i).
+    apply auth_mono_alloc.
   Qed.
 
-  Lemma mono_map_lb_valid γ m1 m2 :
-    mono_map_auth γ m1 -∗
+  Lemma mono_map_auth_valid γ dq m :
+    mono_map_auth γ dq m ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    apply auth_mono_auth_valid.
+  Qed.
+  Lemma mono_map_auth_combine γ dq1 m1 dq2 m2 :
+    mono_map_auth γ dq1 m1 -∗
+    mono_map_auth γ dq2 m2 -∗
+      mono_map_auth γ (dq1 ⋅ dq2) m1 ∗
+      ⌜m1 = m2⌝.
+  Proof.
+    apply: auth_mono_auth_combine.
+  Qed.
+  Lemma mono_map_auth_valid_2 γ dq1 m1 dq2 m2 :
+    mono_map_auth γ dq1 m1 -∗
+    mono_map_auth γ dq2 m2 -∗
+    ⌜✓ (dq1 ⋅ dq2) ∧ m1 = m2⌝.
+  Proof.
+    apply: auth_mono_auth_valid_2.
+  Qed.
+  Lemma mono_map_auth_agree γ dq1 m1 dq2 m2 :
+    mono_map_auth γ dq1 m1 -∗
+    mono_map_auth γ dq2 m2 -∗
+    ⌜m1 = m2⌝.
+  Proof.
+    apply: auth_mono_auth_agree.
+  Qed.
+  Lemma mono_map_auth_dfrac_ne γ1 dq1 m1 γ2 dq2 m2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    mono_map_auth γ1 dq1 m1 -∗
+    mono_map_auth γ2 dq2 m2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    apply: auth_mono_auth_dfrac_ne.
+  Qed.
+  Lemma mono_map_auth_ne γ1 m1 γ2 dq2 m2 :
+    mono_map_auth γ1 (DfracOwn 1) m1 -∗
+    mono_map_auth γ2 dq2 m2 -∗
+    ⌜γ1 ≠ γ2⌝.
+  Proof.
+    apply: auth_mono_auth_ne.
+  Qed.
+  Lemma mono_map_auth_exclusive γ m1 m2 :
+    mono_map_auth γ (DfracOwn 1) m1 -∗
+    mono_map_auth γ (DfracOwn 1) m2 -∗
+    False.
+  Proof.
+    apply: auth_mono_auth_exclusive.
+  Qed.
+  Lemma mono_map_auth_persist γ dq m :
+    mono_map_auth γ dq m ⊢ |==>
+    mono_map_auth γ DfracDiscarded m.
+  Proof.
+    apply auth_mono_auth_persist.
+  Qed.
+
+  Lemma mono_map_lb_get γ dq m :
+    mono_map_auth γ dq m ⊢
+    mono_map_lb γ m.
+  Proof.
+    apply auth_mono_lb_get.
+  Qed.
+  Lemma mono_map_lb_mono {γ m} m' :
+    m' ⊆ m →
+    mono_map_lb γ m ⊢
+    mono_map_lb γ m'.
+  Proof.
+    apply auth_mono_lb_mono'.
+  Qed.
+  Lemma mono_map_elem_get {γ dq m} i v :
+    m !! i = Some v →
+    mono_map_auth γ dq m ⊢
+    mono_map_elem γ i v.
+  Proof.
+    iIntros "%Hlookup Hauth".
+    iDestruct (mono_map_lb_get with "Hauth") as "Hlb".
+    iApply (mono_map_lb_mono with "Hlb").
+    rewrite map_singleton_subseteq_l //.
+  Qed.
+
+  Lemma mono_map_lb_valid γ dq m1 m2 :
+    mono_map_auth γ dq m1 -∗
     mono_map_lb γ m2 -∗
     ⌜m2 ⊆ m1⌝.
   Proof.
-    iIntros "Ha Hf".
-    iDestruct (own_valid_2 with "Ha Hf") as "%Hv".
-    iPureIntro.
-    apply auth_both_valid_discrete in Hv. destruct Hv as (Hv&_).
-    intros i. eapply lookup_included with (i := i) in Hv.
-    rewrite !lookup_fmap in Hv.
-    destruct (m1 !! i), (m2 !! i); try done; simpl in *.
-    - apply Some_included in Hv. simpl. eapply (@leibniz_equiv (leibnizO V)). apply _.
-      destruct Hv as [Hv|Hv].
-      + by apply to_agree_inj.
-      + by apply to_agree_included.
-    - apply Some_included_is_Some in Hv. by inversion Hv.
+    iIntros "Hauth Hlb".
+    iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %Hm2.
+    rewrite preorder_rtc in Hm2. iSteps.
   Qed.
-  Lemma mono_map_elem_valid γ m i v :
-    mono_map_auth γ m -∗
+  Lemma mono_map_elem_valid γ dq m i v :
+    mono_map_auth γ dq m -∗
     mono_map_elem γ i v -∗
     ⌜m !! i = Some v⌝.
   Proof.
@@ -97,60 +184,31 @@ Section mono_map_G.
     iSteps.
   Qed.
 
-  Lemma mono_map_lb_get' {γ m} m' :
-    m' ⊆ m →
-    mono_map_auth γ m ⊢ |==>
-      mono_map_auth γ m ∗
-      mono_map_lb γ m'.
+  Lemma mono_map_update {γ m} m' :
+    m ⊆ m' →
+    mono_map_auth γ (DfracOwn 1) m ⊢ |==>
+    mono_map_auth γ (DfracOwn 1) m'.
   Proof.
-    intros Hm'. rewrite -own_op.
-    apply own_update, auth_update_alloc.
-    apply local_update_unital. intros n z Hv Hz.
-    rewrite mixin_ucmra_unit_left_id in Hz; first apply gmap_ucmra_mixin.
-    split; eauto.
-    rewrite -Hz.
-    intros k. rewrite lookup_merge !lookup_fmap.
-    destruct (m' !! k) eqn:Hm'_lookup; simpl.
-    - eapply lookup_weaken in Hm'_lookup as ->; last done.
-      rewrite -Some_op agree_idemp //.
-    - destruct (m !! k); done.
+    apply auth_mono_update'.
   Qed.
-  Lemma mono_map_lb_get γ m :
-    mono_map_auth γ m ⊢ |==>
-      mono_map_auth γ m ∗
-      mono_map_lb γ m.
-  Proof.
-    apply mono_map_lb_get'. done.
-  Qed.
-  Lemma mono_map_elem_get {γ m} i v :
-    m !! i = Some v →
-    mono_map_auth γ m ⊢ |==>
-      mono_map_auth γ m ∗
-      mono_map_elem γ i v.
-  Proof.
-    intros. apply mono_map_lb_get'. rewrite map_singleton_subseteq_l //.
-  Qed.
-
   Lemma mono_map_insert {γ m} i v :
     m !! i = None →
-    mono_map_auth γ m ⊢ |==>
-    mono_map_auth γ (<[i := v]> m).
+    mono_map_auth γ (DfracOwn 1) m ⊢ |==>
+    mono_map_auth γ (DfracOwn 1) (<[i := v]> m).
   Proof.
-    iIntros (Hi) "?". iApply (own_update with "[$]").
-    rewrite fmap_insert. apply auth_update_auth with (b':={[i:=to_agree v]}).
-    apply (@alloc_singleton_local_update K _ _ (agreeR $ leibnizO V) (to_agree <$> m) i (to_agree v)).
-    { rewrite lookup_fmap Hi //. }
-    done.
+    intros Hlookup.
+    apply mono_map_update, insert_subseteq. done.
   Qed.
   Lemma mono_map_insert' {γ m} i v :
     m !! i = None →
-    mono_map_auth γ m ⊢ |==>
-      mono_map_auth γ (<[i:=v]> m) ∗
+    mono_map_auth γ (DfracOwn 1) m ⊢ |==>
+      mono_map_auth γ (DfracOwn 1) (<[i := v]> m) ∗
       mono_map_elem γ i v.
   Proof.
     iIntros "%Hlookup Hauth".
-    iMod (mono_map_insert with "Hauth") as "Hauth"; first done.
-    iApply (mono_map_elem_get with "Hauth"); first rewrite lookup_insert //.
+    iMod (mono_map_insert i v with "Hauth") as "Hauth"; first done.
+    iDestruct (mono_map_elem_get i v with "Hauth") as "#Helem"; first rewrite lookup_insert //.
+    iSteps.
   Qed.
 End mono_map_G.
 
