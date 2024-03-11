@@ -11,7 +11,7 @@ From zebre Require Import
   options.
 
 Class GhostVarG Σ A := {
-  #[local] ghost_var_G :: inG Σ (dfrac_agreeR $ leibnizO A) ;
+  #[local] ghost_var_G_inG :: inG Σ (dfrac_agreeR $ leibnizO A) ;
 }.
 #[global] Hint Mode GhostVarG - ! : typeclass_instances.
 

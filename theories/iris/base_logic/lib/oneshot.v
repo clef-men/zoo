@@ -10,7 +10,7 @@ From zebre Require Import
   options.
 
 Class OneshotG Σ A B := {
-  #[local] oneshot_G :: GhostVarG Σ (A + B) ;
+  #[local] oneshot_G_var_G :: GhostVarG Σ (A + B) ;
 }.
 
 Definition oneshot_Σ A B := #[

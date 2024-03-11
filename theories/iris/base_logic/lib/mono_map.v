@@ -12,7 +12,7 @@ From zebre Require Import
   options.
 
 Class MonoMapG Σ K V `{Countable K} := {
-  #[local] mono_map_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V)) ;
+  #[local] mono_map_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V)) ;
 }.
 
 Definition mono_map_Σ K V `{Countable K} := #[

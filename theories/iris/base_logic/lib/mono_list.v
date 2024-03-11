@@ -12,7 +12,7 @@ From zebre Require Import
   options.
 
 Class MonoListG Σ A := {
-  #[local] mono_list_G :: AuthMonoG Σ (A := leibnizO (list A)) prefix ;
+  #[local] mono_list_G_mono_G :: AuthMonoG Σ (A := leibnizO (list A)) prefix ;
 }.
 
 Definition mono_list_Σ A := #[

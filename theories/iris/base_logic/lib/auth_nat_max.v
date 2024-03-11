@@ -12,7 +12,7 @@ From zebre Require Import
   options.
 
 Class AuthNatMaxG Σ := {
-  #[local] auth_nat_max_G :: AuthMonoG Σ (≤) ;
+  #[local] auth_nat_max_G_mono_G :: AuthMonoG Σ (≤) ;
 }.
 
 Definition auth_nat_max_Σ := #[

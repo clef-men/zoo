@@ -12,7 +12,7 @@ From zebre Require Import
   options.
 
 Class MonoSetG Σ A `{Countable A} := {
-  #[local] mono_set_G :: AuthMonoG Σ (A := leibnizO (gset A)) subseteq ;
+  #[local] mono_set_G_mono_G :: AuthMonoG Σ (A := leibnizO (gset A)) subseteq ;
 }.
 
 Definition mono_set_Σ A `{Countable A} := #[

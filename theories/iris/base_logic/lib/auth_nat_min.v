@@ -13,7 +13,7 @@ From zebre Require Import
   options.
 
 Class AuthNatMinG Σ := {
-  #[local] auth_nat_min_G :: AuthMonoG Σ ge ;
+  #[local] auth_nat_min_G_mono_G :: AuthMonoG Σ ge ;
 }.
 
 Definition auth_nat_min_Σ := #[
