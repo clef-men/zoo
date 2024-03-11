@@ -14,7 +14,7 @@ From zebre.common Require Import
   list.
 From zebre.iris.base_logic Require Import
   lib.excl
-  lib.auth_excl
+  lib.twins
   lib.auth_nat_max
   lib.mono_list.
 From zebre.language Require Import
@@ -60,24 +60,24 @@ Qed.
 
 Class InfClDequeG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_cl_deque_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_cl_deque_G_ctl_G :: AuthExclG Σ (ZO * (nat -d> valO)) ;
+  #[local] inf_cl_deque_G_ctl_G :: TwinsG Σ (ZO * (nat -d> valO)) ;
   #[local] inf_cl_deque_G_front_G :: AuthNatMaxG Σ ;
   #[local] inf_cl_deque_G_hist_G :: MonoListG Σ val ;
-  #[local] inf_cl_deque_G_model_G :: AuthExclG Σ (listO valO) ;
+  #[local] inf_cl_deque_G_model_G :: TwinsG Σ (listO valO) ;
   #[local] inf_cl_deque_G_lock_G :: ExclG Σ unitO ;
   #[local] inf_cl_deque_G_prophet_G :: WiseProphetG Σ inf_cl_deque_prophet_spec ;
-  #[local] inf_cl_deque_G_winner_G :: AuthExclG Σ (natO * (valO -d> ▶ ∙)) ;
+  #[local] inf_cl_deque_G_winner_G :: TwinsG Σ (natO * (valO -d> ▶ ∙)) ;
 }.
 
 Definition inf_cl_deque_Σ := #[
   inf_array_Σ ;
-  auth_excl_Σ (ZO * (nat -d> valO)) ;
+  twins_Σ (ZO * (nat -d> valO)) ;
   auth_nat_max_Σ ;
   mono_list_Σ val ;
-  auth_excl_Σ (listO valO) ;
+  twins_Σ (listO valO) ;
   excl_Σ unitO ;
   wise_prophet_Σ inf_cl_deque_prophet_spec ;
-  auth_excl_Σ (natO * (valO -d> ▶ ∙))
+  twins_Σ (natO * (valO -d> ▶ ∙))
 ].
 #[global] Instance subG_inf_cl_deque_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG inf_cl_deque_Σ Σ →
@@ -202,11 +202,11 @@ Module raw.
     Qed.
 
     #[local] Definition inf_cl_deque_ctl₁' γ_ctl back priv :=
-      auth_excl_auth (auth_excl_G := inf_cl_deque_G_ctl_G) γ_ctl (DfracOwn 1) (back, priv).
+      twins_twin1 (twins_G := inf_cl_deque_G_ctl_G) γ_ctl (DfracOwn 1) (back, priv).
     #[local] Definition inf_cl_deque_ctl₁ γ back priv :=
       inf_cl_deque_ctl₁' γ.(inf_cl_deque_meta_ctl) back priv.
     #[local] Definition inf_cl_deque_ctl₂' γ_ctl back priv :=
-      auth_excl_frag (auth_excl_G := inf_cl_deque_G_ctl_G) γ_ctl (back, priv).
+      twins_twin2 (twins_G := inf_cl_deque_G_ctl_G) γ_ctl (back, priv).
     #[local] Definition inf_cl_deque_ctl₂ γ back priv :=
       inf_cl_deque_ctl₂' γ.(inf_cl_deque_meta_ctl) back priv.
 
@@ -225,11 +225,11 @@ Module raw.
       mono_list_elem γ.(inf_cl_deque_meta_hist) i v.
 
     #[local] Definition inf_cl_deque_model₁' γ_model model :=
-      auth_excl_frag (auth_excl_G := inf_cl_deque_G_model_G) γ_model model.
+      twins_twin2 (twins_G := inf_cl_deque_G_model_G) γ_model model.
     #[local] Definition inf_cl_deque_model₁ γ model :=
       inf_cl_deque_model₁' γ.(inf_cl_deque_meta_model) model.
     #[local] Definition inf_cl_deque_model₂' γ_model model :=
-      auth_excl_auth (auth_excl_G := inf_cl_deque_G_model_G) γ_model (DfracOwn 1) model.
+      twins_twin1 (twins_G := inf_cl_deque_G_model_G) γ_model (DfracOwn 1) model.
     #[local] Definition inf_cl_deque_model₂ γ model :=
       inf_cl_deque_model₂' γ.(inf_cl_deque_meta_model) model.
 
@@ -239,11 +239,11 @@ Module raw.
       inf_cl_deque_lock' γ.(inf_cl_deque_meta_lock).
 
     #[local] Definition inf_cl_deque_winner₁' γ_winner front Φ :=
-      auth_excl_frag (auth_excl_G := inf_cl_deque_G_winner_G) γ_winner (front, Next ∘ Φ).
+      twins_twin2 (twins_G := inf_cl_deque_G_winner_G) γ_winner (front, Next ∘ Φ).
     #[local] Definition inf_cl_deque_winner₁ γ front Φ :=
       inf_cl_deque_winner₁' γ.(inf_cl_deque_meta_winner) front Φ.
     #[local] Definition inf_cl_deque_winner₂' γ_winner front Φ :=
-      auth_excl_auth (auth_excl_G := inf_cl_deque_G_winner_G) γ_winner (DfracOwn 1) (front, Next ∘ Φ).
+      twins_twin1 (twins_G := inf_cl_deque_G_winner_G) γ_winner (DfracOwn 1) (front, Next ∘ Φ).
     #[local] Definition inf_cl_deque_winner₂ γ front Φ :=
       inf_cl_deque_winner₂' γ.(inf_cl_deque_meta_winner) front Φ.
     #[local] Definition inf_cl_deque_winner' γ_winner : iProp Σ :=
@@ -413,7 +413,7 @@ Module raw.
         inf_cl_deque_ctl₁' γ_ctl 0 (λ _, ()%V) ∗
         inf_cl_deque_ctl₂' γ_ctl 0 (λ _, ()%V).
     Proof.
-      apply auth_excl_alloc'.
+      apply twins_alloc'.
     Qed.
     #[local] Lemma inf_cl_deque_ctl_agree γ back1 priv1 back2 priv2 :
       inf_cl_deque_ctl₁ γ back1 priv1 -∗
@@ -421,7 +421,7 @@ Module raw.
       ⌜back1 = back2 ∧ priv1 = priv2⌝.
     Proof.
       iIntros "Hctl₁ Hctl₂".
-      iDestruct (auth_excl_agree with "Hctl₁ Hctl₂") as %(? & ?%functional_extensionality).
+      iDestruct (twins_agree with "Hctl₁ Hctl₂") as %(? & ?%functional_extensionality).
       iSteps.
     Qed.
     #[local] Lemma inf_cl_deque_ctl_update {γ back1 priv1 back2 priv2} back priv :
@@ -430,7 +430,7 @@ Module raw.
         inf_cl_deque_ctl₁ γ back priv ∗
         inf_cl_deque_ctl₂ γ back priv.
     Proof.
-      apply auth_excl_update'.
+      apply twins_update'.
     Qed.
 
     #[local] Lemma inf_cl_deque_front_alloc :
@@ -519,7 +519,7 @@ Module raw.
         inf_cl_deque_model₁' γ_model [] ∗
         inf_cl_deque_model₂' γ_model [].
     Proof.
-      iMod (auth_excl_alloc' (auth_excl_G := inf_cl_deque_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
+      iMod (twins_alloc' (twins_G := inf_cl_deque_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
       iSteps.
     Qed.
     #[local] Lemma inf_cl_deque_model_agree γ model1 model2 :
@@ -528,7 +528,7 @@ Module raw.
       ⌜model1 = model2⌝.
     Proof.
       iIntros "Hmodel₁ Hmodel₂".
-      iDestruct (auth_excl_agree_L with "Hmodel₂ Hmodel₁") as %->.
+      iDestruct (twins_agree_L with "Hmodel₂ Hmodel₁") as %->.
       iSteps.
     Qed.
     #[local] Lemma inf_cl_deque_model_update {γ model1 model2} model :
@@ -538,7 +538,7 @@ Module raw.
         inf_cl_deque_model₂ γ model.
     Proof.
       iIntros "Hmodel₁ Hmodel₂".
-      iMod (auth_excl_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
+      iMod (twins_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
       iSteps.
     Qed.
 
@@ -573,7 +573,7 @@ Module raw.
         ∃ γ_winner,
         inf_cl_deque_winner' γ_winner.
     Proof.
-      iMod (auth_excl_alloc' (auth_excl_G := inf_cl_deque_G_winner_G) (inhabitant, λ _, Next inhabitant)) as "(%γ_winner & Hwinner₁ & Hwinner₂)".
+      iMod (twins_alloc' (twins_G := inf_cl_deque_G_winner_G) (inhabitant, λ _, Next inhabitant)) as "(%γ_winner & Hwinner₁ & Hwinner₂)".
       iSteps.
     Qed.
     #[local] Lemma inf_cl_deque_winner₁_exclusive γ front1 Φ1 front2 Φ2 :
@@ -581,7 +581,7 @@ Module raw.
       inf_cl_deque_winner₁ γ front2 Φ2 -∗
       False.
     Proof.
-      apply auth_excl_frag_exclusive.
+      apply twins_twin2_exclusive.
     Qed.
     #[local] Lemma inf_cl_deque_winner₁_exclusive' γ front Φ :
       inf_cl_deque_winner₁ γ front Φ -∗
@@ -596,7 +596,7 @@ Module raw.
       inf_cl_deque_winner₂ γ front2 Φ2 -∗
       False.
     Proof.
-      apply auth_excl_auth_exclusive.
+      apply twins_twin1_exclusive.
     Qed.
     #[local] Lemma inf_cl_deque_winner₂_exclusive' γ front Φ :
       inf_cl_deque_winner₂ γ front Φ -∗
@@ -615,7 +615,7 @@ Module raw.
         inf_cl_deque_winner₂ γ front1 Φ2.
     Proof.
       iIntros "Hwinner₁ Hwinner₂".
-      iDestruct (auth_excl_agree with "Hwinner₂ Hwinner₁") as "#HΦ".
+      iDestruct (twins_agree with "Hwinner₂ Hwinner₁") as "#HΦ".
       rewrite prod_equivI /=. iDestruct "HΦ" as "(% & HΦ)". simplify.
       iFrame. iSplit; first iSteps.
       rewrite discrete_fun_equivI. iDestruct ("HΦ" $! v) as "HΦv". rewrite later_equivI.
@@ -628,7 +628,7 @@ Module raw.
         inf_cl_deque_winner₂ γ front Φ.
     Proof.
       iIntros "Hwinner₁ Hwinner₂".
-      iMod (auth_excl_update (auth_excl_G := inf_cl_deque_G_winner_G) (front, Next ∘ Φ) with "Hwinner₂ Hwinner₁") as "($ & $)"; first done.
+      iMod (twins_update (twins_G := inf_cl_deque_G_winner_G) (front, Next ∘ Φ) with "Hwinner₂ Hwinner₁") as "($ & $)"; first done.
       iSteps.
     Qed.
     #[local] Lemma inf_cl_deque_winner₁_state γ ι front front' back hist model prophs Φ :

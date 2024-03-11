@@ -20,20 +20,20 @@ theories/iris/algebra/view.v
 theories/iris/algebra/auth.v
 theories/iris/algebra/mono.v
 theories/iris/algebra/lib/auth_option.v
-theories/iris/algebra/lib/auth_excl.v
+theories/iris/algebra/lib/twins.v
 theories/iris/algebra/lib/auth_mono.v
 
 theories/iris/diaframe.v
 
 theories/iris/bi/big_op.v
 
-theories/iris/base_logic/algebra/auth_excl.v
+theories/iris/base_logic/algebra/twins.v
 theories/iris/base_logic/lib/base.v
 theories/iris/base_logic/lib/agree.v
 theories/iris/base_logic/lib/excl.v
 theories/iris/base_logic/lib/ghost_var.v
 theories/iris/base_logic/lib/oneshot.v
-theories/iris/base_logic/lib/auth_excl.v
+theories/iris/base_logic/lib/twins.v
 theories/iris/base_logic/lib/auth_nat_max.v
 theories/iris/base_logic/lib/auth_nat_min.v
 theories/iris/base_logic/lib/auth_dgset.v

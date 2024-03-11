@@ -4,7 +4,7 @@ From Coq.Logic Require Import
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
-  lib.auth_excl.
+  lib.twins.
 From zebre.language Require Import
   notations
   diaframe.
@@ -69,12 +69,12 @@ Definition inf_array_set : val :=
 
 Class InfArrayG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_array_G_mutex_G :: MutexG Σ ;
-  #[local] inf_array_G_model_G :: AuthExclG Σ (nat -d> valO) ;
+  #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> valO) ;
 }.
 
 Definition inf_array_Σ := #[
   mutex_Σ ;
-  auth_excl_Σ (nat -d> valO)
+  twins_Σ (nat -d> valO)
 ].
 #[global] Instance subG_inf_array_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG inf_array_Σ Σ →
@@ -90,7 +90,7 @@ Section inf_array_G.
     ∃ data us vs,
     l.[data] ↦ data ∗
     array_model data (DfracOwn 1) us ∗
-    auth_excl_frag γ vs ∗
+    twins_twin2 γ vs ∗
     ⌜vs = λ i, if decide (i < length us) then us !!! i else default⌝.
   Definition inf_array_inv t : iProp Σ :=
     ∃ l γ default mtx,
@@ -104,7 +104,7 @@ Section inf_array_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    auth_excl_auth γ (DfracOwn 1) vs.
+    twins_twin1 γ (DfracOwn 1) vs.
   Definition inf_array_model' t vsₗ vsᵣ :=
     inf_array_model t (
       λ i,
@@ -198,7 +198,7 @@ Section inf_array_G.
     iMod (pointsto_persist with "Hdefault") as "#Hdefault".
 
     set (vs _ := default).
-    iMod (auth_excl_alloc' (auth_excl_G := inf_array_G_model_G) vs) as "(%γ & Hmodel₁ & Hmodel₂)".
+    iMod (twins_alloc' (twins_G := inf_array_G_model_G) vs) as "(%γ & Hmodel₁ & Hmodel₂)".
     iMod (meta_set _ _ γ nroot with "Hmeta") as "#Hmeta"; first done.
 
     wp_smart_apply (mutex_create_spec (inf_array_inv_inner l γ default) with "[Hdata Hmodel_data Hmodel₂]"); iSteps.
@@ -238,7 +238,7 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iSteps. rewrite decide_True; first lia. iSteps.
@@ -247,7 +247,7 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iSteps. rewrite decide_False; first lia. iSteps.
@@ -307,10 +307,10 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
       set us' := <[i := v]> us.
       set vs' := <[i := v]> vs.
-      iMod (auth_excl_update' (auth_excl_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (twins_update' (twins_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iIntros "Hmodel_data !>". iFrame. iSplitR "HΦ"; last iSteps.
@@ -340,10 +340,10 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
       set us' := us ++ replicate (i - length us) default ++ [v].
       set vs' := <[i := v]> vs.
-      iMod (auth_excl_update' (auth_excl_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (twins_update' (twins_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iModIntro. iFrame. iSplitR "HΦ"; last iSteps.

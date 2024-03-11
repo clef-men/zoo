@@ -10,7 +10,7 @@ From zebre Require Import
 From zebre.common Require Import
   list.
 From zebre.iris.base_logic Require Import
-  lib.auth_excl.
+  lib.twins.
 From zebre.language Require Import
   notations
   diaframe.
@@ -66,11 +66,11 @@ Definition mpsc_queue_pop : val :=
     end.
 
 Class MpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] mpsc_queue_G_auth_excl_G :: AuthExclG Σ (listO val) ;
+  #[local] mpsc_queue_G_twins_G :: TwinsG Σ (listO val) ;
 }.
 
 Definition mpsc_queue_Σ := #[
-  auth_excl_Σ (listO val)
+  twins_Σ (listO val)
 ].
 #[global] Instance subG_mpsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG mpsc_queue_Σ Σ →
@@ -105,20 +105,20 @@ Section mpsc_queue_G.
   Qed.
 
   #[local] Definition mpsc_queue_model₁' γ_model vs :=
-    auth_excl_auth γ_model (DfracOwn 1) vs.
+    twins_twin1 γ_model (DfracOwn 1) vs.
   #[local] Definition mpsc_queue_model₁ γ vs :=
     mpsc_queue_model₁' γ.(mpsc_queue_meta_model) vs.
   #[local] Definition mpsc_queue_model₂' γ_model vs :=
-    auth_excl_frag γ_model vs.
+    twins_twin2 γ_model vs.
   #[local] Definition mpsc_queue_model₂ γ vs :=
     mpsc_queue_model₂' γ.(mpsc_queue_meta_model) vs.
 
   #[local] Definition mpsc_queue_front₁' γ_front front :=
-    auth_excl_auth γ_front (DfracOwn 1) front.
+    twins_twin1 γ_front (DfracOwn 1) front.
   #[local] Definition mpsc_queue_front₁ γ front :=
     mpsc_queue_front₁' γ.(mpsc_queue_meta_front) front.
   #[local] Definition mpsc_queue_front₂' γ_model front :=
-    auth_excl_frag γ_model front.
+    twins_twin2 γ_model front.
   #[local] Definition mpsc_queue_front₂ γ front :=
     mpsc_queue_front₂' γ.(mpsc_queue_meta_front) front.
 
@@ -168,14 +168,14 @@ Section mpsc_queue_G.
       mpsc_queue_model₁' γ_model [] ∗
       mpsc_queue_model₂' γ_model [].
   Proof.
-    apply auth_excl_alloc'.
+    apply twins_alloc'.
   Qed.
   #[local] Lemma mpsc_queue_model_agree γ vs1 vs2 :
     mpsc_queue_model₁ γ vs1 -∗
     mpsc_queue_model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: auth_excl_agree_L.
+    apply: twins_agree_L.
   Qed.
   #[local] Lemma mpsc_queue_model_update {γ vs1 vs2} vs :
     mpsc_queue_model₁ γ vs1 -∗
@@ -183,7 +183,7 @@ Section mpsc_queue_G.
       mpsc_queue_model₁ γ vs ∗
       mpsc_queue_model₂ γ vs.
   Proof.
-    apply auth_excl_update'.
+    apply twins_update'.
   Qed.
 
   #[local] Lemma mpsc_queue_front_alloc :
@@ -192,14 +192,14 @@ Section mpsc_queue_G.
       mpsc_queue_front₁' γ_front [] ∗
       mpsc_queue_front₂' γ_front [].
   Proof.
-    apply auth_excl_alloc'.
+    apply twins_alloc'.
   Qed.
   #[local] Lemma mpsc_queue_front_agree γ front1 front2 :
     mpsc_queue_front₁ γ front1 -∗
     mpsc_queue_front₂ γ front2 -∗
     ⌜front1 = front2⌝.
   Proof.
-    apply: auth_excl_agree_L.
+    apply: twins_agree_L.
   Qed.
   #[local] Lemma mpsc_queue_front_update {γ front1 front2} front :
     mpsc_queue_front₁ γ front1 -∗
@@ -207,7 +207,7 @@ Section mpsc_queue_G.
       mpsc_queue_front₁ γ front ∗
       mpsc_queue_front₂ γ front.
   Proof.
-    apply auth_excl_update'.
+    apply twins_update'.
   Qed.
 
   Lemma mpsc_queue_consumer_exclusive t :

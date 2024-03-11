@@ -8,7 +8,7 @@ From iris.algebra Require Import
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
-  lib.auth_excl.
+  lib.twins.
 From zebre.language Require Import
   notations
   diaframe.
@@ -51,11 +51,11 @@ Definition treiber_stack_pop : val :=
     end.
 
 Class TreiberStackG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] treiber_stack_G_model_G :: AuthExclG Σ (listO val) ;
+  #[local] treiber_stack_G_model_G :: TwinsG Σ (listO val) ;
 }.
 
 Definition treiber_stack_Σ := #[
-  auth_excl_Σ (listO val)
+  twins_Σ (listO val)
 ].
 #[global] Instance subG_treiber_stack_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG treiber_stack_Σ Σ →
@@ -68,9 +68,9 @@ Section zebre_G.
   Context `{treiber_stack_G : TreiberStackG Σ}.
 
   #[local] Definition treiber_stack_model₁ γ vs :=
-    auth_excl_auth γ (DfracOwn 1) vs.
+    twins_twin1 γ (DfracOwn 1) vs.
   #[local] Definition treiber_stack_model₂ γ vs :=
-    auth_excl_frag γ vs.
+    twins_twin2 γ vs.
 
   #[local] Definition treiber_stack_inv_inner l γ : iProp Σ :=
     ∃ vs,
@@ -111,7 +111,7 @@ Section zebre_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_alloc l as "Hmeta" "Hl".
-    iMod (auth_excl_alloc' (auth_excl_G := treiber_stack_G_model_G) []) as "(%γ & Hmodel₁ & Hmodel₂)".
+    iMod (twins_alloc' (twins_G := treiber_stack_G_model_G) []) as "(%γ & Hmodel₁ & Hmodel₂)".
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
     iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
@@ -147,8 +147,8 @@ Section zebre_G.
     wp_cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
-    iMod (auth_excl_update' (auth_excl_G := treiber_stack_G_model_G) (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
+    iMod (twins_update' (twins_G := treiber_stack_G_model_G) (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iExists (v :: vs). iSteps. }
     iSteps.
@@ -178,7 +178,7 @@ Section zebre_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
@@ -194,8 +194,8 @@ Section zebre_G.
       destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (auth_excl_agree_L with "Hmodel₁ Hmodel₂") as %->.
-      iMod (auth_excl_update' (auth_excl_G := treiber_stack_G_model_G) vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
+      iMod (twins_update' (twins_G := treiber_stack_G_model_G) vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.

@@ -8,7 +8,7 @@ From iris.algebra Require Import
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
-  lib.auth_excl.
+  lib.twins.
 From zebre.language Require Import
   notations
   diaframe.
@@ -75,11 +75,11 @@ Definition bag_pop : val :=
     bag_pop_aux (array_unsafe_get "data" "i").
 
 Class BagG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] bag_G_model_G :: AuthExclG Σ (gmultisetO val) ;
+  #[local] bag_G_model_G :: TwinsG Σ (gmultisetO val) ;
 }.
 
 Definition bag_Σ := #[
-  auth_excl_Σ (gmultisetO val)
+  twins_Σ (gmultisetO val)
 ].
 #[global] Instance subG_bag_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG bag_Σ Σ →
@@ -114,11 +114,11 @@ Section bag_G.
   Qed.
 
   #[local] Definition bag_model₁' γ_model vs :=
-    auth_excl_auth γ_model (DfracOwn 1) vs.
+    twins_twin1 γ_model (DfracOwn 1) vs.
   #[local] Definition bag_model₁ γ vs :=
     bag_model₁' γ.(bag_meta_model) vs.
   #[local] Definition bag_model₂' γ_model vs :=
-    auth_excl_frag γ_model vs.
+    twins_twin2 γ_model vs.
   #[local] Definition bag_model₂ γ vs :=
     bag_model₂' γ.(bag_meta_model) vs.
 
@@ -162,14 +162,14 @@ Section bag_G.
       bag_model₁' γ_model ∅ ∗
       bag_model₂' γ_model ∅.
   Proof.
-    apply auth_excl_alloc'.
+    apply twins_alloc'.
   Qed.
   #[local] Lemma bag_model_agree γ vs1 vs2 :
     bag_model₁ γ vs1 -∗
     bag_model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
-    apply: auth_excl_agree_L.
+    apply: twins_agree_L.
   Qed.
   #[local] Lemma bag_model_update {γ vs1 vs2} vs :
     bag_model₁ γ vs1 -∗
@@ -177,7 +177,7 @@ Section bag_G.
       bag_model₁ γ vs ∗
       bag_model₂ γ vs.
   Proof.
-    apply auth_excl_update'.
+    apply twins_update'.
   Qed.
 
   Lemma bag_create_spec ι (sz : Z) :

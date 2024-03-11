@@ -12,7 +12,7 @@ From zebre.common Require Import
   list.
 From zebre.iris.base_logic Require Import
   lib.excl
-  lib.auth_excl
+  lib.twins
   lib.auth_nat_max
   lib.mono_list.
 From zebre.language Require Import
@@ -104,14 +104,14 @@ Definition spsc_queue_pop : val :=
     ).
 
 Class SpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] spsc_queue_G_model_G :: AuthExclG Σ (listO valO) ;
+  #[local] spsc_queue_G_model_G :: TwinsG Σ (listO valO) ;
   #[local] spsc_queue_G_history_G :: MonoListG Σ val ;
   #[local] spsc_queue_G_ctl_G :: AuthNatMaxG Σ ;
   #[local] spsc_queue_G_region_G :: ExclG Σ unitO ;
 }.
 
 Definition spsc_queue_Σ := #[
-  auth_excl_Σ (listO valO) ;
+  twins_Σ (listO valO) ;
   mono_list_Σ val ;
   auth_nat_max_Σ ;
   excl_Σ unitO
@@ -161,11 +161,11 @@ Section spsc_queue_G.
   Qed.
 
   #[local] Definition spsc_queue_model₁' γ_model vs :=
-    auth_excl_frag γ_model vs.
+    twins_twin2 γ_model vs.
   #[local] Definition spsc_queue_model₁ γ vs :=
     spsc_queue_model₁' γ.(spsc_queue_meta_model) vs.
   #[local] Definition spsc_queue_model₂' γ_model vs :=
-    auth_excl_auth γ_model (DfracOwn 1) vs.
+    twins_twin1 γ_model (DfracOwn 1) vs.
   #[local] Definition spsc_queue_model₂ γ vs :=
     spsc_queue_model₂' γ.(spsc_queue_meta_model) vs.
 
@@ -284,7 +284,7 @@ Section spsc_queue_G.
       spsc_queue_model₁' γ_model [] ∗
       spsc_queue_model₂' γ_model [].
   Proof.
-    iMod (auth_excl_alloc' (auth_excl_G := spsc_queue_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod (twins_alloc' (twins_G := spsc_queue_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iSteps.
   Qed.
   #[local] Lemma spsc_queue_model_agree γ model1 model2 :
@@ -293,7 +293,7 @@ Section spsc_queue_G.
     ⌜model1 = model2⌝.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
-    iDestruct (auth_excl_agree_L with "Hmodel₂ Hmodel₁") as %->.
+    iDestruct (twins_agree_L with "Hmodel₂ Hmodel₁") as %->.
     iSteps.
   Qed.
   #[local] Lemma spsc_queue_model_update {γ model1 model2} model :
@@ -303,7 +303,7 @@ Section spsc_queue_G.
       spsc_queue_model₂ γ model.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
-    iMod (auth_excl_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
+    iMod (twins_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
     iSteps.
   Qed.
 
