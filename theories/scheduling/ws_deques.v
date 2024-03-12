@@ -161,11 +161,11 @@ Section zebre_G.
         §None
       ) else (
         match: ws_deques_steal_as_round "t" "sz" "i" "round" with
+        | Some <> as "res" =>
+            "res"
         | None =>
             random_round_reset "round" ;;
             "ws_deques_try_steal_as_aux" "t" "sz" "i" "round" ("n" - #1)
-        | _ as "res" =>
-            "res"
         end
       ).
   Definition ws_deques_try_steal_as : val :=
@@ -177,11 +177,11 @@ Section zebre_G.
   #[local] Definition ws_deques_steal_as_aux : val :=
     rec: "ws_deques_steal_as_aux" "t" "sz" "i" "round" :=
       match: ws_deques_steal_as_round "t" "sz" "i" "round" with
+      | Some "v" =>
+          "v"
       | None =>
           random_round_reset "round" ;;
           "ws_deques_steal_as_aux" "t" "sz" "i" "round"
-      | Some "v" =>
-          "v"
       end.
   Definition ws_deques_steal_as : val :=
     λ: "t" "i",
@@ -192,19 +192,19 @@ Section zebre_G.
   Definition ws_deques_pop_try_steal : val :=
     λ: "t" "i" "n",
       match: ws_deques.(ws_deques_pop) "t" "i" with
+      | Some <> as "res" =>
+          "res"
       | None =>
           ws_deques_try_steal_as "t" "i" "n"
-      | _ as "res" =>
-          "res"
       end.
 
   Definition ws_deques_pop_steal : val :=
     λ: "t" "i",
       match: ws_deques.(ws_deques_pop) "t" "i" with
-      | None =>
-          ws_deques_steal_as "t" "i"
       | Some "v" =>
           "v"
+      | None =>
+          ws_deques_steal_as "t" "i"
       end.
 
   #[local] Lemma ws_deques_steal_as_round_aux_spec t ι (sz : nat) i round (n : nat) :
