@@ -85,6 +85,7 @@ theories/std/inf_array.v
 theories/std/queue.v
 theories/std/stack.v
 theories/std/xdeque.v
+theories/std/deque.v
 theories/std/mutex.v
 theories/std/condition.v
 theories/std/latch1.v
@@ -111,6 +112,7 @@ theories/saturn/inf_ws_deque.v
 theories/scheduling/base.v
 theories/scheduling/ws_deques.v
 theories/scheduling/ws_deques_public.v
+theories/scheduling/ws_deques_private.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
