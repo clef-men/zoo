@@ -66,11 +66,11 @@ Parameter array_cas : val.
 
 Definition ws_deques_private_create : val :=
   λ: "sz",
-    ( array_init "sz" deque_create,
-      array_make "sz" #false,
-      array_make "sz" §Blocked,
+    { array_init "sz" deque_create;
+      array_make "sz" #false;
+      array_make "sz" §Blocked;
       array_make "sz" §NoResponse
-    ).
+    }.
 
 Definition ws_deques_private_size : val :=
   λ: "t",
@@ -176,6 +176,25 @@ Qed.
 
 Section ws_deques_private_G.
   Context `{ws_deques_private_G : WsDequesPrivateG Σ}.
+
+  (* #[local] Definition ws_deques_private_inv_inner deques v_flags v_requests v_responses sz : iProp Σ := *)
+  (*   ∃ flags requests responses vss, *)
+  (*   array_model v_flags (DfracOwn 1) flags ∗ *)
+  (*   array_model v_requests (DfracOwn 1) requests ∗ *)
+  (*   array_model v_reponses (DfracOwn 1) responses ∗ *)
+  (*   ( [∗ list] deque; vs ∈ deques; vss, *)
+  (*     deque_model deque vs *)
+  (*   ) ∗ *)
+  (*   ( [∗ list] flag; vs ∈ flags; vss, *)
+  (*     ⌜flag = #(bool_decide (vs ≠ []))⌝ *)
+  (*     ⌜flag = #true ∨ flag = #false ∧ vs = []⌝ *)
+  (*   ) *)
+  (* . *)
+  (* Definition ws_deques_private_inv t ι sz : iProp Σ := *)
+  (*   ∃ deques flags requests responses, *)
+  (*   ⌜t = (v_deques, v_flags, v_requests, v_responses)%V⌝ ∗ *)
+  (*   array_model v_deques DfracDiscarded deques ∗ *)
+  (*   inv ι (ws_deques_private_inv_inner deques v_flags v_requests v_responses sz). *)
 
   Definition ws_deques_private_inv t (ι : namespace) (sz : nat) : iProp Σ.
   Proof. Admitted.
