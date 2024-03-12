@@ -102,7 +102,7 @@ theories/persistent/pstore_2.v
 
 theories/saturn/base.v
 theories/saturn/bag.v
-theories/saturn/treiber_stack.v
+theories/saturn/mpmc_stack.v
 theories/saturn/spsc_queue.v
 theories/saturn/mpsc_queue_1.v
 theories/saturn/mpsc_queue_2.v
