@@ -274,7 +274,8 @@ Module raw.
       inf_ws_deque_lock γ.
 
     #[local] Definition inf_ws_deque_atomic_update γ ι Φ : iProp Σ :=
-      AU <{ ∃∃ model,
+      AU <{
+        ∃∃ model,
         inf_ws_deque_model₂ γ model
       }> @ ⊤ ∖ ↑ι, ∅ <{
         ∀∀ v model',

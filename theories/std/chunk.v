@@ -996,7 +996,8 @@ Section zebre_G.
   End chunk_cslice.
 
   Notation chunk_au_load l i Φ := (
-    AU <{ ∃∃ dq v,
+    AU <{
+      ∃∃ dq v,
       (l +ₗ i) ↦{dq} v
     }> @ ⊤, ∅ <{
       (l +ₗ i) ↦{dq} v,
@@ -1005,7 +1006,8 @@ Section zebre_G.
     }>
   )%I.
   Notation chunk_au_store l i v P := (
-    AU <{ ∃∃ v',
+    AU <{
+      ∃∃ v',
       (l +ₗ i) ↦ v'
     }> @ ⊤, ∅ <{
       (l +ₗ i) ↦ v,
