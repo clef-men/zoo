@@ -71,6 +71,22 @@ Section auth_twins_G.
     apply _.
   Qed.
 
+  Lemma auth_twins_alloc a :
+    ⊢ |==>
+      ∃ γ,
+      auth_twins_auth γ a ∗
+      auth_twins_twin1 γ a ∗
+      auth_twins_twin2 γ a.
+  Proof.
+    iMod (auth_mono_alloc _ a) as "(%γ_mono & Hauth)".
+    iDestruct (auth_mono_lb_get with "Hauth") as "#Hlb".
+    iMod (twins_alloc' (twins_G := auth_twins_G_twins_G) a) as "(%γ_twins & Htwin1 & Htwin2)".
+    iMod (ghost_var_alloc (γ_mono, γ_twins)) as "(%γ & Hγ)".
+    iEval (assert (1 = 1/3 + (1/3 + 1/3))%Qp as -> by compute_done) in "Hγ".
+    iDestruct "Hγ" as "(Hγ1 & (Hγ2 & Hγ3))".
+    iSteps.
+  Qed.
+
   Lemma auth_twins_auth_exclusive `{!AntiSymm (≡) Rs} γ a1 a2 :
     auth_twins_auth γ a1 -∗
     auth_twins_auth γ a2 -∗
