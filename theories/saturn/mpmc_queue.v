@@ -175,11 +175,11 @@ Section mpmc_queue_G.
   #[global] Instance mpmc_queue_model_timeless t vs :
     Timeless (mpmc_queue_model t vs).
   Proof.
-  Abort.
+  Admitted.
   #[global] Instance mpmc_queue_inv_persistent t ι :
     Persistent (mpmc_queue_inv t ι).
   Proof.
-  Abort.
+  Admitted.
 
   Lemma mpmc_queue_create_spec ι :
     {{{ True }}}
@@ -190,7 +190,7 @@ Section mpmc_queue_G.
       mpmc_queue_model t []
     }}}.
   Proof.
-  Abort.
+  Admitted.
 
   Lemma mpmc_queue_push_spec t ι v :
     <<<
@@ -204,7 +204,7 @@ Section mpmc_queue_G.
     | RET (); True
     >>>.
   Proof.
-  Abort.
+  Admitted.
 
   Lemma mpmc_queue_pop_spec t ι :
     <<<
@@ -218,7 +218,7 @@ Section mpmc_queue_G.
     | RET head vs; True
     >>>.
   Proof.
-  Abort.
+  Admitted.
 End mpmc_queue_G.
 
 #[global] Opaque mpmc_queue_create.
