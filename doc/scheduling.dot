@@ -1,0 +1,58 @@
+digraph {
+	layout=sfdp
+	overlap=false
+	splines=curved
+
+	subgraph cluster_std {
+		label="std"
+		node [style=filled, color=lightblue]
+		/* array [label="array"] */
+		random [label="random"]
+		random_round [label="random_round"]
+		deque [label="deque"]
+		mutex [label="mutex"]
+		condition [label="condition"]
+	}
+
+	subgraph cluster_saturn {
+		label="saturn"
+		node [style=filled, color=peachpuff]
+		spsc_latch1 [label="spsc_latch1"]
+		mpmc_queue [label="mpmc_queue"]
+		ws_deque [label="ws_deque"]
+	}
+
+	subgraph cluster_scheduling {
+		label="scheduling"
+		node [style=filled, color=violet]
+		ws_deques [label="ws_deques"]
+		ws_deques_public [label="ws_deques_public"]
+		ws_deques_private [label="ws_deques_private"]
+		ws_hub [label="ws_hub"]
+		scheduler [label="scheduler"]
+		dag [label="dag"]
+	}
+
+	random_round -> random
+	/* random_round -> array */
+
+	spsc_latch1 -> mutex
+	spsc_latch1 -> condition
+
+	/* ws_deques_public -> array */
+	ws_deques_public -> ws_deque
+	ws_deques_public -> ws_deques [style=dotted]
+
+	/* ws_deques_private -> array */
+	ws_deques_private -> deque
+	ws_deques_private -> ws_deques [style=dotted]
+
+	ws_deques -> random_round
+
+	ws_hub -> mpmc_queue
+	ws_hub -> spsc_latch1
+	ws_hub -> ws_deques
+
+	scheduler -> ws_hub
+	dag -> ws_hub
+}
