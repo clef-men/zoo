@@ -3,7 +3,7 @@ From zebre Require Import
 From zebre.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zebre.std Require Import
   opt.
 From zebre.saturn Require Import
   spsc_latch1
