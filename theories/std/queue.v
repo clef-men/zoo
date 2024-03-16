@@ -57,8 +57,8 @@ Section zebre_G.
     ⌜t = #l⌝ ∗
     l.[front] ↦ front ∗
     l.[sentinel] ↦ sent ∗
-    chain_model front (DfracOwn 1) vs sent ∗
-    chain_model sent (DfracOwn 1) [()%V] ().
+    chain_model front vs sent ∗
+    chain_model sent [()%V] ().
 
   #[global] Instance queue_model_timeless t vs :
     Timeless (queue_model t vs).
@@ -76,7 +76,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_apply (chain_cons_spec _ (DfracOwn 1)) as (sent) "Hsent_model"; first done.
+    wp_apply chain_cons_spec as (sent) "Hsent_model".
     { iApply chain_model_nil. iSteps. }
     wp_record l as "(Hfront & Hsent & _)".
     iApply "HΦ". iExists l, sent, sent. iFrame. iSteps.
@@ -103,7 +103,7 @@ Section zebre_G.
       iSteps.
     - wp_apply (wp_equal_chain with "Hfront_model Hsent_model") as "Hfront_model Hsent_model"; [naive_solver lia.. |].
       iSplit; first iSteps. iIntros "->".
-      iDestruct (chain_model_ne with "Hsent_model Hfront_model") as %?; naive_solver lia...
+      iDestruct (chain_model_exclusive with "Hsent_model Hfront_model") as %[]; naive_solver lia.
   Qed.
 
   Lemma queue_push_spec t vs v :
@@ -118,7 +118,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ (%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model) HΦ".
     wp_rec.
-    wp_smart_apply (chain_cons_spec _ (DfracOwn 1)) as (sent') "Hsent'_model"; first done.
+    wp_smart_apply chain_cons_spec as (sent') "Hsent'_model".
     { iApply chain_model_nil. iSteps. }
     wp_load.
     wp_apply (chain_set_head_spec with "Hsent_model") as "Hsent_model".

@@ -82,22 +82,3 @@ Notation "l ↦∗ dq vs" :=
   dq custom dfrac at level 1,
   format "l  ↦∗ dq  vs"
 ) : bi_scope.
-
-Lemma pointsto_relax `{zebre_G : !ZebreG Σ} dq l v :
-  ✓ dq →
-  l ↦ v ⊢ |==>
-  l ↦{dq} v.
-Proof.
-  iIntros "%Hdq H↦". destruct dq as [q1 | | q1].
-  - destruct (decide (q1 < 1)%Qp) as [Hq1 | Hq1].
-    + apply Qp.lt_sum in Hq1 as (q2 & ->).
-      iDestruct (fractional_split with "H↦") as "(H↦1 & _)".
-      iSteps.
-    + apply dfrac_valid_own, Qp.le_lteq in Hdq as [| ->]; done.
-  - iApply (pointsto_persist with "H↦").
-  - apply Qp.lt_sum in Hdq as (q2 & ->).
-    iDestruct (fractional_split with "H↦") as "(H↦1 & H↦2)".
-    iMod (pointsto_persist with "H↦2") as "H↦2".
-    iDestruct (pointsto_combine with "H↦1 H↦2") as "($ & _)".
-    iSteps.
-Qed.
