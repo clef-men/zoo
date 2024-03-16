@@ -76,6 +76,7 @@ theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
+theories/std/schain.v
 theories/std/chain.v
 theories/std/chunk.v
 theories/std/array.v
