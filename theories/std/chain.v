@@ -38,21 +38,6 @@ Definition chain_set_tail : val :=
   λ: "t" "v",
     "t" <-{tail} "v".
 
-Definition chain_advance : val :=
-  rec: "chain_advance" "t" "i" :=
-    if: "i" = #0 then (
-      "t"
-    ) else (
-      "chain_advance" (chain_tail "t") ("i" - #1)
-    ).
-
-Definition chain_get : val :=
-  λ: "t" "i",
-    chain_head (chain_advance "t" "i").
-Definition chain_set : val :=
-  λ: "t" "i" "v",
-    chain_set_head (chain_advance "t" "i") "v".
-
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -401,87 +386,6 @@ Section zebre_G.
   Proof.
     iSteps.
   Qed.
-
-  Lemma chain_advance_spec t dq vs dst (i : Z) :
-    (0 ≤ i ≤ length vs)%Z →
-    {{{
-      chain_model t dq vs dst
-    }}}
-      chain_advance t #i
-    {{{ t',
-      RET t';
-      chain_model t dq (take (Z.to_nat i) vs) t' ∗
-      chain_model t' dq (drop (Z.to_nat i) vs) dst
-    }}}.
-  Proof.
-    intros (Hi1 & Hi2). Z_to_nat i. move: Hi2 {Hi1}. rewrite -Nat2Z.inj_le Nat2Z.id.
-    iInduction i as [| i] "IH" forall (t vs).
-    all: iIntros "%Hi %Φ Hmodel HΦ"; wp_rec.
-    1: iSteps.
-    destruct vs as [| v vs]; simpl in Hi; first lia.
-    wp_smart_apply (chain_tail_spec with "Hmodel") as (t') "(Hmodel & Hmodel')".
-    assert (S i - 1 = i)%Z as -> by lia.
-    wp_apply ("IH" with "[] Hmodel'") as (t'') "(Hmodel' & Hmodel'')"; first iSteps.
-    iApply "HΦ". iFrame.
-    iApply (chain_model_app_1 with "Hmodel Hmodel'").
-  Qed.
-
-  Lemma chain_get_spec t dq vs dst (i : Z) v :
-    (0 ≤ i)%Z →
-    vs !! Z.to_nat i = Some v →
-    {{{
-      chain_model t dq vs dst
-    }}}
-      chain_get t #i
-    {{{
-      RET v;
-      chain_model t dq vs dst
-    }}}.
-  Proof.
-    iIntros "%Hi %Hlookup %Φ Hmodel HΦ".
-    Z_to_nat i. clear Hi. rewrite Nat2Z.id in Hlookup.
-    opose proof* (lookup_lt_Some vs i); first done.
-    wp_rec.
-    wp_smart_apply (chain_advance_spec with "Hmodel") as (t') "(Hmodel & Hmodel')"; first lia.
-    rewrite Nat2Z.id.
-    rewrite -(take_drop i vs) lookup_app_r in Hlookup; first (rewrite take_length; lia).
-    rewrite take_length min_l in Hlookup; first lia.
-    rewrite Nat.sub_diag in Hlookup.
-    destruct (drop i vs) as [| _v vs'] eqn:Heq; first done. apply (inj Some) in Hlookup as ->.
-    wp_apply (chain_head_spec with "Hmodel'") as "Hmodel'".
-    iApply "HΦ".
-    iEval (rewrite -(take_drop i vs) Heq). iApply (chain_model_app_1 with "Hmodel Hmodel'").
-  Qed.
-  Lemma chain_set_spec t vs dst (i : Z) v w :
-    (0 ≤ i)%Z →
-    vs !! Z.to_nat i = Some v →
-    {{{
-      chain_model t (DfracOwn 1) vs dst
-    }}}
-      chain_set t #i w
-    {{{
-      RET ();
-      chain_model t (DfracOwn 1) (<[Z.to_nat i := w]> vs) dst
-    }}}.
-  Proof.
-    iIntros "%Hi %Hlookup %Φ Hmodel HΦ".
-    Z_to_nat i. clear Hi. rewrite Nat2Z.id in Hlookup.
-    opose proof* (lookup_lt_Some vs i); first done.
-    wp_rec.
-    wp_smart_apply (chain_advance_spec with "Hmodel") as (t') "(Hmodel & Hmodel')"; first lia.
-    rewrite Nat2Z.id.
-    rewrite -(take_drop i vs) lookup_app_r in Hlookup; first (rewrite take_length; lia).
-    rewrite take_length min_l in Hlookup; first lia.
-    rewrite Nat.sub_diag in Hlookup.
-    destruct (drop i vs) as [| _v vs'] eqn:Heq; first done. apply (inj Some) in Hlookup as ->.
-    wp_apply (chain_set_head_spec with "Hmodel'") as "Hmodel'".
-    iApply "HΦ".
-    iEval (rewrite -(take_drop i vs) Heq).
-    rewrite insert_app_r_alt; first (rewrite take_length; lia).
-    rewrite take_length min_l; first lia.
-    rewrite Nat.sub_diag.
-    iApply (chain_model_app_1 with "Hmodel Hmodel'").
-  Qed.
 End zebre_G.
 
 #[global] Opaque chain_cons.
@@ -489,8 +393,5 @@ End zebre_G.
 #[global] Opaque chain_tail.
 #[global] Opaque chain_set_head.
 #[global] Opaque chain_set_tail.
-#[global] Opaque chain_advance.
-#[global] Opaque chain_get.
-#[global] Opaque chain_set.
 
 #[global] Opaque chain_model.
