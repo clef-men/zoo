@@ -715,7 +715,7 @@ Section pstore_G.
     ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
       ⌜snap_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_map_auth γ C.
 
-  #[local] Definition pstore (t:val) (σ:gmap location val) : iProp Σ :=
+  Definition pstore (t:val) (σ:gmap location val) : iProp Σ :=
     ∃ (t0 r:location)
       (σ0:gmap location val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)

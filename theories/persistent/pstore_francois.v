@@ -48,13 +48,16 @@ Definition auth_snap_frag γ ρ σ :=
 
 Definition coherent
   (ρ:timestamp) (σ:gmap location val) (M:gmap (location*timestamp) val) :=
-   forall l v v', σ !! l = Some v -> M !! (l,ρ) = Some v' -> v = v'.
+  forall l v v', σ !! l = Some v -> M !! (l,ρ) = Some v' -> v = v'.
+
+Definition dom_le (ρ:timestamp) (M:gmap (location*timestamp) val) :=
+  forall l ρ', (l,ρ') ∈ dom M -> ρ' <= ρ.
 
 Record pureinv (ρ:timestamp) (σ:gmap location val) (M:gmap (location*timestamp) val) (xs:list (gmap location val)) :=
   { pu1: ρ = length xs;
     pu2: coherent ρ σ M;
     pu3: forall ρ' σ', xs !! ρ' = Some σ' -> coherent ρ' σ' M;
-    pu4: forall l ρ', (l,ρ') ∈ dom M -> ρ' <= ρ
+    pu4: dom_le ρ M
   }.
 
 
@@ -90,6 +93,39 @@ Proof.
   case_decide. naive_solver. eauto.
 Qed.
 
+Lemma coherent_insert_bump M l ρ v σ :
+  dom_le ρ M ->
+  coherent ρ σ M ->
+  M !! (l, ρ) = Some v ->
+  coherent (S ρ) σ (<[(l, S ρ):=v]> M).
+Proof.
+  intros Hdom Hco ? l' ??? E.
+  rewrite lookup_insert_case in E.
+  case_decide. naive_solver. exfalso.
+  apply elem_of_dom_2,Hdom in E. lia.
+Qed.
+
+Lemma dom_le_bump l ρ v M :
+  dom_le ρ M ->
+  dom_le (S ρ) (<[(l, S ρ):=v]> M).
+Proof.
+  intros Hd.
+  intros ??. rewrite dom_insert_L elem_of_union elem_of_singleton.
+  intros [X|X]; first naive_solver by lia.
+  apply Hd in X. lia.
+Qed.
+
+Lemma coherent_insert_unrel ρ' ρ σ M l v :
+  ρ' ≤ ρ ->
+  coherent ρ' σ M ->
+  coherent ρ' σ (<[(l, S ρ):=v]> M).
+Proof.
+  intros Hcoh. intros l' v1 v2.
+  rewrite lookup_insert_case.
+  intros E1 E2. case_decide; last eauto.
+  inversion H. subst. lia.
+Qed.
+
 Lemma pstore_capture_spec γ s ρ l v :
     {{{
       isnow γ s ρ ∗ mapsto γ ρ l v
@@ -123,28 +159,22 @@ Proof.
   iExists _,_,_. iFrame. iPureIntro.
   { destruct Hpure as [X1 X2 X3 X4]. constructor.
     { rewrite app_length //. simpl. lia. }
-    { intros l' ??? E.
-      rewrite lookup_insert_case in E.
-      case_decide. naive_solver. exfalso.
-      apply elem_of_dom_2 in E. apply X4 in E. lia. }
+    { eauto using coherent_insert_bump. }
     { intros ??. rewrite lookup_app_Some. intros [?|(?&?)].
-      { assert (ρ' <= ρ).
+      { eapply coherent_insert_unrel.
         { apply lookup_lt_Some in H0. lia. }
-        apply X3 in H0. intros ?????.
-        rewrite lookup_insert_case in H3. case_decide; last naive_solver.
-        naive_solver by lia. }
+        { eauto. } }
       { apply list_lookup_singleton_Some in H1. destruct H1 as (?&<-).
         assert (ρ' = ρ) as -> by lia.
         eapply coherent_insert_same; try done.
         admit. } }
-    { intros ??. rewrite dom_insert_L elem_of_union elem_of_singleton.
-      intros [|]; naive_solver by lia. } }
+    { eauto using dom_le_bump. } }
 Abort.
 
 
-Lemma pstore_restore_spec γ s t ρ l v :
+Lemma pstore_restore_spec γ s t ρ0 ρ l v :
     {{{
-      isnow γ s ρ ∗ snapshot γ s t ρ ∗ mapsto γ ρ l v
+      isnow γ s ρ0 ∗ snapshot γ s t ρ ∗ mapsto γ ρ l v
     }}}
       pstore_restore s t
     {{{ ρ',
@@ -159,11 +189,13 @@ Proof.
   iDestruct "Ht" as "[%σ' (Ht&?)]".
   wp_apply (pstore_restore_spec with "[$]").
   iIntros "Hstore".
-  iApply ("Hpost" $! (S ρ)).
+  iApply ("Hpost" $! (S ρ0)).
+
+  iDestruct (mono_list_lookup with "Hsnap [$]") as "%".
   iMod (mono_list_update_app [σ] with "Hsnap") as "Hsnap".
 
   iDestruct (ghost_map_lookup with "[$][$]") as "%".
-  iMod (ghost_map_insert (l,(S ρ)) v with "Hpointsto") as "(?&?)".
+  iMod (ghost_map_insert (l,(S ρ0)) v with "Hpointsto") as "(?&?)".
   (* XXX lemma *)
   { destruct Hpure as [X1 X2 X3 X4]. apply not_elem_of_dom.
     intros F. apply X4 in F. lia. }
@@ -174,9 +206,20 @@ Proof.
   destruct Hpure as [X1 X2 X3 X4].
   constructor.
   { rewrite app_length. simpl. lia. }
-  { admit. }
-  { admit. }
-  { admit. }
+  { intros l' v1 v2 E1 E2.
+    rewrite lookup_insert_case in E2. case_decide.
+    { inversion E2. subst v2. clear E2.
+      assert (l'=l) by naive_solver. subst l'.
+      eapply X3; eauto. }
+    { exfalso. apply elem_of_dom_2,X4 in E2. lia. } }
+  { intros ρ' σ0. rewrite lookup_app_Some. intros [X|(?&X)].
+    { eapply coherent_insert_unrel; eauto.
+      apply lookup_lt_Some in X. lia. }
+    { apply list_lookup_singleton_Some in X. destruct X as (?&<-).
+      assert (ρ' = ρ0) as -> by lia.
+      eapply coherent_insert_same; try done.
+      admit. } }
+  { eauto using dom_le_bump. }
 Abort.
 
 End .
