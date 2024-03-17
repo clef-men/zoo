@@ -27,7 +27,6 @@ Context `{pstore_G : PstoreG Σ}.
 Context {IG1: ghost_mapG Σ (location*timestamp) val}.
 Context {IG2: MonoListG Σ (gmap location val)%type}.
 
-
 Record gnames := {γ1 : gname; γ2 : gname}.
 
 Definition auth_snap_auth γ xs :=
@@ -52,7 +51,7 @@ Record pureinv (ρ:timestamp) (σ:gmap location val) (M:gmap (location*timestamp
 
 Definition isnow γ (s:val) (ρ:timestamp) : iProp Σ :=
   ∃ (σ:gmap location val) (* the current model of the store *)
-    (M:gmap (location*timestamp) val) (* The pointso, timestamped *)
+    (M:gmap (location*timestamp) val) (* The points-tos, timestamped *)
     (xs:list (gmap location val)), (* The list of "generations"? To each timestamp < ρ, associates its model. *)
    ⌜pureinv ρ σ M xs⌝ ∗ pstore s σ ∗ ghost_map_auth γ.(γ1) 1%Qp M ∗
    mono_list_auth γ.(γ2) (DfracOwn 1%Qp) xs.
