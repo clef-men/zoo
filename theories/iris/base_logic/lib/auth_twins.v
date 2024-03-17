@@ -126,7 +126,7 @@ Section auth_twins_G.
     iApply (twins_twin2_exclusive with "Htwin2_1 Htwin2_2").
   Qed.
 
-  Lemma auth_twins_auth_twin1_valid γ a b :
+  Lemma auth_twins_valid_1 γ a b :
     auth_twins_auth γ a -∗
     auth_twins_twin1 γ b -∗
     ⌜Rs b a⌝.
@@ -135,7 +135,7 @@ Section auth_twins_G.
     iDestruct (ghost_var_agree with "Hγ1 Hγ2") as %<-.
     iApply (auth_mono_lb_valid with "Hauth Hlb").
   Qed.
-  Lemma auth_twins_auth_twin2_valid γ a b :
+  Lemma auth_twins_valid_2 γ a b :
     auth_twins_auth γ a -∗
     auth_twins_twin2 γ b -∗
     ⌜Rs b a⌝.
@@ -145,7 +145,7 @@ Section auth_twins_G.
     iApply (auth_mono_lb_valid with "Hauth Hlb").
   Qed.
 
-  Lemma auth_twins_frags_agree γ a1 a2 :
+  Lemma auth_twins_agree γ a1 a2 :
     auth_twins_twin1 γ a1 -∗
     auth_twins_twin2 γ a2 -∗
     a1 ≡ a2.
@@ -154,7 +154,7 @@ Section auth_twins_G.
     iDestruct (ghost_var_agree with "Hγ1 Hγ2") as %<-.
     iApply (twins_agree with "Htwin1 Htwin2").
   Qed.
-  Lemma auth_twins_frags_agree_discrete `{!OfeDiscrete A} γ a1 a2 :
+  Lemma auth_twins_agree_discrete `{!OfeDiscrete A} γ a1 a2 :
     auth_twins_twin1 γ a1 -∗
     auth_twins_twin2 γ a2 -∗
     ⌜a1 ≡ a2⌝.
@@ -163,7 +163,7 @@ Section auth_twins_G.
     iDestruct (ghost_var_agree with "Hγ1 Hγ2") as %<-.
     iApply (twins_agree_discrete with "Htwin1 Htwin2").
   Qed.
-  Lemma auth_twins_frags_agree_L `{!OfeDiscrete A} `{!LeibnizEquiv A} γ a1 a2 :
+  Lemma auth_twins_agree_L `{!OfeDiscrete A} `{!LeibnizEquiv A} γ a1 a2 :
     auth_twins_twin1 γ a1 -∗
     auth_twins_twin2 γ a2 -∗
     ⌜a1 = a2⌝.
