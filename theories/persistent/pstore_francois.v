@@ -27,7 +27,7 @@ Context `{pstore_G : PstoreG Σ}.
 Context {IG1: ghost_mapG Σ (location*timestamp) val}.
 Context {IG2: MonoListG Σ (gmap location val)%type}.
 
-Record gnames := {γ1 : gname; γ2 : gname}.
+Record gnames := mkg  {γ1 : gname; γ2 : gname}.
 
 Definition auth_snap_auth γ xs :=
   mono_list_auth γ.(γ2) (DfracOwn 1%Qp) xs.
@@ -289,6 +289,29 @@ Proof.
   constructor; eauto using coherent_update,dom_le_update.
   { intros. eapply coherent_insert_unrel; eauto.
     apply lookup_lt_Some in H. lia. }
+Qed.
+
+Lemma pstore_create_spec :
+  {{{ True }}}
+    pstore_create ()
+  {{{ s,
+      RET s;
+      ∃ γ ρ, isnow γ s ρ
+  }}}.
+Proof.
+  iIntros (?) "_ Hpost".
+  iApply wp_fupd.
+  wp_apply pstore_create_spec. done.
+  iIntros (s) "Hs".
+  iApply "Hpost".
+  iMod (ghost_map_alloc ∅) as "[%γ1 (?&_)]".
+  iMod (mono_list_alloc nil) as "[%γ2 ?]".
+  iModIntro. iExists (mkg γ1 γ2), 0.
+  iExists ∅,∅,nil. simpl. iFrame.
+  iPureIntro. constructor; eauto.
+  { intros ??. set_solver. }
+  { intros ??. set_solver. }
+  { intros ??. set_solver. }
 Qed.
 
 End Go.
