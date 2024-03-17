@@ -28,17 +28,7 @@ Context {IG1: ghost_mapG Σ (location*timestamp) val}.
 Context {IG2: MonoListG Σ (gmap location val)%type}.
 
 
-(*
-Definition link (ρ:timestamp) (σ:gmap location val) (M:gmap location (timestamp * val)) :=
-  dom σ = dom M /\ (forall l v1 v2 ρ', σ !! l = Some v1 -> M !! l = Some (ρ',v2) -> if (decide (ρ'=ρ)) then v1=v2 else True).
- *)
-
 Record gnames := {γ1 : gname; γ2 : gname}.
-
-(*
-Definition remove_actual (ρ:timestamp) (M:gmap location (timestamp * val)) : gmap location (timestamp * val) :=
-  filter (fun '(_,(ρ',_)) => ρ ≠ ρ') M.
-*)
 
 Definition auth_snap_auth γ xs :=
   mono_list_auth γ.(γ2) (DfracOwn 1%Qp) xs.
@@ -60,9 +50,10 @@ Record pureinv (ρ:timestamp) (σ:gmap location val) (M:gmap (location*timestamp
     pu4: dom_le ρ M
   }.
 
-
 Definition isnow γ (s:val) (ρ:timestamp) : iProp Σ :=
-  ∃ (σ:gmap location val) (M:gmap (location*timestamp) val) (xs:list (gmap location val)),
+  ∃ (σ:gmap location val) (* the current model of the store *)
+    (M:gmap (location*timestamp) val) (* The pointso, timestamped *)
+    (xs:list (gmap location val)), (* The list of "generations"? To each timestamp < ρ, associates its model. *)
    ⌜pureinv ρ σ M xs⌝ ∗ pstore s σ ∗ ghost_map_auth γ.(γ1) 1%Qp M ∗
    mono_list_auth γ.(γ2) (DfracOwn 1%Qp) xs.
 
@@ -80,7 +71,6 @@ Definition mapsto γ ρ l v :=
 Lemma lookup_insert_case `{Countable K} {V} (X:gmap K V) x y i :
   <[y:=i]> X !! x = if (decide (y=x)) then Some i else X !! x.
 Proof. case_decide; subst. rewrite lookup_insert //. rewrite lookup_insert_ne //. Qed.
-
 
 Lemma coherent_insert_bump M l ρ v σ :
   dom_le ρ M ->
@@ -155,19 +145,17 @@ Proof.
   iSplitL.
   2:{ destruct Hpure. subst. iExists _. iFrame "#". }
   iExists _,_,_. iFrame. iPureIntro.
-  { destruct Hpure as [X1 X2 X3 X4]. constructor.
+  { destruct Hpure as [X1 X2 X3 X4].
+    constructor; eauto using coherent_insert_bump,dom_le_bump.
     { rewrite app_length //. simpl. lia. }
-    { eauto using coherent_insert_bump. }
     { intros ??. rewrite lookup_app_Some. intros [?|(?&?)].
       { eapply coherent_insert_unrel.
         { apply lookup_lt_Some in H0. lia. }
         { eauto. } }
       { apply list_lookup_singleton_Some in H1. destruct H1 as (?&<-).
         assert (ρ' = ρ) as -> by lia.
-        eauto using coherent_insert_unrel. } }
-    { eauto using dom_le_bump. } }
+        eauto using coherent_insert_unrel. } } }
 Qed.
-
 
 Lemma pstore_restore_spec γ s t ρ0 ρ l v :
     {{{
@@ -201,7 +189,7 @@ Proof.
   iExists _,_,_. iFrame.
   iPureIntro.
   destruct Hpure as [X1 X2 X3 X4].
-  constructor.
+  constructor; eauto using dom_le_bump.
   { rewrite app_length. simpl. lia. }
   { intros l' v' E.
     rewrite lookup_insert_case in E. case_decide.
@@ -215,7 +203,6 @@ Proof.
     { apply list_lookup_singleton_Some in X. destruct X as (?&<-).
       assert (ρ' = ρ0) as -> by lia.
       eauto using coherent_insert_unrel. } }
-  { eauto using dom_le_bump. }
 Qed.
 
 Lemma pstore_get_spec γ s ρ l v :
