@@ -437,6 +437,16 @@ Proof.
   { rewrite lookup_insert_ne; naive_solver. }
 Qed.
 
+Lemma coherent_insert_unrel_one ρ' ρ σ M l v :
+  ρ ≠ ρ' ->
+  coherent ρ' σ M ->
+  coherent ρ' σ (<[(l, ρ):=v]> M).
+Proof.
+  intros Hcoh. intros ? l' v'.
+  rewrite lookup_insert_case. intros E.
+  case_decide; naive_solver.
+Qed.
+
 Lemma pstore_set_spec γ s ρ l v v' :
   {{{
      isnow γ s ρ ∗ mapsto γ ρ l v
@@ -461,7 +471,7 @@ Proof.
   iPureIntro.
   inversion Hpure.
   constructor; eauto using coherent_update,dom_le_update.
-  { intros. eapply coherent_insert_unrel; eauto.
+  { intros. eapply coherent_insert_unrel_one; eauto.
     apply lookup_lt_Some in H0. lia. }
 Qed.
 
@@ -491,7 +501,7 @@ Proof.
   iPureIntro.
   inversion Hpure as [X1 X2 X3 X4].
   constructor; eauto using coherent_update,dom_le_update.
-  { intros. eapply coherent_insert_unrel; eauto.
+  { intros. eapply coherent_insert_unrel_one; eauto.
     apply lookup_lt_Some in H. lia. }
 Qed.
 
