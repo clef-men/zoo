@@ -110,7 +110,7 @@ Definition chunk_clone : val :=
 
 Definition chunk_fill : val :=
   λ: "t" "sz" "v",
-    for: "i" = #0 to "sz" begin
+    for: "i" := #0 to "sz" begin
       "t" +ₗ "i" <- "v"
     end.
 

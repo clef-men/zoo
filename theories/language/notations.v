@@ -516,11 +516,11 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
   format "'[v' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 
-Notation "'for:' x = e1 'to' e2 'begin' e3 'end'" := (
+Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
   For e1%E e2%E (Lam x%binder e3%E)
 )(x at level 1,
   e1, e2, e3 at level 200,
-  format "'[v' for:  x  =  e1  to  e2  begin  '/  ' '[' e3 ']'  '/' end ']'"
+  format "'[v' for:  x  :=  e1  to  e2  begin  '/  ' '[' e3 ']'  '/' end ']'"
 ) : expr_scope.
 
 Notation "{ e1 ; .. ; en }" := (

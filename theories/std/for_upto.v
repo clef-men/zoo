@@ -371,7 +371,7 @@ Section zebre_G.
     {{{
       (itype_int_range beg _end --> itype_unit)%T (λ: x, body)
     }}}
-      for: x = #beg to #_end begin body end
+      for: x := #beg to #_end begin body end
     {{{
       RET (); True
     }}}.
