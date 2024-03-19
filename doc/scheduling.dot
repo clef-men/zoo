@@ -10,14 +10,15 @@ digraph {
 		random [label="random"]
 		random_round [label="random_round"]
 		deque [label="deque"]
-		mutex [label="mutex"]
-		condition [label="condition"]
+		/* mutex [label="mutex"] */
+		/* condition [label="condition"] */
 	}
 
 	subgraph cluster_saturn {
 		label="saturn"
 		node [style=filled, color=peachpuff]
 		spsc_latch1 [label="spsc_latch1"]
+		spmc_future [label="spmc_future"]
 		mpmc_queue [label="mpmc_queue"]
 		ws_deque [label="ws_deque"]
 	}
@@ -36,8 +37,11 @@ digraph {
 	random_round -> random
 	/* random_round -> array */
 
-	spsc_latch1 -> mutex
-	spsc_latch1 -> condition
+	/* spsc_latch1 -> mutex */
+	/* spsc_latch1 -> condition */
+
+	/* spmc_future -> mutex */
+	/* spmc_future -> condition */
 
 	/* ws_deques_public -> array */
 	ws_deques_public -> ws_deque
@@ -53,6 +57,8 @@ digraph {
 	ws_hub -> spsc_latch1
 	ws_hub -> ws_deques
 
+	scheduler -> spmc_future
 	scheduler -> ws_hub
+
 	dag -> ws_hub
 }

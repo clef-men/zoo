@@ -127,6 +127,7 @@ theories/scheduling/ws_deques.v
 theories/scheduling/ws_deques_public.v
 theories/scheduling/ws_deques_private.v
 theories/scheduling/ws_hub.v
+theories/scheduling/scheduler.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
