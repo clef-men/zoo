@@ -101,7 +101,7 @@ Section instances.
     }}
   | 20.
   Proof.
-    move => <-.
+    move=> <-.
     iSteps.
     wp_alloc l as "Hmeta" "Hl".
     iSteps.
@@ -121,7 +121,7 @@ Section instances.
     }}
   | 30.
   Proof.
-    move => <- /=.
+    move=> <- /=.
     iSteps.
     wp_alloc l as "Hmeta" "Hl"; first done.
     iSteps.
