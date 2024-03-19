@@ -15,9 +15,9 @@ Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types σ : state.
 
-Definition zebre_adequacy Σ `{zebre_Gpre : !ZebreGpre Σ} e σ ϕ :
+Definition zebre_adequacy Σ `{zebre_Gpre : !ZebreGpre Σ} e σ :
   ( ∀ `{zebre_G : !ZebreG Σ},
-    ⊢ WP e @ ⊤ {{ v, ⌜ϕ v⌝ }}
+    ⊢ WP e @ ⊤ {{ v, True }}
   ) →
   adequate e σ.
 Proof.
