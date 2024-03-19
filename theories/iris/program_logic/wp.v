@@ -365,7 +365,7 @@ Section iris_G.
   Qed.
 
   Lemma wp_value_fupd e v E Φ :
-    IntoVal e v →
+    AsVal e v →
     WP e @ E {{ Φ }} ⊣⊢
     |={E}=> Φ v.
   Proof.
@@ -378,7 +378,7 @@ Section iris_G.
     rewrite wp_value_fupd'. auto.
   Qed.
   Lemma wp_value e v E Φ :
-    IntoVal e v →
+    AsVal e v →
     Φ v ⊢
     WP e @ E {{ Φ }}.
   Proof.

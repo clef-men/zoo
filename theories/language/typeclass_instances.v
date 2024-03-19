@@ -11,15 +11,10 @@ From zebre Require Import
 Implicit Types e : expr.
 Implicit Types v : val.
 
-#[global] Instance into_val_val v :
-  IntoVal (Val v) v.
+#[global] Instance val_as_val v :
+  AsVal (Val v) v.
 Proof.
   done.
-Qed.
-#[global] Instance as_val_val v :
-  AsVal (Val v).
-Proof.
-  by eexists.
 Qed.
 
 Section atomic.

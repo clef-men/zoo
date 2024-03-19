@@ -90,7 +90,7 @@ Section instances.
   Qed.
 
   #[global] Instance ref_step_wp e v :
-    IntoVal e v →
+    AsVal e v →
     SPEC
     {{ True }}
       ref e
@@ -108,7 +108,7 @@ Section instances.
   Qed.
 
   #[global] Instance alloc_step_wp e v E1 E2 n :
-    IntoVal e v →
+    AsVal e v →
     SPEC ⟨E1, E2⟩
     {{
       ⌜0 < n⌝%Z
@@ -164,7 +164,7 @@ Section instances.
   (*                                                TCAnd (Atomic WeaklyAtomic e) $ (SolveSepSideCondition (to_val e = None))) → *)
   (*   ReductionStep' wp_red_cond pre n M1 M2 TT1 TT2 L U e e' [tele_arg3 E2; NotStuck] → (1* does not work for pure since that is a ReductionTemplateStep *1) *)
   (*   IntroducableModality M1 → IntroducableModality M2 → *)
-  (*   (TC∀.. ttl, TC∀.. ttr, IntoVal (tele_app (tele_app e' ttl) ttr) (tele_app (tele_app v' ttl) ttr)) → *)
+  (*   (TC∀.. ttl, TC∀.. ttr, AsVal (tele_app (tele_app e' ttl) ttr) (tele_app (tele_app v' ttl) ttr)) → *)
   (*   HINT1 pre ✱ [|={E1, E2}=> ∃ pvs, proph p pvs ∗ ∃.. ttl, tele_app L ttl ∗ *)
   (*     ▷^n (∀ pvs', ∀.. ttr, ⌜pvs = (pair (tele_app (tele_app v' ttl) ttr) v)::pvs'⌝ ∗ proph p pvs' ∗ tele_app (tele_app U ttl) ttr ={E2,E1}=∗ *)
   (*           WP K $ tele_app (tele_app e' ttl) ttr @ E1 {{ Φ }} ) ] *)
@@ -180,7 +180,7 @@ Section instances.
   (*   iPoseProof (HLU with "Hpre") as "HWP". simpl. *)
   (*   iApply "HWP". iApply HM1 => /=. *)
   (*   iExists ttl. iFrame. iIntros "!>" (tt2) "HU". iApply HM2 => /=. *)
-  (*   revert Hev'. rewrite /TCTForall /IntoVal => /(dep_eval_tele ttl) /(dep_eval_tele tt2) => Hev'. *)
+  (*   revert Hev'. rewrite /TCTForall /AsVal => /(dep_eval_tele ttl) /(dep_eval_tele tt2) => Hev'. *)
   (*   rewrite -Hev'. *)
   (*   iApply wp_value. iIntros (pvs'). *)
   (*   iStep 2 as "Hpost Hproph". *)

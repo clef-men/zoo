@@ -314,18 +314,8 @@ Section language.
     rewrite /PureExec; eauto using pure_step_nsteps_ctx.
   Qed.
 
-  Class IntoVal e v :=
-    into_val : of_val v = e.
-
-  Class AsVal e :=
-    as_val : ∃ v, of_val v = e.
-
-  #[global] Instance as_vals_of_val vs :
-    TCForall AsVal (of_val <$> vs).
-  Proof.
-    apply TCForall_Forall, Forall_fmap, Forall_true => v.
-    rewrite /AsVal /=; eauto.
-  Qed.
+  Class AsVal e v :=
+    as_val : of_val v = e.
 
   Lemma as_val_is_Some e :
     (∃ v, of_val v = e) →

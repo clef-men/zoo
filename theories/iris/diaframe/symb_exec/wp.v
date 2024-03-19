@@ -346,10 +346,10 @@ Section wp_executor.
 
   Lemma iris_goal_to_red_cond (A B : tele) n P e Q f' E1 E2 pre (POST : (val Λ → iProp Σ) → A -t> B -t> iProp Σ) :
     TCOr (TCAnd (Atomic e) $
-                (∃ fv, ∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b)))
+                (∃ fv, ∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b)))
       )
       (TCEq E1 E2) →
-    (∃ fv, (∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) ∧
+    (∃ fv, (∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) ∧
           (TCEq POST (λ Φ, tele_map (tele_map Φ) fv))) ∨
           (TCEq POST (λ Φ, tele_map (tele_map (λ fe, WP fe @ E2 {{ Φ }}))%I f')) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
@@ -399,7 +399,7 @@ Section wp_executor.
     TCEq (tele_app (TT := [tele_pair coPset]) (λ E, E) w) E1 →
     Atomic e →
     TCEq (to_val e) None →
-    (∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
+    (∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre 1 (fupd E1 E2) (fupd E2 E1) A B P Q e f' w)
@@ -428,7 +428,7 @@ Section wp_executor.
 
   #[global] Instance red_cond_emp_valid_value (A B : tele) n P e Q f' fv E1 pre w :
     TCEq (tele_app (TT := [tele_pair coPset]) (λ E, E) w) E1 →
-    (∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
+    (∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre n (fupd E1 E1) (fupd E1 E1) A B P Q e f' w)
@@ -451,7 +451,7 @@ Section wp_executor.
   Qed.
 
   Lemma red_cond_emp_valid_value_no_Φ (A B : tele) P e Q f' fv E1 pre :
-    (∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
+    (∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre 0 (fupd E1 E1) (fupd E1 E1) A B P Q e f' [tele_arg3 E1])
@@ -476,7 +476,7 @@ Section wp_executor.
   #[global] Instance red_cond_emp_valid_value_no_Φ_not_value (A B : tele) P e Q f' fv E1 pre w :
     TCEq (tele_app (TT := [tele_pair coPset]) (λ E, E) w) E1 →
     TCEq (to_val e) None →
-    (∀.. (a : A), ∀.. (b : B), (IntoVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
+    (∀.. (a : A), ∀.. (b : B), (AsVal (tele_app (tele_app f' a) b) (tele_app (tele_app fv a) b))) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre 1 (fupd E1 E1) (fupd E1 E1) A B P Q e f' w)
@@ -549,10 +549,10 @@ Section abducts.
   Qed.
 
   #[global] Instance collect_modal_wp_value e v E Φ :
-    IntoVal e v →
+    AsVal e v →
     HINT1 ε₀ ✱ [fupd E E $ Φ v] ⊫ [id]; WP e @ E {{ Φ }} | 10.
   Proof.
-    rewrite /IntoVal /Abduct /= empty_hyp_first_eq left_id => <-.
+    rewrite /AsVal /Abduct /= empty_hyp_first_eq left_id => <-.
     erewrite wp_value_fupd => //.
   Qed.
 
