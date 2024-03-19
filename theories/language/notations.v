@@ -280,43 +280,43 @@ Notation "()" :=
 Declare Custom Entry zebre_proj.
 Notation "0" :=
   0
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "1" :=
   1
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "2" :=
   2
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "3" :=
   3
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "4" :=
   4
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "5" :=
   5
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "6" :=
   6
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "7" :=
   7
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "8" :=
   8
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "9" :=
   9
-(in custom zebre_proj
+( in custom zebre_proj
 ).
 Notation "e .< proj >" := (
   Proj proj e
