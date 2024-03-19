@@ -32,7 +32,8 @@ Definition spsc_future_create : val :=
 
 Definition spsc_future_set : val :=
   λ: "t" "v",
-    "t" <-{result} ‘Some{ "v" }.
+    "t" <-{result} ‘Some{ "v" } ;;
+    condition_signal "t".{condition}.
 
 Definition spsc_future_try_get : val :=
   λ: "t",

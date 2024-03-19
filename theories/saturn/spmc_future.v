@@ -32,7 +32,8 @@ Definition spmc_future_create : val :=
 
 Definition spmc_future_set : val :=
   λ: "t" "v",
-    "t" <-{result} ‘Some{ "v" }.
+    "t" <-{result} ‘Some{ "v" } ;;
+    condition_broadcast "t".{condition}.
 
 Definition spmc_future_try_get : val :=
   λ: "t",
