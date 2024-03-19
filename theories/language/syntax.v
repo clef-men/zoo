@@ -172,7 +172,7 @@ Inductive expr :=
   | If (e0 e1 e2 : expr)
   | Constr tag (es : list expr)
   | Proj proj (e : expr)
-  | Case (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
+  | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | For (e1 e2 e3 : expr)
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
@@ -268,12 +268,12 @@ Section expr_ind.
     ∀ proj,
     ∀ e, P e →
     P (Proj proj e).
-  Variable HCase :
+  Variable HMatch :
     ∀ e0, P e0 →
     ∀ x,
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
-    P (Case e0 x e1 brs).
+    P (Match e0 x e1 brs).
   Variable HFor :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -352,8 +352,8 @@ Section expr_ind.
     | Proj proj e =>
         HProj proj
           e (expr_ind e)
-    | Case e0 x e1 brs =>
-        HCase
+    | Match e0 x e1 brs =>
+        HMatch
           e0 (expr_ind e0)
           x
           e1 (expr_ind e1)
@@ -609,7 +609,7 @@ Proof.
           cast_if_and
             (decide (proj1 = proj2))
             (decide (e1 = e2))
-      | Case e10 x1 e11 brs1, Case e20 x2 e21 brs2 =>
+      | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
           cast_if_and4
             (decide (e10 = e20))
             (decide (x1 = x2))
@@ -802,7 +802,7 @@ Proof.
     7.
   Notation code_Proj :=
     8.
-  Notation code_Case :=
+  Notation code_Match :=
     9.
   Notation code_For :=
     10.
@@ -860,8 +860,8 @@ Proof.
           GenNode code_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
       | Proj proj e =>
           GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
-      | Case e0 x e1 brs =>
-          GenNode code_Case $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
+      | Match e0 x e1 brs =>
+          GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
       | Record es =>
@@ -929,8 +929,8 @@ Proof.
           Constr tag $ go_list es
       | GenNode code_Proj [GenLeaf (EncodeProjection proj); e] =>
           Proj proj $ go e
-      | GenNode code_Case (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
-          Case (go e0) x (go e1) (go_branches brs)
+      | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
+          Match (go e0) x (go e1) (go_branches brs)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
       | GenNode code_Record es =>

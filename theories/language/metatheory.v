@@ -34,7 +34,7 @@ Fixpoint occurs x e :=
       existsb (occurs x) es
   | Proj _ e =>
       occurs x e
-  | Case e0 y e1 brs =>
+  | Match e0 y e1 brs =>
       occurs x e0 ||
       bool_decide (BNamed x ≠ y) && occurs x e1 ||
       existsb (λ br,

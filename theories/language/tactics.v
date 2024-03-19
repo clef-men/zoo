@@ -40,8 +40,8 @@ Ltac reshape_expr e tac :=
         go_list K pvs (CtxConstr tag) es
     | Proj ?proj ?e =>
         add_ectxi (CtxProj proj) K pvs e
-    | Case ?e0 ?x ?e1 ?brs =>
-        add_ectxi (CtxCase x e1 brs) K pvs e0
+    | Match ?e0 ?x ?e1 ?brs =>
+        add_ectxi (CtxMatch x e1 brs) K pvs e0
     | For (Val ?v1) ?e2 ?e3 =>
         add_ectxi (CtxFor2 v1 e3) K pvs e2
     | For ?e1 ?e2 ?e3 =>

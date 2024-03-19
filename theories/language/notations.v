@@ -388,7 +388,7 @@ Notation "tag x1 .. xn 'as:' y => e" := (
   format "tag  x1  ..  xn  as:  y  =>  '/    ' '[' e ']'"
 ).
 Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
-  Case
+  Match
     e%E
     BAnon
     Fail
@@ -398,7 +398,7 @@ Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
   format "'[hv' match:  e  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
-  Case
+  Match
     e%E
     BAnon
     Fail
@@ -408,7 +408,7 @@ Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
-  Case
+  Match
     e0%E
     BAnon
     e1%E
@@ -418,7 +418,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
   format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
-  Case
+  Match
     e0%E
     BAnon
     e1%E
@@ -428,7 +428,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
-  Case
+  Match
     e0%E
     (BNamed x%string)
     e1%E
@@ -439,7 +439,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
   format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
-  Case
+  Match
     e0%E
     (BNamed x%string)
     e1%E
@@ -450,7 +450,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
-  Case
+  Match
     e0%E
     x%binder
     e1%E
@@ -461,7 +461,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
   format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
-  Case
+  Match
     e0%E
     x%binder
     e1%E
@@ -473,7 +473,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
 ) : expr_scope.
 
 Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
-  Case
+  Match
     e1%E
     BAnon
     Fail
@@ -495,7 +495,7 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   format "'[v' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
-  Case
+  Match
     e1%E
     BAnon
     Fail

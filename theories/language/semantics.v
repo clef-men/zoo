@@ -243,8 +243,8 @@ Fixpoint subst (x : string) v e :=
   | Proj proj e =>
       Proj proj
         (subst x v e)
-  | Case e0 y e1 brs =>
-      Case
+  | Match e0 y e1 brs =>
+      Match
         (subst x v e0)
         y
         (subst x v e1)
@@ -321,7 +321,7 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint case_apply tag vs x e brs :=
+Fixpoint match_apply tag vs x e brs :=
   match brs with
   | [] =>
       subst' x (ValConstr tag vs) e
@@ -331,9 +331,9 @@ Fixpoint case_apply tag vs x e brs :=
         subst_list pat.(pattern_fields) vs $
         subst' pat.(pattern_as) (ValConstr tag vs) br.2
       else
-        case_apply tag vs x e brs
+        match_apply tag vs x e brs
   end.
-#[global] Arguments case_apply _ _ _ _ !_ / : assert.
+#[global] Arguments match_apply _ _ _ _ !_ / : assert.
 
 Record state : Type := {
   state_heap : gmap location val ;
@@ -516,12 +516,12 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
         True
-  | base_step_case tag vs x e brs σ :
+  | base_step_match tag vs x e brs σ :
       base_step
-        (Case (Val $ ValConstr tag vs) x e brs)
+        (Match (Val $ ValConstr tag vs) x e brs)
         σ
         []
-        (case_apply tag vs x e brs)
+        (match_apply tag vs x e brs)
         σ
         []
         True
@@ -721,7 +721,7 @@ Inductive ectxi :=
   | CtxIf e1 e2
   | CtxConstr tag vs es
   | CtxProj proj
-  | CtxCase x e1 brs
+  | CtxMatch x e1 brs
   | CtxFor1 e2 e3
   | CtxFor2 v1 e3
   | CtxRecord vs es
@@ -774,8 +774,8 @@ Fixpoint ectxi_fill k e : expr :=
       Constr tag $ of_vals vs ++ e :: es
   | CtxProj proj =>
       Proj proj e
-  | CtxCase x e1 brs =>
-      Case e x e1 brs
+  | CtxMatch x e1 brs =>
+      Match e x e1 brs
   | CtxFor1 e2 e3 =>
       For e e2 e3
   | CtxFor2 v1 e3 =>

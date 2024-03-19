@@ -328,12 +328,12 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_case tag vs x e brs :
+  #[global] Instance pure_match tag vs x e brs :
     PureExec
       True
       1
-      (Case (Val $ ValConstr tag vs) x e brs)
-      (case_apply tag vs x e brs).
+      (Match (Val $ ValConstr tag vs) x e brs)
+      (match_apply tag vs x e brs).
   Proof.
     solve_pure_exec.
   Qed.
