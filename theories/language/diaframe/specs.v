@@ -5,14 +5,15 @@ From iris.bi Require Export
 
 From diaframe Require Import
   proofmode_base
-  symb_exec.defs
-  symb_exec.weakestpre
   lib.iris_hints.
-From diaframe Require Export
-  spec_notation.
 
 From zebre Require Import
   prelude.
+From zebre.iris.diaframe Require Import
+  symb_exec.defs
+  symb_exec.wp.
+From zebre.iris.diaframe Require Export
+  symb_exec.spec_notations.
 From zebre.language Require Import
   metatheory
   notations
@@ -35,7 +36,7 @@ Section instances.
   #[global] Instance pure_wp_step_exec_inst1 e ϕ n e' E :
     (* TODO: prevent unfolding explicit recs *)
     PureExecNoRec ϕ n e e' →
-    ReductionTemplateStep wp_red_cond (TeleO*TeleO) (ε₀)%I [tele_arg3 E; NotStuck] e
+    ReductionTemplateStep wp_red_cond (TeleO*TeleO) (ε₀)%I [tele_arg3 E] e
       (λ pr, tele_app (TT := [tele]) (tele_app (TT := [tele]) e' pr.1) pr.2)
       (template_M n id id TeleO TeleO ⌜ϕ⌝%I emp%I)
   | 80.
@@ -43,13 +44,13 @@ Section instances.
       (* this is a ReductionTemplateStep: if it were a ReductionStep, the priority of as_template_step would be considered, not that of this instance *)
   Proof.
     intros.
-    refine (pure_wp_step_exec _ _ _ _ _ _ _ _ _). exact H.
+    refine (pure_wp_step_exec _ _ _ _ _ _ _ _). exact H.
   Qed.
 
   #[global] Instance pure_wp_step_exec_inst2 e ϕ n e' E :
     PureExecNoRec ϕ n e e' →
     SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E; NotStuck] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))%I
+    ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))%I
   | 8.
   Proof.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
@@ -258,7 +259,7 @@ Section instances.
   Qed.
 
   #[global] Instance if_step_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E; NotStuck]) if: #(bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬P⌝
   | 50.
   Proof.
@@ -271,7 +272,7 @@ Section instances.
   Qed.
 
   #[global] Instance if_step_bool_decide_neg P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E; NotStuck]) if: #(bool_decide (¬P)) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide (¬P)) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝
   | 49.
   Proof.
@@ -286,7 +287,7 @@ Section instances.
   Qed.
 
   #[global] Instance if_step_negb_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E; NotStuck]) if: #(negb $ bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(negb $ bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝ | 49.
   Proof.
     rewrite /ReductionStep' /=.
@@ -303,7 +304,7 @@ End instances.
 Section unfold_functions.
   Context `{zebre_G : !ZebreG Σ}.
 
-  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E s :
+  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E :
     ( ( ∀ f x e,
         SolveSepSideCondition (val_recursive (ValRec f x e) = false) →
         AsValRec (ValRec f x e) f x e
@@ -311,7 +312,7 @@ Section unfold_functions.
       PureExec ϕ n e e'
     ) →
     SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₁)%I [tele_arg3 E; s] e (tele_app (TT := [tele]) e') (template_I n (fupd E E)).
+    ReductionTemplateStep wp_red_cond [tele] (ε₁)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E)).
   Proof.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
     apply H. intros. exact eq_refl.

@@ -23,7 +23,10 @@ theories/iris/algebra/lib/auth_option.v
 theories/iris/algebra/lib/twins.v
 theories/iris/algebra/lib/auth_mono.v
 
-theories/iris/diaframe.v
+theories/iris/diaframe/diaframe.v
+theories/iris/diaframe/symb_exec/defs.v
+theories/iris/diaframe/symb_exec/wp.v
+theories/iris/diaframe/symb_exec/spec_notations.v
 
 theories/iris/bi/big_op.v
 
@@ -44,6 +47,12 @@ theories/iris/base_logic/lib/mono_list.v
 theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
 
+theories/iris/program_logic/language.v
+theories/iris/program_logic/ectx_language.v
+theories/iris/program_logic/ectxi_language.v
+theories/iris/program_logic/wp.v
+theories/iris/program_logic/wp_lifting.v
+theories/iris/program_logic/adequacy.v
 theories/iris/program_logic/atomic.v
 
 theories/language/location.v

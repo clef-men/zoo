@@ -3,11 +3,11 @@ From iris.bi Require Import
 From iris.base_logic Require Export
   lib.gen_heap
   lib.proph_map.
-From iris.program_logic Require Export
-  weakestpre.
 
 From zebre Require Import
   prelude.
+From zebre.iris.program_logic Require Export
+  wp.
 From zebre.iris Require Import
   diaframe.
 From zebre.language Require Export
@@ -46,17 +46,13 @@ Class ZebreG Σ := {
 Definition zebre_state_interp `{zebre_G : !ZebreG Σ} σ κ : iProp Σ :=
   gen_heap_interp σ.(state_heap) ∗
   proph_map_interp κ σ.(state_prophs).
-#[global] Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : irisGS zebre Σ := {
-  iris_invGS :=
+#[global] Instance zebre_G_iris_G `{zebre_G : !ZebreG Σ} : IrisG zebre Σ := {
+  iris_G_inv_G :=
     zebre_G_inv_G ;
-  state_interp σ _ κ _ :=
+  state_interp σ κ :=
     zebre_state_interp σ κ ;
   fork_post _ :=
     True%I ;
-  num_laters_per_step _ :=
-    0 ;
-  state_interp_mono _ _ _ _ :=
-    fupd_intro _ _ ;
 }.
 
 Lemma zebre_init `{zebre_Gpre : !ZebreGpre Σ} `{inv_G : !invGS Σ} σ κ :

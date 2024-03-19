@@ -51,7 +51,7 @@ Record wise_strong_prophet `{zebre_G : !ZebreG Σ} := {
     }}} ;
 
   wise_strong_prophet_wp_resolve e v E p γ past prophs Φ :
-    Atomic StronglyAtomic e →
+    Atomic e →
     to_val e = None →
     wise_strong_prophet_model p γ past prophs -∗
     WP e @ E {{ w,
@@ -210,7 +210,7 @@ Record wise_prophet `{zebre_G : !ZebreG Σ} := {
     }}} ;
 
   wise_prophet_wp_resolve proph e v E p γ past prophs Φ :
-    Atomic StronglyAtomic e →
+    Atomic e →
     to_val e = None →
     v = wise_prophet_to_val proph →
     wise_prophet_model p γ past prophs -∗

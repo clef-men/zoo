@@ -46,7 +46,7 @@ Section zebre_G.
     envs_entails Δ (WP (fill K e1) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ HΔ'.
-    pose proof @pure_exec_fill. rewrite -lifting.wp_pure_step_later //.
+    pose proof @pure_exec_fill. rewrite -wp_lifting.wp_pure_step_later //.
     rewrite into_laterN_env_sound HΔ'.
     iSteps.
   Qed.
@@ -64,7 +64,7 @@ Section zebre_G.
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ HΔ''.
     destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
-    pose proof @pure_exec_fill. rewrite -lifting.wp_pure_step_later //=.
+    pose proof @pure_exec_fill. rewrite -wp_lifting.wp_pure_step_later //=.
     rewrite into_laterN_env_sound envs_app_sound //= HΔ''.
     iSteps.
   Qed.
@@ -316,7 +316,7 @@ End zebre_G.
 #[local] Ltac wp_start tac :=
   iStartProof;
   lazymatch goal with
-  | |- envs_entails _ (wp _ _ ?e ?Q) =>
+  | |- envs_entails _ (wp ?e _ _) =>
       tac e
   | _ =>
       fail "not a 'wp'"
@@ -338,11 +338,11 @@ Ltac wp_expr_simpl :=
 
 #[local] Ltac wp_value_head :=
   lazymatch goal with
-  | |- envs_entails _ (wp _ _ (Val _) (λ _, fupd _ _ _)) =>
+  | |- envs_entails _ (wp (Val _) _ (λ _, fupd _ _ _)) =>
       eapply tac_wp_value_nofupd
-  | |- envs_entails _ (wp _ _ (Val _) (λ _, wp _ _ _ _)) =>
+  | |- envs_entails _ (wp (Val _) _ (λ _, wp _ _ _ _)) =>
       eapply tac_wp_value_nofupd
-  | |- envs_entails _ (wp _ _ (Val _) _) =>
+  | |- envs_entails _ (wp (Val _) _ _) =>
       eapply tac_wp_value
   end.
 #[local] Ltac wp_finish :=

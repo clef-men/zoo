@@ -415,7 +415,7 @@ Definition state_init_heap l vs σ :=
 Definition observation : Set :=
   prophecy_id * (val * val).
 
-Inductive base_step : expr → state → list observation → expr → state → list expr → Prop :=
+Inductive base_step : expr → state → list observation → expr → state → list expr → Prop → Prop :=
   | base_step_rec f x e σ :
       base_step
         (Rec f x e)
@@ -424,6 +424,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValRec f x e)
         σ
         []
+        True
   | base_step_beta f x e v e' σ :
       e' = subst' f (ValRec f x e) (subst' x v e) →
       base_step
@@ -433,6 +434,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
+        True
   | base_step_unop op v v' σ :
       unop_eval op v = Some v' →
       base_step
@@ -442,6 +444,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v')
         σ
         []
+        True
   | base_step_binop op v1 v2 v' σ :
       binop_eval op v1 v2 = Some v' →
       base_step
@@ -451,6 +454,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v')
         σ
         []
+        True
   | base_step_equal_fail v1 v2 σ :
       val_physical v1 →
       val_physical v2 →
@@ -462,6 +466,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool false)
         σ
         []
+        True
   | base_step_equal_suc v1 v2 σ :
       val_physical v1 →
       val_eq v1 v2 →
@@ -472,6 +477,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         σ
         []
+        True
   | base_step_if_true e1 e2 σ :
       base_step
         (If (Val $ ValBool true) e1 e2)
@@ -480,6 +486,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         e1
         σ
         []
+        True
   | base_step_if_false e1 e2 σ :
       base_step
         (If (Val $ ValBool false) e1 e2)
@@ -488,6 +495,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         e2
         σ
         []
+        True
   | base_step_constr tag es vs σ :
       es = of_vals vs →
       base_step
@@ -497,6 +505,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValConstr tag vs)
         σ
         []
+        True
   | base_step_proj proj tag vs v σ :
       vs !! proj = Some v →
       base_step
@@ -506,6 +515,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
+        True
   | base_step_case tag vs x e brs σ :
       base_step
         (Case (Val $ ValConstr tag vs) x e brs)
@@ -514,6 +524,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (case_apply tag vs x e brs)
         σ
         []
+        True
   | base_step_for n1 n2 e σ :
       base_step
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
@@ -522,6 +533,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
         σ
         []
+        True
   | base_step_record es vs σ l :
       0 < length es →
       es = of_vals vs →
@@ -536,6 +548,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_init_heap l vs σ)
         []
+        True
   | base_step_alloc n v σ l :
       (0 < n)%Z →
       ( ∀ i,
@@ -549,6 +562,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_init_heap l (replicate (Z.to_nat n) v) σ)
         []
+        True
   | base_step_load l v σ :
       σ.(state_heap) !! l = Some v →
       base_step
@@ -558,6 +572,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
+        True
   | base_step_store l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
@@ -567,6 +582,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         (state_update_heap <[l := v]> σ)
         []
+        True
   | base_step_xchg l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
@@ -576,6 +592,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val w)
         (state_update_heap <[l := v]> σ)
         []
+        True
   | base_step_cas_fail l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
       val_physical v →
@@ -588,6 +605,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool false)
         σ
         []
+        True
   | base_step_cas_suc l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
       val_physical v →
@@ -599,6 +617,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         (state_update_heap <[l := v2]> σ)
         []
+        True
   | base_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValInt m →
       base_step
@@ -608,6 +627,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt m)
         (state_update_heap <[l := ValInt (m + n)]> σ)
         []
+        True
   | base_step_fork e σ :
       base_step
         (Fork e)
@@ -616,6 +636,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         σ
         [e]
+        True
   | base_step_proph σ p :
       p ∉ σ.(state_prophs) →
       base_step
@@ -625,15 +646,17 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValProphecy p)
         (state_update_prophs ({[p]} ∪.) σ)
         []
-  | base_step_resolve e p v σ κ w σ' es :
-      base_step e σ κ (Val w) σ' es →
+        True
+  | base_step_resolve e p v σ κ w σ' es ϕ :
+      base_step e σ κ (Val w) σ' es ϕ →
       base_step
         (Resolve e (Val $ ValProphecy p) (Val v))
         σ
         (κ ++ [(p, (w, v))])
         (Val w)
         σ'
-        es.
+        es
+        ϕ.
 
 Lemma base_step_record' es vs σ :
   let l := location_fresh (dom σ.(state_heap)) in
@@ -645,7 +668,8 @@ Lemma base_step_record' es vs σ :
     []
     (Val $ ValLoc l)
     (state_init_heap l vs σ)
-    [].
+    []
+    True.
 Proof.
   intros. apply base_step_record; [done.. |].
   intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
@@ -659,7 +683,8 @@ Lemma base_step_alloc' v n σ :
     []
     (Val $ ValLoc l)
     (state_init_heap l (replicate (Z.to_nat n) v) σ)
-    [].
+    []
+    True.
 Proof.
   intros. apply base_step_alloc; first done.
   intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
@@ -672,13 +697,14 @@ Lemma base_step_proph' σ :
     []
     (Val $ ValProphecy p)
     (state_update_prophs ({[p]} ∪.) σ)
-    [].
+    []
+    True.
 Proof.
   constructor. apply is_fresh.
 Qed.
 
-Lemma val_base_stuck e1 σ1 κ e2 σ2 es :
-  base_step e1 σ1 κ e2 σ2 es →
+Lemma val_base_stuck e1 σ1 κ e2 σ2 es ϕ :
+  base_step e1 σ1 κ e2 σ2 es ϕ →
   to_val e1 = None.
 Proof.
   destruct 1; naive_solver.
@@ -806,7 +832,8 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   ectxi_fill k1 e1 = ectxi_fill k2 e2 →
   k1 = k2.
 Proof.
-  move: k1. induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
+  move: k1.
+  induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
   all: move=> /= H1 H2 H; injection H => {H} H' *; subst.
   all: apply app_inj_1 in H'; first naive_solver.
   all: clear- H1 H2 H'.
@@ -815,11 +842,12 @@ Proof.
       move: vs2 H'; induction vs1; intros []; naive_solver
     end.
 Qed.
-Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
-  base_step (ectxi_fill k e) σ1 κ e2 σ2 es →
+Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es ϕ :
+  base_step (ectxi_fill k e) σ1 κ e2 σ2 es ϕ →
   is_Some (to_val e).
 Proof.
-  move: κ e2. induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
+  move: κ e2 ϕ.
+  induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
   all: inversion_clear 1.
   all:
     match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>

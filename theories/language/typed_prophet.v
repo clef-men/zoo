@@ -37,7 +37,7 @@ Record typed_strong_prophet `{zebre_G : !ZebreG Σ} := {
     {{{ p prophs, RET #p; typed_strong_prophet_model p prophs }}} ;
 
   typed_strong_prophet_wp_resolve e v E p prophs Φ :
-    Atomic StronglyAtomic e →
+    Atomic e →
     to_val e = None →
     typed_strong_prophet_model p prophs -∗
     WP e @ E {{ w,
@@ -130,7 +130,7 @@ Record typed_prophet `{zebre_G : !ZebreG Σ} := {
     {{{ p prophs, RET #p; typed_prophet_model p prophs }}} ;
 
   typed_prophet_wp_resolve proph e v E p prophs Φ :
-    Atomic StronglyAtomic e →
+    Atomic e →
     to_val e = None →
     v = typed_prophet_to_val proph →
     typed_prophet_model p prophs -∗
@@ -243,7 +243,7 @@ Record typed_prophet1 `{zebre_G : !ZebreG Σ} := {
     {{{ p proph, RET #p; typed_prophet1_model p proph }}} ;
 
   typed_prophet1_wp_resolve proph e v E p proph' Φ :
-    Atomic StronglyAtomic e →
+    Atomic e →
     to_val e = None →
     v = typed_prophet1_to_val proph →
     typed_prophet1_model p proph' -∗

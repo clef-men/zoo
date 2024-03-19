@@ -24,119 +24,125 @@ Qed.
 
 Section atomic.
   #[local] Ltac solve_atomic :=
-    apply strongly_atomic_atomic, ectx_language_atomic;
+    apply ectx_language_atomic;
     [ inversion 1; naive_solver
     | apply ectxi_language_sub_redexes_are_values; intros [] **; naive_solver
     ].
 
-  #[global] Instance rec_atomic a f x e :
-    Atomic a (Rec f x e).
+  #[global] Instance rec_atomic f x e :
+    Atomic (Rec f x e).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance beta_atomic a f x v1 v2 :
-    Atomic a (App (ValRec f x (Val v1)) (Val v2)).
+  #[global] Instance beta_atomic f x v1 v2 :
+    Atomic (App (ValRec f x (Val v1)) (Val v2)).
   Proof.
     destruct f, x; solve_atomic.
   Qed.
 
-  #[global] Instance unop_atomic a op v :
-    Atomic a (Unop op $ Val v).
+  #[global] Instance unop_atomic op v :
+    Atomic (Unop op $ Val v).
   Proof.
     solve_atomic.
   Qed.
-  #[global] Instance binop_atomic a op v1 v2 :
-    Atomic a (Binop op (Val v1) (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance equal_atomic a v1 v2 :
-    Atomic a (Equal (Val v1) (Val v2)).
+  #[global] Instance binop_atomic op v1 v2 :
+    Atomic (Binop op (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance if_true_atomic a v1 e2 :
-    Atomic a (If (Val $ ValBool true) (Val v1) e2).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance if_false_atomic a e1 v2 :
-    Atomic a (If (Val $ ValBool false) e1 (Val v2)).
+  #[global] Instance equal_atomic v1 v2 :
+    Atomic (Equal (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic a proj tag vs :
-    Atomic a (Proj proj $ Val $ ValConstr tag vs).
+  #[global] Instance if_true_atomic v1 e2 :
+    Atomic (If (Val $ ValBool true) (Val v1) e2).
+  Proof.
+    solve_atomic.
+  Qed.
+  #[global] Instance if_false_atomic e1 v2 :
+    Atomic (If (Val $ ValBool false) e1 (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance alloc_atomic a v w :
-    Atomic a (Alloc (Val v) (Val w)).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance load_atomic a v :
-    Atomic a (Load $ Val v).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance store_atomic a v1 v2 :
-    Atomic a (Store (Val v1) (Val v2)).
+  #[global] Instance proj_atomic proj tag vs :
+    Atomic (Proj proj $ Val $ ValConstr tag vs).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance xchg_atomic a v1 v2 :
-    Atomic a (Xchg (Val v1) (Val v2)).
+  #[global] Instance alloc_atomic v w :
+    Atomic (Alloc (Val v) (Val w)).
+  Proof.
+    solve_atomic.
+  Qed.
+  #[global] Instance load_atomic v :
+    Atomic (Load $ Val v).
+  Proof.
+    solve_atomic.
+  Qed.
+  #[global] Instance store_atomic v1 v2 :
+    Atomic (Store (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance cas_atomic a v0 v1 v2 :
-    Atomic a (Cas (Val v0) (Val v1) (Val v2)).
+  #[global] Instance xchg_atomic v1 v2 :
+    Atomic (Xchg (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance faa_atomic a v1 v2 :
-    Atomic a (Faa (Val v1) (Val v2)).
+  #[global] Instance cas_atomic v0 v1 v2 :
+    Atomic (Cas (Val v0) (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance fork_atomic a e :
-    Atomic a (Fork e).
+  #[global] Instance faa_atomic v1 v2 :
+    Atomic (Faa (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
-  #[global] Instance proph_atomic a :
-    Atomic a Proph.
+  #[global] Instance fork_atomic e :
+    Atomic (Fork e).
   Proof.
     solve_atomic.
   Qed.
-  #[global] Instance resolve_atomic a e v1 v2 :
-    Atomic a e →
-    Atomic a (Resolve e (Val v1) (Val v2)).
+
+  #[global] Instance proph_atomic :
+    Atomic Proph.
   Proof.
-    rename e into e1. intros H σ1 e2 κ σ2 es [K e1' e2' Hfill -> step].
+    solve_atomic.
+  Qed.
+  #[global] Instance resolve_atomic e v1 v2 :
+    Atomic e →
+    Atomic (Resolve e (Val v1) (Val v2)).
+  Proof.
+    rename e into e1. intros H σ1 e2 κ σ2 es ϕ [K e1' e2' Hfill -> Hstep].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
-    - subst. inversion_clear step. by eapply (H σ1 (Val _) _ σ2 es), base_prim_step.
+    - subst. inversion_clear Hstep.
+      eapply (H σ1 (Val _) _ σ2 es), base_prim_step. done.
     - rewrite fill_app. rewrite fill_app in Hfill.
-      assert (∀ v, Val v = fill K e1' → False) as fill_absurd.
-      { intros v Hv. assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
-        apply to_val_fill_some in Htv. destruct Htv as [-> ->]. inversion step. }
-      destruct k; (inversion Hfill; clear Hfill; subst; try
-        match goal with | H : Val ?v = fill K e1' |- _ => by apply fill_absurd in H end).
-      refine (_ (H σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
-      + destruct a; intro Hs; simpl in *.
-        * destruct Hs as [v Hs]. apply to_val_fill_some in Hs. by destruct Hs, K.
-        * apply irreducible_resolve. by rewrite fill_app in Hs.
+      assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
+      { intros v Hv.
+        assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
+        apply to_val_fill_some in Htv. destruct Htv as [-> ->]. inversion Hstep.
+      }
+      destruct k; (
+        inversion Hfill; clear Hfill; subst;
+        try match goal with H : Val ?v = fill K e1' |- _ =>
+          apply Hfill_absurd in H; done
+        end
+      ).
+      refine (_ (H σ1 (fill (K ++ [_]) e2') _ σ2 es _ _)).
+      + intro Hs. simpl in *.
+        destruct Hs as [v Hs]. apply to_val_fill_some in Hs. destruct Hs, K; done.
       + econstructor; try done. simpl. by rewrite fill_app.
   Qed.
 End atomic.

@@ -119,7 +119,7 @@ Ltac invert_base_step :=
       progress simplify_map_eq/=
   | H: to_val _ = Some _ |- _ =>
       apply of_to_val in H
-  | H: base_step ?e _ _ _ _ _ |- _ =>
+  | H: base_step ?e _ _ _ _ _ _ |- _ =>
      try (is_var e; fail 1);
      invert H
   end.
@@ -138,51 +138,51 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_reducible _ _
 ) =>
-  do 4 eexists; simpl
+  do 5 eexists; simpl
 : zebre.
 #[global] Hint Extern 0 (
   base_reducible_no_obs _ _
 ) =>
-  do 3 eexists; simpl
+  do 4 eexists; simpl
 : zebre.
 
 #[global] Hint Extern 1 (
-  base_step _ _ _ _ _ _
+  base_step _ _ _ _ _ _ _
 ) =>
   econstructor
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_equal_fail; simpl; [| | try injection]
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_equal_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Record  _) _ _ _ _ _
+  base_step (Record  _) _ _ _ _ _ _
 ) =>
   eapply base_step_record'
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Alloc _ _) _ _ _ _ _
+  base_step (Alloc _ _) _ _ _ _ _ _
 ) =>
   apply base_step_alloc'
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Cas _ _ _) _ _ _ _ _
+  base_step (Cas _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_fail; simpl; [| | | try injection]
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Cas _ _ _) _ _ _ _ _
+  base_step (Cas _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  base_step Proph _ _ _ _ _
+  base_step Proph _ _ _ _ _ _
 ) =>
   apply base_step_proph'
 : zebre.
