@@ -56,19 +56,16 @@ Section instances.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
   Qed.
 
-  #[global] Instance load_step_wp l E1 E2 :
-    SPEC ⟨E1, E2⟩ v dq,
-    {{
-      ▷ l ↦{dq} v
-    }}
-      !#l
-    {{
-      RET v;
-      l ↦{dq} v
+  #[global] Instance reveal_step_wp tag vs :
+    SPEC
+    {{ True }}
+      Reveal $ ValConstr None tag vs
+    {{ cid,
+      RET ValConstr (Some cid) tag vs; True
     }}.
   Proof.
-    iSteps as (v dq) "Hl".
-    wp_load.
+    iSteps.
+    wp_reveal cid.
     iSteps.
   Qed.
 
@@ -127,6 +124,22 @@ Section instances.
     iSteps.
   Qed.
 
+  #[global] Instance load_step_wp l E1 E2 :
+    SPEC ⟨E1, E2⟩ v dq,
+    {{
+      ▷ l ↦{dq} v
+    }}
+      !#l
+    {{
+      RET v;
+      l ↦{dq} v
+    }}.
+  Proof.
+    iSteps as (v dq) "Hl".
+    wp_load.
+    iSteps.
+  Qed.
+
   #[global] Instance store_step_wp l v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
@@ -140,6 +153,63 @@ Section instances.
   Proof.
     iSteps as (w) "Hl".
     wp_store.
+    iSteps.
+  Qed.
+
+  #[global] Instance xchg_step_wp l v E1 E2 :
+    SPEC ⟨E1, E2⟩ w,
+    {{
+      ▷ l ↦ w
+    }}
+      Xchg #l v
+    {{
+      RET w;
+      l ↦ v
+    }}.
+  Proof.
+    iSteps as (w) "Hl".
+    wp_xchg.
+    iSteps.
+  Qed.
+
+  #[global] Instance cas_step_wp l v1 v2 E1 E2 :
+    SPEC ⟨E1, E2⟩ v dq,
+    {{
+      ▷ l ↦{dq} v ∗
+      ⌜val_physical v⌝ ∗
+      ⌜val_physical v1⌝ ∗
+      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
+    }}
+      Cas #l v1 v2
+    {{ (b : bool),
+      RET #b;
+        ⌜b = false⌝ ∗
+        ⌜val_neq v v1⌝ ∗
+        l ↦{dq} v
+      ∨ ⌜b = true⌝ ∗
+        ⌜val_eq v v1⌝ ∗
+        ⌜val_consistency v v1⌝ ∗
+        l ↦ v2
+    }}.
+  Proof.
+    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
+    wp_cas as ? | ? ?; iSteps.
+    destruct H; last done. iSteps.
+  Qed.
+
+  #[global] Instance faa_step_wp l i E1 E2 :
+    SPEC ⟨E1, E2⟩ (z : Z),
+    {{
+      ▷ l ↦ #z
+    }}
+      Faa #l #i
+    {{
+      RET #z;
+      l ↦ #(z + i)
+    }}.
+  Proof.
+    iSteps as (z) "Hl".
+    wp_faa.
     iSteps.
   Qed.
 
@@ -202,62 +272,6 @@ Section instances.
   (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
   (* Qed. *)
 
-  #[global] Instance xchg_step_wp l v E1 E2 :
-    SPEC ⟨E1, E2⟩ w,
-    {{
-      ▷ l ↦ w
-    }}
-      Xchg #l v
-    {{
-      RET w;
-      l ↦ v
-    }}.
-  Proof.
-    iSteps as (w) "Hl".
-    wp_xchg.
-    iSteps.
-  Qed.
-
-  #[global] Instance cas_step_wp l v1 v2 E1 E2 :
-    SPEC ⟨E1, E2⟩ v dq,
-    {{
-      ▷ l ↦{dq} v ∗
-      ⌜val_physical v⌝ ∗
-      ⌜val_physical v1⌝ ∗
-      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
-    }}
-      Cas #l v1 v2
-    {{ (b : bool),
-      RET #b;
-        ⌜b = false⌝ ∗
-        ⌜val_neq v v1⌝ ∗
-        l ↦{dq} v
-      ∨ ⌜b = true⌝ ∗
-        ⌜val_eq v v1⌝ ∗
-        l ↦ v2
-    }}.
-  Proof.
-    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
-    wp_cas as ? | ?; iSteps.
-    destruct H; last done. iSteps.
-  Qed.
-
-  #[global] Instance faa_step_wp l i E1 E2 :
-    SPEC ⟨E1, E2⟩ (z : Z),
-    {{
-      ▷ l ↦ #z
-    }}
-      Faa #l #i
-    {{
-      RET #z;
-      l ↦ #(z + i)
-    }}.
-  Proof.
-    iSteps as (z) "Hl".
-    wp_faa.
-    iSteps.
-  Qed.
-
   #[global] Instance if_step_bool_decide P `{Decision P} e1 e2 E :
     ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬P⌝
@@ -270,7 +284,6 @@ Section instances.
     - iApply ("H" $! true). eauto.
     - iApply ("H" $! false). eauto.
   Qed.
-
   #[global] Instance if_step_bool_decide_neg P `{Decision P} e1 e2 E :
     ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide (¬P)) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝
@@ -285,7 +298,6 @@ Section instances.
     - wp_pures.
       iApply ("H" $! false). eauto.
   Qed.
-
   #[global] Instance if_step_negb_bool_decide P `{Decision P} e1 e2 E :
     ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(negb $ bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝ | 49.

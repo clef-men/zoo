@@ -248,26 +248,42 @@ Notation "‘ tag { e1 , .. , en }" := (
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ).
+Notation "’ tag @{ cid }{ v1 , .. , vn }" := (
+  ValConstr (Some cid) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+)(at level 2,
+  tag custom zebre_tag,
+  cid at level 200,
+  v1, vn at level 200,
+  format "'[hv' ’ tag @{ cid }{  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
+).
 Notation "’ tag { v1 , .. , vn }" := (
-  ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValConstr None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zebre_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
 ).
+Notation "§ tag @{ cid }" := (
+  ValConstr (Some cid) tag%core (@nil val)
+)(at level 2,
+  tag custom zebre_tag,
+  cid at level 200,
+  format "§ tag @{ cid }"
+).
 Notation "§ tag" := (
-  ValConstr tag%core (@nil val)
+  ValConstr None tag%core (@nil val)
 )(at level 2,
   tag custom zebre_tag,
   format "§ tag"
 ).
+Notation "'truc'" := 0 (in custom zebre_tag).
 
 Notation "( e1 , e2 , .. , en )" := (
   Constr 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValConstr 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValConstr None 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (

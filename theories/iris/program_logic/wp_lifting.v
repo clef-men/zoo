@@ -178,6 +178,7 @@ Section ectx_language.
         ⌜base_reducible e σ⌝ ∗
         ∀ e' σ' es ϕ,
         ⌜base_step e σ κ e' σ' es ϕ⌝ -∗
+        ⌜ϕ⌝ -∗
         £ 1 -∗
           |={E1}[E2]▷=>
           state_interp σ' κs ∗
@@ -190,9 +191,9 @@ Section ectx_language.
     iIntros "%He H".
     iApply wp_lift_atomic_step; first done. iIntros "%σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "(%Hreducible & H)".
-    iModIntro. iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep Hϕ".
-    iApply "H".
-    iSteps.
+    iModIntro. iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ".
+    iApply ("H" with "[%] [//]").
+    naive_solver.
   Qed.
 
   Lemma wp_lift_atomic_base_step_no_fork e E1 E2 Φ :
@@ -203,6 +204,7 @@ Section ectx_language.
         ⌜base_reducible e σ⌝ ∗
           ∀ e' σ' es ϕ,
           ⌜base_step e σ κ e' σ' es ϕ⌝ -∗
+          ⌜ϕ⌝ -∗
           £ 1 -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
@@ -214,8 +216,8 @@ Section ectx_language.
     iIntros "%He H".
     iApply wp_lift_atomic_base_step; first done. iIntros "%σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "($ & H)".
-    iModIntro. iIntros "%e' %σ' %es %ϕ %Hstep H£".
-    iMod ("H" with "[//] H£") as "H".
+    iModIntro. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ H£".
+    iMod ("H" with "[//] [//] H£") as "H".
     iModIntro. iSteps.
   Qed.
 End ectx_language.

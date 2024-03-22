@@ -64,8 +64,13 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic proj tag vs :
-    Atomic (Proj proj $ Val $ ValConstr tag vs).
+  #[global] Instance proj_atomic proj cid tag vs :
+    Atomic (Proj proj $ Val $ ValConstr cid tag vs).
+  Proof.
+    solve_atomic.
+  Qed.
+  #[global] Instance reveal_atomic cid tag vs :
+    Atomic (Reveal $ Val $ ValConstr cid tag vs).
   Proof.
     solve_atomic.
   Qed.
@@ -265,7 +270,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 []))
+      (Equal (Val $ ValConstr None tag1 []) (Val $ ValConstr None tag2 []))
       (Val $ ValBool (bool_decide (tag1 = tag2))).
   Proof.
     solve_pure_exec.
@@ -274,7 +279,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValConstr tag1 []) (Val $ ValConstr tag2 (v2 :: vs2)))
+      (Equal (Val $ ValConstr None tag1 []) (Val $ ValConstr None tag2 (v2 :: vs2)))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -283,7 +288,7 @@ Section pure_exec.
     PureExec
       True
       1
-      (Equal (Val $ ValConstr tag1 (v1 :: vs1)) (Val $ ValConstr tag2 []))
+      (Equal (Val $ ValConstr None tag1 (v1 :: vs1)) (Val $ ValConstr None tag2 []))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -313,27 +318,27 @@ Section pure_exec.
       (to_vals es = Some vs)
       1
       (Constr tag es)
-      (Val $ ValConstr tag vs).
+      (Val $ ValConstr None tag vs).
   Proof.
     intros <-%of_to_vals.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_proj proj tag vs v :
+  #[global] Instance pure_proj proj cid tag vs v :
     PureExec
       (vs !! proj = Some v)
       1
-      (Proj proj $ Val $ ValConstr tag vs)
+      (Proj proj $ Val $ ValConstr cid tag vs)
       (Val v).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_match tag vs x e brs :
+  #[global] Instance pure_match cid tag vs x e brs :
     PureExec
       True
       1
-      (Match (Val $ ValConstr tag vs) x e brs)
-      (match_apply tag vs x e brs).
+      (Match (Val $ ValConstr cid tag vs) x e brs)
+      (match_apply cid tag vs x e brs).
   Proof.
     solve_pure_exec.
   Qed.

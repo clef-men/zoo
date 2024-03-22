@@ -277,7 +277,7 @@ Section mpsc_queue_G.
 
     wp_bind (Cas _ _ _).
     iInv "Hinv" as "(%front & %back' & Hfront₂ & Hback & Hmodel₂)".
-    wp_cas as _ | ->%(inj _); first iSteps.
+    wp_cas as _ | ->%(inj _) _; first iSteps.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.

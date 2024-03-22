@@ -417,10 +417,11 @@ Section side_condition_lemmas.
     congruence.
   Qed.
 
-  Lemma val_constr_neq tag1 vs1 tag2 vs2 :
+  Lemma val_constr_neq cid1 tag1 vs1 cid2 tag2 vs2 :
+    cid1 ≠ cid2 →
     tag1 ≠ tag2 →
     vs1 ≠ vs2 →
-    Constr tag1 vs1 ≠ Constr tag2 vs2.
+    ValConstr cid1 tag1 vs1 ≠ ValConstr cid2 tag2 vs2.
   Proof.
     congruence.
   Qed.
@@ -449,13 +450,13 @@ Section side_condition_lemmas.
     split; congruence.
   Qed.
 
-  #[global] Instance simplify_constr_neq tag1 vs1 tag2 vs2 :
+  #[global] Instance simplify_constr_neq cid1 tag1 vs1 cid2 tag2 vs2 :
     SimplifyPureHypSafe
-      (ValConstr tag1 vs1 ≠ ValConstr tag2 vs2)
-      (tag1 ≠ tag2 ∨ vs1 ≠ vs2).
+      (ValConstr cid1 tag1 vs1 ≠ ValConstr cid2 tag2 vs2)
+      (cid1 ≠ cid2 ∨ tag1 ≠ tag2 ∨ vs1 ≠ vs2).
   Proof.
     split.
-    - rewrite -not_and_l. naive_solver.
+    - rewrite -!not_and_l. naive_solver.
     - naive_solver.
   Qed.
 End side_condition_lemmas.
@@ -494,7 +495,9 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar b1);
       assert_fails (has_evar b2);
       eapply lit_neq_bool_neq; solve [pure_solver.trySolvePure]
-  | |- ValConstr ?tag1 ?vs1 ≠ ValConstr ?tag2 ?vs2 =>
+  | |- ValConstr ?cid1 ?tag1 ?vs1 ≠ ValConstr ?cid2 ?tag2 ?vs2 =>
+      assert_fails (has_evar cid1);
+      assert_fails (has_evar cid2);
       assert_fails (has_evar tag1);
       assert_fails (has_evar tag2);
       assert_fails (has_evar vs1);

@@ -78,7 +78,9 @@ Definition val_neq v1 v2 :=
   match v1, v2 with
   | ValLiteral lit1, ValLiteral lit2 =>
       lit1 ≠ lit2
-  | ValConstr tag1 [], ValConstr tag2 [] =>
+  | ValConstr (Some cid1) _ _, ValConstr (Some cid2) _ _ =>
+      cid1 ≠ cid2
+  | ValConstr _ tag1 [], ValConstr _ tag2 [] =>
       tag1 ≠ tag2
   | _, _ =>
       True
@@ -88,7 +90,7 @@ Definition val_neq v1 v2 :=
 #[global] Instance val_neq_sym :
   Symmetric val_neq.
 Proof.
-  do 2 intros [| | ? []]; done.
+  do 2 intros [| | [] ? []]; done.
 Qed.
 
 Definition val_eq v1 v2 :=
@@ -97,7 +99,7 @@ Definition val_eq v1 v2 :=
       match v2 with
       | ValLiteral lit2 =>
           literal_eq lit1 lit2
-      | ValConstr _ [] =>
+      | ValConstr _ _ [] =>
           match lit1 with
           | LiteralBool _
           | LiteralInt _ =>
@@ -115,19 +117,40 @@ Definition val_eq v1 v2 :=
       | _ =>
           False
       end
-  | ValConstr tag1 [] =>
+  | ValConstr (Some cid1) tag1 [] =>
       match v2 with
       | ValBool _
       | ValInt _ =>
           True
-      | ValConstr tag2 [] =>
+      | ValConstr (Some cid2) _ _ =>
+          cid1 = cid2
+      | ValConstr None tag2 es2 =>
+          tag1 = tag2 ∧ [] = es2
+      | _ =>
+          False
+      end
+  | ValConstr (Some cid1) tag1 es1 =>
+      match v2 with
+      | ValConstr (Some cid2) _ _ =>
+          cid1 = cid2
+      | ValConstr None tag2 es2 =>
+          tag1 = tag2 ∧ es1 = es2
+      | _ =>
+          False
+      end
+  | ValConstr _ tag1 [] =>
+      match v2 with
+      | ValBool _
+      | ValInt _ =>
+          True
+      | ValConstr _ tag2 [] =>
           tag1 = tag2
       | _ =>
           False
       end
-  | ValConstr tag1 es1 =>
+  | ValConstr _ tag1 es1 =>
       match v2 with
-      | ValConstr tag2 es2 =>
+      | ValConstr _ tag2 es2 =>
           tag1 = tag2 ∧ es1 = es2
       | _ =>
           False
@@ -135,21 +158,30 @@ Definition val_eq v1 v2 :=
   end.
 #[global] Arguments val_eq !_ !_ / : assert.
 
+Definition val_consistency v1 v2 :=
+  match v1, v2 with
+  | ValConstr (Some _) tag1 es1, ValConstr (Some _) tag2 es2 =>
+      tag1 = tag2 ∧ es1 = es2
+  | _, _ =>
+      True
+  end.
+#[global] Arguments val_consistency !_ !_ / : assert.
+
 #[global] Instance val_eq_refl :
   Reflexive val_eq.
 Proof.
-  intros [[] | | ? []]; done.
+  intros [[] | | [] ? []]; done.
 Qed.
 #[global] Instance val_eq_sym :
   Symmetric val_eq.
 Proof.
-  do 2 intros [| | ? []]; naive_solver congruence.
+  do 2 intros [| | [] ? []]; try naive_solver congruence.
 Qed.
 Lemma eq_val_eq v1 v2 :
   v1 = v2 →
   val_eq v1 v2.
 Proof.
-  destruct v1 as [| | ? []]; naive_solver.
+  destruct v1 as [| | [] ? []]; naive_solver.
 Qed.
 
 Definition unop_eval op v :=
@@ -260,6 +292,9 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
+  | Reveal e =>
+      Reveal
+        (subst x v e)
   | For e1 e2 e3 =>
       For
         (subst x v e1)
@@ -321,19 +356,19 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint match_apply tag vs x e brs :=
+Fixpoint match_apply cid tag vs x e brs :=
   match brs with
   | [] =>
-      subst' x (ValConstr tag vs) e
+      subst' x (ValConstr cid tag vs) e
   | br :: brs =>
       let pat := br.1 in
       if decide (pat.(pattern_tag) = tag) then
         subst_list pat.(pattern_fields) vs $
-        subst' pat.(pattern_as) (ValConstr tag vs) br.2
+        subst' pat.(pattern_as) (ValConstr cid tag vs) br.2
       else
-        match_apply tag vs x e brs
+        match_apply cid tag vs x e brs
   end.
-#[global] Arguments match_apply _ _ _ _ !_ / : assert.
+#[global] Arguments match_apply _ _ _ _ _ !_ / : assert.
 
 Record state : Type := {
   state_heap : gmap location val ;
@@ -477,7 +512,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         σ
         []
-        True
+        (val_consistency v1 v2)
   | base_step_if_true e1 e2 σ :
       base_step
         (If (Val $ ValBool true) e1 e2)
@@ -502,26 +537,35 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Constr tag es)
         σ
         []
-        (Val $ ValConstr tag vs)
+        (Val $ ValConstr None tag vs)
         σ
         []
         True
-  | base_step_proj proj tag vs v σ :
+  | base_step_proj proj cid tag vs v σ :
       vs !! proj = Some v →
       base_step
-        (Proj proj $ Val $ ValConstr tag vs)
+        (Proj proj $ Val $ ValConstr cid tag vs)
         σ
         []
         (Val v)
         σ
         []
         True
-  | base_step_match tag vs x e brs σ :
+  | base_step_match cid tag vs x e brs σ :
       base_step
-        (Match (Val $ ValConstr tag vs) x e brs)
+        (Match (Val $ ValConstr cid tag vs) x e brs)
         σ
         []
-        (match_apply tag vs x e brs)
+        (match_apply cid tag vs x e brs)
+        σ
+        []
+        True
+  | base_step_reveal cid tag vs σ :
+      base_step
+        (Reveal $ Val $ ValConstr None tag vs)
+        σ
+        []
+        (Val $ ValConstr (Some cid) tag vs)
         σ
         []
         True
@@ -617,7 +661,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         (state_update_heap <[l := v2]> σ)
         []
-        True
+        (val_consistency v v1)
   | base_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValInt m →
       base_step
@@ -658,6 +702,18 @@ Inductive base_step : expr → state → list observation → expr → state →
         es
         ϕ.
 
+Lemma base_step_reveal' tag vs σ :
+  base_step
+    (Reveal $ Val $ ValConstr None tag vs)
+    σ
+    []
+    (Val $ ValConstr (Some inhabitant) tag vs)
+    σ
+    []
+    True.
+Proof.
+  apply base_step_reveal.
+Qed.
 Lemma base_step_record' es vs σ :
   let l := location_fresh (dom σ.(state_heap)) in
   0 < length es →
@@ -722,6 +778,7 @@ Inductive ectxi :=
   | CtxConstr tag vs es
   | CtxProj proj
   | CtxMatch x e1 brs
+  | CtxReveal
   | CtxFor1 e2 e3
   | CtxFor2 v1 e3
   | CtxRecord vs es
@@ -776,6 +833,8 @@ Fixpoint ectxi_fill k e : expr :=
       Proj proj e
   | CtxMatch x e1 brs =>
       Match e x e1 brs
+  | CtxReveal =>
+      Reveal e
   | CtxFor1 e2 e3 =>
       For e e2 e3
   | CtxFor2 v1 e3 =>

@@ -865,7 +865,7 @@ Module raw.
       (* do resolve *)
       wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front, id) with "Hprophet_model"); [done.. |].
       (* whether Cas succeed or not, we reach a contradiction *)
-      wp_cas as _ | _.
+      wp_cas as _ | _ _.
       all: iModIntro; iIntros "%prophs' ->".
       all: eelim (filter_nil_not_elem_of _ _ (front, id)); [done.. |].
       all: apply elem_of_app; right; apply elem_of_cons; naive_solver.
@@ -894,7 +894,7 @@ Module raw.
       (* do resolve *)
       wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front, id) with "Hprophet_model"); [done.. |].
       (* Cas must fail as we are not the winner: [id ≠ id'] *)
-      wp_cas as _Hfront | ?; last simplify; last first.
+      wp_cas as _Hfront | ? _; last simplify; last first.
       { iModIntro. iIntros "%prophs' -> Hprophet_model".
         rewrite filter_app filter_cons_True // in Hprophs_lb.
         destruct (filter _ past2) as [| (__front & id'')] eqn:Hpast2; first naive_solver.
@@ -1237,7 +1237,7 @@ Module raw.
         (* do resolve *)
         wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front1, id) with "Hprophet_model"); [done.. |].
         (* branching 3: Cas must fail as we have seen [front2] such that [front1 < front2] *)
-        wp_cas as _Hbranch3 | ?; last simplify; last first.
+        wp_cas as _Hbranch3 | ? _; last simplify; last first.
         { iDestruct (inf_ws_deque_front_valid with "Hfront_auth Hfront_lb") as %?.
           lia.
         }

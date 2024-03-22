@@ -33,13 +33,14 @@ Section zebre_G.
     base_reducible (v1 = v2) σ.
   Proof.
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | tag1 []],
-      v2 as [[b2 | i2 | l2 | |] | | tag2 []].
+      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []],
+      v2 as [[b2 | i2 | l2 | |] | | [cid2 |] tag2 []].
     all:
       try first
       [ destruct (decide (b1 = b2)); first subst
       | destruct (decide (i1 = i2)); first subst
       | destruct (decide (l1 = l2)); first subst
+      | destruct (decide (cid1 = cid2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
     all: auto with zebre.
@@ -52,6 +53,7 @@ Section zebre_G.
         Φ #false
       ) ∧ (
         ⌜val_eq v1 v2⌝ -∗
+        ⌜val_consistency v1 v2⌝ -∗
         Φ #true
       )
     ) ⊢
@@ -60,15 +62,16 @@ Section zebre_G.
     iIntros "% % HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
-    iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !> !>".
+    iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | tag1 []],
-      v2 as [[b2 | i2 | l2 | |] | | tag2 []].
+      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []],
+      v2 as [[b2 | i2 | l2 | |] | | [cid2 |] tag2 []].
     all:
       try first
       [ destruct (decide (b1 = b2)); first subst
       | destruct (decide (i1 = i2)); first subst
       | destruct (decide (l1 = l2)); first subst
+      | destruct (decide (cid1 = cid2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
     all: invert_base_step; last try by exfalso.
@@ -83,6 +86,19 @@ Section zebre_G.
             iFrame; iSteps; naive_solver
         end
       end.
+  Qed.
+
+  Lemma wp_reveal tag vs E Φ :
+    ( ∀ cid,
+      ▷ Φ (ValConstr (Some cid) tag vs)
+    ) ⊢
+    WP Reveal $ ValConstr None tag vs @ E {{ Φ }}.
+  Proof.
+    iIntros "H".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    invert_base_step.
+    iFrame. iSteps.
   Qed.
 
   Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
@@ -112,7 +128,7 @@ Section zebre_G.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step. rename select (list val) into vs.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
@@ -135,7 +151,7 @@ Section zebre_G.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
@@ -172,7 +188,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !> !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame. iSteps.
   Qed.
@@ -190,7 +206,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -209,7 +225,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -223,13 +239,14 @@ Section zebre_G.
   Proof.
     intros.
     destruct
-      v as [[b | i | l' | |] | | tag []],
-      v1 as [[b1 | i1 | l1 | |] | | tag1 []].
+      v as [[b | i | l' | |] | | [cid |] tag []],
+      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []].
     all:
       try first
       [ destruct (decide (b = b1)); first subst
       | destruct (decide (i = i1)); first subst
       | destruct (decide (l' = l1)); first subst
+      | destruct (decide (cid = cid1)); first subst
       | destruct (decide (tag = tag1)); first subst
       ].
     all: eauto with zebre.
@@ -244,6 +261,7 @@ Section zebre_G.
         Φ #false
       ) ∧ (
         ⌜val_eq v v1⌝ -∗
+        ⌜val_consistency v v1⌝ -∗
         l ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
           l ↦{dq} v ∗
@@ -259,15 +277,16 @@ Section zebre_G.
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
 
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
-    iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     destruct
-      v as [[b | i | l' | |] | | tag []],
-      v1 as [[b1 | i1 | l1 | |] | | tag1 []].
+      v as [[b | i | l' | |] | | [cid |] tag []],
+      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []].
     all:
       try first
       [ destruct (decide (b = b1)); first subst
       | destruct (decide (i = i1)); first subst
       | destruct (decide (l' = l1)); first subst
+      | destruct (decide (cid = cid1)); first subst
       | destruct (decide (tag = tag1)); first subst
       ].
     all: invert_base_step; last try by exfalso.
@@ -279,7 +298,7 @@ Section zebre_G.
             iFrame; iSteps; naive_solver
         | context [true] =>
             iDestruct "HΦ" as "(_ & HΦ)";
-            iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)";
+            iDestruct ("HΦ" with "[//] [//] Hl") as "(-> & Hl & HΦ)";
             iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)";
             iFrame; iSteps; naive_solver
         end
@@ -309,7 +328,9 @@ Section zebre_G.
     iApply (wp_cas with "Hl"); [done.. |].
     iSplit.
     - iDestruct "HΦ" as "($ & _)".
-    - iDestruct "HΦ" as "(_ & $)".
+    - iDestruct "HΦ" as "(_ & HΦ)".
+      iIntros "!> %Heq _".
+      iApply ("HΦ" with "[//]").
   Qed.
   Lemma wp_cas_suc l lit lit1 v2 E :
     literal_physical lit →
@@ -341,7 +362,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -354,7 +375,7 @@ Section zebre_G.
   Proof.
     iIntros "H HΦ".
     iApply wp_lift_atomic_base_step; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%v2 %σ2 %es %ϕ %Hstep _ !> !> !>".
+    iSplit; first auto with zebre. iIntros "%v2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame.
   Qed.
@@ -369,7 +390,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep _ !> !>".
+    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (proph_map_new_proph p with "Hκs") as "(Hκs & Hp)"; first done.
     iFrame. iSteps.

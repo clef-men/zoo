@@ -42,6 +42,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxProj proj) K pvs e
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K pvs e0
+    | Reveal ?e =>
+        add_ectxi CtxReveal K pvs e
     | For (Val ?v1) ?e2 ?e3 =>
         add_ectxi (CtxFor2 v1 e3) K pvs e2
     | For ?e1 ?e2 ?e3 =>
@@ -162,7 +164,12 @@ Ltac invert_base_step :=
   eapply base_step_equal_suc; simpl
 : zebre.
 #[global] Hint Extern 0 (
-  base_step (Record  _) _ _ _ _ _ _
+  base_step (Reveal _) _ _ _ _ _ _
+) =>
+  eapply base_step_reveal'
+: zebre.
+#[global] Hint Extern 0 (
+  base_step (Record _) _ _ _ _ _ _
 ) =>
   eapply base_step_record'
 : zebre.

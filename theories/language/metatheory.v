@@ -43,6 +43,8 @@ Fixpoint occurs x e :=
         bool_decide (BNamed x ≠ pat.(pattern_as)) &&
         occurs x br.2
       ) brs
+  | Reveal e =>
+      occurs x e
   | For e1 e2 e3 =>
       occurs x e1 ||
       occurs x e2 ||
