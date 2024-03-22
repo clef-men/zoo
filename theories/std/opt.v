@@ -38,7 +38,7 @@ Qed.
 Proof.
   intros ?* ->%eq_val_eq%(inj _). done.
 Qed.
-#[global] Instance lst_to_val_physical o :
+#[global] Instance opt_to_val_physical o :
   ValPhysical (opt_to_val o).
 Proof.
   destruct o; done.
