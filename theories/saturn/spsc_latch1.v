@@ -31,30 +31,34 @@ Implicit Types l : location.
 
 Definition spsc_latch1_create : val :=
   λ: <>,
-    let: "t" := { #false; (); () } in
-    "t" <-{mutex} mutex_create () ;;
-    "t" <-{condition} condition_create () ;;
-    "t".
+    { #false;
+      mutex_create ();
+      condition_create ()
+    }.
 
 Definition spsc_latch1_signal : val :=
   λ: "t",
-    mutex_protect "t".{mutex} (λ: <>,
-      "t" <-{flag} #true
-    ) ;;
+    "t" <-{flag} #true ;;
     condition_signal "t".{condition}.
+
+Definition spsc_latch1_try_wait : val :=
+  λ: "t",
+    "t".{flag}.
 
 Definition spsc_latch1_wait : val :=
   λ: "t",
-    let: "mtx" := "t".{mutex} in
-    let: "cond" := "t".{condition} in
-    mutex_protect "mtx" (λ: <>,
-      condition_wait_until "cond" "mtx" (λ: <>, "t".{flag})
+    ifnot: spsc_latch1_try_wait "t" then (
+      let: "mtx" := "t".{mutex} in
+      let: "cond" := "t".{condition} in
+      mutex_protect "mtx" (λ: <>,
+        condition_wait_until "cond" "mtx" (λ: <>, "t".{flag})
+      )
     ).
 
 Class SpscLatch1G Σ `{zebre_G : !ZebreG Σ} := {
   #[local] spsc_latch1_G_mutex_G :: MutexG Σ ;
   #[local] spsc_latch1_G_producer_G :: OneshotG Σ unit unit ;
-  #[local] spsc_latch1_G_consumer_G :: ExclG Σ unitO ;
+  #[local] spsc_latch1_G_excl_G :: ExclG Σ unitO ;
 }.
 
 Definition spsc_latch1_Σ := #[
@@ -107,9 +111,10 @@ Section spsc_latch1_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[mutex] ↦□ mtx ∗
-    mutex_inv mtx (spsc_latch1_inv_inner l γ P) ∗
+    mutex_inv mtx True ∗
     l.[condition] ↦□ cond ∗
-    condition_inv cond.
+    condition_inv cond ∗
+    inv nroot (spsc_latch1_inv_inner l γ P).
 
   Definition spsc_latch1_producer t : iProp Σ :=
     ∃ l γ,
@@ -123,8 +128,35 @@ Section spsc_latch1_G.
     meta l nroot γ ∗
     excl γ.(spsc_latch1_meta_consumer) ().
 
+  Definition spsc_latch1_signaled t : iProp Σ :=
+    ∃ l γ,
+    ⌜t = #l⌝ ∗
+    meta l nroot γ ∗
+    oneshot_shot γ.(spsc_latch1_meta_producer) ().
+
+  #[global] Instance spsc_latch1_inv_contractive t :
+    Contractive (spsc_latch1_inv t).
+  Proof.
+    rewrite /spsc_latch1_inv /spsc_latch1_inv_inner. solve_contractive.
+  Qed.
+  #[global] Instance spsc_latch1_inv_ne t :
+    NonExpansive (spsc_latch1_inv t).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance spsc_latch1_inv_proper t :
+    Proper ((≡) ==> (≡)) (spsc_latch1_inv t).
+  Proof.
+    apply _.
+  Qed.
+
   #[global] Instance spsc_latch1_inv_persistent t P :
     Persistent (spsc_latch1_inv t P).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance spsc_latch1_signaled_persistent t :
+    Persistent (spsc_latch1_signaled t).
   Proof.
     apply _.
   Qed.
@@ -144,9 +176,9 @@ Section spsc_latch1_G.
     spsc_latch1_producer t -∗
     False.
   Proof.
-    iIntros "(%l & %γ & -> & #Hmeta & Hpending) (%_l & %_γ & %Heq & _Hmeta & Hpending')". injection Heq as <-.
+    iIntros "(%l & %γ & -> & #Hmeta & Hpending1) (%_l & %_γ & %Heq & _Hmeta & Hpending2)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (oneshot_pending_valid_2 with "Hpending Hpending'") as %(? & _). done.
+    iDestruct (oneshot_pending_valid_2 with "Hpending1 Hpending2") as %(? & _). done.
   Qed.
 
   Lemma spsc_latch1_consumer_exclusive t :
@@ -154,9 +186,9 @@ Section spsc_latch1_G.
     spsc_latch1_consumer t -∗
     False.
   Proof.
-    iIntros "(%l & %γ & -> & #Hmeta & Hexcl) (%_l & %_γ & %Heq & _Hmeta & Hexcl')". injection Heq as <-.
+    iIntros "(%l & %γ & -> & #Hmeta & Hconsumer1) (%_l & %_γ & %Heq & _Hmeta & Hconsumer2)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (excl_exclusive with "Hexcl Hexcl'") as %[].
+    iApply (excl_exclusive with "Hconsumer1 Hconsumer2").
   Qed.
 
   Lemma spsc_latch1_create_spec P :
@@ -172,28 +204,23 @@ Section spsc_latch1_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-
+    wp_smart_apply (mutex_create_spec True with "[//]") as "%mtx #Hmtx_inv".
+    wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcond_inv".
     wp_record l as "Hmeta" "(Hflag & Hmtx & Hcond & _)".
+    iMod (pointsto_persist with "Hmtx") as "Hmtx".
+    iMod (pointsto_persist with "Hcond") as "Hcond".
 
     iMod (oneshot_alloc ()) as "(%γ_producer & Hpending)".
     iEval (assert (1 = 2/3 + 1/3)%Qp as -> by compute_done) in "Hpending".
     iDestruct "Hpending" as "(Hpending1 & Hpending2)".
 
-    iMod (excl_alloc (excl_G := spsc_latch1_G_consumer_G) ()) as "(%γ_consumer & Hexcl)".
+    iMod (excl_alloc (excl_G := spsc_latch1_G_excl_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
       spsc_latch1_meta_producer := γ_producer ;
       spsc_latch1_meta_consumer := γ_consumer ;
     |}.
-    iMod (meta_set _ _ γ nroot with "Hmeta") as "#Hmeta"; first done.
-
-    wp_smart_apply (mutex_create_spec (spsc_latch1_inv_inner l γ P) with "[Hflag Hpending2]") as "%mtx #Hmtx_inv"; first iSteps.
-    wp_store.
-    iMod (pointsto_persist with "Hmtx") as "Hmtx".
-
-    wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcond_inv".
-    wp_store.
-    iMod (pointsto_persist with "Hcond") as "Hcond".
+    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.
   Qed.
@@ -206,25 +233,87 @@ Section spsc_latch1_G.
     }}}
       spsc_latch1_signal t
     {{{
-      RET (); True
+      RET ();
+      spsc_latch1_signaled t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+
     wp_rec.
-    wp_load.
-    wp_apply (mutex_protect_spec (λ _, True%I) with "[$Hmtx_inv Hpending HP]") as "% _".
-    { iIntros "Hmtx_locked (%b & Hflag & Hb)". destruct b.
-      - iDestruct "Hb" as "(Hshot & _)".
-        iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
-      - iCombine "Hpending Hb" as "Hpending".
-        assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
-        iMod (oneshot_update_shot with "Hpending") as "Hshot".
-        iSteps.
+    wp_pures.
+
+    wp_bind (_ <- _)%E.
+    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_store.
+    destruct b.
+    { iDestruct "Hb" as "(Hshot & _)".
+      iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
     }
+    iCombine "Hpending Hb" as "Hpending".
+    assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
+    iMod (oneshot_update_shot with "Hpending") as "#Hshot".
+    iSplitR "HΦ"; first iSteps.
+    iModIntro.
+
     wp_load.
     wp_apply (condition_signal_spec with "Hcond_inv").
     iSteps.
+  Qed.
+
+  Lemma spsc_latch1_try_wait_spec_signaled t P :
+    {{{
+      spsc_latch1_inv t P ∗
+      spsc_latch1_consumer t ∗
+      spsc_latch1_signaled t
+    }}}
+      spsc_latch1_try_wait t
+    {{{
+      RET #true;
+      P
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta1") as %<-. iClear "_Hmeta1".
+    iDestruct (meta_agree with "Hmeta _Hmeta2") as %<-. iClear "_Hmeta2".
+
+    wp_rec.
+    wp_pures.
+
+    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_load.
+    destruct b.
+
+    - iDestruct "Hb" as "(_ & [Hmodel | Hconsumer'])"; first iSmash.
+      iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
+
+    - iDestruct (oneshot_pending_shot with "Hb Hshot") as %[].
+  Qed.
+  Lemma spsc_latch1_try_wait_spec t P :
+    {{{
+      spsc_latch1_inv t P ∗
+      spsc_latch1_consumer t
+    }}}
+      spsc_latch1_try_wait t
+    {{{ b,
+      RET #b;
+      if b then
+        P
+      else
+        spsc_latch1_consumer t
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+
+    wp_rec.
+    wp_pures.
+
+    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_load.
+    destruct b; last iSteps.
+    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
+    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
   Qed.
 
   Lemma spsc_latch1_wait_spec t P :
@@ -238,34 +327,45 @@ Section spsc_latch1_G.
       P
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv) & (%_l & %_γ & %Heq & _Hmeta & Hexcl)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros "%Φ (#Hinv & Hconsumer) HΦ".
+
     wp_rec.
+    wp_apply (spsc_latch1_try_wait_spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
+
+    iDestruct "Hinv" as "(%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    iDestruct "Hconsumer" as "(%_l & %_γ & %Heq & _Hmeta & Hconsumer)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+
     do 2 wp_load.
-    wp_smart_apply (mutex_protect_spec (λ res, ⌜res = ()%V⌝ ∗ P)%I with "[$Hmtx_inv Hexcl]").
-    { iIntros "Hmtx_locked Hsignal_inv".
-      pose (Ψ b := (
-        if b then
-          P
-        else
-          excl γ.(spsc_latch1_meta_consumer) ()
-      )%I).
-      wp_smart_apply (condition_wait_until_spec Ψ with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hsignal_inv $Hexcl]").
-      { clear. iStep 15 as (Φ b) "Hb Hexcl Hflag".
-        destruct b; last iSteps.
-        iDestruct "Hb" as "(Hshot & [Hmodel | Hexcl'])"; first iSmash.
-        iDestruct (excl_exclusive with "Hexcl Hexcl'") as %[].
-      }
-      iSteps.
-    }
-    iSteps.
+    pose Ψ_mtx res := (
+      ⌜res = ()%V⌝ ∗
+      P
+    )%I.
+    wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hconsumer]"); last iSteps.
+    iIntros "Hmtx_locked _".
+    pose (Ψ_cond b := (
+      if b then
+        P
+      else
+        excl γ.(spsc_latch1_meta_consumer) ()
+    )%I).
+    wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.
+    clear. iIntros "!> %Φ (Hmtx_locked & _ & Hconsumer) HΦ".
+    wp_pures.
+    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_load.
+    destruct b; last iSteps.
+    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
+    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
   Qed.
 End spsc_latch1_G.
 
 #[global] Opaque spsc_latch1_create.
-#[global] Opaque spsc_latch1_wait.
 #[global] Opaque spsc_latch1_signal.
+#[global] Opaque spsc_latch1_try_wait.
+#[global] Opaque spsc_latch1_wait.
 
 #[global] Opaque spsc_latch1_inv.
 #[global] Opaque spsc_latch1_producer.
 #[global] Opaque spsc_latch1_consumer.
+#[global] Opaque spsc_latch1_signaled.
