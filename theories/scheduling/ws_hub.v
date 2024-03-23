@@ -6,7 +6,7 @@ From zebre.language Require Import
 From zebre.std Require Import
   opt.
 From zebre.saturn Require Import
-  spsc_latch1
+  mpsc_latch1
   mpmc_queue.
 From zebre.scheduling Require Export
   base.
@@ -45,12 +45,13 @@ Section ws_deques.
       }.
 
   #[local] Definition ws_hub_check_waiters : val :=
-    λ: "t",
+    rec: "ws_hub_check_waiters" "t" :=
       match: mpmc_queue_pop "t".{waiters} with
       | None =>
           ()
       | Some "waiter" =>
-          spsc_latch1_signal "waiter"
+          if: mpsc_latch1_signal "waiter" then
+            "ws_hub_check_waiters" "t"
       end.
 
   Definition ws_hub_push : val :=
@@ -96,10 +97,18 @@ Section ws_deques.
       | Some "v" =>
           "v"
       | None =>
-          let: "waiter" := spsc_latch1_create () in
+          let: "waiter" := mpsc_latch1_create () in
           mpmc_queue_push "t".{waiters} "waiter" ;;
-          spsc_latch1_wait "waiter" ;;
-          "ws_hub_pop" "t" "i"
+          match: ws_hub_try_pop "t" "i" with
+          | Some "v" =>
+              if: mpsc_latch1_signal "waiter" then (
+                ws_hub_check_waiters "t"
+              ) ;;
+              "v"
+          | None =>
+              mpsc_latch1_wait "waiter" ;;
+              "ws_hub_pop" "t" "i"
+          end
       end.
 End ws_deques.
 
