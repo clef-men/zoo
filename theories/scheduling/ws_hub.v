@@ -1,3 +1,7 @@
+(* Based on:
+   https://github.com/ocaml-multicore/domainslib/blob/731f08891c87e788f2cc95f2a600328f6682a5e2/lib/multi_channel.ml
+*)
+
 From zebre Require Import
   prelude.
 From zebre.language Require Import
