@@ -57,7 +57,7 @@ Definition spsc_latch1_wait : val :=
 
 Class SpscLatch1G Σ `{zebre_G : !ZebreG Σ} := {
   #[local] spsc_latch1_G_mutex_G :: MutexG Σ ;
-  #[local] spsc_latch1_G_producer_G :: OneshotG Σ unit unit ;
+  #[local] spsc_latch1_G_lstate_G :: OneshotG Σ unit unit ;
   #[local] spsc_latch1_G_excl_G :: ExclG Σ unitO ;
 }.
 
@@ -77,7 +77,7 @@ Section spsc_latch1_G.
   Context `{spsc_latch1_G : SpscLatch1G Σ}.
 
   Record spsc_latch1_meta := {
-    spsc_latch1_meta_producer : gname ;
+    spsc_latch1_meta_lstate : gname ;
     spsc_latch1_meta_consumer : gname ;
   }.
   Implicit Types γ : spsc_latch1_meta.
@@ -88,11 +88,11 @@ Section spsc_latch1_G.
     Countable spsc_latch1_meta.
   Proof.
     pose encode γ := (
-      γ.(spsc_latch1_meta_producer),
+      γ.(spsc_latch1_meta_lstate),
       γ.(spsc_latch1_meta_consumer)
     ).
-    pose decode := λ '(γ_producer, γ_consumer), {|
-      spsc_latch1_meta_producer := γ_producer ;
+    pose decode := λ '(γ_lstate, γ_consumer), {|
+      spsc_latch1_meta_lstate := γ_lstate ;
       spsc_latch1_meta_consumer := γ_consumer ;
     |}.
     refine (inj_countable' encode decode _). intros []. done.
@@ -102,11 +102,11 @@ Section spsc_latch1_G.
     ∃ b,
     l.[flag] ↦ #b ∗
     if b then
-      oneshot_shot γ.(spsc_latch1_meta_producer) () ∗
+      oneshot_shot γ.(spsc_latch1_meta_lstate) () ∗
       (P ∨ excl γ.(spsc_latch1_meta_consumer) ())
     else
-      oneshot_pending γ.(spsc_latch1_meta_producer) (DfracOwn (1/3)) ().
-  #[local] Definition spsc_latch1_inv t P : iProp Σ :=
+      oneshot_pending γ.(spsc_latch1_meta_lstate) (DfracOwn (1/3)) ().
+  Definition spsc_latch1_inv t P : iProp Σ :=
     ∃ l γ mtx cond,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -120,7 +120,7 @@ Section spsc_latch1_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_pending γ.(spsc_latch1_meta_producer) (DfracOwn (2/3)) ().
+    oneshot_pending γ.(spsc_latch1_meta_lstate) (DfracOwn (2/3)) ().
 
   Definition spsc_latch1_consumer t : iProp Σ :=
     ∃ l γ,
@@ -132,7 +132,7 @@ Section spsc_latch1_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_shot γ.(spsc_latch1_meta_producer) ().
+    oneshot_shot γ.(spsc_latch1_meta_lstate) ().
 
   #[global] Instance spsc_latch1_inv_contractive t :
     Contractive (spsc_latch1_inv t).
@@ -215,14 +215,14 @@ Section spsc_latch1_G.
     iMod (pointsto_persist with "Hmtx") as "Hmtx".
     iMod (pointsto_persist with "Hcond") as "Hcond".
 
-    iMod (oneshot_alloc ()) as "(%γ_producer & Hpending)".
+    iMod (oneshot_alloc ()) as "(%γ_lstate & Hpending)".
     iEval (assert (1 = 2/3 + 1/3)%Qp as -> by compute_done) in "Hpending".
     iDestruct "Hpending" as "(Hpending1 & Hpending2)".
 
     iMod (excl_alloc (excl_G := spsc_latch1_G_excl_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
-      spsc_latch1_meta_producer := γ_producer ;
+      spsc_latch1_meta_lstate := γ_lstate ;
       spsc_latch1_meta_consumer := γ_consumer ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
@@ -287,12 +287,11 @@ Section spsc_latch1_G.
 
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
-    destruct b.
-
-    - iDestruct "Hb" as "(_ & [Hmodel | Hconsumer'])"; first iSmash.
-      iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
-
-    - iDestruct (oneshot_pending_shot with "Hb Hshot") as %[].
+    destruct b; last first.
+    { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
+    iDestruct "Hb" as "(_ & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
   Lemma spsc_latch1_try_wait_spec t P :
     {{{
@@ -317,8 +316,9 @@ Section spsc_latch1_G.
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
     destruct b; last iSteps.
-    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
-    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
+    iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
 
   Lemma spsc_latch1_wait_spec t P :
@@ -355,13 +355,16 @@ Section spsc_latch1_G.
         excl γ.(spsc_latch1_meta_consumer) ()
     )%I).
     wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.
+
     clear. iIntros "!> %Φ (Hmtx_locked & _ & Hconsumer) HΦ".
     wp_pures.
+
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
     destruct b; last iSteps.
-    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
-    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
+    iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
 End spsc_latch1_G.
 

@@ -132,6 +132,16 @@ Section oneshot_G.
     apply ghost_var_persist.
   Qed.
 
+  Lemma oneshot_shot_agree γ b1 b2 :
+    oneshot_shot γ b1 -∗
+    oneshot_shot γ b2 -∗
+    ⌜b1 = b2⌝.
+  Proof.
+    iIntros "Hshot1 Hshot2".
+    iDestruct (ghost_var_agree with "Hshot1 Hshot2") as %[= <-].
+    iSteps.
+  Qed.
+
   Lemma oneshot_pending_shot γ dq a b :
     oneshot_pending γ dq a -∗
     oneshot_shot γ b -∗

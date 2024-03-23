@@ -120,7 +120,7 @@ Section mpsc_latch1_G.
       (P ∨ excl γ.(mpsc_latch1_meta_consumer) ())
     else
       oneshot_pending γ.(mpsc_latch1_meta_lstate) (DfracOwn 1) ().
-  #[local] Definition mpsc_latch1_inv t P : iProp Σ :=
+  Definition mpsc_latch1_inv t P : iProp Σ :=
     ∃ l γ mtx cond,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -295,12 +295,11 @@ Section mpsc_latch1_G.
 
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
-    destruct b.
-
-    - iDestruct "Hb" as "(_ & [Hmodel | Hconsumer'])"; first iSmash.
-      iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
-
-    - iDestruct (oneshot_pending_shot with "Hb Hshot") as %[].
+    destruct b; last first.
+    { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
+    iDestruct "Hb" as "(_ & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
   Lemma mpsc_latch1_try_wait_spec t P :
     {{{
@@ -325,8 +324,9 @@ Section mpsc_latch1_G.
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
     destruct b; last iSteps.
-    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
-    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
+    iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
 
   Lemma mpsc_latch1_wait_spec t P :
@@ -363,13 +363,16 @@ Section mpsc_latch1_G.
         excl γ.(mpsc_latch1_meta_consumer) ()
     )%I).
     wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.
+
     clear. iIntros "!> %Φ (Hmtx_locked & _ & Hconsumer) HΦ".
     wp_pures.
+
     iInv "Hinv" as "(%b & Hflag & Hb)".
     wp_load.
     destruct b; last iSteps.
-    iDestruct "Hb" as "(Hshot & [Hmodel | Hconsumer'])"; first iSmash.
-    iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[].
+    iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
   Qed.
 End mpsc_latch1_G.
 
