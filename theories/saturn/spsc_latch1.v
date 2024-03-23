@@ -170,6 +170,11 @@ Section spsc_latch1_G.
   Proof.
     apply _.
   Qed.
+  #[global] Instance spsc_latch1_signaled_timeless t :
+    Timeless (spsc_latch1_signaled t).
+  Proof.
+    apply _.
+  Qed.
 
   Lemma spsc_latch1_producer_exclusive t :
     spsc_latch1_producer t -∗

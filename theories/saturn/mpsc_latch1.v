@@ -173,6 +173,11 @@ Section mpsc_latch1_G.
   Proof.
     apply _.
   Qed.
+  #[global] Instance mpsc_latch1_signaled_timeless t :
+    Timeless (mpsc_latch1_signaled t).
+  Proof.
+    apply _.
+  Qed.
 
   Lemma mpsc_latch1_consumer_exclusive t :
     mpsc_latch1_consumer t -∗
