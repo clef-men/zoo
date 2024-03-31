@@ -19,13 +19,13 @@ Section bi.
     Implicit Types l : list A.
     Implicit Types Φ Ψ : nat → A → PROP.
 
-    Lemma big_sepL_mono_strong `{!BiAffine PROP} {A1 A2} (l1 : list A1) (l2 : list A2) (Φ1 : nat → A1 → PROP) (Φ2 : nat → A2 → PROP) :
+    Lemma big_sepL_mono_strong' `{!BiAffine PROP} {A1 A2} (l1 : list A1) (l2 : list A2) (Φ1 : nat → A1 → PROP) (Φ2 : nat → A2 → PROP) :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
       ( [∗ list] k ∈ seq 0 (length l1), ∀ x1 x2,
-          ⌜l1 !! k = Some x1 ∧ l2 !! k = Some x2⌝ -∗
-          Φ1 k x1 -∗
-          Φ2 k x2
+        ⌜l1 !! k = Some x1 ∧ l2 !! k = Some x2⌝ -∗
+        Φ1 k x1 -∗
+        Φ2 k x2
       ) -∗
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
@@ -43,7 +43,7 @@ Section bi.
         iApply "HΦ"; naive_solver eauto using lookup_app_l_Some.
       - rewrite -Hl1 -Hl2. iApply ("HΦ'" with "[] HΦ1'"). rewrite !list_lookup_middle //.
     Qed.
-    Lemma big_sepL_mono_strong' `{!BiAffine PROP} {A1 A2} (l1 : list A1) (l2 : list A2) (Φ1 : nat → A1 → PROP) (Φ2 : nat → A2 → PROP) :
+    Lemma big_sepL_mono_strong `{!BiAffine PROP} {A1 A2} (l1 : list A1) (l2 : list A2) (Φ1 : nat → A1 → PROP) (Φ2 : nat → A2 → PROP) :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
       □ (
@@ -55,7 +55,7 @@ Section bi.
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
       iIntros "% HΦ1 #HΦ".
-      iApply (big_sepL_mono_strong with "HΦ1 [HΦ]"); first done.
+      iApply (big_sepL_mono_strong' with "HΦ1 [HΦ]"); first done.
       iApply big_sepL_intro. iIntros "!> %k %_k % %x1 %x2 % HΨ".
       iApply ("HΦ" with "[//] HΨ").
     Qed.
@@ -67,7 +67,7 @@ Section bi.
     Proof.
       intros. iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong' with "H"); first rewrite seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite seq_length //.
       all: iIntros "!> %k %_k % %".
       all: pose proof lookup_seq.
       all: naive_solver.
@@ -93,7 +93,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong' with "H"); first rewrite !seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite !seq_length //.
       all: iIntros "!>" (k ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_seq)).
       all: assert (i + j + k - j = i + k) as -> by lia.
       all: iSteps.
@@ -150,7 +150,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong' with "H"); first rewrite replicate_length seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite replicate_length seq_length //.
       1: iIntros "!>" (? ? ? ((-> & _)%lookup_replicate_1 & (-> & _)%lookup_seq)).
       2: iIntros "!>" (? ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_replicate_1)).
       all: iSteps.
