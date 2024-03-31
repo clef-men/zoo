@@ -207,6 +207,26 @@ Section iris_G.
   Proof.
     rewrite wp_unfold /wp_pre to_of_val //.
   Qed.
+  Lemma wp_value_fupd e v E Φ :
+    AsVal e v →
+    WP e @ E {{ Φ }} ⊣⊢
+    |={E}=> Φ v.
+  Proof.
+    rewrite -wp_value_fupd' => <- //.
+  Qed.
+  Lemma wp_value' v E Φ :
+    Φ v ⊢
+    WP (of_val v) @ E {{ Φ }}.
+  Proof.
+    rewrite wp_value_fupd'. auto.
+  Qed.
+  Lemma wp_value e v E Φ :
+    AsVal e v →
+    Φ v ⊢
+    WP e @ E {{ Φ }}.
+  Proof.
+    rewrite wp_value' => <- //.
+  Qed.
 
   Lemma wp_strong_mono e E1 Φ1 E2 Φ2 :
     E1 ⊆ E2 →
@@ -229,6 +249,35 @@ Section iris_G.
       iMod "H" as "($ & H & Hes)".
       iMod "Hclose" as "_".
       iSplitR "Hes"; iSteps.
+  Qed.
+  Lemma wp_mono e E Φ1 Φ2 :
+    (∀ v, Φ1 v ⊢ Φ2 v) →
+    WP e @ E {{ Φ1 }} ⊢
+    WP e @ E {{ Φ2 }}.
+  Proof.
+    iIntros "%HΦ H".
+    iApply (wp_strong_mono with "H"); first done. iIntros "%v HΦ".
+    iApply (HΦ with "HΦ").
+  Qed.
+  Lemma wp_mask_mono e E1 E2 Φ :
+    E1 ⊆ E2 →
+    WP e @ E1 {{ Φ }} ⊢
+    WP e @ E2 {{ Φ }}.
+  Proof.
+    iIntros "%HE H".
+    iApply (wp_strong_mono with "H"); first done.
+    iSteps.
+  Qed.
+  #[global] Instance wp_mono' e E :
+    Proper (pointwise_relation _ (⊢) ==> (⊢)) (wp e E).
+  Proof.
+    intros Φ1 Φ2 HΦ.
+    apply wp_mono. done.
+  Qed.
+  #[global] Instance wp_flip_mono' e E :
+    Proper (pointwise_relation _ (flip (⊢)) ==> (flip (⊢))) (wp e E).
+  Proof.
+    solve_proper.
   Qed.
 
   Lemma fupd_wp e E Φ :
@@ -331,58 +380,6 @@ Section iris_G.
       iIntros "%e2 %σ2 %es1 %ϕ1 %Hstep1 %Hϕ1 H£".
       iMod ("H" with "[] [//] H£") as "H"; first eauto using fill_step.
       iModIntro. iSteps.
-  Qed.
-
-  Lemma wp_mono e E Φ1 Φ2 :
-    (∀ v, Φ1 v ⊢ Φ2 v) →
-    WP e @ E {{ Φ1 }} ⊢
-    WP e @ E {{ Φ2 }}.
-  Proof.
-    iIntros "%HΦ H".
-    iApply (wp_strong_mono with "H"); first done. iIntros "%v HΦ".
-    iApply (HΦ with "HΦ").
-  Qed.
-  Lemma wp_mask_mono e E1 E2 Φ :
-    E1 ⊆ E2 →
-    WP e @ E1 {{ Φ }} ⊢
-    WP e @ E2 {{ Φ }}.
-  Proof.
-    iIntros "%HE H".
-    iApply (wp_strong_mono with "H"); first done.
-    iSteps.
-  Qed.
-  #[global] Instance wp_mono' e E :
-    Proper (pointwise_relation _ (⊢) ==> (⊢)) (wp e E).
-  Proof.
-    intros Φ1 Φ2 HΦ.
-    apply wp_mono. done.
-  Qed.
-  #[global] Instance wp_flip_mono' e E :
-    Proper (pointwise_relation _ (flip (⊢)) ==> (flip (⊢))) (wp e E).
-  Proof.
-    intros Φ1 Φ2 HΦ.
-    apply wp_mono. done.
-  Qed.
-
-  Lemma wp_value_fupd e v E Φ :
-    AsVal e v →
-    WP e @ E {{ Φ }} ⊣⊢
-    |={E}=> Φ v.
-  Proof.
-    rewrite -wp_value_fupd' => <- //.
-  Qed.
-  Lemma wp_value' v E Φ :
-    Φ v ⊢
-    WP (of_val v) @ E {{ Φ }}.
-  Proof.
-    rewrite wp_value_fupd'. auto.
-  Qed.
-  Lemma wp_value e v E Φ :
-    AsVal e v →
-    Φ v ⊢
-    WP e @ E {{ Φ }}.
-  Proof.
-    rewrite wp_value' => <- //.
   Qed.
 
   Lemma wp_frame_l e E Φ R :
