@@ -135,3 +135,5 @@ theories/eio/rcfd.v
 theories/boxroot/base.v
 theories/boxroot/gc.v
 theories/boxroot/boxroot.v
+
+theories/examples/fibonacci.v
