@@ -33,7 +33,7 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
   #[global] ws_deques_inv_persistent t ι sz ::
     Persistent (ws_deques_inv t ι sz) ;
 
-  ws_deques_owner_exlusive t i :
+  ws_deques_owner_exclusive t i :
     ws_deques_owner t i -∗
     ws_deques_owner t i -∗
     False ;
