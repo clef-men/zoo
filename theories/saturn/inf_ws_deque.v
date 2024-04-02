@@ -39,24 +39,25 @@ Implicit Types v t data : val.
 Implicit Types hist model : list val.
 Implicit Types priv : nat → val.
 
-#[local] Program Definition inf_ws_deque_prophet_spec := {|
-  typed_prophet_spec_type :=
+#[local] Program Definition inf_ws_deque_prophet := {|
+  typed_prophet_type :=
     nat * identifier ;
-  typed_prophet_spec_of_val v :=
+  typed_prophet_of_val v :=
     match v with
     | ValTuple [ValInt front; ValProphecy id] =>
         Some (Z.to_nat front, id)
     | _ =>
         None
     end ;
-  typed_prophet_spec_to_val '(front, id) :=
+  typed_prophet_to_val '(front, id) :=
     (#front, #id)%V ;
 |}.
-Solve Obligations of inf_ws_deque_prophet_spec with
+Solve Obligations of inf_ws_deque_prophet with
   try done.
 Next Obligation.
   intros (front & id) v ->. simplify. rewrite Nat2Z.id //.
 Qed.
+Implicit Types past prophs : list inf_ws_deque_prophet.(typed_prophet_type).
 
 Class InfWsDequeG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_ws_deque_G_inf_array_G :: InfArrayG Σ ;
@@ -65,7 +66,7 @@ Class InfWsDequeG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] inf_ws_deque_G_hist_G :: MonoListG Σ val ;
   #[local] inf_ws_deque_G_model_G :: TwinsG Σ (listO valO) ;
   #[local] inf_ws_deque_G_lock_G :: ExclG Σ unitO ;
-  #[local] inf_ws_deque_G_prophet_G :: WiseProphetG Σ inf_ws_deque_prophet_spec ;
+  #[local] inf_ws_deque_G_prophet_G :: WiseProphetG Σ inf_ws_deque_prophet ;
   #[local] inf_ws_deque_G_winner_G :: TwinsG Σ (natO * (valO -d> ▶ ∙)) ;
 }.
 
@@ -76,7 +77,7 @@ Definition inf_ws_deque_Σ := #[
   mono_list_Σ val ;
   twins_Σ (listO valO) ;
   excl_Σ unitO ;
-  wise_prophet_Σ inf_ws_deque_prophet_spec ;
+  wise_prophet_Σ inf_ws_deque_prophet ;
   twins_Σ (natO * (valO -d> ▶ ∙))
 ].
 #[global] Instance subG_inf_ws_deque_Σ Σ `{zebre_G : !ZebreG Σ} :
@@ -157,17 +158,13 @@ Module raw.
 
     Implicit Types Φ : val → iProp Σ.
 
-    #[local] Definition inf_ws_deque_prophet :=
-      make_wise_prophet inf_ws_deque_prophet_spec.
-    Implicit Types past prophs : list inf_ws_deque_prophet.(wise_prophet_type).
-
     Record inf_ws_deque_meta := {
       inf_ws_deque_meta_ctl : gname ;
       inf_ws_deque_meta_front : gname ;
       inf_ws_deque_meta_hist : gname ;
       inf_ws_deque_meta_model : gname ;
       inf_ws_deque_meta_lock : gname ;
-      inf_ws_deque_meta_prophet : inf_ws_deque_prophet.(wise_prophet_name) ;
+      inf_ws_deque_meta_prophet : wise_prophet_name ;
       inf_ws_deque_meta_winner : gname ;
     }.
     Implicit Types γ : inf_ws_deque_meta.
@@ -376,7 +373,7 @@ Module raw.
       inf_ws_deque_model₁ γ model ∗
       ⌜length model = Z.to_nat (back - front)⌝ ∗
       (* prophet model *)
-      inf_ws_deque_prophet.(wise_prophet_model) p γ.(inf_ws_deque_meta_prophet) past prophs ∗
+      wise_prophet_model inf_ws_deque_prophet p γ.(inf_ws_deque_meta_prophet) past prophs ∗
       ⌜Forall (λ '(front', _), front' < front) past⌝ ∗
       (* state *)
       inf_ws_deque_state γ ι front back hist model prophs.
@@ -849,7 +846,7 @@ Module raw.
       {{{
         inf_array_inv data ∗
         inv ι (inf_ws_deque_inv_inner l γ ι data p) ∗
-        inf_ws_deque_prophet.(wise_prophet_lb) γ.(inf_ws_deque_meta_prophet) prophs_lb
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb
       }}}
         Resolve (Cas #l.[front] #front1 #front2) #p (#front, #id)%V
       {{{ v,
@@ -863,7 +860,7 @@ Module raw.
       (* current prophecies are a suffix of prophet lower bound *)
       iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
       (* do resolve *)
-      wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front, id) with "Hprophet_model"); [done.. |].
+      wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet(front, id) with "Hprophet_model"); [done.. |].
       (* whether Cas succeed or not, we reach a contradiction *)
       wp_cas as _ | _ _.
       all: iModIntro; iIntros "%prophs' ->".
@@ -877,7 +874,7 @@ Module raw.
         inf_array_inv data ∗
         inv ι (inf_ws_deque_inv_inner l γ ι data p) ∗
         inf_ws_deque_front_lb γ front ∗
-        inf_ws_deque_prophet.(wise_prophet_lb) γ.(inf_ws_deque_meta_prophet) prophs_lb
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb
       }}}
         Resolve (Cas #l.[front] #front v) #p (#front, #id)%V
       {{{
@@ -892,7 +889,7 @@ Module raw.
       (* current prophecies are a suffix of prophet lower bound *)
       iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
       (* do resolve *)
-      wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front, id) with "Hprophet_model"); [done.. |].
+      wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front, id) with "Hprophet_model"); [done.. |].
       (* Cas must fail as we are not the winner: [id ≠ id'] *)
       wp_cas as _Hfront | ? _; last simplify; last first.
       { iModIntro. iIntros "%prophs' -> Hprophet_model".
@@ -936,7 +933,7 @@ Module raw.
         inv ι (inf_ws_deque_inv_inner l γ ι data p) ∗
         inf_ws_deque_ctl₂ γ front priv ∗
         inf_ws_deque_front_lb γ front ∗
-        inf_ws_deque_prophet.(wise_prophet_lb) γ.(inf_ws_deque_meta_prophet) prophs_lb ∗
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb ∗
         inf_ws_deque_winner₂ γ front Ψ
       }}}
         Resolve (Cas #l.[front] #front v) #p (#front, #id)%V
@@ -1235,7 +1232,7 @@ Module raw.
         (* open invariant *)
         iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
         (* do resolve *)
-        wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front1, id) with "Hprophet_model"); [done.. |].
+        wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front1, id) with "Hprophet_model"); [done.. |].
         (* branching 3: Cas must fail as we have seen [front2] such that [front1 < front2] *)
         wp_cas as _Hbranch3 | ? _; last simplify; last first.
         { iDestruct (inf_ws_deque_front_valid with "Hfront_auth Hfront_lb") as %?.
@@ -1362,7 +1359,7 @@ Module raw.
       (* we are in state 2 or state 3.1 *)
       iDestruct (inf_ws_deque_winner₂_state with "Hwinner₂ Hstate") as "(>-> & Hstate)".
       (* do resolve *)
-      wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front1, id) with "Hprophet_model"); [done.. |].
+      wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front1, id) with "Hprophet_model"); [done.. |].
       (* Cas must succeed as we are the next winner *)
       wp_cas_suc.
       (* branching 5 *)
@@ -1684,7 +1681,7 @@ Module raw.
           }
           apply (inj _) in Hstate as ->.
           (* do resolve *)
-          wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front3, id) with "Hprophet_model"); [done.. |].
+          wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front3, id) with "Hprophet_model"); [done.. |].
           (* Cas must succeed *)
           wp_cas_suc.
           iModIntro. iIntros "%prophs4' -> Hprophet_model".
@@ -1896,7 +1893,7 @@ Module raw.
           (* exploit history fragment *)
           iDestruct (inf_ws_deque_hist_agree with "Hhist_auth Hhist_elem") as %->%list_lookup_total_correct.
           (* do resolve *)
-          wp_apply (inf_ws_deque_prophet.(wise_prophet_wp_resolve) (front2, id) with "Hprophet_model"); [done.. |].
+          wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front2, id) with "Hprophet_model"); [done.. |].
           (* Cas must succeed *)
           wp_cas_suc.
           iModIntro. iIntros "%prophs4' -> Hprophet_model".
