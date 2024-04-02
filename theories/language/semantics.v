@@ -372,7 +372,7 @@ Fixpoint match_apply cid tag vs x e brs :=
 
 Record state : Type := {
   state_heap : gmap location val ;
-  state_prophs : gset prophecy_id ;
+  state_prophets : gset prophet_id ;
 }.
 Implicit Types σ : state.
 
@@ -381,19 +381,19 @@ Canonical stateO :=
 
 Definition state_update_heap f σ : state :=
   {|state_heap := f σ.(state_heap) ;
-    state_prophs := σ.(state_prophs) ;
+    state_prophets := σ.(state_prophets) ;
   |}.
 #[global] Arguments state_update_heap _ !_ / : assert.
-Definition state_update_prophs f σ : state :=
+Definition state_update_prophets f σ : state :=
   {|state_heap := σ.(state_heap) ;
-    state_prophs := f σ.(state_prophs) ;
+    state_prophets := f σ.(state_prophets) ;
   |}.
-#[global] Arguments state_update_prophs _ !_ / : assert.
+#[global] Arguments state_update_prophets _ !_ / : assert.
 
 #[global] Instance state_inhabited : Inhabited state :=
   populate
     {|state_heap := inhabitant ;
-      state_prophs := inhabitant ;
+      state_prophets := inhabitant ;
     |}.
 
 Fixpoint heap_array l vs : gmap location val :=
@@ -448,7 +448,7 @@ Definition state_init_heap l vs σ :=
   state_update_heap (λ h, heap_array l vs ∪ h) σ.
 
 Definition observation : Set :=
-  prophecy_id * (val * val).
+  prophet_id * (val * val).
 
 Inductive base_step : expr → state → list observation → expr → state → list expr → Prop → Prop :=
   | base_step_rec f x e σ :
@@ -681,22 +681,22 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         [e]
         True
-  | base_step_proph σ p :
-      p ∉ σ.(state_prophs) →
+  | base_step_proph σ pid :
+      pid ∉ σ.(state_prophets) →
       base_step
         Proph
         σ
         []
-        (Val $ ValProphecy p)
-        (state_update_prophs ({[p]} ∪.) σ)
+        (Val $ ValProphecy pid)
+        (state_update_prophets ({[pid]} ∪.) σ)
         []
         True
-  | base_step_resolve e p v σ κ w σ' es ϕ :
+  | base_step_resolve e pid v σ κ w σ' es ϕ :
       base_step e σ κ (Val w) σ' es ϕ →
       base_step
-        (Resolve e (Val $ ValProphecy p) (Val v))
+        (Resolve e (Val $ ValProphecy pid) (Val v))
         σ
-        (κ ++ [(p, (w, v))])
+        (κ ++ [(pid, (w, v))])
         (Val w)
         σ'
         es
@@ -746,13 +746,13 @@ Proof.
   intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
 Qed.
 Lemma base_step_proph' σ :
-  let p := fresh σ.(state_prophs) in
+  let pid := fresh σ.(state_prophets) in
   base_step
     Proph
     σ
     []
-    (Val $ ValProphecy p)
-    (state_update_prophs ({[p]} ∪.) σ)
+    (Val $ ValProphecy pid)
+    (state_update_prophets ({[pid]} ∪.) σ)
     []
     True.
 Proof.

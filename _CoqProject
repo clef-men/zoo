@@ -46,6 +46,7 @@ theories/iris/base_logic/lib/auth_twins.v
 theories/iris/base_logic/lib/mono_list.v
 theories/iris/base_logic/lib/mono_map.v
 theories/iris/base_logic/lib/mono_set.v
+theories/iris/base_logic/lib/prophet_map.v
 
 theories/iris/program_logic/language.v
 theories/iris/program_logic/ectx_language.v

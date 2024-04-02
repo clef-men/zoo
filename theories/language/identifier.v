@@ -9,7 +9,7 @@ From zebre Require Import
   options.
 
 Definition identifier :=
-  prophecy_id.
+  prophet_id.
 Canonical identifier_O :=
   leibnizO identifier.
 
@@ -28,7 +28,8 @@ Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
   Definition identifier_model id : iProp Σ :=
-    ∃ prophs, proph id prophs.
+    ∃ prophs,
+    prophet_model id prophs.
 
   Lemma identifier_model_exclusive id :
     identifier_model id -∗

@@ -21,6 +21,7 @@ From zebre.language Require Import
 From zebre Require Import
   options.
 
+Implicit Types pid : prophet_id.
 Implicit Types e : expr.
 
 Class PureExecNoRec ϕ n e1 e2 :=
@@ -217,9 +218,9 @@ Section instances.
     SPEC
     {{ True }}
       Proph
-    {{ pvs (p : prophecy_id),
-      RET #p;
-      proph p pvs
+    {{ prophs pid,
+      RET #pid;
+      prophet_model pid prophs
     }}.
   Proof.
     iSteps.
@@ -227,7 +228,7 @@ Section instances.
     iSteps.
   Qed.
 
-  (* #[global] Instance abduct_resolve_atomic_spec K (e e_in : expr) (p : prophecy_id) (v : val) Φ pre n E1 E2 (TT1 TT2 : tele) *)
+  (* #[global] Instance abduct_resolve_atomic_spec K (e e_in : expr) (p : prophet_id) (v : val) Φ pre n E1 E2 (TT1 TT2 : tele) *)
   (*     L e' v' U M1 M2 : *)
   (*   ReshapeExprAnd expr e_in K (Resolve e #p v) (TCAnd (LanguageCtx K) $ *)
   (*                                                TCAnd (Atomic StronglyAtomic e) $ *)

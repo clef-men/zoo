@@ -11,106 +11,106 @@ From zebre Require Import
 Create HintDb zebre.
 
 Ltac reshape_expr e tac :=
-  let rec go K pvs e :=
+  let rec go K prophs e :=
     match e with
     | _ =>
-        lazymatch pvs with
+        lazymatch prophs with
         | nil =>
             tac K e
         | _ =>
             fail
         end
     | App ?e1 (Val ?v2) =>
-        add_ectxi (CtxApp1 v2) K pvs e1
+        add_ectxi (CtxApp1 v2) K prophs e1
     | App ?e1 ?e2 =>
-        add_ectxi (CtxApp2 e1) K pvs e2
+        add_ectxi (CtxApp2 e1) K prophs e2
     | Unop ?op ?e =>
-        add_ectxi (CtxUnop op) K pvs e
+        add_ectxi (CtxUnop op) K prophs e
     | Binop ?op ?e1 (Val ?v2) =>
-        add_ectxi (CtxBinop1 op v2) K pvs e1
+        add_ectxi (CtxBinop1 op v2) K prophs e1
     | Binop ?op ?e1 ?e2 =>
-        add_ectxi (CtxBinop2 op e1) K pvs e2
+        add_ectxi (CtxBinop2 op e1) K prophs e2
     | Equal ?e1 (Val ?v2) =>
-        add_ectxi (CtxEqual1 v2) K pvs e1
+        add_ectxi (CtxEqual1 v2) K prophs e1
     | Equal ?e1 ?e2 =>
-        add_ectxi (CtxEqual2 e1) K pvs e2
+        add_ectxi (CtxEqual2 e1) K prophs e2
     | If ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxIf e1 e2) K pvs e0
+        add_ectxi (CtxIf e1 e2) K prophs e0
     | Constr ?tag ?es =>
-        go_list K pvs (CtxConstr tag) es
+        go_list K prophs (CtxConstr tag) es
     | Proj ?proj ?e =>
-        add_ectxi (CtxProj proj) K pvs e
+        add_ectxi (CtxProj proj) K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
-        add_ectxi (CtxMatch x e1 brs) K pvs e0
+        add_ectxi (CtxMatch x e1 brs) K prophs e0
     | Reveal ?e =>
-        add_ectxi CtxReveal K pvs e
+        add_ectxi CtxReveal K prophs e
     | For (Val ?v1) ?e2 ?e3 =>
-        add_ectxi (CtxFor2 v1 e3) K pvs e2
+        add_ectxi (CtxFor2 v1 e3) K prophs e2
     | For ?e1 ?e2 ?e3 =>
-        add_ectxi (CtxFor1 e2 e3) K pvs e1
+        add_ectxi (CtxFor1 e2 e3) K prophs e1
     | Record ?es =>
-        go_list K pvs CtxRecord es
+        go_list K prophs CtxRecord es
     | Alloc ?e1 (Val ?v2) =>
-        add_ectxi (CtxAlloc1 v2) K pvs e1
+        add_ectxi (CtxAlloc1 v2) K prophs e1
     | Alloc ?e1 ?e2 =>
-        add_ectxi (CtxAlloc2 e1) K pvs e2
+        add_ectxi (CtxAlloc2 e1) K prophs e2
     | Load ?e =>
-        add_ectxi CtxLoad K pvs e
+        add_ectxi CtxLoad K prophs e
     | Store ?e1 (Val ?v2) =>
-        add_ectxi (CtxStore1 v2) K pvs e1
+        add_ectxi (CtxStore1 v2) K prophs e1
     | Store ?e1 ?e2 =>
-        add_ectxi (CtxStore2 e1) K pvs e2
+        add_ectxi (CtxStore2 e1) K prophs e2
     | Xchg ?e1 (Val ?v2) =>
-        add_ectxi (CtxXchg1 v2) K pvs e1
+        add_ectxi (CtxXchg1 v2) K prophs e1
     | Xchg ?e1 ?e2 =>
-        add_ectxi (CtxXchg2 e1) K pvs e2
+        add_ectxi (CtxXchg2 e1) K prophs e2
     | Cas ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxCas0 v1 v2) K pvs e0
+        add_ectxi (CtxCas0 v1 v2) K prophs e0
     | Cas ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxCas1 e0 v2) K pvs e1
+        add_ectxi (CtxCas1 e0 v2) K prophs e1
     | Cas ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxCas2 e0 e1) K pvs e2
+        add_ectxi (CtxCas2 e0 e1) K prophs e2
     | Faa ?e1 (Val ?v2) =>
-        add_ectxi (CtxFaa1 v2) K pvs e1
+        add_ectxi (CtxFaa1 v2) K prophs e1
     | Faa ?e1 ?e2 =>
-        add_ectxi (CtxFaa2 e1) K pvs e2
+        add_ectxi (CtxFaa2 e1) K prophs e2
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
-        go K (cons (v1, v2) pvs) e0
+        go K (cons (v1, v2) prophs) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxResolve1 e0 v2) K pvs e1
+        add_ectxi (CtxResolve1 e0 v2) K prophs e1
     | Resolve ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxResolve2 e0 e1) K pvs e2
+        add_ectxi (CtxResolve2 e0 e1) K prophs e2
     end
-  with go_list K pvs ctx es :=
-    go_list' K pvs ctx (@nil val) es
-  with go_list' K pvs ctx vs es :=
+  with go_list K prophs ctx es :=
+    go_list' K prophs ctx (@nil val) es
+  with go_list' K prophs ctx vs es :=
     lazymatch es with
     | cons ?e ?es =>
         lazymatch e with
         | Val ?v =>
-            go_list' K pvs ctx (cons v vs) es
+            go_list' K prophs ctx (cons v vs) es
         | _ =>
-            go_list'' K pvs ctx vs e es
+            go_list'' K prophs ctx vs e es
         end
     | _ =>
         fail
     end
-  with go_list'' K pvs ctx vs e es :=
+  with go_list'' K prophs ctx vs e es :=
     first
-    [ add_ectxi (ctx (rev vs) es) K pvs e
+    [ add_ectxi (ctx (rev vs) es) K prophs e
     | lazymatch vs with
       | nil =>
           fail
       | cons ?v ?vs =>
-          go_list'' K pvs ctx vs (Val v) (cons e es)
+          go_list'' K prophs ctx vs (Val v) (cons e es)
       end
     ]
-  with add_ectxi k K pvs e :=
-    lazymatch pvs with
+  with add_ectxi k K prophs e :=
+    lazymatch prophs with
     | nil =>
         go (cons k K) (@nil (val * val)) e
-    | cons (?v1, ?v2) ?pvs =>
-        add_ectxi (CtxResolve0 k v1 v2) K pvs e
+    | cons (?v1, ?v2) ?prophs =>
+        add_ectxi (CtxResolve0 k v1 v2) K prophs e
     end
   in
   go (@nil ectxi) (@nil (val * val)) e.

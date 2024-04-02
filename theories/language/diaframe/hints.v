@@ -109,31 +109,31 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance proph_exclusive p vs vs' :
+    #[global] Instance proph_exclusive pid prophs prophs' :
       MergableConsume
-        (proph p vs)
+        (prophet_model pid prophs)
         true
         (λ b Pin Pout,
-          TCAnd (TCEq Pin (proph p vs')) $
+          TCAnd (TCEq Pin (prophet_model pid prophs')) $
           TCEq Pout (False%I)
         ).
     Proof.
       move => b Pin Pout [-> ->].
       rewrite bi.intuitionistically_if_elim.
-      iIntros "[Hp1 Hp2]". by iApply (proph_exclusive with "[$]").
+      iIntros "[Hp1 Hp2]". by iApply (prophet_model_exclusive with "[$]").
     Qed.
 
-    #[global] Instance prophs_are_ne p vs p' vs' :
+    #[global] Instance prophs_are_ne pid prophs pid' prophs' :
       MergablePersist
-      (proph p vs)
+      (prophet_model pid prophs)
       (λ b Pin Pout,
-        TCAnd (TCEq Pin (proph p' vs')) $
-        TCEq Pout ⌜p ≠ p'⌝
+        TCAnd (TCEq Pin (prophet_model pid' prophs')) $
+        TCEq Pout ⌜pid ≠ pid'⌝
       )%I.
     Proof.
       move => b Pin Pout [-> ->].
       rewrite bi.intuitionistically_if_elim.
-      destruct (decide (p = p')) as [->|Hneq]; iSteps.
+      destruct (decide (pid = pid')) as [-> | Hneq]; iSteps.
     Qed.
   End mergable.
 

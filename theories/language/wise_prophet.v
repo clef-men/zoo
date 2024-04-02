@@ -50,18 +50,18 @@ Section typed_strong_prophet.
     refine (inj_countable' encode decode _). intros []. done.
   Qed.
 
-  Definition wise_strong_prophet_model p γ past prophs : iProp Σ :=
+  Definition wise_strong_prophet_model pid γ past prophs : iProp Σ :=
     agree_on γ.(wise_strong_prophet_name_full) (past ++ prophs) ∗
     mono_list_auth γ.(wise_strong_prophet_name_past) (DfracOwn 1) past ∗
-    typed_strong_prophet_model prophet p prophs.
+    typed_strong_prophet_model prophet pid prophs.
 
   Definition wise_strong_prophet_lb γ lb : iProp Σ :=
     ∃ past_lb,
     agree_on γ.(wise_strong_prophet_name_full) (past_lb ++ lb) ∗
     mono_list_lb γ.(wise_strong_prophet_name_past) past_lb.
 
-  #[global] Instance wise_strong_prophet_model_timeless p γ past prophs :
-    Timeless (wise_strong_prophet_model p γ past prophs).
+  #[global] Instance wise_strong_prophet_model_timeless pid γ past prophs :
+    Timeless (wise_strong_prophet_model pid γ past prophs).
   Proof.
     apply _.
   Qed.
@@ -76,25 +76,25 @@ Section typed_strong_prophet.
     apply _.
   Qed.
 
-  Lemma wise_strong_prophet_model_exclusive p γ1 past1 prophs1 γ2 past2 prophs2 :
-    wise_strong_prophet_model p γ1 past1 prophs1 -∗
-    wise_strong_prophet_model p γ2 past2 prophs2 -∗
+  Lemma wise_strong_prophet_model_exclusive pid γ1 past1 prophs1 γ2 past2 prophs2 :
+    wise_strong_prophet_model pid γ1 past1 prophs1 -∗
+    wise_strong_prophet_model pid γ2 past2 prophs2 -∗
     False.
   Proof.
     iIntros "(_ & _ & Hmodel1) (_ & _ & Hmodel2)".
     iApply (typed_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma wise_strong_prophet_lb_get p γ past prophs :
-    wise_strong_prophet_model p γ past prophs -∗
+  Lemma wise_strong_prophet_lb_get pid γ past prophs :
+    wise_strong_prophet_model pid γ past prophs -∗
     wise_strong_prophet_lb γ prophs.
   Proof.
     iIntros "(#Hfull & Hpast_auth & Hmodel)".
     iStep.
     iApply (mono_list_lb_get with "Hpast_auth").
   Qed.
-  Lemma wise_strong_prophet_model_lb_valid p γ past prophs lb :
-    wise_strong_prophet_model p γ past prophs -∗
+  Lemma wise_strong_prophet_model_lb_valid pid γ past prophs lb :
+    wise_strong_prophet_model pid γ past prophs -∗
     wise_strong_prophet_lb γ lb -∗
     ⌜ ∃ past1 past2,
       past = past1 ++ past2 ∧
@@ -110,36 +110,36 @@ Section typed_strong_prophet.
   Lemma wise_strong_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ p γ prophs,
-      RET #p;
-      wise_strong_prophet_model p γ [] prophs
+    {{{ pid γ prophs,
+      RET #pid;
+      wise_strong_prophet_model pid γ [] prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp_fupd. wp_apply (typed_strong_prophet_wp_proph with "[//]") as "%p %prophs Hp".
+    iApply wp_fupd. wp_apply (typed_strong_prophet_wp_proph with "[//]") as "%pid %prophs Hpid".
     iMod (agree_alloc (agree_G := wise_strong_prophet_G_full_G) prophs) as "(%γ_full & #Hfull)".
     iMod (mono_list_alloc []) as "(%γ_past & Hpast_auth)".
     set γ := {|
       wise_strong_prophet_name_full := γ_full ;
       wise_strong_prophet_name_past := γ_past ;
     |}.
-    iApply ("HΦ" $! p γ).
+    iApply ("HΦ" $! pid γ).
     iSteps.
   Qed.
 
-  Lemma wise_strong_prophet_wp_resolve e v E p γ past prophs Φ :
+  Lemma wise_strong_prophet_wp_resolve e v E pid γ past prophs Φ :
     Atomic e →
     to_val e = None →
-    wise_strong_prophet_model p γ past prophs -∗
+    wise_strong_prophet_model pid γ past prophs -∗
     WP e @ E {{ w,
       ∃ proph,
       ⌜(w, v) = prophet.(typed_strong_prophet_to_val) proph⌝ ∗
         ∀ prophs',
         ⌜prophs = proph :: prophs'⌝ -∗
-        wise_strong_prophet_model p γ (past ++ [proph]) prophs' -∗
+        wise_strong_prophet_model pid γ (past ++ [proph]) prophs' -∗
         Φ w
     }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (#Hfull & Hpast_auth & Hmodel) HΦ".
     wp_apply (typed_strong_prophet_wp_resolve with "Hmodel"); first done.
@@ -147,7 +147,7 @@ Section typed_strong_prophet.
     iDestruct "HΦ" as "(%proph & % & HΦ)".
     iExists proph. iSplitR; first done.
     iMod (mono_list_update_app [proph] with "Hpast_auth") as "Hpast_auth".
-    iIntros "!> %prophs' -> Hp".
+    iIntros "!> %prophs' -> Hpid".
     iApply ("HΦ" with "[//]").
     rewrite (assoc _ _ [_]). iSteps.
   Qed.
@@ -186,19 +186,19 @@ Section typed_prophet.
     split; apply _.
   Qed.
 
-  Definition wise_prophet_model p γ past prophs : iProp Σ :=
+  Definition wise_prophet_model pid γ past prophs : iProp Σ :=
     ∃ spast sprophs,
     ⌜past = spast.*2⌝ ∗
     ⌜prophs = sprophs.*2⌝ ∗
-    wise_strong_prophet_model prophet p γ spast sprophs.
+    wise_strong_prophet_model prophet pid γ spast sprophs.
 
   Definition wise_prophet_lb γ lb : iProp Σ :=
     ∃ slb,
     ⌜lb = slb.*2⌝ ∗
     wise_strong_prophet_lb prophet γ slb.
 
-  #[global] Instance wise_prophet_model_timeless p γ past prophs :
-    Timeless (wise_prophet_model p γ past prophs).
+  #[global] Instance wise_prophet_model_timeless pid γ past prophs :
+    Timeless (wise_prophet_model pid γ past prophs).
   Proof.
     apply _.
   Qed.
@@ -213,25 +213,25 @@ Section typed_prophet.
     apply _.
   Qed.
 
-  Lemma wise_prophet_model_exclusive p γ1 past1 prophs1 γ2 past2 prophs2 :
-    wise_prophet_model p γ1 past1 prophs1 -∗
-    wise_prophet_model p γ2 past2 prophs2 -∗
+  Lemma wise_prophet_model_exclusive pid γ1 past1 prophs1 γ2 past2 prophs2 :
+    wise_prophet_model pid γ1 past1 prophs1 -∗
+    wise_prophet_model pid γ2 past2 prophs2 -∗
     False.
   Proof.
     iIntros "(%spast1 & %sprophs1 & _ & _ & Hmodel1) (%spast2 & %sprophs2 & _ & _ & Hmodel2)".
     iApply (wise_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma wise_prophet_lb_get p γ past prophs :
-    wise_prophet_model p γ past prophs -∗
+  Lemma wise_prophet_lb_get pid γ past prophs :
+    wise_prophet_model pid γ past prophs -∗
     wise_prophet_lb γ prophs.
   Proof.
     iIntros "(%spast & %sprophs & -> & -> & Hmodel)".
     iStep.
     iApply (wise_strong_prophet_lb_get with "Hmodel").
   Qed.
-  Lemma wise_prophet_model_lb_valid p γ past prophs lb :
-    wise_prophet_model p γ past prophs -∗
+  Lemma wise_prophet_model_lb_valid pid γ past prophs lb :
+    wise_prophet_model pid γ past prophs -∗
     wise_prophet_lb γ lb -∗
     ⌜ ∃ past1 past2,
       past = past1 ++ past2 ∧
@@ -246,29 +246,29 @@ Section typed_prophet.
   Lemma wise_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ p γ prophs,
-      RET #p;
-      wise_prophet_model p γ [] prophs
+    {{{ pid γ prophs,
+      RET #pid;
+      wise_prophet_model pid γ [] prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (wise_strong_prophet_wp_proph prophet with "[//]") as "%p %γ %sprophs Hmodel".
+    wp_apply (wise_strong_prophet_wp_proph prophet with "[//]") as "%pid %γ %sprophs Hmodel".
     iApply "HΦ".
     iExists [], sprophs. iSteps.
   Qed.
 
-  Lemma wise_prophet_wp_resolve proph e v E p γ past prophs Φ :
+  Lemma wise_prophet_wp_resolve proph e v E pid γ past prophs Φ :
     Atomic e →
     to_val e = None →
     v = prophet.(typed_prophet_to_val) proph →
-    wise_prophet_model p γ past prophs -∗
+    wise_prophet_model pid γ past prophs -∗
     WP e @ E {{ w,
       ∀ prophs',
       ⌜prophs = proph :: prophs'⌝ -∗
-      wise_prophet_model p γ (past ++ [proph]) prophs' -∗
+      wise_prophet_model pid γ (past ++ [proph]) prophs' -∗
       Φ w
     }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ? ->) "(%spast & %sprophs & -> & -> & Hmodel) HΦ".
     wp_apply (wise_strong_prophet_wp_resolve with "Hmodel"); first done.

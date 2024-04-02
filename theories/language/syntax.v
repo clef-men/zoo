@@ -19,9 +19,9 @@ Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
 
-Definition prophecy_id :=
+Definition prophet_id :=
   positive.
-Implicit Types p : prophecy_id.
+Implicit Types pid : prophet_id.
 
 Definition constr_id :=
   positive.
@@ -31,7 +31,7 @@ Inductive literal :=
   | LiteralBool b
   | LiteralInt n
   | LiteralLoc l
-  | LiteralProphecy p
+  | LiteralProphecy pid
   | LiteralPoison.
 Implicit Types lit : literal.
 
@@ -48,8 +48,8 @@ Proof.
         inl $ inl $ inl $ inr n
     | LiteralLoc l =>
         inl $ inl $ inr l
-    | LiteralProphecy p =>
-        inl $ inr p
+    | LiteralProphecy pid =>
+        inl $ inr pid
     | LiteralPoison =>
         inr ()
     end.
@@ -431,8 +431,8 @@ Notation ValLoc l := (
   ValLiteral (LiteralLoc l)
 )(only parsing
 ).
-Notation ValProphecy p := (
-  ValLiteral (LiteralProphecy p)
+Notation ValProphecy pid := (
+  ValLiteral (LiteralProphecy pid)
 )(only parsing
 ).
 

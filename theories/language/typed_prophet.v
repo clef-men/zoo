@@ -33,20 +33,20 @@ Section typed_strong_prophet.
             proph :: typed_strong_prophet_process prophs
         end
     end.
-  Definition typed_strong_prophet_model p prophs : iProp Σ :=
-    ∃ pvs,
-    ⌜prophs = typed_strong_prophet_process pvs⌝ ∗
-    proph p pvs.
+  Definition typed_strong_prophet_model pid prophs : iProp Σ :=
+    ∃ uprophs,
+    ⌜prophs = typed_strong_prophet_process uprophs⌝ ∗
+    prophet_model pid uprophs.
 
-  #[global] Instance typed_strong_prophet_model_timeless p prophs :
-    Timeless (typed_strong_prophet_model p prophs).
+  #[global] Instance typed_strong_prophet_model_timeless pid prophs :
+    Timeless (typed_strong_prophet_model pid prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma typed_strong_prophet_model_exclusive p prophs1 prophs2 :
-    typed_strong_prophet_model p prophs1 -∗
-    typed_strong_prophet_model p prophs2 -∗
+  Lemma typed_strong_prophet_model_exclusive pid prophs1 prophs2 :
+    typed_strong_prophet_model pid prophs1 -∗
+    typed_strong_prophet_model pid prophs2 -∗
     False.
   Proof.
     iSteps.
@@ -55,9 +55,9 @@ Section typed_strong_prophet.
   Lemma typed_strong_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ p prophs,
-      RET #p;
-      typed_strong_prophet_model p prophs
+    {{{ pid prophs,
+      RET #pid;
+      typed_strong_prophet_model pid prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -65,23 +65,23 @@ Section typed_strong_prophet.
     iSteps.
   Qed.
 
-  Lemma typed_strong_prophet_wp_resolve e v E p prophs Φ :
+  Lemma typed_strong_prophet_wp_resolve e v E pid prophs Φ :
     Atomic e →
     to_val e = None →
-    typed_strong_prophet_model p prophs -∗
+    typed_strong_prophet_model pid prophs -∗
     WP e @ E {{ w,
       ∃ proph,
       ⌜(w, v) = prophet.(typed_strong_prophet_to_val) proph⌝ ∗
         ∀ prophs',
         ⌜prophs = proph :: prophs'⌝ -∗
-        typed_strong_prophet_model p prophs' -∗
+        typed_strong_prophet_model pid prophs' -∗
         Φ w
     }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "% % (%pvs & %Hprophs & Hp) HΦ".
-    wp_apply (wp_resolve with "Hp"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %pvs' -> Hp".
+    iIntros "% % (%uprophs & %Hprophs & Hpid) HΦ".
+    wp_apply (wp_resolve with "Hpid"); first done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %prophs' -> Hpid".
     rewrite /= (typed_strong_prophet_of_to_val _ proph) // in Hprophs.
     iSteps.
   Qed.
@@ -122,20 +122,20 @@ Section typed_prophet.
     erewrite typed_prophet_of_to_val; done.
   Qed.
 
-  Definition typed_prophet_model p prophs : iProp Σ :=
+  Definition typed_prophet_model pid prophs : iProp Σ :=
     ∃ sprophs,
     ⌜prophs = sprophs.*2⌝ ∗
-    typed_strong_prophet_model typed_prophet_strong_prophet p sprophs.
+    typed_strong_prophet_model typed_prophet_strong_prophet pid sprophs.
 
-  #[global] Instance typed_prophet_model_timeless p prophs :
-    Timeless (typed_prophet_model p prophs).
+  #[global] Instance typed_prophet_model_timeless pid prophs :
+    Timeless (typed_prophet_model pid prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma typed_prophet_model_exclusive p prophs1 prophs2 :
-    typed_prophet_model p prophs1 -∗
-    typed_prophet_model p prophs2 -∗
+  Lemma typed_prophet_model_exclusive pid prophs1 prophs2 :
+    typed_prophet_model pid prophs1 -∗
+    typed_prophet_model pid prophs2 -∗
     False.
   Proof.
     iIntros "(%sprophs1 & _ & Hmodel1) (%sprophs2 & _ & Hmodel2)".
@@ -145,9 +145,9 @@ Section typed_prophet.
   Lemma typed_prophet_wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ p prophs,
-      RET #p;
-      typed_prophet_model p prophs
+    {{{ pid prophs,
+      RET #pid;
+      typed_prophet_model pid prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -155,18 +155,18 @@ Section typed_prophet.
     iSteps. done.
   Qed.
 
-  Lemma typed_prophet_wp_resolve proph e v E p prophs Φ :
+  Lemma typed_prophet_wp_resolve proph e v E pid prophs Φ :
     Atomic e →
     to_val e = None →
     v = prophet.(typed_prophet_to_val) proph →
-    typed_prophet_model p prophs -∗
+    typed_prophet_model pid prophs -∗
     WP e @ E {{ w,
       ∀ prophs',
       ⌜prophs = proph :: prophs'⌝ -∗
-      typed_prophet_model p prophs' -∗
+      typed_prophet_model pid prophs' -∗
       Φ w
     }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ? ->) "(%sprophs & -> & Hmodel) HΦ".
     wp_apply (typed_strong_prophet_wp_resolve with "Hmodel"); first done.
@@ -209,20 +209,20 @@ Section typed_prophet1.
     apply typed_prophet1_of_to_val.
   Qed.
 
-  Definition typed_prophet1_model p proph : iProp Σ :=
+  Definition typed_prophet1_model pid proph : iProp Σ :=
     ∃ prophs,
-    typed_prophet_model (typed_prophet1_prophet prophet) p prophs ∗
+    typed_prophet_model (typed_prophet1_prophet prophet) pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
 
-  #[global] Instance typed_prophet1_model_timeless p proph :
-    Timeless (typed_prophet1_model p proph).
+  #[global] Instance typed_prophet1_model_timeless pid proph :
+    Timeless (typed_prophet1_model pid proph).
   Proof.
     apply _.
   Qed.
 
-  Lemma typed_prophet1_model_exclusive p proph1 proph2 :
-    typed_prophet1_model p proph1 -∗
-    typed_prophet1_model p proph2 -∗
+  Lemma typed_prophet1_model_exclusive pid proph1 proph2 :
+    typed_prophet1_model pid proph1 -∗
+    typed_prophet1_model pid proph2 -∗
     False.
   Proof.
     iIntros "(%prophs1 & Hmodel1 & _) (%prophs2 & Hmodel2 & _)".
@@ -232,26 +232,26 @@ Section typed_prophet1.
   Lemma typed_prophet1_wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ p proph,
-      RET #p;
-      typed_prophet1_model p proph
+    {{{ pid proph,
+      RET #pid;
+      typed_prophet1_model pid proph
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (typed_prophet_wp_proph with "[//]") as "%p %prophs Hmodel".
+    wp_apply (typed_prophet_wp_proph with "[//]") as "%pid %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
-    1: iApply ("HΦ" $! p inhabitant).
-    2: iApply ("HΦ" $! p proph).
+    1: iApply ("HΦ" $! pid inhabitant).
+    2: iApply ("HΦ" $! pid proph).
     all: iSteps.
   Qed.
 
-  Lemma typed_prophet1_wp_resolve proph e v E p proph' Φ :
+  Lemma typed_prophet1_wp_resolve proph e v E pid proph' Φ :
     Atomic e →
     to_val e = None →
     v = prophet.(typed_prophet1_to_val) proph →
-    typed_prophet1_model p proph' -∗
+    typed_prophet1_model pid proph' -∗
     WP e @ E {{ w, ⌜proph' = proph⌝ -∗ Φ w }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ? ->) "(%prophs & Hmodel & %) HΦ".
     wp_apply (typed_prophet_wp_resolve with "Hmodel"); [done.. |].

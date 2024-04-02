@@ -16,7 +16,7 @@ From zebre Require Import
   options.
 
 Implicit Types l : location.
-Implicit Types p : prophecy_id.
+Implicit Types pid : prophet_id.
 Implicit Types lit : literal.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -383,26 +383,26 @@ Section zebre_G.
   Lemma wp_proph E :
     {{{ True }}}
       Proph @ E
-    {{{ pvs p,
-      RET #p;
-      proph p pvs
+    {{{ prophs pid,
+      RET #pid;
+      prophet_model pid prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
-    iMod (proph_map_new_proph p with "Hκs") as "(Hκs & Hp)"; first done.
+    iMod (prophet_map_new pid with "Hκs") as "(Hκs & Hp)"; first done.
     iFrame. iSteps.
   Qed.
 
-  Lemma resolve_reducible e σ p v :
+  Lemma resolve_reducible e σ pid v :
     Atomic e →
     reducible e σ →
-    reducible (Resolve e #p v) σ.
+    reducible (Resolve e #pid v) σ.
   Proof.
     intros A (κ & e' & σ' & es & ϕ & H).
-    exists (κ ++ [(p, (default v (to_val e'), v))]), e', σ', es, ϕ.
+    exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es, ϕ.
     eapply (Ectx_step []); try done.
     assert (∃ w, Val w = e') as (w & <-).
     { unfold Atomic in A. apply (A σ e' κ σ' es) in H. unfold is_Some in H.
@@ -417,39 +417,39 @@ Section zebre_G.
   Proof.
     intros A [K e1' e2' Hfill -> step]. simpl in *.
     induction K as [| k K _] using rev_ind.
-    + simpl in *. subst. invert_base_step. constructor. done.
-    + rewrite fill_app /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
-      - assert (fill_item k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fill_app.
+    - simpl in *. subst. invert_base_step. constructor. done.
+    - rewrite fill_app /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
+      + assert (fill_item k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fill_app.
         assert (fill_item k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fill_app.
         rewrite fill_app /=. rewrite Heq1 in A.
         assert (is_Some (to_val (fill (K ++ [k]) e2'))) as H.
         { eapply (A σ1 _ κ σ2 es), (Ectx_step (K ++ [k])); done. }
         destruct H as [v H]. apply to_val_fill_some in H. destruct H, K; done.
-      - rename select (of_val v1 = _) into Hv1.
+      + rename select (of_val v1 = _) into Hv1.
         assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
         apply to_val_fill_some in Hfill_v1 as (-> & ->).
         invert_base_step.
-      - rename select (of_val v2 = _) into Hv2.
+      + rename select (of_val v2 = _) into Hv2.
         assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
         apply to_val_fill_some in Hfill_v2 as (-> & ->).
         invert_base_step.
   Qed.
-  Lemma wp_resolve e p v pvs E Φ :
+  Lemma wp_resolve e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
-    proph p pvs -∗
+    prophet_model pid prophs -∗
     WP e @ E {{ res,
-      ∀ pvs',
-      ⌜pvs = (res, v) :: pvs'⌝ -∗
-      proph p pvs' -∗
+      ∀ prophs',
+      ⌜prophs = (res, v) :: prophs'⌝ -∗
+      prophet_model pid prophs' -∗
       Φ res
     }} -∗
-    WP Resolve e #p v @ E {{ Φ }}.
+    WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "%Hatomic %He Hp H".
+    iIntros "%Hatomic %He Hpid H".
     rewrite !wp_unfold /wp_pre /= He. simpl in *.
     iIntros "%σ1 %κ %κs (Hσ & Hκs)".
-    destruct κ as [| (p' & (w' & v')) κ' _] using rev_ind.
+    destruct κ as [| (pid' & (w' & v')) κ' _] using rev_ind.
     - iMod ("H" with "[$Hσ $Hκs]") as "(%Hreducible & H)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
       iIntros "!> %e2 %σ2 %es %ϕ %Hstep".
@@ -466,7 +466,7 @@ Section zebre_G.
       { eexists [] _ _; done. }
       do 2 iModIntro.
       iMod "H" as "(($ & Hκs) & H)".
-      iMod (proph_map_resolve_proph p' (w', v') κs with "[$Hκs $Hp]") as (vs' ->) "($ & Hp')".
+      iMod (prophet_map_resolve pid' (w', v') κs with "Hκs Hpid") as (vs' ->) "($ & Hpid')".
       rewrite !wp_unfold /wp_pre /=.
       iDestruct "H" as "(HΦ & $)".
       iSteps.
