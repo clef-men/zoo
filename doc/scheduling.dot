@@ -12,13 +12,13 @@ digraph {
 		deque [label="deque"]
 		/* mutex [label="mutex"] */
 		/* condition [label="condition"] */
+		mpsc_latch1 [label="mpsc_latch1"]
+		spmc_future [label="spmc_future"]
 	}
 
 	subgraph cluster_saturn {
 		label="saturn"
 		node [style=filled, color=peachpuff]
-		mpsc_latch1 [label="mpsc_latch1"]
-		spmc_future [label="spmc_future"]
 		mpmc_queue [label="mpmc_queue"]
 		ws_deque [label="ws_deque"]
 	}

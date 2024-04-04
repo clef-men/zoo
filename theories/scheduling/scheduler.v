@@ -7,8 +7,7 @@ From zebre.language Require Import
   diaframe.
 From zebre.std Require Import
   opt
-  for_upto.
-From zebre.saturn Require Import
+  for_upto
   spmc_future.
 From zebre.scheduling Require Export
   base.

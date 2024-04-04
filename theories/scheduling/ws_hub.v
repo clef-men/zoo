@@ -12,9 +12,9 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Import
-  opt.
+  opt
+  mpsc_latch1.
 From zebre.saturn Require Import
-  mpsc_latch1
   mpmc_queue.
 From zebre.scheduling Require Export
   base.

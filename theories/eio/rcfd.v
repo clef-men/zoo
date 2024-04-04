@@ -14,9 +14,8 @@ From zebre.language Require Import
   diaframe.
 From zebre.std Require Import
   opt
+  spsc_latch1
   unix.
-From zebre.saturn Require Import
-  spsc_latch1.
 From zebre.eio Require Export
   base.
 From zebre Require Import

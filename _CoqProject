@@ -100,6 +100,10 @@ theories/std/xdeque.v
 theories/std/deque.v
 theories/std/mutex.v
 theories/std/condition.v
+theories/std/spsc_latch1.v
+theories/std/mpsc_latch1.v
+theories/std/spsc_future.v
+theories/std/spmc_future.v
 theories/std/random.v
 theories/std/random_round.v
 theories/std/unix.v
@@ -112,10 +116,6 @@ theories/persistent/pstore_1.v
 theories/persistent/pstore_2.v
 
 theories/saturn/base.v
-theories/saturn/spsc_latch1.v
-theories/saturn/mpsc_latch1.v
-theories/saturn/spsc_future.v
-theories/saturn/spmc_future.v
 theories/saturn/bag.v
 theories/saturn/mpmc_stack.v
 theories/saturn/spsc_queue.v
