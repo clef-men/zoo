@@ -2,11 +2,10 @@
    https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/mpmc_relaxed_queue.ml
 *)
 
-From iris.algebra Require Import
-  gmultiset.
-
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  list.
 From zebre.iris.base_logic Require Import
   lib.twins.
 From zebre.language Require Import
@@ -75,11 +74,11 @@ Definition bag_pop : val :=
     bag_pop_aux (array_unsafe_get "data" "i").
 
 Class BagG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] bag_G_model_G :: TwinsG Σ (gmultisetO val) ;
+  #[local] bag_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
 
 Definition bag_Σ := #[
-  twins_Σ (gmultisetO val)
+  twins_Σ (leibnizO (gmultiset val))
 ].
 #[global] Instance subG_bag_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG bag_Σ Σ →
@@ -275,9 +274,9 @@ Section bag_G.
       rewrite list_insert_id //.
       iSplitR "HΦ".
       { iExists front, back, os', vs'. iSteps. iPureIntro.
-        rewrite /vs' /os' insert_take_drop; first congruence.
-        rewrite Hvs -{1}(take_drop_middle os i None) // !foldr_app /=.
-        rewrite -foldr_comm_acc_strong //. { intros []; set_solver by lia. }
+        rewrite (foldr_insert_strong _ option_union _ _ None (Some v)) //.
+        { intros [w |] acc; last done. set_solver by lia. }
+        set_solver.
       }
       iSteps.
   Qed.

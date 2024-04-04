@@ -25,6 +25,40 @@ Section basic.
     destruct (rev_elim l) as [-> | (l' & x & ->)]; first done.
     rewrite reverse_snoc app_nil. naive_solver.
   Qed.
+
+  Lemma foldr_insert_strong `(f : A → B → B) comp l i x y acc :
+    l !! i = Some x →
+    ( ∀ x acc,
+      f x (f y acc) = f y (f x acc)
+    ) →
+    ( ∀ acc,
+      f (comp y x) acc = f y (f x acc)
+    ) →
+    foldr f acc (<[i := comp y x]> l) = f y (foldr f acc l).
+  Proof.
+    intros Hlookup Hf Hcomp.
+    rewrite insert_take_drop. { eapply lookup_lt_Some. done. }
+    rewrite -{3}(take_drop_middle l i x) // !foldr_app /=.
+    rewrite -(foldr_comm_acc_strong _ _ (f y)) // Hcomp //.
+  Qed.
+  Lemma foldr_insert_strong' op `{!Assoc (=) op} `{!Comm (=) op} comp l i x y acc :
+    l !! i = Some x →
+    ( ∀ acc,
+      op (comp y x) acc = op y (op x acc)
+    ) →
+    foldr op acc (<[i := comp y x]> l) = op y (foldr op acc l).
+  Proof.
+    intros Hlookup Hcomp.
+    apply foldr_insert_strong; try done.
+    intros. rewrite assoc (comm _ _ y) //.
+  Qed.
+  Lemma foldr_insert op `{!Assoc (=) op} `{!Comm (=) op} l i x y acc :
+    l !! i = Some x →
+    foldr op acc (<[i := op y x]> l) = op y (foldr op acc l).
+  Proof.
+    intros Hlookup.
+    apply: foldr_insert_strong'; done.
+  Qed.
 End basic.
 
 Section Permutation.

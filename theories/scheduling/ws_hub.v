@@ -4,6 +4,8 @@
 
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  list.
 From zebre.iris.base_logic Require Import
   lib.twins.
 From zebre.language Require Import
@@ -347,10 +349,10 @@ Section ws_hub_G.
     iSplitR "HΦ".
     { repeat iExists _. iFrame. iPureIntro.
       rewrite {}Hvs assoc. f_equal.
-      rewrite insert_take_drop. { eapply lookup_lt_Some. done. }
-      rewrite -{1}(take_drop_middle vss (Z.to_nat i) vs') // !foldr_app /=.
-      rewrite -foldr_comm_acc_strong. { intros []; set_solver by lia. }
-      rewrite assoc list_to_set_disj_app (comm _ {[+v+]}) /= right_id //.
+      rewrite (foldr_insert_strong _ (flip (++))) //.
+      { set_solver by lia. }
+      { rewrite list_to_set_disj_app. multiset_solver. }
+      set_solver.
     }
     iIntros "Hdeques_owner".
 
@@ -404,7 +406,7 @@ Section ws_hub_G.
     | ∀∀ vs,
       ws_hub_model t vs
     >>>
-      ws_hub_try_pop ws_deques t #i
+      ws_hub_try_pop ws_deques t #i @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -429,7 +431,7 @@ Section ws_hub_G.
     | ∀∀ vs,
       ws_hub_model t vs
     >>>
-      ws_hub_pop ws_deques t #i
+      ws_hub_pop ws_deques t #i @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
