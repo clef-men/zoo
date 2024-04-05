@@ -369,7 +369,7 @@ Section bag_G.
         apply gmultiset_disj_union_difference'.
         rewrite Hvs -(take_drop_middle os i (Some v)) // foldr_app /=.
         rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
-        multiset_solver.
+        set_solver.
       }
       iDestruct ("Hslots" $! _ None with "Hslot") as "Hslots".
       rewrite list_insert_id //.
