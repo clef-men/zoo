@@ -33,6 +33,10 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
   #[global] ws_deques_inv_persistent t ι sz ::
     Persistent (ws_deques_inv t ι sz) ;
 
+  ws_deques_owner_valid t ι sz i :
+    ws_deques_inv t ι sz -∗
+    ws_deques_owner t i -∗
+    ⌜i < sz⌝ ;
   ws_deques_owner_exclusive t i :
     ws_deques_owner t i -∗
     ws_deques_owner t i -∗
@@ -127,7 +131,7 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
     >>> ;
 }.
 #[global] Arguments ws_deques _ {_} : assert.
-#[global] Arguments Build_ws_deques {_ _ _ _ _ _ _ _ _ _ _ _ _} _ _ _ _ _ _ : assert.
+#[global] Arguments Build_ws_deques {_ _ _ _ _ _ _ _ _ _ _ _ _} _ _ _ _ _ _ _ : assert.
 #[global] Opaque ws_deques_create.
 #[global] Opaque ws_deques_size.
 #[global] Opaque ws_deques_push.

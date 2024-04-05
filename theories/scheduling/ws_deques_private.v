@@ -218,6 +218,12 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
+  Lemma ws_deques_private_owner_valid t ι sz i :
+    ws_deques_private_inv t ι sz -∗
+    ws_deques_private_owner t i -∗
+    ⌜i < sz⌝.
+  Proof.
+  Admitted.
   Lemma ws_deques_private_owner_exclusive t i :
     ws_deques_private_owner t i -∗
     ws_deques_private_owner t i -∗
@@ -325,6 +331,7 @@ Section ws_deques_private_G.
 
   Definition ws_deques_private :=
     Build_ws_deques
+      ws_deques_private_owner_valid
       ws_deques_private_owner_exclusive
       ws_deques_private_create_spec
       ws_deques_private_size_spec

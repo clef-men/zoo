@@ -90,6 +90,15 @@ Section ws_deques_public_G.
     apply _.
   Qed.
 
+  Lemma ws_deques_public_owner_valid t ι sz i :
+    ws_deques_public_inv t ι sz -∗
+    ws_deques_public_owner t i -∗
+    ⌜i < sz⌝.
+  Proof.
+    iIntros "(%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)".
+    iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
+    iPureIntro. rewrite Hdeques_length. eapply lookup_lt_Some. done.
+  Qed.
   Lemma ws_deques_public_owner_exclusive t i :
     ws_deques_public_owner t i -∗
     ws_deques_public_owner t i -∗
@@ -288,6 +297,7 @@ Section ws_deques_public_G.
 
   Definition ws_deques_public :=
     Build_ws_deques
+      ws_deques_public_owner_valid
       ws_deques_public_owner_exclusive
       ws_deques_public_create_spec
       ws_deques_public_size_spec
