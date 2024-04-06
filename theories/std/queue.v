@@ -124,7 +124,7 @@ Section zebre_G.
     wp_apply (chain_set_head_spec with "Hsent_model") as "Hsent_model".
     wp_load.
     wp_apply (chain_set_tail_spec with "Hsent_model") as (?) "(Hsent_model & _)".
-    iDestruct (chain_model_app_1 with "Hfront_model Hsent_model") as "Hfront_model".
+    iDestruct (chain_model_app_2 with "Hfront_model Hsent_model") as "Hfront_model".
     iSteps.
   Qed.
 

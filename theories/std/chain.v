@@ -128,14 +128,7 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma chain_model_app_1 t1 vs1 t2 vs2 dst :
-    chain_model t1 vs1 t2 -∗
-    chain_model t2 vs2 dst -∗
-    chain_model t1 (vs1 ++ vs2) dst.
-  Proof.
-    iInduction vs1 as [| v1 vs1] "IH" forall (t1); iSteps.
-  Qed.
-  Lemma chain_model_app_2 vs1 vs2 t vs dst :
+  Lemma chain_model_app_1 vs1 vs2 t vs dst :
     vs = vs1 ++ vs2 →
     chain_model t vs dst ⊢
       ∃ t',
@@ -147,17 +140,23 @@ Section zebre_G.
     iDestruct ("IH" with "[//] Hmodel'") as "(%t'' & Hmodel' & Hmodel'')".
     iSteps.
   Qed.
+  Lemma chain_model_app_2 t1 vs1 t2 vs2 dst :
+    chain_model t1 vs1 t2 -∗
+    chain_model t2 vs2 dst -∗
+    chain_model t1 (vs1 ++ vs2) dst.
+  Proof.
+    iInduction vs1 as [| v1 vs1] "IH" forall (t1); iSteps.
+  Qed.
   Lemma chain_model_app t vs1 vs2 dst :
-    ( ∃ t',
+    chain_model t (vs1 ++ vs2) dst ⊣⊢
+      ∃ t',
       chain_model t vs1 t' ∗
-      chain_model t' vs2 dst
-    ) ⊣⊢
-    chain_model t (vs1 ++ vs2) dst.
+      chain_model t' vs2 dst.
   Proof.
     iSplit.
+    - iApply chain_model_app_1; first done.
     - iIntros "(%t' & Hmodel & Hmodel')".
-      iApply (chain_model_app_1 with "Hmodel Hmodel'").
-    - iApply chain_model_app_2; first done.
+      iApply (chain_model_app_2 with "Hmodel Hmodel'").
   Qed.
 
   Lemma chain_model_exclusive t vs1 dst1 vs2 dst2 :
