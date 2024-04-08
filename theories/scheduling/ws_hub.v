@@ -15,7 +15,7 @@ From zebre.std Require Import
   opt
   mpsc_latch1.
 From zebre.saturn Require Import
-  mpmc_queue.
+  mpmc_queue_1.
 From zebre.scheduling Require Export
   base.
 From zebre.scheduling Require Import

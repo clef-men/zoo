@@ -87,7 +87,9 @@ theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
-theories/std/schain.v
+theories/std/node2.v
+theories/std/node2_schain.v
+theories/std/node2_chain.v
 theories/std/chain.v
 theories/std/chunk.v
 theories/std/array.v
@@ -121,7 +123,8 @@ theories/saturn/mpmc_stack.v
 theories/saturn/spsc_queue.v
 theories/saturn/mpsc_queue_1.v
 theories/saturn/mpsc_queue_2.v
-theories/saturn/mpmc_queue.v
+theories/saturn/mpmc_queue_1.v
+theories/saturn/mpmc_queue_2.v
 theories/saturn/inf_ws_deque.v
 
 theories/scheduling/base.v
