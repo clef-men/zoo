@@ -17,8 +17,8 @@ Section language.
 
   Lemma wp_lift_step e E Φ :
     to_val e = None →
-    ( ∀ σ κ κs,
-      state_interp σ (κ ++ κs) -∗
+    ( ∀ nt σ κ κs,
+      state_interp nt σ (κ ++ κs) -∗
         |={E, ∅}=>
         ⌜reducible e σ⌝ ∗
           ∀ e' σ' es ϕ,
@@ -26,7 +26,7 @@ Section language.
           ⌜ϕ⌝ -∗
           £ 1 -∗
             |={∅}=> ▷ |={∅, E}=>
-            state_interp σ' κs ∗
+            state_interp (nt + length es) σ' κs ∗
             wp e' E Φ ∗
             [∗ list] i ↦ e ∈ es,
               wp e ⊤ fork_post
@@ -38,8 +38,8 @@ Section language.
 
   Lemma wp_lift_atomic_step e E1 E2 Φ :
     to_val e = None →
-    ( ∀ σ κ κs,
-      state_interp σ (κ ++ κs) -∗
+    ( ∀ nt σ κ κs,
+      state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜reducible e σ⌝ ∗
           ∀ e' σ' es ϕ,
@@ -47,7 +47,7 @@ Section language.
           ⌜ϕ⌝ -∗
           £ 1 -∗
             |={E1}[E2]▷=>
-            state_interp σ' κs ∗
+            state_interp (nt + length es) σ' κs ∗
             from_option Φ False (to_val e') ∗
             [∗ list] e ∈ es,
               WP e @ ⊤ {{ fork_post }}
@@ -55,8 +55,8 @@ Section language.
     WP e @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply wp_lift_step; first done. iIntros "%σ %κ %κs Hσ".
-    iMod ("H" $! σ with "Hσ") as "($ & H)".
+    iApply wp_lift_step; first done. iIntros "%nt %σ %κ %κs Hσ".
+    iMod ("H" with "Hσ") as "($ & H)".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose %e' %σ' %es %ϕ %Hstep %Hϕ H£".
     iMod "Hclose" as "_".
     iMod ("H" with "[//] [//] H£") as "H".
@@ -89,12 +89,12 @@ Section language.
     iIntros "%Hsafe %Hpure H".
     iApply wp_lift_step.
     { specialize (Hsafe inhabitant). eauto using reducible_not_val. }
-    iIntros (σ κ κs ) "Hσ".
+    iIntros "%nt %σ %κ %κs Hσ".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ H£ !> !>".
     destruct (Hpure σ κ e' σ' es ϕ) as (-> & <- & ->); first done.
-    iSteps.
+    rewrite Nat.add_0_r. iSteps.
   Qed.
 
   Lemma wp_lift_pure_det_step_no_fork `{!Inhabited (state Λ)} e1 e2 E1 E2 Φ :
@@ -172,8 +172,8 @@ Section ectx_language.
 
   Lemma wp_lift_atomic_base_step e E1 E2 Φ :
     to_val e = None →
-    ( ∀ σ κ κs,
-      state_interp σ (κ ++ κs) -∗
+    ( ∀ nt σ κ κs,
+      state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜base_reducible e σ⌝ ∗
         ∀ e' σ' es ϕ,
@@ -181,7 +181,7 @@ Section ectx_language.
         ⌜ϕ⌝ -∗
         £ 1 -∗
           |={E1}[E2]▷=>
-          state_interp σ' κs ∗
+          state_interp (nt + length es) σ' κs ∗
           from_option Φ False (to_val e') ∗
           [∗ list] e ∈ es,
             WP e @ ⊤ {{ fork_post }}
@@ -189,7 +189,7 @@ Section ectx_language.
     WP e @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply wp_lift_atomic_step; first done. iIntros "%σ %κ %κs Hσ".
+    iApply wp_lift_atomic_step; first done. iIntros "%nt %σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "(%Hreducible & H)".
     iModIntro. iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ".
     iApply ("H" with "[%] [//]").
@@ -198,8 +198,8 @@ Section ectx_language.
 
   Lemma wp_lift_atomic_base_step_no_fork e E1 E2 Φ :
     to_val e = None →
-    ( ∀ σ κ κs,
-      state_interp σ (κ ++ κs) -∗
+    ( ∀ nt σ κ κs,
+      state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜base_reducible e σ⌝ ∗
           ∀ e' σ' es ϕ,
@@ -208,16 +208,18 @@ Section ectx_language.
           £ 1 -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
-            state_interp σ' κs ∗
+            state_interp nt σ' κs ∗
             from_option Φ False (to_val e')
     ) ⊢
     WP e @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply wp_lift_atomic_base_step; first done. iIntros "%σ %κ %κs Hσ".
+    iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "($ & H)".
     iModIntro. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ H£".
     iMod ("H" with "[//] [//] H£") as "H".
-    iModIntro. iSteps.
+    do 2 iModIntro.
+    iMod "H" as "(-> & Hσ & HΦ)".
+    rewrite Nat.add_0_r. iSteps.
   Qed.
 End ectx_language.

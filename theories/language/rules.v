@@ -60,7 +60,7 @@ Section zebre_G.
     WP v1 = v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     destruct
@@ -95,7 +95,7 @@ Section zebre_G.
     WP Reveal $ ValConstr None tag vs @ E {{ Φ }}.
   Proof.
     iIntros "H".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame. iSteps.
@@ -127,7 +127,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
     iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step. rename select (list val) into vs.
     iStep. iFrame.
@@ -150,7 +150,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
     iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iStep. iFrame.
@@ -186,7 +186,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
@@ -204,7 +204,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
@@ -223,7 +223,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
@@ -273,7 +273,7 @@ Section zebre_G.
     WP Cas #l v1 v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
 
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
@@ -360,7 +360,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
@@ -374,7 +374,7 @@ Section zebre_G.
     WP Fork e @ E {{ Φ }}.
   Proof.
     iIntros "H HΦ".
-    iApply wp_lift_atomic_base_step; first done. iIntros "%σ1 %κ %κs (Hσ1 & Hκs) !>".
+    iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
     iSplit; first auto with zebre. iIntros "%v2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame.
@@ -389,7 +389,7 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (prophet_map_new pid with "Hκs") as "(Hκs & Hp)"; first done.
@@ -448,16 +448,16 @@ Section zebre_G.
   Proof.
     iIntros "%Hatomic %He Hpid H".
     rewrite !wp_unfold /wp_pre /= He. simpl in *.
-    iIntros "%σ1 %κ %κs (Hσ & Hκs)".
+    iIntros "%nt %σ1 %κ %κs Hσ".
     destruct κ as [| (pid' & (w' & v')) κ' _] using rev_ind.
-    - iMod ("H" with "[$Hσ $Hκs]") as "(%Hreducible & H)".
+    - iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
       iIntros "!> %e2 %σ2 %es %ϕ %Hstep".
       exfalso. apply step_resolve in Hstep; last done.
       invert_base_step.
       destruct κ; done.
     - rewrite -assoc.
-      iMod ("H" with "[$Hσ $Hκs]") as "(%Hreducible & H)".
+      iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
       iIntros "!> %e2 %σ2 %es %ϕ %Hstep %HΦ H£".
       apply step_resolve in Hstep; last done.

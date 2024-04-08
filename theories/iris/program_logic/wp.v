@@ -12,7 +12,7 @@ From zebre Require Import
 
 Class IrisG Λ Σ := {
   #[global] iris_G_inv_G :: invGS Σ ;
-  state_interp : state Λ → list (observation Λ) → iProp Σ ;
+  state_interp : nat → state Λ → list (observation Λ) → iProp Σ ;
   fork_post : val Λ → iProp Σ ;
 }.
 #[global] Arguments Build_IrisG {_ _ _} _ _ : assert.
@@ -29,8 +29,8 @@ Section iris_G.
       | Some v =>
           |={E}=> Φ v
       | None =>
-          ∀ σ κ κs,
-          state_interp σ (κ ++ κs) -∗
+          ∀ nt σ κ κs,
+          state_interp nt σ (κ ++ κs) -∗
             |={E, ∅}=>
             ⌜reducible e σ⌝ ∗
               ∀ e' σ' es ϕ,
@@ -38,7 +38,7 @@ Section iris_G.
               ⌜ϕ⌝ -∗
               £ 1 -∗
                 |={∅}=> ▷ |={∅, E}=>
-                state_interp σ' κs ∗
+                state_interp (nt + length es) σ' κs ∗
                 wp e' E Φ ∗
                 [∗ list] i ↦ e ∈ es,
                   wp e ⊤ fork_post
@@ -181,7 +181,7 @@ Section iris_G.
   Proof.
     move: e. induction (lt_wf n) as [n _ IH] => e Φ1 Φ2 HΦ.
     rewrite !wp_unfold /wp_pre /=.
-    do 26 (f_contractive || f_equiv).
+    do 28 (f_contractive || f_equiv).
     apply IH; first done.
     f_equiv.
     eapply dist_le; [apply HΦ | lia].
@@ -240,7 +240,7 @@ Section iris_G.
     destruct (to_val e) as [v |] eqn:He.
     - iApply ("HΦ" with "[> H]").
       iSteps.
-    - iIntros "%σ1 %κ %κs Hσ".
+    - iIntros "%nt %σ1 %κ %κs Hσ".
       iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
       iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iModIntro. iStep. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ H£".
@@ -287,7 +287,7 @@ Section iris_G.
     iIntros "H".
     rewrite wp_unfold /wp_pre.
     destruct (to_val e) as [v |] eqn:He; first iSteps.
-    iIntros "%σ1 %κ %κs Hσ".
+    iIntros "%nt %σ1 %κ %κs Hσ".
     iMod "H".
     iApply ("H" with "Hσ").
   Qed.
@@ -307,9 +307,9 @@ Section iris_G.
     iIntros "H".
     rewrite !wp_unfold /wp_pre.
     destruct (to_val e) as [v |] eqn:He; first iSteps.
-    iIntros "%σ1 %κ1 %κs Hσ".
+    iIntros "%nt %σ1 %κ1 %κs Hσ".
     iMod "H".
-    iMod ("H" $! σ1 with "Hσ") as "($ & H)".
+    iMod ("H" with "Hσ") as "($ & H)".
     iModIntro. iIntros "%e2 %σ2 %es1 %ϕ1 %Hstep1 %Hϕ1 H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
@@ -318,7 +318,7 @@ Section iris_G.
     destruct (to_val e2) as [v2 |] eqn:He2.
     - iDestruct "H" as ">>$".
       iSteps.
-    - iMod ("H" $! _ [] with "Hσ") as "(%Hreducible2 & _)".
+    - iMod ("H" $! _ _ [] with "Hσ") as "(%Hreducible2 & _)".
       destruct Hreducible2 as (κ2 & e3 & σ3 & es2 & ϕ2 & Hstep2).
       edestruct atomic; [done | congruence].
   Qed.
@@ -331,7 +331,7 @@ Section iris_G.
     WP e @ E1 {{ Φ }}.
   Proof.
     rewrite !wp_unfold /wp_pre /=.
-    iIntros (-> HE) "HP H %σ1 %κ1 %κs Hσ".
+    iIntros (-> HE) "HP H %nt %σ1 %κ1 %κs Hσ".
     iMod "HP".
     iMod ("H" with "Hσ") as "($ & H)".
     iIntros "!> %e2 %σ2 %es1 %ϕ1 %Hstep %Hϕ H£".
@@ -354,7 +354,7 @@ Section iris_G.
     - apply of_to_val in He as <-.
       iApply (fupd_wp with "H").
     - rewrite wp_unfold /wp_pre fill_not_val //.
-      iIntros "%σ1 %κ1 %κs Hσ".
+      iIntros "%nt %σ1 %κ1 %κs Hσ".
       iMod ("H" with "Hσ") as "(%Hreducible1 & H)".
       iModIntro; iSplit; first eauto using reducible_fill.
       iIntros "%e2 %σ2 %es1 %ϕ1 %Hstep1 %Hϕ1 H£".
@@ -374,7 +374,7 @@ Section iris_G.
     - apply of_to_val in He as <-.
       rewrite !wp_unfold /wp_pre //.
     - rewrite fill_not_val //.
-      iIntros "%σ1 %κ1 %κs Hσ".
+      iIntros "%nt %σ1 %κ1 %κs Hσ".
       iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iModIntro; iSplit; first eauto using reducible_fill_inv.
       iIntros "%e2 %σ2 %es1 %ϕ1 %Hstep1 %Hϕ1 H£".

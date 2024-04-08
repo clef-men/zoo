@@ -21,14 +21,14 @@ Section iris_G.
     [∗ list] e; Φ ∈ es; Φs,
       WP e @ ⊤ {{ Φ }}.
 
-  #[local] Lemma wp_step e1 σ1 e2 σ2 κ κs es ϕ Φ :
+  #[local] Lemma wp_step e1 σ1 e2 σ2 κ κs es ϕ nt Φ :
     prim_step e1 σ1 κ e2 σ2 es ϕ →
     ϕ →
-    state_interp σ1 (κ ++ κs) -∗
+    state_interp nt σ1 (κ ++ κs) -∗
     £ 1 -∗
     WP e1 @ ⊤ {{ Φ }} -∗
       |={⊤}[∅]▷=>
-      state_interp σ2 κs ∗
+      state_interp (nt + length es) σ2 κs ∗
       WP e2 @ ⊤ {{ Φ }} ∗
       wps es (replicate (length es) fork_post).
   Proof.
@@ -39,16 +39,16 @@ Section iris_G.
     iModIntro. iSteps. rewrite /wps big_sepL2_replicate_r //.
   Qed.
 
-  #[local] Lemma wps_step es1 σ1 es2 σ2 κ κs ϕ Φs :
+  #[local] Lemma wps_step es1 σ1 es2 σ2 κ κs ϕ nt Φs :
     step (es1, σ1) κ (es2, σ2) ϕ →
     ϕ →
-    state_interp σ1 (κ ++ κs) -∗
+    state_interp nt σ1 (κ ++ κs) -∗
     £ 1 -∗
     wps es1 Φs -∗
       |={⊤}[∅]▷=>
-      ∃ n_forked,
-      state_interp σ2 κs ∗
-      wps es2 (Φs ++ replicate n_forked fork_post).
+      ∃ n_fork,
+      state_interp (nt + n_fork) σ2 κs ∗
+      wps es2 (Φs ++ replicate n_fork fork_post).
   Proof.
     iIntros "%Hstep %Hϕ Hσ H£ H".
     destruct Hstep as [e1 σ1' e2 σ2' es es1' es2' Hstep]; simplify_eq/=.
@@ -58,21 +58,21 @@ Section iris_G.
     iExists _. rewrite -(assoc (++)) -app_comm_cons. iFrame. iSteps.
   Qed.
 
-  #[local] Lemma wps_steps n es1 σ1 es2 σ2 κs1 κs2 ϕs Φs :
+  #[local] Lemma wps_steps n es1 σ1 es2 σ2 κs1 κs2 ϕs nt Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) ϕs →
     Forall id ϕs →
-    state_interp σ1 (κs1 ++ κs2) -∗
+    state_interp nt σ1 (κs1 ++ κs2) -∗
     £ n -∗
     wps es1 Φs -∗
       |={⊤,∅}=> |={∅}▷=>^n |={∅,⊤}=>
-      ∃ n_forked,
-      state_interp σ2 κs2 ∗
-      wps es2 (Φs ++ replicate n_forked fork_post).
+      ∃ n_fork,
+      state_interp (nt + n_fork) σ2 κs2 ∗
+      wps es2 (Φs ++ replicate n_fork fork_post).
   Proof.
-    iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 ϕs Φs) => /=.
+    iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 ϕs nt Φs) => /=.
     all: iIntros "%Hsteps %Hϕs Hσ H£s H".
     - invert Hsteps.
-      iExists 0. rewrite right_id. iSteps.
+      iExists 0. rewrite Nat.add_0_r right_id. iSteps.
     - invert Hsteps as [| ? ? (es1' & σ1') ? κ κs1' ϕ ϕs' Hstep Hsteps'].
       apply Forall_cons in Hϕs as (Hϕ & Hϕs').
       rewrite -(assoc (++)).
@@ -80,17 +80,17 @@ Section iris_G.
       iMod (wps_step with "Hσ H£ H") as "H"; [done.. |].
       do 3 iModIntro.
       iApply (fupd_trans _ ⊤).
-      iMod "H" as "(%n_forked & Hσ & H)".
+      iMod "H" as "(%n_fork & Hσ & H)".
       iModIntro.
       iMod ("IH" with "[//] [//] Hσ H£s H") as "H"; [done.. |].
       iModIntro.
       iApply (step_fupdN_wand with "H"). iIntros ">H".
-      iDestruct "H" as "(%n_forked' & Hσ & H)".
-      rewrite -(assoc app) -replicate_add. iSteps.
+      iDestruct "H" as "(%n_fork' & Hσ & H)".
+      iEval (rewrite -assoc) in "Hσ". rewrite -assoc -replicate_add. iSteps.
   Qed.
 
-  #[local] Lemma wp_not_stuck e σ κs Φ :
-    state_interp σ κs -∗
+  #[local] Lemma wp_not_stuck e nt σ κs Φ :
+    state_interp nt σ κs -∗
     WP e {{ Φ }} -∗
       |={⊤, ∅}=>
       ⌜not_stuck e σ⌝.
@@ -100,16 +100,16 @@ Section iris_G.
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq ∅); first done.
       iSteps.
-    - iSpecialize ("H" $! σ [] κs with "Hσ").
+    - iSpecialize ("H" $! _ _ [] with "Hσ").
       iMod "H" as "(%Hreducible & _)".
       iSteps.
   Qed.
 
-  #[local] Lemma wps_progress n es1 σ1 e2 es2 σ2 κs1 κs2 ϕs Φs :
+  #[local] Lemma wps_progress n es1 σ1 e2 es2 σ2 κs1 κs2 ϕs nt Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) ϕs →
     Forall id ϕs →
     e2 ∈ es2 →
-    state_interp σ1 (κs1 ++ κs2) -∗
+    state_interp nt σ1 (κs1 ++ κs2) -∗
     £ n -∗
     wps es1 Φs -∗
       |={⊤, ∅}=> |={∅}▷=>^n |={∅}=>
@@ -119,7 +119,7 @@ Section iris_G.
     iMod (wps_steps with "Hσ H£s He") as "H"; [done.. |].
     iModIntro.
     iApply (step_fupdN_wand with "H").
-    iMod 1 as "(%n_forked & Hσ & H)".
+    iMod 1 as "(%n_fork & Hσ & H)".
     iDestruct (big_sepL2_lookup_Some_l with "H") as %(Φ & Hposts_lookup); first done.
     iDestruct (big_sepL2_lookup with "H") as "H"; [done.. |].
     iApply (wp_not_stuck with "Hσ H").
@@ -129,9 +129,9 @@ End iris_G.
 Lemma wp_progress Λ Σ `{inv_Gpre : !invGpreS Σ} n es1 σ1 e2 es2 σ2 κs ϕs :
   ( ∀ `{inv_G : !invGS Σ},
     ⊢ |={⊤}=>
-      ∃ state_interp fork_post Φs,
+      ∃ state_interp fork_post nt Φs,
       let iris_G : IrisG Λ Σ := Build_IrisG state_interp fork_post in
-      state_interp σ1 κs ∗
+      state_interp nt σ1 κs ∗
       wps es1 Φs
   ) →
   nsteps n (es1, σ1) κs (es2, σ2) ϕs →
@@ -142,7 +142,7 @@ Proof.
   intros H Hsteps Hϕs He2.
   eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n n).
   iIntros "%Hinv_G H£s".
-  iMod H as "(%state_interp & %fork_post & %Φs & Hσ & H)".
+  iMod H as "(%state_interp & %fork_post & %nt & %Φs & Hσ & H)".
   iMod (wps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hσ] H£s H") as "H"; [done.. | |].
   { erewrite app_nil_r. done. }
   destruct n.
@@ -160,15 +160,15 @@ Definition adequate {Λ} (e : expr Λ) σ :=
 Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
     ⊢ |={⊤}=>
-      ∃ state_interp fork_post Φ,
+      ∃ state_interp fork_post nt Φ,
       let iris_G : IrisG Λ Σ := Build_IrisG state_interp fork_post in
-      state_interp σ κs ∗
+      state_interp nt σ κs ∗
       WP e {{ Φ }}
   ) →
   adequate e σ.
 Proof.
   intros H n κs e' es σ' ϕs.
   apply: wp_progress => inv_G.
-  iMod H as "(%state_interp & %fork_post & %Φ & Hσ & H)".
-  iExists state_interp, fork_post, [Φ]. rewrite /wps /=. iSteps.
+  iMod H as "(%state_interp & %fork_post & %nt & %Φ & Hσ & H)".
+  iExists state_interp, fork_post, nt, [Φ]. rewrite /wps /=. iSteps.
 Qed.
