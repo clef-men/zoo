@@ -36,28 +36,28 @@ Notation "'rec:' f x := e" := (
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[' 'rec:'  f  x  :=  '/  ' e ']'"
+  format "'[hv' 'rec:'  f  x  :=  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "'rec:' f x := e" := (
   ValRec f%binder x%binder e%E
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[' 'rec:'  f  x  :=  '/  ' e ']'"
+  format "'[hv' 'rec:'  f  x  :=  '/  ' '[' e ']' ']'"
 ) : val_scope.
 Notation "'rec:' f x0 x1 .. xn := e" := (
   Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' e ']'"
+  format "'[hv' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "'rec:' f x0 x1 .. xn := e" := (
   ValRec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' e ']'"
+  format "'[hv' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
 Notation "λ: x , e" := (
@@ -65,28 +65,28 @@ Notation "λ: x , e" := (
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[' 'λ:'  x ,  '/  ' e ']'"
+  format "'[hv' 'λ:'  x ,  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "λ: x0 x1 .. xn , e" := (
   Lam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[' 'λ:'  x0  x1  ..  xn ,  '/  ' e ']'"
+  format "'[hv' 'λ:'  x0  x1  ..  xn ,  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "λ: x , e" := (
   ValLam x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[' 'λ:'  x ,  '/  ' e ']'"
+  format "'[hv' 'λ:'  x ,  '/  ' '[' e ']' ']'"
 ) : val_scope.
 Notation "λ: x0 x1 .. xn , e" := (
   ValLam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) .. )
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[' 'λ:'  x0  x1  ..  xn ,  '/  ' e ']'"
+  format "'[hv' 'λ:'  x0  x1  ..  xn ,  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
 Notation "'let:' x := e1 'in' e2" := (
@@ -94,21 +94,21 @@ Notation "'let:' x := e1 'in' e2" := (
 )(at level 200,
   x at level 1,
   e1, e2 at level 200,
-  format "'[v' 'let:'  x  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' '[hv' 'let:'  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' f x := e1 'in' e2" := (
   App (Lam f%binder e2%E) (Rec f%binder x%binder e1%E)
 )(at level 200,
   f, x at level 1,
   e1, e2 at level 200,
-  format "'[v' 'let:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  '/' e2 ']'"
+  format "'[v' '[hv' 'let:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' f x0 x1 .. xn := e1 'in' e2" := (
   App (Lam f%binder e2%E) (Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e1%E) ..))
 )(at level 200,
   f, x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' 'let:'  f  x0  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  '/' e2 ']'"
+  format "'[v' '[hv' 'let:'  f  x0  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 
 Notation "e1 ;; e2" := (
@@ -187,15 +187,15 @@ Notation "e1 ≠ e2" := (
 )(at level 70,
   no associativity
 ) : expr_scope.
-Notation "e1 && e2" := (
+Notation "e1 'and' e2" := (
   If e1%E e2%E (ValBool false)
-)(at level 40,
+)(at level 76,
   left associativity,
   only parsing
 ) : expr_scope.
-Notation "e1 || e2" := (
+Notation "e1 'or' e2" := (
   If e1%E (ValBool true) e2%E
-)(at level 50,
+)(at level 77,
   left associativity,
   only parsing
 ) : expr_scope.
@@ -225,7 +225,7 @@ Notation "'if:' e0 'then' ( e1 ) 'else' ( e2 )" := (
 )(at level 1,
   e0, e1, e2 at level 200,
   only printing,
-  format "'[hv' if:  e0  then  ( '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
+  format "'[hv' '[hv' if:  '/  ' '[' e0 ']'  '/' then  ( ']' '/  ' '[' e1 ']' '/' )  else  ( '/  ' '[' e2 ']' '/' ) ']'"
 ) : expr_scope.
 Notation "'if:' e0 'then' e1" := (
   If e0%E e1%E Unit
@@ -276,7 +276,6 @@ Notation "§ tag" := (
   tag custom zebre_tag,
   format "§ tag"
 ).
-Notation "'truc'" := 0 (in custom zebre_tag).
 
 Notation "( e1 , e2 , .. , en )" := (
   Constr 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
@@ -411,7 +410,7 @@ Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
-  format "'[hv' match:  e  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' end ']'"
+  format "'[v' '[hv' match:  '/  ' '[' e ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
   Match
@@ -423,7 +422,7 @@ Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
+Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
   Match
     e0%E
     BAnon
@@ -431,9 +430,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' => e1 'end'" := (
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
-  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
+Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
   Match
     e0%E
     BAnon
@@ -443,7 +442,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n | '_' => e1 'end'" := (
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
+Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -452,9 +451,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   x at level 1,
-  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
+Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
   Match
     e0%E
     (BNamed x%string)
@@ -465,7 +464,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as' x => e1 'end'" := (
   x at level 1,
   only parsing
 ) : expr_scope.
-Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
+Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
   Match
     e0%E
     x%binder
@@ -474,9 +473,9 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
 )(e0, e1 at level 200,
   br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
   x at level 1,
-  format "'[hv' match:  e0  with  '/' |  '[' br_1 ']'  '/' |  ..  '/' |  '[' br_n ']'  '/' |  _  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
+  format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
-Notation "'match:' e0 'with' br_1 | .. | br_n | '_' 'as:' x => e1 'end'" := (
+Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
   Match
     e0%E
     x%binder
@@ -508,7 +507,7 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
   tag custom zebre_tag,
   x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' 'let:'  ‘ tag  x1  ..  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' '[hv' 'let:'  ‘ tag  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
   Match
@@ -529,14 +528,14 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
 )(at level 200,
   x0, x1, xn at level 1,
   e1, e2 at level 200,
-  format "'[v' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '[' e1 ']'  'in'  '/' e2 ']'"
+  format "'[v' '[hv' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 
 Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
   For e1%E e2%E (Lam x%binder e3%E)
 )(x at level 1,
   e1, e2, e3 at level 200,
-  format "'[v' for:  x  :=  e1  to  e2  begin  '/  ' '[' e3 ']'  '/' end ']'"
+  format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
 ) : expr_scope.
 
 Notation "{ e1 ; .. ; en }" := (
@@ -565,11 +564,12 @@ Notation "e .{ fld }" := (
 
 Notation "e1 <- e2" := (
   Store e1%E e2%E
-)(at level 80
+)(at level 80,
+  format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.
 Notation "e1 <-{ fld } e2" := (
   Store (Binop BinopOffset e1%E (Val (ValInt (Z.of_nat fld)))) e2%E
 )(at level 80,
   fld custom zebre_field,
-  format "e1  <-{ fld }  e2"
+  format "'[hv' '[hv' '[' e1 ']'  '/  ' <-{ fld }  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.

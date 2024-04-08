@@ -176,7 +176,7 @@ Section zebre_G.
 
   #[local] Lemma wp_match_clist_open lst e1 x2 e2 Φ :
     WP subst' x2 (list_to_clist_open lst) e2 {{ Φ }} ⊢
-    WP match: list_to_clist_open lst with Closed => e1 | _ as: x2 => e2 end {{ Φ }}.
+    WP match: list_to_clist_open lst with Closed => e1 |_ as: x2 => e2 end {{ Φ }}.
   Proof.
     destruct lst; iSteps.
   Qed.
@@ -224,7 +224,7 @@ Definition mpsc_queue_push_front : val :=
     match: "t".{front} with
     | Closed =>
         #true
-    | _ as "front" =>
+    |_ as "front" =>
         "t" <-{front} ‘Cons{ "v", "front" } ;;
         #false
     end.
@@ -234,7 +234,7 @@ Definition mpsc_queue_push_back : val :=
     match: "t".{back} with
     | Closed =>
         #true
-    | _ as "back" =>
+    |_ as "back" =>
         if: Cas "t".[back] "back" ‘Cons{ "v", "back" } then (
           #false
         ) else (
@@ -254,7 +254,7 @@ Definition mpsc_queue_pop_front : val :=
         match: Xchg "t".[back] §Open with
         | Open =>
             §None
-        | _ as "back" =>
+        |_ as "back" =>
             let: ‘Cons "v" "front" := clst_rev_app "back" §Open in
             "t" <-{front} "front" ;;
             ‘Some{ "v" }
@@ -266,7 +266,7 @@ Definition mpsc_queue_close : val :=
     match: Xchg "t".[back] §Closed with
     | Closed =>
         #true
-    | _ as "back" =>
+    |_ as "back" =>
         "t" <-{front} clst_app "t".{front} (clst_rev_app "back" §Closed) ;;
         #false
     end.
@@ -282,7 +282,7 @@ Definition mpsc_queue_is_empty : val :=
         match: "t".{back} with
         | Cons <> <> =>
             #false
-        | _ =>
+        |_ =>
             #true
         end
     end.

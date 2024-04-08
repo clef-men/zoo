@@ -92,7 +92,7 @@ Definition ws_deques_private_size : val :=
           match: array_unsafe_get "requests" "i" with
           | Request "j" =>
               ws_deques_private_block_aux "t" "i" "j"
-          | _ =>
+          |_ =>
               () (* unreachable *)
           end
     | Request "j" =>
@@ -113,7 +113,7 @@ Definition ws_deques_private_size : val :=
         let: ‘Some "v" := deque_pop_front "deque" in
         array_unsafe_set "t".{responses} "j" ‘Yes{ "v" } ;;
         array_unsafe_set "requests" "i" (if: deque_is_empty "deque" then §Blocked else §NoRequest)
-    | _ =>
+    |_ =>
         ()
     end.
 
@@ -156,7 +156,7 @@ Definition ws_deques_private_pop : val :=
     end.
 Definition ws_deques_private_steal_to : val :=
   λ: "t" "i" "j",
-    if: array_unsafe_get "t".{flags} "j" && array_cas "t".{requests} "j" §NoRequest ‘Request{ "i" } then (
+    if: array_unsafe_get "t".{flags} "j" and array_cas "t".{requests} "j" §NoRequest ‘Request{ "i" } then (
       ws_deques_private_steal_to_aux "t" "i"
     ) else (
       §None

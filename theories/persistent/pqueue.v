@@ -30,7 +30,7 @@ Definition pqueue_empty : val :=
 
 Definition pqueue_is_empty : val :=
   λ: "t",
-    lst_is_empty "t".<front> && lst_is_empty "t".<back>.
+    lst_is_empty "t".<front> and lst_is_empty "t".<back>.
 
 Definition pqueue_push : val :=
   λ: "t" "v",

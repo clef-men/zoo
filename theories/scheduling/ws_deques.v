@@ -151,7 +151,7 @@ Section zebre_G.
         match: ws_deques.(ws_deques_steal_to) "t" "j" with
         | None =>
             "ws_deques_steal_as_round_aux" "t" "sz" "i" "round" ("n" - #1)
-        | _ as "res" =>
+        |_ as "res" =>
             "res"
         end
       ).

@@ -118,7 +118,7 @@ Definition rcfd_close : val :=
         in
         let: "next" := ‘Closing{ "close" } in
         if: Cas "t".[fd] "prev" "next" then (
-          if: ("t".{ops} = #0) && Cas "t".[fd] "next" rcfd_closed then (
+          if: "t".{ops} = #0 and Cas "t".[fd] "next" rcfd_closed then (
             "close" ()
           ) else (
             ()

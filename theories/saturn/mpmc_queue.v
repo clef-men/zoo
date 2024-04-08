@@ -78,10 +78,10 @@ Definition mpmc_queue_push : val :=
           let: ‘Snoc "move_cnt" <> <> := "move" in
           match: "t".{front} with
           | Front "front_cnt" as "front" =>
-              if: "front_cnt" < "move_cnt" && Cas "t".[front] "front" (truc_rev "move") then (
+              if: "front_cnt" < "move_cnt" and Cas "t".[front] "front" (truc_rev "move") then (
                 "↦move" <- ()
               )
-          | _ =>
+          |_ =>
               ()
           end ;;
           mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "back_cnt" "back"
