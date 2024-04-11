@@ -38,6 +38,10 @@ Definition mpmc_queue_create : val :=
     let: "front" := node2_create () () in
     { "front"; "front" }.
 
+Definition mpmc_queue_is_empty : val :=
+  λ: "t",
+    "t".{front}.{node2_next} = ().
+
 #[local] Definition mpmc_queue_do_push : val :=
   rec: "mpmc_queue_do_push" "node" "new_back" :=
     let: "node'" := "node".{node2_next} in
@@ -243,6 +247,20 @@ Section mpmc_queue_G.
     - iApply node2_chain_nil.
   Qed.
 
+  Lemma mpmc_queue_is_empty_spec t ι :
+    <<<
+      mpmc_queue_inv t ι
+    | ∀∀ vs,
+      mpmc_queue_model t vs
+    >>>
+      mpmc_queue_is_empty t
+    <<<
+      mpmc_queue_model t vs
+    | RET #(bool_decide (vs = [])); True
+    >>>.
+  Proof.
+  Admitted.
+
   #[local] Lemma mpmc_queue_node2_next_spec l ι γ i node :
     {{{
       inv ι (mpmc_queue_inv_inner l γ) ∗
@@ -374,6 +392,7 @@ Section mpmc_queue_G.
 End mpmc_queue_G.
 
 #[global] Opaque mpmc_queue_create.
+#[global] Opaque mpmc_queue_is_empty.
 #[global] Opaque mpmc_queue_push.
 #[global] Opaque mpmc_queue_pop.
 
