@@ -13,7 +13,7 @@ From zebre.language Require Import
   diaframe.
 From zebre.std Require Import
   opt
-  mpsc_latch1.
+  mpsc_waiter.
 From zebre.saturn Require Import
   mpmc_queue_1.
 From zebre.scheduling Require Export
@@ -64,7 +64,7 @@ Section ws_deques.
       | None =>
           ()
       | Some "waiter" =>
-          if: mpsc_latch1_signal "waiter" then
+          if: mpsc_waiter_signal "waiter" then
             "ws_hub_check_waiters" "t"
       end.
 
@@ -103,18 +103,18 @@ Section ws_deques.
       | Some "v" =>
           "v"
       | None =>
-          let: "waiter" := mpsc_latch1_create () in
+          let: "waiter" := mpsc_waiter_create () in
           mpmc_queue_push "t".{waiters} "waiter" ;;
           match: ws_hub_try_steal "t" "i" #1 with
           | Some "v" =>
-              if: mpsc_latch1_signal "waiter" then (
+              if: mpsc_waiter_signal "waiter" then (
                 ws_hub_check_waiters "t"
               ) else (
                 ()
               ) ;;
               "v"
           | None =>
-              mpsc_latch1_wait "waiter" ;;
+              mpsc_waiter_wait "waiter" ;;
               "ws_hub_pop" "t" "i"
           end
       end.
@@ -122,13 +122,13 @@ End ws_deques.
 
 Class WsHubG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] ws_hub_G_queue_G :: MpmcQueueG Σ ;
-  #[local] ws_hub_G_latch1_G :: MpscLatch1G Σ ;
+  #[local] ws_hub_G_waiter_G :: MpscWaiterG Σ ;
   #[local] ws_hub_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
 
 Definition ws_hub_Σ := #[
   mpmc_queue_Σ ;
-  mpsc_latch1_Σ ;
+  mpsc_waiter_Σ ;
   twins_Σ (leibnizO (gmultiset val))
 ].
 #[global] Instance subG_ws_hub_Σ Σ `{zebre_G : !ZebreG Σ} :
@@ -154,7 +154,7 @@ Section ws_hub_G.
     mpmc_queue_model foreign vs_foreign ∗
     mpmc_queue_model waiters latches ∗
     ( [∗ list] latch ∈ latches,
-      mpsc_latch1_inv latch True
+      mpsc_waiter_inv latch True
     ) ∗
     ws_hub_model₂ γ vs.
   Definition ws_hub_inv t ι : iProp Σ :=
@@ -300,7 +300,7 @@ Section ws_hub_G.
     iSplitL; first iSteps.
     iIntros "_ HΦ".
 
-    wp_smart_apply (mpsc_latch1_signal_spec with "[$Hlatch_inv]") as ([]) "_"; last iSteps.
+    wp_smart_apply (mpsc_waiter_signal_spec with "[$Hlatch_inv]") as ([]) "_"; last iSteps.
     wp_smart_apply ("HLöb" with "HΦ").
   Qed.
 
@@ -601,7 +601,7 @@ Section ws_hub_G.
 
       iDestruct "Hinv" as "(%l & %γ & %num_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_num_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv)".
 
-      wp_smart_apply (mpsc_latch1_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
+      wp_smart_apply (mpsc_waiter_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
       wp_load.
 
       awp_apply (mpmc_queue_push_spec with "Hwaiters_inv") without "Howner Hwaiter_consumer HΦ".
@@ -618,7 +618,7 @@ Section ws_hub_G.
         iRight. iExists v, vs'. iFrame. iSplitL; first iSteps.
         iIntros "HΦ !> Howner Hwaiter_consumer". clear- Hi.
 
-        wp_smart_apply (mpsc_latch1_signal_spec with "[$Hwaiter_inv //]") as ([]) "_".
+        wp_smart_apply (mpsc_waiter_signal_spec with "[$Hwaiter_inv //]") as ([]) "_".
 
         * wp_smart_apply ws_hub_check_waiters_spec as "_"; first iSteps.
           wp_pures.
@@ -632,7 +632,7 @@ Section ws_hub_G.
       + iLeft. iFrame.
         iIntros "HΦ !> Howner Hwaiter_consumer". clear- Hi.
 
-        wp_smart_apply (mpsc_latch1_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "_".
+        wp_smart_apply (mpsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "_".
         wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
 End ws_hub_G.

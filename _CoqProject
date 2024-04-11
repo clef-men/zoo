@@ -102,8 +102,8 @@ theories/std/xdeque.v
 theories/std/deque.v
 theories/std/mutex.v
 theories/std/condition.v
-theories/std/spsc_latch1.v
-theories/std/mpsc_latch1.v
+theories/std/spsc_waiter.v
+theories/std/mpsc_waiter.v
 theories/std/spsc_future.v
 theories/std/spmc_future.v
 theories/std/random.v

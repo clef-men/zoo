@@ -12,7 +12,7 @@ digraph {
 		deque [label="deque"]
 		/* mutex [label="mutex"] */
 		/* condition [label="condition"] */
-		mpsc_latch1 [label="mpsc_latch1"]
+		mpsc_waiter [label="mpsc_waiter"]
 		spmc_future [label="spmc_future"]
 	}
 
@@ -37,8 +37,8 @@ digraph {
 	random_round -> random
 	/* random_round -> array */
 
-	/* mpsc_latch1 -> mutex */
-	/* mpsc_latch1 -> condition */
+	/* mpsc_waiter -> mutex */
+	/* mpsc_waiter -> condition */
 
 	/* spmc_future -> mutex */
 	/* spmc_future -> condition */
@@ -54,7 +54,7 @@ digraph {
 	ws_deques -> random_round
 
 	ws_hub -> mpmc_queue
-	ws_hub -> mpsc_latch1
+	ws_hub -> mpsc_waiter
 	ws_hub -> ws_deques
 
 	scheduler -> spmc_future

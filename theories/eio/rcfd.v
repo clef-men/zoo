@@ -14,7 +14,7 @@ From zebre.language Require Import
   diaframe.
 From zebre.std Require Import
   opt
-  spsc_latch1
+  spsc_waiter
   unix.
 From zebre.eio Require Export
   base.
@@ -136,10 +136,10 @@ Definition rcfd_remove : val :=
     match: "t".{fd} with
     | Open "fd" as "prev" =>
         let: "flag" := ref #false in
-        let: "chan" := spsc_latch1_create () in
-        let: "next" := ‘Closing{ λ: <>, spsc_latch1_signal "chan" } in
+        let: "chan" := spsc_waiter_create () in
+        let: "next" := ‘Closing{ λ: <>, spsc_waiter_signal "chan" } in
         if: Cas "t".[fd] "prev" "next" then (
-          spsc_latch1_wait "chan" ;;
+          spsc_waiter_wait "chan" ;;
           ‘Some{ "fd" }
         ) else (
           §None
@@ -196,13 +196,13 @@ Inductive rcfd_lstep : relation rcfd_lstate :=
 #[local] Hint Constructors rcfd_lstep : core.
 
 Class RcfdG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] rcfd_G_spsc_latch1_G :: SpscLatch1G Σ ;
+  #[local] rcfd_G_spsc_waiter_G :: SpscWaiterG Σ ;
   #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp ;
   #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO rcfd_lstate) rcfd_lstep ;
 }.
 
 Definition rcfd_Σ := #[
-  spsc_latch1_Σ ;
+  spsc_waiter_Σ ;
   auth_gmultiset_Σ Qp ;
   auth_mono_Σ (A := leibnizO rcfd_lstate) rcfd_lstep
 ].
@@ -836,7 +836,7 @@ Section rcfd_G.
       iModIntro. clear.
 
       wp_alloc flag as "Hflag".
-      wp_smart_apply (spsc_latch1_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
+      wp_smart_apply (spsc_waiter_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
       wp_pures.
 
       wp_bind (Cas _ _ _).
@@ -869,15 +869,15 @@ Section rcfd_G.
             rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
             iMod (rcfd_lstate_update RcfdLstateClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iExists (RcfdStateClosing _). iStep 8. iModIntro.
-            wp_apply (spsc_latch1_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
+            wp_apply (spsc_waiter_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
           - iExists (RcfdStateClosing _). iStep 10 as "Hmodel". iModIntro.
-            wp_apply (spsc_latch1_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
+            wp_apply (spsc_waiter_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
         }
         iModIntro. clear.
 
-        wp_smart_apply (spsc_latch1_wait_spec with "[$Hchan_inv $Hchan_consumer]") as "Hmodel".
+        wp_smart_apply (spsc_waiter_wait_spec with "[$Hchan_inv $Hchan_consumer]") as "Hmodel".
         iSteps. iApply ("HΦ" $! (Some _)). iSteps.
 
     - iAssert (⌜∃ fn1, state1 = RcfdStateClosing fn1⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn1 & ->) & #Hlstate_lb)".
