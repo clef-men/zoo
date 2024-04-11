@@ -35,10 +35,15 @@ Section ws_deques.
   #[local] Definition scheduler_num_round :=
     2048.
 
+  #[using="ws_deques"]
+  #[local] Definition scheduler_execute : val :=
+    λ: "hdl" "task",
+      "task" "hdl".
+
   #[local] Definition scheduler_worker_aux : val :=
     λ: "hdl",
       let: "task" := ws_hub_pop ws_deques "hdl".<hub> "hdl".<id> in
-      "task" "hdl".
+      scheduler_execute "hdl" "task".
   #[local] Definition scheduler_worker : val :=
     rec: "scheduler_worker" "hdl" :=
       scheduler_worker_aux "hdl" ;;
@@ -52,10 +57,8 @@ Section ws_deques.
       end ;;
       ("t", #0).
 
-  #[using="ws_deques"]
-  Definition scheduler_run : val :=
-    λ: "hdl" "task",
-      "task" "hdl".
+  Definition scheduler_run :=
+    scheduler_execute.
 
   Definition scheduler_async : val :=
     λ: "hdl" "task",
@@ -96,15 +99,17 @@ Section scheduler_G.
   Context `{scheduler_G : SchedulerG Σ}.
   Context (ws_deques : ws_deques Σ).
 
+  #[local] Definition scheduler_task t task : iProp Σ :=
+    ∀ i,
+    ws_hub_owner ws_deques t i -∗
+    WP task (t, #i)%V {{ _,
+      ws_hub_owner ws_deques t i
+    }}.
   #[local] Definition scheduler_inv_inner t : iProp Σ :=
     ∃ tasks,
     ws_hub_model ws_deques t tasks ∗
     [∗ mset] task ∈ tasks,
-      ∀ i,
-      ws_hub_owner ws_deques t i -∗
-      WP task (t, #i)%V {{ _,
-        ws_hub_owner ws_deques t i
-      }}.
+      scheduler_task t task.
   Definition scheduler_inv t : iProp Σ :=
     ws_hub_inv ws_deques t (nroot.@"hub") ∗
     inv (nroot.@"inv") (scheduler_inv_inner t).
@@ -140,6 +145,24 @@ Section scheduler_G.
     apply _.
   Qed.
 
+  #[local] Lemma scheduler_execute_spec t i task :
+    (0 ≤ i)%Z →
+    {{{
+      ws_hub_owner ws_deques t (Z.to_nat i) ∗
+      scheduler_task t task
+    }}}
+      scheduler_execute ws_deques (t, #i)%V task
+    {{{ res,
+      RET res;
+      ws_hub_owner ws_deques t (Z.to_nat i)
+    }}}.
+  Proof.
+    iIntros "%Hi %Φ (Hhub_owner & Htask) HΦ".
+
+    iSpecialize ("Htask" with "Hhub_owner").
+    rewrite Z2Nat.id //. iSteps.
+  Qed.
+
   #[local] Lemma scheduler_worker_aux_spec t i :
     (0 ≤ i)%Z →
     {{{
@@ -164,8 +187,7 @@ Section scheduler_G.
     iSplitR "Htask"; first iSteps.
     iIntros "!> Hhub_owner HΦ". clear- Hi.
 
-    Z_to_nat i. rewrite Nat2Z.id.
-    wp_smart_apply (wp_wand with "(Htask Hhub_owner) HΦ").
+    wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask] HΦ"); first done.
   Qed.
   #[local] Lemma scheduler_worker_spec t i :
     (0 ≤ i)%Z →
