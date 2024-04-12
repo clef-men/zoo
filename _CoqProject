@@ -121,6 +121,7 @@ theories/saturn/base.v
 theories/saturn/bag.v
 theories/saturn/mpmc_stack.v
 theories/saturn/spsc_bqueue.v
+theories/saturn/mpmc_bqueue.v
 theories/saturn/mpsc_queue_1.v
 theories/saturn/mpsc_queue_2.v
 theories/saturn/mpsc_queue_3.v
