@@ -48,15 +48,15 @@ Definition mpmc_queue_is_empty : val :=
     ifnot: "node'" = () and Cas "node".[node2_next] () "new_back" then
       "mpmc_queue_do_push" "node'" "new_back".
 #[local] Definition mpmc_queue_fix_back : val :=
-  rec: "mpmc_queue_fix_back" "t" "new_back" :=
-    let: "back" := "t".{back} in
+  rec: "mpmc_queue_fix_back" "t" "back" "new_back" :=
     if: "new_back".{node2_next} = () and ~ Cas "t".[back] "back" "new_back" then
-      "mpmc_queue_fix_back" "t" "new_back".
+      "mpmc_queue_fix_back" "t" "t".{back} "new_back".
 Definition mpmc_queue_push : val :=
   λ: "t" "v",
     let: "new_back" := node2_create "v" () in
-    mpmc_queue_do_push "t".{back} "new_back" ;;
-    mpmc_queue_fix_back "t" "new_back".
+    let: "back" := "t".{back} in
+    mpmc_queue_do_push "back" "new_back" ;;
+    mpmc_queue_fix_back "t" "back" "new_back".
 
 Definition mpmc_queue_pop : val :=
   rec: "mpmc_queue_pop" "t" :=
@@ -326,18 +326,19 @@ Section mpmc_queue_G.
     wp_bind (Cas _ _ _).
     admit.
   Admitted.
-  #[local] Lemma mpmc_queue_fix_back_spec l ι γ i node :
+  #[local] Lemma mpmc_queue_fix_back_spec l ι γ i back j new_back :
     {{{
       meta l nroot γ ∗
       inv ι (mpmc_queue_inv_inner l γ) ∗
-      mpmc_queue_history_elem γ i node
+      mpmc_queue_history_elem γ i back ∗
+      mpmc_queue_history_elem γ j new_back
     }}}
-      mpmc_queue_fix_back #l #node
+      mpmc_queue_fix_back #l #back #new_back
     {{{
       RET (); True
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem_back & #Hhistory_elem_new_back) HΦ".
 
     iLöb as "HLöb".
 
@@ -370,10 +371,11 @@ Section mpmc_queue_G.
     iSplitR "Hnew_back HΦ"; first iSteps.
     iModIntro. clear.
 
-    wp_apply (mpmc_queue_do_push_spec with "[$Hmeta $Hinv $Hhistory_elem_back $Hnew_back]").
+    wp_smart_apply (mpmc_queue_do_push_spec with "[$Hmeta $Hinv $Hhistory_elem_back $Hnew_back]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_elem_new_back)".
 
-    wp_smart_apply (mpmc_queue_fix_back_spec with "[$Hmeta $Hinv $Hhistory_elem_new_back] HΦ").
+    wp_smart_apply (mpmc_queue_fix_back_spec with "[$Hmeta $Hinv Hhistory_elem_back Hhistory_elem_new_back] HΦ").
+    iSteps.
   Qed.
 
   Lemma mpmc_queue_pop_spec t ι :
