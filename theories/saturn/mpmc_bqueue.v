@@ -113,6 +113,7 @@ Definition mpmc_bqueue_pop : val :=
         "front" <-{node_data} () ;;
         ‘Some{ "v" }
       ) else (
+        Yield ;;
         "mpmc_bqueue_pop" "t"
       )
     ).

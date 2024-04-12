@@ -21,6 +21,7 @@ Definition mutex_create : val :=
 Definition mutex_lock : val :=
   rec: "mutex_lock" "t" :=
     ifnot: Cas "t" #false #true then (
+      Yield ;;
       "mutex_lock" "t"
     ).
 

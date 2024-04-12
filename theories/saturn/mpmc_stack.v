@@ -33,19 +33,20 @@ Definition mpmc_stack_push : val :=
     let: "old" := !"t" in
     let: "new" := ‘Cons{ "v", "old" } in
     ifnot: Cas "t" "old" "new" then (
+      Yield ;;
       "mpmc_stack_push" "t" "v"
     ).
 
 Definition mpmc_stack_pop : val :=
   rec: "mpmc_stack_pop" "t" :=
-    let: "old" := !"t" in
-    match: "old" with
+    match: !"t" with
     | Nil =>
         §None
-    | Cons "v" "new" =>
+    | Cons "v" "new" as "old" =>
         if: Cas "t" "old" "new" then (
           ‘Some{ "v" }
         ) else (
+          Yield ;;
           "mpmc_stack_pop" "t"
         )
     end.

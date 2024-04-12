@@ -238,6 +238,7 @@ Definition mpsc_queue_push_back : val :=
         if: Cas "t".[back] "back" ‘Cons{ "v", "back" } then (
           #false
         ) else (
+          Yield ;;
           "mpsc_queue_push_back" "t" "v"
         )
     end.

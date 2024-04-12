@@ -115,6 +115,12 @@ Section atomic.
     solve_atomic.
   Qed.
 
+  #[global] Instance yield_atomic :
+    Atomic Yield.
+  Proof.
+    solve_atomic.
+  Qed.
+
   #[global] Instance proph_atomic :
     Atomic Proph.
   Proof.
@@ -349,6 +355,16 @@ Section pure_exec.
       1
       (For (Val $ ValInt n1) (Val $ ValInt n2) e)
       (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pure_yield :
+    PureExec
+      True
+      1
+      Yield
+      Unit.
   Proof.
     solve_pure_exec.
   Qed.

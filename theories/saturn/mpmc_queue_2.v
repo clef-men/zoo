@@ -62,8 +62,10 @@ Definition mpmc_queue_create : val :=
 
 #[local] Definition mpmc_queue_push_aux : val :=
   λ: "mpmc_queue_push" "t" "v" "cnt" "back",
-    ifnot: Cas "t".[back] "back" ‘Snoc{ #1 + "cnt", "back", "v" } then
-      "mpmc_queue_push" "t" "v".
+    ifnot: Cas "t".[back] "back" ‘Snoc{ #1 + "cnt", "back", "v" } then (
+      Yield ;;
+      "mpmc_queue_push" "t" "v"
+    ).
 Definition mpmc_queue_push : val :=
   rec: "mpmc_queue_push" "t" "v" :=
     let: "back" := "t".{back} in
@@ -95,6 +97,7 @@ Definition mpmc_queue_push : val :=
         if: Cas "t".[front] "front" "suffix" then (
           ‘Some{ "v" }
         ) else (
+          Yield ;;
           "aux1" "aux2" "aux3" "t" "t".{front}
         )
     | Front "front_cnt" =>
@@ -134,6 +137,7 @@ Definition mpmc_queue_push : val :=
         "↦move" <- () ;;
         ‘Some{ "v" }
       ) else (
+        Yield ;;
         "aux1" "aux2" "aux3" "t" "t".{front}
       )
     ) else (

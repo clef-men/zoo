@@ -124,6 +124,7 @@ Module raw.
         if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
           ‘Some{ inf_array_get "t".{data} "front" }
         ) else (
+          Yield ;;
           "inf_ws_deque_steal" "t"
         )
       ) else (

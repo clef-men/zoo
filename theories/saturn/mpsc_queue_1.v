@@ -35,13 +35,21 @@ Definition mpsc_queue_is_empty : val :=
 #[local] Definition mpsc_queue_do_push : val :=
   rec: "mpsc_queue_do_push" "node" "new_back" :=
     let: "node'" := "node".{node2_next} in
-    ifnot: "node'" = () and Cas "node".[node2_next] () "new_back" then
-      "mpsc_queue_do_push" "node'" "new_back".
+    if: "node'" = () then (
+      ifnot: Cas "node".[node2_next] () "new_back" then (
+        Yield ;;
+        "mpsc_queue_do_push" "node'" "new_back"
+      )
+    ) else (
+      "mpsc_queue_do_push" "node'" "new_back"
+    ).
 #[local] Definition mpsc_queue_fix_back : val :=
   rec: "mpsc_queue_fix_back" "t" "new_back" :=
     let: "back" := "t".{back} in
-    if: "new_back".{node2_next} = () and ~ Cas "t".[back] "back" "new_back" then
-      "mpsc_queue_fix_back" "t" "new_back".
+    if: "new_back".{node2_next} = () and ~ Cas "t".[back] "back" "new_back" then (
+      Yield ;;
+      "mpsc_queue_fix_back" "t" "new_back"
+    ).
 Definition mpsc_queue_push : val :=
   λ: "t" "v",
     let: "new_back" := node2_create "v" () in

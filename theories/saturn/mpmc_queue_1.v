@@ -45,12 +45,20 @@ Definition mpmc_queue_is_empty : val :=
 #[local] Definition mpmc_queue_do_push : val :=
   rec: "mpmc_queue_do_push" "node" "new_back" :=
     let: "node'" := "node".{node2_next} in
-    ifnot: "node'" = () and Cas "node".[node2_next] () "new_back" then
-      "mpmc_queue_do_push" "node'" "new_back".
+    if: "node'" = () then (
+      ifnot: Cas "node".[node2_next] () "new_back" then (
+        Yield ;;
+        "mpmc_queue_do_push" "node'" "new_back"
+      )
+    ) else (
+      "mpmc_queue_do_push" "node'" "new_back"
+    ).
 #[local] Definition mpmc_queue_fix_back : val :=
   rec: "mpmc_queue_fix_back" "t" "back" "new_back" :=
-    if: "new_back".{node2_next} = () and ~ Cas "t".[back] "back" "new_back" then
-      "mpmc_queue_fix_back" "t" "t".{back} "new_back".
+    if: "new_back".{node2_next} = () and ~ Cas "t".[back] "back" "new_back" then (
+      Yield ;;
+      "mpmc_queue_fix_back" "t" "t".{back} "new_back"
+    ).
 Definition mpmc_queue_push : val :=
   λ: "t" "v",
     let: "new_back" := node2_create "v" () in
@@ -70,6 +78,7 @@ Definition mpmc_queue_pop : val :=
         "front" <-{node2_data} () ;;
         ‘Some{ "v" }
       ) else (
+        Yield ;;
         "mpmc_queue_pop" "t"
       )
     ).

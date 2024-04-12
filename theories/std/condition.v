@@ -17,7 +17,7 @@ Definition condition_create : val :=
 
 Definition condition_wait : val :=
   λ: "t" "mtx",
-    ().
+    Yield.
 
 Definition condition_signal : val :=
   λ: "t",

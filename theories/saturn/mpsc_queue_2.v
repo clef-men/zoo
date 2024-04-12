@@ -43,9 +43,8 @@ Definition mpsc_queue_create : val :=
 Definition mpsc_queue_push : val :=
   rec: "mpsc_queue_push" "t" "v" :=
     let: "back" := "t".{back} in
-    if: Cas "t".[back] "back" ‘Cons{ "v", "back" } then (
-      ()
-    ) else (
+    ifnot: Cas "t".[back] "back" ‘Cons{ "v", "back" } then (
+      Yield ;;
       "mpsc_queue_push" "t" "v"
     ).
 

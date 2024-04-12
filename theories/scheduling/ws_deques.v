@@ -168,6 +168,7 @@ Section zebre_G.
         | Some <> as "res" =>
             "res"
         | None =>
+            Yield ;;
             random_round_reset "round" ;;
             "ws_deques_try_steal_as_aux" "t" "sz" "i" "round" ("n" - #1)
         end
@@ -184,6 +185,7 @@ Section zebre_G.
       | Some "v" =>
           "v"
       | None =>
+          Yield ;;
           random_round_reset "round" ;;
           "ws_deques_steal_as_aux" "t" "sz" "i" "round"
       end.

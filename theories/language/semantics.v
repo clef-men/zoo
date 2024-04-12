@@ -330,6 +330,8 @@ Fixpoint subst (x : string) v e :=
   | Fork e =>
       Fork
         (subst x v e)
+  | Yield =>
+      Yield
   | Proph =>
       Proph
   | Resolve e0 e1 e2 =>
@@ -680,6 +682,15 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         σ
         [e]
+        True
+  | base_step_yield σ :
+      base_step
+        Yield
+        σ
+        []
+        Unit
+        σ
+        []
         True
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →

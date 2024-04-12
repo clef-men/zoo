@@ -49,8 +49,6 @@ Fixpoint occurs x e :=
       occurs x e1 ||
       occurs x e2 ||
       occurs x e3
-  | Fork e =>
-      occurs x e
   | Record es =>
       existsb (occurs x) es
   | Alloc e1 e2 =>
@@ -71,6 +69,10 @@ Fixpoint occurs x e :=
   | Faa e1 e2 =>
       occurs x e1 ||
       occurs x e2
+  | Fork e =>
+      occurs x e
+  | Yield =>
+      false
   | Proph =>
       false
   | Resolve e0 e1 e2 =>

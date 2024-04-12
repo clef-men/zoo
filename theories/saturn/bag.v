@@ -47,6 +47,7 @@ Definition bag_create : val :=
 #[local] Definition bag_push_aux : val :=
   rec: "bag_push_aux" "slot" "o" :=
     ifnot: Cas "slot" §None "o" then (
+      Yield ;;
       "bag_push_aux" "slot" "o"
     ).
 Definition bag_push : val :=
@@ -64,6 +65,7 @@ Definition bag_push : val :=
         if: Cas "slot" "o" §None then (
           "v"
         ) else (
+          Yield ;;
           "bag_pop_aux" "slot"
         )
     end.
