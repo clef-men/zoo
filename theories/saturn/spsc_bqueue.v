@@ -27,7 +27,7 @@ From zebre Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types i sz front front_cache back back_cache : nat.
+Implicit Types i front front_cache back back_cache : nat.
 Implicit Types l : location.
 Implicit Types v w t data : val.
 Implicit Types vs hist : list val.
@@ -54,19 +54,19 @@ Implicit Types vs hist : list val.
 ).
 
 Definition spsc_bqueue_create : val :=
-  λ: "sz",
-    { array_make "sz" §None; #0; #0; #0; #0 }.
+  λ: "cap",
+    { array_make "cap" §None; #0; #0; #0; #0 }.
 
 #[local] Definition spsc_bqueue_push_aux : val :=
   λ: "t" "data" "back",
-    let: "sz" := array_size "data" in
+    let: "cap" := array_size "data" in
     let: "front_cache" := "t".{front_cache} in
-    if: "back" < "front_cache" + "sz" then (
+    if: "back" < "front_cache" + "cap" then (
       #true
     ) else (
       let: "front" := "t".{front} in
       "t" <-{front_cache} "front" ;;
-      "back" < "front" + "sz"
+      "back" < "front" + "cap"
     ).
 Definition spsc_bqueue_push : val :=
   λ: "t" "v",
@@ -208,9 +208,9 @@ Section spsc_bqueue_G.
   #[local] Definition spsc_bqueue_consumer_region γ :=
     spsc_bqueue_consumer_region' γ.(spsc_bqueue_meta_consumer_region).
 
-  #[local] Definition spsc_bqueue_inv_inner l γ sz data : iProp Σ :=
+  #[local] Definition spsc_bqueue_inv_inner l γ cap data : iProp Σ :=
     ∃ front back vs hist,
-    ⌜back = (front + length vs)%nat ∧ back ≤ front + sz⌝ ∗
+    ⌜back = (front + length vs)%nat ∧ back ≤ front + cap⌝ ∗
     ⌜length hist = back ∧ vs = drop front hist⌝ ∗
     l.[front] ↦ #front ∗
     spsc_bqueue_consumer_ctl₂ γ front ∗
@@ -218,20 +218,20 @@ Section spsc_bqueue_G.
     spsc_bqueue_producer_ctl₂ γ back ∗
     spsc_bqueue_model₂ γ vs ∗
     spsc_bqueue_history_auth γ hist ∗
-    ( array_cslice data sz front (DfracOwn 1) ((λ v, ’Some{ v }) <$> take 1 vs)
+    ( array_cslice data cap front (DfracOwn 1) ((λ v, ’Some{ v }) <$> take 1 vs)
     ∨ spsc_bqueue_consumer_region γ
     ) ∗
-    array_cslice data sz (S front) (DfracOwn 1) ((λ v, ’Some{ v }) <$> drop 1 vs) ∗
-    ( array_cslice data sz back (DfracOwn 1) (if decide (back = front + sz) then [] else [§None])
+    array_cslice data cap (S front) (DfracOwn 1) ((λ v, ’Some{ v }) <$> drop 1 vs) ∗
+    ( array_cslice data cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None])
     ∨ spsc_bqueue_producer_region γ
     ) ∗
-    array_cslice data sz (S back) (DfracOwn 1) (replicate (sz - (back - front) - 1) §None).
-  Definition spsc_bqueue_inv t ι sz : iProp Σ :=
+    array_cslice data cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None).
+  Definition spsc_bqueue_inv t ι cap : iProp Σ :=
     ∃ l γ data,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ data ∗
-    inv ι (spsc_bqueue_inv_inner l γ sz data).
+    inv ι (spsc_bqueue_inv_inner l γ cap data).
 
   Definition spsc_bqueue_model t vs : iProp Σ :=
     ∃ l γ,
@@ -257,8 +257,8 @@ Section spsc_bqueue_G.
     spsc_bqueue_consumer_region γ ∗
     spsc_bqueue_back_lb γ back_cache.
 
-  #[global] Instance spsc_bqueue_inv_persistent t ι sz :
-    Persistent (spsc_bqueue_inv t ι sz).
+  #[global] Instance spsc_bqueue_inv_persistent t ι cap :
+    Persistent (spsc_bqueue_inv t ι cap).
   Proof.
     apply _.
   Qed.
@@ -466,25 +466,25 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Instance hint_array_cslice_nil t sz i dq :
-    HINT ε₁ ✱ [- ; array_inv t sz] ⊫ [id]; array_cslice t sz i dq [] ✱ [emp].
+  #[local] Instance hint_array_cslice_nil t cap i dq :
+    HINT ε₁ ✱ [- ; array_inv t cap] ⊫ [id]; array_cslice t cap i dq [] ✱ [emp].
   Proof.
     iSteps. rewrite array_cslice_nil. iSteps.
   Qed.
 
-  Lemma spsc_bqueue_create_spec ι sz :
-    (0 ≤ sz)%Z →
+  Lemma spsc_bqueue_create_spec ι cap :
+    (0 ≤ cap)%Z →
     {{{ True }}}
-      spsc_bqueue_create #sz
+      spsc_bqueue_create #cap
     {{{ t,
       RET t;
-      spsc_bqueue_inv t ι (Z.to_nat sz) ∗
+      spsc_bqueue_inv t ι (Z.to_nat cap) ∗
       spsc_bqueue_model t [] ∗
       spsc_bqueue_producer t ∗
       spsc_bqueue_consumer t
     }}}.
   Proof.
-    iIntros "%Hsz %Φ _ HΦ".
+    iIntros "%Hcap %Φ _ HΦ".
 
     wp_rec.
     iApply wp_fupd.
@@ -514,10 +514,10 @@ Section spsc_bqueue_G.
 
     iApply "HΦ".
     iSplitL "Hdata_model Hfront Hback Hmodel₂ Hhistory_auth Hproducer_ctl₂ Hconsumer_ctl₂"; last iSteps.
-    iStep 3. iApply inv_alloc. iExists 0, 0, [], []. iStep 7. rewrite Nat2Z.id.
+    iStep 3. iApply inv_alloc. iExists 0, 0, [], []. iStep 7.
     iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_size". rewrite replicate_length.
     iStep 4.
-    destruct sz as [| sz]; first iSteps.
+    Z_to_nat cap. rewrite Nat2Z.id. destruct cap as [| cap]; first iSteps.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
     rewrite replicate_length -(take_drop 1 (replicate _ _)).
     iDestruct (array_cslice_app with "Hdata_cslice") as "(Hdata_back & Hdata_extra)".
@@ -525,35 +525,35 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  #[local] Definition spsc_bqueue_push_au l ι sz v Φ : iProp Σ :=
+  #[local] Definition spsc_bqueue_push_au l ι cap v Φ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_bqueue_model #l vs
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      spsc_bqueue_model #l (if decide (length vs = sz) then vs else vs ++ [v]),
+      spsc_bqueue_model #l (if decide (length vs = cap) then vs else vs ++ [v]),
     COMM
       spsc_bqueue_producer #l -∗
-      Φ #(bool_decide (length vs = sz))
+      Φ #(bool_decide (length vs = cap))
     }>.
-  #[local] Lemma spsc_bqueue_push_aux_spec l ι γ sz data front_cache back v Ψ :
+  #[local] Lemma spsc_bqueue_push_aux_spec l ι γ cap data front_cache back v Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ sz data) ∗
-      array_inv data sz ∗
+      inv ι (spsc_bqueue_inv_inner l γ cap data) ∗
+      array_inv data cap ∗
       l.[front_cache] ↦ #front_cache ∗
       spsc_bqueue_producer_ctl₁ γ back ∗
       spsc_bqueue_front_lb γ front_cache ∗
-      spsc_bqueue_push_au l ι sz v Ψ
+      spsc_bqueue_push_au l ι cap v Ψ
     }}}
       spsc_bqueue_push_aux #l data #back
     {{{ b front_cache',
       RET #b;
-      ⌜b = bool_decide (back < front_cache' + sz)⌝ ∗
+      ⌜b = bool_decide (back < front_cache' + cap)⌝ ∗
       l.[front_cache] ↦ #front_cache' ∗
       spsc_bqueue_producer_ctl₁ γ back ∗
       spsc_bqueue_front_lb γ front_cache' ∗
       if b then
-        spsc_bqueue_push_au l ι sz v Ψ
+        spsc_bqueue_push_au l ι cap v Ψ
       else
         spsc_bqueue_producer #l -∗
         Ψ #true
@@ -574,7 +574,7 @@ Section spsc_bqueue_G.
       wp_load.
       iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
       iClear "Hfront_lb". iDestruct (spsc_bqueue_front_lb_get with "Hconsumer_ctl₂") as "#Hfront_lb".
-      destruct (decide (back < front + sz)) as [Hbranch2 | Hbranch2].
+      destruct (decide (back < front + cap)) as [Hbranch2 | Hbranch2].
 
       + iSplitR "Hfront_cache Hproducer_ctl₁ HΨ HΦ"; first iSteps.
         iModIntro. clear- Hbranch2.
@@ -595,17 +595,17 @@ Section spsc_bqueue_G.
         iApply ("HΦ" $! _ front).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue_push_spec t ι sz v :
+  Lemma spsc_bqueue_push_spec t ι cap v :
     <<<
-      spsc_bqueue_inv t ι sz ∗
+      spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_producer t
     | ∀∀ vs,
       spsc_bqueue_model t vs
     >>>
       spsc_bqueue_push t v @ ↑ι
     <<<
-      spsc_bqueue_model t (if decide (length vs = sz) then vs else vs ++ [v])
-    | RET #(bool_decide (length vs = sz));
+      spsc_bqueue_model t (if decide (length vs = cap) then vs else vs ++ [v])
+    | RET #(bool_decide (length vs = cap));
       spsc_bqueue_producer t
     >>>.
   Proof.
@@ -668,8 +668,8 @@ Section spsc_bqueue_G.
           iApply (array_cslice_app_1 with "Hdata_vs Hdata_back").
           rewrite fmap_length. naive_solver lia.
       - case_decide.
-        + assert (sz - (S back - front3) - 1 = 0) as -> by lia. iSteps.
-        + iDestruct (array_cslice_app_2 [§None] (replicate (sz - (S back - front3) - 1) §None) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
+        + assert (cap - (S back - front3) - 1 = 0) as -> by lia. iSteps.
+        + iDestruct (array_cslice_app_2 [§None] (replicate (cap - (S back - front3) - 1) §None) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
           { rewrite /= -replicate_S. f_equal. lia. }
           rewrite Nat.add_1_r. iSteps.
     }
@@ -688,10 +688,10 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Φ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_aux_spec l ι γ sz data front back_cache Ψ :
+  #[local] Lemma spsc_bqueue_pop_aux_spec l ι γ cap data front back_cache Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ sz data) ∗
+      inv ι (spsc_bqueue_inv_inner l γ cap data) ∗
       l.[back_cache] ↦ #back_cache ∗
       spsc_bqueue_consumer_ctl₁ γ front ∗
       spsc_bqueue_back_lb γ back_cache ∗
@@ -748,9 +748,9 @@ Section spsc_bqueue_G.
         iApply ("HΦ" $! _ front).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue_pop_spec t ι sz :
+  Lemma spsc_bqueue_pop_spec t ι cap :
     <<<
-      spsc_bqueue_inv t ι sz ∗
+      spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_consumer t
     | ∀∀ vs,
       spsc_bqueue_model t vs
@@ -833,14 +833,14 @@ Section spsc_bqueue_G.
       - iDestruct (array_cslice_shift with "Hdata_front") as "Hdata_front".
         case_decide as Hcase.
         + rewrite -Hcase decide_False; first lia.
-          assert (sz - (back3 - S front) - 1 = 0) as -> by lia.
+          assert (cap - (back3 - S front) - 1 = 0) as -> by lia.
           iSteps.
         + rewrite decide_False; first lia.
           iFrame.
           iDestruct (array_cslice_app_1 with "Hdata_extra Hdata_front") as "Hdata_extra".
           { rewrite replicate_length. lia. }
           rewrite -replicate_S_end.
-          assert (S (sz - (back3 - front) - 1) = sz - (back3 - S front) - 1) as -> by lia.
+          assert (S (cap - (back3 - front) - 1) = cap - (back3 - S front) - 1) as -> by lia.
           iSteps.
     }
     iSteps.
