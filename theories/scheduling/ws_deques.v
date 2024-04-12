@@ -173,10 +173,10 @@ Section zebre_G.
         end
       ).
   Definition ws_deques_try_steal_as : val :=
-    λ: "t" "i" "n",
+    λ: "t" "i" "max_round",
       let: "sz" := ws_deques.(ws_deques_size) "t" in
       let: "round" := random_round_create ("sz" - #1) in
-      ws_deques_try_steal_as_aux "t" "sz" "i" "round" "n".
+      ws_deques_try_steal_as_aux "t" "sz" "i" "round" "max_round".
 
   #[local] Definition ws_deques_steal_as_aux : val :=
     rec: "ws_deques_steal_as_aux" "t" "sz" "i" "round" :=
@@ -194,12 +194,12 @@ Section zebre_G.
       ws_deques_steal_as_aux "t" "sz" "i" "round".
 
   Definition ws_deques_pop_try_steal : val :=
-    λ: "t" "i" "n",
+    λ: "t" "i" "max_round",
       match: ws_deques.(ws_deques_pop) "t" "i" with
       | Some <> as "res" =>
           "res"
       | None =>
-          ws_deques_try_steal_as "t" "i" "n"
+          ws_deques_try_steal_as "t" "i" "max_round"
       end.
 
   Definition ws_deques_pop_steal : val :=
@@ -334,15 +334,15 @@ Section zebre_G.
         wp_smart_apply (random_round_reset_spec' with "Hround") as "Hround".
         iSteps.
   Qed.
-  Lemma ws_deques_try_steal_as_spec t ι (sz : nat) i n :
+  Lemma ws_deques_try_steal_as_spec t ι (sz : nat) i max_round :
     (0 ≤ i < sz)%Z →
-    (0 ≤ n)%Z →
+    (0 ≤ max_round)%Z →
     <<<
       ws_deques.(ws_deques_inv) t ι sz
     | ∀∀ vss,
       ws_deques.(ws_deques_model) t vss
     >>>
-      ws_deques_try_steal_as t #i #n @ ↑ι
+      ws_deques_try_steal_as t #i #max_round @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -357,7 +357,7 @@ Section zebre_G.
     | RET o; True
     >>>.
   Proof.
-    iIntros "%Hi %Hn !> %Φ #Ht_inv HΦ".
+    iIntros "%Hi %Hmax_round !> %Φ #Ht_inv HΦ".
     wp_rec.
     wp_smart_apply (ws_deques_size_spec with "Ht_inv") as "_".
     wp_smart_apply (random_round_create_spec' with "[//]") as (round) "Hround"; first lia.
@@ -424,17 +424,17 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_pop_try_steal_spec t ι (sz : nat) i n :
+  Lemma ws_deques_pop_try_steal_spec t ι (sz : nat) i max_round :
     let i' := Z.to_nat i in
     (0 ≤ i < sz)%Z →
-    (0 ≤ n)%Z →
+    (0 ≤ max_round)%Z →
     <<<
       ws_deques.(ws_deques_inv) t ι sz ∗
       ws_deques.(ws_deques_owner) t i'
     | ∀∀ vss,
       ws_deques.(ws_deques_model) t vss
     >>>
-      ws_deques_pop_try_steal t #i #n @ ↑ι
+      ws_deques_pop_try_steal t #i #max_round @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -453,7 +453,7 @@ Section zebre_G.
       ws_deques.(ws_deques_owner) t i'
     >>>.
   Proof.
-    iIntros "%i' %Hi %Hn !> %Φ (#Ht_inv & Ht_owner) HΦ".
+    iIntros "%i' %Hi %Hmax_round !> %Φ (#Ht_inv & Ht_owner) HΦ".
     wp_rec.
     awp_smart_apply (ws_deques_pop_spec with "[$Ht_inv $Ht_owner]"); first lia.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Ht_model".

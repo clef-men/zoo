@@ -80,17 +80,17 @@ Section ws_deques.
       ws_hub_check_waiters "t".
 
   #[local] Definition ws_hub_try_steal : val :=
-    λ: "t" "i" "n",
+    λ: "t" "i" "max_round",
       match: mpmc_queue_pop "t".{foreign} with
       | Some <> as "res" =>
           "res"
       | None =>
-          ws_deques_try_steal_as ws_deques "t".{deques} "i" "n"
+          ws_deques_try_steal_as ws_deques "t".{deques} "i" "max_round"
       end.
 
   Definition ws_hub_try_pop : val :=
     λ: "t" "i",
-      match: ws_deques.(ws_deques_pop) "t".{deques}"i" with
+      match: ws_deques.(ws_deques_pop) "t".{deques} "i" with
       | Some <> as "res" =>
           "res"
       | None =>
@@ -389,16 +389,16 @@ Section ws_hub_G.
     wp_smart_apply ws_hub_check_waiters_spec; iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_try_steal_spec t ι i n :
+  #[local] Lemma ws_hub_try_steal_spec t ι i max_round :
     (0 ≤ i)%Z →
-    (0 ≤ n)%Z →
+    (0 ≤ max_round)%Z →
     <<<
       ws_hub_inv t ι ∗
       ws_hub_owner t (Z.to_nat i)
     | ∀∀ vs,
       ws_hub_model t vs
     >>>
-      ws_hub_try_steal ws_deques t #i #n @ ↑ι
+      ws_hub_try_steal ws_deques t #i #max_round @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -413,7 +413,7 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi %Hn !> %Φ ((%l & %γ & %num_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_num_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
+    iIntros "%Hi %Hmax_round !> %Φ ((%l & %γ & %num_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_num_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (pointsto_agree with "Hl_deques _Hl_deques") as %<-. iClear "_Hl_deques".
 
@@ -434,7 +434,7 @@ Section ws_hub_G.
 
     - iLeft. iSplitL "Hmodel₁"; first iSteps. iIntros "!> HΦ !>".
       iSplitR "Hdeques_owner HΦ"; first iSteps.
-      iIntros "_". clear- Hi Hn.
+      iIntros "_". clear- Hi Hmax_round.
 
       wp_load.
 
