@@ -32,7 +32,7 @@ Section ws_deques.
   Context `{zebre_G : !ZebreG Σ}.
   Context (ws_deques : ws_deques Σ).
 
-  #[local] Definition scheduler_num_round :=
+  #[local] Definition scheduler_max_round :=
     2048.
 
   #[using="ws_deques"]
@@ -51,7 +51,7 @@ Section ws_deques.
 
   Definition scheduler_create : val :=
     λ: "sz",
-      let: "t" := ws_hub_create ws_deques (#1 + "sz") #scheduler_num_round in
+      let: "t" := ws_hub_create ws_deques (#1 + "sz") #scheduler_max_round in
       for: "i" := #1 to #1 + "sz" begin
         Fork (scheduler_worker ("t", "i"))
       end ;;
