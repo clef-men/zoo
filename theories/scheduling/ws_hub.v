@@ -64,7 +64,7 @@ Section ws_deques.
       | None =>
           ()
       | Some "waiter" =>
-          if: mpsc_waiter_signal "waiter" then
+          if: mpsc_waiter_notify "waiter" then
             "ws_hub_check_waiters" "t"
       end.
 
@@ -107,7 +107,7 @@ Section ws_deques.
           mpmc_queue_push "t".{waiters} "waiter" ;;
           match: ws_hub_try_steal "t" "i" #1 with
           | Some "v" =>
-              if: mpsc_waiter_signal "waiter" then (
+              if: mpsc_waiter_notify "waiter" then (
                 ws_hub_check_waiters "t"
               ) else (
                 ()
@@ -300,7 +300,7 @@ Section ws_hub_G.
     iSplitL; first iSteps.
     iIntros "_ HΦ".
 
-    wp_smart_apply (mpsc_waiter_signal_spec with "[$Hwaiter_inv]") as ([]) "_"; last iSteps.
+    wp_smart_apply (mpsc_waiter_notify_spec with "[$Hwaiter_inv]") as ([]) "_"; last iSteps.
     wp_smart_apply ("HLöb" with "HΦ").
   Qed.
 
@@ -618,7 +618,7 @@ Section ws_hub_G.
         iRight. iExists v, vs'. iFrame. iSplitL; first iSteps.
         iIntros "HΦ !> Howner Hwaiter_consumer". clear- Hi.
 
-        wp_smart_apply (mpsc_waiter_signal_spec with "[$Hwaiter_inv //]") as ([]) "_".
+        wp_smart_apply (mpsc_waiter_notify_spec with "[$Hwaiter_inv //]") as ([]) "_".
 
         * wp_smart_apply ws_hub_check_waiters_spec as "_"; first iSteps.
           wp_pures.

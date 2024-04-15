@@ -36,10 +36,10 @@ Definition spsc_waiter_create : val :=
       condition_create ()
     }.
 
-Definition spsc_waiter_signal : val :=
+Definition spsc_waiter_notify : val :=
   λ: "t",
     "t" <-{flag} #true ;;
-    condition_signal "t".{condition}.
+    condition_notify "t".{condition}.
 
 Definition spsc_waiter_try_wait : val :=
   λ: "t",
@@ -128,7 +128,7 @@ Section spsc_waiter_G.
     meta l nroot γ ∗
     excl γ.(spsc_waiter_meta_consumer) ().
 
-  Definition spsc_waiter_signaled t : iProp Σ :=
+  Definition spsc_waiter_notified t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -155,8 +155,8 @@ Section spsc_waiter_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_waiter_signaled_persistent t :
-    Persistent (spsc_waiter_signaled t).
+  #[global] Instance spsc_waiter_notified_persistent t :
+    Persistent (spsc_waiter_notified t).
   Proof.
     apply _.
   Qed.
@@ -170,8 +170,8 @@ Section spsc_waiter_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance spsc_waiter_signaled_timeless t :
-    Timeless (spsc_waiter_signaled t).
+  #[global] Instance spsc_waiter_notified_timeless t :
+    Timeless (spsc_waiter_notified t).
   Proof.
     apply _.
   Qed.
@@ -230,16 +230,16 @@ Section spsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma spsc_waiter_signal_spec t P :
+  Lemma spsc_waiter_notify_spec t P :
     {{{
       spsc_waiter_inv t P ∗
       spsc_waiter_producer t ∗
       P
     }}}
-      spsc_waiter_signal t
+      spsc_waiter_notify t
     {{{
       RET ();
-      spsc_waiter_signaled t
+      spsc_waiter_notified t
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
@@ -262,15 +262,15 @@ Section spsc_waiter_G.
     iModIntro.
 
     wp_load.
-    wp_apply (condition_signal_spec with "Hcond_inv").
+    wp_apply (condition_notify_spec with "Hcond_inv").
     iSteps.
   Qed.
 
-  Lemma spsc_waiter_try_wait_spec_signaled t P :
+  Lemma spsc_waiter_try_wait_spec_notified t P :
     {{{
       spsc_waiter_inv t P ∗
       spsc_waiter_consumer t ∗
-      spsc_waiter_signaled t
+      spsc_waiter_notified t
     }}}
       spsc_waiter_try_wait t
     {{{
@@ -369,11 +369,11 @@ Section spsc_waiter_G.
 End spsc_waiter_G.
 
 #[global] Opaque spsc_waiter_create.
-#[global] Opaque spsc_waiter_signal.
+#[global] Opaque spsc_waiter_notify.
 #[global] Opaque spsc_waiter_try_wait.
 #[global] Opaque spsc_waiter_wait.
 
 #[global] Opaque spsc_waiter_inv.
 #[global] Opaque spsc_waiter_producer.
 #[global] Opaque spsc_waiter_consumer.
-#[global] Opaque spsc_waiter_signaled.
+#[global] Opaque spsc_waiter_notified.

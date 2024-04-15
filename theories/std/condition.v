@@ -19,11 +19,11 @@ Definition condition_wait : val :=
   λ: "t" "mtx",
     Yield.
 
-Definition condition_signal : val :=
+Definition condition_notify : val :=
   λ: "t",
     ().
 
-Definition condition_broadcast : val :=
+Definition condition_notify_all : val :=
   λ: "t",
     ().
 
@@ -81,11 +81,11 @@ Section mutex_G.
     iSteps.
   Qed.
 
-  Lemma condition_signal_spec t :
+  Lemma condition_notify_spec t :
     {{{
       condition_inv t
     }}}
-      condition_signal t
+      condition_notify t
     {{{
       RET (); True
     }}}.
@@ -93,11 +93,11 @@ Section mutex_G.
     iSteps.
   Qed.
 
-  Lemma condition_broadcast_spec t :
+  Lemma condition_notify_all_spec t :
     {{{
       condition_inv t
     }}}
-      condition_broadcast t
+      condition_notify_all t
     {{{
       RET (); True
     }}}.
@@ -182,8 +182,8 @@ End mutex_G.
 
 #[global] Opaque condition_create.
 #[global] Opaque condition_wait.
-#[global] Opaque condition_signal.
-#[global] Opaque condition_broadcast.
+#[global] Opaque condition_notify.
+#[global] Opaque condition_notify_all.
 #[global] Opaque condition_wait_until.
 #[global] Opaque condition_wait_while.
 

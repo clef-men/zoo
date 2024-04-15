@@ -41,7 +41,7 @@ Definition spmc_future_create : val :=
 Definition spmc_future_set : val :=
   λ: "t" "v",
     "t" <-{result} ‘Some{ "v" } ;;
-    condition_broadcast "t".{condition}.
+    condition_notify_all "t".{condition}.
 
 Definition spmc_future_try_get : val :=
   λ: "t",
@@ -218,7 +218,7 @@ Section spmc_future_G.
     iModIntro.
 
     wp_load.
-    wp_apply (condition_signal_spec with "Hcond_inv").
+    wp_apply (condition_notify_all_spec with "Hcond_inv").
     iSteps.
   Qed.
 

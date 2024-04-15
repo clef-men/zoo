@@ -137,7 +137,7 @@ Definition rcfd_remove : val :=
     | Open "fd" as "prev" =>
         let: "flag" := ref #false in
         let: "chan" := spsc_waiter_create () in
-        let: "next" := ‘Closing{ λ: <>, spsc_waiter_signal "chan" } in
+        let: "next" := ‘Closing{ λ: <>, spsc_waiter_notify "chan" } in
         if: Cas "t".[fd] "prev" "next" then (
           spsc_waiter_wait "chan" ;;
           ‘Some{ "fd" }
@@ -869,10 +869,10 @@ Section rcfd_G.
             rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
             iMod (rcfd_lstate_update RcfdLstateClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iExists (RcfdStateClosing _). iStep 8. iModIntro.
-            wp_apply (spsc_waiter_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
+            wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
           - iExists (RcfdStateClosing _). iStep 10 as "Hmodel". iModIntro.
-            wp_apply (spsc_waiter_signal_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
+            wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
         }
         iModIntro. clear.

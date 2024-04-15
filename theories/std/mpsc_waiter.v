@@ -36,7 +36,7 @@ Definition mpsc_waiter_create : val :=
       condition_create ()
     }.
 
-Definition mpsc_waiter_signal : val :=
+Definition mpsc_waiter_notify : val :=
   λ: "t",
     if: "t".{flag} then (
       #true
@@ -51,7 +51,7 @@ Definition mpsc_waiter_signal : val :=
           )
         )
       in
-      condition_broadcast "t".{condition} ;;
+      condition_notify "t".{condition} ;;
       "res"
     ).
 
@@ -136,7 +136,7 @@ Section mpsc_waiter_G.
     meta l nroot γ ∗
     excl γ.(mpsc_waiter_meta_consumer) ().
 
-  Definition mpsc_waiter_signaled t : iProp Σ :=
+  Definition mpsc_waiter_notified t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -163,8 +163,8 @@ Section mpsc_waiter_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_waiter_signaled_persistent t :
-    Persistent (mpsc_waiter_signaled t).
+  #[global] Instance mpsc_waiter_notified_persistent t :
+    Persistent (mpsc_waiter_notified t).
   Proof.
     apply _.
   Qed.
@@ -173,8 +173,8 @@ Section mpsc_waiter_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpsc_waiter_signaled_timeless t :
-    Timeless (mpsc_waiter_signaled t).
+  #[global] Instance mpsc_waiter_notified_timeless t :
+    Timeless (mpsc_waiter_notified t).
   Proof.
     apply _.
   Qed.
@@ -220,15 +220,15 @@ Section mpsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter_signal_spec t P :
+  Lemma mpsc_waiter_notify_spec t P :
     {{{
       mpsc_waiter_inv t P ∗
       P
     }}}
-      mpsc_waiter_signal t
+      mpsc_waiter_notify t
     {{{ b,
       RET #b;
-      mpsc_waiter_signaled t
+      mpsc_waiter_notified t
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & HP) HΦ".
@@ -251,7 +251,7 @@ Section mpsc_waiter_G.
     )%I).
     wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv HP]"); last first.
     { iSteps. iModIntro.
-      wp_apply (condition_broadcast_spec with "Hcond_inv").
+      wp_apply (condition_notify_spec with "Hcond_inv").
       iSteps.
     }
     iIntros "Hmtx_locked _".
@@ -274,11 +274,11 @@ Section mpsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter_try_wait_spec_signaled t P :
+  Lemma mpsc_waiter_try_wait_spec_notified t P :
     {{{
       mpsc_waiter_inv t P ∗
       mpsc_waiter_consumer t ∗
-      mpsc_waiter_signaled t
+      mpsc_waiter_notified t
     }}}
       mpsc_waiter_try_wait t
     {{{
@@ -377,10 +377,10 @@ Section mpsc_waiter_G.
 End mpsc_waiter_G.
 
 #[global] Opaque mpsc_waiter_create.
-#[global] Opaque mpsc_waiter_signal.
+#[global] Opaque mpsc_waiter_notify.
 #[global] Opaque mpsc_waiter_try_wait.
 #[global] Opaque mpsc_waiter_wait.
 
 #[global] Opaque mpsc_waiter_inv.
 #[global] Opaque mpsc_waiter_consumer.
-#[global] Opaque mpsc_waiter_signaled.
+#[global] Opaque mpsc_waiter_notified.

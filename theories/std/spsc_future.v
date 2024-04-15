@@ -41,7 +41,7 @@ Definition spsc_future_create : val :=
 Definition spsc_future_set : val :=
   λ: "t" "v",
     "t" <-{result} ‘Some{ "v" } ;;
-    condition_signal "t".{condition}.
+    condition_notify "t".{condition}.
 
 Definition spsc_future_try_get : val :=
   λ: "t",
@@ -270,7 +270,7 @@ Section spsc_future_G.
     iModIntro.
 
     wp_load.
-    wp_apply (condition_signal_spec with "Hcond_inv").
+    wp_apply (condition_notify_spec with "Hcond_inv").
     iSteps.
   Qed.
 
