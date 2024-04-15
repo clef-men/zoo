@@ -147,28 +147,28 @@ Section ws_hub_G.
   #[local] Definition ws_hub_model₂ γ vs :=
     twins_twin2 γ vs.
 
-  #[local] Definition ws_hub_inv_inner γ deques foreign waiters : iProp Σ :=
-    ∃ vs vss vs_foreign latches,
+  #[local] Definition ws_hub_inv_inner γ deques foreign v_waiters : iProp Σ :=
+    ∃ vs vss vs_foreign waiters,
     ⌜vs = foldr (λ vs_deques vs, list_to_set_disj vs_deques ⊎ vs) (list_to_set_disj vs_foreign) vss⌝ ∗
     ws_deques.(ws_deques_model) deques vss ∗
     mpmc_queue_model foreign vs_foreign ∗
-    mpmc_queue_model waiters latches ∗
-    ( [∗ list] latch ∈ latches,
-      mpsc_waiter_inv latch True
+    mpmc_queue_model v_waiters waiters ∗
+    ( [∗ list] waiter ∈ waiters,
+      mpsc_waiter_inv waiter True
     ) ∗
     ws_hub_model₂ γ vs.
   Definition ws_hub_inv t ι : iProp Σ :=
-    ∃ l γ max_round deques foreign waiters sz,
+    ∃ l γ max_round deques foreign v_waiters sz,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[max_round] ↦□ #max_round ∗
     l.[deques] ↦□ deques ∗
     l.[foreign] ↦□ foreign ∗
-    l.[waiters] ↦□ waiters ∗
+    l.[waiters] ↦□ v_waiters ∗
     ws_deques.(ws_deques_inv) deques (ι.@"deques") sz ∗
     mpmc_queue_inv foreign (ι.@"foreign") ∗
-    mpmc_queue_inv waiters (ι.@"waiters") ∗
-    inv (ι.@"inv") (ws_hub_inv_inner γ deques foreign waiters).
+    mpmc_queue_inv v_waiters (ι.@"waiters") ∗
+    inv (ι.@"inv") (ws_hub_inv_inner γ deques foreign v_waiters).
 
   #[using="ws_deques"]
   Definition ws_hub_model t vs : iProp Σ :=
@@ -253,7 +253,7 @@ Section ws_hub_G.
 
     wp_smart_apply (ws_deques_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
     wp_apply (mpmc_queue_create_spec with "[//]") as (foreign) "(#Hforeign_inv & Hforeign_model)".
-    wp_apply (mpmc_queue_create_spec with "[//]") as (waiters) "(#Hwaiters_inv & Haiters_model)".
+    wp_apply (mpmc_queue_create_spec with "[//]") as (v_waiters) "(#Hv_waiters_inv & Haiters_model)".
 
     wp_record l as "Hmeta" "(Hl_max_round & Hl_deques & Hl_foreign & Hl_waiters & _)".
     iMod (pointsto_persist with "Hl_max_round") as "#Hl_max_round".
@@ -286,21 +286,21 @@ Section ws_hub_G.
       RET (); True
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec. wp_load.
 
-    awp_apply (mpmc_queue_pop_spec with "Hwaiters_inv") without "HΦ".
-    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & Hdeques_model & Hforeign_model & >Hwaiters_model & Hlatches_inv & Hmodel₂)".
-    iAaccIntro with "Hwaiters_model"; first iSteps. iIntros "Hwaiters_model !>".
-    destruct latches as [| latches]; first iSteps.
-    iDestruct "Hlatches_inv" as "(#Hlatch_inv & Hlatches_inv)".
+    awp_apply (mpmc_queue_pop_spec with "Hv_waiters_inv") without "HΦ".
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & Hdeques_model & Hforeign_model & >Hv_waiters_model & Hwaiters_inv & Hmodel₂)".
+    iAaccIntro with "Hv_waiters_model"; first iSteps. iIntros "Hv_waiters_model !>".
+    destruct waiters as [| waiters]; first iSteps.
+    iDestruct "Hwaiters_inv" as "(#Hwaiter_inv & Hwaiters_inv)".
     iSplitL; first iSteps.
     iIntros "_ HΦ".
 
-    wp_smart_apply (mpsc_waiter_signal_spec with "[$Hlatch_inv]") as ([]) "_"; last iSteps.
+    wp_smart_apply (mpsc_waiter_signal_spec with "[$Hwaiter_inv]") as ([]) "_"; last iSteps.
     wp_smart_apply ("HLöb" with "HΦ").
   Qed.
 
@@ -319,14 +319,14 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
+    iIntros "%Hi !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (pointsto_agree with "Hl_deques _Hl_deques") as %<-. iClear "_Hl_deques".
 
     wp_rec. wp_load.
 
     awp_apply (ws_deques_push_spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
-    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & >Hdeques_model & Hforeign_model & Hwaiters_model & Hlatches_inv & >Hmodel₂)".
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & >Hdeques_model & Hforeign_model & Hv_waiters_model & Hwaiters_inv & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -362,12 +362,12 @@ Section ws_hub_G.
     | RET (); True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "!> %Φ (%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv) HΦ".
 
     wp_rec. wp_load.
 
     awp_smart_apply (mpmc_queue_push_spec with "Hforeign_inv").
-    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & Hdeques_model & >Hforeign_model & Hwaiters_model & Hlatches_inv & >Hmodel₂)".
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & Hdeques_model & >Hforeign_model & Hv_waiters_model & Hwaiters_inv & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -413,14 +413,14 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi %Hmax_round' !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
+    iIntros "%Hi %Hmax_round' !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (pointsto_agree with "Hl_deques _Hl_deques") as %<-. iClear "_Hl_deques".
 
     wp_rec. wp_load.
 
     awp_smart_apply (mpmc_queue_pop_spec with "Hforeign_inv").
-    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & Hdeques_model & >Hforeign_model & Hwaiters_model & Hlatches_inv & >Hmodel₂)".
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & Hdeques_model & >Hforeign_model & Hv_waiters_model & Hwaiters_inv & >Hmodel₂)".
     iApply (aacc_aupd with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -440,7 +440,7 @@ Section ws_hub_G.
 
       iDestruct (ws_deques_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
       awp_smart_apply (ws_deques_try_steal_as_spec with "Hdeques_inv"); [lia.. |].
-      iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & >Hdeques_model & Hforeign_model & Hwaiters_model & Hlatches_inv & >Hmodel₂)".
+      iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & >Hdeques_model & Hforeign_model & Hv_waiters_model & Hwaiters_inv & >Hmodel₂)".
       iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -516,14 +516,14 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
+    iIntros "%Hi !> %Φ ((%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv) & (%_l & %_γ & %_deques & %Heq & _Hmeta & _Hl_deques & Hdeques_owner)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (pointsto_agree with "Hl_deques _Hl_deques") as %<-. iClear "_Hl_deques".
 
     wp_rec. wp_load.
 
     awp_smart_apply (ws_deques_pop_spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
-    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & >Hdeques_model & Hforeign_model & Hwaiters_model & Hlatches_inv & >Hmodel₂)".
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & >Hdeques_model & Hforeign_model & Hv_waiters_model & Hwaiters_inv & >Hmodel₂)".
     iApply (aacc_aupd with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -599,14 +599,14 @@ Section ws_hub_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hi.
 
-      iDestruct "Hinv" as "(%l & %γ & %max_round & %deques & %foreign & %waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv)".
+      iDestruct "Hinv" as "(%l & %γ & %max_round & %deques & %foreign & %v_waiters & %sz & -> & #Hmeta & #Hl_max_round & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hv_waiters_inv & #Hinv)".
 
       wp_smart_apply (mpsc_waiter_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
       wp_load.
 
-      awp_apply (mpmc_queue_push_spec with "Hwaiters_inv") without "Howner Hwaiter_consumer HΦ".
-      iInv "Hinv" as "(%vs & %vss & %vs_foreign & %latches & >%Hvs & Hdeques_model & Hforeign_model & >Hwaiters_model & Hlatches_inv & Hmodel₂)".
-      iAaccIntro with "Hwaiters_model"; first iSteps. iIntros "Hwaiters_model !>".
+      awp_apply (mpmc_queue_push_spec with "Hv_waiters_inv") without "Howner Hwaiter_consumer HΦ".
+      iInv "Hinv" as "(%vs & %vss & %vs_foreign & %waiters & >%Hvs & Hdeques_model & Hforeign_model & >Hv_waiters_model & Hwaiters_inv & Hmodel₂)".
+      iAaccIntro with "Hv_waiters_model"; first iSteps. iIntros "Hv_waiters_model !>".
       iSplitL. { repeat iExists _. iFrame. iSteps. }
       iIntros "_ (Howner & Hwaiter_consumer & HΦ)". clear- Hi.
 
