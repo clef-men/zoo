@@ -133,6 +133,7 @@ theories/scheduling/base.v
 theories/scheduling/ws_deques.v
 theories/scheduling/ws_deques_public.v
 theories/scheduling/ws_deques_private.v
+theories/scheduling/waiters.v
 theories/scheduling/ws_hub.v
 theories/scheduling/scheduler.v
 

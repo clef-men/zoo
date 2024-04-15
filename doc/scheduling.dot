@@ -29,6 +29,7 @@ digraph {
 		ws_deques [label="ws_deques"]
 		ws_deques_public [label="ws_deques_public"]
 		ws_deques_private [label="ws_deques_private"]
+		waiters [label="waiters"]
 		ws_hub [label="ws_hub"]
 		scheduler [label="scheduler"]
 		dag [label="dag"]
@@ -53,9 +54,12 @@ digraph {
 
 	ws_deques -> random_round
 
+	waiters -> mpsc_waiter
+	waiters -> mpmc_queue
+
 	ws_hub -> mpmc_queue
-	ws_hub -> mpsc_waiter
 	ws_hub -> ws_deques
+	ws_hub -> waiters
 
 	scheduler -> spmc_future
 	scheduler -> ws_hub
