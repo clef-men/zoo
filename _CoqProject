@@ -87,6 +87,7 @@ theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
 theories/std/lst.v
+theories/std/clst.v
 theories/std/node2.v
 theories/std/node2_schain.v
 theories/std/node2_chain.v
