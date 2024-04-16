@@ -58,20 +58,20 @@ Section ws_deques.
         waiters_create ()
       }.
 
-  #[local] Definition ws_hub_check_waiters : val :=
+  #[local] Definition ws_hub_notify : val :=
     λ: "t",
       waiters_notify "t".{waiters}.
 
   Definition ws_hub_push : val :=
     λ: "t" "i" "v",
       ws_deques.(ws_deques_push) "t".{deques} "i" "v" ;;
-      ws_hub_check_waiters "t".
+      ws_hub_notify "t".
 
   #[using="ws_deques"]
   Definition ws_hub_push_foreign : val :=
     λ: "t" "v",
       mpmc_queue_push "t".{foreign} "v" ;;
-      ws_hub_check_waiters "t".
+      ws_hub_notify "t".
 
   #[local] Definition ws_hub_try_steal : val :=
     λ: "t" "i" "max_round",
@@ -263,11 +263,11 @@ Section ws_hub_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_check_waiters_spec t ι :
+  #[local] Lemma ws_hub_notify_spec t ι :
     {{{
       ws_hub_inv t ι
     }}}
-      ws_hub_check_waiters t
+      ws_hub_notify t
     {{{
       RET (); True
     }}}.
@@ -321,7 +321,7 @@ Section ws_hub_G.
     }
     iIntros "Hdeques_owner".
 
-    wp_smart_apply ws_hub_check_waiters_spec; iSteps.
+    wp_smart_apply ws_hub_notify_spec; iSteps.
   Qed.
 
   Lemma ws_hub_push_foreign_spec t ι v :
@@ -360,7 +360,7 @@ Section ws_hub_G.
     }
     iIntros "_".
 
-    wp_smart_apply ws_hub_check_waiters_spec; iSteps.
+    wp_smart_apply ws_hub_notify_spec; iSteps.
   Qed.
 
   #[local] Lemma ws_hub_try_steal_spec t ι i (max_round' : Z) :
