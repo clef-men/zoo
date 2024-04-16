@@ -20,11 +20,11 @@ From zebre Require Import
 Implicit Types v t task : val.
 
 #[local] Notation "'hub'" := (
-in_type "handle" 0
+in_type "context" 0
 )(in custom zebre_proj
 ).
 #[local] Notation "'id'" := (
-  in_type "handle" 1
+  in_type "context" 1
 )(in custom zebre_proj
 ).
 
@@ -37,17 +37,17 @@ Section ws_deques.
 
   #[using="ws_deques"]
   #[local] Definition scheduler_execute : val :=
-    λ: "hdl" "task",
-      "task" "hdl".
+    λ: "ctx" "task",
+      "task" "ctx".
 
   #[local] Definition scheduler_worker_aux : val :=
-    λ: "hdl",
-      let: "task" := ws_hub_pop ws_deques "hdl".<hub> "hdl".<id> in
-      scheduler_execute "hdl" "task".
+    λ: "ctx",
+      let: "task" := ws_hub_pop ws_deques "ctx".<hub> "ctx".<id> in
+      scheduler_execute "ctx" "task".
   #[local] Definition scheduler_worker : val :=
-    rec: "scheduler_worker" "hdl" :=
-      scheduler_worker_aux "hdl" ;;
-      "scheduler_worker" "hdl".
+    rec: "scheduler_worker" "ctx" :=
+      scheduler_worker_aux "ctx" ;;
+      "scheduler_worker" "ctx".
 
   Definition scheduler_create : val :=
     λ: "sz",
@@ -61,21 +61,21 @@ Section ws_deques.
     scheduler_execute.
 
   Definition scheduler_async : val :=
-    λ: "hdl" "task",
+    λ: "ctx" "task",
       let: "fut" := spmc_future_create () in
-      ws_hub_push ws_deques "hdl".<hub> "hdl".<id> (λ: "hdl",
-        spmc_future_set "fut" ("task" "hdl")
+      ws_hub_push ws_deques "ctx".<hub> "ctx".<id> (λ: "ctx",
+        spmc_future_set "fut" ("task" "ctx")
       ) ;;
       "fut".
 
   Definition scheduler_await : val :=
-    rec: "scheduler_await" "hdl" "fut" :=
+    rec: "scheduler_await" "ctx" "fut" :=
       match: spmc_future_try_get "fut" with
       | Some "res" =>
           "res"
       | None =>
-          scheduler_worker_aux "hdl" ;;
-          "scheduler_await" "hdl" "fut"
+          scheduler_worker_aux "ctx" ;;
+          "scheduler_await" "ctx" "fut"
       end.
 End ws_deques.
 
@@ -114,9 +114,9 @@ Section scheduler_G.
     ws_hub_inv ws_deques t (nroot.@"hub") ∗
     inv (nroot.@"inv") (scheduler_inv_inner t).
 
-  Definition scheduler_handle t hdl : iProp Σ :=
+  Definition scheduler_context t ctx : iProp Σ :=
     ∃ (i : nat),
-    ⌜hdl = (t, #i)%V⌝ ∗
+    ⌜ctx = (t, #i)%V⌝ ∗
     ws_hub_owner ws_deques t i.
 
   #[using="ws_deques"]
@@ -129,8 +129,8 @@ Section scheduler_G.
     solve_proper.
   Qed.
 
-  #[global] Instance scheduler_handle_timeless t hdl :
-    Timeless (scheduler_handle t hdl).
+  #[global] Instance scheduler_context_timeless t ctx :
+    Timeless (scheduler_context t ctx).
   Proof.
     apply _.
   Qed.
@@ -213,10 +213,10 @@ Section scheduler_G.
     (0 ≤ sz)%Z →
     {{{ True }}}
       scheduler_create ws_deques #sz
-    {{{ t hdl,
-      RET hdl;
+    {{{ t ctx,
+      RET ctx;
       scheduler_inv t ∗
-      scheduler_handle t hdl
+      scheduler_context t ctx
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -242,44 +242,44 @@ Section scheduler_G.
     iSteps.
   Qed.
 
-  Lemma scheduler_run_spec Ψ t hdl task :
+  Lemma scheduler_run_spec Ψ t ctx task :
     {{{
       scheduler_inv t ∗
-      scheduler_handle t hdl ∗
-      ( ∀ hdl,
-        scheduler_handle t hdl -∗
-        WP task hdl {{ v,
-          scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
+      ( ∀ ctx,
+        scheduler_context t ctx -∗
+        WP task ctx {{ v,
+          scheduler_context t ctx ∗
           Ψ v
         }}
       )
     }}}
-      scheduler_run ws_deques hdl task
+      scheduler_run ws_deques ctx task
     {{{ v,
       RET v;
-      scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
       Ψ v
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma scheduler_async_spec Ψ t hdl task :
+  Lemma scheduler_async_spec Ψ t ctx task :
     {{{
       scheduler_inv t ∗
-      scheduler_handle t hdl ∗
-      ( ∀ hdl,
-        scheduler_handle t hdl -∗
-        WP task hdl {{ v,
-          scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
+      ( ∀ ctx,
+        scheduler_context t ctx -∗
+        WP task ctx {{ v,
+          scheduler_context t ctx ∗
           □ Ψ v
         }}
       )
     }}}
-      scheduler_async ws_deques hdl task
+      scheduler_async ws_deques ctx task
     {{{ fut,
       RET fut;
-      scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
       scheduler_future fut Ψ
     }}}.
   Proof.
@@ -303,16 +303,16 @@ Section scheduler_G.
     rewrite Nat2Z.id. iSteps.
   Qed.
 
-  Lemma scheduler_await_spec t hdl fut Ψ :
+  Lemma scheduler_await_spec t ctx fut Ψ :
     {{{
       scheduler_inv t ∗
-      scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
       scheduler_future fut Ψ
     }}}
-      scheduler_await ws_deques hdl fut
+      scheduler_await ws_deques ctx fut
     {{{ v,
       RET v;
-      scheduler_handle t hdl ∗
+      scheduler_context t ctx ∗
       Ψ v
     }}}.
   Proof.
@@ -336,5 +336,5 @@ End scheduler_G.
 #[global] Opaque scheduler_await.
 
 #[global] Opaque scheduler_inv.
-#[global] Opaque scheduler_handle.
+#[global] Opaque scheduler_context.
 #[global] Opaque scheduler_future.
