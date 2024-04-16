@@ -2,9 +2,6 @@
    https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/utils/lf_queue.ml
 *)
 
-From iris.algebra Require Import
-  list.
-
 From zebre Require Import
   prelude.
 From zebre.common Require Import
@@ -112,12 +109,12 @@ Definition mpsc_queue_is_empty : val :=
     end.
 
 Class MpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] mpsc_queue_G_twins_G :: TwinsG Σ (listO valO) ;
+  #[local] mpsc_queue_G_twins_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] mpsc_queue_G_lstate_G :: OneshotG Σ () () ;
 }.
 
 Definition mpsc_queue_Σ := #[
-  twins_Σ (listO valO) ;
+  twins_Σ (leibnizO (list val)) ;
   oneshot_Σ () ()
 ].
 #[global] Instance subG_mpsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
