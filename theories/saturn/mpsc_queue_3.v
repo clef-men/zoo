@@ -53,164 +53,164 @@ Implicit Types ws : option (list val).
 Inductive clist :=
   | ClistClosed
   | ClistOpen
-  | ClistCons v (clst : clist).
-Implicit Types clst : clist.
+  | ClistCons v (cls : clist).
+Implicit Types cls : clist.
 
-#[local] Fixpoint clist_to_val clst :=
-  match clst with
+#[local] Fixpoint clist_to_val cls :=
+  match cls with
   | ClistClosed =>
       §Closed
   | ClistOpen =>
       §Open
-  | ClistCons v clst =>
-      ’Cons{ v, clist_to_val clst }
+  | ClistCons v cls =>
+      ’Cons{ v, clist_to_val cls }
   end.
 #[local] Coercion clist_to_val : clist >-> val.
 
 #[local] Instance clist_to_val_inj :
   Inj (=) val_eq clist_to_val.
 Proof.
-  intros clst1. induction clst1 as [| | v1 clst1 IH]; intros [| | v2 clst2]; [naive_solver.. |].
+  intros cls1. induction cls1 as [| | v1 cls1 IH]; intros [| | v2 cls2]; [naive_solver.. |].
   intros (_ & [= -> ->%eq_val_eq%IH]). done.
 Qed.
-#[local] Instance clist_to_val_physical clst :
-  ValPhysical (clist_to_val clst).
+#[local] Instance clist_to_val_physical cls :
+  ValPhysical (clist_to_val cls).
 Proof.
-  destruct clst; done.
+  destruct cls; done.
 Qed.
 
-#[local] Fixpoint list_to_clist_open lst :=
-  match lst with
+#[local] Fixpoint list_to_clist_open ls :=
+  match ls with
   | [] =>
       ClistOpen
-  | v :: lst =>
-      ClistCons v (list_to_clist_open lst)
+  | v :: ls =>
+      ClistCons v (list_to_clist_open ls)
   end.
-#[local] Fixpoint list_to_clist_closed lst :=
-  match lst with
+#[local] Fixpoint list_to_clist_closed ls :=
+  match ls with
   | [] =>
       ClistClosed
-  | v :: lst =>
-      ClistCons v (list_to_clist_closed lst)
+  | v :: ls =>
+      ClistCons v (list_to_clist_closed ls)
   end.
 
 #[local] Instance list_to_clist_open_inj :
   Inj (=) (=) list_to_clist_open.
 Proof.
-  intros lst1. induction lst1 as [| v1 lst1 IH]; intros [| v2 lst2]; naive_solver.
+  intros ls1. induction ls1 as [| v1 ls1 IH]; intros [| v2 ls2]; naive_solver.
 Qed.
 #[local] Instance list_to_clist_closed_inj :
   Inj (=) (=) list_to_clist_closed.
 Proof.
-  intros lst1. induction lst1 as [| v1 lst1 IH]; intros [| v2 lst2]; naive_solver.
+  intros ls1. induction ls1 as [| v1 ls1 IH]; intros [| v2 ls2]; naive_solver.
 Qed.
-#[local] Lemma list_to_clist_open_closed lst1 lst2 :
-  list_to_clist_open lst1 ≠ list_to_clist_closed lst2.
+#[local] Lemma list_to_clist_open_closed ls1 ls2 :
+  list_to_clist_open ls1 ≠ list_to_clist_closed ls2.
 Proof.
-  move: lst2. induction lst1; destruct lst2; naive_solver.
+  move: ls2. induction ls1; destruct ls2; naive_solver.
 Qed.
-#[local] Lemma list_to_clist_open_not_closed lst :
-  list_to_clist_open lst ≠ ClistClosed.
+#[local] Lemma list_to_clist_open_not_closed ls :
+  list_to_clist_open ls ≠ ClistClosed.
 Proof.
-  apply (list_to_clist_open_closed lst []).
+  apply (list_to_clist_open_closed ls []).
 Qed.
 
-#[local] Fixpoint clist_app lst1 clst2 :=
-  match lst1 with
+#[local] Fixpoint clist_app ls1 cls2 :=
+  match ls1 with
   | [] =>
-      clst2
-  | v :: lst1 =>
-      ClistCons v (clist_app lst1 clst2)
+      cls2
+  | v :: ls1 =>
+      ClistCons v (clist_app ls1 cls2)
   end.
 
-#[local] Lemma clist_app_open {lst1 clst2} lst2 :
-  clst2 = list_to_clist_open lst2 →
-  clist_app lst1 clst2 = list_to_clist_open (lst1 ++ lst2).
+#[local] Lemma clist_app_open {ls1 cls2} ls2 :
+  cls2 = list_to_clist_open ls2 →
+  clist_app ls1 cls2 = list_to_clist_open (ls1 ++ ls2).
 Proof.
-  move: clst2 lst2. induction lst1; first done.
+  move: cls2 ls2. induction ls1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-#[local] Lemma clist_app_Open lst :
-  clist_app lst ClistOpen = list_to_clist_open lst.
+#[local] Lemma clist_app_Open ls :
+  clist_app ls ClistOpen = list_to_clist_open ls.
 Proof.
   rewrite (clist_app_open []) // right_id //.
 Qed.
-#[local] Lemma clist_app_closed {lst1 clst2} lst2 :
-  clst2 = list_to_clist_closed lst2 →
-  clist_app lst1 clst2 = list_to_clist_closed (lst1 ++ lst2).
+#[local] Lemma clist_app_closed {ls1 cls2} ls2 :
+  cls2 = list_to_clist_closed ls2 →
+  clist_app ls1 cls2 = list_to_clist_closed (ls1 ++ ls2).
 Proof.
-  move: clst2 lst2. induction lst1; first done.
+  move: cls2 ls2. induction ls1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-#[local] Lemma clist_app_Closed lst :
-  clist_app lst ClistClosed = list_to_clist_closed lst.
+#[local] Lemma clist_app_Closed ls :
+  clist_app ls ClistClosed = list_to_clist_closed ls.
 Proof.
   rewrite (clist_app_closed []) // right_id //.
 Qed.
-#[local] Lemma clist_app_assoc lst1 lst2 clst :
-  clist_app (lst1 ++ lst2) clst = clist_app lst1 (clist_app lst2 clst).
+#[local] Lemma clist_app_assoc ls1 ls2 cls :
+  clist_app (ls1 ++ ls2) cls = clist_app ls1 (clist_app ls2 cls).
 Proof.
-  induction lst1; f_equal/=; done.
+  induction ls1; f_equal/=; done.
 Qed.
 
 #[local] Definition clst_app : val :=
-  rec: "clst_app" "clst1" "clst2" :=
-    match: "clst1" with
+  rec: "clst_app" "cls1" "cls2" :=
+    match: "cls1" with
     | Open =>
-        "clst2"
-    | Cons "v" "clst1" =>
-        ‘Cons{ "v", "clst_app" "clst1" "clst2" }
+        "cls2"
+    | Cons "v" "cls1" =>
+        ‘Cons{ "v", "clst_app" "cls1" "cls2" }
     end.
 
 #[local] Definition clst_rev_app : val :=
-  rec: "clst_rev_app" "clst1" "clst2" :=
-    match: "clst1" with
+  rec: "clst_rev_app" "cls1" "cls2" :=
+    match: "cls1" with
     | Open =>
-        "clst2"
-    | Cons "v" "clst1" =>
-        "clst_rev_app" "clst1" ‘Cons{ "v", "clst2" }
+        "cls2"
+    | Cons "v" "cls1" =>
+        "clst_rev_app" "cls1" ‘Cons{ "v", "cls2" }
     end.
 
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
-  #[local] Lemma wp_match_clist_open lst e1 x2 e2 Φ :
-    WP subst' x2 (list_to_clist_open lst) e2 {{ Φ }} ⊢
-    WP match: list_to_clist_open lst with Closed => e1 |_ as: x2 => e2 end {{ Φ }}.
+  #[local] Lemma wp_match_clist_open ls e1 x2 e2 Φ :
+    WP subst' x2 (list_to_clist_open ls) e2 {{ Φ }} ⊢
+    WP match: list_to_clist_open ls with Closed => e1 |_ as: x2 => e2 end {{ Φ }}.
   Proof.
-    destruct lst; iSteps.
+    destruct ls; iSteps.
   Qed.
 
-  #[local] Lemma clst_app_spec {t1} lst1 {t2} clst2 :
-    t1 = list_to_clist_open lst1 →
-    t2 = clst2 →
+  #[local] Lemma clst_app_spec {t1} ls1 {t2} cls2 :
+    t1 = list_to_clist_open ls1 →
+    t2 = cls2 →
     {{{ True }}}
       clst_app t1 t2
     {{{
-      RET (clist_app lst1 clst2 : val); True
+      RET clist_app ls1 cls2 : val; True
     }}}.
   Proof.
-    iInduction lst1 as [| v1 lst1] "IH" forall (t1 t2 clst2).
+    iInduction ls1 as [| v1 ls1] "IH" forall (t1 t2 cls2).
     all: iIntros (-> ->) "%Φ _ HΦ".
     all: wp_rec.
     - iSteps.
     - wp_smart_apply ("IH" with "[//]"); iSteps.
   Qed.
 
-  #[local] Lemma clst_rev_app_spec {t1} lst1 {t2} clst2 :
-    t1 = list_to_clist_open lst1 →
-    t2 = clst2 →
+  #[local] Lemma clst_rev_app_spec {t1} ls1 {t2} cls2 :
+    t1 = list_to_clist_open ls1 →
+    t2 = cls2 →
     {{{ True }}}
       clst_rev_app t1 t2
     {{{
-      RET (clist_app (reverse lst1) clst2 : val); True
+      RET clist_app (reverse ls1) cls2 : val; True
     }}}.
   Proof.
-    iInduction lst1 as [| v1 lst1] "IH" forall (t1 t2 clst2).
+    iInduction ls1 as [| v1 ls1] "IH" forall (t1 t2 cls2).
     all: iIntros (-> ->) "%Φ _ HΦ".
     all: wp_rec.
     - iSteps.
-    - wp_smart_apply ("IH" $! _ _ (ClistCons v1 clst2) with "[//]"); iSteps.
+    - wp_smart_apply ("IH" $! _ _ (ClistCons v1 cls2) with "[//]"); iSteps.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 End zebre_G.

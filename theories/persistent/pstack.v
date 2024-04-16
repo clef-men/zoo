@@ -11,7 +11,7 @@ From zebre.persistent Require Export
 From zebre Require Import
   options.
 
-Implicit Types v t lst : val.
+Implicit Types v t : val.
 
 Definition pstack_empty :=
   §Nil.
