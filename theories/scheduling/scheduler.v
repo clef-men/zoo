@@ -42,7 +42,7 @@ Section ws_deques.
 
   #[local] Definition scheduler_worker_aux : val :=
     λ: "ctx",
-      let: "task" := ws_hub_pop ws_deques "ctx".<hub> "ctx".<id> in
+      let: "task" := ws_hub_pop ws_deques "ctx".<hub> "ctx".<id> #scheduler_max_round in
       scheduler_execute "ctx" "task".
   #[local] Definition scheduler_worker : val :=
     rec: "scheduler_worker" "ctx" :=
@@ -51,7 +51,7 @@ Section ws_deques.
 
   Definition scheduler_create : val :=
     λ: "sz",
-      let: "t" := ws_hub_create ws_deques (#1 + "sz") #scheduler_max_round in
+      let: "t" := ws_hub_create ws_deques (#1 + "sz") in
       for: "i" := #1 to #1 + "sz" begin
         Fork (scheduler_worker ("t", "i"))
       end ;;
@@ -179,7 +179,7 @@ Section scheduler_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
+    awp_smart_apply (ws_hub_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done.. |].
     iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
     iAaccIntro with "Hhub_model"; first iSteps. iIntros "%task %tasks' (-> & Hhub_model)".
     iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
