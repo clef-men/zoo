@@ -2,9 +2,6 @@
    https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/treiber_stack.ml
 *)
 
-From iris.algebra Require Import
-  list.
-
 From zebre Require Import
   prelude.
 From zebre.iris.base_logic Require Import
@@ -52,11 +49,11 @@ Definition mpmc_stack_pop : val :=
     end.
 
 Class MpmcStackG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] mpmc_stack_G_model_G :: TwinsG Σ (listO val) ;
+  #[local] mpmc_stack_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
 }.
 
 Definition mpmc_stack_Σ := #[
-  twins_Σ (listO val)
+  twins_Σ (leibnizO (list val))
 ].
 #[global] Instance subG_mpmc_stack_Σ Σ `{zebre_G : !ZebreG Σ} :
   subG mpmc_stack_Σ Σ →
