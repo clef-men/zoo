@@ -331,21 +331,26 @@ Section expr_ind.
   Fixpoint expr_ind e :=
     match e with
     | Val v =>
-        HVal v
+        HVal
+          v
     | Var x =>
-        HVar x
+        HVar
+          x
     | Rec f x e =>
-        HRec f x
+        HRec
+          f x
           e (expr_ind e)
     | App e1 e2 =>
         HApp
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | Unop op e =>
-        HUnop op
+        HUnop
+          op
           e (expr_ind e)
     | Binop op e1 e2 =>
-        HBinop op
+        HBinop
+          op
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | Equal e1 e2 =>
@@ -358,10 +363,12 @@ Section expr_ind.
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | Constr tag es =>
-        HConstr tag
+        HConstr
+          tag
           es (Forall_true P es expr_ind)
     | Proj proj e =>
-        HProj proj
+        HProj
+          proj
           e (expr_ind e)
     | Match e0 x e1 brs =>
         HMatch
