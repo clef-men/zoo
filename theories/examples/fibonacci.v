@@ -3,7 +3,7 @@ From zebre Require Import
 From zebre.language Require Import
   notations
   diaframe.
-From zebre.scheduling Require Import
+From zebre.parabstr Require Import
   ws_deques
   scheduler.
 From zebre Require Import

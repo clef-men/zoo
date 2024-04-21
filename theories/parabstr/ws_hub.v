@@ -15,9 +15,9 @@ From zebre.std Require Import
   opt.
 From zebre.saturn Require Import
   mpmc_queue_1.
-From zebre.scheduling Require Export
+From zebre.parabstr Require Export
   base.
-From zebre.scheduling Require Import
+From zebre.parabstr Require Import
   ws_deques
   waiters.
 From zebre Require Import

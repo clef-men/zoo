@@ -1,4 +1,4 @@
-dot_in := scheduling
+dot_in := parabstr
 dot_out := $(patsubst %,%.png,$(dot_in))
 
 .PHONY : all

@@ -6,7 +6,7 @@ From zebre.language Require Import
 From zebre.std Require Import
   opt
   random_round.
-From zebre.scheduling Require Export
+From zebre.parabstr Require Export
   base.
 From zebre Require Import
   options.

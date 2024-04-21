@@ -9,9 +9,9 @@ From zebre.std Require Import
   opt
   for_upto
   spmc_future.
-From zebre.scheduling Require Export
+From zebre.parabstr Require Export
   base.
-From zebre.scheduling Require Import
+From zebre.parabstr Require Import
   ws_deques
   ws_hub.
 From zebre Require Import

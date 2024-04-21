@@ -10,7 +10,7 @@ From zebre.language Require Import
 From zebre.std Require Import
   array
   deque.
-From zebre.scheduling Require Export
+From zebre.parabstr Require Export
   ws_deques.
 From zebre Require Import
   options.

@@ -8,7 +8,7 @@ From zebre.std Require Import
   mpsc_waiter.
 From zebre.saturn Require Import
   mpmc_queue_1.
-From zebre.scheduling Require Export
+From zebre.parabstr Require Export
   base.
 From zebre Require Import
   options.
