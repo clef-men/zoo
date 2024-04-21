@@ -20,7 +20,7 @@ From zebre Require Import
 Implicit Types v t task : val.
 
 #[local] Notation "'hub'" := (
-in_type "context" 0
+  in_type "context" 0
 )(in custom zebre_proj
 ).
 #[local] Notation "'id'" := (
@@ -32,8 +32,7 @@ Section ws_deques.
   Context `{zebre_G : !ZebreG Σ}.
   Context (ws_deques : ws_deques Σ).
 
-  #[local] Definition scheduler_max_round :=
-    2048.
+  #[local] Parameter scheduler_max_round : nat.
 
   #[using="ws_deques"]
   #[local] Definition scheduler_execute : val :=
@@ -179,7 +178,7 @@ Section scheduler_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done.. |].
+    awp_smart_apply (ws_hub_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [lia.. |].
     iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
     iAaccIntro with "Hhub_model"; first iSteps. iIntros "%task %tasks' (-> & Hhub_model)".
     iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
