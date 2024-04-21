@@ -59,10 +59,14 @@ Section ws_deques.
   Definition scheduler_run :=
     scheduler_execute.
 
+  Definition scheduler_silent_async : val :=
+    λ: "ctx" "task",
+      ws_hub_push ws_deques "ctx".<hub> "ctx".<id> "task".
+
   Definition scheduler_async : val :=
     λ: "ctx" "task",
       let: "fut" := spmc_future_create () in
-      ws_hub_push ws_deques "ctx".<hub> "ctx".<id> (λ: "ctx",
+      scheduler_silent_async "ctx" (λ: "ctx",
         spmc_future_set "fut" ("task" "ctx")
       ) ;;
       "fut".
@@ -263,6 +267,40 @@ Section scheduler_G.
     iSteps.
   Qed.
 
+  Lemma scheduler_silent_async_spec t ctx task :
+    {{{
+      scheduler_inv t ∗
+      scheduler_context t ctx ∗
+      ( ∀ ctx,
+        scheduler_context t ctx -∗
+        WP task ctx {{ res,
+          scheduler_context t ctx
+        }}
+      )
+    }}}
+      scheduler_silent_async ws_deques ctx task
+    {{{
+      RET ();
+      scheduler_context t ctx
+    }}}.
+  Proof.
+    iIntros "%Φ ((#Hhub_inv & #Hinv) & (%i & -> & Hhub_owner) & Htask) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_push_spec with "[$Hhub_inv Hhub_owner]") without "HΦ".
+    { lia. }
+    { rewrite Nat2Z.id //. }
+    iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
+    iAaccIntro with "Hhub_model". { iFrame. iSteps. } iIntros "Hhub_model".
+    iSplitL.
+    { iExists _. iFrame. rewrite big_sepMS_singleton. iIntros "!> !> %j Hhub_owner".
+      wp_smart_apply (wp_wand with "(Htask [Hhub_owner])") as (res) "(%_j & %Heq & Hhub_owner)"; first iSteps.
+      injection Heq as [= <-%(inj _)]. iSteps.
+    }
+    rewrite Nat2Z.id. iSteps.
+  Qed.
+
   Lemma scheduler_async_spec Ψ t ctx task :
     {{{
       scheduler_inv t ∗
@@ -282,24 +320,15 @@ Section scheduler_G.
       scheduler_future fut Ψ
     }}}.
   Proof.
-    iIntros "%Φ ((#Hhub_inv & #Hinv) & (%i & -> & Hhub_owner) & Htask) HΦ".
+    iIntros "%Φ (#Hinv & Hctx & Htask) HΦ".
 
     wp_rec.
     wp_smart_apply (spmc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer)".
-
-    awp_smart_apply (ws_hub_push_spec with "[$Hhub_inv Hhub_owner]") without "HΦ".
-    { lia. }
-    { rewrite Nat2Z.id //. }
-    iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
-    iAaccIntro with "Hhub_model". { iFrame. iSteps. } iIntros "Hhub_model".
-    iSplitL.
-    { iExists _. iFrame. rewrite big_sepMS_singleton. iIntros "!> !> %j Hhub_owner".
-      wp_smart_apply (wp_wand with "(Htask [Hhub_owner])") as (v) "((%_j & %Heq & Hhub_owner) & HΨ)"; first iSteps.
-      injection Heq as [= <-%(inj _)].
-      wp_smart_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]").
-      iSteps.
-    }
-    rewrite Nat2Z.id. iSteps.
+    wp_smart_apply (scheduler_silent_async_spec with "[$Hinv $Hctx Htask Hfut_producer]"); last iSteps.
+    clear ctx. iIntros "%ctx Hctx".
+    wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ)".
+    wp_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]") as "_".
+    iFrame.
   Qed.
 
   Lemma scheduler_await_spec t ctx fut Ψ :
@@ -331,6 +360,7 @@ End scheduler_G.
 
 #[global] Opaque scheduler_create.
 #[global] Opaque scheduler_run.
+#[global] Opaque scheduler_silent_async.
 #[global] Opaque scheduler_async.
 #[global] Opaque scheduler_await.
 
