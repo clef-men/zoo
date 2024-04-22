@@ -7,6 +7,8 @@ From iris.base_logic Require Import
 
 From zebre Require Import
   prelude.
+From zebre.common Require Import
+  treemap.
 From zebre.iris.base_logic Require Import
   lib.mono_map.
 From zebre.language Require Import
@@ -232,6 +234,7 @@ Module raw.
         descriptors_auth γ ∅
       else
         ∃ descrs edgs base descr nodes δs,
+        ⌜treemap_rooted edgs base⌝ ∗
         descriptors_auth γ descrs ∗
         (* base cnode *)
         ⌜descrs !! base = Some descr⌝ ∗
@@ -463,11 +466,10 @@ Module raw.
       }
       iSplitR. { iPureIntro. split; [set_solver | done]. }
       case_decide as Hg; first iSteps.
-      iStep 3 as (descrs edgs base descr nodes δs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hδs Hdescrs".
-      iExists edgs, nodes, δs. iSteps.
-      { iPureIntro. set_solver. }
-      { iPureIntro.
-        rewrite !store_on_insert_support //; last congruence.
+      iDecompose "Hmodel" as (descrs edgs base descr nodes δs Hedgs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hauth Hδs Hdescrs".
+      iSteps; try iPureIntro.
+      { set_solver. }
+      { rewrite !store_on_insert_support //; last congruence.
         apply (f_equal dom) in Hδs. set_solver.
       } {
         iClear "Helem_base". clear dependent descr nodes δs.
@@ -548,7 +550,8 @@ Module raw.
           iSplitL "Hς". { rewrite insert_union_l //. }
           iSplitR. { iPureIntro. split; first set_solver. apply map_Forall_insert_2; done. }
           rewrite decide_False //.
-          iStep 3 as (descrs edgs base descr nodes δs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hδs Hdescrs". iSteps; iPureIntro.
+          iDecompose "Hmodel" as (descrs edgs base descr nodes δs Hedgs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hauth Hδs Hdescrs".
+          iSteps; iPureIntro.
           { eapply Forall_impl; first done. intros (r' & (g' & v')) H.
             destruct (decide (r = r')) as [<- | Hr'].
             - rewrite lookup_insert. naive_solver.
@@ -595,7 +598,7 @@ Module raw.
           iSplitL "Hς". { rewrite insert_union_l //. }
           iSplitR. { iPureIntro. split; first set_solver. apply map_Forall_insert_2; done. }
           rewrite decide_False //.
-          iStep 3 as (descrs edgs base descr nodes δs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hδs Hdescrs".
+          iDecompose "Hmodel" as (descrs edgs base descr nodes δs Hedgs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hauth Hδs Hdescrs".
           assert (r ∉ δs.*1) as Hr_notin_δs.
           { intros (i & ((? & data) & -> & Hδs_lookup)%list_lookup_fmap_inv)%elem_of_list_lookup.
             opose proof* Forall_lookup_1 as H; [done.. |].
@@ -605,7 +608,7 @@ Module raw.
           { rewrite Hδs store_on_lookup deltas_apply_lookup_ne //.
             rewrite store_on_lookup // in Hς_lookup.
           }
-          iExists edgs, (nodes ++ [root']), (δs ++ [(r, (g_r, w))]). iFrame. iSteps; [iPureIntro.. |].
+          iExists _, _, _, _, _, (δs ++ [(r, (g_r, w))]). iFrame. iSteps; try iPureIntro.
           { rewrite fmap_app NoDup_app. split_and!; first done.
             - set_solver.
             - apply NoDup_singleton.
@@ -652,14 +655,14 @@ Module raw.
         { iPureIntro. split; first set_solver.
           eapply map_Forall_impl; first done. naive_solver.
         }
-        iStep. iExists ∅, root, descr, [], []. iSplitR.
-        { iPureIntro. rewrite lookup_insert //. }
-        iSteps.
+        iExists {[root := descr]}, ∅, root, descr, [], []. iSteps; try iPureIntro.
+        { apply treemap_rooted_empty. }
+        { rewrite lookup_insert //. }
         { rewrite NoDup_nil //. }
         { rewrite deltas_apply_nil //. }
-        rewrite insert_empty delete_singleton.
+        rewrite delete_singleton.
         iApply (big_sepM2_empty with "[//]").
-      - iDestruct "Hmodel" as "(%descrs & %edgs & %base & %descr & %nodes & %δs & Hauth & %Hdescrs_lookup_base & %Hgen & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs_gen & %Hδs & Hδs) & Hdescrs)".
+      - iDecompose "Hmodel" as (descrs edgs base descr nodes δs Hedgs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs_gen Hδs) "Helem_base Hauth Hδs Hdescrs".
         destruct δs as [| δ δs]; simpl.
         + iDestruct (deltas_chain_nil_inv with "Hδs") as %(-> & <-).
           iSplitL; iSteps.
@@ -682,15 +685,20 @@ Module raw.
               iDestruct (deltas_chain_cons_inv with "Hδs'") as "(%node & %nodes'' & -> & _Hroot & _)".
               iDestruct (pointsto_ne with "Hroot _Hroot") as %?. done.
           }
+          iAssert ⌜edgs !! root = None⌝%I as %Hedgs_lookup_root.
+          { iDestruct (big_sepM2_lookup_iff with "Hdescrs") as %H.
+            iPureIntro.
+            rewrite eq_None_not_Some -{}H. intros (_ & [])%lookup_delete_is_Some. congruence.
+          }
           pose root_descr := (g, ς).
           iMod (descriptors_insert root root_descr with "Hauth") as "(Hauth & #Helem_root)"; first done.
           iSplitL; last iSteps.
-          iExists l, γ, (S g), root, ς. iFrame "#∗". iSteps as (_ | _) "" | "".
-          { iPureIntro. eapply map_Forall_impl; first done. naive_solver. }
-          iExists root, root_descr. iSplitR.
-          { rewrite lookup_insert //. }
+          iExists l, γ, (S g), root, ς. iFrame "#∗". iStep 3.
+          iSplitR; first iSteps.
           set edg := (root, (nodes, δ :: δs)).
-          iExists (<[base := edg]> edgs), [], []. iSteps.
+          iExists _, (<[base := edg]> edgs), root, root_descr, [], []. iSteps; try iPureIntro.
+          { eapply treemap_rooted_lift; done. }
+          { rewrite lookup_insert //. }
           { rewrite NoDup_nil //. }
           { rewrite deltas_apply_nil //. }
           rewrite delete_insert //.

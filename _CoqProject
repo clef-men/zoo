@@ -14,6 +14,7 @@ theories/common/relations.v
 theories/common/math.v
 theories/common/list.v
 theories/common/gmultiset.v
+theories/common/treemap.v
 
 theories/iris/algebra/base.v
 theories/iris/algebra/view.v
