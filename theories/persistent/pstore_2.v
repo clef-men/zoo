@@ -250,11 +250,10 @@ Module raw.
         ⌜descr.1 < g⌝ ∗
         cnode_model (Some g) γ σ0 base descr (root, (nodes, δs)) ς ∗
         (* other cnodes *)
-        ( [∗ map] cnode ↦ descr; edg ∈ delete base descrs; edgs,
+        [∗ map] cnode ↦ descr; edg ∈ delete base descrs; edgs,
           ∃ descr',
           ⌜descrs !! edg.1 = Some descr'⌝ ∗
-          cnode_model None γ σ0 cnode descr edg descr'.2
-        ).
+          cnode_model None γ σ0 cnode descr edg descr'.2.
 
     Definition pstore_snapshot_model s t σ : iProp Σ :=
       ∃ l γ g node descr,
