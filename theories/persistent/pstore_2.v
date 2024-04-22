@@ -97,26 +97,35 @@ Definition pstore_capture : val :=
     "t" <-{gen} #1 + "g" ;;
     ("t", "g", "t".{root}).
 
-#[local] Definition pstore_reroot_aux : val :=
-  rec: "pstore_reroot_aux" "node" :=
+#[local] Definition pstore_collect : val :=
+  rec: "pstore_collect" "node" "acc" :=
     match: !"node" with
     | Root =>
-        ()
-    | Diff "r" "v" "gen" "node'" =>
-        "pstore_reroot_opt_aux" "node'" ;;
-        "node'" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node" } ;;
-        "r" <-{ref_gen} "gen" ;;
-        "r" <-{ref_value} "v"
+        ("node", "acc")
+    | Diff <> <> <> "node'" =>
+        "pstore_collect" "node'" ‘Cons{ "node", "acc" }
+    end.
+#[local] Definition pstore_revert : val :=
+  rec: "pstore_revert" "node" "seg" :=
+    match: "seg" with
+    | Nil =>
+        "node" <- §Root
+    | Cons "node'" "seg" =>
+        match: !"node'" with
+        | Root =>
+            Fail
+        | Diff "r" "g" "v" "node_" =>
+            assert ("node_" = "node") ;;
+            "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
+            "r" <-{ref_gen} "g" ;;
+            "r" <-{ref_value} "v" ;;
+            "pstore_revert" "node'" "seg"
+        end
     end.
 #[local] Definition pstore_reroot : val :=
   λ: "node",
-    match: !"node" with
-    | Root =>
-        ()
-    | Diff <> <> <> <> =>
-        pstore_reroot_aux "node" ;;
-        "node" <- §Root
-    end.
+    let: "root", "nodes" := pstore_collect "node" §Nil in
+    pstore_revert "root" "nodes".
 
 Definition pstore_restore : val :=
   λ: "t" "s",
