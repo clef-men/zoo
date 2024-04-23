@@ -33,7 +33,10 @@ Implicit Types t rand : val.
 
 Definition random_round_create : val :=
   λ: "sz",
-    { random_create (); array_initi "sz" (λ: "i", "i"); "sz" }.
+    { random_create ();
+      array_initi "sz" (λ: "i", "i");
+      "sz"
+    }.
 
 Definition random_round_reset : val :=
   λ: "t",
