@@ -49,6 +49,14 @@ Section agree_G.
   Proof.
     apply own_alloc. done.
   Qed.
+  Lemma agree_alloc_cofinite (γs : gset gname) a :
+    ⊢ |==>
+      ∃ γ,
+      ⌜γ ∉ γs⌝ ∗
+      agree_on γ a.
+  Proof.
+    apply own_alloc_cofinite. done.
+  Qed.
 
   Lemma agree_on_agree γ a1 a2 :
     agree_on γ a1 -∗
