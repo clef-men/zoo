@@ -4,7 +4,7 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.parabstr Require Import
-  ws_deques
+  ws_hub
   scheduler.
 From zebre Require Import
   options.
@@ -50,31 +50,31 @@ Qed.
 
 Section scheduler_G.
   Context `{scheduler_G : SchedulerG Σ}.
-  Context (ws_deques : ws_deques Σ).
+  Context (ws_hub : ws_hub Σ).
 
   #[local] Definition fibonacci_aux : val :=
     rec: "fibonacci_aux" "n" "ctx" :=
       if: "n" ≤ #1 then (
         "n"
       ) else (
-        let: "fut1" := scheduler_async ws_deques "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #1) "ctx") in
-        let: "fut2" := scheduler_async ws_deques "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #2) "ctx") in
-        scheduler_await ws_deques "ctx" "fut1" + scheduler_await ws_deques "ctx" "fut2"
+        let: "fut1" := scheduler_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #1) "ctx") in
+        let: "fut2" := scheduler_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #2) "ctx") in
+        scheduler_await ws_hub "ctx" "fut1" + scheduler_await ws_hub "ctx" "fut2"
       ).
   Definition fibonacci : val :=
     λ: "n" "ctx",
-      scheduler_run ws_deques "ctx" (λ: "ctx", fibonacci_aux "n" "ctx").
+      scheduler_run ws_hub "ctx" (λ: "ctx", fibonacci_aux "n" "ctx").
 
   #[local] Lemma fibonacci_aux_spec n sched ctx :
     (0 ≤ n)%Z →
     {{{
-      scheduler_inv ws_deques sched ∗
-      scheduler_context ws_deques sched ctx
+      scheduler_inv ws_hub sched ∗
+      scheduler_context ws_hub sched ctx
     }}}
       fibonacci_aux #n ctx
     {{{
       RET #(fib (Z.to_nat n));
-      scheduler_context ws_deques sched ctx
+      scheduler_context ws_hub sched ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).
@@ -103,13 +103,13 @@ Section scheduler_G.
   Qed.
   Lemma fibonacci_spec (n : nat) sched ctx :
     {{{
-      scheduler_inv ws_deques sched ∗
-      scheduler_context ws_deques sched ctx
+      scheduler_inv ws_hub sched ∗
+      scheduler_context ws_hub sched ctx
     }}}
       fibonacci #n ctx
     {{{
       RET #(fib n);
-      scheduler_context ws_deques sched ctx
+      scheduler_context ws_hub sched ctx
     }}}.
   Proof.
     iIntros "%Φ (#Hsched & Hctx) HΦ".

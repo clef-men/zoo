@@ -137,6 +137,7 @@ theories/parabstr/ws_deques.v
 theories/parabstr/ws_deques_public.v
 theories/parabstr/ws_deques_private.v
 theories/parabstr/waiters.v
+theories/parabstr/ws_hub.v
 theories/parabstr/ws_hub_1.v
 theories/parabstr/ws_hub_2.v
 theories/parabstr/scheduler.v

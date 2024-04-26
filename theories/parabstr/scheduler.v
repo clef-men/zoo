@@ -12,8 +12,7 @@ From zebre.std Require Import
 From zebre.parabstr Require Export
   base.
 From zebre.parabstr Require Import
-  ws_deques
-  ws_hub_1.
+  ws_hub.
 From zebre Require Import
   options.
 
@@ -30,21 +29,20 @@ Implicit Types v t task : val.
 
 Section ws_deques.
   Context `{zebre_G : !ZebreG Σ}.
-  Context (ws_deques : ws_deques Σ).
+  Context (ws_hub : ws_hub Σ).
 
   #[local] Parameter scheduler_max_round_noyield : nat.
   #[local] Parameter scheduler_max_round_yield : nat.
   #[local] Definition scheduler_max_round : val :=
     (#scheduler_max_round_noyield, #scheduler_max_round_yield).
 
-  #[using="ws_deques"]
   #[local] Definition scheduler_execute : val :=
     λ: "ctx" "task",
       "task" "ctx".
 
   #[local] Definition scheduler_worker_aux : val :=
     λ: "ctx",
-      let: "task" := ws_hub_pop_steal ws_deques "ctx".<hub> "ctx".<id> scheduler_max_round in
+      let: "task" := ws_hub_pop_steal ws_hub "ctx".<hub> "ctx".<id> scheduler_max_round in
       scheduler_execute "ctx" "task".
   #[local] Definition scheduler_worker : val :=
     rec: "scheduler_worker" "ctx" :=
@@ -53,18 +51,19 @@ Section ws_deques.
 
   Definition scheduler_create : val :=
     λ: "sz",
-      let: "t" := ws_hub_create ws_deques (#1 + "sz") in
+      let: "t" := ws_hub.(ws_hub_create) (#1 + "sz") in
       for: "i" := #1 to #1 + "sz" begin
         Fork (scheduler_worker ("t", "i"))
       end ;;
       ("t", #0).
 
+  #[using="ws_hub"]
   Definition scheduler_run :=
     scheduler_execute.
 
   Definition scheduler_silent_async : val :=
     λ: "ctx" "task",
-      ws_hub_push ws_deques "ctx".<hub> "ctx".<id> "task".
+      ws_hub.(ws_hub_push) "ctx".<hub> "ctx".<id> "task".
 
   Definition scheduler_async : val :=
     λ: "ctx" "task",
@@ -86,12 +85,10 @@ Section ws_deques.
 End ws_deques.
 
 Class SchedulerG Σ `{zebre_G : !ZebreG Σ} := {
-  #[local] scheduler_G_hub_G :: WsHubG Σ ;
   #[local] scheduler_G_future_G :: SpmcFutureG Σ ;
 }.
 
 Definition scheduler_Σ := #[
-  ws_hub_Σ ;
   spmc_future_Σ
 ].
 #[global] Instance subG_scheduler_Σ Σ `{zebre_G : !ZebreG Σ} :
@@ -103,29 +100,29 @@ Qed.
 
 Section scheduler_G.
   Context `{scheduler_G : SchedulerG Σ}.
-  Context (ws_deques : ws_deques Σ).
+  Context (ws_hub : ws_hub Σ).
 
   #[local] Definition scheduler_task t task : iProp Σ :=
     ∀ i,
-    ws_hub_owner ws_deques t i -∗
+    ws_hub.(ws_hub_owner) t i -∗
     WP task (t, #i)%V {{ _,
-      ws_hub_owner ws_deques t i
+      ws_hub.(ws_hub_owner) t i
     }}.
   #[local] Definition scheduler_inv_inner t : iProp Σ :=
     ∃ tasks,
-    ws_hub_model ws_deques t tasks ∗
+    ws_hub.(ws_hub_model) t tasks ∗
     [∗ mset] task ∈ tasks,
       scheduler_task t task.
   Definition scheduler_inv t : iProp Σ :=
-    ws_hub_inv ws_deques t (nroot.@"hub") ∗
+    ws_hub.(ws_hub_inv) t (nroot.@"hub") ∗
     inv (nroot.@"inv") (scheduler_inv_inner t).
 
   Definition scheduler_context t ctx : iProp Σ :=
     ∃ (i : nat),
     ⌜ctx = (t, #i)%V⌝ ∗
-    ws_hub_owner ws_deques t i.
+    ws_hub.(ws_hub_owner) t i.
 
-  #[using="ws_deques"]
+  #[using="ws_hub"]
   Definition scheduler_future :=
     spmc_future_inv.
 
@@ -149,13 +146,13 @@ Section scheduler_G.
   #[local] Lemma scheduler_execute_spec t i task :
     (0 ≤ i)%Z →
     {{{
-      ws_hub_owner ws_deques t (Z.to_nat i) ∗
+      ws_hub.(ws_hub_owner) t (Z.to_nat i) ∗
       scheduler_task t task
     }}}
-      scheduler_execute ws_deques (t, #i)%V task
+      scheduler_execute (t, #i)%V task
     {{{ res,
       RET res;
-      ws_hub_owner ws_deques t (Z.to_nat i)
+      ws_hub.(ws_hub_owner) t (Z.to_nat i)
     }}}.
   Proof.
     iIntros "%Hi %Φ (Hhub_owner & Htask) HΦ".
@@ -168,12 +165,12 @@ Section scheduler_G.
     (0 ≤ i)%Z →
     {{{
       scheduler_inv t ∗
-      ws_hub_owner ws_deques t (Z.to_nat i)
+      ws_hub.(ws_hub_owner) t (Z.to_nat i)
     }}}
-      scheduler_worker_aux ws_deques (t, #i)%V
+      scheduler_worker_aux ws_hub (t, #i)%V
     {{{ res,
       RET res;
-      ws_hub_owner ws_deques t (Z.to_nat i)
+      ws_hub.(ws_hub_owner) t (Z.to_nat i)
     }}}.
   Proof.
     iIntros "%Hi %Φ ((#Hhub_inv & #Hinv) & Hhub_owner) HΦ".
@@ -186,7 +183,7 @@ Section scheduler_G.
     iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
     rewrite big_sepMS_singleton.
     iSplitR "Htask"; first iSteps.
-    iIntros "!> Hhub_owner HΦ". clear- Hi.
+    iIntros "!> Hhub_owner HΦ".
 
     wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask] HΦ"); first done.
   Qed.
@@ -194,9 +191,9 @@ Section scheduler_G.
     (0 ≤ i)%Z →
     {{{
       scheduler_inv t ∗
-      ws_hub_owner ws_deques t (Z.to_nat i)
+      ws_hub.(ws_hub_owner) t (Z.to_nat i)
     }}}
-      scheduler_worker ws_deques (t, #i)%V
+      scheduler_worker ws_hub (t, #i)%V
     {{{
       RET (); True
     }}}.
@@ -213,7 +210,7 @@ Section scheduler_G.
   Lemma scheduler_create_spec sz :
     (0 ≤ sz)%Z →
     {{{ True }}}
-      scheduler_create ws_deques #sz
+      scheduler_create ws_hub #sz
     {{{ t ctx,
       RET ctx;
       scheduler_inv t ∗
@@ -255,7 +252,7 @@ Section scheduler_G.
         }}
       )
     }}}
-      scheduler_run ws_deques ctx task
+      scheduler_run ws_hub ctx task
     {{{ v,
       RET v;
       scheduler_context t ctx ∗
@@ -276,7 +273,7 @@ Section scheduler_G.
         }}
       )
     }}}
-      scheduler_silent_async ws_deques ctx task
+      scheduler_silent_async ws_hub ctx task
     {{{
       RET ();
       scheduler_context t ctx
@@ -311,7 +308,7 @@ Section scheduler_G.
         }}
       )
     }}}
-      scheduler_async ws_deques ctx task
+      scheduler_async ws_hub ctx task
     {{{ fut,
       RET fut;
       scheduler_context t ctx ∗
@@ -335,7 +332,7 @@ Section scheduler_G.
       scheduler_context t ctx ∗
       scheduler_future fut Ψ
     }}}
-      scheduler_await ws_deques ctx fut
+      scheduler_await ws_hub ctx fut
     {{{ v,
       RET v;
       scheduler_context t ctx ∗
