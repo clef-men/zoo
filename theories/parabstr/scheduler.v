@@ -32,7 +32,10 @@ Section ws_deques.
   Context `{zebre_G : !ZebreG Σ}.
   Context (ws_deques : ws_deques Σ).
 
-  #[local] Parameter scheduler_max_round : nat.
+  #[local] Parameter scheduler_max_round_noyield : nat.
+  #[local] Parameter scheduler_max_round_yield : nat.
+  #[local] Definition scheduler_max_round : val :=
+    (#scheduler_max_round_noyield, #scheduler_max_round_yield).
 
   #[using="ws_deques"]
   #[local] Definition scheduler_execute : val :=
@@ -41,7 +44,7 @@ Section ws_deques.
 
   #[local] Definition scheduler_worker_aux : val :=
     λ: "ctx",
-      let: "task" := ws_hub_pop ws_deques "ctx".<hub> "ctx".<id> #scheduler_max_round in
+      let: "task" := ws_hub_pop_steal ws_deques "ctx".<hub> "ctx".<id> scheduler_max_round in
       scheduler_execute "ctx" "task".
   #[local] Definition scheduler_worker : val :=
     rec: "scheduler_worker" "ctx" :=
@@ -132,11 +135,6 @@ Section scheduler_G.
     solve_proper.
   Qed.
 
-  #[global] Instance scheduler_context_timeless t ctx :
-    Timeless (scheduler_context t ctx).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance scheduler_inv_persistent t :
     Persistent (scheduler_inv t).
   Proof.
@@ -182,7 +180,7 @@ Section scheduler_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [lia.. |].
+    awp_smart_apply (ws_hub_pop_steal_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [lia.. |].
     iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
     iAaccIntro with "Hhub_model"; first iSteps. iIntros "%task %tasks' (-> & Hhub_model)".
     iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
@@ -225,7 +223,7 @@ Section scheduler_G.
     iIntros "%Hsz %Φ _ HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_create_spec with "[//]") as (t) "(#Hhub_inv & Hhub_model & Hhub_owners)"; [lia | done |].
+    wp_smart_apply (ws_hub_create_spec with "[//]") as (t) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
 
     iMod (inv_alloc _ _ (scheduler_inv_inner t) with "[Hhub_model]") as "#Hinv".
     { iSteps. rewrite big_sepMS_empty //. }

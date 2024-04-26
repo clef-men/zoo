@@ -352,6 +352,27 @@ Section zebre_G.
       intros ->. rewrite array_slice_app3 //.
     Qed.
 
+    Lemma array_slice_cons t sz i dq v vs :
+      array_slice t sz i dq (v :: vs) ⊢
+        array_slice t sz i dq [v] ∗
+        array_slice t sz (S i) dq vs.
+    Proof.
+      rewrite -Nat.add_1_r (array_slice_app_2 [v] vs) //.
+    Qed.
+
+    Lemma array_slice_atomize t sz i dq vs :
+      array_slice t sz i dq vs ⊢
+      [∗ list] j ↦ v ∈ vs,
+        array_slice t sz (i + j) dq [v].
+    Proof.
+      iInduction vs as [| v vs] "IH" forall (i); first iSteps.
+      iIntros "Hvs".
+      iDestruct (array_slice_cons with "Hvs") as "(Hv & Hvs)".
+      rewrite /= Nat.add_0_r. iFrame.
+      iDestruct ("IH" with "Hvs") as "Hvs".
+      setoid_rewrite Nat.add_succ_comm. iSteps.
+    Qed.
+
     Lemma array_slice_update {t sz i dq vs} j v :
       vs !! j = Some v →
       array_slice t sz i dq vs ⊢
@@ -506,6 +527,14 @@ Section zebre_G.
       array_model t DfracDiscarded vs.
     Proof.
       apply array_slice_persist.
+    Qed.
+
+    Lemma array_model_atomize t dq vs :
+      array_model t dq vs ⊢
+      [∗ list] i ↦ v ∈ vs,
+        array_slice t (length vs) i dq [v].
+    Proof.
+      apply array_slice_atomize.
     Qed.
 
     Lemma array_model_update {t dq vs} i v :
@@ -1428,6 +1457,27 @@ Section zebre_G.
     iApply ("HΦ" with "[Hmodel] H£").
     iSteps.
   Qed.
+  Lemma array_unsafe_get_spec_atomic_cell t (i : Z) :
+    <<<
+      True
+    | ∀∀ sz i_ dq v,
+      ⌜i = Z.of_nat i_⌝ ∗
+      array_slice t sz i_ dq [v]
+    >>>
+      array_unsafe_get t #i
+    <<<
+      array_slice t sz (Z.to_nat i) dq [v]
+    | RET v; £ 1
+    >>>.
+  Proof.
+    iIntros "!> %Φ _ HΦ".
+    awp_apply (array_unsafe_get_spec_atomic_slice with "[//]").
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%sz %i_ %dq %v (-> & Hslice)".
+    rewrite Nat2Z.id.
+    rewrite /atomic_acc /=. iModIntro. iExists sz, dq, [v], i_, v. iSplitL.
+    { iFrame. rewrite Nat.sub_diag. iSteps. }
+    iSmash.
+  Qed.
   Lemma array_unsafe_get_spec_atomic t (i : Z) :
     (0 ≤ i)%Z →
     <<<
@@ -1472,6 +1522,20 @@ Section zebre_G.
     iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iApply ("HΦ" with "Hslice").
   Qed.
+  Lemma array_unsafe_get_spec_cell t sz (i : Z) i_ dq v :
+    i = Z.to_nat i_ →
+    {{{
+      array_slice t sz i_ dq [v]
+    }}}
+      array_unsafe_get t #i
+    {{{
+      RET v;
+      array_slice t sz i_ dq [v]
+    }}}.
+  Proof.
+    intros Hi.
+    eapply (array_unsafe_get_spec_slice 0); [lia | done | lia].
+  Qed.
   Lemma array_unsafe_get_spec i_ t (i : Z) dq vs v :
     (0 ≤ i)%Z →
     vs !! i_ = Some v →
@@ -1511,6 +1575,27 @@ Section zebre_G.
     iIntros "Hslice !>". iSplitL; first auto. iIntros "HΦ !> _".
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_unsafe_get_spec_atomic_slice with "[//] HΦ").
+  Qed.
+  Lemma array_get_spec_atomic_cell t (i : Z) i_ :
+    i = Z.of_nat i_ →
+    <<<
+      True
+    | ∀∀ sz dq v,
+      array_slice t sz i_ dq [v]
+    >>>
+      array_get t #i
+    <<<
+      array_slice t sz i_ dq [v]
+    | RET v; £ 1
+    >>>.
+  Proof.
+    iIntros (->) "!> %Φ _ HΦ".
+    awp_apply (array_get_spec_atomic_slice with "[//]").
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%sz %dq %v Hslice".
+    rewrite Nat2Z.id.
+    rewrite /atomic_acc /=. iModIntro. iExists sz, dq, [v], i_, v. iSplitL.
+    { iFrame. rewrite Nat.sub_diag. iSteps. }
+    iSmash.
   Qed.
   Lemma array_get_spec_atomic t (i : Z) :
     (0 ≤ i)%Z →
@@ -1553,6 +1638,20 @@ Section zebre_G.
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_unsafe_get_spec_slice with "Hslice"); done.
   Qed.
+  Lemma array_get_spec_cell t sz (i : Z) i_ dq v :
+    i = Z.of_nat i_ →
+    {{{
+      array_slice t sz i_ dq [v]
+    }}}
+      array_get t #i
+    {{{
+      RET v;
+      array_slice t sz i_ dq [v]
+    }}}.
+  Proof.
+    intros Hi.
+    eapply (array_get_spec_slice 0); [lia | done | lia].
+  Qed.
   Lemma array_get_spec i_ t (i : Z) dq vs v :
     (0 ≤ i)%Z →
     vs !! i_ = Some v →
@@ -1592,6 +1691,28 @@ Section zebre_G.
     iApply (chunk_set_spec' with "Hmodel"); first lia. iIntros "!> Hmodel".
     iApply ("HΦ" with "[Hmodel] [H£]"); last iSteps.
     rewrite Nat2Z.id. iSteps.
+  Qed.
+  Lemma array_unsafe_set_spec_atomic_cell t (i : Z) v :
+    <<<
+      True
+    | ∀∀ sz i_ w,
+      ⌜i = Z.of_nat i_⌝ ∗
+      array_slice t sz i_ (DfracOwn 1) [w]
+    >>>
+      array_unsafe_set t #i v
+    <<<
+      array_slice t sz i_ (DfracOwn 1) [v]
+    | RET (); £ 1
+    >>>.
+  Proof.
+    iIntros "!> %Φ _ HΦ".
+    awp_apply (array_unsafe_set_spec_atomic_slice with "[//]").
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%sz %i_ %w (-> & Hslice)".
+    rewrite Nat2Z.id.
+    rewrite /atomic_acc /=. iModIntro. iExists sz, [w], i_. iSplitL.
+    { iFrame. iSteps. }
+    iSplit; first iSteps. iIntros "Hslisce !>". iRight.
+    rewrite Nat.sub_diag. auto with iFrame.
   Qed.
   Lemma array_unsafe_set_spec_atomic t (i : Z) v :
     (0 ≤ i)%Z →
@@ -1636,6 +1757,22 @@ Section zebre_G.
     iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iApply ("HΦ" with "Hslice").
   Qed.
+  Lemma array_unsafe_set_spec_cell t sz (i : Z) i_ w v :
+    i = Z.of_nat i_ →
+    {{{
+      array_slice t sz i_ (DfracOwn 1) [w]
+    }}}
+      array_unsafe_set t #i v
+    {{{
+      RET ();
+      array_slice t sz i_ (DfracOwn 1) [v]
+    }}}.
+  Proof.
+    iIntros (->) "%Φ Hslice HΦ".
+    wp_apply (array_unsafe_set_spec_slice with "Hslice").
+    { simpl. lia. }
+    rewrite Nat2Z.id Nat.sub_diag. iSteps.
+  Qed.
   Lemma array_unsafe_set_spec t (i : Z) vs v :
     (0 ≤ i < length vs)%Z →
     {{{
@@ -1674,6 +1811,28 @@ Section zebre_G.
     iIntros "Hslice !>". iSplitL; first auto. iIntros "HΦ !> _".
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_unsafe_set_spec_atomic_slice with "[//] HΦ").
+  Qed.
+  Lemma array_set_spec_atomic_cell t (i : Z) v :
+    <<<
+      True
+    | ∀∀ sz i_ w,
+      ⌜i = Z.of_nat i_⌝ ∗
+      array_slice t sz i_ (DfracOwn 1) [w]
+    >>>
+      array_set t #i v
+    <<<
+      array_slice t sz i_ (DfracOwn 1) [v]
+    | RET (); £ 1
+    >>>.
+  Proof.
+    iIntros "!> %Φ _ HΦ".
+    awp_apply (array_set_spec_atomic_slice with "[//]").
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%sz %i_ %w (-> & Hslice)".
+    rewrite Nat2Z.id.
+    rewrite /atomic_acc /=. iModIntro. iExists sz, [w], i_. iSplitL.
+    { iFrame. iSteps. }
+    iSplit; first iSteps. iIntros "Hslisce !>". iRight.
+    rewrite Nat.sub_diag. auto with iFrame.
   Qed.
   Lemma array_set_spec_atomic t (i : Z) v :
     (0 ≤ i)%Z →
@@ -1714,6 +1873,22 @@ Section zebre_G.
     wp_smart_apply (array_size_spec_slice with "Hslice") as "Hslice".
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_unsafe_set_spec_slice with "Hslice"); done.
+  Qed.
+  Lemma array_set_spec_cell t sz (i : Z) i_ w v :
+    i = Z.of_nat i_ →
+    {{{
+      array_slice t sz i_ (DfracOwn 1) [w]
+    }}}
+      array_set t #i v
+    {{{
+      RET ();
+      array_slice t sz i_ (DfracOwn 1) [v]
+    }}}.
+  Proof.
+    iIntros (->) "%Φ Hslice HΦ".
+    wp_apply (array_set_spec_slice with "Hslice").
+    { simpl. lia. }
+    rewrite Nat2Z.id Nat.sub_diag. iSteps.
   Qed.
   Lemma array_set_spec t (i : Z) vs v :
     (0 ≤ i < length vs)%Z →

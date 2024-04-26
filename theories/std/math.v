@@ -25,6 +25,10 @@ Notation "e1 `max` e2" := (
 )(at level 35
 ) : expr_scope.
 
+Definition positive_part : val :=
+  λ: "n",
+    #0 `max` "n".
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -48,6 +52,16 @@ Section zebre_G.
       - rewrite Z.max_r; [lia; done | done].
       - rewrite Z.max_l; [lia; done | done].
     Qed.
+
+    Lemma positive_part_spec n E Φ :
+      ▷ Φ #(Z.to_nat n) -∗
+      WP positive_part #n @ E {{ Φ }}.
+    Proof.
+      iIntros "HΦ".
+      wp_rec.
+      iApply maximum_spec.
+      assert (0 `max` n = Z.to_nat n)%Z as -> by lia. iSteps.
+    Qed.
   End Z.
 
   Section nat.
@@ -66,8 +80,16 @@ Section zebre_G.
     Proof.
       iIntros "HΦ". iApply maximum_spec. rewrite Nat2Z.inj_max //.
     Qed.
+
+    Lemma positive_part_spec_nat n E Φ :
+      ▷ Φ #n -∗
+      WP positive_part #n @ E {{ Φ }}.
+    Proof.
+      rewrite -{1}(Nat2Z.id n). apply positive_part_spec.
+    Qed.
   End nat.
 End zebre_G.
 
 #[global] Opaque minimum.
 #[global] Opaque maximum.
+#[global] Opaque positive_part.
