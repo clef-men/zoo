@@ -692,7 +692,7 @@ Section ws_hub_G.
       iApply ("HΦ" $! None with "Hmodel").
       iSteps.
 
-    - awp_apply (ws_hub_pop_foreign_spec with "[]") without "Hdeques_owner Hround"; first iSteps.
+    - awp_apply ws_hub_pop_foreign_spec without "Hdeques_owner Hround"; first iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
