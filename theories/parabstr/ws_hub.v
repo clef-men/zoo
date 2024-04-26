@@ -248,7 +248,6 @@ Section ws_hub_G.
     ∃ l γ round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[deques] ↦□ γ.(ws_hub_meta_deques) ∗
     l.[rounds] ↦□ γ.(ws_hub_meta_rounds) ∗
     ws_deques.(ws_deques_owner) γ.(ws_hub_meta_deques) i ∗
     array_slice γ.(ws_hub_meta_rounds) γ.(ws_hub_meta_size) i DfracDiscarded [round] ∗
@@ -294,8 +293,8 @@ Section ws_hub_G.
     ws_hub_owner t i -∗
     False.
   Proof.
-    iIntros "(%l & %γ & %rounds & %n & -> & _ & #Hl_deques & _ & Howner1 & _) (%_l & %_γ & %_rounds & %_n & %Heq & _ & _Hl_deques & _ & Howner2 & _)". injection Heq as <-.
-    iDestruct (pointsto_agree with "Hl_deques _Hl_deques") as %<-. iClear "_Hl_deques".
+    iIntros "(%l & %γ & %rounds & %n & -> & #Hmeta & _ & Howner1 & _) (%_l & %_γ & %_rounds & %_n & %Heq & #_Hmeta & _ & Howner2 & _)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iApply (ws_deques_owner_exclusive with "Howner1 Howner2").
   Qed.
 
@@ -392,7 +391,7 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & _ & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -484,7 +483,7 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & _ & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -550,7 +549,7 @@ Section ws_hub_G.
       ws_hub_owner t (Z.to_nat i)
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & _ & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros "%Hi !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -622,7 +621,7 @@ Section ws_hub_G.
     intros Hi.
     iLöb as "HLöb" forall (max_round).
 
-    iIntros "%Hmax_round !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & _ & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros "%Hmax_round !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & #Hl_rounds & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_pures.
