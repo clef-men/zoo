@@ -685,7 +685,7 @@ Section ws_hub_G.
         }
         iSteps.
   Qed.
-  #[local] Lemma ws_hub_try_steal_spec t ι i max_round_noyield max_round_yield :
+  Lemma ws_hub_try_steal_spec t ι i max_round_noyield max_round_yield :
     (0 ≤ i)%Z →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -730,7 +730,7 @@ Section ws_hub_G.
       wp_smart_apply (ws_hub_try_steal_aux_spec with "[$Hinv $Howner] HΦ"); done.
   Qed.
 
-  #[local] Lemma ws_hub_pop_try_steal_spec t ι i max_round_noyield max_round_yield :
+  Lemma ws_hub_pop_try_steal_spec t ι i max_round_noyield max_round_yield :
     (0 ≤ i)%Z →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
