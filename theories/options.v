@@ -7,3 +7,5 @@ From zebre Require Import
 #[export] Set Bullet Behavior "Strict Subproofs".
 
 #[export] Unset SsrOldRewriteGoalsOrder.
+
+#[export] Set Printing Projections.
