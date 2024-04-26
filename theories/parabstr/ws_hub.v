@@ -81,6 +81,10 @@ Section ws_deques.
     λ: "t" "i",
       ws_deques.(ws_deques_pop) "t".{deques} "i".
 
+  #[local] Definition ws_hub_pop_foreign : val :=
+    λ: "t",
+      mpmc_queue_pop "t".{foreign}.
+
   #[local] Definition ws_hub_try_steal_once : val :=
     λ: "t" "i",
       let: "round" := array_unsafe_get "t".{rounds} "i" in
@@ -92,7 +96,7 @@ Section ws_deques.
       if: "max_round" ≤ #0 then (
         §None
       ) else (
-        match: mpmc_queue_pop "t".{foreign} with
+        match: ws_hub_pop_foreign "t" with
         | Some <> as "res" =>
             "res"
         | None =>
@@ -526,6 +530,63 @@ Section ws_hub_G.
       iSplitL "Hmodel₁"; iSteps.
   Qed.
 
+  #[local] Lemma ws_hub_pop_foreign_spec t ι :
+    <<<
+      ws_hub_inv t ι
+    | ∀∀ vs,
+      ws_hub_model t vs
+    >>>
+      ws_hub_pop_foreign t @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_model t vs'
+      end
+    | RET o; True
+    >>>.
+  Proof.
+    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_foreign & #Hl_waiters & #Hdeques_inv & #Hforeign_inv & #Hwaiters_inv & #Hinv) HΦ".
+
+    wp_rec. wp_load.
+
+    awp_smart_apply (mpmc_queue_pop_spec with "Hforeign_inv").
+    iInv "Hinv" as "(%vs & %vss & %vs_foreign & >%Hvs & Hdeques_model & >Hforeign_model & >Hmodel₂)".
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iAaccIntro with "Hforeign_model".
+    { iIntros "Hforeign_model !>".
+      iSplitL "Hmodel₁"; iSteps.
+    }
+    iIntros "Hforeign_model".
+    destruct vs_foreign as [| v vs_foreign].
+
+    - iExists None.
+      iSplitL "Hmodel₁"; iSteps.
+
+    - set vs' := vs ∖ {[+v+]}.
+      iMod (ws_hub_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iExists (Some v).
+      iSplitL "Hmodel₁".
+      { iExists vs'. iSteps. iPureIntro.
+        apply gmultiset_disj_union_difference'.
+        rewrite {}Hvs foldr_comm_acc_strong; first set_solver by lia.
+        set_solver.
+      }
+      iIntros "!> HΦ !>".
+      iSplitR "HΦ".
+      { repeat iExists _. iFrame. iPureIntro.
+        rewrite /vs' Hvs /= foldr_comm_acc_strong; first set_solver by lia.
+        multiset_solver.
+      }
+      iSteps.
+  Qed.
+
   #[local] Lemma ws_hub_try_steal_once_spec t ι i :
     (0 ≤ i)%Z →
     <<<
@@ -631,23 +692,15 @@ Section ws_hub_G.
       iApply ("HΦ" $! None with "Hmodel").
       iSteps.
 
-    - wp_load.
+    - awp_apply (ws_hub_pop_foreign_spec with "[]") without "Hdeques_owner Hround"; first iSteps.
+      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-      awp_smart_apply (mpmc_queue_pop_spec with "Hforeign_inv") without "Hdeques_owner Hround".
-      iInv "Hinv" as "(%vs & %vss & %vs_foreign & >%Hvs & Hdeques_model & >Hforeign_model & >Hmodel₂)".
-      iApply (aacc_aupd with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (ws_hub_model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iAaccIntro with "Hforeign_model".
-      { iIntros "Hforeign_model !>".
-        iSplitL "Hmodel₁"; iSteps.
-      }
-      iIntros "Hforeign_model".
-      destruct vs_foreign as [| v vs_foreign].
+      + iRight. iExists (Some v). iFrame.
+        iSteps.
 
-      + iLeft. iSplitL "Hmodel₁"; first iSteps. iIntros "!> HΦ !>".
-        iSplitR "HΦ"; first iSteps.
-        iIntros "_ (Hdeques_owner & Hround)". clear- Hi Hmax_round Hcase.
+      + iLeft. iFrame.
+        iIntros "HΦ !> _ (Hdeques_owner & Hround)". clear- Hi Hmax_round Hcase.
 
         awp_smart_apply (ws_hub_try_steal_once_spec with "[Hdeques_owner Hround]"); [done | iSteps |].
         iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
@@ -667,23 +720,6 @@ Section ws_hub_G.
           wp_apply (wp_wand _ _ (λ res, ⌜res = ()%V⌝)%I) as (res) "->".
           { destruct yield; iSteps. }
           wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
-
-      + set vs' := vs ∖ {[+v+]}.
-        iMod (ws_hub_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-        iRight. iExists (Some v).
-        iSplitL "Hmodel₁".
-        { iExists vs'. iSteps. iPureIntro.
-          apply gmultiset_disj_union_difference'.
-          rewrite {}Hvs foldr_comm_acc_strong; first set_solver by lia.
-          set_solver.
-        }
-        iIntros "!> HΦ !>".
-        iSplitR "HΦ".
-        { repeat iExists _. iFrame. iPureIntro.
-          rewrite /vs' Hvs /= foldr_comm_acc_strong; first set_solver by lia.
-          multiset_solver.
-        }
-        iSteps.
   Qed.
   Lemma ws_hub_try_steal_spec t ι i max_round_noyield max_round_yield :
     (0 ≤ i)%Z →
