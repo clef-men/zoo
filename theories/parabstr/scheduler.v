@@ -13,7 +13,7 @@ From zebre.parabstr Require Export
   base.
 From zebre.parabstr Require Import
   ws_deques
-  ws_hub.
+  ws_hub_1.
 From zebre Require Import
   options.
 
