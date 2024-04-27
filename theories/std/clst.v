@@ -87,6 +87,11 @@ Lemma list_to_clist_open_not_closed ls :
 Proof.
   apply (list_to_clist_open_closed ls []).
 Qed.
+Lemma list_to_clist_open_not_closed' ls :
+  ClistClosed ≠ list_to_clist_open ls.
+Proof.
+  symmetry. apply list_to_clist_open_not_closed.
+Qed.
 
 Fixpoint clist_app ls1 cls2 :=
   match ls1 with

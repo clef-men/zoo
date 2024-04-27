@@ -499,7 +499,7 @@ Section mpsc_queue_G.
         iSplitR "HΦ". { iSteps. iExists back. iSteps. }
         iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%symmetry%list_to_clist_open_not_closed _.
+      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed' _.
         iSteps.
 
     - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
