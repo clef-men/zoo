@@ -77,6 +77,8 @@ Section spsc_waiter_G.
   Context `{spsc_waiter_G : SpscWaiterG Σ}.
 
   Record spsc_waiter_meta := {
+    spsc_waiter_meta_mutex : val ;
+    spsc_waiter_meta_condition : val ;
     spsc_waiter_meta_lstate : gname ;
     spsc_waiter_meta_consumer : gname ;
   }.
@@ -88,10 +90,14 @@ Section spsc_waiter_G.
     Countable spsc_waiter_meta.
   Proof.
     pose encode γ := (
+      γ.(spsc_waiter_meta_mutex),
+      γ.(spsc_waiter_meta_condition),
       γ.(spsc_waiter_meta_lstate),
       γ.(spsc_waiter_meta_consumer)
     ).
-    pose decode := λ '(γ_lstate, γ_consumer), {|
+    pose decode := λ '(mtx, cond, γ_lstate, γ_consumer), {|
+      spsc_waiter_meta_mutex := mtx ;
+      spsc_waiter_meta_condition := cond ;
       spsc_waiter_meta_lstate := γ_lstate ;
       spsc_waiter_meta_consumer := γ_consumer ;
     |}.
@@ -107,13 +113,13 @@ Section spsc_waiter_G.
     else
       oneshot_pending γ.(spsc_waiter_meta_lstate) (DfracOwn (1/3)) ().
   Definition spsc_waiter_inv t P : iProp Σ :=
-    ∃ l γ mtx cond,
+    ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ mtx ∗
-    mutex_inv mtx True ∗
-    l.[condition] ↦□ cond ∗
-    condition_inv cond ∗
+    l.[mutex] ↦□ γ.(spsc_waiter_meta_mutex) ∗
+    mutex_inv γ.(spsc_waiter_meta_mutex) True ∗
+    l.[condition] ↦□ γ.(spsc_waiter_meta_condition) ∗
+    condition_inv γ.(spsc_waiter_meta_condition) ∗
     inv nroot (spsc_waiter_inv_inner l γ P).
 
   Definition spsc_waiter_producer t : iProp Σ :=
@@ -222,6 +228,8 @@ Section spsc_waiter_G.
     iMod (excl_alloc (excl_G := spsc_waiter_G_excl_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
+      spsc_waiter_meta_mutex := mtx ;
+      spsc_waiter_meta_condition := cond ;
       spsc_waiter_meta_lstate := γ_lstate ;
       spsc_waiter_meta_consumer := γ_consumer ;
     |}.
@@ -242,7 +250,7 @@ Section spsc_waiter_G.
       spsc_waiter_notified t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.
@@ -278,7 +286,7 @@ Section spsc_waiter_G.
       P
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta1") as %<-. iClear "_Hmeta1".
     iDestruct (meta_agree with "Hmeta _Hmeta2") as %<-. iClear "_Hmeta2".
 
@@ -307,7 +315,7 @@ Section spsc_waiter_G.
         spsc_waiter_consumer t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.
@@ -337,7 +345,7 @@ Section spsc_waiter_G.
     wp_rec.
     wp_apply (spsc_waiter_try_wait_spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
 
-    iDestruct "Hinv" as "(%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
     iDestruct "Hconsumer" as "(%_l & %_γ & %Heq & _Hmeta & Hconsumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 

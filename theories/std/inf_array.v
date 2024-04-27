@@ -86,25 +86,56 @@ Qed.
 Section inf_array_G.
   Context `{inf_array_G : InfArrayG Σ}.
 
-  #[local] Definition inf_array_inv_inner l γ default : iProp Σ :=
+  Record inf_array_meta := {
+    inf_array_meta_default : val ;
+    inf_array_meta_model : gname ;
+  }.
+  Implicit Types γ : inf_array_meta.
+
+  #[local] Instance inf_array_meta_eq_dec : EqDecision inf_array_meta :=
+    ltac:(solve_decision).
+  #[local] Instance inf_array_meta_countable :
+    Countable inf_array_meta.
+  Proof.
+    pose encode γ := (
+      γ.(inf_array_meta_default),
+      γ.(inf_array_meta_model)
+    ).
+    pose decode := λ '(default, γ_model), {|
+      inf_array_meta_default := default ;
+      inf_array_meta_model := γ_model ;
+    |}.
+    refine (inj_countable' encode decode _). intros []. done.
+  Qed.
+
+  #[local] Definition inf_array_model₁' γ_model vs :=
+    twins_twin1 γ_model (DfracOwn 1) vs.
+  #[local] Definition inf_array_model₁ γ vs :=
+    inf_array_model₁' γ.(inf_array_meta_model) vs.
+  #[local] Definition inf_array_model₂' γ_model vs :=
+    twins_twin2 γ_model vs.
+  #[local] Definition inf_array_model₂ γ vs :=
+    inf_array_model₂' γ.(inf_array_meta_model) vs.
+
+  #[local] Definition inf_array_inv_inner l γ : iProp Σ :=
     ∃ data us vs,
     l.[data] ↦ data ∗
     array_model data (DfracOwn 1) us ∗
-    twins_twin2 γ vs ∗
-    ⌜vs = λ i, if decide (i < length us) then us !!! i else default⌝.
+    inf_array_model₂ γ vs ∗
+    ⌜vs = λ i, if decide (i < length us) then us !!! i else γ.(inf_array_meta_default)⌝.
   Definition inf_array_inv t : iProp Σ :=
-    ∃ l γ default mtx,
+    ∃ l γ mtx,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
+    l.[default] ↦□ γ.(inf_array_meta_default) ∗
     l.[mutex] ↦□ mtx ∗
-    l.[default] ↦□ default ∗
-    mutex_inv mtx (inf_array_inv_inner l γ default).
+    mutex_inv mtx (inf_array_inv_inner l γ).
 
   Definition inf_array_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    twins_twin1 γ (DfracOwn 1) vs.
+    inf_array_model₁ γ vs.
   Definition inf_array_model' t vsₗ vsᵣ :=
     inf_array_model t (
       λ i,
@@ -147,6 +178,32 @@ Section inf_array_G.
     Timeless (inf_array_model' t vsₗ vsᵣ).
   Proof.
     apply _.
+  Qed.
+
+  #[local] Lemma inf_array_model_alloc default :
+    ⊢ |==>
+      ∃ γ_model,
+      inf_array_model₁' γ_model (λ _, default) ∗
+      inf_array_model₂' γ_model (λ _, default).
+  Proof.
+    apply twins_alloc'.
+  Qed.
+  #[local] Lemma inf_array_model_agree γ vs1 vs2 :
+    inf_array_model₁ γ vs1 -∗
+    inf_array_model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    iIntros "Hmodel₁ Hmodel₂".
+    iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+    iSteps.
+  Qed.
+  #[local] Lemma inf_array_model_update {γ vs1 vs2} vs :
+    inf_array_model₁ γ vs1 -∗
+    inf_array_model₂ γ vs2 ==∗
+      inf_array_model₁ γ vs ∗
+      inf_array_model₂ γ vs.
+  Proof.
+    apply twins_update'.
   Qed.
 
   Lemma inf_array_model'_shift t vsₗ v vsᵣ :
@@ -197,11 +254,15 @@ Section inf_array_G.
     wp_record l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
     iMod (pointsto_persist with "Hdefault") as "#Hdefault".
 
-    set (vs _ := default).
-    iMod (twins_alloc' (twins_G := inf_array_G_model_G) vs) as "(%γ & Hmodel₁ & Hmodel₂)".
-    iMod (meta_set _ _ γ nroot with "Hmeta") as "#Hmeta"; first done.
+    iMod (inf_array_model_alloc default) as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
-    wp_smart_apply (mutex_create_spec (inf_array_inv_inner l γ default) with "[Hdata Hmodel_data Hmodel₂]"); iSteps.
+    pose γ := {|
+      inf_array_meta_default := default ;
+      inf_array_meta_model := γ_model ;
+    |}.
+    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+
+    wp_smart_apply (mutex_create_spec (inf_array_inv_inner l γ) with "[Hdata Hmodel_data Hmodel₂]") as (mtx) "#Hinv_mtx"; iSteps.
   Qed.
 
   Lemma inf_array_get_spec t i :
@@ -217,7 +278,7 @@ Section inf_array_G.
     | RET vs (Z.to_nat i); True
     >>>.
   Proof.
-    iIntros "% !> %Φ (%l & %γ & %default & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
+    iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
@@ -238,7 +299,7 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (inf_array_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iSteps. rewrite decide_True; first lia. iSteps.
@@ -247,7 +308,7 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (inf_array_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iSteps. rewrite decide_False; first lia. iSteps.
@@ -287,7 +348,7 @@ Section inf_array_G.
     | RET (); True
     >>>.
   Proof.
-    iIntros "% !> %Φ (%l & %γ & %default & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
+    iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
@@ -307,10 +368,10 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
+      iDestruct (inf_array_model_agree with "Hmodel₁ Hmodel₂") as %->.
       set us' := <[i := v]> us.
       set vs' := <[i := v]> vs.
-      iMod (twins_update' (twins_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (inf_array_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iIntros "Hmodel_data !>". iFrame. iSplitR "HΦ"; last iSteps.
@@ -340,10 +401,10 @@ Section inf_array_G.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_discrete with "Hmodel₁ Hmodel₂") as %->%functional_extensionality.
-      set us' := us ++ replicate (i - length us) default ++ [v].
+      iDestruct (inf_array_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      set us' := us ++ replicate (i - length us) γ.(inf_array_meta_default) ++ [v].
       set vs' := <[i := v]> vs.
-      iMod (twins_update' (twins_G := inf_array_G_model_G) vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (inf_array_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
       iModIntro. iFrame. iSplitR "HΦ"; last iSteps.

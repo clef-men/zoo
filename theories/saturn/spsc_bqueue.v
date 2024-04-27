@@ -29,7 +29,7 @@ From zebre Require Import
 Implicit Types b : bool.
 Implicit Types i front front_cache back back_cache : nat.
 Implicit Types l : location.
-Implicit Types v w t data : val.
+Implicit Types v w t : val.
 Implicit Types vs hist : list val.
 
 #[local] Notation "'data'" := (
@@ -127,6 +127,7 @@ Section spsc_bqueue_G.
   Context `{spsc_bqueue_G : SpscBqueueG Σ}.
 
   Record spsc_bqueue_meta := {
+    spsc_bqueue_meta_data : val ;
     spsc_bqueue_meta_model : gname ;
     spsc_bqueue_meta_history : gname ;
     spsc_bqueue_meta_producer_ctl : gname ;
@@ -142,6 +143,7 @@ Section spsc_bqueue_G.
     Countable spsc_bqueue_meta.
   Proof.
     pose encode γ := (
+      γ.(spsc_bqueue_meta_data),
       γ.(spsc_bqueue_meta_model),
       γ.(spsc_bqueue_meta_history),
       γ.(spsc_bqueue_meta_producer_ctl),
@@ -149,7 +151,8 @@ Section spsc_bqueue_G.
       γ.(spsc_bqueue_meta_consumer_ctl),
       γ.(spsc_bqueue_meta_consumer_region)
     ).
-    pose decode := λ '(γ_model, γ_history, γ_producer_ctl, γ_producer_region, γ_consumer_ctl, γ_consumer_region), {|
+    pose decode := λ '(data, γ_model, γ_history, γ_producer_ctl, γ_producer_region, γ_consumer_ctl, γ_consumer_region), {|
+      spsc_bqueue_meta_data := data ;
       spsc_bqueue_meta_model := γ_model ;
       spsc_bqueue_meta_history := γ_history ;
       spsc_bqueue_meta_producer_ctl := γ_producer_ctl ;
@@ -208,7 +211,7 @@ Section spsc_bqueue_G.
   #[local] Definition spsc_bqueue_consumer_region γ :=
     spsc_bqueue_consumer_region' γ.(spsc_bqueue_meta_consumer_region).
 
-  #[local] Definition spsc_bqueue_inv_inner l γ cap data : iProp Σ :=
+  #[local] Definition spsc_bqueue_inv_inner l γ cap : iProp Σ :=
     ∃ front back vs hist,
     ⌜back = (front + length vs)%nat ∧ back ≤ front + cap⌝ ∗
     ⌜length hist = back ∧ vs = drop front hist⌝ ∗
@@ -218,20 +221,20 @@ Section spsc_bqueue_G.
     spsc_bqueue_producer_ctl₂ γ back ∗
     spsc_bqueue_model₂ γ vs ∗
     spsc_bqueue_history_auth γ hist ∗
-    ( array_cslice data cap front (DfracOwn 1) ((λ v, ’Some{ v }) <$> take 1 vs)
+    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ’Some{ v }) <$> take 1 vs)
     ∨ spsc_bqueue_consumer_region γ
     ) ∗
-    array_cslice data cap (S front) (DfracOwn 1) ((λ v, ’Some{ v }) <$> drop 1 vs) ∗
-    ( array_cslice data cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None])
+    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ’Some{ v }) <$> drop 1 vs) ∗
+    ( array_cslice γ.(spsc_bqueue_meta_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None])
     ∨ spsc_bqueue_producer_region γ
     ) ∗
-    array_cslice data cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None).
+    array_cslice γ.(spsc_bqueue_meta_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None).
   Definition spsc_bqueue_inv t ι cap : iProp Σ :=
-    ∃ l γ data,
+    ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ data ∗
-    inv ι (spsc_bqueue_inv_inner l γ cap data).
+    l.[data] ↦□ γ.(spsc_bqueue_meta_data) ∗
+    inv ι (spsc_bqueue_inv_inner l γ cap).
 
   Definition spsc_bqueue_model t vs : iProp Σ :=
     ∃ l γ,
@@ -500,6 +503,7 @@ Section spsc_bqueue_G.
     iMod spsc_bqueue_consumer_region_alloc as "(%γ_consumer_region & Hconsumer_region)".
 
     pose γ := {|
+      spsc_bqueue_meta_data := data ;
       spsc_bqueue_meta_model := γ_model ;
       spsc_bqueue_meta_history := γ_history ;
       spsc_bqueue_meta_producer_ctl := γ_producer_ctl ;
@@ -535,17 +539,17 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer #l -∗
       Φ #(bool_decide (length vs = cap))
     }>.
-  #[local] Lemma spsc_bqueue_push_aux_spec l ι γ cap data front_cache back v Ψ :
+  #[local] Lemma spsc_bqueue_push_aux_spec l ι γ cap front_cache back v Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ cap data) ∗
-      array_inv data cap ∗
+      inv ι (spsc_bqueue_inv_inner l γ cap) ∗
+      array_inv γ.(spsc_bqueue_meta_data) cap ∗
       l.[front_cache] ↦ #front_cache ∗
       spsc_bqueue_producer_ctl₁ γ back ∗
       spsc_bqueue_front_lb γ front_cache ∗
       spsc_bqueue_push_au l ι cap v Ψ
     }}}
-      spsc_bqueue_push_aux #l data #back
+      spsc_bqueue_push_aux #l γ.(spsc_bqueue_meta_data) #back
     {{{ b front_cache',
       RET #b;
       ⌜b = bool_decide (back < front_cache' + cap)⌝ ∗
@@ -609,7 +613,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((%l & %γ & %data & -> & #Hmeta & #Hdata & #Hinv) & (%_l & %_γ & %front_cache & %back & %Heq & #_Hmeta & Hfront_cache & Hproducer_ctl₁ & Hproducer_region & #Hfront_lb)) HΦ". injection Heq as <-.
+    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hinv) & (%_l & %_γ & %front_cache & %back & %Heq & #_Hmeta & Hfront_cache & Hproducer_ctl₁ & Hproducer_region & #Hfront_lb)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load. wp_pures.
@@ -688,10 +692,10 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Φ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_aux_spec l ι γ cap data front back_cache Ψ :
+  #[local] Lemma spsc_bqueue_pop_aux_spec l ι γ cap front back_cache Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ cap data) ∗
+      inv ι (spsc_bqueue_inv_inner l γ cap) ∗
       l.[back_cache] ↦ #back_cache ∗
       spsc_bqueue_consumer_ctl₁ γ front ∗
       spsc_bqueue_back_lb γ back_cache ∗
@@ -762,7 +766,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((%l & %γ & %data & -> & #Hmeta & #Hdata & #Hinv) & (%_l & %_γ & %front & %back_cache & %Heq & #_Hmeta & Hback_cache & Hconsumer_ctl₁ & Hconsumer_region & #Hback_lb)) HΦ". injection Heq as <-.
+    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hinv) & (%_l & %_γ & %front & %back_cache & %Heq & #_Hmeta & Hback_cache & Hconsumer_ctl₁ & Hconsumer_region & #Hback_lb)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_pures.

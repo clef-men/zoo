@@ -81,37 +81,62 @@ Qed.
 Section spmc_future_G.
   Context `{spmc_future_G : SpmcFutureG Σ}.
 
+  Record spmc_future_meta := {
+    spmc_future_meta_mutex : val ;
+    spmc_future_meta_condition : val ;
+    spmc_future_meta_lstate : gname ;
+  }.
+  Implicit Types γ : spmc_future_meta.
+
+  #[local] Instance spmc_future_meta_eq_dec : EqDecision spmc_future_meta :=
+    ltac:(solve_decision).
+  #[local] Instance spmc_future_meta_countable :
+    Countable spmc_future_meta.
+  Proof.
+    pose encode γ := (
+      γ.(spmc_future_meta_mutex),
+      γ.(spmc_future_meta_condition),
+      γ.(spmc_future_meta_lstate)
+    ).
+    pose decode := λ '(mtx, cond, γ_lstate), {|
+      spmc_future_meta_mutex := mtx ;
+      spmc_future_meta_condition := cond ;
+      spmc_future_meta_lstate := γ_lstate ;
+    |}.
+    refine (inj_countable' encode decode _). intros []. done.
+  Qed.
+
   #[local] Definition spmc_future_inv_inner l γ Ψ : iProp Σ :=
     ∃ o,
     l.[result] ↦ o ∗
     match o with
     | Some v =>
-        oneshot_shot γ v ∗
+        oneshot_shot γ.(spmc_future_meta_lstate) v ∗
         □ Ψ v
     | None =>
-        oneshot_pending γ (DfracOwn (1/3)) ()
+        oneshot_pending γ.(spmc_future_meta_lstate) (DfracOwn (1/3)) ()
     end.
   Definition spmc_future_inv t Ψ : iProp Σ :=
-    ∃ l γ mtx cond,
+    ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ mtx ∗
-    mutex_inv mtx True ∗
-    l.[condition] ↦□ cond ∗
-    condition_inv cond ∗
+    l.[mutex] ↦□ γ.(spmc_future_meta_mutex) ∗
+    mutex_inv γ.(spmc_future_meta_mutex) True ∗
+    l.[condition] ↦□ γ.(spmc_future_meta_condition) ∗
+    condition_inv γ.(spmc_future_meta_condition) ∗
     inv nroot (spmc_future_inv_inner l γ Ψ).
 
   Definition spmc_future_producer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_pending γ (DfracOwn (2/3)) ().
+    oneshot_pending γ.(spmc_future_meta_lstate) (DfracOwn (2/3)) ().
 
   Definition spmc_future_result t v : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_shot γ v.
+    oneshot_shot γ.(spmc_future_meta_lstate) v.
 
   #[global] Instance spmc_future_inv_contractive t n :
     Proper ((pointwise_relation _ (dist_later n)) ==> (≡{n}≡)) (spmc_future_inv t).
@@ -177,10 +202,15 @@ Section spmc_future_G.
     iMod (pointsto_persist with "Hmtx") as "Hmtx".
     iMod (pointsto_persist with "Hcond") as "Hcond".
 
-    iMod (oneshot_alloc ()) as "(%γ & Hpending)".
+    iMod (oneshot_alloc ()) as "(%γ_lstate & Hpending)".
     iEval (assert (1 = 2/3 + 1/3)%Qp as -> by compute_done) in "Hpending".
     iDestruct "Hpending" as "(Hpending1 & Hpending2)".
 
+    pose γ := {|
+      spmc_future_meta_mutex := mtx ;
+      spmc_future_meta_condition := cond ;
+      spmc_future_meta_lstate := γ_lstate ;
+    |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps. iExists None. iSteps.
@@ -198,7 +228,7 @@ Section spmc_future_G.
       spmc_future_result t v
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HΨ) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HΨ) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.
@@ -233,7 +263,7 @@ Section spmc_future_G.
       Ψ v
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & #Hshot)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & #Hshot)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.
@@ -258,7 +288,7 @@ Section spmc_future_G.
       from_option Ψ True o
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) HΦ".
 
     wp_rec.
     wp_pures.
@@ -296,12 +326,12 @@ Section spmc_future_G.
     wp_apply (spmc_future_try_get_spec with "Hinv") as ([]) "HΨ"; first iSteps.
     iClear "HΨ".
 
-    iDestruct "Hinv" as "(%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
 
     do 2 wp_load.
     pose (Ψ_mtx (_ : val) := (
       ∃ v,
-      oneshot_shot γ v
+      oneshot_shot γ.(spmc_future_meta_lstate) v
     )%I).
     wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv]") as (w) "(%v & #Hshot)".
     { iIntros "Hmtx_locked _".
@@ -310,7 +340,7 @@ Section spmc_future_G.
           True
         else
           ∃ v,
-          oneshot_shot γ v
+          oneshot_shot γ.(spmc_future_meta_lstate) v
       )%I).
       wp_smart_apply (condition_wait_while_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked]"); last auto.
 

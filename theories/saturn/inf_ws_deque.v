@@ -33,9 +33,8 @@ From zebre Require Import
 Implicit Types front : nat.
 Implicit Types back : Z.
 Implicit Types l slot : location.
-Implicit Types pid : prophet_id.
 Implicit Types id : identifier.
-Implicit Types v t data : val.
+Implicit Types v t : val.
 Implicit Types hist model : list val.
 Implicit Types priv : nat → val.
 
@@ -160,12 +159,14 @@ Module raw.
     Implicit Types Φ : val → iProp Σ.
 
     Record inf_ws_deque_meta := {
+      inf_ws_deque_meta_data : val ;
+      inf_ws_deque_meta_prophet : prophet_id ;
+      inf_ws_deque_meta_prophet_name : wise_prophet_name ;
       inf_ws_deque_meta_ctl : gname ;
       inf_ws_deque_meta_front : gname ;
       inf_ws_deque_meta_hist : gname ;
       inf_ws_deque_meta_model : gname ;
       inf_ws_deque_meta_lock : gname ;
-      inf_ws_deque_meta_prophet : wise_prophet_name ;
       inf_ws_deque_meta_winner : gname ;
     }.
     Implicit Types γ : inf_ws_deque_meta.
@@ -179,21 +180,25 @@ Module raw.
       Countable inf_ws_deque_meta.
     Proof.
       pose encode γ := (
+        γ.(inf_ws_deque_meta_data),
+        γ.(inf_ws_deque_meta_prophet),
+        γ.(inf_ws_deque_meta_prophet_name),
         γ.(inf_ws_deque_meta_ctl),
         γ.(inf_ws_deque_meta_front),
         γ.(inf_ws_deque_meta_hist),
         γ.(inf_ws_deque_meta_model),
         γ.(inf_ws_deque_meta_lock),
-        γ.(inf_ws_deque_meta_prophet),
         γ.(inf_ws_deque_meta_winner)
       ).
-      pose decode := λ '(γ_ctl, γ_front, γ_hist, γ_model, γ_lock, γ_prophet, γ_winner), {|
+      pose decode := λ '(data, pid, γ_prophet, γ_ctl, γ_front, γ_hist, γ_model, γ_lock, γ_winner), {|
+        inf_ws_deque_meta_data := data ;
+        inf_ws_deque_meta_prophet := pid ;
+        inf_ws_deque_meta_prophet_name := γ_prophet ;
         inf_ws_deque_meta_ctl := γ_ctl ;
         inf_ws_deque_meta_front := γ_front ;
         inf_ws_deque_meta_hist := γ_hist ;
         inf_ws_deque_meta_model := γ_model ;
         inf_ws_deque_meta_lock := γ_lock ;
-        inf_ws_deque_meta_prophet := γ_prophet ;
         inf_ws_deque_meta_winner := γ_winner ;
       |}.
       refine (inj_countable' encode decode _). intros []. done.
@@ -359,7 +364,7 @@ Module raw.
         /inf_ws_deque_state_inner₃₁
         /inf_ws_deque_state_inner₃₂.
 
-    #[local] Definition inf_ws_deque_inv_inner l γ ι data pid : iProp Σ :=
+    #[local] Definition inf_ws_deque_inv_inner l γ ι : iProp Σ :=
       ∃ front back hist model priv past prophs,
       (* mutable physical fields *)
       l.[front] ↦ #front ∗
@@ -369,26 +374,26 @@ Module raw.
       (* front authority *)
       inf_ws_deque_front_auth γ front ∗
       (* data model *)
-      inf_array_model' data (hist ++ model) priv ∗
+      inf_array_model' γ.(inf_ws_deque_meta_data) (hist ++ model) priv ∗
       (* model values *)
       inf_ws_deque_model₁ γ model ∗
       ⌜length model = Z.to_nat (back - front)⌝ ∗
       (* prophet model *)
-      wise_prophet_model inf_ws_deque_prophet pid γ.(inf_ws_deque_meta_prophet) past prophs ∗
+      wise_prophet_model inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) γ.(inf_ws_deque_meta_prophet_name) past prophs ∗
       ⌜Forall (λ '(front', _), front' < front) past⌝ ∗
       (* state *)
       inf_ws_deque_state γ ι front back hist model prophs.
     Definition inf_ws_deque_inv t ι : iProp Σ :=
-      ∃ l γ data pid,
+      ∃ l γ,
       ⌜t = #l⌝ ∗
       (* metadata *)
       meta l nroot γ ∗
       (* immutable physical fields *)
-      l.[data] ↦□ data ∗
-      l.[prophet] ↦□ #pid ∗
+      l.[data] ↦□ γ.(inf_ws_deque_meta_data) ∗
+      l.[prophet] ↦□ #γ.(inf_ws_deque_meta_prophet) ∗
       (* invariants *)
-      inf_array_inv data ∗
-      inv ι (inf_ws_deque_inv_inner l γ ι data pid).
+      inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+      inv ι (inf_ws_deque_inv_inner l γ ι).
 
     #[global] Instance inf_ws_deque_model_timeless t model :
       Timeless (inf_ws_deque_model t model).
@@ -735,11 +740,11 @@ Module raw.
       iApply (inf_ws_deque_lock_exclusive with "Hlock1 Hlock2").
     Qed.
 
-    #[local] Lemma inf_ws_deque_wp_get_hist l γ ι data pid i v :
+    #[local] Lemma inf_ws_deque_wp_get_hist l γ ι i v :
       {{{
-        inf_array_inv data ∗
-        inv ι (inf_ws_deque_inv_inner l γ ι data pid) ∗
-        l.[data] ↦□ data ∗
+        inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+        inv ι (inf_ws_deque_inv_inner l γ ι) ∗
+        l.[data] ↦□ γ.(inf_ws_deque_meta_data) ∗
         inf_ws_deque_hist_elem γ i v
       }}}
         inf_array_get !#l.[data] #i
@@ -781,12 +786,12 @@ Module raw.
       erewrite list_lookup_total_correct; last done.
       iApply ("HΦ" with "[//]").
     Qed.
-    #[local] Lemma inf_ws_deque_wp_get_priv l γ ι data pid back priv i :
+    #[local] Lemma inf_ws_deque_wp_get_priv l γ ι back priv i :
       (back ≤ i)%Z →
       {{{
-        inf_array_inv data ∗
-        inv ι (inf_ws_deque_inv_inner l γ ι data pid) ∗
-        l.[data] ↦□ data ∗
+        inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+        inv ι (inf_ws_deque_inv_inner l γ ι) ∗
+        l.[data] ↦□ γ.(inf_ws_deque_meta_data) ∗
         inf_ws_deque_ctl₂ γ back priv ∗
         inf_ws_deque_lock γ
       }}}
@@ -842,14 +847,14 @@ Module raw.
       iApply "HΦ". iFrame.
     Qed.
 
-    #[local] Lemma inf_ws_deque_wp_resolve_inconsistent_1 l γ ι data pid front id prophs_lb (front1 front2 : Z) :
+    #[local] Lemma inf_ws_deque_wp_resolve_inconsistent_1 l γ ι front id prophs_lb (front1 front2 : Z) :
       head $ filter (λ '(front', _), front' = front) prophs_lb = None →
       {{{
-        inf_array_inv data ∗
-        inv ι (inf_ws_deque_inv_inner l γ ι data pid) ∗
-        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb
+        inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+        inv ι (inf_ws_deque_inv_inner l γ ι) ∗
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb
       }}}
-        Resolve (Cas #l.[front] #front1 #front2) #pid (#front, #id)%V
+        Resolve (Cas #l.[front] #front1 #front2) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{ v,
         RET v; False
       }}}.
@@ -868,16 +873,16 @@ Module raw.
       all: eelim (filter_nil_not_elem_of _ _ (front, id)); [done.. |].
       all: apply elem_of_app; right; apply elem_of_cons; naive_solver.
     Qed.
-    #[local] Lemma inf_ws_deque_wp_resolve_loser l γ ι data pid front _front id id' prophs_lb v :
+    #[local] Lemma inf_ws_deque_wp_resolve_loser l γ ι front _front id id' prophs_lb v :
       head $ filter (λ '(front', _), front' = front) prophs_lb = Some (_front, id') →
       id ≠ id' →
       {{{
-        inf_array_inv data ∗
-        inv ι (inf_ws_deque_inv_inner l γ ι data pid) ∗
+        inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+        inv ι (inf_ws_deque_inv_inner l γ ι) ∗
         inf_ws_deque_front_lb γ front ∗
-        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb
       }}}
-        Resolve (Cas #l.[front] #front v) #pid (#front, #id)%V
+        Resolve (Cas #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{
         RET #false;
         inf_ws_deque_front_lb γ (S front)
@@ -926,18 +931,18 @@ Module raw.
 
       iApply ("HΦ" with "Hfront_lb").
     Qed.
-    #[local] Lemma inf_ws_deque_wp_resolve_inconsistent_2 l γ ι data pid front _front priv Ψ id id' prophs_lb v :
+    #[local] Lemma inf_ws_deque_wp_resolve_inconsistent_2 l γ ι front _front priv Ψ id id' prophs_lb v :
       head $ filter (λ '(front', _), front' = front) prophs_lb = Some (_front, id') →
       id ≠ id' →
       {{{
-        inf_array_inv data ∗
-        inv ι (inf_ws_deque_inv_inner l γ ι data pid) ∗
+        inf_array_inv γ.(inf_ws_deque_meta_data) ∗
+        inv ι (inf_ws_deque_inv_inner l γ ι) ∗
         inf_ws_deque_ctl₂ γ front priv ∗
         inf_ws_deque_front_lb γ front ∗
-        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet) prophs_lb ∗
+        wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb ∗
         inf_ws_deque_winner₂ γ front Ψ
       }}}
-        Resolve (Cas #l.[front] #front v) #pid (#front, #id)%V
+        Resolve (Cas #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{
         RET #false; False
       }}}.
@@ -993,12 +998,14 @@ Module raw.
       iMod inf_ws_deque_winner_alloc as "(%γ_winner & Hwinner)".
 
       set γ := {|
+        inf_ws_deque_meta_data := data ;
+        inf_ws_deque_meta_prophet := pid ;
         inf_ws_deque_meta_ctl := γ_ctl ;
         inf_ws_deque_meta_front := γ_front ;
         inf_ws_deque_meta_hist := γ_hist ;
         inf_ws_deque_meta_model := γ_model ;
         inf_ws_deque_meta_lock := γ_lock ;
-        inf_ws_deque_meta_prophet := γ_prophet ;
+        inf_ws_deque_meta_prophet_name := γ_prophet ;
         inf_ws_deque_meta_winner := γ_winner ;
       |}.
       iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
@@ -1028,7 +1035,7 @@ Module raw.
         inf_ws_deque_owner t
       >>>.
     Proof.
-      iIntros "!> %Φ ((%l & %γ & %data & %pid & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
+      iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
       wp_rec. wp_pures.
@@ -1151,7 +1158,7 @@ Module raw.
       | RET head model; True
       >>>.
     Proof.
-      iIntros "!> %Φ (%l & %γ & %data & %pid & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) HΦ".
+      iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) HΦ".
       iLöb as "IH".
 
       wp_rec.
@@ -1228,8 +1235,8 @@ Module raw.
 
         wp_pures.
 
-        (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #pid (#front1, #id)] *)
-        wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #pid (#front1, #id)%V).
+        (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
+        wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
         (* open invariant *)
         iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
         (* do resolve *)
@@ -1353,8 +1360,8 @@ Module raw.
 
       wp_pures.
 
-      (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #pid (#front1, #id)] *)
-      wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #pid (#front1, #id)%V).
+      (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
+      wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
       (* open invariant *)
       iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
       (* we are in state 2 or state 3.1 *)
@@ -1477,7 +1484,7 @@ Module raw.
         inf_ws_deque_owner t
       >>>.
     Proof.
-      iIntros "!> %Φ ((%l & %γ & %data & %pid & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
+      iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
       wp_rec.
@@ -1667,8 +1674,8 @@ Module raw.
 
           wp_pures.
 
-          (* → [Resolve (Cas #l.[front] #front3 #(front3 + 1)) #pid (#front3, #id)] *)
-          wp_bind (Resolve (Cas #l.[front] #front3 #(front3 + 1)) #pid (#front3, #id)%V).
+          (* → [Resolve (Cas #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)] *)
+          wp_bind (Resolve (Cas #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)%V).
           (* open invariant *)
           iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1883,8 +1890,8 @@ Module raw.
 
           wp_pures.
 
-          (* → [Resolve (Cas #l.[front] #front2 #(front2 + 1)) #pid (#front2, #id)] *)
-          wp_bind (Resolve (Cas #l.[front] #front2 #(front2 + 1)) #pid (#front2, #id)%V).
+          (* → [Resolve (Cas #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)] *)
+          wp_bind (Resolve (Cas #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)%V).
           (* open invariant *)
           iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).

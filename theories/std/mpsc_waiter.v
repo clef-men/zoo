@@ -91,6 +91,8 @@ Section mpsc_waiter_G.
   Context `{mpsc_waiter_G : MpscWaiterG Σ}.
 
   Record mpsc_waiter_meta := {
+    mpsc_waiter_meta_mutex : val ;
+    mpsc_waiter_meta_condition : val ;
     mpsc_waiter_meta_lstate : gname ;
     mpsc_waiter_meta_consumer : gname ;
   }.
@@ -102,10 +104,14 @@ Section mpsc_waiter_G.
     Countable mpsc_waiter_meta.
   Proof.
     pose encode γ := (
+      γ.(mpsc_waiter_meta_mutex),
+      γ.(mpsc_waiter_meta_condition),
       γ.(mpsc_waiter_meta_lstate),
       γ.(mpsc_waiter_meta_consumer)
     ).
-    pose decode := λ '(γ_lstate, γ_consumer), {|
+    pose decode := λ '(γ_mutex, γ_condition, γ_lstate, γ_consumer), {|
+      mpsc_waiter_meta_mutex := γ_mutex ;
+      mpsc_waiter_meta_condition := γ_condition ;
       mpsc_waiter_meta_lstate := γ_lstate ;
       mpsc_waiter_meta_consumer := γ_consumer ;
     |}.
@@ -121,13 +127,13 @@ Section mpsc_waiter_G.
     else
       oneshot_pending γ.(mpsc_waiter_meta_lstate) (DfracOwn 1) ().
   Definition mpsc_waiter_inv t P : iProp Σ :=
-    ∃ l γ mtx cond,
+    ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ mtx ∗
-    mutex_inv mtx True ∗
-    l.[condition] ↦□ cond ∗
-    condition_inv cond ∗
+    l.[mutex] ↦□ γ.(mpsc_waiter_meta_mutex) ∗
+    mutex_inv γ.(mpsc_waiter_meta_mutex) True ∗
+    l.[condition] ↦□ γ.(mpsc_waiter_meta_condition) ∗
+    condition_inv γ.(mpsc_waiter_meta_condition) ∗
     inv nroot (mpsc_waiter_inv_inner l γ P).
 
   Definition mpsc_waiter_consumer t : iProp Σ :=
@@ -212,6 +218,8 @@ Section mpsc_waiter_G.
     iMod (excl_alloc (excl_G := mpsc_waiter_G_consumer_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
+      mpsc_waiter_meta_mutex := mtx ;
+      mpsc_waiter_meta_condition := cond ;
       mpsc_waiter_meta_lstate := γ_lstate ;
       mpsc_waiter_meta_consumer := γ_consumer ;
     |}.
@@ -231,7 +239,7 @@ Section mpsc_waiter_G.
       mpsc_waiter_notified t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & HP) HΦ".
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & HP) HΦ".
 
     wp_rec.
     wp_pures.
@@ -286,7 +294,7 @@ Section mpsc_waiter_G.
       P
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta1") as %<-. iClear "_Hmeta1".
     iDestruct (meta_agree with "Hmeta _Hmeta2") as %<-. iClear "_Hmeta2".
 
@@ -315,7 +323,7 @@ Section mpsc_waiter_G.
         mpsc_waiter_consumer t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.
@@ -345,7 +353,7 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_apply (mpsc_waiter_try_wait_spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
 
-    iDestruct "Hinv" as "(%l & %γ & %mtx & %cond & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
     iDestruct "Hconsumer" as "(%_l & %_γ & %Heq & _Hmeta & Hconsumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 

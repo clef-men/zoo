@@ -22,7 +22,7 @@ From zebre Require Import
 Implicit Types front back : nat.
 Implicit Types l slot : location.
 Implicit Types slots : list location.
-Implicit Types v t data : val.
+Implicit Types v t : val.
 Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
 Implicit Types os : list (option val).
@@ -93,8 +93,9 @@ Section bag_G.
   Context `{bag_G : BagG Σ}.
 
   Record bag_meta := {
-    bag_meta_model : gname ;
+    bag_meta_data : val ;
     bag_meta_slots : list location ;
+    bag_meta_model : gname ;
   }.
   Implicit Types γ : bag_meta.
 
@@ -104,12 +105,14 @@ Section bag_G.
     Countable bag_meta.
   Proof.
     pose encode γ := (
-      γ.(bag_meta_model),
-      γ.(bag_meta_slots)
+      γ.(bag_meta_data),
+      γ.(bag_meta_slots),
+      γ.(bag_meta_model)
     ).
-    pose decode := λ '(γ_model, γ_slots), {|
+    pose decode := λ '(data, slots, γ_model), {|
+      bag_meta_data := data ;
+      bag_meta_slots := slots ;
       bag_meta_model := γ_model ;
-      bag_meta_slots := γ_slots ;
     |}.
     refine (inj_countable' encode decode _). intros []. done.
   Qed.
@@ -132,12 +135,12 @@ Section bag_G.
     [∗ list] slot; o ∈ γ.(bag_meta_slots); os,
       slot ↦ (o : val).
   Definition bag_inv t ι : iProp Σ :=
-    ∃ l γ data,
+    ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜0 < length γ.(bag_meta_slots)⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ data ∗
-    array_model data DfracDiscarded (#@{location} <$> γ.(bag_meta_slots)) ∗
+    l.[data] ↦□ γ.(bag_meta_data) ∗
+    array_model γ.(bag_meta_data) DfracDiscarded (#@{location} <$> γ.(bag_meta_slots)) ∗
     inv ι (bag_inv_inner l γ).
 
   Definition bag_model t vs : iProp Σ :=
@@ -217,8 +220,9 @@ Section bag_G.
     iMod bag_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      bag_meta_model := γ_model ;
+      bag_meta_data := data ;
       bag_meta_slots := slots ;
+      bag_meta_model := γ_model ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -294,7 +298,7 @@ Section bag_G.
     | RET (); True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & %data & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
@@ -398,7 +402,7 @@ Section bag_G.
     | RET v; True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & %data & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
