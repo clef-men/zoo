@@ -6,12 +6,9 @@ digraph {
 	subgraph cluster_std {
 		label="std"
 		node [style=filled, color=lightblue]
-		/* array [label="array"] */
 		random [label="random"]
 		random_round [label="random_round"]
 		deque [label="deque"]
-		/* mutex [label="mutex"] */
-		/* condition [label="condition"] */
 		mpsc_waiter [label="mpsc_waiter"]
 		spmc_future [label="spmc_future"]
 	}
@@ -38,19 +35,10 @@ digraph {
 	}
 
 	random_round -> random
-	/* random_round -> array */
 
-	/* mpsc_waiter -> mutex */
-	/* mpsc_waiter -> condition */
-
-	/* spmc_future -> mutex */
-	/* spmc_future -> condition */
-
-	/* ws_deques_public -> array */
 	ws_deques_public -> ws_deque
 	ws_deques_public -> ws_deques [style=dotted]
 
-	/* ws_deques_private -> array */
 	ws_deques_private -> deque
 	ws_deques_private -> ws_deques [style=dotted]
 
