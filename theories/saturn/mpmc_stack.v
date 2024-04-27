@@ -72,7 +72,7 @@ Section zebre_G.
 
   #[local] Definition mpmc_stack_inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ (lst_to_val vs) ∗
+    l ↦ lst_to_val vs ∗
     mpmc_stack_model₂ γ vs.
   Definition mpmc_stack_inv t ι : iProp Σ :=
     ∃ l γ,
@@ -97,6 +97,30 @@ Section zebre_G.
     apply _.
   Qed.
 
+  #[local] Lemma mpmc_stack_model_alloc :
+    ⊢ |==>
+      ∃ γ,
+      mpmc_stack_model₁ γ [] ∗
+      mpmc_stack_model₂ γ [].
+  Proof.
+    apply twins_alloc'.
+  Qed.
+  #[local] Lemma mpmc_stack_model_agree γ vs1 vs2 :
+    mpmc_stack_model₁ γ vs1 -∗
+    mpmc_stack_model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply: twins_agree_L.
+  Qed.
+  #[local] Lemma mpmc_stack_model_update {γ vs1 vs2} vs :
+    mpmc_stack_model₁ γ vs1 -∗
+    mpmc_stack_model₂ γ vs2 ==∗
+      mpmc_stack_model₁ γ vs ∗
+      mpmc_stack_model₂ γ vs.
+  Proof.
+    apply twins_update'.
+  Qed.
+
   Lemma mpmc_stack_create_spec ι :
     {{{ True }}}
       mpmc_stack_create ()
@@ -107,10 +131,14 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
+
     wp_rec.
     wp_alloc l as "Hmeta" "Hl".
-    iMod (twins_alloc' (twins_G := mpmc_stack_G_model_G) []) as "(%γ & Hmodel₁ & Hmodel₂)".
+
+    iMod mpmc_stack_model_alloc as "(%γ & Hmodel₁ & Hmodel₂)".
+
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
+
     iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
   Qed.
@@ -128,6 +156,7 @@ Section zebre_G.
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+
     iLöb as "HLöb".
 
     wp_rec. wp_pures.
@@ -145,8 +174,8 @@ Section zebre_G.
     wp_cas as _ | ->%(inj _) _; first iSteps.
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
-    iMod (twins_update' (twins_G := mpmc_stack_G_model_G) (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (mpmc_stack_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (mpmc_stack_model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iExists (v :: vs). iSteps. }
     iSteps.
@@ -165,6 +194,7 @@ Section zebre_G.
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+
     iLöb as "HLöb".
 
     wp_rec. wp_pures.
@@ -176,7 +206,7 @@ Section zebre_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (mpmc_stack_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
@@ -192,8 +222,8 @@ Section zebre_G.
       destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (twins_agree_L with "Hmodel₁ Hmodel₂") as %->.
-      iMod (twins_update' (twins_G := mpmc_stack_G_model_G) vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (mpmc_stack_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (mpmc_stack_model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
