@@ -31,6 +31,12 @@ Section saved_prop_G.
   Definition saved_prop γ P :=
     agree_on γ (Next P).
 
+  #[global] Instance saved_prop_proper γ :
+    Proper ((≡) ==> (≡)) (saved_prop γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance saved_prop_persistent γ P :
     Persistent (saved_prop γ P).
   Proof.

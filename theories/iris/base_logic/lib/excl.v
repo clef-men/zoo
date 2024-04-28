@@ -30,6 +30,12 @@ Section excl_G.
   Definition excl γ a :=
     own γ (Excl a).
 
+  #[global] Instance excl_proper γ :
+    Proper ((≡) ==> (≡)) (excl γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance excl_timeless γ a :
     Discrete a →
     Timeless (excl γ a).

@@ -36,6 +36,17 @@ Section auth_dgset_G.
   Definition auth_dgset_frag γ y :=
     own γ (◯ GSet y).
 
+  #[global] Instance auth_dgset_auth_proper γ dq :
+    Proper ((≡) ==> (≡)) (auth_dgset_auth γ dq).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance auth_dgset_frag_proper γ :
+    Proper ((≡) ==> (≡)) (auth_dgset_frag γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance auth_dgset_auth_timeless γ dq x :
     Timeless (auth_dgset_auth γ dq x).
   Proof.

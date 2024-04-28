@@ -33,6 +33,17 @@ Section twins_G.
   Definition twins_twin2 γ a :=
     own γ (twins_twin2 a).
 
+  #[global] Instance twins_twin1_proper γ dq :
+    Proper ((≡) ==> (≡)) (twins_twin1 γ dq).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance twins_twin2_proper γ :
+    Proper ((≡) ==> (≡)) (twins_twin2 γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance twins_twin1_timeless γ dq a :
     Discrete a →
     Timeless (twins_twin1 γ dq a).

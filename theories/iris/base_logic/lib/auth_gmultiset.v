@@ -36,6 +36,17 @@ Section auth_gmultiset_G.
   Definition auth_gmultiset_frag γ y :=
     own γ (◯ y).
 
+  #[global] Instance auth_gmultiset_auth_proper γ dq :
+    Proper ((≡) ==> (≡)) (auth_gmultiset_auth γ dq).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance auth_gmultiset_frag_proper γ :
+    Proper ((≡) ==> (≡)) (auth_gmultiset_frag γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance auth_gmultiset_auth_timeless γ dq x :
     Timeless (auth_gmultiset_auth γ dq x).
   Proof.

@@ -38,6 +38,17 @@ Section mono_set_G.
   Definition mono_set_elem γ a :=
     mono_set_lb γ {[a]}.
 
+  #[global] Instance mono_set_auth_proper γ dq :
+    Proper ((≡) ==> (≡)) (mono_set_auth γ dq).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance mono_set_lb_proper γ :
+    Proper ((≡) ==> (≡)) (mono_set_lb γ).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance mono_set_auth_timeless γ dq s :
     Timeless (mono_set_auth γ dq s).
   Proof.
