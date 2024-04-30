@@ -50,7 +50,7 @@ Section saved_prop_G.
   Proof.
     apply agree_alloc.
   Qed.
-  Lemma saved_prop_cofinite (γs : gset gname) P :
+  Lemma saved_prop_alloc_cofinite (γs : gset gname) P :
     ⊢ |==>
       ∃ γ,
       ⌜γ ∉ γs⌝ ∗
