@@ -8,7 +8,7 @@ From zebre.std Require Export
 From zebre Require Import
   options.
 
-Implicit Types v t : val.
+Implicit Types v t fn : val.
 
 Notation "'ClstClosed'" := (
   in_type "clst" 0
@@ -149,6 +149,16 @@ Definition clst_rev_app : val :=
         "clst_rev_app" "t1" ‘ClstCons{ "v", "t2" }
     end.
 
+Definition clst_iter : val :=
+  rec: "clst_iter" "t" "fn" :=
+    match: "t" with
+    | ClstOpen =>
+        ()
+    | ClstCons "v" "t" =>
+        "fn" "v" ;;
+        "clst_iter" "t" "fn"
+    end.
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -192,7 +202,32 @@ Section zebre_G.
       wp_smart_apply ("IH" $! _ _ (ClistCons v1 cls2) with "[//]"); iSteps.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
+
+  Lemma clst_iter_spec Ψ {t} ls fn :
+    t = list_to_clist_open ls →
+    {{{
+      [∗ list] v ∈ ls,
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ v
+        }}
+    }}}
+      clst_iter t fn
+    {{{
+      RET ();
+      [∗ list] v ∈ ls,
+        Ψ v
+    }}}.
+  Proof.
+    iIntros "%Ht %Φ Hfn HΦ".
+    iInduction ls as [| v ls] "IH" forall (t Ht); subst; simpl; wp_rec; first iSteps.
+    iDestruct "Hfn" as "(H & Hfn)".
+    wp_smart_apply (wp_wand with "H") as (res) "(-> & HΨ)".
+    wp_smart_apply ("IH" with "[//] Hfn").
+    iSteps.
+  Qed.
 End zebre_G.
 
 #[global] Opaque clst_app.
 #[global] Opaque clst_rev_app.
+#[global] Opaque clst_iter.
