@@ -88,6 +88,7 @@ theories/std/for_upto.v
 theories/std/math.v
 theories/std/ref_.v
 theories/std/opt.v
+theories/std/opt2.v
 theories/std/lst.v
 theories/std/clst.v
 theories/std/node2.v
@@ -122,7 +123,8 @@ theories/persistent/pstore_2.v
 
 theories/saturn/base.v
 theories/saturn/bag.v
-theories/saturn/mpmc_stack.v
+theories/saturn/mpmc_stack_1.v
+theories/saturn/mpmc_stack_2.v
 theories/saturn/spsc_bqueue.v
 theories/saturn/mpmc_bqueue.v
 theories/saturn/mpsc_queue_1.v
