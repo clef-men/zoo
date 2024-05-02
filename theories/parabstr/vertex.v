@@ -647,7 +647,7 @@ Section vertex_G.
       scheduler_context ws_hub sched ctx ∗
       vertex_inv t P ∗
       vertex_init t task ∗
-      ( ∀ ws_hub sched ctx,
+      ( ∀ sched ctx,
         scheduler_inv ws_hub sched -∗
         scheduler_context ws_hub sched ctx -∗
         (∀ Q, vertex_input t Q -∗ ▷ Q) -∗
