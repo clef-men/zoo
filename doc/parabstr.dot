@@ -16,6 +16,7 @@ digraph {
 	subgraph cluster_saturn {
 		label="saturn"
 		node [style=filled, color=peachpuff]
+		mpmc_stack [label="mpmc_stack"]
 		mpmc_queue [label="mpmc_queue"]
 		ws_deque [label="ws_deque"]
 	}
@@ -31,7 +32,7 @@ digraph {
 		ws_hub_1 [label="ws_hub_1"]
 		ws_hub_2 [label="ws_hub_2"]
 		scheduler [label="scheduler"]
-		dag [label="dag"]
+		vertex [label="vertex"]
 	}
 
 	random_round -> random
@@ -60,5 +61,6 @@ digraph {
 	scheduler -> spmc_future
 	scheduler -> ws_hub
 
-	dag -> ws_hub
+	vertex -> mpmc_stack
+	vertex -> scheduler
 }

@@ -203,7 +203,61 @@ Section zebre_G.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
+  #[local] Lemma clst_iter_spec_aux Ψ {t} ls ls_left ls_right fn :
+    ls = ls_left ++ ls_right →
+    t = list_to_clist_open ls_right →
+    {{{
+      ▷ Ψ ls_left ∗
+      ( [∗ list] i ↦ v ∈ ls_right,
+        Ψ (ls_left ++ take i ls_right) -∗
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (ls_left ++ take i ls_right ++ [v])
+        }}
+      )
+    }}}
+      clst_iter t fn
+    {{{
+      RET ();
+      Ψ ls
+    }}}.
+  Proof.
+    iIntros "%Hls %Ht %Φ (HΨ & Hfn) HΦ".
+    iInduction ls_right as [| v ls_right] "IH" forall (t ls_left Hls Ht).
+    all: subst; simpl; rewrite right_id; wp_rec.
+    1: iSteps.
+    iDestruct "Hfn" as "(H & Hfn)".
+    wp_smart_apply (wp_wand with "(H HΨ)") as (res) "(-> & HΨ)".
+    wp_smart_apply ("IH" $! _ (ls_left ++ [v]) with "[] [//] HΨ [Hfn]").
+    { rewrite -assoc //. }
+    { iApply (big_sepL_impl with "Hfn"). iIntros "!> %i %w %Hlookup Hfn HΨ".
+      rewrite -!assoc. iSteps.
+    }
+    iSteps.
+  Qed.
   Lemma clst_iter_spec Ψ {t} ls fn :
+    t = list_to_clist_open ls →
+    {{{
+      ▷ Ψ [] ∗
+      ( [∗ list] i ↦ v ∈ ls,
+        Ψ (take i ls) -∗
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (take i ls ++ [v])
+        }}
+      )
+    }}}
+      clst_iter t fn
+    {{{
+      RET ();
+      Ψ ls
+    }}}.
+  Proof.
+    iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
+    iApply (clst_iter_spec_aux Ψ ls [] ls with "[$HΨ $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma clst_iter_spec_disentangled Ψ {t} ls fn :
     t = list_to_clist_open ls →
     {{{
       [∗ list] v ∈ ls,
@@ -220,7 +274,9 @@ Section zebre_G.
     }}}.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
-    iInduction ls as [| v ls] "IH" forall (t Ht); subst; simpl; wp_rec; first iSteps.
+    iInduction ls as [| v ls] "IH" forall (t Ht).
+    all: subst; simpl; wp_rec.
+    1: iSteps.
     iDestruct "Hfn" as "(H & Hfn)".
     wp_smart_apply (wp_wand with "H") as (res) "(-> & HΨ)".
     wp_smart_apply ("IH" with "[//] Hfn").

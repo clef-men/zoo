@@ -143,6 +143,7 @@ theories/parabstr/ws_hub.v
 theories/parabstr/ws_hub_1.v
 theories/parabstr/ws_hub_2.v
 theories/parabstr/scheduler.v
+theories/parabstr/vertex.v
 
 theories/eio/base.v
 theories/eio/rcfd.v
