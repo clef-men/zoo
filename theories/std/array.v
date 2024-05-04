@@ -15,7 +15,7 @@ From zebre Require Import
 
 Implicit Types i j n : nat.
 Implicit Types l : location.
-Implicit Types v t fn : val.
+Implicit Types v t fn acc : val.
 Implicit Types vs : list val.
 
 #[local] Notation "'size'" := (
@@ -73,20 +73,33 @@ Definition array_set : val :=
     assume ("i" < array_size "t") ;;
     array_unsafe_set "t" "i" "v".
 
-(* array_foldli *)
-(* array_foldl *)
+Definition array_foldli : val :=
+  λ: "t" "acc" "fn",
+    chunk_foldli (array_data "t") (array_size "t") "acc" "fn".
+Definition array_foldl : val :=
+  λ: "t" "acc" "fn",
+    chunk_foldl (array_data "t") (array_size "t") "acc" "fn".
 
-(* array_foldri *)
-(* array_foldr *)
+Definition array_foldri : val :=
+  λ: "t" "fn" "acc",
+    chunk_foldri (array_data "t") (array_size "t") "fn" "acc".
+Definition array_foldr : val :=
+  λ: "t" "fn" "acc",
+    chunk_foldr (array_data "t") (array_size "t") "fn" "acc".
 
-(* array_iteri *)
-(* array_iter *)
+Definition array_iteri : val :=
+  λ: "t" "fn",
+    chunk_iteri (array_data "t") (array_size "t") "fn".
+Definition array_iter : val :=
+  λ: "t" "fn",
+    chunk_iter (array_data "t") (array_size "t") "fn".
 
-(* array_applyi *)
-(* array_apply *)
-
-(* array_mapi *)
-(* array_map *)
+Definition array_applyi : val :=
+  λ: "t" "fn",
+    chunk_applyi (array_data "t") (array_size "t") "fn".
+Definition array_apply : val :=
+  λ: "t" "fn",
+    chunk_apply (array_data "t") (array_size "t") "fn".
 
 Definition array_blit : val :=
   λ: "t1" "i1" "t2" "i2" "n",
@@ -1906,6 +1919,640 @@ Section zebre_G.
     rewrite Nat.sub_0_r /array_model insert_length //.
   Qed.
 
+  Lemma array_foldli_spec Ψ t dq vs acc fn :
+    {{{
+      ▷ Ψ 0 [] acc ∗
+      array_model t dq vs ∗
+      □ (
+        ∀ i v acc,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) acc -∗
+        WP fn acc #i v {{ acc,
+          ▷ Ψ (S i) (take i vs ++ [v]) acc
+        }}
+      )
+    }}}
+      array_foldli t acc fn
+    {{{ acc,
+      RET acc;
+      array_model t dq vs ∗
+      Ψ (length vs) vs acc
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldli_spec Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_foldli_spec' Ψ t dq vs acc fn :
+    {{{
+      ▷ Ψ 0 [] acc ∗
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ acc,
+        Ψ i (take i vs) acc -∗
+        WP fn acc #i v {{ acc,
+          ▷ Ψ (S i) (take i vs ++ [v]) acc
+        }}
+      )
+    }}}
+      array_foldli t acc fn
+    {{{ acc,
+      RET acc;
+      array_model t dq vs ∗
+      Ψ (length vs) vs acc
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldli_spec' Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_foldl_spec Ψ t dq vs acc fn :
+    {{{
+      ▷ Ψ 0 [] acc ∗
+      array_model t dq vs ∗
+      □ (
+        ∀ i v acc,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) acc -∗
+        WP fn acc v {{ acc,
+          ▷ Ψ (S i) (take i vs ++ [v]) acc
+        }}
+      )
+    }}}
+      array_foldl t acc fn
+    {{{ acc,
+      RET acc;
+      array_model t dq vs ∗
+      Ψ (length vs) vs acc
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldl_spec Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_foldl_spec' Ψ t dq vs acc fn :
+    {{{
+      ▷ Ψ 0 [] acc ∗
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ acc,
+        Ψ i (take i vs) acc -∗
+        WP fn acc v {{ acc,
+          ▷ Ψ (S i) (take i vs ++ [v]) acc
+        }}
+      )
+    }}}
+      array_foldl t acc fn
+    {{{ acc,
+      RET acc;
+      array_model t dq vs ∗
+      Ψ (length vs) vs acc
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldl_spec' Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_foldri_spec Ψ t dq vs fn acc :
+    {{{
+      array_model t dq vs ∗
+      ▷ Ψ (length vs) acc [] ∗
+      □ (
+        ∀ i v acc,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ (S i) acc (drop (S i) vs) -∗
+        WP fn #i v acc {{ acc,
+          ▷ Ψ i acc (v :: drop (S i) vs)
+        }}
+      )
+    }}}
+      array_foldri t fn acc
+    {{{ acc,
+      RET acc;
+      Ψ 0 acc vs ∗
+      array_model t dq vs
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & HΨ & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldri_spec Ψ with "[$Hmodel HΨ $Hfn]"); first lia.
+    { rewrite Nat2Z.id. iSteps. }
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_foldri_spec' Ψ t dq vs fn acc :
+    {{{
+      array_model t dq vs ∗
+      ▷ Ψ (length vs) acc [] ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ acc,
+        Ψ (S i) acc (drop (S i) vs) -∗
+        WP fn #i v acc {{ acc,
+          ▷ Ψ i acc (v :: drop (S i) vs)
+        }}
+      )
+    }}}
+      array_foldri t fn acc
+    {{{ acc,
+      RET acc;
+      Ψ 0 acc vs ∗
+      array_model t dq vs
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & HΨ & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldri_spec' Ψ with "[$Hmodel HΨ $Hfn]"); first lia.
+    { rewrite Nat2Z.id. iSteps. }
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_foldr_spec Ψ t dq vs fn acc :
+    {{{
+      array_model t dq vs ∗
+      ▷ Ψ (length vs) acc [] ∗
+      □ (
+        ∀ i v acc,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ (S i) acc (drop (S i) vs) -∗
+        WP fn v acc {{ acc,
+          ▷ Ψ i acc (v :: drop (S i) vs)
+        }}
+      )
+    }}}
+      array_foldr t fn acc
+    {{{ acc,
+      RET acc;
+      Ψ 0 acc vs ∗
+      array_model t dq vs
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & HΨ & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldr_spec Ψ with "[$Hmodel HΨ $Hfn]"); first lia.
+    { rewrite Nat2Z.id. iSteps. }
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_foldr_spec' Ψ t dq vs fn acc :
+    {{{
+      array_model t dq vs ∗
+      ▷ Ψ (length vs) acc [] ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ acc,
+        Ψ (S i) acc (drop (S i) vs) -∗
+        WP fn v acc {{ acc,
+          ▷ Ψ i acc (v :: drop (S i) vs)
+        }}
+      )
+    }}}
+      array_foldr t fn acc
+    {{{ acc,
+      RET acc;
+      Ψ 0 acc vs ∗
+      array_model t dq vs
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & HΨ & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_foldr_spec' Ψ with "[$Hmodel HΨ $Hfn]"); first lia.
+    { rewrite Nat2Z.id. iSteps. }
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_iteri_spec Ψ t dq vs fn :
+    {{{
+      ▷ Ψ 0 [] ∗
+      array_model t dq vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) -∗
+        WP fn #i v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (S i) (take i vs ++ [v])
+        }}
+      )
+    }}}
+      array_iteri t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      Ψ (length vs) vs
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iteri_spec Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_iteri_spec' Ψ t dq vs fn :
+    {{{
+      ▷ Ψ 0 [] ∗
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i (take i vs) -∗
+        WP fn #i v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (S i) (take i vs ++ [v])
+        }}
+      )
+    }}}
+      array_iteri t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      Ψ (length vs) vs
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iteri_spec' Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_iteri_spec_disentangled Ψ t dq vs fn :
+    {{{
+      array_model t dq vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP fn #i v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_iteri t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iteri_spec_disentangled Ψ with "[$Hmodel $Hfn]"); first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_iteri_spec_disentangled' Ψ t dq vs fn :
+    {{{
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        WP fn #i v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_iteri t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iteri_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_iter_spec Ψ t dq vs fn :
+    {{{
+      ▷ Ψ 0 [] ∗
+      array_model t dq vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) -∗
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (S i) (take i vs ++ [v])
+        }}
+      )
+    }}}
+      array_iter t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      Ψ (length vs) vs
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iter_spec Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_iter_spec' Ψ t dq vs fn :
+    {{{
+      ▷ Ψ 0 [] ∗
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i (take i vs) -∗
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ (S i) (take i vs ++ [v])
+        }}
+      )
+    }}}
+      array_iter t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      Ψ (length vs) vs
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iter_spec' Ψ with "[$HΨ $Hmodel $Hfn]"); first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_iter_spec_disentangled Ψ t dq vs fn :
+    {{{
+      array_model t dq vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_iter t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iter_spec_disentangled Ψ with "[$Hmodel $Hfn]"); first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_iter_spec_disentangled' Ψ t dq vs fn :
+    {{{
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        WP fn v {{ res,
+          ⌜res = ()%V⌝ ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_iter t fn
+    {{{
+      RET ();
+      array_model t dq vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_iter_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_applyi_spec Ψ t vs fn :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ i v ws,
+        ⌜i = length ws ∧ vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) ws -∗
+        WP fn #i v {{ w,
+          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_applyi t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      Ψ (length vs) vs ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_applyi_spec Ψ with "[$HΨ $Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_applyi_spec' Ψ t vs fn :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ ws,
+        ⌜i = length ws⌝ -∗
+        Ψ i (take i vs) ws -∗
+        WP fn #i v {{ w,
+          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_applyi t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      Ψ (length vs) vs ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_applyi_spec' Ψ with "[$HΨ $Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_applyi_spec_disentangled Ψ t vs fn :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP fn #i v {{ w,
+          ▷ Ψ i w
+        }}
+      )
+    }}}
+      array_applyi t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_applyi_spec_disentangled Ψ with "[$Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_applyi_spec_disentangled' Ψ t vs fn :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        WP fn #i v {{ w,
+          ▷ Ψ i w
+        }}
+      )
+    }}}
+      array_applyi t fn
+    {{{ ws,
+      RET ();
+      array_model t (DfracOwn 1) ws ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_applyi_spec_disentangled' Ψ with "[$Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
+  Lemma array_apply_spec Ψ t vs fn :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ i v ws,
+        ⌜i = length ws ∧ vs !! i = Some v⌝ -∗
+        Ψ i (take i vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_apply t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      Ψ (length vs) vs ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_apply_spec Ψ with "[$HΨ $Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_apply_spec' Ψ t vs fn :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        ∀ ws,
+        ⌜i = length ws⌝ -∗
+        Ψ i (take i vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_apply t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      Ψ (length vs) vs ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & (%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_apply_spec' Ψ with "[$HΨ $Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite Nat2Z.id !location_add_0. iSteps.
+  Qed.
+  Lemma array_apply_spec_disentangled Ψ t vs fn :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP fn v {{ w,
+          ▷ Ψ i w
+        }}
+      )
+    }}}
+      array_apply t fn
+    {{{ ws,
+      RET ();
+      ⌜length vs = length ws⌝ ∗
+      array_model t (DfracOwn 1) ws ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_apply_spec_disentangled Ψ with "[$Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+  Lemma array_apply_spec_disentangled' Ψ t vs fn :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        WP fn v {{ w,
+          ▷ Ψ i w
+        }}
+      )
+    }}}
+      array_apply t fn
+    {{{ ws,
+      RET ();
+      array_model t (DfracOwn 1) ws ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & -> & #Hsz & Hmodel) & Hfn) HΦ".
+    wp_rec. rewrite /array_data /array_size. wp_load.
+    rewrite !location_add_0.
+    wp_smart_apply (chunk_apply_spec_disentangled' Ψ with "[$Hmodel $Hfn]") as (ws) "(-> & Hmodel & HΨ)"; first lia.
+    iSteps. rewrite !location_add_0. iSteps.
+  Qed.
+
   Lemma array_blit_spec_slice_fit t1 sz1 i1 (i1_ : Z) dq1 vs1 t2 sz2 i2 (i2_ : Z) vs2 (n : Z) :
     i1_ = Z.of_nat i1 →
     i2_ = Z.of_nat i2 →
@@ -2330,25 +2977,23 @@ Section zebre_G.
     iApply ("HΦ" with "Hcslice").
   Qed.
 
-  Context τ `{!iType (iPropI Σ) τ}.
-
-  Definition itype_array (sz : nat) t : iProp Σ :=
+  Definition itype_array τ `{!iType _ τ} (sz : nat) t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     l.[size] ↦□ #sz ∗
     itype_chunk τ sz l.[data].
-  #[global] Instance itype_array_itype sz :
-    iType _ (itype_array sz).
+  #[global] Instance itype_array_itype τ `{!iType _ τ} sz :
+    iType _ (itype_array τ sz).
   Proof.
     split. apply _.
   Qed.
 
-  Lemma array_create_type :
+  Lemma array_create_type τ `{!iType _ τ} :
     {{{ True }}}
       array_create ()
     {{{ t,
       RET t;
-      itype_array 0 t
+      itype_array τ 0 t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -2361,7 +3006,7 @@ Section zebre_G.
     iApply itype_chunk_0.
   Qed.
 
-  Lemma array_make_type sz v :
+  Lemma array_make_type τ `{!iType _ τ} sz v :
     {{{
       τ v
     }}}
@@ -2369,7 +3014,7 @@ Section zebre_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array (Z.to_nat sz) t
+      itype_array τ (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
@@ -2387,7 +3032,7 @@ Section zebre_G.
     iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate). iSteps.
   Qed.
 
-  Lemma array_initi_type sz fn :
+  Lemma array_initi_type τ `{!iType _ τ} sz fn :
     {{{
       (itype_nat --> τ)%T fn
     }}}
@@ -2395,7 +3040,7 @@ Section zebre_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array (Z.to_nat sz) t
+      itype_array τ (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -2412,7 +3057,7 @@ Section zebre_G.
     rewrite location_add_0 Z2Nat.id //.
   Qed.
 
-  Lemma array_init_type sz fn :
+  Lemma array_init_type τ `{!iType _ τ} sz fn :
     {{{
       (itype_unit --> τ)%T fn
     }}}
@@ -2420,7 +3065,7 @@ Section zebre_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array (Z.to_nat sz) t
+      itype_array τ (Z.to_nat sz) t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -2429,9 +3074,9 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_size_type t sz :
+  Lemma array_size_type τ `{!iType _ τ} t sz :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_size t
     {{{
@@ -2441,9 +3086,9 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  #[local] Lemma array_data_type t sz :
+  #[local] Lemma array_data_type τ `{!iType _ τ} t sz :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_data t
     {{{ l,
@@ -2454,10 +3099,10 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_unsafe_get_type t (sz : nat) (i : Z) :
+  Lemma array_unsafe_get_type τ `{!iType _ τ} t (sz : nat) (i : Z) :
     (0 ≤ i < sz)%Z →
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_unsafe_get t #i
     {{{ v,
@@ -2472,9 +3117,9 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_get_type t sz (i : Z) :
+  Lemma array_get_type τ `{!iType _ τ} t sz (i : Z) :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_get t #i
     {{{ v,
@@ -2492,10 +3137,10 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_unsafe_set_type t (sz : nat) (i : Z) v :
+  Lemma array_unsafe_set_type τ `{!iType _ τ} t (sz : nat) (i : Z) v :
     (0 ≤ i < sz)%Z →
     {{{
-      itype_array sz t ∗
+      itype_array τ sz t ∗
       τ v
     }}}
       array_unsafe_set t #i v
@@ -2510,9 +3155,9 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_set_type t sz (i : Z) v :
+  Lemma array_set_type τ `{!iType _ τ} t sz (i : Z) v :
     {{{
-      itype_array sz t ∗
+      itype_array τ sz t ∗
       τ v
     }}}
       array_set t #i v
@@ -2530,10 +3175,154 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_blit_type t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
+  Lemma array_foldli_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
     {{{
-      itype_array sz1 t1 ∗
-      itype_array sz2 t2
+      itype_array τ sz t ∗
+      υ acc ∗
+      (υ --> itype_nat_upto sz --> τ --> υ)%T fn
+    }}}
+      array_foldli t acc fn
+    {{{ acc',
+      RET acc';
+      υ acc'
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hacc & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_foldli_type with "[$Hl Hacc $Hfn //] HΦ"); first done.
+  Qed.
+
+  Lemma array_foldl_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+    {{{
+      itype_array τ sz t ∗
+      υ acc ∗
+      (υ --> τ --> υ)%T fn
+    }}}
+      array_foldl t acc fn
+    {{{ acc',
+      RET acc';
+      υ acc'
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hacc & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_foldl_type with "[$Hl Hacc $Hfn //] HΦ"); first done.
+  Qed.
+
+  Lemma array_foldri_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+    {{{
+      itype_array τ sz t ∗
+      (itype_nat_upto sz --> τ --> υ --> υ)%T fn ∗
+      υ acc
+    }}}
+      array_foldri t fn acc
+    {{{ acc',
+      RET acc';
+      υ acc'
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn & Hacc) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_foldri_type with "[$Hl $Hfn Hacc //] HΦ"); first done.
+  Qed.
+
+  Lemma array_foldr_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+    {{{
+      itype_array τ sz t ∗
+      (τ --> υ --> υ)%T fn ∗
+      υ acc
+    }}}
+      array_foldr t fn acc
+    {{{ acc',
+      RET acc';
+      υ acc'
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn & Hacc) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_foldr_type with "[$Hl $Hfn Hacc //] HΦ"); first done.
+  Qed.
+
+  Lemma array_iteri_type τ `{!iType _ τ} t sz fn :
+    {{{
+      itype_array τ sz t ∗
+      (itype_nat_upto sz --> τ --> itype_unit)%T fn
+    }}}
+      array_iteri t fn
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_iteri_type with "[$Hl $Hfn] HΦ"); first done.
+  Qed.
+
+  Lemma array_iter_type τ `{!iType _ τ} t sz fn :
+    {{{
+      itype_array τ sz t ∗
+      (τ --> itype_unit)%T fn
+    }}}
+      array_iter t fn
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_iter_type with "[$Hl $Hfn] HΦ"); first done.
+  Qed.
+
+  Lemma array_applyi_type τ `{!iType _ τ} t sz fn :
+    {{{
+      itype_array τ sz t ∗
+      (itype_nat_upto sz --> τ --> τ)%T fn
+    }}}
+      array_applyi t fn
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_applyi_type with "[$Hl $Hfn] HΦ"); first done.
+  Qed.
+
+  Lemma array_apply_type τ `{!iType _ τ} t sz fn :
+    {{{
+      itype_array τ sz t ∗
+      (τ --> τ)%T fn
+    }}}
+      array_apply t fn
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Ht & Hfn) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_apply (array_data_type with "Ht") as (l) "#Hl".
+    wp_apply (chunk_apply_type with "[$Hl $Hfn] HΦ"); first done.
+  Qed.
+
+  Lemma array_blit_type τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
+    {{{
+      itype_array τ sz1 t1 ∗
+      itype_array τ sz2 t2
     }}}
       array_blit t1 #i1 t2 #i2 #n
     {{{
@@ -2555,10 +3344,10 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_copy_type t1 sz1 t2 sz2 (i2 : Z) :
+  Lemma array_copy_type τ `{!iType _ τ} t1 sz1 t2 sz2 (i2 : Z) :
     {{{
-      itype_array sz1 t1 ∗
-      itype_array sz2 t2
+      itype_array τ sz1 t1 ∗
+      itype_array τ sz2 t2
     }}}
       array_copy t1 t2 #i2
     {{{
@@ -2573,16 +3362,16 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_grow_type t sz sz' v' :
+  Lemma array_grow_type τ `{!iType _ τ} t sz sz' v' :
     {{{
-      itype_array sz t ∗
+      itype_array τ sz t ∗
       τ v'
     }}}
       array_grow t #sz' v'
     {{{ t',
       RET t';
       ⌜sz ≤ sz'⌝ ∗
-      itype_array (Z.to_nat sz') t'
+      itype_array τ (Z.to_nat sz') t'
     }}}.
   Proof.
     iIntros "%Φ (#Ht & #Hv') HΦ".
@@ -2594,15 +3383,15 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_sub_type t sz (i n : Z) :
+  Lemma array_sub_type τ `{!iType _ τ} t sz (i n : Z) :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_sub t #i #n
     {{{ t',
       RET t';
       ⌜0 ≤ i ∧ 0 ≤ n ∧ i + n ≤ sz⌝%Z ∗
-      itype_array (Z.to_nat n) t'
+      itype_array τ (Z.to_nat n) t'
     }}}.
   Proof.
     iIntros "%Φ #Ht HΦ".
@@ -2619,15 +3408,15 @@ Section zebre_G.
     rewrite replicate_length. iSteps.
   Qed.
 
-  Lemma array_shrink_type t sz (n : Z) :
+  Lemma array_shrink_type τ `{!iType _ τ} t sz (n : Z) :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_shrink t #n
     {{{ t',
       RET t';
       ⌜0 ≤ n ≤ sz⌝%Z ∗
-      itype_array (Z.to_nat n) t'
+      itype_array τ (Z.to_nat n) t'
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
@@ -2636,14 +3425,14 @@ Section zebre_G.
     iSteps.
   Qed.
 
-  Lemma array_clone_type t sz :
+  Lemma array_clone_type τ `{!iType _ τ} t sz :
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_clone t
     {{{ t',
       RET t';
-      itype_array sz t'
+      itype_array τ sz t'
     }}}.
   Proof.
     iIntros "%Φ #Ht HΦ".
@@ -2653,9 +3442,9 @@ Section zebre_G.
     rewrite Nat2Z.id. iSteps.
   Qed.
 
-  Lemma array_fill_slice_type t sz (i n : val) v :
+  Lemma array_fill_slice_type τ `{!iType _ τ} t sz (i n : val) v :
     {{{
-      itype_array sz t ∗
+      itype_array τ sz t ∗
       itype_int i ∗
       itype_int n ∗
       τ v
@@ -2675,9 +3464,9 @@ Section zebre_G.
     wp_smart_apply (chunk_fill_type with "[$Hl $Hv] HΦ"); first lia.
   Qed.
 
-  Lemma array_fill_type t sz v :
+  Lemma array_fill_type τ `{!iType _ τ} t sz v :
     {{{
-      itype_array sz t ∗
+      itype_array τ sz t ∗
       τ v
     }}}
       array_fill t v
@@ -2691,11 +3480,11 @@ Section zebre_G.
     wp_apply (array_fill_slice_type with "[$Ht] HΦ"); first iSteps.
   Qed.
 
-  Lemma array_cget_type t sz (i : Z) :
+  Lemma array_cget_type τ `{!iType _ τ} t sz (i : Z) :
     0 < sz →
     (0 ≤ i)%Z →
     {{{
-      itype_array sz t
+      itype_array τ sz t
     }}}
       array_cget t #i
     {{{ v,
@@ -2721,6 +3510,14 @@ End zebre_G.
 #[global] Opaque array_get.
 #[global] Opaque array_unsafe_set.
 #[global] Opaque array_set.
+#[global] Opaque array_foldli.
+#[global] Opaque array_foldl.
+#[global] Opaque array_foldri.
+#[global] Opaque array_foldr.
+#[global] Opaque array_iteri.
+#[global] Opaque array_iter.
+#[global] Opaque array_applyi.
+#[global] Opaque array_apply.
 #[global] Opaque array_blit.
 #[global] Opaque array_copy.
 #[global] Opaque array_grow.

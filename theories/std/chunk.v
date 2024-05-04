@@ -2081,6 +2081,7 @@ Section zebre_G.
       chunk_applyi #l #sz fn
     {{{ ws,
       RET ();
+      ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -2227,6 +2228,7 @@ Section zebre_G.
       chunk_apply #l #sz fn
     {{{ ws,
       RET ();
+      ⌜length vs = length ws⌝ ∗
       chunk_model l (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -3440,8 +3442,8 @@ Section zebre_G.
     sz_ = Z.of_nat sz →
     {{{
       itype_chunk τ sz l ∗
-      υ acc ∗
-      (itype_nat_upto sz --> τ --> υ --> υ)%T fn
+      (itype_nat_upto sz --> τ --> υ --> υ)%T fn ∗
+      υ acc
     }}}
       chunk_foldri #l #sz_ fn acc
     {{{ acc',
@@ -3449,7 +3451,7 @@ Section zebre_G.
       υ acc'
     }}}.
   Proof.
-    iIntros (->) "%Φ (#Hl & Hacc & #Hfn) HΦ".
+    iIntros (->) "%Φ (#Hl & #Hfn & Hacc) HΦ".
     pose (Ψ i acc o vs := (
       from_option τ True o ∗
       υ acc
@@ -3474,8 +3476,8 @@ Section zebre_G.
     sz_ = Z.of_nat sz →
     {{{
       itype_chunk τ sz l ∗
-      υ acc ∗
-      (τ --> υ --> υ)%T fn
+      (τ --> υ --> υ)%T fn ∗
+      υ acc
     }}}
       chunk_foldr #l #sz_ fn acc
     {{{ acc',
@@ -3483,7 +3485,7 @@ Section zebre_G.
       υ acc'
     }}}.
   Proof.
-    iIntros (->) "%Φ (#Hl & #Hacc & #Hfn) HΦ".
+    iIntros (->) "%Φ (#Hl & #Hfn & #Hacc) HΦ".
     wp_rec.
     wp_smart_apply (chunk_foldri_type τ υ with "[$Hl $Hacc]"); [done | iSteps..].
   Qed.
