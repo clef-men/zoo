@@ -104,6 +104,7 @@ theories/std/queue.v
 theories/std/stack.v
 theories/std/xdeque.v
 theories/std/deque.v
+theories/std/domain.v
 theories/std/mutex.v
 theories/std/condition.v
 theories/std/spsc_waiter.v
