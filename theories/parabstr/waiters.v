@@ -13,20 +13,34 @@ From zebre.parabstr Require Export
 From zebre Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types v t : val.
 
 Definition waiters_create : val :=
   mpmc_queue_create.
 
-Definition waiters_notify : val :=
-  rec: "waiters_notify" "t" :=
+#[local] Definition waiters_notify' : val :=
+  rec: "waiters_notify'" "t" :=
     match: mpmc_queue_pop "t" with
     | None =>
-        ()
+        #false
     | Some "waiter" =>
         if: mpsc_waiter_notify "waiter" then
-          "waiters_notify" "t"
+          "waiters_notify'" "t"
+        else
+          #true
     end.
+Definition waiters_notify : val :=
+  λ: "t",
+    waiters_notify' "t" ;;
+    ().
+Definition waiters_notify_many : val :=
+  rec: "waiters_notify_many" "t" "n" :=
+    if: "n" ≤ #0 then (
+      ()
+    ) else if: waiters_notify' "t" then (
+      "waiters_notify_many" "t" ("n" - #1)
+    ).
 
 Definition waiters_prepare_wait : val :=
   λ: "t",
@@ -105,13 +119,13 @@ Section waiters_G.
     iSteps.
   Qed.
 
-  Lemma waiters_notify_spec t :
+  #[local] Lemma waiters_notify'_spec t :
     {{{
       waiters_inv t
     }}}
-      waiters_notify t
-    {{{
-      RET (); True
+      waiters_notify' t
+    {{{ b,
+      RET #b; True
     }}}.
   Proof.
     iIntros "%Φ (#Hqueue_inv & #Hinv) HΦ".
@@ -130,6 +144,42 @@ Section waiters_G.
 
     wp_smart_apply (mpsc_waiter_notify_spec with "[$Hwaiter //]") as ([]) "_"; last iSteps.
     wp_smart_apply ("HLöb" with "HΦ").
+  Qed.
+
+  Lemma waiters_notify_spec t :
+    {{{
+      waiters_inv t
+    }}}
+      waiters_notify t
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+
+    wp_rec.
+    wp_apply (waiters_notify'_spec with "Hinv").
+    iSteps.
+  Qed.
+
+  Lemma waiters_notify_many_spec t n :
+    (0 ≤ n)%Z →
+    {{{
+      waiters_inv t
+    }}}
+      waiters_notify_many t #n
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Hn %Φ #Hinv HΦ".
+
+    iLöb as "HLöb" forall (n Hn).
+
+    wp_rec. wp_pures.
+    case_bool_decide; first iSteps.
+    wp_smart_apply (waiters_notify'_spec with "Hinv") as ([]) "_"; last iSteps.
+    wp_smart_apply ("HLöb" with "[] HΦ"); first iSteps.
   Qed.
 
   Lemma waiters_prepare_wait_spec t :
@@ -190,6 +240,7 @@ End waiters_G.
 
 #[global] Opaque waiters_create.
 #[global] Opaque waiters_notify.
+#[global] Opaque waiters_notify_many.
 #[global] Opaque waiters_prepare_wait.
 #[global] Opaque waiters_cancel_wait.
 #[global] Opaque waiters_commit_wait.
