@@ -24,8 +24,9 @@ From zebre.parabstr Require Import
 From zebre Require Import
   options.
 
-Implicit Types vtx succ : location.
+Implicit Types closed : bool.
 Implicit Types preds : nat.
+Implicit Types vtx succ : location.
 Implicit Types run : val.
 
 #[local] Notation "'task'" := (
@@ -150,10 +151,10 @@ Section vertex_G.
     refine (inj_countable' encode decode _). intros []. done.
   Qed.
 
-  #[local] Definition vertex_dependencies' γ_dependencies Δ :=
-    mono_set_auth γ_dependencies (DfracOwn 1) Δ.
-  #[local] Definition vertex_dependencies γ Δ :=
-    vertex_dependencies' γ.(vertex_meta_dependencies) Δ.
+  #[local] Definition vertex_dependencies' γ_dependencies closed Δ :=
+    mono_set_auth γ_dependencies (if closed then DfracDiscarded else DfracOwn 1) Δ.
+  #[local] Definition vertex_dependencies γ closed Δ :=
+    vertex_dependencies' γ.(vertex_meta_dependencies) closed Δ.
   #[local] Definition vertex_dependency' γ_dependencies δ :=
     mono_set_elem γ_dependencies δ.
   #[local] Definition vertex_dependency γ δ :=
@@ -181,25 +182,25 @@ Section vertex_G.
     ∃ state preds Δ Π,
     ⌜Δ ## Π⌝ ∗
     vtx.[preds] ↦ #preds ∗
+    ([∗ set] δ ∈ Δ, ∃ P, saved_prop δ P ∗ □ P) ∗
     ([∗ set] π ∈ Π, ∃ P, saved_prop π P) ∗
     vertex_predecessors γ Π ∗
     vertex_state₁ γ state ∗
     match state with
     | VertexInit =>
         ⌜preds = S (size Π)⌝ ∗
-        ([∗ set] δ ∈ Δ, ∃ P, saved_prop δ P ∗ □ P ∗ £ 1) ∗
-        vertex_dependencies γ (Δ ∪ Π)
+        vertex_dependencies γ false (Δ ∪ Π)
     | VertexReleased =>
         ⌜preds = size Π⌝ ∗
-        ([∗ set] δ ∈ Δ, ∃ P, saved_prop δ P ∗ □ P ∗ £ 1) ∗
-        vertex_dependencies γ (Δ ∪ Π) ∗
         vertex_state₂ γ VertexReleased ∗
+        vertex_dependencies γ false (Δ ∪ Π) ∗
         ( ∀ ctx,
           scheduler_context ws_hub ctx -∗
-          ( ∀ δ Q,
+          □ (
+            ∀ δ Q,
             saved_prop δ Q -∗
-            vertex_dependency γ δ ={∅}=∗
-            □ Q
+            vertex_dependency γ δ -∗
+            ▷ Q
           ) -∗
           WP γ.(vertex_meta_task) ctx {{ res,
             scheduler_context ws_hub ctx ∗
@@ -295,23 +296,29 @@ Section vertex_G.
   #[local] Lemma vertex_dependencies_alloc :
     ⊢ |==>
       ∃ γ_dependencies,
-      vertex_dependencies' γ_dependencies ∅.
+      vertex_dependencies' γ_dependencies false ∅.
   Proof.
     apply mono_set_alloc.
   Qed.
   #[local] Lemma vertex_dependencies_add {γ Δ} δ :
-    vertex_dependencies γ Δ ⊢ |==>
-      vertex_dependencies γ ({[δ]} ∪ Δ) ∗
+    vertex_dependencies γ false Δ ⊢ |==>
+      vertex_dependencies γ false ({[δ]} ∪ Δ) ∗
       vertex_dependency γ δ.
   Proof.
     apply mono_set_insert'.
   Qed.
-  #[local] Lemma vertex_dependencies_elem_of γ Δ δ :
-    vertex_dependencies γ Δ -∗
+  #[local] Lemma vertex_dependencies_elem_of γ closed Δ δ :
+    vertex_dependencies γ closed Δ -∗
     vertex_dependency γ δ -∗
     ⌜δ ∈ Δ⌝.
   Proof.
-    apply mono_set_elem_valid .
+    apply mono_set_elem_valid.
+  Qed.
+  #[local] Lemma vertex_dependencies_close γ Δ :
+    vertex_dependencies γ false Δ ⊢ |==>
+    vertex_dependencies γ true Δ.
+  Proof.
+    apply mono_set_auth_persist.
   Qed.
 
   #[local] Lemma vertex_predecessors_alloc :
@@ -429,10 +436,10 @@ Section vertex_G.
     wp_rec. wp_pures.
 
     wp_bind (Faa _ _).
-    iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+    iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     wp_faa.
     iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
-    iDestruct "Hstate" as "(%Hpreds & HΔ & Hdeps)".
+    iDestruct "Hstate" as "(%Hpreds & Hdeps)".
     iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
     apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
     iMod (vertex_predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
@@ -450,7 +457,7 @@ Section vertex_G.
     wp_load.
 
     awp_apply (mpmc_stack_push_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
-    iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+    iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     case_decide as Hstate; first subst.
 
     - iDestruct "Hstate" as "(>%HΠ & #HP1)".
@@ -459,13 +466,13 @@ Section vertex_G.
       iSplitR "Hpred"; first iSteps.
       iIntros "_ (Hstate₂ & HΦ)". clear.
 
-      wp_pures credit:"H£".
+      wp_pures.
 
       wp_bind (Faa _ _).
-      iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+      iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
       wp_faa.
       iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
-      iDestruct "Hstate" as "(%Hpreds & HΔ & Hdeps)".
+      iDestruct "Hstate" as "(%Hpreds & Hdeps)".
       iDestruct (vertex_predecessors_elem_of with "Hpreds Hpred") as %Hπ.
       iMod (vertex_predecessors_remove with "Hpreds Hpred") as "Hpreds".
       iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
@@ -521,10 +528,10 @@ Section vertex_G.
     setoid_rewrite vertex_inv'_unfold.
     iIntros "%Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ & Hrun) HΦ".
 
-    wp_rec credit:"H£". wp_pures.
+    wp_rec. wp_pures.
 
     wp_bind (Faa _ _).
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     wp_faa.
     iDestruct (vertex_predecessors_elem_of with "Hpreds Hpred") as %Hπ.
     destruct state.
@@ -535,7 +542,7 @@ Section vertex_G.
     all: iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
 
     - iClear "Hrun".
-      iDestruct "Hstate" as "(%Hpreds & HΔ & Hdeps)".
+      iDestruct "Hstate" as "(%Hpreds & Hdeps)".
       iSplitR "Hctx HΦ".
       { iExists VertexInit, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
         rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
@@ -550,28 +557,32 @@ Section vertex_G.
       { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
       iSteps.
 
-    - iDestruct "Hstate" as "(%Hpreds & HΔ &Hdeps & Hstate₂ & Htask)".
+    - iDestruct "Hstate" as "(%Hpreds & Hstate₂ & Hdeps & Htask)".
       destruct (decide (preds = 1)) as [-> | ?].
 
       + assert (Π = {[π]}) as ->.
         { apply symmetry, size_1_elem_of in Hpreds as (_π & Heq). set_solver. }
         rewrite difference_diag_L.
         iMod (vertex_state_update VertexRunning with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-        iSplitR "Hctx Hrun H£ Hstate₂ HΔ Hdeps Htask HΦ".
-        { iExists VertexRunning, 0, ({[π]} ∪ Δ), ∅. iSteps. }
-        iDestruct (big_sepS_insert_2' with "[H£] HΔ") as "HΔ'"; first iSteps.
-        iClear "Hπ HQ". remember (Δ ∪ {[π]}) as Δ'.
+        iDestruct "HΔ" as "#HΔ".
+        iSplitR "Hctx Hrun Hstate₂ Hdeps Htask HΦ".
+        { iExists VertexRunning, 0, ({[π]} ∪ Δ), ∅.
+          rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
+          iSteps.
+        }
+        iDestruct (big_sepS_insert_2' with "[] HΔ") as "HΔ'"; first iSteps.
+        iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
+        iMod (vertex_dependencies_close with "Hdeps") as "#Hdeps".
         iModIntro. clear.
 
-        wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hctx HΔ' Hrun Hstate₂ Hdeps Htask]"); last iSteps.
+        wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
         clear ctx. iIntros "%ctx Hctx".
-        wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [HΔ' Hdeps Htask])"); last iSteps. iIntros "Hctx".
-        wp_apply ("Htask" with "Hctx"). iIntros "%δ %Q #Hδ #Hdep".
+        wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
+        wp_apply ("Htask" with "Hctx"). iIntros "!> %δ %Q #Hδ #Hdep".
         iDestruct (vertex_dependencies_elem_of with "Hdeps Hdep") as %Hδ.
-        iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & HQ & H£)"; first done.
+        iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
         iDestruct (saved_prop_agree with "Hδ _Hδ") as "Heq".
-        iMod (lc_fupd_elim_later with "H£ Heq") as "Heq". iRewrite "Heq".
-        done.
+        iModIntro. iRewrite "Heq". done.
 
       + iSplitR "Hctx HΦ".
         { iExists VertexReleased, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
@@ -615,7 +626,7 @@ Section vertex_G.
     wp_load.
 
     awp_smart_apply (mpmc_stack_close_spec with "Hsuccs_inv") without "Hctx HΦ".
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
+    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
     iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
     iDestruct "Hstate" as ">%HΠ".
     iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
@@ -641,7 +652,7 @@ Section vertex_G.
       vertex_init t task ∗
       ( ∀ ctx,
         scheduler_context ws_hub ctx -∗
-        (∀ Q, vertex_input t Q ={∅}=∗ □ Q) -∗
+        □ (∀ Q, vertex_input t Q -∗ ▷ Q) -∗
         WP task ctx {{ res,
           scheduler_context ws_hub ctx ∗
           ▷ □ P
@@ -659,10 +670,10 @@ Section vertex_G.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     iApply fupd_wp.
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
+    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
     iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
     iMod (vertex_state_update VertexReleased with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-    iDestruct "Hstate" as "(>%Hpreds & HΔ & >Hdeps)".
+    iDestruct "Hstate" as ">(%Hpreds & Hdeps)".
     iMod (saved_prop_alloc_cofinite (Δ ∪ Π) True) as "(%π & %Hπ & #Hπ)".
     apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
     iMod (vertex_predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
@@ -675,9 +686,9 @@ Section vertex_G.
       { iPureIntro. set_solver. }
       iStep. iSplitR.
       { rewrite size_union; first set_solver. rewrite size_singleton //. }
-      clear. iIntros "!> !> %ctx Hctx H".
-      iApply (wp_wand with "(Htask Hctx [H])"); last iSteps.
-      iIntros "%Q (%_vtx & %_γ & %δ & %Heq & _Hmeta & #Hδ & #Hdep_δ)". injection Heq as <-.
+      clear. iIntros "!> !> %ctx Hctx #H".
+      iApply (wp_wand with "(Htask Hctx [])"); last iSteps.
+      iIntros "!> %Q (%_vtx & %_γ & %δ & %Heq & _Hmeta & #Hδ & #Hdep_δ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iApply ("H" with "Hδ Hdep_δ").
     }
