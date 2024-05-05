@@ -178,6 +178,24 @@ Section vertex_G.
   #[local] Definition vertex_state₂ γ state :=
     vertex_state₂' γ.(vertex_meta_state) state.
 
+  Definition vertex_init t task : iProp Σ :=
+    ∃ vtx γ,
+    ⌜t = #vtx⌝ ∗
+    ⌜task = γ.(vertex_meta_task)⌝ ∗
+    meta vtx nroot γ ∗
+    vertex_state₂ γ VertexInit.
+
+  #[local] Definition vertex_input' vtx γ P : iProp Σ :=
+    ∃ δ,
+    saved_prop δ P ∗
+    vertex_dependency γ δ ∗
+    £ 1.
+  Definition vertex_input t P : iProp Σ :=
+    ∃ vtx γ,
+    ⌜t = #vtx⌝ ∗
+    meta vtx nroot γ ∗
+    vertex_input' vtx γ P.
+
   #[local] Definition vertex_inv_inner' (vertex_inv' : location → vertex_meta → iProp Σ → iProp Σ) vtx γ P : iProp Σ :=
     ∃ state preds Δ Π,
     ⌜Δ ## Π⌝ ∗
@@ -196,12 +214,7 @@ Section vertex_G.
         vertex_dependencies γ false (Δ ∪ Π) ∗
         ( ∀ ctx,
           scheduler_context ws_hub ctx -∗
-          □ (
-            ∀ δ Q,
-            saved_prop δ Q -∗
-            vertex_dependency γ δ -∗
-            ▷ Q
-          ) -∗
+          □ (∀ Q E, vertex_input' vtx γ Q ={E}=∗ □ Q) -∗
           WP γ.(vertex_meta_task) ctx {{ res,
             scheduler_context ws_hub ctx ∗
             ▷ □ P
@@ -251,20 +264,6 @@ Section vertex_G.
     meta vtx nroot γ ∗
     vertex_inv' vtx γ P.
 
-  Definition vertex_init t task : iProp Σ :=
-    ∃ vtx γ,
-    ⌜t = #vtx⌝ ∗
-    ⌜task = γ.(vertex_meta_task)⌝ ∗
-    meta vtx nroot γ ∗
-    vertex_state₂ γ VertexInit.
-
-  Definition vertex_input t P : iProp Σ :=
-    ∃ vtx γ δ,
-    ⌜t = #vtx⌝ ∗
-    meta vtx nroot γ ∗
-    saved_prop δ P ∗
-    vertex_dependency γ δ.
-
   #[local] Lemma vertex_inv'_unfold vtx γ P :
     vertex_inv' vtx γ P ⊣⊢
     vertex_inv_pre vertex_inv' vtx γ P.
@@ -284,11 +283,6 @@ Section vertex_G.
   Qed.
   #[global] Instance vertex_inv_persistent t P :
     Persistent (vertex_inv t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance vertex_input_persistent t P :
-    Persistent (vertex_input t P).
   Proof.
     apply _.
   Qed.
@@ -486,6 +480,9 @@ Section vertex_G.
         - rewrite size_difference; first set_solver. rewrite size_singleton.
           apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
       }
+      iModIntro. clear.
+
+      wp_pures credit:"H£".
       iSteps.
 
     - iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
@@ -578,11 +575,12 @@ Section vertex_G.
         wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
         clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
-        wp_apply ("Htask" with "Hctx"). iIntros "!> %δ %Q #Hδ #Hdep".
+        wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
         iDestruct (vertex_dependencies_elem_of with "Hdeps Hdep") as %Hδ.
         iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
-        iDestruct (saved_prop_agree with "Hδ _Hδ") as "Heq".
-        iModIntro. iRewrite "Heq". done.
+        iDestruct (saved_prop_agree with "Hδ _Hδ") as "-#Heq".
+        iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+        iRewrite "Heq". iSteps.
 
       + iSplitR "Hctx HΦ".
         { iExists VertexReleased, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
@@ -652,7 +650,7 @@ Section vertex_G.
       vertex_init t task ∗
       ( ∀ ctx,
         scheduler_context ws_hub ctx -∗
-        □ (∀ Q, vertex_input t Q -∗ ▷ Q) -∗
+        □ (∀ Q E, vertex_input t Q ={E}=∗ □ Q) -∗
         WP task ctx {{ res,
           scheduler_context ws_hub ctx ∗
           ▷ □ P
@@ -688,9 +686,9 @@ Section vertex_G.
       { rewrite size_union; first set_solver. rewrite size_singleton //. }
       clear. iIntros "!> !> %ctx Hctx #H".
       iApply (wp_wand with "(Htask Hctx [])"); last iSteps.
-      iIntros "!> %Q (%_vtx & %_γ & %δ & %Heq & _Hmeta & #Hδ & #Hdep_δ)". injection Heq as <-.
+      iIntros "!> %Q %E (%_vtx & %_γ & %Heq & _Hmeta & Hinput)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iApply ("H" with "Hδ Hdep_δ").
+      iApply ("H" with "Hinput").
     }
     do 2 iModIntro. clear.
 
