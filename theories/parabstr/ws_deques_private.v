@@ -257,32 +257,30 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_push_spec t ι sz i v :
-    let i' := Z.to_nat i in
-    (0 ≤ i)%Z →
+  Lemma ws_deques_private_push_spec t ι sz i i_ v :
+    i = Z.of_nat i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i'
+      ws_deques_private_owner t i_
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
       ws_deques_private_push t #i v @ ↑ι
     <<<
       ∃∃ vs,
-      ⌜vss !! i' = Some vs⌝ ∗
-      ws_deques_private_model t (<[i' := vs ++ [v]]> vss)
+      ⌜vss !! i_ = Some vs⌝ ∗
+      ws_deques_private_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_deques_private_owner t i'
+      ws_deques_private_owner t i_
     >>>.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_pop_spec t ι sz i :
-    let i' := Z.to_nat i in
-    (0 ≤ i)%Z →
+  Lemma ws_deques_private_pop_spec t ι sz i i_ :
+    i = Z.of_nat i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i'
+      ws_deques_private_owner t i_
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
@@ -291,21 +289,21 @@ Section ws_deques_private_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i' = Some []⌝ ∗
+          ⌜vss !! i_ = Some []⌝ ∗
           ws_deques_private_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i' = Some (vs ++ [v])⌝ ∗
-          ws_deques_private_model t (<[i' := vs]> vss)
+          ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
+          ws_deques_private_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_deques_private_owner t i'
+      ws_deques_private_owner t i_
     >>>.
   Proof.
   Admitted.
 
   Lemma ws_deques_private_steal_to_spec t ι (sz : nat) i :
-    let i' := Z.to_nat i in
+    let i_ := Z.to_nat i in
     (0 ≤ i < sz)%Z →
     <<<
       ws_deques_private_inv t ι sz
@@ -317,12 +315,12 @@ Section ws_deques_private_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i' = Some []⌝ ∗
+          ⌜vss !! i_ = Some []⌝ ∗
           ws_deques_private_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i' = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[i' := vs]> vss)
+          ⌜vss !! i_ = Some (v :: vs)⌝ ∗
+          ws_deques_private_model t (<[i_ := vs]> vss)
       end
     | RET o; True
     >>>.

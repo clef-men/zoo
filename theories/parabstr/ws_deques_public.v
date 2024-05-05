@@ -164,28 +164,27 @@ Section ws_deques_public_G.
     wp_apply array_size_spec; iSteps.
   Qed.
 
-  Lemma ws_deques_public_push_spec t ι sz i v :
-    let i' := Z.to_nat i in
-    (0 ≤ i)%Z →
+  Lemma ws_deques_public_push_spec t ι sz i i_ v :
+    i = Z.of_nat i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i'
+      ws_deques_public_owner t i_
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
       ws_deques_public_push t #i v @ ↑ι
     <<<
       ∃∃ vs,
-      ⌜vss !! i' = Some vs⌝ ∗
-      ws_deques_public_model t (<[i' := vs ++ [v]]> vss)
+      ⌜vss !! i_ = Some vs⌝ ∗
+      ws_deques_public_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_deques_public_owner t i'
+      ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros "%i' %Hi !> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
+    iIntros (->) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     wp_rec.
-    wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [done.. |].
+    wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done | lia |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "Hdeque_inv"; first done.
     awp_apply (inf_ws_deque_push_spec with "[$Hdeque_inv $Hdeque_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (%_deques & _Hdeques & Hdeques_model)".
@@ -201,12 +200,11 @@ Section ws_deques_public_G.
       rewrite list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public_pop_spec t ι sz i :
-    let i' := Z.to_nat i in
-    (0 ≤ i)%Z →
+  Lemma ws_deques_public_pop_spec t ι sz i i_ :
+    i = Z.of_nat i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
-      ws_deques_public_owner t i'
+      ws_deques_public_owner t i_
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
@@ -215,21 +213,21 @@ Section ws_deques_public_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i' = Some []⌝ ∗
+          ⌜vss !! i_ = Some []⌝ ∗
           ws_deques_public_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i' = Some (vs ++ [v])⌝ ∗
-          ws_deques_public_model t (<[i' := vs]> vss)
+          ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
+          ws_deques_public_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_deques_public_owner t i'
+      ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros "%i' %Hi !> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
+    iIntros (->) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     wp_rec.
-    wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [done.. |].
+    wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done | lia |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "Hdeque_inv"; first done.
     awp_apply (inf_ws_deque_pop_spec with "[$Hdeque_inv $Hdeque_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (%_deques & _Hdeques & Hdeques_model)".
@@ -250,7 +248,7 @@ Section ws_deques_public_G.
   Qed.
 
   Lemma ws_deques_public_steal_to_spec t ι (sz : nat) i :
-    let i' := Z.to_nat i in
+    let i_ := Z.to_nat i in
     (0 ≤ i < sz)%Z →
     <<<
       ws_deques_public_inv t ι sz
@@ -262,19 +260,19 @@ Section ws_deques_public_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i' = Some []⌝ ∗
+          ⌜vss !! i_ = Some []⌝ ∗
           ws_deques_public_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i' = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[i' := vs]> vss)
+          ⌜vss !! i_ = Some (v :: vs)⌝ ∗
+          ws_deques_public_model t (<[i_ := vs]> vss)
       end
     | RET o; True
     >>>.
   Proof.
-    iIntros "%i' %Hi !> %Φ (%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) HΦ".
+    iIntros "%i_ %Hi !> %Φ (%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) HΦ".
     wp_rec.
-    destruct (lookup_lt_is_Some_2 deques i') as (deque & Hdeque_lookup); first lia.
+    destruct (lookup_lt_is_Some_2 deques i_) as (deque & Hdeque_lookup); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "#Hdeque_inv"; first done.
     awp_apply (inf_ws_deque_steal_spec with "Hdeque_inv").

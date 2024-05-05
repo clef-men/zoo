@@ -193,16 +193,15 @@ Section vertex_G.
         ⌜preds = size Π⌝ ∗
         vertex_state₂ γ VertexReleased ∗
         vertex_dependencies γ (Δ ∪ Π) ∗
-        ( ∀ sched ctx,
-          scheduler_inv ws_hub sched -∗
-          scheduler_context ws_hub sched ctx -∗
+        ( ∀ ctx,
+          scheduler_context ws_hub ctx -∗
           ( ∀ δ Q,
             saved_prop δ Q -∗
             vertex_dependency γ δ -∗
             ▷ Q
           ) -∗
           WP γ.(vertex_meta_task) ctx {{ res,
-            scheduler_context ws_hub sched ctx ∗
+            scheduler_context ws_hub ctx ∗
             ▷ □ P
           }}
         )
@@ -491,37 +490,35 @@ Section vertex_G.
       iSteps.
   Qed.
 
-  #[local] Lemma vertex_propagate_spec sched ctx vtx γ P π Q run :
+  #[local] Lemma vertex_propagate_spec ctx vtx γ P π Q run :
     {{{
-      scheduler_inv ws_hub sched ∗
-      scheduler_context ws_hub sched ctx ∗
+      scheduler_context ws_hub ctx ∗
       vertex_inv' vtx γ P ∗
       saved_prop π Q ∗
       vertex_predecessor γ π ∗
       □ Q ∗
-      ( ∀ sched ctx,
-        scheduler_inv ws_hub sched -∗
-        scheduler_context ws_hub sched ctx -∗
+      ( ∀ ctx,
+        scheduler_context ws_hub ctx -∗
         vertex_state₂ γ VertexRunning -∗
-        ( scheduler_context ws_hub sched ctx -∗
+        ( scheduler_context ws_hub ctx -∗
           WP γ.(vertex_meta_task) ctx {{ res,
-            scheduler_context ws_hub sched ctx ∗
+            scheduler_context ws_hub ctx ∗
             ▷ □ P
           }}
         ) -∗
         WP run ctx #vtx {{ res,
-          scheduler_context ws_hub sched ctx
+          scheduler_context ws_hub ctx
         }}
       )
     }}}
       vertex_propagate ws_hub ctx #vtx run
     {{{
       RET ();
-      scheduler_context ws_hub sched ctx
+      scheduler_context ws_hub ctx
     }}}.
   Proof.
     setoid_rewrite vertex_inv'_unfold.
-    iIntros "%Φ (#Hsched & Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ & Hrun) HΦ".
+    iIntros "%Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ & Hrun) HΦ".
 
     wp_rec. wp_pures.
 
@@ -569,10 +566,10 @@ Section vertex_G.
         iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
         iModIntro. clear.
 
-        wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hsched $Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
+        wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
         clear ctx. iIntros "%ctx Hctx".
-        wp_smart_apply (wp_wand with "(Hrun Hsched Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
-        wp_apply ("Htask" with "Hsched Hctx"). iIntros "%δ %Q #Hδ #Hdep".
+        wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
+        wp_apply ("Htask" with "Hctx"). iIntros "%δ %Q #Hδ #Hdep".
         iDestruct (vertex_dependencies_elem_of with "Hdeps Hdep") as %Hδ.
         iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
         iDestruct (saved_prop_agree with "Hδ _Hδ") as "Heq".
@@ -592,15 +589,14 @@ Section vertex_G.
         }
         iSteps.
   Qed.
-  #[local] Lemma vertex_run_spec sched ctx vtx γ P :
+  #[local] Lemma vertex_run_spec ctx vtx γ P :
     {{{
-      scheduler_inv ws_hub sched ∗
-      scheduler_context ws_hub sched ctx ∗
+      scheduler_context ws_hub ctx ∗
       vertex_inv' vtx γ P ∗
       vertex_state₂ γ VertexRunning ∗
-      ( scheduler_context ws_hub sched ctx -∗
+      ( scheduler_context ws_hub ctx -∗
         WP γ.(vertex_meta_task) ctx {{ res,
-          scheduler_context ws_hub sched ctx ∗
+          scheduler_context ws_hub ctx ∗
           ▷ □ P
         }}
       )
@@ -608,13 +604,13 @@ Section vertex_G.
       vertex_run ws_hub ctx #vtx
     {{{
       RET ();
-      scheduler_context ws_hub sched ctx
+      scheduler_context ws_hub ctx
     }}}.
   Proof.
-    iLöb as "HLöb" forall (sched ctx vtx γ P).
+    iLöb as "HLöb" forall (ctx vtx γ P).
 
     setoid_rewrite vertex_inv'_unfold.
-    iIntros "%Φ (#Hsched & Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & Hstate₂ & Htask) HΦ".
+    iIntros "%Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & Hstate₂ & Htask) HΦ".
 
     wp_rec. wp_load.
     wp_apply (wp_wand with "(Htask Hctx)") as (res) "(Hctx & #HP)".
@@ -632,27 +628,24 @@ Section vertex_G.
     iIntros "!> H£ (Hctx & HΦ)". clear.
 
     iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-    wp_apply (clst_iter_spec (λ _, scheduler_context ws_hub sched ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+    wp_apply (clst_iter_spec (λ _, scheduler_context ws_hub ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
     rewrite big_sepL_fmap.
     iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
     wp_smart_apply (vertex_propagate_spec with "[$Hinv_succ $Hctx $Hπ $Hpred $HP]"); last iSteps.
-    iSplit; first iSteps.
-    iClear "Hsched". clear. iIntros "%sched %ctx #Hsched Hctx Hstate₂ Htask".
-    wp_apply ("HLöb" with "[$Hsched $Hctx $Hstate₂ $Htask]"); last iSteps.
+    clear. iIntros "%ctx Hctx Hstate₂ Htask".
+    wp_apply ("HLöb" with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
     rewrite -vertex_inv'_unfold //.
   Qed.
-  Lemma vertex_release_spec sched ctx t P task :
+  Lemma vertex_release_spec ctx t P task :
     {{{
-      scheduler_inv ws_hub sched ∗
-      scheduler_context ws_hub sched ctx ∗
+      scheduler_context ws_hub ctx ∗
       vertex_inv t P ∗
       vertex_init t task ∗
-      ( ∀ sched ctx,
-        scheduler_inv ws_hub sched -∗
-        scheduler_context ws_hub sched ctx -∗
+      ( ∀ ctx,
+        scheduler_context ws_hub ctx -∗
         (∀ Q, vertex_input t Q -∗ ▷ Q) -∗
         WP task ctx {{ res,
-          scheduler_context ws_hub sched ctx ∗
+          scheduler_context ws_hub ctx ∗
           ▷ □ P
         }}
       )
@@ -660,11 +653,11 @@ Section vertex_G.
       vertex_release ws_hub ctx t
     {{{
       RET ();
-      scheduler_context ws_hub sched ctx
+      scheduler_context ws_hub ctx
     }}}.
   Proof.
     rewrite /vertex_inv. setoid_rewrite vertex_inv'_unfold.
-    iIntros "%Φ (#Hsched & Hctx & (%vtx & %γ & -> & #Hmeta & #Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & (%_vtx & %_γ & %Heq & -> & _Hmeta & Hstate₂) & Htask) HΦ". injection Heq as <-.
+    iIntros "%Φ (Hctx & (%vtx & %γ & -> & #Hmeta & #Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & (%_vtx & %_γ & %Heq & -> & _Hmeta & Hstate₂) & Htask) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     iApply fupd_wp.
@@ -684,8 +677,8 @@ Section vertex_G.
       { iPureIntro. set_solver. }
       iStep. iSplitR.
       { rewrite size_union; first set_solver. rewrite size_singleton //. }
-      iClear "Hsched". clear. iIntros "!> !> %sched %ctx #Hsched Hctx H".
-      iApply (wp_wand with "(Htask Hsched Hctx [H])"); last iSteps.
+      clear. iIntros "!> !> %ctx Hctx H".
+      iApply (wp_wand with "(Htask Hctx [H])"); last iSteps.
       iIntros "%Q (%_vtx & %_γ & %δ & %Heq & _Hmeta & #Hδ & #Hdep_δ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iApply ("H" with "Hδ Hdep_δ").
@@ -694,10 +687,10 @@ Section vertex_G.
 
     wp_rec.
 
-    wp_smart_apply (vertex_propagate_spec with "[$Hsched $Hctx $Hπ $Hpred] HΦ").
+    wp_smart_apply (vertex_propagate_spec with "[$Hctx $Hπ $Hpred] HΦ").
     rewrite vertex_inv'_unfold. do 2 iStep.
-    iClear "Hsched". clear. iIntros "%sched %ctx Hsched Hctx Hstate₂ Htask".
-    wp_apply (vertex_run_spec with "[$Hsched $Hctx $Hstate₂ $Htask]"); last iSteps.
+    clear. iIntros "%ctx Hctx Hstate₂ Htask".
+    wp_apply (vertex_run_spec with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
     rewrite vertex_inv'_unfold. iSteps.
   Qed.
 End vertex_G.

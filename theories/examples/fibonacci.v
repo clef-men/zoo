@@ -62,61 +62,58 @@ Section scheduler_G.
         scheduler_await ws_hub "ctx" "fut1" + scheduler_await ws_hub "ctx" "fut2"
       ).
   Definition fibonacci : val :=
-    λ: "n" "ctx",
-      scheduler_run ws_hub "ctx" (λ: "ctx", fibonacci_aux "n" "ctx").
+    λ: "n" "sched",
+      scheduler_run ws_hub "sched" (λ: "ctx", fibonacci_aux "n" "ctx").
 
-  #[local] Lemma fibonacci_aux_spec n sched ctx :
+  #[local] Lemma fibonacci_aux_spec n ctx :
     (0 ≤ n)%Z →
     {{{
-      scheduler_inv ws_hub sched ∗
-      scheduler_context ws_hub sched ctx
+      scheduler_context ws_hub ctx
     }}}
       fibonacci_aux #n ctx
     {{{
       RET #(fib (Z.to_nat n));
-      scheduler_context ws_hub sched ctx
+      scheduler_context ws_hub ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).
 
-    iIntros "%Hn %Φ (#Hsched & Hctx) HΦ".
+    iIntros "%Hn %Φ Hctx HΦ".
 
     wp_rec. wp_pures.
     case_bool_decide as Hcase; wp_pures.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_smart_apply (scheduler_async_spec _ (λ v1, ⌜v1 = #_⌝)%I with "[$Hsched $Hctx]") as (fut1) "(Hctx & #Hfut1)".
+    - wp_smart_apply (scheduler_async_spec _ (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
       { clear ctx. iIntros "%ctx Hctx".
-        wp_smart_apply ("HLöb" with "[] [$Hsched $Hctx]"); iSteps.
+        wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (scheduler_async_spec _ (λ v2, ⌜v2 = #_⌝)%I with "[$Hsched $Hctx]") as (fut2) "(Hctx & #Hfut2)".
+      wp_smart_apply (scheduler_async_spec _ (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
       { clear ctx. iIntros "%ctx Hctx".
-        wp_smart_apply ("HLöb" with "[] [$Hsched $Hctx]"); iSteps.
+        wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (scheduler_await_spec with "[$Hsched $Hctx $Hfut2]") as (?) "(Hctx & ->)".
-      wp_smart_apply (scheduler_await_spec with "[$Hsched $Hctx $Hfut1]") as (?) "(Hctx & ->)".
+      wp_smart_apply (scheduler_await_spec with "[$Hctx $Hfut2]") as (?) "(Hctx & ->)".
+      wp_smart_apply (scheduler_await_spec with "[$Hctx $Hfut1]") as (?) "(Hctx & ->)".
       wp_pures.
       rewrite (fib_spec_Z n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma fibonacci_spec (n : nat) sched ctx :
+  Lemma fibonacci_spec (n : nat) sched :
     {{{
-      scheduler_inv ws_hub sched ∗
-      scheduler_context ws_hub sched ctx
+      scheduler_model ws_hub sched
     }}}
-      fibonacci #n ctx
+      fibonacci #n sched
     {{{
       RET #(fib n);
-      scheduler_context ws_hub sched ctx
+      scheduler_model ws_hub sched
     }}}.
   Proof.
-    iIntros "%Φ (#Hsched & Hctx) HΦ".
+    iIntros "%Φ Hsched HΦ".
     wp_rec.
-    wp_smart_apply (scheduler_run_spec _ (λ v, ⌜v = #_⌝)%I with "[$Hsched $Hctx]") as (?) "(Hctx & ->)"; last iSteps.
-    clear ctx. iIntros "%ctx Hctx".
-    wp_smart_apply (fibonacci_aux_spec with "[$Hsched $Hctx]"); first lia.
+    wp_smart_apply (scheduler_run_spec _ (λ v, ⌜v = #_⌝)%I with "[$Hsched]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
+    wp_smart_apply (fibonacci_aux_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.
 End scheduler_G.
