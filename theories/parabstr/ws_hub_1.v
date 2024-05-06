@@ -34,7 +34,7 @@ Implicit Types v t : val.
 Implicit Types vs : gmultiset val.
 
 #[local] Notation "'deques'" := (
-in_type "t" 0
+  in_type "t" 0
 )(in custom zebre_field
 ).
 #[local] Notation "'foreign'" := (
