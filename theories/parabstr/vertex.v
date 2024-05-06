@@ -63,10 +63,8 @@ Section ws_hub.
 
   #[local] Definition vertex_propagate : val :=
     λ: "ctx" "t" "run",
-      if: Faa "t".[preds] #(-1) = #1 then (
-        scheduler_async ws_hub "ctx" (λ: "ctx", "run" "ctx" "t") ;;
-        ()
-      ).
+      if: Faa "t".[preds] #(-1) = #1 then
+        scheduler_silent_async ws_hub "ctx" (λ: "ctx", "run" "ctx" "t").
   #[local] Definition vertex_run : val :=
     rec: "vertex_run" "ctx" "t" :=
       "t".{task} "ctx" ;;
@@ -572,7 +570,7 @@ Section vertex_G.
         iMod (vertex_dependencies_close with "Hdeps") as "#Hdeps".
         iModIntro. clear.
 
-        wp_smart_apply (scheduler_async_spec _ (λ _, True)%I with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
+        wp_smart_apply (scheduler_silent_async_spec with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
         clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
         wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
