@@ -147,6 +147,7 @@ Definition ws_deques_private_pop : val :=
     let: "responses" := "t".{responses} in
     match: array_unsafe_get "responses" "i" with
     | NoResponse =>
+        Yield ;;
         "ws_deques_private_steal_to_aux" "t" "i"
     | No =>
         §None
