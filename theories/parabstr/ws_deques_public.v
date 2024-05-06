@@ -35,8 +35,8 @@ Definition ws_deques_public_pop : val :=
     inf_ws_deque_pop (array_unsafe_get "t" "i").
 
 Definition ws_deques_public_steal_to : val :=
-  λ: "t" "i",
-    inf_ws_deque_steal (array_unsafe_get "t" "i").
+  λ: "t" "i" "j",
+    inf_ws_deque_steal (array_unsafe_get "t" "j").
 
 Class WsDequesPublicG Σ `{zebre_G : !ZebreG Σ} := {
   #[local] ws_deques_public_G_ws_deque_G :: InfWsDequeG Σ ;
@@ -247,32 +247,33 @@ Section ws_deques_public_G.
         rewrite !list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public_steal_to_spec t ι (sz : nat) i :
-    let i_ := Z.to_nat i in
+  Lemma ws_deques_public_steal_to_spec t ι (sz : nat) i j :
+    let j_ := Z.to_nat j in
     (0 ≤ i < sz)%Z →
+    (0 ≤ j < sz)%Z →
     <<<
       ws_deques_public_inv t ι sz
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_steal_to t #i @ ↑ι
+      ws_deques_public_steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i_ = Some []⌝ ∗
+          ⌜vss !! j_ = Some []⌝ ∗
           ws_deques_public_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i_ = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[i_ := vs]> vss)
+          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
+          ws_deques_public_model t (<[j_ := vs]> vss)
       end
     | RET o; True
     >>>.
   Proof.
-    iIntros "%i_ %Hi !> %Φ (%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) HΦ".
+    iIntros "%j_ %Hi %Hj !> %Φ (%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) HΦ".
     wp_rec.
-    destruct (lookup_lt_is_Some_2 deques i_) as (deque & Hdeque_lookup); first lia.
+    destruct (lookup_lt_is_Some_2 deques j_) as (deque & Hdeque_lookup); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "#Hdeque_inv"; first done.
     awp_apply (inf_ws_deque_steal_spec with "Hdeque_inv").

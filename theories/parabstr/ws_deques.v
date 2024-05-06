@@ -105,25 +105,26 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
       ws_deques_owner t i_
     >>> ;
 
-  ws_deques_steal_to_spec t ι (sz : nat) i :
-    let i_ := Z.to_nat i in
+  ws_deques_steal_to_spec t ι (sz : nat) i j :
+    let j_ := Z.to_nat j in
     (0 ≤ i < sz)%Z →
+    (0 ≤ j < sz)%Z →
     <<<
       ws_deques_inv t ι sz
     | ∀∀ vss,
       ws_deques_model t vss
     >>>
-      ws_deques_steal_to t #i @ ↑ι
+      ws_deques_steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i_ = Some []⌝ ∗
+          ⌜vss !! j_ = Some []⌝ ∗
           ws_deques_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i_ = Some (v :: vs)⌝ ∗
-          ws_deques_model t (<[i_ := vs]> vss)
+          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
+          ws_deques_model t (<[j_ := vs]> vss)
       end
     | RET o; True
     >>> ;
@@ -146,7 +147,7 @@ Section zebre_G.
         §None
       ) else (
         let: "j" := ("i" + #1 + random_round_next "round") `rem` "sz" in
-        match: ws_deques.(ws_deques_steal_to) "t" "j" with
+        match: ws_deques.(ws_deques_steal_to) "t" "i" "j" with
         | None =>
             "ws_deques_steal_as_aux" "t" "sz" "i" "round" ("n" - #1)
         |_ as "res" =>
@@ -195,7 +196,7 @@ Section zebre_G.
       pose k := (i + 1 + j) `mod` sz.
       assert ((i + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_smart_apply (ws_deques_steal_to_spec with "Ht_inv") without "Hround"; first lia.
+      awp_smart_apply (ws_deques_steal_to_spec with "Ht_inv") without "Hround"; [done | lia |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Ht_model".
       iAaccIntro with "Ht_model"; first iSteps. iIntros ([ v |]).
       + rewrite Nat2Z.id.

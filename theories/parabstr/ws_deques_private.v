@@ -303,25 +303,26 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_steal_to_spec t ι (sz : nat) i :
-    let i_ := Z.to_nat i in
+  Lemma ws_deques_private_steal_to_spec t ι (sz : nat) i j :
+    let j_ := Z.to_nat j in
     (0 ≤ i < sz)%Z →
+    (0 ≤ j < sz)%Z →
     <<<
       ws_deques_private_inv t ι sz
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
-      ws_deques_private_steal_to t #i @ ↑ι
+      ws_deques_private_steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! i_ = Some []⌝ ∗
+          ⌜vss !! j_ = Some []⌝ ∗
           ws_deques_private_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! i_ = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[i_ := vs]> vss)
+          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
+          ws_deques_private_model t (<[j_ := vs]> vss)
       end
     | RET o; True
     >>>.
