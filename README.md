@@ -1,7 +1,7 @@
 ## Synopsis
 
 This project is part of the [Iris Masterplan](https://julesjacobs.com/slides/iris-masterplan.pdf).
-It aims at verifying OCaml 5 programs, including lockfree algorithms from [Saturn](https://github.com/ocaml-multicore/saturn) and a work-stealing scheduler based on [Domainslib](https://github.com/ocaml-multicore/domainslib).
+It aims at verifying OCaml 5 programs, including lockfree algorithms from [Saturn](https://github.com/ocaml-multicore/saturn) and a [work-stealing scheduler](https://github.com/clef-men/parabstr) based on [Domainslib](https://github.com/ocaml-multicore/domainslib).
 
 ## Building
 
