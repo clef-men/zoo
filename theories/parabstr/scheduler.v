@@ -51,20 +51,15 @@ Section ws_deques.
     λ: "ctx" "task",
       "task" "ctx".
 
-  #[local] Definition scheduler_step : val :=
-    λ: "ctx",
-      match: ws_hub_pop_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
-      | Some "task" =>
-          scheduler_execute "ctx" "task" ;;
-          #true
-      | None =>
-          #false
-      end.
-
   #[local] Definition scheduler_worker : val :=
     rec: "scheduler_worker" "ctx" :=
-      if: scheduler_step "ctx" then
-        "scheduler_worker" "ctx".
+      match: ws_hub_pop_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
+      | None =>
+          ()
+      | Some "task" =>
+          scheduler_execute "ctx" "task" ;;
+          "scheduler_worker" "ctx"
+      end.
 
   Definition scheduler_create : val :=
     λ: "sz",
@@ -97,7 +92,12 @@ Section ws_deques.
       | Some "res" =>
           "res"
       | None =>
-          scheduler_step "ctx" ;;
+          match: ws_hub_pop_try_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
+          | None =>
+              ()
+          | Some "task" =>
+              scheduler_execute "ctx" "task"
+          end ;;
           "scheduler_await" "ctx" "fut"
       end.
 
@@ -192,44 +192,6 @@ Section scheduler_G.
     iSteps.
   Qed.
 
-  #[local] Lemma scheduler_step_spec ctx :
-    {{{
-      scheduler_context ctx
-    }}}
-      scheduler_step ws_hub ctx
-    {{{ not_killed,
-      RET #not_killed;
-      scheduler_context ctx
-    }}}.
-  Proof.
-    iIntros "%Φ (%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) HΦ".
-
-    wp_rec.
-
-    awp_smart_apply (ws_hub_pop_steal_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
-    iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
-    iAaccIntro with "Hhub_model"; first iSteps.
-    iIntros ([task |]) "Hhub_model !>"; last first.
-
-    - iSplitL; first iSteps.
-      iIntros "Hhub_owner HΦ". clear.
-
-      wp_pures.
-      iApply "HΦ".
-      iExists i. iSteps.
-
-    - iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
-      iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
-      rewrite big_sepMS_singleton.
-      iSplitR "Htask"; first iSteps.
-      iIntros "Hhub_owner HΦ". clear- scheduler_G.
-
-      wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
-      wp_pures.
-      iApply "HΦ".
-      iExists i. iSteps.
-  Qed.
-
   #[local] Lemma scheduler_worker_spec ctx :
     {{{
       scheduler_context ctx
@@ -239,13 +201,24 @@ Section scheduler_G.
       RET (); True
     }}}.
   Proof.
-    iIntros "%Φ Hctx HΦ".
+    iIntros "%Φ (%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec.
-    wp_apply (scheduler_step_spec with "Hctx") as ([]) "Hctx"; last iSteps.
-    wp_smart_apply ("HLöb" with "Hctx HΦ").
+
+    awp_smart_apply (ws_hub_pop_steal_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
+    iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
+    iAaccIntro with "Hhub_model"; first iSteps.
+    iIntros ([task |]) "Hhub_model !>"; last iSteps.
+    iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
+    iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
+    rewrite big_sepMS_singleton.
+    iSplitR "Htask"; first iSteps.
+    iIntros "Hhub_owner HΦ". clear- scheduler_G.
+
+    wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
+    wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
   Qed.
 
   Lemma scheduler_create_spec sz :
@@ -385,7 +358,7 @@ Section scheduler_G.
       Ψ v
     }}}.
   Proof.
-    iIntros "%Φ (Hctx & #Hfut_inv) HΦ".
+    iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & #Hfut_inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -393,10 +366,25 @@ Section scheduler_G.
     wp_smart_apply (spmc_future_try_get_spec with "Hfut_inv") as ([task |]) "HΨ".
 
     - wp_pures.
-      iApply ("HΦ" with "[$Hctx $HΨ]").
+      iApply ("HΦ" with "[Hhub_owner $HΨ]").
+      iExists i. iSteps.
 
-    - wp_smart_apply (scheduler_step_spec with "Hctx") as (not_killed) "Hctx".
-      wp_smart_apply ("HLöb" with "Hctx HΦ").
+    - wp_pures.
+      wp_bind (Match _ _ _ _).
+      wp_apply (wp_wand _ _ (λ res, ws_hub.(ws_hub_owner) hub i)%I with "[Hhub_owner]") as (res) "Hhub_owner".
+      { awp_smart_apply (ws_hub_pop_try_steal_spec with "[$Hhub_inv $Hhub_owner]"); [done | lia.. |].
+        iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
+        iAaccIntro with "Hhub_model"; first iSteps.
+        iIntros ([task |]) "Hhub_model !>"; last iSteps.
+        iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
+        iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
+        rewrite big_sepMS_singleton.
+        iSplitR "Htask"; first iSteps.
+        iIntros "Hhub_owner". clear.
+
+        wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask]") as (res) "($ & _)".
+      }
+      wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
   Qed.
 
   Lemma scheduler_kill_spec t :
