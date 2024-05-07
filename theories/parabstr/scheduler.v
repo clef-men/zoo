@@ -94,7 +94,7 @@ Section ws_deques.
       | None =>
           match: ws_hub_pop_try_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
           | None =>
-              ()
+              Yield
           | Some "task" =>
               scheduler_execute "ctx" "task"
           end ;;
