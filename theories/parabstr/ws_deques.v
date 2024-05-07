@@ -105,12 +105,13 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
       ws_deques_owner t i_
     >>> ;
 
-  ws_deques_steal_to_spec t ι (sz : nat) i j :
+  ws_deques_steal_to_spec t ι (sz : nat) i i_ j :
     let j_ := Z.to_nat j in
-    (0 ≤ i < sz)%Z →
+    i = Z.of_nat i_ →
     (0 ≤ j < sz)%Z →
     <<<
-      ws_deques_inv t ι sz
+      ws_deques_inv t ι sz ∗
+      ws_deques_owner t i_
     | ∀∀ vss,
       ws_deques_model t vss
     >>>
@@ -126,7 +127,8 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
           ⌜vss !! j_ = Some (v :: vs)⌝ ∗
           ws_deques_model t (<[j_ := vs]> vss)
       end
-    | RET o; True
+    | RET o;
+      ws_deques_owner t i_
     >>> ;
 }.
 #[global] Arguments ws_deques _ {_} : assert.
@@ -159,10 +161,11 @@ Section zebre_G.
       let: "sz" := ws_deques.(ws_deques_size) "t" in
       ws_deques_steal_as_aux "t" "sz" "i" "round" ("sz" - #1).
 
-  #[local] Lemma ws_deques_steal_as_aux_spec t ι (sz : nat) i round (n : nat) :
-    (0 ≤ i < sz)%Z →
+  #[local] Lemma ws_deques_steal_as_aux_spec t ι (sz : nat) i i_ round (n : nat) :
+    i = Z.of_nat i_ →
     <<<
       ws_deques.(ws_deques_inv) t ι sz ∗
+      ws_deques.(ws_deques_owner) t i_ ∗
       random_round_model' round (sz - 1) n
     | ∀∀ vss,
       ws_deques.(ws_deques_model) t vss
@@ -180,41 +183,45 @@ Section zebre_G.
           ws_deques.(ws_deques_model) t (<[j := vs]> vss)
       end
     | RET o;
-      ∃ n',
-      random_round_model' round (sz - 1) n'
+      ∃ n,
+      ws_deques.(ws_deques_owner) t i_ ∗
+      random_round_model' round (sz - 1) n
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ (#Ht_inv & Hround) HΦ".
+    iIntros (->) "!> %Φ (#Hinv & Howner & Hround) HΦ".
+    iDestruct (ws_deques_owner_valid with "Hinv Howner") as %Hi.
     iLöb as "HLöb" forall (n).
     wp_rec. wp_pures.
     case_bool_decide as Hcase; wp_pures.
-    - iMod "HΦ" as "(%vss & Ht_model & _ & HΦ)".
-      iApply ("HΦ" $! None with "Ht_model [Hround]"); first iSteps.
+    - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
+      iApply ("HΦ" $! None with "Hmodel [$Howner Hround]"); first iSteps.
     - wp_apply (random_round_next_spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
       wp_pures.
-      Z_to_nat i. rewrite Nat2Z.id.
-      pose k := (i + 1 + j) `mod` sz.
-      assert ((i + 1 + j) `rem` sz = k)%Z as ->.
+      rewrite Nat2Z.id.
+      pose k := (i_ + 1 + j) `mod` sz.
+      assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_smart_apply (ws_deques_steal_to_spec with "Ht_inv") without "Hround"; [done | lia |].
-      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Ht_model".
-      iAaccIntro with "Ht_model"; first iSteps. iIntros ([ v |]).
+      awp_smart_apply (ws_deques_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
+      iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
       + rewrite Nat2Z.id.
-        iSteps as (vs Hlookup) "Ht_model". iExists (Some v). iSteps. iExists k. iSteps. iPureIntro.
+        iSteps as (vs Hlookup) "Hmodel". iExists (Some v). iSteps. iExists k. iSteps. iPureIntro.
         clear Hlookup. rewrite {}/k.
-        destruct (decide (i + 1 + j < sz)).
+        destruct (decide (i_ + 1 + j < sz)).
         * rewrite Nat.mod_small //. lia.
-        * assert (i + 1 + j < sz * 2) as ?%Nat.div_lt_upper_bound by lia; last lia.
-          assert ((i + 1 + j) `div` sz = 1) by lia.
+        * assert (i_ + 1 + j < sz * 2) as ?%Nat.div_lt_upper_bound by lia; last lia.
+          assert ((i_ + 1 + j) `div` sz = 1) by lia.
           lia.
-      + iSteps as (_) "HΦ Hround".
+      + iSteps as (_) "HΦ Howner Hround".
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
-        wp_apply ("HLöb" with "Hround HΦ").
+        iSteps.
   Qed.
-  Lemma ws_deques_steal_as_spec t ι (sz : nat) i round :
-    (0 ≤ i < sz)%Z →
+  Lemma ws_deques_steal_as_spec t ι sz i i_ round :
+    i = Z.of_nat i_ →
+    0 < sz →
     <<<
       ws_deques.(ws_deques_inv) t ι sz ∗
+      ws_deques.(ws_deques_owner) t i_ ∗
       random_round_model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
       ws_deques.(ws_deques_model) t vss
@@ -232,16 +239,17 @@ Section zebre_G.
           ws_deques.(ws_deques_model) t (<[j := vs]> vss)
       end
     | RET o;
-      ∃ n',
-      random_round_model' round (sz - 1) n'
+      ∃ n,
+      ws_deques.(ws_deques_owner) t i_ ∗
+      random_round_model' round (sz - 1) n
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ (#Ht_inv & Hround) HΦ".
+    iIntros (->) "%Hsz !> %Φ (#Hinv & Hround) HΦ".
     wp_rec.
-    wp_smart_apply (ws_deques_size_spec with "Ht_inv") as "_".
+    wp_smart_apply (ws_deques_size_spec with "Hinv") as "_".
     wp_pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp_apply (ws_deques_steal_as_aux_spec with "[$Ht_inv $Hround] HΦ"); first done.
+    wp_apply (ws_deques_steal_as_aux_spec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
 End zebre_G.
 

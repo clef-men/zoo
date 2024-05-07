@@ -687,7 +687,7 @@ Section ws_hub_1_G.
     wp_load.
 
     iDestruct (ws_deques_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
-    awp_apply (ws_deques_steal_as_spec with "[$Hdeques_inv $Hround]") without "Hdeques_owner"; first lia.
+    awp_apply (ws_deques_steal_as_spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
     iInv "Hinv" as "(%vs & %vss & %vs_foreign & %killed & >%Hvs & Hl_killed & >Hdeques_model & Hforeign_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
