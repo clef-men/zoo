@@ -6,11 +6,11 @@ From zebre.iris.base_logic Require Import
 From zebre.language Require Import
   notations
   diaframe.
+From zebre.std Require Export
+  base.
 From zebre.std Require Import
   opt
   condition.
-From zebre.std Require Export
-  base.
 From zebre Require Import
   options.
 

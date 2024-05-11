@@ -8,6 +8,7 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Import
+  opt
   array
   deque.
 From zebre.parabstr Require Export

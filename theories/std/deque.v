@@ -4,6 +4,8 @@ From zebre.language Require Import
   notations
   diaframe.
 From zebre.std Require Export
+  base.
+From zebre.std Require Import
   opt.
 From zebre Require Import
   options.

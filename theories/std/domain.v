@@ -6,8 +6,6 @@ From zebre.language Require Import
 From zebre.std Require Export
   base.
 From zebre.std Require Import
-  opt.
-From zebre.std Require Import
   spsc_future.
 From zebre Require Import
   options.
