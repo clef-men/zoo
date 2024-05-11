@@ -25,7 +25,7 @@ Parameter array_cas : val.
   in_type "request" 0
 )(in custom zebre_tag
 ).
-#[local] Notation "'NoRequest'" := (
+#[local] Notation "'No_request'" := (
   in_type "request" 1
 )(in custom zebre_tag
 ).
@@ -34,7 +34,7 @@ Parameter array_cas : val.
 )(in custom zebre_tag
 ).
 
-#[local] Notation "'NoResponse'" := (
+#[local] Notation "'No_response'" := (
   in_type "response" 0
 )(in custom zebre_tag
 ).
@@ -69,7 +69,7 @@ Definition ws_deques_private_create : val :=
     { array_init "sz" deque_create;
       array_make "sz" #false;
       array_make "sz" §Blocked;
-      array_make "sz" §NoResponse
+      array_make "sz" §No_response
     }.
 
 Definition ws_deques_private_size : val :=
@@ -87,8 +87,8 @@ Definition ws_deques_private_size : val :=
     match: array_unsafe_get "requests" "i" with
     | Blocked =>
         ()
-    | NoRequest =>
-        ifnot: array_cas "requests" "i" §NoRequest §Blocked then
+    | No_request =>
+        ifnot: array_cas "requests" "i" §No_request §Blocked then
           match: array_unsafe_get "requests" "i" with
           | Request "j" =>
               ws_deques_private_block_aux "t" "i" "j"
@@ -101,7 +101,7 @@ Definition ws_deques_private_size : val :=
 
 #[local] Definition ws_deques_private_unblock : val :=
   λ: "t" "i",
-    array_unsafe_set "t".{requests} "i" §NoRequest ;;
+    array_unsafe_set "t".{requests} "i" §No_request ;;
     array_unsafe_set "t".{flags} "i" "true".
 
 #[local] Definition ws_deques_private_respond : val :=
@@ -112,7 +112,7 @@ Definition ws_deques_private_size : val :=
     | Request "j" =>
         let: ‘Some "v" := deque_pop_front "deque" in
         array_unsafe_set "t".{responses} "j" ‘Yes{ "v" } ;;
-        array_unsafe_set "requests" "i" (if: deque_is_empty "deque" then §Blocked else §NoRequest)
+        array_unsafe_set "requests" "i" (if: deque_is_empty "deque" then §Blocked else §No_request)
     |_ =>
         ()
     end.
@@ -146,18 +146,18 @@ Definition ws_deques_private_pop : val :=
   rec: "ws_deques_private_steal_to_aux" "t" "i" :=
     let: "responses" := "t".{responses} in
     match: array_unsafe_get "responses" "i" with
-    | NoResponse =>
+    | No_response =>
         Yield ;;
         "ws_deques_private_steal_to_aux" "t" "i"
     | No =>
         §None
     | Yes "v" =>
-        array_unsafe_set "responses" "i" §NoResponse ;;
+        array_unsafe_set "responses" "i" §No_response ;;
         ‘Some{ "v" }
     end.
 Definition ws_deques_private_steal_to : val :=
   λ: "t" "i" "j",
-    if: array_unsafe_get "t".{flags} "j" and array_cas "t".{requests} "j" §NoRequest ‘Request{ "i" } then (
+    if: array_unsafe_get "t".{flags} "j" and array_cas "t".{requests} "j" §No_request ‘Request{ "i" } then (
       ws_deques_private_steal_to_aux "t" "i"
     ) else (
       §None

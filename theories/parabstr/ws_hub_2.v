@@ -139,9 +139,9 @@ Section ws_deques.
 
   #[local] Definition ws_hub_2_try_steal_aux yield : val :=
     rec: "ws_hub_2_try_steal_aux" "t" "i" "max_round" :=
-      if: "max_round" ≤ #0 then (
+      if: "max_round" ≤ #0 then
         §None
-      ) else (
+      else
         match: ws_hub_2_pop_foreign "t" with
         | Some <> as "res" =>
             "res"
@@ -153,8 +153,7 @@ Section ws_deques.
                 (if yield then Yield else ()) ;;
                 "ws_hub_2_try_steal_aux" "t" "i" ("max_round" - #1)
             end
-        end
-      ).
+        end.
   Definition ws_hub_2_try_steal : val :=
     λ: "t" "i" "max_round",
       match: ws_hub_2_try_steal_aux false "t" "i" "max_round".<0> with
