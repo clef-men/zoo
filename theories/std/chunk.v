@@ -121,6 +121,13 @@ Definition chunk_cset : val :=
   λ: "t" "sz" "i" "v",
     "t" +ₗ "i" `rem` "sz" <- "v".
 
+Definition chunk_cblit : val :=
+  rec: "chunk_cblit" "t1" "sz1" "i1" "t2" "sz2" "i2" "n" :=
+    if: #0 < "n" then (
+      chunk_cset "t2" "sz2" "i2" (chunk_cget "t1" "sz1" "i1") ;;
+      "chunk_cblit" "t1" "sz1" (#1 + "i1") "t2" "sz2" (#1 + "i2") ("n" - #1)
+    ).
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -3171,37 +3178,37 @@ Section zebre_G.
     erewrite drop_S; done.
   Qed.
 
-  Lemma chunk_cget_spec_atomic l (sz_ i_ : Z) :
+  Lemma chunk_cget_spec_atomic l (sz i : Z) :
     <<<
       True
-    | ∀∀ sz i dq v,
-      ⌜sz_ = Z.of_nat sz ∧ i_ = Z.of_nat i⌝ ∗
-      chunk_cslice l sz i dq [v]
+    | ∀∀ sz_ i_ dq v,
+      ⌜sz = Z.of_nat sz_ ∧ i = Z.of_nat i_⌝ ∗
+      chunk_cslice l sz_ i_ dq [v]
     >>>
-      chunk_cget #l #sz_ #i_
+      chunk_cget #l #sz #i
     <<<
-      chunk_cslice l sz i dq [v]
+      chunk_cslice l sz_ i_ dq [v]
     | RET v; £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
     wp_rec. wp_pures credit:"H£".
-    iMod "HΦ" as "(%sz & %i & %dq & %v & ((-> & ->) & Hcslice) & _ & HΦ)".
+    iMod "HΦ" as "(%sz_ & %i_ & %dq & %v & ((-> & ->) & Hcslice) & _ & HΦ)".
     rewrite -chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_load.
     iMod ("HΦ" with "Hcslice") as "HΦ".
     iSteps.
   Qed.
-  Lemma chunk_cget_spec l sz i dq v (sz_ i_ : Z) :
-    sz_ = Z.of_nat sz →
-    i_ = Z.of_nat i →
+  Lemma chunk_cget_spec l sz sz_ (i : Z) i_ dq v :
+    sz = Z.of_nat sz_ →
+    i = Z.of_nat i_ →
     {{{
-      chunk_cslice l sz i dq [v]
+      chunk_cslice l sz_ i_ dq [v]
     }}}
-      chunk_cget #l #sz_ #i_
+      chunk_cget #l #sz #i
     {{{
       RET v;
-      chunk_cslice l sz i dq [v]
+      chunk_cslice l sz_ i_ dq [v]
     }}}.
   Proof.
     iIntros (-> ->) "%Φ Hcslice HΦ".
@@ -3215,37 +3222,37 @@ Section zebre_G.
     iApply ("HΦ" with "Hslice").
   Qed.
 
-  Lemma chunk_cset_spec_atomic l (sz_ i_ : Z) v :
+  Lemma chunk_cset_spec_atomic l (sz i : Z) v :
     <<<
       True
-    | ∀∀ sz i w,
-      ⌜sz_ = Z.of_nat sz ∧ i_ = Z.of_nat i⌝ ∗
-      chunk_cslice l sz i (DfracOwn 1) [w]
+    | ∀∀ sz_ i_ w,
+      ⌜sz = Z.of_nat sz_ ∧ i = Z.of_nat i_⌝ ∗
+      chunk_cslice l sz_ i_ (DfracOwn 1) [w]
     >>>
-      chunk_cset #l #sz_ #i_ v
+      chunk_cset #l #sz #i v
     <<<
-      chunk_cslice l sz i (DfracOwn 1) [v]
+      chunk_cslice l sz_ i_ (DfracOwn 1) [v]
     | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
     wp_rec. wp_pures credit:"H£".
-    iMod "HΦ" as "(%sz & %i & %w & ((-> & ->) & Hcslice) & _ & HΦ)".
+    iMod "HΦ" as "(%sz_ & %i_ & %w & ((-> & ->) & Hcslice) & _ & HΦ)".
     rewrite -!chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_store.
     iMod ("HΦ" with "Hcslice") as "HΦ".
     iSteps.
   Qed.
-  Lemma chunk_cset_spec l sz i w (sz_ i_ : Z) v :
-    sz_ = Z.of_nat sz →
-    i_ = Z.of_nat i →
+  Lemma chunk_cset_spec l sz sz_ (i : Z) i_ w v :
+    sz = Z.of_nat sz_ →
+    i = Z.of_nat i_ →
     {{{
-      chunk_cslice l sz i (DfracOwn 1) [w]
+      chunk_cslice l sz_ i_ (DfracOwn 1) [w]
     }}}
-      chunk_cset #l #sz_ #i_ v
+      chunk_cset #l #sz #i v
     {{{
       RET ();
-      chunk_cslice l sz i (DfracOwn 1) [v]
+      chunk_cslice l sz_ i_ (DfracOwn 1) [v]
     }}}.
   Proof.
     iIntros (-> ->) "%Φ Hcslice HΦ".
@@ -3259,7 +3266,44 @@ Section zebre_G.
     iApply ("HΦ" with "Hslice").
   Qed.
 
-  Definition itype_chunk τ `{!iType _ τ} (sz : nat) l : iProp Σ :=
+  Lemma chunk_cblit_spec l1 sz1 sz1_ (i1 : Z) i1_ dq1 vs1 l2 sz2 sz2_ (i2 : Z) i2_ vs2 (n : Z) :
+    let n_ := Z.to_nat n in
+    sz1 = Z.of_nat sz1_ →
+    i1 = Z.of_nat i1_ →
+    sz2 = Z.of_nat sz2_ →
+    i2 = Z.of_nat i2_ →
+    (0 ≤ n ≤ length vs1 ≤ length vs2)%Z →
+    {{{
+      chunk_cslice l1 sz1_ i1_ dq1 vs1 ∗
+      chunk_cslice l2 sz2_ i2_ (DfracOwn 1) vs2
+    }}}
+      chunk_cblit #l1 #sz1 #i1 #l2 #sz2 #i2 #n
+    {{{
+      RET ();
+      chunk_cslice l1 sz1_ i1_ dq1 vs1 ∗
+      chunk_cslice l2 sz2_ i2_ (DfracOwn 1) (take n_ vs1 ++ drop n_ vs2)
+    }}}.
+  Proof.
+    rewrite /1 => -> + ->.
+    remember (Z.to_nat n) as n_ eqn:Hn_.
+    iInduction n_ as [| n_] "IH" forall (i1 i1_ vs1 i2 i2_ vs2 n Hn_).
+    all: iIntros (-> ->) "%Hn %Φ (Hcslice1 & Hcslice2) HΦ".
+    all: wp_rec; wp_pures.
+    1: iSteps.
+    rewrite bool_decide_eq_true_2; first lia. wp_pures.
+    destruct vs1 as [| v1 vs1]; first naive_solver lia.
+    destruct vs2 as [| v2 vs2]; first naive_solver lia.
+    iDestruct (chunk_cslice_app_2 [_] with "Hcslice1") as "(Hcslice11 & Hcslice12)"; first done.
+    iDestruct (chunk_cslice_app_2 [_] with "Hcslice2") as "(Hcslice21 & Hcslice22)"; first done.
+    wp_apply (chunk_cget_spec with "Hcslice11") as "Hcslice11"; [done.. |].
+    wp_apply (chunk_cset_spec with "Hcslice21") as "Hcslice21"; [done.. |].
+    wp_smart_apply ("IH" with "[] [] [] [] [$Hcslice12 $Hcslice22]") as "(Hcslice12 & Hcslice22)"; [iPureIntro; naive_solver lia.. |].
+    iDestruct (chunk_cslice_app_1 with "Hcslice11 Hcslice12") as "Hcslice1"; first done.
+    iDestruct (chunk_cslice_app_1 with "Hcslice21 Hcslice22") as "Hcslice2"; first done.
+    iSteps.
+  Qed.
+
+  Definition itype_chunk τ `{!iType _ τ} sz l : iProp Σ :=
     inv nroot (
       ∃ vs,
       ⌜sz = length vs⌝ ∗
@@ -3839,11 +3883,12 @@ Section zebre_G.
       iExists (<[i := v]> vs). iSteps. rewrite insert_length //.
   Qed.
 
-  Lemma chunk_cget_type τ `{!iType _ τ} (sz : nat) l (i : Z) :
-    0 < sz →
+  Lemma chunk_cget_type τ `{!iType _ τ} sz sz_ l (i : Z) :
+    sz = Z.of_nat sz_ →
+    (0 < sz)%Z →
     (0 ≤ i)%Z →
     {{{
-      itype_chunk τ sz l
+      itype_chunk τ sz_ l
     }}}
       chunk_cget #l #sz #i
     {{{ v,
@@ -3851,22 +3896,23 @@ Section zebre_G.
       τ v
     }}}.
   Proof.
-    iIntros "%Hsz %Hi %Φ #Hl HΦ".
+    iIntros (->) "%Hsz %Hi %Φ #Hl HΦ".
     Z_to_nat i.
     wp_rec. wp_pures.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & #Hvs)".
-    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
-    iDestruct (chunk_model_lookup_acc (i `rem` sz) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
+    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz_)); first lia.
+    iDestruct (chunk_model_lookup_acc (i `rem` sz_) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
     wp_load.
     iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
     iSteps.
   Qed.
 
-  Lemma chunk_cset_type τ `{!iType _ τ} (sz : nat) l (i : Z) v :
-    0 < sz →
+  Lemma chunk_cset_type τ `{!iType _ τ} sz sz_ l (i : Z) v :
+    sz = Z.of_nat sz_ →
+    (0 < sz)%Z →
     (0 ≤ i)%Z →
     {{{
-      itype_chunk τ sz l ∗
+      itype_chunk τ sz_ l ∗
       τ v
     }}}
       chunk_cset #l #sz #i v
@@ -3874,16 +3920,44 @@ Section zebre_G.
       RET (); True
     }}}.
   Proof.
-    iIntros "%Hsz %Hi %Φ (#Hl & #Hv) HΦ".
+    iIntros (->) "%Hsz %Hi %Φ (#Hl & #Hv) HΦ".
     Z_to_nat i.
     wp_rec. wp_pures.
     iInv "Hl" as "(%vs & >%Hvs & Hmodel & Hvs)".
-    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz)); first lia.
-    iDestruct (chunk_model_update (i `rem` sz) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
+    opose proof* (list_lookup_lookup_total_lt vs (i `mod` sz_)); first lia.
+    iDestruct (chunk_model_update (i `rem` sz_) with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | rewrite Z_rem_mod; lia |].
     wp_store.
     iDestruct (big_sepL_insert_acc with "Hvs") as "(_ & Hvs)"; first done.
-    iModIntro. iSplitR "HΦ"; last iSteps. iExists (<[i `mod` sz := v]> vs).
+    iModIntro. iSplitR "HΦ"; last iSteps. iExists (<[i `mod` sz_ := v]> vs).
     iSteps. rewrite insert_length //.
+  Qed.
+
+  Lemma chunk_cblit_type τ `{!iType _ τ} l1 sz1 sz1_ (i1 : Z) l2 sz2 sz2_ (i2 : Z) (n : Z) :
+    sz1 = Z.of_nat sz1_ →
+    sz2 = Z.of_nat sz2_ →
+    (0 < sz1)%Z →
+    (0 < sz2)%Z →
+    (0 ≤ i1)%Z →
+    (0 ≤ i2)%Z →
+    {{{
+      itype_chunk τ sz1_ l1 ∗
+      itype_chunk τ sz2_ l2
+    }}}
+      chunk_cblit #l1 #sz1 #i1 #l2 #sz2 #i2 #n
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    intros -> -> Hsz1 Hsz2.
+    remember (Z.to_nat n) as n_ eqn:Hn_.
+    iInduction n_ as [| n_] "IH" forall (i1 i2 n Hn_).
+    all: iIntros "%Hi1 %Hi2 %Φ (#Hl1 & #Hl2) HΦ".
+    all: wp_rec; wp_pures.
+    1: iSteps.
+    rewrite bool_decide_eq_true_2; first lia. wp_pures.
+    wp_apply (chunk_cget_type with "Hl1") as (v1) "Hv"; [done.. |].
+    wp_apply (chunk_cset_type with "[$Hl2 $Hv]") as "_"; [done.. |].
+    wp_smart_apply ("IH" with "[] [] [] [$Hl1 $Hl2] HΦ"); iSteps.
   Qed.
 End zebre_G.
 
@@ -3908,6 +3982,7 @@ End zebre_G.
 #[global] Opaque chunk_fill.
 #[global] Opaque chunk_cget.
 #[global] Opaque chunk_cset.
+#[global] Opaque chunk_cblit.
 
 #[global] Opaque chunk_model.
 #[global] Opaque chunk_span.

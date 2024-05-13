@@ -154,6 +154,14 @@ Definition array_cset : val :=
   λ: "t" "i" "v",
     chunk_cset (array_data "t") (array_size "t") "i" "v".
 
+Definition array_cblit : val :=
+  λ: "t1" "i1" "t2" "i2" "n",
+    chunk_cblit (array_data "t1") (array_size "t1") "i1" (array_data "t2") (array_size "t2") "i2" "n".
+
+Definition array_ccopy : val :=
+  λ: "t1" "i1" "t2" "i2",
+    array_cblit "t1" "i1" "t2" "i2" (array_size "t1").
+
 Section zebre_G.
   Context `{zebre_G : !ZebreG Σ}.
 
@@ -2889,37 +2897,37 @@ Section zebre_G.
     rewrite Nat2Z.id -{1}(replicate_length (length vs) v) //.
   Qed.
 
-  Lemma array_cget_spec_atomic t (i_ : Z) :
+  Lemma array_cget_spec_atomic t (i : Z) :
     <<<
       True
-    | ∀∀ sz i dq v,
-      ⌜i_ = Z.of_nat i⌝ ∗
-      array_cslice t sz i dq [v]
+    | ∀∀ sz i_ dq v,
+      ⌜i = Z.of_nat i_⌝ ∗
+      array_cslice t sz i_ dq [v]
     >>>
-      array_cget t #i_
+      array_cget t #i
     <<<
-      array_cslice t sz i dq [v]
+      array_cslice t sz i_ dq [v]
     | RET v; £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
     wp_rec.
     awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
-    iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i %dq %v (-> & Hcslice)".
+    iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i_ %dq %v (-> & Hcslice)".
     iAaccIntro with "Hcslice"; first iSteps. iSteps as (l) "Hsz HΦ H£". clear.
     awp_apply (chunk_cget_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iSteps as (i l dq v) "Hsz Hcslice".
     rewrite /atomic_acc /=. iSteps.
   Qed.
-  Lemma array_cget_spec t sz i dq v (i_ : Z) :
-    i_ = Z.of_nat i →
+  Lemma array_cget_spec t sz (i : Z) i_ dq v :
+    i = Z.of_nat i_ →
     {{{
-      array_cslice t sz i dq [v]
+      array_cslice t sz i_ dq [v]
     }}}
-      array_cget t #i_
+      array_cget t #i
     {{{
       RET v;
-      array_cslice t sz i dq [v]
+      array_cslice t sz i_ dq [v]
     }}}.
   Proof.
     iIntros (->) "%Φ Hcslice HΦ".
@@ -2933,37 +2941,37 @@ Section zebre_G.
     iApply ("HΦ" with "Hcslice").
   Qed.
 
-  Lemma array_cset_spec_atomic t (i_ : Z) v :
+  Lemma array_cset_spec_atomic t (i : Z) v :
     <<<
       True
-    | ∀∀ sz i w,
-      ⌜i_ = Z.of_nat i⌝ ∗
-      array_cslice t sz i (DfracOwn 1) [w]
+    | ∀∀ sz i_ w,
+      ⌜i = Z.of_nat i_⌝ ∗
+      array_cslice t sz i_ (DfracOwn 1) [w]
     >>>
-      array_cset t #i_ v
+      array_cset t #i v
     <<<
-      array_cslice t sz i (DfracOwn 1) [v]
+      array_cslice t sz i_ (DfracOwn 1) [v]
     | RET (); £ 1
     >>>.
   Proof.
     iIntros "!> %Φ _ HΦ".
     wp_rec.
     awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
-    iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i %w (-> & Hcslice)".
+    iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i_ %w (-> & Hcslice)".
     iAaccIntro with "Hcslice"; first iSteps. iSteps as (l) "Hsz HΦ H£". clear.
     awp_apply (chunk_cset_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iSteps as (i l w) "Hsz Hcslice".
     rewrite /atomic_acc /=. iSteps.
   Qed.
-  Lemma array_cset_spec t sz i w (i_ : Z) v :
-    i_ = Z.of_nat i →
+  Lemma array_cset_spec t sz (i : Z) i_ w v :
+    i = Z.of_nat i_ →
     {{{
-      array_cslice t sz i (DfracOwn 1) [w]
+      array_cslice t sz i_ (DfracOwn 1) [w]
     }}}
-      array_cset t #i_ v
+      array_cset t #i v
     {{{
       RET ();
-      array_cslice t sz i (DfracOwn 1) [v]
+      array_cslice t sz i_ (DfracOwn 1) [v]
     }}}.
   Proof.
     iIntros (->) "%Φ Hcslice HΦ".
@@ -2975,6 +2983,51 @@ Section zebre_G.
     iIntros "Hcslice". iMod "Hclose" as "_". iIntros "!> H£ HΦ".
     iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iApply ("HΦ" with "Hcslice").
+  Qed.
+
+  Lemma array_cblit_spec t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
+    let n_ := Z.to_nat n in
+    i1 = Z.of_nat i1_ →
+    i2 = Z.of_nat i2_ →
+    (0 ≤ n ≤ length vs1 ≤ length vs2)%Z →
+    {{{
+      array_cslice t1 sz1 i1_ dq1 vs1 ∗
+      array_cslice t2 sz2 i2_ (DfracOwn 1) vs2
+    }}}
+      array_cblit t1 #i1 t2 #i2 #n
+    {{{
+      RET ();
+      array_cslice t1 sz1 i1_ dq1 vs1 ∗
+      array_cslice t2 sz2 i2_ (DfracOwn 1) (take n_ vs1 ++ drop n_ vs2)
+    }}}.
+  Proof.
+    iIntros (n_ -> -> Hn) "%Φ ((%l1 & -> & #Hsz1 & Hcslice1) & (%l2 & -> & #Hsz2 & Hcslice2)) HΦ".
+    wp_rec. rewrite /array_size /array_data. do 2 wp_load.
+    wp_smart_apply (chunk_cblit_spec with "[$Hcslice1 $Hcslice2]"); [done.. |].
+    iSteps.
+  Qed.
+
+  Lemma array_ccopy_spec t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 :
+    i1 = Z.of_nat i1_ →
+    i2 = Z.of_nat i2_ →
+    length vs1 = sz1 →
+    sz1 ≤ length vs2 →
+    {{{
+      array_cslice t1 sz1 i1_ dq1 vs1 ∗
+      array_cslice t2 sz2 i2_ (DfracOwn 1) vs2
+    }}}
+      array_ccopy t1 #i1 t2 #i2
+    {{{
+      RET ();
+      array_cslice t1 sz1 i1_ dq1 vs1 ∗
+      array_cslice t2 sz2 i2_ (DfracOwn 1) (vs1 ++ drop (length vs1) vs2)
+    }}}.
+  Proof.
+    iIntros (-> -> Hvs1 Hsz1) "%Φ (Hcslice1 & Hcslice2) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
+    wp_apply (array_cblit_spec with "[$Hcslice1 $Hcslice2]"); [lia.. |].
+    rewrite Nat2Z.id -Hvs1 firstn_all. iSteps.
   Qed.
 
   Definition itype_array τ `{!iType _ τ} (sz : nat) t : iProp Σ :=
@@ -3496,7 +3549,70 @@ Section zebre_G.
     wp_rec.
     wp_smart_apply (array_size_type with "Ht") as "_".
     wp_smart_apply (array_data_type with "Ht") as "%data #Hdata".
-    wp_smart_apply (chunk_cget_type with "Hdata"); [done.. |].
+    wp_smart_apply (chunk_cget_type with "Hdata HΦ"); lia.
+  Qed.
+
+  Lemma array_cset_type τ `{!iType _ τ} t sz (i : Z) v :
+    0 < sz →
+    (0 ≤ i)%Z →
+    {{{
+      itype_array τ sz t ∗
+      τ v
+    }}}
+      array_cset t #i v
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Hsz %Hi %Φ (#Ht & #Hv) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht") as "_".
+    wp_smart_apply (array_data_type with "Ht") as "%data #Hdata".
+    wp_smart_apply (chunk_cset_type with "[$Hdata $Hv] HΦ"); lia.
+  Qed.
+
+  Lemma array_cblit_type τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 : Z) (n : Z) :
+    0 < sz1 →
+    0 < sz2 →
+    (0 ≤ i1)%Z →
+    (0 ≤ i2)%Z →
+    {{{
+      itype_array τ sz1 t1 ∗
+      itype_array τ sz2 t2
+    }}}
+      array_cblit t1 #i1 t2 #i2 #n
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Hsz1 %Hsz2 %Hi1 %Hi2 %Φ (#Ht1 & #Ht2) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht2") as "_".
+    wp_apply (array_data_type with "Ht2") as (l2) "#Hl2".
+    wp_smart_apply (array_size_type with "Ht1") as "_".
+    wp_apply (array_data_type with "Ht1") as (l1) "#Hl1".
+    wp_apply chunk_cblit_type; [naive_solver lia.. | iSteps |].
+    iSteps.
+  Qed.
+
+  Lemma array_ccopy_type τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 : Z) :
+    0 < sz1 →
+    0 < sz2 →
+    (0 ≤ i1)%Z →
+    (0 ≤ i2)%Z →
+    {{{
+      itype_array τ sz1 t1 ∗
+      itype_array τ sz2 t2
+    }}}
+      array_ccopy t1 #i1 t2 #i2
+    {{{
+      RET (); True
+    }}}.
+  Proof.
+    iIntros "%Hsz1 %Hsz2 %Hi1 %Hi2 %Φ (#Ht1 & #Ht2) HΦ".
+    wp_rec.
+    wp_smart_apply (array_size_type with "Ht1") as "_".
+    wp_apply (array_cblit_type _ _ sz1 _ _ sz2); [done.. | iFrame "#∗" |].
     iSteps.
   Qed.
 End zebre_G.
@@ -3528,6 +3644,8 @@ End zebre_G.
 #[global] Opaque array_fill.
 #[global] Opaque array_cget.
 #[global] Opaque array_cset.
+#[global] Opaque array_cblit.
+#[global] Opaque array_ccopy.
 
 #[global] Opaque array_inv.
 #[global] Opaque array_slice.
