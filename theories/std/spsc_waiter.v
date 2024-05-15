@@ -38,7 +38,9 @@ Definition spsc_waiter_create : val :=
 
 Definition spsc_waiter_notify : val :=
   λ: "t",
-    "t" <-{flag} #true ;;
+    mutex_protect "t".{mutex} (λ: <>,
+      "t" <-{flag} #true
+    ) ;;
     condition_notify "t".{condition}.
 
 Definition spsc_waiter_try_wait : val :=
@@ -253,22 +255,25 @@ Section spsc_waiter_G.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HP) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
-    wp_rec.
-    wp_pures.
-
-    wp_bind (_ <- _)%E.
-    iInv "Hinv" as "(%b & Hflag & Hb)".
-    wp_store.
-    destruct b.
-    { iDestruct "Hb" as "(Hshot & _)".
-      iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
+    wp_rec. wp_load.
+    pose (Ψ_mtx (_ : val) := (
+      oneshot_shot γ.(spsc_waiter_meta_lstate)  ()
+    )%I).
+    wp_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hpending HP]") as (res) "#Hshot".
+    { iIntros "Hmtx_locked _".
+      wp_pures.
+      wp_bind (_ <- _)%E.
+      iInv "Hinv" as "(%b & Hflag & Hb)".
+      wp_store.
+      destruct b.
+      { iDestruct "Hb" as "(Hshot & _)".
+        iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
+      }
+      iCombine "Hpending Hb" as "Hpending".
+      assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
+      iMod (oneshot_update_shot with "Hpending") as "#Hshot".
+      iSteps.
     }
-    iCombine "Hpending Hb" as "Hpending".
-    assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
-    iMod (oneshot_update_shot with "Hpending") as "#Hshot".
-    iSplitR "HΦ"; first iSteps.
-    iModIntro.
-
     wp_load.
     wp_apply (condition_notify_spec with "Hcond_inv").
     iSteps.

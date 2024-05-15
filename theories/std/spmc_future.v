@@ -40,7 +40,9 @@ Definition spmc_future_create : val :=
 
 Definition spmc_future_set : val :=
   λ: "t" "v",
-    "t" <-{result} ‘Some{ "v" } ;;
+    mutex_protect "t".{mutex} (λ: <>,
+      "t" <-{result} ‘Some{ "v" }
+    ) ;;
     condition_notify_all "t".{condition}.
 
 Definition spmc_future_try_get : val :=
@@ -231,24 +233,28 @@ Section spmc_future_G.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hpending) & HΨ) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
-    wp_rec.
-    wp_pures.
-
-    wp_bind (_ <- _)%E.
-    iInv "Hinv" as "(%o & Hresult & Ho)".
-    wp_store.
-    destruct o.
-    { iDestruct "Ho" as "(Hshot & _)".
-      iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
+    wp_rec. wp_load.
+    pose (Ψ_mtx (_ : val) := (
+      oneshot_shot γ.(spmc_future_meta_lstate) v
+    )%I).
+    wp_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hpending HΨ]") as (res) "#Hshot".
+    { iIntros "Hmtx_locked _".
+      wp_pures.
+      wp_bind (_ <- _)%E.
+      iInv "Hinv" as "(%o & Hresult & Ho)".
+      wp_store.
+      destruct o.
+      { iDestruct "Ho" as "(Hshot & _)".
+        iDestruct (oneshot_pending_shot with "Hpending Hshot") as %[].
+      }
+      iCombine "Hpending Ho" as "Hpending".
+      assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
+      iMod (oneshot_update_shot with "Hpending") as "#Hshot".
+      iSplitR "Hmtx_locked". { iExists (Some _). iSteps. }
+      iSteps.
     }
-    iCombine "Hpending Ho" as "Hpending".
-    assert (2/3 + 1/3 = 1)%Qp as -> by compute_done.
-    iMod (oneshot_update_shot with "Hpending") as "#Hshot".
-    iSplitR "HΦ". { iExists (Some _). iSteps. }
-    iModIntro.
-
     wp_load.
-    wp_apply (condition_notify_all_spec with "Hcond_inv").
+    wp_apply (condition_notify_spec with "Hcond_inv").
     iSteps.
   Qed.
 
