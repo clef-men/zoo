@@ -20,9 +20,9 @@ From zebre.std Require Import
   random_round.
 From zebre.saturn Require Import
   mpmc_queue_1.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   ws_hub.
-From zebre.parabstr Require Import
+From zebre.parabs Require Import
   ws_deques
   waiters.
 From zebre Require Import

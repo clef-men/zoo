@@ -21,8 +21,8 @@ digraph {
 		ws_deque [label="ws_deque"]
 	}
 
-	subgraph cluster_parabstr {
-		label="parabstr"
+	subgraph cluster_parabs {
+		label="parabs"
 		node [style=filled, color=violet]
 		ws_deques [label="ws_deques"]
 		ws_deques_public [label="ws_deques_public"]

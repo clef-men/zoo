@@ -10,7 +10,7 @@ From zebre.std Require Import
   array.
 From zebre.saturn Require Import
   inf_ws_deque.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   ws_deques.
 From zebre Require Import
   options.

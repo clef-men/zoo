@@ -5,7 +5,7 @@ From zebre.language Require Import
   diaframe.
 From zebre.std Require Import
   opt.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   base.
 From zebre Require Import
   options.

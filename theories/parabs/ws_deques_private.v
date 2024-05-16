@@ -11,7 +11,7 @@ From zebre.std Require Import
   opt
   array
   deque.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   ws_deques.
 From zebre Require Import
   options.

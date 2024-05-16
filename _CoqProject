@@ -135,16 +135,16 @@ theories/saturn/mpmc_queue_1.v
 theories/saturn/mpmc_queue_2.v
 theories/saturn/inf_ws_deque.v
 
-theories/parabstr/base.v
-theories/parabstr/ws_deques.v
-theories/parabstr/ws_deques_public.v
-theories/parabstr/ws_deques_private.v
-theories/parabstr/waiters.v
-theories/parabstr/ws_hub.v
-theories/parabstr/ws_hub_1.v
-theories/parabstr/ws_hub_2.v
-theories/parabstr/scheduler.v
-theories/parabstr/vertex.v
+theories/parabs/base.v
+theories/parabs/ws_deques.v
+theories/parabs/ws_deques_public.v
+theories/parabs/ws_deques_private.v
+theories/parabs/waiters.v
+theories/parabs/ws_hub.v
+theories/parabs/ws_hub_1.v
+theories/parabs/ws_hub_2.v
+theories/parabs/scheduler.v
+theories/parabs/vertex.v
 
 theories/eio/base.v
 theories/eio/rcfd.v

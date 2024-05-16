@@ -10,9 +10,9 @@ From zebre.std Require Import
   array
   domain
   spmc_future.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   base.
-From zebre.parabstr Require Import
+From zebre.parabs Require Import
   ws_hub.
 From zebre Require Import
   options.

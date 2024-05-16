@@ -3,7 +3,7 @@ From zebre Require Import
 From zebre.language Require Import
   notations
   diaframe.
-From zebre.parabstr Require Import
+From zebre.parabs Require Import
   ws_hub
   scheduler.
 From zebre Require Import

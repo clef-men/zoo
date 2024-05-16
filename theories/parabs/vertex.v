@@ -16,9 +16,9 @@ From zebre.std Require Import
   clst.
 From zebre.saturn Require Import
   mpmc_stack_2.
-From zebre.parabstr Require Export
+From zebre.parabs Require Export
   base.
-From zebre.parabstr Require Import
+From zebre.parabs Require Import
   ws_hub
   scheduler.
 From zebre Require Import
