@@ -1,26 +1,26 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t fn : val.
 
 Notation "'ClstClosed'" := (
   in_type "clst" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 Notation "'ClstOpen'" := (
   in_type "clst" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 Notation "'ClstCons'" := (
   in_type "clst" 2
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Inductive clist :=
@@ -159,8 +159,8 @@ Definition clst_iter : val :=
         "clst_iter" "t" "fn"
     end.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma wp_match_clist_open ls e1 x2 e2 Φ :
     WP subst' x2 (list_to_clist_open ls) e2 {{ Φ }} ⊢
@@ -282,7 +282,7 @@ Section zebre_G.
     wp_smart_apply ("IH" with "[//] Hfn").
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque clst_app.
 #[global] Opaque clst_rev_app.

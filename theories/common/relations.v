@@ -1,9 +1,9 @@
 From stdpp Require Export
   relations.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section relation.

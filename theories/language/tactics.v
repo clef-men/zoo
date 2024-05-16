@@ -1,14 +1,14 @@
 From stdpp Require Import
   fin_maps.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   language.
-From zebre Require Import
+From zoo Require Import
   options.
 
-Create HintDb zebre.
+Create HintDb zoo.
 
 Ltac reshape_expr e tac :=
   let rec go K prophs e :=
@@ -130,66 +130,66 @@ Ltac invert_base_step :=
   val_neq _ _
 ) => (
   progress simpl; try injection
-) : zebre.
+) : zoo.
 #[global] Hint Extern 0 (
   val_eq _ _
 ) => (
   progress simpl
-) : zebre.
+) : zoo.
 
 #[global] Hint Extern 0 (
   base_reducible _ _
 ) =>
   do 5 eexists; simpl
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_reducible_no_obs _ _
 ) =>
   do 4 eexists; simpl
-: zebre.
+: zoo.
 
 #[global] Hint Extern 1 (
   base_step _ _ _ _ _ _ _
 ) =>
   econstructor
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_equal_fail; simpl; [| | try injection]
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_equal_suc; simpl
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Reveal _) _ _ _ _ _ _
 ) =>
   eapply base_step_reveal'
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Record _) _ _ _ _ _ _
 ) =>
   eapply base_step_record'
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Alloc _ _) _ _ _ _ _ _
 ) =>
   apply base_step_alloc'
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Cas _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_fail; simpl; [| | | try injection]
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step (Cas _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_suc; simpl
-: zebre.
+: zoo.
 #[global] Hint Extern 0 (
   base_step Proph _ _ _ _ _ _
 ) =>
   apply base_step_proph'
-: zebre.
+: zoo.

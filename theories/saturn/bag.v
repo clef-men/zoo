@@ -2,21 +2,21 @@
    https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/mpmc_relaxed_queue.ml
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   array.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types front back : nat.
@@ -29,15 +29,15 @@ Implicit Types os : list (option val).
 
 Notation "'data'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 Notation "'front'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 Notation "'back'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition bag_create : val :=
@@ -75,14 +75,14 @@ Definition bag_pop : val :=
     let: "i" := Faa "t".[front] #1 `rem` array_size "data" in
     bag_pop_aux (array_unsafe_get "data" "i").
 
-Class BagG Σ `{zebre_G : !ZebreG Σ} := {
+Class BagG Σ `{zoo_G : !ZooG Σ} := {
   #[local] bag_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
 
 Definition bag_Σ := #[
   twins_Σ (leibnizO (gmultiset val))
 ].
-#[global] Instance subG_bag_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_bag_Σ Σ `{zoo_G : !ZooG Σ} :
   subG bag_Σ Σ →
   BagG Σ.
 Proof.

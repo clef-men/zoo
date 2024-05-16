@@ -1,19 +1,19 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types killed : bool.
 Implicit Types v t : val.
 
-Record ws_hub `{zebre_G : !ZebreG Σ} := {
+Record ws_hub `{zoo_G : !ZooG Σ} := {
   ws_hub_create : val ;
   ws_hub_push : val ;
   ws_hub_push_foreign : val ;
@@ -178,8 +178,8 @@ Record ws_hub `{zebre_G : !ZebreG Σ} := {
 #[global] Opaque ws_hub_killed.
 #[global] Opaque ws_hub_kill.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
   Context (ws_hub : ws_hub Σ).
 
   Definition ws_hub_pop_try_steal : val :=
@@ -290,7 +290,7 @@ Section zebre_G.
 
       wp_smart_apply (ws_hub_steal_spec with "[$Hinv $Howner] HΦ"); done.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque ws_hub_pop_try_steal.
 #[global] Opaque ws_hub_pop_steal.

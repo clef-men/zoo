@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types t : val.
@@ -13,13 +13,13 @@ Implicit Types t : val.
 Parameter random_create : val.
 Parameter random_gen : val.
 
-Parameter random_inv : ∀ `{zebre_G : !ZebreG Σ}, val → iProp Σ.
+Parameter random_inv : ∀ `{zoo_G : !ZooG Σ}, val → iProp Σ.
 
-Axiom random_inv_persistent : ∀ `{zebre_G : !ZebreG Σ} t,
+Axiom random_inv_persistent : ∀ `{zoo_G : !ZooG Σ} t,
   Persistent (random_inv t).
 #[global] Existing Instance random_inv_persistent.
 
-Axiom random_create_spec : ∀ `{zebre_G : !ZebreG Σ},
+Axiom random_create_spec : ∀ `{zoo_G : !ZooG Σ},
   {{{ True }}}
     random_create ()
   {{{ t,
@@ -27,7 +27,7 @@ Axiom random_create_spec : ∀ `{zebre_G : !ZebreG Σ},
     random_inv t
   }}}.
 
-Axiom random_gen_spec : ∀ `{zebre_G : !ZebreG Σ} t ub,
+Axiom random_gen_spec : ∀ `{zoo_G : !ZooG Σ} t ub,
   (0 < ub)%Z →
   {{{
     random_inv t
@@ -42,8 +42,8 @@ Definition random_gen' : val :=
   λ: "t" "lb" "ub",
     "lb" + random_gen "t" ("ub" - "lb").
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma random_gen_spec_nat t (ub : nat) :
     0 < ub →
@@ -94,6 +94,6 @@ Section zebre_G.
     wp_pures.
     Z_to_nat n. rewrite -Nat2Z.inj_add. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque random_gen'.

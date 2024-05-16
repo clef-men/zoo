@@ -1,16 +1,16 @@
 From iris.algebra Require Import
   proofmode_classes.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   relations.
-From zebre.iris.algebra Require Export
+From zoo.iris.algebra Require Export
   base.
-From zebre.iris.algebra Require Import
+From zoo.iris.algebra Require Import
   auth
   mono.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section ofe.

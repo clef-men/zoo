@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -13,11 +13,11 @@ Implicit Types v w t hd tl dst : val.
 
 #[local] Notation "'head'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'tail'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition chain_cons : val :=
@@ -38,8 +38,8 @@ Definition chain_set_tail : val :=
   λ: "t" "v",
     "t" <-{tail} "v".
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Fixpoint chain_model t vs dst : iProp Σ :=
     match vs with
@@ -237,7 +237,7 @@ Section zebre_G.
   Proof.
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque chain_cons.
 #[global] Opaque chain_head.

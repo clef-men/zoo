@@ -2,19 +2,19 @@
    https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.mono_set.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   assert
   lst.
-From zebre.persistent Require Export
+From zoo.persistent Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -23,20 +23,20 @@ Implicit Types σ : gmap location val.
 
 #[local] Notation "'snap_store'" := (
   in_type "snap" 0
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'snap_root'" := (
   in_type "snap" 1
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 
 #[local] Notation "'Root'" := (
   in_type "descr" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Diff'" := (
   in_type "descr" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 (* ------------------------------------------------------------------------ *)
@@ -638,14 +638,14 @@ End adiffl.
 (* ------------------------------------------------------------------------ *)
 (* Proof. *)
 
-Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
+Class PstoreG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pstore_G_set_G :: MonoSetG Σ (location * gmap location val)%type ;
 }.
 
 Definition pstore_Σ := #[
   mono_set_Σ (location * gmap location val)%type
 ].
-#[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_pstore_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_Σ Σ →
   PstoreG Σ.
 Proof.

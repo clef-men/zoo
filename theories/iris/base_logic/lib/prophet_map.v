@@ -1,13 +1,13 @@
 From iris.base_logic.lib Require Import
   ghost_map.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Export
+From zoo.iris.base_logic Require Export
   lib.base.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Class ProphetMapGpre Σ P V `{Countable P} := {

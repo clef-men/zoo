@@ -1,18 +1,18 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   array.
-From zebre.saturn Require Import
+From zoo.saturn Require Import
   inf_ws_deque.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   ws_deques.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t deque : val.
@@ -38,14 +38,14 @@ Definition ws_deques_public_steal_to : val :=
   λ: "t" "i" "j",
     inf_ws_deque_steal (array_unsafe_get "t" "j").
 
-Class WsDequesPublicG Σ `{zebre_G : !ZebreG Σ} := {
+Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_deques_public_G_ws_deque_G :: InfWsDequeG Σ ;
 }.
 
 Definition ws_deques_public_Σ := #[
   inf_ws_deque_Σ
 ].
-#[global] Instance subG_ws_deques_public_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_ws_deques_public_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_public_Σ Σ →
   WsDequesPublicG Σ.
 Proof.

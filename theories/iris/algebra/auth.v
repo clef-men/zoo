@@ -1,13 +1,13 @@
 From iris.algebra Require Export
   auth.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.algebra Require Export
+From zoo.iris.algebra Require Export
   base.
-From zebre.iris.algebra Require Import
+From zoo.iris.algebra Require Import
   view.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section ucmra.

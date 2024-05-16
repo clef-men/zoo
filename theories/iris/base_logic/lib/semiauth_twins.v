@@ -1,14 +1,14 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Export
+From zoo.iris.base_logic Require Export
   lib.base.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.ghost_var
   lib.auth_mono
   lib.twins.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Class SemiauthTwinsG Σ {A : ofe} (R : relation A) F := {

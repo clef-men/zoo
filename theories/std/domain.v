@@ -1,13 +1,13 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   spsc_future.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t fn : val.
@@ -21,14 +21,14 @@ Definition domain_spawn : val :=
 Definition domain_join : val :=
   spsc_future_get.
 
-Class DomainG Σ `{zebre_G : !ZebreG Σ} := {
+Class DomainG Σ `{zoo_G : !ZooG Σ} := {
   #[local] domain_G_future_G :: SpscFutureG Σ ;
 }.
 
 Definition domain_Σ := #[
   spsc_future_Σ
 ].
-#[global] Instance subG_domain_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_domain_Σ Σ `{zoo_G : !ZooG Σ} :
   subG domain_Σ Σ →
   DomainG Σ.
 Proof.

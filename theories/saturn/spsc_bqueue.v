@@ -5,25 +5,25 @@
 From iris.algebra Require Import
   list.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   relations
   list.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.excl
   lib.twins
   lib.auth_nat_max
   lib.mono_list.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   array.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b : bool.
@@ -34,23 +34,23 @@ Implicit Types vs hist : list val.
 
 #[local] Notation "'data'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'front'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'front_cache'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 3
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back_cache'" := (
   in_type "t" 4
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition spsc_bqueue_create : val :=
@@ -103,7 +103,7 @@ Definition spsc_bqueue_pop : val :=
       §None
     ).
 
-Class SpscBqueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spsc_bqueue_G_model_G :: TwinsG Σ (listO valO) ;
   #[local] spsc_bqueue_G_history_G :: MonoListG Σ val ;
   #[local] spsc_bqueue_G_ctl_G :: AuthNatMaxG Σ ;
@@ -116,7 +116,7 @@ Definition spsc_bqueue_Σ := #[
   auth_nat_max_Σ ;
   excl_Σ unitO
 ].
-Lemma subG_spsc_bqueue_Σ Σ `{zebre_G : !ZebreG Σ} :
+Lemma subG_spsc_bqueue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG spsc_bqueue_Σ Σ →
   SpscBqueueG Σ.
 Proof.

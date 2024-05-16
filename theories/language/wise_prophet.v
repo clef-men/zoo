@@ -1,15 +1,15 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.agree
   lib.mono_list.
-From zebre.language Require Export
+From zoo.language Require Export
   typed_prophet.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
 
-Class WiseStrongProphetG Σ `{zebre_G : !ZebreG Σ} prophet := {
+Class WiseStrongProphetG Σ `{zoo_G : !ZooG Σ} prophet := {
   #[local] wise_strong_prophet_G_full_G :: AgreeG Σ (leibnizO (list prophet.(typed_strong_prophet_type))) ;
   #[local] wise_strong_prophet_G_past_G :: MonoListG Σ prophet.(typed_strong_prophet_type) ;
 }.
@@ -18,7 +18,7 @@ Definition wise_strong_prophet_Σ prophet := #[
   agree_Σ (leibnizO (list prophet.(typed_strong_prophet_type))) ;
   mono_list_Σ prophet.(typed_strong_prophet_type)
 ].
-#[global] Instance subG_wise_strong_prophet_Σ Σ `{zebre_G : !ZebreG Σ} prophet :
+#[global] Instance subG_wise_strong_prophet_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (wise_strong_prophet_Σ prophet) Σ →
   WiseStrongProphetG Σ prophet.
 Proof.
@@ -156,7 +156,7 @@ End typed_strong_prophet.
 #[global] Opaque wise_strong_prophet_model.
 #[global] Opaque wise_strong_prophet_lb.
 
-Class WiseProphetG Σ `{zebre_G : !ZebreG Σ} prophet := {
+Class WiseProphetG Σ `{zoo_G : !ZooG Σ} prophet := {
   #[local] wise_prophet_G_full_G :: AgreeG Σ (leibnizO (list (val * prophet.(typed_prophet_type)))) ;
   #[local] wise_prophet_G_past_G :: MonoListG Σ (val * prophet.(typed_prophet_type)) ;
 }.
@@ -165,7 +165,7 @@ Definition wise_prophet_Σ prophet := #[
   agree_Σ (leibnizO (list (val * prophet.(typed_prophet_type)))) ;
   mono_list_Σ (val * prophet.(typed_prophet_type))
 ].
-#[global] Instance subG_wise_prophet_Σ Σ `{zebre_G : !ZebreG Σ} prophet :
+#[global] Instance subG_wise_prophet_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (wise_prophet_Σ prophet) Σ →
   WiseProphetG Σ prophet.
 Proof.

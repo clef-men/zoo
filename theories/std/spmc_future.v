@@ -1,17 +1,17 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.oneshot
   lib.excl.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   condition.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b : bool.
@@ -20,15 +20,15 @@ Implicit Types o : option val.
 
 #[local] Notation "'result'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'mutex'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'condition'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition spmc_future_create : val :=
@@ -64,7 +64,7 @@ Definition spmc_future_get : val :=
         "v"
     end.
 
-Class SpmcFutureG Σ `{zebre_G : !ZebreG Σ} := {
+Class SpmcFutureG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spmc_future_G_mutex_G :: MutexG Σ ;
   #[local] spmc_future_G_lstate_G :: OneshotG Σ unit val ;
 }.
@@ -73,7 +73,7 @@ Definition spmc_future_Σ := #[
   mutex_Σ ;
   oneshot_Σ unit val
 ].
-#[global] Instance subG_spmc_future_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_spmc_future_Σ Σ `{zoo_G : !ZooG Σ} :
   subG spmc_future_Σ Σ →
   SpmcFutureG Σ .
 Proof.

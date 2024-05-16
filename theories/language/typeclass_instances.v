@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   language.
-From zebre.language Require Import
+From zoo.language Require Import
   tactics
   notations.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types e : expr.
@@ -168,7 +168,7 @@ Definition ValRec_as_ValRec f x e : AsValRec (ValRec f x e) f x e :=
 Section pure_exec.
   #[local] Ltac solve_exec_safe :=
     intros; subst;
-    eauto with zebre.
+    eauto with zoo.
   #[local] Ltac solve_exec_puredet :=
     intros;
     invert_base_step;

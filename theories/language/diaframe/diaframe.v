@@ -1,10 +1,10 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris Require Export
+From zoo.iris Require Export
   diaframe.
-From zebre.language Require Export
+From zoo.language Require Export
   proofmode
   diaframe.hints
   diaframe.specs.
-From zebre Require Import
+From zoo Require Import
   options.

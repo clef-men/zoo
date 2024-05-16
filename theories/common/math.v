@@ -1,6 +1,6 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.
 
 #[global] Instance ge_partialorder :

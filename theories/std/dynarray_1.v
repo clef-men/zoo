@@ -1,14 +1,14 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   math
   array.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b : bool.
@@ -19,11 +19,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'size'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'data'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition dynarray_create : val :=
@@ -105,8 +105,8 @@ Definition dynarray_reset : val :=
     "t" <-{size} #0 ;;
     "t" <-{data} array_create ().
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[local] Definition dynarray_model_inner l (sz : nat) data vs : iProp Σ :=
     l.[size] ↦ #sz ∗
@@ -532,7 +532,7 @@ Section zebre_G.
     wp_store.
     iSteps. iExists 0. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque dynarray_create.
 #[global] Opaque dynarray_make.

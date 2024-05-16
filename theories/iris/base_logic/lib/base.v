@@ -6,7 +6,7 @@ From iris.bi Require Export
 From iris.base_logic Require Export
   lib.own.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.

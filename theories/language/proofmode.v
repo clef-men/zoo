@@ -5,18 +5,18 @@ From iris.proofmode Require Import
   reduction
   spec_patterns.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   atomic.
-From zebre.language Require Export
+From zoo.language Require Export
   tactics
   rules.
-From zebre.language Require Import
+From zoo.language Require Import
   notations.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -25,8 +25,8 @@ Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types K : ectx.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Implicit Types Φ : val → iProp Σ.
 
@@ -328,7 +328,7 @@ Section zebre_G.
     iApply (wp_faa with "Hl").
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[local] Ltac wp_start tac :=
   iStartProof;

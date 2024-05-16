@@ -1,13 +1,13 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   diverge.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition assume : val :=
@@ -15,8 +15,8 @@ Definition assume : val :=
     ifnot: "b" then
       diverge ().
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma assume_spec (b : bool) Φ :
     ▷ (⌜b = true⌝ → Φ ()%V) -∗
@@ -34,6 +34,6 @@ Section zebre_G.
     wp_apply assume_spec as (Hϕ%bool_decide_eq_true_1) "".
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque assume.

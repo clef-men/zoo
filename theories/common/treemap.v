@@ -1,9 +1,9 @@
 From stdpp Require Import
   gmap.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition treemap N `{Countable N} E :=

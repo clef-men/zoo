@@ -1,14 +1,14 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   node2_chain.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t : val.
@@ -16,11 +16,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition mpsc_queue_create : val :=
@@ -68,12 +68,12 @@ Definition mpsc_queue_pop : val :=
       ‘Some{ "v" }
     ).
 
-Class MpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpscQueueG Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition mpsc_queue_Σ := #[
 ].
-#[global] Instance subG_mpsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpsc_queue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_Σ Σ →
   MpscQueueG Σ.
 Proof.

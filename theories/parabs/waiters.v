@@ -1,16 +1,16 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   mpsc_waiter.
-From zebre.saturn Require Import
+From zoo.saturn Require Import
   mpmc_queue_1.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b : bool.
@@ -57,7 +57,7 @@ Definition waiters_commit_wait : val :=
   λ: "t" "waiter",
     mpsc_waiter_wait "waiter".
 
-Class WaitersG Σ `{zebre_G : !ZebreG Σ} := {
+Class WaitersG Σ `{zoo_G : !ZooG Σ} := {
   #[local] waiters_G_queue_G :: MpmcQueueG Σ ;
   #[local] waiters_G_waiter_G :: MpscWaiterG Σ ;
 }.
@@ -66,7 +66,7 @@ Definition waiters_Σ := #[
   mpmc_queue_Σ ;
   mpsc_waiter_Σ
 ].
-#[global] Instance subG_ws_hub_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
   subG waiters_Σ Σ →
   WaitersG Σ.
 Proof.

@@ -2,16 +2,16 @@
    https://github.com/ocaml-multicore/saturn/pull/83
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t : val.
@@ -19,32 +19,32 @@ Implicit Types vs : list val.
 
 #[local] Notation "'node_next'" := (
   in_type "node" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'node_data'" := (
   in_type "node" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'node_capacity'" := (
   in_type "node" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'node_count'" := (
   in_type "node" 3
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 #[local] Notation "'capacity'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'front'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 #[local] Definition node_create : val :=
@@ -118,12 +118,12 @@ Definition mpmc_bqueue_pop : val :=
       )
     ).
 
-Class MpmcBqueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpmcBqueueG Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition mpmc_bqueue_Σ := #[
 ].
-#[global] Instance subG_mpmc_bqueue_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpmc_bqueue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_bqueue_Σ Σ →
   MpmcBqueueG Σ.
 Proof.

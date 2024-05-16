@@ -1,8 +1,8 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   rules.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
 
@@ -19,7 +19,7 @@ Record typed_strong_prophet := {
 
 Section typed_strong_prophet.
   Context (prophet : typed_strong_prophet).
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[local] Fixpoint typed_strong_prophet_process prophs :=
     match prophs with
@@ -102,7 +102,7 @@ Record typed_prophet := {
 
 Section typed_prophet.
   Context (prophet : typed_prophet).
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   Program Definition typed_prophet_strong_prophet := {|
     typed_strong_prophet_type :=
@@ -195,7 +195,7 @@ Record typed_prophet1 := {
 
 Section typed_prophet1.
   Context (prophet : typed_prophet1).
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   Program Definition typed_prophet1_prophet prophet := {|
     typed_prophet_type :=

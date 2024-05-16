@@ -1,9 +1,9 @@
 From iris.algebra Require Import
   ofe.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section language_mixin.

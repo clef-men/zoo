@@ -11,10 +11,10 @@ From diaframe Require Import
   tele_utils
   solve_defs.
 
-From zebre.iris.program_logic Require Import
+From zoo.iris.program_logic Require Import
   wp
   wp_lifting.
-From zebre.iris.diaframe Require Import
+From zoo.iris.diaframe Require Import
   symb_exec.defs
   symb_exec.wp.
 

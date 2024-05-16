@@ -7,30 +7,30 @@ From diaframe Require Import
   proofmode_base
   lib.iris_hints.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.diaframe Require Import
+From zoo.iris.diaframe Require Import
   symb_exec.defs
   symb_exec.wp.
-From zebre.iris.diaframe Require Export
+From zoo.iris.diaframe Require Export
   symb_exec.spec_notations.
-From zebre.language Require Import
+From zoo.language Require Import
   metatheory
   notations
   proofmode.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types pid : prophet_id.
 Implicit Types e : expr.
 
 Class PureExecNoRec ϕ n e1 e2 :=
-  is_pure_exec : PureExec (Λ := zebre) ϕ n e1 e2.
+  is_pure_exec : PureExec (Λ := zoo) ϕ n e1 e2.
 
 Unset Universe Polymorphism.
 
 Section instances.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   Open Scope expr_scope.
 
@@ -315,7 +315,7 @@ Section instances.
 End instances.
 
 Section unfold_functions.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E :
     ( ( ∀ f x e,
@@ -359,11 +359,11 @@ Ltac find_reshape e K e' TC :=
 #[global] Hint Extern 4 (
   ReshapeExprAnd (language.expr ?L) ?e ?K ?e' ?TC
 ) =>
-  unify L zebre;
+  unify L zoo;
   find_reshape e K e' TC
 : typeclass_instances.
 
-#[global] Arguments zebre : simpl never.
+#[global] Arguments zoo : simpl never.
 
 Unset Universe Polymorphism.
 

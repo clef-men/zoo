@@ -5,16 +5,16 @@
 From iris.base_logic Require Import
   lib.ghost_map.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   array.
-From zebre.persistent Require Export
+From zoo.persistent Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types i : nat.
@@ -24,11 +24,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'Root'" := (
   in_type "descr" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Diff'" := (
   in_type "descr" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Definition parray_make : val :=
@@ -65,14 +65,14 @@ Definition parray_set : val :=
       "t'"
     ).
 
-Class ParrayG Σ `{zebre_G : !ZebreG Σ} := {
+Class ParrayG Σ `{zoo_G : !ZooG Σ} := {
   parray_G_map_G : ghost_mapG Σ location (list val) ;
 }.
 
 Definition parray_Σ := #[
   ghost_mapΣ location (list val)
 ].
-#[global] Instance subG_parray_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_parray_Σ Σ `{zoo_G : !ZooG Σ} :
   subG parray_Σ Σ →
   ParrayG Σ.
 Proof.

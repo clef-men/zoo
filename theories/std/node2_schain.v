@@ -1,19 +1,19 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   node2.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
 Implicit Types v dst : val.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Fixpoint node2_schain nodes dst : iProp Σ :=
     match nodes with
@@ -243,6 +243,6 @@ Section zebre_G.
     iDestruct (node2_schain_snoc_2 with "H1 Hnode") as "H1".
     rewrite -take_S_r //. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque node2_schain.

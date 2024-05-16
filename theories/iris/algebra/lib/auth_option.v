@@ -2,11 +2,11 @@ From iris.algebra Require Import
   auth
   proofmode_classes.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.algebra Require Export
+From zoo.iris.algebra Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition auth_option A :=

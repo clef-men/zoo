@@ -1,13 +1,13 @@
 From iris.base_logic Require Export
   lib.fancy_updates.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   language.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Class IrisG Λ Σ := {

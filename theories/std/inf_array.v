@@ -1,19 +1,19 @@
 From Coq.Logic Require Import
   FunctionalExtensionality.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   array
   mutex.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -23,15 +23,15 @@ Implicit Types vs : nat → val.
 
 #[local] Notation "'data'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'default'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'mutex'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition inf_array_create : val :=
@@ -67,7 +67,7 @@ Definition inf_array_set : val :=
       )
     ).
 
-Class InfArrayG Σ `{zebre_G : !ZebreG Σ} := {
+Class InfArrayG Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_array_G_mutex_G :: MutexG Σ ;
   #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> valO) ;
 }.
@@ -76,7 +76,7 @@ Definition inf_array_Σ := #[
   mutex_Σ ;
   twins_Σ (nat -d> valO)
 ].
-#[global] Instance subG_inf_array_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_inf_array_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_array_Σ Σ →
   InfArrayG Σ .
 Proof.

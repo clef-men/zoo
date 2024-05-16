@@ -1,14 +1,14 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   relations.
-From zebre.iris.base_logic Require Export
+From zoo.iris.base_logic Require Export
   lib.base.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.auth_mono.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Class MonoSetG Σ A `{Countable A} := {

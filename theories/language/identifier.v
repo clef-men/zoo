@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   rules.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition identifier :=
@@ -24,8 +24,8 @@ Notation Id :=
 ( only parsing
 ).
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition identifier_model id : iProp Σ :=
     ∃ prophs,
@@ -51,7 +51,7 @@ Section zebre_G.
     wp_apply (wp_proph with "[//]").
     rewrite /identifier_model. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque LiteralIdentifier.
 

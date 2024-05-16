@@ -3,10 +3,10 @@ From iris.bi Require Export
 From iris.base_logic Require Export
   lib.invariants.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   rules
   itype.
-From zebre Require Import
+From zoo Require Import
   options.

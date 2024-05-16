@@ -1,12 +1,12 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.parabs Require Import
+From zoo.parabs Require Import
   ws_hub
   scheduler.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Fixpoint fib n :=

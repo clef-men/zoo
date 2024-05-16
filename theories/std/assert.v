@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition assert : val :=
@@ -13,8 +13,8 @@ Definition assert : val :=
     ifnot: "b" then
       Fail.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma assert_spec (b : bool) Φ :
     b = true →
@@ -23,6 +23,6 @@ Section zebre_G.
   Proof.
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque assert.

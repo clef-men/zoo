@@ -1,18 +1,18 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.iris.program_logic Require Import
+From zoo.iris.program_logic Require Import
   wp_lifting.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.language Require Export
+From zoo.language Require Export
   typeclass_instances
   state_interp.
-From zebre.language Require Import
+From zoo.language Require Import
   tactics
   notations.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -24,8 +24,8 @@ Implicit Types v w : val.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma base_reducible_equal v1 v2 σ :
     val_physical v1 →
@@ -43,7 +43,7 @@ Section zebre_G.
       | destruct (decide (cid1 = cid2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
-    all: auto with zebre.
+    all: auto with zoo.
   Qed.
   Lemma wp_equal v1 v2 E Φ :
     val_physical v1 →
@@ -96,7 +96,7 @@ Section zebre_G.
   Proof.
     iIntros "H".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame. iSteps.
   Qed.
@@ -128,7 +128,7 @@ Section zebre_G.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step. rename select (list val) into vs.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
@@ -151,7 +151,7 @@ Section zebre_G.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iStep. iFrame.
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
@@ -188,7 +188,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame. iSteps.
   Qed.
@@ -206,7 +206,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -225,7 +225,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -249,7 +249,7 @@ Section zebre_G.
       | destruct (decide (cid = cid1)); first subst
       | destruct (decide (tag = tag1)); first subst
       ].
-    all: eauto with zebre.
+    all: eauto with zoo.
   Qed.
   Lemma wp_cas l dq v v1 v2 E Φ :
     val_physical v →
@@ -362,7 +362,7 @@ Section zebre_G.
     iIntros "%Φ >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
     iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
     iFrame. iSteps.
@@ -375,7 +375,7 @@ Section zebre_G.
   Proof.
     iIntros "H HΦ".
     iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zebre. iIntros "%v2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iSplit; first auto with zoo. iIntros "%v2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
     invert_base_step.
     iFrame.
   Qed.
@@ -390,7 +390,7 @@ Section zebre_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iSplit; first eauto with zebre. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
     invert_base_step.
     iMod (prophet_map_new pid with "Hκs") as "(Hκs & Hp)"; first done.
     iFrame. iSteps.
@@ -471,4 +471,4 @@ Section zebre_G.
       iDestruct "H" as "(HΦ & $)".
       iSteps.
   Qed.
-End zebre_G.
+End zoo_G.

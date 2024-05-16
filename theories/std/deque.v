@@ -1,13 +1,13 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   opt.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Parameter deque_create : val.
@@ -17,13 +17,13 @@ Parameter deque_pop_front : val.
 Parameter deque_push_back : val.
 Parameter deque_pop_back : val.
 
-Parameter deque_model : ∀ `{zebre_G : !ZebreG Σ}, val → list val → iProp Σ.
+Parameter deque_model : ∀ `{zoo_G : !ZooG Σ}, val → list val → iProp Σ.
 
-Axiom deque_model_timeless : ∀ `{zebre_G : !ZebreG Σ} t vs,
+Axiom deque_model_timeless : ∀ `{zoo_G : !ZooG Σ} t vs,
   Timeless (deque_model t vs).
 #[global] Existing Instance deque_model_timeless.
 
-Axiom deque_create_spec : ∀ `{zebre_G : !ZebreG Σ},
+Axiom deque_create_spec : ∀ `{zoo_G : !ZooG Σ},
   {{{ True }}}
     deque_create ()
   {{{ t,
@@ -31,7 +31,7 @@ Axiom deque_create_spec : ∀ `{zebre_G : !ZebreG Σ},
     deque_model t []
   }}}.
 
-Axiom deque_is_empty_spec : ∀ `{zebre_G : !ZebreG Σ} t vs,
+Axiom deque_is_empty_spec : ∀ `{zoo_G : !ZooG Σ} t vs,
   {{{
     deque_model t vs
   }}}
@@ -41,7 +41,7 @@ Axiom deque_is_empty_spec : ∀ `{zebre_G : !ZebreG Σ} t vs,
     deque_model t vs
   }}}.
 
-Axiom deque_push_front_spec : ∀ `{zebre_G : !ZebreG Σ} t vs v,
+Axiom deque_push_front_spec : ∀ `{zoo_G : !ZooG Σ} t vs v,
   {{{
     deque_model t vs
   }}}
@@ -51,7 +51,7 @@ Axiom deque_push_front_spec : ∀ `{zebre_G : !ZebreG Σ} t vs v,
     deque_model t (v :: vs)
   }}}.
 
-Axiom deque_pop_front_spec : ∀ `{zebre_G : !ZebreG Σ} t vs,
+Axiom deque_pop_front_spec : ∀ `{zoo_G : !ZooG Σ} t vs,
   {{{
     deque_model t vs
   }}}
@@ -61,7 +61,7 @@ Axiom deque_pop_front_spec : ∀ `{zebre_G : !ZebreG Σ} t vs,
     deque_model t (tail vs)
   }}}.
 
-Axiom deque_push_back_spec : ∀ `{zebre_G : !ZebreG Σ} t vs v,
+Axiom deque_push_back_spec : ∀ `{zoo_G : !ZooG Σ} t vs v,
   {{{
     deque_model t vs
   }}}
@@ -71,7 +71,7 @@ Axiom deque_push_back_spec : ∀ `{zebre_G : !ZebreG Σ} t vs v,
     deque_model t (vs ++ [v])
   }}}.
 
-Axiom deque_pop_back_spec : ∀ `{zebre_G : !ZebreG Σ} t vs,
+Axiom deque_pop_back_spec : ∀ `{zoo_G : !ZooG Σ} t vs,
   {{{
     deque_model t vs
   }}}

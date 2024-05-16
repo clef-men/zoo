@@ -14,16 +14,16 @@ From diaframe Require Import
   lib.persistently
   lib.intuitionistically.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   rules
   notations.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section instances.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   Section mergable.
     #[global] Instance mergable_consume_pointsto_persist l v1 v2 :

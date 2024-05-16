@@ -1,20 +1,20 @@
 From Coq Require Import
   ZifyNat.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   math.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   for_upto.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types i j n : nat.
@@ -128,8 +128,8 @@ Definition chunk_cblit : val :=
       "chunk_cblit" "t1" "sz1" (#1 + "i1") "t2" "sz2" (#1 + "i2") ("n" - #1)
     ).
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Section chunk_model.
     Definition chunk_model l dq vs : iProp Σ :=
@@ -3959,7 +3959,7 @@ Section zebre_G.
     wp_apply (chunk_cset_type with "[$Hl2 $Hv]") as "_"; [done.. |].
     wp_smart_apply ("IH" with "[] [] [] [$Hl1 $Hl2] HΦ"); iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque chunk_make.
 #[global] Opaque chunk_foldli.

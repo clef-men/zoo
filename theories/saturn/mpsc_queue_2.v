@@ -5,21 +5,21 @@
 From iris.algebra Require Import
   list.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   lst.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -29,11 +29,11 @@ Implicit Types o : option val.
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition mpsc_queue_create : val :=
@@ -64,14 +64,14 @@ Definition mpsc_queue_pop : val :=
         ‘Some{ "v" }
     end.
 
-Class MpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpscQueueG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpsc_queue_G_twins_G :: TwinsG Σ (listO val) ;
 }.
 
 Definition mpsc_queue_Σ := #[
   twins_Σ (listO val)
 ].
-#[global] Instance subG_mpsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpsc_queue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_Σ Σ →
   MpscQueueG Σ.
 Proof.

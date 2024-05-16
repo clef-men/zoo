@@ -2,26 +2,26 @@
    https://inria.hal.science/hal-01409022v1
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.auth_dgset
   lib.mono_set
   lib.saved_prop
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   clst.
-From zebre.saturn Require Import
+From zoo.saturn Require Import
   mpmc_stack_2.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   base.
-From zebre.parabs Require Import
+From zoo.parabs Require Import
   ws_hub
   scheduler.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types closed : bool.
@@ -31,15 +31,15 @@ Implicit Types run : val.
 
 #[local] Notation "'task'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'preds'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'succs'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition vertex_create : val :=
@@ -58,7 +58,7 @@ Definition vertex_precede : val :=
     ).
 
 Section ws_hub.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
   Context (ws_hub : ws_hub Σ).
 
   #[local] Definition vertex_propagate : val :=
@@ -88,7 +88,7 @@ Implicit Types state : vertex_state.
 #[local] Instance vertex_eq_dec : EqDecision vertex_state :=
   ltac:(solve_decision).
 
-Class VertexG Σ `{zebre_G : !ZebreG Σ} := {
+Class VertexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStackG Σ ;
   #[local] vertex_G_scheduler_G :: SchedulerG Σ ;
   #[local] vertex_G_saved_prop_G :: SavedPropG Σ ;
@@ -105,7 +105,7 @@ Definition vertex_Σ := #[
   auth_dgset_Σ gname ;
   twins_Σ (leibnizO vertex_state)
 ].
-#[global] Instance subG_vertex_Σ Σ `{zebre_G : !ZebreG Σ}:
+#[global] Instance subG_vertex_Σ Σ `{zoo_G : !ZooG Σ}:
   subG vertex_Σ Σ →
   VertexG Σ.
 Proof.

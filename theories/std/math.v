@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition minimum : val :=
@@ -29,8 +29,8 @@ Definition positive_part : val :=
   λ: "n",
     #0 `max` "n".
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Section Z.
     Implicit Types n : Z.
@@ -88,7 +88,7 @@ Section zebre_G.
       rewrite -{1}(Nat2Z.id n). apply positive_part_spec.
     Qed.
   End nat.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque minimum.
 #[global] Opaque maximum.

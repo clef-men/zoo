@@ -8,26 +8,26 @@ From Coq.Logic Require Import
 From iris.algebra Require Import
   list.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.excl
   lib.twins
   lib.auth_nat_max
   lib.mono_list.
-From zebre.language Require Import
+From zoo.language Require Import
   identifier
   wise_prophet
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   inf_array
   opt.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types front : nat.
@@ -58,7 +58,7 @@ Next Obligation.
 Qed.
 Implicit Types past prophs : list inf_ws_deque_prophet.(typed_prophet_type).
 
-Class InfWsDequeG Σ `{zebre_G : !ZebreG Σ} := {
+Class InfWsDequeG Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_ws_deque_G_inf_array_G :: InfArrayG Σ ;
   #[local] inf_ws_deque_G_ctl_G :: TwinsG Σ (ZO * (nat -d> valO)) ;
   #[local] inf_ws_deque_G_front_G :: AuthNatMaxG Σ ;
@@ -79,7 +79,7 @@ Definition inf_ws_deque_Σ := #[
   wise_prophet_Σ inf_ws_deque_prophet ;
   twins_Σ (natO * (valO -d> ▶ ∙))
 ].
-#[global] Instance subG_inf_ws_deque_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_inf_ws_deque_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_ws_deque_Σ Σ →
   InfWsDequeG Σ .
 Proof.
@@ -89,19 +89,19 @@ Qed.
 Module raw.
   #[local] Notation "'front'" := (
     in_type "t" 0
-  )(in custom zebre_field
+  )(in custom zoo_field
   ).
   #[local] Notation "'back'" := (
     in_type "t" 1
-  )(in custom zebre_field
+  )(in custom zoo_field
   ).
   #[local] Notation "'data'" := (
     in_type "t" 2
-  )(in custom zebre_field
+  )(in custom zoo_field
   ).
   #[local] Notation "'prophet'" := (
     in_type "t" 3
-  )(in custom zebre_field
+  )(in custom zoo_field
   ).
 
   Definition inf_ws_deque_create : val :=

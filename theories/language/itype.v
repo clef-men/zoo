@@ -1,8 +1,8 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   rules.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Class iType (PROP : bi) (τ : val → PROP) := {
@@ -72,7 +72,7 @@ Section basic.
 End basic.
 
 Section other.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
 
   Implicit Types v fn : val.
 
@@ -93,12 +93,12 @@ Section other.
   Qed.
 End other.
 
-Declare Scope zebre_itype.
-Delimit Scope zebre_itype with T.
+Declare Scope zoo_itype.
+Delimit Scope zoo_itype with T.
 
 Infix "-->" := (
   itype_fun
-) : zebre_itype.
+) : zoo_itype.
 Notation "▷ τ" := (
   itype_later τ
-) : zebre_itype.
+) : zoo_itype.

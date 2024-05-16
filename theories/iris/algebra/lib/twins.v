@@ -2,13 +2,13 @@ From iris.algebra Require Import
   excl
   proofmode_classes.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.algebra Require Export
+From zoo.iris.algebra Require Export
   base.
-From zebre.iris.algebra Require Import
+From zoo.iris.algebra Require Import
   lib.auth_option.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition twins A :=

@@ -2,23 +2,23 @@
    https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/unix/rcfd.ml
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   gmultiset.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.auth_gmultiset
   lib.auth_mono.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   spsc_waiter
   unix.
-From zebre.eio Require Export
+From zoo.eio Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b closing : bool.
@@ -31,20 +31,20 @@ Implicit Types o : option val.
 
 #[local] Notation "'ops'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'fd'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 #[local] Notation "'Open'" := (
   in_type "state" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Closing'" := (
   in_type "state" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Inductive rcfd_state :=
@@ -195,7 +195,7 @@ Inductive rcfd_lstep : relation rcfd_lstate :=
       rcfd_lstep RcfdLstateClosingUsers RcfdLstateClosingNoUsers.
 #[local] Hint Constructors rcfd_lstep : core.
 
-Class RcfdG Σ `{zebre_G : !ZebreG Σ} := {
+Class RcfdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] rcfd_G_spsc_waiter_G :: SpscWaiterG Σ ;
   #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp ;
   #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO rcfd_lstate) rcfd_lstep ;
@@ -206,7 +206,7 @@ Definition rcfd_Σ := #[
   auth_gmultiset_Σ Qp ;
   auth_mono_Σ (A := leibnizO rcfd_lstate) rcfd_lstep
 ].
-#[global] Instance subG_rcfd_Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_rcfd_Σ `{zoo_G : !ZooG Σ} :
   subG rcfd_Σ Σ →
   RcfdG Σ.
 Proof.

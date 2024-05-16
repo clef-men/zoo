@@ -2,30 +2,30 @@
    https://arxiv.org/pdf/2004.10908.pdf
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   math
   opt
   array
   random_round.
-From zebre.saturn Require Import
+From zoo.saturn Require Import
   mpmc_queue_1.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   ws_hub.
-From zebre.parabs Require Import
+From zoo.parabs Require Import
   ws_deques
   waiters.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b yield killed : bool.
@@ -36,35 +36,35 @@ Implicit Types vs : gmultiset val.
 
 #[local] Notation "'deques'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'foreign'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'rounds'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'waiters'" := (
   in_type "t" 3
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'num_worker'" := (
   in_type "t" 4
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'num_thief'" := (
   in_type "t" 5
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'killed'" := (
   in_type "t" 6
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Section ws_deques.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
   Context (ws_deques : ws_deques Σ).
 
   Definition ws_hub_2_create : val :=
@@ -224,7 +224,7 @@ Section ws_deques.
       ws_hub_2_notify_all "t".
 End ws_deques.
 
-Class WsHub2G Σ `{zebre_G : !ZebreG Σ} := {
+Class WsHub2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_2_G_queue_G :: MpmcQueueG Σ ;
   #[local] ws_hub_2_G_waiters_G :: WaitersG Σ ;
   #[local] ws_hub_2_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
@@ -235,7 +235,7 @@ Definition ws_hub_2_Σ := #[
   waiters_Σ ;
   twins_Σ (leibnizO (gmultiset val))
 ].
-#[global] Instance subG_ws_hub_2_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_ws_hub_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_2_Σ Σ →
   WsHub2G Σ.
 Proof.

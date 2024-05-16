@@ -1,30 +1,30 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
 
 Notation "'node2_data'" := (
   in_type "node2" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 Notation "'node2_next'" := (
   in_type "node2" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition node2_create : val :=
   λ: "v1" "v2",
     { "v1"; "v2" }.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition node2_model l v1 v2 : iProp Σ :=
     l.[node2_data] ↦ v1 ∗
@@ -40,6 +40,6 @@ Section zebre_G.
   Proof.
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque node2_create.

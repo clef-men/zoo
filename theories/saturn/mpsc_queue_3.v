@@ -2,22 +2,22 @@
    https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/utils/lf_queue.ml
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins
   lib.oneshot.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   clst.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b closed : bool.
@@ -28,11 +28,11 @@ Implicit Types ws : option (list val).
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition mpsc_queue_create : val :=
@@ -108,7 +108,7 @@ Definition mpsc_queue_is_empty : val :=
         end
     end.
 
-Class MpscQueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpscQueueG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpsc_queue_G_twins_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] mpsc_queue_G_lstate_G :: OneshotG Σ () () ;
 }.
@@ -117,7 +117,7 @@ Definition mpsc_queue_Σ := #[
   twins_Σ (leibnizO (list val)) ;
   oneshot_Σ () ()
 ].
-#[global] Instance subG_mpsc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpsc_queue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_Σ Σ →
   MpscQueueG Σ.
 Proof.

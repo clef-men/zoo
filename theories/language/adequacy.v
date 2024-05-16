@@ -1,29 +1,29 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   adequacy.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.language Require Export
+From zoo.language Require Export
   language.
-From zebre.language Require Import
+From zoo.language Require Import
   rules.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types σ : state.
 
-Definition zebre_adequacy Σ `{zebre_Gpre : !ZebreGpre Σ} e σ :
-  ( ∀ `{zebre_G : !ZebreG Σ},
+Definition zoo_adequacy Σ `{zoo_Gpre : !ZooGpre Σ} e σ :
+  ( ∀ `{zoo_G : !ZooG Σ},
     ⊢ WP e {{ v, True }}
   ) →
   adequate e σ.
 Proof.
   intros Hwp.
   apply: wp_adequacy => Hinv_G κs.
-  iMod zebre_init' as "(%zebre_G & Hσ)".
-  iExists zebre_state_interp. repeat iExists _. iFrame.
-  iApply (Hwp (Build_ZebreG Σ)).
+  iMod zoo_init' as "(%zoo_G & Hσ)".
+  iExists zoo_state_interp. repeat iExists _. iFrame.
+  iApply (Hwp (Build_ZooG Σ)).
 Qed.

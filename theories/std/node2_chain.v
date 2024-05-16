@@ -1,21 +1,21 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   node2.
-From zebre.std Require Import
+From zoo.std Require Import
   node2_schain.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
 Implicit Types v dst : val.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition node2_chain nodes vs dst : iProp Σ :=
     node2_schain nodes dst ∗
@@ -223,6 +223,6 @@ Section zebre_G.
     wp_apply (node2_set_next_spec_schain with "Hnodes"); first done.
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque node2_chain.

@@ -1,16 +1,16 @@
 From iris.base_logic Require Import
   lib.ghost_map.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   xdeque.
-From zebre.boxroot Require Export
+From zoo.boxroot Require Export
   gc.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section list_to_set.
@@ -63,14 +63,14 @@ Definition boxroot_set : val :=
   λ: "t" "v",
     "t" <- "v".
 
-Class BoxrootG Σ `{zebre_G : !ZebreG Σ} := {
+Class BoxrootG Σ `{zoo_G : !ZooG Σ} := {
   #[local] boxroot_G_roots_G :: ghost_mapG Σ location gc_location ;
 }.
 
 Definition boxroot_Σ := #[
   ghost_mapΣ location gc_location
 ].
-#[global] Instance subG_boxroot_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_boxroot_Σ Σ `{zoo_G : !ZooG Σ} :
   subG boxroot_Σ Σ →
   BoxrootG Σ.
 Proof.

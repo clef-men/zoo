@@ -1,16 +1,16 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   array
   random.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types i n : nat.
@@ -20,15 +20,15 @@ Implicit Types t rand : val.
 
 #[local] Notation "'random'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'array'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'index'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition random_round_create : val :=
@@ -54,8 +54,8 @@ Definition random_round_next : val :=
     "t" <-{index} "i" ;;
     "res".
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition random_round_model t sz prevs : iProp Σ :=
     ∃ l rand arr nexts,
@@ -170,7 +170,7 @@ Section zebre_G.
       + rewrite reverse_snoc (assoc _ _ [_]) Heq insert_app_l; first lia.
         rewrite insert_app_l // insert_length; first lia.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque random_round_create.
 #[global] Opaque random_round_reset.
@@ -178,8 +178,8 @@ End zebre_G.
 
 #[global] Opaque random_round_model.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition random_round_model' t sz n : iProp Σ :=
     ∃ prevs,
@@ -231,6 +231,6 @@ Section zebre_G.
     wp_apply (random_round_next_spec with "Ht") as (i) "(%Hi & Ht)"; first lia.
     iSteps. iExists (prevs ++ [i]). rewrite app_length. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque random_round_model'.

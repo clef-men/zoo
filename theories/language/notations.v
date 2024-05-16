@@ -1,8 +1,8 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   language.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition in_type (_ : string) (n : nat) :=
@@ -200,17 +200,17 @@ Notation "e1 'or' e2" := (
   only parsing
 ) : expr_scope.
 
-Declare Custom Entry zebre_field.
+Declare Custom Entry zoo_field.
 Notation "l .[ fld ]" := (
   location_add l (Z.of_nat fld)
 )(at level 2,
-  fld custom zebre_field,
+  fld custom zoo_field,
   format "l .[ fld ]"
 ) : stdpp_scope.
 Notation "e .[ fld ]" := (
   Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld)))
 )(at level 2,
-  fld custom zebre_field
+  fld custom zoo_field
 ) : expr_scope.
 
 Notation "'if:' e0 'then' e1 'else' e2" := (
@@ -240,18 +240,18 @@ Notation "'ifnot:' e0 'then' e2" := (
   only parsing
 ) : expr_scope.
 
-Declare Custom Entry zebre_tag.
+Declare Custom Entry zoo_tag.
 Notation "‘ tag { e1 , .. , en }" := (
   Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ).
 Notation "’ tag @{ cid }{ v1 , .. , vn }" := (
   ValConstr (Some cid) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   cid at level 200,
   v1, vn at level 200,
   format "'[hv' ’ tag @{ cid }{  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
@@ -259,21 +259,21 @@ Notation "’ tag @{ cid }{ v1 , .. , vn }" := (
 Notation "’ tag { v1 , .. , vn }" := (
   ValConstr None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
 ).
 Notation "§ tag @{ cid }" := (
   ValConstr (Some cid) tag%core (@nil val)
 )(at level 2,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   cid at level 200,
   format "§ tag @{ cid }"
 ).
 Notation "§ tag" := (
   ValConstr None tag%core (@nil val)
 )(at level 2,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   format "§ tag"
 ).
 
@@ -292,61 +292,61 @@ Notation "()" :=
   ValUnit
 : val_scope.
 
-Declare Custom Entry zebre_proj.
+Declare Custom Entry zoo_proj.
 Notation "0" :=
   0
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "1" :=
   1
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "2" :=
   2
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "3" :=
   3
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "4" :=
   4
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "5" :=
   5
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "6" :=
   6
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "7" :=
   7
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "8" :=
   8
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "9" :=
   9
-( in custom zebre_proj
+( in custom zoo_proj
 ).
 Notation "e .< proj >" := (
   Proj proj e
 )(at level 2,
-  proj custom zebre_proj,
+  proj custom zoo_proj,
   format "e .< proj >"
 ) : expr_scope.
 
-Declare Custom Entry zebre_branch.
+Declare Custom Entry zoo_branch.
 Notation "tag => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@nil binder) BAnon)
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   e constr at level 200,
   format "tag  =>  '/    ' '[' e ']'"
 ).
@@ -354,8 +354,8 @@ Notation "tag 'as' x => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@nil binder) (BNamed x%string))
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   x constr at level 1,
   e constr at level 200,
   format "tag  as  x  =>  '/    ' '[' e ']'"
@@ -364,8 +364,8 @@ Notation "tag 'as:' x => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@nil binder) x%binder)
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   x constr at level 1,
   e constr at level 200,
   format "tag  as:  x  =>  '/    ' '[' e ']'"
@@ -374,8 +374,8 @@ Notation "tag x1 .. xn => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) BAnon)
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   x1 constr at level 1, xn constr at level 1,
   e constr at level 200,
   format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
@@ -384,8 +384,8 @@ Notation "tag x1 .. xn 'as' y => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) (BNamed y%string))
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   x1 constr at level 1, xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
@@ -395,8 +395,8 @@ Notation "tag x1 .. xn 'as:' y => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..) y%binder)
     e%E
-)(in custom zebre_branch at level 200,
-  tag custom zebre_tag,
+)(in custom zoo_branch at level 200,
+  tag custom zoo_tag,
   x1 constr at level 1, xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
@@ -409,7 +409,7 @@ Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   format "'[v' '[hv' match:  '/  ' '[' e ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
@@ -419,7 +419,7 @@ Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
@@ -429,7 +429,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
@@ -439,7 +439,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
@@ -449,7 +449,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   x at level 1,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
@@ -460,7 +460,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -471,7 +471,7 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   x at level 1,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
@@ -482,7 +482,7 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zebre_branch at level 200, br_n custom zebre_branch at level 200,
+  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -504,7 +504,7 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
       (@nil branch)
     )
 )(at level 200,
-  tag custom zebre_tag,
+  tag custom zoo_tag,
   x1, xn at level 1,
   e1, e2 at level 200,
   format "'[v' '[hv' 'let:'  ‘ tag  x1  ..  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
@@ -558,7 +558,7 @@ Notation "! e" := (
 Notation "e .{ fld }" := (
   Load (Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld))))
 )(at level 2,
-  fld custom zebre_field,
+  fld custom zoo_field,
   format "e .{ fld }"
 ) : expr_scope.
 
@@ -570,6 +570,6 @@ Notation "e1 <- e2" := (
 Notation "e1 <-{ fld } e2" := (
   Store (Binop BinopOffset e1%E (Val (ValInt (Z.of_nat fld)))) e2%E
 )(at level 80,
-  fld custom zebre_field,
+  fld custom zoo_field,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-{ fld }  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.

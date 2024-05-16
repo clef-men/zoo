@@ -1,12 +1,12 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   language
   ectx_language
   ectxi_language.
-From zebre.language Require Export
+From zoo.language Require Export
   semantics.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types e : expr.
@@ -16,7 +16,7 @@ Implicit Types K : ectx.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
 
-Lemma zebre_mixin :
+Lemma zoo_mixin :
   EctxiLanguageMixin of_val to_val ectxi_fill base_step.
 Proof.
   split.
@@ -30,12 +30,12 @@ Proof.
     base_step_ectxi_fill_val.
 Qed.
 
-Canonical zebre_ectxi_lang :=
-  Build_ectxi_language zebre_mixin.
-Canonical zebre_ectx_lang :=
-  EctxLanguageOfEctxi zebre_ectxi_lang.
-Canonical zebre :=
-  LanguageOfEctx zebre_ectx_lang.
+Canonical zoo_ectxi_lang :=
+  Build_ectxi_language zoo_mixin.
+Canonical zoo_ectx_lang :=
+  EctxLanguageOfEctxi zoo_ectxi_lang.
+Canonical zoo :=
+  LanguageOfEctx zoo_ectx_lang.
 
 Lemma to_val_fill_some K e v :
   to_val (fill K e) = Some v →

@@ -1,14 +1,14 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   lst.
-From zebre.persistent Require Export
+From zoo.persistent Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t : val.
@@ -32,8 +32,8 @@ Definition pstack_pop : val :=
         ‘Some{ ("v", "t'") }
     end.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition pstack_model t vs : iProp Σ :=
     lst_model t vs.
@@ -104,7 +104,7 @@ Section zebre_G.
     - iSpecialize ("HΦ" $! None). iSteps.
     - iSpecialize ("HΦ" $! (Some _)). iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque pstack_empty.
 #[global] Opaque pstack_is_empty.

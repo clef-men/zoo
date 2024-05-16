@@ -5,13 +5,13 @@ From iris.bi Require Export
 From iris.base_logic Require Import
   lib.invariants.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   wp.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section atomic_acc.

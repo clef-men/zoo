@@ -4,9 +4,9 @@ From stdpp Require Import
 From iris.algebra Require Import
   ofe.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre Require Import
+From zoo Require Import
   options.
 
 #[local] Open Scope Z_scope.

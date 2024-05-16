@@ -2,21 +2,21 @@
    https://github.com/ocaml-multicore/saturn/pull/122
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.mono_list
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   node2_schain
   node2_chain.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l front node back new_back : location.
@@ -26,11 +26,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'back'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition mpmc_queue_create : val :=
@@ -83,7 +83,7 @@ Definition mpmc_queue_pop : val :=
       )
     ).
 
-Class MpmcQueueG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpmcQueueG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpmc_queue_G_history_G :: MonoListG Σ location ;
   #[local] mpmc_queue_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
 }.
@@ -92,7 +92,7 @@ Definition mpmc_queue_Σ := #[
   mono_list_Σ location ;
   twins_Σ (leibnizO (list val))
 ].
-#[global] Instance subG_mpmc_queue_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpmc_queue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_queue_Σ Σ →
   MpmcQueueG Σ.
 Proof.

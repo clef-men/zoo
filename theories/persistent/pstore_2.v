@@ -5,19 +5,19 @@
 From iris.base_logic Require Import
   lib.ghost_map.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   treemap.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.mono_map.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   assert
   lst.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l r node cnode base root dst : location.
@@ -27,42 +27,42 @@ Implicit Types σ : gmap location val.
 
 #[local] Notation "'gen'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'root'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 #[local] Notation "'ref_gen'" := (
   in_type "ref" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'ref_value'" := (
   in_type "ref" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 #[local] Notation "'snap_store'" := (
   in_type "snap" 0
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'snap_gen'" := (
   in_type "snap" 1
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'snap_root'" := (
   in_type "snap" 2
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 
 #[local] Notation "'Root'" := (
   in_type "descr" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Diff'" := (
   in_type "descr" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Definition pstore_create : val :=
@@ -158,14 +158,14 @@ Module raw.
   Implicit Types descr : descriptor.
   Implicit Types descrs : gmap location descriptor.
 
-  Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
+  Class PstoreG Σ `{zoo_G : !ZooG Σ} := {
     #[local] pstore_G_nodes_G :: ghost_mapG Σ location descriptor ;
   }.
 
   Definition pstore_Σ := #[
     ghost_mapΣ location descriptor
   ].
-  #[global] Instance subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
+  #[global] Instance subG_pstore_Σ Σ `{zoo_G : !ZooG Σ} :
     subG pstore_Σ Σ →
     PstoreG Σ.
   Proof.
@@ -748,7 +748,7 @@ End raw.
 #[global] Opaque pstore_capture.
 #[global] Opaque pstore_restore.
 
-Class PstoreG Σ `{zebre_G : !ZebreG Σ} := {
+Class PstoreG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pstore_G_raw_G :: raw.PstoreG Σ ;
   #[local] pstore_G_support_G :: MonoMapG Σ location val ;
 }.
@@ -757,7 +757,7 @@ Definition pstore_Σ := #[
   raw.pstore_Σ ;
   mono_map_Σ location val
 ].
-Lemma subG_pstore_Σ Σ `{zebre_G : !ZebreG Σ} :
+Lemma subG_pstore_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_Σ Σ →
   PstoreG Σ.
 Proof.

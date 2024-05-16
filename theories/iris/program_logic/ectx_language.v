@@ -1,8 +1,8 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.program_logic Require Import
+From zoo.iris.program_logic Require Import
   language.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section ectx_language_mixin.

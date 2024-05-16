@@ -1,13 +1,13 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   opt.
-From zebre.std Require Import
+From zoo.std Require Import
   chain.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -16,11 +16,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'sentinel'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition queue_create : val :=
@@ -49,8 +49,8 @@ Definition queue_pop : val :=
       ‘Some{ "v" }
     ).
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition queue_model t vs : iProp Σ :=
     ∃ l front sent,
@@ -148,7 +148,7 @@ Section zebre_G.
     wp_apply (chain_tail_spec with "Hfront_model") as (front') "(Hfront_model & Hfront'_model)".
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque queue_create.
 #[global] Opaque queue_is_empty.

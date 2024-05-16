@@ -3,11 +3,11 @@ From iris.bi Require Import
 From iris.base_logic Require Import
   bi.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.algebra Require Import
+From zoo.iris.algebra Require Import
   lib.twins.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section upred.

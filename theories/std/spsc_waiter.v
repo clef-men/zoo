@@ -1,16 +1,16 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.oneshot
   lib.excl.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   condition.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types b : bool.
@@ -18,15 +18,15 @@ Implicit Types l : location.
 
 #[local] Notation "'flag'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'mutex'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'condition'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition spsc_waiter_create : val :=
@@ -57,7 +57,7 @@ Definition spsc_waiter_wait : val :=
       )
     ).
 
-Class SpscWaiterG Σ `{zebre_G : !ZebreG Σ} := {
+Class SpscWaiterG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spsc_waiter_G_mutex_G :: MutexG Σ ;
   #[local] spsc_waiter_G_lstate_G :: OneshotG Σ unit unit ;
   #[local] spsc_waiter_G_excl_G :: ExclG Σ unitO ;
@@ -68,7 +68,7 @@ Definition spsc_waiter_Σ := #[
   oneshot_Σ unit unit ;
   excl_Σ unitO
 ].
-#[global] Instance subG_spsc_waiter_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_spsc_waiter_Σ Σ `{zoo_G : !ZooG Σ} :
   subG spsc_waiter_Σ Σ →
   SpscWaiterG Σ .
 Proof.

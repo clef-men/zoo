@@ -1,11 +1,11 @@
 From iris.algebra Require Export
   view.
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.algebra Require Export
+From zoo.iris.algebra Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section cmra.

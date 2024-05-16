@@ -1,20 +1,20 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
 big_op.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   array
   domain
   spmc_future.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   base.
-From zebre.parabs Require Import
+From zoo.parabs Require Import
   ws_hub.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types not_killed : bool.
@@ -22,24 +22,24 @@ Implicit Types v t hub task : val.
 
 #[local] Notation "'hub'" := (
   in_type "t" 0
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'domains'" := (
   in_type "t" 1
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 
 #[local] Notation "'context_hub'" := (
   in_type "context" 0
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'context_id'" := (
   in_type "context" 1
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 
 Section ws_deques.
-  Context `{zebre_G : !ZebreG Σ}.
+  Context `{zoo_G : !ZooG Σ}.
   Context (ws_hub : ws_hub Σ).
 
   #[local] Parameter scheduler_max_round_noyield : nat.
@@ -107,7 +107,7 @@ Section ws_deques.
       array_iter "t".<domains> domain_join.
 End ws_deques.
 
-Class SchedulerG Σ `{zebre_G : !ZebreG Σ} := {
+Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
   #[local] scheduler_G_domain_G :: DomainG Σ ;
   #[local] scheduler_G_future_G :: SpmcFutureG Σ ;
 }.
@@ -116,7 +116,7 @@ Definition scheduler_Σ := #[
   domain_Σ ;
   spmc_future_Σ
 ].
-#[global] Instance subG_scheduler_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_scheduler_Σ Σ `{zoo_G : !ZooG Σ} :
   subG scheduler_Σ Σ →
   SchedulerG Σ.
 Proof.

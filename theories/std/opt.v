@@ -1,22 +1,22 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v : val.
 
 Notation "'None'" := (
   in_type "opt" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 Notation "'Some'" := (
   in_type "opt" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Coercion opt_to_val o :=
@@ -44,8 +44,8 @@ Proof.
   destruct o; done.
 Qed.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype_opt t : iProp Σ :=
@@ -68,4 +68,4 @@ Section zebre_G.
       [rewrite bi.and_elim_l | rewrite bi.and_elim_r];
       iSteps.
   Qed.
-End zebre_G.
+End zoo_G.

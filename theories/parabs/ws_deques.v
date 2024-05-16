@@ -1,21 +1,21 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   random_round.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t round : val.
 Implicit Types vs : list val.
 Implicit Types vss : list (list val).
 
-Record ws_deques `{zebre_G : !ZebreG Σ} := {
+Record ws_deques `{zoo_G : !ZooG Σ} := {
   ws_deques_create : val ;
   ws_deques_size : val ;
   ws_deques_push : val ;
@@ -139,8 +139,8 @@ Record ws_deques `{zebre_G : !ZebreG Σ} := {
 #[global] Opaque ws_deques_pop.
 #[global] Opaque ws_deques_steal_to.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
   Context (ws_deques : ws_deques Σ).
 
   #[local] Definition ws_deques_steal_as_aux : val :=
@@ -251,6 +251,6 @@ Section zebre_G.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
     wp_apply (ws_deques_steal_as_aux_spec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque ws_deques_steal_as.

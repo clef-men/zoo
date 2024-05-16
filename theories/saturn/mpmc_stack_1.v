@@ -2,19 +2,19 @@
    https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/treiber_stack.ml
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   lst.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -48,21 +48,21 @@ Definition mpmc_stack_pop : val :=
         )
     end.
 
-Class MpmcStackG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpmcStackG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpmc_stack_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
 }.
 
 Definition mpmc_stack_Σ := #[
   twins_Σ (leibnizO (list val))
 ].
-#[global] Instance subG_mpmc_stack_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpmc_stack_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_stack_Σ Σ →
   MpmcStackG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section zebre_G.
+Section zoo_G.
   Context `{mpmc_stack_G : MpmcStackG Σ}.
 
   #[local] Definition mpmc_stack_model₁ γ vs :=
@@ -228,7 +228,7 @@ Section zebre_G.
       iSplitR "HΦ"; first iSteps.
       iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque mpmc_stack_create.
 #[global] Opaque mpmc_stack_push.

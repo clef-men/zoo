@@ -1,12 +1,12 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.iris Require Import
+From zoo.iris Require Import
   diaframe.
-From zebre.iris.program_logic Require Export
+From zoo.iris.program_logic Require Export
   wp.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Section iris_G.

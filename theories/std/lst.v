@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types i j : nat.
@@ -14,11 +14,11 @@ Implicit Types vs vs_left vs_right ws : list val.
 
 Notation "'Nil'" := (
   in_type "lst" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 Notation "'Cons'" := (
   in_type "lst" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 Fixpoint lst_to_val vs :=
@@ -182,8 +182,8 @@ Definition lst_map : val :=
   λ: "t" "fn",
     lst_mapi "t" (λ: <>, "fn").
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition lst_model' t vs :=
     t = lst_to_val vs.
@@ -1374,7 +1374,7 @@ Section zebre_G.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque lst_singleton.
 #[global] Opaque lst_head.

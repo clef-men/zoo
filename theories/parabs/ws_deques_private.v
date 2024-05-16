@@ -2,18 +2,18 @@
    https://inria.hal.science/hal-00863028
 *)
 
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   array
   deque.
-From zebre.parabs Require Export
+From zoo.parabs Require Export
   ws_deques.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t : val.
@@ -24,45 +24,45 @@ Parameter array_cas : val.
 
 #[local] Notation "'Blocked'" := (
   in_type "request" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'No_request'" := (
   in_type "request" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Request'" := (
   in_type "request" 2
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 #[local] Notation "'No_response'" := (
   in_type "response" 0
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'No'" := (
   in_type "response" 1
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 #[local] Notation "'Yes'" := (
   in_type "response" 2
-)(in custom zebre_tag
+)(in custom zoo_tag
 ).
 
 #[local] Notation "'deques'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'flags'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'requests'" := (
   in_type "t" 2
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'responses'" := (
   in_type "t" 3
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition ws_deques_private_create : val :=
@@ -164,12 +164,12 @@ Definition ws_deques_private_steal_to : val :=
       §None
     ).
 
-Class WsDequesPrivateG Σ `{zebre_G : !ZebreG Σ} := {
+Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition ws_deques_private_Σ := #[
 ].
-#[global] Instance subG_ws_deques_private_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_ws_deques_private_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_private_Σ Σ →
   WsDequesPrivateG Σ.
 Proof.

@@ -1,18 +1,18 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types δ : nat.
 Implicit Types body : expr.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[local] Lemma for_upto_spec_stronger beg i δ Ψ _end body :
     i = (beg + δ)%Z →
@@ -381,4 +381,4 @@ Section zebre_G.
     wp_pure.
     wp_apply (wp_wand with "(Hbody [])"); iSteps.
   Qed.
-End zebre_G.
+End zoo_G.

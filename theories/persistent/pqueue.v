@@ -1,16 +1,16 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.common Require Import
+From zoo.common Require Import
   list.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   lst.
-From zebre.persistent Require Export
+From zoo.persistent Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types v t : val.
@@ -18,11 +18,11 @@ Implicit Types back front : list val.
 
 #[local] Notation "'front'" := (
   in_type "t" 0
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 #[local] Notation "'back'" := (
   in_type "t" 1
-)(in custom zebre_proj
+)(in custom zoo_proj
 ).
 
 Definition pqueue_empty : val :=
@@ -50,8 +50,8 @@ Definition pqueue_pop : val :=
         ‘Some{ ("v", ("vs", "t".<back>)) }
     end.
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Definition pqueue_model t vs : iProp Σ :=
     ∃ front back,
@@ -139,7 +139,7 @@ Section zebre_G.
     - iApply ("HΦ" $! (Some (_, _)%V)).
       iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque pqueue_empty.
 #[global] Opaque pqueue_is_empty.

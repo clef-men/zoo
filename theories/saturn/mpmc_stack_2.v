@@ -1,17 +1,17 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.base_logic Require Import
+From zoo.iris.base_logic Require Import
   lib.twins.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Import
+From zoo.std Require Import
   opt
   opt2
   clst.
-From zebre.saturn Require Export
+From zoo.saturn Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l : location.
@@ -58,21 +58,21 @@ Definition mpmc_stack_close : val :=
   λ: "t",
     Xchg "t" §ClstClosed.
 
-Class MpmcStackG Σ `{zebre_G : !ZebreG Σ} := {
+Class MpmcStackG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpmc_stack_G_model_G :: TwinsG Σ (leibnizO (option $ list val)) ;
 }.
 
 Definition mpmc_stack_Σ := #[
   twins_Σ (leibnizO (option $ list val))
 ].
-#[global] Instance subG_mpmc_stack_Σ Σ `{zebre_G : !ZebreG Σ} :
+#[global] Instance subG_mpmc_stack_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_stack_Σ Σ →
   MpmcStackG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section zebre_G.
+Section zoo_G.
   Context `{mpmc_stack_G : MpmcStackG Σ}.
 
   #[local] Definition mpmc_stack_model₁ γ vs :=
@@ -382,7 +382,7 @@ Section zebre_G.
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque mpmc_stack_create.
 #[global] Opaque mpmc_stack_push.

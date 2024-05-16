@@ -1,6 +1,6 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Export
+From zoo.language Require Export
   rules.
-From zebre Require Import
+From zoo Require Import
   options.

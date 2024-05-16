@@ -1,19 +1,19 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Definition diverge : val :=
   rec: "diverge" <> :=
     "diverge" ().
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Implicit Types Φ : val → iProp Σ.
 
@@ -22,6 +22,6 @@ Section zebre_G.
   Proof.
     iLöb as "IH". wp_rec. iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque diverge.

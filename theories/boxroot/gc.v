@@ -1,11 +1,11 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.boxroot Require Export
+From zoo.boxroot Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l root : location.
@@ -30,10 +30,10 @@ Parameter gc_val_of_val : val → option gc_val.
 Implicit Types ν : gc_val.
 Implicit Types νs : list gc_val.
 
-Parameter gc_model : ∀ `{zebre_G : !ZebreG Σ}, gc_state → iProp Σ.
-Parameter gc_pointsto : ∀ `{zebre_G : !ZebreG Σ}, gc_location → list gc_val → iProp Σ.
+Parameter gc_model : ∀ `{zoo_G : !ZooG Σ}, gc_state → iProp Σ.
+Parameter gc_pointsto : ∀ `{zoo_G : !ZooG Σ}, gc_location → list gc_val → iProp Σ.
 Parameter gc_realized : gc_state → gc_location → location → Prop.
-Definition gc_root `{zebre_G : !ZebreG Σ} gc root ω : iProp Σ :=
+Definition gc_root `{zoo_G : !ZooG Σ} gc root ω : iProp Σ :=
   ∃ l,
   root ↦ #l ∗
   ⌜gc_realized gc ω l⌝.
@@ -59,7 +59,7 @@ Axiom gc_realized_agree : ∀ gc ω l1 l2,
   ω ↦gc[gc] l2 →
   l1 = l2.
 
-Parameter wp_load_gc : ∀ `{zebre_G : !ZebreG Σ} ν gc ω νs l i,
+Parameter wp_load_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i,
   (0 ≤ i)%Z →
   νs !! Z.to_nat i = Some ν →
   ω ↦gc[gc] l →
@@ -74,7 +74,7 @@ Parameter wp_load_gc : ∀ `{zebre_G : !ZebreG Σ} ν gc ω νs l i,
     ω ↦gc νs
   }}}.
 
-Parameter wp_store_gc : ∀ `{zebre_G : !ZebreG Σ} ν gc ω νs l i v,
+Parameter wp_store_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i v,
   (0 ≤ Z.to_nat i < length νs)%Z →
   gc_val_of_val v = Some ν →
   ω ↦gc[gc] l →
@@ -89,7 +89,7 @@ Parameter wp_store_gc : ∀ `{zebre_G : !ZebreG Σ} ν gc ω νs l i v,
     ω ↦gc <[Z.to_nat i := ν]> νs
   }}}.
 
-Lemma wp_load_gc_root `{zebre_G : !ZebreG Σ} gc root ω :
+Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω :
   {{{
     root ↦root[gc] ω
   }}}
@@ -102,7 +102,7 @@ Lemma wp_load_gc_root `{zebre_G : !ZebreG Σ} gc root ω :
 Proof.
   iSteps.
 Qed.
-Lemma wp_load_gc_root' `{zebre_G : !ZebreG Σ} {gc root ω} l :
+Lemma wp_load_gc_root' `{zoo_G : !ZooG Σ} {gc root ω} l :
   ω ↦gc[gc] l →
   {{{
     root ↦root[gc] ω
@@ -118,7 +118,7 @@ Proof.
   iSteps.
 Qed.
 
-Lemma wp_store_gc_root `{zebre_G : !ZebreG Σ} {gc root ω'} ω l :
+Lemma wp_store_gc_root `{zoo_G : !ZooG Σ} {gc root ω'} ω l :
   ω ↦gc[gc] l →
   {{{
     root ↦root[gc] ω'
@@ -132,9 +132,9 @@ Proof.
   iSteps.
 Qed.
 
-Parameter gc_roots : ∀ `{zebre_G : !ZebreG Σ}, (gc_state → iProp Σ) → iProp Σ.
+Parameter gc_roots : ∀ `{zoo_G : !ZooG Σ}, (gc_state → iProp Σ) → iProp Σ.
 Parameter gc_set_roots : val.
-Axiom gc_set_roots_spec : ∀ `{zebre_G : !ZebreG Σ} {gc Χ' iter} Χ Ξ,
+Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ,
   {{{
     gc_model gc ∗
     gc_roots Χ' ∗
@@ -178,7 +178,7 @@ Axiom gc_set_roots_spec : ∀ `{zebre_G : !ZebreG Σ} {gc Χ' iter} Χ Ξ,
   }}}.
 
 Parameter gc_alloc : val.
-Axiom gc_alloc_spec : ∀ `{zebre_G : !ZebreG Σ} gc Χ n,
+Axiom gc_alloc_spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
   (0 < n)%Z →
   {{{
     gc_model gc ∗

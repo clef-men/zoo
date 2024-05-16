@@ -1,16 +1,16 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.iris.bi Require Import
+From zoo.iris.bi Require Import
   big_op.
-From zebre.language Require Import
+From zoo.language Require Import
   notations
   diaframe.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre.std Require Import
+From zoo.std Require Import
   assume
   chunk.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types i j n : nat.
@@ -20,11 +20,11 @@ Implicit Types vs : list val.
 
 #[local] Notation "'size'" := (
   in_type "t" 0
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 #[local] Notation "'data'" := (
   in_type "t" 1
-)(in custom zebre_field
+)(in custom zoo_field
 ).
 
 Definition array_create : val :=
@@ -162,8 +162,8 @@ Definition array_ccopy : val :=
   λ: "t1" "i1" "t2" "i2",
     array_cblit "t1" "i1" "t2" "i2" (array_size "t1").
 
-Section zebre_G.
-  Context `{zebre_G : !ZebreG Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Section array_inv.
     Definition array_inv t (sz : nat) : iProp Σ :=
@@ -3615,7 +3615,7 @@ Section zebre_G.
     wp_apply (array_cblit_type _ _ sz1 _ _ sz2); [done.. | iFrame "#∗" |].
     iSteps.
   Qed.
-End zebre_G.
+End zoo_G.
 
 #[global] Opaque array_create.
 #[global] Opaque array_make.

@@ -1,10 +1,10 @@
-From zebre Require Import
+From zoo Require Import
   prelude.
-From zebre.language Require Import
+From zoo.language Require Import
   notations.
-From zebre.std Require Export
+From zoo.std Require Export
   base.
-From zebre Require Import
+From zoo Require Import
   options.
 
 Implicit Types l slot : location.
@@ -19,13 +19,13 @@ Parameter xdeque_remove : val.
 
 Parameter xdeque_iter : val.
 
-Parameter xdeque_model : ∀ `{zebre_G : !ZebreG Σ}, val → list location → iProp Σ.
+Parameter xdeque_model : ∀ `{zoo_G : !ZooG Σ}, val → list location → iProp Σ.
 
-Axiom xdeque_model_no_dup : ∀ `{zebre_G : !ZebreG Σ} t slots,
+Axiom xdeque_model_no_dup : ∀ `{zoo_G : !ZooG Σ} t slots,
   xdeque_model t slots ⊢
   ⌜NoDup slots⌝.
 
-Axiom xdeque_create_spec : ∀ `{zebre_G : !ZebreG Σ},
+Axiom xdeque_create_spec : ∀ `{zoo_G : !ZooG Σ},
   {{{ True }}}
     xdeque_create ()
   {{{ t,
@@ -34,7 +34,7 @@ Axiom xdeque_create_spec : ∀ `{zebre_G : !ZebreG Σ},
     xdeque_model t []
   }}}.
 
-Axiom xdeque_push_back_spec : ∀ `{zebre_G : !ZebreG Σ} t slots v,
+Axiom xdeque_push_back_spec : ∀ `{zoo_G : !ZooG Σ} t slots v,
   {{{
     xdeque_model t slots
   }}}
@@ -45,7 +45,7 @@ Axiom xdeque_push_back_spec : ∀ `{zebre_G : !ZebreG Σ} t slots v,
     slot ↦ v
   }}}.
 
-Axiom xdeque_remove_spec : ∀ `{zebre_G : !ZebreG Σ} {t slots slot} i,
+Axiom xdeque_remove_spec : ∀ `{zoo_G : !ZooG Σ} {t slots slot} i,
   slots !! i = Some slot →
   {{{
     xdeque_model t slots
@@ -56,7 +56,7 @@ Axiom xdeque_remove_spec : ∀ `{zebre_G : !ZebreG Σ} {t slots slot} i,
     xdeque_model t (delete i slots)
   }}}.
 
-Axiom xdeque_iter_spec : ∀ `{zebre_G : !ZebreG Σ} Ψ t slots fn,
+Axiom xdeque_iter_spec : ∀ `{zoo_G : !ZooG Σ} Ψ t slots fn,
   {{{
     ▷ Ψ [] ∗
     xdeque_model t slots ∗
