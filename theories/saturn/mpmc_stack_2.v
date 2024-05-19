@@ -7,7 +7,7 @@ From zoo.language Require Import
   diaframe.
 From zoo.std Require Import
   opt
-  opt2
+  optional
   clst.
 From zoo.saturn Require Export
   base.
@@ -42,12 +42,12 @@ Definition mpmc_stack_pop : val :=
   rec: "mpmc_stack_pop" "t" :=
     match: !"t" with
     | ClstClosed =>
-        §None2
+        §Anything
     | ClstOpen =>
-        §None1
+        §Nothing
     | ClstCons "v" "new" as "old" =>
         if: Cas "t" "old" "new" then (
-          ‘Some2{ "v" }
+          ‘Something{ "v" }
         ) else (
           Yield ;;
           "mpmc_stack_pop" "t"
@@ -259,7 +259,7 @@ Section zoo_G.
       mpmc_stack_pop t @ ↑ι
     <<<
       mpmc_stack_model t (tail <$> vs)
-    | RET default None2 (option_to_option2 ∘ head <$> vs); £1
+    | RET default Anything (option_to_optional ∘ head <$> vs); £1
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -320,7 +320,7 @@ Section zoo_G.
     }}}
       mpmc_stack_pop t
     {{{
-      RET §None2; True
+      RET §Anything; True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".

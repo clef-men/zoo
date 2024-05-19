@@ -12,7 +12,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   array.
 From zoo.saturn Require Export
   base.
@@ -262,7 +262,7 @@ Section bag_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj opt_to_val _ None) _.
+    wp_cas as _ | ->%(inj option_to_val _ None) _.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
@@ -357,7 +357,7 @@ Section bag_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj opt_to_val _ (Some v)) _.
+    wp_cas as _ | ->%(inj option_to_val _ (Some v)) _.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.

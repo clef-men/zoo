@@ -8,7 +8,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt.
+  option.
 From zoo.saturn Require Export
   base.
 From zoo Require Import

@@ -15,7 +15,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   lst.
 From zoo.saturn Require Export
   base.

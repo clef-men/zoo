@@ -8,7 +8,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   array
   deque.
 From zoo.parabs Require Export

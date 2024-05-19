@@ -11,7 +11,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   node2_schain
   node2_chain.
 From zoo.saturn Require Export

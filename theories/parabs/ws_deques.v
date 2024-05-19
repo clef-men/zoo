@@ -4,7 +4,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   random_round.
 From zoo.parabs Require Export
   base.

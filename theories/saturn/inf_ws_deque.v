@@ -23,8 +23,8 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  inf_array
-  opt.
+  option
+  inf_array.
 From zoo.saturn Require Export
   base.
 From zoo Require Import

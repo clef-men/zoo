@@ -87,8 +87,8 @@ theories/std/assume.v
 theories/std/for_upto.v
 theories/std/math.v
 theories/std/ref_.v
-theories/std/opt.v
-theories/std/opt2.v
+theories/std/option.v
+theories/std/optional.v
 theories/std/lst.v
 theories/std/clst.v
 theories/std/node2.v

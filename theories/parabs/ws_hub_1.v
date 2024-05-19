@@ -15,7 +15,7 @@ From zoo.language Require Import
   diaframe.
 From zoo.std Require Import
   math
-  opt
+  option
   array
   random_round.
 From zoo.saturn Require Import

@@ -9,7 +9,7 @@ From zoo.language Require Import
 From zoo.std Require Export
   base.
 From zoo.std Require Import
-  opt
+  option
   condition.
 From zoo Require Import
   options.

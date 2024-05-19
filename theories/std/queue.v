@@ -4,7 +4,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  opt.
+  option.
 From zoo.std Require Import
   chain.
 From zoo Require Import

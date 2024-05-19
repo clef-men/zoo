@@ -13,7 +13,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   spsc_waiter
   unix.
 From zoo.eio Require Export
