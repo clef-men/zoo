@@ -16,7 +16,6 @@ Implicit Types v t : val.
 Record ws_hub `{zoo_G : !ZooG Σ} := {
   ws_hub_create : val ;
   ws_hub_push : val ;
-  ws_hub_push_foreign : val ;
   ws_hub_pop : val ;
   ws_hub_try_steal : val ;
   ws_hub_steal : val ;
@@ -62,18 +61,6 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
       ws_hub_model t ({[+v+]} ⊎ vs)
     | RET ();
       ws_hub_owner t i_
-    >>> ;
-
-  ws_hub_push_foreign_spec t ι v :
-    <<<
-      ws_hub_inv t ι
-    | ∀∀ vs,
-      ws_hub_model t vs
-    >>>
-      ws_hub_push_foreign t v @ ↑ι
-    <<<
-      ws_hub_model t ({[+v+]} ⊎ vs)
-    | RET (); True
     >>> ;
 
   ws_hub_pop_spec t ι i i_ :
@@ -168,10 +155,9 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     }}} ;
 }.
 #[global] Arguments ws_hub _ {_} : assert.
-#[global] Arguments Build_ws_hub {_ _ _ _ _ _ _ _ _ _ _ _ _ _ _} _ _ _ _ _ _ _ _ _ : assert.
+#[global] Arguments Build_ws_hub {_ _ _ _ _ _ _ _ _ _ _ _ _ _} _ _ _ _ _ _ _ _ : assert.
 #[global] Opaque ws_hub_create.
 #[global] Opaque ws_hub_push.
-#[global] Opaque ws_hub_push_foreign.
 #[global] Opaque ws_hub_pop.
 #[global] Opaque ws_hub_try_steal.
 #[global] Opaque ws_hub_steal.
