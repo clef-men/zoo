@@ -143,7 +143,7 @@ theories/parabs/waiters.v
 theories/parabs/ws_hub.v
 theories/parabs/ws_hub_1.v
 theories/parabs/ws_hub_2.v
-theories/parabs/scheduler.v
+theories/parabs/pool.v
 theories/parabs/vertex.v
 
 theories/eio/base.v

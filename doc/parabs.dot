@@ -31,7 +31,7 @@ digraph {
 		ws_hub [label="ws_hub"]
 		ws_hub_1 [label="ws_hub_1"]
 		ws_hub_2 [label="ws_hub_2"]
-		scheduler [label="scheduler"]
+		pool [label="pool"]
 		vertex [label="vertex"]
 	}
 
@@ -58,9 +58,9 @@ digraph {
 	ws_hub_2 -> waiters
 	ws_hub_2 -> ws_hub [style=dotted]
 
-	scheduler -> spmc_future
-	scheduler -> ws_hub
+	pool -> spmc_future
+	pool -> ws_hub
 
 	vertex -> mpmc_stack
-	vertex -> scheduler
+	vertex -> pool
 }

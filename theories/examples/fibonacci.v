@@ -5,7 +5,7 @@ From zoo.language Require Import
   diaframe.
 From zoo.parabs Require Import
   ws_hub
-  scheduler.
+  pool.
 From zoo Require Import
   options.
 
@@ -48,8 +48,8 @@ Proof.
   apply decide_ext. lia.
 Qed.
 
-Section scheduler_G.
-  Context `{scheduler_G : SchedulerG Σ}.
+Section pool_G.
+  Context `{pool_G : SchedulerG Σ}.
   Context (ws_hub : ws_hub Σ).
 
   #[local] Definition fibonacci_aux : val :=
@@ -57,23 +57,23 @@ Section scheduler_G.
       if: "n" ≤ #1 then (
         "n"
       ) else (
-        let: "fut1" := scheduler_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #1) "ctx") in
-        let: "fut2" := scheduler_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #2) "ctx") in
-        scheduler_await ws_hub "ctx" "fut1" + scheduler_await ws_hub "ctx" "fut2"
+        let: "fut1" := pool_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #1) "ctx") in
+        let: "fut2" := pool_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #2) "ctx") in
+        pool_await ws_hub "ctx" "fut1" + pool_await ws_hub "ctx" "fut2"
       ).
   Definition fibonacci : val :=
-    λ: "n" "sched",
-      scheduler_run ws_hub "sched" (λ: "ctx", fibonacci_aux "n" "ctx").
+    λ: "n" "pool",
+      pool_run ws_hub "pool" (λ: "ctx", fibonacci_aux "n" "ctx").
 
   #[local] Lemma fibonacci_aux_spec n ctx :
     (0 ≤ n)%Z →
     {{{
-      scheduler_context ws_hub ctx
+      pool_context ws_hub ctx
     }}}
       fibonacci_aux #n ctx
     {{{
       RET #(fib (Z.to_nat n));
-      scheduler_context ws_hub ctx
+      pool_context ws_hub ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).
@@ -85,37 +85,37 @@ Section scheduler_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_smart_apply (scheduler_async_spec _ (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
+    - wp_smart_apply (pool_async_spec _ (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (scheduler_async_spec _ (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
+      wp_smart_apply (pool_async_spec _ (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (scheduler_await_spec with "[$Hctx $Hfut2]") as (?) "(Hctx & ->)".
-      wp_smart_apply (scheduler_await_spec with "[$Hctx $Hfut1]") as (?) "(Hctx & ->)".
+      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut2]") as (?) "(Hctx & ->)".
+      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut1]") as (?) "(Hctx & ->)".
       wp_pures.
       rewrite (fib_spec_Z n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma fibonacci_spec (n : nat) sched :
+  Lemma fibonacci_spec (n : nat) pool :
     {{{
-      scheduler_model ws_hub sched
+      pool_model ws_hub pool
     }}}
-      fibonacci #n sched
+      fibonacci #n pool
     {{{
       RET #(fib n);
-      scheduler_model ws_hub sched
+      pool_model ws_hub pool
     }}}.
   Proof.
-    iIntros "%Φ Hsched HΦ".
+    iIntros "%Φ Hpool HΦ".
     wp_rec.
-    wp_smart_apply (scheduler_run_spec _ (λ v, ⌜v = #_⌝)%I with "[$Hsched]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
+    wp_smart_apply (pool_run_spec _ (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
     wp_smart_apply (fibonacci_aux_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.
-End scheduler_G.
+End pool_G.
 
 #[global] Opaque fibonacci.

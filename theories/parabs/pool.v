@@ -42,147 +42,147 @@ Section ws_deques.
   Context `{zoo_G : !ZooG Σ}.
   Context (ws_hub : ws_hub Σ).
 
-  #[local] Parameter scheduler_max_round_noyield : nat.
-  #[local] Parameter scheduler_max_round_yield : nat.
-  #[local] Definition scheduler_max_round : val :=
-    (#scheduler_max_round_noyield, #scheduler_max_round_yield).
+  #[local] Parameter pool_max_round_noyield : nat.
+  #[local] Parameter pool_max_round_yield : nat.
+  #[local] Definition pool_max_round : val :=
+    (#pool_max_round_noyield, #pool_max_round_yield).
 
-  #[local] Definition scheduler_execute : val :=
+  #[local] Definition pool_execute : val :=
     λ: "ctx" "task",
       "task" "ctx".
 
-  #[local] Definition scheduler_worker : val :=
-    rec: "scheduler_worker" "ctx" :=
-      match: ws_hub_pop_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
+  #[local] Definition pool_worker : val :=
+    rec: "pool_worker" "ctx" :=
+      match: ws_hub_pop_steal ws_hub "ctx".<context_hub> "ctx".<context_id> pool_max_round with
       | None =>
           ()
       | Some "task" =>
-          scheduler_execute "ctx" "task" ;;
-          "scheduler_worker" "ctx"
+          pool_execute "ctx" "task" ;;
+          "pool_worker" "ctx"
       end.
 
-  Definition scheduler_create : val :=
+  Definition pool_create : val :=
     λ: "sz",
       let: "hub" := ws_hub.(ws_hub_create) (#1 + "sz") in
       let: "doms" := array_initi "sz" (λ: "i",
-        domain_spawn (λ: <>, scheduler_worker ("hub", #1 + "i"))
+        domain_spawn (λ: <>, pool_worker ("hub", #1 + "i"))
       ) in
       ("hub", "doms").
 
   #[using="ws_hub"]
-  Definition scheduler_run : val :=
+  Definition pool_run : val :=
     λ: "t" "task",
-      scheduler_execute ("t".<hub>, #0) "task".
+      pool_execute ("t".<hub>, #0) "task".
 
-  Definition scheduler_silent_async : val :=
+  Definition pool_silent_async : val :=
     λ: "ctx" "task",
       ws_hub.(ws_hub_push) "ctx".<context_hub> "ctx".<context_id> "task".
 
-  Definition scheduler_async : val :=
+  Definition pool_async : val :=
     λ: "ctx" "task",
       let: "fut" := spmc_future_create () in
-      scheduler_silent_async "ctx" (λ: "ctx",
+      pool_silent_async "ctx" (λ: "ctx",
         spmc_future_set "fut" ("task" "ctx")
       ) ;;
       "fut".
 
-  Definition scheduler_await : val :=
-    rec: "scheduler_await" "ctx" "fut" :=
+  Definition pool_await : val :=
+    rec: "pool_await" "ctx" "fut" :=
       match: spmc_future_try_get "fut" with
       | Some "res" =>
           "res"
       | None =>
-          match: ws_hub_pop_try_steal ws_hub "ctx".<context_hub> "ctx".<context_id> scheduler_max_round with
+          match: ws_hub_pop_try_steal ws_hub "ctx".<context_hub> "ctx".<context_id> pool_max_round with
           | None =>
               Yield
           | Some "task" =>
-              scheduler_execute "ctx" "task"
+              pool_execute "ctx" "task"
           end ;;
-          "scheduler_await" "ctx" "fut"
+          "pool_await" "ctx" "fut"
       end.
 
-  Definition scheduler_kill : val :=
+  Definition pool_kill : val :=
     λ: "t",
       ws_hub.(ws_hub_kill) "t".<hub> ;;
       array_iter "t".<domains> domain_join.
 End ws_deques.
 
 Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] scheduler_G_domain_G :: DomainG Σ ;
-  #[local] scheduler_G_future_G :: SpmcFutureG Σ ;
+  #[local] pool_G_domain_G :: DomainG Σ ;
+  #[local] pool_G_future_G :: SpmcFutureG Σ ;
 }.
 
-Definition scheduler_Σ := #[
+Definition pool_Σ := #[
   domain_Σ ;
   spmc_future_Σ
 ].
-#[global] Instance subG_scheduler_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG scheduler_Σ Σ →
+#[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG pool_Σ Σ →
   SchedulerG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section scheduler_G.
-  Context `{scheduler_G : SchedulerG Σ}.
+Section pool_G.
+  Context `{pool_G : SchedulerG Σ}.
   Context (ws_hub : ws_hub Σ).
 
-  #[local] Definition scheduler_task hub task Ψ : iProp Σ :=
+  #[local] Definition pool_task hub task Ψ : iProp Σ :=
     ∀ i,
     ws_hub.(ws_hub_owner) hub i -∗
     WP task (hub, #i)%V {{ v,
       ws_hub.(ws_hub_owner) hub i ∗
       Ψ v
     }}.
-  #[local] Definition scheduler_inv_inner hub : iProp Σ :=
+  #[local] Definition pool_inv_inner hub : iProp Σ :=
     ∃ tasks,
     ws_hub.(ws_hub_model) hub tasks ∗
     [∗ mset] task ∈ tasks,
-      scheduler_task hub task (λ _, True).
-  #[local] Definition scheduler_inv hub : iProp Σ :=
+      pool_task hub task (λ _, True).
+  #[local] Definition pool_inv hub : iProp Σ :=
     ws_hub.(ws_hub_inv) hub (nroot.@"hub") ∗
-    inv (nroot.@"inv") (scheduler_inv_inner hub).
+    inv (nroot.@"inv") (pool_inv_inner hub).
 
-  Definition scheduler_model t : iProp Σ :=
+  Definition pool_model t : iProp Σ :=
     ∃ hub v_doms doms,
     ⌜t = (hub, v_doms)%V⌝ ∗
-    scheduler_inv hub ∗
+    pool_inv hub ∗
     ws_hub.(ws_hub_owner) hub 0 ∗
     array_model v_doms DfracDiscarded doms ∗
     [∗ list] dom ∈ doms,
       domain_model dom (λ res, ⌜res = ()%V⌝).
 
-  #[local] Definition scheduler_context' ctx (i : nat) : iProp Σ :=
+  #[local] Definition pool_context' ctx (i : nat) : iProp Σ :=
     ∃ hub,
     ⌜ctx = (hub, #i)%V⌝ ∗
-    scheduler_inv hub ∗
+    pool_inv hub ∗
     ws_hub.(ws_hub_owner) hub i.
-  Definition scheduler_context ctx : iProp Σ :=
+  Definition pool_context ctx : iProp Σ :=
     ∃ i,
-    scheduler_context' ctx i.
+    pool_context' ctx i.
 
   #[using="ws_hub"]
-  Definition scheduler_future :=
+  Definition pool_future :=
     spmc_future_inv.
 
-  #[global] Instance scheduler_future_proper t :
-    Proper ((pointwise_relation _ (≡)) ==> (≡)) (scheduler_future t).
+  #[global] Instance pool_future_proper t :
+    Proper ((pointwise_relation _ (≡)) ==> (≡)) (pool_future t).
   Proof.
     solve_proper.
   Qed.
 
-  #[global] Instance scheduler_future_persistent fut Ψ :
-    Persistent (scheduler_future fut Ψ).
+  #[global] Instance pool_future_persistent fut Ψ :
+    Persistent (pool_future fut Ψ).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma scheduler_execute_spec hub i task Ψ :
+  #[local] Lemma pool_execute_spec hub i task Ψ :
     {{{
       ws_hub.(ws_hub_owner) hub i ∗
-      scheduler_task hub task Ψ
+      pool_task hub task Ψ
     }}}
-      scheduler_execute (hub, #i)%V task
+      pool_execute (hub, #i)%V task
     {{{ v,
       RET v;
       ws_hub.(ws_hub_owner) hub i ∗
@@ -192,11 +192,11 @@ Section scheduler_G.
     iSteps.
   Qed.
 
-  #[local] Lemma scheduler_worker_spec ctx :
+  #[local] Lemma pool_worker_spec ctx :
     {{{
-      scheduler_context ctx
+      pool_context ctx
     }}}
-      scheduler_worker ws_hub ctx
+      pool_worker ws_hub ctx
     {{{
       RET (); True
     }}}.
@@ -215,19 +215,19 @@ Section scheduler_G.
     iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
     rewrite big_sepMS_singleton.
     iSplitR "Htask"; first iSteps.
-    iIntros "Hhub_owner HΦ". clear- scheduler_G.
+    iIntros "Hhub_owner HΦ". clear- pool_G.
 
-    wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
+    wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
     wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
   Qed.
 
-  Lemma scheduler_create_spec sz :
+  Lemma pool_create_spec sz :
     (0 ≤ sz)%Z →
     {{{ True }}}
-      scheduler_create ws_hub #sz
+      pool_create ws_hub #sz
     {{{ t,
       RET t;
-      scheduler_model t
+      pool_model t
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -237,7 +237,7 @@ Section scheduler_G.
     rewrite Z2Nat.inj_add //.
     iDestruct "Hhub_owners" as "(Hhub_owner & Hhub_owners)".
 
-    iMod (inv_alloc _ _ (scheduler_inv_inner t) with "[Hhub_model]") as "#Hinv".
+    iMod (inv_alloc _ _ (pool_inv_inner t) with "[Hhub_model]") as "#Hinv".
     { iSteps. rewrite big_sepMS_empty //. }
 
     pose Ψ res : iProp Σ := (
@@ -248,53 +248,53 @@ Section scheduler_G.
       { rewrite !seq_length. lia. }
       iIntros "!>" (k i1 i2 ((-> & Hi1)%lookup_seq & (-> & Hi2)%lookup_seq)) "Hhub_owner".
       wp_smart_apply (domain_spawn_spec Ψ with "[Hhub_owner]"); last iSteps.
-      wp_smart_apply (scheduler_worker_spec with "[Hhub_owner]"); last iSteps.
+      wp_smart_apply (pool_worker_spec with "[Hhub_owner]"); last iSteps.
       rewrite Z.add_1_l -Nat2Z.inj_succ. iExists _. iSteps.
     }
     iMod (array_model_persist with "Hv_doms") as "#Hv_doms".
     iSteps.
   Qed.
 
-  Lemma scheduler_run_spec Ψ t task :
+  Lemma pool_run_spec Ψ t task :
     {{{
-      scheduler_model t ∗
+      pool_model t ∗
       ( ∀ ctx,
-        scheduler_context ctx -∗
+        pool_context ctx -∗
         WP task ctx {{ v,
-          scheduler_context ctx ∗
+          pool_context ctx ∗
           Ψ v
         }}
       )
     }}}
-      scheduler_run ws_hub t task
+      pool_run ws_hub t task
     {{{ v,
       RET v;
-      scheduler_model t ∗
+      pool_model t ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ ((%hub & %v_doms & %doms & -> & (#Hhub_inv & #Hinv) & Hhub_owner & Hv_doms & Hdoms) & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (scheduler_execute_spec _ 0 _ Ψ with "[$Hhub_owner Htask]") as (v) "(Hhub_owner & HΨ)"; last iSteps. iIntros "%i Hhub_owner".
+    wp_smart_apply (pool_execute_spec _ 0 _ Ψ with "[$Hhub_owner Htask]") as (v) "(Hhub_owner & HΨ)"; last iSteps. iIntros "%i Hhub_owner".
     wp_apply (wp_wand with "(Htask [Hhub_owner])"); last iSteps.
     iExists i. iSteps.
   Qed.
 
-  Lemma scheduler_silent_async_spec ctx task :
+  Lemma pool_silent_async_spec ctx task :
     {{{
-      scheduler_context ctx ∗
+      pool_context ctx ∗
       ( ∀ ctx,
-        scheduler_context ctx -∗
+        pool_context ctx -∗
         WP task ctx {{ res,
-          scheduler_context ctx
+          pool_context ctx
         }}
       )
     }}}
-      scheduler_silent_async ws_hub ctx task
+      pool_silent_async ws_hub ctx task
     {{{
       RET ();
-      scheduler_context ctx
+      pool_context ctx
     }}}.
   Proof.
     iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & Htask) HΦ".
@@ -315,29 +315,29 @@ Section scheduler_G.
     iExists i. iSteps.
   Qed.
 
-  Lemma scheduler_async_spec Ψ ctx task :
+  Lemma pool_async_spec Ψ ctx task :
     {{{
-      scheduler_context ctx ∗
+      pool_context ctx ∗
       ( ∀ ctx,
-        scheduler_context ctx -∗
+        pool_context ctx -∗
         WP task ctx {{ v,
-          scheduler_context ctx ∗
+          pool_context ctx ∗
           □ Ψ v
         }}
       )
     }}}
-      scheduler_async ws_hub ctx task
+      pool_async ws_hub ctx task
     {{{ fut,
       RET fut;
-      scheduler_context ctx ∗
-      scheduler_future fut Ψ
+      pool_context ctx ∗
+      pool_future fut Ψ
     }}}.
   Proof.
     iIntros "%Φ (Hctx & Htask) HΦ".
 
     wp_rec.
     wp_smart_apply (spmc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer)".
-    wp_smart_apply (scheduler_silent_async_spec with "[$Hctx Htask Hfut_producer]") as "Hctx".
+    wp_smart_apply (pool_silent_async_spec with "[$Hctx Htask Hfut_producer]") as "Hctx".
     { clear ctx. iIntros "%ctx Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ)".
       wp_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]") as "_ //".
@@ -346,15 +346,15 @@ Section scheduler_G.
     iApply ("HΦ" with "[$Hctx $Hfut_inv]").
   Qed.
 
-  Lemma scheduler_await_spec ctx fut Ψ :
+  Lemma pool_await_spec ctx fut Ψ :
     {{{
-      scheduler_context ctx ∗
-      scheduler_future fut Ψ
+      pool_context ctx ∗
+      pool_future fut Ψ
     }}}
-      scheduler_await ws_hub ctx fut
+      pool_await ws_hub ctx fut
     {{{ v,
       RET v;
-      scheduler_context ctx ∗
+      pool_context ctx ∗
       Ψ v
     }}}.
   Proof.
@@ -382,16 +382,16 @@ Section scheduler_G.
         iSplitR "Htask"; first iSteps.
         iIntros "Hhub_owner". clear.
 
-        wp_smart_apply (scheduler_execute_spec with "[$Hhub_owner $Htask]") as (res) "($ & _)".
+        wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "($ & _)".
       }
       wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
   Qed.
 
-  Lemma scheduler_kill_spec t :
+  Lemma pool_kill_spec t :
     {{{
-      scheduler_model t
+      pool_model t
     }}}
-      scheduler_kill ws_hub t
+      pool_kill ws_hub t
     {{{
       RET (); True
     }}}.
@@ -405,15 +405,15 @@ Section scheduler_G.
     wp_apply (domain_join_spec with "Hdom").
     iSteps.
   Qed.
-End scheduler_G.
+End pool_G.
 
-#[global] Opaque scheduler_create.
-#[global] Opaque scheduler_run.
-#[global] Opaque scheduler_silent_async.
-#[global] Opaque scheduler_async.
-#[global] Opaque scheduler_await.
-#[global] Opaque scheduler_kill.
+#[global] Opaque pool_create.
+#[global] Opaque pool_run.
+#[global] Opaque pool_silent_async.
+#[global] Opaque pool_async.
+#[global] Opaque pool_await.
+#[global] Opaque pool_kill.
 
-#[global] Opaque scheduler_model.
-#[global] Opaque scheduler_context.
-#[global] Opaque scheduler_future.
+#[global] Opaque pool_model.
+#[global] Opaque pool_context.
+#[global] Opaque pool_future.
