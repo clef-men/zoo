@@ -4,7 +4,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   mpsc_waiter.
 From zoo.saturn Require Import
   mpmc_queue_1.

@@ -4,7 +4,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt.
+  option.
 From zoo.parabs Require Export
   base.
 From zoo Require Import

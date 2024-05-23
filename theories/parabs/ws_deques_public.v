@@ -6,7 +6,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   array.
 From zoo.saturn Require Import
   inf_ws_deque.

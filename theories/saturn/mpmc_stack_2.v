@@ -6,7 +6,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  opt
+  option
   optional
   clst.
 From zoo.saturn Require Export
