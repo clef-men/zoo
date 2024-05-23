@@ -141,8 +141,7 @@ theories/parabs/ws_deques_public.v
 theories/parabs/ws_deques_private.v
 theories/parabs/waiters.v
 theories/parabs/ws_hub.v
-theories/parabs/ws_hub_1.v
-theories/parabs/ws_hub_2.v
+theories/parabs/ws_hub_std.v
 theories/parabs/pool.v
 theories/parabs/vertex.v
 
