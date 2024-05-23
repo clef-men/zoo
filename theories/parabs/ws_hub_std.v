@@ -90,8 +90,8 @@ Section ws_deques.
       random_round_reset "round" ;;
       ws_deques_steal_as ws_deques "t".{deques} "i" "round".
 
-  #[local] Definition ws_hub_std_try_steal_aux yield : val :=
-    rec: "ws_hub_std_try_steal_aux" "t" "i" "max_round" :=
+  #[local] Definition ws_hub_std_try_steal_aux : val :=
+    rec: "ws_hub_std_try_steal_aux" "t" "i" "yield" "max_round" :=
       if: "max_round" ≤ #0 then
         §None
       else
@@ -99,16 +99,16 @@ Section ws_deques.
         | Some <> as "res" =>
             "res"
         | None =>
-            (if yield then Yield else ()) ;;
-            "ws_hub_std_try_steal_aux" "t" "i" ("max_round" - #1)
+            if: "yield" then Yield else () ;;
+            "ws_hub_std_try_steal_aux" "t" "i" "yield" ("max_round" - #1)
         end.
   Definition ws_hub_std_try_steal : val :=
     λ: "t" "i" "max_round",
-      match: ws_hub_std_try_steal_aux false "t" "i" "max_round".<0> with
+      match: ws_hub_std_try_steal_aux "t" "i" #false "max_round".<0> with
       | Some <> as "res" =>
           "res"
       | None =>
-          ws_hub_std_try_steal_aux true "t" "i" "max_round".<1>
+          ws_hub_std_try_steal_aux "t" "i" #true "max_round".<1>
       end.
 
   Definition ws_hub_std_steal : val :=
@@ -594,7 +594,7 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_aux_spec yield t ι i i_ max_round :
+  #[local] Lemma ws_hub_std_try_steal_aux_spec t ι i i_ yield max_round :
     i = Z.of_nat i_ →
     (0 ≤ max_round)%Z →
     <<<
@@ -603,7 +603,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_try_steal_aux ws_deques yield t #i #max_round @ ↑ι
+      ws_hub_std_try_steal_aux ws_deques t #i #yield #max_round @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -645,7 +645,7 @@ Section ws_hub_std_G.
         iIntros "HΦ !> Howner". clear- Hmax_round Hcase.
 
         wp_pures.
-        wp_bind (subst _ _ _).
+        wp_bind (if: _ then _ else _)%E.
         wp_apply (wp_wand _ _ (λ res, ⌜res = ()%V⌝)%I) as (res) "->".
         { destruct yield; iSteps. }
         wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
