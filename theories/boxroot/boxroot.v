@@ -169,12 +169,12 @@ Section boxroot_G.
       - iIntros "%gc". iSplit.
         + iIntros "(%_l_global & %_γ & %roots & %map & %Heq & #_Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap)". injection Heq as <-.
           iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-          iDestruct (xdeque_model_no_dup with "Hroots") as %Hnodup.
+          iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
           iExists roots, ((λ root, map !!! root) <$> roots). iFrame.
           rewrite list_to_map_zip_list_to_set //. iFrame.
           admit.
         + iIntros "(%roots & %ωs & (Hroots_auth & Hroots) & Hωs)".
-          iDestruct (xdeque_model_no_dup with "Hroots") as %Hnodup.
+          iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
           iDestruct (big_sepL2_alt with "Hωs") as "(%Hlen & Hωs)".
           iExists l_global, γ, roots, (list_to_map $ zip roots ωs). iSteps.
           * rewrite dom_list_to_map_L fst_zip //. lia.
@@ -234,7 +234,7 @@ Section boxroot_G.
     iDestruct (boxroot_roots_lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
     { rewrite -elem_of_list_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
-    iDestruct (xdeque_model_no_dup with "Hroots") as %Hnodup.
+    iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
     wp_smart_apply (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
     iMod (boxroot_roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
     iDestruct (big_sepM_delete with "Hmap") as "(Hroot & Hmap)"; first done.

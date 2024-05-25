@@ -21,7 +21,7 @@ Parameter xdeque_iter : val.
 
 Parameter xdeque_model : ∀ `{zoo_G : !ZooG Σ}, val → list location → iProp Σ.
 
-Axiom xdeque_model_no_dup : ∀ `{zoo_G : !ZooG Σ} t slots,
+Axiom xdeque_model_NoDup : ∀ `{zoo_G : !ZooG Σ} t slots,
   xdeque_model t slots ⊢
   ⌜NoDup slots⌝.
 
