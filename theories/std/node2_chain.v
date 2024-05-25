@@ -28,6 +28,14 @@ Section zoo_G.
     apply _.
   Qed.
 
+  Lemma node2_chain_to_schain nodes vs dst :
+    node2_chain nodes vs dst ⊢
+      node2_schain nodes dst ∗
+      (node2_schain nodes dst -∗ node2_chain nodes vs dst).
+  Proof.
+    iSteps.
+  Qed.
+
   Lemma node2_chain_valid nodes vs dst :
     node2_chain nodes vs dst ⊢
     ⌜length nodes = length vs⌝.
@@ -131,6 +139,22 @@ Section zoo_G.
     rewrite (node2_chain_snoc (nodes ++ [node])) //. iSteps.
   Qed.
 
+  Lemma node2_chain_lookup {nodes vs} i node v dst :
+    nodes !! i = Some node →
+    vs !! i = Some v →
+    node2_chain nodes vs dst ⊢
+      node.[node2_data] ↦ v ∗
+      node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
+      ( node.[node2_data] ↦ v -∗
+        node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) -∗
+        node2_chain nodes vs dst
+      ).
+  Proof.
+    intros.
+    rewrite /node2_chain {1}node2_schain_lookup // {1}big_sepL2_lookup_acc //.
+    iSteps.
+  Qed.
+
   Lemma node2_chain_exclusive nodes vs1 dst1 vs2 dst2 :
     0 < length nodes →
     node2_chain nodes vs1 dst1 -∗
@@ -139,6 +163,14 @@ Section zoo_G.
   Proof.
     iIntros "% (H1 & _) (H2 & _)".
     iApply (node2_schain_exclusive with "H1 H2"); first done.
+  Qed.
+
+  Lemma node2_chain_NoDup nodes vs dst :
+    node2_chain nodes vs dst ⊢
+    ⌜NoDup nodes⌝.
+  Proof.
+    iIntros "(H & _)".
+    iApply (node2_schain_NoDup with "H").
   Qed.
 
   Lemma node_create_spec_chain {nodes node vs} nodes' dst v :

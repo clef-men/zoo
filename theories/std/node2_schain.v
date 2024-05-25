@@ -10,7 +10,7 @@ From zoo Require Import
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
-Implicit Types v dst : val.
+Implicit Types v next dst : val.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -115,7 +115,7 @@ Section zoo_G.
     rewrite (node2_schain_snoc (nodes ++ [node])) //. iSteps.
   Qed.
 
-  Lemma node2_schain_lookup {nodes} i node dst :
+  Lemma node2_schain_lookup' {nodes} i node dst :
     nodes !! i = Some node →
     node2_schain nodes dst ⊣⊢
       node2_schain (take i nodes) #node ∗
@@ -130,23 +130,35 @@ Section zoo_G.
     rewrite Nat.min_l. { apply lookup_lt_Some in Hlookup. lia. }
     rewrite (Nat.add_sub 1) //.
   Qed.
-  Lemma node2_schain_lookup_1 {nodes} i node dst :
+  Lemma node2_schain_lookup'_1 {nodes} i node dst :
     nodes !! i = Some node →
     node2_schain nodes dst ⊢
       node2_schain (take i nodes) #node ∗
       node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
       node2_schain (drop (S i) nodes) dst.
   Proof.
-    intros. rewrite node2_schain_lookup //.
+    intros. rewrite node2_schain_lookup' //.
   Qed.
-  Lemma node2_schain_lookup_2 {nodes} i node dst :
+  Lemma node2_schain_lookup'_2 {nodes} i node next dst :
     nodes !! i = Some node →
+    next = from_option #@{location} dst (nodes !! S i) →
     node2_schain (take i nodes) #node -∗
-    node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) -∗
+    node.[node2_next] ↦ next -∗
     node2_schain (drop (S i) nodes) dst -∗
     node2_schain nodes dst.
   Proof.
-    intros. rewrite (@node2_schain_lookup nodes) //. iSteps.
+    intros. rewrite (@node2_schain_lookup' nodes) //. iSteps.
+  Qed.
+
+  Lemma node2_schain_lookup {nodes} i node dst :
+    nodes !! i = Some node →
+    node2_schain nodes dst ⊢
+      node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
+      ( node.[node2_next] ↦ from_option #@{location} dst (nodes !! S i) -∗
+        node2_schain nodes dst
+      ).
+  Proof.
+    intros. rewrite node2_schain_lookup' //. iSteps.
   Qed.
 
   Lemma node2_schain_exclusive nodes dst1 dst2 :
@@ -160,6 +172,23 @@ Section zoo_G.
     2: iDestruct "H1" as "(H1 & _)".
     2: iDestruct "H2" as "(H2 & _)".
     all: iDestruct (pointsto_ne with "H1 H2") as %?; done.
+  Qed.
+
+  Lemma node2_schain_NoDup nodes dst :
+    node2_schain nodes dst ⊢
+    ⌜NoDup nodes⌝.
+  Proof.
+    rewrite NoDup_alt.
+    iIntros "H %i1 %i2 %node %Hlookup_1 %Hlookup_2".
+    destruct (decide (i1 = i2)) as [| Hne]; [done | iExFalso].
+    assert (nodes !! (i1 `min` i2) = Some node) as Hlookup_min.
+    { destruct (Nat.min_spec i1 i2) as [(_ & ->) | (_ & ->)]; done. }
+    assert (nodes !! (i1 `max` i2) = Some node) as Hlookup_max.
+    { destruct (Nat.max_spec i1 i2) as [(_ & ->) | (_ & ->)]; done. }
+    iDestruct (node2_schain_lookup' (i1 `min` i2) with "H") as "(_ & Hnode_1 & H)"; first done.
+    iDestruct (node2_schain_lookup' (i1 `max` i2 - i1 `min` i2 - 1) node with "H") as "(_ & Hnode_2 & _)".
+    { rewrite lookup_drop -Hlookup_max. f_equal. lia. }
+    iDestruct (pointsto_ne with "Hnode_1 Hnode_2") as %?. done.
   Qed.
 
   Lemma node2_create_spec_schain {nodes node} nodes' dst v :
@@ -205,7 +234,7 @@ Section zoo_G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite node2_schain_lookup; [| done..].
+    setoid_rewrite node2_schain_lookup at 1; last done.
     iSteps.
   Qed.
 
@@ -237,7 +266,7 @@ Section zoo_G.
     }}}.
   Proof.
     intros Hlookup.
-    setoid_rewrite node2_schain_lookup at 1; [| done..].
+    setoid_rewrite node2_schain_lookup' at 1; last done.
     iIntros "%Φ (H1 & Hnode & H2) HΦ".
     wp_store.
     iDestruct (node2_schain_snoc_2 with "H1 Hnode") as "H1".

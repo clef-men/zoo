@@ -59,6 +59,14 @@ Section basic.
     intros Hlookup.
     apply: foldr_insert_strong'; done.
   Qed.
+
+  Lemma lookup_last_length l i :
+    is_Some (l !! i) →
+    l !! S i = None →
+    length l = S i.
+  Proof.
+    intros ?%lookup_lt_is_Some ?%lookup_ge_None. lia.
+  Qed.
 End basic.
 
 Section Permutation.
