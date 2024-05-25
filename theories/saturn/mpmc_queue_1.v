@@ -43,7 +43,7 @@ Definition mpmc_queue_create : val :=
 
 Definition mpmc_queue_is_empty : val :=
   λ: "t",
-"t".{front}.{node2_next} = ().
+    "t".{front}.{node2_next} = ().
 
 #[local] Definition mpmc_queue_do_push : val :=
   rec: "mpmc_queue_do_push" "node" "new_back" :=
@@ -51,7 +51,7 @@ Definition mpmc_queue_is_empty : val :=
     if: "node'" = () then (
       ifnot: Cas "node".[node2_next] () "new_back" then (
         Yield ;;
-  "mpmc_queue_do_push" "node" "new_back"
+        "mpmc_queue_do_push" "node" "new_back"
       )
     ) else (
       "mpmc_queue_do_push" "node'" "new_back"
