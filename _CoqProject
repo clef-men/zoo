@@ -145,6 +145,8 @@ theories/parabs/ws_hub_std.v
 theories/parabs/pool.v
 theories/parabs/vertex.v
 
+theories/examples/fibonacci.v
+
 theories/eio/base.v
 theories/eio/rcfd.v
 
@@ -152,4 +154,4 @@ theories/boxroot/base.v
 theories/boxroot/gc.v
 theories/boxroot/boxroot.v
 
-theories/examples/fibonacci.v
+theories/kcas.v
