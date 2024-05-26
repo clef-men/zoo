@@ -434,7 +434,7 @@ Section kcas_G.
           ∃ P,
           casn.[prophet] ↦□ #η.(kcas_casn_meta_prophet) ∗
           saved_prop η.(kcas_casn_meta_post) P ∗
-          inv (ι.@"cas".@casn) (kcas_casn_inv_inner' kcas_inv casn η ι P)
+          inv (ι.@"casn".@casn) (kcas_casn_inv_inner' kcas_inv casn η ι P)
       end%I
       param.(kcas_param_meta).
   #[local] Instance kcas_inv_pre_contractive ι :
