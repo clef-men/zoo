@@ -23,6 +23,10 @@ Notation Id :=
   Proph
 ( only parsing
 ).
+Notation ValId id := (
+  ValProphecy id
+)(only parsing
+).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
