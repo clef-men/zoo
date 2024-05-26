@@ -528,7 +528,7 @@ Section kcas_G.
       kcas_lstatus_lb η (KcasUndetermined i) ∗
       kcas_determine_specification
     }}}
-      kcas_determine_aux #casn cass
+      kcas_determine_aux kcas_determine #casn cass
     {{{
       RET #(kcas_casn_meta_success η);
       kcas_lstatus_lb η KcasFinished
