@@ -57,6 +57,4 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque LiteralIdentifier.
-
 #[global] Opaque identifier_model.
