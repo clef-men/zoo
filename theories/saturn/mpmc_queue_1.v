@@ -21,7 +21,7 @@ From zoo.saturn Require Export
 From zoo Require Import
   options.
 
-Implicit Types b strong : bool.
+Implicit Types b au : bool.
 Implicit Types l front node back new_back : location.
 Implicit Types hist past nodes : list location.
 Implicit Types v t : val.
@@ -343,34 +343,28 @@ Section mpmc_queue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_node2_next_spec_stronger strong TB β x Ψ l γ ι i node :
+  #[local] Lemma mpmc_queue_node2_next_spec_strong au TB β x Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (mpmc_queue_inv_inner l γ) ∗
       mpmc_queue_history_elem γ i node ∗
-      if strong then
+      if negb au then True else
         mpmc_queue_front_lb γ i ∗
         atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ ∗
         (mpmc_queue_model #l [] -∗ β [tele_arg []] x)
-      else
-        True
     }}}
       !#node.[node2_next]
     {{{ res,
       RET res;
       ( ⌜res = ()%V⌝ ∗
-        if strong then
+        if negb au then True else
           Ψ [tele_arg []] x
-        else
-          True
       ) ∨ (
         ∃ node',
         ⌜res = #node'⌝ ∗
         mpmc_queue_history_elem γ (S i) node' ∗
-        if strong then
+        if negb au then True else
           atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ
-        else
-          True
       )
     }}}.
   Proof.
@@ -385,9 +379,9 @@ Section mpmc_queue_G.
 
     - iDestruct (mpmc_queue_history_elem_get (S i) with "Hhistory_auth") as "#Hhistory_elem'"; first done.
       iSplitR "HΨ HΦ". { repeat iExists _. iSteps. }
-      destruct strong; iSteps.
+      destruct au; iSteps.
 
-    - destruct strong.
+    - destruct au.
 
       + iDestruct "HΨ" as "(#Hfront_lb & HΨ & Hβ)".
         iDestruct (mpmc_queue_front_lb_valid with "Hfront_auth Hfront_lb") as %Hi.
@@ -425,10 +419,10 @@ Section mpmc_queue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem) HΦ".
-    wp_apply (mpmc_queue_node2_next_spec_stronger false TeleO inhabitant inhabitant inhabitant with "[$]").
+    wp_apply (mpmc_queue_node2_next_spec_strong false TeleO inhabitant inhabitant inhabitant with "[$]").
     iSteps.
   Qed.
-  #[local] Lemma mpmc_queue_node2_next_spec_strong TB β x Ψ l γ ι i node :
+  #[local] Lemma mpmc_queue_node2_next_spec_au TB β x Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (mpmc_queue_inv_inner l γ) ∗
@@ -440,18 +434,16 @@ Section mpmc_queue_G.
       !#node.[node2_next]
     {{{ res,
       RET res;
-      ( ⌜res = ()%V⌝ ∗
+        ⌜res = ()%V⌝ ∗
         Ψ [tele_arg []] x
-      ) ∨ (
-        ∃ node',
+      ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         mpmc_queue_history_elem γ (S i) node' ∗
         atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ
-      )
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & #Hfront_lb & HΨ & Hβ) HΦ".
-    wp_apply (mpmc_queue_node2_next_spec_stronger true with "[$]").
+    wp_apply (mpmc_queue_node2_next_spec_strong true with "[$]").
     iSteps.
   Qed.
 
@@ -473,7 +465,7 @@ Section mpmc_queue_G.
 
     wp_rec.
     wp_smart_apply (mpmc_queue_front_spec with "Hinv") as (node i) "(#Hhistory_elem & #Hfront_lb)".
-    wp_smart_apply (mpmc_queue_node2_next_spec_strong [tele_pair bool] _ [tele_arg true] with "[$Hmeta $Hinv $Hhistory_elem $Hfront_lb $HΦ]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_elem' & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (mpmc_queue_node2_next_spec_au [tele_pair bool] _ [tele_arg true] with "[$Hmeta $Hinv $Hhistory_elem $Hfront_lb $HΦ]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_elem' & HΦ)]"; [iSteps.. |].
 
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -616,7 +608,7 @@ Section mpmc_queue_G.
 
     wp_rec.
     wp_smart_apply (mpmc_queue_front_spec with "Hinv") as (old_front i) "(#Hhistory_elem_old & #Hfront_lb_old)".
-    wp_smart_apply (mpmc_queue_node2_next_spec_strong _ _ [tele_arg] with "[$Hmeta $Hinv $Hhistory_elem_old $Hfront_lb_old $HΦ]") as (res) "[(-> & HΦ) | (%front & -> & #Hhistory_elem & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (mpmc_queue_node2_next_spec_au _ _ [tele_arg] with "[$Hmeta $Hinv $Hhistory_elem_old $Hfront_lb_old $HΦ]") as (res) "[(-> & HΦ) | (%front & -> & #Hhistory_elem & HΦ)]"; [iSteps.. |].
     wp_pures.
 
     wp_bind (Cas _ _ _).
