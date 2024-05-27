@@ -343,7 +343,7 @@ Section mpmc_queue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_node2_next_spec_strong strong TB β Ψ l γ ι i node :
+  #[local] Lemma mpmc_queue_node2_next_spec_stronger strong TB β x Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (mpmc_queue_inv_inner l γ) ∗
@@ -351,7 +351,7 @@ Section mpmc_queue_G.
       if strong then
         mpmc_queue_front_lb γ i ∗
         atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ ∗
-        (mpmc_queue_model #l [] -∗ ∃ x, β [tele_arg []] x)
+        (mpmc_queue_model #l [] -∗ β [tele_arg []] x)
       else
         True
     }}}
@@ -360,7 +360,7 @@ Section mpmc_queue_G.
       RET res;
       ( ⌜res = ()%V⌝ ∗
         if strong then
-          ∃ x, Ψ [tele_arg []] x
+          Ψ [tele_arg []] x
         else
           True
       ) ∨ (
@@ -401,7 +401,7 @@ Section mpmc_queue_G.
         iMod "HΨ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (mpmc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iDestruct ("Hβ" with "[Hmodel₁]") as "(%x & Hβ)"; first iSteps.
+        iDestruct ("Hβ" with "[Hmodel₁]") as "Hβ"; first iSteps.
         iMod ("HΨ" with "Hβ") as "HΨ".
         iSplitR "HΨ HΦ". { repeat iExists _. iSteps. }
         iSteps.
@@ -425,7 +425,33 @@ Section mpmc_queue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem) HΦ".
-    wp_apply (mpmc_queue_node2_next_spec_strong false TeleO inhabitant inhabitant with "[$]").
+    wp_apply (mpmc_queue_node2_next_spec_stronger false TeleO inhabitant inhabitant inhabitant with "[$]").
+    iSteps.
+  Qed.
+  #[local] Lemma mpmc_queue_node2_next_spec_strong TB β x Ψ l γ ι i node :
+    {{{
+      meta l nroot γ ∗
+      inv ι (mpmc_queue_inv_inner l γ) ∗
+      mpmc_queue_history_elem γ i node ∗
+      mpmc_queue_front_lb γ i ∗
+      atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ ∗
+      (mpmc_queue_model #l [] -∗ β [tele_arg []] x)
+    }}}
+      !#node.[node2_next]
+    {{{ res,
+      RET res;
+      ( ⌜res = ()%V⌝ ∗
+        Ψ [tele_arg []] x
+      ) ∨ (
+        ∃ node',
+        ⌜res = #node'⌝ ∗
+        mpmc_queue_history_elem γ (S i) node' ∗
+        atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & #Hfront_lb & HΨ & Hβ) HΦ".
+    wp_apply (mpmc_queue_node2_next_spec_stronger true with "[$]").
     iSteps.
   Qed.
 
@@ -438,47 +464,22 @@ Section mpmc_queue_G.
       mpmc_queue_is_empty t @ ↑ι
     <<<
       ∃∃ b,
-      mpmc_queue_model t vs
-    | RET #b;
+      mpmc_queue_model t vs ∗
       if b then ⌜vs = []⌝ else True
+    | RET #b; True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     wp_rec.
-    wp_smart_apply (mpmc_queue_front_spec with "Hinv") as (front i) "(#Hhistory_elem & #Hfront_lb)".
-    wp_pures.
+    wp_smart_apply (mpmc_queue_front_spec with "Hinv") as (node i) "(#Hhistory_elem & #Hfront_lb)".
+    wp_smart_apply (mpmc_queue_node2_next_spec_strong [tele_pair bool] _ [tele_arg true] with "[$Hmeta $Hinv $Hhistory_elem $Hfront_lb $HΦ]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_elem' & HΦ)]"; [iSteps.. |].
 
-    wp_bind (!_)%E.
-    rename front into node.
-    iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂)".
-    iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (node2_schain_lookup with "Hhist") as "(Hnode & Hhist)"; first done.
-    wp_load.
-    iDestruct ("Hhist" with "Hnode ") as "Hhist".
-    destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
+    iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod ("HΦ" $! false with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpmc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" $! false with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { repeat iExists _. iSteps. }
-      iSteps.
-
-    - iDestruct (mpmc_queue_front_lb_valid with "Hfront_auth Hfront_lb") as %Hi.
-      destruct (decide (length vs = 0)) as [->%nil_length_inv | Hvs]; last first.
-      { iDestruct (big_sepL2_length with "Hnodes") as %?.
-        exfalso.
-        apply (f_equal length) in Hhist.
-        opose proof* lookup_last_length as Hhist_length; [done.. |].
-        rewrite Hhist_length app_length /= in Hhist. lia.
-      }
-      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpmc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" $! true with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { repeat iExists _. iSteps. }
-      iSteps.
+    iSteps.
   Qed.
 
   #[local] Lemma mpmc_queue_do_push_spec l γ ι i node new_back v :
@@ -615,7 +616,7 @@ Section mpmc_queue_G.
 
     wp_rec.
     wp_smart_apply (mpmc_queue_front_spec with "Hinv") as (old_front i) "(#Hhistory_elem_old & #Hfront_lb_old)".
-    wp_smart_apply (mpmc_queue_node2_next_spec_strong true with "[$Hmeta $Hinv $Hhistory_elem_old $Hfront_lb_old $HΦ]") as (res) "[(-> & (% & HΦ)) | (%front & -> & #Hhistory_elem & HΦ)]"; [iSmash.. |].
+    wp_smart_apply (mpmc_queue_node2_next_spec_strong _ _ [tele_arg] with "[$Hmeta $Hinv $Hhistory_elem_old $Hfront_lb_old $HΦ]") as (res) "[(-> & HΦ) | (%front & -> & #Hhistory_elem & HΦ)]"; [iSteps.. |].
     wp_pures.
 
     wp_bind (Cas _ _ _).
