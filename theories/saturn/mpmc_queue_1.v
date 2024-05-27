@@ -395,8 +395,8 @@ Section mpmc_queue_G.
         { iDestruct (big_sepL2_length with "Hnodes") as %?.
           exfalso.
           apply (f_equal length) in Hhist.
-          opose proof* lookup_last_length as Heq; [done.. |].
-          rewrite Heq app_length /= in Hhist. lia.
+          opose proof* lookup_last_length as Hhist_length; [done.. |].
+          rewrite Hhist_length app_length /= in Hhist. lia.
         }
         iMod "HΨ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -470,8 +470,8 @@ Section mpmc_queue_G.
       { iDestruct (big_sepL2_length with "Hnodes") as %?.
         exfalso.
         apply (f_equal length) in Hhist.
-        opose proof* lookup_last_length as Heq; [done.. |].
-        rewrite Heq app_length /= in Hhist. lia.
+        opose proof* lookup_last_length as Hhist_length; [done.. |].
+        rewrite Hhist_length app_length /= in Hhist. lia.
       }
       iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -629,13 +629,13 @@ Section mpmc_queue_G.
       iSteps.
 
     - iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem_old") as %Hlookup_old.
-      iAssert ⌜length past = i⌝%I as %Hlength.
+      iAssert ⌜length past = i⌝%I as %Hpast_length.
       { iDestruct (node2_schain_NoDup with "Hhist") as %Hnodup.
         iPureIntro. eapply NoDup_lookup; try done.
         rewrite Hhist list_lookup_middle //.
       }
       rewrite Hhist (assoc _ _ [_]) lookup_app_r app_length /= in Hlookup; first lia.
-      rewrite Nat.add_1_r Hlength Nat.sub_diag in Hlookup.
+      rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup.
       destruct nodes as [| node nodes]; first done. injection Hlookup as ->.
       rewrite (assoc _ _ [_]) in Hhist.
       iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
