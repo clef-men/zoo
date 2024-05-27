@@ -334,18 +334,18 @@ Section mpsc_queue_G.
       inv ι (mpsc_queue_inv_inner l γ) ∗
       mpsc_queue_history_elem γ i node ∗
       ( if negb au_empty && negb au_nonempty then True else
-        l.[front] ↦{#3/4} #node ∗
-        atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ
+          l.[front] ↦{#3/4} #node ∗
+          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ
       ) ∗
       ( if negb au_empty then True else
-        mpsc_queue_model #l [] -∗
-        β [tele_arg []] x_empty
+          mpsc_queue_model #l [] -∗
+          β [tele_arg []] x_empty
       ) ∗
       ( if negb au_nonempty then True else
-        ∀ vs,
-        ⌜vs ≠ []⌝ -∗
-        mpsc_queue_model #l vs -∗
-        β (TeleArgCons vs ()) x_nonempty
+          ∀ vs,
+          ⌜vs ≠ []⌝ -∗
+          mpsc_queue_model #l vs -∗
+          β (TeleArgCons vs ()) x_nonempty
       )
     }}}
       !#node.[node2_next]
