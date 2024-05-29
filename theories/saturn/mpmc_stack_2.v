@@ -54,6 +54,10 @@ Definition mpmc_stack_pop : val :=
         )
     end.
 
+Definition mpmc_stack_is_closed : val :=
+  λ: "t",
+    !"t" = §ClstClosed.
+
 Definition mpmc_stack_close : val :=
   λ: "t",
     Xchg "t" §ClstClosed.
@@ -327,6 +331,60 @@ Section zoo_G.
 
     iApply wp_fupd.
     awp_apply (mpmc_stack_pop_spec with "Hinv").
+    iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
+    iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
+    iSteps.
+  Qed.
+
+  Lemma mpmc_stack_is_closed_spec t ι :
+    <<<
+      mpmc_stack_inv t ι
+    | ∀∀ vs,
+      mpmc_stack_model t vs
+    >>>
+      mpmc_stack_is_closed t @ ↑ι
+    <<<
+      mpmc_stack_model t vs
+    | RET #(bool_decide (vs = None)); £1
+    >>>.
+  Proof.
+    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+
+    wp_rec credit:"H£".
+
+    wp_bind (!_)%E.
+    iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
+    wp_load.
+    iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (mpmc_stack_model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    destruct vs as [ws |].
+
+    - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iExists (Some _). iSteps. }
+      iModIntro.
+
+      wp_equal as _ | []%(inj clist_to_val _ ClistClosed)%list_to_clist_open_not_closed _.
+      iSteps.
+
+    - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iExists None. iSteps. }
+      iSteps.
+  Qed.
+  Lemma mpmc_stack_is_closed_spec_closed t ι :
+    {{{
+      mpmc_stack_inv t ι ∗
+      mpmc_stack_closed t
+    }}}
+      mpmc_stack_is_closed t
+    {{{
+      RET #true; True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hclosed) HΦ".
+
+    iApply wp_fupd.
+    awp_apply (mpmc_stack_is_closed_spec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
