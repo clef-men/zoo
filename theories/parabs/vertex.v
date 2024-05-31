@@ -51,10 +51,13 @@ Definition vertex_create : val :=
 
 Definition vertex_precede : val :=
   λ: "t1" "t2",
-    Faa "t2".[preds] #1 ;;
-    if: mpmc_stack_push "t1".{succs} "t2" then (
-      Faa "t2".[preds] #(-1) ;;
-      ()
+    let: "succs1" := "t1".{succs} in
+    ifnot: mpmc_stack_is_closed "succs1" then (
+      Faa "t2".[preds] #1 ;;
+      if: mpmc_stack_push "succs1" "t2" then (
+        Faa "t2".[preds] #(-1) ;;
+        ()
+      )
     ).
 
 Section ws_hub.
@@ -183,7 +186,7 @@ Section vertex_G.
     meta vtx nroot γ ∗
     vertex_state₂ γ VertexInit.
 
-  #[local] Definition vertex_input' vtx γ P : iProp Σ :=
+  #[local] Definition vertex_input' γ P : iProp Σ :=
     ∃ δ,
     saved_prop δ P ∗
     vertex_dependency γ δ ∗
@@ -192,7 +195,7 @@ Section vertex_G.
     ∃ vtx γ,
     ⌜t = #vtx⌝ ∗
     meta vtx nroot γ ∗
-    vertex_input' vtx γ P.
+    vertex_input' γ P.
 
   #[local] Definition vertex_inv_inner' (vertex_inv' : location → vertex_meta → iProp Σ → iProp Σ) vtx γ P : iProp Σ :=
     ∃ state preds Δ Π,
@@ -212,7 +215,7 @@ Section vertex_G.
         vertex_dependencies γ false (Δ ∪ Π) ∗
         ( ∀ ctx,
           pool_context ws_hub ctx -∗
-          □ (∀ Q E, vertex_input' vtx γ Q ={E}=∗ □ Q) -∗
+          □ (∀ Q E, vertex_input' γ Q ={E}=∗ □ Q) -∗
           WP γ.(vertex_meta_task) ctx {{ res,
             pool_context ws_hub ctx ∗
             ▷ □ P
@@ -425,72 +428,98 @@ Section vertex_G.
     iIntros "%Φ ((%vtx1 & %γ1 & -> & #Hmeta1 & #Hvtx1_task & #Hvtx1_succs & #Hsuccs1_inv & #Hinv1) & (%vtx2 & %γ2 & -> & #Hmeta2 & #Hvtx2_task & #Hvtx2_succs & #Hsuccs2_inv & #Hinv2) & (%_vtx2 & %_γ2 & %Heq & -> & _Hmeta2 & Hstate₂)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta2 _Hmeta2") as %<-. iClear "_Hmeta2".
 
-    wp_rec. wp_pures.
+    wp_rec. wp_load.
 
-    wp_bind (Faa _ _).
-    iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
-    wp_faa.
-    iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
-    iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-    iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
-    apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
-    iMod (vertex_predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
-    iMod (vertex_dependencies_add π with "Hdeps") as "(Hdeps & #Hdep)".
-    iSplitR "Hstate₂ Hpred HΦ".
-    { iExists VertexInit, (S preds), Δ, ({[π]} ∪ Π).
-      rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-      assert ({[π]} ∪ (Δ ∪ Π) = Δ ∪ ({[π]} ∪ Π)) as -> by set_solver.
-      iSteps; iPureIntro.
-      - set_solver.
-      - rewrite size_union; first set_solver. rewrite size_singleton //.
-    }
-    iModIntro. wp_pures. clear.
-
-    wp_load.
-
-    awp_apply (mpmc_stack_push_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
+    awp_smart_apply (mpmc_stack_is_closed_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
     iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     case_decide as Hstate; first subst.
 
     - iDestruct "Hstate" as "(>%HΠ & #HP1)".
       iDestruct "Hsuccs" as ">Hsuccs_model".
       iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
-      iSplitR "Hpred"; first iSteps.
-      iIntros "_ (Hstate₂ & HΦ)". clear.
+      iSplitL; first iSteps.
+      iIntros "H£ (Hstate₂ & HΦ)". clear.
 
-      wp_pures.
+      iApply fupd_wp.
+      iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
+      iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
+      iDestruct "Hstate" as ">(%Hpreds & Hdeps)".
+      iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
+      apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
+      iMod (vertex_dependencies_add π with "Hdeps") as "(Hdeps & #Hdep)".
+      iSplitR "Hstate₂ H£ HΦ".
+      { iExists VertexInit, preds, ({[π]} ∪ Δ), Π.
+        rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
+        assert ({[π]} ∪ (Δ ∪ Π) = ({[π]} ∪ Δ) ∪ Π) as -> by set_solver.
+        iSteps. iPureIntro. set_solver.
+      }
+      iSteps.
+
+    - iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
+      iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
+      { iFrame. rewrite right_id. iExists state. rewrite decide_False //. iSteps. }
+      iSplitL. { iSteps. rewrite decide_False //. iSteps. }
+      iIntros "H£ (Hstate₂ & HΦ)". wp_pures. clear.
 
       wp_bind (Faa _ _).
       iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
       wp_faa.
       iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
       iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-      iDestruct (vertex_predecessors_elem_of with "Hpreds Hpred") as %Hπ.
-      iMod (vertex_predecessors_remove with "Hpreds Hpred") as "Hpreds".
-      iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
-      iSplitR "Hstate₂ HΦ".
-      { iExists VertexInit, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
+      iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
+      apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
+      iMod (vertex_predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
+      iMod (vertex_dependencies_add π with "Hdeps") as "(Hdeps & #Hdep)".
+      iSplitR "Hstate₂ Hpred H£ HΦ".
+      { iExists VertexInit, (S preds), Δ, ({[π]} ∪ Π).
         rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-        assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
-        { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
+        assert ({[π]} ∪ (Δ ∪ Π) = Δ ∪ ({[π]} ∪ Π)) as -> by set_solver.
         iSteps; iPureIntro.
         - set_solver.
-        - rewrite size_difference; first set_solver. rewrite size_singleton.
-          apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
+        - rewrite size_union; first set_solver. rewrite size_singleton //.
       }
-      iModIntro. clear.
+      iModIntro. wp_pures. clear.
 
-      wp_pures credit:"H£".
-      iSteps.
+      awp_apply (mpmc_stack_push_spec with "Hsuccs1_inv") without "Hstate₂ H£ HΦ".
+      iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+      case_decide as Hstate; first subst.
 
-    - iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-      iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
-      { iFrame. iExists state. rewrite decide_False //. iSteps. }
-      iSplitL.
-      { iSteps. rewrite decide_False //. iExists (vtx2 :: succs). iFrame.
-        setoid_rewrite vertex_inv'_unfold. iSteps.
-      }
-      iSteps.
+      + iDestruct "Hstate" as "(>%HΠ & #HP1)".
+        iDestruct "Hsuccs" as ">Hsuccs_model".
+        iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
+        iSplitR "Hpred"; first iSteps.
+        iIntros "_ (Hstate₂ & H£ & HΦ)". clear.
+
+        wp_pures.
+
+        wp_bind (Faa _ _).
+        iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+        wp_faa.
+        iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
+        iDestruct "Hstate" as "(%Hpreds & Hdeps)".
+        iDestruct (vertex_predecessors_elem_of with "Hpreds Hpred") as %Hπ.
+        iMod (vertex_predecessors_remove with "Hpreds Hpred") as "Hpreds".
+        iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
+        iSplitR "Hstate₂ H£ HΦ".
+        { iExists VertexInit, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
+          rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
+          assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
+          { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
+          iSteps; iPureIntro.
+          - set_solver.
+          - rewrite size_difference; first set_solver. rewrite size_singleton.
+            apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
+        }
+        iSteps.
+
+      + iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
+        iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
+        { iFrame. iExists state. rewrite decide_False //. iSteps. }
+        iSplitL.
+        { iSteps. rewrite decide_False //. iExists (vtx2 :: succs). iFrame.
+          setoid_rewrite vertex_inv'_unfold. iSteps.
+        }
+        iSteps.
   Qed.
 
   #[local] Lemma vertex_propagate_spec ctx vtx γ P π Q run :
