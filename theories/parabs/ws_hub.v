@@ -11,7 +11,7 @@ From zoo Require Import
   options.
 
 Implicit Types b killed : bool.
-Implicit Types v t cond : val.
+Implicit Types v t pred : val.
 
 Record ws_hub `{zoo_G : !ZooG Σ} := {
   ws_hub_create : val ;
@@ -86,13 +86,13 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
       ws_hub_owner t i_
     >>> ;
 
-  ws_hub_steal_until_spec P t ι i i_ max_round_noyield cond :
+  ws_hub_steal_until_spec P t ι i i_ max_round_noyield pred :
     i = Z.of_nat i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_inv t ι ∗
       ws_hub_owner t i_ ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then P else True
@@ -100,7 +100,7 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     | ∀∀ vs,
       ws_hub_model t vs
     >>>
-      ws_hub_steal_until t #i #max_round_noyield cond @ ↑ι
+      ws_hub_steal_until t #i #max_round_noyield pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -174,12 +174,12 @@ Section zoo_G.
   Context (ws_hub : ws_hub Σ).
 
   Definition ws_hub_pop_steal_until : val :=
-    λ: "t" "i" "max_round_noyield" "cond",
+    λ: "t" "i" "max_round_noyield" "pred",
       match: ws_hub.(ws_hub_pop) "t" "i" with
       | Some <> as "res" =>
           "res"
       | None =>
-          ws_hub.(ws_hub_steal_until) "t" "i" "max_round_noyield" "cond"
+          ws_hub.(ws_hub_steal_until) "t" "i" "max_round_noyield" "pred"
       end.
 
   Definition ws_hub_pop_steal : val :=
@@ -191,13 +191,13 @@ Section zoo_G.
           ws_hub.(ws_hub_steal) "t" "i" "max_round"
       end.
 
-  Lemma ws_hub_pop_steal_until_spec P t ι i i_ max_round_noyield cond :
+  Lemma ws_hub_pop_steal_until_spec P t ι i i_ max_round_noyield pred :
     i = Z.of_nat i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub.(ws_hub_inv) t ι ∗
       ws_hub.(ws_hub_owner) t i_ ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then P else True
@@ -205,7 +205,7 @@ Section zoo_G.
     | ∀∀ vs,
       ws_hub.(ws_hub_model) t vs
     >>>
-      ws_hub_pop_steal_until t #i #max_round_noyield cond @ ↑ι
+      ws_hub_pop_steal_until t #i #max_round_noyield pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -221,7 +221,7 @@ Section zoo_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hcond) HΦ".
+    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     wp_rec.
 
@@ -238,7 +238,7 @@ Section zoo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
 
-      wp_smart_apply (ws_hub_steal_until_spec with "[$Hinv $Howner $Hcond] HΦ"); done.
+      wp_smart_apply (ws_hub_steal_until_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
   Qed.
 
   Lemma ws_hub_pop_steal_spec t ι i i_ max_round_noyield max_round_yield :

@@ -29,7 +29,7 @@ From zoo Require Import
 
 Implicit Types b yield killed : bool.
 Implicit Types l : location.
-Implicit Types v t until cond : val.
+Implicit Types v t until pred : val.
 Implicit Types vs : gmultiset val.
 
 #[local] Notation "'deques'" := (
@@ -109,27 +109,27 @@ Section ws_deques.
         end.
 
   #[local] Definition ws_hub_std_steal_until_aux : val :=
-    rec: "ws_hub_std_steal_until_aux" "t" "i" "cond" :=
+    rec: "ws_hub_std_steal_until_aux" "t" "i" "pred" :=
       match: ws_hub_std_try_steal_once "t" "i" with
       | Some <> as "res" =>
           "res"
       | None =>
-          if: "cond" () then (
+          if: "pred" () then (
             §None
           ) else (
             Yield ;;
-            "ws_hub_std_steal_until_aux" "t" "i" "cond"
+            "ws_hub_std_steal_until_aux" "t" "i" "pred"
           )
       end.
   Definition ws_hub_std_steal_until : val :=
-    λ: "t" "i" "max_round_noyield" "cond",
-      match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "cond" with
+    λ: "t" "i" "max_round_noyield" "pred",
+      match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred" with
       | Something "v" =>
           ‘Some{ "v" }
       | Anything =>
           §None
       | Nothing =>
-          ws_hub_std_steal_until_aux "t" "i" "cond"
+          ws_hub_std_steal_until_aux "t" "i" "pred"
       end.
 
   #[local] Definition ws_hub_std_steal_aux : val :=
@@ -696,12 +696,12 @@ Section ws_hub_std_G.
           wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_until_aux_spec P t ι i i_ cond :
+  #[local] Lemma ws_hub_std_steal_until_aux_spec P t ι i i_ pred :
     i = Z.of_nat i_ →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_ ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then P else True
@@ -709,7 +709,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until_aux ws_deques t #i cond @ ↑ι
+      ws_hub_std_steal_until_aux ws_deques t #i pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -725,7 +725,7 @@ Section ws_hub_std_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "!> %Φ (#Hinv & Howner & #Hcond) HΦ".
+    iIntros (->) "!> %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     iLöb as "HLöb".
 
@@ -745,7 +745,7 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear.
 
-      wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+      wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
       destruct b; wp_pures.
 
       + iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
@@ -753,13 +753,13 @@ Section ws_hub_std_G.
 
       + wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
-  Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield cond :
+  Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield pred :
     i = Z.of_nat i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_ ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then P else True
@@ -767,7 +767,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until ws_deques t #i #max_round_noyield cond @ ↑ι
+      ws_hub_std_steal_until ws_deques t #i #max_round_noyield pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -783,18 +783,18 @@ Section ws_hub_std_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hcond) HΦ".
+    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hcond]"); [done.. |].
+    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
       iIntros "HΦ !> (Howner & _)". clear.
 
-      wp_smart_apply (ws_hub_std_steal_until_aux_spec with "[$Hinv $Howner $Hcond] HΦ"); first done.
+      wp_smart_apply (ws_hub_std_steal_until_aux_spec with "[$Hinv $Howner $Hpred] HΦ"); first done.
 
     - iRight. iExists None. iFrame.
       iSteps.

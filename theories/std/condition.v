@@ -9,7 +9,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types t cond : val.
+Implicit Types t pred : val.
 
 Definition condition_create : val :=
   λ: <>,
@@ -28,18 +28,18 @@ Definition condition_notify_all : val :=
     ().
 
 #[local] Definition condition_wait_until_aux : val :=
-  rec: "condition_wait_until_aux" "t" "mtx" "cond" :=
-    ifnot: "cond" () then (
+  rec: "condition_wait_until_aux" "t" "mtx" "pred" :=
+    ifnot: "pred" () then (
       condition_wait "t" "mtx" ;;
-      "condition_wait_until_aux" "t" "mtx" "cond"
+      "condition_wait_until_aux" "t" "mtx" "pred"
     ).
 Definition condition_wait_until : val :=
-  λ: "t" "mtx" "cond",
-    condition_wait_until_aux "t" "mtx" "cond".
+  λ: "t" "mtx" "pred",
+    condition_wait_until_aux "t" "mtx" "pred".
 
 Definition condition_wait_while : val :=
-  λ: "t" "mtx" "cond",
-    condition_wait_until "t" "mtx" (λ: <>, ~ "cond" ()).
+  λ: "t" "mtx" "pred",
+    condition_wait_until "t" "mtx" (λ: <>, ~ "pred" ()).
 
 Section mutex_G.
   Context `{mutex_G : MutexG Σ}.
@@ -105,7 +105,7 @@ Section mutex_G.
     iSteps.
   Qed.
 
-  Lemma condition_wait_until_spec Ψ t mtx cond P :
+  Lemma condition_wait_until_spec Ψ t mtx pred P :
     {{{
       condition_inv t ∗
       mutex_inv mtx P ∗
@@ -117,7 +117,7 @@ Section mutex_G.
         P ∗
         Ψ false
       }}}
-        cond ()
+        pred ()
       {{{ b,
         RET #b;
         mutex_locked mtx ∗
@@ -125,7 +125,7 @@ Section mutex_G.
         Ψ b
       }}}
     }}}
-      condition_wait_until t mtx cond
+      condition_wait_until t mtx pred
     {{{
       RET ();
       mutex_locked mtx ∗
@@ -133,17 +133,17 @@ Section mutex_G.
       Ψ true
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & #Hmutex_inv & Hlocked & HP & HΨ & #Hcond) HΦ".
+    iIntros "%Φ (#Hinv & #Hmutex_inv & Hlocked & HP & HΨ & #Hpred) HΦ".
     wp_rec. wp_pures.
     iLöb as "HLöb".
     wp_rec.
-    wp_smart_apply ("Hcond" with "[$]") as "%b (Hlocked & HP & HΨ)".
+    wp_smart_apply ("Hpred" with "[$]") as "%b (Hlocked & HP & HΨ)".
     destruct b; first iSteps.
     wp_smart_apply (condition_wait_spec _ _ P with "[$]") as "(Hlocked & HP)".
     wp_smart_apply ("HLöb" with "Hlocked HP HΨ HΦ").
   Qed.
 
-  Lemma condition_wait_while_spec Ψ t mtx cond P :
+  Lemma condition_wait_while_spec Ψ t mtx pred P :
     {{{
       condition_inv t ∗
       mutex_inv mtx P ∗
@@ -155,7 +155,7 @@ Section mutex_G.
         P ∗
         Ψ true
       }}}
-        cond ()
+        pred ()
       {{{ b,
         RET #b;
         mutex_locked mtx ∗
@@ -163,7 +163,7 @@ Section mutex_G.
         Ψ b
       }}}
     }}}
-      condition_wait_while t mtx cond
+      condition_wait_while t mtx pred
     {{{
       RET ();
       mutex_locked mtx ∗
@@ -171,11 +171,11 @@ Section mutex_G.
       Ψ false
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & #Hmutex_inv & Hlocked & HP & HΨ & #Hcond) HΦ".
+    iIntros "%Φ (#Hinv & #Hmutex_inv & Hlocked & HP & HΨ & #Hpred) HΦ".
     wp_rec.
     wp_smart_apply (condition_wait_until_spec (λ b, Ψ (negb b)) _ _ _ P with "[$Hlocked $HP $HΨ]"); last iSteps.
     iFrame "#∗". clear. iIntros "%Φ !> (Hlocked & HP & HΨ) HΦ".
-    wp_smart_apply ("Hcond" with "[$]") as "%b (Hlocked & HP & HΨ)".
+    wp_smart_apply ("Hpred" with "[$]") as "%b (Hlocked & HP & HΨ)".
     destruct b; iSteps.
   Qed.
 End mutex_G.

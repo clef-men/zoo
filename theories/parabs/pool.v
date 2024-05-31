@@ -18,7 +18,7 @@ From zoo Require Import
   options.
 
 Implicit Types b not_killed : bool.
-Implicit Types v t hub task cond : val.
+Implicit Types v t hub task pred : val.
 
 #[local] Notation "'hub'" := (
   in_type "t" 0
@@ -87,19 +87,19 @@ Section ws_deques.
       "fut".
 
   Definition pool_wait_until : val :=
-    rec: "pool_wait_until" "ctx" "cond" :=
-      ifnot: "cond" () then
-        match: ws_hub_pop_steal_until ws_hub "ctx".<context_hub> "ctx".<context_id> #pool_max_round_noyield "cond" with
+    rec: "pool_wait_until" "ctx" "pred" :=
+      ifnot: "pred" () then
+        match: ws_hub_pop_steal_until ws_hub "ctx".<context_hub> "ctx".<context_id> #pool_max_round_noyield "pred" with
         | None =>
             ()
         | Some "task" =>
             pool_execute "ctx" "task" ;;
-            "pool_wait_until" "ctx" "cond"
+            "pool_wait_until" "ctx" "pred"
         end.
 
   Definition pool_wait_while : val :=
-    λ: "ctx" "cond",
-      pool_wait_until "ctx" (λ: <>, ~ "cond" ()).
+    λ: "ctx" "pred",
+      pool_wait_until "ctx" (λ: <>, ~ "pred" ()).
 
   Definition pool_await : val :=
     λ: "ctx" "fut",
@@ -351,35 +351,35 @@ Section pool_G.
     iApply ("HΦ" with "[$Hctx $Hfut_inv]").
   Qed.
 
-  Lemma pool_wait_until_spec P ctx cond :
+  Lemma pool_wait_until_spec P ctx pred :
     {{{
       pool_context ctx ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then P else True
       }}
     }}}
-      pool_wait_until ws_hub ctx cond
+      pool_wait_until ws_hub ctx pred
     {{{
       RET ();
       pool_context ctx ∗
       P
     }}}.
   Proof.
-    iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & #Hcond) HΦ".
+    iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & #Hpred) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec.
-    wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+    wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
     destruct b.
 
     - wp_pures.
       iApply ("HΦ" with "[Hhub_owner $HP]").
       iExists i. iSteps.
 
-    - awp_smart_apply (ws_hub_pop_steal_until_spec _ P with "[$Hhub_inv $Hhub_owner $Hcond]") without "HΦ"; [lia.. |].
+    - awp_smart_apply (ws_hub_pop_steal_until_spec _ P with "[$Hhub_inv $Hhub_owner $Hpred]") without "HΦ"; [lia.. |].
       iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
       iAaccIntro with "Hhub_model"; first iSteps. iIntros ([task |]) "Hhub_model !>".
 
@@ -399,27 +399,27 @@ Section pool_G.
         iExists i. iSteps.
   Qed.
 
-  Lemma pool_wait_while_spec P ctx cond :
+  Lemma pool_wait_while_spec P ctx pred :
     {{{
       pool_context ctx ∗
-      □ WP cond () {{ res,
+      □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
         if b then True else P
       }}
     }}}
-      pool_wait_while ws_hub ctx cond
+      pool_wait_while ws_hub ctx pred
     {{{
       RET ();
       pool_context ctx ∗
       P
     }}}.
   Proof.
-    iIntros "%Φ (Hctx & #Hcond) HΦ".
+    iIntros "%Φ (Hctx & #Hpred) HΦ".
 
     wp_rec.
     wp_smart_apply (pool_wait_until_spec with "[$Hctx] HΦ"). iModIntro.
-    wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+    wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
     destruct b; iSteps.
   Qed.
 
