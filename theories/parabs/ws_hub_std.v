@@ -16,6 +16,7 @@ From zoo.language Require Import
 From zoo.std Require Import
   math
   option
+  optional
   array
   random_round.
 From zoo.parabs Require Export
@@ -26,9 +27,9 @@ From zoo.parabs Require Import
 From zoo Require Import
   options.
 
-Implicit Types yield killed : bool.
+Implicit Types b yield killed : bool.
 Implicit Types l : location.
-Implicit Types v t : val.
+Implicit Types v t until cond : val.
 Implicit Types vs : gmultiset val.
 
 #[local] Notation "'deques'" := (
@@ -90,33 +91,65 @@ Section ws_deques.
       random_round_reset "round" ;;
       ws_deques_steal_as ws_deques "t".{deques} "i" "round".
 
-  #[local] Definition ws_hub_std_try_steal_aux : val :=
-    rec: "ws_hub_std_try_steal_aux" "t" "i" "yield" "max_round" :=
+  #[local] Definition ws_hub_std_try_steal : val :=
+    rec: "ws_hub_std_try_steal" "t" "i" "yield" "max_round" "until" :=
       if: "max_round" ≤ #0 then
-        §None
+        §Nothing
       else
         match: ws_hub_std_try_steal_once "t" "i" with
-        | Some <> as "res" =>
-            "res"
+        | Some "v" =>
+            ‘Something{ "v" }
         | None =>
-            if: "yield" then Yield else () ;;
-            "ws_hub_std_try_steal_aux" "t" "i" "yield" ("max_round" - #1)
+            if: "until" () then (
+             §Anything
+            ) else (
+              if: "yield" then Yield else () ;;
+              "ws_hub_std_try_steal" "t" "i" "yield" ("max_round" - #1) "until"
+            )
         end.
-  Definition ws_hub_std_try_steal : val :=
-    λ: "t" "i" "max_round",
-      match: ws_hub_std_try_steal_aux "t" "i" #false "max_round".<0> with
+
+  #[local] Definition ws_hub_std_steal_until_aux : val :=
+    rec: "ws_hub_std_steal_until_aux" "t" "i" "cond" :=
+      match: ws_hub_std_try_steal_once "t" "i" with
       | Some <> as "res" =>
           "res"
       | None =>
-          ws_hub_std_try_steal_aux "t" "i" #true "max_round".<1>
+          if: "cond" () then (
+            §None
+          ) else (
+            Yield ;;
+            "ws_hub_std_steal_until_aux" "t" "i" "cond"
+          )
+      end.
+  Definition ws_hub_std_steal_until : val :=
+    λ: "t" "i" "max_round_noyield" "cond",
+      match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "cond" with
+      | Something "v" =>
+          ‘Some{ "v" }
+      | Anything =>
+          §None
+      | Nothing =>
+          ws_hub_std_steal_until_aux "t" "i" "cond"
       end.
 
+  #[local] Definition ws_hub_std_steal_aux : val :=
+    λ: "t" "i" "max_round" "until",
+      match: ws_hub_std_try_steal "t" "i" #false "max_round".<0> "until" with
+      | Something <> as "res" =>
+          "res"
+      | Anything =>
+          §Anything
+      | Nothing =>
+          ws_hub_std_try_steal "t" "i" #true "max_round".<1> "until"
+      end.
   Definition ws_hub_std_steal : val :=
     rec: "ws_hub_std_steal" "t" "i" "max_round" :=
-      match: ws_hub_std_try_steal "t" "i" "max_round" with
-      | Some <> as "res" =>
-          "res"
-      | None =>
+      match: ws_hub_std_steal_aux "t" "i" "max_round" (λ: <>, ws_hub_std_killed "t") with
+      | Something "v" =>
+          ‘Some{ "v" }
+      | Anything =>
+          §None
+      | Nothing =>
           let: "waiters" := "t".{waiters} in
           let: "waiter" := waiters_prepare_wait "waiters" in
           match: ws_hub_std_try_steal_once "t" "i" with
@@ -594,73 +627,89 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_aux_spec t ι i i_ yield max_round :
+  #[local] Lemma ws_hub_std_try_steal_spec P t ι i i_ yield max_round until :
     i = Z.of_nat i_ →
     (0 ≤ max_round)%Z →
     <<<
       ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ ∗
+      □ WP until () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_try_steal_aux ws_deques t #i #yield #max_round @ ↑ι
+      ws_hub_std_try_steal ws_deques t #i #yield #max_round until @ ↑ι
     <<<
       ∃∃ o,
       match o with
-      | None =>
+      | Nothing
+      | Anything =>
           ws_hub_std_model t vs
-      | Some v =>
+      | Something v =>
           ∃ vs',
           ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ ∗
+      if o is Anything then P else True
     >>>.
   Proof.
     intros ->.
     iLöb as "HLöb" forall (max_round).
 
-    iIntros "%Hmax_round !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros "%Hmax_round !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround) & #Huntil) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_pures.
     case_bool_decide as Hcase; wp_pures.
 
     - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
-      iApply ("HΦ" $! None with "Hmodel").
+      iApply ("HΦ" $! Nothing with "Hmodel").
       iSteps.
 
     - awp_smart_apply (ws_hub_std_try_steal_once_spec with "[Hdeques_owner Hround]"); [done | iSteps |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-      + iRight. iExists (Some v). iFrame.
+      + iRight. iExists (Something v). iFrame.
         iIntros "HΦ !> Howner". clear.
 
-        iSpecialize ("HΦ" with "Howner").
+        iSpecialize ("HΦ" with "[$Howner]").
         iSteps.
 
       + iLeft. iFrame.
         iIntros "HΦ !> Howner". clear- Hmax_round Hcase.
 
-        wp_pures.
-        wp_bind (if: _ then _ else _)%E.
-        wp_apply (wp_wand _ _ (λ res, ⌜res = ()%V⌝)%I) as (res) "->".
-        { destruct yield; iSteps. }
-        wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
+        wp_smart_apply (wp_wand with "Huntil") as (res) "(%b & -> & HP)".
+        destruct b; wp_pures.
+
+        * iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
+          iApply ("HΦ" $! Anything with "Hmodel [$Howner $HP]").
+
+        * wp_bind (if: _ then _ else _)%E.
+          wp_apply (wp_wand _ _ (λ res, ⌜res = ()%V⌝)%I) as (res) "->".
+          { destruct yield; iSteps. }
+          wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
   Qed.
-  Lemma ws_hub_std_try_steal_spec t ι i i_ max_round_noyield max_round_yield :
+
+  #[local] Lemma ws_hub_std_steal_until_aux_spec P t ι i i_ cond :
     i = Z.of_nat i_ →
-    (0 ≤ max_round_noyield)%Z →
-    (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ ∗
+      □ WP cond () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_try_steal ws_deques t #i (#max_round_noyield, #max_round_yield)%V @ ↑ι
+      ws_hub_std_steal_until_aux ws_deques t #i cond @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -672,29 +721,145 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ ∗
+      if o then True else P
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner) HΦ".
+    iIntros (->) "!> %Φ (#Hinv & Howner & #Hcond) HΦ".
+
+    iLöb as "HLöb".
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_aux_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_smart_apply (ws_hub_std_try_steal_once_spec with "[$Hinv $Howner]"); first done.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iRight. iExists (Some v). iFrame.
       iIntros "HΦ !> Howner". clear.
 
-      iSpecialize ("HΦ" with "Howner").
+      iStep.
+      iSpecialize ("HΦ" with "[$Howner]").
       iSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear- Hmax_round_yield.
+      iIntros "HΦ !> Howner". clear.
 
-      wp_smart_apply (ws_hub_std_try_steal_aux_spec with "[$Hinv $Howner] HΦ"); done.
+      wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+      destruct b; wp_pures.
+
+      + iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
+        iApply ("HΦ" $! None with "Hmodel [$Howner $HP]").
+
+      + wp_smart_apply ("HLöb" with "Howner HΦ").
+  Qed.
+  Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield cond :
+    i = Z.of_nat i_ →
+    (0 ≤ max_round_noyield)%Z →
+    <<<
+      ws_hub_std_inv t ι ∗
+      ws_hub_std_owner t i_ ∗
+      □ WP cond () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_steal_until ws_deques t #i #max_round_noyield cond @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_std_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_ ∗
+      if o then True else P
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hcond) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hcond]"); [done.. |].
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
+
+    - iLeft. iFrame.
+      iIntros "HΦ !> (Howner & _)". clear.
+
+      wp_smart_apply (ws_hub_std_steal_until_aux_spec with "[$Hinv $Howner $Hcond] HΦ"); first done.
+
+    - iRight. iExists None. iFrame.
+      iSteps.
+
+    - iRight. iExists (Some v). iFrame.
+      iIntros "HΦ !> Howner". clear.
+
+      iSpecialize ("HΦ" with "Howner").
+      iSteps.
   Qed.
 
+  #[local] Lemma ws_hub_std_steal_aux_spec P t ι i i_ max_round_noyield max_round_yield until :
+    i = Z.of_nat i_ →
+    (0 ≤ max_round_noyield)%Z →
+    (0 ≤ max_round_yield)%Z →
+    <<<
+      ws_hub_std_inv t ι ∗
+      ws_hub_std_owner t i_ ∗
+      □ WP until () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_steal_aux ws_deques t #i (#max_round_noyield, #max_round_yield)%V until @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | Nothing
+      | Anything =>
+          ws_hub_std_model t vs
+      | Something v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_ ∗
+      if o is Anything then P else True
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner & #Huntil) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Huntil]"); [done.. |].
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
+
+    - iLeft. iFrame.
+      iIntros "HΦ !> (Howner & _)". clear- Hmax_round_yield.
+
+      wp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Huntil] HΦ"); done.
+
+    - iRight. iExists Anything. iFrame.
+      iSteps.
+
+    - iRight. iExists (Something v). iFrame.
+      iIntros "HΦ !> Howner". clear.
+
+      iSpecialize ("HΦ" with "Howner").
+      iSteps.
+  Qed.
   Lemma ws_hub_std_steal_spec t ι i i_ max_round_noyield max_round_yield :
     i = Z.of_nat i_ →
     (0 ≤ max_round_noyield)%Z →
@@ -726,17 +891,16 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_smart_apply (ws_hub_std_steal_aux_spec True with "[$Hinv $Howner]"); [done.. | |].
+    { iModIntro.
+      wp_smart_apply (ws_hub_std_killed_spec with "Hinv") as (killed) "_".
+      iSteps. destruct killed; iSteps.
+    }
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
-
-    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
-      iRight. iExists (Some v).
-      iSplitL "Hmodel". { iExists vs'. iFrame. iSteps. }
-      iSteps.
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> (Howner & _)". clear.
 
       iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv)".
 
@@ -763,12 +927,19 @@ Section ws_hub_std_G.
 
         * wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
           wp_pures.
-
           iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
           iApply ("HΦ" $! None with "Hmodel Howner").
 
         * wp_smart_apply (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
           wp_smart_apply ("HLöb" with "Howner HΦ").
+
+    - iRight. iExists None. iFrame.
+      iSteps.
+
+    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+      iRight. iExists (Some v).
+      iSplitL "Hmodel". { iExists vs'. iFrame. iSteps. }
+      iSteps.
   Qed.
 
   Lemma ws_hub_std_kill_spec t ι :
@@ -800,7 +971,7 @@ Section ws_hub_std_G.
       ws_hub_std_create_spec
       ws_hub_std_push_spec
       ws_hub_std_pop_spec
-      ws_hub_std_try_steal_spec
+      ws_hub_std_steal_until_spec
       ws_hub_std_steal_spec
       ws_hub_std_killed_spec
       ws_hub_std_kill_spec.
@@ -810,7 +981,7 @@ End ws_hub_std_G.
 #[global] Opaque ws_hub_std_killed.
 #[global] Opaque ws_hub_std_push.
 #[global] Opaque ws_hub_std_pop.
-#[global] Opaque ws_hub_std_try_steal.
+#[global] Opaque ws_hub_std_steal_until.
 #[global] Opaque ws_hub_std_steal.
 #[global] Opaque ws_hub_std_kill.
 

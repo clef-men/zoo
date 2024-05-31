@@ -1,7 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.iris.bi Require Import
-big_op.
+  big_op.
 From zoo.language Require Import
   notations
   diaframe.
@@ -17,8 +17,8 @@ From zoo.parabs Require Import
 From zoo Require Import
   options.
 
-Implicit Types not_killed : bool.
-Implicit Types v t hub task : val.
+Implicit Types b not_killed : bool.
+Implicit Types v t hub task cond : val.
 
 #[local] Notation "'hub'" := (
   in_type "t" 0
@@ -86,20 +86,25 @@ Section ws_deques.
       ) ;;
       "fut".
 
+  Definition pool_wait_until : val :=
+    rec: "pool_wait_until" "ctx" "cond" :=
+      ifnot: "cond" () then
+        match: ws_hub_pop_steal_until ws_hub "ctx".<context_hub> "ctx".<context_id> #pool_max_round_noyield "cond" with
+        | None =>
+            ()
+        | Some "task" =>
+            pool_execute "ctx" "task" ;;
+            "pool_wait_until" "ctx" "cond"
+        end.
+
+  Definition pool_wait_while : val :=
+    λ: "ctx" "cond",
+      pool_wait_until "ctx" (λ: <>, ~ "cond" ()).
+
   Definition pool_await : val :=
-    rec: "pool_await" "ctx" "fut" :=
-      match: spmc_future_try_get "fut" with
-      | Some "res" =>
-          "res"
-      | None =>
-          match: ws_hub_pop_try_steal ws_hub "ctx".<context_hub> "ctx".<context_id> pool_max_round with
-          | None =>
-              Yield
-          | Some "task" =>
-              pool_execute "ctx" "task"
-          end ;;
-          "pool_await" "ctx" "fut"
-      end.
+    λ: "ctx" "fut",
+      pool_wait_until "ctx" (λ: <>, spmc_future_is_set "fut") ;;
+      spmc_future_get "fut".
 
   Definition pool_kill : val :=
     λ: "t",
@@ -346,6 +351,78 @@ Section pool_G.
     iApply ("HΦ" with "[$Hctx $Hfut_inv]").
   Qed.
 
+  Lemma pool_wait_until_spec P ctx cond :
+    {{{
+      pool_context ctx ∗
+      □ WP cond () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
+    }}}
+      pool_wait_until ws_hub ctx cond
+    {{{
+      RET ();
+      pool_context ctx ∗
+      P
+    }}}.
+  Proof.
+    iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & #Hcond) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec.
+    wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+    destruct b.
+
+    - wp_pures.
+      iApply ("HΦ" with "[Hhub_owner $HP]").
+      iExists i. iSteps.
+
+    - awp_smart_apply (ws_hub_pop_steal_until_spec _ P with "[$Hhub_inv $Hhub_owner $Hcond]") without "HΦ"; [lia.. |].
+      iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
+      iAaccIntro with "Hhub_model"; first iSteps. iIntros ([task |]) "Hhub_model !>".
+
+      + iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
+        iDestruct (big_sepMS_insert with "Htasks") as "(Htask & Htasks')".
+        iSplitR "Htask"; first iSteps.
+        iIntros "(Hhub_owner & _) HΦ". clear- pool_G.
+
+        wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
+        wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
+
+      + iSplitL; first iSteps.
+        iIntros "(Hhub_owner & HP) HΦ". clear.
+
+        wp_pures.
+        iApply ("HΦ" with "[Hhub_owner $HP]").
+        iExists i. iSteps.
+  Qed.
+
+  Lemma pool_wait_while_spec P ctx cond :
+    {{{
+      pool_context ctx ∗
+      □ WP cond () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then True else P
+      }}
+    }}}
+      pool_wait_while ws_hub ctx cond
+    {{{
+      RET ();
+      pool_context ctx ∗
+      P
+    }}}.
+  Proof.
+    iIntros "%Φ (Hctx & #Hcond) HΦ".
+
+    wp_rec.
+    wp_smart_apply (pool_wait_until_spec with "[$Hctx] HΦ"). iModIntro.
+    wp_smart_apply (wp_wand with "Hcond") as (res) "(%b & -> & HP)".
+    destruct b; iSteps.
+  Qed.
+
   Lemma pool_await_spec ctx fut Ψ :
     {{{
       pool_context ctx ∗
@@ -358,33 +435,16 @@ Section pool_G.
       Ψ v
     }}}.
   Proof.
-    iIntros "%Φ ((%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) & #Hfut_inv) HΦ".
-
-    iLöb as "HLöb".
+    iIntros "%Φ (Hctx & #Hfut_inv) HΦ".
 
     wp_rec.
-    wp_smart_apply (spmc_future_try_get_spec with "Hfut_inv") as ([task |]) "HΨ".
-
-    - wp_pures.
-      iApply ("HΦ" with "[Hhub_owner $HΨ]").
-      iExists i. iSteps.
-
-    - wp_pures.
-      wp_bind (Match _ _ _ _).
-      wp_apply (wp_wand _ _ (λ res, ws_hub.(ws_hub_owner) hub i)%I with "[Hhub_owner]") as (res) "Hhub_owner".
-      { awp_smart_apply (ws_hub_pop_try_steal_spec with "[$Hhub_inv $Hhub_owner]"); [done | lia.. |].
-        iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
-        iAaccIntro with "Hhub_model"; first iSteps.
-        iIntros ([task |]) "Hhub_model !>"; last iSteps.
-        iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
-        iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
-        rewrite big_sepMS_singleton.
-        iSplitR "Htask"; first iSteps.
-        iIntros "Hhub_owner". clear.
-
-        wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "($ & _)".
-      }
-      wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
+    wp_smart_apply (pool_wait_until_spec (∃ v, spmc_future_result fut v)%I with "[$Hctx]") as "(Hctx & %v & #Hfut_result)".
+    { iModIntro.
+      wp_smart_apply (spmc_future_is_set_spec with "Hfut_inv") as (b) "HΨ".
+      destruct b; iSteps.
+    }
+    wp_smart_apply (spmc_future_get_spec_result with "[$Hfut_inv $Hfut_result]") as "HΨ".
+    iApply ("HΦ" with "[$Hctx $HΨ]").
   Qed.
 
   Lemma pool_kill_spec t :
@@ -411,6 +471,8 @@ End pool_G.
 #[global] Opaque pool_run.
 #[global] Opaque pool_silent_async.
 #[global] Opaque pool_async.
+#[global] Opaque pool_wait_until.
+#[global] Opaque pool_wait_while.
 #[global] Opaque pool_await.
 #[global] Opaque pool_kill.
 
