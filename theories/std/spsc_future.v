@@ -64,6 +64,15 @@ Definition spsc_future_get : val :=
         "v"
     end.
 
+Definition spsc_future_is_set : val :=
+  λ: "t",
+    match: spsc_future_try_get "t" with
+    | None =>
+        #false
+    | Some <> =>
+        #true
+    end.
+
 Class SpscFutureG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spsc_future_G_mutex_G :: MutexG Σ ;
   #[local] spsc_future_G_lstate_G :: OneshotG Σ unit val ;
@@ -288,6 +297,45 @@ Section spsc_future_G.
     iSteps.
   Qed.
 
+  Lemma spsc_future_try_get_spec t Ψ :
+    {{{
+      spsc_future_inv t Ψ ∗
+      spsc_future_consumer t
+    }}}
+      spsc_future_try_get t
+    {{{ o,
+      RET o : val;
+      match o with
+      | None =>
+          spsc_future_consumer t
+      | Some v =>
+          Ψ v
+      end
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+
+    wp_rec.
+    wp_pures.
+
+    iInv "Hinv" as "(%o & Hresult & Ho)".
+    wp_load.
+    destruct o as [v |].
+
+    - iDestruct "Ho" as "(Hshot & [HΨ | Hconsumer'])"; last first.
+      { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+      iSplitR "HΨ HΦ". { iExists (Some _). iSteps. }
+      iModIntro.
+
+      iApply ("HΦ" $! (Some _) with "HΨ").
+
+    - iSplitR "Hconsumer HΦ". { iExists None. iSteps. }
+      iModIntro.
+
+      iApply ("HΦ" $! None).
+      iSteps.
+  Qed.
   Lemma spsc_future_try_get_spec_result t Ψ v :
     {{{
       spsc_future_inv t Ψ ∗
@@ -316,45 +364,6 @@ Section spsc_future_G.
     iDestruct (oneshot_shot_agree with "Hshot _Hshot") as %<-. iClear "_Hshot".
     iSplitR "HΨ HΦ". { iExists (Some _). iSteps. }
     iSteps.
-  Qed.
-  Lemma spsc_future_try_get_spec t Ψ :
-    {{{
-      spsc_future_inv t Ψ ∗
-      spsc_future_consumer t
-    }}}
-      spsc_future_try_get t
-    {{{ o,
-      RET o : val;
-      match o with
-      | Some v =>
-          Ψ v
-      | None =>
-          spsc_future_consumer t
-      end
-    }}}.
-  Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Hconsumer)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-
-    wp_rec.
-    wp_pures.
-
-    iInv "Hinv" as "(%o & Hresult & Ho)".
-    wp_load.
-    destruct o as [v |].
-
-    - iDestruct "Ho" as "(Hshot & [HΨ | Hconsumer'])"; last first.
-      { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
-      iSplitR "HΨ HΦ". { iExists (Some _). iSteps. }
-      iModIntro.
-
-      iApply ("HΦ" $! (Some _) with "HΨ").
-
-    - iSplitR "Hconsumer HΦ". { iExists None. iSteps. }
-      iModIntro.
-
-      iApply ("HΦ" $! None).
-      iSteps.
   Qed.
 
   Lemma spsc_future_get_spec t Ψ :
@@ -423,12 +432,71 @@ Section spsc_future_G.
     iSplitR "HΨ HΦ". { iExists (Some _). iFrame. iSteps. }
     iSteps.
   Qed.
+  Lemma spsc_future_get_spec_result t Ψ v :
+    {{{
+      spsc_future_inv t Ψ ∗
+      spsc_future_consumer t ∗
+      spsc_future_result t v
+    }}}
+      spsc_future_get t
+    {{{
+      RET v;
+      Ψ v
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & Hconsumer & #Hresult) HΦ".
+
+    wp_rec.
+    wp_apply (spsc_future_try_get_spec_result with "[$Hinv $Hconsumer $Hresult]").
+    iSteps.
+  Qed.
+
+  Lemma spsc_future_is_set_spec t Ψ :
+    {{{
+      spsc_future_inv t Ψ ∗
+      spsc_future_consumer t
+    }}}
+      spsc_future_is_set t
+    {{{ b,
+      RET #b;
+      if b then
+        ∃ v, Ψ v
+      else
+        spsc_future_consumer t
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & Hconsumer) HΦ".
+
+    wp_rec.
+    wp_apply (spsc_future_try_get_spec with "[$Hinv $Hconsumer]") as ([v |]) "HΨ"; first iSteps.
+    wp_pures.
+    iApply "HΦ". naive_solver.
+  Qed.
+  Lemma spsc_future_is_set_spec_result t Ψ v :
+    {{{
+      spsc_future_inv t Ψ ∗
+      spsc_future_consumer t ∗
+      spsc_future_result t v
+    }}}
+      spsc_future_is_set t
+    {{{
+      RET #true;
+      Ψ v
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & Hconsumer & #Hresult) HΦ".
+
+    wp_rec.
+    wp_apply (spsc_future_try_get_spec_result with "[$Hinv $Hconsumer $Hresult]").
+    iSteps.
+  Qed.
 End spsc_future_G.
 
 #[global] Opaque spsc_future_create.
 #[global] Opaque spsc_future_set.
 #[global] Opaque spsc_future_try_get.
 #[global] Opaque spsc_future_get.
+#[global] Opaque spsc_future_is_set.
 
 #[global] Opaque spsc_future_inv.
 #[global] Opaque spsc_future_producer.
