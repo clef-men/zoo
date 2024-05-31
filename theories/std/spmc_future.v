@@ -64,6 +64,15 @@ Definition spmc_future_get : val :=
         "v"
     end.
 
+Definition spmc_future_is_set : val :=
+  λ: "t",
+    match: spmc_future_try_get "t" with
+    | None =>
+        #false
+    | Some <> =>
+        #true
+    end.
+
 Class SpmcFutureG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spmc_future_G_mutex_G :: MutexG Σ ;
   #[local] spmc_future_G_lstate_G :: OneshotG Σ unit val ;
@@ -258,6 +267,44 @@ Section spmc_future_G.
     iSteps.
   Qed.
 
+  Lemma spmc_future_try_get_spec t Ψ :
+    {{{
+      spmc_future_inv t Ψ
+    }}}
+      spmc_future_try_get t
+    {{{ o,
+      RET o : val;
+      match o with
+      | None =>
+          True
+      | Some v =>
+          spmc_future_result t v ∗
+          Ψ v
+      end
+    }}}.
+  Proof.
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) HΦ".
+
+    wp_rec.
+    wp_pures.
+
+    iInv "Hinv" as "(%o & Hresult & Ho)".
+    wp_load.
+    destruct o as [v |].
+
+    - iDestruct "Ho" as "(#Hshot & #HΨ)".
+      iSplitR "HΦ". { iExists (Some _). iSteps. }
+      iModIntro.
+
+      iApply ("HΦ" $! (Some _)).
+      iSteps.
+
+    - iSplitR "HΦ". { iExists None. iSteps. }
+      iModIntro.
+
+      iApply ("HΦ" $! None).
+      iSteps.
+  Qed.
   Lemma spmc_future_try_get_spec_result t Ψ v :
     {{{
       spmc_future_inv t Ψ ∗
@@ -284,37 +331,6 @@ Section spmc_future_G.
     iSplitR "HΦ". { iExists (Some _). iSteps. }
     iSteps.
   Qed.
-  Lemma spmc_future_try_get_spec t Ψ :
-    {{{
-      spmc_future_inv t Ψ
-    }}}
-      spmc_future_try_get t
-    {{{ o,
-      RET o : val;
-      from_option Ψ True o
-    }}}.
-  Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) HΦ".
-
-    wp_rec.
-    wp_pures.
-
-    iInv "Hinv" as "(%o & Hresult & Ho)".
-    wp_load.
-    destruct o as [v |].
-
-    - iDestruct "Ho" as "(Hshot & #HΨ)".
-      iSplitR "HΦ". { iExists (Some _). iSteps. }
-      iModIntro.
-
-      iApply ("HΦ" $! (Some _) with "HΨ").
-
-    - iSplitR "HΦ". { iExists None. iSteps. }
-      iModIntro.
-
-      iApply ("HΦ" $! None).
-      iSteps.
-  Qed.
 
   Lemma spmc_future_get_spec t Ψ :
     {{{
@@ -323,13 +339,15 @@ Section spmc_future_G.
       spmc_future_get t
     {{{ v,
       RET v;
+      spmc_future_result t v ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_apply (spmc_future_try_get_spec with "Hinv") as ([]) "HΨ"; first iSteps.
+    wp_apply (spmc_future_try_get_spec with "Hinv") as ([]) "HΨ".
+    { iSpecialize ("HΦ" with "HΨ"). iSteps. }
     iClear "HΨ".
 
     iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
@@ -377,12 +395,70 @@ Section spmc_future_G.
     iSplitR "HΦ". { iExists (Some _). iSteps. }
     iSteps.
   Qed.
+  Lemma spmc_future_get_spec_result t Ψ v :
+    {{{
+      spmc_future_inv t Ψ ∗
+      spmc_future_result t v
+    }}}
+      spmc_future_get t
+    {{{
+      RET v;
+      Ψ v
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hresult) HΦ".
+
+    wp_rec.
+    wp_apply (spmc_future_try_get_spec_result with "[$Hinv $Hresult]") as "HΨ".
+    iSteps.
+  Qed.
+
+  Lemma spmc_future_is_set_spec t Ψ :
+    {{{
+      spmc_future_inv t Ψ
+    }}}
+      spmc_future_is_set t
+    {{{ b,
+      RET #b;
+      if b then
+        ∃ v,
+        spmc_future_result t v ∗
+        Ψ v
+      else
+        True
+    }}}.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+
+    wp_rec.
+    wp_apply (spmc_future_try_get_spec with "Hinv") as ([v |]) "HΨ"; last iSteps.
+    wp_pures.
+    iApply "HΦ". naive_solver.
+  Qed.
+  Lemma spmc_future_is_set_spec_result t Ψ v :
+    {{{
+      spmc_future_inv t Ψ ∗
+      spmc_future_result t v
+    }}}
+      spmc_future_is_set t
+    {{{
+      RET #true;
+      Ψ v
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hresult) HΦ".
+
+    wp_rec.
+    wp_apply (spmc_future_try_get_spec_result with "[$Hinv $Hresult]").
+    iSteps.
+  Qed.
 End spmc_future_G.
 
 #[global] Opaque spmc_future_create.
 #[global] Opaque spmc_future_set.
 #[global] Opaque spmc_future_try_get.
 #[global] Opaque spmc_future_get.
+#[global] Opaque spmc_future_is_set.
 
 #[global] Opaque spmc_future_inv.
 #[global] Opaque spmc_future_producer.
