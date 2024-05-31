@@ -279,33 +279,6 @@ Section spsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma spsc_waiter_try_wait_spec_notified t P :
-    {{{
-      spsc_waiter_inv t P ∗
-      spsc_waiter_consumer t ∗
-      spsc_waiter_notified t
-    }}}
-      spsc_waiter_try_wait t
-    {{{
-      RET #true;
-      P
-    }}}.
-  Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta1") as %<-. iClear "_Hmeta1".
-    iDestruct (meta_agree with "Hmeta _Hmeta2") as %<-. iClear "_Hmeta2".
-
-    wp_rec.
-    wp_pures.
-
-    iInv "Hinv" as "(%b & Hflag & Hb)".
-    wp_load.
-    destruct b; last first.
-    { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
-    iDestruct "Hb" as "(_ & [HP | Hconsumer'])"; last first.
-    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
-    iSmash.
-  Qed.
   Lemma spsc_waiter_try_wait_spec t P :
     {{{
       spsc_waiter_inv t P ∗
@@ -330,6 +303,33 @@ Section spsc_waiter_G.
     wp_load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
+    { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
+    iSmash.
+  Qed.
+  Lemma spsc_waiter_try_wait_spec_notified t P :
+    {{{
+      spsc_waiter_inv t P ∗
+      spsc_waiter_consumer t ∗
+      spsc_waiter_notified t
+    }}}
+      spsc_waiter_try_wait t
+    {{{
+      RET #true;
+      P
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv) & (%_l1 & %_γ1 & %Heq1 & _Hmeta1 & Hconsumer) & (%_l2 & %_γ2 & %Heq2 & _Hmeta2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta1") as %<-. iClear "_Hmeta1".
+    iDestruct (meta_agree with "Hmeta _Hmeta2") as %<-. iClear "_Hmeta2".
+
+    wp_rec.
+    wp_pures.
+
+    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_load.
+    destruct b; last first.
+    { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
+    iDestruct "Hb" as "(_ & [HP | Hconsumer'])"; last first.
     { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
     iSmash.
   Qed.
