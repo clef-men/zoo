@@ -35,6 +35,7 @@ theories/iris/base_logic/algebra/twins.v
 theories/iris/base_logic/lib/base.v
 theories/iris/base_logic/lib/agree.v
 theories/iris/base_logic/lib/saved_prop.v
+theories/iris/base_logic/lib/saved_pred.v
 theories/iris/base_logic/lib/excl.v
 theories/iris/base_logic/lib/ghost_var.v
 theories/iris/base_logic/lib/oneshot.v
