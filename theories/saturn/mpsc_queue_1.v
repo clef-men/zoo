@@ -523,7 +523,8 @@ Section mpsc_queue_G.
       mpsc_queue_is_empty t @ ↑ι
     <<<
       mpsc_queue_model t vs
-    | RET #(bool_decide (vs = [])); True
+    | RET #(bool_decide (vs = []));
+      mpsc_queue_consumer t
     >>>.
   Proof.
     iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %front & %Heq & Hl_front)) HΦ". injection Heq as <-.
@@ -539,7 +540,8 @@ Section mpsc_queue_G.
         ⌜b = bool_decide (vs = [])⌝ ∗
         mpsc_queue_model #l vs
       , COMM
-        True -∗ Φ #b
+        mpsc_queue_consumer #l -∗
+        Φ #b
       }>
     )%I with "[HΦ]" as "HΦ".
     { iAuIntro.
