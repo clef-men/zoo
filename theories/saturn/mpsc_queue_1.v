@@ -16,7 +16,7 @@ From zoo.saturn Require Export
 From zoo Require Import
   options.
 
-Implicit Types b au_empty au_nonempty : bool.
+Implicit Types b : bool.
 Implicit Types l front node back new_back : location.
 Implicit Types hist past nodes : list location.
 Implicit Types v t : val.
@@ -328,47 +328,51 @@ Section mpsc_queue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma mpsc_queue_node2_next_spec_strong au_empty au_nonempty TB β x_empty x_nonempty Ψ l γ ι i node :
+  Inductive mpsc_queue_op :=
+    | MpscQueueIsEmpty
+    | MpscQueuePop
+    | MpscQueueOther.
+  #[local] Instance mpsc_queue_op_eq_dec : EqDecision mpsc_queue_op :=
+    ltac:(solve_decision).
+
+  #[local] Lemma mpsc_queue_node2_next_spec_strong op TB β x_empty x_nonempty Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (mpsc_queue_inv_inner l γ) ∗
       mpsc_queue_history_elem γ i node ∗
-      ( if negb au_empty && negb au_nonempty then True else
-          l.[front] ↦{#3/4} #node ∗
-          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ
-      ) ∗
-      ( if negb au_empty then True else
-          mpsc_queue_model #l [] -∗
+      if decide (op = MpscQueueOther) then True else
+        l.[front] ↦{#3/4} #node ∗
+        atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ ∗
+        ( mpsc_queue_model #l [] -∗
           β [tele_arg []] x_empty
-      ) ∗
-      ( if negb au_nonempty then True else
+        ) ∗
+        if decide (op = MpscQueuePop) then True else
           ∀ vs,
           ⌜vs ≠ []⌝ -∗
           mpsc_queue_model #l vs -∗
           β (TeleArgCons vs ()) x_nonempty
-      )
     }}}
       !#node.[node2_next]
     {{{ res,
       RET res;
       ( ⌜res = ()%V⌝ ∗
-        if negb au_empty then True else
+        if decide (op = MpscQueueOther) then True else
           l.[front] ↦{#3/4} #node ∗
           Ψ [tele_arg []] x_empty
       ) ∨ (
         ∃ node',
         ⌜res = #node'⌝ ∗
         mpsc_queue_history_elem γ (S i) node' ∗
-        if negb au_empty then True else
+        if decide (op = MpscQueueOther) then True else
           l.[front] ↦{#3/4} #node ∗
-          if au_nonempty then
+          if decide (op = MpscQueueIsEmpty) then
             ∃ vs, Ψ (TeleArgCons vs ()) x_nonempty
           else
             atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ
       )
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & HΨ & Hβ_empty & Hβ_nonempty) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & Hop) HΦ".
 
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front_2 & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hmodel₂)".
     iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
@@ -378,10 +382,9 @@ Section mpsc_queue_G.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - iDestruct (mpsc_queue_history_elem_get (S i) with "Hhistory_auth") as "#Hhistory_elem'"; first done.
-      destruct au_nonempty.
+      destruct (decide (op = MpscQueueIsEmpty)) as [-> | Hop].
 
-      + rewrite andb_false_r /=.
-        iDestruct "HΨ" as "(Hl_front_1 & HΨ)".
+      + iDestruct "Hop" as "(Hl_front_1 & HΨ & Hβ_empty & Hβ_nonempty)".
         iDestruct (pointsto_agree with "Hl_front_1 Hl_front_2") as %[= ->].
         iMod "HΨ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -402,14 +405,17 @@ Section mpsc_queue_G.
         }
         iMod ("HΨ" $! x_nonempty with "Hβ") as "HΨ".
         iSplitR "Hl_front_1 HΨ HΦ". { repeat iExists _. iSteps. }
-        destruct au_empty; iSteps.
+        iSteps.
 
-      + iSplitR "HΨ HΦ". { repeat iExists _. iSteps. }
-        destruct au_empty; iSteps.
+      + iSplitR "Hop HΦ". { repeat iExists _. iSteps. }
+        destruct op; [done | iSteps..].
 
-    - destruct au_empty.
+    - destruct (decide (op = MpscQueueOther)) as [-> | Hop].
 
-      + iDestruct "HΨ" as "(Hl_front_1 & HΨ)".
+      + iSplitR "HΦ". { repeat iExists _. iSteps. }
+        iSteps.
+
+      + iDestruct "Hop" as "(Hl_front_1 & HΨ & Hβ_empty & _)".
         iDestruct (pointsto_agree with "Hl_front_1 Hl_front_2") as %[= ->].
         iAssert ⌜length past = i⌝%I as %Hpast_length.
         { iDestruct (node2_schain_NoDup with "Hhist") as %Hnodup.
@@ -430,9 +436,6 @@ Section mpsc_queue_G.
         iMod ("HΨ" with "Hβ") as "HΨ".
         iSplitR "Hl_front_1 HΨ HΦ". { repeat iExists _. iSteps. }
         iSteps.
-
-      + iSplitR "HΦ". { repeat iExists _. iSteps. }
-        iSteps.
   Qed.
   #[local] Lemma mpsc_queue_node2_next_spec l γ ι i node :
     {{{
@@ -450,66 +453,7 @@ Section mpsc_queue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem) HΦ".
-    wp_apply (mpsc_queue_node2_next_spec_strong false false TeleO inhabitant inhabitant inhabitant inhabitant with "[$Hmeta $Hinv $Hhistory_elem //]").
-    iSteps.
-  Qed.
-  #[local] Lemma mpsc_queue_node2_next_spec_au_empty TB β x Ψ l γ ι i node :
-    {{{
-      meta l nroot γ ∗
-      inv ι (mpsc_queue_inv_inner l γ) ∗
-      mpsc_queue_history_elem γ i node ∗
-      l.[front] ↦{#3/4} #node ∗
-      atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ ∗
-      (mpsc_queue_model #l [] -∗ β [tele_arg []] x)
-    }}}
-      !#node.[node2_next]
-    {{{ res,
-      RET res;
-        ⌜res = ()%V⌝ ∗
-        l.[front] ↦{#3/4} #node ∗
-        Ψ [tele_arg []] x
-      ∨ ∃ node',
-        ⌜res = #node'⌝ ∗
-        mpsc_queue_history_elem γ (S i) node' ∗
-        l.[front] ↦{#3/4} #node ∗
-        atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ
-    }}}.
-  Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & Hl_front & HΨ & Hβ) HΦ".
-    wp_apply (mpsc_queue_node2_next_spec_strong true false _ _ _ x with "[$]").
-    iSteps.
-  Qed.
-  #[local] Lemma mpsc_queue_node2_next_spec_au TB β x_empty x_nonempty Ψ l γ ι i node :
-    {{{
-      meta l nroot γ ∗
-      inv ι (mpsc_queue_inv_inner l γ) ∗
-      mpsc_queue_history_elem γ i node ∗
-      l.[front] ↦{#3/4} #node ∗
-      atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_model #l) β Ψ ∗
-      ( mpsc_queue_model #l [] -∗
-        β [tele_arg []] x_empty
-      ) ∗
-      ( ∀ vs,
-        ⌜vs ≠ []⌝ -∗
-        mpsc_queue_model #l vs -∗
-        β (TeleArgCons vs ()) x_nonempty
-      )
-    }}}
-      !#node.[node2_next]
-    {{{ res,
-      RET res;
-        ⌜res = ()%V⌝ ∗
-        l.[front] ↦{#3/4} #node ∗
-        Ψ [tele_arg []] x_empty
-      ∨ ∃ node',
-        ⌜res = #node'⌝ ∗
-        mpsc_queue_history_elem γ (S i) node' ∗
-        l.[front] ↦{#3/4} #node ∗
-        ∃ vs, Ψ (TeleArgCons vs ()) x_nonempty
-    }}}.
-  Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem & Hl_front & HΨ & Hβ_empty & Hβ_nonempty) HΦ".
-    wp_apply (mpsc_queue_node2_next_spec_strong true true with "[$]").
+    wp_apply (mpsc_queue_node2_next_spec_strong MpscQueueOther TeleO inhabitant inhabitant inhabitant inhabitant with "[$Hmeta $Hinv $Hhistory_elem //]").
     iSteps.
   Qed.
 
@@ -550,7 +494,7 @@ Section mpsc_queue_G.
     }
 
     wp_rec. wp_load. wp_pures.
-    wp_smart_apply (mpsc_queue_node2_next_spec_au [tele_pair bool] _ [tele_arg true] [tele_arg false] with "[$Hmeta $Hinv $Hhistory_elem $Hl_front $HΦ]"); last iSteps.
+    wp_smart_apply (mpsc_queue_node2_next_spec_strong MpscQueueIsEmpty [tele_pair bool] _ [tele_arg true] [tele_arg false] with "[$Hmeta $Hinv $Hhistory_elem $Hl_front $HΦ]"); last iSteps.
     iSplitR; iSteps.
   Qed.
 
@@ -691,7 +635,7 @@ Section mpsc_queue_G.
     iMod (mpsc_queue_inv_inner_history_elem with "Hinv Hl_front_1") as "(%i & Hl_front_1 & #Hhistory_elem)".
 
     wp_rec. wp_load.
-    wp_smart_apply (mpsc_queue_node2_next_spec_au_empty _ _ [tele_arg] with "[$Hmeta $Hinv $Hhistory_elem $Hl_front_1 $HΦ]") as (res) "[(-> & Hl_front_1 & HΦ) | (%front' & -> & #Hhistory_elem' & Hl_front_1 & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (mpsc_queue_node2_next_spec_strong MpscQueuePop _ _ [tele_arg] inhabitant with "[$Hmeta $Hinv $Hhistory_elem $Hl_front_1 $HΦ]") as (res) "[(-> & Hl_front_1 & HΦ) | (%front' & -> & #Hhistory_elem' & Hl_front_1 & HΦ)]"; [auto | iSteps |].
     wp_pures.
 
     wp_bind (_ <- _)%E.
