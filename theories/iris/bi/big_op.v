@@ -259,4 +259,71 @@ Section bi.
       intros. rewrite big_sepL2_replicate_r //.
     Qed.
   End big_sepL2.
+
+  Section big_sepM.
+    Context `{Countable K} {A : Type}.
+
+    Implicit Types m : gmap K A.
+    Implicit Types P : PROP.
+    Implicit Types Φ : K → A → PROP.
+
+    Lemma big_sepM_impl_thread {Φ1} P Φ2 m :
+      ([∗ map] k ↦ x ∈ m, Φ1 k x) -∗
+      P -∗
+      □ (
+        ∀ k x,
+        ⌜m !! k = Some x⌝ →
+        Φ1 k x -∗
+        P -∗
+          Φ2 k x ∗
+          P
+      ) -∗
+        ([∗ map] k ↦ x ∈ m, Φ2 k x) ∗
+        P.
+    Proof.
+      iIntros "Hm HP #HΦ".
+      iInduction m as [| k x m Hlookup] "IH" using map_ind.
+      - rewrite !big_sepM_empty. iSteps.
+      - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
+        iDestruct ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
+        { rewrite lookup_insert //. }
+        iDestruct ("IH" with "[HΦ] Hm HP") as "(Hm & $)".
+        { iIntros "!> %k' %a' %Hlookup' Hk' HP".
+          iApply ("HΦ" with "[%] Hk' HP").
+          rewrite lookup_insert_ne //. congruence.
+        }
+        iApply big_sepM_insert; first done.
+        iSteps.
+    Qed.
+    Lemma big_sepM_impl_thread_fupd `{!BiFUpd PROP} {Φ1} P Φ2 m E :
+      ([∗ map] k ↦ x ∈ m, Φ1 k x) -∗
+      P -∗
+      □ (
+        ∀ k x,
+        ⌜m !! k = Some x⌝ →
+        Φ1 k x -∗
+        P -∗
+          |={E}=>
+          Φ2 k x ∗
+          P
+      ) -∗
+        |={E}=>
+        ([∗ map] k ↦ x ∈ m, Φ2 k x) ∗
+        P.
+    Proof.
+      iIntros "Hm HP #HΦ".
+      iInduction m as [| k x m Hlookup] "IH" using map_ind.
+      - rewrite !big_sepM_empty. iSteps.
+      - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
+        iMod ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
+        { rewrite lookup_insert //. }
+        iMod ("IH" with "[HΦ] Hm HP") as "(Hm & $)".
+        { iIntros "!> %k' %a' %Hlookup' Hk' HP".
+          iApply ("HΦ" with "[%] Hk' HP").
+          rewrite lookup_insert_ne //. congruence.
+        }
+        iApply big_sepM_insert; first done.
+        iSteps.
+    Qed.
+  End big_sepM.
 End bi.
