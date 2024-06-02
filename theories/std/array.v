@@ -1510,7 +1510,7 @@ Section zoo_G.
       array_unsafe_get t #i
     <<<
       array_model t dq vs
-    | RET v; £1
+    | RET v; £ 1
     >>>.
   Proof.
     iIntros "%Hi !> %Φ _ HΦ".

@@ -466,7 +466,7 @@ Section mpmc_queue_G.
         if decide (op = MpmcQueueIsEmpty) then
           saved_pred waiter Ψ_is_empty ∗
           mpmc_queue_waiters_frag γ waiter i ∗
-          £1
+          £ 1
         else
           atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_model #l) β Ψ_pop ∗
           ( mpmc_queue_model #l [] -∗
