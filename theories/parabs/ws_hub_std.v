@@ -173,7 +173,7 @@ Section ws_deques.
       ws_hub_std_notify_all "t".
 End ws_deques.
 
-Class WsHub1G Σ `{zoo_G : !ZooG Σ} := {
+Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
   #[local] ws_hub_std_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
@@ -184,13 +184,13 @@ Definition ws_hub_std_Σ := #[
 ].
 #[global] Instance subG_ws_hub_std_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_std_Σ Σ →
-  WsHub1G Σ.
+  WsHubStdG Σ.
 Proof.
   solve_inG.
 Qed.
 
 Section ws_hub_std_G.
-  Context `{ws_hub_std_G : WsHub1G Σ}.
+  Context `{ws_hub_std_G : WsHubStdG Σ}.
   Context (ws_deques : ws_deques Σ).
 
   Record ws_hub_std_meta := {
