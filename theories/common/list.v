@@ -67,6 +67,13 @@ Section basic.
   Proof.
     intros ?%lookup_lt_is_Some ?%lookup_ge_None. lia.
   Qed.
+
+  Lemma tail_app l1 l2 :
+    l1 ≠ [] →
+    tail (l1 ++ l2) = tail l1 ++ l2.
+  Proof.
+    destruct l1; done.
+  Qed.
 End basic.
 
 Section Permutation.

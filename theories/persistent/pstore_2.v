@@ -8,6 +8,7 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  list
   treemap.
 From zoo.iris.base_logic Require Import
   lib.mono_map.
@@ -155,7 +156,7 @@ Module raw.
 
   #[local] Definition descriptor : Set :=
     generation * store.
-  Implicit Types descr : descriptor.
+  Implicit Types descr cnode_descr : descriptor.
   Implicit Types descrs : gmap location descriptor.
 
   Class PstoreG Σ `{zoo_G : !ZooG Σ} := {
@@ -810,7 +811,7 @@ Module raw.
           rewrite lookup_insert_ne //. congruence.
     Qed.
 
-    #[local] Definition pstore_collect_inv l γ σ0 g root ς descrs ϵs base descr δs : iProp Σ :=
+    #[local] Definition pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs : iProp Σ :=
       root ↦ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.1 ∗
@@ -829,7 +830,7 @@ Module raw.
         ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
         cnode_model None γ σ0 cnode descr ϵ descr'.2.
 
-    Implicit Types path : list (list location * list delta).
+    Implicit Types path : list (list delta).
 
     Fixpoint plst_to_val nil vs :=
       match vs with
@@ -863,19 +864,18 @@ Module raw.
       simpl. do 3 f_equal. done.
     Qed.
 
-    #[local] Lemma pstore_collect_spec_base_aux {l γ σ0 g root ς descrs ϵs base descr δs} i δ node acc :
+    #[local] Lemma pstore_collect_spec_base_chain {γ σ0 g root ς descrs ϵs base descr δs} i δ node acc :
       δs !! i = Some δ →
       delta_node δ = node →
       {{{
-        pstore_collect_inv l γ σ0 g root ς descrs ϵs base descr δs
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs
       }}}
         pstore_collect #node acc
       {{{ acc',
         RET (#root, acc');
-        pstore_collect_inv l γ σ0 g root ς descrs ϵs base descr δs ∗
-        plst_model acc' acc (
-          #@{location} <$> reverse (delta_node <$> removelast (drop i δs))
-        )
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs ∗
+        plst_model acc' acc $ tail $
+          (λ δ, #(delta_node δ)) <$> reverse (drop i δs)
       }}}.
     Proof.
       iLöb as "HLöb" forall (i δ node acc).
@@ -910,10 +910,147 @@ Module raw.
         }
         iSteps. iPureIntro.
         rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
-        rewrite -(fmap_app _ _ [_]). f_equal.
-        rewrite (drop_S δs δ i) // (removelast_app [_]).
-        { rewrite Hdrop_δs //. }
-        rewrite fmap_cons reverse_cons Hnode //.
+        rewrite (drop_S δs δ i) // reverse_cons fmap_app /= Hnode tail_app //.
+        rewrite Hdrop_δs reverse_cons fmap_app /=.
+        symmetry. apply app_cons_not_nil.
+    Qed.
+    #[local] Definition pstore_collect_specification γ σ0 g root ς descrs ϵs base descr δs : iProp Σ :=
+      ∀ cnode cnode_descr path acc,
+      {{{
+        ⌜descrs !! cnode = Some cnode_descr⌝ ∗
+        ⌜treemap_path ϵs base cnode path⌝ ∗
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs
+      }}}
+        pstore_collect #cnode acc
+      {{{ acc',
+        RET (#root, acc');
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs ∗
+        plst_model acc' acc $ tail $
+          ((λ δ, #(delta_node δ)) <$> reverse δs) ++
+          ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
+          [ #cnode]
+      }}}.
+    #[local] Lemma pstore_collect_spec_chain {γ σ0 g root ς descrs ϵs base descr δs} cnode ϵ i 𝝳 node path acc :
+      ϵs !! cnode = Some ϵ →
+      ϵ.2 !! i = Some 𝝳 →
+      delta_node 𝝳 = node →
+      treemap_path ϵs base ϵ.1 path →
+      {{{
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs ∗
+        pstore_collect_specification γ σ0 g root ς descrs ϵs base descr δs
+      }}}
+        pstore_collect #node acc
+      {{{ acc',
+        RET (#root, acc');
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs ∗
+        plst_model acc' acc $ tail $
+          ((λ δ, #(delta_node δ)) <$> reverse δs) ++
+          ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
+          ((λ δ, #(delta_node δ)) <$> reverse (drop i ϵ.2))
+      }}}.
+    Proof.
+      destruct ϵ as (cnode', 𝝳s).
+
+      iLöb as "HLöb" forall (i 𝝳 node acc).
+
+      iIntros "%Hϵs_lookup %H𝝳s_lookup %Hnode %Hpath %Φ ((Hroot & Hς & (%Hς_dom & %Hς_gen) & %Hϵs & Hauth & %Hdescrs_lookup_base & %Hgen & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs_gen & %Hδs & Hδs) & Hdescrs) & #Hspec) HΦ".
+      simpl in *.
+
+      iAssert (∃ descr, ⌜delete base descrs !! cnode = Some descr⌝)%I as "(%cnode_descr & %Hdescrs_lookup)".
+      { iDestruct (big_sepM2_lookup_r with "Hdescrs") as "(% & % & _)"; first done.
+        iSteps.
+      }
+      iDestruct (big_sepM2_lookup_acc with "Hdescrs") as "((%cnode_descr' & %Hdescrs_lookup' & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %H𝝳s_nodup & %H𝝳s_gen & %H𝝳s & H𝝳s) & Hdescrs)"; [done.. |].
+      iDestruct (deltas_chain_lookup_1 i 𝝳 with "H𝝳s") as "(H𝝳s1 & H𝝳s2)"; first done.
+      rewrite Hnode /=.
+      destruct (drop (S i) 𝝳s) as [| 𝝳' 𝝳s'] eqn:Hdrop_𝝳s.
+
+      - iDestruct (deltas_chain_nil_inv with "H𝝳s2") as %->.
+        iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
+        rewrite -Hdrop_𝝳s take_drop (drop_S 𝝳s 𝝳 i) // Hdrop_𝝳s /=.
+        wp_apply ("Hspec" with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; first iSteps.
+        rewrite Hnode. iSteps.
+
+      - iDestruct (deltas_chain_cons_inv with "H𝝳s2") as "(H𝝳' & H𝝳s2)".
+        wp_rec. wp_load.
+        assert (𝝳s !! S i = Some 𝝳') as H𝝳s_lookup'.
+        { rewrite -(take_drop (S i) 𝝳s) Hdrop_𝝳s lookup_app_r take_length; first lia.
+          rewrite Nat.min_l.
+          { apply lookup_lt_Some in H𝝳s_lookup. lia. }
+          rewrite Nat.sub_diag //.
+        }
+        assert (drop (S (S i)) 𝝳s = 𝝳s') as Hdrop_δs'.
+        { erewrite drop_S in Hdrop_𝝳s; [congruence | done]. }
+        wp_smart_apply ("HLöb" $! (S i) 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
+        { iDestruct (deltas_chain_cons with "H𝝳' H𝝳s2") as "H𝝳s2".
+          iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
+          iFrame "Hspec".
+          rewrite -Hdrop_𝝳s take_drop. iSteps.
+        }
+        iSteps. iPureIntro.
+        rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+        rewrite (drop_S 𝝳s 𝝳 i) // reverse_cons fmap_app /= Hnode 2!(assoc _ _ _ [_]) -tail_app //.
+        rewrite Hdrop_𝝳s reverse_cons fmap_app /= 2!assoc.
+        symmetry. apply app_cons_not_nil.
+    Qed.
+    #[local] Lemma pstore_collect_spec {γ σ0 g root ς descrs ϵs base descr δs} cnode cnode_descr path acc :
+      descrs !! cnode = Some cnode_descr →
+      treemap_path ϵs base cnode path →
+      {{{
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs
+      }}}
+        pstore_collect #cnode acc
+      {{{ acc',
+        RET (#root, acc');
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs ∗
+        plst_model acc' acc $ tail $
+          ((λ δ, #(delta_node δ)) <$> reverse δs) ++
+          ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
+          [ #cnode]
+      }}}.
+    Proof.
+      iLöb as "HLöb" forall (cnode cnode_descr path acc).
+
+      iIntros "%Hdescrs_lookup %Hpath %Φ (Hroot & Hς & (%Hς_dom & %Hς_gen) & %Hϵs & Hauth & %Hdescrs_lookup_base & %Hgen & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs_gen & %Hδs & Hδs) & Hdescrs) HΦ".
+      simpl in *.
+
+      wp_rec.
+      destruct (decide (cnode = base)) as [-> | Hcnode].
+
+      - apply treemap_path_is_nil in Hpath as ->; last done.
+        destruct δs as [| δ δs].
+
+        + iDestruct (deltas_chain_nil_inv with "Hδs") as %<-.
+          iSteps.
+
+        + iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
+          wp_load.
+          iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
+          wp_smart_apply (pstore_collect_spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
+          { iFrame. iSteps. }
+          iSteps. iPureIntro.
+          rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+          rewrite -tail_app // reverse_cons fmap_app.
+          symmetry. apply app_cons_not_nil.
+
+      - apply treemap_path_is_cons in Hpath as (cnode' & 𝝳s & path' & -> & Hϵs_lookup & Hpath'); [| done..].
+        assert (delete base descrs !! cnode = Some cnode_descr) as Hdelete_descrs_lookup.
+        { rewrite lookup_delete_ne //. }
+        iDestruct (big_sepM2_lookup_acc with "Hdescrs") as "((%cnode_descr' & %Hdescrs_lookup' & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %H𝝳s_nodup & %H𝝳s_gen & %H𝝳s & H𝝳s) & Hdescrs)"; [done.. |].
+        destruct 𝝳s as [| 𝝳 𝝳s]; first naive_solver lia.
+        iDestruct (deltas_chain_cons_inv with "H𝝳s") as "(H𝝳 & H𝝳s)".
+        wp_load.
+        iDestruct (deltas_chain_cons with "H𝝳 H𝝳s") as "H𝝳s".
+        wp_smart_apply (pstore_collect_spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
+        { iSplitL; first (iFrame; iSteps).
+          iClear "Helem_cnode". clear.
+          iIntros "%cnode %cnode_descr %path %acc !> %Φ (%Hdescrs_lookup & %Hpath & Hinv) HΦ".
+          wp_apply ("HLöb" with "[//] [//] Hinv HΦ").
+        }
+        iSteps. iPureIntro.
+        rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+        rewrite reverse_cons rev_append_rev rev_app_distr !rev_alt !fmap_app !assoc -tail_app //.
+        symmetry. apply app_cons_not_nil.
     Qed.
 
     Lemma pstore_restore_spec t σ0 σ s σ' :
