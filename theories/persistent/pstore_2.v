@@ -1108,9 +1108,9 @@ Module raw.
         cnode_model γ σ0 cnode descr ϵ descr'.2.
     #[local] Lemma pstore_revert_spec_aux {γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node} base' descr' path δs acc :
       descrs !! base' = Some descr' →
-      treemap_path ϵs base base' path →
+      treemap_path ϵs cnode base' path →
       ϵs !! cnode = Some (base, δs) →
-      lst_model' acc $
+      lst_model' acc $ tail $
         ((λ δ, #(delta_node δ)) <$> reverse δs_cnode) ++
         ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
         [ #base'] →
