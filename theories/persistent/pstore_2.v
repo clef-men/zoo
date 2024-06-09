@@ -107,11 +107,11 @@ Definition pstore_capture : val :=
         "pstore_collect" "node'" ‘Cons{ "node", "acc" }
     end.
 #[local] Definition pstore_revert : val :=
-  rec: "pstore_revert" "node" "seg" :=
-    match: "seg" with
+  rec: "pstore_revert" "node" "path" :=
+    match: "path" with
     | Nil =>
         "node" <- §Root
-    | Cons "node'" "seg" =>
+    | Cons "node'" "path" =>
         match: !"node'" with
         | Root =>
             Fail
@@ -120,13 +120,13 @@ Definition pstore_capture : val :=
             "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
             "r" <-{ref_gen} "g" ;;
             "r" <-{ref_value} "v" ;;
-            "pstore_revert" "node'" "seg"
+            "pstore_revert" "node'" "path"
         end
     end.
 #[local] Definition pstore_reroot : val :=
   λ: "node",
-    let: "root", "nodes" := pstore_collect "node" §Nil in
-    pstore_revert "root" "nodes".
+    let: "root", "path" := pstore_collect "node" §Nil in
+    pstore_revert "root" "path".
 
 Definition pstore_restore : val :=
   λ: "t" "s",
@@ -824,26 +824,6 @@ Module raw.
           rewrite lookup_insert_ne //. congruence.
     Qed.
 
-    #[local] Definition pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs : iProp Σ :=
-      root ↦ §Root ∗
-      ( [∗ map] r ↦ data ∈ store_on σ0 ς,
-        r.[ref_gen] ↦ #data.1 ∗
-        r.[ref_value] ↦ data.2
-      ) ∗
-      ⌜descriptor_wf σ0 (g, ς)⌝ ∗
-      ⌜treemap_rooted ϵs base⌝ ∗
-      descriptors_auth γ descrs ∗
-      (* [base] cnode *)
-      ⌜descrs !! base = Some descr⌝ ∗
-      ⌜descr.1 < g⌝ ∗
-      cnode_model γ σ0 base descr (root, δs) ς ∗
-      ⌜Forall (λ δ, ∃ data, ς !! delta_ref δ = Some data ∧ data.1 = g) δs⌝ ∗
-      (* other cnodes *)
-      [∗ map] cnode ↦ descr; ϵ ∈ delete base descrs; ϵs,
-        ∃ descr',
-        ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
-        cnode_model γ σ0 cnode descr ϵ descr'.2.
-
     Implicit Types path : list (list delta).
 
     Fixpoint plst_to_val nil vs :=
@@ -878,6 +858,25 @@ Module raw.
       simpl. do 3 f_equal. done.
     Qed.
 
+    #[local] Definition pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs : iProp Σ :=
+      root ↦ §Root ∗
+      ( [∗ map] r ↦ data ∈ store_on σ0 ς,
+        r.[ref_gen] ↦ #data.1 ∗
+        r.[ref_value] ↦ data.2
+      ) ∗
+      ⌜descriptor_wf σ0 (g, ς)⌝ ∗
+      ⌜treemap_rooted ϵs base⌝ ∗
+      descriptors_auth γ descrs ∗
+      (* [base] cnode *)
+      ⌜descrs !! base = Some descr⌝ ∗
+      ⌜descr.1 < g⌝ ∗
+      cnode_model γ σ0 base descr (root, δs) ς ∗
+      ⌜Forall (λ δ, ∃ data, ς !! delta_ref δ = Some data ∧ data.1 = g) δs⌝ ∗
+      (* other cnodes *)
+      [∗ map] cnode ↦ descr; ϵ ∈ delete base descrs; ϵs,
+        ∃ descr',
+        ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
+        cnode_model γ σ0 cnode descr ϵ descr'.2.
     #[local] Lemma pstore_collect_spec_base_chain {γ σ0 g root ς descrs ϵs base descr δs} i δ node acc :
       δs !! i = Some δ →
       delta_node δ = node →
@@ -1070,6 +1069,78 @@ Module raw.
           rewrite reverse_cons rev_append_rev rev_app_distr !rev_alt !fmap_app !assoc -tail_app //.
           symmetry. apply app_cons_not_nil.
     Qed.
+
+    #[local] Definition pstore_revert_pre γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node : iProp Σ :=
+      ∃ v_node,
+      node ↦ v_node ∗
+      ( [∗ map] r ↦ data ∈ store_on σ0 ς,
+        r.[ref_gen] ↦ #data.1 ∗
+        r.[ref_value] ↦ data.2
+      ) ∗
+      ⌜treemap_rooted ϵs base⌝ ∗
+      descriptors_auth γ descrs ∗
+      (* [base] cnode *)
+      ⌜descrs !! base = Some base_descr⌝ ∗
+      cnode_model γ σ0 base base_descr (node, δs_base) ς ∗
+      (* [cnode] cnode *)
+      ⌜descrs !! cnode = Some cnode_descr⌝ ∗
+      cnode_model γ σ0 cnode cnode_descr (node, δs_cnode) ς ∗
+      (* other cnodes *)
+      [∗ map] cnode ↦ descr; ϵ ∈ delete cnode $ delete base descrs; delete cnode ϵs,
+        ∃ descr',
+        ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
+        cnode_model γ σ0 cnode descr ϵ descr'.2.
+    #[local] Definition pstore_revert_post γ σ0 descrs ϵs base descr : iProp Σ :=
+      base ↦ §Root ∗
+      ( [∗ map] r ↦ data ∈ store_on σ0 descr.2,
+        r.[ref_gen] ↦ #data.1 ∗
+        r.[ref_value] ↦ data.2
+      ) ∗
+      ⌜treemap_rooted ϵs base⌝ ∗
+      descriptors_auth γ descrs ∗
+      (* [base] cnode *)
+      ⌜descrs !! base = Some descr⌝ ∗
+      cnode_model γ σ0 base descr (base, []) descr.2 ∗
+      (* other cnodes *)
+      [∗ map] cnode ↦ descr; ϵ ∈ delete base descrs; ϵs,
+        ∃ descr',
+        ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
+        cnode_model γ σ0 cnode descr ϵ descr'.2.
+    #[local] Lemma pstore_revert_spec_aux {γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node} base' descr' path δs acc :
+      descrs !! base' = Some descr' →
+      treemap_path ϵs base base' path →
+      ϵs !! cnode = Some (base, δs) →
+      lst_model' acc $
+        ((λ δ, #(delta_node δ)) <$> reverse δs_cnode) ++
+        ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
+        [ #base'] →
+      {{{
+        pstore_revert_pre γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node
+      }}}
+        pstore_revert #node acc
+      {{{ ϵs,
+        RET ();
+        pstore_revert_post γ σ0 descrs ϵs base' descr'
+      }}}.
+    Proof.
+    Admitted.
+    #[local] Lemma pstore_revert_spec {γ σ0 g root ς descrs ϵs base descr δs} base' descr' path acc :
+      descrs !! base' = Some descr' →
+      treemap_path ϵs base base' path →
+      lst_model' acc $ tail $
+        ((λ δ, #(delta_node δ)) <$> reverse δs) ++
+        ((λ δ, #(delta_node δ)) <$> reverse (concat path)) ++
+        [ #base'] →
+      {{{
+        pstore_collect_inv γ σ0 g root ς descrs ϵs base descr δs
+      }}}
+        pstore_revert #root acc
+      {{{ ϵs,
+        RET ();
+        pstore_revert_post γ σ0 descrs ϵs base' descr'
+      }}}.
+    Proof.
+    Admitted.
 
     Lemma pstore_restore_spec t σ0 σ s σ' :
       {{{
