@@ -21,13 +21,40 @@ Notation "'Cons'" := (
 )(in custom zoo_tag
 ).
 
-Fixpoint lst_to_val vs :=
+Fixpoint plst_to_val nil vs :=
   match vs with
   | [] =>
-      §Nil
+      nil
   | v :: vs =>
-      ’Cons{ v, lst_to_val vs }
+      ’Cons{ v, plst_to_val nil vs }
   end.
+#[global] Arguments plst_to_val _ !_ : assert.
+
+#[global] Instance plst_to_val_physical nil vs :
+  ValPhysical nil →
+  ValPhysical (plst_to_val nil vs).
+Proof.
+  destruct vs; done.
+Qed.
+Lemma plst_to_val_cons nil v vs :
+  plst_to_val nil (v :: vs) = ’Cons{ v, plst_to_val nil vs }.
+Proof.
+  done.
+Qed.
+Lemma plst_to_val_singleton nil v :
+  plst_to_val nil [v] = ’Cons{ v, nil }.
+Proof.
+  apply plst_to_val_cons.
+Qed.
+Lemma plst_to_val_app vs1 nil vs2 :
+  plst_to_val (plst_to_val nil vs2) vs1 = plst_to_val nil (vs1 ++ vs2).
+Proof.
+  induction vs1; first done.
+  simpl. do 3 f_equal. done.
+Qed.
+
+Definition lst_to_val :=
+  plst_to_val §Nil.
 #[global] Arguments lst_to_val !_ / : assert.
 
 #[global] Instance lst_to_val_inj' :
@@ -44,7 +71,7 @@ Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).
 Proof.
-  destruct vs; done.
+  apply plst_to_val_physical. done.
 Qed.
 Lemma lst_to_val_nil :
   lst_to_val [] = §Nil.
@@ -54,7 +81,17 @@ Qed.
 Lemma lst_to_val_cons v vs :
   lst_to_val (v :: vs) = ’Cons{ v, lst_to_val vs }.
 Proof.
-  done.
+  apply plst_to_val_cons.
+Qed.
+Lemma lst_to_val_singleton v :
+  lst_to_val [v] = ’Cons{ v, §Nil }.
+Proof.
+  apply plst_to_val_singleton.
+Qed.
+Lemma lst_to_val_app vs1 vs2 :
+  plst_to_val (lst_to_val vs2) vs1 = lst_to_val (vs1 ++ vs2).
+Proof.
+  apply plst_to_val_app.
 Qed.
 
 Definition lst_singleton : val :=
@@ -184,6 +221,11 @@ Definition lst_map : val :=
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
+
+  Definition plst_model' t nil vs :=
+    t = plst_to_val nil vs.
+  Definition plst_model t nil vs : iProp Σ :=
+    ⌜plst_model' t nil vs⌝.
 
   Definition lst_model' t vs :=
     t = lst_to_val vs.

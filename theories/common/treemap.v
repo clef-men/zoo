@@ -43,6 +43,39 @@ Section treemap_rooted.
   Proof.
     induction 1; naive_solver.
   Qed.
+  Lemma treemap_path_snoc {tree dst1 node path} ϵ dst2 edge :
+    treemap_path tree dst1 node path →
+    tree !! dst1 = Some ϵ →
+    ϵ.1 = dst2 →
+    ϵ.2 = edge →
+    treemap_path tree dst2 node (path ++ [edge]).
+  Proof.
+    intros Hpath Hlookup_dst1 ? ?.
+    eapply treemap_path_app; [done | eauto].
+  Qed.
+
+  Lemma treemap_path_nil_inv tree dst node :
+    treemap_path tree dst node [] →
+    node = dst.
+  Proof.
+    inversion 1 => //.
+  Qed.
+  Lemma treemap_path_cons_inv tree dst node edge path :
+    treemap_path tree dst node (edge :: path) →
+      ∃ node',
+      tree !! node = Some (node', edge) ∧
+      treemap_path tree dst node' path.
+  Proof.
+    inversion 1 as [| ? []]. naive_solver.
+  Qed.
+  Lemma treemap_path_app_inv tree dst node path1 path2 :
+    treemap_path tree dst node (path1 ++ path2) →
+      ∃ node',
+      treemap_path tree node' node path1 ∧
+      treemap_path tree dst node' path2.
+  Proof.
+    move: node. induction path1 => node Hpath; invert Hpath; naive_solver.
+  Qed.
 
   Lemma treemap_path_mono {tree dst node path} tree' :
     tree ##ₘ tree' →
@@ -61,6 +94,13 @@ Section treemap_rooted.
   Proof.
     split; first done.
     intros node []%(lookup_empty_is_Some (A := N * E)).
+  Qed.
+
+  Lemma treemap_rooted_root tree root :
+    treemap_rooted tree root →
+    tree !! root = None.
+  Proof.
+    rewrite /treemap_rooted. naive_solver.
   Qed.
 
   Lemma treemap_path_is_nil tree root path :
@@ -84,18 +124,20 @@ Section treemap_rooted.
     invert Hpath as [| ? []]. naive_solver.
   Qed.
 
-  #[local] Lemma treemap_path_acyclic {tree root path} node ϵ :
+  #[local] Lemma treemap_path_acyclic {tree root path} node ϵ node' :
     treemap_rooted tree root →
     treemap_path tree root node path →
     tree !! node = Some ϵ →
-    ϵ.1 ≠ node.
+    ϵ.1 = node' →
+    node ≠ node'.
   Proof.
     rewrite /treemap_rooted. induction 2; naive_solver.
   Qed.
-  Lemma treemap_rooted_acyclic {tree root} node ϵ :
+  Lemma treemap_rooted_acyclic {tree root} node ϵ node' :
     treemap_rooted tree root →
     tree !! node = Some ϵ →
-    ϵ.1 ≠ node.
+    ϵ.1 = node' →
+    node ≠ node'.
   Proof.
     intros (Hlookup_root & Hrooted) Hlookup.
     odestruct Hrooted as (path & Hpath); first done.
@@ -135,22 +177,34 @@ Section treemap_rooted.
       solve_map_disjoint.
   Qed.
 
-  Lemma treemap_reroot_path {tree root} root' ϵ edge node path :
+  Lemma treemap_reroot_path {tree root} root' ϵ edge dst node path :
     treemap_rooted tree root →
     tree !! root' = Some ϵ →
     ϵ.1 = root →
-    treemap_path tree root' node path →
-    treemap_path (treemap_reroot tree root root' edge) root' node path.
+    dst ≠ root →
+    treemap_path tree dst node path →
+    treemap_path (treemap_reroot tree root root' edge) dst node path.
   Proof.
     set tree' := treemap_reroot tree root root' edge.
     destruct ϵ as (_root, edge').
-    intros (Htree_lookup_root & Hrooted) Htree_lookup_root' [= ->].
+    intros (Htree_lookup_root & Hrooted) Htree_lookup_root' [= ->] Hdst.
     assert (root ≠ root') as Hroot' by congruence.
     induction 1 as [| node ϵ node' edge'' path Htree_lookup_node ? ? Hpath Hpath']; first done.
     destruct (decide (node = root)) as [-> | Hnode]; first congruence.
     destruct (decide (node = root')) as [-> | Hnode_]; first invert Hpath.
     econstructor; try done.
     rewrite lookup_insert_ne // lookup_delete_ne //.
+  Qed.
+  Lemma treemap_reroot_path' {tree root} root' ϵ edge node path :
+    treemap_rooted tree root →
+    tree !! root' = Some ϵ →
+    ϵ.1 = root →
+    treemap_path tree root' node path →
+    treemap_path (treemap_reroot tree root root' edge) root' node path.
+  Proof.
+    intros (Htree_lookup_root & Hrooted) Htree_lookup_root' ? Hpath.
+    assert (root ≠ root') as Hroot' by congruence.
+    eapply treemap_reroot_path; done.
   Qed.
   Lemma treemap_reroot_rooted {tree root} root' ϵ edge :
     treemap_rooted tree root →
