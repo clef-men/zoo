@@ -1555,7 +1555,7 @@ Module raw.
           iDestruct (deltas_chain_cons with "Hδ Hδs'") as "Hδs'".
           rewrite <- Hδ in *. clear Hδ δ δs'.
           opose proof* treemap_rooted_path as (path & Hpath); [done.. |].
-        wp_smart_apply (pstore_reroot_spec (descrs := descrs) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hdescrs)"; [done.. | |].
+          wp_smart_apply (pstore_reroot_spec (descrs := descrs) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hdescrs)"; [done.. | |].
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
           iApply "HΦ".
