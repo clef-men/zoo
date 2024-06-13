@@ -94,7 +94,6 @@ theories/std/lst.v
 theories/std/clst.v
 theories/std/node2.v
 theories/std/node2_schain.v
-theories/std/node2_chain.v
 theories/std/chain.v
 theories/std/chunk.v
 theories/std/array.v
