@@ -692,10 +692,7 @@ Section rcfd_G.
       wp_cas as Hcas | Hcas Hconsistency.
 
       + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2".
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
-            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
-            iSteps.
+        { destruct lstate2; iDecompose "Hlstate2"; first done.
           - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -844,10 +841,7 @@ Section rcfd_G.
       wp_cas as Hcas | Hcas Hconsistency.
 
       + iAssert (⌜∃ fn2, state2 = RcfdStateClosing fn2⌝ ∗ rcfd_lstate_lb γ RcfdLstateClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2".
-          - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
-            iDestruct (rcfd_lstate_lb_mono with "Hlstate_lb") as "$"; first done.
-            iSteps.
+        { destruct lstate2; iDecompose "Hlstate2"; first done.
           - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (rcfd_lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
