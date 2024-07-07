@@ -19,20 +19,10 @@ Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
 
-Definition prophet_id :=
-  positive.
-Implicit Types pid : prophet_id.
-
-Definition constr_id :=
-  positive.
-Implicit Types cid : option constr_id.
-
 Inductive literal :=
   | LiteralBool b
   | LiteralInt n
-  | LiteralLoc l
-  | LiteralProphecy pid
-  | LiteralPoison.
+  | LiteralLoc l.
 Implicit Types lit : literal.
 
 #[global] Instance literal_eq_dec : EqDecision literal :=
@@ -43,28 +33,20 @@ Proof.
   pose encode lit :=
     match lit with
     | LiteralBool b =>
-        inl $ inl $ inl $ inl b
+        inl $ inl b
     | LiteralInt n =>
-        inl $ inl $ inl $ inr n
+        inl $ inr n
     | LiteralLoc l =>
-        inl $ inl $ inr l
-    | LiteralProphecy pid =>
-        inl $ inr pid
-    | LiteralPoison =>
-        inr ()
+        inr l
     end.
   pose decode _lit :=
     match _lit with
-    | inl (inl (inl (inl b))) =>
+    | inl (inl b) =>
         LiteralBool b
-    | inl (inl (inl (inr n))) =>
+    | inl (inr n) =>
         LiteralInt n
-    | inl (inl (inr l)) =>
+    | inr l =>
         LiteralLoc l
-    | inl (inr p) =>
-        LiteralProphecy p
-    | inr () =>
-        LiteralPoison
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -177,7 +159,6 @@ Inductive expr :=
   | Constr tag (es : list expr)
   | Proj proj (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
-  | Reveal (e : expr)
   | For (e1 e2 e3 : expr)
   | Record (es : list expr)
   | Alloc (e1 e2 : expr)
@@ -188,12 +169,10 @@ Inductive expr :=
   | Faa (e1 e2 : expr)
   | Fork (e : expr)
   | Yield
-  | Proph
-  | Resolve (e0 e1 e2 : expr)
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
-  | ValConstr cid tag (vs : list val).
+  | ValConstr tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -215,9 +194,9 @@ Section val_ind.
     ∀ f x e,
     P (ValRec f x e).
   Variable HValConstr :
-    ∀ cid tag,
+    ∀ tag,
     ∀ vs, Forall P vs →
-    P (ValConstr cid tag vs).
+    P (ValConstr tag vs).
 
   Fixpoint val_ind v :=
     match v with
@@ -225,8 +204,8 @@ Section val_ind.
         HValLiteral lit
     | ValRec f x e =>
         HValRec f x e
-    | ValConstr cid tag vs =>
-        HValConstr cid tag
+    | ValConstr tag vs =>
+        HValConstr tag
           vs (Forall_true P vs val_ind)
     end.
 End val_ind.
@@ -280,9 +259,6 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
     P (Match e0 x e1 brs).
-  Variable HReveal :
-    ∀ e, P e →
-    P (Reveal e).
   Variable HFor :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -320,13 +296,6 @@ Section expr_ind.
     P (Fork e).
   Variable HYield :
     P Yield.
-  Variable HProph :
-    P Proph.
-  Variable HResolve :
-    ∀ e0, P e0 →
-    ∀ e1, P e1 →
-    ∀ e2, P e2 →
-    P (Resolve e0 e1 e2).
 
   Fixpoint expr_ind e :=
     match e with
@@ -376,9 +345,6 @@ Section expr_ind.
           x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
-    | Reveal e =>
-        HReveal
-          e (expr_ind e)
     | For e1 e2 e3 =>
         HFor
           e1 (expr_ind e1)
@@ -416,13 +382,6 @@ Section expr_ind.
           e (expr_ind e)
     | Yield =>
         HYield
-    | Proph =>
-        HProph
-    | Resolve e0 e1 e2 =>
-        HResolve
-          e0 (expr_ind e0)
-          e1 (expr_ind e1)
-          e2 (expr_ind e2)
     end.
 End expr_ind.
 
@@ -443,17 +402,13 @@ Notation ValLoc l := (
   ValLiteral (LiteralLoc l)
 )(only parsing
 ).
-Notation ValProphecy pid := (
-  ValLiteral (LiteralProphecy pid)
-)(only parsing
-).
 
 Notation Tuple := (
-  Constr None 0
+  Constr 0
 )(only parsing
 ).
 Notation ValTuple := (
-  ValConstr None 0
+  ValConstr 0
 )(only parsing
 ).
 
@@ -638,9 +593,6 @@ Proof.
             (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
-      | Reveal e1, Reveal e2 =>
-          cast_if
-            (decide (e1 = e2))
       | For e11 e12 e13, For e21 e22 e23 =>
           cast_if_and3
             (decide (e11 = e21))
@@ -678,13 +630,6 @@ Proof.
             (decide (e1 = e2))
       | Yield, Yield =>
           left _
-      | Proph, Proph =>
-          left _
-      | Resolve e10 e11 e12, Resolve e20 e21 e22 =>
-         cast_if_and3
-           (decide (e10 = e20))
-           (decide (e11 = e21))
-           (decide (e12 = e22))
       | _, _ =>
           right _
       end
@@ -710,9 +655,8 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValConstr cid1 tag1 es1, ValConstr cid2 tag2 es2 =>
-          cast_if_and3
-            (decide (cid1 = cid2))
+      | ValConstr tag1 es1, ValConstr tag2 es2 =>
+          cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -748,9 +692,8 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValConstr cid1 tag1 es1, ValConstr cid2 tag2 es2 =>
-          cast_if_and3
-            (decide (cid1 = cid2))
+      | ValConstr tag1 es1, ValConstr tag2 es2 =>
+          cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -764,7 +707,6 @@ Variant encode_leaf :=
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodeProjection proj
-  | EncodeConstrId cid
   | EncodeConstrTag tag
   | EncodePattern (pat : pattern)
   | EncodeLiteral lit.
@@ -776,15 +718,13 @@ Proof.
   pose encode leaf :=
     match leaf with
     | EncodeBinder x =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inl x
+        inl $ inl $ inl $ inl $ inl $ inl x
     | EncodeUnop op =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inr op
-    | EncodeBinop op =>
         inl $ inl $ inl $ inl $ inl $ inr op
+    | EncodeBinop op =>
+        inl $ inl $ inl $ inl $ inr op
     | EncodeProjection proj =>
-        inl $ inl $ inl $ inl $ inr proj
-    | EncodeConstrId cid =>
-        inl $ inl $ inl $ inr cid
+        inl $ inl $ inl $ inr proj
     | EncodeConstrTag tag =>
         inl $ inl $ inr tag
     | EncodePattern pat =>
@@ -794,16 +734,14 @@ Proof.
     end.
   pose decode leaf :=
     match leaf with
-    | inl (inl (inl (inl (inl (inl (inl x)))))) =>
+    | inl (inl (inl (inl (inl (inl x))))) =>
         EncodeBinder x
-    | inl (inl (inl (inl (inl (inl (inr op)))))) =>
-        EncodeUnop op
     | inl (inl (inl (inl (inl (inr op))))) =>
+        EncodeUnop op
+    | inl (inl (inl (inl (inr op)))) =>
         EncodeBinop op
-    | inl (inl (inl (inl (inr proj)))) =>
+    | inl (inl (inl (inr proj))) =>
         EncodeProjection proj
-    | inl (inl (inl (inr cid))) =>
-        EncodeConstrId cid
     | inl (inl (inr tag)) =>
         EncodeConstrTag tag
     | inl (inr pat) =>
@@ -839,34 +777,28 @@ Proof.
     8.
   Notation code_Match :=
     9.
-  Notation code_Reveal :=
-    10.
   Notation code_For :=
-    11.
+    10.
   Notation code_branch :=
-    12.
+    11.
   Notation code_Record :=
-    13.
+    12.
   Notation code_Alloc :=
-    14.
+    13.
   Notation code_Load :=
-    15.
+    14.
   Notation code_Store :=
-    16.
+    15.
   Notation code_Xchg :=
-    17.
+    16.
   Notation code_Cas :=
-    18.
+    17.
   Notation code_Faa :=
-    19.
+    18.
   Notation code_Fork :=
-    20.
+    19.
   Notation code_Yield :=
-    21.
-  Notation code_Proph :=
-    22.
-  Notation code_Resolve :=
-    23.
+    20.
   Notation code_ValRec :=
     0.
   Notation code_ValConstr :=
@@ -901,8 +833,6 @@ Proof.
           GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
-      | Reveal e =>
-          GenNode code_Reveal [go e]
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
       | Record es =>
@@ -923,10 +853,6 @@ Proof.
           GenNode code_Fork [go e]
       | Yield =>
           GenNode code_Yield []
-      | Proph =>
-          GenNode code_Proph []
-      | Resolve e0 e1 e2 =>
-          GenNode code_Resolve [go e0; go e1; go e2]
       end
     with go_val v :=
       let go_list := map go_val in
@@ -935,8 +861,8 @@ Proof.
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | ValConstr cid tag vs =>
-          GenNode code_ValConstr $ GenLeaf (EncodeConstrId cid) :: GenLeaf (EncodeConstrTag tag) :: go_list vs
+      | ValConstr tag vs =>
+          GenNode code_ValConstr $ GenLeaf (EncodeConstrTag tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -974,8 +900,6 @@ Proof.
           Proj proj $ go e
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
-      | GenNode code_Reveal [e] =>
-          Reveal (go e)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
       | GenNode code_Record es =>
@@ -996,10 +920,6 @@ Proof.
           Fork $ go e
       | GenNode code_Yield [] =>
           Yield
-      | GenNode code_Proph [] =>
-          Proph
-      | GenNode code_Resolve [e0; e1; e2] =>
-          Resolve (go e0) (go e1) (go e2)
       | _ =>
           @inhabitant _ expr_inhabited
       end
@@ -1010,8 +930,8 @@ Proof.
           ValLiteral lit
       | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode code_ValConstr (GenLeaf (EncodeConstrId cid) :: GenLeaf (EncodeConstrTag tag) :: vs) =>
-          ValConstr cid tag $ go_list vs
+      | GenNode code_ValConstr (GenLeaf (EncodeConstrTag tag) :: vs) =>
+          ValConstr tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
       end

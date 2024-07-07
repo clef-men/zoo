@@ -21,7 +21,6 @@ From zoo.language Require Import
 From zoo Require Import
   options.
 
-Implicit Types pid : prophet_id.
 Implicit Types e : expr.
 
 Class PureExecNoRec ϕ n e1 e2 :=
@@ -55,19 +54,6 @@ Section instances.
   | 8.
   Proof.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
-  Qed.
-
-  #[global] Instance reveal_step_wp tag vs :
-    SPEC
-    {{ True }}
-      Reveal $ ValConstr None tag vs
-    {{ cid,
-      RET ValConstr (Some cid) tag vs; True
-    }}.
-  Proof.
-    iSteps.
-    wp_reveal cid.
-    iSteps.
   Qed.
 
   #[global] Instance record_step_wp es :
@@ -177,8 +163,6 @@ Section instances.
     SPEC ⟨E1, E2⟩ v dq,
     {{
       ▷ l ↦{dq} v ∗
-      ⌜val_physical v⌝ ∗
-      ⌜val_physical v1⌝ ∗
       ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
     }}
       Cas #l v1 v2
@@ -189,12 +173,11 @@ Section instances.
         l ↦{dq} v
       ∨ ⌜b = true⌝ ∗
         ⌜val_eq v v1⌝ ∗
-        ⌜val_consistency v v1⌝ ∗
         l ↦ v2
     }}.
   Proof.
-    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
-    wp_cas as ? | ? ?; iSteps.
+    iStep as (lit). iIntros "%dq (_ & Hl & %H)".
+    wp_cas as ? | ?; iSteps.
     destruct H; last done. iSteps.
   Qed.
 
@@ -211,20 +194,6 @@ Section instances.
   Proof.
     iSteps as (z) "Hl".
     wp_faa.
-    iSteps.
-  Qed.
-
-  #[global] Instance proph_step :
-    SPEC
-    {{ True }}
-      Proph
-    {{ prophs pid,
-      RET #pid;
-      prophet_model pid prophs
-    }}.
-  Proof.
-    iSteps.
-    iApply (wp_proph with "[//]").
     iSteps.
   Qed.
 

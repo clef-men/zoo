@@ -12,7 +12,6 @@ Definition in_type (_ : string) (n : nat) :=
 Coercion LiteralBool : bool >-> literal.
 Coercion LiteralInt : Z >-> literal.
 Coercion LiteralLoc : location >-> literal.
-Coercion LiteralProphecy : prophet_id >-> literal.
 
 Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.
@@ -248,30 +247,15 @@ Notation "‘ tag { e1 , .. , en }" := (
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ).
-Notation "’ tag @{ cid }{ v1 , .. , vn }" := (
-  ValConstr (Some cid) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
-  tag custom zoo_tag,
-  cid at level 200,
-  v1, vn at level 200,
-  format "'[hv' ’ tag @{ cid }{  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
-).
 Notation "’ tag { v1 , .. , vn }" := (
-  ValConstr None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValConstr tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
 ).
-Notation "§ tag @{ cid }" := (
-  ValConstr (Some cid) tag%core (@nil val)
-)(at level 2,
-  tag custom zoo_tag,
-  cid at level 200,
-  format "§ tag @{ cid }"
-).
 Notation "§ tag" := (
-  ValConstr None tag%core (@nil val)
+  ValConstr tag%core (@nil val)
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
@@ -282,7 +266,7 @@ Notation "( e1 , e2 , .. , en )" := (
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValConstr None 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValConstr 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (

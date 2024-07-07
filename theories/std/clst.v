@@ -46,11 +46,6 @@ Proof.
   intros cls1. induction cls1 as [| | v1 cls1 IH]; intros [| | v2 cls2]; [naive_solver.. |].
   intros (_ & [= -> ->%eq_val_eq%IH]). done.
 Qed.
-#[global] Instance clist_to_val_physical cls :
-  ValPhysical (clist_to_val cls).
-Proof.
-  destruct cls; done.
-Qed.
 
 Fixpoint list_to_clist_open ls :=
   match ls with

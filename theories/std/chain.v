@@ -54,14 +54,6 @@ Section zoo_G.
     end.
   #[global] Arguments chain_model _ !_ _ / : assert.
 
-  Lemma chain_physical t vs dst :
-    0 < length vs →
-    chain_model t vs dst ⊢
-    ⌜val_physical t⌝.
-  Proof.
-    intros Hlen. destruct vs as [| v vs]; first naive_solver lia.
-    iSteps.
-  Qed.
   Lemma chain_physically_distinct t1 vs1 dst1 t2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →

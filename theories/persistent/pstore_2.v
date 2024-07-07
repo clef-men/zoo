@@ -270,12 +270,18 @@ Module raw.
       meta l (nroot.@"impl") γ ∗
       descriptors_elem γ cnode descr.
 
-    (*
+    #[local] Instance deltas_chain_timeless node δs dst :
+      Timeless (deltas_chain node δs dst).
+    Proof.
+      move: node. induction δs; apply _.
+    Qed.
     #[global] Instance pstore_model_timeless t σ0 σ :
       Timeless (pstore_model t σ0 σ).
     Proof.
-    Admitted.
-     *)
+      rewrite /Timeless. iIntros "(%l & %γ & %g & H)".
+      iExists l, γ, g.
+      case_decide; iApply (timeless with "H").
+    Qed.
 
     #[global] Instance pstore_snapshot_persistent s t σ :
       Persistent (pstore_snapshot s t σ).

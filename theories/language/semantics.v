@@ -24,18 +24,6 @@ Implicit Types vs : list val.
 Implicit Types br : branch.
 Implicit Types brs : list branch.
 
-Definition literal_physical lit :=
-  match lit with
-  | LiteralBool _
-  | LiteralInt _
-  | LiteralLoc _ =>
-      True
-  | LiteralProphecy _
-  | LiteralPoison =>
-      False
-  end.
-#[global] Arguments literal_physical !_ / : assert.
-
 Definition literal_eq lit1 lit2 :=
   match lit1, lit2 with
   | LiteralBool b1, LiteralBool b2 =>
@@ -63,24 +51,11 @@ Proof.
   do 2 intros []; done.
 Qed.
 
-Definition val_physical v :=
-  match v with
-  | ValLiteral lit =>
-      literal_physical lit
-  | _ =>
-      True
-  end.
-#[global] Arguments val_physical !_ / : assert.
-Class ValPhysical v :=
-  val_physical' : val_physical v.
-
 Definition val_neq v1 v2 :=
   match v1, v2 with
   | ValLiteral lit1, ValLiteral lit2 =>
       lit1 ≠ lit2
-  | ValConstr (Some cid1) _ _, ValConstr (Some cid2) _ _ =>
-      cid1 ≠ cid2
-  | ValConstr _ tag1 [], ValConstr _ tag2 [] =>
+  | ValConstr tag1 [], ValConstr tag2 [] =>
       tag1 ≠ tag2
   | _, _ =>
       True
@@ -90,7 +65,7 @@ Definition val_neq v1 v2 :=
 #[global] Instance val_neq_sym :
   Symmetric val_neq.
 Proof.
-  do 2 intros [| | [] ? []]; done.
+  do 2 intros [| | ? []]; done.
 Qed.
 
 Definition val_eq v1 v2 :=
@@ -99,7 +74,7 @@ Definition val_eq v1 v2 :=
       match v2 with
       | ValLiteral lit2 =>
           literal_eq lit1 lit2
-      | ValConstr _ _ [] =>
+      | ValConstr _ [] =>
           match lit1 with
           | LiteralBool _
           | LiteralInt _ =>
@@ -117,40 +92,19 @@ Definition val_eq v1 v2 :=
       | _ =>
           False
       end
-  | ValConstr (Some cid1) tag1 [] =>
+  | ValConstr tag1 [] =>
       match v2 with
       | ValBool _
       | ValInt _ =>
           True
-      | ValConstr (Some cid2) _ _ =>
-          cid1 = cid2
-      | ValConstr None tag2 es2 =>
-          tag1 = tag2 ∧ [] = es2
-      | _ =>
-          False
-      end
-  | ValConstr (Some cid1) tag1 es1 =>
-      match v2 with
-      | ValConstr (Some cid2) _ _ =>
-          cid1 = cid2
-      | ValConstr None tag2 es2 =>
-          tag1 = tag2 ∧ es1 = es2
-      | _ =>
-          False
-      end
-  | ValConstr _ tag1 [] =>
-      match v2 with
-      | ValBool _
-      | ValInt _ =>
-          True
-      | ValConstr _ tag2 [] =>
+      | ValConstr tag2 [] =>
           tag1 = tag2
       | _ =>
           False
       end
-  | ValConstr _ tag1 es1 =>
+  | ValConstr tag1 es1 =>
       match v2 with
-      | ValConstr _ tag2 es2 =>
+      | ValConstr tag2 es2 =>
           tag1 = tag2 ∧ es1 = es2
       | _ =>
           False
@@ -158,30 +112,21 @@ Definition val_eq v1 v2 :=
   end.
 #[global] Arguments val_eq !_ !_ / : assert.
 
-Definition val_consistency v1 v2 :=
-  match v1, v2 with
-  | ValConstr (Some _) tag1 es1, ValConstr (Some _) tag2 es2 =>
-      tag1 = tag2 ∧ es1 = es2
-  | _, _ =>
-      True
-  end.
-#[global] Arguments val_consistency !_ !_ / : assert.
-
 #[global] Instance val_eq_refl :
   Reflexive val_eq.
 Proof.
-  intros [[] | | [] ? []]; done.
+  intros [[] | | ? []]; done.
 Qed.
 #[global] Instance val_eq_sym :
   Symmetric val_eq.
 Proof.
-  do 2 intros [| | [] ? []]; try naive_solver congruence.
+  do 2 intros [| | ? []]; try naive_solver congruence.
 Qed.
 Lemma eq_val_eq v1 v2 :
   v1 = v2 →
   val_eq v1 v2.
 Proof.
-  destruct v1 as [| | [] ? []]; naive_solver.
+  destruct v1 as [| | ? []]; naive_solver.
 Qed.
 
 Definition unop_eval op v :=
@@ -292,9 +237,6 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
-  | Reveal e =>
-      Reveal
-        (subst x v e)
   | For e1 e2 e3 =>
       For
         (subst x v e1)
@@ -332,13 +274,6 @@ Fixpoint subst (x : string) v e :=
         (subst x v e)
   | Yield =>
       Yield
-  | Proph =>
-      Proph
-  | Resolve e0 e1 e2 =>
-      Resolve
-        (subst x v e0)
-        (subst x v e1)
-        (subst x v e2)
   end.
 #[global] Arguments subst _ _ !_ / : assert.
 Definition subst' x v :=
@@ -358,23 +293,22 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint match_apply cid tag vs x e brs :=
+Fixpoint match_apply tag vs x e brs :=
   match brs with
   | [] =>
-      subst' x (ValConstr cid tag vs) e
+      subst' x (ValConstr tag vs) e
   | br :: brs =>
       let pat := br.1 in
       if decide (pat.(pattern_tag) = tag) then
         subst_list pat.(pattern_fields) vs $
-        subst' pat.(pattern_as) (ValConstr cid tag vs) br.2
+        subst' pat.(pattern_as) (ValConstr tag vs) br.2
       else
-        match_apply cid tag vs x e brs
+        match_apply tag vs x e brs
   end.
-#[global] Arguments match_apply _ _ _ _ _ !_ / : assert.
+#[global] Arguments match_apply _ _ _ _ !_ / : assert.
 
 Record state : Type := {
   state_heap : gmap location val ;
-  state_prophets : gset prophet_id ;
 }.
 Implicit Types σ : state.
 
@@ -383,19 +317,12 @@ Canonical stateO :=
 
 Definition state_update_heap f σ : state :=
   {|state_heap := f σ.(state_heap) ;
-    state_prophets := σ.(state_prophets) ;
   |}.
 #[global] Arguments state_update_heap _ !_ / : assert.
-Definition state_update_prophets f σ : state :=
-  {|state_heap := σ.(state_heap) ;
-    state_prophets := f σ.(state_prophets) ;
-  |}.
-#[global] Arguments state_update_prophets _ !_ / : assert.
 
 #[global] Instance state_inhabited : Inhabited state :=
   populate
     {|state_heap := inhabitant ;
-      state_prophets := inhabitant ;
     |}.
 
 Fixpoint heap_array l vs : gmap location val :=
@@ -450,9 +377,9 @@ Definition state_init_heap l vs σ :=
   state_update_heap (λ h, heap_array l vs ∪ h) σ.
 
 Definition observation : Set :=
-  prophet_id * (val * val).
+  unit.
 
-Inductive base_step : expr → state → list observation → expr → state → list expr → Prop → Prop :=
+Inductive base_step : expr → state → list observation → expr → state → list expr → Prop :=
   | base_step_rec f x e σ :
       base_step
         (Rec f x e)
@@ -461,7 +388,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValRec f x e)
         σ
         []
-        True
   | base_step_beta f x e v e' σ :
       e' = subst' f (ValRec f x e) (subst' x v e) →
       base_step
@@ -471,7 +397,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
-        True
   | base_step_unop op v v' σ :
       unop_eval op v = Some v' →
       base_step
@@ -481,7 +406,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v')
         σ
         []
-        True
   | base_step_binop op v1 v2 v' σ :
       binop_eval op v1 v2 = Some v' →
       base_step
@@ -491,10 +415,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v')
         σ
         []
-        True
   | base_step_equal_fail v1 v2 σ :
-      val_physical v1 →
-      val_physical v2 →
       val_neq v1 v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -503,9 +424,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool false)
         σ
         []
-        True
   | base_step_equal_suc v1 v2 σ :
-      val_physical v1 →
       val_eq v1 v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -514,7 +433,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         σ
         []
-        (val_consistency v1 v2)
   | base_step_if_true e1 e2 σ :
       base_step
         (If (Val $ ValBool true) e1 e2)
@@ -523,7 +441,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         e1
         σ
         []
-        True
   | base_step_if_false e1 e2 σ :
       base_step
         (If (Val $ ValBool false) e1 e2)
@@ -532,45 +449,32 @@ Inductive base_step : expr → state → list observation → expr → state →
         e2
         σ
         []
-        True
   | base_step_constr tag es vs σ :
       es = of_vals vs →
       base_step
         (Constr tag es)
         σ
         []
-        (Val $ ValConstr None tag vs)
+        (Val $ ValConstr tag vs)
         σ
         []
-        True
-  | base_step_proj proj cid tag vs v σ :
+  | base_step_proj proj tag vs v σ :
       vs !! proj = Some v →
       base_step
-        (Proj proj $ Val $ ValConstr cid tag vs)
+        (Proj proj $ Val $ ValConstr tag vs)
         σ
         []
         (Val v)
         σ
         []
-        True
-  | base_step_match cid tag vs x e brs σ :
+  | base_step_match tag vs x e brs σ :
       base_step
-        (Match (Val $ ValConstr cid tag vs) x e brs)
+        (Match (Val $ ValConstr tag vs) x e brs)
         σ
         []
-        (match_apply cid tag vs x e brs)
+        (match_apply tag vs x e brs)
         σ
         []
-        True
-  | base_step_reveal cid tag vs σ :
-      base_step
-        (Reveal $ Val $ ValConstr None tag vs)
-        σ
-        []
-        (Val $ ValConstr (Some cid) tag vs)
-        σ
-        []
-        True
   | base_step_for n1 n2 e σ :
       base_step
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
@@ -579,7 +483,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
         σ
         []
-        True
   | base_step_record es vs σ l :
       0 < length es →
       es = of_vals vs →
@@ -594,7 +497,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_init_heap l vs σ)
         []
-        True
   | base_step_alloc n v σ l :
       (0 < n)%Z →
       ( ∀ i,
@@ -608,7 +510,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_init_heap l (replicate (Z.to_nat n) v) σ)
         []
-        True
   | base_step_load l v σ :
       σ.(state_heap) !! l = Some v →
       base_step
@@ -618,7 +519,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-        True
   | base_step_store l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
@@ -628,7 +528,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         (state_update_heap <[l := v]> σ)
         []
-        True
   | base_step_xchg l v w σ :
       σ.(state_heap) !! l = Some w →
       base_step
@@ -638,11 +537,8 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val w)
         (state_update_heap <[l := v]> σ)
         []
-        True
   | base_step_cas_fail l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
-      val_physical v →
-      val_physical v1 →
       val_neq v v1 →
       base_step
         (Cas (Val $ ValLoc l) (Val v1) (Val v2))
@@ -651,10 +547,8 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool false)
         σ
         []
-        True
   | base_step_cas_suc l v1 v2 v σ :
       σ.(state_heap) !! l = Some v →
-      val_physical v →
       val_eq v v1 →
       base_step
         (Cas (Val $ ValLoc l) (Val v1) (Val v2))
@@ -663,7 +557,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBool true)
         (state_update_heap <[l := v2]> σ)
         []
-        (val_consistency v v1)
   | base_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValInt m →
       base_step
@@ -673,7 +566,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt m)
         (state_update_heap <[l := ValInt (m + n)]> σ)
         []
-        True
   | base_step_fork e σ :
       base_step
         (Fork e)
@@ -682,7 +574,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         σ
         [e]
-        True
   | base_step_yield σ :
       base_step
         Yield
@@ -690,41 +581,8 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
         Unit
         σ
-        []
-        True
-  | base_step_proph σ pid :
-      pid ∉ σ.(state_prophets) →
-      base_step
-        Proph
-        σ
-        []
-        (Val $ ValProphecy pid)
-        (state_update_prophets ({[pid]} ∪.) σ)
-        []
-        True
-  | base_step_resolve e pid v σ κ w σ' es ϕ :
-      base_step e σ κ (Val w) σ' es ϕ →
-      base_step
-        (Resolve e (Val $ ValProphecy pid) (Val v))
-        σ
-        (κ ++ [(pid, (w, v))])
-        (Val w)
-        σ'
-        es
-        ϕ.
+        [].
 
-Lemma base_step_reveal' tag vs σ :
-  base_step
-    (Reveal $ Val $ ValConstr None tag vs)
-    σ
-    []
-    (Val $ ValConstr (Some inhabitant) tag vs)
-    σ
-    []
-    True.
-Proof.
-  apply base_step_reveal.
-Qed.
 Lemma base_step_record' es vs σ :
   let l := location_fresh (dom σ.(state_heap)) in
   0 < length es →
@@ -735,8 +593,7 @@ Lemma base_step_record' es vs σ :
     []
     (Val $ ValLoc l)
     (state_init_heap l vs σ)
-    []
-    True.
+    [].
 Proof.
   intros. apply base_step_record; [done.. |].
   intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
@@ -750,28 +607,14 @@ Lemma base_step_alloc' v n σ :
     []
     (Val $ ValLoc l)
     (state_init_heap l (replicate (Z.to_nat n) v) σ)
-    []
-    True.
+    [].
 Proof.
   intros. apply base_step_alloc; first done.
   intros. apply not_elem_of_dom, location_fresh_fresh. naive_solver.
 Qed.
-Lemma base_step_proph' σ :
-  let pid := fresh σ.(state_prophets) in
-  base_step
-    Proph
-    σ
-    []
-    (Val $ ValProphecy pid)
-    (state_update_prophets ({[pid]} ∪.) σ)
-    []
-    True.
-Proof.
-  constructor. apply is_fresh.
-Qed.
 
-Lemma val_base_stuck e1 σ1 κ e2 σ2 es ϕ :
-  base_step e1 σ1 κ e2 σ2 es ϕ →
+Lemma val_base_stuck e1 σ1 κ e2 σ2 es :
+  base_step e1 σ1 κ e2 σ2 es →
   to_val e1 = None.
 Proof.
   destruct 1; naive_solver.
@@ -789,7 +632,6 @@ Inductive ectxi :=
   | CtxConstr tag vs es
   | CtxProj proj
   | CtxMatch x e1 brs
-  | CtxReveal
   | CtxFor1 e2 e3
   | CtxFor2 v1 e3
   | CtxRecord vs es
@@ -804,10 +646,7 @@ Inductive ectxi :=
   | CtxCas1 e0 v2
   | CtxCas2 e0 e1
   | CtxFaa1 v2
-  | CtxFaa2 e1
-  | CtxResolve0 (k : ectxi) v1 v2
-  | CtxResolve1 e0 v2
-  | CtxResolve2 e0 e1.
+  | CtxFaa2 e1.
 Implicit Types k : ectxi.
 
 Notation CtxLet x e2 := (
@@ -820,7 +659,7 @@ Notation CtxSeq e2 := (
 )(only parsing
 ).
 
-Fixpoint ectxi_fill k e : expr :=
+Definition ectxi_fill k e : expr :=
   match k with
   | CtxApp1 v2 =>
       App e $ Val v2
@@ -844,8 +683,6 @@ Fixpoint ectxi_fill k e : expr :=
       Proj proj e
   | CtxMatch x e1 brs =>
       Match e x e1 brs
-  | CtxReveal =>
-      Reveal e
   | CtxFor1 e2 e3 =>
       For e e2 e3
   | CtxFor2 v1 e3 =>
@@ -876,12 +713,6 @@ Fixpoint ectxi_fill k e : expr :=
       Faa e $ Val v2
   | CtxFaa2 e1 =>
       Faa e1 e
-  | CtxResolve0 k v1 v2 =>
-      Resolve (ectxi_fill k e) (Val v1) (Val v2)
-  | CtxResolve1 e0 v2 =>
-      Resolve e0 e $ Val v2
-  | CtxResolve2 e0 e1 =>
-      Resolve e0 e1 e
   end.
 #[global] Arguments ectxi_fill !_ _ / : assert.
 
@@ -912,11 +743,11 @@ Proof.
       move: vs2 H'; induction vs1; intros []; naive_solver
     end.
 Qed.
-Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es ϕ :
-  base_step (ectxi_fill k e) σ1 κ e2 σ2 es ϕ →
+Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
+  base_step (ectxi_fill k e) σ1 κ e2 σ2 es →
   is_Some (to_val e).
 Proof.
-  move: κ e2 ϕ.
+  move: κ e2.
   induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
   all: inversion_clear 1.
   all:

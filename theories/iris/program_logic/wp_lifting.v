@@ -21,9 +21,8 @@ Section language.
       state_interp nt σ (κ ++ κs) -∗
         |={E, ∅}=>
         ⌜reducible e σ⌝ ∗
-          ∀ e' σ' es ϕ,
-          ⌜prim_step e σ κ e' σ' es ϕ⌝ -∗
-          ⌜ϕ⌝ -∗
+          ∀ e' σ' es,
+          ⌜prim_step e σ κ e' σ' es⌝ -∗
           £ 1 -∗
             |={∅}=> ▷ |={∅, E}=>
             state_interp (nt + length es) σ' κs ∗
@@ -42,9 +41,8 @@ Section language.
       state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜reducible e σ⌝ ∗
-          ∀ e' σ' es ϕ,
-          ⌜prim_step e σ κ e' σ' es ϕ⌝ -∗
-          ⌜ϕ⌝ -∗
+          ∀ e' σ' es,
+          ⌜prim_step e σ κ e' σ' es⌝ -∗
           £ 1 -∗
             |={E1}[E2]▷=>
             state_interp (nt + length es) σ' κs ∗
@@ -57,9 +55,9 @@ Section language.
     iIntros "%He H".
     iApply wp_lift_step; first done. iIntros "%nt %σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "($ & H)".
-    iApply fupd_mask_intro; first set_solver. iIntros "Hclose %e' %σ' %es %ϕ %Hstep %Hϕ H£".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose %e' %σ' %es %Hstep H£".
     iMod "Hclose" as "_".
-    iMod ("H" with "[//] [//] H£") as "H".
+    iMod ("H" with "[//] H£") as "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose !>".
     iMod "Hclose" as "_".
     iMod "H" as "($ & HΦ & $)".
@@ -72,15 +70,15 @@ Section language.
     ( ∀ σ,
       reducible e σ
     ) →
-    ( ∀ σ κ e' σ' es ϕ,
-      prim_step e σ κ e' σ' es ϕ →
+    ( ∀ σ κ e' σ' es,
+      prim_step e σ κ e' σ' es →
         κ = [] ∧
         σ' = σ ∧
         es = []
     ) →
     ( |={E1}[E2]▷=>
-      ∀ σ e' κ es ϕ,
-      ⌜prim_step e σ κ e' σ es ϕ⌝ -∗
+      ∀ σ e' κ es,
+      ⌜prim_step e σ κ e' σ es⌝ -∗
       £ 1 -∗
       WP e' @ E1 {{ Φ }}
     ) ⊢
@@ -92,8 +90,8 @@ Section language.
     iIntros "%nt %σ %κ %κs Hσ".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ H£ !> !>".
-    destruct (Hpure σ κ e' σ' es ϕ) as (-> & <- & ->); first done.
+    iSplit; first iSteps. iIntros "%e' %σ' %es %Hstep H£ !> !>".
+    destruct (Hpure σ κ e' σ' es) as (-> & <- & ->); first done.
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
@@ -101,8 +99,8 @@ Section language.
     ( ∀ σ1,
       reducible e1 σ1
     ) →
-    ( ∀ σ1 κ e2' σ2 es ϕ,
-      prim_step e1 σ1 κ e2' σ2 es ϕ →
+    ( ∀ σ1 κ e2' σ2 es,
+      prim_step e1 σ1 κ e2' σ2 es →
         κ = [] ∧
         σ2 = σ1 ∧
         e2' = e2 ∧
@@ -116,7 +114,7 @@ Section language.
   Proof.
     iIntros "%Hsafe %Hpure H".
     iApply (wp_lift_pure_step_no_fork); [done | naive_solver |].
-    iApply (step_fupd_wand with "H"). iIntros "H %σ1 %e2' %κ %es %ϕ %Hstep H£".
+    iApply (step_fupd_wand with "H"). iIntros "H %σ1 %e2' %κ %es %Hstep H£".
     apply Hpure in Hstep as (-> & _ & -> & ->).
     iSteps.
   Qed.
@@ -176,9 +174,8 @@ Section ectx_language.
       state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜base_reducible e σ⌝ ∗
-        ∀ e' σ' es ϕ,
-        ⌜base_step e σ κ e' σ' es ϕ⌝ -∗
-        ⌜ϕ⌝ -∗
+        ∀ e' σ' es,
+        ⌜base_step e σ κ e' σ' es⌝ -∗
         £ 1 -∗
           |={E1}[E2]▷=>
           state_interp (nt + length es) σ' κs ∗
@@ -191,8 +188,8 @@ Section ectx_language.
     iIntros "%He H".
     iApply wp_lift_atomic_step; first done. iIntros "%nt %σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "(%Hreducible & H)".
-    iModIntro. iSplit; first iSteps. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ".
-    iApply ("H" with "[%] [//]").
+    iModIntro. iSplit; first iSteps. iIntros "%e' %σ' %es %Hstep".
+    iApply ("H" with "[%]").
     naive_solver.
   Qed.
 
@@ -202,9 +199,8 @@ Section ectx_language.
       state_interp nt σ (κ ++ κs) -∗
         |={E1}=>
         ⌜base_reducible e σ⌝ ∗
-          ∀ e' σ' es ϕ,
-          ⌜base_step e σ κ e' σ' es ϕ⌝ -∗
-          ⌜ϕ⌝ -∗
+          ∀ e' σ' es,
+          ⌜base_step e σ κ e' σ' es⌝ -∗
           £ 1 -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
@@ -216,8 +212,8 @@ Section ectx_language.
     iIntros "%He H".
     iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ %κ %κs Hσ".
     iMod ("H" with "Hσ") as "($ & H)".
-    iModIntro. iIntros "%e' %σ' %es %ϕ %Hstep %Hϕ H£".
-    iMod ("H" with "[//] [//] H£") as "H".
+    iModIntro. iIntros "%e' %σ' %es %Hstep H£".
+    iMod ("H" with "[//] H£") as "H".
     do 2 iModIntro.
     iMod "H" as "(-> & Hσ & HΦ)".
     rewrite Nat.add_0_r. iSteps.

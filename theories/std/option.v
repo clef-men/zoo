@@ -38,11 +38,6 @@ Qed.
 Proof.
   intros ?* ->%eq_val_eq%(inj _). done.
 Qed.
-#[global] Instance option_to_val_physical o :
-  ValPhysical (option_to_val o).
-Proof.
-  destruct o; done.
-Qed.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

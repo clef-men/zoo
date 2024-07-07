@@ -30,12 +30,6 @@ Fixpoint plst_to_val nil vs :=
   end.
 #[global] Arguments plst_to_val _ !_ : assert.
 
-#[global] Instance plst_to_val_physical nil vs :
-  ValPhysical nil →
-  ValPhysical (plst_to_val nil vs).
-Proof.
-  destruct vs; done.
-Qed.
 Lemma plst_to_val_cons nil v vs :
   plst_to_val nil (v :: vs) = ’Cons{ v, plst_to_val nil vs }.
 Proof.
@@ -67,11 +61,6 @@ Qed.
   Inj (=) (=) lst_to_val.
 Proof.
   intros ?* ->%eq_val_eq%(inj _). done.
-Qed.
-#[global] Instance lst_to_val_physical vs :
-  ValPhysical (lst_to_val vs).
-Proof.
-  apply plst_to_val_physical. done.
 Qed.
 Lemma lst_to_val_nil :
   lst_to_val [] = §Nil.

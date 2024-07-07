@@ -150,7 +150,7 @@ Section mutex_G.
     wp_bind (Cas _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b.
-    - wp_cas as _ | [=] _.
+    - wp_cas as _ | [=].
       iModIntro. iSplitR "HΦ"; first iSteps.
       wp_pures.
       iApply ("HLöb" with "HΦ").

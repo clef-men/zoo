@@ -95,35 +95,19 @@ Section zoo_G.
 
   Lemma tac_wp_equal Δ Δ' K v1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    ValPhysical v1 →
-    ValPhysical v2 →
     ( val_neq v1 v2 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
     ( val_eq v1 v2 →
-      val_consistency v1 v2 →
       envs_entails Δ' (WP fill K #true @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (v1 = v2) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => HΔ Hv1 Hv2 Hfail Hsuc.
+    rewrite envs_entails_unseal => HΔ Hfail Hsuc.
     rewrite into_laterN_env_sound -wp_bind -wp_equal //.
     apply bi.later_mono, bi.and_intro.
     all: repeat (rewrite bi.pure_wand_forall; apply bi.forall_intro => ?).
     all: naive_solver.
-  Qed.
-
-  Lemma tac_wp_reveal Δ Δ' K tag vs E Φ :
-    MaybeIntoLaterNEnvs 1 Δ Δ' →
-    ( ∀ cid,
-      envs_entails Δ' (WP fill K (ValConstr (Some cid) tag vs) @ E {{ Φ }})
-    ) →
-    envs_entails Δ (WP fill K (Reveal $ ValConstr None tag vs) @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => HΔ HΔ'.
-    rewrite into_laterN_env_sound -wp_bind -wp_reveal.
-    apply bi.forall_intro => cid.
-    rewrite (HΔ' cid) //.
   Qed.
 
   Lemma tac_wp_record Δ Δ' id1 id2 K es vs E Φ :
@@ -247,26 +231,22 @@ Section zoo_G.
   Lemma tac_wp_cas Δ Δ' Δ'' id p K l dq v v1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup_delete true id Δ' = Some (p, l ↦{dq} v, Δ'')%I →
-    ValPhysical v →
-    ValPhysical v1 →
     ( val_neq v v1 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
     ( val_eq v v1 →
-      val_consistency v v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
     ) →
     match envs_app false (Esnoc Enil id (l ↦ v2)) Δ'' with
     | Some Δ''' =>
         val_eq v v1 →
-        val_consistency v v1 →
         envs_entails Δ''' (WP fill K #true @ E {{ Φ }})
     | None =>
         False
     end →
     envs_entails Δ (WP fill K (Cas #l v1 v2) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hv Hv1 Hfail Hsuc1 Hsuc2.
+    rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hfail Hsuc1 Hsuc2.
     destruct (envs_app _ _ _) as [Δ''' |] eqn:HΔ'''; last done.
     rewrite into_laterN_env_sound -wp_bind //=.
     iIntros "HΔ'".
@@ -281,7 +261,7 @@ Section zoo_G.
       iDestruct (envs_lookup_sound_2 with "[Hl HΔ'']") as "HΔ'"; [done.. | |].
       { iFrame. destruct p; iSteps. }
       iApply (Hfail with "HΔ'"); first done.
-    - iIntros "!> %Heq %Hconsistency Hl".
+    - iIntros "!> %Heq Hl".
       iDestruct (envs_lookup_sound_2 with "[Hl HΔ'']") as "HΔ'"; [done.. | |].
       { iFrame. destruct p; iSteps. }
       iDestruct (Hsuc1 with "HΔ'") as %->; [done.. |].
@@ -291,8 +271,6 @@ Section zoo_G.
   Lemma tac_wp_cas_suc Δ Δ' id K l lit lit1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, l ↦ #lit)%I →
-    literal_physical lit →
-    literal_physical lit1 →
     lit = lit1 →
     match envs_simple_replace id false (Esnoc Enil id (l ↦ v2)) Δ' with
     | Some Δ'' =>
@@ -302,7 +280,7 @@ Section zoo_G.
     end →
     envs_entails Δ (WP fill K (Cas #l #lit1 v2) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal. intros HΔ Hlookup Hlit Hlit1 -> HΔ'.
+    rewrite envs_entails_unseal. intros HΔ Hlookup -> HΔ'.
     destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
     rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ'.
     iIntros "(Hl & H)".
@@ -457,10 +435,7 @@ Tactic Notation "wp_bind" open_constr(e_foc) :=
     ]
   ).
 
-#[local] Ltac solve_val_physical :=
-  try (fast_done || tc_solve).
-
-Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropattern(Hsuc) simple_intropattern(Hconsistency) :=
+Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropattern(Hsuc) :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
@@ -470,26 +445,9 @@ Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropatte
     | fail 1 "wp_equal: cannot find 'Equal' in" e
     ];
     [ tc_solve
-    | solve_val_physical
-    | solve_val_physical
     | intros Hfail;
       wp_finish
-    | intros Hsuc Hconsistency;
-      wp_finish
-    ]
-  ).
-
-Tactic Notation "wp_reveal" simple_intropattern(cid) :=
-  wp_pures;
-  wp_start ltac:(fun e =>
-    first
-    [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_reveal _ _ K)
-      )
-    | fail 1 "wp_reveal: cannot find 'Reveal' in" e
-    ];
-    [ tc_solve
-    | intros cid;
+    | intros Hsuc;
       wp_finish
     ]
   ).
@@ -639,7 +597,7 @@ Tactic Notation "wp_xchg" :=
     ]
   ).
 
-Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern(Hsuc) simple_intropattern(Hconsistency) :=
+Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern(Hsuc) :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
@@ -654,14 +612,12 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
       [ iAssumptionCore
       | fail 1 "wp_cas: cannot find" l "↦ ?"
       ]
-    | solve_val_physical
-    | solve_val_physical
     | intros Hfail;
       wp_finish
-    | intros Hsuc Hconsistency;
+    | intros Hsuc;
       try (iPureIntro; fast_done)
     | pm_reduce;
-      intros Hsuc Hconsistency;
+      intros Hsuc;
       wp_finish
     ]
   ).
@@ -680,8 +636,6 @@ Ltac wp_cas_suc :=
       [ iAssumptionCore
       | fail 1 "wp_cas_suc: cannot find" l "↦ ?"
       ]
-    | try fast_done
-    | try fast_done
     | try (simpl; congruence)
     | pm_reduce;
       wp_finish

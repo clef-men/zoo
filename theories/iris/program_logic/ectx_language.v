@@ -12,7 +12,7 @@ Section ectx_language_mixin.
   Context (empty_ectx : ectx).
   Context (comp_ectx : ectx → ectx → ectx).
   Context (fill : ectx → expr → expr).
-  Context (base_step : expr → state → list observation → expr → state → list expr → Prop → Prop).
+  Context (base_step : expr → state → list observation → expr → state → list expr → Prop).
 
   Record EctxLanguageMixin := {
     mixin_to_of_val v :
@@ -20,8 +20,8 @@ Section ectx_language_mixin.
     mixin_of_to_val e v :
       to_val e = Some v →
       of_val v = e ;
-    mixin_val_base_stuck e1 σ1 κ e2 σ2 es ϕ :
-      base_step e1 σ1 κ e2 σ2 es ϕ →
+    mixin_val_base_stuck e1 σ1 κ e2 σ2 es :
+      base_step e1 σ1 κ e2 σ2 es →
       to_val e1 = None ;
 
     mixin_fill_empty e :
@@ -34,15 +34,15 @@ Section ectx_language_mixin.
       is_Some (to_val (fill K e)) →
       is_Some (to_val e) ;
 
-    mixin_step_by_val K' K_redex e1' e1_redex σ1 κ e2 σ2 es ϕ :
+    mixin_step_by_val K' K_redex e1' e1_redex σ1 κ e2 σ2 es :
       fill K' e1' = fill K_redex e1_redex →
       to_val e1' = None →
-      base_step e1_redex σ1 κ e2 σ2 es ϕ →
+      base_step e1_redex σ1 κ e2 σ2 es →
         ∃ K'',
         K_redex = comp_ectx K' K'' ;
 
-    mixin_base_ctx_step_val K e σ1 κ e2 σ2 es ϕ :
-      base_step (fill K e) σ1 κ e2 σ2 es ϕ →
+    mixin_base_ctx_step_val K e σ1 κ e2 σ2 es :
+      base_step (fill K e) σ1 κ e2 σ2 es →
         is_Some (to_val e) ∨
         K = empty_ectx ;
   }.
@@ -60,7 +60,7 @@ Structure ectx_language := {
   empty_ectx : ectx ;
   comp_ectx : ectx → ectx → ectx ;
   fill : ectx → expr → expr ;
-  base_step : expr → state → list observation → expr → state → list expr → Prop → Prop ;
+  base_step : expr → state → list observation → expr → state → list expr → Prop ;
 
   ectx_language_mixin : EctxLanguageMixin of_val to_val empty_ectx comp_ectx fill base_step ;
 }.
@@ -74,7 +74,7 @@ Bind Scope val_scope with val.
 #[global] Arguments empty_ectx {_} : assert.
 #[global] Arguments comp_ectx {_} _ _ : assert.
 #[global] Arguments fill {_} _ _ : assert.
-#[global] Arguments base_step {_} _ _ _ _ _ _ _ : assert.
+#[global] Arguments base_step {_} _ _ _ _ _ _ : assert.
 
 Section ectx_language.
   Context {Λ : ectx_language}.
@@ -85,8 +85,8 @@ Section ectx_language.
   Implicit Types K : ectx Λ.
   Implicit Types κ : list (observation Λ).
 
-  Lemma val_base_stuck e1 σ1 κ e2 σ2 es ϕ :
-    base_step e1 σ1 κ e2 σ2 es ϕ →
+  Lemma val_base_stuck e1 σ1 κ e2 σ2 es :
+    base_step e1 σ1 κ e2 σ2 es →
     to_val e1 = None.
   Proof.
     apply ectx_language_mixin.
@@ -112,17 +112,17 @@ Section ectx_language.
   Proof.
     apply ectx_language_mixin.
   Qed.
-  Lemma step_by_val K' K_redex e1' e1_redex σ1 κ e2 σ2 es ϕ :
+  Lemma step_by_val K' K_redex e1' e1_redex σ1 κ e2 σ2 es :
     fill K' e1' = fill K_redex e1_redex →
     to_val e1' = None →
-    base_step e1_redex σ1 κ e2 σ2 es ϕ →
+    base_step e1_redex σ1 κ e2 σ2 es →
       ∃ K'',
       K_redex = comp_ectx K' K''.
   Proof.
     apply ectx_language_mixin.
   Qed.
-  Lemma base_ctx_step_val K e σ1 κ e2 σ2 es ϕ :
-    base_step (fill K e) σ1 κ e2 σ2 es ϕ →
+  Lemma base_ctx_step_val K e σ1 κ e2 σ2 es :
+    base_step (fill K e) σ1 κ e2 σ2 es →
       is_Some (to_val e) ∨
       K = empty_ectx.
   Proof.
@@ -130,14 +130,14 @@ Section ectx_language.
   Qed.
 
   Definition base_reducible e σ :=
-    ∃ κ e' σ' es ϕ,
-    base_step e σ κ e' σ' es ϕ.
+    ∃ κ e' σ' es,
+    base_step e σ κ e' σ' es.
   Definition base_reducible_no_obs e σ :=
-    ∃ e' σ' es ϕ,
-    base_step e σ [] e' σ' es ϕ.
+    ∃ e' σ' es,
+    base_step e σ [] e' σ' es.
   Definition base_irreducible e σ :=
-    ∀ κ e' σ' es ϕ,
-    ¬ base_step e σ κ e' σ' es ϕ.
+    ∀ κ e' σ' es,
+    ¬ base_step e σ κ e' σ' es.
   Definition base_stuck e σ :=
     to_val e = None ∧
     base_irreducible e σ.
@@ -147,16 +147,16 @@ Section ectx_language.
     to_val e' = None →
     K = empty_ectx.
 
-  Inductive prim_step e1 σ1 κ e2 σ2 es ϕ : Prop :=
+  Inductive prim_step e1 σ1 κ e2 σ2 es : Prop :=
     | Ectx_step K e1' e2' :
         e1 = fill K e1' →
         e2 = fill K e2' →
-        base_step e1' σ1 κ e2' σ2 es ϕ →
-        prim_step e1 σ1 κ e2 σ2 es ϕ.
+        base_step e1' σ1 κ e2' σ2 es →
+        prim_step e1 σ1 κ e2 σ2 es.
 
-  Lemma Ectx_step' K e1 σ1 κ e2 σ2 es ϕ :
-    base_step e1 σ1 κ e2 σ2 es ϕ →
-    prim_step (fill K e1) σ1 κ (fill K e2) σ2 es ϕ.
+  Lemma Ectx_step' K e1 σ1 κ e2 σ2 es :
+    base_step e1 σ1 κ e2 σ2 es →
+    prim_step (fill K e1) σ1 κ (fill K e2) σ2 es.
   Proof.
     econstructor; eauto.
   Qed.
@@ -167,7 +167,7 @@ Section ectx_language.
     split.
     - apply ectx_language_mixin.
     - apply ectx_language_mixin.
-    - intros ? ? ? ? ? ? ? [? ? ? -> -> ?%val_base_stuck].
+    - intros ? ? ? ? ? ? [? ? ? -> -> ?%val_base_stuck].
       apply eq_None_not_Some. intros ?%fill_val%eq_None_not_Some; done.
   Qed.
 
@@ -175,8 +175,8 @@ Section ectx_language.
     Build_language ectx_lang_mixin.
 
   Definition base_atomic e :=
-    ∀ σ κ e' σ' es ϕ,
-    base_step e σ κ e' σ' es ϕ →
+    ∀ σ κ e' σ' es,
+    base_step e σ κ e' σ' es →
     is_Some (to_val e').
 
   Lemma fill_not_val K e :
@@ -206,31 +206,31 @@ Section ectx_language.
       K = comp_ectx K' empty_ectx ∧
       e = e'.
   Proof.
-    intros Heq (κ & e2 & σ2 & es & ϕ & Hred) (κ' & e2' & σ2' & es' & ϕ' & Hred').
+    intros Heq (κ & e2 & σ2 & es & Hred) (κ' & e2' & σ2' & es' & Hred').
     edestruct (step_by_val K' K e' e) as [K'' HK]; [eauto using val_base_stuck.. |].
     subst K. move: Heq. rewrite -fill_comp. intros <-%(inj (fill _)).
-    destruct (base_ctx_step_val _ _ _ _ _ _ _ _ Hred') as [[]%not_eq_None_Some | HK''].
+    destruct (base_ctx_step_val _ _ _ _ _ _ _ Hred') as [[]%not_eq_None_Some | HK''].
     { eapply val_base_stuck. done. }
     subst K''. rewrite fill_empty //.
   Qed.
 
-  Lemma base_prim_step e1 σ1 κ e2 σ2 es ϕ :
-    base_step e1 σ1 κ e2 σ2 es ϕ →
-    prim_step e1 σ1 κ e2 σ2 es ϕ.
+  Lemma base_prim_step e1 σ1 κ e2 σ2 es :
+    base_step e1 σ1 κ e2 σ2 es →
+    prim_step e1 σ1 κ e2 σ2 es.
   Proof.
     apply Ectx_step with empty_ectx; rewrite ?fill_empty //.
   Qed.
 
-  Lemma base_step_not_stuck e σ κ e' σ' es ϕ :
-    base_step e σ κ e' σ' es ϕ →
+  Lemma base_step_not_stuck e σ κ e' σ' es :
+    base_step e σ κ e' σ' es →
     not_stuck e σ.
   Proof.
     rewrite /not_stuck /reducible /=. eauto 10 using base_prim_step.
   Qed.
 
-  Lemma fill_prim_step K e1 σ1 κ e2 σ2 es ϕ :
-    prim_step e1 σ1 κ e2 σ2 es ϕ →
-    prim_step (fill K e1) σ1 κ (fill K e2) σ2 es ϕ.
+  Lemma fill_prim_step K e1 σ1 κ e2 σ2 es :
+    prim_step e1 σ1 κ e2 σ2 es →
+    prim_step (fill K e1) σ1 κ (fill K e2) σ2 es.
   Proof.
     destruct 1 as [K' e1' e2' -> ->].
     rewrite !fill_comp. econstructor; done.
@@ -239,21 +239,21 @@ Section ectx_language.
     reducible e σ →
     reducible (fill K e) σ.
   Proof.
-    intros (κ & e' & σ' & es & ϕ & ?). exists κ, (fill K e'), σ', es, ϕ.
+    intros (κ & e' & σ' & es & ?). exists κ, (fill K e'), σ', es.
     apply fill_prim_step. done.
   Qed.
   Lemma fill_reducible_no_obs K e σ :
     reducible_no_obs e σ →
     reducible_no_obs (fill K e) σ.
   Proof.
-    intros (e' & σ' & es & ϕ & ?). exists (fill K e'), σ', es, ϕ.
+    intros (e' & σ' & es & ?). exists (fill K e'), σ', es.
     apply fill_prim_step. done.
   Qed.
   Lemma base_prim_reducible e σ :
     base_reducible e σ →
     reducible e σ.
   Proof.
-    intros (κ & e' & σ' & es & ϕ & ?). eexists κ, e', σ', es, ϕ.
+    intros (κ & e' & σ' & es & ?). eexists κ, e', σ', es.
     apply base_prim_step. done.
   Qed.
   Lemma base_prim_fill_reducible e K σ :
@@ -266,7 +266,7 @@ Section ectx_language.
     base_reducible_no_obs e σ →
     reducible_no_obs e σ.
   Proof.
-    intros (e' & σ' & es & ϕ & ?). eexists e', σ', es, ϕ.
+    intros (e' & σ' & es & ?). eexists e', σ', es.
     apply base_prim_step. done.
   Qed.
   Lemma base_prim_irreducible e σ :
@@ -287,7 +287,7 @@ Section ectx_language.
     sub_redexes_are_values e →
     base_reducible e σ.
   Proof.
-    intros (κ & e' & σ' & es & ϕ & [K e1' e2' -> -> Hstep]) ?.
+    intros (κ & e' & σ' & es & [K e1' e2' -> -> Hstep]) ?.
     assert (K = empty_ectx) as -> by eauto 10 using val_base_stuck.
     rewrite fill_empty /base_reducible. eauto 10.
   Qed.
@@ -313,19 +313,19 @@ Section ectx_language.
     sub_redexes_are_values e →
     Atomic e.
   Proof.
-    intros Hatomic_step Hatomic_fill σ κ e' σ' es ϕ [K e1' e2' -> -> Hstep].
+    intros Hatomic_step Hatomic_fill σ κ e' σ' es [K e1' e2' -> -> Hstep].
     assert (K = empty_ectx) as -> by eauto 10 using val_base_stuck.
     rewrite fill_empty. eapply Hatomic_step. rewrite fill_empty //.
   Qed.
 
-  Lemma base_reducible_prim_step_ctx K e1 σ1 κ e2 σ2 es ϕ :
+  Lemma base_reducible_prim_step_ctx K e1 σ1 κ e2 σ2 es :
     base_reducible e1 σ1 →
-    prim_step (fill K e1) σ1 κ e2 σ2 es ϕ →
+    prim_step (fill K e1) σ1 κ e2 σ2 es →
       ∃ e2',
       e2 = fill K e2' ∧
-      base_step e1 σ1 κ e2' σ2 es ϕ.
+      base_step e1 σ1 κ e2' σ2 es.
   Proof.
-    intros (κ' & e2'' & σ2'' & es'' & ϕ'' & HhstepK) [K' e1' e2' HKe1 -> Hstep].
+    intros (κ' & e2'' & σ2'' & es'' & HhstepK) [K' e1' e2' HKe1 -> Hstep].
     edestruct (step_by_val K) as [K'' ?]; eauto using val_base_stuck; simplify_eq/=.
     rewrite -fill_comp in HKe1; simplify_eq.
     exists (fill K'' e2'). rewrite fill_comp; split; first done.
@@ -334,10 +334,10 @@ Section ectx_language.
     rewrite !fill_empty //.
   Qed.
 
-  Lemma base_reducible_prim_step e1 σ1 κ e2 σ2 es ϕ :
+  Lemma base_reducible_prim_step e1 σ1 κ e2 σ2 es :
     base_reducible e1 σ1 →
-    prim_step e1 σ1 κ e2 σ2 es ϕ →
-    base_step e1 σ1 κ e2 σ2 es ϕ.
+    prim_step e1 σ1 κ e2 σ2 es →
+    base_step e1 σ1 κ e2 σ2 es.
   Proof.
     intros.
     edestruct (base_reducible_prim_step_ctx empty_ectx) as (? & ? & ?);
@@ -350,10 +350,10 @@ Section ectx_language.
   Proof.
     split; simpl.
     - eauto using fill_not_val.
-    - intros ? ? ? ? ? ? ? [K' e1' e2' Heq1 Heq2 Hstep].
+    - intros ? ? ? ? ? ? [K' e1' e2' Heq1 Heq2 Hstep].
       exists (comp_ectx K K') e1' e2'; rewrite ?Heq1 ?Heq2 ?fill_comp //.
-    - intros e1 σ1 κ e2 σ2 es ϕ Hnval [K'' e1'' e2'' Heq1 -> Hstep].
-      destruct (step_by_val K K'' e1 e1'' σ1 κ e2'' σ2 es ϕ) as [K' ->]; eauto.
+    - intros e1 σ1 κ e2 σ2 es Hnval [K'' e1'' e2'' Heq1 -> Hstep].
+      destruct (step_by_val K K'' e1 e1'' σ1 κ e2'' σ2 es) as [K' ->]; eauto.
       rewrite -fill_comp in Heq1; apply (inj (fill _)) in Heq1.
       exists (fill K' e2''); rewrite -fill_comp; split; auto.
       econstructor; eauto.
@@ -362,8 +362,8 @@ Section ectx_language.
   Record pure_base_step e1 e2 := {
     pure_base_step_safe σ1 :
       base_reducible_no_obs e1 σ1 ;
-    pure_base_step_det σ1 κ e2' σ2 es ϕ :
-      base_step e1 σ1 κ e2' σ2 es ϕ →
+    pure_base_step_det σ1 κ e2' σ2 es :
+      base_step e1 σ1 κ e2' σ2 es →
         κ = [] ∧
         σ2 = σ1 ∧
         e2' = e2 ∧
@@ -375,9 +375,9 @@ Section ectx_language.
     pure_step e1 e2.
   Proof.
     intros [Hp1 Hp2]. split.
-    - intros σ. destruct (Hp1 σ) as (e2' & σ2 & es & ϕ & ?).
-      eexists e2', σ2, es, ϕ. apply base_prim_step. done.
-    - intros σ1 κ e2' σ2 es ϕ ?%base_reducible_prim_step;
+    - intros σ. destruct (Hp1 σ) as (e2' & σ2 & es & ?).
+      eexists e2', σ2, es. apply base_prim_step. done.
+    - intros σ1 κ e2' σ2 es ?%base_reducible_prim_step;
         eauto using base_reducible_no_obs_reducible.
   Qed.
 
@@ -389,7 +389,7 @@ Section ectx_language.
   Qed.
 End ectx_language.
 
-#[global] Arguments Ectx_step {Λ e1 σ1 κ e2 σ2 es ϕ}.
+#[global] Arguments Ectx_step {Λ e1 σ1 κ e2 σ2 es}.
 
 #[global] Arguments ectx_lang : clear implicits.
 Coercion ectx_lang : ectx_language >-> language.
