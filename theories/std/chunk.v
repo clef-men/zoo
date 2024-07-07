@@ -756,14 +756,6 @@ Section zoo_G.
     Definition chunk_cslice l sz i dq vs : iProp Σ :=
       [∗ list] k ↦ v ∈ vs, (l +ₗ (i + k) `mod` sz) ↦{dq} v.
 
-    (* Lemma chunk_cslice_eq l sz i dq vs : *)
-    (*   chunk_cslice l sz i dq vs ⊣⊢ *)
-    (*     let j := i `mod` sz in *)
-    (*     chunk_model (l +ₗ j) dq (take (sz - j) vs) ∗ *)
-    (*     chunk_model l dq (drop (sz - j) vs). *)
-    (* Proof. *)
-    (* Admitted. *)
-
     #[global] Instance chunk_cslice_timeless l sz i dq vs :
       Timeless (chunk_cslice l sz i dq vs).
     Proof.
