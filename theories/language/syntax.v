@@ -819,57 +819,57 @@ Notation EncodeString str := (
 #[global] Instance expr_countable :
   Countable expr.
 Proof.
-  Notation code_Val :=
+  #[local] Notation code_Val :=
     0.
-  Notation code_Rec :=
+  #[local] Notation code_Rec :=
     1.
-  Notation code_App :=
+  #[local] Notation code_App :=
     2.
-  Notation code_Unop :=
+  #[local] Notation code_Unop :=
     3.
-  Notation code_Binop :=
+  #[local] Notation code_Binop :=
     4.
-  Notation code_Equal :=
+  #[local] Notation code_Equal :=
     5.
-  Notation code_If :=
+  #[local] Notation code_If :=
     6.
-  Notation code_Constr :=
+  #[local] Notation code_Constr :=
     7.
-  Notation code_Proj :=
+  #[local] Notation code_Proj :=
     8.
-  Notation code_Match :=
+  #[local] Notation code_Match :=
     9.
-  Notation code_Reveal :=
+  #[local] Notation code_Reveal :=
     10.
-  Notation code_For :=
+  #[local] Notation code_For :=
     11.
-  Notation code_branch :=
+  #[local] Notation code_branch :=
     12.
-  Notation code_Record :=
+  #[local] Notation code_Record :=
     13.
-  Notation code_Alloc :=
+  #[local] Notation code_Alloc :=
     14.
-  Notation code_Load :=
+  #[local] Notation code_Load :=
     15.
-  Notation code_Store :=
+  #[local] Notation code_Store :=
     16.
-  Notation code_Xchg :=
+  #[local] Notation code_Xchg :=
     17.
-  Notation code_Cas :=
+  #[local] Notation code_Cas :=
     18.
-  Notation code_Faa :=
+  #[local] Notation code_Faa :=
     19.
-  Notation code_Fork :=
+  #[local] Notation code_Fork :=
     20.
-  Notation code_Yield :=
+  #[local] Notation code_Yield :=
     21.
-  Notation code_Proph :=
+  #[local] Notation code_Proph :=
     22.
-  Notation code_Resolve :=
+  #[local] Notation code_Resolve :=
     23.
-  Notation code_ValRec :=
+  #[local] Notation code_ValRec :=
     0.
-  Notation code_ValConstr :=
+  #[local] Notation code_ValConstr :=
     1.
   pose encode :=
     fix go e :=
