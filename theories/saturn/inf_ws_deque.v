@@ -106,7 +106,7 @@ Module raw.
 
   Definition inf_ws_deque_create : val :=
     λ: <>,
-      { #0; #0; inf_array_create (); Proph }.
+      { #0, #0, inf_array_create (), Proph }.
 
   Definition inf_ws_deque_push : val :=
     λ: "t" "v",

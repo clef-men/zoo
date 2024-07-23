@@ -49,12 +49,12 @@ Implicit Types vs : list val.
 
 #[local] Definition node_create : val :=
   λ: "v1" "v2" "v3" "v4",
-    { "v1"; "v2"; "v3"; "v4" }.
+    { "v1", "v2", "v3", "v4" }.
 
 Definition mpmc_bqueue_create : val :=
   λ: "cap",
     let: "front" := node_create () () "cap" #0 in
-    { "cap"; "front"; "front" }.
+    { "cap", "front", "front" }.
 
 Definition mpmc_bqueue_capacity : val :=
   λ: "t",

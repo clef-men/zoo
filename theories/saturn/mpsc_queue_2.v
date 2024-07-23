@@ -38,7 +38,7 @@ Implicit Types o : option val.
 
 Definition mpsc_queue_create : val :=
   λ: <>,
-    { §Nil; §Nil }.
+    { §Nil, §Nil }.
 
 Definition mpsc_queue_push : val :=
   rec: "mpsc_queue_push" "t" "v" :=

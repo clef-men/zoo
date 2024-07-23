@@ -55,9 +55,9 @@ Section ws_deques.
 
   Definition ws_hub_std_create : val :=
     λ: "sz",
-      { ws_deques.(ws_deques_create) "sz";
-        array_init "sz" (λ: <>, random_round_create (positive_part ("sz" - #1)));
-        waiters_create ();
+      { ws_deques.(ws_deques_create) "sz",
+        array_init "sz" (λ: <>, random_round_create (positive_part ("sz" - #1))),
+        waiters_create (),
         #false
       }.
 

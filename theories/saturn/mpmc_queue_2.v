@@ -58,7 +58,7 @@ Implicit Types vs : list val.
 
 Definition mpmc_queue_create : val :=
   λ: <>,
-    { ‘Front{ #1 }; ‘Back{ #0, ref () } }.
+    { ‘Front{ #1 }, ‘Back{ #0, ref () } }.
 
 #[local] Definition mpmc_queue_push_aux : val :=
   λ: "mpmc_queue_push" "t" "v" "cnt" "back",

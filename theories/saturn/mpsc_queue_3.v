@@ -37,7 +37,7 @@ Implicit Types ws : option (list val).
 
 Definition mpsc_queue_create : val :=
   λ: <>,
-    { §ClstOpen; §ClstOpen }.
+    { §ClstOpen, §ClstOpen }.
 
 Definition mpsc_queue_push_front : val :=
   λ: "t" "v",

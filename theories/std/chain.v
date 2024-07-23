@@ -22,7 +22,7 @@ Implicit Types v w t hd tl dst : val.
 
 Definition chain_cons : val :=
   λ: "v" "t",
-    { "v"; "t" }.
+    { "v", "t" }.
 
 Definition chain_head : val :=
   λ: "t",

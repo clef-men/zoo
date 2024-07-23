@@ -37,7 +37,7 @@ Implicit Types vs : nat → val.
 Definition inf_array_create : val :=
   λ: "default",
     let: "data" := array_create () in
-    let: "t" := { "data"; "default"; () } in
+    let: "t" := { "data", "default", () } in
     let: "mtx" := mutex_create () in
     "t" <-{mutex} "mtx" ;;
     "t".

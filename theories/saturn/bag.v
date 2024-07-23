@@ -42,7 +42,7 @@ Notation "'back'" := (
 
 Definition bag_create : val :=
   λ: "sz",
-    { array_init "sz" (λ: <>, ref §None); #0; #0 }.
+    { array_init "sz" (λ: <>, ref §None), #0, #0 }.
 
 #[local] Definition bag_push_aux : val :=
   rec: "bag_push_aux" "slot" "o" :=

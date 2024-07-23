@@ -79,7 +79,7 @@ Qed.
 
 Definition rcfd_make : val :=
   λ: "fd",
-    { #0; Reveal ‘Open{ "fd" } }.
+    { #0, Reveal ‘Open{ "fd" } }.
 
 #[local] Definition rcfd_closed : val :=
   ’Closing{ λ: <>, () }.

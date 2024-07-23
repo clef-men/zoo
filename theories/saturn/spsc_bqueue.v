@@ -55,7 +55,7 @@ Implicit Types vs hist : list val.
 
 Definition spsc_bqueue_create : val :=
   λ: "cap",
-    { array_make "cap" §None; #0; #0; #0; #0 }.
+    { array_make "cap" §None, #0, #0, #0, #0 }.
 
 #[local] Definition spsc_bqueue_push_aux : val :=
   λ: "t" "data" "back",

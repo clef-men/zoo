@@ -28,15 +28,15 @@ Implicit Types vs : list val.
 
 Definition dynarray_create : val :=
   λ: <>,
-    { #0; array_create () }.
+    { #0, array_create () }.
 
 Definition dynarray_make : val :=
   λ: "sz" "v",
-    { "sz"; array_make "sz" "v" }.
+    { "sz", array_make "sz" "v" }.
 
 Definition dynarray_initi : val :=
   λ: "sz" "fn",
-    { "sz"; array_initi "sz" "fn" }.
+    { "sz", array_initi "sz" "fn" }.
 
 Definition dynarray_size : val :=
   λ: "t",

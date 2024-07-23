@@ -33,8 +33,8 @@ Implicit Types o : option val.
 
 Definition spmc_future_create : val :=
   λ: <>,
-    { §None;
-      mutex_create ();
+    { §None,
+      mutex_create (),
       condition_create ()
     }.
 

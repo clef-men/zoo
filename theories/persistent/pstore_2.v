@@ -68,11 +68,11 @@ Implicit Types σ : gmap location val.
 
 Definition pstore_create : val :=
   λ: <>,
-    { #0; ref §Root }.
+    { #0, ref §Root }.
 
 Definition pstore_ref : val :=
   λ: "t" "v",
-    { #0; "v" }.
+    { #0, "v" }.
 
 Definition pstore_get : val :=
   λ: "t" "r",

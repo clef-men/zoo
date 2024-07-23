@@ -44,8 +44,8 @@ Implicit Types run : val.
 
 Definition vertex_create : val :=
   λ: "task",
-    { "task";
-      #1;
+    { "task",
+      #1,
       mpmc_stack_create ()
     }.
 

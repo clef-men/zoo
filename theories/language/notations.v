@@ -538,10 +538,10 @@ Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
   format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
 ) : expr_scope.
 
-Notation "{ e1 ; .. ; en }" := (
+Notation "{ e1 , .. , en }" := (
   Record (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(e1, en at level 200,
-  format "'[hv' {  '[' e1 ']' '/' ;  .. '/' ;  '[' en ']'  '/' } ']'"
+  format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
 
 Notation "'ref' e" := (

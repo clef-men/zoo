@@ -31,8 +31,8 @@ Implicit Types l : location.
 
 Definition spsc_waiter_create : val :=
   λ: <>,
-    { #false;
-      mutex_create ();
+    { #false,
+      mutex_create (),
       condition_create ()
     }.
 

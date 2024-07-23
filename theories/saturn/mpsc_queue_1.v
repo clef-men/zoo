@@ -38,8 +38,8 @@ Implicit Types vs : list val.
 
 Definition mpsc_queue_create : val :=
   λ: <>,
-    let: "front" := { (); () } in
-    { "front"; "front" }.
+    let: "front" := { (), () } in
+    { "front", "front" }.
 
 Definition mpsc_queue_is_empty : val :=
   λ: "t",
@@ -64,7 +64,7 @@ Definition mpsc_queue_is_empty : val :=
     ).
 Definition mpsc_queue_push : val :=
   λ: "t" "v",
-    let: "new_back" := { (); "v" } in
+    let: "new_back" := { (), "v" } in
     let: "back" := "t".{back} in
     mpsc_queue_do_push "back" "new_back" ;;
     mpsc_queue_fix_back "t" "back" "new_back".

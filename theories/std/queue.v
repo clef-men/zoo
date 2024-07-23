@@ -26,7 +26,7 @@ Implicit Types vs : list val.
 Definition queue_create : val :=
   λ: <>,
     let: "sent" := chain_cons () () in
-    { "sent"; "sent" }.
+    { "sent", "sent" }.
 
 Definition queue_is_empty : val :=
   λ: "t",

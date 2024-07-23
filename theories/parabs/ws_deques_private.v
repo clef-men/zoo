@@ -67,9 +67,9 @@ Parameter array_cas : val.
 
 Definition ws_deques_private_create : val :=
   λ: "sz",
-    { array_init "sz" deque_create;
-      array_make "sz" #false;
-      array_make "sz" §Blocked;
+    { array_init "sz" deque_create,
+      array_make "sz" #false,
+      array_make "sz" §Blocked,
       array_make "sz" §No_response
     }.
 
