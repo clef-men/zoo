@@ -30,30 +30,30 @@ Implicit Types l : location.
 ).
 
 Definition spsc_waiter_create : val :=
-  λ: <>,
+  fun: <> =>
     { #false,
       mutex_create (),
       condition_create ()
     }.
 
 Definition spsc_waiter_notify : val :=
-  λ: "t",
-    mutex_protect "t".{mutex} (λ: <>,
+  fun: "t" =>
+    mutex_protect "t".{mutex} (fun: <> =>
       "t" <-{flag} #true
     ) ;;
     condition_notify "t".{condition}.
 
 Definition spsc_waiter_try_wait : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{flag}.
 
 Definition spsc_waiter_wait : val :=
-  λ: "t",
+  fun: "t" =>
     ifnot: spsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect "mtx" (λ: <>,
-        condition_wait_until "cond" "mtx" (λ: <>, "t".{flag})
+      mutex_protect "mtx" (fun: <> =>
+        condition_wait_until "cond" "mtx" (fun: <> => "t".{flag})
       )
     ).
 

@@ -181,7 +181,7 @@ Section instances.
       ⌜val_physical v1⌝ ∗
       ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
     }}
-      Cas #l v1 v2
+      CAS #l v1 v2
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
@@ -203,7 +203,7 @@ Section instances.
     {{
       ▷ l ↦ #z
     }}
-      Faa #l #i
+      FAA #l #i
     {{
       RET #z;
       l ↦ #(z + i)

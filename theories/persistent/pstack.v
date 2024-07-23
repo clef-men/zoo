@@ -20,11 +20,11 @@ Definition pstack_is_empty :=
   lst_is_empty.
 
 Definition pstack_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     ‘Cons{ "v", "t" }.
 
 Definition pstack_pop : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t" with
     | Nil =>
         §None

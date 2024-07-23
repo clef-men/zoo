@@ -369,7 +369,7 @@ Section zoo_G.
 
   Lemma for_upto_type τ `{!iType (iProp Σ) τ} x beg _end body :
     {{{
-      (itype_int_range beg _end --> itype_unit)%T (λ: x, body)
+      (itype_int_range beg _end --> itype_unit)%T (fun: x => body)
     }}}
       for: x := #beg to #_end begin body end
     {{{

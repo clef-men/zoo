@@ -21,21 +21,21 @@ Implicit Types v w t hd tl dst : val.
 ).
 
 Definition chain_cons : val :=
-  λ: "v" "t",
+  fun: "v" "t" =>
     { "v", "t" }.
 
 Definition chain_head : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{head}.
 Definition chain_tail : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{tail}.
 
 Definition chain_set_head : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     "t" <-{head} "v".
 Definition chain_set_tail : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     "t" <-{tail} "v".
 
 Section zoo_G.

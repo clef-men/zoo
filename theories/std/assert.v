@@ -9,7 +9,7 @@ From zoo Require Import
   options.
 
 Definition assert : val :=
-  λ: "b",
+  fun: "b" =>
     ifnot: "b" then
       Fail.
 

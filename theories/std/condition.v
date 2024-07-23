@@ -12,34 +12,34 @@ Implicit Types b : bool.
 Implicit Types t pred : val.
 
 Definition condition_create : val :=
-  λ: <>,
+  fun: <> =>
     ().
 
 Definition condition_wait : val :=
-  λ: "t" "mtx",
+  fun: "t" "mtx" =>
     Yield.
 
 Definition condition_notify : val :=
-  λ: "t",
+  fun: "t" =>
     ().
 
 Definition condition_notify_all : val :=
-  λ: "t",
+  fun: "t" =>
     ().
 
 #[local] Definition condition_wait_until_aux : val :=
-  rec: "condition_wait_until_aux" "t" "mtx" "pred" :=
+  rec: "condition_wait_until_aux" "t" "mtx" "pred" =>
     ifnot: "pred" () then (
       condition_wait "t" "mtx" ;;
       "condition_wait_until_aux" "t" "mtx" "pred"
     ).
 Definition condition_wait_until : val :=
-  λ: "t" "mtx" "pred",
+  fun: "t" "mtx" "pred" =>
     condition_wait_until_aux "t" "mtx" "pred".
 
 Definition condition_wait_while : val :=
-  λ: "t" "mtx" "pred",
-    condition_wait_until "t" "mtx" (λ: <>, ~ "pred" ()).
+  fun: "t" "mtx" "pred" =>
+    condition_wait_until "t" "mtx" (fun: <> => ~ "pred" ()).
 
 Section mutex_G.
   Context `{mutex_G : MutexG Σ}.

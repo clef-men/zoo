@@ -20,7 +20,7 @@ Definition waiters_create : val :=
   mpmc_queue_create.
 
 #[local] Definition waiters_notify' : val :=
-  rec: "waiters_notify'" "t" :=
+  rec: "waiters_notify'" "t" =>
     match: mpmc_queue_pop "t" with
     | None =>
         #false
@@ -31,11 +31,11 @@ Definition waiters_create : val :=
           #true
     end.
 Definition waiters_notify : val :=
-  λ: "t",
+  fun: "t" =>
     waiters_notify' "t" ;;
     ().
 Definition waiters_notify_many : val :=
-  rec: "waiters_notify_many" "t" "n" :=
+  rec: "waiters_notify_many" "t" "n" =>
     if: "n" ≤ #0 then (
       ()
     ) else if: waiters_notify' "t" then (
@@ -43,18 +43,18 @@ Definition waiters_notify_many : val :=
     ).
 
 Definition waiters_prepare_wait : val :=
-  λ: "t",
+  fun: "t" =>
     let: "waiter" := mpsc_waiter_create () in
     mpmc_queue_push "t" "waiter" ;;
     "waiter".
 
 Definition waiters_cancel_wait : val :=
-  λ: "t" "waiter",
+  fun: "t" "waiter" =>
     if: mpsc_waiter_notify "waiter" then
       waiters_notify "t".
 
 Definition waiters_commit_wait : val :=
-  λ: "t" "waiter",
+  fun: "t" "waiter" =>
     mpsc_waiter_wait "waiter".
 
 Class WaitersG Σ `{zoo_G : !ZooG Σ} := {

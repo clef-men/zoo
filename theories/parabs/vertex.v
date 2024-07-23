@@ -43,19 +43,19 @@ Implicit Types run : val.
 ).
 
 Definition vertex_create : val :=
-  λ: "task",
+  fun: "task" =>
     { "task",
       #1,
       mpmc_stack_create ()
     }.
 
 Definition vertex_precede : val :=
-  λ: "t1" "t2",
+  fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in
     ifnot: mpmc_stack_is_closed "succs1" then (
-      Faa "t2".[preds] #1 ;;
+      FAA "t2".[preds] #1 ;;
       if: mpmc_stack_push "succs1" "t2" then (
-        Faa "t2".[preds] #(-1) ;;
+        FAA "t2".[preds] #(-1) ;;
         ()
       )
     ).
@@ -65,17 +65,17 @@ Section ws_hub.
   Context (ws_hub : ws_hub Σ).
 
   #[local] Definition vertex_propagate : val :=
-    λ: "ctx" "t" "run",
-      if: Faa "t".[preds] #(-1) = #1 then
-        pool_silent_async ws_hub "ctx" (λ: "ctx", "run" "ctx" "t").
+    fun: "ctx" "t" "run" =>
+      if: FAA "t".[preds] #(-1) = #1 then
+        pool_silent_async ws_hub "ctx" (fun: "ctx" => "run" "ctx" "t").
   #[local] Definition vertex_run : val :=
-    rec: "vertex_run" "ctx" "t" :=
+    rec: "vertex_run" "ctx" "t" =>
       "t".{task} "ctx" ;;
-      clst_iter (mpmc_stack_close "t".{succs}) (λ: "t'",
+      clst_iter (mpmc_stack_close "t".{succs}) (fun: "t'" =>
         vertex_propagate "ctx" "t'" "vertex_run"
       ).
   Definition vertex_release : val :=
-    λ: "ctx" "t",
+    fun: "ctx" "t" =>
       vertex_propagate "ctx" "t" vertex_run.
 End ws_hub.
 
@@ -461,7 +461,7 @@ Section vertex_G.
       iSplitL. { iSteps. rewrite decide_False //. iSteps. }
       iIntros "H£ (Hstate₂ & HΦ)". wp_pures. clear.
 
-      wp_bind (Faa _ _).
+      wp_bind (FAA _ _).
       iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
       wp_faa.
       iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
@@ -492,7 +492,7 @@ Section vertex_G.
 
         wp_pures.
 
-        wp_bind (Faa _ _).
+        wp_bind (FAA _ _).
         iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
         wp_faa.
         iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
@@ -554,7 +554,7 @@ Section vertex_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Faa _ _).
+    wp_bind (FAA _ _).
     iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     wp_faa.
     iDestruct (vertex_predecessors_elem_of with "Hpreds Hpred") as %Hπ.

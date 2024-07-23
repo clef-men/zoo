@@ -66,7 +66,7 @@ Parameter array_cas : val.
 ).
 
 Definition ws_deques_private_create : val :=
-  λ: "sz",
+  fun: "sz" =>
     { array_init "sz" deque_create,
       array_make "sz" #false,
       array_make "sz" §Blocked,
@@ -74,15 +74,15 @@ Definition ws_deques_private_create : val :=
     }.
 
 Definition ws_deques_private_size : val :=
-  λ: "t",
+  fun: "t" =>
     array_size "t".{deques}.
 
 #[local] Definition ws_deques_private_block_aux : val :=
-  λ: "t" "i" "j",
+  fun: "t" "i" "j" =>
     array_unsafe_set "t".{responses} "j" §No ;;
     array_unsafe_set "t".{requests} "i" §Blocked.
 #[local] Definition ws_deques_private_block : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     array_unsafe_set "t".{flags} "i" #false ;;
     let: "requests" := "t".{requests} in
     match: array_unsafe_get "requests" "i" with
@@ -101,12 +101,12 @@ Definition ws_deques_private_size : val :=
     end.
 
 #[local] Definition ws_deques_private_unblock : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     array_unsafe_set "t".{requests} "i" §No_request ;;
     array_unsafe_set "t".{flags} "i" "true".
 
 #[local] Definition ws_deques_private_respond : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     let: "deque" := array_unsafe_get "t".{deques} "i" in
     let: "requests" := "t".{requests} in
     match: array_unsafe_get "requests" "i" with
@@ -119,7 +119,7 @@ Definition ws_deques_private_size : val :=
     end.
 
 Definition ws_deques_private_push : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     deque_push_back (array_unsafe_get "t".{deques} "i") "v" ;;
     if: array_unsafe_get "t".{flags} "i" then (
       ws_deques_private_respond "t" "i"
@@ -128,7 +128,7 @@ Definition ws_deques_private_push : val :=
     ).
 
 Definition ws_deques_private_pop : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     let: "deque" := array_unsafe_get "t".{deques} "i" in
     let: "res" := deque_pop_back "deque" in
     match: "res" with
@@ -144,7 +144,7 @@ Definition ws_deques_private_pop : val :=
     "res".
 
 #[local] Definition ws_deques_private_steal_to_aux : val :=
-  rec: "ws_deques_private_steal_to_aux" "t" "i" :=
+  rec: "ws_deques_private_steal_to_aux" "t" "i" =>
     let: "responses" := "t".{responses} in
     match: array_unsafe_get "responses" "i" with
     | No_response =>
@@ -157,7 +157,7 @@ Definition ws_deques_private_pop : val :=
         ‘Some{ "v" }
     end.
 Definition ws_deques_private_steal_to : val :=
-  λ: "t" "i" "j",
+  fun: "t" "i" "j" =>
     if: array_unsafe_get "t".{flags} "j" and array_cas "t".{requests} "j" §No_request ‘Request{ "i" } then (
       ws_deques_private_steal_to_aux "t" "i"
     ) else (

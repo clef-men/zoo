@@ -29,15 +29,15 @@ Definition pqueue_empty : val :=
   (§Nil, §Nil).
 
 Definition pqueue_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     lst_is_empty "t".<front> and lst_is_empty "t".<back>.
 
 Definition pqueue_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     ("t".<front>, ‘Cons{ "v", "t".<back> }).
 
 Definition pqueue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".<front> with
     | Nil =>
         match: lst_rev "t".<back> with

@@ -9,7 +9,7 @@ From zoo Require Import
   options.
 
 Definition diverge : val :=
-  rec: "diverge" <> :=
+  rec: "diverge" <> =>
     "diverge" ().
 
 Section zoo_G.

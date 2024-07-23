@@ -67,19 +67,19 @@ Implicit Types σ : gmap location val.
 ).
 
 Definition pstore_create : val :=
-  λ: <>,
+  fun: <> =>
     { #0, ref §Root }.
 
 Definition pstore_ref : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     { #0, "v" }.
 
 Definition pstore_get : val :=
-  λ: "t" "r",
+  fun: "t" "r" =>
     "r".{ref_value}.
 
 Definition pstore_set : val :=
-  λ: "t" "r" "v",
+  fun: "t" "r" "v" =>
     let: "g_t" := "t".{gen} in
     let: "g_r" := "r".{ref_gen} in
     if: "g_t" = "g_r" then (
@@ -93,13 +93,13 @@ Definition pstore_set : val :=
     ).
 
 Definition pstore_capture : val :=
-  λ: "t",
+  fun: "t" =>
     let: "g" := "t".{gen} in
     "t" <-{gen} #1 + "g" ;;
     ("t", "g", "t".{root}).
 
 #[local] Definition pstore_collect : val :=
-  rec: "pstore_collect" "node" "acc" :=
+  rec: "pstore_collect" "node" "acc" =>
     match: !"node" with
     | Root =>
         ("node", "acc")
@@ -107,7 +107,7 @@ Definition pstore_capture : val :=
         "pstore_collect" "node'" ‘Cons{ "node", "acc" }
     end.
 #[local] Definition pstore_revert : val :=
-  rec: "pstore_revert" "node" "path" :=
+  rec: "pstore_revert" "node" "path" =>
     match: "path" with
     | Nil =>
         "node" <- §Root
@@ -124,12 +124,12 @@ Definition pstore_capture : val :=
         end
     end.
 #[local] Definition pstore_reroot : val :=
-  λ: "node",
+  fun: "node" =>
     let: "root", "path" := pstore_collect "node" §Nil in
     pstore_revert "root" "path".
 
 Definition pstore_restore : val :=
-  λ: "t" "s",
+  fun: "t" "s" =>
     if: "t" ≠ "s".<snap_store> then (
       Fail
     ) else (

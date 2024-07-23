@@ -54,45 +54,45 @@ Section ws_deques.
   Context (ws_deques : ws_deques Σ).
 
   Definition ws_hub_std_create : val :=
-    λ: "sz",
+    fun: "sz" =>
       { ws_deques.(ws_deques_create) "sz",
-        array_init "sz" (λ: <>, random_round_create (positive_part ("sz" - #1))),
+        array_init "sz" (fun: <> => random_round_create (positive_part ("sz" - #1))),
         waiters_create (),
         #false
       }.
 
   #[local] Definition ws_hub_std_size : val :=
-    λ: "t",
+    fun: "t" =>
       array_size "t".{rounds}.
 
   Definition ws_hub_std_killed : val :=
-    λ: "t",
+    fun: "t" =>
       "t".{killed}.
 
   #[local] Definition ws_hub_std_notify : val :=
-    λ: "t",
+    fun: "t" =>
       waiters_notify "t".{waiters}.
   #[local] Definition ws_hub_std_notify_all : val :=
-    λ: "t",
+    fun: "t" =>
       waiters_notify_many "t".{waiters} (ws_hub_std_size "t").
 
   Definition ws_hub_std_push : val :=
-    λ: "t" "i" "v",
+    fun: "t" "i" "v" =>
       ws_deques.(ws_deques_push) "t".{deques} "i" "v" ;;
       ws_hub_std_notify "t".
 
   Definition ws_hub_std_pop : val :=
-    λ: "t" "i",
+    fun: "t" "i" =>
       ws_deques.(ws_deques_pop) "t".{deques} "i".
 
   #[local] Definition ws_hub_std_try_steal_once : val :=
-    λ: "t" "i",
+    fun: "t" "i" =>
       let: "round" := array_unsafe_get "t".{rounds} "i" in
       random_round_reset "round" ;;
       ws_deques_steal_as ws_deques "t".{deques} "i" "round".
 
   #[local] Definition ws_hub_std_try_steal : val :=
-    rec: "ws_hub_std_try_steal" "t" "i" "yield" "max_round" "until" :=
+    rec: "ws_hub_std_try_steal" "t" "i" "yield" "max_round" "until" =>
       if: "max_round" ≤ #0 then
         §Nothing
       else
@@ -109,7 +109,7 @@ Section ws_deques.
         end.
 
   #[local] Definition ws_hub_std_steal_until_aux : val :=
-    rec: "ws_hub_std_steal_until_aux" "t" "i" "pred" :=
+    rec: "ws_hub_std_steal_until_aux" "t" "i" "pred" =>
       match: ws_hub_std_try_steal_once "t" "i" with
       | Some <> as "res" =>
           "res"
@@ -122,7 +122,7 @@ Section ws_deques.
           )
       end.
   Definition ws_hub_std_steal_until : val :=
-    λ: "t" "i" "max_round_noyield" "pred",
+    fun: "t" "i" "max_round_noyield" "pred" =>
       match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred" with
       | Something "v" =>
           ‘Some{ "v" }
@@ -133,7 +133,7 @@ Section ws_deques.
       end.
 
   #[local] Definition ws_hub_std_steal_aux : val :=
-    λ: "t" "i" "max_round" "until",
+    fun: "t" "i" "max_round" "until" =>
       match: ws_hub_std_try_steal "t" "i" #false "max_round".<0> "until" with
       | Something <> as "res" =>
           "res"
@@ -143,8 +143,8 @@ Section ws_deques.
           ws_hub_std_try_steal "t" "i" #true "max_round".<1> "until"
       end.
   Definition ws_hub_std_steal : val :=
-    rec: "ws_hub_std_steal" "t" "i" "max_round" :=
-      match: ws_hub_std_steal_aux "t" "i" "max_round" (λ: <>, ws_hub_std_killed "t") with
+    rec: "ws_hub_std_steal" "t" "i" "max_round" =>
+      match: ws_hub_std_steal_aux "t" "i" "max_round" (fun: <> => ws_hub_std_killed "t") with
       | Something "v" =>
           ‘Some{ "v" }
       | Anything =>
@@ -168,7 +168,7 @@ Section ws_deques.
       end.
 
   Definition ws_hub_std_kill : val :=
-    λ: "t",
+    fun: "t" =>
       "t" <-{killed} #true ;;
       ws_hub_std_notify_all "t".
 End ws_deques.

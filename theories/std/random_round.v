@@ -32,18 +32,18 @@ Implicit Types t rand : val.
 ).
 
 Definition random_round_create : val :=
-  λ: "sz",
+  fun: "sz" =>
     { random_create (),
-      array_initi "sz" (λ: "i", "i"),
+      array_initi "sz" (fun: "i" => "i"),
       "sz"
     }.
 
 Definition random_round_reset : val :=
-  λ: "t",
+  fun: "t" =>
     "t" <-{index} array_size "t".{array}.
 
 Definition random_round_next : val :=
-  λ: "t",
+  fun: "t" =>
     let: "arr" := "t".{array} in
     let: "i" := "t".{index} in
     let: "j" := random_gen "t".{random} "i" in

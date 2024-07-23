@@ -42,25 +42,25 @@ Implicit Types ω : gc_location.
 Implicit Types map : gmap location gc_location.
 
 Definition boxroot_init : val :=
-  λ: <>,
+  fun: <> =>
     let: "global" := xdeque_create () in
-    gc_set_roots (λ: "fn", xdeque_iter "global" "fn") ;;
+    gc_set_roots (fun: "fn" => xdeque_iter "global" "fn") ;;
     "global".
 
 Definition boxroot_create : val :=
-  λ: "global" "v",
+  fun: "global" "v" =>
     xdeque_push_back "global" "v".
 
 Definition boxroot_remove : val :=
-  λ: "global" "t",
+  fun: "global" "t" =>
     xdeque_remove "global" "t".
 
 Definition boxroot_get : val :=
-  λ: "t",
+  fun: "t" =>
     !"t".
 
 Definition boxroot_set : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     "t" <- "v".
 
 Class BoxrootG Σ `{zoo_G : !ZooG Σ} := {

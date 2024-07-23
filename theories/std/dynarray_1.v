@@ -27,41 +27,41 @@ Implicit Types vs : list val.
 ).
 
 Definition dynarray_create : val :=
-  λ: <>,
+  fun: <> =>
     { #0, array_create () }.
 
 Definition dynarray_make : val :=
-  λ: "sz" "v",
+  fun: "sz" "v" =>
     { "sz", array_make "sz" "v" }.
 
 Definition dynarray_initi : val :=
-  λ: "sz" "fn",
+  fun: "sz" "fn" =>
     { "sz", array_initi "sz" "fn" }.
 
 Definition dynarray_size : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{size}.
 Definition dynarray_capacity : val :=
-  λ: "t",
+  fun: "t" =>
     array_size "t".{data}.
 
 Definition dynarray_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     dynarray_size "t" = #0.
 
 Definition dynarray_get : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     array_unsafe_get "t".{data} "i".
 
 Definition dynarray_set : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     array_unsafe_set "t".{data} "i" "v".
 
 #[local] Definition dynarray_next_capacity : val :=
-  λ: "n",
+  fun: "n" =>
     #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
 Definition dynarray_reserve : val :=
-  λ: "t" "n",
+  fun: "t" "n" =>
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
@@ -71,20 +71,20 @@ Definition dynarray_reserve : val :=
       "t" <-{data} "new_data"
     ).
 Definition dynarray_reserve_extra : val :=
-  λ: "t" "n",
+  fun: "t" "n" =>
     if: #0 ≤ "n" then (
       dynarray_reserve "t" ("t".{size} + "n")
     ).
 
 Definition dynarray_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     dynarray_reserve_extra "t" #1 ;;
     let: "sz" := "t".{size} in
     "t" <-{size} "sz" + #1 ;;
     array_unsafe_set "t".{data} "sz" "v".
 
 Definition dynarray_pop : val :=
-  λ: "t",
+  fun: "t" =>
     let: "sz" := "t".{size} - #1 in
     "t" <-{size} "sz" ;;
     let: "data" := "t".{data} in
@@ -93,7 +93,7 @@ Definition dynarray_pop : val :=
     "v".
 
 Definition dynarray_fit_capacity : val :=
-  λ: "t",
+  fun: "t" =>
     let: "sz" := "t".{size} in
     let: "data" := "t".{data} in
     ifnot: "sz" = array_size "data" then (
@@ -101,7 +101,7 @@ Definition dynarray_fit_capacity : val :=
     ).
 
 Definition dynarray_reset : val :=
-  λ: "t",
+  fun: "t" =>
     "t" <-{size} #0 ;;
     "t" <-{data} array_create ().
 

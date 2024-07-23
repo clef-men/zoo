@@ -35,7 +35,7 @@ Implicit Types vs : nat → val.
 ).
 
 Definition inf_array_create : val :=
-  λ: "default",
+  fun: "default" =>
     let: "data" := array_create () in
     let: "t" := { "data", "default", () } in
     let: "mtx" := mutex_create () in
@@ -43,8 +43,8 @@ Definition inf_array_create : val :=
     "t".
 
 Definition inf_array_get : val :=
-  λ: "t" "i",
-    mutex_protect "t".{mutex} (λ: <>,
+  fun: "t" "i" =>
+    mutex_protect "t".{mutex} (fun: <> =>
       let: "data" := "t".{data} in
       if: "i" < array_size "data" then (
         array_unsafe_get "data" "i"
@@ -54,8 +54,8 @@ Definition inf_array_get : val :=
     ).
 
 Definition inf_array_set : val :=
-  λ: "t" "i" "v",
-    mutex_protect "t".{mutex} (λ: <>,
+  fun: "t" "i" "v" =>
+    mutex_protect "t".{mutex} (fun: <> =>
       let: "data" := "t".{data} in
       let: "sz" := array_size "data" in
       if: "i" < "sz" then (

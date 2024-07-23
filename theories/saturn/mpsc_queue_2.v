@@ -37,19 +37,19 @@ Implicit Types o : option val.
 ).
 
 Definition mpsc_queue_create : val :=
-  λ: <>,
+  fun: <> =>
     { §Nil, §Nil }.
 
 Definition mpsc_queue_push : val :=
-  rec: "mpsc_queue_push" "t" "v" :=
+  rec: "mpsc_queue_push" "t" "v" =>
     let: "back" := "t".{back} in
-    ifnot: Cas "t".[back] "back" ‘Cons{ "v", "back" } then (
+    ifnot: CAS "t".[back] "back" ‘Cons{ "v", "back" } then (
       Yield ;;
       "mpsc_queue_push" "t" "v"
     ).
 
 Definition mpsc_queue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{front} with
     | Nil =>
         match: lst_rev (Xchg "t".[back] §Nil) with
@@ -274,7 +274,7 @@ Section mpsc_queue_G.
 
     wp_pures.
 
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%front & %back' & Hfront₂ & Hback & Hmodel₂)".
     wp_cas as _ | ->%(inj _) _; first iSteps.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.

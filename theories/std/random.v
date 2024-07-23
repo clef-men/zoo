@@ -39,7 +39,7 @@ Axiom random_gen_spec : ∀ `{zoo_G : !ZooG Σ} t ub,
   }}}.
 
 Definition random_gen' : val :=
-  λ: "t" "lb" "ub",
+  fun: "t" "lb" "ub" =>
     "lb" + random_gen "t" ("ub" - "lb").
 
 Section zoo_G.

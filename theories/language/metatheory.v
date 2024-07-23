@@ -62,11 +62,11 @@ Fixpoint occurs x e :=
   | Xchg e1 e2 =>
       occurs x e1 ||
       occurs x e2
-  | Cas e0 e1 e2 =>
+  | CAS e0 e1 e2 =>
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
-  | Faa e1 e2 =>
+  | FAA e1 e2 =>
       occurs x e1 ||
       occurs x e2
   | Fork e =>

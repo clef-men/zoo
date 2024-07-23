@@ -20,17 +20,17 @@ Implicit Types ws : list val.
 Implicit Types vs : option (list val).
 
 Definition mpmc_stack_create : val :=
-  λ: <>,
+  fun: <> =>
     ref §ClstOpen.
 
 Definition mpmc_stack_push : val :=
-  rec: "mpmc_stack_push" "t" "v" :=
+  rec: "mpmc_stack_push" "t" "v" =>
     match: !"t" with
     | ClstClosed =>
         #true
     |_ as "old" =>
         let: "new" := ‘ClstCons{ "v", "old" } in
-        if: Cas "t" "old" "new" then (
+        if: CAS "t" "old" "new" then (
           #false
         ) else (
           Yield ;;
@@ -39,14 +39,14 @@ Definition mpmc_stack_push : val :=
     end.
 
 Definition mpmc_stack_pop : val :=
-  rec: "mpmc_stack_pop" "t" :=
+  rec: "mpmc_stack_pop" "t" =>
     match: !"t" with
     | ClstClosed =>
         §Anything
     | ClstOpen =>
         §Nothing
     | ClstCons "v" "new" as "old" =>
-        if: Cas "t" "old" "new" then (
+        if: CAS "t" "old" "new" then (
           ‘Something{ "v" }
         ) else (
           Yield ;;
@@ -55,11 +55,11 @@ Definition mpmc_stack_pop : val :=
     end.
 
 Definition mpmc_stack_is_closed : val :=
-  λ: "t",
+  fun: "t" =>
     !"t" = §ClstClosed.
 
 Definition mpmc_stack_close : val :=
-  λ: "t",
+  fun: "t" =>
     Xchg "t" §ClstClosed.
 
 Class MpmcStackG Σ `{zoo_G : !ZooG Σ} := {
@@ -205,7 +205,7 @@ Section zoo_G.
       wp_smart_apply wp_match_clist_open.
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       destruct vs' as [ws' |].
 
@@ -289,7 +289,7 @@ Section zoo_G.
 
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       destruct vs' as [ws' |].
 

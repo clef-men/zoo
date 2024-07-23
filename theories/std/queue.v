@@ -24,23 +24,23 @@ Implicit Types vs : list val.
 ).
 
 Definition queue_create : val :=
-  λ: <>,
+  fun: <> =>
     let: "sent" := chain_cons () () in
     { "sent", "sent" }.
 
 Definition queue_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{front} = "t".{sentinel}.
 
 Definition queue_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     let: "sent" := chain_cons () () in
     chain_set_head "t".{sentinel} "v" ;;
     chain_set_tail "t".{sentinel} "sent" ;;
     "t" <-{sentinel} "sent".
 
 Definition queue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     if: queue_is_empty "t" then (
       §None
     ) else (

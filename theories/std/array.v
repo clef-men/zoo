@@ -28,81 +28,81 @@ Implicit Types vs : list val.
 ).
 
 Definition array_create : val :=
-  λ: <>,
+  fun: <> =>
     chunk_make #1 #0.
 
 Definition array_make : val :=
-  λ: "sz" "v",
+  fun: "sz" "v" =>
     assume (#0 ≤ "sz") ;;
     let: "t" := chunk_make (#1 + "sz") "v" in
     "t" <-{size} "sz" ;;
     "t".
 
 Definition array_initi : val :=
-  λ: "sz" "fn",
+  fun: "sz" "fn" =>
     assume (#0 ≤ "sz") ;;
     let: "t" := chunk_make (#1 + "sz") "sz" in
-    chunk_applyi "t".[data] "sz" (λ: "i" <>, "fn" "i") ;;
+    chunk_applyi "t".[data] "sz" (fun: "i" <> => "fn" "i") ;;
     "t".
 Definition array_init : val :=
-  λ: "sz" "fn",
-    array_initi "sz" (λ: <>, "fn" ()).
+  fun: "sz" "fn" =>
+    array_initi "sz" (fun: <> => "fn" ()).
 
 Definition array_size : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{size}.
 #[local] Definition array_data : val :=
-  λ: "t",
+  fun: "t" =>
     "t".[data].
 
 Definition array_unsafe_get : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     !(array_data "t" +ₗ "i").
 Definition array_get : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     assume (#0 ≤ "i") ;;
     assume ("i" < array_size "t") ;;
     array_unsafe_get "t" "i".
 
 Definition array_unsafe_set : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     array_data "t" +ₗ "i" <- "v".
 Definition array_set : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     assume (#0 ≤ "i") ;;
     assume ("i" < array_size "t") ;;
     array_unsafe_set "t" "i" "v".
 
 Definition array_foldli : val :=
-  λ: "t" "acc" "fn",
+  fun: "t" "acc" "fn" =>
     chunk_foldli (array_data "t") (array_size "t") "acc" "fn".
 Definition array_foldl : val :=
-  λ: "t" "acc" "fn",
+  fun: "t" "acc" "fn" =>
     chunk_foldl (array_data "t") (array_size "t") "acc" "fn".
 
 Definition array_foldri : val :=
-  λ: "t" "fn" "acc",
+  fun: "t" "fn" "acc" =>
     chunk_foldri (array_data "t") (array_size "t") "fn" "acc".
 Definition array_foldr : val :=
-  λ: "t" "fn" "acc",
+  fun: "t" "fn" "acc" =>
     chunk_foldr (array_data "t") (array_size "t") "fn" "acc".
 
 Definition array_iteri : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     chunk_iteri (array_data "t") (array_size "t") "fn".
 Definition array_iter : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     chunk_iter (array_data "t") (array_size "t") "fn".
 
 Definition array_applyi : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     chunk_applyi (array_data "t") (array_size "t") "fn".
 Definition array_apply : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     chunk_apply (array_data "t") (array_size "t") "fn".
 
 Definition array_blit : val :=
-  λ: "t1" "i1" "t2" "i2" "n",
+  fun: "t1" "i1" "t2" "i2" "n" =>
     let: "sz1" := array_size "t1" in
     let: "sz2" := array_size "t2" in
     assume (#0 ≤ "i1") ;;
@@ -111,17 +111,19 @@ Definition array_blit : val :=
     assume ("i1" + "n" ≤ "sz1") ;;
     assume ("i2" + "n" ≤ "sz2") ;;
     chunk_copy (array_data "t1" +ₗ "i1") "n" (array_data "t2" +ₗ "i2").
+
 Definition array_copy : val :=
-  λ: "t1" "t2" "i2",
+  fun: "t1" "t2" "i2" =>
     array_blit "t1" #0 "t2" "i2" (array_size "t1").
 
 Definition array_grow : val :=
-  λ: "t" "sz'" "v'",
+  fun: "t" "sz'" "v'" =>
     let: "t'" := array_make "sz'" "v'" in
     array_copy "t" "t'" #0 ;;
     "t'".
+
 Definition array_sub : val :=
-  λ: "t" "i" "n",
+  fun: "t" "i" "n" =>
     let: "sz" := array_size "t" in
     assume (#0 ≤ "i") ;;
     assume (#0 ≤ "n") ;;
@@ -129,37 +131,39 @@ Definition array_sub : val :=
     let: "t'" := array_make "n" () in
     chunk_copy (array_data "t" +ₗ "i") "n" (array_data "t'") ;;
     "t'".
+
 Definition array_shrink : val :=
-  λ: "t" "n",
+  fun: "t" "n" =>
     array_sub "t" #0 "n".
+
 Definition array_clone : val :=
-  λ: "t",
+  fun: "t" =>
     array_shrink "t" (array_size "t").
 
 Definition array_fill_slice : val :=
-  λ: "t" "i" "n" "v",
+  fun: "t" "i" "n" "v" =>
     let: "sz" := array_size "t" in
     assume (#0 ≤ "i") ;;
     assume (#0 ≤ "n") ;;
     assume ("i" + "n" ≤ "sz") ;;
     chunk_fill (array_data "t" +ₗ "i") "n" "v".
 Definition array_fill : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     array_fill_slice "t" #0 (array_size "t") "v".
 
 Definition array_cget : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     chunk_cget (array_data "t") (array_size "t") "i".
 Definition array_cset : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     chunk_cset (array_data "t") (array_size "t") "i" "v".
 
 Definition array_cblit : val :=
-  λ: "t1" "i1" "t2" "i2" "n",
+  fun: "t1" "i1" "t2" "i2" "n" =>
     chunk_cblit (array_data "t1") (array_size "t1") "i1" (array_data "t2") (array_size "t2") "i2" "n".
 
 Definition array_ccopy : val :=
-  λ: "t1" "i1" "t2" "i2",
+  fun: "t1" "i1" "t2" "i2" =>
     array_cblit "t1" "i1" "t2" "i2" (array_size "t1").
 
 Section zoo_G.

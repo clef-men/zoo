@@ -54,11 +54,11 @@ Implicit Types vs hist : list val.
 ).
 
 Definition spsc_bqueue_create : val :=
-  λ: "cap",
+  fun: "cap" =>
     { array_make "cap" §None, #0, #0, #0, #0 }.
 
 #[local] Definition spsc_bqueue_push_aux : val :=
-  λ: "t" "data" "back",
+  fun: "t" "data" "back" =>
     let: "cap" := array_size "data" in
     let: "front_cache" := "t".{front_cache} in
     if: "back" < "front_cache" + "cap" then (
@@ -69,7 +69,7 @@ Definition spsc_bqueue_create : val :=
       "back" < "front" + "cap"
     ).
 Definition spsc_bqueue_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "back" := "t".{back} in
     if: spsc_bqueue_push_aux "t" "data" "back" then (
@@ -81,7 +81,7 @@ Definition spsc_bqueue_push : val :=
     ).
 
 #[local] Definition spsc_bqueue_pop_aux : val :=
-  λ: "t" "front",
+  fun: "t" "front" =>
     let: "back_cache" := "t".{back_cache} in
     if: "front" < "back_cache" then (
       #true
@@ -91,7 +91,7 @@ Definition spsc_bqueue_push : val :=
       "front" < "back"
     ).
 Definition spsc_bqueue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     let: "front" := "t".{front} in
     if: spsc_bqueue_pop_aux "t" "front" then (
       let: "data" := "t".{data} in

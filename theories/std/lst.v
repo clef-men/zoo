@@ -95,11 +95,11 @@ Proof.
 Qed.
 
 Definition lst_singleton : val :=
-  λ: "v",
+  fun: "v" =>
     ‘Cons{ "v", §Nil }.
 
 Definition lst_head : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t" with
     | Nil =>
         Fail
@@ -107,7 +107,7 @@ Definition lst_head : val :=
         "v"
     end.
 Definition lst_tail : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t" with
     | Nil =>
         Fail
@@ -116,7 +116,7 @@ Definition lst_tail : val :=
     end.
 
 Definition lst_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t" with
     | Nil =>
         #true
@@ -125,7 +125,7 @@ Definition lst_is_empty : val :=
     end.
 
 Definition lst_get : val :=
-  rec: "lst_get" "t" "i" :=
+  rec: "lst_get" "t" "i" =>
     if: "i" ≤ #0 then (
       lst_head "t"
     ) else (
@@ -133,7 +133,7 @@ Definition lst_get : val :=
     ).
 
 #[local] Definition lst_initi_aux : val :=
-  rec: "lst_initi_aux" "sz" "fn" "i" :=
+  rec: "lst_initi_aux" "sz" "fn" "i" =>
     if: "sz" ≤ "i" then (
       §Nil
     ) else (
@@ -141,14 +141,14 @@ Definition lst_get : val :=
       ‘Cons{ "v", "lst_initi_aux" "sz" "fn" (#1 + "i") }
     ).
 Definition lst_initi : val :=
-  λ: "sz" "fn",
+  fun: "sz" "fn" =>
     lst_initi_aux "sz" "fn" #0.
 Definition lst_init : val :=
-  λ: "sz" "fn",
-    lst_initi "sz" (λ: <>, "fn" ()).
+  fun: "sz" "fn" =>
+    lst_initi "sz" (fun: <> => "fn" ()).
 
 #[local] Definition lst_foldli_aux : val :=
-  rec: "lst_foldli_aux" "t" "acc" "fn" "i" :=
+  rec: "lst_foldli_aux" "t" "acc" "fn" "i" =>
     match: "t" with
     | Nil =>
         "acc"
@@ -156,14 +156,14 @@ Definition lst_init : val :=
         "lst_foldli_aux" "t" ("fn" "acc" "i" "v") "fn" (#1 + "i")
     end.
 Definition lst_foldli : val :=
-  λ: "t" "acc" "fn",
+  fun: "t" "acc" "fn" =>
     lst_foldli_aux "t" "acc" "fn" #0.
 Definition lst_foldl : val :=
-  λ: "t" "acc" "fn",
-    lst_foldli "t" "acc" (λ: "acc" <>, "fn" "acc").
+  fun: "t" "acc" "fn" =>
+    lst_foldli "t" "acc" (fun: "acc" <> => "fn" "acc").
 
 #[local] Definition lst_foldri_aux : val :=
-  rec: "lst_foldri_aux" "t" "fn" "acc" "i" :=
+  rec: "lst_foldri_aux" "t" "fn" "acc" "i" =>
     match: "t" with
     | Nil =>
         "acc"
@@ -171,39 +171,39 @@ Definition lst_foldl : val :=
         "fn" "i" "v" ("lst_foldri_aux" "t" "fn" "acc" (#1 + "i"))
     end.
 Definition lst_foldri : val :=
-  λ: "t" "fn" "acc",
+  fun: "t" "fn" "acc" =>
     lst_foldri_aux "t" "fn" "acc" #0.
 Definition lst_foldr : val :=
-  λ: "t" "fn" "acc",
-    lst_foldri "t" (λ: <>, "fn") "acc".
+  fun: "t" "fn" "acc" =>
+    lst_foldri "t" (fun: <> => "fn") "acc".
 
 Definition lst_size : val :=
-  λ: "t",
-    lst_foldl "t" #0 (λ: "acc" <>, #1 + "acc").
+  fun: "t" =>
+    lst_foldl "t" #0 (fun: "acc" <> => #1 + "acc").
 
 Definition lst_rev_app : val :=
-  λ: "t1" "t2",
-    lst_foldl "t1" "t2" (λ: "acc" "v", ‘Cons{ "v", "acc" }).
+  fun: "t1" "t2" =>
+    lst_foldl "t1" "t2" (fun: "acc" "v" => ‘Cons{ "v", "acc" }).
 Definition lst_rev : val :=
-  λ: "t",
+  fun: "t" =>
     lst_rev_app "t" §Nil.
 
 Definition lst_app : val :=
-  λ: "t1" "t2",
-    lst_foldr "t1" (λ: "v" "acc", ‘Cons{ "v", "acc" }) "t2".
+  fun: "t1" "t2" =>
+    lst_foldr "t1" (fun: "v" "acc" => ‘Cons{ "v", "acc" }) "t2".
 Definition lst_snoc : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     lst_app "t" (lst_singleton "v").
 
 Definition lst_iteri : val :=
-  λ: "t" "fn",
-    lst_foldli "t" () (λ: <>, "fn").
+  fun: "t" "fn" =>
+    lst_foldli "t" () (fun: <> => "fn").
 Definition lst_iter : val :=
-  λ: "t" "fn",
-    lst_iteri "t" (λ: <>, "fn").
+  fun: "t" "fn" =>
+    lst_iteri "t" (fun: <> => "fn").
 
 #[local] Definition lst_mapi_aux : val :=
-  rec: "lst_mapi_aux" "t" "fn" "i" :=
+  rec: "lst_mapi_aux" "t" "fn" "i" =>
     match: "t" with
     | Nil =>
         §Nil
@@ -213,11 +213,11 @@ Definition lst_iter : val :=
         ‘Cons{ "v", "t" }
     end.
 Definition lst_mapi : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     lst_mapi_aux "t" "fn" #0.
 Definition lst_map : val :=
-  λ: "t" "fn",
-    lst_mapi "t" (λ: <>, "fn").
+  fun: "t" "fn" =>
+    lst_mapi "t" (fun: <> => "fn").
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

@@ -9,11 +9,11 @@ From zoo Require Import
   options.
 
 Definition minimum : val :=
-  λ: "n1" "n2",
+  fun: "n1" "n2" =>
     if: "n1" < "n2" then "n1" else "n2".
 
 Definition maximum : val :=
-  λ: "n1" "n2",
+  fun: "n1" "n2" =>
     if: "n1" < "n2" then "n2" else "n1".
 
 Notation "e1 `min` e2" := (
@@ -26,7 +26,7 @@ Notation "e1 `max` e2" := (
 ) : expr_scope.
 
 Definition positive_part : val :=
-  λ: "n",
+  fun: "n" =>
     #0 `max` "n".
 
 Section zoo_G.

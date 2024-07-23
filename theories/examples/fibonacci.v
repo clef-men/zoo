@@ -53,17 +53,17 @@ Section pool_G.
   Context (ws_hub : ws_hub Σ).
 
   #[local] Definition fibonacci_aux : val :=
-    rec: "fibonacci_aux" "n" "ctx" :=
+    rec: "fibonacci_aux" "n" "ctx" =>
       if: "n" ≤ #1 then (
         "n"
       ) else (
-        let: "fut1" := pool_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #1) "ctx") in
-        let: "fut2" := pool_async ws_hub "ctx" (λ: "ctx", "fibonacci_aux" ("n" - #2) "ctx") in
+        let: "fut1" := pool_async ws_hub "ctx" (fun: "ctx" => "fibonacci_aux" ("n" - #1) "ctx") in
+        let: "fut2" := pool_async ws_hub "ctx" (fun: "ctx" => "fibonacci_aux" ("n" - #2) "ctx") in
         pool_await ws_hub "ctx" "fut1" + pool_await ws_hub "ctx" "fut2"
       ).
   Definition fibonacci : val :=
-    λ: "n" "pool",
-      pool_run ws_hub "pool" (λ: "ctx", fibonacci_aux "n" "ctx").
+    fun: "n" "pool" =>
+      pool_run ws_hub "pool" (fun: "ctx" => fibonacci_aux "n" "ctx").
 
   #[local] Lemma fibonacci_aux_spec n ctx :
     (0 ≤ n)%Z →

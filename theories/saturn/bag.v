@@ -41,28 +41,28 @@ Notation "'back'" := (
 ).
 
 Definition bag_create : val :=
-  λ: "sz",
-    { array_init "sz" (λ: <>, ref §None), #0, #0 }.
+  fun: "sz" =>
+    { array_init "sz" (fun: <> => ref §None), #0, #0 }.
 
 #[local] Definition bag_push_aux : val :=
-  rec: "bag_push_aux" "slot" "o" :=
-    ifnot: Cas "slot" §None "o" then (
+  rec: "bag_push_aux" "slot" "o" =>
+    ifnot: CAS "slot" §None "o" then (
       Yield ;;
       "bag_push_aux" "slot" "o"
     ).
 Definition bag_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     let: "data" := "t".{data} in
-    let: "i" := Faa "t".[back] #1 `rem` array_size "data" in
+    let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
     bag_push_aux (array_unsafe_get "data" "i") ‘Some{ "v" }.
 
 #[local] Definition bag_pop_aux : val :=
-  rec: "bag_pop_aux" "slot" :=
+  rec: "bag_pop_aux" "slot" =>
     match: !"slot" with
     | None =>
         "bag_pop_aux" "slot"
     | Some "v" as "o" =>
-        if: Cas "slot" "o" §None then (
+        if: CAS "slot" "o" §None then (
           "v"
         ) else (
           Yield ;;
@@ -70,9 +70,9 @@ Definition bag_push : val :=
         )
     end.
 Definition bag_pop : val :=
-  λ: "t",
+  fun: "t" =>
     let: "data" := "t".{data} in
-    let: "i" := Faa "t".[front] #1 `rem` array_size "data" in
+    let: "i" := FAA "t".[front] #1 `rem` array_size "data" in
     bag_pop_aux (array_unsafe_get "data" "i").
 
 Class BagG Σ `{zoo_G : !ZooG Σ} := {
@@ -257,7 +257,7 @@ Section bag_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
@@ -304,7 +304,7 @@ Section bag_G.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
-    wp_bind (Faa _ _).
+    wp_bind (FAA _ _).
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     wp_faa.
     iSplitR "HΦ". { iExists front, (S back), os, vs. iSteps. }
@@ -352,7 +352,7 @@ Section bag_G.
     destruct o as [v |]; last iSteps.
     wp_pures.
 
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
@@ -408,7 +408,7 @@ Section bag_G.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
-    wp_bind (Faa _ _).
+    wp_bind (FAA _ _).
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     wp_faa.
     iSplitR "HΦ". { iExists (S front), back, os, vs. iSteps. }

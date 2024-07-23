@@ -39,42 +39,42 @@ Implicit Types vs : list val.
 ).
 
 Definition dynarray_create : val :=
-  λ: <>,
+  fun: <> =>
     { #0, array_create () }.
 
 Definition dynarray_make : val :=
-  λ: "sz" "v",
+  fun: "sz" "v" =>
     assume (#0 ≤ "sz") ;;
-    { "sz", array_initi "sz" (λ: <>, ‘Some{ ref "v" }) }.
+    { "sz", array_initi "sz" (fun: <> => ‘Some{ ref "v" }) }.
 
 Definition dynarray_initi : val :=
-  λ: "sz" "fn",
+  fun: "sz" "fn" =>
     assume (#0 ≤ "sz") ;;
-    { "sz", array_initi "sz" (λ: "i", ‘Some{ ref ("fn" "i") }) }.
+    { "sz", array_initi "sz" (fun: "i" => ‘Some{ ref ("fn" "i") }) }.
 
 Definition dynarray_size : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{size}.
 #[local] Definition dynarray_data : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{data}.
 Definition dynarray_capacity : val :=
-  λ: "t",
+  fun: "t" =>
     array_size (dynarray_data "t").
 
 #[local] Definition dynarray_set_size : val :=
-  λ: "t" "sz",
+  fun: "t" "sz" =>
     "t" <-{size} "sz".
 #[local] Definition dynarray_set_data : val :=
-  λ: "t" "data",
+  fun: "t" "data" =>
     "t" <-{data} "data".
 
 Definition dynarray_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     dynarray_size "t" = #0.
 
 Definition dynarray_get : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     match: array_get (dynarray_data "t") "i" with
     | None =>
         diverge ()
@@ -83,7 +83,7 @@ Definition dynarray_get : val :=
     end.
 
 Definition dynarray_set : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     match: array_get (dynarray_data "t") "i" with
     | None =>
         diverge ()
@@ -92,10 +92,10 @@ Definition dynarray_set : val :=
     end.
 
 #[local] Definition dynarray_next_capacity : val :=
-  λ: "n",
+  fun: "n" =>
     #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
 Definition dynarray_reserve : val :=
-  λ: "t" "n",
+  fun: "t" "n" =>
     assume (#0 ≤ "n") ;;
     let: "data" := dynarray_data "t" in
     let: "cap" := array_size "data" in
@@ -106,12 +106,12 @@ Definition dynarray_reserve : val :=
       dynarray_set_data "t" "new_data"
     ).
 Definition dynarray_reserve_extra : val :=
-  λ: "t" "n",
+  fun: "t" "n" =>
     assume (#0 ≤ "n") ;;
     dynarray_reserve "t" (dynarray_size "t" + "n").
 
 #[local] Definition dynarray_try_push : val :=
-  λ: "t" "slot",
+  fun: "t" "slot" =>
     let: "sz" := dynarray_size "t" in
     let: "data" := dynarray_data "t" in
     if: array_size "data" ≤ "sz" then (
@@ -122,20 +122,20 @@ Definition dynarray_reserve_extra : val :=
       #true
     ).
 #[local] Definition dynarray_push_aux : val :=
-  rec: "dynarray_push_aux" "t" "slot" :=
+  rec: "dynarray_push_aux" "t" "slot" =>
     dynarray_reserve_extra "t" #1 ;;
     ifnot: dynarray_try_push "t" "slot" then (
       "dynarray_push_aux" "t" "slot"
     ).
 Definition dynarray_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     let: "slot" := ‘Some{ ref "v" } in
     ifnot: dynarray_try_push "t" "slot" then (
       dynarray_push_aux "t" "slot"
     ).
 
 Definition dynarray_pop : val :=
-  λ: "t",
+  fun: "t" =>
     let: "sz" := dynarray_size "t" in
     let: "data" := dynarray_data "t" in
     assume ("sz" ≤ array_size "data") ;;
@@ -151,7 +151,7 @@ Definition dynarray_pop : val :=
     end.
 
 Definition dynarray_fit_capacity : val :=
-  λ: "t",
+  fun: "t" =>
     let: "sz" := dynarray_size "t" in
     let: "data" := dynarray_data "t" in
     ifnot: array_size "data" = "sz" then (
@@ -159,7 +159,7 @@ Definition dynarray_fit_capacity : val :=
     ).
 
 Definition dynarray_reset : val :=
-  λ: "t",
+  fun: "t" =>
     dynarray_set_size "t" #0 ;;
     dynarray_set_data "t" (array_create ()).
 

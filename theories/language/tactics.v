@@ -64,16 +64,16 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxXchg1 v2) K prophs e1
     | Xchg ?e1 ?e2 =>
         add_ectxi (CtxXchg2 e1) K prophs e2
-    | Cas ?e0 (Val ?v1) (Val ?v2) =>
-        add_ectxi (CtxCas0 v1 v2) K prophs e0
-    | Cas ?e0 ?e1 (Val ?v2) =>
-        add_ectxi (CtxCas1 e0 v2) K prophs e1
-    | Cas ?e0 ?e1 ?e2 =>
-        add_ectxi (CtxCas2 e0 e1) K prophs e2
-    | Faa ?e1 (Val ?v2) =>
-        add_ectxi (CtxFaa1 v2) K prophs e1
-    | Faa ?e1 ?e2 =>
-        add_ectxi (CtxFaa2 e1) K prophs e2
+    | CAS ?e0 (Val ?v1) (Val ?v2) =>
+        add_ectxi (CtxCAS0 v1 v2) K prophs e0
+    | CAS ?e0 ?e1 (Val ?v2) =>
+        add_ectxi (CtxCAS1 e0 v2) K prophs e1
+    | CAS ?e0 ?e1 ?e2 =>
+        add_ectxi (CtxCAS2 e0 e1) K prophs e2
+    | FAA ?e1 (Val ?v2) =>
+        add_ectxi (CtxFAA1 v2) K prophs e1
+    | FAA ?e1 ?e2 =>
+        add_ectxi (CtxFAA2 e1) K prophs e2
     | Resolve ?e0 (Val ?v1) (Val ?v2) =>
         go K (cons (v1, v2) prophs) e0
     | Resolve ?e0 ?e1 (Val ?v2) =>
@@ -179,12 +179,12 @@ Ltac invert_base_step :=
   apply base_step_alloc'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Cas _ _ _) _ _ _ _ _ _
+  base_step (CAS _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_fail; simpl; [| | | try injection]
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Cas _ _ _) _ _ _ _ _ _
+  base_step (CAS _ _ _) _ _ _ _ _ _
 ) =>
   eapply base_step_cas_suc; simpl
 : zoo.

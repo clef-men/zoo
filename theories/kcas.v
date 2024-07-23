@@ -72,7 +72,7 @@ Implicit Types status : val.
 ).
 
 #[local] Definition kcas_status_to_bool : val :=
-  λ: "status",
+  fun: "status" =>
     match: "status" with
     | Before =>
         #false
@@ -80,19 +80,19 @@ Implicit Types status : val.
         #true
     end.
 #[local] Definition kcas_finish : val :=
-  λ: "id" "casn" "status",
+  fun: "id" "casn" "status" =>
     match: "casn".{status} with
     | Before =>
         #false
     | After =>
         #true
     | Undetermined <> as "old_status" =>
-        Resolve (Cas "casn".[status] "old_status" "status") "casn".{prophet} ("id", kcas_status_to_bool "status") ;;
+        Resolve (CAS "casn".[status] "old_status" "status") "casn".{prophet} ("id", kcas_status_to_bool "status") ;;
         "cas".{status} = §After
     end.
 
 #[local] Definition kcas_determine_aux : val :=
-  rec: "kcas_determine_aux" "kcas_determine" "casn" "cass" :=
+  rec: "kcas_determine_aux" "kcas_determine" "casn" "cass" =>
     let: "id" := Id in
     match: "cass" with
     | Nil =>
@@ -118,7 +118,7 @@ Implicit Types status : val.
             | After =>
                 #true
             | Undetermined <> =>
-                if: Cas "loc" "state'" "state" then
+                if: CAS "loc" "state'" "state" then
                   "kcas_determine_aux" "casn" "cass'"
                 else
                   "kcas_determine_aux" "casn" "cass"
@@ -126,7 +126,7 @@ Implicit Types status : val.
         )
     end.
 #[local] Definition kcas_determine : val :=
-  rec: "kcas_determine" "casn" :=
+  rec: "kcas_determine" "casn" =>
     match: "casn".{status} with
     | Before =>
         #false

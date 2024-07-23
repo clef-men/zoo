@@ -105,22 +105,22 @@ Module raw.
   ).
 
   Definition inf_ws_deque_create : val :=
-    λ: <>,
+    fun: <> =>
       { #0, #0, inf_array_create (), Proph }.
 
   Definition inf_ws_deque_push : val :=
-    λ: "t" "v",
+    fun: "t" "v" =>
       let: "back" := "t".{back} in
       inf_array_set "t".{data} "back" "v" ;;
       "t" <-{back} "back" + #1.
 
   Definition inf_ws_deque_steal : val :=
-    rec: "inf_ws_deque_steal" "t" :=
+    rec: "inf_ws_deque_steal" "t" =>
       let: "id" := Id in
       let: "front" := "t".{front} in
       let: "back" := "t".{back} in
       if: "front" < "back" then (
-        if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
+        if: Resolve (CAS "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
           ‘Some{ inf_array_get "t".{data} "front" }
         ) else (
           Yield ;;
@@ -131,7 +131,7 @@ Module raw.
       ).
 
   Definition inf_ws_deque_pop : val :=
-    λ: "t",
+    fun: "t" =>
       let: "id" := Id in
       let: "back" := "t".{back} - #1 in
       "t" <-{back} "back" ;;
@@ -143,7 +143,7 @@ Module raw.
         if: "front" < "back" then (
           ‘Some{ inf_array_get "t".{data} "back" }
         ) else (
-          if: Resolve (Cas "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
+          if: Resolve (CAS "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
             "t" <-{back} "front" + #1 ;;
             ‘Some{ inf_array_get "t".{data} "back" }
           ) else (
@@ -854,7 +854,7 @@ Module raw.
         inv ι (inf_ws_deque_inv_inner l γ ι) ∗
         wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb
       }}}
-        Resolve (Cas #l.[front] #front1 #front2) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
+        Resolve (CAS #l.[front] #front1 #front2) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{ v,
         RET v; False
       }}}.
@@ -867,7 +867,7 @@ Module raw.
       iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet(front, id) with "Hprophet_model"); [done.. |].
-      (* whether Cas succeed or not, we reach a contradiction *)
+      (* whether CAS succeed or not, we reach a contradiction *)
       wp_cas as _ | _ _.
       all: iModIntro; iIntros "%prophs' ->".
       all: eelim (filter_nil_not_elem_of _ _ (front, id)); [done.. |].
@@ -882,7 +882,7 @@ Module raw.
         inf_ws_deque_front_lb γ front ∗
         wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb
       }}}
-        Resolve (Cas #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
+        Resolve (CAS #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{
         RET #false;
         inf_ws_deque_front_lb γ (S front)
@@ -896,7 +896,7 @@ Module raw.
       iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front, id) with "Hprophet_model"); [done.. |].
-      (* Cas must fail as we are not the winner: [id ≠ id'] *)
+      (* CAS must fail as we are not the winner: [id ≠ id'] *)
       wp_cas as _Hfront | ? _; last simplify; last first.
       { iModIntro. iIntros "%prophs' -> Hprophet_model".
         rewrite filter_app filter_cons_True // in Hprophs_lb.
@@ -942,7 +942,7 @@ Module raw.
         wise_prophet_lb inf_ws_deque_prophet γ.(inf_ws_deque_meta_prophet_name) prophs_lb ∗
         inf_ws_deque_winner₂ γ front Ψ
       }}}
-        Resolve (Cas #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
+        Resolve (CAS #l.[front] #front v) #γ.(inf_ws_deque_meta_prophet) (#front, #id)%V
       {{{
         RET #false; False
       }}}.
@@ -1235,13 +1235,13 @@ Module raw.
 
         wp_pures.
 
-        (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
-        wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
+        (* → [Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
+        wp_bind (Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
         (* open invariant *)
         iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
         (* do resolve *)
         wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front1, id) with "Hprophet_model"); [done.. |].
-        (* branching 3: Cas must fail as we have seen [front2] such that [front1 < front2] *)
+        (* branching 3: CAS must fail as we have seen [front2] such that [front1 < front2] *)
         wp_cas as _Hbranch3 | ? _; last simplify; last first.
         { iDestruct (inf_ws_deque_front_valid with "Hfront_auth Hfront_lb") as %?.
           lia.
@@ -1319,7 +1319,7 @@ Module raw.
         (* → [!#l.[prophet]] *)
         wp_load.
 
-        (* Cas must fail as we are not the winner *)
+        (* CAS must fail as we are not the winner *)
         wp_smart_apply (inf_ws_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]") as "_"; [done.. |].
 
         (* → [inf_ws_deque_steal #l] *)
@@ -1360,15 +1360,15 @@ Module raw.
 
       wp_pures.
 
-      (* → [Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
-      wp_bind (Resolve (Cas #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
+      (* → [Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)] *)
+      wp_bind (Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front1, #id)%V).
       (* open invariant *)
       iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
       (* we are in state 2 or state 3.1 *)
       iDestruct (inf_ws_deque_winner₂_state with "Hwinner₂ Hstate") as "(>-> & Hstate)".
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front1, id) with "Hprophet_model"); [done.. |].
-      (* Cas must succeed as we are the next winner *)
+      (* CAS must succeed as we are the next winner *)
       wp_cas_suc.
       (* branching 5 *)
       iDestruct "Hstate" as "[Hstate | Hstate]".
@@ -1674,8 +1674,8 @@ Module raw.
 
           wp_pures.
 
-          (* → [Resolve (Cas #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)] *)
-          wp_bind (Resolve (Cas #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)%V).
+          (* → [Resolve (CAS #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)] *)
+          wp_bind (Resolve (CAS #l.[front] #front3 #(front3 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front3, #id)%V).
           (* open invariant *)
           iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1690,7 +1690,7 @@ Module raw.
           apply (inj _) in Hstate as ->.
           (* do resolve *)
           wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front3, id) with "Hprophet_model"); [done.. |].
-          (* Cas must succeed *)
+          (* CAS must succeed *)
           wp_cas_suc.
           iModIntro. iIntros "%prophs4' -> Hprophet_model".
           (* update front authority *)
@@ -1890,8 +1890,8 @@ Module raw.
 
           wp_pures.
 
-          (* → [Resolve (Cas #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)] *)
-          wp_bind (Resolve (Cas #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)%V).
+          (* → [Resolve (CAS #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)] *)
+          wp_bind (Resolve (CAS #l.[front] #front2 #(front2 + 1)) #γ.(inf_ws_deque_meta_prophet) (#front2, #id)%V).
           (* open invariant *)
           iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1902,7 +1902,7 @@ Module raw.
           iDestruct (inf_ws_deque_hist_agree with "Hhist_auth Hhist_elem") as %->%list_lookup_total_correct.
           (* do resolve *)
           wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front2, id) with "Hprophet_model"); [done.. |].
-          (* Cas must succeed *)
+          (* CAS must succeed *)
           wp_cas_suc.
           iModIntro. iIntros "%prophs4' -> Hprophet_model".
           (* update front authority *)
@@ -2091,7 +2091,7 @@ Module raw.
                 (* → [!#l.[prophet]] *)
                 wp_load.
 
-                (* Cas must fail as we are not the winner *)
+                (* CAS must fail as we are not the winner *)
                 wp_smart_apply (inf_ws_deque_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]"); [done.. |]. iClear "Hfront_lb". iIntros "Hfront_lb".
 
                 wp_pures.
@@ -2179,11 +2179,11 @@ Definition inf_ws_deque_create :=
   raw.inf_ws_deque_create.
 
 Definition inf_ws_deque_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     raw.inf_ws_deque_push "t" (ref "v").
 
 Definition inf_ws_deque_steal : val :=
-  λ: "t",
+  fun: "t" =>
     match: raw.inf_ws_deque_steal "t" with
     | None =>
         None
@@ -2192,7 +2192,7 @@ Definition inf_ws_deque_steal : val :=
     end.
 
 Definition inf_ws_deque_pop : val :=
-  λ: "t",
+  fun: "t" =>
     match: raw.inf_ws_deque_pop "t" with
     | None =>
         None

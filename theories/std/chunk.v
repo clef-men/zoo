@@ -23,7 +23,7 @@ Implicit Types v t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
 Definition chunk_make : val :=
-  λ: "sz" "v",
+  fun: "sz" "v" =>
     if: #0 < "sz" then (
       Alloc "sz" "v"
     ) else (
@@ -31,21 +31,21 @@ Definition chunk_make : val :=
     ).
 
 #[local] Definition chunk_foldli_aux : val :=
-  rec: "chunk_foldli_aux" "t" "sz" "acc" "fn" "i" :=
+  rec: "chunk_foldli_aux" "t" "sz" "acc" "fn" "i" =>
     if: "sz" ≤ "i" then (
       "acc"
     ) else (
       "chunk_foldli_aux" "t" "sz" ("fn" "acc" "i" !("t" +ₗ "i")) "fn" (#1 + "i")
     ).
 Definition chunk_foldli : val :=
-  λ: "t" "sz" "acc" "fn",
+  fun: "t" "sz" "acc" "fn" =>
     chunk_foldli_aux "t" "sz" "acc" "fn" #0.
 Definition chunk_foldl : val :=
-  λ: "t" "sz" "acc" "fn",
-    chunk_foldli "t" "sz" "acc" (λ: "acc" <> "v", "fn" "acc" "v").
+  fun: "t" "sz" "acc" "fn" =>
+    chunk_foldli "t" "sz" "acc" (fun: "acc" <> "v" => "fn" "acc" "v").
 
 #[local] Definition chunk_foldri_aux : val :=
-  rec: "chunk_foldri_aux" "t" "fn" "acc" "i" :=
+  rec: "chunk_foldri_aux" "t" "fn" "acc" "i" =>
     if: "i" ≤ #0 then (
       "acc"
     ) else (
@@ -53,76 +53,76 @@ Definition chunk_foldl : val :=
       "chunk_foldri_aux" "t" "fn" ("fn" "i" !("t" +ₗ "i") "acc") "i"
     ).
 Definition chunk_foldri : val :=
-  λ: "t" "sz" "fn" "acc",
+  fun: "t" "sz" "fn" "acc" =>
     chunk_foldri_aux "t" "fn" "acc" "sz".
 Definition chunk_foldr : val :=
-  λ: "t" "sz" "fn" "acc",
-    chunk_foldri "t" "sz" (λ: <> "v" "acc", "fn" "v" "acc") "acc".
+  fun: "t" "sz" "fn" "acc" =>
+    chunk_foldri "t" "sz" (fun: <> "v" "acc" => "fn" "v" "acc") "acc".
 
 Definition chunk_iteri : val :=
-  λ: "t" "sz" "fn",
-    chunk_foldli "t" "sz" () (λ: <>, "fn").
+  fun: "t" "sz" "fn" =>
+    chunk_foldli "t" "sz" () (fun: <> => "fn").
 Definition chunk_iter : val :=
-  λ: "t" "sz" "fn",
-    chunk_iteri "t" "sz" (λ: <>, "fn").
+  fun: "t" "sz" "fn" =>
+    chunk_iteri "t" "sz" (fun: <> => "fn").
 
 Definition chunk_applyi : val :=
-  λ: "t" "sz" "fn",
-    chunk_iteri "t" "sz" (λ: "i" "v", "t" +ₗ "i" <- "fn" "i" "v").
+  fun: "t" "sz" "fn" =>
+    chunk_iteri "t" "sz" (fun: "i" "v" => "t" +ₗ "i" <- "fn" "i" "v").
 Definition chunk_apply : val :=
-  λ: "t" "sz" "fn",
-    chunk_applyi "t" "sz" (λ: <>, "fn").
+  fun: "t" "sz" "fn" =>
+    chunk_applyi "t" "sz" (fun: <> => "fn").
 
 Definition chunk_initi : val :=
-  λ: "sz" "fn",
+  fun: "sz" "fn" =>
     let: "t" := chunk_make "sz" () in
-    chunk_applyi "t" "sz" (λ: "i" <>, "fn" "i") ;;
+    chunk_applyi "t" "sz" (fun: "i" <> => "fn" "i") ;;
     "t".
 Definition chunk_init : val :=
-  λ: "sz" "fn",
-    chunk_initi "sz" (λ: <>, "fn" ()).
+  fun: "sz" "fn" =>
+    chunk_initi "sz" (fun: <> => "fn" ()).
 
 Definition chunk_mapi : val :=
-  λ: "t" "sz" "fn",
-    chunk_initi "sz" (λ: "i", "fn" "i" !("t" +ₗ "i")).
+  fun: "t" "sz" "fn" =>
+    chunk_initi "sz" (fun: "i" => "fn" "i" !("t" +ₗ "i")).
 Definition chunk_map : val :=
-  λ: "t" "sz" "fn",
-    chunk_mapi "t" "sz" (λ: <>, "fn").
+  fun: "t" "sz" "fn" =>
+    chunk_mapi "t" "sz" (fun: <> => "fn").
 
 Definition chunk_copy : val :=
-  λ: "t" "sz" "t'",
-    chunk_iteri "t" "sz" (λ: "i" "v", "t'" +ₗ "i" <- "v").
+  fun: "t" "sz" "t'" =>
+    chunk_iteri "t" "sz" (fun: "i" "v" => "t'" +ₗ "i" <- "v").
 
 Definition chunk_resize : val :=
-  λ: "t" "sz" "sz'" "n" "v'",
+  fun: "t" "sz" "sz'" "n" "v'" =>
     let: "t'" := chunk_make "sz'" "v'" in
     chunk_copy "t" "n" "t'" ;;
     "t'".
 Definition chunk_grow : val :=
-  λ: "t" "sz" "sz'" "v'",
+  fun: "t" "sz" "sz'" "v'" =>
     chunk_resize "t" "sz" "sz'" "sz" "v'".
 Definition chunk_shrink : val :=
-  λ: "t" "sz" "sz'",
+  fun: "t" "sz" "sz'" =>
     chunk_resize "t" "sz" "sz'" "sz'" (inhabitant : val).
 Definition chunk_clone : val :=
-  λ: "t" "sz",
+  fun: "t" "sz" =>
     chunk_shrink "t" "sz" "sz".
 
 Definition chunk_fill : val :=
-  λ: "t" "sz" "v",
+  fun: "t" "sz" "v" =>
     for: "i" := #0 to "sz" begin
       "t" +ₗ "i" <- "v"
     end.
 
 Definition chunk_cget : val :=
-  λ: "t" "sz" "i",
+  fun: "t" "sz" "i" =>
     !("t" +ₗ "i" `rem` "sz").
 Definition chunk_cset : val :=
-  λ: "t" "sz" "i" "v",
+  fun: "t" "sz" "i" "v" =>
     "t" +ₗ "i" `rem` "sz" <- "v".
 
 Definition chunk_cblit : val :=
-  rec: "chunk_cblit" "t1" "sz1" "i1" "t2" "sz2" "i2" "n" :=
+  rec: "chunk_cblit" "t1" "sz1" "i1" "t2" "sz2" "i2" "n" =>
     if: #0 < "n" then (
       chunk_cset "t2" "sz2" "i2" (chunk_cget "t1" "sz1" "i1") ;;
       "chunk_cblit" "t1" "sz1" (#1 + "i1") "t2" "sz2" (#1 + "i2") ("n" - #1)

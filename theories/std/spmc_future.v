@@ -32,40 +32,40 @@ Implicit Types o : option val.
 ).
 
 Definition spmc_future_create : val :=
-  λ: <>,
+  fun: <> =>
     { §None,
       mutex_create (),
       condition_create ()
     }.
 
 Definition spmc_future_set : val :=
-  λ: "t" "v",
-    mutex_protect "t".{mutex} (λ: <>,
+  fun: "t" "v" =>
+    mutex_protect "t".{mutex} (fun: <> =>
       "t" <-{result} ‘Some{ "v" }
     ) ;;
     condition_notify_all "t".{condition}.
 
 Definition spmc_future_try_get : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{result}.
 
 Definition spmc_future_get : val :=
-  λ: "t",
+  fun: "t" =>
     match: spmc_future_try_get "t" with
     | Some "v" =>
         "v"
     | None =>
         let: "mtx" := "t".{mutex} in
         let: "cond" := "t".{condition} in
-        mutex_protect "mtx" (λ: <>,
-          condition_wait_while "cond" "mtx" (λ: <>, "t".{result} = §None)
+        mutex_protect "mtx" (fun: <> =>
+          condition_wait_while "cond" "mtx" (fun: <> => "t".{result} = §None)
         ) ;;
         let: ‘Some "v" := "t".{result} in
         "v"
     end.
 
 Definition spmc_future_is_set : val :=
-  λ: "t",
+  fun: "t" =>
     match: spmc_future_try_get "t" with
     | None =>
         #false

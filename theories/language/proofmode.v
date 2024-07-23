@@ -264,7 +264,7 @@ Section zoo_G.
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (Cas #l v1 v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (CAS #l v1 v2) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hv Hv1 Hfail Hsuc1 Hsuc2.
     destruct (envs_app _ _ _) as [Δ''' |] eqn:HΔ'''; last done.
@@ -300,7 +300,7 @@ Section zoo_G.
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (Cas #l #lit1 v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (CAS #l #lit1 v2) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ Hlookup Hlit Hlit1 -> HΔ'.
     destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
@@ -319,7 +319,7 @@ Section zoo_G.
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (Faa #l #i2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (FAA #l #i2) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ''.
     destruct (envs_simple_replace _ _ _) as [Δ'' |] eqn:HΔ'; last done.
@@ -646,7 +646,7 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
     [ reshape_expr e ltac:(fun K e' =>
         eapply (tac_wp_cas _ _ _ _ _ K)
       )
-    | fail 1 "wp_cas: cannot find 'Cas' with literal arguments in" e
+    | fail 1 "wp_cas: cannot find 'CAS' with literal arguments in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _), _) => l end in
@@ -672,7 +672,7 @@ Ltac wp_cas_suc :=
     [ reshape_expr e ltac:(fun K e' =>
         eapply (tac_wp_cas_suc _ _ _ K)
       )
-    | fail 1 "wp_cas_suc: cannot find 'Cas' with literal arguments in" e
+    | fail 1 "wp_cas_suc: cannot find 'CAS' with literal arguments in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
@@ -695,7 +695,7 @@ Ltac wp_faa :=
     [ reshape_expr e ltac:(fun K e' =>
         eapply (tac_wp_faa _ _ _ K)
       )
-    | fail 1 "wp_faa: cannot find 'Faa' in" e
+    | fail 1 "wp_faa: cannot find 'FAA' in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in

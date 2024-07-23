@@ -36,11 +36,11 @@ Implicit Types ws : option (list val).
 ).
 
 Definition mpsc_queue_create : val :=
-  λ: <>,
+  fun: <> =>
     { §ClstOpen, §ClstOpen }.
 
 Definition mpsc_queue_push_front : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     match: "t".{front} with
     | ClstClosed =>
         #true
@@ -50,12 +50,12 @@ Definition mpsc_queue_push_front : val :=
     end.
 
 Definition mpsc_queue_push_back : val :=
-  rec: "mpsc_queue_push_back" "t" "v" :=
+  rec: "mpsc_queue_push_back" "t" "v" =>
     match: "t".{back} with
     | ClstClosed =>
         #true
     |_ as "back" =>
-        if: Cas "t".[back] "back" ‘ClstCons{ "v", "back" } then (
+        if: CAS "t".[back] "back" ‘ClstCons{ "v", "back" } then (
           #false
         ) else (
           Yield ;;
@@ -64,7 +64,7 @@ Definition mpsc_queue_push_back : val :=
     end.
 
 Definition mpsc_queue_pop_front : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>
         §None
@@ -83,7 +83,7 @@ Definition mpsc_queue_pop_front : val :=
     end.
 
 Definition mpsc_queue_close : val :=
-  λ: "t",
+  fun: "t" =>
     match: Xchg "t".[back] §ClstClosed with
     | ClstClosed =>
         #true
@@ -93,7 +93,7 @@ Definition mpsc_queue_close : val :=
     end.
 
 Definition mpsc_queue_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>
         #true
@@ -484,7 +484,7 @@ Section mpsc_queue_G.
 
       iApply wp_match_clist_open. wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%front & %v_back & Hfront₂ & Hback & [(>Hopen₂ & %back2 & >-> & Hmodel₂) | (Hclosed & >->)])".
 
       + wp_cas as _ | ->%(inj _)%(inj _) _; first iSteps.

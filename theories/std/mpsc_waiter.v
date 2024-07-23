@@ -30,19 +30,19 @@ Implicit Types l : location.
 ).
 
 Definition mpsc_waiter_create : val :=
-  λ: <>,
+  fun: <> =>
     { #false,
       mutex_create (),
       condition_create ()
     }.
 
 Definition mpsc_waiter_notify : val :=
-  λ: "t",
+  fun: "t" =>
     if: "t".{flag} then (
       #true
     ) else (
       let: "res" :=
-        mutex_protect "t".{mutex} (λ: <>,
+        mutex_protect "t".{mutex} (fun: <> =>
           if: "t".{flag} then (
             #true
           ) else (
@@ -56,16 +56,16 @@ Definition mpsc_waiter_notify : val :=
     ).
 
 Definition mpsc_waiter_try_wait : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{flag}.
 
 Definition mpsc_waiter_wait : val :=
-  λ: "t",
+  fun: "t" =>
     ifnot: mpsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect "mtx" (λ: <>,
-        condition_wait_until "cond" "mtx" (λ: <>, "t".{flag})
+      mutex_protect "mtx" (fun: <> =>
+        condition_wait_until "cond" "mtx" (fun: <> => "t".{flag})
       )
     ).
 

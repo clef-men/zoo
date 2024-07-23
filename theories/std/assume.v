@@ -11,7 +11,7 @@ From zoo Require Import
   options.
 
 Definition assume : val :=
-  λ: "b",
+  fun: "b" =>
     ifnot: "b" then
       diverge ().
 

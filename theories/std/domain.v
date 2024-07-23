@@ -13,7 +13,7 @@ From zoo Require Import
 Implicit Types v t fn : val.
 
 Definition domain_spawn : val :=
-  λ: "fn",
+  fun: "fn" =>
     let: "t" := spsc_future_create () in
     Fork (spsc_future_set "t" ("fn" ())) ;;
     "t".

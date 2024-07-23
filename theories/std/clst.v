@@ -132,7 +132,7 @@ Proof.
 Qed.
 
 Definition clst_app : val :=
-  rec: "clst_app" "t1" "t2" :=
+  rec: "clst_app" "t1" "t2" =>
     match: "t1" with
     | ClstOpen =>
         "t2"
@@ -141,7 +141,7 @@ Definition clst_app : val :=
     end.
 
 Definition clst_rev_app : val :=
-  rec: "clst_rev_app" "t1" "t2" :=
+  rec: "clst_rev_app" "t1" "t2" =>
     match: "t1" with
     | ClstOpen =>
         "t2"
@@ -150,7 +150,7 @@ Definition clst_rev_app : val :=
     end.
 
 Definition clst_iter : val :=
-  rec: "clst_iter" "t" "fn" :=
+  rec: "clst_iter" "t" "fn" =>
     match: "t" with
     | ClstOpen =>
         ()

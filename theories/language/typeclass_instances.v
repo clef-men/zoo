@@ -98,13 +98,13 @@ Section atomic.
   Qed.
 
   #[global] Instance cas_atomic v0 v1 v2 :
-    Atomic (Cas (Val v0) (Val v1) (Val v2)).
+    Atomic (CAS (Val v0) (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
 
   #[global] Instance faa_atomic v1 v2 :
-    Atomic (Faa (Val v1) (Val v2)).
+    Atomic (FAA (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.

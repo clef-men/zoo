@@ -44,7 +44,7 @@ Implicit Types vs : list val.
 ).
 
 #[local] Definition truc_rev_aux : val :=
-  rec: "truc_rev_aux" "suffix" "truc" :=
+  rec: "truc_rev_aux" "suffix" "truc" =>
     match: "truc" with
     | Snoc "cnt" "prefix" "v" =>
         "truc_rev_aux" ‘Cons{ "cnt", "v", "suffix" } "prefix"
@@ -52,22 +52,22 @@ Implicit Types vs : list val.
         "suffix"
     end.
 #[local] Definition truc_rev : val :=
-  λ: "truc",
+  fun: "truc" =>
     let: ‘Snoc "cnt" "prefix" "v" := "truc" in
     truc_rev_aux ‘Cons{ "cnt", "v", ‘Front{ #1 + "cnt" } } "prefix".
 
 Definition mpmc_queue_create : val :=
-  λ: <>,
+  fun: <> =>
     { ‘Front{ #1 }, ‘Back{ #0, ref () } }.
 
 #[local] Definition mpmc_queue_push_aux : val :=
-  λ: "mpmc_queue_push" "t" "v" "cnt" "back",
-    ifnot: Cas "t".[back] "back" ‘Snoc{ #1 + "cnt", "back", "v" } then (
+  fun: "mpmc_queue_push" "t" "v" "cnt" "back" =>
+    ifnot: CAS "t".[back] "back" ‘Snoc{ #1 + "cnt", "back", "v" } then (
       Yield ;;
       "mpmc_queue_push" "t" "v"
     ).
 Definition mpmc_queue_push : val :=
-  rec: "mpmc_queue_push" "t" "v" :=
+  rec: "mpmc_queue_push" "t" "v" =>
     let: "back" := "t".{back} in
     match: "back" with
     | Snoc "cnt" <> <> =>
@@ -80,7 +80,7 @@ Definition mpmc_queue_push : val :=
           let: ‘Snoc "move_cnt" <> <> := "move" in
           match: "t".{front} with
           | Front "front_cnt" as "front" =>
-              if: "front_cnt" < "move_cnt" and Cas "t".[front] "front" (truc_rev "move") then (
+              if: "front_cnt" < "move_cnt" and CAS "t".[front] "front" (truc_rev "move") then (
                 "↦move" <- ()
               )
           |_ =>
@@ -91,10 +91,10 @@ Definition mpmc_queue_push : val :=
     end.
 
 #[local] Definition mpmc_queue_pop_aux1 : val :=
-  rec: "aux1" "aux2" "aux3" "t" "front" :=
+  rec: "aux1" "aux2" "aux3" "t" "front" =>
     match: "front" with
     | Cons <> "v" "suffix" =>
-        if: Cas "t".[front] "front" "suffix" then (
+        if: CAS "t".[front] "front" "suffix" then (
           ‘Some{ "v" }
         ) else (
           Yield ;;
@@ -104,14 +104,14 @@ Definition mpmc_queue_push : val :=
         match: "t".{back} with
         | Snoc "move_cnt" "v" "move_prefix" as "move" =>
             if: "front_cnt" = "move_cnt" then (
-              if: Cas "t".[back] "move" "move_prefix" then (
+              if: CAS "t".[back] "move" "move_prefix" then (
                 ‘Some{ "v" }
               ) else (
                 "aux1" "aux2" "aux3" "t" "t".{front}
               )
             ) else (
               let: "back" := ‘Back{ "move_cnt", "move" } in
-              if: Cas "t".[back] "move" "back" then (
+              if: CAS "t".[back] "move" "back" then (
                 "aux2" "aux1" "aux3" "t" "front" "move" "back"
               ) else (
                 "aux1" "aux2" "aux3" "t" "t".{front}
@@ -127,13 +127,13 @@ Definition mpmc_queue_push : val :=
         end
     end.
 #[local] Definition mpmc_queue_pop_aux2 : val :=
-  rec: "aux2" "aux1" "aux3" "t" "front" "move" "back" :=
+  rec: "aux2" "aux1" "aux3" "t" "front" "move" "back" =>
     let: ‘Front "front_cnt" := "front" in
     let: ‘Snoc "move_cnt" <> <> := "move" in
     let: ‘Back <> "↦move" := "back" in
     if: "front_cnt" < "move_cnt" then (
       let: ‘Cons <> "v" "suffix" := truc_rev "move" in
-      if: Cas "t".[front] "front" "suffix" then (
+      if: CAS "t".[front] "front" "suffix" then (
         "↦move" <- () ;;
         ‘Some{ "v" }
       ) else (
@@ -144,7 +144,7 @@ Definition mpmc_queue_push : val :=
       "aux3" "aux1" "aux2" "t" "front"
     ).
 #[local] Definition mpmc_queue_pop_aux3 : val :=
-  rec: "aux3" "aux1" "aux2" "t" "front" :=
+  rec: "aux3" "aux1" "aux2" "t" "front" =>
     let: "front'" := "t".{front} in
     if: "front'" = "front" then (
       §None
@@ -152,7 +152,7 @@ Definition mpmc_queue_push : val :=
       "aux1" "aux2" "aux3" "t" "front'"
     ).
 Definition mpmc_queue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     mpmc_queue_pop_aux1 mpmc_queue_pop_aux2 mpmc_queue_pop_aux3 "t" "t".{front}.
 
 Class MpmcQueueG Σ `{zoo_G : !ZooG Σ} := {

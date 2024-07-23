@@ -174,7 +174,7 @@ Section zoo_G.
   Context (ws_hub : ws_hub Σ).
 
   Definition ws_hub_pop_steal_until : val :=
-    λ: "t" "i" "max_round_noyield" "pred",
+    fun: "t" "i" "max_round_noyield" "pred" =>
       match: ws_hub.(ws_hub_pop) "t" "i" with
       | Some <> as "res" =>
           "res"
@@ -183,7 +183,7 @@ Section zoo_G.
       end.
 
   Definition ws_hub_pop_steal : val :=
-    λ: "t" "i" "max_round",
+    fun: "t" "i" "max_round" =>
       match: ws_hub.(ws_hub_pop) "t" "i" with
       | Some <> as "res" =>
           "res"

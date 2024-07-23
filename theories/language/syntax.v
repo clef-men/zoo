@@ -184,8 +184,8 @@ Inductive expr :=
   | Load (e : expr)
   | Store (e1 e2 : expr)
   | Xchg (e1 e2 : expr)
-  | Cas (e0 e1 e2 : expr)
-  | Faa (e1 e2 : expr)
+  | CAS (e0 e1 e2 : expr)
+  | FAA (e1 e2 : expr)
   | Fork (e : expr)
   | Yield
   | Proph
@@ -306,15 +306,15 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Xchg e1 e2).
-  Variable HCas :
+  Variable HCAS :
     ∀ e0, P e0 →
     ∀ e1, P e1 →
     ∀ e2, P e2 →
-    P (Cas e0 e1 e2).
-  Variable HFaa :
+    P (CAS e0 e1 e2).
+  Variable HFAA :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
-    P (Faa e1 e2).
+    P (FAA e1 e2).
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
@@ -402,13 +402,13 @@ Section expr_ind.
         HXchg
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Cas e0 e1 e2 =>
-        HCas
+    | CAS e0 e1 e2 =>
+        HCAS
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Faa e1 e2 =>
-        HFaa
+    | FAA e1 e2 =>
+        HFAA
           e1 (expr_ind e1)
           e2 (expr_ind e2)
     | Fork e =>
@@ -664,12 +664,12 @@ Proof.
           cast_if_and
             (decide (e11 = e21))
             (decide (e12 = e22))
-      | Cas e10 e11 e12, Cas e20 e21 e22 =>
+      | CAS e10 e11 e12, CAS e20 e21 e22 =>
          cast_if_and3
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Faa e11 e12, Faa e21 e22 =>
+      | FAA e11 e12, FAA e21 e22 =>
          cast_if_and
            (decide (e11 = e21))
            (decide (e12 = e22))
@@ -855,9 +855,9 @@ Proof.
     16.
   #[local] Notation code_Xchg :=
     17.
-  #[local] Notation code_Cas :=
+  #[local] Notation code_CAS :=
     18.
-  #[local] Notation code_Faa :=
+  #[local] Notation code_FAA :=
     19.
   #[local] Notation code_Fork :=
     20.
@@ -915,10 +915,10 @@ Proof.
           GenNode code_Store [go e1; go e2]
       | Xchg e1 e2 =>
           GenNode code_Xchg [go e1; go e2]
-      | Cas e0 e1 e2 =>
-          GenNode code_Cas [go e0; go e1; go e2]
-      | Faa e1 e2 =>
-          GenNode code_Faa [go e1; go e2]
+      | CAS e0 e1 e2 =>
+          GenNode code_CAS [go e0; go e1; go e2]
+      | FAA e1 e2 =>
+          GenNode code_FAA [go e1; go e2]
       | Fork e =>
           GenNode code_Fork [go e]
       | Yield =>
@@ -988,10 +988,10 @@ Proof.
           Store (go e1) (go e2)
       | GenNode code_Xchg [e1; e2] =>
           Xchg (go e1) (go e2)
-      | GenNode code_Cas [e0; e1; e2] =>
-          Cas (go e0) (go e1) (go e2)
-      | GenNode code_Faa [e1; e2] =>
-          Faa (go e1) (go e2)
+      | GenNode code_CAS [e0; e1; e2] =>
+          CAS (go e0) (go e1) (go e2)
+      | GenNode code_FAA [e1; e2] =>
+          FAA (go e1) (go e2)
       | GenNode code_Fork [e] =>
           Fork $ go e
       | GenNode code_Yield [] =>

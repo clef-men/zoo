@@ -32,11 +32,11 @@ Implicit Types vs : list val.
 ).
 
 Definition parray_make : val :=
-  λ: "sz" "v",
+  fun: "sz" "v" =>
     ref ‘Root{ array_make "sz" "v" }.
 
 #[local] Definition parray_reroot : val :=
-  rec: "parray_reroot" "t" :=
+  rec: "parray_reroot" "t" =>
     match: !"t" with
     | Root "arr" =>
         "arr"
@@ -49,11 +49,11 @@ Definition parray_make : val :=
     end.
 
 Definition parray_get : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     array_unsafe_get (parray_reroot "t") "i".
 
 Definition parray_set : val :=
-  λ: "t" "eq" "i" "v",
+  fun: "t" "eq" "i" "v" =>
     let: "arr" := parray_reroot "t" in
     let: "v'" := array_unsafe_get "arr" "i" in
     if: "eq" "v" "v'" then (

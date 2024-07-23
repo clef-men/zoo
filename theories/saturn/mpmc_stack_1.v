@@ -22,25 +22,25 @@ Implicit Types v t : val.
 Implicit Types vs : list val.
 
 Definition mpmc_stack_create : val :=
-  λ: <>,
+  fun: <> =>
     ref §Nil.
 
 Definition mpmc_stack_push : val :=
-  rec: "mpmc_stack_push" "t" "v" :=
+  rec: "mpmc_stack_push" "t" "v" =>
     let: "old" := !"t" in
     let: "new" := ‘Cons{ "v", "old" } in
-    ifnot: Cas "t" "old" "new" then (
+    ifnot: CAS "t" "old" "new" then (
       Yield ;;
       "mpmc_stack_push" "t" "v"
     ).
 
 Definition mpmc_stack_pop : val :=
-  rec: "mpmc_stack_pop" "t" :=
+  rec: "mpmc_stack_pop" "t" =>
     match: !"t" with
     | Nil =>
         §None
     | Cons "v" "new" as "old" =>
-        if: Cas "t" "old" "new" then (
+        if: CAS "t" "old" "new" then (
           ‘Some{ "v" }
         ) else (
           Yield ;;
@@ -169,7 +169,7 @@ Section zoo_G.
 
     wp_pures.
 
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
     wp_cas as _ | ->%(inj _) _; first iSteps.
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
@@ -216,7 +216,7 @@ Section zoo_G.
 
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       wp_cas as _ | Hcas _; first iSteps.
       destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].

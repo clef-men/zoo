@@ -37,19 +37,19 @@ Implicit Types vs : list val.
 ).
 
 Definition mpsc_queue_create : val :=
-  λ: <>,
+  fun: <> =>
     let: "front" := { (), () } in
     { "front", "front" }.
 
 Definition mpsc_queue_is_empty : val :=
-  λ: "t",
+  fun: "t" =>
     "t".{front}.{xchain_next} = ().
 
 #[local] Definition mpsc_queue_do_push : val :=
-  rec: "mpsc_queue_do_push" "node" "new_back" :=
+  rec: "mpsc_queue_do_push" "node" "new_back" =>
     let: "node'" := "node".{xchain_next} in
     if: "node'" = () then (
-      ifnot: Cas "node".[xchain_next] () "new_back" then (
+      ifnot: CAS "node".[xchain_next] () "new_back" then (
         Yield ;;
         "mpsc_queue_do_push" "node" "new_back"
       )
@@ -57,20 +57,20 @@ Definition mpsc_queue_is_empty : val :=
       "mpsc_queue_do_push" "node'" "new_back"
     ).
 #[local] Definition mpsc_queue_fix_back : val :=
-  rec: "mpsc_queue_fix_back" "t" "back" "new_back" :=
-    if: "new_back".{xchain_next} = () and ~ Cas "t".[back] "back" "new_back" then (
+  rec: "mpsc_queue_fix_back" "t" "back" "new_back" =>
+    if: "new_back".{xchain_next} = () and ~ CAS "t".[back] "back" "new_back" then (
       Yield ;;
       "mpsc_queue_fix_back" "t" "t".{back} "new_back"
     ).
 Definition mpsc_queue_push : val :=
-  λ: "t" "v",
+  fun: "t" "v" =>
     let: "new_back" := { (), "v" } in
     let: "back" := "t".{back} in
     mpsc_queue_do_push "back" "new_back" ;;
     mpsc_queue_fix_back "t" "back" "new_back".
 
 Definition mpsc_queue_pop : val :=
-  λ: "t",
+  fun: "t" =>
     let: "front" := "t".{front}.{xchain_next} in
     if: "front" = () then (
       §None
@@ -529,7 +529,7 @@ Section mpsc_queue_G.
     wp_smart_apply (mpsc_queue_xchain_next_spec with "[$Hmeta $Hinv $Hhistory_elem]") as (res) "[-> | (%node' & -> & #Hhistory_elem')]"; last iSteps.
     wp_pures.
 
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hmodel₂)".
     iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
     iDestruct (xchain_model_lookup' with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
@@ -584,7 +584,7 @@ Section mpsc_queue_G.
     { wp_smart_apply (mpsc_queue_xchain_next_spec with "[$Hmeta $Hinv $Hhistory_elem_new_back]") as (res) "[-> | (%new_back' & -> & #Hhistory_elem_new_back')]"; last iSteps.
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%hist & %past & %front & %nodes & %back' & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & Hhistory_auth & Hmodel₂)".
       wp_cas as _ | -> _.
       2: iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem_new_back") as %Hnew_back%elem_of_list_lookup_2.

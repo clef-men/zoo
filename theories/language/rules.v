@@ -235,7 +235,7 @@ Section zoo_G.
     σ.(state_heap) !! l = Some v →
     val_physical v →
     val_physical v1 →
-    base_reducible (Cas #l v1 v2) σ.
+    base_reducible (CAS #l v1 v2) σ.
   Proof.
     intros.
     destruct
@@ -270,7 +270,7 @@ Section zoo_G.
           )
       )
     ) -∗
-    WP Cas #l v1 v2 @ E {{ Φ }}.
+    WP CAS #l v1 v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % >Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
@@ -322,7 +322,7 @@ Section zoo_G.
           )
       )
     ) -∗
-    WP Cas #l #lit1 v2 @ E {{ Φ }}.
+    WP CAS #l #lit1 v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % >Hl HΦ".
     iApply (wp_cas with "Hl"); [done.. |].
@@ -338,7 +338,7 @@ Section zoo_G.
     {{{
       ▷ l ↦ #lit
     }}}
-      Cas #l #lit1 v2 @ E
+      CAS #l #lit1 v2 @ E
     {{{
       RET #true;
       l ↦ v2
@@ -353,7 +353,7 @@ Section zoo_G.
     {{{
       ▷ l ↦ #i1
     }}}
-      Faa #l #i2 @ E
+      FAA #l #i2 @ E
     {{{
       RET #i1;
       l ↦ #(i1 + i2)

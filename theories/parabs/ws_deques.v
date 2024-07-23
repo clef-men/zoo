@@ -144,7 +144,7 @@ Section zoo_G.
   Context (ws_deques : ws_deques Σ).
 
   #[local] Definition ws_deques_steal_as_aux : val :=
-    rec: "ws_deques_steal_as_aux" "t" "sz" "i" "round" "n" :=
+    rec: "ws_deques_steal_as_aux" "t" "sz" "i" "round" "n" =>
       if: "n" ≤ #0 then (
         §None
       ) else (
@@ -157,7 +157,7 @@ Section zoo_G.
         end
       ).
   Definition ws_deques_steal_as : val :=
-    λ: "t" "i" "round",
+    fun: "t" "i" "round" =>
       let: "sz" := ws_deques.(ws_deques_size) "t" in
       ws_deques_steal_as_aux "t" "sz" "i" "round" ("sz" - #1).
 

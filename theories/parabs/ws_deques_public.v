@@ -20,22 +20,22 @@ Implicit Types vs deques : list val.
 Implicit Types vss : list (list val).
 
 Definition ws_deques_public_create : val :=
-  λ: "sz",
-    array_init "sz" (λ: <>, inf_ws_deque_create ()).
+  fun: "sz" =>
+    array_init "sz" (fun: <> => inf_ws_deque_create ()).
 
 Definition ws_deques_public_size : val :=
   array_size.
 
 Definition ws_deques_public_push : val :=
-  λ: "t" "i" "v",
+  fun: "t" "i" "v" =>
     inf_ws_deque_push (array_unsafe_get "t" "i") "v".
 
 Definition ws_deques_public_pop : val :=
-  λ: "t" "i",
+  fun: "t" "i" =>
     inf_ws_deque_pop (array_unsafe_get "t" "i").
 
 Definition ws_deques_public_steal_to : val :=
-  λ: "t" "i" "j",
+  fun: "t" "i" "j" =>
     inf_ws_deque_steal (array_unsafe_get "t" "j").
 
 Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} := {

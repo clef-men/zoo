@@ -15,22 +15,22 @@ Implicit Types l : location.
 Implicit Types t fn : val.
 
 Definition mutex_create : val :=
-  λ: <>,
+  fun: <> =>
     ref #false.
 
 Definition mutex_lock : val :=
-  rec: "mutex_lock" "t" :=
-    ifnot: Cas "t" #false #true then (
+  rec: "mutex_lock" "t" =>
+    ifnot: CAS "t" #false #true then (
       Yield ;;
       "mutex_lock" "t"
     ).
 
 Definition mutex_unlock : val :=
-  λ: "t",
+  fun: "t" =>
     "t" <- #false.
 
 Definition mutex_protect : val :=
-  λ: "t" "fn",
+  fun: "t" "fn" =>
     mutex_lock "t" ;;
     let: "res" := "fn" () in
     mutex_unlock "t" ;;
@@ -147,7 +147,7 @@ Section mutex_G.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
     iLöb as "HLöb".
     wp_rec.
-    wp_bind (Cas _ _ _).
+    wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b.
     - wp_cas as _ | [=] _.

@@ -78,29 +78,29 @@ Proof.
 Qed.
 
 Definition rcfd_make : val :=
-  λ: "fd",
+  fun: "fd" =>
     { #0, Reveal ‘Open{ "fd" } }.
 
 #[local] Definition rcfd_closed : val :=
-  ’Closing{ λ: <>, () }.
+  ’Closing{ fun: <> => () }.
 
 #[local] Definition rcfd_put : val :=
-  λ: "t",
-    let: "old" := Faa "t".[ops] #-1 in
+  fun: "t" =>
+    let: "old" := FAA "t".[ops] #-1 in
     if: "old" = #1 then (
       match: "t".{fd} with
       | Open <> =>
           ()
       | Closing "no_users" as "prev" =>
           ifnot: #0 < "t".{ops} then
-            if: Cas "t".[fd] "prev" rcfd_closed then
+            if: CAS "t".[fd] "prev" rcfd_closed then
               "no_users" ()
       end
     ).
 
 #[local] Definition rcfd_get : val :=
-  λ: "t",
-    Faa "t".[ops] #1 ;;
+  fun: "t" =>
+    FAA "t".[ops] #1 ;;
     match: "t".{fd} with
     | Open "fd" =>
         ‘Some{ "fd" }
@@ -110,15 +110,15 @@ Definition rcfd_make : val :=
     end.
 
 Definition rcfd_close : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{fd} with
     | Open "fd" as "prev" =>
         let: "close" <> :=
           unix_close "fd"
         in
         let: "next" := ‘Closing{ "close" } in
-        if: Cas "t".[fd] "prev" "next" then (
-          if: "t".{ops} = #0 and Cas "t".[fd] "next" rcfd_closed then (
+        if: CAS "t".[fd] "prev" "next" then (
+          if: "t".{ops} = #0 and CAS "t".[fd] "next" rcfd_closed then (
             "close" ()
           ) else (
             ()
@@ -132,13 +132,13 @@ Definition rcfd_close : val :=
     end.
 
 Definition rcfd_remove : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{fd} with
     | Open "fd" as "prev" =>
         let: "flag" := ref #false in
         let: "chan" := spsc_waiter_create () in
-        let: "next" := ‘Closing{ λ: <>, spsc_waiter_notify "chan" } in
-        if: Cas "t".[fd] "prev" "next" then (
+        let: "next" := ‘Closing{ fun: <> => spsc_waiter_notify "chan" } in
+        if: CAS "t".[fd] "prev" "next" then (
           spsc_waiter_wait "chan" ;;
           ‘Some{ "fd" }
         ) else (
@@ -149,7 +149,7 @@ Definition rcfd_remove : val :=
     end.
 
 Definition rcfd_use : val :=
-  λ: "t" "closed" "open",
+  fun: "t" "closed" "open" =>
     match: rcfd_get "t" with
     | None =>
         "closed" ()
@@ -160,7 +160,7 @@ Definition rcfd_use : val :=
     end.
 
 Definition rcfd_is_open : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{fd} with
     | Open <> =>
         #true
@@ -169,7 +169,7 @@ Definition rcfd_is_open : val :=
     end.
 
 Definition rcfd_peek : val :=
-  λ: "t",
+  fun: "t" =>
     match: "t".{fd} with
     | Open "fd" =>
         ‘Some{ "fd" }
@@ -458,7 +458,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Faa _ _).
+    wp_bind (FAA _ _).
     iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
     wp_faa.
     iSplitR "HΦ".
@@ -547,7 +547,7 @@ Section rcfd_G.
 
         wp_pures. case_bool_decide as Hops3; wp_pures; first iSteps.
 
-        wp_bind (Cas _ _ _).
+        wp_bind (CAS _ _ _).
         iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & Hops & Hfd & Hlstate_auth & Hlstate4)".
         wp_cas as Hcas | Hcas _; first iSteps.
         destruct state4; first naive_solver. destruct Hcas as (_ & [= <-]).
@@ -595,7 +595,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Faa _ _).
+    wp_bind (FAA _ _).
     iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
     wp_faa.
     iAssert (|==>
@@ -687,7 +687,7 @@ Section rcfd_G.
 
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
       wp_cas as Hcas | Hcas Hconsistency.
 
@@ -737,7 +737,7 @@ Section rcfd_G.
 
         wp_pures.
 
-        wp_bind (Cas _ _ _).
+        wp_bind (CAS _ _ _).
         iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & Hops & Hfd & Hlstate_auth & Hlstate4)".
         wp_cas as Hcas | Hcas _; first iSteps.
 
@@ -836,7 +836,7 @@ Section rcfd_G.
       wp_smart_apply (spsc_waiter_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
       wp_pures.
 
-      wp_bind (Cas _ _ _).
+      wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
       wp_cas as Hcas | Hcas Hconsistency.
 

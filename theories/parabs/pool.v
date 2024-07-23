@@ -48,11 +48,11 @@ Section ws_deques.
     (#pool_max_round_noyield, #pool_max_round_yield).
 
   #[local] Definition pool_execute : val :=
-    λ: "ctx" "task",
+    fun: "ctx" "task" =>
       "task" "ctx".
 
   #[local] Definition pool_worker : val :=
-    rec: "pool_worker" "ctx" :=
+    rec: "pool_worker" "ctx" =>
       match: ws_hub_pop_steal ws_hub "ctx".<context_hub> "ctx".<context_id> pool_max_round with
       | None =>
           ()
@@ -62,32 +62,32 @@ Section ws_deques.
       end.
 
   Definition pool_create : val :=
-    λ: "sz",
+    fun: "sz" =>
       let: "hub" := ws_hub.(ws_hub_create) (#1 + "sz") in
-      let: "doms" := array_initi "sz" (λ: "i",
-        domain_spawn (λ: <>, pool_worker ("hub", #1 + "i"))
+      let: "doms" := array_initi "sz" (fun: "i" =>
+        domain_spawn (fun: <> => pool_worker ("hub", #1 + "i"))
       ) in
       ("hub", "doms").
 
   #[using="ws_hub"]
   Definition pool_run : val :=
-    λ: "t" "task",
+    fun: "t" "task" =>
       pool_execute ("t".<hub>, #0) "task".
 
   Definition pool_silent_async : val :=
-    λ: "ctx" "task",
+    fun: "ctx" "task" =>
       ws_hub.(ws_hub_push) "ctx".<context_hub> "ctx".<context_id> "task".
 
   Definition pool_async : val :=
-    λ: "ctx" "task",
+    fun: "ctx" "task" =>
       let: "fut" := spmc_future_create () in
-      pool_silent_async "ctx" (λ: "ctx",
+      pool_silent_async "ctx" (fun: "ctx" =>
         spmc_future_set "fut" ("task" "ctx")
       ) ;;
       "fut".
 
   Definition pool_wait_until : val :=
-    rec: "pool_wait_until" "ctx" "pred" :=
+    rec: "pool_wait_until" "ctx" "pred" =>
       ifnot: "pred" () then
         match: ws_hub_pop_steal_until ws_hub "ctx".<context_hub> "ctx".<context_id> #pool_max_round_noyield "pred" with
         | None =>
@@ -98,16 +98,16 @@ Section ws_deques.
         end.
 
   Definition pool_wait_while : val :=
-    λ: "ctx" "pred",
-      pool_wait_until "ctx" (λ: <>, ~ "pred" ()).
+    fun: "ctx" "pred" =>
+      pool_wait_until "ctx" (fun: <> => ~ "pred" ()).
 
   Definition pool_await : val :=
-    λ: "ctx" "fut",
-      pool_wait_until "ctx" (λ: <>, spmc_future_is_set "fut") ;;
+    fun: "ctx" "fut" =>
+      pool_wait_until "ctx" (fun: <> => spmc_future_is_set "fut") ;;
       spmc_future_get "fut".
 
   Definition pool_kill : val :=
-    λ: "t",
+    fun: "t" =>
       ws_hub.(ws_hub_kill) "t".<hub> ;;
       array_iter "t".<domains> domain_join.
 End ws_deques.

@@ -318,13 +318,13 @@ Fixpoint subst (x : string) v e :=
       Xchg
         (subst x v e1)
         (subst x v e2)
-  | Cas e0 e1 e2 =>
-      Cas
+  | CAS e0 e1 e2 =>
+      CAS
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)
-  | Faa e1 e2 =>
-      Faa
+  | FAA e1 e2 =>
+      FAA
         (subst x v e1)
         (subst x v e2)
   | Fork e =>
@@ -645,7 +645,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       val_physical v1 →
       val_neq v v1 →
       base_step
-        (Cas (Val $ ValLoc l) (Val v1) (Val v2))
+        (CAS (Val $ ValLoc l) (Val v1) (Val v2))
         σ
         []
         (Val $ ValBool false)
@@ -657,7 +657,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       val_physical v →
       val_eq v v1 →
       base_step
-        (Cas (Val $ ValLoc l) (Val v1) (Val v2))
+        (CAS (Val $ ValLoc l) (Val v1) (Val v2))
         σ
         []
         (Val $ ValBool true)
@@ -667,7 +667,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_faa l n m σ :
       σ.(state_heap) !! l = Some $ ValInt m →
       base_step
-        (Faa (Val $ ValLoc l) (Val $ ValInt n))
+        (FAA (Val $ ValLoc l) (Val $ ValInt n))
         σ
         []
         (Val $ ValInt m)
@@ -800,11 +800,11 @@ Inductive ectxi :=
   | CtxStore2 e1
   | CtxXchg1 v2
   | CtxXchg2 e1
-  | CtxCas0 v1 v2
-  | CtxCas1 e0 v2
-  | CtxCas2 e0 e1
-  | CtxFaa1 v2
-  | CtxFaa2 e1
+  | CtxCAS0 v1 v2
+  | CtxCAS1 e0 v2
+  | CtxCAS2 e0 e1
+  | CtxFAA1 v2
+  | CtxFAA2 e1
   | CtxResolve0 (k : ectxi) v1 v2
   | CtxResolve1 e0 v2
   | CtxResolve2 e0 e1.
@@ -866,16 +866,16 @@ Fixpoint ectxi_fill k e : expr :=
       Xchg e $ Val v2
   | CtxXchg2 e1 =>
       Xchg e1 e
-  | CtxCas0 v1 v2 =>
-      Cas e (Val v1) (Val v2)
-  | CtxCas1 e0 v2 =>
-      Cas e0 e $ Val v2
-  | CtxCas2 e0 e1 =>
-      Cas e0 e1 e
-  | CtxFaa1 v2 =>
-      Faa e $ Val v2
-  | CtxFaa2 e1 =>
-      Faa e1 e
+  | CtxCAS0 v1 v2 =>
+      CAS e (Val v1) (Val v2)
+  | CtxCAS1 e0 v2 =>
+      CAS e0 e $ Val v2
+  | CtxCAS2 e0 e1 =>
+      CAS e0 e1 e
+  | CtxFAA1 v2 =>
+      FAA e $ Val v2
+  | CtxFAA2 e1 =>
+      FAA e1 e
   | CtxResolve0 k v1 v2 =>
       Resolve (ectxi_fill k e) (Val v1) (Val v2)
   | CtxResolve1 e0 v2 =>

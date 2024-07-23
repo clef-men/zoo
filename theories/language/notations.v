@@ -31,62 +31,62 @@ Notation "'#@{' X }" := (
 )(only parsing
 ).
 
-Notation "'rec:' f x := e" := (
+Notation "'rec:' f x => e" := (
   Rec f%binder x%binder e%E
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x  :=  '/  ' '[' e ']' ']'"
+  format "'[hv' 'rec:'  f  x  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'rec:' f x := e" := (
+Notation "'rec:' f x => e" := (
   ValRec f%binder x%binder e%E
 )(at level 200,
   f, x at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x  :=  '/  ' '[' e ']' ']'"
+  format "'[hv' 'rec:'  f  x  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
-Notation "'rec:' f x0 x1 .. xn := e" := (
+Notation "'rec:' f x0 x1 .. xn => e" := (
   Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' '[' e ']' ']'"
+  format "'[hv' 'rec:'  f  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "'rec:' f x0 x1 .. xn := e" := (
+Notation "'rec:' f x0 x1 .. xn => e" := (
   ValRec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'rec:'  f  x0  x1  ..  xn  :=  '/  ' '[' e ']' ']'"
+  format "'[hv' 'rec:'  f  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
-Notation "λ: x , e" := (
+Notation "'fun:' x => e" := (
   Lam x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[hv' 'λ:'  x ,  '/  ' '[' e ']' ']'"
+  format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "λ: x0 x1 .. xn , e" := (
+Notation "'fun:' x0 x1 .. xn => e" := (
   Lam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'λ:'  x0  x1  ..  xn ,  '/  ' '[' e ']' ']'"
+  format "'[hv' 'fun:'  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
-Notation "λ: x , e" := (
+Notation "'fun:' x => e" := (
   ValLam x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
-  format "'[hv' 'λ:'  x ,  '/  ' '[' e ']' ']'"
+  format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
-Notation "λ: x0 x1 .. xn , e" := (
+Notation "'fun:' x0 x1 .. xn => e" := (
   ValLam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) .. )
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
-  format "'[hv' 'λ:'  x0  x1  ..  xn ,  '/  ' '[' e ']' ']'"
+  format "'[hv' 'fun:'  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
 
 Notation "'letrec:' f x := e1 'in' e2" := (
