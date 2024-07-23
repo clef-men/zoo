@@ -470,17 +470,17 @@ Notation Fail := (
   App Unit Unit
 ).
 
-Notation Lam x e := (
+Notation Fun x e := (
   Rec BAnon x e
 )(only parsing
 ).
-Notation ValLam x e := (
+Notation ValFun x e := (
   ValRec BAnon x e
 )(only parsing
 ).
 
 Notation Let x e1 e2 := (
-  App (Lam x e2) e1
+  App (Fun x e2) e1
 )(only parsing
 ).
 

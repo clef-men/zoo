@@ -811,7 +811,7 @@ Inductive ectxi :=
 Implicit Types k : ectxi.
 
 Notation CtxLet x e2 := (
-  CtxApp2 (ValLam x e2)
+  CtxApp2 (ValFun x e2)
 )(only parsing
 ).
 

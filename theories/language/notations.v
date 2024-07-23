@@ -46,14 +46,14 @@ Notation "'rec:' f x => e" := (
   format "'[hv' 'rec:'  f  x  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
 Notation "'rec:' f x0 x1 .. xn => e" := (
-  Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
+  Rec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
   format "'[hv' 'rec:'  f  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "'rec:' f x0 x1 .. xn => e" := (
-  ValRec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
+  ValRec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   f, x0, x1, xn at level 1,
   e at level 200,
@@ -61,28 +61,28 @@ Notation "'rec:' f x0 x1 .. xn => e" := (
 ) : val_scope.
 
 Notation "'fun:' x => e" := (
-  Lam x%binder e%E
+  Fun x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
   format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "'fun:' x0 x1 .. xn => e" := (
-  Lam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) ..)
+  Fun x0%binder (Fun x1%binder .. (Fun xn%binder e%E) ..)
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
   format "'[hv' 'fun:'  x0  x1  ..  xn  =>  '/  ' '[' e ']' ']'"
 ) : expr_scope.
 Notation "'fun:' x => e" := (
-  ValLam x%binder e%E
+  ValFun x%binder e%E
 )(at level 200,
   x at level 1,
   e at level 200,
   format "'[hv' 'fun:'  x  =>  '/  ' '[' e ']' ']'"
 ) : val_scope.
 Notation "'fun:' x0 x1 .. xn => e" := (
-  ValLam x0%binder (Lam x1%binder .. (Lam xn%binder e%E) .. )
+  ValFun x0%binder (Fun x1%binder .. (Fun xn%binder e%E) .. )
 )(at level 200,
   x0, x1, xn at level 1,
   e at level 200,
@@ -90,14 +90,14 @@ Notation "'fun:' x0 x1 .. xn => e" := (
 ) : val_scope.
 
 Notation "'letrec:' f x := e1 'in' e2" := (
-  App (Lam f%binder e2%E) (Rec f%binder x%binder e1%E)
+  App (Fun f%binder e2%E) (Rec f%binder x%binder e1%E)
 )(at level 200,
   f, x at level 1,
   e1, e2 at level 200,
   format "'[v' '[hv' 'letrec:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'letrec:' f x0 x1 .. xn := e1 'in' e2" := (
-  App (Lam f%binder e2%E) (Rec f%binder x0%binder (Lam x1%binder .. (Lam xn%binder e1%E) ..))
+  App (Fun f%binder e2%E) (Rec f%binder x0%binder (Fun x1%binder .. (Fun xn%binder e1%E) ..))
 )(at level 200,
   f, x0, x1, xn at level 1,
   e1, e2 at level 200,
@@ -105,21 +105,21 @@ Notation "'letrec:' f x0 x1 .. xn := e1 'in' e2" := (
 ) : expr_scope.
 
 Notation "'let:' x := e1 'in' e2" := (
-  App (Lam x%binder e2%E) e1%E
+  App (Fun x%binder e2%E) e1%E
 )(at level 200,
   x at level 1,
   e1, e2 at level 200,
   format "'[v' '[hv' 'let:'  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' f x := e1 'in' e2" := (
-  App (Lam f%binder e2%E) (Lam x%binder e1%E)
+  App (Fun f%binder e2%E) (Fun x%binder e1%E)
 )(at level 200,
   f, x at level 1,
   e1, e2 at level 200,
   format "'[v' '[hv' 'let:'  f  x  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 Notation "'let:' f x0 x1 .. xn := e1 'in' e2" := (
-  App (Lam f%binder e2%E) (Lam x0%binder (Lam x1%binder .. (Lam xn%binder e1%E) ..))
+  App (Fun f%binder e2%E) (Fun x0%binder (Fun x1%binder .. (Fun xn%binder e1%E) ..))
 )(at level 200,
   f, x0, x1, xn at level 1,
   e1, e2 at level 200,
@@ -127,7 +127,7 @@ Notation "'let:' f x0 x1 .. xn := e1 'in' e2" := (
 ) : expr_scope.
 
 Notation "e1 ;; e2" := (
-  App (Lam BAnon e2%E) e1%E
+  App (Fun BAnon e2%E) e1%E
 )(at level 100,
   e2 at level 200,
   format "'[v' '[' e1 ']'  ;;  '/' e2 ']'"
@@ -547,7 +547,7 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
 ) : expr_scope.
 
 Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
-  For e1%E e2%E (Lam x%binder e3%E)
+  For e1%E e2%E (Fun x%binder e3%E)
 )(x at level 1,
   e1, e2, e3 at level 200,
   format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
