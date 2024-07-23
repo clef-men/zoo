@@ -888,13 +888,13 @@ Fixpoint ectxi_fill k e : expr :=
 #[global] Instance ectxi_fill_inj k :
   Inj (=) (=) (ectxi_fill k).
 Proof.
-  induction k; intros ? ? ?; simplify; auto with f_equal.
+  induction k; intros ?*; naive_solver.
 Qed.
 Lemma ectxi_fill_val k e :
   is_Some (to_val (ectxi_fill k e)) →
   is_Some (to_val e).
 Proof.
-  intros (v & ?). induction k; simplify_option_eq; eauto.
+  intros (v & ?). destruct k; done.
 Qed.
 Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   to_val e1 = None →
@@ -903,7 +903,7 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
   k1 = k2.
 Proof.
   move: k1.
-  induction k2; intros k1; induction k1; try naive_solver eauto with f_equal.
+  induction k2; intros k1; destruct k1; try naive_solver.
   all: move=> /= H1 H2 H; injection H => {H} H' *; subst.
   all: apply app_inj_1 in H'; first naive_solver.
   all: clear- H1 H2 H'.
@@ -917,7 +917,7 @@ Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es ϕ :
   is_Some (to_val e).
 Proof.
   move: κ e2 ϕ.
-  induction k; try by (inversion_clear 1; simplify_option_eq; eauto).
+  induction k; try (inversion_clear 1; eauto || done).
   all: inversion_clear 1.
   all:
     match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>
