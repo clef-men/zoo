@@ -130,7 +130,7 @@ Notation "e1 ;; e2" := (
   App (Lam BAnon e2%E) e1%E
 )(at level 100,
   e2 at level 200,
-  format "'[v' '[hv' '[' e1 ']'  ;;  ']' '/' e2 ']'"
+  format "'[v' '[' e1 ']'  ;;  '/' e2 ']'"
 ) : expr_scope.
 
 Notation "~ e" := (
