@@ -1,0 +1,16 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  if__types.
+From zoo Require Import
+  options.
+
+Definition if_test : val :=
+  fun: "b" =>
+    if: "b" then (
+      #0
+    ) else (
+      #1
+    ).

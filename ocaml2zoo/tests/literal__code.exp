@@ -1,0 +1,15 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  literal__types.
+From zoo Require Import
+  options.
+
+Definition literal_test : val :=
+  fun: <> =>
+    #0 ;;
+    #true ;;
+    #false ;;
+    ().

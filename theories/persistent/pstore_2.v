@@ -18,6 +18,11 @@ From zoo.language Require Import
 From zoo.std Require Import
   assert
   lst.
+From zoo.persistent Require Export
+  base
+  pstore_2__code.
+From zoo.persistent Require Import
+  pstore_2__types.
 From zoo Require Import
   options.
 
@@ -25,124 +30,6 @@ Implicit Types l r node cnode base root dst : location.
 Implicit Types nodes : list location.
 Implicit Types v t s : val.
 Implicit Types σ : gmap location val.
-
-#[local] Notation "'gen'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'root'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-
-#[local] Notation "'ref_gen'" := (
-  in_type "ref" 0
-)(in custom zoo_field
-).
-#[local] Notation "'ref_value'" := (
-  in_type "ref" 1
-)(in custom zoo_field
-).
-
-#[local] Notation "'snap_store'" := (
-  in_type "snap" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'snap_gen'" := (
-  in_type "snap" 1
-)(in custom zoo_proj
-).
-#[local] Notation "'snap_root'" := (
-  in_type "snap" 2
-)(in custom zoo_proj
-).
-
-#[local] Notation "'Root'" := (
-  in_type "descr" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'Diff'" := (
-  in_type "descr" 1
-)(in custom zoo_tag
-).
-
-Definition pstore_create : val :=
-  fun: <> =>
-    { #0, ref §Root }.
-
-Definition pstore_ref : val :=
-  fun: "t" "v" =>
-    { #0, "v" }.
-
-Definition pstore_get : val :=
-  fun: "t" "r" =>
-    "r".{ref_value}.
-
-Definition pstore_set : val :=
-  fun: "t" "r" "v" =>
-    let: "g_t" := "t".{gen} in
-    let: "g_r" := "r".{ref_gen} in
-    if: "g_t" = "g_r" then (
-      "r" <-{ref_value} "v"
-    ) else (
-      let: "root" := ref §Root in
-      "t".{root} <- ‘Diff{ "r", "g_r", "r".{ref_value}, "root" } ;;
-      "r" <-{ref_gen} "g_t" ;;
-      "r" <-{ref_value} "v" ;;
-      "t" <-{root} "root"
-    ).
-
-Definition pstore_capture : val :=
-  fun: "t" =>
-    let: "g" := "t".{gen} in
-    "t" <-{gen} #1 + "g" ;;
-    ("t", "g", "t".{root}).
-
-#[local] Definition pstore_collect : val :=
-  rec: "pstore_collect" "node" "acc" =>
-    match: !"node" with
-    | Root =>
-        ("node", "acc")
-    | Diff <> <> <> "node'" =>
-        "pstore_collect" "node'" ‘Cons{ "node", "acc" }
-    end.
-#[local] Definition pstore_revert : val :=
-  rec: "pstore_revert" "node" "path" =>
-    match: "path" with
-    | Nil =>
-        "node" <- §Root
-    | Cons "node'" "path" =>
-        match: !"node'" with
-        | Root =>
-            Fail
-        | Diff "r" "g" "v" "node_" =>
-            assert ("node_" = "node") ;;
-            "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
-            "r" <-{ref_gen} "g" ;;
-            "r" <-{ref_value} "v" ;;
-            "pstore_revert" "node'" "path"
-        end
-    end.
-#[local] Definition pstore_reroot : val :=
-  fun: "node" =>
-    let: "root", "path" := pstore_collect "node" §Nil in
-    pstore_revert "root" "path".
-
-Definition pstore_restore : val :=
-  fun: "t" "s" =>
-    if: "t" ≠ "s".<snap_store> then (
-      Fail
-    ) else (
-      let: "root" := "s".<snap_root> in
-      match: !"root" with
-      | Root =>
-          ()
-      | Diff <> <> <> <> =>
-          pstore_reroot "root" ;;
-          "t" <-{gen} #1 + "s".<snap_gen> ;;
-          "t" <-{root} "root"
-      end
-    ).
 
 Module raw.
   #[local] Definition generation :=

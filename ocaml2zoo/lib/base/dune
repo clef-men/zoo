@@ -1,0 +1,4 @@
+(library
+  (name ocaml2zoo__base)
+  (public_name ocaml2zoo.base)
+)

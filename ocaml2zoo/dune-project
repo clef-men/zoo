@@ -1,0 +1,21 @@
+(lang dune 3.0)
+
+(name ocaml2zoo)
+
+(generate_opam_files)
+
+(authors
+  "Clément Allain"
+)
+(maintainers
+  "clement.allain@inria.fr"
+)
+
+(package
+  (name ocaml2zoo)
+  (synopsis "OCaml to Zoo")
+  (depends
+    ocaml
+    (ocaml-compiler-libs (= 4.14.1))
+  )
+)

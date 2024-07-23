@@ -1,0 +1,26 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  unboxed__types.
+From zoo Require Import
+  options.
+
+Definition unboxed_test1 : val :=
+  fun: "x" =>
+    "x".
+
+Definition unboxed_test2 : val :=
+  fun: "x" =>
+    match: "x" with
+    |_ as "x" =>
+        "x"
+    end.
+
+Definition unboxed_test3 : val :=
+  fun: "x" =>
+    match: "x" with
+    |_ as "x" =>
+        "x"
+    end.

@@ -1,0 +1,15 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo Require Import
+  options.
+
+Notation "'Leaf'" := (
+  in_type "t" 0
+)(in custom zoo_tag
+).
+Notation "'Node'" := (
+  in_type "t" 1
+)(in custom zoo_tag
+).

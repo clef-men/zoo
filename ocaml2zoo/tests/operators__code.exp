@@ -1,0 +1,26 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  operators__types.
+From zoo Require Import
+  options.
+
+Definition operators_test : val :=
+  fun: "i" =>
+    ~ #true ;;
+    - "i" ;;
+    "i" + "i" ;;
+    "i" - "i" ;;
+    "i" * "i" ;;
+    "i" `quot` "i" ;;
+    "i" `rem` "i" ;;
+    "i" = "i" ;;
+    "i" ≠ "i" ;;
+    "i" ≤ "i" ;;
+    "i" < "i" ;;
+    "i" ≥ "i" ;;
+    "i" > "i" ;;
+    #2 * "i" + ("i" + #1) < "i" ;;
+    ().

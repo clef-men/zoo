@@ -1,0 +1,22 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.std Require Import
+  assert.
+From zoo.tests Require Import
+  assert__types.
+From zoo Require Import
+  options.
+
+Definition assert_test1 : val :=
+  fun: <> =>
+    assert (#1 + #1 = #2).
+
+Definition assert_test2 : val :=
+  fun: "b" =>
+    if: "b" then (
+      Fail
+    ) else (
+      ()
+    ).

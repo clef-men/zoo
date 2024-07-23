@@ -119,6 +119,8 @@ theories/persistent/pstack.v
 theories/persistent/pqueue.v
 theories/persistent/parray.v
 theories/persistent/pstore_1.v
+theories/persistent/pstore_2__types.v
+theories/persistent/pstore_2__code.v
 theories/persistent/pstore_2.v
 
 theories/saturn/base.v

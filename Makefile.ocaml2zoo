@@ -1,0 +1,31 @@
+source_dir := theories
+sources_mli := $(wildcard $(source_dir)/*/*.mli)
+sources := $(patsubst %.mli,%,$(sources_mli))
+sources_ml := $(addsuffix .ml,$(sources))
+sources_cmt := $(addsuffix .cmt,$(sources))
+
+include_dirs := $(dir $(wildcard $(source_dir)/*/.))
+
+ocamldep := ocamldep -native $(addprefix -I ,$(include_dirs))
+ocamlopt := ocamlopt $(addprefix -I ,$(include_dirs))
+
+.PHONY : all
+all : $(sources_cmt)
+	@ $(MAKE) -C ocaml2zoo
+	@ for cmt in $(sources_cmt) ; do ./ocaml2zoo/bin/ocaml2zoo.exe $$cmt ; done ; \
+	  for src in $(sources) ; do rm -f $$src.cm[it] ; done
+
+%.cmi : %.mli
+	@ opam exec -- $(ocamlopt) $<
+%.cmt : %.ml
+	@ opam exec -- $(ocamlopt) -stop-after typing -bin-annot $<
+
+Makefile.ocaml2zoo.depend : $(sources_mli) $(sources_ml)
+	@ opam exec -- $(ocamldep) $(sources_mli) $(sources_ml) > $@
+	@ perl -i -pe's:.cmx:.cmt:g' $@
+
+-include Makefile.ocaml2zoo.depend
+
+.PHONY : clean
+clean :
+	@ $(MAKE) -C ocaml2zoo $@

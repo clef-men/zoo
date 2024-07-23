@@ -1,0 +1,14 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  variant_1__types.
+From zoo Require Import
+  options.
+
+Definition variant_1_test : val :=
+  fun: <> =>
+    §A ;;
+    ‘B{ #0 } ;;
+    ().

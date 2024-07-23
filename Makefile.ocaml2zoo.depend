@@ -1,0 +1,3 @@
+theories/persistent/pstore_2.cmt : \
+    theories/persistent/pstore_2.cmi
+theories/persistent/pstore_2.cmi :

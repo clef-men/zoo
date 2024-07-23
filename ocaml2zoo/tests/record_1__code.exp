@@ -1,0 +1,14 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  record_1__types.
+From zoo Require Import
+  options.
+
+Definition record_1_test : val :=
+  fun: <> =>
+    let: "t1" := { #0, #1 } in
+    "t1".{f1} ;;
+    "t1" <-{f1} #0.

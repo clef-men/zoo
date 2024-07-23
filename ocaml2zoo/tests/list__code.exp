@@ -1,0 +1,28 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.std Require Import
+  lst.
+From zoo.tests Require Import
+  list__types.
+From zoo Require Import
+  options.
+
+Definition list_test1 : val :=
+  fun: <> =>
+    §Nil ;;
+    ‘Cons{ #0, §Nil } ;;
+    ‘Cons{ #1, §Nil } ;;
+    ().
+
+Definition list_test2 : val :=
+  fun: "xs" =>
+    match: "xs" with
+    | Nil =>
+        ()
+    | Cons "x" "xs" =>
+        "x" ;;
+        "xs" ;;
+        ()
+    end.

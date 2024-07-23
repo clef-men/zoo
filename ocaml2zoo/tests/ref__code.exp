@@ -1,0 +1,14 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  ref__types.
+From zoo Require Import
+  options.
+
+Definition ref_test : val :=
+  fun: <> =>
+    let: "r" := ref #0 in
+    !"r" ;;
+    "r" <- #1.

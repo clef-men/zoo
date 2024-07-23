@@ -1,0 +1,8 @@
+(library
+  (name zoo)
+  (libraries
+    ocaml-compiler-libs.common
+    ocaml2zoo.base
+  )
+  (flags (:standard -open Ocaml2zoo__base))
+)

@@ -1,0 +1,8 @@
+_build/
+
+zoo.cmti
+
+*.exe
+
+tests/*.cmt
+tests/*.v
