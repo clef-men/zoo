@@ -18,7 +18,6 @@ module Error = struct
     | Handler_exception
     | Expr_let_rec_non_function
     | Expr_let_mutual
-    | Expr_function
     | Expr_record_update
     | Expr_for_downward
     | Expr_array
@@ -89,8 +88,6 @@ module Error = struct
         "recursive binding must bind a function"
     | Expr_let_mutual ->
         "mutually recursive let-bindings"
-    | Expr_function ->
-        {|"function" expression|}
     | Expr_record_update ->
         "record update"
     | Expr_for_downward ->
@@ -435,8 +432,13 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr = expression ctx expr in
       restore_locals () ;
       Fun (bdrs, expr)
-  | Texp_function (_, Tfunction_cases _) ->
-      unsupported expr.exp_loc Expr_function
+  | Texp_function (_, Tfunction_cases { cases= brs; param= ident; _ }) ->
+      let restore_locals = Context.save_locals ctx in
+      Context.add_local ctx ident ;
+      let brs, fb = branches ctx brs in
+      restore_locals () ;
+      let local = Ident.name ident in
+      Fun ([Some local], Match (Local local, brs, fb))
   | Texp_apply (expr', exprs) ->
       let exprs =
         List.map (fun (lbl, expr') ->
@@ -522,78 +524,10 @@ let rec expression ctx (expr : Typedtree.expression) =
             let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
             Constr (tag, exprs)
         end
-  | Texp_match (expr', brs, _) ->
-      let expr' = expression ctx expr' in
-      let brs, fb =
-        let rec aux1 acc = function
-          | [] ->
-              acc, None
-          | br :: brs ->
-              Option.iter (fun expr -> unsupported expr.Typedtree.exp_loc Pattern_guard) br.Typedtree.c_guard ;
-              let restore_locals = Context.save_locals ctx in
-              let pat = br.c_lhs in
-              let pat =
-                match pat.pat_desc with
-                | Tpat_value pat ->
-                    (pat :> Typedtree.(value general_pattern))
-                | Tpat_exception _ ->
-                    unsupported pat.pat_loc Handler_exception
-                | Tpat_or _ ->
-                    unsupported pat.pat_loc Pattern_or
-              in
-              let pat, bdr =
-                match pat.pat_desc with
-                | Tpat_alias (pat, local, _, _) ->
-                    Context.add_local ctx local ;
-                    pat, Some (Ident.name local)
-                | _ ->
-                    pat, None
-              in
-              let rec aux2 (pat : Typedtree.pattern) bdr =
-                match pat.pat_desc with
-                | Tpat_any ->
-                    let expr = expression ctx br.c_rhs in
-                    restore_locals () ;
-                    acc, Some { fallback_as= bdr; fallback_expr= expr }
-                | Tpat_var (ident, _, _) ->
-                    Context.add_local ctx ident ;
-                    let expr = expression ctx br.c_rhs in
-                    restore_locals () ;
-                    let local = Ident.name ident in
-                    begin match bdr with
-                    | None ->
-                        acc, Some { fallback_as= Some local; fallback_expr= expr }
-                    | Some local' ->
-                        acc, Some { fallback_as= bdr; fallback_expr= Let (Pat_var local, Local local', expr) }
-                    end
-                | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
-                    let[@warning "-8"] [pat] = pats in
-                    aux2 pat bdr
-                | Tpat_construct (lident, _, pats, _) ->
-                    let bdrs = List.map (pattern_to_binder ~error:Pattern_invalid ctx) pats in
-                    let tag, bdrs =
-                      match Longident.Map.find_opt lident.txt builtin_constrs with
-                      | Some (tag, dep) ->
-                          Option.iter (Context.add_dependency ctx) dep ;
-                          let tag = Either.get_right (fun _ -> unsupported lident.loc Pattern_constr) tag in
-                          tag, bdrs
-                      | None ->
-                          let tag = Longident.last lident.txt in
-                          let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
-                          tag, bdrs
-                    in
-                    let expr = expression ctx br.c_rhs in
-                    restore_locals () ;
-                    aux1 ({ branch_tag= tag; branch_binders= bdrs; branch_as= bdr; branch_expr= expr } :: acc) brs
-                | _ ->
-                    unsupported pat.pat_loc Pattern_invalid
-              in
-              aux2 pat bdr
-        in
-        aux1 [] brs
-      in
-      let brs = List.rev brs in
-      Match (expr', brs, fb)
+  | Texp_match (expr, brs, _) ->
+      let expr = expression ctx expr in
+      let brs, fb = branches ctx brs in
+      Match (expr, brs, fb)
   | Texp_field (expr, _, lbl) ->
       let expr = expression ctx expr in
       let fld = lbl.lbl_name in
@@ -651,6 +585,94 @@ let rec expression ctx (expr : Typedtree.expression) =
       unsupported expr.exp_loc Expr_extension
   | Texp_open _ ->
       unsupported expr.exp_loc Expr_open
+and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallback option = fun ctx brs ->
+  let rec aux1 acc = function
+    | [] ->
+        acc, None
+    | br :: brs ->
+        Option.iter (fun expr -> unsupported expr.Typedtree.exp_loc Pattern_guard) br.Typedtree.c_guard ;
+        let restore_locals = Context.save_locals ctx in
+        let pat = br.c_lhs in
+        let pat =
+          match (pat.pat_desc : a Typedtree.pattern_desc) with
+          | Tpat_value pat ->
+              (pat :> Typedtree.(value general_pattern))
+          | Tpat_exception _ ->
+              unsupported pat.pat_loc Handler_exception
+          | Tpat_or _ ->
+              unsupported pat.pat_loc Pattern_or
+          | Tpat_any ->
+              pat
+          | Tpat_var _ ->
+              pat
+          | Tpat_alias _ ->
+              pat
+          | Tpat_constant _ ->
+              pat
+          | Tpat_tuple _ ->
+              pat
+          | Tpat_construct _ ->
+              pat
+          | Tpat_variant _ ->
+              pat
+          | Tpat_record _ ->
+              pat
+          | Tpat_array _ ->
+              pat
+          | Tpat_lazy _ ->
+              pat
+        in
+        let pat, bdr =
+          match pat.pat_desc with
+          | Tpat_alias (pat, local, _, _) ->
+              Context.add_local ctx local ;
+              pat, Some (Ident.name local)
+          | _ ->
+              pat, None
+        in
+        let rec aux2 (pat : Typedtree.pattern) bdr =
+          match pat.pat_desc with
+          | Tpat_any ->
+              let expr = expression ctx br.c_rhs in
+              restore_locals () ;
+              acc, Some { fallback_as= bdr; fallback_expr= expr }
+          | Tpat_var (ident, _, _) ->
+              Context.add_local ctx ident ;
+              let expr = expression ctx br.c_rhs in
+              restore_locals () ;
+              let local = Ident.name ident in
+              begin match bdr with
+              | None ->
+                  acc, Some { fallback_as= Some local; fallback_expr= expr }
+              | Some local' ->
+                  acc, Some { fallback_as= bdr; fallback_expr= Let (Pat_var local, Local local', expr) }
+              end
+          | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
+              let[@warning "-8"] [pat] = pats in
+              aux2 pat bdr
+          | Tpat_construct (lident, _, pats, _) ->
+              let bdrs = List.map (pattern_to_binder ~error:Pattern_invalid ctx) pats in
+              let tag, bdrs =
+                match Longident.Map.find_opt lident.txt builtin_constrs with
+                | Some (tag, dep) ->
+                    Option.iter (Context.add_dependency ctx) dep ;
+                    let tag = Either.get_right (fun _ -> unsupported lident.loc Pattern_constr) tag in
+                    tag, bdrs
+                | None ->
+                    let tag = Longident.last lident.txt in
+                    let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
+                    tag, bdrs
+              in
+              let expr = expression ctx br.c_rhs in
+              restore_locals () ;
+              aux1 ({ branch_tag= tag; branch_binders= bdrs; branch_as= bdr; branch_expr= expr } :: acc) brs
+          | _ ->
+              unsupported pat.pat_loc Pattern_invalid
+        in
+        aux2 pat bdr
+  in
+  let brs, fb = aux1 [] brs in
+  List.rev brs, fb
 
 let structure_item ctx (str_item : Typedtree.structure_item) =
   match str_item.str_desc with
