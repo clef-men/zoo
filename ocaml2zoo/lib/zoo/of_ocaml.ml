@@ -242,8 +242,8 @@ let builtin_constrs =
     [|"Some"|], Right "Some", Some "opt" ;
   |]
 let builtin_constrs =
-  Array.fold_left (fun acc (lident, tag, dep) ->
-    Longident.Map.add (Longident.of_array lident) (tag, dep) acc
+  Array.fold_left (fun acc (lid, tag, dep) ->
+    Longident.Map.add (Longident.of_array lid) (tag, dep) acc
   ) Longident.Map.empty builtin_constrs
 
 let force_record_attribute =
@@ -259,7 +259,7 @@ module Context = struct
     { mutable prefix: string;
       env: Env.t;
       global_names: (string, int) Hashtbl.t;
-      global_idents: variable Ident.Tbl.t;
+      global_ids: variable Ident.Tbl.t;
       mutable locals: Ident.Set.t;
       deps: (string, unit) Hashtbl.t;
     }
@@ -268,7 +268,7 @@ module Context = struct
     { prefix= modname;
       env;
       global_names= Hashtbl.create 17;
-      global_idents= Ident.Tbl.create 17;
+      global_ids= Ident.Tbl.create 17;
       locals= Ident.Set.empty;
       deps= Hashtbl.create 17;
     }
@@ -288,29 +288,29 @@ module Context = struct
         let cnt = cnt + 1 in
         Hashtbl.replace t.global_names name cnt ;
         cnt
-  let add_global t ident =
-    let name = Ident.name ident in
+  let add_global t id =
+    let name = Ident.name id in
     let idx = add_global t name in
     let global = t.prefix ^ "_" ^ name in
     let global =
-      let[@warning "-8"] Some cnt = Env.find_value_index ident t.env in
+      let[@warning "-8"] Some cnt = Env.find_value_index id t.env in
       if cnt = 0 then
         global
       else
         global ^ "_" ^ Int.to_string idx
     in
-    Ident.Tbl.add t.global_idents ident global ;
+    Ident.Tbl.add t.global_ids id global ;
     global
-  let find_global t ident =
-    Ident.Tbl.find t.global_idents ident
+  let find_global t id =
+    Ident.Tbl.find t.global_ids id
 
-  let add_local t ident =
-    t.locals <- Ident.Set.add ident t.locals
+  let add_local t id =
+    t.locals <- Ident.Set.add id t.locals
   let save_locals t =
     let locals = t.locals in
     fun () -> t.locals <- locals
-  let mem_local t ident =
-    Ident.Set.mem ident t.locals
+  let mem_local t id =
+    Ident.Set.mem id t.locals
 
   let add_dependency t dep =
     Hashtbl.replace t.deps dep ()
@@ -323,10 +323,10 @@ let pattern_to_binder ~error ctx (pat : Typedtree.pattern) =
   | Tpat_any
   | Tpat_construct ({ txt= Lident "()"; _ }, _, _, _) ->
       None
-  | Tpat_var (ident, _, _)
-  | Tpat_alias ({ pat_desc= Tpat_any; _ }, ident, _, _) ->
-      Context.add_local ctx ident ;
-      Some (Ident.name ident)
+  | Tpat_var (id, _, _)
+  | Tpat_alias ({ pat_desc= Tpat_any; _ }, id, _, _) ->
+      Context.add_local ctx id ;
+      Some (Ident.name id)
   | _ ->
       unsupported pat.pat_loc error
 
@@ -334,22 +334,22 @@ let pattern ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
   | Tpat_any ->
       None
-  | Tpat_var (ident, _, _) ->
-      Context.add_local ctx ident ;
-      Some (Pat_var (Ident.name ident))
+  | Tpat_var (id, _, _) ->
+      Context.add_local ctx id ;
+      Some (Pat_var (Ident.name id))
   | Tpat_tuple pats ->
       let bdrs = List.map (pattern_to_binder ~error:Pattern_nested ctx) pats in
       Some (Pat_tuple bdrs)
-  | Tpat_construct (lident, _, pats, _) ->
+  | Tpat_construct (lid, _, pats, _) ->
       let bdrs = List.map (pattern_to_binder ~error:Pattern_nested ctx) pats in
-      begin match Longident.Map.find_opt lident.txt builtin_constrs with
+      begin match Longident.Map.find_opt lid.txt builtin_constrs with
       | Some (tag, dep) ->
           Option.iter (Context.add_dependency ctx) dep ;
-          let tag = Either.get_right (fun _ -> unsupported lident.loc Pattern_constr) tag in
+          let tag = Either.get_right (fun _ -> unsupported lid.loc Pattern_constr) tag in
           Some (Pat_constr (tag, bdrs))
       | None ->
-          let tag = Longident.last lident.txt in
-          let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
+          let tag = Longident.last lid.txt in
+          let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
           Some (Pat_constr (tag, bdrs))
       end
   | Tpat_alias _ ->
@@ -371,11 +371,11 @@ let rec expression ctx (expr : Typedtree.expression) =
   match expr.exp_desc with
   | Texp_ident (path, _, _) ->
       begin match path with
-      | Pident ident ->
-          if Context.mem_local ctx ident then
-            Local (Ident.name ident)
+      | Pident id ->
+          if Context.mem_local ctx id then
+            Local (Ident.name id)
           else
-            Global (Context.find_global ctx ident)
+            Global (Context.find_global ctx id)
       | Pdot (path', global) ->
           begin match Path.Map.find_opt path builtin_paths with
           | Some expr ->
@@ -432,12 +432,12 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr = expression ctx expr in
       restore_locals () ;
       Fun (bdrs, expr)
-  | Texp_function (_, Tfunction_cases { cases= brs; param= ident; _ }) ->
+  | Texp_function (_, Tfunction_cases { cases= brs; param= id; _ }) ->
       let restore_locals = Context.save_locals ctx in
-      Context.add_local ctx ident ;
+      Context.add_local ctx id ;
       let brs, fb = branches ctx brs in
       restore_locals () ;
-      let local = Ident.name ident in
+      let local = Ident.name id in
       Fun ([Some local], Match (Local local, brs, fb))
   | Texp_apply (expr', exprs) ->
       let exprs =
@@ -471,7 +471,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr1 = expression ctx expr1 in
       let expr2 = expression ctx expr2 in
       Seq (expr1, expr2)
-  | Texp_for (ident, pat, expr1, expr2, Upto, expr3) ->
+  | Texp_for (id, pat, expr1, expr2, Upto, expr3) ->
       let binder =
         match pat.ppat_desc with
         | Ppat_any ->
@@ -484,7 +484,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr1 = expression ctx expr1 in
       let expr2 = expression ctx expr2 in
       let restore_locals = Context.save_locals ctx in
-      Context.add_local ctx ident ;
+      Context.add_local ctx id ;
       let expr3 = expression ctx expr3 in
       restore_locals () ;
       For (binder, expr1, expr2, expr3)
@@ -509,19 +509,19 @@ let rec expression ctx (expr : Typedtree.expression) =
         Record exprs
       else
         Tuple (Array.to_list exprs)
-  | Texp_construct (lident, constr, exprs) ->
+  | Texp_construct (lid, constr, exprs) ->
       let exprs = List.map (expression ctx) exprs in
       if constr.cstr_tag = Cstr_unboxed then
         let[@warning "-8"] [expr] = exprs in
         expr
       else
-        begin match Longident.Map.find_opt lident.txt builtin_constrs with
+        begin match Longident.Map.find_opt lid.txt builtin_constrs with
         | Some (tag, dep) ->
             Option.iter (Context.add_dependency ctx) dep ;
             Either.get_left (fun tag -> Constr (tag, exprs)) tag
         | None ->
-            let tag = Longident.last lident.txt in
-            let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
+            let tag = Longident.last lid.txt in
+            let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
             Constr (tag, exprs)
         end
   | Texp_match (expr, brs, _) ->
@@ -636,11 +636,11 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
               let expr = expression ctx br.c_rhs in
               restore_locals () ;
               acc, Some { fallback_as= bdr; fallback_expr= expr }
-          | Tpat_var (ident, _, _) ->
-              Context.add_local ctx ident ;
+          | Tpat_var (id, _, _) ->
+              Context.add_local ctx id ;
               let expr = expression ctx br.c_rhs in
               restore_locals () ;
-              let local = Ident.name ident in
+              let local = Ident.name id in
               begin match bdr with
               | None ->
                   acc, Some { fallback_as= Some local; fallback_expr= expr }
@@ -650,17 +650,17 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
           | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
               let[@warning "-8"] [pat] = pats in
               aux2 pat bdr
-          | Tpat_construct (lident, _, pats, _) ->
+          | Tpat_construct (lid, _, pats, _) ->
               let bdrs = List.map (pattern_to_binder ~error:Pattern_invalid ctx) pats in
               let tag, bdrs =
-                match Longident.Map.find_opt lident.txt builtin_constrs with
+                match Longident.Map.find_opt lid.txt builtin_constrs with
                 | Some (tag, dep) ->
                     Option.iter (Context.add_dependency ctx) dep ;
-                    let tag = Either.get_right (fun _ -> unsupported lident.loc Pattern_constr) tag in
+                    let tag = Either.get_right (fun _ -> unsupported lid.loc Pattern_constr) tag in
                     tag, bdrs
                 | None ->
-                    let tag = Longident.last lident.txt in
-                    let tag = Option.get_lazy (fun () -> unsupported lident.loc Functor) tag in
+                    let tag = Longident.last lid.txt in
+                    let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
                     tag, bdrs
               in
               let expr = expression ctx br.c_rhs in
@@ -678,17 +678,17 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
   match str_item.str_desc with
   | Tstr_value (rec_flag, [bdg]) ->
       begin match bdg.vb_pat.pat_desc with
-      | Tpat_var (ident, _, _) ->
-          let global = Context.add_global ctx ident in
+      | Tpat_var (id, _, _) ->
+          let global = Context.add_global ctx id in
           let restore_locals = Context.save_locals ctx in
           if rec_flag = Recursive then
-            Context.add_local ctx ident ;
+            Context.add_local ctx id ;
           let val_ =
             match expression ctx bdg.vb_expr with
             | Int int ->
                 Val_int int
             | Fun (bdrs, expr) ->
-                let bdr = match rec_flag with Recursive -> Some (Ident.name ident) | _ -> None in
+                let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
                 Val_rec (bdr, bdrs, expr)
             | _ ->
                 unsupported bdg.vb_loc Def_invalid
@@ -732,8 +732,8 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
   | Tstr_attribute attr ->
       if attr.attr_name.txt = "zoo.prefix" then (
         match attr.attr_payload with
-        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_ident lident; _ }, _); _ }] ->
-            let pref = Longident.last lident.txt in
+        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_ident lid; _ }, _); _ }] ->
+            let pref = Longident.last lid.txt in
             Option.iter (Context.set_prefix ctx) pref
         | _ ->
             ()
