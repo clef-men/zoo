@@ -33,6 +33,10 @@ Implicit Types vs : list val.
   in_type "truc" 3
 )(in custom zoo_tag
 ).
+#[local] Notation "'Used'" := (
+  in_type "truc" 4
+)(in custom zoo_tag
+).
 
 #[local] Notation "'front'" := (
   in_type "t" 0
@@ -58,7 +62,7 @@ Implicit Types vs : list val.
 
 Definition mpmc_queue_create : val :=
   fun: <> =>
-    { ‘Front( #1 ), ‘Back( #0, ref () ) }.
+    { ‘Front( #1 ), ‘Back( #0, ref §Used ) }.
 
 #[local] Definition mpmc_queue_push_aux : val :=
   fun: "mpmc_queue_push" "t" "v" "cnt" "back" =>
@@ -73,21 +77,20 @@ Definition mpmc_queue_push : val :=
     | Snoc "cnt" <> <> =>
         mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "cnt" "back"
     | Back "back_cnt" "↦move" =>
-        let: "move" := !"↦move" in
-        if: "move" = () then (
-          mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "back_cnt" "back"
-        ) else (
-          let: ‘Snoc "move_cnt" <> <> := "move" in
-          match: "t".{front} with
-          | Front "front_cnt" as "front" =>
-              if: "front_cnt" < "move_cnt" and CAS "t".[front] "front" (truc_rev "move") then (
-                "↦move" <- ()
-              )
-          |_ =>
-              ()
-          end ;;
-          mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "back_cnt" "back"
-        )
+        match: !"↦move" with
+        | Used =>
+            mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "back_cnt" "back"
+        | Snoc "move_cnt" <> <> as "move" =>
+            match: "t".{front} with
+            | Front "front_cnt" as "front" =>
+                if: "front_cnt" < "move_cnt" and CAS "t".[front] "front" (truc_rev "move") then (
+                  "↦move" <- §Used
+                )
+            |_ =>
+                ()
+            end ;;
+            mpmc_queue_push_aux "mpmc_queue_push" "t" "v" "back_cnt" "back"
+        end
     end.
 
 #[local] Definition mpmc_queue_pop_aux1 : val :=
@@ -118,12 +121,12 @@ Definition mpmc_queue_push : val :=
               )
             )
         | Back <> "↦move" as "back" =>
-            let: "move" := !"↦move" in
-            if: "move" = () then (
-              "aux3" "aux1" "aux2" "t" "front"
-            ) else (
-              "aux2" "aux1" "aux3" "t" "front" "move" "back"
-            )
+            match: !"↦move" with
+            | Used =>
+                "aux3" "aux1" "aux2" "t" "front"
+            | Snoc <> <> <> as "move" =>
+                "aux2" "aux1" "aux3" "t" "front" "move" "back"
+            end
         end
     end.
 #[local] Definition mpmc_queue_pop_aux2 : val :=
@@ -134,7 +137,7 @@ Definition mpmc_queue_push : val :=
     if: "front_cnt" < "move_cnt" then (
       let: ‘Cons <> "v" "suffix" := truc_rev "move" in
       if: CAS "t".[front] "front" "suffix" then (
-        "↦move" <- () ;;
+        "↦move" <- §Used ;;
         ‘Some( "v" )
       ) else (
         Yield ;;
