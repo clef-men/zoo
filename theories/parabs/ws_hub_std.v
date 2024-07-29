@@ -98,7 +98,7 @@ Section ws_deques.
       else
         match: ws_hub_std_try_steal_once "t" "i" with
         | Some "v" =>
-            ‘Something{ "v" }
+            ‘Something( "v" )
         | None =>
             if: "until" () then (
              §Anything
@@ -125,7 +125,7 @@ Section ws_deques.
     fun: "t" "i" "max_round_noyield" "pred" =>
       match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred" with
       | Something "v" =>
-          ‘Some{ "v" }
+          ‘Some( "v" )
       | Anything =>
           §None
       | Nothing =>
@@ -146,7 +146,7 @@ Section ws_deques.
     rec: "ws_hub_std_steal" "t" "i" "max_round" =>
       match: ws_hub_std_steal_aux "t" "i" "max_round" (fun: <> => ws_hub_std_killed "t") with
       | Something "v" =>
-          ‘Some{ "v" }
+          ‘Some( "v" )
       | Anything =>
           §None
       | Nothing =>
@@ -346,7 +346,7 @@ Section ws_hub_std_G.
 
     wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
 
-    wp_record l as "Hmeta" "(Hl_deques & Hl_rounds & Hl_waiters & Hl_killed & _)".
+    wp_block l as "Hmeta" "(Hl_deques & Hl_rounds & Hl_waiters & Hl_killed & _)".
     iMod (pointsto_persist with "Hl_deques") as "#Hl_deques".
     iMod (pointsto_persist with "Hl_rounds") as "#Hl_rounds".
     iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".

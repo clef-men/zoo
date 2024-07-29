@@ -133,7 +133,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hdata_model".
-    wp_record l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hsz & Hdata & _)".
     iApply "HΦ". iExists l, data, 0. iSteps.
   Qed.
 
@@ -150,7 +150,7 @@ Section zoo_G.
     Z_to_nat sz. rewrite Nat2Z.id.
     wp_rec.
     wp_smart_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
-    wp_record l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hsz & Hdata & _)".
     iApply "HΦ". iExists l, data, 0. iStep. rewrite replicate_length right_id Nat2Z.id. iSteps.
   Qed.
 
@@ -178,7 +178,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     wp_smart_apply (array_initi_spec Ψ with "[$HΨ]") as "%data %vs (%Hvs & Hdata_model & HΨ)"; [done | iSteps |].
-    wp_record l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hsz & Hdata & _)".
     iApply "HΦ". iFrame. iStep. iExists l, data, 0. iSteps. rewrite right_id //.
   Qed.
   Lemma dynarray_initi_spec' Ψ sz fn :

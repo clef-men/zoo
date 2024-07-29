@@ -161,6 +161,7 @@ Section atomic_wp.
     ∀ Φ,
     atomic_update (⊤ ∖ E) ∅ α β (λ.. x y, Ψ x y -∗ Φ (f x y)) -∗
     WP e {{ Φ }}.
+  #[global] Arguments atomic_wp e%E E (α β Ψ f)%I : assert.
 
   #[global] Instance atomic_wp_ne e E n :
     Proper (
@@ -258,7 +259,7 @@ Notation "'AWP' '<<' ∀∀ x1 .. xn , α '>>' e @ E '<<' ∃∃ y1 .. yn , β |
   atomic_wp
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
@@ -276,7 +277,7 @@ Notation "'AWP' '<<' α '>>' e @ E '<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>'"
   atomic_wp
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
@@ -292,7 +293,7 @@ Notation "'AWP' '<<' ∀∀ x1 .. xn , α '>>' e @ E '<<' β | 'RET' v ; Q '>>'"
   atomic_wp
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     E
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
@@ -308,7 +309,7 @@ Notation "'AWP' '<<' α '>>' e @ E '<<' β | 'RET' v ; Q '>>'" := (
   atomic_wp
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     E
     (tele_app α%I)
     (tele_app $ tele_app β%I)
@@ -322,7 +323,7 @@ Notation "'AWP' '<<' ∀∀ x1 .. xn , α '>>' e '<<' ∃∃ y1 .. yn , β | 'RE
   atomic_wp
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
@@ -340,7 +341,7 @@ Notation "'AWP' '<<' α '>>' e '<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>'" := 
   atomic_wp
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
@@ -356,7 +357,7 @@ Notation "'AWP' '<<' ∀∀ x1 .. xn , α '>>' e '<<' β | 'RET' v ; Q '>>'" := 
   atomic_wp
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     ∅
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
@@ -372,7 +373,7 @@ Notation "'AWP' '<<' α '>>' e '<<' β | 'RET' v ; Q '>>'" := (
   atomic_wp
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     ∅
     (tele_app α%I)
     (tele_app $ tele_app β%I)
@@ -398,6 +399,7 @@ Section atomic_triple.
       atomic_update (⊤ ∖ E) ∅ α β (λ.. x y, Ψ x y -∗ Φ (f x y)) -∗
       WP e {{ Φ }}
     ).
+  #[global] Arguments atomic_triple e%E E (P α β Ψ f)%I : assert.
 
   #[global] Instance atomic_triple_ne e E n :
     Proper (
@@ -496,9 +498,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e @ E '<<<' ∃∃ y1 .. yn , β 
   atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, Q%I) .. )) .. )
@@ -515,9 +517,9 @@ Notation "'<<<' P | α '>>>' e @ E '<<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>>
   atomic_triple
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
     (tele_app $ tele_app (λ y1, .. (λ yn, Q%I) .. ))
@@ -532,9 +534,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e @ E '<<<' β | 'RET' v ; Q '>>>
   atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app Q%I) .. )
@@ -549,9 +551,9 @@ Notation "'<<<' P | α '>>>' e @ E '<<<' β | 'RET' v ; Q '>>>'" := (
   atomic_triple
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app β%I)
     (tele_app $ tele_app Q%I)
@@ -565,9 +567,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e @ E '<<<' ∃∃ y1 .. yn , β 
   ⊢ atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, Q%I) .. )) .. )
@@ -577,9 +579,9 @@ Notation "'<<<' P | α '>>>' e @ E '<<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>>
   ⊢ atomic_triple
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
     (tele_app $ tele_app (λ y1, .. (λ yn, Q%I) .. ))
@@ -589,9 +591,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e @ E '<<<' β | 'RET' v ; Q '>>>
   ⊢ atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app Q%I) .. )
@@ -601,9 +603,9 @@ Notation "'<<<' P | α '>>>' e @ E '<<<' β | 'RET' v ; Q '>>>'" := (
   ⊢ atomic_triple
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     E
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app β%I)
     (tele_app $ tele_app Q%I)
@@ -614,9 +616,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e '<<<' ∃∃ y1 .. yn , β | 'R
   atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, Q%I) .. )) .. )
@@ -633,9 +635,9 @@ Notation "'<<<' P | α '>>>' e '<<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>>'" :
   atomic_triple
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
     (tele_app $ tele_app (λ y1, .. (λ yn, Q%I) .. ))
@@ -650,9 +652,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e '<<<' β | 'RET' v ; Q '>>>'" :
   atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app Q%I) .. )
@@ -667,9 +669,9 @@ Notation "'<<<' P | α '>>>' e '<<<' β | 'RET' v ; Q '>>>'" := (
   atomic_triple
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app β%I)
     (tele_app $ tele_app Q%I)
@@ -683,9 +685,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e '<<<' ∃∃ y1 .. yn , β | 'R
   ⊢ atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, β%I) .. )) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app (λ y1, .. (λ yn, Q%I) .. )) .. )
@@ -695,9 +697,9 @@ Notation "'<<<' P | α '>>>' e '<<<' ∃∃ y1 .. yn , β | 'RET' v ; Q '>>>'" :
   ⊢ atomic_triple
     (TA := TeleO)
     (TB := TeleS (λ y1, .. (TeleS (λ yn, TeleO)) .. ))
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app (λ y1, .. (λ yn, β%I) .. ))
     (tele_app $ tele_app (λ y1, .. (λ yn, Q%I) .. ))
@@ -707,9 +709,9 @@ Notation "'<<<' P | ∀∀ x1 .. xn , α '>>>' e '<<<' β | 'RET' v ; Q '>>>'" :
   ⊢ atomic_triple
     (TA := TeleS (λ x1, .. (TeleS (λ xn, TeleO)) .. ))
     (TB := TeleO)
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app $ λ x1, .. (λ xn, α%I) ..)
     (tele_app $ λ x1, .. (λ xn, tele_app β%I) .. )
     (tele_app $ λ x1, .. (λ xn, tele_app Q%I) .. )
@@ -719,9 +721,9 @@ Notation "'<<<' P | α '>>>' e '<<<' β | 'RET' v ; Q '>>>'" := (
   ⊢ atomic_triple
     (TA := TeleO)
     (TB := TeleO)
-    e
+    e%E
     ∅
-    P
+    P%I
     (tele_app α%I)
     (tele_app $ tele_app β%I)
     (tele_app $ tele_app Q%I)

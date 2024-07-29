@@ -127,7 +127,7 @@ Section mutex_G.
   Proof.
     iIntros "%Φ HP HΦ".
     wp_rec.
-    wp_alloc l as "Hmeta" "Hl".
+    wp_ref l as "Hmeta" "Hl".
     iMod excl_alloc as "(%γ & Hlocked)".
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
@@ -150,7 +150,7 @@ Section mutex_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b.
-    - wp_cas as _ | [=] _.
+    - wp_cas as _ | [=].
       iModIntro. iSplitR "HΦ"; first iSteps.
       wp_pures.
       iApply ("HLöb" with "HΦ").

@@ -16,5 +16,5 @@ Definition let_pattern_test1 : val :=
 
 Definition let_pattern_test2 : val :=
   fun: <> =>
-    let: ‘Some{ "i" } := ‘Some{ #0 } in
+    let: ‘Some "i" := ‘Some( #0 ) in
     "i".

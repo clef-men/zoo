@@ -41,7 +41,7 @@ Definition spmc_future_create : val :=
 Definition spmc_future_set : val :=
   fun: "t" "v" =>
     mutex_protect "t".{mutex} (fun: <> =>
-      "t" <-{result} ‘Some{ "v" }
+      "t" <-{result} ‘Some( "v" )
     ) ;;
     condition_notify_all "t".{condition}.
 
@@ -209,7 +209,7 @@ Section spmc_future_G.
     wp_rec.
     wp_smart_apply (mutex_create_spec True with "[//]") as "%mtx #Hmtx_inv".
     wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcond_inv".
-    wp_record l as "Hmeta" "(Hresult & Hmtx & Hcond & _)".
+    wp_block l as "Hmeta" "(Hresult & Hmtx & Hcond & _)".
     iMod (pointsto_persist with "Hmtx") as "Hmtx".
     iMod (pointsto_persist with "Hcond") as "Hcond".
 

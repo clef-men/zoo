@@ -28,7 +28,7 @@ Definition mpmc_stack_create : val :=
 Definition mpmc_stack_push : val :=
   rec: "mpmc_stack_push" "t" "v" =>
     let: "old" := !"t" in
-    let: "new" := ‘Cons{ "v", "old" } in
+    let: "new" := ‘Cons( "v", "old" ) in
     ifnot: CAS "t" "old" "new" then (
       Yield ;;
       "mpmc_stack_push" "t" "v"
@@ -41,7 +41,7 @@ Definition mpmc_stack_pop : val :=
         §None
     | Cons "v" "new" as "old" =>
         if: CAS "t" "old" "new" then (
-          ‘Some{ "v" }
+          ‘Some( "v" )
         ) else (
           Yield ;;
           "mpmc_stack_pop" "t"
@@ -133,7 +133,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_alloc l as "Hmeta" "Hl".
+    wp_ref l as "Hmeta" "Hl".
 
     iMod mpmc_stack_model_alloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
@@ -171,7 +171,7 @@ Section zoo_G.
 
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-    wp_cas as _ | ->%(inj _) _; first iSteps.
+    wp_cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (mpmc_stack_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -218,7 +218,7 @@ Section zoo_G.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-      wp_cas as _ | Hcas _; first iSteps.
+      wp_cas as _ | Hcas; first iSteps.
       destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".

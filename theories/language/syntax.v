@@ -23,9 +23,32 @@ Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
-Definition constr_id :=
-  positive.
-Implicit Types cid : option constr_id.
+Inductive physicality :=
+  | Physical
+  | Abstract.
+Implicit Types phys : physicality.
+
+#[global] Instance physicality_eq_dec : EqDecision physicality :=
+  ltac:(solve_decision).
+#[global] Instance physicality_countable :
+  Countable physicality.
+Proof.
+  pose encode phys :=
+    match phys with
+    | Physical =>
+        0
+    | Abstract =>
+        1
+    end.
+  pose decode _phys :=
+    match _phys with
+    | 0 =>
+        Physical
+    | _ =>
+        Abstract
+    end.
+  refine (inj_countable' encode decode _); intros []; done.
+Qed.
 
 Inductive literal :=
   | LiteralBool b
@@ -174,12 +197,10 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
-  | Constr tag (es : list expr)
+  | Block phys tag (es : list expr)
   | Proj proj (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
-  | Reveal (e : expr)
   | For (e1 e2 e3 : expr)
-  | Record (es : list expr)
   | Alloc (e1 e2 : expr)
   | Load (e : expr)
   | Store (e1 e2 : expr)
@@ -193,7 +214,7 @@ Inductive expr :=
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
-  | ValConstr cid tag (vs : list val).
+  | ValBlock tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -214,10 +235,10 @@ Section val_ind.
   Variable HValRec :
     ∀ f x e,
     P (ValRec f x e).
-  Variable HValConstr :
-    ∀ cid tag,
+  Variable HValBlock :
+    ∀ tag,
     ∀ vs, Forall P vs →
-    P (ValConstr cid tag vs).
+    P (ValBlock tag vs).
 
   Fixpoint val_ind v :=
     match v with
@@ -225,8 +246,8 @@ Section val_ind.
         HValLiteral lit
     | ValRec f x e =>
         HValRec f x e
-    | ValConstr cid tag vs =>
-        HValConstr cid tag
+    | ValBlock tag vs =>
+        HValBlock tag
           vs (Forall_true P vs val_ind)
     end.
 End val_ind.
@@ -266,10 +287,10 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (If e0 e1 e2).
-  Variable HConstr :
-    ∀ tag,
+  Variable HBlock :
+    ∀ phys tag,
     ∀ es, Forall P es →
-    P (Constr tag es).
+    P (Block phys tag es).
   Variable HProj :
     ∀ proj,
     ∀ e, P e →
@@ -280,17 +301,11 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
     P (Match e0 x e1 brs).
-  Variable HReveal :
-    ∀ e, P e →
-    P (Reveal e).
   Variable HFor :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     ∀ e3, P e3 →
     P (For e1 e2 e3).
-  Variable HRecord :
-    ∀ es, Forall P es →
-    P (Record es).
   Variable HAlloc :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -362,9 +377,9 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Constr tag es =>
-        HConstr
-          tag
+    | Block phys tag es =>
+        HBlock
+          phys tag
           es (Forall_true P es expr_ind)
     | Proj proj e =>
         HProj
@@ -376,17 +391,11 @@ Section expr_ind.
           x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
-    | Reveal e =>
-        HReveal
-          e (expr_ind e)
     | For e1 e2 e3 =>
         HFor
           e1 (expr_ind e1)
           e2 (expr_ind e2)
           e3 (expr_ind e3)
-    | Record es =>
-        HRecord
-          es (Forall_true P es expr_ind)
     | Alloc e1 e2 =>
         HAlloc
           e1 (expr_ind e1)
@@ -426,10 +435,29 @@ Section expr_ind.
     end.
 End expr_ind.
 
-Canonical valO :=
+Canonical val_O :=
   leibnizO val.
-Canonical exprO :=
+Canonical expr_O :=
   leibnizO expr.
+
+Notation Fun x e := (
+  Rec BAnon x e
+)(only parsing
+).
+Notation ValFun x e := (
+  ValRec BAnon x e
+)(only parsing
+).
+
+Notation Let x e1 e2 := (
+  App (Fun x e2) e1
+)(only parsing
+).
+
+Notation Seq e1 e2 := (
+  Let BAnon e1 e2
+)(only parsing
+).
 
 Notation ValBool b := (
   ValLiteral (LiteralBool b)
@@ -449,11 +477,11 @@ Notation ValProphecy pid := (
 ).
 
 Notation Tuple := (
-  Constr None 0
+  Block Abstract 0
 )(only parsing
 ).
 Notation ValTuple := (
-  ValConstr None 0
+  ValBlock 0
 )(only parsing
 ).
 
@@ -468,25 +496,6 @@ Notation Unit := (
 
 Notation Fail := (
   App Unit Unit
-).
-
-Notation Fun x e := (
-  Rec BAnon x e
-)(only parsing
-).
-Notation ValFun x e := (
-  ValRec BAnon x e
-)(only parsing
-).
-
-Notation Let x e1 e2 := (
-  App (Fun x e2) e1
-)(only parsing
-).
-
-Notation Seq e1 e2 := (
-  Let BAnon e1 e2
-)(only parsing
 ).
 
 Notation of_val :=
@@ -624,8 +633,9 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Constr tag1 es1, Constr tag2 es2 =>
-          cast_if_and
+      | Block phys1 tag1 es1, Block phys2 tag2 es2 =>
+          cast_if_and3
+            (decide (phys1 = phys2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | Proj proj1 e1, Proj proj2 e2 =>
@@ -638,17 +648,11 @@ Proof.
             (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
-      | Reveal e1, Reveal e2 =>
-          cast_if
-            (decide (e1 = e2))
       | For e11 e12 e13, For e21 e22 e23 =>
           cast_if_and3
             (decide (e11 = e21))
             (decide (e12 = e22))
             (decide (e13 = e23))
-      | Record es1, Record es2 =>
-          cast_if
-            (decide (es1 = es2))
       | Alloc e11 e12, Alloc e21 e22 =>
          cast_if_and
            (decide (e11 = e21))
@@ -710,9 +714,8 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValConstr cid1 tag1 es1, ValConstr cid2 tag2 es2 =>
-          cast_if_and3
-            (decide (cid1 = cid2))
+      | ValBlock tag1 es1, ValBlock tag2 es2 =>
+          cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -748,9 +751,8 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValConstr cid1 tag1 es1, ValConstr cid2 tag2 es2 =>
-          cast_if_and3
-            (decide (cid1 = cid2))
+      | ValBlock tag1 es1, ValBlock tag2 es2 =>
+          cast_if_and
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -764,8 +766,8 @@ Variant encode_leaf :=
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodeProjection proj
-  | EncodeConstrId cid
-  | EncodeConstrTag tag
+  | EncodePhysicality phys
+  | EncodeTag tag
   | EncodePattern (pat : pattern)
   | EncodeLiteral lit.
 #[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
@@ -783,9 +785,9 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inr op
     | EncodeProjection proj =>
         inl $ inl $ inl $ inl $ inr proj
-    | EncodeConstrId cid =>
-        inl $ inl $ inl $ inr cid
-    | EncodeConstrTag tag =>
+    | EncodePhysicality phys =>
+        inl $ inl $ inl $ inr phys
+    | EncodeTag tag =>
         inl $ inl $ inr tag
     | EncodePattern pat =>
         inl $ inr pat
@@ -802,10 +804,10 @@ Proof.
         EncodeBinop op
     | inl (inl (inl (inl (inr proj)))) =>
         EncodeProjection proj
-    | inl (inl (inl (inr cid))) =>
-        EncodeConstrId cid
+    | inl (inl (inl (inr phys))) =>
+        EncodePhysicality phys
     | inl (inl (inr tag)) =>
-        EncodeConstrTag tag
+        EncodeTag tag
     | inl (inr pat) =>
         EncodePattern pat
     | inr lit =>
@@ -833,43 +835,39 @@ Proof.
     5.
   #[local] Notation code_If :=
     6.
-  #[local] Notation code_Constr :=
+  #[local] Notation code_Block :=
     7.
   #[local] Notation code_Proj :=
     8.
   #[local] Notation code_Match :=
     9.
-  #[local] Notation code_Reveal :=
-    10.
   #[local] Notation code_For :=
-    11.
+    10.
   #[local] Notation code_branch :=
-    12.
-  #[local] Notation code_Record :=
-    13.
+    11.
   #[local] Notation code_Alloc :=
-    14.
+    12.
   #[local] Notation code_Load :=
-    15.
+    13.
   #[local] Notation code_Store :=
-    16.
+    14.
   #[local] Notation code_Xchg :=
-    17.
+    15.
   #[local] Notation code_CAS :=
-    18.
+    16.
   #[local] Notation code_FAA :=
-    19.
+    17.
   #[local] Notation code_Fork :=
-    20.
+    18.
   #[local] Notation code_Yield :=
-    21.
+    19.
   #[local] Notation code_Proph :=
-    22.
+    20.
   #[local] Notation code_Resolve :=
-    23.
+    21.
   #[local] Notation code_ValRec :=
     0.
-  #[local] Notation code_ValConstr :=
+  #[local] Notation code_ValBlock :=
     1.
   pose encode :=
     fix go e :=
@@ -895,18 +893,14 @@ Proof.
           GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode code_If [go e0; go e1; go e2]
-      | Constr tag es =>
-          GenNode code_Constr $ GenLeaf (EncodeConstrTag tag) :: go_list es
+      | Block phys tag es =>
+          GenNode code_Block $ GenLeaf (EncodePhysicality phys) :: GenLeaf (EncodeTag tag) :: go_list es
       | Proj proj e =>
           GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
-      | Reveal e =>
-          GenNode code_Reveal [go e]
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
-      | Record es =>
-          GenNode code_Record $ go_list es
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
       | Load e =>
@@ -935,8 +929,8 @@ Proof.
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | ValConstr cid tag vs =>
-          GenNode code_ValConstr $ GenLeaf (EncodeConstrId cid) :: GenLeaf (EncodeConstrTag tag) :: go_list vs
+      | ValBlock tag vs =>
+          GenNode code_ValBlock $ GenLeaf (EncodeTag tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -968,18 +962,14 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode code_Constr (GenLeaf (EncodeConstrTag tag) :: es) =>
-          Constr tag $ go_list es
+      | GenNode code_Block (GenLeaf (EncodePhysicality phys) :: GenLeaf (EncodeTag tag) :: es) =>
+          Block phys tag $ go_list es
       | GenNode code_Proj [GenLeaf (EncodeProjection proj); e] =>
           Proj proj $ go e
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
-      | GenNode code_Reveal [e] =>
-          Reveal (go e)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
-      | GenNode code_Record es =>
-          Record $ go_list es
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
       | GenNode code_Load [e] =>
@@ -1010,8 +1000,8 @@ Proof.
           ValLiteral lit
       | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode code_ValConstr (GenLeaf (EncodeConstrId cid) :: GenLeaf (EncodeConstrTag tag) :: vs) =>
-          ValConstr cid tag $ go_list vs
+      | GenNode code_ValBlock (GenLeaf (EncodeTag tag) :: vs) =>
+          ValBlock tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
       end

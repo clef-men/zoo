@@ -3,10 +3,12 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  zoo__types.
+  zoo_reveal__types.
 From zoo Require Import
   options.
 
-Definition truc_test : val :=
+Definition zoo_reveal_test : val :=
   fun: <> =>
+    ‘A{ () } ;;
+    ‘B( () ) ;;
     ().

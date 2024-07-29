@@ -69,7 +69,7 @@ theories/language/tactics.v
 theories/language/metatheory.v
 theories/language/typeclass_instances.v
 theories/language/state_interp.v
-theories/language/rules.v
+theories/language/wp.v
 theories/language/proofmode.v
 theories/language/diaframe/hints.v
 theories/language/diaframe/specs.v

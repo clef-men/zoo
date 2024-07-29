@@ -78,7 +78,7 @@ Definition mpsc_queue_pop : val :=
       "t" <-{front} "front" ;;
       let: "v" := "front".{xchain_data} in
       "front" <-{xchain_data} () ;;
-      ‘Some{ "v" }
+      ‘Some( "v" )
     ).
 
 Class MpscQueueG Σ `{zoo_G : !ZooG Σ} := {
@@ -271,8 +271,8 @@ Section mpsc_queue_G.
 
     wp_rec.
 
-    wp_record front as "(Hfront_next & _)".
-    wp_record l as "Hmeta" "(Hl_front & Hl_back & _)".
+    wp_block front as "(Hfront_next & _)".
+    wp_block l as "Hmeta" "(Hl_front & Hl_back & _)".
     iEval (rewrite -Qp.three_quarter_quarter) in "Hl_front".
     iDestruct "Hl_front" as "(Hl_front_1 & Hl_front_2)".
 
@@ -535,12 +535,12 @@ Section mpsc_queue_G.
     iDestruct (xchain_model_lookup' with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
-    - wp_cas as _ | [] _.
+    - wp_cas as _ | [=].
       iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ". { repeat iExists _. iSteps. }
       iSteps.
 
-    - wp_cas as Hcas | _ _; first done.
+    - wp_cas as Hcas | _; first done.
       iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(lookup_last_length hist i) // drop_all //. }
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
@@ -586,7 +586,7 @@ Section mpsc_queue_G.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%hist & %past & %front & %nodes & %back' & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & Hhistory_auth & Hmodel₂)".
-      wp_cas as _ | -> _.
+      wp_cas as _ | [= ->].
       2: iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem_new_back") as %Hnew_back%elem_of_list_lookup_2.
       all: iSplitL; first (repeat iExists _; iSteps).
       all: iSteps.
@@ -611,7 +611,7 @@ Section mpsc_queue_G.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     wp_rec.
-    wp_record new_back as "(Hnew_back_next & Hnew_back_data & _)".
+    wp_block new_back as "(Hnew_back_next & Hnew_back_data & _)".
     wp_smart_apply (mpsc_queue_back_spec with "Hinv") as (back i) "#Hhistory_elem_back".
     wp_smart_apply (mpsc_queue_do_push_spec with "[$Hmeta $Hinv $Hhistory_elem_back $Hnew_back_next $Hnew_back_data]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_elem_new_back)".

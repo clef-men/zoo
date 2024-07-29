@@ -3,13 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  variant_2__types.
+  zoo_prefix__types.
 From zoo Require Import
   options.
 
-Definition variant_2_test : val :=
+Definition truc_test : val :=
   fun: <> =>
-    §Leaf ;;
-    ‘Node( §Leaf, #0, §Leaf ) ;;
-    ‘Node( ‘Node( §Leaf, #0, §Leaf ), #1, §Leaf ) ;;
     ().

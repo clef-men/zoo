@@ -60,24 +60,24 @@ Implicit Types past prophs : list inf_ws_deque_prophet.(typed_prophet_type).
 
 Class InfWsDequeG Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_ws_deque_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_ws_deque_G_ctl_G :: TwinsG Σ (ZO * (nat -d> valO)) ;
+  #[local] inf_ws_deque_G_ctl_G :: TwinsG Σ (ZO * (nat -d> val_O)) ;
   #[local] inf_ws_deque_G_front_G :: AuthNatMaxG Σ ;
   #[local] inf_ws_deque_G_hist_G :: MonoListG Σ val ;
-  #[local] inf_ws_deque_G_model_G :: TwinsG Σ (listO valO) ;
+  #[local] inf_ws_deque_G_model_G :: TwinsG Σ (listO val_O) ;
   #[local] inf_ws_deque_G_lock_G :: ExclG Σ unitO ;
   #[local] inf_ws_deque_G_prophet_G :: WiseProphetG Σ inf_ws_deque_prophet ;
-  #[local] inf_ws_deque_G_winner_G :: TwinsG Σ (natO * (valO -d> ▶ ∙)) ;
+  #[local] inf_ws_deque_G_winner_G :: TwinsG Σ (natO * (val_O -d> ▶ ∙)) ;
 }.
 
 Definition inf_ws_deque_Σ := #[
   inf_array_Σ ;
-  twins_Σ (ZO * (nat -d> valO)) ;
+  twins_Σ (ZO * (nat -d> val_O)) ;
   auth_nat_max_Σ ;
   mono_list_Σ val ;
-  twins_Σ (listO valO) ;
+  twins_Σ (listO val_O) ;
   excl_Σ unitO ;
   wise_prophet_Σ inf_ws_deque_prophet ;
-  twins_Σ (natO * (valO -d> ▶ ∙))
+  twins_Σ (natO * (val_O -d> ▶ ∙))
 ].
 #[global] Instance subG_inf_ws_deque_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_ws_deque_Σ Σ →
@@ -121,7 +121,7 @@ Module raw.
       let: "back" := "t".{back} in
       if: "front" < "back" then (
         if: Resolve (CAS "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
-          ‘Some{ inf_array_get "t".{data} "front" }
+          ‘Some( inf_array_get "t".{data} "front" )
         ) else (
           Yield ;;
           "inf_ws_deque_steal" "t"
@@ -141,11 +141,11 @@ Module raw.
         §None
       ) else (
         if: "front" < "back" then (
-          ‘Some{ inf_array_get "t".{data} "back" }
+          ‘Some( inf_array_get "t".{data} "back" )
         ) else (
           if: Resolve (CAS "t".[front] "front" ("front" + #1)) "t".{prophet} ("front", "id") then (
             "t" <-{back} "front" + #1 ;;
-            ‘Some{ inf_array_get "t".{data} "back" }
+            ‘Some( inf_array_get "t".{data} "back" )
           ) else (
             "t" <-{back} "front" + #1 ;;
             §None
@@ -283,7 +283,7 @@ Module raw.
       }> @ ⊤ ∖ ↑ι, ∅ <{
         ∀∀ v model',
         ⌜model = v :: model'⌝ ∗ inf_ws_deque_model₂ γ model',
-        COMM Φ ’Some{ v }
+        COMM Φ ’Some( v )%V
       }>.
     #[local] Definition inf_ws_deque_state_inner₁ γ :=
       inf_ws_deque_winner γ.
@@ -322,7 +322,7 @@ Module raw.
       | _ =>
           ∃ Φ,
           inf_ws_deque_winner₁ γ front Φ ∗
-          Φ ’Some{ hist !!! front }
+          Φ ’Some( hist !!! front )%V
       end.
     #[local] Definition inf_ws_deque_state₃₁ γ front back hist prophs : iProp Σ :=
       (* physical configuration *)
@@ -688,7 +688,7 @@ Module raw.
             ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
             inf_ws_deque_winner₁ γ front Φ' ∗
             inf_ws_deque_winner₂ γ front Φ ∗
-            Φ' ’Some{ hist !!! front }
+            Φ' ’Some( hist !!! front )%V
           )
         ).
     Proof.
@@ -722,7 +722,7 @@ Module raw.
           ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
           inf_ws_deque_winner₁ γ front Φ' ∗
           inf_ws_deque_winner₂ γ front Φ ∗
-          Φ' ’Some{ hist !!! front }.
+          Φ' ’Some( hist !!! front )%V.
     Proof.
       iIntros "Hwinner₂ Hstate".
       iDestruct (inf_ws_deque_winner₂_state with "Hwinner₂ Hstate") as "($ & [Hstate | Hstate])".
@@ -868,7 +868,7 @@ Module raw.
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet(front, id) with "Hprophet_model"); [done.. |].
       (* whether CAS succeed or not, we reach a contradiction *)
-      wp_cas as _ | _ _.
+      wp_cas as _ | _.
       all: iModIntro; iIntros "%prophs' ->".
       all: eelim (filter_nil_not_elem_of _ _ (front, id)); [done.. |].
       all: apply elem_of_app; right; apply elem_of_cons; naive_solver.
@@ -897,7 +897,7 @@ Module raw.
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front, id) with "Hprophet_model"); [done.. |].
       (* CAS must fail as we are not the winner: [id ≠ id'] *)
-      wp_cas as _Hfront | ? _; last simplify; last first.
+      wp_cas as _Hfront | ?; last simplify; last first.
       { iModIntro. iIntros "%prophs' -> Hprophet_model".
         rewrite filter_app filter_cons_True // in Hprophs_lb.
         destruct (filter _ past2) as [| (__front & id'')] eqn:Hpast2; first naive_solver.
@@ -984,7 +984,7 @@ Module raw.
       wp_apply (wise_prophet_wp_proph with "[//]") as "%pid %γ_prophet %prophs Hprophet_model".
 
       (* → [{ #0; #0; data; #pid }] *)
-      wp_record l as "Hmeta" "(Hfront & Hback & Hdata & Hpid & _)".
+      wp_block l as "Hmeta" "(Hfront & Hback & Hdata & Hpid & _)".
       iMod (pointsto_persist with "Hdata") as "#Hdata".
       iMod (pointsto_persist with "Hpid") as "#Hpid".
 
@@ -1242,7 +1242,7 @@ Module raw.
         (* do resolve *)
         wp_apply (wise_prophet_wp_resolve inf_ws_deque_prophet (front1, id) with "Hprophet_model"); [done.. |].
         (* branching 3: CAS must fail as we have seen [front2] such that [front1 < front2] *)
-        wp_cas as _Hbranch3 | ? _; last simplify; last first.
+        wp_cas as _Hbranch3 | ?; last simplify; last first.
         { iDestruct (inf_ws_deque_front_valid with "Hfront_auth Hfront_lb") as %?.
           lia.
         }
@@ -1375,7 +1375,7 @@ Module raw.
 
       (* branch 5.1: state 2 *)
       - iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & Hid' & HΦ')".
-        iDestruct (inf_ws_deque_winner_agree ’Some{ v } with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+        iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
         iModIntro. iIntros "%prophs3' -> Hprophet_model".
         (* update front *)
         iMod (inf_ws_deque_front_auth_update (S front1) with "Hfront_auth") as "Hfront_auth"; first lia.
@@ -1428,7 +1428,7 @@ Module raw.
 
       (* branch 5.2: state 3.1 *)
       - iDestruct "Hstate" as "(-> & Hlock & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & HΦ')".
-        iDestruct (inf_ws_deque_winner_agree ’Some{ v } with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+        iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
         iModIntro. iIntros "%prophs3' -> Hprophet_model".
         (* we know there is no model value and [hist !!! front1 = v] *)
         destruct (nil_or_length_pos model) as [-> |]; last lia.
@@ -1897,7 +1897,7 @@ Module raw.
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
           (* we are in state 3.1 *)
           iDestruct (inf_ws_deque_winner₂_state' with "Hwinner₂ Hstate") as "(>-> & Hlock & >Hhist_auth & >%Hhist & %id' & %Ψ' & >%Hprophs4 & Hwinner₁ & Hwinner₂ & HΨ')".
-          iDestruct (inf_ws_deque_winner_agree ’Some{ v } with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
+          iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
           (* exploit history fragment *)
           iDestruct (inf_ws_deque_hist_agree with "Hhist_auth Hhist_elem") as %->%list_lookup_total_correct.
           (* do resolve *)
@@ -2188,7 +2188,7 @@ Definition inf_ws_deque_steal : val :=
     | None =>
         None
     | Some "slot" =>
-        ‘Some{ !"slot" }
+        ‘Some( !"slot" )
     end.
 
 Definition inf_ws_deque_pop : val :=
@@ -2197,7 +2197,7 @@ Definition inf_ws_deque_pop : val :=
     | None =>
         None
     | Some "slot" =>
-        ‘Some{ !"slot" }
+        ‘Some( !"slot" )
     end.
 
 Section inf_ws_deque_G.
@@ -2269,7 +2269,7 @@ Section inf_ws_deque_G.
     >>>.
   Proof.
     iIntros "!> %Φ (#Hinv & Howner) HΦ".
-    wp_rec. wp_alloc slot as "Hslot".
+    wp_rec. wp_ref slot as "Hslot".
     awp_apply (raw.inf_ws_deque_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.

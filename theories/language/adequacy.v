@@ -7,7 +7,7 @@ From zoo.iris Require Import
 From zoo.language Require Export
   language.
 From zoo.language Require Import
-  rules.
+  wp.
 From zoo Require Import
   options.
 
@@ -25,5 +25,5 @@ Proof.
   apply: wp_adequacy => Hinv_G κs.
   iMod zoo_init' as "(%zoo_G & Hσ)".
   iExists zoo_state_interp. repeat iExists _. iFrame.
-  iApply (Hwp (Build_ZooG Σ)).
+  iApply (Hwp (Build_ZooG _ _)).
 Qed.

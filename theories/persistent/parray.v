@@ -33,7 +33,7 @@ Implicit Types vs : list val.
 
 Definition parray_make : val :=
   fun: "sz" "v" =>
-    ref ‘Root{ array_make "sz" "v" }.
+    ref ‘Root( array_make "sz" "v" ).
 
 #[local] Definition parray_reroot : val :=
   rec: "parray_reroot" "t" =>
@@ -42,9 +42,9 @@ Definition parray_make : val :=
         "arr"
     | Diff "i" "v" "t'" =>
         let: "arr" := "parray_reroot" "t'" in
-        "t'" <- ‘Diff{ "i", array_unsafe_get "arr" "i", "t" } ;;
+        "t'" <- ‘Diff( "i", array_unsafe_get "arr" "i", "t" ) ;;
         array_unsafe_set "arr" "i" "v" ;;
-        "t" <- ‘Root{ "arr" } ;;
+        "t" <- ‘Root( "arr" ) ;;
         "arr"
     end.
 
@@ -61,7 +61,7 @@ Definition parray_set : val :=
     ) else (
       array_unsafe_set "arr" "i" "v" ;;
       let: "t'" := ref !"t" in
-      "t" <- ‘Diff{ "i", "v'", "t'" } ;;
+      "t" <- ‘Diff( "i", "v'", "t'" ) ;;
       "t'"
     ).
 
@@ -105,13 +105,13 @@ Section parray_G.
       ⌜length vs = γ.(parray_meta_size)⌝ ∗
       l ↦ descr ∗
       if (decide (l = root)) then (
-        ⌜descr = ’Root{ γ.(parray_meta_array) }⌝ ∗
+        ⌜descr = ’Root( γ.(parray_meta_array) )%V⌝ ∗
         array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗
         [∗ list] v ∈ vs, τ v
       ) else (
         ∃ i v l' vs',
         ⌜i < γ.(parray_meta_size) ∧ vs = <[i := v]> vs'⌝ ∗
-        ⌜descr = ’Diff{ #i, v, #l' }⌝ ∗
+        ⌜descr = ’Diff( #i, v, #l' )%V⌝ ∗
         parray_map_elem γ l' vs' ∗
         τ v
       ).
@@ -212,7 +212,7 @@ Section parray_G.
     iIntros "%Hsz %Φ #Hv HΦ".
     wp_rec.
     wp_smart_apply (array_make_spec with "[//]") as "%arr Harr"; first done.
-    wp_alloc root as "Hroot".
+    wp_ref root as "Hroot".
     pose vs := replicate (Z.to_nat sz) v.
     iMod (parray_map_alloc root vs) as "(%γ_map & Hmap_auth & Hmap_elem)".
     pose γ := {|
@@ -342,7 +342,7 @@ Section parray_G.
       { iExists _. rewrite decide_True //. iSteps. }
       iSteps.
     - wp_apply (array_unsafe_set_spec with "Harr") as "Harr"; first done. rewrite Nat2Z.id.
-      wp_load. clear root. wp_alloc root as "Hroot". wp_store. wp_pures.
+      wp_load. clear root. wp_ref root as "Hroot". wp_store. wp_pures.
       iApply "HΦ".
       iAssert ⌜map !! root = None⌝%I as %Hmap_lookup_root.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root %Hmap_lookup_root".

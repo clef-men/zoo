@@ -26,8 +26,8 @@ Fixpoint plst_to_val nil vs :=
   | [] =>
       nil
   | v :: vs =>
-      ’Cons{ v, plst_to_val nil vs }
-  end.
+      ’Cons( v, plst_to_val nil vs )
+  end%V.
 #[global] Arguments plst_to_val _ !_ : assert.
 
 #[global] Instance plst_to_val_physical nil vs :
@@ -37,12 +37,12 @@ Proof.
   destruct vs; done.
 Qed.
 Lemma plst_to_val_cons nil v vs :
-  plst_to_val nil (v :: vs) = ’Cons{ v, plst_to_val nil vs }.
+  plst_to_val nil (v :: vs) = ’Cons( v, plst_to_val nil vs )%V.
 Proof.
   done.
 Qed.
 Lemma plst_to_val_singleton nil v :
-  plst_to_val nil [v] = ’Cons{ v, nil }.
+  plst_to_val nil [v] = ’Cons( v, nil )%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
@@ -57,16 +57,10 @@ Definition lst_to_val :=
   plst_to_val §Nil.
 #[global] Arguments lst_to_val !_ / : assert.
 
-#[global] Instance lst_to_val_inj' :
-  Inj (=) val_eq lst_to_val.
-Proof.
-  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [naive_solver.. |].
-  intros (_ & [= -> ->%eq_val_eq%IH]). done.
-Qed.
 #[global] Instance lst_to_val_inj :
   Inj (=) (=) lst_to_val.
 Proof.
-  intros ?* ->%eq_val_eq%(inj _). done.
+  intros vs1. induction vs1; intros []; naive_solver.
 Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).
@@ -74,17 +68,17 @@ Proof.
   apply plst_to_val_physical. done.
 Qed.
 Lemma lst_to_val_nil :
-  lst_to_val [] = §Nil.
+  lst_to_val [] = §Nil%V.
 Proof.
   done.
 Qed.
 Lemma lst_to_val_cons v vs :
-  lst_to_val (v :: vs) = ’Cons{ v, lst_to_val vs }.
+  lst_to_val (v :: vs) = ’Cons( v, lst_to_val vs )%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
 Lemma lst_to_val_singleton v :
-  lst_to_val [v] = ’Cons{ v, §Nil }.
+  lst_to_val [v] = ’Cons( v, §Nil )%V.
 Proof.
   apply plst_to_val_singleton.
 Qed.
@@ -96,7 +90,7 @@ Qed.
 
 Definition lst_singleton : val :=
   fun: "v" =>
-    ‘Cons{ "v", §Nil }.
+    ‘Cons( "v", §Nil ).
 
 Definition lst_head : val :=
   fun: "t" =>
@@ -138,7 +132,7 @@ Definition lst_get : val :=
       §Nil
     ) else (
       let: "v" := "fn" "i" in
-      ‘Cons{ "v", "lst_initi_aux" "sz" "fn" (#1 + "i") }
+      ‘Cons( "v", "lst_initi_aux" "sz" "fn" (#1 + "i") )
     ).
 Definition lst_initi : val :=
   fun: "sz" "fn" =>
@@ -183,14 +177,14 @@ Definition lst_size : val :=
 
 Definition lst_rev_app : val :=
   fun: "t1" "t2" =>
-    lst_foldl "t1" "t2" (fun: "acc" "v" => ‘Cons{ "v", "acc" }).
+    lst_foldl "t1" "t2" (fun: "acc" "v" => ‘Cons( "v", "acc" )).
 Definition lst_rev : val :=
   fun: "t" =>
     lst_rev_app "t" §Nil.
 
 Definition lst_app : val :=
   fun: "t1" "t2" =>
-    lst_foldr "t1" (fun: "v" "acc" => ‘Cons{ "v", "acc" }) "t2".
+    lst_foldr "t1" (fun: "v" "acc" => ‘Cons( "v", "acc" )) "t2".
 Definition lst_snoc : val :=
   fun: "t" "v" =>
     lst_app "t" (lst_singleton "v").
@@ -210,7 +204,7 @@ Definition lst_iter : val :=
     | Cons "v" "t" =>
         let: "v" := "fn" "i" "v" in
         let: "t" := "lst_mapi_aux" "t" "fn" (#1 + "i") in
-        ‘Cons{ "v", "t" }
+        ‘Cons( "v", "t" )
     end.
 Definition lst_mapi : val :=
   fun: "t" "fn" =>

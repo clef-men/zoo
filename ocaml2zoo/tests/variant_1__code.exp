@@ -10,5 +10,5 @@ From zoo Require Import
 Definition variant_1_test : val :=
   fun: <> =>
     §A ;;
-    ‘B{ #0 } ;;
+    ‘B( #0 ) ;;
     ().

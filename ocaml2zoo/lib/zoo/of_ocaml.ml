@@ -248,6 +248,8 @@ let builtin_constrs =
 
 let force_record_attribute =
   "zoo.force_record"
+let reveal_attribute =
+  "zoo.reveal"
 
 let record_is_mutable ty =
   let[@warning "-8"] Types.Type_record (lbls, _) = ty.Types.type_kind in
@@ -518,11 +520,17 @@ let rec expression ctx (expr : Typedtree.expression) =
         begin match Longident.Map.find_opt lid.txt builtin_constrs with
         | Some (tag, dep) ->
             Option.iter (Context.add_dependency ctx) dep ;
-            Either.get_left (fun tag -> Constr (tag, exprs)) tag
+            Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
+            let phys =
+              if List.exists (fun attr -> attr.Parsetree.attr_name.txt = reveal_attribute) constr.cstr_attributes then
+                Physical
+              else
+                Abstract
+            in
             let tag = Longident.last lid.txt in
             let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
-            Constr (tag, exprs)
+            Constr (phys, tag, exprs)
         end
   | Texp_match (expr, brs, _) ->
       let expr = expression ctx expr in

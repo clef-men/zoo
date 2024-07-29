@@ -50,19 +50,14 @@ Coercion optional_to_val o :=
   | Anything =>
       §Anything
   | Something v =>
-      ’Something{ v }
-  end.
+      ’Something( v )
+  end%V.
 #[global] Arguments optional_to_val !_ / : assert.
 
-#[global] Instance optional_to_val_inj' :
-  Inj (=) val_eq optional_to_val.
-Proof.
-  intros [] []; naive_solver.
-Qed.
 #[global] Instance optional_to_val_inj :
   Inj (=) (=) optional_to_val.
 Proof.
-  intros ?* ->%eq_val_eq%(inj _). done.
+  intros [] []; naive_solver.
 Qed.
 #[global] Instance optional_to_val_physical o :
   ValPhysical (optional_to_val o).
@@ -75,9 +70,9 @@ Section zoo_G.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype_optional t : iProp Σ :=
-      ⌜t = §Nothing⌝
-    ∨ ⌜t = §Anything⌝
-    ∨ ∃ v, ⌜t = ’Something{ v }⌝ ∗ τ v.
+      ⌜t = §Nothing%V⌝
+    ∨ ⌜t = §Anything%V⌝
+    ∨ ∃ v, ⌜t = ’Something( v )%V⌝ ∗ τ v.
   #[global] Instance itype_optional_itype :
     iType _ itype_optional.
   Proof.

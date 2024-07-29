@@ -47,22 +47,22 @@ Implicit Types vs : list val.
   rec: "truc_rev_aux" "suffix" "truc" =>
     match: "truc" with
     | Snoc "cnt" "prefix" "v" =>
-        "truc_rev_aux" ‘Cons{ "cnt", "v", "suffix" } "prefix"
+        "truc_rev_aux" ‘Cons( "cnt", "v", "suffix" ) "prefix"
     | Back <> =>
         "suffix"
     end.
 #[local] Definition truc_rev : val :=
   fun: "truc" =>
     let: ‘Snoc "cnt" "prefix" "v" := "truc" in
-    truc_rev_aux ‘Cons{ "cnt", "v", ‘Front{ #1 + "cnt" } } "prefix".
+    truc_rev_aux ‘Cons( "cnt", "v", ‘Front( #1 + "cnt" ) ) "prefix".
 
 Definition mpmc_queue_create : val :=
   fun: <> =>
-    { ‘Front{ #1 }, ‘Back{ #0, ref () } }.
+    { ‘Front( #1 ), ‘Back( #0, ref () ) }.
 
 #[local] Definition mpmc_queue_push_aux : val :=
   fun: "mpmc_queue_push" "t" "v" "cnt" "back" =>
-    ifnot: CAS "t".[back] "back" ‘Snoc{ #1 + "cnt", "back", "v" } then (
+    ifnot: CAS "t".[back] "back" ‘Snoc( #1 + "cnt", "back", "v" ) then (
       Yield ;;
       "mpmc_queue_push" "t" "v"
     ).
@@ -95,7 +95,7 @@ Definition mpmc_queue_push : val :=
     match: "front" with
     | Cons <> "v" "suffix" =>
         if: CAS "t".[front] "front" "suffix" then (
-          ‘Some{ "v" }
+          ‘Some( "v" )
         ) else (
           Yield ;;
           "aux1" "aux2" "aux3" "t" "t".{front}
@@ -105,12 +105,12 @@ Definition mpmc_queue_push : val :=
         | Snoc "move_cnt" "v" "move_prefix" as "move" =>
             if: "front_cnt" = "move_cnt" then (
               if: CAS "t".[back] "move" "move_prefix" then (
-                ‘Some{ "v" }
+                ‘Some( "v" )
               ) else (
                 "aux1" "aux2" "aux3" "t" "t".{front}
               )
             ) else (
-              let: "back" := ‘Back{ "move_cnt", "move" } in
+              let: "back" := ‘Back( "move_cnt", "move" ) in
               if: CAS "t".[back] "move" "back" then (
                 "aux2" "aux1" "aux3" "t" "front" "move" "back"
               ) else (
@@ -135,7 +135,7 @@ Definition mpmc_queue_push : val :=
       let: ‘Cons <> "v" "suffix" := truc_rev "move" in
       if: CAS "t".[front] "front" "suffix" then (
         "↦move" <- () ;;
-        ‘Some{ "v" }
+        ‘Some( "v" )
       ) else (
         Yield ;;
         "aux1" "aux2" "aux3" "t" "t".{front}

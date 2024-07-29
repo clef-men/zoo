@@ -149,7 +149,7 @@ Inductive kcas_lstep : kcas_lstatus → kcas_lstatus → Prop :=
 #[local] Hint Constructors kcas_lstep : core.
 
 Class KcasG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] kcas_G_model_G :: TwinsG Σ valO ;
+  #[local] kcas_G_model_G :: TwinsG Σ val_O ;
   #[local] kcas_G_saved_prop :: SavedPropG Σ ;
   #[local] kcas_G_lstatus_G :: AuthMonoG (A := leibnizO kcas_lstatus) Σ kcas_lstep ;
   #[local] kcas_G_witness_G :: ExclG Σ unitO ;
@@ -159,7 +159,7 @@ Class KcasG Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition kcas_Σ := #[
-  twins_Σ valO ;
+  twins_Σ val_O ;
   saved_prop_Σ ;
   auth_mono_Σ (A := leibnizO kcas_lstatus) kcas_lstep ;
   excl_Σ unitO ;
@@ -238,7 +238,7 @@ Section kcas_G.
     kcas_casn_meta_descrs : list kcas_descr ;
     kcas_casn_meta_prophet : prophet_id ;
     kcas_casn_meta_prophs : list kcas_prophet.(typed_prophet_type) ;
-    kcas_casn_meta_cid : constr_id ;
+    kcas_casn_meta_undetermined : location ;
     kcas_casn_meta_post : gname ;
     kcas_casn_meta_lstatus : gname ;
     kcas_casn_meta_witnesses : list gname ;
@@ -263,7 +263,7 @@ Section kcas_G.
   #[local] Definition kcas_casn_meta_success η :=
     (kcas_casn_meta_outcome η).2.
   #[local] Definition kcas_casn_meta_final η :=
-    if kcas_casn_meta_success η then §After else §Before.
+    if kcas_casn_meta_success η then §After%V else §Before%V.
 
   #[local] Instance kcas_casn_meta_eq_dec : EqDecision kcas_casn_meta :=
     ltac:(solve_decision).
@@ -274,7 +274,7 @@ Section kcas_G.
       η.(kcas_casn_meta_descrs),
       η.(kcas_casn_meta_prophet),
       η.(kcas_casn_meta_prophs),
-      η.(kcas_casn_meta_cid),
+      η.(kcas_casn_meta_undetermined),
       η.(kcas_casn_meta_post),
       η.(kcas_casn_meta_lstatus),
       η.(kcas_casn_meta_witnesses),
@@ -282,11 +282,11 @@ Section kcas_G.
       η.(kcas_casn_meta_winning),
       η.(kcas_casn_meta_owner)
     ).
-    pose decode := λ '(descrs, prophet, prophs, cid, post, lstatus, witnesses, waiters, winning, owner), {|
+    pose decode := λ '(descrs, prophet, prophs, undetermined, post, lstatus, witnesses, waiters, winning, owner), {|
       kcas_casn_meta_descrs := descrs ;
       kcas_casn_meta_prophet := prophet ;
       kcas_casn_meta_prophs := prophs ;
-      kcas_casn_meta_cid := cid ;
+      kcas_casn_meta_undetermined := undetermined ;
       kcas_casn_meta_post := post ;
       kcas_casn_meta_lstatus := lstatus ;
       kcas_casn_meta_witnesses := witnesses ;
@@ -380,7 +380,7 @@ Section kcas_G.
     match lstatus with
     | KcasUndetermined i =>
         ⌜i < kcas_casn_meta_size η⌝ ∗
-        ⌜status = ’Undetermined@{η.(kcas_casn_meta_cid)}{ lst_to_val $ kcas_casn_meta_cass casn η }⌝ ∗
+        ⌜status = #η.(kcas_casn_meta_undetermined)⌝ ∗
         ( [∗ list] descr ∈ take i η.(kcas_casn_meta_descrs),
           meta descr.(kcas_descr_loc) nroot descr.(kcas_descr_meta) ∗
           kcas_model₂ descr.(kcas_descr_meta) descr.(kcas_descr_before)
@@ -433,6 +433,8 @@ Section kcas_G.
           let casn := param.(kcas_param_location) in
           ∃ P,
           casn.[prophet] ↦□ #η.(kcas_casn_meta_prophet) ∗
+          η.(kcas_casn_meta_undetermined) ↦ₕ Header §Undetermined 1 ∗
+          η.(kcas_casn_meta_undetermined).[0] ↦ (lst_to_val $ kcas_casn_meta_cass casn η) ∗
           saved_prop η.(kcas_casn_meta_post) P ∗
           inv (ι.@"casn".@casn) (kcas_casn_inv_inner' kcas_inv casn η ι P)
       end%I
@@ -470,7 +472,7 @@ Section kcas_G.
     kcas_model₁ γ v.
 
   #[local] Lemma kcas_finish_spec_loser id casn η ι status :
-    status = §Before ∨ status = §After →
+    status = §Before%V ∨ status = §After%V →
     id ≠ kcas_casn_meta_winner η →
     {{{
       kcas_casn_inv' casn η ι

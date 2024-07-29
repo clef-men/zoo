@@ -95,7 +95,7 @@ Module raw.
       | [] =>
           ⌜node = dst⌝
       | δ :: δs =>
-          node ↦ ’Diff{ #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) } ∗
+          node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
           deltas_chain (delta_node δ) δs dst
       end.
 
@@ -318,7 +318,7 @@ Module raw.
     Qed.
 
     #[local] Lemma deltas_chain_cons src δ δs dst :
-      src ↦ ’Diff{ #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) } -∗
+      src ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) -∗
       deltas_chain (delta_node δ) δs dst -∗
         deltas_chain src (δ :: δs) dst.
     Proof.
@@ -332,14 +332,14 @@ Module raw.
     Qed.
     #[local] Lemma deltas_chain_cons_inv src δ δs dst :
       deltas_chain src (δ :: δs) dst ⊢
-        src ↦ ’Diff{ #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) } ∗
+        src ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) δs dst.
     Proof.
       iSteps.
     Qed.
     #[local] Lemma deltas_chain_snoc {src δs dst} r g v dst' :
       deltas_chain src δs dst -∗
-      dst ↦ ’Diff{ #r, #g, v, #dst' } -∗
+      dst ↦ ’Diff( #r, #g, v, #dst' ) -∗
       deltas_chain src (δs ++ [(r, (g, v), dst')]) dst'.
     Proof.
       iInduction δs as [] "IH" forall (src); iSteps.
@@ -374,7 +374,7 @@ Module raw.
         let node := default src $ delta_node <$> last δs in
         ⌜delta_node δ = dst⌝ ∗
         deltas_chain src δs node ∗
-        node ↦ ’Diff{ #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst }.
+        node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst ).
     Proof.
       rewrite deltas_chain_app_1. iSteps.
     Qed.
@@ -401,7 +401,7 @@ Module raw.
             delta_node δ' = node
         ⌝ ∗
         deltas_chain src (take i δs) node ∗
-        node ↦ ’Diff{ #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) } ∗
+        node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) (drop (S i) δs) dst.
     Proof.
       iIntros "%Hδs_lookup Hδs".
@@ -461,8 +461,8 @@ Module raw.
       iIntros "%Φ _ HΦ".
 
       wp_rec.
-      wp_alloc root as "Hroot".
-      wp_record l as "Hmeta" "(Hl_gen & Hl_root & _)".
+      wp_ref root as "Hroot".
+      wp_block l as "Hmeta" "(Hl_gen & Hl_root & _)".
 
       iMod (descriptors_alloc root) as "(%γ & Hauth)".
 
@@ -487,7 +487,7 @@ Module raw.
     Proof.
       iIntros "%Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
 
-      wp_rec. wp_record r as "(Hr_gen & Hr_value & _)".
+      wp_rec. wp_block r as "(Hr_gen & Hr_value & _)".
       iAssert ⌜σ0 !! r = None⌝%I as %Hr.
       { rewrite -not_elem_of_dom. iIntros "%Hr".
         iDestruct (big_sepM_lookup with "Hς") as "(_Hr_gen & _)".
@@ -641,7 +641,7 @@ Module raw.
           }
 
         + rewrite bool_decide_eq_false_2; first naive_solver. wp_pures.
-          wp_alloc root' as "Hroot'". do 2 wp_load. do 4 wp_store.
+          wp_ref root' as "Hroot'". do 2 wp_load. do 4 wp_store.
           iDestruct ("Hς" $! (g, v) with "[$Hr_gen $Hr_value]") as "Hς".
           iApply "HΦ".
           iExists l, γ, g, root', (<[r := (g, v)]> ς). iFrame "#∗". iStep.

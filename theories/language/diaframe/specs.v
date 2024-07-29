@@ -57,55 +57,25 @@ Section instances.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
   Qed.
 
-  #[global] Instance reveal_step_wp tag vs :
-    SPEC
-    {{ True }}
-      Reveal $ ValConstr None tag vs
-    {{ cid,
-      RET ValConstr (Some cid) tag vs; True
-    }}.
-  Proof.
-    iSteps.
-    wp_reveal cid.
-    iSteps.
-  Qed.
-
-  #[global] Instance record_step_wp es :
+  #[global] Instance step_wp_block tag es :
     SPEC vs,
     {{
       ⌜0 < length es⌝%nat ∗
       ⌜to_vals es = Some vs⌝
     }}
-      Record es
+      Block Physical tag es
     {{ l,
       RET #l;
+      meta_token l ⊤ ∗
       l ↦∗ vs
     }}.
   Proof.
     iSteps.
-    wp_record l as "Hl".
+    wp_block l as "Hmeta" "Hl".
     iSteps.
   Qed.
 
-  #[global] Instance ref_step_wp e v :
-    AsVal e v →
-    SPEC
-    {{ True }}
-      ref e
-    {{ l,
-      RET #l;
-      meta_token l ⊤ ∗
-      l ↦ v
-    }}
-  | 20.
-  Proof.
-    move=> <-.
-    iSteps.
-    wp_alloc l as "Hmeta" "Hl".
-    iSteps.
-  Qed.
-
-  #[global] Instance alloc_step_wp e v E1 E2 n :
+  #[global] Instance step_wp_alloc e v E1 E2 n :
     AsVal e v →
     SPEC ⟨E1, E2⟩
     {{
@@ -125,7 +95,26 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance load_step_wp l E1 E2 :
+  #[global] Instance step_wp_ref e v :
+    AsVal e v →
+    SPEC
+    {{ True }}
+      ref e
+    {{ l,
+      RET #l;
+      l ↦ₕ Header 0 1 ∗
+      meta_token l ⊤ ∗
+      l ↦ v
+    }}
+  | 20.
+  Proof.
+    move=> <-.
+    iSteps.
+    wp_ref l as "Hhdr" "Hmeta" "Hl".
+    iSteps.
+  Qed.
+
+  #[global] Instance step_wp_load l E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
     {{
       ▷ l ↦{dq} v
@@ -141,7 +130,7 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance store_step_wp l v E1 E2 :
+  #[global] Instance step_wp_store l v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
       ▷ l ↦ w
@@ -157,7 +146,7 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance xchg_step_wp l v E1 E2 :
+  #[global] Instance step_wp_xchg l v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
       ▷ l ↦ w
@@ -173,13 +162,13 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance cas_step_wp l v1 v2 E1 E2 :
+  #[global] Instance step_wp_cas l v1 v2 E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
     {{
       ▷ l ↦{dq} v ∗
       ⌜val_physical v⌝ ∗
       ⌜val_physical v1⌝ ∗
-      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
+      ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
     }}
       CAS #l v1 v2
     {{ (b : bool),
@@ -188,17 +177,16 @@ Section instances.
         ⌜val_neq v v1⌝ ∗
         l ↦{dq} v
       ∨ ⌜b = true⌝ ∗
-        ⌜val_eq v v1⌝ ∗
-        ⌜val_consistency v v1⌝ ∗
+        ⌜v = v1⌝ ∗
         l ↦ v2
     }}.
   Proof.
-    iStep as (lit). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
-    wp_cas as ? | ? ?; iSteps.
-    destruct H; last done. iSteps.
+    iStep as (v). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
+    wp_cas as ? | ?; iSteps.
+    destruct H; iSteps.
   Qed.
 
-  #[global] Instance faa_step_wp l i E1 E2 :
+  #[global] Instance step_wp_faa l i E1 E2 :
     SPEC ⟨E1, E2⟩ (z : Z),
     {{
       ▷ l ↦ #z
@@ -214,7 +202,7 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance proph_step :
+  #[global] Instance step_wp_proph :
     SPEC
     {{ True }}
       Proph

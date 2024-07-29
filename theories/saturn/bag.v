@@ -54,7 +54,7 @@ Definition bag_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
-    bag_push_aux (array_unsafe_get "data" "i") ‘Some{ "v" }.
+    bag_push_aux (array_unsafe_get "data" "i") ‘Some( "v" ).
 
 #[local] Definition bag_pop_aux : val :=
   rec: "bag_pop_aux" "slot" =>
@@ -208,13 +208,13 @@ Section bag_G.
     { iSplitL.
       - iExists []. iSteps.
       - iIntros "!> %i %vs %Hi (%slots & %Hslots & Hslots)".
-        wp_alloc slot as "Hslot".
+        wp_ref slot as "Hslot".
         iExists (slots ++ [slot]). iSteps.
         + list_simplifier. done.
         + iApply big_sepL_snoc.
           iSteps.
     }
-    wp_record l as "Hmeta" "(Hdata & Hfront & Hback & _)".
+    wp_block l as "Hmeta" "(Hdata & Hfront & Hback & _)".
     iMod (array_model_persist with "Hdata_model") as "#Hdata_model".
 
     iMod bag_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
@@ -244,7 +244,7 @@ Section bag_G.
     | ∀∀ vs,
       bag_model #l vs
     >>>
-      bag_push_aux #slot ’Some{ v } @ ↑ι
+      bag_push_aux #slot ’Some( v ) @ ↑ι
     <<<
       bag_model #l ({[+v+]} ⊎ vs)
     | RET (); True
@@ -262,7 +262,7 @@ Section bag_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj option_to_val _ None) _.
+    wp_cas as _ | ->%(inj option_to_val _ None).
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
@@ -357,7 +357,7 @@ Section bag_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj option_to_val _ (Some v)) _.
+    wp_cas as _ | ->%(inj option_to_val _ (Some v)).
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.

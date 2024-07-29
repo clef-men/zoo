@@ -61,7 +61,7 @@ let pattern ppf = function
   | Pat_tuple bdrs ->
       Format.pp_print_list ~pp_sep:pp_comma binder ppf bdrs
   | Pat_constr (tag, bdrs) ->
-      Format.fprintf ppf "‘%s{ %a }"
+      Format.fprintf ppf "‘%s %a"
       tag
       (Format.pp_print_list ~pp_sep:pp_comma binder) bdrs
 
@@ -228,13 +228,15 @@ let rec expression' lvl ppf = function
   | Record exprs ->
       Format.fprintf ppf "@[<hv>{ %a@;}@]"
         Format.(pp_print_array ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
-  | Constr (tag, []) ->
+  | Constr (_, tag, []) ->
       Format.fprintf ppf "§%s"
         tag
-  | Constr (tag, exprs) ->
-      Format.fprintf ppf "@[<hv>‘%s{ %a@;}@]"
+  | Constr (phys, tag, exprs) ->
+      Format.fprintf ppf "@[<hv>‘%s%c %a@;%c@]"
         tag
+        (match phys with Physical -> '{' | Abstract -> '(')
         Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
+        (match phys with Physical -> '}' | Abstract -> ')')
   | Proj (expr, fld) ->
       Format.fprintf ppf "@[%a@].<%s>"
         (expression lvl) expr

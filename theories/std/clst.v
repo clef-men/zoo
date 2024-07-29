@@ -36,15 +36,14 @@ Fixpoint clist_to_val cls :=
   | ClistOpen =>
       §ClstOpen
   | ClistCons v cls =>
-      ’ClstCons{ v, clist_to_val cls }
-  end.
+      ’ClstCons( v, clist_to_val cls )
+  end%V.
 Coercion clist_to_val : clist >-> val.
 
 #[global] Instance clist_to_val_inj :
-  Inj (=) val_eq clist_to_val.
+  Inj (=) (=) clist_to_val.
 Proof.
-  intros cls1. induction cls1 as [| | v1 cls1 IH]; intros [| | v2 cls2]; [naive_solver.. |].
-  intros (_ & [= -> ->%eq_val_eq%IH]). done.
+  intros cls1. induction cls1; intros []; naive_solver.
 Qed.
 #[global] Instance clist_to_val_physical cls :
   ValPhysical (clist_to_val cls).
@@ -137,7 +136,7 @@ Definition clst_app : val :=
     | ClstOpen =>
         "t2"
     | ClstCons "v" "t1" =>
-        ‘ClstCons{ "v", "clst_app" "t1" "t2" }
+        ‘ClstCons( "v", "clst_app" "t1" "t2" )
     end.
 
 Definition clst_rev_app : val :=
@@ -146,7 +145,7 @@ Definition clst_rev_app : val :=
     | ClstOpen =>
         "t2"
     | ClstCons "v" "t1" =>
-        "clst_rev_app" "t1" ‘ClstCons{ "v", "t2" }
+        "clst_rev_app" "t1" ‘ClstCons( "v", "t2" )
     end.
 
 Definition clst_iter : val :=

@@ -34,7 +34,7 @@ Definition pqueue_is_empty : val :=
 
 Definition pqueue_push : val :=
   fun: "t" "v" =>
-    ("t".<front>, ‘Cons{ "v", "t".<back> }).
+    ("t".<front>, ‘Cons( "v", "t".<back> )).
 
 Definition pqueue_pop : val :=
   fun: "t" =>
@@ -44,10 +44,10 @@ Definition pqueue_pop : val :=
         | Nil =>
             §None
         | Cons "v" "vs" =>
-            ‘Some{ ("v", ("vs", §Nil)) }
+            ‘Some( ("v", ("vs", §Nil)) )
         end
     | Cons "v" "vs" =>
-        ‘Some{ ("v", ("vs", "t".<back>)) }
+        ‘Some( ("v", ("vs", "t".<back>)) )
     end.
 
 Section zoo_G.

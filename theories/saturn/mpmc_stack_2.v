@@ -29,7 +29,7 @@ Definition mpmc_stack_push : val :=
     | ClstClosed =>
         #true
     |_ as "old" =>
-        let: "new" := ‘ClstCons{ "v", "old" } in
+        let: "new" := ‘ClstCons( "v", "old" ) in
         if: CAS "t" "old" "new" then (
           #false
         ) else (
@@ -47,7 +47,7 @@ Definition mpmc_stack_pop : val :=
         §Nothing
     | ClstCons "v" "new" as "old" =>
         if: CAS "t" "old" "new" then (
-          ‘Something{ "v" }
+          ‘Something( "v" )
         ) else (
           Yield ;;
           "mpmc_stack_pop" "t"
@@ -166,7 +166,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_alloc l as "Hmeta" "Hl".
+    wp_ref l as "Hmeta" "Hl".
 
     iMod mpmc_stack_model_alloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
@@ -210,7 +210,7 @@ Section zoo_G.
       destruct vs' as [ws' |].
 
       + simpl.
-        wp_cas as _ | ->%(inj _)%(inj _) _.
+        wp_cas as _ | ->%(inj _)%(inj _).
 
         * iSplitR "HΦ". { iExists (Some _). iSteps. }
           iSteps.
@@ -224,7 +224,7 @@ Section zoo_G.
           iSplitR "HΦ". { iExists (Some ws'). iSteps. }
           iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed' _.
+      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed'.
         iSplitR "HΦ". { iExists None. iSteps. }
         iSteps.
 
@@ -293,7 +293,7 @@ Section zoo_G.
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       destruct vs' as [ws' |].
 
-      + wp_cas as _ | ->%(inj clist_to_val _ (ClistCons _ _))%(inj list_to_clist_open _ (_ :: _)) _.
+      + wp_cas as _ | ->%(inj clist_to_val _ (ClistCons _ _))%(inj list_to_clist_open _ (_ :: _)).
 
         * iSplitR "HΦ". { iExists (Some ws'). iSteps. }
           iSteps.
@@ -306,7 +306,7 @@ Section zoo_G.
           iSplitR "H£ HΦ". { iExists (Some ws). iSteps. }
           iSteps.
 
-      + wp_cas as _ | [] _.
+      + wp_cas as _ | [=].
         iSplitR "HΦ". { iExists None. iSteps. }
         iSteps.
 
@@ -364,7 +364,7 @@ Section zoo_G.
       iSplitR "HΦ". { iExists (Some _). iSteps. }
       iModIntro.
 
-      wp_equal as _ | []%(inj clist_to_val _ ClistClosed)%list_to_clist_open_not_closed _.
+      wp_equal as _ | []%(inj clist_to_val _ ClistClosed)%list_to_clist_open_not_closed.
       iSteps.
 
     - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.

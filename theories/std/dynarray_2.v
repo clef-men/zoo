@@ -45,12 +45,12 @@ Definition dynarray_create : val :=
 Definition dynarray_make : val :=
   fun: "sz" "v" =>
     assume (#0 ≤ "sz") ;;
-    { "sz", array_initi "sz" (fun: <> => ‘Some{ ref "v" }) }.
+    { "sz", array_initi "sz" (fun: <> => ‘Some( ref "v" )) }.
 
 Definition dynarray_initi : val :=
   fun: "sz" "fn" =>
     assume (#0 ≤ "sz") ;;
-    { "sz", array_initi "sz" (fun: "i" => ‘Some{ ref ("fn" "i") }) }.
+    { "sz", array_initi "sz" (fun: "i" => ‘Some( ref ("fn" "i") )) }.
 
 Definition dynarray_size : val :=
   fun: "t" =>
@@ -129,7 +129,7 @@ Definition dynarray_reserve_extra : val :=
     ).
 Definition dynarray_push : val :=
   fun: "t" "v" =>
-    let: "slot" := ‘Some{ ref "v" } in
+    let: "slot" := ‘Some( ref "v" ) in
     ifnot: dynarray_try_push "t" "slot" then (
       dynarray_push_aux "t" "slot"
     ).
@@ -168,13 +168,13 @@ Section zoo_G.
 
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
-    ⌜slot = ’Some{ #r }⌝ ∗
+    ⌜slot = ’Some( #r )%V⌝ ∗
     r ↦ v.
   Definition dynarray_model t vs : iProp Σ :=
     ∃ l data slots extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
-    l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra §None) ∗
+    l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra §None%V) ∗
     [∗ list] slot; v ∈ slots; vs, slot_model slot v.
 
   #[global] Instance dynarray_model_timeless t vs :
@@ -194,7 +194,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hdata_model".
-    wp_record l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hsz & Hdata & _)".
     iApply "HΦ". iExists l, data, [], 0. iSteps.
   Qed.
 
@@ -212,8 +212,8 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply assume_spec' as "_".
     wp_smart_apply (array_initi_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hslots & Hdata_model & Hslots)"; first done.
-    { iStep 5. iModIntro. wp_alloc r as "Hr". iSteps. }
-    wp_record l as "(Hsz & Hdata & _)".
+    { iStep 5. iModIntro. wp_ref r as "Hr". iSteps. }
+    wp_block l as "(Hsz & Hdata & _)".
     iApply "HΦ". iExists l, data, slots, 0. iFrame. iSplitR; first iSteps.
     rewrite replicate_length right_id. iFrame.
     iApply (big_sepL2_replicate_r_2 _ _ (λ _, slot_model) with "Hslots"). lia.
@@ -252,10 +252,10 @@ Section zoo_G.
     { iSplitL "HΨ"; first iSteps. iIntros "!> %i %slots (%Hi1 & %Hi2) (%vs & HΨ & Hslots)".
       iDestruct (big_sepL2_length with "Hslots") as %Hslots.
       wp_smart_apply (wp_wand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
-      wp_alloc r as "Hr". wp_pures.
+      wp_ref r as "Hr". wp_pures.
       iExists (vs ++ [v]). iFrame. iSteps.
     }
-    wp_record l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hsz & Hdata & _)".
     iDestruct (big_sepL2_length with "Hslots") as %Hslots'.
     iApply "HΦ". iFrame. iSplitR; first iSteps.
     iExists l, data, slots, 0. iFrame. iSplitR; first iSteps. iSplitL "Hsz"; first iSteps.
@@ -574,7 +574,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
-    wp_rec. wp_alloc r as "Hr".
+    wp_rec. wp_ref r as "Hr".
     wp_smart_apply (dynarray_try_push_spec with "[$Hmodel Hr]") as ([]) ""; [iSteps.. |]. iIntros "(Hmodel & Hslot)".
     wp_smart_apply (dynarray_push_aux_spec with "[$Hmodel $Hslot]").
     iSteps.
@@ -701,7 +701,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_initi_type itype_slot) as "%data (_ & Hdata_type)".
-    { iStep 5. iModIntro. wp_alloc r. iSteps. }
+    { iStep 5. iModIntro. wp_ref r. iSteps. }
     iSteps.
   Qed.
 
@@ -916,8 +916,8 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
-    wp_rec. wp_alloc r as "Hr".
-    iAssert (|={⊤}=> itype_slot ’Some{ #r })%I with "[Hr]" as ">#Hslot"; first iSteps.
+    wp_rec. wp_ref r as "Hr".
+    iAssert (|={⊤}=> itype_slot ’Some( #r ))%I with "[Hr]" as ">#Hslot"; first iSteps.
     wp_smart_apply (dynarray_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply (dynarray_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.

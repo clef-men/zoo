@@ -64,13 +64,8 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic proj cid tag vs :
-    Atomic (Proj proj $ Val $ ValConstr cid tag vs).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance reveal_atomic cid tag vs :
-    Atomic (Reveal $ Val $ ValConstr cid tag vs).
+  #[global] Instance proj_atomic proj tag vs :
+    Atomic (Proj proj $ Val $ ValBlock tag vs).
   Proof.
     solve_atomic.
   Qed.
@@ -130,7 +125,7 @@ Section atomic.
     Atomic e →
     Atomic (Resolve e (Val v1) (Val v2)).
   Proof.
-    rename e into e1. intros H σ1 e2 κ σ2 es ϕ [K e1' e2' Hfill -> Hstep].
+    rename e into e1. intros H σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
     - subst. inversion_clear Hstep.
       eapply (H σ1 (Val _) _ σ2 es), base_prim_step. done.
@@ -146,7 +141,7 @@ Section atomic.
           apply Hfill_absurd in H; done
         end
       ).
-      refine (_ (H σ1 (fill (K ++ [_]) e2') _ σ2 es _ _)).
+      refine (_ (H σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
       + intro Hs. simpl in *.
         destruct Hs as [v Hs]. apply to_val_fill_some in Hs. destruct Hs, K; done.
       + econstructor; try done. simpl. by rewrite fill_app.
@@ -245,56 +240,47 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_location_unit l :
+  #[global] Instance pure_equal_block tag1 tag2 :
     PureExec
       True
       1
-      (Equal (Val $ ValLoc l) Unit)
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_equal_unit_location l :
-    PureExec
-      True
-      1
-      (Equal Unit (Val $ ValLoc l))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_equal_unit :
-    PureExec
-      True
-      1
-      (Equal Unit Unit)
-      (Val $ ValBool true).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_equal_constr tag1 tag2 :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValConstr None tag1 []) (Val $ ValConstr None tag2 []))
+      (Equal (Val $ ValBlock tag1 []) (Val $ ValBlock tag2 []))
       (Val $ ValBool (bool_decide (tag1 = tag2))).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_constr_1 tag1 tag2 v2 vs2 :
+  #[global] Instance pure_equal_block_1 tag1 tag2 v2 vs2 :
     PureExec
       True
       1
-      (Equal (Val $ ValConstr None tag1 []) (Val $ ValConstr None tag2 (v2 :: vs2)))
+      (Equal (Val $ ValBlock tag1 []) (Val $ ValBlock tag2 (v2 :: vs2)))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_constr_2 tag1 v1 vs1 tag2 :
+  #[global] Instance pure_equal_block_2 tag1 v1 vs1 tag2 :
     PureExec
       True
       1
-      (Equal (Val $ ValConstr None tag1 (v1 :: vs1)) (Val $ ValConstr None tag2 []))
+      (Equal (Val $ ValBlock tag1 (v1 :: vs1)) (Val $ ValBlock tag2 []))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_location_block l tag vs :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValLoc l) (Val $ ValBlock tag vs))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_location tag l vs :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValBlock tag vs) (Val $ ValLoc l))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -319,32 +305,32 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_constr tag es vs :
+  #[global] Instance pure_block tag es vs :
     PureExec
       (to_vals es = Some vs)
       1
-      (Constr tag es)
-      (Val $ ValConstr None tag vs).
+      (Block Abstract tag es)
+      (Val $ ValBlock tag vs).
   Proof.
     intros <-%of_to_vals.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_proj proj cid tag vs v :
+  #[global] Instance pure_proj proj tag vs v :
     PureExec
       (vs !! proj = Some v)
       1
-      (Proj proj $ Val $ ValConstr cid tag vs)
+      (Proj proj $ Val $ ValBlock tag vs)
       (Val v).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_match cid tag vs x e brs :
+  #[global] Instance pure_match tag vs x e brs e' :
     PureExec
-      True
+      (match_apply None tag vs x e brs = Some e')
       1
-      (Match (Val $ ValConstr cid tag vs) x e brs)
-      (match_apply cid tag vs x e brs).
+      (Match (Val $ ValBlock tag vs) x e brs)
+      e'.
   Proof.
     solve_pure_exec.
   Qed.

@@ -2,6 +2,8 @@ From zoo Require Import
   prelude.
 From zoo.iris.bi Require Import
   big_op.
+From zoo.iris.base_logic Require Import
+  lib.mono_map.
 From zoo.iris.program_logic Require Import
   wp_lifting.
 From zoo.iris Require Import
@@ -33,14 +35,11 @@ Section zoo_G.
     base_reducible (v1 = v2) σ.
   Proof.
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []],
-      v2 as [[b2 | i2 | l2 | |] | | [cid2 |] tag2 []].
+      v1 as [lit1 | | tag1 []],
+      v2 as [lit2 | | tag2 []].
     all:
       try first
-      [ destruct (decide (b1 = b2)); first subst
-      | destruct (decide (i1 = i2)); first subst
-      | destruct (decide (l1 = l2)); first subst
-      | destruct (decide (cid1 = cid2)); first subst
+      [ destruct (decide (lit1 = lit2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
     all: auto with zoo.
@@ -52,26 +51,22 @@ Section zoo_G.
       ( ⌜val_neq v1 v2⌝ -∗
         Φ #false
       ) ∧ (
-        ⌜val_eq v1 v2⌝ -∗
-        ⌜val_consistency v1 v2⌝ -∗
+        ⌜v1 = v2⌝ -∗
         Φ #true
       )
     ) ⊢
     WP v1 = v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
-    iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
     destruct
-      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []],
-      v2 as [[b2 | i2 | l2 | |] | | [cid2 |] tag2 []].
+      v1 as [lit1 | | tag1 []],
+      v2 as [lit2 | | tag2 []].
     all:
       try first
-      [ destruct (decide (b1 = b2)); first subst
-      | destruct (decide (i1 = i2)); first subst
-      | destruct (decide (l1 = l2)); first subst
-      | destruct (decide (cid1 = cid2)); first subst
+      [ destruct (decide (lit1 = lit2)); first subst
       | destruct (decide (tag1 = tag2)); first subst
       ].
     all: invert_base_step; last try by exfalso.
@@ -80,25 +75,12 @@ Section zoo_G.
         lazymatch P with
         | context [false] =>
             iDestruct "HΦ" as "(HΦ & _)";
-            iFrame; iSteps; naive_solver
+            iSteps
         | context [true] =>
             iDestruct "HΦ" as "(_ & HΦ)";
-            iFrame; iSteps; naive_solver
+            iSteps
         end
       end.
-  Qed.
-
-  Lemma wp_reveal tag vs E Φ :
-    ( ∀ cid,
-      ▷ Φ (ValConstr (Some cid) tag vs)
-    ) ⊢
-    WP Reveal $ ValConstr None tag vs @ E {{ Φ }}.
-  Proof.
-    iIntros "H".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
-    invert_base_step.
-    iFrame. iSteps.
   Qed.
 
   Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
@@ -115,28 +97,66 @@ Section zoo_G.
     setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- location_add_assoc. iSteps.
   Qed.
 
-  Lemma wp_record {es} vs E :
+  Lemma wp_block {es tag} vs E :
     0 < length es →
     to_vals es = Some vs →
     {{{ True }}}
-      Record es @ E
+      Block Physical tag es @ E
     {{{ l,
       RET #l;
+      l ↦ₕ Header tag (length es) ∗
       meta_token l ⊤ ∗
       l ↦∗ vs
     }}}.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step. rename select (list val) into vs.
     iStep. iFrame.
-    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
-    { apply heap_array_map_disjoint. rewrite -> of_vals_length in *. auto. }
+    iMod (mono_map_insert' with "Hheaders") as "($ & Hhdr)"; first done.
+    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap") as "($ & Hl & Hmeta)".
+    { apply heap_array_map_disjoint.
+      rewrite -> of_vals_length in *. done.
+    }
     iApply "HΦ".
     rewrite !big_sepM_heap_array. iFrame.
     destruct vs; first naive_solver lia.
     iDestruct "Hmeta" as "(Hmeta & _)". rewrite location_add_0 //.
+  Qed.
+
+  Lemma wp_match {l hdr dq} vs x e brs e' E Φ :
+    length vs = hdr.(header_size) →
+    match_apply (Some l) hdr.(header_tag) vs x e brs = Some e' →
+    ▷ l ↦ₕ hdr -∗
+    ▷ l ↦∗{dq} vs -∗
+    ▷ (
+      l ↦∗{dq} vs -∗
+      WP e' @ E {{ Φ }}
+    ) -∗
+    WP Match #l x e brs @ E {{ Φ }}.
+  Proof.
+    iIntros "%Hvs %He' >#Hhdr >Hl H".
+    iApply wp_lift_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs)".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
+    iDestruct (mono_map_elem_valid with "Hheaders Hhdr") as %Hheaders_lookup.
+    iAssert ⌜
+      ∀ (i : nat) v,
+      vs !! i = Some v →
+      σ1.(state_heap) !! (l +ₗ i) = Some v
+    ⌝%I as %?.
+    { iIntros "%i %v %Hvs_lookup".
+      iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
+      iApply (gen_heap_valid with "Hheap Hl").
+    }
+    iSplit; first eauto with zoo. iIntros "%_e' %_σ %es %Hstep _ !>".
+    invert_base_step.
+    select (list val) ltac:(fun _vs => assert (vs = _vs) as ->).
+    { apply list_eq_Forall2, Forall2_same_length_lookup_2; first congruence.
+      naive_solver.
+    }
+    simplify.
+    iFrame. iSteps.
   Qed.
 
   Lemma wp_alloc n v E :
@@ -145,34 +165,25 @@ Section zoo_G.
       Alloc #n v @ E
     {{{ l,
       RET #l;
+      l ↦ₕ Header 0 (Z.to_nat n) ∗
       meta_token l ⊤ ∗
       l ↦∗ replicate (Z.to_nat n) v
     }}}.
   Proof.
     iIntros "%Hn %Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
     iStep. iFrame.
-    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hσ1") as "($ & Hl & Hmeta)".
-    { apply heap_array_map_disjoint. rewrite replicate_length Z2Nat.id; auto with lia. }
+    iMod (mono_map_insert' with "Hheaders") as "($ & Hhdr)"; first done.
+    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap") as "($ & Hl & Hmeta)".
+    { apply heap_array_map_disjoint.
+      rewrite replicate_length //.
+    }
     iApply "HΦ".
     rewrite !big_sepM_heap_array. iFrame.
     destruct (Nat.lt_exists_pred 0 (Z.to_nat n)) as (n' & -> & _); first lia.
     iDestruct "Hmeta" as "(Hmeta & _)". rewrite location_add_0 //.
-  Qed.
-  Lemma wp_ref v E :
-    {{{ True }}}
-      ref v @ E
-    {{{ l,
-      RET #l;
-      meta_token l ⊤ ∗
-      l ↦ v
-    }}}.
-  Proof.
-    iIntros "%Φ _ HΦ".
-    iApply wp_alloc; [lia | done |].
-    iSteps. rewrite location_add_0 //.
   Qed.
 
   Lemma wp_load l dq v E :
@@ -186,9 +197,9 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iDestruct (gen_heap_valid with "Hheap Hl") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
     invert_base_step.
     iFrame. iSteps.
   Qed.
@@ -204,11 +215,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iDestruct (gen_heap_valid with "Hheap Hl") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+    iMod (gen_heap_update with "Hheap Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
 
@@ -223,11 +234,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheader & Hheap & Hκs) !>".
+    iDestruct (gen_heap_valid with "Hheap Hl") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+    iMod (gen_heap_update with "Hheap Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
 
@@ -237,17 +248,13 @@ Section zoo_G.
     val_physical v1 →
     base_reducible (CAS #l v1 v2) σ.
   Proof.
-    intros.
     destruct
-      v as [[b | i | l' | |] | | [cid |] tag []],
-      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []].
+      v as [lit1 | | tag1 []],
+      v1 as [lit2 | | tag2 []].
     all:
       try first
-      [ destruct (decide (b = b1)); first subst
-      | destruct (decide (i = i1)); first subst
-      | destruct (decide (l' = l1)); first subst
-      | destruct (decide (cid = cid1)); first subst
-      | destruct (decide (tag = tag1)); first subst
+      [ destruct (decide (lit1 = lit2)); first subst
+      | destruct (decide (tag1 = tag2)); first subst
       ].
     all: eauto with zoo.
   Qed.
@@ -260,8 +267,7 @@ Section zoo_G.
         l ↦{dq} v -∗
         Φ #false
       ) ∧ (
-        ⌜val_eq v v1⌝ -∗
-        ⌜val_consistency v v1⌝ -∗
+        ⌜v = v1⌝ -∗
         l ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
           l ↦{dq} v ∗
@@ -273,21 +279,18 @@ Section zoo_G.
     WP CAS #l v1 v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iDestruct (gen_heap_valid with "Hheap Hl") as %Hlookup.
 
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
-    iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     destruct
-      v as [[b | i | l' | |] | | [cid |] tag []],
-      v1 as [[b1 | i1 | l1 | |] | | [cid1 |] tag1 []].
+      v as [lit1 | | tag1 []],
+      v1 as [lit2 | | tag2 []].
     all:
       try first
-      [ destruct (decide (b = b1)); first subst
-      | destruct (decide (i = i1)); first subst
-      | destruct (decide (l' = l1)); first subst
-      | destruct (decide (cid = cid1)); first subst
-      | destruct (decide (tag = tag1)); first subst
+      [ destruct (decide (lit1 = lit2)); first subst
+      | destruct (decide (tag1 = tag2)); first subst
       ].
     all: invert_base_step; last try by exfalso.
     all:
@@ -295,42 +298,14 @@ Section zoo_G.
         lazymatch P with
         | context [false] =>
             iDestruct "HΦ" as "(HΦ & _)";
-            iFrame; iSteps; naive_solver
+            iFrame; iSteps
         | context [true] =>
             iDestruct "HΦ" as "(_ & HΦ)";
-            iDestruct ("HΦ" with "[//] [//] Hl") as "(-> & Hl & HΦ)";
-            iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)";
-            iFrame; iSteps; naive_solver
+            iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)";
+            iMod (gen_heap_update with "Hheap Hl") as "($ & Hl)";
+            iFrame; iSteps
         end
       end.
-  Qed.
-  Lemma wp_cas_literal l dq lit lit1 v2 E Φ :
-    literal_physical lit →
-    literal_physical lit1 →
-    ▷ l ↦{dq} #lit -∗
-    ▷ (
-      ( ⌜lit ≠ lit1⌝ -∗
-        l ↦{dq} #lit -∗
-        Φ #false
-      ) ∧ (
-        ⌜literal_eq lit lit1⌝ -∗
-        l ↦{dq} #lit -∗
-          ⌜dq = DfracOwn 1⌝ ∗
-          l ↦{dq} #lit ∗
-          ( l ↦ v2 -∗
-            Φ #true
-          )
-      )
-    ) -∗
-    WP CAS #l #lit1 v2 @ E {{ Φ }}.
-  Proof.
-    iIntros "% % >Hl HΦ".
-    iApply (wp_cas with "Hl"); [done.. |].
-    iSplit.
-    - iDestruct "HΦ" as "($ & _)".
-    - iDestruct "HΦ" as "(_ & HΦ)".
-      iIntros "!> %Heq _".
-      iApply ("HΦ" with "[//]").
   Qed.
   Lemma wp_cas_suc l lit lit1 v2 E :
     literal_physical lit →
@@ -345,7 +320,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (Hlit ->) "%Φ >Hl HΦ".
-    iApply (wp_cas_literal with "Hl"); [done.. |].
+    iApply (wp_cas with "Hl"); [done.. |].
     iSteps.
   Qed.
 
@@ -360,11 +335,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ >Hl HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iDestruct (gen_heap_valid with "Hσ Hl") as %Hlookup.
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iDestruct (gen_heap_valid with "Hheap Hl") as %Hlookup.
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (gen_heap_update with "Hσ Hl") as "($ & Hl)".
+    iMod (gen_heap_update with "Hheap Hl") as "($ & Hl)".
     iFrame. iSteps.
   Qed.
 
@@ -374,8 +349,8 @@ Section zoo_G.
     WP Fork e @ E {{ Φ }}.
   Proof.
     iIntros "H HΦ".
-    iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κ %κs (Hσ1 & Hκs) !>".
-    iSplit; first auto with zoo. iIntros "%v2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !> !>".
+    iApply wp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
+    iSplit; first auto with zoo. iIntros "%v2 %σ2 %es %Hstep _ !> !> !>".
     invert_base_step.
     iFrame.
   Qed.
@@ -389,8 +364,8 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    iApply wp_lift_atomic_base_step_no_fork; first done. iIntros "%nt %σ1 %κ %κs (Hσ & Hκs) !>".
-    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %ϕ %Hstep %Hϕ _ !> !>".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs) !>".
+    iSplit; first eauto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
     iMod (prophet_map_new pid with "Hκs") as "(Hκs & Hp)"; first done.
     iFrame. iSteps.
@@ -401,8 +376,8 @@ Section zoo_G.
     reducible e σ →
     reducible (Resolve e #pid v) σ.
   Proof.
-    intros A (κ & e' & σ' & es & ϕ & H).
-    exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es, ϕ.
+    intros A (κ & e' & σ' & es & H).
+    exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es.
     eapply (Ectx_step []); try done.
     assert (∃ w, Val w = e') as (w & <-).
     { unfold Atomic in A. apply (A σ e' κ σ' es) in H. unfold is_Some in H.
@@ -410,10 +385,10 @@ Section zoo_G.
     }
     simpl. econstructor. apply prim_step_to_val_is_base_step. done.
   Qed.
-  Lemma step_resolve e v1 v2 σ1 κ e2 σ2 es ϕ :
+  Lemma step_resolve e v1 v2 σ1 κ e2 σ2 es :
     Atomic e →
-    prim_step (Resolve e v1 v2) σ1 κ e2 σ2 es ϕ →
-    base_step (Resolve e v1 v2) σ1 κ e2 σ2 es ϕ.
+    prim_step (Resolve e v1 v2) σ1 κ e2 σ2 es →
+    base_step (Resolve e v1 v2) σ1 κ e2 σ2 es.
   Proof.
     intros A [K e1' e2' Hfill -> step]. simpl in *.
     induction K as [| k K _] using rev_ind.
@@ -452,20 +427,20 @@ Section zoo_G.
     destruct κ as [| (pid' & (w' & v')) κ' _] using rev_ind.
     - iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
-      iIntros "!> %e2 %σ2 %es %ϕ %Hstep".
+      iIntros "!> %e2 %σ2 %es %Hstep".
       exfalso. apply step_resolve in Hstep; last done.
       invert_base_step.
       destruct κ; done.
     - rewrite -assoc.
       iMod ("H" with "Hσ") as "(%Hreducible & H)".
       iSplitR. { iPureIntro. apply resolve_reducible; done. }
-      iIntros "!> %e2 %σ2 %es %ϕ %Hstep %HΦ H£".
+      iIntros "!> %e2 %σ2 %es %Hstep H£".
       apply step_resolve in Hstep; last done.
       invert_base_step. simplify_list_eq.
-      iMod ("H" $! (Val w') σ2 es ϕ with "[%] [//] H£") as "H".
+      iMod ("H" $! (Val w') σ2 es with "[%] H£") as "H".
       { eexists [] _ _; done. }
       do 2 iModIntro.
-      iMod "H" as "(($ & Hκs) & H)".
+      iMod "H" as "(($ & $ & Hκs) & H)".
       iMod (prophet_map_resolve pid' (w', v') κs with "Hκs Hpid") as (vs' ->) "($ & Hpid')".
       rewrite !wp_unfold /wp_pre /=.
       iDestruct "H" as "(HΦ & $)".

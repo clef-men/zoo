@@ -87,7 +87,7 @@ Section zoo_G.
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }
-    wp_record l as "(Hl_random & Hl_array & Hl_index & _)".
+    wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
     iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id seq_length. iSteps.
   Qed.

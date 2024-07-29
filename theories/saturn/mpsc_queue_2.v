@@ -43,7 +43,7 @@ Definition mpsc_queue_create : val :=
 Definition mpsc_queue_push : val :=
   rec: "mpsc_queue_push" "t" "v" =>
     let: "back" := "t".{back} in
-    ifnot: CAS "t".[back] "back" ‘Cons{ "v", "back" } then (
+    ifnot: CAS "t".[back] "back" ‘Cons( "v", "back" ) then (
       Yield ;;
       "mpsc_queue_push" "t" "v"
     ).
@@ -57,11 +57,11 @@ Definition mpsc_queue_pop : val :=
             §None
         | Cons "v" "front" =>
             "t" <-{front} "front" ;;
-            ‘Some{ "v" }
+            ‘Some( "v" )
         end
     | Cons "v" "front" =>
         "t" <-{front} "front" ;;
-        ‘Some{ "v" }
+        ‘Some( "v" )
     end.
 
 Class MpscQueueG Σ `{zoo_G : !ZooG Σ} := {
@@ -231,7 +231,7 @@ Section mpsc_queue_G.
 
     wp_rec.
 
-    wp_record l as "Hmeta" "(Hfront & Hback & _)".
+    wp_block l as "Hmeta" "(Hfront & Hback & _)".
 
     iMod mpsc_queue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod mpsc_queue_front_alloc as "(%γ_front & Hfront₁ & Hfront₂)".
@@ -276,7 +276,7 @@ Section mpsc_queue_G.
 
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%front & %back' & Hfront₂ & Hback & Hmodel₂)".
-    wp_cas as _ | ->%(inj _) _; first iSteps.
+    wp_cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.

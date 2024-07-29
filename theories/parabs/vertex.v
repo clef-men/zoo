@@ -383,7 +383,7 @@ Section vertex_G.
 
     wp_rec.
     wp_apply (mpmc_stack_create_spec with "[//]") as (succs) "(#Hsuccs_inv & Hsuccs_model)".
-    wp_record vtx as "Hmeta" "(Hvtx_task & Hvtx_preds & Hvtx_succs & _)".
+    wp_block vtx as "Hmeta" "(Hvtx_task & Hvtx_preds & Hvtx_succs & _)".
     iMod (pointsto_persist with "Hvtx_task") as "#Hvtx_task".
     iMod (pointsto_persist with "Hvtx_succs") as "#Hvtx_succs".
 

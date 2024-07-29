@@ -45,7 +45,7 @@ Definition mpsc_queue_push_front : val :=
     | ClstClosed =>
         #true
     |_ as "front" =>
-        "t" <-{front} ‘ClstCons{ "v", "front" } ;;
+        "t" <-{front} ‘ClstCons( "v", "front" ) ;;
         #false
     end.
 
@@ -55,7 +55,7 @@ Definition mpsc_queue_push_back : val :=
     | ClstClosed =>
         #true
     |_ as "back" =>
-        if: CAS "t".[back] "back" ‘ClstCons{ "v", "back" } then (
+        if: CAS "t".[back] "back" ‘ClstCons( "v", "back" ) then (
           #false
         ) else (
           Yield ;;
@@ -70,7 +70,7 @@ Definition mpsc_queue_pop_front : val :=
         §None
     | ClstCons "v" "front" =>
         "t" <-{front} "front" ;;
-        ‘Some{ "v" }
+        ‘Some( "v" )
     | ClstOpen =>
         match: Xchg "t".[back] §ClstOpen with
         | ClstOpen =>
@@ -78,7 +78,7 @@ Definition mpsc_queue_pop_front : val :=
         |_ as "back" =>
             let: ‘ClstCons "v" "front" := clst_rev_app "back" §ClstOpen in
             "t" <-{front} "front" ;;
-            ‘Some{ "v" }
+            ‘Some( "v" )
         end
     end.
 
@@ -191,7 +191,7 @@ Section mpsc_queue_G.
       mpsc_queue_model₂ γ (front ++ reverse back)
     ) ∨ (
       mpsc_queue_lstate_closed γ ∗
-      ⌜v_back = §ClstClosed⌝
+      ⌜v_back = §ClstClosed%V⌝
     )).
   Definition mpsc_queue_inv t ι : iProp Σ :=
     ∃ l γ,
@@ -354,7 +354,7 @@ Section mpsc_queue_G.
 
     wp_rec.
 
-    wp_record l as "Hmeta" "(Hfront & Hback & _)".
+    wp_block l as "Hmeta" "(Hfront & Hback & _)".
 
     iMod mpsc_queue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod mpsc_queue_front_alloc as "(%γ_front & Hfront₁ & Hfront₂)".
@@ -487,7 +487,7 @@ Section mpsc_queue_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%front & %v_back & Hfront₂ & Hback & [(>Hopen₂ & %back2 & >-> & Hmodel₂) | (Hclosed & >->)])".
 
-      + wp_cas as _ | ->%(inj _)%(inj _) _; first iSteps.
+      + wp_cas as _ | ->%(inj _)%(inj _); first iSteps.
         iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -499,7 +499,7 @@ Section mpsc_queue_G.
         iSplitR "HΦ". { iSteps. iExists back. iSteps. }
         iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed' _.
+      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed'.
         iSteps.
 
     - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".

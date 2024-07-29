@@ -24,19 +24,14 @@ Coercion option_to_val o :=
   | None =>
       §None
   | Some v =>
-      ’Some{ v }
-  end.
+      ’Some( v )
+  end%V.
 #[global] Arguments option_to_val !_ / : assert.
 
-#[global] Instance option_to_val_inj' :
-  Inj (=) val_eq option_to_val.
-Proof.
-  intros [] []; naive_solver.
-Qed.
 #[global] Instance option_to_val_inj :
   Inj (=) (=) option_to_val.
 Proof.
-  intros ?* ->%eq_val_eq%(inj _). done.
+  intros [] []; naive_solver.
 Qed.
 #[global] Instance option_to_val_physical o :
   ValPhysical (option_to_val o).
@@ -49,8 +44,8 @@ Section zoo_G.
   Context τ `{!iType (iPropI Σ) τ}.
 
   Definition itype_option t : iProp Σ :=
-      ⌜t = §None⌝
-    ∨ ∃ v, ⌜t = ’Some{ v }⌝ ∗ τ v.
+      ⌜t = §None%V⌝
+    ∨ ∃ v, ⌜t = ’Some( v )%V⌝ ∗ τ v.
   #[global] Instance itype_option_itype :
     iType _ itype_option.
   Proof.

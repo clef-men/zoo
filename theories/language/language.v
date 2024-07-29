@@ -50,28 +50,20 @@ Proof.
   { destruct k; simpl; apply fill_not_val; done. }
   simplify_eq.
 Qed.
-Lemma prim_step_to_val_is_base_step e σ1 κ v σ2 es ϕ :
-  prim_step e σ1 κ (Val v) σ2 es ϕ →
-  base_step e σ1 κ (Val v) σ2 es ϕ.
+Lemma prim_step_to_val_is_base_step e σ1 κ v σ2 es :
+  prim_step e σ1 κ (Val v) σ2 es →
+  base_step e σ1 κ (Val v) σ2 es.
 Proof.
   intro H. destruct H as [K e1 e2 H1 H2].
   assert (to_val (fill K e2) = Some v) as H3; first rewrite -H2 //.
   apply to_val_fill_some in H3 as [-> ->]. subst e. done.
-Qed.
-Lemma base_step_to_val e σ1 κ1 e1 σ1' es1 ϕ1 σ2 κ2 e2 σ2' es2 ϕ2 :
-  base_step e σ1 κ1 e1 σ1' es1 ϕ1 →
-  base_step e σ2 κ2 e2 σ2' es2 ϕ2 →
-  is_Some (to_val e1) →
-  is_Some (to_val e2).
-Proof.
-  destruct 1; inversion 1; naive_solver.
 Qed.
 
 Lemma irreducible_resolve e v1 v2 σ :
   irreducible e σ →
   irreducible (Resolve e (Val v1) (Val v2)) σ.
 Proof.
-  intros H κ ? σ' es ϕ [K' e1' e2' Hfill -> step]. simpl in *.
+  intros H κ ? σ' es [K' e1' e2' Hfill -> step]. simpl in *.
   induction K' as [| K K' _] using rev_ind; simpl in Hfill.
   - subst e1'. inversion step. eapply H. apply base_prim_step. done.
   - rewrite fill_app /= in Hfill.

@@ -46,7 +46,7 @@ Definition queue_pop : val :=
     ) else (
       let: "v" := chain_head "t".{front} in
       "t" <-{front} chain_tail "t".{front} ;;
-      ‘Some{ "v" }
+      ‘Some( "v" )
     ).
 
 Section zoo_G.
@@ -78,7 +78,7 @@ Section zoo_G.
     wp_rec.
     wp_apply chain_cons_spec as (sent) "Hsent_model".
     { iApply chain_model_nil. iSteps. }
-    wp_record l as "(Hfront & Hsent & _)".
+    wp_block l as "(Hfront & Hsent & _)".
     iApply "HΦ". iExists l, sent, sent. iFrame. iSteps.
     iApply chain_model_nil. iSteps.
   Qed.
@@ -98,7 +98,7 @@ Section zoo_G.
     destruct vs as [| v vs].
     - iDestruct (chain_model_nil with "Hfront_model") as %->.
       iDestruct (chain_physical with "Hsent_model") as %Hphysical; first naive_solver.
-      wp_equal as ? | _ _.
+      wp_equal as ? | _.
       { iDestruct (chain_physically_distinct' with "Hsent_model") as %[]; naive_solver. }
       iSteps.
     - wp_apply (wp_equal_chain with "Hfront_model Hsent_model") as "Hfront_model Hsent_model"; [naive_solver lia.. |].

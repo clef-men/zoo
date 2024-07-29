@@ -1,7 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.language Require Export
-  rules.
+  wp.
 From zoo Require Import
   options.
 

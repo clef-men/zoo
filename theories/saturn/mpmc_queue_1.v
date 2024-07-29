@@ -89,7 +89,7 @@ Definition mpmc_queue_pop : val :=
     ) else if: CAS "t".[front] "old_front" "front" then (
         let: "v" := "front".{xchain_data} in
         "front" <-{xchain_data} () ;;
-        ‘Some{ "v" }
+        ‘Some( "v" )
     ) else (
       Yield ;;
       "mpmc_queue_pop" "t"
@@ -356,8 +356,8 @@ Section mpmc_queue_G.
 
     wp_rec.
 
-    wp_record front as "(Hfront_next & _)".
-    wp_record l as "Hmeta" "(Hl_front & Hl_back & _)".
+    wp_block front as "(Hfront_next & _)".
+    wp_block l as "Hmeta" "(Hl_front & Hl_back & _)".
 
     iMod mpmc_queue_history_alloc as "(%γ_history & Hhistory_auth)".
     iMod mpmc_queue_front_alloc as "(%γ_front & Hfront_auth)".
@@ -669,12 +669,12 @@ Section mpmc_queue_G.
     iDestruct (xchain_model_lookup' with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
-    - wp_cas as _ | [] _.
+    - wp_cas as _ | [=].
       iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ". { repeat iExists _. iSteps. }
       iSteps.
 
-    - wp_cas as Hcas | _ _; first done.
+    - wp_cas as Hcas | _; first done.
       iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(lookup_last_length hist i) // drop_all //. }
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
@@ -720,7 +720,7 @@ Section mpmc_queue_G.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%hist & %past & %front & %nodes & %back' & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
-      wp_cas as _ | -> _.
+      wp_cas as _ | [= ->].
       2: iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem_new_back") as %Hnew_back%elem_of_list_lookup_2.
       all: iSplitL; first (repeat iExists _; iSteps).
       all: iSteps.
@@ -745,7 +745,7 @@ Section mpmc_queue_G.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     wp_rec.
-    wp_record new_back as "(Hnew_back_next & Hnew_back_data & _)".
+    wp_block new_back as "(Hnew_back_next & Hnew_back_data & _)".
     wp_smart_apply (mpmc_queue_back_spec with "Hinv") as (back i) "#Hhistory_elem_back".
     wp_smart_apply (mpmc_queue_do_push_spec with "[$Hmeta $Hinv $Hhistory_elem_back $Hnew_back_next $Hnew_back_data]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_elem_new_back)".
@@ -778,7 +778,7 @@ Section mpmc_queue_G.
     iInv "Hinv" as "(%hist & %past & %front' & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
     iDestruct (xchain_model_lookup with "Hhist") as "(Hnode & Hhist)"; first done.
-    wp_cas as _ | [= ->] _.
+    wp_cas as _ | [= ->].
     all: iDestruct ("Hhist" with "Hnode ") as "Hhist".
 
     - iSplitR "HΦ". { repeat iExists _. iSteps. }

@@ -73,7 +73,7 @@ Definition spsc_bqueue_push : val :=
     let: "data" := "t".{data} in
     let: "back" := "t".{back} in
     if: spsc_bqueue_push_aux "t" "data" "back" then (
-      array_cset "data" "back" ‘Some{ "v" } ;;
+      array_cset "data" "back" ‘Some( "v" ) ;;
       "t" <-{back} #1 + "back" ;;
       #false
     ) else (
@@ -104,14 +104,14 @@ Definition spsc_bqueue_pop : val :=
     ).
 
 Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] spsc_bqueue_G_model_G :: TwinsG Σ (listO valO) ;
+  #[local] spsc_bqueue_G_model_G :: TwinsG Σ (listO val_O) ;
   #[local] spsc_bqueue_G_history_G :: MonoListG Σ val ;
   #[local] spsc_bqueue_G_ctl_G :: AuthNatMaxG Σ ;
   #[local] spsc_bqueue_G_region_G :: ExclG Σ unitO ;
 }.
 
 Definition spsc_bqueue_Σ := #[
-  twins_Σ (listO valO) ;
+  twins_Σ (listO val_O) ;
   mono_list_Σ val ;
   auth_nat_max_Σ ;
   excl_Σ unitO
@@ -221,14 +221,14 @@ Section spsc_bqueue_G.
     spsc_bqueue_producer_ctl₂ γ back ∗
     spsc_bqueue_model₂ γ vs ∗
     spsc_bqueue_history_auth γ hist ∗
-    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ’Some{ v }) <$> take 1 vs)
+    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ’Some( v )%V) <$> take 1 vs)
     ∨ spsc_bqueue_consumer_region γ
     ) ∗
-    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ’Some{ v }) <$> drop 1 vs) ∗
-    ( array_cslice γ.(spsc_bqueue_meta_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None])
+    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ’Some( v )%V) <$> drop 1 vs) ∗
+    ( array_cslice γ.(spsc_bqueue_meta_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None%V])
     ∨ spsc_bqueue_producer_region γ
     ) ∗
-    array_cslice γ.(spsc_bqueue_meta_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None).
+    array_cslice γ.(spsc_bqueue_meta_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None%V).
   Definition spsc_bqueue_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -492,7 +492,7 @@ Section spsc_bqueue_G.
     wp_rec.
     iApply wp_fupd.
     wp_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
-    wp_record l as "Hmeta" "(Hdata & Hfront & Hfront_cache & Hback & Hback_cache & _)".
+    wp_block l as "Hmeta" "(Hdata & Hfront & Hfront_cache & Hback & Hback_cache & _)".
     iMod (pointsto_persist with "Hdata") as "#Hdata".
 
     iMod spsc_bqueue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
@@ -673,7 +673,7 @@ Section spsc_bqueue_G.
           rewrite fmap_length. naive_solver lia.
       - case_decide.
         + assert (cap - (S back - front3) - 1 = 0) as -> by lia. iSteps.
-        + iDestruct (array_cslice_app_2 [§None] (replicate (cap - (S back - front3) - 1) §None) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
+        + iDestruct (array_cslice_app_2 [§None%V] (replicate (cap - (S back - front3) - 1) §None%V) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
           { rewrite /= -replicate_S. f_equal. lia. }
           rewrite Nat.add_1_r. iSteps.
     }

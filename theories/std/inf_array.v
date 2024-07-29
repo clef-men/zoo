@@ -69,12 +69,12 @@ Definition inf_array_set : val :=
 
 Class InfArrayG Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_array_G_mutex_G :: MutexG Σ ;
-  #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> valO) ;
+  #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> val_O) ;
 }.
 
 Definition inf_array_Σ := #[
   mutex_Σ ;
-  twins_Σ (nat -d> valO)
+  twins_Σ (nat -d> val_O)
 ].
 #[global] Instance subG_inf_array_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_array_Σ Σ →
@@ -251,7 +251,7 @@ Section inf_array_G.
 
     wp_apply (array_create_spec with "[//]") as "%data Hmodel_data".
 
-    wp_record l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
+    wp_block l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
     iMod (pointsto_persist with "Hdefault") as "#Hdefault".
 
     iMod (inf_array_model_alloc default) as "(%γ_model & Hmodel₁ & Hmodel₂)".

@@ -3,11 +3,11 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  record_3__types.
+  zoo_force_record__types.
 From zoo Require Import
   options.
 
-Definition record_3_test : val :=
+Definition zoo_force_record_test : val :=
   fun: <> =>
     let: "t" := { #0, #1 } in
     "t".{f1}.

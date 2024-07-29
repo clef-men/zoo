@@ -30,7 +30,7 @@ Definition pstore_set : val :=
       "r" <-{ref_value} "v"
     ) else (
       let: "root" := ref §Root in
-      "t".{root} <- ‘Diff{ "r", "g_r", "r".{ref_value}, "root" } ;;
+      "t".{root} <- ‘Diff( "r", "g_r", "r".{ref_value}, "root" ) ;;
       "r" <-{ref_gen} "g_t" ;;
       "r" <-{ref_value} "v" ;;
       "t" <-{root} "root"
@@ -48,7 +48,7 @@ Definition pstore_collect : val :=
     | Root =>
         ("node", "acc")
     | Diff <> <> <> "node'" =>
-        "collect" "node'" ‘Cons{ "node", "acc" }
+        "collect" "node'" ‘Cons( "node", "acc" )
     end.
 
 Definition pstore_revert : val :=
@@ -62,7 +62,7 @@ Definition pstore_revert : val :=
             Fail
         | Diff "r" "g" "v" "node_" =>
             assert ("node_" = "node") ;;
-            "node" <- ‘Diff{ "r", "r".{ref_gen}, "r".{ref_value}, "node'" } ;;
+            "node" <- ‘Diff( "r", "r".{ref_gen}, "r".{ref_value}, "node'" ) ;;
             "r" <-{ref_gen} "g" ;;
             "r" <-{ref_value} "v" ;;
             "revert" "node'" "path"

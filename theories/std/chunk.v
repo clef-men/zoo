@@ -133,7 +133,7 @@ Section zoo_G.
 
   Section chunk_model.
     Definition chunk_model l dq vs : iProp Σ :=
-      [∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v.
+      l ↦∗{dq} vs.
 
     #[global] Instance chunk_model_timeless l dq vs :
       Timeless (chunk_model l dq vs).

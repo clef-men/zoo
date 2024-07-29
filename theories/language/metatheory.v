@@ -30,7 +30,7 @@ Fixpoint occurs x e :=
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
-  | Constr _ es =>
+  | Block _ _ es =>
       existsb (occurs x) es
   | Proj _ e =>
       occurs x e
@@ -43,14 +43,10 @@ Fixpoint occurs x e :=
         bool_decide (BNamed x ≠ pat.(pattern_as)) &&
         occurs x br.2
       ) brs
-  | Reveal e =>
-      occurs x e
   | For e1 e2 e3 =>
       occurs x e1 ||
       occurs x e2 ||
       occurs x e3
-  | Record es =>
-      existsb (occurs x) es
   | Alloc e1 e2 =>
       occurs x e1 ||
       occurs x e2

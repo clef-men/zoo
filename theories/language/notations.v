@@ -21,6 +21,93 @@ Coercion App : expr >-> Funclass.
 Bind Scope expr_scope with expr.
 Bind Scope val_scope with val.
 
+Declare Custom Entry zoo_field.
+Declare Custom Entry zoo_tag.
+Declare Custom Entry zoo_proj.
+Declare Custom Entry zoo_branch.
+
+Notation "0" :=
+  0
+( in custom zoo_field
+).
+Notation "1" :=
+  1
+( in custom zoo_field
+).
+Notation "2" :=
+  2
+( in custom zoo_field
+).
+Notation "3" :=
+  3
+( in custom zoo_field
+).
+Notation "4" :=
+  4
+( in custom zoo_field
+).
+Notation "5" :=
+  5
+( in custom zoo_field
+).
+Notation "6" :=
+  6
+( in custom zoo_field
+).
+Notation "7" :=
+  7
+( in custom zoo_field
+).
+Notation "8" :=
+  8
+( in custom zoo_field
+).
+Notation "9" :=
+  9
+( in custom zoo_field
+).
+
+Notation "0" :=
+  0
+( in custom zoo_proj
+).
+Notation "1" :=
+  1
+( in custom zoo_proj
+).
+Notation "2" :=
+  2
+( in custom zoo_proj
+).
+Notation "3" :=
+  3
+( in custom zoo_proj
+).
+Notation "4" :=
+  4
+( in custom zoo_proj
+).
+Notation "5" :=
+  5
+( in custom zoo_proj
+).
+Notation "6" :=
+  6
+( in custom zoo_proj
+).
+Notation "7" :=
+  7
+( in custom zoo_proj
+).
+Notation "8" :=
+  8
+( in custom zoo_proj
+).
+Notation "9" :=
+  9
+( in custom zoo_proj
+).
+
 Notation "# l" := (
   ValLiteral l%Z%V%stdpp
 )(at level 8,
@@ -215,7 +302,6 @@ Notation "e1 'or' e2" := (
   only parsing
 ) : expr_scope.
 
-Declare Custom Entry zoo_field.
 Notation "l .[ fld ]" := (
   location_add l (Z.of_nat fld)
 )(at level 2,
@@ -255,49 +341,67 @@ Notation "'ifnot:' e0 'then' e2" := (
   only parsing
 ) : expr_scope.
 
-Declare Custom Entry zoo_tag.
+Notation "{ e1 , .. , en }" := (
+  Block Physical 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+)(e1, en at level 200,
+  format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
+) : expr_scope.
+
 Notation "‘ tag { e1 , .. , en }" := (
-  Constr tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Physical tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
   format "'[hv' ‘ tag {  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
-).
-Notation "’ tag @{ cid }{ v1 , .. , vn }" := (
-  ValConstr (Some cid) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
-  tag custom zoo_tag,
-  cid at level 200,
-  v1, vn at level 200,
-  format "'[hv' ’ tag @{ cid }{  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
-).
-Notation "’ tag { v1 , .. , vn }" := (
-  ValConstr None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
-)(at level 2,
-  tag custom zoo_tag,
-  v1, vn at level 200,
-  format "'[hv' ’ tag {  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' } ']'"
-).
-Notation "§ tag @{ cid }" := (
-  ValConstr (Some cid) tag%core (@nil val)
-)(at level 2,
-  tag custom zoo_tag,
-  cid at level 200,
-  format "§ tag @{ cid }"
-).
+) : expr_scope.
+
 Notation "§ tag" := (
-  ValConstr None tag%core (@nil val)
+  tag
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
-).
+) : stdpp_scope.
+Notation "§ tag" := (
+  Val (ValBlock tag%core (@nil val))
+)(at level 2,
+  tag custom zoo_tag,
+  format "§ tag"
+) : expr_scope.
+Notation "§ tag" := (
+  ValBlock tag%core (@nil val)
+)(at level 2,
+  tag custom zoo_tag,
+  format "§ tag"
+) : val_scope.
+
+Notation "‘ tag ( e1 , .. , en )" := (
+  Block Abstract tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+)(at level 2,
+  tag custom zoo_tag,
+  e1, en at level 200,
+  format "'[hv' ‘ tag (  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ) ']'"
+) : expr_scope.
+Notation "’ tag ( v1 , .. , vn )" := (
+  Val (ValBlock tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
+)(at level 2,
+  tag custom zoo_tag,
+  v1, vn at level 200,
+  format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
+): expr_scope.
+Notation "’ tag ( v1 , .. , vn )" := (
+  ValBlock tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+)(at level 2,
+  tag custom zoo_tag,
+  v1, vn at level 200,
+  format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
+): val_scope.
 
 Notation "( e1 , e2 , .. , en )" := (
-  Constr 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
+  Block Abstract 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValConstr None 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValBlock 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (
@@ -307,47 +411,6 @@ Notation "()" :=
   ValUnit
 : val_scope.
 
-Declare Custom Entry zoo_proj.
-Notation "0" :=
-  0
-( in custom zoo_proj
-).
-Notation "1" :=
-  1
-( in custom zoo_proj
-).
-Notation "2" :=
-  2
-( in custom zoo_proj
-).
-Notation "3" :=
-  3
-( in custom zoo_proj
-).
-Notation "4" :=
-  4
-( in custom zoo_proj
-).
-Notation "5" :=
-  5
-( in custom zoo_proj
-).
-Notation "6" :=
-  6
-( in custom zoo_proj
-).
-Notation "7" :=
-  7
-( in custom zoo_proj
-).
-Notation "8" :=
-  8
-( in custom zoo_proj
-).
-Notation "9" :=
-  9
-( in custom zoo_proj
-).
 Notation "e .< proj >" := (
   Proj proj e
 )(at level 2,
@@ -355,7 +418,6 @@ Notation "e .< proj >" := (
   format "e .< proj >"
 ) : expr_scope.
 
-Declare Custom Entry zoo_branch.
 Notation "tag => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@nil binder) BAnon)
@@ -551,12 +613,6 @@ Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
 )(x at level 1,
   e1, e2, e3 at level 200,
   format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
-) : expr_scope.
-
-Notation "{ e1 , .. , en }" := (
-  Record (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
-)(e1, en at level 200,
-  format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
 
 Notation "'ref' e" := (

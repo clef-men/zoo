@@ -14,14 +14,14 @@ From zoo Require Import
 Implicit Types v t : val.
 
 Definition pstack_empty :=
-  §Nil.
+  §Nil%V.
 
 Definition pstack_is_empty :=
   lst_is_empty.
 
 Definition pstack_push : val :=
   fun: "t" "v" =>
-    ‘Cons{ "v", "t" }.
+    ‘Cons( "v", "t" ).
 
 Definition pstack_pop : val :=
   fun: "t" =>
@@ -29,7 +29,7 @@ Definition pstack_pop : val :=
     | Nil =>
         §None
     | Cons "v" "t'" =>
-        ‘Some{ ("v", "t'") }
+        ‘Some( ("v", "t'") )
     end.
 
 Section zoo_G.

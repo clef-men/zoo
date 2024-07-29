@@ -36,20 +36,16 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxEqual2 e1) K prophs e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K prophs e0
-    | Constr ?tag ?es =>
-        go_list K prophs (CtxConstr tag) es
+    | Block ?phys ?tag ?es =>
+        go_list K prophs (CtxBlock phys tag) es
     | Proj ?proj ?e =>
         add_ectxi (CtxProj proj) K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K prophs e0
-    | Reveal ?e =>
-        add_ectxi CtxReveal K prophs e
     | For (Val ?v1) ?e2 ?e3 =>
         add_ectxi (CtxFor2 v1 e3) K prophs e2
     | For ?e1 ?e2 ?e3 =>
         add_ectxi (CtxFor1 e2 e3) K prophs e1
-    | Record ?es =>
-        go_list K prophs CtxRecord es
     | Alloc ?e1 (Val ?v2) =>
         add_ectxi (CtxAlloc1 v2) K prophs e1
     | Alloc ?e1 ?e2 =>
@@ -121,7 +117,7 @@ Ltac invert_base_step :=
       progress simplify_map_eq/=
   | H: to_val _ = Some _ |- _ =>
       apply of_to_val in H
-  | H: base_step ?e _ _ _ _ _ _ |- _ =>
+  | H: base_step ?e _ _ _ _ _ |- _ =>
      try (is_var e; fail 1);
      invert H
   end.
@@ -131,65 +127,55 @@ Ltac invert_base_step :=
 ) => (
   progress simpl; try injection
 ) : zoo.
-#[global] Hint Extern 0 (
-  val_eq _ _
-) => (
-  progress simpl
-) : zoo.
 
 #[global] Hint Extern 0 (
   base_reducible _ _
 ) =>
-  do 5 eexists; simpl
+  do 4 eexists; simpl
 : zoo.
 #[global] Hint Extern 0 (
   base_reducible_no_obs _ _
 ) =>
-  do 4 eexists; simpl
+  do 3 eexists; simpl
 : zoo.
 
 #[global] Hint Extern 1 (
-  base_step _ _ _ _ _ _ _
+  base_step _ _ _ _ _ _
 ) =>
   econstructor
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _
 ) =>
   eapply base_step_equal_fail; simpl; [| | try injection]
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _ _
+  base_step (Equal _ _) _ _ _ _ _
 ) =>
   eapply base_step_equal_suc; simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Reveal _) _ _ _ _ _ _
+  base_step (Block Physical _ _) _ _ _ _ _
 ) =>
-  eapply base_step_reveal'
+  eapply base_step_block_physical'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Record _) _ _ _ _ _ _
-) =>
-  eapply base_step_record'
-: zoo.
-#[global] Hint Extern 0 (
-  base_step (Alloc _ _) _ _ _ _ _ _
+  base_step (Alloc _ _) _ _ _ _ _
 ) =>
   apply base_step_alloc'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (CAS _ _ _) _ _ _ _ _ _
+  base_step (CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_step_cas_fail; simpl; [| | | try injection]
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (CAS _ _ _) _ _ _ _ _ _
+  base_step (CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_step_cas_suc; simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step Proph _ _ _ _ _ _
+  base_step Proph _ _ _ _ _
 ) =>
   apply base_step_proph'
 : zoo.
