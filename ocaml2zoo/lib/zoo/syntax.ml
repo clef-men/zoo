@@ -13,8 +13,8 @@ type tag =
 type rec_flag =
   Asttypes.rec_flag
 
-type physicality =
-  | Physical
+type concreteness =
+  | Concrete
   | Abstract
 
 type typ =
@@ -52,7 +52,7 @@ type expression =
   | Tuple of expression list
   | Ref of expression
   | Record of expression array
-  | Constr of physicality * tag * expression list
+  | Constr of concreteness * tag * expression list
   | Proj of expression * field
   | Match of expression * branch list * fallback option
   | Ref_get of expression

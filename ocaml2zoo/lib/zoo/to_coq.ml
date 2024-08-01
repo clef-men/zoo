@@ -231,12 +231,12 @@ let rec expression' lvl ppf = function
   | Constr (_, tag, []) ->
       Format.fprintf ppf "§%s"
         tag
-  | Constr (phys, tag, exprs) ->
+  | Constr (concrete, tag, exprs) ->
       Format.fprintf ppf "@[<hv>‘%s%c %a@;%c@]"
         tag
-        (match phys with Physical -> '{' | Abstract -> '(')
+        (match concrete with Concrete -> '{' | Abstract -> '(')
         Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
-        (match phys with Physical -> '}' | Abstract -> ')')
+        (match concrete with Concrete -> '}' | Abstract -> ')')
   | Proj (expr, fld) ->
       Format.fprintf ppf "@[%a@].<%s>"
         (expression lvl) expr

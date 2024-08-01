@@ -101,7 +101,7 @@ Section zoo_G.
     0 < length es →
     to_vals es = Some vs →
     {{{ True }}}
-      Block Physical tag es @ E
+      Block Concrete tag es @ E
     {{{ l,
       RET #l;
       l ↦ₕ Header tag (length es) ∗

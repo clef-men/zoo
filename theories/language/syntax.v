@@ -23,27 +23,27 @@ Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
-Inductive physicality :=
-  | Physical
+Inductive concreteness :=
+  | Concrete
   | Abstract.
-Implicit Types phys : physicality.
+Implicit Types concrete : concreteness.
 
-#[global] Instance physicality_eq_dec : EqDecision physicality :=
+#[global] Instance concreteness_eq_dec : EqDecision concreteness :=
   ltac:(solve_decision).
-#[global] Instance physicality_countable :
-  Countable physicality.
+#[global] Instance concreteness_countable :
+  Countable concreteness.
 Proof.
-  pose encode phys :=
-    match phys with
-    | Physical =>
+  pose encode concrete :=
+    match concrete with
+    | Concrete =>
         0
     | Abstract =>
         1
     end.
-  pose decode _phys :=
-    match _phys with
+  pose decode _concrete :=
+    match _concrete with
     | 0 =>
-        Physical
+        Concrete
     | _ =>
         Abstract
     end.
@@ -197,7 +197,7 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
-  | Block phys tag (es : list expr)
+  | Block concrete tag (es : list expr)
   | Proj proj (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | For (e1 e2 e3 : expr)
@@ -288,9 +288,9 @@ Section expr_ind.
     ∀ e2, P e2 →
     P (If e0 e1 e2).
   Variable HBlock :
-    ∀ phys tag,
+    ∀ concrete tag,
     ∀ es, Forall P es →
-    P (Block phys tag es).
+    P (Block concrete tag es).
   Variable HProj :
     ∀ proj,
     ∀ e, P e →
@@ -377,9 +377,9 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Block phys tag es =>
+    | Block concrete tag es =>
         HBlock
-          phys tag
+          concrete tag
           es (Forall_true P es expr_ind)
     | Proj proj e =>
         HProj
@@ -633,9 +633,9 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Block phys1 tag1 es1, Block phys2 tag2 es2 =>
+      | Block concrete1 tag1 es1, Block concrete2 tag2 es2 =>
           cast_if_and3
-            (decide (phys1 = phys2))
+            (decide (concrete1 = concrete2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | Proj proj1 e1, Proj proj2 e2 =>
@@ -766,7 +766,7 @@ Variant encode_leaf :=
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodeProjection proj
-  | EncodePhysicality phys
+  | EncodeConcreteness concrete
   | EncodeTag tag
   | EncodePattern (pat : pattern)
   | EncodeLiteral lit.
@@ -785,8 +785,8 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inr op
     | EncodeProjection proj =>
         inl $ inl $ inl $ inl $ inr proj
-    | EncodePhysicality phys =>
-        inl $ inl $ inl $ inr phys
+    | EncodeConcreteness concrete =>
+        inl $ inl $ inl $ inr concrete
     | EncodeTag tag =>
         inl $ inl $ inr tag
     | EncodePattern pat =>
@@ -804,8 +804,8 @@ Proof.
         EncodeBinop op
     | inl (inl (inl (inl (inr proj)))) =>
         EncodeProjection proj
-    | inl (inl (inl (inr phys))) =>
-        EncodePhysicality phys
+    | inl (inl (inl (inr concrete))) =>
+        EncodeConcreteness concrete
     | inl (inl (inr tag)) =>
         EncodeTag tag
     | inl (inr pat) =>
@@ -893,8 +893,8 @@ Proof.
           GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode code_If [go e0; go e1; go e2]
-      | Block phys tag es =>
-          GenNode code_Block $ GenLeaf (EncodePhysicality phys) :: GenLeaf (EncodeTag tag) :: go_list es
+      | Block concrete tag es =>
+          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: go_list es
       | Proj proj e =>
           GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
       | Match e0 x e1 brs =>
@@ -962,8 +962,8 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodePhysicality phys) :: GenLeaf (EncodeTag tag) :: es) =>
-          Block phys tag $ go_list es
+      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: es) =>
+          Block concrete tag $ go_list es
       | GenNode code_Proj [GenLeaf (EncodeProjection proj); e] =>
           Proj proj $ go e
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>

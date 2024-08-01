@@ -63,7 +63,7 @@ Section instances.
       ⌜0 < length es⌝%nat ∗
       ⌜to_vals es = Some vs⌝
     }}
-      Block Physical tag es
+      Block Concrete tag es
     {{ l,
       RET #l;
       meta_token l ⊤ ∗

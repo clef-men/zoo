@@ -342,13 +342,13 @@ Notation "'ifnot:' e0 'then' e2" := (
 ) : expr_scope.
 
 Notation "{ e1 , .. , en }" := (
-  Block Physical 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Concrete 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(e1, en at level 200,
   format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
 
 Notation "‘ tag { e1 , .. , en }" := (
-  Block Physical tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Concrete tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,

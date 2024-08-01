@@ -36,8 +36,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxEqual2 e1) K prophs e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K prophs e0
-    | Block ?phys ?tag ?es =>
-        go_list K prophs (CtxBlock phys tag) es
+    | Block ?concrete ?tag ?es =>
+        go_list K prophs (CtxBlock concrete tag) es
     | Proj ?proj ?e =>
         add_ectxi (CtxProj proj) K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
@@ -155,9 +155,9 @@ Ltac invert_base_step :=
   eapply base_step_equal_suc; simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Block Physical _ _) _ _ _ _ _
+  base_step (Block Concrete _ _) _ _ _ _ _
 ) =>
-  eapply base_step_block_physical'
+  eapply base_step_block_concrete'
 : zoo.
 #[global] Hint Extern 0 (
   base_step (Alloc _ _) _ _ _ _ _

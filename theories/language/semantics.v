@@ -12,7 +12,7 @@
    If we wanted to allow it, we would have to extend the semantics of physical comparison to account for conflicts in the memory representation of values.
 
    This also means a location may be compared with anything.
-   In particular, comparing a location [Val (ValLoc l)] and an abstract block [ValBlock tag vs] is allowed, since [Block phys tag es] may yield a physical block ([phys] = [Physical]) or an abstract block ([phys] = [Abstract]).
+   In particular, comparing a location [Val (ValLoc l)] and an abstract block [ValBlock tag vs] is allowed, since [Block concrete tag es] may yield a concrete block ([concrete] = [Concrete]) or an abstract block ([concrete] = [Abstract]).
 *)
 
 From stdpp Require Import
@@ -32,7 +32,7 @@ Implicit Types b : bool.
 Implicit Types tag proj : nat.
 Implicit Types n m : Z.
 Implicit Types l : location.
-Implicit Types phys : physicality.
+Implicit Types concrete : concreteness.
 Implicit Types lit : literal.
 Implicit Types x : binder.
 Implicit Types e : expr.
@@ -179,9 +179,9 @@ Fixpoint subst (x : string) v e :=
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)
-  | Block phys tag es =>
+  | Block concrete tag es =>
       Block
-        phys tag
+        concrete tag
         (subst x v <$> es)
   | Proj proj e =>
       Proj
@@ -451,7 +451,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (if b then e1 else e2)
         σ
         []
-  | base_step_block_physical tag es vs σ l :
+  | base_step_block_concrete tag es vs σ l :
       0 < length es →
       es = of_vals vs →
       σ.(state_headers) !! l = None →
@@ -460,7 +460,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
-        (Block Physical tag es)
+        (Block Concrete tag es)
         σ
         []
         (Val $ ValLoc l)
@@ -484,7 +484,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-  | base_step_match_physical l hdr vs x e brs e' σ :
+  | base_step_match_concrete l hdr vs x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
       length vs = hdr.(header_size) →
       ( ∀ (i : nat) v,
@@ -624,12 +624,12 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ'
         es.
 
-Lemma base_step_block_physical' tag es vs σ :
+Lemma base_step_block_concrete' tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
   es = of_vals vs →
   base_step
-    (Block Physical tag es)
+    (Block Concrete tag es)
     σ
     []
     (Val $ ValLoc l)
@@ -639,7 +639,7 @@ Proof.
   intros l Hn ->.
   pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
   setoid_rewrite not_elem_of_union in Hfresh.
-  apply base_step_block_physical; [done.. | |].
+  apply base_step_block_concrete; [done.. | |].
   all: intros; apply not_elem_of_dom.
   - rewrite -(location_add_0 l). naive_solver.
   - apply Hfresh. lia.
@@ -692,7 +692,7 @@ Inductive ectxi :=
   | CtxEqual1 v2
   | CtxEqual2 e1
   | CtxIf e1 e2
-  | CtxBlock phys tag vs es
+  | CtxBlock concrete tag vs es
   | CtxProj proj
   | CtxMatch x e1 brs
   | CtxFor1 e2 e3
@@ -742,8 +742,8 @@ Fixpoint ectxi_fill k e : expr :=
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
-  | CtxBlock phys tag vs es =>
-      Block phys tag $ of_vals vs ++ e :: es
+  | CtxBlock concrete tag vs es =>
+      Block concrete tag $ of_vals vs ++ e :: es
   | CtxProj proj =>
       Proj proj e
   | CtxMatch x e1 brs =>

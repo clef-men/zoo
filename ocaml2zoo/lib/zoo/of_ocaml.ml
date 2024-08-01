@@ -522,15 +522,15 @@ let rec expression ctx (expr : Typedtree.expression) =
             Option.iter (Context.add_dependency ctx) dep ;
             Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
-            let phys =
+            let concrete =
               if List.exists (fun attr -> attr.Parsetree.attr_name.txt = reveal_attribute) constr.cstr_attributes then
-                Physical
+                Concrete
               else
                 Abstract
             in
             let tag = Longident.last lid.txt in
             let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
-            Constr (phys, tag, exprs)
+            Constr (concrete, tag, exprs)
         end
   | Texp_match (expr, brs, _) ->
       let expr = expression ctx expr in
