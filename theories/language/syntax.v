@@ -202,6 +202,8 @@ Inductive expr :=
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
+  | GetTag (e : expr)
+  | GetSize (e : expr)
   | Load (e : expr)
   | Store (e1 e2 : expr)
   | Xchg (e1 e2 : expr)
@@ -310,6 +312,12 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Alloc e1 e2).
+  Variable HGetTag :
+    ∀ e, P e →
+    P (GetTag e).
+  Variable HGetSize :
+    ∀ e, P e →
+    P (GetSize e).
   Variable HLoad :
     ∀ e, P e →
     P (Load e).
@@ -400,6 +408,12 @@ Section expr_ind.
         HAlloc
           e1 (expr_ind e1)
           e2 (expr_ind e2)
+    | GetTag e =>
+        HGetTag
+          e (expr_ind e)
+    | GetSize e =>
+        HGetSize
+          e (expr_ind e)
     | Load e =>
         HLoad
           e (expr_ind e)
@@ -657,6 +671,12 @@ Proof.
          cast_if_and
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | GetTag e1, GetTag e2 =>
+          cast_if
+            (decide (e1 = e2))
+      | GetSize e1, GetSize e2 =>
+          cast_if
+            (decide (e1 = e2))
       | Load e1, Load e2 =>
           cast_if
             (decide (e1 = e2))
@@ -847,24 +867,28 @@ Proof.
     11.
   #[local] Notation code_Alloc :=
     12.
-  #[local] Notation code_Load :=
+  #[local] Notation code_GetTag :=
     13.
-  #[local] Notation code_Store :=
+  #[local] Notation code_GetSize :=
     14.
-  #[local] Notation code_Xchg :=
+  #[local] Notation code_Load :=
     15.
-  #[local] Notation code_CAS :=
+  #[local] Notation code_Store :=
     16.
-  #[local] Notation code_FAA :=
+  #[local] Notation code_Xchg :=
     17.
-  #[local] Notation code_Fork :=
+  #[local] Notation code_CAS :=
     18.
-  #[local] Notation code_Yield :=
+  #[local] Notation code_FAA :=
     19.
-  #[local] Notation code_Proph :=
+  #[local] Notation code_Fork :=
     20.
-  #[local] Notation code_Resolve :=
+  #[local] Notation code_Yield :=
     21.
+  #[local] Notation code_Proph :=
+    22.
+  #[local] Notation code_Resolve :=
+    23.
   #[local] Notation code_ValRec :=
     0.
   #[local] Notation code_ValBlock :=
@@ -903,6 +927,10 @@ Proof.
           GenNode code_For [go e1; go e2; go e3]
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
+      | GetTag e =>
+          GenNode code_GetTag [go e]
+      | GetSize e =>
+          GenNode code_GetSize [go e]
       | Load e =>
           GenNode code_Load [go e]
       | Store e1 e2 =>
@@ -972,6 +1000,10 @@ Proof.
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
+      | GenNode code_GetTag [e] =>
+          GetTag (go e)
+      | GenNode code_GetSize [e] =>
+          GetSize (go e)
       | GenNode code_Load [e] =>
           Load $ go e
       | GenNode code_Store [e1; e2] =>

@@ -114,6 +114,38 @@ Section instances.
     iSteps.
   Qed.
 
+  #[global] Instance step_wp_get_tag l :
+    SPEC hdr,
+    {{
+      l ↦ₕ hdr
+    }}
+      GetTag #l
+    {{
+      RET #hdr.(header_tag);
+      True
+    }}.
+  Proof.
+    iSteps as (hdr) "Hhdr".
+    wp_get_tag.
+    iSteps.
+  Qed.
+
+  #[global] Instance step_wp_get_size l :
+    SPEC hdr,
+    {{
+      l ↦ₕ hdr
+    }}
+      GetSize #l
+    {{
+      RET #hdr.(header_size);
+      True
+    }}.
+  Proof.
+    iSteps as (hdr) "Hhdr".
+    wp_get_size.
+    iSteps.
+  Qed.
+
   #[global] Instance step_wp_load l E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
     {{

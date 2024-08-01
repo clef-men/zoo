@@ -70,11 +70,23 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance alloc_atomic v w :
-    Atomic (Alloc (Val v) (Val w)).
+  #[global] Instance alloc_atomic v1 v2 :
+    Atomic (Alloc (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
+
+  #[global] Instance get_tag_atomic v :
+    Atomic (GetTag (Val v)).
+  Proof.
+    solve_atomic.
+  Qed.
+  #[global] Instance get_size_atomic v :
+    Atomic (GetSize (Val v)).
+  Proof.
+    solve_atomic.
+  Qed.
+
   #[global] Instance load_atomic v :
     Atomic (Load $ Val v).
   Proof.
@@ -341,6 +353,25 @@ Section pure_exec.
       1
       (For (Val $ ValInt n1) (Val $ ValInt n2) e)
       (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pure_get_tag tag vs :
+    PureExec
+      True
+      1
+      (GetTag $ Val $ ValBlock tag vs)
+      (Val $ ValInt tag).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_get_size tag vs :
+    PureExec
+      True
+      1
+      (GetSize $ Val $ ValBlock tag vs)
+      (Val $ ValInt (length vs)).
   Proof.
     solve_pure_exec.
   Qed.

@@ -186,6 +186,34 @@ Section zoo_G.
     iDestruct "Hmeta" as "(Hmeta & _)". rewrite location_add_0 //.
   Qed.
 
+  Lemma wp_get_tag l hdr E Φ :
+    ▷ l ↦ₕ hdr -∗
+    ▷ Φ #hdr.(header_tag) -∗
+    WP GetTag #l @ E {{ Φ }}.
+  Proof.
+    iIntros ">Hhdr HΦ".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs)".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
+    iDestruct (mono_map_elem_valid with "Hheaders Hhdr") as %Hheaders_lookup.
+    iSplit; first eauto with zoo. iIntros "%e %σ2 %es %Hstep _ !>".
+    invert_base_step.
+    iFrame. iSteps.
+  Qed.
+
+  Lemma wp_get_size l hdr E Φ :
+    ▷ l ↦ₕ hdr -∗
+    ▷ Φ #hdr.(header_size) -∗
+    WP GetSize #l @ E {{ Φ }}.
+  Proof.
+    iIntros ">Hhdr HΦ".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs (Hheaders & Hheap & Hκs)".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
+    iDestruct (mono_map_elem_valid with "Hheaders Hhdr") as %Hheaders_lookup.
+    iSplit; first eauto with zoo. iIntros "%e %σ2 %es %Hstep _ !>".
+    invert_base_step.
+    iFrame. iSteps.
+  Qed.
+
   Lemma wp_load l dq v E :
     {{{
       ▷ l ↦{dq} v

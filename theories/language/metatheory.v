@@ -50,6 +50,10 @@ Fixpoint occurs x e :=
   | Alloc e1 e2 =>
       occurs x e1 ||
       occurs x e2
+  | GetTag e =>
+      occurs x e
+  | GetSize e =>
+      occurs x e
   | Load e =>
       occurs x e
   | Store l e =>

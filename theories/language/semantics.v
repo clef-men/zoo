@@ -213,6 +213,12 @@ Fixpoint subst (x : string) v e :=
       Alloc
         (subst x v e1)
         (subst x v e2)
+  | GetTag e =>
+      GetTag
+        (subst x v e)
+  | GetSize e =>
+      GetSize
+        (subst x v e)
   | Load e =>
       Load
         (subst x v e)
@@ -530,6 +536,40 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_alloc l (Header 0 (Z.to_nat n)) (replicate (Z.to_nat n) v) σ)
         []
+  | base_step_get_tag_concrete l hdr σ :
+      σ.(state_headers) !! l = Some hdr →
+      base_step
+        (GetTag $ Val $ ValLoc l)
+        σ
+        []
+        (Val $ ValInt hdr.(header_tag))
+        σ
+        []
+  | base_step_get_tag_abstract tag vs σ :
+      base_step
+        (GetTag $ Val $ ValBlock tag vs)
+        σ
+        []
+        (Val $ ValInt tag)
+        σ
+        []
+  | base_step_get_size_concrete l hdr σ :
+      σ.(state_headers) !! l = Some hdr →
+      base_step
+        (GetSize $ Val $ ValLoc l)
+        σ
+        []
+        (Val $ ValInt hdr.(header_size))
+        σ
+        []
+  | base_step_get_size_abstract tag vs σ :
+      base_step
+        (GetSize $ Val $ ValBlock tag vs)
+        σ
+        []
+        (Val $ ValInt (length vs))
+        σ
+        []
   | base_step_load l v σ :
       σ.(state_heap) !! l = Some v →
       base_step
@@ -699,6 +739,8 @@ Inductive ectxi :=
   | CtxFor2 v1 e3
   | CtxAlloc1 v2
   | CtxAlloc2 e1
+  | CtxGetTag
+  | CtxGetSize
   | CtxLoad
   | CtxStore1 v2
   | CtxStore2 e1
@@ -756,6 +798,10 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e $ Val v2
   | CtxAlloc2 e1 =>
       Alloc e1 e
+  | CtxGetTag =>
+      GetTag e
+  | CtxGetSize =>
+      GetSize e
   | CtxLoad =>
       Load e
   | CtxStore1 v2 =>

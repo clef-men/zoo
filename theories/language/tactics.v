@@ -50,6 +50,10 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxAlloc1 v2) K prophs e1
     | Alloc ?e1 ?e2 =>
         add_ectxi (CtxAlloc2 e1) K prophs e2
+    | GetTag ?e =>
+        add_ectxi CtxGetTag K prophs e
+    | GetSize ?e =>
+        add_ectxi CtxGetSize K prophs e
     | Load ?e =>
         add_ectxi CtxLoad K prophs e
     | Store ?e1 (Val ?v2) =>

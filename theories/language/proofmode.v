@@ -221,6 +221,36 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hhdr $Hl $Hmeta]").
   Qed.
 
+  Lemma tac_wp_get_tag Δ Δ' id p K l hdr E Φ :
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
+    envs_entails Δ' (WP fill K #hdr.(header_tag) @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (GetTag #l) @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
+    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
+    iIntros "(Hhdr & H)".
+    iAssert (▷ l ↦ₕ hdr)%I with "[Hhdr]" as "#Hhdr_".
+    { destruct p; iSteps. }
+    iApply (wp_get_tag with "Hhdr_").
+    iSteps.
+  Qed.
+
+  Lemma tac_wp_get_size Δ Δ' id p K l hdr E Φ :
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
+    envs_entails Δ' (WP fill K #hdr.(header_size) @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (GetSize #l) @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
+    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
+    iIntros "(Hhdr & H)".
+    iAssert (▷ l ↦ₕ hdr)%I with "[Hhdr]" as "#Hhdr_".
+    { destruct p; iSteps. }
+    iApply (wp_get_size with "Hhdr_").
+    iSteps.
+  Qed.
+
   Lemma tac_wp_load Δ Δ' id p K l dq v E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦{dq} v)%I →
@@ -673,7 +703,45 @@ Tactic Notation "wp_ref" ident(l) "as" constr(Hl) :=
 Tactic Notation "wp_ref" ident(l) :=
   wp_ref l as "?".
 
-Tactic Notation "wp_load" :=
+Ltac wp_get_tag :=
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_get_tag _ _ _ _ K)
+      )
+    | fail 1 "wp_get_tag: cannot find 'GetTag' in" e
+    ];
+    [ tc_solve
+    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_get_tag: cannot find" l "↦ₕ ?"
+      ]
+    | wp_finish
+    ]
+  ).
+
+Ltac wp_get_size :=
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_get_size _ _ _ _ K)
+      )
+    | fail 1 "wp_get_size: cannot find 'GetSize' in" e
+    ];
+    [ tc_solve
+    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_get_size: cannot find" l "↦ₕ ?"
+      ]
+    | wp_finish
+    ]
+  ).
+
+Ltac wp_load :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
@@ -692,7 +760,7 @@ Tactic Notation "wp_load" :=
     ]
   ).
 
-Tactic Notation "wp_store" :=
+Ltac wp_store :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
@@ -712,7 +780,7 @@ Tactic Notation "wp_store" :=
     ]
   ).
 
-Tactic Notation "wp_xchg" :=
+Ltac wp_xchg :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
