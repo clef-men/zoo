@@ -133,7 +133,7 @@ Section bag_G.
     l.[back] ↦ #back ∗
     bag_model₂ γ vs ∗
     [∗ list] slot; o ∈ γ.(bag_meta_slots); os,
-      slot ↦ (o : val).
+      slot ↦ᵣ (o : val).
   Definition bag_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -340,7 +340,7 @@ Section bag_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (!_)%E.
+    wp_bind (Load _ _)..
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.

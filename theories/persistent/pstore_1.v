@@ -695,7 +695,7 @@ Section pstore_G.
     mono_set_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
-    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) )) -∗
+    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) -∗
     ⌜unaliased g⌝.
   Proof.
     iIntros "Hg" (???????).
@@ -703,7 +703,7 @@ Section pstore_G.
     rewrite (big_sepS_delete _ _ (a, a0, a1)). set_solver.
     rewrite (big_sepS_delete _ _ (a, a2, a3)). set_solver.
     iDestruct "Hg" as "(?&?&_)". destruct a0,a2.
-    iDestruct (pointsto_ne with "[$][$]") as "%". congruence.
+    iDestruct (pointsto_exclusive with "[$][$]") as %[].
   Qed.
 
   (* NB our invariant asserts that g is indeed a rooted tree: a rooted DAG
@@ -721,11 +721,11 @@ Section pstore_G.
       (g:graph_store) (* the global graph *)
       (M:map_model), (* the map model, associating to each node its model *)
     ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r⌝ ∗
-    t0 ↦ #r ∗
-    r ↦ §Root ∗
+    t0 ↦ᵣ #r ∗
+    r ↦ᵣ §Root ∗
     snapshosts_model t0 M ∗
-    ([∗ map] l ↦ v ∈ σ0, l ↦ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ ’Diff( #(l : location), v, #(r' : location) )) .
+    ([∗ map] l ↦ v ∈ σ0, l ↦ᵣ v) ∗
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
@@ -807,7 +807,7 @@ Section pstore_G.
     { rewrite -not_elem_of_dom. iIntros (Hl).
       apply elem_of_dom in Hl. destruct Hl.
       iDestruct (big_sepM_lookup with "Hσ0") as "Hl_"; first done.
-      iDestruct (pointsto_ne with "Hl Hl_") as %?. done. }
+      iApply (pointsto_exclusive with "Hl Hl_"). }
     assert (σ !! l = None).
     { eapply not_elem_of_dom. apply not_elem_of_dom in Hl0.  destruct Hinv as [_ X].
       apply incl_dom_incl in X. set_solver. }
@@ -899,14 +899,14 @@ Section pstore_G.
     iSpecialize ("Hσ0" with "[$]").
 
     iAssert ⌜r ≠ r'⌝%I as %?.
-    { iClear "Ht0". iDestruct (pointsto_ne with "[$][$]") as %?. done. }
+    { iClear "Ht0". iDestruct (pointsto_ne with "[$][$]") as %?. iSteps. }
 
     iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
     { iIntros (Hr'). destruct Hgraph as [X1 X2].
       apply X1 in Hr'. destruct Hr' as (?&Hr'). inversion Hr'; subst.
       { done. }
-      { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "?". done.
-        iDestruct (pointsto_ne r' r' with "[$][$]") as %?. congruence. } }
+      { destruct b. iDestruct (big_sepS_elem_of with "[$]") as "H". done.
+        iApply (pointsto_exclusive with "Hr' H"). } }
 
     iModIntro. iExists t0,r',(<[l:=v]> σ0),({[(r,(l,w),r')]} ∪ g), (<[r':=<[l:=v]> σ0]>M).
     rewrite big_sepS_union.
@@ -990,14 +990,14 @@ Section pstore_G.
     lst_model' t' xs ->
     path g r ys r' ->
     {{{
-      r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) ))
+      r' ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_collect #r t'
     {{{ t,
       RET (#r',t);
-      r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      r' ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
@@ -1017,14 +1017,14 @@ Section pstore_G.
   Lemma pstore_collect_spec (r r':location) (ys:list (location*(location*val)*location)) (g:graph_store) :
     path g r ys r' ->
     {{{
-      r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) ))
+      r' ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_collect #r §Nil
     {{{ t,
       RET (#r',t);
-      r' ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      r' ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev (fsts ys))
     }}}.
   Proof.
@@ -1092,19 +1092,19 @@ Section pstore_G.
     g2 ⊆ g ->
     path g r xs r' ->
     {{{
-      r' ↦ w ∗
-      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ ’Diff( #(l : location), v, #(r' : location) ))
+      r' ↦ᵣ w ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_revert #r' t
     {{{
       RET ();
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
-      r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
-      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+      r ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.
     iIntros (-> Hlocs Hg Hacy Hsub Hpath Φ) "(Hr'&Hσ&Hg1&Hg2) HΦ".
@@ -1152,8 +1152,8 @@ Section pstore_G.
       { iPureIntro. eauto using undo_cons. }
       rewrite list_to_set_cons.
       iAssert ⌜(r', (l, v'), r0) ∉ g1 ∪ list_to_set ys⌝%I as "%".
-      { iIntros (?). iDestruct (big_sepS_elem_of with "[$]") as "?". done.
-        iDestruct (pointsto_ne r' r' with "[$][$]") as "%". congruence. }
+      { iIntros (?). iDestruct (big_sepS_elem_of with "[$]") as "H". done.
+        iApply (pointsto_exclusive with "Hr' H"). }
       replace (g1 ∪ ({[(r', (l, v'), r0)]} ∪ list_to_set ys)) with ({[(r', (l, v'), r0)]} ∪ ((g1 ∪ list_to_set ys))). 2:set_solver.
       iApply big_sepS_union. set_solver.
       iFrame. rewrite big_sepS_singleton //. }
@@ -1166,18 +1166,18 @@ Section pstore_G.
     acyclic g ->
     path g r xs r' ->
     {{{
-      r' ↦ w ∗
-      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) ))
+      r' ↦ᵣ w ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_revert #r' t
     {{{
       RET ();
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
-      r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
-      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+      r ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.
     iIntros (->???? Φ) "(?&?&?) HΦ".
@@ -1199,18 +1199,18 @@ Section pstore_G.
     acyclic g ->
     path g r xs r' ->
     {{{
-      r' ↦ §Root ∗
-      ([∗ map] l0↦v0 ∈ σ, l0 ↦ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ ’Diff( #(l : location), v, #(r' : location) ))
+      r' ↦ᵣ §Root ∗
+      ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_reroot #r
     {{{
       RET ();
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
-      r ↦ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ ’Diff( #(l : location), v, #(r' : location) )) ∗
-      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ v0)
+      r ↦ᵣ §Root ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
@@ -1673,7 +1673,7 @@ Section pstore_G.
     { eapply acyclic_weak; eauto using ti2. }
     { iFrame. }
 
-    iIntros "[%ys (%Hundo&?&?&?)]".
+    iIntros "[%ys (%Hundo&Hrs&?&?)]".
     assert (mirror xs ys) as Hmirror by eauto using undo_mirror.
     iStep 8. do 2 iModIntro.
     iApply "HΦ".
@@ -1688,8 +1688,8 @@ Section pstore_G.
     rewrite Hbs. rewrite Hbs in H5.
 
     iAssert ⌜forall x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
-    { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "?". done.
-      iDestruct (pointsto_ne rs rs with "[$][$]") as "%". congruence. }
+    { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "H". done.
+      iApply (pointsto_exclusive with "Hrs H"). }
 
     iExists _,_,_,_,M. iFrame.
 

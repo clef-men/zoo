@@ -3,6 +3,15 @@ From zoo Require Import
 From zoo Require Import
   options.
 
+Definition nat_elim {A} (x : A) f n :=
+  match n with
+  | 0 =>
+      x
+  | S n =>
+      f n
+  end.
+#[global] Arguments nat_elim _ _ _ !_ / : assert.
+
 #[global] Instance ge_partialorder :
   PartialOrder ge.
 Proof.

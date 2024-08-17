@@ -169,7 +169,7 @@ Section zoo_G.
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
     ⌜slot = ’Some( #r )%V⌝ ∗
-    r ↦ v.
+    r ↦ᵣ v.
   Definition dynarray_model t vs : iProp Σ :=
     ∃ l data slots extra,
     ⌜t = #l⌝ ∗

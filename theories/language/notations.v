@@ -274,11 +274,6 @@ Notation "e1 > e2" := (
 )(at level 70,
   no associativity
 ) : expr_scope.
-Notation "e1 +ₗ e2" := (
-  Binop BinopOffset e1%E e2%E
-)(at level 50,
-  left associativity
-) : expr_scope.
 Notation "e1 = e2" := (
   Equal e1%E e2%E
 )(at level 70,
@@ -300,18 +295,6 @@ Notation "e1 'or' e2" := (
 )(at level 77,
   left associativity,
   only parsing
-) : expr_scope.
-
-Notation "l .[ fld ]" := (
-  location_add l (Z.of_nat fld)
-)(at level 2,
-  fld custom zoo_field,
-  format "l .[ fld ]"
-) : stdpp_scope.
-Notation "e .[ fld ]" := (
-  Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld)))
-)(at level 2,
-  fld custom zoo_field
 ) : expr_scope.
 
 Notation "'if:' e0 'then' e1 'else' e2" := (
@@ -339,6 +322,13 @@ Notation "'ifnot:' e0 'then' e2" := (
 )(at level 1,
   e0, e2 at level 200,
   only parsing
+) : expr_scope.
+
+Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
+  For e1%E e2%E (Fun x%binder e3%E)
+)(x at level 1,
+  e1, e2, e3 at level 200,
+  format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
 ) : expr_scope.
 
 Notation "{ e1 , .. , en }" := (
@@ -410,13 +400,6 @@ Notation "()" := (
 Notation "()" :=
   ValUnit
 : val_scope.
-
-Notation "e .< proj >" := (
-  Proj proj e
-)(at level 2,
-  proj custom zoo_proj,
-  format "e .< proj >"
-) : expr_scope.
 
 Notation "tag => e" := (
   @pair pattern expr
@@ -608,39 +591,90 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
   format "'[v' '[hv' 'let:'  x0 ,  x1 ,  .. ,  xn  :=  '/  ' '[' e1 ']'  '/' 'in'  ']' '/' e2 ']'"
 ) : expr_scope.
 
-Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
-  For e1%E e2%E (Fun x%binder e3%E)
-)(x at level 1,
-  e1, e2, e3 at level 200,
-  format "'[v' '[hv' for:  x  :=  '/  ' '[' e1 ']'  '/' to  '/  ' '[' e2 ']'  '/' begin  ']' '/  ' '[' e3 ']'  '/' end ']'"
-) : expr_scope.
-
-Notation "'ref' e" := (
-  Alloc (Val (ValInt 1)) e
-)(at level 10
-) : expr_scope.
-
-Notation "! e" := (
-  Load e%E
-)(at level 9,
-  right associativity,
-  format "! e"
-) : expr_scope.
 Notation "e .{ fld }" := (
-  Load (Binop BinopOffset e%E (Val (ValInt (Z.of_nat fld))))
+  Load e%E (Val (ValInt (Z.of_nat fld)))
 )(at level 2,
   fld custom zoo_field,
   format "e .{ fld }"
 ) : expr_scope.
 
-Notation "e1 <- e2" := (
-  Store e1%E e2%E
-)(at level 80,
-  format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
+Notation "e .< proj >" := (
+  Load e%E (Val (ValInt (Z.of_nat proj)))
+)(at level 2,
+  proj custom zoo_proj,
+  format "e .< proj >"
 ) : expr_scope.
+
 Notation "e1 <-{ fld } e2" := (
-  Store (Binop BinopOffset e1%E (Val (ValInt (Z.of_nat fld)))) e2%E
+  Store e1%E (Val (ValInt (Z.of_nat fld))) e2%E
 )(at level 80,
   fld custom zoo_field,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-{ fld }  ']' '/  ' '[' e2 ']' ']'"
+) : expr_scope.
+
+Notation "l .[ fld ]" := (
+  location_add l (Z.of_nat fld)
+)(at level 2,
+  fld custom zoo_field,
+  format "l .[ fld ]"
+) : stdpp_scope.
+Notation "v .[ fld ]" := (
+  Val
+  ( ValBlock
+    (in_type "__atomic_loc__" 0)
+    ( @cons val v%V
+      ( @cons val (ValInt (Z.of_nat fld))
+        (@nil val)
+      )
+    )
+  )
+)(at level 2,
+  fld custom zoo_field,
+  only printing,
+  format "v .[ fld ]"
+) : expr_scope.
+Notation "e .[ fld ]" := (
+  Block
+    Abstract
+    (in_type "__atomic_loc__" 0)
+    ( @cons expr e%E
+      ( @cons expr (Val (ValInt (Z.of_nat fld)))
+        (@nil expr)
+      )
+    )
+)(at level 2,
+  fld custom zoo_field,
+  format "e .[ fld ]"
+) : expr_scope.
+Notation "v .[ fld ]" := (
+  ValBlock
+  (in_type "__atomic_loc__" 0)
+  ( @cons val v%V
+    ( @cons val (ValInt (Z.of_nat fld))
+      (@nil val)
+    )
+  )
+)(at level 2,
+  fld custom zoo_field,
+  format "v .[ fld ]"
+) : val_scope.
+
+Notation "'contents'" := (
+  in_type "__ref__" 0
+)(in custom zoo_field
+).
+Notation "'ref' e" := (
+  Block Concrete (in_type "__ref__" 0) (@cons expr e%E (@nil expr))
+)(at level 10
+) : expr_scope.
+Notation "! e" := (
+  Load e%E (Val (ValInt (Z.of_nat (in_type "__ref__" 0))))
+)(at level 9,
+  right associativity,
+  format "! e"
+) : expr_scope.
+Notation "e1 <- e2" := (
+  Store e1%E (Val (ValInt (Z.of_nat (in_type "__ref__" 0)))) e2%E
+)(at level 80,
+  format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.

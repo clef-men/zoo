@@ -30,10 +30,15 @@ Fixpoint occurs x e :=
       occurs x e0 ||
       occurs x e1 ||
       occurs x e2
+  | For e1 e2 e3 =>
+      occurs x e1 ||
+      occurs x e2 ||
+      occurs x e3
+  | Alloc e1 e2 =>
+      occurs x e1 ||
+      occurs x e2
   | Block _ _ es =>
       existsb (occurs x) es
-  | Proj _ e =>
-      occurs x e
   | Match e0 y e1 brs =>
       occurs x e0 ||
       bool_decide (BNamed x ≠ y) && occurs x e1 ||
@@ -43,22 +48,17 @@ Fixpoint occurs x e :=
         bool_decide (BNamed x ≠ pat.(pattern_as)) &&
         occurs x br.2
       ) brs
-  | For e1 e2 e3 =>
-      occurs x e1 ||
-      occurs x e2 ||
-      occurs x e3
-  | Alloc e1 e2 =>
-      occurs x e1 ||
-      occurs x e2
   | GetTag e =>
       occurs x e
   | GetSize e =>
       occurs x e
-  | Load e =>
-      occurs x e
-  | Store l e =>
-      occurs x l ||
-      occurs x e
+  | Load e1 e2 =>
+      occurs x e1 ||
+      occurs x e2
+  | Store e1 e2 e3 =>
+      occurs x e1 ||
+      occurs x e2 ||
+      occurs x e3
   | Xchg e1 e2 =>
       occurs x e1 ||
       occurs x e2

@@ -2210,7 +2210,7 @@ Section inf_ws_deque_G.
       ∃ slots,
       raw.inf_ws_deque_model t (#@{location} <$> slots) ∗
       [∗ list] slot; v ∈ slots; vs,
-        slot ↦ v.
+        slot ↦ᵣ v.
 
   Definition inf_ws_deque_owner t :=
     raw.inf_ws_deque_owner t.

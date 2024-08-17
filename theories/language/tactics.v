@@ -36,12 +36,6 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxEqual2 e1) K prophs e2
     | If ?e0 ?e1 ?e2 =>
         add_ectxi (CtxIf e1 e2) K prophs e0
-    | Block ?concrete ?tag ?es =>
-        go_list K prophs (CtxBlock concrete tag) es
-    | Proj ?proj ?e =>
-        add_ectxi (CtxProj proj) K prophs e
-    | Match ?e0 ?x ?e1 ?brs =>
-        add_ectxi (CtxMatch x e1 brs) K prophs e0
     | For (Val ?v1) ?e2 ?e3 =>
         add_ectxi (CtxFor2 v1 e3) K prophs e2
     | For ?e1 ?e2 ?e3 =>
@@ -50,16 +44,24 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxAlloc1 v2) K prophs e1
     | Alloc ?e1 ?e2 =>
         add_ectxi (CtxAlloc2 e1) K prophs e2
+    | Block ?concrete ?tag ?es =>
+        go_list K prophs (CtxBlock concrete tag) es
+    | Match ?e0 ?x ?e1 ?brs =>
+        add_ectxi (CtxMatch x e1 brs) K prophs e0
     | GetTag ?e =>
         add_ectxi CtxGetTag K prophs e
     | GetSize ?e =>
         add_ectxi CtxGetSize K prophs e
-    | Load ?e =>
-        add_ectxi CtxLoad K prophs e
-    | Store ?e1 (Val ?v2) =>
-        add_ectxi (CtxStore1 v2) K prophs e1
-    | Store ?e1 ?e2 =>
-        add_ectxi (CtxStore2 e1) K prophs e2
+    | Load ?e1 (Val ?v2) =>
+        add_ectxi (CtxLoad1 v2) K prophs e1
+    | Load ?e1 ?e2 =>
+        add_ectxi (CtxLoad2 e1) K prophs e2
+    | Store ?e1 (Val ?v2) (Val ?v3) =>
+        add_ectxi (CtxStore1 v2 v3) K prophs e1
+    | Store ?e1 ?e2 (Val ?v3) =>
+        add_ectxi (CtxStore2 e1 v3) K prophs e2
+    | Store ?e1 ?e2 ?e3 =>
+        add_ectxi (CtxStore3 e1 e2) K prophs e3
     | Xchg ?e1 (Val ?v2) =>
         add_ectxi (CtxXchg1 v2) K prophs e1
     | Xchg ?e1 ?e2 =>
@@ -159,14 +161,14 @@ Ltac invert_base_step :=
   eapply base_step_equal_suc; simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Block Concrete _ _) _ _ _ _ _
-) =>
-  eapply base_step_block_concrete'
-: zoo.
-#[global] Hint Extern 0 (
   base_step (Alloc _ _) _ _ _ _ _
 ) =>
   apply base_step_alloc'
+: zoo.
+#[global] Hint Extern 0 (
+  base_step (Block Concrete _ _) _ _ _ _ _
+) =>
+  eapply base_step_block_concrete'
 : zoo.
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _

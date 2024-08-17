@@ -19,7 +19,7 @@ Section zoo_G.
     ⌜t = #l⌝ ∗
     inv nroot (
       ∃ w,
-      l ↦ w ∗ τ w
+      l ↦ᵣ w ∗ τ w
     ).
   #[global] Instance itype_ref_itype :
     iType _ itype_ref.

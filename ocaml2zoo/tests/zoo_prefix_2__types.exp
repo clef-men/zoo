@@ -2,11 +2,7 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.tests Require Import
-  zoo_prefix__types.
 From zoo Require Import
   options.
 
-Definition truc_test : val :=
-  fun: <> =>
-    ().
+

@@ -3,15 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  obj__types.
+  zoo_prefix_2__types.
 From zoo Require Import
   options.
 
-Definition obj_test : val :=
+Definition test : val :=
   fun: <> =>
-    GetTag #0 ;;
-    GetSize #0 ;;
-    Load #0 #0 ;;
-    Store #0 #0 #0 ;;
-    Alloc #0 #0 ;;
     ().

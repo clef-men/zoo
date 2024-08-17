@@ -29,7 +29,7 @@ Definition mpmc_stack_push : val :=
   rec: "mpmc_stack_push" "t" "v" =>
     let: "old" := !"t" in
     let: "new" := ‘Cons( "v", "old" ) in
-    ifnot: CAS "t" "old" "new" then (
+    ifnot: CAS "t".[contents] "old" "new" then (
       Yield ;;
       "mpmc_stack_push" "t" "v"
     ).
@@ -40,7 +40,7 @@ Definition mpmc_stack_pop : val :=
     | Nil =>
         §None
     | Cons "v" "new" as "old" =>
-        if: CAS "t" "old" "new" then (
+        if: CAS "t".[contents] "old" "new" then (
           ‘Some( "v" )
         ) else (
           Yield ;;
@@ -72,7 +72,7 @@ Section zoo_G.
 
   #[local] Definition mpmc_stack_inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ lst_to_val vs ∗
+    l ↦ᵣ lst_to_val vs ∗
     mpmc_stack_model₂ γ vs.
   Definition mpmc_stack_inv t ι : iProp Σ :=
     ∃ l γ,

@@ -1,0 +1,4 @@
+[@@@zoo.prefix ""]
+
+let test () =
+  ()

@@ -95,7 +95,7 @@ Module raw.
       | [] =>
           ⌜node = dst⌝
       | δ :: δs =>
-          node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+          node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
           deltas_chain (delta_node δ) δs dst
       end.
 
@@ -124,7 +124,7 @@ Module raw.
       meta l (nroot.@"impl") γ ∗
       l.[gen] ↦ #g ∗
       l.[root] ↦ #root ∗
-      root ↦ §Root ∗
+      root ↦ᵣ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.1 ∗
         r.[ref_value] ↦ data.2
@@ -318,7 +318,7 @@ Module raw.
     Qed.
 
     #[local] Lemma deltas_chain_cons src δ δs dst :
-      src ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) -∗
+      src ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) -∗
       deltas_chain (delta_node δ) δs dst -∗
         deltas_chain src (δ :: δs) dst.
     Proof.
@@ -332,14 +332,14 @@ Module raw.
     Qed.
     #[local] Lemma deltas_chain_cons_inv src δ δs dst :
       deltas_chain src (δ :: δs) dst ⊢
-        src ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+        src ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) δs dst.
     Proof.
       iSteps.
     Qed.
     #[local] Lemma deltas_chain_snoc {src δs dst} r g v dst' :
       deltas_chain src δs dst -∗
-      dst ↦ ’Diff( #r, #g, v, #dst' ) -∗
+      dst ↦ᵣ ’Diff( #r, #g, v, #dst' ) -∗
       deltas_chain src (δs ++ [(r, (g, v), dst')]) dst'.
     Proof.
       iInduction δs as [] "IH" forall (src); iSteps.
@@ -374,7 +374,7 @@ Module raw.
         let node := default src $ delta_node <$> last δs in
         ⌜delta_node δ = dst⌝ ∗
         deltas_chain src δs node ∗
-        node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst ).
+        node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst ).
     Proof.
       rewrite deltas_chain_app_1. iSteps.
     Qed.
@@ -401,7 +401,7 @@ Module raw.
             delta_node δ' = node
         ⌝ ∗
         deltas_chain src (take i δs) node ∗
-        node ↦ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+        node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) (drop (S i) δs) dst.
     Proof.
       iIntros "%Hδs_lookup Hδs".
@@ -492,7 +492,7 @@ Module raw.
       { rewrite -not_elem_of_dom. iIntros "%Hr".
         iDestruct (big_sepM_lookup with "Hς") as "(_Hr_gen & _)".
         { apply lookup_lookup_total_dom. rewrite store_on_dom' //. }
-        iDestruct (pointsto_ne with "Hr_gen _Hr_gen") as %?. done.
+        iApply (pointsto_exclusive with "Hr_gen _Hr_gen").
       }
       iApply "HΦ".
       iSplitR; first iSteps. iExists l, γ, g, root, ς. iFrame "#∗". iStep 2.
@@ -737,7 +737,7 @@ Module raw.
           iAssert ⌜descrs !! root = None⌝%I as %Hdescrs_lookup_root.
           { destruct (decide (root = base)) as [-> | Hcase].
             - iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hbase & _)".
-              iDestruct (pointsto_ne with "Hroot Hbase") as %?. done.
+              iDestruct (pointsto_exclusive with "Hroot Hbase") as %[].
             - rewrite -eq_None_ne_Some. iIntros "%descr' %Hdescrs_lookup".
               iDestruct (big_sepM2_lookup_l with "Hdescrs") as ((cnode' & δs')) "(%Hϵs_lookup_root & %descr'' & _ & _ & _ & _ & _ & Hδs') /=".
               { rewrite lookup_delete_Some //. }
@@ -745,7 +745,7 @@ Module raw.
               + iDestruct (deltas_chain_nil_inv with "Hδs'") as %<-.
                 opose proof* treemap_rooted_acyclic as []; done.
               + iDestruct (deltas_chain_cons_inv with "Hδs'") as "(_Hroot & _)".
-                iDestruct (pointsto_ne with "Hroot _Hroot") as %?. done.
+                iApply (pointsto_exclusive with "Hroot _Hroot").
           }
           iAssert ⌜ϵs !! root = None⌝%I as %Hϵs_lookup_root.
           { iDestruct (big_sepM2_lookup_iff with "Hdescrs") as %H.
@@ -779,7 +779,7 @@ Module raw.
     Qed.
 
     #[local] Definition pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
-      root ↦ §Root ∗
+      root ↦ᵣ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.1 ∗
         r.[ref_value] ↦ data.2
@@ -991,7 +991,7 @@ Module raw.
 
     #[local] Definition pstore_revert_pre_1 γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
       ∃ v_root,
-      root ↦ v_root ∗
+      root ↦ᵣ v_root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.1 ∗
         r.[ref_value] ↦ data.2
@@ -1009,7 +1009,7 @@ Module raw.
         cnode_model γ σ0 cnode descr ϵ descr'.2.
     #[local] Definition pstore_revert_pre_2 γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node : iProp Σ :=
       ∃ v_node,
-      node ↦ v_node ∗
+      node ↦ᵣ v_node ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.1 ∗
         r.[ref_value] ↦ data.2
@@ -1028,7 +1028,7 @@ Module raw.
         ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
         cnode_model γ σ0 cnode descr ϵ descr'.2.
     #[local] Definition pstore_revert_post γ σ0 descrs ϵs base descr : iProp Σ :=
-      base ↦ §Root ∗
+      base ↦ᵣ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 descr.2,
         r.[ref_gen] ↦ #data.1 ∗
         r.[ref_value] ↦ data.2
@@ -1408,12 +1408,12 @@ Module raw.
             opose proof* treemap_rooted_acyclic as []; done.
           }
           iDestruct (deltas_chain_cons_inv with "Hδs'") as "(Hδ & Hδs')".
-          iDestruct (pointsto_ne with "Hroot Hδ") as %?. done.
+          iDestruct (pointsto_exclusive with "Hroot Hδ") as %[].
         }
         assert (descr = descr') as <- by congruence.
         destruct δs as [| δ δs]; last first.
         { iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & _)".
-          iDestruct (pointsto_ne with "Hroot Hδ") as %?. done.
+          iDestruct (pointsto_exclusive with "Hroot Hδ") as %[].
         }
         specialize (Hδs_nil eq_refl) as ->.
         iSteps. rewrite decide_False //. iSteps.

@@ -103,7 +103,7 @@ Section parray_G.
     [∗ map] l ↦ vs ∈ map,
       ∃ descr,
       ⌜length vs = γ.(parray_meta_size)⌝ ∗
-      l ↦ descr ∗
+      l ↦ᵣ descr ∗
       if (decide (l = root)) then (
         ⌜descr = ’Root( γ.(parray_meta_array) )%V⌝ ∗
         array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗

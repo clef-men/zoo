@@ -28,8 +28,8 @@ let () =
           Load_path.(init ~auto_include:no_auto_include ~visible:cmt.cmt_loadpath.visible ~hidden:cmt.cmt_loadpath.hidden) ;
           let modname = String.uncapitalize_ascii cmt.cmt_modname in
           begin match Zoo.Of_ocaml.structure modname str with
-          | exception Zoo.Of_ocaml.Unsupported (loc, err) ->
-              error ~with_usage:false "%a:@,unsupported feature: %a"
+          | exception Zoo.Of_ocaml.Error (loc, err) ->
+              error ~with_usage:false "%a:@,%a"
                 Location.print_loc loc
                 Zoo.Of_ocaml.Error.pp err
           | str ->

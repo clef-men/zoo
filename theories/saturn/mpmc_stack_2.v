@@ -30,7 +30,7 @@ Definition mpmc_stack_push : val :=
         #true
     |_ as "old" =>
         let: "new" := ‘ClstCons( "v", "old" ) in
-        if: CAS "t" "old" "new" then (
+        if: CAS "t".[contents] "old" "new" then (
           #false
         ) else (
           Yield ;;
@@ -46,7 +46,7 @@ Definition mpmc_stack_pop : val :=
     | ClstOpen =>
         §Nothing
     | ClstCons "v" "new" as "old" =>
-        if: CAS "t" "old" "new" then (
+        if: CAS "t".[contents] "old" "new" then (
           ‘Something( "v" )
         ) else (
           Yield ;;
@@ -60,7 +60,7 @@ Definition mpmc_stack_is_closed : val :=
 
 Definition mpmc_stack_close : val :=
   fun: "t" =>
-    Xchg "t" §ClstClosed.
+    Xchg "t".[contents] §ClstClosed.
 
 Class MpmcStackG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpmc_stack_G_model_G :: TwinsG Σ (leibnizO (option $ list val)) ;
@@ -86,7 +86,7 @@ Section zoo_G.
 
   #[local] Definition mpmc_stack_inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ from_option (clist_to_val ∘ list_to_clist_open) §ClstClosed vs ∗
+    l ↦ᵣ from_option (clist_to_val ∘ list_to_clist_open) §ClstClosed vs ∗
     mpmc_stack_model₂ γ vs.
   Definition mpmc_stack_inv t ι : iProp Σ :=
     ∃ l γ,
@@ -404,7 +404,7 @@ Section zoo_G.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
-    wp_rec credit:"H£".
+    wp_rec credit:"H£". wp_pures.
 
     iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
     wp_xchg.
