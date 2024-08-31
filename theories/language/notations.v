@@ -595,6 +595,7 @@ Notation "e .{ fld }" := (
   Load e%E (Val (ValInt (Z.of_nat fld)))
 )(at level 2,
   fld custom zoo_field,
+  left associativity,
   format "e .{ fld }"
 ) : expr_scope.
 
@@ -616,6 +617,7 @@ Notation "l .[ fld ]" := (
   location_add l (Z.of_nat fld)
 )(at level 2,
   fld custom zoo_field,
+  left associativity,
   format "l .[ fld ]"
 ) : stdpp_scope.
 Notation "v .[ fld ]" := (
@@ -631,6 +633,7 @@ Notation "v .[ fld ]" := (
 )(at level 2,
   fld custom zoo_field,
   only printing,
+  left associativity,
   format "v .[ fld ]"
 ) : expr_scope.
 Notation "e .[ fld ]" := (
@@ -644,6 +647,7 @@ Notation "e .[ fld ]" := (
     )
 )(at level 2,
   fld custom zoo_field,
+  left associativity,
   format "e .[ fld ]"
 ) : expr_scope.
 Notation "v .[ fld ]" := (
@@ -656,6 +660,7 @@ Notation "v .[ fld ]" := (
   )
 )(at level 2,
   fld custom zoo_field,
+  left associativity,
   format "v .[ fld ]"
 ) : val_scope.
 
