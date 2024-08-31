@@ -883,7 +883,8 @@ Section zoo_G.
       inv nroot (
         ∃ vs,
         ⌜sz = length vs⌝ ∗
-        chunk_model l (DfracOwn 1) vs ∗ [∗ list] v ∈ vs, τ v
+        chunk_model l (DfracOwn 1) vs ∗
+        [∗ list] v ∈ vs, τ v
       ).
 
     #[global] Instance itype_chunk_persistent τ `{!iType _ τ} sz l :
