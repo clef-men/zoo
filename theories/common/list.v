@@ -3,6 +3,8 @@ From stdpp Require Export
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  math.
 From zoo Require Import
   options.
 
@@ -74,7 +76,68 @@ Section basic.
   Proof.
     destruct l1; done.
   Qed.
+
+  Lemma head_app_cons l1 x l2 :
+    head (l1 ++ x :: l2) = head (l1 ++ [x]).
+  Proof.
+    move: l1 x. induction l2 as [| x' l2 IH] => l1 x; first done.
+    rewrite (assoc _ l1 [x]) IH -assoc head_snoc_snoc //.
+  Qed.
+  Lemma head_drop_Some l i x :
+    l !! i = Some x →
+    head (drop i l) = Some x.
+  Proof.
+    intros Hlookup.
+    assert (length (take i l) = i) as Htake_length.
+    { apply lookup_lt_Some in Hlookup. rewrite take_length. lia. }
+    apply take_drop_middle in Hlookup as <-.
+    rewrite drop_app Htake_length Nat.sub_diag skipn_all2 //; first lia.
+  Qed.
+  Lemma head_drop l i :
+    head (drop i l) = l !! i.
+  Proof.
+    destruct (l !! i) as [x |] eqn:Hlookup.
+    - apply head_drop_Some. done.
+    - rewrite skipn_all2 // -lookup_ge_None //.
+  Qed.
+
+  Lemma last_cons' x l :
+    last (x :: l) = Some $ default x (last l).
+  Proof.
+    rewrite last_cons. destruct (last l); done.
+  Qed.
+  Lemma last_take l i x :
+    l !! i = Some x →
+    last (take (S i) l) = Some x.
+  Proof.
+    intros Hlookup.
+    assert (length (take i l) = i) as Htake_length.
+    { apply lookup_lt_Some in Hlookup. rewrite take_length. lia. }
+    apply take_drop_middle in Hlookup as <-.
+    rewrite take_app Htake_length Nat.sub_succ_l // Nat.sub_diag last_snoc //.
+  Qed.
+  Lemma last_take' l i :
+    is_Some (l !! i) →
+    last (take i l) = nat_elim None (l !!.) i.
+  Proof.
+    intros Hlookup.
+    destruct i as [| i]; first done.
+    odestruct (lookup_lt_is_Some_2 l i) as (x & Hlookup').
+    { apply lookup_lt_is_Some in Hlookup. lia. }
+    rewrite /= Hlookup'. apply last_take. done.
+  Qed.
 End basic.
+
+Section zip.
+  Context {A1 A2 : Type}.
+
+  Lemma prod_map_zip {B1 B2} (f1 : A1 → B1) (f2 : A2 → B2) l1 l2 :
+    prod_map f1 f2 <$> (zip l1 l2) = zip (f1 <$> l1) (f2 <$> l2).
+  Proof.
+    move: l2. induction l1 as [| x1 l1 IH]; intros [| x2 l2]; try done.
+    cbn. rewrite IH //.
+  Qed.
+End zip.
 
 Section Permutation.
   Context {A : Type}.

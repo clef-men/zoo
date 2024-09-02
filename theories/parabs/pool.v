@@ -64,7 +64,7 @@ Section ws_deques.
   Definition pool_create : val :=
     fun: "sz" =>
       let: "hub" := ws_hub.(ws_hub_create) (#1 + "sz") in
-      let: "doms" := array_initi "sz" (fun: "i" =>
+      let: "doms" := array_unsafe_initi "sz" (fun: "i" =>
         domain_spawn (fun: <> => pool_worker ("hub", #1 + "i"))
       ) in
       ("hub", "doms").
@@ -248,7 +248,7 @@ Section pool_G.
     pose Ψ res : iProp Σ := (
       ⌜res = ()%V⌝
     )%I.
-    wp_smart_apply (array_initi_spec_disentangled' (λ _ dom, domain_model dom Ψ) with "[Hhub_owners]") as (v_doms doms) "(_ & Hv_doms & Hdoms)"; first done.
+    wp_smart_apply (array_unsafe_initi_spec_disentangled' (λ _ dom, domain_model dom Ψ) with "[Hhub_owners]") as (v_doms doms) "(_ & Hv_doms & Hdoms)"; first done.
     { iApply (big_sepL_mono_strong with "Hhub_owners").
       { rewrite !seq_length. lia. }
       iIntros "!>" (k i1 i2 ((-> & Hi1)%lookup_seq & (-> & Hi2)%lookup_seq)) "Hhub_owner".

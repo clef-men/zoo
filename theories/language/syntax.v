@@ -14,7 +14,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types i tag proj : nat.
+Implicit Types i tag : nat.
 Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
@@ -120,8 +120,7 @@ Qed.
 
 Inductive binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
-  | BinopLe | BinopLt | BinopGe | BinopGt
-  | BinopOffset.
+  | BinopLe | BinopLt | BinopGe | BinopGt.
 
 #[global] Instance binop_eq_dec : EqDecision binop :=
   ltac:(solve_decision).
@@ -139,7 +138,6 @@ Proof.
     | BinopLt => 6
     | BinopGe => 7
     | BinopGt => 8
-    | BinopOffset => 9
   end.
   pose decode op :=
     match op with
@@ -151,8 +149,7 @@ Proof.
     | 5 => BinopLe
     | 6 => BinopLt
     | 7 => BinopGe
-    | 8 => BinopGt
-    | _ => BinopOffset
+    | _ => BinopGt
   end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -197,15 +194,14 @@ Inductive expr :=
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
   | If (e0 e1 e2 : expr)
-  | Block concrete tag (es : list expr)
-  | Proj proj (e : expr)
-  | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
+  | Block concrete tag (es : list expr)
+  | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | GetTag (e : expr)
   | GetSize (e : expr)
-  | Load (e : expr)
-  | Store (e1 e2 : expr)
+  | Load (e1 e2 : expr)
+  | Store (e1 e2 e3 : expr)
   | Xchg (e1 e2 : expr)
   | CAS (e0 e1 e2 : expr)
   | FAA (e1 e2 : expr)
@@ -289,20 +285,6 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (If e0 e1 e2).
-  Variable HBlock :
-    ∀ concrete tag,
-    ∀ es, Forall P es →
-    P (Block concrete tag es).
-  Variable HProj :
-    ∀ proj,
-    ∀ e, P e →
-    P (Proj proj e).
-  Variable HMatch :
-    ∀ e0, P e0 →
-    ∀ x,
-    ∀ e1, P e1 →
-    ∀ brs, Forall (λ br, P br.2) brs →
-    P (Match e0 x e1 brs).
   Variable HFor :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -312,6 +294,16 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (Alloc e1 e2).
+  Variable HBlock :
+    ∀ concrete tag,
+    ∀ es, Forall P es →
+    P (Block concrete tag es).
+  Variable HMatch :
+    ∀ e0, P e0 →
+    ∀ x,
+    ∀ e1, P e1 →
+    ∀ brs, Forall (λ br, P br.2) brs →
+    P (Match e0 x e1 brs).
   Variable HGetTag :
     ∀ e, P e →
     P (GetTag e).
@@ -319,12 +311,14 @@ Section expr_ind.
     ∀ e, P e →
     P (GetSize e).
   Variable HLoad :
-    ∀ e, P e →
-    P (Load e).
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Load e1 e2).
   Variable HStore :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
-    P (Store e1 e2).
+    ∀ e3, P e3 →
+    P (Store e1 e2 e3).
   Variable HXchg :
     ∀ e1, P e1 →
     ∀ e2, P e2 →
@@ -385,20 +379,6 @@ Section expr_ind.
           e0 (expr_ind e0)
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Block concrete tag es =>
-        HBlock
-          concrete tag
-          es (Forall_true P es expr_ind)
-    | Proj proj e =>
-        HProj
-          proj
-          e (expr_ind e)
-    | Match e0 x e1 brs =>
-        HMatch
-          e0 (expr_ind e0)
-          x
-          e1 (expr_ind e1)
-          brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
     | For e1 e2 e3 =>
         HFor
           e1 (expr_ind e1)
@@ -408,19 +388,31 @@ Section expr_ind.
         HAlloc
           e1 (expr_ind e1)
           e2 (expr_ind e2)
+    | Block concrete tag es =>
+        HBlock
+          concrete tag
+          es (Forall_true P es expr_ind)
+    | Match e0 x e1 brs =>
+        HMatch
+          e0 (expr_ind e0)
+          x
+          e1 (expr_ind e1)
+          brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
     | GetTag e =>
         HGetTag
           e (expr_ind e)
     | GetSize e =>
         HGetSize
           e (expr_ind e)
-    | Load e =>
+    | Load e1 e2 =>
         HLoad
-          e (expr_ind e)
-    | Store e1 e2 =>
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
+    | Store e1 e2 e3 =>
         HStore
           e1 (expr_ind e1)
           e2 (expr_ind e2)
+          e3 (expr_ind e3)
     | Xchg e1 e2 =>
         HXchg
           e1 (expr_ind e1)
@@ -647,21 +639,6 @@ Proof.
            (decide (e10 = e20))
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Block concrete1 tag1 es1, Block concrete2 tag2 es2 =>
-          cast_if_and3
-            (decide (concrete1 = concrete2))
-            (decide (tag1 = tag2))
-            (decide (es1 = es2))
-      | Proj proj1 e1, Proj proj2 e2 =>
-          cast_if_and
-            (decide (proj1 = proj2))
-            (decide (e1 = e2))
-      | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
-          cast_if_and4
-            (decide (e10 = e20))
-            (decide (x1 = x2))
-            (decide (e11 = e21))
-            (decide (brs1 = brs2))
       | For e11 e12 e13, For e21 e22 e23 =>
           cast_if_and3
             (decide (e11 = e21))
@@ -671,19 +648,32 @@ Proof.
          cast_if_and
            (decide (e11 = e21))
            (decide (e12 = e22))
+      | Block concrete1 tag1 es1, Block concrete2 tag2 es2 =>
+          cast_if_and3
+            (decide (concrete1 = concrete2))
+            (decide (tag1 = tag2))
+            (decide (es1 = es2))
+      | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
+          cast_if_and4
+            (decide (e10 = e20))
+            (decide (x1 = x2))
+            (decide (e11 = e21))
+            (decide (brs1 = brs2))
       | GetTag e1, GetTag e2 =>
           cast_if
             (decide (e1 = e2))
       | GetSize e1, GetSize e2 =>
           cast_if
             (decide (e1 = e2))
-      | Load e1, Load e2 =>
-          cast_if
-            (decide (e1 = e2))
-      | Store e11 e12, Store e21 e22 =>
-         cast_if_and
+      | Load e11 e12, Load e21 e22 =>
+          cast_if_and
+            (decide (e11 = e21))
+            (decide (e12 = e22))
+      | Store e11 e12 e13, Store e21 e22 e23 =>
+         cast_if_and3
            (decide (e11 = e21))
            (decide (e12 = e22))
+           (decide (e13 = e23))
       | Xchg e11 e12, Xchg e21 e22 =>
           cast_if_and
             (decide (e11 = e21))
@@ -785,7 +775,6 @@ Variant encode_leaf :=
   | EncodeBinder x
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
-  | EncodeProjection proj
   | EncodeConcreteness concrete
   | EncodeTag tag
   | EncodePattern (pat : pattern)
@@ -798,13 +787,11 @@ Proof.
   pose encode leaf :=
     match leaf with
     | EncodeBinder x =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inl x
+        inl $ inl $ inl $ inl $ inl $ inl x
     | EncodeUnop op =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inr op
-    | EncodeBinop op =>
         inl $ inl $ inl $ inl $ inl $ inr op
-    | EncodeProjection proj =>
-        inl $ inl $ inl $ inl $ inr proj
+    | EncodeBinop op =>
+        inl $ inl $ inl $ inl $ inr op
     | EncodeConcreteness concrete =>
         inl $ inl $ inl $ inr concrete
     | EncodeTag tag =>
@@ -816,14 +803,12 @@ Proof.
     end.
   pose decode leaf :=
     match leaf with
-    | inl (inl (inl (inl (inl (inl (inl x)))))) =>
+    | inl (inl (inl (inl (inl (inl x))))) =>
         EncodeBinder x
-    | inl (inl (inl (inl (inl (inl (inr op)))))) =>
-        EncodeUnop op
     | inl (inl (inl (inl (inl (inr op))))) =>
+        EncodeUnop op
+    | inl (inl (inl (inl (inr op)))) =>
         EncodeBinop op
-    | inl (inl (inl (inl (inr proj)))) =>
-        EncodeProjection proj
     | inl (inl (inl (inr concrete))) =>
         EncodeConcreteness concrete
     | inl (inl (inr tag)) =>
@@ -855,40 +840,38 @@ Proof.
     5.
   #[local] Notation code_If :=
     6.
-  #[local] Notation code_Block :=
-    7.
-  #[local] Notation code_Proj :=
-    8.
-  #[local] Notation code_Match :=
-    9.
   #[local] Notation code_For :=
+    7.
+  #[local] Notation code_Alloc :=
+    8.
+  #[local] Notation code_Block :=
+    9.
+  #[local] Notation code_Match :=
     10.
   #[local] Notation code_branch :=
     11.
-  #[local] Notation code_Alloc :=
-    12.
   #[local] Notation code_GetTag :=
-    13.
+    12.
   #[local] Notation code_GetSize :=
-    14.
+    13.
   #[local] Notation code_Load :=
-    15.
+    14.
   #[local] Notation code_Store :=
-    16.
+    15.
   #[local] Notation code_Xchg :=
-    17.
+    16.
   #[local] Notation code_CAS :=
-    18.
+    17.
   #[local] Notation code_FAA :=
-    19.
+    18.
   #[local] Notation code_Fork :=
-    20.
+    19.
   #[local] Notation code_Yield :=
-    21.
+    20.
   #[local] Notation code_Proph :=
-    22.
+    21.
   #[local] Notation code_Resolve :=
-    23.
+    22.
   #[local] Notation code_ValRec :=
     0.
   #[local] Notation code_ValBlock :=
@@ -917,24 +900,22 @@ Proof.
           GenNode code_Equal [go e1; go e2]
       | If e0 e1 e2 =>
           GenNode code_If [go e0; go e1; go e2]
-      | Block concrete tag es =>
-          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: go_list es
-      | Proj proj e =>
-          GenNode code_Proj [GenLeaf (EncodeProjection proj); go e]
-      | Match e0 x e1 brs =>
-          GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | For e1 e2 e3 =>
           GenNode code_For [go e1; go e2; go e3]
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
+      | Block concrete tag es =>
+          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: go_list es
+      | Match e0 x e1 brs =>
+          GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | GetTag e =>
           GenNode code_GetTag [go e]
       | GetSize e =>
           GenNode code_GetSize [go e]
-      | Load e =>
-          GenNode code_Load [go e]
-      | Store e1 e2 =>
-          GenNode code_Store [go e1; go e2]
+      | Load e1 e2 =>
+          GenNode code_Load [go e1; go e2]
+      | Store e1 e2 e3 =>
+          GenNode code_Store [go e1; go e2; go e3]
       | Xchg e1 e2 =>
           GenNode code_Xchg [go e1; go e2]
       | CAS e0 e1 e2 =>
@@ -990,24 +971,22 @@ Proof.
           Equal (go e1) (go e2)
       | GenNode code_If [e0; e1; e2] =>
           If (go e0) (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: es) =>
-          Block concrete tag $ go_list es
-      | GenNode code_Proj [GenLeaf (EncodeProjection proj); e] =>
-          Proj proj $ go e
-      | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
-          Match (go e0) x (go e1) (go_branches brs)
       | GenNode code_For [e1; e2; e3] =>
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
+      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: es) =>
+          Block concrete tag $ go_list es
+      | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
+          Match (go e0) x (go e1) (go_branches brs)
       | GenNode code_GetTag [e] =>
           GetTag (go e)
       | GenNode code_GetSize [e] =>
           GetSize (go e)
-      | GenNode code_Load [e] =>
-          Load $ go e
-      | GenNode code_Store [e1; e2] =>
-          Store (go e1) (go e2)
+      | GenNode code_Load [e1; e2] =>
+          Load (go e1) (go e2)
+      | GenNode code_Store [e1; e2; e3] =>
+          Store (go e1) (go e2) (go e3)
       | GenNode code_Xchg [e1; e2] =>
           Xchg (go e1) (go e2)
       | GenNode code_CAS [e0; e1; e2] =>

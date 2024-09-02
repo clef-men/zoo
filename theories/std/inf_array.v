@@ -61,7 +61,7 @@ Definition inf_array_set : val :=
       if: "i" < "sz" then (
         array_unsafe_set "data" "i" "v"
       ) else (
-        let: "data" := array_grow "data" (#1 + "i") "t".{default} in
+        let: "data" := array_unsafe_grow "data" (#1 + "i") "t".{default} in
         "t" <-{data} "data" ;;
         array_unsafe_set "data" "i" "v"
       )
@@ -385,7 +385,7 @@ Section inf_array_G.
 
     - rewrite bool_decide_eq_false_2; first lia. wp_load.
 
-      wp_smart_apply (array_grow_spec with "Hmodel_data") as "%data' Hmodel_data'"; first lia.
+      wp_smart_apply (array_unsafe_grow_spec with "Hmodel_data") as "%data' Hmodel_data'"; first lia.
       rewrite Z.add_1_l -Nat2Z.inj_succ Nat2Z.id.
 
       wp_store.

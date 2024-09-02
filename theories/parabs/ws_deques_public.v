@@ -21,7 +21,7 @@ Implicit Types vss : list (list val).
 
 Definition ws_deques_public_create : val :=
   fun: "sz" =>
-    array_init "sz" (fun: <> => inf_ws_deque_create ()).
+    array_unsafe_init "sz" (fun: <> => inf_ws_deque_create ()).
 
 Definition ws_deques_public_size : val :=
   array_size.
@@ -137,7 +137,7 @@ Section ws_deques_public_G.
       )
     )%I).
     iApply wp_fupd.
-    wp_smart_apply (array_init_spec Ψ) as (t deques) "(%Hdeques_length & Hdeques & (Hinv & Hmodel & Howner))"; first done.
+    wp_smart_apply (array_unsafe_init_spec Ψ) as (t deques) "(%Hdeques_length & Hdeques & (Hinv & Hmodel & Howner))"; first done.
     { iSteps. iModIntro.
       wp_apply (inf_ws_deque_create_spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.

@@ -3,6 +3,8 @@ From iris.bi Require Export
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  fin_maps.
 From zoo.iris Require Import
   diaframe.
 From zoo.common Require Import
@@ -174,6 +176,33 @@ Section bi.
 
     Implicit Types Φ Ψ : nat → A1 → A2 → PROP.
 
+    Lemma big_sepL2_snoc_inv_l Φ l1 x1 l2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1 ++ [x1]; l2, Φ k y1 y2) ⊢
+        ∃ l2' x2,
+        ⌜l2 = l2' ++ [x2]⌝ ∗
+        ([∗ list] k ↦ y1; y2 ∈ l1; l2', Φ k y1 y2) ∗
+        Φ (length l1) x1 x2.
+    Proof.
+      iIntros "H".
+      iDestruct (big_sepL2_app_inv_l with "H") as "(%l2' & %l2'' & -> & H1 & H2)".
+      iDestruct (big_sepL2_cons_inv_l with "H2") as "(%x2 & %l2''' & -> & H2 & H3)".
+      iDestruct (big_sepL2_nil_inv_l with "H3") as %->.
+      rewrite right_id. iSteps.
+    Qed.
+    Lemma big_sepL2_snoc_inv_r Φ l1 l2 x2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2 ++ [x2], Φ k y1 y2) ⊢
+        ∃ l1' x1,
+        ⌜l1 = l1' ++ [x1]⌝ ∗
+        ([∗ list] k ↦ y1; y2 ∈ l1'; l2, Φ k y1 y2) ∗
+        Φ (length l2) x1 x2.
+    Proof.
+      iIntros "H".
+      iDestruct (big_sepL2_app_inv_r with "H") as "(%l1' & %l1'' & -> & H1 & H2)".
+      iDestruct (big_sepL2_cons_inv_r with "H2") as "(%x1 & %l1''' & -> & H2 & H3)".
+      iDestruct (big_sepL2_nil_inv_r with "H3") as %->.
+      rewrite right_id. iSteps.
+    Qed.
+
     Lemma big_sepL2_lookup_Some_l Φ i x1 l1 l2 :
       l1 !! i = Some x1 →
       ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
@@ -191,6 +220,56 @@ Section bi.
       iIntros (Hi%lookup_lt_Some) "H".
       iDestruct (big_sepL2_length with "H") as %Hlength.
       iPureIntro. apply lookup_lt_is_Some_2. lia.
+    Qed.
+
+    Lemma big_sepL2_lookup_acc_l `{!BiAffine PROP} Φ i x1 l1 l2 :
+      l1 !! i = Some x1 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x2,
+        ⌜l2 !! i = Some x2⌝ ∗
+        Φ i x1 x2 ∗
+        ( Φ i x1 x2 -∗
+          [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2
+        ).
+    Proof.
+      iIntros "%Hlookup1 H".
+      iDestruct (big_sepL2_lookup_Some_l with "H") as %(x2 & Hlookup2); first done.
+      iDestruct (big_sepL2_lookup_acc with "H") as "H"; [done.. |].
+      iSteps.
+    Qed.
+    Lemma big_sepL2_lookup_acc_r `{!BiAffine PROP} Φ i x2 l1 l2 :
+      l2 !! i = Some x2 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x1,
+        ⌜l1 !! i = Some x1⌝ ∗
+        Φ i x1 x2 ∗
+        ( Φ i x1 x2 -∗
+          [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2
+        ).
+    Proof.
+      iIntros "%Hlookup2 H".
+      iDestruct (big_sepL2_lookup_Some_r with "H") as %(x1 & Hlookup1); first done.
+      iDestruct (big_sepL2_lookup_acc with "H") as "H"; [done.. |].
+      iSteps.
+    Qed.
+
+    Lemma big_sepL2_lookup_l `{!BiAffine PROP} Φ i x1 l1 l2 :
+      l1 !! i = Some x1 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x2,
+        ⌜l2 !! i = Some x2⌝ ∗
+        Φ i x1 x2.
+    Proof.
+      intros. rewrite big_sepL2_lookup_acc_l //. iSteps.
+    Qed.
+    Lemma big_sepL2_lookup_r `{!BiAffine PROP} Φ i x2 l1 l2 :
+      l2 !! i = Some x2 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x1,
+        ⌜l1 !! i = Some x1⌝ ∗
+        Φ i x1 x2.
+    Proof.
+      intros. rewrite big_sepL2_lookup_acc_r //. iSteps.
     Qed.
 
     Lemma big_sepL2_delete_1 Φ l1 l2 i x1 x2 :
@@ -324,6 +403,13 @@ Section bi.
         }
         iApply big_sepM_insert; first done.
         iSteps.
+    Qed.
+
+    Lemma big_sepM_kmap f `{!Inj (=) (=) f} m Φ :
+      ([∗ map] k ↦ x ∈ (kmap f m), Φ k x) ⊣⊢
+      [∗ map] k ↦ x ∈ m, Φ (f k) x.
+    Proof.
+      rewrite !big_opM_map_to_list map_to_list_kmap big_sepL_fmap //.
     Qed.
   End big_sepM.
 End bi.

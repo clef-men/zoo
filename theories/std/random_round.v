@@ -34,7 +34,7 @@ Implicit Types t rand : val.
 Definition random_round_create : val :=
   fun: "sz" =>
     { random_create (),
-      array_initi "sz" (fun: "i" => "i"),
+      array_unsafe_initi "sz" (fun: "i" => "i"),
       "sz"
     }.
 
@@ -82,8 +82,8 @@ Section zoo_G.
     pose (Ψ := λ i vs, (
       ⌜vs = #@{nat} <$> seq 0 i⌝
     )%I : iProp Σ).
-    wp_smart_apply (array_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
-    { iSplit; first iSteps. iIntros "!> %i %vs _ ->".
+    wp_smart_apply (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
+    { iStep. iIntros "!> %i %vs _ _ ->".
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }

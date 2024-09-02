@@ -42,11 +42,11 @@ Notation "'back'" := (
 
 Definition bag_create : val :=
   fun: "sz" =>
-    { array_init "sz" (fun: <> => ref §None), #0, #0 }.
+    { array_unsafe_init "sz" (fun: <> => ref §None), #0, #0 }.
 
 #[local] Definition bag_push_aux : val :=
   rec: "bag_push_aux" "slot" "o" =>
-    ifnot: CAS "slot" §None "o" then (
+    ifnot: CAS "slot".[contents] §None "o" then (
       Yield ;;
       "bag_push_aux" "slot" "o"
     ).
@@ -62,7 +62,7 @@ Definition bag_push : val :=
     | None =>
         "bag_pop_aux" "slot"
     | Some "v" as "o" =>
-        if: CAS "slot" "o" §None then (
+        if: CAS "slot".[contents] "o" §None then (
           "v"
         ) else (
           Yield ;;
@@ -133,7 +133,7 @@ Section bag_G.
     l.[back] ↦ #back ∗
     bag_model₂ γ vs ∗
     [∗ list] slot; o ∈ γ.(bag_meta_slots); os,
-      slot ↦ (o : val).
+      slot ↦ᵣ (o : val).
   Definition bag_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -202,12 +202,12 @@ Section bag_G.
       ∃ slots,
       ⌜vs = #@{location} <$> slots⌝ ∗
       [∗ list] slot ∈ slots,
-        slot ↦ §None
+        slot ↦ᵣ §None
     )%I).
-    wp_smart_apply (array_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
+    wp_smart_apply (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
       - iExists []. iSteps.
-      - iIntros "!> %i %vs %Hi (%slots & %Hslots & Hslots)".
+      - iIntros "!> %i %vs % % (%slots & %Hslots & Hslots)".
         wp_ref slot as "Hslot".
         iExists (slots ++ [slot]). iSteps.
         + list_simplifier. done.
@@ -340,7 +340,7 @@ Section bag_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (!_)%E.
+    wp_bind (Load _ _).
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.

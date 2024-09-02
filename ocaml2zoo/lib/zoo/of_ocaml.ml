@@ -1,6 +1,91 @@
 open Syntax
 
-module Error = struct
+let builtin_paths =
+  [|[|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")) ;
+    [|"Stdlib";"~-"|], Fun ([Some "1"], Unop (Unop_minus, Local "1")) ;
+    [|"Stdlib";"+"|], Fun ([Some "1"; Some "2"], Binop (Binop_plus, Local "1", Local "2")) ;
+    [|"Stdlib";"-"|], Fun ([Some "1"; Some "2"], Binop (Binop_minus, Local "1", Local "2")) ;
+    [|"Stdlib";"*"|], Fun ([Some "1"; Some "2"], Binop (Binop_mult, Local "1", Local "2")) ;
+    [|"Stdlib";"/"|], Fun ([Some "1"; Some "2"], Binop (Binop_quot, Local "1", Local "2")) ;
+    [|"Stdlib";"mod"|], Fun ([Some "1"; Some "2"], Binop (Binop_rem, Local "1", Local "2")) ;
+    [|"Stdlib";"=="|], Fun ([Some "1"; Some "2"], Binop (Binop_eq, Local "1", Local "2")) ;
+    [|"Stdlib";"!="|], Fun ([Some "1"; Some "2"], Binop (Binop_ne, Local "1", Local "2")) ;
+    [|"Stdlib";"<="|], Fun ([Some "1"; Some "2"], Binop (Binop_le, Local "1", Local "2")) ;
+    [|"Stdlib";"<"|], Fun ([Some "1"; Some "2"], Binop (Binop_lt, Local "1", Local "2")) ;
+    [|"Stdlib";">="|], Fun ([Some "1"; Some "2"], Binop (Binop_ge, Local "1", Local "2")) ;
+    [|"Stdlib";">"|], Fun ([Some "1"; Some "2"], Binop (Binop_gt, Local "1", Local "2")) ;
+    [|"Stdlib";"ref"|], Fun ([Some "1"], Ref (Local "1")) ;
+    [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")) ;
+    [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")) ;
+    [|"Stdlib";"Obj";"repr"|], Fun ([Some "1"], Local "1") ;
+    [|"Stdlib";"Obj";"tag"|], Fun ([Some "1"], Get_tag (Local "1")) ;
+    [|"Stdlib";"Obj";"size"|], Fun ([Some "1"], Get_size (Local "1")) ;
+    [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Load (Local "1", Local "2")) ;
+    [|"Stdlib";"Obj";"set_field"|], Fun ([Some "1"; Some "2"; Some "3"], Store (Local "1", Local "2", Local "3")) ;
+    [|"Stdlib";"Obj";"new_block"|], Fun ([Some "1"; Some "2"], Alloc (Local "1", Local "2")) ;
+    [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield) ;
+    [|"Zoo";"proph"|], Proph ;
+    [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")) ;
+  |]
+let builtin_paths =
+  Array.fold_left (fun acc (path, expr) ->
+    Path.Map.add (Path.of_array path) expr acc
+  ) Path.Map.empty builtin_paths
+
+let builtin_apps =
+  [|[|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None) ;
+    [|"Stdlib";"~-"|], (function [expr] -> Some (Unop (Unop_minus, expr)) | _ -> None) ;
+    [|"Stdlib";"+"|], (function [expr1; expr2] -> Some (Binop (Binop_plus, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"-"|], (function [expr1; expr2] -> Some (Binop (Binop_minus, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"*"|], (function [expr1; expr2] -> Some (Binop (Binop_mult, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"/"|], (function [expr1; expr2] -> Some (Binop (Binop_quot, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"mod"|], (function [expr1; expr2] -> Some (Binop (Binop_rem, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"=="|], (function [expr1; expr2] -> Some (Binop (Binop_eq, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"!="|], (function [expr1; expr2] -> Some (Binop (Binop_ne, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"<="|], (function [expr1; expr2] -> Some (Binop (Binop_le, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"<"|], (function [expr1; expr2] -> Some (Binop (Binop_lt, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";">="|], (function [expr1; expr2] -> Some (Binop (Binop_ge, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";">"|], (function [expr1; expr2] -> Some (Binop (Binop_gt, expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"ref"|], (function [expr] -> Some (Ref expr) | _ -> None) ;
+    [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None) ;
+    [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"Obj";"repr"|], (function [expr] -> Some expr | _ -> None) ;
+    [|"Stdlib";"Obj";"tag"|], (function [expr] -> Some (Get_tag expr) | _ -> None) ;
+    [|"Stdlib";"Obj";"size"|], (function [expr] -> Some (Get_size expr) | _ -> None) ;
+    [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Store (expr1, expr2, expr3)) | _ -> None) ;
+    [|"Stdlib";"Obj";"new_block"|], (function [expr1; expr2] -> Some (Alloc (expr1, expr2)) | _ -> None) ;
+    [|"Stdlib";"Domain";"cpu_relax"|], (function [] -> Some Yield | _ -> None) ;
+    [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None) ;
+  |]
+let builtin_apps =
+  Array.fold_left (fun acc (path, mk_expr) ->
+    Path.Map.add (Path.of_array path) mk_expr acc
+  ) Path.Map.empty builtin_apps
+
+let builtin_constrs =
+  let open Either in
+  [|[|"()"|], Left (Tuple []), None ;
+    [|"true"|], Left (Bool true), None ;
+    [|"false"|], Left (Bool false), None ;
+    [|"[]"|], Right "Nil", Some "lst" ;
+    [|"::"|], Right "Cons", Some "lst" ;
+    [|"None"|], Right "None", Some "opt" ;
+    [|"Some"|], Right "Some", Some "opt" ;
+  |]
+let builtin_constrs =
+  Array.fold_left (fun acc (lid, tag, dep) ->
+    Longident.Map.add (Longident.of_array lid) (tag, dep) acc
+  ) Longident.Map.empty builtin_constrs
+
+let attribute_prefix =
+  "zoo.prefix"
+let attribute_force_record =
+  "zoo.force_record"
+let attribute_reveal =
+  "zoo.reveal"
+
+module Unsupported = struct
   type t =
     | Literal_non_integer
     | Pattern_alias
@@ -165,96 +250,31 @@ module Error = struct
     Format.pp_print_string ppf (to_string t)
 end
 
-exception Unsupported of Location.t * Error.t
+module Error = struct
+  type t =
+    | Unsupported of Unsupported.t
+    | Attribute_prefix_invalid_payload
 
+  let pp ppf = function
+    | Unsupported unsupported ->
+        Format.fprintf ppf "unsupported feature: %a"
+          Unsupported.pp unsupported
+    | Attribute_prefix_invalid_payload ->
+        Format.fprintf ppf {|attribute "%s" expects a string payload|}
+          attribute_prefix
+end
+
+exception Error of Location.t * Error.t
+
+let error loc err =
+  raise @@ Error (loc, err)
 let unsupported loc err =
-  raise @@ Unsupported (loc, err)
-
-let builtin_paths =
-  [|[|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")) ;
-    [|"Stdlib";"~-"|], Fun ([Some "1"], Unop (Unop_minus, Local "1")) ;
-    [|"Stdlib";"+"|], Fun ([Some "1"; Some "2"], Binop (Binop_plus, Local "1", Local "2")) ;
-    [|"Stdlib";"-"|], Fun ([Some "1"; Some "2"], Binop (Binop_minus, Local "1", Local "2")) ;
-    [|"Stdlib";"*"|], Fun ([Some "1"; Some "2"], Binop (Binop_mult, Local "1", Local "2")) ;
-    [|"Stdlib";"/"|], Fun ([Some "1"; Some "2"], Binop (Binop_quot, Local "1", Local "2")) ;
-    [|"Stdlib";"mod"|], Fun ([Some "1"; Some "2"], Binop (Binop_rem, Local "1", Local "2")) ;
-    [|"Stdlib";"=="|], Fun ([Some "1"; Some "2"], Binop (Binop_eq, Local "1", Local "2")) ;
-    [|"Stdlib";"!="|], Fun ([Some "1"; Some "2"], Binop (Binop_ne, Local "1", Local "2")) ;
-    [|"Stdlib";"<="|], Fun ([Some "1"; Some "2"], Binop (Binop_le, Local "1", Local "2")) ;
-    [|"Stdlib";"<"|], Fun ([Some "1"; Some "2"], Binop (Binop_lt, Local "1", Local "2")) ;
-    [|"Stdlib";">="|], Fun ([Some "1"; Some "2"], Binop (Binop_ge, Local "1", Local "2")) ;
-    [|"Stdlib";">"|], Fun ([Some "1"; Some "2"], Binop (Binop_gt, Local "1", Local "2")) ;
-    [|"Stdlib";"ref"|], Fun ([Some "1"], Ref (Local "1")) ;
-    [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")) ;
-    [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")) ;
-    [|"Stdlib";"Obj";"repr"|], Fun ([Some "1"], Local "1") ;
-    [|"Stdlib";"Obj";"tag"|], Fun ([Some "1"], Get_tag (Local "1")) ;
-    [|"Stdlib";"Obj";"size"|], Fun ([Some "1"], Get_size (Local "1")) ;
-    [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Get_field (Local "1", Local "2")) ;
-    [|"Stdlib";"Obj";"set_field"|], Fun ([Some "1"; Some "2"; Some "3"], Set_field (Local "1", Local "2", Local "3")) ;
-    [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield) ;
-    [|"Zoo";"proph"|], Proph ;
-    [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")) ;
-  |]
-let builtin_paths =
-  Array.fold_left (fun acc (path, expr) ->
-    Path.Map.add (Path.of_array path) expr acc
-  ) Path.Map.empty builtin_paths
-
-let builtin_apps =
-  [|[|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None) ;
-    [|"Stdlib";"~-"|], (function [expr] -> Some (Unop (Unop_minus, expr)) | _ -> None) ;
-    [|"Stdlib";"+"|], (function [expr1; expr2] -> Some (Binop (Binop_plus, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"-"|], (function [expr1; expr2] -> Some (Binop (Binop_minus, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"*"|], (function [expr1; expr2] -> Some (Binop (Binop_mult, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"/"|], (function [expr1; expr2] -> Some (Binop (Binop_quot, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"mod"|], (function [expr1; expr2] -> Some (Binop (Binop_rem, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"=="|], (function [expr1; expr2] -> Some (Binop (Binop_eq, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"!="|], (function [expr1; expr2] -> Some (Binop (Binop_ne, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"<="|], (function [expr1; expr2] -> Some (Binop (Binop_le, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"<"|], (function [expr1; expr2] -> Some (Binop (Binop_lt, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";">="|], (function [expr1; expr2] -> Some (Binop (Binop_ge, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";">"|], (function [expr1; expr2] -> Some (Binop (Binop_gt, expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"ref"|], (function [expr] -> Some (Ref expr) | _ -> None) ;
-    [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None) ;
-    [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"Obj";"repr"|], (function [expr] -> Some expr | _ -> None) ;
-    [|"Stdlib";"Obj";"tag"|], (function [expr] -> Some (Get_tag expr) | _ -> None) ;
-    [|"Stdlib";"Obj";"size"|], (function [expr] -> Some (Get_size expr) | _ -> None) ;
-    [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Get_field (expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Set_field (expr1, expr2, expr3)) | _ -> None) ;
-    [|"Stdlib";"Domain";"cpu_relax"|], (function [] -> Some Yield | _ -> None) ;
-    [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None) ;
-  |]
-let builtin_apps =
-  Array.fold_left (fun acc (path, mk_expr) ->
-    Path.Map.add (Path.of_array path) mk_expr acc
-  ) Path.Map.empty builtin_apps
-
-let builtin_constrs =
-  let open Either in
-  [|[|"()"|], Left (Tuple []), None ;
-    [|"true"|], Left (Bool true), None ;
-    [|"false"|], Left (Bool false), None ;
-    [|"[]"|], Right "Nil", Some "lst" ;
-    [|"::"|], Right "Cons", Some "lst" ;
-    [|"None"|], Right "None", Some "opt" ;
-    [|"Some"|], Right "Some", Some "opt" ;
-  |]
-let builtin_constrs =
-  Array.fold_left (fun acc (lid, tag, dep) ->
-    Longident.Map.add (Longident.of_array lid) (tag, dep) acc
-  ) Longident.Map.empty builtin_constrs
-
-let force_record_attribute =
-  "zoo.force_record"
-let reveal_attribute =
-  "zoo.reveal"
+  error loc (Unsupported err)
 
 let record_is_mutable ty =
   let[@warning "-8"] Types.Type_record (lbls, _) = ty.Types.type_kind in
   List.exists (fun lbl -> lbl.Types.ld_mutable = Mutable) lbls ||
-  List.exists (fun attr -> attr.Parsetree.attr_name.txt = force_record_attribute) ty.type_attributes
+  List.exists (fun attr -> attr.Parsetree.attr_name.txt = attribute_force_record) ty.type_attributes
 
 module Context = struct
   type t =
@@ -267,7 +287,7 @@ module Context = struct
     }
 
   let create modname env =
-    { prefix= modname;
+    { prefix= modname ^ "_";
       env;
       global_names= Hashtbl.create 17;
       global_ids= Ident.Tbl.create 17;
@@ -276,7 +296,7 @@ module Context = struct
     }
 
   let set_prefix t pref =
-    t.prefix <- pref
+    t.prefix <- if pref = "" then "" else pref ^ "_"
 
   let env t =
     t.env
@@ -293,7 +313,7 @@ module Context = struct
   let add_global t id =
     let name = Ident.name id in
     let idx = add_global t name in
-    let global = t.prefix ^ "_" ^ name in
+    let global = t.prefix ^ name in
     let global =
       let[@warning "-8"] Some cnt = Env.find_value_index id t.env in
       if cnt = 0 then
@@ -320,7 +340,7 @@ module Context = struct
     Hashtbl.fold (fun dep () acc -> dep :: acc) t.deps []
 end
 
-let pattern_to_binder ~error ctx (pat : Typedtree.pattern) =
+let pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
   | Tpat_any
   | Tpat_construct ({ txt= Lident "()"; _ }, _, _, _) ->
@@ -330,7 +350,7 @@ let pattern_to_binder ~error ctx (pat : Typedtree.pattern) =
       Context.add_local ctx id ;
       Some (Ident.name id)
   | _ ->
-      unsupported pat.pat_loc error
+      unsupported pat.pat_loc err
 
 let pattern ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
@@ -340,10 +360,10 @@ let pattern ctx (pat : Typedtree.pattern) =
       Context.add_local ctx id ;
       Some (Pat_var (Ident.name id))
   | Tpat_tuple pats ->
-      let bdrs = List.map (pattern_to_binder ~error:Pattern_nested ctx) pats in
+      let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
       Some (Pat_tuple bdrs)
   | Tpat_construct (lid, _, pats, _) ->
-      let bdrs = List.map (pattern_to_binder ~error:Pattern_nested ctx) pats in
+      let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
       begin match Longident.Map.find_opt lid.txt builtin_constrs with
       | Some (tag, dep) ->
           Option.iter (Context.add_dependency ctx) dep ;
@@ -428,7 +448,7 @@ let rec expression ctx (expr : Typedtree.expression) =
           if param.fp_arg_label <> Nolabel then
             unsupported param.fp_loc Label;
           let[@warning "-8"] Typedtree.Tparam_pat pat = param.fp_kind in
-          pattern_to_binder ~error:Pattern_non_trivial ctx pat
+          pattern_to_binder ~err:Pattern_non_trivial ctx pat
         ) params
       in
       let expr = expression ctx expr in
@@ -523,7 +543,7 @@ let rec expression ctx (expr : Typedtree.expression) =
             Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
             let concrete =
-              if List.exists (fun attr -> attr.Parsetree.attr_name.txt = reveal_attribute) constr.cstr_attributes then
+              if List.exists (fun attr -> attr.Parsetree.attr_name.txt = attribute_reveal) constr.cstr_attributes then
                 Concrete
               else
                 Abstract
@@ -659,7 +679,7 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
               let[@warning "-8"] [pat] = pats in
               aux2 pat bdr
           | Tpat_construct (lid, _, pats, _) ->
-              let bdrs = List.map (pattern_to_binder ~error:Pattern_invalid ctx) pats in
+              let bdrs = List.map (pattern_to_binder ~err:Pattern_invalid ctx) pats in
               let tag, bdrs =
                 match Longident.Map.find_opt lid.txt builtin_constrs with
                 | Some (tag, dep) ->
@@ -738,13 +758,12 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
             unsupported str_item.str_loc Type_extensible
       ) tys
   | Tstr_attribute attr ->
-      if attr.attr_name.txt = "zoo.prefix" then (
+      if attr.attr_name.txt = attribute_prefix then (
         match attr.attr_payload with
-        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_ident lid; _ }, _); _ }] ->
-            let pref = Longident.last lid.txt in
-            Option.iter (Context.set_prefix ctx) pref
+        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_constant (Pconst_string (pref, _, _)); _ }, _); _ }] ->
+            Context.set_prefix ctx pref
         | _ ->
-            ()
+            error attr.attr_loc Attribute_prefix_invalid_payload
       ) ;
       []
   | Tstr_eval _ ->

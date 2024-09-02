@@ -32,11 +32,11 @@ Definition dynarray_create : val :=
 
 Definition dynarray_make : val :=
   fun: "sz" "v" =>
-    { "sz", array_make "sz" "v" }.
+    { "sz", array_unsafe_make "sz" "v" }.
 
 Definition dynarray_initi : val :=
   fun: "sz" "fn" =>
-    { "sz", array_initi "sz" "fn" }.
+    { "sz", array_unsafe_initi "sz" "fn" }.
 
 Definition dynarray_size : val :=
   fun: "t" =>
@@ -66,8 +66,8 @@ Definition dynarray_reserve : val :=
     let: "cap" := array_size "data" in
     ifnot: "n" ≤ "cap" then (
       let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
-      let: "new_data" := array_make "new_cap" () in
-      array_blit "data" #0 "new_data" #0 "t".{size} ;;
+      let: "new_data" := array_unsafe_make "new_cap" () in
+      array_unsafe_copy_slice "data" #0 "new_data" #0 "t".{size} ;;
       "t" <-{data} "new_data"
     ).
 Definition dynarray_reserve_extra : val :=
@@ -97,7 +97,7 @@ Definition dynarray_fit_capacity : val :=
     let: "sz" := "t".{size} in
     let: "data" := "t".{data} in
     ifnot: "sz" = array_size "data" then (
-      "t" <-{data} array_shrink "data" "sz"
+      "t" <-{data} array_unsafe_shrink "data" "sz"
     ).
 
 Definition dynarray_reset : val :=
@@ -149,9 +149,10 @@ Section zoo_G.
     iIntros "% %Φ _ HΦ".
     Z_to_nat sz. rewrite Nat2Z.id.
     wp_rec.
-    wp_smart_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
-    wp_block l as "(Hsz & Hdata & _)".
-    iApply "HΦ". iExists l, data, 0. iStep. rewrite replicate_length right_id Nat2Z.id. iSteps.
+    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
+    iSteps.
+    - rewrite replicate_length //.
+    - iExists 0. rewrite right_id Nat2Z.id. iSteps.
   Qed.
 
   Lemma dynarray_initi_spec Ψ sz fn :
@@ -177,9 +178,9 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_initi_spec Ψ with "[$HΨ]") as "%data %vs (%Hvs & Hdata_model & HΨ)"; [done | iSteps |].
+    wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ]") as "%data %vs (%Hvs & Hdata_model & HΨ)"; [done | iSteps |].
     wp_block l as "(Hsz & Hdata & _)".
-    iApply "HΦ". iFrame. iStep. iExists l, data, 0. iSteps. rewrite right_id //.
+    iSteps. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_initi_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
@@ -391,9 +392,9 @@ Section zoo_G.
       iSteps.
     - wp_apply (dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
       wp_apply maximum_spec.
-      wp_smart_apply (array_make_spec with "[//]") as "%data' Hdata_model'"; first lia.
+      wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data' Hdata_model'"; first lia.
       wp_load.
-      wp_smart_apply (array_blit_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.
+      wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.
       { rewrite app_length. lia. }
       { rewrite replicate_length. lia. }
       wp_store.
@@ -510,7 +511,7 @@ Section zoo_G.
     wp_rec. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures. case_bool_decide; wp_pures; first iSteps.
-    wp_apply (array_shrink_spec with "Hdata_model") as "%data' (_ & Hdata_model')".
+    wp_apply (array_unsafe_shrink_spec with "Hdata_model") as "%data' (_ & Hdata_model')".
     { rewrite app_length. lia. }
     wp_store.
     iSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.

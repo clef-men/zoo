@@ -49,6 +49,7 @@ type expression =
   | Binop of binop * expression * expression
   | If of expression * expression * expression option
   | For of binder * expression * expression * expression
+  | Alloc of expression * expression
   | Tuple of expression list
   | Ref of expression
   | Record of expression array
@@ -61,8 +62,8 @@ type expression =
   | Record_set of expression * field * expression
   | Get_tag of expression
   | Get_size of expression
-  | Get_field of expression * expression
-  | Set_field of expression * expression * expression
+  | Load of expression * expression
+  | Store of expression * expression * expression
   | Fail
   | Yield
   | Proph

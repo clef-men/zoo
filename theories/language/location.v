@@ -51,10 +51,15 @@ Notation "l +ₗ i" := (
   left associativity
 ) : stdpp_scope.
 
-#[global] Instance location_add_inj l :
-  Inj eq eq (location_add l).
+#[global] Instance location_add_inj_1 l :
+  Inj (=) (=) (location_add l).
 Proof.
   intros ?*. rewrite location_eq_spec /=. lia.
+Qed.
+#[global] Instance location_add_inj_2 i :
+  Inj (=) (=) (λ l, location_add l i).
+Proof.
+  intros ?*. rewrite location_eq_spec Z.add_cancel_r location_eq_spec //.
 Qed.
 Lemma location_add_assoc l i j :
   l +ₗ i +ₗ j = l +ₗ (i + j).

@@ -29,7 +29,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types tag proj : nat.
+Implicit Types tag : nat.
 Implicit Types n m : Z.
 Implicit Types l : location.
 Implicit Types concrete : concreteness.
@@ -123,23 +123,16 @@ Definition binop_eval_int op n1 n2 :=
       Some $ LiteralBool (bool_decide (n1 >= n2))
   | BinopGt =>
       Some $ LiteralBool (bool_decide (n1 > n2))
-  | _ =>
-      None
   end%Z.
 #[global] Arguments binop_eval_int !_ _ _ / : assert.
 Definition binop_eval op v1 v2 :=
   match v1, v2 with
   | ValInt n1, ValInt n2 =>
       ValLiteral <$> binop_eval_int op n1 n2
-  | ValLoc l, ValInt n =>
-      if decide (op = BinopOffset) then
-        Some $ ValLoc (l +ₗ n)
-      else
-        None
   | _, _ =>
       None
   end.
-#[global] Arguments binop_eval !_ !_ !_ / : assert.
+#[global] Arguments binop_eval _ !_ !_ / : assert.
 
 Fixpoint subst (x : string) v e :=
   match e with
@@ -179,14 +172,19 @@ Fixpoint subst (x : string) v e :=
         (subst x v e0)
         (subst x v e1)
         (subst x v e2)
+  | For e1 e2 e3 =>
+      For
+        (subst x v e1)
+        (subst x v e2)
+        (subst x v e3)
+  | Alloc e1 e2 =>
+      Alloc
+        (subst x v e1)
+        (subst x v e2)
   | Block concrete tag es =>
       Block
         concrete tag
         (subst x v <$> es)
-  | Proj proj e =>
-      Proj
-        proj
-        (subst x v e)
   | Match e0 y e1 brs =>
       Match
         (subst x v e0)
@@ -204,28 +202,21 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
-  | For e1 e2 e3 =>
-      For
-        (subst x v e1)
-        (subst x v e2)
-        (subst x v e3)
-  | Alloc e1 e2 =>
-      Alloc
-        (subst x v e1)
-        (subst x v e2)
   | GetTag e =>
       GetTag
         (subst x v e)
   | GetSize e =>
       GetSize
         (subst x v e)
-  | Load e =>
+  | Load e1 e2 =>
       Load
-        (subst x v e)
-  | Store e1 e2 =>
+        (subst x v e1)
+        (subst x v e2)
+  | Store e1 e2 e3 =>
       Store
         (subst x v e1)
         (subst x v e2)
+        (subst x v e3)
   | Xchg e1 e2 =>
       Xchg
         (subst x v e1)
@@ -457,6 +448,28 @@ Inductive base_step : expr → state → list observation → expr → state →
         (if b then e1 else e2)
         σ
         []
+  | base_step_for n1 n2 e σ :
+      base_step
+        (For (Val $ ValInt n1) (Val $ ValInt n2) e)
+        σ
+        []
+        (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
+        σ
+        []
+  | base_step_alloc tag n σ l :
+      (0 ≤ n)%Z →
+      σ.(state_headers) !! l = None →
+      ( ∀ i,
+        i < Z.to_nat n →
+        σ.(state_heap) !! (l +ₗ i) = None
+      ) →
+      base_step
+        (Alloc (Val $ ValInt tag) (Val $ ValInt n))
+        σ
+        []
+        (Val $ ValLoc l)
+        (state_alloc l (Header tag (Z.to_nat n)) (replicate (Z.to_nat n) ValUnit) σ)
+        []
   | base_step_block_concrete tag es vs σ l :
       0 < length es →
       es = of_vals vs →
@@ -479,15 +492,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
         (Val $ ValBlock tag vs)
-        σ
-        []
-  | base_step_proj proj tag vs v σ :
-      vs !! proj = Some v →
-      base_step
-        (Proj proj $ Val $ ValBlock tag vs)
-        σ
-        []
-        (Val v)
         σ
         []
   | base_step_match_concrete l hdr vs x e brs e' σ :
@@ -513,28 +517,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
         e'
         σ
-        []
-  | base_step_for n1 n2 e σ :
-      base_step
-        (For (Val $ ValInt n1) (Val $ ValInt n2) e)
-        σ
-        []
-        (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
-        σ
-        []
-  | base_step_alloc n v σ l :
-      (0 < n)%Z →
-      σ.(state_headers) !! l = None →
-      ( ∀ i,
-        i < Z.to_nat n →
-        σ.(state_heap) !! (l +ₗ i) = None
-      ) →
-      base_step
-        (Alloc (Val $ ValInt n) (Val v))
-        σ
-        []
-        (Val $ ValLoc l)
-        (state_alloc l (Header 0 (Z.to_nat n)) (replicate (Z.to_nat n) v) σ)
         []
   | base_step_get_tag_concrete l hdr σ :
       σ.(state_headers) !! l = Some hdr →
@@ -570,64 +552,73 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt (length vs))
         σ
         []
-  | base_step_load l v σ :
-      σ.(state_heap) !! l = Some v →
+  | base_step_get_field_concrete l fld v σ :
+      σ.(state_heap) !! (l +ₗ fld) = Some v →
       base_step
-        (Load $ Val $ ValLoc l)
+        (Load (Val $ ValLoc l) (Val $ ValInt fld))
         σ
         []
         (Val v)
         σ
         []
-  | base_step_store l v w σ :
-      σ.(state_heap) !! l = Some w →
+  | base_step_get_field_abstract tag vs (fld : nat) v σ :
+      vs !! fld = Some v →
       base_step
-        (Store (Val $ ValLoc l) (Val v))
+        (Load (Val $ ValBlock tag vs) (Val $ ValInt fld))
+        σ
+        []
+        (Val v)
+        σ
+        []
+  | base_step_set_field l fld v σ :
+      is_Some (σ.(state_heap) !! (l +ₗ fld)) →
+      base_step
+        (Store (Val $ ValLoc l) (Val $ ValInt fld) (Val v))
         σ
         []
         Unit
-        (state_update_heap <[l := v]> σ)
+        (state_update_heap <[l +ₗ fld := v]> σ)
         []
-  | base_step_xchg l v w σ :
-      σ.(state_heap) !! l = Some w →
+  | base_step_xchg l fld v w σ :
+      σ.(state_heap) !! (l +ₗ fld) = Some w →
       base_step
-        (Xchg (Val $ ValLoc l) (Val v))
+        (Xchg (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v))
         σ
         []
         (Val w)
-        (state_update_heap <[l := v]> σ)
+        (state_update_heap <[l +ₗ fld := v]> σ)
         []
-  | base_step_cas_fail l v1 v2 v σ :
-      σ.(state_heap) !! l = Some v →
+  | base_step_cas_fail l fld v1 v2 v σ :
+      σ.(state_heap) !! (l +ₗ fld) = Some v →
       val_physical v →
       val_physical v1 →
       val_neq v v1 →
       base_step
-        (CAS (Val $ ValLoc l) (Val v1) (Val v2))
+        (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
         []
         (Val $ ValBool false)
         σ
         []
-  | base_step_cas_suc l v1 v2 v σ :
-      σ.(state_heap) !! l = Some v →
+  | base_step_cas_suc l fld v1 v2 v σ :
+      σ.(state_heap) !! (l +ₗ fld) = Some v →
       val_physical v →
       v = v1 →
       base_step
-        (CAS (Val $ ValLoc l) (Val v1) (Val v2))
+        (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
         []
         (Val $ ValBool true)
-        (state_update_heap <[l := v2]> σ)
+        (state_update_heap <[l +ₗ fld := v2]> σ)
         []
-  | base_step_faa l n m σ :
-      σ.(state_heap) !! l = Some $ ValInt m →
+  | base_step_faa l fld n m σ :
+      σ.(state_heap) !! (l +ₗ fld) = Some $ ValInt m →
       base_step
-        (FAA (Val $ ValLoc l) (Val $ ValInt n))
+        (FAA (Val $ ValTuple [ValLoc l; ValInt fld]) (Val $ ValInt n))
         σ
         []
         (Val $ ValInt m)
-        (state_update_heap <[l := ValInt (m + n)]> σ)
+        (state_update_heap <[l +ₗ fld := ValInt (m + n)]> σ)
         []
   | base_step_fork e σ :
       base_step
@@ -664,6 +655,25 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ'
         es.
 
+Lemma base_step_alloc' tag n σ :
+  let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
+  (0 ≤ n)%Z →
+  base_step
+    (Alloc (Val $ ValInt tag) (Val $ ValInt n))
+    σ
+    []
+    (Val $ ValLoc l)
+    (state_alloc l (Header tag (Z.to_nat n)) (replicate (Z.to_nat n) ValUnit) σ)
+    [].
+Proof.
+  intros l Hn.
+  pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
+  setoid_rewrite not_elem_of_union in Hfresh.
+  apply base_step_alloc; first done.
+  all: intros; apply not_elem_of_dom.
+  1: rewrite -(location_add_0 l).
+  all: apply Hfresh; lia.
+Qed.
 Lemma base_step_block_concrete' tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
@@ -680,25 +690,6 @@ Proof.
   pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
   setoid_rewrite not_elem_of_union in Hfresh.
   apply base_step_block_concrete; [done.. | |].
-  all: intros; apply not_elem_of_dom.
-  - rewrite -(location_add_0 l). naive_solver.
-  - apply Hfresh. lia.
-Qed.
-Lemma base_step_alloc' v n σ :
-  let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
-  (0 < n)%Z →
-  base_step
-    (Alloc ((Val $ ValInt n)) (Val v))
-    σ
-    []
-    (Val $ ValLoc l)
-    (state_alloc l (Header 0 (Z.to_nat n)) (replicate (Z.to_nat n) v) σ)
-    [].
-Proof.
-  intros l Hn.
-  pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
-  setoid_rewrite not_elem_of_union in Hfresh.
-  apply base_step_alloc; first done.
   all: intros; apply not_elem_of_dom.
   - rewrite -(location_add_0 l). naive_solver.
   - apply Hfresh. lia.
@@ -732,18 +723,19 @@ Inductive ectxi :=
   | CtxEqual1 v2
   | CtxEqual2 e1
   | CtxIf e1 e2
-  | CtxBlock concrete tag vs es
-  | CtxProj proj
-  | CtxMatch x e1 brs
   | CtxFor1 e2 e3
   | CtxFor2 v1 e3
   | CtxAlloc1 v2
   | CtxAlloc2 e1
+  | CtxBlock concrete tag vs es
+  | CtxMatch x e1 brs
   | CtxGetTag
   | CtxGetSize
-  | CtxLoad
-  | CtxStore1 v2
-  | CtxStore2 e1
+  | CtxLoad1 v2
+  | CtxLoad2 e1
+  | CtxStore1 v2 v3
+  | CtxStore2 e1 v3
+  | CtxStore3 e1 e2
   | CtxXchg1 v2
   | CtxXchg2 e1
   | CtxCAS0 v1 v2
@@ -784,12 +776,6 @@ Fixpoint ectxi_fill k e : expr :=
       Equal e1 e
   | CtxIf e1 e2 =>
       If e e1 e2
-  | CtxBlock concrete tag vs es =>
-      Block concrete tag $ of_vals vs ++ e :: es
-  | CtxProj proj =>
-      Proj proj e
-  | CtxMatch x e1 brs =>
-      Match e x e1 brs
   | CtxFor1 e2 e3 =>
       For e e2 e3
   | CtxFor2 v1 e3 =>
@@ -798,16 +784,24 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e $ Val v2
   | CtxAlloc2 e1 =>
       Alloc e1 e
+  | CtxBlock concrete tag vs es =>
+      Block concrete tag $ of_vals vs ++ e :: es
+  | CtxMatch x e1 brs =>
+      Match e x e1 brs
   | CtxGetTag =>
       GetTag e
   | CtxGetSize =>
       GetSize e
-  | CtxLoad =>
-      Load e
-  | CtxStore1 v2 =>
-      Store e $ Val v2
-  | CtxStore2 e1 =>
-      Store e1 e
+  | CtxLoad1 v2 =>
+      Load e (Val v2)
+  | CtxLoad2 e1 =>
+      Load e1 e
+  | CtxStore1 v2 v3 =>
+      Store e (Val v2) (Val v3)
+  | CtxStore2 e1 v3 =>
+      Store e1 e (Val v3)
+  | CtxStore3 e1 e2 =>
+      Store e1 e2 e
   | CtxXchg1 v2 =>
       Xchg e $ Val v2
   | CtxXchg2 e1 =>

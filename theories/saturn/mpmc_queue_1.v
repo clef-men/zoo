@@ -33,11 +33,6 @@ Implicit Types hist past nodes : list location.
 Implicit Types v t : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'xchain_data'" := (
-  in_type "xchain" 1
-)(in custom zoo_field
-).
-
 #[local] Notation "'front'" := (
   in_type "t" 0
 )(in custom zoo_field
@@ -387,7 +382,7 @@ Section mpmc_queue_G.
       if negb au then True else
         mpmc_queue_waiter_au γ ι Ψ
     }}}
-      !#l.[front]
+      (#l).{front}
     {{{ front i,
       RET #front;
       mpmc_queue_history_elem γ i front ∗
@@ -422,7 +417,7 @@ Section mpmc_queue_G.
     {{{
       inv ι (mpmc_queue_inv_inner l γ ι)
     }}}
-      !#l.[front]
+      (#l).{front}
     {{{ front i,
       RET #front;
       mpmc_queue_history_elem γ i front ∗
@@ -438,7 +433,7 @@ Section mpmc_queue_G.
     {{{
       inv ι (mpmc_queue_inv_inner l γ ι)
     }}}
-      !#l.[back]
+      (#l).{back}
     {{{ back i,
       RET #back;
       mpmc_queue_history_elem γ i back
@@ -478,7 +473,7 @@ Section mpmc_queue_G.
             β [tele_arg []] x
           )
     }}}
-      !#node.[xchain_next]
+      (#node).{xchain_next}
     {{{ res,
       RET res;
       ( ⌜res = ()%V⌝ ∗
@@ -509,7 +504,7 @@ Section mpmc_queue_G.
 
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (xchain_model_lookup with "Hhist") as "(Hnode & Hhist)"; first done.
+    iDestruct (xchain_model_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_load.
     iDestruct ("Hhist" with "Hnode ") as "Hhist".
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
@@ -599,7 +594,7 @@ Section mpmc_queue_G.
       inv ι (mpmc_queue_inv_inner l γ ι) ∗
       mpmc_queue_history_elem γ i node
     }}}
-      !#node.[xchain_next]
+      (#node).{xchain_next}
     {{{ res,
       RET res;
         ⌜res = ()%V⌝
@@ -666,16 +661,16 @@ Section mpmc_queue_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (xchain_model_lookup' with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
+    iDestruct (xchain_model_lookup with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - wp_cas as _ | [=].
-      iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
+      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ". { repeat iExists _. iSteps. }
       iSteps.
 
     - wp_cas as Hcas | _; first done.
-      iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
+      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(lookup_last_length hist i) // drop_all //. }
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
       iDestruct (xchain_model_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
@@ -777,7 +772,7 @@ Section mpmc_queue_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front' & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (xchain_model_lookup with "Hhist") as "(Hnode & Hhist)"; first done.
+    iDestruct (xchain_model_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_cas as _ | [= ->].
     all: iDestruct ("Hhist" with "Hnode ") as "Hhist".
 

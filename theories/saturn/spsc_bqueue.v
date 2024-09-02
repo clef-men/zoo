@@ -55,7 +55,7 @@ Implicit Types vs hist : list val.
 
 Definition spsc_bqueue_create : val :=
   fun: "cap" =>
-    { array_make "cap" §None, #0, #0, #0, #0 }.
+    { array_unsafe_make "cap" §None, #0, #0, #0, #0 }.
 
 #[local] Definition spsc_bqueue_push_aux : val :=
   fun: "t" "data" "back" =>
@@ -73,7 +73,7 @@ Definition spsc_bqueue_push : val :=
     let: "data" := "t".{data} in
     let: "back" := "t".{back} in
     if: spsc_bqueue_push_aux "t" "data" "back" then (
-      array_cset "data" "back" ‘Some( "v" ) ;;
+      array_unsafe_cset "data" "back" ‘Some( "v" ) ;;
       "t" <-{back} #1 + "back" ;;
       #false
     ) else (
@@ -95,8 +95,8 @@ Definition spsc_bqueue_pop : val :=
     let: "front" := "t".{front} in
     if: spsc_bqueue_pop_aux "t" "front" then (
       let: "data" := "t".{data} in
-      let: "res" := array_cget "data" "front" in
-      array_cset "data" "front" §None ;;
+      let: "res" := array_unsafe_cget "data" "front" in
+      array_unsafe_cset "data" "front" §None ;;
       "t" <-{front} #1 + "front" ;;
       "res"
     ) else (
@@ -491,7 +491,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
     iApply wp_fupd.
-    wp_apply (array_make_spec with "[//]") as "%data Hdata_model"; first done.
+    wp_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
     wp_block l as "Hmeta" "(Hdata & Hfront & Hfront_cache & Hback & Hback_cache & _)".
     iMod (pointsto_persist with "Hdata") as "#Hdata".
 
@@ -573,7 +573,7 @@ Section spsc_bqueue_G.
     - iSpecialize ("HΦ" $! true front_cache). rewrite bool_decide_eq_true_2; first lia.
       iSteps.
 
-    - wp_bind (!_)%E.
+    - wp_bind (Load _ _)%E.
       iInv "Hinv" as "(%front & %_back & %vs & %hist & >(%Hback & %Hback_le) & >(%Hhist_len & %Hvs) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
       wp_load.
       iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
@@ -618,7 +618,7 @@ Section spsc_bqueue_G.
 
     wp_rec. wp_load. wp_pures.
 
-    wp_bind (!_)%E.
+    wp_bind (Load _ _)%E.
     iInv "Hinv" as "(%front1 & %_back & %vs1 & %hist1 & >(%Hback & %Hback_le) & >(%Hhist1_len & %Hvs1) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_load.
     iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
@@ -639,10 +639,10 @@ Section spsc_bqueue_G.
     iSplitR "Hfront_cache Hproducer_ctl₁ Hdata_back HΦ"; first iSteps.
     iModIntro. clear- Hbranch. iModIntro.
 
-    wp_smart_apply (array_cset_spec with "Hdata_back") as "Hdata_back"; first done.
+    wp_smart_apply (array_unsafe_cset_spec with "Hdata_back") as "Hdata_back"; first done.
     wp_pures.
 
-    wp_bind (_ <- _)%E.
+    wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%front3 & %_back & %vs3 & %hist3 & >(%Hback & %Hback_le) & >(%Hhist3_len & %Hvs3) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hproducer_region & Hdata_extra)".
     wp_store.
     iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
@@ -724,7 +724,7 @@ Section spsc_bqueue_G.
     - iSpecialize ("HΦ" $! true back_cache). rewrite bool_decide_eq_true_2; first lia.
       iSteps.
 
-    - wp_bind (!_)%E.
+    - wp_bind (Load _ _)%E.
       iInv "Hinv" as "(%_front & %back & %vs & %hist & >(%Hback & %Hback_le) & >(%Hhist_len & %Hvs) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
       wp_load.
       iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
@@ -771,7 +771,7 @@ Section spsc_bqueue_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (!_)%E.
+    wp_bind (Load _ _)%E.
     iInv "Hinv" as "(%_front & %back1 & %vs1 & %hist1 & >(%Hback1 & %Hback1_le) & >(%Hhist1_len & %Hvs1) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_load.
     iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
@@ -800,11 +800,11 @@ Section spsc_bqueue_G.
     iModIntro. clear- Hbranch. iModIntro.
 
     wp_load.
-    wp_smart_apply (array_cget_spec with "Hdata_front") as "Hdata_front"; first done.
-    wp_smart_apply (array_cset_spec with "Hdata_front") as "Hdata_front"; first done.
+    wp_smart_apply (array_unsafe_cget_spec with "Hdata_front") as "Hdata_front"; first done.
+    wp_smart_apply (array_unsafe_cset_spec with "Hdata_front") as "Hdata_front"; first done.
     wp_pures.
 
-    wp_bind (_ <- _)%E.
+    wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%_front & %back3 & %vs3 & %hist3 & >(%Hback3 & %Hback3_le) & >(%Hhist3_len & %Hvs3) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hconsumer_region & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_store.
     iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.

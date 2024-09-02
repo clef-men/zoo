@@ -127,11 +127,12 @@ let level = function
   | Record_get _ ->
       9
   | Apply _
+  | Alloc _
   | Ref _
   | Get_tag _
   | Get_size _
-  | Get_field _
-  | Set_field _
+  | Load _
+  | Store _
   | Resolve _ ->
       10
   | Unop (Unop_minus, _)
@@ -219,6 +220,10 @@ let rec expression' lvl ppf = function
         (expression max_level) expr1
         (expression max_level) expr2
         (expression max_level) expr3
+  | Alloc (expr1, expr2) ->
+      Format.fprintf ppf "@[<hv>Alloc@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr1
+        (expression @@ next_level lvl) expr2
   | Tuple exprs ->
       Format.fprintf ppf "@[<hv>(%a@,)@]"
         Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 1>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
@@ -268,12 +273,12 @@ let rec expression' lvl ppf = function
   | Get_size expr ->
       Format.fprintf ppf "@[<hv>GetSize@;<1 2>@[%a@]@]"
         (expression @@ next_level lvl) expr
-  | Get_field (expr1, expr2) ->
-      Format.fprintf ppf "@[<hv>GetField@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+  | Load (expr1, expr2) ->
+      Format.fprintf ppf "@[<hv>Load@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
         (expression @@ next_level lvl) expr1
         (expression @@ next_level lvl) expr2
-  | Set_field (expr1, expr2, expr3) ->
-      Format.fprintf ppf "@[<hv>SetField@;<1 2>@[%a@]@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+  | Store (expr1, expr2, expr3) ->
+      Format.fprintf ppf "@[<hv>Store@;<1 2>@[%a@]@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
         (expression @@ next_level lvl) expr1
         (expression @@ next_level lvl) expr2
         (expression @@ next_level lvl) expr3

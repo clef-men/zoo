@@ -32,8 +32,6 @@ Unset Universe Polymorphism.
 Section instances.
   Context `{zoo_G : !ZooG Σ}.
 
-  Open Scope expr_scope.
-
   #[global] Instance pure_wp_step_exec_inst1 e ϕ n e' E :
     (* TODO: prevent unfolding explicit recs *)
     PureExecNoRec ϕ n e e' →
@@ -57,6 +55,25 @@ Section instances.
     intros. eapply pure_wp_step_exec2 => //. tc_solve.
   Qed.
 
+  #[global] Instance step_wp_alloc E1 E2 tag n :
+    SPEC ⟨E1, E2⟩
+    {{
+      ⌜0 ≤ tag⌝%Z ∗
+      ⌜0 ≤ n⌝%Z
+    }}
+      Alloc #tag #n
+    {{ l,
+      RET #l;
+      l ↦ₕ Header (Z.to_nat tag) (Z.to_nat n) ∗
+      meta_token l ⊤ ∗
+      l ↦∗ replicate (Z.to_nat n) ()%V
+    }}.
+  Proof.
+    iSteps.
+    wp_alloc l as "Hhdr" "Hmeta" "Hl"; [done.. |].
+    iSteps.
+  Qed.
+
   #[global] Instance step_wp_block tag es :
     SPEC vs,
     {{
@@ -66,32 +83,14 @@ Section instances.
       Block Concrete tag es
     {{ l,
       RET #l;
+      l ↦ₕ Header tag (length es) ∗
       meta_token l ⊤ ∗
       l ↦∗ vs
-    }}.
-  Proof.
-    iSteps.
-    wp_block l as "Hmeta" "Hl".
-    iSteps.
-  Qed.
-
-  #[global] Instance step_wp_alloc e v E1 E2 n :
-    AsVal e v →
-    SPEC ⟨E1, E2⟩
-    {{
-      ⌜0 < n⌝%Z
-    }}
-      Alloc #n e
-    {{ l,
-      RET #l;
-      meta_token l ⊤ ∗
-      l ↦∗ replicate (Z.to_nat n) v
     }}
   | 30.
   Proof.
-    move=> <- /=.
     iSteps.
-    wp_alloc l as "Hmeta" "Hl"; first done.
+    wp_block l as "Hhdr" "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -99,12 +98,12 @@ Section instances.
     AsVal e v →
     SPEC
     {{ True }}
-      ref e
+      (ref e)%E
     {{ l,
       RET #l;
       l ↦ₕ Header 0 1 ∗
       meta_token l ⊤ ∗
-      l ↦ v
+      l ↦ᵣ v
     }}
   | 20.
   Proof.
@@ -146,15 +145,15 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_load l E1 E2 :
+  #[global] Instance step_wp_load l fld E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
     {{
-      ▷ l ↦{dq} v
+      ▷ (l +ₗ fld) ↦{dq} v
     }}
-      !#l
+      Load #l #fld
     {{
       RET v;
-      l ↦{dq} v
+      (l +ₗ fld) ↦{dq} v
     }}.
   Proof.
     iSteps as (v dq) "Hl".
@@ -162,15 +161,15 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_store l v E1 E2 :
+  #[global] Instance step_wp_store l fld v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
-      ▷ l ↦ w
+      ▷ (l +ₗ fld) ↦ w
     }}
-      #l <- v
+      Store #l #fld v
     {{
-      RET ();
-      l ↦ v
+      RET ()%V;
+      (l +ₗ fld) ↦ v
     }}.
   Proof.
     iSteps as (w) "Hl".
@@ -178,15 +177,15 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_xchg l v E1 E2 :
+  #[global] Instance step_wp_xchg l fld v E1 E2 :
     SPEC ⟨E1, E2⟩ w,
     {{
-      ▷ l ↦ w
+      ▷ (l +ₗ fld) ↦ w
     }}
-      Xchg #l v
+      Xchg (#l, #fld)%V v
     {{
       RET w;
-      l ↦ v
+      (l +ₗ fld) ↦ v
     }}.
   Proof.
     iSteps as (w) "Hl".
@@ -194,23 +193,23 @@ Section instances.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_cas l v1 v2 E1 E2 :
+  #[global] Instance step_wp_cas l fld v1 v2 E1 E2 :
     SPEC ⟨E1, E2⟩ v dq,
     {{
-      ▷ l ↦{dq} v ∗
+      ▷ (l +ₗ fld) ↦{dq} v ∗
       ⌜val_physical v⌝ ∗
       ⌜val_physical v1⌝ ∗
       ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
     }}
-      CAS #l v1 v2
+      CAS (#l, #fld)%V v1 v2
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
         ⌜val_neq v v1⌝ ∗
-        l ↦{dq} v
+        (l +ₗ fld) ↦{dq} v
       ∨ ⌜b = true⌝ ∗
         ⌜v = v1⌝ ∗
-        l ↦ v2
+        (l +ₗ fld) ↦ v2
     }}.
   Proof.
     iStep as (v). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
@@ -218,15 +217,15 @@ Section instances.
     destruct H; iSteps.
   Qed.
 
-  #[global] Instance step_wp_faa l i E1 E2 :
+  #[global] Instance step_wp_faa l fld i E1 E2 :
     SPEC ⟨E1, E2⟩ (z : Z),
     {{
-      ▷ l ↦ #z
+      ▷ (l +ₗ fld) ↦ #z
     }}
-      FAA #l #i
+      FAA (#l, #fld)%V #i
     {{
       RET #z;
-      l ↦ #(z + i)
+      (l +ₗ fld) ↦ #(z + i)
     }}.
   Proof.
     iSteps as (z) "Hl".
@@ -294,7 +293,7 @@ Section instances.
   (* Qed. *)
 
   #[global] Instance if_step_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(bool_decide P) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬P⌝
   | 50.
   Proof.
@@ -306,7 +305,7 @@ Section instances.
     - iApply ("H" $! false). eauto.
   Qed.
   #[global] Instance if_step_bool_decide_neg P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(bool_decide (¬P)) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(bool_decide (¬P)) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝
   | 49.
   Proof.
@@ -320,7 +319,7 @@ Section instances.
       iApply ("H" $! false). eauto.
   Qed.
   #[global] Instance if_step_negb_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) if: #(negb $ bool_decide P) then e1 else e2 ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
+    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(negb $ bool_decide P) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
       ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝ | 49.
   Proof.
     rewrite /ReductionStep' /=.

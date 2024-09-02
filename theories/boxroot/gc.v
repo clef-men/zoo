@@ -8,6 +8,7 @@ From zoo.boxroot Require Export
 From zoo Require Import
   options.
 
+Implicit Types ofs : nat.
 Implicit Types l root : location.
 Implicit Types roots : list location.
 Implicit Types fn iter : val.
@@ -67,7 +68,7 @@ Parameter wp_load_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i,
     gc_model gc ∗
     ω ↦gc νs
   }}}
-   !#(l +ₗ i)
+    Load #l #i
   {{{
     RET gc_val_to_val ν;
     gc_model gc ∗
@@ -75,25 +76,26 @@ Parameter wp_load_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i,
   }}}.
 
 Parameter wp_store_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i v,
-  (0 ≤ Z.to_nat i < length νs)%Z →
+  (0 ≤ i < length νs)%Z →
   gc_val_of_val v = Some ν →
   ω ↦gc[gc] l →
   {{{
     gc_model gc ∗
     ω ↦gc νs
   }}}
-    #(l +ₗ i) <- v
+    Store #l #i v
   {{{
     RET gc_val_to_val ν;
     gc_model gc ∗
     ω ↦gc <[Z.to_nat i := ν]> νs
   }}}.
 
-Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω :
+Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω root_base root_ofs :
+  root = root_base +ₗ root_ofs →
   {{{
     root ↦root[gc] ω
   }}}
-    !#root
+    Load #root_base #root_ofs
   {{{ l,
     RET #l;
     ⌜ω ↦gc[gc] l⌝ ∗
@@ -102,28 +104,30 @@ Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω :
 Proof.
   iSteps.
 Qed.
-Lemma wp_load_gc_root' `{zoo_G : !ZooG Σ} {gc root ω} l :
+Lemma wp_load_gc_root' `{zoo_G : !ZooG Σ} {gc root ω} l root_base root_ofs :
+  root = root_base +ₗ root_ofs →
   ω ↦gc[gc] l →
   {{{
     root ↦root[gc] ω
   }}}
-    !#root
+    Load #root_base #root_ofs
   {{{
     RET #l;
     root ↦root[gc] ω
   }}}.
 Proof.
-  iIntros "%Hω %Φ (%_l & Hroot & %_Hω) HΦ".
+  iIntros (->) "%Hω %Φ (%_l & Hroot & %_Hω) HΦ".
   opose proof* (gc_realized_agree _ _ l _l) as <-; [done.. |].
   iSteps.
 Qed.
 
-Lemma wp_store_gc_root `{zoo_G : !ZooG Σ} {gc root ω'} ω l :
+Lemma wp_store_gc_root `{zoo_G : !ZooG Σ} {gc root ω'} ω l root_base root_ofs :
+  root = root_base +ₗ root_ofs →
   ω ↦gc[gc] l →
   {{{
     root ↦root[gc] ω'
   }}}
-    #root <- #l
+    Store #root_base #root_ofs #l
   {{{
     RET ();
     root ↦root[gc] ω
@@ -134,7 +138,7 @@ Qed.
 
 Parameter gc_roots : ∀ `{zoo_G : !ZooG Σ}, (gc_state → iProp Σ) → iProp Σ.
 Parameter gc_set_roots : val.
-Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ,
+Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   {{{
     gc_model gc ∗
     gc_roots Χ' ∗
@@ -144,7 +148,7 @@ Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ,
         ∃ roots ωs,
         Ξ roots ωs ∗
         ( [∗ list] root; ω ∈ roots; ωs,
-          root ↦root[gc] ω
+          (root +ₗ ofs) ↦root[gc] ω
         )
     ) ∗
     □ (
@@ -170,7 +174,7 @@ Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ,
       }}}
     )
   }}}
-    gc_set_roots iter
+    gc_set_roots iter #ofs
   {{{
     RET ();
     gc_model gc ∗

@@ -33,7 +33,7 @@ Implicit Types vs : list val.
 
 Definition parray_make : val :=
   fun: "sz" "v" =>
-    ref ‘Root( array_make "sz" "v" ).
+    ref ‘Root( array_unsafe_make "sz" "v" ).
 
 #[local] Definition parray_reroot : val :=
   rec: "parray_reroot" "t" =>
@@ -103,7 +103,7 @@ Section parray_G.
     [∗ map] l ↦ vs ∈ map,
       ∃ descr,
       ⌜length vs = γ.(parray_meta_size)⌝ ∗
-      l ↦ descr ∗
+      l ↦ᵣ descr ∗
       if (decide (l = root)) then (
         ⌜descr = ’Root( γ.(parray_meta_array) )%V⌝ ∗
         array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗
@@ -211,7 +211,7 @@ Section parray_G.
   Proof.
     iIntros "%Hsz %Φ #Hv HΦ".
     wp_rec.
-    wp_smart_apply (array_make_spec with "[//]") as "%arr Harr"; first done.
+    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%arr Harr"; first done.
     wp_ref root as "Hroot".
     pose vs := replicate (Z.to_nat sz) v.
     iMod (parray_map_alloc root vs) as "(%γ_map & Hmap_auth & Hmap_elem)".
@@ -347,7 +347,8 @@ Section parray_G.
       iAssert ⌜map !! root = None⌝%I as %Hmap_lookup_root.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root %Hmap_lookup_root".
         iDestruct (pointsto_ne with "Hroot Hl") as %Hne.
-        iDestruct (big_sepM_lookup _ _ root with "Hmap") as "(%descr & _ & Hroot_ & _)"; first rewrite lookup_delete_ne //.
+        iDestruct (big_sepM_lookup _ _ root with "Hmap") as "(%descr & _ & Hroot_ & _)".
+        { rewrite lookup_delete_ne //. congruence. }
         iDestruct (pointsto_ne with "Hroot Hroot_") as %[]. done.
       }
       set vs_root := <[i := v]> vs.

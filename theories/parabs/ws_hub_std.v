@@ -56,7 +56,7 @@ Section ws_deques.
   Definition ws_hub_std_create : val :=
     fun: "sz" =>
       { ws_deques.(ws_deques_create) "sz",
-        array_init "sz" (fun: <> => random_round_create (positive_part ("sz" - #1))),
+        array_unsafe_init "sz" (fun: <> => random_round_create (positive_part ("sz" - #1))),
         waiters_create (),
         #false
       }.
@@ -266,7 +266,7 @@ Section ws_hub_std_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     ws_deques.(ws_deques_owner) γ.(ws_hub_std_meta_deques) i ∗
-    array_slice γ.(ws_hub_std_meta_rounds) γ.(ws_hub_std_meta_size) i DfracDiscarded [round] ∗
+    array_slice γ.(ws_hub_std_meta_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(ws_hub_std_meta_size) - 1) n.
 
   #[global] Instance ws_hub_std_model_timeless t vs :
@@ -334,7 +334,7 @@ Section ws_hub_std_G.
 
     wp_smart_apply (ws_deques_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
 
-    wp_smart_apply (array_init_spec_disentangled (λ _ round, random_round_model' round (sz' - 1) (sz' - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
+    wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (sz' - 1) (sz' - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
       wp_smart_apply positive_part_spec.
       wp_apply (random_round_create_spec' with "[//]"); first lia.
@@ -369,13 +369,13 @@ Section ws_hub_std_G.
       { clear. induction sz as [| sz IH]; first done. rewrite /= left_id //. }
       iSteps.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
-      iDestruct (array_model_atomize with "Hrounds_model") as "Hrounds_model".
+      iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
       iDestruct (big_sepL_seq_index rounds with "Hdeques_owner") as "Hdeques_owner"; first done.
       iDestruct (big_sepL_sep_2 with "Hdeques_owner Hrounds") as "H".
       iApply (big_sepL_seq_index rounds); first done.
       iApply (big_sepL_impl with "H").
-      rewrite Hrounds. iSteps.
+      iSteps.
   Qed.
 
   #[local] Lemma ws_hub_std_size_spec t ι :
@@ -955,7 +955,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (_ <- _)%E.
+    wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     wp_store.
     iSplitR "HΦ"; first iSteps.

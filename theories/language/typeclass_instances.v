@@ -64,12 +64,6 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance proj_atomic proj tag vs :
-    Atomic (Proj proj $ Val $ ValBlock tag vs).
-  Proof.
-    solve_atomic.
-  Qed.
-
   #[global] Instance alloc_atomic v1 v2 :
     Atomic (Alloc (Val v1) (Val v2)).
   Proof.
@@ -87,13 +81,13 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance load_atomic v :
-    Atomic (Load $ Val v).
+  #[global] Instance load_atomic v1 v2 :
+    Atomic (Load (Val v1) (Val v2)).
   Proof.
     solve_atomic.
   Qed.
-  #[global] Instance store_atomic v1 v2 :
-    Atomic (Store (Val v1) (Val v2)).
+  #[global] Instance store_atomic v1 v2 v3 :
+    Atomic (Store (Val v1) (Val v2) (Val v3)).
   Proof.
     solve_atomic.
   Qed.
@@ -317,6 +311,16 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
+  Lemma pure_for n1 n2 e :
+    PureExec
+      True
+      1
+      (For (Val $ ValInt n1) (Val $ ValInt n2) e)
+      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
   #[global] Instance pure_block tag es vs :
     PureExec
       (to_vals es = Some vs)
@@ -328,31 +332,13 @@ Section pure_exec.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
-  #[global] Instance pure_proj proj tag vs v :
-    PureExec
-      (vs !! proj = Some v)
-      1
-      (Proj proj $ Val $ ValBlock tag vs)
-      (Val v).
-  Proof.
-    solve_pure_exec.
-  Qed.
+
   #[global] Instance pure_match tag vs x e brs e' :
     PureExec
       (match_apply None tag vs x e brs = Some e')
       1
       (Match (Val $ ValBlock tag vs) x e brs)
       e'.
-  Proof.
-    solve_pure_exec.
-  Qed.
-
-  Lemma pure_for n1 n2 e :
-    PureExec
-      True
-      1
-      (For (Val $ ValInt n1) (Val $ ValInt n2) e)
-      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
   Proof.
     solve_pure_exec.
   Qed.
@@ -372,6 +358,16 @@ Section pure_exec.
       1
       (GetSize $ Val $ ValBlock tag vs)
       (Val $ ValInt (length vs)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
+  #[global] Instance pure_load tag vs (fld : nat) v :
+    PureExec
+      (vs !! fld = Some v)
+      1
+      (Load (Val $ ValBlock tag vs) (Val $ ValInt fld))
+      (Val v).
   Proof.
     solve_pure_exec.
   Qed.

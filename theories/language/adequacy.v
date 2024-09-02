@@ -25,5 +25,5 @@ Proof.
   apply: wp_adequacy => Hinv_G κs.
   iMod zoo_init' as "(%zoo_G & Hσ)".
   iExists zoo_state_interp. repeat iExists _. iFrame.
-  iApply (Hwp (Build_ZooG _ _)).
+  iApply (Hwp (Build_ZooG _)).
 Qed.

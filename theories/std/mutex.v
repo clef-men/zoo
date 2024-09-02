@@ -20,7 +20,7 @@ Definition mutex_create : val :=
 
 Definition mutex_lock : val :=
   rec: "mutex_lock" "t" =>
-    ifnot: CAS "t" #false #true then (
+    ifnot: CAS "t".[contents] #false #true then (
       Yield ;;
       "mutex_lock" "t"
     ).
@@ -58,7 +58,7 @@ Section mutex_G.
 
   #[local] Definition mutex_inv_inner l γ P : iProp Σ :=
     ∃ b,
-    l ↦ #b ∗
+    l ↦ᵣ #b ∗
     match b with
     | true =>
         True
@@ -146,7 +146,7 @@ Section mutex_G.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
     iLöb as "HLöb".
-    wp_rec.
+    wp_rec. wp_pures.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b.

@@ -92,7 +92,7 @@ Section prophet_map_G.
 
   Lemma prophet_map_new pid pids xprophs :
     pid ∉ pids →
-    prophet_map_interp xprophs pids ==∗
+    prophet_map_interp xprophs pids ⊢ |==>
       prophet_map_interp xprophs ({[pid]} ∪ pids) ∗
       prophet_model pid (prophecies_resolve xprophs pid).
   Proof.

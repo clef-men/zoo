@@ -22,11 +22,6 @@ Implicit Types hist past nodes : list location.
 Implicit Types v t : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'xchain_data'" := (
-  in_type "xchain" 1
-)(in custom zoo_field
-).
-
 #[local] Notation "'front'" := (
   in_type "t" 0
 )(in custom zoo_field
@@ -254,7 +249,7 @@ Section mpsc_queue_G.
     False.
   Proof.
     iIntros "(%l & %front & -> & Hl_front_1) (%_l & %_front & %Heq & Hl_front_2)". injection Heq as <-.
-    iDestruct (pointsto_frac_ne with "Hl_front_1 Hl_front_2") as %?; naive_solver.
+    iDestruct (pointsto_dfrac_ne with "Hl_front_1 Hl_front_2") as %?; naive_solver.
   Qed.
 
   Lemma mpsc_queue_create_spec ι :
@@ -297,7 +292,7 @@ Section mpsc_queue_G.
     {{{
       inv ι (mpsc_queue_inv_inner l γ)
     }}}
-      !#l.[front]
+      (#l).{front}
     {{{ front i,
       RET #front;
       mpsc_queue_history_elem γ i front
@@ -317,7 +312,7 @@ Section mpsc_queue_G.
     {{{
       inv ι (mpsc_queue_inv_inner l γ)
     }}}
-      !#l.[back]
+      (#l).{back}
     {{{ back i,
       RET #back;
       mpsc_queue_history_elem γ i back
@@ -357,7 +352,7 @@ Section mpsc_queue_G.
           mpsc_queue_model #l vs -∗
           β (TeleArgCons vs ()) x_nonempty
     }}}
-      !#node.[xchain_next]
+      (#node).{xchain_next}
     {{{ res,
       RET res;
       ( ⌜res = ()%V⌝ ∗
@@ -381,7 +376,7 @@ Section mpsc_queue_G.
 
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front_2 & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hmodel₂)".
     iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (xchain_model_lookup with "Hhist") as "(Hnode & Hhist)"; first done.
+    iDestruct (xchain_model_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_load.
     iDestruct ("Hhist" with "Hnode ") as "Hhist".
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
@@ -448,7 +443,7 @@ Section mpsc_queue_G.
       inv ι (mpsc_queue_inv_inner l γ) ∗
       mpsc_queue_history_elem γ i node
     }}}
-      !#node.[xchain_next]
+      (#node).{xchain_next}
     {{{ res,
       RET res;
         ⌜res = ()%V⌝
@@ -532,16 +527,16 @@ Section mpsc_queue_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hmodel₂)".
     iDestruct (mpsc_queue_history_agree with "Hhistory_auth Hhistory_elem") as %Hlookup.
-    iDestruct (xchain_model_lookup' with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
+    iDestruct (xchain_model_lookup with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - wp_cas as _ | [=].
-      iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
+      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ". { repeat iExists _. iSteps. }
       iSteps.
 
     - wp_cas as Hcas | _; first done.
-      iDestruct (xchain_model_lookup'_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
+      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(lookup_last_length hist i) // drop_all //. }
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
       iDestruct (xchain_model_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
@@ -643,7 +638,7 @@ Section mpsc_queue_G.
     wp_smart_apply (mpsc_queue_xchain_next_spec_strong MpscQueuePop _ _ [tele_arg] inhabitant with "[$Hmeta $Hinv $Hhistory_elem $Hl_front_1 $HΦ]") as (res) "[(-> & Hl_front_1 & HΦ) | (%front' & -> & #Hhistory_elem' & Hl_front_1 & HΦ)]"; [auto | iSteps |].
     wp_pures.
 
-    wp_bind (_ <- _)%E.
+    wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%hist & %past & %_front & %nodes & %back & %vs & >%Hhist & >%Hback & >Hl_front_2 & Hl_back & Hhist & Hnodes & >Hhistory_auth & Hmodel₂)".
     iDestruct (pointsto_agree with "Hl_front_1 Hl_front_2") as %[= <-].
     iCombine "Hl_front_1 Hl_front_2" as "Hl_front".
