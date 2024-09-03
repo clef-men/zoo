@@ -3,9 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Export
-  option.
 From zoo.std Require Import
+  option
   chain.
 From zoo Require Import
   options.
@@ -25,7 +24,7 @@ Implicit Types vs : list val.
 
 Definition queue_create : val :=
   fun: <> =>
-    let: "sent" := chain_cons () () in
+    let: "sent" := { (), () } in
     { "sent", "sent" }.
 
 Definition queue_is_empty : val :=
@@ -34,9 +33,9 @@ Definition queue_is_empty : val :=
 
 Definition queue_push : val :=
   fun: "t" "v" =>
-    let: "sent" := chain_cons () () in
-    chain_set_head "t".{sentinel} "v" ;;
-    chain_set_tail "t".{sentinel} "sent" ;;
+    let: "sent" := { (), () } in
+    "t".{sentinel} <-{chain_head} "v" ;;
+    "t".{sentinel} <-{chain_tail} "sent" ;;
     "t" <-{sentinel} "sent".
 
 Definition queue_pop : val :=
@@ -44,8 +43,8 @@ Definition queue_pop : val :=
     if: queue_is_empty "t" then (
       §None
     ) else (
-      let: "v" := chain_head "t".{front} in
-      "t" <-{front} chain_tail "t".{front} ;;
+      let: "v" := "t".{front}.{chain_head} in
+      "t" <-{front} "t".{front}.{chain_tail} ;;
       ‘Some( "v" )
     ).
 

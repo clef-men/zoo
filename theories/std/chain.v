@@ -11,32 +11,14 @@ From zoo Require Import
 Implicit Types l : location.
 Implicit Types v w t hd tl dst : val.
 
-#[local] Notation "'head'" := (
+Notation "'chain_head'" := (
   in_type "t" 0
 )(in custom zoo_field
 ).
-#[local] Notation "'tail'" := (
+Notation "'chain_tail'" := (
   in_type "t" 1
 )(in custom zoo_field
 ).
-
-Definition chain_cons : val :=
-  fun: "v" "t" =>
-    { "v", "t" }.
-
-Definition chain_head : val :=
-  fun: "t" =>
-    "t".{head}.
-Definition chain_tail : val :=
-  fun: "t" =>
-    "t".{tail}.
-
-Definition chain_set_head : val :=
-  fun: "t" "v" =>
-    "t" <-{head} "v".
-Definition chain_set_tail : val :=
-  fun: "t" "v" =>
-    "t" <-{tail} "v".
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -48,11 +30,17 @@ Section zoo_G.
     | v :: vs =>
         ∃ l t',
         ⌜t = #l⌝ ∗
-        l.[head] ↦ v ∗
-        l.[tail] ↦ t' ∗
+        l.[chain_head] ↦ v ∗
+        l.[chain_tail] ↦ t' ∗
         chain_model t' vs dst
     end.
   #[global] Arguments chain_model _ !_ _ / : assert.
+
+  #[global] Instance chain_model_timeless t vs dst :
+    Timeless (chain_model t vs dst).
+  Proof.
+    move: t. induction vs; apply _.
+  Qed.
 
   Lemma chain_physical t vs dst :
     0 < length vs →
@@ -104,12 +92,6 @@ Section zoo_G.
     - iDestruct "HΦ" as "(HΦ & _)". iSteps.
   Qed.
 
-  #[global] Instance chain_model_timeless t vs dst :
-    Timeless (chain_model t vs dst).
-  Proof.
-    move: t. induction vs; apply _.
-  Qed.
-
   Lemma chain_model_nil t dst :
     ⌜t = dst⌝ ⊣⊢
     chain_model t [] dst.
@@ -147,16 +129,44 @@ Section zoo_G.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t1); iSteps.
   Qed.
-  Lemma chain_model_app t vs1 vs2 dst :
-    chain_model t (vs1 ++ vs2) dst ⊣⊢
+  Lemma chain_model_app t vs vs1 vs2 dst :
+    vs = vs1 ++ vs2 →
+    chain_model t vs dst ⊣⊢
       ∃ t',
       chain_model t vs1 t' ∗
       chain_model t' vs2 dst.
   Proof.
+    intros ->.
     iSplit.
     - iApply chain_model_app_1; first done.
     - iIntros "(%t' & Hmodel & Hmodel')".
       iApply (chain_model_app_2 with "Hmodel Hmodel'").
+  Qed.
+
+  Lemma chain_model_snoc t vs vs' v dst :
+    vs = vs' ++ [v] →
+    chain_model t vs dst ⊣⊢
+      ∃ t',
+      chain_model t vs' t' ∗
+      chain_model t' [v] dst.
+  Proof.
+    intros ->. rewrite chain_model_app //.
+  Qed.
+  Lemma chain_model_snoc_1 t vs vs' v dst :
+    vs = vs' ++ [v] →
+    chain_model t (vs ++ [v]) dst ⊢
+      ∃ t',
+      chain_model t vs t' ∗
+      chain_model t' [v] dst.
+  Proof.
+    intros ->. rewrite chain_model_snoc //.
+  Qed.
+  Lemma chain_model_snoc_2 t1 vs t2 v dst :
+    chain_model t1 vs t2 -∗
+    chain_model t2 [v] dst -∗
+    chain_model t1 (vs ++ [v]) dst.
+  Proof.
+    rewrite (chain_model_snoc _ (vs ++ [v])) //. iSteps.
   Qed.
 
   Lemma chain_model_exclusive t vs1 dst1 vs2 dst2 :
@@ -176,7 +186,7 @@ Section zoo_G.
     {{{
       chain_model t vs dst
     }}}
-      chain_cons v t
+      { v, t }
     {{{ t',
       RET t';
       chain_model t' (v :: vs) dst
@@ -189,7 +199,7 @@ Section zoo_G.
     {{{
       chain_model t (v :: vs) dst
     }}}
-      chain_head t
+      t.{chain_head}
     {{{
       RET v;
       chain_model t (v :: vs) dst
@@ -202,7 +212,7 @@ Section zoo_G.
     {{{
       chain_model t (v :: vs) dst
     }}}
-      chain_tail t
+      t.{chain_tail}
     {{{ t',
       RET t';
       chain_model t [v] t' ∗
@@ -216,7 +226,7 @@ Section zoo_G.
     {{{
       chain_model t (v :: vs) dst
     }}}
-      chain_set_head t w
+      t <-{chain_head} w
     {{{
       RET ();
       chain_model t (w :: vs) dst
@@ -228,7 +238,7 @@ Section zoo_G.
     {{{
       chain_model t (v :: vs) dst
     }}}
-      chain_set_tail t w
+      t <-{chain_tail} w
     {{{ t',
       RET ();
       chain_model t [v] w ∗
@@ -238,11 +248,5 @@ Section zoo_G.
     iSteps.
   Qed.
 End zoo_G.
-
-#[global] Opaque chain_cons.
-#[global] Opaque chain_head.
-#[global] Opaque chain_tail.
-#[global] Opaque chain_set_head.
-#[global] Opaque chain_set_tail.
 
 #[global] Opaque chain_model.
