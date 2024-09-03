@@ -133,12 +133,12 @@ Section zoo_G.
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
     { naive_solver. }
-    { rewrite list_lookup_fmap. erewrite lookup_app_l_Some; done. }
+    { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
     destruct (lookup_lt_is_Some_2 nexts (i - 1)) as (next & Hnexts_lookup_i); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
     { lia. }
-    { rewrite list_lookup_fmap. erewrite lookup_app_l_Some; done. }
+    { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
     wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr".
     { rewrite fmap_length app_length. lia. }

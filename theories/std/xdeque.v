@@ -367,17 +367,17 @@ Section zoo_G.
       }
       rewrite bool_decide_eq_false_2 //.
       wp_smart_apply (wp_wand with "(Hfn [%] HΨ)") as (res) "(-> & HΨ)".
-      { erewrite take_drop_middle; done. }
+      { erewrite take_drop_middle => //. }
       wp_load.
       iEval (rewrite from_option_default).
       wp_apply ("HLöb" $! (S i) with "[%] [HΨ] Hprev Hnext (Hnodes Hnode_prev Hnode_next) HΦ").
       { rewrite head_drop.
         destruct (nodes !! S i) as [node' |] eqn:Hlookup'.
-        - erewrite lookup_app_l_Some; done.
+        - erewrite lookup_app_l_Some => //.
         - apply lookup_last_length in Hlookup'; last done.
           rewrite list_lookup_middle //.
       } {
-        erewrite take_S_r; done.
+        erewrite take_S_r => //.
       }
     - rewrite list_lookup_middle in Hlookup; first lia. simplify.
       rewrite bool_decide_eq_true_2 // firstn_all2 //. iSteps.

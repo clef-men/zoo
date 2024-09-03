@@ -836,7 +836,7 @@ Module raw.
           rewrite Nat.sub_diag //.
         }
         assert (drop (S (S i)) δs = δs') as Hdrop_δs'.
-        { erewrite drop_S in Hdrop_δs; [congruence | done]. }
+        { erewrite drop_S in Hdrop_δs => //. congruence. }
         wp_smart_apply ("HLöb" $! (S i) δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "Hδ' Hδs2") as "Hδs2".
           iDestruct (deltas_chain_app_2 with "Hδs1 Hδs2") as "Hδs".
@@ -914,7 +914,7 @@ Module raw.
           rewrite Nat.sub_diag //.
         }
         assert (drop (S (S i)) 𝝳s = 𝝳s') as Hdrop_𝝳s'.
-        { erewrite drop_S in Hdrop_𝝳s; [congruence | done]. }
+        { erewrite drop_S in Hdrop_𝝳s => //. congruence. }
         wp_smart_apply ("HLöb" $! (S i) 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "H𝝳' H𝝳s2") as "H𝝳s2".
           iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
@@ -1350,7 +1350,7 @@ Module raw.
               apply NoDup_app in Hδs_nodup as (Hnodup & _ & _).
               done.
             }
-            { erewrite <- deltas_apply_snoc'. done. }
+            { erewrite <- deltas_apply_snoc' => //. }
             { intros []%symmetry%app_cons_not_nil. }
           }
     Qed.

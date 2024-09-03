@@ -1757,7 +1757,7 @@ Section zoo_G.
     iAuIntro. iAaccIntro with "H↦"; first auto with iFrame. iIntros "H↦".
     iDestruct ("Hslice" with "H↦") as "Hslice".
     rewrite /Ψ replicate_S_end -assoc insert_app_r_alt replicate_length // Nat.sub_diag.
-    erewrite drop_S; done.
+    erewrite drop_S => //.
   Qed.
 
   Lemma array_fill_slice_spec t sz vs (i : Z) i_ (n : Z) v :
@@ -1963,7 +1963,7 @@ Section zoo_G.
     destruct o as [v |].
     - rewrite Ho.
       wp_apply (wp_wand with "(Hfn [] HΨ)"); first iSteps. clear acc. iIntros "%acc HΨ". iFrame.
-      erewrite take_S_r; done.
+      erewrite take_S_r => //.
     - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
@@ -1994,7 +1994,7 @@ Section zoo_G.
     )%I).
     wp_apply (array_foldli_spec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
     clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
-    erewrite drop_S; last done.
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
@@ -2238,7 +2238,7 @@ Section zoo_G.
     iFrame. rewrite firstn_all2; first lia. iFrame.
     clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
     pose proof Hlookup as Hi%lookup_lt_Some.
-    erewrite take_S_r; last done.
+    erewrite take_S_r => //.
     iDestruct "HΞ" as "(HΞ & Hfn & _)".
     rewrite Nat.add_0_r take_length Nat.min_l; first lia. iSteps.
   Qed.
@@ -2413,7 +2413,7 @@ Section zoo_G.
     destruct o as [v |].
     - rewrite Ho.
       wp_apply (wp_wand with "(Hfn [] HΨ)") as (res) "(-> & HΨ)"; first iSteps.
-      iSteps. erewrite take_S_r; done.
+      iSteps. erewrite take_S_r => //.
     - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
@@ -2444,7 +2444,7 @@ Section zoo_G.
     )%I).
     wp_apply (array_iteri_spec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
     iIntros "!> %i %v %Hlookup (HΨ & HΞ)".
-    erewrite drop_S; last done.
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
@@ -2762,7 +2762,7 @@ Section zoo_G.
       iSplit; first rewrite -take_S_r //.
       iDestruct ("Hmodel" with "H↦") as "Hmodel".
       rewrite insert_app_r_alt; first lia.
-      erewrite drop_S; last done.
+      erewrite drop_S => //.
       rewrite Hi Hws Nat.sub_diag -assoc //.
     - assert ((ws ++ drop i vs) !! i = Some (vs !!! i)).
       { rewrite lookup_app_r; first lia.
@@ -2801,7 +2801,7 @@ Section zoo_G.
     )%I).
     wp_apply (array_applyi_spec Ψ' with "[HΨ $Hmodel Hfn]"); last iSteps.
     iFrame. iIntros "!> %i %v %ws %Hi %Hlookup (HΨ & HΞ)".
-    erewrite drop_S; last done.
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
@@ -3552,7 +3552,7 @@ Section zoo_G.
       destruct o as [v |].
       - rewrite Ho.
         wp_apply (wp_wand with "(Hfn [//] [] HΨ)") as "%w HΨ"; first iSteps. iFrame.
-        erewrite take_S_r; done.
+        erewrite take_S_r => //.
       - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
         iAuIntro. iAaccIntro with "H↦"; iSteps.
     }
@@ -3590,7 +3590,7 @@ Section zoo_G.
     )%I).
     wp_apply (array_mapi_spec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
     iIntros "!> %i %v %ws %Hlookup %Hi (HΨ & HΞ)".
-    erewrite drop_S; last done.
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
@@ -3894,9 +3894,9 @@ Section zoo_G.
         }
         iAuIntro. iAaccIntro with "H↦2"; first iSteps. iIntros "H↦2".
         iDestruct ("Hslice2" with "H↦2") as "Hslice2".
-        iFrame. iSplitR. { erewrite take_S_r; done. }
+        iFrame. iSplitR. { erewrite take_S_r => //. }
         rewrite insert_app_r_alt take_length Nat.min_l //; try lia.
-        rewrite Nat.sub_diag. erewrite drop_S; last done. rewrite -(assoc (++)).
+        rewrite Nat.sub_diag. erewrite drop_S => //. rewrite -(assoc (++)).
         iSteps.
       - opose proof* (list_lookup_lookup_total_lt vs1 k); first lia.
         iDestruct (array_slice_lookup_acc k with "Hslice1") as "(H↦1 & Hslice1)"; first done.
@@ -4842,9 +4842,9 @@ Section zoo_G.
         }
         iAuIntro. iAaccIntro with "H↦2"; first iSteps. iIntros "H↦2".
         iDestruct ("Hslice2" with "H↦2") as "Hslice2".
-        iFrame. iSplitR. { erewrite take_S_r; done. }
+        iFrame. iSplitR. { erewrite take_S_r => //. }
         rewrite insert_app_r_alt take_length Nat.min_l //; try lia.
-        rewrite Nat.sub_diag. erewrite drop_S; last done. rewrite -(assoc (++)).
+        rewrite Nat.sub_diag. erewrite drop_S => //. rewrite -(assoc (++)).
         iSteps.
       - opose proof* (list_lookup_lookup_total_lt vs1 k); first lia.
         iDestruct (array_cslice_lookup_acc k with "Hslice1") as "(H↦1 & Hslice1)"; first done.
@@ -5720,7 +5720,7 @@ Section zoo_G.
         + rewrite app_length. iSteps.
         + assert (Z.to_nat (i2_ + (0 + k)) - i2_ = k) as -> by lia.
           rewrite -assoc insert_app_r_alt; first lia.
-          erewrite Hws, Nat.sub_diag, drop_S; first done.
+          erewrite Hws, Nat.sub_diag, drop_S => //.
           apply list_lookup_lookup_total_lt. lia.
         + iApply big_sepL_snoc. iSteps.
     }

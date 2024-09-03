@@ -831,7 +831,7 @@ Section spsc_bqueue_G.
     iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
     { do 2 iModIntro. iExists (S front), back3, vs3, hist3. iFrame. simpl in *.
       iSplit; first iSteps.
-      iSplit. { erewrite drop_S in Hvs3; last done. naive_solver. }
+      iSplit. { erewrite drop_S in Hvs3 => //. naive_solver. }
       iSplitL "Hfront"; first iSteps.
       rewrite assoc. iSplitL "Hdata_vs".
       - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app fmap_length take_length.

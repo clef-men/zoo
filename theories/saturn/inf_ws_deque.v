@@ -769,11 +769,11 @@ Module raw.
           iModIntro;
           iDestruct (inf_ws_deque_hist_agree with "Hhist_auth Hhist_elem") as %?;
           iPureIntro.
-        - erewrite lookup_app_l_Some; done.
+        - erewrite lookup_app_l_Some => //.
         - destruct model as [| w model]; simpl in *; first lia.
-          rewrite (assoc (++) hist [w]). erewrite lookup_app_l_Some; done.
+          rewrite (assoc (++) hist [w]). erewrite lookup_app_l_Some => //.
         - rewrite (nil_length_inv model); first lia. list_simplifier. done.
-        - rewrite (nil_length_inv model); first lia. erewrite lookup_app_l_Some; done.
+        - rewrite (nil_length_inv model); first lia. erewrite lookup_app_l_Some => //.
       }
       iAaccIntro with "Harray_model"; iIntros "Harray_model".
       { iModIntro. rewrite right_id. repeat iExists _. iFrame. iSteps. }
@@ -784,7 +784,7 @@ Module raw.
       clear- Hlookup.
 
       rewrite Nat2Z.id decide_True; first eauto using lookup_lt_Some.
-      erewrite list_lookup_total_correct; last done.
+      erewrite list_lookup_total_correct => //.
       iApply ("HΦ" with "[//]").
     Qed.
     #[local] Lemma inf_ws_deque_wp_get_priv l γ ι back priv i :

@@ -492,7 +492,7 @@ Section graph.
   Proof.
     revert xs. induction ys; intros xs; inversion 1; subst. done.
     simpl. rewrite list_to_set_app_L !vertices_union !vertices_singleton. simpl.
-    erewrite IHys; last done. rewrite vertices_empty. set_solver.
+    erewrite IHys => //. rewrite vertices_empty. set_solver.
   Qed.
 
   Lemma mirror_same_length (xs ys:list (A*B*A)):

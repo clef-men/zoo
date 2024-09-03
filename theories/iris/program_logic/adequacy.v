@@ -138,7 +138,7 @@ Proof.
   iIntros "%Hinv_G H£s".
   iMod H as "(%state_interp & %fork_post & %nt & %Φs & Hσ & H)".
   iMod (wps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hσ] H£s H") as "H"; [done.. | |].
-  { erewrite app_nil_r. done. }
+  { erewrite app_nil_r => //. }
   destruct n.
   - iMod "H". iSteps.
   - iApply step_fupdN_S_fupd. iSteps.

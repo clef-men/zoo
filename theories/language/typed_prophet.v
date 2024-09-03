@@ -121,7 +121,7 @@ Section typed_prophet.
   |}.
   Next Obligation.
     intros (w & proph) _w v [= -> ->].
-    erewrite typed_prophet_of_to_val; done.
+    erewrite typed_prophet_of_to_val => //.
   Qed.
 
   Definition typed_prophet_model pid prophs : iProp Σ :=

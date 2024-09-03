@@ -647,7 +647,7 @@ Section zoo_G.
     )%I).
     wp_apply (lst_foldli_spec Ψ' with "[$HΨ $Ht $Hfn]"); last iSteps.
     clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
-    erewrite drop_S; last done.
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
@@ -792,7 +792,7 @@ Section zoo_G.
     iFrame. rewrite firstn_all2; first lia. iFrame.
     clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
     pose proof Hlookup as Hi%lookup_lt_Some.
-    erewrite take_S_r; last done.
+    erewrite take_S_r => //.
     iDestruct "HΞ" as "(HΞ & Hfn & _)".
     rewrite Nat.add_0_r take_length Nat.min_l; first lia. iSteps.
   Qed.
@@ -1248,7 +1248,8 @@ Section zoo_G.
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
     wp_apply (lst_mapi_spec Ψ' with "[$HΨ $Ht $Hfn]"); last iSteps. iIntros "!> %i %v %ws (%Hlookup & %Hi) (HΨ & HΞ)".
-    erewrite drop_S; last done.
+
+    erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.

@@ -89,7 +89,7 @@ Section zoo_G.
     wp_smart_apply (lst_is_empty_spec with "[//]") as "_".
     destruct front as [| v front]; wp_pures.
     - wp_apply (lst_is_empty_spec with "[//]") as "_".
-      erewrite bool_decide_ext; last apply reverse_nil_iff. iSteps.
+      erewrite bool_decide_ext by apply reverse_nil_iff. iSteps.
     - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
 

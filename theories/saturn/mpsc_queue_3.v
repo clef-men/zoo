@@ -681,7 +681,7 @@ Section mpsc_queue_G.
     wp_apply (clst_app_spec with "[//]") as "_"; [done.. |].
     wp_store.
 
-    iSteps. rewrite clist_app_ClistClosed. erewrite clist_app_closed; done.
+    iSteps. rewrite clist_app_ClistClosed. erewrite clist_app_closed => //.
   Qed.
   Lemma mpsc_queue_close_spec_closed t ι vs :
     {{{

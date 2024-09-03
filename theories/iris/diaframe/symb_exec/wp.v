@@ -300,7 +300,7 @@ Section wp_executor.
       iStopProof. apply later_mono, bi_tforall_mono => b.
       apply wand_mono; first done => /=.
       specialize (Hf' a); apply to_tforall with _ b in Hf'; rewrite Hf' => /=.
-      by erewrite wp_value_fupd; first rewrite fupd_trans //.
+      erewrite wp_value_fupd => //. rewrite fupd_trans //.
   Qed.
 
   (* here is a slightly more readable version: *)
@@ -339,7 +339,7 @@ Section wp_executor.
     apply sep_mono_r.
     apply forall_intro => v.
     rewrite (forall_elim v) => /=.
-    erewrite wp_value_fupd; first rewrite !left_id fupd_trans; last done.
+    erewrite wp_value_fupd => //. rewrite !left_id fupd_trans.
     iIntros "HΦΨ HΦ".
     by iMod ("HΦΨ" with "HΦ") as "H".
   Qed.
@@ -561,7 +561,7 @@ Section abducts.
   Proof.
     rewrite /PrependModality.
     apply (anti_symm _).
-    - by rewrite -{2}fupd_wp.
+    - rewrite -{2}fupd_wp //.
     - apply fupd_intro.
   Qed.
 End abducts.
