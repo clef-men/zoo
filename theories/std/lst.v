@@ -227,7 +227,9 @@ Section zoo_G.
     ⌜lst_model' t vs⌝.
 
   Lemma lst_singleton_spec v :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       lst_singleton v
     {{{ t,
       RET t;
@@ -244,7 +246,8 @@ Section zoo_G.
     }}}
       lst_head t
     {{{
-      RET v; True
+      RET v;
+      True
     }}}.
   Proof.
     rewrite /lst_model /lst_model'. iSteps.
@@ -270,7 +273,8 @@ Section zoo_G.
     }}}
       lst_is_empty t
     {{{
-      RET #(bool_decide (vs = [])); True
+      RET #(bool_decide (vs = []));
+      True
     }}}.
   Proof.
     iIntros "%Φ -> HΦ".
@@ -284,7 +288,8 @@ Section zoo_G.
     }}}
       lst_get t #i
     {{{
-      RET v; True
+      RET v;
+      True
     }}}.
   Proof.
     remember (Z.to_nat i) as j eqn:Hj.
@@ -847,7 +852,8 @@ Section zoo_G.
     }}}
       lst_size t
     {{{
-      RET #(length vs); True
+      RET #(length vs);
+      True
     }}}.
   Proof.
     iIntros "%Φ #Ht HΦ".

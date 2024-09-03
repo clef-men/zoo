@@ -222,7 +222,9 @@ Section spsc_future_G.
   Qed.
 
   Lemma spsc_future_create_spec Ψ :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       spsc_future_create ()
     {{{ t,
       RET t;

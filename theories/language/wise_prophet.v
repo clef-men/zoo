@@ -108,7 +108,9 @@ Section typed_strong_prophet.
   Qed.
 
   Lemma wise_strong_prophet_wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ pid γ prophs,
       RET #pid;
@@ -244,7 +246,9 @@ Section typed_prophet.
   Qed.
 
   Lemma wise_prophet_wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ pid γ prophs,
       RET #pid;

@@ -20,7 +20,9 @@ Axiom random_inv_persistent : ∀ `{zoo_G : !ZooG Σ} t,
 #[global] Existing Instance random_inv_persistent.
 
 Axiom random_create_spec : ∀ `{zoo_G : !ZooG Σ},
-  {{{ True }}}
+  {{{
+    True
+  }}}
     random_create ()
   {{{ t,
     RET t;

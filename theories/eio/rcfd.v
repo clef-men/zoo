@@ -454,7 +454,8 @@ Section rcfd_G.
     }}}
       rcfd_put #l
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hopen_hdr & #Hopen & #Hinv & H) HΦ".
@@ -569,7 +570,8 @@ Section rcfd_G.
     }}}
       rcfd_put t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hopen_hdr & #Hopen & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Htokens_frag) & Hmodel) HΦ". injection Heq as <-.
@@ -791,7 +793,8 @@ Section rcfd_G.
     }}}
       rcfd_close t
     {{{
-      RET #false; True
+      RET #false;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
@@ -923,7 +926,8 @@ Section rcfd_G.
     }}}
       rcfd_remove t
     {{{
-      RET §None; True
+      RET §None;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
@@ -1041,7 +1045,8 @@ Section rcfd_G.
     }}}
       rcfd_is_open t
     {{{
-      RET #false; True
+      RET #false;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
@@ -1132,7 +1137,8 @@ Section rcfd_G.
     }}}
       rcfd_peek t
     {{{
-      RET §None; True
+      RET §None;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".

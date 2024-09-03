@@ -371,7 +371,9 @@ Section vertex_G.
   Qed.
 
   Lemma vertex_create_spec P task :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       vertex_create task
     {{{ t,
       RET t;

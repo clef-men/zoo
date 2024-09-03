@@ -69,7 +69,9 @@ Section zoo_G.
 
   Lemma random_round_create_spec sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       random_round_create #sz
     {{{ t,
       RET t;
@@ -188,7 +190,9 @@ Section zoo_G.
 
   Lemma random_round_create_spec' sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       random_round_create #sz
     {{{ t,
       RET t;

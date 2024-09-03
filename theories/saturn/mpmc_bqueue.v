@@ -149,7 +149,9 @@ Section mpmc_bqueue_G.
 
   Lemma mpmc_bqueue_create_spec ι cap :
     (0 ≤ cap)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpmc_bqueue_create #cap
     {{{ t,
       RET t;
@@ -168,7 +170,8 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_is_empty t
     <<<
       mpmc_bqueue_model t vs
-    | RET #(bool_decide (vs = [])); True
+    | RET #(bool_decide (vs = []));
+      True
     >>>.
   Proof.
   Admitted.
@@ -182,7 +185,8 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_push t v @ ↑ι
     <<<
       mpmc_bqueue_model t (if decide (length vs = cap) then vs else vs ++ [v])
-    | RET #(bool_decide (length vs = cap)); True
+    | RET #(bool_decide (length vs = cap));
+      True
     >>>.
   Proof.
   Admitted.
@@ -196,7 +200,8 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_pop t @ ↑ι
     <<<
       mpmc_bqueue_model t (tail vs)
-    | RET head vs; True
+    | RET head vs;
+      True
     >>>.
   Proof.
   Admitted.

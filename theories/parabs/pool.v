@@ -203,7 +203,8 @@ Section pool_G.
     }}}
       pool_worker ws_hub ctx
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (%i & %hub & -> & (#Hhub_inv & #Hinv) & Hhub_owner) HΦ".
@@ -228,7 +229,9 @@ Section pool_G.
 
   Lemma pool_create_spec sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       pool_create ws_hub #sz
     {{{ t,
       RET t;
@@ -453,7 +456,8 @@ Section pool_G.
     }}}
       pool_kill ws_hub t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (%hub & %v_doms & %doms & -> & (#Hhub_inv & #Hinv) & Hhub_owner & Hv_doms & Hdoms) HΦ".

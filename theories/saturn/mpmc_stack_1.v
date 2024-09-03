@@ -122,7 +122,9 @@ Section zoo_G.
   Qed.
 
   Lemma mpmc_stack_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpmc_stack_create ()
     {{{ t,
       RET t;
@@ -152,7 +154,8 @@ Section zoo_G.
       mpmc_stack_push t v @ ↑ι
     <<<
       mpmc_stack_model t (v :: vs)
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -190,7 +193,8 @@ Section zoo_G.
       mpmc_stack_pop t @ ↑ι
     <<<
       mpmc_stack_model t (tail vs)
-    | RET head vs; True
+    | RET head vs;
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".

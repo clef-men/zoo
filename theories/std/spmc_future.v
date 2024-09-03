@@ -196,7 +196,9 @@ Section spmc_future_G.
   Qed.
 
   Lemma spmc_future_create_spec Ψ :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       spmc_future_create ()
     {{{ t,
       RET t;

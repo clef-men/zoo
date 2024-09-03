@@ -373,7 +373,8 @@ Section zoo_G.
     }}}
       for: x := #beg to #_end begin body end
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ #Hbody HΦ".

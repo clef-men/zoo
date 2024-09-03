@@ -123,7 +123,9 @@ Section zoo_G.
   Qed.
 
   Lemma dynarray_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_create ()
     {{{ t,
       RET t;
@@ -139,7 +141,9 @@ Section zoo_G.
 
   Lemma dynarray_make_spec sz v :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_make #sz v
     {{{ t,
       RET t;
@@ -361,7 +365,9 @@ Section zoo_G.
 
   #[local] Lemma dynarray_next_capacity_spec n :
     (0 ≤ n)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_next_capacity #n
     {{{ m,
       RET #m;

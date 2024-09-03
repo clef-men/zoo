@@ -125,7 +125,9 @@ Section zoo_G.
   Qed.
 
   Lemma xdeque_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       xdeque_create ()
     {{{ t,
       RET t;

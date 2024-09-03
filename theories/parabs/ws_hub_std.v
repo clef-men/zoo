@@ -316,7 +316,9 @@ Section ws_hub_std_G.
 
   Lemma ws_hub_std_create_spec ι sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       ws_hub_std_create ws_deques #sz
     {{{ t,
       RET t;
@@ -384,7 +386,8 @@ Section ws_hub_std_G.
     }}}
       ws_hub_std_size t
     {{{ (sz : nat),
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
@@ -400,7 +403,8 @@ Section ws_hub_std_G.
     }}}
       ws_hub_std_killed t
     {{{ killed,
-      RET #killed; True
+      RET #killed;
+      True
     }}}.
   Proof.
     iSteps.
@@ -412,7 +416,8 @@ Section ws_hub_std_G.
     }}}
       ws_hub_std_notify t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
@@ -427,7 +432,8 @@ Section ws_hub_std_G.
     }}}
       ws_hub_std_notify_all t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
@@ -948,7 +954,8 @@ Section ws_hub_std_G.
     }}}
       ws_hub_std_kill t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".

@@ -45,7 +45,9 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
   ws_deques_create_spec ι sz :
     let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       ws_deques_create #sz
     {{{ t,
       RET t;
@@ -61,7 +63,8 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
     }}}
       ws_deques_size t
     {{{
-      RET #sz; True
+      RET #sz;
+      True
     }}} ;
 
   ws_deques_push_spec t ι sz i i_ v :

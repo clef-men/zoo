@@ -218,7 +218,9 @@ Section mpsc_queue_G.
   Qed.
 
   Lemma mpsc_queue_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpsc_queue_create ()
     {{{ t,
       RET t;
@@ -257,7 +259,8 @@ Section mpsc_queue_G.
       mpsc_queue_push t v @ ↑ι
     <<<
       mpsc_queue_model t (vs ++ [v])
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".

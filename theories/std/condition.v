@@ -54,7 +54,9 @@ Section mutex_G.
   Qed.
 
   Lemma condition_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       condition_create ()
     {{{ t,
       RET t;
@@ -87,7 +89,8 @@ Section mutex_G.
     }}}
       condition_notify t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iSteps.
@@ -99,7 +102,8 @@ Section mutex_G.
     }}}
       condition_notify_all t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iSteps.

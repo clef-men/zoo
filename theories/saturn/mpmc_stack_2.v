@@ -155,7 +155,9 @@ Section zoo_G.
   Qed.
 
   Lemma mpmc_stack_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpmc_stack_create ()
     {{{ t,
       RET t;
@@ -242,7 +244,8 @@ Section zoo_G.
     }}}
       mpmc_stack_push t v
     {{{
-      RET #true; True
+      RET #true;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
@@ -324,7 +327,8 @@ Section zoo_G.
     }}}
       mpmc_stack_pop t
     {{{
-      RET §Anything; True
+      RET §Anything;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
@@ -378,7 +382,8 @@ Section zoo_G.
     }}}
       mpmc_stack_is_closed t
     {{{
-      RET #true; True
+      RET #true;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
@@ -429,7 +434,8 @@ Section zoo_G.
     }}}
       mpmc_stack_close t
     {{{
-      RET §ClstClosed; True
+      RET §ClstClosed;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".

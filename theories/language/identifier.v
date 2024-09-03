@@ -44,7 +44,9 @@ Section zoo_G.
   Qed.
 
   Lemma wp_id E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Id @ E
     {{{ id,
       RET #id;

@@ -80,7 +80,8 @@ Section zoo_G.
     }}}
       pqueue_is_empty t
     {{{
-      RET #(bool_decide (vs = [])); True
+      RET #(bool_decide (vs = []));
+      True
     }}}.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".

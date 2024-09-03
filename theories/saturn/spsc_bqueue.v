@@ -477,7 +477,9 @@ Section spsc_bqueue_G.
 
   Lemma spsc_bqueue_create_spec ι cap :
     (0 ≤ cap)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       spsc_bqueue_create #cap
     {{{ t,
       RET t;

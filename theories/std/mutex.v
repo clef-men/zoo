@@ -166,7 +166,8 @@ Section mutex_G.
     }}}
       mutex_unlock t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.

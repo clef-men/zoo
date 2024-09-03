@@ -61,7 +61,8 @@ Section zoo_G.
     }}}
       pstack_is_empty t
     {{{
-      RET #(bool_decide (vs = [])); True
+      RET #(bool_decide (vs = []));
+      True
     }}}.
   Proof.
     apply lst_is_empty_spec.

@@ -182,7 +182,9 @@ Section zoo_G.
   Qed.
 
   Lemma dynarray_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_create ()
     {{{ t,
       RET t;
@@ -198,7 +200,9 @@ Section zoo_G.
   Qed.
 
   Lemma dynarray_make_spec sz v :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_make #sz v
     {{{ t,
       RET t;
@@ -447,7 +451,9 @@ Section zoo_G.
 
   #[local] Lemma dynarray_next_capacity_spec n :
     (0 ≤ n)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_next_capacity #n
     {{{ m,
       RET #m;
@@ -665,7 +671,9 @@ Section zoo_G.
   Qed.
 
   Lemma dynarray_create_type :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       dynarray_create ()
     {{{ t,
       RET t;
@@ -720,7 +728,8 @@ Section zoo_G.
     }}}
       dynarray_size t
     {{{ (sz : nat),
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
     iSteps.
@@ -732,7 +741,8 @@ Section zoo_G.
     }}}
       dynarray_size t
     {{{ (cap : nat),
-      RET #cap; True
+      RET #cap;
+      True
     }}}.
   Proof.
     iSteps.
@@ -758,7 +768,8 @@ Section zoo_G.
     }}}
       dynarray_set_size t #sz
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iSteps.
@@ -771,7 +782,8 @@ Section zoo_G.
     }}}
       dynarray_set_data t data
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iSteps.
@@ -783,7 +795,8 @@ Section zoo_G.
     }}}
       dynarray_is_empty t
     {{{ b,
-      RET #b; True
+      RET #b;
+      True
     }}}.
   Proof.
     iSteps.
@@ -883,7 +896,8 @@ Section zoo_G.
     }}}
       dynarray_try_push t slot
     {{{ b,
-      RET #b; True
+      RET #b;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
@@ -904,7 +918,8 @@ Section zoo_G.
     }}}
       dynarray_push_aux t slot
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hslot) HΦ".
@@ -921,7 +936,8 @@ Section zoo_G.
     }}}
       dynarray_push t v
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
@@ -965,7 +981,8 @@ Section zoo_G.
     }}}
       dynarray_fit_capacity t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".
@@ -986,7 +1003,8 @@ Section zoo_G.
     }}}
       dynarray_reset t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".

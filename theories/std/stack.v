@@ -37,7 +37,9 @@ Section zoo_G.
   Qed.
 
   Lemma stack_make_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       stack_create ()
     {{{ t,
       RET t;

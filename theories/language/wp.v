@@ -82,7 +82,9 @@ Section zoo_G.
   Lemma wp_alloc (tag : Z) n E :
     (0 ≤ tag)%Z →
     (0 ≤ n)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Alloc #tag #n @ E
     {{{ l,
       RET #l;
@@ -104,7 +106,9 @@ Section zoo_G.
   Lemma wp_block {es tag} vs E :
     0 < length es →
     to_vals es = Some vs →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Block Concrete tag es @ E
     {{{ l,
       RET #l;
@@ -344,7 +348,9 @@ Section zoo_G.
   Qed.
 
   Lemma wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ prophs pid,
       RET #pid;

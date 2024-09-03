@@ -237,7 +237,9 @@ Section inf_array_G.
   Qed.
 
   Lemma inf_array_create_spec default :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       inf_array_create default
     {{{ t,
       RET t;
@@ -275,7 +277,8 @@ Section inf_array_G.
       inf_array_get t #i
     <<<
       inf_array_model t vs
-    | RET vs (Z.to_nat i); True
+    | RET vs (Z.to_nat i);
+      True
     >>>.
   Proof.
     iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
@@ -345,7 +348,8 @@ Section inf_array_G.
       inf_array_set t #i v
     <<<
       inf_array_model t (<[Z.to_nat i := v]> vs)
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hmtx & #Hdefault & #Hinv_mtx) HΦ".
@@ -438,7 +442,8 @@ Section inf_array_G.
       if decide (i < length vsₗ)
       then inf_array_model' t (<[i := v]> vsₗ) vsᵣ
       else inf_array_model' t vsₗ (<[i - length vsₗ := v]> vsᵣ)
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "% !> %Φ Hinv HΦ".

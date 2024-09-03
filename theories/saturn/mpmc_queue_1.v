@@ -339,7 +339,9 @@ Section mpmc_queue_G.
   Qed.
 
   Lemma mpmc_queue_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpmc_queue_create ()
     {{{ t,
       RET t;
@@ -617,7 +619,8 @@ Section mpmc_queue_G.
       mpmc_queue_is_empty t @ ↑ι
     <<<
       mpmc_queue_model t vs
-    | RET #(bool_decide (vs = [])); True
+    | RET #(bool_decide (vs = []));
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -700,7 +703,8 @@ Section mpmc_queue_G.
     }}}
       mpmc_queue_fix_back #l #back #new_back
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_elem_back & #Hhistory_elem_new_back) HΦ".
@@ -734,7 +738,8 @@ Section mpmc_queue_G.
       mpmc_queue_push t v @ ↑ι
     <<<
       mpmc_queue_model t (vs ++ [v])
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -757,7 +762,8 @@ Section mpmc_queue_G.
       mpmc_queue_pop t @ ↑ι
     <<<
       mpmc_queue_model t (tail vs)
-    | RET head vs; True
+    | RET head vs;
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".

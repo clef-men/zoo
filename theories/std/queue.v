@@ -67,7 +67,9 @@ Section zoo_G.
   Qed.
 
   Lemma queue_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       queue_create ()
     {{{ t,
       RET t;

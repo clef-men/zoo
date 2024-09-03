@@ -30,5 +30,6 @@ Axiom unix_close_spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
   }}}
     unix_close fd
   {{{
-    RET (); True
+    RET ();
+    True
   }}}.

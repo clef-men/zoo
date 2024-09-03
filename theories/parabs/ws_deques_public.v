@@ -113,7 +113,9 @@ Section ws_deques_public_G.
   Lemma ws_deques_public_create_spec ι sz :
     let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       ws_deques_public_create #sz
     {{{ t,
       RET t;
@@ -157,7 +159,8 @@ Section ws_deques_public_G.
     }}}
       ws_deques_public_size t
     {{{
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
     iSteps.

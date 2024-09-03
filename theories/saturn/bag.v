@@ -186,7 +186,9 @@ Section bag_G.
 
   Lemma bag_create_spec ι (sz : Z) :
     (0 < sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       bag_create #sz
     {{{ t,
       RET t;
@@ -247,7 +249,8 @@ Section bag_G.
       bag_push_aux #slot ’Some( v ) @ ↑ι
     <<<
       bag_model #l ({[+v+]} ⊎ vs)
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "!> %Φ (#Hmeta & #Hinv) HΦ".
@@ -295,7 +298,8 @@ Section bag_G.
       bag_push t v @ ↑ι
     <<<
       bag_model t ({[+v+]} ⊎ vs)
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
@@ -330,7 +334,8 @@ Section bag_G.
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
       bag_model #l vs'
-    | RET v; True
+    | RET v;
+      True
     >>>.
   Proof.
     iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "!> %Φ (#Hmeta & #Hinv) HΦ".
@@ -399,7 +404,8 @@ Section bag_G.
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
       bag_model t vs'
-    | RET v; True
+    | RET v;
+      True
     >>>.
   Proof.
     iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".

@@ -196,7 +196,9 @@ Section mpsc_waiter_G.
   Qed.
 
   Lemma mpsc_waiter_create_spec P :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpsc_waiter_create ()
     {{{ t,
       RET t;

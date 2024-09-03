@@ -450,7 +450,9 @@ Module raw.
     Qed.
 
     Lemma pstore_create_spec :
-      {{{ True }}}
+      {{{
+        True
+      }}}
         pstore_create ()
       {{{ t,
         RET t;
@@ -1522,7 +1524,9 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       pstore_create ()
     {{{ t,
       RET t;

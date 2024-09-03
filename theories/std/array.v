@@ -1042,7 +1042,9 @@ Section zoo_G.
 
   Lemma array_unsafe_alloc_spec sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_unsafe_alloc #sz
     {{{ t,
       RET t;
@@ -1057,7 +1059,9 @@ Section zoo_G.
   Qed.
 
   Lemma array_alloc_spec sz :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_alloc #sz
     {{{ t,
       RET t;
@@ -1073,7 +1077,9 @@ Section zoo_G.
   Qed.
 
   Lemma array_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_create ()
     {{{ t,
       RET t;
@@ -1092,7 +1098,8 @@ Section zoo_G.
     }}}
       array_size t
     {{{
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
     rewrite /array_inv.
@@ -1799,7 +1806,9 @@ Section zoo_G.
 
   Lemma array_unsafe_make_spec sz v :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_unsafe_make #sz v
     {{{ t,
       RET t;
@@ -1814,7 +1823,9 @@ Section zoo_G.
   Qed.
 
   Lemma array_make_spec sz v :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_make #sz v
     {{{ t,
       RET t;
@@ -5132,7 +5143,9 @@ Section zoo_G.
   Qed.
 
   Lemma array_create_type τ `{!iType _ τ} :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       array_create ()
     {{{ t,
       RET t;
@@ -5153,7 +5166,8 @@ Section zoo_G.
     }}}
       array_size t
     {{{
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
     iSteps.
@@ -5481,7 +5495,8 @@ Section zoo_G.
     }}}
       array_iter t fn
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
@@ -5497,7 +5512,8 @@ Section zoo_G.
     }}}
       array_applyi t fn
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
@@ -5517,7 +5533,8 @@ Section zoo_G.
     }}}
       array_apply t fn
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".

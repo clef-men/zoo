@@ -171,10 +171,13 @@ Section zoo_G.
   Lemma clst_app_spec {t1} ls1 {t2} cls2 :
     t1 = list_to_clist_open ls1 →
     t2 = cls2 →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       clst_app t1 t2
     {{{
-      RET clist_app ls1 cls2 : val; True
+      RET clist_app ls1 cls2 : val;
+      True
     }}}.
   Proof.
     iInduction ls1 as [| v1 ls1] "IH" forall (t1 t2 cls2).
@@ -187,10 +190,13 @@ Section zoo_G.
   Lemma clst_rev_app_spec {t1} ls1 {t2} cls2 :
     t1 = list_to_clist_open ls1 →
     t2 = cls2 →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       clst_rev_app t1 t2
     {{{
-      RET clist_app (reverse ls1) cls2 : val; True
+      RET clist_app (reverse ls1) cls2 : val;
+      True
     }}}.
   Proof.
     iInduction ls1 as [| v1 ls1] "IH" forall (t1 t2 cls2).

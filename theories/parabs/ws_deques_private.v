@@ -236,7 +236,9 @@ Section ws_deques_private_G.
   Lemma ws_deques_private_create_spec ι sz :
     let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       ws_deques_private_create #sz
     {{{ t,
       RET t;
@@ -254,7 +256,8 @@ Section ws_deques_private_G.
     }}}
       ws_deques_private_size t
     {{{
-      RET #sz; True
+      RET #sz;
+      True
     }}}.
   Proof.
   Admitted.

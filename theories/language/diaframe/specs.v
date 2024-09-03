@@ -97,7 +97,9 @@ Section instances.
   #[global] Instance step_wp_ref e v :
     AsVal e v →
     SPEC
-    {{ True }}
+    {{
+      True
+    }}
       (ref e)%E
     {{ l,
       RET #l;
@@ -235,7 +237,9 @@ Section instances.
 
   #[global] Instance step_wp_proph :
     SPEC
-    {{ True }}
+    {{
+      True
+    }}
       Proph
     {{ prophs pid,
       RET #pid;

@@ -749,7 +749,8 @@ Module raw.
       }}}
         inf_array_get (#l).{data} #i
       {{{
-        RET v; True
+        RET v;
+        True
       }}}.
     Proof.
       iIntros "%Φ (#Harray_inv & #Hinv & #Hdata & #Hhist_elem) HΦ".
@@ -964,7 +965,9 @@ Module raw.
     Qed.
 
     Lemma inf_ws_deque_create_spec ι :
-      {{{ True }}}
+      {{{
+        True
+      }}}
         inf_ws_deque_create ()
       {{{ t,
         RET t;
@@ -1155,7 +1158,8 @@ Module raw.
         inf_ws_deque_steal t @ ↑ι
       <<<
         inf_ws_deque_model t (tail model)
-      | RET head model; True
+      | RET head model;
+        True
       >>>.
     Proof.
       iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) HΦ".
@@ -2240,7 +2244,9 @@ Section inf_ws_deque_G.
   Qed.
 
   Lemma inf_ws_deque_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       inf_ws_deque_create ()
     {{{ t,
       RET t;
@@ -2285,7 +2291,8 @@ Section inf_ws_deque_G.
       inf_ws_deque_steal t @ ↑ι
     <<<
       inf_ws_deque_model t (tail model)
-    | RET head model; True
+    | RET head model;
+      True
     >>>.
   Proof.
     iIntros "!> %Φ #Hinv HΦ".

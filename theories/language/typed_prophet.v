@@ -53,7 +53,9 @@ Section typed_strong_prophet.
   Qed.
 
   Lemma typed_strong_prophet_wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ pid prophs,
       RET #pid;
@@ -143,7 +145,9 @@ Section typed_prophet.
   Qed.
 
   Lemma typed_prophet_wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ pid prophs,
       RET #pid;
@@ -230,7 +234,9 @@ Section typed_prophet1.
   Qed.
 
   Lemma typed_prophet1_wp_proph E :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       Proph @ E
     {{{ pid proph,
       RET #pid;

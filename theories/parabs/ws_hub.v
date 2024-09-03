@@ -38,7 +38,9 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
 
   ws_hub_create_spec ι sz :
     (0 ≤ sz)%Z →
-    {{{ True }}}
+    {{{
+      True
+    }}}
       ws_hub_create #sz
     {{{ t,
       RET t;
@@ -147,7 +149,8 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     }}}
       ws_hub_killed t
     {{{ killed,
-      RET #killed; True
+      RET #killed;
+      True
     }}} ;
 
   ws_hub_kill_spec t ι:
@@ -156,7 +159,8 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     }}}
       ws_hub_kill t
     {{{
-      RET (); True
+      RET ();
+      True
     }}} ;
 }.
 #[global] Arguments ws_hub _ {_} : assert.

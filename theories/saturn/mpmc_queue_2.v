@@ -188,7 +188,9 @@ Section mpmc_queue_G.
   Admitted.
 
   Lemma mpmc_queue_create_spec ι :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       mpmc_queue_create ()
     {{{ t,
       RET t;
@@ -207,7 +209,8 @@ Section mpmc_queue_G.
       mpmc_queue_push t v @ ↑ι
     <<<
       mpmc_queue_model t (vs ++ [v])
-    | RET (); True
+    | RET ();
+      True
     >>>.
   Proof.
   Admitted.
@@ -221,7 +224,8 @@ Section mpmc_queue_G.
       mpmc_queue_pop t @ ↑ι
     <<<
       mpmc_queue_model t (tail vs)
-    | RET head vs; True
+    | RET head vs;
+      True
     >>>.
   Proof.
   Admitted.

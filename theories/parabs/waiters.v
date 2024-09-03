@@ -105,7 +105,9 @@ Section waiters_G.
   Qed.
 
   Lemma waiters_create_spec :
-    {{{ True }}}
+    {{{
+      True
+    }}}
       waiters_create ()
     {{{ t,
       RET t;
@@ -125,7 +127,8 @@ Section waiters_G.
     }}}
       waiters_notify' t
     {{{ b,
-      RET #b; True
+      RET #b;
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hqueue_inv & #Hinv) HΦ".
@@ -152,7 +155,8 @@ Section waiters_G.
     }}}
       waiters_notify t
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ #Hinv HΦ".
@@ -169,7 +173,8 @@ Section waiters_G.
     }}}
       waiters_notify_many t #n
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Hn %Φ #Hinv HΦ".
@@ -211,7 +216,8 @@ Section waiters_G.
     }}}
       waiters_cancel_wait t waiter
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
@@ -228,7 +234,8 @@ Section waiters_G.
     }}}
       waiters_commit_wait t waiter
     {{{
-      RET (); True
+      RET ();
+      True
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
