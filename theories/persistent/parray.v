@@ -349,7 +349,7 @@ Section parray_G.
         iDestruct (pointsto_ne with "Hroot Hl") as %Hne.
         iDestruct (big_sepM_lookup _ _ root with "Hmap") as "(%descr & _ & Hroot_ & _)".
         { rewrite lookup_delete_ne //. congruence. }
-        iDestruct (pointsto_ne with "Hroot Hroot_") as %[]. done.
+        iApply (pointsto_exclusive with "Hroot Hroot_").
       }
       set vs_root := <[i := v]> vs.
       iMod (parray_map_insert with "Hmap_auth") as "(Hmap_auth & #Hmap_elem_root)"; first done.

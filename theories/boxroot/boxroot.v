@@ -215,7 +215,7 @@ Section boxroot_G.
     iAssert ⌜map !! root = None⌝%I as %Hroot.
     { rewrite -eq_None_ne_Some. iIntros "%ω' %Hmap_lookup".
       iDestruct (big_sepM_lookup with "Hmap") as "(% & Hroot_ & _)"; first done.
-      iDestruct (pointsto_ne with "Hroot Hroot_") as %?. done.
+      iApply (pointsto_exclusive with "Hroot Hroot_").
     }
     iMod (boxroot_roots_insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
     wp_pures.
