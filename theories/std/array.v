@@ -11,7 +11,7 @@ From zoo.language Require Import
 From zoo.std Require Export
   base.
 From zoo.std Require Import
-  for_upto
+  for_
   assume
   chunk.
 From zoo Require Import
@@ -1718,7 +1718,7 @@ Section zoo_G.
     wp_rec.
     pose Ψ' (_ : Z) i :=
       Ψ i.
-    wp_smart_apply (for_upto_spec_strong Ψ' with "[$HΨ]"); last rewrite Z.sub_0_r //.
+    wp_smart_apply (for_spec_strong Ψ' with "[$HΨ]"); last rewrite Z.sub_0_r //.
     iIntros "!> %j_ %j (-> & %Hj) HΨ". rewrite Z.add_0_l in Hj |- *.
     iDestruct ("H" with "[%] HΨ") as "H'"; first lia.
     awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
@@ -2352,7 +2352,7 @@ Section zoo_G.
       ⌜length vs = i⌝ ∗
       Ψ i vs None
     )%I.
-    wp_smart_apply (for_upto_spec_strong Ψ' with "[HΨ]").
+    wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
       iIntros "!> %i_ %i (-> & %Hi) (%vs & %Hvs & HΨ)". rewrite Z.add_0_l in Hi |- *.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
@@ -3828,7 +3828,7 @@ Section zoo_G.
       ⌜length vs = k⌝ ∗
       Ψ k vs None
     )%I.
-    wp_smart_apply (for_upto_spec_strong Ψ' with "[HΨ]").
+    wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
       iIntros "!> % %k (-> & %Hk) (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
@@ -4778,7 +4778,7 @@ Section zoo_G.
       ⌜length vs = k⌝ ∗
       Ψ k vs None
     )%I.
-    wp_smart_apply (for_upto_spec_strong Ψ' with "[HΨ]").
+    wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
       iIntros "!> % %k (-> & %Hk) (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
@@ -5261,7 +5261,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply for_upto_type; last iSteps. iIntros "!> % (%k & -> & %Hk)".
+    wp_smart_apply for_type; last iSteps. iIntros "!> % (%k & -> & %Hk)".
     wp_smart_apply (array_unsafe_set_type with "[$Htype $Hv]"); first lia.
     iSteps.
   Qed.
@@ -5469,7 +5469,7 @@ Section zoo_G.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
     wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (for_upto_type with "[] HΦ"). iIntros "!> % (%i & -> & %Hi)".
+    wp_smart_apply (for_type with "[] HΦ"). iIntros "!> % (%i & -> & %Hi)".
     wp_smart_apply (array_unsafe_get_type with "Htype"); first done.
     iSteps.
   Qed.
@@ -5662,7 +5662,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % % % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (for_upto_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
+    wp_smart_apply (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
     wp_smart_apply (array_unsafe_get_type with "Htype1") as (v) "#Hv"; first lia.
     wp_smart_apply (array_unsafe_set_type with "[$Htype2 $Hv]"); first lia.
     iSteps.
@@ -5692,7 +5692,7 @@ Section zoo_G.
       array_slice t2 i2_ (DfracOwn 1) (ws ++ drop k vs) ∗
       [∗ list] w ∈ ws, τ w
     )%I).
-    wp_smart_apply (for_upto_spec_strong Ψ with "[Hslice2]").
+    wp_smart_apply (for_spec_strong Ψ with "[Hslice2]").
     { iSplitL.
       - iSteps. iExists []. iSteps.
       - iIntros "!> % %k (-> & %Hk) (%ws & %Hws & Hslice2 & Hws)".
@@ -6052,7 +6052,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % % % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (for_upto_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
+    wp_smart_apply (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
     wp_smart_apply (array_unsafe_cget_type with "Htype1") as (v) "#Hv"; [lia.. |].
     wp_smart_apply (array_unsafe_cset_type with "[$Htype2 $Hv]"); [lia.. |].
     iSteps.

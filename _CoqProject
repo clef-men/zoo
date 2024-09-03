@@ -87,7 +87,7 @@ theories/std/base.v
 theories/std/diverge.v
 theories/std/assert.v
 theories/std/assume.v
-theories/std/for_upto.v
+theories/std/for_.v
 theories/std/math.v
 theories/std/ref_.v
 theories/std/option.v
