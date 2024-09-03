@@ -190,7 +190,7 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_beta f x e v1 v2 `{!AsValRec v1 f x e} :
+  #[global] Instance pure_app f x e v1 v2 `{!AsValRec v1 f x e} :
     PureExec
       True
       1
@@ -199,6 +199,16 @@ Section pure_exec.
   Proof.
     unfold AsValRec in *. solve_pure_exec.
   Qed.
+
+  #[global] Instance pure_let x v1 e2 :
+    PureExec
+      True
+      1
+      (Let x (Val v1) e2)
+      (subst' x v1 e2).
+    Proof.
+      solve_pure_exec.
+    Qed.
 
   #[global] Instance pure_unop op v v' :
     PureExec

@@ -190,6 +190,7 @@ Inductive expr :=
   | Var (x : string)
   | Rec f x (e : expr)
   | App (e1 e2 : expr)
+  | Let x (e1 e2 : expr)
   | Unop (op : unop) (e : expr)
   | Binop (op : binop) (e1 e2 : expr)
   | Equal (e1 e2 : expr)
@@ -267,6 +268,11 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ e2, P e2 →
     P (App e1 e2).
+  Variable HLet :
+    ∀ x,
+    ∀ e1, P e1 →
+    ∀ e2, P e2 →
+    P (Let x e1 e2).
   Variable HUnop :
     ∀ op,
     ∀ e, P e →
@@ -361,6 +367,11 @@ Section expr_ind.
         HApp
           e1 (expr_ind e1)
           e2 (expr_ind e2)
+    | Let x e1 e2 =>
+        HLet
+          x
+          e1 (expr_ind e1)
+          e2 (expr_ind e2)
     | Unop op e =>
         HUnop
           op
@@ -452,11 +463,6 @@ Notation Fun x e := (
 ).
 Notation ValFun x e := (
   ValRec BAnon x e
-)(only parsing
-).
-
-Notation Let x e1 e2 := (
-  App (Fun x e2) e1
 )(only parsing
 ).
 
@@ -621,6 +627,11 @@ Proof.
           cast_if_and
             (decide (e11 = e21))
             (decide (e12 = e22))
+      | Let x1 e11 e12, Let x2 e21 e22 =>
+          cast_if_and3
+           (decide (x1 = x2))
+           (decide (e11 = e21))
+           (decide (e12 = e22))
       | Unop op1 e1, Unop op2 e2 =>
           cast_if_and
             (decide (op1 = op2))
@@ -832,46 +843,48 @@ Proof.
     1.
   #[local] Notation code_App :=
     2.
-  #[local] Notation code_Unop :=
+  #[local] Notation code_Let :=
     3.
-  #[local] Notation code_Binop :=
+  #[local] Notation code_Unop :=
     4.
-  #[local] Notation code_Equal :=
+  #[local] Notation code_Binop :=
     5.
-  #[local] Notation code_If :=
+  #[local] Notation code_Equal :=
     6.
-  #[local] Notation code_For :=
+  #[local] Notation code_If :=
     7.
-  #[local] Notation code_Alloc :=
+  #[local] Notation code_For :=
     8.
-  #[local] Notation code_Block :=
+  #[local] Notation code_Alloc :=
     9.
-  #[local] Notation code_Match :=
+  #[local] Notation code_Block :=
     10.
-  #[local] Notation code_branch :=
+  #[local] Notation code_Match :=
     11.
-  #[local] Notation code_GetTag :=
+  #[local] Notation code_branch :=
     12.
-  #[local] Notation code_GetSize :=
+  #[local] Notation code_GetTag :=
     13.
-  #[local] Notation code_Load :=
+  #[local] Notation code_GetSize :=
     14.
-  #[local] Notation code_Store :=
+  #[local] Notation code_Load :=
     15.
-  #[local] Notation code_Xchg :=
+  #[local] Notation code_Store :=
     16.
-  #[local] Notation code_CAS :=
+  #[local] Notation code_Xchg :=
     17.
-  #[local] Notation code_FAA :=
+  #[local] Notation code_CAS :=
     18.
-  #[local] Notation code_Fork :=
+  #[local] Notation code_FAA :=
     19.
-  #[local] Notation code_Yield :=
+  #[local] Notation code_Fork :=
     20.
-  #[local] Notation code_Proph :=
+  #[local] Notation code_Yield :=
     21.
-  #[local] Notation code_Resolve :=
+  #[local] Notation code_Proph :=
     22.
+  #[local] Notation code_Resolve :=
+    23.
   #[local] Notation code_ValRec :=
     0.
   #[local] Notation code_ValBlock :=
@@ -892,6 +905,8 @@ Proof.
           GenNode code_Rec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | App e1 e2 =>
           GenNode code_App [go e1; go e2]
+      | Let x e1 e2 =>
+          GenNode code_Let [GenLeaf (EncodeBinder x); go e1; go e2]
       | Unop op e =>
           GenNode code_Unop [GenLeaf (EncodeUnop op); go e]
       | Binop op e1 e2 =>
@@ -963,6 +978,8 @@ Proof.
           Rec f x $ go e
       | GenNode code_App [e1; e2] =>
           App (go e1) (go e2)
+      | GenNode code_Let [GenLeaf (EncodeBinder x); e1; e2] =>
+          Let x (go e1) (go e2)
       | GenNode code_Unop [GenLeaf (EncodeUnop op); e] =>
           Unop op $ go e
       | GenNode code_Binop [GenLeaf (EncodeBinop op); e1; e2] =>

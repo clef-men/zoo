@@ -895,13 +895,12 @@ Section pstore_G.
       set_solver. }
 
     iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
-    wp_load. wp_load. wp_store. iStep 4. iModIntro.
-    wp_store. wp_store. iApply "HΦ".
+    wp_load. wp_load. wp_store. iStep 12.
 
     iSpecialize ("Hσ0" with "[$]").
 
     iAssert ⌜r ≠ r'⌝%I as %?.
-    { iClear "Ht0". iDestruct (pointsto_ne with "[$][$]") as %?. iSteps. }
+    { iDestruct (pointsto_ne with "[$][$]") as %?. iSteps. }
 
     iAssert ⌜r' ∉ vertices g⌝%I as %Hr'.
     { iIntros (Hr'). destruct Hgraph as [X1 X2].
@@ -1135,10 +1134,8 @@ Section pstore_G.
 
       apply path_snoc_inv in Hpath. destruct Hpath as (?&->&?).
       wp_smart_apply assert_spec. rewrite bool_decide_eq_true_2 //.
-      iStep 4. iModIntro.
-
       iDestruct (big_sepM_insert_acc with "Hσ") as "(?&Hσ)". done.
-      wp_load. wp_store. wp_store. iStep 4. iModIntro.
+      wp_load. wp_store. wp_store. iStep 2. iModIntro.
 
       iSpecialize ("Hσ" with "[$]").
       iSpecialize ("IH" with "[%//][%//][%][%//][%][$][$] Hg1 Hg2").
@@ -1677,8 +1674,7 @@ Section pstore_G.
 
     iIntros "[%ys (%Hundo&Hrs&?&?)]".
     assert (mirror xs ys) as Hmirror by eauto using undo_mirror.
-    iStep 8. do 2 iModIntro.
-    iApply "HΦ".
+    iStep 7.
     iDestruct (big_sepS_union_2 with "[$][$]") as "Hs".
 
     remember ((rs, (l, v), r') :: bs) as xs.

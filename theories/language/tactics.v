@@ -24,6 +24,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxApp1 v2) K prophs e1
     | App ?e1 ?e2 =>
         add_ectxi (CtxApp2 e1) K prophs e2
+    | Let ?x ?e1 ?e2 =>
+        add_ectxi (CtxLet x e2) K prophs e1
     | Unop ?op ?e =>
         add_ectxi (CtxUnop op) K prophs e
     | Binop ?op ?e1 (Val ?v2) =>

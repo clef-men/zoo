@@ -154,6 +154,15 @@ Fixpoint subst (x : string) v e :=
       App
         (subst x v e1)
         (subst x v e2)
+  | Let y e1 e2 =>
+      Let
+        y
+        (subst x v e1)
+        ( if decide (BNamed x ≠ y) then
+            subst x v e2
+          else
+            e2
+        )
   | Unop op e =>
       Unop
         op
@@ -399,6 +408,14 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
         e'
+        σ
+        []
+  | base_step_let x v1 e2 σ :
+      base_step
+        (Let x (Val v1) e2)
+        σ
+        []
+        (subst' x v1 e2)
         σ
         []
   | base_step_unop op v v' σ :
@@ -717,6 +734,7 @@ Qed.
 Inductive ectxi :=
   | CtxApp1 v2
   | CtxApp2 e1
+  | CtxLet x e2
   | CtxUnop (op : unop)
   | CtxBinop1 (op : binop) v2
   | CtxBinop2 (op : binop) e1
@@ -748,11 +766,6 @@ Inductive ectxi :=
   | CtxResolve2 e0 e1.
 Implicit Types k : ectxi.
 
-Notation CtxLet x e2 := (
-  CtxApp2 (ValFun x e2)
-)(only parsing
-).
-
 Notation CtxSeq e2 := (
   CtxLet BAnon e2
 )(only parsing
@@ -764,6 +777,8 @@ Fixpoint ectxi_fill k e : expr :=
       App e $ Val v2
   | CtxApp2 e1 =>
       App e1 e
+  | CtxLet x e2 =>
+      Let x e e2
   | CtxUnop op =>
       Unop op e
   | CtxBinop1 op v2 =>

@@ -18,6 +18,9 @@ Fixpoint occurs x e :=
   | App e1 e2 =>
       occurs x e1 ||
       occurs x e2
+  | Let y e1 e2 =>
+      occurs x e1 ||
+      bool_decide (BNamed x ≠ y) && occurs x e2
   | Unop _ e =>
       occurs x e
   | Binop _ e1 e2 =>
