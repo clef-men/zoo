@@ -46,7 +46,7 @@ Definition random_round_next : val :=
   fun: "t" =>
     let: "arr" := "t".{array} in
     let: "i" := "t".{index} in
-    let: "j" := random_gen "t".{random} "i" in
+    let: "j" := random_int "t".{random} "i" in
     let: "res" := array_unsafe_get "arr" "j" in
     let: "i" := "i" - #1 in
     array_unsafe_set "arr" "j" (array_unsafe_get "arr" "i") ;;
@@ -128,7 +128,7 @@ Section zoo_G.
     rewrite app_length seq_length reverse_length in Hlength.
     wp_rec. do 3 wp_load.
     set i := length nexts.
-    wp_smart_apply (random_gen_spec with "Hrand") as (j) "%Hj"; first lia.
+    wp_smart_apply (random_int_spec with "Hrand") as (j) "%Hj"; first lia.
     Z_to_nat j.
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
