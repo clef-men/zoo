@@ -1726,7 +1726,7 @@ Section zoo_G.
     pose Ψ' (_ : Z) i :=
       Ψ i.
     wp_smart_apply (for_spec_strong Ψ' with "[$HΨ]"); last rewrite Z.sub_0_r //.
-    iIntros "!> %j_ %j (-> & %Hj) HΨ". rewrite Z.add_0_l in Hj |- *.
+    iIntros "!> %j_ %j -> %Hj HΨ". rewrite Z.add_0_l in Hj |- *.
     iDestruct ("H" with "[%] HΨ") as "H'"; first lia.
     awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
     iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w H↦".
@@ -2365,7 +2365,7 @@ Section zoo_G.
     )%I.
     wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
-      iIntros "!> %i_ %i (-> & %Hi) (%vs & %Hvs & HΨ)". rewrite Z.add_0_l in Hi |- *.
+      iIntros "!> %i_ %i -> %Hi (%vs & %Hvs & HΨ)". rewrite Z.add_0_l in Hi |- *.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
@@ -3841,7 +3841,7 @@ Section zoo_G.
     )%I.
     wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
-      iIntros "!> % %k (-> & %Hk) (%vs & %Hvs & HΨ)".
+      iIntros "!> % %k -> %Hk (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
@@ -4791,7 +4791,7 @@ Section zoo_G.
     )%I.
     wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
-      iIntros "!> % %k (-> & %Hk) (%vs & %Hvs & HΨ)".
+      iIntros "!> % %k -> %Hk (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_cget_spec_atomic with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hcslice".
@@ -5712,7 +5712,7 @@ Section zoo_G.
     wp_smart_apply (for_spec_strong Ψ with "[Hslice2]").
     { iSplitL.
       - iSteps. iExists []. iSteps.
-      - iIntros "!> % %k (-> & %Hk) (%ws & %Hws & Hslice2 & Hws)".
+      - iIntros "!> % %k -> %Hk (%ws & %Hws & Hslice2 & Hws)".
         wp_smart_apply (array_unsafe_get_type with "Htype1") as (v) "Hv"; first lia.
         wp_smart_apply (array_unsafe_set_spec_slice with "Hslice2") as "Hslice2".
         { rewrite app_length drop_length. lia. }

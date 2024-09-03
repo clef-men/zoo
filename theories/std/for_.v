@@ -20,7 +20,8 @@ Section zoo_G.
       ▷ Ψ i δ ∗
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
+        ⌜i = (beg + δ)%Z⌝ -∗
+        ⌜i < _end⌝%Z -∗
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
@@ -42,7 +43,7 @@ Section zoo_G.
       assert (i `max` _end = i)%Z as -> by lia.
       rewrite Nat.add_0_r. iSteps.
     - rewrite decide_False; first lia.
-      wp_apply (wp_wand with "(Hbody [] HΨ)") as "%res (-> & HΨ)"; first iSteps.
+      wp_apply (wp_wand with "(Hbody [//] [%] HΨ)") as "%res (-> & HΨ)"; first lia.
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply ("IH" with "[] [] HΨ [HΦ]"); [iSteps.. |].
       assert ((1 + i) `max` _end = i `max` _end)%Z as -> by lia. rewrite -Nat.add_succ_comm //.
@@ -52,7 +53,8 @@ Section zoo_G.
       ▷ Ψ beg 0 ∗
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
+        ⌜i = (beg + δ)%Z⌝ -∗
+        ⌜i < _end⌝%Z -∗
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
@@ -76,7 +78,8 @@ Section zoo_G.
       ▷ Ψ beg 0 ∗
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
+        ⌜i = (beg + δ)%Z⌝ -∗
+        ⌜i < _end⌝%Z -∗
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
@@ -120,7 +123,7 @@ Section zoo_G.
       [∗ list] ϵ ∈ seq δ (Z.to_nat (_end - beg) - δ), Ξ ϵ
     )%I).
     wp_apply (for_spec_strong Ψ' with "[HΨ Hbody]"); last iSteps.
-    rewrite /Ψ' Nat.sub_0_r. iFrame. iIntros "!> %i %δ %Hi (HΨ & HΞ)".
+    rewrite /Ψ' Nat.sub_0_r. iFrame. iIntros "!> %i %δ %Hi1 %Hi2 (HΨ & HΞ)".
     assert (Z.to_nat (_end - beg) - δ = S $ Z.to_nat (_end - beg) - S δ) as -> by lia.
     iSteps.
   Qed.
@@ -152,7 +155,8 @@ Section zoo_G.
     {{{
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%Z ∧ (i < _end)%Z⌝ -∗
+        ⌜i = (beg + δ)%Z⌝ -∗
+        ⌜i < _end⌝%Z -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
@@ -171,8 +175,8 @@ Section zoo_G.
     pose (Ψ' (i : Z) δ := (
       [∗ list] δ' ∈ seq 0 δ, Ψ (beg + δ')%Z δ'
     )%I).
-    wp_apply (for_spec_strong Ψ'); last iSteps. iSplit; first iSteps. iIntros "!> %i %δ (%Hi1 & %Hi2) HΨ'".
-    wp_apply (wp_wand with "(Hbody [//])") as "%res (-> & HΨ)". iStep.
+    wp_apply (for_spec_strong Ψ'); last iSteps. iSplit; first iSteps. iIntros "!> %i %δ %Hi1 %Hi2 HΨ'".
+    wp_apply (wp_wand with "(Hbody [//] [//])") as "%res (-> & HΨ)". iStep.
     rewrite /Ψ' seq_S big_sepL_snoc Hi1. iSteps.
   Qed.
   Lemma for_spec_disentangled' Ψ beg _end body :
@@ -209,7 +213,8 @@ Section zoo_G.
       ▷ Ψ beg 0 ∗
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
+        ⌜i = (beg + δ)%nat⌝ -∗
+        ⌜i < _end⌝ -∗
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
@@ -227,7 +232,7 @@ Section zoo_G.
     pose Ψ' i δ :=
       Ψ (Z.to_nat i) δ.
     wp_apply (for_spec_strong Ψ' with "[HΨ]").
-    - rewrite /Ψ' !Nat2Z.id. iFrame. iIntros "!> %i %δ (-> & %Hδ) HΨ".
+    - rewrite /Ψ' !Nat2Z.id. iFrame. iIntros "!> %i %δ -> %Hδ HΨ".
       rewrite -Nat2Z.inj_add Z.add_1_l -Nat2Z.inj_succ !Nat2Z.id. iSteps.
     - rewrite /Ψ' -Nat2Z.inj_max Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id //.
   Qed.
@@ -237,7 +242,8 @@ Section zoo_G.
       ▷ Ψ beg 0 ∗
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
+        ⌜i = (beg + δ)%nat⌝ -∗
+        ⌜i < _end⌝ -∗
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
@@ -311,7 +317,8 @@ Section zoo_G.
     {{{
       □ (
         ∀ i δ,
-        ⌜i = (beg + δ)%nat ∧ i < _end⌝ -∗
+        ⌜i = (beg + δ)%nat⌝ -∗
+        ⌜i < _end⌝ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ i δ
@@ -330,7 +337,7 @@ Section zoo_G.
     pose Ψ' i δ :=
       Ψ (Z.to_nat i) δ.
     wp_apply (for_spec_disentangled Ψ').
-    - iIntros "!> %i %δ (-> & %Hδ)".
+    - iIntros "!> %i %δ -> %Hδ".
       rewrite -Nat2Z.inj_add /Ψ' Nat2Z.id. iSteps.
     - rewrite /Ψ' Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id.
       setoid_rewrite <- Nat2Z.inj_add. setoid_rewrite Nat2Z.id.
@@ -378,8 +385,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ #Hbody HΦ".
-    wp_apply (for_spec_disentangled (λ _ _, True%I)); last iSteps. iIntros "!> %i %δ %Hi".
-    wp_pure.
-    wp_apply (wp_wand with "(Hbody [])"); iSteps.
+    wp_apply (for_spec_disentangled (λ _ _, True%I)); last iSteps. iIntros "!> %i %δ %Hi1 %Hi2".
+    wp_smart_apply (wp_wand with "(Hbody [])"); iSteps.
   Qed.
 End zoo_G.
