@@ -1,0 +1,20 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  ignore__types.
+From zoo Require Import
+  options.
+
+Definition ignore_test1 : val :=
+  fun: <> =>
+    ().
+
+Definition ignore_test2 : val :=
+  fun: "x" =>
+    "x".
+
+Definition ignore_test3 : val :=
+  fun: <> =>
+    fun: "1" => "1".

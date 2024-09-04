@@ -1,7 +1,8 @@
 open Syntax
 
 let builtin_paths =
-  [|[|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")) ;
+  [|[|"Stdlib";"ignore"|], Fun ([Some "1"], Local "1") ;
+    [|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")) ;
     [|"Stdlib";"~-"|], Fun ([Some "1"], Unop (Unop_minus, Local "1")) ;
     [|"Stdlib";"+"|], Fun ([Some "1"; Some "2"], Binop (Binop_plus, Local "1", Local "2")) ;
     [|"Stdlib";"-"|], Fun ([Some "1"; Some "2"], Binop (Binop_minus, Local "1", Local "2")) ;
@@ -33,7 +34,8 @@ let builtin_paths =
   ) Path.Map.empty builtin_paths
 
 let builtin_apps =
-  [|[|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None) ;
+  [|[|"Stdlib";"ignore"|], (function [expr] -> Some expr | _ -> None) ;
+    [|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None) ;
     [|"Stdlib";"~-"|], (function [expr] -> Some (Unop (Unop_minus, expr)) | _ -> None) ;
     [|"Stdlib";"+"|], (function [expr1; expr2] -> Some (Binop (Binop_plus, expr1, expr2)) | _ -> None) ;
     [|"Stdlib";"-"|], (function [expr1; expr2] -> Some (Binop (Binop_minus, expr1, expr2)) | _ -> None) ;
