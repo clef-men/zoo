@@ -5,18 +5,18 @@ From zoo.language Require Import
 From zoo.std Require Import
   diverge.
 From zoo.tests Require Import
-  raise__types.
+  raise_1__types.
 From zoo Require Import
   options.
 
-Definition raise_test1 : val :=
+Definition raise_1_test1 : val :=
   fun: <> =>
     diverge ().
 
-Definition raise_test2 : val :=
+Definition raise_1_test2 : val :=
   fun: <> =>
     diverge ().
 
-Definition raise_test3 : val :=
+Definition raise_1_test3 : val :=
   fun: <> =>
     diverge ().

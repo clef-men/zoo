@@ -1,0 +1,22 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.std Require Import
+  assume.
+From zoo.tests Require Import
+  raise_2__types.
+From zoo Require Import
+  options.
+
+Definition raise_2_test1 : val :=
+  fun: "b" =>
+    assume "b".
+
+Definition raise_2_test2 : val :=
+  fun: "b" =>
+    assume "b".
+
+Definition raise_2_test3 : val :=
+  fun: "b" =>
+    assume "b".
