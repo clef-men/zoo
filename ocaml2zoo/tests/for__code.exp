@@ -7,7 +7,13 @@ From zoo.tests Require Import
 From zoo Require Import
   options.
 
-Definition for_test : val :=
+Definition for_test1 : val :=
+  fun: <> =>
+    for: "i" := #0 to #10 + #1 begin
+      ()
+    end.
+
+Definition for_test2 : val :=
   fun: <> =>
     for: "i" := #0 to #10 begin
       ()

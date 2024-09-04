@@ -494,7 +494,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr2 = expression ctx expr2 in
       Seq (expr1, expr2)
   | Texp_for (id, pat, expr1, expr2, Upto, expr3) ->
-      let binder =
+      let bdr =
         match pat.ppat_desc with
         | Ppat_any ->
             None
@@ -505,11 +505,18 @@ let rec expression ctx (expr : Typedtree.expression) =
       in
       let expr1 = expression ctx expr1 in
       let expr2 = expression ctx expr2 in
+      let expr2 =
+        match expr2 with
+        | Binop (Binop_minus, expr2, Int 1) ->
+            expr2
+        | _ ->
+            Binop (Binop_plus, expr2, Int 1)
+      in
       let restore_locals = Context.save_locals ctx in
       Context.add_local ctx id ;
       let expr3 = expression ctx expr3 in
       restore_locals () ;
-      For (binder, expr1, expr2, expr3)
+      For (bdr, expr1, expr2, expr3)
   | Texp_for (_, _, _, _, Downto, _) ->
       unsupported expr.exp_loc Expr_for_downward
   | Texp_tuple exprs ->
