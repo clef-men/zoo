@@ -205,15 +205,10 @@ let rec expression' lvl ppf = function
         (expression lvl) expr1
         binop op
         (expression @@ next_level lvl) expr2
-  | If (expr1, expr2, None) ->
-      Format.fprintf ppf "@[<v>@[<hv>if:@;<1 2>@[%a@]@;then (@]@,  @[%a@]@,)@]"
-        (expression max_level) expr1
-        (expression max_level) expr2
-  | If (expr1, expr2, Some expr3) ->
-      Format.fprintf ppf "@[<v>@[<hv>if:@;<1 2>@[%a@]@;then (@]@,  @[%a@]@,) else (@,  @[%a@]@,)@]"
-        (expression max_level) expr1
-        (expression max_level) expr2
-        (expression max_level) expr3
+  | If (expr1, expr2, expr3) ->
+      Format.fprintf ppf "@[<v>" ;
+      expression_if ppf expr1 expr2 expr3 ;
+      Format.fprintf ppf "@]"
   | For (local, expr1, expr2, expr3) ->
       Format.fprintf ppf "@[<v>for: %a := %a to %a begin@,  @[%a@]@,end@]"
         binder local
@@ -299,6 +294,18 @@ and expression lvl ppf expr =
     Format.fprintf ppf "(%a)" (expression' lvl_expr) expr
   else
     Format.fprintf ppf "%a" (expression' lvl_expr) expr
+and expression_if ?(nested = false) ppf expr1 expr2 expr3 =
+  Format.fprintf ppf "@[<hv>%sif:@;<1 2>@[%a@]@;then (@]@,  @[%a@]@,)"
+    (if nested then " else " else "")
+    (expression max_level) expr1
+    (expression max_level) expr2 ;
+  expr3 |> Option.iter (function
+    | If (expr1, expr2, expr3) ->
+        expression_if ~nested:true ppf expr1 expr2 expr3
+    | expr ->
+        Format.fprintf ppf " else (@,  @[%a@]@,)"
+          (expression max_level) expr
+  )
 and branch ppf br =
   Format.fprintf ppf "| %s%s%a%a =>@,    @[%a@]@,"
     br.branch_tag
