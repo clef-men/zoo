@@ -1,0 +1,22 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.std Require Import
+  diverge.
+From zoo.tests Require Import
+  raise__types.
+From zoo Require Import
+  options.
+
+Definition raise_test1 : val :=
+  fun: <> =>
+    diverge ().
+
+Definition raise_test2 : val :=
+  fun: <> =>
+    diverge ().
+
+Definition raise_test3 : val :=
+  fun: <> =>
+    diverge ().
