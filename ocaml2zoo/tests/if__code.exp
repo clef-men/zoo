@@ -36,3 +36,11 @@ Definition if_test3 : val :=
     ) else (
       #3
     ).
+
+Definition if_test4 : val :=
+  fun: "b" =>
+    ifnot: "b" then (
+      #0
+    ) else (
+      #1
+    ).
