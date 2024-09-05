@@ -7,7 +7,7 @@ sources_cmt := $(addsuffix .cmt,$(sources))
 include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 
 ocamldep := ocamldep -native $(addprefix -I ,$(include_dirs))
-ocamlopt := ocamlopt $(addprefix -I ,$(include_dirs))
+ocamlopt := ocamlopt -warn-error +A $(addprefix -I ,$(include_dirs))
 
 .PHONY : all
 all : $(sources_cmt)
