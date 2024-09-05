@@ -64,3 +64,14 @@ Definition match_test6 : val :=
         "t" ;;
         "t'"
     end.
+
+Definition match_test7 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        ()
+    | B <> =>
+        ()
+    | C <> <> =>
+        ()
+    end.

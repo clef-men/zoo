@@ -1,4 +1,4 @@
-[@@@zoo.prefix pstore]
+[@@@zoo.prefix "pstore"]
 
 type gen =
   int
@@ -84,7 +84,7 @@ let restore t s =
     match !root with
     | Root ->
         ()
-    | Diff (_, _, _, _) ->
+    | Diff _ ->
         reroot root ;
         t.gen <- 1 + s.snap_gen ;
         t.root <- root

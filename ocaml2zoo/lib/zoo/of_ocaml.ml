@@ -735,8 +735,15 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
           | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
               let[@warning "-8"] [pat] = pats in
               aux2 pat bdr
-          | Tpat_construct (lid, _, pats, _) ->
+          | Tpat_construct (lid, constr, pats, _) ->
               let bdrs = List.map (pattern_to_binder ~err:Pattern_invalid ctx) pats in
+              let bdrs =
+                match bdrs with
+                | [None] ->
+                    List.make constr.cstr_arity None
+                | _ ->
+                    bdrs
+              in
               let tag, bdrs =
                 match Longident.Map.find_opt lid.txt builtin_constrs with
                 | Some (tag, dep) ->

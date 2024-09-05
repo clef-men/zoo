@@ -47,3 +47,12 @@ let test6 t =
   | t' as t ->
       let _ = t in
       t'
+
+let test7 t =
+  match t with
+  | A ->
+      ()
+  | B _ ->
+      ()
+  | C _ ->
+      ()
