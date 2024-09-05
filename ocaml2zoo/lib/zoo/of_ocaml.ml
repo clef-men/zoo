@@ -132,6 +132,7 @@ module Unsupported = struct
     | Expr_let_mutual
     | Expr_record_update
     | Expr_for_downward
+    | Expr_open
     | Expr_array
     | Expr_try
     | Expr_variant
@@ -149,7 +150,6 @@ module Unsupported = struct
     | Expr_let_op
     | Expr_unreachable
     | Expr_extension
-    | Expr_open
     | Label
     | Functor
     | Type_inlined_record
@@ -204,6 +204,8 @@ module Unsupported = struct
         "record update"
     | Expr_for_downward ->
         {|downward "for" loop|}
+    | Expr_open ->
+        "opened module must be an identifier"
     | Expr_array ->
         "array expression"
     | Expr_try ->
@@ -238,8 +240,6 @@ module Unsupported = struct
         "unreachable branch"
     | Expr_extension ->
         "extension"
-    | Expr_open ->
-        {|"open" expression|}
     | Label ->
         "labeled parameter"
     | Functor ->
@@ -629,6 +629,13 @@ let rec expression ctx (expr : Typedtree.expression) =
       Context.add_dependency ctx "assert" ;
       let expr = expression ctx expr in
       Apply (Global "assert", [expr])
+  | Texp_open (open_decl, expr) ->
+      begin match open_decl.open_expr.mod_desc with
+      | Tmod_ident _ ->
+          expression ctx expr
+      | _ ->
+          unsupported expr.exp_loc Expr_open
+      end
   | Texp_array _ ->
       unsupported expr.exp_loc Expr_array
   | Texp_try _ ->
@@ -663,8 +670,6 @@ let rec expression ctx (expr : Typedtree.expression) =
       unsupported expr.exp_loc Expr_unreachable
   | Texp_extension_constructor _ ->
       unsupported expr.exp_loc Expr_extension
-  | Texp_open _ ->
-      unsupported expr.exp_loc Expr_open
 and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallback option = fun ctx brs ->
   let rec aux1 acc = function
     | [] ->

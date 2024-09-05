@@ -1,0 +1,16 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  let_open__types.
+From zoo Require Import
+  options.
+
+Definition let_open_test1 : val :=
+  fun: <> =>
+    Load (Alloc #0 #1) #0.
+
+Definition let_open_test2 : val :=
+  fun: <> =>
+    Load (Alloc #0 #1) #0.
