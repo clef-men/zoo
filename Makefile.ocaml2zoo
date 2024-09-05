@@ -9,10 +9,13 @@ include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 ocamldep := ocamldep -native $(addprefix -I ,$(include_dirs))
 ocamlopt := ocamlopt -warn-error +A $(addprefix -I ,$(include_dirs))
 
+ocaml2zoo_dir := ./ocaml2zoo
+ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
+
 .PHONY : all
 all : $(sources_cmt)
-	@ $(MAKE) -C ocaml2zoo
-	@ for cmt in $(sources_cmt) ; do ./ocaml2zoo/bin/ocaml2zoo.exe $$cmt ; done ; \
+	@ $(MAKE) -C $(ocaml2zoo_dir)
+	@ for cmt in $(sources_cmt) ; do $(ocaml2zoo_exe) $$cmt ; done ; \
 	  for src in $(sources) ; do rm -f $$src.cm[it] ; done
 
 %.cmi : %.mli
@@ -28,4 +31,4 @@ Makefile.ocaml2zoo.depend : $(sources_mli) $(sources_ml)
 
 .PHONY : clean
 clean :
-	@ $(MAKE) -C ocaml2zoo $@
+	@ $(MAKE) -C $(ocaml2zoo_dir) $@
