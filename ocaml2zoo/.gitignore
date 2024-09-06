@@ -1,5 +1,6 @@
 _build/
 
+zoo.cmt
 zoo.cmti
 
 *.exe

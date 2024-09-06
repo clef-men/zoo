@@ -1,3 +1,88 @@
 theories/persistent/pstore_2.cmt : \
     theories/persistent/pstore_2.cmi
 theories/persistent/pstore_2.cmi :
+theories/std/array.cmt : \
+    theories/std/array.cmi
+theories/std/array.cmi :
+theories/std/chain.cmt : \
+    theories/std/chain.cmi
+theories/std/chain.cmi :
+theories/std/clst.cmt : \
+    theories/std/clst.cmi
+theories/std/clst.cmi :
+theories/std/condition.cmt : \
+    theories/std/condition.cmi
+theories/std/condition.cmi : \
+    theories/std/mutex.cmi
+theories/std/deque.cmt : \
+    theories/std/xdeque.cmt \
+    theories/std/deque.cmi
+theories/std/deque.cmi :
+theories/std/dynarray_1.cmt : \
+    theories/std/array.cmt \
+    theories/std/dynarray_1.cmi
+theories/std/dynarray_1.cmi :
+theories/std/dynarray_2.cmt : \
+    theories/std/array.cmt \
+    theories/std/dynarray_2.cmi
+theories/std/dynarray_2.cmi :
+theories/std/inf_array.cmt : \
+    ./ocaml2zoo/zoo.cmt \
+    theories/std/mutex.cmt \
+    theories/std/array.cmt \
+    theories/std/inf_array.cmi
+theories/std/inf_array.cmi :
+theories/std/lst.cmt : \
+    theories/std/lst.cmi
+theories/std/lst.cmi :
+theories/std/mpsc_waiter.cmt : \
+    theories/std/mutex.cmt \
+    theories/std/condition.cmt \
+    theories/std/mpsc_waiter.cmi
+theories/std/mpsc_waiter.cmi :
+theories/std/mutex.cmt : \
+    theories/std/mutex.cmi
+theories/std/mutex.cmi :
+theories/std/optional.cmt : \
+    theories/std/optional.cmi
+theories/std/optional.cmi :
+theories/std/queue_1.cmt : \
+    theories/std/chain.cmt \
+    theories/std/queue_1.cmi
+theories/std/queue_1.cmi :
+theories/std/random.cmt : \
+    theories/std/random.cmi
+theories/std/random.cmi :
+theories/std/random_round.cmt : \
+    theories/std/random.cmt \
+    theories/std/array.cmt \
+    theories/std/random_round.cmi
+theories/std/random_round.cmi :
+theories/std/spmc_future.cmt : \
+    theories/std/mutex.cmt \
+    theories/std/condition.cmt \
+    theories/std/spmc_future.cmi
+theories/std/spmc_future.cmi :
+theories/std/spsc_future.cmt : \
+    theories/std/mutex.cmt \
+    theories/std/condition.cmt \
+    theories/std/spsc_future.cmi
+theories/std/spsc_future.cmi :
+theories/std/spsc_waiter.cmt : \
+    theories/std/mutex.cmt \
+    theories/std/condition.cmt \
+    theories/std/spsc_waiter.cmi
+theories/std/spsc_waiter.cmi :
+theories/std/stack.cmt : \
+    theories/std/dynarray_1.cmt \
+    theories/std/stack.cmi
+theories/std/stack.cmi :
+theories/std/xchain.cmt : \
+    theories/std/xchain.cmi
+theories/std/xchain.cmi :
+theories/std/xdeque.cmt : \
+    theories/std/xdeque.cmi
+theories/std/xdeque.cmi :
+theories/std/xdlchain.cmt : \
+    theories/std/xdlchain.cmi
+theories/std/xdlchain.cmi :

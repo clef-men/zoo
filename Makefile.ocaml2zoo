@@ -4,13 +4,14 @@ sources := $(patsubst %.mli,%,$(sources_mli))
 sources_ml := $(addsuffix .ml,$(sources))
 sources_cmt := $(addsuffix .cmt,$(sources))
 
+ocaml2zoo_dir := ./ocaml2zoo
+ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
+
 include_dirs := $(dir $(wildcard $(source_dir)/*/.))
+include_dirs += $(ocaml2zoo_dir)
 
 ocamldep := ocamldep -native $(addprefix -I ,$(include_dirs))
 ocamlopt := ocamlopt -warn-error +A $(addprefix -I ,$(include_dirs))
-
-ocaml2zoo_dir := ./ocaml2zoo
-ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
 
 .PHONY : all
 all : $(sources_cmt)
