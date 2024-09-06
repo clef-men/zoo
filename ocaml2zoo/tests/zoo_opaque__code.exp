@@ -1,0 +1,12 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  zoo_opaque__types.
+From zoo Require Import
+  options.
+
+Parameter zoo_opaque_test1 : val.
+
+Parameter zoo_opaque_test2 : val.

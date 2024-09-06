@@ -111,6 +111,8 @@ let attribute_force_record =
   "zoo.force_record"
 let attribute_reveal =
   "zoo.reveal"
+let attribute_opaque =
+  "zoo.opaque"
 
 module Unsupported = struct
   type t =
@@ -298,10 +300,13 @@ let error loc err =
 let unsupported loc err =
   error loc (Unsupported err)
 
+let has_attribute attr =
+  List.exists (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
+
 let record_is_mutable ty =
   let[@warning "-8"] Types.Type_record (lbls, _) = ty.Types.type_kind in
   List.exists (fun lbl -> lbl.Types.ld_mutable = Mutable) lbls ||
-  List.exists (fun attr -> attr.Parsetree.attr_name.txt = attribute_force_record) ty.type_attributes
+  has_attribute attribute_force_record ty.type_attributes
 
 module Context = struct
   type t =
@@ -595,7 +600,7 @@ let rec expression ctx (expr : Typedtree.expression) =
             Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
             let concrete =
-              if List.exists (fun attr -> attr.Parsetree.attr_name.txt = attribute_reveal) constr.cstr_attributes then
+              if has_attribute attribute_reveal constr.cstr_attributes then
                 Concrete
               else
                 Abstract
@@ -772,20 +777,26 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
       begin match bdg.vb_pat.pat_desc with
       | Tpat_var (id, _, _) ->
           let global = Context.add_global ctx id in
-          let restore_locals = Context.save_locals ctx in
-          if rec_flag = Recursive then
-            Context.add_local ctx id ;
           let val_ =
-            match expression ctx bdg.vb_expr with
-            | Int int ->
-                Val_int int
-            | Fun (bdrs, expr) ->
-                let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
-                Val_rec (bdr, bdrs, expr)
-            | _ ->
-                unsupported bdg.vb_loc Def_invalid
+            if has_attribute attribute_opaque bdg.vb_attributes then
+              Val_opaque
+            else
+              let restore_locals = Context.save_locals ctx in
+              if rec_flag = Recursive then
+                Context.add_local ctx id ;
+              let val_ =
+                  match expression ctx bdg.vb_expr with
+                  | Int int ->
+                      Val_int int
+                  | Fun (bdrs, expr) ->
+                      let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
+                      Val_rec (bdr, bdrs, expr)
+                  | _ ->
+                      unsupported bdg.vb_loc Def_invalid
+              in
+              restore_locals () ;
+              val_
           in
-          restore_locals () ;
           [global, Val val_]
       | _ ->
           unsupported bdg.vb_pat.pat_loc Def_pattern

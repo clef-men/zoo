@@ -341,10 +341,18 @@ let value ppf = function
         local_variable local
         (Format.pp_print_list ~pp_sep:pp_space binder) params
         expression expr
+  | Val_opaque ->
+      assert false
 let value ppf (global, val_) =
-  Format.fprintf ppf "Definition %s : val :=@,  @[%a@]."
-    global
-    value val_
+  match val_ with
+  | Val_int _
+  | Val_rec _ ->
+      Format.fprintf ppf "Definition %s : val :=@,  @[%a@]."
+        global
+        value val_
+  | Val_opaque ->
+      Format.fprintf ppf "Parameter %s : val."
+        global
 
 let structure ?dir pp select ppf str =
   Format.fprintf ppf "@[<v>" ;

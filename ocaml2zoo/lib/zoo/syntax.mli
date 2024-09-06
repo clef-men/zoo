@@ -82,6 +82,7 @@ and fallback =
 type value =
   | Val_int of int
   | Val_rec of binder * binder list * expression
+  | Val_opaque
 
 type definition =
   | Type of typ
