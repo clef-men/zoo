@@ -80,7 +80,7 @@ let builtin_apps =
     [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None) ;
     [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Store (expr1, expr2, expr3)) | _ -> None) ;
     [|"Stdlib";"Obj";"new_block"|], (function [expr1; expr2] -> Some (Alloc (expr1, expr2)) | _ -> None) ;
-    [|"Stdlib";"Domain";"cpu_relax"|], (function [] -> Some Yield | _ -> None) ;
+    [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None) ;
     [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None) ;
   |]
 let builtin_apps =
