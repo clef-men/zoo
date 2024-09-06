@@ -805,14 +805,14 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
                         error attr.attr_loc Attribute_override_invalid_payload
               in
               let val_ =
-                  match expression ctx expr with
-                  | Int int ->
-                      Val_int int
-                  | Fun (bdrs, expr) ->
-                      let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
-                      Val_rec (bdr, bdrs, expr)
-                  | _ ->
-                      unsupported bdg.vb_loc Def_invalid
+                match expression ctx expr with
+                | Int int ->
+                    Val_int int
+                | Fun (bdrs, expr) ->
+                    let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
+                    Val_rec (bdr, bdrs, expr)
+                | _ ->
+                    unsupported bdg.vb_loc Def_invalid
               in
               restore_locals () ;
               val_
