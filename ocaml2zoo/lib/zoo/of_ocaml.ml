@@ -806,6 +806,8 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
               in
               let val_ =
                 match expression ctx expr with
+                | Global global ->
+                    Val_global global
                 | Int int ->
                     Val_int int
                 | Fun (bdrs, expr) ->

@@ -330,6 +330,8 @@ let expression =
   expression max_level
 
 let value ppf = function
+  | Val_global global ->
+      global_variable ppf global
   | Val_int int ->
       integer ppf int
   | Val_rec (None, params, expr) ->
@@ -345,6 +347,7 @@ let value ppf = function
       assert false
 let value ppf (global, val_) =
   match val_ with
+  | Val_global _
   | Val_int _
   | Val_rec _ ->
       Format.fprintf ppf "Definition %s : val :=@,  @[%a@]."

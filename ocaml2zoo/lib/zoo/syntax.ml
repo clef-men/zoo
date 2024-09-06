@@ -80,6 +80,7 @@ and fallback =
   }
 
 type value =
+  | Val_global of variable
   | Val_int of int
   | Val_rec of binder * binder list * expression
   | Val_opaque
