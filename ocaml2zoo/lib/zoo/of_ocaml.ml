@@ -101,8 +101,8 @@ let builtin_constrs =
     [|"false"|], Left (Bool false), None ;
     [|"[]"|], Right "Nil", Some "lst" ;
     [|"::"|], Right "Cons", Some "lst" ;
-    [|"None"|], Right "None", Some "opt" ;
-    [|"Some"|], Right "Some", Some "opt" ;
+    [|"None"|], Right "None", Some "option" ;
+    [|"Some"|], Right "Some", Some "option" ;
   |]
 let builtin_constrs =
   Array.fold_left (fun acc (lid, tag, dep) ->

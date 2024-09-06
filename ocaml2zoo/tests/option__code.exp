@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.std Require Import
-  opt.
+  option.
 From zoo.tests Require Import
   option__types.
 From zoo Require Import
