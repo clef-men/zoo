@@ -7,6 +7,10 @@ From zoo.tests Require Import
 From zoo Require Import
   options.
 
-Definition zoo_override_test : val :=
+Definition zoo_override_test1 : val :=
   fun: <> =>
     ().
+
+Definition zoo_override_test2 : val :=
+  rec: "test2" <> =>
+    "test2" ().

@@ -779,11 +779,11 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
   let brs, fb = aux1 [] brs in
   List.rev brs, fb
 
-let structure_item ctx (str_item : Typedtree.structure_item) =
+let structure_item modname ctx (str_item : Typedtree.structure_item) =
   match str_item.str_desc with
   | Tstr_value (rec_flag, [bdg]) ->
       begin match bdg.vb_pat.pat_desc with
-      | Tpat_var (id, _, _) ->
+      | Tpat_var (id, { loc; _ }, _) ->
           let global = Context.add_global ctx id in
           let val_ =
             if has_attribute attribute_opaque bdg.vb_attributes then
@@ -800,6 +800,20 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
                     match attr.attr_payload with
                     | PStr [{ pstr_desc= Pstr_eval (expr, _); _ }] ->
                         let env = Envaux.env_of_only_summary str_item.str_env in
+                        let env =
+                          if rec_flag = Recursive then
+                            let val_descr : Types.value_description =
+                              { val_type= Ctype.newvar ();
+                                val_attributes= [];
+                                val_kind= Val_reg;
+                                val_loc= loc;
+                                val_uid= Types.Uid.mk ~current_unit:modname;
+                              }
+                            in
+                            Env.add_value id val_descr env
+                          else
+                            env
+                        in
                         Typecore.type_expression env expr
                     | _ ->
                         error attr.attr_loc Attribute_override_invalid_payload
@@ -811,7 +825,7 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
                 | Int int ->
                     Val_int int
                 | Fun (bdrs, expr) ->
-                    let bdr = match rec_flag with Recursive -> Some (Ident.name id) | _ -> None in
+                    let bdr = if rec_flag = Recursive then Some (Ident.name id) else None in
                     Val_rec (bdr, bdrs, expr)
                 | _ ->
                     unsupported bdg.vb_loc Def_invalid
@@ -888,6 +902,6 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
 let structure modname (str : Typedtree.structure) =
   let env = Envaux.env_of_only_summary str.str_final_env in
   let ctx = Context.create modname env in
-  let definitions = List.concat_map (structure_item ctx) str.str_items in
+  let definitions = List.concat_map (structure_item modname ctx) str.str_items in
   let dependencies = Context.dependencies ctx in
   { modname; dependencies; definitions }
