@@ -29,6 +29,8 @@ let builtin_paths =
     [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")) ;
     [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")) ;
     [|"Stdlib";"Obj";"repr"|], Fun ([Some "1"], Local "1") ;
+    [|"Stdlib";"Obj";"obj"|], Fun ([Some "1"], Local "1") ;
+    [|"Stdlib";"Obj";"magic"|], Fun ([Some "1"], Local "1") ;
     [|"Stdlib";"Obj";"tag"|], Fun ([Some "1"], Get_tag (Local "1")) ;
     [|"Stdlib";"Obj";"size"|], Fun ([Some "1"], Get_size (Local "1")) ;
     [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Load (Local "1", Local "2")) ;
@@ -71,6 +73,8 @@ let builtin_apps =
     [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None) ;
     [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None) ;
     [|"Stdlib";"Obj";"repr"|], (function [expr] -> Some expr | _ -> None) ;
+    [|"Stdlib";"Obj";"obj"|], (function [expr] -> Some expr | _ -> None) ;
+    [|"Stdlib";"Obj";"magic"|], (function [expr] -> Some expr | _ -> None) ;
     [|"Stdlib";"Obj";"tag"|], (function [expr] -> Some (Get_tag expr) | _ -> None) ;
     [|"Stdlib";"Obj";"size"|], (function [expr] -> Some (Get_size expr) | _ -> None) ;
     [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None) ;

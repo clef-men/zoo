@@ -9,9 +9,12 @@ From zoo Require Import
 
 Definition obj_test : val :=
   fun: <> =>
-    GetTag #0 ;;
-    GetSize #0 ;;
-    Load #0 #0 ;;
-    Store #0 #0 #0 ;;
+    let: "x" := () in
+    "x" ;;
+    "x" ;;
+    GetTag "x" ;;
+    GetSize "x" ;;
+    Load "x" #0 ;;
+    Store "x" #0 "x" ;;
     Alloc #0 #0 ;;
     ().
