@@ -113,6 +113,8 @@ let attribute_reveal =
   "zoo.reveal"
 let attribute_opaque =
   "zoo.opaque"
+let attribute_override =
+  "zoo.override"
 
 module Unsupported = struct
   type t =
@@ -283,14 +285,18 @@ module Error = struct
   type t =
     | Unsupported of Unsupported.t
     | Attribute_prefix_invalid_payload
+    | Attribute_override_invalid_payload
 
   let pp ppf = function
     | Unsupported unsupported ->
         Format.fprintf ppf "unsupported feature: %a"
           Unsupported.pp unsupported
     | Attribute_prefix_invalid_payload ->
-        Format.fprintf ppf {|attribute "%s" expects a string payload|}
+        Format.fprintf ppf {|payload of attribute "%s" must be a string|}
           attribute_prefix
+    | Attribute_override_invalid_payload ->
+        Format.fprintf ppf {|payload of attribute "%s" must be a expression|}
+          attribute_override
 end
 
 exception Error of Location.t * Error.t
@@ -300,6 +306,8 @@ let error loc err =
 let unsupported loc err =
   error loc (Unsupported err)
 
+let find_attribute attr =
+  List.find_opt (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
 let has_attribute attr =
   List.exists (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
 
@@ -784,8 +792,20 @@ let structure_item ctx (str_item : Typedtree.structure_item) =
               let restore_locals = Context.save_locals ctx in
               if rec_flag = Recursive then
                 Context.add_local ctx id ;
+              let expr =
+                match find_attribute attribute_override bdg.vb_attributes with
+                | None ->
+                    bdg.vb_expr
+                | Some attr ->
+                    match attr.attr_payload with
+                    | PStr [{ pstr_desc= Pstr_eval (expr, _); _ }] ->
+                        let env = Envaux.env_of_only_summary str_item.str_env in
+                        Typecore.type_expression env expr
+                    | _ ->
+                        error attr.attr_loc Attribute_override_invalid_payload
+              in
               let val_ =
-                  match expression ctx bdg.vb_expr with
+                  match expression ctx expr with
                   | Int int ->
                       Val_int int
                   | Fun (bdrs, expr) ->

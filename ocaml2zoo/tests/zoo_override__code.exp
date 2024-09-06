@@ -1,0 +1,12 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  zoo_override__types.
+From zoo Require Import
+  options.
+
+Definition zoo_override_test : val :=
+  fun: <> =>
+    ().
