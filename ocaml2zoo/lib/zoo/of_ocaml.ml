@@ -39,6 +39,12 @@ let builtin_paths =
     [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "math" ;
     [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "math" ;
     [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
+    [|"Stdlib";"Atomic";"make"|], Fun ([Some "1"], Ref (Local "1")), None ;
+    [|"Stdlib";"Atomic";"exchange"|], Fun ([Some "1"; Some "2"], Xchg (Atomic_loc (Local "1", "contents"), Local "2")), None ;
+    [|"Stdlib";"Atomic";"compare_and_set"|], Fun ([Some "1"; Some "2"; Some "3"], Cas (Atomic_loc (Local "1", "contents"), Local "2", Local "3")), None ;
+    [|"Stdlib";"Atomic";"fetch_and_add"|], Fun ([Some "1"; Some "2"], Faa (Atomic_loc (Local "1", "contents"), Local "2")), None ;
+    [|"Stdlib";"Atomic";"decr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int (-1))), None ;
+    [|"Stdlib";"Atomic";"incr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int 1)), None ;
     [|"Zoo";"proph"|], Proph, None ;
     [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")), None ;
   |]
@@ -85,6 +91,12 @@ let builtin_apps =
     [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "math" ;
     [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "math" ;
     [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
+    [|"Stdlib";"Atomic";"make"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"exchange"|], (function [expr1; expr2] -> Some (Xchg (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"compare_and_set"|], (function [expr1; expr2; expr3] -> Some (Cas (Atomic_loc (expr1, "contents"), expr2, expr3)) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"fetch_and_add"|], (function [expr1; expr2] -> Some (Faa (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"decr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int (-1))) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"incr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int 1)) | _ -> None), None ;
     [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None), None ;
   |]
 let builtin_apps =

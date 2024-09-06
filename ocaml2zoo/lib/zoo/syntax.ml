@@ -62,8 +62,12 @@ type expression =
   | Record_set of expression * field * expression
   | Get_tag of expression
   | Get_size of expression
+  | Atomic_loc of expression * field
   | Load of expression * expression
   | Store of expression * expression * expression
+  | Xchg of expression * expression
+  | Cas of expression * expression * expression
+  | Faa of expression * expression
   | Fail
   | Yield
   | Proph

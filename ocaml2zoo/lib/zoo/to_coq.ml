@@ -124,7 +124,8 @@ let level = function
   | Int _ ->
       8
   | Ref_get _
-  | Record_get _ ->
+  | Record_get _
+  | Atomic_loc _ ->
       9
   | Apply _
   | Alloc _
@@ -133,7 +134,10 @@ let level = function
   | Get_size _
   | Load _
   | Store _
-  | Resolve _ ->
+  | Resolve _
+  | Xchg _
+  | Cas _
+  | Faa _ ->
       10
   | Unop (Unop_minus, _)
   | Binop (Binop_quot, _, _)
@@ -268,6 +272,10 @@ let rec expression' lvl ppf = function
   | Get_size expr ->
       Format.fprintf ppf "@[<hv>GetSize@;<1 2>@[%a@]@]"
         (expression @@ next_level lvl) expr
+  | Atomic_loc (expr, fld) ->
+      Format.fprintf ppf "@[%a@].[%s]"
+        (expression lvl) expr
+        fld
   | Load (expr1, expr2) ->
       Format.fprintf ppf "@[<hv>Load@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
         (expression @@ next_level lvl) expr1
@@ -277,6 +285,19 @@ let rec expression' lvl ppf = function
         (expression @@ next_level lvl) expr1
         (expression @@ next_level lvl) expr2
         (expression @@ next_level lvl) expr3
+  | Xchg (expr1, expr2) ->
+      Format.fprintf ppf "@[<hv>Xchg@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr1
+        (expression @@ next_level lvl) expr2
+  | Cas (expr1, expr2, expr3) ->
+      Format.fprintf ppf "@[<hv>CAS@;<1 2>@[%a@]@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr1
+        (expression @@ next_level lvl) expr2
+        (expression @@ next_level lvl) expr3
+  | Faa (expr1, expr2) ->
+      Format.fprintf ppf "@[<hv>FAA@;<1 2>@[%a@]@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr1
+        (expression @@ next_level lvl) expr2
   | Fail ->
       Format.fprintf ppf "Fail"
   | Yield ->

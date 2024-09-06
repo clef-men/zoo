@@ -1,0 +1,17 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  atomic__types.
+From zoo Require Import
+  options.
+
+Definition atomic_test : val :=
+  fun: <> =>
+    let: "a" := ref #0 in
+    Xchg "a".[contents] #0 ;;
+    CAS "a".[contents] #0 #0 ;;
+    FAA "a".[contents] #0 ;;
+    FAA "a".[contents] #-1 ;;
+    FAA "a".[contents] #1.
