@@ -228,7 +228,7 @@ let rec expression' lvl ppf = function
         Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 1>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
   | Ref expr ->
       Format.fprintf ppf "@[<hv>ref@;<1 2>@[%a@]@]"
-        (expression lvl) expr
+        (expression @@ next_level lvl) expr
   | Record exprs ->
       Format.fprintf ppf "@[<hv>{ %a@;}@]"
         Format.(pp_print_array ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
