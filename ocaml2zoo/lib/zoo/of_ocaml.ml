@@ -395,7 +395,19 @@ module Context = struct
     Ident.Set.mem id t.locals
 
   let add_dependency t dep =
+    let dep = String.lowercase_ascii dep in
     Hashtbl.replace t.deps dep ()
+  let add_dependency_from_path t loc path =
+    match Path.head path with
+    | None ->
+        unsupported loc Functor
+    | Some dep ->
+        let dep = Ident.name dep in
+        match dep.[0] with
+        | 'A'..'Z' ->
+            add_dependency t dep
+        | _ ->
+            ()
   let dependencies t =
     Hashtbl.fold (fun dep () acc -> dep :: acc) t.deps []
 end
@@ -464,11 +476,10 @@ let rec expression ctx (expr : Typedtree.expression) =
               Option.iter (Context.add_dependency ctx) dep ;
               expr
           | None ->
-              let dep = Path.to_string "_" path' in
-              let dep = Option.get_lazy (fun () -> unsupported expr.exp_loc Functor) dep in
-              let dep = String.lowercase_ascii dep in
-              Context.add_dependency ctx dep ;
-              Global (dep ^ "_" ^ global)
+              Context.add_dependency_from_path ctx expr.exp_loc path' ;
+              let[@warning "-8"] Some path' = Path.to_string "_" path' in
+              let path' = String.lowercase_ascii path' in
+              Global (path' ^ "_" ^ global)
           end
       | Papply _ ->
           unsupported expr.exp_loc Functor
@@ -641,19 +652,20 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr = expression ctx expr in
       let brs, fb = branches ctx brs in
       Match (expr, brs, fb)
-  | Texp_field (expr, _, lbl) ->
+  | Texp_field (expr, lid, lbl) ->
       let expr = expression ctx expr in
       let fld = lbl.lbl_name in
-      if
-        let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc lbl.lbl_res in
-        record_is_mutable (Env.find_type rcd (Context.env ctx))
-      then
+      let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc lbl.lbl_res in
+      Context.add_dependency_from_path ctx lid.loc rcd ;
+      if record_is_mutable (Env.find_type rcd (Context.env ctx)) then
         Record_get (expr, fld)
       else
         Proj (expr, fld)
-  | Texp_setfield (expr1, _, lbl, expr2) ->
+  | Texp_setfield (expr1, lid, lbl, expr2) ->
       let expr1 = expression ctx expr1 in
       let fld = lbl.lbl_name in
+      let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc lbl.lbl_res in
+      Context.add_dependency_from_path ctx lid.loc rcd ;
       let expr2 = expression ctx expr2 in
       Record_set (expr1, fld, expr2)
   | Texp_assert ({ exp_desc= Texp_construct (_, constr, _); _ }, _) when constr.cstr_name = "false" ->

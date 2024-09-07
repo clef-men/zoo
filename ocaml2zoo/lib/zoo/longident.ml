@@ -1,5 +1,13 @@
 include Ocaml_common.Longident
 
+let rec head = function
+  | Lident s ->
+      Some s
+  | Ldot (t, _) ->
+      head t
+  | Lapply (_, _) ->
+      None
+
 let last = function
   | Lident s ->
       Some s

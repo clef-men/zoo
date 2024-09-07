@@ -2,6 +2,9 @@ include module type of struct
   include Ocaml_common.Longident
 end
 
+val head :
+  t -> string option
+
 val last :
   t -> string option
 
