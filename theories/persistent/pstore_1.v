@@ -13,101 +13,16 @@ From zoo.std Require Import
   assert
   lst.
 From zoo.persistent Require Export
-  base.
+  base
+  pstore_1__code.
+From zoo.persistent Require Import
+  pstore_1__types.
 From zoo Require Import
   options.
 
 Implicit Types l : location.
 Implicit Types v t s : val.
 Implicit Types σ : gmap location val.
-
-#[local] Notation "'snap_store'" := (
-  in_type "snap" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'snap_root'" := (
-  in_type "snap" 1
-)(in custom zoo_proj
-).
-
-#[local] Notation "'Root'" := (
-  in_type "descr" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'Diff'" := (
-  in_type "descr" 1
-)(in custom zoo_tag
-).
-
-(* ------------------------------------------------------------------------ *)
-(* Code. *)
-
-Definition pstore_create : val :=
-  fun: <> =>
-    ref (ref §Root).
-
-Definition pstore_ref : val :=
-  fun: "v" =>
-    ref "v".
-
-Definition pstore_get : val :=
-  fun: "t" "r" =>
-    !"r".
-
-Definition pstore_set : val :=
-  fun: "t" "r" "v" =>
-    let: "root" := ref §Root in
-    !"t" <- ‘Diff( "r", !"r", "root" ) ;;
-    "r" <- "v" ;;
-    "t" <- "root".
-
-Definition pstore_capture : val :=
-  fun: "t" =>
-    ("t", !"t").
-
-Definition pstore_collect : val :=
-  rec: "pstore_collect" "node" "acc" =>
-    match: !"node" with
-    | Root =>
-        ("node", "acc")
-    | Diff <> <> "node'" =>
-        "pstore_collect" "node'" ‘Cons( "node", "acc" )
-    end.
-Definition pstore_revert : val :=
-  rec: "pstore_revert" "node" "seg" =>
-    match: "seg" with
-    | Nil =>
-        "node" <- §Root
-    | Cons "node'" "seg" =>
-        match: !"node'" with
-        | Root =>
-            Fail
-        | Diff "r" "v" "node_" =>
-            assert ("node_" = "node") ;;
-            "node" <- ‘Diff( "r", !"r", "node'" ) ;;
-            "r" <- "v" ;;
-            "pstore_revert" "node'" "seg"
-        end
-    end.
-Definition pstore_reroot : val :=
-  fun: "node" =>
-    let: "root", "nodes" := pstore_collect "node" §Nil in
-    pstore_revert "root" "nodes".
-
-Definition pstore_restore : val :=
-  fun: "t" "s" =>
-    if: "t" ≠ "s".<snap_store> then (
-      Fail
-    ) else (
-      let: "root" := "s".<snap_root> in
-      match: !"root" with
-      | Root =>
-          ()
-      | Diff <> <> <> =>
-          pstore_reroot "root" ;;
-          "t" <- "root"
-      end
-    ).
 
 (* ------------------------------------------------------------------------ *)
 (* Lemmas on maps and lists. *)
@@ -793,7 +708,7 @@ Section pstore_G.
     {{{
       pstore t σ
     }}}
-      pstore_ref v
+      pstore_ref t v
     {{{ l,
       RET #l;
       ⌜l ∉ dom σ⌝ ∗

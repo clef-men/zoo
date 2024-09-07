@@ -7,71 +7,18 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  spsc_future__code.
 From zoo.std Require Import
   option
-  condition.
+  condition
+  spsc_future__types.
 From zoo Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types o : option val.
-
-#[local] Notation "'result'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'mutex'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'condition'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition spsc_future_create : val :=
-  fun: <> =>
-    { §None,
-      mutex_create (),
-      condition_create ()
-    }.
-
-Definition spsc_future_set : val :=
-  fun: "t" "v" =>
-    mutex_protect "t".{mutex} (fun: <> =>
-      "t" <-{result} ‘Some( "v" )
-    ) ;;
-    condition_notify "t".{condition}.
-
-Definition spsc_future_try_get : val :=
-  fun: "t" =>
-    "t".{result}.
-
-Definition spsc_future_get : val :=
-  fun: "t" =>
-    match: spsc_future_try_get "t" with
-    | Some "v" =>
-        "v"
-    | None =>
-        let: "mtx" := "t".{mutex} in
-        let: "cond" := "t".{condition} in
-        mutex_protect "mtx" (fun: <> =>
-          condition_wait_while "cond" "mtx" (fun: <> => "t".{result} = §None)
-        ) ;;
-        let: ‘Some "v" := "t".{result} in
-        "v"
-    end.
-
-Definition spsc_future_is_set : val :=
-  fun: "t" =>
-    match: spsc_future_try_get "t" with
-    | None =>
-        #false
-    | Some <> =>
-        #true
-    end.
 
 Class SpscFutureG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spsc_future_G_mutex_G :: MutexG Σ ;

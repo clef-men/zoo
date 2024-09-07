@@ -1,3 +1,10 @@
+theories/persistent/parray.cmt : \
+    theories/std/array.cmt \
+    theories/persistent/parray.cmi
+theories/persistent/parray.cmi :
+theories/persistent/pstore_1.cmt : \
+    theories/persistent/pstore_1.cmi
+theories/persistent/pstore_1.cmi :
 theories/persistent/pstore_2.cmt : \
     theories/persistent/pstore_2.cmi
 theories/persistent/pstore_2.cmi :
@@ -26,12 +33,6 @@ theories/std/dynarray_2.cmt : \
     theories/std/array.cmt \
     theories/std/dynarray_2.cmi
 theories/std/dynarray_2.cmi :
-theories/std/inf_array.cmt : \
-    ./ocaml2zoo/zoo.cmt \
-    theories/std/mutex.cmt \
-    theories/std/array.cmt \
-    theories/std/inf_array.cmi
-theories/std/inf_array.cmi :
 theories/std/lst.cmt : \
     theories/std/lst.cmi
 theories/std/lst.cmi :
@@ -46,10 +47,10 @@ theories/std/mutex.cmi :
 theories/std/optional.cmt : \
     theories/std/optional.cmi
 theories/std/optional.cmi :
-theories/std/queue_1.cmt : \
+theories/std/queue.cmt : \
     theories/std/chain.cmt \
-    theories/std/queue_1.cmi
-theories/std/queue_1.cmi :
+    theories/std/queue.cmi
+theories/std/queue.cmi :
 theories/std/random.cmt : \
     theories/std/random.cmi
 theories/std/random.cmi :

@@ -6,26 +6,14 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  xdlchain__types.
 From zoo Require Import
   options.
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
 Implicit Types v next prev src dst : val.
-
-Notation "'xdlchain_prev'" := (
-  in_type "xdlchain" 0
-)(in custom zoo_field
-).
-Notation "'xdlchain_next'" := (
-  in_type "xdlchain" 1
-)(in custom zoo_field
-).
-Notation "'xdlchain_data'" := (
-  in_type "xdlchain" 2
-)(in custom zoo_field
-).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

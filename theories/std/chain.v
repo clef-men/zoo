@@ -4,21 +4,13 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  chain__types.
 From zoo Require Import
   options.
 
 Implicit Types l : location.
 Implicit Types v w t hd tl dst : val.
-
-Notation "'chain_head'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-Notation "'chain_tail'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

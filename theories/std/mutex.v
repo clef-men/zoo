@@ -6,35 +6,14 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  mutex__code.
 From zoo Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types t fn : val.
-
-Definition mutex_create : val :=
-  fun: <> =>
-    ref #false.
-
-Definition mutex_lock : val :=
-  rec: "mutex_lock" "t" =>
-    ifnot: CAS "t".[contents] #false #true then (
-      Yield ;;
-      "mutex_lock" "t"
-    ).
-
-Definition mutex_unlock : val :=
-  fun: "t" =>
-    "t" <- #false.
-
-Definition mutex_protect : val :=
-  fun: "t" "fn" =>
-    mutex_lock "t" ;;
-    let: "res" := "fn" () in
-    mutex_unlock "t" ;;
-    "res".
 
 Class MutexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mutex_G :: ExclG Σ unitO ;

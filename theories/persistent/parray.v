@@ -13,7 +13,10 @@ From zoo.language Require Import
 From zoo.std Require Import
   array.
 From zoo.persistent Require Export
-  base.
+  base
+  parray__code.
+From zoo.persistent Require Import
+  parray__types.
 From zoo Require Import
   options.
 
@@ -21,49 +24,6 @@ Implicit Types i : nat.
 Implicit Types l root : location.
 Implicit Types v t eq : val.
 Implicit Types vs : list val.
-
-#[local] Notation "'Root'" := (
-  in_type "descr" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'Diff'" := (
-  in_type "descr" 1
-)(in custom zoo_tag
-).
-
-Definition parray_make : val :=
-  fun: "sz" "v" =>
-    ref ‘Root( array_unsafe_make "sz" "v" ).
-
-#[local] Definition parray_reroot : val :=
-  rec: "parray_reroot" "t" =>
-    match: !"t" with
-    | Root "arr" =>
-        "arr"
-    | Diff "i" "v" "t'" =>
-        let: "arr" := "parray_reroot" "t'" in
-        "t'" <- ‘Diff( "i", array_unsafe_get "arr" "i", "t" ) ;;
-        array_unsafe_set "arr" "i" "v" ;;
-        "t" <- ‘Root( "arr" ) ;;
-        "arr"
-    end.
-
-Definition parray_get : val :=
-  fun: "t" "i" =>
-    array_unsafe_get (parray_reroot "t") "i".
-
-Definition parray_set : val :=
-  fun: "t" "eq" "i" "v" =>
-    let: "arr" := parray_reroot "t" in
-    let: "v'" := array_unsafe_get "arr" "i" in
-    if: "eq" "v" "v'" then (
-      "t"
-    ) else (
-      array_unsafe_set "arr" "i" "v" ;;
-      let: "t'" := ref !"t" in
-      "t" <- ‘Diff( "i", "v'", "t'" ) ;;
-      "t'"
-    ).
 
 Class ParrayG Σ `{zoo_G : !ZooG Σ} := {
   parray_G_map_G : ghost_mapG Σ location (list val) ;

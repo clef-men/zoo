@@ -4,24 +4,13 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  clst__types
+  clst__code.
 From zoo Require Import
   options.
 
 Implicit Types v t fn : val.
-
-Notation "'ClstClosed'" := (
-  in_type "clst" 0
-)(in custom zoo_tag
-).
-Notation "'ClstOpen'" := (
-  in_type "clst" 1
-)(in custom zoo_tag
-).
-Notation "'ClstCons'" := (
-  in_type "clst" 2
-)(in custom zoo_tag
-).
 
 Inductive clist :=
   | ClistClosed
@@ -129,34 +118,6 @@ Lemma clist_app_assoc ls1 ls2 cls :
 Proof.
   induction ls1; f_equal/=; done.
 Qed.
-
-Definition clst_app : val :=
-  rec: "clst_app" "t1" "t2" =>
-    match: "t1" with
-    | ClstOpen =>
-        "t2"
-    | ClstCons "v" "t1" =>
-        ‘ClstCons( "v", "clst_app" "t1" "t2" )
-    end.
-
-Definition clst_rev_app : val :=
-  rec: "clst_rev_app" "t1" "t2" =>
-    match: "t1" with
-    | ClstOpen =>
-        "t2"
-    | ClstCons "v" "t1" =>
-        "clst_rev_app" "t1" ‘ClstCons( "v", "t2" )
-    end.
-
-Definition clst_iter : val :=
-  rec: "clst_iter" "t" "fn" =>
-    match: "t" with
-    | ClstOpen =>
-        ()
-    | ClstCons "v" "t" =>
-        "fn" "v" ;;
-        "clst_iter" "t" "fn"
-    end.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

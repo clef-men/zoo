@@ -4,10 +4,12 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  dynarray_1__code.
 From zoo.std Require Import
   math
-  array.
+  array
+  dynarray_1__types.
 From zoo Require Import
   options.
 
@@ -17,119 +19,31 @@ Implicit Types l : location.
 Implicit Types v t fn : val.
 Implicit Types vs : list val.
 
-#[local] Notation "'size'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'data'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-
-Definition dynarray_create : val :=
-  fun: <> =>
-    { #0, array_create () }.
-
-Definition dynarray_make : val :=
-  fun: "sz" "v" =>
-    { "sz", array_unsafe_make "sz" "v" }.
-
-Definition dynarray_initi : val :=
-  fun: "sz" "fn" =>
-    { "sz", array_unsafe_initi "sz" "fn" }.
-
-Definition dynarray_size : val :=
-  fun: "t" =>
-    "t".{size}.
-Definition dynarray_capacity : val :=
-  fun: "t" =>
-    array_size "t".{data}.
-
-Definition dynarray_is_empty : val :=
-  fun: "t" =>
-    dynarray_size "t" = #0.
-
-Definition dynarray_get : val :=
-  fun: "t" "i" =>
-    array_unsafe_get "t".{data} "i".
-
-Definition dynarray_set : val :=
-  fun: "t" "i" "v" =>
-    array_unsafe_set "t".{data} "i" "v".
-
-#[local] Definition dynarray_next_capacity : val :=
-  fun: "n" =>
-    #8 `max` if: "n" ≤ #512 then #2 * "n" else "n" + "n" `quot` #2.
-Definition dynarray_reserve : val :=
-  fun: "t" "n" =>
-    let: "data" := "t".{data} in
-    let: "cap" := array_size "data" in
-    ifnot: "n" ≤ "cap" then (
-      let: "new_cap" := "n" `max` dynarray_next_capacity "cap" in
-      let: "new_data" := array_unsafe_make "new_cap" () in
-      array_unsafe_copy_slice "data" #0 "new_data" #0 "t".{size} ;;
-      "t" <-{data} "new_data"
-    ).
-Definition dynarray_reserve_extra : val :=
-  fun: "t" "n" =>
-    if: #0 ≤ "n" then (
-      dynarray_reserve "t" ("t".{size} + "n")
-    ).
-
-Definition dynarray_push : val :=
-  fun: "t" "v" =>
-    dynarray_reserve_extra "t" #1 ;;
-    let: "sz" := "t".{size} in
-    "t" <-{size} "sz" + #1 ;;
-    array_unsafe_set "t".{data} "sz" "v".
-
-Definition dynarray_pop : val :=
-  fun: "t" =>
-    let: "sz" := "t".{size} - #1 in
-    "t" <-{size} "sz" ;;
-    let: "data" := "t".{data} in
-    let: "v" := array_unsafe_get "data" "sz" in
-    array_unsafe_set "data" "sz" () ;;
-    "v".
-
-Definition dynarray_fit_capacity : val :=
-  fun: "t" =>
-    let: "sz" := "t".{size} in
-    let: "data" := "t".{data} in
-    ifnot: "sz" = array_size "data" then (
-      "t" <-{data} array_unsafe_shrink "data" "sz"
-    ).
-
-Definition dynarray_reset : val :=
-  fun: "t" =>
-    "t" <-{size} #0 ;;
-    "t" <-{data} array_create ().
-
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition dynarray_model_inner l (sz : nat) data vs : iProp Σ :=
+  #[local] Definition dynarray_1_model_inner l (sz : nat) data vs : iProp Σ :=
     l.[size] ↦ #sz ∗
     l.[data] ↦ data ∗ array_model data (DfracOwn 1) vs.
-  Definition dynarray_model t vs : iProp Σ :=
+  Definition dynarray_1_model t vs : iProp Σ :=
     ∃ l data extra,
     ⌜t = #l⌝ ∗
-    dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V).
+    dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V).
 
-  #[global] Instance dynarray_model_timeless t vs :
-    Timeless (dynarray_model t vs).
+  #[global] Instance dynarray_1_model_timeless t vs :
+    Timeless (dynarray_1_model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma dynarray_create_spec :
+  Lemma dynarray_1_create_spec :
     {{{
       True
     }}}
-      dynarray_create ()
+      dynarray_1_create ()
     {{{ t,
       RET t;
-      dynarray_model t []
+      dynarray_1_model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -139,15 +53,15 @@ Section zoo_G.
     iApply "HΦ". iExists l, data, 0. iSteps.
   Qed.
 
-  Lemma dynarray_make_spec sz v :
+  Lemma dynarray_1_make_spec sz v :
     (0 ≤ sz)%Z →
     {{{
       True
     }}}
-      dynarray_make #sz v
+      dynarray_1_make #sz v
     {{{ t,
       RET t;
-      dynarray_model t (replicate (Z.to_nat sz) v)
+      dynarray_1_model t (replicate (Z.to_nat sz) v)
     }}}.
   Proof.
     iIntros "% %Φ _ HΦ".
@@ -159,7 +73,7 @@ Section zoo_G.
     - iExists 0. rewrite right_id Nat2Z.id. iSteps.
   Qed.
 
-  Lemma dynarray_initi_spec Ψ sz fn :
+  Lemma dynarray_1_initi_spec Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
@@ -172,11 +86,11 @@ Section zoo_G.
         }}
       )
     }}}
-      dynarray_initi #sz fn
+      dynarray_1_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      dynarray_model t vs ∗
+      dynarray_1_model t vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
   Proof.
@@ -186,7 +100,7 @@ Section zoo_G.
     wp_block l as "(Hsz & Hdata & _)".
     iSteps. iExists 0. rewrite right_id. iSteps.
   Qed.
-  Lemma dynarray_initi_spec' Ψ sz fn :
+  Lemma dynarray_1_initi_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
@@ -199,11 +113,11 @@ Section zoo_G.
         }}
       )
     }}}
-      dynarray_initi #sz fn
+      dynarray_1_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      dynarray_model t vs ∗
+      dynarray_1_model t vs ∗
       Ψ (Z.to_nat sz) vs
     }}}.
   Proof.
@@ -213,14 +127,14 @@ Section zoo_G.
       Ψ i vs ∗
       [∗ list] j ∈ seq i (Z.to_nat sz - i), Ξ j
     )%I).
-    wp_apply (dynarray_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
+    wp_apply (dynarray_1_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
     destruct (Nat.lt_exists_pred 0 (Z.to_nat sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
     wp_apply (wp_wand with "(Hfn [//] HΨ)").
     iSteps. rewrite Nat.sub_succ_r Hk //.
   Qed.
-  Lemma dynarray_initi_spec_disentangled Ψ sz fn :
+  Lemma dynarray_1_initi_spec_disentangled Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       □ (
@@ -231,11 +145,11 @@ Section zoo_G.
         }}
       )
     }}}
-      dynarray_initi #sz fn
+      dynarray_1_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      dynarray_model t vs ∗
+      dynarray_1_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -245,11 +159,11 @@ Section zoo_G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp_apply (dynarray_initi_spec Ψ'); [done | | iSteps].
+    wp_apply (dynarray_1_initi_spec Ψ'); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
-  Lemma dynarray_initi_spec_disentangled' Ψ sz fn :
+  Lemma dynarray_1_initi_spec_disentangled' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
@@ -258,11 +172,11 @@ Section zoo_G.
         }}
       )
     }}}
-      dynarray_initi #sz fn
+      dynarray_1_initi #sz fn
     {{{ t vs,
       RET t;
       ⌜length vs = Z.to_nat sz⌝ ∗
-      dynarray_model t vs ∗
+      dynarray_1_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
       )
@@ -272,34 +186,34 @@ Section zoo_G.
     pose (Ψ' i vs := (
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp_apply (dynarray_initi_spec' Ψ' with "[Hfn]"); [done | | iSteps].
+    wp_apply (dynarray_1_initi_spec' Ψ' with "[Hfn]"); [done | | iSteps].
     rewrite /Ψ'. iSteps.
     iApply (big_sepL_impl with "Hfn").
     iSteps. rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma dynarray_size_spec t vs :
+  Lemma dynarray_1_size_spec t vs :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_size t
+      dynarray_1_size t
     {{{
       RET #(length vs);
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma dynarray_capacity_spec t vs :
+  Lemma dynarray_1_capacity_spec t vs :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_capacity t
+      dynarray_1_capacity t
     {{{ cap,
       RET #cap;
       ⌜length vs ≤ cap⌝ ∗
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
@@ -308,33 +222,33 @@ Section zoo_G.
     rewrite app_length. iSteps.
   Qed.
 
-  Lemma dynarray_is_empty_spec t vs :
+  Lemma dynarray_1_is_empty_spec t vs :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_is_empty t
+      dynarray_1_is_empty t
     {{{
       RET #(bool_decide (vs = []));
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_size_spec with "Hmodel") as "Hmodel".
+    wp_smart_apply (dynarray_1_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     destruct vs; iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma dynarray_get_spec t vs (i : Z) v :
+  Lemma dynarray_1_get_spec t vs (i : Z) v :
     (0 ≤ i)%Z →
     vs !! Z.to_nat i = Some v →
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_get t #i
+      dynarray_1_get t #i
     {{{
       RET v;
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Hi %Hlookup %Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
@@ -344,15 +258,15 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma dynarray_set_spec t vs (i : Z) v :
+  Lemma dynarray_1_set_spec t vs (i : Z) v :
     (0 ≤ i < length vs)%Z →
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_set t #i v
+      dynarray_1_set t #i v
     {{{
       RET ();
-      dynarray_model t (<[Z.to_nat i := v]> vs)
+      dynarray_1_model t (<[Z.to_nat i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
@@ -363,12 +277,12 @@ Section zoo_G.
     rewrite insert_length insert_app_l; first lia. iSteps.
   Qed.
 
-  #[local] Lemma dynarray_next_capacity_spec n :
+  #[local] Lemma dynarray_1_next_capacity_spec n :
     (0 ≤ n)%Z →
     {{{
       True
     }}}
-      dynarray_next_capacity #n
+      dynarray_1_next_capacity #n
     {{{ m,
       RET #m;
       ⌜n ≤ m⌝%Z
@@ -377,16 +291,16 @@ Section zoo_G.
     Ltac Zify.zify_post_hook ::= Z.quot_rem_to_equations.
     iSteps; wp_apply maximum_spec; iSteps.
   Qed.
-  #[local] Lemma dynarray_reserve_spec' l data vs extra n :
+  #[local] Lemma dynarray_1_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V)
+      dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V)
     }}}
-      dynarray_reserve #l #n
+      dynarray_1_reserve #l #n
     {{{ data' extra',
       RET ();
       ⌜Z.to_nat n ≤ length vs + extra'⌝ ∗
-      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
+      dynarray_1_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
@@ -394,11 +308,9 @@ Section zoo_G.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures.
     case_bool_decide as Htest; wp_pures; rewrite app_length replicate_length in Htest.
-    - iApply ("HΦ" $! data extra).
-      iSteps.
-    - wp_apply (dynarray_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
+    - wp_apply (dynarray_1_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
       wp_apply maximum_spec.
-      wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data' Hdata_model'"; first lia.
+      wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%data' Hdata_model'"; first lia.
       wp_load.
       wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.
       { rewrite app_length. lia. }
@@ -406,71 +318,73 @@ Section zoo_G.
       wp_store.
       iApply ("HΦ" $! data' (Z.to_nat (n `max` n') - length vs)).
       iSteps. rewrite Nat2Z.id drop_replicate take_app_length //.
+    - iApply ("HΦ" $! data extra).
+      iSteps.
   Qed.
-  Lemma dynarray_reserve_spec t vs n :
+  Lemma dynarray_1_reserve_spec t vs n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_reserve t #n
+      dynarray_1_reserve t #n
     {{{
       RET ();
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Hn %Φ (%l & %data & %extra & -> & Hmodel) HΦ".
-    wp_apply (dynarray_reserve_spec' with "Hmodel"); first done.
+    wp_apply (dynarray_1_reserve_spec' with "Hmodel"); first done.
     iSteps.
   Qed.
-  #[local] Lemma dynarray_reserve_extra_spec' l data vs extra n :
+  #[local] Lemma dynarray_1_reserve_extra_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model_inner l (length vs) data (vs ++ replicate extra ()%V)
+      dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V)
     }}}
-      dynarray_reserve_extra #l #n
+      dynarray_1_reserve_extra #l #n
     {{{ data' extra',
       RET ();
       ⌜Z.to_nat n ≤ extra'⌝ ∗
-      dynarray_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
+      dynarray_1_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
     wp_rec. wp_pures.
     case_bool_decide; wp_pures; last done.
     wp_load.
-    wp_smart_apply (dynarray_reserve_spec' with "[Hsz Hdata Hdata_model]") as "%data' %extra' (%Hextra' & Hmodel)"; [lia | iSteps |].
+    wp_smart_apply (dynarray_1_reserve_spec' with "[Hsz Hdata Hdata_model]") as "%data' %extra' (%Hextra' & Hmodel)"; [lia | iSteps |].
     iApply ("HΦ" $! data' extra').
     iSteps.
   Qed.
-  Lemma dynarray_reserve_extra_spec t vs n :
+  Lemma dynarray_1_reserve_extra_spec t vs n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_reserve_extra t #n
+      dynarray_1_reserve_extra t #n
     {{{
       RET ();
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Hn %Φ (%l & %data & %extra & -> & Hmodel) HΦ".
-    wp_apply (dynarray_reserve_extra_spec' with "Hmodel"); first done.
+    wp_apply (dynarray_1_reserve_extra_spec' with "Hmodel"); first done.
     iSteps.
   Qed.
 
-  Lemma dynarray_push_spec t vs v :
+  Lemma dynarray_1_push_spec t vs v :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_push t v
+      dynarray_1_push t v
     {{{
       RET ();
-      dynarray_model t (vs ++ [v])
+      dynarray_1_model t (vs ++ [v])
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %extra & -> & Hmodel) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_reserve_extra_spec' with "Hmodel") as "%data' %extra' (%Hextra' & (Hsz & Hdata & Hdata_model))"; first lia.
+    wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%data' %extra' (%Hextra' & (Hsz & Hdata & Hdata_model))"; first lia.
     wp_load. wp_store. wp_load.
     wp_apply (array_unsafe_set_spec with "Hdata_model").
     { rewrite app_length replicate_length. lia. }
@@ -478,15 +392,15 @@ Section zoo_G.
     iSteps. rewrite app_length. iSteps.
   Qed.
 
-  Lemma dynarray_pop_spec {t vs} vs' v :
+  Lemma dynarray_1_pop_spec {t vs} vs' v :
     vs = vs' ++ [v] →
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_pop t
+      dynarray_1_pop t
     {{{
       RET v;
-      dynarray_model t vs'
+      dynarray_1_model t vs'
     }}}.
   Proof.
     iIntros (->) "%Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
@@ -503,14 +417,14 @@ Section zoo_G.
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
 
-  Lemma dynarray_fit_capacity_spec t vs :
+  Lemma dynarray_1_fit_capacity_spec t vs :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_fit_capacity t
+      dynarray_1_fit_capacity t
     {{{
       RET ();
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
@@ -523,14 +437,14 @@ Section zoo_G.
     iSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.
   Qed.
 
-  Lemma dynarray_reset_spec t vs :
+  Lemma dynarray_1_reset_spec t vs :
     {{{
-      dynarray_model t vs
+      dynarray_1_model t vs
     }}}
-      dynarray_reset t
+      dynarray_1_reset t
     {{{
       RET ();
-      dynarray_model t []
+      dynarray_1_model t []
     }}}.
   Proof.
     iIntros "%Φ (%l & %data & %extra & -> & Hsz & Hdata & _) HΦ".
@@ -541,19 +455,19 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque dynarray_create.
-#[global] Opaque dynarray_make.
-#[global] Opaque dynarray_initi.
-#[global] Opaque dynarray_size.
-#[global] Opaque dynarray_capacity.
-#[global] Opaque dynarray_is_empty.
-#[global] Opaque dynarray_get.
-#[global] Opaque dynarray_set.
-#[global] Opaque dynarray_reserve.
-#[global] Opaque dynarray_reserve_extra.
-#[global] Opaque dynarray_push.
-#[global] Opaque dynarray_pop.
-#[global] Opaque dynarray_fit_capacity.
-#[global] Opaque dynarray_reset.
+#[global] Opaque dynarray_1_create.
+#[global] Opaque dynarray_1_make.
+#[global] Opaque dynarray_1_initi.
+#[global] Opaque dynarray_1_size.
+#[global] Opaque dynarray_1_capacity.
+#[global] Opaque dynarray_1_is_empty.
+#[global] Opaque dynarray_1_get.
+#[global] Opaque dynarray_1_set.
+#[global] Opaque dynarray_1_reserve.
+#[global] Opaque dynarray_1_reserve_extra.
+#[global] Opaque dynarray_1_push.
+#[global] Opaque dynarray_1_pop.
+#[global] Opaque dynarray_1_fit_capacity.
+#[global] Opaque dynarray_1_reset.
 
-#[global] Opaque dynarray_model.
+#[global] Opaque dynarray_1_model.

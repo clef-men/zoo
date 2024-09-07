@@ -4,42 +4,13 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  mutex.
+  mutex
+  condition__code.
 From zoo Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types t pred : val.
-
-Definition condition_create : val :=
-  fun: <> =>
-    ().
-
-Definition condition_wait : val :=
-  fun: "t" "mtx" =>
-    Yield.
-
-Definition condition_notify : val :=
-  fun: "t" =>
-    ().
-
-Definition condition_notify_all : val :=
-  fun: "t" =>
-    ().
-
-#[local] Definition condition_wait_until_aux : val :=
-  rec: "condition_wait_until_aux" "t" "mtx" "pred" =>
-    ifnot: "pred" () then (
-      condition_wait "t" "mtx" ;;
-      "condition_wait_until_aux" "t" "mtx" "pred"
-    ).
-Definition condition_wait_until : val :=
-  fun: "t" "mtx" "pred" =>
-    condition_wait_until_aux "t" "mtx" "pred".
-
-Definition condition_wait_while : val :=
-  fun: "t" "mtx" "pred" =>
-    condition_wait_until "t" "mtx" (fun: <> => ~ "pred" ()).
 
 Section mutex_G.
   Context `{mutex_G : MutexG Σ}.

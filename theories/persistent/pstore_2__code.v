@@ -3,8 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.std Require Import
-  assert
-  lst.
+  assert.
 From zoo.persistent Require Import
   pstore_2__types.
 From zoo Require Import

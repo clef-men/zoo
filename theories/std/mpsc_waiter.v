@@ -7,67 +7,16 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  mpsc_waiter__code.
 From zoo.std Require Import
-  condition.
+  condition
+  mpsc_waiter__types.
 From zoo Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
-
-#[local] Notation "'flag'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'mutex'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'condition'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition mpsc_waiter_create : val :=
-  fun: <> =>
-    { #false,
-      mutex_create (),
-      condition_create ()
-    }.
-
-Definition mpsc_waiter_notify : val :=
-  fun: "t" =>
-    if: "t".{flag} then (
-      #true
-    ) else (
-      let: "res" :=
-        mutex_protect "t".{mutex} (fun: <> =>
-          if: "t".{flag} then (
-            #true
-          ) else (
-            "t" <-{flag} #true ;;
-            #false
-          )
-        )
-      in
-      condition_notify "t".{condition} ;;
-      "res"
-    ).
-
-Definition mpsc_waiter_try_wait : val :=
-  fun: "t" =>
-    "t".{flag}.
-
-Definition mpsc_waiter_wait : val :=
-  fun: "t" =>
-    ifnot: mpsc_waiter_try_wait "t" then (
-      let: "mtx" := "t".{mutex} in
-      let: "cond" := "t".{condition} in
-      mutex_protect "mtx" (fun: <> =>
-        condition_wait_until "cond" "mtx" (fun: <> => "t".{flag})
-      )
-    ).
 
 Class MpscWaiterG Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpsc_waiter_G_mutex_G :: MutexG Σ ;

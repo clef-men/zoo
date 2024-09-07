@@ -4,7 +4,8 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  random__code.
 From zoo Require Import
   options.
 

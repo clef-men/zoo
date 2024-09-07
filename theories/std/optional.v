@@ -4,7 +4,8 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  optional__types.
 From zoo Require Import
   options.
 
@@ -29,19 +30,6 @@ Definition option_to_optional {A} (o : option A) :=
 Proof.
   rewrite /Inj. naive_solver.
 Qed.
-
-Notation "'Nothing'" := (
-  in_type "optional" 0
-)(in custom zoo_tag
-).
-Notation "'Anything'" := (
-  in_type "optional" 1
-)(in custom zoo_tag
-).
-Notation "'Something'" := (
-  in_type "optional" 2
-)(in custom zoo_tag
-).
 
 Coercion optional_to_val o :=
   match o with

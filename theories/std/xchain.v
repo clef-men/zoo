@@ -6,22 +6,14 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  xchain__types.
 From zoo Require Import
   options.
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
 Implicit Types v next dst : val.
-
-Notation "'xchain_next'" := (
-  in_type "xchain" 0
-)(in custom zoo_field
-).
-Notation "'xchain_data'" := (
-  in_type "xchain" 1
-)(in custom zoo_field
-).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

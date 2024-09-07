@@ -3,50 +3,19 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
+From zoo.std Require Export
+  base
+  queue__code.
 From zoo.std Require Import
   option
-  chain.
+  chain
+  queue__types.
 From zoo Require Import
   options.
 
 Implicit Types l : location.
 Implicit Types t v front sent : val.
 Implicit Types vs : list val.
-
-#[local] Notation "'front'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'sentinel'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-
-Definition queue_create : val :=
-  fun: <> =>
-    let: "sent" := { (), () } in
-    { "sent", "sent" }.
-
-Definition queue_is_empty : val :=
-  fun: "t" =>
-    "t".{front} = "t".{sentinel}.
-
-Definition queue_push : val :=
-  fun: "t" "v" =>
-    let: "sent" := { (), () } in
-    "t".{sentinel} <-{chain_head} "v" ;;
-    "t".{sentinel} <-{chain_tail} "sent" ;;
-    "t" <-{sentinel} "sent".
-
-Definition queue_pop : val :=
-  fun: "t" =>
-    if: queue_is_empty "t" then (
-      §None
-    ) else (
-      let: "v" := "t".{front}.{chain_head} in
-      "t" <-{front} "t".{front}.{chain_tail} ;;
-      ‘Some( "v" )
-    ).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

@@ -2,8 +2,6 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.std Require Import
-  lst.
 From zoo.tests Require Import
   function__types.
 From zoo Require Import

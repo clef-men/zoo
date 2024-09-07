@@ -4,22 +4,14 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  lst__code.
 From zoo Require Import
   options.
 
 Implicit Types i j : nat.
 Implicit Types v w t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
-
-Notation "'Nil'" := (
-  in_type "lst" 0
-)(in custom zoo_tag
-).
-Notation "'Cons'" := (
-  in_type "lst" 1
-)(in custom zoo_tag
-).
 
 Fixpoint plst_to_val nil vs :=
   match vs with

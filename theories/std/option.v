@@ -10,15 +10,6 @@ From zoo Require Import
 
 Implicit Types v : val.
 
-Notation "'None'" := (
-  in_type "option" 0
-)(in custom zoo_tag
-).
-Notation "'Some'" := (
-  in_type "option" 1
-)(in custom zoo_tag
-).
-
 Coercion option_to_val o :=
   match o with
   | None =>

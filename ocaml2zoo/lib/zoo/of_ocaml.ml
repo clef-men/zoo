@@ -40,6 +40,8 @@ let builtin_paths =
     [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "math" ;
     [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
     [|"Stdlib";"Atomic";"make"|], Fun ([Some "1"], Ref (Local "1")), None ;
+    [|"Stdlib";"Atomic";"get"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
+    [|"Stdlib";"Atomic";"set"|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
     [|"Stdlib";"Atomic";"exchange"|], Fun ([Some "1"; Some "2"], Xchg (Atomic_loc (Local "1", "contents"), Local "2")), None ;
     [|"Stdlib";"Atomic";"compare_and_set"|], Fun ([Some "1"; Some "2"; Some "3"], Cas (Atomic_loc (Local "1", "contents"), Local "2", Local "3")), None ;
     [|"Stdlib";"Atomic";"fetch_and_add"|], Fun ([Some "1"; Some "2"], Faa (Atomic_loc (Local "1", "contents"), Local "2")), None ;
@@ -92,6 +94,8 @@ let builtin_apps =
     [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "math" ;
     [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
     [|"Stdlib";"Atomic";"make"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"get"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
+    [|"Stdlib";"Atomic";"set"|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
     [|"Stdlib";"Atomic";"exchange"|], (function [expr1; expr2] -> Some (Xchg (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
     [|"Stdlib";"Atomic";"compare_and_set"|], (function [expr1; expr2; expr3] -> Some (Cas (Atomic_loc (expr1, "contents"), expr2, expr3)) | _ -> None), None ;
     [|"Stdlib";"Atomic";"fetch_and_add"|], (function [expr1; expr2] -> Some (Faa (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
@@ -115,10 +119,10 @@ let builtin_constrs =
   [|[|"()"|], Left (Tuple []), None ;
     [|"true"|], Left (Bool true), None ;
     [|"false"|], Left (Bool false), None ;
-    [|"[]"|], Right "Nil", Some "lst" ;
-    [|"::"|], Right "Cons", Some "lst" ;
-    [|"None"|], Right "None", Some "option" ;
-    [|"Some"|], Right "Some", Some "option" ;
+    [|"[]"|], Right "Nil", None ;
+    [|"::"|], Right "Cons", None ;
+    [|"None"|], Right "None", None ;
+    [|"Some"|], Right "Some", None ;
   |]
 let builtin_constrs =
   Array.fold_left (fun acc (lid, tag, dep) ->

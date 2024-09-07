@@ -6,7 +6,8 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  deque__code.
 From zoo.std Require Import
   option
   xdeque.
@@ -14,42 +15,6 @@ From zoo Require Import
   options.
 
 Implicit Types fn : val.
-
-Definition deque_create :=
-  xdeque_create.
-
-Definition deque_is_empty :=
-  xdeque_is_empty.
-
-Definition deque_push_front : val :=
-  fun: "t" "v" =>
-    xdeque_push_front "t" { "t", "t", "v" }.
-
-Definition deque_push_back : val :=
-  fun: "t" "v" =>
-    xdeque_push_back "t" { "t", "t", "v" }.
-
-Definition deque_pop_front : val :=
-  fun: "t" =>
-    match: xdeque_pop_front "t" with
-    | None =>
-        None
-    | Some "node" =>
-        ‘Some( "node".{xdeque_data} )
-    end.
-
-Definition deque_pop_back : val :=
-  fun: "t" =>
-    match: xdeque_pop_back "t" with
-    | None =>
-        None
-    | Some "node" =>
-        ‘Some( "node".{xdeque_data} )
-    end.
-
-Definition deque_iter : val :=
-  fun: "t" "fn" =>
-    xdeque_iter "t" (fun: "node" => "fn" "node".{xdeque_data}).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

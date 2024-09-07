@@ -6,10 +6,12 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  random_round__code.
 From zoo.std Require Import
   array
-  random.
+  random
+  random_round__types.
 From zoo Require Import
   options.
 
@@ -17,42 +19,6 @@ Implicit Types i n : nat.
 Implicit Types prevs nexts : list nat.
 Implicit Types l : location.
 Implicit Types t rand : val.
-
-#[local] Notation "'random'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'array'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'index'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition random_round_create : val :=
-  fun: "sz" =>
-    { random_create (),
-      array_unsafe_initi "sz" (fun: "i" => "i"),
-      "sz"
-    }.
-
-Definition random_round_reset : val :=
-  fun: "t" =>
-    "t" <-{index} array_size "t".{array}.
-
-Definition random_round_next : val :=
-  fun: "t" =>
-    let: "arr" := "t".{array} in
-    let: "i" := "t".{index} in
-    let: "j" := random_int "t".{random} "i" in
-    let: "res" := array_unsafe_get "arr" "j" in
-    let: "i" := "i" - #1 in
-    array_unsafe_set "arr" "j" (array_unsafe_get "arr" "i") ;;
-    array_unsafe_set "arr" "i" "res" ;;
-    "t" <-{index} "i" ;;
-    "res".
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

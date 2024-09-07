@@ -683,3 +683,21 @@ Notation "e1 <- e2" := (
 )(at level 80,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.
+
+Notation "'None'" := (
+  in_type "option" 0
+)(in custom zoo_tag
+).
+Notation "'Some'" := (
+  in_type "option" 1
+)(in custom zoo_tag
+).
+
+Notation "'Nil'" := (
+  in_type "lst" 0
+)(in custom zoo_tag
+).
+Notation "'Cons'" := (
+  in_type "lst" 1
+)(in custom zoo_tag
+).

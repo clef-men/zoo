@@ -4,7 +4,8 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  stack__code.
 From zoo.std Require Import
   dynarray_1.
 From zoo Require Import
@@ -12,23 +13,11 @@ From zoo Require Import
 
 Implicit Types v t : val.
 
-Definition stack_create :=
-  dynarray_create.
-
-Definition stack_is_empty :=
-  dynarray_is_empty.
-
-Definition stack_push :=
-  dynarray_push.
-
-Definition stack_pop :=
-  dynarray_pop.
-
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   Definition stack_model t vs :=
-    dynarray_model t (reverse vs).
+    dynarray_1_model t (reverse vs).
 
   #[global] Instance stack_model_timeless t vs :
     Timeless (stack_model t vs).
@@ -46,7 +35,7 @@ Section zoo_G.
       stack_model t []
     }}}.
   Proof.
-    apply dynarray_create_spec.
+    apply dynarray_1_create_spec.
   Qed.
 
   Lemma stack_is_empty_spec t vs :
@@ -60,7 +49,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_is_empty_spec with "Ht").
+    wp_apply (dynarray_1_is_empty_spec with "Ht").
     rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive_solver.
   Qed.
 
@@ -75,7 +64,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_push_spec with "Ht").
+    wp_apply (dynarray_1_push_spec with "Ht").
     rewrite -reverse_cons //.
   Qed.
 
@@ -91,7 +80,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ Ht HΦ".
-    wp_apply (dynarray_pop_spec with "Ht"); last iSteps.
+    wp_apply (dynarray_1_pop_spec with "Ht"); last iSteps.
     rewrite reverse_cons //.
   Qed.
 End zoo_G.
