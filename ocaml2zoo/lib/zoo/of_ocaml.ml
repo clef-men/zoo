@@ -1,146 +1,150 @@
 open Syntax
 
-let builtin_raising =
-  [|[|"Stdlib";"raise"|] ;
-    [|"Stdlib";"invalid_arg"|] ;
-    [|"Stdlib";"failwith"|] ;
-  |]
-let builtin_raising =
-  Array.fold_left (fun acc path ->
-    Path.Set.add (Path.of_array path) acc
-  ) Path.Set.empty builtin_raising
+module Builtin = struct
+  let raising =
+    [|[|"Stdlib";"raise"|] ;
+      [|"Stdlib";"invalid_arg"|] ;
+      [|"Stdlib";"failwith"|] ;
+    |]
+  let raising =
+    Array.fold_left (fun acc path ->
+      Path.Set.add (Path.of_array path) acc
+    ) Path.Set.empty raising
 
-let builtin_paths =
-  [|[|"Stdlib";"ignore"|], Fun ([Some "1"], Local "1"), None ;
-    [|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")), None ;
-    [|"Stdlib";"~-"|], Fun ([Some "1"], Unop (Unop_minus, Local "1")), None ;
-    [|"Stdlib";"+"|], Fun ([Some "1"; Some "2"], Binop (Binop_plus, Local "1", Local "2")), None ;
-    [|"Stdlib";"-"|], Fun ([Some "1"; Some "2"], Binop (Binop_minus, Local "1", Local "2")), None ;
-    [|"Stdlib";"*"|], Fun ([Some "1"; Some "2"], Binop (Binop_mult, Local "1", Local "2")), None ;
-    [|"Stdlib";"/"|], Fun ([Some "1"; Some "2"], Binop (Binop_quot, Local "1", Local "2")), None ;
-    [|"Stdlib";"mod"|], Fun ([Some "1"; Some "2"], Binop (Binop_rem, Local "1", Local "2")), None ;
-    [|"Stdlib";"=="|], Fun ([Some "1"; Some "2"], Binop (Binop_eq, Local "1", Local "2")), None ;
-    [|"Stdlib";"!="|], Fun ([Some "1"; Some "2"], Binop (Binop_ne, Local "1", Local "2")), None ;
-    [|"Stdlib";"<="|], Fun ([Some "1"; Some "2"], Binop (Binop_le, Local "1", Local "2")), None ;
-    [|"Stdlib";"<"|], Fun ([Some "1"; Some "2"], Binop (Binop_lt, Local "1", Local "2")), None ;
-    [|"Stdlib";">="|], Fun ([Some "1"; Some "2"], Binop (Binop_ge, Local "1", Local "2")), None ;
-    [|"Stdlib";">"|], Fun ([Some "1"; Some "2"], Binop (Binop_gt, Local "1", Local "2")), None ;
-    [|"Stdlib";"ref"|], Fun ([Some "1"], Ref (Local "1")), None ;
-    [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
-    [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
-    [|"Stdlib";"Obj";"repr"|], Fun ([Some "1"], Local "1"), None ;
-    [|"Stdlib";"Obj";"obj"|], Fun ([Some "1"], Local "1"), None ;
-    [|"Stdlib";"Obj";"magic"|], Fun ([Some "1"], Local "1"), None ;
-    [|"Stdlib";"Obj";"tag"|], Fun ([Some "1"], Get_tag (Local "1")), None ;
-    [|"Stdlib";"Obj";"size"|], Fun ([Some "1"], Get_size (Local "1")), None ;
-    [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Load (Local "1", Local "2")), None ;
-    [|"Stdlib";"Obj";"set_field"|], Fun ([Some "1"; Some "2"; Some "3"], Store (Local "1", Local "2", Local "3")), None ;
-    [|"Stdlib";"Obj";"new_block"|], Fun ([Some "1"; Some "2"], Alloc (Local "1", Local "2")), None ;
-    [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "math" ;
-    [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "math" ;
-    [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
-    [|"Stdlib";"Atomic";"make"|], Fun ([Some "1"], Ref (Local "1")), None ;
-    [|"Stdlib";"Atomic";"get"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
-    [|"Stdlib";"Atomic";"set"|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
-    [|"Stdlib";"Atomic";"exchange"|], Fun ([Some "1"; Some "2"], Xchg (Atomic_loc (Local "1", "contents"), Local "2")), None ;
-    [|"Stdlib";"Atomic";"compare_and_set"|], Fun ([Some "1"; Some "2"; Some "3"], Cas (Atomic_loc (Local "1", "contents"), Local "2", Local "3")), None ;
-    [|"Stdlib";"Atomic";"fetch_and_add"|], Fun ([Some "1"; Some "2"], Faa (Atomic_loc (Local "1", "contents"), Local "2")), None ;
-    [|"Stdlib";"Atomic";"decr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int (-1))), None ;
-    [|"Stdlib";"Atomic";"incr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int 1)), None ;
-    [|"Zoo";"proph"|], Proph, None ;
-    [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")), None ;
-  |]
-let builtin_paths =
-  Array.fold_left (fun acc (path, expr, dep) ->
-    Path.Map.add (Path.of_array path) (expr, dep) acc
-  ) Path.Map.empty builtin_paths
-let builtin_paths =
-  Path.Set.fold (fun path acc ->
-    let expr = Fun ([None], Apply (Global "diverge", [Tuple []])) in
-    let dep = Some "diverge" in
-    Path.Map.add path (expr, dep) acc
-  ) builtin_raising builtin_paths
+  let paths =
+    [|[|"Stdlib";"ignore"|], Fun ([Some "1"], Local "1"), None ;
+      [|"Stdlib";"not"|], Fun ([Some "1"], Unop (Unop_neg, Local "1")), None ;
+      [|"Stdlib";"~-"|], Fun ([Some "1"], Unop (Unop_minus, Local "1")), None ;
+      [|"Stdlib";"+"|], Fun ([Some "1"; Some "2"], Binop (Binop_plus, Local "1", Local "2")), None ;
+      [|"Stdlib";"-"|], Fun ([Some "1"; Some "2"], Binop (Binop_minus, Local "1", Local "2")), None ;
+      [|"Stdlib";"*"|], Fun ([Some "1"; Some "2"], Binop (Binop_mult, Local "1", Local "2")), None ;
+      [|"Stdlib";"/"|], Fun ([Some "1"; Some "2"], Binop (Binop_quot, Local "1", Local "2")), None ;
+      [|"Stdlib";"mod"|], Fun ([Some "1"; Some "2"], Binop (Binop_rem, Local "1", Local "2")), None ;
+      [|"Stdlib";"=="|], Fun ([Some "1"; Some "2"], Binop (Binop_eq, Local "1", Local "2")), None ;
+      [|"Stdlib";"!="|], Fun ([Some "1"; Some "2"], Binop (Binop_ne, Local "1", Local "2")), None ;
+      [|"Stdlib";"<="|], Fun ([Some "1"; Some "2"], Binop (Binop_le, Local "1", Local "2")), None ;
+      [|"Stdlib";"<"|], Fun ([Some "1"; Some "2"], Binop (Binop_lt, Local "1", Local "2")), None ;
+      [|"Stdlib";">="|], Fun ([Some "1"; Some "2"], Binop (Binop_ge, Local "1", Local "2")), None ;
+      [|"Stdlib";">"|], Fun ([Some "1"; Some "2"], Binop (Binop_gt, Local "1", Local "2")), None ;
+      [|"Stdlib";"ref"|], Fun ([Some "1"], Ref (Local "1")), None ;
+      [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
+      [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
+      [|"Stdlib";"Obj";"repr"|], Fun ([Some "1"], Local "1"), None ;
+      [|"Stdlib";"Obj";"obj"|], Fun ([Some "1"], Local "1"), None ;
+      [|"Stdlib";"Obj";"magic"|], Fun ([Some "1"], Local "1"), None ;
+      [|"Stdlib";"Obj";"tag"|], Fun ([Some "1"], Get_tag (Local "1")), None ;
+      [|"Stdlib";"Obj";"size"|], Fun ([Some "1"], Get_size (Local "1")), None ;
+      [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Load (Local "1", Local "2")), None ;
+      [|"Stdlib";"Obj";"set_field"|], Fun ([Some "1"; Some "2"; Some "3"], Store (Local "1", Local "2", Local "3")), None ;
+      [|"Stdlib";"Obj";"new_block"|], Fun ([Some "1"; Some "2"], Alloc (Local "1", Local "2")), None ;
+      [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "math" ;
+      [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "math" ;
+      [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
+      [|"Stdlib";"Atomic";"make"|], Fun ([Some "1"], Ref (Local "1")), None ;
+      [|"Stdlib";"Atomic";"get"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
+      [|"Stdlib";"Atomic";"set"|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
+      [|"Stdlib";"Atomic";"exchange"|], Fun ([Some "1"; Some "2"], Xchg (Atomic_loc (Local "1", "contents"), Local "2")), None ;
+      [|"Stdlib";"Atomic";"compare_and_set"|], Fun ([Some "1"; Some "2"; Some "3"], Cas (Atomic_loc (Local "1", "contents"), Local "2", Local "3")), None ;
+      [|"Stdlib";"Atomic";"fetch_and_add"|], Fun ([Some "1"; Some "2"], Faa (Atomic_loc (Local "1", "contents"), Local "2")), None ;
+      [|"Stdlib";"Atomic";"decr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int (-1))), None ;
+      [|"Stdlib";"Atomic";"incr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int 1)), None ;
+      [|"Zoo";"proph"|], Proph, None ;
+      [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")), None ;
+    |]
+  let paths =
+    Array.fold_left (fun acc (path, expr, dep) ->
+      Path.Map.add (Path.of_array path) (expr, dep) acc
+    ) Path.Map.empty paths
+  let paths =
+    Path.Set.fold (fun path acc ->
+      let expr = Fun ([None], Apply (Global "diverge", [Tuple []])) in
+      let dep = Some "diverge" in
+      Path.Map.add path (expr, dep) acc
+    ) raising paths
 
-type builtin_app =
-  | Opaque of expression
-  | Transparent of (expression list -> expression option)
-let builtin_apps =
-  [|[|"Stdlib";"ignore"|], (function [expr] -> Some expr | _ -> None), None ;
-    [|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None), None ;
-    [|"Stdlib";"~-"|], (function [expr] -> Some (Unop (Unop_minus, expr)) | _ -> None), None ;
-    [|"Stdlib";"+"|], (function [expr1; expr2] -> Some (Binop (Binop_plus, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"-"|], (function [expr1; expr2] -> Some (Binop (Binop_minus, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"*"|], (function [expr1; expr2] -> Some (Binop (Binop_mult, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"/"|], (function [expr1; expr2] -> Some (Binop (Binop_quot, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"mod"|], (function [expr1; expr2] -> Some (Binop (Binop_rem, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"=="|], (function [expr1; expr2] -> Some (Binop (Binop_eq, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"!="|], (function [expr1; expr2] -> Some (Binop (Binop_ne, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"<="|], (function [expr1; expr2] -> Some (Binop (Binop_le, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"<"|], (function [expr1; expr2] -> Some (Binop (Binop_lt, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";">="|], (function [expr1; expr2] -> Some (Binop (Binop_ge, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";">"|], (function [expr1; expr2] -> Some (Binop (Binop_gt, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"&&"|], (function [expr1; expr2] -> Some (Binop (Binop_and, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"||"|], (function [expr1; expr2] -> Some (Binop (Binop_or, expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"ref"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
-    [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
-    [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"Obj";"repr"|], (function [expr] -> Some expr | _ -> None), None ;
-    [|"Stdlib";"Obj";"obj"|], (function [expr] -> Some expr | _ -> None), None ;
-    [|"Stdlib";"Obj";"magic"|], (function [expr] -> Some expr | _ -> None), None ;
-    [|"Stdlib";"Obj";"tag"|], (function [expr] -> Some (Get_tag expr) | _ -> None), None ;
-    [|"Stdlib";"Obj";"size"|], (function [expr] -> Some (Get_size expr) | _ -> None), None ;
-    [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Store (expr1, expr2, expr3)) | _ -> None), None ;
-    [|"Stdlib";"Obj";"new_block"|], (function [expr1; expr2] -> Some (Alloc (expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "math" ;
-    [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "math" ;
-    [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
-    [|"Stdlib";"Atomic";"make"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"get"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"set"|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"exchange"|], (function [expr1; expr2] -> Some (Xchg (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"compare_and_set"|], (function [expr1; expr2; expr3] -> Some (Cas (Atomic_loc (expr1, "contents"), expr2, expr3)) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"fetch_and_add"|], (function [expr1; expr2] -> Some (Faa (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"decr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int (-1))) | _ -> None), None ;
-    [|"Stdlib";"Atomic";"incr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int 1)) | _ -> None), None ;
-    [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None), None ;
-  |]
-let builtin_apps =
-  Array.fold_left (fun acc (path, mk_expr, dep) ->
-    Path.Map.add (Path.of_array path) (Transparent mk_expr, dep) acc
-  ) Path.Map.empty builtin_apps
-let builtin_apps =
-  Path.Set.fold (fun path acc ->
-    let expr = Apply (Global "diverge", [Tuple []]) in
-    let dep = Some "diverge" in
-    Path.Map.add path (Opaque expr, dep) acc
-  ) builtin_raising builtin_apps
+  type app =
+    | Opaque of expression
+    | Transparent of (expression list -> expression option)
+  let apps =
+    [|[|"Stdlib";"ignore"|], (function [expr] -> Some expr | _ -> None), None ;
+      [|"Stdlib";"not"|], (function [expr] -> Some (Unop (Unop_neg, expr)) | _ -> None), None ;
+      [|"Stdlib";"~-"|], (function [expr] -> Some (Unop (Unop_minus, expr)) | _ -> None), None ;
+      [|"Stdlib";"+"|], (function [expr1; expr2] -> Some (Binop (Binop_plus, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"-"|], (function [expr1; expr2] -> Some (Binop (Binop_minus, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"*"|], (function [expr1; expr2] -> Some (Binop (Binop_mult, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"/"|], (function [expr1; expr2] -> Some (Binop (Binop_quot, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"mod"|], (function [expr1; expr2] -> Some (Binop (Binop_rem, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"=="|], (function [expr1; expr2] -> Some (Binop (Binop_eq, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"!="|], (function [expr1; expr2] -> Some (Binop (Binop_ne, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"<="|], (function [expr1; expr2] -> Some (Binop (Binop_le, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"<"|], (function [expr1; expr2] -> Some (Binop (Binop_lt, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";">="|], (function [expr1; expr2] -> Some (Binop (Binop_ge, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";">"|], (function [expr1; expr2] -> Some (Binop (Binop_gt, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"&&"|], (function [expr1; expr2] -> Some (Binop (Binop_and, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"||"|], (function [expr1; expr2] -> Some (Binop (Binop_or, expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"ref"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
+      [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
+      [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Obj";"repr"|], (function [expr] -> Some expr | _ -> None), None ;
+      [|"Stdlib";"Obj";"obj"|], (function [expr] -> Some expr | _ -> None), None ;
+      [|"Stdlib";"Obj";"magic"|], (function [expr] -> Some expr | _ -> None), None ;
+      [|"Stdlib";"Obj";"tag"|], (function [expr] -> Some (Get_tag expr) | _ -> None), None ;
+      [|"Stdlib";"Obj";"size"|], (function [expr] -> Some (Get_size expr) | _ -> None), None ;
+      [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Store (expr1, expr2, expr3)) | _ -> None), None ;
+      [|"Stdlib";"Obj";"new_block"|], (function [expr1; expr2] -> Some (Alloc (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "math" ;
+      [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "math" ;
+      [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
+      [|"Stdlib";"Atomic";"make"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"get"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"set"|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"exchange"|], (function [expr1; expr2] -> Some (Xchg (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"compare_and_set"|], (function [expr1; expr2; expr3] -> Some (Cas (Atomic_loc (expr1, "contents"), expr2, expr3)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"fetch_and_add"|], (function [expr1; expr2] -> Some (Faa (Atomic_loc (expr1, "contents"), expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"decr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int (-1))) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"incr"|], (function [expr] -> Some (Faa (Atomic_loc (expr, "contents"), Int 1)) | _ -> None), None ;
+      [|"Zoo";"resolve"|], (function [expr1; expr2; expr3] -> Some (Resolve (expr1, expr2, expr3)) | _ -> None), None ;
+    |]
+  let apps =
+    Array.fold_left (fun acc (path, mk_expr, dep) ->
+      Path.Map.add (Path.of_array path) (Transparent mk_expr, dep) acc
+    ) Path.Map.empty apps
+  let apps =
+    Path.Set.fold (fun path acc ->
+      let expr = Apply (Global "diverge", [Tuple []]) in
+      let dep = Some "diverge" in
+      Path.Map.add path (Opaque expr, dep) acc
+    ) raising apps
 
-let builtin_constrs =
-  let open Either in
-  [|[|"()"|], Left (Tuple []), None ;
-    [|"true"|], Left (Bool true), None ;
-    [|"false"|], Left (Bool false), None ;
-    [|"[]"|], Right "Nil", None ;
-    [|"::"|], Right "Cons", None ;
-    [|"None"|], Right "None", None ;
-    [|"Some"|], Right "Some", None ;
-  |]
-let builtin_constrs =
-  Array.fold_left (fun acc (lid, tag, dep) ->
-    Longident.Map.add (Longident.of_array lid) (tag, dep) acc
-  ) Longident.Map.empty builtin_constrs
+  let constrs =
+    let open Either in
+    [|[|"()"|], Left (Tuple []), None ;
+      [|"true"|], Left (Bool true), None ;
+      [|"false"|], Left (Bool false), None ;
+      [|"[]"|], Right "Nil", None ;
+      [|"::"|], Right "Cons", None ;
+      [|"None"|], Right "None", None ;
+      [|"Some"|], Right "Some", None ;
+    |]
+  let constrs =
+    Array.fold_left (fun acc (lid, tag, dep) ->
+      Longident.Map.add (Longident.of_array lid) (tag, dep) acc
+    ) Longident.Map.empty constrs
+end
 
-let attribute_prefix =
-  "zoo.prefix"
-let attribute_force_record =
-  "zoo.force_record"
-let attribute_reveal =
-  "zoo.reveal"
-let attribute_opaque =
-  "zoo.opaque"
-let attribute_override =
-  "zoo.override"
+module Attribute = struct
+  let prefix =
+    "zoo.prefix"
+  let force_record =
+    "zoo.force_record"
+  let reveal =
+    "zoo.reveal"
+  let opaque =
+    "zoo.opaque"
+  let override =
+    "zoo.override"
+end
 
 module Unsupported = struct
   type t =
@@ -319,10 +323,10 @@ module Error = struct
           Unsupported.pp unsupported
     | Attribute_prefix_invalid_payload ->
         Format.fprintf ppf {|payload of attribute "%s" must be a string|}
-          attribute_prefix
+          Attribute.prefix
     | Attribute_override_invalid_payload ->
         Format.fprintf ppf {|payload of attribute "%s" must be a expression|}
-          attribute_override
+          Attribute.override
 end
 
 exception Error of Location.t * Error.t
@@ -340,7 +344,7 @@ let has_attribute attr =
 let record_is_mutable ty =
   let[@warning "-8"] Types.Type_record (lbls, _) = ty.Types.type_kind in
   List.exists (fun lbl -> lbl.Types.ld_mutable = Mutable) lbls ||
-  has_attribute attribute_force_record ty.type_attributes
+  has_attribute Attribute.force_record ty.type_attributes
 
 module Context = struct
   type t =
@@ -442,7 +446,7 @@ let pattern ctx (pat : Typedtree.pattern) =
       Some (Pat_tuple bdrs)
   | Tpat_construct (lid, _, pats, _) ->
       let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
-      begin match Longident.Map.find_opt lid.txt builtin_constrs with
+      begin match Longident.Map.find_opt lid.txt Builtin.constrs with
       | Some (tag, dep) ->
           Option.iter (Context.add_dependency ctx) dep ;
           let tag = Either.get_right (fun _ -> unsupported lid.loc Pattern_constr) tag in
@@ -477,7 +481,7 @@ let rec expression ctx (expr : Typedtree.expression) =
           else
             Global (Context.find_global ctx id)
       | Pdot (path', global) ->
-          begin match Path.Map.find_opt path builtin_paths with
+          begin match Path.Map.find_opt path Builtin.paths with
           | Some (expr, dep) ->
               Option.iter (Context.add_dependency ctx) dep ;
               expr
@@ -553,7 +557,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       in
       begin match expr'.exp_desc with
       | Texp_ident (path', _, _) ->
-          begin match Path.Map.find_opt path' builtin_apps with
+          begin match Path.Map.find_opt path' Builtin.apps with
           | None ->
               default (arguments ())
           | Some (mk_expr, dep) ->
@@ -576,7 +580,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       let expr1 = expression ctx expr1 in
       begin match expr1, expr2.exp_desc, expr3 with
       | Unop (Unop_neg, expr1), Texp_apply ({ exp_desc= Texp_ident (path, _, _); _ }, _), None
-        when Path.Set.mem path builtin_raising ->
+        when Path.Set.mem path Builtin.raising ->
           Context.add_dependency ctx "assume" ;
           Apply (Global "assume", [expr1])
       | _ ->
@@ -639,13 +643,13 @@ let rec expression ctx (expr : Typedtree.expression) =
         let[@warning "-8"] [expr] = exprs in
         expr
       else
-        begin match Longident.Map.find_opt lid.txt builtin_constrs with
+        begin match Longident.Map.find_opt lid.txt Builtin.constrs with
         | Some (tag, dep) ->
             Option.iter (Context.add_dependency ctx) dep ;
             Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
             let concrete =
-              if has_attribute attribute_reveal constr.cstr_attributes then
+              if has_attribute Attribute.reveal constr.cstr_attributes then
                 Concrete
               else
                 Abstract
@@ -796,7 +800,7 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
                     bdrs
               in
               let tag, bdrs =
-                match Longident.Map.find_opt lid.txt builtin_constrs with
+                match Longident.Map.find_opt lid.txt Builtin.constrs with
                 | Some (tag, dep) ->
                     Option.iter (Context.add_dependency ctx) dep ;
                     let tag = Either.get_right (fun _ -> unsupported lid.loc Pattern_constr) tag in
@@ -824,14 +828,14 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
       | Tpat_var (id, { loc; _ }, _) ->
           let global = Context.add_global ctx id in
           let val_ =
-            if has_attribute attribute_opaque bdg.vb_attributes then
+            if has_attribute Attribute.opaque bdg.vb_attributes then
               Val_opaque
             else
               let restore_locals = Context.save_locals ctx in
               if rec_flag = Recursive then
                 Context.add_local ctx id ;
               let expr =
-                match find_attribute attribute_override bdg.vb_attributes with
+                match find_attribute Attribute.override bdg.vb_attributes with
                 | None ->
                     bdg.vb_expr
                 | Some attr ->
@@ -904,7 +908,7 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
             unsupported str_item.str_loc Type_extensible
       ) tys
   | Tstr_attribute attr ->
-      if attr.attr_name.txt = attribute_prefix then (
+      if attr.attr_name.txt = Attribute.prefix then (
         match attr.attr_payload with
         | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_constant (Pconst_string (pref, _, _)); _ }, _); _ }] ->
             Context.set_prefix ctx pref
