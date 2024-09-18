@@ -14,11 +14,11 @@ Definition pstore_create : val :=
     { #0, ref §Root }.
 
 Definition pstore_ref : val :=
-  fun: "t" "v" =>
+  fun: "_t" "v" =>
     { #0, "v" }.
 
 Definition pstore_get : val :=
-  fun: "t" "r" =>
+  fun: "_t" "r" =>
     "r".{ref_value}.
 
 Definition pstore_set : val :=

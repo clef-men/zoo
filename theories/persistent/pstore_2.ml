@@ -32,10 +32,10 @@ type 'a snap =
 let create () =
   { gen= 0; root= ref Root }
 
-let ref t v =
+let ref _t v =
   { ref_gen= 0; ref_value= v }
 
-let get t r =
+let get _t r =
   r.ref_value
 
 let set t r v =
