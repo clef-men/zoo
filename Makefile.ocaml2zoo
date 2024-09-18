@@ -1,8 +1,11 @@
+self := $(lastword $(MAKEFILE_LIST))
+
 source_dir := theories
 sources_mli := $(wildcard $(source_dir)/*/*.mli)
 sources := $(patsubst %.mli,%,$(sources_mli))
 sources_ml := $(addsuffix .ml,$(sources))
 sources_cmt := $(addsuffix .cmt,$(sources))
+output := $(addsuffix __code.v,$(sources))
 
 ocaml2zoo_dir := ./ocaml2zoo
 ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
@@ -10,26 +13,44 @@ ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
 include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 include_dirs += $(ocaml2zoo_dir)
 
-ocamldep := ocamldep -native $(addprefix -I ,$(include_dirs))
-ocamlopt := ocamlopt -warn-error +A $(addprefix -I ,$(include_dirs))
+ocamldep := opam exec -- ocamldep -native $(addprefix -I ,$(include_dirs))
+ocamlopt := opam exec -- ocamlopt -warn-error +A $(addprefix -I ,$(include_dirs))
 
 .PHONY : all
-all : $(sources_cmt)
+all :
 	@ $(MAKE) -C $(ocaml2zoo_dir)
-	@ for cmt in $(sources_cmt) ; do $(ocaml2zoo_exe) $$cmt ; done ; \
-	  for src in $(sources) ; do rm -f $$src.cm[it] ; done
+	@ $(MAKE) -f $(self) cmt || ($(MAKE) -f $(self) clean_theories ; false)
+	@ $(MAKE) -f $(self) gen || ($(MAKE) -f $(self) clean_theories ; false)
+	@ $(MAKE) -f $(self) clean_theories
+
+.PHONY : cmt
+cmt : $(sources_cmt)
+
+.PHONY : gen
+gen : $(output)
+
+.PHONY : clean_theories
+clean_theories :
+	@ for src in $(sources) ; do rm -f $$src.cm[it] ; done
+
+%__code.v : %.ml %.mli
+	@ $(ocaml2zoo_exe) $*.cmt
 
 %.cmi : %.mli
-	@ opam exec -- $(ocamlopt) $<
+	@ $(ocamlopt) $<
 %.cmt : %.ml
-	@ opam exec -- $(ocamlopt) -stop-after typing -bin-annot $<
+	@ $(ocamlopt) -stop-after typing -bin-annot $<
 
 Makefile.ocaml2zoo.depend : $(sources_mli) $(sources_ml)
-	@ opam exec -- $(ocamldep) $(sources_mli) $(sources_ml) > $@
+	@ $(ocamldep) $(sources_mli) $(sources_ml) > $@
 	@ perl -i -pe's:.cmx:.cmt:g' $@
 
 -include Makefile.ocaml2zoo.depend
 
+.PHONY : touch
+touch :
+	@ for src in $(sources_ml) ; do touch $$src ; done
+
 .PHONY : clean
-clean :
+clean : clean_theories
 	@ $(MAKE) -C $(ocaml2zoo_dir) $@

@@ -41,6 +41,11 @@ theories/std/dynarray_2.cmt : \
     theories/std/array.cmt \
     theories/std/dynarray_2.cmi
 theories/std/dynarray_2.cmi :
+theories/std/inf_array.cmt : \
+    theories/std/mutex.cmt \
+    theories/std/array.cmt \
+    theories/std/inf_array.cmi
+theories/std/inf_array.cmi :
 theories/std/lst.cmt : \
     theories/std/lst.cmi
 theories/std/lst.cmi :

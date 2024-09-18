@@ -35,6 +35,13 @@ Section mutex_G.
   #[local] Definition mutex_locked' γ :=
     excl γ ().
 
+  Definition mutex_init t : iProp Σ :=
+    ∃ l γ,
+    ⌜t = #l⌝ ∗
+    meta l nroot γ ∗
+    l ↦ᵣ #false ∗
+    mutex_locked' γ.
+
   #[local] Definition mutex_inv_inner l γ P : iProp Σ :=
     ∃ b,
     l ↦ᵣ #b ∗
@@ -73,8 +80,8 @@ Section mutex_G.
     apply _.
   Qed.
 
-  #[global] Instance mutex_inv_persistent t P :
-    Persistent (mutex_inv t P).
+  #[global] Instance mutex_init_timeless t :
+    Timeless (mutex_init t).
   Proof.
     apply _.
   Qed.
@@ -82,6 +89,19 @@ Section mutex_G.
     Timeless (mutex_locked t).
   Proof.
     apply _.
+  Qed.
+  #[global] Instance mutex_inv_persistent t P :
+    Persistent (mutex_inv t P).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma mutex_init_to_inv {t} P :
+    mutex_init t -∗
+    ▷ P ={⊤}=∗
+    mutex_inv t P.
+  Proof.
+    iSteps.
   Qed.
 
   Lemma mutex_locked_exclusive t :
@@ -92,6 +112,24 @@ Section mutex_G.
     iIntros "(%l & %γ & -> & #Hmeta & Hlocked1) (%_l & %_γ & %Heq & _Hmeta & Hlocked2)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (excl_exclusive with "Hlocked1 Hlocked2") as %[].
+  Qed.
+
+  Lemma mutex_create_spec_init :
+    {{{
+      True
+    }}}
+      mutex_create ()
+    {{{ t,
+      RET t;
+      mutex_init t
+    }}}.
+  Proof.
+    iIntros "%Φ HP HΦ".
+    wp_rec.
+    wp_ref l as "Hmeta" "Hl".
+    iMod excl_alloc as "(%γ & Hlocked)".
+    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iSteps.
   Qed.
 
   Lemma mutex_create_spec P :
@@ -105,11 +143,10 @@ Section mutex_G.
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
-    wp_rec.
-    wp_ref l as "Hmeta" "Hl".
-    iMod excl_alloc as "(%γ & Hlocked)".
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
-    iSteps.
+    iApply wp_fupd.
+    wp_apply (mutex_create_spec_init with "[//]") as (t) "Hinit".
+    iMod (mutex_init_to_inv with "Hinit HP") as "Hinv".
+    iApply ("HΦ" with "Hinv").
   Qed.
 
   Lemma mutex_lock_spec t P :
@@ -186,5 +223,6 @@ End mutex_G.
 #[global] Opaque mutex_unlock.
 #[global] Opaque mutex_protect.
 
+#[global] Opaque mutex_init.
 #[global] Opaque mutex_inv.
 #[global] Opaque mutex_locked.

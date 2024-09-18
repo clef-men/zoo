@@ -119,6 +119,8 @@ theories/std/dynarray_1.v
 theories/std/dynarray_2__types.v
 theories/std/dynarray_2__code.v
 theories/std/dynarray_2.v
+theories/std/inf_array__types.v
+theories/std/inf_array__code.v
 theories/std/inf_array.v
 theories/std/queue__types.v
 theories/std/queue__code.v

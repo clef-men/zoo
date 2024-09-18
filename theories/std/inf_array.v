@@ -9,10 +9,12 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Export
-  base.
+  base
+  inf_array__code.
 From zoo.std Require Import
   array
-  mutex.
+  mutex
+  inf_array__types.
 From zoo Require Import
   options.
 
@@ -20,52 +22,6 @@ Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types us : list val.
 Implicit Types vs : nat → val.
-
-#[local] Notation "'data'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'default'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'mutex'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition inf_array_create : val :=
-  fun: "default" =>
-    let: "data" := array_create () in
-    let: "t" := { "data", "default", () } in
-    let: "mtx" := mutex_create () in
-    "t" <-{mutex} "mtx" ;;
-    "t".
-
-Definition inf_array_get : val :=
-  fun: "t" "i" =>
-    mutex_protect "t".{mutex} (fun: <> =>
-      let: "data" := "t".{data} in
-      if: "i" < array_size "data" then (
-        array_unsafe_get "data" "i"
-      ) else (
-        "t".{default}
-      )
-    ).
-
-Definition inf_array_set : val :=
-  fun: "t" "i" "v" =>
-    mutex_protect "t".{mutex} (fun: <> =>
-      let: "data" := "t".{data} in
-      let: "sz" := array_size "data" in
-      if: "i" < "sz" then (
-        array_unsafe_set "data" "i" "v"
-      ) else (
-        let: "data" := array_unsafe_grow "data" (#1 + "i") "t".{default} in
-        "t" <-{data} "data" ;;
-        array_unsafe_set "data" "i" "v"
-      )
-    ).
 
 Class InfArrayG Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_array_G_mutex_G :: MutexG Σ ;
@@ -252,6 +208,7 @@ Section inf_array_G.
     wp_rec.
 
     wp_apply (array_create_spec with "[//]") as "%data Hmodel_data".
+    wp_smart_apply (mutex_create_spec_init with "[//]") as (mtx) "Hmtx_init".
 
     wp_block l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
     iMod (pointsto_persist with "Hdefault") as "#Hdefault".
@@ -264,7 +221,8 @@ Section inf_array_G.
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
-    wp_smart_apply (mutex_create_spec (inf_array_inv_inner l γ) with "[Hdata Hmodel_data Hmodel₂]") as (mtx) "#Hinv_mtx"; iSteps.
+    iMod (mutex_init_to_inv (inf_array_inv_inner l γ) with "Hmtx_init [Hdata Hmodel_data Hmodel₂]") as "#Hmtx_inv"; first iSteps.
+    iSteps.
   Qed.
 
   Lemma inf_array_get_spec t i :
