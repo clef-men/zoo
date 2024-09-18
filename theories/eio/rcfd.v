@@ -62,7 +62,7 @@ Implicit Types state : rcfd_state.
   | RcfdStateOpen =>
       #open
   | RcfdStateClosing fn =>
-      ’Closing( fn )
+      ‘Closing( fn )
   end%V.
 #[local] Arguments state_to_val _ !_ / : assert.
 
@@ -77,7 +77,7 @@ Definition rcfd_make : val :=
     { #0, ‘Open{ "fd" } }.
 
 #[local] Definition rcfd_closed : val :=
-  ’Closing( fun: <> => () ).
+  ‘Closing( fun: <> => () ).
 
 #[local] Definition rcfd_put : val :=
   fun: "t" =>

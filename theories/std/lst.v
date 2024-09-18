@@ -18,7 +18,7 @@ Fixpoint plst_to_val nil vs :=
   | [] =>
       nil
   | v :: vs =>
-      ’Cons( v, plst_to_val nil vs )
+      ‘Cons( v, plst_to_val nil vs )
   end%V.
 #[global] Arguments plst_to_val _ !_ : assert.
 
@@ -29,12 +29,12 @@ Proof.
   destruct vs; done.
 Qed.
 Lemma plst_to_val_cons nil v vs :
-  plst_to_val nil (v :: vs) = ’Cons( v, plst_to_val nil vs )%V.
+  plst_to_val nil (v :: vs) = ‘Cons( v, plst_to_val nil vs )%V.
 Proof.
   done.
 Qed.
 Lemma plst_to_val_singleton nil v :
-  plst_to_val nil [v] = ’Cons( v, nil )%V.
+  plst_to_val nil [v] = ‘Cons( v, nil )%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
@@ -65,12 +65,12 @@ Proof.
   done.
 Qed.
 Lemma lst_to_val_cons v vs :
-  lst_to_val (v :: vs) = ’Cons( v, lst_to_val vs )%V.
+  lst_to_val (v :: vs) = ‘Cons( v, lst_to_val vs )%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
 Lemma lst_to_val_singleton v :
-  lst_to_val [v] = ’Cons( v, §Nil )%V.
+  lst_to_val [v] = ‘Cons( v, §Nil )%V.
 Proof.
   apply plst_to_val_singleton.
 Qed.

@@ -38,7 +38,7 @@ Coercion optional_to_val o :=
   | Anything =>
       §Anything
   | Something v =>
-      ’Something( v )
+      ‘Something( v )
   end%V.
 #[global] Arguments optional_to_val !_ / : assert.
 
@@ -60,7 +60,7 @@ Section zoo_G.
   Definition itype_optional t : iProp Σ :=
       ⌜t = §Nothing%V⌝
     ∨ ⌜t = §Anything%V⌝
-    ∨ ∃ v, ⌜t = ’Something( v )%V⌝ ∗ τ v.
+    ∨ ∃ v, ⌜t = ‘Something( v )%V⌝ ∗ τ v.
   #[global] Instance itype_optional_itype :
     iType _ itype_optional.
   Proof.

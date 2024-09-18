@@ -160,7 +160,11 @@ theories/std/random_round.v
 theories/std/unix.v
 
 theories/persistent/base.v
+theories/persistent/pstack__types.v
+theories/persistent/pstack__code.v
 theories/persistent/pstack.v
+theories/persistent/pqueue__types.v
+theories/persistent/pqueue__code.v
 theories/persistent/pqueue.v
 theories/persistent/parray__types.v
 theories/persistent/parray__code.v

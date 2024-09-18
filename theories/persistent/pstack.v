@@ -7,30 +7,12 @@ From zoo.std Require Import
   option
   lst.
 From zoo.persistent Require Export
-  base.
+  base
+  pstack__code.
 From zoo Require Import
   options.
 
 Implicit Types v t : val.
-
-Definition pstack_empty :=
-  §Nil%V.
-
-Definition pstack_is_empty :=
-  lst_is_empty.
-
-Definition pstack_push : val :=
-  fun: "t" "v" =>
-    ‘Cons( "v", "t" ).
-
-Definition pstack_pop : val :=
-  fun: "t" =>
-    match: "t" with
-    | Nil =>
-        §None
-    | Cons "v" "t'" =>
-        ‘Some( ("v", "t'") )
-    end.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

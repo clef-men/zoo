@@ -34,6 +34,7 @@ type unop =
 type binop =
   | Binop_plus | Binop_minus | Binop_mult | Binop_quot | Binop_rem
   | Binop_eq | Binop_ne | Binop_le | Binop_lt | Binop_ge | Binop_gt
+  | Binop_and | Binop_or
 
 type expression =
   | Global of variable
@@ -84,8 +85,7 @@ and fallback =
   }
 
 type value =
-  | Val_global of variable
-  | Val_int of int
+  | Val_expr of expression
   | Val_rec of binder * binder list * expression
   | Val_opaque
 
@@ -98,6 +98,9 @@ type structure =
     dependencies: string list;
     definitions: (variable * definition) list;
   }
+
+val expression_is_value :
+  expression -> bool
 
 val structure_types :
   structure -> (variable * typ) list

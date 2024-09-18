@@ -9,46 +9,15 @@ From zoo.std Require Import
   option
   lst.
 From zoo.persistent Require Export
-  base.
+  base
+  pqueue__code.
+From zoo.persistent Require Import
+  pqueue__types.
 From zoo Require Import
   options.
 
 Implicit Types v t : val.
 Implicit Types back front : list val.
-
-#[local] Notation "'front'" := (
-  in_type "t" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'back'" := (
-  in_type "t" 1
-)(in custom zoo_proj
-).
-
-Definition pqueue_empty : val :=
-  (§Nil, §Nil).
-
-Definition pqueue_is_empty : val :=
-  fun: "t" =>
-    lst_is_empty "t".<front> and lst_is_empty "t".<back>.
-
-Definition pqueue_push : val :=
-  fun: "t" "v" =>
-    ("t".<front>, ‘Cons( "v", "t".<back> )).
-
-Definition pqueue_pop : val :=
-  fun: "t" =>
-    match: "t".<front> with
-    | Nil =>
-        match: lst_rev "t".<back> with
-        | Nil =>
-            §None
-        | Cons "v" "vs" =>
-            ‘Some( ("v", ("vs", §Nil)) )
-        end
-    | Cons "v" "vs" =>
-        ‘Some( ("v", ("vs", "t".<back>)) )
-    end.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

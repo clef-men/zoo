@@ -221,10 +221,10 @@ Section spsc_bqueue_G.
     spsc_bqueue_producer_ctl₂ γ back ∗
     spsc_bqueue_model₂ γ vs ∗
     spsc_bqueue_history_auth γ hist ∗
-    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ’Some( v )%V) <$> take 1 vs)
+    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> take 1 vs)
     ∨ spsc_bqueue_consumer_region γ
     ) ∗
-    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ’Some( v )%V) <$> drop 1 vs) ∗
+    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
     ( array_cslice γ.(spsc_bqueue_meta_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None%V])
     ∨ spsc_bqueue_producer_region γ
     ) ∗

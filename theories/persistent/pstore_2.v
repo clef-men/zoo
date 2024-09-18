@@ -95,7 +95,7 @@ Module raw.
       | [] =>
           ⌜node = dst⌝
       | δ :: δs =>
-          node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+          node ↦ᵣ ‘Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
           deltas_chain (delta_node δ) δs dst
       end.
 
@@ -318,7 +318,7 @@ Module raw.
     Qed.
 
     #[local] Lemma deltas_chain_cons src δ δs dst :
-      src ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) -∗
+      src ↦ᵣ ‘Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) -∗
       deltas_chain (delta_node δ) δs dst -∗
         deltas_chain src (δ :: δs) dst.
     Proof.
@@ -332,14 +332,14 @@ Module raw.
     Qed.
     #[local] Lemma deltas_chain_cons_inv src δ δs dst :
       deltas_chain src (δ :: δs) dst ⊢
-        src ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+        src ↦ᵣ ‘Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) δs dst.
     Proof.
       iSteps.
     Qed.
     #[local] Lemma deltas_chain_snoc {src δs dst} r g v dst' :
       deltas_chain src δs dst -∗
-      dst ↦ᵣ ’Diff( #r, #g, v, #dst' ) -∗
+      dst ↦ᵣ ‘Diff( #r, #g, v, #dst' ) -∗
       deltas_chain src (δs ++ [(r, (g, v), dst')]) dst'.
     Proof.
       iInduction δs as [] "IH" forall (src); iSteps.
@@ -374,7 +374,7 @@ Module raw.
         let node := default src $ delta_node <$> last δs in
         ⌜delta_node δ = dst⌝ ∗
         deltas_chain src δs node ∗
-        node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst ).
+        node ↦ᵣ ‘Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #dst ).
     Proof.
       rewrite deltas_chain_app_1. iSteps.
     Qed.
@@ -401,7 +401,7 @@ Module raw.
             delta_node δ' = node
         ⌝ ∗
         deltas_chain src (take i δs) node ∗
-        node ↦ᵣ ’Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
+        node ↦ᵣ ‘Diff( #(delta_ref δ), #(delta_gen δ), delta_val δ, #(delta_node δ) ) ∗
         deltas_chain (delta_node δ) (drop (S i) δs) dst.
     Proof.
       iIntros "%Hδs_lookup Hδs".

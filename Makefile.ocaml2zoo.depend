@@ -2,6 +2,14 @@ theories/persistent/parray.cmt : \
     theories/std/array.cmt \
     theories/persistent/parray.cmi
 theories/persistent/parray.cmi :
+theories/persistent/pqueue.cmt : \
+    theories/std/lst.cmt \
+    theories/persistent/pqueue.cmi
+theories/persistent/pqueue.cmi :
+theories/persistent/pstack.cmt : \
+    theories/std/lst.cmt \
+    theories/persistent/pstack.cmi
+theories/persistent/pstack.cmi :
 theories/persistent/pstore_1.cmt : \
     theories/persistent/pstore_1.cmi
 theories/persistent/pstore_1.cmi :

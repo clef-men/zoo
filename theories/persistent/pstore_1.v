@@ -610,7 +610,7 @@ Section pstore_G.
     mono_set_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
-    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) -∗
+    ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) -∗
     ⌜unaliased g⌝.
   Proof.
     iIntros "Hg" (???????).
@@ -640,7 +640,7 @@ Section pstore_G.
     r ↦ᵣ §Root ∗
     snapshosts_model t0 M ∗
     ([∗ map] l ↦ v ∈ σ0, l ↦ᵣ v) ∗
-    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) .
+    ([∗ set] x ∈ g, let '(r,(l,v),r') := x in r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) .
 
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
@@ -907,13 +907,13 @@ Section pstore_G.
     path g r ys r' ->
     {{{
       r' ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_collect #r t'
     {{{ t,
       RET (#r',t);
       r' ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
@@ -934,13 +934,13 @@ Section pstore_G.
     path g r ys r' ->
     {{{
       r' ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_collect #r §Nil
     {{{ t,
       RET (#r',t);
       r' ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev (fsts ys))
     }}}.
   Proof.
@@ -1010,8 +1010,8 @@ Section pstore_G.
     {{{
       r' ↦ᵣ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
+      ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_revert #r' t
     {{{
@@ -1019,7 +1019,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (g1 ∪ list_to_set ys), r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.
@@ -1082,7 +1082,7 @@ Section pstore_G.
     {{{
       r' ↦ᵣ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_revert #r' t
     {{{
@@ -1090,7 +1090,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.
@@ -1115,7 +1115,7 @@ Section pstore_G.
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
-      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) ))
+      ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_reroot #r
     {{{
@@ -1123,7 +1123,7 @@ Section pstore_G.
       ∃ ys,
       ⌜undo xs ys σ⌝ ∗
       r ↦ᵣ §Root ∗
-      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ’Diff( #(l : location), v, #(r' : location) )) ∗
+      ([∗ set] '(r, (l, v), r') ∈ (list_to_set ys), r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       ([∗ map] l0↦v0 ∈ (apply_diffl (proj2 <$> xs) σ), l0 ↦ᵣ v0)
     }}}.
   Proof.

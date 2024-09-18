@@ -15,7 +15,7 @@ Coercion option_to_val o :=
   | None =>
       §None
   | Some v =>
-      ’Some( v )
+      ‘Some( v )
   end%V.
 #[global] Arguments option_to_val !_ / : assert.
 
@@ -36,7 +36,7 @@ Section zoo_G.
 
   Definition itype_option t : iProp Σ :=
       ⌜t = §None%V⌝
-    ∨ ∃ v, ⌜t = ’Some( v )%V⌝ ∗ τ v.
+    ∨ ∃ v, ⌜t = ‘Some( v )%V⌝ ∗ τ v.
   #[global] Instance itype_option_itype :
     iType _ itype_option.
   Proof.

@@ -34,6 +34,7 @@ type unop =
 type binop =
   | Binop_plus | Binop_minus | Binop_mult | Binop_quot | Binop_rem
   | Binop_eq | Binop_ne | Binop_le | Binop_lt | Binop_ge | Binop_gt
+  | Binop_and | Binop_or
 
 type expression =
   | Global of variable
@@ -84,8 +85,7 @@ and fallback =
   }
 
 type value =
-  | Val_global of variable
-  | Val_int of int
+  | Val_expr of expression
   | Val_rec of binder * binder list * expression
   | Val_opaque
 
@@ -98,6 +98,48 @@ type structure =
     dependencies: string list;
     definitions: (variable * definition) list;
   }
+
+let rec expression_is_value = function
+  | Global _
+  | Bool _
+  | Int _
+  | Fun _ ->
+      true
+  | Local _
+  | Let _
+  | Letrec _
+  | Seq _
+  | Apply _
+  | Unop _
+  | Binop _
+  | If _
+  | For _
+  | Alloc _
+  | Ref _
+  | Record _
+  | Constr (Concrete, _, _)
+  | Proj _
+  | Match _
+  | Ref_get _
+  | Ref_set _
+  | Record_get _
+  | Record_set _
+  | Get_tag _
+  | Get_size _
+  | Atomic_loc _
+  | Load _
+  | Store _
+  | Xchg _
+  | Cas _
+  | Faa _
+  | Fail
+  | Yield
+  | Proph
+  | Resolve _ ->
+      false
+  | Tuple exprs
+  | Constr (Abstract, _, exprs) ->
+      List.for_all expression_is_value exprs
 
 let structure_types str =
   List.filter_map (fun (var, def) -> match def with Type ty -> Some (var, ty) | _ -> None) str.definitions

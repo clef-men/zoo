@@ -79,6 +79,8 @@ let builtin_apps =
     [|"Stdlib";"<"|], (function [expr1; expr2] -> Some (Binop (Binop_lt, expr1, expr2)) | _ -> None), None ;
     [|"Stdlib";">="|], (function [expr1; expr2] -> Some (Binop (Binop_ge, expr1, expr2)) | _ -> None), None ;
     [|"Stdlib";">"|], (function [expr1; expr2] -> Some (Binop (Binop_gt, expr1, expr2)) | _ -> None), None ;
+    [|"Stdlib";"&&"|], (function [expr1; expr2] -> Some (Binop (Binop_and, expr1, expr2)) | _ -> None), None ;
+    [|"Stdlib";"||"|], (function [expr1; expr2] -> Some (Binop (Binop_or, expr1, expr2)) | _ -> None), None ;
     [|"Stdlib";"ref"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
     [|"Stdlib";"!"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
     [|"Stdlib";":="|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
@@ -854,20 +856,17 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
                     | _ ->
                         error attr.attr_loc Attribute_override_invalid_payload
               in
-              let val_ =
-                match expression ctx expr with
-                | Global global ->
-                    Val_global global
-                | Int int ->
-                    Val_int int
-                | Fun (bdrs, expr) ->
-                    let bdr = if rec_flag = Recursive then Some (Ident.name id) else None in
-                    Val_rec (bdr, bdrs, expr)
-                | _ ->
-                    unsupported bdg.vb_loc Def_invalid
-              in
+              let expr = expression ctx expr in
               restore_locals () ;
-              val_
+              match expr with
+              | Fun (bdrs, expr) ->
+                  let bdr = if rec_flag = Recursive then Some (Ident.name id) else None in
+                  Val_rec (bdr, bdrs, expr)
+              | _ ->
+                  if expression_is_value expr then
+                    Val_expr expr
+                  else
+                    unsupported bdg.vb_loc Def_invalid
           in
           [global, Val val_]
       | _ ->

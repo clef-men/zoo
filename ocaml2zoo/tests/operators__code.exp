@@ -23,6 +23,12 @@ Definition operators_test1 : val :=
     "i" ≥ "i" ;;
     "i" > "i" ;;
     #2 * "i" + ("i" + #1) < "i" ;;
+    #true and #true ;;
+    #true or #true ;;
+    #true and #true or #true ;;
+    #true and (#true or #true) ;;
+    #true or #true and #true ;;
+    (#true or #true) and #true ;;
     ().
 
 Definition operators_test2 : val :=

@@ -99,6 +99,10 @@ let binop ppf op =
         "≥"
     | Binop_gt ->
         ">"
+    | Binop_and ->
+        "and"
+    | Binop_or ->
+        "or"
     end
 
 let max_level =
@@ -157,6 +161,10 @@ let level = function
       70
   | Unop (Unop_neg, _) ->
       75
+  | Binop (Binop_and, _, _) ->
+      76
+  | Binop (Binop_or, _, _) ->
+      77
   | Ref_set _
   | Record_set _ ->
       80
@@ -341,42 +349,31 @@ and branch ppf br =
     br.branch_tag
     (match br.branch_binders with [] -> "" | _ -> " ")
     Format.(pp_print_list ~pp_sep:pp_space binder) br.branch_binders
-    Format.(pp_print_option (fun ppf -> fprintf ppf " as %a" local_variable)) br.branch_as
+    Format.(pp_print_option @@ fun ppf -> fprintf ppf " as %a" local_variable) br.branch_as
     (expression max_level) br.branch_expr
 and fallback ppf fb =
   Format.fprintf ppf "|_%a =>@,    @[%a@]@,"
-    Format.(pp_print_option (fun ppf -> fprintf ppf " as %a" local_variable)) fb.fallback_as
+    Format.(pp_print_option @@ fun ppf -> fprintf ppf " as %a" local_variable) fb.fallback_as
     (expression max_level) fb.fallback_expr
 let expression =
   expression max_level
 
-let value ppf = function
-  | Val_global global ->
-      global_variable ppf global
-  | Val_int int ->
-      integer ppf int
-  | Val_rec (None, params, expr) ->
-      Format.fprintf ppf "@[<v>fun: %a =>@,  @[%a@]@]"
-        (Format.pp_print_list ~pp_sep:pp_space binder) params
-        expression expr
-  | Val_rec (Some local, params, expr) ->
-      Format.fprintf ppf "@[<v>rec: %a %a =>@,  @[%a@]@]"
-        local_variable local
-        (Format.pp_print_list ~pp_sep:pp_space binder) params
-        expression expr
-  | Val_opaque ->
-      assert false
 let value ppf (global, val_) =
   match val_ with
-  | Val_global _
-  | Val_int _
-  | Val_rec _ ->
-      Format.fprintf ppf "Definition %s : val :=@,  @[%a@]."
-        global
-        value val_
+  | Val_expr expr ->
+      Format.fprintf ppf "Definition %a : val :=@,  @[%a@]."
+        global_variable global
+        expression expr
+  | Val_rec (local, params, expr) ->
+      Format.fprintf ppf "Definition %a : val :=@,  @[<v>%s: %a%a =>@,  @[%a@]@]."
+        global_variable global
+        (if Option.is_none local then "fun" else "rec")
+        Format.(pp_print_option @@ fun ppf -> fprintf ppf "%a " local_variable) local
+        (Format.pp_print_list ~pp_sep:pp_space binder) params
+        expression expr
   | Val_opaque ->
-      Format.fprintf ppf "Parameter %s : val."
-        global
+      Format.fprintf ppf "Parameter %a : val."
+        global_variable global
 
 let structure ?dir pp select ppf str =
   Format.fprintf ppf "@[<v>" ;

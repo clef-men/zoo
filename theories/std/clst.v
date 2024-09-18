@@ -25,7 +25,7 @@ Fixpoint clist_to_val cls :=
   | ClistOpen =>
       §ClstOpen
   | ClistCons v cls =>
-      ’ClstCons( v, clist_to_val cls )
+      ‘ClstCons( v, clist_to_val cls )
   end%V.
 Coercion clist_to_val : clist >-> val.
 

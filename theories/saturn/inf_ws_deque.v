@@ -283,7 +283,7 @@ Module raw.
       }> @ ⊤ ∖ ↑ι, ∅ <{
         ∀∀ v model',
         ⌜model = v :: model'⌝ ∗ inf_ws_deque_model₂ γ model',
-        COMM Φ ’Some( v )%V
+        COMM Φ ‘Some( v )%V
       }>.
     #[local] Definition inf_ws_deque_state_inner₁ γ :=
       inf_ws_deque_winner γ.
@@ -322,7 +322,7 @@ Module raw.
       | _ =>
           ∃ Φ,
           inf_ws_deque_winner₁ γ front Φ ∗
-          Φ ’Some( hist !!! front )%V
+          Φ ‘Some( hist !!! front )%V
       end.
     #[local] Definition inf_ws_deque_state₃₁ γ front back hist prophs : iProp Σ :=
       (* physical configuration *)
@@ -688,7 +688,7 @@ Module raw.
             ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
             inf_ws_deque_winner₁ γ front Φ' ∗
             inf_ws_deque_winner₂ γ front Φ ∗
-            Φ' ’Some( hist !!! front )%V
+            Φ' ‘Some( hist !!! front )%V
           )
         ).
     Proof.
@@ -722,7 +722,7 @@ Module raw.
           ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
           inf_ws_deque_winner₁ γ front Φ' ∗
           inf_ws_deque_winner₂ γ front Φ ∗
-          Φ' ’Some( hist !!! front )%V.
+          Φ' ‘Some( hist !!! front )%V.
     Proof.
       iIntros "Hwinner₂ Hstate".
       iDestruct (inf_ws_deque_winner₂_state with "Hwinner₂ Hstate") as "($ & [Hstate | Hstate])".
@@ -1379,7 +1379,7 @@ Module raw.
 
       (* branch 5.1: state 2 *)
       - iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & Hid' & HΦ')".
-        iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+        iDestruct (inf_ws_deque_winner_agree ‘Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
         iModIntro. iIntros "%prophs3' -> Hprophet_model".
         (* update front *)
         iMod (inf_ws_deque_front_auth_update (S front1) with "Hfront_auth") as "Hfront_auth"; first lia.
@@ -1432,7 +1432,7 @@ Module raw.
 
       (* branch 5.2: state 3.1 *)
       - iDestruct "Hstate" as "(-> & Hlock & Hhist_auth & %Hhist & %id' & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂ & HΦ')".
-        iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
+        iDestruct (inf_ws_deque_winner_agree ‘Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
         iModIntro. iIntros "%prophs3' -> Hprophet_model".
         (* we know there is no model value and [hist !!! front1 = v] *)
         destruct (nil_or_length_pos model) as [-> |]; last lia.
@@ -1901,7 +1901,7 @@ Module raw.
           iDestruct (inf_ws_deque_ctl_agree with "Hctl₁ Hctl₂") as %(-> & ->).
           (* we are in state 3.1 *)
           iDestruct (inf_ws_deque_winner₂_state' with "Hwinner₂ Hstate") as "(>-> & Hlock & >Hhist_auth & >%Hhist & %id' & %Ψ' & >%Hprophs4 & Hwinner₁ & Hwinner₂ & HΨ')".
-          iDestruct (inf_ws_deque_winner_agree ’Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
+          iDestruct (inf_ws_deque_winner_agree ‘Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΨ & Hwinner₁ & Hwinner₂)".
           (* exploit history fragment *)
           iDestruct (inf_ws_deque_hist_agree with "Hhist_auth Hhist_elem") as %->%list_lookup_total_correct.
           (* do resolve *)

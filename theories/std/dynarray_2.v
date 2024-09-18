@@ -36,7 +36,7 @@ Section zoo_G.
 
   #[local] Definition slot_model slot v : iProp Σ :=
     ∃ r,
-    ⌜slot = ’Some( #r )%V⌝ ∗
+    ⌜slot = ‘Some( #r )%V⌝ ∗
     r ↦ᵣ v.
   Definition dynarray_2_model t vs : iProp Σ :=
     ∃ l data slots extra,
@@ -812,7 +812,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec. wp_ref r as "Hr".
-    iAssert (|={⊤}=> itype_slot ’Some( #r ))%I with "[Hr]" as ">#Hslot"; first iSteps.
+    iAssert (|={⊤}=> itype_slot ‘Some( #r ))%I with "[Hr]" as ">#Hslot"; first iSteps.
     wp_smart_apply (dynarray_2_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
     wp_smart_apply (dynarray_2_push_aux_type with "[$Htype $Hslot]") as "_".
     iSteps.

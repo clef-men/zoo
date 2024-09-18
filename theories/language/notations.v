@@ -378,12 +378,12 @@ Notation "’ tag ( v1 , .. , vn )" := (
   v1, vn at level 200,
   format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): expr_scope.
-Notation "’ tag ( v1 , .. , vn )" := (
+Notation "‘ tag ( v1 , .. , vn )" := (
   ValBlock tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
-  format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
+  format "'[hv' ‘ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): val_scope.
 
 Notation "( e1 , e2 , .. , en )" := (

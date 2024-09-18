@@ -65,13 +65,13 @@ Section parray_G.
       ⌜length vs = γ.(parray_meta_size)⌝ ∗
       l ↦ᵣ descr ∗
       if (decide (l = root)) then (
-        ⌜descr = ’Root( γ.(parray_meta_array) )%V⌝ ∗
+        ⌜descr = ‘Root( γ.(parray_meta_array) )%V⌝ ∗
         array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗
         [∗ list] v ∈ vs, τ v
       ) else (
         ∃ i v l' vs',
         ⌜i < γ.(parray_meta_size) ∧ vs = <[i := v]> vs'⌝ ∗
-        ⌜descr = ’Diff( #i, v, #l' )%V⌝ ∗
+        ⌜descr = ‘Diff( #i, v, #l' )%V⌝ ∗
         parray_map_elem γ l' vs' ∗
         τ v
       ).
