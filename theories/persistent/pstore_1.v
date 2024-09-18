@@ -1,7 +1,3 @@
-(* Based on:
-   https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
-*)
-
 From zoo Require Import
   prelude.
 From zoo.iris.base_logic Require Import

@@ -1,3 +1,7 @@
+(* Based on:
+   https://github.com/backtracking/spds/blob/12e48dc9f5d169ab38a9b7887bb481621ab04331/parray.ml
+*)
+
 type 'a descr =
   | Root of 'a array
   | Diff of int * 'a * 'a t

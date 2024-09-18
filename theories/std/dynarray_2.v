@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml/ocaml/blob/50ce58a33aac9d067ee88af2e84dba02f8f49033/stdlib/dynarray.ml
-*)
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import

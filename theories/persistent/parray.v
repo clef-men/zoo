@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/backtracking/spds/blob/12e48dc9f5d169ab38a9b7887bb481621ab04331/parray.ml
-*)
-
 From iris.base_logic Require Import
   lib.ghost_map.
 
