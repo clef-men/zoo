@@ -1,11 +1,11 @@
 let test1 =
   ()
-[@@zoo.override
+[@@zoo.overwrite
   fun () -> ()
 ]
 
 let rec test2 =
   ()
-[@@zoo.override
+[@@zoo.overwrite
   fun () -> test2 ()
 ]

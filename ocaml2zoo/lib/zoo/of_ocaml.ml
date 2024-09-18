@@ -142,8 +142,8 @@ module Attribute = struct
     "zoo.reveal"
   let opaque =
     "zoo.opaque"
-  let override =
-    "zoo.override"
+  let overwrite =
+    "zoo.overwrite"
 end
 
 module Unsupported = struct
@@ -175,7 +175,7 @@ module Unsupported = struct
     | Expr_new
     | Expr_inst_var
     | Expr_set_inst_var
-    | Expr_override
+    | Expr_overwrite
     | Expr_let_module
     | Expr_let_exception
     | Expr_lazy
@@ -256,8 +256,8 @@ module Unsupported = struct
         "instance variable"
     | Expr_set_inst_var ->
         "instance variable assignment"
-    | Expr_override ->
-        "override expression"
+    | Expr_overwrite ->
+        "overwrite expression"
     | Expr_let_module ->
         "module binding"
     | Expr_let_exception ->
@@ -315,7 +315,7 @@ module Error = struct
   type t =
     | Unsupported of Unsupported.t
     | Attribute_prefix_invalid_payload
-    | Attribute_override_invalid_payload
+    | Attribute_overwrite_invalid_payload
 
   let pp ppf = function
     | Unsupported unsupported ->
@@ -324,9 +324,9 @@ module Error = struct
     | Attribute_prefix_invalid_payload ->
         Format.fprintf ppf {|payload of attribute "%s" must be a string|}
           Attribute.prefix
-    | Attribute_override_invalid_payload ->
+    | Attribute_overwrite_invalid_payload ->
         Format.fprintf ppf {|payload of attribute "%s" must be a expression|}
-          Attribute.override
+          Attribute.overwrite
 end
 
 exception Error of Location.t * Error.t
@@ -708,7 +708,7 @@ let rec expression ctx (expr : Typedtree.expression) =
   | Texp_setinstvar _ ->
       unsupported expr.exp_loc Expr_set_inst_var
   | Texp_override _ ->
-      unsupported expr.exp_loc Expr_override
+      unsupported expr.exp_loc Expr_overwrite
   | Texp_letmodule _ ->
       unsupported expr.exp_loc Expr_let_module
   | Texp_letexception _ ->
@@ -835,7 +835,7 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
               if rec_flag = Recursive then
                 Context.add_local ctx id ;
               let expr =
-                match find_attribute Attribute.override bdg.vb_attributes with
+                match find_attribute Attribute.overwrite bdg.vb_attributes with
                 | None ->
                     bdg.vb_expr
                 | Some attr ->
@@ -858,7 +858,7 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
                         in
                         Typecore.type_expression env expr
                     | _ ->
-                        error attr.attr_loc Attribute_override_invalid_payload
+                        error attr.attr_loc Attribute_overwrite_invalid_payload
               in
               let expr = expression ctx expr in
               restore_locals () ;

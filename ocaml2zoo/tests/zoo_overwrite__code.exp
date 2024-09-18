@@ -3,14 +3,14 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  zoo_override__types.
+  zoo_overwrite__types.
 From zoo Require Import
   options.
 
-Definition zoo_override_test1 : val :=
+Definition zoo_overwrite_test1 : val :=
   fun: <> =>
     ().
 
-Definition zoo_override_test2 : val :=
+Definition zoo_overwrite_test2 : val :=
   rec: "test2" <> =>
     "test2" ().

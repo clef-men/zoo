@@ -3,28 +3,28 @@ type t =
 
 let create =
   Stdlib.Condition.create
-[@@zoo.override
+[@@zoo.overwrite
   fun () ->
     ()
 ]
 
 let wait =
   Stdlib.Condition.wait
-[@@zoo.override
+[@@zoo.overwrite
   fun t mtx ->
     Domain.cpu_relax ()
 ]
 
 let notify =
   Stdlib.Condition.signal
-[@@zoo.override
+[@@zoo.overwrite
   fun () ->
     ()
 ]
 
 let notify_all =
   Stdlib.Condition.broadcast
-[@@zoo.override
+[@@zoo.overwrite
   fun () ->
     ()
 ]
