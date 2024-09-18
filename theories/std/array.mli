@@ -66,7 +66,7 @@ val init :
 val mapi :
   'a t -> (int -> 'a -> 'b) -> 'b t
 val map :
-  'a t -> (int -> 'a -> 'b) -> 'b t
+  'a t -> ('a -> 'b) -> 'b t
 
 val unsafe_copy_slice :
   'a t -> int -> 'a t -> int -> int -> unit

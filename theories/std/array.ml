@@ -9,28 +9,52 @@ let alloc sz =
   unsafe_alloc sz
 
 let create () =
-  unsafe_alloc 0
+  [||]
+[@@zoo.overwrite
+  fun () ->
+    unsafe_alloc 0
+]
 
-let size t =
-  Obj.(size @@ repr t)
+let size =
+  Stdlib.Array.length
+[@@zoo.overwrite
+  fun t ->
+    Obj.(size @@ repr t)
+]
 
-let unsafe_get t i =
-  Obj.(magic @@ field (repr t) i)
-let get t i =
-  if not (0 <= i) then
-    invalid_arg "negative index" ;
-  if not (i < size t) then
-    invalid_arg "index out of bounds" ;
-  unsafe_get t i
+let unsafe_get =
+  Stdlib.Array.unsafe_get
+[@@zoo.overwrite
+  fun t i ->
+    Obj.(magic @@ field (repr t) i)
+]
+let get =
+  Stdlib.Array.get
+[@@zoo.overwrite
+  fun t i ->
+    if not (0 <= i) then
+      invalid_arg "negative index" ;
+    if not (i < size t) then
+      invalid_arg "index out of bounds" ;
+    unsafe_get t i
+]
 
-let unsafe_set t i v =
-  Obj.(set_field (repr t) i (repr v))
-let set t i v =
-  if not (0 <= i) then
-    invalid_arg "negative index" ;
-  if not (i < size t) then
-    invalid_arg "index out of bounds" ;
-  unsafe_set t i v
+let unsafe_set =
+  Stdlib.Array.unsafe_set
+[@@zoo.overwrite
+  fun t i v ->
+    Obj.(set_field (repr t) i (repr v))
+]
+let set =
+  Stdlib.Array.set
+[@@zoo.overwrite
+  fun t i v ->
+    if not (0 <= i) then
+      invalid_arg "negative index" ;
+    if not (i < size t) then
+      invalid_arg "index out of bounds" ;
+    unsafe_set t i v
+]
 
 let unsafe_fill_slice t i n v =
   for j = 0 to n - 1 do
@@ -52,10 +76,14 @@ let unsafe_make sz v =
   let t = unsafe_alloc sz in
   fill t v ;
   t
-let make sz v =
-  if not (0 <= sz) then
-    invalid_arg "negative size" ;
-  unsafe_make sz v
+let make =
+  Stdlib.Array.make
+[@@zoo.overwrite
+  fun sz v ->
+    if not (0 <= sz) then
+      invalid_arg "negative size" ;
+    unsafe_make sz v
+]
 
 let rec foldli_aux t sz acc fn i =
   if sz <= i then (
