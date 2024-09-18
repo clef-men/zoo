@@ -134,16 +134,48 @@ module Builtin = struct
 end
 
 module Attribute = struct
+  let has attr =
+    List.exists (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
+
   let prefix =
     "zoo.prefix"
+  let has_prefix =
+    has prefix
+
   let force_record =
     "zoo.force_record"
+  let has_force_record =
+    has force_record
+
   let reveal =
     "zoo.reveal"
+  let has_reveal =
+    has reveal
+
   let opaque =
     "zoo.opaque"
+  let has_opaque =
+    has opaque
+
   let overwrite =
     "zoo.overwrite"
+  let rec has_overwrite = function
+    | [] ->
+        None
+    | attr :: attrs ->
+        let attr_name = attr.Parsetree.attr_name.txt in
+        if String.starts_with ~prefix:overwrite attr_name then
+          let overwrite_len = String.length overwrite in
+          let attr_len = String.length attr_name in
+          match String.sub attr_name overwrite_len (attr_len - overwrite_len) with
+          | "" ->
+              Some (Asttypes.Nonrecursive, attr)
+          | "_rec" ->
+              Some (Recursive, attr)
+          | _ ->
+              has_overwrite attrs
+        else
+          has_overwrite attrs
 end
 
 module Unsupported = struct
@@ -336,15 +368,10 @@ let error loc err =
 let unsupported loc err =
   error loc (Unsupported err)
 
-let find_attribute attr =
-  List.find_opt (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
-let has_attribute attr =
-  List.exists (fun attr' -> attr'.Parsetree.attr_name.txt = attr)
-
 let record_is_mutable ty =
   let[@warning "-8"] Types.Type_record (lbls, _) = ty.Types.type_kind in
   List.exists (fun lbl -> lbl.Types.ld_mutable = Mutable) lbls ||
-  has_attribute Attribute.force_record ty.type_attributes
+  Attribute.has_force_record ty.type_attributes
 
 module Context = struct
   type t =
@@ -649,7 +676,7 @@ let rec expression ctx (expr : Typedtree.expression) =
             Either.get_left (fun tag -> Constr (Abstract, tag, exprs)) tag
         | None ->
             let concrete =
-              if has_attribute Attribute.reveal constr.cstr_attributes then
+              if Attribute.has_reveal constr.cstr_attributes then
                 Concrete
               else
                 Abstract
@@ -828,22 +855,21 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
       | Tpat_var (id, { loc; _ }, _) ->
           let global = Context.add_global ctx id in
           let val_ =
-            if has_attribute Attribute.opaque bdg.vb_attributes then
+            if Attribute.has_opaque bdg.vb_attributes then
               Val_opaque
             else
               let restore_locals = Context.save_locals ctx in
-              if rec_flag = Recursive then
-                Context.add_local ctx id ;
-              let expr =
-                match find_attribute Attribute.overwrite bdg.vb_attributes with
+              let rec_, expr =
+                match Attribute.has_overwrite bdg.vb_attributes with
                 | None ->
-                    bdg.vb_expr
-                | Some attr ->
+                    rec_flag = Recursive, bdg.vb_expr
+                | Some (rec_flag', attr) ->
                     match attr.attr_payload with
                     | PStr [{ pstr_desc= Pstr_eval (expr, _); _ }] ->
+                        let rec_ = rec_flag = Recursive || rec_flag' = Recursive in
                         let env = Envaux.env_of_only_summary str_item.str_env in
                         let env =
-                          if rec_flag = Recursive then
+                          if rec_ then
                             let val_descr : Types.value_description =
                               { val_type= Ctype.newvar ();
                                 val_attributes= [];
@@ -856,15 +882,17 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
                           else
                             env
                         in
-                        Typecore.type_expression env expr
+                        rec_, Typecore.type_expression env expr
                     | _ ->
                         error attr.attr_loc Attribute_overwrite_invalid_payload
               in
+              if rec_ then
+                Context.add_local ctx id ;
               let expr = expression ctx expr in
               restore_locals () ;
               match expr with
               | Fun (bdrs, expr) ->
-                  let bdr = if rec_flag = Recursive then Some (Ident.name id) else None in
+                  let bdr = if rec_ then Some (Ident.name id) else None in
                   Val_rec (bdr, bdrs, expr)
               | _ ->
                   if expression_is_value expr then
@@ -908,7 +936,7 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
             unsupported str_item.str_loc Type_extensible
       ) tys
   | Tstr_attribute attr ->
-      if attr.attr_name.txt = Attribute.prefix then (
+      if Attribute.has_prefix [attr] then (
         match attr.attr_payload with
         | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_constant (Pconst_string (pref, _, _)); _ }, _); _ }] ->
             Context.set_prefix ctx pref

@@ -4,8 +4,8 @@ let test1 =
   fun () -> ()
 ]
 
-let rec test2 =
+let test2 =
   ()
-[@@zoo.overwrite
+[@@zoo.overwrite_rec
   fun () -> test2 ()
 ]

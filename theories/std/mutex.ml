@@ -8,9 +8,9 @@ let create =
     Atomic.make false
 ]
 
-let rec lock =
+let lock =
   Stdlib.Mutex.lock
-[@@zoo.overwrite
+[@@zoo.overwrite_rec
   fun t ->
     if not @@ Atomic.compare_and_set t false true then (
       Domain.cpu_relax () ;
