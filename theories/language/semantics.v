@@ -92,7 +92,7 @@ Definition val_neq v1 v2 :=
   end.
 #[global] Arguments val_neq !_ !_ / : assert.
 
-Definition unop_eval op v :=
+Definition eval_unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
       Some $ ValBool (negb b)
@@ -101,38 +101,38 @@ Definition unop_eval op v :=
   | _, _ =>
       None
   end.
-#[global] Arguments unop_eval !_ !_ / : assert.
+#[global] Arguments eval_unop !_ !_ / : assert.
 
-Definition binop_eval_int op n1 n2 :=
+Definition eval_binop_int op n1 n2 :=
   match op with
   | BinopPlus =>
-      Some $ LiteralInt (n1 + n2)
+      LiteralInt (n1 + n2)
   | BinopMinus =>
-      Some $ LiteralInt (n1 - n2)
+      LiteralInt (n1 - n2)
   | BinopMult =>
-      Some $ LiteralInt (n1 * n2)
+      LiteralInt (n1 * n2)
   | BinopQuot =>
-      Some $ LiteralInt (n1 `quot` n2)
+      LiteralInt (n1 `quot` n2)
   | BinopRem =>
-      Some $ LiteralInt (n1 `rem` n2)
+      LiteralInt (n1 `rem` n2)
   | BinopLe =>
-      Some $ LiteralBool (bool_decide (n1 ≤ n2))
+      LiteralBool (bool_decide (n1 ≤ n2))
   | BinopLt =>
-      Some $ LiteralBool (bool_decide (n1 < n2))
+      LiteralBool (bool_decide (n1 < n2))
   | BinopGe =>
-      Some $ LiteralBool (bool_decide (n1 >= n2))
+      LiteralBool (bool_decide (n1 >= n2))
   | BinopGt =>
-      Some $ LiteralBool (bool_decide (n1 > n2))
+      LiteralBool (bool_decide (n1 > n2))
   end%Z.
-#[global] Arguments binop_eval_int !_ _ _ / : assert.
-Definition binop_eval op v1 v2 :=
+#[global] Arguments eval_binop_int !_ _ _ / : assert.
+Definition eval_binop op v1 v2 :=
   match v1, v2 with
   | ValInt n1, ValInt n2 =>
-      ValLiteral <$> binop_eval_int op n1 n2
+      Some $ ValLiteral $ eval_binop_int op n1 n2
   | _, _ =>
       None
   end.
-#[global] Arguments binop_eval _ !_ !_ / : assert.
+#[global] Arguments eval_binop _ !_ !_ / : assert.
 
 Fixpoint subst (x : string) v e :=
   match e with
@@ -276,7 +276,7 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint match_apply' subj tag vs x e brs :=
+Fixpoint eval_match' subj tag vs x e brs :=
   match brs with
   | [] =>
       Some $ subst' x subj e
@@ -286,12 +286,12 @@ Fixpoint match_apply' subj tag vs x e brs :=
         subst_list pat.(pattern_fields) vs $
         subst' pat.(pattern_as) subj br.2
       else
-        match_apply' subj tag vs x e brs
+        eval_match' subj tag vs x e brs
   end.
-#[global] Arguments match_apply' _ _ _ _ _ !_ / : assert.
-Definition match_apply (l : option location) tag vs x e brs :=
+#[global] Arguments eval_match' _ _ _ _ _ !_ / : assert.
+Definition eval_match (l : option location) tag vs x e brs :=
   let subj := from_option (λ l, ValLoc l) (ValBlock tag vs) l in
-  match_apply' subj tag vs x e brs.
+  eval_match' subj tag vs x e brs.
 
 Record header := Header {
   header_tag : nat ;
@@ -309,24 +309,21 @@ Implicit Types σ : state.
 Canonical state_O :=
   leibnizO state.
 
-Definition state_update_heap f σ : state :=
+Definition state_update_heap f σ :=
   {|state_headers := σ.(state_headers) ;
     state_heap := f σ.(state_heap) ;
     state_prophets := σ.(state_prophets) ;
   |}.
-#[global] Arguments state_update_heap _ !_ / : assert.
-Definition state_update_headers f σ : state :=
+Definition state_update_headers f σ :=
   {|state_headers := f σ.(state_headers) ;
     state_heap := σ.(state_heap) ;
     state_prophets := σ.(state_prophets) ;
   |}.
-#[global] Arguments state_update_headers _ !_ / : assert.
-Definition state_update_prophets f σ : state :=
+Definition state_update_prophets f σ :=
   {|state_headers := σ.(state_headers) ;
     state_heap := σ.(state_heap) ;
     state_prophets := f σ.(state_prophets) ;
   |}.
-#[global] Arguments state_update_prophets _ !_ / : assert.
 
 #[global] Instance state_inhabited : Inhabited state :=
   populate
@@ -342,6 +339,7 @@ Fixpoint heap_array l vs : gmap location val :=
   | v :: vs =>
       <[l := v]> (heap_array (l +ₗ 1) vs)
   end.
+#[global] Arguments heap_array _ !_ / : assert.
 
 Lemma heap_array_singleton l v :
   heap_array l [v] = {[l := v]}.
@@ -419,7 +417,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_unop op v v' σ :
-      unop_eval op v = Some v' →
+      eval_unop op v = Some v' →
       base_step
         (Unop op $ Val v)
         σ
@@ -428,7 +426,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_binop op v1 v2 v' σ :
-      binop_eval op v1 v2 = Some v' →
+      eval_binop op v1 v2 = Some v' →
       base_step
         (Binop op (Val v1) (Val v2))
         σ
@@ -518,7 +516,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         vs !! i = Some v →
         σ.(state_heap) !! (l +ₗ i) = Some v
       ) →
-      match_apply (Some l) hdr.(header_tag) vs x e brs = Some e' →
+      eval_match (Some l) hdr.(header_tag) vs x e brs = Some e' →
       base_step
         (Match (Val $ ValLoc l) x e brs)
         σ
@@ -527,7 +525,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_match_abstract tag vs x e brs e' σ :
-      match_apply None tag vs x e brs = Some e' →
+      eval_match None tag vs x e brs = Some e' →
       base_step
         (Match (Val $ ValBlock tag vs) x e brs)
         σ

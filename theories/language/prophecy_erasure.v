@@ -312,19 +312,19 @@ Qed.
 (*     repeat (done || (by intros [[] | []]) || simpl; case_match). *)
 (* Qed. *)
 
-Lemma unop_eval_erase op v v' :
-  unop_eval op (erase_val v) = Some v' ↔
+Lemma eval_unop_erase op v v' :
+  eval_unop op (erase_val v) = Some v' ↔
     ∃ w,
-    unop_eval op v = Some w ∧
+    eval_unop op v = Some w ∧
     erase_val w = v'.
 Proof.
   destruct op, v as [[] | |]; naive_solver.
 Qed.
 
-Lemma binop_eval_erase op v1 v2 v' :
-  binop_eval op (erase_val v1) (erase_val v2) = Some v' ↔
+Lemma eval_binop_erase op v1 v2 v' :
+  eval_binop op (erase_val v1) (erase_val v2) = Some v' ↔
     ∃ w,
-    binop_eval op v1 v2 = Some w ∧
+    eval_binop op v1 v2 = Some w ∧
     erase_val w = v'.
 Proof.
   destruct v1 as [[] | |]; try naive_solver;

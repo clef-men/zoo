@@ -212,7 +212,7 @@ Section pure_exec.
 
   #[global] Instance pure_unop op v v' :
     PureExec
-      (unop_eval op v = Some v')
+      (eval_unop op v = Some v')
       1
       (Unop op (Val v))
       (Val v').
@@ -221,7 +221,7 @@ Section pure_exec.
   Qed.
   #[global] Instance pure_binop op v1 v2 v' :
     PureExec
-      (binop_eval op v1 v2 = Some v')
+      (eval_binop op v1 v2 = Some v')
       1
       (Binop op (Val v1) (Val v2))
       (Val v').
@@ -345,7 +345,7 @@ Section pure_exec.
 
   #[global] Instance pure_match tag vs x e brs e' :
     PureExec
-      (match_apply None tag vs x e brs = Some e')
+      (eval_match None tag vs x e brs = Some e')
       1
       (Match (Val $ ValBlock tag vs) x e brs)
       e'.

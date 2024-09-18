@@ -128,7 +128,7 @@ Section zoo_G.
 
   Lemma wp_match {l hdr dq} vs x e brs e' E Φ :
     length vs = hdr.(header_size) →
-    match_apply (Some l) hdr.(header_tag) vs x e brs = Some e' →
+    eval_match (Some l) hdr.(header_tag) vs x e brs = Some e' →
     ▷ l ↦ₕ hdr -∗
     ▷ l ↦∗{dq} vs -∗
     ▷ (

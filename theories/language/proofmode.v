@@ -206,7 +206,7 @@ Section zoo_G.
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
     envs_entails Δ' (l ↦∗□ vs) →
     length vs = hdr.(header_size) →
-    match_apply (Some l) hdr.(header_tag) vs x e brs = Some e' →
+    eval_match (Some l) hdr.(header_tag) vs x e brs = Some e' →
     envs_entails Δ' (WP fill K e' @ E {{ Φ }}) →
     envs_entails Δ (WP fill K (Match #l x e brs) @ E {{ Φ }}).
   Proof.
