@@ -7,7 +7,7 @@ From zoo.tests Require Import
 From zoo Require Import
   options.
 
-Definition atomic_test : val :=
+Definition atomic_test1 : val :=
   fun: <> =>
     let: "a" := ref #0 in
     Xchg "a".[contents] #0 ;;
@@ -15,3 +15,23 @@ Definition atomic_test : val :=
     FAA "a".[contents] #0 ;;
     FAA "a".[contents] #-1 ;;
     FAA "a".[contents] #1.
+
+Definition atomic_test2 : val :=
+  fun: "loc" =>
+    Load "loc".<0> "loc".<1> ;;
+    Store "loc".<0> "loc".<1> #0 ;;
+    Xchg "loc" #0 ;;
+    CAS "loc" #0 #0 ;;
+    FAA "loc" #0 ;;
+    FAA "loc" #-1 ;;
+    FAA "loc" #1.
+
+Definition atomic_test3 : val :=
+  fun: "t" =>
+    Load ("t".[f]).<0> ("t".[f]).<1> ;;
+    Store ("t".[f]).<0> ("t".[f]).<1> #0 ;;
+    Xchg "t".[f] #0 ;;
+    CAS "t".[f] #0 #0 ;;
+    FAA "t".[f] #0 ;;
+    FAA "t".[f] #-1 ;;
+    FAA "t".[f] #1.

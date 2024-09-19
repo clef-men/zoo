@@ -40,6 +40,13 @@ module Builtin = struct
       [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "math" ;
       [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "math" ;
       [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
+      [|"Stdlib";"Atomic";"Loc";"get"|], Fun ([Some "1"], Load (Proj (Local "1", "0"), Proj (Local "1", "1"))), None ;
+      [|"Stdlib";"Atomic";"Loc";"set"|], Fun ([Some "1"; Some "2"], Store (Proj (Local "1", "0"), Proj (Local "1", "1"), Local "2")), None ;
+      [|"Stdlib";"Atomic";"Loc";"exchange"|], Fun ([Some "1"; Some "2"], Xchg (Local "1", Local "2")), None ;
+      [|"Stdlib";"Atomic";"Loc";"compare_and_set"|], Fun ([Some "1"; Some "2"; Some "3"], Cas (Local "1", Local "2", Local "3")), None ;
+      [|"Stdlib";"Atomic";"Loc";"fetch_and_add"|], Fun ([Some "1"; Some "2"], Faa (Local "1", Local "2")), None ;
+      [|"Stdlib";"Atomic";"Loc";"decr"|], Fun ([Some "1"], Faa (Local "1", Int (-1))), None ;
+      [|"Stdlib";"Atomic";"Loc";"incr"|], Fun ([Some "1"], Faa (Local "1", Int 1)), None ;
       [|"Stdlib";"Atomic";"make"|], Fun ([Some "1"], Ref (Local "1")), None ;
       [|"Stdlib";"Atomic";"get"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
       [|"Stdlib";"Atomic";"set"|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
@@ -97,6 +104,13 @@ module Builtin = struct
       [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "math" ;
       [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "math" ;
       [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"get"|], (function [expr] -> Some (Load (Proj (expr, "0"), Proj (expr, "1"))) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"set"|], (function [expr1; expr2] -> Some (Store (Proj (expr1, "0"), Proj (expr1, "1"), expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"exchange"|], (function [expr1; expr2] -> Some (Xchg (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"compare_and_set"|], (function [expr1; expr2; expr3] -> Some (Cas (expr1, expr2, expr3)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"fetch_and_add"|], (function [expr1; expr2] -> Some (Faa (expr1, expr2)) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"decr"|], (function [expr] -> Some (Faa (expr, Int (-1))) | _ -> None), None ;
+      [|"Stdlib";"Atomic";"Loc";"incr"|], (function [expr] -> Some (Faa (expr, Int 1)) | _ -> None), None ;
       [|"Stdlib";"Atomic";"make"|], (function [expr] -> Some (Ref expr) | _ -> None), None ;
       [|"Stdlib";"Atomic";"get"|], (function [expr] -> Some (Ref_get expr) | _ -> None), None ;
       [|"Stdlib";"Atomic";"set"|], (function [expr1; expr2] -> Some (Ref_set (expr1, expr2)) | _ -> None), None ;
@@ -686,10 +700,16 @@ let rec expression ctx (expr : Typedtree.expression) =
             let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) tag in
             Constr (concrete, tag, exprs)
         end
-  | Texp_match (expr, brs, _) ->
+  | Texp_match (expr, brs, _, _) ->
       let expr = expression ctx expr in
       let brs, fb = branches ctx brs in
       Match (expr, brs, fb)
+  | Texp_atomic_loc (expr, lid, lbl) ->
+      let expr = expression ctx expr in
+      let fld = lbl.lbl_name in
+      let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc lbl.lbl_res in
+      Context.add_dependency_from_path ctx lid.loc rcd ;
+      Atomic_loc (expr, fld)
   | Texp_field (expr, lid, lbl) ->
       let expr = expression ctx expr in
       let fld = lbl.lbl_name in
@@ -939,7 +959,7 @@ let structure_item modname ctx (str_item : Typedtree.structure_item) =
   | Tstr_attribute attr ->
       if Attribute.has_prefix [attr] then (
         match attr.attr_payload with
-        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_constant (Pconst_string (pref, _, _)); _ }, _); _ }] ->
+        | PStr [{ pstr_desc= Pstr_eval ({ pexp_desc= Pexp_constant { pconst_desc= Pconst_string (pref, _, _); _ }; _ }, _); _ }] ->
             Context.set_prefix ctx pref
         | _ ->
             error attr.attr_loc Attribute_prefix_invalid_payload

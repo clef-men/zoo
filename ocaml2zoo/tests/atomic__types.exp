@@ -5,4 +5,7 @@ From zoo.language Require Import
 From zoo Require Import
   options.
 
-
+Notation "'f'" := (
+  in_type "t" 0
+)(in custom zoo_field
+).
