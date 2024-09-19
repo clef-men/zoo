@@ -88,7 +88,7 @@ Implicit Types status : val.
         #true
     | Undetermined <> as "old_status" =>
         Resolve (CAS "casn".[status] "old_status" "status") "casn".{prophet} ("id", kcas_status_to_bool "status") ;;
-        "cas".{status} = §After
+        "casn".{status} = §After
     end.
 
 #[local] Definition kcas_determine_aux : val :=
@@ -135,6 +135,25 @@ Implicit Types status : val.
     | Undetermined "cass" =>
         kcas_determine_aux "kcas_determine" "casn" "cass"
     end.
+
+Definition kcas_get : val :=
+  fun: "loc" =>
+    let: "state" := !"loc" in
+    if: kcas_determine "state".<casn> then
+      "state".<after>
+    else
+      "state".<before>.
+
+Definition kcas_cas : val :=
+  fun: "cass" =>
+    let: "casn" := { §After, Proph } in
+    let: "cass" :=
+      lst_map "cass" (fun: "cas" =>
+        ("cas".<0>, ("casn", "cas".<1>, "cas".<2>))
+      )
+    in
+    "cass" <-{status} ‘Undetermined{ "cass" } ;;
+    kcas_determine_aux kcas_determine "casn" "cass".
 
 Inductive kcas_lstatus :=
   | KcasUndetermined i
@@ -543,6 +562,8 @@ Section kcas_G.
   Proof.
   Admitted.
 End kcas_G.
+
+#[global] Opaque kcas_get.
 
 #[global] Opaque kcas_loc_inv.
 #[global] Opaque kcas_loc_model.
