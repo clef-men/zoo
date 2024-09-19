@@ -50,6 +50,7 @@ module Builtin = struct
       [|"Stdlib";"Atomic";"incr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int 1)), None ;
       [|"Zoo";"proph"|], Proph, None ;
       [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")), None ;
+      [|"Zoo";"id"|], Id, Some "identifier" ;
     |]
   let paths =
     Array.fold_left (fun acc (path, expr, dep) ->

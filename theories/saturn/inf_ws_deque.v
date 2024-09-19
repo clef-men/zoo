@@ -18,11 +18,11 @@ From zoo.iris.base_logic Require Import
   lib.auth_nat_max
   lib.mono_list.
 From zoo.language Require Import
-  identifier
   wise_prophet
   notations
   diaframe.
 From zoo.std Require Import
+  identifier
   option
   inf_array.
 From zoo.saturn Require Export

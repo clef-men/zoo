@@ -78,12 +78,12 @@ theories/language/diaframe/specs.v
 theories/language/diaframe/diaframe.v
 theories/language/adequacy.v
 # theories/language/prophecy_erasure.v
-theories/language/identifier.v
 theories/language/itype.v
 theories/language/typed_prophet.v
 theories/language/wise_prophet.v
 
 theories/std/base.v
+theories/std/identifier.v
 theories/std/diverge.v
 theories/std/assert.v
 theories/std/assume.v

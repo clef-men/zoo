@@ -13,11 +13,11 @@ From zoo.iris.base_logic Require Import
   lib.excl
   lib.saved_prop.
 From zoo.language Require Import
-  identifier
   typed_prophet
   notations
   diaframe.
 From zoo.std Require Import
+  identifier
   lst.
 From zoo Require Import
   options.

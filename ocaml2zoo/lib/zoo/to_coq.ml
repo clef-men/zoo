@@ -120,7 +120,8 @@ let level = function
   | For _
   | Fail
   | Yield
-  | Proph ->
+  | Proph
+  | Id ->
       1
   | Proj _ ->
       2
@@ -317,6 +318,8 @@ let rec expression' lvl ppf = function
         (expression @@ next_level lvl) expr1
         (expression @@ next_level lvl) expr2
         (expression @@ next_level lvl) expr3
+  | Id ->
+      Format.fprintf ppf "Id"
 and expression lvl ppf expr =
   let lvl_expr = level expr in
   if lvl < lvl_expr then
