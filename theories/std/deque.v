@@ -184,7 +184,7 @@ Section zoo_G.
       wp_load.
       wp_apply (wp_wand with "(Hfn [%] HΨ)").
       { erewrite take_drop_middle => //. }
-      rewrite /Χ -take_S_r // app_length Nat.add_1_r. iSteps.
+      rewrite /Χ -take_S_r // length_app Nat.add_1_r. iSteps.
     }
     iIntros "(Hmodel & HΨ & Hnodes)".
     iDestruct (big_sepL2_length with "Hnodes") as %->.

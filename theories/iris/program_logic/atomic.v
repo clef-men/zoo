@@ -161,7 +161,7 @@ Section atomic_wp.
     ∀ Φ,
     atomic_update (⊤ ∖ E) ∅ α β (λ.. x y, Ψ x y -∗ Φ (f x y)) -∗
     WP e {{ Φ }}.
-  #[global] Arguments atomic_wp e%E E (α β Ψ f)%I : assert.
+  #[global] Arguments atomic_wp e%_E E (α β Ψ f)%_I : assert.
 
   #[global] Instance atomic_wp_ne e E n :
     Proper (
@@ -399,7 +399,7 @@ Section atomic_triple.
       atomic_update (⊤ ∖ E) ∅ α β (λ.. x y, Ψ x y -∗ Φ (f x y)) -∗
       WP e {{ Φ }}
     ).
-  #[global] Arguments atomic_triple e%E E (P α β Ψ f)%I : assert.
+  #[global] Arguments atomic_triple e%_E E (P α β Ψ f)%_I : assert.
 
   #[global] Instance atomic_triple_ne e E n :
     Proper (

@@ -57,7 +57,7 @@ Section zoo_G.
     }
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
-    iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id seq_length. iSteps.
+    iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id length_seq. iSteps.
   Qed.
 
   Lemma random_round_reset_spec t sz prevs :
@@ -74,7 +74,7 @@ Section zoo_G.
     wp_rec. wp_load.
     wp_apply (array_size_spec with "Harr") as "Harr".
     iSteps. iExists (nexts ++ reverse prevs). rewrite !right_id. iSteps. iPureIntro.
-    rewrite fmap_length Hpermutation seq_length //.
+    rewrite length_fmap Hpermutation length_seq //.
   Qed.
 
   Lemma random_round_next_spec t sz prevs :
@@ -91,7 +91,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hprevs %Φ (%l & %rand & %arr & %nexts & -> & %Hpermutation & Hl_random & Hl_array & Hl_index & #Hrand & Harr) HΦ".
     pose proof Hpermutation as Hlength%Permutation_length.
-    rewrite app_length seq_length reverse_length in Hlength.
+    rewrite length_app length_seq length_reverse in Hlength.
     wp_rec. do 3 wp_load.
     set i := length nexts.
     wp_smart_apply (random_int_spec with "Hrand") as (j) "%Hj"; first lia.
@@ -107,9 +107,9 @@ Section zoo_G.
     { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
     wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr".
-    { rewrite fmap_length app_length. lia. }
+    { rewrite length_fmap length_app. lia. }
     wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr".
-    { rewrite insert_length fmap_length app_length. lia. }
+    { rewrite length_insert length_fmap length_app. lia. }
     wp_store. wp_pures.
     iApply "HΦ". iSplitR.
     - iPureIntro. split.
@@ -124,19 +124,19 @@ Section zoo_G.
       assert (Z.to_nat (i - 1) = i - 1) as -> by lia.
       assert (<[j := next]> (take (i - 1) nexts) ++ [prev] = <[i - 1 := prev]> (<[j := next]> nexts)) as Heq.
       { destruct (decide (j = i - 1)) as [-> | H].
-        - rewrite list_insert_ge. { rewrite take_length. lia. }
+        - rewrite list_insert_ge. { rewrite length_take. lia. }
           rewrite list_insert_insert insert_take_drop; first lia.
           rewrite skipn_all2 //; first lia.
         - rewrite list_insert_commute // (insert_take_drop nexts); first lia.
           rewrite skipn_all2; first lia.
-          rewrite -insert_app_l // take_length; first lia.
+          rewrite -insert_app_l // length_take; first lia.
       }
       iSteps. iExists (<[j := next]> (take (i - 1) nexts)). iSteps.
       + iPureIntro.
         rewrite -Hpermutation reverse_snoc (assoc _ _ [_]) Heq Permutation_swap' //.
-      + rewrite insert_length take_length. iSteps.
+      + rewrite length_insert length_take. iSteps.
       + rewrite reverse_snoc (assoc _ _ [_]) Heq insert_app_l; first lia.
-        rewrite insert_app_l // insert_length; first lia.
+        rewrite insert_app_l // length_insert; first lia.
   Qed.
 End zoo_G.
 
@@ -199,7 +199,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hn %Φ (%prevs & %H & Ht) HΦ".
     wp_apply (random_round_next_spec with "Ht") as (i) "(%Hi & Ht)"; first lia.
-    iSteps. iExists (prevs ++ [i]). rewrite app_length. iSteps.
+    iSteps. iExists (prevs ++ [i]). rewrite length_app. iSteps.
   Qed.
 End zoo_G.
 

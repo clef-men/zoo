@@ -202,7 +202,7 @@ Section graph.
       assert (path g a (xs++xs) a) as Hloop.
       { by eapply path_app. }
       specialize (Huniq a a xs (xs++xs) Hpath Hloop).
-      apply (@f_equal _ _ length) in Huniq. rewrite app_length in Huniq.
+      apply (@f_equal _ _ length) in Huniq. rewrite length_app in Huniq.
       assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
     { intros ????? X1 X2.
       destruct (Hroot r1) as (xs1&Hxs1).
@@ -409,7 +409,7 @@ Section graph.
   Lemma mirror_same_length (xs ys:list (A*B*A)):
     mirror xs ys ->
     length xs = length ys.
-  Proof. induction 1. done. rewrite app_length. simpl. lia. Qed.
+  Proof. induction 1. done. rewrite length_app. simpl. lia. Qed.
 
   Lemma mirror_mirrored_edges xs ys r x r' :
     mirror xs ys ->
@@ -449,7 +449,7 @@ Section graph.
       exists (zs ++ [(a2, b', a1)]). split.
       { eapply path_app. done.
         apply path_cons.  set_solver. apply path_nil. }
-      { rewrite app_length. simpl. lia. } }
+      { rewrite length_app. simpl. lia. } }
   Qed.
 
   Definition pathlike (ys:list (A*B*A)) r :=
@@ -674,9 +674,7 @@ Section pstore_G.
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.
-    iSplitR.
-    2:{ iExists γ,∅. iFrame. iPureIntro. intros ??. set_solver. }
-    iPureIntro. split_and!; first done.
+    iSteps; iPureIntro.
     { constructor.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
       { set_solver. }
@@ -885,11 +883,8 @@ Section pstore_G.
     iDestruct "HC" as "[% [% (%Hsnap&#?&HC)]]".
     iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
     iModIntro.
-    iSplitR "Hsnap". 2:iSteps.
-    iExists _,_,_,_,_. iFrame.
-    iSplitR "HC".
-    { iPureIntro. split_and!; eauto. }
-    iExists _,_. iFrame "#∗". iPureIntro.
+    iSplitR "Hsnap"; last iSteps.
+    iExists _,_,_,_,_. iFrame "#∗". iStep. iPureIntro.
     intros r' ? HC. rewrite elem_of_union elem_of_singleton in HC.
     destruct HC as [HC|HC]; last eauto.
     inversion HC. subst. destruct Hinv. eauto.
@@ -1555,10 +1550,12 @@ Section pstore_G.
 
     iDestruct (extract_unaliased with "Hg") as "%".
     destruct_decide (decide (rs=r)).
-    { subst.
-      wp_load. iStep 5. iModIntro.
-      iExists _,_,_,_,_. iFrame. iPureIntro. split_and!; eauto.
-      { destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver. } }
+    { subst. wp_load.
+      iStep 5.
+      repeat iExists _. iDecompose "HC". iFrame "#∗".
+      iPureIntro. split_and!; try done.
+      destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver.
+    }
 
     assert (rs ∈ vertices g) as Hrs.
     { destruct Hinv. apply elem_of_dom_2 in HMrs. set_solver. }
@@ -1588,19 +1585,18 @@ Section pstore_G.
     iStep 7.
     iDestruct (big_sepS_union_2 with "[$][$]") as "Hs".
 
-    remember ((rs, (l, v), r') :: bs) as xs.
+    remember ((rs, (l, v), r') :: bs) as xs'.
 
     iDestruct (extract_unaliased with "Hs") as "%".
 
     assert (({[(rs, (l, v), r')]} ∪ list_to_set bs) = (list_to_set xs : gset _)) as Hbs.
-    { subst xs. reflexivity. }
-    rewrite Hbs. rewrite Hbs in H5.
+    { subst xs xs'. reflexivity. }
 
     iAssert ⌜forall x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
     { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "H". done.
       iApply (pointsto_exclusive with "Hrs H"). }
 
-    iExists _,_,_,_,M. iFrame.
+    iExists _,_,_,_,M. iDecompose "HC". iFrame "#∗".
 
     assert (vertices (list_to_set ys ∪ g ∖ list_to_set xs) = vertices g) as Hvg.
     { apply mirror_vertices in Hmirror.
@@ -1612,7 +1608,7 @@ Section pstore_G.
     assert (rooted_dag (list_to_set ys ∪ g ∖ list_to_set xs) rs) as Hroot.
     { eapply undo_preserves_rooted_dag; eauto. }
 
-    iPureIntro. split_and !; try done.
+    iPureIntro. split_and!; try done.
     { destruct Hinv as [X1 X2 X3 X4]. constructor.
       { rewrite X1 Hvg.
         apply elem_of_dom_2 in X3,HMrs.
@@ -1622,13 +1618,14 @@ Section pstore_G.
       { set_solver. }
       { intros. eapply undo_preserves_model; eauto. rewrite comm_L //. }
     } {
-      rewrite /apply_diffl.
+      rewrite /apply_diffl Heqxs Heqxs' /=.
       replace (<[l:=v]> (foldr (λ '(l0, v0) σ2, <[l0:=v0]> σ2) σ0 (list_fmap (location * diff * location)%type diff proj2 bs))) with (apply_diffl (proj2 <$> xs) σ0).
-      2:{ subst xs. reflexivity. }
+      2:{ subst xs xs'. reflexivity. }
 
       destruct Hcoh as [X1 X2]. constructor.
-      { intros ???. rewrite dom_apply_diffl. apply X1 in H8.
-        eapply use_locations_of_edges_in in Hrs. 2:done.
+      { intros ???. rewrite dom_apply_diffl.
+        apply X1 in H9.
+        eapply use_locations_of_edges_in in Hrs; last done.
         set_solver.
       } {
         rewrite dom_apply_diffl. intros ???? Hedge.
@@ -1636,7 +1633,8 @@ Section pstore_G.
         destruct Hedge as [Hedge|Hedge].
         { right. eauto using undo_same_fst_label. }
         { left. eapply (X2 r0). eapply elem_of_subseteq. 2:done. set_solver. }
-    } }
+      }
+    }
   Qed.
 End pstore_G.
 

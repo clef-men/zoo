@@ -100,8 +100,7 @@ Section prophet_map_G.
     iDestruct "Hpids" as "(%prophets & (%Hprophets & %Hpids) & Hauth)".
     iMod (ghost_map_insert pid (prophecies_resolve xprophs pid) with "Hauth") as "(Hauth & Helem)".
     { apply not_elem_of_dom. set_solver. }
-    iModIntro. iFrame. iExists (<[pid := prophecies_resolve xprophs pid]> prophets). iFrame. iPureIntro.
-    split.
+    iFrame. iPureIntro. split.
     - apply resolves_insert; first done. set_solver.
     - rewrite dom_insert. set_solver.
   Qed.
@@ -120,15 +119,14 @@ Section prophet_map_G.
     assert (prophs = proph :: prophecies_resolve xprophs pid) as ->.
     { rewrite (Hprophets pid prophs Hlookup) /= decide_True //. }
     iMod (ghost_map_update (prophecies_resolve xprophs pid) with "Hauth Hp") as "(Hauth & Helem)".
-    iExists (prophecies_resolve xprophs pid). iFrame. iSplitR; first iSteps.
-    iExists _. iFrame. iPureIntro. split.
+    iExists (prophecies_resolve xprophs pid). iFrame. iStep 2; iPureIntro.
     - intros pid' prophs' Hlookup'. destruct (decide (pid = pid')) as [<- | Hne].
       + rewrite lookup_insert in Hlookup'.
         inversion Hlookup'. done.
       + rewrite lookup_insert_ne // in Hlookup'.
         rewrite (Hprophets pid' prophs' Hlookup') /= decide_False //.
     - assert (pid ∈ dom prophets) by exact: elem_of_dom_2.
-      rewrite dom_insert. set_solver.
+      set_solver.
   Qed.
 End prophet_map_G.
 

@@ -833,7 +833,7 @@ Module raw.
       { (* we have lock, hence we are in state 1 or in state 2 *)
         iDestruct (inf_ws_deque_lock_state with "Hlock Hstate") as "(Hlock & [Hstate | Hstate])";
           iDestruct "Hstate" as "(>%Hstate & _ & >%Hhist & _)";
-          rewrite app_length; auto with lia.
+          rewrite length_app; auto with lia.
       }
       iAaccIntro with "Harray_model"; iIntros "Harray_model".
       { iModIntro. iFrame. repeat iExists _. iFrame. done. }
@@ -1082,7 +1082,7 @@ Module raw.
           iPureIntro; lia.
       }
       (* hence [back = length (hist ++ model)] *)
-      assert (Z.to_nat back = length (hist ++ model)) as Heq. { rewrite app_length. lia. }
+      assert (Z.to_nat back = length (hist ++ model)) as Heq. { rewrite length_app. lia. }
       rewrite Heq decide_False; first lia. rewrite Nat.sub_diag.
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock".
@@ -1140,7 +1140,7 @@ Module raw.
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hlock HΦ".
         { iExists front, (back + 1)%Z, hist, model', priv'', past, prophs. iFrame.
-          iSplit. { iPureIntro. rewrite app_length. simpl in *. lia. }
+          iSplit. { iPureIntro. rewrite length_app. simpl in *. lia. }
           iSplit; first done.
           unfold_state. iRight. iLeft. iFrame. auto with lia.
         }
@@ -1340,7 +1340,7 @@ Module raw.
       { iExists front1, back2, hist, (v :: model), priv, past2, prophs2. iFrame.
         do 2 (iSplit; first done).
         unfold_state. iRight. iLeft. iFrame. do 2 (iSplit; first done).
-        unfold_state. rewrite Hbranch3. iRight. iFrame. iExists Φ. iFrame.
+        unfold_state. rewrite Hbranch3. iRight. iFrame.
         iModIntro. rewrite /inf_ws_deque_atomic_update. iAuIntro.
         iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%_model (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -1411,11 +1411,11 @@ Module raw.
           }
           unfold_state. destruct model as [| w model]; simpl in Hmodel.
           - iModIntro. iLeft. iFrame. iSplit; first auto with lia.
-            iSplit. { rewrite app_length /=. auto with lia. }
+            iSplit. { rewrite length_app /=. auto with lia. }
             repeat iExists _. iFrame.
           - iMod (inf_ws_deque_hist_update w with "Hhist_auth") as "Hhist_auth".
             iModIntro. iRight. iLeft. iFrame. iSplit; first auto with lia.
-            iSplit. { rewrite app_length /=. auto with lia. }
+            iSplit. { rewrite length_app /=. auto with lia. }
             unfold_state. destruct (head $ filter _ prophs3') as [[] |].
             + iLeft. repeat iExists _. iFrame.
             + repeat iExists _. iFrame.
@@ -1601,7 +1601,7 @@ Module raw.
       (* branch 1.2: front2 + 1 < back; no conflict *)
       - (* there is stricly more than one model value *)
         rename model into _model. destruct (rev_elim _model) as [-> | (model & v & ->)]; first naive_solver lia.
-        destruct model as [| w model]; rewrite app_length /= in Hmodel; first lia.
+        destruct model as [| w model]; rewrite length_app /= in Hmodel; first lia.
         (* update data model *)
         iEval (rewrite assoc) in "Harray_model".
         iDestruct (inf_array_model'_shift_r with "Harray_model") as "Harray_model".
@@ -1725,7 +1725,7 @@ Module raw.
               eapply Forall_impl; first done. intros (? & ?) ?. lia.
             }
             unfold_state. do 2 iRight. iFrame. iRight. iFrame. iSplit; first auto with lia.
-            rewrite app_length /=. auto with lia.
+            rewrite length_app /=. auto with lia.
           }
           clear.
 
@@ -1790,7 +1790,7 @@ Module raw.
             iSplit. { list_simplifier. auto with lia. }
             iSplit; first done.
             unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-            iSplit. { rewrite app_length /=. auto with lia. }
+            iSplit. { rewrite length_app /=. auto with lia. }
             unfold_state. rewrite Hbranch2. naive_solver.
           }
           clear- Hbranch2.
@@ -1856,8 +1856,8 @@ Module raw.
             iSplitL "Harray_model". { list_simplifier. done. }
             do 2 (iSplit; first (simpl; auto with lia)).
             unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-            iSplit. { rewrite app_length /=. auto with lia. }
-            unfold_state. rewrite Hbranch2. iFrame. iExists Ψ. iFrame.
+            iSplit. { rewrite length_app /=. auto with lia. }
+            unfold_state. rewrite Hbranch2. iFrame.
             rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
           }
           clear- Hbranch2.
@@ -1980,8 +1980,8 @@ Module raw.
               iSplit. { list_simplifier. auto with lia. }
               iSplit; first done.
               unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-              iSplit. { rewrite app_length /=. auto with lia. }
-              unfold_state. rewrite Hbranch2. iFrame. iExists Ψ. iFrame.
+              iSplit. { rewrite length_app /=. auto with lia. }
+              unfold_state. rewrite Hbranch2. iFrame.
               rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
             }
             clear- Hbranch2 Hbranch3.
@@ -2042,8 +2042,8 @@ Module raw.
               iSplit. { list_simplifier. auto with lia. }
               iSplit; first done.
               unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-              iSplit. { rewrite app_length /=. auto with lia. }
-              unfold_state. rewrite Hbranch2. iFrame. iExists Φ'. iFrame.
+              iSplit. { rewrite length_app /=. auto with lia. }
+              unfold_state. rewrite Hbranch2. iFrame.
               rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
             }
             clear- Hbranch2 Hbranch3.

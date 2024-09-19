@@ -1128,7 +1128,7 @@ Tactic Notation "awp_apply" open_constr(lemma) :=
     ltac:(fun _ => fail);
   last iAuIntro.
 Tactic Notation "awp_apply" open_constr(lemma) "without" constr(Hs) :=
-  let Hs := words Hs in
+  let Hs := String.words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   wp_apply_core lemma
     ltac:(fun H =>
@@ -1154,7 +1154,7 @@ Tactic Notation "awp_smart_apply" open_constr(lemma) :=
     );
   last iAuIntro.
 Tactic Notation "awp_smart_apply" open_constr(lemma) "without" constr(Hs) :=
-  let Hs := words Hs in
+  let Hs := String.words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   wp_apply_core lemma
     ltac:(fun H =>

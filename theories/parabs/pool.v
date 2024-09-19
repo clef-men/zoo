@@ -253,7 +253,7 @@ Section pool_G.
     )%I.
     wp_smart_apply (array_unsafe_initi_spec_disentangled' (λ _ dom, domain_model dom Ψ) with "[Hhub_owners]") as (v_doms doms) "(_ & Hv_doms & Hdoms)"; first done.
     { iApply (big_sepL_mono_strong with "Hhub_owners").
-      { rewrite !seq_length. lia. }
+      { rewrite !length_seq. lia. }
       iIntros "!>" (k i1 i2 ((-> & Hi1)%lookup_seq & (-> & Hi2)%lookup_seq)) "Hhub_owner".
       wp_smart_apply (domain_spawn_spec Ψ with "[Hhub_owner]"); last iSteps.
       wp_smart_apply (pool_worker_spec with "[Hhub_owner]"); last iSteps.

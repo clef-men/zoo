@@ -530,7 +530,8 @@ End wp_executor.
 (* this instance makes iSteps work on goals built by Program, which for some reason unfolds ReductionStep' goals *)
 #[global] Instance template_step_emp_valid {PROP : bi} (pre : PROP) `(red_cond : ReductionCondition PROP E W) e n M1 M2 (A B : tele) P' f'  Q w G :
   AsEmpValidWeak (PROP := PROP) (ReductionStep' red_cond pre n M1 M2 A B P' Q e f' w) G →
-  AsEmpValidWeak (PROP := PROP) (ReductionTemplateStep red_cond (A * B) pre w e (λ pr: A * B, tele_app (tele_app f' pr.1) pr.2) (template_M (PROP := PROP) n M1 M2 A B P' Q)) G.
+  AsEmpValidWeak (PROP := PROP) (ReductionTemplateStep red_cond (qprod A B) pre w e
+    (λ pr, tele_app (tele_app f' $ qfst pr) $ qsnd pr) (template_M (PROP := PROP) n M1 M2 A B P' Q)) G.
 Proof.
   done.
 Qed.

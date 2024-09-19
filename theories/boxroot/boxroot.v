@@ -191,8 +191,8 @@ Section boxroot_G.
         wp_smart_apply (xdeque_iter_spec Ψ with "[$HΨ $Hroots]"); iSteps.
     }
     wp_pures.
-    iApply "HΦ". iFrame.
-    iExists l_global, γ, [], ∅. iSteps. rewrite big_sepM_empty //.
+    iApply "HΦ".
+    iFrame. iExists l_global. rewrite big_sepM_empty. iSteps.
   Admitted.
 
   Lemma boxroot_create_spec {gc global l} ω :
@@ -219,8 +219,8 @@ Section boxroot_G.
     }
     iMod (boxroot_roots_insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
     wp_pures.
-    iApply "HΦ". iFrame. iSplitR "Hroots_elem"; last iSteps.
-    iExists l_global, γ, (roots ++ [root]), (<[root := ω]> map). iSteps.
+    iApply "HΦ".
+    iFrame. iSteps.
     - iPureIntro. set_solver.
     - rewrite big_sepM_insert //. iSteps.
   Qed.
@@ -295,7 +295,8 @@ Section boxroot_G.
     iApply wp_fupd.
     wp_smart_apply (wp_store_gc_root with "Hroot") as "Hroot"; [done.. |].
     iMod (boxroot_roots_update ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
-    iApply "HΦ". iSplitR "Hroots_elem"; last iSteps.
+    iApply "HΦ".
+    iSplitR "Hroots_elem"; last iSteps.
     iExists l_global, γ, roots, (<[root := ω]> map). iSteps.
     iPureIntro. apply elem_of_dom_2 in Hmap_lookup. set_solver.
   Qed.

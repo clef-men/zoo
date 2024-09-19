@@ -62,7 +62,7 @@ Section basic.
     apply: foldr_insert_strong'; done.
   Qed.
 
-  Lemma lookup_last_length l i :
+  Lemma length_lookup_last l i :
     is_Some (l !! i) →
     l !! S i = None →
     length l = S i.
@@ -88,10 +88,10 @@ Section basic.
     head (drop i l) = Some x.
   Proof.
     intros Hlookup.
-    assert (length (take i l) = i) as Htake_length.
-    { apply lookup_lt_Some in Hlookup. rewrite take_length. lia. }
+    assert (length (take i l) = i) as Hlength_take.
+    { apply lookup_lt_Some in Hlookup. rewrite length_take. lia. }
     apply take_drop_middle in Hlookup as <-.
-    rewrite drop_app Htake_length Nat.sub_diag skipn_all2 //; first lia.
+    rewrite drop_app Hlength_take Nat.sub_diag skipn_all2 //; first lia.
   Qed.
   Lemma head_drop l i :
     head (drop i l) = l !! i.
@@ -111,10 +111,10 @@ Section basic.
     last (take (S i) l) = Some x.
   Proof.
     intros Hlookup.
-    assert (length (take i l) = i) as Htake_length.
-    { apply lookup_lt_Some in Hlookup. rewrite take_length. lia. }
+    assert (length (take i l) = i) as Hlength_take.
+    { apply lookup_lt_Some in Hlookup. rewrite length_take. lia. }
     apply take_drop_middle in Hlookup as <-.
-    rewrite take_app Htake_length Nat.sub_succ_l // Nat.sub_diag last_snoc //.
+    rewrite take_app Hlength_take Nat.sub_succ_l // Nat.sub_diag last_snoc //.
   Qed.
   Lemma last_take' l i :
     is_Some (l !! i) →
@@ -154,11 +154,11 @@ Section Permutation.
     opose proof* (lookup_lt_Some l i1) as Hi1; first done.
     opose proof* (lookup_lt_Some l i2) as Hi2; first done.
     split.
-    - rewrite !insert_length //.
+    - rewrite !length_insert //.
     - exists (λ j, if decide (j = i1) then i2 else if decide (j = i2) then i1 else j). split.
       + intros j1 j2. repeat case_decide; naive_solver.
       + intros j. repeat case_decide; subst.
-        * rewrite list_lookup_insert // insert_length //.
+        * rewrite list_lookup_insert // length_insert //.
         * rewrite list_lookup_insert_ne // list_lookup_insert //.
         * rewrite list_lookup_insert_ne // list_lookup_insert_ne //.
   Qed.

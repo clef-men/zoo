@@ -178,7 +178,7 @@ Section parray_G.
     |}.
     iApply ("HΦ" $! _ γ). iSplitR "Hmap_elem"; last iSteps. iExists {[root := vs]}, root. iFrame.
     iApply big_sepM_singleton.
-    iExists _. rewrite replicate_length decide_True //. iSteps.
+    iExists _. rewrite length_replicate decide_True //. iSteps.
     iApply big_sepL_intro. iIntros "!> !>" (i ? (-> & Hi)%lookup_replicate) "//".
   Qed.
 
@@ -224,7 +224,7 @@ Section parray_G.
       iApply "HΦ". iFrame.
       iDestruct (big_sepL_insert_acc with "Hvs'") as "(Hvs'!!!i & Hvs')"; first done.
       iApply (big_sepM_delete _ _ l'); first done. iSplitL "Hl' Hvs'!!!i".
-      { iExists _. rewrite decide_False //. iFrame. iSplitR; first iSteps. iExists i, (vs' !!! i), l, vs. iSteps.
+      { iExists _. rewrite decide_False //. iFrame. iSplitR; first iSteps. iExists i, l, vs. iSteps.
         iPureIntro. rewrite Hvs list_insert_insert list_insert_id //.
       }
       iApply (big_sepM_delete _ _ l); first rewrite lookup_delete_ne //. iSplitL "Hl Harr Hvs'".
@@ -311,7 +311,7 @@ Section parray_G.
       iMod (parray_map_insert with "Hmap_auth") as "(Hmap_auth & #Hmap_elem_root)"; first done.
       iSplitR "Hmap_elem_root"; last iSteps. iExists (<[root := vs_root]> map), root. iFrame.
       iApply big_sepM_insert; first done. iSplitL "Hroot Harr Hvs".
-      { iExists _. rewrite decide_True //. iSteps. rewrite insert_length //. }
+      { iExists _. rewrite decide_True //. iSteps. rewrite length_insert //. }
       iApply (big_sepM_delete _ _ l); first done. iSplitL "Hl".
       { iExists _. rewrite decide_False; first congruence. iStep 2. iExists i, (vs !!! i), root, vs_root. iSteps.
         iPureIntro. rewrite /vs_root list_insert_insert list_insert_id //.

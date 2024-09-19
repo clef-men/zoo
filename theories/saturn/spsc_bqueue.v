@@ -521,11 +521,11 @@ Section spsc_bqueue_G.
     iApply "HΦ".
     iSplitL "Hdata_model Hfront Hback Hmodel₂ Hhistory_auth Hproducer_ctl₂ Hconsumer_ctl₂"; last iSteps.
     iStep 3. iApply inv_alloc. iExists 0, 0, [], []. iStep 7.
-    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_size". rewrite replicate_length.
+    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_size". rewrite length_replicate.
     iStep 4.
     Z_to_nat cap. rewrite Nat2Z.id. destruct cap as [| cap]; first iSteps.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
-    rewrite replicate_length -(take_drop 1 (replicate _ _)).
+    rewrite length_replicate -(take_drop 1 (replicate _ _)).
     iDestruct (array_cslice_app with "Hdata_cslice") as "(Hdata_back & Hdata_extra)".
     rewrite Nat.add_0_l take_replicate_add. iStep.
     rewrite Nat.sub_0_r. iSteps.
@@ -664,15 +664,15 @@ Section spsc_bqueue_G.
     rewrite bool_decide_eq_false_2; first lia.
     iSplitR "Hfront_cache Hproducer_ctl₁ Hproducer_region HΦ".
     { do 2 iModIntro. iExists front3, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
-      iSplit. { rewrite app_length. iSteps. }
-      iSplit. { rewrite Hvs3 app_length drop_app_le; first lia. iSteps. }
+      iSplit. { rewrite length_app. iSteps. }
+      iSplit. { rewrite Hvs3 length_app drop_app_le; first lia. iSteps. }
       iSplitL "Hback"; first iSteps.
       rewrite assoc. iSplitL "Hdata_front Hdata_vs Hdata_back".
       - destruct vs3 as [| v' vs3].
         + assert (front3 = back) as -> by naive_solver lia. iSteps.
         + iFrame. rewrite /= !drop_0 fmap_app.
           iApply (array_cslice_app_1 with "Hdata_vs Hdata_back").
-          rewrite fmap_length. naive_solver lia.
+          rewrite length_fmap. naive_solver lia.
       - case_decide.
         + assert (cap - (S back - front3) - 1 = 0) as -> by lia. iSteps.
         + iDestruct (array_cslice_app_2 [§None%V] (replicate (cap - (S back - front3) - 1) §None%V) with "Hdata_extra") as "(Hdata_back' & Hdata_extra)".
@@ -793,7 +793,7 @@ Section spsc_bqueue_G.
     iDestruct "Hdata_front" as "[Hdata_front | Hconsumer_region']"; last first.
     { iDestruct (spsc_bqueue_consumer_region_exclusive with "Hconsumer_region Hconsumer_region'") as %[]. }
     iDestruct (spsc_bqueue_history_elem_get front v with "Hhistory_auth") as "#Hhistory_elem".
-    { rewrite -(take_drop front hist2) -Hvs2 lookup_app_r take_length; first lia.
+    { rewrite -(take_drop front hist2) -Hvs2 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
       rewrite Nat.sub_diag //.
     }
@@ -815,7 +815,7 @@ Section spsc_bqueue_G.
     iDestruct (spsc_bqueue_history_agree with "Hhistory_auth Hhistory_elem") as %Hhist3_lookup.
     assert (_v = v) as ->.
     { move: Hhist3_lookup.
-      rewrite -(take_drop front hist3) -Hvs3 lookup_app_r take_length; first lia.
+      rewrite -(take_drop front hist3) -Hvs3 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
       rewrite Nat.sub_diag. naive_solver.
     }
@@ -834,7 +834,7 @@ Section spsc_bqueue_G.
       iSplit. { erewrite drop_S in Hvs3 => //. naive_solver. }
       iSplitL "Hfront"; first iSteps.
       rewrite assoc. iSplitL "Hdata_vs".
-      - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app fmap_length take_length.
+      - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app length_fmap length_take.
         destruct vs3; last rewrite Nat.add_1_r; iSteps.
       - iDestruct (array_cslice_shift with "Hdata_front") as "Hdata_front".
         case_decide as Hcase.
@@ -844,7 +844,7 @@ Section spsc_bqueue_G.
         + rewrite decide_False; first lia.
           iFrame.
           iDestruct (array_cslice_app_1 with "Hdata_extra Hdata_front") as "Hdata_extra".
-          { rewrite replicate_length. lia. }
+          { rewrite length_replicate. lia. }
           rewrite -replicate_S_end.
           assert (S (cap - (back3 - front) - 1) = cap - (back3 - S front) - 1) as -> by lia.
           iSteps.

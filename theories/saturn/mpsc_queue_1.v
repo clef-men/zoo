@@ -401,7 +401,7 @@ Section mpsc_queue_G.
           iDestruct (big_sepL2_length with "Hnodes") as %<-.
           iIntros "%Hnodes_length". iPureIntro.
           apply (f_equal length) in Hhist as Hhist_length.
-          rewrite app_length /= in Hhist_length.
+          rewrite length_app /= in Hhist_length.
           apply lookup_lt_Some in Hlookup'.
           lia.
         }
@@ -428,8 +428,8 @@ Section mpsc_queue_G.
         { iDestruct (big_sepL2_length with "Hnodes") as %?.
           exfalso.
           apply (f_equal length) in Hhist.
-          opose proof* lookup_last_length as Heq; [done.. |].
-          rewrite Heq app_length /= in Hhist. lia.
+          opose proof* length_lookup_last as Heq; [done.. |].
+          rewrite Heq length_app /= in Hhist. lia.
         }
         iMod "HΨ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -539,7 +539,7 @@ Section mpsc_queue_G.
 
     - wp_cas as Hcas | _; first done.
       iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
-      { rewrite -(lookup_last_length hist i) // drop_all //. }
+      { rewrite -(length_lookup_last hist i) // drop_all //. }
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
       iDestruct (xchain_model_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
       iMod (mpsc_queue_history_update new_back with "Hhistory_auth") as "Hhistory_auth".
@@ -657,7 +657,7 @@ Section mpsc_queue_G.
       iPureIntro. eapply NoDup_lookup; try done.
       rewrite Hhist list_lookup_middle //.
     }
-    rewrite Hhist (assoc _ _ [_]) lookup_app_r app_length /= in Hlookup'; first lia.
+    rewrite Hhist (assoc _ _ [_]) lookup_app_r length_app /= in Hlookup'; first lia.
     rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup'.
     destruct nodes as [| node nodes]; first done. injection Hlookup' as ->.
     rewrite (assoc _ _ [_]) in Hhist.

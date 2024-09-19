@@ -459,7 +459,7 @@ Section vertex_G.
 
     - iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
       iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
-      { iFrame. rewrite right_id. iExists state. rewrite decide_False //. iSteps. }
+      { iFrame. rewrite decide_False //. iSteps. }
       iSplitL. { iSteps. rewrite decide_False //. iSteps. }
       iIntros "H£ (Hstate₂ & HΦ)". wp_pures. clear.
 
@@ -478,7 +478,8 @@ Section vertex_G.
         assert ({[π]} ∪ (Δ ∪ Π) = Δ ∪ ({[π]} ∪ Π)) as -> by set_solver.
         iSteps; iPureIntro.
         - set_solver.
-        - rewrite size_union; first set_solver. rewrite size_singleton //.
+        - rewrite size_union; first set_solver.
+          rewrite size_singleton. lia.
       }
       iModIntro. wp_pures. clear.
 
@@ -516,7 +517,7 @@ Section vertex_G.
 
       + iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
         iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
-        { iFrame. iExists state. rewrite decide_False //. iSteps. }
+        { iFrame. rewrite decide_False //. iSteps. }
         iSplitL.
         { iSteps. rewrite decide_False //. iExists (vtx2 :: succs). iFrame.
           setoid_rewrite vertex_inv'_unfold. iSteps.

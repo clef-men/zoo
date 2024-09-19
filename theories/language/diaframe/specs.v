@@ -35,8 +35,8 @@ Section instances.
   #[global] Instance pure_wp_step_exec_inst1 e ϕ n e' E :
     (* TODO: prevent unfolding explicit recs *)
     PureExecNoRec ϕ n e e' →
-    ReductionTemplateStep wp_red_cond (TeleO*TeleO) (ε₀)%I [tele_arg3 E] e
-      (λ pr, tele_app (TT := [tele]) (tele_app (TT := [tele]) e' pr.1) pr.2)
+    ReductionTemplateStep wp_red_cond (qprod TeleO TeleO) (ε₀)%I [tele_arg3 E] e
+      (λ pr, tele_app (TT := [tele]) (tele_app (TT := [tele]) e' $ qfst pr) $ qsnd pr)
       (template_M n id id TeleO TeleO ⌜ϕ⌝%I emp%I)
   | 80.
       (* used when ϕ is an equality on a new evar: this will cause SolveSepSideCondition to fail *)

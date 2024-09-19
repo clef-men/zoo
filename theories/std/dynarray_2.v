@@ -81,7 +81,7 @@ Section zoo_G.
     wp_smart_apply (array_init_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hsz & %Hslots & Hdata_model & Hslots)".
     { iStep 5. iModIntro. wp_ref r as "Hr". iSteps. }
     iSteps.
-    - rewrite replicate_length. iSteps.
+    - rewrite length_replicate. iSteps.
     - iExists slots, 0. rewrite right_id. iSteps.
       iApply (big_sepL2_replicate_r_2 _ _ (λ _, slot_model) with "Hslots"); first lia.
   Qed.
@@ -123,7 +123,7 @@ Section zoo_G.
     wp_block l as "(Hsz & Hdata & _)".
     iDestruct (big_sepL2_length with "Hslots") as %Hslots'.
     iApply "HΦ".
-    iFrame. iStep. iExists l, data, slots, 0. rewrite right_id. iSteps.
+    iFrame. iStep. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_2_initi_spec' Ψ sz fn :
     {{{
@@ -241,7 +241,7 @@ Section zoo_G.
     iIntros "%Φ (%l & %data & %slots & %extra & -> & Hsz & Hdata & Hmodel & Hslots) HΦ".
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_apply (array_size_spec with "Hmodel") as "Hmodel".
-    rewrite app_length. iDestruct (big_sepL2_length with "Hslots") as %->.
+    rewrite length_app. iDestruct (big_sepL2_length with "Hslots") as %->.
     iSteps.
   Qed.
 
@@ -312,7 +312,7 @@ Section zoo_G.
     wp_store.
     iDestruct ("Hslots" with "[Hr]") as "Hslots"; first iSteps.
     rewrite (list_insert_id slots) //.
-    iSteps. rewrite insert_length //.
+    iSteps. rewrite length_insert //.
   Qed.
 
   #[local] Lemma dynarray_2_next_capacity_spec n :
@@ -404,10 +404,10 @@ Section zoo_G.
     wp_pures.
     iApply "HΦ".
     iExists l, data, (slots ++ [slot]), (extra - 1). iStep.
-    rewrite app_length Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
+    rewrite length_app Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
     rewrite Nat2Z.id -Hslots -(Nat.add_0_r (length slots)) insert_app_r.
     destruct extra.
-    - rewrite app_length in Htest. naive_solver lia.
+    - rewrite length_app in Htest. naive_solver lia.
     - rewrite -(assoc (++)) /= Nat.sub_0_r. iSteps.
   Qed.
   #[local] Lemma dynarray_2_push_aux_spec t vs slot v :
@@ -461,17 +461,17 @@ Section zoo_G.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     do 2 (wp_smart_apply assume_spec' as "_").
     wp_pures.
-    rewrite app_length Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
-    iDestruct (big_sepL2_length with "Hslots") as %Hslots. rewrite app_length /= in Hslots.
+    rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
+    iDestruct (big_sepL2_length with "Hslots") as %Hslots. rewrite length_app /= in Hslots.
     destruct (rev_elim slots) as [-> | (slots_ & slot & ->)]; first (simpl in Hslots; lia).
-    rewrite app_length Nat.add_cancel_r in Hslots. iEval (rewrite -Hslots).
+    rewrite length_app Nat.add_cancel_r in Hslots. iEval (rewrite -Hslots).
     iDestruct (big_sepL2_snoc with "Hslots") as "(Hslots & (%r & -> & Hr))".
     wp_apply (array_unsafe_get_spec with "Hdata_model") as "Hdata_model"; [lia | | done |].
-    { rewrite Nat2Z.id lookup_app_l; first (rewrite app_length /=; lia).
+    { rewrite Nat2Z.id lookup_app_l; first (rewrite length_app /=; lia).
       rewrite lookup_app_r // Nat.sub_diag //.
     }
     wp_smart_apply (array_unsafe_set_spec with "Hdata_model") as "Hdata_model".
-    { rewrite !app_length /=. lia. }
+    { rewrite !length_app /=. lia. }
     rewrite -assoc Nat2Z.id insert_app_r_alt // Nat.sub_diag /=.
     wp_store. wp_load.
     iApply "HΦ".

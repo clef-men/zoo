@@ -760,7 +760,7 @@ Qed.
 (*      * (** e1 is of the form ([Resolve] e10 e11 v0) and e11 takes a base_step. *)*)
 (*        inversion Hhstp'; simplify_eq.*)
 (*        edestruct (IH K) as (?&?&?&?&?&Hpstp&?&?&?&?);*)
-(*          [rewrite !app_length /=; lia|done|by eapply base_step_not_stuck|];*)
+(*          [rewrite !length_app /=; lia|done|by eapply base_step_not_stuck|];*)
 (*            simplify_eq/=.*)
 (*        apply base_reducible_prim_step in Hpstp; simpl in *;*)
 (*          last by rewrite /base_reducible /=; eauto 10.*)
@@ -777,7 +777,7 @@ Qed.
 (*           (non-base) prim_step. *)*)
 (*        rewrite fill_app in Hrs; simplify_eq/=.*)
 (*        edestruct (IH K) as (?&?&?&?&?&Hpstp&Hprstps&?&?&?);*)
-(*          [rewrite !app_length; lia|done| |].*)
+(*          [rewrite !length_app; lia|done| |].*)
 (*        { change (fill_item Ki) with (fill [Ki]).*)
 (*          by rewrite -fill_app; eapply prim_step_not_stuck, Ectx_step. }*)
 (*        simplify_eq/=.*)
@@ -802,11 +802,11 @@ Qed.
 (*            end*)
 (*        end.*)
 (*      apply (prim_step_matched_by_erased_steps_ectx [ResolveMCtx _ _]).*)
-(*      apply IH; [rewrite !app_length /=; lia|done|*)
+(*      apply IH; [rewrite !length_app /=; lia|done|*)
 (*                 by eapply (not_stuck_fill_inv (fill [ResolveMCtx _ _])); simpl].*)
 (*  - (** e1 is of the form ([Resolve] e1_ e1_2 e13) and e1_3 takes a prim_step. *)*)
 (*    apply (prim_step_matched_by_erased_steps_ectx [ResolveRCtx _ _]).*)
-(*    apply IH; [rewrite !app_length /=; lia|done|*)
+(*    apply IH; [rewrite !length_app /=; lia|done|*)
 (*                 by eapply (not_stuck_fill_inv (fill [ResolveRCtx _ _])); simpl].*)
 (*Qed.*)
 
@@ -824,7 +824,7 @@ Qed.
 (*  { apply erased_base_step_base_step in Hhstp as (?&?&?&?&?&<-&?&<-).*)
 (*    eexists _, _, _, _, _; repeat split;*)
 (*      first (by apply base_prim_step); auto using rtc_refl. }*)
-(*  rewrite app_length in IHm; simpl in *.*)
+(*  rewrite length_app in IHm; simpl in *.*)
 (*  rewrite fill_app /=; rewrite fill_app /= in He1.*)
 (*  eapply prim_step_matched_by_erased_steps_ectx_item; eauto; [].*)
 (*  { intros K' **; simpl in *. apply (IHm (length K')); auto with lia. }*)
@@ -1039,11 +1039,11 @@ Proof.
   rewrite list_fmap_insert/=.
   apply Forall2_app; last done.
   apply Forall2_same_length_lookup; split.
-  { apply Forall2_length in Hprstps; rewrite fmap_length in Hprstps.
-    by rewrite !insert_length fmap_length. }
+  { apply Forall2_length in Hprstps; rewrite length_fmap in Hprstps.
+    by rewrite !length_insert length_fmap. }
   intros j x y.
   destruct (decide (i = j)); simplify_eq.
-  { rewrite !list_lookup_insert ?fmap_length; eauto using lookup_lt_Some; [].
+  { rewrite !list_lookup_insert ?length_fmap; eauto using lookup_lt_Some; [].
     by intros ? ?; simplify_eq. }
   rewrite !list_lookup_insert_ne // list_lookup_fmap.
   intros ? ?.

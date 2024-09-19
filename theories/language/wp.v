@@ -99,7 +99,7 @@ Section zoo_G.
     iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_alloc _ _ (replicate (Z.to_nat n) ()%V) with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
-    all: rewrite ?replicate_length //.
+    all: rewrite ?length_replicate //.
     iSteps.
   Qed.
 
@@ -122,7 +122,7 @@ Section zoo_G.
     iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_alloc with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
-    all: rewrite -> of_vals_length in *; try done.
+    all: rewrite -> length_of_vals in *; try done.
     iSteps.
   Qed.
 

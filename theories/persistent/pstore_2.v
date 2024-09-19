@@ -503,16 +503,17 @@ Module raw.
       case_decide as Hg; first iSteps.
       iDecompose "Hmodel" as (descrs ϵs base descr δs Hϵs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hdescrs".
       iSteps; try iPureIntro.
-      { set_solver. }
+      { rewrite /descriptor_wf. set_solver. }
       { rewrite !store_on_insert_support //; last congruence.
         apply (f_equal dom) in Hδs. set_solver.
       } {
         iClear "Helem_base". clear dependent descr δs.
         iApply (big_sepM2_impl with "Hdescrs"). iIntros "!> !>" (cnode descr (cnode' & δs)) "%Hdescrs_lookup %Hϵs_lookup (%descr' & %Hdescrs_lookup' & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_nodup & %Hδs' & Hδs'))".
         simpl in *.
-        iSteps; iPureIntro; first set_solver.
-        rewrite !store_on_insert_support //; last congruence.
-        apply (f_equal dom) in Hδs'. set_solver.
+        iSteps; iPureIntro.
+        - rewrite /descriptor_wf. set_solver.
+        - rewrite !store_on_insert_support //; last congruence.
+          apply (f_equal dom) in Hδs'. set_solver.
       }
     Qed.
 
@@ -709,12 +710,12 @@ Module raw.
         { iPureIntro. split; first set_solver.
           eapply map_Forall_impl; first done. naive_solver.
         }
-        iExists {[root := descr]}, ∅, root, descr, []. iSteps; try iPureIntro.
+        iExists ∅, []. iSteps; try iPureIntro.
         { apply treemap_rooted_empty. }
         { rewrite lookup_insert //. }
         { rewrite NoDup_nil //. }
         { rewrite deltas_apply_nil //. }
-        rewrite delete_singleton.
+        rewrite delete_insert_delete.
         iApply (big_sepM2_empty with "[//]").
 
       - iDecompose "Hmodel" as (descrs ϵs base descr δs Hϵs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hdescrs".
@@ -723,7 +724,9 @@ Module raw.
         + specialize (Hδs_nil eq_refl) as ->.
           iDestruct (deltas_chain_nil_inv with "Hδs") as %<-.
           iSplitL; iSteps.
-          { iPureIntro. eapply map_Forall_impl; first done. naive_solver lia. }
+          { iPureIntro. split; first done.
+            eapply map_Forall_impl => //. naive_solver lia.
+          }
           rewrite decide_False; first lia.
           iSteps.
 
@@ -757,7 +760,7 @@ Module raw.
           iExists l, γ, (S g), root, ς. iFrame "#∗". iStep 3.
           iSplitR; first iSteps.
           set ϵ := (root, δ :: δs).
-          iExists _, (<[base := ϵ]> ϵs), root, root_descr, []. iSteps; try iPureIntro.
+          iExists (<[base := ϵ]> ϵs), []. iSteps; try iPureIntro.
           { eapply treemap_rooted_lift; [done.. | congruence]. }
           { rewrite lookup_insert //. }
           { rewrite NoDup_nil //. }
@@ -826,7 +829,7 @@ Module raw.
       - iDestruct (deltas_chain_cons_inv with "Hδs2") as "(Hδ' & Hδs2)".
         wp_load.
         assert (δs !! S i = Some δ') as Hδs_lookup'.
-        { rewrite -(take_drop (S i) δs) Hdrop_δs lookup_app_r take_length; first lia.
+        { rewrite -(take_drop (S i) δs) Hdrop_δs lookup_app_r length_take; first lia.
           rewrite Nat.min_l.
           { apply lookup_lt_Some in Hδs_lookup. lia. }
           rewrite Nat.sub_diag //.
@@ -904,7 +907,7 @@ Module raw.
       - iDestruct (deltas_chain_cons_inv with "H𝝳s2") as "(H𝝳' & H𝝳s2)".
         wp_rec. wp_load.
         assert (𝝳s !! S i = Some 𝝳') as H𝝳s_lookup'.
-        { rewrite -(take_drop (S i) 𝝳s) Hdrop_𝝳s lookup_app_r take_length; first lia.
+        { rewrite -(take_drop (S i) 𝝳s) Hdrop_𝝳s lookup_app_r length_take; first lia.
           rewrite Nat.min_l.
           { apply lookup_lt_Some in H𝝳s_lookup. lia. }
           rewrite Nat.sub_diag //.
@@ -983,7 +986,7 @@ Module raw.
           }
           iSteps. iPureIntro.
           rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
-          rewrite reverse_cons rev_append_rev rev_app_distr !rev_alt !fmap_app !assoc -tail_app //.
+          rewrite !reverse_cons reverse_app !fmap_app !assoc -tail_app //.
           symmetry. apply app_cons_not_nil.
     Qed.
 
@@ -1147,7 +1150,7 @@ Module raw.
           wp_smart_apply ("HLöb" $! _ ϵs' cnode cnode_descr [] cnode' cnode_descr' (δs_cnode'' ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
           { eapply treemap_reroot_path; done. }
           { rewrite lookup_insert_ne // lookup_delete_ne //. }
-          { rewrite app_length /=. lia. }
+          { rewrite length_app /=. lia. }
           { rewrite right_id //. }
           { rewrite reverse_snoc assoc //. }
           iSteps; try iPureIntro.
@@ -1192,7 +1195,7 @@ Module raw.
         set δs_base' := δs_base ++ [(r1, (g1', v1'), node')].
         set δs_cnode' := δs_cnode ++ [(r2, (g2, v2), node')].
         wp_smart_apply ("HLöb" $! ς' _ base base_descr δs_base' cnode cnode_descr δs_cnode' with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
-        { rewrite app_length /=. lia. }
+        { rewrite length_app /=. lia. }
         { rewrite -assoc (comm _ [_]) assoc fmap_app in Hnodup.
           rewrite /δs_cnode' /δs_base' assoc fmap_app //.
         }
@@ -1316,7 +1319,7 @@ Module raw.
             rewrite deltas_apply_singleton store_on_insert in Hδs.
             rewrite -Hδs delete_commute.
             wp_smart_apply (pstore_revert_spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
-            { rewrite app_length /=. lia. }
+            { rewrite length_app /=. lia. }
             { rewrite right_id //. }
             { rewrite reverse_app fmap_app -assoc //. }
             { iSteps; try iPureIntro.
@@ -1430,7 +1433,9 @@ Module raw.
           do 2 wp_store.
           iApply "HΦ".
           iExists l, γ, (S g'), base, descr.2. unshelve iStep 8.
-          { iPureIntro. eapply store_generation_le; last done. lia. }
+          { iPureIntro. split; first done.
+            eapply store_generation_le; last done. naive_solver.
+          }
           iExists descrs, ϵs', base, descr, []. iSteps.
 
         + assert (delete base descrs !! base' = Some descr') as Hdelete_descrs_lookup_base'.
@@ -1454,7 +1459,9 @@ Module raw.
           do 2 wp_store.
           iApply "HΦ".
           iExists l, γ, (S g'), base', descr'.2. unshelve iStep 8.
-          { iPureIntro. eapply store_generation_le; last done. lia. }
+          { iPureIntro. split; first done.
+            eapply store_generation_le; last done. naive_solver. 
+          }
           iExists descrs, ϵs', base', descr', []. iSteps.
     Qed.
   End pstore_G.

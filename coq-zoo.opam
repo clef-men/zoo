@@ -14,10 +14,10 @@ homepage:
 bug-reports:
   "https://github.com/clef-men/zoo/issues"
 depends: [
-  "coq" {= "8.18.0"}
-  "coq-stdpp" {= "dev.2023-11-16.0.809926b5"}
-  "coq-iris" {= "dev.2024-01-11.0.838322ad"}
-  "coq-diaframe" {= "dev.2024-01-30.0.cd2f6756"}
+  "coq" {= "8.19.0"}
+  "coq-stdpp" {= "dev.2024-09-11.0.f6973baf"}
+  "coq-iris" {= "dev.2024-09-11.3.0203d5ca"}
+  "coq-diaframe" {= "dev.2024-09-17.0.581c9a28"}
 ]
 build: [
   make "-j%{jobs}%"

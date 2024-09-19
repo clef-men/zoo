@@ -69,7 +69,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
     iSteps.
-    - rewrite replicate_length //.
+    - rewrite length_replicate //.
     - iExists 0. rewrite right_id Nat2Z.id. iSteps.
   Qed.
 
@@ -219,7 +219,7 @@ Section zoo_G.
     iIntros "%Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
     wp_rec. wp_load.
     wp_apply (array_size_spec with "Hdata_model") as "Hdata_model".
-    rewrite app_length. iSteps.
+    rewrite length_app. iSteps.
   Qed.
 
   Lemma dynarray_1_is_empty_spec t vs :
@@ -272,9 +272,9 @@ Section zoo_G.
     iIntros "%Hi %Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
     wp_rec. wp_load.
     wp_apply (array_unsafe_set_spec with "Hdata_model") as "Hdata_model".
-    { rewrite app_length. lia. }
+    { rewrite length_app. lia. }
     iApply "HΦ". iExists l, data, extra.
-    rewrite insert_length insert_app_l; first lia. iSteps.
+    rewrite length_insert insert_app_l; first lia. iSteps.
   Qed.
 
   #[local] Lemma dynarray_1_next_capacity_spec n :
@@ -307,14 +307,14 @@ Section zoo_G.
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures.
-    case_bool_decide as Htest; wp_pures; rewrite app_length replicate_length in Htest.
+    case_bool_decide as Htest; wp_pures; rewrite length_app length_replicate in Htest.
     - wp_apply (dynarray_1_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
       wp_apply maximum_spec.
       wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%data' Hdata_model'"; first lia.
       wp_load.
       wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.
-      { rewrite app_length. lia. }
-      { rewrite replicate_length. lia. }
+      { rewrite length_app. lia. }
+      { rewrite length_replicate. lia. }
       wp_store.
       iApply ("HΦ" $! data' (Z.to_nat (n `max` n') - length vs)).
       iSteps. rewrite Nat2Z.id drop_replicate take_app_length //.
@@ -387,9 +387,9 @@ Section zoo_G.
     wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%data' %extra' (%Hextra' & (Hsz & Hdata & Hdata_model))"; first lia.
     wp_load. wp_store. wp_load.
     wp_apply (array_unsafe_set_spec with "Hdata_model").
-    { rewrite app_length replicate_length. lia. }
+    { rewrite length_app length_replicate. lia. }
     rewrite Nat2Z.id insert_app_r_alt // Nat.sub_diag insert_replicate_lt // /= (assoc (++) vs [v] (replicate _ _)).
-    iSteps. rewrite app_length. iSteps.
+    iSteps. rewrite length_app. iSteps.
   Qed.
 
   Lemma dynarray_1_pop_spec {t vs} vs' v :
@@ -405,14 +405,14 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (%l & %data & %extra & -> & Hsz & Hdata & Hdata_model) HΦ".
     wp_rec. wp_load. wp_store. wp_load.
-    rewrite app_length Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
+    rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "Hdata_model"; [lia | | done |].
-    { rewrite lookup_app_l; first (rewrite app_length /=; lia).
+    { rewrite lookup_app_l; first (rewrite length_app /=; lia).
       rewrite lookup_app_r; first lia.
       rewrite Nat2Z.id Nat.sub_diag //.
     }
     wp_smart_apply (array_unsafe_set_spec with "Hdata_model").
-    { rewrite !app_length /=. lia. }
+    { rewrite !length_app /=. lia. }
     iSteps. iExists (S extra).
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
@@ -432,7 +432,7 @@ Section zoo_G.
     wp_smart_apply (array_size_spec with "Hdata_model") as "Hdata_model".
     wp_pures. case_bool_decide; wp_pures; first iSteps.
     wp_apply (array_unsafe_shrink_spec with "Hdata_model") as "%data' (_ & Hdata_model')".
-    { rewrite app_length. lia. }
+    { rewrite length_app. lia. }
     wp_store.
     iSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.
   Qed.

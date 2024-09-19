@@ -36,7 +36,7 @@ Section bi.
       { apply symmetry, nil_length_inv in Hl2 as ->. iSteps. }
       destruct (rev_elim l1) as [-> | (x1 & l1' & ->)]; first done.
       destruct (rev_elim l2) as [-> | (x2 & l2' & ->)]; first done.
-      rewrite !app_length !Nat.add_1_r !Nat.succ_inj_wd in Hl1 Hl2.
+      rewrite !length_app !Nat.add_1_r !Nat.succ_inj_wd in Hl1 Hl2.
       rewrite List.seq_S /=. iDestruct (big_sepL_snoc with "HΦ") as "(HΦ & HΦ')".
       iDestruct (big_sepL_snoc with "HΦ1") as "(HΦ1 & HΦ1')".
       iApply big_sepL_snoc. iSplitL "HΦ HΦ1".
@@ -69,7 +69,7 @@ Section bi.
     Proof.
       intros. iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong with "H"); first rewrite seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite length_seq //.
       all: iIntros "!> %k %_k % %".
       all: pose proof lookup_seq.
       all: naive_solver.
@@ -95,7 +95,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong with "H"); first rewrite !seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite !length_seq //.
       all: iIntros "!>" (k ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_seq)).
       all: assert (i + j + k - j = i + k) as -> by lia.
       all: iSteps.
@@ -152,7 +152,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_mono_strong with "H"); first rewrite replicate_length seq_length //.
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite length_replicate length_seq //.
       1: iIntros "!>" (? ? ? ((-> & _)%lookup_replicate_1 & (-> & _)%lookup_seq)).
       2: iIntros "!>" (? ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_replicate_1)).
       all: iSteps.

@@ -286,7 +286,7 @@ Section mpsc_queue_G.
     iMod (mpsc_queue_model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ".
-    { iSteps. iExists (v :: back). iSteps. rewrite reverse_cons -assoc //. }
+    { iSteps. iExists (v :: back). iSteps. rewrite Hvs reverse_cons assoc //. }
     iSteps.
   Qed.
 
@@ -350,6 +350,7 @@ Section mpsc_queue_G.
       iDestruct (mpsc_queue_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
       set vs' := front ++ reverse back.
       iMod (mpsc_queue_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      rewrite Hvs.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.

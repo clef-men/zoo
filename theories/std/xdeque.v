@@ -294,14 +294,14 @@ Section zoo_G.
       { rewrite head_drop.
         destruct (nodes !! S i) as [node' |] eqn:Hlookup'.
         - erewrite lookup_app_l_Some => //.
-        - apply lookup_last_length in Hlookup'; last done.
+        - apply length_lookup_last in Hlookup'; last done.
           rewrite list_lookup_middle //.
       } {
         erewrite take_S_r => //.
       }
     - rewrite list_lookup_middle in Hlookup; first lia. simplify.
       rewrite bool_decide_eq_true_2 // firstn_all2 //. iSteps.
-    - rewrite list_lookup_alt app_length /= in Hlookup. lia.
+    - rewrite list_lookup_alt length_app /= in Hlookup. lia.
   Qed.
   Lemma xdeque_iter_spec Ψ t nodes fn :
     {{{

@@ -572,7 +572,7 @@ Qed.
 Proof.
   apply _.
 Qed.
-Lemma of_vals_length vs :
+Lemma length_of_vals vs :
   length (of_vals vs) = length vs.
 Proof.
   rewrite map_length //.
