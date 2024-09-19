@@ -4,7 +4,8 @@ From zoo.language Require Import
   notations.
 From zoo.std Require Import
   array
-  mutex.
+  mutex
+  math.
 From zoo Require Import
   options.
 

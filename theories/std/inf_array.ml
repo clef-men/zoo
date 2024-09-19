@@ -26,8 +26,8 @@ let set t i v =
     if i < sz then (
       Array.unsafe_set data i v
     ) else (
-      let data = Array.unsafe_grow data (i + 1) t.default in
-      t.data <- data ;
-      Array.unsafe_set data i v
+      let data = Array.unsafe_grow data (Int.max (i + 1) (2 * sz)) t.default in
+      Array.unsafe_set data i v ;
+      t.data <- data
     )
   )

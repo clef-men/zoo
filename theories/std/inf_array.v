@@ -12,6 +12,7 @@ From zoo.std Require Export
   base
   inf_array__code.
 From zoo.std Require Import
+  math
   array
   mutex
   inf_array__types.
@@ -206,10 +207,8 @@ Section inf_array_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-
     wp_apply (array_create_spec with "[//]") as "%data Hmodel_data".
     wp_smart_apply (mutex_create_spec_init with "[//]") as (mtx) "Hmtx_init".
-
     wp_block l as "Hmeta" "(Hdata & Hdefault & Hmtx & _)".
     iMod (pointsto_persist with "Hdefault") as "#Hdefault".
 
@@ -243,17 +242,12 @@ Section inf_array_G.
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
-
     wp_apply (mutex_protect_spec Φ with "[$Hinv_mtx HΦ]"); last iSteps. iIntros "Hlocked_mtx (%data & %us & %vs & Hdata & Hmodel_data & Hmodel₂ & %Hvs)".
-
     wp_load.
-
     wp_smart_apply (array_size_spec with "Hmodel_data") as "Hmodel_data".
-
     wp_pures. case_decide.
 
     - rewrite bool_decide_eq_true_2; first lia.
-
       iApply wp_fupd.
       wp_smart_apply (array_unsafe_get_spec with "Hmodel_data"); [done | | done |].
       { rewrite Nat2Z.id list_lookup_lookup_total_lt //. lia. }
@@ -314,19 +308,14 @@ Section inf_array_G.
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
-
     wp_apply (mutex_protect_spec Φ with "[$Hinv_mtx HΦ]"); last iSteps. iIntros "Hlocked_mtx (%data & %us & %vs & Hdata & Hmodel_data & Hmodel₂ & %Hvs)".
-
     wp_load.
-
     wp_smart_apply (array_size_spec with "Hmodel_data") as "Hmodel_data".
-
     wp_pures. case_decide.
 
     - rewrite bool_decide_eq_true_2; first lia.
-
       iApply wp_fupd.
-      wp_smart_apply (array_unsafe_set_spec with "Hmodel_data"); first done.
+      wp_smart_apply (array_unsafe_set_spec with "Hmodel_data") as "Hmodel_data"; first done.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -336,7 +325,7 @@ Section inf_array_G.
       iMod (inf_array_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-      iIntros "Hmodel_data !>". iFrame. iSplitR "HΦ"; last iSteps.
+      iFrame. iSplitR "HΦ"; last iSteps.
       iExists data, us', vs'. rewrite Nat2Z.id. iFrame. iPureIntro.
       rewrite /us' /vs' insert_length Hvs.
       apply functional_extensionality => j. destruct (decide (j = i)) as [-> |].
@@ -346,25 +335,19 @@ Section inf_array_G.
         rewrite list_lookup_total_insert_ne //.
 
     - rewrite bool_decide_eq_false_2; first lia. wp_load.
-
+      wp_smart_apply maximum_spec.
       wp_smart_apply (array_unsafe_grow_spec with "Hmodel_data") as "%data' Hmodel_data'"; first lia.
-      rewrite Z.add_1_r -Nat2Z.inj_succ Nat2Z.id.
-
-      wp_store.
-
-      iApply wp_fupd.
-      wp_smart_apply (array_unsafe_set_spec with "Hmodel_data'").
+      wp_smart_apply (array_unsafe_set_spec with "Hmodel_data'") as "Hmodel_data'".
       { rewrite app_length replicate_length. lia. }
       rewrite Nat2Z.id insert_app_r_alt; first lia.
       rewrite insert_replicate_lt; first lia.
       rewrite -Nat.sub_succ_l; first lia.
-      rewrite Nat.sub_diag /=.
-      iIntros "Hmodel_data'".
+      wp_store.
 
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (inf_array_model_agree with "Hmodel₁ Hmodel₂") as %->.
-      set us' := us ++ replicate (i - length us) γ.(inf_array_meta_default) ++ [v].
+      set us' := us ++ _.
       set vs' := <[i := v]> vs.
       iMod (inf_array_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
@@ -382,10 +365,15 @@ Section inf_array_G.
           rewrite lookup_total_replicate_2 //. lia.
       + rewrite fn_lookup_insert decide_True; first lia.
         rewrite lookup_total_app_r; first lia.
-        rewrite lookup_total_app_r; first (rewrite replicate_length; lia).
-        rewrite replicate_length Nat.sub_diag //.
-      + rewrite fn_lookup_insert_ne; first lia.
-        rewrite !decide_False //; lia.
+        rewrite lookup_total_app_r replicate_length; first lia.
+        rewrite Nat.sub_diag //.
+      + rewrite replicate_length fn_lookup_insert_ne; first lia.
+        rewrite decide_False; first lia.
+        case_decide; last done.
+        rewrite lookup_total_app_r; first lia.
+        rewrite lookup_total_app_r replicate_length; first lia.
+        rewrite lookup_total_cons_ne_0; first lia.
+        rewrite lookup_total_replicate_2 //; first lia.
   Qed.
   Lemma inf_array_set_spec' t i v :
     (0 ≤ i)%Z →

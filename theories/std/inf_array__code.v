@@ -4,7 +4,8 @@ From zoo.language Require Import
   notations.
 From zoo.std Require Import
   array
-  mutex.
+  mutex
+  math.
 From zoo.std Require Import
   inf_array__types.
 From zoo Require Import
@@ -39,8 +40,11 @@ Definition inf_array_set : val :=
            array_unsafe_set "data" "i" "v"
          ) else (
            let: "data" :=
-             array_unsafe_grow "data" ("i" + #1) "t".{default}
+             array_unsafe_grow
+               "data"
+               (maximum ("i" + #1) (#2 * "sz"))
+               "t".{default}
            in
-           "t" <-{data} "data" ;;
-           array_unsafe_set "data" "i" "v"
+           array_unsafe_set "data" "i" "v" ;;
+           "t" <-{data} "data"
          )).
