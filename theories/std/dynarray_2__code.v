@@ -100,7 +100,7 @@ Definition dynarray_2_try_push : val :=
     if: array_size "data" ≤ "sz" then (
       #false
     ) else (
-      dynarray_2_set_size "t" (#1 + "sz") ;;
+      dynarray_2_set_size "t" ("sz" + #1) ;;
       array_unsafe_set "data" "sz" "slot" ;;
       #true
     ).

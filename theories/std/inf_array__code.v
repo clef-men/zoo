@@ -39,7 +39,7 @@ Definition inf_array_set : val :=
            array_unsafe_set "data" "i" "v"
          ) else (
            let: "data" :=
-             array_unsafe_grow "data" (#1 + "i") "t".{default}
+             array_unsafe_grow "data" ("i" + #1) "t".{default}
            in
            "t" <-{data} "data" ;;
            array_unsafe_set "data" "i" "v"

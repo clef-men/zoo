@@ -53,7 +53,7 @@ let set t r v =
 
 let capture t =
   let g = t.gen in
-  t.gen <- 1 + g ;
+  t.gen <- g + 1 ;
   { snap_store= t; snap_gen= g; snap_root= t.root }
 
 let rec collect node acc =
@@ -90,6 +90,6 @@ let restore t s =
         ()
     | Diff _ ->
         reroot root ;
-        t.gen <- 1 + s.snap_gen ;
+        t.gen <- s.snap_gen + 1 ;
         t.root <- root
   )

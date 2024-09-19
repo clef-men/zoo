@@ -63,9 +63,9 @@ Section ws_deques.
 
   Definition pool_create : val :=
     fun: "sz" =>
-      let: "hub" := ws_hub.(ws_hub_create) (#1 + "sz") in
+      let: "hub" := ws_hub.(ws_hub_create) ("sz" + #1) in
       let: "doms" := array_unsafe_initi "sz" (fun: "i" =>
-        domain_spawn (fun: <> => pool_worker ("hub", #1 + "i"))
+        domain_spawn (fun: <> => pool_worker ("hub", "i" + #1))
       ) in
       ("hub", "doms").
 
@@ -242,7 +242,7 @@ Section pool_G.
 
     wp_rec.
     wp_smart_apply (ws_hub_create_spec with "[//]") as (t) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
-    rewrite Z2Nat.inj_add //.
+    rewrite Z2Nat.inj_add // Nat.add_1_r.
     iDestruct "Hhub_owners" as "(Hhub_owner & Hhub_owners)".
 
     iMod (inv_alloc _ _ (pool_inv_inner t) with "[Hhub_model]") as "#Hinv".
@@ -257,7 +257,7 @@ Section pool_G.
       iIntros "!>" (k i1 i2 ((-> & Hi1)%lookup_seq & (-> & Hi2)%lookup_seq)) "Hhub_owner".
       wp_smart_apply (domain_spawn_spec Ψ with "[Hhub_owner]"); last iSteps.
       wp_smart_apply (pool_worker_spec with "[Hhub_owner]"); last iSteps.
-      rewrite Z.add_1_l -Nat2Z.inj_succ. iExists _. iSteps.
+      rewrite Z.add_1_r -Nat2Z.inj_succ. iExists _. iSteps.
     }
     iMod (array_model_persist with "Hv_doms") as "#Hv_doms".
     iSteps.

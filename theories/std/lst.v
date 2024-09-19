@@ -206,7 +206,7 @@ Section zoo_G.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
       wp_apply (wp_wand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
       wp_pures.
-      rewrite Z.add_1_l -Nat2Z.inj_succ.
+      rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" $! (vs_left ++ [v]) (S i) with "[] [] [] [$HΨ //]"); rewrite ?app_length /=; [iSteps.. |].
       iIntros "%t %vs_right (%Hvs_right & %Ht & HΨ)". rewrite {}Ht.
       wp_pures.
@@ -457,7 +457,7 @@ Section zoo_G.
       { rewrite list_lookup_middle //. }
       { rewrite take_app_length //. }
       clear acc. iIntros "%acc HΨ".
-      rewrite Z.add_1_l -Nat2Z.inj_succ take_app_length.
+      rewrite Z.add_1_r -Nat2Z.inj_succ take_app_length.
       wp_apply ("IH" with "[] [] [$HΨ $Hfn //]").
       { rewrite -assoc //. }
       { rewrite app_length //. iSteps. }
@@ -594,7 +594,7 @@ Section zoo_G.
     all: iIntros "%Hi %Φ (%Ht & HΨ & #Hfn) HΦ"; invert Ht.
     all: wp_rec; wp_pures credit:"H£".
     - rewrite Nat.add_0_r. iSteps.
-    - rewrite Z.add_1_l -Nat2Z.inj_succ.
+    - rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" with "[] [] [$HΨ $Hfn //]").
       { rewrite (assoc (++) _ [_]) //. }
       { rewrite app_length. iSteps. }
@@ -1052,7 +1052,7 @@ Section zoo_G.
       { rewrite list_lookup_middle //. }
       { rewrite take_app_length //. }
       wp_pures.
-      rewrite Z.add_1_l -Nat2Z.inj_succ take_app_length.
+      rewrite Z.add_1_r -Nat2Z.inj_succ take_app_length.
       wp_apply ("IH" with "[] [] [] [$HΨ $Hfn //]") as "%t' %ws_right (%Hvs & %Ht' & HΨ)".
       { rewrite -assoc //. }
       { rewrite app_length. iSteps. }

@@ -72,7 +72,7 @@ let try_push t slot =
   if Array.size data <= sz then (
     false
   ) else (
-    set_size t (1 + sz) ;
+    set_size t (sz + 1) ;
     Array.unsafe_set data sz slot ;
     true
   )

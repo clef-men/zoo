@@ -90,7 +90,7 @@ let rec foldli_aux t sz acc fn i =
     acc
   ) else (
     let v = unsafe_get t i in
-    foldli_aux t sz (fn acc i v) fn (1 + i)
+    foldli_aux t sz (fn acc i v) fn (i + 1)
   )
 let foldli t acc fn =
   foldli_aux t (size t) acc fn 0

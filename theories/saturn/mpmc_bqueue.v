@@ -80,7 +80,7 @@ Definition mpmc_bqueue_is_empty : val :=
       )
     ) else (
       "new_back" <-{node_capacity} "cap" - #1 ;;
-      "new_back" <-{node_count} #1 + "back".{node_count} ;;
+      "new_back" <-{node_count} "back".{node_count} + #1 ;;
       if: CAS "back".[node_next] () "new_back" then (
         mpmc_bqueue_fix_back "t" "back" "new_back" ;;
         #true

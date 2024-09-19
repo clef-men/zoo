@@ -52,7 +52,7 @@ Definition lst_initi_aux : val :=
       §Nil
     ) else (
       let: "v" := "fn" "i" in
-      ‘Cons( "v", "initi_aux" "sz" "fn" (#1 + "i") )
+      ‘Cons( "v", "initi_aux" "sz" "fn" ("i" + #1) )
     ).
 
 Definition lst_initi : val :=
@@ -69,7 +69,7 @@ Definition lst_foldli_aux : val :=
     | Nil =>
         "acc"
     | Cons "v" "t" =>
-        "foldli_aux" "t" ("fn" "acc" "i" "v") "fn" (#1 + "i")
+        "foldli_aux" "t" ("fn" "acc" "i" "v") "fn" ("i" + #1)
     end.
 
 Definition lst_foldli : val :=
@@ -86,7 +86,7 @@ Definition lst_foldri_aux : val :=
     | Nil =>
         "acc"
     | Cons "v" "t" =>
-        "fn" "i" "v" ("foldri_aux" "t" "fn" "acc" (#1 + "i"))
+        "fn" "i" "v" ("foldri_aux" "t" "fn" "acc" ("i" + #1))
     end.
 
 Definition lst_foldri : val :=
@@ -99,7 +99,7 @@ Definition lst_foldr : val :=
 
 Definition lst_size : val :=
   fun: "t" =>
-    lst_foldl "t" #0 (fun: "acc" <> => #1 + "acc").
+    lst_foldl "t" #0 (fun: "acc" <> => "acc" + #1).
 
 Definition lst_rev_app : val :=
   fun: "t1" "t2" =>
@@ -132,7 +132,7 @@ Definition lst_mapi_aux : val :=
         §Nil
     | Cons "v" "t" =>
         let: "v" := "fn" "i" "v" in
-        let: "t" := "mapi_aux" "t" "fn" (#1 + "i") in
+        let: "t" := "mapi_aux" "t" "fn" ("i" + #1) in
         ‘Cons( "v", "t" )
     end.
 

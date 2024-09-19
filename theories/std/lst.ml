@@ -33,7 +33,7 @@ let rec initi_aux sz fn i =
     []
   ) else (
     let v = fn i in
-    v :: initi_aux sz fn (1 + i)
+    v :: initi_aux sz fn (i + 1)
   )
 let initi sz fn =
   initi_aux sz fn 0
@@ -45,7 +45,7 @@ let rec foldli_aux t acc fn i =
   | [] ->
       acc
   | v :: t ->
-      foldli_aux t (fn acc i v) fn (1 + i)
+      foldli_aux t (fn acc i v) fn (i + 1)
 let foldli t acc fn =
   foldli_aux t acc fn 0
 let foldl t acc fn =
@@ -56,14 +56,14 @@ let rec foldri_aux t fn acc i =
   | [] ->
       acc
   | v :: t ->
-      fn i v (foldri_aux t fn acc (1 + i))
+      fn i v (foldri_aux t fn acc (i + 1))
 let foldri t fn acc =
   foldri_aux t fn acc 0
 let foldr t fn acc =
   foldri t (fun _ -> fn) acc
 
 let size t =
-  foldl t 0 (fun acc _ -> 1 + acc)
+  foldl t 0 (fun acc _ -> acc + 1)
 
 let rev_app t1 t2 =
   foldl t1 t2 (fun acc v -> v :: acc)
@@ -86,7 +86,7 @@ let rec mapi_aux t fn i =
       []
   | v :: t ->
       let v = fn i v in
-      let t = mapi_aux t fn (1 + i) in
+      let t = mapi_aux t fn (i + 1) in
       v :: t
 let mapi t fn =
   mapi_aux t fn 0

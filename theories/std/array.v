@@ -1642,7 +1642,7 @@ Section zoo_G.
       repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
-      rewrite Z.add_1_l -Nat2Z.inj_succ.
+      rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); rewrite ?app_length; [naive_solver lia.. |].
       clear acc. iIntros "!> %vs' %acc (<- & HΨ)".
       iApply ("HΦ" $! (v :: vs')).

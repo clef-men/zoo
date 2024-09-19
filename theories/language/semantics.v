@@ -468,7 +468,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
         σ
         []
-        (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e))
+        (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e))
         σ
         []
   | base_step_alloc tag n σ l :

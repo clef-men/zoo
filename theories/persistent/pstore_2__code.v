@@ -38,7 +38,7 @@ Definition pstore_set : val :=
 Definition pstore_capture : val :=
   fun: "t" =>
     let: "g" := "t".{gen} in
-    "t" <-{gen} #1 + "g" ;;
+    "t" <-{gen} "g" + #1 ;;
     ("t", "g", "t".{root}).
 
 Definition pstore_collect : val :=
@@ -84,7 +84,7 @@ Definition pstore_restore : val :=
           ()
       | Diff <> <> <> <> =>
           pstore_reroot "root" ;;
-          "t" <-{gen} #1 + "s".<snap_gen> ;;
+          "t" <-{gen} "s".<snap_gen> + #1 ;;
           "t" <-{root} "root"
       end
     ).

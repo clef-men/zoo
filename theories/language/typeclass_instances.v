@@ -326,7 +326,7 @@ Section pure_exec.
       True
       1
       (For (Val $ ValInt n1) (Val $ ValInt n2) e)
-      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (1 + n1)) (Val $ ValInt n2) e)).
+      (if decide (n2 ≤ n1)%Z then Unit else Seq (App e (Val $ ValInt n1)) (For (Val $ ValInt (n1 + 1)) (Val $ ValInt n2) e)).
   Proof.
     solve_pure_exec.
   Qed.

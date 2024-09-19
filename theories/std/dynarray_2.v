@@ -404,7 +404,7 @@ Section zoo_G.
     wp_pures.
     iApply "HΦ".
     iExists l, data, (slots ++ [slot]), (extra - 1). iStep.
-    rewrite app_length Z.add_1_l -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
+    rewrite app_length Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
     rewrite Nat2Z.id -Hslots -(Nat.add_0_r (length slots)) insert_app_r.
     destruct extra.
     - rewrite app_length in Htest. naive_solver lia.

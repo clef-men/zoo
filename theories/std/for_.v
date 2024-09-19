@@ -25,7 +25,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (1 + i)%Z (S δ)
+          ▷ Ψ (i + 1)%Z (S δ)
         }}
       )
     }}}
@@ -46,7 +46,7 @@ Section zoo_G.
       wp_apply (wp_wand with "(Hbody [//] [%] HΨ)") as "%res (-> & HΨ)"; first lia.
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply ("IH" with "[] [] HΨ [HΦ]"); [iSteps.. |].
-      assert ((1 + i) `max` _end = i `max` _end)%Z as -> by lia. rewrite -Nat.add_succ_comm //.
+      assert ((i + 1) `max` _end = i `max` _end)%Z as -> by lia. rewrite -Nat.add_succ_comm //.
   Qed.
   Lemma for_spec_strong Ψ beg _end body :
     {{{
@@ -58,7 +58,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (1 + i)%Z (S δ)
+          ▷ Ψ (i + 1)%Z (S δ)
         }}
       )
     }}}
@@ -83,7 +83,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (1 + i)%Z (S δ)
+          ▷ Ψ (i + 1)%Z (S δ)
         }}
       )
     }}}
@@ -106,7 +106,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (1 + i)%Z (S δ)
+          ▷ Ψ (i + 1)%Z (S δ)
         }}
       )
     }}}
@@ -137,7 +137,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (1 + i)%Z (S δ)
+          ▷ Ψ (i + 1)%Z (S δ)
         }}
       )
     }}}
@@ -233,7 +233,7 @@ Section zoo_G.
       Ψ (Z.to_nat i) δ.
     wp_apply (for_spec_strong Ψ' with "[HΨ]").
     - rewrite /Ψ' !Nat2Z.id. iFrame. iIntros "!> %i %δ -> %Hδ HΨ".
-      rewrite -Nat2Z.inj_add Z.add_1_l -Nat2Z.inj_succ !Nat2Z.id. iSteps.
+      rewrite -Nat2Z.inj_add Z.add_1_r -Nat2Z.inj_succ !Nat2Z.id. iSteps.
     - rewrite /Ψ' -Nat2Z.inj_max Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id //.
   Qed.
   Lemma for_spec_nat Ψ beg _end body :
@@ -286,7 +286,7 @@ Section zoo_G.
     wp_apply (for_spec_strong' Ψ' with "[HΨ Hbody]").
     - rewrite /Ψ' !Nat2Z.id Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id. iFrame.
       iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> HΨ /=".
-      rewrite -Nat2Z.inj_add Nat2Z.id Z.add_1_l -Nat2Z.inj_succ Nat2Z.id. iSteps.
+      rewrite -Nat2Z.inj_add Nat2Z.id Z.add_1_r -Nat2Z.inj_succ Nat2Z.id. iSteps.
     - rewrite /Ψ' -Nat2Z.inj_max Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id //.
   Qed.
   Lemma for_spec_nat' Ψ beg _end body :

@@ -348,7 +348,7 @@ Section inf_array_G.
     - rewrite bool_decide_eq_false_2; first lia. wp_load.
 
       wp_smart_apply (array_unsafe_grow_spec with "Hmodel_data") as "%data' Hmodel_data'"; first lia.
-      rewrite Z.add_1_l -Nat2Z.inj_succ Nat2Z.id.
+      rewrite Z.add_1_r -Nat2Z.inj_succ Nat2Z.id.
 
       wp_store.
 

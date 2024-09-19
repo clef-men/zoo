@@ -58,7 +58,7 @@ Implicit Types vs : list val.
 #[local] Definition truc_rev : val :=
   fun: "truc" =>
     let: ‘Snoc "cnt" "prefix" "v" := "truc" in
-    truc_rev_aux ‘Cons( "cnt", "v", ‘Front( #1 + "cnt" ) ) "prefix".
+    truc_rev_aux ‘Cons( "cnt", "v", ‘Front( "cnt" + #1 ) ) "prefix".
 
 Definition mpmc_queue_create : val :=
   fun: <> =>
@@ -66,7 +66,7 @@ Definition mpmc_queue_create : val :=
 
 #[local] Definition mpmc_queue_push_aux : val :=
   fun: "mpmc_queue_push" "t" "v" "cnt" "back" =>
-    ifnot: CAS "t".[back] "back" ‘Snoc( #1 + "cnt", "back", "v" ) then (
+    ifnot: CAS "t".[back] "back" ‘Snoc( "cnt" + #1, "back", "v" ) then (
       Yield ;;
       "mpmc_queue_push" "t" "v"
     ).

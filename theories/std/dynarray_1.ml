@@ -44,7 +44,7 @@ let reserve_extra t n =
 let push t v =
   reserve_extra t 1 ;
   let sz = t.size in
-  t.size <- 1 + sz ;
+  t.size <- sz + 1 ;
   Array.unsafe_set t.data sz v
 
 let pop t =

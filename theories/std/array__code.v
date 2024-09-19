@@ -81,7 +81,7 @@ Definition array_foldli_aux : val :=
       "acc"
     ) else (
       let: "v" := array_unsafe_get "t" "i" in
-      "foldli_aux" "t" "sz" ("fn" "acc" "i" "v") "fn" (#1 + "i")
+      "foldli_aux" "t" "sz" ("fn" "acc" "i" "v") "fn" ("i" + #1)
     ).
 
 Definition array_foldli : val :=

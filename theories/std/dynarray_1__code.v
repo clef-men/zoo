@@ -73,7 +73,7 @@ Definition dynarray_1_push : val :=
   fun: "t" "v" =>
     dynarray_1_reserve_extra "t" #1 ;;
     let: "sz" := "t".{size} in
-    "t" <-{size} #1 + "sz" ;;
+    "t" <-{size} "sz" + #1 ;;
     array_unsafe_set "t".{data} "sz" "v".
 
 Definition dynarray_1_pop : val :=

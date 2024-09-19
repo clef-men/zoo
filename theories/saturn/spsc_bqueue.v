@@ -74,7 +74,7 @@ Definition spsc_bqueue_push : val :=
     let: "back" := "t".{back} in
     if: spsc_bqueue_push_aux "t" "data" "back" then (
       array_unsafe_cset "data" "back" ‘Some( "v" ) ;;
-      "t" <-{back} #1 + "back" ;;
+      "t" <-{back} "back" + #1 ;;
       #false
     ) else (
       #true
@@ -97,7 +97,7 @@ Definition spsc_bqueue_pop : val :=
       let: "data" := "t".{data} in
       let: "res" := array_unsafe_cget "data" "front" in
       array_unsafe_cset "data" "front" §None ;;
-      "t" <-{front} #1 + "front" ;;
+      "t" <-{front} "front" + #1 ;;
       "res"
     ) else (
       §None
