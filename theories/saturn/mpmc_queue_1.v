@@ -201,8 +201,7 @@ Section mpmc_queue_1_G.
     mpmc_queue_1_front_auth γ (length past) ∗
     mpmc_queue_1_model₂ γ vs ∗
     mpmc_queue_1_waiters_auth γ waiters ∗
-    [∗ map] waiter ↦ i ∈ waiters,
-      mpmc_queue_1_waiter γ ι past waiter i.
+    ([∗ map] waiter ↦ i ∈ waiters, mpmc_queue_1_waiter γ ι past waiter i).
   Definition mpmc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
