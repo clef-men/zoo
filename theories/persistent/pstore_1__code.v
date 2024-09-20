@@ -42,8 +42,8 @@ Definition pstore_collect : val :=
     end.
 
 Definition pstore_revert : val :=
-  rec: "revert" "node" "path" =>
-    match: "path" with
+  rec: "revert" "node" "param" =>
+    match: "param" with
     | Nil =>
         "node" <- §Root
     | Cons "node'" "path" =>

@@ -595,7 +595,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       end
   | Texp_let (_, _, _) ->
       unsupported expr.exp_loc Expr_let_mutual
-  | Texp_function (params, Tfunction_body expr) ->
+  | Texp_function (params, body) ->
       let restore_locals = Context.save_locals ctx in
       let bdrs =
         List.map (fun (param : Typedtree.function_param) ->
@@ -605,16 +605,18 @@ let rec expression ctx (expr : Typedtree.expression) =
           pattern_to_binder ~err:Pattern_non_trivial ctx pat
         ) params
       in
-      let expr = expression ctx expr in
-      restore_locals () ;
-      Fun (bdrs, expr)
-  | Texp_function (_, Tfunction_cases { cases= brs; param= id; _ }) ->
-      let restore_locals = Context.save_locals ctx in
-      Context.add_local ctx id ;
-      let brs, fb = branches ctx brs in
-      restore_locals () ;
-      let local = Ident.name id in
-      Fun ([Some local], Match (Local local, brs, fb))
+      begin match body with
+      | Tfunction_body expr ->
+          let expr = expression ctx expr in
+          restore_locals () ;
+          Fun (bdrs, expr)
+      | Tfunction_cases { cases= brs; param= id; _ } ->
+          Context.add_local ctx id ;
+          let brs, fb = branches ctx brs in
+          restore_locals () ;
+          let local = Ident.name id in
+          Fun (bdrs @ [Some local], Match (Local local, brs, fb))
+      end
   | Texp_apply (expr', exprs) ->
       let arguments () =
         List.map (fun (lbl, expr') ->

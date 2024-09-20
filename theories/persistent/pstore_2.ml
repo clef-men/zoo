@@ -62,8 +62,7 @@ let rec collect node acc =
       (node, acc)
   | Diff (_, _, _, node') ->
       collect node' (node :: acc)
-let rec revert node path =
-  match path with
+let rec revert node = function
   | [] ->
       node := Root
   | node' :: path ->
