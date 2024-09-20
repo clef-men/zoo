@@ -464,15 +464,43 @@ module Context = struct
     Hashtbl.fold (fun dep () acc -> dep :: acc) t.deps []
 end
 
+let rec pattern_is_neutral (pat : Typedtree.pattern) =
+  match pat.pat_desc with
+  | Tpat_any ->
+      true
+  | Tpat_tuple pats ->
+      List.for_all pattern_is_neutral pats
+  | Tpat_construct (_, constr, pats, _) ->
+      constr.cstr_consts + constr.cstr_nonconsts = 1 &&
+      List.for_all pattern_is_neutral pats
+  | _ ->
+      false
 let pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
-  | Tpat_any
-  | Tpat_construct ({ txt= Lident "()"; _ }, _, _, _) ->
+  | Tpat_any ->
       None
-  | Tpat_var (id, _, _)
-  | Tpat_alias ({ pat_desc= Tpat_any; _ }, id, _, _) ->
+  | Tpat_var (id, _, _) ->
       Context.add_local ctx id ;
       Some (Ident.name id)
+  | Tpat_alias (pat, id, _, _) ->
+      if pattern_is_neutral pat then (
+        Context.add_local ctx id ;
+        Some (Ident.name id)
+      ) else (
+        unsupported pat.pat_loc err
+      )
+  | Tpat_tuple pats ->
+      if List.for_all pattern_is_neutral pats then
+        None
+      else
+        unsupported pat.pat_loc err
+  | Tpat_construct (_, constr, pats, _) ->
+      if constr.cstr_consts + constr.cstr_nonconsts = 1
+      && List.for_all pattern_is_neutral pats
+      then
+        None
+      else
+        unsupported pat.pat_loc err
   | _ ->
       unsupported pat.pat_loc err
 
