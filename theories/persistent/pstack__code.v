@@ -10,20 +10,20 @@ From zoo Require Import
   options.
 
 Definition pstack_empty : val :=
-  §Nil.
+  [].
 
 Definition pstack_is_empty : val :=
   lst_is_empty.
 
 Definition pstack_push : val :=
   fun: "t" "v" =>
-    ‘Cons( "v", "t" ).
+    "v" :: "t".
 
 Definition pstack_pop : val :=
   fun: "param" =>
     match: "param" with
-    | Nil =>
+    | [] =>
         §None
-    | Cons "v" "t" =>
+    | "v" :: "t" =>
         ‘Some( ("v", "t") )
     end.

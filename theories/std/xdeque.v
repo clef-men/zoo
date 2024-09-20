@@ -64,7 +64,7 @@ Section zoo_G.
     }}}
       xdeque_is_empty t
     {{{
-      RET #(bool_decide (nodes = []));
+      RET #(bool_decide (nodes = []%list));
       xdeque_model t nodes
     }}}.
   Proof.

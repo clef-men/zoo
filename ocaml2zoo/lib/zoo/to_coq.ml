@@ -110,6 +110,10 @@ let max_level =
 let next_level lvl =
   lvl - 1
 let level = function
+  | Constr (_, "[]", _) ->
+      1
+  | Constr (_, "::", _) ->
+      60
   | Tuple _
   | Record _
   | Constr _ ->
@@ -245,6 +249,13 @@ let rec expression' lvl ppf = function
   | Record exprs ->
       Format.fprintf ppf "@[<hv>{ %a@;}@]"
         Format.(pp_print_array ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
+  | Constr (_, "[]", _) ->
+      Format.fprintf ppf "[]"
+  | Constr (_, "::", exprs) ->
+      let[@warning "-8"] [expr1; expr2] = exprs in
+      Format.fprintf ppf "@[<hv>%a ::@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr1
+        (expression lvl) expr2
   | Constr (_, tag, []) ->
       Format.fprintf ppf "§%s"
         tag
@@ -360,10 +371,21 @@ and expression_if ?force_else ppf expr1 expr2 expr3 =
   expression_if_aux ?force_else ppf expr1 expr2 expr3 ;
   Format.fprintf ppf "@]"
 and branch ppf br =
-  Format.fprintf ppf "| %s%s%a%a =>@,    @[%a@]@,"
-    br.branch_tag
-    (match br.branch_binders with [] -> "" | _ -> " ")
-    Format.(pp_print_list ~pp_sep:pp_space binder) br.branch_binders
+  begin match br.branch_tag with
+  | "[]" ->
+      Format.fprintf ppf "| []"
+  | "::" ->
+      let[@warning "-8"] [bdr1; bdr2] = br.branch_binders in
+      Format.fprintf ppf "| %a :: %a"
+        binder bdr1
+        binder bdr2
+  | _ ->
+      Format.fprintf ppf "| %s%s%a"
+        br.branch_tag
+        (match br.branch_binders with [] -> "" | _ -> " ")
+        Format.(pp_print_list ~pp_sep:pp_space binder) br.branch_binders
+  end ;
+  Format.fprintf ppf "%a =>@,    @[%a@]@,"
     Format.(pp_print_option @@ fun ppf -> fprintf ppf " as %a" local_variable) br.branch_as
     (expression max_level) br.branch_expr
 and fallback ppf fb =

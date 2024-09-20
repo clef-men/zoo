@@ -43,7 +43,7 @@ Section zoo_G.
     }}}
       pstack_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       True
     }}}.
   Proof.

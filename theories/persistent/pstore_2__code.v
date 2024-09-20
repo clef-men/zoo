@@ -47,15 +47,15 @@ Definition pstore_collect : val :=
     | Root =>
         ("node", "acc")
     | Diff <> <> <> "node'" =>
-        "collect" "node'" ‘Cons( "node", "acc" )
+        "collect" "node'" ("node" :: "acc")
     end.
 
 Definition pstore_revert : val :=
   rec: "revert" "node" "param" =>
     match: "param" with
-    | Nil =>
+    | [] =>
         "node" <- §Root
-    | Cons "node'" "path" =>
+    | "node'" :: "path" =>
         match: !"node'" with
         | Root =>
             Fail
@@ -70,7 +70,7 @@ Definition pstore_revert : val :=
 
 Definition pstore_reroot : val :=
   fun: "node" =>
-    let: "root", "path" := pstore_collect "node" §Nil in
+    let: "root", "path" := pstore_collect "node" [] in
     pstore_revert "root" "path".
 
 Definition pstore_restore : val :=

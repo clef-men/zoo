@@ -401,6 +401,44 @@ Notation "()" :=
   ValUnit
 : val_scope.
 
+Notation "[ ] => e" := (
+  @pair pattern expr
+    (Build_pattern (in_type "list" 0) (@nil binder) BAnon)
+    e%E
+)(in custom zoo_branch at level 200,
+  e constr at level 200,
+  format "[ ]  =>  '/    ' '[' e ']'"
+).
+Notation "[ ] 'as' x => e" := (
+  @pair pattern expr
+    (Build_pattern (in_type "list" 0) (@nil binder) (BNamed x%string))
+    e%E
+)(in custom zoo_branch at level 200,
+  x constr at level 1,
+  e constr at level 200,
+  format "[ ]  as  x  =>  '/    ' '[' e ']'"
+).
+Notation "x1 :: x2 => e" := (
+  @pair pattern expr
+    (Build_pattern (in_type "list" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) BAnon)
+    e%E
+)(in custom zoo_branch at level 200,
+  x1 constr at level 1,
+  x2 constr at level 1,
+  e constr at level 200,
+  format "x1  ::  x2  =>  '/    ' '[' e ']'"
+).
+Notation "x1 :: x2 'as' y => e" := (
+  @pair pattern expr
+    (Build_pattern (in_type "list" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) (BNamed y%string))
+    e%E
+)(in custom zoo_branch at level 200,
+  x1 constr at level 1,
+  x2 constr at level 1,
+  y constr at level 1,
+  e constr at level 200,
+  format "x1  ::  x2  as  y  =>  '/    ' '[' e ']'"
+).
 Notation "tag => e" := (
   @pair pattern expr
     (Build_pattern tag%core (@nil binder) BAnon)
@@ -462,6 +500,7 @@ Notation "tag x1 .. xn 'as:' y => e" := (
   e constr at level 200,
   format "tag  x1  ..  xn  as:  y  =>  '/    ' '[' e ']'"
 ).
+
 Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
   Match
     e%E
@@ -693,11 +732,33 @@ Notation "'Some'" := (
 )(in custom zoo_tag
 ).
 
-Notation "'Nil'" := (
-  in_type "lst" 0
-)(in custom zoo_tag
-).
-Notation "'Cons'" := (
-  in_type "lst" 1
-)(in custom zoo_tag
-).
+Notation "[ ]" := (
+  Val (ValBlock (in_type "list" 0) (@nil val))
+)(format "[ ]"
+) : expr_scope.
+Notation "[ ]" := (
+  ValBlock (in_type "list" 0) (@nil val)
+)(format "[ ]"
+) : val_scope.
+Notation "e1 :: e2" := (
+  Block Abstract (in_type "list" 1)
+  ( @cons expr e1%E
+    ( @cons expr e2%E
+      (@nil expr)
+    )
+  )
+)(at level 60,
+  right associativity,
+  format "e1  ::  e2"
+) : expr_scope.
+Notation "v1 :: v2" := (
+  ValBlock (in_type "list" 1)
+  ( @cons val v1%V
+    ( @cons val v2%V
+      (@nil val)
+    )
+  )
+)(at level 60,
+  right associativity,
+  format "v1  ::  v2"
+) : val_scope.

@@ -59,7 +59,7 @@ Section zoo_G.
     }}}
       queue_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       queue_model t vs
     }}}.
   Proof.

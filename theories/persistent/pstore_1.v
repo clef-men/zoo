@@ -927,7 +927,7 @@ Section pstore_G.
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_collect #r §Nil
+      pstore_collect #r []
     {{{ t,
       RET (#r',t);
       r' ↦ᵣ §Root ∗

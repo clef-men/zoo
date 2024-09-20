@@ -9,12 +9,12 @@ From zoo Require Import
 
 Definition mpmc_stack_1_create : val :=
   fun: <> =>
-    ref §Nil.
+    ref [].
 
 Definition mpmc_stack_1_push : val :=
   rec: "push" "t" "v" =>
     let: "old" := !"t" in
-    let: "new_" := ‘Cons( "v", "old" ) in
+    let: "new_" := "v" :: "old" in
     ifnot: CAS "t".[contents] "old" "new_" then (
       Yield ;;
       "push" "t" "v"
@@ -23,9 +23,9 @@ Definition mpmc_stack_1_push : val :=
 Definition mpmc_stack_1_pop : val :=
   rec: "pop" "t" =>
     match: !"t" with
-    | Nil =>
+    | [] =>
         §None
-    | Cons "v" "new_" as "old" =>
+    | "v" :: "new_" as "old" =>
         if: CAS "t".[contents] "old" "new_" then (
           ‘Some( "v" )
         ) else (

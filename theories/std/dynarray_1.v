@@ -228,7 +228,7 @@ Section zoo_G.
     }}}
       dynarray_1_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       dynarray_1_model t vs
     }}}.
   Proof.

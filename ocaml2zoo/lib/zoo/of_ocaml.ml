@@ -137,8 +137,6 @@ module Builtin = struct
     [|[|"()"|], Left (Tuple []), None ;
       [|"true"|], Left (Bool true), None ;
       [|"false"|], Left (Bool false), None ;
-      [|"[]"|], Right "Nil", None ;
-      [|"::"|], Right "Cons", None ;
       [|"None"|], Right "None", None ;
       [|"Some"|], Right "Some", None ;
     |]

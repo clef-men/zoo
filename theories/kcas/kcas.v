@@ -95,9 +95,9 @@ Implicit Types status : val.
   rec: "kcas_determine_aux" "kcas_determine" "casn" "cass" =>
     let: "id" := Id in
     match: "cass" with
-    | Nil =>
+    | [] =>
         kcas_finish "id" "cas" §After
-    | Cons "cas" "cass'" =>
+    | "cas" :: "cass'" =>
         let: "loc", "state" := "cas" in
         let: "state'" := !"loc" in
         if: "state" = "state'" then (

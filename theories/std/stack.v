@@ -44,7 +44,7 @@ Section zoo_G.
     }}}
       stack_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       stack_model t vs
     }}}.
   Proof.

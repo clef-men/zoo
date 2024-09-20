@@ -618,7 +618,7 @@ Section mpmc_queue_1_G.
       mpmc_queue_1_is_empty t @ ↑ι
     <<<
       mpmc_queue_1_model t vs
-    | RET #(bool_decide (vs = []));
+    | RET #(bool_decide (vs = []%list));
       True
     >>>.
   Proof.

@@ -49,7 +49,7 @@ Section zoo_G.
     }}}
       pqueue_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       True
     }}}.
   Proof.

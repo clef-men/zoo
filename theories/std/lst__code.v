@@ -9,32 +9,32 @@ From zoo Require Import
 
 Definition lst_singleton : val :=
   fun: "v" =>
-    ‘Cons( "v", §Nil ).
+    "v" :: [].
 
 Definition lst_head : val :=
   fun: "param" =>
     match: "param" with
-    | Nil =>
+    | [] =>
         Fail
-    | Cons "v" <> =>
+    | "v" :: <> =>
         "v"
     end.
 
 Definition lst_tail : val :=
   fun: "param" =>
     match: "param" with
-    | Nil =>
+    | [] =>
         Fail
-    | Cons <> "t" =>
+    | <> :: "t" =>
         "t"
     end.
 
 Definition lst_is_empty : val :=
   fun: "param" =>
     match: "param" with
-    | Nil =>
+    | [] =>
         #true
-    | Cons <> <> =>
+    | <> :: <> =>
         #false
     end.
 
@@ -49,10 +49,10 @@ Definition lst_get : val :=
 Definition lst_initi_aux : val :=
   rec: "initi_aux" "sz" "fn" "i" =>
     if: "sz" ≤ "i" then (
-      §Nil
+      []
     ) else (
       let: "v" := "fn" "i" in
-      ‘Cons( "v", "initi_aux" "sz" "fn" ("i" + #1) )
+      "v" :: "initi_aux" "sz" "fn" ("i" + #1)
     ).
 
 Definition lst_initi : val :=
@@ -66,9 +66,9 @@ Definition lst_init : val :=
 Definition lst_foldli_aux : val :=
   rec: "foldli_aux" "t" "acc" "fn" "i" =>
     match: "t" with
-    | Nil =>
+    | [] =>
         "acc"
-    | Cons "v" "t" =>
+    | "v" :: "t" =>
         "foldli_aux" "t" ("fn" "acc" "i" "v") "fn" ("i" + #1)
     end.
 
@@ -83,9 +83,9 @@ Definition lst_foldl : val :=
 Definition lst_foldri_aux : val :=
   rec: "foldri_aux" "t" "fn" "acc" "i" =>
     match: "t" with
-    | Nil =>
+    | [] =>
         "acc"
-    | Cons "v" "t" =>
+    | "v" :: "t" =>
         "fn" "i" "v" ("foldri_aux" "t" "fn" "acc" ("i" + #1))
     end.
 
@@ -103,15 +103,15 @@ Definition lst_size : val :=
 
 Definition lst_rev_app : val :=
   fun: "t1" "t2" =>
-    lst_foldl "t1" "t2" (fun: "acc" "v" => ‘Cons( "v", "acc" )).
+    lst_foldl "t1" "t2" (fun: "acc" "v" => "v" :: "acc").
 
 Definition lst_rev : val :=
   fun: "t" =>
-    lst_rev_app "t" §Nil.
+    lst_rev_app "t" [].
 
 Definition lst_app : val :=
   fun: "t1" "t2" =>
-    lst_foldr "t1" (fun: "v" "acc" => ‘Cons( "v", "acc" )) "t2".
+    lst_foldr "t1" (fun: "v" "acc" => "v" :: "acc") "t2".
 
 Definition lst_snoc : val :=
   fun: "t" "v" =>
@@ -128,12 +128,12 @@ Definition lst_iter : val :=
 Definition lst_mapi_aux : val :=
   rec: "mapi_aux" "t" "fn" "i" =>
     match: "t" with
-    | Nil =>
-        §Nil
-    | Cons "v" "t" =>
+    | [] =>
+        []
+    | "v" :: "t" =>
         let: "v" := "fn" "i" "v" in
         let: "t" := "mapi_aux" "t" "fn" ("i" + #1) in
-        ‘Cons( "v", "t" )
+        "v" :: "t"
     end.
 
 Definition lst_mapi : val :=

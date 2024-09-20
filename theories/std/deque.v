@@ -51,7 +51,7 @@ Section zoo_G.
     }}}
       deque_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       deque_model t vs
     }}}.
   Proof.

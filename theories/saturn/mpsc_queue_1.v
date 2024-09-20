@@ -469,7 +469,7 @@ Section mpsc_queue_1_G.
       mpsc_queue_1_is_empty t @ ↑ι
     <<<
       mpsc_queue_1_model t vs
-    | RET #(bool_decide (vs = []));
+    | RET #(bool_decide (vs = []%list));
       mpsc_queue_1_consumer t
     >>>.
   Proof.

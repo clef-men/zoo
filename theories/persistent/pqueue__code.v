@@ -10,7 +10,7 @@ From zoo Require Import
   options.
 
 Definition pqueue_empty : val :=
-  (§Nil, §Nil).
+  ([], []).
 
 Definition pqueue_is_empty : val :=
   fun: "t" =>
@@ -18,18 +18,18 @@ Definition pqueue_is_empty : val :=
 
 Definition pqueue_push : val :=
   fun: "t" "v" =>
-    ("t".<front>, ‘Cons( "v", "t".<back> )).
+    ("t".<front>, "v" :: "t".<back>).
 
 Definition pqueue_pop : val :=
   fun: "t" =>
     match: "t".<front> with
-    | Cons "v" "front" =>
+    | "v" :: "front" =>
         ‘Some( ("v", ("front", "t".<back>)) )
-    | Nil =>
+    | [] =>
         match: lst_rev "t".<back> with
-        | Nil =>
+        | [] =>
             §None
-        | Cons "v" "front" =>
-            ‘Some( ("v", ("front", §Nil)) )
+        | "v" :: "front" =>
+            ‘Some( ("v", ("front", [])) )
         end
     end.

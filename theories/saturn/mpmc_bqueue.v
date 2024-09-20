@@ -170,7 +170,7 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_is_empty t
     <<<
       mpmc_bqueue_model t vs
-    | RET #(bool_decide (vs = []));
+    | RET #(bool_decide (vs = []%list));
       True
     >>>.
   Proof.

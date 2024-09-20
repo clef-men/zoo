@@ -18,8 +18,8 @@ Fixpoint plst_to_val nil vs :=
   | [] =>
       nil
   | v :: vs =>
-      ‘Cons( v, plst_to_val nil vs )
-  end%V.
+      (v :: plst_to_val nil vs)%V
+  end.
 #[global] Arguments plst_to_val _ !_ : assert.
 
 #[global] Instance plst_to_val_physical nil vs :
@@ -29,12 +29,12 @@ Proof.
   destruct vs; done.
 Qed.
 Lemma plst_to_val_cons nil v vs :
-  plst_to_val nil (v :: vs) = ‘Cons( v, plst_to_val nil vs )%V.
+  plst_to_val nil (v :: vs) = (v :: plst_to_val nil vs)%V.
 Proof.
   done.
 Qed.
 Lemma plst_to_val_singleton nil v :
-  plst_to_val nil [v] = ‘Cons( v, nil )%V.
+  plst_to_val nil [v] = (v :: nil)%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
@@ -46,7 +46,7 @@ Proof.
 Qed.
 
 Definition lst_to_val :=
-  plst_to_val §Nil.
+  plst_to_val [].
 #[global] Arguments lst_to_val !_ / : assert.
 
 #[global] Instance lst_to_val_inj :
@@ -60,17 +60,17 @@ Proof.
   apply plst_to_val_physical. done.
 Qed.
 Lemma lst_to_val_nil :
-  lst_to_val [] = §Nil%V.
+  lst_to_val [] = []%V.
 Proof.
   done.
 Qed.
 Lemma lst_to_val_cons v vs :
-  lst_to_val (v :: vs) = ‘Cons( v, lst_to_val vs )%V.
+  lst_to_val (v :: vs) = (v :: lst_to_val vs)%V.
 Proof.
   apply plst_to_val_cons.
 Qed.
 Lemma lst_to_val_singleton v :
-  lst_to_val [v] = ‘Cons( v, §Nil )%V.
+  lst_to_val [v] = (v :: [])%V.
 Proof.
   apply plst_to_val_singleton.
 Qed.
@@ -140,7 +140,7 @@ Section zoo_G.
     }}}
       lst_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       True
     }}}.
   Proof.

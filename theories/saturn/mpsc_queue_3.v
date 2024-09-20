@@ -336,7 +336,7 @@ Section mpsc_queue_3_G.
     <<<
       ⌜vs' = vs⌝ ∗
       mpsc_queue_3_model t (if vs is [] then [] else v :: vs)
-    | RET #(bool_decide (vs = []));
+    | RET #(bool_decide (vs = []%list));
       mpsc_queue_3_consumer t (Some $ if vs is [] then [] else v :: vs)
     >>>.
   Proof.
@@ -633,7 +633,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_is_empty t @ ↑ι
     <<<
       mpsc_queue_3_model t vs
-    | RET #(bool_decide (vs = []));
+    | RET #(bool_decide (vs = []%list));
       mpsc_queue_3_consumer t None
     >>>.
   Proof.
@@ -682,7 +682,7 @@ Section mpsc_queue_3_G.
     }}}
       mpsc_queue_3_is_empty t
     {{{
-      RET #(bool_decide (vs = []));
+      RET #(bool_decide (vs = []%list));
       mpsc_queue_3_consumer t (Some vs)
     }}}.
   Proof.
