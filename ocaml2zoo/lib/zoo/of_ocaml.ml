@@ -37,8 +37,8 @@ module Builtin = struct
       [|"Stdlib";"Obj";"field"|], Fun ([Some "1"; Some "2"], Load (Local "1", Local "2")), None ;
       [|"Stdlib";"Obj";"set_field"|], Fun ([Some "1"; Some "2"; Some "3"], Store (Local "1", Local "2", Local "3")), None ;
       [|"Stdlib";"Obj";"new_block"|], Fun ([Some "1"; Some "2"], Alloc (Local "1", Local "2")), None ;
-      [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "Int" ;
-      [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "Int" ;
+      [|"Stdlib";"Int";"min"|], Fun ([Some "1"; Some "2"], Apply (Global "minimum", [Local "1"; Local "2"])), Some "int" ;
+      [|"Stdlib";"Int";"max"|], Fun ([Some "1"; Some "2"], Apply (Global "maximum", [Local "1"; Local "2"])), Some "int" ;
       [|"Stdlib";"Domain";"cpu_relax"|], Fun ([None], Yield), None ;
       [|"Stdlib";"Atomic";"Loc";"get"|], Fun ([Some "1"], Load (Proj (Local "1", "0"), Proj (Local "1", "1"))), None ;
       [|"Stdlib";"Atomic";"Loc";"set"|], Fun ([Some "1"; Some "2"], Store (Proj (Local "1", "0"), Proj (Local "1", "1"), Local "2")), None ;
@@ -57,7 +57,7 @@ module Builtin = struct
       [|"Stdlib";"Atomic";"incr"|], Fun ([Some "1"], Faa (Atomic_loc (Local "1", "contents"), Int 1)), None ;
       [|"Zoo";"proph"|], Proph, None ;
       [|"Zoo";"resolve"|], Fun ([Some "1"; Some "2"; Some "3"], Resolve (Local "1", Local "2", Local "3")), None ;
-      [|"Zoo";"id"|], Id, Some "Identifier" ;
+      [|"Zoo";"id"|], Id, Some "identifier" ;
     |]
   let paths =
     Array.fold_left (fun acc (path, expr, dep) ->
@@ -66,7 +66,7 @@ module Builtin = struct
   let paths =
     Path.Set.fold (fun path acc ->
       let expr = Fun ([None], Apply (Global "diverge", [Tuple []])) in
-      let dep = Some "Diverge" in
+      let dep = Some "diverge" in
       Path.Map.add path (expr, dep) acc
     ) raising paths
 
@@ -101,8 +101,8 @@ module Builtin = struct
       [|"Stdlib";"Obj";"field"|], (function [expr1; expr2] -> Some (Load (expr1, expr2)) | _ -> None), None ;
       [|"Stdlib";"Obj";"set_field"|], (function [expr1; expr2; expr3] -> Some (Store (expr1, expr2, expr3)) | _ -> None), None ;
       [|"Stdlib";"Obj";"new_block"|], (function [expr1; expr2] -> Some (Alloc (expr1, expr2)) | _ -> None), None ;
-      [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "Int" ;
-      [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "Int" ;
+      [|"Stdlib";"Int";"min"|], (function [expr1; expr2] -> Some (Apply (Global "minimum", [expr1; expr2])) | _ -> None), Some "int" ;
+      [|"Stdlib";"Int";"max"|], (function [expr1; expr2] -> Some (Apply (Global "maximum", [expr1; expr2])) | _ -> None), Some "int" ;
       [|"Stdlib";"Domain";"cpu_relax"|], (function [_expr] -> Some Yield | _ -> None), None ;
       [|"Stdlib";"Atomic";"Loc";"get"|], (function [expr] -> Some (Load (Proj (expr, "0"), Proj (expr, "1"))) | _ -> None), None ;
       [|"Stdlib";"Atomic";"Loc";"set"|], (function [expr1; expr2] -> Some (Store (Proj (expr1, "0"), Proj (expr1, "1"), expr2)) | _ -> None), None ;
@@ -128,7 +128,7 @@ module Builtin = struct
   let apps =
     Path.Set.fold (fun path acc ->
       let expr = Apply (Global "diverge", [Tuple []]) in
-      let dep = Some "Diverge" in
+      let dep = Some "diverge" in
       Path.Map.add path (Opaque expr, dep) acc
     ) raising apps
 
@@ -447,18 +447,19 @@ module Context = struct
     Ident.Set.mem id t.locals
 
   let add_dependency t dep =
-    match dep.[0] with
-    | 'A'..'Z' ->
-        let dep = String.lowercase_ascii dep in
-        Hashtbl.replace t.deps dep ()
-    | _ ->
-        ()
+    Hashtbl.replace t.deps dep ()
   let add_dependency_from_path t loc path =
     match Path.head path with
     | None ->
         unsupported loc Functor
     | Some id ->
-        add_dependency t (Ident.name id)
+        let dep = Ident.name id in
+        match dep.[0] with
+        | 'A'..'Z' ->
+            let dep = String.lowercase_ascii dep in
+            add_dependency t dep
+        | _ ->
+            ()
   let dependencies t =
     Hashtbl.fold (fun dep () acc -> dep :: acc) t.deps []
 end
@@ -624,7 +625,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       begin match expr1, expr2.exp_desc, expr3 with
       | Unop (Unop_neg, expr1), Texp_apply ({ exp_desc= Texp_ident (path, _, _); _ }, _), None
         when Path.Set.mem path Builtin.raising ->
-          Context.add_dependency ctx "Assume" ;
+          Context.add_dependency ctx "assume" ;
           Apply (Global "assume", [expr1])
       | _ ->
           let expr2 = expression ctx expr2 in
@@ -732,7 +733,7 @@ let rec expression ctx (expr : Typedtree.expression) =
   | Texp_assert ({ exp_desc= Texp_construct (_, constr, _); _ }, _) when constr.cstr_name = "false" ->
       Fail
   | Texp_assert (expr, _) ->
-      Context.add_dependency ctx "Assert" ;
+      Context.add_dependency ctx "assert" ;
       let expr = expression ctx expr in
       Apply (Global "assert", [expr])
   | Texp_open (open_decl, expr) ->
