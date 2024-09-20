@@ -7,7 +7,7 @@ From zoo.std Require Export
   base
   dynarray_1__code.
 From zoo.std Require Import
-  math
+  int
   array
   dynarray_1__types.
 From zoo Require Import

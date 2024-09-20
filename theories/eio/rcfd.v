@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/unix/rcfd.ml
-*)
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -17,7 +13,10 @@ From zoo.std Require Import
   spsc_waiter
   unix.
 From zoo.eio Require Export
-  base.
+  base
+  rcfd__code.
+From zoo.eio Require Import
+  rcfd__types.
 From zoo Require Import
   options.
 
@@ -28,24 +27,6 @@ Implicit Types qs : gmultiset Qp.
 Implicit Types l l_state open : location.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
-
-#[local] Notation "'ops'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'fd'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-
-#[local] Notation "'Open'" := (
-  in_type "state" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'Closing'" := (
-  in_type "state" 1
-)(in custom zoo_tag
-).
 
 Inductive rcfd_state :=
   | RcfdStateOpen
@@ -71,106 +52,6 @@ Implicit Types state : rcfd_state.
 Proof.
   destruct state; done.
 Qed.
-
-Definition rcfd_make : val :=
-  fun: "fd" =>
-    { #0, ‘Open{ "fd" } }.
-
-#[local] Definition rcfd_closed : val :=
-  ‘Closing( fun: <> => () ).
-
-#[local] Definition rcfd_put : val :=
-  fun: "t" =>
-    let: "old" := FAA "t".[ops] #-1 in
-    if: "old" = #1 then (
-      match: "t".{fd} with
-      | Open <> =>
-          ()
-      | Closing "no_users" as "prev" =>
-          ifnot: #0 < "t".{ops} then
-            if: CAS "t".[fd] "prev" rcfd_closed then
-              "no_users" ()
-      end
-    ).
-
-#[local] Definition rcfd_get : val :=
-  fun: "t" =>
-    FAA "t".[ops] #1 ;;
-    match: "t".{fd} with
-    | Open "fd" =>
-        ‘Some( "fd" )
-    | Closing <> =>
-        rcfd_put "t" ;;
-        §None
-    end.
-
-Definition rcfd_close : val :=
-  fun: "t" =>
-    match: "t".{fd} with
-    | Open "fd" as "prev" =>
-        let: "close" <> :=
-          unix_close "fd"
-        in
-        let: "next" := ‘Closing( "close" ) in
-        if: CAS "t".[fd] "prev" "next" then (
-          if: "t".{ops} = #0 and CAS "t".[fd] "next" rcfd_closed then (
-            "close" ()
-          ) else (
-            ()
-          ) ;;
-          #true
-        ) else (
-          #false
-        )
-    | Closing <> =>
-        #false
-    end.
-
-Definition rcfd_remove : val :=
-  fun: "t" =>
-    match: "t".{fd} with
-    | Open "fd" as "prev" =>
-        let: "flag" := ref #false in
-        let: "chan" := spsc_waiter_create () in
-        let: "next" := ‘Closing( fun: <> => spsc_waiter_notify "chan" ) in
-        if: CAS "t".[fd] "prev" "next" then (
-          spsc_waiter_wait "chan" ;;
-          ‘Some( "fd" )
-        ) else (
-          §None
-        )
-    | Closing <> =>
-        §None
-    end.
-
-Definition rcfd_use : val :=
-  fun: "t" "closed" "open" =>
-    match: rcfd_get "t" with
-    | None =>
-        "closed" ()
-    | Some "fd" =>
-        let: "res" := "open" "fd" in
-        rcfd_put "t" ;;
-        "res"
-    end.
-
-Definition rcfd_is_open : val :=
-  fun: "t" =>
-    match: "t".{fd} with
-    | Open <> =>
-        #true
-    | Closing <> =>
-        #false
-    end.
-
-Definition rcfd_peek : val :=
-  fun: "t" =>
-    match: "t".{fd} with
-    | Open "fd" =>
-        ‘Some( "fd" )
-    | Closing <> =>
-        §None
-    end.
 
 Inductive rcfd_lstate :=
   | RcfdLstateOpen
@@ -253,7 +134,7 @@ Section rcfd_G.
   #[local] Definition rcfd_inv_inner l γ fd chars : iProp Σ :=
     ∃ state lstate ops,
     l.[ops] ↦ #ops ∗
-    l.[fd] ↦ state_to_val γ.(rcfd_meta_open) state ∗
+    l.[state] ↦ state_to_val γ.(rcfd_meta_open) state ∗
     rcfd_lstate_auth γ lstate ∗
     match lstate with
     | RcfdLstateOpen =>
@@ -637,7 +518,7 @@ Section rcfd_G.
     }
     iModIntro. wp_pures. clear.
 
-    wp_bind ((#l).{fd})%E.
+    wp_bind ((#l).{state})%E.
     iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
     wp_load.
     destruct (decide (lstate2 = RcfdLstateOpen)) as [-> | Hlstate2].
@@ -845,7 +726,6 @@ Section rcfd_G.
       iModIntro. clear.
 
       wp_match [_]; first iSteps.
-      wp_ref flag as "Hflag".
       wp_smart_apply (spsc_waiter_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
       wp_pures.
 
@@ -991,7 +871,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind ((#l).{fd})%E.
+    wp_bind ((#l).{state})%E.
     iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
     wp_load.
     destruct closing; last iClear "Hclosing".
@@ -1080,7 +960,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind ((#l).{fd})%E.
+    wp_bind ((#l).{state})%E.
     iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
     wp_load.
     destruct closing; last iClear "Hclosing".

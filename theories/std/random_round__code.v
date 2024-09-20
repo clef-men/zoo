@@ -2,7 +2,7 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.std Require Import
+From zoo Require Import
   array
   random.
 From zoo.std Require Import

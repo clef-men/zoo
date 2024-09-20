@@ -13,7 +13,7 @@ From zoo.std Require Export
 From zoo.std Require Import
   diverge
   assume
-  math
+  int
   ref_
   option
   array

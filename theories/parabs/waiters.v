@@ -17,11 +17,11 @@ Implicit Types b : bool.
 Implicit Types v t : val.
 
 Definition waiters_create : val :=
-  mpmc_queue_create.
+  mpmc_queue_1_create.
 
 #[local] Definition waiters_notify' : val :=
   rec: "waiters_notify'" "t" =>
-    match: mpmc_queue_pop "t" with
+    match: mpmc_queue_1_pop "t" with
     | None =>
         #false
     | Some "waiter" =>
@@ -45,7 +45,7 @@ Definition waiters_notify_many : val :=
 Definition waiters_prepare_wait : val :=
   fun: "t" =>
     let: "waiter" := mpsc_waiter_create () in
-    mpmc_queue_push "t" "waiter" ;;
+    mpmc_queue_1_push "t" "waiter" ;;
     "waiter".
 
 Definition waiters_cancel_wait : val :=
@@ -58,12 +58,12 @@ Definition waiters_commit_wait : val :=
     mpsc_waiter_wait "waiter".
 
 Class WaitersG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] waiters_G_queue_G :: MpmcQueueG Σ ;
+  #[local] waiters_G_queue_G :: MpmcQueue1G Σ ;
   #[local] waiters_G_waiter_G :: MpscWaiterG Σ ;
 }.
 
 Definition waiters_Σ := #[
-  mpmc_queue_Σ ;
+  mpmc_queue_1_Σ ;
   mpsc_waiter_Σ
 ].
 #[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -78,11 +78,11 @@ Section waiters_G.
 
   #[local] Definition waiters_inv_inner t : iProp Σ :=
     ∃ waiters,
-    mpmc_queue_model t waiters ∗
+    mpmc_queue_1_model t waiters ∗
     [∗ list] waiter ∈ waiters,
       mpsc_waiter_inv waiter True.
   Definition waiters_inv t : iProp Σ :=
-    mpmc_queue_inv t (nroot.@"queue") ∗
+    mpmc_queue_1_inv t (nroot.@"queue") ∗
     inv (nroot.@"inv") (waiters_inv_inner t).
 
   Definition waiters_waiter t waiter : iProp Σ :=
@@ -117,7 +117,7 @@ Section waiters_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (mpmc_queue_create_spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
+    wp_apply (mpmc_queue_1_create_spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
     iSteps.
   Qed.
 
@@ -137,7 +137,7 @@ Section waiters_G.
 
     wp_rec.
 
-    awp_apply (mpmc_queue_pop_spec with "Hqueue_inv") without "HΦ".
+    awp_apply (mpmc_queue_1_pop_spec with "Hqueue_inv") without "HΦ".
     iInv "Hinv" as "(%waiters & >Hmodel & Hwaiters)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     destruct waiters as [| waiter waiters]; first iSteps.
@@ -202,7 +202,7 @@ Section waiters_G.
     wp_rec.
     wp_apply (mpsc_waiter_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
 
-    awp_smart_apply (mpmc_queue_push_spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
+    awp_smart_apply (mpmc_queue_1_push_spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
     iInv "Hinv" as "(%waiters & >Hmodel & Hwaiters)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     iSplitL. { iSteps. iApply big_sepL_snoc. iSteps. }

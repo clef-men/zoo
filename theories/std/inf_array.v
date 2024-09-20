@@ -12,7 +12,7 @@ From zoo.std Require Export
   base
   inf_array__code.
 From zoo.std Require Import
-  math
+  int
   array
   mutex
   inf_array__types.

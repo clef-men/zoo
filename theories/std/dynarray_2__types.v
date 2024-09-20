@@ -2,10 +2,10 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.std Require Import
+From zoo Require Import
+  int
   assume
   array
-  math
   diverge.
 From zoo Require Import
   options.

@@ -2,9 +2,9 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.std Require Import
-  array
-  math.
+From zoo Require Import
+  int
+  array.
 From zoo.std Require Import
   dynarray_1__types.
 From zoo Require Import

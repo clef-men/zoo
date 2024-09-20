@@ -14,7 +14,7 @@ include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 include_dirs += $(ocaml2zoo_dir)
 
 ocamldep := opam exec -- ocamldep -native $(addprefix -I ,$(include_dirs))
-ocamlopt := opam exec -- ocamlopt -warn-error +A -w A-40-42 $(addprefix -I ,$(include_dirs))
+ocamlopt := opam exec -- ocamlopt -warn-error +A -w A-4-40-42-69 -I +unix $(addprefix -I ,$(include_dirs))
 
 .PHONY : all
 all :

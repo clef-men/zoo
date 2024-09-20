@@ -2,10 +2,10 @@ From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
-From zoo.std Require Import
+From zoo Require Import
+  int
   array
-  mutex
-  math.
+  mutex.
 From zoo.std Require Import
   inf_array__types.
 From zoo Require Import

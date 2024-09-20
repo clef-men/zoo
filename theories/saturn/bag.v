@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/mpmc_relaxed_queue.ml
-*)
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -15,7 +11,10 @@ From zoo.std Require Import
   option
   array.
 From zoo.saturn Require Export
-  base.
+  base
+  bag__code.
+From zoo.saturn Require Import
+  bag__types.
 From zoo Require Import
   options.
 
@@ -26,54 +25,6 @@ Implicit Types v t : val.
 Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
 Implicit Types os : list (option val).
-
-Notation "'data'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-Notation "'front'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-Notation "'back'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition bag_create : val :=
-  fun: "sz" =>
-    { array_unsafe_init "sz" (fun: <> => ref §None), #0, #0 }.
-
-#[local] Definition bag_push_aux : val :=
-  rec: "bag_push_aux" "slot" "o" =>
-    ifnot: CAS "slot".[contents] §None "o" then (
-      Yield ;;
-      "bag_push_aux" "slot" "o"
-    ).
-Definition bag_push : val :=
-  fun: "t" "v" =>
-    let: "data" := "t".{data} in
-    let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
-    bag_push_aux (array_unsafe_get "data" "i") ‘Some( "v" ).
-
-#[local] Definition bag_pop_aux : val :=
-  rec: "bag_pop_aux" "slot" =>
-    match: !"slot" with
-    | None =>
-        "bag_pop_aux" "slot"
-    | Some "v" as "o" =>
-        if: CAS "slot".[contents] "o" §None then (
-          "v"
-        ) else (
-          Yield ;;
-          "bag_pop_aux" "slot"
-        )
-    end.
-Definition bag_pop : val :=
-  fun: "t" =>
-    let: "data" := "t".{data} in
-    let: "i" := FAA "t".[front] #1 `rem` array_size "data" in
-    bag_pop_aux (array_unsafe_get "data" "i").
 
 Class BagG Σ `{zoo_G : !ZooG Σ} := {
   #[local] bag_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
@@ -238,7 +189,7 @@ Section bag_G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_push_aux_spec slot v ι l γ :
+  #[local] Lemma bag_push_0_spec slot v ι l γ :
     slot ∈ γ.(bag_meta_slots) →
     <<<
       meta l nroot γ ∗
@@ -246,7 +197,7 @@ Section bag_G.
     | ∀∀ vs,
       bag_model #l vs
     >>>
-      bag_push_aux #slot ’Some( v ) @ ↑ι
+      bag_push_0 #slot ’Some( v ) @ ↑ι
     <<<
       bag_model #l ({[+v+]} ⊎ vs)
     | RET ();
@@ -317,11 +268,11 @@ Section bag_G.
     rewrite length_fmap.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_push_aux_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_push_0_spec with "[$Hmeta $Hinv] HΦ").
     apply elem_of_list_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_pop_aux_spec slot ι l γ :
+  #[local] Lemma bag_pop_0_spec slot ι l γ :
     slot ∈ γ.(bag_meta_slots) →
     <<<
       meta l nroot γ ∗
@@ -329,7 +280,7 @@ Section bag_G.
     | ∀∀ vs,
       bag_model #l vs
     >>>
-      bag_pop_aux #slot @ ↑ι
+      bag_pop_0 #slot @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -423,7 +374,7 @@ Section bag_G.
     rewrite length_fmap.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_pop_aux_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_pop_0_spec with "[$Hmeta $Hinv] HΦ").
     apply elem_of_list_lookup_total_2. lia.
   Qed.
 End bag_G.

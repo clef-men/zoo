@@ -46,15 +46,15 @@ Definition vertex_create : val :=
   fun: "task" =>
     { "task",
       #1,
-      mpmc_stack_create ()
+      mpmc_stack_2_create ()
     }.
 
 Definition vertex_precede : val :=
   fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in
-    ifnot: mpmc_stack_is_closed "succs1" then (
+    ifnot: mpmc_stack_2_is_closed "succs1" then (
       FAA "t2".[preds] #1 ;;
-      if: mpmc_stack_push "succs1" "t2" then (
+      if: mpmc_stack_2_push "succs1" "t2" then (
         FAA "t2".[preds] #(-1) ;;
         ()
       )
@@ -71,7 +71,7 @@ Section ws_hub.
   #[local] Definition vertex_run : val :=
     rec: "vertex_run" "ctx" "t" =>
       "t".{task} "ctx" ;;
-      clst_iter (mpmc_stack_close "t".{succs}) (fun: "t'" =>
+      clst_iter (mpmc_stack_2_close "t".{succs}) (fun: "t'" =>
         vertex_propagate "ctx" "t'" "vertex_run"
       ).
   Definition vertex_release : val :=
@@ -92,7 +92,7 @@ Implicit Types state : vertex_state.
   ltac:(solve_decision).
 
 Class VertexG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] vertex_G_stack_G :: MpmcStackG Σ ;
+  #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
   #[local] vertex_G_pool_G :: SchedulerG Σ ;
   #[local] vertex_G_saved_prop_G :: SavedPropG Σ ;
   #[local] vertex_G_dependencies_G :: MonoSetG Σ gname ;
@@ -101,7 +101,7 @@ Class VertexG Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition vertex_Σ := #[
-  mpmc_stack_Σ ;
+  mpmc_stack_2_Σ ;
   pool_Σ ;
   saved_prop_Σ ;
   mono_set_Σ gname ;
@@ -228,10 +228,10 @@ Section vertex_G.
         □ P
     end ∗
     if decide (state = VertexDone) then
-      mpmc_stack_model γ.(vertex_meta_successors) None
+      mpmc_stack_2_model γ.(vertex_meta_successors) None
     else
       ∃ succs,
-      mpmc_stack_model γ.(vertex_meta_successors) (Some $ #@{location} <$> succs) ∗
+      mpmc_stack_2_model γ.(vertex_meta_successors) (Some $ #@{location} <$> succs) ∗
       ( [∗ list] succ ∈ succs,
         ∃ γ_succ P_succ π,
         meta succ nroot γ_succ ∗
@@ -246,7 +246,7 @@ Section vertex_G.
     λ vertex_inv' vtx γ P, (
       vtx.[task] ↦□ γ.(vertex_meta_task) ∗
       vtx.[succs] ↦□ γ.(vertex_meta_successors) ∗
-      mpmc_stack_inv γ.(vertex_meta_successors) (nroot.@"successors") ∗
+      mpmc_stack_2_inv γ.(vertex_meta_successors) (nroot.@"successors") ∗
       inv (nroot.@"inv") (vertex_inv_inner' vertex_inv' vtx γ P)
     )%I.
   #[local] Instance vertex_inv_pre_contractive :
@@ -384,7 +384,7 @@ Section vertex_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply (mpmc_stack_create_spec with "[//]") as (succs) "(#Hsuccs_inv & Hsuccs_model)".
+    wp_apply (mpmc_stack_2_create_spec with "[//]") as (succs) "(#Hsuccs_inv & Hsuccs_model)".
     wp_block vtx as "Hmeta" "(Hvtx_task & Hvtx_preds & Hvtx_succs & _)".
     iMod (pointsto_persist with "Hvtx_task") as "#Hvtx_task".
     iMod (pointsto_persist with "Hvtx_succs") as "#Hvtx_succs".
@@ -432,7 +432,7 @@ Section vertex_G.
 
     wp_rec. wp_load.
 
-    awp_smart_apply (mpmc_stack_is_closed_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
+    awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
     iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
     case_decide as Hstate; first subst.
 
@@ -483,7 +483,7 @@ Section vertex_G.
       }
       iModIntro. wp_pures. clear.
 
-      awp_apply (mpmc_stack_push_spec with "Hsuccs1_inv") without "Hstate₂ H£ HΦ".
+      awp_apply (mpmc_stack_2_push_spec with "Hsuccs1_inv") without "Hstate₂ H£ HΦ".
       iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
       case_decide as Hstate; first subst.
 
@@ -653,7 +653,7 @@ Section vertex_G.
     wp_apply (wp_wand with "(Htask Hctx)") as (res) "(Hctx & #HP)".
     wp_load.
 
-    awp_smart_apply (mpmc_stack_close_spec with "Hsuccs_inv") without "Hctx HΦ".
+    awp_smart_apply (mpmc_stack_2_close_spec with "Hsuccs_inv") without "Hctx HΦ".
     iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
     iDestruct (vertex_state_agree with "Hstate₁ Hstate₂") as %->.
     iDestruct "Hstate" as ">%HΠ".

@@ -14,7 +14,7 @@ From zoo.language Require Import
   notations
   diaframe.
 From zoo.std Require Import
-  math
+  int
   option
   optional
   array

@@ -1,3 +1,7 @@
+theories/eio/rcfd.cmt : \
+    theories/std/spsc_waiter.cmt \
+    theories/eio/rcfd.cmi
+theories/eio/rcfd.cmi :
 theories/persistent/parray.cmt : \
     theories/std/array.cmt \
     theories/persistent/parray.cmi
@@ -16,6 +20,41 @@ theories/persistent/pstore_1.cmi :
 theories/persistent/pstore_2.cmt : \
     theories/persistent/pstore_2.cmi
 theories/persistent/pstore_2.cmi :
+theories/saturn/bag.cmt : \
+    theories/std/array.cmt \
+    theories/saturn/bag.cmi
+theories/saturn/bag.cmi :
+theories/saturn/inf_ws_deque_1.cmt : \
+    ./ocaml2zoo/zoo.cmt \
+    theories/std/inf_array.cmt \
+    theories/saturn/inf_ws_deque_1.cmi
+theories/saturn/inf_ws_deque_1.cmi :
+theories/saturn/inf_ws_deque_2.cmt : \
+    theories/saturn/inf_ws_deque_1.cmt \
+    theories/saturn/inf_ws_deque_2.cmi
+theories/saturn/inf_ws_deque_2.cmi :
+theories/saturn/mpmc_stack_1.cmt : \
+    theories/saturn/mpmc_stack_1.cmi
+theories/saturn/mpmc_stack_1.cmi :
+theories/saturn/mpmc_stack_2.cmt : \
+    theories/std/optional.cmt \
+    theories/std/clst.cmt \
+    theories/saturn/mpmc_stack_2.cmi
+theories/saturn/mpmc_stack_2.cmi : \
+    theories/std/optional.cmi \
+    theories/std/clst.cmi
+theories/saturn/mpsc_queue_2.cmt : \
+    theories/std/lst.cmt \
+    theories/saturn/mpsc_queue_2.cmi
+theories/saturn/mpsc_queue_2.cmi :
+theories/saturn/mpsc_queue_3.cmt : \
+    theories/std/clst.cmt \
+    theories/saturn/mpsc_queue_3.cmi
+theories/saturn/mpsc_queue_3.cmi :
+theories/saturn/spsc_bqueue.cmt : \
+    theories/std/array.cmt \
+    theories/saturn/spsc_bqueue.cmi
+theories/saturn/spsc_bqueue.cmi :
 theories/std/array.cmt : \
     theories/std/array.cmi
 theories/std/array.cmi :

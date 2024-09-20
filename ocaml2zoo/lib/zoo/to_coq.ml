@@ -185,22 +185,28 @@ let rec expression' lvl ppf = function
       boolean ppf bool
   | Int int ->
       integer ppf int
-  | Let (pat, e1, e2) ->
+  | Let (pat, expr1, expr2) ->
       Format.fprintf ppf "@[<v>@[<hv>let: %a :=@;<1 2>@[%a@]@;in@]@,%a@]"
         pattern pat
-        (expression max_level) e1
-        (expression max_level) e2
-  | Letrec (rec_flag, local, bdrs, e1, e2) ->
+        (expression max_level) expr1
+        (expression max_level) expr2
+  | Letrec (rec_flag, local, bdrs, expr1, expr2) ->
       Format.fprintf ppf "@[<v>@[<hv>let%s: %a %a :=@;<1 2>@[%a@]@;in@]@,%a@]"
         (match rec_flag with Nonrecursive -> "" | Recursive -> "rec")
         local_variable local
         (Format.pp_print_list ~pp_sep:pp_space binder) bdrs
-        (expression max_level) e1
-        (expression max_level) e2
-  | Seq (e1, e2) ->
-      Format.fprintf ppf "@[<v>@[%a@] ;;@,%a@]"
-        (expression @@ next_level lvl) e1
-        (expression max_level) e2
+        (expression max_level) expr1
+        (expression max_level) expr2
+  | Seq (expr1, expr2) ->
+      Format.fprintf ppf "@[<v>@[" ;
+      begin match expr1 with
+      | If (expr1, expr2, expr3) ->
+          expression_if ~force_else:true ppf expr1 expr2 expr3
+      | _ ->
+          expression (next_level lvl) ppf expr1
+      end ;
+      Format.fprintf ppf "@] ;;@,%a@]"
+        (expression max_level) expr2
   | Fun (bdrs, expr) ->
       Format.fprintf ppf "@[<hv>fun: %a =>@;<1 2>%a@]"
         (Format.pp_print_list ~pp_sep:pp_space binder) bdrs
@@ -219,9 +225,7 @@ let rec expression' lvl ppf = function
         binop op
         (expression @@ next_level lvl) expr2
   | If (expr1, expr2, expr3) ->
-      Format.fprintf ppf "@[<v>" ;
-      expression_if ppf expr1 expr2 expr3 ;
-      Format.fprintf ppf "@]"
+      expression_if ppf expr1 expr2 expr3
   | For (local, expr1, expr2, expr3) ->
       Format.fprintf ppf "@[<v>for: %a := %a to %a begin@,  @[%a@]@,end@]"
         binder local
@@ -326,7 +330,7 @@ and expression lvl ppf expr =
     Format.fprintf ppf "(%a)" (expression' lvl_expr) expr
   else
     Format.fprintf ppf "%a" (expression' lvl_expr) expr
-and expression_if ?(nested = false) ppf expr1 expr2 expr3 =
+and expression_if_aux ?(nested = false) ?(force_else = false) ppf expr1 expr2 expr3 =
   let neg, expr1 =
     begin match expr1 with
     | Unop (Unop_neg, expr1) ->
@@ -340,13 +344,21 @@ and expression_if ?(nested = false) ppf expr1 expr2 expr3 =
     (if neg then "not" else "")
     (expression max_level) expr1
     (expression max_level) expr2 ;
-  expr3 |> Option.iter (function
-    | If (expr1, expr2, expr3) ->
-        expression_if ~nested:true ppf expr1 expr2 expr3
-    | expr ->
-        Format.fprintf ppf " else (@,  @[%a@]@,)"
-          (expression max_level) expr
-  )
+  match expr3 with
+  | None ->
+      if force_else then
+        Format.fprintf ppf " else (@,  ()@,)"
+  | Some expr3 ->
+      match expr3 with
+      | If (expr1, expr2, expr3) ->
+          expression_if_aux ~nested:true ppf expr1 expr2 expr3
+      | expr ->
+          Format.fprintf ppf " else (@,  @[%a@]@,)"
+            (expression max_level) expr
+and expression_if ?force_else ppf expr1 expr2 expr3 =
+  Format.fprintf ppf "@[<v>" ;
+  expression_if_aux ?force_else ppf expr1 expr2 expr3 ;
+  Format.fprintf ppf "@]"
 and branch ppf br =
   Format.fprintf ppf "| %s%s%a%a =>@,    @[%a@]@,"
     br.branch_tag
@@ -383,7 +395,7 @@ let structure ?dir pp select ppf str =
   Format.fprintf ppf "From zoo Require Import@,  prelude.@," ;
   Format.fprintf ppf "From zoo.language Require Import@,  notations.@," ;
   if str.dependencies <> [] then (
-    Format.fprintf ppf "From zoo.std Require Import@," ;
+    Format.fprintf ppf "From zoo Require Import@," ;
     Format.(pp_print_list ~pp_sep:pp_print_cut (fun ppf -> fprintf ppf "  %s")) ppf str.dependencies ;
     Format.fprintf ppf ".@,"
   ) ;

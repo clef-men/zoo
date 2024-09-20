@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/saturn/blob/65211c5176b632bd9ed268c0c608ac483f88a992/src_lockfree/spsc_queue.ml
-*)
-
 From iris.algebra Require Import
   list.
 
@@ -22,7 +18,10 @@ From zoo.std Require Import
   option
   array.
 From zoo.saturn Require Export
-  base.
+  base
+  spsc_bqueue__code.
+From zoo.saturn Require Import
+  spsc_bqueue__types.
 From zoo Require Import
   options.
 
@@ -31,77 +30,6 @@ Implicit Types i front front_cache back back_cache : nat.
 Implicit Types l : location.
 Implicit Types v w t : val.
 Implicit Types vs hist : list val.
-
-#[local] Notation "'data'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'front'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'front_cache'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-#[local] Notation "'back'" := (
-  in_type "t" 3
-)(in custom zoo_field
-).
-#[local] Notation "'back_cache'" := (
-  in_type "t" 4
-)(in custom zoo_field
-).
-
-Definition spsc_bqueue_create : val :=
-  fun: "cap" =>
-    { array_unsafe_make "cap" §None, #0, #0, #0, #0 }.
-
-#[local] Definition spsc_bqueue_push_aux : val :=
-  fun: "t" "data" "back" =>
-    let: "cap" := array_size "data" in
-    let: "front_cache" := "t".{front_cache} in
-    if: "back" < "front_cache" + "cap" then (
-      #true
-    ) else (
-      let: "front" := "t".{front} in
-      "t" <-{front_cache} "front" ;;
-      "back" < "front" + "cap"
-    ).
-Definition spsc_bqueue_push : val :=
-  fun: "t" "v" =>
-    let: "data" := "t".{data} in
-    let: "back" := "t".{back} in
-    if: spsc_bqueue_push_aux "t" "data" "back" then (
-      array_unsafe_cset "data" "back" ‘Some( "v" ) ;;
-      "t" <-{back} "back" + #1 ;;
-      #false
-    ) else (
-      #true
-    ).
-
-#[local] Definition spsc_bqueue_pop_aux : val :=
-  fun: "t" "front" =>
-    let: "back_cache" := "t".{back_cache} in
-    if: "front" < "back_cache" then (
-      #true
-    ) else (
-      let: "back" := "t".{back} in
-      "t" <-{back_cache} "back" ;;
-      "front" < "back"
-    ).
-Definition spsc_bqueue_pop : val :=
-  fun: "t" =>
-    let: "front" := "t".{front} in
-    if: spsc_bqueue_pop_aux "t" "front" then (
-      let: "data" := "t".{data} in
-      let: "res" := array_unsafe_cget "data" "front" in
-      array_unsafe_cset "data" "front" §None ;;
-      "t" <-{front} "front" + #1 ;;
-      "res"
-    ) else (
-      §None
-    ).
 
 Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} := {
   #[local] spsc_bqueue_G_model_G :: TwinsG Σ (listO val_O) ;
@@ -541,7 +469,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer #l -∗
       Φ #(bool_decide (length vs = cap))
     }>.
-  #[local] Lemma spsc_bqueue_push_aux_spec l ι γ cap front_cache back v Ψ :
+  #[local] Lemma spsc_bqueue_push_0_spec l ι γ cap front_cache back v Ψ :
     {{{
       meta l nroot γ ∗
       inv ι (spsc_bqueue_inv_inner l γ cap) ∗
@@ -551,7 +479,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_front_lb γ front_cache ∗
       spsc_bqueue_push_au l ι cap v Ψ
     }}}
-      spsc_bqueue_push_aux #l γ.(spsc_bqueue_meta_data) #back
+      spsc_bqueue_push_0 #l γ.(spsc_bqueue_meta_data) #back
     {{{ b front_cache',
       RET #b;
       ⌜b = bool_decide (back < front_cache' + cap)⌝ ∗
@@ -628,7 +556,7 @@ Section spsc_bqueue_G.
     iSplitR "Hfront_cache Hproducer_ctl₁ Hproducer_region HΦ"; first iSteps.
     iModIntro. clear.
 
-    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_aux_spec with "[$]") as (? front_cache') "(-> & Hfront_cache & Hproducer_ctl₁ & #Hfront_lb & HΦ)".
+    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hfront_cache & Hproducer_ctl₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -694,7 +622,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Φ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_aux_spec l ι γ cap front back_cache Ψ :
+  #[local] Lemma spsc_bqueue_pop_0_spec l ι γ cap front back_cache Ψ :
     {{{
       meta l nroot γ ∗
       inv ι (spsc_bqueue_inv_inner l γ cap) ∗
@@ -703,7 +631,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_back_lb γ back_cache ∗
       spsc_bqueue_pop_au l ι Ψ
     }}}
-      spsc_bqueue_pop_aux #l #front
+      spsc_bqueue_pop_0 #l #front
     {{{ b back_cache',
       RET #b;
       ⌜b = bool_decide (front < back_cache')⌝ ∗
@@ -782,7 +710,7 @@ Section spsc_bqueue_G.
     { iExists front, back1, vs1, hist1. iSteps. }
     iModIntro. clear.
 
-    iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_aux_spec with "[$]") as (? back_cache') "(-> & Hback_cache & Hconsumer_ctl₁ & #Hback_lb & HΦ)".
+    iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hback_cache & Hconsumer_ctl₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
