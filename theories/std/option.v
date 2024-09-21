@@ -19,15 +19,20 @@ Coercion option_to_val o :=
   end%V.
 #[global] Arguments option_to_val !_ / : assert.
 
+#[global] Instance option_to_val_inj' :
+  Inj (=) val_eq option_to_val.
+Proof.
+  intros [] []; naive_solver.
+Qed.
 #[global] Instance option_to_val_inj :
   Inj (=) (=) option_to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros ?* ->%val_eq_refl%(inj _) => //.
 Qed.
 #[global] Instance option_to_val_physical o :
   ValPhysical (option_to_val o).
 Proof.
-  destruct o; done.
+  destruct o => //.
 Qed.
 
 Section zoo_G.

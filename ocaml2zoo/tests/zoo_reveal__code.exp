@@ -9,6 +9,6 @@ From zoo Require Import
 
 Definition zoo_reveal_test : val :=
   fun: <> =>
-    ‘A{ () } ;;
+    Reveal ‘A( () ) ;;
     ‘B( () ) ;;
     ().

@@ -417,10 +417,11 @@ Section side_condition_lemmas.
     congruence.
   Qed.
 
-  Lemma val_block_neq tag1 vs1 tag2 vs2 :
+  Lemma val_block_neq bid1 tag1 vs1 bid2 tag2 vs2 :
+    bid1 ≠ bid2 →
     tag1 ≠ tag2 →
     vs1 ≠ vs2 →
-    ValBlock tag1 vs1 ≠ ValBlock tag2 vs2.
+    ValBlock bid1 tag1 vs1 ≠ ValBlock bid2 tag2 vs2.
   Proof.
     congruence.
   Qed.
@@ -449,10 +450,10 @@ Section side_condition_lemmas.
     split; congruence.
   Qed.
 
-  #[global] Instance simplify_block_neq tag1 vs1 tag2 vs2 :
+  #[global] Instance simplify_block_neq bid1 tag1 vs1 bid2 tag2 vs2 :
     SimplifyPureHypSafe
-      (ValBlock tag1 vs1 ≠ ValBlock tag2 vs2)
-      (tag1 ≠ tag2 ∨ vs1 ≠ vs2).
+      (ValBlock bid1 tag1 vs1 ≠ ValBlock bid2 tag2 vs2)
+      (bid1 ≠ bid2 ∨ tag1 ≠ tag2 ∨ vs1 ≠ vs2).
   Proof.
     split.
     - rewrite -!not_and_l. naive_solver.
@@ -494,7 +495,9 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar b1);
       assert_fails (has_evar b2);
       eapply lit_neq_bool_neq; solve [pure_solver.trySolvePure]
-  | |- ValBlock ?tag1 ?vs1 ≠ ValBlock ?tag2 ?vs2 =>
+  | |- ValBlock ?bid1 ?tag1 ?vs1 ≠ ValBlock ?bid2 ?tag2 ?vs2 =>
+      assert_fails (has_evar bid1);
+      assert_fails (has_evar bid2);
       assert_fails (has_evar tag1);
       assert_fails (has_evar tag2);
       assert_fails (has_evar vs1);

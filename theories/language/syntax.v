@@ -19,6 +19,10 @@ Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
 
+Definition block_id :=
+  positive.
+Implicit Types bid : option block_id.
+
 Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
@@ -198,6 +202,7 @@ Inductive expr :=
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
   | Block concrete tag (es : list expr)
+  | Reveal (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | GetTag (e : expr)
   | GetSize (e : expr)
@@ -213,7 +218,7 @@ Inductive expr :=
 with val :=
   | ValLiteral lit
   | ValRec f x (e : expr)
-  | ValBlock tag (vs : list val).
+  | ValBlock bid tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -235,18 +240,21 @@ Section val_ind.
     ∀ f x e,
     P (ValRec f x e).
   Variable HValBlock :
-    ∀ tag,
+    ∀ bid tag,
     ∀ vs, Forall P vs →
-    P (ValBlock tag vs).
+    P (ValBlock bid tag vs).
 
   Fixpoint val_ind v :=
     match v with
     | ValLiteral lit =>
-        HValLiteral lit
+        HValLiteral
+          lit
     | ValRec f x e =>
-        HValRec f x e
-    | ValBlock tag vs =>
-        HValBlock tag
+        HValRec
+          f x e
+    | ValBlock bid tag vs =>
+        HValBlock
+          bid tag
           vs (Forall_true P vs val_ind)
     end.
 End val_ind.
@@ -304,6 +312,9 @@ Section expr_ind.
     ∀ concrete tag,
     ∀ es, Forall P es →
     P (Block concrete tag es).
+  Variable HReveal :
+    ∀ e, P e →
+    P (Reveal e).
   Variable HMatch :
     ∀ e0, P e0 →
     ∀ x,
@@ -403,6 +414,9 @@ Section expr_ind.
         HBlock
           concrete tag
           es (Forall_true P es expr_ind)
+    | Reveal e =>
+        HReveal
+          e (expr_ind e)
     | Match e0 x e1 brs =>
         HMatch
           e0 (expr_ind e0)
@@ -493,7 +507,7 @@ Notation Tuple := (
 )(only parsing
 ).
 Notation ValTuple := (
-  ValBlock 0
+  ValBlock None 0
 )(only parsing
 ).
 
@@ -664,6 +678,9 @@ Proof.
             (decide (concrete1 = concrete2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
+      | Reveal e1, Reveal e2 =>
+          cast_if
+            (decide (e1 = e2))
       | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
           cast_if_and4
             (decide (e10 = e20))
@@ -735,8 +752,9 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValBlock tag1 es1, ValBlock tag2 es2 =>
-          cast_if_and
+      | ValBlock bid1 tag1 es1, ValBlock bid2 tag2 es2 =>
+          cast_if_and3
+            (decide (bid1 = bid2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -772,8 +790,9 @@ Proof.
             (decide (f1 = f2))
             (decide (x1 = x2))
             (decide (e1 = e2))
-      | ValBlock tag1 es1, ValBlock tag2 es2 =>
-          cast_if_and
+      | ValBlock bid1 tag1 es1, ValBlock bid2 tag2 es2 =>
+          cast_if_and3
+            (decide (bid1 = bid2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -783,13 +802,14 @@ Proof.
   clear go_val go_list; abstract intuition congruence.
 Defined.
 Variant encode_leaf :=
+  | EncodeTag tag
   | EncodeBinder x
+  | EncodeBlockId bid
+  | EncodeConcreteness concrete
+  | EncodeLiteral lit
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
-  | EncodeConcreteness concrete
-  | EncodeTag tag
-  | EncodePattern (pat : pattern)
-  | EncodeLiteral lit.
+  | EncodePattern (pat : pattern).
 #[local] Instance encode_leaf_eq_dec : EqDecision encode_leaf :=
   ltac:(solve_decision).
 #[local] Instance encode_leaf_countable :
@@ -797,37 +817,41 @@ Variant encode_leaf :=
 Proof.
   pose encode leaf :=
     match leaf with
-    | EncodeBinder x =>
-        inl $ inl $ inl $ inl $ inl $ inl x
-    | EncodeUnop op =>
-        inl $ inl $ inl $ inl $ inl $ inr op
-    | EncodeBinop op =>
-        inl $ inl $ inl $ inl $ inr op
-    | EncodeConcreteness concrete =>
-        inl $ inl $ inl $ inr concrete
     | EncodeTag tag =>
-        inl $ inl $ inr tag
-    | EncodePattern pat =>
-        inl $ inr pat
+        inl $ inl $ inl $ inl $ inl $ inl $ inl tag
+    | EncodeBinder bdr =>
+        inl $ inl $ inl $ inl $ inl $ inl $ inr bdr
+    | EncodeBlockId bid =>
+        inl $ inl $ inl $ inl $ inl $ inr bid
+    | EncodeConcreteness concrete =>
+        inl $ inl $ inl $ inl $ inr concrete
     | EncodeLiteral lit =>
-        inr lit
+        inl $ inl $ inl $ inr lit
+    | EncodeUnop op =>
+        inl $ inl $ inr op
+    | EncodeBinop op =>
+        inl $ inr op
+    | EncodePattern pat =>
+        inr pat
     end.
   pose decode leaf :=
     match leaf with
-    | inl (inl (inl (inl (inl (inl x))))) =>
-        EncodeBinder x
-    | inl (inl (inl (inl (inl (inr op))))) =>
-        EncodeUnop op
-    | inl (inl (inl (inl (inr op)))) =>
-        EncodeBinop op
-    | inl (inl (inl (inr concrete))) =>
-        EncodeConcreteness concrete
-    | inl (inl (inr tag)) =>
+    | inl (inl (inl (inl (inl (inl (inl tag)))))) =>
         EncodeTag tag
-    | inl (inr pat) =>
-        EncodePattern pat
-    | inr lit =>
+    | inl (inl (inl (inl (inl (inl (inr bdr)))))) =>
+        EncodeBinder bdr
+    | inl (inl (inl (inl (inl (inr bid))))) =>
+        EncodeBlockId bid
+    | inl (inl (inl (inl (inr concrete)))) =>
+        EncodeConcreteness concrete
+    | inl (inl (inl (inr lit))) =>
         EncodeLiteral lit
+    | inl (inl (inr op)) =>
+        EncodeUnop op
+    | inl (inr op) =>
+        EncodeBinop op
+    | inr pat =>
+        EncodePattern pat
     end.
   refine (inj_countable' encode decode _). intros []; done.
 Qed.
@@ -859,32 +883,34 @@ Proof.
     9.
   #[local] Notation code_Block :=
     10.
-  #[local] Notation code_Match :=
+  #[local] Notation code_Reveal :=
     11.
-  #[local] Notation code_branch :=
+  #[local] Notation code_Match :=
     12.
-  #[local] Notation code_GetTag :=
+  #[local] Notation code_branch :=
     13.
-  #[local] Notation code_GetSize :=
+  #[local] Notation code_GetTag :=
     14.
-  #[local] Notation code_Load :=
+  #[local] Notation code_GetSize :=
     15.
-  #[local] Notation code_Store :=
+  #[local] Notation code_Load :=
     16.
-  #[local] Notation code_Xchg :=
+  #[local] Notation code_Store :=
     17.
-  #[local] Notation code_CAS :=
+  #[local] Notation code_Xchg :=
     18.
-  #[local] Notation code_FAA :=
+  #[local] Notation code_CAS :=
     19.
-  #[local] Notation code_Fork :=
+  #[local] Notation code_FAA :=
     20.
-  #[local] Notation code_Yield :=
+  #[local] Notation code_Fork :=
     21.
-  #[local] Notation code_Proph :=
+  #[local] Notation code_Yield :=
     22.
-  #[local] Notation code_Resolve :=
+  #[local] Notation code_Proph :=
     23.
+  #[local] Notation code_Resolve :=
+    24.
   #[local] Notation code_ValRec :=
     0.
   #[local] Notation code_ValBlock :=
@@ -921,6 +947,8 @@ Proof.
           GenNode code_Alloc [go e1; go e2]
       | Block concrete tag es =>
           GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: go_list es
+      | Reveal e =>
+          GenNode code_Reveal [go e]
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | GetTag e =>
@@ -953,8 +981,8 @@ Proof.
           GenLeaf (EncodeLiteral lit)
       | ValRec f x e =>
          GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
-      | ValBlock tag vs =>
-          GenNode code_ValBlock $ GenLeaf (EncodeTag tag) :: go_list vs
+      | ValBlock bid tag vs =>
+          GenNode code_ValBlock $ GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeTag tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -994,6 +1022,8 @@ Proof.
           Alloc (go e1) (go e2)
       | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: es) =>
           Block concrete tag $ go_list es
+      | GenNode code_Reveal [e] =>
+          Reveal (go e)
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
       | GenNode code_GetTag [e] =>
@@ -1028,8 +1058,8 @@ Proof.
           ValLiteral lit
       | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
-      | GenNode code_ValBlock (GenLeaf (EncodeTag tag) :: vs) =>
-          ValBlock tag $ go_list vs
+      | GenNode code_ValBlock (GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeTag tag) :: vs) =>
+          ValBlock bid tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
       end

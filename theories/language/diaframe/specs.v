@@ -115,6 +115,19 @@ Section instances.
     iSteps.
   Qed.
 
+  #[global] Instance reveal_step_wp tag vs :
+    SPEC
+    {{ True }}
+      Reveal $ ValBlock None tag vs
+    {{ bid,
+      RET ValBlock (Some bid) tag vs; True
+    }}.
+  Proof.
+    iSteps.
+    wp_reveal bid.
+    iSteps.
+  Qed.
+
   #[global] Instance step_wp_get_tag l :
     SPEC hdr,
     {{
@@ -201,7 +214,7 @@ Section instances.
       ▷ (l +ₗ fld) ↦{dq} v ∗
       ⌜val_physical v⌝ ∗
       ⌜val_physical v1⌝ ∗
-      ⌜dq = DfracOwn 1 ∨ v ≠ v1⌝
+      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
     }}
       CAS (#l, #fld)%V v1 v2
     {{ (b : bool),
@@ -210,7 +223,7 @@ Section instances.
         ⌜val_neq v v1⌝ ∗
         (l +ₗ fld) ↦{dq} v
       ∨ ⌜b = true⌝ ∗
-        ⌜v = v1⌝ ∗
+        ⌜val_eq v v1⌝ ∗
         (l +ₗ fld) ↦ v2
     }}.
   Proof.

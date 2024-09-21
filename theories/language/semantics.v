@@ -75,15 +75,17 @@ Definition val_neq v1 v2 :=
       | _ =>
           True
       end
-  | ValBlock tag1 vs1 =>
+  | ValBlock bid1 tag1 vs1 =>
       match v2 with
-      | ValBlock tag2 vs2 =>
-          match vs1, vs2 with
-          | [], [] =>
-              tag1 ≠ tag2
+      | ValBlock bid2 tag2 vs2 =>
+          match bid1, bid2 with
+          | Some bid1, Some bid2 =>
+              bid1 ≠ bid2
           | _, _ =>
-              True
-          end
+              False
+          end ∨
+          tag1 ≠ tag2 ∨
+          vs1 ≠ vs2
       | _ =>
           True
       end
@@ -91,6 +93,45 @@ Definition val_neq v1 v2 :=
       True
   end.
 #[global] Arguments val_neq !_ !_ / : assert.
+
+Definition val_eq v1 v2 :=
+  match v1, v2 with
+  | ValLiteral lit1, ValLiteral lit2 =>
+      lit1 = lit2
+  | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
+      f1 = f2 ∧
+      x1 = x2 ∧
+      e1 = e2
+  | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
+      match bid1, bid2 with
+      | Some bid1, Some bid2 =>
+          bid1 = bid2
+      | _, _ =>
+          True
+      end ∧
+      tag1 = tag2 ∧
+      vs1 = vs2
+  | _, _ =>
+      False
+  end.
+#[global] Arguments val_eq !_ !_ / : assert.
+
+#[global] Instance val_eq_reflexive :
+  Reflexive val_eq.
+Proof.
+  intros [| | []] => //.
+Qed.
+#[global] Instance val_eq_sym :
+  Symmetric val_eq.
+Proof.
+  do 2 intros [| | []]; naive_solver.
+Qed.
+Lemma val_eq_refl v1 v2 :
+  v1 = v2 →
+  val_eq v1 v2.
+Proof.
+  naive_solver.
+Qed.
 
 Definition eval_unop op v :=
   match op, v with
@@ -194,6 +235,9 @@ Fixpoint subst (x : string) v e :=
       Block
         concrete tag
         (subst x v <$> es)
+  | Reveal e =>
+      Reveal
+        (subst x v e)
   | Match e0 y e1 brs =>
       Match
         (subst x v e0)
@@ -289,8 +333,8 @@ Fixpoint eval_match' subj tag vs x e brs :=
         eval_match' subj tag vs x e brs
   end.
 #[global] Arguments eval_match' _ _ _ _ _ !_ / : assert.
-Definition eval_match (l : option location) tag vs x e brs :=
-  let subj := from_option (λ l, ValLoc l) (ValBlock tag vs) l in
+Definition eval_match (l : option location) bid tag vs x e brs :=
+  let subj := from_option (λ l, ValLoc l) (ValBlock bid tag vs) l in
   eval_match' subj tag vs x e brs.
 
 Record header := Header {
@@ -447,7 +491,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_equal_suc v1 v2 σ :
       val_physical v1 →
-      v1 = v2 →
+      val_eq v1 v2 →
       base_step
         (Equal (Val v1) (Val v2))
         σ
@@ -506,7 +550,15 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Block Abstract tag es)
         σ
         []
-        (Val $ ValBlock tag vs)
+        (Val $ ValBlock None tag vs)
+        σ
+        []
+  | base_step_reveal tag vs σ bid :
+      base_step
+        (Reveal $ Val $ ValBlock None tag vs)
+        σ
+        []
+        (Val $ ValBlock (Some bid) tag vs)
         σ
         []
   | base_step_match_concrete l hdr vs x e brs e' σ :
@@ -516,7 +568,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         vs !! i = Some v →
         σ.(state_heap) !! (l +ₗ i) = Some v
       ) →
-      eval_match (Some l) hdr.(header_tag) vs x e brs = Some e' →
+      eval_match (Some l) None hdr.(header_tag) vs x e brs = Some e' →
       base_step
         (Match (Val $ ValLoc l) x e brs)
         σ
@@ -524,10 +576,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
-  | base_step_match_abstract tag vs x e brs e' σ :
-      eval_match None tag vs x e brs = Some e' →
+  | base_step_match_abstract bid tag vs x e brs e' σ :
+      eval_match None bid tag vs x e brs = Some e' →
       base_step
-        (Match (Val $ ValBlock tag vs) x e brs)
+        (Match (Val $ ValBlock bid tag vs) x e brs)
         σ
         []
         e'
@@ -542,9 +594,9 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_tag))
         σ
         []
-  | base_step_get_tag_abstract tag vs σ :
+  | base_step_get_tag_abstract cid tag vs σ :
       base_step
-        (GetTag $ Val $ ValBlock tag vs)
+        (GetTag $ Val $ ValBlock cid tag vs)
         σ
         []
         (Val $ ValInt tag)
@@ -559,9 +611,9 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_size))
         σ
         []
-  | base_step_get_size_abstract tag vs σ :
+  | base_step_get_size_abstract cid tag vs σ :
       base_step
-        (GetSize $ Val $ ValBlock tag vs)
+        (GetSize $ Val $ ValBlock cid tag vs)
         σ
         []
         (Val $ ValInt (length vs))
@@ -576,10 +628,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-  | base_step_get_field_abstract tag vs (fld : nat) v σ :
+  | base_step_get_field_abstract cid tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
-        (Load (Val $ ValBlock tag vs) (Val $ ValInt fld))
+        (Load (Val $ ValBlock cid tag vs) (Val $ ValInt fld))
         σ
         []
         (Val v)
@@ -618,7 +670,8 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_cas_suc l fld v1 v2 v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       val_physical v →
-      v = v1 →
+      val_physical v1 →
+      val_eq v v1 →
       base_step
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
@@ -689,6 +742,17 @@ Proof.
   1: rewrite -(location_add_0 l).
   all: apply Hfresh; lia.
 Qed.
+Lemma base_step_reveal' tag vs σ :
+  base_step
+    (Reveal $ Val $ ValBlock None tag vs)
+    σ
+    []
+    (Val $ ValBlock (Some inhabitant) tag vs)
+    σ
+    [].
+Proof.
+  apply base_step_reveal.
+Qed.
 Lemma base_step_block_concrete' tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
@@ -744,6 +808,7 @@ Inductive ectxi :=
   | CtxAlloc1 v2
   | CtxAlloc2 e1
   | CtxBlock concrete tag vs es
+  | CtxReveal
   | CtxMatch x e1 brs
   | CtxGetTag
   | CtxGetSize
@@ -799,6 +864,8 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e1 e
   | CtxBlock concrete tag vs es =>
       Block concrete tag $ of_vals vs ++ e :: es
+  | CtxReveal =>
+      Reveal e
   | CtxMatch x e1 brs =>
       Match e x e1 brs
   | CtxGetTag =>

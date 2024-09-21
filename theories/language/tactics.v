@@ -48,6 +48,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxAlloc2 e1) K prophs e2
     | Block ?concrete ?tag ?es =>
         go_list K prophs (CtxBlock concrete tag) es
+    | Reveal ?e =>
+        add_ectxi CtxReveal K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K prophs e0
     | GetTag ?e =>
@@ -135,6 +137,11 @@ Ltac invert_base_step :=
 ) => (
   progress simpl; try injection
 ) : zoo.
+#[global] Hint Extern 0 (
+  val_eq _ _
+) => (
+  progress simpl
+) : zoo.
 
 #[global] Hint Extern 0 (
   base_reducible _ _
@@ -171,6 +178,11 @@ Ltac invert_base_step :=
   base_step (Block Concrete _ _) _ _ _ _ _
 ) =>
   eapply base_step_block_concrete'
+: zoo.
+#[global] Hint Extern 0 (
+  base_step (Reveal _) _ _ _ _ _
+) =>
+  eapply base_step_reveal'
 : zoo.
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _

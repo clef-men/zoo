@@ -193,7 +193,7 @@ Section zoo_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       wp_cas as _ | Hcas; first iSteps.
-      destruct vs'; first done. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
+      destruct vs'; first naive_solver. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (mpmc_stack_1_model_agree with "Hmodel₁ Hmodel₂") as %->.

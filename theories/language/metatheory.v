@@ -42,6 +42,8 @@ Fixpoint occurs x e :=
       occurs x e2
   | Block _ _ es =>
       existsb (occurs x) es
+  | Reveal e =>
+      occurs x e
   | Match e0 y e1 brs =>
       occurs x e0 ||
       bool_decide (BNamed x ≠ y) && occurs x e1 ||

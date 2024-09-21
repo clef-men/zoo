@@ -16,6 +16,7 @@ type rec_flag =
 type concreteness =
   | Concrete
   | Abstract
+  | Revealed
 
 type typ =
   | Type_product of field list

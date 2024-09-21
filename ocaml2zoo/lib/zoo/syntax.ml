@@ -16,6 +16,7 @@ type rec_flag =
 type concreteness =
   | Concrete
   | Abstract
+  | Revealed
 
 type typ =
   | Type_product of field list
@@ -106,6 +107,9 @@ let rec expression_is_value = function
   | Int _
   | Fun _ ->
       true
+  | Tuple exprs
+  | Constr (Abstract, _, exprs) ->
+      List.for_all expression_is_value exprs
   | Local _
   | Let _
   | Letrec _
@@ -118,7 +122,7 @@ let rec expression_is_value = function
   | Alloc _
   | Ref _
   | Record _
-  | Constr (Concrete, _, _)
+  | Constr (_, _, _)
   | Proj _
   | Match _
   | Ref_get _
@@ -139,9 +143,6 @@ let rec expression_is_value = function
   | Resolve _
   | Id ->
       false
-  | Tuple exprs
-  | Constr (Abstract, _, exprs) ->
-      List.for_all expression_is_value exprs
 
 let structure_types str =
   List.filter_map (fun (var, def) -> match def with Type ty -> Some (var, ty) | _ -> None) str.definitions

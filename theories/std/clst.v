@@ -30,14 +30,15 @@ Fixpoint clist_to_val cls :=
 Coercion clist_to_val : clist >-> val.
 
 #[global] Instance clist_to_val_inj :
-  Inj (=) (=) clist_to_val.
+  Inj (=) val_eq clist_to_val.
 Proof.
-  intros cls1. induction cls1; intros []; naive_solver.
+  intros cls1. induction cls1 as [| | v1 cls1 IH]; intros [| | v2 cls2]; [naive_solver.. |].
+  intros (_ & _ & [= -> ->%val_eq_refl%IH]) => //.
 Qed.
 #[global] Instance clist_to_val_physical cls :
   ValPhysical (clist_to_val cls).
 Proof.
-  destruct cls; done.
+  destruct cls => //.
 Qed.
 
 Fixpoint list_to_clist_open ls :=

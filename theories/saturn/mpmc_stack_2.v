@@ -267,7 +267,7 @@ Section zoo_G.
           iSplitR "H£ HΦ". { iExists (Some ws). iSteps. }
           iSteps.
 
-      + wp_cas as _ | [=].
+      + wp_cas as _ | (_ & _ & [=]).
         iSplitR "HΦ". { iExists None. iSteps. }
         iSteps.
 

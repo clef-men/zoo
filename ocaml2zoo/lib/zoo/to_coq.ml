@@ -110,8 +110,8 @@ let max_level =
 let next_level lvl =
   lvl - 1
 let level = function
-  | Constr (_, "[]", _) ->
-      1
+  | Constr (Revealed, _, _) ->
+      10
   | Constr (_, "::", _) ->
       60
   | Tuple _
@@ -260,11 +260,12 @@ let rec expression' lvl ppf = function
       Format.fprintf ppf "§%s"
         tag
   | Constr (concrete, tag, exprs) ->
-      Format.fprintf ppf "@[<hv>‘%s%c %a@;%c@]"
+      Format.fprintf ppf "@[<hv>%s‘%s%c %a@;%c@]"
+        (if concrete = Revealed then "Reveal " else "")
         tag
-        (match concrete with Concrete -> '{' | Abstract -> '(')
+        (if concrete = Concrete then '{' else '(')
         Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
-        (match concrete with Concrete -> '}' | Abstract -> ')')
+        (if concrete = Concrete then '}' else ')')
   | Proj (expr, fld) ->
       Format.fprintf ppf "@[%a@].<%s>"
         (expression lvl) expr

@@ -352,13 +352,13 @@ Notation "§ tag" := (
   format "§ tag"
 ) : stdpp_scope.
 Notation "§ tag" := (
-  Val (ValBlock tag%core (@nil val))
+  Val (ValBlock None tag%core (@nil val))
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
 ) : expr_scope.
 Notation "§ tag" := (
-  ValBlock tag%core (@nil val)
+  ValBlock None tag%core (@nil val)
 )(at level 2,
   tag custom zoo_tag,
   format "§ tag"
@@ -372,18 +372,26 @@ Notation "‘ tag ( e1 , .. , en )" := (
   format "'[hv' ‘ tag (  '/  ' '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' ) ']'"
 ) : expr_scope.
 Notation "’ tag ( v1 , .. , vn )" := (
-  Val (ValBlock tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
+  Val (ValBlock None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ’ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): expr_scope.
 Notation "‘ tag ( v1 , .. , vn )" := (
-  ValBlock tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+  ValBlock None tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
 )(at level 2,
   tag custom zoo_tag,
   v1, vn at level 200,
   format "'[hv' ‘ tag (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
+): val_scope.
+Notation "‘ tag @ bid ( v1 , .. , vn )" := (
+  ValBlock (Some bid) tag%core (@cons val v1%V .. (@cons val vn%V (@nil val)) ..)
+)(at level 2,
+  tag custom zoo_tag,
+  bid at level 1,
+  v1, vn at level 200,
+  format "'[hv' ‘ tag @ bid (  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ) ']'"
 ): val_scope.
 
 Notation "( e1 , e2 , .. , en )" := (
@@ -391,7 +399,7 @@ Notation "( e1 , e2 , .. , en )" := (
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
-  ValBlock 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
+  ValBlock None 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..))
 )(at level 0
 ) : val_scope.
 Notation "()" := (
@@ -403,7 +411,7 @@ Notation "()" :=
 
 Notation "[ ] => e" := (
   @pair pattern expr
-    (Build_pattern (in_type "list" 0) (@nil binder) BAnon)
+    (Build_pattern (in_type "__list__" 0) (@nil binder) BAnon)
     e%E
 )(in custom zoo_branch at level 200,
   e constr at level 200,
@@ -411,7 +419,7 @@ Notation "[ ] => e" := (
 ).
 Notation "[ ] 'as' x => e" := (
   @pair pattern expr
-    (Build_pattern (in_type "list" 0) (@nil binder) (BNamed x%string))
+    (Build_pattern (in_type "__list__" 0) (@nil binder) (BNamed x%string))
     e%E
 )(in custom zoo_branch at level 200,
   x constr at level 1,
@@ -420,7 +428,7 @@ Notation "[ ] 'as' x => e" := (
 ).
 Notation "x1 :: x2 => e" := (
   @pair pattern expr
-    (Build_pattern (in_type "list" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) BAnon)
+    (Build_pattern (in_type "__list__" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) BAnon)
     e%E
 )(in custom zoo_branch at level 200,
   x1 constr at level 1,
@@ -430,7 +438,7 @@ Notation "x1 :: x2 => e" := (
 ).
 Notation "x1 :: x2 'as' y => e" := (
   @pair pattern expr
-    (Build_pattern (in_type "list" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) (BNamed y%string))
+    (Build_pattern (in_type "__list__" 1) (@cons binder x1%binder (@cons binder x2%binder (@nil binder))) (BNamed y%string))
     e%E
 )(in custom zoo_branch at level 200,
   x1 constr at level 1,
@@ -661,8 +669,7 @@ Notation "l .[ fld ]" := (
 ) : stdpp_scope.
 Notation "v .[ fld ]" := (
   Val
-  ( ValBlock
-    (in_type "__atomic_loc__" 0)
+  ( ValBlock None (in_type "__atomic_loc__" 0)
     ( @cons val v%V
       ( @cons val (ValInt (Z.of_nat fld))
         (@nil val)
@@ -690,8 +697,7 @@ Notation "e .[ fld ]" := (
   format "e .[ fld ]"
 ) : expr_scope.
 Notation "v .[ fld ]" := (
-  ValBlock
-  (in_type "__atomic_loc__" 0)
+  ValBlock None (in_type "__atomic_loc__" 0)
   ( @cons val v%V
     ( @cons val (ValInt (Z.of_nat fld))
       (@nil val)
@@ -733,15 +739,15 @@ Notation "'Some'" := (
 ).
 
 Notation "[ ]" := (
-  Val (ValBlock (in_type "list" 0) (@nil val))
+  Val (ValBlock None (in_type "__list__" 0) (@nil val))
 )(format "[ ]"
 ) : expr_scope.
 Notation "[ ]" := (
-  ValBlock (in_type "list" 0) (@nil val)
+  ValBlock None (in_type "__list__" 0) (@nil val)
 )(format "[ ]"
 ) : val_scope.
 Notation "e1 :: e2" := (
-  Block Abstract (in_type "list" 1)
+  Block Abstract (in_type "__list__" 1)
   ( @cons expr e1%E
     ( @cons expr e2%E
       (@nil expr)
@@ -752,7 +758,7 @@ Notation "e1 :: e2" := (
   format "e1  ::  e2"
 ) : expr_scope.
 Notation "v1 :: v2" := (
-  ValBlock (in_type "list" 1)
+  ValBlock None (in_type "__list__" 1)
   ( @cons val v1%V
     ( @cons val v2%V
       (@nil val)

@@ -726,7 +726,7 @@ let rec expression ctx (expr : Typedtree.expression) =
             Context.add_dependency_from_path ctx lid.loc variant ;
             let concrete =
               if Attribute.has_reveal constr.cstr_attributes then
-                Concrete
+                Revealed
               else
                 Abstract
             in

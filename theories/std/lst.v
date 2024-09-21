@@ -49,16 +49,23 @@ Definition lst_to_val :=
   plst_to_val [].
 #[global] Arguments lst_to_val !_ / : assert.
 
+#[global] Instance lst_to_val_inj' :
+  Inj (=) val_eq lst_to_val.
+Proof.
+  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [naive_solver.. |].
+  intros (_ & _ & [= -> ->%val_eq_refl%IH]) => //.
+Qed.
 #[global] Instance lst_to_val_inj :
   Inj (=) (=) lst_to_val.
 Proof.
-  intros vs1. induction vs1; intros []; naive_solver.
+  intros ?* ->%val_eq_refl%(inj _) => //.
 Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).
 Proof.
   apply plst_to_val_physical. done.
 Qed.
+
 Lemma lst_to_val_nil :
   lst_to_val [] = []%V.
 Proof.

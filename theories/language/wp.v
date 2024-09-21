@@ -31,13 +31,12 @@ Section zoo_G.
     base_reducible (v1 = v2) σ.
   Proof.
     destruct
-      v1 as [lit1 | | tag1 []],
-      v2 as [lit2 | | tag2 []].
-    all:
-      try first
-      [ destruct (decide (lit1 = lit2)); first subst
-      | destruct (decide (tag1 = tag2)); first subst
-      ].
+      v1 as [lit1 | | [bid1 |] tag1 vs1],
+      v2 as [lit2 | | [bid2 |] tag2 vs2].
+    all: try (destruct (decide (lit1 = lit2)); first subst).
+    all: try (destruct (decide (bid1 = bid2)); first subst).
+    all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (vs1 = vs2)); first subst).
     all: auto with zoo.
   Qed.
   Lemma wp_equal v1 v2 E Φ :
@@ -47,7 +46,7 @@ Section zoo_G.
       ( ⌜val_neq v1 v2⌝ -∗
         Φ #false
       ) ∧ (
-        ⌜v1 = v2⌝ -∗
+        ⌜val_eq v1 v2⌝ -∗
         Φ #true
       )
     ) ⊢
@@ -58,14 +57,13 @@ Section zoo_G.
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
     destruct
-      v1 as [lit1 | | tag1 []],
-      v2 as [lit2 | | tag2 []].
-    all:
-      try first
-      [ destruct (decide (lit1 = lit2)); first subst
-      | destruct (decide (tag1 = tag2)); first subst
-      ].
-    all: invert_base_step; last try by exfalso.
+      v1 as [lit1 | | [bid1 |] tag1 vs1],
+      v2 as [lit2 | | [bid2 |] tag2 vs2].
+    all: try (destruct (decide (lit1 = lit2)); first subst).
+    all: try (destruct (decide (bid1 = bid2)); first subst).
+    all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (vs1 = vs2)); first subst).
+    all: invert_base_step; simplify; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
@@ -126,9 +124,22 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma wp_reveal tag vs E Φ :
+    ( ∀ bid,
+      ▷ Φ (ValBlock (Some bid) tag vs)
+    ) ⊢
+    WP Reveal $ ValBlock None tag vs @ E {{ Φ }}.
+  Proof.
+    iIntros "H".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
+    invert_base_step.
+    iSteps.
+  Qed.
+
   Lemma wp_match {l hdr dq} vs x e brs e' E Φ :
     length vs = hdr.(header_size) →
-    eval_match (Some l) hdr.(header_tag) vs x e brs = Some e' →
+    eval_match (Some l) None hdr.(header_tag) vs x e brs = Some e' →
     ▷ l ↦ₕ hdr -∗
     ▷ l ↦∗{dq} vs -∗
     ▷ (
@@ -242,14 +253,13 @@ Section zoo_G.
     base_reducible (CAS (#l, #fld)%V v1 v2) σ.
   Proof.
     destruct
-      v as [lit1 | | tag1 []],
-      v1 as [lit2 | | tag2 []].
-    all:
-      try first
-      [ destruct (decide (lit1 = lit2)); first subst
-      | destruct (decide (tag1 = tag2)); first subst
-      ].
-    all: eauto with zoo.
+      v as [lit | | [bid |] tag vs],
+      v1 as [lit1 | | [bid1 |] tag1 vs1].
+    all: try (destruct (decide (lit = lit1)); first subst).
+    all: try (destruct (decide (bid = bid1)); first subst).
+    all: try (destruct (decide (tag = tag1)); first subst).
+    all: try (destruct (decide (vs = vs1)); first subst).
+    all: eauto 10 with zoo.
   Qed.
   Lemma wp_cas l fld dq v v1 v2 E Φ :
     val_physical v →
@@ -260,7 +270,7 @@ Section zoo_G.
         (l +ₗ fld) ↦{dq} v -∗
         Φ #false
       ) ∧ (
-        ⌜v = v1⌝ -∗
+        ⌜val_eq v v1⌝ -∗
         (l +ₗ fld) ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
           (l +ₗ fld) ↦{dq} v ∗
@@ -277,14 +287,13 @@ Section zoo_G.
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     destruct
-      v as [lit1 | | tag1 []],
-      v1 as [lit2 | | tag2 []].
-    all:
-      try first
-      [ destruct (decide (lit1 = lit2)); first subst
-      | destruct (decide (tag1 = tag2)); first subst
-      ].
-    all: invert_base_step; last try by exfalso.
+      v1 as [lit1 | | [bid1 |] tag1 vs1],
+      v2 as [lit2 | | [bid2 |] tag2 vs2].
+    all: try (destruct (decide (lit1 = lit2)); first subst).
+    all: try (destruct (decide (bid1 = bid2)); first subst).
+    all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (vs1 = vs2)); first subst).
+    all: invert_base_step; simplify; last try by exfalso.
     all:
       match goal with |- _ _ ?P =>
         lazymatch P with
