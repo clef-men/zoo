@@ -26,6 +26,8 @@ module Builtin = struct
       [|"Stdlib";"<"|], Fun ([Some "1"; Some "2"], Binop (Binop_lt, Local "1", Local "2")), None ;
       [|"Stdlib";">="|], Fun ([Some "1"; Some "2"], Binop (Binop_ge, Local "1", Local "2")), None ;
       [|"Stdlib";">"|], Fun ([Some "1"; Some "2"], Binop (Binop_gt, Local "1", Local "2")), None ;
+      [|"Stdlib";"&&"|], Fun ([Some "1"; Some "2"], Binop (Binop_and, Local "1", Local "2")), None ;
+      [|"Stdlib";"||"|], Fun ([Some "1"; Some "2"], Binop (Binop_or, Local "1", Local "2")), None ;
       [|"Stdlib";"ref"|], Fun ([Some "1"], Ref (Local "1")), None ;
       [|"Stdlib";"!"|], Fun ([Some "1"], Ref_get (Local "1")), None ;
       [|"Stdlib";":="|], Fun ([Some "1"; Some "2"], Ref_set (Local "1", Local "2")), None ;
