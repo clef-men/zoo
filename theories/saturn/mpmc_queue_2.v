@@ -106,7 +106,7 @@ Definition mpmc_queue_2_push : val :=
     | Front "front_cnt" =>
         match: "t".{back} with
         | Snoc "move_cnt" "v" "move_prefix" as "move" =>
-            if: "front_cnt" = "move_cnt" then (
+            if: "front_cnt" == "move_cnt" then (
               if: CAS "t".[back] "move" "move_prefix" then (
                 ‘Some( "v" )
               ) else (
@@ -149,7 +149,7 @@ Definition mpmc_queue_2_push : val :=
 #[local] Definition mpmc_queue_2_pop_aux3 : val :=
   rec: "aux3" "aux1" "aux2" "t" "front" =>
     let: "front'" := "t".{front} in
-    if: "front'" = "front" then (
+    if: "front'" == "front" then (
       §None
     ) else (
       "aux1" "aux2" "aux3" "t" "front'"

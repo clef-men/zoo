@@ -23,8 +23,8 @@ Implicit Types ρ : config zoo.
 
 Definition erase_literal lit :=
   match lit with
-  | LiteralProphecy _ =>
-      LiteralPoison
+  | LitProph _ =>
+      LitPoison
   | _ =>
       lit
   end.
@@ -120,7 +120,7 @@ Fixpoint erase_expr e :=
   | Yield =>
       Yield
   | Proph =>
-      (fun: <> => #LiteralPoison)%V ()%V
+      (fun: <> => #LitPoison)%V ()%V
   | Resolve e0 e1 e2 =>
       erase_resolve
         (erase_expr e0)
@@ -129,8 +129,8 @@ Fixpoint erase_expr e :=
   end
 with erase_val v :=
   match v with
-  | ValLiteral lit =>
-      ValLiteral
+  | ValLit lit =>
+      ValLit
         (erase_literal lit)
   | ValRec f x e =>
       ValRec
@@ -406,7 +406,7 @@ Lemma erased_base_step_base_step_Proph σ :
   base_steps_to_erasure_of
     Proph
     σ
-    #LiteralPoison
+    #LitPoison
     (erase_state σ)
     [].
 Proof.
@@ -849,7 +849,7 @@ Qed.
 (*Lemma base_step_erased_prim_step_resolve e w σ :*)
 (*  (∃ e2' σ2' ef', prim_step (erase_expr e) (erase_state σ) [] e2' σ2' ef') →*)
 (*    ∃ e2' σ2' ef',*)
-(*    prim_step (erase_resolve (erase_expr e) #LiteralPoison (erase_val w)) (erase_state σ) [] e2' σ2' ef'.*)
+(*    prim_step (erase_resolve (erase_expr e) #LitPoison (erase_val w)) (erase_state σ) [] e2' σ2' ef'.*)
 (*Proof.*)
 (*  intros (?&?&?&?).*)
 (*  by eexists _, _, _;*)

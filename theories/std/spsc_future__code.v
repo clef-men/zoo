@@ -37,7 +37,7 @@ Definition spsc_future_get : val :=
              condition_wait_while
                "cond"
                "mtx"
-               (fun: <> => "t".{result} = §None)) ;;
+               (fun: <> => "t".{result} == §None)) ;;
         match: "t".{result} with
         | Some "v" =>
             "v"

@@ -15,16 +15,16 @@ Canonical identifier_O :=
 
 Implicit Types id : identifier.
 
-Definition LiteralIdentifier id :=
-  LiteralProphecy id.
-Coercion LiteralIdentifier : identifier >-> literal.
+Definition LitIdentifier id :=
+  LitProph id.
+Coercion LitIdentifier : identifier >-> literal.
 
 Notation Id :=
   Proph
 ( only parsing
 ).
 Notation ValId id := (
-  ValProphecy id
+  ValProph id
 )(only parsing
 ).
 

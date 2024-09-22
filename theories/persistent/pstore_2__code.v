@@ -25,7 +25,7 @@ Definition pstore_set : val :=
   fun: "t" "r" "v" =>
     let: "g_t" := "t".{gen} in
     let: "g_r" := "r".{ref_gen} in
-    if: "g_t" = "g_r" then (
+    if: "g_t" == "g_r" then (
       "r" <-{ref_value} "v"
     ) else (
       let: "root" := ref §Root in
@@ -60,7 +60,7 @@ Definition pstore_revert : val :=
         | Root =>
             Fail
         | Diff "r" "g" "v" "node_" =>
-            assert ("node_" = "node") ;;
+            assert ("node_" == "node") ;;
             "node" <- ‘Diff( "r", "r".{ref_gen}, "r".{ref_value}, "node'" ) ;;
             "r" <-{ref_gen} "g" ;;
             "r" <-{ref_value} "v" ;;
@@ -75,7 +75,7 @@ Definition pstore_reroot : val :=
 
 Definition pstore_restore : val :=
   fun: "t" "s" =>
-    if: "t" ≠ "s".<snap_store> then (
+    if: "t" != "s".<snap_store> then (
       Fail
     ) else (
       let: "root" := "s".<snap_root> in

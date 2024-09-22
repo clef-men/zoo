@@ -51,7 +51,7 @@ Definition pstore_revert : val :=
         | Root =>
             Fail
         | Diff "r" "v" "node_" =>
-            assert ("node_" = "node") ;;
+            assert ("node_" == "node") ;;
             "node" <- ‘Diff( "r", !"r", "node'" ) ;;
             "r" <- "v" ;;
             "revert" "node'" "path"
@@ -65,7 +65,7 @@ Definition pstore_reroot : val :=
 
 Definition pstore_restore : val :=
   fun: "t" "s" =>
-    if: "t" ≠ "s".<snap_store> then (
+    if: "t" != "s".<snap_store> then (
       Fail
     ) else (
       let: "root" := "s".<snap_root> in

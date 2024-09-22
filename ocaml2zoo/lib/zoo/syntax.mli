@@ -36,6 +36,7 @@ type binop =
   | Binop_plus | Binop_minus | Binop_mult | Binop_quot | Binop_rem
   | Binop_eq | Binop_ne | Binop_le | Binop_lt | Binop_ge | Binop_gt
   | Binop_and | Binop_or
+  | Binop_structeq | Binop_structne
 
 type expression =
   | Global of variable

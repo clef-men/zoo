@@ -107,7 +107,7 @@ Section zoo_G.
     ( val_eq v1 v2 →
       envs_entails Δ' (WP fill K #true @ E {{ Φ }})
     ) →
-    envs_entails Δ (WP fill K (v1 = v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (v1 == v2) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hv1 Hv2 Hfail Hsuc.
     rewrite into_laterN_env_sound -wp_bind -wp_equal //.

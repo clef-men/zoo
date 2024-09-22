@@ -9,10 +9,10 @@ Definition in_type (_ : string) (n : nat) :=
   n.
 #[global] Arguments in_type : simpl never.
 
-Coercion LiteralBool : bool >-> literal.
-Coercion LiteralInt : Z >-> literal.
-Coercion LiteralLoc : location >-> literal.
-Coercion LiteralProphecy : prophet_id >-> literal.
+Coercion LitBool : bool >-> literal.
+Coercion LitInt : Z >-> literal.
+Coercion LitLoc : location >-> literal.
+Coercion LitProph : prophet_id >-> literal.
 
 Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.
@@ -109,12 +109,12 @@ Notation "9" :=
 ).
 
 Notation "# l" := (
-  ValLiteral l%Z%V%stdpp
+  ValLit l%Z%V%stdpp
 )(at level 8,
   format "# l"
 ).
 Notation "'#@{' X }" := (
-  λ x : X, ValLiteral x
+  λ x : X, ValLit x
 )(only parsing
 ).
 
@@ -274,12 +274,12 @@ Notation "e1 > e2" := (
 )(at level 70,
   no associativity
 ) : expr_scope.
-Notation "e1 = e2" := (
+Notation "e1 == e2" := (
   Equal e1%E e2%E
 )(at level 70,
   no associativity
 ) : expr_scope.
-Notation "e1 ≠ e2" := (
+Notation "e1 != e2" := (
   Unop UnopNeg (Equal e1%E e2%E)
 )(at level 70,
   no associativity

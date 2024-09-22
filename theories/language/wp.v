@@ -28,7 +28,7 @@ Section zoo_G.
   Lemma base_reducible_equal v1 v2 σ :
     val_physical v1 →
     val_physical v2 →
-    base_reducible (v1 = v2) σ.
+    base_reducible (v1 == v2) σ.
   Proof.
     destruct
       v1 as [lit1 | | [bid1 |] tag1 vs1],
@@ -50,7 +50,7 @@ Section zoo_G.
         Φ #true
       )
     ) ⊢
-    WP v1 = v2 @ E {{ Φ }}.
+    WP v1 == v2 @ E {{ Φ }}.
   Proof.
     iIntros "% % HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".

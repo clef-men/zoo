@@ -66,7 +66,7 @@ Section ws_hub.
 
   #[local] Definition vertex_propagate : val :=
     fun: "ctx" "t" "run" =>
-      if: FAA "t".[preds] #(-1) = #1 then
+      if: FAA "t".[preds] #(-1) == #1 then
         pool_silent_async ws_hub "ctx" (fun: "ctx" => "run" "ctx" "t").
   #[local] Definition vertex_run : val :=
     rec: "vertex_run" "ctx" "t" =>

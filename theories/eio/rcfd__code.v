@@ -20,7 +20,7 @@ Definition rcfd_closed : val :=
 Definition rcfd_put : val :=
   fun: "t" =>
     let: "old" := FAA "t".[ops] #-1 in
-    if: "old" = #1 then (
+    if: "old" == #1 then (
       match: "t".{state} with
       | Open <> =>
           ()
@@ -49,7 +49,7 @@ Definition rcfd_close : val :=
         let: "close" <> := unix_close "fd" in
         let: "next" := ‘Closing( "close" ) in
         if: CAS "t".[state] "prev" "next" then (
-          if: "t".{ops} = #0 and CAS "t".[state] "next" rcfd_closed then (
+          if: "t".{ops} == #0 and CAS "t".[state] "next" rcfd_closed then (
             "close" ()
           ) else (
             ()

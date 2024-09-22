@@ -44,19 +44,19 @@ Implicit Types brs : list branch.
 
 Definition literal_physical lit :=
   match lit with
-  | LiteralBool _
-  | LiteralInt _
-  | LiteralLoc _ =>
+  | LitBool _
+  | LitInt _
+  | LitLoc _ =>
       True
-  | LiteralProphecy _
-  | LiteralPoison =>
+  | LitProph _
+  | LitPoison =>
       False
   end.
 #[global] Arguments literal_physical !_ / : assert.
 
 Definition val_physical v :=
   match v with
-  | ValLiteral lit =>
+  | ValLit lit =>
       literal_physical lit
   | _ =>
       True
@@ -68,9 +68,9 @@ Class ValPhysical v :=
 
 Definition val_neq v1 v2 :=
   match v1 with
-  | ValLiteral lit1 =>
+  | ValLit lit1 =>
       match v2 with
-      | ValLiteral lit2 =>
+      | ValLit lit2 =>
           lit1 ≠ lit2
       | _ =>
           True
@@ -96,7 +96,7 @@ Definition val_neq v1 v2 :=
 
 Definition val_eq v1 v2 :=
   match v1, v2 with
-  | ValLiteral lit1, ValLiteral lit2 =>
+  | ValLit lit1, ValLit lit2 =>
       lit1 = lit2
   | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
       f1 = f2 ∧
@@ -147,29 +147,29 @@ Definition eval_unop op v :=
 Definition eval_binop_int op n1 n2 :=
   match op with
   | BinopPlus =>
-      LiteralInt (n1 + n2)
+      LitInt (n1 + n2)
   | BinopMinus =>
-      LiteralInt (n1 - n2)
+      LitInt (n1 - n2)
   | BinopMult =>
-      LiteralInt (n1 * n2)
+      LitInt (n1 * n2)
   | BinopQuot =>
-      LiteralInt (n1 `quot` n2)
+      LitInt (n1 `quot` n2)
   | BinopRem =>
-      LiteralInt (n1 `rem` n2)
+      LitInt (n1 `rem` n2)
   | BinopLe =>
-      LiteralBool (bool_decide (n1 ≤ n2))
+      LitBool (bool_decide (n1 ≤ n2))
   | BinopLt =>
-      LiteralBool (bool_decide (n1 < n2))
+      LitBool (bool_decide (n1 < n2))
   | BinopGe =>
-      LiteralBool (bool_decide (n1 >= n2))
+      LitBool (bool_decide (n1 >= n2))
   | BinopGt =>
-      LiteralBool (bool_decide (n1 > n2))
+      LitBool (bool_decide (n1 > n2))
   end%Z.
 #[global] Arguments eval_binop_int !_ _ _ / : assert.
 Definition eval_binop op v1 v2 :=
   match v1, v2 with
   | ValInt n1, ValInt n2 =>
-      Some $ ValLiteral $ eval_binop_int op n1 n2
+      Some $ ValLit $ eval_binop_int op n1 n2
   | _, _ =>
       None
   end.
@@ -710,13 +710,13 @@ Inductive base_step : expr → state → list observation → expr → state →
         Proph
         σ
         []
-        (Val $ ValProphecy pid)
+        (Val $ ValProph pid)
         (state_update_prophets ({[pid]} ∪.) σ)
         []
   | base_step_resolve e pid v σ κ w σ' es :
       base_step e σ κ (Val w) σ' es →
       base_step
-        (Resolve e (Val $ ValProphecy pid) (Val v))
+        (Resolve e (Val $ ValProph pid) (Val v))
         σ
         (κ ++ [(pid, (w, v))])
         (Val w)
@@ -779,7 +779,7 @@ Lemma base_step_proph' σ :
     Proph
     σ
     []
-    (Val $ ValProphecy pid)
+    (Val $ ValProph pid)
     (state_update_prophets ({[pid]} ∪.) σ)
     [].
 Proof.

@@ -49,12 +49,12 @@ Definition mpmc_queue_1_create : val :=
 
 Definition mpmc_queue_1_is_empty : val :=
   fun: "t" =>
-    "t".{front}.{xchain_next} = ().
+    "t".{front}.{xchain_next} == ().
 
 #[local] Definition mpmc_queue_1_do_push : val :=
   rec: "mpmc_queue_1_do_push" "node" "new_back" =>
     let: "node'" := "node".{xchain_next} in
-    if: "node'" = () then (
+    if: "node'" == () then (
       ifnot: CAS "node".[xchain_next] () "new_back" then (
         Yield ;;
         "mpmc_queue_1_do_push" "node" "new_back"
@@ -64,7 +64,7 @@ Definition mpmc_queue_1_is_empty : val :=
     ).
 #[local] Definition mpmc_queue_1_fix_back : val :=
   rec: "mpmc_queue_1_fix_back" "t" "back" "new_back" =>
-    if: "new_back".{xchain_next} = () and ~ CAS "t".[back] "back" "new_back" then (
+    if: "new_back".{xchain_next} == () and ~ CAS "t".[back] "back" "new_back" then (
       Yield ;;
       "mpmc_queue_1_fix_back" "t" "t".{back} "new_back"
     ).
@@ -79,7 +79,7 @@ Definition mpmc_queue_1_pop : val :=
   rec: "mpmc_queue_1_pop" "t" =>
     let: "old_front" := "t".{front} in
     let: "front" := "old_front".{xchain_next} in
-    if: "front" = () then (
+    if: "front" == () then (
       §None
     ) else if: CAS "t".[front] "old_front" "front" then (
         let: "v" := "front".{xchain_data} in

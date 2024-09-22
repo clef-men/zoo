@@ -16,7 +16,7 @@ Definition queue_create : val :=
 
 Definition queue_is_empty : val :=
   fun: "t" =>
-    "t".{front} = "t".{sentinel}.
+    "t".{front} == "t".{sentinel}.
 
 Definition queue_push : val :=
   fun: "t" "v" =>

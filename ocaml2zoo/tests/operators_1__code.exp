@@ -3,11 +3,11 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  operators__types.
+  operators_1__types.
 From zoo Require Import
   options.
 
-Definition operators_test1 : val :=
+Definition operators_1_test1 : val :=
   fun: "i" =>
     ~ #true ;;
     - "i" ;;
@@ -16,8 +16,8 @@ Definition operators_test1 : val :=
     "i" * "i" ;;
     "i" `quot` "i" ;;
     "i" `rem` "i" ;;
-    "i" = "i" ;;
-    "i" ≠ "i" ;;
+    "i" == "i" ;;
+    "i" != "i" ;;
     "i" ≤ "i" ;;
     "i" < "i" ;;
     "i" ≥ "i" ;;
@@ -31,7 +31,7 @@ Definition operators_test1 : val :=
     (#true or #true) and #true ;;
     ().
 
-Definition operators_test2 : val :=
+Definition operators_1_test2 : val :=
   fun: "i" =>
     (fun: "1" "2" => "1" + "2") ;;
     (fun: "1" "2" => "1" + "2") "i" ;;

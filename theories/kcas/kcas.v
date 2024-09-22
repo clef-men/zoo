@@ -88,7 +88,7 @@ Implicit Types status : val.
         #true
     | Undetermined <> as "old_status" =>
         Resolve (CAS "casn".[status] "old_status" "status") "casn".{prophet} ("id", kcas_status_to_bool "status") ;;
-        "casn".{status} = §After
+        "casn".{status} == §After
     end.
 
 #[local] Definition kcas_determine_aux : val :=
@@ -100,7 +100,7 @@ Implicit Types status : val.
     | "cas" :: "cass'" =>
         let: "loc", "state" := "cas" in
         let: "state'" := !"loc" in
-        if: "state" = "state'" then (
+        if: "state" == "state'" then (
           "kcas_determine_aux" "kcas_determine" "casn" "cass'"
         ) else (
           let: "v" :=
@@ -109,7 +109,7 @@ Implicit Types status : val.
             else
               "state'".<before>
           in
-          if: "v" ≠ "state".<before> then
+          if: "v" != "state".<before> then
             kcas_finish "id" "casn" §Before
           else
             match: "casn".{status} with
@@ -203,7 +203,7 @@ Section kcas_G.
       identifier * bool ;
     typed_prophet_of_val v :=
       match v with
-      | ValTuple [ValProphecy id; ValBool b] =>
+      | ValTuple [ValProph id; ValBool b] =>
           Some (id, b)
       | _ =>
           None

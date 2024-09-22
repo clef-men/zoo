@@ -72,7 +72,7 @@ Section zoo_G.
         (⌜t1 ≠ t2⌝ -∗ Φ #false) ∧
         (⌜t1 = t2⌝ -∗ Φ #true)
     ) -∗
-    WP t1 = t2 {{ Φ }}.
+    WP t1 == t2 {{ Φ }}.
   Proof.
     intros Hlen1 Hlen2.
     destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2]; [naive_solver lia.. |].

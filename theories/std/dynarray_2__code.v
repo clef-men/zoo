@@ -46,7 +46,7 @@ Definition dynarray_2_set_data : val :=
 
 Definition dynarray_2_is_empty : val :=
   fun: "t" =>
-    dynarray_2_size "t" = #0.
+    dynarray_2_size "t" == #0.
 
 Definition dynarray_2_get : val :=
   fun: "t" "i" =>
@@ -139,7 +139,7 @@ Definition dynarray_2_fit_capacity : val :=
   fun: "t" =>
     let: "sz" := dynarray_2_size "t" in
     let: "data" := dynarray_2_data "t" in
-    if: array_size "data" ≠ "sz" then (
+    if: array_size "data" != "sz" then (
       dynarray_2_set_data "t" (array_shrink "data" "sz")
     ).
 

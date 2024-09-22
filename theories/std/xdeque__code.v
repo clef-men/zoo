@@ -16,7 +16,7 @@ Definition xdeque_create : val :=
 
 Definition xdeque_is_empty : val :=
   fun: "t" =>
-    "t".{xdeque_next} = "t".
+    "t".{xdeque_next} == "t".
 
 Definition xdeque_insert : val :=
   fun: "prev" "node" "next" =>
@@ -66,7 +66,7 @@ Definition xdeque_remove : val :=
 
 Definition xdeque_iter_aux : val :=
   rec: "iter_aux" "t" "fn" "node" =>
-    if: "node" = "t" then (
+    if: "node" == "t" then (
       ()
     ) else (
       "fn" "node" ;;

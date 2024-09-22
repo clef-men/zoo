@@ -82,6 +82,7 @@ theories/language/itype.v
 theories/language/typed_prophet.v
 theories/language/wise_prophet.v
 theories/language/identifier.v
+theories/language/structeq.v
 
 theories/std/base.v
 theories/std/diverge.v

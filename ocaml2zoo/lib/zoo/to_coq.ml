@@ -88,9 +88,9 @@ let binop ppf op =
     | Binop_rem ->
         "`rem`"
     | Binop_eq ->
-        "="
+        "=="
     | Binop_ne ->
-        "≠"
+        "!="
     | Binop_le ->
         "≤"
     | Binop_lt ->
@@ -103,6 +103,10 @@ let binop ppf op =
         "and"
     | Binop_or ->
         "or"
+    | Binop_structeq ->
+        "="
+    | Binop_structne ->
+        "≠"
     end
 
 let max_level =
@@ -162,7 +166,9 @@ let level = function
   | Binop (Binop_le, _, _)
   | Binop (Binop_lt, _, _)
   | Binop (Binop_ge, _, _)
-  | Binop (Binop_gt, _, _) ->
+  | Binop (Binop_gt, _, _)
+  | Binop (Binop_structeq, _, _)
+  | Binop (Binop_structne, _, _) ->
       70
   | Unop (Unop_neg, _) ->
       75

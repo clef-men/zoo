@@ -38,12 +38,12 @@ Definition mpsc_queue_1_create : val :=
 
 Definition mpsc_queue_1_is_empty : val :=
   fun: "t" =>
-    "t".{front}.{xchain_next} = ().
+    "t".{front}.{xchain_next} == ().
 
 #[local] Definition mpsc_queue_1_do_push : val :=
   rec: "mpsc_queue_1_do_push" "node" "new_back" =>
     let: "node'" := "node".{xchain_next} in
-    if: "node'" = () then (
+    if: "node'" == () then (
       ifnot: CAS "node".[xchain_next] () "new_back" then (
         Yield ;;
         "mpsc_queue_1_do_push" "node" "new_back"
@@ -53,7 +53,7 @@ Definition mpsc_queue_1_is_empty : val :=
     ).
 #[local] Definition mpsc_queue_1_fix_back : val :=
   rec: "mpsc_queue_1_fix_back" "t" "back" "new_back" =>
-    if: "new_back".{xchain_next} = () and ~ CAS "t".[back] "back" "new_back" then (
+    if: "new_back".{xchain_next} == () and ~ CAS "t".[back] "back" "new_back" then (
       Yield ;;
       "mpsc_queue_1_fix_back" "t" "t".{back} "new_back"
     ).
@@ -67,7 +67,7 @@ Definition mpsc_queue_1_push : val :=
 Definition mpsc_queue_1_pop : val :=
   fun: "t" =>
     let: "front" := "t".{front}.{xchain_next} in
-    if: "front" = () then (
+    if: "front" == () then (
       §None
     ) else (
       "t" <-{front} "front" ;;

@@ -47,7 +47,7 @@ Definition mpmc_stack_2_pop : val :=
 
 Definition mpmc_stack_2_is_closed : val :=
   fun: "t" =>
-    !"t" = §ClstClosed.
+    !"t" == §ClstClosed.
 
 Definition mpmc_stack_2_close : val :=
   fun: "t" =>

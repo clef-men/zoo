@@ -398,21 +398,21 @@ End instances.
 Section side_condition_lemmas.
   Lemma val_neq_lit_neq lit1 lit2 :
     lit1 ≠ lit2 →
-    ValLiteral lit1 ≠ ValLiteral lit2.
+    ValLit lit1 ≠ ValLit lit2.
   Proof.
     congruence.
   Qed.
 
   Lemma lit_neq_Z_neq n1 n2 :
     n1 ≠ n2 →
-    LiteralInt n1 ≠ LiteralInt n2.
+    LitInt n1 ≠ LitInt n2.
   Proof.
     congruence.
   Qed.
 
   Lemma lit_neq_bool_neq b1 b2 :
     b1 ≠ b2 →
-    LiteralBool b1 ≠ LiteralBool b2.
+    LitBool b1 ≠ LitBool b2.
   Proof.
     congruence.
   Qed.
@@ -428,7 +428,7 @@ Section side_condition_lemmas.
 
   #[global] Instance simplify_lit_location_neq l1 l2 :
     SimplifyPureHypSafe
-      (ValLiteral l1 ≠ ValLiteral l2)
+      (ValLit l1 ≠ ValLit l2)
       (l1 ≠ l2).
   Proof.
     split; congruence.
@@ -436,7 +436,7 @@ Section side_condition_lemmas.
 
   #[global] Instance simplify_lit_int_neq n1 n2 :
     SimplifyPureHypSafe
-      (LiteralInt n1 ≠ LiteralInt n2)
+      (LitInt n1 ≠ LitInt n2)
       (n1 ≠ n2).
   Proof.
     split; congruence.
@@ -444,7 +444,7 @@ Section side_condition_lemmas.
 
   #[global] Instance simplify_lit_bool_neq b1 b2 :
     SimplifyPureHypSafe
-      (LiteralBool b1 ≠ LiteralBool b2)
+      (LitBool b1 ≠ LitBool b2)
       (b1 ≠ b2).
   Proof.
     split; congruence.
@@ -483,15 +483,15 @@ Ltac trySolvePureEqAdd1 :=
 
 Ltac trySolvePureAdd1 :=
   match goal with
-  | |- ValLiteral ?lit1 ≠ ValLiteral ?lit2 =>
+  | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
       assert_fails (has_evar lit1);
       assert_fails (has_evar lit2);
       eapply val_neq_lit_neq; solve [pure_solver.trySolvePure]
-  | |- LiteralInt ?n1 ≠ LiteralInt ?n2 =>
+  | |- LitInt ?n1 ≠ LitInt ?n2 =>
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);
       eapply lit_neq_Z_neq; solve [pure_solver.trySolvePure]
-  | |- LiteralBool ?b1 ≠ LiteralBool ?b2 =>
+  | |- LitBool ?b1 ≠ LitBool ?b2 =>
       assert_fails (has_evar b1);
       assert_fails (has_evar b2);
       eapply lit_neq_bool_neq; solve [pure_solver.trySolvePure]

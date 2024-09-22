@@ -62,15 +62,15 @@ Definition mpmc_bqueue_capacity : val :=
 
 Definition mpmc_bqueue_is_empty : val :=
   fun: "t" =>
-    "t".{front}.{node_next} = ().
+    "t".{front}.{node_next} == ().
 
 #[local] Definition mpmc_bqueue_fix_back : val :=
   rec: "mpmc_bqueue_fix_back" "t" "back" "new_back" =>
-    if: "new_back".{node_next} = () and ~ CAS "t".[back] "back" "new_back" then
+    if: "new_back".{node_next} == () and ~ CAS "t".[back] "back" "new_back" then
       "mpmc_bqueue_fix_back" "t" "t".{back} "new_back".
 #[local] Definition mpmc_bqueue_push_aux : val :=
   rec: "mpmc_bqueue_push_aux" "t" "back" "new_back" "cap" =>
-    if: "cap" = #0 then (
+    if: "cap" == #0 then (
       let: "cap" := "t".{capacity} - ("back".{node_count} - "t".{front}.{node_count}) in
       if: "cap" ≤ #0 then (
         #false
@@ -98,14 +98,14 @@ Definition mpmc_bqueue_push : val :=
 #[local] Definition mpmc_queue_do_push : val :=
   rec: "mpmc_queue_do_push" "node" "new_back" =>
     let: "node'" := "node".{node_next} in
-    ifnot: "node'" = () and CAS "node".[node_next] () "new_back" then
+    ifnot: "node'" == () and CAS "node".[node_next] () "new_back" then
       "mpmc_queue_do_push" "node'" "new_back".
 
 Definition mpmc_bqueue_pop : val :=
   rec: "mpmc_bqueue_pop" "t" =>
     let: "old_front" := "t".{front} in
     let: "front" := "old_front".{node_next} in
-    if: "front" = () then (
+    if: "front" == () then (
       §None
     ) else (
       if: CAS "t".[front] "old_front" "front" then (

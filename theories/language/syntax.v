@@ -55,11 +55,11 @@ Proof.
 Qed.
 
 Inductive literal :=
-  | LiteralBool b
-  | LiteralInt n
-  | LiteralLoc l
-  | LiteralProphecy pid
-  | LiteralPoison.
+  | LitBool b
+  | LitInt n
+  | LitLoc l
+  | LitProph pid
+  | LitPoison.
 Implicit Types lit : literal.
 
 #[global] Instance literal_eq_dec : EqDecision literal :=
@@ -69,29 +69,29 @@ Implicit Types lit : literal.
 Proof.
   pose encode lit :=
     match lit with
-    | LiteralBool b =>
+    | LitBool b =>
         inl $ inl $ inl $ inl b
-    | LiteralInt n =>
+    | LitInt n =>
         inl $ inl $ inl $ inr n
-    | LiteralLoc l =>
+    | LitLoc l =>
         inl $ inl $ inr l
-    | LiteralProphecy pid =>
+    | LitProph pid =>
         inl $ inr pid
-    | LiteralPoison =>
+    | LitPoison =>
         inr ()
     end.
   pose decode _lit :=
     match _lit with
     | inl (inl (inl (inl b))) =>
-        LiteralBool b
+        LitBool b
     | inl (inl (inl (inr n))) =>
-        LiteralInt n
+        LitInt n
     | inl (inl (inr l)) =>
-        LiteralLoc l
+        LitLoc l
     | inl (inr p) =>
-        LiteralProphecy p
+        LitProph p
     | inr () =>
-        LiteralPoison
+        LitPoison
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -216,7 +216,7 @@ Inductive expr :=
   | Proph
   | Resolve (e0 e1 e2 : expr)
 with val :=
-  | ValLiteral lit
+  | ValLit lit
   | ValRec f x (e : expr)
   | ValBlock bid tag (vs : list val).
 Set Elimination Schemes.
@@ -233,9 +233,9 @@ Implicit Types brs : list branch.
 Section val_ind.
   Variable P : val → Prop.
 
-  Variable HValLiteral :
+  Variable HValLit :
     ∀ lit,
-    P (ValLiteral lit).
+    P (ValLit lit).
   Variable HValRec :
     ∀ f x e,
     P (ValRec f x e).
@@ -246,8 +246,8 @@ Section val_ind.
 
   Fixpoint val_ind v :=
     match v with
-    | ValLiteral lit =>
-        HValLiteral
+    | ValLit lit =>
+        HValLit
           lit
     | ValRec f x e =>
         HValRec
@@ -486,19 +486,19 @@ Notation Seq e1 e2 := (
 ).
 
 Notation ValBool b := (
-  ValLiteral (LiteralBool b)
+  ValLit (LitBool b)
 )(only parsing
 ).
 Notation ValInt n := (
-  ValLiteral (LiteralInt n)
+  ValLit (LitInt n)
 )(only parsing
 ).
 Notation ValLoc l := (
-  ValLiteral (LiteralLoc l)
+  ValLit (LitLoc l)
 )(only parsing
 ).
-Notation ValProphecy pid := (
-  ValLiteral (LiteralProphecy pid)
+Notation ValProph pid := (
+  ValLit (LitProph pid)
 )(only parsing
 ).
 
@@ -744,7 +744,7 @@ Proof.
         end
       in
       match v1, v2 with
-      | ValLiteral l1, ValLiteral l2 =>
+      | ValLit l1, ValLit l2 =>
           cast_if
             (decide (l1 = l2))
       | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
@@ -782,7 +782,7 @@ Proof.
         end
       in
       match v1, v2 with
-      | ValLiteral l1, ValLiteral l2 =>
+      | ValLit l1, ValLit l2 =>
           cast_if
             (decide (l1 = l2))
       | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
@@ -806,7 +806,7 @@ Variant encode_leaf :=
   | EncodeBinder x
   | EncodeBlockId bid
   | EncodeConcreteness concrete
-  | EncodeLiteral lit
+  | EncodeLit lit
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
   | EncodePattern (pat : pattern).
@@ -825,7 +825,7 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inr bid
     | EncodeConcreteness concrete =>
         inl $ inl $ inl $ inl $ inr concrete
-    | EncodeLiteral lit =>
+    | EncodeLit lit =>
         inl $ inl $ inl $ inr lit
     | EncodeUnop op =>
         inl $ inl $ inr op
@@ -845,7 +845,7 @@ Proof.
     | inl (inl (inl (inl (inr concrete)))) =>
         EncodeConcreteness concrete
     | inl (inl (inl (inr lit))) =>
-        EncodeLiteral lit
+        EncodeLit lit
     | inl (inl (inr op)) =>
         EncodeUnop op
     | inl (inr op) =>
@@ -977,8 +977,8 @@ Proof.
     with go_val v :=
       let go_list := map go_val in
       match v with
-      | ValLiteral lit =>
-          GenLeaf (EncodeLiteral lit)
+      | ValLit lit =>
+          GenLeaf (EncodeLit lit)
       | ValRec f x e =>
          GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
       | ValBlock bid tag vs =>
@@ -1054,8 +1054,8 @@ Proof.
     with go_val _v :=
       let go_list := map go_val in
       match _v with
-      | GenLeaf (EncodeLiteral lit) =>
-          ValLiteral lit
+      | GenLeaf (EncodeLit lit) =>
+          ValLit lit
       | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
           ValRec f x (go e)
       | GenNode code_ValBlock (GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeTag tag) :: vs) =>
