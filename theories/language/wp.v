@@ -137,29 +137,19 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma wp_match {l hdr dq} vs x e brs e' E Φ :
-    length vs = hdr.(header_size) →
-    eval_match (Some l) None hdr.(header_tag) vs x e brs = Some e' →
+  Lemma wp_match l hdr x_fb e_fb brs e E Φ :
+    eval_match None hdr.(header_tag) (inl l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
-    ▷ l ↦∗{dq} vs -∗
-    ▷ (
-      l ↦∗{dq} vs -∗
-      WP e' @ E {{ Φ }}
-    ) -∗
-    WP Match #l x e brs @ E {{ Φ }}.
+    ▷ WP e @ E {{ Φ }} -∗
+    WP Match #l x_fb e_fb brs @ E {{ Φ }}.
   Proof.
-    iIntros "%Hvs %He' >#Hhdr >Hl H".
+    iIntros "%He >#Hl H".
     iApply wp_lift_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iDestruct (state_interp_has_header_valid with "Hσ Hhdr") as %Hheaders_lookup.
-    iDestruct (state_interp_pointstos_valid with "Hσ Hl") as %Hheap_lookup.
-    iSplit; first eauto with zoo. iIntros "%_e' %_σ %es %Hstep _ !>".
+    iDestruct (state_interp_has_header_valid with "Hσ Hl") as %Hheaders_lookup.
+    iSplit; first eauto with zoo. iIntros "%_e %_σ %es %Hstep _ !>".
     invert_base_step.
-    select (list val) ltac:(fun _vs => assert (vs = _vs) as ->).
-    { apply list_eq_Forall2, Forall2_same_length_lookup_2; first congruence.
-      naive_solver.
-    }
-    simplify. iSteps.
+    iSteps.
   Qed.
 
   Lemma wp_get_tag l hdr E Φ :

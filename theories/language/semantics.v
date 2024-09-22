@@ -23,6 +23,8 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
+From zoo.common Require Export
+  option.
 From zoo.language Require Export
   syntax.
 From zoo Require Import
@@ -246,7 +248,7 @@ Fixpoint subst (x : string) v e :=
         ( ( λ br,
               ( br.1,
                 if decide (
-                  Forall (BNamed x ≠.) br.1.(pattern_fields) ∧
+                  from_option (Forall (BNamed x ≠.)) True br.1.(pattern_fields) ∧
                   BNamed x ≠ br.1.(pattern_as)
                 ) then
                   subst x v br.2
@@ -320,22 +322,37 @@ Fixpoint subst_list xs vs e :=
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint eval_match' subj tag vs x e brs :=
+Fixpoint eval_match bid tag (vs : location + list val) x_fb e_fb brs :=
+  let subj :=
+    match vs with
+    | inl l =>
+        ValLoc l
+    | inr vs =>
+        ValBlock bid tag vs
+    end
+  in
   match brs with
   | [] =>
-      Some $ subst' x subj e
+      Some $ subst' x_fb subj e_fb
   | br :: brs =>
       let pat := br.1 in
       if decide (pat.(pattern_tag) = tag) then
-        subst_list pat.(pattern_fields) vs $
-        subst' pat.(pattern_as) subj br.2
+        let res := subst' pat.(pattern_as) subj br.2 in
+        match pat.(pattern_fields) with
+        | None =>
+            Some res
+        | Some xs =>
+            match vs with
+            | inl l =>
+                None
+            | inr vs =>
+                subst_list xs vs res
+            end
+        end
       else
-        eval_match' subj tag vs x e brs
+        eval_match bid tag vs x_fb e_fb brs
   end.
-#[global] Arguments eval_match' _ _ _ _ _ !_ / : assert.
-Definition eval_match (l : option location) bid tag vs x e brs :=
-  let subj := from_option (λ l, ValLoc l) (ValBlock bid tag vs) l in
-  eval_match' subj tag vs x e brs.
+#[global] Arguments eval_match _ _ !_ _ _ !_ / : assert.
 
 Record header := Header {
   header_tag : nat ;
@@ -561,14 +578,9 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBlock (Some bid) tag vs)
         σ
         []
-  | base_step_match_concrete l hdr vs x e brs e' σ :
+  | base_step_match_concrete l hdr x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
-      length vs = hdr.(header_size) →
-      ( ∀ (i : nat) v,
-        vs !! i = Some v →
-        σ.(state_heap) !! (l +ₗ i) = Some v
-      ) →
-      eval_match (Some l) None hdr.(header_tag) vs x e brs = Some e' →
+      eval_match None hdr.(header_tag) (inl l) x e brs = Some e' →
       base_step
         (Match (Val $ ValLoc l) x e brs)
         σ
@@ -577,7 +589,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_match_abstract bid tag vs x e brs e' σ :
-      eval_match None bid tag vs x e brs = Some e' →
+      eval_match bid tag (inr vs) x e brs = Some e' →
       base_step
         (Match (Val $ ValBlock bid tag vs) x e brs)
         σ

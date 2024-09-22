@@ -214,24 +214,21 @@ Section zoo_G.
     rewrite (HΔ' bid) //.
   Qed.
 
-  Lemma tac_wp_match Δ Δ' id p K l hdr vs x e brs e' E Φ :
+  Lemma tac_wp_match Δ Δ' id p K l hdr x_fb e_fb brs e E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
-    envs_entails Δ' (l ↦∗□ vs) →
-    length vs = hdr.(header_size) →
-    eval_match (Some l) None hdr.(header_tag) vs x e brs = Some e' →
-    envs_entails Δ' (WP fill K e' @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (Match #l x e brs) @ E {{ Φ }}).
+    eval_match None hdr.(header_tag) (inl l) x_fb e_fb brs = Some e →
+    envs_entails Δ' (WP fill K e @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (Match #l x_fb e_fb brs) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => HΔ Hlookup1 Hlookup2 Hvs He' HΔ'.
+    rewrite envs_entails_unseal => HΔ Hlookup He HΔ'.
     rewrite into_laterN_env_sound -wp_bind /=.
     iIntros "HΔ'".
-    iAssert (▷ l ↦ₕ hdr)%I as "#Hhdr".
-    { iDestruct (envs_lookup_split with "HΔ'") as "(Hhdr & _)"; first done.
+    iAssert (▷ l ↦ₕ hdr)%I as "#Hl".
+    { iDestruct (envs_lookup_split with "HΔ'") as "(Hl & _)"; first done.
       destruct p; iSteps.
     }
-    iDestruct (Hlookup2 with "HΔ'") as "#Hl".
-    iApply (wp_match with "Hhdr Hl"); [done.. |]. iIntros "!> _".
+    iApply (wp_match with "Hl"); first done.
     rewrite -wp_bind_inv HΔ'. iSteps.
   Qed.
 
@@ -711,12 +708,12 @@ Tactic Notation "wp_reveal" simple_intropattern(bid) :=
     ]
   ).
 
-Tactic Notation "wp_match" open_constr(vs) :=
+Tactic Notation "wp_match" :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_match _ _ _ _ K _ _ vs)
+        eapply (tac_wp_match _ _ _ _ K)
       )
     | fail 1 "wp_match: cannot find 'Match' on location in" e
     ];
@@ -726,8 +723,6 @@ Tactic Notation "wp_match" open_constr(vs) :=
       [ iAssumptionCore
       | fail 1 "wp_match: cannot find" l "↦ₕ ?"
       ]
-    | try iFrame
-    | try fast_done
     | try fast_done
     | wp_finish
     ]

@@ -343,12 +343,12 @@ Section pure_exec.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
 
-  #[global] Instance pure_match bid tag vs x e brs e' :
+  #[global] Instance pure_match bid tag vs x_fb e_fb brs e :
     PureExec
-      (eval_match None bid tag vs x e brs = Some e')
+      (eval_match bid tag (inr vs) x_fb e_fb brs = Some e)
       1
-      (Match (Val $ ValBlock bid tag vs) x e brs)
-      e'.
+      (Match (Val $ ValBlock bid tag vs) x_fb e_fb brs)
+      e.
   Proof.
     solve_pure_exec.
   Qed.
