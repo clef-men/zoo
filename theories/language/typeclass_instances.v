@@ -355,7 +355,7 @@ Section pure_exec.
 
   #[global] Instance pure_get_tag bid tag vs :
     PureExec
-      True
+      (0 < length vs)
       1
       (GetTag $ Val $ ValBlock bid tag vs)
       (Val $ ValInt tag).
@@ -364,7 +364,7 @@ Section pure_exec.
   Qed.
   #[global] Instance pure_get_size bid tag vs :
     PureExec
-      True
+      (0 < length vs)
       1
       (GetSize $ Val $ ValBlock bid tag vs)
       (Val $ ValInt (length vs)).

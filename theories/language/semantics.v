@@ -595,6 +595,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_get_tag_abstract cid tag vs σ :
+      0 < length vs →
       base_step
         (GetTag $ Val $ ValBlock cid tag vs)
         σ
@@ -612,6 +613,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_get_size_abstract cid tag vs σ :
+      0 < length vs →
       base_step
         (GetSize $ Val $ ValBlock cid tag vs)
         σ
