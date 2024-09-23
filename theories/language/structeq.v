@@ -3,7 +3,8 @@ From zoo Require Import
 From zoo.language Require Export
   wp.
 From zoo.language Require Import
-  notations.
+  notations
+  diaframe.
 From zoo Require Import
   options.
 
@@ -35,64 +36,70 @@ Implicit Types footprint : gmap location structeq_block.
 #[global] Instance structeq_block_inhabited : Inhabited structeq_block :=
   populate (StructeqBlock inhabitant inhabitant inhabitant).
 
-Fixpoint structeq_traversable' footprint v :=
+Fixpoint val_traversable' footprint v :=
   match v with
-  | ValLit (LitBool _)
-  | ValLit (LitInt _) =>
+  | ValBool _
+  | ValInt _ =>
       true
-  | ValLit (LitLoc l) =>
+  | ValLoc l =>
       bool_decide (l ∈ dom footprint)
   | ValBlock _ _ vs =>
-      forallb (structeq_traversable' footprint) vs
+      forallb (val_traversable' footprint) vs
   | _ =>
       false
   end.
-#[global] Arguments structeq_traversable' _ !_ / : assert.
+#[global] Arguments val_traversable' _ !_ / : assert.
 
-Definition structeq_traversable footprint v :=
-  structeq_traversable' footprint v = true.
+Definition val_traversable footprint v :=
+  val_traversable' footprint v = true.
 
 Definition structeq_footprint `{zoo_G : !ZooG Σ} footprint : iProp Σ :=
   [∗ map] l ↦ blk ∈ footprint,
     l ↦ₕ Header blk.(structeq_block_tag) (length blk.(structeq_block_fields)) ∗
     [∗ list] i ↦ v ∈ blk.(structeq_block_fields),
       (l +ₗ i) ↦{blk.(structeq_block_dfrac)} v ∗
-      ⌜structeq_traversable footprint v⌝.
+      ⌜val_traversable footprint v⌝.
 
-Fixpoint structeq_reachable footprint src path dst :=
+Lemma structeq_footprint_empty `{zoo_G : !ZooG Σ} :
+  ⊢ structeq_footprint ∅.
+Proof.
+  setoid_rewrite big_sepM_empty => //.
+Qed.
+
+Fixpoint val_reachable footprint src path dst :=
   match path with
   | [] =>
       src = dst
   | pos :: path =>
       match src with
-      | ValLit (LitLoc l) =>
+      | ValLoc l =>
           match (footprint !!! l).(structeq_block_fields) !! pos with
           | None =>
               False
           | Some src =>
-              structeq_reachable footprint src path dst
+              val_reachable footprint src path dst
           end
       | ValBlock _ _ vs =>
           match vs !! pos with
           | None =>
               False
           | Some src =>
-              structeq_reachable footprint src path dst
+              val_reachable footprint src path dst
           end
       | _ =>
           False
       end
   end.
-#[global] Arguments structeq_reachable _ !_ !_ / _ : assert.
+#[global] Arguments val_reachable _ !_ !_ / _ : assert.
 
-Definition structeq_similar footprint v1 v2 :=
+Definition val_similar footprint v1 v2 :=
   match v1 with
-  | ValLit (LitBool _)
-  | ValLit (LitInt _) =>
+  | ValBool _
+  | ValInt _ =>
       Some $ bool_decide (v1 = v2)
-  | ValLit (LitLoc l1) =>
+  | ValLoc l1 =>
       match v2 with
-      | ValLit (LitLoc l2) =>
+      | ValLoc l2 =>
           let blk1 := footprint !!! l1 in
           let blk2 := footprint !!! l2 in
           Some $ bool_decide (
@@ -110,7 +117,7 @@ Definition structeq_similar footprint v1 v2 :=
       end
   | ValBlock _ tag1 vs1 =>
       match v2 with
-      | ValLit (LitLoc l2) =>
+      | ValLoc l2 =>
           let blk2 := footprint !!! l2 in
           Some $ bool_decide (
             tag1 = blk2.(structeq_block_tag) ∧
@@ -127,11 +134,23 @@ Definition structeq_similar footprint v1 v2 :=
   | _ =>
       None
   end.
-#[global] Arguments structeq_similar _ !_ !_ / : assert.
+#[global] Arguments val_similar _ !_ !_ / : assert.
+
+Definition val_structeq footprint v1 v2 :=
+  ∀ path v1' v2',
+  val_reachable footprint v1 path v1' →
+  val_reachable footprint v2 path v2' →
+  val_similar footprint v1' v2' = Some true.
+
+Definition val_structne footprint v1 v2 :=
+  ∃ path v1' v2',
+  val_reachable footprint v1 path v1' ∧
+  val_reachable footprint v2 path v2' ∧
+  val_similar footprint v1' v2' = Some false.
 
 Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} footprint,
-  structeq_traversable footprint v1 →
-  structeq_traversable footprint v2 →
+  val_traversable footprint v1 →
+  val_traversable footprint v2 →
   {{{
     structeq_footprint footprint
   }}}
@@ -140,14 +159,94 @@ Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} footprint,
     RET #b;
     structeq_footprint footprint ∗
     ⌜ if b then
-        ∀ path v1' v2',
-        structeq_reachable footprint v1 path v1' →
-        structeq_reachable footprint v2 path v2' →
-        structeq_similar footprint v1' v2' = Some true
+        val_structeq footprint v1 v2
       else
-        ∃ path v1' v2',
-        structeq_reachable footprint v1 path v1' ∧
-        structeq_reachable footprint v2 path v2' ∧
-        structeq_similar footprint v1' v2' = Some false
+        val_structne footprint v1 v2
     ⌝
   }}}.
+
+Fixpoint val_is_abstract v :=
+  match v with
+  | ValBool _
+  | ValInt _ =>
+      true
+  | ValBlock None _ vs =>
+      forallb val_is_abstract vs
+  | _ =>
+      false
+  end.
+#[global] Arguments val_is_abstract !_ / : assert.
+
+Lemma val_is_abstract_traversable v :
+  val_is_abstract v = true →
+  val_traversable ∅ v.
+Proof.
+  induction v as [[] | | [bid |] tag vs IH] => //.
+  rewrite List.Forall_forall /val_traversable in IH.
+  rewrite /val_traversable /= !forallb_forall.
+  naive_solver.
+Qed.
+
+Lemma val_is_abstract_structeq v1 v2 :
+  val_is_abstract v1 = true →
+  val_is_abstract v2 = true →
+  val_structeq ∅ v1 v2 →
+  v1 = v2.
+Proof.
+  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => // Habstract1 Habstract2 Hstructeq.
+  all:
+    try solve [
+      ospecialize* (Hstructeq []) => //;
+      injection Hstructeq as [= ?%bool_decide_eq_true] => //
+    ].
+  opose proof* (Hstructeq []) as Hsimilar => //.
+  injection Hsimilar as [= (<- & Hlength)%bool_decide_eq_true].
+  rewrite -!Is_true_true !forallb_True -/val_is_abstract in Habstract1 Habstract2.
+  setoid_rewrite Is_true_true in Habstract1. setoid_rewrite Is_true_true in Habstract2.
+  rewrite !Forall_lookup in IH Habstract1 Habstract2.
+  destruct (proj2 (list_eq_Forall2 vs1 vs2)); last done.
+  apply Forall2_same_length_lookup_2; first done. intros i v1 v2 Hlookup1 Hlookup2.
+  eapply IH; [naive_solver.. |]. intros path v1' v2' Hreachable1 Hreachable2.
+  apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
+Qed.
+
+Lemma val_is_abstract_structne v1 v2 :
+  val_is_abstract v1 = true →
+  val_is_abstract v2 = true →
+  val_structne ∅ v1 v2 →
+  v1 ≠ v2.
+Proof.
+  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => //; intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hsimilar).
+  - intros [= [= <-]].
+    destruct path; last done. simplify.
+    rewrite bool_decide_eq_true_2 // in Hsimilar.
+  - intros [= [= <-]].
+    destruct path; last done. simplify.
+    rewrite bool_decide_eq_true_2 // in Hsimilar.
+  - intros [= <- <-].
+    destruct path as [| i path]; simplify.
+    + rewrite bool_decide_eq_true_2 // in Hsimilar.
+    + destruct (vs1 !! i) as [v |] eqn:Hlookup; last done.
+      rewrite -Is_true_true forallb_True Forall_lookup in Habstract1.
+      setoid_rewrite Is_true_true in Habstract1.
+      rewrite Forall_lookup in IH.
+      eapply IH => //; [naive_solver.. |].
+      rewrite /val_structne. naive_solver.
+Qed.
+
+Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} v1 v2 Φ :
+  val_is_abstract v1 = true →
+  val_is_abstract v2 = true →
+  Φ #(bool_decide (v1 = v2)) ⊢
+  WP v1 = v2 {{ Φ }}.
+Proof.
+  iIntros "%Habstract1 %Habstract2 HΦ".
+  wp_apply structeq_spec as ([]) "(_ & %Hb)".
+  { apply val_is_abstract_traversable => //. }
+  { apply val_is_abstract_traversable => //. }
+  { iApply structeq_footprint_empty. }
+  - rewrite bool_decide_eq_true_2 //.
+    apply val_is_abstract_structeq => //.
+  - rewrite bool_decide_eq_false_2 //.
+    apply val_is_abstract_structne => //.
+Qed.
