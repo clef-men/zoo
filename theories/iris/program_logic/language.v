@@ -287,10 +287,6 @@ Section language.
         es = [] ;
   }.
 
-  Notation pure_steps_tp := (
-    Forall2 (rtc pure_step)
-  ).
-
   Class PureExec (ϕ : Prop) n e1 e2 :=
     pure_exec :
       ϕ →

@@ -121,7 +121,7 @@ Section iris_G.
   Qed.
 End iris_G.
 
-Lemma wp_progress Λ Σ `{inv_Gpre : !invGpreS Σ} n es1 σ1 e2 es2 σ2 κs :
+Lemma wp_progress Λ Σ `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
   ( ∀ `{inv_G : !invGS Σ},
     ⊢ |={⊤}=>
       ∃ state_interp fork_post nt Φs,
@@ -130,10 +130,10 @@ Lemma wp_progress Λ Σ `{inv_Gpre : !invGpreS Σ} n es1 σ1 e2 es2 σ2 κs :
       wps es1 Φs
   ) →
   nsteps n (es1, σ1) κs (es2, σ2) →
-  e2 ∈ es2 →
-  not_stuck e2 σ2.
+  Forall (λ e2, not_stuck e2 σ2) es2.
 Proof.
-  intros H Hsteps He2.
+  intros H Hsteps.
+  apply Forall_forall => e2 He2.
   eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n n).
   iIntros "%Hinv_G H£s".
   iMod H as "(%state_interp & %fork_post & %nt & %Φs & Hσ & H)".
@@ -145,10 +145,9 @@ Proof.
 Qed.
 
 Definition adequate {Λ} (e : expr Λ) σ :=
-  ∀ e' es σ',
+  ∀ es σ',
   rtc erased_step ([e], σ) (es, σ') →
-  e' ∈ es →
-  not_stuck e' σ'.
+  Forall (λ e', not_stuck e' σ') es.
 
 Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
@@ -160,7 +159,7 @@ Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
   ) →
   adequate e σ.
 Proof.
-  intros H e' es σ' (n & κs & Hsteps)%erased_steps_nsteps.
+  intros H es σ' (n & κs & Hsteps)%erased_steps_nsteps.
   move: Hsteps. apply: wp_progress => inv_G.
   iMod H as "(%state_interp & %fork_post & %nt & %Φ & Hσ & H)".
   iExists state_interp, fork_post, nt, [Φ]. rewrite /wps /=. iSteps.
