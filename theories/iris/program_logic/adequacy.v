@@ -145,8 +145,8 @@ Proof.
 Qed.
 
 Definition adequate {Λ} (e : expr Λ) σ :=
-  ∀ n κs e' es σ',
-  nsteps n ([e], σ) κs (es, σ') →
+  ∀ e' es σ',
+  rtc erased_step ([e], σ) (es, σ') →
   e' ∈ es →
   not_stuck e' σ'.
 
@@ -160,8 +160,8 @@ Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
   ) →
   adequate e σ.
 Proof.
-  intros H n κs e' es σ'.
-  apply: wp_progress => inv_G.
+  intros H e' es σ' (n & κs & Hsteps)%erased_steps_nsteps.
+  move: Hsteps. apply: wp_progress => inv_G.
   iMod H as "(%state_interp & %fork_post & %nt & %Φ & Hσ & H)".
   iExists state_interp, fork_post, nt, [Φ]. rewrite /wps /=. iSteps.
 Qed.

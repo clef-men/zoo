@@ -137,6 +137,10 @@ Section language.
         step ρ1 κ ρ2.
   #[local] Hint Constructors step : core.
 
+  Definition erased_step ρ1 ρ2 :=
+    ∃ κ,
+    step ρ1 κ ρ2.
+
   Inductive nsteps : nat → config Λ → list (observation Λ) → config Λ → Prop :=
     | nsteps_refl ρ :
        nsteps 0 ρ [] ρ
@@ -145,6 +149,17 @@ Section language.
        nsteps n ρ2 κs ρ3 →
        nsteps (S n) ρ1 (κ ++ κs) ρ3.
   #[local] Hint Constructors nsteps : core.
+
+  Lemma erased_steps_nsteps ρ1 ρ2 :
+    rtc erased_step ρ1 ρ2 ↔
+      ∃ n κs,
+      nsteps n ρ1 κs ρ2.
+  Proof.
+    split.
+    - induction 1; firstorder eauto.
+    - intros (n & κs & Hsteps). unfold erased_step.
+      induction Hsteps; eauto using rtc_refl, rtc_l.
+  Qed.
 
   Lemma of_to_val_flip v e :
     of_val v = e →

@@ -42,7 +42,7 @@ Section iris_G.
                 [∗ list] i ↦ e ∈ es,
                   wp e ⊤ fork_post
       end%I.
-  #[global] Arguments wp_pre _ e%E E Φ%I : rename.
+  #[global] Arguments wp_pre _ e%_E E Φ%_I : rename.
 
   #[local] Instance wp_pre_contractive :
     Contractive wp_pre.
@@ -53,14 +53,14 @@ Section iris_G.
 
   #[local] Definition wp_def :=
     fixpoint wp_pre.
-  #[global] Arguments wp_def e%E E Φ%I : rename.
+  #[global] Arguments wp_def e%_E E Φ%_I : rename.
 End iris_G.
 
 #[local] Definition wp_aux : seal (@wp_def).
   Proof. by eexists. Qed.
 Definition wp :=
   wp_aux.(unseal).
-#[global] Arguments wp {_ _ _} e%E E Φ%I : rename.
+#[global] Arguments wp {_ _ _} e%_E E Φ%_I : rename.
 #[local] Lemma wp_unseal `{iris_G : !IrisG Λ Σ} :
   wp = @wp_def Λ Σ _.
 Proof.
