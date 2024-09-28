@@ -163,3 +163,24 @@ Section Permutation.
         * rewrite list_lookup_insert_ne // list_lookup_insert_ne //.
   Qed.
 End Permutation.
+
+Section Forall'.
+  Context {A} (P : A → Prop).
+
+  Fixpoint Forall' l :=
+    match l with
+    | [] =>
+        True
+    | x :: l =>
+        P x ∧ Forall' l
+    end.
+  #[global] Arguments Forall' !_ / : assert.
+
+  Lemma Forall'_Forall l :
+    Forall' l ↔ Forall P l.
+  Proof.
+    induction l; first done.
+    rewrite Forall_cons. naive_solver.
+  Qed.
+End Forall'.
+

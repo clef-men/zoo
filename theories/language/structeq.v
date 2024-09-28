@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  list.
 From zoo.language Require Export
   wp.
 From zoo.language Require Import
@@ -36,22 +38,19 @@ Implicit Types footprint : gmap location structeq_block.
 #[global] Instance structeq_block_inhabited : Inhabited structeq_block :=
   populate (StructeqBlock inhabitant inhabitant inhabitant).
 
-Fixpoint val_traversable' footprint v :=
+Fixpoint val_traversable footprint v :=
   match v with
   | ValBool _
   | ValInt _ =>
-      true
+      True
   | ValLoc l =>
       bool_decide (l ∈ dom footprint)
   | ValBlock _ _ vs =>
-      forallb (val_traversable' footprint) vs
+      Forall' (val_traversable footprint) vs
   | _ =>
-      false
+      False
   end.
-#[global] Arguments val_traversable' _ !_ / : assert.
-
-Definition val_traversable footprint v :=
-  val_traversable' footprint v = true.
+#[global] Arguments val_traversable _ !_ / : assert.
 
 Definition structeq_footprint `{zoo_G : !ZooG Σ} footprint : iProp Σ :=
   [∗ map] l ↦ blk ∈ footprint,
@@ -169,27 +168,26 @@ Fixpoint val_is_abstract v :=
   match v with
   | ValBool _
   | ValInt _ =>
-      true
+      True
   | ValBlock None _ vs =>
-      forallb val_is_abstract vs
+      Forall' val_is_abstract vs
   | _ =>
-      false
+      False
   end.
 #[global] Arguments val_is_abstract !_ / : assert.
 
 Lemma val_is_abstract_traversable v :
-  val_is_abstract v = true →
+  val_is_abstract v →
   val_traversable ∅ v.
 Proof.
   induction v as [[] | | [bid |] tag vs IH] => //.
-  rewrite List.Forall_forall /val_traversable in IH.
-  rewrite /val_traversable /= !forallb_forall.
+  rewrite /= !Forall'_Forall !Forall_forall in IH |- *.
   naive_solver.
 Qed.
 
 Lemma val_is_abstract_structeq v1 v2 :
-  val_is_abstract v1 = true →
-  val_is_abstract v2 = true →
+  val_is_abstract v1 →
+  val_is_abstract v2 →
   val_structeq ∅ v1 v2 →
   v1 = v2.
 Proof.
@@ -201,8 +199,7 @@ Proof.
     ].
   opose proof* (Hstructeq []) as Hsimilar => //.
   injection Hsimilar as [= (<- & Hlength)%bool_decide_eq_true].
-  rewrite -!Is_true_true !forallb_True -/val_is_abstract in Habstract1 Habstract2.
-  setoid_rewrite Is_true_true in Habstract1. setoid_rewrite Is_true_true in Habstract2.
+  rewrite /= !Forall'_Forall in Habstract1 Habstract2.
   rewrite !Forall_lookup in IH Habstract1 Habstract2.
   destruct (proj2 (list_eq_Forall2 vs1 vs2)); last done.
   apply Forall2_same_length_lookup_2; first done. intros i v1 v2 Hlookup1 Hlookup2.
@@ -211,8 +208,8 @@ Proof.
 Qed.
 
 Lemma val_is_abstract_structne v1 v2 :
-  val_is_abstract v1 = true →
-  val_is_abstract v2 = true →
+  val_is_abstract v1 →
+  val_is_abstract v2 →
   val_structne ∅ v1 v2 →
   v1 ≠ v2.
 Proof.
@@ -227,16 +224,15 @@ Proof.
     destruct path as [| i path]; simplify.
     + rewrite bool_decide_eq_true_2 // in Hsimilar.
     + destruct (vs1 !! i) as [v |] eqn:Hlookup; last done.
-      rewrite -Is_true_true forallb_True Forall_lookup in Habstract1.
-      setoid_rewrite Is_true_true in Habstract1.
-      rewrite Forall_lookup in IH.
+      rewrite Forall'_Forall in Habstract1.
+      rewrite !Forall_lookup in Habstract1 IH.
       eapply IH => //; [naive_solver.. |].
       rewrite /val_structne. naive_solver.
 Qed.
 
 Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} v1 v2 Φ :
-  val_is_abstract v1 = true →
-  val_is_abstract v2 = true →
+  val_is_abstract v1 →
+  val_is_abstract v2 →
   Φ #(bool_decide (v1 = v2)) ⊢
   WP v1 = v2 {{ Φ }}.
 Proof.
