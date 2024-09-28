@@ -493,6 +493,10 @@ Notation ValInt n := (
   ValLit (LitInt n)
 )(only parsing
 ).
+Notation ValNat i := (
+  ValLit (LitInt (Z.of_nat i))
+)(only parsing
+).
 Notation ValLoc l := (
   ValLit (LitLoc l)
 )(only parsing
