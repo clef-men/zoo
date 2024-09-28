@@ -413,7 +413,7 @@ Notation "[ ] => e" := (
   @pair pattern expr
     ( Build_pattern
       (in_type "__list__" 0)
-      (Some (@nil binder))
+      (@nil binder)
       BAnon
     )
     e%E
@@ -425,7 +425,7 @@ Notation "[ ] 'as' x => e" := (
   @pair pattern expr
     ( Build_pattern
       (in_type "__list__" 0)
-      (Some (@nil binder))
+      (@nil binder)
       (BNamed x%string)
     )
     e%E
@@ -438,7 +438,7 @@ Notation "x1 :: x2 => e" := (
   @pair pattern expr
     ( Build_pattern
       (in_type "__list__" 1)
-      (Some (@cons binder x1%binder (@cons binder x2%binder (@nil binder))))
+      (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
       BAnon
     )
     e%E
@@ -452,7 +452,7 @@ Notation "x1 :: x2 'as' y => e" := (
   @pair pattern expr
     ( Build_pattern
       (in_type "__list__" 1)
-      (Some (@cons binder x1%binder (@cons binder x2%binder (@nil binder))))
+      (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
       (BNamed y%string)
     )
     e%E
@@ -463,38 +463,11 @@ Notation "x1 :: x2 'as' y => e" := (
   e constr at level 200,
   format "x1  ::  x2  as  y  =>  '/    ' '[' e ']'"
 ).
-Notation "tag '_' => e" := (
-  @pair pattern expr
-    ( Build_pattern
-      tag%core
-      None
-      BAnon
-    )
-    e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_tag,
-  e constr at level 200,
-  format "tag  _  =>  '/    ' '[' e ']'"
-).
-Notation "tag '_' 'as' x => e" := (
-  @pair pattern expr
-    ( Build_pattern
-      tag%core
-      None
-      (BNamed x%string)
-    )
-    e%E
-)(in custom zoo_branch at level 200,
-  tag custom zoo_tag,
-  x constr at level 1,
-  e constr at level 200,
-  format "tag  _  as  x  =>  '/    ' '[' e ']'"
-).
 Notation "tag => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@nil binder))
+      (@nil binder)
       BAnon
     )
     e%E
@@ -507,7 +480,7 @@ Notation "tag 'as' x => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@nil binder))
+      (@nil binder)
       (BNamed x%string)
     )
     e%E
@@ -521,7 +494,7 @@ Notation "tag 'as:' x => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@nil binder))
+      (@nil binder)
       x%binder
     )
     e%E
@@ -535,7 +508,7 @@ Notation "tag x1 .. xn => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
       BAnon
     )
     e%E
@@ -549,7 +522,7 @@ Notation "tag x1 .. xn 'as' y => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
       (BNamed y%string)
     )
     e%E
@@ -564,7 +537,7 @@ Notation "tag x1 .. xn 'as:' y => e" := (
   @pair pattern expr
     ( Build_pattern
       tag%core
-      (Some (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
       y%binder
     )
     e%E
@@ -670,7 +643,7 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
       ( @pair pattern expr
         ( Build_pattern
           tag%core
-          (Some (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+          (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
           BAnon
         )
         e2%E
@@ -692,7 +665,7 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
       ( @pair pattern expr
         ( Build_pattern
           0
-          (Some (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)))
+          (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
           BAnon
         )
         e2%E

@@ -345,7 +345,7 @@ Section pure_exec.
 
   #[global] Instance pure_match bid tag vs x_fb e_fb brs e :
     PureExec
-      (eval_match bid tag (inr vs) x_fb e_fb brs = Some e)
+      (eval_match bid tag (length vs) (inr vs) x_fb e_fb brs = Some e)
       1
       (Match (Val $ ValBlock bid tag vs) x_fb e_fb brs)
       e.

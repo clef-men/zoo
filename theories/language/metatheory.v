@@ -49,7 +49,7 @@ Fixpoint occurs x e :=
       bool_decide (BNamed x ≠ y) && occurs x e1 ||
       existsb (λ br,
         let pat := br.1 in
-        from_option (forallb (λ y, bool_decide (BNamed x ≠ y))) true pat.(pattern_fields) &&
+        forallb (λ y, bool_decide (BNamed x ≠ y)) pat.(pattern_fields) &&
         bool_decide (BNamed x ≠ pat.(pattern_as)) &&
         occurs x br.2
       ) brs

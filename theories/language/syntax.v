@@ -160,7 +160,7 @@ Qed.
 
 Record pattern := {
   pattern_tag : nat ;
-  pattern_fields : option (list binder) ;
+  pattern_fields : list binder ;
   pattern_as : binder ;
 }.
 

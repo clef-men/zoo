@@ -138,7 +138,7 @@ Section zoo_G.
   Qed.
 
   Lemma wp_match l hdr x_fb e_fb brs e E Φ :
-    eval_match None hdr.(header_tag) (inl l) x_fb e_fb brs = Some e →
+    eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP e @ E {{ Φ }} -∗
     WP Match #l x_fb e_fb brs @ E {{ Φ }}.

@@ -248,7 +248,7 @@ Fixpoint subst (x : string) v e :=
         ( ( λ br,
               ( br.1,
                 if decide (
-                  from_option (Forall (BNamed x ≠.)) True br.1.(pattern_fields) ∧
+                  Forall (BNamed x ≠.) br.1.(pattern_fields) ∧
                   BNamed x ≠ br.1.(pattern_as)
                 ) then
                   subst x v br.2
@@ -311,18 +311,18 @@ Definition subst' x v :=
 Fixpoint subst_list xs vs e :=
   match xs with
   | [] =>
-      Some e
+      e
   | x :: xs =>
       match vs with
       | [] =>
-          None
+          e
       | v :: vs =>
-          subst' x v <$> subst_list xs vs e
+          subst' x v $ subst_list xs vs e
       end
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
 
-Fixpoint eval_match bid tag (vs : location + list val) x_fb e_fb brs :=
+Fixpoint eval_match bid tag sz (vs : location + list val) x_fb e_fb brs :=
   let subj :=
     match vs with
     | inl l =>
@@ -336,23 +336,21 @@ Fixpoint eval_match bid tag (vs : location + list val) x_fb e_fb brs :=
       Some $ subst' x_fb subj e_fb
   | br :: brs =>
       let pat := br.1 in
-      if decide (pat.(pattern_tag) = tag) then
+      if decide (pat.(pattern_tag) = tag ∧ length pat.(pattern_fields) = sz) then
         let res := subst' pat.(pattern_as) subj br.2 in
-        match pat.(pattern_fields) with
-        | None =>
-            Some res
-        | Some xs =>
-            match vs with
-            | inl l =>
-                None
-            | inr vs =>
-                subst_list xs vs res
-            end
+        match vs with
+        | inl l =>
+            if decide (Forall (BAnon =.) pat.(pattern_fields)) then
+              Some res
+            else
+              None
+        | inr vs =>
+            Some $ subst_list pat.(pattern_fields) vs res
         end
       else
-        eval_match bid tag vs x_fb e_fb brs
+        eval_match bid tag sz vs x_fb e_fb brs
   end.
-#[global] Arguments eval_match _ _ !_ _ _ !_ / : assert.
+#[global] Arguments eval_match _ _ _ !_ _ _ !_ / : assert.
 
 Record header := Header {
   header_tag : nat ;
@@ -580,7 +578,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_match_concrete l hdr x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
-      eval_match None hdr.(header_tag) (inl l) x e brs = Some e' →
+      eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
       base_step
         (Match (Val $ ValLoc l) x e brs)
         σ
@@ -589,7 +587,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_match_abstract bid tag vs x e brs e' σ :
-      eval_match bid tag (inr vs) x e brs = Some e' →
+      eval_match bid tag (length vs) (inr vs) x e brs = Some e' →
       base_step
         (Match (Val $ ValBlock bid tag vs) x e brs)
         σ
