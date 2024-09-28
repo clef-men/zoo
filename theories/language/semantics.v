@@ -429,12 +429,12 @@ Proof.
     rewrite Hj /= in Hil.
     eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
 Qed.
-Lemma heap_array_map_disjoint h l vs :
+Lemma heap_array_map_disjoint heap l vs :
   ( ∀ i,
     i < length vs →
-    h !! (l +ₗ i) = None
+    heap !! (l +ₗ i) = None
   ) →
-  heap_array l vs ##ₘ h.
+  heap_array l vs ##ₘ heap.
 Proof.
   intros Hdisj. apply map_disjoint_spec=> l' v1 v2.
   intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_array_lookup ?.
