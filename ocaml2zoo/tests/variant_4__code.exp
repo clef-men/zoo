@@ -1,0 +1,48 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  variant_4__types.
+From zoo Require Import
+  options.
+
+Definition variant_4_test1 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B <> <> as "r" =>
+        "r".{f1}
+    end.
+
+Definition variant_4_test2 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B <> <> as "t" =>
+        let: "r" := "t" in
+        "t" ;;
+        "r".{f1}
+    end.
+
+Definition variant_4_test3 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        §A
+    | B <> <> as "r" =>
+        "r"
+    end.
+
+Definition variant_4_test4 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        §A
+    | B <> <> as "t" =>
+        let: "r" := "t" in
+        "t" ;;
+        "r"
+    end.

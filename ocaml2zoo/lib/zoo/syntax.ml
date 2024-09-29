@@ -55,7 +55,7 @@ type expression =
   | Alloc of expression * expression
   | Tuple of expression list
   | Ref of expression
-  | Record of expression array
+  | Record of expression list
   | Constr of concreteness * tag * expression list
   | Proj of expression * field
   | Match of expression * branch list * fallback option
@@ -78,7 +78,7 @@ type expression =
   | Id
 and branch =
   { branch_tag: tag;
-    branch_binders: binder list;
+    branch_fields: binder list;
     branch_as: binder;
     branch_expr: expression;
   }

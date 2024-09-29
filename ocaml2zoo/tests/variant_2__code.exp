@@ -7,9 +7,18 @@ From zoo.tests Require Import
 From zoo Require Import
   options.
 
-Definition variant_2_test : val :=
+Definition variant_2_test1 : val :=
   fun: <> =>
     §Leaf ;;
     ‘Node( §Leaf, #0, §Leaf ) ;;
     ‘Node( ‘Node( §Leaf, #0, §Leaf ), #1, §Leaf ) ;;
     ().
+
+Definition variant_2_test2 : val :=
+  rec: "test2" "t" =>
+    match: "t" with
+    | Leaf =>
+        #0
+    | Node "t1" "x" "t2" =>
+        "test2" "t1" + "x" + "test2" "t2"
+    end.

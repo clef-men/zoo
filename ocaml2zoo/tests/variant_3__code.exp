@@ -1,0 +1,70 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  notations.
+From zoo.tests Require Import
+  variant_3__types.
+From zoo Require Import
+  options.
+
+Definition variant_3_test1 : val :=
+  fun: <> =>
+    ‘B( #0, #0 ).
+
+Definition variant_3_test2 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B "f1" "f2" =>
+        "f1" + "f2"
+    end.
+
+Definition variant_3_test3 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B "f1" "f2" as "t" =>
+        "t" ;;
+        "f1" + "f2"
+    end.
+
+Definition variant_3_test4 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B "x1" "x2" =>
+        "x1" + "x2"
+    end.
+
+Definition variant_3_test5 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B "x1" "x2" as "t" =>
+        "t" ;;
+        "x1" + "x2"
+    end.
+
+Definition variant_3_test6 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B <> <> as "r" =>
+        "r".<f1> + "r".<f2>
+    end.
+
+Definition variant_3_test7 : val :=
+  fun: "t" =>
+    match: "t" with
+    | A =>
+        #0
+    | B <> <> as "t" =>
+        let: "r" := "t" in
+        "t" ;;
+        "r".<f1> + "r".<f2>
+    end.

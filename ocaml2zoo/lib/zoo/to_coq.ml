@@ -254,7 +254,7 @@ let rec expression' lvl ppf = function
         (expression @@ next_level lvl) expr
   | Record exprs ->
       Format.fprintf ppf "@[<hv>{ %a@;}@]"
-        Format.(pp_print_array ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
+        Format.(pp_print_list ~pp_sep:(fun ppf () -> fprintf ppf ",@;<1 2>") (fun ppf -> fprintf ppf "@[%a@]" (expression max_level))) exprs
   | Constr (_, "[]", _) ->
       Format.fprintf ppf "[]"
   | Constr (_, "::", exprs) ->
@@ -378,19 +378,20 @@ and expression_if ?force_else ppf expr1 expr2 expr3 =
   expression_if_aux ?force_else ppf expr1 expr2 expr3 ;
   Format.fprintf ppf "@]"
 and branch ppf br =
+  Format.fprintf ppf "| " ;
   begin match br.branch_tag with
   | "[]" ->
-      Format.fprintf ppf "| []"
+      Format.fprintf ppf "[]"
   | "::" ->
-      let[@warning "-8"] [bdr1; bdr2] = br.branch_binders in
-      Format.fprintf ppf "| %a :: %a"
+      let[@warning "-8"] [bdr1; bdr2] = br.branch_fields in
+      Format.fprintf ppf "%a :: %a"
         binder bdr1
         binder bdr2
   | _ ->
-      Format.fprintf ppf "| %s%s%a"
+      Format.fprintf ppf "%s%s%a"
         br.branch_tag
-        (match br.branch_binders with [] -> "" | _ -> " ")
-        Format.(pp_print_list ~pp_sep:pp_space binder) br.branch_binders
+        (match br.branch_fields with [] -> "" | _ -> " ")
+        Format.(pp_print_list ~pp_sep:pp_space binder) br.branch_fields
   end ;
   Format.fprintf ppf "%a =>@,    @[%a@]@,"
     Format.(pp_print_option @@ fun ppf -> fprintf ppf " as %a" local_variable) br.branch_as
