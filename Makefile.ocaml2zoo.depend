@@ -33,6 +33,9 @@ theories/saturn/inf_ws_deque_2.cmt : \
     theories/saturn/inf_ws_deque_1.cmt \
     theories/saturn/inf_ws_deque_2.cmi
 theories/saturn/inf_ws_deque_2.cmi :
+theories/saturn/mpmc_queue_1.cmt : \
+    theories/saturn/mpmc_queue_1.cmi
+theories/saturn/mpmc_queue_1.cmi :
 theories/saturn/mpmc_stack_1.cmt : \
     theories/saturn/mpmc_stack_1.cmi
 theories/saturn/mpmc_stack_1.cmi :
@@ -43,6 +46,9 @@ theories/saturn/mpmc_stack_2.cmt : \
 theories/saturn/mpmc_stack_2.cmi : \
     theories/std/optional.cmi \
     theories/std/clst.cmi
+theories/saturn/mpsc_queue_1.cmt : \
+    theories/saturn/mpsc_queue_1.cmi
+theories/saturn/mpsc_queue_1.cmi :
 theories/saturn/mpsc_queue_2.cmt : \
     theories/std/lst.cmt \
     theories/saturn/mpsc_queue_2.cmi
