@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/saturn/pull/122
-*)
-
 From iris.base_logic Require Import
   lib.ghost_map.
 

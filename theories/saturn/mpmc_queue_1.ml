@@ -1,3 +1,7 @@
+(* Based on:
+   https://github.com/ocaml-multicore/saturn/pull/122
+*)
+
 type ('a, _) node =
   | Null :
     ('a, [> `Null]) node
