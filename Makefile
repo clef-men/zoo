@@ -1,3 +1,5 @@
+targets_nocoq := depend ocaml2zoo
+
 .PHONY : all
 all :
 
@@ -8,7 +10,7 @@ depend :
 Makefile.coq : _CoqProject
 	@ coq_makefile -f $< -o $@
 
-ifeq (,$(filter depend,$(MAKECMDGOALS)))
+ifeq (,$(filter $(targets_nocoq),$(MAKECMDGOALS)))
 -include Makefile.coq
 endif
 
