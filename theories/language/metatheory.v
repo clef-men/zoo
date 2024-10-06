@@ -179,7 +179,11 @@ Fixpoint subst (x : string) v e :=
       Match
         (subst x v e0)
         y
-        (subst x v e1)
+        ( if decide (BNamed x ≠ y) then
+            subst x v e1
+          else
+            e1
+        )
         ( ( λ br,
               ( br.1,
                 if decide (
@@ -314,7 +318,7 @@ Fixpoint subst_map env e :=
       Match
         (subst_map env e0)
         x
-        (subst_map env e1)
+        (subst_map (binder_delete x env) e1)
         ( ( λ br,
               ( br.1,
                 subst_map (foldr (λ bdr env, binder_delete bdr env) env br.1.(pattern_fields)) br.2
