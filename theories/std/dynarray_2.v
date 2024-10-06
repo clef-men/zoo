@@ -78,8 +78,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_smart_apply (array_init_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hsz & %Hslots & Hdata_model & Hslots)".
-    { iStep 6. wp_ref r as "Hr". iSteps. }
+    wp_smart_apply (array_init_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hsz & %Hslots & Hdata_model & Hslots)"; first iSteps.
     iSteps.
     - rewrite length_replicate. iSteps.
     - iExists slots, 0. rewrite right_id. iSteps.
@@ -326,8 +325,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    Ltac Zify.zify_post_hook ::= Z.quot_rem_to_equations.
-    iSteps; wp_apply maximum_spec; iSteps.
+    iSteps; iModIntro; wp_apply maximum_spec; iSteps.
   Qed.
   Lemma dynarray_2_reserve_spec t vs (n : Z) :
     {{{
@@ -565,8 +563,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hv HΦ".
     wp_rec.
-    wp_smart_apply (array_init_type itype_slot) as "%data (%Hsz & Hdata_type)".
-    { iStep 6. wp_ref r. iSteps. }
+    wp_smart_apply (array_init_type itype_slot) as "%data (%Hsz & Hdata_type)"; first iSteps.
     iSteps.
   Qed.
 

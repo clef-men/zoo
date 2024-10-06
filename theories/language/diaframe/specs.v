@@ -24,29 +24,21 @@ Implicit Types pid : prophet_id.
 Implicit Types e : expr.
 Implicit Types v : val.
 
+Unset Universe Polymorphism.
+
+(* prevent unfolding by cbn *)
+#[global] Arguments zoo : simpl never.
+
+(* relax hint mode (set to "+" by Diaframe) *)
+Hint Mode SolveSepSideCondition ! : typeclass_instances.
+
 Class PureExecNorec ϕ n e1 e2 :=
   pure_exec_norec : PureExec ϕ n e1 e2.
-
-Unset Universe Polymorphism.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance pure_wp_step_exec_inst_1 e ϕ n e' E :
-    (* TODO: prevent unfolding explicit recs *)
-    PureExecNorec ϕ n e e' →
-    ReductionTemplateStep wp_red_cond (qprod TeleO TeleO) (ε₀)%I [tele_arg3 E] e
-      (λ pr, tele_app (TT := [tele]) (tele_app (TT := [tele]) e' $ qfst pr) $ qsnd pr)
-      (template_M n id id TeleO TeleO ⌜ϕ⌝%I emp%I)
-  | 80.
-      (* used when ϕ is an equality on a new evar: this will cause SolveSepSideCondition to fail *)
-      (* this is a ReductionTemplateStep: if it were a ReductionStep, the priority of as_template_step would be considered, not that of this instance *)
-  Proof.
-    intros H.
-    apply: pure_wp_step_exec H.
-  Qed.
-
-  #[global] Instance pure_wp_step_exec_inst_2 e ϕ n e' E :
+  #[global] Instance pure_wp_step_exec_1 e ϕ n e' E :
     PureExecNorec ϕ n e e' →
     SolveSepSideCondition ϕ →
     ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))
@@ -56,7 +48,7 @@ Section zoo_G.
     eapply pure_wp_step_exec2; [tc_solve | done..].
   Qed.
 
-  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E :
+  #[global] Instance pure_wp_step_exec_2 e ϕ n e' E :
     ( ( ∀ x e v,
         PureExec True 1 (App (ValFun x e) v) (subst' x v e)
       ) →
@@ -398,10 +390,6 @@ Ltac find_reshape e K e' :=
   unify L zoo;
   find_reshape e K e'
 : typeclass_instances.
-
-#[global] Arguments zoo : simpl never.
-
-Unset Universe Polymorphism.
 
 #[global] Hint Extern 4 (
   PureExecNorec _ _ ?e1 _

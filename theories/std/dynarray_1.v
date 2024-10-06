@@ -289,7 +289,7 @@ Section zoo_G.
     }}}.
   Proof.
     Ltac Zify.zify_post_hook ::= Z.quot_rem_to_equations.
-    iSteps; wp_apply maximum_spec; iSteps.
+    iSteps; iModIntro; wp_apply maximum_spec; iSteps.
   Qed.
   #[local] Lemma dynarray_1_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →

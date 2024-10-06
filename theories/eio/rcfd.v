@@ -598,10 +598,10 @@ Section rcfd_G.
           - apply gmultiset_size_empty_iff in Hqs_size as ->.
             rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
             iMod (rcfd_lstate_update RcfdLstateClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
-            iExists (RcfdStateClosing _). iSteps.
+            iExists (RcfdStateClosing _). iSteps. iModIntro.
             wp_apply (unix_close_spec with "[$]").
             iSteps.
-          - iExists (RcfdStateClosing _). iSteps.
+          - iExists (RcfdStateClosing _). iSteps. iModIntro.
             wp_apply (unix_close_spec with "[$]").
             iSteps.
         }
@@ -750,7 +750,7 @@ Section rcfd_G.
             iExists (RcfdStateClosing _). iStep 8. iModIntro.
             wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
-          - iExists (RcfdStateClosing _). iSteps as "Hmodel".
+          - iExists (RcfdStateClosing _). iSteps as "Hmodel". iModIntro.
             wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
             iSteps.
         }

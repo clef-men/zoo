@@ -880,7 +880,7 @@ Section pstore_G.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
     wp_rec. wp_load.
-    iStep 5.
+    iStep 4.
 
     iDestruct "HC" as "[% [% (%Hsnap&#?&HC)]]".
     iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
@@ -1019,13 +1019,13 @@ Section pstore_G.
     iIntros (-> Hlocs Hg Hacy Hsub Hpath Φ) "(Hr'&Hσ&Hg1&Hg2) HΦ".
     iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
     { wp_rec.
-      iStep 12.
+      iStep 10.
       inversion Hpath. subst.
       iApply "HΦ". iExists nil. rewrite !right_id_L. iFrame.
       iPureIntro. eauto using undo_nil.
     } {
       wp_rec. simpl. rewrite rev_unit. simpl.
-      iStep 8.
+      iStep 6. iModIntro.
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
       rewrite Hg list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (location * diff * location))).
@@ -1033,7 +1033,7 @@ Section pstore_G.
         apply Hacy in Hpath. congruence. set_solver. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
       { set_solver. }
-      rewrite big_sepS_singleton. wp_load. iStep 3.
+      rewrite big_sepS_singleton. wp_load. iStep 2. iModIntro.
 
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
       assert (exists v', σ !! l = Some v') as (v',Hl).
@@ -1550,12 +1550,12 @@ Section pstore_G.
 
     iDestruct (use_snapshots_model with "[$][$][$]") as %(σ1&HMrs&?).
 
-    wp_rec. iStep 23. iModIntro.
+    wp_rec. iStep 19. iModIntro.
 
     iDestruct (extract_unaliased with "Hg") as "%".
     destruct_decide (decide (rs=r)).
     { subst. wp_load.
-      iStep 5.
+      iStep 4.
       repeat iExists _. iDecompose "HC". iFrame "#∗".
       iPureIntro. split_and!; try done.
       destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver.
