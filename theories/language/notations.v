@@ -21,6 +21,10 @@ Coercion App : expr >-> Funclass.
 Bind Scope expr_scope with expr.
 Bind Scope val_scope with val.
 
+Declare Custom Entry zoo_rec.
+Declare Scope zoo_recs_scope.
+Delimit Scope zoo_recs_scope with zoo_recs.
+
 Declare Custom Entry zoo_field.
 Declare Custom Entry zoo_tag.
 Declare Custom Entry zoo_proj.
@@ -117,6 +121,36 @@ Notation "'#@{' X }" := (
   λ x : X, ValLit x
 )(only parsing
 ).
+
+Notation "f x => e" := (
+  @pair (prod binder binder) expr
+    (@pair binder binder f%binder x%binder)
+    e%E
+)(in custom zoo_rec at level 200,
+  f constr at level 1,
+  x constr at level 1,
+  e constr at level 200,
+  format "f  x  =>  '/  ' '[' e ']'"
+).
+Notation "f x0 x1 .. xn => e" := (
+  @pair (prod binder binder) expr
+    (@pair binder binder f%binder x0%binder)
+    (Fun x1%binder .. (Fun xn%binder e%E) ..)
+)(in custom zoo_rec at level 200,
+  f constr at level 1,
+  x0 constr at level 1,
+  x1 constr at level 1,
+  xn constr at level 1,
+  e constr at level 200,
+  format "f  x0  x1  ..  xn  =>  '/  ' '[' e ']'"
+).
+Notation "'recs:' rec1 'and:' .. 'and:' recn" := (
+  @cons recursive rec1 (.. (@cons recursive recn (@nil recursive)) ..)
+)(at level 200,
+  rec1 custom zoo_rec,
+  recn custom zoo_rec,
+  format "'[v' recs:  rec1 '/' and:  .. '/' and:  recn ']'"
+) : zoo_recs_scope.
 
 Notation "'rec:' f x => e" := (
   Rec f%binder x%binder e%E
@@ -412,9 +446,9 @@ Notation "()" :=
 Notation "[ ] => e" := (
   @pair pattern expr
     ( Build_pattern
-      (in_type "__list__" 0)
-      (@nil binder)
-      BAnon
+        (in_type "__list__" 0)
+        (@nil binder)
+        BAnon
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -424,9 +458,9 @@ Notation "[ ] => e" := (
 Notation "[ ] 'as' x => e" := (
   @pair pattern expr
     ( Build_pattern
-      (in_type "__list__" 0)
-      (@nil binder)
-      (BNamed x%string)
+        (in_type "__list__" 0)
+        (@nil binder)
+        (BNamed x%string)
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -437,9 +471,9 @@ Notation "[ ] 'as' x => e" := (
 Notation "x1 :: x2 => e" := (
   @pair pattern expr
     ( Build_pattern
-      (in_type "__list__" 1)
-      (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
-      BAnon
+        (in_type "__list__" 1)
+        (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
+        BAnon
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -451,9 +485,9 @@ Notation "x1 :: x2 => e" := (
 Notation "x1 :: x2 'as' y => e" := (
   @pair pattern expr
     ( Build_pattern
-      (in_type "__list__" 1)
-      (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
-      (BNamed y%string)
+        (in_type "__list__" 1)
+        (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
+        (BNamed y%string)
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -466,9 +500,9 @@ Notation "x1 :: x2 'as' y => e" := (
 Notation "tag => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@nil binder)
-      BAnon
+        tag%core
+        (@nil binder)
+        BAnon
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -479,9 +513,9 @@ Notation "tag => e" := (
 Notation "tag 'as' x => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@nil binder)
-      (BNamed x%string)
+        tag%core
+        (@nil binder)
+        (BNamed x%string)
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -493,9 +527,9 @@ Notation "tag 'as' x => e" := (
 Notation "tag 'as:' x => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@nil binder)
-      x%binder
+        tag%core
+        (@nil binder)
+        x%binder
     )
     e%E
 )(in custom zoo_branch at level 200,
@@ -507,28 +541,30 @@ Notation "tag 'as:' x => e" := (
 Notation "tag x1 .. xn => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
-      BAnon
+        tag%core
+        (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
+        BAnon
     )
     e%E
 )(in custom zoo_branch at level 200,
   tag custom zoo_tag,
-  x1 constr at level 1, xn constr at level 1,
+  x1 constr at level 1,
+  xn constr at level 1,
   e constr at level 200,
   format "tag  x1  ..  xn  =>  '/    ' '[' e ']'"
 ).
 Notation "tag x1 .. xn 'as' y => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
-      (BNamed y%string)
+        tag%core
+        (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
+        (BNamed y%string)
     )
     e%E
 )(in custom zoo_branch at level 200,
   tag custom zoo_tag,
-  x1 constr at level 1, xn constr at level 1,
+  x1 constr at level 1,
+  xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
   format "tag  x1  ..  xn  as  y  =>  '/    ' '[' e ']'"
@@ -536,14 +572,15 @@ Notation "tag x1 .. xn 'as' y => e" := (
 Notation "tag x1 .. xn 'as:' y => e" := (
   @pair pattern expr
     ( Build_pattern
-      tag%core
-      (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
-      y%binder
+        tag%core
+        (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
+        y%binder
     )
     e%E
 )(in custom zoo_branch at level 200,
   tag custom zoo_tag,
-  x1 constr at level 1, xn constr at level 1,
+  x1 constr at level 1,
+  xn constr at level 1,
   y constr at level 1,
   e constr at level 200,
   format "tag  x1  ..  xn  as:  y  =>  '/    ' '[' e ']'"
@@ -556,7 +593,8 @@ Notation "'match:' e 'with' | br_1 | .. | br_n 'end'" := (
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   format "'[v' '[hv' match:  '/  ' '[' e ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
@@ -566,7 +604,8 @@ Notation "'match:' e 'with' br_1 | .. | br_n 'end'" := (
     Fail
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
@@ -576,7 +615,8 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
 Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
@@ -586,7 +626,8 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   only parsing
 ) : expr_scope.
 Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
@@ -596,7 +637,8 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   x at level 1,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
@@ -607,7 +649,8 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -618,7 +661,8 @@ Notation "'match:' e0 'with' | br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   x at level 1,
   format "'[v' '[hv' match:  '/  ' '[' e0 ']'  '/' with  ']' '/' |  br_1  '/' |  ..  '/' |  br_n  '/' |_  as:  x  =>  '/    ' '[' e1 ']'  '/' end ']'"
 ) : expr_scope.
@@ -629,7 +673,8 @@ Notation "'match:' e0 'with' br_1 | .. | br_n |_ 'as:' x => e1 'end'" := (
     e1%E
     (@cons branch br_1 (.. (@cons branch br_n (@nil branch)) ..))
 )(e0, e1 at level 200,
-  br_1 custom zoo_branch at level 200, br_n custom zoo_branch at level 200,
+  br_1 custom zoo_branch at level 200,
+  br_n custom zoo_branch at level 200,
   x at level 1,
   only parsing
 ) : expr_scope.
@@ -640,15 +685,15 @@ Notation "'let:' ‘ tag x1 .. xn := e1 'in' e2" := (
     BAnon
     Fail
     ( @cons branch
-      ( @pair pattern expr
-        ( Build_pattern
-          tag%core
-          (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
-          BAnon
+        ( @pair pattern expr
+            ( Build_pattern
+                tag%core
+                (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..)
+                BAnon
+            )
+            e2%E
         )
-        e2%E
-      )
-      (@nil branch)
+        (@nil branch)
     )
 )(at level 200,
   tag custom zoo_tag,
@@ -662,15 +707,15 @@ Notation "'let:' x0 , x1 , .. , xn := e1 'in' e2" := (
     BAnon
     Fail
     ( @cons branch
-      ( @pair pattern expr
-        ( Build_pattern
-          0
-          (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
-          BAnon
+        ( @pair pattern expr
+            ( Build_pattern
+                0
+                (@cons binder x0%binder (@cons binder x1%binder .. (@cons binder xn%binder (@nil binder)) ..))
+                BAnon
+            )
+            e2%E
         )
-        e2%E
-      )
-      (@nil branch)
+        (@nil branch)
     )
 )(at level 200,
   x0, x1, xn at level 1,
@@ -709,13 +754,13 @@ Notation "l .[ fld ]" := (
 ) : stdpp_scope.
 Notation "v .[ fld ]" := (
   Val
-  ( ValBlock None (in_type "__atomic_loc__" 0)
-    ( @cons val v%V
-      ( @cons val (ValInt (Z.of_nat fld))
-        (@nil val)
-      )
+    ( ValBlock None (in_type "__atomic_loc__" 0)
+        ( @cons val v%V
+            ( @cons val (ValInt (Z.of_nat fld))
+                (@nil val)
+            )
+        )
     )
-  )
 )(at level 2,
   fld custom zoo_field,
   only printing,
@@ -727,9 +772,9 @@ Notation "e .[ fld ]" := (
     Abstract
     (in_type "__atomic_loc__" 0)
     ( @cons expr e%E
-      ( @cons expr (Val (ValInt (Z.of_nat fld)))
-        (@nil expr)
-      )
+        ( @cons expr (Val (ValInt (Z.of_nat fld)))
+            (@nil expr)
+        )
     )
 )(at level 2,
   fld custom zoo_field,
@@ -738,11 +783,11 @@ Notation "e .[ fld ]" := (
 ) : expr_scope.
 Notation "v .[ fld ]" := (
   ValBlock None (in_type "__atomic_loc__" 0)
-  ( @cons val v%V
-    ( @cons val (ValInt (Z.of_nat fld))
-      (@nil val)
+    ( @cons val v%V
+        ( @cons val (ValInt (Z.of_nat fld))
+            (@nil val)
+        )
     )
-  )
 )(at level 2,
   fld custom zoo_field,
   left associativity,
@@ -788,22 +833,22 @@ Notation "[ ]" := (
 ) : val_scope.
 Notation "e1 :: e2" := (
   Block Abstract (in_type "__list__" 1)
-  ( @cons expr e1%E
-    ( @cons expr e2%E
-      (@nil expr)
+    ( @cons expr e1%E
+        ( @cons expr e2%E
+            (@nil expr)
+        )
     )
-  )
 )(at level 60,
   right associativity,
   format "e1  ::  e2"
 ) : expr_scope.
 Notation "v1 :: v2" := (
   ValBlock None (in_type "__list__" 1)
-  ( @cons val v1%V
-    ( @cons val v2%V
-      (@nil val)
+    ( @cons val v1%V
+        ( @cons val v2%V
+            (@nil val)
+        )
     )
-  )
 )(at level 60,
   right associativity,
   format "v1  ::  v2"

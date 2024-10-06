@@ -139,6 +139,119 @@ Section zip.
   Qed.
 End zip.
 
+Section foldri.
+  Context {A B : Type}.
+
+  Fixpoint foldri' (f : nat → A → B → B) acc l i :=
+    match l with
+    | [] =>
+        acc
+    | x :: l =>
+        f i x (foldri' f acc l (S i))
+    end.
+  #[global] Arguments foldri' _ _ !_ _ / : assert.
+  Definition foldri f acc l :=
+    foldri' f acc l 0.
+
+  Lemma foldri'_app f acc l1 l2 i :
+    foldri' f acc (l1 ++ l2) i =
+    foldri' f (foldri' f acc l2 (i + (length l1))) l1 i.
+  Proof.
+    move: i. induction l1 as [| x l1 IH] => i.
+    - rewrite right_id //.
+    - rewrite /= -Nat.add_succ_comm IH //.
+  Qed.
+  Lemma foldri_app f acc l1 l2 :
+    foldri f acc (l1 ++ l2) =
+    foldri f (foldri' f acc l2 (length l1)) l1.
+  Proof.
+    apply foldri'_app.
+  Qed.
+End foldri.
+
+Section foldr2.
+  Context {A1 A2 B : Type}.
+
+  Fixpoint foldr2 (f : A1 → A2 → B → B) acc l1 l2 :=
+    match l1 with
+    | [] =>
+        acc
+    | x1 :: l1 =>
+        match l2 with
+        | [] =>
+            acc
+        | x2 :: l2 =>
+            f x1 x2 (foldr2 f acc l1 l2)
+        end
+    end.
+  #[global] Arguments foldr2 _ _ !_ !_ / : assert.
+
+  Lemma foldr2_app f acc l11 l12 l21 l22 :
+    length l11 = length l21 →
+      foldr2 f acc (l11 ++ l12) (l21 ++ l22) =
+      foldr2 f (foldr2 f acc l12 l22) l11 l21.
+  Proof.
+    move: l21. induction l11 as [| x1 l11 IH] => l21 Hlength.
+    - destruct l21; done.
+    - destruct l21; first done.
+      simpl. f_equal. naive_solver.
+  Qed.
+End foldr2.
+
+Section Forall'.
+  Context {A} (P : A → Prop).
+
+  Fixpoint Forall' l :=
+    match l with
+    | [] =>
+        True
+    | x :: l =>
+        P x ∧ Forall' l
+    end.
+  #[global] Arguments Forall' !_ / : assert.
+
+  Lemma Forall'_Forall l :
+    Forall' l ↔ Forall P l.
+  Proof.
+    induction l; first done.
+    rewrite Forall_cons. naive_solver.
+  Qed.
+End Forall'.
+
+Section Foralli.
+  Context {A} (P : nat → A → Prop).
+
+  Fixpoint Foralli' l i :=
+    match l with
+    | [] =>
+        True
+    | x :: l =>
+        P i x ∧ Foralli' l (S i)
+    end.
+  #[global] Arguments Foralli' !_ _ / : assert.
+  Definition Foralli l :=
+    Foralli' l 0.
+
+  Lemma Foralli'_lookup l i j x :
+    Foralli' l i →
+    l !! j = Some x →
+    P (i + j) x.
+  Proof.
+    move: i j. induction l as [| y l IH] => i j H Hlookup; first done.
+    destruct j.
+    - rewrite right_id. naive_solver.
+    - rewrite -Nat.add_succ_comm.
+      apply (IH (S i) j); [naive_solver | done].
+  Qed.
+  Lemma Foralli_lookup {l} i x :
+    Foralli l →
+    l !! i = Some x →
+    P i x.
+  Proof.
+    apply Foralli'_lookup.
+  Qed.
+End Foralli.
+
 Section Permutation.
   Context {A : Type}.
 
@@ -163,24 +276,3 @@ Section Permutation.
         * rewrite list_lookup_insert_ne // list_lookup_insert_ne //.
   Qed.
 End Permutation.
-
-Section Forall'.
-  Context {A} (P : A → Prop).
-
-  Fixpoint Forall' l :=
-    match l with
-    | [] =>
-        True
-    | x :: l =>
-        P x ∧ Forall' l
-    end.
-  #[global] Arguments Forall' !_ / : assert.
-
-  Lemma Forall'_Forall l :
-    Forall' l ↔ Forall P l.
-  Proof.
-    induction l; first done.
-    rewrite Forall_cons. naive_solver.
-  Qed.
-End Forall'.
-

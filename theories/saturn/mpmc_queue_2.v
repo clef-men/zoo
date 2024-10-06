@@ -93,15 +93,15 @@ Definition mpmc_queue_2_push : val :=
         end
     end.
 
-#[local] Definition mpmc_queue_2_pop_aux1 : val :=
-  rec: "aux1" "aux2" "aux3" "t" "front" =>
+#[local] Definition __zoo_recs := (
+  recs: "pop_1" "t" "front" =>
     match: "front" with
     | Cons <> "v" "suffix" =>
         if: CAS "t".[front] "front" "suffix" then (
           ‘Some( "v" )
         ) else (
           Yield ;;
-          "aux1" "aux2" "aux3" "t" "t".{front}
+          "pop" "t"
         )
     | Front "front_cnt" =>
         match: "t".{back} with
@@ -110,27 +110,26 @@ Definition mpmc_queue_2_push : val :=
               if: CAS "t".[back] "move" "move_prefix" then (
                 ‘Some( "v" )
               ) else (
-                "aux1" "aux2" "aux3" "t" "t".{front}
+                "pop" "t"
               )
             ) else (
               let: "back" := ‘Back( "move_cnt", "move" ) in
               if: CAS "t".[back] "move" "back" then (
-                "aux2" "aux1" "aux3" "t" "front" "move" "back"
+                "pop_2" "t" "front" "move" "back"
               ) else (
-                "aux1" "aux2" "aux3" "t" "t".{front}
+                "pop" "t"
               )
             )
         | Back <> "↦move" as "back" =>
             match: !"↦move" with
             | Used =>
-                "aux3" "aux1" "aux2" "t" "front"
+                "pop_3" "t" "front"
             | Snoc <> <> <> as "move" =>
-                "aux2" "aux1" "aux3" "t" "front" "move" "back"
+                "pop_2" "t" "front" "move" "back"
             end
         end
-    end.
-#[local] Definition mpmc_queue_2_pop_aux2 : val :=
-  rec: "aux2" "aux1" "aux3" "t" "front" "move" "back" =>
+    end
+  and: "pop_2" "t" "front" "move" "back" =>
     let: ‘Front "front_cnt" := "front" in
     let: ‘Snoc "move_cnt" <> <> := "move" in
     let: ‘Back <> "↦move" := "back" in
@@ -141,22 +140,69 @@ Definition mpmc_queue_2_push : val :=
         ‘Some( "v" )
       ) else (
         Yield ;;
-        "aux1" "aux2" "aux3" "t" "t".{front}
+        "pop" "t"
       )
     ) else (
-      "aux3" "aux1" "aux2" "t" "front"
-    ).
-#[local] Definition mpmc_queue_2_pop_aux3 : val :=
-  rec: "aux3" "aux1" "aux2" "t" "front" =>
+      "pop_3" "t" "front"
+    )
+  and: "pop_3" "t" "front" =>
     let: "front'" := "t".{front} in
     if: "front'" == "front" then (
       §None
     ) else (
-      "aux1" "aux2" "aux3" "t" "front'"
-    ).
-Definition mpmc_queue_2_pop : val :=
-  fun: "t" =>
-    mpmc_queue_2_pop_aux1 mpmc_queue_2_pop_aux2 mpmc_queue_2_pop_aux3 "t" "t".{front}.
+      "pop_1" "t" "front'"
+    )
+  and: "pop" "t" =>
+    "pop_1" "t" "t".{front}
+)%zoo_recs.
+#[local] Definition mpmc_queue_2_pop_1 :=
+  ValRecs 0 __zoo_recs.
+#[local] Definition mpmc_queue_2_pop_2 :=
+  ValRecs 1 __zoo_recs.
+#[local] Definition mpmc_queue_2_pop_3 :=
+  ValRecs 2 __zoo_recs.
+Definition mpmc_queue_2_pop :=
+  ValRecs 3 __zoo_recs.
+#[global] Instance :
+  AsValRecs' mpmc_queue_2_pop_1 0 __zoo_recs [
+    mpmc_queue_2_pop_1 ;
+    mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
+    mpmc_queue_2_pop
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' mpmc_queue_2_pop_2 1 __zoo_recs [
+    mpmc_queue_2_pop_1 ;
+    mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
+    mpmc_queue_2_pop
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' mpmc_queue_2_pop_3 2 __zoo_recs [
+    mpmc_queue_2_pop_1 ;
+    mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
+    mpmc_queue_2_pop
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' mpmc_queue_2_pop 3 __zoo_recs [
+    mpmc_queue_2_pop_1 ;
+    mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
+    mpmc_queue_2_pop
+  ].
+Proof.
+  done.
+Qed.
 
 Class MpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
 }.

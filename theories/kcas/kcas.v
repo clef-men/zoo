@@ -91,8 +91,8 @@ Implicit Types status : val.
         "casn".{status} == §After
     end.
 
-#[local] Definition kcas_determine_aux : val :=
-  rec: "kcas_determine_aux" "kcas_determine" "casn" "cass" =>
+#[local] Definition __zoo_recs := (
+  recs: "kcas_determine_aux" "casn" "cass" =>
     let: "id" := Id in
     match: "cass" with
     | [] =>
@@ -101,7 +101,7 @@ Implicit Types status : val.
         let: "loc", "state" := "cas" in
         let: "state'" := !"loc" in
         if: "state" == "state'" then (
-          "kcas_determine_aux" "kcas_determine" "casn" "cass'"
+          "kcas_determine_aux" "casn" "cass'"
         ) else (
           let: "v" :=
             if: "kcas_determine" "state'".<casn> then
@@ -124,17 +124,37 @@ Implicit Types status : val.
                   "kcas_determine_aux" "casn" "cass"
             end
         )
-    end.
-#[local] Definition kcas_determine : val :=
-  rec: "kcas_determine" "casn" =>
+    end
+  and: "kcas_determine" "casn" =>
     match: "casn".{status} with
     | Before =>
         #false
     | After =>
         #true
     | Undetermined "cass" =>
-        kcas_determine_aux "kcas_determine" "casn" "cass"
-    end.
+        "determine_aux" "casn" "cass"
+    end
+)%zoo_recs.
+#[local] Definition kcas_determine_aux :=
+  ValRecs 0 __zoo_recs.
+#[local] Definition kcas_determine :=
+  ValRecs 1 __zoo_recs.
+#[global] Instance :
+  AsValRecs' kcas_determine_aux 0 __zoo_recs [
+    kcas_determine_aux ;
+    kcas_determine
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' kcas_determine 1 __zoo_recs [
+    kcas_determine_aux ;
+    kcas_determine
+  ].
+Proof.
+  done.
+Qed.
 
 Definition kcas_get : val :=
   fun: "loc" =>
@@ -153,7 +173,7 @@ Definition kcas_cas : val :=
       )
     in
     "cass" <-{status} ‘Undetermined{ "cass" } ;;
-    kcas_determine_aux kcas_determine "casn" "cass".
+    kcas_determine_aux "casn" "cass".
 
 Inductive kcas_lstatus :=
   | KcasUndetermined i
@@ -549,7 +569,7 @@ Section kcas_G.
       kcas_lstatus_lb η (KcasUndetermined i) ∗
       kcas_determine_specification
     }}}
-      kcas_determine_aux kcas_determine #casn cass
+      kcas_determine_aux #casn cass
     {{{
       RET #(kcas_casn_meta_success η);
       kcas_lstatus_lb η KcasFinished

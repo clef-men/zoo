@@ -88,8 +88,18 @@ Fixpoint occurs x e :=
 
 Definition val_recursive v :=
   match v with
-  | ValRec (BNamed f) x e =>
-      occurs f e
+  | ValRecs _ recs =>
+      existsb (λ rec,
+        match rec.1.1 with
+        | BAnon =>
+            false
+        | BNamed f =>
+            existsb (λ rec,
+              bool_decide (BNamed f ≠ rec.1.2) &&
+              occurs f rec.2
+            ) recs
+        end
+      ) recs
   | _ =>
       false
   end.

@@ -23,18 +23,19 @@ From zoo Require Import
 
 Implicit Types pid : prophet_id.
 Implicit Types e : expr.
+Implicit Types v : val.
 
-Class PureExecNoRec ϕ n e1 e2 :=
-  is_pure_exec : PureExec (Λ := zoo) ϕ n e1 e2.
+Class PureExecNorec ϕ n e1 e2 :=
+  pure_exec_norec : PureExec ϕ n e1 e2.
 
 Unset Universe Polymorphism.
 
-Section instances.
+Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance pure_wp_step_exec_inst1 e ϕ n e' E :
+  #[global] Instance pure_wp_step_exec_inst_1 e ϕ n e' E :
     (* TODO: prevent unfolding explicit recs *)
-    PureExecNoRec ϕ n e e' →
+    PureExecNorec ϕ n e e' →
     ReductionTemplateStep wp_red_cond (qprod TeleO TeleO) (ε₀)%I [tele_arg3 E] e
       (λ pr, tele_app (TT := [tele]) (tele_app (TT := [tele]) e' $ qfst pr) $ qsnd pr)
       (template_M n id id TeleO TeleO ⌜ϕ⌝%I emp%I)
@@ -42,17 +43,36 @@ Section instances.
       (* used when ϕ is an equality on a new evar: this will cause SolveSepSideCondition to fail *)
       (* this is a ReductionTemplateStep: if it were a ReductionStep, the priority of as_template_step would be considered, not that of this instance *)
   Proof.
-    intros.
-    refine (pure_wp_step_exec _ _ _ _ _ _ _ _). exact H.
+    intros H.
+    apply: pure_wp_step_exec H.
   Qed.
 
-  #[global] Instance pure_wp_step_exec_inst2 e ϕ n e' E :
-    PureExecNoRec ϕ n e e' →
+  #[global] Instance pure_wp_step_exec_inst_2 e ϕ n e' E :
+    PureExecNorec ϕ n e e' →
     SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))%I
+    ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))
   | 8.
   Proof.
-    intros. eapply pure_wp_step_exec2 => //. tc_solve.
+    intros.
+    eapply pure_wp_step_exec2; [tc_solve | done..].
+  Qed.
+
+  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E :
+    ( ( ∀ x e v,
+        PureExec True 1 (App (ValFun x e) v) (subst' x v e)
+      ) →
+      PureExec ϕ n e e'
+    ) →
+    SolveSepSideCondition ϕ →
+    ReductionTemplateStep wp_red_cond [tele] (ε₁)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E)).
+  Proof.
+    intros H ?.
+    eapply pure_wp_step_exec2; [tc_solve | | done].
+    apply H. intros * _.
+    apply nsteps_once, pure_base_step_pure_step.
+    split.
+    - auto with zoo.
+    - intros. invert_base_step. done.
   Qed.
 
   #[global] Instance step_wp_alloc E1 E2 tag n :
@@ -348,55 +368,36 @@ Section instances.
     - wp_pures.
       iApply ("H" $! true). eauto.
   Qed.
-End instances.
+End zoo_G.
 
-Section unfold_functions.
-  Context `{zoo_G : !ZooG Σ}.
-
-  #[global] Instance pure_wp_step_exec_inst_last e ϕ n e' E :
-    ( ( ∀ f x e,
-        SolveSepSideCondition (val_recursive (ValRec f x e) = false) →
-        AsValRec (ValRec f x e) f x e
-      ) →
-      PureExec ϕ n e e'
-    ) →
-    SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₁)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E)).
-  Proof.
-    intros. eapply pure_wp_step_exec2 => //. tc_solve.
-    apply H. intros. exact eq_refl.
-  Qed.
-End unfold_functions.
-
-Ltac find_reshape e K e' TC :=
+Ltac find_reshape e K e' :=
   lazymatch e with
   | fill ?Kabs ?e_inner =>
       reshape_expr e_inner ltac:(fun K' e'' =>
         unify K (fill Kabs ∘ fill K');
         unify e' e'';
-        notypeclasses refine (ConstructReshape e (fill Kabs ∘ fill K') e'' _ (eq_refl) _);
+        notypeclasses refine (ConstructReshape e (fill Kabs ∘ fill K') e'' _ eq_refl _);
         tc_solve
       )
   | _ =>
       reshape_expr e ltac:(fun K' e'' =>
         unify K (fill K');
         unify e' e'';
-        notypeclasses refine (ConstructReshape e (fill K') e'' _ (eq_refl) _);
+        notypeclasses refine (ConstructReshape e (fill K') e'' _ eq_refl _);
         tc_solve
       )
   end.
 
 #[global] Hint Extern 4 (
-  ReshapeExprAnd expr ?e ?K ?e' ?TC
+  ReshapeExprAnd expr ?e ?K ?e' _
 ) =>
-  find_reshape e K e' TC
+  find_reshape e K e'
 : typeclass_instances.
-
 #[global] Hint Extern 4 (
-  ReshapeExprAnd (language.expr ?L) ?e ?K ?e' ?TC
+  ReshapeExprAnd (language.expr ?L) ?e ?K ?e' _
 ) =>
   unify L zoo;
-  find_reshape e K e' TC
+  find_reshape e K e'
 : typeclass_instances.
 
 #[global] Arguments zoo : simpl never.
@@ -404,20 +405,18 @@ Ltac find_reshape e K e' TC :=
 Unset Universe Polymorphism.
 
 #[global] Hint Extern 4 (
-  PureExecNoRec _ _ ?e1 _
+  PureExecNorec _ _ ?e1 _
 ) =>
   lazymatch e1 with
-  | (App (Val ?v1) (Val ?v2)) =>
-      assert_fails (assert (∃ f x erec,
-        TCAnd (AsValRec v1 f x erec) $
-        TCAnd (TCIf (TCEq f BAnon) False TCTrue) $
-        SolveSepSideCondition (val_recursive (ValRec f x erec) = true)
+  | App (Val ?v1) (Val ?v2) =>
+      assert_succeeds (
+        assert (
+          SolveSepSideCondition (val_recursive v1 = false)
+        ) by tc_solve
       )
-      by (do 3 eexists; tc_solve));
-      unfold PureExecNoRec;
-      tc_solve
   | _ =>
-      unfold PureExecNoRec;
-      tc_solve
-  end
+      idtac
+  end;
+  unfold PureExecNorec;
+  tc_solve
 : typeclass_instances.

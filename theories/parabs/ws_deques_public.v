@@ -140,7 +140,7 @@ Section ws_deques_public_G.
     )%I).
     iApply wp_fupd.
     wp_smart_apply (array_unsafe_init_spec Ψ) as (t deques) "(%Hdeques_length & Hdeques & (Hinv & Hmodel & Howner))"; first done.
-    { iSteps. iModIntro.
+    { iSteps.
       wp_apply (inf_ws_deque_2_create_spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }

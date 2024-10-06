@@ -513,6 +513,17 @@ Tactic Notation "wp_rec" "credit:" constr(Hcredit) :=
   wp_pure (App _ _) credit:Hcredit;
   clear H.
 
+Tactic Notation "wp_recs" :=
+  let H := fresh in
+  assert (H := as_ValRecs'_as_ValRecs);
+  wp_pure (App _ _);
+  clear H.
+Tactic Notation "wp_recs" "credit:" constr(Hcredit) :=
+  let H := fresh in
+  assert (H := as_ValRecs'_as_ValRecs);
+  wp_pure (App _ _) credit:Hcredit;
+  clear H.
+
 Tactic Notation "wp_for" :=
   let H := fresh in
   assert (H := pure_for);

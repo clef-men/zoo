@@ -774,7 +774,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (Hl ϕ) open_inv. iIntros "HΦ".
-    wp_rec. iStep 4. iModIntro.
+    wp_rec. wp_pures.
 
     iDestruct (big_sepM_lookup_acc _ _ l v with "[$]") as "(?&Hσ0)".
     { destruct Hinv as [_ Hincl _ _].
@@ -795,7 +795,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
-    wp_rec. iStep 8. iModIntro.
+    wp_rec. wp_pures.
     wp_ref r' as "Hr'".
 
     assert (exists w, σ0 !! l = Some w) as (w&Hl0).
@@ -804,7 +804,8 @@ Section pstore_G.
       set_solver. }
 
     iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
-    wp_load. wp_load. wp_store. iStep 12.
+    wp_load. wp_load. wp_store.
+    iStep 12.
 
     iSpecialize ("Hσ0" with "[$]").
 
@@ -878,7 +879,8 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
-    wp_rec. wp_load. do 5 iStep.
+    wp_rec. wp_load.
+    iStep 5.
 
     iDestruct "HC" as "[% [% (%Hsnap&#?&HC)]]".
     iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
@@ -1016,13 +1018,14 @@ Section pstore_G.
   Proof.
     iIntros (-> Hlocs Hg Hacy Hsub Hpath Φ) "(Hr'&Hσ&Hg1&Hg2) HΦ".
     iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
-    { wp_rec. simpl.
-      iStep 4. iModIntro.
-      inversion Hpath. subst. wp_store. iModIntro.
+    { wp_rec.
+      iStep 12.
+      inversion Hpath. subst.
       iApply "HΦ". iExists nil. rewrite !right_id_L. iFrame.
-      iPureIntro. eauto using undo_nil. }
-    { wp_rec. simpl. rewrite rev_unit. simpl.
-      iStep 4. iModIntro.
+      iPureIntro. eauto using undo_nil.
+    } {
+      wp_rec. simpl. rewrite rev_unit. simpl.
+      iStep 8.
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
       rewrite Hg list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (location * diff * location))).
@@ -1061,7 +1064,8 @@ Section pstore_G.
         iApply (pointsto_exclusive with "Hr' H"). }
       replace (g1 ∪ ({[(r', (l, v'), r0)]} ∪ list_to_set ys)) with ({[(r', (l, v'), r0)]} ∪ ((g1 ∪ list_to_set ys))). 2:set_solver.
       iApply big_sepS_union. set_solver.
-      iFrame. rewrite big_sepS_singleton //. }
+      iFrame. rewrite big_sepS_singleton //.
+    }
   Qed.
 
   Lemma pstore_revert_spec r t g xs r' w σ σ0 :
@@ -1546,7 +1550,7 @@ Section pstore_G.
 
     iDestruct (use_snapshots_model with "[$][$][$]") as %(σ1&HMrs&?).
 
-    wp_rec. iStep 20.
+    wp_rec. iStep 23. iModIntro.
 
     iDestruct (extract_unaliased with "Hg") as "%".
     destruct_decide (decide (rs=r)).
@@ -1563,7 +1567,7 @@ Section pstore_G.
     eapply ti1 in Hrs; eauto. destruct Hrs as (ds,Hrs).
     inversion Hrs. congruence. subst. rename a2 into r'. destruct b.
     iDestruct (big_sepS_elem_of_acc with "[$]") as "(?&Hg)". done. simpl.
-    wp_load. iStep 3.
+    wp_load. wp_pures.
     iSpecialize ("Hg" with "[$]").
 
     remember ((rs, (l, v), r') :: bs) as xs.

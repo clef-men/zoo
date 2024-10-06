@@ -217,7 +217,7 @@ Inductive expr :=
   | Resolve (e0 e1 e2 : expr)
 with val :=
   | ValLit lit
-  | ValRec f x (e : expr)
+  | ValRecs i (recs : list (binder * binder * expr))
   | ValBlock bid tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
@@ -230,34 +230,10 @@ Notation branch :=
 Implicit Types br : branch.
 Implicit Types brs : list branch.
 
-Section val_ind.
-  Variable P : val → Prop.
-
-  Variable HValLit :
-    ∀ lit,
-    P (ValLit lit).
-  Variable HValRec :
-    ∀ f x e,
-    P (ValRec f x e).
-  Variable HValBlock :
-    ∀ bid tag,
-    ∀ vs, Forall P vs →
-    P (ValBlock bid tag vs).
-
-  Fixpoint val_ind v :=
-    match v with
-    | ValLit lit =>
-        HValLit
-          lit
-    | ValRec f x e =>
-        HValRec
-          f x e
-    | ValBlock bid tag vs =>
-        HValBlock
-          bid tag
-          vs (Forall_true P vs val_ind)
-    end.
-End val_ind.
+Notation recursive :=
+  (binder * binder * expr)%type.
+Implicit Types rec : recursive.
+Implicit Types recs : list recursive.
 
 Section expr_ind.
   Variable P : expr → Prop.
@@ -466,6 +442,269 @@ Section expr_ind.
     end.
 End expr_ind.
 
+Section val_ind.
+  Variable P : val → Prop.
+
+  Variable HValLit :
+    ∀ lit,
+    P (ValLit lit).
+  Variable HValRecs :
+    ∀ i recs,
+    P (ValRecs i recs).
+  Variable HValBlock :
+    ∀ bid tag,
+    ∀ vs, Forall P vs →
+    P (ValBlock bid tag vs).
+
+  Fixpoint val_ind v :=
+    match v with
+    | ValLit lit =>
+        HValLit
+          lit
+    | ValRecs i recs =>
+        HValRecs
+          i recs
+    | ValBlock bid tag vs =>
+        HValBlock
+          bid tag
+          vs (Forall_true P vs val_ind)
+    end.
+End val_ind.
+
+Section expr_val_ind.
+  Variable Pexpr : expr → Prop.
+  Variable Pval : val → Prop.
+
+  Variable HVal :
+    ∀ v, Pval v →
+    Pexpr (Val v).
+  Variable HVar :
+    ∀ (x : string),
+    Pexpr (Var x).
+  Variable HRec :
+    ∀ f x,
+    ∀ e, Pexpr e →
+    Pexpr (Rec f x e).
+  Variable HApp :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (App e1 e2).
+  Variable HLet :
+    ∀ x,
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Let x e1 e2).
+  Variable HUnop :
+    ∀ op,
+    ∀ e, Pexpr e →
+    Pexpr (Unop op e).
+  Variable HBinop :
+    ∀ op,
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Binop op e1 e2).
+  Variable HEqual :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Equal e1 e2).
+  Variable HIf :
+    ∀ e0, Pexpr e0 →
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (If e0 e1 e2).
+  Variable HFor :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    ∀ e3, Pexpr e3 →
+    Pexpr (For e1 e2 e3).
+  Variable HAlloc :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Alloc e1 e2).
+  Variable HBlock :
+    ∀ concrete tag,
+    ∀ es, Forall Pexpr es →
+    Pexpr (Block concrete tag es).
+  Variable HReveal :
+    ∀ e, Pexpr e →
+    Pexpr (Reveal e).
+  Variable HMatch :
+    ∀ e0, Pexpr e0 →
+    ∀ x,
+    ∀ e1, Pexpr e1 →
+    ∀ brs, Forall (λ br, Pexpr br.2) brs →
+    Pexpr (Match e0 x e1 brs).
+  Variable HGetTag :
+    ∀ e, Pexpr e →
+    Pexpr (GetTag e).
+  Variable HGetSize :
+    ∀ e, Pexpr e →
+    Pexpr (GetSize e).
+  Variable HLoad :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Load e1 e2).
+  Variable HStore :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    ∀ e3, Pexpr e3 →
+    Pexpr (Store e1 e2 e3).
+  Variable HXchg :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Xchg e1 e2).
+  Variable HCAS :
+    ∀ e0, Pexpr e0 →
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (CAS e0 e1 e2).
+  Variable HFAA :
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (FAA e1 e2).
+  Variable HFork :
+    ∀ e, Pexpr e →
+    Pexpr (Fork e).
+  Variable HYield :
+    Pexpr Yield.
+  Variable HProph :
+    Pexpr Proph.
+  Variable HResolve :
+    ∀ e0, Pexpr e0 →
+    ∀ e1, Pexpr e1 →
+    ∀ e2, Pexpr e2 →
+    Pexpr (Resolve e0 e1 e2).
+
+  Variable HValLit :
+    ∀ lit,
+    Pval (ValLit lit).
+  Variable HValRecs :
+    ∀ i,
+    ∀ recs, Forall (λ rec, Pexpr rec.2) recs →
+    Pval (ValRecs i recs).
+  Variable HValBlock :
+    ∀ bid tag,
+    ∀ vs, Forall Pval vs →
+    Pval (ValBlock bid tag vs).
+
+  Fixpoint expr_val_ind e :=
+    match e with
+    | Val v =>
+        HVal
+          v (val_expr_ind v)
+    | Var x =>
+        HVar
+          x
+    | Rec f x e =>
+        HRec
+          f x
+          e (expr_val_ind e)
+    | App e1 e2 =>
+        HApp
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Let x e1 e2 =>
+        HLet
+          x
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Unop op e =>
+        HUnop
+          op
+          e (expr_val_ind e)
+    | Binop op e1 e2 =>
+        HBinop
+          op
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Equal e1 e2 =>
+        HEqual
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | If e0 e1 e2 =>
+        HIf
+          e0 (expr_val_ind e0)
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | For e1 e2 e3 =>
+        HFor
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+          e3 (expr_val_ind e3)
+    | Alloc e1 e2 =>
+        HAlloc
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Block concrete tag es =>
+        HBlock
+          concrete tag
+          es (Forall_true Pexpr es expr_val_ind)
+    | Reveal e =>
+        HReveal
+          e (expr_val_ind e)
+    | Match e0 x e1 brs =>
+        HMatch
+          e0 (expr_val_ind e0)
+          x
+          e1 (expr_val_ind e1)
+          brs (Forall_true (λ br, Pexpr br.2) brs (λ br, expr_val_ind br.2))
+    | GetTag e =>
+        HGetTag
+          e (expr_val_ind e)
+    | GetSize e =>
+        HGetSize
+          e (expr_val_ind e)
+    | Load e1 e2 =>
+        HLoad
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Store e1 e2 e3 =>
+        HStore
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+          e3 (expr_val_ind e3)
+    | Xchg e1 e2 =>
+        HXchg
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | CAS e0 e1 e2 =>
+        HCAS
+          e0 (expr_val_ind e0)
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | FAA e1 e2 =>
+        HFAA
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    | Fork e =>
+        HFork
+          e (expr_val_ind e)
+    | Yield =>
+        HYield
+    | Proph =>
+        HProph
+    | Resolve e0 e1 e2 =>
+        HResolve
+          e0 (expr_val_ind e0)
+          e1 (expr_val_ind e1)
+          e2 (expr_val_ind e2)
+    end
+  with val_expr_ind v :=
+    match v with
+    | ValLit lit =>
+        HValLit
+          lit
+    | ValRecs i recs =>
+        HValRecs
+          i
+          recs (Forall_true (λ rec, Pexpr rec.2) recs (λ rec, expr_val_ind rec.2))
+    | ValBlock bid tag vs =>
+        HValBlock
+          bid tag
+          vs (Forall_true Pval vs val_expr_ind)
+    end.
+End expr_val_ind.
+
 Canonical val_O :=
   leibnizO val.
 Canonical expr_O :=
@@ -475,8 +714,26 @@ Notation Fun x e := (
   Rec BAnon x e
 )(only parsing
 ).
+Notation ValRec f x e := (
+  ValRecs 0
+    ( @cons recursive
+        ( @pair (prod binder binder) expr
+            (@pair binder binder f x)
+            e
+        )
+        (@nil recursive)
+    )
+)(only parsing
+).
 Notation ValFun x e := (
-  ValRec BAnon x e
+  ValRecs 0
+    ( @cons recursive
+        ( @pair (prod binder binder) expr
+            (@pair binder binder BAnon x)
+            e
+        )
+        (@nil recursive)
+    )
 )(only parsing
 ).
 
@@ -735,6 +992,19 @@ Proof.
           right _
       end
     with go_val v1 v2 : Decision (v1 = v2) :=
+      let fix go_recursives recs1 recs2 : Decision (recs1 = recs2) :=
+        match recs1, recs2 with
+        | [], [] =>
+            left _
+        | (bdrs1, e1) :: recs1, (bdrs2, e2) :: recs2 =>
+            cast_if_and3
+              (decide (bdrs1 = bdrs2))
+              (decide (e1 = e2))
+              (decide (recs1 = recs2))
+        | _, _ =>
+            right _
+        end
+      in
       let fix go_list vs1 vs2 : Decision (vs1 = vs2) :=
         match vs1, vs2 with
         | [], [] =>
@@ -751,28 +1021,43 @@ Proof.
       | ValLit l1, ValLit l2 =>
           cast_if
             (decide (l1 = l2))
-      | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
-          cast_if_and3
-            (decide (f1 = f2))
-            (decide (x1 = x2))
-            (decide (e1 = e2))
-      | ValBlock bid1 tag1 es1, ValBlock bid2 tag2 es2 =>
+      | ValRecs i1 recs1, ValRecs i2 recs2 =>
+          cast_if_and
+            (decide (i1 = i2))
+            (decide (recs1 = recs2))
+      | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
           cast_if_and3
             (decide (bid1 = bid2))
             (decide (tag1 = tag2))
-            (decide (es1 = es2))
+            (decide (vs1 = vs2))
       | _, _ =>
           right _
       end
     for go
   );
-  try clear go_branches; clear go go_val go_list;
+  try clear go_list;
+  try clear go_branches;
+  try clear go_recursives;
+  clear go go_val;
   abstract intuition congruence.
 Defined.
 #[global] Instance val_eq_dec : EqDecision val.
 Proof.
   unshelve refine (
     fix go_val v1 v2 : Decision (v1 = v2) :=
+      let fix go_recursives recs1 recs2 : Decision (recs1 = recs2) :=
+        match recs1, recs2 with
+        | [], [] =>
+            left _
+        | (bdrs1, e1) :: recs1, (bdrs2, e2) :: recs2 =>
+            cast_if_and3
+              (decide (bdrs1 = bdrs2))
+              (decide (e1 = e2))
+              (decide (recs1 = recs2))
+        | _, _ =>
+            right _
+        end
+      in
       let fix go_list vs1 vs2 : Decision (vs1 = vs2) :=
         match vs1, vs2 with
         | [], [] =>
@@ -789,11 +1074,10 @@ Proof.
       | ValLit l1, ValLit l2 =>
           cast_if
             (decide (l1 = l2))
-      | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
-          cast_if_and3
-            (decide (f1 = f2))
-            (decide (x1 = x2))
-            (decide (e1 = e2))
+      | ValRecs i1 recs1, ValRecs i2 recs2 =>
+          cast_if_and
+            (decide (i1 = i2))
+            (decide (recs1 = recs2))
       | ValBlock bid1 tag1 es1, ValBlock bid2 tag2 es2 =>
           cast_if_and3
             (decide (bid1 = bid2))
@@ -803,10 +1087,13 @@ Proof.
           right _
       end
   );
-  clear go_val go_list; abstract intuition congruence.
+  clear go_recursives;
+  try clear go_list;
+  clear go_val;
+  abstract intuition congruence.
 Defined.
 Variant encode_leaf :=
-  | EncodeTag tag
+  | EncodeNat tag
   | EncodeBinder x
   | EncodeBlockId bid
   | EncodeConcreteness concrete
@@ -821,7 +1108,7 @@ Variant encode_leaf :=
 Proof.
   pose encode leaf :=
     match leaf with
-    | EncodeTag tag =>
+    | EncodeNat tag =>
         inl $ inl $ inl $ inl $ inl $ inl $ inl tag
     | EncodeBinder bdr =>
         inl $ inl $ inl $ inl $ inl $ inl $ inr bdr
@@ -841,7 +1128,7 @@ Proof.
   pose decode leaf :=
     match leaf with
     | inl (inl (inl (inl (inl (inl (inl tag)))))) =>
-        EncodeTag tag
+        EncodeNat tag
     | inl (inl (inl (inl (inl (inl (inr bdr)))))) =>
         EncodeBinder bdr
     | inl (inl (inl (inl (inl (inr bid))))) =>
@@ -915,17 +1202,23 @@ Proof.
     23.
   #[local] Notation code_Resolve :=
     24.
-  #[local] Notation code_ValRec :=
+  #[local] Notation code_ValRecs :=
     0.
-  #[local] Notation code_ValBlock :=
+  #[local] Notation code_recursive :=
     1.
+  #[local] Notation code_ValBlock :=
+    2.
   pose encode :=
     fix go e :=
-      let go_list := map go in
+      let go_list :=
+        map go
+      in
       let go_branch '(pat, e) :=
         GenNode code_branch [GenLeaf (EncodePattern pat); go e]
       in
-      let go_branches := map go_branch in
+      let go_branches :=
+        map go_branch
+      in
       match e with
       | Val v =>
           GenNode code_Val [go_val v]
@@ -950,7 +1243,7 @@ Proof.
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
       | Block concrete tag es =>
-          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: go_list es
+          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeNat tag) :: go_list es
       | Reveal e =>
           GenNode code_Reveal [go e]
       | Match e0 x e1 brs =>
@@ -979,19 +1272,29 @@ Proof.
           GenNode code_Resolve [go e0; go e1; go e2]
       end
     with go_val v :=
-      let go_list := map go_val in
+      let go_recursive '((f, x), e) :=
+        GenNode code_recursive [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
+      in
+      let go_recursives :=
+        map go_recursive
+      in
+      let go_list :=
+        map go_val
+      in
       match v with
       | ValLit lit =>
           GenLeaf (EncodeLit lit)
-      | ValRec f x e =>
-         GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); go e]
+      | ValRecs i recs =>
+         GenNode code_ValRecs (GenLeaf (EncodeNat i) :: go_recursives recs)
       | ValBlock bid tag vs =>
-          GenNode code_ValBlock $ GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeTag tag) :: go_list vs
+          GenNode code_ValBlock $ GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeNat tag) :: go_list vs
       end
     for go.
   pose decode :=
     fix go _e :=
-      let go_list := map go in
+      let go_list :=
+        map go
+      in
       let go_branch _br :=
         match _br with
         | GenNode code_branch [GenLeaf (EncodePattern pat); e] =>
@@ -1000,7 +1303,9 @@ Proof.
             (@inhabitant _ pattern_inhabited, Unit)
         end
       in
-      let go_branches := map go_branch in
+      let go_branches :=
+        map go_branch
+      in
       match _e with
       | GenNode code_Val [v] =>
           Val $ go_val v
@@ -1024,7 +1329,7 @@ Proof.
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeTag tag) :: es) =>
+      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeNat tag) :: es) =>
           Block concrete tag $ go_list es
       | GenNode code_Reveal [e] =>
           Reveal (go e)
@@ -1056,13 +1361,26 @@ Proof.
           @inhabitant _ expr_inhabited
       end
     with go_val _v :=
-      let go_list := map go_val in
+      let go_recursive _rec :=
+        match _rec with
+        | GenNode code_recursive [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
+            (f, x, go e)
+        | _ =>
+            (BAnon, BAnon, Unit)
+        end
+      in
+      let go_recursives :=
+        map go_recursive
+      in
+      let go_list :=
+        map go_val
+      in
       match _v with
       | GenLeaf (EncodeLit lit) =>
           ValLit lit
-      | GenNode code_ValRec [GenLeaf (EncodeBinder f); GenLeaf (EncodeBinder x); e] =>
-          ValRec f x (go e)
-      | GenNode code_ValBlock (GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeTag tag) :: vs) =>
+      | GenNode code_ValRecs (GenLeaf (EncodeNat i) :: recs) =>
+          ValRecs i (go_recursives recs)
+      | GenNode code_ValBlock (GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeNat tag) :: vs) =>
           ValBlock bid tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
@@ -1071,18 +1389,16 @@ Proof.
   refine (inj_countable' encode decode _).
   refine (fix go e := _ with go_val v := _ for go).
   - destruct e; simpl; f_equal; try done.
-    1:
-      match goal with |- _ = ?v =>
+    + match goal with |- _ = ?v =>
         exact (go_val v)
       end.
-    all:
-      try match goal with |- _ = ?es =>
+    + match goal with |- _ = ?es =>
         rewrite /map; induction es as [| ? ? ->] => /=; f_equal; done
       end.
-    induction brs as [| (? & ?) ?] => //=. repeat f_equal; done.
+    + induction brs as [| (? & ?) ?] => //=. repeat f_equal; done.
   - destruct v; simpl; f_equal; try done.
-    all:
-      match goal with |- _ = ?vs =>
+    + induction recs as [| ((? & ?) & ?) ?] => //=. repeat f_equal; done.
+    + match goal with |- _ = ?vs =>
         rewrite /map; induction vs as [| ? ? ->]; simpl; f_equal; done
       end.
 Qed.

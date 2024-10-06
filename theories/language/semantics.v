@@ -24,7 +24,8 @@ From iris.algebra Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Export
-  option.
+  option
+  list.
 From zoo.language Require Export
   syntax.
 From zoo Require Import
@@ -43,6 +44,8 @@ Implicit Types v w : val.
 Implicit Types vs : list val.
 Implicit Types br : branch.
 Implicit Types brs : list branch.
+Implicit Types rec : recursive.
+Implicit Types recs : list recursive.
 
 Definition literal_physical lit :=
   match lit with
@@ -100,10 +103,9 @@ Definition val_eq v1 v2 :=
   match v1, v2 with
   | ValLit lit1, ValLit lit2 =>
       lit1 = lit2
-  | ValRec f1 x1 e1, ValRec f2 x2 e2 =>
-      f1 = f2 ∧
-      x1 = x2 ∧
-      e1 = e2
+  | ValRecs i1 recs1, ValRecs i2 recs2 =>
+      i1 = i2 ∧
+      recs1 = recs2
   | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
       match bid1, bid2 with
       | Some bid1, Some bid2 =>
@@ -187,7 +189,8 @@ Fixpoint subst (x : string) v e :=
       else
         Var y
   | Rec f y e =>
-      Rec f y
+      Rec
+        f y
         ( if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
             subst x v e
           else
@@ -321,6 +324,9 @@ Fixpoint subst_list xs vs e :=
       end
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
+
+Definition eval_app recs x v e :=
+  foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) (subst' x v e) recs.
 
 Fixpoint eval_match bid tag sz (vs : location + list val) x_fb e_fb brs :=
   let subj :=
@@ -458,13 +464,13 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValRec f x e)
         σ
         []
-  | base_step_beta f x e v e' σ :
-      e' = subst' f (ValRec f x e) (subst' x v e) →
+  | base_step_app i recs rec v σ :
+      recs !! i = Some rec →
       base_step
-        (App (Val $ ValRec f x e) (Val v))
+        (App (Val $ ValRecs i recs) (Val v))
         σ
         []
-        e'
+        (eval_app recs rec.1.2 v rec.2)
         σ
         []
   | base_step_let x v1 e2 σ :

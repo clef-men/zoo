@@ -79,7 +79,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_smart_apply (array_init_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hsz & %Hslots & Hdata_model & Hslots)".
-    { iStep 5. iModIntro. wp_ref r as "Hr". iSteps. }
+    { iStep 6. wp_ref r as "Hr". iSteps. }
     iSteps.
     - rewrite length_replicate. iSteps.
     - iExists slots, 0. rewrite right_id. iSteps.
@@ -566,7 +566,7 @@ Section zoo_G.
     iIntros "%Φ #Hv HΦ".
     wp_rec.
     wp_smart_apply (array_init_type itype_slot) as "%data (%Hsz & Hdata_type)".
-    { iStep 5. iModIntro. wp_ref r. iSteps. }
+    { iStep 6. wp_ref r. iSteps. }
     iSteps.
   Qed.
 

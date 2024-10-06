@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Export
+  list.
 From zoo.language Require Export
   language.
 From zoo.language Require Import
@@ -30,7 +32,7 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance beta_atomic f x v1 v2 :
+  #[global] Instance app_atomic f x v1 v2 :
     Atomic (App (ValRec f x (Val v1)) (Val v2)).
   Proof.
     destruct f, x; solve_atomic.
@@ -158,13 +160,40 @@ Class AsValRec v f x e :=
   as_ValRec : v = ValRec f x e.
 #[global] Hint Mode AsValRec ! - - - : typeclass_instances.
 
-Definition ValRec_as_ValRec f x e : AsValRec (ValRec f x e) f x e :=
-  eq_refl.
+Lemma ValRec_as_ValRec f x e :
+  AsValRec (ValRec f x e) f x e.
+Proof.
+  done.
+Qed.
 #[global] Hint Extern 0 (
   AsValRec (ValRec _ _ _) _ _ _
 ) =>
   apply ValRec_as_ValRec
 : typeclass_instances.
+
+Class AsValRecs v i recs vs :=
+  as_ValRecs :
+    Foralli (λ i v, v = ValRecs i recs) vs ∧
+    v = ValRecs i recs ∧
+    length recs = length vs.
+#[global] Hint Mode AsValRecs ! - - - : typeclass_instances.
+
+#[global] Instance as_ValRec_as_ValRecs v f x e :
+  AsValRec v f x e →
+  AsValRecs v 0 [(f, x, e)] [v].
+Proof.
+  done.
+Qed.
+
+Class AsValRecs' v i recs vs :=
+  as_ValRecs' : AsValRecs v i recs vs.
+
+Lemma as_ValRecs'_as_ValRecs v i recs vs :
+  AsValRecs' v i recs vs →
+  AsValRecs v i recs vs.
+Proof.
+  done.
+Qed.
 
 Section pure_exec.
   #[local] Ltac solve_exec_safe :=
@@ -190,14 +219,46 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_app f x e v1 v2 `{!AsValRec v1 f x e} :
+  #[global] Instance pure_app v1 i recs rec vs v2 `{HAsValRecs : !AsValRecs v1 i recs vs} :
     PureExec
-      True
+      (recs !! i = Some rec)
       1
       (App (Val v1) (Val v2))
-      (subst' f v1 (subst' x v2 e)).
+      (foldr2 (λ rec v, subst' rec.1.1 v) (subst' rec.1.2 v2 rec.2) recs vs).
   Proof.
-    unfold AsValRec in *. solve_pure_exec.
+    destruct HAsValRecs as (Hvs & -> & Hlength) => Hlookup.
+    apply nsteps_once, pure_base_step_pure_step.
+    split; first solve_exec_safe.
+    intros σ1 κ e σ2 es Hstep.
+    invert_base_step.
+    split_and!; try done.
+    cut (
+      ∀ recs1 recs2 vs1 vs2 e,
+      recs = recs1 ++ recs2 →
+      vs = vs1 ++ vs2 →
+      length recs1 = length vs1 →
+        foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) e recs1 =
+        foldr2 (λ rec v, subst' rec.1.1 v) e recs1 vs1
+    ). {
+      intros H. apply (H _ [] _ []); last done.
+      all: rewrite right_id //.
+    }
+    clear- Hvs Hlength.
+    induction recs1 as [| rec recs1 IH] using rev_ind => recs2 vs1 vs2 e Hrecs_eq Hvs_eq Hlength1; first done.
+    destruct (rev_elim vs1) as [-> | (vs1' & v & ->)].
+    { rewrite app_length /= in Hlength1. lia. }
+    rewrite !app_length /= in Hlength1.
+    rewrite foldri_app foldr2_app /=; first lia.
+    assert (ValRecs (length recs1) recs = v) as ->.
+    { eapply Foralli_lookup in Hvs; first done.
+      rewrite Hvs_eq lookup_app_l.
+      { rewrite app_length /=. lia. }
+      rewrite lookup_snoc_Some. naive_solver lia.
+    }
+    apply (IH (rec :: recs2) vs1' (v :: vs2)).
+    { rewrite Hrecs_eq -assoc //. }
+    { rewrite Hvs_eq -assoc //. }
+    { lia. }
   Qed.
 
   #[global] Instance pure_let x v1 e2 :
