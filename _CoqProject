@@ -15,6 +15,7 @@ theories/common/relations.v
 theories/common/math.v
 theories/common/option.v
 theories/common/list.v
+theories/common/binder.v
 theories/common/fin_maps.v
 theories/common/gmultiset.v
 theories/common/treemap.v

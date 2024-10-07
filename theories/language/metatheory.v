@@ -17,17 +17,19 @@ Fixpoint occurs x e :=
   | Val _ =>
       false
   | Var y =>
-      bool_decide (x = y)
+      String.eqb x y
   | Rec f y e =>
-      bool_decide (BNamed x ≠ f) &&
-      bool_decide (BNamed x ≠ y) &&
+      binder_neqb (BNamed x) f &&
+      binder_neqb (BNamed x) f &&
+      binder_neqb (BNamed x) y &&
       occurs x e
   | App e1 e2 =>
       occurs x e1 ||
       occurs x e2
   | Let y e1 e2 =>
       occurs x e1 ||
-      bool_decide (BNamed x ≠ y) && occurs x e2
+        binder_neqb (BNamed x) y &&
+        occurs x e2
   | Unop _ e =>
       occurs x e
   | Binop _ e1 e2 =>
@@ -53,11 +55,11 @@ Fixpoint occurs x e :=
       occurs x e
   | Match e0 y e1 brs =>
       occurs x e0 ||
-      bool_decide (BNamed x ≠ y) && occurs x e1 ||
+      binder_neqb (BNamed x) y && occurs x e1 ||
       existsb (λ br,
         let pat := br.1 in
-        forallb (λ y, bool_decide (BNamed x ≠ y)) pat.(pattern_fields) &&
-        bool_decide (BNamed x ≠ pat.(pattern_as)) &&
+        forallb (λ y, binder_neqb (BNamed x) y) pat.(pattern_fields) &&
+        binder_neqb (BNamed x) pat.(pattern_as) &&
         occurs x br.2
       ) brs
   | GetTag e =>
@@ -102,7 +104,7 @@ Definition val_recursive v :=
             false
         | BNamed f =>
             existsb (λ rec,
-              bool_decide (BNamed f ≠ rec.1.2) &&
+              binder_neqb (BNamed f) rec.1.2 &&
               occurs f rec.2
             ) recs
         end
@@ -116,17 +118,17 @@ Fixpoint subst (x : string) v e :=
   | Val _ =>
       e
   | Var y =>
-      if decide (x = y) then
+      if String.eqb x y then
         Val v
       else
         Var y
   | Rec f y e =>
       Rec
         f y
-        ( if decide (BNamed x ≠ f ∧ BNamed x ≠ y) then
-            subst x v e
-          else
+        ( if binder_eqb (BNamed x) f || binder_eqb (BNamed x) y then
             e
+          else
+            subst x v e
         )
   | App e1 e2 =>
       App
@@ -136,10 +138,10 @@ Fixpoint subst (x : string) v e :=
       Let
         y
         (subst x v e1)
-        ( if decide (BNamed x ≠ y) then
-            subst x v e2
-          else
+        ( if binder_eqb (BNamed x) y then
             e2
+          else
+            subst x v e2
         )
   | Unop op e =>
       Unop
@@ -179,20 +181,20 @@ Fixpoint subst (x : string) v e :=
       Match
         (subst x v e0)
         y
-        ( if decide (BNamed x ≠ y) then
-            subst x v e1
-          else
+        ( if binder_eqb (BNamed x) y then
             e1
+          else
+            subst x v e1
         )
         ( ( λ br,
               ( br.1,
-                if decide (
-                  Forall (BNamed x ≠.) br.1.(pattern_fields) ∧
-                  BNamed x ≠ br.1.(pattern_as)
-                ) then
-                  subst x v br.2
-                else
+                if
+                  existsb (binder_eqb (BNamed x)) br.1.(pattern_fields) ||
+                  binder_eqb (BNamed x) br.1.(pattern_as)
+                then
                   br.2
+                else
+                  subst x v br.2
               )
           ) <$> brs
         )
@@ -260,110 +262,3 @@ Fixpoint subst_list xs vs e :=
       end
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
-
-Fixpoint subst_map env e :=
-  match e with
-  | Val _ =>
-      e
-  | Var x =>
-      if env !! x is Some v then Val v else e
-  | Rec f x e =>
-      Rec
-        f x
-        (subst_map (binder_delete f $ binder_delete x env) e)
-  | App e1 e2 =>
-      App
-        (subst_map env e1)
-        (subst_map env e2)
-  | Let x e1 e2 =>
-      Let
-        x
-        (subst_map env e1)
-        (subst_map (binder_delete x env) e2)
-  | Unop op e =>
-      Unop
-        op
-        (subst_map env e)
-  | Binop op e1 e2 =>
-      Binop
-        op
-        (subst_map env e1)
-        (subst_map env e2)
-  | Equal e1 e2 =>
-      Equal
-        (subst_map env e1)
-        (subst_map env e2)
-  | If e0 e1 e2 =>
-      If
-        (subst_map env e0)
-        (subst_map env e1)
-        (subst_map env e2)
-  | For e1 e2 e3 =>
-      For
-        (subst_map env e1)
-        (subst_map env e2)
-        (subst_map env e3)
-  | Alloc e1 e2 =>
-      Alloc
-        (subst_map env e1)
-        (subst_map env e2)
-  | Block concrete tag es =>
-      Block
-        concrete tag
-        (subst_map env <$> es)
-  | Reveal e =>
-      Reveal
-        (subst_map env e)
-  | Match e0 x e1 brs =>
-      Match
-        (subst_map env e0)
-        x
-        (subst_map (binder_delete x env) e1)
-        ( ( λ br,
-              ( br.1,
-                subst_map (foldr (λ bdr env, binder_delete bdr env) env br.1.(pattern_fields)) br.2
-              )
-          ) <$> brs
-        )
-  | GetTag e =>
-      GetTag
-        (subst_map env e)
-  | GetSize e =>
-      GetSize
-        (subst_map env e)
-  | Load e1 e2 =>
-      Load
-        (subst_map env e1)
-        (subst_map env e2)
-  | Store e1 e2 e3 =>
-      Store
-        (subst_map env e1)
-        (subst_map env e2)
-        (subst_map env e3)
-  | Xchg e1 e2 =>
-      Xchg
-        (subst_map env e1)
-        (subst_map env e2)
-  | CAS e0 e1 e2 =>
-      CAS
-        (subst_map env e0)
-        (subst_map env e1)
-        (subst_map env e2)
-  | FAA e1 e2 =>
-      FAA
-        (subst_map env e1)
-        (subst_map env e2)
-  | Fork e =>
-      Fork
-        (subst_map env e)
-  | Yield =>
-      Yield
-  | Proph =>
-      Proph
-  | Resolve e0 e1 e2 =>
-      Resolve
-        (subst_map env e0)
-        (subst_map env e1)
-        (subst_map env e2)
-  end.
-#[global] Arguments subst_map _ !_ / : assert.

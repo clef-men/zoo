@@ -1,13 +1,13 @@
 From stdpp Require Import
   countable.
-From stdpp Require Export
-  binders.
 
 From iris.algebra Require Import
   ofe.
 
 From zoo Require Import
   prelude.
+From zoo.common Require Export
+  binder.
 From zoo.language Require Export
   location.
 From zoo Require Import

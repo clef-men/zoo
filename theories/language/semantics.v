@@ -196,11 +196,11 @@ Fixpoint eval_match bid tag sz (vs : location + list val) x_fb e_fb brs :=
       Some $ subst' x_fb subj e_fb
   | br :: brs =>
       let pat := br.1 in
-      if decide (pat.(pattern_tag) = tag ∧ length pat.(pattern_fields) = sz) then
+      if Nat.eqb pat.(pattern_tag) tag && Nat.eqb (length pat.(pattern_fields)) sz then
         let res := subst' pat.(pattern_as) subj br.2 in
         match vs with
         | inl l =>
-            if decide (Forall (BAnon =.) pat.(pattern_fields)) then
+            if forallb (binder_eqb BAnon) pat.(pattern_fields) then
               Some res
             else
               None
