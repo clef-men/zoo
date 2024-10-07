@@ -850,7 +850,7 @@ Qed.
 Lemma length_of_vals vs :
   length (of_vals vs) = length vs.
 Proof.
-  rewrite map_length //.
+  rewrite length_map //.
 Qed.
 
 #[global] Instance val_inhabited : Inhabited val :=

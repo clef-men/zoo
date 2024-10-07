@@ -218,7 +218,8 @@ Section cmra.
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡{n}≡ a2 ∧ ✓{n} a1.
   Proof.
     rewrite auth_auth_dfrac_op_validN. split.
-    - naive_solver eauto using (inj Some).
+    - epose proof (inj Some).
+      naive_solver.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_auth_dfrac_op_valid dq1 a1 dq2 a2 :
@@ -226,7 +227,7 @@ Section cmra.
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2 ∧ ✓ a1.
   Proof.
     rewrite auth_auth_dfrac_op_valid. split.
-    - naive_solver eauto using (@inj _ _ equiv equiv Some) with typeclass_instances.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_auth_op_validN n a1 a2 :
@@ -359,7 +360,8 @@ Section cmra.
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡{n}≡ a2.
   Proof.
     rewrite auth_auth_dfrac_includedN. split.
-    - naive_solver eauto using (inj Some).
+    - epose proof (inj Some).
+      naive_solver.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_auth_dfrac_included dq1 a1 dq2 a2 b :
@@ -367,7 +369,7 @@ Section cmra.
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2.
   Proof.
     rewrite auth_auth_dfrac_included. split.
-    - naive_solver eauto using (@inj _ _ equiv equiv Some) with typeclass_instances.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_auth_includedN n a1 a2 b :
@@ -401,7 +403,8 @@ Section cmra.
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡{n}≡ a2 ∧ (b1 ≡{n}≡ b2 ∨ b1 ≼{n} b2).
   Proof.
     rewrite auth_both_dfrac_includedN Some_includedN. split.
-    - naive_solver eauto using (inj Some).
+    - epose proof (inj Some).
+      naive_solver.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_both_dfrac_included dq1 a1 dq2 a2 b1 b2 :
@@ -409,7 +412,7 @@ Section cmra.
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2 ∧ (b1 ≡ b2 ∨ b1 ≼ b2).
   Proof.
     rewrite auth_both_dfrac_included Some_included. split.
-    - naive_solver eauto using (@inj _ _ equiv equiv Some) with typeclass_instances.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_both_includedN n a1 a2 b1 b2 :
@@ -417,7 +420,8 @@ Section cmra.
     a1 ≡{n}≡ a2 ∧ (b1 ≡{n}≡ b2 ∨ b1 ≼{n} b2).
   Proof.
     rewrite auth_both_includedN Some_includedN. split.
-    - naive_solver eauto using (inj Some).
+    - epose proof (inj Some).
+      naive_solver.
     - naive_solver solve_proper.
   Qed.
   Lemma auth_option_both_included a1 a2 b1 b2 :
@@ -425,7 +429,7 @@ Section cmra.
     a1 ≡ a2 ∧ (b1 ≡ b2 ∨ b1 ≼ b2).
   Proof.
     rewrite auth_both_included Some_included. split.
-    - naive_solver eauto using (@inj _ _ equiv equiv Some) with typeclass_instances.
+    - epose proof (@inj _ _ (≡) (≡) Some). naive_solver apply _.
     - naive_solver solve_proper.
   Qed.
 

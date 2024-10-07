@@ -1,6 +1,7 @@
 -arg -w -arg -uniform-inheritance
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
+-arg -w -arg -notation-incompatible-prefix
 
 -Q theories zoo
 

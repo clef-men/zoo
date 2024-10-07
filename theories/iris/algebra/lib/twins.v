@@ -135,7 +135,7 @@ Section ofe.
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡{n}≡ a2.
   Proof.
     rewrite auth_option_auth_dfrac_op_validN. split.
-    - naive_solver eauto using (inj Excl).
+    - epose proof (inj Excl). naive_solver.
     - naive_solver solve_proper.
   Qed.
   Lemma twins_twin1_dfrac_op_valid dq1 a1 dq2 a2 :
@@ -143,7 +143,7 @@ Section ofe.
     ✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2.
   Proof.
     rewrite auth_option_auth_dfrac_op_valid. split.
-    - naive_solver eauto using (@inj _ _ equiv equiv Excl) with typeclass_instances.
+    - epose proof (@inj _ _ equiv equiv Excl). naive_solver apply _.
     - naive_solver solve_proper.
   Qed.
   Lemma twins_twin1_op_validN n a1 a2 :

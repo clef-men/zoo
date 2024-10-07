@@ -246,13 +246,13 @@ Section pure_exec.
     clear- Hvs Hlength.
     induction recs1 as [| rec recs1 IH] using rev_ind => recs2 vs1 vs2 e Hrecs_eq Hvs_eq Hlength1; first done.
     destruct (rev_elim vs1) as [-> | (vs1' & v & ->)].
-    { rewrite app_length /= in Hlength1. lia. }
-    rewrite !app_length /= in Hlength1.
+    { rewrite length_app /= in Hlength1. lia. }
+    rewrite !length_app /= in Hlength1.
     rewrite foldri_app foldr2_app /=; first lia.
     assert (ValRecs (length recs1) recs = v) as ->.
     { eapply Foralli_lookup in Hvs; first done.
       rewrite Hvs_eq lookup_app_l.
-      { rewrite app_length /=. lia. }
+      { rewrite length_app /=. lia. }
       rewrite lookup_snoc_Some. naive_solver lia.
     }
     apply (IH (rec :: recs2) vs1' (v :: vs2)).
