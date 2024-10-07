@@ -107,7 +107,7 @@ Section inf_ws_deque_2_G.
     awp_apply (inf_ws_deque_1_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
-    iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. auto with iFrame.
+    iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. iFrame. iSteps.
   Qed.
 
   Lemma inf_ws_deque_2_steal_spec t ι :
@@ -130,9 +130,7 @@ Section inf_ws_deque_2_G.
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
     destruct slots as [| slot slots], vs as [| v vs]; try done.
     - iSplitL; last iSteps. iExists _. auto.
-    - iDestruct "Hslots" as "(Hslot & Hslots)".
-      iSplitR "Hslot"; first iSteps. iIntros "HΦ !> _".
-      wp_load. iSteps.
+    - iSteps.
   Qed.
 
   Lemma inf_ws_deque_2_pop_spec t ι :
@@ -172,8 +170,7 @@ Section inf_ws_deque_2_G.
         edestruct app_cons_not_nil. done.
       }
       iDestruct (big_sepL2_snoc with "Hslots") as "(Hslots & Hslot)".
-      iExists (Some v). iSplitR "Hslot"; first iSteps. iIntros "HΦ !> Howner".
-      wp_load. iSteps.
+      iExists (Some v). iSteps.
     - iIntros "(%Heq & Hmodel) !>".
       apply fmap_nil_inv in Heq as ->. iDestruct (big_sepL2_nil_inv_l with "Hslots") as %->.
       iExists None. iSplitL; last iSteps. iSplit; first iSteps. iExists _. auto.

@@ -1033,7 +1033,7 @@ Section pstore_G.
         apply Hacy in Hpath. congruence. set_solver. }
       iDestruct (big_sepS_union with "Hg2") as "(Hg2&?)".
       { set_solver. }
-      rewrite big_sepS_singleton. wp_load. iStep 2. iModIntro.
+      rewrite big_sepS_singleton. iStep 3. iModIntro.
 
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
       assert (exists v', σ !! l = Some v') as (v',Hl).
@@ -1044,7 +1044,7 @@ Section pstore_G.
       apply path_snoc_inv in Hpath. destruct Hpath as (?&->&?).
       wp_smart_apply assert_spec. rewrite bool_decide_eq_true_2 //.
       iDestruct (big_sepM_insert_acc with "Hσ") as "(?&Hσ)". done.
-      wp_load. wp_store. wp_store. iStep 2. iModIntro.
+      wp_load. do 2 wp_store. wp_pures.
 
       iSpecialize ("Hσ" with "[$]").
       iSpecialize ("IH" with "[%//][%//][%][%//][%][$][$] Hg1 Hg2").
