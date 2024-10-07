@@ -1,3 +1,6 @@
+./ocaml2zoo/zoo.cmt : \
+    ./ocaml2zoo/zoo.cmi
+./ocaml2zoo/zoo.cmi :
 theories/eio/rcfd.cmt : \
     theories/std/spsc_waiter.cmt \
     theories/eio/rcfd.cmi

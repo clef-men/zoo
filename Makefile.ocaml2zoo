@@ -1,27 +1,29 @@
 self := $(lastword $(MAKEFILE_LIST))
 
-source_dir := theories
-sources_mli := $(wildcard $(source_dir)/*/*.mli)
-sources := $(patsubst %.mli,%,$(sources_mli))
-sources_ml := $(addsuffix .ml,$(sources))
-sources_cmt := $(addsuffix .cmt,$(sources))
-output := $(addsuffix __code.v,$(sources))
-
 ocaml2zoo_dir := ./ocaml2zoo
 ocaml2zoo_exe := $(ocaml2zoo_dir)/bin/ocaml2zoo.exe
+
+source_dir := theories
+sources_ml := $(wildcard $(source_dir)/*/*.ml)
+sources_ml += $(ocaml2zoo_dir)/zoo.ml
+sources_mli := $(addsuffix i,$(sources_ml))
+sources := $(patsubst %.ml,%,$(sources_ml))
+sources_cmt := $(addsuffix .cmt,$(sources))
+output := $(addsuffix __code.v,$(sources))
 
 include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 include_dirs += $(ocaml2zoo_dir)
 
-ocamldep := opam exec -- ocamldep -native $(addprefix -I ,$(include_dirs))
-ocamlopt := opam exec -- ocamlopt -warn-error +A -w A-4-40-42-69 -I +unix $(addprefix -I ,$(include_dirs))
+opam_exec := opam exec --switch=$(ocaml2zoo_dir) --set-switch --
+ocamldep := $(opam_exec) ocamldep -native $(addprefix -I ,$(include_dirs))
+ocamlopt := $(opam_exec) ocamlopt -warn-error +A -w A-4-40-42-69 -I +unix $(addprefix -I ,$(include_dirs))
 
 .PHONY : all
 all :
 	@ $(MAKE) -C $(ocaml2zoo_dir)
-	@ $(MAKE) -f $(self) cmt || ($(MAKE) -f $(self) clean_theories ; false)
-	@ $(MAKE) -f $(self) gen || ($(MAKE) -f $(self) clean_theories ; false)
-	@ $(MAKE) -f $(self) clean_theories
+	@ $(MAKE) -f $(self) cmt || ($(MAKE) -f $(self) clean_cmt ; false)
+	@ $(MAKE) -f $(self) gen || ($(MAKE) -f $(self) clean_cmt ; false)
+	@ $(MAKE) -f $(self) clean_cmt
 
 .PHONY : cmt
 cmt : $(sources_cmt)
@@ -29,9 +31,10 @@ cmt : $(sources_cmt)
 .PHONY : gen
 gen : $(output)
 
-.PHONY : clean_theories
-clean_theories :
+.PHONY : clean_cmt
+clean_cmt :
 	@ for src in $(sources) ; do rm -f $$src.cm[it] ; done
+	@ rm -f $(ocaml2zoo_dir)/zoo__{code,types}.v
 
 %__code.v : %.ml %.mli
 	@ $(ocaml2zoo_exe) $*.cmt
@@ -52,5 +55,5 @@ touch :
 	@ for src in $(sources_ml) ; do touch $$src ; done
 
 .PHONY : clean
-clean : clean_theories
+clean : clean_cmt
 	@ $(MAKE) -C $(ocaml2zoo_dir) $@

@@ -970,7 +970,7 @@ let value_binding modname ctx env (rec_flag : rec_flag) (bdg : Typedtree.value_b
                             val_attributes= [];
                             val_kind= Val_reg;
                             val_loc= loc;
-                            val_uid= Types.Uid.mk ~current_unit:modname;
+                            val_uid= Types.Uid.of_compilation_unit_id (Ident.create_persistent modname);
                           }
                         in
                         Env.add_value id val_descr env

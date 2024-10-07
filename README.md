@@ -9,7 +9,7 @@ Assuming that you have [opam](https://opam.ocaml.org/) (>= 2.0) installed, run t
 
 ```
 opam update --all --repositories
-opam switch create . --yes --deps-only --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git
+opam switch create . --deps-only --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
 eval $(opam env --switch=. --set-switch)
-make
+make -j
 ```

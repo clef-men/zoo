@@ -5,8 +5,7 @@ maintainer: ["clement.allain@inria.fr"]
 authors: ["Clément Allain"]
 depends: [
   "dune" {>= "3.0"}
-  "ocaml"
-  "ocaml-compiler-libs" {= "4.14.1"}
+  "ocaml-compiler-libs"
   "odoc" {with-doc}
 ]
 build: [
