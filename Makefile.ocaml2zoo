@@ -14,9 +14,10 @@ output := $(addsuffix __code.v,$(sources))
 include_dirs := $(dir $(wildcard $(source_dir)/*/.))
 include_dirs += $(ocaml2zoo_dir)
 
-opam_exec := opam exec --switch=$(ocaml2zoo_dir) --set-switch --
+opam_exec :=
+# opam_exec := opam exec --switch=. --set-switch --
 ocamldep := $(opam_exec) ocamldep -native $(addprefix -I ,$(include_dirs))
-ocamlopt := $(opam_exec) ocamlopt -warn-error +A -w A-4-40-42-69 -I +unix $(addprefix -I ,$(include_dirs))
+ocamlopt := $(opam_exec) ocamlopt -warn-error +A -w A-4-40-42 -I +unix $(addprefix -I ,$(include_dirs))
 
 .PHONY : all
 all :

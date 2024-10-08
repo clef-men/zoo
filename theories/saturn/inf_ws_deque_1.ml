@@ -5,7 +5,7 @@
 type 'a t =
   { mutable front: int [@atomic];
     mutable back: int [@atomic];
-    mutable data: 'a Inf_array.t [@atomic];
+    data: 'a Inf_array.t;
     proph: (int * Zoo.id) Zoo.proph;
   }
 

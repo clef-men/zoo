@@ -1,4 +1,4 @@
-opam_exec := opam exec --switch=. --set-switch --
+opam_exec := opam exec --switch=.. --set-switch --
 dune := $(opam_exec) dune
 
 .PHONY : all
@@ -7,6 +7,10 @@ all : build
 .PHONY : build
 build :
 	@ $(dune) build
+
+.PHONY : install
+install :
+	@ $(dune) install
 
 .PHONY : test
 test : build
