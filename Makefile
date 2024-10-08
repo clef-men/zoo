@@ -21,6 +21,8 @@ endif
 ocaml2zoo :
 	@ $(MAKE) -f Makefile.ocaml2zoo
 
+build-% : phony
+	@ ./make_package.sh $*
 install-% : phony
 	@ ./make_package.sh $* install
 
