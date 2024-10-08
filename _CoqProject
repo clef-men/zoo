@@ -5,6 +5,8 @@
 
 -Q theories zoo
 
+#BEGIN zoo
+
 theories/prelude/base.v
 theories/prelude/tactics.v
 theories/prelude/prelude.v
@@ -86,6 +88,9 @@ theories/language/wise_prophet.v
 theories/language/identifier.v
 theories/language/structeq.v
 
+#END zoo
+
+#BEGIN zoo-std
 theories/std/base.v
 theories/std/diverge.v
 theories/std/assert.v
@@ -163,6 +168,7 @@ theories/std/random_round__types.v
 theories/std/random_round__code.v
 theories/std/random_round.v
 theories/std/unix.v
+#END zoo-std
 
 theories/persistent/base.v
 theories/persistent/pstack__types.v

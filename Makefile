@@ -3,6 +3,9 @@ targets_nocoq := depend ocaml2zoo
 .PHONY : all
 all :
 
+.PHONY : phony
+phony :
+
 .PHONY : depend
 depend :
 	@ opam install . --deps-only --verbose
@@ -17,6 +20,9 @@ endif
 .PHONY : ocaml2zoo
 ocaml2zoo :
 	@ $(MAKE) -f Makefile.ocaml2zoo
+
+install-% : phony
+	@ ./make_package.sh $* install
 
 .PHONY : clean
 clean ::
