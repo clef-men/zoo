@@ -1,16 +1,13 @@
-opam_exec := opam exec --switch=.. --set-switch --
-dune := $(opam_exec) dune
-
 .PHONY : all
 all : build
 
 .PHONY : build
 build :
-	@ $(dune) build
+	@ dune build
 
 .PHONY : install
 install :
-	@ $(dune) install
+	@ dune install
 
 .PHONY : test
 test : build
@@ -18,9 +15,9 @@ test : build
 
 .PHONY : top
 top :
-	@ $(dune) utop .
+	@ dune utop .
 
 .PHONY : clean
 clean :
-	@ $(dune) clean
+	@ dune clean
 	@ rm -f tests/*.{cm[it],v}
