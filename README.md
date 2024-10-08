@@ -39,7 +39,7 @@ opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#atomic_fields_
 To compile Coq proofs, run:
 
 ```
-opam install . --deps-only --yes
+make depend
 make -j
 ```
 
@@ -47,6 +47,6 @@ To compile `ocaml2zoo`, run:
 
 ```
 cd ocaml2zoo
-opam install . --deps-only --yes
+make depend
 make
 ```

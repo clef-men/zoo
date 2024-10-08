@@ -9,6 +9,10 @@ build :
 install :
 	@ dune install
 
+.PHONY : depend
+depend :
+	@ opam install . --deps-only --yes
+
 .PHONY : test
 test : build
 	@ ./tests/run.sh
