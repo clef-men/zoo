@@ -27,29 +27,29 @@ Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
-Inductive concreteness :=
-  | Concrete
-  | Abstract.
-Implicit Types concrete : concreteness.
+Inductive mutability :=
+  | Mutable
+  | Immutable.
+Implicit Types mut : mutability.
 
-#[global] Instance concreteness_eq_dec : EqDecision concreteness :=
+#[global] Instance mutability_eq_dec : EqDecision mutability :=
   ltac:(solve_decision).
-#[global] Instance concreteness_countable :
-  Countable concreteness.
+#[global] Instance mutability_countable :
+  Countable mutability.
 Proof.
-  pose encode concrete :=
-    match concrete with
-    | Concrete =>
+  pose encode mut :=
+    match mut with
+    | Mutable =>
         0
-    | Abstract =>
+    | Immutable =>
         1
     end.
-  pose decode _concrete :=
-    match _concrete with
+  pose decode _mut :=
+    match _mut with
     | 0 =>
-        Concrete
+        Mutable
     | _ =>
-        Abstract
+        Immutable
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -201,7 +201,7 @@ Inductive expr :=
   | If (e0 e1 e2 : expr)
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
-  | Block concrete tag (es : list expr)
+  | Block mut tag (es : list expr)
   | Reveal (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | GetTag (e : expr)
@@ -285,9 +285,9 @@ Section expr_ind.
     ∀ e2, P e2 →
     P (Alloc e1 e2).
   Variable HBlock :
-    ∀ concrete tag,
+    ∀ mut tag,
     ∀ es, Forall P es →
-    P (Block concrete tag es).
+    P (Block mut tag es).
   Variable HReveal :
     ∀ e, P e →
     P (Reveal e).
@@ -386,9 +386,9 @@ Section expr_ind.
         HAlloc
           e1 (expr_ind e1)
           e2 (expr_ind e2)
-    | Block concrete tag es =>
+    | Block mut tag es =>
         HBlock
-          concrete tag
+          mut tag
           es (Forall_true P es expr_ind)
     | Reveal e =>
         HReveal
@@ -522,9 +522,9 @@ Section expr_val_ind.
     ∀ e2, Pexpr e2 →
     Pexpr (Alloc e1 e2).
   Variable HBlock :
-    ∀ concrete tag,
+    ∀ mut tag,
     ∀ es, Forall Pexpr es →
-    Pexpr (Block concrete tag es).
+    Pexpr (Block mut tag es).
   Variable HReveal :
     ∀ e, Pexpr e →
     Pexpr (Reveal e).
@@ -635,9 +635,9 @@ Section expr_val_ind.
         HAlloc
           e1 (expr_val_ind e1)
           e2 (expr_val_ind e2)
-    | Block concrete tag es =>
+    | Block mut tag es =>
         HBlock
-          concrete tag
+          mut tag
           es (Forall_true Pexpr es expr_val_ind)
     | Reveal e =>
         HReveal
@@ -764,7 +764,7 @@ Notation ValProph pid := (
 ).
 
 Notation Tuple := (
-  Block Abstract 0
+  Block Immutable 0
 )(only parsing
 ).
 Notation ValTuple := (
@@ -934,9 +934,9 @@ Proof.
          cast_if_and
            (decide (e11 = e21))
            (decide (e12 = e22))
-      | Block concrete1 tag1 es1, Block concrete2 tag2 es2 =>
+      | Block mut1 tag1 es1, Block mut2 tag2 es2 =>
           cast_if_and3
-            (decide (concrete1 = concrete2))
+            (decide (mut1 = mut2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | Reveal e1, Reveal e2 =>
@@ -1096,7 +1096,7 @@ Variant encode_leaf :=
   | EncodeNat tag
   | EncodeBinder x
   | EncodeBlockId bid
-  | EncodeConcreteness concrete
+  | EncodeMutability mut
   | EncodeLit lit
   | EncodeUnop (op : unop)
   | EncodeBinop (op : binop)
@@ -1114,8 +1114,8 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inl $ inr bdr
     | EncodeBlockId bid =>
         inl $ inl $ inl $ inl $ inl $ inr bid
-    | EncodeConcreteness concrete =>
-        inl $ inl $ inl $ inl $ inr concrete
+    | EncodeMutability mut =>
+        inl $ inl $ inl $ inl $ inr mut
     | EncodeLit lit =>
         inl $ inl $ inl $ inr lit
     | EncodeUnop op =>
@@ -1133,8 +1133,8 @@ Proof.
         EncodeBinder bdr
     | inl (inl (inl (inl (inl (inr bid))))) =>
         EncodeBlockId bid
-    | inl (inl (inl (inl (inr concrete)))) =>
-        EncodeConcreteness concrete
+    | inl (inl (inl (inl (inr mut)))) =>
+        EncodeMutability mut
     | inl (inl (inl (inr lit))) =>
         EncodeLit lit
     | inl (inl (inr op)) =>
@@ -1242,8 +1242,8 @@ Proof.
           GenNode code_For [go e1; go e2; go e3]
       | Alloc e1 e2 =>
           GenNode code_Alloc [go e1; go e2]
-      | Block concrete tag es =>
-          GenNode code_Block $ GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeNat tag) :: go_list es
+      | Block mut tag es =>
+          GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: go_list es
       | Reveal e =>
           GenNode code_Reveal [go e]
       | Match e0 x e1 brs =>
@@ -1329,8 +1329,8 @@ Proof.
           For (go e1) (go e2) (go e3)
       | GenNode code_Alloc [e1; e2] =>
           Alloc (go e1) (go e2)
-      | GenNode code_Block (GenLeaf (EncodeConcreteness concrete) :: GenLeaf (EncodeNat tag) :: es) =>
-          Block concrete tag $ go_list es
+      | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: es) =>
+          Block mut tag $ go_list es
       | GenNode code_Reveal [e] =>
           Reveal (go e)
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>

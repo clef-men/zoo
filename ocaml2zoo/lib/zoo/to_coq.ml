@@ -111,8 +111,6 @@ let max_level =
 let next_level lvl =
   lvl - 1
 let level = function
-  | Constr (Revealed, _, _) ->
-      10
   | Constr (_, "::", _) ->
       60
   | Tuple _
@@ -140,6 +138,7 @@ let level = function
   | Apply _
   | Alloc _
   | Ref _
+  | Reveal _
   | Get_tag _
   | Get_size _
   | Load _
@@ -262,13 +261,15 @@ let rec expression' lvl ppf = function
   | Constr (_, tag, []) ->
       Fmt.pf ppf "§%s"
         tag
-  | Constr (concrete, tag, exprs) ->
-      Fmt.pf ppf "@[<hv>%s‘%s%c %a@;%c@]"
-        (if concrete = Revealed then "Reveal " else "")
+  | Constr (mut, tag, exprs) ->
+      Fmt.pf ppf "@[<hv>‘%s%c %a@;%c@]"
         tag
-        (if concrete = Concrete then '{' else '(')
+        (if mut = Mutable then '{' else '(')
         Fmt.(list ~sep:(any ",@;<1 2>") (fun ppf -> pf ppf "@[%a@]" (expression max_level))) exprs
-        (if concrete = Concrete then '}' else ')')
+        (if mut = Mutable then '}' else ')')
+  | Reveal expr ->
+      Fmt.pf ppf "@[<hv>Reveal@;<1 2>@[%a@]@]"
+        (expression @@ next_level lvl) expr
   | Proj (expr, fld) ->
       Fmt.pf ppf "@[%a@].<%s>"
         (expression lvl) expr

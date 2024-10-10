@@ -107,7 +107,7 @@ Section zoo_G.
     {{{
       True
     }}}
-      Block Concrete tag es @ E
+      Block Mutable tag es @ E
     {{{ l,
       RET #l;
       l ↦ₕ Header tag (length es) ∗

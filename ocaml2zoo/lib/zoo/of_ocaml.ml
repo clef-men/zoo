@@ -692,13 +692,11 @@ let rec expression ctx (expr : Typedtree.expression) =
             match constr.cstr_inlined with
             | None ->
                 let exprs = List.map (expression ctx) exprs in
-                let concrete =
-                  if Attribute.has_reveal constr.cstr_attributes then
-                    Revealed
-                  else
-                    Abstract
-                in
-                Constr (concrete, tag, exprs)
+                let expr = Constr (Immutable, tag, exprs) in
+                if Attribute.has_reveal constr.cstr_attributes then
+                  Reveal expr
+                else
+                  expr
             | Some ty ->
                 let[@warning "-8"] [expr] = exprs in
                 match expr.exp_desc with
@@ -706,15 +704,14 @@ let rec expression ctx (expr : Typedtree.expression) =
                     expression_ident ctx expr.exp_loc path
                 | Texp_record rcd ->
                     let exprs = expression_record ctx expr rcd.fields rcd.extended_expression in
-                    let concrete =
-                      if inline_record_type_is_mutable constr.cstr_attributes ty then
-                        Concrete
-                      else if Attribute.has_reveal constr.cstr_attributes then
-                        Revealed
+                    if inline_record_type_is_mutable constr.cstr_attributes ty then
+                      Constr (Mutable, tag, exprs)
+                    else
+                      let expr = Constr (Immutable, tag, exprs) in
+                      if Attribute.has_reveal constr.cstr_attributes then
+                        Reveal expr
                       else
-                        Abstract
-                    in
-                    Constr (concrete, tag, exprs)
+                        expr
                 | _ ->
                     assert false
         end

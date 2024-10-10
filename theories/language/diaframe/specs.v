@@ -91,7 +91,7 @@ Section zoo_G.
       ⌜0 < length es⌝%nat ∗
       ⌜to_vals es = Some vs⌝
     }}
-      Block Concrete tag es
+      Block Mutable tag es
     {{ l,
       RET #l;
       l ↦ₕ Header tag (length es) ∗

@@ -396,7 +396,7 @@ Section pure_exec.
     PureExec
       (to_vals es = Some vs)
       1
-      (Block Abstract tag es)
+      (Block Immutable tag es)
       (Val $ ValBlock None tag vs).
   Proof.
     intros <-%of_to_vals.

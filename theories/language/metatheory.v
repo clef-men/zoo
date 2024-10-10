@@ -170,9 +170,9 @@ Fixpoint subst (x : string) v e :=
       Alloc
         (subst x v e1)
         (subst x v e2)
-  | Block concrete tag es =>
+  | Block mut tag es =>
       Block
-        concrete tag
+        mut tag
         (subst x v <$> es)
   | Reveal e =>
       Reveal

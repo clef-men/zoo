@@ -46,8 +46,8 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxAlloc1 v2) K prophs e1
     | Alloc ?e1 ?e2 =>
         add_ectxi (CtxAlloc2 e1) K prophs e2
-    | Block ?concrete ?tag ?es =>
-        go_list K prophs (CtxBlock concrete tag) es
+    | Block ?mut ?tag ?es =>
+        go_list K prophs (CtxBlock mut tag) es
     | Reveal ?e =>
         add_ectxi CtxReveal K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
@@ -175,9 +175,9 @@ Ltac invert_base_step :=
   apply base_step_alloc'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Block Concrete _ _) _ _ _ _ _
+  base_step (Block Mutable _ _) _ _ _ _ _
 ) =>
-  eapply base_step_block_concrete'
+  eapply base_step_block_mutable'
 : zoo.
 #[global] Hint Extern 0 (
   base_step (Reveal _) _ _ _ _ _

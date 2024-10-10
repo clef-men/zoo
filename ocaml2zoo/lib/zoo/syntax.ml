@@ -13,10 +13,8 @@ type tag =
 type rec_flag =
   Asttypes.rec_flag
 
-type concreteness =
-  | Concrete
-  | Abstract
-  | Revealed
+type mutable_flag =
+  Asttypes.mutable_flag
 
 type typ =
   | Type_product of field list
@@ -56,7 +54,8 @@ type expression =
   | Tuple of expression list
   | Ref of expression
   | Record of expression list
-  | Constr of concreteness * tag * expression list
+  | Constr of mutable_flag * tag * expression list
+  | Reveal of expression
   | Proj of expression * field
   | Match of expression * branch list * fallback option
   | Ref_get of expression
@@ -109,7 +108,7 @@ let rec expression_is_value = function
   | Fun _ ->
       true
   | Tuple exprs
-  | Constr (Abstract, _, exprs) ->
+  | Constr (Immutable, _, exprs) ->
       List.for_all expression_is_value exprs
   | Local _
   | Let _
@@ -124,6 +123,7 @@ let rec expression_is_value = function
   | Ref _
   | Record _
   | Constr (_, _, _)
+  | Reveal _
   | Proj _
   | Match _
   | Ref_get _

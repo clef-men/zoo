@@ -163,7 +163,7 @@ Section zoo_G.
           False
       end
     ) →
-    envs_entails Δ (WP fill K (Block Concrete tag es) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Block Mutable tag es) @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hlen Hes HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
@@ -634,7 +634,7 @@ Tactic Notation "wp_block" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :
         | idtac..
         ]
       )
-    | fail 1 "wp_block: cannot find 'Block Concrete' in" e
+    | fail 1 "wp_block: cannot find 'Block Mutable in" e
     ];
     [ tc_solve
     | first

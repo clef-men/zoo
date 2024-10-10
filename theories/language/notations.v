@@ -366,13 +366,13 @@ Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
 ) : expr_scope.
 
 Notation "{ e1 , .. , en }" := (
-  Block Concrete 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Mutable 0 (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(e1, en at level 200,
   format "'[hv' {  '[' e1 ']' '/' ,  .. '/' ,  '[' en ']'  '/' } ']'"
 ) : expr_scope.
 
 Notation "‘ tag { e1 , .. , en }" := (
-  Block Concrete tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Mutable tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
@@ -399,7 +399,7 @@ Notation "§ tag" := (
 ) : val_scope.
 
 Notation "‘ tag ( e1 , .. , en )" := (
-  Block Abstract tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
+  Block Immutable tag%core (@cons expr e1%E .. (@cons expr en%E (@nil expr)) ..)
 )(at level 2,
   tag custom zoo_tag,
   e1, en at level 200,
@@ -429,7 +429,7 @@ Notation "‘ tag @ bid ( v1 , .. , vn )" := (
 ): val_scope.
 
 Notation "( e1 , e2 , .. , en )" := (
-  Block Abstract 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
+  Block Immutable 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
 ) : expr_scope.
 Notation "( v1 , v2 , .. , vn )" := (
@@ -769,7 +769,7 @@ Notation "v .[ fld ]" := (
 ) : expr_scope.
 Notation "e .[ fld ]" := (
   Block
-    Abstract
+    Immutable
     (in_type "__atomic_loc__" 0)
     ( @cons expr e%E
         ( @cons expr (Val (ValInt (Z.of_nat fld)))
@@ -799,7 +799,7 @@ Notation "'contents'" := (
 )(in custom zoo_field
 ).
 Notation "'ref' e" := (
-  Block Concrete (in_type "__ref__" 0) (@cons expr e%E (@nil expr))
+  Block Mutable (in_type "__ref__" 0) (@cons expr e%E (@nil expr))
 )(at level 10
 ) : expr_scope.
 Notation "! e" := (
@@ -832,7 +832,7 @@ Notation "[ ]" := (
 )(format "[ ]"
 ) : val_scope.
 Notation "e1 :: e2" := (
-  Block Abstract (in_type "__list__" 1)
+  Block Immutable (in_type "__list__" 1)
     ( @cons expr e1%E
         ( @cons expr e2%E
             (@nil expr)

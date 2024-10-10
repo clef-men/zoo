@@ -6,13 +6,13 @@
    - physically compared values in [Equal] and [CAS] are loosely compatible:
      + a boolean may be compared with another boolean or a location;
      + an integer may be compared with another integer or a location;
-     + an abstract block may be compared with another abstract block or a location.
+     + an immutable block may be compared with another immutable block or a location.
 
-   This means we never physically compare, e.g., a boolean and an integer, an integer and an abstract block.
+   This means we never physically compare, e.g., a boolean and an integer, an integer and an immutable block.
    If we wanted to allow it, we would have to extend the semantics of physical comparison to account for conflicts in the memory representation of values.
 
    This also means a location may be compared with anything.
-   In particular, comparing a location [Val (ValLoc l)] and an abstract block [ValBlock tag vs] is allowed, since [Block concrete tag es] may yield a concrete block ([concrete] = [Concrete]) or an abstract block ([concrete] = [Abstract]).
+   In particular, comparing a location [Val (ValLoc l)] — as obtained with [Block Mutable tag es] — and an immutable block [ValBlock tag vs] — as obtained with [Block Immutable tag es] — is allowed.
 *)
 
 From stdpp Require Import
@@ -35,7 +35,7 @@ Implicit Types b : bool.
 Implicit Types tag : nat.
 Implicit Types n m : Z.
 Implicit Types l : location.
-Implicit Types concrete : concreteness.
+Implicit Types mut : mutability.
 Implicit Types lit : literal.
 Implicit Types x : binder.
 Implicit Types e : expr.
@@ -404,7 +404,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_alloc l (Header tag (Z.to_nat n)) (replicate (Z.to_nat n) ValUnit) σ)
         []
-  | base_step_block_concrete tag es vs σ l :
+  | base_step_block_mutable tag es vs σ l :
       0 < length es →
       es = of_vals vs →
       σ.(state_headers) !! l = None →
@@ -413,16 +413,16 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
-        (Block Concrete tag es)
+        (Block Mutable tag es)
         σ
         []
         (Val $ ValLoc l)
         (state_alloc l (Header tag (length es)) vs σ)
         []
-  | base_step_block_abstract tag es vs σ :
+  | base_step_block_immutable tag es vs σ :
       es = of_vals vs →
       base_step
-        (Block Abstract tag es)
+        (Block Immutable tag es)
         σ
         []
         (Val $ ValBlock None tag vs)
@@ -436,7 +436,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValBlock (Some bid) tag vs)
         σ
         []
-  | base_step_match_concrete l hdr x e brs e' σ :
+  | base_step_match_mutable l hdr x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
       eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
       base_step
@@ -446,7 +446,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
-  | base_step_match_abstract bid tag vs x e brs e' σ :
+  | base_step_match_immutable bid tag vs x e brs e' σ :
       eval_match bid tag (length vs) (inr vs) x e brs = Some e' →
       base_step
         (Match (Val $ ValBlock bid tag vs) x e brs)
@@ -455,7 +455,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
-  | base_step_get_tag_concrete l hdr σ :
+  | base_step_get_tag_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
         (GetTag $ Val $ ValLoc l)
@@ -464,7 +464,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_tag))
         σ
         []
-  | base_step_get_tag_abstract cid tag vs σ :
+  | base_step_get_tag_immutable cid tag vs σ :
       0 < length vs →
       base_step
         (GetTag $ Val $ ValBlock cid tag vs)
@@ -473,7 +473,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt tag)
         σ
         []
-  | base_step_get_size_concrete l hdr σ :
+  | base_step_get_size_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
         (GetSize $ Val $ ValLoc l)
@@ -482,7 +482,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_size))
         σ
         []
-  | base_step_get_size_abstract cid tag vs σ :
+  | base_step_get_size_immutable cid tag vs σ :
       0 < length vs →
       base_step
         (GetSize $ Val $ ValBlock cid tag vs)
@@ -491,7 +491,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt (length vs))
         σ
         []
-  | base_step_get_field_concrete l fld v σ :
+  | base_step_get_field_mutable l fld v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       base_step
         (Load (Val $ ValLoc l) (Val $ ValInt fld))
@@ -500,7 +500,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-  | base_step_get_field_abstract cid tag vs (fld : nat) v σ :
+  | base_step_get_field_immutable cid tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
         (Load (Val $ ValBlock cid tag vs) (Val $ ValInt fld))
@@ -625,12 +625,12 @@ Lemma base_step_reveal' tag vs σ :
 Proof.
   apply base_step_reveal.
 Qed.
-Lemma base_step_block_concrete' tag es vs σ :
+Lemma base_step_block_mutable' tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
   es = of_vals vs →
   base_step
-    (Block Concrete tag es)
+    (Block Mutable tag es)
     σ
     []
     (Val $ ValLoc l)
@@ -640,7 +640,7 @@ Proof.
   intros l Hn ->.
   pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
   setoid_rewrite not_elem_of_union in Hfresh.
-  apply base_step_block_concrete; [done.. | |].
+  apply base_step_block_mutable; [done.. | |].
   all: intros; apply not_elem_of_dom.
   - rewrite -(location_add_0 l). naive_solver.
   - apply Hfresh. lia.
@@ -679,7 +679,7 @@ Inductive ectxi :=
   | CtxFor2 v1 e3
   | CtxAlloc1 v2
   | CtxAlloc2 e1
-  | CtxBlock concrete tag vs es
+  | CtxBlock mut tag vs es
   | CtxReveal
   | CtxMatch x e1 brs
   | CtxGetTag
@@ -734,8 +734,8 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e $ Val v2
   | CtxAlloc2 e1 =>
       Alloc e1 e
-  | CtxBlock concrete tag vs es =>
-      Block concrete tag $ of_vals vs ++ e :: es
+  | CtxBlock mut tag vs es =>
+      Block mut tag $ of_vals vs ++ e :: es
   | CtxReveal =>
       Reveal e
   | CtxMatch x e1 brs =>
