@@ -2,12 +2,12 @@ let usage =
   "usage: ocaml2zoo <cmt_file>"
 
 let error ?(with_usage = true) fmt =
-  Format.kfprintf (fun ppf ->
+  Fmt.kpf (fun ppf ->
     if with_usage then
-      Format.fprintf ppf "@,%s" usage ;
-    Format.fprintf ppf "@]@." ;
+      Fmt.pf ppf "@,%s" usage ;
+    Fmt.pf ppf "@]@." ;
     exit 1
-  ) Format.err_formatter ("@[<v>" ^^ fmt)
+  ) Fmt.stderr ("@[<v>" ^^ fmt)
 
 let filename =
   try

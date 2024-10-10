@@ -2,7 +2,7 @@ module Error : sig
   type t
 
   val pp :
-    Format.formatter -> t -> unit
+    t Fmt.t
 end
 
 exception Error of Location.t * Error.t

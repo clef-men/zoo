@@ -353,7 +353,7 @@ module Unsupported = struct
         {|"include" declaration|}
 
   let pp ppf t =
-    Format.pp_print_string ppf (to_string t)
+    Fmt.string ppf (to_string t)
 end
 
 module Error = struct
@@ -364,13 +364,13 @@ module Error = struct
 
   let pp ppf = function
     | Unsupported unsupported ->
-        Format.fprintf ppf "unsupported feature: %a"
+        Fmt.pf ppf "unsupported feature: %a"
           Unsupported.pp unsupported
     | Attribute_prefix_invalid_payload ->
-        Format.fprintf ppf {|payload of attribute "%s" must be a string|}
+        Fmt.pf ppf {|payload of attribute "%s" must be a string|}
           Attribute.prefix
     | Attribute_overwrite_invalid_payload ->
-        Format.fprintf ppf {|payload of attribute "%s" must be a expression|}
+        Fmt.pf ppf {|payload of attribute "%s" must be a expression|}
           Attribute.overwrite
 end
 

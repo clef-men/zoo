@@ -3,6 +3,7 @@
   (libraries
     ocaml-compiler-libs.common
     ocaml2zoo.base
+    fmt
   )
   (flags (:standard -open Ocaml2zoo__base))
 )

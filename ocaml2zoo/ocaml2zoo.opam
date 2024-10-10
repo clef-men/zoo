@@ -6,6 +6,7 @@ authors: ["Clément Allain"]
 depends: [
   "dune" {>= "3.0"}
   "ocaml-compiler-libs"
+  "fmt"
   "odoc" {with-doc}
 ]
 build: [

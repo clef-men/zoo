@@ -16,5 +16,6 @@
   (synopsis "OCaml to Zoo")
   (depends
     ocaml-compiler-libs
+    fmt
   )
 )
