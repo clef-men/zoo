@@ -471,8 +471,8 @@ let rec pattern_is_neutral (pat : Typedtree.pattern) =
       true
   | Tpat_tuple pats ->
       List.for_all pattern_is_neutral pats
-  | Tpat_record (rcd, Closed) ->
-      List.for_all (fun (_, _, pat) -> pattern_is_neutral pat) rcd
+  | Tpat_record (pats, Closed) ->
+      List.for_all (fun (_, _, pat) -> pattern_is_neutral pat) pats
   | Tpat_construct (_, constr, pats, _) ->
       constr.cstr_consts + constr.cstr_nonconsts = 1 &&
       List.for_all pattern_is_neutral pats
@@ -524,14 +524,11 @@ let rec pattern ctx (pat : Typedtree.pattern) =
       Some (Pat_tuple bdrs)
   | Tpat_record ((_, { lbl_repres= Record_unboxed _; _ }, pat) :: _, _) ->
       pattern ctx pat
-  | Tpat_record (rcd, Closed) ->
-      let bdrs =
-        List.map (fun (_, lbl, pat) ->
-          if lbl.Data_types.lbl_mut = Mutable then
-            unsupported pat.Typedtree.pat_loc Pattern_record ;
-          pattern_to_binder ~err:Pattern_nested ctx pat
-        ) rcd
-      in
+  | Tpat_record (((_, lbl, _) :: _) as pats, Closed) ->
+      let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc lbl.lbl_res in
+      if record_type_is_mutable (Env.find_type rcd (Context.env ctx)) then
+        unsupported pat.pat_loc Pattern_record ;
+      let bdrs = List.map (fun (_, _, pat) -> pattern_to_binder ~err:Pattern_nested ctx pat) pats in
       Some (Pat_tuple bdrs)
   | Tpat_record _ ->
       unsupported pat.pat_loc Pattern_record
@@ -951,10 +948,10 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
                         let[@warning "-8"] Types.Type_record (lbls, _) = ty.type_kind in
                         let bdrs = List.make (List.length lbls) None in
                         bdrs, bdr, expr
-                    | Tpat_record (rcd, Closed) ->
+                    | Tpat_record (pats, Closed) ->
                         if inline_record_type_is_mutable constr.cstr_attributes ty then
                           unsupported pat.pat_loc Pattern_invalid ;
-                        let bdrs = List.map (fun (_, _, pat) -> pattern_to_binder ~err:Pattern_invalid ctx pat) rcd in
+                        let bdrs = List.map (fun (_, _, pat) -> pattern_to_binder ~err:Pattern_invalid ctx pat) pats in
                         let expr = expression ctx br.c_rhs in
                         bdrs, bdr, expr
                     | _ ->
