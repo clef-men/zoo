@@ -476,7 +476,7 @@ let rec pattern_is_neutral (pat : Typedtree.pattern) =
       List.for_all pattern_is_neutral pats
   | _ ->
       false
-let pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
+let rec pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
   | Tpat_any ->
       None
@@ -495,6 +495,9 @@ let pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
         None
       else
         unsupported pat.pat_loc err
+  | Tpat_construct (_, { cstr_tag= Cstr_unboxed; _ }, pats, _) ->
+      let[@warning "-8"] [pat] = pats in
+      pattern_to_binder ~err ctx pat
   | Tpat_construct (_, constr, pats, _) ->
       if constr.cstr_consts + constr.cstr_nonconsts = 1
       && List.for_all pattern_is_neutral pats
@@ -505,7 +508,7 @@ let pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
   | _ ->
       unsupported pat.pat_loc err
 
-let pattern ctx (pat : Typedtree.pattern) =
+let rec pattern ctx (pat : Typedtree.pattern) =
   match pat.pat_desc with
   | Tpat_any ->
       None
@@ -515,6 +518,9 @@ let pattern ctx (pat : Typedtree.pattern) =
   | Tpat_tuple pats ->
       let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
       Some (Pat_tuple bdrs)
+  | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
+      let[@warning "-8"] [pat] = pats in
+      pattern ctx pat
   | Tpat_construct (lid, constr, pats, _) ->
       let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
       if Longident.Map.mem lid.txt Builtin.constrs then
