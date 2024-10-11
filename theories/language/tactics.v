@@ -88,29 +88,20 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxResolve2 e0 e1) K prophs e2
     end
   with go_list K prophs ctx es :=
-    go_list' K prophs ctx (@nil val) es
-  with go_list' K prophs ctx vs es :=
+    let es := eval simpl in (rev es) in
+    go_list' K prophs ctx es (@nil val)
+  with go_list' K prophs ctx es vs :=
     lazymatch es with
     | cons ?e ?es =>
         lazymatch e with
         | Val ?v =>
-            go_list' K prophs ctx (cons v vs) es
+            go_list' K prophs ctx es (cons v vs)
         | _ =>
-            go_list'' K prophs ctx vs e es
+            add_ectxi (ctx (rev es) vs) K prophs e
         end
     | _ =>
         fail
     end
-  with go_list'' K prophs ctx vs e es :=
-    first
-    [ add_ectxi (ctx (rev vs) es) K prophs e
-    | lazymatch vs with
-      | nil =>
-          fail
-      | cons ?v ?vs =>
-          go_list'' K prophs ctx vs (Val v) (cons e es)
-      end
-    ]
   with add_ectxi k K prophs e :=
     lazymatch prophs with
     | nil =>

@@ -912,11 +912,11 @@ Section inf_ws_deque_1_G.
 
     wp_rec.
 
-    (* → [inf_array_create ()] *)
-    wp_apply (inf_array_create_spec with "[//]") as "%data (#Harray_inv & Harray_model)".
-
     (* → [Proph] *)
     wp_apply (wise_prophet_wp_proph with "[//]") as "%pid %γ_prophet %prophs Hprophet_model".
+
+    (* → [inf_array_create ()] *)
+    wp_apply (inf_array_create_spec with "[//]") as "%data (#Harray_inv & Harray_model)".
 
     (* → [{ #0; #0; data; #pid }] *)
     wp_block l as "Hmeta" "(Hfront & Hback & Hdata & Hpid & _)".

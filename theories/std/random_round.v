@@ -46,7 +46,6 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
     wp_rec.
-    wp_apply (random_create_spec with "[//]") as (rand) "#Hrand".
     pose (Ψ := λ i vs, (
       ⌜vs = #@{nat} <$> seq 0 i⌝
     )%I : iProp Σ).
@@ -55,6 +54,7 @@ Section zoo_G.
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }
+    wp_apply (random_create_spec with "[//]") as (rand) "#Hrand".
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
     iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id length_seq. iSteps.

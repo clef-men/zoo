@@ -679,7 +679,7 @@ Inductive ectxi :=
   | CtxFor2 v1 e3
   | CtxAlloc1 v2
   | CtxAlloc2 e1
-  | CtxBlock mut tag vs es
+  | CtxBlock mut tag es vs
   | CtxReveal
   | CtxMatch x e1 brs
   | CtxGetTag
@@ -734,8 +734,8 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e $ Val v2
   | CtxAlloc2 e1 =>
       Alloc e1 e
-  | CtxBlock mut tag vs es =>
-      Block mut tag $ of_vals vs ++ e :: es
+  | CtxBlock mut tag es vs =>
+      Block mut tag $ es ++ e :: of_vals vs
   | CtxReveal =>
       Reveal e
   | CtxMatch x e1 brs =>
@@ -796,11 +796,14 @@ Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
 Proof.
   move: k1.
   induction k2; intros k1; destruct k1; try naive_solver.
-  move=> /= H1 H2 H; injection H => {H} H' *; subst.
-  apply app_inj_1 in H'; first naive_solver.
-  clear- H1 H2 H'.
-  match goal with |- length (of_vals ?vs1) = length (of_vals ?vs2) =>
-    move: vs2 H'; induction vs1; intros []; naive_solver
+  intros H1 H2 [= -> -> H%app_inj_2]; first naive_solver.
+  simpl. do 3 f_equal.
+  apply (f_equal reverse) in H.
+  rewrite !reverse_app !reverse_cons -!fmap_reverse /= in H.
+  match goal with |- ?vs1 = ?vs2 =>
+    apply (inj reverse);
+    remember (reverse vs1) as vs1'; remember (reverse vs2) as vs2';
+    clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive_solver
   end.
 Qed.
 Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
@@ -811,8 +814,11 @@ Proof.
   induction k; try (inversion_clear 1; eauto || done).
   all: inversion_clear 1.
   all:
-    match goal with H: of_vals ?vs' ++ _ = of_vals ?vs |- _ =>
-      clear- H; move: vs H; induction vs'; intros []; naive_solver
+    match goal with H: _ ++ _ :: of_vals ?vs1 = of_vals ?vs2 |- _ =>
+      apply (f_equal reverse) in H;
+      rewrite reverse_app reverse_cons -!fmap_reverse /= in H;
+      remember (reverse vs1) as vs1'; remember (reverse vs2) as vs2';
+      clear- H; move: vs2' H; induction vs1'; intros []; naive_solver
     end.
 Qed.
 

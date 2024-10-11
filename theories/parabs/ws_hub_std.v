@@ -334,7 +334,7 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    wp_smart_apply (ws_deques_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
+    wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
 
     wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (sz' - 1) (sz' - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
@@ -346,7 +346,7 @@ Section ws_hub_std_G.
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
     rewrite Hrounds.
 
-    wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
+    wp_smart_apply (ws_deques_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
 
     wp_block l as "Hmeta" "(Hl_deques & Hl_rounds & Hl_waiters & Hl_killed & _)".
     iMod (pointsto_persist with "Hl_deques") as "#Hl_deques".
