@@ -258,7 +258,7 @@ module Unsupported = struct
     | Pattern_variant ->
         "variant pattern"
     | Pattern_record ->
-        "record pattern"
+        "invalid record pattern"
     | Pattern_array ->
         "array pattern"
     | Pattern_or ->
@@ -471,6 +471,8 @@ let rec pattern_is_neutral (pat : Typedtree.pattern) =
       true
   | Tpat_tuple pats ->
       List.for_all pattern_is_neutral pats
+  | Tpat_record (rcd, Closed) ->
+      List.for_all (fun (_, _, pat) -> pattern_is_neutral pat) rcd
   | Tpat_construct (_, constr, pats, _) ->
       constr.cstr_consts + constr.cstr_nonconsts = 1 &&
       List.for_all pattern_is_neutral pats
@@ -495,6 +497,8 @@ let rec pattern_to_binder ~err ctx (pat : Typedtree.pattern) =
         None
       else
         unsupported pat.pat_loc err
+  | Tpat_record ((_, { lbl_repres= Record_unboxed _; _ }, pat) :: _, _) ->
+      pattern_to_binder ~err ctx pat
   | Tpat_construct (_, { cstr_tag= Cstr_unboxed; _ }, pats, _) ->
       let[@warning "-8"] [pat] = pats in
       pattern_to_binder ~err ctx pat
@@ -518,7 +522,20 @@ let rec pattern ctx (pat : Typedtree.pattern) =
   | Tpat_tuple pats ->
       let bdrs = List.map (pattern_to_binder ~err:Pattern_nested ctx) pats in
       Some (Pat_tuple bdrs)
-  | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
+  | Tpat_record ((_, { lbl_repres= Record_unboxed _; _ }, pat) :: _, _) ->
+      pattern ctx pat
+  | Tpat_record (rcd, Closed) ->
+      let bdrs =
+        List.map (fun (_, lbl, pat) ->
+          if lbl.Data_types.lbl_mut = Mutable then
+            unsupported pat.Typedtree.pat_loc Pattern_record ;
+          pattern_to_binder ~err:Pattern_nested ctx pat
+        ) rcd
+      in
+      Some (Pat_tuple bdrs)
+  | Tpat_record _ ->
+      unsupported pat.pat_loc Pattern_record
+  | Tpat_construct (_, { cstr_tag= Cstr_unboxed; _ }, pats, _) ->
       let[@warning "-8"] [pat] = pats in
       pattern ctx pat
   | Tpat_construct (lid, constr, pats, _) ->
@@ -535,8 +552,6 @@ let rec pattern ctx (pat : Typedtree.pattern) =
       unsupported pat.pat_loc Pattern_constant
   | Tpat_variant _ ->
       unsupported pat.pat_loc Pattern_variant
-  | Tpat_record _ ->
-      unsupported pat.pat_loc Pattern_record
   | Tpat_array _ ->
       unsupported pat.pat_loc Pattern_array
   | Tpat_or _ ->
@@ -677,50 +692,55 @@ let rec expression ctx (expr : Typedtree.expression) =
       Tuple exprs
   | Texp_record rcd ->
       let exprs = expression_record ctx expr rcd.fields rcd.extended_expression in
-      let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc expr.exp_type in
-      if record_type_is_mutable (Env.find_type rcd (Context.env ctx)) then
-        Record exprs
-      else
-        Tuple exprs
+      begin match rcd.representation with
+      | Record_unboxed _ ->
+          let[@warning "-8"] [expr] = exprs in
+          expr
+      | _ ->
+          let[@warning "-8"] Types.Tconstr (rcd, _, _) = Types.get_desc expr.exp_type in
+          if record_type_is_mutable (Env.find_type rcd (Context.env ctx)) then
+            Record exprs
+          else
+            Tuple exprs
+      end
+  | Texp_construct (_, { cstr_tag= Cstr_unboxed; _ }, exprs) ->
+      let[@warning "-8"] [expr] = exprs in
+      expression ctx expr
   | Texp_construct (lid, constr, exprs) ->
-      if constr.cstr_tag = Cstr_unboxed then
-        let[@warning "-8"] [expr] = exprs in
-        expression ctx expr
-      else
-        begin match Longident.Map.find_opt lid.txt Builtin.constrs with
-        | Some expr ->
-            assert (exprs = []) ;
-            expr
-        | None ->
-            let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) (Longident.last lid.txt) in
-            let[@warning "-8"] Types.Tconstr (variant, _, _) = Types.get_desc constr.cstr_res in
-            Context.add_dependency_from_path ctx lid.loc variant ;
-            match constr.cstr_inlined with
-            | None ->
-                let exprs = List.map (expression ctx) exprs in
-                let expr = Constr (Immutable, tag, exprs) in
-                if Attribute.has_reveal constr.cstr_attributes then
-                  Reveal expr
-                else
-                  expr
-            | Some ty ->
-                let[@warning "-8"] [expr] = exprs in
-                match expr.exp_desc with
-                | Texp_ident (path, _, _) ->
-                    expression_ident ctx expr.exp_loc path
-                | Texp_record rcd ->
-                    let exprs = expression_record ctx expr rcd.fields rcd.extended_expression in
-                    if inline_record_type_is_mutable constr.cstr_attributes ty then
-                      Constr (Mutable, tag, exprs)
+      begin match Longident.Map.find_opt lid.txt Builtin.constrs with
+      | Some expr ->
+          assert (exprs = []) ;
+          expr
+      | None ->
+          let tag = Option.get_lazy (fun () -> unsupported lid.loc Functor) (Longident.last lid.txt) in
+          let[@warning "-8"] Types.Tconstr (variant, _, _) = Types.get_desc constr.cstr_res in
+          Context.add_dependency_from_path ctx lid.loc variant ;
+          match constr.cstr_inlined with
+          | None ->
+              let exprs = List.map (expression ctx) exprs in
+              let expr = Constr (Immutable, tag, exprs) in
+              if Attribute.has_reveal constr.cstr_attributes then
+                Reveal expr
+              else
+                expr
+          | Some ty ->
+              let[@warning "-8"] [expr] = exprs in
+              match expr.exp_desc with
+              | Texp_ident (path, _, _) ->
+                  expression_ident ctx expr.exp_loc path
+              | Texp_record rcd ->
+                  let exprs = expression_record ctx expr rcd.fields rcd.extended_expression in
+                  if inline_record_type_is_mutable constr.cstr_attributes ty then
+                    Constr (Mutable, tag, exprs)
+                  else
+                    let expr = Constr (Immutable, tag, exprs) in
+                    if Attribute.has_reveal constr.cstr_attributes then
+                      Reveal expr
                     else
-                      let expr = Constr (Immutable, tag, exprs) in
-                      if Attribute.has_reveal constr.cstr_attributes then
-                        Reveal expr
-                      else
-                        expr
-                | _ ->
-                    assert false
-        end
+                      expr
+              | _ ->
+                  assert false
+      end
   | Texp_match (expr, brs, _, _) ->
       let expr = expression ctx expr in
       let brs, fb = branches ctx brs in
@@ -747,7 +767,7 @@ let rec expression ctx (expr : Typedtree.expression) =
       Context.add_dependency_from_path ctx lid.loc rcd ;
       let expr2 = expression ctx expr2 in
       Record_set (expr1, fld, expr2)
-  | Texp_assert ({ exp_desc= Texp_construct (_, constr, _); _ }, _) when constr.cstr_name = "false" ->
+  | Texp_assert ({ exp_desc= Texp_construct (_, { cstr_name= "false"; _ }, _); _ }, _) ->
       Fail
   | Texp_assert (expr, _) ->
       Context.add_dependency ctx "assert" ;
@@ -885,7 +905,9 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
               | Some local' ->
                   acc, Some { fallback_as= bdr; fallback_expr= Let (Pat_var local, Local local', expr) }
               end
-          | Tpat_construct (_, constr, pats, _) when constr.cstr_tag = Cstr_unboxed ->
+          | Tpat_record ((_, { lbl_repres= Record_unboxed _; _ }, pat) :: _, _) ->
+              aux2 pat bdr
+          | Tpat_construct (_, { cstr_tag= Cstr_unboxed; _ }, pats, _) ->
               let[@warning "-8"] [pat] = pats in
               aux2 pat bdr
           | Tpat_construct (lid, constr, pats, _) ->
@@ -1013,6 +1035,8 @@ let type_declaration (ty : Typedtree.type_declaration) =
   let var = ty.typ_name.txt in
   match ty.typ_type.type_kind with
   | Type_abstract _ ->
+      []
+  | Type_record (_, Record_unboxed _) ->
       []
   | Type_record (lbls, _) ->
       let ty = type_declaration_record ty.typ_attributes lbls in

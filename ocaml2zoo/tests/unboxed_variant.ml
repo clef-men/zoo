@@ -4,11 +4,11 @@ type[@unboxed] 'a t =
 let test1 x =
   T x
 
-let test2 x =
-  match x with
+let test2 t =
+  match t with
   | T x ->
       x
 
-let test3 x =
-  let T x = x in
+let test3 t =
+  let T x = t in
   x

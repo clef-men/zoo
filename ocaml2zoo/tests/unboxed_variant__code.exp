@@ -3,24 +3,24 @@ From zoo Require Import
 From zoo.language Require Import
   notations.
 From zoo.tests Require Import
-  unboxed__types.
+  unboxed_variant__types.
 From zoo Require Import
   options.
 
-Definition unboxed_test1 : val :=
+Definition unboxed_variant_test1 : val :=
   fun: "x" =>
     "x".
 
-Definition unboxed_test2 : val :=
-  fun: "x" =>
-    match: "x" with
+Definition unboxed_variant_test2 : val :=
+  fun: "t" =>
+    match: "t" with
     |_ as "x" =>
         "x"
     end.
 
-Definition unboxed_test3 : val :=
-  fun: "x" =>
-    match: "x" with
+Definition unboxed_variant_test3 : val :=
+  fun: "t" =>
+    match: "t" with
     |_ as "x" =>
         "x"
     end.

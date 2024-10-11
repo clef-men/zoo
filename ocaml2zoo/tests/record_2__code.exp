@@ -7,7 +7,12 @@ From zoo.tests Require Import
 From zoo Require Import
   options.
 
-Definition record_2_test : val :=
+Definition record_2_test1 : val :=
   fun: <> =>
     let: "t2" := (#0, #1) in
     "t2".<f1>.
+
+Definition record_2_test2 : val :=
+  fun: "t" =>
+    let: "f1", "f2" := "t" in
+    "f1" + "f2".
