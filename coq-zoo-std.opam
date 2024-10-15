@@ -20,8 +20,8 @@ depends: [
   "coq-diaframe" {= "dev.2024-10-07.2.b763ca07"}
 ]
 build: [
-  "./make_package.sh" "-j%{jobs}%" "build-zoo"
+  "./make_package.sh" "-j%{jobs}%" "build-zoo-std"
 ]
 install: [
-  "./make_package.sh" "install-zoo"
+  "./make_package.sh" "install-zoo-std"
 ]
