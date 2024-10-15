@@ -50,3 +50,30 @@ cd ocaml2zoo
 opam install . --deps-only --yes
 make
 ```
+
+### Installation
+
+Zoo is not available on opam yet, but you can already use it in your Coq developments by adding the following opam dependency:
+
+```
+pin-depends: [
+  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+]
+depends: [
+  "coq-zoo"
+]
+```
+
+To also install the standard library, add:
+
+```
+pin-depends: [
+  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["coq-zoo-std.dev" "git+https://github.com/clef-men/zoo.git#main"]
+]
+depends: [
+  "coq-zoo-std"
+]
+```
+
+See also [this example](https://github.com/clef-men/zoo_demo).
