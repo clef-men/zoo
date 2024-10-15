@@ -13,15 +13,17 @@ homepage:
   "https://github.com/clef-men/zoo"
 bug-reports:
   "https://github.com/clef-men/zoo/issues"
+
 depends: [
   "coq" {= "8.20.0"}
   "coq-stdpp" {= "dev.2024-09-11.0.f6973baf"}
   "coq-iris" {= "dev.2024-09-11.3.0203d5ca"}
   "coq-diaframe" {= "dev.2024-10-07.2.b763ca07"}
 ]
+
 build: [
-  "./make_package.sh" "-j%{jobs}%" "build-zoo"
+  make "-j%{jobs}%" "build-zoo"
 ]
 install: [
-  "./make_package.sh" "install-zoo"
+  make "install-zoo"
 ]
