@@ -6,10 +6,6 @@ all :
 .PHONY : phony
 phony :
 
-.PHONY : depend
-depend :
-	@ opam install . --deps-only --yes
-
 Makefile.coq : _CoqProject
 	@ coq_makefile -f $< -o $@
 
