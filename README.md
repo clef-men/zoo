@@ -51,7 +51,7 @@ opam install . --deps-only --yes
 make
 ```
 
-### Installation
+## Installation
 
 Zoo is not available on opam yet, but you can already use it in your Coq developments by adding the following opam dependency:
 
