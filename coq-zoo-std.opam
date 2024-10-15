@@ -15,7 +15,7 @@ bug-reports:
   "https://github.com/clef-men/zoo/issues"
 
 pin-depends: [
-  "coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"
+  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
   "coq-zoo"
