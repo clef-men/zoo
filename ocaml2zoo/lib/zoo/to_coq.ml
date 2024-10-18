@@ -401,27 +401,65 @@ and fallback ppf fb =
 let expression =
   expression max_level
 
-let value ppf (global, val_) =
-  match val_ with
-  | Val_expr expr ->
+let value fresh ppf = function
+  | Val_expr (global, expr) ->
       Fmt.pf ppf "Definition %a : val :=@,  @[%a@]."
         global_variable global
         expression expr
-  | Val_rec (local, params, expr) ->
-      Fmt.pf ppf "Definition %a : val :=@,  @[<v>%s: %a%a =>@,  @[%a@]@]."
+  | Val_fun (global, params, expr) ->
+      Fmt.pf ppf "Definition %a : val :=@,  @[<v>fun: %a =>@,  @[%a@]@]."
         global_variable global
-        (if Option.is_none local then "fun" else "rec")
-        Fmt.(option @@ fun ppf -> pf ppf "%a " local_variable) local
         Fmt.(list ~sep:(const char ' ') binder) params
         expression expr
-  | Val_opaque ->
+  | Val_recs [global, local, params, body] ->
+      Fmt.pf ppf "Definition %a : val :=@,  @[<v>rec: %a %a =>@,  @[%a@]@]."
+        global_variable global
+        local_variable local
+        Fmt.(list ~sep:(const char ' ') binder) params
+        expression body
+  | Val_recs recs ->
+      let id = fresh () in
+      Fmt.pf ppf "#[local] Definition __zoo_recs_%i := (@,  @[<v>recs: %a@]@,)%%zoo_recs.@,%a@,%a"
+        id
+        Fmt.(
+          list
+            ~sep:(
+              fun ppf () ->
+                pf ppf "@,and: "
+            )
+            ( fun ppf (_, local, params, body) ->
+                pf ppf "%a %a =>@,  @[%a@]"
+                  local_variable local
+                  (list ~sep:(const char ' ') binder) params
+                  expression body
+            )
+        ) recs
+        ( Fmt.list_index (fun ppf i (global, _, _, _) ->
+            Fmt.pf ppf "Definition %a :=@,  ValRecs %i __zoo_recs_%i."
+              global_variable global
+              i
+              id
+          )
+        ) recs
+        ( Fmt.list_index (fun ppf i (global, _, _, _) ->
+            Fmt.pf ppf "#[global] Instance :@,  @[<v>AsValRecs' %a %i __zoo_recs_%i [@,  @[<v>%a@]@,].@]@,Proof.@,  done.@,Qed."
+              global_variable global
+              i
+              id
+              Fmt.(list ~sep:(any " ;@,") (fun ppf (global, _, _, _) -> global_variable ppf global)) recs
+          )
+        ) recs
+  | Val_opaque global ->
       Fmt.pf ppf "Parameter %a : val."
         global_variable global
+let value () =
+  let gen = ref 0 in
+  value (fun () -> let i = !gen in gen := i + 1 ; i)
 
 let structure ?dir pp select ppf str =
   Fmt.pf ppf "@[<v>" ;
   Fmt.pf ppf "From zoo Require Import@,  prelude.@," ;
-  Fmt.pf ppf "From zoo.language Require Import@,  notations.@," ;
+  Fmt.pf ppf "From zoo.language Require Import@,  typeclass_instances@,  notations.@," ;
   if str.dependencies <> [] then (
     Fmt.pf ppf "From zoo Require Import@," ;
     Fmt.(list (fun ppf -> pf ppf "  %s")) ppf str.dependencies ;
@@ -438,4 +476,4 @@ let structure ?dir pp select ppf str =
   Fmt.pf ppf "@]@."
 let structure ~dir ~types:ppf_types ~code:ppf_code str =
   structure typ structure_types ppf_types str ;
-  structure ~dir value structure_values ppf_code str
+  structure ~dir (value ()) structure_values ppf_code str

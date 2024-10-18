@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.language Require Import
+  typeclass_instances
   notations.
 From zoo.tests Require Import
   basic_2__types.
@@ -14,3 +15,16 @@ Definition basic_2_test1 : val :=
 Definition basic_2_test2 : val :=
   rec: "test2" "x" =>
     "x" + "test2" "x".
+
+Definition basic_2_test3 : val :=
+  #0.
+
+Definition basic_2_test4 : val :=
+  #1.
+
+Definition basic_2_test5 : val :=
+  fun: "x" =>
+    "x".
+
+Definition basic_2_test6 : val :=
+  ().

@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.language Require Import
+  typeclass_instances
   notations.
 From zoo.tests Require Import
   zoo_opaque__types.
@@ -10,3 +11,7 @@ From zoo Require Import
 Parameter zoo_opaque_test1 : val.
 
 Parameter zoo_opaque_test2 : val.
+
+Parameter zoo_opaque_test3 : val.
+
+Parameter zoo_opaque_test4 : val.

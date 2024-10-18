@@ -10,11 +10,13 @@ type field =
 type tag =
   string
 
-type rec_flag =
-  Asttypes.rec_flag
+type rec_flag = Asttypes.rec_flag =
+  | Nonrecursive
+  | Recursive
 
-type mutable_flag =
-  Asttypes.mutable_flag
+type mutable_flag = Asttypes.mutable_flag =
+  | Immutable
+  | Mutable
 
 type typ =
   | Type_product of field list
@@ -87,18 +89,19 @@ and fallback =
   }
 
 type value =
-  | Val_expr of expression
-  | Val_rec of binder * binder list * expression
-  | Val_opaque
+  | Val_expr of variable * expression
+  | Val_fun of variable * binder list * expression
+  | Val_recs of (variable * variable * binder list * expression) list
+  | Val_opaque of variable
 
 type definition =
-  | Type of typ
+  | Type of variable * typ
   | Val of value
 
 type structure =
   { modname: string;
     dependencies: string list;
-    definitions: (variable * definition) list;
+    definitions: definition list;
   }
 
 let rec expression_is_value = function
@@ -146,6 +149,6 @@ let rec expression_is_value = function
       false
 
 let structure_types str =
-  List.filter_map (fun (var, def) -> match def with Type ty -> Some (var, ty) | _ -> None) str.definitions
+  List.filter_map (function Type (var, ty) -> Some (var, ty) | _ -> None) str.definitions
 let structure_values str =
-  List.filter_map (fun (var, def) -> match def with Val val_ -> Some (var, val_) | _ -> None) str.definitions
+  List.filter_map (function Val val_ -> Some val_ | _ -> None) str.definitions

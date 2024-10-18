@@ -185,7 +185,7 @@ module Attribute = struct
           let attr_len = String.length attr_name in
           match String.sub attr_name overwrite_len (attr_len - overwrite_len) with
           | "" ->
-              Some (Asttypes.Nonrecursive, attr)
+              Some (Nonrecursive, attr)
           | "_rec" ->
               Some (Recursive, attr)
           | _ ->
@@ -235,9 +235,9 @@ module Unsupported = struct
     | Label
     | Functor
     | Type_extensible
+    | Def_recursive
     | Def_invalid
     | Def_pattern
-    | Def_mutual
     | Def_eval
     | Def_primitive
     | Def_exception
@@ -327,12 +327,12 @@ module Unsupported = struct
         "module functor"
     | Type_extensible ->
         "extensible variant"
+    | Def_recursive ->
+        "recursive toplevel definition must be a function"
     | Def_invalid ->
         "toplevel definition must be a constant or a function"
     | Def_pattern ->
         "toplevel definition pattern must be a variable"
-    | Def_mutual ->
-        "mutually recursive toplevel definitions"
     | Def_eval ->
         "evaluated expression"
     | Def_primitive ->
@@ -967,59 +967,89 @@ and branches : type a. Context.t -> a Typedtree.case list -> branch list * fallb
   let brs, fb = aux1 [] brs in
   List.rev brs, fb
 
-let value_binding modname ctx env (rec_flag : rec_flag) (bdg : Typedtree.value_binding) =
-  match bdg.vb_pat.pat_desc with
-  | Tpat_var (id, { loc; _ }, _) ->
-      let global = Context.add_global ctx id in
-      let val_ =
-        if Attribute.has_opaque bdg.vb_attributes then
-          Val_opaque
-        else
-          let restore_locals = Context.save_locals ctx in
-          let rec_, expr =
-            match Attribute.has_overwrite bdg.vb_attributes with
-            | None ->
-                rec_flag = Recursive, bdg.vb_expr
-            | Some (rec_flag', attr) ->
-                match attr.attr_payload with
-                | PStr [{ pstr_desc= Pstr_eval (expr, _); _ }] ->
-                    let rec_ = rec_flag = Recursive || rec_flag' = Recursive in
-                    let env = Envaux.env_of_only_summary env in
-                    let env =
-                      if rec_ then
-                        let val_descr : Types.value_description =
-                          { val_type= Ctype.newvar ();
-                            val_attributes= [];
-                            val_kind= Val_reg;
-                            val_loc= loc;
-                            val_uid= Types.Uid.of_compilation_unit_id (Ident.create_persistent modname);
-                          }
-                        in
-                        Env.add_value id val_descr env
-                      else
-                        env
+let value_bindings modname ctx env rec_flag bdgs =
+  let bdgs =
+    List.map (fun (bdg : Typedtree.value_binding) ->
+      match bdg.vb_pat.pat_desc with
+      | Tpat_var (id, { loc; _ }, _) ->
+          let global = Context.add_global ctx id in
+          bdg, global, id, loc
+      | _ ->
+          unsupported bdg.vb_pat.pat_loc Def_pattern
+    ) bdgs
+  in
+  let[@warning "-8"] (bdg, _, _, _) :: _ = bdgs in
+  if Attribute.has_opaque bdg.vb_attributes then
+    List.map (fun (_, global, _, _) -> Val_opaque global) bdgs
+  else
+    let vals =
+      List.map (fun (bdg, global, id, loc) ->
+        let rec_flag', expr =
+          match Attribute.has_overwrite bdg.Typedtree.vb_attributes with
+          | None ->
+              Nonrecursive, bdg.vb_expr
+          | Some (rec_flag', attr) ->
+              match attr.attr_payload with
+              | PStr [{ pstr_desc= Pstr_eval (expr, _); _ }] ->
+                  let env = Envaux.env_of_only_summary env in
+                  let add env id =
+                    let val_descr : Types.value_description =
+                      { val_type= Ctype.newvar ();
+                        val_attributes= [];
+                        val_kind= Val_reg;
+                        val_loc= loc;
+                        val_uid= Types.Uid.of_compilation_unit_id (Ident.create_persistent modname);
+                      }
                     in
-                    rec_, Typecore.type_expression env expr
-                | _ ->
-                    error attr.attr_loc Attribute_overwrite_invalid_payload
-          in
-          if rec_ then
-            Context.add_local ctx id ;
-          let expr = expression ctx expr in
-          restore_locals () ;
-          match expr with
-          | Fun (bdrs, expr) ->
-              let bdr = if rec_ then Some (Ident.name id) else None in
-              Val_rec (bdr, bdrs, expr)
-          | _ ->
-              if expression_is_value expr then
-                Val_expr expr
-              else
-                unsupported bdg.vb_loc Def_invalid
-      in
-      [global, Val val_]
-  | _ ->
-      unsupported bdg.vb_pat.pat_loc Def_pattern
+                    Env.add_value id val_descr env
+                  in
+                  let env =
+                    match rec_flag, rec_flag' with
+                    | Recursive, _ ->
+                        List.fold_left (fun env (_, _, id, _) -> add env id) env bdgs
+                    | Nonrecursive, Recursive ->
+                        add env id
+                    | Nonrecursive, Nonrecursive ->
+                        env
+                  in
+                  rec_flag', Typecore.type_expression env expr
+              | _ ->
+                  error attr.attr_loc Attribute_overwrite_invalid_payload
+        in
+        let restore_locals = Context.save_locals ctx in
+        begin match rec_flag, rec_flag' with
+        | Recursive, _ ->
+            List.iter (fun (_, _, id, _) -> Context.add_local ctx id) bdgs
+        | Nonrecursive, Recursive ->
+            Context.add_local ctx id
+        | Nonrecursive, Nonrecursive ->
+            ()
+        end ;
+        let expr = expression ctx expr in
+        restore_locals () ;
+        let rec_ = rec_flag = Recursive || rec_flag' = Recursive in
+        match expr with
+        | Fun (bdrs, expr) ->
+            if rec_ then
+              Val_recs [global, Ident.name id, bdrs, expr]
+            else
+              Val_fun (global, bdrs, expr)
+        | _ ->
+            if rec_ then
+              unsupported bdg.vb_loc Def_recursive ;
+            if expression_is_value expr then
+              Val_expr (global, expr)
+            else
+              unsupported bdg.vb_loc Def_invalid
+      ) bdgs
+    in
+    match rec_flag with
+    | Nonrecursive ->
+        vals
+    | Recursive ->
+        let recs = List.concat_map (function Val_recs recs -> recs | _ -> assert false) vals in
+        [Val_recs recs]
+
 
 let type_declaration_record attrs lbls =
   let is_mut = record_is_mutable attrs lbls in
@@ -1037,7 +1067,7 @@ let type_declaration (ty : Typedtree.type_declaration) =
       []
   | Type_record (lbls, _) ->
       let ty = type_declaration_record ty.typ_attributes lbls in
-      [var, Type ty]
+      [Type (var, ty)]
   | Type_variant (_, Variant_unboxed) ->
       []
   | Type_variant (constrs, _) ->
@@ -1048,23 +1078,22 @@ let type_declaration (ty : Typedtree.type_declaration) =
             match constr.cd_args with
             | Cstr_record lbls ->
                 let ty = type_declaration_record constr.cd_attributes lbls in
-                (Printf.sprintf "%s__%s" var tag, Type ty) :: defs
+                Type (Printf.sprintf "%s__%s" var tag, ty) :: defs
             | _ ->
                 defs
           in
           tag :: tags, defs
         ) constrs ([], [])
       in
-      (var, Type (Type_variant tags)) :: defs
+      Type (var, Type_variant tags) :: defs
   | Type_open ->
       unsupported ty.typ_loc Type_extensible
 
 let structure_item modname ctx (str_item : Typedtree.structure_item) =
   match str_item.str_desc with
-  | Tstr_value (rec_flag, [bdg]) ->
-      value_binding modname ctx str_item.str_env rec_flag bdg
-  | Tstr_value _ ->
-      unsupported str_item.str_loc Def_mutual
+  | Tstr_value (rec_flag, bdgs) ->
+      let vals = value_bindings modname ctx str_item.str_env rec_flag bdgs in
+      List.map (fun val_ -> Val val_) vals
   | Tstr_type (_, tys) ->
       List.concat_map type_declaration tys
   | Tstr_attribute attr ->
