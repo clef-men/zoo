@@ -18,7 +18,7 @@ for test in $tests ; do
 
 	test="${test%.*}"
 
-	opam exec -- ocamlopt -stop-after typing -bin-annot zoo.mli "$test.ml"
+	ocamlopt -stop-after typing -bin-annot zoo.mli "$test.ml"
 	./bin/ocaml2zoo.exe "$test.cmt"
 
 	cp "${test}__types.v" "${test}__types.exp"

@@ -5,7 +5,7 @@ set -eou pipefail
 for test in tests/*.ml ; do
 	test=${test%.*}
 
-	opam exec -- ocamlopt -stop-after typing -bin-annot zoo.mli $test.ml
+	ocamlopt -stop-after typing -bin-annot zoo.mli $test.ml
 	./bin/ocaml2zoo.exe $test.cmt
 
 	if diff ${test}__types.v ${test}__types.exp > /dev/null \
