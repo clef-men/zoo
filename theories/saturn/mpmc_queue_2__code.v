@@ -48,19 +48,17 @@ Definition mpmc_queue_2_create : val :=
         | Used =>
             "push_aux" "t" "v" "i_back" "back"
         | Snoc "i_move" <> <> as "move" =>
-            (match: "t".{front} with
-             | Front "i_front" as "front" =>
-                 if:
-                   "i_front" < "i_move" and CAS
-                                              "t".[front]
-                                              "front"
-                                              (mpmc_queue_2_rev "move")
-                 then (
-                   "back_r" <-{move} §Used
-                 )
-             |_ =>
-                 ()
-             end) ;;
+            match: "t".{front} with
+            | Front "i_front" as "front" =>
+                if:
+                  "i_front" < "i_move" and
+                  CAS "t".[front] "front" (mpmc_queue_2_rev "move")
+                then (
+                  "back_r" <-{move} §Used
+                )
+            |_ =>
+                ()
+            end ;;
             "push_aux" "t" "v" "i_back" "back"
         end
     end

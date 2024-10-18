@@ -113,14 +113,14 @@ let next_level lvl =
 let level = function
   | Constr (_, "::", _) ->
       60
-  | Tuple _
-  | Record _
-  | Constr _ ->
-      0
   | Global _
   | Local _
   | If _
   | For _
+  | Tuple _
+  | Record _
+  | Constr _
+  | Match _
   | Fail
   | Yield
   | Proph
@@ -179,8 +179,7 @@ let level = function
       100
   | Let _
   | Letrec _
-  | Fun _
-  | Match _ ->
+  | Fun _ ->
       max_level
 let rec expression' lvl ppf = function
   | Global global ->
@@ -222,11 +221,11 @@ let rec expression' lvl ppf = function
         (expression lvl) expr
         Fmt.(list ~sep:nop (fun ppf -> pf ppf "@;<1 2>@[%a@]" (expression @@ next_level lvl))) exprs
   | Unop (op, expr) ->
-      Fmt.pf ppf "%a %a"
+      Fmt.pf ppf "@[%a %a@]"
         unop op
         (expression lvl) expr
   | Binop (op, expr1, expr2) ->
-      Fmt.pf ppf "%a %a %a"
+      Fmt.pf ppf "@[%a %a@;%a@]"
         (expression lvl) expr1
         binop op
         (expression @@ next_level lvl) expr2
