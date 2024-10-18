@@ -5,7 +5,7 @@ From zoo.iris.program_logic Require Import
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
-  typeclass_instances
+  typeclasses
   state_interp.
 From zoo.language Require Import
   tactics

@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.language Require Import
+  typeclasses
   notations.
 From zoo.saturn Require Import
   mpsc_queue_1__types.

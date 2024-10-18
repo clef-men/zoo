@@ -459,7 +459,7 @@ let value () =
 let structure ?dir pp select ppf str =
   Fmt.pf ppf "@[<v>" ;
   Fmt.pf ppf "From zoo Require Import@,  prelude.@," ;
-  Fmt.pf ppf "From zoo.language Require Import@,  typeclass_instances@,  notations.@," ;
+  Fmt.pf ppf "From zoo.language Require Import@,  typeclasses@,  notations.@," ;
   if str.dependencies <> [] then (
     Fmt.pf ppf "From zoo Require Import@," ;
     Fmt.(list (fun ppf -> pf ppf "  %s")) ppf str.dependencies ;
