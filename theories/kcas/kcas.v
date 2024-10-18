@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/kcas/blob/44c732c83585f662abda0ef0984fdd2fe8990f4a/doc/gkmz-with-read-only-cmp-ops.md
-*)
-
 From iris.base_logic Require Import
   lib.ghost_map.
 
@@ -19,6 +15,10 @@ From zoo.language Require Import
   diaframe.
 From zoo.std Require Import
   lst.
+From zoo.kcas Require Import
+  kcas__types.
+From zoo.kcas Require Export
+  kcas__code.
 From zoo Require Import
   options.
 
@@ -26,154 +26,6 @@ Implicit Types i : nat.
 Implicit Types l loc casn : location.
 Implicit Types id : identifier.
 Implicit Types status : val.
-
-#[local] Notation "'casn'" := (
-  in_type "state" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'before'" := (
-  in_type "state" 1
-)(in custom zoo_proj
-).
-#[local] Notation "'after'" := (
-  in_type "state" 2
-)(in custom zoo_proj
-).
-
-#[local] Notation "'loc'" := (
-  in_type "cas" 0
-)(in custom zoo_proj
-).
-#[local] Notation "'state'" := (
-  in_type "cas" 1
-)(in custom zoo_proj
-).
-
-#[local] Notation "'Undetermined'" := (
-  in_type "status" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'Before'" := (
-  in_type "status" 1
-)(in custom zoo_tag
-).
-#[local] Notation "'After'" := (
-  in_type "status" 2
-)(in custom zoo_tag
-).
-
-#[local] Notation "'status'" := (
-  in_type "casn" 0
-)(in custom zoo_field
-).
-#[local] Notation "'prophet'" := (
-  in_type "casn" 1
-)(in custom zoo_field
-).
-
-#[local] Definition kcas_status_to_bool : val :=
-  fun: "status" =>
-    match: "status" with
-    | Before =>
-        #false
-    | After =>
-        #true
-    end.
-#[local] Definition kcas_finish : val :=
-  fun: "id" "casn" "status" =>
-    match: "casn".{status} with
-    | Before =>
-        #false
-    | After =>
-        #true
-    | Undetermined <> as "old_status" =>
-        Resolve (CAS "casn".[status] "old_status" "status") "casn".{prophet} ("id", kcas_status_to_bool "status") ;;
-        "casn".{status} == §After
-    end.
-
-#[local] Definition __zoo_recs := (
-  recs: "kcas_determine_aux" "casn" "cass" =>
-    let: "id" := Id in
-    match: "cass" with
-    | [] =>
-        kcas_finish "id" "cas" §After
-    | "cas" :: "cass'" =>
-        let: "loc", "state" := "cas" in
-        let: "state'" := !"loc" in
-        if: "state" == "state'" then (
-          "kcas_determine_aux" "casn" "cass'"
-        ) else (
-          let: "v" :=
-            if: "kcas_determine" "state'".<casn> then
-              "state'".<after>
-            else
-              "state'".<before>
-          in
-          if: "v" != "state".<before> then
-            kcas_finish "id" "casn" §Before
-          else
-            match: "casn".{status} with
-            | Before =>
-                #false
-            | After =>
-                #true
-            | Undetermined <> =>
-                if: CAS "loc" "state'" "state" then
-                  "kcas_determine_aux" "casn" "cass'"
-                else
-                  "kcas_determine_aux" "casn" "cass"
-            end
-        )
-    end
-  and: "kcas_determine" "casn" =>
-    match: "casn".{status} with
-    | Before =>
-        #false
-    | After =>
-        #true
-    | Undetermined "cass" =>
-        "determine_aux" "casn" "cass"
-    end
-)%zoo_recs.
-#[local] Definition kcas_determine_aux :=
-  ValRecs 0 __zoo_recs.
-#[local] Definition kcas_determine :=
-  ValRecs 1 __zoo_recs.
-#[global] Instance :
-  AsValRecs' kcas_determine_aux 0 __zoo_recs [
-    kcas_determine_aux ;
-    kcas_determine
-  ].
-Proof.
-  done.
-Qed.
-#[global] Instance :
-  AsValRecs' kcas_determine 1 __zoo_recs [
-    kcas_determine_aux ;
-    kcas_determine
-  ].
-Proof.
-  done.
-Qed.
-
-Definition kcas_get : val :=
-  fun: "loc" =>
-    let: "state" := !"loc" in
-    if: kcas_determine "state".<casn> then
-      "state".<after>
-    else
-      "state".<before>.
-
-Definition kcas_cas : val :=
-  fun: "cass" =>
-    let: "casn" := { §After, Proph } in
-    let: "cass" :=
-      lst_map "cass" (fun: "cas" =>
-        ("cas".<0>, ("casn", "cas".<1>, "cas".<2>))
-      )
-    in
-    "cass" <-{status} ‘Undetermined{ "cass" } ;;
-    kcas_determine_aux "casn" "cass".
 
 Inductive kcas_lstatus :=
   | KcasUndetermined i
@@ -471,7 +323,7 @@ Section kcas_G.
       | KcasCasn => λ η,
           let casn := param.(kcas_param_location) in
           ∃ P,
-          casn.[prophet] ↦□ #η.(kcas_casn_meta_prophet) ∗
+          casn.[proph] ↦□ #η.(kcas_casn_meta_prophet) ∗
           η.(kcas_casn_meta_undetermined) ↦ₕ Header §Undetermined 1 ∗
           η.(kcas_casn_meta_undetermined).[0] ↦ (lst_to_val $ kcas_casn_meta_cass casn η) ∗
           saved_prop η.(kcas_casn_meta_post) P ∗

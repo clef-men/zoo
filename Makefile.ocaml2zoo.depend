@@ -5,6 +5,11 @@ theories/eio/rcfd.cmt : \
     theories/std/spsc_waiter.cmt \
     theories/eio/rcfd.cmi
 theories/eio/rcfd.cmi :
+theories/kcas/kcas.cmt : \
+    ./ocaml2zoo/zoo.cmt \
+    theories/std/lst.cmt \
+    theories/kcas/kcas.cmi
+theories/kcas/kcas.cmi :
 theories/persistent/parray.cmt : \
     theories/std/array.cmt \
     theories/persistent/parray.cmi
@@ -39,6 +44,9 @@ theories/saturn/inf_ws_deque_2.cmi :
 theories/saturn/mpmc_queue_1.cmt : \
     theories/saturn/mpmc_queue_1.cmi
 theories/saturn/mpmc_queue_1.cmi :
+theories/saturn/mpmc_queue_2.cmt : \
+    theories/saturn/mpmc_queue_2.cmi
+theories/saturn/mpmc_queue_2.cmi :
 theories/saturn/mpmc_stack_1.cmt : \
     theories/saturn/mpmc_stack_1.cmi
 theories/saturn/mpmc_stack_1.cmi :

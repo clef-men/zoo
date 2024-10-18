@@ -213,6 +213,8 @@ theories/saturn/mpsc_queue_3.v
 theories/saturn/mpmc_queue_1__types.v
 theories/saturn/mpmc_queue_1__code.v
 theories/saturn/mpmc_queue_1.v
+theories/saturn/mpmc_queue_2__types.v
+theories/saturn/mpmc_queue_2__code.v
 theories/saturn/mpmc_queue_2.v
 theories/saturn/inf_ws_deque_1__types.v
 theories/saturn/inf_ws_deque_1__code.v
@@ -242,4 +244,6 @@ theories/boxroot/base.v
 theories/boxroot/gc.v
 theories/boxroot/boxroot.v
 
+theories/kcas/kcas__types.v
+theories/kcas/kcas__code.v
 theories/kcas/kcas.v

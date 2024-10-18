@@ -1,0 +1,54 @@
+From zoo Require Import
+  prelude.
+From zoo.language Require Import
+  typeclass_instances
+  notations.
+From zoo Require Import
+  identifier
+  lst.
+From zoo Require Import
+  options.
+
+Notation "'casn'" := (
+  in_type "state" 0
+)(in custom zoo_proj
+).
+Notation "'before'" := (
+  in_type "state" 1
+)(in custom zoo_proj
+).
+Notation "'after'" := (
+  in_type "state" 2
+)(in custom zoo_proj
+).
+
+Notation "'loc'" := (
+  in_type "cas" 0
+)(in custom zoo_proj
+).
+Notation "'state'" := (
+  in_type "cas" 1
+)(in custom zoo_proj
+).
+
+Notation "'status'" := (
+  in_type "casn" 0
+)(in custom zoo_field
+).
+Notation "'proph'" := (
+  in_type "casn" 1
+)(in custom zoo_field
+).
+
+Notation "'Undetermined'" := (
+  in_type "status" 0
+)(in custom zoo_tag
+).
+Notation "'Before'" := (
+  in_type "status" 1
+)(in custom zoo_tag
+).
+Notation "'After'" := (
+  in_type "status" 2
+)(in custom zoo_tag
+).
