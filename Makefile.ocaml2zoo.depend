@@ -10,6 +10,10 @@ theories/kcas/kcas.cmt : \
     theories/std/lst.cmt \
     theories/kcas/kcas.cmi
 theories/kcas/kcas.cmi :
+theories/partition/partition.cmt : \
+    theories/std/lst.cmt \
+    theories/partition/partition.cmi
+theories/partition/partition.cmi :
 theories/persistent/parray.cmt : \
     theories/std/array.cmt \
     theories/persistent/parray.cmi

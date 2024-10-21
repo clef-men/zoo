@@ -247,3 +247,7 @@ theories/boxroot/boxroot.v
 theories/kcas/kcas__types.v
 theories/kcas/kcas__code.v
 theories/kcas/kcas.v
+
+theories/partition/partition__types.v
+theories/partition/partition__code.v
+theories/partition/partition.v
