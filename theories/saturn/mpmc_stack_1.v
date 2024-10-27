@@ -5,10 +5,10 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   lst.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   mpmc_stack_1__code.
 From zoo Require Import

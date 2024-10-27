@@ -12,13 +12,13 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   clst.
-From zoo.saturn Require Import
+From saturn Require Import
   mpmc_stack_2.
-From zoo.parabs Require Export
+From parabs Require Export
   base.
-From zoo.parabs Require Import
+From parabs Require Import
   ws_hub
   pool.
 From zoo Require Import

@@ -4,7 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo Require Import
-  identifier
+  identifier.
+From zoo_std Require Import
   inf_array.
 From zoo Require Import
   options.

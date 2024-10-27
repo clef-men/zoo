@@ -3,9 +3,9 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
+From zoo_std Require Import
   lst.
-From zoo.partition Require Import
+From partition Require Import
   partition__types.
 From zoo Require Import
   options.

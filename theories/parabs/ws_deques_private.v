@@ -7,11 +7,11 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   array
   deque.
-From zoo.parabs Require Export
+From parabs Require Export
   ws_deques.
 From zoo Require Import
   options.

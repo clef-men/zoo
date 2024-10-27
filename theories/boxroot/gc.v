@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.boxroot Require Export
+From boxroot Require Export
   base.
 From zoo Require Import
   options.

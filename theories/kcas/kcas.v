@@ -13,11 +13,11 @@ From zoo.language Require Import
   identifier
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   lst.
-From zoo.kcas Require Import
+From kcas Require Import
   kcas__types.
-From zoo.kcas Require Export
+From kcas Require Export
   kcas__code.
 From zoo Require Import
   options.
@@ -129,7 +129,7 @@ Section kcas_G.
     kcas_casn_meta_descrs : list kcas_descr ;
     kcas_casn_meta_prophet : prophet_id ;
     kcas_casn_meta_prophs : list kcas_prophet.(typed_prophet_type) ;
-    kcas_casn_meta_undetermined : location ;
+    kcas_casn_meta_undetermined : block_id ;
     kcas_casn_meta_post : gname ;
     kcas_casn_meta_lstatus : gname ;
     kcas_casn_meta_witnesses : list gname ;
@@ -271,7 +271,7 @@ Section kcas_G.
     match lstatus with
     | KcasUndetermined i =>
         ⌜i < kcas_casn_meta_size η⌝ ∗
-        ⌜status = #η.(kcas_casn_meta_undetermined)⌝ ∗
+        ⌜status = ‘Undetermined@η.(kcas_casn_meta_undetermined)( lst_to_val $ kcas_casn_meta_cass casn η )%V⌝ ∗
         ( [∗ list] descr ∈ take i η.(kcas_casn_meta_descrs),
           meta descr.(kcas_descr_loc) nroot descr.(kcas_descr_meta) ∗
           kcas_model₂ descr.(kcas_descr_meta) descr.(kcas_descr_before)
@@ -324,8 +324,6 @@ Section kcas_G.
           let casn := param.(kcas_param_location) in
           ∃ P,
           casn.[proph] ↦□ #η.(kcas_casn_meta_prophet) ∗
-          η.(kcas_casn_meta_undetermined) ↦ₕ Header §Undetermined 1 ∗
-          η.(kcas_casn_meta_undetermined).[0] ↦ (lst_to_val $ kcas_casn_meta_cass casn η) ∗
           saved_prop η.(kcas_casn_meta_post) P ∗
           inv (ι.@"casn".@casn) (kcas_casn_inv_inner' kcas_inv casn η ι P)
       end%I
@@ -361,6 +359,13 @@ Section kcas_G.
     ∃ γ,
     meta loc nroot γ ∗
     kcas_model₁ γ v.
+
+  #[local] Instance kcas_inv_persistent ι param :
+    Persistent (kcas_inv ι param).
+  Proof.
+    rewrite /kcas_inv.
+    apply fixpoint_ind.
+  Admitted.
 
   #[local] Lemma kcas_finish_spec_loser id casn η ι status :
     status = §Before%V ∨ status = §After%V →
@@ -427,10 +432,29 @@ Section kcas_G.
       kcas_lstatus_lb η KcasFinished
     }}}.
   Proof.
+    iIntros (->) "%Φ (Hinv & #Hlstatus_lb & #Hdetermine) HΦ".
+
+    wp_recs.
+    wp_smart_apply (typed_prophet_wp_proph with "[//]") as (prophet prophs) "Hprophet".
+
+    destruct (kcas_casn_meta_cass casn η !! i) as [cas |] eqn:Hcass_lookup.
+
+    - erewrite drop_S; last done.
+      wp_pures.
+      admit.
+
+    -
   Admitted.
 
-  #[local] Lemma kcas_determine_spec :
-    ⊢ kcas_determine_specification.
+  #[local] Lemma kcas_determine_spec casn η ι :
+    {{{
+      kcas_casn_inv' casn η ι
+    }}}
+      kcas_determine #casn
+    {{{
+      RET #(kcas_casn_meta_success η);
+      kcas_lstatus_lb η KcasFinished
+    }}}.
   Proof.
   Admitted.
 End kcas_G.

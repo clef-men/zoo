@@ -7,13 +7,13 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   array.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   bag__code.
-From zoo.saturn Require Import
+From saturn Require Import
   bag__types.
 From zoo Require Import
   options.

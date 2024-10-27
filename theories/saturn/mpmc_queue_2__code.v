@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo.saturn Require Import
+From saturn Require Import
   mpmc_queue_2__types.
 From zoo Require Import
   options.

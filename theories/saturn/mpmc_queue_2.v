@@ -3,12 +3,12 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   mpmc_queue_2__code.
-From zoo.saturn Require Import
+From saturn Require Import
   mpmc_queue_2__types.
 From zoo Require Import
   options.

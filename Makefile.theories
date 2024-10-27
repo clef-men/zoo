@@ -1,0 +1,15 @@
+Makefile.coq : _CoqProject
+	@ coq_makefile -f $< -o $@
+
+ifeq (,$(filter $(targets_nocoq),$(MAKECMDGOALS)))
+-include Makefile.coq
+endif
+
+build-% : phony
+	@ ./make_package.sh $*
+install-% : phony
+	@ ./make_package.sh $* install
+
+.PHONY : clean
+clean ::
+	@ rm -f Makefile.coq Makefile.coq.conf

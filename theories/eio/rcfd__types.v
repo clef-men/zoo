@@ -3,8 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  unix
+From zoo_std Require Import
+  unics
   spsc_waiter.
 From zoo Require Import
   options.

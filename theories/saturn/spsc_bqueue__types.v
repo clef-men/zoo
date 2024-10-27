@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
+From zoo_std Require Import
   array.
 From zoo Require Import
   options.

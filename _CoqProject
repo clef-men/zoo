@@ -1,191 +1,203 @@
+-docroot zoo
+
 -arg -w -arg -uniform-inheritance
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 -arg -w -arg -notation-incompatible-prefix
 
--Q theories zoo
-
 #BEGIN zoo
+-Q theories/zoo zoo
 
-theories/prelude/base.v
-theories/prelude/tactics.v
-theories/prelude/prelude.v
+theories/zoo/prelude/base.v
+theories/zoo/prelude/tactics.v
+theories/zoo/prelude/prelude.v
 
-theories/options.v
+theories/zoo/options.v
 
-theories/common/relations.v
-theories/common/math.v
-theories/common/option.v
-theories/common/list.v
-theories/common/binder.v
-theories/common/fin_maps.v
-theories/common/gmultiset.v
-theories/common/treemap.v
+theories/zoo/common/relations.v
+theories/zoo/common/math.v
+theories/zoo/common/option.v
+theories/zoo/common/list.v
+theories/zoo/common/binder.v
+theories/zoo/common/fin_maps.v
+theories/zoo/common/gmultiset.v
+theories/zoo/common/treemap.v
 
-theories/iris/algebra/base.v
-theories/iris/algebra/view.v
-theories/iris/algebra/auth.v
-theories/iris/algebra/mono.v
-theories/iris/algebra/lib/auth_option.v
-theories/iris/algebra/lib/twins.v
-theories/iris/algebra/lib/auth_mono.v
+theories/zoo/iris/algebra/base.v
+theories/zoo/iris/algebra/view.v
+theories/zoo/iris/algebra/auth.v
+theories/zoo/iris/algebra/mono.v
+theories/zoo/iris/algebra/lib/auth_option.v
+theories/zoo/iris/algebra/lib/twins.v
+theories/zoo/iris/algebra/lib/auth_mono.v
 
-theories/iris/diaframe/diaframe.v
-theories/iris/diaframe/symb_exec/defs.v
-theories/iris/diaframe/symb_exec/wp.v
-theories/iris/diaframe/symb_exec/spec_notations.v
+theories/zoo/iris/diaframe/diaframe.v
+theories/zoo/iris/diaframe/symb_exec/defs.v
+theories/zoo/iris/diaframe/symb_exec/wp.v
+theories/zoo/iris/diaframe/symb_exec/spec_notations.v
 
-theories/iris/bi/big_op.v
+theories/zoo/iris/bi/big_op.v
 
-theories/iris/base_logic/algebra/twins.v
-theories/iris/base_logic/lib/base.v
-theories/iris/base_logic/lib/agree.v
-theories/iris/base_logic/lib/saved_prop.v
-theories/iris/base_logic/lib/saved_pred.v
-theories/iris/base_logic/lib/excl.v
-theories/iris/base_logic/lib/ghost_var.v
-theories/iris/base_logic/lib/oneshot.v
-theories/iris/base_logic/lib/twins.v
-theories/iris/base_logic/lib/auth_nat_max.v
-theories/iris/base_logic/lib/auth_nat_min.v
-theories/iris/base_logic/lib/auth_dgset.v
-theories/iris/base_logic/lib/auth_gmultiset.v
-theories/iris/base_logic/lib/auth_mono.v
-theories/iris/base_logic/lib/semiauth_twins.v
-theories/iris/base_logic/lib/auth_twins.v
-theories/iris/base_logic/lib/mono_list.v
-theories/iris/base_logic/lib/mono_map.v
-theories/iris/base_logic/lib/mono_set.v
-theories/iris/base_logic/lib/prophet_map.v
+theories/zoo/iris/base_logic/algebra/twins.v
+theories/zoo/iris/base_logic/lib/base.v
+theories/zoo/iris/base_logic/lib/agree.v
+theories/zoo/iris/base_logic/lib/saved_prop.v
+theories/zoo/iris/base_logic/lib/saved_pred.v
+theories/zoo/iris/base_logic/lib/excl.v
+theories/zoo/iris/base_logic/lib/ghost_var.v
+theories/zoo/iris/base_logic/lib/oneshot.v
+theories/zoo/iris/base_logic/lib/twins.v
+theories/zoo/iris/base_logic/lib/auth_nat_max.v
+theories/zoo/iris/base_logic/lib/auth_nat_min.v
+theories/zoo/iris/base_logic/lib/auth_dgset.v
+theories/zoo/iris/base_logic/lib/auth_gmultiset.v
+theories/zoo/iris/base_logic/lib/auth_mono.v
+theories/zoo/iris/base_logic/lib/semiauth_twins.v
+theories/zoo/iris/base_logic/lib/auth_twins.v
+theories/zoo/iris/base_logic/lib/mono_list.v
+theories/zoo/iris/base_logic/lib/mono_map.v
+theories/zoo/iris/base_logic/lib/mono_set.v
+theories/zoo/iris/base_logic/lib/prophet_map.v
 
-theories/iris/program_logic/language.v
-theories/iris/program_logic/ectx_language.v
-theories/iris/program_logic/ectxi_language.v
-theories/iris/program_logic/wp.v
-theories/iris/program_logic/wp_lifting.v
-theories/iris/program_logic/adequacy.v
-theories/iris/program_logic/atomic.v
+theories/zoo/iris/program_logic/language.v
+theories/zoo/iris/program_logic/ectx_language.v
+theories/zoo/iris/program_logic/ectxi_language.v
+theories/zoo/iris/program_logic/wp.v
+theories/zoo/iris/program_logic/wp_lifting.v
+theories/zoo/iris/program_logic/adequacy.v
+theories/zoo/iris/program_logic/atomic.v
 
-theories/language/location.v
-theories/language/syntax.v
-theories/language/semantics.v
-theories/language/language.v
-theories/language/notations.v
-theories/language/tactics.v
-theories/language/metatheory.v
-theories/language/typeclasses.v
-theories/language/state_interp.v
-theories/language/wp.v
-theories/language/proofmode.v
-theories/language/diaframe/hints.v
-theories/language/diaframe/specs.v
-theories/language/diaframe/diaframe.v
-theories/language/adequacy.v
-# theories/language/prophecy_erasure.v
-theories/language/itype.v
-theories/language/typed_prophet.v
-theories/language/wise_prophet.v
-theories/language/identifier.v
-theories/language/structeq.v
+theories/zoo/language/location.v
+theories/zoo/language/syntax.v
+theories/zoo/language/semantics.v
+theories/zoo/language/language.v
+theories/zoo/language/notations.v
+theories/zoo/language/tactics.v
+theories/zoo/language/metatheory.v
+theories/zoo/language/typeclasses.v
+theories/zoo/language/state_interp.v
+theories/zoo/language/wp.v
+theories/zoo/language/proofmode.v
+theories/zoo/language/diaframe/hints.v
+theories/zoo/language/diaframe/specs.v
+theories/zoo/language/diaframe/diaframe.v
+theories/zoo/language/adequacy.v
+# theories/zoo/language/prophecy_erasure.v
+theories/zoo/language/itype.v
+theories/zoo/language/typed_prophet.v
+theories/zoo/language/wise_prophet.v
+theories/zoo/language/identifier.v
+theories/zoo/language/structeq.v
 
 #END zoo
 
 #BEGIN zoo-std
-theories/std/base.v
-theories/std/diverge.v
-theories/std/assert.v
-theories/std/assume.v
-theories/std/for_.v
-theories/std/int.v
-theories/std/ref_.v
-theories/std/option.v
-theories/std/optional__types.v
-theories/std/optional__code.v
-theories/std/optional.v
-theories/std/lst__types.v
-theories/std/lst__code.v
-theories/std/lst.v
-theories/std/clst__types.v
-theories/std/clst__code.v
-theories/std/clst.v
-theories/std/chain__types.v
-theories/std/chain__code.v
-theories/std/chain.v
-theories/std/xchain__types.v
-theories/std/xchain__code.v
-theories/std/xchain.v
-theories/std/xdlchain__types.v
-theories/std/xdlchain__code.v
-theories/std/xdlchain.v
-theories/std/chunk.v
-theories/std/array__types.v
-theories/std/array__code.v
-theories/std/array.v
-theories/std/dynarray_1__types.v
-theories/std/dynarray_1__code.v
-theories/std/dynarray_1.v
-theories/std/dynarray_2__types.v
-theories/std/dynarray_2__code.v
-theories/std/dynarray_2.v
-theories/std/inf_array__types.v
-theories/std/inf_array__code.v
-theories/std/inf_array.v
-theories/std/queue__types.v
-theories/std/queue__code.v
-theories/std/queue.v
-theories/std/stack__types.v
-theories/std/stack__code.v
-theories/std/stack.v
-theories/std/xdeque__types.v
-theories/std/xdeque__code.v
-theories/std/xdeque.v
-theories/std/deque__types.v
-theories/std/deque__code.v
-theories/std/deque.v
-theories/std/domain.v
-theories/std/mutex__types.v
-theories/std/mutex__code.v
-theories/std/mutex.v
-theories/std/condition__types.v
-theories/std/condition__code.v
-theories/std/condition.v
-theories/std/spsc_waiter__types.v
-theories/std/spsc_waiter__code.v
-theories/std/spsc_waiter.v
-theories/std/mpsc_waiter__types.v
-theories/std/mpsc_waiter__code.v
-theories/std/mpsc_waiter.v
-theories/std/spsc_future__types.v
-theories/std/spsc_future__code.v
-theories/std/spsc_future.v
-theories/std/spmc_future__types.v
-theories/std/spmc_future__code.v
-theories/std/spmc_future.v
-theories/std/random__types.v
-theories/std/random__code.v
-theories/std/random.v
-theories/std/random_round__types.v
-theories/std/random_round__code.v
-theories/std/random_round.v
-theories/std/unix.v
+-Q theories/zoo_std zoo_std
+
+theories/zoo_std/base.v
+theories/zoo_std/diverge.v
+theories/zoo_std/assert.v
+theories/zoo_std/assume.v
+theories/zoo_std/for_.v
+theories/zoo_std/int.v
+theories/zoo_std/ref_.v
+theories/zoo_std/option.v
+theories/zoo_std/optional__types.v
+theories/zoo_std/optional__code.v
+theories/zoo_std/optional.v
+theories/zoo_std/lst__types.v
+theories/zoo_std/lst__code.v
+theories/zoo_std/lst.v
+theories/zoo_std/clst__types.v
+theories/zoo_std/clst__code.v
+theories/zoo_std/clst.v
+theories/zoo_std/chain__types.v
+theories/zoo_std/chain__code.v
+theories/zoo_std/chain.v
+theories/zoo_std/xchain__types.v
+theories/zoo_std/xchain__code.v
+theories/zoo_std/xchain.v
+theories/zoo_std/xdlchain__types.v
+theories/zoo_std/xdlchain__code.v
+theories/zoo_std/xdlchain.v
+theories/zoo_std/chunk.v
+theories/zoo_std/array__types.v
+theories/zoo_std/array__code.v
+theories/zoo_std/array.v
+theories/zoo_std/dynarray_1__types.v
+theories/zoo_std/dynarray_1__code.v
+theories/zoo_std/dynarray_1.v
+theories/zoo_std/dynarray_2__types.v
+theories/zoo_std/dynarray_2__code.v
+theories/zoo_std/dynarray_2.v
+theories/zoo_std/inf_array__types.v
+theories/zoo_std/inf_array__code.v
+theories/zoo_std/inf_array.v
+theories/zoo_std/queue__types.v
+theories/zoo_std/queue__code.v
+theories/zoo_std/queue.v
+theories/zoo_std/stack__types.v
+theories/zoo_std/stack__code.v
+theories/zoo_std/stack.v
+theories/zoo_std/xdeque__types.v
+theories/zoo_std/xdeque__code.v
+theories/zoo_std/xdeque.v
+theories/zoo_std/deque__types.v
+theories/zoo_std/deque__code.v
+theories/zoo_std/deque.v
+theories/zoo_std/domain.v
+theories/zoo_std/mutex__types.v
+theories/zoo_std/mutex__code.v
+theories/zoo_std/mutex.v
+theories/zoo_std/condition__types.v
+theories/zoo_std/condition__code.v
+theories/zoo_std/condition.v
+theories/zoo_std/spsc_waiter__types.v
+theories/zoo_std/spsc_waiter__code.v
+theories/zoo_std/spsc_waiter.v
+theories/zoo_std/mpsc_waiter__types.v
+theories/zoo_std/mpsc_waiter__code.v
+theories/zoo_std/mpsc_waiter.v
+theories/zoo_std/spsc_future__types.v
+theories/zoo_std/spsc_future__code.v
+theories/zoo_std/spsc_future.v
+theories/zoo_std/spmc_future__types.v
+theories/zoo_std/spmc_future__code.v
+theories/zoo_std/spmc_future.v
+theories/zoo_std/random__types.v
+theories/zoo_std/random__code.v
+theories/zoo_std/random.v
+theories/zoo_std/random_round__types.v
+theories/zoo_std/random_round__code.v
+theories/zoo_std/random_round.v
+theories/zoo_std/unics.v
+
 #END zoo-std
 
-theories/persistent/base.v
-theories/persistent/pstack__types.v
-theories/persistent/pstack__code.v
-theories/persistent/pstack.v
-theories/persistent/pqueue__types.v
-theories/persistent/pqueue__code.v
-theories/persistent/pqueue.v
-theories/persistent/parray__types.v
-theories/persistent/parray__code.v
-theories/persistent/parray.v
-theories/persistent/pstore_1__types.v
-theories/persistent/pstore_1__code.v
-theories/persistent/pstore_1.v
-theories/persistent/pstore_2__types.v
-theories/persistent/pstore_2__code.v
-theories/persistent/pstore_2.v
+#BEGIN zoo-persistent
+-Q theories/zoo_persistent zoo_persistent
+
+theories/zoo_persistent/base.v
+theories/zoo_persistent/pstack__types.v
+theories/zoo_persistent/pstack__code.v
+theories/zoo_persistent/pstack.v
+theories/zoo_persistent/pqueue__types.v
+theories/zoo_persistent/pqueue__code.v
+theories/zoo_persistent/pqueue.v
+theories/zoo_persistent/parray__types.v
+theories/zoo_persistent/parray__code.v
+theories/zoo_persistent/parray.v
+theories/zoo_persistent/pstore_1__types.v
+theories/zoo_persistent/pstore_1__code.v
+theories/zoo_persistent/pstore_1.v
+theories/zoo_persistent/pstore_2__types.v
+theories/zoo_persistent/pstore_2__code.v
+theories/zoo_persistent/pstore_2.v
+
+#END zoo-persistent
+
+#BEGIN saturn
+-Q theories/saturn saturn
 
 theories/saturn/base.v
 theories/saturn/bag__types.v
@@ -223,6 +235,11 @@ theories/saturn/inf_ws_deque_2__types.v
 theories/saturn/inf_ws_deque_2__code.v
 theories/saturn/inf_ws_deque_2.v
 
+#END saturn
+
+#BEGIN parabs
+-Q theories/parabs parabs
+
 theories/parabs/base.v
 theories/parabs/ws_deques.v
 theories/parabs/ws_deques_public.v
@@ -233,21 +250,48 @@ theories/parabs/ws_hub_std.v
 theories/parabs/pool.v
 theories/parabs/vertex.v
 
+#END parabs
+
+#BEGIN examples
+-Q theories/examples examples
+
 theories/examples/fibonacci.v
+
+#END examples
+
+#BEGIN eio
+-Q theories/eio eio
 
 theories/eio/base.v
 theories/eio/rcfd__types.v
 theories/eio/rcfd__code.v
 theories/eio/rcfd.v
 
+#END eio
+
+#BEGIN boxroot
+-Q theories/boxroot boxroot
+
 theories/boxroot/base.v
 theories/boxroot/gc.v
 theories/boxroot/boxroot.v
+
+#END boxroot
+
+#BEGIN kcas
+-Q theories/kcas kcas
 
 theories/kcas/kcas__types.v
 theories/kcas/kcas__code.v
 theories/kcas/kcas.v
 
+#END kcas
+
+#BEGIN partitition
+-Q theories/partition partition
+
 theories/partition/partition__types.v
 theories/partition/partition__code.v
 theories/partition/partition.v
+
+#END partition

@@ -13,15 +13,15 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   int
   option
   optional
   array
   random_round.
-From zoo.parabs Require Export
+From parabs Require Export
   ws_hub.
-From zoo.parabs Require Import
+From parabs Require Import
   ws_deques
   waiters.
 From zoo Require Import

@@ -3,9 +3,9 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
+From zoo_std Require Import
   clst.
-From zoo.saturn Require Import
+From saturn Require Import
   mpsc_queue_3__types.
 From zoo Require Import
   options.

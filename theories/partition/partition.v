@@ -3,9 +3,9 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.partition Require Import
+From partition Require Import
   partition__types.
-From zoo.partition Require Export
+From partition Require Export
   partition__code.
 From zoo Require Import
   options.

@@ -11,9 +11,9 @@ From zoo.iris.bi Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   xdeque.
-From zoo.boxroot Require Export
+From boxroot Require Export
   gc.
 From zoo Require Import
   options.

@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.parabs Require Import
+From parabs Require Import
   ws_hub
   pool.
 From zoo Require Import

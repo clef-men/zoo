@@ -10,13 +10,13 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   lst.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   mpsc_queue_2__code.
-From zoo.saturn Require Import
+From saturn Require Import
   mpsc_queue_2__types.
 From zoo Require Import
   options.

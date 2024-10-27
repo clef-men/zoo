@@ -3,7 +3,7 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
+From saturn Require Import
   inf_ws_deque_1.
 From zoo Require Import
   options.

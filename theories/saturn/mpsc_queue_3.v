@@ -8,13 +8,13 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   clst.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   mpsc_queue_3__code.
-From zoo.saturn Require Import
+From saturn Require Import
   mpsc_queue_3__types.
 From zoo Require Import
   options.

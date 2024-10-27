@@ -4,9 +4,10 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo Require Import
-  identifier
+  identifier.
+From zoo_std Require Import
   lst.
-From zoo.kcas Require Import
+From kcas Require Import
   kcas__types.
 From zoo Require Import
   options.

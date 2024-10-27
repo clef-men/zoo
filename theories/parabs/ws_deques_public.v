@@ -5,12 +5,12 @@ From zoo.iris.bi Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   array.
-From zoo.saturn Require Import
+From saturn Require Import
   inf_ws_deque_2.
-From zoo.parabs Require Export
+From parabs Require Export
   ws_deques.
 From zoo Require Import
   options.

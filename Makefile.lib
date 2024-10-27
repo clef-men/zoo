@@ -1,0 +1,13 @@
+targets_nocoq += build
+.PHONY : lib
+lib :
+	@ dune build @check @all
+
+targets_nocoq += ocaml2zoo
+.PHONY : ocaml2zoo
+ocaml2zoo :
+	@ ocaml2zoo --exclude zoo . theories
+
+.PHONY : clean
+clean ::
+	@ dune clean

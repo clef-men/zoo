@@ -1,4 +1,4 @@
-targets_nocoq := depend ocaml2zoo
+targets_nocoq :=
 
 .PHONY : all
 all :
@@ -6,23 +6,9 @@ all :
 .PHONY : phony
 phony :
 
-Makefile.coq : _CoqProject
-	@ coq_makefile -f $< -o $@
-
-ifeq (,$(filter $(targets_nocoq),$(MAKECMDGOALS)))
--include Makefile.coq
-endif
-
-.PHONY : ocaml2zoo
-ocaml2zoo :
-	@ $(MAKE) -f Makefile.ocaml2zoo
-
-build-% : phony
-	@ ./make_package.sh $*
-install-% : phony
-	@ ./make_package.sh $* install
-
 .PHONY : clean
 clean ::
-	@ rm -f Makefile.coq Makefile.coq.conf
-	@ $(MAKE) -f Makefile.ocaml2zoo $@
+
+include Makefile.lib
+
+include Makefile.theories

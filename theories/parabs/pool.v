@@ -5,14 +5,14 @@ From zoo.iris.bi Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   array
   domain
   spmc_future.
-From zoo.parabs Require Export
+From parabs Require Export
   base.
-From zoo.parabs Require Import
+From parabs Require Import
   ws_hub.
 From zoo Require Import
   options.

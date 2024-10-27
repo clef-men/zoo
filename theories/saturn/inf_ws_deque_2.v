@@ -5,12 +5,12 @@ From zoo.common Require Import
 From zoo.language Require Import
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   inf_ws_deque_2__code.
-From zoo.saturn Require Import
+From saturn Require Import
   inf_ws_deque_1.
 From zoo Require Import
   options.

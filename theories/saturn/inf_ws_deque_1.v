@@ -18,13 +18,13 @@ From zoo.language Require Import
   identifier
   notations
   diaframe.
-From zoo.std Require Import
+From zoo_std Require Import
   option
   inf_array.
-From zoo.saturn Require Export
+From saturn Require Export
   base
   inf_ws_deque_1__code.
-From zoo.saturn Require Import
+From saturn Require Import
   inf_ws_deque_1__types.
 From zoo Require Import
   options.
