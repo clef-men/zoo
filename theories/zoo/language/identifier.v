@@ -19,10 +19,8 @@ Definition LitIdentifier id :=
   LitProph id.
 Coercion LitIdentifier : identifier >-> literal.
 
-Notation Id :=
-  Proph
-( only parsing
-).
+Definition Id :=
+  Proph.
 Notation ValId id := (
   ValProph id
 )(only parsing
