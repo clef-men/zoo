@@ -153,7 +153,7 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step_equal_fail; simpl; [| | try injection]
+  eapply base_step_equal_fail; simpl; [try done | try done | simpl; try naive_solver done]
 : zoo.
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _
@@ -178,7 +178,7 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step_cas_fail; simpl; [| | | try injection]
+  eapply base_step_cas_fail; simpl; [try done | try done | try done | simpl; try naive_solver done]
 : zoo.
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _

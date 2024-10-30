@@ -334,6 +334,9 @@ Section pure_exec.
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
+    repeat eexists.
+    apply base_step_equal_fail; [done.. |].
+    destruct bid1, bid2; naive_solver.
   Qed.
   #[global] Instance pure_equal_block_2 bid1 tag1 v1 vs1 bid2 tag2 :
     PureExec
@@ -343,6 +346,9 @@ Section pure_exec.
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
+    repeat eexists.
+    apply base_step_equal_fail; [done.. |].
+    destruct bid1, bid2; naive_solver.
   Qed.
   #[global] Instance pure_equal_location_block l bid tag vs :
     PureExec

@@ -85,12 +85,17 @@ Definition val_neq v1 v2 :=
       | ValBlock bid2 tag2 vs2 =>
           match bid1, bid2 with
           | Some bid1, Some bid2 =>
-              bid1 ≠ bid2
+              bid1 ≠ bid2 ∨
+              tag1 ≠ tag2 ∨
+              vs1 ≠ vs2
           | _, _ =>
-              False
-          end ∨
-          tag1 ≠ tag2 ∨
-          vs1 ≠ vs2
+              match vs1, vs2 with
+              | [], [] =>
+                  tag1 ≠ tag2
+              | _, _ =>
+                  True
+              end
+          end
       | _ =>
           True
       end

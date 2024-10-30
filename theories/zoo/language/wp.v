@@ -31,11 +31,12 @@ Section zoo_G.
     base_reducible (v1 == v2) σ.
   Proof.
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 vs1],
-      v2 as [lit2 | | [bid2 |] tag2 vs2].
+      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
+      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
     all: try (destruct (decide (lit1 = lit2)); first subst).
     all: try (destruct (decide (bid1 = bid2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
     all: auto with zoo.
   Qed.
@@ -57,11 +58,12 @@ Section zoo_G.
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 vs1],
-      v2 as [lit2 | | [bid2 |] tag2 vs2].
+      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
+      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
     all: try (destruct (decide (lit1 = lit2)); first subst).
     all: try (destruct (decide (bid1 = bid2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
     all: invert_base_step; simplify; last try by exfalso.
     all:
@@ -243,11 +245,12 @@ Section zoo_G.
     base_reducible (CAS (#l, #fld)%V v1 v2) σ.
   Proof.
     destruct
-      v as [lit | | [bid |] tag vs],
-      v1 as [lit1 | | [bid1 |] tag1 vs1].
+      v as [lit | | [bid |] tag [| v vs]],
+      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]].
     all: try (destruct (decide (lit = lit1)); first subst).
     all: try (destruct (decide (bid = bid1)); first subst).
     all: try (destruct (decide (tag = tag1)); first subst).
+    all: try (destruct (decide (v = v1)); first subst).
     all: try (destruct (decide (vs = vs1)); first subst).
     all: eauto 10 with zoo.
   Qed.
@@ -277,11 +280,12 @@ Section zoo_G.
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 vs1],
-      v2 as [lit2 | | [bid2 |] tag2 vs2].
+      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
+      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
     all: try (destruct (decide (lit1 = lit2)); first subst).
     all: try (destruct (decide (bid1 = bid2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
+    all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
     all: invert_base_step; simplify; last try by exfalso.
     all:
