@@ -126,6 +126,14 @@ Section basic.
     { apply lookup_lt_is_Some in Hlookup. lia. }
     rewrite /= Hlookup'. apply last_take. done.
   Qed.
+
+  Lemma drop_lookup_None l i :
+    l !! i = None →
+    drop i l = [].
+  Proof.
+    intros Hlookup.
+    apply drop_ge, lookup_ge_None_1. done.
+  Qed.
 End basic.
 
 Section zip.
