@@ -193,12 +193,6 @@ Section auth_mono_G.
     apply own_update, auth_mono_auth_persist.
   Qed.
 
-  Lemma auth_mono_lb_get γ q a :
-    auth_mono_auth γ q a ⊢
-    auth_mono_lb γ a.
-  Proof.
-    apply own_mono, auth_mono_lb_included'.
-  Qed.
   Lemma auth_mono_lb_mono {γ a} a' :
     Rs a' a →
     auth_mono_lb γ a ⊢
@@ -212,6 +206,29 @@ Section auth_mono_G.
     auth_mono_lb γ a'.
   Proof.
     intros. apply auth_mono_lb_mono, rtc_once. done.
+  Qed.
+
+  Lemma auth_mono_lb_get γ q a :
+    auth_mono_auth γ q a ⊢
+    auth_mono_lb γ a.
+  Proof.
+    apply own_mono, auth_mono_lb_included'.
+  Qed.
+  Lemma auth_mono_lb_get_mono' γ q a a' :
+    R a' a →
+    auth_mono_auth γ q a ⊢
+    auth_mono_lb γ a'.
+  Proof.
+    intros Ha'.
+    rewrite -auth_mono_lb_mono' // auth_mono_lb_get //.
+  Qed.
+  Lemma auth_mono_lb_get_mono γ q a a' :
+    Rs a' a →
+    auth_mono_auth γ q a ⊢
+    auth_mono_lb γ a'.
+  Proof.
+    intros Ha'.
+    rewrite -auth_mono_lb_mono // auth_mono_lb_get //.
   Qed.
 
   Lemma auth_mono_lb_valid γ dq a a' :
