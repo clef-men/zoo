@@ -141,7 +141,7 @@ Definition val_structeq footprint v1 v2 :=
   val_reachable footprint v2 path v2' →
   val_similar footprint v1' v2' = Some true.
 
-Definition val_structne footprint v1 v2 :=
+Definition val_structneq footprint v1 v2 :=
   ∃ path v1' v2',
   val_reachable footprint v1 path v1' ∧
   val_reachable footprint v2 path v2' ∧
@@ -160,7 +160,7 @@ Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} footprint,
     ⌜ if b then
         val_structeq footprint v1 v2
       else
-        val_structne footprint v1 v2
+        val_structneq footprint v1 v2
     ⌝
   }}}.
 
@@ -207,10 +207,10 @@ Proof.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
 
-Lemma val_is_abstract_structne v1 v2 :
+Lemma val_is_abstract_structneq v1 v2 :
   val_is_abstract v1 →
   val_is_abstract v2 →
-  val_structne ∅ v1 v2 →
+  val_structneq ∅ v1 v2 →
   v1 ≠ v2.
 Proof.
   move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => //; intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hsimilar).
@@ -227,7 +227,7 @@ Proof.
       rewrite Forall'_Forall in Habstract1.
       rewrite !Forall_lookup in Habstract1 IH.
       eapply IH => //; [naive_solver.. |].
-      rewrite /val_structne. naive_solver.
+      rewrite /val_structneq. naive_solver.
 Qed.
 
 Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} v1 v2 Φ :
@@ -244,5 +244,5 @@ Proof.
   - rewrite bool_decide_eq_true_2 //.
     apply val_is_abstract_structeq => //.
   - rewrite bool_decide_eq_false_2 //.
-    apply val_is_abstract_structne => //.
+    apply val_is_abstract_structneq => //.
 Qed.
