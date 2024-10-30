@@ -1391,7 +1391,8 @@ Module raw.
 
       wp_rec.
       wp_apply (pstore_collect_spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
-      wp_smart_apply (pstore_revert_spec with "[Hinv] HΦ"); [done.. |].
+      wp_smart_apply (pstore_revert_spec with "[Hinv] HΦ"); [done.. | |].
+      { rewrite lst_model'_plst_model' //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hdescrs_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hdescrs)".
       iSteps.
     Qed.

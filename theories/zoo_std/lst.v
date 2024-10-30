@@ -28,6 +28,12 @@ Fixpoint plst_to_val nil vs :=
 Proof.
   destruct vs; done.
 Qed.
+
+Lemma plst_to_val_nil nil :
+  plst_to_val nil [] = nil.
+Proof.
+  done.
+Qed.
 Lemma plst_to_val_cons nil v vs :
   plst_to_val nil (v :: vs) = (v :: plst_to_val nil vs)%V.
 Proof.
@@ -45,9 +51,21 @@ Proof.
   simpl. do 3 f_equal. done.
 Qed.
 
-Definition lst_to_val :=
-  plst_to_val [].
-#[global] Arguments lst_to_val !_ / : assert.
+Fixpoint lst_to_val vs :=
+  match vs with
+  | [] =>
+      []%V
+  | v :: vs =>
+      (v :: lst_to_val vs)%V
+  end.
+#[global] Arguments lst_to_val !_ : assert.
+
+Lemma lst_to_val_plst_to_val vs :
+  lst_to_val vs = plst_to_val [] vs.
+Proof.
+  induction vs as [| v vs IH]; first done.
+  rewrite /= IH //.
+Qed.
 
 #[global] Instance lst_to_val_inj' :
   Inj (=) val_eq lst_to_val.
@@ -63,27 +81,32 @@ Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).
 Proof.
+  rewrite lst_to_val_plst_to_val.
   apply plst_to_val_physical. done.
 Qed.
 
 Lemma lst_to_val_nil :
   lst_to_val [] = []%V.
 Proof.
-  done.
+  rewrite lst_to_val_plst_to_val.
+  apply plst_to_val_nil.
 Qed.
 Lemma lst_to_val_cons v vs :
   lst_to_val (v :: vs) = (v :: lst_to_val vs)%V.
 Proof.
+  rewrite !lst_to_val_plst_to_val.
   apply plst_to_val_cons.
 Qed.
 Lemma lst_to_val_singleton v :
   lst_to_val [v] = (v :: [])%V.
 Proof.
+  rewrite lst_to_val_plst_to_val.
   apply plst_to_val_singleton.
 Qed.
 Lemma lst_to_val_app vs1 vs2 :
   plst_to_val (lst_to_val vs2) vs1 = lst_to_val (vs1 ++ vs2).
 Proof.
+  rewrite !lst_to_val_plst_to_val.
   apply plst_to_val_app.
 Qed.
 
@@ -99,6 +122,13 @@ Section zoo_G.
     t = lst_to_val vs.
   Definition lst_model t vs : iProp Σ :=
     ⌜lst_model' t vs⌝.
+
+  Lemma lst_model'_plst_model' t vs :
+    lst_model' t vs ↔
+    plst_model' t [] vs.
+  Proof.
+    rewrite /lst_model' lst_to_val_plst_to_val //.
+  Qed.
 
   Lemma lst_singleton_spec v :
     {{{
