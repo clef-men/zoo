@@ -51,4 +51,4 @@ depends: [
 ]
 ```
 
-See also [this example](https://github.com/clef-men/zoo_demo).
+See also [this example](https://github.com/clef-men/zoo-demo).
