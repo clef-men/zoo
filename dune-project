@@ -12,18 +12,6 @@
 (source (github clef-men/zoo))
 
 (package
-  (name coq-zoo)
-  (synopsis "Zoo")
-  (allow_empty)
-)
-
-(package
-  (name coq-zoo-std)
-  (synopsis "Zoo standard library")
-  (allow_empty)
-)
-
-(package
   (name zoo)
   (synopsis "Zoo")
 )
@@ -73,4 +61,16 @@
   (depends
     zoo_std
   )
+)
+
+(package
+  (name coq-zoo)
+  (synopsis "Zoo")
+  (allow_empty)
+)
+
+(package
+  (name coq-zoo-std)
+  (synopsis "Zoo standard library")
+  (allow_empty)
 )
