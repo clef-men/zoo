@@ -123,7 +123,7 @@ Definition kcas_cas : val :=
         "cass"
         (fun: "cas" =>
            let: "loc", "before", "after" := "cas" in
-           let: "state" := ("casn", "before", "after") in
+           let: "state" := Reveal ("casn", "before", "after") in
            ("loc", "state"))
     in
     "casn" <-{status} Reveal ‘Undetermined( "cass" ) ;;

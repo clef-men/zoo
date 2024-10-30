@@ -5,7 +5,7 @@
 type 'a loc =
   'a state Atomic.t
 
-and 'a state =
+and[@zoo.reveal] 'a state =
   { casn: 'a casn;
     before: 'a;
     after: 'a;
