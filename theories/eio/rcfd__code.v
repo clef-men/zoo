@@ -4,8 +4,9 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  unics
   spsc_waiter.
+From unix Require Import
+  unix.
 From eio Require Import
   rcfd__types.
 From zoo Require Import
@@ -47,7 +48,7 @@ Definition rcfd_close : val :=
   fun: "t" =>
     match: "t".{state} with
     | Open "fd" as "prev" =>
-        let: "close" <> := unics_close "fd" in
+        let: "close" <> := unix_close "fd" in
         let: "next" := ‘Closing( "close" ) in
         if: CAS "t".[state] "prev" "next" then (
           if: "t".{ops} == #0 and CAS "t".[state] "next" rcfd_closed then (

@@ -170,7 +170,6 @@ theories/zoo_std/random.v
 theories/zoo_std/random_round__types.v
 theories/zoo_std/random_round__code.v
 theories/zoo_std/random_round.v
-theories/zoo_std/unics.v
 
 #END zoo-std
 
@@ -258,6 +257,13 @@ theories/parabs/vertex.v
 theories/examples/fibonacci.v
 
 #END examples
+
+#BEGIN unix
+-Q theories/unix unix
+
+theories/unix/unix.v
+
+#END unix
 
 #BEGIN eio
 -Q theories/eio eio

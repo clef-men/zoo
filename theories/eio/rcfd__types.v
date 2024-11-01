@@ -4,8 +4,9 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  unics
   spsc_waiter.
+From unix Require Import
+  unix.
 From zoo Require Import
   options.
 

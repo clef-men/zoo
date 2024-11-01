@@ -10,8 +10,9 @@ From zoo.language Require Import
   diaframe.
 From zoo_std Require Import
   option
-  spsc_waiter
-  unics.
+  spsc_waiter.
+From unix Require Import
+  unix.
 From eio Require Export
   base
   rcfd__code.
@@ -142,14 +143,14 @@ Section rcfd_G.
         ⌜ops = size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
         ⌜state = RcfdStateOpen⌝ ∗
         rcfd_tokens_auth γ qs ∗
-        unics_fd_model fd (DfracOwn q) chars
+        unix_fd_model fd (DfracOwn q) chars
     | RcfdLstateClosingUsers =>
         ∃ q qs fn,
         ⌜ops = size qs ∧ 0 < size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
         ⌜state = RcfdStateClosing fn⌝ ∗
         rcfd_tokens_auth γ qs ∗
-        unics_fd_model fd (DfracOwn q) chars ∗
-        (unics_fd_model fd (DfracOwn 1) chars -∗ WP fn () {{ res, ⌜res = ()%V⌝ }})
+        unix_fd_model fd (DfracOwn q) chars ∗
+        (unix_fd_model fd (DfracOwn 1) chars -∗ WP fn () {{ res, ⌜res = ()%V⌝ }})
     | RcfdLstateClosingNoUsers =>
         ∃ fn,
         ⌜state = RcfdStateClosing fn⌝ ∗
@@ -291,7 +292,7 @@ Section rcfd_G.
 
   Lemma rcfd_make_spec fd chars :
     {{{
-      unics_fd_model fd (DfracOwn 1) chars
+      unix_fd_model fd (DfracOwn 1) chars
     }}}
       rcfd_make fd
     {{{ t,
@@ -324,7 +325,7 @@ Section rcfd_G.
       inv nroot (rcfd_inv_inner l γ fd chars) ∗
       ( ( ∃ q,
           rcfd_tokens_frag γ q ∗
-          unics_fd_model fd (DfracOwn q) chars
+          unix_fd_model fd (DfracOwn q) chars
         )
       ∨ rcfd_lstate_lb γ RcfdLstateClosingNoUsers
       )
@@ -441,7 +442,7 @@ Section rcfd_G.
     {{{
       rcfd_inv t fd chars ∗
       rcfd_token t q ∗
-      unics_fd_model fd (DfracOwn q) chars
+      unix_fd_model fd (DfracOwn q) chars
     }}}
       rcfd_put t
     {{{
@@ -469,7 +470,7 @@ Section rcfd_G.
           ∃ q,
           ⌜fd_ = fd⌝ ∗
           rcfd_token t q ∗
-          unics_fd_model fd (DfracOwn q) chars
+          unix_fd_model fd (DfracOwn q) chars
       end
     }}}.
   Proof.
@@ -484,7 +485,7 @@ Section rcfd_G.
       rcfd_inv_inner l γ fd chars ∗
       ( ( ∃ q,
           rcfd_tokens_frag γ q ∗
-          unics_fd_model fd (DfracOwn q) chars
+          unix_fd_model fd (DfracOwn q) chars
         )
       ∨ rcfd_lstate_lb γ RcfdLstateClosingNoUsers
       )
@@ -599,10 +600,10 @@ Section rcfd_G.
             rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
             iMod (rcfd_lstate_update RcfdLstateClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iExists (RcfdStateClosing _). iSteps. iModIntro.
-            wp_apply (unics_close_spec with "[$]").
+            wp_apply (unix_close_spec with "[$]").
             iSteps.
           - iExists (RcfdStateClosing _). iSteps. iModIntro.
-            wp_apply (unics_close_spec with "[$]").
+            wp_apply (unix_close_spec with "[$]").
             iSteps.
         }
         iModIntro. clear.
@@ -696,7 +697,7 @@ Section rcfd_G.
             True
         | Some fd' =>
             ⌜fd' = fd⌝ ∗
-            unics_fd_model fd (DfracOwn 1) chars
+            unix_fd_model fd (DfracOwn 1) chars
         end
     }}}.
   Proof.
@@ -718,7 +719,7 @@ Section rcfd_G.
       iSplitR "HΦ". { iExists RcfdStateOpen. iSteps. }
       iModIntro. clear.
 
-      wp_smart_apply (spsc_waiter_create_spec (unics_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
+      wp_smart_apply (spsc_waiter_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
       wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -783,7 +784,7 @@ Section rcfd_G.
           True
       | Some fd' =>
           ⌜fd' = fd⌝ ∗
-          unics_fd_model fd (DfracOwn 1) chars
+          unix_fd_model fd (DfracOwn 1) chars
       end
     }}}.
   Proof.
@@ -816,11 +817,11 @@ Section rcfd_G.
       }} ∗
       ( ∀ q,
         rcfd_token t q -∗
-        unics_fd_model fd (DfracOwn q) chars -∗
+        unix_fd_model fd (DfracOwn q) chars -∗
         WP open fd {{ res,
           ⌜res = ()%V⌝ ∗
           rcfd_token t q ∗
-          unics_fd_model fd (DfracOwn q) chars ∗
+          unix_fd_model fd (DfracOwn q) chars ∗
           Ψ true
         }}
       )

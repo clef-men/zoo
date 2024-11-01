@@ -3,7 +3,7 @@
 *)
 
 type state =
-  | Open of Unics.file_descr [@zoo.reveal]
+  | Open of Unix.file_descr [@zoo.reveal]
   | Closing of (unit -> unit)
 
 type t =
@@ -40,7 +40,7 @@ let close t =
   match t.state with
   | Open fd as prev ->
       let close () =
-        Unics.close fd
+        Unix.close fd
       in
       let next = Closing close in
       if Atomic.Loc.compare_and_set [%atomic.loc t.state] prev next then (
