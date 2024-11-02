@@ -24,7 +24,7 @@ let put t =
     | Open _ ->
         ()
     | Closing no_users as prev ->
-        if not (0 < t.ops) && Atomic.Loc.compare_and_set [%atomic.loc t.state] prev closed then
+        if t.ops <= 0 && Atomic.Loc.compare_and_set [%atomic.loc t.state] prev closed then
           no_users ()
 
 let get t =

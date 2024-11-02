@@ -41,7 +41,7 @@ Definition mpsc_waiter_try_wait : val :=
 
 Definition mpsc_waiter_wait : val :=
   fun: "t" =>
-    ifnot: mpsc_waiter_try_wait "t" then (
+    if: ~ mpsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
       mutex_protect

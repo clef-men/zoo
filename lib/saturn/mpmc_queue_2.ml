@@ -1,5 +1,4 @@
 (* Based on:
-   https://github.com/ocaml-multicore/saturn/pull/112
    https://github.com/ocaml-multicore/picos/blob/0c8d97df54b319ed4a7857d66f801b18a9e76f38/lib/picos_aux.mpmcq/picos_aux_mpmcq.ml
 *)
 
@@ -28,14 +27,14 @@ type 'a t =
     mutable back: ('a, [`Back | `Snoc]) back [@atomic];
   }
 
-let rec rev (suffix : (_, [`Cons]) front) prefix =
+let rec rev (suffix : (_, [< `Cons]) front) prefix =
   let Cons _ as suffix = suffix in
   match prefix with
   | Back _ ->
       suffix
   | Snoc (i, v, prefix) ->
       rev (Cons (i, v, suffix)) prefix
-let rev (back : (_, [`Snoc]) back) =
+let rev (back : (_, [< `Snoc]) back) =
   let Snoc (i, v, prefix) = back in
   rev (Cons (i, v, Front (i + 1))) prefix
 
@@ -44,36 +43,108 @@ let create () =
     back= Back { index= 0; move= Used };
   }
 
-let rec push_aux t v i back =
-  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Snoc (i + 1, v, back)) then (
+let rec size t =
+  let front = t.front in
+  let back = t.back in
+  if front != t.front then
+    size t
+  else
+    let i_front =
+      match front with
+      | Front i ->
+          i
+      | Cons (i, _, _) ->
+          i
+    in
+    let i_back =
+      match back with
+      | Back back_r ->
+          back_r.index
+      | Snoc (i, _, _) ->
+          i
+    in
+    i_back - i_front + 1
+
+let is_empty t =
+  size t == 0
+
+let rec push_back_aux t v i back =
+  let new_back = Snoc (i + 1, v, back) in
+  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
     Domain.cpu_relax () ;
-    push t v
+    push_back t v
   )
-and push t v =
+and push_back t v =
   let back = t.back in
   match back with
   | Snoc (i, _, _) ->
-      push_aux t v i back
+      push_back_aux t v i back
   | Back back_r ->
-      let i_back = back_r.index in
       match back_r.move with
       | Used ->
-          push_aux t v i_back back
+          push_back_aux t v back_r.index back
       | Snoc (i_move, _, _) as move ->
           begin match t.front with
           | Front i_front as front ->
-              if i_front < i_move
-              && Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
+              if i_move <= i_front
+              || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
                 back_r.move <- Used
           | _ ->
-              ()
+              back_r.move <- Used
           end ;
-          push_aux t v i_back back
+          push_back t v
+
+let rec push_front t v =
+  match t.front with
+  | Cons (i, _, _) as front ->
+      let new_front = Cons (i - 1, v, front) in
+      if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+        Domain.cpu_relax () ;
+        push_front t v
+      )
+  | Front i_front as front ->
+      match t.back with
+      | Snoc (i_back, v_back, prefix) as back ->
+          if i_front == i_back then (
+            let prefix = Snoc (i_back, v, prefix) in
+            let new_back = Snoc (i_back + 1, v_back, prefix) in
+            if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
+              Domain.cpu_relax () ;
+              push_front t v
+            )
+          ) else (
+            let new_back = Back { index= i_back; move= back } in
+            if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then
+              Domain.cpu_relax () ;
+            push_front t v
+          )
+      | Back back_r as back ->
+          match back_r.move with
+          | Used ->
+              if t.front == front then (
+                let new_back = Snoc (back_r.index + 1, v, back) in
+                if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
+                  Domain.cpu_relax () ;
+                  push_front t v
+                )
+              ) else (
+                push_front t v
+              )
+          | Snoc (i_move, _, _) as move ->
+              begin match t.front with
+              | Front i_front as front ->
+                  if i_move <= i_front
+                  || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
+                    back_r.move <- Used
+              | _ ->
+                  back_r.move <- Used
+              end ;
+              push_front t v
 
 let rec pop_1 t front =
   match front with
-  | Cons (_, v, suffix) ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front suffix then (
+  | Cons (_, v, new_front) ->
+      if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
         Some v
       ) else (
         Domain.cpu_relax () ;
@@ -83,41 +154,41 @@ let rec pop_1 t front =
       match t.back with
       | Snoc (i_move, v, move_prefix) as move ->
           if i_front == i_move then (
-            if Atomic.Loc.compare_and_set [%atomic.loc t.back] move move_prefix then (
+            if Atomic.Loc.compare_and_set [%atomic.loc t.back] move move_prefix then
               Some v
-            ) else (
+            else
               pop t
-            )
           ) else (
-            let (Back _ as back : (_, [`Back]) back) = Back { index= i_move; move } in
+            let (Back back_r as back : (_, [`Back]) back) = Back { index= i_move; move } in
             if Atomic.Loc.compare_and_set [%atomic.loc t.back] move back then
-              pop_2 t front move back
+              let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
+              if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+                back_r.move <- Used ;
+                Some v
+              ) else (
+                Domain.cpu_relax () ;
+                pop t
+              )
             else
               pop t
           )
-      | Back back_r as back ->
+      | Back back_r ->
           match back_r.move with
           | Used ->
-              pop_3 t front
-          | Snoc _ as move ->
-              pop_2 t front move back
-and pop_2 t (front : (_, [`Front]) front) (move : (_, [`Snoc]) back) (back : (_, [`Back]) back) =
-  let Front i_front as front = front in
-  let Snoc (i_move, _, _) = move in
-  let Back back_r = back in
-  if i_front < i_move then (
-    let (Cons (_, v, suffix) : (_, [`Cons]) front) = rev move in
-    if Atomic.Loc.compare_and_set [%atomic.loc t.front] front suffix then (
-      back_r.move <- Used ;
-      Some v
-    ) else (
-      Domain.cpu_relax () ;
-      pop t
-    )
-  ) else (
-    pop_3 t front
-  )
-and pop_3 t front =
+              pop_2 t front
+          | Snoc (i_move, _, _) as move ->
+              if i_front < i_move then
+                let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
+                if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+                  back_r.move <- Used ;
+                  Some v
+                ) else (
+                  Domain.cpu_relax () ;
+                  pop t
+                )
+              else
+                pop_2 t front
+and pop_2 t front =
   let front' = t.front in
   if front' == front then
     None

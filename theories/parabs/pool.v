@@ -88,7 +88,7 @@ Section ws_deques.
 
   Definition pool_wait_until : val :=
     rec: "pool_wait_until" "ctx" "pred" =>
-      ifnot: "pred" () then
+      if: ~ "pred" () then
         match: ws_hub_pop_steal_until ws_hub "ctx".<context_hub> "ctx".<context_id> #pool_max_round_noyield "pred" with
         | None =>
             ()

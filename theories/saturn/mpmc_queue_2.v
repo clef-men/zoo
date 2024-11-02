@@ -58,15 +58,60 @@ Section mpmc_queue_2_G.
   Proof.
   Admitted.
 
-  Lemma mpmc_queue_2_push_spec t ι v :
+  Lemma mpmc_queue_2_size_spec t ι :
     <<<
       mpmc_queue_2_inv t ι
     | ∀∀ vs,
       mpmc_queue_2_model t vs
     >>>
-      mpmc_queue_2_push t v @ ↑ι
+      mpmc_queue_2_size t
+    <<<
+      mpmc_queue_2_model t vs
+    | RET #(length vs);
+      True
+    >>>.
+  Proof.
+  Admitted.
+
+  Lemma mpmc_queue_2_is_empty_spec t ι :
+    <<<
+      mpmc_queue_2_inv t ι
+    | ∀∀ vs,
+      mpmc_queue_2_model t vs
+    >>>
+      mpmc_queue_2_is_empty t
+    <<<
+      mpmc_queue_2_model t vs
+    | RET #(bool_decide (vs = []%list));
+      True
+    >>>.
+  Proof.
+  Admitted.
+
+  Lemma mpmc_queue_2_push_back_spec t ι v :
+    <<<
+      mpmc_queue_2_inv t ι
+    | ∀∀ vs,
+      mpmc_queue_2_model t vs
+    >>>
+      mpmc_queue_2_push_back t v @ ↑ι
     <<<
       mpmc_queue_2_model t (vs ++ [v])
+    | RET ();
+      True
+    >>>.
+  Proof.
+  Admitted.
+
+  Lemma mpmc_queue_2_push_front_spec t ι v :
+    <<<
+      mpmc_queue_2_inv t ι
+    | ∀∀ vs,
+      mpmc_queue_2_model t vs
+    >>>
+      mpmc_queue_2_push_front t v @ ↑ι
+    <<<
+      mpmc_queue_2_model t (v :: vs)
     | RET ();
       True
     >>>.
@@ -90,7 +135,7 @@ Section mpmc_queue_2_G.
 End mpmc_queue_2_G.
 
 #[global] Opaque mpmc_queue_2_create.
-#[global] Opaque mpmc_queue_2_push.
+#[global] Opaque mpmc_queue_2_push_back.
 #[global] Opaque mpmc_queue_2_pop.
 
 #[global] Opaque mpmc_queue_2_inv.

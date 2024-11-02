@@ -26,7 +26,7 @@ Definition condition_notify_all : val :=
 
 Definition condition_wait_until_aux : val :=
   rec: "wait_until_aux" "t" "mtx" "pred" =>
-    ifnot: "pred" () then (
+    if: ~ "pred" () then (
       condition_wait "t" "mtx" ;;
       "wait_until_aux" "t" "mtx" "pred"
     ).

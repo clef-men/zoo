@@ -109,14 +109,14 @@ Definition dynarray_2_try_push : val :=
 Definition dynarray_2_push_aux : val :=
   rec: "push_aux" "t" "slot" =>
     dynarray_2_reserve_extra "t" #1 ;;
-    ifnot: dynarray_2_try_push "t" "slot" then (
+    if: ~ dynarray_2_try_push "t" "slot" then (
       "push_aux" "t" "slot"
     ).
 
 Definition dynarray_2_push : val :=
   fun: "t" "v" =>
     let: "slot" := ‘Some( ref "v" ) in
-    ifnot: dynarray_2_try_push "t" "slot" then (
+    if: ~ dynarray_2_try_push "t" "slot" then (
       dynarray_2_push_aux "t" "slot"
     ).
 

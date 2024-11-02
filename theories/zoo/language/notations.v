@@ -351,12 +351,6 @@ Notation "'if:' e0 'then' e1" := (
   e0, e1 at level 200,
   only parsing
 ) : expr_scope.
-Notation "'ifnot:' e0 'then' e2" := (
-  If e0%E Unit e2%E
-)(at level 1,
-  e0, e2 at level 200,
-  only parsing
-) : expr_scope.
 
 Notation "'for:' x := e1 'to' e2 'begin' e3 'end'" := (
   For e1%E e2%E (Fun x%binder e3%E)

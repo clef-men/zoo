@@ -16,7 +16,7 @@ Definition mpmc_stack_1_push : val :=
   rec: "push" "t" "v" =>
     let: "old" := !"t" in
     let: "new_" := "v" :: "old" in
-    ifnot: CAS "t".[contents] "old" "new_" then (
+    if: ~ CAS "t".[contents] "old" "new_" then (
       Yield ;;
       "push" "t" "v"
     ).

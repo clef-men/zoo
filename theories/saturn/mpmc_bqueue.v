@@ -98,7 +98,7 @@ Definition mpmc_bqueue_push : val :=
 #[local] Definition mpmc_queue_do_push : val :=
   rec: "mpmc_queue_do_push" "node" "new_back" =>
     let: "node'" := "node".{node_next} in
-    ifnot: "node'" == () and CAS "node".[node_next] () "new_back" then
+    if: "node'" != () or ~ CAS "node".[node_next] () "new_back" then
       "mpmc_queue_do_push" "node'" "new_back".
 
 Definition mpmc_bqueue_pop : val :=

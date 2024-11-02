@@ -89,7 +89,7 @@ Definition ws_deques_private_size : val :=
     | Blocked =>
         ()
     | No_request =>
-        ifnot: array_cas "requests" "i" §No_request §Blocked then
+        if: ~ array_cas "requests" "i" §No_request §Blocked then
           match: array_unsafe_get "requests" "i" with
           | Request "j" =>
               ws_deques_private_block_aux "t" "i" "j"

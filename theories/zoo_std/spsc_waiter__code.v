@@ -26,7 +26,7 @@ Definition spsc_waiter_try_wait : val :=
 
 Definition spsc_waiter_wait : val :=
   fun: "t" =>
-    ifnot: spsc_waiter_try_wait "t" then (
+    if: ~ spsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
       mutex_protect

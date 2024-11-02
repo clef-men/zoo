@@ -26,7 +26,7 @@ Definition mpsc_queue_1_do_push : val :=
     | Node <> <> as "node_r" =>
         match: "node_r".{next} with
         | Null =>
-            ifnot: CAS "node_r".[next] §Null "new_back" then (
+            if: ~ CAS "node_r".[next] §Null "new_back" then (
               Yield ;;
               "do_push" "node" "new_back"
             )

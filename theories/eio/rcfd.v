@@ -416,10 +416,6 @@ Section rcfd_G.
 
       + iDestruct "Hlstate3" as "(%q & %qs & %fn3 & (-> & %Hqs_size & %Hqs) & -> & Htokens_auth & Hmodel & Hfn3)".
         iSplitR "HΦ". { iExists (RcfdStateClosing _). iSteps. }
-        iModIntro. clear- Hqs_size.
-
-        wp_pures. rewrite bool_decide_eq_true_2; first lia. wp_pures.
-
         iSteps.
 
       + iDestruct "Hlstate3" as "(%fn3 & -> & Hfn3)".
@@ -427,7 +423,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (RcfdStateClosing _). iStep 4. done. }
         iModIntro. clear.
 
-        wp_pures. case_bool_decide as Hops3; wp_pures; first iSteps.
+        wp_pures. case_bool_decide as Hops3; wp_pures; last iSteps.
 
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & Hops & Hfd & Hlstate_auth & Hlstate4)".

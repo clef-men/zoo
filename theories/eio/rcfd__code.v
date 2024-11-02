@@ -27,7 +27,7 @@ Definition rcfd_put : val :=
       | Open <> =>
           ()
       | Closing "no_users" as "prev" =>
-          if: ~ #0 < "t".{ops} and CAS "t".[state] "prev" rcfd_closed then (
+          if: "t".{ops} ≤ #0 and CAS "t".[state] "prev" rcfd_closed then (
             "no_users" ()
           )
       end

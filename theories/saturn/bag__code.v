@@ -16,7 +16,7 @@ Definition bag_create : val :=
 
 Definition bag_push_0 : val :=
   rec: "push" "slot" "o" =>
-    ifnot: CAS "slot".[contents] §None "o" then (
+    if: ~ CAS "slot".[contents] §None "o" then (
       Yield ;;
       "push" "slot" "o"
     ).

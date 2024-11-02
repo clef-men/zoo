@@ -52,7 +52,7 @@ Definition vertex_create : val :=
 Definition vertex_precede : val :=
   fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in
-    ifnot: mpmc_stack_2_is_closed "succs1" then (
+    if: ~ mpmc_stack_2_is_closed "succs1" then (
       FAA "t2".[preds] #1 ;;
       if: mpmc_stack_2_push "succs1" "t2" then (
         FAA "t2".[preds] #(-1) ;;

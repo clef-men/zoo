@@ -10,7 +10,7 @@ From zoo Require Import
 
 Definition assert : val :=
   fun: "b" =>
-    ifnot: "b" then
+    if: ~ "b" then
       Fail.
 
 Section zoo_G.

@@ -12,7 +12,7 @@ From zoo Require Import
 
 Definition assume : val :=
   fun: "b" =>
-    ifnot: "b" then
+    if: ~ "b" then
       diverge ().
 
 Section zoo_G.

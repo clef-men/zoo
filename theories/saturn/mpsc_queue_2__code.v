@@ -17,7 +17,7 @@ Definition mpsc_queue_2_create : val :=
 Definition mpsc_queue_2_push : val :=
   rec: "push" "t" "v" =>
     let: "back" := "t".{back} in
-    ifnot: CAS "t".[back] "back" ("v" :: "back") then (
+    if: ~ CAS "t".[back] "back" ("v" :: "back") then (
       Yield ;;
       "push" "t" "v"
     ).
