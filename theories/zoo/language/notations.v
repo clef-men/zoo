@@ -73,6 +73,11 @@ Notation "9" :=
 
 Notation "0" :=
   0
+( in custom zoo_tag
+).
+
+Notation "0" :=
+  0
 ( in custom zoo_proj
 ).
 Notation "1" :=
