@@ -33,6 +33,12 @@ Section zoo_G.
     ∃ prophs,
     prophet_model id prophs.
 
+  #[global] Instance identifier_model_timeless id :
+    Timeless (identifier_model id).
+  Proof.
+    apply _.
+  Qed.
+
   Lemma identifier_model_exclusive id :
     identifier_model id -∗
     identifier_model id -∗
