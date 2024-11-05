@@ -104,6 +104,47 @@ Definition val_neq v1 v2 :=
   end.
 #[global] Arguments val_neq !_ !_ / : assert.
 
+#[global] Instance val_neq_dec : RelDecision val_neq.
+Proof.
+  unshelve refine (
+    λ v1 v2,
+      match v1 with
+      | ValLit lit1 =>
+          match v2 with
+          | ValLit lit2 =>
+              cast_if
+                (decide (lit1 ≠ lit2))
+          | _ =>
+              left _
+          end
+      | ValBlock bid1 tag1 vs1 =>
+          match v2 with
+          | ValBlock bid2 tag2 vs2 =>
+              match bid1, bid2 with
+              | Some bid1, Some bid2 =>
+                  cast_if_or3
+                    (decide (bid1 ≠ bid2))
+                    (decide (tag1 ≠ tag2))
+                    (decide (vs1 ≠ vs2))
+              | _, _ =>
+                  match vs1, vs2 with
+                  | [], [] =>
+                      cast_if
+                        (decide (tag1 ≠ tag2))
+                  | _, _ =>
+                      left _
+                  end
+              end
+          | _ =>
+              left _
+          end
+      | _ =>
+          left _
+      end
+  ).
+  all: abstract naive_solver.
+Defined.
+
 Definition val_eq v1 v2 :=
   match v1, v2 with
   | ValLit lit1, ValLit lit2 =>
@@ -141,6 +182,36 @@ Lemma val_eq_refl v1 v2 :
 Proof.
   naive_solver.
 Qed.
+#[global] Instance val_eq_dec : RelDecision val_eq.
+Proof.
+  unshelve refine (
+    λ v1 v2,
+      match v1, v2 with
+      | ValLit lit1, ValLit lit2 =>
+          cast_if
+            (decide (lit1 = lit2))
+      | ValRecs i1 recs1, ValRecs i2 recs2 =>
+          cast_if_and
+            (decide (i1 = i2))
+            (decide (recs1 = recs2))
+      | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
+            match bid1, bid2 with
+            | Some bid1, Some bid2 =>
+                cast_if_and3
+                  (decide (bid1 = bid2))
+                  (decide (tag1 = tag2))
+                  (decide (vs1 = vs2))
+            | _, _ =>
+                cast_if_and
+                  (decide (tag1 = tag2))
+                  (decide (vs1 = vs2))
+            end
+      | _, _ =>
+          right _
+      end
+  ).
+  all: abstract naive_solver.
+Defined.
 
 Definition eval_unop op v :=
   match op, v with
