@@ -34,7 +34,7 @@ let status_to_bool = function
   | After ->
       true
 
-let finish id casn status =
+let finish gid casn status =
   match casn.status with
   | Before ->
       false
@@ -43,28 +43,22 @@ let finish id casn status =
   | Undetermined _ as old_status ->
       Zoo.resolve (
         Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
-      ) casn.proph (id, status_to_bool status) |> ignore ;
+      ) casn.proph (gid, status_to_bool status) |> ignore ;
       casn.status == After
 
-let rec determine_aux casn cass =
-  let id = Zoo.id in
+let rec determine_as casn cass =
+  let gid = Zoo.id in
   match cass with
   | [] ->
-      finish id casn After
+      finish gid casn After
   | cas :: cass' ->
       let { loc; state } = cas in
       let state' = Atomic.get loc in
       if state == state' then
-        determine_aux casn cass'
+        determine_as casn cass'
       else
-        let v =
-          if determine state'.casn then
-            state'.after
-          else
-            state'.before
-        in
-        if v != state.before then
-          finish id casn Before
+        if state.before != get_as state' then
+          finish gid casn Before
         else
           match casn.status with
           | Before ->
@@ -73,9 +67,14 @@ let rec determine_aux casn cass =
               true
           | Undetermined _ ->
               if Atomic.compare_and_set loc state' state then
-                determine_aux casn cass'
+                determine_as casn cass'
               else
-                determine_aux casn cass
+                determine_as casn cass
+and get_as state =
+  if determine state.casn then
+    state.after
+  else
+    state.before
 and determine casn =
   match casn.status with
   | Before ->
@@ -83,14 +82,16 @@ and determine casn =
   | After ->
       true
   | Undetermined cass ->
-      determine_aux casn cass
+      determine_as casn cass
+
+let make v =
+  let _gid = Zoo.id in
+  let casn = { status= After; proph= Zoo.proph } in
+  let state = { casn; before= v; after= v } in
+  Atomic.make state
 
 let get loc =
-  let state = Atomic.get loc in
-  if determine state.casn then
-    state.after
-  else
-    state.before
+  get_as (Atomic.get loc)
 
 let cas cass =
   let casn = { status= After; proph= Zoo.proph } in
@@ -102,4 +103,4 @@ let cas cass =
     )
   in
   casn.status <- Undetermined cass ;
-  determine_aux casn cass
+  determine_as casn cass

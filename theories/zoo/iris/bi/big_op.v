@@ -21,6 +21,22 @@ Section bi.
     Implicit Types l : list A.
     Implicit Types Φ Ψ : nat → A → PROP.
 
+    Lemma big_sepL_snoc_1 l x Φ :
+      ([∗ list] k↦y ∈ (l ++ [x]), Φ k y) ⊢
+        ([∗ list] k↦y ∈ l, Φ k y) ∗
+        Φ (length l) x.
+    Proof.
+      rewrite big_sepL_snoc //.
+    Qed.
+    Lemma big_sepL_snoc_2 l len x Φ :
+      len = length l →
+      ([∗ list] k↦y ∈ l, Φ k y) -∗
+      Φ len x -∗
+      ([∗ list] k↦y ∈ (l ++ [x]), Φ k y).
+    Proof.
+      rewrite big_sepL_snoc. iSteps.
+    Qed.
+
     Lemma big_sepL_mono_strong' `{!BiAffine PROP} {A1 A2} (l1 : list A1) (l2 : list A2) (Φ1 : nat → A1 → PROP) (Φ2 : nat → A2 → PROP) :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
@@ -107,10 +123,14 @@ Section bi.
       rewrite big_sepL_seq_shift //.
     Qed.
     Lemma big_sepL_seq_shift_2 `{!BiAffine PROP} j i sz (Φ : nat → PROP) :
-      ([∗ list] k ∈ seq (i + j) sz, Φ (k - j)) ⊢
-      [∗ list] k ∈ seq i sz, Φ k.
+      ([∗ list] k ∈ seq (i + j) sz, Φ k) ⊢
+      [∗ list] k ∈ seq i sz, Φ (k + j).
     Proof.
-      rewrite -big_sepL_seq_shift //.
+      setoid_rewrite (big_sepL_seq_shift j) at 2.
+      iIntros "H".
+      iApply (big_sepL_impl with "H"). iIntros "!>" (? ? (-> & ?)%lookup_seq).
+      assert (i + j + k = i + j + k - j + j) as <- by lia.
+      iSteps.
     Qed.
 
     Lemma big_sepL_delete_1 Φ l i x :

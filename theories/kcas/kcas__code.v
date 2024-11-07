@@ -24,7 +24,7 @@ Definition kcas_status_to_bool : val :=
     end.
 
 Definition kcas_finish : val :=
-  fun: "id" "casn" "status" =>
+  fun: "gid" "casn" "status" =>
     match: "casn".{status} with
     | Before =>
         #false
@@ -34,47 +34,44 @@ Definition kcas_finish : val :=
         Resolve
           (CAS "casn".[status] "old_status" "status")
           "casn".{proph}
-          ("id", kcas_status_to_bool "status") ;;
+          ("gid", kcas_status_to_bool "status") ;;
         "casn".{status} == §After
     end.
 
 #[local] Definition __zoo_recs_0 := (
-  recs: "determine_aux" "casn" "cass" =>
-    let: "id" := Id in
+  recs: "determine_as" "casn" "cass" =>
+    let: "gid" := Id in
     match: "cass" with
     | [] =>
-        kcas_finish "id" "casn" §After
+        kcas_finish "gid" "casn" §After
     | "cas" :: "cass'" =>
         let: "loc", "state" := "cas" in
         let: "state'" := !"loc" in
         if: "state" == "state'" then (
-          "determine_aux" "casn" "cass'"
+          "determine_as" "casn" "cass'"
+        ) else if: "state".<before> != "get_as" "state'" then (
+          kcas_finish "gid" "casn" §Before
         ) else (
-          let: "v" :=
-            if: "determine" "state'".<casn> then (
-              "state'".<after>
-            ) else (
-              "state'".<before>
-            )
-          in
-          if: "v" != "state".<before> then (
-            kcas_finish "id" "casn" §Before
-          ) else (
-            match: "casn".{status} with
-            | Before =>
-                #false
-            | After =>
-                #true
-            | Undetermined <> =>
-                if: CAS "loc".[contents] "state'" "state" then (
-                  "determine_aux" "casn" "cass'"
-                ) else (
-                  "determine_aux" "casn" "cass"
-                )
-            end
-          )
+          match: "casn".{status} with
+          | Before =>
+              #false
+          | After =>
+              #true
+          | Undetermined <> =>
+              if: CAS "loc".[contents] "state'" "state" then (
+                "determine_as" "casn" "cass'"
+              ) else (
+                "determine_as" "casn" "cass"
+              )
+          end
         )
     end
+  and: "get_as" "state" =>
+    if: "determine" "state".<casn> then (
+      "state".<after>
+    ) else (
+      "state".<before>
+    )
   and: "determine" "casn" =>
     match: "casn".{status} with
     | Before =>
@@ -82,38 +79,53 @@ Definition kcas_finish : val :=
     | After =>
         #true
     | Undetermined "cass" =>
-        "determine_aux" "casn" "cass"
+        "determine_as" "casn" "cass"
     end
 )%zoo_recs.
-Definition kcas_determine_aux :=
+Definition kcas_determine_as :=
   ValRecs 0 __zoo_recs_0.
-Definition kcas_determine :=
+Definition kcas_get_as :=
   ValRecs 1 __zoo_recs_0.
+Definition kcas_determine :=
+  ValRecs 2 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' kcas_determine_aux 0 __zoo_recs_0 [
-    kcas_determine_aux ;
+  AsValRecs' kcas_determine_as 0 __zoo_recs_0 [
+    kcas_determine_as ;
+    kcas_get_as ;
     kcas_determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_determine 1 __zoo_recs_0 [
-    kcas_determine_aux ;
+  AsValRecs' kcas_get_as 1 __zoo_recs_0 [
+    kcas_determine_as ;
+    kcas_get_as ;
+    kcas_determine
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' kcas_determine 2 __zoo_recs_0 [
+    kcas_determine_as ;
+    kcas_get_as ;
     kcas_determine
   ].
 Proof.
   done.
 Qed.
 
+Definition kcas_make : val :=
+  fun: "v" =>
+    let: "_gid" := Id in
+    let: "casn" := { §After, Proph } in
+    let: "state" := Reveal ("casn", "v", "v") in
+    ref "state".
+
 Definition kcas_get : val :=
   fun: "loc" =>
-    let: "state" := !"loc" in
-    if: kcas_determine "state".<casn> then (
-      "state".<after>
-    ) else (
-      "state".<before>
-    ).
+    kcas_get_as !"loc".
 
 Definition kcas_cas : val :=
   fun: "cass" =>
@@ -127,4 +139,4 @@ Definition kcas_cas : val :=
            ("loc", "state"))
     in
     "casn" <-{status} Reveal ‘Undetermined( "cass" ) ;;
-    kcas_determine_aux "casn" "cass".
+    kcas_determine_as "casn" "cass".

@@ -1,5 +1,8 @@
 type 'a loc
 
+val make :
+  'a -> 'a loc
+
 val get :
   'a loc -> 'a
 
