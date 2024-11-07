@@ -208,6 +208,9 @@ theories/saturn/mpmc_stack_1.v
 theories/saturn/mpmc_stack_2__types.v
 theories/saturn/mpmc_stack_2__code.v
 theories/saturn/mpmc_stack_2.v
+theories/saturn/mpmc_bstack__types.v
+theories/saturn/mpmc_bstack__code.v
+theories/saturn/mpmc_bstack.v
 theories/saturn/spsc_bqueue__types.v
 theories/saturn/spsc_bqueue__code.v
 theories/saturn/spsc_bqueue.v
