@@ -189,12 +189,100 @@ Section bi.
     Proof.
       rewrite big_sepL_replicate //.
     Qed.
+
+    Lemma big_sepL_or_l Ψ l Φ :
+      ([∗ list] k ↦ x ∈ l, Φ k x) ⊢
+      [∗ list] k ↦ x ∈ l, Ψ k x ∨ Φ k x.
+    Proof.
+      apply big_sepL_mono. iSteps.
+    Qed.
+    Lemma big_sepL_or_r Ψ l Φ :
+      ([∗ list] k ↦ x ∈ l, Φ k x) ⊢
+      [∗ list] k ↦ x ∈ l, Φ k x ∨ Ψ k x.
+    Proof.
+      apply big_sepL_mono. iSteps.
+    Qed.
+
+    Lemma big_sepL_exists `{!BiAffine PROP} {B} l (Φ : nat → A → B → PROP) :
+      ([∗ list] k ↦ x ∈ l, ∃ (y : B), Φ k x y) ⊢
+        ∃ ys,
+        ⌜length ys = length l⌝ ∗
+        [∗ list] k ↦ x; y ∈ l; ys, Φ k x y.
+    Proof.
+      iIntros "H".
+      iInduction l as [| x l] "IH" forall (Φ) => /=.
+      - iExists []. iSteps.
+      - iDestruct "H" as "((%y & Hx) & H)".
+        iDestruct ("IH" with "H") as "(%ys & %Hlength & H)".
+        iExists (y :: ys). iSteps.
+    Qed.
   End big_sepL.
 
   Section big_sepL2.
     Context {A1 A2 : Type}.
 
+    Implicit Types ϕ : A1 → A2 → Prop.
     Implicit Types Φ Ψ : nat → A1 → A2 → PROP.
+
+    Lemma big_sepL2_bupd `{BiBUpd PROP} Φ l1 l2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, |==> Φ k y1 y2) ==∗
+      [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2.
+    Proof.
+      rewrite !big_sepL2_alt big_sepL_bupd.
+      iIntros "($ & H)". iSteps.
+    Qed.
+
+    Lemma big_sepL2_impl_bupd `{!BiBUpd PROP} Φ1 l1 Φ2 l2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        Φ1 k x1 x2 ==∗
+        Φ2 k x1 x2
+      ) -∗
+      |==> [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ2 k y1 y2.
+    Proof.
+      iIntros "H1 #H".
+      iApply big_sepL2_bupd.
+      iApply (big_sepL2_impl with "H1 [H]"). iIntros "!>".
+      iSteps.
+    Qed.
+    Lemma big_sepL2_impl_fupd `{!BiFUpd PROP} Φ1 l1 Φ2 l2 E :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        Φ1 k x1 x2 ={E}=∗
+        Φ2 k x1 x2
+      ) -∗
+      |={E}=> [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ2 k y1 y2.
+    Proof.
+      iIntros "H1 #H".
+      iApply big_sepL2_fupd.
+      iApply (big_sepL2_impl with "H1 [H]"). iIntros "!>".
+      iSteps.
+    Qed.
+
+    Lemma big_sepL2_wand_bupd `{!BiBUpd PROP} Φ1 l1 Φ2 l2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2 ==∗ Φ2 k y1 y2) -∗
+      |==> [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ2 k y1 y2.
+    Proof.
+      iIntros "H1 H2".
+      iApply big_sepL2_bupd.
+      iApply (big_sepL2_wand with "H1 H2").
+    Qed.
+    Lemma big_sepL2_wand_fupd `{!BiFUpd PROP} Φ1 l1 Φ2 l2 E :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2 ={E}=∗ Φ2 k y1 y2) -∗
+      |={E}=> [∗ list] k↦y1;y2 ∈ l1;l2, Φ2 k y1 y2.
+    Proof.
+      iIntros "H1 H2".
+      iApply big_sepL2_fupd.
+      iApply (big_sepL2_wand with "H1 H2").
+    Qed.
 
     Lemma big_sepL2_snoc_inv_l Φ l1 x1 l2 :
       ([∗ list] k ↦ y1; y2 ∈ l1 ++ [x1]; l2, Φ k y1 y2) ⊢
@@ -356,6 +444,14 @@ Section bi.
       [∗ list] k ↦ x1; x2 ∈ l; replicate n x, Φ k x1 x2.
     Proof.
       intros. rewrite big_sepL2_replicate_r //.
+    Qed.
+
+    Lemma big_sepL2_Forall `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 ϕ :
+      ([∗ list] x1; x2 ∈ l1; l2, ⌜ϕ x1 x2⌝) ⊢@{PROP}
+      ⌜Forall2 ϕ l1 l2⌝.
+    Proof.
+      rewrite Forall2_same_length_lookup big_sepL2_forall.
+      iSteps.
     Qed.
   End big_sepL2.
 

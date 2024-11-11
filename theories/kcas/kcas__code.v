@@ -13,15 +13,8 @@ From zoo Require Import
   options.
 
 Definition kcas_status_to_bool : val :=
-  fun: "param" =>
-    match: "param" with
-    | Undetermined <> =>
-        Fail
-    | Before =>
-        #false
-    | After =>
-        #true
-    end.
+  fun: "status" =>
+    "status" == §After.
 
 Definition kcas_finish : val :=
   fun: "gid" "casn" "status" =>
@@ -35,7 +28,7 @@ Definition kcas_finish : val :=
           (CAS "casn".[status] "old_status" "status")
           "casn".{proph}
           ("gid", kcas_status_to_bool "status") ;;
-        "casn".{status} == §After
+        kcas_status_to_bool "casn".{status}
     end.
 
 #[local] Definition __zoo_recs_0 := (

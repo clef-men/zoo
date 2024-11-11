@@ -26,14 +26,8 @@ and 'a status =
   | Before
   | After
 
-let status_to_bool = function
-  | Undetermined _ ->
-      assert false
-  | Before ->
-      false
-  | After ->
-      true
-
+let[@inline] status_to_bool status =
+  status == After
 let finish gid casn status =
   match casn.status with
   | Before ->
@@ -44,7 +38,7 @@ let finish gid casn status =
       Zoo.resolve (
         Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
       ) casn.proph (gid, status_to_bool status) |> ignore ;
-      casn.status == After
+      status_to_bool casn.status
 
 let rec determine_as casn cass =
   let gid = Zoo.id in
