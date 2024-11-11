@@ -68,6 +68,16 @@ let rec size t =
 let is_empty t =
   size t == 0
 
+let help t (back : (_, [< `Back]) back) i_move move =
+  let Back back_r = back in
+  match t.front with
+  | Front i_front as front ->
+      if i_move <= i_front
+      || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
+        back_r.move <- Used
+  | _ ->
+      back_r.move <- Used
+
 let rec push_back_aux t v i back =
   let new_back = Snoc (i + 1, v, back) in
   if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
@@ -75,23 +85,15 @@ let rec push_back_aux t v i back =
     push_back t v
   )
 and push_back t v =
-  let back = t.back in
-  match back with
-  | Snoc (i, _, _) ->
+  match t.back with
+  | Snoc (i, _, _) as back ->
       push_back_aux t v i back
-  | Back back_r ->
+  | Back back_r as back ->
       match back_r.move with
       | Used ->
           push_back_aux t v back_r.index back
       | Snoc (i_move, _, _) as move ->
-          begin match t.front with
-          | Front i_front as front ->
-              if i_move <= i_front
-              || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
-                back_r.move <- Used
-          | _ ->
-              back_r.move <- Used
-          end ;
+          help t back i_move move ;
           push_back t v
 
 let rec push_front t v =
@@ -131,14 +133,7 @@ let rec push_front t v =
                 push_front t v
               )
           | Snoc (i_move, _, _) as move ->
-              begin match t.front with
-              | Front i_front as front ->
-                  if i_move <= i_front
-                  || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
-                    back_r.move <- Used
-              | _ ->
-                  back_r.move <- Used
-              end ;
+              help t back i_move move ;
               push_front t v
 
 let rec pop_1 t front =

@@ -61,6 +61,23 @@ Definition mpmc_queue_2_is_empty : val :=
   fun: "t" =>
     mpmc_queue_2_size "t" == #0.
 
+Definition mpmc_queue_2_help : val :=
+  fun: "t" "back" "i_move" "move" =>
+    match: "back" with
+    | Back <> <> as "back_r" =>
+        match: "t".{front} with
+        | Front "i_front" as "front" =>
+            if:
+              "i_move" ≤ "i_front" or
+              CAS "t".[front] "front" (mpmc_queue_2_rev "move")
+            then (
+              "back_r" <-{move} §Used
+            )
+        |_ =>
+            "back_r" <-{move} §Used
+        end
+    end.
+
 #[local] Definition __zoo_recs_0 := (
   recs: "push_back_aux" "t" "v" "i" "back" =>
     let: "new_back" := ‘Snoc( "i" + #1, "v", "back" ) in
@@ -69,26 +86,16 @@ Definition mpmc_queue_2_is_empty : val :=
       "push_back" "t" "v"
     )
   and: "push_back" "t" "v" =>
-    let: "back" := "t".{back} in
-    match: "back" with
-    | Snoc "i" <> <> =>
+    match: "t".{back} with
+    | Snoc "i" <> <> as "back" =>
         "push_back_aux" "t" "v" "i" "back"
-    | Back <> <> as "back_r" =>
+    | Back <> <> as "back" =>
+        let: "back_r" := "back" in
         match: "back_r".{move} with
         | Used =>
             "push_back_aux" "t" "v" "back_r".{index} "back"
         | Snoc "i_move" <> <> as "move" =>
-            match: "t".{front} with
-            | Front "i_front" as "front" =>
-                if:
-                  "i_move" ≤ "i_front" or
-                  CAS "t".[front] "front" (mpmc_queue_2_rev "move")
-                then (
-                  "back_r" <-{move} §Used
-                )
-            |_ =>
-                "back_r" <-{move} §Used
-            end ;;
+            mpmc_queue_2_help "t" "back" "i_move" "move" ;;
             "push_back" "t" "v"
         end
     end
@@ -160,17 +167,7 @@ Definition mpmc_queue_2_push_front : val :=
                   "push_front" "t" "v"
                 )
             | Snoc "i_move" <> <> as "move" =>
-                match: "t".{front} with
-                | Front "i_front" as "front" =>
-                    if:
-                      "i_move" ≤ "i_front" or
-                      CAS "t".[front] "front" (mpmc_queue_2_rev "move")
-                    then (
-                      "back_r" <-{move} §Used
-                    )
-                |_ =>
-                    "back_r" <-{move} §Used
-                end ;;
+                mpmc_queue_2_help "t" "back" "i_move" "move" ;;
                 "push_front" "t" "v"
             end
         end
