@@ -3,6 +3,7 @@ opam-version: "2.0"
 synopsis: "Saturn"
 maintainer: ["clement.allain@inria.fr"]
 authors: ["Clément Allain"]
+license: "ISC"
 homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
 depends: [

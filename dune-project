@@ -12,6 +12,7 @@
 )
 
 (source (github clef-men/zoo))
+(license ISC)
 
 (package
   (name zoo)
