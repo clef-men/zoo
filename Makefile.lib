@@ -1,4 +1,4 @@
-targets_nocoq += build
+targets_nocoq += lib
 .PHONY : lib
 lib :
 	@ dune build @check @all
