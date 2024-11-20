@@ -3,7 +3,7 @@ type 'a t =
   | ClstOpen
   | ClstCons of 'a * 'a t
 
-let rec app t1 t2 =
+let[@tail_mod_cons] rec app t1 t2 =
   match t1 with
   | ClstClosed ->
       assert false
