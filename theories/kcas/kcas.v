@@ -74,13 +74,13 @@ Implicit Types descr : kcas_descr.
 Implicit Types descrs : list kcas_descr.
 
 #[local] Instance kcas_descr_inhabited : Inhabited kcas_descr :=
-populate {|
-    kcas_descr_loc := inhabitant ;
-    kcas_descr_meta := inhabitant ;
-    kcas_descr_before := inhabitant ;
-    kcas_descr_after := inhabitant ;
-    kcas_descr_state := inhabitant ;
-  |}.
+  populate {|
+      kcas_descr_loc := inhabitant ;
+      kcas_descr_meta := inhabitant ;
+      kcas_descr_before := inhabitant ;
+      kcas_descr_after := inhabitant ;
+      kcas_descr_state := inhabitant ;
+    |}.
 #[local] Instance kcas_descr_eq_dec : EqDecision kcas_descr :=
   ltac:(solve_decision).
 #[local] Instance kcas_descr_countable :
