@@ -35,7 +35,7 @@ Section prophecies_resolve.
   Implicit Type pid : P.
   Implicit Type prophets : gmap P (list V).
 
-  Fixpoint prophecies_resolve xprophs pid : list V :=
+  #[local] Fixpoint prophecies_resolve xprophs pid : list V :=
     match xprophs with
     | [] =>
         []
@@ -46,10 +46,10 @@ Section prophecies_resolve.
           prophecies_resolve xprophs pid
     end.
 
-  Definition prophets_resolve prophets xprophs :=
+  #[local] Definition prophets_resolve prophets xprophs :=
     map_Forall (λ pid prophs, prophs = prophecies_resolve xprophs pid) prophets.
 
-  Lemma resolves_insert xprophs pid prophets :
+  #[local] Lemma prophets_resolve_insert xprophs pid prophets :
     prophets_resolve prophets xprophs →
     pid ∉ dom prophets →
     prophets_resolve (<[pid := prophecies_resolve xprophs pid]> prophets) xprophs.
@@ -68,7 +68,8 @@ Section prophet_map_G.
 
   Definition prophet_map_interp xprophs pids : iProp Σ :=
     ∃ prophets,
-    ⌜prophets_resolve prophets xprophs ∧ dom prophets ⊆ pids⌝ ∗
+    ⌜prophets_resolve prophets xprophs⌝ ∗
+    ⌜dom prophets ⊆ pids⌝ ∗
     ghost_map_auth prophet_map_G.(prophet_map_name) 1 prophets.
 
   Definition prophet_model pid prophs : iProp Σ :=
@@ -90,18 +91,17 @@ Section prophet_map_G.
     iSteps.
   Qed.
 
-  Lemma prophet_map_new pid pids xprophs :
+  Lemma prophet_map_new pid xprophs pids :
     pid ∉ pids →
     prophet_map_interp xprophs pids ⊢ |==>
       prophet_map_interp xprophs ({[pid]} ∪ pids) ∗
       prophet_model pid (prophecies_resolve xprophs pid).
   Proof.
-    iIntros "%Hpid Hpids".
-    iDestruct "Hpids" as "(%prophets & (%Hprophets & %Hpids) & Hauth)".
+    iIntros "%Hpid (%prophets & %Hprophets & %Hpids & Hauth)".
     iMod (ghost_map_insert pid (prophecies_resolve xprophs pid) with "Hauth") as "(Hauth & Helem)".
     { apply not_elem_of_dom. set_solver. }
     iFrame. iPureIntro. split.
-    - apply resolves_insert; first done. set_solver.
+    - apply prophets_resolve_insert; first done. set_solver.
     - rewrite dom_insert. set_solver.
   Qed.
 
@@ -113,13 +113,12 @@ Section prophet_map_G.
       prophet_map_interp xprophs pids ∗
       prophet_model pid prophs'.
   Proof.
-    iIntros "Hpids Hp".
-    iDestruct "Hpids" as "(%prophets & (%Hprophets & %Hpids) & Hauth)".
+    iIntros "(%prophets & %Hprophets & %Hpids & Hauth) Hp".
     iCombine "Hauth Hp" gives %Hlookup.
     assert (prophs = proph :: prophecies_resolve xprophs pid) as ->.
     { rewrite (Hprophets pid prophs Hlookup) /= decide_True //. }
     iMod (ghost_map_update (prophecies_resolve xprophs pid) with "Hauth Hp") as "(Hauth & Helem)".
-    iExists (prophecies_resolve xprophs pid). iFrame. iStep 2; iPureIntro.
+    iExists (prophecies_resolve xprophs pid). iFrame. iSteps; iPureIntro.
     - intros pid' prophs' Hlookup'. destruct (decide (pid = pid')) as [<- | Hne].
       + rewrite lookup_insert in Hlookup'.
         inversion Hlookup'. done.
