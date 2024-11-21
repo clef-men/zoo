@@ -43,5 +43,5 @@ Definition deque_pop_back : val :=
     end.
 
 Definition deque_iter : val :=
-  fun: "t" "fn" =>
-    xdeque_iter "t" (fun: "node" => "fn" "node".{xdeque_data}).
+  fun: "fn" =>
+    xdeque_iter (fun: "node" => "fn" "node".{xdeque_data}).

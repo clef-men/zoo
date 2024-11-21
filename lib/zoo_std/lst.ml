@@ -38,57 +38,57 @@ let rec initi_aux sz fn i =
 let initi sz fn =
   initi_aux sz fn 0
 let init sz fn =
-  initi sz (fun _ -> fn ())
+  initi sz (fun _i -> fn ())
 
-let rec foldli_aux t acc fn i =
+let rec foldli_aux fn i acc t =
   match t with
   | [] ->
       acc
   | v :: t ->
-      foldli_aux t (fn acc i v) fn (i + 1)
-let foldli t acc fn =
-  foldli_aux t acc fn 0
-let foldl t acc fn =
-  foldli t acc (fun acc _ -> fn acc)
+      foldli_aux fn (i + 1) (fn i acc v) t
+let foldli fn =
+  foldli_aux fn 0
+let foldl fn =
+  foldli (fun _i -> fn)
 
-let rec foldri_aux t fn acc i =
+let rec foldri_aux fn i t acc =
   match t with
   | [] ->
       acc
   | v :: t ->
-      fn i v (foldri_aux t fn acc (i + 1))
-let foldri t fn acc =
-  foldri_aux t fn acc 0
-let foldr t fn acc =
-  foldri t (fun _ -> fn) acc
+      fn i v (foldri_aux fn (i + 1) t acc)
+let foldri fn =
+  foldri_aux fn 0
+let foldr fn =
+  foldri (fun _i -> fn)
 
 let size t =
-  foldl t 0 (fun acc _ -> acc + 1)
+  foldl (fun acc _ -> acc + 1) 0 t
 
 let rev_app t1 t2 =
-  foldl t1 t2 (fun acc v -> v :: acc)
+  foldl (fun acc v -> v :: acc) t2 t1
 let rev t =
   rev_app t []
 
 let app t1 t2 =
-  foldr t1 (fun v acc -> v :: acc) t2
+  foldr (fun v acc -> v :: acc) t1 t2
 let snoc t v =
   app t (singleton v)
 
-let iteri t fn =
-  foldli t () (fun () -> fn)
-let iter t fn =
-  iteri t (fun _ -> fn)
+let iteri fn =
+  foldli (fun i () -> fn i) ()
+let iter fn =
+  iteri (fun _i -> fn)
 
-let rec mapi_aux t fn i =
+let rec mapi_aux fn i t =
   match t with
   | [] ->
       []
   | v :: t ->
       let v = fn i v in
-      let t = mapi_aux t fn (i + 1) in
+      let t = mapi_aux fn (i + 1) t in
       v :: t
-let mapi t fn =
-  mapi_aux t fn 0
-let map t fn =
-  mapi t (fun _ -> fn)
+let mapi fn =
+  mapi_aux fn 0
+let map fn =
+  mapi (fun _i -> fn)

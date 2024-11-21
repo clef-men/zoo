@@ -77,62 +77,62 @@ Definition array_make : val :=
     array_unsafe_make "sz" "v".
 
 Definition array_foldli_aux : val :=
-  rec: "foldli_aux" "t" "sz" "acc" "fn" "i" =>
+  rec: "foldli_aux" "fn" "t" "sz" "i" "acc" =>
     if: "sz" ≤ "i" then (
       "acc"
     ) else (
       let: "v" := array_unsafe_get "t" "i" in
-      "foldli_aux" "t" "sz" ("fn" "acc" "i" "v") "fn" ("i" + #1)
+      "foldli_aux" "fn" "t" "sz" ("i" + #1) ("fn" "i" "acc" "v")
     ).
 
 Definition array_foldli : val :=
-  fun: "t" "acc" "fn" =>
-    array_foldli_aux "t" (array_size "t") "acc" "fn" #0.
+  fun: "fn" "acc" "t" =>
+    array_foldli_aux "fn" "t" (array_size "t") #0 "acc".
 
 Definition array_foldl : val :=
-  fun: "t" "acc" "fn" =>
-    array_foldli "t" "acc" (fun: "acc" <> "v" => "fn" "acc" "v").
+  fun: "fn" =>
+    array_foldli (fun: "_i" => "fn").
 
 Definition array_foldri_aux : val :=
-  rec: "foldri_aux" "t" "fn" "acc" "i" =>
+  rec: "foldri_aux" "fn" "t" "i" "acc" =>
     if: "i" ≤ #0 then (
       "acc"
     ) else (
       let: "i" := "i" - #1 in
       let: "v" := array_unsafe_get "t" "i" in
-      "foldri_aux" "t" "fn" ("fn" "i" "v" "acc") "i"
+      "foldri_aux" "fn" "t" "i" ("fn" "i" "v" "acc")
     ).
 
 Definition array_foldri : val :=
-  fun: "t" "fn" "acc" =>
-    array_foldri_aux "t" "fn" "acc" (array_size "t").
+  fun: "fn" "t" "acc" =>
+    array_foldri_aux "fn" "t" (array_size "t") "acc".
 
 Definition array_foldr : val :=
-  fun: "t" "fn" "acc" =>
-    array_foldri "t" (fun: <> => "fn") "acc".
+  fun: "fn" =>
+    array_foldri (fun: "_i" => "fn").
 
 Definition array_iteri : val :=
-  fun: "t" "fn" =>
+  fun: "fn" "t" =>
     for: "i" := #0 to array_size "t" begin
       "fn" "i" (array_unsafe_get "t" "i")
     end.
 
 Definition array_iter : val :=
-  fun: "t" "fn" =>
-    array_iteri "t" (fun: <> => "fn").
+  fun: "fn" =>
+    array_iteri (fun: "_i" => "fn").
 
 Definition array_applyi : val :=
-  fun: "t" "fn" =>
-    array_iteri "t" (fun: "i" "v" => array_unsafe_set "t" "i" ("fn" "i" "v")).
+  fun: "fn" "t" =>
+    array_iteri (fun: "i" "v" => array_unsafe_set "t" "i" ("fn" "i" "v")) "t".
 
 Definition array_apply : val :=
-  fun: "t" "fn" =>
-    array_applyi "t" (fun: <> => "fn").
+  fun: "fn" "t" =>
+    array_applyi (fun: "_i" => "fn") "t".
 
 Definition array_unsafe_initi : val :=
   fun: "sz" "fn" =>
     let: "t" := array_unsafe_alloc "sz" in
-    array_applyi "t" (fun: "i" <> => "fn" "i") ;;
+    array_applyi (fun: "i" <> => "fn" "i") "t" ;;
     "t".
 
 Definition array_initi : val :=
@@ -142,7 +142,7 @@ Definition array_initi : val :=
 
 Definition array_unsafe_init : val :=
   fun: "sz" "fn" =>
-    array_unsafe_initi "sz" (fun: <> => "fn" ()).
+    array_unsafe_initi "sz" (fun: "_i" => "fn" ()).
 
 Definition array_init : val :=
   fun: "sz" "fn" =>
@@ -150,14 +150,14 @@ Definition array_init : val :=
     array_unsafe_init "sz" "fn".
 
 Definition array_mapi : val :=
-  fun: "t" "fn" =>
+  fun: "fn" "t" =>
     array_unsafe_initi
       (array_size "t")
       (fun: "i" => "fn" "i" (array_unsafe_get "t" "i")).
 
 Definition array_map : val :=
-  fun: "t" "fn" =>
-    array_mapi "t" (fun: <> => "fn").
+  fun: "fn" =>
+    array_mapi (fun: "_i" => "fn").
 
 Definition array_unsafe_copy_slice : val :=
   fun: "t1" "i1" "t2" "i2" "n" =>

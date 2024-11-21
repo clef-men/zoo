@@ -26,4 +26,4 @@ val remove :
   'a node -> unit
 
 val iter :
-  'a t -> ('a node -> unit) -> unit
+  ('a node -> unit) -> 'a t -> unit

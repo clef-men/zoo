@@ -62,49 +62,49 @@ Definition lst_initi : val :=
 
 Definition lst_init : val :=
   fun: "sz" "fn" =>
-    lst_initi "sz" (fun: <> => "fn" ()).
+    lst_initi "sz" (fun: "_i" => "fn" ()).
 
 Definition lst_foldli_aux : val :=
-  rec: "foldli_aux" "t" "acc" "fn" "i" =>
+  rec: "foldli_aux" "fn" "i" "acc" "t" =>
     match: "t" with
     | [] =>
         "acc"
     | "v" :: "t" =>
-        "foldli_aux" "t" ("fn" "acc" "i" "v") "fn" ("i" + #1)
+        "foldli_aux" "fn" ("i" + #1) ("fn" "i" "acc" "v") "t"
     end.
 
 Definition lst_foldli : val :=
-  fun: "t" "acc" "fn" =>
-    lst_foldli_aux "t" "acc" "fn" #0.
+  fun: "fn" =>
+    lst_foldli_aux "fn" #0.
 
 Definition lst_foldl : val :=
-  fun: "t" "acc" "fn" =>
-    lst_foldli "t" "acc" (fun: "acc" <> => "fn" "acc").
+  fun: "fn" =>
+    lst_foldli (fun: "_i" => "fn").
 
 Definition lst_foldri_aux : val :=
-  rec: "foldri_aux" "t" "fn" "acc" "i" =>
+  rec: "foldri_aux" "fn" "i" "t" "acc" =>
     match: "t" with
     | [] =>
         "acc"
     | "v" :: "t" =>
-        "fn" "i" "v" ("foldri_aux" "t" "fn" "acc" ("i" + #1))
+        "fn" "i" "v" ("foldri_aux" "fn" ("i" + #1) "t" "acc")
     end.
 
 Definition lst_foldri : val :=
-  fun: "t" "fn" "acc" =>
-    lst_foldri_aux "t" "fn" "acc" #0.
+  fun: "fn" =>
+    lst_foldri_aux "fn" #0.
 
 Definition lst_foldr : val :=
-  fun: "t" "fn" "acc" =>
-    lst_foldri "t" (fun: <> => "fn") "acc".
+  fun: "fn" =>
+    lst_foldri (fun: "_i" => "fn").
 
 Definition lst_size : val :=
   fun: "t" =>
-    lst_foldl "t" #0 (fun: "acc" <> => "acc" + #1).
+    lst_foldl (fun: "acc" <> => "acc" + #1) #0 "t".
 
 Definition lst_rev_app : val :=
   fun: "t1" "t2" =>
-    lst_foldl "t1" "t2" (fun: "acc" "v" => "v" :: "acc").
+    lst_foldl (fun: "acc" "v" => "v" :: "acc") "t2" "t1".
 
 Definition lst_rev : val :=
   fun: "t" =>
@@ -112,35 +112,35 @@ Definition lst_rev : val :=
 
 Definition lst_app : val :=
   fun: "t1" "t2" =>
-    lst_foldr "t1" (fun: "v" "acc" => "v" :: "acc") "t2".
+    lst_foldr (fun: "v" "acc" => "v" :: "acc") "t1" "t2".
 
 Definition lst_snoc : val :=
   fun: "t" "v" =>
     lst_app "t" (lst_singleton "v").
 
 Definition lst_iteri : val :=
-  fun: "t" "fn" =>
-    lst_foldli "t" () (fun: <> => "fn").
+  fun: "fn" =>
+    lst_foldli (fun: "i" <> => "fn" "i") ().
 
 Definition lst_iter : val :=
-  fun: "t" "fn" =>
-    lst_iteri "t" (fun: <> => "fn").
+  fun: "fn" =>
+    lst_iteri (fun: "_i" => "fn").
 
 Definition lst_mapi_aux : val :=
-  rec: "mapi_aux" "t" "fn" "i" =>
+  rec: "mapi_aux" "fn" "i" "t" =>
     match: "t" with
     | [] =>
         []
     | "v" :: "t" =>
         let: "v" := "fn" "i" "v" in
-        let: "t" := "mapi_aux" "t" "fn" ("i" + #1) in
+        let: "t" := "mapi_aux" "fn" ("i" + #1) "t" in
         "v" :: "t"
     end.
 
 Definition lst_mapi : val :=
-  fun: "t" "fn" =>
-    lst_mapi_aux "t" "fn" #0.
+  fun: "fn" =>
+    lst_mapi_aux "fn" #0.
 
 Definition lst_map : val :=
-  fun: "t" "fn" =>
-    lst_mapi "t" (fun: <> => "fn").
+  fun: "fn" =>
+    lst_mapi (fun: "_i" => "fn").

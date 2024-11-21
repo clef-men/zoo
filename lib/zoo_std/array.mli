@@ -35,24 +35,24 @@ val make :
   int -> 'a -> 'a t
 
 val foldli :
-  'a t -> 'b -> ('b -> int -> 'a -> 'b) -> 'b
+  (int -> 'b -> 'a -> 'b) -> 'b -> 'a t -> 'b
 val foldl :
-  'a t -> 'b -> ('b -> 'a -> 'b) -> 'b
+  ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
 
 val foldri :
-  'a t -> (int -> 'a -> 'b -> 'b) -> 'b -> 'b
+  (int -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 val foldr :
-  'a t -> ('a -> 'b -> 'b) -> 'b -> 'b
+  ('a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 
 val iteri :
-  'a t -> (int -> 'a -> unit) -> unit
+  (int -> 'a -> unit) -> 'a t -> unit
 val iter :
-  'a t -> ('a -> unit) -> unit
+  ('a -> unit) -> 'a t -> unit
 
 val applyi :
-  'a t -> (int -> 'a -> 'a) -> unit
+  (int -> 'a -> 'a) -> 'a t -> unit
 val apply :
-  'a t -> ('a -> 'a) -> unit
+  ('a -> 'a) -> 'a t -> unit
 
 val unsafe_initi :
   int -> (int -> 'a) -> 'a t
@@ -64,9 +64,9 @@ val init :
   int -> (unit -> 'a) -> 'a t
 
 val mapi :
-  'a t -> (int -> 'a -> 'b) -> 'b t
+  (int -> 'a -> 'b) -> 'a t -> 'b t
 val map :
-  'a t -> ('a -> 'b) -> 'b t
+  ('a -> 'b) -> 'a t -> 'b t
 
 val unsafe_copy_slice :
   'a t -> int -> 'a t -> int -> int -> unit

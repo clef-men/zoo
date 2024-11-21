@@ -21,14 +21,14 @@ val init :
   int -> (unit -> 'a) -> 'a t
 
 val foldli :
-  'a t -> 'b -> ('b -> int -> 'a -> 'b) -> 'b
+  (int -> 'b -> 'a -> 'b) -> 'b -> 'a t -> 'b
 val foldl :
-  'a t -> 'b -> ('b -> 'a -> 'b) -> 'b
+  ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
 
 val foldri :
-  'a t -> (int -> 'a -> 'b -> 'b) -> 'b -> 'b
+  (int -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 val foldr :
-  'a t -> ('a -> 'b -> 'b) -> 'b -> 'b
+  ('a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 
 val size :
   'a t -> int
@@ -44,11 +44,11 @@ val snoc :
   'a t -> 'a -> 'a t
 
 val iteri :
-  'a t -> (int -> 'a -> unit) -> unit
+  (int -> 'a -> unit) -> 'a t -> unit
 val iter :
-  'a t -> ('a -> unit) -> unit
+  ('a -> unit) -> 'a t -> unit
 
 val mapi :
-  'a t -> (int -> 'a -> 'b) -> 'b t
+  (int -> 'a -> 'b) -> 'a t -> 'b t
 val map :
-  'a t -> ('a -> 'b) -> 'b t
+  ('a -> 'b) -> 'a t -> 'b t

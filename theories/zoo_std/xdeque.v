@@ -253,7 +253,7 @@ Section zoo_G.
     rewrite /nodes' -delete_take_drop. iSteps.
   Qed.
 
-  #[local] Lemma xdeque_iter_aux_spec Ψ i node l nodes fn :
+  #[local] Lemma xdeque_iter_aux_spec Ψ i fn l nodes node :
     (nodes ++ [l]) !! i = Some node →
     {{{
       ▷ Ψ (take i nodes) ∗
@@ -268,7 +268,7 @@ Section zoo_G.
         }}
       )
     }}}
-      xdeque_iter_aux #l fn #node
+      xdeque_iter_aux fn #l #node
     {{{
       RET ();
       xdeque_model #l nodes ∗
@@ -303,7 +303,7 @@ Section zoo_G.
       rewrite bool_decide_eq_true_2 // firstn_all2 //. iSteps.
     - rewrite list_lookup_alt length_app /= in Hlookup. lia.
   Qed.
-  Lemma xdeque_iter_spec Ψ t nodes fn :
+  Lemma xdeque_iter_spec Ψ fn t nodes :
     {{{
       ▷ Ψ [] ∗
       xdeque_model t nodes ∗
@@ -317,7 +317,7 @@ Section zoo_G.
         }}
       )
     }}}
-      xdeque_iter t fn
+      xdeque_iter fn t
     {{{
       RET ();
       xdeque_model t nodes ∗

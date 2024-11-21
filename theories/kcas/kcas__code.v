@@ -125,11 +125,11 @@ Definition kcas_cas : val :=
     let: "casn" := { §After, Proph } in
     let: "cass" :=
       lst_map
-        "cass"
         (fun: "cas" =>
            let: "loc", "before", "after" := "cas" in
            let: "state" := Reveal ("casn", "before", "after") in
            ("loc", "state"))
+        "cass"
     in
     "casn" <-{status} Reveal ‘Undetermined( "cass" ) ;;
     kcas_determine_as "casn" "cass".

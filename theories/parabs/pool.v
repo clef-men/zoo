@@ -109,7 +109,7 @@ Section ws_deques.
   Definition pool_kill : val :=
     fun: "t" =>
       ws_hub.(ws_hub_kill) "t".<hub> ;;
-      array_iter "t".<domains> domain_join.
+      array_iter domain_join "t".<domains>.
 End ws_deques.
 
 Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {

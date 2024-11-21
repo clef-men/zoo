@@ -1598,7 +1598,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma array_foldli_aux_spec i vs Ψ t sz acc fn :
+  #[local] Lemma array_foldli_aux_spec vs Ψ fn t sz i acc :
     i ≤ sz →
     i = length vs →
     {{{
@@ -1614,13 +1614,13 @@ Section zoo_G.
               ▷ Ψ i vs (Some v) acc
             )
         | Some v =>
-            WP fn acc #i v {{ acc,
+            WP fn #i acc v {{ acc,
               ▷ Ψ (S i) (vs ++ [v]) None acc
             }}
         end
       )
     }}}
-      array_foldli_aux t #sz acc fn #i
+      array_foldli_aux fn t #sz #i acc
     {{{ vs' acc,
       RET acc;
       ⌜(length vs + length vs')%nat = sz⌝ ∗
@@ -1642,13 +1642,14 @@ Section zoo_G.
       repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
+      wp_pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); rewrite ?length_app; [naive_solver lia.. |].
       clear acc. iIntros "!> %vs' %acc (<- & HΨ)".
       iApply ("HΦ" $! (v :: vs')).
       rewrite -(assoc (++)). iSteps.
   Qed.
-  Lemma array_foldli_spec_atomic Ψ t sz acc fn :
+  Lemma array_foldli_spec_atomic Ψ fn acc t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None acc ∗
@@ -1663,13 +1664,13 @@ Section zoo_G.
               ▷ Ψ i vs (Some v) acc
             )
         | Some v =>
-            WP fn acc #i v {{ acc,
+            WP fn #i acc v {{ acc,
               ▷ Ψ (S i) (vs ++ [v]) None acc
             }}
         end
       )
     }}}
-      array_foldli t acc fn
+      array_foldli fn acc t
     {{{ vs acc,
       RET acc;
       ⌜length vs = sz⌝ ∗
@@ -1680,10 +1681,10 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
     rewrite -Nat2Z.inj_0.
-    wp_apply (array_foldli_aux_spec 0 [] Ψ with "[$HΨ] HΦ"); [lia | done |].
+    wp_apply (array_foldli_aux_spec [] Ψ with "[$HΨ] HΦ"); [lia | done |].
     iSteps.
   Qed.
-  Lemma array_foldli_spec Ψ t dq vs acc fn :
+  Lemma array_foldli_spec Ψ fn acc t dq vs :
     {{{
       ▷ Ψ 0 [] acc ∗
       array_model t dq vs ∗
@@ -1691,12 +1692,12 @@ Section zoo_G.
         ∀ i v acc,
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) acc -∗
-        WP fn acc #i v {{ acc,
+        WP fn #i acc v {{ acc,
           ▷ Ψ (S i) (take i vs ++ [v]) acc
         }}
       )
     }}}
-      array_foldli t acc fn
+      array_foldli fn acc t
     {{{ acc,
       RET acc;
       array_model t dq vs ∗
@@ -1725,19 +1726,19 @@ Section zoo_G.
     - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
-  Lemma array_foldli_spec' Ψ t dq vs acc fn :
+  Lemma array_foldli_spec' Ψ fn acc t dq vs :
     {{{
       ▷ Ψ 0 [] acc ∗
       array_model t dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         ∀ acc,
         Ψ i (take i vs) acc -∗
-        WP fn acc #i v {{ acc,
+        WP fn #i acc v {{ acc,
           ▷ Ψ (S i) (take i vs ++ [v]) acc
         }}
       )
     }}}
-      array_foldli t acc fn
+      array_foldli fn acc t
     {{{ acc,
       RET acc;
       array_model t dq vs ∗
@@ -1757,7 +1758,7 @@ Section zoo_G.
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
 
-  Lemma array_foldl_spec_atomic Ψ t sz acc fn :
+  Lemma array_foldl_spec_atomic Ψ fn acc t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None acc ∗
@@ -1778,7 +1779,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_foldl t acc fn
+      array_foldl fn acc t
     {{{ vs acc,
       RET acc;
       ⌜length vs = sz⌝ ∗
@@ -1790,7 +1791,7 @@ Section zoo_G.
     wp_smart_apply (array_foldli_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). clear acc. iIntros "!> %i %vs %o %acc %Hi1 %Hi2 HΨ".
     case_match; try wp_pures; iApply ("H" with "[%] [%] HΨ"); lia.
   Qed.
-  Lemma array_foldl_spec Ψ t dq vs acc fn :
+  Lemma array_foldl_spec Ψ fn acc t dq vs :
     {{{
       ▷ Ψ 0 [] acc ∗
       array_model t dq vs ∗
@@ -1803,7 +1804,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldl t acc fn
+      array_foldl fn acc t
     {{{ acc,
       RET acc;
       array_model t dq vs ∗
@@ -1815,7 +1816,7 @@ Section zoo_G.
     wp_smart_apply (array_foldli_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_foldl_spec' Ψ t dq vs acc fn :
+  Lemma array_foldl_spec' Ψ fn acc t dq vs :
     {{{
       ▷ Ψ 0 [] acc ∗
       array_model t dq vs ∗
@@ -1827,7 +1828,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldl t acc fn
+      array_foldl fn acc t
     {{{ acc,
       RET acc;
       array_model t dq vs ∗
@@ -1841,7 +1842,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma array_foldri_aux_spec sz (i : Z) vs Ψ t fn acc :
+  #[local] Lemma array_foldri_aux_spec sz vs Ψ fn t (i : Z) acc :
     Z.to_nat i + length vs = sz →
     {{{
       ▷ Ψ (Z.to_nat i) acc None vs ∗
@@ -1861,7 +1862,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_foldri_aux t fn acc #i
+      array_foldri_aux fn t #i acc
     {{{ acc vs',
       RET acc;
       ⌜(length vs' + length vs)%nat = sz⌝ ∗
@@ -1888,7 +1889,7 @@ Section zoo_G.
       iApply ("HΦ" $! _ (vs' ++ [v])).
       rewrite length_app -(assoc (++)). iSteps.
   Qed.
-  Lemma array_foldri_spec_atomic Ψ t sz fn acc :
+  Lemma array_foldri_spec_atomic Ψ fn t sz acc :
     {{{
       array_inv t sz ∗
       ▷ Ψ sz acc None [] ∗
@@ -1908,7 +1909,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_foldri t fn acc
+      array_foldri fn t acc
     {{{ acc vs,
       RET acc;
       ⌜length vs = sz⌝ ∗
@@ -1918,13 +1919,13 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_apply (array_foldri_aux_spec sz sz [] Ψ with "[HΨ $H]").
+    wp_apply (array_foldri_aux_spec sz [] Ψ with "[HΨ $H]").
     { rewrite right_id. lia. }
     { rewrite Nat2Z.id //. }
     clear acc. iIntros "%acc %vs".
     rewrite !right_id. iSteps.
   Qed.
-  Lemma array_foldri_spec Ψ t dq vs fn acc :
+  Lemma array_foldri_spec Ψ fn t dq vs acc :
     {{{
       array_model t dq vs ∗
       ▷ Ψ (length vs) acc [] ∗
@@ -1937,7 +1938,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldri t fn acc
+      array_foldri fn t acc
     {{{ acc,
       RET acc;
       Ψ 0 acc vs ∗
@@ -1967,7 +1968,7 @@ Section zoo_G.
         iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦ !>".
         iSteps; iPureIntro; rewrite length_drop; f_equal; lia.
   Qed.
-  Lemma array_foldri_spec' Ψ t dq vs fn acc :
+  Lemma array_foldri_spec' Ψ fn t dq vs acc :
     {{{
       array_model t dq vs ∗
       ▷ Ψ (length vs) acc [] ∗
@@ -1979,7 +1980,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldri t fn acc
+      array_foldri fn t acc
     {{{ acc,
       RET acc;
       Ψ 0 acc vs ∗
@@ -2001,7 +2002,7 @@ Section zoo_G.
     rewrite Nat.add_0_r length_take Nat.min_l; first lia. iSteps.
   Qed.
 
-  Lemma array_foldr_spec_atomic Ψ t sz fn acc :
+  Lemma array_foldr_spec_atomic Ψ fn t sz acc :
     {{{
       array_inv t sz ∗
       ▷ Ψ sz acc None [] ∗
@@ -2021,7 +2022,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_foldr t fn acc
+      array_foldr fn t acc
     {{{ acc vs,
       RET acc;
       ⌜length vs = sz⌝ ∗
@@ -2033,7 +2034,7 @@ Section zoo_G.
     wp_smart_apply (array_foldri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). clear acc. iIntros "!> %i %acc %o %vs %Hi HΨ".
     case_match; try wp_pures; iApply ("H" with "[//] HΨ").
   Qed.
-  Lemma array_foldr_spec Ψ t dq vs fn acc :
+  Lemma array_foldr_spec Ψ fn t dq vs acc :
     {{{
       array_model t dq vs ∗
       ▷ Ψ (length vs) acc [] ∗
@@ -2046,7 +2047,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldr t fn acc
+      array_foldr fn t acc
     {{{ acc,
       RET acc;
       Ψ 0 acc vs ∗
@@ -2058,7 +2059,7 @@ Section zoo_G.
     wp_smart_apply (array_foldri_spec Ψ with "[$Hmodel $HΨ] HΦ").
     iSteps.
   Qed.
-  Lemma array_foldr_spec' Ψ t dq vs fn acc :
+  Lemma array_foldr_spec' Ψ fn t dq vs acc :
     {{{
       array_model t dq vs ∗
       ▷ Ψ (length vs) acc [] ∗
@@ -2070,7 +2071,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_foldr t fn acc
+      array_foldr fn t acc
     {{{ acc,
       RET acc;
       Ψ 0 acc vs ∗
@@ -2084,7 +2085,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_iteri_spec_atomic Ψ t sz fn :
+  Lemma array_iteri_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None ∗
@@ -2106,7 +2107,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{ vs,
       RET ();
       ⌜length vs = sz⌝ ∗
@@ -2135,7 +2136,7 @@ Section zoo_G.
     }
     rewrite Z.sub_0_r Nat2Z.id. iSteps.
   Qed.
-  Lemma array_iteri_spec Ψ t dq vs fn :
+  Lemma array_iteri_spec Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
@@ -2149,7 +2150,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2175,7 +2176,7 @@ Section zoo_G.
     - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
-  Lemma array_iteri_spec' Ψ t dq vs fn :
+  Lemma array_iteri_spec' Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
@@ -2187,7 +2188,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2206,7 +2207,7 @@ Section zoo_G.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
-  Lemma array_iteri_spec_disentangled Ψ t dq vs fn :
+  Lemma array_iteri_spec_disentangled Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       □ (
@@ -2218,7 +2219,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2236,7 +2237,7 @@ Section zoo_G.
     rewrite big_sepL_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
-  Lemma array_iteri_spec_disentangled' Ψ t dq vs fn :
+  Lemma array_iteri_spec_disentangled' Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -2246,7 +2247,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2266,7 +2267,7 @@ Section zoo_G.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
 
-  Lemma array_iter_spec_atomic Ψ t sz fn :
+  Lemma array_iter_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None ∗
@@ -2288,7 +2289,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{ vs,
       RET ();
       ⌜length vs = sz⌝ ∗
@@ -2300,7 +2301,7 @@ Section zoo_G.
     wp_smart_apply (array_iteri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %i %vs %o % % HΨ".
     case_match; try wp_pures; iApply ("H" with "[//] [//] HΨ").
   Qed.
-  Lemma array_iter_spec Ψ t dq vs fn :
+  Lemma array_iter_spec Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
@@ -2314,7 +2315,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2326,7 +2327,7 @@ Section zoo_G.
     wp_smart_apply (array_iteri_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_iter_spec' Ψ t dq vs fn :
+  Lemma array_iter_spec' Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
@@ -2338,7 +2339,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2351,7 +2352,7 @@ Section zoo_G.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma array_iter_spec_disentangled Ψ t dq vs fn :
+  Lemma array_iter_spec_disentangled Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       □ (
@@ -2363,7 +2364,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2377,7 +2378,7 @@ Section zoo_G.
     wp_smart_apply (array_iteri_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_iter_spec_disentangled' Ψ t dq vs fn :
+  Lemma array_iter_spec_disentangled' Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -2387,7 +2388,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{
       RET ();
       array_model t dq vs ∗
@@ -2403,7 +2404,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_applyi_spec_atomic Ψ t sz fn :
+  Lemma array_applyi_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None [] ∗
@@ -2429,7 +2430,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{ vs ws,
       RET ();
       ⌜length vs = sz⌝ ∗
@@ -2460,7 +2461,7 @@ Section zoo_G.
     - iApply (atomic_update_wand with "(H [//] [//] [//] HΨ)").
       iSteps.
   Qed.
-  Lemma array_applyi_spec Ψ t vs fn :
+  Lemma array_applyi_spec Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t (DfracOwn 1) vs ∗
@@ -2474,7 +2475,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2530,7 +2531,7 @@ Section zoo_G.
       iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
-  Lemma array_applyi_spec' Ψ t vs fn :
+  Lemma array_applyi_spec' Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t (DfracOwn 1) vs ∗
@@ -2543,7 +2544,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2563,7 +2564,7 @@ Section zoo_G.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
-  Lemma array_applyi_spec_disentangled Ψ t vs fn :
+  Lemma array_applyi_spec_disentangled Ψ fn t vs :
     {{{
       array_model t (DfracOwn 1) vs ∗
       □ (
@@ -2574,7 +2575,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2592,7 +2593,7 @@ Section zoo_G.
     rewrite /Ψ'. iSteps.
     rewrite big_sepL_snoc. iSteps.
   Qed.
-  Lemma array_applyi_spec_disentangled' Ψ t vs fn :
+  Lemma array_applyi_spec_disentangled' Ψ fn t vs :
     {{{
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -2601,7 +2602,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{ ws,
       RET ();
       array_model t (DfracOwn 1) ws ∗
@@ -2620,7 +2621,7 @@ Section zoo_G.
     rewrite big_sepL_snoc. iSteps.
   Qed.
 
-  Lemma array_apply_spec_atomic Ψ t sz fn :
+  Lemma array_apply_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None [] ∗
@@ -2646,7 +2647,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{ vs ws,
       RET ();
       ⌜length vs = sz⌝ ∗
@@ -2659,7 +2660,7 @@ Section zoo_G.
     wp_smart_apply (array_applyi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
     repeat case_match; try wp_pures; iApply ("H" with "[//] [//] [//] HΨ").
   Qed.
-  Lemma array_apply_spec Ψ t vs fn :
+  Lemma array_apply_spec Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t (DfracOwn 1) vs ∗
@@ -2673,7 +2674,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2686,7 +2687,7 @@ Section zoo_G.
     wp_smart_apply (array_applyi_spec Ψ with "[$HΨ $Hmodel] HΦ") as "!> %i %v %ws %Hi %Hlookup HΨ".
     iSteps.
   Qed.
-  Lemma array_apply_spec' Ψ t vs fn :
+  Lemma array_apply_spec' Ψ fn t vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t (DfracOwn 1) vs ∗
@@ -2699,7 +2700,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2713,7 +2714,7 @@ Section zoo_G.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma array_apply_spec_disentangled Ψ t vs fn :
+  Lemma array_apply_spec_disentangled Ψ fn t vs :
     {{{
       array_model t (DfracOwn 1) vs ∗
       □ (
@@ -2724,7 +2725,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{ ws,
       RET ();
       ⌜length vs = length ws⌝ ∗
@@ -2739,7 +2740,7 @@ Section zoo_G.
     wp_smart_apply (array_applyi_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_apply_spec_disentangled' Ψ t vs fn :
+  Lemma array_apply_spec_disentangled' Ψ fn t vs :
     {{{
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -2748,7 +2749,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{ ws,
       RET ();
       array_model t (DfracOwn 1) ws ∗
@@ -3217,7 +3218,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_mapi_spec_atomic Ψ t sz fn :
+  Lemma array_mapi_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None [] ∗
@@ -3239,7 +3240,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t' vs ws,
       RET t';
       ⌜length vs = sz⌝ ∗
@@ -3272,7 +3273,7 @@ Section zoo_G.
     iApply ("HΦ" with "[$Hmodel $HΨ]").
     iSteps.
   Qed.
-  Lemma array_mapi_spec Ψ t dq vs fn :
+  Lemma array_mapi_spec Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t dq vs ∗
@@ -3286,7 +3287,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3318,7 +3319,7 @@ Section zoo_G.
     apply symmetry in Hws.
     iSteps.
   Qed.
-  Lemma array_mapi_spec' Ψ t dq vs fn :
+  Lemma array_mapi_spec' Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t dq vs ∗
@@ -3331,7 +3332,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3352,7 +3353,7 @@ Section zoo_G.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
   Qed.
-  Lemma array_mapi_spec_disentangled Ψ t dq vs fn :
+  Lemma array_mapi_spec_disentangled Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       □ (
@@ -3363,7 +3364,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3383,7 +3384,7 @@ Section zoo_G.
     rewrite big_sepL2_snoc length_take Nat.min_l; last iSteps.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
-  Lemma array_mapi_spec_disentangled' Ψ t dq vs fn :
+  Lemma array_mapi_spec_disentangled' Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -3392,7 +3393,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3414,7 +3415,7 @@ Section zoo_G.
     eapply Nat.lt_le_incl, lookup_lt_Some. done.
   Qed.
 
-  Lemma array_map_spec_atomic Ψ t sz fn :
+  Lemma array_map_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
       ▷ Ψ 0 [] None [] ∗
@@ -3436,7 +3437,7 @@ Section zoo_G.
         end
       )
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t' vs ws,
       RET t';
       ⌜length vs = sz⌝ ∗
@@ -3450,7 +3451,7 @@ Section zoo_G.
     wp_smart_apply (array_mapi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
     case_match; try wp_pures; iApply ("H" with "[%] [%] [//] HΨ"); lia.
   Qed.
-  Lemma array_map_spec Ψ t dq vs fn :
+  Lemma array_map_spec Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t dq vs ∗
@@ -3464,7 +3465,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3478,7 +3479,7 @@ Section zoo_G.
     wp_smart_apply (array_mapi_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_map_spec' Ψ t dq vs fn :
+  Lemma array_map_spec' Ψ fn t dq vs :
     {{{
       ▷ Ψ 0 [] [] ∗
       array_model t dq vs ∗
@@ -3491,7 +3492,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3506,7 +3507,7 @@ Section zoo_G.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
-  Lemma array_map_spec_disentangled Ψ t dq vs fn :
+  Lemma array_map_spec_disentangled Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       □ (
@@ -3517,7 +3518,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -3533,7 +3534,7 @@ Section zoo_G.
     wp_smart_apply (array_mapi_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
-  Lemma array_map_spec_disentangled' Ψ t dq vs fn :
+  Lemma array_map_spec_disentangled' Ψ fn t dq vs :
     {{{
       array_model t dq vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -3542,7 +3543,7 @@ Section zoo_G.
         }}
       )
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t' ws,
       RET t';
       ⌜length ws = length vs⌝ ∗
@@ -5119,13 +5120,13 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_make_type with "[//] HΦ"); first done.
   Qed.
 
-  Lemma array_foldli_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+  Lemma array_foldli_type τ `{!iType _ τ} υ `{!iType _ υ} fn acc t sz :
     {{{
       itype_array τ sz t ∗
       υ acc ∗
-      (υ --> itype_nat_upto sz --> τ --> υ)%T fn
+      (itype_nat_upto sz --> υ --> τ --> υ)%T fn
     }}}
-      array_foldli t acc fn
+      array_foldli fn acc t
     {{{ acc',
       RET acc';
       υ acc'
@@ -5141,8 +5142,8 @@ Section zoo_G.
     wp_apply (array_foldli_spec_atomic Ψ with "[$Hinv $Hacc]"); last iSteps.
     clear acc. iIntros "!> %i %vs_left %o %acc %Hi1 %Hi2 (Ho & Hacc)".
     destruct o as [v |].
-    - wp_apply (wp_wand with "(Hfn Hacc)"). iClear "Hfn". clear fn. iIntros "%fn Hfn".
-      wp_apply (wp_wand with "(Hfn [])"); first iSteps. clear fn. iIntros "%fn Hfn".
+    - wp_apply (wp_wand with "(Hfn [])"); first iSteps. iClear (fn) "Hfn". iIntros "%fn Hfn".
+      wp_apply (wp_wand with "(Hfn Hacc)"). clear fn. iIntros "%fn Hfn".
       wp_apply (wp_wand with "(Hfn Ho)").
       iSteps.
     - iAuIntro.
@@ -5155,13 +5156,13 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma array_foldl_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+  Lemma array_foldl_type τ `{!iType _ τ} υ `{!iType _ υ} fn acc t sz :
     {{{
       itype_array τ sz t ∗
       υ acc ∗
       (υ --> τ --> υ)%T fn
     }}}
-      array_foldl t acc fn
+      array_foldl fn acc t
     {{{ acc',
       RET acc';
       υ acc'
@@ -5173,13 +5174,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_foldri_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+  Lemma array_foldri_type τ `{!iType _ τ} υ `{!iType _ υ} fn acc t sz :
     {{{
       itype_array τ sz t ∗
       (itype_nat_upto sz --> τ --> υ --> υ)%T fn ∗
       υ acc
     }}}
-      array_foldri t fn acc
+      array_foldri fn t acc
     {{{ acc',
       RET acc';
       υ acc'
@@ -5195,7 +5196,7 @@ Section zoo_G.
     wp_apply (array_foldri_spec_atomic Ψ with "[$Hinv $Hacc]"); last iSteps.
     clear acc. iIntros "!> %i %acc %o %vs_right %Hi (Ho & Hacc)".
     destruct o as [v |].
-    - wp_apply (wp_wand with "(Hfn [])"); first iSteps. iClear "Hfn". clear fn. iIntros "%fn Hfn".
+    - wp_apply (wp_wand with "(Hfn [])"); first iSteps. iClear (fn) "Hfn". iIntros "%fn Hfn".
       wp_apply (wp_wand with "(Hfn Ho)"). clear fn. iIntros "%fn Hfn".
       wp_apply (wp_wand with "(Hfn Hacc)").
       iSteps.
@@ -5209,13 +5210,13 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma array_foldr_type τ `{!iType _ τ} υ `{!iType _ υ} t sz acc fn :
+  Lemma array_foldr_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz acc :
     {{{
       itype_array τ sz t ∗
       (τ --> υ --> υ)%T fn ∗
       υ acc
     }}}
-      array_foldr t fn acc
+      array_foldr fn t acc
     {{{ acc',
       RET acc';
       υ acc'
@@ -5227,12 +5228,12 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_iteri_type τ `{!iType _ τ} t sz fn :
+  Lemma array_iteri_type τ `{!iType _ τ} fn t sz :
     {{{
       itype_array τ sz t ∗
       (itype_nat_upto sz --> τ --> itype_unit)%T fn
     }}}
-      array_iteri t fn
+      array_iteri fn t
     {{{
       RET ();
       True
@@ -5246,12 +5247,12 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_iter_type τ `{!iType _ τ} t sz fn :
+  Lemma array_iter_type τ `{!iType _ τ} fn t sz :
     {{{
       itype_array τ sz t ∗
       (τ --> itype_unit)%T fn
     }}}
-      array_iter t fn
+      array_iter fn t
     {{{
       RET ();
       True
@@ -5263,12 +5264,12 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_applyi_type τ `{!iType _ τ} t sz fn :
+  Lemma array_applyi_type τ `{!iType _ τ} fn t sz :
     {{{
       itype_array τ sz t ∗
       (itype_nat_upto sz --> τ --> τ)%T fn
     }}}
-      array_applyi t fn
+      array_applyi fn t
     {{{
       RET ();
       True
@@ -5284,12 +5285,12 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_apply_type τ `{!iType _ τ} t sz fn :
+  Lemma array_apply_type τ `{!iType _ τ} fn t sz :
     {{{
       itype_array τ sz t ∗
       (τ --> τ)%T fn
     }}}
-      array_apply t fn
+      array_apply fn t
     {{{
       RET ();
       True
@@ -5378,13 +5379,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_mapi_type τ `{!iType _ τ} υ `{!iType _ υ} t sz sz_ fn :
+  Lemma array_mapi_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz sz_ :
     sz_ = Z.of_nat sz →
     {{{
       itype_array τ sz t ∗
       (itype_nat_upto sz --> τ --> υ)%T fn
     }}}
-      array_mapi t fn
+      array_mapi fn t
     {{{ t',
       RET t';
       itype_array υ sz t'
@@ -5401,13 +5402,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma array_map_type τ `{!iType _ τ} υ `{!iType _ υ} t sz sz_ fn :
+  Lemma array_map_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz sz_ :
     sz_ = Z.of_nat sz →
     {{{
       itype_array τ sz t ∗
       (τ --> υ)%T fn
     }}}
-      array_map t fn
+      array_map fn t
     {{{ t',
       RET t';
       itype_array υ sz t'

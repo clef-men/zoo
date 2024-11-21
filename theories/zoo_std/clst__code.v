@@ -31,7 +31,7 @@ Definition clst_rev_app : val :=
     end.
 
 Definition clst_iter : val :=
-  rec: "iter" "t" "fn" =>
+  rec: "iter" "fn" "t" =>
     match: "t" with
     | ClstClosed =>
         Fail
@@ -39,5 +39,5 @@ Definition clst_iter : val :=
         ()
     | ClstCons "v" "t" =>
         "fn" "v" ;;
-        "iter" "t" "fn"
+        "iter" "fn" "t"
     end.

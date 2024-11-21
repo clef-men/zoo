@@ -66,14 +66,14 @@ Definition xdeque_remove : val :=
     "next" <-{xdeque_prev} "prev".
 
 Definition xdeque_iter_aux : val :=
-  rec: "iter_aux" "t" "fn" "node" =>
+  rec: "iter_aux" "fn" "t" "node" =>
     if: "node" == "t" then (
       ()
     ) else (
       "fn" "node" ;;
-      "iter_aux" "t" "fn" "node".{xdeque_next}
+      "iter_aux" "fn" "t" "node".{xdeque_next}
     ).
 
 Definition xdeque_iter : val :=
-  fun: "t" "fn" =>
-    xdeque_iter_aux "t" "fn" "t".{xdeque_next}.
+  fun: "fn" "t" =>
+    xdeque_iter_aux "fn" "t" "t".{xdeque_next}.

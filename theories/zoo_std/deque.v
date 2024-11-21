@@ -150,7 +150,7 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma deque_iter_spec Ψ t vs fn :
+  Lemma deque_iter_spec Ψ fn t vs :
     {{{
       ▷ Ψ [] ∗
       deque_model t vs ∗
@@ -164,7 +164,7 @@ Section zoo_G.
         }}
       )
     }}}
-      deque_iter t fn
+      deque_iter fn t
     {{{
       RET ();
       deque_model t vs ∗

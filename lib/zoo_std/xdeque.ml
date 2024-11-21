@@ -55,12 +55,12 @@ let remove node =
   prev.xdeque_next <- next ;
   next.xdeque_prev <- prev
 
-let rec iter_aux t fn node =
+let rec iter_aux fn t node =
   if node == t then (
     ()
   ) else (
     fn node ;
-    iter_aux t fn node.xdeque_next
+    iter_aux fn t node.xdeque_next
   )
-let iter t fn =
-  iter_aux t fn t.xdeque_next
+let iter fn t =
+  iter_aux fn t t.xdeque_next

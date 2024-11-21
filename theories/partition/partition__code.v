@@ -258,7 +258,7 @@ Definition partition_split_classes : val :=
 
 Definition partition_refine : val :=
   fun: "t" "elts" =>
-    match: lst_foldl "elts" §None partition_block_record_split with
+    match: lst_foldl partition_block_record_split §None "elts" with
     | None =>
         ()
     | Some "split_list" =>

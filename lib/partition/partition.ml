@@ -277,7 +277,7 @@ let rec split_classes class_ t =
     split_classes next t
 
 let refine t elts =
-  match Lst.foldl elts None block_record_split with
+  match Lst.foldl block_record_split None elts with
   | None ->
       ()
   | Some split_list ->

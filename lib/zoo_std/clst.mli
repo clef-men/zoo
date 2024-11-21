@@ -10,4 +10,4 @@ val rev_app :
   'a t -> 'a t -> 'a t
 
 val iter :
-  'a t -> ('a -> unit) -> unit
+  ('a -> unit) -> 'a t -> unit

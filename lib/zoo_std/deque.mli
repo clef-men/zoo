@@ -17,4 +17,4 @@ val pop_back :
   'a t -> 'a option
 
 val iter :
-  'a t -> ('a -> unit) -> unit
+  ('a -> unit) -> 'a t -> unit

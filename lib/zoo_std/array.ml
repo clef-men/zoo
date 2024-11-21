@@ -85,62 +85,62 @@ let make =
     unsafe_make sz v
 ]
 
-let rec foldli_aux t sz acc fn i =
+let rec foldli_aux fn t sz i acc =
   if sz <= i then (
     acc
   ) else (
     let v = unsafe_get t i in
-    foldli_aux t sz (fn acc i v) fn (i + 1)
+    foldli_aux fn t sz (i + 1) (fn i acc v)
   )
-let foldli t acc fn =
-  foldli_aux t (size t) acc fn 0
-let foldl t acc fn =
-  foldli t acc (fun acc _ v -> fn acc v)
+let foldli fn acc t =
+  foldli_aux fn t (size t) 0 acc
+let foldl fn =
+  foldli (fun _i -> fn)
 
-let rec foldri_aux t fn acc i =
+let rec foldri_aux fn t i acc =
   if i <= 0 then (
     acc
   ) else (
     let i = i - 1 in
     let v = unsafe_get t i in
-    foldri_aux t fn (fn i v acc) i
+    foldri_aux fn t i (fn i v acc)
   )
-let foldri t fn acc =
-  foldri_aux t fn acc (size t)
-let foldr t fn acc =
-  foldri t (fun _ -> fn) acc
+let foldri fn t acc =
+  foldri_aux fn t (size t) acc
+let foldr fn =
+  foldri (fun _i -> fn)
 
-let iteri t fn =
+let iteri fn t =
   for i = 0 to size t - 1 do
     fn i (unsafe_get t i)
   done
-let iter t fn =
-  iteri t (fun _ -> fn)
+let iter fn =
+  iteri (fun _i -> fn)
 
-let applyi t fn =
-  iteri t (fun i v -> unsafe_set t i (fn i v))
-let apply t fn =
-  applyi t (fun _ -> fn)
+let applyi fn t =
+  iteri (fun i v -> unsafe_set t i (fn i v)) t
+let apply fn t =
+  applyi (fun _i -> fn) t
 
 let unsafe_initi sz fn =
   let t = unsafe_alloc sz in
-  applyi t (fun i _ -> fn i) ;
+  applyi (fun i _ -> fn i) t ;
   t
 let initi sz fn =
   if not (0 <= sz) then
     invalid_arg "negative size" ;
   unsafe_initi sz fn
 let unsafe_init sz fn =
-  unsafe_initi sz (fun _ -> fn ())
+  unsafe_initi sz (fun _i -> fn ())
 let init sz fn =
   if not (0 <= sz) then
     invalid_arg "negative size" ;
   unsafe_init sz fn
 
-let mapi t fn =
+let mapi fn t =
   unsafe_initi (size t) (fun i -> fn i (unsafe_get t i))
-let map t fn =
-  mapi t (fun _ -> fn)
+let map fn =
+  mapi (fun _i -> fn)
 
 let unsafe_copy_slice t1 i1 t2 i2 n =
   for k = 0 to n - 1 do

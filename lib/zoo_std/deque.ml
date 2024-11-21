@@ -27,5 +27,5 @@ let pop_back t =
   | Some node ->
       Some node.xdeque_data
 
-let iter t fn =
-  Xdeque.iter t (fun node -> fn node.Xdeque.xdeque_data)
+let iter fn =
+  Xdeque.iter (fun node -> fn node.Xdeque.xdeque_data)

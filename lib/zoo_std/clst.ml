@@ -21,7 +21,7 @@ let rec rev_app t1 t2 =
   | ClstCons (v, t1) ->
       rev_app t1 (ClstCons (v, t2))
 
-let rec iter t fn =
+let rec iter fn t =
   match t with
   | ClstClosed ->
       assert false
@@ -29,4 +29,4 @@ let rec iter t fn =
       ()
   | ClstCons (v, t) ->
       fn v ;
-      iter t fn
+      iter fn t

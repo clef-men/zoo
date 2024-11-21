@@ -71,9 +71,9 @@ Section ws_hub.
   #[local] Definition vertex_run : val :=
     rec: "vertex_run" "ctx" "t" =>
       "t".{task} "ctx" ;;
-      clst_iter (mpmc_stack_2_close "t".{succs}) (fun: "t'" =>
+      clst_iter (fun: "t'" =>
         vertex_propagate "ctx" "t'" "vertex_run"
-      ).
+      ) (mpmc_stack_2_close "t".{succs}).
   Definition vertex_release : val :=
     fun: "ctx" "t" =>
       vertex_propagate "ctx" "t" vertex_run.
@@ -665,7 +665,7 @@ Section vertex_G.
     iIntros "!> H£ (Hctx & HΦ)". clear.
 
     iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-    wp_apply (clst_iter_spec (λ _, pool_context ws_hub ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+    wp_smart_apply (clst_iter_spec (λ _, pool_context ws_hub ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
     rewrite big_sepL_fmap.
     iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
     wp_smart_apply (vertex_propagate_spec with "[$Hinv_succ $Hctx $Hπ $Hpred $HP]"); last iSteps.

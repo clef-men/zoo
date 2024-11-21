@@ -49,7 +49,7 @@ Implicit Types map : gmap location gc_location.
 Definition boxroot_init : val :=
   fun: <> =>
     let: "global" := xdeque_create () in
-    gc_set_roots (fun: "fn" => xdeque_iter "global" "fn") #2%nat ;;
+    gc_set_roots (fun: "fn" => xdeque_iter "fn" "global") #2%nat ;;
     "global".
 
 Definition boxroot_create : val :=
