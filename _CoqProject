@@ -290,9 +290,11 @@ theories/boxroot/boxroot.v
 #BEGIN kcas
 -Q theories/kcas kcas
 
-theories/kcas/kcas__types.v
-theories/kcas/kcas__code.v
-theories/kcas/kcas.v
+theories/kcas/kcas_1__types.v
+theories/kcas/kcas_1__code.v
+theories/kcas/kcas_1.v
+theories/kcas/kcas_2__types.v
+theories/kcas/kcas_2__code.v
 
 #END kcas
 

@@ -144,3 +144,12 @@ Definition lst_mapi : val :=
 Definition lst_map : val :=
   fun: "fn" =>
     lst_mapi (fun: "_i" => "fn").
+
+Definition lst_forall : val :=
+  rec: "forall" "pred" "param" =>
+    match: "param" with
+    | [] =>
+        #true
+    | "v" :: "t" =>
+        "pred" "v" and "forall" "pred" "t"
+    end.

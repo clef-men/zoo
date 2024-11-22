@@ -11,7 +11,8 @@ From zoo.iris.base_logic Require Import
   lib.twins
   lib.auth_mono
   lib.excl
-  lib.saved_prop.
+  lib.saved_prop
+  lib.mono_list.
 From zoo.language Require Import
   typed_prophet
   identifier
@@ -20,15 +21,16 @@ From zoo.language Require Import
 From zoo_std Require Import
   lst.
 From kcas Require Import
-  kcas__types.
+  kcas_1__types.
 From kcas Require Export
-  kcas__code.
+  kcas_1__code.
 From zoo Require Import
   options.
 
 Implicit Types b full : bool.
 Implicit Types i : nat.
 Implicit Types l loc casn : location.
+Implicit Types casns : list location.
 Implicit Types gid : identifier.
 Implicit Types v state : val.
 Implicit Types cas : location * (val * val).
@@ -59,9 +61,32 @@ Next Obligation.
 Qed.
 Implicit Types prophs : list kcas_prophet.(typed_prophet_type).
 
-Definition kcas_loc_meta : Type :=
-  gname.
+Record kcas_loc_meta := {
+  kcas_loc_meta_model : gname ;
+  kcas_loc_meta_lockers : gname ;
+}.
 Implicit Types γ : kcas_loc_meta.
+
+#[local] Instance kcas_loc_meta_inhabited : Inhabited kcas_loc_meta :=
+  populate {|
+    kcas_loc_meta_model := inhabitant ;
+    kcas_loc_meta_lockers := inhabitant ;
+  |}.
+#[local] Instance kcas_loc_meta_eq_dec : EqDecision kcas_loc_meta :=
+  ltac:(solve_decision).
+#[local] Instance kcas_loc_meta_countable :
+  Countable kcas_loc_meta.
+Proof.
+  pose encode γ := (
+    γ.(kcas_loc_meta_model),
+    γ.(kcas_loc_meta_lockers)
+  ).
+  pose decode := λ '(γ_model, γ_lockers), {|
+    kcas_loc_meta_model := γ_model ;
+    kcas_loc_meta_lockers := γ_lockers ;
+  |}.
+  refine (inj_countable' encode decode _). intros []. done.
+Qed.
 
 Record kcas_descr := {
   kcas_descr_loc : location ;
@@ -296,6 +321,7 @@ Qed.
 
 Class KcasG Σ `{zoo_G : !ZooG Σ} := {
   #[local] kcas_G_model_G :: TwinsG Σ val_O ;
+  #[local] kcas_G_lockers_G :: MonoListG Σ location ;
   #[local] kcas_G_saved_prop :: SavedPropG Σ ;
   #[local] kcas_G_lstatus_G :: AuthMonoG (A := leibnizO kcas_lstatus) Σ kcas_lstep ;
   #[local] kcas_G_lock_G :: ExclG Σ unitO ;
@@ -306,6 +332,7 @@ Class KcasG Σ `{zoo_G : !ZooG Σ} := {
 
 Definition kcas_Σ := #[
   twins_Σ val_O ;
+  mono_list_Σ location ;
   saved_prop_Σ ;
   auth_mono_Σ (A := leibnizO kcas_lstatus) kcas_lstep ;
   excl_Σ unitO ;
@@ -325,10 +352,23 @@ Section kcas_G.
 
   Implicit Types P Q : iProp Σ.
 
+  #[local] Definition kcas_model₁' γ_model v :=
+    twins_twin1 γ_model (DfracOwn 1) v.
   #[local] Definition kcas_model₁ γ v :=
-    twins_twin1 γ (DfracOwn 1) v.
+    kcas_model₁' γ.(kcas_loc_meta_model) v.
+  #[local] Definition kcas_model₂' γ_model v :=
+    twins_twin2 γ_model v.
   #[local] Definition kcas_model₂ γ v :=
-    twins_twin2 γ v.
+    kcas_model₂' γ.(kcas_loc_meta_model) v.
+
+  #[local] Definition kcas_lockers_auth' γ_lockers casns :=
+    mono_list_auth γ_lockers (DfracOwn 1) casns.
+  #[local] Definition kcas_lockers_auth γ casns :=
+    kcas_lockers_auth' γ.(kcas_loc_meta_lockers) casns.
+  #[local] Definition kcas_lockers_lb γ casns :=
+    mono_list_lb γ.(kcas_loc_meta_lockers) casns.
+  #[local] Definition kcas_lockers_elem γ casn :=
+    mono_list_elem γ.(kcas_loc_meta_lockers) casn.
 
   #[local] Definition kcas_lstatus_auth' η_lstatus lstatus :=
     auth_mono_auth _ η_lstatus (DfracOwn 1) lstatus.
@@ -426,8 +466,10 @@ Section kcas_G.
     | KcasFinished =>
         ⌜v_status = kcas_final_status_to_val (kcas_casn_meta_final η)⌝ ∗
         ( [∗ list] i ↦ descr ∈ η.(kcas_casn_meta_descrs),
-            kcas_model₂ descr.(kcas_descr_meta) (kcas_descr_final descr η)
+          kcas_lockers_elem descr.(kcas_descr_meta) casn ∗
+          ( kcas_model₂ descr.(kcas_descr_meta) (kcas_descr_final descr η)
           ∨ kcas_lock η i
+          )
         ) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
           ∃ Q,
@@ -440,7 +482,7 @@ Section kcas_G.
     end.
   #[local] Definition kcas_casn_inv_pre ι
     (kcas_casn_inv' : location * kcas_casn_meta * option nat -d> iProp Σ)
-    (kcas_loc_inv' : location -d> iProp Σ)
+    (kcas_loc_inv' : location * kcas_loc_meta -d> iProp Σ)
   : location * kcas_casn_meta * option nat -d> iProp Σ
   :=
     λ '(casn, η, i), (
@@ -455,11 +497,11 @@ Section kcas_G.
             meta descr.(kcas_descr_loc) nroot descr.(kcas_descr_meta)
           else
             meta descr.(kcas_descr_loc) nroot descr.(kcas_descr_meta) ∗
-            kcas_loc_inv' descr.(kcas_descr_loc)
+            kcas_loc_inv' (descr.(kcas_descr_loc), descr.(kcas_descr_meta))
         else
           [∗ list] descr ∈ η.(kcas_casn_meta_descrs),
           meta descr.(kcas_descr_loc) nroot descr.(kcas_descr_meta) ∗
-          kcas_loc_inv' descr.(kcas_descr_loc)
+          kcas_loc_inv' (descr.(kcas_descr_loc), descr.(kcas_descr_meta))
       )
     )%I.
   #[local] Instance kcas_casn_inv_pre_contractive ι n :
@@ -468,24 +510,31 @@ Section kcas_G.
     solve_proper.
   Qed.
 
-  #[local] Definition kcas_loc_inv_inner'' full kcas_casn_inv' loc : iProp Σ :=
-    ∃ casn η i descr,
+  #[local] Definition kcas_loc_inv_inner'' full kcas_casn_inv' loc γ : iProp Σ :=
+    ∃ casns casn η i descr,
     meta casn nroot η ∗
     ⌜η.(kcas_casn_meta_descrs) !! i = Some descr⌝ ∗
     ⌜loc = descr.(kcas_descr_loc)⌝ ∗
     loc ↦ᵣ kcas_state casn descr ∗
     kcas_lstatus_lb η (KcasRunning (S i)) ∗
     kcas_lock η i ∗
+    kcas_lockers_auth γ (casns ++ [casn]) ∗
+    ⌜NoDup (casns ++ [casn])⌝ ∗
+    ( [∗ list] casn ∈ casns,
+      ∃ η,
+      meta casn nroot η ∗
+      kcas_lstatus_lb η KcasFinished
+    ) ∗
     kcas_casn_inv' (casn, η, if full then None else Some i).
   #[local] Definition kcas_loc_inv_inner' :=
     kcas_loc_inv_inner'' false.
   #[local] Definition kcas_loc_inv_pre ι
     (kcas_casn_inv' : location * kcas_casn_meta * option nat -d> iProp Σ)
-    (kcas_loc_inv' : location -d> iProp Σ)
-  : location -d> iProp Σ
+    (kcas_loc_inv' : location * kcas_loc_meta -d> iProp Σ)
+  : location * kcas_loc_meta -d> iProp Σ
   :=
-    λ loc,
-      inv (ι.@"loc") (kcas_loc_inv_inner' kcas_casn_inv' loc).
+    λ '(loc, γ),
+      inv (ι.@"loc") (kcas_loc_inv_inner' kcas_casn_inv' loc γ).
   #[local] Instance kcas_loc_inv_pre_contractive ι n :
     Proper (dist_later n ==> dist_later n ==> (≡{n}≡)) (kcas_loc_inv_pre ι).
   Proof.
@@ -504,12 +553,12 @@ Section kcas_G.
 
   #[local] Definition kcas_loc_inv' ι :=
     fixpoint_B (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι).
-  #[local] Definition kcas_loc_inv_inner loc ι : iProp Σ :=
-    kcas_loc_inv_inner'' true (kcas_casn_inv'' ι) loc.
+  #[local] Definition kcas_loc_inv_inner loc γ ι : iProp Σ :=
+    kcas_loc_inv_inner'' true (kcas_casn_inv'' ι) loc γ.
   Definition kcas_loc_inv loc ι : iProp Σ :=
     ∃ γ,
     meta loc nroot γ ∗
-    kcas_loc_inv' ι loc.
+    kcas_loc_inv' ι (loc, γ).
 
   Definition kcas_loc_model loc v : iProp Σ :=
     ∃ γ,
@@ -523,29 +572,29 @@ Section kcas_G.
     symmetry. apply (fixpoint_A_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) _).
   Qed.
 
-  #[local] Lemma kcas_loc_inv'_unfold loc ι :
-    kcas_loc_inv' ι loc ⊣⊢
-    inv (ι.@"loc") (kcas_loc_inv_inner' (kcas_casn_inv'' ι) loc).
+  #[local] Lemma kcas_loc_inv'_unfold loc γ ι :
+    kcas_loc_inv' ι (loc, γ) ⊣⊢
+    inv (ι.@"loc") (kcas_loc_inv_inner' (kcas_casn_inv'' ι) loc γ).
   Proof.
-    symmetry. apply (fixpoint_B_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) _).
+    symmetry. apply (fixpoint_B_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) (loc, γ)).
   Qed.
-  #[local] Lemma kcas_loc_inv'_intro loc ι :
-    inv (ι.@"loc") (kcas_loc_inv_inner' (kcas_casn_inv'' ι) loc) ⊢
-    kcas_loc_inv' ι loc.
+  #[local] Lemma kcas_loc_inv'_intro loc γ ι :
+    inv (ι.@"loc") (kcas_loc_inv_inner' (kcas_casn_inv'' ι) loc γ) ⊢
+    kcas_loc_inv' ι (loc, γ).
   Proof.
     setoid_rewrite <- (fixpoint_B_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) _).
     iIntros "#Hloc_inv".
-    iApply (inv_alter with "Hloc_inv"). iIntros "!> !> (%casn & %η & %i & %descr & Hcasn_meta & %Hdescrs_lookup & -> & Hloc & Hlstatus_lb & Hlock & Hcasn_inv')".
+    iApply (inv_alter with "Hloc_inv"). iIntros "!> !> (%casns & %casn & %η & %i & %descr & Hcasn_meta & %Hdescrs_lookup & -> & Hloc & Hlstatus_lb & Hlock & Hlockers_auth & %Hcasns & Hcasns & Hcasn_inv')".
     iFrame. iSteps.
   Qed.
   #[local] Lemma kcas_loc_inv'_elim loc γ ι :
     meta loc nroot γ -∗
-    kcas_loc_inv' ι loc -∗
-    inv (ι.@"loc") (kcas_loc_inv_inner loc ι).
+    kcas_loc_inv' ι (loc, γ) -∗
+    inv (ι.@"loc") (kcas_loc_inv_inner loc γ ι).
   Proof.
     setoid_rewrite <- (fixpoint_B_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) _).
     iIntros "#Hloc_meta #Hloc_inv".
-    iApply (inv_alter with "Hloc_inv"). iIntros "!> !> (%casn & %η & %i & %descr & Hcasn_meta & %Hdescrs_lookup & -> & Hloc & Hlstatus_lb & Hlock & Hcasn_inv')".
+    iApply (inv_alter with "Hloc_inv"). iIntros "!> !> (%casns & %casn & %η & %i & %descr & Hcasn_meta & %Hdescrs_lookup & -> & Hloc & Hlstatus_lb & Hlock & Hlockers_auth & %Hcasns & Hcasns & Hcasn_inv')".
     iSplitL.
     - iFrame. iSteps.
       setoid_rewrite <- (fixpoint_A_unfold (kcas_casn_inv_pre ι) (kcas_loc_inv_pre ι) _).
@@ -577,13 +626,13 @@ Section kcas_G.
     setoid_rewrite kcas_loc_inv'_unfold.
     apply _.
   Qed.
-  #[local] Instance kcas_loc_inv'_persistent loc ι :
-    Persistent (kcas_loc_inv' ι loc).
+  #[local] Instance kcas_loc_inv'_persistent loc γ ι :
+    Persistent (kcas_loc_inv' ι (loc, γ)).
   Proof.
     rewrite kcas_loc_inv'_unfold.
     apply _.
   Qed.
-  #[global] Instance kcas_loc_inv_persistent loc ι :
+  #[global] Instance kcas_loc_inv_persistent loc γ ι :
     Persistent (kcas_loc_inv loc ι).
   Proof.
     rewrite /kcas_loc_inv.
@@ -592,9 +641,9 @@ Section kcas_G.
 
   #[local] Lemma kcas_model_alloc v :
     ⊢ |==>
-      ∃ γ,
-      kcas_model₁ γ v ∗
-      kcas_model₂ γ v.
+      ∃ γ_model,
+      kcas_model₁' γ_model v ∗
+      kcas_model₂' γ_model v.
   Proof.
     apply twins_alloc'.
   Qed.

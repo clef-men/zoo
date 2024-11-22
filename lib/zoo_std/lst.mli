@@ -52,3 +52,6 @@ val mapi :
   (int -> 'a -> 'b) -> 'a t -> 'b t
 val map :
   ('a -> 'b) -> 'a t -> 'b t
+
+val forall :
+  ('a -> bool) -> 'a t -> bool

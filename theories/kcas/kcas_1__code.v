@@ -8,7 +8,7 @@ From zoo Require Import
 From zoo_std Require Import
   lst.
 From kcas Require Import
-  kcas__types.
+  kcas_1__types.
 From zoo Require Import
   options.
 

@@ -92,3 +92,9 @@ let mapi fn =
   mapi_aux fn 0
 let map fn =
   mapi (fun _i -> fn)
+
+let rec forall pred = function
+  | [] ->
+      true
+  | v :: t ->
+      pred v && forall pred t
