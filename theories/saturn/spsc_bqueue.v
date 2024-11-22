@@ -104,8 +104,8 @@ Section spsc_bqueue_G.
     mono_list_auth γ_history (DfracOwn 1) hist.
   #[local] Definition spsc_bqueue_history_auth γ hist :=
     spsc_bqueue_history_auth' γ.(spsc_bqueue_meta_history) hist.
-  #[local] Definition spsc_bqueue_history_elem γ i v :=
-    mono_list_elem γ.(spsc_bqueue_meta_history) i v.
+  #[local] Definition spsc_bqueue_history_at γ i v :=
+    mono_list_at γ.(spsc_bqueue_meta_history) i v.
 
   #[local] Definition spsc_bqueue_producer_ctl₁' γ_producer_ctl back :=
     auth_nat_max_auth γ_producer_ctl (DfracOwn (1/2)) back.
@@ -245,19 +245,19 @@ Section spsc_bqueue_G.
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma spsc_bqueue_history_elem_get {γ hist} i v :
+  #[local] Lemma spsc_bqueue_history_at_get {γ hist} i v :
     hist !! i = Some v →
     spsc_bqueue_history_auth γ hist ⊢
-    spsc_bqueue_history_elem γ i v.
+    spsc_bqueue_history_at γ i v.
   Proof.
-    setoid_rewrite mono_list_lb_get. apply mono_list_elem_get.
+    apply mono_list_at_get.
   Qed.
   #[local] Lemma spsc_bqueue_history_agree γ hist i v :
     spsc_bqueue_history_auth γ hist -∗
-    spsc_bqueue_history_elem γ i v -∗
+    spsc_bqueue_history_at γ i v -∗
     ⌜hist !! i = Some v⌝.
   Proof.
-    apply mono_list_lookup.
+    apply mono_list_at_valid.
   Qed.
   #[local] Lemma spsc_bqueue_history_update {γ hist} v :
     spsc_bqueue_history_auth γ hist ⊢ |==>
@@ -720,7 +720,7 @@ Section spsc_bqueue_G.
     destruct vs2 as [| v vs2]; first naive_solver lia.
     iDestruct "Hdata_front" as "[Hdata_front | Hconsumer_region']"; last first.
     { iDestruct (spsc_bqueue_consumer_region_exclusive with "Hconsumer_region Hconsumer_region'") as %[]. }
-    iDestruct (spsc_bqueue_history_elem_get front v with "Hhistory_auth") as "#Hhistory_elem".
+    iDestruct (spsc_bqueue_history_at_get front v with "Hhistory_auth") as "#Hhistory_at".
     { rewrite -(take_drop front hist2) -Hvs2 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
       rewrite Nat.sub_diag //.
@@ -740,7 +740,7 @@ Section spsc_bqueue_G.
     iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
     iDestruct (spsc_bqueue_back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2.
     destruct vs3 as [| _v vs3]; first naive_solver lia.
-    iDestruct (spsc_bqueue_history_agree with "Hhistory_auth Hhistory_elem") as %Hhist3_lookup.
+    iDestruct (spsc_bqueue_history_agree with "Hhistory_auth Hhistory_at") as %Hhist3_lookup.
     assert (_v = v) as ->.
     { move: Hhist3_lookup.
       rewrite -(take_drop front hist3) -Hvs3 lookup_app_r length_take; first lia.

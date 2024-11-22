@@ -36,10 +36,13 @@ Section mono_list_G.
     auth_mono_auth (A := leibnizO (list A)) prefix γ dq l.
   Definition mono_list_lb γ l :=
     auth_mono_lb (A := leibnizO (list A)) prefix γ l.
-  Definition mono_list_elem γ i a : iProp Σ :=
+  Definition mono_list_at γ i a : iProp Σ :=
     ∃ l,
     ⌜l !! i = Some a⌝ ∗
     mono_list_lb γ l.
+  Definition mono_list_elem γ a : iProp Σ :=
+    ∃ i,
+    mono_list_at γ i a.
 
   #[global] Instance mono_list_auth_timeless γ dq l :
     Timeless (mono_list_auth γ dq l).
@@ -56,13 +59,23 @@ Section mono_list_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_elem_timeless γ i a :
-    Timeless (mono_list_elem γ i a).
+  #[global] Instance mono_list_at_timeless γ i a :
+    Timeless (mono_list_at γ i a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_elem_persistent γ i a :
-    Persistent (mono_list_elem γ i a).
+  #[global] Instance mono_list_at_persistent γ i a :
+    Persistent (mono_list_at γ i a).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_list_elem_timeless γ a :
+    Timeless (mono_list_elem γ a).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_list_elem_persistent γ a :
+    Persistent (mono_list_elem γ a).
   Proof.
     apply _.
   Qed.
@@ -149,12 +162,20 @@ Section mono_list_G.
   Proof.
     apply auth_mono_lb_get.
   Qed.
-  Lemma mono_list_elem_get {γ l} i a :
+  Lemma mono_list_at_get {γ q l} i a :
     l !! i = Some a →
-    mono_list_lb γ l ⊢
-    mono_list_elem γ i a.
+    mono_list_auth γ q l ⊢
+    mono_list_at γ i a.
   Proof.
-    iSteps.
+    rewrite mono_list_lb_get. iSteps.
+  Qed.
+  Lemma mono_list_elem_get {γ q l} a :
+    a ∈ l →
+    mono_list_auth γ q l ⊢
+    mono_list_elem γ a.
+  Proof.
+    intros (i & Hlookup)%elem_of_list_lookup.
+    rewrite mono_list_at_get //. iSteps.
   Qed.
 
   Lemma mono_list_lb_mono {γ l} l' :
@@ -174,14 +195,23 @@ Section mono_list_G.
     iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %Hl'.
     rewrite preorder_rtc in Hl'. iSteps.
   Qed.
-  Lemma mono_list_lookup γ q l i a :
+  Lemma mono_list_at_valid γ q l i a :
     mono_list_auth γ q l -∗
-    mono_list_elem γ i a -∗
+    mono_list_at γ i a -∗
     ⌜l !! i = Some a⌝.
   Proof.
-    iIntros "Hauth (%l1 & %Hlookup & Hl1)".
-    iDestruct (mono_list_lb_valid with "Hauth Hl1") as %(l2 & ->).
+    iIntros "Hauth (%l1 & %Hlookup & Hlb)".
+    iDestruct (mono_list_lb_valid with "Hauth Hlb") as %(l2 & ->).
     iPureIntro. apply lookup_app_l_Some. done.
+  Qed.
+  Lemma mono_list_elem_valid γ q l a :
+    mono_list_auth γ q l -∗
+    mono_list_elem γ a -∗
+    ⌜a ∈ l⌝.
+  Proof.
+    iIntros "Hauth (%i & Hat)".
+    iDestruct (mono_list_at_valid with "Hauth Hat") as %Hlookup.
+    iPureIntro. apply elem_of_list_lookup. naive_solver.
   Qed.
 
   Lemma mono_list_update {γ l} l' :
@@ -201,4 +231,5 @@ End mono_list_G.
 
 #[global] Opaque mono_list_auth.
 #[global] Opaque mono_list_lb.
-#[global] Opaque mono_list_elem.
+#[global] Typeclasses Opaque mono_list_at.
+#[global] Typeclasses Opaque mono_list_elem.
