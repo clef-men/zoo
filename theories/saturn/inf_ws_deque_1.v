@@ -797,7 +797,7 @@ Section inf_ws_deque_1_G.
     (* open invariant *)
     iInv "Hinv" as "(%front' & %back & %hist & %model & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast & Hstate)".
     (* current prophecies are a suffix of prophet lower bound *)
-    iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
+    iDestruct (wise_prophet_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
     (* do resolve *)
     wp_apply (wise_prophet_wp_resolve inf_ws_deque_1_prophet(front, id) with "Hprophet_model"); [done.. |].
     (* whether CAS succeed or not, we reach a contradiction *)
@@ -826,7 +826,7 @@ Section inf_ws_deque_1_G.
     (* open invariant *)
     iInv "Hinv" as "(%front' & %back & %hist & %model & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast & Hstate)".
     (* current prophecies are a suffix of prophet lower bound *)
-    iDestruct (wise_prophet_model_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
+    iDestruct (wise_prophet_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
     (* do resolve *)
     wp_apply (wise_prophet_wp_resolve inf_ws_deque_1_prophet (front, id) with "Hprophet_model"); [done.. |].
     (* CAS must fail as we are not the winner: [id ≠ id'] *)

@@ -55,18 +55,31 @@ Section typed_strong_prophet.
     mono_list_auth γ.(wise_strong_prophet_name_past) (DfracOwn 1) past ∗
     typed_strong_prophet_model prophet pid prophs.
 
+  Definition wise_strong_prophet_snapshot γ past prophs : iProp Σ :=
+    agree_on γ.(wise_strong_prophet_name_full) (past ++ prophs) ∗
+    mono_list_lb γ.(wise_strong_prophet_name_past) past.
+
   Definition wise_strong_prophet_lb γ lb : iProp Σ :=
-    ∃ past_lb,
-    agree_on γ.(wise_strong_prophet_name_full) (past_lb ++ lb) ∗
-    mono_list_lb γ.(wise_strong_prophet_name_past) past_lb.
+    ∃ past,
+    wise_strong_prophet_snapshot γ past lb.
 
   #[global] Instance wise_strong_prophet_model_timeless pid γ past prophs :
     Timeless (wise_strong_prophet_model pid γ past prophs).
   Proof.
     apply _.
   Qed.
+  #[global] Instance wise_strong_prophet_snapshot_timeless γ past prophs :
+    Timeless (wise_strong_prophet_snapshot γ past prophs).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance wise_strong_prophet_lb_timeless γ lb :
     Timeless (wise_strong_prophet_lb γ lb).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance wise_strong_prophet_snapshot_persistent γ past prophs :
+    Persistent (wise_strong_prophet_snapshot γ past prophs).
   Proof.
     apply _.
   Qed.
@@ -85,26 +98,44 @@ Section typed_strong_prophet.
     iApply (typed_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma wise_strong_prophet_lb_get pid γ past prophs :
-    wise_strong_prophet_model pid γ past prophs -∗
-    wise_strong_prophet_lb γ prophs.
+  Lemma wise_strong_prophet_snapshot_get pid γ past prophs :
+    wise_strong_prophet_model pid γ past prophs ⊢
+    wise_strong_prophet_snapshot γ past prophs.
   Proof.
     iIntros "(#Hfull & Hpast_auth & Hmodel)".
     iStep.
     iApply (mono_list_lb_get with "Hpast_auth").
   Qed.
-  Lemma wise_strong_prophet_model_lb_valid pid γ past prophs lb :
+  Lemma wise_strong_prophet_snapshot_valid pid γ past prophs past' prophs' :
     wise_strong_prophet_model pid γ past prophs -∗
-    wise_strong_prophet_lb γ lb -∗
-    ⌜ ∃ past1 past2,
-      past = past1 ++ past2 ∧
-      lb = past2 ++ prophs
-    ⌝.
+    wise_strong_prophet_snapshot γ past' prophs' -∗
+      ∃ past'',
+      ⌜past = past' ++ past''⌝ ∗
+      ⌜prophs' = past'' ++ prophs⌝.
   Proof.
-    iIntros "(#Hfull & Hpast_auth & Hmodel) (%past1 & #Hfull' & #Hpast_lb)".
+    iIntros "(#Hfull & Hpast_auth & Hmodel) (#Hfull' & #Hpast_lb)".
     iDestruct (agree_on_agree_L with "Hfull Hfull'") as %Hfull.
     iDestruct (mono_list_lb_valid with "Hpast_auth Hpast_lb") as %(past2 & ->).
     iPureIntro. rewrite -assoc in Hfull. naive_solver.
+  Qed.
+
+  Lemma wise_strong_prophet_lb_get pid γ past prophs :
+    wise_strong_prophet_model pid γ past prophs ⊢
+    wise_strong_prophet_lb γ prophs.
+  Proof.
+    rewrite wise_strong_prophet_snapshot_get.
+    iSteps.
+  Qed.
+  Lemma wise_strong_prophet_lb_valid pid γ past prophs lb :
+    wise_strong_prophet_model pid γ past prophs -∗
+    wise_strong_prophet_lb γ lb -∗
+      ∃ past1 past2,
+      ⌜past = past1 ++ past2⌝ ∗
+      ⌜lb = past2 ++ prophs⌝.
+  Proof.
+    iIntros "Hmodel (%past' & Hsnapshot)".
+    iExists past'.
+    iApply (wise_strong_prophet_snapshot_valid with "Hmodel Hsnapshot").
   Qed.
 
   Lemma wise_strong_prophet_wp_proph E :
@@ -156,6 +187,7 @@ Section typed_strong_prophet.
 End typed_strong_prophet.
 
 #[global] Opaque wise_strong_prophet_model.
+#[global] Opaque wise_strong_prophet_snapshot.
 #[global] Opaque wise_strong_prophet_lb.
 
 Class WiseProphetG Σ `{zoo_G : !ZooG Σ} prophet := {
@@ -194,6 +226,12 @@ Section typed_prophet.
     ⌜prophs = sprophs.*2⌝ ∗
     wise_strong_prophet_model prophet pid γ spast sprophs.
 
+  Definition wise_prophet_snapshot γ past prophs : iProp Σ :=
+    ∃ spast sprophs,
+    ⌜past = spast.*2⌝ ∗
+    ⌜prophs = sprophs.*2⌝ ∗
+    wise_strong_prophet_snapshot prophet γ spast sprophs.
+
   Definition wise_prophet_lb γ lb : iProp Σ :=
     ∃ slb,
     ⌜lb = slb.*2⌝ ∗
@@ -204,8 +242,18 @@ Section typed_prophet.
   Proof.
     apply _.
   Qed.
+  #[global] Instance wise_prophet_snapshot_timeless γ past prophs :
+    Timeless (wise_prophet_snapshot γ past prophs).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance wise_prophet_lb_timeless γ lb :
     Timeless (wise_prophet_lb γ lb).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance wise_prophet_snapshot_persistent γ past prophs :
+    Persistent (wise_prophet_snapshot γ past prophs).
   Proof.
     apply _.
   Qed.
@@ -224,6 +272,26 @@ Section typed_prophet.
     iApply (wise_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
+  Lemma wise_prophet_snapshot_get pid γ past prophs :
+    wise_prophet_model pid γ past prophs ⊢
+    wise_prophet_snapshot γ past prophs.
+  Proof.
+    iIntros "(%spast & %sprophs & -> & -> & Hmodel)".
+    iSteps.
+    iApply (wise_strong_prophet_snapshot_get with "Hmodel").
+  Qed.
+  Lemma wise_prophet_snapshot_valid pid γ past prophs past' prophs' :
+    wise_prophet_model pid γ past prophs -∗
+    wise_prophet_snapshot γ past' prophs' -∗
+      ∃ past'',
+      ⌜past = past' ++ past''⌝ ∗
+      ⌜prophs' = past'' ++ prophs⌝.
+  Proof.
+    iIntros "(%spast & %sprophs & -> & -> & Hmodel) (%spast' & %sprophs' & -> & -> & Hsnapshot)".
+    iDestruct (wise_strong_prophet_snapshot_valid with "Hmodel Hsnapshot") as "(%spast'' & -> & ->)".
+    list_simplifier. iSteps.
+  Qed.
+
   Lemma wise_prophet_lb_get pid γ past prophs :
     wise_prophet_model pid γ past prophs -∗
     wise_prophet_lb γ prophs.
@@ -232,16 +300,15 @@ Section typed_prophet.
     iStep.
     iApply (wise_strong_prophet_lb_get with "Hmodel").
   Qed.
-  Lemma wise_prophet_model_lb_valid pid γ past prophs lb :
+  Lemma wise_prophet_lb_valid pid γ past prophs lb :
     wise_prophet_model pid γ past prophs -∗
     wise_prophet_lb γ lb -∗
-    ⌜ ∃ past1 past2,
-      past = past1 ++ past2 ∧
-      lb = past2 ++ prophs
-    ⌝.
+      ∃ past1 past2,
+      ⌜past = past1 ++ past2⌝ ∗
+      ⌜lb = past2 ++ prophs⌝.
   Proof.
     iIntros "(%spast & %sprophs & -> & -> & Hmodel) (%slb & -> & Hlb)".
-    iDestruct (wise_strong_prophet_model_lb_valid with "Hmodel Hlb") as "(%spast1 & %spast2 & -> & ->)".
+    iDestruct (wise_strong_prophet_lb_valid with "Hmodel Hlb") as "(%spast1 & %spast2 & -> & ->)".
     list_simplifier. iSteps.
   Qed.
 
@@ -284,4 +351,5 @@ Section typed_prophet.
 End typed_prophet.
 
 #[global] Opaque wise_prophet_model.
+#[global] Opaque wise_prophet_snapshot.
 #[global] Opaque wise_prophet_lb.
