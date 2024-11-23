@@ -4,12 +4,13 @@ From zoo.iris.program_logic Require Import
   wp_lifting.
 From zoo.iris Require Import
   diaframe.
-From zoo.language Require Export
-  typeclasses
-  state_interp.
 From zoo.language Require Import
   tactics
   notations.
+From zoo.language Require Export
+  typeclasses.
+From zoo.program_logic Require Export
+  state_interp.
 From zoo Require Import
   options.
 

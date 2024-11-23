@@ -11,7 +11,8 @@ From zoo.iris.bi Require Import
 From zoo.iris.base_logic Require Import
   lib.twins.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   int

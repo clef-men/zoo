@@ -3,10 +3,11 @@ From zoo Require Import
 From zoo.iris.base_logic Require Import
   lib.agree
   lib.mono_list.
-From zoo.language Require Export
-  typed_prophet.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.program_logic Require Export
+  typed_prophet.
+From zoo.diaframe Require Import
   diaframe.
 
 Class WiseStrongProphetG Σ `{zoo_G : !ZooG Σ} prophet := {

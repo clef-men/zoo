@@ -10,7 +10,8 @@ From zoo.iris.base_logic Require Import
   lib.saved_prop
   lib.twins.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   clst.

@@ -5,7 +5,8 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Export
   base

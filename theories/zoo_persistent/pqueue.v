@@ -3,7 +3,8 @@ From zoo Require Import
 From zoo.common Require Import
   list.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option

@@ -6,7 +6,7 @@ From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
   language.
-From zoo.language Require Import
+From zoo.program_logic Require Import
   wp.
 From zoo Require Import
   options.

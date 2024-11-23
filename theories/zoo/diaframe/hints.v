@@ -17,8 +17,9 @@ From diaframe Require Import
 From zoo Require Import
   prelude.
 From zoo.language Require Import
-  wp
   notations.
+From zoo.program_logic Require Import
+  wp.
 From zoo Require Import
   options.
 

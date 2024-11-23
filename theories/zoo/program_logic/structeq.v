@@ -2,10 +2,11 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   list.
-From zoo.language Require Export
-  wp.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.program_logic Require Export
+  wp.
+From zoo.diaframe Require Import
   diaframe.
 From zoo Require Import
   options.

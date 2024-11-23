@@ -15,7 +15,8 @@ From zoo.iris.diaframe Require Import
 From zoo.iris.diaframe Require Export
   symb_exec.spec_notations.
 From zoo.language Require Import
-  notations
+  notations.
+From zoo.program_logic Require Import
   proofmode.
 From zoo Require Import
   options.

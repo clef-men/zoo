@@ -5,7 +5,7 @@ From iris.base_logic Require Export
 
 From zoo Require Import
   prelude.
-From zoo.language Require Export
+From zoo.program_logic Require Export
   wp.
 From zoo Require Import
   options.

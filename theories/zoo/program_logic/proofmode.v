@@ -11,11 +11,12 @@ From zoo.iris Require Import
   diaframe.
 From zoo.iris.program_logic Require Export
   atomic.
-From zoo.language Require Export
-  tactics
-  wp.
 From zoo.language Require Import
   notations.
+From zoo.language Require Export
+  tactics.
+From zoo.program_logic Require Export
+  wp.
 From zoo Require Import
   options.
 

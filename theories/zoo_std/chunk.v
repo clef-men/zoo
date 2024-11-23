@@ -1,6 +1,6 @@
 From zoo Require Import
   prelude.
-From zoo.language Require Import
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Export
   base.

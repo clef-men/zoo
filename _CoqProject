@@ -75,19 +75,21 @@ theories/zoo/language/notations.v
 theories/zoo/language/tactics.v
 theories/zoo/language/metatheory.v
 theories/zoo/language/typeclasses.v
-theories/zoo/language/state_interp.v
-theories/zoo/language/wp.v
-theories/zoo/language/proofmode.v
-theories/zoo/language/diaframe/hints.v
-theories/zoo/language/diaframe/specs.v
-theories/zoo/language/diaframe/diaframe.v
-theories/zoo/language/adequacy.v
 # theories/zoo/language/prophecy_erasure.v
-theories/zoo/language/itype.v
-theories/zoo/language/typed_prophet.v
-theories/zoo/language/wise_prophet.v
-theories/zoo/language/identifier.v
-theories/zoo/language/structeq.v
+
+theories/zoo/program_logic/state_interp.v
+theories/zoo/program_logic/wp.v
+theories/zoo/program_logic/proofmode.v
+theories/zoo/program_logic/adequacy.v
+theories/zoo/program_logic/itype.v
+theories/zoo/program_logic/typed_prophet.v
+theories/zoo/program_logic/wise_prophet.v
+theories/zoo/program_logic/identifier.v
+theories/zoo/program_logic/structeq.v
+
+theories/zoo/diaframe/hints.v
+theories/zoo/diaframe/specs.v
+theories/zoo/diaframe/diaframe.v
 
 #END zoo
 

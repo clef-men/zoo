@@ -14,9 +14,11 @@ From zoo.iris.base_logic Require Import
   lib.auth_nat_max
   lib.mono_list.
 From zoo.language Require Import
+  notations.
+From zoo.program_logic Require Import
   wise_prophet
-  identifier
-  notations
+  identifier.
+From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
