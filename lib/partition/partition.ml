@@ -193,7 +193,7 @@ let record_split start_of_split_list cell =
     )
   )
 
-let split_class elt_class t =
+let split_class t elt_class =
   let elt = elt_class.split_start in
   let elt_class_first = elt_class.first in
   if elt == elt_class_first then (
@@ -222,17 +222,17 @@ let split_class elt_class t =
     ) elt_class_first old_prev
   )
 
-let rec split_classes class_ t =
+let rec split_classes t class_ =
   let next = class_.next_split in
-  split_class class_ t ;
+  split_class t class_ ;
   class_.split_start <- class_.first ;
   class_.next_split <- class_ ;
   if next != class_ then
-    split_classes next t
+    split_classes t next
 
 let refine t elts =
   match Lst.foldl record_split None elts with
   | None ->
       ()
   | Some split_list ->
-      split_classes split_list t
+      split_classes t split_list

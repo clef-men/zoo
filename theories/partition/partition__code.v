@@ -168,7 +168,7 @@ Definition partition_record_split : val :=
     ).
 
 Definition partition_split_class : val :=
-  fun: "elt_class" "t" =>
+  fun: "t" "elt_class" =>
     let: "elt" := "elt_class".{split_start} in
     let: "elt_class_first" := "elt_class".{first} in
     if: "elt" == "elt_class_first" then (
@@ -201,13 +201,13 @@ Definition partition_split_class : val :=
     ).
 
 Definition partition_split_classes : val :=
-  rec: "split_classes" "class_" "t" =>
+  rec: "split_classes" "t" "class_" =>
     let: "next" := "class_".{next_split} in
-    partition_split_class "class_" "t" ;;
+    partition_split_class "t" "class_" ;;
     "class_" <-{split_start} "class_".{first} ;;
     "class_" <-{next_split} "class_" ;;
     if: "next" != "class_" then (
-      "split_classes" "next" "t"
+      "split_classes" "t" "next"
     ).
 
 Definition partition_refine : val :=
@@ -216,5 +216,5 @@ Definition partition_refine : val :=
     | None =>
         ()
     | Some "split_list" =>
-        partition_split_classes "split_list" "t"
+        partition_split_classes "t" "split_list"
     end.
