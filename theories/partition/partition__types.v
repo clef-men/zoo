@@ -33,40 +33,28 @@ Notation "'next_split'" := (
   in_type "block" 0
 )(in custom zoo_field
 ).
-Notation "'work_list_next'" := (
+Notation "'first'" := (
   in_type "block" 1
 )(in custom zoo_field
 ).
-Notation "'in_work_list'" := (
+Notation "'last'" := (
   in_type "block" 2
 )(in custom zoo_field
 ).
-Notation "'first'" := (
+Notation "'len'" := (
   in_type "block" 3
 )(in custom zoo_field
 ).
-Notation "'last'" := (
+Notation "'split_start'" := (
   in_type "block" 4
 )(in custom zoo_field
 ).
-Notation "'len'" := (
-  in_type "block" 5
-)(in custom zoo_field
-).
-Notation "'split_start'" := (
-  in_type "block" 6
-)(in custom zoo_field
-).
 Notation "'split_len'" := (
-  in_type "block" 7
+  in_type "block" 5
 )(in custom zoo_field
 ).
 
 Notation "'blocks_head'" := (
   in_type "t" 0
-)(in custom zoo_field
-).
-Notation "'work_list_head'" := (
-  in_type "t" 1
 )(in custom zoo_field
 ).

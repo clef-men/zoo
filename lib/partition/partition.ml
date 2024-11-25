@@ -58,8 +58,6 @@ let rec dllist_iter fn from to_ =
 
 type 'a block =
   { mutable next_split: 'a block;
-    mutable work_list_next: 'a block [@warning "-69"];
-    mutable in_work_list: bool;
     mutable first: ('a, 'a block) dllist;
     mutable last: ('a, 'a block) dllist;
     mutable len: int;
@@ -117,7 +115,6 @@ let block_record_split start_of_split_list cell =
 
 type 'a t =
   { mutable blocks_head: 'a block;
-    mutable work_list_head: 'a block option;
   }
 
 type 'a elt =
@@ -145,8 +142,6 @@ let create v =
   in
   let block =
     { next_split= Obj.magic ();
-      work_list_next= Obj.magic ();
-      in_work_list= true;
       first= elt;
       last= elt;
       len= 1;
@@ -158,10 +153,8 @@ let create v =
   elt.next <- elt ;
   elt.class_ <- block ;
   block.next_split <- block ;
-  block.work_list_next <- block ;
   let t =
     { blocks_head= block;
-      work_list_head= Some block;
     }
   in
   t, elt
@@ -185,8 +178,6 @@ let add_new_class t v =
   in
   let block =
     { next_split= Obj.magic ();
-      work_list_next= Obj.magic ();
-      in_work_list= true;
       first= elt;
       last= elt;
       len= 1;
@@ -198,9 +189,7 @@ let add_new_class t v =
   elt.next <- elt ;
   elt.class_ <- block ;
   block.next_split <- block ;
-  block.work_list_next <- (match t.work_list_head with None -> block | Some wl -> wl) ;
   t.blocks_head <- block ;
-  t.work_list_head <- Some block ;
   elt
 
 let split_at elt_class t =
@@ -217,8 +206,6 @@ let split_at elt_class t =
     elt_class.len <- elt_class.len - elt_class_split_len ;
     let class_descr =
       { next_split= Obj.magic ();
-        work_list_next= Obj.magic ();
-        in_work_list= false;
         first= elt_class_first;
         last= old_prev;
         len= elt_class_split_len;
@@ -227,33 +214,7 @@ let split_at elt_class t =
       }
     in
     class_descr.next_split <- class_descr ;
-    class_descr.work_list_next <- class_descr ;
     t.blocks_head <- class_descr ;
-    if elt_class.in_work_list then (
-      class_descr.in_work_list <- true ;
-      begin match t.work_list_head with
-      | None ->
-          assert false
-      | Some hd ->
-          class_descr.work_list_next <- hd
-      end ;
-      t.work_list_head <- Some class_descr
-    ) else (
-      let selected_class =
-        if elt_class.len <= class_descr.len then
-          elt_class
-        else
-          class_descr
-      in
-      selected_class.in_work_list <- true ;
-      begin match t.work_list_head with
-      | None ->
-          ()
-      | Some hd ->
-          selected_class.work_list_next <- hd
-      end ;
-      t.work_list_head <- Some selected_class
-    ) ;
     dllist_iter (fun elt ->
       elt.class_ <- class_descr ;
       elt.seen <- false
@@ -277,14 +238,3 @@ let refine t elts =
       ()
   | Some split_list ->
       split_classes split_list t
-
-(* let rec stabilize get_pre_images t = *)
-(*   match t.work_list_head with *)
-(*   | None -> *)
-(*       () *)
-(*   | Some hd -> *)
-(*       t.work_list_head <- (if hd.work_list_next == hd then None else Some hd.work_list_next) ; *)
-(*       hd.in_work_list <- false ; *)
-(*       hd.work_list_next <- hd ; *)
-(*       get_pre_images (fun fn -> block_iter fn hd) (refine t) ; *)
-(*       stabilize get_pre_images t *)

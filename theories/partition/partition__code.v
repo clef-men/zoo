@@ -139,13 +139,12 @@ Definition partition_elt_cardinal : val :=
 Definition partition_create : val :=
   fun: "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" := { (), (), #true, "elt", "elt", #1, "elt", #0 } in
+    let: "block" := { (), "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "block" ;;
     "block" <-{next_split} "block" ;;
-    "block" <-{work_list_next} "block" ;;
-    let: "t" := { "block", ‘Some( "block" ) } in
+    let: "t" := { "block" } in
     ("t", "elt").
 
 Definition partition_add_same_class : val :=
@@ -160,20 +159,12 @@ Definition partition_add_same_class : val :=
 Definition partition_add_new_class : val :=
   fun: "t" "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" := { (), (), #true, "elt", "elt", #1, "elt", #0 } in
+    let: "block" := { (), "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "block" ;;
     "block" <-{next_split} "block" ;;
-    "block" <-{work_list_next}
-      match: "t".{work_list_head} with
-      | None =>
-          "block"
-      | Some "wl" =>
-          "wl"
-      end ;;
     "t" <-{blocks_head} "block" ;;
-    "t" <-{work_list_head} ‘Some( "block" ) ;;
     "elt".
 
 Definition partition_split_at : val :=
@@ -193,8 +184,6 @@ Definition partition_split_at : val :=
       "elt_class" <-{len} "elt_class".{len} - "elt_class_split_len" ;;
       let: "class_descr" :=
         { (),
-          (),
-          #false,
           "elt_class_first",
           "old_prev",
           "elt_class_split_len",
@@ -203,34 +192,7 @@ Definition partition_split_at : val :=
         }
       in
       "class_descr" <-{next_split} "class_descr" ;;
-      "class_descr" <-{work_list_next} "class_descr" ;;
       "t" <-{blocks_head} "class_descr" ;;
-      if: "elt_class".{in_work_list} then (
-        "class_descr" <-{in_work_list} #true ;;
-        match: "t".{work_list_head} with
-        | None =>
-            Fail
-        | Some "hd" =>
-            "class_descr" <-{work_list_next} "hd"
-        end ;;
-        "t" <-{work_list_head} ‘Some( "class_descr" )
-      ) else (
-        let: "selected_class" :=
-          if: "elt_class".{len} ≤ "class_descr".{len} then (
-            "elt_class"
-          ) else (
-            "class_descr"
-          )
-        in
-        "selected_class" <-{in_work_list} #true ;;
-        match: "t".{work_list_head} with
-        | None =>
-            ()
-        | Some "hd" =>
-            "selected_class" <-{work_list_next} "hd"
-        end ;;
-        "t" <-{work_list_head} ‘Some( "selected_class" )
-      ) ;;
       partition_dllist_iter
         (fun: "elt" => "elt" <-{class_} "class_descr" ;;
                        "elt" <-{seen} #false)
