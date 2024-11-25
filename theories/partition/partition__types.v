@@ -29,40 +29,36 @@ Notation "'seen'" := (
 )(in custom zoo_field
 ).
 
-Notation "'next_block'" := (
+Notation "'next_split'" := (
   in_type "block" 0
 )(in custom zoo_field
 ).
-Notation "'next_split'" := (
+Notation "'work_list_next'" := (
   in_type "block" 1
 )(in custom zoo_field
 ).
-Notation "'work_list_next'" := (
+Notation "'in_work_list'" := (
   in_type "block" 2
 )(in custom zoo_field
 ).
-Notation "'in_work_list'" := (
+Notation "'first'" := (
   in_type "block" 3
 )(in custom zoo_field
 ).
-Notation "'first'" := (
+Notation "'last'" := (
   in_type "block" 4
 )(in custom zoo_field
 ).
-Notation "'last'" := (
+Notation "'len'" := (
   in_type "block" 5
 )(in custom zoo_field
 ).
-Notation "'len'" := (
+Notation "'split_start'" := (
   in_type "block" 6
 )(in custom zoo_field
 ).
-Notation "'split_start'" := (
-  in_type "block" 7
-)(in custom zoo_field
-).
 Notation "'split_len'" := (
-  in_type "block" 8
+  in_type "block" 7
 )(in custom zoo_field
 ).
 

@@ -139,11 +139,10 @@ Definition partition_elt_cardinal : val :=
 Definition partition_create : val :=
   fun: "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" := { (), (), (), #true, "elt", "elt", #1, "elt", #0 } in
+    let: "block" := { (), (), #true, "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "block" ;;
-    "block" <-{next_block} "block" ;;
     "block" <-{next_split} "block" ;;
     "block" <-{work_list_next} "block" ;;
     let: "t" := { "block", ‘Some( "block" ) } in
@@ -161,9 +160,7 @@ Definition partition_add_same_class : val :=
 Definition partition_add_new_class : val :=
   fun: "t" "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" :=
-      { "t".{blocks_head}, (), (), #true, "elt", "elt", #1, "elt", #0 }
-    in
+    let: "block" := { (), (), #true, "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "block" ;;
@@ -195,8 +192,7 @@ Definition partition_split_at : val :=
       "elt_class" <-{split_len} #0 ;;
       "elt_class" <-{len} "elt_class".{len} - "elt_class_split_len" ;;
       let: "class_descr" :=
-        { "t".{blocks_head},
-          (),
+        { (),
           (),
           #false,
           "elt_class_first",

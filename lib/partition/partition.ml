@@ -57,8 +57,7 @@ let rec dllist_iter fn from to_ =
     dllist_iter fn from.next to_
 
 type 'a block =
-  { mutable next_block: 'a block [@warning "-69"];
-    mutable next_split: 'a block;
+  { mutable next_split: 'a block;
     mutable work_list_next: 'a block [@warning "-69"];
     mutable in_work_list: bool;
     mutable first: ('a, 'a block) dllist;
@@ -145,8 +144,7 @@ let create v =
     }
   in
   let block =
-    { next_block= Obj.magic ();
-      next_split= Obj.magic ();
+    { next_split= Obj.magic ();
       work_list_next= Obj.magic ();
       in_work_list= true;
       first= elt;
@@ -159,7 +157,6 @@ let create v =
   elt.prev <- elt ;
   elt.next <- elt ;
   elt.class_ <- block ;
-  block.next_block <- block ;
   block.next_split <- block ;
   block.work_list_next <- block ;
   let t =
@@ -187,8 +184,7 @@ let add_new_class t v =
     }
   in
   let block =
-    { next_block= t.blocks_head;
-      next_split= Obj.magic ();
+    { next_split= Obj.magic ();
       work_list_next= Obj.magic ();
       in_work_list= true;
       first= elt;
@@ -220,8 +216,7 @@ let split_at elt_class t =
     elt_class.split_len <- 0 ;
     elt_class.len <- elt_class.len - elt_class_split_len ;
     let class_descr =
-      { next_block= t.blocks_head;
-        next_split= Obj.magic ();
+      { next_split= Obj.magic ();
         work_list_next= Obj.magic ();
         in_work_list= false;
         first= elt_class_first;
