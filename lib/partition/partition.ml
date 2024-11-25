@@ -83,35 +83,6 @@ let class_swap class_ cell1 cell2 =
       class_.last <- cell2 ;
     dllist_swap cell1 cell2
   )
-let class_record_split start_of_split_list cell =
-  let class_ = cell.class_ in
-  if class_is_singleton class_ || cell.seen then (
-    start_of_split_list
-  ) else (
-    cell.seen <- true ;
-    let cur_split_start = class_.split_start in
-    if cur_split_start == class_.last then (
-      class_.split_start <- class_.first ;
-      class_.split_len <- 0 ;
-      start_of_split_list
-    ) else (
-      let never_split = cur_split_start == class_.first in
-      class_swap class_ cur_split_start cell ;
-      class_.split_start <- cell.next ;
-      class_.split_len <- class_.split_len + 1 ;
-      if never_split then (
-        begin match start_of_split_list with
-        | None ->
-            ()
-        | Some list_head ->
-            class_.next_split <- list_head
-        end ;
-        Some class_
-      ) else (
-        start_of_split_list
-      )
-    )
-  )
 
 type 'a elt =
   'a dllist
@@ -192,6 +163,36 @@ let add_new_class t v =
   t.classes_head <- class_ ;
   elt
 
+let record_split start_of_split_list cell =
+  let class_ = cell.class_ in
+  if class_is_singleton class_ || cell.seen then (
+    start_of_split_list
+  ) else (
+    cell.seen <- true ;
+    let cur_split_start = class_.split_start in
+    if cur_split_start == class_.last then (
+      class_.split_start <- class_.first ;
+      class_.split_len <- 0 ;
+      start_of_split_list
+    ) else (
+      let never_split = cur_split_start == class_.first in
+      class_swap class_ cur_split_start cell ;
+      class_.split_start <- cell.next ;
+      class_.split_len <- class_.split_len + 1 ;
+      if never_split then (
+        begin match start_of_split_list with
+        | None ->
+            ()
+        | Some list_head ->
+            class_.next_split <- list_head
+        end ;
+        Some class_
+      ) else (
+        start_of_split_list
+      )
+    )
+  )
+
 let split_at elt_class t =
   let elt = elt_class.split_start in
   let elt_class_first = elt_class.first in
@@ -233,7 +234,7 @@ let rec split_classes class_ t =
     split_classes next t
 
 let refine t elts =
-  match Lst.foldl class_record_split None elts with
+  match Lst.foldl record_split None elts with
   | None ->
       ()
   | Some split_list ->
