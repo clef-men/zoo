@@ -65,8 +65,6 @@ let rec dllist_iter fn from to_ =
   if from != to_ then
     dllist_iter fn from.next to_
 
-let class_iter fn class_ =
-  dllist_iter fn class_.first class_.last
 let class_is_singleton class_ =
   class_.len == 1
 let class_swap class_ elt1 elt2 =
@@ -83,6 +81,8 @@ let class_swap class_ elt1 elt2 =
       class_.last <- elt2 ;
     dllist_swap elt1 elt2
   )
+let class_iter fn class_ =
+  dllist_iter fn class_.first class_.last
 
 type 'a elt =
   'a dllist

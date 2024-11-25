@@ -59,10 +59,6 @@ Definition partition_dllist_iter : val :=
       "dllist_iter" "fn" "from".{next} "to_"
     ).
 
-Definition partition_class_iter : val :=
-  fun: "fn" "class_" =>
-    partition_dllist_iter "fn" "class_".{first} "class_".{last}.
-
 Definition partition_class_is_singleton : val :=
   fun: "class_" =>
     "class_".{len} == #1.
@@ -84,6 +80,10 @@ Definition partition_class_swap : val :=
       ) ;;
       partition_dllist_swap "elt1" "elt2"
     ).
+
+Definition partition_class_iter : val :=
+  fun: "fn" "class_" =>
+    partition_dllist_iter "fn" "class_".{first} "class_".{last}.
 
 Definition partition_elt_equal : val :=
   fun: "1" "2" =>
