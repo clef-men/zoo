@@ -2,12 +2,21 @@
    https://gitlab.inria.fr/salto/salto-analyzer/-/blob/f75df173336d0671a38d6bb1fe7ab7a22bddc01a/src/domains/nablaRec/partition.ml
 *)
 
-type ('a, 'c) dllist =
-  { mutable prev: ('a, 'c) dllist;
-    mutable next: ('a, 'c) dllist;
+type 'a dllist =
+  { mutable prev: 'a dllist;
+    mutable next: 'a dllist;
     data: 'a;
-    mutable class_: 'c;
+    mutable class_: 'a class_;
     mutable seen: bool;
+  }
+
+and 'a class_ =
+  { mutable next_split: 'a class_;
+    mutable first: 'a dllist;
+    mutable last: 'a dllist;
+    mutable len: int;
+    mutable split_start: 'a dllist;
+    mutable split_len: int;
   }
 
 let dllist_create v class_ =
@@ -56,69 +65,56 @@ let rec dllist_iter fn from to_ =
   if from != to_ then
     dllist_iter fn from.next to_
 
-type 'a block =
-  { mutable next_split: 'a block;
-    mutable first: ('a, 'a block) dllist;
-    mutable last: ('a, 'a block) dllist;
-    mutable len: int;
-    mutable split_start: ('a, 'a block) dllist;
-    mutable split_len: int;
-  }
-
-let block_iter fn block =
-  dllist_iter fn block.first block.last
-let block_is_singleton block =
-  block.len == 1
-let block_swap block cell1 cell2 =
+let class_iter fn class_ =
+  dllist_iter fn class_.first class_.last
+let class_is_singleton class_ =
+  class_.len == 1
+let class_swap class_ cell1 cell2 =
   if cell1 != cell2 then (
-    let first = block.first in
-    let last = block.last in
+    let first = class_.first in
+    let last = class_.last in
     if first == cell1 then
-      block.first <- cell2
+      class_.first <- cell2
     else if first == cell2 then
-      block.first <- cell1 ;
+      class_.first <- cell1 ;
     if last == cell2 then
-      block.last <- cell1
+      class_.last <- cell1
     else if last == cell1 then
-      block.last <- cell2 ;
+      class_.last <- cell2 ;
     dllist_swap cell1 cell2
   )
-let block_record_split start_of_split_list cell =
-  let block = cell.class_ in
-  if block_is_singleton block || cell.seen then (
+let class_record_split start_of_split_list cell =
+  let class_ = cell.class_ in
+  if class_is_singleton class_ || cell.seen then (
     start_of_split_list
   ) else (
     cell.seen <- true ;
-    let cur_split_start = block.split_start in
-    if cur_split_start == block.last then (
-      block.split_start <- block.first ;
-      block.split_len <- 0 ;
+    let cur_split_start = class_.split_start in
+    if cur_split_start == class_.last then (
+      class_.split_start <- class_.first ;
+      class_.split_len <- 0 ;
       start_of_split_list
     ) else (
-      let never_split = cur_split_start == block.first in
-      block_swap block cur_split_start cell ;
-      block.split_start <- cell.next ;
-      block.split_len <- block.split_len + 1 ;
+      let never_split = cur_split_start == class_.first in
+      class_swap class_ cur_split_start cell ;
+      class_.split_start <- cell.next ;
+      class_.split_len <- class_.split_len + 1 ;
       if never_split then (
         begin match start_of_split_list with
         | None ->
             ()
         | Some list_head ->
-            block.next_split <- list_head
+            class_.next_split <- list_head
         end ;
-        Some block
+        Some class_
       ) else (
         start_of_split_list
       )
     )
   )
 
-type 'a t =
-  { mutable blocks_head: 'a block;
-  }
-
 type 'a elt =
-  ('a, 'a block) dllist
+  'a dllist
 
 let elt_equal =
   (==)
@@ -131,6 +127,10 @@ let elt_get elt =
 let elt_cardinal elt =
   elt.class_.len
 
+type 'a t =
+  { mutable classes_head: 'a class_;
+  }
+
 let create v =
   let elt =
     { prev= Obj.magic ();
@@ -140,7 +140,7 @@ let create v =
       seen= false;
     }
   in
-  let block =
+  let class_ =
     { next_split= Obj.magic ();
       first= elt;
       last= elt;
@@ -151,10 +151,10 @@ let create v =
   in
   elt.prev <- elt ;
   elt.next <- elt ;
-  elt.class_ <- block ;
-  block.next_split <- block ;
+  elt.class_ <- class_ ;
+  class_.next_split <- class_ ;
   let t =
-    { blocks_head= block;
+    { classes_head= class_;
     }
   in
   t, elt
@@ -176,7 +176,7 @@ let add_new_class t v =
       seen= false;
     }
   in
-  let block =
+  let class_ =
     { next_split= Obj.magic ();
       first= elt;
       last= elt;
@@ -187,16 +187,16 @@ let add_new_class t v =
   in
   elt.prev <- elt ;
   elt.next <- elt ;
-  elt.class_ <- block ;
-  block.next_split <- block ;
-  t.blocks_head <- block ;
+  elt.class_ <- class_ ;
+  class_.next_split <- class_ ;
+  t.classes_head <- class_ ;
   elt
 
 let split_at elt_class t =
   let elt = elt_class.split_start in
   let elt_class_first = elt_class.first in
   if elt == elt_class_first then (
-    block_iter (fun cell -> cell.seen <- false) elt_class
+    class_iter (fun cell -> cell.seen <- false) elt_class
   ) else (
     let old_prev = elt.prev in
     elt_class.first <- elt ;
@@ -214,7 +214,7 @@ let split_at elt_class t =
       }
     in
     class_descr.next_split <- class_descr ;
-    t.blocks_head <- class_descr ;
+    t.classes_head <- class_descr ;
     dllist_iter (fun elt ->
       elt.class_ <- class_descr ;
       elt.seen <- false
@@ -233,7 +233,7 @@ let rec split_classes class_ t =
     split_classes next t
 
 let refine t elts =
-  match Lst.foldl block_record_split None elts with
+  match Lst.foldl class_record_split None elts with
   | None ->
       ()
   | Some split_list ->

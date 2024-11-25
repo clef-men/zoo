@@ -59,57 +59,57 @@ Definition partition_dllist_iter : val :=
       "dllist_iter" "fn" "from".{next} "to_"
     ).
 
-Definition partition_block_iter : val :=
-  fun: "fn" "block" =>
-    partition_dllist_iter "fn" "block".{first} "block".{last}.
+Definition partition_class_iter : val :=
+  fun: "fn" "class_" =>
+    partition_dllist_iter "fn" "class_".{first} "class_".{last}.
 
-Definition partition_block_is_singleton : val :=
-  fun: "block" =>
-    "block".{len} == #1.
+Definition partition_class_is_singleton : val :=
+  fun: "class_" =>
+    "class_".{len} == #1.
 
-Definition partition_block_swap : val :=
-  fun: "block" "cell1" "cell2" =>
+Definition partition_class_swap : val :=
+  fun: "class_" "cell1" "cell2" =>
     if: "cell1" != "cell2" then (
-      let: "first" := "block".{first} in
-      let: "last" := "block".{last} in
+      let: "first" := "class_".{first} in
+      let: "last" := "class_".{last} in
       if: "first" == "cell1" then (
-        "block" <-{first} "cell2"
+        "class_" <-{first} "cell2"
       ) else if: "first" == "cell2" then (
-        "block" <-{first} "cell1"
+        "class_" <-{first} "cell1"
       ) ;;
       if: "last" == "cell2" then (
-        "block" <-{last} "cell1"
+        "class_" <-{last} "cell1"
       ) else if: "last" == "cell1" then (
-        "block" <-{last} "cell2"
+        "class_" <-{last} "cell2"
       ) ;;
       partition_dllist_swap "cell1" "cell2"
     ).
 
-Definition partition_block_record_split : val :=
+Definition partition_class_record_split : val :=
   fun: "start_of_split_list" "cell" =>
-    let: "block" := "cell".{class_} in
-    if: partition_block_is_singleton "block" or "cell".{seen} then (
+    let: "class_" := "cell".{class_} in
+    if: partition_class_is_singleton "class_" or "cell".{seen} then (
       "start_of_split_list"
     ) else (
       "cell" <-{seen} #true ;;
-      let: "cur_split_start" := "block".{split_start} in
-      if: "cur_split_start" == "block".{last} then (
-        "block" <-{split_start} "block".{first} ;;
-        "block" <-{split_len} #0 ;;
+      let: "cur_split_start" := "class_".{split_start} in
+      if: "cur_split_start" == "class_".{last} then (
+        "class_" <-{split_start} "class_".{first} ;;
+        "class_" <-{split_len} #0 ;;
         "start_of_split_list"
       ) else (
-        let: "never_split" := "cur_split_start" == "block".{first} in
-        partition_block_swap "block" "cur_split_start" "cell" ;;
-        "block" <-{split_start} "cell".{next} ;;
-        "block" <-{split_len} "block".{split_len} + #1 ;;
+        let: "never_split" := "cur_split_start" == "class_".{first} in
+        partition_class_swap "class_" "cur_split_start" "cell" ;;
+        "class_" <-{split_start} "cell".{next} ;;
+        "class_" <-{split_len} "class_".{split_len} + #1 ;;
         if: "never_split" then (
           match: "start_of_split_list" with
           | None =>
               ()
           | Some "list_head" =>
-              "block" <-{next_split} "list_head"
+              "class_" <-{next_split} "list_head"
           end ;;
-          ‘Some( "block" )
+          ‘Some( "class_" )
         ) else (
           "start_of_split_list"
         )
@@ -139,12 +139,12 @@ Definition partition_elt_cardinal : val :=
 Definition partition_create : val :=
   fun: "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" := { (), "elt", "elt", #1, "elt", #0 } in
+    let: "class_" := { (), "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
-    "elt" <-{class_} "block" ;;
-    "block" <-{next_split} "block" ;;
-    let: "t" := { "block" } in
+    "elt" <-{class_} "class_" ;;
+    "class_" <-{next_split} "class_" ;;
+    let: "t" := { "class_" } in
     ("t", "elt").
 
 Definition partition_add_same_class : val :=
@@ -159,12 +159,12 @@ Definition partition_add_same_class : val :=
 Definition partition_add_new_class : val :=
   fun: "t" "v" =>
     let: "elt" := { (), (), "v", (), #false } in
-    let: "block" := { (), "elt", "elt", #1, "elt", #0 } in
+    let: "class_" := { (), "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
-    "elt" <-{class_} "block" ;;
-    "block" <-{next_split} "block" ;;
-    "t" <-{blocks_head} "block" ;;
+    "elt" <-{class_} "class_" ;;
+    "class_" <-{next_split} "class_" ;;
+    "t" <-{classes_head} "class_" ;;
     "elt".
 
 Definition partition_split_at : val :=
@@ -172,7 +172,7 @@ Definition partition_split_at : val :=
     let: "elt" := "elt_class".{split_start} in
     let: "elt_class_first" := "elt_class".{first} in
     if: "elt" == "elt_class_first" then (
-      partition_block_iter
+      partition_class_iter
         (fun: "cell" => "cell" <-{seen} #false)
         "elt_class"
     ) else (
@@ -192,7 +192,7 @@ Definition partition_split_at : val :=
         }
       in
       "class_descr" <-{next_split} "class_descr" ;;
-      "t" <-{blocks_head} "class_descr" ;;
+      "t" <-{classes_head} "class_descr" ;;
       partition_dllist_iter
         (fun: "elt" => "elt" <-{class_} "class_descr" ;;
                        "elt" <-{seen} #false)
@@ -216,7 +216,7 @@ Definition partition_split_classes : val :=
 
 Definition partition_refine : val :=
   fun: "t" "elts" =>
-    match: lst_foldl partition_block_record_split §None "elts" with
+    match: lst_foldl partition_class_record_split §None "elts" with
     | None =>
         ()
     | Some "split_list" =>

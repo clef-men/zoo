@@ -30,31 +30,31 @@ Notation "'seen'" := (
 ).
 
 Notation "'next_split'" := (
-  in_type "block" 0
+  in_type "class_" 0
 )(in custom zoo_field
 ).
 Notation "'first'" := (
-  in_type "block" 1
+  in_type "class_" 1
 )(in custom zoo_field
 ).
 Notation "'last'" := (
-  in_type "block" 2
+  in_type "class_" 2
 )(in custom zoo_field
 ).
 Notation "'len'" := (
-  in_type "block" 3
+  in_type "class_" 3
 )(in custom zoo_field
 ).
 Notation "'split_start'" := (
-  in_type "block" 4
+  in_type "class_" 4
 )(in custom zoo_field
 ).
 Notation "'split_len'" := (
-  in_type "block" 5
+  in_type "class_" 5
 )(in custom zoo_field
 ).
 
-Notation "'blocks_head'" := (
+Notation "'classes_head'" := (
   in_type "t" 0
 )(in custom zoo_field
 ).
