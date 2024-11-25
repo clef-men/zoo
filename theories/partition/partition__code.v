@@ -168,34 +168,28 @@ Definition partition_record_split : val :=
     ).
 
 Definition partition_split_class : val :=
-  fun: "t" "elt_class" =>
-    let: "elt" := "elt_class".{split_start} in
-    let: "elt_class_first" := "elt_class".{first} in
-    if: "elt" == "elt_class_first" then (
-      partition_class_iter (fun: "elt" => "elt" <-{seen} #false) "elt_class"
+  fun: "t" "class_" =>
+    let: "elt" := "class_".{split_start} in
+    let: "first" := "class_".{first} in
+    if: "elt" == "first" then (
+      partition_class_iter (fun: "elt" => "elt" <-{seen} #false) "class_"
     ) else (
-      let: "old_prev" := "elt".{prev} in
-      "elt_class" <-{first} "elt" ;;
-      "elt_class" <-{split_start} "elt" ;;
-      let: "elt_class_split_len" := "elt_class".{split_len} in
-      "elt_class" <-{split_len} #0 ;;
-      "elt_class" <-{len} "elt_class".{len} - "elt_class_split_len" ;;
+      let: "prev" := "elt".{prev} in
+      "class_" <-{first} "elt" ;;
+      "class_" <-{split_start} "elt" ;;
+      let: "split_len" := "class_".{split_len} in
+      "class_" <-{split_len} #0 ;;
+      "class_" <-{len} "class_".{len} - "split_len" ;;
       let: "class_descr" :=
-        { (),
-          "elt_class_first",
-          "old_prev",
-          "elt_class_split_len",
-          "elt_class_first",
-          #0
-        }
+        { (), "first", "prev", "split_len", "first", #0 }
       in
       "class_descr" <-{next_split} "class_descr" ;;
       "t" <-{classes_head} "class_descr" ;;
       partition_dllist_iter
         (fun: "elt" => "elt" <-{class_} "class_descr" ;;
                        "elt" <-{seen} #false)
-        "elt_class_first"
-        "old_prev"
+        "first"
+        "prev"
     ).
 
 Definition partition_split_classes : val :=

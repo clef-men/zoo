@@ -193,24 +193,24 @@ let record_split start_of_split_list elt =
     )
   )
 
-let split_class t elt_class =
-  let elt = elt_class.split_start in
-  let elt_class_first = elt_class.first in
-  if elt == elt_class_first then (
-    class_iter (fun elt -> elt.seen <- false) elt_class
+let split_class t class_ =
+  let elt = class_.split_start in
+  let first = class_.first in
+  if elt == first then (
+    class_iter (fun elt -> elt.seen <- false) class_
   ) else (
-    let old_prev = elt.prev in
-    elt_class.first <- elt ;
-    elt_class.split_start <- elt ;
-    let elt_class_split_len = elt_class.split_len in
-    elt_class.split_len <- 0 ;
-    elt_class.len <- elt_class.len - elt_class_split_len ;
+    let prev = elt.prev in
+    class_.first <- elt ;
+    class_.split_start <- elt ;
+    let split_len = class_.split_len in
+    class_.split_len <- 0 ;
+    class_.len <- class_.len - split_len ;
     let class_descr =
       { next_split= Obj.magic ();
-        first= elt_class_first;
-        last= old_prev;
-        len= elt_class_split_len;
-        split_start= elt_class_first;
+        first= first;
+        last= prev;
+        len= split_len;
+        split_start= first;
         split_len= 0;
       }
     in
@@ -219,7 +219,7 @@ let split_class t elt_class =
     dllist_iter (fun elt ->
       elt.class_ <- class_descr ;
       elt.seen <- false
-    ) elt_class_first old_prev
+    ) first prev
   )
 
 let rec split_classes t class_ =
