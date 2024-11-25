@@ -193,7 +193,7 @@ let record_split start_of_split_list cell =
     )
   )
 
-let split_at elt_class t =
+let split_class elt_class t =
   let elt = elt_class.split_start in
   let elt_class_first = elt_class.first in
   if elt == elt_class_first then (
@@ -222,14 +222,11 @@ let split_at elt_class t =
     ) elt_class_first old_prev
   )
 
-let split_class class_ t =
-  split_at class_ t ;
-  class_.split_start <- class_.first ;
-  class_.next_split <- class_
-
 let rec split_classes class_ t =
   let next = class_.next_split in
   split_class class_ t ;
+  class_.split_start <- class_.first ;
+  class_.next_split <- class_ ;
   if next != class_ then
     split_classes next t
 

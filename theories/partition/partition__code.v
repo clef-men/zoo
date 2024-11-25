@@ -167,7 +167,7 @@ Definition partition_record_split : val :=
       )
     ).
 
-Definition partition_split_at : val :=
+Definition partition_split_class : val :=
   fun: "elt_class" "t" =>
     let: "elt" := "elt_class".{split_start} in
     let: "elt_class_first" := "elt_class".{first} in
@@ -200,16 +200,12 @@ Definition partition_split_at : val :=
         "old_prev"
     ).
 
-Definition partition_split_class : val :=
-  fun: "class_" "t" =>
-    partition_split_at "class_" "t" ;;
-    "class_" <-{split_start} "class_".{first} ;;
-    "class_" <-{next_split} "class_".
-
 Definition partition_split_classes : val :=
   rec: "split_classes" "class_" "t" =>
     let: "next" := "class_".{next_split} in
     partition_split_class "class_" "t" ;;
+    "class_" <-{split_start} "class_".{first} ;;
+    "class_" <-{next_split} "class_" ;;
     if: "next" != "class_" then (
       "split_classes" "next" "t"
     ).
