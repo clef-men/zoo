@@ -167,16 +167,16 @@ Definition partition_record_split : val :=
 
 Definition partition_split_class : val :=
   fun: "class_" =>
-    let: "split_start" := "class_".{split_start} in
     let: "first" := "class_".{first} in
+    let: "split_start" := "class_".{split_start} in
     if: "split_start" == "first" then (
       partition_class_iter (fun: "elt" => "elt" <-{seen} #false) "class_"
     ) else (
-      let: "prev" := "split_start".{prev} in
       "class_" <-{first} "split_start" ;;
       let: "split_len" := "class_".{split_len} in
       "class_" <-{split_len} #0 ;;
       "class_" <-{len} "class_".{len} - "split_len" ;;
+      let: "prev" := "split_start".{prev} in
       let: "class'" := { (), "first", "prev", "split_len", "first", #0 } in
       "class'" <-{next_split} "class'" ;;
       partition_dllist_iter
@@ -188,9 +188,9 @@ Definition partition_split_class : val :=
 
 Definition partition_split_classes : val :=
   rec: "split_classes" "class_" =>
-    let: "next" := "class_".{next_split} in
     partition_split_class "class_" ;;
     "class_" <-{split_start} "class_".{first} ;;
+    let: "next" := "class_".{next_split} in
     "class_" <-{next_split} "class_" ;;
     if: "next" != "class_" then (
       "split_classes" "next"
