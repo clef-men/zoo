@@ -161,11 +161,11 @@ let record_split split_list elt =
       class_.split_len <- 0 ;
       split_list
     ) else (
-      let never_split = split_start == class_.first in
+      let record_class = split_start == class_.first in
       class_swap class_ split_start elt ;
       class_.split_start <- elt.next ;
       class_.split_len <- class_.split_len + 1 ;
-      if never_split then
+      if record_class then
         class_ :: split_list
       else
         split_list
