@@ -139,14 +139,14 @@ Definition partition_record_split : val :=
       "split_list"
     ) else (
       "elt" <-{seen} #true ;;
-      let: "cur_split_start" := "class_".{split_start} in
-      if: "cur_split_start" == "class_".{last} then (
+      let: "split_start" := "class_".{split_start} in
+      if: "split_start" == "class_".{last} then (
         "class_" <-{split_start} "class_".{first} ;;
         "class_" <-{split_len} #0 ;;
         "split_list"
       ) else (
-        let: "never_split" := "cur_split_start" == "class_".{first} in
-        partition_class_swap "class_" "cur_split_start" "elt" ;;
+        let: "never_split" := "split_start" == "class_".{first} in
+        partition_class_swap "class_" "split_start" "elt" ;;
         "class_" <-{split_start} "elt".{next} ;;
         "class_" <-{split_len} "class_".{split_len} + #1 ;;
         if: "never_split" then (
