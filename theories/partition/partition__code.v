@@ -173,9 +173,11 @@ Definition partition_split_class : val :=
       partition_class_iter (fun: "elt" => "elt" <-{seen} #false) "class_"
     ) else (
       "class_" <-{first} "split_start" ;;
+      "class_" <-{split_start} "split_start" ;;
       let: "split_len" := "class_".{split_len} in
       "class_" <-{split_len} #0 ;;
       "class_" <-{len} "class_".{len} - "split_len" ;;
+      "class_" <-{next_split} "class_" ;;
       let: "prev" := "split_start".{prev} in
       let: "class'" := { (), "first", "prev", "split_len", "first", #0 } in
       "class'" <-{next_split} "class'" ;;
@@ -188,10 +190,8 @@ Definition partition_split_class : val :=
 
 Definition partition_split_classes : val :=
   rec: "split_classes" "class_" =>
-    partition_split_class "class_" ;;
-    "class_" <-{split_start} "class_".{first} ;;
     let: "next" := "class_".{next_split} in
-    "class_" <-{next_split} "class_" ;;
+    partition_split_class "class_" ;;
     if: "next" != "class_" then (
       "split_classes" "next"
     ).
