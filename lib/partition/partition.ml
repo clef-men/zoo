@@ -197,7 +197,7 @@ let split_class class_ =
     class_.len <- class_.len - split_len ;
     let class_descr =
       { next_split= Obj.magic ();
-        first= first;
+        first;
         last= prev;
         len= split_len;
         split_start= first;
