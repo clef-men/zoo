@@ -53,8 +53,3 @@ Notation "'split_len'" := (
   in_type "class_" 5
 )(in custom zoo_field
 ).
-
-Notation "'classes_head'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).

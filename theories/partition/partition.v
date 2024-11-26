@@ -17,42 +17,43 @@ Implicit Types b : bool.
 Implicit Types sz : nat.
 Implicit Types elt : location.
 Implicit Types elts : list location.
-Implicit Types v v_elts t : val.
+Implicit Types v v_elts : val.
 Implicit Types cl : gset location.
 Implicit Types part : gset (gset location).
+Implicit Types γ : gname.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Definition partition_model t part : iProp Σ.
+  Definition partition_model γ part : iProp Σ.
   Admitted.
 
-  Definition partition_elt t elt v : iProp Σ.
+  Definition partition_elt γ elt v : iProp Σ.
   Admitted.
 
-  (* #[global] Instance partition_model_timeless t part : *)
-  (*   Timeless (partition_model t part). *)
+  (* #[global] Instance partition_model_timeless γ part : *)
+  (*   Timeless (partition_model γ part). *)
   (* Proof. *)
   (*   apply _. *)
   (* Qed. *)
-  (* #[global] Instance partition_elt_timeless t elt v : *)
-  (*   Timeless (partition_elt t elt v). *)
+  (* #[global] Instance partition_elt_timeless γ elt v : *)
+  (*   Timeless (partition_elt γ elt v). *)
   (* Proof. *)
   (*   apply _. *)
   (* Qed. *)
 
-  Lemma partition_model_non_empty {t part} cl :
+  Lemma partition_model_non_empty {γ part} cl :
     cl ∈ part →
-    partition_model t part ⊢
+    partition_model γ part ⊢
     ⌜cl ≠ ∅⌝.
   Proof.
   Admitted.
-  Lemma partition_model_disjoint {t part} elt cl1 cl2 :
+  Lemma partition_model_disjoint {γ part} elt cl1 cl2 :
     cl1 ∈ part →
     elt ∈ cl1 →
     cl2 ∈ part →
     elt ∈ cl2 →
-    partition_model t part ⊢
+    partition_model γ part ⊢
     ⌜cl1 = cl2⌝.
   Proof.
   Admitted.
@@ -63,41 +64,41 @@ Section zoo_G.
     False.
   Proof.
   Admitted.
-  Lemma partition_elt_valid t part elt v :
-    partition_model t part -∗
-    partition_elt t elt v -∗
+  Lemma partition_elt_valid γ part elt v :
+    partition_model γ part -∗
+    partition_elt γ elt v -∗
       ∃ cl,
       ⌜cl ∈ part⌝ ∗
       ⌜elt ∈ cl⌝.
   Proof.
   Admitted.
 
-  Lemma partition_elt_equal_spec t elt1 v1 elt2 v2 :
+  Lemma partition_elt_equal_spec γ elt1 v1 elt2 v2 :
     {{{
-      partition_elt t elt1 v1 ∗
-      partition_elt t elt2 v2
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2
     }}}
       partition_elt_equal #elt1 #elt2
     {{{
       RET #(bool_decide (elt1 = elt2));
-      partition_elt t elt1 v1 ∗
-      partition_elt t elt2 v2
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2
     }}}.
   Proof.
   Admitted.
 
-  Lemma partition_elt_equiv_spec t part elt1 v1 elt2 v2 :
+  Lemma partition_elt_equiv_spec γ part elt1 v1 elt2 v2 :
     {{{
-      partition_model t part ∗
-      partition_elt t elt1 v1 ∗
-      partition_elt t elt2 v2
+      partition_model γ part ∗
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2
     }}}
       partition_elt_equiv #elt1 #elt2
     {{{ b,
       RET #b;
-      partition_model t part ∗
-      partition_elt t elt1 v1 ∗
-      partition_elt t elt2 v2 ∗
+      partition_model γ part ∗
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2 ∗
       ⌜ ∀ cl1 cl2,
         cl1 ∈ part →
         elt1 ∈ cl1 →
@@ -109,16 +110,16 @@ Section zoo_G.
   Proof.
   Admitted.
 
-  Lemma partition_elt_repr_spec t part elt v :
+  Lemma partition_elt_repr_spec γ part elt v :
     {{{
-      partition_model t part ∗
-      partition_elt t elt v
+      partition_model γ part ∗
+      partition_elt γ elt v
     }}}
       partition_elt_repr #elt
     {{{ elt',
       RET #elt';
-      partition_model t part ∗
-      partition_elt t elt v ∗
+      partition_model γ part ∗
+      partition_elt γ elt v ∗
       ⌜ ∀ cl,
         cl ∈ part →
         elt ∈ cl ↔ elt' ∈ cl
@@ -127,28 +128,28 @@ Section zoo_G.
   Proof.
   Admitted.
 
-  Lemma partition_elt_get_spec t elt v :
+  Lemma partition_elt_get_spec γ elt v :
     {{{
-      partition_elt t elt v
+      partition_elt γ elt v
     }}}
       partition_elt_get #elt
     {{{
       RET v;
-      partition_elt t elt v
+      partition_elt γ elt v
     }}}.
   Proof.
   Admitted.
 
-  Lemma partition_elt_cardinal_spec t part elt v :
+  Lemma partition_elt_cardinal_spec γ part elt v :
     {{{
-      partition_model t part ∗
-      partition_elt t elt v
+      partition_model γ part ∗
+      partition_elt γ elt v
     }}}
       partition_elt_cardinal #elt
     {{{ sz,
       RET #sz;
-      partition_model t part ∗
-      partition_elt t elt v ∗
+      partition_model γ part ∗
+      partition_elt γ elt v ∗
       ⌜ ∀ cl,
         cl ∈ part →
         elt ∈ cl →
@@ -163,25 +164,25 @@ Section zoo_G.
       True
     }}}
       partition_create v
-    {{{ t elt,
-      RET (t, #elt);
-      partition_model t {[{[elt]}]} ∗
-      partition_elt t elt v
+    {{{ γ elt,
+      RET #elt;
+      partition_model γ {[{[elt]}]} ∗
+      partition_elt γ elt v
     }}}.
   Proof.
   Admitted.
 
-  Lemma partition_add_same_class_spec t part elt v v' :
+  Lemma partition_add_same_class_spec γ part elt v v' :
     {{{
-      partition_model t part ∗
-      partition_elt t elt v
+      partition_model γ part ∗
+      partition_elt γ elt v
     }}}
       partition_add_same_class #elt v'
     {{{ elt' part',
       RET #elt';
-      partition_model t part' ∗
-      partition_elt t elt v ∗
-      partition_elt t elt' v' ∗
+      partition_model γ part' ∗
+      partition_elt γ elt v ∗
+      partition_elt γ elt' v' ∗
       ⌜ ∃ part'' cl,
         elt ∈ cl ∧
         part = part'' ∪ {[cl]} ∧
@@ -191,28 +192,28 @@ Section zoo_G.
   Proof.
   Admitted.
 
-  Lemma partition_add_new_class_spec t part v :
+  Lemma partition_add_new_class_spec γ part v :
     {{{
-      partition_model t part
+      partition_model γ part
     }}}
-      partition_add_new_class t v
+      partition_add_new_class v
     {{{ elt,
       RET #elt;
-      partition_model t (part ∪ {[{[elt]}]}) ∗
-      partition_elt t elt v
+      partition_model γ (part ∪ {[{[elt]}]}) ∗
+      partition_elt γ elt v
     }}}.
   Proof.
   Admitted.
 
-  Lemma partition_refine_spec {t part v_elts} elts :
+  Lemma partition_refine_spec {γ part v_elts} elts :
     lst_model' v_elts (#@{location} <$> elts) →
     {{{
-      partition_model t part
+      partition_model γ part
     }}}
-      partition_refine t v_elts
+      partition_refine v_elts
     {{{ part',
       RET ();
-      partition_model t part' ∗
+      partition_model γ part' ∗
       ⌜ ∀ cl',
         cl' ∈ part' ↔
           cl' ≠ ∅ ∧
@@ -226,3 +227,13 @@ Section zoo_G.
   Proof.
   Admitted.
 End zoo_G.
+
+#[global] Opaque partition_elt_equal.
+#[global] Opaque partition_elt_equiv.
+#[global] Opaque partition_elt_repr.
+#[global] Opaque partition_elt_get.
+#[global] Opaque partition_elt_cardinal.
+#[global] Opaque partition_create.
+#[global] Opaque partition_add_same_class.
+#[global] Opaque partition_add_new_class.
+#[global] Opaque partition_refine.

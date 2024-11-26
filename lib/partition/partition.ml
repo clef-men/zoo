@@ -98,10 +98,6 @@ let elt_get elt =
 let elt_cardinal elt =
   elt.class_.len
 
-type 'a t =
-  { mutable classes_head: 'a class_;
-  }
-
 let create v =
   let elt =
     { prev= Obj.magic ();
@@ -124,11 +120,7 @@ let create v =
   elt.next <- elt ;
   elt.class_ <- class_ ;
   class_.next_split <- class_ ;
-  let t =
-    { classes_head= class_;
-    }
-  in
-  t, elt
+  elt
 
 let add_same_class elt v =
   let class_ = elt.class_ in
@@ -138,7 +130,7 @@ let add_same_class elt v =
   class_.len <- class_.len + 1 ;
   elt
 
-let add_new_class t v =
+let add_new_class v =
   let elt =
     { prev= Obj.magic ();
       next= Obj.magic ();
@@ -160,7 +152,6 @@ let add_new_class t v =
   elt.next <- elt ;
   elt.class_ <- class_ ;
   class_.next_split <- class_ ;
-  t.classes_head <- class_ ;
   elt
 
 let record_split start_of_split_list elt =
@@ -193,7 +184,7 @@ let record_split start_of_split_list elt =
     )
   )
 
-let split_class t class_ =
+let split_class class_ =
   let elt = class_.split_start in
   let first = class_.first in
   if elt == first then (
@@ -215,24 +206,23 @@ let split_class t class_ =
       }
     in
     class_descr.next_split <- class_descr ;
-    t.classes_head <- class_descr ;
     dllist_iter (fun elt ->
       elt.class_ <- class_descr ;
       elt.seen <- false
     ) first prev
   )
 
-let rec split_classes t class_ =
+let rec split_classes class_ =
   let next = class_.next_split in
-  split_class t class_ ;
+  split_class class_ ;
   class_.split_start <- class_.first ;
   class_.next_split <- class_ ;
   if next != class_ then
-    split_classes t next
+    split_classes next
 
-let refine t elts =
+let refine elts =
   match Lst.foldl record_split None elts with
   | None ->
       ()
   | Some split_list ->
-      split_classes t split_list
+      split_classes split_list

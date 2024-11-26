@@ -113,8 +113,7 @@ Definition partition_create : val :=
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "class_" ;;
     "class_" <-{next_split} "class_" ;;
-    let: "t" := { "class_" } in
-    ("t", "elt").
+    "elt".
 
 Definition partition_add_same_class : val :=
   fun: "elt" "v" =>
@@ -126,14 +125,13 @@ Definition partition_add_same_class : val :=
     "elt".
 
 Definition partition_add_new_class : val :=
-  fun: "t" "v" =>
+  fun: "v" =>
     let: "elt" := { (), (), "v", (), #false } in
     let: "class_" := { (), "elt", "elt", #1, "elt", #0 } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "class_" ;;
     "class_" <-{next_split} "class_" ;;
-    "t" <-{classes_head} "class_" ;;
     "elt".
 
 Definition partition_record_split : val :=
@@ -168,7 +166,7 @@ Definition partition_record_split : val :=
     ).
 
 Definition partition_split_class : val :=
-  fun: "t" "class_" =>
+  fun: "class_" =>
     let: "elt" := "class_".{split_start} in
     let: "first" := "class_".{first} in
     if: "elt" == "first" then (
@@ -184,7 +182,6 @@ Definition partition_split_class : val :=
         { (), "first", "prev", "split_len", "first", #0 }
       in
       "class_descr" <-{next_split} "class_descr" ;;
-      "t" <-{classes_head} "class_descr" ;;
       partition_dllist_iter
         (fun: "elt" => "elt" <-{class_} "class_descr" ;;
                        "elt" <-{seen} #false)
@@ -193,20 +190,20 @@ Definition partition_split_class : val :=
     ).
 
 Definition partition_split_classes : val :=
-  rec: "split_classes" "t" "class_" =>
+  rec: "split_classes" "class_" =>
     let: "next" := "class_".{next_split} in
-    partition_split_class "t" "class_" ;;
+    partition_split_class "class_" ;;
     "class_" <-{split_start} "class_".{first} ;;
     "class_" <-{next_split} "class_" ;;
     if: "next" != "class_" then (
-      "split_classes" "t" "next"
+      "split_classes" "next"
     ).
 
 Definition partition_refine : val :=
-  fun: "t" "elts" =>
+  fun: "elts" =>
     match: lst_foldl partition_record_split §None "elts" with
     | None =>
         ()
     | Some "split_list" =>
-        partition_split_classes "t" "split_list"
+        partition_split_classes "split_list"
     end.
