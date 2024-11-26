@@ -174,7 +174,6 @@ Definition partition_split_class : val :=
     ) else (
       let: "prev" := "elt".{prev} in
       "class_" <-{first} "elt" ;;
-      "class_" <-{split_start} "elt" ;;
       let: "split_len" := "class_".{split_len} in
       "class_" <-{split_len} #0 ;;
       "class_" <-{len} "class_".{len} - "split_len" ;;
