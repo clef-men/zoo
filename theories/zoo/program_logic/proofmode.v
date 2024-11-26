@@ -1,5 +1,3 @@
-From iris.proofmode Require Export
-  proofmode.
 From iris.proofmode Require Import
   coq_tactics
   reduction
@@ -7,6 +5,8 @@ From iris.proofmode Require Import
 
 From zoo Require Import
   prelude.
+From zoo.iris Require Export
+  proofmode.
 From zoo.iris Require Import
   diaframe.
 From zoo.iris.program_logic Require Export

@@ -5,8 +5,6 @@ From iris.algebra Require Import
 From iris.bi Require Import
   bi
   telescopes.
-From iris.proofmode Require Import
-  proofmode.
 
 From diaframe Require Import
   proofmode_base
@@ -16,6 +14,8 @@ From diaframe Require Import
 
 From zoo Require Import
   prelude.
+From zoo.iris Require Import
+  proofmode.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
