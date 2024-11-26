@@ -29,27 +29,23 @@ Notation "'seen'" := (
 )(in custom zoo_field
 ).
 
-Notation "'next_split'" := (
+Notation "'first'" := (
   in_type "class_" 0
 )(in custom zoo_field
 ).
-Notation "'first'" := (
+Notation "'last'" := (
   in_type "class_" 1
 )(in custom zoo_field
 ).
-Notation "'last'" := (
+Notation "'len'" := (
   in_type "class_" 2
 )(in custom zoo_field
 ).
-Notation "'len'" := (
+Notation "'split_start'" := (
   in_type "class_" 3
 )(in custom zoo_field
 ).
-Notation "'split_start'" := (
-  in_type "class_" 4
-)(in custom zoo_field
-).
 Notation "'split_len'" := (
-  in_type "class_" 5
+  in_type "class_" 4
 )(in custom zoo_field
 ).

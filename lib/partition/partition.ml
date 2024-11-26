@@ -11,8 +11,7 @@ type 'a dllist =
   }
 
 and 'a class_ =
-  { mutable next_split: 'a class_;
-    mutable first: 'a dllist;
+  { mutable first: 'a dllist;
     mutable last: 'a dllist;
     mutable len: int;
     mutable split_start: 'a dllist;
@@ -108,8 +107,7 @@ let create v =
     }
   in
   let class_ =
-    { next_split= Obj.magic ();
-      first= elt;
+    { first= elt;
       last= elt;
       len= 1;
       split_start= elt;
@@ -119,7 +117,6 @@ let create v =
   elt.prev <- elt ;
   elt.next <- elt ;
   elt.class_ <- class_ ;
-  class_.next_split <- class_ ;
   elt
 
 let add_same_class elt v =
@@ -140,8 +137,7 @@ let add_new_class v =
     }
   in
   let class_ =
-    { next_split= Obj.magic ();
-      first= elt;
+    { first= elt;
       last= elt;
       len= 1;
       split_start= elt;
@@ -151,36 +147,28 @@ let add_new_class v =
   elt.prev <- elt ;
   elt.next <- elt ;
   elt.class_ <- class_ ;
-  class_.next_split <- class_ ;
   elt
 
-let record_split start_of_split_list elt =
+let record_split split_list elt =
   let class_ = elt.class_ in
   if class_is_singleton class_ || elt.seen then (
-    start_of_split_list
+    split_list
   ) else (
     elt.seen <- true ;
     let cur_split_start = class_.split_start in
     if cur_split_start == class_.last then (
       class_.split_start <- class_.first ;
       class_.split_len <- 0 ;
-      start_of_split_list
+      split_list
     ) else (
       let never_split = cur_split_start == class_.first in
       class_swap class_ cur_split_start elt ;
       class_.split_start <- elt.next ;
       class_.split_len <- class_.split_len + 1 ;
-      if never_split then (
-        begin match start_of_split_list with
-        | None ->
-            ()
-        | Some list_head ->
-            class_.next_split <- list_head
-        end ;
-        Some class_
-      ) else (
-        start_of_split_list
-      )
+      if never_split then
+        class_ :: split_list
+      else
+        split_list
     )
   )
 
@@ -195,33 +183,22 @@ let split_class class_ =
     let split_len = class_.split_len in
     class_.split_len <- 0 ;
     class_.len <- class_.len - split_len ;
-    class_.next_split <- class_ ;
     let prev = split_start.prev in
     let class' =
-      { next_split= Obj.magic ();
-        first;
+      { first;
         last= prev;
         len= split_len;
         split_start= first;
         split_len= 0;
       }
     in
-    class'.next_split <- class' ;
     dllist_iter (fun elt ->
       elt.class_ <- class' ;
       elt.seen <- false
     ) first prev
   )
 
-let rec split_classes class_ =
-  let next = class_.next_split in
-  split_class class_ ;
-  if next != class_ then
-    split_classes next
-
 let refine elts =
-  match Lst.foldl record_split None elts with
-  | None ->
-      ()
-  | Some split_list ->
-      split_classes split_list
+  elts
+  |> Lst.foldl record_split []
+  |> Lst.iter split_class
