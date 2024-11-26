@@ -185,13 +185,13 @@ let record_split start_of_split_list elt =
   )
 
 let split_class class_ =
-  let elt = class_.split_start in
+  let split_start = class_.split_start in
   let first = class_.first in
-  if elt == first then (
+  if split_start == first then (
     class_iter (fun elt -> elt.seen <- false) class_
   ) else (
-    let prev = elt.prev in
-    class_.first <- elt ;
+    let prev = split_start.prev in
+    class_.first <- split_start ;
     let split_len = class_.split_len in
     class_.split_len <- 0 ;
     class_.len <- class_.len - split_len ;
