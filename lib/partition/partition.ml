@@ -195,7 +195,7 @@ let split_class class_ =
     let split_len = class_.split_len in
     class_.split_len <- 0 ;
     class_.len <- class_.len - split_len ;
-    let class_descr =
+    let class' =
       { next_split= Obj.magic ();
         first;
         last= prev;
@@ -204,9 +204,9 @@ let split_class class_ =
         split_len= 0;
       }
     in
-    class_descr.next_split <- class_descr ;
+    class'.next_split <- class' ;
     dllist_iter (fun elt ->
-      elt.class_ <- class_descr ;
+      elt.class_ <- class' ;
       elt.seen <- false
     ) first prev
   )

@@ -177,12 +177,10 @@ Definition partition_split_class : val :=
       let: "split_len" := "class_".{split_len} in
       "class_" <-{split_len} #0 ;;
       "class_" <-{len} "class_".{len} - "split_len" ;;
-      let: "class_descr" :=
-        { (), "first", "prev", "split_len", "first", #0 }
-      in
-      "class_descr" <-{next_split} "class_descr" ;;
+      let: "class'" := { (), "first", "prev", "split_len", "first", #0 } in
+      "class'" <-{next_split} "class'" ;;
       partition_dllist_iter
-        (fun: "elt" => "elt" <-{class_} "class_descr" ;;
+        (fun: "elt" => "elt" <-{class_} "class'" ;;
                        "elt" <-{seen} #false)
         "first"
         "prev"
