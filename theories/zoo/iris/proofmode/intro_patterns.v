@@ -129,9 +129,48 @@ with parse_clear (ts : list token) (k : stack) : option stack :=
   end
 with parse_custom custom args ts k :=
   match ts with
-  | TName arg :: ts => parse_custom custom (arg :: args) ts k
-  | TNat i :: ts => parse_custom custom (pretty i :: args) ts k
-  | TParenR :: ts => parse_go ts (StPat (ICustom custom (rev args)) :: k)
+  | TName arg :: ts =>
+      parse_custom custom (arg :: args) ts k
+  | TNat i :: ts =>
+      parse_custom custom (pretty i :: args) ts k
+  | TAnon :: ts =>
+      parse_custom custom ("?" :: args) ts k
+  | TFrame :: ts =>
+      parse_custom custom ("$" :: args) ts k
+  | TBar :: ts =>
+      parse_custom custom ("|" :: args) ts k
+  | TAmp :: ts =>
+      parse_custom custom ("&" :: args) ts k
+  | TPure str :: ts =>
+      parse_custom custom (("%" +:+ default "" str) :: args) ts k
+  | TIntuitionistic :: ts =>
+      parse_custom custom ("#" :: args) ts k
+  | TModal :: ts =>
+      parse_custom custom (">" :: args) ts k
+  | TPureIntro :: ts =>
+      parse_custom custom ("!%" :: args) ts k
+  | TIntuitionisticIntro :: ts =>
+      parse_custom custom ("!#" :: args) ts k
+  | TModalIntro :: ts =>
+      parse_custom custom ("!>" :: args) ts k
+  | TSimpl :: ts =>
+      parse_custom custom ("/=" :: args) ts k
+  | TDone :: ts =>
+      parse_custom custom ("//" :: args) ts k
+  | TForall :: ts =>
+      parse_custom custom ("*" :: args) ts k
+  | TAll :: ts =>
+      parse_custom custom ("**" :: args) ts k
+  | TMinus :: ts =>
+      parse_custom custom ("-" :: args) ts k
+  | TSep :: ts =>
+      parse_custom custom ("∗" :: args) ts k
+  | TArrow Left :: ts =>
+      parse_custom custom ("<-" :: args) ts k
+  | TArrow Right :: ts =>
+      parse_custom custom ("->" :: args) ts k
+  | TParenR :: ts =>
+      parse_go ts (StPat (ICustom custom (rev args)) :: k)
   | _ => None
   end.
 

@@ -26,38 +26,51 @@ From zoo.common Require Import
 
 Export ident.
 
-Class CustomIpat (custom : string) :=
-  custom_ipat : list string → option string.
-#[global] Arguments custom_ipat custom {CustomIpat} args : rename.
-#[global] Hint Mode CustomIpat + : typeclass_instances.
+Section custom_ipat.
+  Implicit Types custom : string.
 
-Class CustomIpat0 (custom : string) :=
-  custom_ipat_0 : string.
-#[global] Arguments custom_ipat_0 custom {CustomIpat0} : rename.
-#[global] Hint Mode CustomIpat0 + : typeclass_instances.
+  Class CustomIpat custom :=
+    custom_ipat : list string → option string.
+  #[global] Arguments custom_ipat custom {CustomIpat} args : rename.
+  #[global] Hint Mode CustomIpat + : typeclass_instances.
 
-#[global] Instance custom_ipat_0_ipat `{!CustomIpat0 custom} : CustomIpat custom :=
-  λ args,
-    match args with
-    | [] =>
-        Some (custom_ipat_0 custom)
-    | _ =>
-        None
-    end.
+  Class CustomIpat0 custom :=
+    custom_ipat_0 : string.
+  #[global] Arguments custom_ipat_0 custom {CustomIpat0} : rename.
+  #[global] Hint Mode CustomIpat0 + : typeclass_instances.
 
-Class CustomIpat1 (custom : string) :=
-  custom_ipat_1 : string.
-#[global] Arguments custom_ipat_1 custom {CustomIpat1} : rename.
-#[global] Hint Mode CustomIpat1 + : typeclass_instances.
+  #[global] Instance custom_ipat_0_ipat `{!CustomIpat0 custom} : CustomIpat custom | 100 :=
+    λ args,
+      match args with
+      | [] =>
+          Some (custom_ipat_0 custom)
+      | _ =>
+          None
+      end.
 
-#[global] Instance custom_ipat_1_ipat `{!CustomIpat1 custom} : CustomIpat custom :=
-  λ args,
-    match args with
-    | [arg] =>
-        format (custom_ipat_1 custom) {["" := arg]}
-    | _ =>
-        None
-    end.
+  Class CustomIpat1 custom :=
+    custom_ipat_1 : string.
+  #[global] Arguments custom_ipat_1 custom {CustomIpat1} : rename.
+  #[global] Hint Mode CustomIpat1 + : typeclass_instances.
+
+  #[global] Instance custom_ipat_1_ipat `{!CustomIpat1 custom} : CustomIpat custom | 100 :=
+    λ args,
+      match args with
+      | [arg] =>
+          format (custom_ipat_1 custom) {["" := arg]}
+      | _ =>
+          None
+      end.
+
+  Class CustomIpatFormat custom :=
+    custom_ipat_format : string.
+  #[global] Arguments custom_ipat_format custom {CustomIpatFormat} : rename.
+  #[global] Hint Mode CustomIpatFormat + : typeclass_instances.
+
+  #[global] Instance custom_ipat_format_ipat `{!CustomIpatFormat custom} : CustomIpat custom | 100 :=
+    λ args,
+      format (custom_ipat_format custom) (format_env_of_strings args).
+End custom_ipat.
 
 (** Tactic used for solving side-conditions arising from TC resolution in [iMod]
 and [iInv]. *)

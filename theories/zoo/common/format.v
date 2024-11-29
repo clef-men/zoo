@@ -1,17 +1,33 @@
 From Coq.Strings Require Import
-  Ascii
-  String.
+  Ascii.
 
 From stdpp Require Import
-  stringmap.
+  gmap.
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  string.
 From zoo Require Import
   options.
 
 Implicit Types str pref suff var val : string.
-Implicit Types env : stringmap string.
+
+Definition format_env :=
+  gmap string string.
+Implicit Types env : format_env.
+
+#[local] Definition parse_binding str :=
+  let '(var, val) := split_on "=" str in
+  let val := default var val in
+  (var, val).
+
+Definition format_env_of_bindings bdgs : format_env :=
+  list_to_map bdgs.
+Definition format_env_of_strings strs :=
+  format_env_of_bindings (parse_binding <$> strs).
+Definition format_env_of_string str :=
+  format_env_of_strings (String.words str).
 
 Module parse.
   Fixpoint go env str pref suff :=
@@ -27,6 +43,8 @@ Module parse.
     match str with
     | "" =>
         None
+    | String "=" str =>
+        hole_default env str pref suff var ""
     | String "}" str =>
         match env !! String.rev var with
         | None =>
@@ -36,68 +54,26 @@ Module parse.
         end
     | String chr str =>
         hole env str pref suff (String chr var)
-    end.
+    end
+  with hole_default env str pref suff var default :=
+    match str with
+    | "" =>
+        None
+    | String "}" str =>
+        match env !! String.rev var with
+        | None =>
+            go env str pref (default +:+ suff)
+        | Some val =>
+            go env str (pref +:+ String.rev_app suff val) ""
+        end
+    | String chr str =>
+        hole_default env str pref suff var (String chr default)
+    end
+  .
 
   Definition main env str :=
     go env str "" "".
 End parse.
 
-Module parse_env.
-  Variant state :=
-    | Var
-    | Equal var
-    | Val var.
-
-  Fixpoint spaces env str st :=
-    match str with
-    | "" =>
-        if st is Var then
-          Some env
-        else
-          None
-    | String chr str =>
-        if Ascii.is_space chr then
-          spaces env str st
-        else
-          match st with
-          | Var =>
-              variable env str (String chr "")
-          | Equal var =>
-              if chr is "="%char then
-                spaces env str (Val var)
-              else
-                None
-          | Val var =>
-              value env str var (String chr "")
-          end
-    end
-  with variable env str var :=
-    match str with
-    | "" =>
-        None
-    | String chr str =>
-        if Ascii.is_space chr then
-          spaces env str (Equal (String.rev var))
-        else
-          variable env str (String chr var)
-    end
-  with value env str var val :=
-    match str with
-    | "" =>
-        Some (<[var := String.rev val]> env)
-    | String chr str =>
-        if Ascii.is_space chr then
-          spaces (<[var := String.rev val]> env) str Var
-        else
-          value env str var (String chr val)
-    end.
-
-  Definition main str :=
-    spaces ∅ str Var.
-End parse_env.
-
 Definition format fmt env :=
   parse.main env fmt.
-Definition format' fmt (env : string) :=
-  env ← parse_env.main env ;
-  format fmt env.
