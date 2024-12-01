@@ -1,11 +1,17 @@
+From iris.algebra Require Import
+  gset.
+
 From zoo Require Import
   prelude.
+From zoo.iris.base_logic Require Import
+  mono_set.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  lst.
+  lst
+  xdlchain.
 From partition Require Import
   partition__types.
 From partition Require Export
@@ -15,32 +21,101 @@ From zoo Require Import
 
 Implicit Types b : bool.
 Implicit Types sz : nat.
-Implicit Types elt : location.
-Implicit Types elts : list location.
+Implicit Types elt first last split : location.
 Implicit Types v v_elts : val.
 Implicit Types cl : gset location.
 Implicit Types part : gset (gset location).
 Implicit Types γ : gname.
 
-Section zoo_G.
-  Context `{zoo_G : !ZooG Σ}.
+Record partition_descr := {
+  partition_descr_class : location ;
+  partition_descr_elts : list location ;
+}.
 
-  Definition partition_model γ part : iProp Σ.
-  Admitted.
+#[local] Instance partition_descr_inhabited : Inhabited partition_descr :=
+  populate {|
+    partition_descr_class := inhabitant ;
+    partition_descr_elts := inhabitant ;
+  |}.
+#[local] Instance partition_descr_eq_dec : EqDecision partition_descr :=
+  ltac:(solve_decision).
+#[local] Instance partition_descr_countable :
+  Countable partition_descr.
+Proof.
+  pose encode descr := (
+    descr.(partition_descr_class),
+    descr.(partition_descr_elts)
+  ).
+  pose decode := λ '(class, elts), {|
+    partition_descr_class := class ;
+    partition_descr_elts := elts ;
+  |}.
+  refine (inj_countable' encode decode _). intros []. done.
+Qed.
 
-  Definition partition_elt γ elt v : iProp Σ.
-  Admitted.
+Implicit Types descr : partition_descr.
+Implicit Types descrs : gset partition_descr.
 
-  (* #[global] Instance partition_model_timeless γ part : *)
-  (*   Timeless (partition_model γ part). *)
-  (* Proof. *)
-  (*   apply _. *)
-  (* Qed. *)
-  (* #[global] Instance partition_elt_timeless γ elt v : *)
-  (*   Timeless (partition_elt γ elt v). *)
-  (* Proof. *)
-  (*   apply _. *)
-  (* Qed. *)
+Class PartitionG Σ `{zoo_G : !ZooG Σ} := {
+  #[local] partition_G_elts_G :: MonoSetG Σ location ;
+}.
+
+Definition partition_Σ := #[
+  mono_set_Σ location
+].
+#[global] Instance subG_partition_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG partition_Σ Σ →
+  PartitionG Σ.
+Proof.
+  solve_inG.
+Qed.
+
+Section partition_G.
+  Context `{partition_G : PartitionG Σ}.
+
+  #[local] Definition partition_elts_auth γ elts :=
+    mono_set_auth γ (DfracOwn 1) elts.
+  #[local] Definition partition_elts_elem γ elt :=
+    mono_set_elem γ elt.
+
+  Definition partition_model γ part : iProp Σ :=
+    ∃ descrs,
+    ⌜part = set_map (list_to_set ∘ partition_descr_elts) descrs⌝ ∗
+    partition_elts_auth γ ([^(∪) set] descr ∈ descrs, list_to_set descr.(partition_descr_elts)) ∗
+    ( [∗ set] descr ∈ descrs,
+      ∃ first last prev_descr prev next_descr next,
+      ⌜head descr.(partition_descr_elts) = Some first⌝ ∗
+      ⌜list.last descr.(partition_descr_elts) = Some last⌝ ∗
+      ⌜prev_descr ∈ descrs⌝ ∗
+      ⌜list.last prev_descr.(partition_descr_elts) = Some prev⌝ ∗
+      ⌜next_descr ∈ descrs⌝ ∗
+      ⌜head next_descr.(partition_descr_elts) = Some next⌝ ∗
+      descr.(partition_descr_class).[first] ↦ #first ∗
+      descr.(partition_descr_class).[last] ↦ #last ∗
+      descr.(partition_descr_class).[len] ↦ #(length descr.(partition_descr_elts)) ∗
+      descr.(partition_descr_class).[split] ↦ #first ∗
+      descr.(partition_descr_class).[split_len] ↦ #0 ∗
+      xdlchain_model #prev descr.(partition_descr_elts) #next ∗
+      ( [∗ list] elt ∈ descr.(partition_descr_elts),
+        elt.[class_] ↦ #descr.(partition_descr_class) ∗
+        elt.[seen] ↦ #false
+      )
+    ).
+
+  Definition partition_elt γ elt v : iProp Σ :=
+    partition_elts_elem γ elt ∗
+    elt.[data] ↦ v.
+
+  #[global] Instance partition_model_timeless γ part :
+    Timeless (partition_model γ part).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance partition_elt_timeless γ elt v :
+    Timeless (partition_elt γ elt v).
+  Proof.
+    apply _.
+  Qed.
 
   Lemma partition_model_non_empty {γ part} cl :
     cl ∈ part →
@@ -226,7 +301,7 @@ Section zoo_G.
     }}}.
   Proof.
   Admitted.
-End zoo_G.
+End partition_G.
 
 #[global] Opaque partition_elt_equal.
 #[global] Opaque partition_elt_equiv.
@@ -237,3 +312,6 @@ End zoo_G.
 #[global] Opaque partition_add_same_class.
 #[global] Opaque partition_add_new_class.
 #[global] Opaque partition_refine.
+
+#[global] Opaque partition_model.
+#[global] Opaque partition_elt.
