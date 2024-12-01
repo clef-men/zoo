@@ -30,8 +30,8 @@ Section custom_ipat.
   Implicit Types custom : string.
 
   Class CustomIpat custom :=
-    custom_ipat : list string → option string.
-  #[global] Arguments custom_ipat custom {CustomIpat} args : rename.
+    custom_ipat : string → option string.
+  #[global] Arguments custom_ipat custom {CustomIpat} arg : rename.
   #[global] Hint Mode CustomIpat + : typeclass_instances.
 
   Class CustomIpat0 custom :=
@@ -40,13 +40,8 @@ Section custom_ipat.
   #[global] Hint Mode CustomIpat0 + : typeclass_instances.
 
   #[global] Instance custom_ipat_0_ipat `{!CustomIpat0 custom} : CustomIpat custom | 100 :=
-    λ args,
-      match args with
-      | [] =>
-          Some (custom_ipat_0 custom)
-      | _ =>
-          None
-      end.
+    λ _,
+      Some (custom_ipat_0 custom).
 
   Class CustomIpat1 custom :=
     custom_ipat_1 : string.
@@ -54,13 +49,8 @@ Section custom_ipat.
   #[global] Hint Mode CustomIpat1 + : typeclass_instances.
 
   #[global] Instance custom_ipat_1_ipat `{!CustomIpat1 custom} : CustomIpat custom | 100 :=
-    λ args,
-      match args with
-      | [arg] =>
-          format (custom_ipat_1 custom) {["" := arg]}
-      | _ =>
-          None
-      end.
+    λ arg,
+      format (custom_ipat_1 custom) {["" := arg]}.
 
   Class CustomIpatFormat custom :=
     custom_ipat_format : string.
@@ -68,8 +58,8 @@ Section custom_ipat.
   #[global] Hint Mode CustomIpatFormat + : typeclass_instances.
 
   #[global] Instance custom_ipat_format_ipat `{!CustomIpatFormat custom} : CustomIpat custom | 100 :=
-    λ args,
-      format (custom_ipat_format custom) (format_env_of_strings args).
+    λ arg,
+      format (custom_ipat_format custom) (format_env_of_string arg).
 End custom_ipat.
 
 (** Tactic used for solving side-conditions arising from TC resolution in [iMod]
@@ -1513,9 +1503,9 @@ Local Ltac iDestructHypGo Hz pat0 pat :=
   | IModalElim ?pat =>
     let x := ident_for_pat_default pat Hz in
     iModCore Hz as x; iDestructHypGo x pat0 pat
-  | ICustom ?custom ?args =>
+  | ICustom ?custom ?arg =>
       first
-      [ lazymatch eval vm_compute in (custom_ipat custom args) with
+      [ lazymatch eval vm_compute in (custom_ipat custom arg) with
         | None =>
             fail 1 "iDestruct: invalid arguments for custom intro pattern:" custom
         | Some ?pat =>
@@ -1681,9 +1671,9 @@ Ltac _iIntros_go pats startproof :=
   (* Introduction + destruct *)
   | IIntuitionistic ?pat :: ?pats =>
      let H := iFresh in iIntro #H; iDestructHyp H as pat; _iIntros_go pats false
-  | ICustom ?custom ?args :: ?pats =>
+  | ICustom ?custom ?arg :: ?pats =>
       first
-      [ lazymatch eval vm_compute in (custom_ipat custom args) with
+      [ lazymatch eval vm_compute in (custom_ipat custom arg) with
         | None =>
             fail 1 "iIntros: invalid arguments for custom intro pattern:" custom
         | Some ?pat =>
