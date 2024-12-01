@@ -14,7 +14,7 @@ and 'a class_ =
   { mutable first: 'a dllist;
     mutable last: 'a dllist;
     mutable len: int;
-    mutable split_start: 'a dllist;
+    mutable split: 'a dllist;
     mutable split_len: int;
   }
 
@@ -110,7 +110,7 @@ let create v =
     { first= elt;
       last= elt;
       len= 1;
-      split_start= elt;
+      split= elt;
       split_len= 0;
     }
   in
@@ -140,7 +140,7 @@ let add_new_class v =
     { first= elt;
       last= elt;
       len= 1;
-      split_start= elt;
+      split= elt;
       split_len= 0;
     }
   in
@@ -155,15 +155,15 @@ let record_split split_list elt =
     split_list
   ) else (
     elt.seen <- true ;
-    let split_start = class_.split_start in
-    if split_start == class_.last then (
-      class_.split_start <- class_.first ;
+    let split = class_.split in
+    if split == class_.last then (
+      class_.split <- class_.first ;
       class_.split_len <- 0 ;
       split_list
     ) else (
-      let record_class = split_start == class_.first in
-      class_swap class_ split_start elt ;
-      class_.split_start <- elt.next ;
+      let record_class = split == class_.first in
+      class_swap class_ split elt ;
+      class_.split <- elt.next ;
       class_.split_len <- class_.split_len + 1 ;
       if record_class then
         class_ :: split_list
@@ -174,21 +174,21 @@ let record_split split_list elt =
 
 let split_class class_ =
   let first = class_.first in
-  let split_start = class_.split_start in
-  if split_start == first then (
+  let split = class_.split in
+  if split == first then (
     class_iter (fun elt -> elt.seen <- false) class_
   ) else (
-    class_.first <- split_start ;
-    class_.split_start <- split_start ;
+    class_.first <- split ;
+    class_.split <- split ;
     let split_len = class_.split_len in
     class_.split_len <- 0 ;
     class_.len <- class_.len - split_len ;
-    let prev = split_start.prev in
+    let prev = split.prev in
     let class' =
       { first;
         last= prev;
         len= split_len;
-        split_start= first;
+        split= first;
         split_len= 0;
       }
     in

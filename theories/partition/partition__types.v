@@ -41,7 +41,7 @@ Notation "'len'" := (
   in_type "class_" 2
 )(in custom zoo_field
 ).
-Notation "'split_start'" := (
+Notation "'split'" := (
   in_type "class_" 3
 )(in custom zoo_field
 ).

@@ -139,15 +139,15 @@ Definition partition_record_split : val :=
       "split_list"
     ) else (
       "elt" <-{seen} #true ;;
-      let: "split_start" := "class_".{split_start} in
-      if: "split_start" == "class_".{last} then (
-        "class_" <-{split_start} "class_".{first} ;;
+      let: "split" := "class_".{split} in
+      if: "split" == "class_".{last} then (
+        "class_" <-{split} "class_".{first} ;;
         "class_" <-{split_len} #0 ;;
         "split_list"
       ) else (
-        let: "record_class" := "split_start" == "class_".{first} in
-        partition_class_swap "class_" "split_start" "elt" ;;
-        "class_" <-{split_start} "elt".{next} ;;
+        let: "record_class" := "split" == "class_".{first} in
+        partition_class_swap "class_" "split" "elt" ;;
+        "class_" <-{split} "elt".{next} ;;
         "class_" <-{split_len} "class_".{split_len} + #1 ;;
         if: "record_class" then (
           "class_" :: "split_list"
@@ -160,16 +160,16 @@ Definition partition_record_split : val :=
 Definition partition_split_class : val :=
   fun: "class_" =>
     let: "first" := "class_".{first} in
-    let: "split_start" := "class_".{split_start} in
-    if: "split_start" == "first" then (
+    let: "split" := "class_".{split} in
+    if: "split" == "first" then (
       partition_class_iter (fun: "elt" => "elt" <-{seen} #false) "class_"
     ) else (
-      "class_" <-{first} "split_start" ;;
-      "class_" <-{split_start} "split_start" ;;
+      "class_" <-{first} "split" ;;
+      "class_" <-{split} "split" ;;
       let: "split_len" := "class_".{split_len} in
       "class_" <-{split_len} #0 ;;
       "class_" <-{len} "class_".{len} - "split_len" ;;
-      let: "prev" := "split_start".{prev} in
+      let: "prev" := "split".{prev} in
       let: "class'" := { "first", "prev", "split_len", "first", #0 } in
       partition_dllist_iter
         (fun: "elt" => "elt" <-{class_} "class'" ;;
