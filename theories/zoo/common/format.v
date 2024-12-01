@@ -46,9 +46,10 @@ Module parse.
     | String "=" str =>
         hole_default env str pref suff var ""
     | String "}" str =>
-        match env !! String.rev var with
+        let var := String.rev var in
+        match env !! var with
         | None =>
-            go env str pref suff
+            go env str (pref +:+ String.rev_app suff var) ""
         | Some val =>
             go env str (pref +:+ String.rev_app suff val) ""
         end
@@ -60,7 +61,8 @@ Module parse.
     | "" =>
         None
     | String "}" str =>
-        match env !! String.rev var with
+        let var := String.rev var in
+        match env !! var with
         | None =>
             go env str pref (default +:+ suff)
         | Some val =>
@@ -68,8 +70,7 @@ Module parse.
         end
     | String chr str =>
         hole_default env str pref suff var (String chr default)
-    end
-  .
+    end.
 
   Definition main env str :=
     go env str "" "".
