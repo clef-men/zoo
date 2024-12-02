@@ -30,50 +30,75 @@ Definition format_env_of_string str :=
   format_env_of_strings (String.words str).
 
 Module parse.
-  Fixpoint go env str pref suff :=
+  Fixpoint go env str res :=
     match str with
     | "" =>
-        Some (pref +:+ String.rev suff)
+        Some (String.rev res)
     | String "{" str =>
-        hole env str pref suff ""
+        hole env str res ""
     | String chr str =>
-        go env str pref (String chr suff)
+        go env str (String chr res)
     end
-  with hole env str pref suff var :=
+  with hole env str res acc :=
+    match str with
+    | "" =>
+        None
+    | String "{" str =>
+        hole_variable env str res acc ""
+    | String "=" str =>
+        hole_default env str res "" acc "" ""
+    | String "}" str =>
+        match env !! String.rev acc with
+        | None =>
+            go env str (acc +:+ res)
+        | Some val =>
+            go env str (String.rev val +:+ res)
+        end
+    | String chr str =>
+        hole env str res (String chr acc)
+    end
+  with hole_variable env str res pref var :=
+    match str with
+    | "" =>
+        None
+    | String "}" str =>
+        hole_suffix env str res pref var ""
+    | String chr str =>
+        hole_variable env str res pref (String chr var)
+    end
+  with hole_suffix env str res pref var suff :=
     match str with
     | "" =>
         None
     | String "=" str =>
-        hole_default env str pref suff var ""
+        hole_default env str res pref var suff ""
     | String "}" str =>
-        let var := String.rev var in
-        match env !! var with
+        match env !! String.rev var with
         | None =>
-            go env str (pref +:+ String.rev_app suff var) ""
+            go env str res
         | Some val =>
-            go env str (pref +:+ String.rev_app suff val) ""
+            go env str (suff +:+ String.rev val +:+ pref +:+ res)
         end
     | String chr str =>
-        hole env str pref suff (String chr var)
+        hole_suffix env str res pref var (String chr suff)
     end
-  with hole_default env str pref suff var default :=
+  with hole_default env str res pref var suff default :=
     match str with
     | "" =>
         None
     | String "}" str =>
-        let var := String.rev var in
-        match env !! var with
+        match env !! String.rev var with
         | None =>
-            go env str pref (default +:+ suff)
+            go env str (default +:+ res)
         | Some val =>
-            go env str (pref +:+ String.rev_app suff val) ""
+            go env str (suff +:+ String.rev val +:+ pref +:+ res)
         end
     | String chr str =>
-        hole_default env str pref suff var (String chr default)
+        hole_default env str res pref var suff (String chr default)
     end.
 
   Definition main env str :=
-    go env str "" "".
+    go env str "".
 End parse.
 
 Definition format fmt env :=
