@@ -134,9 +134,11 @@ Definition mpmc_queue_2_push_front : val :=
         match: "t".{back} with
         | Snoc "i_back" "v_back" "prefix" as "back" =>
             if: "i_front" == "i_back" then (
-              let: "prefix" := ‘Snoc( "i_back", "v", "prefix" ) in
               let: "new_back" :=
-                ‘Snoc( "i_back" + #1, "v_back", "prefix" )
+                ‘Snoc( "i_back" + #1,
+                  "v_back",
+                  ‘Snoc( "i_back", "v", "prefix" )
+                )
               in
               if: ~ CAS "t".[back] "back" "new_back" then (
                 Yield ;;

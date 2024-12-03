@@ -73,7 +73,8 @@ let help t (back : (_, [< `Back]) back) i_move move =
   match t.front with
   | Front i_front as front ->
       if i_move <= i_front
-      || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move) then
+      || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move)
+      then
         back_r.move <- Used
   | _ ->
       back_r.move <- Used
@@ -108,8 +109,7 @@ let rec push_front t v =
       match t.back with
       | Snoc (i_back, v_back, prefix) as back ->
           if i_front == i_back then (
-            let prefix = Snoc (i_back, v, prefix) in
-            let new_back = Snoc (i_back + 1, v_back, prefix) in
+            let new_back = Snoc (i_back + 1, v_back, Snoc (i_back, v, prefix)) in
             if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
               Domain.cpu_relax () ;
               push_front t v
