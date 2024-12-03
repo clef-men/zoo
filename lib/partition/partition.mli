@@ -14,11 +14,11 @@ val elt_cardinal :
 val create :
   'a -> 'a elt
 
-val add_same_class :
-  'a elt -> 'a -> 'a elt
-
 val add_new_class :
   'a -> 'a elt
+
+val add_same_class :
+  'a elt -> 'a -> 'a elt
 
 val refine :
   'a elt list -> unit

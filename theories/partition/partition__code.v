@@ -105,7 +105,7 @@ Definition partition_elt_cardinal : val :=
   fun: "elt" =>
     "elt".{class_}.{len}.
 
-Definition partition_create : val :=
+Definition partition_add_new_class : val :=
   fun: "v" =>
     let: "elt" := { (), (), "v", (), #false } in
     let: "class_" := { "elt", "elt", #1, "elt", #0 } in
@@ -113,6 +113,9 @@ Definition partition_create : val :=
     "elt" <-{next} "elt" ;;
     "elt" <-{class_} "class_" ;;
     "elt".
+
+Definition partition_create : val :=
+  partition_add_new_class.
 
 Definition partition_add_same_class : val :=
   fun: "elt" "v" =>
@@ -121,15 +124,6 @@ Definition partition_add_same_class : val :=
     partition_dllist_insert_right "class_".{last} "elt" ;;
     "class_" <-{last} "elt" ;;
     "class_" <-{len} "class_".{len} + #1 ;;
-    "elt".
-
-Definition partition_add_new_class : val :=
-  fun: "v" =>
-    let: "elt" := { (), (), "v", (), #false } in
-    let: "class_" := { "elt", "elt", #1, "elt", #0 } in
-    "elt" <-{prev} "elt" ;;
-    "elt" <-{next} "elt" ;;
-    "elt" <-{class_} "class_" ;;
     "elt".
 
 Definition partition_record_split : val :=

@@ -97,36 +97,6 @@ let elt_get elt =
 let elt_cardinal elt =
   elt.class_.len
 
-let create v =
-  let elt =
-    { prev= Obj.magic ();
-      next= Obj.magic ();
-      data= v;
-      class_= Obj.magic ();
-      seen= false;
-    }
-  in
-  let class_ =
-    { first= elt;
-      last= elt;
-      len= 1;
-      split= elt;
-      split_len= 0;
-    }
-  in
-  elt.prev <- elt ;
-  elt.next <- elt ;
-  elt.class_ <- class_ ;
-  elt
-
-let add_same_class elt v =
-  let class_ = elt.class_ in
-  let elt = dllist_create v class_ in
-  dllist_insert_right class_.last elt ;
-  class_.last <- elt ;
-  class_.len <- class_.len + 1 ;
-  elt
-
 let add_new_class v =
   let elt =
     { prev= Obj.magic ();
@@ -147,6 +117,17 @@ let add_new_class v =
   elt.prev <- elt ;
   elt.next <- elt ;
   elt.class_ <- class_ ;
+  elt
+
+let create =
+  add_new_class
+
+let add_same_class elt v =
+  let class_ = elt.class_ in
+  let elt = dllist_create v class_ in
+  dllist_insert_right class_.last elt ;
+  class_.last <- elt ;
+  class_.len <- class_.len + 1 ;
   elt
 
 let record_split split_list elt =

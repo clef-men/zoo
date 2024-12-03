@@ -309,8 +309,8 @@ End partition_G.
 #[global] Opaque partition_elt_get.
 #[global] Opaque partition_elt_cardinal.
 #[global] Opaque partition_create.
-#[global] Opaque partition_add_same_class.
 #[global] Opaque partition_add_new_class.
+#[global] Opaque partition_add_same_class.
 #[global] Opaque partition_refine.
 
 #[global] Opaque partition_model.
