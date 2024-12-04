@@ -20,12 +20,14 @@ theories/zoo/common/option.v
 theories/zoo/common/list.v
 theories/zoo/common/binder.v
 theories/zoo/common/fin_maps.v
+theories/zoo/common/gset.v
 theories/zoo/common/gmultiset.v
 theories/zoo/common/treemap.v
 theories/zoo/common/string.v
 theories/zoo/common/format.v
 
 theories/zoo/iris/algebra/base.v
+theories/zoo/iris/algebra/big_op.v
 theories/zoo/iris/algebra/view.v
 theories/zoo/iris/algebra/auth.v
 theories/zoo/iris/algebra/mono.v
