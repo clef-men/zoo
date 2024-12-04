@@ -170,15 +170,12 @@ Section partition_G.
     apply _.
   Qed.
 
-  #[local] Lemma partition_elts_alloc elt :
+  #[local] Lemma partition_elts_alloc :
     ⊢ |==>
       ∃ γ,
-      partition_elts_auth γ {[elt]} ∗
-      partition_elts_elem γ elt.
+      partition_elts_auth γ ∅.
   Proof.
-    iMod (mono_set_alloc {[elt]}) as "(%γ & Helts_auth)".
-    iDestruct (mono_set_elem_get with "Helts_auth") as "#$"; first set_solver.
-    iSteps.
+    apply mono_set_alloc.
   Qed.
   #[local] Lemma partition_elts_elem_valid γ elts elt :
     partition_elts_auth γ elts -∗
@@ -284,6 +281,16 @@ Section partition_G.
     iApply (xdlchain_model_NoDup with "Hchain").
   Qed.
 
+  #[local] Lemma partition_model_empty :
+    ⊢ |==>
+      ∃ γ,
+      partition_model γ ∅.
+  Proof.
+    iMod partition_elts_alloc as "(%γ & Helts_auth)".
+    iExists γ, ∅.
+    rewrite set_map_empty /partition_model' !big_opS_empty.
+    iSteps.
+  Qed.
   Lemma partition_model_non_empty {γ part} cl :
     cl ∈ part →
     partition_model γ part ⊢
@@ -557,26 +564,10 @@ Section partition_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-
-    wp_rec.
-    wp_block elt as "(Helt_prev & Helt_next & Helt_data & Helt_class & Helt_seen & _)".
-    iMod (pointsto_persist with "Helt_data") as "#Helt_data".
-    wp_block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
-    do 3 wp_store. wp_pures.
-
-    iMod (partition_elts_alloc elt) as "(%γ & Helts_auth & Helts_elem)".
-
-    iApply "HΦ".
-    iSplitR "Helts_elem Helt_data"; last iSteps.
-    pose descr := {|
-      partition_descr_class := class ;
-      partition_descr_elts := [elt] ;
-    |}.
-    iExists {[descr]}.
-    rewrite /partition_model' set_map_singleton_L big_opS_singleton_L big_sepS_singleton /= right_id_L.
-    iStep 2. iExists elt, elt, descr, elt, descr, elt.
-    rewrite xdlchain_model_singleton.
-    iSteps; iPureIntro; set_solver.
+    iMod partition_model_empty as "(%γ & Hmodel)".
+    wp_apply (partition_add_new_class_spec with "Hmodel") as (elt) "Hmodel".
+    rewrite left_id_L.
+    iApply ("HΦ" with "Hmodel").
   Qed.
 
   Lemma partition_add_same_class_spec γ part elt v v' :
