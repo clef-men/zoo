@@ -6,11 +6,11 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Export
   base
-  queue__code.
+  queue_1__code.
 From zoo_std Require Import
   option
   chain
-  queue__types.
+  queue_1__types.
 From zoo Require Import
   options.
 
@@ -21,7 +21,7 @@ Implicit Types vs : list val.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Definition queue_model t vs : iProp Σ :=
+  Definition queue_1_model t vs : iProp Σ :=
     ∃ l front sent,
     ⌜t = #l⌝ ∗
     l.[front] ↦ front ∗
@@ -29,20 +29,20 @@ Section zoo_G.
     chain_model front vs sent ∗
     chain_model sent [()%V] ().
 
-  #[global] Instance queue_model_timeless t vs :
-    Timeless (queue_model t vs).
+  #[global] Instance queue_1_model_timeless t vs :
+    Timeless (queue_1_model t vs).
   Proof.
     apply _.
   Qed.
 
-  Lemma queue_create_spec :
+  Lemma queue_1_create_spec :
     {{{
       True
     }}}
-      queue_create ()
+      queue_1_create ()
     {{{ t,
       RET t;
-      queue_model t []
+      queue_1_model t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -54,14 +54,14 @@ Section zoo_G.
     iApply chain_model_nil. iSteps.
   Qed.
 
-  Lemma queue_is_empty_spec t vs :
+  Lemma queue_1_is_empty_spec t vs :
     {{{
-      queue_model t vs
+      queue_1_model t vs
     }}}
-      queue_is_empty t
+      queue_1_is_empty t
     {{{
       RET #(bool_decide (vs = []%list));
-      queue_model t vs
+      queue_1_model t vs
     }}}.
   Proof.
     iIntros "%Φ (%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model) HΦ".
@@ -77,14 +77,14 @@ Section zoo_G.
       iDestruct (chain_model_exclusive with "Hsent_model Hfront_model") as %[]; naive_solver lia.
   Qed.
 
-  Lemma queue_push_spec t vs v :
+  Lemma queue_1_push_spec t vs v :
     {{{
-      queue_model t vs
+      queue_1_model t vs
     }}}
-      queue_push t v
+      queue_1_push t v
     {{{
       RET ();
-      queue_model t (vs ++ [v])
+      queue_1_model t (vs ++ [v])
     }}}.
   Proof.
     iIntros "%Φ (%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model) HΦ".
@@ -99,19 +99,19 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma queue_pop_spec t vs :
+  Lemma queue_1_pop_spec t vs :
     {{{
-      queue_model t vs
+      queue_1_model t vs
     }}}
-      queue_pop t
+      queue_1_pop t
     {{{
       RET (head vs : val);
-      queue_model t (tail vs)
+      queue_1_model t (tail vs)
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_apply (queue_is_empty_spec with "Hmodel") as "(%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model)".
+    wp_apply (queue_1_is_empty_spec with "Hmodel") as "(%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model)".
     destruct vs as [| v vs]; first iSteps.
     wp_load.
     wp_apply (chain_head_spec with "Hfront_model") as "Hfront_model".
@@ -121,9 +121,9 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque queue_create.
-#[global] Opaque queue_is_empty.
-#[global] Opaque queue_push.
-#[global] Opaque queue_pop.
+#[global] Opaque queue_1_create.
+#[global] Opaque queue_1_is_empty.
+#[global] Opaque queue_1_push.
+#[global] Opaque queue_1_pop.
 
-#[global] Opaque queue_model.
+#[global] Opaque queue_1_model.

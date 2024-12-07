@@ -6,29 +6,29 @@ From zoo.language Require Import
 From zoo_std Require Import
   chain.
 From zoo_std Require Import
-  queue__types.
+  queue_1__types.
 From zoo Require Import
   options.
 
-Definition queue_create : val :=
+Definition queue_1_create : val :=
   fun: <> =>
     let: "sent" := { (), () } in
     { "sent", "sent" }.
 
-Definition queue_is_empty : val :=
+Definition queue_1_is_empty : val :=
   fun: "t" =>
     "t".{front} == "t".{sentinel}.
 
-Definition queue_push : val :=
+Definition queue_1_push : val :=
   fun: "t" "v" =>
     let: "sent" := { (), () } in
     "t".{sentinel} <-{chain_head} "v" ;;
     "t".{sentinel} <-{chain_tail} "sent" ;;
     "t" <-{sentinel} "sent".
 
-Definition queue_pop : val :=
+Definition queue_1_pop : val :=
   fun: "t" =>
-    if: queue_is_empty "t" then (
+    if: queue_1_is_empty "t" then (
       §None
     ) else (
       let: "v" := "t".{front}.{chain_head} in
