@@ -33,7 +33,7 @@
 )
 
 (package
-  (name saturn)
+  (name zoo_saturn)
   (synopsis "Saturn")
   (depends
     zoo
@@ -42,7 +42,7 @@
 )
 
 (package
-  (name eio)
+  (name zoo_eio)
   (synopsis "Eio")
   (depends
     zoo_std
@@ -50,7 +50,7 @@
 )
 
 (package
-  (name kcas)
+  (name zoo_kcas)
   (synopsis "Kcas")
   (depends
     zoo
@@ -59,7 +59,7 @@
 )
 
 (package
-  (name partition)
+  (name zoo_partition)
   (synopsis "Partition")
   (depends
     zoo_std

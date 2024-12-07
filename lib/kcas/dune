@@ -1,9 +1,0 @@
-(library
-  (name kcas)
-  (public_name kcas)
-  (libraries
-    zoo
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
-)

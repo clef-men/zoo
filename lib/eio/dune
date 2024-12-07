@@ -1,9 +1,0 @@
-(library
-  (name eio)
-  (public_name eio)
-  (libraries
-    zoo_std
-    unix
-  )
-  (flags (:standard -open Zoo_std))
-)

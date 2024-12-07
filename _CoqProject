@@ -206,68 +206,68 @@ theories/zoo_persistent/pstore_2.v
 
 #END zoo-persistent
 
-#BEGIN saturn
--Q theories/saturn saturn
+#BEGIN zoo-saturn
+-Q theories/zoo_saturn zoo_saturn
 
-theories/saturn/base.v
-theories/saturn/bag__types.v
-theories/saturn/bag__code.v
-theories/saturn/bag.v
-theories/saturn/mpmc_stack_1__types.v
-theories/saturn/mpmc_stack_1__code.v
-theories/saturn/mpmc_stack_1.v
-theories/saturn/mpmc_stack_2__types.v
-theories/saturn/mpmc_stack_2__code.v
-theories/saturn/mpmc_stack_2.v
-theories/saturn/mpmc_bstack__types.v
-theories/saturn/mpmc_bstack__code.v
-theories/saturn/mpmc_bstack.v
-theories/saturn/spsc_bqueue__types.v
-theories/saturn/spsc_bqueue__code.v
-theories/saturn/spsc_bqueue.v
-theories/saturn/mpmc_bqueue.v
-theories/saturn/mpsc_queue_1__types.v
-theories/saturn/mpsc_queue_1__code.v
-theories/saturn/mpsc_queue_1.v
-theories/saturn/mpsc_queue_2__types.v
-theories/saturn/mpsc_queue_2__code.v
-theories/saturn/mpsc_queue_2.v
-theories/saturn/mpsc_queue_3__types.v
-theories/saturn/mpsc_queue_3__code.v
-theories/saturn/mpsc_queue_3.v
-theories/saturn/mpmc_queue_1__types.v
-theories/saturn/mpmc_queue_1__code.v
-theories/saturn/mpmc_queue_1.v
-theories/saturn/mpmc_queue_2__types.v
-theories/saturn/mpmc_queue_2__code.v
-theories/saturn/mpmc_queue_2.v
-theories/saturn/inf_mpmc_queue_1__types.v
-theories/saturn/inf_mpmc_queue_1__code.v
-theories/saturn/inf_mpmc_queue_2__types.v
-theories/saturn/inf_mpmc_queue_2__code.v
-theories/saturn/inf_ws_deque_1__types.v
-theories/saturn/inf_ws_deque_1__code.v
-theories/saturn/inf_ws_deque_1.v
-theories/saturn/inf_ws_deque_2__types.v
-theories/saturn/inf_ws_deque_2__code.v
-theories/saturn/inf_ws_deque_2.v
+theories/zoo_saturn/base.v
+theories/zoo_saturn/bag__types.v
+theories/zoo_saturn/bag__code.v
+theories/zoo_saturn/bag.v
+theories/zoo_saturn/mpmc_stack_1__types.v
+theories/zoo_saturn/mpmc_stack_1__code.v
+theories/zoo_saturn/mpmc_stack_1.v
+theories/zoo_saturn/mpmc_stack_2__types.v
+theories/zoo_saturn/mpmc_stack_2__code.v
+theories/zoo_saturn/mpmc_stack_2.v
+theories/zoo_saturn/mpmc_bstack__types.v
+theories/zoo_saturn/mpmc_bstack__code.v
+theories/zoo_saturn/mpmc_bstack.v
+theories/zoo_saturn/spsc_bqueue__types.v
+theories/zoo_saturn/spsc_bqueue__code.v
+theories/zoo_saturn/spsc_bqueue.v
+theories/zoo_saturn/mpmc_bqueue.v
+theories/zoo_saturn/mpsc_queue_1__types.v
+theories/zoo_saturn/mpsc_queue_1__code.v
+theories/zoo_saturn/mpsc_queue_1.v
+theories/zoo_saturn/mpsc_queue_2__types.v
+theories/zoo_saturn/mpsc_queue_2__code.v
+theories/zoo_saturn/mpsc_queue_2.v
+theories/zoo_saturn/mpsc_queue_3__types.v
+theories/zoo_saturn/mpsc_queue_3__code.v
+theories/zoo_saturn/mpsc_queue_3.v
+theories/zoo_saturn/mpmc_queue_1__types.v
+theories/zoo_saturn/mpmc_queue_1__code.v
+theories/zoo_saturn/mpmc_queue_1.v
+theories/zoo_saturn/mpmc_queue_2__types.v
+theories/zoo_saturn/mpmc_queue_2__code.v
+theories/zoo_saturn/mpmc_queue_2.v
+theories/zoo_saturn/inf_mpmc_queue_1__types.v
+theories/zoo_saturn/inf_mpmc_queue_1__code.v
+theories/zoo_saturn/inf_mpmc_queue_2__types.v
+theories/zoo_saturn/inf_mpmc_queue_2__code.v
+theories/zoo_saturn/inf_ws_deque_1__types.v
+theories/zoo_saturn/inf_ws_deque_1__code.v
+theories/zoo_saturn/inf_ws_deque_1.v
+theories/zoo_saturn/inf_ws_deque_2__types.v
+theories/zoo_saturn/inf_ws_deque_2__code.v
+theories/zoo_saturn/inf_ws_deque_2.v
 
-#END saturn
+#END zoo-saturn
 
-#BEGIN parabs
--Q theories/parabs parabs
+#BEGIN zoo-parabs
+-Q theories/zoo_parabs zoo_parabs
 
-theories/parabs/base.v
-theories/parabs/ws_deques.v
-theories/parabs/ws_deques_public.v
-theories/parabs/ws_deques_private.v
-theories/parabs/waiters.v
-theories/parabs/ws_hub.v
-theories/parabs/ws_hub_std.v
-theories/parabs/pool.v
-theories/parabs/vertex.v
+theories/zoo_parabs/base.v
+theories/zoo_parabs/ws_deques.v
+theories/zoo_parabs/ws_deques_public.v
+theories/zoo_parabs/ws_deques_private.v
+theories/zoo_parabs/waiters.v
+theories/zoo_parabs/ws_hub.v
+theories/zoo_parabs/ws_hub_std.v
+theories/zoo_parabs/pool.v
+theories/zoo_parabs/vertex.v
 
-#END parabs
+#END zoo-parabs
 
 #BEGIN examples
 -Q theories/examples examples
@@ -283,41 +283,41 @@ theories/unix/unix.v
 
 #END unix
 
-#BEGIN eio
--Q theories/eio eio
+#BEGIN zoo-eio
+-Q theories/zoo_eio zoo_eio
 
-theories/eio/base.v
-theories/eio/rcfd__types.v
-theories/eio/rcfd__code.v
-theories/eio/rcfd.v
+theories/zoo_eio/base.v
+theories/zoo_eio/rcfd__types.v
+theories/zoo_eio/rcfd__code.v
+theories/zoo_eio/rcfd.v
 
-#END eio
+#END zoo-eio
 
-#BEGIN boxroot
--Q theories/boxroot boxroot
+#BEGIN zoo-boxroot
+-Q theories/zoo_boxroot zoo_boxroot
 
-theories/boxroot/base.v
-theories/boxroot/gc.v
-theories/boxroot/boxroot.v
+theories/zoo_boxroot/base.v
+theories/zoo_boxroot/gc.v
+theories/zoo_boxroot/boxroot.v
 
-#END boxroot
+#END zoo-boxroot
 
-#BEGIN kcas
--Q theories/kcas kcas
+#BEGIN zoo-kcas
+-Q theories/zoo_kcas zoo_kcas
 
-theories/kcas/kcas_1__types.v
-theories/kcas/kcas_1__code.v
-theories/kcas/kcas_1.v
-theories/kcas/kcas_2__types.v
-theories/kcas/kcas_2__code.v
+theories/zoo_kcas/kcas_1__types.v
+theories/zoo_kcas/kcas_1__code.v
+theories/zoo_kcas/kcas_1.v
+theories/zoo_kcas/kcas_2__types.v
+theories/zoo_kcas/kcas_2__code.v
 
-#END kcas
+#END zoo-kcas
 
-#BEGIN partitition
--Q theories/partition partition
+#BEGIN zoo-partitition
+-Q theories/zoo_partition zoo_partition
 
-theories/partition/partition__types.v
-theories/partition/partition__code.v
-theories/partition/partition.v
+theories/zoo_partition/partition__types.v
+theories/zoo_partition/partition__code.v
+theories/zoo_partition/partition.v
 
-#END partition
+#END zoo-partition

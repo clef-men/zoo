@@ -1,9 +1,0 @@
-(library
-  (name saturn)
-  (public_name saturn)
-  (libraries
-    zoo
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
-)
