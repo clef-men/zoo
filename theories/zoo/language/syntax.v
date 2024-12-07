@@ -124,6 +124,7 @@ Qed.
 
 Inductive binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
+  | BinopLand | BinopLor | BinopLsl | BinopLsr
   | BinopLe | BinopLt | BinopGe | BinopGt.
 
 #[global] Instance binop_eq_dec : EqDecision binop :=
@@ -138,10 +139,14 @@ Proof.
     | BinopMult => 2
     | BinopQuot => 3
     | BinopRem => 4
-    | BinopLe => 5
-    | BinopLt => 6
-    | BinopGe => 7
-    | BinopGt => 8
+    | BinopLand => 5
+    | BinopLor => 6
+    | BinopLsl => 7
+    | BinopLsr => 8
+    | BinopLe => 9
+    | BinopLt => 10
+    | BinopGe => 11
+    | BinopGt => 12
   end.
   pose decode op :=
     match op with
@@ -150,9 +155,13 @@ Proof.
     | 2 => BinopMult
     | 3 => BinopQuot
     | 4 => BinopRem
-    | 5 => BinopLe
-    | 6 => BinopLt
-    | 7 => BinopGe
+    | 5 => BinopLand
+    | 6 => BinopLor
+    | 7 => BinopLsl
+    | 8 => BinopLsr
+    | 9 => BinopLe
+    | 10 => BinopLt
+    | 11 => BinopGe
     | _ => BinopGt
   end.
   refine (inj_countable' encode decode _); intros []; done.

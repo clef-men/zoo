@@ -293,6 +293,26 @@ Notation "e1 `rem` e2" := (
   Binop BinopRem e1%E e2%E
 )(at level 35
 ) : expr_scope.
+Notation "e1 `land` e2" := (
+  Binop BinopLand e1%E e2%E
+)(at level 31,
+  left associativity
+) : expr_scope.
+Notation "e1 `lor` e2" := (
+  Binop BinopLor e1%E e2%E
+)(at level 32,
+  left associativity
+) : expr_scope.
+Notation "e1 `lsl` e2" := (
+  Binop BinopLsl e1%E e2%E
+)(at level 30,
+  right associativity
+) : expr_scope.
+Notation "e1 `lsr` e2" := (
+  Binop BinopLsr e1%E e2%E
+)(at level 30,
+  right associativity
+) : expr_scope.
 Notation "e1 ≤ e2" := (
   Binop BinopLe e1%E e2%E
 )(at level 70,

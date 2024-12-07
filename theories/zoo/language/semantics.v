@@ -236,6 +236,14 @@ Definition eval_binop_int op n1 n2 :=
       LitInt (n1 `quot` n2)
   | BinopRem =>
       LitInt (n1 `rem` n2)
+  | BinopLand =>
+      LitInt (Z.land n1 n2)
+  | BinopLor =>
+      LitInt (Z.lor n1 n2)
+  | BinopLsl =>
+      LitInt (n1 ≪ n2)
+  | BinopLsr =>
+      LitInt (n1 ≫ n2)
   | BinopLe =>
       LitBool (bool_decide (n1 ≤ n2))
   | BinopLt =>
