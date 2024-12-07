@@ -33,3 +33,27 @@ let set t i v =
   Mutex.protect t.mutex @@ fun () ->
     reserve t (i + 1) ;
     Array.unsafe_set t.data i v
+
+let xchg t i v =
+  Mutex.protect t.mutex @@ fun () ->
+    reserve t (i + 1) ;
+    let v' = Array.unsafe_get t.data i in
+    Array.unsafe_set t.data i v ;
+    v'
+
+let cas t i v1 v2 =
+  Mutex.protect t.mutex @@ fun () ->
+    reserve t (i + 1) ;
+    if Array.unsafe_get t.data i != v1 then (
+      false
+    ) else (
+      Array.unsafe_set t.data i v2 ;
+      true
+    )
+
+let faa t i incr =
+  Mutex.protect t.mutex @@ fun () ->
+    reserve t (i + 1) ;
+    let n = Array.unsafe_get t.data i in
+    Array.unsafe_set t.data i (n + incr) ;
+    n

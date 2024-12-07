@@ -55,3 +55,33 @@ Definition inf_array_set : val :=
       (fun: <> =>
          inf_array_reserve "t" ("i" + #1) ;;
          array_unsafe_set "t".{data} "i" "v").
+
+Definition inf_array_xchg : val :=
+  fun: "t" "i" "v" =>
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         inf_array_reserve "t" ("i" + #1) ;;
+         let: "v'" := array_unsafe_get "t".{data} "i" in
+         array_unsafe_set "t".{data} "i" "v" ;;
+         "v'").
+
+Definition inf_array_cas : val :=
+  fun: "t" "i" "v1" "v2" =>
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         inf_array_reserve "t" ("i" + #1) ;;
+         if: array_unsafe_get "t".{data} "i" != "v1" then (
+           #false
+         ) else (
+           array_unsafe_set "t".{data} "i" "v2" ;;
+           #true
+         )).
+
+Definition inf_array_faa : val :=
+  fun: "t" "i" "incr" =>
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         inf_array_reserve "t" ("i" + #1) ;;
+         let: "n" := array_unsafe_get "t".{data} "i" in
+         array_unsafe_set "t".{data} "i" ("n" + "incr") ;;
+         "n").
