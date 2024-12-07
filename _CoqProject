@@ -241,6 +241,8 @@ theories/saturn/mpmc_queue_1.v
 theories/saturn/mpmc_queue_2__types.v
 theories/saturn/mpmc_queue_2__code.v
 theories/saturn/mpmc_queue_2.v
+theories/saturn/inf_mpmc_queue_1__types.v
+theories/saturn/inf_mpmc_queue_1__code.v
 theories/saturn/inf_ws_deque_1__types.v
 theories/saturn/inf_ws_deque_1__code.v
 theories/saturn/inf_ws_deque_1.v
