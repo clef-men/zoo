@@ -83,10 +83,9 @@ Definition dynarray_2_reserve : val :=
     let: "data" := dynarray_2_data "t" in
     let: "cap" := array_size "data" in
     if: "cap" < "n" then (
-      let: "new_cap" := maximum "n" (dynarray_2_next_capacity "cap") in
-      let: "new_data" := array_unsafe_make "new_cap" §None in
-      array_copy_slice "data" #0 "new_data" #0 (dynarray_2_size "t") ;;
-      dynarray_2_set_data "t" "new_data"
+      let: "cap" := maximum "n" (dynarray_2_next_capacity "cap") in
+      let: "data" := array_unsafe_grow "data" "cap" §None in
+      dynarray_2_set_data "t" "data"
     ).
 
 Definition dynarray_2_reserve_extra : val :=

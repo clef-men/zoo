@@ -39,7 +39,8 @@ Section zoo_G.
     ∃ l data slots extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
-    l.[data] ↦ data ∗ array_model data (DfracOwn 1) (slots ++ replicate extra §None%V) ∗
+    l.[data] ↦ data ∗
+    array_model data (DfracOwn 1) (slots ++ replicate extra §None%V) ∗
     [∗ list] slot; v ∈ slots; vs, slot_model slot v.
 
   #[global] Instance dynarray_2_model_timeless t vs :
@@ -348,14 +349,9 @@ Section zoo_G.
     case_bool_decide; wp_pures; last iSteps.
     wp_smart_apply (dynarray_2_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
     wp_apply maximum_spec.
-    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data' Hdata_model'"; first lia.
-    rewrite /dynarray_2_size. wp_load.
-    iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
-    wp_smart_apply (array_copy_slice_spec with "[$Hdata_model $Hdata_model']") as "(_ & _ & _ & _ & _ & Hdata_model & Hdata_model')".
+    wp_smart_apply (array_unsafe_grow_spec with "Hdata_model") as (data') "(Hdata_model & Hdata_model')"; first lia.
     rewrite /dynarray_2_set_data. wp_store.
-    iApply "HΦ".
-    iStep. iExists l, data', slots, _.
-    rewrite !Nat2Z.id drop_replicate take_app_length' //. iSteps.
+    rewrite -assoc -replicate_add. iSteps.
   Qed.
   Lemma dynarray_2_reserve_extra_spec t vs (n : Z) :
     {{{
@@ -729,9 +725,7 @@ Section zoo_G.
     case_bool_decide; wp_pures; last iSteps.
     wp_smart_apply (dynarray_2_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
     wp_apply maximum_spec.
-    wp_smart_apply (array_unsafe_make_type itype_slot) as "%data' (_ & #Hdata_type')"; [lia | iSteps |].
-    wp_smart_apply dynarray_2_size_type as "%sz _"; first iSmash+.
-    wp_smart_apply (array_copy_slice_type itype_slot) as "_"; first iSteps.
+    wp_smart_apply (array_unsafe_grow_type itype_slot with "[$Hdata_type]") as (data') "#Hdata_type'"; [lia | iSteps |].
     wp_smart_apply (dynarray_2_set_data_type with "[$Htype $Hdata_type']") as "_".
     iSteps.
   Qed.

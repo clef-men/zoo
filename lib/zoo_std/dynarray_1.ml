@@ -38,8 +38,7 @@ let reserve t n =
     t.data <- new_data
   )
 let reserve_extra t n =
-  if 0 <= n then
-    reserve t (t.size + n)
+  reserve t (t.size + n)
 
 let push t v =
   reserve_extra t 1 ;

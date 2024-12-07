@@ -18,10 +18,29 @@ Definition inf_array_create : val :=
     let: "mutex" := mutex_create () in
     { "data", "default", "mutex" }.
 
+Definition inf_array_next_capacity : val :=
+  fun: "n" =>
+    maximum
+      #8
+      if: "n" ≤ #512 then (
+        #2 * "n"
+      ) else (
+        "n" + "n" `quot` #2
+      ).
+
+Definition inf_array_reserve : val :=
+  fun: "t" "n" =>
+    let: "data" := "t".{data} in
+    let: "cap" := array_size "data" in
+    if: "cap" < "n" then (
+      let: "cap" := maximum "n" (inf_array_next_capacity "cap") in
+      let: "data" := array_unsafe_grow "data" "cap" "t".{default} in
+      "t" <-{data} "data"
+    ).
+
 Definition inf_array_get : val :=
   fun: "t" "i" =>
-    mutex_protect
-      "t".{mutex}
+    mutex_protect "t".{mutex}
       (fun: <> =>
          let: "data" := "t".{data} in
          if: "i" < array_size "data" then (
@@ -32,20 +51,7 @@ Definition inf_array_get : val :=
 
 Definition inf_array_set : val :=
   fun: "t" "i" "v" =>
-    mutex_protect
-      "t".{mutex}
+    mutex_protect "t".{mutex}
       (fun: <> =>
-         let: "data" := "t".{data} in
-         let: "sz" := array_size "data" in
-         if: "i" < "sz" then (
-           array_unsafe_set "data" "i" "v"
-         ) else (
-           let: "data" :=
-             array_unsafe_grow
-               "data"
-               (maximum ("i" + #1) (#2 * "sz"))
-               "t".{default}
-           in
-           array_unsafe_set "data" "i" "v" ;;
-           "t" <-{data} "data"
-         )).
+         inf_array_reserve "t" ("i" + #1) ;;
+         array_unsafe_set "t".{data} "i" "v").

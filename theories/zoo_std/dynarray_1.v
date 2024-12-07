@@ -23,13 +23,14 @@ Implicit Types vs : list val.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition dynarray_1_model_inner l (sz : nat) data vs : iProp Σ :=
+  #[local] Definition dynarray_1_model' l (sz : nat) data vs : iProp Σ :=
     l.[size] ↦ #sz ∗
-    l.[data] ↦ data ∗ array_model data (DfracOwn 1) vs.
+    l.[data] ↦ data ∗
+    array_model data (DfracOwn 1) vs.
   Definition dynarray_1_model t vs : iProp Σ :=
     ∃ l data extra,
     ⌜t = #l⌝ ∗
-    dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V).
+    dynarray_1_model' l (length vs) data (vs ++ replicate extra ()%V).
 
   #[global] Instance dynarray_1_model_timeless t vs :
     Timeless (dynarray_1_model t vs).
@@ -289,19 +290,18 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    Ltac Zify.zify_post_hook ::= Z.quot_rem_to_equations.
     iSteps; iModIntro; wp_apply maximum_spec; iSteps.
   Qed.
   #[local] Lemma dynarray_1_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V)
+      dynarray_1_model' l (length vs) data (vs ++ replicate extra ()%V)
     }}}
       dynarray_1_reserve #l #n
     {{{ data' extra',
       RET ();
       ⌜Z.to_nat n ≤ length vs + extra'⌝ ∗
-      dynarray_1_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
+      dynarray_1_model' l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
@@ -340,19 +340,17 @@ Section zoo_G.
   #[local] Lemma dynarray_1_reserve_extra_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
-      dynarray_1_model_inner l (length vs) data (vs ++ replicate extra ()%V)
+      dynarray_1_model' l (length vs) data (vs ++ replicate extra ()%V)
     }}}
       dynarray_1_reserve_extra #l #n
     {{{ data' extra',
       RET ();
       ⌜Z.to_nat n ≤ extra'⌝ ∗
-      dynarray_1_model_inner l (length vs) data' (vs ++ replicate extra' ()%V)
+      dynarray_1_model' l (length vs) data' (vs ++ replicate extra' ()%V)
     }}}.
   Proof.
     iIntros "%Hn %Φ (Hsz & Hdata & Hdata_model) HΦ".
-    wp_rec. wp_pures.
-    case_bool_decide; wp_pures; last done.
-    wp_load.
+    wp_rec. wp_load.
     wp_smart_apply (dynarray_1_reserve_spec' with "[Hsz Hdata Hdata_model]") as "%data' %extra' (%Hextra' & Hmodel)"; [lia | iSteps |].
     iApply ("HΦ" $! data' extra').
     iSteps.

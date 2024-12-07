@@ -4050,6 +4050,7 @@ Section zoo_G.
       array_unsafe_grow t #sz' v'
     {{{ t',
       RET t';
+      array_model t dq vs ∗
       array_model t' (DfracOwn 1) (vs ++ replicate (Z.to_nat sz' - length vs) v')
     }}}.
   Proof.
@@ -4081,6 +4082,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       ⌜length vs ≤ sz'⌝%Z ∗
+      array_model t dq vs ∗
       array_model t' (DfracOwn 1) (vs ++ replicate (Z.to_nat sz' - length vs) v')
     }}}.
   Proof.

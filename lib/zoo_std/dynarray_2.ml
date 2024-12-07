@@ -56,10 +56,9 @@ let reserve t n =
   let data = data t in
   let cap = Array.size data in
   if cap < n then (
-    let new_cap = Int.max n (next_capacity cap) in
-    let new_data = Array.unsafe_make new_cap None in
-    Array.copy_slice data 0 new_data 0 (size t) ;
-    set_data t new_data
+    let cap = Int.max n (next_capacity cap) in
+    let data = Array.unsafe_grow data cap None in
+    set_data t data
   )
 let reserve_extra t n =
   if not (0 <= n) then

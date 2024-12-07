@@ -66,9 +66,7 @@ Definition dynarray_1_reserve : val :=
 
 Definition dynarray_1_reserve_extra : val :=
   fun: "t" "n" =>
-    if: #0 ≤ "n" then (
-      dynarray_1_reserve "t" ("t".{size} + "n")
-    ).
+    dynarray_1_reserve "t" ("t".{size} + "n").
 
 Definition dynarray_1_push : val :=
   fun: "t" "v" =>
