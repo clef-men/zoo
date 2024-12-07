@@ -12,14 +12,7 @@ From zoo Require Import
 
 Implicit Types t : val.
 
-Parameter random_create : val.
-Parameter random_int : val.
-
-Parameter random_inv : ∀ `{zoo_G : !ZooG Σ}, val → iProp Σ.
-
-Axiom random_inv_persistent : ∀ `{zoo_G : !ZooG Σ} t,
-  Persistent (random_inv t).
-#[global] Existing Instance random_inv_persistent.
+Parameter random_model : ∀ `{zoo_G : !ZooG Σ}, val → iProp Σ.
 
 Axiom random_create_spec : ∀ `{zoo_G : !ZooG Σ},
   {{{
@@ -28,23 +21,30 @@ Axiom random_create_spec : ∀ `{zoo_G : !ZooG Σ},
     random_create ()
   {{{ t,
     RET t;
-    random_inv t
+    random_model t
+  }}}.
+
+Axiom random_bits_spec : ∀ `{zoo_G : !ZooG Σ} t,
+  {{{
+    random_model t
+  }}}
+    random_bits t
+  {{{ (n : Z),
+    RET #n;
+    random_model t
   }}}.
 
 Axiom random_int_spec : ∀ `{zoo_G : !ZooG Σ} t ub,
   (0 < ub)%Z →
   {{{
-    random_inv t
+    random_model t
   }}}
     random_int t #ub
   {{{ n,
     RET #n;
-    ⌜0 ≤ n < ub⌝%Z
+    ⌜0 ≤ n < ub⌝%Z ∗
+    random_model t
   }}}.
-
-Definition random_int_in_range : val :=
-  fun: "t" "lb" "ub" =>
-    "lb" + random_int "t" ("ub" - "lb").
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -52,49 +52,52 @@ Section zoo_G.
   Lemma random_int_spec_nat t (ub : nat) :
     0 < ub →
     {{{
-      random_inv t
+      random_model t
     }}}
       random_int t #ub
     {{{ n,
       RET #n;
-      ⌜n < ub⌝
+      ⌜n < ub⌝ ∗
+      random_model t
     }}}.
   Proof.
-    iIntros "%Hub %Φ #Ht HΦ".
-    wp_apply (random_int_spec with "Ht") as (n) "%Hn"; first lia.
+    iIntros "%Hub %Φ Ht HΦ".
+    wp_apply (random_int_spec with "Ht") as (n) "(%Hn & Ht)"; first lia.
     Z_to_nat n. iSteps.
   Qed.
 
   Lemma random_int_in_range_spec t lb ub :
     (lb < ub)%Z →
     {{{
-      random_inv t
+      random_model t
     }}}
       random_int_in_range t #lb #ub
     {{{ n,
       RET #n;
-      ⌜lb ≤ n < ub⌝%Z
+      ⌜lb ≤ n < ub⌝%Z ∗
+      random_model t
     }}}.
   Proof.
-    iIntros "%Hlt %Φ #Ht HΦ".
+    iIntros "%Hlt %Φ Ht HΦ".
     wp_rec.
-    wp_smart_apply (random_int_spec with "Ht") as "%n %Hn"; first lia.
+    wp_smart_apply (random_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
     iSteps.
   Qed.
   Lemma random_int_in_range_spec_nat t lb ub :
     lb < ub →
     {{{
-      random_inv t
+      random_model t
     }}}
       random_int_in_range t #lb #ub
     {{{ n,
       RET #n;
-      ⌜lb ≤ n < ub⌝
+      ⌜lb ≤ n < ub⌝ ∗
+      random_model t
     }}}.
   Proof.
     iIntros "%Hlt %Φ Ht HΦ".
     wp_rec.
-    wp_smart_apply (random_int_spec with "Ht") as "%n %Hn"; first lia.
+    wp_smart_apply (random_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
     wp_pures.
     Z_to_nat n. rewrite -Nat2Z.inj_add. iSteps.
   Qed.

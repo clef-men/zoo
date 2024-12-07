@@ -10,6 +10,8 @@ From zoo Require Import
 
 Parameter random_create : val.
 
+Parameter random_bits : val.
+
 Parameter random_int : val.
 
 Definition random_int_in_range : val :=

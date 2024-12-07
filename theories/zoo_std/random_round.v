@@ -31,7 +31,7 @@ Section zoo_G.
     l.[random] ↦ rand ∗
     l.[array] ↦ arr ∗
     l.[index] ↦ #(length nexts) ∗
-    random_inv rand ∗
+    random_model rand ∗
     array_model arr (DfracOwn 1) (#@{nat} <$> nexts ++ reverse prevs).
 
   Lemma random_round_create_spec sz :
@@ -55,7 +55,7 @@ Section zoo_G.
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }
-    wp_apply (random_create_spec with "[//]") as (rand) "#Hrand".
+    wp_apply (random_create_spec with "[//]") as (rand) "Hrand".
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
     iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id length_seq. iSteps.
@@ -71,7 +71,7 @@ Section zoo_G.
       random_round_model t sz []
     }}}.
   Proof.
-    iIntros "%Φ (%l & %rand & %arr & %nexts & -> & %Hpermutation & Hl_random & Hl_array & Hl_index & #Hrand & Harr) HΦ".
+    iIntros "%Φ (%l & %rand & %arr & %nexts & -> & %Hpermutation & Hl_random & Hl_array & Hl_index & Hrand & Harr) HΦ".
     wp_rec. wp_load.
     wp_apply (array_size_spec with "Harr") as "Harr".
     iSteps. iExists (nexts ++ reverse prevs). rewrite !right_id. iSteps. iPureIntro.
@@ -90,12 +90,12 @@ Section zoo_G.
       random_round_model t sz (prevs ++ [i])
     }}}.
   Proof.
-    iIntros "%Hprevs %Φ (%l & %rand & %arr & %nexts & -> & %Hpermutation & Hl_random & Hl_array & Hl_index & #Hrand & Harr) HΦ".
+    iIntros "%Hprevs %Φ (%l & %rand & %arr & %nexts & -> & %Hpermutation & Hl_random & Hl_array & Hl_index & Hrand & Harr) HΦ".
     pose proof Hpermutation as Hlength%Permutation_length.
     rewrite length_app length_seq length_reverse in Hlength.
     wp_rec. do 3 wp_load.
     set i := length nexts.
-    wp_smart_apply (random_int_spec with "Hrand") as (j) "%Hj"; first lia.
+    wp_smart_apply (random_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
     Z_to_nat j.
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
