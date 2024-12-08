@@ -85,8 +85,6 @@ Fixpoint occurs x e :=
       occurs x e2
   | Fork e =>
       occurs x e
-  | Yield =>
-      false
   | Proph =>
       false
   | Resolve e0 e1 e2 =>
@@ -229,8 +227,6 @@ Fixpoint subst (x : string) v e :=
   | Fork e =>
       Fork
         (subst x v e)
-  | Yield =>
-      Yield
   | Proph =>
       Proph
   | Resolve e0 e1 e2 =>

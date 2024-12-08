@@ -6,7 +6,8 @@ From zoo.language Require Import
 From zoo Require Import
   identifier.
 From zoo_std Require Import
-  inf_array.
+  inf_array
+  domain.
 From zoo Require Import
   options.
 

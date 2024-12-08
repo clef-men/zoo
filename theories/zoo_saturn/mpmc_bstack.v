@@ -300,7 +300,8 @@ Section mpmc_bstack_G.
       + iSplitR "HΦ"; first iSteps.
         iModIntro.
 
-        wp_smart_apply ("Hpush" with "[] HΦ"); first iSteps.
+        iSteps. iModIntro.
+        wp_apply ("Hpush" with "[] HΦ"); first iSteps.
 
       + iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".

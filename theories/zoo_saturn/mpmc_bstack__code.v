@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_std Require Import
+  domain.
 From zoo_saturn Require Import
   mpmc_bstack__types.
 From zoo Require Import
@@ -31,7 +33,7 @@ Definition mpmc_bstack_is_empty : val :=
     if: CAS "t".[front] "front" "new_front" then (
       #true
     ) else (
-      Yield ;;
+      domain_yield () ;;
       "push" "t" "v"
     )
   and: "push" "t" "v" =>
@@ -76,7 +78,7 @@ Definition mpmc_bstack_pop : val :=
         if: CAS "t".[front] "front" "new_front" then (
           ‘Some( "v" )
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "pop" "t"
         )
     end.

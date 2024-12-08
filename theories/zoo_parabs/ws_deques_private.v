@@ -11,7 +11,8 @@ From zoo.diaframe Require Import
 From zoo_std Require Import
   option
   array
-  deque.
+  deque
+  domain.
 From zoo_parabs Require Export
   ws_deques.
 From zoo Require Import
@@ -149,7 +150,7 @@ Definition ws_deques_private_pop : val :=
     let: "responses" := "t".{responses} in
     match: array_unsafe_get "responses" "i" with
     | No_response =>
-        Yield ;;
+        domain_yield () ;;
         "ws_deques_private_steal_to_aux" "t" "i"
     | No =>
         §None

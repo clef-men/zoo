@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_std Require Import
+  domain.
 From zoo_saturn Require Import
   mpmc_queue_1__types.
 From zoo Require Import
@@ -27,7 +29,7 @@ Definition mpmc_queue_1_do_push : val :=
         match: "node_r".{next} with
         | Null =>
             if: ~ CAS "node_r".[next] §Null "new_back" then (
-              Yield ;;
+              domain_yield () ;;
               "do_push" "node" "new_back"
             )
         | Node <> <> as "next" =>
@@ -42,7 +44,7 @@ Definition mpmc_queue_1_fix_back : val :=
         if:
           "new_back_r".{next} == §Null and CAS "t".[back] "back" "new_back"
         then (
-          Yield ;;
+          domain_yield () ;;
           "fix_back" "t" "t".{back} "new_back"
         )
     end.
@@ -71,7 +73,7 @@ Definition mpmc_queue_1_pop : val :=
               "new_front_r" <-{data} () ;;
               ‘Some( "v" )
             ) else (
-              Yield ;;
+              domain_yield () ;;
               "pop" "t"
             )
         end

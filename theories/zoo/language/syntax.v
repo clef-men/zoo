@@ -221,7 +221,6 @@ Inductive expr :=
   | CAS (e0 e1 e2 : expr)
   | FAA (e1 e2 : expr)
   | Fork (e : expr)
-  | Yield
   | Proph
   | Resolve (e0 e1 e2 : expr)
 with val :=
@@ -337,8 +336,6 @@ Section expr_ind.
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
-  Variable HYield :
-    P Yield.
   Variable HProph :
     P Proph.
   Variable HResolve :
@@ -439,8 +436,6 @@ Section expr_ind.
     | Fork e =>
         HFork
           e (expr_ind e)
-    | Yield =>
-        HYield
     | Proph =>
         HProph
     | Resolve e0 e1 e2 =>
@@ -574,8 +569,6 @@ Section expr_val_ind.
   Variable HFork :
     ∀ e, Pexpr e →
     Pexpr (Fork e).
-  Variable HYield :
-    Pexpr Yield.
   Variable HProph :
     Pexpr Proph.
   Variable HResolve :
@@ -688,8 +681,6 @@ Section expr_val_ind.
     | Fork e =>
         HFork
           e (expr_val_ind e)
-    | Yield =>
-        HYield
     | Proph =>
         HProph
     | Resolve e0 e1 e2 =>
@@ -988,8 +979,6 @@ Proof.
       | Fork e1, Fork e2 =>
           cast_if
             (decide (e1 = e2))
-      | Yield, Yield =>
-          left _
       | Proph, Proph =>
           left _
       | Resolve e10 e11 e12, Resolve e20 e21 e22 =>
@@ -1205,12 +1194,10 @@ Proof.
     20.
   #[local] Notation code_Fork :=
     21.
-  #[local] Notation code_Yield :=
-    22.
   #[local] Notation code_Proph :=
-    23.
+    22.
   #[local] Notation code_Resolve :=
-    24.
+    23.
   #[local] Notation code_ValRecs :=
     0.
   #[local] Notation code_recursive :=
@@ -1273,8 +1260,6 @@ Proof.
           GenNode code_FAA [go e1; go e2]
       | Fork e =>
           GenNode code_Fork [go e]
-      | Yield =>
-          GenNode code_Yield []
       | Proph =>
           GenNode code_Proph []
       | Resolve e0 e1 e2 =>
@@ -1360,8 +1345,6 @@ Proof.
           FAA (go e1) (go e2)
       | GenNode code_Fork [e] =>
           Fork $ go e
-      | GenNode code_Yield [] =>
-          Yield
       | GenNode code_Proph [] =>
           Proph
       | GenNode code_Resolve [e0; e1; e2] =>

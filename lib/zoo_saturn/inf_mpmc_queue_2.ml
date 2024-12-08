@@ -19,7 +19,7 @@ let rec pop t =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
   match Inf_array.xchg t.data i Anything with
   | Nothing ->
-      Domain.cpu_relax () ;
+      Domain.yield () ;
       pop t
   | Anything ->
       assert false

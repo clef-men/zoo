@@ -69,7 +69,7 @@ Definition dynarray_2_set : val :=
 
 Definition dynarray_2_next_capacity : val :=
   fun: "n" =>
-    maximum
+    int_max
       #8
       if: "n" ≤ #512 then (
         #2 * "n"
@@ -83,7 +83,7 @@ Definition dynarray_2_reserve : val :=
     let: "data" := dynarray_2_data "t" in
     let: "cap" := array_size "data" in
     if: "cap" < "n" then (
-      let: "cap" := maximum "n" (dynarray_2_next_capacity "cap") in
+      let: "cap" := int_max "n" (dynarray_2_next_capacity "cap") in
       let: "data" := array_unsafe_grow "data" "cap" §None in
       dynarray_2_set_data "t" "data"
     ).

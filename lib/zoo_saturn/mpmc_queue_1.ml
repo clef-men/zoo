@@ -29,7 +29,7 @@ let rec do_push (node : (_, [`Node]) node) new_back =
   match node_r.next with
   | Null ->
       if not @@ Atomic.Loc.compare_and_set [%atomic.loc node_r.next] Null new_back then (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         do_push node new_back
       )
   | Node _ as next ->
@@ -39,7 +39,7 @@ let rec fix_back t back (new_back : (_, [`Node]) node) =
   if new_back_r.next == Null
   && Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back
   then (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     fix_back t t.back new_back
   )
 let push t v =
@@ -59,6 +59,6 @@ let rec pop t =
         new_front_r.data <- Obj.magic () ;
         Some v
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         pop t
       )

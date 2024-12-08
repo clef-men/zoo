@@ -13,7 +13,7 @@ let create () =
 let rec push t v =
   let back = t.back in
   if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (v :: back) then (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     push t v
   )
 

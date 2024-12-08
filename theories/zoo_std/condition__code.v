@@ -13,15 +13,15 @@ Definition condition_create : val :=
     ().
 
 Definition condition_wait : val :=
-  fun: "t" "mtx" =>
-    Yield.
+  fun: "_t" "_mtx" =>
+    ().
 
 Definition condition_notify : val :=
-  fun: <> =>
+  fun: "_t" =>
     ().
 
 Definition condition_notify_all : val :=
-  fun: <> =>
+  fun: "_t" =>
     ().
 
 Definition condition_wait_until_aux : val :=

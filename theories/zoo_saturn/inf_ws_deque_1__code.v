@@ -6,7 +6,8 @@ From zoo.language Require Import
 From zoo Require Import
   identifier.
 From zoo_std Require Import
-  inf_array.
+  inf_array
+  domain.
 From zoo_saturn Require Import
   inf_ws_deque_1__types.
 From zoo Require Import
@@ -37,7 +38,7 @@ Definition inf_ws_deque_1_steal : val :=
      then (
       ‘Some( inf_array_get "t".{data} "front" )
     ) else (
-      Yield ;;
+      domain_yield () ;;
       "steal" "t"
     ).
 

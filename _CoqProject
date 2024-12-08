@@ -110,9 +110,11 @@ theories/zoo_std/diverge.v
 theories/zoo_std/assert.v
 theories/zoo_std/assume.v
 theories/zoo_std/for_.v
-theories/zoo_std/int.v
 theories/zoo_std/ref_.v
 theories/zoo_std/option.v
+theories/zoo_std/int__types.v
+theories/zoo_std/int__code.v
+theories/zoo_std/int.v
 theories/zoo_std/optional__types.v
 theories/zoo_std/optional__code.v
 theories/zoo_std/optional.v
@@ -158,6 +160,8 @@ theories/zoo_std/xdeque.v
 theories/zoo_std/deque__types.v
 theories/zoo_std/deque__code.v
 theories/zoo_std/deque.v
+theories/zoo_std/domain__types.v
+theories/zoo_std/domain__code.v
 theories/zoo_std/domain.v
 theories/zoo_std/mutex__types.v
 theories/zoo_std/mutex__code.v

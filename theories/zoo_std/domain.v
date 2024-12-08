@@ -5,7 +5,8 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Export
-  base.
+  base
+  domain__code.
 From zoo_std Require Import
   spsc_future.
 From zoo Require Import
@@ -77,6 +78,70 @@ Section domain_G.
     apply spsc_future_get_spec.
   Qed.
 End domain_G.
+
+Axiom domain_yield_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+  Φ ()%V ⊢
+  WP domain_yield () {{ Φ }}.
+
+Axiom domain_self_index_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+  (∀ (i : nat), Φ #i) ⊢
+  WP domain_self_index () {{ Φ }}.
+
+Axiom domain_recommended_domain_count_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+  (∀ (i : nat), Φ #i) ⊢
+  WP domain_recommended_domain_count () {{ Φ }}.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[global] Instance domain_yield_diaspec :
+    SPEC
+    {{
+      True
+    }}
+      domain_yield ()%V
+    {{
+      RET ()%V;
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp_apply domain_yield_spec.
+    iSteps.
+  Qed.
+
+  #[global] Instance domain_self_index_diaspec :
+    SPEC
+    {{
+      True
+    }}
+      domain_self_index ()%V
+    {{ (i : nat),
+      RET #i;
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp_apply domain_self_index_spec.
+    iSteps.
+  Qed.
+
+  #[global] Instance domain_recommended_domain_count_diaspec :
+    SPEC
+    {{
+      True
+    }}
+      domain_recommended_domain_count ()%V
+    {{ (i : nat),
+      RET #i;
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp_apply domain_recommended_domain_count_spec.
+    iSteps.
+  Qed.
+End zoo_G.
 
 #[global] Opaque domain_spawn.
 #[global] Opaque domain_join.

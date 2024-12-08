@@ -652,14 +652,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         Unit
         σ
         [e]
-  | base_step_yield σ :
-      base_step
-        Yield
-        σ
-        []
-        Unit
-        σ
-        []
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →
       base_step

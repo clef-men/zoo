@@ -127,12 +127,15 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance reveal_step_wp tag vs :
+  #[global] Instance step_wp_reveal tag vs :
     SPEC
-    {{ True }}
+    {{
+      True
+    }}
       Reveal $ ValBlock None tag vs
     {{ bid,
-      RET ValBlock (Some bid) tag vs; True
+      RET ValBlock (Some bid) tag vs;
+      True
     }}.
   Proof.
     iSteps.

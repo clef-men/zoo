@@ -29,7 +29,7 @@ let rec push_aux t sz v front =
   if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
     true
   ) else (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     push t v
   )
 and push t v =
@@ -50,6 +50,6 @@ let rec pop t =
       if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
         Some v
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         pop t
       )

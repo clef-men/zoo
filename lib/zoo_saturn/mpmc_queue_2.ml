@@ -82,7 +82,7 @@ let help t (back : (_, [< `Back]) back) i_move move =
 let rec push_back_aux t v i back =
   let new_back = Snoc (i + 1, v, back) in
   if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     push_back t v
   )
 and push_back t v =
@@ -102,7 +102,7 @@ let rec push_front t v =
   | Cons (i, _, _) as front ->
       let new_front = Cons (i - 1, v, front) in
       if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         push_front t v
       )
   | Front i_front as front ->
@@ -111,13 +111,13 @@ let rec push_front t v =
           if i_front == i_back then (
             let new_back = Snoc (i_back + 1, v_back, Snoc (i_back, v, prefix)) in
             if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
-              Domain.cpu_relax () ;
+              Domain.yield () ;
               push_front t v
             )
           ) else (
             let new_back = Back { index= i_back; move= back } in
             if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then
-              Domain.cpu_relax () ;
+              Domain.yield () ;
             push_front t v
           )
       | Back back_r as back ->
@@ -126,7 +126,7 @@ let rec push_front t v =
               if t.front == front then (
                 let new_back = Snoc (back_r.index + 1, v, back) in
                 if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
-                  Domain.cpu_relax () ;
+                  Domain.yield () ;
                   push_front t v
                 )
               ) else (
@@ -142,7 +142,7 @@ let rec pop_1 t front =
       if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
         Some v
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         pop t
       )
   | Front i_front as front ->
@@ -161,7 +161,7 @@ let rec pop_1 t front =
                 back_r.move <- Used ;
                 Some v
               ) else (
-                Domain.cpu_relax () ;
+                Domain.yield () ;
                 pop t
               )
             else
@@ -178,7 +178,7 @@ let rec pop_1 t front =
                   back_r.move <- Used ;
                   Some v
                 ) else (
-                  Domain.cpu_relax () ;
+                  Domain.yield () ;
                   pop t
                 )
               else

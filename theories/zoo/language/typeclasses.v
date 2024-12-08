@@ -118,12 +118,6 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance yield_atomic :
-    Atomic Yield.
-  Proof.
-    solve_atomic.
-  Qed.
-
   #[global] Instance proph_atomic :
     Atomic Proph.
   Proof.
@@ -445,16 +439,6 @@ Section pure_exec.
       1
       (Load (Val $ ValBlock bid tag vs) (Val $ ValInt fld))
       (Val v).
-  Proof.
-    solve_pure_exec.
-  Qed.
-
-  #[global] Instance pure_yield :
-    PureExec
-      True
-      1
-      Yield
-      Unit.
   Proof.
     solve_pure_exec.
   Qed.

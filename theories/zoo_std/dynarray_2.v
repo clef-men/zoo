@@ -327,7 +327,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply maximum_spec; iSteps.
+    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
   Qed.
   Lemma dynarray_2_reserve_spec t vs (n : Z) :
     {{{
@@ -348,7 +348,7 @@ Section zoo_G.
     wp_pures.
     case_bool_decide; wp_pures; last iSteps.
     wp_smart_apply (dynarray_2_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
-    wp_apply maximum_spec.
+    wp_apply int_max_spec.
     wp_smart_apply (array_unsafe_grow_spec with "Hdata_model") as (data') "(Hdata_model & Hdata_model')"; first lia.
     rewrite /dynarray_2_set_data. wp_store.
     rewrite -assoc -replicate_add. iSteps.
@@ -724,7 +724,7 @@ Section zoo_G.
     wp_pures.
     case_bool_decide; wp_pures; last iSteps.
     wp_smart_apply (dynarray_2_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
-    wp_apply maximum_spec.
+    wp_apply int_max_spec.
     wp_smart_apply (array_unsafe_grow_type itype_slot with "[$Hdata_type]") as (data') "#Hdata_type'"; [lia | iSteps |].
     wp_smart_apply (dynarray_2_set_data_type with "[$Htype $Hdata_type']") as "_".
     iSteps.

@@ -20,7 +20,7 @@ Definition inf_array_create : val :=
 
 Definition inf_array_next_capacity : val :=
   fun: "n" =>
-    maximum
+    int_max
       #8
       if: "n" ≤ #512 then (
         #2 * "n"
@@ -33,7 +33,7 @@ Definition inf_array_reserve : val :=
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
     if: "cap" < "n" then (
-      let: "cap" := maximum "n" (inf_array_next_capacity "cap") in
+      let: "cap" := int_max "n" (inf_array_next_capacity "cap") in
       let: "data" := array_unsafe_grow "data" "cap" "t".{default} in
       "t" <-{data} "data"
     ).

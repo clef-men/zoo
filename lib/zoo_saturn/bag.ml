@@ -16,7 +16,7 @@ let create sz =
 
 let rec push slot o =
   if not @@ Atomic.compare_and_set slot None o then (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     push slot o
   )
 let push t v =
@@ -32,7 +32,7 @@ let rec pop slot =
       if Atomic.compare_and_set slot o None then (
         v
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         pop slot
       )
 let pop t =

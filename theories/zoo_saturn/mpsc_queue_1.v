@@ -11,7 +11,8 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  xchain.
+  xchain
+  domain.
 From zoo_saturn Require Export
   base
   mpsc_queue_1__code.
@@ -555,6 +556,7 @@ Section mpsc_queue_1_G.
       iSteps.
     }
     destruct b; last iSteps.
+    wp_smart_apply domain_yield_spec.
     wp_smart_apply (mpsc_queue_1_back_spec with "Hinv") as (back' i') "(_ & #Hhistory_at_back')".
     iApply ("HLöb" with "HΦ Hhistory_at_back'").
   Qed.

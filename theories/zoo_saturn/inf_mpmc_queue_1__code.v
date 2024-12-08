@@ -5,7 +5,8 @@ From zoo.language Require Import
   notations.
 From zoo_std Require Import
   inf_array
-  optional.
+  optional
+  domain.
 From zoo_saturn Require Import
   inf_mpmc_queue_1__types.
 From zoo Require Import
@@ -24,7 +25,7 @@ Definition inf_mpmc_queue_1_pop_0 : val :=
   rec: "pop" "t" "i" =>
     match: inf_array_get "t".{data} "i" with
     | Nothing =>
-        Yield ;;
+        domain_yield () ;;
         "pop" "t" "i"
     | Anything =>
         Fail

@@ -4,7 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  clst.
+  clst
+  domain.
 From zoo_saturn Require Import
   mpsc_queue_3__types.
 From zoo Require Import
@@ -33,7 +34,7 @@ Definition mpsc_queue_3_push_back : val :=
         if: CAS "t".[back] "back" ‘ClstCons( "v", "back" ) then (
           #false
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "push_back" "t" "v"
         )
     end.

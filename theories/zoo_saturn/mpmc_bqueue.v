@@ -9,7 +9,8 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  option.
+  option
+  domain.
 From zoo_saturn Require Export
   base.
 From zoo Require Import
@@ -114,7 +115,7 @@ Definition mpmc_bqueue_pop : val :=
         "front" <-{node_data} () ;;
         ‘Some{ "v" }
       ) else (
-        Yield ;;
+        domain_yield () ;;
         "mpmc_bqueue_pop" "t"
       )
     ).

@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_std Require Import
+  domain.
 From zoo Require Import
   options.
 

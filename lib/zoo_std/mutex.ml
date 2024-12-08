@@ -12,10 +12,8 @@ let lock =
   Stdlib.Mutex.lock
 [@@zoo.overwrite_rec
   fun t ->
-    if not @@ Atomic.compare_and_set t false true then (
-      Domain.cpu_relax () ;
+    if not @@ Atomic.compare_and_set t false true then
       lock t
-    )
 ]
 
 let unlock =

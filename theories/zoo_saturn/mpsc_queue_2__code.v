@@ -4,7 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst.
+  lst
+  domain.
 From zoo_saturn Require Import
   mpsc_queue_2__types.
 From zoo Require Import
@@ -18,7 +19,7 @@ Definition mpsc_queue_2_push : val :=
   rec: "push" "t" "v" =>
     let: "back" := "t".{back} in
     if: ~ CAS "t".[back] "back" ("v" :: "back") then (
-      Yield ;;
+      domain_yield () ;;
       "push" "t" "v"
     ).
 

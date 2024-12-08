@@ -5,7 +5,8 @@ From zoo.language Require Import
   notations.
 From zoo_std Require Import
   inf_array
-  optional.
+  optional
+  domain.
 From zoo Require Import
   options.
 

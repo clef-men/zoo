@@ -12,7 +12,7 @@ let rec push t v =
   let old = Atomic.get t in
   let new_ = v :: old in
   if not @@ Atomic.compare_and_set t old new_ then (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     push t v
   )
 
@@ -24,6 +24,6 @@ let rec pop t =
       if Atomic.compare_and_set t old new_ then (
         Some v
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         pop t
       )

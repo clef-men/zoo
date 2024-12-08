@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_std Require Import
+  domain.
 From zoo_saturn Require Import
   mpmc_stack_1__types.
 From zoo Require Import
@@ -17,7 +19,7 @@ Definition mpmc_stack_1_push : val :=
     let: "old" := !"t" in
     let: "new_" := "v" :: "old" in
     if: ~ CAS "t".[contents] "old" "new_" then (
-      Yield ;;
+      domain_yield () ;;
       "push" "t" "v"
     ).
 
@@ -30,7 +32,7 @@ Definition mpmc_stack_1_pop : val :=
         if: CAS "t".[contents] "old" "new_" then (
           ‘Some( "v" )
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "pop" "t"
         )
     end.

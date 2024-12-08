@@ -19,7 +19,8 @@ From zoo_std Require Import
   option
   optional
   array
-  random_round.
+  random_round
+  domain.
 From zoo_parabs Require Export
   ws_hub.
 From zoo_parabs Require Import
@@ -104,7 +105,7 @@ Section ws_deques.
             if: "until" () then (
              §Anything
             ) else (
-              if: "yield" then Yield else () ;;
+              if: "yield" then domain_yield () else () ;;
               "ws_hub_std_try_steal" "t" "i" "yield" ("max_round" - #1) "until"
             )
         end.
@@ -118,7 +119,7 @@ Section ws_deques.
           if: "pred" () then (
             §None
           ) else (
-            Yield ;;
+            domain_yield () ;;
             "ws_hub_std_steal_until_aux" "t" "i" "pred"
           )
       end.
@@ -758,7 +759,8 @@ Section ws_hub_std_G.
       + iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
         iApply ("HΦ" $! None with "Hmodel [$Howner $HP]").
 
-      + wp_smart_apply ("HLöb" with "Howner HΦ").
+      + wp_apply domain_yield_spec.
+        wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
   Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield pred :
     i = Z.of_nat i_ →

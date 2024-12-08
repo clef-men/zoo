@@ -15,7 +15,6 @@ Definition mutex_create : val :=
 Definition mutex_lock : val :=
   rec: "lock" "t" =>
     if: ~ CAS "t".[contents] #false #true then (
-      Yield ;;
       "lock" "t"
     ).
 

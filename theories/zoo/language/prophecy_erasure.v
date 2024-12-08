@@ -117,8 +117,6 @@ Fixpoint erase_expr e :=
   | Fork e =>
       Fork
         (erase_expr e)
-  | Yield =>
-      Yield
   | Proph =>
       (fun: <> => #LitPoison)%V ()%V
   | Resolve e0 e1 e2 =>

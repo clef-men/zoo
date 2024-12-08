@@ -26,7 +26,7 @@ let rec push_back t v =
       if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (ClstCons (v, back)) then (
         false
       ) else (
-        Domain.cpu_relax () ;
+        Domain.yield () ;
         push_back t v
       )
 

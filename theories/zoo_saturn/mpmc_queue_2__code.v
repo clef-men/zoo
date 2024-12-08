@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_std Require Import
+  domain.
 From zoo_saturn Require Import
   mpmc_queue_2__types.
 From zoo Require Import
@@ -82,7 +84,7 @@ Definition mpmc_queue_2_help : val :=
   recs: "push_back_aux" "t" "v" "i" "back" =>
     let: "new_back" := ‘Snoc( "i" + #1, "v", "back" ) in
     if: ~ CAS "t".[back] "back" "new_back" then (
-      Yield ;;
+      domain_yield () ;;
       "push_back" "t" "v"
     )
   and: "push_back" "t" "v" =>
@@ -127,7 +129,7 @@ Definition mpmc_queue_2_push_front : val :=
     | Cons "i" <> <> as "front" =>
         let: "new_front" := ‘Cons( "i" - #1, "v", "front" ) in
         if: ~ CAS "t".[front] "front" "new_front" then (
-          Yield ;;
+          domain_yield () ;;
           "push_front" "t" "v"
         )
     | Front "i_front" as "front" =>
@@ -141,13 +143,13 @@ Definition mpmc_queue_2_push_front : val :=
                 )
               in
               if: ~ CAS "t".[back] "back" "new_back" then (
-                Yield ;;
+                domain_yield () ;;
                 "push_front" "t" "v"
               )
             ) else (
               let: "new_back" := ‘Back{ "i_back", "back" } in
               if: ~ CAS "t".[back] "back" "new_back" then (
-                Yield
+                domain_yield ()
               ) else (
                 ()
               ) ;;
@@ -162,7 +164,7 @@ Definition mpmc_queue_2_push_front : val :=
                     ‘Snoc( "back_r".{index} + #1, "v", "back" )
                   in
                   if: ~ CAS "t".[back] "back" "new_back" then (
-                    Yield ;;
+                    domain_yield () ;;
                     "push_front" "t" "v"
                   )
                 ) else (
@@ -182,7 +184,7 @@ Definition mpmc_queue_2_push_front : val :=
         if: CAS "t".[front] "front" "new_front" then (
           ‘Some( "v" )
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "pop" "t"
         )
     | Front "i_front" as "front" =>
@@ -205,7 +207,7 @@ Definition mpmc_queue_2_push_front : val :=
                           "back_r" <-{move} §Used ;;
                           ‘Some( "v" )
                         ) else (
-                          Yield ;;
+                          domain_yield () ;;
                           "pop" "t"
                         )
                     end
@@ -226,7 +228,7 @@ Definition mpmc_queue_2_push_front : val :=
                         "back_r" <-{move} §Used ;;
                         ‘Some( "v" )
                       ) else (
-                        Yield ;;
+                        domain_yield () ;;
                         "pop" "t"
                       )
                   end

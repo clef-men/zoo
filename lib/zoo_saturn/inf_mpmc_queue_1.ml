@@ -17,7 +17,7 @@ let push t v =
 let rec pop t i =
   match Inf_array.get t.data i with
   | Nothing ->
-      Domain.cpu_relax () ;
+      Domain.yield () ;
       pop t i
   | Anything ->
       assert false

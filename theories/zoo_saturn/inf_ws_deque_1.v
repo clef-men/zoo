@@ -22,7 +22,8 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  inf_array.
+  inf_array
+  domain.
 From zoo_saturn Require Export
   base
   inf_ws_deque_1__code.
@@ -1204,6 +1205,8 @@ Section inf_ws_deque_1_G.
       }
       clear- Hbranch1 Hbranch2 Hbranch3.
 
+      wp_smart_apply domain_yield_spec.
+
       (* → [inf_ws_deque_1_steal #l] *)
       wp_smart_apply ("IH" with "HΦ").
     }
@@ -1259,6 +1262,8 @@ Section inf_ws_deque_1_G.
 
       (* CAS must fail as we are not the winner *)
       wp_smart_apply (inf_ws_deque_1_wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]") as "_"; [done.. |].
+
+      wp_smart_apply domain_yield_spec.
 
       (* → [inf_ws_deque_1_steal #l] *)
       wp_smart_apply ("IH" with "HΦ").

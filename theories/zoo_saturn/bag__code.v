@@ -4,7 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  array.
+  array
+  domain.
 From zoo_saturn Require Import
   bag__types.
 From zoo Require Import
@@ -17,7 +18,7 @@ Definition bag_create : val :=
 Definition bag_push_0 : val :=
   rec: "push" "slot" "o" =>
     if: ~ CAS "slot".[contents] §None "o" then (
-      Yield ;;
+      domain_yield () ;;
       "push" "slot" "o"
     ).
 
@@ -36,7 +37,7 @@ Definition bag_pop_0 : val :=
         if: CAS "slot".[contents] "o" §None then (
           "v"
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "pop" "slot"
         )
     end.

@@ -240,7 +240,7 @@ Section inf_array_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply maximum_spec; iSteps.
+    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
   Qed.
   #[local] Lemma inf_array_reserve_spec l γ us n :
     (0 ≤ n)%Z →
@@ -261,7 +261,7 @@ Section inf_array_G.
     wp_smart_apply (array_size_spec with "Hdata") as "Hdata".
     wp_pures. case_bool_decide; last iSteps.
     wp_smart_apply (inf_array_next_capacity_spec with "[//]") as (?) "%"; first lia.
-    wp_apply maximum_spec.
+    wp_apply int_max_spec.
     wp_load.
     wp_smart_apply (array_unsafe_grow_spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
     wp_store.

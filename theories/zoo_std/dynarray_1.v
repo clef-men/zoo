@@ -290,7 +290,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply maximum_spec; iSteps.
+    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
   Qed.
   #[local] Lemma dynarray_1_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →
@@ -310,7 +310,7 @@ Section zoo_G.
     wp_pures.
     case_bool_decide as Htest; wp_pures; rewrite length_app length_replicate in Htest.
     - wp_apply (dynarray_1_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
-      wp_apply maximum_spec.
+      wp_apply int_max_spec.
       wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%data' Hdata_model'"; first lia.
       wp_load.
       wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hdata_model $Hdata_model']") as "(Hdata_model & Hdata_model')"; try lia.

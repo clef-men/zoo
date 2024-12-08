@@ -11,21 +11,21 @@ let create =
 let wait =
   Stdlib.Condition.wait
 [@@zoo.overwrite
-  fun t mtx ->
-    Domain.cpu_relax ()
+  fun _t _mtx ->
+    ()
 ]
 
 let notify =
   Stdlib.Condition.signal
 [@@zoo.overwrite
-  fun () ->
+  fun _t ->
     ()
 ]
 
 let notify_all =
   Stdlib.Condition.broadcast
 [@@zoo.overwrite
-  fun () ->
+  fun _t ->
     ()
 ]
 

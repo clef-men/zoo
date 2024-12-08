@@ -5,7 +5,8 @@ From zoo.language Require Import
   notations.
 From zoo_std Require Import
   clst
-  optional.
+  optional
+  domain.
 From zoo_saturn Require Import
   mpmc_stack_2__types.
 From zoo Require Import
@@ -25,7 +26,7 @@ Definition mpmc_stack_2_push : val :=
         if: CAS "t".[contents] "old" "new_" then (
           #false
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "push" "t" "v"
         )
     end.
@@ -41,7 +42,7 @@ Definition mpmc_stack_2_pop : val :=
         if: CAS "t".[contents] "old" "new_" then (
           ‘Something( "v" )
         ) else (
-          Yield ;;
+          domain_yield () ;;
           "pop" "t"
         )
     end.

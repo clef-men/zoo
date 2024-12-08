@@ -34,7 +34,7 @@ let rec steal t =
   then (
     Some (Inf_array.get t.data front)
   ) else (
-    Domain.cpu_relax () ;
+    Domain.yield () ;
     steal t
   )
 
