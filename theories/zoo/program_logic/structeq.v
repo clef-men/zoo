@@ -12,6 +12,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
+Implicit Types n : Z.
 Implicit Types v : val.
 
 Parameter structeq : val.
@@ -94,9 +95,26 @@ Fixpoint val_reachable footprint src path dst :=
 
 Definition val_similar footprint v1 v2 :=
   match v1 with
-  | ValBool _
-  | ValInt _ =>
-      Some $ bool_decide (v1 = v2)
+  | ValBool b1 =>
+      match v2 with
+      | ValBool b2 =>
+          Some $ bool_decide (b1 = b2)
+      | ValRecs _ _
+      | ValLoc _ =>
+          Some false
+      | _ =>
+          None
+      end
+  | ValInt n1 =>
+      match v2 with
+      | ValInt n2 =>
+          Some $ bool_decide (n1 = n2)
+      | ValRecs _ _
+      | ValLoc _ =>
+          Some false
+      | _ =>
+          None
+      end
   | ValLoc l1 =>
       match v2 with
       | ValLoc l2 =>
@@ -148,21 +166,17 @@ Definition val_structneq footprint v1 v2 :=
   val_reachable footprint v2 path v2' ∧
   val_similar footprint v1' v2' = Some false.
 
-Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} footprint,
+Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} b footprint,
   val_traversable footprint v1 →
   val_traversable footprint v2 →
+  (if b then val_structeq else val_structneq) footprint v1 v2 →
   {{{
     structeq_footprint footprint
   }}}
     v1 = v2
-  {{{ b,
+  {{{
     RET #b;
-    structeq_footprint footprint ∗
-    ⌜ if b then
-        val_structeq footprint v1 v2
-      else
-        val_structneq footprint v1 v2
-    ⌝
+    structeq_footprint footprint
   }}}.
 
 Fixpoint val_is_abstract v :=
@@ -186,7 +200,7 @@ Proof.
   naive_solver.
 Qed.
 
-Lemma val_is_abstract_structeq v1 v2 :
+Lemma val_structeq_abstract_1 v1 v2 :
   val_is_abstract v1 →
   val_is_abstract v2 →
   val_structeq ∅ v1 v2 →
@@ -196,7 +210,8 @@ Proof.
   all:
     try solve [
       ospecialize* (Hstructeq []) => //;
-      injection Hstructeq as [= ?%bool_decide_eq_true] => //
+      injection Hstructeq as [= ?%bool_decide_eq_true];
+      naive_solver
     ].
   opose proof* (Hstructeq []) as Hsimilar => //.
   injection Hsimilar as [= (<- & Hlength)%bool_decide_eq_true].
@@ -207,14 +222,47 @@ Proof.
   eapply IH; [naive_solver.. |]. intros path v1' v2' Hreachable1 Hreachable2.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
+Lemma val_structeq_abstract_2 v1 v2 :
+  val_is_abstract v1 →
+  v1 = v2 →
+  val_structeq ∅ v1 v2.
+Proof.
+  intros Habstract <-.
+  induction v1 as [[b | i | l | |]| | [bid |] tag vs IH] => //.
+  - intros [] v1 v2; last done. intros <- <-.
+    rewrite /= bool_decide_eq_true_2 //.
+  - intros [] v1 v2; last done. intros <- <-.
+    rewrite /= bool_decide_eq_true_2 //.
+  - intros [| i path] v1 v2.
+    + intros <- <-.
+      rewrite /= bool_decide_eq_true_2 //.
+    + move=> /= Hreachable1 Hreachable2.
+      destruct (vs !! i) as [v |] eqn:Hlookup; last done.
+      rewrite /= Forall'_Forall in Habstract.
+      rewrite !Forall_lookup in IH Habstract.
+      naive_solver.
+Qed.
+Lemma val_structeq_abstract v1 v2 :
+  val_is_abstract v1 →
+  val_is_abstract v2 →
+  val_structeq ∅ v1 v2 ↔
+  v1 = v2.
+Proof.
+  intros Habstract1 Habstract2. split.
+  - apply val_structeq_abstract_1; done.
+  - apply val_structeq_abstract_2; done.
+Qed.
 
-Lemma val_is_abstract_structneq v1 v2 :
+Lemma val_structneq_abstract v1 v2 :
   val_is_abstract v1 →
   val_is_abstract v2 →
   val_structneq ∅ v1 v2 →
   v1 ≠ v2.
 Proof.
-  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => //; intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hsimilar).
+  move: v2.
+  induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //.
+  all: intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => //.
+  all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hsimilar).
   - intros [= [= <-]].
     destruct path; last done. simplify.
     rewrite bool_decide_eq_true_2 // in Hsimilar.
@@ -231,19 +279,28 @@ Proof.
       rewrite /val_structneq. naive_solver.
 Qed.
 
-Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} v1 v2 Φ :
+Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} b Φ :
   val_is_abstract v1 →
   val_is_abstract v2 →
-  Φ #(bool_decide (v1 = v2)) ⊢
+  (if b then val_structeq else val_structneq) ∅ v1 v2 →
+  Φ #b ⊢
   WP v1 = v2 {{ Φ }}.
 Proof.
-  iIntros "%Habstract1 %Habstract2 HΦ".
-  wp_apply structeq_spec as ([]) "(_ & %Hb)".
+  iIntros "%Habstract1 %Habstract2 %Hb HΦ".
+  wp_apply (structeq_spec b ∅) as "_"; last iSteps.
   { apply val_is_abstract_traversable => //. }
   { apply val_is_abstract_traversable => //. }
+  { done. }
   { iApply structeq_footprint_empty. }
-  - rewrite bool_decide_eq_true_2 //.
-    apply val_is_abstract_structeq => //.
-  - rewrite bool_decide_eq_false_2 //.
-    apply val_is_abstract_structneq => //.
+Qed.
+Lemma structeq_spec_abstract_eq `{zoo_G : !ZooG Σ} v1 v2 Φ :
+  val_is_abstract v1 →
+  val_is_abstract v2 →
+  v1 = v2 →
+  Φ #true ⊢
+  WP v1 = v2 {{ Φ }}.
+Proof.
+  iIntros (Habstract1 Habstract2 <-) "HΦ".
+  wp_apply (structeq_spec_abstract true with "HΦ"); [done.. |].
+  { apply val_structeq_abstract_2; done. }
 Qed.
