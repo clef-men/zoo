@@ -137,6 +137,9 @@ theories/zoo_std/chunk.v
 theories/zoo_std/array__types.v
 theories/zoo_std/array__code.v
 theories/zoo_std/array.v
+theories/zoo_std/atomic_array__types.v
+theories/zoo_std/atomic_array__code.v
+theories/zoo_std/atomic_array.v
 theories/zoo_std/dynarray_1__types.v
 theories/zoo_std/dynarray_1__code.v
 theories/zoo_std/dynarray_1.v

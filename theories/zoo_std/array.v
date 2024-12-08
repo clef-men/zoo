@@ -24,6 +24,18 @@ Implicit Types l : location.
 Implicit Types v t fn acc : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
+Definition array_unsafe_xchg : val :=
+  fun: "t" "i" "v" =>
+    Xchg ("t", "i") "v".
+
+Definition array_unsafe_cas : val :=
+  fun: "t" "i" "v1" "v2" =>
+    CAS ("t", "i") "v1" "v2".
+
+Definition array_unsafe_faa : val :=
+  fun: "t" "i" "incr" =>
+    FAA ("t", "i") "incr".
+
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
@@ -5915,6 +5927,9 @@ End zoo_G.
 #[global] Opaque array_get.
 #[global] Opaque array_unsafe_set.
 #[global] Opaque array_set.
+#[global] Opaque array_unsafe_xchg.
+#[global] Opaque array_unsafe_cas.
+#[global] Opaque array_unsafe_faa.
 #[global] Opaque array_unsafe_fill_slice.
 #[global] Opaque array_fill_slice.
 #[global] Opaque array_fill.
