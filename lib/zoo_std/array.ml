@@ -110,6 +110,9 @@ let foldri fn t acc =
 let foldr fn =
   foldri (fun _i -> fn)
 
+let sum t =
+  foldl (+) 0 t
+
 let iteri fn t =
   for i = 0 to size t - 1 do
     fn i (unsafe_get t i)

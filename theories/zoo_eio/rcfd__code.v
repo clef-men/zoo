@@ -21,7 +21,7 @@ Definition rcfd_closed : val :=
 
 Definition rcfd_put : val :=
   fun: "t" =>
-    let: "old" := FAA "t".[ops] #-1 in
+    let: "old" := FAA "t".[ops] #(-1) in
     if: "old" == #1 then (
       match: "t".{state} with
       | Open <> =>

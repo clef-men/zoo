@@ -29,3 +29,11 @@ val unsafe_cas :
 
 val unsafe_faa :
   int t -> int -> int -> int
+
+val foldli :
+  (int -> 'b -> 'a -> 'b) -> 'b -> 'a t -> 'b
+val foldl :
+  ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
+
+val sum :
+  int t -> int

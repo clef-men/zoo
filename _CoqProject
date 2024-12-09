@@ -260,6 +260,8 @@ theories/zoo_saturn/inf_ws_deque_1.v
 theories/zoo_saturn/inf_ws_deque_2__types.v
 theories/zoo_saturn/inf_ws_deque_2__code.v
 theories/zoo_saturn/inf_ws_deque_2.v
+theories/zoo_saturn/htbl__types.v
+theories/zoo_saturn/htbl__code.v
 
 #END zoo-saturn
 

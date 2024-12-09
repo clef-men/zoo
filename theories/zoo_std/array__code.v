@@ -111,6 +111,10 @@ Definition array_foldr : val :=
   fun: "fn" =>
     array_foldri (fun: "_i" => "fn").
 
+Definition array_sum : val :=
+  fun: "t" =>
+    array_foldl (fun: "1" "2" => "1" + "2") #0 "t".
+
 Definition array_iteri : val :=
   fun: "fn" "t" =>
     for: "i" := #0 to array_size "t" begin

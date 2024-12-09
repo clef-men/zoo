@@ -39,6 +39,9 @@ val foldli :
 val foldl :
   ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
 
+val sum :
+  int t -> int
+
 val foldri :
   (int -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 val foldr :

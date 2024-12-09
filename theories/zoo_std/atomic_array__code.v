@@ -42,3 +42,12 @@ Definition atomic_array_unsafe_cas : val :=
 
 Definition atomic_array_unsafe_faa : val :=
   array_unsafe_faa.
+
+Definition atomic_array_foldli : val :=
+  array_foldli.
+
+Definition atomic_array_foldl : val :=
+  array_foldl.
+
+Definition atomic_array_sum : val :=
+  array_sum.
