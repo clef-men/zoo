@@ -187,7 +187,6 @@ Module raw.
       iExists l, γ, g.
       case_decide; iApply (timeless with "H").
     Qed.
-
     #[global] Instance pstore_snapshot_persistent s t σ :
       Persistent (pstore_snapshot s t σ).
     Proof.
@@ -1535,14 +1534,11 @@ Section pstore_G.
     mono_map_lb γ σ0 ∗
     raw.pstore_snapshot s t ς.
 
-  (*
   #[global] Instance pstore_model_timeless t σ :
     Timeless (pstore_model t σ).
   Proof.
     apply _.
   Qed.
-   *)
-
   #[global] Instance pstore_snapshot_persistent s t σ :
     Persistent (pstore_snapshot s t σ).
   Proof.
