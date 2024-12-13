@@ -24,8 +24,8 @@ Definition partition_dllist_link : val :=
 
 Definition partition_dllist_insert_right : val :=
   fun: "dst" "elt" =>
-    partition_dllist_link "elt" "dst".{next} ;;
-    partition_dllist_link "dst" "elt".
+    partition_dllist_link "dst" "elt" ;;
+    partition_dllist_link "elt" "dst".{next}.
 
 Definition partition_dllist_swap : val :=
   fun: "elt1" "elt2" =>
@@ -63,6 +63,12 @@ Definition partition_class_is_singleton : val :=
   fun: "class_" =>
     "class_".{len} == #1.
 
+Definition partition_class_add : val :=
+  fun: "class_" "elt" =>
+    partition_dllist_insert_right "class_".{last} "elt" ;;
+    "class_" <-{last} "elt" ;;
+    "class_" <-{len} "class_".{len} + #1.
+
 Definition partition_class_swap : val :=
   fun: "class_" "elt1" "elt2" =>
     if: "elt1" != "elt2" then (
@@ -96,9 +102,7 @@ Definition partition_make_same_class : val :=
   fun: "elt" "v" =>
     let: "class_" := "elt".{class_} in
     let: "elt" := partition_dllist_create "v" "class_" in
-    partition_dllist_insert_right "class_".{last} "elt" ;;
-    "class_" <-{last} "elt" ;;
-    "class_" <-{len} "class_".{len} + #1 ;;
+    partition_class_add "class_" "elt" ;;
     "elt".
 
 Definition partition_get : val :=

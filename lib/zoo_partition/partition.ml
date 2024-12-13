@@ -34,8 +34,8 @@ let dllist_link elt1 elt2 =
   elt1.next <- elt2 ;
   elt2.prev <- elt1
 let dllist_insert_right dst elt =
-  dllist_link elt dst.next ;
-  dllist_link dst elt
+  dllist_link dst elt ;
+  dllist_link elt dst.next
 let dllist_swap elt1 elt2 =
   if elt1 != elt2 then (
     let prev1 = elt1.prev in
@@ -66,6 +66,10 @@ let rec dllist_iter fn from to_ =
 
 let class_is_singleton class_ =
   class_.len == 1
+let class_add class_ elt =
+  dllist_insert_right class_.last elt ;
+  class_.last <- elt ;
+  class_.len <- class_.len + 1
 let class_swap class_ elt1 elt2 =
   if elt1 != elt2 then (
     let first = class_.first in
@@ -99,9 +103,7 @@ let make v =
 let make_same_class elt v =
   let class_ = elt.class_ in
   let elt = dllist_create v class_ in
-  dllist_insert_right class_.last elt ;
-  class_.last <- elt ;
-  class_.len <- class_.len + 1 ;
+  class_add class_ elt ;
   elt
 
 let get elt =
