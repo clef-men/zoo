@@ -43,12 +43,12 @@ Definition pstore_capture : val :=
     ("t", "g", "t".{root}).
 
 Definition pstore_collect : val :=
-  rec: "collect" "node" "acc" =>
+  rec: "collect" "node" "path" =>
     match: !"node" with
     | Root =>
-        ("node", "acc")
+        ("node", "path")
     | Diff <> <> <> "node'" =>
-        "collect" "node'" ("node" :: "acc")
+        "collect" "node'" ("node" :: "path")
     end.
 
 Definition pstore_revert : val :=

@@ -56,12 +56,12 @@ let capture t =
   t.gen <- g + 1 ;
   { snap_store= t; snap_gen= g; snap_root= t.root }
 
-let rec collect node acc =
+let rec collect node path =
   match !node with
   | Root ->
-      (node, acc)
+      node, path
   | Diff (_, _, _, node') ->
-      collect node' (node :: acc)
+      collect node' (node :: path)
 let rec revert node = function
   | [] ->
       node := Root
