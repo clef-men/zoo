@@ -107,10 +107,8 @@ Definition partition_elt_cardinal : val :=
 
 Definition partition_add_new_class : val :=
   fun: "v" =>
-    let: "elt" := { (), (), "v", (), #false } in
+    let: "elt" := partition_dllist_create "v" () in
     let: "class_" := { "elt", "elt", #1, "elt", #0 } in
-    "elt" <-{prev} "elt" ;;
-    "elt" <-{next} "elt" ;;
     "elt" <-{class_} "class_" ;;
     "elt".
 

@@ -98,14 +98,7 @@ let elt_cardinal elt =
   elt.class_.len
 
 let add_new_class v =
-  let elt =
-    { prev= Obj.magic ();
-      next= Obj.magic ();
-      data= v;
-      class_= Obj.magic ();
-      seen= false;
-    }
-  in
+  let elt = dllist_create v (Obj.magic ()) in
   let class_ =
     { first= elt;
       last= elt;
@@ -114,8 +107,6 @@ let add_new_class v =
       split_len= 0;
     }
   in
-  elt.prev <- elt ;
-  elt.next <- elt ;
   elt.class_ <- class_ ;
   elt
 

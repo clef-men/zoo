@@ -342,6 +342,23 @@ Section partition_G.
     iApply (pointsto_agree with "Helt_data_1 Helt_data_2").
   Qed.
 
+  #[local] Lemma partition_dllist_create_spec v v_class :
+    {{{
+      True
+    }}}
+      partition_dllist_create v v_class
+    {{{ elt,
+      RET #elt;
+      elt.[prev] ↦ #elt ∗
+      elt.[next] ↦ #elt ∗
+      elt.[data] ↦□ v ∗
+      elt.[class_] ↦ v_class ∗
+      elt.[seen] ↦ #false
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
   Lemma partition_elt_equal_spec γ elt1 v1 elt2 v2 :
     {{{
       True
@@ -517,10 +534,9 @@ Section partition_G.
     iDestruct "Hmodel" as "(:partition_model')".
 
     wp_rec.
-    wp_block elt as "(Helt_prev & Helt_next & Helt_data & Helt_class & Helt_seen & _)".
-    iMod (pointsto_persist with "Helt_data") as "#Helt_data".
+    wp_apply (partition_dllist_create_spec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
     wp_block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
-    do 3 wp_store. wp_pures.
+    wp_store. wp_pures.
 
     pose descr := {|
       partition_descr_class := class ;
@@ -588,6 +604,11 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
+    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+
+    wp_rec.
+    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
+    (* partition_dllist_create_spec *)
   Admitted.
 
   Lemma partition_refine_spec {γ part v_elts} elts :
