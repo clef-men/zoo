@@ -118,7 +118,7 @@ let repr elt =
 let cardinal elt =
   elt.class_.len
 
-let record_split split_list elt =
+let record split_list elt =
   let class_ = elt.class_ in
   if class_is_singleton class_ || elt.seen then (
     split_list
@@ -141,7 +141,7 @@ let record_split split_list elt =
     )
   )
 
-let split_class class_ =
+let split class_ =
   let first = class_.first in
   let split = class_.split in
   if split == first then (
@@ -169,5 +169,5 @@ let split_class class_ =
 
 let refine elts =
   elts
-  |> Lst.foldl record_split []
-  |> Lst.iter split_class
+  |> Lst.foldl record []
+  |> Lst.iter split

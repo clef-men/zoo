@@ -121,7 +121,7 @@ Definition partition_cardinal : val :=
   fun: "elt" =>
     "elt".{class_}.{len}.
 
-Definition partition_record_split : val :=
+Definition partition_record : val :=
   fun: "split_list" "elt" =>
     let: "class_" := "elt".{class_} in
     if: partition_class_is_singleton "class_" or "elt".{seen} then (
@@ -146,7 +146,7 @@ Definition partition_record_split : val :=
       )
     ).
 
-Definition partition_split_class : val :=
+Definition partition_split : val :=
   fun: "class_" =>
     let: "first" := "class_".{first} in
     let: "split" := "class_".{split} in
@@ -169,5 +169,4 @@ Definition partition_split_class : val :=
 
 Definition partition_refine : val :=
   fun: "elts" =>
-    lst_iter partition_split_class
-      (lst_foldl partition_record_split [] "elts").
+    lst_iter partition_split (lst_foldl partition_record [] "elts").
