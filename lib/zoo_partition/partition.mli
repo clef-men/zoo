@@ -1,24 +1,23 @@
 type 'a elt
 
-val elt_equal :
-  'a elt -> 'a elt -> bool
-val elt_equiv :
-  'a elt -> 'a elt -> bool
-val elt_repr :
-  'a elt -> 'a elt
-val elt_get :
-  'a elt -> 'a
-val elt_cardinal :
-  'a elt -> int
-
-val create :
+val make :
   'a -> 'a elt
-
-val add_new_class :
-  'a -> 'a elt
-
-val add_same_class :
+val make_same_class :
   'a elt -> 'a -> 'a elt
+
+val get :
+  'a elt -> 'a
+
+val equal :
+  'a elt -> 'a elt -> bool
+val equiv :
+  'a elt -> 'a elt -> bool
+
+val repr :
+  'a elt -> 'a elt
+
+val cardinal :
+  'a elt -> int
 
 val refine :
   'a elt list -> unit

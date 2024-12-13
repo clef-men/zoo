@@ -85,37 +85,14 @@ Definition partition_class_iter : val :=
   fun: "fn" "class_" =>
     partition_dllist_iter "fn" "class_".{first} "class_".{last}.
 
-Definition partition_elt_equal : val :=
-  fun: "1" "2" =>
-    "1" == "2".
-
-Definition partition_elt_equiv : val :=
-  fun: "elt1" "elt2" =>
-    "elt1".{class_} == "elt2".{class_}.
-
-Definition partition_elt_repr : val :=
-  fun: "elt" =>
-    "elt".{class_}.{first}.
-
-Definition partition_elt_get : val :=
-  fun: "elt" =>
-    "elt".{data}.
-
-Definition partition_elt_cardinal : val :=
-  fun: "elt" =>
-    "elt".{class_}.{len}.
-
-Definition partition_add_new_class : val :=
+Definition partition_make : val :=
   fun: "v" =>
     let: "elt" := partition_dllist_create "v" () in
     let: "class_" := { "elt", "elt", #1, "elt", #0 } in
     "elt" <-{class_} "class_" ;;
     "elt".
 
-Definition partition_create : val :=
-  partition_add_new_class.
-
-Definition partition_add_same_class : val :=
+Definition partition_make_same_class : val :=
   fun: "elt" "v" =>
     let: "class_" := "elt".{class_} in
     let: "elt" := partition_dllist_create "v" "class_" in
@@ -123,6 +100,26 @@ Definition partition_add_same_class : val :=
     "class_" <-{last} "elt" ;;
     "class_" <-{len} "class_".{len} + #1 ;;
     "elt".
+
+Definition partition_get : val :=
+  fun: "elt" =>
+    "elt".{data}.
+
+Definition partition_equal : val :=
+  fun: "1" "2" =>
+    "1" == "2".
+
+Definition partition_equiv : val :=
+  fun: "elt1" "elt2" =>
+    "elt1".{class_} == "elt2".{class_}.
+
+Definition partition_repr : val :=
+  fun: "elt" =>
+    "elt".{class_}.{first}.
+
+Definition partition_cardinal : val :=
+  fun: "elt" =>
+    "elt".{class_}.{len}.
 
 Definition partition_record_split : val :=
   fun: "split_list" "elt" =>

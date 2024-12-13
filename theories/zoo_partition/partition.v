@@ -281,7 +281,7 @@ Section partition_G.
     iApply (xdlchain_model_NoDup with "Hchain").
   Qed.
 
-  #[local] Lemma partition_model_empty :
+  Lemma partition_model_empty :
     ⊢ |==>
       ∃ γ,
       partition_model γ ∅.
@@ -359,19 +359,6 @@ Section partition_G.
     iSteps.
   Qed.
 
-  Lemma partition_elt_equal_spec γ elt1 v1 elt2 v2 :
-    {{{
-      True
-    }}}
-      partition_elt_equal #elt1 #elt2
-    {{{
-      RET #(bool_decide (elt1 = elt2));
-      True
-    }}}.
-  Proof.
-    iSteps.
-  Qed.
-
   #[local] Lemma partition_get_class_spec γ descrs elt v :
     {{{
       partition_model' γ descrs ∗
@@ -404,126 +391,11 @@ Section partition_G.
     iSteps.
   Qed.
 
-  Lemma partition_elt_equiv_spec γ part elt1 v1 elt2 v2 :
-    {{{
-      partition_model γ part ∗
-      partition_elt γ elt1 v1 ∗
-      partition_elt γ elt2 v2
-    }}}
-      partition_elt_equiv #elt1 #elt2
-    {{{ b,
-      RET #b;
-      partition_model γ part ∗
-      partition_elt γ elt1 v1 ∗
-      partition_elt γ elt2 v2 ∗
-      ⌜ ∀ cl1 cl2,
-        cl1 ∈ part →
-        elt1 ∈ cl1 →
-        cl2 ∈ part →
-        elt2 ∈ cl2 →
-        if b then cl1 = cl2 else cl1 ≠ cl2
-      ⌝
-    }}}.
-  Proof.
-    iIntros "%Φ ((:partition_model) & Helt1 & Helt2) HΦ".
-    wp_rec.
-    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (descr2) "(Hmodel & Helt2 & %Hdescrs_elem_2 & %Helts_elem_2 & %Hdescr2)".
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (descr1) "(Hmodel & Helt1 & %Hdescrs_elem_1 & %Helts_elem_1 & %Hdescr1)".
-    wp_pures.
-    destruct (decide (descr1 = descr2)) as [<- | Hneq].
-    - rewrite bool_decide_eq_true_2 //.
-      iSteps as (cl1 cl2 (descr1' & -> & Hdescrs_elem_1')%elem_of_map Hcl1_elem (descr2' & -> & Hdescrs_elem_2')%elem_of_map Hcl2_elem) / --silent. iPureIntro.
-      rewrite !elem_of_list_to_set in Hcl1_elem Hcl2_elem.
-      opose proof* Hdescr1 as ->; [done.. |].
-      opose proof* Hdescr2 as <-; [done.. |].
-      done.
-    - iDestruct (partition_model_class_unique descr1 descr2 with "Hmodel") as %?; [done.. |].
-      rewrite bool_decide_eq_false_2 //.
-      iSteps as (cl Hcl_elem_1 (descr & -> & Hdescrs_elem)%elem_of_map _ Hcl_elem_2) / --silent. iPureIntro.
-      rewrite !elem_of_list_to_set in Hcl_elem_1 Hcl_elem_2.
-      opose proof* Hdescr1 as Heq1; [done.. |].
-      opose proof* Hdescr2 as Heq2; [done.. |].
-      congruence.
-  Qed.
-
-  Lemma partition_elt_repr_spec γ part elt v :
-    {{{
-      partition_model γ part ∗
-      partition_elt γ elt v
-    }}}
-      partition_elt_repr #elt
-    {{{ elt',
-      RET #elt';
-      partition_model γ part ∗
-      partition_elt γ elt v ∗
-      ⌜ ∀ cl,
-        cl ∈ part →
-        elt ∈ cl ↔ elt' ∈ cl
-      ⌝
-    }}}.
-  Proof.
-    iIntros "%Φ ((:partition_model) & Helt) HΦ".
-    wp_rec.
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
-    iDestruct "Hmodel" as "(:partition_model')".
-    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
-    wp_load.
-    iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
-    { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
-    apply head_Some_elem_of in Hfirst.
-    iDestruct (partition_model_disjoint'' first descr with "[$]") as %Hfirst_descr; [done.. |].
-    iSteps as (cl (descr' & -> & Hdescr_elem')%elem_of_map) / --silent. iPureIntro.
-    rewrite !elem_of_list_to_set. naive_solver.
-  Qed.
-
-  Lemma partition_elt_get_spec γ elt v :
-    {{{
-      partition_elt γ elt v
-    }}}
-      partition_elt_get #elt
-    {{{
-      RET v;
-      partition_elt γ elt v
-    }}}.
-  Proof.
-    iSteps.
-  Qed.
-
-  Lemma partition_elt_cardinal_spec γ part elt v :
-    {{{
-      partition_model γ part ∗
-      partition_elt γ elt v
-    }}}
-      partition_elt_cardinal #elt
-    {{{ sz,
-      RET #sz;
-      partition_model γ part ∗
-      partition_elt γ elt v ∗
-      ⌜ ∀ cl,
-        cl ∈ part →
-        elt ∈ cl →
-        size cl = sz
-      ⌝
-    }}}.
-  Proof.
-    iIntros "%Φ ((:partition_model) & Helt) HΦ".
-    wp_rec.
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
-    iDestruct (partition_model_descr_elts_NoDup with "Hmodel") as %?; first done.
-    iDestruct "Hmodel" as "(:partition_model')".
-    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
-    wp_load.
-    iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
-    { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
-    iSteps as (cl (descr' & -> & Hdescr_elem')%elem_of_map ->%elem_of_list_to_set%Helt_descr) / --silent; last done. iPureIntro.
-    rewrite size_list_to_set //.
-  Qed.
-
-  Lemma partition_add_new_class_spec γ part v :
+  Lemma partition_make_spec γ part v :
     {{{
       partition_model γ part
     }}}
-      partition_add_new_class v
+      partition_make v
     {{{ elt,
       RET #elt;
       partition_model γ (part ∪ {[{[elt]}]}) ∗
@@ -568,30 +440,12 @@ Section partition_G.
       iSteps; iPureIntro; set_solver.
   Qed.
 
-  Lemma partition_create_spec v :
-    {{{
-      True
-    }}}
-      partition_create v
-    {{{ γ elt,
-      RET #elt;
-      partition_model γ {[{[elt]}]} ∗
-      partition_elt γ elt v
-    }}}.
-  Proof.
-    iIntros "%Φ _ HΦ".
-    iMod partition_model_empty as "(%γ & Hmodel)".
-    wp_apply (partition_add_new_class_spec with "Hmodel") as (elt) "Hmodel".
-    rewrite left_id_L.
-    iApply ("HΦ" with "Hmodel").
-  Qed.
-
-  Lemma partition_add_same_class_spec γ part elt v v' :
+  Lemma partition_make_same_class_spec γ part elt v v' :
     {{{
       partition_model γ part ∗
       partition_elt γ elt v
     }}}
-      partition_add_same_class #elt v'
+      partition_make_same_class #elt v'
     {{{ elt' part',
       RET #elt';
       partition_model γ part' ∗
@@ -608,8 +462,136 @@ Section partition_G.
 
     wp_rec.
     wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
-    (* partition_dllist_create_spec *)
+    wp_smart_apply (partition_dllist_create_spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
+
+  Lemma partition_get_spec γ elt v :
+    {{{
+      partition_elt γ elt v
+    }}}
+      partition_get #elt
+    {{{
+      RET v;
+      partition_elt γ elt v
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  Lemma partition_equal_spec γ elt1 v1 elt2 v2 :
+    {{{
+      True
+    }}}
+      partition_equal #elt1 #elt2
+    {{{
+      RET #(bool_decide (elt1 = elt2));
+      True
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  Lemma partition_equiv_spec γ part elt1 v1 elt2 v2 :
+    {{{
+      partition_model γ part ∗
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2
+    }}}
+      partition_equiv #elt1 #elt2
+    {{{ b,
+      RET #b;
+      partition_model γ part ∗
+      partition_elt γ elt1 v1 ∗
+      partition_elt γ elt2 v2 ∗
+      ⌜ ∀ cl1 cl2,
+        cl1 ∈ part →
+        elt1 ∈ cl1 →
+        cl2 ∈ part →
+        elt2 ∈ cl2 →
+        if b then cl1 = cl2 else cl1 ≠ cl2
+      ⌝
+    }}}.
+  Proof.
+    iIntros "%Φ ((:partition_model) & Helt1 & Helt2) HΦ".
+    wp_rec.
+    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (descr2) "(Hmodel & Helt2 & %Hdescrs_elem_2 & %Helts_elem_2 & %Hdescr2)".
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (descr1) "(Hmodel & Helt1 & %Hdescrs_elem_1 & %Helts_elem_1 & %Hdescr1)".
+    wp_pures.
+    destruct (decide (descr1 = descr2)) as [<- | Hneq].
+    - rewrite bool_decide_eq_true_2 //.
+      iSteps as (cl1 cl2 (descr1' & -> & Hdescrs_elem_1')%elem_of_map Hcl1_elem (descr2' & -> & Hdescrs_elem_2')%elem_of_map Hcl2_elem) / --silent. iPureIntro.
+      rewrite !elem_of_list_to_set in Hcl1_elem Hcl2_elem.
+      opose proof* Hdescr1 as ->; [done.. |].
+      opose proof* Hdescr2 as <-; [done.. |].
+      done.
+    - iDestruct (partition_model_class_unique descr1 descr2 with "Hmodel") as %?; [done.. |].
+      rewrite bool_decide_eq_false_2 //.
+      iSteps as (cl Hcl_elem_1 (descr & -> & Hdescrs_elem)%elem_of_map _ Hcl_elem_2) / --silent. iPureIntro.
+      rewrite !elem_of_list_to_set in Hcl_elem_1 Hcl_elem_2.
+      opose proof* Hdescr1 as Heq1; [done.. |].
+      opose proof* Hdescr2 as Heq2; [done.. |].
+      congruence.
+  Qed.
+
+  Lemma partition_repr_spec γ part elt v :
+    {{{
+      partition_model γ part ∗
+      partition_elt γ elt v
+    }}}
+      partition_repr #elt
+    {{{ elt',
+      RET #elt';
+      partition_model γ part ∗
+      partition_elt γ elt v ∗
+      ⌜ ∀ cl,
+        cl ∈ part →
+        elt ∈ cl ↔ elt' ∈ cl
+      ⌝
+    }}}.
+  Proof.
+    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+    wp_rec.
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
+    iDestruct "Hmodel" as "(:partition_model')".
+    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
+    wp_load.
+    iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
+    { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
+    apply head_Some_elem_of in Hfirst.
+    iDestruct (partition_model_disjoint'' first descr with "[$]") as %Hfirst_descr; [done.. |].
+    iSteps as (cl (descr' & -> & Hdescr_elem')%elem_of_map) / --silent. iPureIntro.
+    rewrite !elem_of_list_to_set. naive_solver.
+  Qed.
+
+  Lemma partition_cardinal_spec γ part elt v :
+    {{{
+      partition_model γ part ∗
+      partition_elt γ elt v
+    }}}
+      partition_cardinal #elt
+    {{{ sz,
+      RET #sz;
+      partition_model γ part ∗
+      partition_elt γ elt v ∗
+      ⌜ ∀ cl,
+        cl ∈ part →
+        elt ∈ cl →
+        size cl = sz
+      ⌝
+    }}}.
+  Proof.
+    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+    wp_rec.
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
+    iDestruct (partition_model_descr_elts_NoDup with "Hmodel") as %?; first done.
+    iDestruct "Hmodel" as "(:partition_model')".
+    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
+    wp_load.
+    iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
+    { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
+    iSteps as (cl (descr' & -> & Hdescr_elem')%elem_of_map ->%elem_of_list_to_set%Helt_descr) / --silent; last done. iPureIntro.
+    rewrite size_list_to_set //.
+  Qed.
 
   Lemma partition_refine_spec {γ part v_elts} elts :
     lst_model' v_elts (#@{location} <$> elts) →
@@ -634,14 +616,13 @@ Section partition_G.
   Admitted.
 End partition_G.
 
-#[global] Opaque partition_elt_equal.
-#[global] Opaque partition_elt_equiv.
-#[global] Opaque partition_elt_repr.
-#[global] Opaque partition_elt_get.
-#[global] Opaque partition_elt_cardinal.
-#[global] Opaque partition_add_new_class.
-#[global] Opaque partition_create.
-#[global] Opaque partition_add_same_class.
+#[global] Opaque partition_make.
+#[global] Opaque partition_make_same_class.
+#[global] Opaque partition_get.
+#[global] Opaque partition_equal.
+#[global] Opaque partition_equiv.
+#[global] Opaque partition_repr.
+#[global] Opaque partition_cardinal.
 #[global] Opaque partition_refine.
 
 #[global] Opaque partition_model.

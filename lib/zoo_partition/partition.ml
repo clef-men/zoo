@@ -2,19 +2,19 @@
    https://gitlab.inria.fr/salto/salto-analyzer/-/blob/f75df173336d0671a38d6bb1fe7ab7a22bddc01a/src/domains/nablaRec/partition.ml
 *)
 
-type 'a dllist =
-  { mutable prev: 'a dllist;
-    mutable next: 'a dllist;
+type 'a elt =
+  { mutable prev: 'a elt;
+    mutable next: 'a elt;
     data: 'a;
     mutable class_: 'a class_;
     mutable seen: bool;
   }
 
 and 'a class_ =
-  { mutable first: 'a dllist;
-    mutable last: 'a dllist;
+  { mutable first: 'a elt;
+    mutable last: 'a elt;
     mutable len: int;
-    mutable split: 'a dllist;
+    mutable split: 'a elt;
     mutable split_len: int;
   }
 
@@ -83,21 +83,7 @@ let class_swap class_ elt1 elt2 =
 let class_iter fn class_ =
   dllist_iter fn class_.first class_.last
 
-type 'a elt =
-  'a dllist
-
-let elt_equal =
-  (==)
-let elt_equiv elt1 elt2 =
-  elt1.class_ == elt2.class_
-let elt_repr elt =
-  elt.class_.first
-let elt_get elt =
-  elt.data
-let elt_cardinal elt =
-  elt.class_.len
-
-let add_new_class v =
+let make v =
   let elt = dllist_create v (Obj.magic ()) in
   let class_ =
     { first= elt;
@@ -110,16 +96,27 @@ let add_new_class v =
   elt.class_ <- class_ ;
   elt
 
-let create =
-  add_new_class
-
-let add_same_class elt v =
+let make_same_class elt v =
   let class_ = elt.class_ in
   let elt = dllist_create v class_ in
   dllist_insert_right class_.last elt ;
   class_.last <- elt ;
   class_.len <- class_.len + 1 ;
   elt
+
+let get elt =
+  elt.data
+
+let equal =
+  (==)
+let equiv elt1 elt2 =
+  elt1.class_ == elt2.class_
+
+let repr elt =
+  elt.class_.first
+
+let cardinal elt =
+  elt.class_.len
 
 let record_split split_list elt =
   let class_ = elt.class_ in

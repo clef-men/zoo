@@ -9,23 +9,23 @@ From zoo Require Import
   options.
 
 Notation "'prev'" := (
-  in_type "dllist" 0
+  in_type "elt" 0
 )(in custom zoo_field
 ).
 Notation "'next'" := (
-  in_type "dllist" 1
+  in_type "elt" 1
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "dllist" 2
+  in_type "elt" 2
 )(in custom zoo_field
 ).
 Notation "'class_'" := (
-  in_type "dllist" 3
+  in_type "elt" 3
 )(in custom zoo_field
 ).
 Notation "'seen'" := (
-  in_type "dllist" 4
+  in_type "elt" 4
 )(in custom zoo_field
 ).
 
