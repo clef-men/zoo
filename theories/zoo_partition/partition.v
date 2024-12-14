@@ -100,7 +100,7 @@ Section partition_G.
     descr.(partition_descr_class).[len] ↦ #(length descr.(partition_descr_elts)) ∗
     descr.(partition_descr_class).[split] ↦ #first ∗
     descr.(partition_descr_class).[split_len] ↦ #0 ∗
-    xdlchain_model #prev descr.(partition_descr_elts) #next ∗
+    xdlchain #prev descr.(partition_descr_elts) #next ∗
     [∗ list] elt ∈ descr.(partition_descr_elts),
       partition_model_elt descr elt.
   #[local] Instance : CustomIpatFormat "partition_model_descr" :=
@@ -278,7 +278,7 @@ Section partition_G.
   Proof.
     iIntros "%Hdescrs_lookup (:partition_model')".
     iDestruct (big_sepS_elem_of with "Hdescrs") as "(:partition_model_descr)"; first done.
-    iApply (xdlchain_model_NoDup with "Hchain").
+    iApply (xdlchain_NoDup with "Hchain").
   Qed.
 
   Lemma partition_model_empty :
@@ -433,7 +433,7 @@ Section partition_G.
     }
     iApply (big_sepS_insert_2 with "[- Hdescrs] [Hdescrs]").
     - iExists elt, elt, descr, elt, descr, elt.
-      rewrite xdlchain_model_singleton.
+      rewrite xdlchain_singleton.
       iSteps; iPureIntro; set_solver.
     - iApply (big_sepS_impl with "Hdescrs"). iIntros "!> %descr' %Hdescrs_elem (:partition_model_descr)".
       iExists first, last, prev_descr, prev, next_descr, next.

@@ -29,7 +29,7 @@ Section zoo_G.
     ⌜t = #l⌝ ∗
     l.[xdeque_prev] ↦ from_option #@{location} t (last nodes) ∗
     l.[xdeque_next] ↦ from_option #@{location} t (head nodes) ∗
-    xdlchain_model t nodes t.
+    xdlchain t nodes t.
 
   #[global] Instance xdeque_model_timeless t nodes :
     Timeless (xdeque_model t nodes).
@@ -42,7 +42,7 @@ Section zoo_G.
     ⌜NoDup nodes⌝.
   Proof.
     iIntros "(%l & -> & _ & _ & Hnodes)".
-    iApply (xdlchain_model_NoDup with "Hnodes").
+    iApply (xdlchain_NoDup with "Hnodes").
   Qed.
 
   Lemma xdeque_create_spec :
@@ -75,7 +75,7 @@ Section zoo_G.
     - rewrite bool_decide_eq_true_2 //. iSteps.
     - case_bool_decide; last iSteps.
       subst.
-      iDestruct (xdlchain_model_cons_1 with "Hnodes") as "(Hnode_prev & _)"; first done.
+      iDestruct (xdlchain_cons_1 with "Hnodes") as "(Hnode_prev & _)"; first done.
       iDestruct (pointsto_exclusive with "Hprev Hnode_prev") as %[].
   Qed.
 
@@ -95,13 +95,13 @@ Section zoo_G.
     wp_rec. wp_load. wp_rec. do 2 wp_store. wp_store. wp_pures.
     destruct nodes as [| node' nodes] => /=.
     - iSteps.
-      iApply (xdlchain_model_cons_2 _ _ [] with "Hnode_prev Hnode_next").
-      iApply xdlchain_model_nil.
-    - iDestruct (xdlchain_model_cons_1 with "Hnodes") as "(Hnode'_prev & Hnode'_next & Hnodes)"; first done.
+      iApply (xdlchain_cons_2 _ _ [] with "Hnode_prev Hnode_next").
+      iApply xdlchain_nil.
+    - iDestruct (xdlchain_cons_1 with "Hnodes") as "(Hnode'_prev & Hnode'_next & Hnodes)"; first done.
       wp_store.
       iSteps.
-      iApply (xdlchain_model_cons_2 _ _ (node' :: nodes) with "Hnode_prev Hnode_next").
-      iApply (xdlchain_model_cons_2 with "Hnode'_prev Hnode'_next Hnodes").
+      iApply (xdlchain_cons_2 _ _ (node' :: nodes) with "Hnode_prev Hnode_next").
+      iApply (xdlchain_cons_2 with "Hnode'_prev Hnode'_next Hnodes").
   Qed.
 
   Lemma xdeque_push_back_spec t nodes node prev next :
@@ -120,16 +120,16 @@ Section zoo_G.
     wp_rec. wp_load. wp_rec. do 2 wp_store. wp_pures.
     destruct (rev_elim nodes) as [-> | (nodes' & node' & ->)] => /=.
     - iSteps.
-      iApply (xdlchain_model_cons_2 _ _ [] with "Hnode_prev Hnode_next").
-      iApply xdlchain_model_nil.
+      iApply (xdlchain_cons_2 _ _ [] with "Hnode_prev Hnode_next").
+      iApply xdlchain_nil.
     - rewrite last_snoc /=.
-      iDestruct (xdlchain_model_snoc_1 with "Hnodes") as "(Hnodes & Hnode'_prev & Hnode'_next)"; first done.
+      iDestruct (xdlchain_snoc_1 with "Hnodes") as "(Hnodes & Hnode'_prev & Hnode'_next)"; first done.
       wp_store.
       iSteps; [iPureIntro.. |].
       + rewrite last_snoc //.
       + rewrite -assoc head_snoc_snoc //.
-      + iApply (xdlchain_model_snoc_2 _ (nodes' ++ [node']) with "[Hnodes Hnode'_prev Hnode'_next] [Hnode_prev] Hnode_next"); last rewrite last_snoc //.
-        iApply (xdlchain_model_snoc_2 with "Hnodes Hnode'_prev Hnode'_next").
+      + iApply (xdlchain_snoc_2 _ (nodes' ++ [node']) with "[Hnodes Hnode'_prev Hnode'_next] [Hnode_prev] Hnode_next"); last rewrite last_snoc //.
+        iApply (xdlchain_snoc_2 with "Hnodes Hnode'_prev Hnode'_next").
   Qed.
 
   Lemma xdeque_pop_front_spec t nodes :
@@ -149,13 +149,13 @@ Section zoo_G.
     - subst. iSteps.
     - wp_load.
       destruct nodes as [| node nodes] => //=.
-      iDestruct (xdlchain_model_cons_1 with "Hnodes") as "(Hnode_prev & Hnode_next & Hnodes)"; first done.
+      iDestruct (xdlchain_cons_1 with "Hnodes") as "(Hnode_prev & Hnode_next & Hnodes)"; first done.
       wp_load. wp_pures.
       destruct nodes as [| node' nodes] => /=; first iSteps.
-      iDestruct (xdlchain_model_cons_1 with "Hnodes") as "(Hnode'_prev & Hnode'_next & Hnodes)"; first done.
+      iDestruct (xdlchain_cons_1 with "Hnodes") as "(Hnode'_prev & Hnode'_next & Hnodes)"; first done.
       do 2 wp_store.
       iSteps.
-      iApply (xdlchain_model_cons_2 with "Hnode'_prev Hnode'_next Hnodes").
+      iApply (xdlchain_cons_2 with "Hnode'_prev Hnode'_next Hnodes").
   Qed.
 
   Lemma xdeque_pop_back_spec t nodes :
@@ -186,20 +186,20 @@ Section zoo_G.
     - wp_load.
       destruct (rev_elim nodes) as [-> | (nodes' & node & ->)] => //=.
       rewrite last_snoc /=.
-      iDestruct (xdlchain_model_snoc_1 with "Hnodes") as "(Hnodes & Hnode_prev & Hnode_next)"; first done.
+      iDestruct (xdlchain_snoc_1 with "Hnodes") as "(Hnodes & Hnode_prev & Hnode_next)"; first done.
       wp_load. wp_store.
       destruct (rev_elim nodes') as [-> | (nodes'' & node' & ->)] => /=.
       + wp_store. wp_pures.
         iApply ("HΦ" $! (Some _)).
         iExists []. iSteps.
       + rewrite last_snoc.
-        iDestruct (xdlchain_model_snoc_1 with "Hnodes") as "(Hnodes & Hnode'_prev & Hnode'_next)"; first done.
+        iDestruct (xdlchain_snoc_1 with "Hnodes") as "(Hnodes & Hnode'_prev & Hnode'_next)"; first done.
         wp_store. wp_pures.
         iApply ("HΦ" $! (Some _)).
         iSteps; first iPureIntro.
         * rewrite last_snoc //.
         * rewrite -assoc head_snoc_snoc //.
-        * iApply (xdlchain_model_snoc_2 with "Hnodes Hnode'_prev Hnode'_next").
+        * iApply (xdlchain_snoc_2 with "Hnodes Hnode'_prev Hnode'_next").
   Qed.
 
   Lemma xdeque_remove_spec {t nodes} i node :
@@ -218,7 +218,7 @@ Section zoo_G.
     wp_apply (xdlchain_prev_spec_lookup with "Hnodes") as "Hnodes"; first done.
     wp_smart_apply (xdlchain_next_spec_lookup with "Hnodes") as "Hnodes"; first done.
     wp_pures.
-    iDestruct (xdlchain_model_lookup with "Hnodes") as "(Hnodes1 & Hnode_prev & Hnode_next & Hnodes2)"; first done.
+    iDestruct (xdlchain_lookup with "Hnodes") as "(Hnodes1 & Hnode_prev & Hnode_next & Hnodes2)"; first done.
     set nodes1 := take i nodes.
     set nodes2 := drop (S i) nodes.
     set nodes' := nodes1 ++ nodes2.
@@ -226,13 +226,13 @@ Section zoo_G.
     wp_apply (wp_wand _ _ (λ res,
       ⌜res = ()%V⌝ ∗
       l.[xdeque_next] ↦ from_option #@{location} #l (head nodes') ∗
-      xdlchain_model #l nodes1 (from_option #@{location} #l $ head nodes2)
+      xdlchain #l nodes1 (from_option #@{location} #l $ head nodes2)
     )%I with "[Hnext Hnodes1]") as (res) "(-> & Hnext & Hnodes1)".
     { destruct (rev_elim nodes1) as [-> | (nodes1' & node1 & Hnodes1)] => /=; first iSteps.
       rewrite Hnodes1 last_snoc /=.
-      iDestruct (xdlchain_model_snoc_1 with "Hnodes1") as "(Hnodes1 & Hnode1_prev & Hnode1_next)"; first done.
+      iDestruct (xdlchain_snoc_1 with "Hnodes1") as "(Hnodes1 & Hnode1_prev & Hnode1_next)"; first done.
       wp_store.
-      iDestruct (xdlchain_model_snoc_2 with "Hnodes1 Hnode1_prev Hnode1_next") as "Hnodes1".
+      iDestruct (xdlchain_snoc_2 with "Hnodes1 Hnode1_prev Hnode1_next") as "Hnodes1".
       iSteps. iPureIntro.
       rewrite -(take_drop i nodes) -/nodes1 /nodes' Hnodes1 -!assoc !head_app_cons //.
     }
@@ -240,17 +240,17 @@ Section zoo_G.
     wp_apply (wp_wand _ _ (λ res,
       ⌜res = ()%V⌝ ∗
       l.[xdeque_prev] ↦ from_option #@{location} #l (last nodes') ∗
-      xdlchain_model (from_option #@{location} #l $ last nodes1) nodes2 #l
+      xdlchain (from_option #@{location} #l $ last nodes1) nodes2 #l
     )%I with "[Hprev Hnodes2]") as (res) "(-> & Hprev & Hnodes2)".
     { destruct nodes2 as [| node2 nodes2'] eqn:Hnodes2 => /=.
       - rewrite right_id in nodes' |- *. iSteps.
-      - iDestruct (xdlchain_model_cons_1 with "Hnodes2") as "(Hnode2_prev & Hnode2_next & Hnodes2)"; first done.
+      - iDestruct (xdlchain_cons_1 with "Hnodes2") as "(Hnode2_prev & Hnode2_next & Hnodes2)"; first done.
         wp_store.
-        iDestruct (xdlchain_model_cons_2 with "Hnode2_prev Hnode2_next Hnodes2") as "Hnodes2".
+        iDestruct (xdlchain_cons_2 with "Hnode2_prev Hnode2_next Hnodes2") as "Hnodes2".
         iSteps. iPureIntro.
         rewrite -(take_drop (S i) nodes) -/nodes2 /nodes' Hnodes2 !last_app_cons //.
     }
-    iDestruct (xdlchain_model_app_2 with "Hnodes1 Hnodes2") as "Hnodes".
+    iDestruct (xdlchain_app_2 with "Hnodes1 Hnodes2") as "Hnodes".
     rewrite /nodes' -delete_take_drop. iSteps.
   Qed.
 
@@ -281,7 +281,7 @@ Section zoo_G.
     wp_rec. wp_pures.
     destruct (Z.lt_trichotomy i (length nodes)) as [Hi | [Hi | Hi]].
     - rewrite lookup_app_l in Hlookup; first lia.
-      iDestruct (xdlchain_model_lookup_acc with "Hnodes") as "(Hnode_prev & Hnode_next & Hnodes)"; first done.
+      iDestruct (xdlchain_lookup_acc with "Hnodes") as "(Hnode_prev & Hnode_next & Hnodes)"; first done.
       iAssert ⌜node ≠ l⌝%I as %Hnode.
       { iIntros "->".
         iApply (pointsto_exclusive with "Hnode_prev Hprev").

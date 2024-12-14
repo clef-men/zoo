@@ -139,7 +139,7 @@ Section mpmc_queue_1_G.
     ⌜back ∈ hist⌝ ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    xchain_model hist §Null ∗
+    xchain hist §Null ∗
     ([∗ list] node ∈ hist, node ↦ₕ Header §Node 2) ∗
     ([∗ list] node; v ∈ nodes; vs, node.[xchain_data] ↦ v) ∗
     mpmc_queue_1_history_auth γ hist ∗
@@ -457,7 +457,7 @@ Section mpmc_queue_1_G.
 
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hheaders & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
-    iDestruct (xchain_model_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
+    iDestruct (xchain_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_load.
     iDestruct ("Hhist" with "Hnode ") as "Hhist".
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
@@ -620,20 +620,20 @@ Section mpmc_queue_1_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hheaders & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
-    iDestruct (xchain_model_lookup with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
+    iDestruct (xchain_lookup with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - wp_cas as _ | [].
-      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
+      iDestruct (xchain_lookup_2 with "Hhist1 Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ"; first iSteps.
       iSteps.
 
     - wp_cas as ? | _; first naive_solver.
-      iDestruct (xchain_model_lookup_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
+      iDestruct (xchain_lookup_2 with "Hhist1 Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(length_lookup_last hist i) // drop_all //. }
       iDestruct (big_sepL_snoc with "[$Hheaders $Hnew_back_hdr]") as "Hheaders".
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
-      iDestruct (xchain_model_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
+      iDestruct (xchain_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
       iMod (mpmc_queue_1_history_update new_back with "Hhistory_auth") as "Hhistory_auth".
       iDestruct (mpmc_queue_1_history_at_get with "Hhistory_auth") as "#Hhistory_at_new_back".
       { rewrite lookup_snoc_Some. naive_solver. }
@@ -738,7 +738,7 @@ Section mpmc_queue_1_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front' & %nodes & %back & %vs & %waiters & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hheaders & Hnodes & >Hhistory_auth & Hfront_auth & Hmodel₂ & Hwaiters_auth & Hwaiters)".
     iDestruct (mpmc_queue_1_history_agree with "Hhistory_auth Hhistory_at_new") as %Hlookup.
-    iDestruct (xchain_model_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
+    iDestruct (xchain_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_cas as _ | [= ->].
     all: iDestruct ("Hhist" with "Hnode ") as "Hhist".
 
@@ -747,7 +747,7 @@ Section mpmc_queue_1_G.
 
     - iDestruct (mpmc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup_old.
       iAssert ⌜length past = i⌝%I as %Hpast_length.
-      { iDestruct (xchain_model_NoDup with "Hhist") as %Hnodup.
+      { iDestruct (xchain_NoDup with "Hhist") as %Hnodup.
         iPureIntro. eapply NoDup_lookup; try done.
         rewrite Hhist list_lookup_middle //.
       }
