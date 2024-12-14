@@ -34,8 +34,8 @@ let dllist_link elt1 elt2 =
   elt1.next <- elt2 ;
   elt2.prev <- elt1
 let dllist_insert_right dst elt =
-  dllist_link dst elt ;
-  dllist_link elt dst.next
+  dllist_link elt dst.next ;
+  dllist_link dst elt
 let dllist_swap elt1 elt2 =
   if elt1 != elt2 then (
     let prev1 = elt1.prev in

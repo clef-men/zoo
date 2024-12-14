@@ -24,8 +24,8 @@ Definition partition_dllist_link : val :=
 
 Definition partition_dllist_insert_right : val :=
   fun: "dst" "elt" =>
-    partition_dllist_link "dst" "elt" ;;
-    partition_dllist_link "elt" "dst".{next}.
+    partition_dllist_link "elt" "dst".{next} ;;
+    partition_dllist_link "dst" "elt".
 
 Definition partition_dllist_swap : val :=
   fun: "elt1" "elt2" =>
