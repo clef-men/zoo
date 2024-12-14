@@ -293,6 +293,20 @@ Section zoo_G.
     setoid_rewrite xdlchain_lookup_acc at 1; last done.
     iSteps.
   Qed.
+  Lemma xdlchain_prev_spec_head {src nodes} node dst E :
+    head nodes = Some node →
+    {{{
+      xdlchain src nodes dst
+    }}}
+      (#node).{xdlchain_prev} @ E
+    {{{
+      RET src;
+      xdlchain src nodes dst
+    }}}.
+  Proof.
+    intros (nodes' & ->)%head_Some.
+    eapply xdlchain_prev_spec. done.
+  Qed.
 
   Lemma xdlchain_next_spec {src nodes node} nodes' dst E :
     nodes = node :: nodes' →
@@ -321,6 +335,23 @@ Section zoo_G.
   Proof.
     intros Hlookup.
     setoid_rewrite xdlchain_lookup_acc at 1; last done.
+    iSteps.
+  Qed.
+  Lemma xdlchain_next_spec_last {src nodes} node dst E :
+    last nodes = Some node →
+    {{{
+      xdlchain src nodes dst
+    }}}
+      (#node).{xdlchain_next} @ E
+    {{{
+      RET dst;
+      xdlchain src nodes dst
+    }}}.
+  Proof.
+    iIntros (Hnode) "%Φ H HΦ".
+    wp_apply (xdlchain_next_spec_lookup (pred (length nodes)) with "H").
+    { rewrite -last_lookup //. }
+    rewrite skipn_all2; first lia.
     iSteps.
   Qed.
 
