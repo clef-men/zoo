@@ -12,22 +12,21 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Notation "'Nil'" := (
+Notation "'Init'" := (
   in_type "bucket" 0
 )(in custom zoo_tag
 ).
-Notation "'Cons'" := (
+Notation "'Nil'" := (
   in_type "bucket" 1
 )(in custom zoo_tag
 ).
-Notation "'Resize'" := (
+Notation "'Cons'" := (
   in_type "bucket" 2
 )(in custom zoo_tag
 ).
-
-Notation "'bucket'" := (
-  in_type "bucket__Resize" 0
-)(in custom zoo_field
+Notation "'Resize'" := (
+  in_type "bucket" 3
+)(in custom zoo_tag
 ).
 
 Notation "'Normal'" := (

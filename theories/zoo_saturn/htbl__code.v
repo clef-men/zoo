@@ -21,6 +21,8 @@ Parameter htbl_max_buckets : val.
 Definition htbl_bucket_assoc : val :=
   rec: "bucket_assoc" "equal" "key" "bucket" =>
     match: "bucket" with
+    | Init =>
+        Fail
     | Nil =>
         §Nil
     | Cons "key'" <> "bucket'" as "bucket" =>
@@ -29,8 +31,8 @@ Definition htbl_bucket_assoc : val :=
         ) else (
           "bucket_assoc" "equal" "key" "bucket'"
         )
-    | Resize <> as "bucket_r" =>
-        "bucket_assoc" "equal" "key" "bucket_r".{bucket}
+    | Resize "bucket" =>
+        "bucket_assoc" "equal" "key" "bucket"
     end.
 
 Parameter htbl_bucket_dissoc : val.
@@ -46,7 +48,7 @@ Definition htbl_bucket_filter : val :=
         ) else (
           "bucket_filter" "pred" "bucket"
         )
-    | Resize <> =>
+    |_ =>
         Fail
     end.
 
@@ -57,7 +59,7 @@ Definition htbl_bucket_merge : val :=
         "bucket"
     | Cons "key" "v" "bucket" =>
         ‘Cons( "key", "v", "bucket_merge" "bucket" "bucket" )
-    | Resize <> =>
+    |_ =>
         Fail
     end.
 
@@ -93,7 +95,7 @@ Definition htbl_find : val :=
         §None
     | Cons <> "v" <> =>
         ‘Some( "v" )
-    | Resize <> =>
+    |_ =>
         Fail
     end.
 
@@ -104,15 +106,17 @@ Definition htbl_mem : val :=
 Definition htbl_take : val :=
   rec: "take" "buckets" "i" =>
     match: atomic_array_unsafe_get "buckets" "i" with
-    | Resize <> as "bucket_r" =>
-        "bucket_r".{bucket}
+    | Init =>
+        Fail
+    | Resize "bucket" =>
+        "bucket"
     |_ as "bucket" =>
         if:
           atomic_array_unsafe_cas
             "buckets"
             "i"
             "bucket"
-            ‘Resize{ "bucket" }
+            ‘Resize( "bucket" )
         then (
           "bucket"
         ) else (
@@ -136,27 +140,19 @@ Definition htbl_split_buckets : val :=
         (fun: "key" => "t".{hash} "key" `land` "cap" == "cap")
         "bucket"
     in
-    let: "bucket_1" := atomic_array_unsafe_get "buckets" "i" in
-    let: "bucket_2" := atomic_array_unsafe_get "buckets" ("i" + "cap") in
     if: "t".{state} != "state" then (
       #false
     ) else (
-      match: "bucket_1" with
-      | Resize <> =>
-          atomic_array_unsafe_cas "buckets" "i" "bucket_1" "new_bucket_1"
-      |_ =>
-          ()
-      end ;;
-      match: "bucket_2" with
-      | Resize <> =>
-          atomic_array_unsafe_cas
-            "buckets"
-            ("i" + "cap")
-            "bucket_2"
-            "new_bucket_2"
-      |_ =>
-          ()
-      end ;;
+      if: atomic_array_unsafe_get "buckets" "i" == §Init then (
+        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket_1"
+      ) else (
+        ()
+      ) ;;
+      if: atomic_array_unsafe_get "buckets" ("i" + "cap") == §Init then (
+        atomic_array_unsafe_cas "buckets" ("i" + "cap") §Init "new_bucket_2"
+      ) else (
+        ()
+      ) ;;
       "i" = #0 or "split_buckets" "t" "state" "buckets" "mask" "i" "step"
     ).
 
@@ -168,16 +164,14 @@ Definition htbl_merge_buckets : val :=
       htbl_take "state".<buckets> ("i" + atomic_array_size "buckets")
     in
     let: "new_bucket" := htbl_bucket_merge "buckets_1" "buckets_2" in
-    let: "bucket" := atomic_array_unsafe_get "buckets" "i" in
     if: "t".{state} != "state" then (
       #false
     ) else (
-      match: "bucket" with
-      | Resize <> =>
-          atomic_array_unsafe_cas "buckets" "i" "bucket" "new_bucket"
-      |_ =>
-          ()
-      end ;;
+      if: atomic_array_unsafe_get "buckets" "i" == §Init then (
+        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket"
+      ) else (
+        ()
+      ) ;;
       "i" = #0 or "merge_buckets" "t" "state" "buckets" "mask" "i" "step"
     ).
 
@@ -231,7 +225,7 @@ Qed.
 
 Definition htbl_resize_0 : val :=
   fun: "t" "state" "new_cap" =>
-    let: "new_buckets" := atomic_array_make "new_cap" ‘Resize{ §Nil } in
+    let: "new_buckets" := atomic_array_make "new_cap" §Init in
     let: "new_status" := ‘Resizing( "new_buckets", "new_cap" - #1 ) in
     let: "new_state" := ("state".<buckets>, "state".<mask>, "new_status") in
     if: CAS "t".[state] "state" "new_state" then (
@@ -261,6 +255,8 @@ Definition htbl_add : val :=
     let: "state" := "t".{state} in
     let: "i" := htbl_index "t" "state" "key" in
     match: atomic_array_unsafe_get "state".<buckets> "i" with
+    | Init =>
+        Fail
     | Resize <> =>
         htbl_finish "t" ;;
         "add" "t" "key" "v"
@@ -287,6 +283,8 @@ Definition htbl_remove : val :=
     let: "state" := "t".{state} in
     let: "i" := htbl_index "t" "state" "key" in
     match: atomic_array_unsafe_get "state".<buckets> "i" with
+    | Init =>
+        Fail
     | Resize <> =>
         htbl_finish "t" ;;
         "remove" "t" "key"

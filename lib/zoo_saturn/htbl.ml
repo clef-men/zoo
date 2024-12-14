@@ -3,16 +3,10 @@
 *)
 
 type ('k, 'v) bucket =
-  | Nil :
-    ('k, 'v) bucket
-  | Cons :
-    'k * 'v * ('k, 'v) bucket ->
-    ('k, 'v) bucket
-  | Resize :
-    { (* actually never mutated but we must prevent sharing *)
-      mutable bucket: ('k, 'v) bucket;
-    } ->
-    ('k, 'v) bucket
+  | Init
+  | Nil
+  | Cons of 'k * 'v * ('k, 'v) bucket
+  | Resize of ('k, 'v) bucket
 
 type ('k, 'v) buckets =
   ('k, 'v) bucket Atomic_array.t
@@ -44,6 +38,8 @@ let[@zoo.opaque] max_buckets =
   Sys.max_array_length
 
 let rec bucket_assoc equal key = function
+  | Init ->
+      assert false
   | Nil ->
       Nil
   | Cons (key', _, bucket') as bucket ->
@@ -51,8 +47,8 @@ let rec bucket_assoc equal key = function
         bucket
       else
         bucket_assoc equal key bucket'
-  | Resize bucket_r ->
-      bucket_assoc equal key bucket_r.bucket
+  | Resize bucket ->
+      bucket_assoc equal key bucket
 
 let[@zoo.exclude] rec bucket_dissoc equal key = function
   | Nil ->
@@ -62,7 +58,7 @@ let[@zoo.exclude] rec bucket_dissoc equal key = function
         bucket
       else
         Cons (key', v, bucket_dissoc equal key bucket)
-  | Resize _ ->
+  | _ ->
       assert false
 let[@zoo.opaque] bucket_dissoc equal key bucket =
   try Some (bucket_dissoc equal key bucket) with Not_found -> None
@@ -75,7 +71,7 @@ let[@tail_mod_cons] rec bucket_filter pred = function
         Cons (key, v, bucket_filter pred bucket)
       else
         bucket_filter pred bucket
-  | Resize _ ->
+  | _ ->
       assert false
 
 let[@tail_mod_cons] rec bucket_merge bucket = function
@@ -83,7 +79,7 @@ let[@tail_mod_cons] rec bucket_merge bucket = function
       bucket
   | Cons (key, v, bucket) ->
       Cons (key, v, bucket_merge bucket bucket)
-  | Resize _ ->
+  | _ ->
       assert false
 
 let create hash equal =
@@ -112,7 +108,7 @@ let find t key =
       None
   | Cons (_, v, _) ->
       Some v
-  | Resize _ ->
+  | _ ->
       assert false
 
 let mem t key =
@@ -120,10 +116,12 @@ let mem t key =
 
 let rec take buckets i =
   match Atomic_array.unsafe_get buckets i with
-  | Resize bucket_r ->
-      bucket_r.bucket
+  | Init ->
+      assert false
+  | Resize bucket ->
+      bucket
   | bucket ->
-      if Atomic_array.unsafe_cas buckets i bucket (Resize { bucket }) then (
+      if Atomic_array.unsafe_cas buckets i bucket (Resize bucket) then (
         bucket
       ) else (
         Domain.yield () ;
@@ -136,23 +134,13 @@ let rec split_buckets t state buckets mask i step =
   let cap = Atomic_array.size state.buckets in
   let new_bucket_1 = bucket_filter (fun key -> t.hash key land cap == 0) bucket in
   let new_bucket_2 = bucket_filter (fun key -> t.hash key land cap == cap) bucket in
-  let bucket_1 = Atomic_array.unsafe_get buckets i in
-  let bucket_2 = Atomic_array.unsafe_get buckets (i + cap) in
   if t.state != state then (
     false
   ) else (
-    begin match bucket_1 with
-    | Resize _ ->
-        Atomic_array.unsafe_cas buckets i bucket_1 new_bucket_1 |> ignore
-    | _ ->
-        ()
-    end ;
-    begin match bucket_2 with
-    | Resize _ ->
-        Atomic_array.unsafe_cas buckets (i + cap) bucket_2 new_bucket_2 |> ignore
-    | _ ->
-        ()
-    end ;
+    if Atomic_array.unsafe_get buckets i == Init then
+      Atomic_array.unsafe_cas buckets i Init new_bucket_1 |> ignore ;
+    if Atomic_array.unsafe_get buckets (i + cap) == Init then
+      Atomic_array.unsafe_cas buckets (i + cap) Init new_bucket_2 |> ignore ;
     i = 0 || split_buckets t state buckets mask i step
   )
 
@@ -161,16 +149,11 @@ let rec merge_buckets t state buckets mask i step =
   let buckets_1 = take state.buckets i in
   let buckets_2 = take state.buckets (i + Atomic_array.size buckets) in
   let new_bucket = bucket_merge buckets_1 buckets_2 in
-  let bucket = Atomic_array.unsafe_get buckets i in
   if t.state != state then (
     false
   ) else (
-    begin match bucket with
-    | Resize _ ->
-        Atomic_array.unsafe_cas buckets i bucket new_bucket |> ignore
-    | _ ->
-        ()
-    end ;
+    if Atomic_array.unsafe_get buckets i == Init then
+      Atomic_array.unsafe_cas buckets i Init new_bucket |> ignore ;
     i = 0 || merge_buckets t state buckets mask i step
   )
 
@@ -197,7 +180,7 @@ and finish t =
   finish_as t t.state
 
 let resize t state new_cap =
-  let new_buckets = Atomic_array.make new_cap (Resize { bucket= Nil }) in
+  let new_buckets = Atomic_array.make new_cap Init in
   let new_status =
     Resizing {
       resizing_buckets= new_buckets;
@@ -225,6 +208,8 @@ let rec add t key v =
   let state = t.state in
   let i = index t state key in
   match Atomic_array.unsafe_get state.buckets i with
+  | Init ->
+      assert false
   | Resize _ ->
       finish t ;
       add t key v
@@ -243,6 +228,8 @@ let rec remove t key =
   let state = t.state in
   let i = index t state key in
   match Atomic_array.unsafe_get state.buckets i with
+  | Init ->
+      assert false
   | Resize _ ->
       finish t ;
       remove t key
