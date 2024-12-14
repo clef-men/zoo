@@ -178,22 +178,17 @@ let rec finish_as t state =
   match state.status with
   | Normal ->
       ()
-  | Resizing resizing_r ->
+  | Resizing { resizing_buckets= buckets; resizing_mask= mask } ->
       if
         let cap = Atomic_array.size state.buckets in
-        let new_cap = Atomic_array.size resizing_r.resizing_buckets in
+        let new_cap = Atomic_array.size buckets in
         let step = Random.bits t.random lor 1 in
         if cap < new_cap then
-          split_buckets t state resizing_r.resizing_buckets resizing_r.resizing_mask 0 step
+          split_buckets t state buckets mask 0 step
         else
-          merge_buckets t state resizing_r.resizing_buckets resizing_r.resizing_mask 0 step
+          merge_buckets t state buckets mask 0 step
       then
-        let new_state =
-          { buckets= resizing_r.resizing_buckets;
-            mask= resizing_r.resizing_mask;
-            status= Normal;
-          }
-        in
+        let new_state = { buckets; mask; status= Normal } in
         if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.state] state new_state then
           finish t
       else

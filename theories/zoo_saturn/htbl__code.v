@@ -186,37 +186,18 @@ Definition htbl_merge_buckets : val :=
     match: "state".<status> with
     | Normal =>
         ()
-    | Resizing <> <> as "resizing_r" =>
+    | Resizing "buckets" "mask" =>
         if:
           let: "cap" := atomic_array_size "state".<buckets> in
-          let: "new_cap" :=
-            atomic_array_size "resizing_r".<resizing_buckets>
-          in
+          let: "new_cap" := atomic_array_size "buckets" in
           let: "step" := random_bits "t".{random} `lor` #1 in
           if: "cap" < "new_cap" then (
-            htbl_split_buckets
-              "t"
-              "state"
-              "resizing_r".<resizing_buckets>
-              "resizing_r".<resizing_mask>
-              #0
-              "step"
+            htbl_split_buckets "t" "state" "buckets" "mask" #0 "step"
           ) else (
-            htbl_merge_buckets
-              "t"
-              "state"
-              "resizing_r".<resizing_buckets>
-              "resizing_r".<resizing_mask>
-              #0
-              "step"
+            htbl_merge_buckets "t" "state" "buckets" "mask" #0 "step"
           )
         then (
-          let: "new_state" :=
-            ("resizing_r".<resizing_buckets>,
-             "resizing_r".<resizing_mask>,
-             §Normal
-            )
-          in
+          let: "new_state" := ("buckets", "mask", §Normal) in
           if: ~ CAS "t".[state] "state" "new_state" then (
             "finish" "t"
           ) else (
