@@ -21,6 +21,21 @@ Section bi.
     Implicit Types l : list A.
     Implicit Types Φ Ψ : nat → A → PROP.
 
+    Lemma big_sepL_cons_1 x l Φ :
+      ([∗ list] k ↦ y ∈ (x :: l), Φ k y) ⊢
+        Φ 0 x ∗
+        [∗ list] k ↦ y ∈ l, Φ (S k) y.
+    Proof.
+      rewrite big_sepL_cons //.
+    Qed.
+    Lemma big_sepL_cons_2 x l Φ :
+      Φ 0 x -∗
+      ([∗ list] k ↦ y ∈ l, Φ (S k) y) -∗
+      [∗ list] k ↦ y ∈ (x :: l), Φ k y.
+    Proof.
+      rewrite big_sepL_cons. iSteps.
+    Qed.
+
     Lemma big_sepL_snoc_1 l x Φ :
       ([∗ list] k↦y ∈ (l ++ [x]), Φ k y) ⊢
         ([∗ list] k↦y ∈ l, Φ k y) ∗
