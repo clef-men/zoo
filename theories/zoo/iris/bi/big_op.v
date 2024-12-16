@@ -43,10 +43,9 @@ Section bi.
     Proof.
       rewrite big_sepL_snoc //.
     Qed.
-    Lemma big_sepL_snoc_2 l len x Φ :
-      len = length l →
+    Lemma big_sepL_snoc_2 l x Φ :
       ([∗ list] k↦y ∈ l, Φ k y) -∗
-      Φ len x -∗
+      Φ (length l) x -∗
       ([∗ list] k↦y ∈ (l ++ [x]), Φ k y).
     Proof.
       rewrite big_sepL_snoc. iSteps.
