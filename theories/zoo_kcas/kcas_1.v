@@ -363,13 +363,15 @@ Section kcas_G.
   #[local] Definition kcas_model₂ γ v :=
     kcas_model₂' γ.(kcas_loc_meta_model) v.
 
-  #[local] Definition kcas_lockers_auth' γ_lockers casns :=
-    mono_list_auth γ_lockers (DfracOwn 1) casns.
+  #[local] Definition kcas_lockers_auth' γ_lockers casns : iProp Σ :=
+    mono_list_auth γ_lockers (DfracOwn 1) casns ∗
+    ⌜NoDup casns⌝.
   #[local] Definition kcas_lockers_auth γ casns :=
     kcas_lockers_auth' γ.(kcas_loc_meta_lockers) casns.
-  #[local] Definition kcas_lockers_lb γ casns :=
-    mono_list_lb γ.(kcas_loc_meta_lockers) casns.
-  #[local] Definition kcas_lockers_elem' γ_lockers casn :=
+  #[local] Definition kcas_lockers_lb γ casns : iProp Σ :=
+    mono_list_lb γ.(kcas_loc_meta_lockers) casns ∗
+    ⌜NoDup casns⌝.
+  #[local] Definition kcas_lockers_elem' γ_lockers casn : iProp Σ :=
     mono_list_elem γ_lockers casn.
   #[local] Definition kcas_lockers_elem γ casn :=
     kcas_lockers_elem' γ.(kcas_loc_meta_lockers) casn.
@@ -566,7 +568,6 @@ Section kcas_G.
     kcas_lstatus_lb η (KcasRunning (S i)) ∗
     kcas_lock η i ∗
     kcas_lockers_auth γ (casns ++ [casn]) ∗
-    ⌜NoDup (casns ++ [casn])⌝ ∗
     ( [∗ list] casn ∈ casns,
       ∃ η,
       meta casn nroot η ∗
@@ -587,7 +588,6 @@ Section kcas_G.
       {>=}{#}Hlstatus{}_lb &
       {>=}Hlock{} &
       {>=}Hlockers{}_auth &
-      {>=}%Hcasns{} &
       {>=}Hcasns{} &
       {#}Hcasn{}_inv'
     )".
@@ -754,17 +754,39 @@ Section kcas_G.
     iMod (mono_list_alloc [casn]) as "(%γ_lockers & Hlockers_auth)".
     iDestruct (mono_list_elem_get with "Hlockers_auth") as "#Hlockers_elem".
     { apply elem_of_list_singleton. done. }
-    iSteps.
+    iSteps. iPureIntro.
+    apply NoDup_singleton.
+  Qed.
+  #[local] Lemma kcas_lockers_lb_valid γ casns1 casn casns2 :
+    kcas_lockers_auth γ (casns1 ++ [casn]) -∗
+    kcas_lockers_lb γ (casns2 ++ [casn]) -∗
+    ⌜casns1 = casns2⌝.
+  Proof.
+    iIntros "(Hlockers_auth & %Hcasns1) (Hlockers_lb & %Hcasns2)".
+    iDestruct (mono_list_lb_valid with "Hlockers_auth Hlockers_lb") as %(casns3 & Heq).
+    iPureIntro.
+    destruct (nil_or_length_pos casns3) as [-> | Hcasns3].
+    - rewrite right_id in Heq.
+      apply (inj (λ casns, casns ++ [casn])). done.
+    - opose proof* (NoDup_lookup (casns1 ++ [casn])).
+      { done. }
+      { rewrite lookup_snoc_Some. right. done. }
+      { erewrite Heq, lookup_app_l_Some; first done.
+        rewrite lookup_snoc_Some. right. done.
+      }
+      apply (f_equal length) in Heq. rewrite !length_app in Heq. lia.
   Qed.
   #[local] Lemma kcas_lockers_update {γ casns} casn :
+    casn ∉ casns →
     kcas_lockers_auth γ casns ⊢ |==>
       kcas_lockers_auth γ (casns ++ [casn]) ∗
       kcas_lockers_elem γ casn.
   Proof.
-    iIntros "Hlockers_auth".
+    iIntros "%Hcasn (Hlockers_auth & %Hcasns)".
     iMod (mono_list_update_app [casn] with "Hlockers_auth") as "Hlockers_auth".
     iDestruct (mono_list_elem_get with "Hlockers_auth") as "#$"; first set_solver.
-    iSteps.
+    iSteps. iPureIntro.
+    rewrite comm. apply NoDup_cons. done.
   Qed.
 
   #[local] Lemma kcas_lstatus_alloc lstatus :
@@ -1446,6 +1468,7 @@ Section kcas_G.
                      }
 
                      iMod (kcas_lockers_update with "Hlockers''_auth") as "(Hlockers_auth & #Hlockers_elem)".
+                     { admit. }
                      iMod (kcas_lstatus_update (KcasRunning (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
                      iClear "Hlstatus_lb". iDestruct (kcas_lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
                      iEval (rewrite -Hok) in "Hmodel₂".
@@ -1468,7 +1491,7 @@ Section kcas_G.
                      iModIntro. clear helpers.
 
                      iDestruct (big_sepL_snoc_2 with "Hcasns'' [$]") as "Hcasns".
-                     iSplitR "HΦ". { iFrame. iSteps. admit. }
+                     iSplitR "HΦ". { iFrame. iSteps. }
                      iModIntro.
 
                      wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
