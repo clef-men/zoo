@@ -58,8 +58,9 @@ Section big_unionL.
         ∃ i x,
         l !! i = Some x ∧
         y ∈ f (n + i) x
-    ).
-    { intros Hcut. apply (Hcut 0). }
+    ). {
+      intros Hcut. apply (Hcut 0).
+    }
     induction l as [| x l IH] => /= n Hx; first done.
     apply elem_of_union in Hx as [Hx | Hx].
     - exists 0, x. done.
