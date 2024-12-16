@@ -82,7 +82,7 @@ Section partition_G.
   #[local] Definition partition_model_elt descr elt : iProp Σ :=
     elt.[class_] ↦ #descr.(partition_descr_class) ∗
     elt.[seen] ↦ #false.
-  #[local] Instance : CustomIpatFormat "partition_model_elt" :=
+  #[local] Instance : CustomIpatFormat "model_elt" :=
     "(
       Helt{}_class{_{suff}} &
       Helt{}_seen{_{suff}}
@@ -103,7 +103,7 @@ Section partition_G.
     xdlchain #prev descr.(partition_descr_elts) #next ∗
     [∗ list] elt ∈ descr.(partition_descr_elts),
       partition_model_elt descr elt.
-  #[local] Instance : CustomIpatFormat "partition_model_descr" :=
+  #[local] Instance : CustomIpatFormat "model_descr" :=
     "(
       %first{} &
       %last{} &
@@ -129,7 +129,7 @@ Section partition_G.
     partition_elts_auth γ ([∪ set] descr ∈ descrs, list_to_set descr.(partition_descr_elts)) ∗
     [∗ set] descr ∈ descrs,
       partition_model_descr descrs descr.
-  #[local] Instance : CustomIpat0 "partition_model'" :=
+  #[local] Instance : CustomIpat0 "model'" :=
     "(
       Helts_auth &
       Hdescrs
@@ -138,7 +138,7 @@ Section partition_G.
     ∃ descrs,
     ⌜part = set_map (list_to_set ∘ partition_descr_elts) descrs⌝ ∗
     partition_model' γ descrs.
-  #[local] Instance : CustomIpat0 "partition_model" :=
+  #[local] Instance : CustomIpat0 "model" :=
     "(
       %descrs &
       -> &
@@ -148,7 +148,7 @@ Section partition_G.
   Definition partition_elt γ elt v : iProp Σ :=
     partition_elts_elem γ elt ∗
     elt.[data] ↦□ v.
-  #[local] Instance : CustomIpatFormat "partition_elt" :=
+  #[local] Instance : CustomIpatFormat "elt" :=
     "(
       Helts_elem{}{_{suff}} &
       Helt{}_data{_{suff}}
@@ -205,16 +205,16 @@ Section partition_G.
         descr1 = descr2
       ⌝.
   Proof.
-    iIntros "%Hdescrs_elem_1 %Hdescrs_elem_2 (:partition_model')".
+    iIntros "%Hdescrs_elem_1 %Hdescrs_elem_2 (:model')".
     destruct (decide (descr1 = descr2)) as [<- | Hneq]; first done.
-    iDestruct (big_sepS_delete _ _ descr1 with "Hdescrs") as "((:partition_model_descr =1) & Hdescrs)"; first done.
-    iDestruct (big_sepS_elem_of _ _ descr2 with "Hdescrs") as "(:partition_model_descr =2)"; first set_solver.
+    iDestruct (big_sepS_delete _ _ descr1 with "Hdescrs") as "((:model_descr =1) & Hdescrs)"; first done.
+    iDestruct (big_sepS_elem_of _ _ descr2 with "Hdescrs") as "(:model_descr =2)"; first set_solver.
     iSplit.
     - iIntros "_ <-".
       iApply (pointsto_exclusive with "Hclass1_first Hclass2_first").
     - iIntros (elt (i1 & Hlookup_1)%elem_of_list_lookup (i2 & Hlookup_2)%elem_of_list_lookup).
-      iDestruct (big_sepL_lookup with "Helts1") as "(:partition_model_elt suff=1)"; first done.
-      iDestruct (big_sepL_lookup with "Helts2") as "(:partition_model_elt suff=2)"; first done.
+      iDestruct (big_sepL_lookup with "Helts1") as "(:model_elt suff=1)"; first done.
+      iDestruct (big_sepL_lookup with "Helts2") as "(:model_elt suff=2)"; first done.
       iDestruct (pointsto_exclusive with "Helt_class_1 Helt_class_2") as %[].
   Qed.
   #[local] Lemma partition_model_class_unique {γ descrs} descr1 descr2 :
@@ -265,7 +265,7 @@ Section partition_G.
         descr' = descr
       ⌝.
   Proof.
-    iIntros "(:partition_model') (:partition_elt)".
+    iIntros "(:model') (:elt)".
     iDestruct (partition_elts_elem_valid with "Helts_auth Helts_elem") as %(descr & Hdescr & Helts_elem%elem_of_list_to_set)%big_unionS_elem_of.
     iExists descr. iStep 5 as (descr' Hdescr' Helts_elem').
     iApply partition_model_disjoint'; [done.. |].
@@ -276,8 +276,8 @@ Section partition_G.
     partition_model' γ descrs ⊢
     ⌜NoDup descr.(partition_descr_elts)⌝.
   Proof.
-    iIntros "%Hdescrs_lookup (:partition_model')".
-    iDestruct (big_sepS_elem_of with "Hdescrs") as "(:partition_model_descr)"; first done.
+    iIntros "%Hdescrs_lookup (:model')".
+    iDestruct (big_sepS_elem_of with "Hdescrs") as "(:model_descr)"; first done.
     iApply (xdlchain_NoDup with "Hchain").
   Qed.
 
@@ -296,10 +296,10 @@ Section partition_G.
     partition_model γ part ⊢
     ⌜cl ≠ ∅⌝.
   Proof.
-    iIntros "%Hcl (:partition_model)".
-    iDestruct "Hmodel" as "(:partition_model')".
+    iIntros "%Hcl (:model)".
+    iDestruct "Hmodel" as "(:model')".
     apply elem_of_map in Hcl as (descr & -> & Hdescr).
-    iDestruct (big_sepS_elem_of with "Hdescrs") as "(:partition_model_descr)"; first done.
+    iDestruct (big_sepS_elem_of with "Hdescrs") as "(:model_descr)"; first done.
     iPureIntro. eapply list_to_set_not_empty, hd_error_some_nil. done.
   Qed.
   Lemma partition_model_disjoint {γ part} elt cl1 cl2 :
@@ -310,7 +310,7 @@ Section partition_G.
     partition_model γ part ⊢
     ⌜cl1 = cl2⌝.
   Proof.
-    iIntros "%Hpart_elem_1 %Hcl1_elem %Hpart_elem_2 %Hcl2_elem (:partition_model)".
+    iIntros "%Hpart_elem_1 %Hcl1_elem %Hpart_elem_2 %Hcl2_elem (:model)".
     apply elem_of_map in Hpart_elem_1 as (descr1 & -> & Hdescrs_elem_1).
     apply elem_of_map in Hpart_elem_2 as (descr2 & -> & Hdescrs_elem_2).
     iDestruct (partition_model_disjoint' elt descr1 descr2 with "Hmodel") as %<-; last iSteps.
@@ -327,7 +327,7 @@ Section partition_G.
       ⌜cl ∈ part⌝ ∗
       ⌜elt ∈ cl⌝.
   Proof.
-    iIntros "(:partition_model) Helt".
+    iIntros "(:model) Helt".
     iDestruct (partition_elt_valid' with "Hmodel Helt") as "(%descr & %descrs_elem & %Helts_elem & _)".
     iExists (list_to_set descr.(partition_descr_elts)). iSplit; iPureIntro.
     - apply elem_of_map. naive_solver.
@@ -338,7 +338,7 @@ Section partition_G.
     partition_elt γ elt v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    iIntros "(:partition_elt suff=1) (:partition_elt suff=2)".
+    iIntros "(:elt suff=1) (:elt suff=2)".
     iApply (pointsto_agree with "Helt_data_1 Helt_data_2").
   Qed.
 
@@ -380,10 +380,10 @@ Section partition_G.
   Proof.
     iIntros "%Φ (Hmodel & Helt) HΦ".
     iDestruct (partition_elt_valid' with "Hmodel Helt") as "(%descr & %Hdescrs_elem & %Helts_elem & %Hdescr)".
-    iDestruct "Hmodel" as "(:partition_model')".
-    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
+    iDestruct "Hmodel" as "(:model')".
+    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:model_descr) & Hdescrs)"; first done.
     odestruct elem_of_list_lookup_1 as (i & Helts_lookup); first done.
-    iDestruct (big_sepL_lookup_acc with "Helts") as "((:partition_model_elt) & Helts)"; first done.
+    iDestruct (big_sepL_lookup_acc with "Helts") as "((:model_elt) & Helts)"; first done.
     wp_load.
     iDestruct ("Helts" with "[$]") as "Helts".
     iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
@@ -402,8 +402,8 @@ Section partition_G.
       partition_elt γ elt v
     }}}.
   Proof.
-    iIntros "%Φ (:partition_model) HΦ".
-    iDestruct "Hmodel" as "(:partition_model')".
+    iIntros "%Φ (:model) HΦ".
+    iDestruct "Hmodel" as "(:model')".
 
     wp_rec.
     wp_apply (partition_dllist_create_spec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
@@ -418,7 +418,7 @@ Section partition_G.
 
     iAssert ⌜descr ∉ descrs⌝%I as %Hdescr.
     { iIntros "%Hdescrs_elem".
-      iDestruct (big_sepS_elem_of with "Hdescrs") as "(:partition_model_descr =')"; first done.
+      iDestruct (big_sepS_elem_of with "Hdescrs") as "(:model_descr =')"; first done.
       iApply (pointsto_exclusive with "Hclass_first Hclass'_first").
     }
 
@@ -435,7 +435,7 @@ Section partition_G.
     - iExists elt, elt, descr, elt, descr, elt.
       rewrite xdlchain_singleton.
       iSteps; iPureIntro; set_solver.
-    - iApply (big_sepS_impl with "Hdescrs"). iIntros "!> %descr' %Hdescrs_elem (:partition_model_descr)".
+    - iApply (big_sepS_impl with "Hdescrs"). iIntros "!> %descr' %Hdescrs_elem (:model_descr)".
       iExists first, last, prev_descr, prev, next_descr, next.
       iSteps; iPureIntro; set_solver.
   Qed.
@@ -458,7 +458,7 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & Helt) HΦ".
 
     wp_rec.
     wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
@@ -512,7 +512,7 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:partition_model) & Helt1 & Helt2) HΦ".
+    iIntros "%Φ ((:model) & Helt1 & Helt2) HΦ".
     wp_rec.
     wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (descr2) "(Hmodel & Helt2 & %Hdescrs_elem_2 & %Helts_elem_2 & %Hdescr2)".
     wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (descr1) "(Hmodel & Helt1 & %Hdescrs_elem_1 & %Helts_elem_1 & %Hdescr1)".
@@ -549,11 +549,11 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & Helt) HΦ".
     wp_rec.
     wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
-    iDestruct "Hmodel" as "(:partition_model')".
-    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
+    iDestruct "Hmodel" as "(:model')".
+    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:model_descr) & Hdescrs)"; first done.
     wp_load.
     iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
     { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
@@ -580,12 +580,12 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:partition_model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & Helt) HΦ".
     wp_rec.
     wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (descr) "(Hmodel & Helt & %Hdescrs_elem & %Helts_elem & %Helt_descr)".
     iDestruct (partition_model_descr_elts_NoDup with "Hmodel") as %?; first done.
-    iDestruct "Hmodel" as "(:partition_model')".
-    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:partition_model_descr) & Hdescrs)"; first done.
+    iDestruct "Hmodel" as "(:model')".
+    iDestruct (big_sepS_elem_of_acc with "Hdescrs") as "((:model_descr) & Hdescrs)"; first done.
     wp_load.
     iDestruct ("Hdescrs" with "[- Helts_auth Helt HΦ]") as "Hdescrs".
     { iExists first, last, prev_descr, prev, next_descr, next. iSteps. }
