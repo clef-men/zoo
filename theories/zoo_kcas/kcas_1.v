@@ -65,14 +65,14 @@ Implicit Types prophs : list kcas_prophet.(typed_prophet_type).
 
 Record kcas_loc_meta := {
   kcas_loc_meta_model : gname ;
-  kcas_loc_meta_lockers : gname ;
+  kcas_loc_meta_history : gname ;
 }.
 Implicit Types γ : kcas_loc_meta.
 
 #[local] Instance kcas_loc_meta_inhabited : Inhabited kcas_loc_meta :=
   populate {|
     kcas_loc_meta_model := inhabitant ;
-    kcas_loc_meta_lockers := inhabitant ;
+    kcas_loc_meta_history := inhabitant ;
   |}.
 #[local] Instance kcas_loc_meta_eq_dec : EqDecision kcas_loc_meta :=
   ltac:(solve_decision).
@@ -81,11 +81,11 @@ Implicit Types γ : kcas_loc_meta.
 Proof.
   pose encode γ := (
     γ.(kcas_loc_meta_model),
-    γ.(kcas_loc_meta_lockers)
+    γ.(kcas_loc_meta_history)
   ).
-  pose decode := λ '(γ_model, γ_lockers), {|
+  pose decode := λ '(γ_model, γ_history), {|
     kcas_loc_meta_model := γ_model ;
-    kcas_loc_meta_lockers := γ_lockers ;
+    kcas_loc_meta_history := γ_history ;
   |}.
   refine (inj_countable' encode decode _). intros []. done.
 Qed.
@@ -323,7 +323,7 @@ Qed.
 
 Class KcasG Σ `{zoo_G : !ZooG Σ} := {
   #[local] kcas_G_model_G :: TwinsG Σ val_O ;
-  #[local] kcas_G_lockers_G :: MonoListG Σ location ;
+  #[local] kcas_G_history_G :: MonoListG Σ location ;
   #[local] kcas_G_saved_prop :: SavedPropG Σ ;
   #[local] kcas_G_lstatus_G :: AuthMonoG (A := leibnizO kcas_lstatus) Σ kcas_lstep ;
   #[local] kcas_G_lock_G :: ExclG Σ unitO ;
@@ -363,18 +363,18 @@ Section kcas_G.
   #[local] Definition kcas_model₂ γ v :=
     kcas_model₂' γ.(kcas_loc_meta_model) v.
 
-  #[local] Definition kcas_lockers_auth' γ_lockers casns : iProp Σ :=
-    mono_list_auth γ_lockers (DfracOwn 1) casns ∗
+  #[local] Definition kcas_history_auth' γ_history casns : iProp Σ :=
+    mono_list_auth γ_history (DfracOwn 1) casns ∗
     ⌜NoDup casns⌝.
-  #[local] Definition kcas_lockers_auth γ casns :=
-    kcas_lockers_auth' γ.(kcas_loc_meta_lockers) casns.
-  #[local] Definition kcas_lockers_lb γ casns : iProp Σ :=
-    mono_list_lb γ.(kcas_loc_meta_lockers) casns ∗
+  #[local] Definition kcas_history_auth γ casns :=
+    kcas_history_auth' γ.(kcas_loc_meta_history) casns.
+  #[local] Definition kcas_history_lb γ casns : iProp Σ :=
+    mono_list_lb γ.(kcas_loc_meta_history) casns ∗
     ⌜NoDup casns⌝.
-  #[local] Definition kcas_lockers_elem' γ_lockers casn : iProp Σ :=
-    mono_list_elem γ_lockers casn.
-  #[local] Definition kcas_lockers_elem γ casn :=
-    kcas_lockers_elem' γ.(kcas_loc_meta_lockers) casn.
+  #[local] Definition kcas_history_elem' γ_history casn : iProp Σ :=
+    mono_list_elem γ_history casn.
+  #[local] Definition kcas_history_elem γ casn :=
+    kcas_history_elem' γ.(kcas_loc_meta_history) casn.
 
   #[local] Definition kcas_lstatus_auth' η_lstatus lstatus :=
     auth_mono_auth _ η_lstatus (DfracOwn 1) lstatus.
@@ -455,7 +455,7 @@ Section kcas_G.
         ⌜prophs = η.(kcas_casn_meta_prophs)⌝ ∗
         ( [∗ list] descr ∈ take i η.(kcas_casn_meta_descrs),
           kcas_model₂ descr.(kcas_descr_meta) descr.(kcas_descr_before) ∗
-          kcas_lockers_elem descr.(kcas_descr_meta) casn
+          kcas_history_elem descr.(kcas_descr_meta) casn
         ) ∗
         ( [∗ list] j ∈ seq 0 (kcas_casn_meta_size η - i),
           kcas_lock η (i + j)
@@ -477,7 +477,7 @@ Section kcas_G.
           ∨ kcas_lock η i
           ) ∗
           if kcas_casn_meta_success η then
-            kcas_lockers_elem descr.(kcas_descr_meta) casn
+            kcas_history_elem descr.(kcas_descr_meta) casn
           else
             True
         ) ∗
@@ -567,7 +567,7 @@ Section kcas_G.
     loc ↦ᵣ kcas_state casn descr ∗
     kcas_lstatus_lb η (KcasRunning (S i)) ∗
     kcas_lock η i ∗
-    kcas_lockers_auth γ (casns ++ [casn]) ∗
+    kcas_history_auth γ (casns ++ [casn]) ∗
     ( [∗ list] casn ∈ casns,
       ∃ η,
       meta casn nroot η ∗
@@ -587,7 +587,7 @@ Section kcas_G.
       {>=}Hloc{} &
       {>=}{#}Hlstatus{}_lb &
       {>=}Hlock{} &
-      {>=}Hlockers{}_auth &
+      {>=}Hhistory{}_auth &
       {>=}Hcasns{} &
       {#}Hcasn{}_inv'
     )".
@@ -745,25 +745,25 @@ Section kcas_G.
     apply twins_twin2_exclusive.
   Qed.
 
-  #[local] Lemma kcas_lockers_alloc casn :
+  #[local] Lemma kcas_history_alloc casn :
     ⊢ |==>
-      ∃ γ_lockers,
-      kcas_lockers_auth' γ_lockers [casn] ∗
-      kcas_lockers_elem' γ_lockers casn.
+      ∃ γ_history,
+      kcas_history_auth' γ_history [casn] ∗
+      kcas_history_elem' γ_history casn.
   Proof.
-    iMod (mono_list_alloc [casn]) as "(%γ_lockers & Hlockers_auth)".
-    iDestruct (mono_list_elem_get with "Hlockers_auth") as "#Hlockers_elem".
+    iMod (mono_list_alloc [casn]) as "(%γ_history & Hhistory_auth)".
+    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#Hhistory_elem".
     { apply elem_of_list_singleton. done. }
     iSteps. iPureIntro.
     apply NoDup_singleton.
   Qed.
-  #[local] Lemma kcas_lockers_lb_valid γ casns1 casn casns2 :
-    kcas_lockers_auth γ (casns1 ++ [casn]) -∗
-    kcas_lockers_lb γ (casns2 ++ [casn]) -∗
+  #[local] Lemma kcas_history_lb_valid γ casns1 casn casns2 :
+    kcas_history_auth γ (casns1 ++ [casn]) -∗
+    kcas_history_lb γ (casns2 ++ [casn]) -∗
     ⌜casns1 = casns2⌝.
   Proof.
-    iIntros "(Hlockers_auth & %Hcasns1) (Hlockers_lb & %Hcasns2)".
-    iDestruct (mono_list_lb_valid with "Hlockers_auth Hlockers_lb") as %(casns3 & Heq).
+    iIntros "(Hhistory_auth & %Hcasns1) (Hhistory_lb & %Hcasns2)".
+    iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb") as %(casns3 & Heq).
     iPureIntro.
     destruct (nil_or_length_pos casns3) as [-> | Hcasns3].
     - rewrite right_id in Heq.
@@ -776,15 +776,15 @@ Section kcas_G.
       }
       apply (f_equal length) in Heq. rewrite !length_app in Heq. lia.
   Qed.
-  #[local] Lemma kcas_lockers_update {γ casns} casn :
+  #[local] Lemma kcas_history_update {γ casns} casn :
     casn ∉ casns →
-    kcas_lockers_auth γ casns ⊢ |==>
-      kcas_lockers_auth γ (casns ++ [casn]) ∗
-      kcas_lockers_elem γ casn.
+    kcas_history_auth γ casns ⊢ |==>
+      kcas_history_auth γ (casns ++ [casn]) ∗
+      kcas_history_elem γ casn.
   Proof.
-    iIntros "%Hcasn (Hlockers_auth & %Hcasns)".
-    iMod (mono_list_update_app [casn] with "Hlockers_auth") as "Hlockers_auth".
-    iDestruct (mono_list_elem_get with "Hlockers_auth") as "#$"; first set_solver.
+    iIntros "%Hcasn (Hhistory_auth & %Hcasns)".
+    iMod (mono_list_update_app [casn] with "Hhistory_auth") as "Hhistory_auth".
+    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
     iSteps. iPureIntro.
     rewrite comm. apply NoDup_cons. done.
   Qed.
@@ -972,13 +972,13 @@ Section kcas_G.
       iFrame. iSteps.
 
     - iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-      iDestruct (big_sepL_lookup_acc with "Hmodels₂") as "(([Hmodel₂ | _Hlock] & Hlockers_elem) & Hmodels₂)"; first done; last first.
+      iDestruct (big_sepL_lookup_acc with "Hmodels₂") as "(([Hmodel₂ | _Hlock] & Hhistory_elem) & Hmodels₂)"; first done; last first.
       { iDestruct (kcas_lock_exclusive with "Hlock _Hlock") as %[]. }
       iApply (fupd_mask_mono (⊤ ∖ ↑ι)); first solve_ndisj.
       iMod "H" as "(%v & Hmodel₁ & _ & H)".
       iDestruct (kcas_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("H" with "[$Hmodel₁ //]") as "HQ".
-      iDestruct ("Hmodels₂" with "[Hmodel₂ Hlockers_elem]") as "Hmodels₂"; first iSteps.
+      iDestruct ("Hmodels₂" with "[Hmodel₂ Hhistory_elem]") as "Hmodels₂"; first iSteps.
       iDestruct (big_sepM_insert_2 _ _ helper i with "[HQ] Hhelpers") as "Hhelpers"; first iSteps.
       iSplitR "Hlock Hhelpers_elem". { do 2 iFrame. iSteps. }
       iModIntro.
@@ -1126,7 +1126,7 @@ Section kcas_G.
               ∨ kcas_lock η i
               ) ∗
               if kcas_casn_meta_success η then
-                kcas_lockers_elem descr.(kcas_descr_meta) casn
+                kcas_history_elem descr.(kcas_descr_meta) casn
               else
                 True
             )%I with "[Hmodels₂ Hlocks]" as "Hmodels₂".
@@ -1160,13 +1160,13 @@ Section kcas_G.
               ( kcas_model₁ descr.(kcas_descr_meta) descr.(kcas_descr_after) ∗
                 kcas_model₂ descr.(kcas_descr_meta) (kcas_descr_final descr η) ∗
                 if kcas_casn_meta_success η then
-                  kcas_lockers_elem descr.(kcas_descr_meta) casn
+                  kcas_history_elem descr.(kcas_descr_meta) casn
                 else
                   True
               ) ∗
               ⌜descr.(kcas_descr_before) = v⌝
             )%I with "Hmodels []") as "Hmodels".
-            { iIntros "!> %k %descr %v %Hdescrs_lookup %Hvs_lookup ((Hmodel₂ & Hlockers_elem) & Hmodel₁)".
+            { iIntros "!> %k %descr %v %Hdescrs_lookup %Hvs_lookup ((Hmodel₂ & Hhistory_elem) & Hmodel₁)".
               iDestruct (kcas_model_agree with "Hmodel₁ Hmodel₂") as %->.
               iMod (kcas_model_update descr.(kcas_descr_after) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
               rewrite /kcas_descr_final Hsuccess /=.
@@ -1177,10 +1177,10 @@ Section kcas_G.
             iDestruct (big_sepL2_Forall with "Hvs") as %Hvs.
 
             iMod ("HP" with "[Hmodels₁]") as "HP"; first iSteps.
-            iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hlockers_elems)".
+            iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hhistory_elems)".
             iMod ("Hhelpers" with "Hmodels₂") as "(Hhelpers & Hmodels₂)".
             iDestruct (big_sepL_or_r with "Hmodels₂") as "Hmodels₂".
-            iDestruct (big_sepL_sep_2 with "Hmodels₂ Hlockers_elems") as "Hmodels₂".
+            iDestruct (big_sepL_sep_2 with "Hmodels₂ Hhistory_elems") as "Hmodels₂".
             iSteps.
             rewrite /kcas_casn_meta_final Hsuccess //.
 
@@ -1365,7 +1365,7 @@ Section kcas_G.
             iDestruct "Hau" as "[(Hau & Hwinning) | >Hwinner]"; last first.
             { iDestruct (identifier_model_exclusive with "Hgid Hwinner") as %[]. }
             iMod (lc_fupd_elim_later with "H£ Hau") as "Hau".
-            iSplitR "Hloc' Hlock' Hlockers'_auth Hcasns' Hau Hwinning HΦ". { do 2 iFrame. iSteps. }
+            iSplitR "Hloc' Hlock' Hhistory'_auth Hcasns' Hau Hwinning HΦ". { do 2 iFrame. iSteps. }
             iModIntro. clear j helpers.
 
             iMod (kcas_casn_help _ P with "Hcasn'_inv Hlock' [Hau]") as "(%helper & Hlock' & #Hhelper & Hhelpers'_elem)"; [solve_ndisj | done.. | |].
@@ -1443,11 +1443,11 @@ Section kcas_G.
                      iInv "Hcasn'_inv" as "(:casn_inv_inner > =')".
                      iDestruct (kcas_lstatus_finished with "Hlstatus'_auth Hlstatus'_lb") as %->.
                      iDestruct "Hlstatus'" as "(:casn_inv_inner_finished > =')".
-                     iDestruct (big_sepL_lookup_acc with "Hmodels'₂") as "(([Hmodel₂ | Hlock'] & Hlockers_elem) & Hmodels'₂)"; first done; last first.
+                     iDestruct (big_sepL_lookup_acc with "Hmodels'₂") as "(([Hmodel₂ | Hlock'] & Hhistory_elem) & Hmodels'₂)"; first done; last first.
                      { iDestruct (kcas_lock_exclusive with "Hlock'' Hlock'") as %[]. }
 
-                     iDestruct ("Hmodels'₂" with "[$Hlock'' $Hlockers_elem]") as "Hmodels'₂".
-                     iSplitR "Hloc'' Hlockers''_auth Hcasns'' Hmodel₂ HΦ". { do 2 iFrame. iSteps. }
+                     iDestruct ("Hmodels'₂" with "[$Hlock'' $Hhistory_elem]") as "Hmodels'₂".
+                     iSplitR "Hloc'' Hhistory''_auth Hcasns'' Hmodel₂ HΦ". { do 2 iFrame. iSteps. }
                      iModIntro. clear helpers' prophs'.
 
                      iEval (rewrite Hmeta') in "Hmodel₂".
@@ -1467,12 +1467,12 @@ Section kcas_G.
                          iDestruct (kcas_model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[].
                      }
 
-                     iMod (kcas_lockers_update with "Hlockers''_auth") as "(Hlockers_auth & #Hlockers_elem)".
+                     iMod (kcas_history_update with "Hhistory''_auth") as "(Hhistory_auth & #Hhistory_elem)".
                      { admit. }
                      iMod (kcas_lstatus_update (KcasRunning (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
                      iClear "Hlstatus_lb". iDestruct (kcas_lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
                      iEval (rewrite -Hok) in "Hmodel₂".
-                     iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hlockers_elem]") as "Hmodels₂".
+                     iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
                      iEval (rewrite -take_S_r //) in "Hmodels₂".
                      rewrite -(Nat.succ_pred_pos (kcas_casn_meta_size η - i)).
                      { rewrite /kcas_casn_meta_size. lia. }
@@ -1483,7 +1483,7 @@ Section kcas_G.
                      iEval (setoid_rewrite Nat.add_1_r) in "Hlocks".
                      iEval (setoid_rewrite Nat.add_succ_r) in "Hlocks".
                      assert (Nat.pred (kcas_casn_meta_size η - i) = kcas_casn_meta_size η - S i) as -> by lia.
-                     iSplitR "Hloc'' Hlockers_auth Hcasns'' Hlock HΦ".
+                     iSplitR "Hloc'' Hhistory_auth Hcasns'' Hlock HΦ".
                      { do 2 iFrame. iSteps. do 2 iModIntro.
                        iApply (big_sepM_impl with "Hhelpers").
                        iSteps.
@@ -1618,11 +1618,11 @@ Section kcas_G.
     wp_ref loc as "Hloc_meta" "Hloc".
 
     iMod kcas_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod kcas_lockers_alloc as "(%γ_lockers & Hlockers_auth & #Hlockers_elem)".
+    iMod kcas_history_alloc as "(%γ_history & Hhistory_auth & #Hhistory_elem)".
 
     pose γ := {|
       kcas_loc_meta_model := γ_model ;
-      kcas_loc_meta_lockers := γ_lockers ;
+      kcas_loc_meta_history := γ_history ;
     |}.
     iMod (meta_set _ _ γ with "Hloc_meta") as "#Hloc_meta"; first done.
 
@@ -1661,7 +1661,7 @@ Section kcas_G.
       setoid_rewrite big_sepM_empty. iSteps.
     }
 
-    iAssert (|={⊤}=> kcas_loc_inv' ι (loc, γ))%I with "[Hloc Hlock Hlockers_auth]" as ">#Hloc_inv'".
+    iAssert (|={⊤}=> kcas_loc_inv' ι (loc, γ))%I with "[Hloc Hlock Hhistory_auth]" as ">#Hloc_inv'".
     { iApply kcas_loc_inv'_intro.
       iApply inv_alloc.
       iExists [], casn, η, 0, descr.
