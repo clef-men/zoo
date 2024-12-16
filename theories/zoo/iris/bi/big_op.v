@@ -231,6 +231,93 @@ Section bi.
         iDestruct ("IH" with "H") as "(%ys & %Hlength & H)".
         iExists (y :: ys). iSteps.
     Qed.
+
+    Lemma big_sepL_impl_thread {Φ1} P Φ2 l :
+      ([∗ list] k ↦ x ∈ l, Φ1 k x) -∗
+      P -∗
+      □ (
+        ∀ k x,
+        ⌜l !! k = Some x⌝ →
+        Φ1 k x -∗
+        P -∗
+          Φ2 k x ∗
+          P
+      ) -∗
+        ([∗ list] k ↦ x ∈ l, Φ2 k x) ∗
+        P.
+    Proof.
+      cut (∀ n,
+        ([∗ list] k ↦ x ∈ l, Φ1 (n + k) x) -∗
+        P -∗
+        □ (
+          ∀ k x,
+          ⌜l !! k = Some x⌝ →
+          Φ1 (n + k) x -∗
+          P -∗
+            Φ2 (n + k) x ∗
+            P
+        ) -∗
+          ([∗ list] k ↦ x ∈ l, Φ2 (n + k) x) ∗
+          P
+      ). {
+        intros Hcut. apply (Hcut 0).
+      }
+      iIntros "%n Hl HP #HΦ".
+      iInduction l as [| x l] "IH" forall (n); first iSteps.
+      iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
+      iDestruct ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
+      setoid_rewrite Nat.add_succ_r.
+      iApply ("IH" $! (S n) with "[] Hl HP").
+      { iIntros "!> %k' %x' %Hlookup' Hx' HP".
+        rewrite Nat.add_succ_comm.
+        iApply ("HΦ" with "[%] Hx' HP"); first done.
+      }
+    Qed.
+    Lemma big_sepL_impl_thread_fupd `{!BiFUpd PROP} {Φ1} P Φ2 l E :
+      ([∗ list] k ↦ x ∈ l, Φ1 k x) -∗
+      P -∗
+      □ (
+        ∀ k x,
+        ⌜l !! k = Some x⌝ →
+        Φ1 k x -∗
+        P -∗
+          |={E}=>
+          Φ2 k x ∗
+          P
+      ) -∗
+        |={E}=>
+        ([∗ list] k ↦ x ∈ l, Φ2 k x) ∗
+        P.
+    Proof.
+      cut (∀ n,
+        ([∗ list] k ↦ x ∈ l, Φ1 (n + k) x) -∗
+        P -∗
+        □ (
+          ∀ k x,
+          ⌜l !! k = Some x⌝ →
+          Φ1 (n + k) x -∗
+          P -∗
+            |={E}=>
+            Φ2 (n + k) x ∗
+            P
+        ) -∗
+          |={E}=>
+          ([∗ list] k ↦ x ∈ l, Φ2 (n + k) x) ∗
+          P
+      ). {
+        intros Hcut. apply (Hcut 0).
+      }
+      iIntros "%n Hl HP #HΦ".
+      iInduction l as [| x l] "IH" forall (n); first iSteps.
+      iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
+      iMod ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
+      setoid_rewrite Nat.add_succ_r.
+      iApply ("IH" $! (S n) with "[] Hl HP").
+      { iIntros "!> %k' %x' %Hlookup' Hx' HP".
+        rewrite Nat.add_succ_comm.
+        iApply ("HΦ" with "[%] Hx' HP"); first done.
+      }
+    Qed.
   End big_sepL.
 
   Section big_sepL2.
