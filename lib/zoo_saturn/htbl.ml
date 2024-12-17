@@ -139,7 +139,7 @@ let rec split_buckets t state buckets mask i step =
       Atomic_array.unsafe_cas buckets i Init new_bucket_1 |> ignore ;
     if Atomic_array.unsafe_get buckets (i + cap) == Init then
       Atomic_array.unsafe_cas buckets (i + cap) Init new_bucket_2 |> ignore ;
-    i = 0 || split_buckets t state buckets mask i step
+    i == 0 || split_buckets t state buckets mask i step
   )
 
 let rec merge_buckets t state buckets mask i step =
@@ -152,7 +152,7 @@ let rec merge_buckets t state buckets mask i step =
   ) else (
     if Atomic_array.unsafe_get buckets i == Init then
       Atomic_array.unsafe_cas buckets i Init new_bucket |> ignore ;
-    i = 0 || merge_buckets t state buckets mask i step
+    i == 0 || merge_buckets t state buckets mask i step
   )
 
 let rec finish_as t state =
@@ -192,7 +192,7 @@ let resize t state delta =
   let i = Domain.self_index () mod Atomic_array.size t.sizes in
   Atomic_array.unsafe_faa t.sizes i delta |> ignore ;
   if state.status == Normal
-  && Random.bits () land state.mask = 0
+  && Random.bits () land state.mask == 0
   && t.state == state
   then
     let sz = Atomic_array.sum t.sizes in

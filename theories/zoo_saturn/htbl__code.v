@@ -3,8 +3,6 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  structeq.
 From zoo_std Require Import
   atomic_array
   random
@@ -152,7 +150,7 @@ Definition htbl_split_buckets : val :=
       ) else (
         ()
       ) ;;
-      "i" = #0 or "split_buckets" "t" "state" "buckets" "mask" "i" "step"
+      "i" == #0 or "split_buckets" "t" "state" "buckets" "mask" "i" "step"
     ).
 
 Definition htbl_merge_buckets : val :=
@@ -171,7 +169,7 @@ Definition htbl_merge_buckets : val :=
       ) else (
         ()
       ) ;;
-      "i" = #0 or "merge_buckets" "t" "state" "buckets" "mask" "i" "step"
+      "i" == #0 or "merge_buckets" "t" "state" "buckets" "mask" "i" "step"
     ).
 
 #[local] Definition __zoo_recs_0 := (
@@ -237,7 +235,7 @@ Definition htbl_resize : val :=
     atomic_array_unsafe_faa "t".{sizes} "i" "delta" ;;
     if:
       "state".<status> == §Normal and
-      (random_bits () `land` "state".<mask> = #0 and "t".{state} == "state")
+      (random_bits () `land` "state".<mask> == #0 and "t".{state} == "state")
     then (
       let: "sz" := atomic_array_sum "t".{sizes} in
       let: "cap" := atomic_array_size "state".<buckets> in
