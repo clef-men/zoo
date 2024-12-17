@@ -65,7 +65,6 @@ Definition htbl_bucket_merge : val :=
 
 Definition htbl_create : val :=
   fun: "hash" "equal" =>
-    let: "random" := random_create () in
     let: "sizes" :=
       atomic_array_make (domain_recommended_domain_count ()) #0
     in
@@ -75,7 +74,7 @@ Definition htbl_create : val :=
        §Normal
       )
     in
-    { "hash", "equal", "random", "sizes", "state" }.
+    { "hash", "equal", "sizes", "state" }.
 
 Definition htbl_index : val :=
   fun: "t" "state" "key" =>
@@ -184,7 +183,7 @@ Definition htbl_merge_buckets : val :=
         if:
           let: "cap" := atomic_array_size "state".<buckets> in
           let: "new_cap" := atomic_array_size "buckets" in
-          let: "step" := random_bits "t".{random} `lor` #1 in
+          let: "step" := random_bits () `lor` #1 in
           if: "cap" < "new_cap" then (
             htbl_split_buckets "t" "state" "buckets" "mask" #0 "step"
           ) else (
@@ -238,8 +237,7 @@ Definition htbl_resize : val :=
     atomic_array_unsafe_faa "t".{sizes} "i" "delta" ;;
     if:
       "state".<status> == §Normal and
-      (random_bits "t".{random} `land` "state".<mask> = #0 and
-       "t".{state} == "state")
+      (random_bits () `land` "state".<mask> = #0 and "t".{state} == "state")
     then (
       let: "sz" := atomic_array_sum "t".{sizes} in
       let: "cap" := atomic_array_size "state".<buckets> in

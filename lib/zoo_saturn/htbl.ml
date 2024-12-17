@@ -27,7 +27,6 @@ type ('k, 'v) state =
 type ('k, 'v) t =
   { hash: 'k -> int;
     equal: 'k -> 'k -> bool;
-    random: Random.t;
     sizes: int Atomic_array.t;
     mutable state: ('k, 'v) state [@atomic];
   }
@@ -83,7 +82,6 @@ let[@tail_mod_cons] rec bucket_merge bucket = function
       assert false
 
 let create hash equal =
-  let random = Random.create () in
   let sizes = Atomic_array.make (Domain.recommended_domain_count ()) 0 in
   let state =
     { buckets= Atomic_array.make min_buckets Nil;
@@ -91,7 +89,7 @@ let create hash equal =
       status= Normal;
     }
   in
-  { hash; equal; random; sizes; state }
+  { hash; equal; sizes; state }
 
 let[@inline] index t state key =
   t.hash key land state.mask
@@ -165,7 +163,7 @@ let rec finish_as t state =
       if
         let cap = Atomic_array.size state.buckets in
         let new_cap = Atomic_array.size buckets in
-        let step = Random.bits t.random lor 1 in
+        let step = Random.bits () lor 1 in
         if cap < new_cap then
           split_buckets t state buckets mask 0 step
         else
@@ -194,7 +192,7 @@ let resize t state delta =
   let i = Domain.self_index () mod Atomic_array.size t.sizes in
   Atomic_array.unsafe_faa t.sizes i delta |> ignore ;
   if state.status == Normal
-  && Random.bits t.random land state.mask = 0
+  && Random.bits () land state.mask = 0
   && t.state == state
   then
     let sz = Atomic_array.sum t.sizes in

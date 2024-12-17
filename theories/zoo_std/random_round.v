@@ -11,7 +11,7 @@ From zoo_std Require Export
   random_round__code.
 From zoo_std Require Import
   array
-  random
+  random_state
   random_round__types.
 From zoo Require Import
   options.
@@ -31,7 +31,7 @@ Section zoo_G.
     l.[random] ↦ rand ∗
     l.[array] ↦ arr ∗
     l.[index] ↦ #(length nexts) ∗
-    random_model rand ∗
+    random_state_model rand ∗
     array_model arr (DfracOwn 1) (#@{nat} <$> nexts ++ reverse prevs).
 
   Lemma random_round_create_spec sz :
@@ -55,7 +55,7 @@ Section zoo_G.
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }
-    wp_apply (random_create_spec with "[//]") as (rand) "Hrand".
+    wp_apply (random_state_create_spec with "[//]") as (rand) "Hrand".
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
     iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id length_seq. iSteps.
@@ -95,7 +95,7 @@ Section zoo_G.
     rewrite length_app length_seq length_reverse in Hlength.
     wp_rec. do 3 wp_load.
     set i := length nexts.
-    wp_smart_apply (random_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
+    wp_smart_apply (random_state_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
     Z_to_nat j.
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".

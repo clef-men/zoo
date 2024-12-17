@@ -1,12 +1,10 @@
-type t
-
-val create :
-  unit -> t
+val init :
+  unit -> unit
 
 val bits :
-  t -> int
+  unit -> int
 
 val int :
-  t -> int -> int
+  int -> int
 val int_in_range :
-  t -> int -> int -> int
+  int -> int -> int

@@ -6,7 +6,7 @@ digraph {
 	subgraph cluster_std {
 		label="std"
 		node [style=filled, color=lightblue]
-		random [label="random"]
+		random_state [label="random_state"]
 		random_round [label="random_round"]
 		deque [label="deque"]
 		mpsc_waiter [label="mpsc_waiter"]
@@ -34,7 +34,7 @@ digraph {
 		vertex [label="vertex"]
 	}
 
-	random_round -> random
+	random_round -> random_state
 
 	ws_deques_public -> ws_deque
 	ws_deques_public -> ws_deques [style=dotted]

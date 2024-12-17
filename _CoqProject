@@ -187,6 +187,9 @@ theories/zoo_std/spmc_future.v
 theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random.v
+theories/zoo_std/random_state__types.v
+theories/zoo_std/random_state__code.v
+theories/zoo_std/random_state.v
 theories/zoo_std/random_round__types.v
 theories/zoo_std/random_round__code.v
 theories/zoo_std/random_round.v

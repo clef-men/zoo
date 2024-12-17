@@ -68,15 +68,11 @@ Notation "'equal'" := (
   in_type "t" 1
 )(in custom zoo_field
 ).
-Notation "'random'" := (
+Notation "'sizes'" := (
   in_type "t" 2
 )(in custom zoo_field
 ).
-Notation "'sizes'" := (
-  in_type "t" 3
-)(in custom zoo_field
-).
 Notation "'state'" := (
-  in_type "t" 4
+  in_type "t" 3
 )(in custom zoo_field
 ).

@@ -1,16 +1,12 @@
-type t =
-  Stdlib.Random.State.t
+let[@zoo.opaque] init =
+  Stdlib.Random.self_init
 
-let[@zoo.opaque] create =
-  Stdlib.Random.State.make_self_init
-
-let[@zoo.opaque] bits t =
-  t
-  |> Stdlib.Random.State.nativebits
+let[@zoo.opaque] bits () =
+  Stdlib.Random.nativebits ()
   |> Nativeint.to_int
 
 let[@zoo.opaque] int =
-  Stdlib.Random.State.int
+  Stdlib.Random.int
 
-let int_in_range t lb ub =
-  lb + int t (ub - lb)
+let int_in_range lb ub =
+  lb + int (ub - lb)

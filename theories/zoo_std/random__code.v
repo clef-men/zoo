@@ -8,12 +8,12 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Parameter random_create : val.
+Parameter random_init : val.
 
 Parameter random_bits : val.
 
 Parameter random_int : val.
 
 Definition random_int_in_range : val :=
-  fun: "t" "lb" "ub" =>
-    "lb" + random_int "t" ("ub" - "lb").
+  fun: "lb" "ub" =>
+    "lb" + random_int ("ub" - "lb").
