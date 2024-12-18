@@ -583,7 +583,7 @@ Section kcas_G.
       %descr{} &
       {>=}{#}Hcasn{}_meta &
       {>=}%Hdescrs{}_lookup &
-      {>=}{Hloc=->} &
+      {>=}{%Hloc{}=->} &
       {>=}Hloc{} &
       {>=}{#}Hlstatus{}_lb &
       {>=}Hlock{} &
@@ -1328,7 +1328,7 @@ Section kcas_G.
         wp_pures.
 
         wp_bind (!_)%E.
-        iInv "Hloc_inv" as "(:loc_inv_inner > =1 Hloc=%Hloc1)".
+        iInv "Hloc_inv" as "(:loc_inv_inner > =1)".
         wp_load.
         iDestruct (kcas_casn_inv'_unfold with "Hcasn1_inv'") as "(:casn_inv =1)".
 
@@ -1419,7 +1419,7 @@ Section kcas_G.
                   wp_pures.
 
                   wp_bind (CAS _ _ _).
-                  iInv "Hloc_inv" as "(:loc_inv_inner > =2 Hloc=%Hloc2)".
+                  iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
                   wp_cas as _ | (_ & _ & [= -> _ _]).
 
                   ** iSplitR "HΦ". { iFrame. iSteps. }
