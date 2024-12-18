@@ -857,6 +857,26 @@ Section kcas_G.
       injection H as <-.
       iExists casns4. rewrite assoc -Heq. iSteps.
   Qed.
+  #[local] Lemma kcas_history_elem_valid γ casns casn :
+    kcas_history_auth γ casns -∗
+    kcas_history_elem γ casn -∗
+    ⌜casn ∈ casns⌝.
+  Proof.
+    iIntros "(Hhistory_auth & _) Hhistory_elem".
+    iApply (mono_list_elem_valid with "Hhistory_auth Hhistory_elem").
+  Qed.
+  #[local] Lemma kcas_history_running γ casns casn1 casn2 η2 i :
+    kcas_history_auth γ (casns ++ [casn1]) -∗
+    meta casn2 nroot η2 -∗
+    kcas_lstatus_auth η2 (KcasRunning i) -∗
+    ⌜casn2 ∉ casns⌝.
+  Proof.
+    iIntros "(Hhistory_auth & %Hcasns & Hcasns) Hcasn2_meta Hlstatus2_auth" ((j & Hcasns_lookup)%elem_of_list_lookup).
+    iDestruct (big_sepL_lookup with "Hcasns") as "(%_η2 & _Hcasn2_meta & Hlstatus2_lb)".
+    { rewrite removelast_last //. }
+    iDestruct (meta_agree with "Hcasn2_meta _Hcasn2_meta") as %<-. iClear "_Hcasn2_meta".
+    iDestruct (kcas_lstatus_finished with "Hlstatus2_auth Hlstatus2_lb") as %[=].
+  Qed.
   #[local] Lemma kcas_history_update {γ casns casn1 η1} casn2 η2 i :
     casn1 ≠ casn2 →
     kcas_history_auth γ (casns ++ [casn1]) -∗
@@ -868,18 +888,13 @@ Section kcas_G.
       kcas_history_elem γ casn2 ∗
       kcas_lstatus_auth η2 (KcasRunning i).
   Proof.
-    iIntros "% (Hhistory_auth & %Hcasns & Hcasns) Hcasn1_meta Hlstatus1_lb Hcasn2_meta Hlstatus2_auth".
+    iIntros "% Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn2_meta Hlstatus2_auth".
+    iDestruct (kcas_history_running with "Hhistory_auth Hcasn2_meta Hlstatus2_auth") as %?.
+    iDestruct "Hhistory_auth" as "(Hhistory_auth & %Hcasns & Hcasns)".
     iMod (mono_list_update_app [casn2] with "Hhistory_auth") as "Hhistory_auth".
     iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
     iSteps.
-    - iAssert ⌜casn2 ∉ casns⌝%I as %?.
-      { iIntros ((j & Hcasns_lookup)%elem_of_list_lookup).
-        iDestruct (big_sepL_lookup with "Hcasns") as "(%_η2 & _Hcasn2_meta & Hlstatus2_lb)".
-        { rewrite removelast_last //. }
-        iDestruct (meta_agree with "Hcasn2_meta _Hcasn2_meta") as %<-. iClear "_Hcasn2_meta".
-        iDestruct (kcas_lstatus_finished with "Hlstatus2_auth Hlstatus2_lb") as %[=].
-      }
-      iPureIntro.
+    - iPureIntro.
       rewrite comm NoDup_cons not_elem_of_app elem_of_list_singleton //.
     - rewrite !removelast_last big_sepL_snoc. iSteps.
   Qed.
@@ -1460,7 +1475,9 @@ Section kcas_G.
                   iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
                   destruct (decide (casn1 = casn2)) as [<- | Hcasn2].
 
-                  ** iSplitL "Hloc Hlock2 Hhistory_auth". { iFrame. iSteps. }
+                  ** iDestruct (kcas_history_lb_get with "Hhistory_auth") as "#Hhistory_lb2".
+                     iDestruct (kcas_history_running with "Hhistory_auth Hcasn_meta Hlstatus_auth") as %?.
+                     iSplitL "Hloc Hlock2 Hhistory_auth". { iFrame. iSteps. }
                      iModIntro.
 
                      iSplitR "HΦ". { do 2 iFrame. iSteps. }
@@ -1543,7 +1560,14 @@ Section kcas_G.
                              wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
 
                          +++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-                             admit.
+                             destruct (kcas_casn_meta_success η).
+
+                             *** iDestruct (kcas_history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(-> & _).
+                                 iDestruct (big_sepL_lookup with "Hmodels₂") as "(_ & Hhistory_elem)"; first done.
+                                 iDestruct (kcas_history_elem_valid with "Hhistory_auth Hhistory_elem") as %[| ?%elem_of_list_singleton]%elem_of_app.
+                                 all: exfalso; done.
+
+                             *** admit.
 
                   ** iDestruct (kcas_history_lb_valid_ne with "Hhistory_auth Hhistory_lb1") as "(%casns & #Hhistory_lb2)"; first done.
                      iSplitL "Hloc Hlock2 Hhistory_auth". { iFrame. iSteps. }
