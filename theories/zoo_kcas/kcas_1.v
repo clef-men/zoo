@@ -323,9 +323,9 @@ Qed.
 
 Class KcasG Σ `{zoo_G : !ZooG Σ} := {
   #[local] kcas_G_model_G :: TwinsG Σ val_O ;
-  #[local] kcas_G_history_G :: MonoListG Σ location ;
   #[local] kcas_G_saved_prop :: SavedPropG Σ ;
   #[local] kcas_G_lstatus_G :: AuthMonoG (A := leibnizO kcas_lstatus) Σ kcas_lstep ;
+  #[local] kcas_G_history_G :: MonoListG Σ location ;
   #[local] kcas_G_lock_G :: ExclG Σ unitO ;
   #[local] kcas_G_helpers_G :: ghost_mapG Σ gname nat ;
   #[local] kcas_G_winning_G :: ExclG Σ unitO ;
@@ -334,9 +334,9 @@ Class KcasG Σ `{zoo_G : !ZooG Σ} := {
 
 Definition kcas_Σ := #[
   twins_Σ val_O ;
-  mono_list_Σ location ;
   saved_prop_Σ ;
   auth_mono_Σ (A := leibnizO kcas_lstatus) kcas_lstep ;
+  mono_list_Σ location ;
   excl_Σ unitO ;
   ghost_mapΣ gname nat ;
   excl_Σ unitO ;
@@ -363,9 +363,20 @@ Section kcas_G.
   #[local] Definition kcas_model₂ γ v :=
     kcas_model₂' γ.(kcas_loc_meta_model) v.
 
+  #[local] Definition kcas_lstatus_auth' η_lstatus lstatus :=
+    auth_mono_auth _ η_lstatus (DfracOwn 1) lstatus.
+  #[local] Definition kcas_lstatus_auth η lstatus :=
+    kcas_lstatus_auth' η.(kcas_casn_meta_lstatus) lstatus.
+  #[local] Definition kcas_lstatus_lb η lstatus :=
+    auth_mono_lb _ η.(kcas_casn_meta_lstatus) lstatus.
+
   #[local] Definition kcas_history_auth' γ_history casns : iProp Σ :=
     mono_list_auth γ_history (DfracOwn 1) casns ∗
-    ⌜NoDup casns⌝.
+    ⌜NoDup casns⌝ ∗
+    [∗ list] casn ∈ removelast casns,
+      ∃ η,
+      meta casn nroot η ∗
+      kcas_lstatus_lb η KcasFinished.
   #[local] Definition kcas_history_auth γ casns :=
     kcas_history_auth' γ.(kcas_loc_meta_history) casns.
   #[local] Definition kcas_history_lb γ casns : iProp Σ :=
@@ -375,13 +386,6 @@ Section kcas_G.
     mono_list_elem γ_history casn.
   #[local] Definition kcas_history_elem γ casn :=
     kcas_history_elem' γ.(kcas_loc_meta_history) casn.
-
-  #[local] Definition kcas_lstatus_auth' η_lstatus lstatus :=
-    auth_mono_auth _ η_lstatus (DfracOwn 1) lstatus.
-  #[local] Definition kcas_lstatus_auth η lstatus :=
-    kcas_lstatus_auth' η.(kcas_casn_meta_lstatus) lstatus.
-  #[local] Definition kcas_lstatus_lb η lstatus :=
-    auth_mono_lb _ η.(kcas_casn_meta_lstatus) lstatus.
 
   #[local] Definition kcas_lock' η_lock :=
     excl η_lock ().
@@ -568,11 +572,6 @@ Section kcas_G.
     kcas_lstatus_lb η (KcasRunning (S i)) ∗
     kcas_lock η i ∗
     kcas_history_auth γ (casns ++ [casn]) ∗
-    ( [∗ list] casn ∈ casns,
-      ∃ η,
-      meta casn nroot η ∗
-      kcas_lstatus_lb η KcasFinished
-    ) ∗
     kcas_casn_inv' (casn, η, if full then None else Some i).
   #[local] Instance : CustomIpatFormat "loc_inv_inner" :=
     "(
@@ -588,7 +587,6 @@ Section kcas_G.
       {>=}{#}Hlstatus{}_lb &
       {>=}Hlock{} &
       {>=}Hhistory_auth &
-      {>=}Hcasns{} &
       {#}Hcasn{}_inv'
     )".
   #[local] Definition kcas_loc_inv_inner' :=
@@ -745,80 +743,6 @@ Section kcas_G.
     apply twins_twin2_exclusive.
   Qed.
 
-  #[local] Lemma kcas_history_alloc casn :
-    ⊢ |==>
-      ∃ γ_history,
-      kcas_history_auth' γ_history [casn] ∗
-      kcas_history_elem' γ_history casn.
-  Proof.
-    iMod (mono_list_alloc [casn]) as "(%γ_history & Hhistory_auth)".
-    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#Hhistory_elem".
-    { apply elem_of_list_singleton. done. }
-    iSteps. iPureIntro.
-    apply NoDup_singleton.
-  Qed.
-  #[local] Lemma kcas_history_lb_get γ casns :
-    kcas_history_auth γ casns ⊢
-    kcas_history_lb γ casns.
-  Proof.
-    iIntros "(Hhistory_auth & %Hcasns)".
-    iDestruct (mono_list_lb_get with "Hhistory_auth") as "#Hhistory_lb".
-    iSteps.
-  Qed.
-  #[local] Lemma kcas_history_lb_valid_eq γ casns1 casn casns2 casns3 :
-    kcas_history_auth γ (casns1 ++ [casn]) -∗
-    kcas_history_lb γ (casns2 ++ casn :: casns3) -∗
-      ⌜casns1 = casns2⌝ ∗
-      ⌜casns3 = []⌝.
-  Proof.
-    iIntros "(Hhistory_auth & %Hcasns1) (Hhistory_lb & %Hcasns2)".
-    iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb") as %(casns4 & Heq).
-    iPureIntro.
-    rewrite (assoc _ _ [casn] casns3) -assoc in Heq.
-    destruct (nil_or_length_pos (casns3 ++ casns4)) as [Hcasns34 | Hcasns34].
-    - rewrite Hcasns34 right_id in Heq.
-      apply (inj (λ casns, casns ++ [casn])) in Heq.
-      destruct casns3; done.
-    - opose proof* (NoDup_lookup (casns1 ++ [casn])).
-      { done. }
-      { rewrite lookup_snoc_Some. right. done. }
-      { erewrite Heq, lookup_app_l_Some; first done.
-        rewrite lookup_snoc_Some. right. done.
-      }
-      apply (f_equal length) in Heq. rewrite 3!length_app in Heq. lia.
-  Qed.
-  #[local] Lemma kcas_history_lb_valid_ne γ casns1 casn1 casns2 casn2 :
-    casn1 ≠ casn2 →
-    kcas_history_auth γ (casns1 ++ [casn1]) -∗
-    kcas_history_lb γ (casns2 ++ [casn2]) -∗
-      ∃ casns3,
-      kcas_history_lb γ (casns2 ++ [casn2] ++ casns3 ++ [casn1]).
-  Proof.
-    iIntros "%Hne (Hhistory_auth & %Hcasns1) (#Hhistory_lb2 & %Hcasns2)".
-    iDestruct (mono_list_lb_get with "Hhistory_auth") as "#Hhistory_lb1".
-    iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb2") as %(casns3 & Heq).
-    destruct (rev_elim casns3) as [-> | (casns4 & casn3 & ->)].
-    - apply (f_equal last) in Heq.
-      rewrite right_id !last_snoc in Heq.
-      naive_solver.
-    - apply (f_equal last) in Heq as H.
-      rewrite assoc last_app_cons !last_snoc /= in H.
-      injection H as <-.
-      iExists casns4. rewrite assoc -Heq. iSteps.
-  Qed.
-  #[local] Lemma kcas_history_update {γ casns} casn :
-    casn ∉ casns →
-    kcas_history_auth γ casns ⊢ |==>
-      kcas_history_auth γ (casns ++ [casn]) ∗
-      kcas_history_elem γ casn.
-  Proof.
-    iIntros "%Hcasn (Hhistory_auth & %Hcasns)".
-    iMod (mono_list_update_app [casn] with "Hhistory_auth") as "Hhistory_auth".
-    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
-    iSteps. iPureIntro.
-    rewrite comm. apply NoDup_cons. done.
-  Qed.
-
   #[local] Lemma kcas_lstatus_alloc lstatus :
     ⊢ |==>
       ∃ η_lstatus,
@@ -870,6 +794,94 @@ Section kcas_G.
     kcas_lstatus_auth η lstatus'.
   Proof.
     apply auth_mono_update'.
+  Qed.
+
+  #[local] Lemma kcas_history_alloc casn :
+    ⊢ |==>
+      ∃ γ_history,
+      kcas_history_auth' γ_history [casn] ∗
+      kcas_history_elem' γ_history casn.
+  Proof.
+    iMod (mono_list_alloc [casn]) as "(%γ_history & Hhistory_auth)".
+    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#Hhistory_elem".
+    { apply elem_of_list_singleton. done. }
+    iSteps. iPureIntro.
+    apply NoDup_singleton.
+  Qed.
+  #[local] Lemma kcas_history_lb_get γ casns :
+    kcas_history_auth γ casns ⊢
+    kcas_history_lb γ casns.
+  Proof.
+    iIntros "(Hhistory_auth & %Hcasns & _)".
+    iDestruct (mono_list_lb_get with "Hhistory_auth") as "#Hhistory_lb".
+    iSteps.
+  Qed.
+  #[local] Lemma kcas_history_lb_valid_eq γ casns1 casn casns2 casns3 :
+    kcas_history_auth γ (casns1 ++ [casn]) -∗
+    kcas_history_lb γ (casns2 ++ casn :: casns3) -∗
+      ⌜casns1 = casns2⌝ ∗
+      ⌜casns3 = []⌝.
+  Proof.
+    iIntros "(Hhistory_auth & %Hcasns1 & _) (Hhistory_lb & %Hcasns2)".
+    iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb") as %(casns4 & Heq).
+    iPureIntro.
+    rewrite (assoc _ _ [casn] casns3) -assoc in Heq.
+    destruct (nil_or_length_pos (casns3 ++ casns4)) as [Hcasns34 | Hcasns34].
+    - rewrite Hcasns34 right_id in Heq.
+      apply (inj (λ casns, casns ++ [casn])) in Heq.
+      destruct casns3; done.
+    - opose proof* (NoDup_lookup (casns1 ++ [casn])).
+      { done. }
+      { rewrite lookup_snoc_Some. right. done. }
+      { erewrite Heq, lookup_app_l_Some; first done.
+        rewrite lookup_snoc_Some. right. done.
+      }
+      apply (f_equal length) in Heq. rewrite 3!length_app in Heq. lia.
+  Qed.
+  #[local] Lemma kcas_history_lb_valid_ne γ casns1 casn1 casns2 casn2 :
+    casn1 ≠ casn2 →
+    kcas_history_auth γ (casns1 ++ [casn1]) -∗
+    kcas_history_lb γ (casns2 ++ [casn2]) -∗
+      ∃ casns3,
+      kcas_history_lb γ (casns2 ++ [casn2] ++ casns3 ++ [casn1]).
+  Proof.
+    iIntros "%Hne (Hhistory_auth & %Hcasns1 & _) (#Hhistory_lb2 & %Hcasns2)".
+    iDestruct (mono_list_lb_get with "Hhistory_auth") as "#Hhistory_lb1".
+    iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb2") as %(casns3 & Heq).
+    destruct (rev_elim casns3) as [-> | (casns4 & casn3 & ->)].
+    - apply (f_equal last) in Heq.
+      rewrite right_id !last_snoc in Heq.
+      naive_solver.
+    - apply (f_equal last) in Heq as H.
+      rewrite assoc last_app_cons !last_snoc /= in H.
+      injection H as <-.
+      iExists casns4. rewrite assoc -Heq. iSteps.
+  Qed.
+  #[local] Lemma kcas_history_update {γ casns casn1 η1} casn2 η2 i :
+    casn1 ≠ casn2 →
+    kcas_history_auth γ (casns ++ [casn1]) -∗
+    meta casn1 nroot η1 -∗
+    kcas_lstatus_lb η1 KcasFinished -∗
+    meta casn2 nroot η2 -∗
+    kcas_lstatus_auth η2 (KcasRunning i) ==∗
+      kcas_history_auth γ ((casns ++ [casn1]) ++ [casn2]) ∗
+      kcas_history_elem γ casn2 ∗
+      kcas_lstatus_auth η2 (KcasRunning i).
+  Proof.
+    iIntros "% (Hhistory_auth & %Hcasns & Hcasns) Hcasn1_meta Hlstatus1_lb Hcasn2_meta Hlstatus2_auth".
+    iMod (mono_list_update_app [casn2] with "Hhistory_auth") as "Hhistory_auth".
+    iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
+    iSteps.
+    - iAssert ⌜casn2 ∉ casns⌝%I as %?.
+      { iIntros ((j & Hcasns_lookup)%elem_of_list_lookup).
+        iDestruct (big_sepL_lookup with "Hcasns") as "(%_η2 & _Hcasn2_meta & Hlstatus2_lb)".
+        { rewrite removelast_last //. }
+        iDestruct (meta_agree with "Hcasn2_meta _Hcasn2_meta") as %<-. iClear "_Hcasn2_meta".
+        iDestruct (kcas_lstatus_finished with "Hlstatus2_auth Hlstatus2_lb") as %[=].
+      }
+      iPureIntro.
+      rewrite comm NoDup_cons not_elem_of_app elem_of_list_singleton //.
+    - rewrite !removelast_last big_sepL_snoc. iSteps.
   Qed.
 
   #[local] Lemma kcas_lock_alloc :
@@ -1396,7 +1408,7 @@ Section kcas_G.
             iDestruct "Hau" as "[(Hau & Hwinning) | >Hwinner]"; last first.
             { iDestruct (identifier_model_exclusive with "Hgid Hwinner") as %[]. }
             iMod (lc_fupd_elim_later with "H£ Hau") as "Hau".
-            iSplitR "Hloc Hlock1 Hhistory_auth Hcasns1 Hau Hwinning HΦ". { do 2 iFrame. iSteps. }
+            iSplitR "Hloc Hlock1 Hhistory_auth Hau Hwinning HΦ". { do 2 iFrame. iSteps. }
             iModIntro. clear j helpers.
 
             iMod (kcas_casn_help _ P with "Hcasn1_inv Hlock1 [Hau]") as "(%helper & Hlock1 & #Hhelper & Hhelpers1_elem)"; [solve_ndisj | done.. | |].
@@ -1448,7 +1460,7 @@ Section kcas_G.
                   iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
                   destruct (decide (casn1 = casn2)) as [<- | Hcasn2].
 
-                  ** iSplitL "Hloc Hlock2 Hhistory_auth Hcasns2". { iFrame. iSteps. }
+                  ** iSplitL "Hloc Hlock2 Hhistory_auth". { iFrame. iSteps. }
                      iModIntro.
 
                      iSplitR "HΦ". { do 2 iFrame. iSteps. }
@@ -1485,57 +1497,56 @@ Section kcas_G.
                          { iDestruct (kcas_lock_exclusive with "Hlock3 Hlock1") as %[]. }
 
                          iDestruct ("Hmodels1₂" with "[$Hlock3 $Hhistory_elem]") as "Hmodels1₂".
-                         iSplitR "Hloc Hhistory_auth Hcasns3 Hmodel₂ HΦ". { do 2 iFrame. iSteps. }
+                         iSplitR "Hloc Hhistory_auth Hmodel₂ HΦ". { do 2 iFrame. iSteps. }
                          iModIntro. clear helpers1 prophs1.
 
                          iEval (rewrite Hmeta1) in "Hmodel₂".
                          iInv "Hcasn_inv" as "(:casn_inv_inner >)".
-                         destruct lstatus as [j |]; last first.
-                         { iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-                           admit.
-                         }
-                         iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
+                         destruct lstatus as [j |].
 
-                         iAssert ⌜j = i⌝%I as %->.
-                         { destruct (Nat.lt_trichotomy j i) as [? | [-> | ?]].
-                           - iDestruct (kcas_lstatus_le with "Hlstatus_auth Hlstatus_lb") as %?. lia.
-                           - iSteps.
-                           - iDestruct (big_sepL_lookup with "Hmodels₂") as "(_Hmodel₂ & _)".
-                             { apply lookup_take_Some. done. }
-                             iDestruct (kcas_model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[].
-                         }
+                         +++ iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
 
-                         iMod (kcas_history_update with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_elem)".
-                         { admit. }
-                         iMod (kcas_lstatus_update (KcasRunning (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
-                         iClear "Hlstatus_lb". iDestruct (kcas_lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
-                         iEval (rewrite -Hok) in "Hmodel₂".
-                         iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
-                         iEval (rewrite -take_S_r //) in "Hmodels₂".
-                         rewrite -(Nat.succ_pred_pos (kcas_casn_meta_size η - i)).
-                         { rewrite /kcas_casn_meta_size. lia. }
-                         rewrite -cons_seq.
-                         iDestruct "Hlocks" as "(Hlock & Hlocks)".
-                         iEval (rewrite Nat.add_0_r) in "Hlock".
-                         iDestruct (big_sepL_seq_shift_2 1 0 with "Hlocks") as "Hlocks".
-                         iEval (setoid_rewrite Nat.add_1_r) in "Hlocks".
-                         iEval (setoid_rewrite Nat.add_succ_r) in "Hlocks".
-                         assert (Nat.pred (kcas_casn_meta_size η - i) = kcas_casn_meta_size η - S i) as -> by lia.
-                         iSplitR "Hloc Hhistory_auth Hcasns3 Hlock HΦ".
-                         { do 2 iFrame. iSteps. do 2 iModIntro.
-                           iApply (big_sepM_impl with "Hhelpers").
-                           iSteps.
-                         }
-                         iModIntro. clear helpers.
+                             iAssert ⌜j = i⌝%I as %->.
+                             { destruct (Nat.lt_trichotomy j i) as [? | [-> | ?]].
+                               - iDestruct (kcas_lstatus_le with "Hlstatus_auth Hlstatus_lb") as %?. lia.
+                               - iSteps.
+                               - iDestruct (big_sepL_lookup with "Hmodels₂") as "(_Hmodel₂ & _)".
+                                 { apply lookup_take_Some. done. }
+                                 iDestruct (kcas_model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[].
+                             }
 
-                         iDestruct (big_sepL_snoc_2 with "Hcasns3 [$Hcasn1_meta //]") as "Hcasns3".
-                         iSplitR "HΦ". { iFrame. iSteps. }
-                         iModIntro.
+                             iMod (kcas_history_update casn with "Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn_meta Hlstatus_auth") as "(Hhistory_auth & #Hhistory_elem & Hlstatus_auth)"; first done.
+                             iMod (kcas_lstatus_update (KcasRunning (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
+                             iClear "Hlstatus_lb". iDestruct (kcas_lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
+                             iEval (rewrite -Hok) in "Hmodel₂".
+                             iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
+                             iEval (rewrite -take_S_r //) in "Hmodels₂".
+                             rewrite -(Nat.succ_pred_pos (kcas_casn_meta_size η - i)).
+                             { rewrite /kcas_casn_meta_size. lia. }
+                             rewrite -cons_seq.
+                             iDestruct "Hlocks" as "(Hlock & Hlocks)".
+                             iEval (rewrite Nat.add_0_r) in "Hlock".
+                             iDestruct (big_sepL_seq_shift_2 1 0 with "Hlocks") as "Hlocks".
+                             iEval (setoid_rewrite Nat.add_1_r) in "Hlocks".
+                             iEval (setoid_rewrite Nat.add_succ_r) in "Hlocks".
+                             assert (Nat.pred (kcas_casn_meta_size η - i) = kcas_casn_meta_size η - S i) as -> by lia.
+                             iSplitR "Hloc Hhistory_auth Hlock HΦ".
+                             { do 2 iFrame. iSteps. do 2 iModIntro.
+                               iApply (big_sepM_impl with "Hhelpers").
+                               iSteps.
+                             }
+                             iModIntro. clear helpers.
 
-                         wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
+                             iSplitR "HΦ". { iFrame. iSteps. }
+                             iModIntro.
+
+                             wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
+
+                         +++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+                             admit.
 
                   ** iDestruct (kcas_history_lb_valid_ne with "Hhistory_auth Hhistory_lb1") as "(%casns & #Hhistory_lb2)"; first done.
-                     iSplitL "Hloc Hlock2 Hhistory_auth Hcasns2". { iFrame. iSteps. }
+                     iSplitL "Hloc Hlock2 Hhistory_auth". { iFrame. iSteps. }
                      iModIntro.
 
                      iSplitR "HΦ". { do 2 iFrame. iSteps. }
