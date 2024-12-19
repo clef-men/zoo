@@ -63,21 +63,25 @@ Definition mpmc_queue_2_is_empty : val :=
   fun: "t" =>
     mpmc_queue_2_size "t" == #0.
 
-Definition mpmc_queue_2_help : val :=
-  fun: "t" "back" "i_move" "move" =>
+Definition mpmc_queue_2_finish : val :=
+  fun: "back" =>
     match: "back" with
     | Back <> <> as "back_r" =>
-        match: "t".{front} with
-        | Front "i_front" as "front" =>
-            if:
-              "i_move" ≤ "i_front" or
-              CAS "t".[front] "front" (mpmc_queue_2_rev "move")
-            then (
-              "back_r" <-{move} §Used
-            )
-        |_ =>
-            "back_r" <-{move} §Used
-        end
+        "back_r" <-{move} §Used
+    end.
+
+Definition mpmc_queue_2_help : val :=
+  fun: "t" "back" "i_move" "move" =>
+    match: "t".{front} with
+    | Front "i_front" as "front" =>
+        if:
+          "i_move" ≤ "i_front" or
+          CAS "t".[front] "front" (mpmc_queue_2_rev "move")
+        then (
+          mpmc_queue_2_finish "back"
+        )
+    |_ =>
+        mpmc_queue_2_finish "back"
     end.
 
 #[local] Definition __zoo_recs_0 := (
@@ -199,12 +203,11 @@ Definition mpmc_queue_2_push_front : val :=
             ) else (
               match: ‘Back{ "i_move", "move" } with
               | Back <> <> as "back" =>
-                  let: "back_r" := "back" in
                   if: CAS "t".[back] "move" "back" then (
                     match: mpmc_queue_2_rev "move" with
                     | Cons <> "v" "new_front" =>
                         if: CAS "t".[front] "front" "new_front" then (
-                          "back_r" <-{move} §Used ;;
+                          mpmc_queue_2_finish "back" ;;
                           ‘Some( "v" )
                         ) else (
                           domain_yield () ;;
@@ -216,7 +219,8 @@ Definition mpmc_queue_2_push_front : val :=
                   )
               end
             )
-        | Back <> <> as "back_r" =>
+        | Back <> <> as "back" =>
+            let: "back_r" := "back" in
             match: "back_r".{move} with
             | Used =>
                 "pop_2" "t" "front"
@@ -225,7 +229,7 @@ Definition mpmc_queue_2_push_front : val :=
                   match: mpmc_queue_2_rev "move" with
                   | Cons <> "v" "new_front" =>
                       if: CAS "t".[front] "front" "new_front" then (
-                        "back_r" <-{move} §Used ;;
+                        mpmc_queue_2_finish "back" ;;
                         ‘Some( "v" )
                       ) else (
                         domain_yield () ;;
