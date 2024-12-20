@@ -126,15 +126,14 @@ let rec push_front t v =
       | Back back_r as back ->
           match back_r.move with
           | Used ->
-              if t.front == front then (
+              if t.front == front then
                 let new_back = Snoc (back_r.index + 1, v, back) in
                 if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
                   Domain.yield () ;
                   push_front t v
                 )
-              ) else (
+              else
                 push_front t v
-              )
           | Snoc (i_move, _, _) as move ->
               help t back i_move move ;
               push_front t v

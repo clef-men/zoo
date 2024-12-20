@@ -170,9 +170,9 @@ Definition mpmc_queue_2_push_front : val :=
                   if: ~ CAS "t".[back] "back" "new_back" then (
                     domain_yield () ;;
                     "push_front" "t" "v"
+                  ) else (
+                    "push_front" "t" "v"
                   )
-                ) else (
-                  "push_front" "t" "v"
                 )
             | Snoc "i_move" <> <> as "move" =>
                 mpmc_queue_2_help "t" "back" "i_move" "move" ;;
