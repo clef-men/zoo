@@ -1,6 +1,6 @@
 type 'a t
+
 type 'a ref
-type 'a snap
 
 val create :
   unit -> 'a t
@@ -11,6 +11,8 @@ val get :
   'a t -> 'a ref -> 'a
 val set :
   'a t -> 'a ref -> 'a -> unit
+
+type 'a snap
 
 val capture :
   'a t -> 'a snap
