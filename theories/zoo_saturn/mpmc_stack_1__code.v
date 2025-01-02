@@ -36,3 +36,7 @@ Definition mpmc_stack_1_pop : val :=
           "pop" "t"
         )
     end.
+
+Definition mpmc_stack_1_snapshot : val :=
+  fun: "t" =>
+    !"t".

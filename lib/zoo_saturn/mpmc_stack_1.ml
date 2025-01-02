@@ -27,3 +27,6 @@ let rec pop t =
         Domain.yield () ;
         pop t
       )
+
+let snapshot t =
+  Atomic.get t

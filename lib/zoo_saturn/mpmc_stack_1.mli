@@ -8,3 +8,6 @@ val push :
 
 val pop :
   'a t -> 'a option
+
+val snapshot :
+  'a t -> 'a list
