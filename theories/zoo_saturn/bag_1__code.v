@@ -7,28 +7,28 @@ From zoo_std Require Import
   array
   domain.
 From zoo_saturn Require Import
-  bag__types.
+  bag_1__types.
 From zoo Require Import
   options.
 
-Definition bag_create : val :=
+Definition bag_1_create : val :=
   fun: "sz" =>
     { array_unsafe_init "sz" (fun: <> => ref §None), #0, #0 }.
 
-Definition bag_push_0 : val :=
+Definition bag_1_push_0 : val :=
   rec: "push" "slot" "o" =>
     if: ~ CAS "slot".[contents] §None "o" then (
       domain_yield () ;;
       "push" "slot" "o"
     ).
 
-Definition bag_push : val :=
+Definition bag_1_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
-    bag_push_0 (array_unsafe_get "data" "i") ‘Some( "v" ).
+    bag_1_push_0 (array_unsafe_get "data" "i") ‘Some( "v" ).
 
-Definition bag_pop_0 : val :=
+Definition bag_1_pop_0 : val :=
   rec: "pop" "slot" =>
     match: !"slot" with
     | None =>
@@ -42,8 +42,8 @@ Definition bag_pop_0 : val :=
         )
     end.
 
-Definition bag_pop : val :=
+Definition bag_1_pop : val :=
   fun: "t" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[front] #1 `rem` array_size "data" in
-    bag_pop_0 (array_unsafe_get "data" "i").
+    bag_1_pop_0 (array_unsafe_get "data" "i").

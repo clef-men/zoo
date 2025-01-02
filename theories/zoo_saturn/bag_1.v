@@ -13,9 +13,9 @@ From zoo_std Require Import
   array.
 From zoo_saturn Require Export
   base
-  bag__code.
+  bag_1__code.
 From zoo_saturn Require Import
-  bag__types.
+  bag_1__types.
 From zoo Require Import
   options.
 
@@ -27,125 +27,125 @@ Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
 Implicit Types os : list (option val).
 
-Class BagG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] bag_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
+Class Bag1G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] bag_1_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
 
-Definition bag_Σ := #[
+Definition bag_1_Σ := #[
   twins_Σ (leibnizO (gmultiset val))
 ].
-#[global] Instance subG_bag_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG bag_Σ Σ →
-  BagG Σ.
+#[global] Instance subG_bag_1_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG bag_1_Σ Σ →
+  Bag1G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section bag_G.
-  Context `{bag_G : BagG Σ}.
+Section bag_1_G.
+  Context `{bag_1_G : Bag1G Σ}.
 
-  Record bag_meta := {
-    bag_meta_data : val ;
-    bag_meta_slots : list location ;
-    bag_meta_model : gname ;
+  Record bag_1_meta := {
+    bag_1_meta_data : val ;
+    bag_1_meta_slots : list location ;
+    bag_1_meta_model : gname ;
   }.
-  Implicit Types γ : bag_meta.
+  Implicit Types γ : bag_1_meta.
 
-  #[local] Instance bag_meta_eq_dec : EqDecision bag_meta :=
+  #[local] Instance bag_1_meta_eq_dec : EqDecision bag_1_meta :=
     ltac:(solve_decision).
-  #[local] Instance bag_meta_countable :
-    Countable bag_meta.
+  #[local] Instance bag_1_meta_countable :
+    Countable bag_1_meta.
   Proof.
     pose encode γ := (
-      γ.(bag_meta_data),
-      γ.(bag_meta_slots),
-      γ.(bag_meta_model)
+      γ.(bag_1_meta_data),
+      γ.(bag_1_meta_slots),
+      γ.(bag_1_meta_model)
     ).
     pose decode := λ '(data, slots, γ_model), {|
-      bag_meta_data := data ;
-      bag_meta_slots := slots ;
-      bag_meta_model := γ_model ;
+      bag_1_meta_data := data ;
+      bag_1_meta_slots := slots ;
+      bag_1_meta_model := γ_model ;
     |}.
     refine (inj_countable' encode decode _). intros []. done.
   Qed.
 
-  #[local] Definition bag_model₁' γ_model vs :=
+  #[local] Definition bag_1_model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition bag_model₁ γ vs :=
-    bag_model₁' γ.(bag_meta_model) vs.
-  #[local] Definition bag_model₂' γ_model vs :=
+  #[local] Definition bag_1_model₁ γ vs :=
+    bag_1_model₁' γ.(bag_1_meta_model) vs.
+  #[local] Definition bag_1_model₂' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition bag_model₂ γ vs :=
-    bag_model₂' γ.(bag_meta_model) vs.
+  #[local] Definition bag_1_model₂ γ vs :=
+    bag_1_model₂' γ.(bag_1_meta_model) vs.
 
-  #[local] Definition bag_inv_inner l γ : iProp Σ :=
+  #[local] Definition bag_1_inv_inner l γ : iProp Σ :=
     ∃ front back os vs,
     ⌜vs = foldr (λ o vs, from_option (λ v, {[+v+]} ⊎ vs) vs o) ∅ os⌝ ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    bag_model₂ γ vs ∗
-    [∗ list] slot; o ∈ γ.(bag_meta_slots); os,
+    bag_1_model₂ γ vs ∗
+    [∗ list] slot; o ∈ γ.(bag_1_meta_slots); os,
       slot ↦ᵣ (o : val).
-  Definition bag_inv t ι : iProp Σ :=
+  Definition bag_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    ⌜0 < length γ.(bag_meta_slots)⌝ ∗
+    ⌜0 < length γ.(bag_1_meta_slots)⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ γ.(bag_meta_data) ∗
-    array_model γ.(bag_meta_data) DfracDiscarded (#@{location} <$> γ.(bag_meta_slots)) ∗
-    inv ι (bag_inv_inner l γ).
+    l.[data] ↦□ γ.(bag_1_meta_data) ∗
+    array_model γ.(bag_1_meta_data) DfracDiscarded (#@{location} <$> γ.(bag_1_meta_slots)) ∗
+    inv ι (bag_1_inv_inner l γ).
 
-  Definition bag_model t vs : iProp Σ :=
+  Definition bag_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    bag_model₁ γ vs.
+    bag_1_model₁ γ vs.
 
-  Instance bag_inv_timeless t vs :
-    Timeless (bag_model t vs).
+  Instance bag_1_inv_timeless t vs :
+    Timeless (bag_1_model t vs).
   Proof.
     apply _.
   Qed.
-  Instance bag_inv_persistent t ι :
-    Persistent (bag_inv t ι).
+  Instance bag_1_inv_persistent t ι :
+    Persistent (bag_1_inv t ι).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma bag_model_alloc :
+  #[local] Lemma bag_1_model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      bag_model₁' γ_model ∅ ∗
-      bag_model₂' γ_model ∅.
+      bag_1_model₁' γ_model ∅ ∗
+      bag_1_model₂' γ_model ∅.
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma bag_model_agree γ vs1 vs2 :
-    bag_model₁ γ vs1 -∗
-    bag_model₂ γ vs2 -∗
+  #[local] Lemma bag_1_model_agree γ vs1 vs2 :
+    bag_1_model₁ γ vs1 -∗
+    bag_1_model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma bag_model_update {γ vs1 vs2} vs :
-    bag_model₁ γ vs1 -∗
-    bag_model₂ γ vs2 ==∗
-      bag_model₁ γ vs ∗
-      bag_model₂ γ vs.
+  #[local] Lemma bag_1_model_update {γ vs1 vs2} vs :
+    bag_1_model₁ γ vs1 -∗
+    bag_1_model₂ γ vs2 ==∗
+      bag_1_model₁ γ vs ∗
+      bag_1_model₂ γ vs.
   Proof.
     apply twins_update'.
   Qed.
 
-  Lemma bag_create_spec ι (sz : Z) :
+  Lemma bag_1_create_spec ι (sz : Z) :
     (0 < sz)%Z →
     {{{
       True
     }}}
-      bag_create #sz
+      bag_1_create #sz
     {{{ t,
       RET t;
-      bag_inv t ι ∗
-      bag_model t ∅
+      bag_1_inv t ι ∗
+      bag_1_model t ∅
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -171,12 +171,12 @@ Section bag_G.
     wp_block l as "Hmeta" "(Hdata & Hfront & Hback & _)".
     iMod (array_model_persist with "Hdata_model") as "#Hdata_model".
 
-    iMod bag_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod bag_1_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      bag_meta_data := data ;
-      bag_meta_slots := slots ;
-      bag_meta_model := γ_model ;
+      bag_1_meta_data := data ;
+      bag_1_meta_slots := slots ;
+      bag_1_meta_model := γ_model ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -190,17 +190,17 @@ Section bag_G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_push_0_spec slot v ι l γ :
-    slot ∈ γ.(bag_meta_slots) →
+  #[local] Lemma bag_1_push_0_spec slot v ι l γ :
+    slot ∈ γ.(bag_1_meta_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (bag_inv_inner l γ)
+      inv ι (bag_1_inv_inner l γ)
     | ∀∀ vs,
-      bag_model #l vs
+      bag_1_model #l vs
     >>>
-      bag_push_0 #slot ’Some( v ) @ ↑ι
+      bag_1_push_0 #slot ’Some( v ) @ ↑ι
     <<<
-      bag_model #l ({[+v+]} ⊎ vs)
+      bag_1_model #l ({[+v+]} ⊎ vs)
     | RET ();
       True
     >>>.
@@ -226,10 +226,10 @@ Section bag_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (bag_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (bag_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := {[+v+]} ⊎ vs.
       set os' := <[i := Some v]> os.
-      iMod (bag_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (bag_1_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ". { repeat iExists _. iSteps. }
       iDestruct ("Hslots" $! _ (Some v) with "Hslot") as "Hslots".
       rewrite list_insert_id //.
@@ -241,15 +241,15 @@ Section bag_G.
       }
       iSteps.
   Qed.
-  Lemma bag_push_spec t ι v :
+  Lemma bag_1_push_spec t ι v :
     <<<
-      bag_inv t ι
+      bag_1_inv t ι
     | ∀∀ vs,
-      bag_model t vs
+      bag_1_model t vs
     >>>
-      bag_push t v @ ↑ι
+      bag_1_push t v @ ↑ι
     <<<
-      bag_model t ({[+v+]} ⊎ vs)
+      bag_1_model t ({[+v+]} ⊎ vs)
     | RET ();
       True
     >>>.
@@ -269,23 +269,23 @@ Section bag_G.
     rewrite length_fmap.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_push_0_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1_push_0_spec with "[$Hmeta $Hinv] HΦ").
     apply elem_of_list_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_pop_0_spec slot ι l γ :
-    slot ∈ γ.(bag_meta_slots) →
+  #[local] Lemma bag_1_pop_0_spec slot ι l γ :
+    slot ∈ γ.(bag_1_meta_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (bag_inv_inner l γ)
+      inv ι (bag_1_inv_inner l γ)
     | ∀∀ vs,
-      bag_model #l vs
+      bag_1_model #l vs
     >>>
-      bag_pop_0 #slot @ ↑ι
+      bag_1_pop_0 #slot @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
-      bag_model #l vs'
+      bag_1_model #l vs'
     | RET v;
       True
     >>>.
@@ -323,10 +323,10 @@ Section bag_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (bag_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (bag_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := vs ∖ {[+v+]}.
       set os' := <[i := None]> os.
-      iMod (bag_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (bag_1_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
       { iSplit; last iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.
@@ -345,17 +345,17 @@ Section bag_G.
       }
       iSteps.
   Qed.
-  Lemma bag_pop_spec t ι :
+  Lemma bag_1_pop_spec t ι :
     <<<
-      bag_inv t ι
+      bag_1_inv t ι
     | ∀∀ vs,
-      bag_model t vs
+      bag_1_model t vs
     >>>
-      bag_pop t @ ↑ι
+      bag_1_pop t @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
-      bag_model t vs'
+      bag_1_model t vs'
     | RET v;
       True
     >>>.
@@ -375,14 +375,14 @@ Section bag_G.
     rewrite length_fmap.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_pop_0_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1_pop_0_spec with "[$Hmeta $Hinv] HΦ").
     apply elem_of_list_lookup_total_2. lia.
   Qed.
-End bag_G.
+End bag_1_G.
 
-#[global] Opaque bag_create.
-#[global] Opaque bag_push.
-#[global] Opaque bag_pop.
+#[global] Opaque bag_1_create.
+#[global] Opaque bag_1_push.
+#[global] Opaque bag_1_pop.
 
-#[global] Opaque bag_inv.
-#[global] Opaque bag_model.
+#[global] Opaque bag_1_inv.
+#[global] Opaque bag_1_model.

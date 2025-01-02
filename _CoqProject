@@ -226,9 +226,9 @@ theories/zoo_persistent/pstore_2.v
 -Q theories/zoo_saturn zoo_saturn
 
 theories/zoo_saturn/base.v
-theories/zoo_saturn/bag__types.v
-theories/zoo_saturn/bag__code.v
-theories/zoo_saturn/bag.v
+theories/zoo_saturn/bag_1__types.v
+theories/zoo_saturn/bag_1__code.v
+theories/zoo_saturn/bag_1.v
 theories/zoo_saturn/mpmc_stack_1__types.v
 theories/zoo_saturn/mpmc_stack_1__code.v
 theories/zoo_saturn/mpmc_stack_1.v
