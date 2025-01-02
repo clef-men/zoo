@@ -7,6 +7,7 @@ From iris.algebra Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.base_logic Require Import
   lib.excl
@@ -114,29 +115,7 @@ Section inf_ws_deque_1_G.
   #[local] Instance inf_ws_deque_1_meta_countable :
     Countable inf_ws_deque_1_meta.
   Proof.
-    pose encode γ := (
-      γ.(inf_ws_deque_1_meta_data),
-      γ.(inf_ws_deque_1_meta_prophet),
-      γ.(inf_ws_deque_1_meta_prophet_name),
-      γ.(inf_ws_deque_1_meta_ctl),
-      γ.(inf_ws_deque_1_meta_front),
-      γ.(inf_ws_deque_1_meta_hist),
-      γ.(inf_ws_deque_1_meta_model),
-      γ.(inf_ws_deque_1_meta_lock),
-      γ.(inf_ws_deque_1_meta_winner)
-    ).
-    pose decode := λ '(data, pid, γ_prophet, γ_ctl, γ_front, γ_hist, γ_model, γ_lock, γ_winner), {|
-      inf_ws_deque_1_meta_data := data ;
-      inf_ws_deque_1_meta_prophet := pid ;
-      inf_ws_deque_1_meta_prophet_name := γ_prophet ;
-      inf_ws_deque_1_meta_ctl := γ_ctl ;
-      inf_ws_deque_1_meta_front := γ_front ;
-      inf_ws_deque_1_meta_hist := γ_hist ;
-      inf_ws_deque_1_meta_model := γ_model ;
-      inf_ws_deque_1_meta_lock := γ_lock ;
-      inf_ws_deque_1_meta_winner := γ_winner ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition inf_ws_deque_1_ctl₁' γ_ctl back priv :=

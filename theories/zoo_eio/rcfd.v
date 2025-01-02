@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   gmultiset.
 From zoo.iris.base_logic Require Import
   lib.auth_gmultiset
@@ -106,17 +107,7 @@ Section rcfd_G.
   #[global] Instance rcfd_meta_countable :
     Countable rcfd_meta.
   Proof.
-    pose encode γ := (
-      γ.(rcfd_meta_tokens),
-      γ.(rcfd_meta_lstate),
-      γ.(rcfd_meta_open)
-    ).
-    pose decode := λ '(γ_tokens, γ_lstate, open), {|
-      rcfd_meta_tokens := γ_tokens ;
-      rcfd_meta_lstate := γ_lstate ;
-      rcfd_meta_open := open ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition rcfd_tokens_auth' γ_tokens qs :=

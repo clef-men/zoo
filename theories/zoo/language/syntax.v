@@ -6,6 +6,8 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.common Require Export
   binder.
 From zoo.language Require Export
@@ -184,17 +186,7 @@ Record pattern := {
 #[global] Instance pattern_countable :
   Countable pattern.
 Proof.
-  pose encode pat := (
-    pat.(pattern_tag),
-    pat.(pattern_fields),
-    pat.(pattern_as)
-  ).
-  pose decode := λ '(tag, fields, as_), {|
-    pattern_tag := tag ;
-    pattern_fields := fields ;
-    pattern_as := as_ ;
-  |}.
-  refine (inj_countable' encode decode _); intros []. done.
+  solve_countable.
 Qed.
 
 Unset Elimination Schemes.

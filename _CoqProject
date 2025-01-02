@@ -14,6 +14,19 @@ theories/zoo/prelude/prelude.v
 
 theories/zoo/options.v
 
+theories/zoo/ltac2/Array.v
+theories/zoo/ltac2/Constr.v
+theories/zoo/ltac2/Control.v
+theories/zoo/ltac2/Env.v
+theories/zoo/ltac2/List.v
+theories/zoo/ltac2/Message.v
+theories/zoo/ltac2/Option.v
+theories/zoo/ltac2/Std.v
+theories/zoo/ltac2/String.v
+theories/zoo/ltac2/Notations.v
+theories/zoo/ltac2/Debug.v
+
+theories/zoo/common/countable.v
 theories/zoo/common/relations.v
 theories/zoo/common/math.v
 theories/zoo/common/option.v

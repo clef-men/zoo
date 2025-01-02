@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.agree
   lib.mono_list.
@@ -40,15 +42,7 @@ Section typed_strong_prophet.
   #[global] Instance wise_strong_prophet_name_countable :
     Countable wise_strong_prophet_name.
   Proof.
-    pose encode γ := (
-      γ.(wise_strong_prophet_name_full),
-      γ.(wise_strong_prophet_name_past)
-    ).
-    pose decode := λ '(γ_full, γ_past), {|
-      wise_strong_prophet_name_full := γ_full ;
-      wise_strong_prophet_name_past := γ_past ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   Definition wise_strong_prophet_model pid γ past prophs : iProp Σ :=

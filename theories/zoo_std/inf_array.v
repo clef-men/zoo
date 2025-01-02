@@ -3,6 +3,8 @@ From Coq.Logic Require Import
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.twins.
 From zoo.language Require Import
@@ -55,15 +57,7 @@ Section inf_array_G.
   #[local] Instance inf_array_meta_countable :
     Countable inf_array_meta.
   Proof.
-    pose encode γ := (
-      γ.(inf_array_meta_default),
-      γ.(inf_array_meta_model)
-    ).
-    pose decode := λ '(default, γ_model), {|
-      inf_array_meta_default := default ;
-      inf_array_meta_model := γ_model ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition inf_array_model₁' γ_model vs :=

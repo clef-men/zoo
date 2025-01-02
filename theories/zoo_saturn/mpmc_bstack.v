@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.twins.
 From zoo.language Require Import
@@ -50,15 +52,7 @@ Section mpmc_bstack_G.
   #[local] Instance mpmc_bstack_meta_countable :
     Countable mpmc_bstack_meta.
   Proof.
-    pose encode γ := (
-      γ.(mpmc_bstack_meta_capacity),
-      γ.(mpmc_bstack_meta_model)
-    ).
-    pose decode := λ '(capacity, γ_model), {|
-      mpmc_bstack_meta_capacity := capacity ;
-      mpmc_bstack_meta_model := γ_model ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Fixpoint mpmc_bstack_lst sz vs :=

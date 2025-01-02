@@ -6,6 +6,8 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo Require Import
   options.
 
@@ -33,7 +35,7 @@ Qed.
 #[global] Instance location_countable :
   Countable location.
 Proof.
-  apply (inj_countable' location_car Loc); intros []; done.
+  solve_countable.
 Qed.
 
 #[global] Program Instance location_infinite : Infinite location :=

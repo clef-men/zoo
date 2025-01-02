@@ -4,6 +4,7 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.bi Require Import
   big_op.
@@ -79,15 +80,7 @@ Implicit Types γ : kcas_loc_meta.
 #[local] Instance kcas_loc_meta_countable :
   Countable kcas_loc_meta.
 Proof.
-  pose encode γ := (
-    γ.(kcas_loc_meta_model),
-    γ.(kcas_loc_meta_history)
-  ).
-  pose decode := λ '(γ_model, γ_history), {|
-    kcas_loc_meta_model := γ_model ;
-    kcas_loc_meta_history := γ_history ;
-  |}.
-  refine (inj_countable' encode decode _). intros []. done.
+  solve_countable.
 Qed.
 
 Record kcas_descr := {
@@ -113,21 +106,7 @@ Implicit Types descrs : list kcas_descr.
 #[local] Instance kcas_descr_countable :
   Countable kcas_descr.
 Proof.
-  pose encode descr := (
-    descr.(kcas_descr_loc),
-    descr.(kcas_descr_meta),
-    descr.(kcas_descr_before),
-    descr.(kcas_descr_after),
-    descr.(kcas_descr_state)
-  ).
-  pose decode := λ '(loc, γ, before, after, state), {|
-    kcas_descr_loc := loc ;
-    kcas_descr_meta := γ ;
-    kcas_descr_before := before ;
-    kcas_descr_after := after ;
-    kcas_descr_state := state ;
-  |}.
-  refine (inj_countable' encode decode _). intros []. done.
+  solve_countable.
 Qed.
 
 #[local] Definition kcas_state casn descr : val :=
@@ -207,31 +186,7 @@ Implicit Types η : kcas_casn_meta.
 #[local] Instance kcas_casn_meta_countable :
   Countable kcas_casn_meta.
 Proof.
-  pose encode η := (
-    η.(kcas_casn_meta_descrs),
-    η.(kcas_casn_meta_prophet),
-    η.(kcas_casn_meta_prophs),
-    η.(kcas_casn_meta_undetermined),
-    η.(kcas_casn_meta_post),
-    η.(kcas_casn_meta_lstatus),
-    η.(kcas_casn_meta_locks),
-    η.(kcas_casn_meta_helpers),
-    η.(kcas_casn_meta_winning),
-    η.(kcas_casn_meta_owner)
-  ).
-  pose decode := λ '(descrs, prophet, prophs, undetermined, post, lstatus, locks, helpers, winning, owner), {|
-    kcas_casn_meta_descrs := descrs ;
-    kcas_casn_meta_prophet := prophet ;
-    kcas_casn_meta_prophs := prophs ;
-    kcas_casn_meta_undetermined := undetermined ;
-    kcas_casn_meta_post := post ;
-    kcas_casn_meta_lstatus := lstatus ;
-    kcas_casn_meta_locks := locks ;
-    kcas_casn_meta_helpers := helpers ;
-    kcas_casn_meta_winning := winning ;
-    kcas_casn_meta_owner := owner ;
-  |}.
-  refine (inj_countable' encode decode _). intros []. done.
+  solve_countable.
 Qed.
 
 #[local] Definition kcas_casn_meta_size η :=

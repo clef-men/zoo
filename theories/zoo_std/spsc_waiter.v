@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.oneshot
   lib.excl.
@@ -53,19 +55,7 @@ Section spsc_waiter_G.
   #[local] Instance spsc_waiter_meta_countable :
     Countable spsc_waiter_meta.
   Proof.
-    pose encode γ := (
-      γ.(spsc_waiter_meta_mutex),
-      γ.(spsc_waiter_meta_condition),
-      γ.(spsc_waiter_meta_lstate),
-      γ.(spsc_waiter_meta_consumer)
-    ).
-    pose decode := λ '(mtx, cond, γ_lstate, γ_consumer), {|
-      spsc_waiter_meta_mutex := mtx ;
-      spsc_waiter_meta_condition := cond ;
-      spsc_waiter_meta_lstate := γ_lstate ;
-      spsc_waiter_meta_consumer := γ_consumer ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition spsc_waiter_inv_inner l γ P : iProp Σ :=

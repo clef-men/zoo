@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.base_logic Require Import
   lib.twins.
@@ -56,17 +57,7 @@ Section bag_1_G.
   #[local] Instance bag_1_meta_countable :
     Countable bag_1_meta.
   Proof.
-    pose encode γ := (
-      γ.(bag_1_meta_data),
-      γ.(bag_1_meta_slots),
-      γ.(bag_1_meta_model)
-    ).
-    pose decode := λ '(data, slots, γ_model), {|
-      bag_1_meta_data := data ;
-      bag_1_meta_slots := slots ;
-      bag_1_meta_model := γ_model ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition bag_1_model₁' γ_model vs :=

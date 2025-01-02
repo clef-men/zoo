@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.base_logic Require Import
   lib.mono_list
@@ -56,15 +57,7 @@ Section mpsc_queue_1_G.
   #[local] Instance mpsc_queue_1_meta_countable :
     Countable mpsc_queue_1_meta.
   Proof.
-    pose encode γ := (
-      γ.(mpsc_queue_1_meta_history),
-      γ.(mpsc_queue_1_meta_model)
-    ).
-    pose decode := λ '(γ_history, γ_model), {|
-      mpsc_queue_1_meta_history := γ_history ;
-      mpsc_queue_1_meta_model := γ_model ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition mpsc_queue_1_history_auth' γ_history hist :=

@@ -4,6 +4,7 @@ From iris.algebra Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   relations
   list.
 From zoo.iris.base_logic Require Import
@@ -71,25 +72,7 @@ Section spsc_bqueue_G.
   #[local] Instance spsc_bqueue_meta_countable :
     Countable spsc_bqueue_meta.
   Proof.
-    pose encode γ := (
-      γ.(spsc_bqueue_meta_data),
-      γ.(spsc_bqueue_meta_model),
-      γ.(spsc_bqueue_meta_history),
-      γ.(spsc_bqueue_meta_producer_ctl),
-      γ.(spsc_bqueue_meta_producer_region),
-      γ.(spsc_bqueue_meta_consumer_ctl),
-      γ.(spsc_bqueue_meta_consumer_region)
-    ).
-    pose decode := λ '(data, γ_model, γ_history, γ_producer_ctl, γ_producer_region, γ_consumer_ctl, γ_consumer_region), {|
-      spsc_bqueue_meta_data := data ;
-      spsc_bqueue_meta_model := γ_model ;
-      spsc_bqueue_meta_history := γ_history ;
-      spsc_bqueue_meta_producer_ctl := γ_producer_ctl ;
-      spsc_bqueue_meta_producer_region := γ_producer_region ;
-      spsc_bqueue_meta_consumer_ctl := γ_consumer_ctl ;
-      spsc_bqueue_meta_consumer_region := γ_consumer_region ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition spsc_bqueue_model₁' γ_model vs :=

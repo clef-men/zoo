@@ -4,6 +4,7 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.bi Require Import
   big_op.
@@ -71,19 +72,7 @@ Section mpmc_queue_1_G.
   #[local] Instance mpmc_queue_1_meta_countable :
     Countable mpmc_queue_1_meta.
   Proof.
-    pose encode γ := (
-      γ.(mpmc_queue_1_meta_history),
-      γ.(mpmc_queue_1_meta_front),
-      γ.(mpmc_queue_1_meta_model),
-      γ.(mpmc_queue_1_meta_waiters)
-    ).
-    pose decode := λ '(γ_history, γ_front, γ_model, γ_waiters), {|
-      mpmc_queue_1_meta_history := γ_history ;
-      mpmc_queue_1_meta_front := γ_front ;
-      mpmc_queue_1_meta_model := γ_model ;
-      mpmc_queue_1_meta_waiters := γ_waiters ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition mpmc_queue_1_history_auth' γ_history hist :=

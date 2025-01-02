@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   gset.
 From zoo.iris.algebra Require Import
   big_op.
@@ -43,15 +44,7 @@ Record partition_descr := {
 #[local] Instance partition_descr_countable :
   Countable partition_descr.
 Proof.
-  pose encode descr := (
-    descr.(partition_descr_class),
-    descr.(partition_descr_elts)
-  ).
-  pose decode := λ '(class, elts), {|
-    partition_descr_class := class ;
-    partition_descr_elts := elts ;
-  |}.
-  refine (inj_countable' encode decode _). intros []. done.
+  solve_countable.
 Qed.
 
 Implicit Types descr : partition_descr.

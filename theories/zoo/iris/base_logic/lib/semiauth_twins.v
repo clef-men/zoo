@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Export
   lib.base.
 From zoo.iris.base_logic Require Import
@@ -53,17 +55,7 @@ Section semiauth_twins_G.
   #[global] Instance semiauth_twins_name_countable :
     Countable semiauth_twins_name.
   Proof.
-    pose encode γ := (
-      γ.(semiauth_twins_name_var),
-      γ.(semiauth_twins_name_left_twins),
-      γ.(semiauth_twins_name_right_twins)
-    ).
-    pose decode := λ '(γ_var, γ_left_twins, γ_right_twins), {|
-      semiauth_twins_name_var := γ_var ;
-      semiauth_twins_name_left_twins := γ_left_twins ;
-      semiauth_twins_name_right_twins := γ_right_twins ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   Definition semiauth_twins_auth γ a : iProp Σ :=

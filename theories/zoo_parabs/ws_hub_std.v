@@ -5,6 +5,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  countable
   list.
 From zoo.iris.bi Require Import
   big_op.
@@ -212,21 +213,7 @@ Section ws_hub_std_G.
   #[local] Instance ws_hub_std_meta_countable :
     Countable ws_hub_std_meta.
   Proof.
-    pose encode γ := (
-      γ.(ws_hub_std_meta_size),
-      γ.(ws_hub_std_meta_deques),
-      γ.(ws_hub_std_meta_rounds),
-      γ.(ws_hub_std_meta_waiters),
-      γ.(ws_hub_std_meta_model)
-    ).
-    pose decode := λ '(γ_size, γ_deques, γ_rounds, γ_waiters, γ_model), {|
-      ws_hub_std_meta_size := γ_size ;
-      ws_hub_std_meta_deques := γ_deques ;
-      ws_hub_std_meta_rounds := γ_rounds ;
-      ws_hub_std_meta_waiters := γ_waiters ;
-      ws_hub_std_meta_model := γ_model ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition ws_hub_std_model₁' γ_model vs :=

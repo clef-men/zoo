@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.oneshot
   lib.excl.
@@ -55,19 +57,7 @@ Section spsc_future_G.
   #[local] Instance spsc_future_meta_countable :
     Countable spsc_future_meta.
   Proof.
-    pose encode γ := (
-      γ.(spsc_future_meta_mutex),
-      γ.(spsc_future_meta_condition),
-      γ.(spsc_future_meta_lstate),
-      γ.(spsc_future_meta_consumer)
-    ).
-    pose decode := λ '(mtx, cond, γ_lstate, γ_consumer), {|
-      spsc_future_meta_mutex := mtx ;
-      spsc_future_meta_condition := cond ;
-      spsc_future_meta_lstate := γ_lstate ;
-      spsc_future_meta_consumer := γ_consumer ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition spsc_future_inv_inner l γ Ψ : iProp Σ :=

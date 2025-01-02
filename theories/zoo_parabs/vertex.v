@@ -4,6 +4,8 @@
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  countable.
 From zoo.iris.base_logic Require Import
   lib.auth_dgset
   lib.mono_set
@@ -136,21 +138,7 @@ Section vertex_G.
   #[local] Instance vertex_meta_countable :
     Countable vertex_meta.
   Proof.
-    pose encode γ := (
-      γ.(vertex_meta_task),
-      γ.(vertex_meta_successors),
-      γ.(vertex_meta_dependencies),
-      γ.(vertex_meta_predecessors),
-      γ.(vertex_meta_state)
-    ).
-    pose decode := λ '(task, succs, γ_dependencies, γ_predecessors, γ_state), {|
-      vertex_meta_task := task ;
-      vertex_meta_successors := succs ;
-      vertex_meta_dependencies := γ_dependencies ;
-      vertex_meta_predecessors := γ_predecessors ;
-      vertex_meta_state := γ_state ;
-    |}.
-    refine (inj_countable' encode decode _). intros []. done.
+    solve_countable.
   Qed.
 
   #[local] Definition vertex_dependencies' γ_dependencies closed Δ :=
