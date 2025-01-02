@@ -204,16 +204,7 @@ Definition mpmc_queue_2_push_front : val :=
               match: ‘Back{ "i_move", "move" } with
               | Back <> <> as "back" =>
                   if: CAS "t".[back] "move" "back" then (
-                    match: mpmc_queue_2_rev "move" with
-                    | Cons <> "v" "new_front" =>
-                        if: CAS "t".[front] "front" "new_front" then (
-                          mpmc_queue_2_finish "back" ;;
-                          ‘Some( "v" )
-                        ) else (
-                          domain_yield () ;;
-                          "pop" "t"
-                        )
-                    end
+                    "pop_2" "t" "front" "back" "move"
                   ) else (
                     "pop" "t"
                   )
@@ -223,26 +214,28 @@ Definition mpmc_queue_2_push_front : val :=
             let: "back_r" := "back" in
             match: "back_r".{move} with
             | Used =>
-                "pop_2" "t" "front"
+                "pop_3" "t" "front"
             | Snoc "i_move" <> <> as "move" =>
                 if: "i_front" < "i_move" then (
-                  match: mpmc_queue_2_rev "move" with
-                  | Cons <> "v" "new_front" =>
-                      if: CAS "t".[front] "front" "new_front" then (
-                        mpmc_queue_2_finish "back" ;;
-                        ‘Some( "v" )
-                      ) else (
-                        domain_yield () ;;
-                        "pop" "t"
-                      )
-                  end
+                  "pop_2" "t" "front" "back" "move"
                 ) else (
-                  "pop_2" "t" "front"
+                  "pop_3" "t" "front"
                 )
             end
         end
     end
-  and: "pop_2" "t" "front" =>
+  and: "pop_2" "t" "front" "back" "move" =>
+    match: mpmc_queue_2_rev "move" with
+    | Cons <> "v" "new_front" =>
+        if: CAS "t".[front] "front" "new_front" then (
+          mpmc_queue_2_finish "back" ;;
+          ‘Some( "v" )
+        ) else (
+          domain_yield () ;;
+          "pop" "t"
+        )
+    end
+  and: "pop_3" "t" "front" =>
     let: "front'" := "t".{front} in
     if: "front'" == "front" then (
       §None
@@ -256,12 +249,15 @@ Definition mpmc_queue_2_pop_1 :=
   ValRecs 0 __zoo_recs_1.
 Definition mpmc_queue_2_pop_2 :=
   ValRecs 1 __zoo_recs_1.
-Definition mpmc_queue_2_pop :=
+Definition mpmc_queue_2_pop_3 :=
   ValRecs 2 __zoo_recs_1.
+Definition mpmc_queue_2_pop :=
+  ValRecs 3 __zoo_recs_1.
 #[global] Instance :
   AsValRecs' mpmc_queue_2_pop_1 0 __zoo_recs_1 [
     mpmc_queue_2_pop_1 ;
     mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
     mpmc_queue_2_pop
   ].
 Proof.
@@ -271,15 +267,27 @@ Qed.
   AsValRecs' mpmc_queue_2_pop_2 1 __zoo_recs_1 [
     mpmc_queue_2_pop_1 ;
     mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
     mpmc_queue_2_pop
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' mpmc_queue_2_pop 2 __zoo_recs_1 [
+  AsValRecs' mpmc_queue_2_pop_3 2 __zoo_recs_1 [
     mpmc_queue_2_pop_1 ;
     mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
+    mpmc_queue_2_pop
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' mpmc_queue_2_pop 3 __zoo_recs_1 [
+    mpmc_queue_2_pop_1 ;
+    mpmc_queue_2_pop_2 ;
+    mpmc_queue_2_pop_3 ;
     mpmc_queue_2_pop
   ].
 Proof.

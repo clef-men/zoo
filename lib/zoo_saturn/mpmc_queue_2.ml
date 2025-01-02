@@ -158,34 +158,29 @@ let rec pop_1 t front =
           ) else (
             let (Back _ as back : (_, [`Back]) back) = Back { index= i_move; move } in
             if Atomic.Loc.compare_and_set [%atomic.loc t.back] move back then
-              let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
-              if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
-                finish back ;
-                Some v
-              ) else (
-                Domain.yield () ;
-                pop t
-              )
+              pop_2 t front back move
             else
               pop t
           )
       | Back back_r as back ->
           match back_r.move with
           | Used ->
-              pop_2 t front
+              pop_3 t front
           | Snoc (i_move, _, _) as move ->
               if i_front < i_move then
-                let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
-                if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
-                  finish back ;
-                  Some v
-                ) else (
-                  Domain.yield () ;
-                  pop t
-                )
+                pop_2 t front back move
               else
-                pop_2 t front
-and pop_2 t front =
+                pop_3 t front
+and pop_2 t front back move =
+  let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
+  if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
+    finish back ;
+    Some v
+  ) else (
+    Domain.yield () ;
+    pop t
+  )
+and pop_3 t front =
   let front' = t.front in
   if front' == front then
     None
