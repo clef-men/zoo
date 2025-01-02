@@ -281,6 +281,7 @@ theories/zoo_saturn/ws_deque_2__code.v
 theories/zoo_saturn/ws_deque_2.v
 theories/zoo_saturn/htbl__types.v
 theories/zoo_saturn/htbl__code.v
+theories/zoo_saturn/htbl.v
 
 #END zoo-saturn
 
