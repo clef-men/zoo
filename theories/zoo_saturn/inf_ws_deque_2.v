@@ -84,7 +84,6 @@ Section inf_ws_deque_2_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_rec.
     wp_apply (inf_ws_deque_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel & Howner)".
     iSteps. iExists []. iSteps.
   Qed.

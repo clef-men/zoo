@@ -1,8 +1,8 @@
 type 'a t =
   'a ref Inf_ws_deque_1.t
 
-let create () =
-  Inf_ws_deque_1.create ()
+let create =
+  Inf_ws_deque_1.create
 
 let push t v =
   Inf_ws_deque_1.push t (ref v)

@@ -11,8 +11,7 @@ From zoo Require Import
   options.
 
 Definition inf_ws_deque_2_create : val :=
-  fun: <> =>
-    inf_ws_deque_1_create ().
+  inf_ws_deque_1_create.
 
 Definition inf_ws_deque_2_push : val :=
   fun: "t" "v" =>
