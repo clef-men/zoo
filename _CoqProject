@@ -194,6 +194,9 @@ theories/zoo_std/random_state.v
 theories/zoo_std/random_round__types.v
 theories/zoo_std/random_round__code.v
 theories/zoo_std/random_round.v
+theories/zoo_std/hashtbl__types.v
+theories/zoo_std/hashtbl__code.v
+theories/zoo_std/hashtbl.v
 
 #END zoo-std
 
