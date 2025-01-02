@@ -41,10 +41,16 @@ Fixpoint erase_expr e :=
         x
   | Rec f x e =>
       Rec
-        f x
+        f
+        x
         (erase_expr e)
   | App e1 e2 =>
       App
+        (erase_expr e1)
+        (erase_expr e2)
+  | Let x e1 e2 =>
+      Let
+        x
         (erase_expr e1)
         (erase_expr e2)
   | Unop op e =>
@@ -65,13 +71,22 @@ Fixpoint erase_expr e :=
         (erase_expr e0)
         (erase_expr e1)
         (erase_expr e2)
-  | Constr tag es =>
-      Constr
+  | For e1 e2 e3 =>
+      For
+        (erase_expr e1)
+        (erase_expr e2)
+        (erase_expr e3)
+  | Alloc e1 e2 =>
+      Alloc
+        (erase_expr e1)
+        (erase_expr e2)
+  | Block mut tag es =>
+      Block
+        mut
         tag
         (erase_expr <$> es)
-  | Proj i e =>
-      Proj
-        i
+  | Reveal e =>
+      Reveal
         (erase_expr e)
   | Match e0 x e1 brs =>
       Match
@@ -79,28 +94,21 @@ Fixpoint erase_expr e :=
         x
         (erase_expr e1)
         ((λ br, (br.1, erase_expr br.2)) <$> brs)
-  | Reveal e =>
-      Reveal
+  | GetTag e =>
+      GetTag
         (erase_expr e)
-  | For e1 e2 e3 =>
-      For
-        (erase_expr e1)
-        (erase_expr e2)
-        (erase_expr e3)
-  | Record es =>
-      Record
-        (erase_expr <$> es)
-  | Alloc e1 e2 =>
-      Alloc
-        (erase_expr e1)
-        (erase_expr e2)
-  | Load e =>
+  | GetSize e =>
+      GetSize
+        (erase_expr e)
+  | Load e1 e2 =>
       Load
-        (erase_expr e)
-  | Store e1 e2 =>
+        (erase_expr e1)
+        (erase_expr e2)
+  | Store e1 e2 e3 =>
       Store
         (erase_expr e1)
         (erase_expr e2)
+        (erase_expr e3)
   | Xchg e1 e2 =>
       Xchg
         (erase_expr e1)
@@ -130,13 +138,14 @@ with erase_val v :=
   | ValLit lit =>
       ValLit
         (erase_literal lit)
-  | ValRec f x e =>
-      ValRec
-        f x
-        (erase_expr e)
-  | ValConstr cid tag vs =>
-      ValConstr
-        cid tag
+  | ValRecs i recs =>
+      ValRecs
+        i
+        ((λ rec, (rec.1, erase_expr rec.2)) <$> recs)
+  | ValBlock bid tag vs =>
+      ValBlock
+        bid
+        tag
         (erase_val <$> vs)
   end.
 #[global] Arguments erase_expr !_ / : assert.
@@ -154,18 +163,24 @@ Lemma erase_expr_subst x v e :
   erase_expr (subst x v e) = subst x (erase_val v) (erase_expr e).
 Proof.
   move: e. fix IH 1. destruct e.
-  all: simpl; try case_decide; rewrite ?IH ?erase_val_subst; auto.
+  all: simpl.
+  all: try repeat destruct (_ =? _)%string.
+  all: try repeat destruct (binder_eqb _ _).
+  all: rewrite ?IH; auto.
   all:
     try select (list expr) ltac:(fun es =>
-      induction es; [done | naive_solver congruence]
+      induction es; first done;
+      naive_solver congruence
     ).
-  select (list branch) ltac:(fun brs =>
-    f_equal;
-    induction brs;
-    [ done
-    | simpl; case_decide; rewrite ?IH; f_equal; done
-    ]
-  ).
+  all:
+    try select (list branch) ltac:(fun brs =>
+      f_equal;
+      induction brs; first done;
+      simpl;
+      try repeat destruct (existsb _ _);
+      try repeat destruct (binder_eqb _ _);
+      rewrite ?IH; f_equal; done
+    ).
 Qed.
 
 Lemma erase_expr_subst' x v e :
