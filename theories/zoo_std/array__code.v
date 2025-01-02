@@ -231,6 +231,12 @@ Definition array_clone : val :=
   fun: "t" =>
     array_unsafe_shrink "t" (array_size "t").
 
+Definition array_unsafe_resize_slice : val :=
+  fun: "t" "i" "n" "sz'" "v" =>
+    let: "t'" := array_unsafe_make "sz'" "v" in
+    array_unsafe_copy_slice "t" "i" "t'" "i" "n" ;;
+    "t'".
+
 Definition array_unsafe_cget : val :=
   fun: "t" "i" =>
     array_unsafe_get "t" ("i" `rem` array_size "t").
@@ -284,3 +290,9 @@ Definition array_ccopy : val :=
     assume (#0 < "sz1") ;;
     assume ("sz1" ≤ "sz2") ;;
     array_unsafe_ccopy "t1" "i1" "t2" "i2".
+
+Definition array_unsafe_cresize_slice : val :=
+  fun: "t" "i" "n" "sz'" "v" =>
+    let: "t'" := array_unsafe_make "sz'" "v" in
+    array_unsafe_ccopy_slice "t" "i" "t'" "i" "n" ;;
+    "t'".

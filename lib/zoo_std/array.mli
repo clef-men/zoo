@@ -98,6 +98,9 @@ val shrink :
 val clone :
   'a t -> 'a t
 
+val unsafe_resize_slice :
+  'a t -> int -> int -> int -> 'a -> 'a t
+
 val unsafe_cget :
   'a t -> int -> 'a
 val cget :
@@ -116,3 +119,6 @@ val unsafe_ccopy :
   'a t -> int -> 'a t -> int -> unit
 val ccopy :
   'a t -> int -> 'a t -> int -> unit
+
+val unsafe_cresize_slice :
+  'a t -> int -> int -> int -> 'a -> 'a t

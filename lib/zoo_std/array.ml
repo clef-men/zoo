@@ -209,6 +209,11 @@ let shrink t sz' =
 let clone t =
   unsafe_shrink t (size t)
 
+let unsafe_resize_slice t i n sz' v =
+  let t' = unsafe_make sz' v in
+  unsafe_copy_slice t i t' i n ;
+  t'
+
 let unsafe_cget t i =
   unsafe_get t (i mod size t)
 let cget t i =
@@ -265,3 +270,8 @@ let ccopy t1 i1 t2 i2 =
   if not (sz1 <= sz2) then
     invalid_arg "invalid arguments" ;
   unsafe_ccopy t1 i1 t2 i2
+
+let unsafe_cresize_slice t i n sz' v =
+  let t' = unsafe_make sz' v in
+  unsafe_ccopy_slice t i t' i n ;
+  t'
