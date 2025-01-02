@@ -144,9 +144,9 @@ let rec split_buckets t state buckets mask i step =
 
 let rec merge_buckets t state buckets mask i step =
   let i = (i + step) land mask in
-  let buckets_1 = take state.buckets i in
-  let buckets_2 = take state.buckets (i + Atomic_array.size buckets) in
-  let new_bucket = bucket_merge buckets_1 buckets_2 in
+  let bucket_1 = take state.buckets i in
+  let bucket_2 = take state.buckets (i + Atomic_array.size buckets) in
+  let new_bucket = bucket_merge bucket_1 bucket_2 in
   if t.state != state then (
     false
   ) else (

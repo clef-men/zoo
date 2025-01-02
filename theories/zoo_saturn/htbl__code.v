@@ -156,11 +156,11 @@ Definition htbl_split_buckets : val :=
 Definition htbl_merge_buckets : val :=
   rec: "merge_buckets" "t" "state" "buckets" "mask" "i" "step" =>
     let: "i" := ("i" + "step") `land` "mask" in
-    let: "buckets_1" := htbl_take "state".<buckets> "i" in
-    let: "buckets_2" :=
+    let: "bucket_1" := htbl_take "state".<buckets> "i" in
+    let: "bucket_2" :=
       htbl_take "state".<buckets> ("i" + atomic_array_size "buckets")
     in
-    let: "new_bucket" := htbl_bucket_merge "buckets_1" "buckets_2" in
+    let: "new_bucket" := htbl_bucket_merge "bucket_1" "bucket_2" in
     if: "t".{state} != "state" then (
       #false
     ) else (
