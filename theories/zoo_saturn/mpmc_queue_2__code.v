@@ -37,7 +37,7 @@ Definition mpmc_queue_2_size : val :=
   rec: "size" "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
-    if: "front" != "t".{front} then (
+    if: "t".{front} != "front" then (
       "size" "t"
     ) else (
       let: "i_front" :=
