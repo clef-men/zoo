@@ -139,7 +139,9 @@ Definition mpmc_queue_2_push_front : val :=
     | Front "i_front" as "front" =>
         match: "t".{back} with
         | Snoc "i_back" "v_back" "prefix" as "back" =>
-            if: "i_front" == "i_back" then (
+            if: "t".{front} != "front" then (
+              "push_front" "t" "v"
+            ) else if: "i_front" == "i_back" then (
               let: "new_back" :=
                 ‘Snoc( "i_back" + #1,
                   "v_back",
@@ -163,14 +165,14 @@ Definition mpmc_queue_2_push_front : val :=
             let: "back_r" := "back" in
             match: "back_r".{move} with
             | Used =>
-                if: "t".{front} == "front" then (
+                if: "t".{front} != "front" then (
+                  "push_front" "t" "v"
+                ) else (
                   let: "new_back" :=
                     ‘Snoc( "back_r".{index} + #1, "v", "back" )
                   in
                   if: ~ CAS "t".[back] "back" "new_back" then (
                     domain_yield () ;;
-                    "push_front" "t" "v"
-                  ) else (
                     "push_front" "t" "v"
                   )
                 )
@@ -203,7 +205,10 @@ Definition mpmc_queue_2_push_front : val :=
             ) else (
               match: ‘Back{ "i_move", "move" } with
               | Back <> <> as "back" =>
-                  if: CAS "t".[back] "move" "back" then (
+                  let: "front'" := "t".{front} in
+                  if: "front'" != "front" then (
+                    "pop_1" "t" "front'"
+                  ) else if: CAS "t".[back] "move" "back" then (
                     "pop_2" "t" "front" "back" "move"
                   ) else (
                     "pop" "t"
@@ -237,10 +242,10 @@ Definition mpmc_queue_2_push_front : val :=
     end
   and: "pop_3" "t" "front" =>
     let: "front'" := "t".{front} in
-    if: "front'" == "front" then (
-      §None
-    ) else (
+    if: "front'" != "front" then (
       "pop_1" "t" "front'"
+    ) else (
+      §None
     )
   and: "pop" "t" =>
     "pop_1" "t" "t".{front}

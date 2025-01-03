@@ -111,7 +111,9 @@ let rec push_front t v =
   | Front i_front as front ->
       match t.back with
       | Snoc (i_back, v_back, prefix) as back ->
-          if i_front == i_back then (
+          if t.front != front then (
+            push_front t v
+          ) else if i_front == i_back then (
             let new_back = Snoc (i_back + 1, v_back, Snoc (i_back, v, prefix)) in
             if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
               Domain.yield () ;
@@ -126,14 +128,14 @@ let rec push_front t v =
       | Back back_r as back ->
           match back_r.move with
           | Used ->
-              if t.front == front then
+              if t.front != front then
+                push_front t v
+              else
                 let new_back = Snoc (back_r.index + 1, v, back) in
                 if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back new_back then (
                   Domain.yield () ;
                   push_front t v
                 )
-              else
-                push_front t v
           | Snoc (i_move, _, _) as move ->
               help t back i_move move ;
               push_front t v
@@ -157,7 +159,10 @@ let rec pop_1 t front =
               pop t
           ) else (
             let (Back _ as back : (_, [`Back]) back) = Back { index= i_move; move } in
-            if Atomic.Loc.compare_and_set [%atomic.loc t.back] move back then
+            let front' = t.front in
+            if front' != front then
+              pop_1 t front'
+            else if Atomic.Loc.compare_and_set [%atomic.loc t.back] move back then
               pop_2 t front back move
             else
               pop t
@@ -182,9 +187,9 @@ and pop_2 t front back move =
   )
 and pop_3 t front =
   let front' = t.front in
-  if front' == front then
-    None
-  else
+  if front' != front then
     pop_1 t front'
+  else
+    None
 and pop t =
   pop_1 t t.front
