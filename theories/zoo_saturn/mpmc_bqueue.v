@@ -1,5 +1,5 @@
 (* Based on:
-   https://github.com/ocaml-multicore/saturn/pull/83
+   https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/bounded_queue/bounded_queue.body.ml
 *)
 
 From zoo Require Import

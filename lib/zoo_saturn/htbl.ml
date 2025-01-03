@@ -1,5 +1,5 @@
 (* Based on:
-   https://github.com/ocaml-multicore/picos/blob/fa1da88bf3643fa18af2357a426e74ea2ac31072/lib/picos_aux.htbl/picos_aux_htbl.ml
+   https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/htbl/htbl.body.ml
 *)
 
 type ('k, 'v) bucket =

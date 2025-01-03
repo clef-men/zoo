@@ -1,5 +1,5 @@
 (* Based on:
-   https://github.com/ocaml-multicore/saturn/pull/122
+   https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/michael_scott_queue/michael_scott_queue_unsafe.ml
 *)
 
 type ('a, _) node =

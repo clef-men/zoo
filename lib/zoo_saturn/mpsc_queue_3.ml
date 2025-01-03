@@ -1,5 +1,5 @@
 (* Based on:
-   https://github.com/ocaml-multicore/eio/blob/964ed2730593339219a03636bbefa443d310c8c9/lib_eio/utils/lf_queue.ml
+   https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/mpsc_queue.ml
 *)
 
 type 'a t =

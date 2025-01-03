@@ -1,3 +1,7 @@
+(* Based on:
+   https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/ws_deque.ml
+*)
+
 type 'a t =
   'a ref Ws_deque_1.t
 
