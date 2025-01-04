@@ -1,26 +1,28 @@
 type 'a t =
   { mutable front: 'a Chain.t;
-    mutable sentinel: 'a Chain.t;
+    mutable back: 'a Chain.t;
   }
 
 let create () =
-  let sent = Chain.{ chain_head= Obj.magic (); chain_tail= Obj.magic () } in
-  { front= sent; sentinel= sent }
+  let front = Chain.{ chain_next= Obj.magic (); chain_data= Obj.magic () } in
+  { front; back= front }
 
 let is_empty t =
-  t.front == t.sentinel
+  t.front == t.back
 
 let push t v =
-  let sent = Chain.{ chain_head= Obj.magic (); chain_tail= Obj.magic () } in
-  t.sentinel.chain_head <- v ;
-  t.sentinel.chain_tail <- sent ;
-  t.sentinel <- sent
+  let back = t.back in
+  let new_back = Chain.{ chain_next= Obj.magic (); chain_data= Obj.magic () } in
+  back.chain_next <- new_back ;
+  back.chain_data <- v ;
+  t.back <- new_back
 
 let pop t =
   if is_empty t then (
     None
   ) else (
-    let v = t.front.chain_head in
-    t.front <- t.front.chain_tail ;
+    let front = t.front in
+    t.front <- front.chain_next ;
+    let v = front.chain_data in
     Some v
   )

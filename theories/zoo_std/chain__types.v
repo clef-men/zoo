@@ -6,11 +6,11 @@ From zoo.language Require Import
 From zoo Require Import
   options.
 
-Notation "'chain_head'" := (
+Notation "'chain_next'" := (
   in_type "t" 0
 )(in custom zoo_field
 ).
-Notation "'chain_tail'" := (
+Notation "'chain_data'" := (
   in_type "t" 1
 )(in custom zoo_field
 ).

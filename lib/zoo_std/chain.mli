@@ -1,4 +1,4 @@
 type 'a t =
-  { mutable chain_head: 'a;
-    mutable chain_tail: 'a t;
+  { mutable chain_next: 'a t;
+    mutable chain_data: 'a;
   }

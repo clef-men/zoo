@@ -10,22 +10,22 @@ From zoo Require Import
 
 Definition queue_2_create : val :=
   fun: <> =>
-    let: "sent" := ‘Node{ (), §Null } in
-    { "sent", "sent" }.
+    let: "front" := ‘Node{ §Null, () } in
+    { "front", "front" }.
 
 Definition queue_2_is_empty : val :=
   fun: "t" =>
-    "t".{front} == "t".{sentinel}.
+    "t".{front} == "t".{back}.
 
 Definition queue_2_push : val :=
   fun: "t" "v" =>
-    match: ‘Node{ (), §Null } with
-    | Node <> <> as "new_sent" =>
-        match: "t".{sentinel} with
-        | Node <> <> as "sent_r" =>
-            "sent_r" <-{head} "v" ;;
-            "sent_r" <-{tail} "new_sent" ;;
-            "t" <-{sentinel} "new_sent"
+    match: ‘Node{ §Null, () } with
+    | Node <> <> as "new_back" =>
+        match: "t".{back} with
+        | Node <> <> as "back_r" =>
+            "back_r" <-{next} "new_back" ;;
+            "back_r" <-{data} "v" ;;
+            "t" <-{back} "new_back"
         end
     end.
 
@@ -33,11 +33,11 @@ Definition queue_2_pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> as "front_r" =>
-        match: "front_r".{tail} with
+        match: "front_r".{next} with
         | Null =>
             §None
-        | Node <> <> as "tail" =>
-            "t" <-{front} "tail" ;;
-            ‘Some( "front_r".{head} )
+        | Node <> <> as "next" =>
+            "t" <-{front} "next" ;;
+            ‘Some( "front_r".{data} )
         end
     end.

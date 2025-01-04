@@ -12,26 +12,28 @@ From zoo Require Import
 
 Definition queue_1_create : val :=
   fun: <> =>
-    let: "sent" := { (), () } in
-    { "sent", "sent" }.
+    let: "front" := { (), () } in
+    { "front", "front" }.
 
 Definition queue_1_is_empty : val :=
   fun: "t" =>
-    "t".{front} == "t".{sentinel}.
+    "t".{front} == "t".{back}.
 
 Definition queue_1_push : val :=
   fun: "t" "v" =>
-    let: "sent" := { (), () } in
-    "t".{sentinel} <-{chain_head} "v" ;;
-    "t".{sentinel} <-{chain_tail} "sent" ;;
-    "t" <-{sentinel} "sent".
+    let: "back" := "t".{back} in
+    let: "new_back" := { (), () } in
+    "back" <-{chain_next} "new_back" ;;
+    "back" <-{chain_data} "v" ;;
+    "t" <-{back} "new_back".
 
 Definition queue_1_pop : val :=
   fun: "t" =>
     if: queue_1_is_empty "t" then (
       §None
     ) else (
-      let: "v" := "t".{front}.{chain_head} in
-      "t" <-{front} "t".{front}.{chain_tail} ;;
+      let: "front" := "t".{front} in
+      "t" <-{front} "front".{chain_next} ;;
+      let: "v" := "front".{chain_data} in
       ‘Some( "v" )
     ).

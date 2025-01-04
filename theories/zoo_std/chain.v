@@ -11,65 +11,76 @@ From zoo Require Import
   options.
 
 Implicit Types l : location.
-Implicit Types v w t hd tl dst : val.
+Implicit Types v w t dst : val.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Fixpoint chain_model t vs dst : iProp Σ :=
+  Fixpoint chain_model tag t vs dst : iProp Σ :=
     match vs with
     | [] =>
         ⌜t = dst⌝
     | v :: vs =>
         ∃ l t',
         ⌜t = #l⌝ ∗
-        l.[chain_head] ↦ v ∗
-        l.[chain_tail] ↦ t' ∗
-        chain_model t' vs dst
+        from_option (λ tag, l ↦ₕ Header tag 2) True tag ∗
+        l.[chain_next] ↦ t' ∗
+        l.[chain_data] ↦ v ∗
+        chain_model tag t' vs dst
     end.
-  #[global] Arguments chain_model _ !_ _ / : assert.
+  #[global] Arguments chain_model _ _ !_ _ / : assert.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l{} &
+      %t{}' &
+      {%Heq{eq}=->} &
+      Hl{}_hdr &
+      Hl{}_next &
+      Hl{}_data &
+      Hmodel{}'
+    )".
 
-  #[global] Instance chain_model_timeless t vs dst :
-    Timeless (chain_model t vs dst).
+  #[global] Instance chain_model_timeless tag t vs dst :
+    Timeless (chain_model tag t vs dst).
   Proof.
     move: t. induction vs; apply _.
   Qed.
 
-  Lemma chain_physical t vs dst :
+  Lemma chain_physical tag t vs dst :
     0 < length vs →
-    chain_model t vs dst ⊢
+    chain_model tag t vs dst ⊢
     ⌜val_physical t⌝.
   Proof.
     intros Hlen. destruct vs as [| v vs]; first naive_solver lia.
     iSteps.
   Qed.
-  Lemma chain_physically_distinct t1 vs1 dst1 t2 vs2 dst2 :
+  Lemma chain_physically_distinct tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
     val_neq t1 t2 →
-    chain_model t1 vs1 dst1 -∗
-    chain_model t2 vs2 dst2 -∗
+    chain_model tag1 t1 vs1 dst1 -∗
+    chain_model tag2 t2 vs2 dst2 -∗
     ⌜t1 ≠ t2⌝.
   Proof.
     intros Hlen1 Hlen2. destruct vs1, vs2; [naive_solver lia.. |].
     iSteps.
   Qed.
-  Lemma chain_physically_distinct' t vs dst :
+  Lemma chain_physically_distinct' tag t vs dst :
     0 < length vs →
     val_neq t t →
-    chain_model t vs dst ⊢
+    chain_model tag t vs dst ⊢
     False.
   Proof.
     intros Hlen1 Hlen2. destruct vs; first naive_solver lia.
-    iIntros "(%l & %t' & -> & _) //".
+    iIntros "(:model) //".
   Qed.
-  Lemma wp_equal_chain t1 vs1 dst1 t2 vs2 dst2 Φ :
+  Lemma wp_equal_chain tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 Φ :
     0 < length vs1 →
     0 < length vs2 →
-    chain_model t1 vs1 dst1 -∗
-    chain_model t2 vs2 dst2 -∗
-    ( chain_model t1 vs1 dst1 -∗
-      chain_model t2 vs2 dst2 -∗
+    chain_model tag1 t1 vs1 dst1 -∗
+    chain_model tag2 t2 vs2 dst2 -∗
+    ( chain_model tag1 t1 vs1 dst1 -∗
+      chain_model tag2 t2 vs2 dst2 -∗
         (⌜t1 ≠ t2⌝ -∗ Φ #false) ∧
         (⌜t1 = t2⌝ -∗ Φ #true)
     ) -∗
@@ -77,57 +88,68 @@ Section zoo_G.
   Proof.
     intros Hlen1 Hlen2.
     destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2]; [naive_solver lia.. |].
-    iIntros "(%l1 & %t1' & -> & Hmodel1') (%l2 & %t2' & -> & Hmodel2') HΦ".
+    iIntros "(:model =1) (:model =2) HΦ".
     wp_pures.
-    iDestruct ("HΦ" with "[Hmodel1'] [Hmodel2']") as "HΦ"; [iSteps.. |].
+    iDestruct ("HΦ" with "[$Hl1_hdr $Hl1_next $Hl1_data $Hmodel1' //] [$Hl2_hdr $Hl2_next $Hl2_data $Hmodel2' //]") as "HΦ".
     case_bool_decide.
     - iDestruct "HΦ" as "(_ & HΦ)". iSteps.
     - iDestruct "HΦ" as "(HΦ & _)". iSteps.
   Qed.
 
-  Lemma chain_model_nil t dst :
+  Lemma chain_model_tag tag t vs dst :
+    length vs ≠ 0 →
+    chain_model (Some tag) t vs dst ⊢
+      ∃ l,
+      ⌜t = #l⌝ ∗
+      l ↦ₕ Header tag 2.
+  Proof.
+    destruct vs as [| v vs]; first done.
+    iSteps.
+  Qed.
+
+  Lemma chain_model_nil tag t dst :
     ⌜t = dst⌝ ⊣⊢
-    chain_model t [] dst.
+    chain_model tag t [] dst.
   Proof.
     iSteps.
   Qed.
-  Lemma chain_model_nil_1 v :
-    ⊢ chain_model v [] v.
+  Lemma chain_model_nil_1 tag v :
+    ⊢ chain_model tag v [] v.
   Proof.
     iSteps.
   Qed.
-  Lemma chain_model_nil_2 t dst :
-    chain_model t [] dst ⊢
+  Lemma chain_model_nil_2 tag t dst :
+    chain_model tag t [] dst ⊢
     ⌜t = dst⌝.
   Proof.
     iSteps.
   Qed.
 
-  Lemma chain_model_app_1 vs1 vs2 t vs dst :
+  Lemma chain_model_app_1 vs1 vs2 tag t vs dst :
     vs = vs1 ++ vs2 →
-    chain_model t vs dst ⊢
+    chain_model tag t vs dst ⊢
       ∃ t',
-      chain_model t vs1 t' ∗
-      chain_model t' vs2 dst.
+      chain_model tag t vs1 t' ∗
+      chain_model tag t' vs2 dst.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t vs); first iSteps.
-    iIntros (->). rewrite -app_comm_cons. iIntros "(%l & %t' & -> & Hhd & Htl & Hmodel')".
+    iIntros (->). rewrite -app_comm_cons. iIntros "(:model)".
     iDestruct ("IH" with "[//] Hmodel'") as "(%t'' & Hmodel' & Hmodel'')".
     iSteps.
   Qed.
-  Lemma chain_model_app_2 t1 vs1 t2 vs2 dst :
-    chain_model t1 vs1 t2 -∗
-    chain_model t2 vs2 dst -∗
-    chain_model t1 (vs1 ++ vs2) dst.
+  Lemma chain_model_app_2 tag t1 vs1 t2 vs2 dst :
+    chain_model tag t1 vs1 t2 -∗
+    chain_model tag t2 vs2 dst -∗
+    chain_model tag t1 (vs1 ++ vs2) dst.
   Proof.
     iInduction vs1 as [| v1 vs1] "IH" forall (t1); iSteps.
   Qed.
-  Lemma chain_model_app t vs vs1 vs2 dst :
+  Lemma chain_model_app tag t vs vs1 vs2 dst :
     vs = vs1 ++ vs2 →
-    chain_model t vs dst ⊣⊢
+    chain_model tag t vs dst ⊣⊢
       ∃ t',
-      chain_model t vs1 t' ∗
-      chain_model t' vs2 dst.
+      chain_model tag t vs1 t' ∗
+      chain_model tag t' vs2 dst.
   Proof.
     intros ->.
     iSplit.
@@ -136,106 +158,131 @@ Section zoo_G.
       iApply (chain_model_app_2 with "Hmodel Hmodel'").
   Qed.
 
-  Lemma chain_model_snoc t vs vs' v dst :
+  Lemma chain_model_snoc tag t vs vs' v dst :
     vs = vs' ++ [v] →
-    chain_model t vs dst ⊣⊢
+    chain_model tag t vs dst ⊣⊢
       ∃ t',
-      chain_model t vs' t' ∗
-      chain_model t' [v] dst.
+      chain_model tag t vs' t' ∗
+      chain_model tag t' [v] dst.
   Proof.
     intros ->. rewrite chain_model_app //.
   Qed.
-  Lemma chain_model_snoc_1 t vs vs' v dst :
+  Lemma chain_model_snoc_1 tag t vs vs' v dst :
     vs = vs' ++ [v] →
-    chain_model t (vs ++ [v]) dst ⊢
+    chain_model tag t (vs ++ [v]) dst ⊢
       ∃ t',
-      chain_model t vs t' ∗
-      chain_model t' [v] dst.
+      chain_model tag t vs t' ∗
+      chain_model tag t' [v] dst.
   Proof.
     intros ->. rewrite chain_model_snoc //.
   Qed.
-  Lemma chain_model_snoc_2 t1 vs t2 v dst :
-    chain_model t1 vs t2 -∗
-    chain_model t2 [v] dst -∗
-    chain_model t1 (vs ++ [v]) dst.
+  Lemma chain_model_snoc_2 tag t1 vs t2 v dst :
+    chain_model tag t1 vs t2 -∗
+    chain_model tag t2 [v] dst -∗
+    chain_model tag t1 (vs ++ [v]) dst.
   Proof.
-    rewrite (chain_model_snoc _ (vs ++ [v])) //. iSteps.
+    rewrite (chain_model_snoc _ _ (vs ++ [v])) //. iSteps.
   Qed.
 
-  Lemma chain_model_exclusive t vs1 dst1 vs2 dst2 :
+  Lemma chain_model_exclusive t tag1 vs1 dst1 tag2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
-    chain_model t vs1 dst1 -∗
-    chain_model t vs2 dst2 -∗
+    chain_model tag1 t vs1 dst1 -∗
+    chain_model tag2 t vs2 dst2 -∗
     False.
   Proof.
     intros.
     destruct vs1, vs2; [naive_solver lia.. |].
-    iIntros "(%l1 & %t1' & %Heq1 & Hhd1 & _) (%l2 & %t2' & %Heq2 & Hhd2 & _)". simplify.
-    iCombine "Hhd1 Hhd2" gives %(? & _). done.
+    iIntros "(:model =1 eq=1) (:model =2 eq=2)". simplify.
+    iCombine "Hl1_next Hl2_next" gives %(? & _). done.
   Qed.
 
-  Lemma chain_cons_spec t vs dst v :
+  Lemma chain_block_spec tag t vs dst v :
     {{{
-      chain_model t vs dst
+      chain_model tag t vs dst
     }}}
-      { v, t }
+      Block Mutable (default 0 tag) [Val t; Val v]
     {{{ t',
       RET t';
-      chain_model t' (v :: vs) dst
+      chain_model tag t' (v :: vs) dst
     }}}.
   Proof.
-    iSteps.
+    destruct tag; iSteps.
   Qed.
 
-  Lemma chain_head_spec t v vs dst :
+  Lemma chain_data_spec tag t v vs dst :
     {{{
-      chain_model t (v :: vs) dst
+      chain_model tag t (v :: vs) dst
     }}}
-      t.{chain_head}
+      t.{chain_data}
     {{{
       RET v;
-      chain_model t (v :: vs) dst
+      chain_model tag t (v :: vs) dst
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma chain_tail_spec t v vs dst :
+  Lemma chain_next_spec tag t v vs dst :
     {{{
-      chain_model t (v :: vs) dst
+      chain_model tag t (v :: vs) dst
     }}}
-      t.{chain_tail}
+      t.{chain_next}
     {{{ t',
       RET t';
-      chain_model t [v] t' ∗
-      chain_model t' vs dst
+      chain_model tag t [v] t' ∗
+      chain_model tag t' vs dst
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+  Lemma chain_next_spec_singleton tag t v dst :
+    {{{
+      chain_model tag t [v] dst
+    }}}
+      t.{chain_next}
+    {{{
+      RET dst;
+      chain_model tag t [v] dst
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma chain_set_head_spec t v vs dst w :
+  Lemma chain_set_data_spec tag t v vs dst w :
     {{{
-      chain_model t (v :: vs) dst
+      chain_model tag t (v :: vs) dst
     }}}
-      t <-{chain_head} w
+      t <-{chain_data} w
     {{{
       RET ();
-      chain_model t (w :: vs) dst
+      chain_model tag t (w :: vs) dst
     }}}.
   Proof.
     iSteps.
   Qed.
-  Lemma chain_set_tail_spec t v vs dst w :
+
+  Lemma chain_set_next_spec tag t v vs dst v' :
     {{{
-      chain_model t (v :: vs) dst
+      chain_model tag t (v :: vs) dst
     }}}
-      t <-{chain_tail} w
+      t <-{chain_next} v'
     {{{ t',
       RET ();
-      chain_model t [v] w ∗
-      chain_model t' vs dst
+      chain_model tag t [v] v' ∗
+      chain_model tag t' vs dst
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+  Lemma chain_set_next_spec_singleton tag t v dst dst' :
+    {{{
+      chain_model tag t [v] dst
+    }}}
+      t <-{chain_next} dst'
+    {{{
+      RET ();
+      chain_model tag t [v] dst'
     }}}.
   Proof.
     iSteps.

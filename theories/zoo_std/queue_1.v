@@ -15,19 +15,30 @@ From zoo Require Import
   options.
 
 Implicit Types l : location.
-Implicit Types t v front sent : val.
+Implicit Types t v front back : val.
 Implicit Types vs : list val.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   Definition queue_1_model t vs : iProp Σ :=
-    ∃ l front sent,
+    ∃ l front back,
     ⌜t = #l⌝ ∗
     l.[front] ↦ front ∗
-    l.[sentinel] ↦ sent ∗
-    chain_model front vs sent ∗
-    chain_model sent [()%V] ().
+    l.[back] ↦ back ∗
+    chain_model None front vs back ∗
+    chain_model None back [()%V] ().
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l &
+      %front &
+      %back &
+      -> &
+      Hl_front &
+      Hl_back &
+      Hfront &
+      Hback
+    )".
 
   #[global] Instance queue_1_model_timeless t vs :
     Timeless (queue_1_model t vs).
@@ -47,10 +58,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_apply chain_cons_spec as (sent) "Hsent_model".
+    wp_apply (chain_block_spec None) as (back) "Hback_model".
     { iApply chain_model_nil. iSteps. }
-    wp_block l as "(Hfront & Hsent & _)".
-    iApply "HΦ". iExists l, sent, sent. iFrame. iSteps.
+    wp_block l as "(Hfront & Hback & _)".
+    iApply "HΦ". iExists l, back, back. iFrame. iSteps.
     iApply chain_model_nil. iSteps.
   Qed.
 
@@ -64,17 +75,17 @@ Section zoo_G.
       queue_1_model t vs
     }}}.
   Proof.
-    iIntros "%Φ (%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model) HΦ".
+    iIntros "%Φ (:model) HΦ".
     wp_rec. do 2 wp_load.
     destruct vs as [| v vs].
-    - iDestruct (chain_model_nil with "Hfront_model") as %->.
-      iDestruct (chain_physical with "Hsent_model") as %Hphysical; first naive_solver.
+    - iDestruct (chain_model_nil with "Hfront") as %->.
+      iDestruct (chain_physical with "Hback") as %Hphysical; first naive_solver.
       wp_equal as ? | _.
-      { iDestruct (chain_physically_distinct' with "Hsent_model") as %[]; naive_solver. }
+      { iDestruct (chain_physically_distinct' with "Hback") as %[]; naive_solver. }
       iSteps.
-    - wp_apply (wp_equal_chain with "Hfront_model Hsent_model") as "Hfront_model Hsent_model"; [naive_solver lia.. |].
+    - wp_apply (wp_equal_chain with "Hfront Hback") as "Hfront Hback"; [naive_solver lia.. |].
       iSplit; first iSteps. iIntros "->".
-      iDestruct (chain_model_exclusive with "Hsent_model Hfront_model") as %[]; naive_solver lia.
+      iDestruct (chain_model_exclusive with "Hback Hfront") as %[]; naive_solver lia.
   Qed.
 
   Lemma queue_1_push_spec t vs v :
@@ -87,15 +98,14 @@ Section zoo_G.
       queue_1_model t (vs ++ [v])
     }}}.
   Proof.
-    iIntros "%Φ (%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model) HΦ".
+    iIntros "%Φ (:model) HΦ".
     wp_rec.
-    wp_smart_apply chain_cons_spec as (sent') "Hsent'_model".
+    wp_load.
+    wp_smart_apply (chain_block_spec None) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
-    wp_load.
-    wp_apply (chain_set_head_spec with "Hsent_model") as "Hsent_model".
-    wp_load.
-    wp_apply (chain_set_tail_spec with "Hsent_model") as (?) "(Hsent_model & _)".
-    iDestruct (chain_model_app_2 with "Hfront_model Hsent_model") as "Hfront_model".
+    wp_smart_apply (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
+    wp_smart_apply (chain_set_data_spec with "Hback") as "Hback".
+    iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
 
@@ -111,12 +121,12 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_apply (queue_1_is_empty_spec with "Hmodel") as "(%l & %front & %sent & -> & Hfront & Hsent & Hfront_model & Hsent_model)".
+    wp_apply (queue_1_is_empty_spec with "Hmodel") as "(:model)".
     destruct vs as [| v vs]; first iSteps.
     wp_load.
-    wp_apply (chain_head_spec with "Hfront_model") as "Hfront_model".
-    wp_load.
-    wp_apply (chain_tail_spec with "Hfront_model") as (front') "(Hfront_model & Hfront'_model)".
+    wp_smart_apply (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
+    wp_store.
+    wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
     iSteps.
   Qed.
 End zoo_G.

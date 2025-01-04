@@ -15,11 +15,11 @@ Notation "'Node'" := (
 )(in custom zoo_tag
 ).
 
-Notation "'head'" := (
+Notation "'next'" := (
   in_type "node__Node" 0
 )(in custom zoo_field
 ).
-Notation "'tail'" := (
+Notation "'data'" := (
   in_type "node__Node" 1
 )(in custom zoo_field
 ).
@@ -28,7 +28,7 @@ Notation "'front'" := (
   in_type "t" 0
 )(in custom zoo_field
 ).
-Notation "'sentinel'" := (
+Notation "'back'" := (
   in_type "t" 1
 )(in custom zoo_field
 ).
