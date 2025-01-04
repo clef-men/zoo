@@ -754,6 +754,10 @@ Notation ValProph pid := (
   ValLit (LitProph pid)
 )(only parsing
 ).
+Notation ValPoison := (
+  ValLit LitPoison
+)(only parsing
+).
 
 Notation Tuple := (
   Block Immutable 0
