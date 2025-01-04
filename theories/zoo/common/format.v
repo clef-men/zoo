@@ -103,3 +103,26 @@ End parse.
 
 Definition format fmt env :=
   parse.main env fmt.
+
+Goal format "{}" ∅ = Some "".
+Proof. reflexivity. Qed.
+Goal format "{}" {["":="!"]} = Some "!".
+Proof. reflexivity. Qed.
+Goal format "{1}" {["1":="one"]} = Some "one".
+Proof. reflexivity. Qed.
+Goal format "{1}" ∅ = Some "1".
+Proof. reflexivity. Qed.
+Goal format "{1} {2}" {["1":="one";"2":="two"]} = Some "one two".
+Proof. reflexivity. Qed.
+Goal format "{1=∅}" ∅ = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{1=∅}" {["1":="one"]} = Some "one".
+Proof. vm_compute. reflexivity. Qed.
+Goal format "{1=}" ∅ = Some "".
+Proof. reflexivity. Qed.
+Goal format "{1=}" {["1":="one"]} = Some "one".
+Proof. reflexivity. Qed.
+Goal format "{({1})=∅}" ∅ = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{({1})=∅}" {["1":="one"]} = Some "(one)".
+Proof. reflexivity. Qed.
