@@ -5,6 +5,7 @@ From zoo.language Require Import
   notations.
 From zoo_std Require Import
   inf_array
+  int
   optional
   domain.
 From zoo_saturn Require Import
@@ -15,6 +16,21 @@ From zoo Require Import
 Definition inf_mpmc_queue_1_create : val :=
   fun: <> =>
     { inf_array_create §Nothing, #0, #0 }.
+
+Definition inf_mpmc_queue_1_size : val :=
+  rec: "size" "t" =>
+    let: "front" := "t".{front} in
+    let: "proph" := Proph in
+    let: "back" := "t".{back} in
+    if: Resolve "t".{front} "proph" () != "front" then (
+      "size" "t"
+    ) else (
+      int_positive_part ("back" - "front")
+    ).
+
+Definition inf_mpmc_queue_1_is_empty : val :=
+  fun: "t" =>
+    inf_mpmc_queue_1_size "t" == #0.
 
 Definition inf_mpmc_queue_1_push : val :=
   fun: "t" "v" =>
