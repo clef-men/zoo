@@ -45,8 +45,9 @@ let create () =
 
 let rec size t =
   let front = t.front in
+  let proph = Zoo.proph in
   let back = t.back in
-  if t.front != front then
+  if Zoo.resolve t.front proph () != front then
     size t
   else
     let i_front =
@@ -168,14 +169,15 @@ let rec pop_1 t front =
               pop t
           )
       | Back back_r as back ->
+          let proph = Zoo.proph in
           match back_r.move with
           | Used ->
-              pop_3 t front
+              pop_3 t proph front
           | Snoc (i_move, _, _) as move ->
               if i_front < i_move then
                 pop_2 t front back move
               else
-                pop_3 t front
+                pop_3 t proph front
 and pop_2 t front back move =
   let (Cons (_, v, new_front) : (_, [`Cons]) front) = rev move in
   if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
@@ -185,8 +187,8 @@ and pop_2 t front back move =
     Domain.yield () ;
     pop t
   )
-and pop_3 t front =
-  let front' = t.front in
+and pop_3 t proph front =
+  let front' = Zoo.resolve t.front proph () in
   if front' != front then
     pop_1 t front'
   else

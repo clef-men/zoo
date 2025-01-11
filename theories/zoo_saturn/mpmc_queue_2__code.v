@@ -36,8 +36,9 @@ Definition mpmc_queue_2_create : val :=
 Definition mpmc_queue_2_size : val :=
   rec: "size" "t" =>
     let: "front" := "t".{front} in
+    let: "proph" := Proph in
     let: "back" := "t".{back} in
-    if: "t".{front} != "front" then (
+    if: Resolve "t".{front} "proph" () != "front" then (
       "size" "t"
     ) else (
       let: "i_front" :=
@@ -217,14 +218,15 @@ Definition mpmc_queue_2_push_front : val :=
             )
         | Back <> <> as "back" =>
             let: "back_r" := "back" in
+            let: "proph" := Proph in
             match: "back_r".{move} with
             | Used =>
-                "pop_3" "t" "front"
+                "pop_3" "t" "proph" "front"
             | Snoc "i_move" <> <> as "move" =>
                 if: "i_front" < "i_move" then (
                   "pop_2" "t" "front" "back" "move"
                 ) else (
-                  "pop_3" "t" "front"
+                  "pop_3" "t" "proph" "front"
                 )
             end
         end
@@ -240,8 +242,8 @@ Definition mpmc_queue_2_push_front : val :=
           "pop" "t"
         )
     end
-  and: "pop_3" "t" "front" =>
-    let: "front'" := "t".{front} in
+  and: "pop_3" "t" "proph" "front" =>
+    let: "front'" := Resolve "t".{front} "proph" () in
     if: "front'" != "front" then (
       "pop_1" "t" "front'"
     ) else (
