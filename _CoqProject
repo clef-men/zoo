@@ -26,6 +26,7 @@ theories/zoo/ltac2/String.v
 theories/zoo/ltac2/Notations.v
 theories/zoo/ltac2/Debug.v
 
+theories/zoo/common/function.v
 theories/zoo/common/countable.v
 theories/zoo/common/relations.v
 theories/zoo/common/math.v
@@ -105,6 +106,7 @@ theories/zoo/program_logic/adequacy.v
 theories/zoo/program_logic/itype.v
 theories/zoo/program_logic/typed_prophet.v
 theories/zoo/program_logic/wise_prophet.v
+theories/zoo/program_logic/wise_prophets.v
 theories/zoo/program_logic/identifier.v
 theories/zoo/program_logic/structeq.v
 
