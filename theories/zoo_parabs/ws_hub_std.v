@@ -59,7 +59,7 @@ Section ws_deques.
   Definition ws_hub_std_create : val :=
     fun: "sz" =>
       { ws_deques.(ws_deques_create) "sz",
-        array_unsafe_init "sz" (fun: <> => random_round_create (positive_part ("sz" - #1))),
+        array_unsafe_init "sz" (fun: <> => random_round_create (int_positive_part ("sz" - #1))),
         waiters_create (),
         #false
       }.
@@ -327,7 +327,7 @@ Section ws_hub_std_G.
 
     wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (sz' - 1) (sz' - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
-      wp_smart_apply positive_part_spec.
+      wp_smart_apply int_positive_part_spec.
       wp_apply (random_round_create_spec' with "[//]"); first lia.
       rewrite Nat2Z.id. assert (Z.to_nat (sz - 1) = sz' - 1) as -> by lia.
       iSteps.

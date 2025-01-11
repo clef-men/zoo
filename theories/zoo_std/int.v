@@ -21,10 +21,6 @@ Notation "e1 `max` e2" := (
 )(at level 35
 ) : expr_scope.
 
-Definition positive_part : val :=
-  fun: "n" =>
-    #0 `max` "n".
-
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
@@ -49,9 +45,9 @@ Section zoo_G.
       - rewrite Z.max_l; [lia; done | done].
     Qed.
 
-    Lemma positive_part_spec n E Φ :
+    Lemma int_positive_part_spec n E Φ :
       ▷ Φ #(Z.to_nat n) -∗
-      WP positive_part #n @ E {{ Φ }}.
+      WP int_positive_part #n @ E {{ Φ }}.
     Proof.
       iIntros "HΦ".
       wp_rec.
@@ -77,15 +73,15 @@ Section zoo_G.
       iIntros "HΦ". iApply int_max_spec. rewrite Nat2Z.inj_max //.
     Qed.
 
-    Lemma positive_part_spec_nat n E Φ :
+    Lemma int_positive_part_spec_nat n E Φ :
       ▷ Φ #n -∗
-      WP positive_part #n @ E {{ Φ }}.
+      WP int_positive_part #n @ E {{ Φ }}.
     Proof.
-      rewrite -{1}(Nat2Z.id n). apply positive_part_spec.
+      rewrite -{1}(Nat2Z.id n). apply int_positive_part_spec.
     Qed.
   End nat.
 End zoo_G.
 
 #[global] Opaque int_min.
 #[global] Opaque int_max.
-#[global] Opaque positive_part.
+#[global] Opaque int_positive_part.

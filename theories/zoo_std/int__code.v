@@ -23,3 +23,7 @@ Definition int_max : val :=
     ) else (
       "n1"
     ).
+
+Definition int_positive_part : val :=
+  fun: "t" =>
+    int_max #0 "t".
