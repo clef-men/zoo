@@ -142,6 +142,8 @@ let record split_list elt =
         split_list
     )
   )
+let record elts =
+  Lst.foldl record [] elts
 
 let split class_ =
   let first = class_.first in
@@ -168,8 +170,8 @@ let split class_ =
       elt.seen <- false
     ) first prev
   )
+let split split_list =
+  Lst.iter split split_list
 
 let refine elts =
-  elts
-  |> Lst.foldl record []
-  |> Lst.iter split
+  elts |> record |> split
