@@ -6,6 +6,8 @@ From zoo.program_logic Require Export
   wp.
 From zoo.diaframe Require Import
   diaframe.
+From zoo Require Import
+  options.
 
 Record typed_strong_prophet := {
   typed_strong_prophet_type : Type ;
@@ -38,6 +40,12 @@ Section typed_strong_prophet.
     ∃ uprophs,
     ⌜prophs = typed_strong_prophet_process uprophs⌝ ∗
     prophet_model pid uprophs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %uprophs &
+      %Hprophs &
+      Hpid
+    )".
 
   #[global] Instance typed_strong_prophet_model_timeless pid prophs :
     Timeless (typed_strong_prophet_model pid prophs).
@@ -68,7 +76,7 @@ Section typed_strong_prophet.
     iSteps.
   Qed.
 
-  Lemma typed_strong_prophet_wp_resolve e v E pid prophs Φ :
+  Lemma typed_strong_prophet_wp_resolve e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
     typed_strong_prophet_model pid prophs -∗
@@ -82,7 +90,7 @@ Section typed_strong_prophet.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "% % (%uprophs & %Hprophs & Hpid) HΦ".
+    iIntros "% % (:model) HΦ".
     wp_apply (wp_resolve with "Hpid"); first done.
     wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %prophs' -> Hpid".
     rewrite /= (typed_strong_prophet_of_to_val _ proph) // in Hprophs.
@@ -107,7 +115,7 @@ Section typed_prophet.
   Context (prophet : typed_prophet).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition typed_prophet_strong_prophet := {|
+  Program Definition typed_prophet_to_strong := {|
     typed_strong_prophet_type :=
       val * prophet.(typed_prophet_type) ;
     typed_strong_prophet_of_val w v :=
@@ -128,7 +136,13 @@ Section typed_prophet.
   Definition typed_prophet_model pid prophs : iProp Σ :=
     ∃ sprophs,
     ⌜prophs = sprophs.*2⌝ ∗
-    typed_strong_prophet_model typed_prophet_strong_prophet pid sprophs.
+    typed_strong_prophet_model typed_prophet_to_strong pid sprophs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %sprophs{} &
+      -> &
+      Hmodel{}
+    )".
 
   #[global] Instance typed_prophet_model_timeless pid prophs :
     Timeless (typed_prophet_model pid prophs).
@@ -141,7 +155,7 @@ Section typed_prophet.
     typed_prophet_model pid prophs2 -∗
     False.
   Proof.
-    iIntros "(%sprophs1 & _ & Hmodel1) (%sprophs2 & _ & Hmodel2)".
+    iIntros "(:model =1) (:model =2)".
     iApply (typed_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
@@ -160,7 +174,7 @@ Section typed_prophet.
     iSteps. done.
   Qed.
 
-  Lemma typed_prophet_wp_resolve proph e v E pid prophs Φ :
+  Lemma typed_prophet_wp_resolve proph e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
     v = prophet.(typed_prophet_to_val) proph →
@@ -173,7 +187,7 @@ Section typed_prophet.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(%sprophs & -> & Hmodel) HΦ".
+    iIntros (? ? ->) "(:model) HΦ".
     wp_apply (typed_strong_prophet_wp_resolve with "Hmodel"); first done.
     wp_apply (wp_wand with "HΦ") as "%w HΦ".
     iExists (w, proph). iSteps.
@@ -182,7 +196,7 @@ End typed_prophet.
 
 #[global] Opaque typed_prophet_model.
 
-Coercion typed_prophet_strong_prophet : typed_prophet >-> typed_strong_prophet.
+Coercion typed_prophet_to_strong : typed_prophet >-> typed_strong_prophet.
 
 Record typed_prophet1 := {
   typed_prophet1_type : Type ;
@@ -202,7 +216,7 @@ Section typed_prophet1.
   Context (prophet : typed_prophet1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition typed_prophet1_prophet prophet := {|
+  Program Definition typed_prophet1_to_prophet prophet := {|
     typed_prophet_type :=
       prophet.(typed_prophet1_type) ;
     typed_prophet_of_val :=
@@ -216,8 +230,14 @@ Section typed_prophet1.
 
   Definition typed_prophet1_model pid proph : iProp Σ :=
     ∃ prophs,
-    typed_prophet_model (typed_prophet1_prophet prophet) pid prophs ∗
+    typed_prophet_model (typed_prophet1_to_prophet prophet) pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %prophs{} &
+      Hmodel{} &
+      %
+    )".
 
   #[global] Instance typed_prophet1_model_timeless pid proph :
     Timeless (typed_prophet1_model pid proph).
@@ -230,7 +250,7 @@ Section typed_prophet1.
     typed_prophet1_model pid proph2 -∗
     False.
   Proof.
-    iIntros "(%prophs1 & Hmodel1 & _) (%prophs2 & Hmodel2 & _)".
+    iIntros "(:model =1) (:model =2)".
     iApply (typed_prophet_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
@@ -252,7 +272,7 @@ Section typed_prophet1.
     all: iSteps.
   Qed.
 
-  Lemma typed_prophet1_wp_resolve proph e v E pid proph' Φ :
+  Lemma typed_prophet1_wp_resolve proph e pid v proph' E Φ :
     Atomic e →
     to_val e = None →
     v = prophet.(typed_prophet1_to_val) proph →
@@ -260,7 +280,7 @@ Section typed_prophet1.
     WP e @ E {{ w, ⌜proph' = proph⌝ -∗ Φ w }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(%prophs & Hmodel & %) HΦ".
+    iIntros (? ? ->) "(:model) HΦ".
     wp_apply (typed_prophet_wp_resolve with "Hmodel"); [done.. |].
     iSteps.
   Qed.
@@ -268,4 +288,4 @@ End typed_prophet1.
 
 #[global] Opaque typed_prophet1_model.
 
-Coercion typed_prophet1_prophet : typed_prophet1 >-> typed_prophet.
+Coercion typed_prophet1_to_prophet : typed_prophet1 >-> typed_prophet.
