@@ -45,17 +45,39 @@ Section zoo_G.
     ∃ vs,
     l ↦ᵣ lst_to_val vs ∗
     mpmc_stack_1_model₂ γ vs.
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %vs{} &
+      Hl &
+      Hmodel₂
+    )".
   Definition mpmc_stack_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (mpmc_stack_1_inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      #Hinv
+    )".
 
   Definition mpmc_stack_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     mpmc_stack_1_model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %_l &
+      %_γ &
+      %Heq &
+      _Hmeta &
+      Hmodel₁
+    )".
 
   #[global] Instance mpmc_stack_1_model_timeless t vs :
     Timeless (mpmc_stack_1_model t vs).
@@ -129,14 +151,14 @@ Section zoo_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "!> %Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec. wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%vs & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     iSplitR "HΦ"; first iSteps.
     iModIntro.
@@ -144,9 +166,9 @@ Section zoo_G.
     wp_pures.
 
     wp_bind (CAS _ _ _).
-    iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner =')".
     wp_cas as _ | ->%(inj _); first iSteps.
-    iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+    iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (mpmc_stack_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (mpmc_stack_1_model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
@@ -168,18 +190,18 @@ Section zoo_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "!> %Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec. wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%vs & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct vs as [| v vs].
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+    - iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (mpmc_stack_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
@@ -192,16 +214,42 @@ Section zoo_G.
       wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
+      iInv "Hinv" as "(:inv_inner =')".
       wp_cas as _ | Hcas; first iSteps.
       destruct vs'; first naive_solver. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
-      iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+      iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (mpmc_stack_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod (mpmc_stack_1_model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
+  Qed.
+
+  Lemma mpmc_stack_1_snapshot_spec t ι :
+    <<<
+      mpmc_stack_1_inv t ι
+    | ∀∀ vs,
+      mpmc_stack_1_model t vs
+    >>>
+      mpmc_stack_1_snapshot t @ ↑ι
+    <<<
+      mpmc_stack_1_model t vs
+    | RET lst_to_val vs;
+      True
+    >>>.
+  Proof.
+    iIntros "!> %Φ (:inv) HΦ".
+
+    wp_rec.
+
+    iInv "Hinv" as "(:inv_inner)".
+    wp_load.
+    iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct (mpmc_stack_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iSteps.
   Qed.
 End zoo_G.
 
