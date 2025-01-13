@@ -30,6 +30,10 @@ Definition format_env_of_string str :=
   format_env_of_strings (String.words str).
 
 Module parse.
+  Inductive insideness :=
+    | Inside
+    | Outside.
+
   Fixpoint go env str res :=
     match str with
     | "" =>
@@ -45,8 +49,6 @@ Module parse.
         None
     | String "{" str =>
         hole_variable env str res acc ""
-    | String "=" str =>
-        hole_default env str res "" acc "" ""
     | String "}" str =>
         match env !! String.rev acc with
         | None =>
@@ -54,47 +56,72 @@ Module parse.
         | Some val =>
             go env str (String.rev val +:+ res)
         end
+    | String "=" str =>
+        match env !! String.rev acc with
+        | None =>
+            hole' env str res ""
+        | Some val =>
+            hole_finish env str (String.rev val +:+ res) Outside
+        end
     | String chr str =>
         hole env str res (String chr acc)
     end
-  with hole_variable env str res pref var :=
+  with hole' env str res acc :=
     match str with
     | "" =>
         None
+    | String "{" str =>
+        hole_variable env str res acc ""
     | String "}" str =>
-        hole_suffix env str res pref var ""
-    | String chr str =>
-        hole_variable env str res pref (String chr var)
-    end
-  with hole_suffix env str res pref var suff :=
-    match str with
-    | "" =>
-        None
+        go env str (acc +:+ res)
     | String "=" str =>
-        hole_default env str res pref var suff ""
-    | String "}" str =>
-        match env !! String.rev var with
-        | None =>
-            go env str res
-        | Some val =>
-            go env str (suff +:+ String.rev val +:+ pref +:+ res)
-        end
+        hole_finish env str (acc +:+ res) Outside
     | String chr str =>
-        hole_suffix env str res pref var (String chr suff)
+        hole' env str res (String chr acc)
     end
-  with hole_default env str res pref var suff default :=
+  with hole_variable env str res acc var :=
     match str with
     | "" =>
         None
     | String "}" str =>
         match env !! String.rev var with
         | None =>
-            go env str (default +:+ res)
+            hole_next env str res Outside
         | Some val =>
-            go env str (suff +:+ String.rev val +:+ pref +:+ res)
+            hole' env str res (String.rev val +:+ acc)
         end
     | String chr str =>
-        hole_default env str res pref var suff (String chr default)
+        hole_variable env str res acc (String chr var)
+    end
+  with hole_finish env str res state :=
+    match str with
+    | "" =>
+        None
+    | String "{" str =>
+        hole_finish env str res Inside
+    | String "}" str =>
+        if state is Inside then
+          hole_finish env str res Outside
+        else
+          go env str res
+    | String _ str =>
+        hole_finish env str res state
+    end
+  with hole_next env str res state :=
+    match str with
+    | "" =>
+        None
+    | String "{" str =>
+        hole_next env str res Inside
+    | String "}" str =>
+        if state is Inside then
+          hole_next env str res Outside
+        else
+          go env str res
+    | String "=" str =>
+        hole' env str res ""
+    | String _ str =>
+        hole_next env str res state
     end.
 
   Definition main env str :=
@@ -108,21 +135,58 @@ Goal format "{}" ∅ = Some "".
 Proof. reflexivity. Qed.
 Goal format "{}" {["":="!"]} = Some "!".
 Proof. reflexivity. Qed.
+
 Goal format "{1}" {["1":="one"]} = Some "one".
 Proof. reflexivity. Qed.
 Goal format "{1}" ∅ = Some "1".
 Proof. reflexivity. Qed.
+
 Goal format "{1} {2}" {["1":="one";"2":="two"]} = Some "one two".
 Proof. reflexivity. Qed.
+
 Goal format "{1=∅}" ∅ = Some "∅".
 Proof. reflexivity. Qed.
 Goal format "{1=∅}" {["1":="one"]} = Some "one".
+
 Proof. vm_compute. reflexivity. Qed.
 Goal format "{1=}" ∅ = Some "".
 Proof. reflexivity. Qed.
 Goal format "{1=}" {["1":="one"]} = Some "one".
 Proof. reflexivity. Qed.
+
 Goal format "{({1})=∅}" ∅ = Some "∅".
 Proof. reflexivity. Qed.
 Goal format "{({1})=∅}" {["1":="one"]} = Some "(one)".
+Proof. reflexivity. Qed.
+
+Goal format "{({1})=({2})}" ∅ = Some "".
+Proof. reflexivity. Qed.
+Goal format "{({1})=({2})}" {["1":="one"]} = Some "(one)".
+Proof. reflexivity. Qed.
+Goal format "{({1})=({2})}" {["2":="two"]} = Some "(two)".
+Proof. reflexivity. Qed.
+
+Goal format "{({1})=({2})=∅}" ∅ = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{({1})=({2})=∅}" {["1":="one"]} = Some "(one)".
+Proof. reflexivity. Qed.
+Goal format "{({1})=({2})=∅}" {["2":="two"]} = Some "(two)".
+Proof. reflexivity. Qed.
+
+Goal format "{{1}-{2}}" ∅ = Some "".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}}" {["1":="one"]} = Some "".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}}" {["2":="two"]} = Some "".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}}" {["1":="one";"2":="two"]} = Some "one-two".
+Proof. reflexivity. Qed.
+
+Goal format "{{1}-{2}=∅}" ∅ = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}=∅}" {["1":="one"]} = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}=∅}" {["2":="two"]} = Some "∅".
+Proof. reflexivity. Qed.
+Goal format "{{1}-{2}=∅}" {["1":="one";"2":="two"]} = Some "one-two".
 Proof. reflexivity. Qed.
