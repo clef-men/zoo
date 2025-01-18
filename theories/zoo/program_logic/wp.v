@@ -376,7 +376,7 @@ Section zoo_G.
   Proof.
     intros A (κ & e' & σ' & es & H).
     exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es.
-    eapply (Ectx_step []); try done.
+    eapply (base_step_fill_prim_step' []); try done.
     assert (∃ w, Val w = e') as (w & <-).
     { unfold Atomic in A. apply (A σ e' κ σ' es) in H. unfold is_Some in H.
       destruct H as [w H]. exists w. simpl in H. apply (of_to_val _ _ H).
@@ -396,7 +396,7 @@ Section zoo_G.
         assert (fill_item k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fill_app.
         rewrite fill_app /=. rewrite Heq1 in A.
         assert (is_Some (to_val (fill (K ++ [k]) e2'))) as H.
-        { eapply (A σ1 _ κ σ2 es), (Ectx_step (K ++ [k])); done. }
+        { eapply (A σ1 _ κ σ2 es), (base_step_fill_prim_step' (K ++ [k])); done. }
         destruct H as [v H]. apply to_val_fill_some in H. destruct H, K; done.
       + rename select (of_val v1 = _) into Hv1.
         assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.

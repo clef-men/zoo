@@ -75,6 +75,9 @@ Section ectxi_language.
   Implicit Types Ki : ectx_item Λ.
   Implicit Types K : ectx.
 
+  Definition fill K e :=
+    foldl (flip fill_item) e K.
+
   #[global] Instance fill_item_inj Ki :
     Inj (=) (=) (fill_item Ki).
   Proof.
@@ -100,9 +103,6 @@ Section ectxi_language.
   Proof.
     apply ectxi_language_mixin.
   Qed.
-
-  Definition fill K e :=
-    foldl (flip fill_item) e K.
 
   Lemma fill_app K1 K2 e :
     fill (K1 ++ K2) e = fill K2 (fill K1 e).
@@ -133,7 +133,7 @@ Section ectxi_language.
       }
       rewrite !fill_app /= in Hfill.
       assert (Ki = Ki') as ->.
-      { eapply fill_item_no_val_inj, Hfill; eauto using val_base_stuck.
+      { eapply fill_item_no_val_inj, Hfill; eauto using base_step_not_val.
         apply fill_not_val. revert Hstep. apply ectxi_language_mixin. }
       simplify_eq. destruct (IH K') as [K'' ->]; auto.
       exists K''. rewrite assoc //.

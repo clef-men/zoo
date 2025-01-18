@@ -130,7 +130,7 @@ Section atomic.
     rename e into e1. intros H σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
     - subst. inversion_clear Hstep.
-      eapply (H σ1 (Val _) _ σ2 es), base_prim_step. done.
+      eapply (H σ1 (Val _) _ σ2 es), base_step_prim_step. done.
     - rewrite fill_app. rewrite fill_app in Hfill.
       assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
       { intros v Hv.

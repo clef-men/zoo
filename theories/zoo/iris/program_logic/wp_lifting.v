@@ -214,7 +214,7 @@ Section ectx_language.
   Implicit Types Φ : val Λ → iProp Σ.
 
   #[local] Hint Resolve
-    base_prim_reducible
+    base_reducible_reducible
     base_reducible_prim_step
   : core.
 

@@ -48,7 +48,7 @@ Proof.
   { destruct e; try done; eauto. }
   assert (to_val (fill (k :: K) (Val w)) = None).
   { destruct k; simpl; apply fill_not_val; done. }
-  simplify_eq.
+  simplify.
 Qed.
 Lemma prim_step_to_val_is_base_step e σ1 κ v σ2 es :
   prim_step e σ1 κ (Val v) σ2 es →
@@ -63,16 +63,22 @@ Lemma irreducible_resolve e v1 v2 σ :
   irreducible e σ →
   irreducible (Resolve e (Val v1) (Val v2)) σ.
 Proof.
-  intros H κ ? σ' es [K' e1' e2' Hfill -> step]. simpl in *.
+  intros H κ ? σ' es [K' e1' e2' Hfill -> step].
+  simplify.
   induction K' as [| K K' _] using rev_ind; simpl in Hfill.
-  - subst e1'. inversion step. eapply H. apply base_prim_step. done.
+  - subst e1'. inversion step. eapply H. apply base_step_prim_step. done.
   - rewrite fill_app /= in Hfill.
-    destruct K;
-      inversion Hfill; subst; clear Hfill;
-      try match goal with H : Val ?v = fill K' ?e |- _ =>
-        assert (to_val (fill K' e) = Some v) as HEq by rewrite -H //;
-        apply to_val_fill_some in HEq; destruct HEq as [-> ->]; inversion step
-      end.
+    destruct K.
+    all: inversion Hfill; subst; clear Hfill.
+    all:
+      try
+        match goal with H: Val ?v = fill _ ?e |- _ =>
+          assert (to_val (fill K' e) = Some v) as Heq by rewrite -H //;
+          apply to_val_fill_some in Heq;
+          destruct Heq as [-> ->];
+          inversion step
+        end.
     eapply (H κ (fill_item _ (foldl (flip fill_item) e2' K')) σ' es).
-    eapply (Ectx_step (K' ++ [_])); last done; simpl; rewrite fill_app //.
+    eapply (base_step_fill_prim_step' (K' ++ [_])); last done.
+    all: rewrite /= fill_app //.
 Qed.

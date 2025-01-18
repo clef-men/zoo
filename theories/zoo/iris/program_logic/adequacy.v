@@ -37,7 +37,6 @@ Section iris_G.
     iMod ("H" with "[//] H£") as "H".
     iModIntro. iSteps. rewrite /wps big_sepL2_replicate_r //.
   Qed.
-
   #[local] Lemma wps_step es1 σ1 es2 σ2 κ κs nt Φs :
     step (es1, σ1) κ (es2, σ2) →
     state_interp nt σ1 (κ ++ κs) -∗
@@ -48,14 +47,15 @@ Section iris_G.
       state_interp (nt + n_fork) σ2 κs ∗
       wps es2 (Φs ++ replicate n_fork fork_post).
   Proof.
-    iIntros "%Hstep Hσ H£ H".
-    destruct Hstep as [e1 σ1' e2 σ2' es es1' es2' Hstep]; simplify_eq/=.
-    iDestruct (big_sepL2_app_inv_l with "H") as (Φs1 Φs2 ->) "(Hes1' & H)".
-    iDestruct (big_sepL2_cons_inv_l with "H") as (Φ Φs3 ->) "(He1 & Hes2')".
-    iMod (wp_step with "Hσ H£ He1") as "H"; [done.. |].
-    iExists _. rewrite -(assoc (++)) -app_comm_cons. iFrame. iSteps.
+    iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hσ H£ H".
+    iDestruct (big_sepL2_insert_acc_l with "H") as "(%Φ & %HΦs_lookup & He1 & H)"; first done.
+    iMod (wp_step with "Hσ H£ He1") as "He1"; first done.
+    do 2 iModIntro.
+    iMod "He1" as "(Hσ & He2 & Hes)".
+    iDestruct ("H" with "He2") as "H".
+    rewrite (list_insert_id Φs) // big_sepL2_app.
+    iSteps.
   Qed.
-
   #[local] Lemma wps_steps n es1 σ1 es2 σ2 κs1 κs2 nt Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     state_interp nt σ1 (κs1 ++ κs2) -∗
@@ -144,11 +144,6 @@ Proof.
   - iApply step_fupdN_S_fupd. iSteps.
 Qed.
 
-Definition adequate {Λ} (e : expr Λ) σ :=
-  ∀ es σ',
-  rtc erased_step ([e], σ) (es, σ') →
-  Forall (λ e', not_stuck e' σ') es.
-
 Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
     ⊢ |={⊤}=>
@@ -157,9 +152,9 @@ Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
       state_interp nt σ κs ∗
       WP e {{ Φ }}
   ) →
-  adequate e σ.
+  safe ([e], σ).
 Proof.
-  intros H es σ' (n & κs & Hsteps)%erased_steps_nsteps.
+  intros H (es, σ') (n & κs & Hsteps)%silent_steps_nsteps.
   move: Hsteps. apply: wp_progress => inv_G.
   iMod H as "(%state_interp & %fork_post & %nt & %Φ & Hσ & H)".
   iExists state_interp, fork_post, nt, [Φ]. rewrite /wps /=. iSteps.

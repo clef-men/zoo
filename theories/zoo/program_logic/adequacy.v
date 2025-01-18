@@ -19,7 +19,7 @@ Definition zoo_adequacy Σ `{zoo_Gpre : !ZooGpre Σ} e σ :
   ( ∀ `{zoo_G : !ZooG Σ},
     ⊢ WP e {{ v, True }}
   ) →
-  adequate e σ.
+  safe ([e], σ).
 Proof.
   intros Hwp.
   apply: wp_adequacy => Hinv_G κs.

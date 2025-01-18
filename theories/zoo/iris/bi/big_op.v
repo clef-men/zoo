@@ -518,6 +518,37 @@ Section bi.
       intros. setoid_rewrite big_sepL2_delete' at 2; iSmash+.
     Qed.
 
+    Lemma big_sepL2_insert_acc_l Φ l1 l2 i x1 :
+      l1 !! i = Some x1 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x2,
+        ⌜l2 !! i = Some x2⌝ ∗
+        Φ i x1 x2 ∗
+        ( ∀ y1 y2,
+          Φ i y1 y2 -∗
+          [∗ list] k ↦ y1; y2 ∈ <[i := y1]> l1; <[i := y2]> l2, Φ k y1 y2
+        ).
+    Proof.
+      iIntros "%Hl1_lookup H".
+      iDestruct (big_sepL2_lookup_Some_l with "H") as %(x2 & Hl2_lookup); first done.
+      iDestruct (big_sepL2_insert_acc with "H") as "$"; done.
+    Qed.
+    Lemma big_sepL2_insert_acc_r Φ l1 l2 i x2 :
+      l2 !! i = Some x2 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) ⊢
+        ∃ x1,
+        ⌜l1 !! i = Some x1⌝ ∗
+        Φ i x1 x2 ∗
+        ( ∀ y1 y2,
+          Φ i y1 y2 -∗
+          [∗ list] k ↦ y1; y2 ∈ <[i := y1]> l1; <[i := y2]> l2, Φ k y1 y2
+        ).
+    Proof.
+      iIntros "%Hl2_lookup H".
+      iDestruct (big_sepL2_lookup_Some_r with "H") as %(x1 & Hl1_lookup); first done.
+      iDestruct (big_sepL2_insert_acc with "H") as "$"; done.
+    Qed.
+
     Lemma big_sepL2_replicate_l_1 l x Φ n :
       length l = n →
       ([∗ list] k ↦ x1; x2 ∈ replicate n x; l, Φ k x1 x2) ⊢

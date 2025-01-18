@@ -148,20 +148,20 @@ Section zip.
 End zip.
 
 Section foldri.
-  Context {A B : Type}.
+  Implicit Types i : nat.
 
-  Fixpoint foldri' (f : nat → A → B → B) acc l i :=
+  #[local] Fixpoint foldri' `(f : nat → A → B → B) acc l i :=
     match l with
     | [] =>
         acc
     | x :: l =>
         f i x (foldri' f acc l (S i))
     end.
-  #[global] Arguments foldri' _ _ !_ _ / : assert.
-  Definition foldri f acc l :=
+  #[global] Arguments foldri' _ _ _ _ !_ _ / : assert.
+  Definition foldri `(f : nat → A → B → B) acc l :=
     foldri' f acc l 0.
 
-  Lemma foldri'_app f acc l1 l2 i :
+  #[local] Lemma foldri'_app `(f : nat → A → B → B) acc l1 l2 i :
     foldri' f acc (l1 ++ l2) i =
     foldri' f (foldri' f acc l2 (i + (length l1))) l1 i.
   Proof.
@@ -169,11 +169,42 @@ Section foldri.
     - rewrite right_id //.
     - rewrite /= -Nat.add_succ_comm IH //.
   Qed.
-  Lemma foldri_app f acc l1 l2 :
+  Lemma foldri_app `(f : nat → A → B → B) acc l1 l2 :
     foldri f acc (l1 ++ l2) =
     foldri f (foldri' f acc l2 (length l1)) l1.
   Proof.
-    apply foldri'_app.
+    apply @foldri'_app.
+  Qed.
+
+  #[local] Lemma foldri'_fmap `(f : nat → A → B → B) `(g : C → A) acc l i :
+    foldri' f acc (g <$> l) i = foldri' (λ i x, f i (g x)) acc l i.
+  Proof.
+    move: i. induction l as [| x l IH] => i /=; first done.
+    rewrite IH //.
+  Qed.
+  Lemma foldri_fmap `(f : nat → A → B → B) `(g : C → A) acc l :
+    foldri f acc (g <$> l) = foldri (λ i x, f i (g x)) acc l.
+  Proof.
+    apply foldri'_fmap.
+  Qed.
+
+  #[local] Lemma foldri'_comm `(f : nat → A → B → B) `(g : B → C) h acc l i :
+    ( ∀ i x acc,
+      h i x (g acc) = g (f i x acc)
+    ) →
+    foldri' h (g acc) l i = g (foldri' f acc l i).
+  Proof.
+    intros Hh.
+    move: i. induction l as [| x l IH] => i /=; first done.
+    rewrite IH //.
+  Qed.
+  Lemma foldri_comm `(f : nat → A → B → B) `(g : B → C) h acc l :
+    ( ∀ i x acc,
+      h i x (g acc) = g (f i x acc)
+    ) →
+    foldri h (g acc) l = g (foldri f acc l).
+  Proof.
+    apply foldri'_comm.
   Qed.
 End foldri.
 
@@ -229,7 +260,7 @@ End Forall'.
 Section Foralli.
   Context {A} (P : nat → A → Prop).
 
-  Fixpoint Foralli' l i :=
+  #[local] Fixpoint Foralli' l i :=
     match l with
     | [] =>
         True
@@ -240,7 +271,7 @@ Section Foralli.
   Definition Foralli l :=
     Foralli' l 0.
 
-  Lemma Foralli'_lookup l i j x :
+  #[local] Lemma Foralli'_lookup l i j x :
     Foralli' l i →
     l !! j = Some x →
     P (i + j) x.
@@ -259,6 +290,53 @@ Section Foralli.
     apply Foralli'_lookup.
   Qed.
 End Foralli.
+
+Section Forall2.
+  Context {A1 A2 : Type} (P : A1 → A1 → Prop).
+
+  Lemma Forall2_insert_l {l1 l2} i x1 x2 :
+    l2 !! i = Some x2 →
+    Forall2 P l1 l2 →
+    P x1 x2 →
+    Forall2 P (<[i := x1]> l1) l2.
+  Proof.
+    intros Hl2_lookup H HP.
+    rewrite -(list_insert_id l2 i x2) //.
+    apply Forall2_insert; done.
+  Qed.
+  Lemma Forall2_insert_r {l1 l2} i x1 x2 :
+    l1 !! i = Some x1 →
+    Forall2 P l1 l2 →
+    P x1 x2 →
+    Forall2 P l1 (<[i := x2]> l2).
+  Proof.
+    intros Hl1_lookup H HP.
+    rewrite -(list_insert_id l1 i x1) //.
+    apply Forall2_insert; done.
+  Qed.
+End Forall2.
+
+Section fmap.
+  Context {A B : Type}.
+
+  Implicit Types x : A.
+  Implicit Types 𝑥 : B.
+  Implicit Types l : list A.
+  Implicit Types 𝑙 : list B.
+  Implicit Types f : A → B.
+
+  Lemma fmap_app_cons_inv f l 𝑙1 𝑥 𝑙2 :
+    f <$> l = 𝑙1 ++ 𝑥 :: 𝑙2 →
+      ∃ l1 x l2,
+      l = l1 ++ x :: l2 ∧
+      𝑙1 = f <$> l1 ∧
+      𝑥 = f x ∧
+      𝑙2 = f <$> l2.
+  Proof.
+    intros (l1 & ? & -> & (x & l2 & -> & -> & ->)%symmetry%fmap_cons_inv & ->)%fmap_app_inv.
+    naive_solver.
+  Qed.
+End fmap.
 
 Section Permutation.
   Context {A : Type}.
