@@ -47,6 +47,14 @@ val foldri :
 val foldr :
   ('a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 
+val unsafe_iteri_slice :
+  (int -> 'a -> unit) -> 'a t -> int -> int -> unit
+val iteri_slice :
+  (int -> 'a -> unit) -> 'a t -> int -> int -> unit
+val unsafe_iter_slice :
+  ('a -> unit) -> 'a t -> int -> int -> unit
+val iter_slice :
+  ('a -> unit) -> 'a t -> int -> int -> unit
 val iteri :
   (int -> 'a -> unit) -> 'a t -> unit
 val iter :

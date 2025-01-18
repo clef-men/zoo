@@ -115,11 +115,37 @@ Definition array_sum : val :=
   fun: "t" =>
     array_foldl (fun: "1" "2" => "1" + "2") #0 "t".
 
+Definition array_unsafe_iteri_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    for: "k" := #0 to "n" begin
+      "fn" "k" (array_unsafe_get "t" ("i" + "k"))
+    end.
+
+Definition array_iteri_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    assume (#0 ≤ "i") ;;
+    assume (#0 ≤ "n") ;;
+    let: "sz" := array_size "t" in
+    assume ("i" ≤ "sz") ;;
+    assume ("i" + "n" ≤ "sz") ;;
+    array_unsafe_iteri_slice "fn" "t" "i" "n".
+
+Definition array_unsafe_iter_slice : val :=
+  fun: "fn" =>
+    array_unsafe_iteri_slice (fun: "_i" => "fn").
+
+Definition array_iter_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    assume (#0 ≤ "i") ;;
+    assume (#0 ≤ "n") ;;
+    let: "sz" := array_size "t" in
+    assume ("i" ≤ "sz") ;;
+    assume ("i" + "n" ≤ "sz") ;;
+    array_unsafe_iter_slice "fn" "t" "i" "n".
+
 Definition array_iteri : val :=
   fun: "fn" "t" =>
-    for: "i" := #0 to array_size "t" begin
-      "fn" "i" (array_unsafe_get "t" "i")
-    end.
+    array_unsafe_iteri_slice "fn" "t" #0 (array_size "t").
 
 Definition array_iter : val :=
   fun: "fn" =>

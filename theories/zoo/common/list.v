@@ -284,3 +284,51 @@ Section Permutation.
         * rewrite list_lookup_insert_ne // list_lookup_insert_ne //.
   Qed.
 End Permutation.
+
+Section slice.
+  Context {A : Type}.
+
+  Implicit Types x : A.
+  Implicit Types l : list A.
+
+  Definition slice i n l :=
+    take n (drop i l).
+
+  Lemma slice_cons i n x l :
+    l !! i = Some x →
+    x :: slice (S i) n l = slice i (S n) l.
+  Proof.
+    intros Hlookup.
+    rewrite -firstn_cons -drop_S //.
+  Qed.
+  Lemma slice_cons' i n x l :
+    l !! i = Some x →
+    n ≠ 0 →
+    x :: slice (S i) (n - 1) l = slice i n l.
+  Proof.
+    intros Hlookup (n' & ->)%Nat.neq_0_r.
+    rewrite Nat.sub_succ right_id.
+    apply slice_cons. done.
+  Qed.
+  Lemma slice_snoc i n l x :
+    l !! (i + n) = Some x →
+    slice i n l ++ [x] = slice i (S n) l.
+  Proof.
+    intros Hlookup.
+    rewrite -take_S_r // lookup_drop //.
+  Qed.
+
+  Lemma slice_length i n l :
+    i + n ≤ length l →
+    length (slice i n l) = n.
+  Proof.
+    rewrite length_take length_drop. lia.
+  Qed.
+
+  Lemma slice_lookup_Some_inv i n l k x :
+    slice i n l !! k = Some x →
+    k < n.
+  Proof.
+    intros (_ & ?)%lookup_take_Some. done.
+  Qed.
+End slice.

@@ -113,10 +113,36 @@ let foldr fn =
 let sum t =
   foldl (+) 0 t
 
-let iteri fn t =
-  for i = 0 to size t - 1 do
-    fn i (unsafe_get t i)
+let unsafe_iteri_slice fn t i n =
+  for k = 0 to n - 1 do
+    fn k (unsafe_get t (i + k))
   done
+let iteri_slice fn t i n =
+  if not (0 <= i) then
+    invalid_arg "negative index" ;
+  if not (0 <= n) then
+    invalid_arg "negative span" ;
+  let sz = size t in
+  if not (i <= sz) then
+    invalid_arg "invalid index" ;
+  if not (i + n <= sz) then
+    invalid_arg "invalid arguments" ;
+  unsafe_iteri_slice fn t i n
+let unsafe_iter_slice fn =
+  unsafe_iteri_slice (fun _i -> fn)
+let iter_slice fn t i n =
+  if not (0 <= i) then
+    invalid_arg "negative index" ;
+  if not (0 <= n) then
+    invalid_arg "negative span" ;
+  let sz = size t in
+  if not (i <= sz) then
+    invalid_arg "invalid index" ;
+  if not (i + n <= sz) then
+    invalid_arg "invalid arguments" ;
+  unsafe_iter_slice fn t i n
+let iteri fn t =
+  unsafe_iteri_slice fn t 0 (size t)
 let iter fn =
   iteri (fun _i -> fn)
 
