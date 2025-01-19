@@ -147,3 +147,24 @@ Definition dynarray_2_reset : val :=
   fun: "t" =>
     dynarray_2_set_size "t" #0 ;;
     dynarray_2_set_data "t" (array_create ()).
+
+Definition dynarray_2_iteri : val :=
+  fun: "fn" "t" =>
+    let: "sz" := dynarray_2_size "t" in
+    let: "data" := dynarray_2_data "t" in
+    assume ("sz" ≤ array_size "data") ;;
+    array_unsafe_iteri_slice
+      (fun: "i" "v" =>
+         match: "v" with
+         | None =>
+             diverge ()
+         | Some "v" =>
+             "fn" "i" !"v"
+         end)
+      "data"
+      #0
+      "sz".
+
+Definition dynarray_2_iter : val :=
+  fun: "fn" =>
+    dynarray_2_iteri (fun: "_i" => "fn").

@@ -96,3 +96,11 @@ Definition dynarray_1_reset : val :=
   fun: "t" =>
     "t" <-{size} #0 ;;
     "t" <-{data} array_create ().
+
+Definition dynarray_1_iteri : val :=
+  fun: "fn" "t" =>
+    array_unsafe_iteri_slice "fn" "t".{data} #0 "t".{size}.
+
+Definition dynarray_1_iter : val :=
+  fun: "fn" =>
+    dynarray_1_iteri (fun: "_i" => "fn").

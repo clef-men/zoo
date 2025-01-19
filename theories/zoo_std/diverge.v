@@ -23,6 +23,21 @@ Section zoo_G.
   Proof.
     iLöb as "IH". wp_rec. iSteps.
   Qed.
+
+  #[global] Instance diverge_diaspec :
+    SPEC
+    {{
+      True
+    }}
+      diverge ()%V
+    {{
+      RET ()%V;
+      False
+    }}.
+  Proof.
+    iSteps.
+    wp_apply diverge_spec.
+  Qed.
 End zoo_G.
 
 #[global] Opaque diverge.

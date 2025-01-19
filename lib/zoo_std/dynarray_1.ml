@@ -63,3 +63,8 @@ let fit_capacity t =
 let reset t =
   t.size <- 0 ;
   t.data <- Array.create ()
+
+let iteri fn t =
+  Array.unsafe_iteri_slice fn t.data 0 t.size
+let iter fn =
+  iteri (fun _i -> fn)

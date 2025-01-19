@@ -109,3 +109,18 @@ let fit_capacity t =
 let reset t =
   set_size t 0 ;
   set_data t (Array.create ())
+
+let iteri fn t =
+  let sz = size t in
+  let data = data t in
+  if not (sz <= Array.size data) then
+    failwith "inconsistency" ;
+  Array.unsafe_iteri_slice (fun i v ->
+    match v with
+    | None ->
+        failwith "inconsistency"
+    | Some v ->
+        fn i !v
+  ) data 0 sz
+let iter fn =
+  iteri (fun _i -> fn)

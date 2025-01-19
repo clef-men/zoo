@@ -409,4 +409,10 @@ Section slice.
   Proof.
     intros (_ & ?)%lookup_take_Some. done.
   Qed.
+
+  Lemma slice_0 n l :
+    slice 0 n l = take n l.
+  Proof.
+    done.
+  Qed.
 End slice.

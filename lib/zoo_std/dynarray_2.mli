@@ -38,3 +38,8 @@ val fit_capacity :
 
 val reset :
   'a t -> unit
+
+val iteri :
+  (int -> 'a -> unit) -> 'a t -> unit
+val iter :
+  ('a -> unit) -> 'a t -> unit
