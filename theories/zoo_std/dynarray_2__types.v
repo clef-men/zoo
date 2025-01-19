@@ -11,6 +11,20 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
+Notation "'Empty'" := (
+  in_type "slot" 0
+)(in custom zoo_tag
+).
+Notation "'Element'" := (
+  in_type "slot" 1
+)(in custom zoo_tag
+).
+
+Notation "'value'" := (
+  in_type "slot__Element" 0
+)(in custom zoo_field
+).
+
 Notation "'size'" := (
   in_type "t" 0
 )(in custom zoo_field

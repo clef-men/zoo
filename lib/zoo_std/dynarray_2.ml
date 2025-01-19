@@ -3,21 +3,25 @@
 *)
 
 type 'a slot =
-  'a ref option
+  | Empty
+  | Element of { mutable value: 'a }
 
 type 'a t =
   { mutable size: int;
     mutable data: 'a slot array;
   }
 
+let element v =
+  Element { value= v }
+
 let create () =
   { size= 0; data= Array.create () }
 
 let make sz v =
-  { size= sz; data= Array.init sz (fun () -> Some (ref v)) }
+  { size= sz; data= Array.init sz (fun () -> element v) }
 
 let initi sz fn =
-  { size= sz; data= Array.initi sz (fun i -> Some (ref (fn i))) }
+  { size= sz; data= Array.initi sz (fun i -> element (fn i)) }
 
 let size t =
   t.size
@@ -36,17 +40,17 @@ let is_empty t =
 
 let get t i =
   match Array.get (data t) i with
-  | None ->
+  | Empty ->
       invalid_arg "index out of bounds"
-  | Some ref ->
-      !ref
+  | Element slot_r ->
+      slot_r.value
 
 let set t i v =
   match Array.get (data t) i with
-  | None ->
+  | Empty ->
       invalid_arg "index out of bounds"
-  | Some ref ->
-      ref := v
+  | Element slot_r ->
+      slot_r.value <- v
 
 let next_capacity n =
   Int.max 8 (if n <= 512 then 2 * n else n + n / 2)
@@ -57,7 +61,7 @@ let reserve t n =
   let cap = Array.size data in
   if cap < n then (
     let cap = Int.max n (next_capacity cap) in
-    let data = Array.unsafe_grow data cap None in
+    let data = Array.unsafe_grow data cap Empty in
     set_data t data
   )
 let reserve_extra t n =
@@ -80,7 +84,7 @@ let rec push_aux t slot =
   if not (try_push t slot) then
     push_aux t slot
 let push t v =
-  let slot = Some (ref v) in
+  let slot = element v in
   if not (try_push t slot) then
     push_aux t slot
 
@@ -93,12 +97,12 @@ let pop t =
     invalid_arg "empty dynarray" ;
   let sz = sz - 1 in
   match Array.unsafe_get data sz with
-  | None ->
+  | Empty ->
       failwith "inconsistency"
-  | Some ref ->
-      Array.unsafe_set data sz None ;
+  | Element slot_r ->
+      Array.unsafe_set data sz Empty ;
       set_size t sz ;
-      !ref
+      slot_r.value
 
 let fit_capacity t =
   let sz = size t in
@@ -115,12 +119,12 @@ let iteri fn t =
   let data = data t in
   if not (sz <= Array.size data) then
     failwith "inconsistency" ;
-  Array.unsafe_iteri_slice (fun i v ->
-    match v with
-    | None ->
+  Array.unsafe_iteri_slice (fun i slot ->
+    match slot with
+    | Empty ->
         failwith "inconsistency"
-    | Some v ->
-        fn i !v
+    | Element slot_r ->
+        fn i slot_r.value
   ) data 0 sz
 let iter fn =
   iteri (fun _i -> fn)

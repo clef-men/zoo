@@ -15,8 +15,6 @@ From zoo_std Require Import
   diverge
   assume
   int
-  ref_
-  option
   array
   dynarray_2__types.
 From zoo Require Import
@@ -24,47 +22,59 @@ From zoo Require Import
 
 Implicit Types b : bool.
 Implicit Types i : nat.
-Implicit Types l r : location.
-Implicit Types v slot t fn : val.
+Implicit Types l elem  : location.
+Implicit Types elems : list location.
+Implicit Types v t slot fn : val.
 Implicit Types vs slots : list val.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition slot_model slot v : iProp Σ :=
-    ∃ r,
-    ⌜slot = ‘Some( #r )%V⌝ ∗
-    r ↦ᵣ v.
-  #[local] Instance : CustomIpatFormat "slot_model" :=
+  #[local] Definition element_model elem v : iProp Σ :=
+    elem ↦ₕ Header 1 §Element ∗
+    elem.[value] ↦ v.
+  #[local] Instance : CustomIpatFormat "element_model" :=
     "(
-      %r &
-      {->=%Hr} &
-      Hr
+      Helem_hdr &
+      Helem_value
     )".
   Definition dynarray_2_model t vs : iProp Σ :=
-    ∃ l data slots extra,
+    ∃ l data elems extra,
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
     l.[data] ↦ data ∗
-    array_model data (DfracOwn 1) (slots ++ replicate extra §None%V) ∗
-    [∗ list] slot; v ∈ slots; vs, slot_model slot v.
+    array_model data (DfracOwn 1) ((#@{location} <$> elems) ++ replicate extra §Empty%V) ∗
+    [∗ list] elem; v ∈ elems; vs, element_model elem v.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l &
       %data &
-      %slots &
+      %elems &
       %extra &
       -> &
       Hl_size &
       Hl_data &
       Hmodel &
-      Hslots
+      Helems
     )".
 
   #[global] Instance dynarray_2_model_timeless t vs :
     Timeless (dynarray_2_model t vs).
   Proof.
     apply _.
+  Qed.
+
+  #[local] Lemma dynarray_2_element_spec v :
+    {{{
+      True
+    }}}
+      dynarray_2_element v
+    {{{ elem,
+      RET #elem;
+      element_model elem v
+    }}}.
+  Proof.
+    iSteps.
   Qed.
 
   Lemma dynarray_2_create_spec :
@@ -80,7 +90,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hmodel".
-    wp_block l as "(Hsz & Hdata & _)".
+    wp_block l as "(Hl_size & Hl_data & _)".
     iApply "HΦ".
     iExists l, data, [], 0. iSteps.
   Qed.
@@ -98,11 +108,24 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_smart_apply (array_init_spec_disentangled (λ _ slot, slot_model slot v)) as "%data %slots (%Hsz & %Hslots & Hmodel & Hslots)"; first iSteps.
+    pose (Ψ i slots := (
+      ∃ elems,
+      ⌜slots = #@{location} <$> elems⌝ ∗
+      [∗ list] elem ∈ elems, element_model elem v
+    )%I).
+    wp_smart_apply (array_init_spec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
+    { iSplit.
+      - iExists []. iSteps.
+      - iIntros "!> %i %slots %Hi1 %Hi2 (%elems & -> & Helems)".
+        wp_smart_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
+        iExists (elems ++ [elem]).
+        rewrite -fmap_snoc big_sepL_snoc. iSteps.
+    }
     iSteps.
     - rewrite length_replicate. iSteps.
-    - iExists slots, 0. rewrite right_id. iSteps.
-      iApply (big_sepL2_replicate_r_2 _ _ (λ _, slot_model) with "Hslots"); first lia.
+    - iExists elems, 0. rewrite right_id. iSteps.
+      iApply (big_sepL2_replicate_r_2 _ _ (λ _, element_model) with "Helems").
+      { rewrite length_fmap // in Helems. }
   Qed.
 
   Lemma dynarray_2_initi_spec Ψ sz fn :
@@ -127,21 +150,27 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    pose Ψ' i slots := (
-      ∃ vs,
+    pose (Ψ' i slots := (
+      ∃ elems vs,
+      ⌜slots = #@{location} <$> elems⌝ ∗
       Ψ i vs ∗
-      [∗ list] slot; v ∈ slots; vs, slot_model slot v
-    )%I.
-    wp_smart_apply (array_initi_spec Ψ' with "[HΨ]") as "%data %slots (%Hsz & %Hslots & Hmodel & (%vs & HΨ & Hslots))".
-    { iStep. iIntros "!> %i %slots %Hi1 %Hi2 (%vs & HΨ & Hslots)".
-      iDestruct (big_sepL2_length with "Hslots") as %Hslots.
-      wp_smart_apply (wp_wand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
-      wp_ref r as "Hr". wp_pures.
-      iExists (vs ++ [v]). iFrame. iSteps.
+      [∗ list] elem; v ∈ elems; vs, element_model elem v
+    )%I).
+    wp_smart_apply (array_initi_spec Ψ' with "[HΨ]") as "%data %elems (%Hsz & %Helems & Hmodel & (%slots & %vs & -> & HΨ & Helems))".
+    { iSplit.
+      - iExists []. iSteps.
+      - iIntros "!> %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
+        rewrite length_fmap in Hi2.
+        iDestruct (big_sepL2_length with "Helems") as %Helems.
+        wp_smart_apply (wp_wand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
+        wp_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
+        iExists (elems ++ [elem]), (vs ++ [v]).
+        rewrite -fmap_snoc big_sepL2_snoc. iSteps.
     }
-    wp_block l as "(Hsz & Hdata & _)".
-    iDestruct (big_sepL2_length with "Hslots") as %Hslots'.
+    wp_block l as "(Hl_size & Hl_data & _)".
+    iDestruct (big_sepL2_length with "Helems") as %Helems'.
     iApply "HΦ".
+    rewrite length_fmap in Helems.
     iFrame. iStep. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_2_initi_spec' Ψ sz fn :
@@ -260,7 +289,8 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_apply (array_size_spec with "Hmodel") as "Hmodel".
-    rewrite length_app. iDestruct (big_sepL2_length with "Hslots") as %->.
+    rewrite length_app length_fmap.
+    iDestruct (big_sepL2_length with "Helems") as %->.
     iSteps.
   Qed.
 
@@ -297,12 +327,15 @@ Section zoo_G.
     iIntros "%Hi %Hvs_lookup %Φ (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id in Hvs_lookup.
     clear Hi. pose proof Hvs_lookup as Hi%lookup_lt_Some.
-    iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
-    iDestruct (big_sepL2_lookup_acc_r with "Hslots") as "(%slot & %Hslots_lookup & (:slot_model ->) & Hslots)"; first done.
+    iDestruct (big_sepL2_length with "Helems") as "%Helems".
+    iDestruct (big_sepL2_lookup_acc_r with "Helems") as "(%elem & %Helems_lookup & (:element_model) & Helems)"; first done.
     wp_rec. rewrite /dynarray_2_data. wp_load.
-    wp_smart_apply (array_get_spec with "[$Hmodel]").
-    { rewrite Nat2Z.id lookup_app_l //. lia. }
-    iSteps.
+    wp_smart_apply (array_get_spec with "[$Hmodel]") as "(% & Hmodel)".
+    { rewrite Nat2Z.id lookup_app_l.
+      { rewrite length_fmap. lia. }
+      rewrite list_lookup_fmap_Some. naive_solver.
+    }
+    wp_match. iSteps.
   Qed.
 
   Lemma dynarray_2_set_spec t vs (i : Z) v :
@@ -319,16 +352,19 @@ Section zoo_G.
   Proof.
     iIntros "%Hi %Φ (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
-    iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
+    iDestruct (big_sepL2_length with "Helems") as "%Helems".
     opose proof* (lookup_lookup_total vs i) as Hvs_lookup.
     { apply lookup_lt_is_Some_2. lia. }
-    iDestruct (big_sepL2_insert_acc_r with "Hslots") as "(%slot & %Hslots_lookup & (:slot_model ->) & Hslots)"; first done.
+    iDestruct (big_sepL2_insert_acc_r with "Helems") as "(%elem & %Helems_lookup & (:element_model) & Helems)"; first done.
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_smart_apply (array_get_spec with "[$Hmodel]") as "Hmodel".
-    { rewrite Nat2Z.id lookup_app_l //. lia. }
-    wp_store.
-    iDestruct ("Hslots" with "[Hr]") as "Hslots"; first iSteps.
-    rewrite (list_insert_id slots) //.
+    { rewrite Nat2Z.id lookup_app_l.
+      { rewrite length_fmap. lia. }
+      rewrite list_lookup_fmap_Some. naive_solver.
+    }
+    wp_match. wp_store.
+    iDestruct ("Helems" with "[Helem_hdr Helem_value]") as "Helems"; first iSteps.
+    rewrite (list_insert_id elems) //.
     iSteps. rewrite length_insert //.
   Qed.
 
@@ -388,23 +424,23 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma dynarray_2_try_push_spec t vs slot v :
+  #[local] Lemma dynarray_2_try_push_spec t vs elem v :
     {{{
       dynarray_2_model t vs ∗
-      slot_model slot v
+      element_model elem v
     }}}
-      dynarray_2_try_push t slot
+      dynarray_2_try_push t #elem
     {{{ b,
       RET #b;
       if b then
         dynarray_2_model t (vs ++ [v])
       else
         dynarray_2_model t vs ∗
-        slot_model slot v
+        element_model elem v
     }}}.
   Proof.
-    iIntros "%Φ ((:model) & Hslot) HΦ".
-    iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
+    iIntros "%Φ ((:model) & Helem) HΦ".
+    iDestruct (big_sepL2_length with "Helems") as "%Helems".
     wp_rec. rewrite /dynarray_2_size /dynarray_2_data /dynarray_2_set_size. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
@@ -414,30 +450,34 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel"; first lia.
     wp_pures.
     iApply "HΦ".
-    iExists l, data, (slots ++ [slot]), (extra - 1). iStep.
+    iExists l, data, (elems ++ [elem]), (extra - 1). iStep.
     rewrite length_app Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
-    rewrite Nat2Z.id -Hslots -(Nat.add_0_r (length slots)) insert_app_r.
+    rewrite insert_app_r_alt.
+    { rewrite length_fmap. lia. }
     destruct extra.
-    - rewrite length_app in Htest. naive_solver lia.
-    - rewrite -(assoc (++)) /= Nat.sub_0_r. iSteps.
+    - rewrite length_app length_fmap in Htest.
+      naive_solver lia.
+    - rewrite Nat2Z.id length_fmap Helems Nat.sub_diag.
+      rewrite fmap_snoc -assoc /= Nat.sub_0_r.
+      iSteps.
   Qed.
-  #[local] Lemma dynarray_2_push_aux_spec t vs slot v :
+  #[local] Lemma dynarray_2_push_aux_spec t vs elem v :
     {{{
       dynarray_2_model t vs ∗
-      slot_model slot v
+      element_model elem v
     }}}
-      dynarray_2_push_aux t slot
+      dynarray_2_push_aux t #elem
     {{{
       RET ();
       dynarray_2_model t (vs ++ [v])
     }}}.
   Proof.
-    iIntros "%Φ (Hmodel & Hslot) HΦ".
+    iIntros "%Φ (Hmodel & Helem) HΦ".
     iLöb as "HLöb".
     wp_rec.
     wp_smart_apply (dynarray_2_reserve_extra_spec with "Hmodel") as "(_ & Hmodel)".
-    wp_smart_apply (dynarray_2_try_push_spec with "[$Hmodel $Hslot]") as ([]) ""; first iSteps. iIntros "(Hmodel & Hslot)".
-    wp_smart_apply ("HLöb" with "Hmodel Hslot HΦ").
+    wp_smart_apply (dynarray_2_try_push_spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
+    wp_smart_apply ("HLöb" with "Hmodel Helem HΦ").
   Qed.
   Lemma dynarray_2_push_spec t vs v :
     {{{
@@ -450,9 +490,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
-    wp_rec. wp_ref r as "Hr".
-    wp_smart_apply (dynarray_2_try_push_spec with "[$Hmodel Hr]") as ([]) ""; [iSteps.. |]. iIntros "(Hmodel & Hslot)".
-    wp_smart_apply (dynarray_2_push_aux_spec with "[$Hmodel $Hslot]").
+    wp_rec.
+    wp_smart_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
+    wp_smart_apply (dynarray_2_try_push_spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
+    wp_smart_apply (dynarray_2_push_aux_spec with "[$Hmodel $Helem]").
     iSteps.
   Qed.
 
@@ -473,20 +514,25 @@ Section zoo_G.
     do 2 (wp_smart_apply assume_spec' as "_").
     wp_pures.
     rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
-    iDestruct (big_sepL2_length with "Hslots") as %Hslots. rewrite length_app /= in Hslots.
-    destruct (rev_elim slots) as [-> | (slots_ & slot & ->)]; first (simpl in Hslots; lia).
-    rewrite length_app Nat.add_cancel_r in Hslots. iEval (rewrite -Hslots).
-    iDestruct (big_sepL2_snoc with "Hslots") as "(Hslots & (:slot_model ->))".
+    iDestruct (big_sepL2_length with "Helems") as %Helems. rewrite length_app /= in Helems.
+    destruct (rev_elim elems) as [-> | (slots & elem & ->)]; first (simpl in Helems; lia).
+    rewrite length_app Nat.add_cancel_r in Helems. iEval (rewrite -Helems).
+    iDestruct (big_sepL2_snoc with "Helems") as "(Helems & (:element_model))".
     wp_apply (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
-    { rewrite Nat2Z.id lookup_app_l; first (rewrite length_app /=; lia).
-      rewrite lookup_app_r // Nat.sub_diag //.
+    { rewrite Nat2Z.id lookup_app_l.
+      { rewrite length_fmap length_app /=. lia. }
+      rewrite list_lookup_fmap lookup_app_r // Nat.sub_diag //.
     }
-    wp_smart_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel".
-    { rewrite !length_app /=. lia. }
-    rewrite -assoc Nat2Z.id insert_app_r_alt // Nat.sub_diag /=.
+    wp_match.
+    wp_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel".
+    { rewrite length_app length_fmap length_app /=. lia. }
+
+    rewrite fmap_snoc -assoc Nat2Z.id insert_app_r_alt.
+    all: rewrite length_fmap //.
+    rewrite Nat.sub_diag /=.
     wp_store. wp_load.
     iApply "HΦ".
-    iExists l, data, slots_, (S extra). iSteps.
+    iExists l, data, slots, (S extra). iSteps.
   Qed.
 
   Lemma dynarray_2_fit_capacity_spec t vs :
@@ -502,14 +548,16 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec. rewrite /dynarray_2_size /dynarray_2_data /dynarray_2_set_data. do 2 wp_load.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    iDestruct (big_sepL2_length with "Hslots") as %Hslots.
+    iDestruct (big_sepL2_length with "Helems") as %Helems.
     wp_pures.
     case_bool_decide; wp_pures; first iSteps.
-    wp_apply (array_shrink_spec with "Hmodel") as "%data' (_ & Hmodel')".
+    wp_apply (array_shrink_spec with "Hmodel") as "%data' (_ & _ & Hmodel')".
     wp_store.
     iApply "HΦ".
-    iExists l, data', slots, 0.
-    rewrite -Hslots Nat2Z.id take_app_length right_id. iSteps.
+    iExists l, data', elems, 0.
+    rewrite take_app_length'.
+    { rewrite length_fmap. lia. }
+    rewrite right_id. iSteps.
   Qed.
 
   Lemma dynarray_2_reset_spec t vs :
@@ -556,18 +604,21 @@ Section zoo_G.
     wp_load.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
     wp_smart_apply assume_spec' as "%".
-    pose Ψ' i slots_ := (
+    pose Ψ' i slots := (
       Ψ i (take i vs) ∗
-      [∗ list] slot; v ∈ slots; vs, slot_model slot v
+      [∗ list] elem; v ∈ elems; vs, element_model elem v
     )%I.
-    wp_smart_apply (array_unsafe_iteri_slice_spec Ψ' with "[$HΨ $Hslots $Hmodel]"); [lia.. | |].
-    { iIntros "!> %i %slot %Hi %Hlookup (HΨ & Hslots)".
-      iDestruct (big_sepL2_length with "Hslots") as "%Hslots".
-      rewrite lookup_app_l in Hlookup; first lia.
-      iDestruct (big_sepL2_lookup_acc_l with "Hslots") as "(%v & % & (:slot_model) & Hslots)"; first done.
-      rewrite {}Hr slice_0 take_app_le; first lia.
-      wp_load.
-      wp_smart_apply (wp_wand with "(Hfn [%] HΨ)"); first done.
+    wp_smart_apply (array_unsafe_iteri_slice_spec Ψ' with "[$HΨ $Helems $Hmodel]"); [lia.. | |].
+    { iIntros "!> %i %slots%Hi %Hlookup (HΨ & Helems)".
+      iDestruct (big_sepL2_length with "Helems") as "%Helems".
+      rewrite lookup_app_l in Hlookup.
+      { rewrite length_fmap. lia. }
+      apply list_lookup_fmap_Some in Hlookup as (elem & Hlookup & ->).
+      iDestruct (big_sepL2_lookup_acc_l with "Helems") as "(%v & % & (:element_model) & Helems)"; first done.
+      wp_match. wp_load.
+      rewrite slice_0 take_app_le.
+      { rewrite length_fmap. lia. }
+      wp_apply (wp_wand with "(Hfn [//] HΨ)").
       rewrite -take_S_r //. iSteps.
     }
     iSteps. rewrite Nat2Z.id firstn_all //.
@@ -768,8 +819,64 @@ Section zoo_G.
 
   Context τ `{!iType (iPropI Σ) τ}.
 
-  #[local] Definition itype_slot :=
-    itype_option (itype_ref τ).
+  #[local] Definition itype_element elem : iProp Σ :=
+    elem ↦ₕ Header 1 §Element ∗
+    inv nroot (
+      ∃ v,
+      elem.[value] ↦ v ∗
+      τ v
+    ).
+
+  Lemma element_get_type elem :
+    {{{
+      itype_element elem
+    }}}
+      (#elem).{value}
+    {{{ v,
+      RET v;
+      τ v
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  Lemma element_set_type elem v :
+    {{{
+      itype_element elem ∗
+      τ v
+    }}}
+      #elem <-{value} v
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  #[local] Definition itype_slot slot : iProp Σ :=
+      ⌜slot = §Empty%V⌝
+    ∨ ∃ elem,
+      ⌜slot = #elem⌝ ∗
+      itype_element elem.
+  #[local] Instance itype_slot_itype :
+    iType _ itype_slot.
+  Proof.
+    split. apply _.
+  Qed.
+
+  #[local] Lemma wp_match_slot slot e1 x e2 Φ :
+    itype_slot slot -∗
+    ( WP e1 {{ Φ }} ∧
+      ∀ elem, itype_element elem -∗ WP subst' x #elem e2 {{ Φ }}
+    ) -∗
+    WP match: slot with Empty => e1 | Element <> as: x => e2 end {{ Φ }}.
+  Proof.
+    iIntros "[-> | (%elem & -> & Helem_hdr & #Hinv)] H".
+    - rewrite bi.and_elim_l. iSteps.
+    - rewrite bi.and_elim_r. wp_match. iSteps.
+  Qed.
+
   Definition itype_dynarray_2 t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
@@ -782,6 +889,19 @@ Section zoo_G.
     iType _ itype_dynarray_2.
   Proof.
     split. apply _.
+  Qed.
+
+  #[local] Lemma dynarray_2_element_type v :
+    {{{
+      τ v
+    }}}
+      dynarray_2_element v
+    {{{ slot,
+      RET slot;
+      itype_slot slot
+    }}}.
+  Proof.
+    iSteps.
   Qed.
 
   Lemma dynarray_2_create_type :
@@ -831,7 +951,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply array_initi_type; last iSteps. iIntros "!> % (% & -> & %Hi)".
     wp_smart_apply (wp_wand with "(Hfn [])") as (v) "#Hv"; first iSteps.
-    wp_ref slot as "Hslot".
+    wp_apply (dynarray_2_element_type with "[//]").
     iSteps.
   Qed.
 
@@ -930,7 +1050,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (dynarray_2_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (wp_match_option with "Hslot").
+    wp_apply (wp_match_slot with "Hslot").
     iSteps.
   Qed.
 
@@ -949,7 +1069,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (dynarray_2_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_apply (array_get_type with "Hdata_type") as "%slot (%Hi & #Hslot)".
-    wp_apply (wp_match_option with "Hslot").
+    wp_apply (wp_match_slot with "Hslot").
     iSteps.
   Qed.
 
@@ -1046,10 +1166,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
-    wp_rec. wp_ref r as "Hr".
-    iAssert (|={⊤}=> itype_slot ‘Some( #r ))%I with "[Hr]" as ">#Hslot"; first iSteps.
+    wp_rec.
+    wp_smart_apply (dynarray_2_element_type with "[//]") as (slot) "#Hslot".
     wp_smart_apply (dynarray_2_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
-    wp_smart_apply (dynarray_2_push_aux_type with "[$Htype $Hslot]") as "_".
+    wp_smart_apply (dynarray_2_push_aux_type with "[$Htype $Hslot]").
     iSteps.
   Qed.
 
@@ -1071,11 +1191,11 @@ Section zoo_G.
     wp_smart_apply assume_spec' as "%Hcap".
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_get_type with "Hdata_type") as "%slot #Hslot"; first lia.
-    wp_apply (wp_match_option with "Hslot").
-    iSplit; first iSteps. iIntros "%r #Hr /=".
+    wp_apply (wp_match_slot with "Hslot").
+    iSplit; first iSteps. iIntros "%elem #Helem /=".
     wp_smart_apply (array_unsafe_set_type with "[$Hdata_type]") as "_"; [lia | iSteps |].
     wp_smart_apply (dynarray_2_set_size_type with "Htype") as "_"; first lia.
-    wp_smart_apply (ref_get_type with "Hr").
+    wp_smart_apply (element_get_type with "Helem").
     iSteps.
   Qed.
 
@@ -1136,7 +1256,8 @@ Section zoo_G.
     wp_smart_apply (dynarray_2_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Hdata_type]"); [lia.. | iSteps |].
+    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Hdata_type]"); [lia.. | |].
+    { iSteps. iModIntro. wp_match. iSteps. }
     iSteps.
   Qed.
 

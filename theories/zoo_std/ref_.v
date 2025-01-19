@@ -20,7 +20,8 @@ Section zoo_G.
     ⌜t = #l⌝ ∗
     inv nroot (
       ∃ w,
-      l ↦ᵣ w ∗ τ w
+      l ↦ᵣ w ∗
+      τ w
     ).
   #[global] Instance itype_ref_itype :
     iType _ itype_ref.
@@ -34,7 +35,8 @@ Section zoo_G.
     }}}
       ref v
     {{{ t,
-      RET t; itype_ref t
+      RET t;
+      itype_ref t
     }}}.
   Proof.
     iSteps.
@@ -46,7 +48,8 @@ Section zoo_G.
     }}}
       !t
     {{{ v,
-      RET v; τ v
+      RET v;
+      τ v
     }}}.
   Proof.
     iSteps.

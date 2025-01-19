@@ -13,17 +13,21 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
+Definition dynarray_2_element : val :=
+  fun: "v" =>
+    ‘Element{ "v" }.
+
 Definition dynarray_2_create : val :=
   fun: <> =>
     { #0, array_create () }.
 
 Definition dynarray_2_make : val :=
   fun: "sz" "v" =>
-    { "sz", array_init "sz" (fun: <> => ‘Some( ref "v" )) }.
+    { "sz", array_init "sz" (fun: <> => dynarray_2_element "v") }.
 
 Definition dynarray_2_initi : val :=
   fun: "sz" "fn" =>
-    { "sz", array_initi "sz" (fun: "i" => ‘Some( ref ("fn" "i") )) }.
+    { "sz", array_initi "sz" (fun: "i" => dynarray_2_element ("fn" "i")) }.
 
 Definition dynarray_2_size : val :=
   fun: "t" =>
@@ -52,19 +56,19 @@ Definition dynarray_2_is_empty : val :=
 Definition dynarray_2_get : val :=
   fun: "t" "i" =>
     match: array_get (dynarray_2_data "t") "i" with
-    | None =>
+    | Empty =>
         diverge ()
-    | Some "ref" =>
-        !"ref"
+    | Element <> as "slot_r" =>
+        "slot_r".{value}
     end.
 
 Definition dynarray_2_set : val :=
   fun: "t" "i" "v" =>
     match: array_get (dynarray_2_data "t") "i" with
-    | None =>
+    | Empty =>
         diverge ()
-    | Some "ref" =>
-        "ref" <- "v"
+    | Element <> as "slot_r" =>
+        "slot_r" <-{value} "v"
     end.
 
 Definition dynarray_2_next_capacity : val :=
@@ -84,7 +88,7 @@ Definition dynarray_2_reserve : val :=
     let: "cap" := array_size "data" in
     if: "cap" < "n" then (
       let: "cap" := int_max "n" (dynarray_2_next_capacity "cap") in
-      let: "data" := array_unsafe_grow "data" "cap" §None in
+      let: "data" := array_unsafe_grow "data" "cap" §Empty in
       dynarray_2_set_data "t" "data"
     ).
 
@@ -114,7 +118,7 @@ Definition dynarray_2_push_aux : val :=
 
 Definition dynarray_2_push : val :=
   fun: "t" "v" =>
-    let: "slot" := ‘Some( ref "v" ) in
+    let: "slot" := dynarray_2_element "v" in
     if: ~ dynarray_2_try_push "t" "slot" then (
       dynarray_2_push_aux "t" "slot"
     ).
@@ -127,12 +131,12 @@ Definition dynarray_2_pop : val :=
     assume (#0 < "sz") ;;
     let: "sz" := "sz" - #1 in
     match: array_unsafe_get "data" "sz" with
-    | None =>
+    | Empty =>
         diverge ()
-    | Some "ref" =>
-        array_unsafe_set "data" "sz" §None ;;
+    | Element <> as "slot_r" =>
+        array_unsafe_set "data" "sz" §Empty ;;
         dynarray_2_set_size "t" "sz" ;;
-        !"ref"
+        "slot_r".{value}
     end.
 
 Definition dynarray_2_fit_capacity : val :=
@@ -154,12 +158,12 @@ Definition dynarray_2_iteri : val :=
     let: "data" := dynarray_2_data "t" in
     assume ("sz" ≤ array_size "data") ;;
     array_unsafe_iteri_slice
-      (fun: "i" "v" =>
-         match: "v" with
-         | None =>
+      (fun: "i" "slot" =>
+         match: "slot" with
+         | Empty =>
              diverge ()
-         | Some "v" =>
-             "fn" "i" !"v"
+         | Element <> as "slot_r" =>
+             "fn" "i" "slot_r".{value}
          end)
       "data"
       #0
