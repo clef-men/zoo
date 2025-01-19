@@ -313,11 +313,11 @@ Section ws_hub_std_G.
       RET t;
       ws_hub_std_inv t ι ∗
       ws_hub_std_model t ∅ ∗
-      [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      [∗ list] i ∈ seq 0 ₊sz,
         ws_hub_std_owner t i
     }}}.
   Proof.
-    set sz' := Z.to_nat sz.
+    set sz' := ₊sz.
 
     iIntros "%Hsz %Φ _ HΦ".
 
@@ -329,7 +329,7 @@ Section ws_hub_std_G.
     { iIntros "!> %i %Hi".
       wp_smart_apply int_positive_part_spec.
       wp_apply (random_round_create_spec' with "[//]"); first lia.
-      rewrite Nat2Z.id. assert (Z.to_nat (sz - 1) = sz' - 1) as -> by lia.
+      rewrite Nat2Z.id. assert (₊(sz - 1) = sz' - 1) as -> by lia.
       iSteps.
     }
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
@@ -434,7 +434,7 @@ Section ws_hub_std_G.
   Qed.
 
   Lemma ws_hub_std_push_spec t ι i i_ v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_
@@ -479,7 +479,7 @@ Section ws_hub_std_G.
   Qed.
 
   Lemma ws_hub_std_pop_spec t ι i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_
@@ -551,7 +551,7 @@ Section ws_hub_std_G.
   Qed.
 
   #[local] Lemma ws_hub_std_try_steal_once_spec t ι i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_
@@ -623,7 +623,7 @@ Section ws_hub_std_G.
   Qed.
 
   #[local] Lemma ws_hub_std_try_steal_spec P t ι i i_ yield max_round until :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round)%Z →
     <<<
       ws_hub_std_inv t ι ∗
@@ -692,7 +692,7 @@ Section ws_hub_std_G.
   Qed.
 
   #[local] Lemma ws_hub_std_steal_until_aux_spec P t ι i i_ pred :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι ∗
       ws_hub_std_owner t i_ ∗
@@ -750,7 +750,7 @@ Section ws_hub_std_G.
         wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
   Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield pred :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_std_inv t ι ∗
@@ -803,7 +803,7 @@ Section ws_hub_std_G.
   Qed.
 
   #[local] Lemma ws_hub_std_steal_aux_spec P t ι i i_ max_round_noyield max_round_yield until :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
@@ -857,7 +857,7 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
   Lemma ws_hub_std_steal_spec t ι i i_ max_round_noyield max_round_yield :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<

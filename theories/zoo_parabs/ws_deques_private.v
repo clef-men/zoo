@@ -236,7 +236,6 @@ Section ws_deques_private_G.
   Admitted.
 
   Lemma ws_deques_private_create_spec ι sz :
-    let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
     {{{
       True
@@ -244,9 +243,9 @@ Section ws_deques_private_G.
       ws_deques_private_create #sz
     {{{ t,
       RET t;
-      ws_deques_private_inv t ι sz' ∗
-      ws_deques_private_model t (replicate sz' []) ∗
-      [∗ list] i ∈ seq 0 sz',
+      ws_deques_private_inv t ι ₊sz ∗
+      ws_deques_private_model t (replicate ₊sz []) ∗
+      [∗ list] i ∈ seq 0 ₊sz,
         ws_deques_private_owner t i
     }}}.
   Proof.
@@ -265,7 +264,7 @@ Section ws_deques_private_G.
   Admitted.
 
   Lemma ws_deques_private_push_spec t ι sz i i_ v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
       ws_deques_private_owner t i_
@@ -284,7 +283,7 @@ Section ws_deques_private_G.
   Admitted.
 
   Lemma ws_deques_private_pop_spec t ι sz i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
       ws_deques_private_owner t i_
@@ -310,8 +309,7 @@ Section ws_deques_private_G.
   Admitted.
 
   Lemma ws_deques_private_steal_to_spec t ι (sz : nat) i i_ j :
-    let j_ := Z.to_nat j in
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
       ws_deques_private_inv t ι sz ∗
@@ -324,12 +322,12 @@ Section ws_deques_private_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! j_ = Some []⌝ ∗
+          ⌜vss !! ₊j = Some []⌝ ∗
           ws_deques_private_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[j_ := vs]> vss)
+          ⌜vss !! ₊j = Some (v :: vs)⌝ ∗
+          ws_deques_private_model t (<[₊j := vs]> vss)
       end
     | RET o;
       ws_deques_private_owner t i_

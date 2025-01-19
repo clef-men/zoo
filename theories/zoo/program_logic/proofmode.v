@@ -124,9 +124,9 @@ Section zoo_G.
     ( ∀ l,
       match
         envs_app false (Esnoc (Esnoc (Esnoc Enil
-          id1 (l ↦ₕ Header (Z.to_nat tag) (Z.to_nat n)))
+          id1 (l ↦ₕ Header ₊tag ₊n))
           id2 (meta_token l ⊤))
-          id3 (l ↦∗ replicate (Z.to_nat n) ()%V))
+          id3 (l ↦∗ replicate ₊n ()%V))
           Δ'
       with
       | Some Δ'' =>

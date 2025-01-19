@@ -44,7 +44,6 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
     False ;
 
   ws_deques_create_spec ι sz :
-    let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
     {{{
       True
@@ -52,9 +51,9 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
       ws_deques_create #sz
     {{{ t,
       RET t;
-      ws_deques_inv t ι sz' ∗
-      ws_deques_model t (replicate sz' []) ∗
-      [∗ list] i ∈ seq 0 sz',
+      ws_deques_inv t ι ₊sz ∗
+      ws_deques_model t (replicate ₊sz []) ∗
+      [∗ list] i ∈ seq 0 ₊sz,
         ws_deques_owner t i
     }}} ;
 
@@ -69,7 +68,7 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
     }}} ;
 
   ws_deques_push_spec t ι sz i i_ v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_inv t ι sz ∗
       ws_deques_owner t i_
@@ -86,7 +85,7 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
     >>> ;
 
   ws_deques_pop_spec t ι sz i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_inv t ι sz ∗
       ws_deques_owner t i_
@@ -110,8 +109,7 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
     >>> ;
 
   ws_deques_steal_to_spec t ι (sz : nat) i i_ j :
-    let j_ := Z.to_nat j in
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
       ws_deques_inv t ι sz ∗
@@ -124,12 +122,12 @@ Record ws_deques `{zoo_G : !ZooG Σ} := {
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! j_ = Some []⌝ ∗
+          ⌜vss !! ₊j = Some []⌝ ∗
           ws_deques_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
-          ws_deques_model t (<[j_ := vs]> vss)
+          ⌜vss !! ₊j = Some (v :: vs)⌝ ∗
+          ws_deques_model t (<[₊j := vs]> vss)
       end
     | RET o;
       ws_deques_owner t i_
@@ -166,7 +164,7 @@ Section zoo_G.
       ws_deques_steal_as_aux "t" "sz" "i" "round" ("sz" - #1).
 
   #[local] Lemma ws_deques_steal_as_aux_spec t ι (sz : nat) i i_ round (n : nat) :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques.(ws_deques_inv) t ι sz ∗
       ws_deques.(ws_deques_owner) t i_ ∗
@@ -182,7 +180,7 @@ Section zoo_G.
           ws_deques.(ws_deques_model) t vss
       | Some v =>
           ∃ j vs,
-          ⌜Z.to_nat i ≠ j⌝ ∗
+          ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
           ws_deques.(ws_deques_model) t (<[j := vs]> vss)
       end
@@ -221,7 +219,7 @@ Section zoo_G.
         iSteps.
   Qed.
   Lemma ws_deques_steal_as_spec t ι sz i i_ round :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     0 < sz →
     <<<
       ws_deques.(ws_deques_inv) t ι sz ∗
@@ -238,7 +236,7 @@ Section zoo_G.
           ws_deques.(ws_deques_model) t vss
       | Some v =>
           ∃ j vs,
-          ⌜Z.to_nat i ≠ j⌝ ∗
+          ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
           ws_deques.(ws_deques_model) t (<[j := vs]> vss)
       end

@@ -354,7 +354,7 @@ Lemma heap_array_lookup l vs w k :
     ∃ j,
     (0 ≤ j)%Z ∧
     k = l +ₗ j ∧
-    vs !! (Z.to_nat j) = Some w.
+    vs !! ₊j = Some w.
 Proof.
   revert k l; induction vs as [|v' vs IH]=> l' l /=.
   { rewrite lookup_empty. naive_solver lia. }
@@ -366,7 +366,7 @@ Proof.
     { rewrite location_add_0; eauto. }
     right. split.
     { rewrite -{1}(location_add_0 l). intros ?%(inj (location_add _)); lia. }
-    assert (Z.to_nat j = S (Z.to_nat (j - 1))) as Hj.
+    assert (₊j = S ₊(j - 1)) as Hj.
     { rewrite -Z2Nat.inj_succ; last lia. f_equal; lia. }
     rewrite Hj /= in Hil.
     eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
@@ -380,7 +380,7 @@ Lemma heap_array_map_disjoint heap l vs :
 Proof.
   intros Hdisj. apply map_disjoint_spec=> l' v1 v2.
   intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_array_lookup ?.
-  ospecialize* (Hdisj (Z.to_nat j)); first lia.
+  ospecialize* (Hdisj ₊j); first lia.
   rewrite Z2Nat.id // in Hdisj. naive_solver.
 Qed.
 
@@ -478,7 +478,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       (0 ≤ n)%Z →
       σ.(state_headers) !! l = None →
       ( ∀ i,
-        i < Z.to_nat n →
+        i < ₊n →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
@@ -486,7 +486,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
         (Val $ ValLoc l)
-        (state_alloc l (Header tag (Z.to_nat n)) (replicate (Z.to_nat n) ValUnit) σ)
+        (state_alloc l (Header tag ₊n) (replicate ₊n ValUnit) σ)
         []
   | base_step_block_mutable tag es vs σ l :
       0 < length es →
@@ -679,7 +679,7 @@ Lemma base_step_alloc' tag n σ :
     σ
     []
     (Val $ ValLoc l)
-    (state_alloc l (Header tag (Z.to_nat n)) (replicate (Z.to_nat n) ValUnit) σ)
+    (state_alloc l (Header tag ₊n) (replicate ₊n ValUnit) σ)
     [].
 Proof.
   intros l Hn.

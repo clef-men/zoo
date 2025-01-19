@@ -174,7 +174,7 @@ Section bag_1_G.
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
     iExists l, γ. rewrite length_fmap in Hslots. iStep 5. iApply inv_alloc.
-    iExists 0, 0, (replicate (Z.to_nat sz) None), ∅. iSteps.
+    iExists 0, 0, (replicate ₊sz None), ∅. iSteps.
     - iPureIntro. Z_to_nat sz. clear. rewrite Nat2Z.id.
       induction sz; first done. rewrite replicate_S //.
     - iApply big_sepL2_replicate_r; first done.

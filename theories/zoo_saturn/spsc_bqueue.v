@@ -395,7 +395,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_create #cap
     {{{ t,
       RET t;
-      spsc_bqueue_inv t ι (Z.to_nat cap) ∗
+      spsc_bqueue_inv t ι ₊cap ∗
       spsc_bqueue_model t [] ∗
       spsc_bqueue_producer t ∗
       spsc_bqueue_consumer t

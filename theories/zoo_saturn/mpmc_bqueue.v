@@ -157,7 +157,7 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_create #cap
     {{{ t,
       RET t;
-      mpmc_bqueue_inv t ι (Z.to_nat cap) ∗
+      mpmc_bqueue_inv t ι ₊cap ∗
       mpmc_bqueue_model t []
     }}}.
   Proof.

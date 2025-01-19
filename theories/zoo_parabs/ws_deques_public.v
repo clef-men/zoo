@@ -112,7 +112,6 @@ Section ws_deques_public_G.
   Qed.
 
   Lemma ws_deques_public_create_spec ι sz :
-    let sz' := Z.to_nat sz in
     (0 ≤ sz)%Z →
     {{{
       True
@@ -120,13 +119,13 @@ Section ws_deques_public_G.
       ws_deques_public_create #sz
     {{{ t,
       RET t;
-      ws_deques_public_inv t ι sz' ∗
-      ws_deques_public_model t (replicate sz' []) ∗
-      [∗ list] i ∈ seq 0 sz',
+      ws_deques_public_inv t ι ₊sz ∗
+      ws_deques_public_model t (replicate ₊sz []) ∗
+      [∗ list] i ∈ seq 0 ₊sz,
         ws_deques_public_owner t i
     }}}.
   Proof.
-    iIntros "%sz' %Hsz %Φ _ HΦ".
+    iIntros "%Hsz %Φ _ HΦ".
     wp_rec.
     pose (Ψ (_ : nat) deques := (
       ( [∗ list] deque ∈ deques,
@@ -169,7 +168,7 @@ Section ws_deques_public_G.
   Qed.
 
   Lemma ws_deques_public_push_spec t ι sz i i_ v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
       ws_deques_public_owner t i_
@@ -205,7 +204,7 @@ Section ws_deques_public_G.
   Qed.
 
   Lemma ws_deques_public_pop_spec t ι sz i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
       ws_deques_public_owner t i_
@@ -252,8 +251,7 @@ Section ws_deques_public_G.
   Qed.
 
   Lemma ws_deques_public_steal_to_spec t ι (sz : nat) i i_ j :
-    let j_ := Z.to_nat j in
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
       ws_deques_public_inv t ι sz ∗
@@ -266,20 +264,20 @@ Section ws_deques_public_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! j_ = Some []⌝ ∗
+          ⌜vss !! ₊j = Some []⌝ ∗
           ws_deques_public_model t vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! j_ = Some (v :: vs)⌝ ∗
-          ws_deques_public_model t (<[j_ := vs]> vss)
+          ⌜vss !! ₊j = Some (v :: vs)⌝ ∗
+          ws_deques_public_model t (<[₊j := vs]> vss)
       end
     | RET o;
       ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros (j_ -> Hj) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & Howner) HΦ".
+    iIntros (-> Hj) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & Howner) HΦ".
     wp_rec.
-    destruct (lookup_lt_is_Some_2 deques j_) as (deque & Hdeque_lookup); first lia.
+    destruct (lookup_lt_is_Some_2 deques ₊j) as (deque & Hdeque_lookup); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done.. |].
     iDestruct (big_sepL_lookup with "Hdeques_inv") as "#Hdeque_inv"; first done.
     awp_apply (inf_ws_deque_2_steal_spec with "Hdeque_inv") without "Howner".

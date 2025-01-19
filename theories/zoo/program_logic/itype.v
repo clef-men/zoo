@@ -50,7 +50,7 @@ Section basic.
     itype_refined_int (λ i, (lb ≤ i < ub)%Z).
 
   Definition itype_nat v : PROP :=
-    ∃ i, ⌜v = ValInt (Z.of_nat i)⌝.
+    ∃ i, ⌜v = ValInt ⁺i⌝.
   #[global] Instance itype_nat_itype :
     iType _ itype_nat.
   Proof.
@@ -58,7 +58,7 @@ Section basic.
   Qed.
 
   Definition itype_refined_nat ϕ v : PROP :=
-    ∃ i, ⌜v = ValInt (Z.of_nat i) ∧ ϕ i⌝.
+    ∃ i, ⌜v = ValInt ⁺i ∧ ϕ i⌝.
   #[global] Instance itype_refined_nat_itype ϕ :
     iType _ (itype_refined_nat ϕ).
   Proof.

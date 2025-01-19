@@ -76,9 +76,9 @@ Section zoo_G.
       Alloc #tag #n
     {{ l,
       RET #l;
-      l ↦ₕ Header (Z.to_nat tag) (Z.to_nat n) ∗
+      l ↦ₕ Header ₊tag ₊n ∗
       meta_token l ⊤ ∗
-      l ↦∗ replicate (Z.to_nat n) ()%V
+      l ↦∗ replicate ₊n ()%V
     }}.
   Proof.
     iSteps.

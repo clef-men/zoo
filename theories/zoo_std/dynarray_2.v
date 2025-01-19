@@ -103,7 +103,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      dynarray_2_model t (replicate (Z.to_nat sz) v)
+      dynarray_2_model t (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -133,7 +133,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
+        ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
           ▷ Ψ (S i) (vs ++ [v])
@@ -145,7 +145,7 @@ Section zoo_G.
       RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
@@ -176,7 +176,7 @@ Section zoo_G.
   Lemma dynarray_2_initi_spec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -190,18 +190,18 @@ Section zoo_G.
       RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
     match goal with |- context [big_opL bi_sep (λ _, ?Ξ') _] => set Ξ := Ξ' end.
     pose (Ψ' i vs := (
       Ψ i vs ∗
-      [∗ list] j ∈ seq i (Z.to_nat sz - i), Ξ j
+      [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
     wp_apply (dynarray_2_initi_spec Ψ' with "[$HΨ Hfn]"); last iSteps.
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
-    destruct (Nat.lt_exists_pred 0 (Z.to_nat sz - i)) as (k & Hk & _); first lia. rewrite Hk.
+    destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
     wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
@@ -210,7 +210,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v,
           ▷ Ψ i v
         }}
@@ -236,7 +236,7 @@ Section zoo_G.
   Qed.
   Lemma dynarray_2_initi_spec_disentangled' Ψ sz fn :
     {{{
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v,
           ▷ Ψ i v
         }}
@@ -313,7 +313,7 @@ Section zoo_G.
 
   Lemma dynarray_2_get_spec t vs (i : Z) v :
     (0 ≤ i)%Z →
-    vs !! Z.to_nat i = Some v →
+    vs !! ₊i = Some v →
     {{{
       dynarray_2_model t vs
     }}}
@@ -347,7 +347,7 @@ Section zoo_G.
     {{{
       RET ();
       ⌜0 ≤ i < length vs⌝%Z ∗
-      dynarray_2_model t (<[Z.to_nat i := v]> vs)
+      dynarray_2_model t (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ (:model) HΦ".
@@ -939,7 +939,7 @@ Section zoo_G.
 
   Lemma dynarray_2_initi_type sz fn :
     {{{
-      (itype_nat_upto (Z.to_nat sz) --> τ)%T fn
+      (itype_nat_upto ₊sz --> τ)%T fn
     }}}
       dynarray_2_initi #sz fn
     {{{ t,

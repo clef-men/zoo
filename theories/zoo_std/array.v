@@ -820,7 +820,7 @@ Section zoo_G.
       array_unsafe_alloc #sz
     {{{ t,
       RET t;
-      array_model t (DfracOwn 1) (replicate (Z.to_nat sz) ()%V)
+      array_model t (DfracOwn 1) (replicate ₊sz ()%V)
     }}}.
   Proof.
     rewrite /array_model /array_slice.
@@ -838,7 +838,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      array_model t (DfracOwn 1) (replicate (Z.to_nat sz) ()%V)
+      array_model t (DfracOwn 1) (replicate ₊sz ()%V)
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -949,7 +949,7 @@ Section zoo_G.
       True
     | ∀∀ dq vs i v,
       ⌜(i ≤ j)%Z⌝ ∗
-      ⌜vs !! (Z.to_nat j - i) = Some v⌝ ∗
+      ⌜vs !! (₊j - i) = Some v⌝ ∗
       array_slice t i dq vs
     >>>
       array_unsafe_get t #j
@@ -972,12 +972,12 @@ Section zoo_G.
     <<<
       True
     | ∀∀ i_ dq v,
-      ⌜i = Z.of_nat i_⌝ ∗
+      ⌜i = ⁺i_⌝ ∗
       array_slice t i_ dq [v]
     >>>
       array_unsafe_get t #i
     <<<
-      array_slice t (Z.to_nat i) dq [v]
+      array_slice t ₊i dq [v]
     | RET v;
       £ 1
     >>>.
@@ -993,7 +993,7 @@ Section zoo_G.
     <<<
       True
     | ∀∀ dq vs v,
-      ⌜vs !! Z.to_nat i = Some v⌝ ∗
+      ⌜vs !! ₊i = Some v⌝ ∗
       array_model t dq vs
     >>>
       array_unsafe_get t #i
@@ -1013,7 +1013,7 @@ Section zoo_G.
   Lemma array_unsafe_get_spec_slice k t i dq vs (j : Z) v :
     (i ≤ j)%Z →
     vs !! k = Some v →
-    k = Z.to_nat j - i →
+    k = ₊j - i →
     {{{
       array_slice t i dq vs
     }}}
@@ -1035,7 +1035,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_unsafe_get_spec_cell t (i : Z) i_ dq v :
-    i = Z.to_nat i_ →
+    i = ₊i_ →
     {{{
       array_slice t i_ dq [v]
     }}}
@@ -1051,7 +1051,7 @@ Section zoo_G.
   Lemma array_unsafe_get_spec i_ t (i : Z) dq vs v :
     (0 ≤ i)%Z →
     vs !! i_ = Some v →
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_model t dq vs
     }}}
@@ -1072,8 +1072,8 @@ Section zoo_G.
       array_inv t sz
     | ∀∀ dq vs i v,
       ⌜0 ≤ j < sz⌝%Z -∗
-        ⌜i ≤ Z.to_nat j⌝ ∗
-        ⌜vs !! (Z.to_nat j - i) = Some v⌝ ∗
+        ⌜i ≤ ₊j⌝ ∗
+        ⌜vs !! (₊j - i) = Some v⌝ ∗
         array_slice t i dq vs
     >>>
       array_get t #j
@@ -1096,7 +1096,7 @@ Section zoo_G.
     repeat iExists _. iFrame. iSplitL; first iSteps. iSplitL; last iSteps. iIntros "!> (_ & _ & Hslice)". iSplitL; iSteps.
   Qed.
   Lemma array_get_spec_atomic_cell t sz (i : Z) i_ :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     <<<
       array_inv t sz
     | ∀∀ dq v,
@@ -1115,14 +1115,14 @@ Section zoo_G.
     awp_apply (array_get_spec_atomic_slice with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %v H".
     rewrite /atomic_acc /=.
-    iExists dq, [v], (Z.to_nat i), v. rewrite Nat.sub_diag. iSplitL; first iSteps. iSplitR; last iSteps. iIntros "!> H". iSplitL; iSteps.
+    iExists dq, [v], ₊i, v. rewrite Nat.sub_diag. iSplitL; first iSteps. iSplitR; last iSteps. iIntros "!> H". iSplitL; iSteps.
   Qed.
   Lemma array_get_spec_atomic t sz (i : Z) :
     <<<
       array_inv t sz
     | ∀∀ dq vs v,
       ⌜0 ≤ i < sz⌝%Z -∗
-        ⌜vs !! Z.to_nat i = Some v⌝ ∗
+        ⌜vs !! ₊i = Some v⌝ ∗
         array_model t dq vs
     >>>
       array_get t #i
@@ -1148,9 +1148,9 @@ Section zoo_G.
     {{{
       array_inv t sz ∗
       ( ⌜0 ≤ j < sz⌝%Z -∗
-          ⌜i ≤ Z.to_nat j⌝ ∗
+          ⌜i ≤ ₊j⌝ ∗
           ⌜vs !! k = Some v⌝ ∗
-          ⌜k = Z.to_nat j - i⌝ ∗
+          ⌜k = ₊j - i⌝ ∗
           array_slice t i dq vs
       )
     }}}
@@ -1171,7 +1171,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_get_spec_cell t sz (i : Z) i_ dq v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_inv t sz ∗
       ( ⌜0 ≤ i < sz⌝%Z -∗
@@ -1193,7 +1193,7 @@ Section zoo_G.
     {{{
       array_model t dq vs ∗
       ( ⌜0 ≤ i < length vs⌝%Z -∗
-        ⌜vs !! Z.to_nat i = Some v⌝
+        ⌜vs !! ₊i = Some v⌝
       )
     }}}
       array_get t #i
@@ -1222,7 +1222,7 @@ Section zoo_G.
     >>>
       array_unsafe_set t #j v
     <<<
-      array_slice t i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
+      array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     | RET ();
       £ 1
     >>>.
@@ -1232,7 +1232,7 @@ Section zoo_G.
     wp_rec credit:"H£". wp_pures.
     iMod "HΦ" as "(%vs & %i & (%Hj & (%l & -> & Hmodel)) & _ & HΦ)".
     iDestruct (chunk_model_update' j with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
-    { destruct (nth_lookup_or_length vs (Z.to_nat j - Z.to_nat i) inhabitant); [done | lia]. }
+    { destruct (nth_lookup_or_length vs (₊j - ₊i) inhabitant); [done | lia]. }
     wp_store.
     iApply ("HΦ" with "[H↦ Hmodel] [H£]"); last iSteps.
     rewrite Nat2Z.id. iSteps.
@@ -1241,7 +1241,7 @@ Section zoo_G.
     <<<
       True
     | ∀∀ i_ w,
-      ⌜i = Z.of_nat i_⌝ ∗
+      ⌜i = ⁺i_⌝ ∗
       array_slice t i_ (DfracOwn 1) [w]
     >>>
       array_unsafe_set t #i v
@@ -1267,7 +1267,7 @@ Section zoo_G.
     >>>
       array_unsafe_set t #i v
     <<<
-      array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
     | RET ();
       £ 1
     >>>.
@@ -1287,7 +1287,7 @@ Section zoo_G.
       array_unsafe_set t #j v
     {{{
       RET ();
-      array_slice t i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
+      array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hj %Φ Hslice HΦ".
@@ -1302,7 +1302,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_unsafe_set_spec_cell t (i : Z) i_ w v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     {{{
       array_slice t i_ (DfracOwn 1) [w]
     }}}
@@ -1325,7 +1325,7 @@ Section zoo_G.
       array_unsafe_set t #i v
     {{{
       RET ();
-      array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
     }}}.
   Proof.
     setoid_rewrite array_model_to_slice' at 1.
@@ -1341,12 +1341,12 @@ Section zoo_G.
       array_inv t sz
     | ∀∀ vs i,
       ⌜0 ≤ j < sz⌝%Z -∗
-        ⌜i ≤ Z.to_nat j < i + length vs⌝ ∗
+        ⌜i ≤ ₊j < i + length vs⌝ ∗
         array_slice t i (DfracOwn 1) vs
     >>>
       array_set t #j v
     <<<
-      array_slice t i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
+      array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     | RET ();
       ⌜0 ≤ j < sz⌝%Z ∗
       £ 1
@@ -1364,7 +1364,7 @@ Section zoo_G.
     repeat iExists _. iFrame. iSplitL; first iSteps. iSplitL; last iSteps. iIntros "!> (_ & Hslice)". iSplitL; iSteps.
   Qed.
   Lemma array_set_spec_atomic_cell t sz (i : Z) i_ v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     <<<
       array_inv t sz
     | ∀∀ w,
@@ -1383,19 +1383,19 @@ Section zoo_G.
     awp_apply (array_set_spec_atomic_slice with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%w Hslice".
     rewrite /atomic_acc /=.
-    iExists [w], (Z.to_nat i). rewrite Nat.sub_diag. iSplitL; first iSteps. iSplitR; last iSteps. iIntros "!> H". iSplitL; iSteps.
+    iExists [w], ₊i. rewrite Nat.sub_diag. iSplitL; first iSteps. iSplitR; last iSteps. iIntros "!> H". iSplitL; iSteps.
   Qed.
   Lemma array_set_spec_atomic t sz (i : Z) v :
     <<<
       array_inv t sz
     | ∀∀ vs,
       ⌜0 ≤ i < sz⌝%Z -∗
-        ⌜(Z.to_nat i < length vs)%Z⌝ ∗
+        ⌜(₊i < length vs)%Z⌝ ∗
         array_model t (DfracOwn 1) vs
     >>>
       array_set t #i v
     <<<
-      array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
     | RET ();
       ⌜0 ≤ i < sz⌝%Z ∗
       £ 1
@@ -1416,7 +1416,7 @@ Section zoo_G.
     {{{
       array_inv t sz ∗
       ( ⌜0 ≤ j < sz⌝%Z -∗
-          ⌜i ≤ Z.to_nat j < i + length vs⌝ ∗
+          ⌜i ≤ ₊j < i + length vs⌝ ∗
           array_slice t i (DfracOwn 1) vs
       )
     }}}
@@ -1424,7 +1424,7 @@ Section zoo_G.
     {{{
       RET ();
       ⌜0 ≤ j < sz⌝%Z ∗
-      array_slice t i (DfracOwn 1) (<[Z.to_nat j - i := v]> vs)
+      array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
@@ -1437,7 +1437,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_set_spec_cell t sz (i : Z) i_ w v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_inv t sz ∗
       ( ⌜0 ≤ i < sz⌝%Z -∗
@@ -1452,7 +1452,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hinv & H) HΦ".
-    wp_apply (array_set_spec_slice _ _ (Z.to_nat i) [_] with "[$Hinv H]"); first iSteps.
+    wp_apply (array_set_spec_slice _ _ ₊i [_] with "[$Hinv H]"); first iSteps.
     rewrite Nat.sub_diag //.
   Qed.
   Lemma array_set_spec t (i : Z) vs v :
@@ -1462,7 +1462,7 @@ Section zoo_G.
       array_set t #i v
     {{{
       RET ();
-      array_model t (DfracOwn 1) (<[Z.to_nat i := v]> vs)
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
@@ -1480,9 +1480,9 @@ Section zoo_G.
       ▷ Ψ 0 ∗
       □ (
         ∀ j,
-        ⌜j < Z.to_nat n⌝ -∗
+        ⌜j < ₊n⌝ -∗
         Ψ j -∗
-        au_store t (Z.to_nat i + j) v (
+        au_store t (₊i + j) v (
           ▷ Ψ (S j)
         )
       )
@@ -1490,7 +1490,7 @@ Section zoo_G.
       array_unsafe_fill_slice t #i #n v
     {{{
       RET ();
-      Ψ (Z.to_nat n)
+      Ψ ₊n
     }}}.
   Proof.
     iIntros "%Hi %Hn %Φ (HΨ & #H) HΦ".
@@ -1506,7 +1506,7 @@ Section zoo_G.
     repeat iExists _. iFrame. iSteps.
   Qed.
   Lemma array_unsafe_fill_slice_spec t vs (i : Z) i_ (n : Z) v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     n = length vs →
     {{{
       array_slice t i_ (DfracOwn 1) vs
@@ -1514,7 +1514,7 @@ Section zoo_G.
       array_unsafe_fill_slice t #i #n v
     {{{
       RET ();
-      array_slice t i_ (DfracOwn 1) (replicate (Z.to_nat n) v)
+      array_slice t i_ (DfracOwn 1) (replicate ₊n v)
     }}}.
   Proof.
     iIntros (-> ->) "%Φ Hslice HΦ".
@@ -1533,8 +1533,8 @@ Section zoo_G.
   Qed.
 
   Lemma array_fill_slice_spec t sz vs (i : Z) i_ (n : Z) v :
-    i_ = Z.to_nat i →
-    Z.to_nat n = length vs →
+    i_ = ₊i →
+    ₊n = length vs →
     {{{
       array_inv t sz ∗
       array_slice t i_ (DfracOwn 1) vs
@@ -1545,7 +1545,7 @@ Section zoo_G.
       ⌜0 ≤ i⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
-      array_slice t i_ (DfracOwn 1) (replicate (Z.to_nat n) v)
+      array_slice t i_ (DfracOwn 1) (replicate ₊n v)
     }}}.
   Proof.
     iIntros (->) "%Hn %Φ (#Hinv & Hslice) HΦ".
@@ -1584,7 +1584,7 @@ Section zoo_G.
       array_unsafe_make #sz v
     {{{ t,
       RET t;
-      array_model t (DfracOwn 1) (replicate (Z.to_nat sz) v)
+      array_model t (DfracOwn 1) (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "% %Φ _ HΦ".
@@ -1602,7 +1602,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      array_model t (DfracOwn 1) (replicate (Z.to_nat sz) v)
+      array_model t (DfracOwn 1) (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -1857,9 +1857,9 @@ Section zoo_G.
   Qed.
 
   #[local] Lemma array_foldri_aux_spec sz vs Ψ fn t (i : Z) acc :
-    Z.to_nat i + length vs = sz →
+    ₊i + length vs = sz →
     {{{
-      ▷ Ψ (Z.to_nat i) acc None vs ∗
+      ▷ Ψ ₊i acc None vs ∗
       □ (
         ∀ i acc (o : option val) vs,
         ⌜(S i + length vs)%nat = sz⌝ -∗
@@ -1884,7 +1884,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hi %Φ (HΨ & #H) HΦ".
-    remember (Z.to_nat i) as j eqn:Hj.
+    remember ₊i as j eqn:Hj.
     iInduction j as [| j] "IH" forall (i vs acc Hi Hj);
       wp_rec; wp_pures credit:"H£".
     - rewrite bool_decide_eq_true_2; first lia. wp_pures.
@@ -2108,12 +2108,12 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs (o : option val),
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_load t (Z.to_nat i + k) (λ v,
+            au_load t (₊i + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
@@ -2127,8 +2127,8 @@ Section zoo_G.
       array_unsafe_iteri_slice fn t #i #n
     {{{ vs,
       RET ();
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "% % % %Φ (#Hinv & HΨ & #H) HΦ".
@@ -2163,12 +2163,12 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2176,23 +2176,23 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
     iDestruct (array_model_to_inv with "Hmodel") as "#Hinv".
     pose (Ψ' k vs_left o := (
-      ⌜vs_left = slice (Z.to_nat i) k vs⌝ ∗
+      ⌜vs_left = slice ₊i k vs⌝ ∗
       array_model t dq vs ∗
       Ψ k vs_left ∗
-      ⌜from_option (λ v, vs !! (Z.to_nat i + k)%nat = Some v) True o⌝%I
+      ⌜from_option (λ v, vs !! (₊i + k)%nat = Some v) True o⌝%I
     )%I).
     wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); [done.. | | iSteps].
     iStep. iIntros "!> %k %vs_left %o %Hk1 %Hk2 (-> & Hmodel & HΨ & %Ho)".
     destruct o as [v |].
     - wp_apply (wp_wand with "(Hfn [//] [//] HΨ)") as (res) "(-> & HΨ)".
       rewrite slice_snoc //. iSteps.
-    - opose proof* (list_lookup_lookup_total_lt vs (Z.to_nat i + k)); first lia.
+    - opose proof* (list_lookup_lookup_total_lt vs (₊i + k)); first lia.
       iDestruct (array_model_lookup_acc with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
   Qed.
@@ -2203,11 +2203,11 @@ Section zoo_G.
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2215,19 +2215,19 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
     match goal with |- context [big_opL bi_sep ?Ξ' _] => set Ξ := Ξ' end.
     pose (Ψ' k vs_left := (
       Ψ k vs_left ∗
-      [∗ list] j ↦ v ∈ slice (Z.to_nat i + k) (Z.to_nat n - k) vs, Ξ (k + j) v
+      [∗ list] j ↦ v ∈ slice (₊i + k) (₊n - k) vs, Ξ (k + j) v
     )%I).
     wp_apply (array_unsafe_iteri_slice_spec Ψ' with "[$HΨ $Hmodel Hfn]"); [done.. | | iSteps].
     rewrite !right_id. iFrame.
     iIntros "!> %k %v %Hk %Hlookup (HΨ & HΞ)".
-    rewrite -(slice_cons' (Z.to_nat i + k) _ v) //; first lia.
+    rewrite -(slice_cons' (₊i + k) _ v) //; first lia.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     setoid_rewrite Nat.add_succ_r.
     rewrite Nat.add_0_r -Nat.add_succ_r -Nat.sub_add_distr Nat.add_1_r.
@@ -2241,8 +2241,8 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2253,7 +2253,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2272,7 +2272,7 @@ Section zoo_G.
     (i + n ≤ length vs)%Z →
     {{{
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2283,7 +2283,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2305,12 +2305,12 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs (o : option val),
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_load t (Z.to_nat i + k) (λ v,
+            au_load t (₊i + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
@@ -2327,8 +2327,8 @@ Section zoo_G.
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & H) HΦ".
@@ -2345,12 +2345,12 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2361,7 +2361,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
@@ -2376,11 +2376,11 @@ Section zoo_G.
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2391,7 +2391,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
@@ -2407,8 +2407,8 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2422,7 +2422,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2438,7 +2438,7 @@ Section zoo_G.
   Lemma array_iteri_slice_spec_disentangled' Ψ fn t dq vs (i n : Z) :
     {{{
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2452,7 +2452,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2475,12 +2475,12 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs (o : option val),
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_load t (Z.to_nat i + k) (λ v,
+            au_load t (₊i + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
@@ -2494,8 +2494,8 @@ Section zoo_G.
       array_unsafe_iter_slice fn t #i #n
     {{{ vs,
       RET ();
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "% % % %Φ (Hinv & HΨ & #H) HΦ".
@@ -2514,12 +2514,12 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2527,7 +2527,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
@@ -2542,11 +2542,11 @@ Section zoo_G.
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2554,7 +2554,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
@@ -2571,8 +2571,8 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2583,7 +2583,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2599,7 +2599,7 @@ Section zoo_G.
     (i + n ≤ length vs)%Z →
     {{{
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2610,7 +2610,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2628,12 +2628,12 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs (o : option val),
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_load t (Z.to_nat i + k) (λ v,
+            au_load t (₊i + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
@@ -2650,8 +2650,8 @@ Section zoo_G.
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & H) HΦ".
@@ -2668,12 +2668,12 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2684,7 +2684,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
@@ -2699,11 +2699,11 @@ Section zoo_G.
     {{{
       ▷ Ψ 0 [] ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
-        Ψ k (slice (Z.to_nat i) k vs) -∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice (Z.to_nat i) k vs ++ [v])
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -2714,7 +2714,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      Ψ (Z.to_nat n) (slice (Z.to_nat i) (Z.to_nat n) vs)
+      Ψ ₊n (slice ₊i ₊n vs)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
@@ -2730,8 +2730,8 @@ Section zoo_G.
       array_model t dq vs ∗
       □ (
         ∀ k v,
-        ⌜k < Z.to_nat n⌝ -∗
-        ⌜vs !! (Z.to_nat i + k)%nat = Some v⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2745,7 +2745,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -2761,7 +2761,7 @@ Section zoo_G.
   Lemma array_iter_slice_spec_disentangled' Ψ fn t dq vs (i n : Z) :
     {{{
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
           ▷ Ψ k v
@@ -2775,7 +2775,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      ( [∗ list] k ↦ v ∈ slice (Z.to_nat i) (Z.to_nat n) vs,
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
         Ψ k v
       )
     }}}.
@@ -3459,7 +3459,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v, ▷
@@ -3470,9 +3470,9 @@ Section zoo_G.
       array_unsafe_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
@@ -3484,7 +3484,7 @@ Section zoo_G.
     )%I.
     wp_apply (array_applyi_spec Ψ' with "[$Hmodel $HΨ]").
     { iSteps. iPureIntro.
-      erewrite <- (length_replicate (Z.to_nat sz)). eapply lookup_lt_Some. done.
+      erewrite <- (length_replicate ₊sz). eapply lookup_lt_Some. done.
     }
     iIntros "%vs (%Hvs & Hmodel & HΨ)".
     rewrite length_replicate in Hvs |- *.
@@ -3496,7 +3496,7 @@ Section zoo_G.
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -3508,20 +3508,20 @@ Section zoo_G.
       array_unsafe_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & Hfn) HΦ".
     match goal with |- context [big_opL bi_sep (λ _, ?Ξ') _] => set Ξ := Ξ' end.
     pose (Ψ' i vs := (
       Ψ i vs ∗
-      [∗ list] j ∈ seq i (Z.to_nat sz - i), Ξ j
+      [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
     wp_apply (array_unsafe_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs %Hi1 %Hi2 (HΨ & HΞ)".
-    destruct (Nat.lt_exists_pred 0 (Z.to_nat sz - i)) as (k & Hk & _); first lia. rewrite Hk.
+    destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
     wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
@@ -3531,7 +3531,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v, ▷
           Ψ i v
         }}
@@ -3540,7 +3540,7 @@ Section zoo_G.
       array_unsafe_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3558,7 +3558,7 @@ Section zoo_G.
   Lemma array_unsafe_initi_spec_disentangled' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v, ▷
           Ψ i v
         }}
@@ -3567,7 +3567,7 @@ Section zoo_G.
       array_unsafe_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3589,7 +3589,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v, ▷
@@ -3601,9 +3601,9 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
@@ -3615,7 +3615,7 @@ Section zoo_G.
   Lemma array_initi_spec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -3628,9 +3628,9 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
@@ -3643,7 +3643,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v, ▷
           Ψ i v
         }}
@@ -3653,7 +3653,7 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3668,7 +3668,7 @@ Section zoo_G.
   Qed.
   Lemma array_initi_spec_disentangled' Ψ sz fn :
     {{{
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v, ▷
           Ψ i v
         }}
@@ -3678,7 +3678,7 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3698,7 +3698,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn () {{ v, ▷
@@ -3709,9 +3709,9 @@ Section zoo_G.
       array_unsafe_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
@@ -3723,7 +3723,7 @@ Section zoo_G.
     (0 ≤ sz)%Z →
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -3735,9 +3735,9 @@ Section zoo_G.
       array_unsafe_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & Hfn) HΦ".
@@ -3751,7 +3751,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn () {{ v, ▷
           Ψ i v
         }}
@@ -3760,7 +3760,7 @@ Section zoo_G.
       array_unsafe_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3775,7 +3775,7 @@ Section zoo_G.
   Lemma array_unsafe_init_spec_disentangled' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn () {{ v, ▷
           Ψ i v
         }}
@@ -3784,7 +3784,7 @@ Section zoo_G.
       array_unsafe_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3803,7 +3803,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn () {{ v, ▷
@@ -3815,9 +3815,9 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
@@ -3829,7 +3829,7 @@ Section zoo_G.
   Lemma array_init_spec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -3842,9 +3842,9 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
@@ -3857,7 +3857,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn () {{ v, ▷
           Ψ i v
         }}
@@ -3867,7 +3867,7 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -3882,7 +3882,7 @@ Section zoo_G.
   Qed.
   Lemma array_init_spec_disentangled' Ψ sz fn :
     {{{
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         WP fn () {{ v, ▷
           Ψ i v
         }}
@@ -3892,7 +3892,7 @@ Section zoo_G.
     {{{ t vs,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -4109,7 +4109,7 @@ Section zoo_G.
       ▷ Ψ 0 [] None [] ∗
       □ (
         ∀ i vs (o : option val) ws,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         ⌜length vs = length ws⌝ -∗
         Ψ i vs o ws -∗
@@ -4257,16 +4257,16 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs o,
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_load t1 (Z.to_nat i1 + k) (λ v,
+            au_load t1 (₊i1 + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
-            au_store t2 (Z.to_nat i2 + k) v (
+            au_store t2 (₊i2 + k) v (
               ▷ Ψ (S k) (vs ++ [v]) None
             )
         end
@@ -4275,8 +4275,8 @@ Section zoo_G.
       array_unsafe_copy_slice t1 #i1 t2 #i2 #n
     {{{ vs,
       RET ();
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "%Hi1 %Hi2 %Hn %Φ (HΨ & #H) HΦ".
@@ -4306,8 +4306,8 @@ Section zoo_G.
     rewrite Z.sub_0_r. iSteps.
   Qed.
   Lemma array_unsafe_copy_slice_spec_slice_fit t1 (i1 : Z) i1_ dq1 vs1 t2 (i2 : Z) i2_ vs2 (n : Z) :
-    i1 = Z.of_nat i1_ →
-    i2 = Z.of_nat i2_ →
+    i1 = ⁺i1_ →
+    i2 = ⁺i2_ →
     n = length vs1 →
     length vs1 = length vs2 →
     {{{
@@ -4367,9 +4367,9 @@ Section zoo_G.
       RET ();
       array_slice t1 i1 dq1 vs1 ∗
       array_slice t2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat j1 - i1) vs1) ++
-        drop (Z.to_nat j2 - i2 + Z.to_nat n) vs2
+        take (₊j2 - i2) vs2 ++
+        take ₊n (drop (₊j1 - i1) vs1) ++
+        drop (₊j2 - i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -4406,9 +4406,9 @@ Section zoo_G.
       RET ();
       array_model t1 dq1 vs1 ∗
       array_model t2 (DfracOwn 1) (
-        take (Z.to_nat i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat i1) vs1) ++
-        drop (Z.to_nat i2 + Z.to_nat n) vs2
+        take ₊i2 vs2 ++
+        take ₊n (drop ₊i1 vs1) ++
+        drop (₊i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -4421,8 +4421,8 @@ Section zoo_G.
   Qed.
 
   Lemma array_copy_slice_spec_slice_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
-    i1_ = Z.to_nat i1 →
-    i2_ = Z.to_nat i2 →
+    i1_ = ₊i1 →
+    i2_ = ₊i2 →
     {{{
       array_inv t1 sz1 ∗
       array_inv t2 sz2 ∗
@@ -4431,7 +4431,7 @@ Section zoo_G.
         ⌜0 ≤ n⌝%Z -∗
         ⌜i1 + n ≤ sz1⌝%Z -∗
         ⌜i2 + n ≤ sz2⌝%Z -∗
-          ⌜Z.to_nat n = length vs1⌝ ∗
+          ⌜₊n = length vs1⌝ ∗
           ⌜length vs1 = length vs2⌝ ∗
           array_slice t1 i1_ dq1 vs1 ∗
           array_slice t2 i2_ (DfracOwn 1) vs2
@@ -4467,10 +4467,10 @@ Section zoo_G.
         ⌜0 ≤ n⌝%Z -∗
         ⌜j1 + n ≤ sz1⌝%Z -∗
         ⌜j2 + n ≤ sz2⌝%Z -∗
-          ⌜i1 ≤ Z.to_nat j1⌝ ∗
-          ⌜i2 ≤ Z.to_nat j2⌝ ∗
-          ⌜Z.to_nat j1 + n ≤ i1 + length vs1⌝%Z ∗
-          ⌜Z.to_nat j2 + n ≤ i2 + length vs2⌝%Z ∗
+          ⌜i1 ≤ ₊j1⌝ ∗
+          ⌜i2 ≤ ₊j2⌝ ∗
+          ⌜₊j1 + n ≤ i1 + length vs1⌝%Z ∗
+          ⌜₊j2 + n ≤ i2 + length vs2⌝%Z ∗
           array_slice t1 i1 dq1 vs1 ∗
           array_slice t2 i2 (DfracOwn 1) vs2
       )
@@ -4485,9 +4485,9 @@ Section zoo_G.
       ⌜j2 + n ≤ sz2⌝%Z ∗
       array_slice t1 i1 dq1 vs1 ∗
       array_slice t2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat j1 - i1) vs1) ++
-        drop (Z.to_nat j2 - i2 + Z.to_nat n) vs2
+        take (₊j2 - i2) vs2 ++
+        take ₊n (drop (₊j1 - i1) vs1) ++
+        drop (₊j2 - i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -4515,9 +4515,9 @@ Section zoo_G.
       ⌜i2 + n ≤ length vs2⌝%Z ∗
       array_model t1 dq1 vs1 ∗
       array_model t2 (DfracOwn 1) (
-        take (Z.to_nat i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat i1) vs1) ++
-        drop (Z.to_nat i2 + Z.to_nat n) vs2
+        take ₊i2 vs2 ++
+        take ₊n (drop ₊i1 vs1) ++
+        drop (₊i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -4547,7 +4547,7 @@ Section zoo_G.
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
-            au_store t2 (Z.to_nat i2 + k) v (
+            au_store t2 (₊i2 + k) v (
               ▷ Ψ (S k) (vs ++ [v]) None
             )
         end
@@ -4567,7 +4567,7 @@ Section zoo_G.
     rewrite Nat2Z.id. iSteps.
   Qed.
   Lemma array_unsafe_copy_spec_slice_fit t1 dq1 vs1 t2 (i2 : Z) i2_ vs2 :
-    i2 = Z.of_nat i2_ →
+    i2 = ⁺i2_ →
     length vs1 = length vs2 →
     {{{
       array_model t1 dq1 vs1 ∗
@@ -4599,9 +4599,9 @@ Section zoo_G.
       RET ();
       array_model t1 dq1 vs1 ∗
       array_slice t2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
+        take (₊j2 - i2) vs2 ++
         vs1 ++
-        drop (Z.to_nat j2 - i2 + length vs1) vs2
+        drop (₊j2 - i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -4624,9 +4624,9 @@ Section zoo_G.
       RET ();
       array_model t1 dq1 vs1 ∗
       array_model t2 (DfracOwn 1) (
-        take (Z.to_nat i2) vs2 ++
+        take ₊i2 vs2 ++
         vs1 ++
-        drop (Z.to_nat i2 + length vs1) vs2
+        drop (₊i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -4638,7 +4638,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_copy_spec_slice_fit t1 dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 :
-    i2_ = Z.to_nat i2 →
+    i2_ = ₊i2 →
     {{{
       array_model t1 dq1 vs1 ∗
       array_inv t2 sz2 ∗
@@ -4685,9 +4685,9 @@ Section zoo_G.
       ⌜i2 + length vs1 ≤ sz2⌝ ∗
       array_model t1 dq1 vs1 ∗
       array_slice t2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
+        take (₊j2 - i2) vs2 ++
         vs1 ++
-        drop (Z.to_nat j2 - i2 + length vs1) vs2
+        drop (₊j2 - i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -4713,9 +4713,9 @@ Section zoo_G.
       ⌜i2 + length vs1 ≤ length vs2⌝%Z ∗
       array_model t1 dq1 vs1 ∗
       array_model t2 (DfracOwn 1) (
-        take (Z.to_nat i2) vs2 ++
+        take ₊i2 vs2 ++
         vs1 ++
-        drop (Z.to_nat i2 + length vs1) vs2
+        drop (₊i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -4738,7 +4738,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (vs ++ replicate (Z.to_nat sz' - length vs) v')
+      array_model t' (DfracOwn 1) (vs ++ replicate (₊sz' - length vs) v')
     }}}.
   Proof.
     iIntros "%Hsz' %Φ Hmodel HΦ".
@@ -4746,7 +4746,7 @@ Section zoo_G.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%t' Hmodel'"; first lia.
     iDestruct (array_model_to_slice' with "Hmodel'") as "(Hslice' & #?)".
-    assert (Z.to_nat sz' = length vs + Z.to_nat (sz' - length vs)) as -> by lia.
+    assert (₊sz' = length vs + ₊(sz' - length vs)) as -> by lia.
     rewrite replicate_add.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
     wp_smart_apply (array_unsafe_copy_spec_slice with "[$Hmodel $Hslice1']") as "(Hmodel & Hslice1')"; first done.
@@ -4770,7 +4770,7 @@ Section zoo_G.
       RET t';
       ⌜length vs ≤ sz'⌝%Z ∗
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (vs ++ replicate (Z.to_nat sz' - length vs) v')
+      array_model t' (DfracOwn 1) (vs ++ replicate (₊sz' - length vs) v')
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
@@ -4782,7 +4782,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_unsafe_sub_spec_slice_fit t dq vs (i : Z) i_ (n : Z) :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     n = length vs →
     {{{
       array_slice t i_ dq vs
@@ -4791,7 +4791,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       array_slice t i_ dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) vs)
+      array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
   Proof.
     iIntros (-> ->) "%Φ Hslice HΦ".
@@ -4815,7 +4815,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       array_slice t i dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) (drop (Z.to_nat j - Z.to_nat i) vs))
+      array_model t' (DfracOwn 1) (take ₊n (drop (₊j - ₊i) vs))
     }}}.
   Proof.
     iIntros "% % % %Φ Hslice HΦ".
@@ -4842,7 +4842,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) (drop (Z.to_nat i) vs))
+      array_model t' (DfracOwn 1) (take ₊n (drop ₊i vs))
     }}}.
   Proof.
     iIntros "% % % %Φ Hmodel HΦ".
@@ -4852,13 +4852,13 @@ Section zoo_G.
   Qed.
 
   Lemma array_sub_spec_slice_fit t sz dq vs (i : Z) i_ (n : Z) :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_inv t sz ∗
       ( ⌜0 ≤ i⌝%Z -∗
         ⌜0 ≤ n⌝%Z -∗
         ⌜i + n ≤ sz⌝%Z -∗
-          ⌜Z.to_nat n = length vs⌝ ∗
+          ⌜₊n = length vs⌝ ∗
           array_slice t i_ dq vs
       )
     }}}
@@ -4869,7 +4869,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
       array_slice t i_ dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) vs)
+      array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
   Proof.
     iIntros (->) "%Φ (#Hinv & H) HΦ".
@@ -4887,8 +4887,8 @@ Section zoo_G.
       ( ⌜0 ≤ j⌝%Z -∗
         ⌜0 ≤ n⌝%Z -∗
         ⌜j + n ≤ sz⌝%Z -∗
-          ⌜i ≤ Z.to_nat j⌝ ∗
-          ⌜Z.to_nat j + Z.to_nat n ≤ i + length vs⌝ ∗
+          ⌜i ≤ ₊j⌝ ∗
+          ⌜₊j + ₊n ≤ i + length vs⌝ ∗
           array_slice t i dq vs
       )
     }}}
@@ -4899,7 +4899,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜j + n ≤ sz⌝%Z ∗
       array_slice t i dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) (drop (Z.to_nat j - Z.to_nat i) vs))
+      array_model t' (DfracOwn 1) (take ₊n (drop (₊j - ₊i) vs))
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
@@ -4922,7 +4922,7 @@ Section zoo_G.
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) (drop (Z.to_nat i) vs))
+      array_model t' (DfracOwn 1) (take ₊n (drop ₊i vs))
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
@@ -4943,7 +4943,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) vs)
+      array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
   Proof.
     iIntros "%Hn %Φ Hmodel HΦ".
@@ -4961,7 +4961,7 @@ Section zoo_G.
       RET t';
       ⌜0 ≤ n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
-      array_model t' (DfracOwn 1) (take (Z.to_nat n) vs)
+      array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
   Proof.
     iIntros "%Φ Hmodel HΦ".
@@ -4995,7 +4995,7 @@ Section zoo_G.
     <<<
       True
     | ∀∀ i_ dq v,
-      ⌜i = Z.of_nat i_⌝ ∗
+      ⌜i = ⁺i_⌝ ∗
       array_cslice t sz i_ dq [v]
     >>>
       array_unsafe_cget t #i
@@ -5019,7 +5019,7 @@ Section zoo_G.
     rewrite chunk_cslice_singleton. iSteps.
   Qed.
   Lemma array_unsafe_cget_spec t sz (i : Z) i_ dq v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     {{{
       array_cslice t sz i_ dq [v]
     }}}
@@ -5042,7 +5042,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_cget_spec_atomic t sz (i : Z) i_ :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     <<<
       array_inv t sz
     | ∀∀ dq v,
@@ -5072,7 +5072,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_cget_spec t sz (i : Z) i_ dq v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_inv t sz ∗
       ( ⌜0 < sz⌝ -∗
@@ -5101,7 +5101,7 @@ Section zoo_G.
     <<<
       True
     | ∀∀ i_ w,
-      ⌜i = Z.of_nat i_⌝ ∗
+      ⌜i = ⁺i_⌝ ∗
       array_cslice t sz i_ (DfracOwn 1) [w]
     >>>
       array_unsafe_cset t #i v
@@ -5125,7 +5125,7 @@ Section zoo_G.
     rewrite chunk_cslice_singleton. iSteps.
   Qed.
   Lemma array_unsafe_cset_spec t sz (i : Z) i_ w v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     {{{
       array_cslice t sz i_ (DfracOwn 1) [w]
     }}}
@@ -5147,7 +5147,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_cset_spec_atomic t sz (i : Z) i_ v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     <<<
       array_inv t sz
     | ∀∀ w,
@@ -5177,7 +5177,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_cset_spec t sz (i : Z) i_ w v :
-    i_ = Z.to_nat i →
+    i_ = ₊i →
     {{{
       array_inv t sz ∗
       ( ⌜0 < sz⌝ -∗
@@ -5209,16 +5209,16 @@ Section zoo_G.
       ▷ Ψ 0 [] None ∗
       □ (
         ∀ k vs o,
-        ⌜k < Z.to_nat n⌝ -∗
+        ⌜k < ₊n⌝ -∗
         ⌜k = length vs⌝ -∗
         Ψ k vs o -∗
         match o with
         | None =>
-            au_cload t1 sz1 (Z.to_nat i1 + k) (λ v,
+            au_cload t1 sz1 (₊i1 + k) (λ v,
               ▷ Ψ k vs (Some v)
             )
         | Some v =>
-            au_cstore t2 sz2 (Z.to_nat i2 + k) v (
+            au_cstore t2 sz2 (₊i2 + k) v (
               ▷ Ψ (S k) (vs ++ [v]) None
             )
         end
@@ -5227,8 +5227,8 @@ Section zoo_G.
       array_unsafe_ccopy_slice t1 #i1 t2 #i2 #n
     {{{ vs,
       RET ();
-      ⌜length vs = Z.to_nat n⌝ ∗
-      Ψ (Z.to_nat n) vs None
+      ⌜length vs = ₊n⌝ ∗
+      Ψ ₊n vs None
     }}}.
   Proof.
     iIntros "%Hi1 %Hi2 %Φ (HΨ & #H) HΦ".
@@ -5256,8 +5256,8 @@ Section zoo_G.
     rewrite Z.sub_0_r. iSteps.
   Qed.
   Lemma array_unsafe_ccopy_slice_spec_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
-    i1 = Z.of_nat i1_ →
-    i2 = Z.of_nat i2_ →
+    i1 = ⁺i1_ →
+    i2 = ⁺i2_ →
     n = length vs1 →
     length vs1 = length vs2 →
     {{{
@@ -5317,9 +5317,9 @@ Section zoo_G.
       RET ();
       array_cslice t1 sz1 i1 dq1 vs1 ∗
       array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat j1 - i1) vs1) ++
-        drop (Z.to_nat j2 - i2 + Z.to_nat n) vs2
+        take (₊j2 - i2) vs2 ++
+        take ₊n (drop (₊j1 - i1) vs1) ++
+        drop (₊j2 - i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -5343,8 +5343,8 @@ Section zoo_G.
   Qed.
 
   Lemma array_ccopy_slice_spec_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
-    i1_ = Z.to_nat i1 →
-    i2_ = Z.to_nat i2 →
+    i1_ = ₊i1 →
+    i2_ = ₊i2 →
     {{{
       array_inv t1 sz1 ∗
       array_inv t2 sz2 ∗
@@ -5355,7 +5355,7 @@ Section zoo_G.
         ⌜0 ≤ n⌝%Z -∗
         ⌜n ≤ sz1⌝%Z -∗
         ⌜n ≤ sz2⌝%Z -∗
-          ⌜Z.to_nat n = length vs1⌝ ∗
+          ⌜₊n = length vs1⌝ ∗
           ⌜length vs1 = length vs2⌝ ∗
           array_cslice t1 sz1 i1_ dq1 vs1 ∗
           array_cslice t2 sz2 i2_ (DfracOwn 1) vs2
@@ -5396,10 +5396,10 @@ Section zoo_G.
         ⌜0 ≤ n⌝%Z -∗
         ⌜n ≤ sz1⌝%Z -∗
         ⌜n ≤ sz2⌝%Z -∗
-          ⌜i1 ≤ Z.to_nat j1⌝ ∗
-          ⌜i2 ≤ Z.to_nat j2⌝ ∗
-          ⌜Z.to_nat j1 + n ≤ i1 + length vs1⌝%Z ∗
-          ⌜Z.to_nat j2 + n ≤ i2 + length vs2⌝%Z ∗
+          ⌜i1 ≤ ₊j1⌝ ∗
+          ⌜i2 ≤ ₊j2⌝ ∗
+          ⌜₊j1 + n ≤ i1 + length vs1⌝%Z ∗
+          ⌜₊j2 + n ≤ i2 + length vs2⌝%Z ∗
           array_cslice t1 sz1 i1 dq1 vs1 ∗
           array_cslice t2 sz2 i2 (DfracOwn 1) vs2
       )
@@ -5416,9 +5416,9 @@ Section zoo_G.
       ⌜n ≤ sz2⌝%Z ∗
       array_cslice t1 sz1 i1 dq1 vs1 ∗
       array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
-        take (Z.to_nat n) (drop (Z.to_nat j1 - i1) vs1) ++
-        drop (Z.to_nat j2 - i2 + Z.to_nat n) vs2
+        take (₊j2 - i2) vs2 ++
+        take ₊n (drop (₊j1 - i1) vs1) ++
+        drop (₊j2 - i2 + ₊n) vs2
       )
     }}}.
   Proof.
@@ -5434,8 +5434,8 @@ Section zoo_G.
   Qed.
 
   Lemma array_unsafe_ccopy_spec_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 :
-    i1 = Z.of_nat i1_ →
-    i2 = Z.of_nat i2_ →
+    i1 = ⁺i1_ →
+    i2 = ⁺i2_ →
     length vs1 = sz1 →
     length vs1 = length vs2 →
     {{{
@@ -5456,7 +5456,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_unsafe_ccopy_spec t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 i2 (j2 : Z) vs2 :
-    i1 = Z.of_nat i1_ →
+    i1 = ⁺i1_ →
     length vs1 = sz1 →
     (i2 ≤ j2)%Z →
     (j2 + length vs1 ≤ i2 + length vs2)%Z →
@@ -5469,9 +5469,9 @@ Section zoo_G.
       RET ();
       array_cslice t1 sz1 i1_ dq1 vs1 ∗
       array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
+        take (₊j2 - i2) vs2 ++
         vs1 ++
-        drop (Z.to_nat j2 - i2 + length vs1) vs2
+        drop (₊j2 - i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -5483,8 +5483,8 @@ Section zoo_G.
   Qed.
 
   Lemma array_ccopy_spec_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 :
-    i1_ = Z.to_nat i1 →
-    i2_ = Z.to_nat i2 →
+    i1_ = ₊i1 →
+    i2_ = ₊i2 →
     length vs1 = sz1 →
     length vs1 = length vs2 →
     {{{
@@ -5528,9 +5528,9 @@ Section zoo_G.
         ⌜0 < sz2⌝ -∗
         ⌜0 ≤ i1⌝%Z -∗
         ⌜0 ≤ j2⌝%Z -∗
-          ⌜i2 ≤ Z.to_nat j2⌝%Z ∗
-          ⌜Z.to_nat j2 + length vs1 ≤ i2 + length vs2⌝%Z ∗
-          array_cslice t1 sz1 (Z.to_nat i1) dq1 vs1 ∗
+          ⌜i2 ≤ ₊j2⌝%Z ∗
+          ⌜₊j2 + length vs1 ≤ i2 + length vs2⌝%Z ∗
+          array_cslice t1 sz1 ₊i1 dq1 vs1 ∗
           array_cslice t2 sz2 i2 (DfracOwn 1) vs2
       )
     }}}
@@ -5541,11 +5541,11 @@ Section zoo_G.
       ⌜0 < sz2⌝ ∗
       ⌜0 ≤ i1⌝%Z ∗
       ⌜0 ≤ j2⌝%Z ∗
-      array_cslice t1 sz1 (Z.to_nat i1) dq1 vs1 ∗
+      array_cslice t1 sz1 ₊i1 dq1 vs1 ∗
       array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (Z.to_nat j2 - i2) vs2 ++
+        take (₊j2 - i2) vs2 ++
         vs1 ++
-        drop (Z.to_nat j2 - i2 + length vs1) vs2
+        drop (₊j2 - i2 + length vs1) vs2
       )
     }}}.
   Proof.
@@ -5777,7 +5777,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat sz) t
+      itype_array τ ₊sz t
     }}}.
   Proof.
     iIntros "% %Φ #Hv HΦ".
@@ -5787,7 +5787,7 @@ Section zoo_G.
     rewrite /array_model !length_replicate.
     iDestruct "Hmodel" as "(%l & -> & #Hhdr & Hmodel)".
     iStep 7.
-    iApply inv_alloc. iExists (replicate (Z.to_nat sz) v). iSteps.
+    iApply inv_alloc. iExists (replicate ₊sz v). iSteps.
     - rewrite length_replicate //.
     - iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate).
       iSteps.
@@ -5801,7 +5801,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat sz) t
+      itype_array τ ₊sz t
     }}}.
   Proof.
     iIntros "%Φ #Hv HΦ".
@@ -6076,7 +6076,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_unsafe_initi_type τ `{!iType _ τ} sz sz_ fn :
-    sz = Z.of_nat sz_ →
+    sz = ⁺sz_ →
     {{{
       (itype_nat_upto sz_ --> τ)%T fn
     }}}
@@ -6101,13 +6101,13 @@ Section zoo_G.
 
   Lemma array_initi_type τ `{!iType _ τ} sz fn :
     {{{
-      (itype_nat_upto (Z.to_nat sz) --> τ)%T fn
+      (itype_nat_upto ₊sz --> τ)%T fn
     }}}
       array_initi #sz fn
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat sz) t
+      itype_array τ ₊sz t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -6125,7 +6125,7 @@ Section zoo_G.
       array_unsafe_init #sz fn
     {{{ t,
       RET t;
-      itype_array τ (Z.to_nat sz) t
+      itype_array τ ₊sz t
     }}}.
   Proof.
     iIntros "% %Φ #Hfn HΦ".
@@ -6142,7 +6142,7 @@ Section zoo_G.
     {{{ t,
       RET t;
       ⌜0 ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat sz) t
+      itype_array τ ₊sz t
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
@@ -6153,7 +6153,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_mapi_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz sz_ :
-    sz_ = Z.of_nat sz →
+    sz_ = ⁺sz →
     {{{
       itype_array τ sz t ∗
       (itype_nat_upto sz --> τ --> υ)%T fn
@@ -6176,7 +6176,7 @@ Section zoo_G.
   Qed.
 
   Lemma array_map_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz sz_ :
-    sz_ = Z.of_nat sz →
+    sz_ = ⁺sz →
     {{{
       itype_array τ sz t ∗
       (τ --> υ)%T fn
@@ -6218,7 +6218,7 @@ Section zoo_G.
   Qed.
   Lemma array_unsafe_copy_slice_type' τ `{!iType _ τ} t1 (sz : nat) (i1 : Z) t2 (i2 : Z) i2_ vs (n : Z) :
     (0 ≤ i1)%Z →
-    i2 = Z.of_nat i2_ →
+    i2 = ⁺i2_ →
     n = length vs →
     (i1 + n ≤ sz)%Z →
     {{{
@@ -6250,7 +6250,7 @@ Section zoo_G.
         { rewrite length_app length_drop. lia. }
         iStep 2. iExists (ws ++ [v]). iSplit; last iSplitL "Hslice2".
         + rewrite length_app. iSteps.
-        + assert (Z.to_nat (i2_ + (0 + k)) - i2_ = k) as -> by lia.
+        + assert (₊(i2_ + (0 + k)) - i2_ = k) as -> by lia.
           rewrite -assoc insert_app_r_alt; first lia.
           erewrite Hws, Nat.sub_diag, drop_S => //.
           apply list_lookup_lookup_total_lt. lia.
@@ -6304,7 +6304,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma array_unsafe_copy_type' τ `{!iType _ τ} t1 sz t2 (i2 : Z) i2_ vs :
-    i2 = Z.of_nat i2_ →
+    i2 = ⁺i2_ →
     sz = length vs →
     {{{
       itype_array τ sz t1 ∗
@@ -6355,7 +6355,7 @@ Section zoo_G.
       array_unsafe_grow t #sz' v'
     {{{ t',
       RET t';
-      itype_array τ (Z.to_nat sz') t'
+      itype_array τ ₊sz' t'
     }}}.
   Proof.
     iIntros "% %Φ (#Htype & #Hv') HΦ".
@@ -6363,7 +6363,7 @@ Section zoo_G.
     wp_smart_apply (array_size_type with "Htype") as "_".
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_slice with "Hmodel'") as "(Hinv' & Hslice')".
-    replace (Z.to_nat sz') with (sz + (Z.to_nat sz' - sz)) at 2 by lia.
+    replace ₊sz' with (sz + (₊sz' - sz)) at 2 by lia.
     rewrite replicate_add.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
     wp_smart_apply (array_unsafe_copy_type' with "[$Htype $Hslice1']") as (vs) "(%Hvs & Hslice1' & #Hvs)"; first done.
@@ -6390,7 +6390,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       ⌜sz ≤ sz'⌝ ∗
-      itype_array τ (Z.to_nat sz') t'
+      itype_array τ ₊sz' t'
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hv') HΦ".
@@ -6411,7 +6411,7 @@ Section zoo_G.
       array_unsafe_sub t #i #n
     {{{ t',
       RET t';
-      itype_array τ (Z.to_nat n) t'
+      itype_array τ ₊n t'
     }}}.
   Proof.
     iIntros "% % % %Φ #Htype HΦ".
@@ -6436,7 +6436,7 @@ Section zoo_G.
       ⌜0 ≤ i⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat n) t'
+      itype_array τ ₊n t'
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".
@@ -6456,7 +6456,7 @@ Section zoo_G.
       array_unsafe_shrink t #n
     {{{ t',
       RET t';
-      itype_array τ (Z.to_nat n) t'
+      itype_array τ ₊n t'
     }}}.
   Proof.
     iIntros "% %Φ Htype HΦ".
@@ -6473,7 +6473,7 @@ Section zoo_G.
     {{{ t',
       RET t';
       ⌜0 ≤ n ≤ sz⌝%Z ∗
-      itype_array τ (Z.to_nat n) t'
+      itype_array τ ₊n t'
     }}}.
   Proof.
     iIntros "%Φ #Htype HΦ".

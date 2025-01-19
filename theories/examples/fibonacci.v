@@ -36,16 +36,16 @@ Proof.
 Qed.
 Lemma fib_spec_Z n :
   (0 ≤ n)%Z →
-  fib (Z.to_nat n) =
+  fib ₊n =
     if decide (n ≤ 1)%Z then
-      Z.to_nat n
+      ₊n
     else
-      fib (Z.to_nat (n - 1)) + fib (Z.to_nat (n - 2)).
+      fib ₊(n - 1) + fib ₊(n - 2).
 Proof.
   intros Hn.
   rewrite fib_spec.
-  assert (Z.to_nat (n - 1) = Z.to_nat n - 1) as -> by lia.
-  assert (Z.to_nat (n - 2) = Z.to_nat n - 2) as -> by lia.
+  assert (₊(n - 1) = ₊n - 1) as -> by lia.
+  assert (₊(n - 2) = ₊n - 2) as -> by lia.
   apply decide_ext. lia.
 Qed.
 
@@ -73,7 +73,7 @@ Section pool_G.
     }}}
       fibonacci_aux #n ctx
     {{{
-      RET #(fib (Z.to_nat n));
+      RET #(fib ₊n);
       pool_context ws_hub ctx
     }}}.
   Proof.

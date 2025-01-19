@@ -18,7 +18,7 @@ From zoo Require Import
     match v2 with
     | ValBlock _ _ [ValInt i; v2] =>
         proph ← prophet.(typed_strong_prophet_of_val) v1 v2 ;
-        Some (Z.to_nat i, proph)
+        Some (₊i, proph)
     | _ =>
         None
     end ;
@@ -297,12 +297,11 @@ Section wise_prophets_G.
     (0 ≤ i)%Z →
     wise_strong_prophets_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      let i := Z.to_nat i in
       ∃ proph,
       ⌜(w, v) = prophet.(typed_strong_prophet_to_val) proph⌝ ∗
         ∀ prophs,
-        ⌜prophss i = proph :: prophs⌝ -∗
-        wise_strong_prophets_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+        ⌜prophss ₊i = proph :: prophs⌝ -∗
+        wise_strong_prophets_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
         Φ w
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
@@ -530,10 +529,9 @@ Section wise_prophets_G.
     v = prophet.(typed_prophet_to_val) proph →
     wise_prophets_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      let i := Z.to_nat i in
       ∀ prophs,
-      ⌜prophss i = proph :: prophs⌝ -∗
-      wise_prophets_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+      ⌜prophss ₊i = proph :: prophs⌝ -∗
+      wise_prophets_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
       Φ w
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.

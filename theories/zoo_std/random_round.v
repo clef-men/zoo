@@ -42,7 +42,7 @@ Section zoo_G.
       random_round_create #sz
     {{{ t,
       RET t;
-      random_round_model t (Z.to_nat sz) []
+      random_round_model t ₊sz []
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -58,7 +58,7 @@ Section zoo_G.
     wp_apply (random_state_create_spec with "[//]") as (rand) "Hrand".
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
     iApply "HΦ".
-    iExists l, rand, arr, (seq 0 (Z.to_nat sz)). rewrite right_id length_seq. iSteps.
+    iExists l, rand, arr, (seq 0 ₊sz). rewrite right_id length_seq. iSteps.
   Qed.
 
   Lemma random_round_reset_spec t sz prevs :
@@ -122,7 +122,7 @@ Section zoo_G.
         setoid_rewrite elem_of_list_lookup at 1 in Hnodup.
         naive_solver.
     - rewrite Nat2Z.id -!list_fmap_insert.
-      assert (Z.to_nat (i - 1) = i - 1) as -> by lia.
+      assert (₊(i - 1) = i - 1) as -> by lia.
       assert (<[j := next]> (take (i - 1) nexts) ++ [prev] = <[i - 1 := prev]> (<[j := next]> nexts)) as Heq.
       { destruct (decide (j = i - 1)) as [-> | H].
         - rewrite list_insert_ge. { rewrite length_take. lia. }
@@ -163,7 +163,7 @@ Section zoo_G.
       random_round_create #sz
     {{{ t,
       RET t;
-      random_round_model' t (Z.to_nat sz) (Z.to_nat sz)
+      random_round_model' t ₊sz ₊sz
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".

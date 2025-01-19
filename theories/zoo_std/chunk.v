@@ -153,7 +153,7 @@ Section zoo_G.
     Lemma chunk_model_update {l dq vs} (i : Z) i_ v :
       (0 ≤ i)%Z →
       vs !! i_ = Some v →
-      i_ = Z.to_nat i →
+      i_ = ₊i →
       chunk_model l dq vs ⊢
         (l +ₗ i) ↦{dq} v ∗
         ( ∀ w,
@@ -168,7 +168,7 @@ Section zoo_G.
     Lemma chunk_model_lookup_acc {l dq vs} (i : Z) i_ v :
       (0 ≤ i)%Z →
       vs !! i_ = Some v →
-      i_ = Z.to_nat i →
+      i_ = ₊i →
       chunk_model l dq vs ⊢
         (l +ₗ i) ↦{dq} v ∗
         ( (l +ₗ i) ↦{dq} v -∗
@@ -182,7 +182,7 @@ Section zoo_G.
     Lemma chunk_model_lookup {l dq vs} (i : Z) i_ v :
       (0 ≤ i)%Z →
       vs !! i_ = Some v →
-      i_ = Z.to_nat i →
+      i_ = ₊i →
       chunk_model l dq vs ⊢
       (l +ₗ i) ↦{dq} v.
     Proof.
@@ -194,7 +194,7 @@ Section zoo_G.
     Lemma chunk_model_update' {l} {i : Z} {dq vs} j k v :
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
-      k = Z.to_nat j - Z.to_nat i →
+      k = ₊j - ₊i →
       chunk_model (l +ₗ i) dq vs ⊢
         (l +ₗ j) ↦{dq} v ∗
         ( ∀ w,
@@ -210,7 +210,7 @@ Section zoo_G.
     Lemma chunk_model_lookup_acc' {l} {i : Z} {dq vs} j k v :
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
-      k = Z.to_nat j - Z.to_nat i →
+      k = ₊j - ₊i →
       chunk_model (l +ₗ i) dq vs ⊢
         (l +ₗ j) ↦{dq} v ∗
         ( (l +ₗ j) ↦{dq} v -∗
@@ -225,7 +225,7 @@ Section zoo_G.
     Lemma chunk_model_lookup' {l} {i : Z} {dq vs} j k v :
       (0 ≤ i ≤ j)%Z →
       vs !! k = Some v →
-      k = Z.to_nat j - Z.to_nat i →
+      k = ₊j - ₊i →
       chunk_model (l +ₗ i) dq vs ⊢
       (l +ₗ j) ↦{dq} v.
     Proof.
@@ -494,8 +494,8 @@ Section zoo_G.
       iIntros "%Hi (%vs & %Hvs & Hmodel)".
       iDestruct (chunk_model_update i with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
       { rewrite list_lookup_lookup_total_lt; naive_solver lia. }
-      iExists (vs !!! Z.to_nat i). iFrame. iIntros "%v H↦".
-      iExists (<[Z.to_nat i := v]> vs). iSplit; first rewrite length_insert //.
+      iExists (vs !!! ₊i). iFrame. iIntros "%v H↦".
+      iExists (<[₊i := v]> vs). iSplit; first rewrite length_insert //.
       iSteps.
     Qed.
     Lemma chunk_span_lookup_acc {l dq n} (i : Z) :
@@ -903,7 +903,7 @@ Section zoo_G.
     Lemma itype_chunk_shift (i : Z) τ `{!iType _ τ} (sz : nat) l :
       (0 ≤ i ≤ sz)%Z →
       itype_chunk τ sz l ⊢
-      itype_chunk τ (sz - Z.to_nat i) (l +ₗ i).
+      itype_chunk τ (sz - ₊i) (l +ₗ i).
     Proof.
       iIntros "%Hi #Hl".
       Z_to_nat i. rewrite Nat2Z.id.

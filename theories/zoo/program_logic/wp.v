@@ -89,9 +89,9 @@ Section zoo_G.
       Alloc #tag #n @ E
     {{{ l,
       RET #l;
-      l ↦ₕ Header (Z.to_nat tag) (Z.to_nat n) ∗
+      l ↦ₕ Header ₊tag ₊n ∗
       meta_token l ⊤ ∗
-      l ↦∗ replicate (Z.to_nat n) ()%V
+      l ↦∗ replicate ₊n ()%V
     }}}.
   Proof.
     iIntros "%Htag %Hn %Φ _ HΦ".
@@ -99,7 +99,7 @@ Section zoo_G.
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (state_interp_alloc _ _ (replicate (Z.to_nat n) ()%V) with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
+    iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
     all: rewrite ?length_replicate //.
     iSteps.
   Qed.

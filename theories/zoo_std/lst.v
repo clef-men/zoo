@@ -187,7 +187,7 @@ Section zoo_G.
   Qed.
 
   Lemma lst_get_spec v t (i : Z) vs :
-    vs !! Z.to_nat i = Some v →
+    vs !! ₊i = Some v →
     {{{
       lst_model t vs
     }}}
@@ -197,7 +197,7 @@ Section zoo_G.
       True
     }}}.
   Proof.
-    remember (Z.to_nat i) as j eqn:Hj.
+    remember ₊i as j eqn:Hj.
     iInduction j as [| j] "IH" forall (t i vs Hj).
     all: iIntros "%Hlookup %Φ %Ht HΦ".
     all: pose proof Hlookup as Hi%lookup_lt_Some.
@@ -213,13 +213,13 @@ Section zoo_G.
   Qed.
 
   #[local] Lemma lst_initi_aux_spec vs_left Ψ sz fn i :
-    i ≤ Z.to_nat sz →
+    i ≤ ₊sz →
     i = length vs_left →
     {{{
       ▷ Ψ i vs_left ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
+        ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
           ▷ Ψ (S i) (vs ++ [v])
@@ -229,18 +229,18 @@ Section zoo_G.
       lst_initi_aux #sz fn #i
     {{{ t vs_right,
       RET t;
-      ⌜(length vs_left + length vs_right)%nat = Z.to_nat sz⌝ ∗
+      ⌜(length vs_left + length vs_right)%nat = ₊sz⌝ ∗
       lst_model t vs_right ∗
-      Ψ (Z.to_nat sz) (vs_left ++ vs_right)
+      Ψ ₊sz (vs_left ++ vs_right)
     }}}.
   Proof.
-    remember (Z.to_nat sz - i) as j eqn:Hj.
+    remember (₊sz - i) as j eqn:Hj.
     iInduction j as [| j] "IH" forall (vs_left i Hj).
     all: iIntros "%Hi1 %Hi2 %Φ (HΨ & #Hfn) HΦ".
     all: wp_rec; wp_pures.
     - rewrite bool_decide_eq_true_2; first lia. wp_pures.
       iApply ("HΦ" $! _ []).
-      rewrite !right_id. assert (Z.to_nat sz = i) as <- by lia. iSteps.
+      rewrite !right_id. assert (₊sz = i) as <- by lia. iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
       wp_apply (wp_wand with "(Hfn [] HΨ)") as "%v HΨ"; first iSteps.
       wp_pures.
@@ -256,7 +256,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
+        ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
           ▷ Ψ (S i) (vs ++ [v])
@@ -266,9 +266,9 @@ Section zoo_G.
       lst_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
@@ -278,7 +278,7 @@ Section zoo_G.
   Lemma lst_initi_spec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -290,20 +290,20 @@ Section zoo_G.
       lst_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
     match goal with |- context [big_opL bi_sep (λ _, ?Ξ') _] => set Ξ := Ξ' end.
     pose (Ψ' i vs := (
       Ψ i vs ∗
-      [∗ list] j ∈ seq i (Z.to_nat sz - i), Ξ j
+      [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
     wp_apply (lst_initi_spec Ψ' with "[$HΨ Hfn]"); last iSteps.
     rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs (%Hi1 & %Hi2) (HΨ & HΞ)".
-    destruct (Nat.lt_exists_pred 0 (Z.to_nat sz - i)) as (k & Hk & _); first lia. rewrite Hk.
+    destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
     rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
     wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
     rewrite Nat.sub_succ_r Hk //.
@@ -312,7 +312,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v,
           ▷ Ψ i v
         }}
@@ -321,7 +321,7 @@ Section zoo_G.
       lst_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -338,7 +338,7 @@ Section zoo_G.
   Qed.
   Lemma lst_initi_spec_disentangled' Ψ sz fn :
     {{{
-      [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      [∗ list] i ∈ seq 0 ₊sz,
         WP fn #i {{ v,
           ▷ Ψ i v
         }}
@@ -346,7 +346,7 @@ Section zoo_G.
       lst_initi #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -368,7 +368,7 @@ Section zoo_G.
       ▷ Ψ 0 [] ∗
       □ (
         ∀ i vs,
-        ⌜i < Z.to_nat sz ∧ i = length vs⌝ -∗
+        ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn () {{ v,
           ▷ Ψ (S i) (vs ++ [v])
@@ -378,9 +378,9 @@ Section zoo_G.
       lst_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
@@ -391,7 +391,7 @@ Section zoo_G.
   Lemma lst_init_spec' Ψ sz fn :
     {{{
       ▷ Ψ 0 [] ∗
-      ( [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      ( [∗ list] i ∈ seq 0 ₊sz,
         ∀ vs,
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
@@ -403,9 +403,9 @@ Section zoo_G.
       lst_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
-      Ψ (Z.to_nat sz) vs
+      Ψ ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
@@ -418,7 +418,7 @@ Section zoo_G.
     {{{
       □ (
         ∀ i,
-        ⌜i < Z.to_nat sz⌝ -∗
+        ⌜i < ₊sz⌝ -∗
         WP fn () {{ v,
           ▷ Ψ i v
         }}
@@ -427,7 +427,7 @@ Section zoo_G.
       lst_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v
@@ -441,7 +441,7 @@ Section zoo_G.
   Qed.
   Lemma lst_init_spec_disentangled' Ψ sz fn :
     {{{
-      [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      [∗ list] i ∈ seq 0 ₊sz,
         WP fn () {{ v,
           ▷ Ψ i v
         }}
@@ -449,7 +449,7 @@ Section zoo_G.
       lst_init #sz fn
     {{{ t vs,
       RET t;
-      ⌜length vs = Z.to_nat sz⌝ ∗
+      ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
         Ψ i v

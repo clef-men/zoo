@@ -163,19 +163,19 @@ Section parray_G.
     {{{ t γ,
       RET t;
       parray_inv τ γ ∗
-      parray_model t γ (replicate (Z.to_nat sz) v)
+      parray_model t γ (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "%Hsz %Φ #Hv HΦ".
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%arr Harr"; first done.
     wp_ref root as "Hroot".
-    pose vs := replicate (Z.to_nat sz) v.
+    pose vs := replicate ₊sz v.
     iMod (parray_map_alloc root vs) as "(%γ_map & Hmap_auth & Hmap_elem)".
     pose γ := {|
       parray_meta_map := γ_map ;
       parray_meta_array := arr ;
-      parray_meta_size := Z.to_nat sz ;
+      parray_meta_size := ₊sz ;
     |}.
     iApply ("HΦ" $! _ γ). iSplitR "Hmap_elem"; last iSteps. iExists {[root := vs]}, root. iFrame.
     iApply big_sepM_singleton.
@@ -239,7 +239,7 @@ Section parray_G.
 
   Lemma parray_get_spec τ `{!iType _ τ} {t γ vs} {i : Z} v :
     (0 ≤ i)%Z →
-    vs !! Z.to_nat i = Some v →
+    vs !! ₊i = Some v →
     {{{
       parray_inv τ γ ∗
       parray_model t γ vs
@@ -278,7 +278,7 @@ Section parray_G.
     {{{ t',
       RET t';
       parray_inv τ γ ∗
-      parray_model t' γ (<[Z.to_nat i := v]> vs)
+      parray_model t' γ (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "%Hi %Φ ((%map & %root & Hinv) & (%l & -> & #Hmap_elem) & Heq & #Hv) HΦ".

@@ -63,7 +63,7 @@ Axiom gc_realized_agree : ∀ gc ω l1 l2,
 
 Parameter wp_load_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i,
   (0 ≤ i)%Z →
-  νs !! Z.to_nat i = Some ν →
+  νs !! ₊i = Some ν →
   ω ↦gc[gc] l →
   {{{
     gc_model gc ∗
@@ -88,7 +88,7 @@ Parameter wp_store_gc : ∀ `{zoo_G : !ZooG Σ} ν gc ω νs l i v,
   {{{
     RET gc_val_to_val ν;
     gc_model gc ∗
-    ω ↦gc <[Z.to_nat i := ν]> νs
+    ω ↦gc <[₊i := ν]> νs
   }}}.
 
 Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω root_base root_ofs :
@@ -197,5 +197,5 @@ Axiom gc_alloc_spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
     gc_model gc ∗
     gc_roots Χ ∗
     Χ gc ∗
-    ω ↦gc replicate (Z.to_nat n) (GcInt 0)
+    ω ↦gc replicate ₊n (GcInt 0)
   }}}.

@@ -47,12 +47,12 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
       RET t;
       ws_hub_inv t ι ∗
       ws_hub_model t ∅ ∗
-      [∗ list] i ∈ seq 0 (Z.to_nat sz),
+      [∗ list] i ∈ seq 0 ₊sz,
         ws_hub_owner t i
     }}} ;
 
   ws_hub_push_spec t ι i i_ v :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_inv t ι ∗
       ws_hub_owner t i_
@@ -67,7 +67,7 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     >>> ;
 
   ws_hub_pop_spec t ι i i_ :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     <<<
       ws_hub_inv t ι ∗
       ws_hub_owner t i_
@@ -90,7 +90,7 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     >>> ;
 
   ws_hub_steal_until_spec P t ι i i_ max_round_noyield pred :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_inv t ι ∗
@@ -120,7 +120,7 @@ Record ws_hub `{zoo_G : !ZooG Σ} := {
     >>> ;
 
   ws_hub_steal_spec t ι i i_ max_round_noyield max_round_yield :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
@@ -197,7 +197,7 @@ Section zoo_G.
       end.
 
   Lemma ws_hub_pop_steal_until_spec P t ι i i_ max_round_noyield pred :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub.(ws_hub_inv) t ι ∗
@@ -247,7 +247,7 @@ Section zoo_G.
   Qed.
 
   Lemma ws_hub_pop_steal_spec t ι i i_ max_round_noyield max_round_yield :
-    i = Z.of_nat i_ →
+    i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<

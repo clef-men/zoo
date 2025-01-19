@@ -46,13 +46,13 @@ Section zoo_G.
     Qed.
 
     Lemma int_positive_part_spec n E Φ :
-      ▷ Φ #(Z.to_nat n) -∗
+      ▷ Φ #₊n -∗
       WP int_positive_part #n @ E {{ Φ }}.
     Proof.
       iIntros "HΦ".
       wp_rec.
       iApply int_max_spec.
-      assert (0 `max` n = Z.to_nat n)%Z as -> by lia. iSteps.
+      assert (0 `max` n = ₊n)%Z as -> by lia. iSteps.
     Qed.
   End Z.
 

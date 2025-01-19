@@ -246,7 +246,7 @@ Section inf_array_G.
     {{{ us,
       RET ();
       inf_array_inv'' l γ us ∗
-      ⌜Z.to_nat n ≤ length us⌝
+      ⌜₊n ≤ length us⌝
     }}}.
   Proof.
     iIntros "%Hn %Φ (#Hl_default & (%data & %vs & Hl_data & Hdata & Hmodel₂ & %Hvs)) HΦ".
@@ -280,7 +280,7 @@ Section inf_array_G.
       inf_array_get t #i
     <<<
       inf_array_model t vs
-    | RET vs (Z.to_nat i);
+    | RET vs ₊i;
       True
     >>>.
   Proof.
@@ -327,8 +327,7 @@ Section inf_array_G.
     <<<
       inf_array_model' t vsₗ vsᵣ
     | RET
-        let i := Z.to_nat i in
-        if decide (i < length vsₗ) then vsₗ !!! i else vsᵣ (i - length vsₗ);
+        if decide (₊i < length vsₗ) then vsₗ !!! ₊i else vsᵣ (₊i - length vsₗ);
       True
     >>>.
   Proof.
@@ -347,7 +346,7 @@ Section inf_array_G.
     >>>
       inf_array_set t #i v
     <<<
-      inf_array_model t (<[Z.to_nat i := v]> vs)
+      inf_array_model t (<[₊i := v]> vs)
     | RET ();
       True
     >>>.
@@ -388,10 +387,9 @@ Section inf_array_G.
     >>>
       inf_array_set t #i v
     <<<
-      let i := Z.to_nat i in
-      if decide (i < length vsₗ)
-      then inf_array_model' t (<[i := v]> vsₗ) vsᵣ
-      else inf_array_model' t vsₗ (<[i - length vsₗ := v]> vsᵣ)
+      if decide (₊i < length vsₗ)
+      then inf_array_model' t (<[₊i := v]> vsₗ) vsᵣ
+      else inf_array_model' t vsₗ (<[₊i - length vsₗ := v]> vsᵣ)
     | RET ();
       True
     >>>.

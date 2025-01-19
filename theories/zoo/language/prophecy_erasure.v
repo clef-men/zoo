@@ -341,11 +341,11 @@ Fixpoint erase_ectxi k : ectx :=
       [CtxFAA2 (erase_expr e1)]
   | CtxResolve0 k v1 v2 =>
       erase_ectxi k ++
-      [CtxBlock Immutable 0 [] [erase_val v1; erase_val v2]; CtxLoad1 (ValInt (Z.of_nat 0))]
+      [CtxBlock Immutable 0 [] [erase_val v1; erase_val v2]; CtxLoad1 (ValInt ⁺0)]
   | CtxResolve1 e0 v2 =>
-      [CtxBlock Immutable 0 [erase_expr e0] [erase_val v2]; CtxLoad1 (ValInt (Z.of_nat 0))]
+      [CtxBlock Immutable 0 [erase_expr e0] [erase_val v2]; CtxLoad1 (ValInt ⁺0)]
   | CtxResolve2 e0 e1 =>
-      [CtxBlock Immutable 0 [erase_expr e0; erase_expr e1] []; CtxLoad1 (ValInt (Z.of_nat 0))]
+      [CtxBlock Immutable 0 [erase_expr e0; erase_expr e1] []; CtxLoad1 (ValInt ⁺0)]
   end.
 
 Definition erase_ectx K : ectx :=

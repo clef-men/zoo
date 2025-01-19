@@ -47,7 +47,7 @@ Implicit Types priv : nat → val.
   typed_prophet_of_val v :=
     match v with
     | ValTuple [ValInt front; ValId id] =>
-        Some (Z.to_nat front, id)
+        Some (₊front, id)
     | _ =>
         None
     end ;
@@ -203,7 +203,7 @@ Section inf_ws_deque_1_G.
     inf_ws_deque_1_winner γ.
   #[local] Definition inf_ws_deque_1_state₁ γ front back hist : iProp Σ :=
     (* physical configuration *)
-    ⌜Z.of_nat front = back⌝ ∗
+    ⌜⁺front = back⌝ ∗
     (* history values *)
     inf_ws_deque_1_hist_auth γ hist ∗
     ⌜length hist = front⌝ ∗
@@ -240,7 +240,7 @@ Section inf_ws_deque_1_G.
     end.
   #[local] Definition inf_ws_deque_1_state₃₁ γ front back hist prophs : iProp Σ :=
     (* physical configuration *)
-    ⌜Z.of_nat front = back⌝ ∗
+    ⌜⁺front = back⌝ ∗
     (* history values *)
     inf_ws_deque_1_hist_auth γ hist ∗
     ⌜length hist = S front⌝ ∗
@@ -250,7 +250,7 @@ Section inf_ws_deque_1_G.
     inf_ws_deque_1_winner γ.
   #[local] Definition inf_ws_deque_1_state₃₂ γ front back hist : iProp Σ :=
     (* physical configuration *)
-    ⌜Z.of_nat front = (back + 1)%Z⌝ ∗
+    ⌜⁺front = (back + 1)%Z⌝ ∗
     (* history values *)
     inf_ws_deque_1_hist_auth γ hist ∗
     ⌜length hist = front⌝ ∗
@@ -291,7 +291,7 @@ Section inf_ws_deque_1_G.
     inf_array_model' γ.(inf_ws_deque_1_meta_data) (hist ++ model) priv ∗
     (* model values *)
     inf_ws_deque_1_model₁ γ model ∗
-    ⌜length model = Z.to_nat (back - front)⌝ ∗
+    ⌜length model = ₊(back - front)⌝ ∗
     (* prophet model *)
     wise_prophet_model inf_ws_deque_1_prophet γ.(inf_ws_deque_1_meta_prophet) γ.(inf_ws_deque_1_meta_prophet_name) past prophs ∗
     ⌜Forall (λ '(front', _), front' < front) past⌝ ∗
@@ -712,7 +712,7 @@ Section inf_ws_deque_1_G.
     }}}
       inf_array_get (#l).{data} #i
     {{{
-      RET priv (Z.to_nat (i - back));
+      RET priv ₊(i - back);
       inf_ws_deque_1_ctl₂ γ back priv ∗
       inf_ws_deque_1_lock γ
     }}}.
@@ -758,7 +758,7 @@ Section inf_ws_deque_1_G.
     clear- Hi Hback Hback'.
 
     rewrite decide_False; first lia.
-    assert (Z.to_nat i - length (hist ++ model) = Z.to_nat (i - back)) as -> by lia.
+    assert (₊i - length (hist ++ model) = ₊(i - back)) as -> by lia.
     iApply "HΦ". iFrame.
   Qed.
 
@@ -996,7 +996,7 @@ Section inf_ws_deque_1_G.
         iPureIntro; lia.
     }
     (* hence [back = length (hist ++ model)] *)
-    assert (Z.to_nat back = length (hist ++ model)) as Heq. { rewrite length_app. lia. }
+    assert (₊back = length (hist ++ model)) as Heq. { rewrite length_app. lia. }
     rewrite Heq decide_False; first lia. rewrite Nat.sub_diag.
     (* close invariant *)
     iModIntro. iSplitR "Hctl₂ Hlock".

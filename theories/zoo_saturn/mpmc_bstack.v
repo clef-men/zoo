@@ -164,7 +164,7 @@ Section mpmc_bstack_G.
       mpmc_bstack_create #cap
     {{{ t,
       RET t;
-      mpmc_bstack_inv t ι (Z.to_nat cap) ∗
+      mpmc_bstack_inv t ι ₊cap ∗
       mpmc_bstack_model t []
     }}}.
   Proof.
@@ -178,7 +178,7 @@ Section mpmc_bstack_G.
     iMod mpmc_bstack_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      mpmc_bstack_meta_capacity := Z.to_nat cap ;
+      mpmc_bstack_meta_capacity := ₊cap ;
       mpmc_bstack_meta_model := γ_model ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.

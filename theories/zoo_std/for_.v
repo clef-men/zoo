@@ -33,11 +33,11 @@ Section zoo_G.
       For #i #_end body
     {{{
       RET ();
-      Ψ (i `max` _end)%Z (δ + Z.to_nat (_end - i))
+      Ψ (i `max` _end)%Z (δ + ₊(_end - i))
     }}}.
   Proof.
     iIntros "%Hi %Φ (HΨ & #Hbody) HΦ".
-    remember (Z.to_nat (_end - i)) as ϵ eqn:Hϵ.
+    remember ₊(_end - i) as ϵ eqn:Hϵ.
     iInduction ϵ as [| ϵ] "IH" forall (i δ Hi Hϵ).
     all: wp_for credit:"H£".
     - rewrite decide_True; first lia.
@@ -66,7 +66,7 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      Ψ (beg `max` _end)%Z (Z.to_nat (_end - beg))
+      Ψ (beg `max` _end)%Z ₊(_end - beg)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hbody) HΦ".
@@ -91,7 +91,7 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      Ψ _end (Z.to_nat (_end - beg))
+      Ψ _end ₊(_end - beg)
     }}}.
   Proof.
     iIntros "% %Φ H HΦ".
@@ -101,7 +101,7 @@ Section zoo_G.
   Lemma for_spec_strong' Ψ beg _end body :
     {{{
       ▷ Ψ beg 0 ∗
-      ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
+      ( [∗ list] δ ∈ seq 0 ₊(_end - beg),
         ∀ i,
         ⌜i = (beg + δ)%Z⌝ -∗
         Ψ i δ -∗
@@ -114,25 +114,25 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      Ψ (beg `max` _end)%Z (Z.to_nat (_end - beg))
+      Ψ (beg `max` _end)%Z ₊(_end - beg)
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hbody) HΦ".
     match goal with |- context [big_opL bi_sep (λ _, ?Ξ') _] => set Ξ := Ξ' end.
     pose (Ψ' i δ := (
       Ψ i δ ∗
-      [∗ list] ϵ ∈ seq δ (Z.to_nat (_end - beg) - δ), Ξ ϵ
+      [∗ list] ϵ ∈ seq δ (₊(_end - beg) - δ), Ξ ϵ
     )%I).
     wp_apply (for_spec_strong Ψ' with "[HΨ Hbody]"); last iSteps.
     rewrite /Ψ' Nat.sub_0_r. iFrame. iIntros "!> %i %δ %Hi1 %Hi2 (HΨ & HΞ)".
-    assert (Z.to_nat (_end - beg) - δ = S $ Z.to_nat (_end - beg) - S δ) as -> by lia.
+    assert (₊(_end - beg) - δ = S $ ₊(_end - beg) - S δ) as -> by lia.
     iSteps.
   Qed.
   Lemma for_spec' Ψ beg _end body :
     (beg ≤ _end)%Z →
     {{{
       ▷ Ψ beg 0 ∗
-      ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
+      ( [∗ list] δ ∈ seq 0 ₊(_end - beg),
         ∀ i,
         ⌜i = (beg + δ)%Z⌝ -∗
         Ψ i δ -∗
@@ -145,7 +145,7 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      Ψ _end (Z.to_nat (_end - beg))
+      Ψ _end ₊(_end - beg)
     }}}.
   Proof.
     iIntros "% %Φ H HΦ".
@@ -167,7 +167,7 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
+      ( [∗ list] δ ∈ seq 0 ₊(_end - beg),
         Ψ (beg + δ)%Z δ
       )
     }}}.
@@ -182,7 +182,7 @@ Section zoo_G.
   Qed.
   Lemma for_spec_disentangled' Ψ beg _end body :
     {{{
-      ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
+      ( [∗ list] δ ∈ seq 0 ₊(_end - beg),
         ∀ i,
         ⌜i = (beg + δ)%Z⌝ -∗
         WP body #i {{ res,
@@ -194,7 +194,7 @@ Section zoo_G.
       For #beg #_end body
     {{{
       RET ();
-      ( [∗ list] δ ∈ seq 0 (Z.to_nat (_end - beg)),
+      ( [∗ list] δ ∈ seq 0 ₊(_end - beg),
         Ψ (beg + δ)%Z δ
       )
     }}}.
@@ -231,7 +231,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hbody) HΦ".
     pose Ψ' i δ :=
-      Ψ (Z.to_nat i) δ.
+      Ψ ₊i δ.
     wp_apply (for_spec_strong Ψ' with "[HΨ]").
     - rewrite /Ψ' !Nat2Z.id. iFrame. iIntros "!> %i %δ -> %Hδ HΨ".
       rewrite -Nat2Z.inj_add Z.add_1_r -Nat2Z.inj_succ !Nat2Z.id. iSteps.
@@ -283,7 +283,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hbody) HΦ".
     pose Ψ' i δ :=
-      Ψ (Z.to_nat i) δ.
+      Ψ ₊i δ.
     wp_apply (for_spec_strong' Ψ' with "[HΨ Hbody]").
     - rewrite /Ψ' !Nat2Z.id Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id. iFrame.
       iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> HΨ /=".
@@ -336,7 +336,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hbody HΦ".
     pose Ψ' i δ :=
-      Ψ (Z.to_nat i) δ.
+      Ψ ₊i δ.
     wp_apply (for_spec_disentangled Ψ').
     - iIntros "!> %i %δ -> %Hδ".
       rewrite -Nat2Z.inj_add /Ψ' Nat2Z.id. iSteps.
@@ -365,7 +365,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hbody HΦ".
     pose Ψ' i δ :=
-      Ψ (Z.to_nat i) δ.
+      Ψ ₊i δ.
     wp_apply (for_spec_disentangled' Ψ' with "[Hbody]").
     - rewrite Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id.
       iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> /=".
