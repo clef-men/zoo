@@ -41,14 +41,14 @@ let is_empty t =
 let get t i =
   match Array.get (data t) i with
   | Empty ->
-      invalid_arg "index out of bounds"
+      invalid_arg @@ __FUNCTION__ ^ ": index out of bounds"
   | Element slot_r ->
       slot_r.value
 
 let set t i v =
   match Array.get (data t) i with
   | Empty ->
-      invalid_arg "index out of bounds"
+      invalid_arg @@ __FUNCTION__ ^ ": index out of bounds"
   | Element slot_r ->
       slot_r.value <- v
 
@@ -56,7 +56,7 @@ let next_capacity n =
   Int.max 8 (if n <= 512 then 2 * n else n + n / 2)
 let reserve t n =
   if not (0 <= n) then
-    invalid_arg "negative capacity" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative capacity" ;
   let data = data t in
   let cap = Array.size data in
   if cap < n then (
@@ -66,7 +66,7 @@ let reserve t n =
   )
 let reserve_extra t n =
   if not (0 <= n) then
-    invalid_arg "negative extra capacity" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative extra capacity" ;
   reserve t (size t + n)
 
 let try_push t slot =
@@ -92,13 +92,13 @@ let pop t =
   let sz = size t in
   let data = data t in
   if not (sz <= Array.size data) then
-    failwith "inconsistency" ;
+    failwith @@ __FUNCTION__ ^ ": inconsistency" ;
   if not (0 < sz) then
-    invalid_arg "empty dynarray" ;
+    invalid_arg @@ __FUNCTION__ ^ ": empty dynarray" ;
   let sz = sz - 1 in
   match Array.unsafe_get data sz with
   | Empty ->
-      failwith "inconsistency"
+      failwith @@ __FUNCTION__ ^ ": inconsistency"
   | Element slot_r ->
       Array.unsafe_set data sz Empty ;
       set_size t sz ;
@@ -118,11 +118,11 @@ let iteri fn t =
   let sz = size t in
   let data = data t in
   if not (sz <= Array.size data) then
-    failwith "inconsistency" ;
+    failwith @@ __FUNCTION__ ^ ": inconsistency" ;
   Array.unsafe_iteri_slice (fun i slot ->
     match slot with
     | Empty ->
-        failwith "inconsistency"
+        failwith @@ __FUNCTION__ ^ ": inconsistency"
     | Element slot_r ->
         fn i slot_r.value
   ) data 0 sz

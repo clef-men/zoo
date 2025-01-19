@@ -5,7 +5,7 @@ let unsafe_alloc sz =
   Obj.magic (Obj.new_block 0 sz)
 let alloc sz =
   if not (0 <= sz) then
-    invalid_arg "negative size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative size" ;
   unsafe_alloc sz
 
 let create () =
@@ -33,9 +33,9 @@ let get =
 [@@zoo.overwrite
   fun t i ->
     if not (0 <= i) then
-      invalid_arg "negative index" ;
+      invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
     if not (i < size t) then
-      invalid_arg "index out of bounds" ;
+      invalid_arg @@ __FUNCTION__ ^ ": index out of bounds" ;
     unsafe_get t i
 ]
 
@@ -50,9 +50,9 @@ let set =
 [@@zoo.overwrite
   fun t i v ->
     if not (0 <= i) then
-      invalid_arg "negative index" ;
+      invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
     if not (i < size t) then
-      invalid_arg "index out of bounds" ;
+      invalid_arg @@ __FUNCTION__ ^ ": index out of bounds" ;
     unsafe_set t i v
 ]
 
@@ -63,11 +63,11 @@ let unsafe_fill_slice t i n v =
 let fill_slice t i n v =
   let sz = size t in
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   if not (i + n <= sz) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_fill_slice t i n v
 let fill t v =
   unsafe_fill_slice t 0 (size t) v
@@ -81,7 +81,7 @@ let make =
 [@@zoo.overwrite
   fun sz v ->
     if not (0 <= sz) then
-      invalid_arg "negative size" ;
+      invalid_arg @@ __FUNCTION__ ^ ": negative size" ;
     unsafe_make sz v
 ]
 
@@ -119,27 +119,27 @@ let unsafe_iteri_slice fn t i n =
   done
 let iteri_slice fn t i n =
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   let sz = size t in
   if not (i <= sz) then
-    invalid_arg "invalid index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid index" ;
   if not (i + n <= sz) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_iteri_slice fn t i n
 let unsafe_iter_slice fn =
   unsafe_iteri_slice (fun _i -> fn)
 let iter_slice fn t i n =
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   let sz = size t in
   if not (i <= sz) then
-    invalid_arg "invalid index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid index" ;
   if not (i + n <= sz) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_iter_slice fn t i n
 let iteri fn t =
   unsafe_iteri_slice fn t 0 (size t)
@@ -157,13 +157,13 @@ let unsafe_initi sz fn =
   t
 let initi sz fn =
   if not (0 <= sz) then
-    invalid_arg "negative size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative size" ;
   unsafe_initi sz fn
 let unsafe_init sz fn =
   unsafe_initi sz (fun _i -> fn ())
 let init sz fn =
   if not (0 <= sz) then
-    invalid_arg "negative size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative size" ;
   unsafe_init sz fn
 
 let mapi fn t =
@@ -180,23 +180,23 @@ let copy_slice t1 i1 t2 i2 n =
   let sz1 = size t1 in
   let sz2 = size t2 in
   if not (0 <= i1) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= i2) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   if not (i1 + n <= sz1) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   if not (i2 + n <= sz2) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_copy_slice t1 i1 t2 i2 n
 let unsafe_copy t1 t2 i2 =
   unsafe_copy_slice t1 0 t2 i2 (size t1)
 let copy t1 t2 i2 =
   if not (0 <= i2) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (i2 + size t1 <= size t2) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_copy t1 t2 i2
 
 let unsafe_grow t sz' v' =
@@ -207,7 +207,7 @@ let unsafe_grow t sz' v' =
   t'
 let grow t sz' v' =
   if not (size t <= sz') then
-    invalid_arg "invalid size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid size" ;
   unsafe_grow t sz' v'
 
 let unsafe_sub t i n =
@@ -216,20 +216,20 @@ let unsafe_sub t i n =
   t'
 let sub t i n =
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   if not (i + n <= size t) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_sub t i n
 
 let unsafe_shrink t sz' =
   unsafe_sub t 0 sz'
 let shrink t sz' =
   if not (0 <= sz') then
-    invalid_arg "negative size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative size" ;
   if not (sz' <= size t) then
-    invalid_arg "invalid size" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid size" ;
   unsafe_shrink t sz'
 
 let clone t =
@@ -244,18 +244,18 @@ let unsafe_cget t i =
   unsafe_get t (i mod size t)
 let cget t i =
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 < size t) then
-    invalid_arg "size must be strictly positive" ;
+    invalid_arg @@ __FUNCTION__ ^ ": size must be strictly positive" ;
   unsafe_cget t i
 
 let unsafe_cset t i v =
   unsafe_set t (i mod size t) v
 let cset t i v =
   if not (0 <= i) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 < size t) then
-    invalid_arg "size must be strictly positive" ;
+    invalid_arg @@ __FUNCTION__ ^ ": size must be strictly positive" ;
   unsafe_cset t i v
 
 let unsafe_ccopy_slice t1 i1 t2 i2 n =
@@ -265,36 +265,36 @@ let unsafe_ccopy_slice t1 i1 t2 i2 n =
   done
 let ccopy_slice t1 i1 t2 i2 n =
   if not (0 <= i1) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= i2) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= n) then
-    invalid_arg "negative span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
   let sz1 = size t1 in
   let sz2 = size t2 in
   if not (0 < sz1) then
-    invalid_arg "size must be strictly positive" ;
+    invalid_arg @@ __FUNCTION__ ^ ": size must be strictly positive" ;
   if not (0 < sz2) then
-    invalid_arg "size must be strictly positive" ;
+    invalid_arg @@ __FUNCTION__ ^ ": size must be strictly positive" ;
   if not (n <= sz1) then
-    invalid_arg "invalid span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid span" ;
   if not (n <= sz2) then
-    invalid_arg "invalid span" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid span" ;
   unsafe_ccopy_slice t1 i1 t2 i2 n
 
 let unsafe_ccopy t1 i1 t2 i2 =
   unsafe_ccopy_slice t1 i1 t2 i2 (size t1)
 let ccopy t1 i1 t2 i2 =
   if not (0 <= i1) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   if not (0 <= i2) then
-    invalid_arg "negative index" ;
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
   let sz1 = size t1 in
   let sz2 = size t2 in
   if not (0 < sz1) then
-    invalid_arg "size must be strictly positive" ;
+    invalid_arg @@ __FUNCTION__ ^ ": size must be strictly positive" ;
   if not (sz1 <= sz2) then
-    invalid_arg "invalid arguments" ;
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_ccopy t1 i1 t2 i2
 
 let unsafe_cresize_slice t i n sz' v =
