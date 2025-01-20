@@ -330,7 +330,6 @@ Section partition_G.
     {{{ class descr,
       RET #class;
       partition_model' γ descrs ∗
-      partition_elt γ elt v ∗
       ⌜descrs !! class = Some descr⌝ ∗
       ⌜elt ∈ descr.(partition_descr_elts)⌝ ∗
       ⌜ ∀ class' descr',
@@ -412,7 +411,6 @@ Section partition_G.
     {{{ elt' part',
       RET #elt';
       partition_model γ part' ∗
-      partition_elt γ elt v ∗
       partition_elt γ elt' v' ∗
       ⌜ ∃ part'' cl,
         elt ∈ cl ∧
@@ -421,10 +419,10 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & #Helt) HΦ".
 
     wp_rec.
-    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & Helt & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     wp_smart_apply (partition_dllist_create_spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
 
@@ -435,7 +433,7 @@ Section partition_G.
       partition_get #elt
     {{{
       RET v;
-      partition_elt γ elt v
+      True
     }}}.
   Proof.
     iSteps.
@@ -464,8 +462,6 @@ Section partition_G.
     {{{ b,
       RET #b;
       partition_model γ part ∗
-      partition_elt γ elt1 v1 ∗
-      partition_elt γ elt2 v2 ∗
       ⌜ ∀ cl1 cl2,
         cl1 ∈ part →
         elt1 ∈ cl1 →
@@ -475,10 +471,10 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:model) & Helt1 & Helt2) HΦ".
+    iIntros "%Φ ((:model) & #Helt1 & #Helt2) HΦ".
     wp_rec.
-    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & Helt2 & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & Helt1 & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
+    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
     wp_pures. case_bool_decide as Hcase.
     - subst class2.
       iSteps as (cl1 cl2 (class1' & descr1' & Hdescrs_lookup_1' & <-)%elem_of_map_to_set Helts1'_elem (class2' & descr2' & Hdescrs_lookup_2' & <-)%elem_of_map_to_set Helts2'_elem) / --silent. iPureIntro.
@@ -502,16 +498,15 @@ Section partition_G.
     {{{ elt',
       RET #elt';
       partition_model γ part ∗
-      partition_elt γ elt v ∗
       ⌜ ∀ cl,
         cl ∈ part →
         elt ∈ cl ↔ elt' ∈ cl
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & #Helt) HΦ".
     wp_rec.
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & Helt & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descr_model) & Hdescrs)"; first done.
     wp_load.
@@ -531,7 +526,6 @@ Section partition_G.
     {{{ sz,
       RET #sz;
       partition_model γ part ∗
-      partition_elt γ elt v ∗
       ⌜ ∀ cl,
         cl ∈ part →
         elt ∈ cl →
@@ -539,9 +533,9 @@ Section partition_G.
       ⌝
     }}}.
   Proof.
-    iIntros "%Φ ((:model) & Helt) HΦ".
+    iIntros "%Φ ((:model) & #Helt) HΦ".
     wp_rec.
-    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & Helt & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct (partition_descr_model_elts_NoDup with "Hmodel") as %?; first done.
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descr_model) & Hdescrs)"; first done.
