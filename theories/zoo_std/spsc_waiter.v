@@ -42,62 +42,62 @@ Qed.
 Section spsc_waiter_G.
   Context `{spsc_waiter_G : SpscWaiterG Σ}.
 
-  Record spsc_waiter_meta := {
-    spsc_waiter_meta_mutex : val ;
-    spsc_waiter_meta_condition : val ;
-    spsc_waiter_meta_lstate : gname ;
-    spsc_waiter_meta_consumer : gname ;
+  Record metadata := {
+    metadata_mutex : val ;
+    metadata_condition : val ;
+    metadata_lstate : gname ;
+    metadata_consumer : gname ;
   }.
-  Implicit Types γ : spsc_waiter_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance spsc_waiter_meta_eq_dec : EqDecision spsc_waiter_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance spsc_waiter_meta_countable :
-    Countable spsc_waiter_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition spsc_waiter_inv_inner l γ P : iProp Σ :=
+  #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ b,
     l.[flag] ↦ #b ∗
     if b then
-      oneshot_shot γ.(spsc_waiter_meta_lstate) () ∗
-      (P ∨ excl γ.(spsc_waiter_meta_consumer) ())
+      oneshot_shot γ.(metadata_lstate) () ∗
+      (P ∨ excl γ.(metadata_consumer) ())
     else
-      oneshot_pending γ.(spsc_waiter_meta_lstate) (DfracOwn (1/3)) ().
+      oneshot_pending γ.(metadata_lstate) (DfracOwn (1/3)) ().
   Definition spsc_waiter_inv t P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ γ.(spsc_waiter_meta_mutex) ∗
-    mutex_inv γ.(spsc_waiter_meta_mutex) True ∗
-    l.[condition] ↦□ γ.(spsc_waiter_meta_condition) ∗
-    condition_inv γ.(spsc_waiter_meta_condition) ∗
-    inv nroot (spsc_waiter_inv_inner l γ P).
+    l.[mutex] ↦□ γ.(metadata_mutex) ∗
+    mutex_inv γ.(metadata_mutex) True ∗
+    l.[condition] ↦□ γ.(metadata_condition) ∗
+    condition_inv γ.(metadata_condition) ∗
+    inv nroot (inv_inner l γ P).
 
   Definition spsc_waiter_producer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_pending γ.(spsc_waiter_meta_lstate) (DfracOwn (2/3)) ().
+    oneshot_pending γ.(metadata_lstate) (DfracOwn (2/3)) ().
 
   Definition spsc_waiter_consumer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    excl γ.(spsc_waiter_meta_consumer) ().
+    excl γ.(metadata_consumer) ().
 
   Definition spsc_waiter_notified t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_shot γ.(spsc_waiter_meta_lstate) ().
+    oneshot_shot γ.(metadata_lstate) ().
 
   #[global] Instance spsc_waiter_inv_contractive t :
     Contractive (spsc_waiter_inv t).
   Proof.
-    rewrite /spsc_waiter_inv /spsc_waiter_inv_inner. solve_contractive.
+    rewrite /spsc_waiter_inv /inv_inner. solve_contractive.
   Qed.
   #[global] Instance spsc_waiter_inv_ne t :
     NonExpansive (spsc_waiter_inv t).
@@ -184,10 +184,10 @@ Section spsc_waiter_G.
     iMod (excl_alloc (excl_G := spsc_waiter_G_excl_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
-      spsc_waiter_meta_mutex := mtx ;
-      spsc_waiter_meta_condition := cond ;
-      spsc_waiter_meta_lstate := γ_lstate ;
-      spsc_waiter_meta_consumer := γ_consumer ;
+      metadata_mutex := mtx ;
+      metadata_condition := cond ;
+      metadata_lstate := γ_lstate ;
+      metadata_consumer := γ_consumer ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -211,7 +211,7 @@ Section spsc_waiter_G.
 
     wp_rec. wp_load.
     pose (Ψ_mtx (_ : val) := (
-      oneshot_shot γ.(spsc_waiter_meta_lstate)  ()
+      oneshot_shot γ.(metadata_lstate)  ()
     )%I).
     wp_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hpending HP]") as (res) "#Hshot".
     { iIntros "Hmtx_locked _".
@@ -319,7 +319,7 @@ Section spsc_waiter_G.
       if b then
         P
       else
-        excl γ.(spsc_waiter_meta_consumer) ()
+        excl γ.(metadata_consumer) ()
     )%I).
     wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.
 

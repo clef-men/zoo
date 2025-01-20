@@ -39,51 +39,51 @@ Qed.
 Section parray_G.
   Context `{parray_G : ParrayG Σ}.
 
-  Record parray_meta := {
-    parray_meta_map : gname ;
-    parray_meta_array : val ;
-    parray_meta_size : nat ;
+  Record metadata := {
+    metadata_map : gname ;
+    metadata_array : val ;
+    metadata_size : nat ;
   }.
-  Implicit Types γ : parray_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Definition parray_map_auth' γ_map map :=
+  #[local] Definition mapping_auth' γ_map map :=
     @ghost_map_auth _ _ _ _ _ parray_G_map_G γ_map 1 map.
-  #[local] Definition parray_map_auth γ :=
-    parray_map_auth' γ.(parray_meta_map).
-  #[local] Definition parray_map_elem' γ_map l vs :=
+  #[local] Definition mapping_auth γ :=
+    mapping_auth' γ.(metadata_map).
+  #[local] Definition mapping_elem' γ_map l vs :=
     @ghost_map_elem _ _ _ _ _ parray_G_map_G γ_map l DfracDiscarded vs.
-  #[local] Definition parray_map_elem γ :=
-    parray_map_elem' γ.(parray_meta_map).
+  #[local] Definition mapping_elem γ :=
+    mapping_elem' γ.(metadata_map).
 
-  #[local] Definition parray_inv_inner τ `{!iType _ τ} γ map root : iProp Σ :=
-    parray_map_auth γ map ∗
+  #[local] Definition inv_inner τ `{!iType _ τ} γ map root : iProp Σ :=
+    mapping_auth γ map ∗
     [∗ map] l ↦ vs ∈ map,
       ∃ descr,
-      ⌜length vs = γ.(parray_meta_size)⌝ ∗
+      ⌜length vs = γ.(metadata_size)⌝ ∗
       l ↦ᵣ descr ∗
       if (decide (l = root)) then (
-        ⌜descr = ‘Root( γ.(parray_meta_array) )%V⌝ ∗
-        array_model γ.(parray_meta_array) (DfracOwn 1) vs ∗
+        ⌜descr = ‘Root( γ.(metadata_array) )%V⌝ ∗
+        array_model γ.(metadata_array) (DfracOwn 1) vs ∗
         [∗ list] v ∈ vs, τ v
       ) else (
         ∃ i v l' vs',
-        ⌜i < γ.(parray_meta_size) ∧ vs = <[i := v]> vs'⌝ ∗
+        ⌜i < γ.(metadata_size) ∧ vs = <[i := v]> vs'⌝ ∗
         ⌜descr = ‘Diff( #i, v, #l' )%V⌝ ∗
-        parray_map_elem γ l' vs' ∗
+        mapping_elem γ l' vs' ∗
         τ v
       ).
   Definition parray_inv τ `{!iType _ τ} γ : iProp Σ :=
     ∃ map root,
-    parray_inv_inner τ γ map root.
+    inv_inner τ γ map root.
 
   Definition parray_model t γ vs : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
-    parray_map_elem γ l vs.
+    mapping_elem γ l vs.
 
-  #[local] Instance parray_inv_inner_timeless τ `{!iType _ τ} γ map root :
+  #[local] Instance inv_inner_timeless τ `{!iType _ τ} γ map root :
     (∀ v, Timeless (τ v)) →
-    Timeless (parray_inv_inner τ γ map root).
+    Timeless (inv_inner τ γ map root).
   Proof.
     rewrite /Timeless. iIntros "%Hτ (Hmap_auth & Hmap)".
     iSplitL "Hmap_auth".
@@ -124,29 +124,29 @@ Section parray_G.
     apply _.
   Qed.
 
-  #[local] Lemma parray_map_alloc root vs :
+  #[local] Lemma mapping_alloc root vs :
     ⊢ |==>
       ∃ γ_map,
-      parray_map_auth' γ_map {[root := vs]} ∗
-      parray_map_elem' γ_map root vs.
+      mapping_auth' γ_map {[root := vs]} ∗
+      mapping_elem' γ_map root vs.
   Proof.
     iMod (@ghost_map_alloc _ _ _ _ _ parray_G_map_G {[root := vs]}) as "(%γ_map & Hmap_auth & Hmap_elem)".
     setoid_rewrite big_sepM_singleton.
     iMod (ghost_map_elem_persist with "Hmap_elem") as "Hmap_elem".
     iSteps.
   Qed.
-  #[local] Lemma parray_map_lookup γ map l vs :
-    parray_map_auth γ map -∗
-    parray_map_elem γ l vs -∗
+  #[local] Lemma mapping_lookup γ map l vs :
+    mapping_auth γ map -∗
+    mapping_elem γ l vs -∗
     ⌜map !! l = Some vs⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma parray_map_insert {γ map} l vs :
+  #[local] Lemma mapping_insert {γ map} l vs :
     map !! l = None →
-    parray_map_auth γ map ⊢ |==>
-      parray_map_auth γ (<[l := vs]> map) ∗
-      parray_map_elem γ l vs.
+    mapping_auth γ map ⊢ |==>
+      mapping_auth γ (<[l := vs]> map) ∗
+      mapping_elem γ l vs.
   Proof.
     iIntros "%Hlookup Hmap_auth".
     iMod (ghost_map_insert with "Hmap_auth") as "(Hmap_auth & Hmap_elem)"; first done.
@@ -171,11 +171,11 @@ Section parray_G.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%arr Harr"; first done.
     wp_ref root as "Hroot".
     pose vs := replicate ₊sz v.
-    iMod (parray_map_alloc root vs) as "(%γ_map & Hmap_auth & Hmap_elem)".
+    iMod (mapping_alloc root vs) as "(%γ_map & Hmap_auth & Hmap_elem)".
     pose γ := {|
-      parray_meta_map := γ_map ;
-      parray_meta_array := arr ;
-      parray_meta_size := ₊sz ;
+      metadata_map := γ_map ;
+      metadata_array := arr ;
+      metadata_size := ₊sz ;
     |}.
     iApply ("HΦ" $! _ γ). iSplitR "Hmap_elem"; last iSteps. iExists {[root := vs]}, root. iFrame.
     iApply big_sepM_singleton.
@@ -185,19 +185,19 @@ Section parray_G.
 
   #[local] Lemma parray_reroot_spec τ `{!iType _ τ} γ map root l vs :
     {{{
-      parray_inv_inner τ γ map root ∗
-      parray_map_elem γ l vs
+      inv_inner τ γ map root ∗
+      mapping_elem γ l vs
     }}}
       parray_reroot #l
     {{{
-      RET γ.(parray_meta_array);
-      parray_inv_inner τ γ map l
+      RET γ.(metadata_array);
+      inv_inner τ γ map l
     }}}.
   Proof.
     iLöb as "HLöb" forall (l vs).
     iIntros "%Φ ((Hmap_auth & Hmap) & #Hmap_elem) HΦ".
     wp_rec.
-    iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
+    iDestruct (mapping_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
     iDestruct (big_sepM_lookup_acc with "Hmap") as "((%descr & %Hvs_len & Hl & Hdescr) & Hmap)"; first done.
     destruct (decide (l = root)) as [-> | Hcase1].
     { iDestruct "Hdescr" as "(-> & Harr & Hvs)". iSteps. }
@@ -206,7 +206,7 @@ Section parray_G.
     iDestruct ("Hmap" with "[Hl Hv]") as "Hmap"; first iSteps.
     wp_smart_apply ("HLöb" with "[Hmap_auth Hmap]") as "(Hmap_auth & Hmap)"; first iSteps.
     wp_pures.
-    iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem'") as %Hmap_lookup'.
+    iDestruct (mapping_lookup with "Hmap_auth Hmap_elem'") as %Hmap_lookup'.
     iDestruct (big_sepM_delete with "Hmap") as "((%descr' & %Hvs'_len & Hl' & Hdescr') & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr'" as "(-> & Harr & Hvs')".
     opose proof* (list_lookup_lookup_total_lt vs' i) as Hvs'_lookup; first lia.
@@ -253,7 +253,7 @@ Section parray_G.
     iIntros "%Hi %Hvs_lookup %Φ ((%map & %root & Hinv) & (%l & -> & #Hmap_elem)) HΦ".
     wp_rec.
     wp_smart_apply (parray_reroot_spec τ with "[$Hinv $Hmap_elem]") as "(Hmap_auth & Hmap)".
-    iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
+    iDestruct (mapping_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
     iDestruct (big_sepM_lookup_acc with "Hmap") as "((%descr & %Hvs_len & Hl & Hdescr) & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr" as "(-> & Harr & Hvs)".
     wp_apply (array_unsafe_get_spec with "Harr"); [done.. |].
@@ -285,7 +285,7 @@ Section parray_G.
     Z_to_nat i. rewrite Nat2Z.id.
     wp_rec.
     wp_smart_apply (parray_reroot_spec with "[$Hinv //]") as "(Hmap_auth & Hmap)".
-    iDestruct (parray_map_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
+    iDestruct (mapping_lookup with "Hmap_auth Hmap_elem") as %Hmap_lookup.
     iDestruct (big_sepM_delete _ _ l with "Hmap") as "((%descr & %Hvs_len & Hl & Hdescr) & Hmap)"; first done.
     rewrite decide_True //. iDestruct "Hdescr" as "(-> & Harr & Hvs)".
     opose proof* (list_lookup_lookup_total_lt vs i); first lia.
@@ -309,7 +309,7 @@ Section parray_G.
         iApply (pointsto_exclusive with "Hroot Hroot_").
       }
       set vs_root := <[i := v]> vs.
-      iMod (parray_map_insert with "Hmap_auth") as "(Hmap_auth & #Hmap_elem_root)"; first done.
+      iMod (mapping_insert with "Hmap_auth") as "(Hmap_auth & #Hmap_elem_root)"; first done.
       iSplitR "Hmap_elem_root"; last iSteps. iExists (<[root := vs_root]> map), root. iFrame.
       iApply big_sepM_insert; first done. iSplitL "Hroot Harr Hvs".
       { iExists _. rewrite decide_True //. iSteps. rewrite length_insert //. }

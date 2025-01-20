@@ -42,56 +42,56 @@ Qed.
 Section mpsc_waiter_G.
   Context `{mpsc_waiter_G : MpscWaiterG Σ}.
 
-  Record mpsc_waiter_meta := {
-    mpsc_waiter_meta_mutex : val ;
-    mpsc_waiter_meta_condition : val ;
-    mpsc_waiter_meta_lstate : gname ;
-    mpsc_waiter_meta_consumer : gname ;
+  Record metadata := {
+    metadata_mutex : val ;
+    metadata_condition : val ;
+    metadata_lstate : gname ;
+    metadata_consumer : gname ;
   }.
-  Implicit Types γ : mpsc_waiter_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance mpsc_waiter_meta_eq_dec : EqDecision mpsc_waiter_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance mpsc_waiter_meta_countable :
-    Countable mpsc_waiter_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition mpsc_waiter_inv_inner l γ P : iProp Σ :=
+  #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ b,
     l.[flag] ↦ #b ∗
     if b then
-      oneshot_shot γ.(mpsc_waiter_meta_lstate) () ∗
-      (P ∨ excl γ.(mpsc_waiter_meta_consumer) ())
+      oneshot_shot γ.(metadata_lstate) () ∗
+      (P ∨ excl γ.(metadata_consumer) ())
     else
-      oneshot_pending γ.(mpsc_waiter_meta_lstate) (DfracOwn 1) ().
+      oneshot_pending γ.(metadata_lstate) (DfracOwn 1) ().
   Definition mpsc_waiter_inv t P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ γ.(mpsc_waiter_meta_mutex) ∗
-    mutex_inv γ.(mpsc_waiter_meta_mutex) True ∗
-    l.[condition] ↦□ γ.(mpsc_waiter_meta_condition) ∗
-    condition_inv γ.(mpsc_waiter_meta_condition) ∗
-    inv nroot (mpsc_waiter_inv_inner l γ P).
+    l.[mutex] ↦□ γ.(metadata_mutex) ∗
+    mutex_inv γ.(metadata_mutex) True ∗
+    l.[condition] ↦□ γ.(metadata_condition) ∗
+    condition_inv γ.(metadata_condition) ∗
+    inv nroot (inv_inner l γ P).
 
   Definition mpsc_waiter_consumer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    excl γ.(mpsc_waiter_meta_consumer) ().
+    excl γ.(metadata_consumer) ().
 
   Definition mpsc_waiter_notified t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_shot γ.(mpsc_waiter_meta_lstate) ().
+    oneshot_shot γ.(metadata_lstate) ().
 
   #[global] Instance mpsc_waiter_inv_contractive t :
     Contractive (mpsc_waiter_inv t).
   Proof.
-    rewrite /mpsc_waiter_inv /mpsc_waiter_inv_inner. solve_contractive.
+    rewrite /mpsc_waiter_inv /inv_inner. solve_contractive.
   Qed.
   #[global] Instance mpsc_waiter_inv_ne t :
     NonExpansive (mpsc_waiter_inv t).
@@ -160,10 +160,10 @@ Section mpsc_waiter_G.
     iMod (excl_alloc (excl_G := mpsc_waiter_G_consumer_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
-      mpsc_waiter_meta_mutex := mtx ;
-      mpsc_waiter_meta_condition := cond ;
-      mpsc_waiter_meta_lstate := γ_lstate ;
-      mpsc_waiter_meta_consumer := γ_consumer ;
+      metadata_mutex := mtx ;
+      metadata_condition := cond ;
+      metadata_lstate := γ_lstate ;
+      metadata_consumer := γ_consumer ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -197,7 +197,7 @@ Section mpsc_waiter_G.
     pose (Ψ_mtx res := (
       ∃ b,
       ⌜res = #b⌝ ∗
-      oneshot_shot γ.(mpsc_waiter_meta_lstate)  ()
+      oneshot_shot γ.(metadata_lstate)  ()
     )%I).
     wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv HP]"); last first.
     { iSteps. iModIntro.
@@ -310,7 +310,7 @@ Section mpsc_waiter_G.
       if b then
         P
       else
-        excl γ.(mpsc_waiter_meta_consumer) ()
+        excl γ.(metadata_consumer) ()
     )%I).
     wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.
 

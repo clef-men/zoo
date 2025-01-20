@@ -88,9 +88,13 @@ Qed.
 Section boxroot_G.
   Context `{boxroot_G : BoxrootG Σ}.
 
-  #[local] Definition boxroot_roots_auth γ map :=
+  #[local] Definition metadata :=
+    gname.
+  Implicit Types γ : metadata.
+
+  #[local] Definition roots_auth γ map :=
     ghost_map_auth γ 1 map.
-  #[local] Definition boxroot_roots_elem γ root ω :=
+  #[local] Definition roots_elem γ root ω :=
     ghost_map_elem γ root (DfracOwn 1) ω.
 
   Definition boxroot_global global gc : iProp Σ :=
@@ -98,7 +102,7 @@ Section boxroot_G.
     ⌜global = #l_global⌝ ∗
     meta l_global nroot γ ∗
     ⌜dom map ≡ list_to_set roots⌝ ∗
-    boxroot_roots_auth γ map ∗
+    roots_auth γ map ∗
     xdeque_model global roots ∗
     [∗ map] root ↦ ω ∈ map,
       root.[xdeque_data] ↦root[gc] ω.
@@ -108,43 +112,43 @@ Section boxroot_G.
     ⌜t = #root⌝ ∗
     ⌜global = #l_global⌝ ∗
     meta l_global nroot γ ∗
-    boxroot_roots_elem γ root ω.
+    roots_elem γ root ω.
 
-  #[local] Lemma boxroot_roots_alloc :
+  #[local] Lemma roots_alloc :
     ⊢ |==>
       ∃ γ,
-      boxroot_roots_auth γ ∅.
+      roots_auth γ ∅.
   Proof.
     apply ghost_map_alloc_empty.
   Qed.
-  #[local] Lemma boxroot_roots_lookup γ map root ω :
-    boxroot_roots_auth γ map -∗
-    boxroot_roots_elem γ root ω -∗
+  #[local] Lemma roots_lookup γ map root ω :
+    roots_auth γ map -∗
+    roots_elem γ root ω -∗
     ⌜map !! root = Some ω⌝.
   Proof.
     apply ghost_map_lookup.
   Qed.
-  #[local] Lemma boxroot_roots_insert {γ map} root ω :
+  #[local] Lemma roots_insert {γ map} root ω :
     map !! root = None →
-    boxroot_roots_auth γ map ⊢ |==>
-      boxroot_roots_auth γ (<[root := ω]> map) ∗
-      boxroot_roots_elem γ root ω.
+    roots_auth γ map ⊢ |==>
+      roots_auth γ (<[root := ω]> map) ∗
+      roots_elem γ root ω.
   Proof.
     iIntros "%Hlookup Hroots_auth".
     iApply (ghost_map_insert with "Hroots_auth"); first done.
   Qed.
-  #[local] Lemma boxroot_roots_delete γ map root ω :
-    boxroot_roots_auth γ map -∗
-    boxroot_roots_elem γ root ω ==∗
-      boxroot_roots_auth γ (delete root map).
+  #[local] Lemma roots_delete γ map root ω :
+    roots_auth γ map -∗
+    roots_elem γ root ω ==∗
+      roots_auth γ (delete root map).
   Proof.
     apply ghost_map_delete.
   Qed.
-  #[local] Lemma boxroot_roots_update {γ map root ω} ω' :
-    boxroot_roots_auth γ map -∗
-    boxroot_roots_elem γ root ω ==∗
-      boxroot_roots_auth γ (<[root := ω']> map) ∗
-      boxroot_roots_elem γ root ω'.
+  #[local] Lemma roots_update {γ map root ω} ω' :
+    roots_auth γ map -∗
+    roots_elem γ root ω ==∗
+      roots_auth γ (<[root := ω']> map) ∗
+      roots_elem γ root ω'.
   Proof.
     apply ghost_map_update.
   Qed.
@@ -165,12 +169,12 @@ Section boxroot_G.
     iIntros "%Φ (Hgc & Hgc_roots) HΦ".
     wp_rec.
     wp_apply (xdeque_create_spec with "[//]") as (?) "((%l_global & -> & Hmeta) & Hroots)".
-    iMod boxroot_roots_alloc as "(%γ & Hroots_auth)".
+    iMod roots_alloc as "(%γ & Hroots_auth)".
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
     pose Χ' :=
       boxroot_global #l_global.
     pose (Ξ' roots ωs := (
-      boxroot_roots_auth γ (list_to_map $ zip roots ωs) ∗
+      roots_auth γ (list_to_map $ zip roots ωs) ∗
       xdeque_model #l_global roots
     )%I).
     wp_smart_apply (gc_set_roots_spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
@@ -218,7 +222,7 @@ Section boxroot_G.
       iDestruct (big_sepM_lookup with "Hmap") as "(% & Hroot_ & _)"; first done.
       iApply (pointsto_exclusive with "Hroot Hroot_").
     }
-    iMod (boxroot_roots_insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
+    iMod (roots_insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
     wp_pures.
     iApply "HΦ".
     iFrame. iSteps.
@@ -241,12 +245,12 @@ Section boxroot_G.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_rec.
     iApply wp_fupd.
-    iDestruct (boxroot_roots_lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
+    iDestruct (roots_lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
     { rewrite -elem_of_list_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
     iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
     wp_smart_apply (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
-    iMod (boxroot_roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
+    iMod (roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
     iDestruct (big_sepM_delete with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply "HΦ".
     iExists l_global, γ, (delete i roots), (delete root map). iSteps.
@@ -269,7 +273,7 @@ Section boxroot_G.
     iIntros "%Φ ((%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) & (%root & %_l_global & %_γ & -> & %Heq & _Hmeta & Hroots_elem)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_rec.
-    iDestruct (boxroot_roots_lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
+    iDestruct (roots_lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
     iDestruct (big_sepM_lookup_acc with "Hmap") as "(Hroot & Hmap)"; first done.
     wp_apply (wp_load_gc_root with "Hroot"); first done.
     iSteps.
@@ -291,11 +295,11 @@ Section boxroot_G.
     iIntros "%Hω %Φ ((%l_global & %γ & %roots & %map & -> & #Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap) & (%root & %_l_global & %_γ & -> & %Heq & _Hmeta & Hroots_elem)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_rec.
-    iDestruct (boxroot_roots_lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
+    iDestruct (roots_lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
     iDestruct (big_sepM_insert_acc with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply wp_fupd.
     wp_smart_apply (wp_store_gc_root with "Hroot") as "Hroot"; [done.. |].
-    iMod (boxroot_roots_update ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
+    iMod (roots_update ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
     iApply "HΦ".
     iSplitR "Hroots_elem"; last iSteps.
     iExists l_global, γ, roots, (<[root := ω]> map). iSteps.

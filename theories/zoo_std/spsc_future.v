@@ -44,64 +44,64 @@ Qed.
 Section spsc_future_G.
   Context `{spsc_future_G : SpscFutureG Σ}.
 
-  Record spsc_future_meta := {
-    spsc_future_meta_mutex : val ;
-    spsc_future_meta_condition : val ;
-    spsc_future_meta_lstate : gname ;
-    spsc_future_meta_consumer : gname ;
+  Record metadata := {
+    metadata_mutex : val ;
+    metadata_condition : val ;
+    metadata_lstate : gname ;
+    metadata_consumer : gname ;
   }.
-  Implicit Types γ : spsc_future_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance spsc_future_meta_eq_dec : EqDecision spsc_future_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance spsc_future_meta_countable :
-    Countable spsc_future_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition spsc_future_inv_inner l γ Ψ : iProp Σ :=
+  #[local] Definition inv_inner l γ Ψ : iProp Σ :=
     ∃ o,
     l.[result] ↦ o ∗
     match o with
     | Some v =>
-        oneshot_shot γ.(spsc_future_meta_lstate) v ∗
-        (Ψ v ∨ excl γ.(spsc_future_meta_consumer) ())
+        oneshot_shot γ.(metadata_lstate) v ∗
+        (Ψ v ∨ excl γ.(metadata_consumer) ())
     | None =>
-        oneshot_pending γ.(spsc_future_meta_lstate) (DfracOwn (1/3)) ()
+        oneshot_pending γ.(metadata_lstate) (DfracOwn (1/3)) ()
     end.
   Definition spsc_future_inv t Ψ : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[mutex] ↦□ γ.(spsc_future_meta_mutex) ∗
-    mutex_inv γ.(spsc_future_meta_mutex) True ∗
-    l.[condition] ↦□ γ.(spsc_future_meta_condition) ∗
-    condition_inv γ.(spsc_future_meta_condition) ∗
-    inv nroot (spsc_future_inv_inner l γ Ψ).
+    l.[mutex] ↦□ γ.(metadata_mutex) ∗
+    mutex_inv γ.(metadata_mutex) True ∗
+    l.[condition] ↦□ γ.(metadata_condition) ∗
+    condition_inv γ.(metadata_condition) ∗
+    inv nroot (inv_inner l γ Ψ).
 
   Definition spsc_future_producer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_pending γ.(spsc_future_meta_lstate) (DfracOwn (2/3)) ().
+    oneshot_pending γ.(metadata_lstate) (DfracOwn (2/3)) ().
 
   Definition spsc_future_consumer t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    excl γ.(spsc_future_meta_consumer) ().
+    excl γ.(metadata_consumer) ().
 
   Definition spsc_future_result t v : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    oneshot_shot γ.(spsc_future_meta_lstate) v.
+    oneshot_shot γ.(metadata_lstate) v.
 
   #[global] Instance spsc_future_inv_contractive t n :
     Proper ((pointwise_relation _ (dist_later n)) ==> (≡{n}≡)) (spsc_future_inv t).
   Proof.
-    rewrite /spsc_future_inv /spsc_future_inv_inner. solve_contractive.
+    rewrite /spsc_future_inv /inv_inner. solve_contractive.
   Qed.
   #[global] Instance spsc_future_inv_proper t :
     Proper ((pointwise_relation _ (≡)) ==> (≡)) (spsc_future_inv t).
@@ -187,10 +187,10 @@ Section spsc_future_G.
     iMod (excl_alloc (excl_G := spsc_future_G_excl_G) ()) as "(%γ_consumer & Hconsumer)".
 
     pose γ := {|
-      spsc_future_meta_mutex := mtx ;
-      spsc_future_meta_condition := cond ;
-      spsc_future_meta_lstate := γ_lstate ;
-      spsc_future_meta_consumer := γ_consumer ;
+      metadata_mutex := mtx ;
+      metadata_condition := cond ;
+      metadata_lstate := γ_lstate ;
+      metadata_consumer := γ_consumer ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -214,7 +214,7 @@ Section spsc_future_G.
 
     wp_rec. wp_load.
     pose (Ψ_mtx (_ : val) := (
-      oneshot_shot γ.(spsc_future_meta_lstate) v
+      oneshot_shot γ.(metadata_lstate) v
     )%I).
     wp_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hpending HΨ]") as (res) "#Hshot".
     { iIntros "Hmtx_locked _".
@@ -329,17 +329,17 @@ Section spsc_future_G.
     do 2 wp_load.
     pose (Ψ_mtx (_ : val) := (
       ∃ v,
-      oneshot_shot γ.(spsc_future_meta_lstate) v ∗
+      oneshot_shot γ.(metadata_lstate) v ∗
       Ψ v
     )%I).
     wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmtx_inv Hconsumer]") as (w) "(%v & #Hshot & HΨ)".
     { iIntros "Hmtx_locked _".
       pose (Ψ_cond b := (
         if b then
-          excl γ.(spsc_future_meta_consumer) ()
+          excl γ.(metadata_consumer) ()
         else
           ∃ v,
-          oneshot_shot γ.(spsc_future_meta_lstate) v ∗
+          oneshot_shot γ.(metadata_lstate) v ∗
           Ψ v
       )%I).
       wp_smart_apply (condition_wait_while_spec Ψ_cond with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $Hconsumer]"); last iSteps.

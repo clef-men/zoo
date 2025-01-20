@@ -45,61 +45,61 @@ Qed.
 Section mpsc_queue_2_G.
   Context `{mpsc_queue_2_G : MpscQueue2G Σ}.
 
-  Record mpsc_queue_2_meta := {
-    mpsc_queue_2_meta_model : gname ;
-    mpsc_queue_2_meta_front : gname ;
+  Record metadata := {
+    metadata_model : gname ;
+    metadata_front : gname ;
   }.
-  Implicit Types γ : mpsc_queue_2_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance mpsc_queue_2_meta_eq_dec : EqDecision mpsc_queue_2_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance mpsc_queue_2_meta_countable :
-    Countable mpsc_queue_2_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition mpsc_queue_2_model₁' γ_model vs :=
+  #[local] Definition model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition mpsc_queue_2_model₁ γ vs :=
-    mpsc_queue_2_model₁' γ.(mpsc_queue_2_meta_model) vs.
-  #[local] Definition mpsc_queue_2_model₂' γ_model vs :=
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition mpsc_queue_2_model₂ γ vs :=
-    mpsc_queue_2_model₂' γ.(mpsc_queue_2_meta_model) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
-  #[local] Definition mpsc_queue_2_front₁' γ_front front :=
+  #[local] Definition front₁' γ_front front :=
     twins_twin1 γ_front (DfracOwn 1) front.
-  #[local] Definition mpsc_queue_2_front₁ γ front :=
-    mpsc_queue_2_front₁' γ.(mpsc_queue_2_meta_front) front.
-  #[local] Definition mpsc_queue_2_front₂' γ_model front :=
+  #[local] Definition front₁ γ front :=
+    front₁' γ.(metadata_front) front.
+  #[local] Definition front₂' γ_model front :=
     twins_twin2 γ_model front.
-  #[local] Definition mpsc_queue_2_front₂ γ front :=
-    mpsc_queue_2_front₂' γ.(mpsc_queue_2_meta_front) front.
+  #[local] Definition front₂ γ front :=
+    front₂' γ.(metadata_front) front.
 
-  #[local] Definition mpsc_queue_2_inv_inner l γ : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ front back,
-    mpsc_queue_2_front₂ γ front ∗
+    front₂ γ front ∗
     l.[back] ↦ lst_to_val back ∗
-    mpsc_queue_2_model₂ γ (front ++ reverse back).
+    model₂ γ (front ++ reverse back).
   Definition mpsc_queue_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    inv ι (mpsc_queue_2_inv_inner l γ).
+    inv ι (inv_inner l γ).
 
   Definition mpsc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    mpsc_queue_2_model₁ γ vs.
+    model₁ γ vs.
 
   Definition mpsc_queue_2_consumer t : iProp Σ :=
     ∃ l γ front,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[front] ↦ lst_to_val front ∗
-    mpsc_queue_2_front₁ γ front.
+    front₁ γ front.
 
   #[global] Instance mpsc_queue_2_model_timeless t vs :
     Timeless (mpsc_queue_2_model t vs).
@@ -117,50 +117,50 @@ Section mpsc_queue_2_G.
     apply _.
   Qed.
 
-  #[local] Lemma mpsc_queue_2_model_alloc :
+  #[local] Lemma model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      mpsc_queue_2_model₁' γ_model [] ∗
-      mpsc_queue_2_model₂' γ_model [].
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma mpsc_queue_2_model_agree γ vs1 vs2 :
-    mpsc_queue_2_model₁ γ vs1 -∗
-    mpsc_queue_2_model₂ γ vs2 -∗
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma mpsc_queue_2_model_update {γ vs1 vs2} vs :
-    mpsc_queue_2_model₁ γ vs1 -∗
-    mpsc_queue_2_model₂ γ vs2 ==∗
-      mpsc_queue_2_model₁ γ vs ∗
-      mpsc_queue_2_model₂ γ vs.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
   Proof.
     apply twins_update'.
   Qed.
 
-  #[local] Lemma mpsc_queue_2_front_alloc :
+  #[local] Lemma front_alloc :
     ⊢ |==>
       ∃ γ_front,
-      mpsc_queue_2_front₁' γ_front [] ∗
-      mpsc_queue_2_front₂' γ_front [].
+      front₁' γ_front [] ∗
+      front₂' γ_front [].
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma mpsc_queue_2_front_agree γ front1 front2 :
-    mpsc_queue_2_front₁ γ front1 -∗
-    mpsc_queue_2_front₂ γ front2 -∗
+  #[local] Lemma front_agree γ front1 front2 :
+    front₁ γ front1 -∗
+    front₂ γ front2 -∗
     ⌜front1 = front2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma mpsc_queue_2_front_update {γ front1 front2} front :
-    mpsc_queue_2_front₁ γ front1 -∗
-    mpsc_queue_2_front₂ γ front2 ==∗
-      mpsc_queue_2_front₁ γ front ∗
-      mpsc_queue_2_front₂ γ front.
+  #[local] Lemma front_update {γ front1 front2} front :
+    front₁ γ front1 -∗
+    front₂ γ front2 ==∗
+      front₁ γ front ∗
+      front₂ γ front.
   Proof.
     apply twins_update'.
   Qed.
@@ -191,12 +191,12 @@ Section mpsc_queue_2_G.
 
     wp_block l as "Hmeta" "(Hfront & Hback & _)".
 
-    iMod mpsc_queue_2_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod mpsc_queue_2_front_alloc as "(%γ_front & Hfront₁ & Hfront₂)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod front_alloc as "(%γ_front & Hfront₁ & Hfront₂)".
 
     pose γ := {|
-      mpsc_queue_2_meta_model := γ_model ;
-      mpsc_queue_2_meta_front := γ_front ;
+      metadata_model := γ_model ;
+      metadata_front := γ_front ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -238,8 +238,8 @@ Section mpsc_queue_2_G.
     wp_cas as _ | ->%(inj _); first iSteps.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (mpsc_queue_2_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
-    iMod (mpsc_queue_2_model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
+    iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ".
     { iSteps. iExists (v :: back). iSteps. rewrite Hvs reverse_cons assoc //. }
@@ -269,10 +269,10 @@ Section mpsc_queue_2_G.
     - wp_bind (Xchg _ _).
       iInv "Hinv" as "(%_front & %back & Hfront₂ & Hback & Hmodel₂)".
       wp_xchg.
-      iDestruct (mpsc_queue_2_front_agree with "Hfront₁ Hfront₂") as %<-.
+      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
       iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpsc_queue_2_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       destruct (rev_elim back) as [-> | (back' & v & ->)].
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
@@ -286,8 +286,8 @@ Section mpsc_queue_2_G.
         iExists l, γ, []. iSteps.
 
       + set front := reverse back'.
-        iMod (mpsc_queue_2_front_update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
-        iMod (mpsc_queue_2_model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod (front_update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
+        iMod (model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
         { rewrite reverse_snoc. iSteps. }
         iSplitR "Hfront Hfront₁ HΦ".
@@ -299,13 +299,13 @@ Section mpsc_queue_2_G.
 
     - wp_store.
       iApply fupd_wp. iInv "Hinv" as "(%_front & %back & >Hfront₂ & Hback & >Hmodel₂)".
-      iDestruct (mpsc_queue_2_front_agree with "Hfront₁ Hfront₂") as %<-.
-      iMod (mpsc_queue_2_front_update with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
+      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
+      iMod (front_update with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
       iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpsc_queue_2_model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
       set vs' := front ++ reverse back.
-      iMod (mpsc_queue_2_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       rewrite Hvs.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.

@@ -196,67 +196,67 @@ Section ws_hub_std_G.
   Context `{ws_hub_std_G : WsHubStdG Σ}.
   Context (ws_deques : ws_deques Σ).
 
-  Record ws_hub_std_meta := {
-    ws_hub_std_meta_size : nat ;
-    ws_hub_std_meta_deques : val ;
-    ws_hub_std_meta_rounds : val ;
-    ws_hub_std_meta_waiters : val ;
-    ws_hub_std_meta_model : gname ;
+  Record metadata := {
+    metadata_size : nat ;
+    metadata_deques : val ;
+    metadata_rounds : val ;
+    metadata_waiters : val ;
+    metadata_model : gname ;
   }.
-  Implicit Types γ : ws_hub_std_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance ws_hub_std_meta_eq_dec :
-    EqDecision ws_hub_std_meta.
+  #[local] Instance metadata_eq_dec :
+    EqDecision metadata.
   Proof.
     solve_decision.
   Qed.
-  #[local] Instance ws_hub_std_meta_countable :
-    Countable ws_hub_std_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition ws_hub_std_model₁' γ_model vs :=
+  #[local] Definition model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition ws_hub_std_model₁ γ vs :=
-    ws_hub_std_model₁' γ.(ws_hub_std_meta_model) vs.
-  #[local] Definition ws_hub_std_model₂' γ_model vs :=
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition ws_hub_std_model₂ γ vs :=
-    ws_hub_std_model₂' γ.(ws_hub_std_meta_model) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
-  #[local] Definition ws_hub_std_inv_inner l γ : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ vs vss killed,
     ⌜vs = foldr (λ vs_deques vs, list_to_set_disj vs_deques ⊎ vs) ∅ vss⌝ ∗
     l.[killed] ↦ #killed ∗
-    ws_deques.(ws_deques_model) γ.(ws_hub_std_meta_deques) vss ∗
-    ws_hub_std_model₂ γ vs.
+    ws_deques.(ws_deques_model) γ.(metadata_deques) vss ∗
+    model₂ γ vs.
   Definition ws_hub_std_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[deques] ↦□ γ.(ws_hub_std_meta_deques) ∗
-    l.[rounds] ↦□ γ.(ws_hub_std_meta_rounds) ∗
-    l.[waiters] ↦□ γ.(ws_hub_std_meta_waiters) ∗
-    ws_deques.(ws_deques_inv) γ.(ws_hub_std_meta_deques) (ι.@"deques") γ.(ws_hub_std_meta_size) ∗
-    array_inv γ.(ws_hub_std_meta_rounds) γ.(ws_hub_std_meta_size) ∗
-    waiters_inv γ.(ws_hub_std_meta_waiters) ∗
-    inv (ι.@"inv") (ws_hub_std_inv_inner l γ).
+    l.[deques] ↦□ γ.(metadata_deques) ∗
+    l.[rounds] ↦□ γ.(metadata_rounds) ∗
+    l.[waiters] ↦□ γ.(metadata_waiters) ∗
+    ws_deques.(ws_deques_inv) γ.(metadata_deques) (ι.@"deques") γ.(metadata_size) ∗
+    array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
+    waiters_inv γ.(metadata_waiters) ∗
+    inv (ι.@"inv") (inv_inner l γ).
 
   #[using="ws_deques"]
   Definition ws_hub_std_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ws_hub_std_model₁ γ vs.
+    model₁ γ vs.
 
   Definition ws_hub_std_owner t i : iProp Σ :=
     ∃ l γ round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ws_deques.(ws_deques_owner) γ.(ws_hub_std_meta_deques) i ∗
-    array_slice γ.(ws_hub_std_meta_rounds) i DfracDiscarded [round] ∗
-    random_round_model' round (γ.(ws_hub_std_meta_size) - 1) n.
+    ws_deques.(ws_deques_owner) γ.(metadata_deques) i ∗
+    array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
+    random_round_model' round (γ.(metadata_size) - 1) n.
 
   #[global] Instance ws_hub_std_model_timeless t vs :
     Timeless (ws_hub_std_model t vs).
@@ -269,26 +269,26 @@ Section ws_hub_std_G.
     apply _.
   Qed.
 
-  #[local] Lemma ws_hub_std_model_alloc :
+  #[local] Lemma model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      ws_hub_std_model₁' γ_model ∅ ∗
-      ws_hub_std_model₂' γ_model ∅.
+      model₁' γ_model ∅ ∗
+      model₂' γ_model ∅.
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma ws_hub_std_model_agree γ vs1 vs2 :
-    ws_hub_std_model₁ γ vs1 -∗
-    ws_hub_std_model₂ γ vs2 -∗
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma ws_hub_std_model_update {γ vs1 vs2} vs :
-    ws_hub_std_model₁ γ vs1 -∗
-    ws_hub_std_model₂ γ vs2 ==∗
-      ws_hub_std_model₁ γ vs ∗
-      ws_hub_std_model₂ γ vs.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
   Proof.
     apply twins_update'.
   Qed.
@@ -342,14 +342,14 @@ Section ws_hub_std_G.
     iMod (pointsto_persist with "Hl_rounds") as "#Hl_rounds".
     iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".
 
-    iMod ws_hub_std_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      ws_hub_std_meta_size := sz' ;
-      ws_hub_std_meta_deques := deques ;
-      ws_hub_std_meta_rounds := v_rounds ;
-      ws_hub_std_meta_waiters := waiters ;
-      ws_hub_std_meta_model := γ_model ;
+      metadata_size := sz' ;
+      metadata_deques := deques ;
+      metadata_rounds := v_rounds ;
+      metadata_waiters := waiters ;
+      metadata_model := γ_model ;
     |}.
 
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
@@ -457,14 +457,14 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (ws_hub_std_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
       iSplitL "Hmodel₁"; first iSteps. iIntros "$ !>".
       iSteps.
     }
     iIntros "%vs' (%Hlookup & Hdeques_model)".
-    iMod (ws_hub_std_model_update ({[+v+]} ⊎ vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (model_update ({[+v+]} ⊎ vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iSplitL "Hmodel₁"; first iSteps. iIntros "!> HΦ !>".
     iSplitR "HΦ".
     { repeat iExists _. iFrame. iPureIntro.
@@ -510,7 +510,7 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (ws_hub_std_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
       iSplitL "Hmodel₁"; first iSteps.
@@ -520,7 +520,7 @@ Section ws_hub_std_G.
 
     - iDestruct "Hdeques_model" as "(%ws & %Hlookup & Hdeques_model)".
       set vs' := vs ∖ {[+v+]}.
-      iMod (ws_hub_std_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iExists (Some v).
       iSplitL "Hmodel₁".
       { iExists vs'. iSteps. iPureIntro.
@@ -586,7 +586,7 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (ws_hub_std_model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
       iSplitL "Hmodel₁"; first iSteps.
@@ -596,7 +596,7 @@ Section ws_hub_std_G.
 
     - iDestruct "Hdeques_model" as "(%j & %ws & %Hj & %Hlookup & Hdeques_model)".
       set vs' := vs ∖ {[+v+]}.
-      iMod (ws_hub_std_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iExists (Some v).
       iSplitL "Hmodel₁".
       { iExists vs'. iSteps. iPureIntro.

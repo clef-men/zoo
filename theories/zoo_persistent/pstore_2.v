@@ -76,6 +76,10 @@ Module raw.
   Section pstore_G.
     Context `{pstore_G : PstoreG Σ}.
 
+    #[local] Definition metadata :=
+      gname.
+    Implicit Types γ : metadata.
+
     #[local] Definition store_on σ0 ς :=
       ς ∪ (pair 0 <$> σ0).
     #[local] Definition store_generation g ς :=
@@ -800,7 +804,7 @@ Module raw.
           rewrite lookup_insert_ne //. congruence.
     Qed.
 
-    #[local] Definition pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
+    #[local] Definition collect_inv γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
       root ↦ᵣ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
         r.[ref_gen] ↦ #data.(gen) ∗
@@ -821,12 +825,12 @@ Module raw.
       δs !! i = Some δ →
       δ.(delta_node) = node →
       {{{
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs
+        collect_inv γ σ0 root ς descrs ϵs base descr δs
       }}}
         pstore_collect #node acc
       {{{ acc',
         RET (#root, acc');
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
+        collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           (λ δ, #δ.(delta_node)) <$> reverse (drop i δs)
       }}}.
@@ -868,17 +872,17 @@ Module raw.
         rewrite Hdrop_δs reverse_cons fmap_app /=.
         symmetry. apply app_cons_not_nil.
     Qed.
-    #[local] Definition pstore_collect_specification γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
+    #[local] Definition collect_specification γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
       ∀ cnode cnode_descr path acc,
       {{{
         ⌜descrs !! cnode = Some cnode_descr⌝ ∗
         ⌜treemap_path ϵs base cnode path⌝ ∗
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs
+        collect_inv γ σ0 root ς descrs ϵs base descr δs
       }}}
         pstore_collect #cnode acc
       {{{ acc',
         RET (#root, acc');
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
+        collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
@@ -890,13 +894,13 @@ Module raw.
       𝝳.(delta_node) = node →
       treemap_path ϵs base ϵ.1 path →
       {{{
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
-        pstore_collect_specification γ σ0 root ς descrs ϵs base descr δs
+        collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
+        collect_specification γ σ0 root ς descrs ϵs base descr δs
       }}}
         pstore_collect #node acc
       {{{ acc',
         RET (#root, acc');
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
+        collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
@@ -951,12 +955,12 @@ Module raw.
       descrs !! cnode = Some cnode_descr →
       treemap_path ϵs base cnode path →
       {{{
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs
+        collect_inv γ σ0 root ς descrs ϵs base descr δs
       }}}
         pstore_collect #cnode acc
       {{{ acc',
         RET (#root, acc');
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
+        collect_inv γ σ0 root ς descrs ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
@@ -1011,7 +1015,7 @@ Module raw.
           symmetry. apply app_cons_not_nil.
     Qed.
 
-    #[local] Definition pstore_revert_pre_1 γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
+    #[local] Definition revert_pre_1 γ σ0 root ς descrs ϵs base descr δs : iProp Σ :=
       ∃ v_root,
       root ↦ᵣ v_root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
@@ -1029,7 +1033,7 @@ Module raw.
         ∃ descr',
         ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
         cnode_model γ σ0 cnode descr ϵ descr'.(descriptor_store).
-    #[local] Definition pstore_revert_pre_2 γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node : iProp Σ :=
+    #[local] Definition revert_pre_2 γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node : iProp Σ :=
       ∃ v_node,
       node ↦ᵣ v_node ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 ς,
@@ -1049,7 +1053,7 @@ Module raw.
         ∃ descr',
         ⌜descrs !! ϵ.1 = Some descr'⌝ ∗
         cnode_model γ σ0 cnode descr ϵ descr'.(descriptor_store).
-    #[local] Definition pstore_revert_post γ σ0 descrs ϵs base descr : iProp Σ :=
+    #[local] Definition revert_post γ σ0 descrs ϵs base descr : iProp Σ :=
       base ↦ᵣ §Root ∗
       ( [∗ map] r ↦ data ∈ store_on σ0 descr.(descriptor_store),
         r.[ref_gen] ↦ #data.(gen) ∗
@@ -1075,12 +1079,12 @@ Module raw.
         ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
         [ #base'] →
       {{{
-        pstore_revert_pre_2 γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node
+        revert_pre_2 γ σ0 ς descrs ϵs base base_descr δs_base cnode cnode_descr δs_cnode node
       }}}
         pstore_revert #node acc
       {{{ ϵs,
         RET ();
-        pstore_revert_post γ σ0 descrs ϵs base' base_descr'
+        revert_post γ σ0 descrs ϵs base' base_descr'
       }}}.
     Proof.
       iLöb as "HLöb" forall (ς ϵs base base_descr δs_base cnode cnode_descr δs_cnode node path δs acc).
@@ -1243,12 +1247,12 @@ Module raw.
         ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
         [ #base'] →
       {{{
-        pstore_revert_pre_1 γ σ0 root ς descrs ϵs base base_descr δs
+        revert_pre_1 γ σ0 root ς descrs ϵs base base_descr δs
       }}}
         pstore_revert #root acc
       {{{ ϵs,
         RET ();
-        pstore_revert_post γ σ0 descrs ϵs base' base_descr'
+        revert_post γ σ0 descrs ϵs base' base_descr'
       }}}.
     Proof.
       iLöb as "HLöb" forall (root ς δs acc).
@@ -1379,12 +1383,12 @@ Module raw.
       descrs !! base' = Some descr' →
       treemap_path ϵs base base' path →
       {{{
-        pstore_collect_inv γ σ0 root ς descrs ϵs base descr δs
+        collect_inv γ σ0 root ς descrs ϵs base descr δs
       }}}
         pstore_reroot #base'
       {{{ ϵs,
         RET ();
-        pstore_revert_post γ σ0 descrs ϵs base' descr'
+        revert_post γ σ0 descrs ϵs base' descr'
       }}}.
     Proof.
       iIntros "%Hdescrs_lookup_base' %Hpath %Φ Hinv HΦ".
@@ -1517,6 +1521,10 @@ Qed.
 
 Section pstore_G.
   Context `{pstore_G : PstoreG Σ}.
+
+  #[local] Definition metadata :=
+    gname.
+  Implicit Types γ : metadata.
 
   Definition pstore_model t σ : iProp Σ :=
     ∃ l γ σ0 ς,

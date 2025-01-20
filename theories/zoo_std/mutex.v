@@ -33,7 +33,11 @@ Qed.
 Section mutex_G.
   Context `{mutex_G : MutexG Σ}.
 
-  #[local] Definition mutex_locked' γ :=
+  #[local] Definition metadata :=
+    gname.
+  Implicit Types γ : metadata.
+
+  #[local] Definition locked γ :=
     excl γ ().
 
   Definition mutex_init t : iProp Σ :=
@@ -41,34 +45,34 @@ Section mutex_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l ↦ᵣ #false ∗
-    mutex_locked' γ.
+    locked γ.
 
-  #[local] Definition mutex_inv_inner l γ P : iProp Σ :=
+  #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ b,
     l ↦ᵣ #b ∗
     match b with
     | true =>
         True
     | false =>
-        mutex_locked' γ ∗
+        locked γ ∗
         P
     end.
   Definition mutex_inv t P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    inv nroot (mutex_inv_inner l γ P).
+    inv nroot (inv_inner l γ P).
 
   Definition mutex_locked t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    mutex_locked' γ.
+    locked γ.
 
   #[global] Instance mutex_inv_contractive t :
     Contractive (mutex_inv t).
   Proof.
-    rewrite /mutex_inv /mutex_inv_inner. solve_contractive.
+    rewrite /mutex_inv /inv_inner. solve_contractive.
   Qed.
   #[global] Instance mutex_inv_ne t :
     NonExpansive (mutex_inv t).

@@ -56,121 +56,121 @@ Qed.
 Section spsc_bqueue_G.
   Context `{spsc_bqueue_G : SpscBqueueG Σ}.
 
-  Record spsc_bqueue_meta := {
-    spsc_bqueue_meta_data : val ;
-    spsc_bqueue_meta_model : gname ;
-    spsc_bqueue_meta_history : gname ;
-    spsc_bqueue_meta_producer_ctl : gname ;
-    spsc_bqueue_meta_producer_region : gname ;
-    spsc_bqueue_meta_consumer_ctl : gname ;
-    spsc_bqueue_meta_consumer_region : gname ;
+  Record metadata := {
+    metadata_data : val ;
+    metadata_model : gname ;
+    metadata_history : gname ;
+    metadata_producer_ctl : gname ;
+    metadata_producer_region : gname ;
+    metadata_consumer_ctl : gname ;
+    metadata_consumer_region : gname ;
   }.
-  Implicit Types γ : spsc_bqueue_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance spsc_bqueue_meta_eq_dec : EqDecision spsc_bqueue_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance spsc_bqueue_meta_countable :
-    Countable spsc_bqueue_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition spsc_bqueue_model₁' γ_model vs :=
+  #[local] Definition model₁' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition spsc_bqueue_model₁ γ vs :=
-    spsc_bqueue_model₁' γ.(spsc_bqueue_meta_model) vs.
-  #[local] Definition spsc_bqueue_model₂' γ_model vs :=
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition spsc_bqueue_model₂ γ vs :=
-    spsc_bqueue_model₂' γ.(spsc_bqueue_meta_model) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
-  #[local] Definition spsc_bqueue_history_auth' γ_history hist :=
+  #[local] Definition history_auth' γ_history hist :=
     mono_list_auth γ_history (DfracOwn 1) hist.
-  #[local] Definition spsc_bqueue_history_auth γ hist :=
-    spsc_bqueue_history_auth' γ.(spsc_bqueue_meta_history) hist.
-  #[local] Definition spsc_bqueue_history_at γ i v :=
-    mono_list_at γ.(spsc_bqueue_meta_history) i v.
+  #[local] Definition history_auth γ hist :=
+    history_auth' γ.(metadata_history) hist.
+  #[local] Definition history_at γ i v :=
+    mono_list_at γ.(metadata_history) i v.
 
-  #[local] Definition spsc_bqueue_producer_ctl₁' γ_producer_ctl back :=
+  #[local] Definition producer_ctl₁' γ_producer_ctl back :=
     auth_nat_max_auth γ_producer_ctl (DfracOwn (1/2)) back.
-  #[local] Definition spsc_bqueue_producer_ctl₁ γ back :=
-    spsc_bqueue_producer_ctl₁' γ.(spsc_bqueue_meta_producer_ctl) back.
-  #[local] Definition spsc_bqueue_producer_ctl₂' γ_producer_ctl back :=
+  #[local] Definition producer_ctl₁ γ back :=
+    producer_ctl₁' γ.(metadata_producer_ctl) back.
+  #[local] Definition producer_ctl₂' γ_producer_ctl back :=
     auth_nat_max_auth γ_producer_ctl (DfracOwn (1/2)) back.
-  #[local] Definition spsc_bqueue_producer_ctl₂ γ back :=
-    spsc_bqueue_producer_ctl₂' γ.(spsc_bqueue_meta_producer_ctl) back.
-  #[local] Definition spsc_bqueue_back_lb γ back :=
-    auth_nat_max_lb γ.(spsc_bqueue_meta_producer_ctl) back.
+  #[local] Definition producer_ctl₂ γ back :=
+    producer_ctl₂' γ.(metadata_producer_ctl) back.
+  #[local] Definition back_lb γ back :=
+    auth_nat_max_lb γ.(metadata_producer_ctl) back.
 
-  #[local] Definition spsc_bqueue_producer_region' γ_producer_region :=
+  #[local] Definition producer_region' γ_producer_region :=
     excl γ_producer_region ().
-  #[local] Definition spsc_bqueue_producer_region γ :=
-    spsc_bqueue_producer_region' γ.(spsc_bqueue_meta_producer_region).
+  #[local] Definition producer_region γ :=
+    producer_region' γ.(metadata_producer_region).
 
-  #[local] Definition spsc_bqueue_consumer_ctl₁' γ_consumer_ctl front :=
+  #[local] Definition consumer_ctl₁' γ_consumer_ctl front :=
     auth_nat_max_auth γ_consumer_ctl (DfracOwn (1/2)) front.
-  #[local] Definition spsc_bqueue_consumer_ctl₁ γ front :=
-    spsc_bqueue_consumer_ctl₁' γ.(spsc_bqueue_meta_consumer_ctl) front.
-  #[local] Definition spsc_bqueue_consumer_ctl₂' γ_consumer_ctl front :=
+  #[local] Definition consumer_ctl₁ γ front :=
+    consumer_ctl₁' γ.(metadata_consumer_ctl) front.
+  #[local] Definition consumer_ctl₂' γ_consumer_ctl front :=
     auth_nat_max_auth γ_consumer_ctl (DfracOwn (1/2)) front.
-  #[local] Definition spsc_bqueue_consumer_ctl₂ γ front :=
-    spsc_bqueue_consumer_ctl₂' γ.(spsc_bqueue_meta_consumer_ctl) front.
-  #[local] Definition spsc_bqueue_front_lb γ front :=
-    auth_nat_max_lb γ.(spsc_bqueue_meta_consumer_ctl) front.
+  #[local] Definition consumer_ctl₂ γ front :=
+    consumer_ctl₂' γ.(metadata_consumer_ctl) front.
+  #[local] Definition front_lb γ front :=
+    auth_nat_max_lb γ.(metadata_consumer_ctl) front.
 
-  #[local] Definition spsc_bqueue_consumer_region' γ_consumer_region :=
+  #[local] Definition consumer_region' γ_consumer_region :=
     excl γ_consumer_region ().
-  #[local] Definition spsc_bqueue_consumer_region γ :=
-    spsc_bqueue_consumer_region' γ.(spsc_bqueue_meta_consumer_region).
+  #[local] Definition consumer_region γ :=
+    consumer_region' γ.(metadata_consumer_region).
 
-  #[local] Definition spsc_bqueue_inv_inner l γ cap : iProp Σ :=
+  #[local] Definition inv_inner l γ cap : iProp Σ :=
     ∃ front back vs hist,
     ⌜back = (front + length vs)%nat ∧ back ≤ front + cap⌝ ∗
     ⌜length hist = back ∧ vs = drop front hist⌝ ∗
     l.[front] ↦ #front ∗
-    spsc_bqueue_consumer_ctl₂ γ front ∗
+    consumer_ctl₂ γ front ∗
     l.[back] ↦ #back ∗
-    spsc_bqueue_producer_ctl₂ γ back ∗
-    spsc_bqueue_model₂ γ vs ∗
-    spsc_bqueue_history_auth γ hist ∗
-    ( array_cslice γ.(spsc_bqueue_meta_data) cap front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> take 1 vs)
-    ∨ spsc_bqueue_consumer_region γ
+    producer_ctl₂ γ back ∗
+    model₂ γ vs ∗
+    history_auth γ hist ∗
+    ( array_cslice γ.(metadata_data) cap front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> take 1 vs)
+    ∨ consumer_region γ
     ) ∗
-    array_cslice γ.(spsc_bqueue_meta_data) cap (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
-    ( array_cslice γ.(spsc_bqueue_meta_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None%V])
-    ∨ spsc_bqueue_producer_region γ
+    array_cslice γ.(metadata_data) cap (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
+    ( array_cslice γ.(metadata_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None%V])
+    ∨ producer_region γ
     ) ∗
-    array_cslice γ.(spsc_bqueue_meta_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None%V).
+    array_cslice γ.(metadata_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None%V).
   Definition spsc_bqueue_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ γ.(spsc_bqueue_meta_data) ∗
-    inv ι (spsc_bqueue_inv_inner l γ cap).
+    l.[data] ↦□ γ.(metadata_data) ∗
+    inv ι (inv_inner l γ cap).
 
   Definition spsc_bqueue_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    spsc_bqueue_model₁ γ vs.
+    model₁ γ vs.
 
   Definition spsc_bqueue_producer t : iProp Σ :=
     ∃ l γ front_cache back,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[front_cache] ↦ #front_cache ∗
-    spsc_bqueue_producer_ctl₁ γ back ∗
-    spsc_bqueue_producer_region γ ∗
-    spsc_bqueue_front_lb γ front_cache.
+    producer_ctl₁ γ back ∗
+    producer_region γ ∗
+    front_lb γ front_cache.
 
   Definition spsc_bqueue_consumer t : iProp Σ :=
     ∃ l γ front back_cache,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[back_cache] ↦ #back_cache ∗
-    spsc_bqueue_consumer_ctl₁ γ front ∗
-    spsc_bqueue_consumer_region γ ∗
-    spsc_bqueue_back_lb γ back_cache.
+    consumer_ctl₁ γ front ∗
+    consumer_region γ ∗
+    back_lb γ back_cache.
 
   #[global] Instance spsc_bqueue_inv_persistent t ι cap :
     Persistent (spsc_bqueue_inv t ι cap).
@@ -193,173 +193,173 @@ Section spsc_bqueue_G.
     apply _.
   Qed.
 
-  #[local] Lemma spsc_bqueue_model_alloc :
+  #[local] Lemma model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      spsc_bqueue_model₁' γ_model [] ∗
-      spsc_bqueue_model₂' γ_model [].
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
   Proof.
     iMod (twins_alloc' (twins_G := spsc_bqueue_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iSteps.
   Qed.
-  #[local] Lemma spsc_bqueue_model_agree γ model1 model2 :
-    spsc_bqueue_model₁ γ model1 -∗
-    spsc_bqueue_model₂ γ model2 -∗
+  #[local] Lemma model_agree γ model1 model2 :
+    model₁ γ model1 -∗
+    model₂ γ model2 -∗
     ⌜model1 = model2⌝.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
     iDestruct (twins_agree_L with "Hmodel₂ Hmodel₁") as %->.
     iSteps.
   Qed.
-  #[local] Lemma spsc_bqueue_model_update {γ model1 model2} model :
-    spsc_bqueue_model₁ γ model1 -∗
-    spsc_bqueue_model₂ γ model2 ==∗
-      spsc_bqueue_model₁ γ model ∗
-      spsc_bqueue_model₂ γ model.
+  #[local] Lemma model_update {γ model1 model2} model :
+    model₁ γ model1 -∗
+    model₂ γ model2 ==∗
+      model₁ γ model ∗
+      model₂ γ model.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
     iMod (twins_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
     iSteps.
   Qed.
 
-  #[local] Lemma spsc_bqueue_history_alloc :
+  #[local] Lemma history_alloc :
     ⊢ |==>
       ∃ γ_history,
-      spsc_bqueue_history_auth' γ_history [].
+      history_auth' γ_history [].
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma spsc_bqueue_history_at_get {γ hist} i v :
+  #[local] Lemma history_at_get {γ hist} i v :
     hist !! i = Some v →
-    spsc_bqueue_history_auth γ hist ⊢
-    spsc_bqueue_history_at γ i v.
+    history_auth γ hist ⊢
+    history_at γ i v.
   Proof.
     apply mono_list_at_get.
   Qed.
-  #[local] Lemma spsc_bqueue_history_agree γ hist i v :
-    spsc_bqueue_history_auth γ hist -∗
-    spsc_bqueue_history_at γ i v -∗
+  #[local] Lemma history_agree γ hist i v :
+    history_auth γ hist -∗
+    history_at γ i v -∗
     ⌜hist !! i = Some v⌝.
   Proof.
     apply mono_list_at_valid.
   Qed.
-  #[local] Lemma spsc_bqueue_history_update {γ hist} v :
-    spsc_bqueue_history_auth γ hist ⊢ |==>
-    spsc_bqueue_history_auth γ (hist ++ [v]).
+  #[local] Lemma history_update {γ hist} v :
+    history_auth γ hist ⊢ |==>
+    history_auth γ (hist ++ [v]).
   Proof.
     apply mono_list_update_app.
   Qed.
 
-  #[local] Lemma spsc_bqueue_producer_ctl_alloc :
+  #[local] Lemma producer_ctl_alloc :
     ⊢ |==>
       ∃ γ_producer_ctl,
-      spsc_bqueue_producer_ctl₁' γ_producer_ctl 0 ∗
-      spsc_bqueue_producer_ctl₂' γ_producer_ctl 0.
+      producer_ctl₁' γ_producer_ctl 0 ∗
+      producer_ctl₂' γ_producer_ctl 0.
   Proof.
     iMod auth_nat_max_alloc as "(%γ_producer_ctl & Hproducer_ctl₁ & Hproducer_ctl₂)".
     iSteps.
   Qed.
-  #[local] Lemma spsc_bqueue_producer_ctl_agree γ back1 back2 :
-    spsc_bqueue_producer_ctl₁ γ back1 -∗
-    spsc_bqueue_producer_ctl₂ γ back2 -∗
+  #[local] Lemma producer_ctl_agree γ back1 back2 :
+    producer_ctl₁ γ back1 -∗
+    producer_ctl₂ γ back2 -∗
     ⌜back1 = back2⌝.
   Proof.
     apply auth_nat_max_auth_agree.
   Qed.
-  #[local] Lemma spsc_bqueue_producer_ctl_update {γ back1 back2} back :
+  #[local] Lemma producer_ctl_update {γ back1 back2} back :
     back1 ≤ back →
-    spsc_bqueue_producer_ctl₁ γ back1 -∗
-    spsc_bqueue_producer_ctl₂ γ back2 ==∗
-      spsc_bqueue_producer_ctl₁ γ back ∗
-      spsc_bqueue_producer_ctl₂ γ back.
+    producer_ctl₁ γ back1 -∗
+    producer_ctl₂ γ back2 ==∗
+      producer_ctl₁ γ back ∗
+      producer_ctl₂ γ back.
   Proof.
     iIntros "%Hle Hproducer_ctl₁ Hproducer_ctl₂".
     iDestruct (auth_nat_max_auth_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %->.
     iCombine "Hproducer_ctl₁ Hproducer_ctl₂" as "Hproducer_ctl".
     iMod (auth_nat_max_update with "Hproducer_ctl") as "($ & $)"; done.
   Qed.
-  #[local] Lemma spsc_bqueue_back_lb_get γ back :
-    spsc_bqueue_producer_ctl₂ γ back ⊢
-    spsc_bqueue_back_lb γ back.
+  #[local] Lemma back_lb_get γ back :
+    producer_ctl₂ γ back ⊢
+    back_lb γ back.
   Proof.
     apply auth_nat_max_lb_get.
   Qed.
-  #[local] Lemma spsc_bqueue_back_lb_valid γ back1 back2 :
-    spsc_bqueue_producer_ctl₂ γ back1 -∗
-    spsc_bqueue_back_lb γ back2 -∗
+  #[local] Lemma back_lb_valid γ back1 back2 :
+    producer_ctl₂ γ back1 -∗
+    back_lb γ back2 -∗
     ⌜back2 ≤ back1⌝.
   Proof.
     apply auth_nat_max_lb_valid.
   Qed.
 
-  #[local] Lemma spsc_bqueue_producer_region_alloc :
+  #[local] Lemma producer_region_alloc :
     ⊢ |==>
       ∃ γ_producer_region,
-      spsc_bqueue_producer_region' γ_producer_region.
+      producer_region' γ_producer_region.
   Proof.
     apply excl_alloc.
   Qed.
-  #[local] Lemma spsc_bqueue_producer_region_exclusive γ :
-    spsc_bqueue_producer_region γ -∗
-    spsc_bqueue_producer_region γ -∗
+  #[local] Lemma producer_region_exclusive γ :
+    producer_region γ -∗
+    producer_region γ -∗
     False.
   Proof.
     apply excl_exclusive.
   Qed.
 
-  #[local] Lemma spsc_bqueue_consumer_ctl_alloc :
+  #[local] Lemma consumer_ctl_alloc :
     ⊢ |==>
       ∃ γ_consumer_ctl,
-      spsc_bqueue_consumer_ctl₁' γ_consumer_ctl 0 ∗
-      spsc_bqueue_consumer_ctl₂' γ_consumer_ctl 0.
+      consumer_ctl₁' γ_consumer_ctl 0 ∗
+      consumer_ctl₂' γ_consumer_ctl 0.
   Proof.
     iMod auth_nat_max_alloc as "(%γ_consumer_ctl & Hconsumer_ctl₁ & Hconsumer_ctl₂)".
     iSteps.
   Qed.
-  #[local] Lemma spsc_bqueue_consumer_ctl_agree γ front1 front2 :
-    spsc_bqueue_consumer_ctl₁ γ front1 -∗
-    spsc_bqueue_consumer_ctl₂ γ front2 -∗
+  #[local] Lemma consumer_ctl_agree γ front1 front2 :
+    consumer_ctl₁ γ front1 -∗
+    consumer_ctl₂ γ front2 -∗
     ⌜front1 = front2⌝.
   Proof.
     apply auth_nat_max_auth_agree.
   Qed.
-  #[local] Lemma spsc_bqueue_consumer_ctl_update {γ front1 front2} front :
+  #[local] Lemma consumer_ctl_update {γ front1 front2} front :
     front1 ≤ front →
-    spsc_bqueue_consumer_ctl₁ γ front1 -∗
-    spsc_bqueue_consumer_ctl₂ γ front2 ==∗
-      spsc_bqueue_consumer_ctl₁ γ front ∗
-      spsc_bqueue_consumer_ctl₂ γ front.
+    consumer_ctl₁ γ front1 -∗
+    consumer_ctl₂ γ front2 ==∗
+      consumer_ctl₁ γ front ∗
+      consumer_ctl₂ γ front.
   Proof.
     iIntros "%Hle Hconsumer_ctl₁ Hconsumer_ctl₂".
     iDestruct (auth_nat_max_auth_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %->.
     iCombine "Hconsumer_ctl₁ Hconsumer_ctl₂" as "Hconsumer_ctl".
     iMod (auth_nat_max_update with "Hconsumer_ctl") as "($ & $)"; done.
   Qed.
-  #[local] Lemma spsc_bqueue_front_lb_get γ front :
-    spsc_bqueue_consumer_ctl₂ γ front ⊢
-    spsc_bqueue_front_lb γ front.
+  #[local] Lemma front_lb_get γ front :
+    consumer_ctl₂ γ front ⊢
+    front_lb γ front.
   Proof.
     apply auth_nat_max_lb_get.
   Qed.
-  #[local] Lemma spsc_bqueue_front_lb_valid γ front1 front2 :
-    spsc_bqueue_consumer_ctl₂ γ front1 -∗
-    spsc_bqueue_front_lb γ front2 -∗
+  #[local] Lemma front_lb_valid γ front1 front2 :
+    consumer_ctl₂ γ front1 -∗
+    front_lb γ front2 -∗
     ⌜front2 ≤ front1⌝.
   Proof.
     iIntros "Hconsumer_ctl₁ Hfront_lb".
     iApply (auth_nat_max_lb_valid with "Hconsumer_ctl₁ Hfront_lb").
   Qed.
 
-  #[local] Lemma spsc_bqueue_consumer_region_alloc :
+  #[local] Lemma consumer_region_alloc :
     ⊢ |==>
       ∃ γ_consumer_region,
-      spsc_bqueue_consumer_region' γ_consumer_region.
+      consumer_region' γ_consumer_region.
   Proof.
     apply excl_alloc.
   Qed.
-  #[local] Lemma spsc_bqueue_consumer_region_exclusive γ :
-    spsc_bqueue_consumer_region γ -∗
-    spsc_bqueue_consumer_region γ -∗
+  #[local] Lemma consumer_region_exclusive γ :
+    consumer_region γ -∗
+    consumer_region γ -∗
     False.
   Proof.
     apply excl_exclusive.
@@ -409,26 +409,26 @@ Section spsc_bqueue_G.
     wp_block l as "Hmeta" "(Hdata & Hfront & Hfront_cache & Hback & Hback_cache & _)".
     iMod (pointsto_persist with "Hdata") as "#Hdata".
 
-    iMod spsc_bqueue_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-    iMod spsc_bqueue_history_alloc as "(%γ_history & Hhistory_auth)".
-    iMod spsc_bqueue_producer_ctl_alloc as "(%γ_producer_ctl & Hproducer_ctl₁ & Hproducer_ctl₂)".
-    iMod spsc_bqueue_producer_region_alloc as "(%γ_producer_region & Hproducer_region)".
-    iMod spsc_bqueue_consumer_ctl_alloc as "(%γ_consumer_ctl & Hconsumer_ctl₁ & Hconsumer_ctl₂)".
-    iMod spsc_bqueue_consumer_region_alloc as "(%γ_consumer_region & Hconsumer_region)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod history_alloc as "(%γ_history & Hhistory_auth)".
+    iMod producer_ctl_alloc as "(%γ_producer_ctl & Hproducer_ctl₁ & Hproducer_ctl₂)".
+    iMod producer_region_alloc as "(%γ_producer_region & Hproducer_region)".
+    iMod consumer_ctl_alloc as "(%γ_consumer_ctl & Hconsumer_ctl₁ & Hconsumer_ctl₂)".
+    iMod consumer_region_alloc as "(%γ_consumer_region & Hconsumer_region)".
 
     pose γ := {|
-      spsc_bqueue_meta_data := data ;
-      spsc_bqueue_meta_model := γ_model ;
-      spsc_bqueue_meta_history := γ_history ;
-      spsc_bqueue_meta_producer_ctl := γ_producer_ctl ;
-      spsc_bqueue_meta_producer_region := γ_producer_region ;
-      spsc_bqueue_meta_consumer_ctl := γ_consumer_ctl ;
-      spsc_bqueue_meta_consumer_region := γ_consumer_region ;
+      metadata_data := data ;
+      metadata_model := γ_model ;
+      metadata_history := γ_history ;
+      metadata_producer_ctl := γ_producer_ctl ;
+      metadata_producer_region := γ_producer_region ;
+      metadata_consumer_ctl := γ_consumer_ctl ;
+      metadata_consumer_region := γ_consumer_region ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
-    iDestruct (spsc_bqueue_back_lb_get γ with "Hproducer_ctl₂") as "#Hback_lb".
-    iDestruct (spsc_bqueue_front_lb_get γ with "Hconsumer_ctl₂") as "#Hfront_lb".
+    iDestruct (back_lb_get γ with "Hproducer_ctl₂") as "#Hback_lb".
+    iDestruct (front_lb_get γ with "Hconsumer_ctl₂") as "#Hfront_lb".
 
     iApply "HΦ".
     iSplitL "Hdata_model Hfront Hback Hmodel₂ Hhistory_auth Hproducer_ctl₂ Hconsumer_ctl₂"; last iSteps.
@@ -456,20 +456,20 @@ Section spsc_bqueue_G.
   #[local] Lemma spsc_bqueue_push_0_spec l ι γ cap front_cache back v Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ cap) ∗
-      array_inv γ.(spsc_bqueue_meta_data) cap ∗
+      inv ι (inv_inner l γ cap) ∗
+      array_inv γ.(metadata_data) cap ∗
       l.[front_cache] ↦ #front_cache ∗
-      spsc_bqueue_producer_ctl₁ γ back ∗
-      spsc_bqueue_front_lb γ front_cache ∗
+      producer_ctl₁ γ back ∗
+      front_lb γ front_cache ∗
       spsc_bqueue_push_au l ι cap v Ψ
     }}}
-      spsc_bqueue_push_0 #l γ.(spsc_bqueue_meta_data) #back
+      spsc_bqueue_push_0 #l γ.(metadata_data) #back
     {{{ b front_cache',
       RET #b;
       ⌜b = bool_decide (back < front_cache' + cap)⌝ ∗
       l.[front_cache] ↦ #front_cache' ∗
-      spsc_bqueue_producer_ctl₁ γ back ∗
-      spsc_bqueue_front_lb γ front_cache' ∗
+      producer_ctl₁ γ back ∗
+      front_lb γ front_cache' ∗
       if b then
         spsc_bqueue_push_au l ι cap v Ψ
       else
@@ -490,8 +490,8 @@ Section spsc_bqueue_G.
     - wp_bind (Load _ _)%E.
       iInv "Hinv" as "(%front & %_back & %vs & %hist & >(%Hback & %Hback_le) & >(%Hhist_len & %Hvs) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
       wp_load.
-      iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
-      iClear "Hfront_lb". iDestruct (spsc_bqueue_front_lb_get with "Hconsumer_ctl₂") as "#Hfront_lb".
+      iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+      iClear "Hfront_lb". iDestruct (front_lb_get with "Hconsumer_ctl₂") as "#Hfront_lb".
       destruct (decide (back < front + cap)) as [Hbranch2 | Hbranch2].
 
       + iSplitR "Hfront_cache Hproducer_ctl₁ HΨ HΦ"; first iSteps.
@@ -503,7 +503,7 @@ Section spsc_bqueue_G.
 
       + iMod "HΨ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-        iDestruct (spsc_bqueue_model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         rewrite decide_True; [lia.. |]. rewrite bool_decide_eq_true_2; first lia.
         iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
         iSplitR "Hfront_cache Hproducer_ctl₁ HΨ HΦ"; first iSteps.
@@ -535,7 +535,7 @@ Section spsc_bqueue_G.
     wp_bind (Load _ _)%E.
     iInv "Hinv" as "(%front1 & %_back & %vs1 & %hist1 & >(%Hback & %Hback_le) & >(%Hhist1_len & %Hvs1) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_load.
-    iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
     iDestruct (array_cslice_to_inv with "Hdata_vs") as "#Hdata_inv".
     iSplitR "Hfront_cache Hproducer_ctl₁ Hproducer_region HΦ"; first iSteps.
     iModIntro. clear.
@@ -545,10 +545,10 @@ Section spsc_bqueue_G.
 
     iApply fupd_wp.
     iInv "Hinv" as "(%front2 & %_back & %vs2 & %hist2 & >(%Hback & %Hback_le) & >(%Hhist2_len & %Hvs2) & Hfront & >Hconsumer_ctl₂ & Hback & >Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & >Hdata_back & Hdata_extra)".
-    iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
     iDestruct "Hdata_back" as "[Hdata_back | Hproducer_region']"; last first.
-    { iDestruct (spsc_bqueue_producer_region_exclusive with "Hproducer_region Hproducer_region'") as %[]. }
-    iDestruct (spsc_bqueue_front_lb_valid with "Hconsumer_ctl₂ Hfront_lb") as %Hfront2.
+    { iDestruct (producer_region_exclusive with "Hproducer_region Hproducer_region'") as %[]. }
+    iDestruct (front_lb_valid with "Hconsumer_ctl₂ Hfront_lb") as %Hfront2.
     rewrite decide_False; first lia.
     iSplitR "Hfront_cache Hproducer_ctl₁ Hdata_back HΦ"; first iSteps.
     iModIntro. clear- Hbranch. iModIntro.
@@ -559,18 +559,18 @@ Section spsc_bqueue_G.
     wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%front3 & %_back & %vs3 & %hist3 & >(%Hback & %Hback_le) & >(%Hhist3_len & %Hvs3) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hproducer_region & Hdata_extra)".
     wp_store.
-    iDestruct (spsc_bqueue_producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
-    iDestruct (spsc_bqueue_front_lb_valid with "Hconsumer_ctl₂ Hfront_lb") as %Hfront3_ge.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+    iDestruct (front_lb_valid with "Hconsumer_ctl₂ Hfront_lb") as %Hfront3_ge.
     iDestruct "Hproducer_region" as "[Hdata_back' | Hproducer_region]".
     { rewrite decide_False; first lia.
       iDestruct (array_cslice_exclusive with "Hdata_back Hdata_back'") as %[]; [simpl; lia | done].
     }
-    iMod (spsc_bqueue_producer_ctl_update (S back) with "Hproducer_ctl₁ Hproducer_ctl₂") as "(Hproducer_ctl₁ & Hproducer_ctl₂)"; first lia.
-    iMod (spsc_bqueue_history_update v with "Hhistory_auth") as "Hhistory_auth".
+    iMod (producer_ctl_update (S back) with "Hproducer_ctl₁ Hproducer_ctl₂") as "(Hproducer_ctl₁ & Hproducer_ctl₂)"; first lia.
+    iMod (history_update v with "Hhistory_auth") as "Hhistory_auth".
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (spsc_bqueue_model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (spsc_bqueue_model_update (vs3 ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model_update (vs3 ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     rewrite decide_False; first lia.
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     rewrite bool_decide_eq_false_2; first lia.
@@ -609,10 +609,10 @@ Section spsc_bqueue_G.
   #[local] Lemma spsc_bqueue_pop_0_spec l ι γ cap front back_cache Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (spsc_bqueue_inv_inner l γ cap) ∗
+      inv ι (inv_inner l γ cap) ∗
       l.[back_cache] ↦ #back_cache ∗
-      spsc_bqueue_consumer_ctl₁ γ front ∗
-      spsc_bqueue_back_lb γ back_cache ∗
+      consumer_ctl₁ γ front ∗
+      back_lb γ back_cache ∗
       spsc_bqueue_pop_au l ι Ψ
     }}}
       spsc_bqueue_pop_0 #l #front
@@ -620,8 +620,8 @@ Section spsc_bqueue_G.
       RET #b;
       ⌜b = bool_decide (front < back_cache')⌝ ∗
       l.[back_cache] ↦ #back_cache' ∗
-      spsc_bqueue_consumer_ctl₁ γ front ∗
-      spsc_bqueue_back_lb γ back_cache' ∗
+      consumer_ctl₁ γ front ∗
+      back_lb γ back_cache' ∗
       if b then
         spsc_bqueue_pop_au l ι Ψ
       else
@@ -641,8 +641,8 @@ Section spsc_bqueue_G.
     - wp_bind (Load _ _)%E.
       iInv "Hinv" as "(%_front & %back & %vs & %hist & >(%Hback & %Hback_le) & >(%Hhist_len & %Hvs) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
       wp_load.
-      iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
-      iClear "Hback_lb". iDestruct (spsc_bqueue_back_lb_get with "Hproducer_ctl₂") as "#Hback_lb".
+      iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+      iClear "Hback_lb". iDestruct (back_lb_get with "Hproducer_ctl₂") as "#Hback_lb".
       destruct (decide (front < back)) as [Hbranch2 | Hbranch2].
 
       + iSplitR "Hback_cache Hconsumer_ctl₁ HΨ HΦ".
@@ -656,7 +656,7 @@ Section spsc_bqueue_G.
       + assert (front = back) as <- by lia.
         iMod "HΨ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-        iDestruct (spsc_bqueue_model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         assert (length vs = 0) as ->%nil_length_inv by lia.
         iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
         iSplitR "Hback_cache Hconsumer_ctl₁ HΨ HΦ"; first iSteps.
@@ -688,7 +688,7 @@ Section spsc_bqueue_G.
     wp_bind (Load _ _)%E.
     iInv "Hinv" as "(%_front & %back1 & %vs1 & %hist1 & >(%Hback1 & %Hback1_le) & >(%Hhist1_len & %Hvs1) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_load.
-    iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
     iDestruct (array_cslice_to_inv with "Hdata_vs") as "#Hdata_inv".
     iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
     { iExists front, back1, vs1, hist1. iSteps. }
@@ -699,12 +699,12 @@ Section spsc_bqueue_G.
 
     iApply fupd_wp.
     iInv "Hinv" as "(%_front & %back2 & %vs2 & %hist2 & >(%Hback2 & %Hback2_le) & >(%Hhist2_len & %Hvs2) & Hfront & >Hconsumer_ctl₂ & Hback & >Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & >Hdata_front & Hdata_vs & Hdata_back & Hdata_extra)".
-    iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
-    iDestruct (spsc_bqueue_back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2_ge.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+    iDestruct (back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2_ge.
     destruct vs2 as [| v vs2]; first naive_solver lia.
     iDestruct "Hdata_front" as "[Hdata_front | Hconsumer_region']"; last first.
-    { iDestruct (spsc_bqueue_consumer_region_exclusive with "Hconsumer_region Hconsumer_region'") as %[]. }
-    iDestruct (spsc_bqueue_history_at_get front v with "Hhistory_auth") as "#Hhistory_at".
+    { iDestruct (consumer_region_exclusive with "Hconsumer_region Hconsumer_region'") as %[]. }
+    iDestruct (history_at_get front v with "Hhistory_auth") as "#Hhistory_at".
     { rewrite -(take_drop front hist2) -Hvs2 lookup_app_r length_take; first lia.
       rewrite Nat.min_l; first lia.
       rewrite Nat.sub_diag //.
@@ -721,10 +721,10 @@ Section spsc_bqueue_G.
     wp_bind (Store _ _ _)%E.
     iInv "Hinv" as "(%_front & %back3 & %vs3 & %hist3 & >(%Hback3 & %Hback3_le) & >(%Hhist3_len & %Hvs3) & Hfront & Hconsumer_ctl₂ & Hback & Hproducer_ctl₂ & Hmodel₂ & Hhistory_auth & Hconsumer_region & Hdata_vs & Hdata_back & Hdata_extra)".
     wp_store.
-    iDestruct (spsc_bqueue_consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
-    iDestruct (spsc_bqueue_back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+    iDestruct (back_lb_valid with "Hproducer_ctl₂ Hback_lb") as %Hback2.
     destruct vs3 as [| _v vs3]; first naive_solver lia.
-    iDestruct (spsc_bqueue_history_agree with "Hhistory_auth Hhistory_at") as %Hhist3_lookup.
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hhist3_lookup.
     assert (_v = v) as ->.
     { move: Hhist3_lookup.
       rewrite -(take_drop front hist3) -Hvs3 lookup_app_r length_take; first lia.
@@ -734,11 +734,11 @@ Section spsc_bqueue_G.
     rewrite /= drop_0.
     iDestruct "Hconsumer_region" as "[Hdata_front' | Hconsumer_region]".
     { iDestruct (array_cslice_exclusive with "Hdata_front Hdata_front'") as %[]; [simpl; lia | done]. }
-    iMod (spsc_bqueue_consumer_ctl_update (S front) with "Hconsumer_ctl₁ Hconsumer_ctl₂") as "(Hconsumer_ctl₁ & Hconsumer_ctl₂)"; first lia.
+    iMod (consumer_ctl_update (S front) with "Hconsumer_ctl₁ Hconsumer_ctl₂") as "(Hconsumer_ctl₁ & Hconsumer_ctl₂)"; first lia.
     iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (spsc_bqueue_model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (spsc_bqueue_model_update vs3 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model_update vs3 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "Hback_cache Hconsumer_ctl₁ Hconsumer_region HΦ".
     { do 2 iModIntro. iExists (S front), back3, vs3, hist3. iFrame. simpl in *.

@@ -45,52 +45,52 @@ Qed.
 Section bag_1_G.
   Context `{bag_1_G : Bag1G Σ}.
 
-  Record bag_1_meta := {
-    bag_1_meta_data : val ;
-    bag_1_meta_slots : list location ;
-    bag_1_meta_model : gname ;
+  Record metadata := {
+    metadata_data : val ;
+    metadata_slots : list location ;
+    metadata_model : gname ;
   }.
-  Implicit Types γ : bag_1_meta.
+  Implicit Types γ : metadata.
 
-  #[local] Instance bag_1_meta_eq_dec : EqDecision bag_1_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance bag_1_meta_countable :
-    Countable bag_1_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition bag_1_model₁' γ_model vs :=
+  #[local] Definition model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition bag_1_model₁ γ vs :=
-    bag_1_model₁' γ.(bag_1_meta_model) vs.
-  #[local] Definition bag_1_model₂' γ_model vs :=
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition bag_1_model₂ γ vs :=
-    bag_1_model₂' γ.(bag_1_meta_model) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
-  #[local] Definition bag_1_inv_inner l γ : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ front back os vs,
     ⌜vs = foldr (λ o vs, from_option (λ v, {[+v+]} ⊎ vs) vs o) ∅ os⌝ ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    bag_1_model₂ γ vs ∗
-    [∗ list] slot; o ∈ γ.(bag_1_meta_slots); os,
+    model₂ γ vs ∗
+    [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
   Definition bag_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    ⌜0 < length γ.(bag_1_meta_slots)⌝ ∗
+    ⌜0 < length γ.(metadata_slots)⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ γ.(bag_1_meta_data) ∗
-    array_model γ.(bag_1_meta_data) DfracDiscarded (#@{location} <$> γ.(bag_1_meta_slots)) ∗
-    inv ι (bag_1_inv_inner l γ).
+    l.[data] ↦□ γ.(metadata_data) ∗
+    array_model γ.(metadata_data) DfracDiscarded (#@{location} <$> γ.(metadata_slots)) ∗
+    inv ι (inv_inner l γ).
 
   Definition bag_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    bag_1_model₁ γ vs.
+    model₁ γ vs.
 
   Instance bag_1_inv_timeless t vs :
     Timeless (bag_1_model t vs).
@@ -103,26 +103,26 @@ Section bag_1_G.
     apply _.
   Qed.
 
-  #[local] Lemma bag_1_model_alloc :
+  #[local] Lemma model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      bag_1_model₁' γ_model ∅ ∗
-      bag_1_model₂' γ_model ∅.
+      model₁' γ_model ∅ ∗
+      model₂' γ_model ∅.
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma bag_1_model_agree γ vs1 vs2 :
-    bag_1_model₁ γ vs1 -∗
-    bag_1_model₂ γ vs2 -∗
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
     ⌜vs1 = vs2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma bag_1_model_update {γ vs1 vs2} vs :
-    bag_1_model₁ γ vs1 -∗
-    bag_1_model₂ γ vs2 ==∗
-      bag_1_model₁ γ vs ∗
-      bag_1_model₂ γ vs.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
   Proof.
     apply twins_update'.
   Qed.
@@ -162,12 +162,12 @@ Section bag_1_G.
     wp_block l as "Hmeta" "(Hdata & Hfront & Hback & _)".
     iMod (array_model_persist with "Hdata_model") as "#Hdata_model".
 
-    iMod bag_1_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      bag_1_meta_data := data ;
-      bag_1_meta_slots := slots ;
-      bag_1_meta_model := γ_model ;
+      metadata_data := data ;
+      metadata_slots := slots ;
+      metadata_model := γ_model ;
     |}.
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
@@ -182,10 +182,10 @@ Section bag_1_G.
   Qed.
 
   #[local] Lemma bag_1_push_0_spec slot v ι l γ :
-    slot ∈ γ.(bag_1_meta_slots) →
+    slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (bag_1_inv_inner l γ)
+      inv ι (inv_inner l γ)
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
@@ -217,10 +217,10 @@ Section bag_1_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (bag_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := {[+v+]} ⊎ vs.
       set os' := <[i := Some v]> os.
-      iMod (bag_1_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ". { repeat iExists _. iSteps. }
       iDestruct ("Hslots" $! _ (Some v) with "Hslot") as "Hslots".
       rewrite list_insert_id //.
@@ -265,10 +265,10 @@ Section bag_1_G.
   Qed.
 
   #[local] Lemma bag_1_pop_0_spec slot ι l γ :
-    slot ∈ γ.(bag_1_meta_slots) →
+    slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (bag_1_inv_inner l γ)
+      inv ι (inv_inner l γ)
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
@@ -314,10 +314,10 @@ Section bag_1_G.
 
     - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (bag_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := vs ∖ {[+v+]}.
       set os' := <[i := None]> os.
-      iMod (bag_1_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
       { iSplit; last iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.

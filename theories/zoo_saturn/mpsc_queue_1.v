@@ -47,36 +47,36 @@ Qed.
 Section mpsc_queue_1_G.
   Context `{mpsc_queue_1_G : MpscQueue1G Σ}.
 
-  Record mpsc_queue_1_meta := {
-    mpsc_queue_1_meta_history : gname ;
-    mpsc_queue_1_meta_model : gname ;
+  Record metadata := {
+    metadata_history : gname ;
+    metadata_model : gname ;
   }.
 
-  #[local] Instance mpsc_queue_1_meta_eq_dec : EqDecision mpsc_queue_1_meta :=
+  #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
-  #[local] Instance mpsc_queue_1_meta_countable :
-    Countable mpsc_queue_1_meta.
+  #[local] Instance metadata_countable :
+    Countable metadata.
   Proof.
     solve_countable.
   Qed.
 
-  #[local] Definition mpsc_queue_1_history_auth' γ_history hist :=
+  #[local] Definition history_auth' γ_history hist :=
     mono_list_auth γ_history (DfracOwn 1) hist.
-  #[local] Definition mpsc_queue_1_history_auth γ hist :=
-    mpsc_queue_1_history_auth' γ.(mpsc_queue_1_meta_history) hist.
-  #[local] Definition mpsc_queue_1_history_at γ i node :=
-    mono_list_at γ.(mpsc_queue_1_meta_history) i node.
+  #[local] Definition history_auth γ hist :=
+    history_auth' γ.(metadata_history) hist.
+  #[local] Definition history_at γ i node :=
+    mono_list_at γ.(metadata_history) i node.
 
-  #[local] Definition mpsc_queue_1_model₁' γ_model vs :=
+  #[local] Definition model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition mpsc_queue_1_model₁ γ vs :=
-    mpsc_queue_1_model₁' γ.(mpsc_queue_1_meta_model) vs.
-  #[local] Definition mpsc_queue_1_model₂' γ_model vs :=
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
     twins_twin2 γ_model vs.
-  #[local] Definition mpsc_queue_1_model₂ γ vs :=
-    mpsc_queue_1_model₂' γ.(mpsc_queue_1_meta_model) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
-  #[local] Definition mpsc_queue_1_inv_inner l γ : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ hist past front nodes back vs,
     ⌜hist = past ++ front :: nodes⌝ ∗
     ⌜back ∈ hist⌝ ∗
@@ -85,19 +85,19 @@ Section mpsc_queue_1_G.
     xchain hist §Null ∗
     ([∗ list] node ∈ hist, node ↦ₕ Header §Node 2) ∗
     ([∗ list] node; v ∈ nodes; vs, node.[xchain_data] ↦ v) ∗
-    mpsc_queue_1_history_auth γ hist ∗
-    mpsc_queue_1_model₂ γ vs.
+    history_auth γ hist ∗
+    model₂ γ vs.
   Definition mpsc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    inv ι (mpsc_queue_1_inv_inner l γ).
+    inv ι (inv_inner l γ).
 
   Definition mpsc_queue_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    mpsc_queue_1_model₁ γ vs.
+    model₁ γ vs.
 
   Definition mpsc_queue_1_consumer t : iProp Σ :=
     ∃ l front,
@@ -120,65 +120,65 @@ Section mpsc_queue_1_G.
     apply _.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_history_alloc front :
+  #[local] Lemma history_alloc front :
     ⊢ |==>
       ∃ γ_hist,
-      mpsc_queue_1_history_auth' γ_hist [front].
+      history_auth' γ_hist [front].
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma mpsc_queue_1_history_at_get {γ hist} i node :
+  #[local] Lemma history_at_get {γ hist} i node :
     hist !! i = Some node →
-    mpsc_queue_1_history_auth γ hist ⊢
-    mpsc_queue_1_history_at γ i node.
+    history_auth γ hist ⊢
+    history_at γ i node.
   Proof.
     apply mono_list_at_get.
   Qed.
-  #[local] Lemma mpsc_queue_1_history_agree γ hist i node :
-    mpsc_queue_1_history_auth γ hist -∗
-    mpsc_queue_1_history_at γ i node -∗
+  #[local] Lemma history_agree γ hist i node :
+    history_auth γ hist -∗
+    history_at γ i node -∗
     ⌜hist !! i = Some node⌝.
   Proof.
     apply mono_list_at_valid.
   Qed.
-  #[local] Lemma mpsc_queue_1_history_update {γ hist} node :
-    mpsc_queue_1_history_auth γ hist ⊢ |==>
-    mpsc_queue_1_history_auth γ (hist ++ [node]).
+  #[local] Lemma history_update {γ hist} node :
+    history_auth γ hist ⊢ |==>
+    history_auth γ (hist ++ [node]).
   Proof.
     apply mono_list_update_app.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_model_alloc :
+  #[local] Lemma model_alloc :
     ⊢ |==>
       ∃ γ_model,
-      mpsc_queue_1_model₁' γ_model [] ∗
-      mpsc_queue_1_model₂' γ_model [].
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma mpsc_queue_1_model_agree γ model1 model2 :
-    mpsc_queue_1_model₁ γ model1 -∗
-    mpsc_queue_1_model₂ γ model2 -∗
+  #[local] Lemma model_agree γ model1 model2 :
+    model₁ γ model1 -∗
+    model₂ γ model2 -∗
     ⌜model1 = model2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
-  #[local] Lemma mpsc_queue_1_model_update {γ vs1 vs2} vs :
-    mpsc_queue_1_model₁ γ vs1 -∗
-    mpsc_queue_1_model₂ γ vs2 ==∗
-      mpsc_queue_1_model₁ γ vs ∗
-      mpsc_queue_1_model₂ γ vs.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
   Proof.
     apply twins_update'.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_inv_inner_history_at ι l γ front :
-    inv ι (mpsc_queue_1_inv_inner l γ) -∗
+  #[local] Lemma inv_inner_history_at ι l γ front :
+    inv ι (inv_inner l γ) -∗
     l.[front] ↦{#3/4} #front ={⊤}=∗
       ∃ i,
       l.[front] ↦{#3/4} #front ∗
       front ↦ₕ Header §Node 2 ∗
-      mpsc_queue_1_history_at γ i front.
+      history_at γ i front.
   Proof.
     iIntros "#Hinv Hl_front_1".
     iInv "Hinv" as "(%hist & %past & %_front & %nodes & %back & %vs & >%Hhist & >%Hback & >Hl_front_2 & Hl_back & Hhist & >Hheaders & Hnodes & >Hhistory_auth & Hmodel₂)".
@@ -186,7 +186,7 @@ Section mpsc_queue_1_G.
     assert (hist !! (length past) = Some front) as Hlookup.
     { rewrite Hhist list_lookup_middle //. }
     iDestruct (big_sepL_lookup with "Hheaders") as "#Hfront_hdr"; first done.
-    iDestruct (mpsc_queue_1_history_at_get (length past) front with "Hhistory_auth") as "#Hhistory_at"; first done.
+    iDestruct (history_at_get (length past) front with "Hhistory_auth") as "#Hhistory_at"; first done.
     iSplitR "Hl_front_1"; first iSteps.
     iSteps.
   Qed.
@@ -221,12 +221,12 @@ Section mpsc_queue_1_G.
     iEval (rewrite -Qp.three_quarter_quarter) in "Hl_front".
     iDestruct "Hl_front" as "(Hl_front_1 & Hl_front_2)".
 
-    iMod mpsc_queue_1_history_alloc as "(%γ_history & Hhistory_auth)".
-    iMod mpsc_queue_1_model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod history_alloc as "(%γ_history & Hhistory_auth)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      mpsc_queue_1_meta_history := γ_history ;
-      mpsc_queue_1_meta_model := γ_model ;
+      metadata_history := γ_history ;
+      metadata_model := γ_model ;
     |}.
 
     iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
@@ -240,13 +240,13 @@ Section mpsc_queue_1_G.
 
   #[local] Lemma mpsc_queue_1_front_spec l γ ι :
     {{{
-      inv ι (mpsc_queue_1_inv_inner l γ)
+      inv ι (inv_inner l γ)
     }}}
       (#l).{front}
     {{{ front i,
       RET #front;
       front ↦ₕ Header §Node 2 ∗
-      mpsc_queue_1_history_at γ i front
+      history_at γ i front
     }}}.
   Proof.
     iIntros "%Φ #Hinv HΦ".
@@ -256,20 +256,20 @@ Section mpsc_queue_1_G.
     assert (hist !! (length past) = Some front) as Hlookup.
     { rewrite Hhist list_lookup_middle //. }
     iDestruct (big_sepL_lookup with "Hheaders") as "#Hfront_hdr"; first done.
-    iDestruct (mpsc_queue_1_history_at_get _ front with "Hhistory_auth") as "#Hhistory_at"; first done.
+    iDestruct (history_at_get _ front with "Hhistory_auth") as "#Hhistory_at"; first done.
     iSplitR "HΦ"; first iSteps.
     iSteps.
   Qed.
 
   #[local] Lemma mpsc_queue_1_back_spec l γ ι :
     {{{
-      inv ι (mpsc_queue_1_inv_inner l γ)
+      inv ι (inv_inner l γ)
     }}}
       (#l).{back}
     {{{ back i,
       RET #back;
       back ↦ₕ Header §Node 2 ∗
-      mpsc_queue_1_history_at γ i back
+      history_at γ i back
     }}}.
   Proof.
     iIntros "%Φ #Hinv HΦ".
@@ -278,7 +278,7 @@ Section mpsc_queue_1_G.
     wp_load.
     pose proof Hback as (i & Hlookup)%elem_of_list_lookup.
     iDestruct (big_sepL_lookup with "Hheaders") as "#Hback_hdr"; first done.
-    iDestruct (mpsc_queue_1_history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
+    iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
     iSplitR "HΦ"; first iSteps.
     iSteps.
   Qed.
@@ -293,8 +293,8 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_xchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
-      inv ι (mpsc_queue_1_inv_inner l γ) ∗
-      mpsc_queue_1_history_at γ i node ∗
+      inv ι (inv_inner l γ) ∗
+      history_at γ i node ∗
       if decide (op = MpscQueue1Other) then True else
         l.[front] ↦{#3/4} #node ∗
         atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
@@ -318,7 +318,7 @@ Section mpsc_queue_1_G.
         ∃ node',
         ⌜res = #node'⌝ ∗
         node' ↦ₕ Header §Node 2 ∗
-        mpsc_queue_1_history_at γ (S i) node' ∗
+        history_at γ (S i) node' ∗
         if decide (op = MpscQueue1Other) then True else
           l.[front] ↦{#3/4} #node ∗
           if decide (op = MpscQueue1IsEmpty) then
@@ -331,21 +331,21 @@ Section mpsc_queue_1_G.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at & Hop) HΦ".
 
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front_2 & Hl_back & Hhist & Hheaders & Hnodes & >Hhistory_auth & Hmodel₂)".
-    iDestruct (mpsc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
     iDestruct (xchain_lookup_acc with "Hhist") as "(Hnode & Hhist)"; first done.
     wp_load.
     iDestruct ("Hhist" with "Hnode ") as "Hhist".
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - iDestruct (big_sepL_lookup with "Hheaders") as "#Hnode'_hdr"; first done.
-      iDestruct (mpsc_queue_1_history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at'"; first done.
+      iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at'"; first done.
       destruct (decide (op = MpscQueue1IsEmpty)) as [-> | Hop].
 
       + iDestruct "Hop" as "(Hl_front_1 & HΨ & Hβ_empty & Hβ_nonempty)".
         iDestruct (pointsto_agree with "Hl_front_1 Hl_front_2") as %[= ->].
         iMod "HΨ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-        iDestruct (mpsc_queue_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iDestruct ("Hβ_nonempty" with "[#] [Hmodel₁]") as "Hβ"; [| iSteps |].
         { iAssert ⌜length past = i⌝%I as %Hpast_length.
           { iDestruct (xchain_NoDup with "Hhist") as %Hnodup.
@@ -388,7 +388,7 @@ Section mpsc_queue_1_G.
         }
         iMod "HΨ" as "(%vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-        iDestruct (mpsc_queue_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iDestruct ("Hβ_empty" with "[Hmodel₁]") as "Hβ"; first iSteps.
         iMod ("HΨ" with "Hβ") as "HΨ".
         iSplitR "Hl_front_1 HΨ HΦ"; first iSteps.
@@ -397,8 +397,8 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_xchain_next_spec l γ ι i node :
     {{{
       meta l nroot γ ∗
-      inv ι (mpsc_queue_1_inv_inner l γ) ∗
-      mpsc_queue_1_history_at γ i node
+      inv ι (inv_inner l γ) ∗
+      history_at γ i node
     }}}
       (#node).{xchain_next}
     {{{ res,
@@ -407,7 +407,7 @@ Section mpsc_queue_1_G.
       ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node' ↦ₕ Header §Node 2 ∗
-        mpsc_queue_1_history_at γ (S i) node'
+        history_at γ (S i) node'
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at) HΦ".
@@ -431,7 +431,7 @@ Section mpsc_queue_1_G.
   Proof.
     iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %front & %Heq & Hl_front)) HΦ". injection Heq as <-.
 
-    iMod (mpsc_queue_1_inv_inner_history_at with "Hinv Hl_front") as "(%i & Hl_front & #Hfront_hdr & #Hhistory_at)".
+    iMod (inv_inner_history_at with "Hinv Hl_front") as "(%i & Hl_front & #Hfront_hdr & #Hhistory_at)".
 
     iAssert (
       AU <{
@@ -459,9 +459,9 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_do_push_spec l γ ι i node new_back v :
     <<<
       meta l nroot γ ∗
-      inv ι (mpsc_queue_1_inv_inner l γ) ∗
+      inv ι (inv_inner l γ) ∗
       node ↦ₕ Header §Node 2 ∗
-      mpsc_queue_1_history_at γ i node ∗
+      history_at γ i node ∗
       new_back ↦ₕ Header §Node 2 ∗
       new_back.[xchain_next] ↦ () ∗
       new_back.[xchain_data] ↦ v
@@ -473,7 +473,7 @@ Section mpsc_queue_1_G.
       mpsc_queue_1_model #l (vs ++ [v])
     | RET ();
       ∃ j,
-      mpsc_queue_1_history_at γ j new_back
+      history_at γ j new_back
     >>>.
   Proof.
     iIntros "!> %Φ (#Hmeta & #Hinv & #Hnode_hdr & #Hhistory_at & #Hnew_back_hdr & Hnew_back_next & Hnew_back_data) HΦ".
@@ -486,7 +486,7 @@ Section mpsc_queue_1_G.
 
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%hist & %past & %front & %nodes & %back & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hheaders & Hnodes & >Hhistory_auth & Hmodel₂)".
-    iDestruct (mpsc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
     iDestruct (xchain_lookup with "Hhist") as "(Hhist1 & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
@@ -501,13 +501,13 @@ Section mpsc_queue_1_G.
       iDestruct (big_sepL_snoc with "[$Hheaders $Hnew_back_hdr]") as "Hheaders".
       iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
       iDestruct (xchain_snoc_2 with "Hhist Hnew_back_next") as "Hhist".
-      iMod (mpsc_queue_1_history_update new_back with "Hhistory_auth") as "Hhistory_auth".
-      iDestruct (mpsc_queue_1_history_at_get with "Hhistory_auth") as "#Hhistory_at_new_back".
+      iMod (history_update new_back with "Hhistory_auth") as "Hhistory_auth".
+      iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_new_back".
       { rewrite lookup_snoc_Some. naive_solver. }
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (mpsc_queue_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (mpsc_queue_1_model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; [iSteps.. |].
       iSplitR "HΦ".
       { iExists (hist ++ [new_back]), past, front, (nodes ++ [new_back]), back, (vs ++ [v]).
@@ -521,10 +521,10 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_fix_back_spec l γ ι i back j new_back :
     {{{
       meta l nroot γ ∗
-      inv ι (mpsc_queue_1_inv_inner l γ) ∗
-      mpsc_queue_1_history_at γ i back ∗
+      inv ι (inv_inner l γ) ∗
+      history_at γ i back ∗
       new_back ↦ₕ Header §Node 2 ∗
-      mpsc_queue_1_history_at γ j new_back
+      history_at γ j new_back
     }}}
       mpsc_queue_1_fix_back #l #back #new_back
     {{{
@@ -545,7 +545,7 @@ Section mpsc_queue_1_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%hist & %past & %front & %nodes & %back' & %vs & >%Hhist & >%Hback & Hl_front & Hl_back & Hhist & Hheaders & Hnodes & Hhistory_auth & Hmodel₂)".
       wp_cas as _ | [= ->]; first iSteps.
-      iDestruct (mpsc_queue_1_history_agree with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%elem_of_list_lookup_2.
+      iDestruct (history_agree with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%elem_of_list_lookup_2.
       iSteps.
     }
     destruct b; last iSteps.
@@ -597,7 +597,7 @@ Section mpsc_queue_1_G.
 
     iLöb as "HLöb".
 
-    iMod (mpsc_queue_1_inv_inner_history_at with "Hinv Hl_front_1") as "(%i & Hl_front_1 & #Hfront_hdr & #Hhistory_at)".
+    iMod (inv_inner_history_at with "Hinv Hl_front_1") as "(%i & Hl_front_1 & #Hfront_hdr & #Hhistory_at)".
 
     wp_rec. wp_load. wp_match.
     wp_smart_apply (mpsc_queue_1_xchain_next_spec_strong MpscQueue1Pop _ _ [tele_arg] inhabitant with "[$Hmeta $Hinv $Hhistory_at $Hl_front_1 $HΦ]") as (res) "[(-> & Hl_front_1 & HΦ) | (%new_front & -> & #Hnew_front_hdr & #Hhistory_at_new & Hl_front_1 & HΦ)]"; [auto | iSteps |].
@@ -611,8 +611,8 @@ Section mpsc_queue_1_G.
     wp_store.
     iEval (rewrite -Qp.three_quarter_quarter) in "Hl_front".
     iDestruct "Hl_front" as "(Hl_front_1 & Hl_front_2)".
-    iDestruct (mpsc_queue_1_history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
-    iDestruct (mpsc_queue_1_history_agree with "Hhistory_auth Hhistory_at_new") as %Hlookup_new.
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup.
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at_new") as %Hlookup_new.
     iAssert ⌜length past = i⌝%I as %Hpast_length.
     { iDestruct (xchain_NoDup with "Hhist") as %Hnodup.
       iPureIntro. eapply NoDup_lookup; try done.
@@ -625,8 +625,8 @@ Section mpsc_queue_1_G.
     iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hnew_front_data & Hnodes)".
     iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (mpsc_queue_1_model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (mpsc_queue_1_model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "Hl_front_1 Hnew_front_data HΦ"; first iSteps.
     iSteps.
