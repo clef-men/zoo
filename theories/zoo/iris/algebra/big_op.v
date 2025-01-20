@@ -96,7 +96,47 @@ Section big_unionS.
       y ∈ f x.
   Proof.
     rewrite big_opS_elements.
-    intros (i & s & Hs%elem_of_list_lookup_2%elem_of_elements & Hx)%big_unionL_elem_of.
+    intros (i & s & Hs%elem_of_list_lookup_2%elem_of_elements & Hy)%big_unionL_elem_of.
     naive_solver.
   Qed.
 End big_unionS.
+
+Notation "'[∪' 'map]' k ↦ x ∈ m , P" := (
+  big_opM union (λ k x, P) m
+)(at level 200,
+  m at level 10,
+  k, x at level 1,
+  right associativity,
+  format "[∪  map]  k  ↦  x  ∈  m ,  P"
+) : stdpp_scope.
+Notation "'[∪' 'map]' x ∈ m , P" := (
+  big_opM union (λ _ x, P) m
+)(at level 200,
+  m at level 10,
+  x at level 1,
+  right associativity,
+  format "[∪  map]  x  ∈  m ,  P"
+) : stdpp_scope.
+
+Section big_unionM.
+  Context `{Countable K}.
+  Context {A : Type}.
+  Context `{Countable B}.
+
+  Implicit Types k : K.
+  Implicit Types x : A.
+  Implicit Types y : B.
+  Implicit Types m : gmap K A.
+  Implicit Types f : K → A → gset B.
+
+  Lemma big_unionM_elem_of {f} y m :
+    y ∈ ([∪ map] k ↦ x ∈ m, f k x) →
+      ∃ k x,
+      m !! k = Some x ∧
+      y ∈ f k x.
+  Proof.
+    rewrite big_opM_map_to_list.
+    intros (i & (k, x) & Hlookup%elem_of_list_lookup_2%elem_of_map_to_list & Hy)%big_unionL_elem_of.
+    naive_solver.
+  Qed.
+End big_unionM.
