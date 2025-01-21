@@ -147,8 +147,8 @@ Proof. reflexivity. Qed.
 Goal format "{1=∅}" ∅ = Some "∅".
 Proof. reflexivity. Qed.
 Goal format "{1=∅}" {["1":="one"]} = Some "one".
+Proof. reflexivity. Qed.
 
-Proof. vm_compute. reflexivity. Qed.
 Goal format "{1=}" ∅ = Some "".
 Proof. reflexivity. Qed.
 Goal format "{1=}" {["1":="one"]} = Some "one".
