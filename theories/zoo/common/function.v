@@ -1,3 +1,6 @@
+From Coq.Logic Require Import
+  FunctionalExtensionality.
+
 From stdpp Require Export
   functions.
 
@@ -20,7 +23,7 @@ Notation "(≡ᶠ)" :=
 ( only parsing
 ) : stdpp_scope.
 
-Section function.
+Section lookup.
   Context `{!EqDecision A} {B : Type}.
 
   Implicit Types x : A.
@@ -62,4 +65,21 @@ Section function.
   Proof.
     rewrite fn_lookup_alter. case_decide; done.
   Qed.
-End function.
+End lookup.
+
+Section fmap.
+  Context `{!EqDecision A} {B C : Type}.
+
+  Implicit Types x : A.
+  Implicit Types y : B.
+  Implicit Types f : A → B.
+  Implicit Types g : B → C.
+
+  Lemma fn_compose_insert f g x y :
+    g ∘ <[x := y]> f = <[x := g y]> (g ∘ f).
+  Proof.
+    apply functional_extensionality => 𝑥.
+    rewrite /= !fn_lookup_insert.
+    case_decide; done.
+  Qed.
+End fmap.

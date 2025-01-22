@@ -18,6 +18,14 @@ Inductive optional {A} :=
   | Something (a : A).
 #[global] Arguments optional : clear implicits.
 
+#[global] Instance optional_inhabited A : Inhabited (optional A) :=
+  populate Nothing.
+#[global] Instance Something_inj A :
+  Inj (=) (=) (@Something A).
+Proof.
+  rewrite /Inj. naive_solver.
+Qed.
+
 Definition option_to_optional {A} (o : option A) :=
   match o with
   | None =>
@@ -25,12 +33,7 @@ Definition option_to_optional {A} (o : option A) :=
   | Some a =>
       Something a
   end.
-
-#[global] Instance Something_inj A :
-  Inj (=) (=) (@Something A).
-Proof.
-  rewrite /Inj. naive_solver.
-Qed.
+#[global] Arguments option_to_optional _ !_ / : assert.
 
 Coercion optional_to_val o :=
   match o with
