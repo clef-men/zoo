@@ -227,6 +227,12 @@ Section mono_list_G.
   Proof.
     apply mono_list_update, prefix_app_r. done.
   Qed.
+  Lemma mono_list_update_snoc {γ l} a :
+    mono_list_auth γ (DfracOwn 1) l ⊢ |==>
+    mono_list_auth γ (DfracOwn 1) (l ++ [a]).
+  Proof.
+    apply mono_list_update_app.
+  Qed.
 End mono_list_G.
 
 #[global] Opaque mono_list_auth.

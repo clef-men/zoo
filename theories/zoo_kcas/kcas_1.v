@@ -843,7 +843,7 @@ Section kcas_G.
   Proof.
     iIntros "% % Hhistory_auth Hcasn1_meta Hlstatus1_lb".
     iDestruct "Hhistory_auth" as "(Hhistory_auth & %Hcasns & Hcasns)".
-    iMod (mono_list_update_app [casn2] with "Hhistory_auth") as "Hhistory_auth".
+    iMod (mono_list_update_snoc casn2 with "Hhistory_auth") as "Hhistory_auth".
     iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
     iSteps.
     - iPureIntro.

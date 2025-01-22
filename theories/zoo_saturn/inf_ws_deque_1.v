@@ -428,7 +428,7 @@ Section inf_ws_deque_1_G.
     history_auth γ hist ⊢ |==>
     history_auth γ (hist ++ [v]).
   Proof.
-    apply mono_list_update_app.
+    apply mono_list_update_snoc.
   Qed.
 
   #[local] Lemma model_alloc :

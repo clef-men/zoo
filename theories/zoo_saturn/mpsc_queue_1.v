@@ -145,7 +145,7 @@ Section mpsc_queue_1_G.
     history_auth γ hist ⊢ |==>
     history_auth γ (hist ++ [node]).
   Proof.
-    apply mono_list_update_app.
+    apply mono_list_update_snoc.
   Qed.
 
   #[local] Lemma model_alloc :

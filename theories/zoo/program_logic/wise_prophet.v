@@ -222,7 +222,7 @@ Section wise_prophet_G.
     wp_apply (typed_strong_prophet_wp_resolve with "Hmodel"); first done.
     iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ)".
     iExists proph. iSplitR; first done.
-    iMod (mono_list_update_app [proph] with "Hpast_auth") as "Hpast_auth".
+    iMod (mono_list_update_snoc proph with "Hpast_auth") as "Hpast_auth".
     iIntros "!> %prophs' -> Hpid".
     iApply ("HΦ" with "[//]").
     rewrite (assoc _ _ [_]). iSteps.

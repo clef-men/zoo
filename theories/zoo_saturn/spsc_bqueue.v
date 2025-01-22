@@ -247,7 +247,7 @@ Section spsc_bqueue_G.
     history_auth γ hist ⊢ |==>
     history_auth γ (hist ++ [v]).
   Proof.
-    apply mono_list_update_app.
+    apply mono_list_update_snoc.
   Qed.
 
   #[local] Lemma producer_ctl_alloc :
