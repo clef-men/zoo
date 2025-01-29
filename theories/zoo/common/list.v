@@ -14,6 +14,25 @@ Section basic.
   Implicit Types x y z : A.
   Implicit Types l : list A.
 
+  Lemma app_not_nil l1 l2 :
+    l1 ≠ [] ∨ l2 ≠ [] →
+    l1 ++ l2 ≠ [].
+  Proof.
+    intros []; destruct l1; done.
+  Qed.
+  Lemma app_not_nil_l l1 l2 :
+    l1 ≠ [] →
+    l1 ++ l2 ≠ [].
+  Proof.
+    intros. apply app_not_nil. auto.
+  Qed.
+  Lemma app_not_nil_r l1 l2 :
+    l2 ≠ [] →
+    l1 ++ l2 ≠ [].
+  Proof.
+    intros. apply app_not_nil. auto.
+  Qed.
+
   Lemma rev_elim l :
     l = [] ∨ ∃ l' x, l = l' ++ [x].
   Proof.
@@ -237,8 +256,20 @@ Section foldr2.
   Qed.
 End foldr2.
 
+Section Forall.
+  Context `(P : A → Prop).
+
+  Lemma Forall_elem_of l x :
+    Forall P l →
+    x ∈ l →
+    P x.
+  Proof.
+    rewrite Forall_forall. auto.
+  Qed.
+End Forall.
+
 Section Forall'.
-  Context {A} (P : A → Prop).
+  Context `(P : A → Prop).
 
   Fixpoint Forall' l :=
     match l with
@@ -258,7 +289,7 @@ Section Forall'.
 End Forall'.
 
 Section Foralli.
-  Context {A} (P : nat → A → Prop).
+  Context `(P : nat → A → Prop).
 
   #[local] Fixpoint Foralli' l i :=
     match l with
@@ -292,7 +323,7 @@ Section Foralli.
 End Foralli.
 
 Section Forall2.
-  Context {A1 A2 : Type} (P : A1 → A1 → Prop).
+  Context `(P : A1 → A1 → Prop).
 
   Lemma Forall2_insert_l {l1 l2} i x1 x2 :
     l2 !! i = Some x2 →

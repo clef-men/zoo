@@ -240,6 +240,16 @@ Section auth_mono_G.
     iDestruct (own_valid_2 with "Hauth Hlb") as %?%auth_mono_both_dfrac_valid.
     naive_solver.
   Qed.
+  Lemma auth_mono_lb_agree γ a1 a2 :
+    auth_mono_lb γ a1 -∗
+    auth_mono_lb γ a2 -∗
+      ∃ a,
+      ⌜Rs a1 a⌝ ∧
+      ⌜Rs a2 a⌝.
+  Proof.
+    iIntros "Hlb1 Hlb2".
+    iDestruct (own_valid_2 with "Hlb1 Hlb2") as %?%auth_mono_lb_op_valid. done.
+  Qed.
 
   Lemma auth_mono_update {γ a} a' :
     Rs a a' →

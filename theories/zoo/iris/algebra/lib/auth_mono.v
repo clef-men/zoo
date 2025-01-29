@@ -9,9 +9,11 @@ From zoo.iris.algebra Require Export
   base.
 From zoo.iris.algebra Require Import
   auth
-  mono.
+  monopo.
 From zoo Require Import
   options.
+
+#[local] Hint Resolve monopo_principal_valid : core.
 
 Section ofe.
   Context {A : ofe} (R : relation A).
@@ -29,16 +31,16 @@ Section ofe.
   Qed.
 
   Definition auth_mono :=
-    auth (mra Rs).
+    auth (monopo Rs).
   Definition auth_mono_R :=
-    authR (mraUR Rs).
+    authR (monopo_UR Rs).
   Definition auth_mono_UR :=
-    authUR (mraUR Rs).
+    authUR (monopo_UR Rs).
 
   Definition auth_mono_auth dq a : auth_mono_UR :=
-    ●{dq} principal Rs a ⋅ ◯ principal Rs a.
+    ●{dq} monopo_principal Rs a ⋅ ◯ monopo_principal Rs a.
   Definition auth_mono_lb a : auth_mono_UR :=
-    ◯ principal Rs a.
+    ◯ monopo_principal Rs a.
 
   #[global] Instance auth_mono_auth_inj `{!AntiSymm (≡) Rs} :
     Inj2 (=) (≡) (≡) auth_mono_auth
@@ -100,7 +102,7 @@ Section ofe.
     Rs a a' →
     auth_mono_lb a' ≡ auth_mono_lb a ⋅ auth_mono_lb a'.
   Proof.
-    intros. rewrite -auth_frag_op principal_R_op //.
+    intros. rewrite -auth_frag_op monopo_principal_R_op //.
   Qed.
 
   Lemma auth_mono_auth_lb_op dq a :
@@ -114,7 +116,7 @@ Section ofe.
     ✓ auth_mono_auth dq a ↔
     ✓ dq.
   Proof.
-    rewrite auth_both_dfrac_valid_discrete /=. naive_solver.
+    rewrite auth_both_dfrac_valid_discrete. naive_solver.
   Qed.
   Lemma auth_mono_auth_valid a :
     ✓ auth_mono_auth (DfracOwn 1) a.
@@ -130,7 +132,7 @@ Section ofe.
     rewrite -auth_frag_op (comm _ (◯ _)) assoc.
     move=> /cmra_valid_op_l /auth_auth_dfrac_op_valid.
     split; first naive_solver.
-    apply (inj (principal Rs)). naive_solver.
+    apply (inj (monopo_principal Rs)). naive_solver.
   Qed.
   Lemma auth_mono_auth_dfrac_op_valid_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
     ✓ (auth_mono_auth dq1 a1 ⋅ auth_mono_auth dq2 a2) ↔
@@ -156,14 +158,26 @@ Section ofe.
     rewrite auth_mono_auth_dfrac_op_valid_L. naive_solver.
   Qed.
 
+  Lemma auth_mono_lb_op_valid a1 a2 :
+    ✓ (auth_mono_lb a1 ⋅ auth_mono_lb a2) →
+      ∃ a,
+      Rs a1 a ∧
+      Rs a2 a.
+  Proof.
+    rewrite auth_frag_op_valid.
+    intros ?%monopo_principal_op_valid. done.
+  Qed.
+
   Lemma auth_mono_both_dfrac_valid dq a b :
     ✓ (auth_mono_auth dq a ⋅ auth_mono_lb b) ↔
     ✓ dq ∧ Rs b a.
   Proof.
     rewrite -assoc -auth_frag_op auth_both_dfrac_valid_discrete. split.
     - intros. split; first naive_solver.
-      rewrite -principal_included. etrans; [apply @cmra_included_r | naive_solver].
-    - intros. rewrite (comm op) principal_R_op; naive_solver.
+      rewrite -monopo_principal_included.
+      etrans; [apply @cmra_included_r | naive_solver].
+    - intros (? & ?).
+      rewrite (comm op) monopo_principal_R_op //.
   Qed.
   Lemma auth_mono_both_valid a b :
     ✓ (auth_mono_auth (DfracOwn 1) a ⋅ auth_mono_lb b) ↔
@@ -176,14 +190,14 @@ Section ofe.
     Rs a1 a2 →
     auth_mono_lb a1 ≼ auth_mono_lb a2.
   Proof.
-    intros. apply auth_frag_mono. rewrite principal_included //.
+    intros. apply auth_frag_mono. rewrite monopo_principal_included //.
   Qed.
 
   Lemma auth_mono_auth_dfrac_included `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
     auth_mono_auth dq1 a1 ≼ auth_mono_auth dq2 a2 →
     (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2.
   Proof.
-    rewrite auth_both_dfrac_included principal_included.
+    rewrite auth_both_dfrac_included monopo_principal_included.
     intros (? & ?%(@inj _ _ (≡) _ _ _) & _). done.
   Qed.
   Lemma auth_mono_auth_dfrac_included_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
@@ -192,7 +206,7 @@ Section ofe.
   Proof.
     split.
     - intros (? & ->%leibniz_equiv)%auth_mono_auth_dfrac_included. done.
-    - rewrite auth_both_dfrac_included principal_included. naive_solver.
+    - rewrite auth_both_dfrac_included monopo_principal_included. naive_solver.
   Qed.
   Lemma auth_mono_auth_included `{!AntiSymm (≡) Rs} a1 a2 :
     auth_mono_auth (DfracOwn 1) a1 ≼ auth_mono_auth (DfracOwn 1) a2 →
@@ -211,7 +225,7 @@ Section ofe.
     auth_mono_lb a1 ≼ auth_mono_auth dq a2 ↔
     Rs a1 a2.
   Proof.
-    rewrite auth_frag_included principal_included //.
+    rewrite auth_frag_included monopo_principal_included //.
   Qed.
   Lemma auth_mono_lb_included' a dq :
     auth_mono_lb a ≼ auth_mono_auth dq a.
@@ -229,7 +243,7 @@ Section ofe.
     Rs a a' →
     auth_mono_auth (DfracOwn 1) a ~~> auth_mono_auth (DfracOwn 1) a'.
   Proof.
-    intros. apply auth_update, mra_local_update_grow. done.
+    intros. apply auth_update, monopo_local_update_grow. done.
   Qed.
 
   Lemma auth_mono_auth_local_update a a' :
@@ -237,9 +251,10 @@ Section ofe.
     (auth_mono_auth (DfracOwn 1) a, auth_mono_auth (DfracOwn 1) a) ~l~>
     (auth_mono_auth (DfracOwn 1) a', auth_mono_auth (DfracOwn 1) a').
   Proof.
-    intros. apply auth_local_update; last done.
-    - apply mra_local_update_grow. done.
-    - rewrite principal_included //.
+    intros. apply auth_local_update.
+    - apply monopo_local_update_grow. done.
+    - rewrite monopo_principal_included //.
+    - done.
   Qed.
 End ofe.
 

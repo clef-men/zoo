@@ -45,6 +45,7 @@ theories/zoo/iris/algebra/big_op.v
 theories/zoo/iris/algebra/view.v
 theories/zoo/iris/algebra/auth.v
 theories/zoo/iris/algebra/mono.v
+theories/zoo/iris/algebra/monopo.v
 theories/zoo/iris/algebra/lib/auth_option.v
 theories/zoo/iris/algebra/lib/twins.v
 theories/zoo/iris/algebra/lib/auth_mono.v

@@ -1,305 +1,297 @@
 From iris.algebra Require Export
   cmra.
 From iris.algebra Require Import
-  updates
   local_updates.
-From iris.prelude Require Import
+
+From zoo Require Import
+  prelude.
+From zoo Require Import
   options.
 
-#[local] Arguments pcore _ _ !_ /.
-#[local] Arguments cmra_pcore _ !_ /.
-#[local] Arguments validN _ _ _ !_ /.
-#[local] Arguments valid _ _  !_ /.
-#[local] Arguments cmra_validN _ _ !_ /.
-#[local] Arguments cmra_valid _  !_ /.
-
-(* Given a preorder relation R on a type A we construct a resource algebra mra R
-   and an injection principal : A -> mra R such that:
-   [R x y] iff [principal x ≼ principal y]
-   where ≼ is the extension order of mra R resource algebra. This is exactly
-   what the lemma [principal_included] shows.
-
-   This resource algebra is useful for reasoning about monotonicity.
-   See the following paper for more details:
-
-   Reasoning About Monotonicity in Separation Logic
-   Amin Timany and Lars Birkedal
-   in Certified Programs and Proofs (CPP) 2021
-*)
-
-Definition mra {A : Type} (R : relation A) : Type :=
+Definition mono `(R : relation A) : Type :=
   list A.
-Definition principal {A : Type} (R : relation A) (a : A) : mra R :=
-  [a].
 
-Section ofe.
-  Context {A : Type} {R : relation A}.
+Section relation.
+  Context `{R : relation A}.
 
-  Implicit Types a b : A.
-  Implicit Types x y : mra R.
+  Implicit Types a b c : A.
+  Implicit Types x y z : mono R.
 
-  #[local] Definition below (a : A) (x : mra R) :=
-    ∃ b, b ∈ x ∧ R a b.
+  #[local] Definition below a x :=
+    ∃ b,
+    b ∈ x ∧
+    R a b.
 
   #[local] Lemma below_app a x y :
-    below a (x ++ y) ↔ below a x ∨ below a y.
+    below a (x ++ y) ↔
+    below a x ∨ below a y.
   Proof.
     split.
-    - intros (b & [|]%elem_of_app & ?); [left|right]; exists b; eauto.
-    - intros [(b & ? & ?)|(b & ? & ?)]; exists b; rewrite elem_of_app; eauto.
+    - intros (b & []%elem_of_app & ?);
+        [left | right];
+        exists b; done.
+    - intros [(b & ? & ?) | (b & ? & ?)];
+        exists b; rewrite elem_of_app; auto.
   Qed.
 
-  #[local] Lemma below_principal a b :
-    below a (principal R b) ↔ R a b.
-  Proof.
-    split.
-    - intros (c & ->%elem_of_list_singleton & ?); done.
-    - intros Hab; exists b; split; first apply elem_of_list_singleton; done.
-  Qed.
-
-  #[local] Instance mra_equiv : Equiv (mra R) :=
+  #[local] Instance mono_equiv : Equiv (mono R) :=
     λ x y,
-      ∀ a, below a x ↔ below a y.
+      ∀ a,
+      below a x ↔
+      below a y.
 
-  #[local] Instance mra_equiv_equiv :
-    Equivalence mra_equiv.
+  #[local] Instance mono_equiv_equiv :
+    Equivalence mono_equiv.
   Proof.
-    split; [by firstorder|by firstorder|].
-    intros ??? Heq1 Heq2 ?; split; intros ?;
-      [apply Heq2; apply Heq1|apply Heq1; apply Heq2]; done.
+    split.
+    - done.
+    - firstorder.
+    - intros ?* Heq1 Heq2 ?. split; intros.
+      + apply Heq2, Heq1. done.
+      + apply Heq1, Heq2. done.
   Qed.
 
-  Canonical mraO :=
-    discreteO (mra R).
-End ofe.
+  Canonical mono_O :=
+    discreteO (mono R).
 
-#[global] Arguments mraO [_] _.
-
-Section cmra.
-  Context {A : Type} {R : relation A}.
-
-  Implicit Types a b : A.
-  Implicit Types x y : mra R.
-
-  #[local] Instance mra_valid : Valid (mra R) :=
-    λ x, True.
-  #[local] Instance mra_validN : ValidN (mra R) :=
-    λ n x, True.
-  #[local] Program Instance mra_op : Op (mra R) :=
-    λ x y, x ++ y.
-  #[local] Instance mra_pcore : PCore (mra R) :=
+  #[local] Instance mono_valid : Valid (mono R) :=
+    λ x,
+      True.
+  #[local] Instance mono_validN : ValidN (mono R) :=
+    λ n x,
+      True.
+  #[local] Program Instance mono_op : Op (mono R) :=
+    λ x1 x2,
+      x1 ++ x2.
+  #[local] Instance mono_pcore : PCore (mono R) :=
     Some.
 
-  Lemma mra_cmra_mixin :
-    CmraMixin (mra R).
+  #[local] Lemma mono_cmra_mixin :
+    CmraMixin (mono R).
   Proof.
-    apply discrete_cmra_mixin; first apply _.
-    apply ra_total_mixin.
-    - eauto.
-    - intros ??? Heq a; specialize (Heq a); rewrite !below_app; firstorder.
-    - intros ?; done.
-    - done.
-    - intros ????; rewrite !below_app; firstorder.
-    - intros ???; rewrite !below_app; firstorder.
-    - rewrite /core /pcore /=; intros ??; rewrite below_app; firstorder.
-    - done.
-    - intros ? ? [? ?]; eexists _; done.
-    - done.
+    apply: discrete_cmra_mixin.
+    apply ra_total_mixin; try done.
+    - intros ? ?* Heq a.
+      specialize (Heq a).
+      rewrite !below_app. naive_solver.
+    - intros ?*. done.
+    - intros ?* ?*. rewrite !below_app. naive_solver.
+    - intros ?* ?*. rewrite !below_app. naive_solver.
+    - intros ? ?*. rewrite below_app. naive_solver.
   Qed.
+  Canonical mono_R :=
+    Cmra (mono R) mono_cmra_mixin.
 
-  Canonical mraR : cmra :=
-    Cmra (mra R) mra_cmra_mixin.
-
-  #[global] Instance mra_cmra_total :
-    CmraTotal mraR.
+  #[global] Instance mono_cmra_total :
+    CmraTotal mono_R.
   Proof.
-    rewrite /CmraTotal; eauto.
+    rewrite /CmraTotal. auto.
   Qed.
-  #[global] Instance mra_core_id (x : mra R) :
+  #[global] Instance mono_core_id x :
     CoreId x.
   Proof.
-    by constructor.
+    constructor. done.
   Qed.
 
-  #[global] Instance mra_cmra_discrete :
-    CmraDiscrete mraR.
+  #[global] Instance mono_cmra_discrete :
+    CmraDiscrete mono_R.
   Proof.
-    split; last done. intros ? ?; done.
+    split; last done. intros ?* ?*. done.
   Qed.
 
-  #[local] Instance mra_unit : Unit (mra R) :=
-    @nil A.
-  Lemma auth_ucmra_mixin :
-    UcmraMixin (mra R).
+  #[local] Instance mono_unit : Unit (mono R) :=
+    nil.
+  #[local] Lemma auth_ucmra_mixin :
+    UcmraMixin (mono R).
   Proof.
     split; done.
   Qed.
+  Canonical mono_UR :=
+    Ucmra (mono R) auth_ucmra_mixin.
 
-  Canonical mraUR :=
-    Ucmra (mra R) auth_ucmra_mixin.
-
-  Lemma mra_idemp (x : mra R) :
+  Lemma mono_idemp x :
     x ⋅ x ≡ x.
   Proof.
-    intros a; rewrite below_app; naive_solver.
+    intros ?*. rewrite below_app. naive_solver.
   Qed.
 
-  Lemma mra_included (x y : mra R) :
-    x ≼ y ↔ y ≡ x ⋅ y.
+  Lemma mono_included x y :
+    x ≼ y ↔
+    y ≡ x ⋅ y.
   Proof.
-    split; [|by intros ?; exists y].
-    intros [z ->]; rewrite assoc mra_idemp; done.
+    split.
+    - intros (z & ->). rewrite assoc mono_idemp //.
+    - eexists. done.
   Qed.
 
-  Lemma principal_R_opN_base `{!Transitive R} n x y :
+  Definition mono_principal a : mono_UR :=
+    [a].
+
+  #[local] Lemma below_principal a b :
+    below a (mono_principal b) ↔
+    R a b.
+  Proof.
+    split.
+    - intros (c & ->%elem_of_list_singleton & ?). done.
+    - intros Hab. exists b.
+      split; first apply elem_of_list_singleton; done.
+  Qed.
+
+  Lemma mono_principal_R_opN_base `{!Transitive R} n x y :
     (∀ b, b ∈ y → ∃ c, c ∈ x ∧ R b c) →
     y ⋅ x ≡{n}≡ x.
   Proof.
-    intros HR; split; rewrite /op /mra_op below_app; [|by firstorder].
-    intros [(c & (d & Hd1 & Hd2)%HR & Hc2)|]; [|done].
-    exists d; split; [|transitivity c]; done.
+    intros HR. split.
+    all: rewrite below_app.
+    - intros [(c & (d & Hd1 & Hd2)%HR & Hc2) |]; last done.
+      exists d. eauto.
+    - naive_solver.
   Qed.
-
-  Lemma principal_R_opN `{!Transitive R} n a b :
+  Lemma mono_principal_R_opN `{!Transitive R} n a b :
     R a b →
-    principal R a ⋅ principal R b ≡{n}≡ principal R b.
+    mono_principal a ⋅ mono_principal b ≡{n}≡ mono_principal b.
   Proof.
-    intros; apply principal_R_opN_base; intros c; rewrite /principal.
-    setoid_rewrite elem_of_list_singleton => ->; eauto.
+    intros.
+    apply mono_principal_R_opN_base => c.
+    setoid_rewrite elem_of_list_singleton. naive_solver.
   Qed.
-
-  Lemma principal_R_op `{!Transitive R} a b :
+  Lemma mono_principal_R_op `{!Transitive R} a b :
     R a b →
-    principal R a ⋅ principal R b ≡ principal R b.
+    mono_principal a ⋅ mono_principal b ≡ mono_principal b.
   Proof.
-    by intros ? ?; apply (principal_R_opN 0).
+    intros ? ?*. apply (mono_principal_R_opN 0). done.
   Qed.
 
-  Lemma principal_op_RN n a b x :
+  Lemma mono_principal_opN_R n a b x :
     R a a →
-    principal R a ⋅ x ≡{n}≡ principal R b →
+    mono_principal a ⋅ x ≡{n}≡ mono_principal b →
     R a b.
   Proof.
     intros Ha HR.
-    destruct (HR a) as [[z [HR1%elem_of_list_singleton HR2]] _];
-      last by subst; eauto.
-    rewrite /op /mra_op /principal below_app below_principal; auto.
+    destruct (HR a) as [[z [HR1%elem_of_list_singleton HR2]] _].
+    - rewrite below_app below_principal. auto.
+    - naive_solver.
   Qed.
-
-  Lemma principal_op_R' a b x :
+  Lemma mono_principal_op_R' a b x :
     R a a →
-    principal R a ⋅ x ≡ principal R b →
+    mono_principal a ⋅ x ≡ mono_principal b →
     R a b.
   Proof.
-    intros ? ?; eapply (principal_op_RN 0); eauto.
+    intros. eapply (mono_principal_opN_R 0); done.
   Qed.
-
-  Lemma principal_op_R `{!Reflexive R} a b x :
-    principal R a ⋅ x ≡ principal R b →
+  Lemma mono_principal_op_R `{!Reflexive R} a b x :
+    mono_principal a ⋅ x ≡ mono_principal b →
     R a b.
   Proof.
-    intros; eapply principal_op_R'; eauto.
+    intros. eapply mono_principal_op_R'; done.
   Qed.
 
-  Lemma principal_includedN `{!PreOrder R} n a b :
-    principal R a ≼{n} principal R b ↔ R a b.
+  Lemma mono_principal_includedN `{!PreOrder R} n a b :
+    mono_principal a ≼{n} mono_principal b ↔
+    R a b.
   Proof.
     split.
-    - intros [z Hz]; eapply principal_op_RN; first done. by rewrite Hz.
-    - intros ?; exists (principal R b); rewrite principal_R_opN; eauto.
+    - intros (z & Hz).
+      eapply mono_principal_opN_R; first done.
+      rewrite Hz //.
+    - intros.
+      exists (mono_principal b). rewrite mono_principal_R_opN //.
   Qed.
-
-  Lemma principal_included `{!PreOrder R} a b :
-    principal R a ≼ principal R b ↔ R a b.
+  Lemma mono_principal_included `{!PreOrder R} a b :
+    mono_principal a ≼ mono_principal b ↔
+    R a b.
   Proof.
-    apply (principal_includedN 0).
+    apply (mono_principal_includedN 0).
   Qed.
 
-  Lemma mra_local_update_grow `{!Transitive R} a x b:
+  Lemma mono_local_update_grow `{!Transitive R} a x b:
     R a b →
-    (principal R a, x) ~l~> (principal R b, principal R b).
+    (mono_principal a, x) ~l~> (mono_principal b, mono_principal b).
   Proof.
     intros Hana Hanb.
-    apply local_update_unital_discrete.
-    intros z _ Habz.
-    split; first done.
-    intros w; split.
+    apply local_update_unital_discrete => z _ Habz.
+    split; first done. intros w. split.
     - intros (y & ->%elem_of_list_singleton & Hy2).
-      exists b; split; first constructor; done.
-    - intros (y & [->|Hy1]%elem_of_cons & Hy2).
-      + exists b; split; first constructor; done.
-      + exists b; split; first constructor.
+      exists b. split; [constructor | done].
+    - intros (y & [-> | Hy1]%elem_of_cons & Hy2).
+      + exists b. split; [constructor | done].
+      + exists b. split; first constructor.
         specialize (Habz w) as [_ [c [->%elem_of_list_singleton Hc2]]].
-        { exists y; split; first (by apply elem_of_app; right); eauto. }
+        { exists y. split; last done.
+          apply elem_of_app. naive_solver.
+        }
         etrans; eauto.
   Qed.
 
-  Lemma mra_local_update_get_frag `{!PreOrder R} a b:
+  Lemma mono_local_update_get_frag `{!PreOrder R} a b:
     R b a →
-    (principal R a, ε) ~l~> (principal R a, principal R b).
+    (mono_principal a, ε) ~l~> (mono_principal a, mono_principal b).
   Proof.
     intros Hana.
-    apply local_update_unital_discrete.
-    intros z _; rewrite left_id; intros <-.
+    apply local_update_unital_discrete => z _.
+    rewrite left_id => <-.
     split; first done.
-    apply mra_included; by apply principal_included.
+    apply mono_included, mono_principal_included. done.
   Qed.
-End cmra.
+End relation.
 
-#[global] Arguments mraR {_} _.
-#[global] Arguments mraUR {_} _.
+#[global] Arguments mono_R {_} _ : assert.
+#[global] Arguments mono_UR {_} _ : assert.
+#[global] Arguments mono_principal {_} _ _ : assert.
 
-Section mra_over_ofe.
+Section ofe_relation.
   Context {A : ofe} {R : relation A}.
 
-  Implicit Types a b : A.
-  Implicit Types x y : mra R.
+  Implicit Types a b c : A.
+  Implicit Types x y z : mono R.
 
-  #[global] Instance principal_ne :
+  #[global] Instance mono_principal_ne :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
-    NonExpansive (principal R).
+    NonExpansive (mono_principal R).
   Proof.
-    intros ? n a1 a2 Ha; split; rewrite !below_principal !Ha //.
+    intros ? n a1 a2 Ha.
+    split; rewrite !below_principal !Ha //.
   Qed.
-  #[global] Instance principal_proper :
+  #[global] Instance mono_principal_proper :
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
-    Proper ((≡) ==> (≡)) (principal R).
+    Proper ((≡) ==> (≡)) (mono_principal R).
   Proof.
     intros ?. apply: ne_proper.
   Qed.
 
-  Lemma principal_inj_related a b :
-    principal R a ≡ principal R b →
+  Lemma mono_principal_inj_related a b :
+    mono_principal R a ≡ mono_principal R b →
     R a a →
     R a b.
   Proof.
     intros Hab ?.
-    destruct (Hab a) as [[? [?%elem_of_list_singleton ?]] _];
-      last by subst; auto.
-    exists a; rewrite /principal elem_of_list_singleton; done.
+    destruct (Hab a) as [[? [?%elem_of_list_singleton ?]] _].
+    - exists a. rewrite elem_of_list_singleton //.
+    - naive_solver.
   Qed.
-
-  Lemma principal_inj_general a b :
-    principal R a ≡ principal R b →
+  Lemma mono_principal_inj_general a b :
+    mono_principal R a ≡ mono_principal R b →
     R a a →
     R b b →
     (R a b → R b a → a ≡ b) →
     a ≡ b.
   Proof.
-    intros ??? Has; apply Has; apply principal_inj_related; auto.
+    intros ? ? ? Has.
+    apply Has; apply mono_principal_inj_related; auto.
   Qed.
 
-  #[global] Instance principal_inj `{!Reflexive R} `{!AntiSymm (≡) R} :
-    Inj (≡) (≡) (principal R).
+  #[global] Instance mono_principal_inj `{!Reflexive R} `{!AntiSymm (≡) R} :
+    Inj (≡) (≡) (mono_principal R).
   Proof.
-    intros ???; apply principal_inj_general; auto.
+    intros ? ? ?.
+    apply mono_principal_inj_general; auto.
   Qed.
-  #[global] Instance principal_inj' `{!Reflexive R} `{!AntiSymm (≡) R} n :
-    Inj (≡{n}≡) (≡{n}≡) (principal R).
+  #[global] Instance mono_principal_inj' `{!Reflexive R} `{!AntiSymm (≡) R} n :
+    Inj (≡{n}≡) (≡{n}≡) (mono_principal R).
   Proof.
     intros x y Hxy%discrete_iff; last apply _.
-    eapply equiv_dist; revert Hxy; apply inj; apply _.
+    apply equiv_dist. move: Hxy. apply inj, _.
   Qed.
-End mra_over_ofe.
+End ofe_relation.
 
-#[global] Opaque principal.
+#[global] Opaque mono_principal.
