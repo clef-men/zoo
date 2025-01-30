@@ -299,6 +299,14 @@ Section inf_mpmc_queue_1_G.
     apply _.
   Qed.
 
+  #[local] Lemma model_alloc :
+    ⊢ |==>
+      ∃ γ_model,
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
+  Proof.
+    apply twins_alloc'.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -315,6 +323,13 @@ Section inf_mpmc_queue_1_G.
     apply twins_update'.
   Qed.
 
+  #[local] Lemma history_alloc :
+    ⊢ |==>
+      ∃ γ_history,
+      history_auth' γ_history [].
+  Proof.
+    apply mono_list_alloc.
+  Qed.
   #[local] Lemma history_at_valid γ hist i v :
     history_auth γ hist -∗
     history_at γ i v -∗
@@ -348,6 +363,14 @@ Section inf_mpmc_queue_1_G.
     iSteps.
   Qed.
 
+  #[local] Lemma consumers_alloc :
+    ⊢ |==>
+      ∃ γ_consumers,
+      consumers_auth' γ_consumers 0.
+  Proof.
+    iMod mono_list_alloc as "(%γ_consumers & Hauth)".
+    iExists _, []. iSteps.
+  Qed.
   #[local] Lemma consumers_at_valid γ i j Ψ :
     consumers_auth γ i -∗
     consumers_at γ j Ψ -∗
@@ -381,6 +404,14 @@ Section inf_mpmc_queue_1_G.
     iFrame. rewrite length_app. iSteps.
   Qed.
 
+  #[local] Lemma tokens_alloc :
+    ⊢ |==>
+      ∃ γ_tokens,
+      tokens_auth' γ_tokens 0.
+  Proof.
+    iMod mono_list_alloc as "(%γ_tokens & Hauth)".
+    iExists _, []. iSteps.
+  Qed.
   #[local] Lemma tokens_pending_exclusive γ i :
     tokens_pending γ i -∗
     tokens_pending γ i -∗
@@ -425,6 +456,43 @@ Section inf_mpmc_queue_1_G.
   Opaque tokens_auth'.
   Opaque tokens_pending.
   Opaque tokens_done.
+
+  Lemma inf_mpmc_queue_1_create_spec ι :
+    {{{
+      True
+    }}}
+      inf_mpmc_queue_1_create ()
+    {{{ t,
+      RET t;
+      inf_mpmc_queue_1_inv t ι ∗
+      inf_mpmc_queue_1_model t []
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    wp_rec.
+    wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
+    wp_block l as "Hmeta" "(Hl_data & Hl_front & Hl_back & _)".
+    iMod (pointsto_persist with "Hl_data") as "#Hl_data".
+
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod history_alloc as "(%γ_history & Hhistory_auth)".
+    iMod consumers_alloc as "(%γ_consumers & Hconsumers_auth)".
+    iMod tokens_alloc as "(%γ_tokens & Htokens_auth)".
+
+    pose γ := {|
+      metadata_data := data ;
+      metadata_model := γ_model ;
+      metadata_history := γ_history ;
+      metadata_consumers := γ_consumers ;
+      metadata_tokens := γ_tokens ;
+    |}.
+    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+
+    iApply "HΦ".
+    iSplitR "Hmodel₁"; last iSteps.
+    iSteps. iExists (λ _, Nothing). iSteps.
+  Qed.
 
   Lemma inf_mpmc_queue_1_push_spec t ι v :
     <<<
