@@ -982,9 +982,9 @@ Section kcas_G.
 
       iAssert ⌜i < j⌝%I as %Hi.
       { destruct (decide (i < j)); first iSteps.
-        iDestruct (big_sepL_lookup _ _ (i - j) (i - j) with "Hlocks") as "_Hlock".
+        iDestruct (big_sepL_seq_lookup' (i - j) with "Hlocks") as "_Hlock".
         { apply lookup_lt_Some in Hdescrs_lookup.
-          apply lookup_seq. rewrite /metadata_size. lia.
+          rewrite /metadata_size. lia.
         }
         rewrite -Nat.le_add_sub; first lia.
         iDestruct (lock_exclusive with "Hlock _Hlock") as %[].
@@ -1508,8 +1508,7 @@ Section kcas_G.
                              iEval (rewrite -take_S_r //) in "Hmodels₂".
                              rewrite -(Nat.succ_pred_pos (metadata_size η - i)).
                              { rewrite /metadata_size. lia. }
-                             rewrite -cons_seq.
-                             iDestruct "Hlocks" as "(Hlock & Hlocks)".
+                             iDestruct (big_sepL_seq_cons_1 with "Hlocks") as "(Hlock & Hlocks)".
                              iEval (rewrite Nat.add_0_r) in "Hlock".
                              iDestruct (big_sepL_seq_shift_2 1 0 with "Hlocks") as "Hlocks".
                              iEval (setoid_rewrite Nat.add_1_r) in "Hlocks".

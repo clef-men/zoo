@@ -92,61 +92,6 @@ Section bi.
       iApply ("HΦ" with "[//] HΨ").
     Qed.
 
-    Lemma big_sepL_seq_index `{!BiAffine PROP} l sz (Φ : nat → PROP) :
-      length l = sz →
-      ([∗ list] k ∈ seq 0 sz, Φ k) ⊣⊢
-      [∗ list] k ↦ _ ∈ l, Φ k.
-    Proof.
-      intros. iSplit.
-      all: iIntros "H".
-      all: iApply (big_sepL_mono_strong with "H"); first rewrite length_seq //.
-      all: iIntros "!> %k %_k % %".
-      all: pose proof lookup_seq.
-      all: naive_solver.
-    Qed.
-    Lemma big_sepL_seq_index_1 `{!BiAffine PROP} l sz (Φ : nat → PROP) :
-      length l = sz →
-      ([∗ list] k ∈ seq 0 sz, Φ k) ⊢
-      [∗ list] k ↦ _ ∈ l, Φ k.
-    Proof.
-      intros. rewrite big_sepL_seq_index //.
-    Qed.
-    Lemma big_sepL_seq_index_2 `{!BiAffine PROP} l sz (Φ : nat → PROP) :
-      length l = sz →
-      ([∗ list] k ↦ _ ∈ l, Φ k) ⊢
-      [∗ list] k ∈ seq 0 sz, Φ k.
-    Proof.
-      intros. rewrite big_sepL_seq_index //.
-    Qed.
-
-    Lemma big_sepL_seq_shift `{!BiAffine PROP} j i sz (Φ : nat → PROP) :
-      ([∗ list] k ∈ seq i sz, Φ k) ⊣⊢
-      [∗ list] k ∈ seq (i + j) sz, Φ (k - j).
-    Proof.
-      iSplit.
-      all: iIntros "H".
-      all: iApply (big_sepL_mono_strong with "H"); first rewrite !length_seq //.
-      all: iIntros "!>" (k ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_seq)).
-      all: assert (i + j + k - j = i + k) as -> by lia.
-      all: iSteps.
-    Qed.
-    Lemma big_sepL_seq_shift_1 `{!BiAffine PROP} j i sz (Φ : nat → PROP) :
-      ([∗ list] k ∈ seq i sz, Φ k) ⊢
-      [∗ list] k ∈ seq (i + j) sz, Φ (k - j).
-    Proof.
-      rewrite big_sepL_seq_shift //.
-    Qed.
-    Lemma big_sepL_seq_shift_2 `{!BiAffine PROP} j i sz (Φ : nat → PROP) :
-      ([∗ list] k ∈ seq (i + j) sz, Φ k) ⊢
-      [∗ list] k ∈ seq i sz, Φ (k + j).
-    Proof.
-      setoid_rewrite (big_sepL_seq_shift j) at 2.
-      iIntros "H".
-      iApply (big_sepL_impl with "H"). iIntros "!>" (? ? (-> & ?)%lookup_seq).
-      assert (i + j + k = i + j + k - j + j) as <- by lia.
-      iSteps.
-    Qed.
-
     Lemma big_sepL_delete_1 Φ l i x :
       l !! i = Some x →
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊢
@@ -318,6 +263,152 @@ Section bi.
       }
     Qed.
   End big_sepL.
+
+  Section big_sepL_seq.
+    Context {A : Type}.
+
+    Implicit Types l : list A.
+    Implicit Types Φ : nat → PROP.
+
+    Lemma big_sepL_seq_cons i n Φ :
+      ([∗ list] k ∈ seq i (S n), Φ k) ⊣⊢
+        Φ i ∗
+        ([∗ list] k ∈ seq (S i) n, Φ k).
+    Proof.
+      rewrite -cons_seq big_sepL_cons //.
+    Qed.
+    Lemma big_sepL_seq_cons_1 i n Φ :
+      ([∗ list] k ∈ seq i (S n), Φ k) ⊢
+        Φ i ∗
+        ([∗ list] k ∈ seq (S i) n, Φ k).
+    Proof.
+      rewrite big_sepL_seq_cons //.
+    Qed.
+    Lemma big_sepL_seq_cons_2 i n Φ :
+      ([∗ list] k ∈ seq (S i) n, Φ k) -∗
+      Φ i -∗
+      [∗ list] k ∈ seq i (S n), Φ k.
+    Proof.
+      rewrite big_sepL_seq_cons. iSteps.
+    Qed.
+
+    Lemma big_sepL_seq_snoc i n Φ :
+      ([∗ list] k ∈ seq i (S n), Φ k) ⊣⊢
+        ([∗ list] k ∈ seq i n, Φ k) ∗
+        Φ (i + n).
+    Proof.
+      rewrite seq_S big_sepL_snoc //.
+    Qed.
+    Lemma big_sepL_seq_snoc_1 i n Φ :
+      ([∗ list] k ∈ seq i (S n), Φ k) ⊢
+        ([∗ list] k ∈ seq i n, Φ k) ∗
+        Φ (i + n).
+    Proof.
+      rewrite big_sepL_seq_snoc //.
+    Qed.
+    Lemma big_sepL_seq_snoc_2 i n Φ :
+      ([∗ list] k ∈ seq i n, Φ k) -∗
+      Φ (i + n) -∗
+      [∗ list] k ∈ seq i (S n), Φ k.
+    Proof.
+      rewrite big_sepL_seq_snoc. iSteps.
+    Qed.
+
+    Lemma big_sepL_seq_lookup_acc {i n} j Φ :
+      j < n →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+        Φ (i + j) ∗
+        ( Φ (i + j) -∗
+          [∗ list] k ∈ seq i n, Φ k
+        ).
+    Proof.
+      intros Hj.
+      rewrite -big_sepL_lookup_acc //.
+      apply lookup_seq_lt. done.
+    Qed.
+    Lemma big_sepL_seq_lookup_acc' {i n} j Φ :
+      i ≤ j < i + n →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+        Φ j ∗
+        ( Φ j -∗
+          [∗ list] k ∈ seq i n, Φ k
+        ).
+    Proof.
+      intros ((j' & ->)%Nat.le_sum & Hj).
+      rewrite -big_sepL_seq_lookup_acc //. lia.
+    Qed.
+    Lemma big_sepL_seq_lookup `{!BiAffine PROP} {i n} j Φ :
+      j < n →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+      Φ (i + j).
+    Proof.
+      intros Hj.
+      rewrite big_sepL_seq_lookup_acc //. iSteps.
+    Qed.
+    Lemma big_sepL_seq_lookup' `{!BiAffine PROP} {i n} j Φ :
+      i ≤ j < i + n →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+      Φ j.
+    Proof.
+      intros Hj.
+      rewrite big_sepL_seq_lookup_acc' //. iSteps.
+    Qed.
+
+    Lemma big_sepL_seq_index `{!BiAffine PROP} l n Φ :
+      length l = n →
+      ([∗ list] k ∈ seq 0 n, Φ k) ⊣⊢
+      [∗ list] k ↦ _ ∈ l, Φ k.
+    Proof.
+      intros. iSplit.
+      all: iIntros "H".
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite length_seq //.
+      all: iIntros "!> %k %_k % %".
+      all: pose proof lookup_seq.
+      all: naive_solver.
+    Qed.
+    Lemma big_sepL_seq_index_1 `{!BiAffine PROP} l n Φ :
+      length l = n →
+      ([∗ list] k ∈ seq 0 n, Φ k) ⊢
+      [∗ list] k ↦ _ ∈ l, Φ k.
+    Proof.
+      intros. rewrite big_sepL_seq_index //.
+    Qed.
+    Lemma big_sepL_seq_index_2 `{!BiAffine PROP} l n Φ :
+      length l = n →
+      ([∗ list] k ↦ _ ∈ l, Φ k) ⊢
+      [∗ list] k ∈ seq 0 n, Φ k.
+    Proof.
+      intros. rewrite big_sepL_seq_index //.
+    Qed.
+
+    Lemma big_sepL_seq_shift `{!BiAffine PROP} j i n Φ :
+      ([∗ list] k ∈ seq i n, Φ k) ⊣⊢
+      [∗ list] k ∈ seq (i + j) n, Φ (k - j).
+    Proof.
+      iSplit.
+      all: iIntros "H".
+      all: iApply (big_sepL_mono_strong with "H"); first rewrite !length_seq //.
+      all: iIntros "!>" (k ? ? ((-> & _)%lookup_seq & (-> & _)%lookup_seq)).
+      all: assert (i + j + k - j = i + k) as -> by lia.
+      all: iSteps.
+    Qed.
+    Lemma big_sepL_seq_shift_1 `{!BiAffine PROP} j i n Φ :
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+      [∗ list] k ∈ seq (i + j) n, Φ (k - j).
+    Proof.
+      rewrite big_sepL_seq_shift //.
+    Qed.
+    Lemma big_sepL_seq_shift_2 `{!BiAffine PROP} j i n Φ :
+      ([∗ list] k ∈ seq (i + j) n, Φ k) ⊢
+      [∗ list] k ∈ seq i n, Φ (k + j).
+    Proof.
+      setoid_rewrite (big_sepL_seq_shift j) at 2.
+      iIntros "H".
+      iApply (big_sepL_impl with "H"). iIntros "!>" (? ? (-> & ?)%lookup_seq).
+      assert (i + j + k = i + j + k - j + j) as <- by lia.
+      iSteps.
+    Qed.
+  End big_sepL_seq.
 
   Section big_sepL2.
     Context {A1 A2 : Type}.
