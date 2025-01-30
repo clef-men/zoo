@@ -12,12 +12,15 @@ From zoo.iris.base_logic Require Import
   lib.oneshot.
 From zoo.language Require Import
   notations.
+From zoo.program_logic Require Import
+  typed_prophet.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
   optional
-  inf_array.
+  inf_array
+  int.
 From zoo_saturn Require Export
   base
   inf_mpmc_queue_1__code.
@@ -34,6 +37,25 @@ Implicit Types slot : optional val.
 Implicit Types slots : nat → optional val.
 Implicit Types η : gname.
 Implicit Types ηs : list gname.
+
+#[local] Program Definition prophet := {|
+  typed_strong_prophet1_type :=
+    nat ;
+  typed_strong_prophet1_of_val v _ :=
+    match v with
+    | ValInt i =>
+        Some (Z.to_nat i)
+    | _ =>
+        None
+    end ;
+  typed_strong_prophet1_to_val 'i :=
+    (#i, ()%V) ;
+|}.
+Solve Obligations of prophet with
+  try done.
+Next Obligation.
+  intros i v _ [= -> ->]. rewrite /= Nat2Z.id //.
+Qed.
 
 Class InfMpmcQueue1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_1_G_inf_array_G :: InfArrayG Σ ;
@@ -120,6 +142,16 @@ Section inf_mpmc_queue_1_G.
       %η{} &
       Hat{} &
       HΨ{}
+    )".
+  #[local] Definition consumers_lb γ i : iProp Σ :=
+    ∃ ηs,
+    ⌜length ηs = i⌝ ∗
+    mono_list_lb γ.(metadata_consumers) ηs.
+  #[local] Instance : CustomIpatFormat "consumers_lb" :=
+    "(
+      %ηs{} &
+      %Hηs{} &
+      Hlb{}
     )".
 
   #[local] Definition tokens_auth' γ_tokens i : iProp Σ :=
@@ -283,6 +315,11 @@ Section inf_mpmc_queue_1_G.
   Proof.
     apply _.
   Qed.
+  #[local] Instance consumers_lb_persistent γ i :
+    Persistent (consumers_lb γ i).
+  Proof.
+    apply _.
+  Qed.
   #[local] Instance tokens_done_persistent γ i :
     Persistent (tokens_done γ i).
   Proof.
@@ -391,6 +428,15 @@ Section inf_mpmc_queue_1_G.
     iDestruct (saved_pred_agree v with "HΨ1 HΨ2") as "Heq".
     iModIntro. iRewrite "Heq". iSteps.
   Qed.
+  #[local] Lemma consumers_lb_valid γ i j :
+    consumers_auth γ i -∗
+    consumers_lb γ j -∗
+    ⌜j ≤ i⌝.
+  Proof.
+    iIntros "(:consumers_auth =1) (:consumers_lb =2)".
+    iDestruct (mono_list_lb_valid with "Hauth1 Hlb2") as %?%prefix_length.
+    iSteps.
+  Qed.
   #[local] Lemma consumers_update {γ i} Ψ :
     consumers_auth γ i ⊢ |==>
       consumers_auth γ (S i) ∗
@@ -402,6 +448,14 @@ Section inf_mpmc_queue_1_G.
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { rewrite list_lookup_middle //. }
     iFrame. rewrite length_app. iSteps.
+  Qed.
+  #[local] Lemma consumers_lb_get γ i :
+    consumers_auth γ i ⊢
+    consumers_lb γ i.
+  Proof.
+    iIntros "(:consumers_auth)".
+    iDestruct (mono_list_lb_get with "Hauth") as "Hlb".
+    iSteps.
   Qed.
 
   #[local] Lemma tokens_alloc :
@@ -453,6 +507,7 @@ Section inf_mpmc_queue_1_G.
 
   Opaque consumers_auth'.
   Opaque consumers_at.
+  Opaque consumers_lb.
   Opaque tokens_auth'.
   Opaque tokens_pending.
   Opaque tokens_done.
@@ -492,6 +547,105 @@ Section inf_mpmc_queue_1_G.
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
     iSteps. iExists (λ _, Nothing). iSteps.
+  Qed.
+
+  Lemma inf_mpmc_queue_1_size_spec t ι :
+    <<<
+      inf_mpmc_queue_1_inv t ι
+    | ∀∀ vs,
+      inf_mpmc_queue_1_model t vs
+    >>>
+      inf_mpmc_queue_1_size t @ ↑ι
+    <<<
+      inf_mpmc_queue_1_model t vs
+    | RET #(length vs);
+      True
+    >>>.
+  Proof.
+    iIntros "!> %Φ (:inv) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb1".
+    iSplitR "HΦ"; first iSteps.
+    iModIntro. clear.
+
+    wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_pures.
+
+    wp_bind (_.{back})%E.
+    iInv "Hinv" as "(:inv_inner =2)".
+    wp_load.
+    destruct (decide (proph = front1)) as [-> | Hproph].
+
+    - destruct (decide (front2 = front1)) as [-> | ?].
+
+      + iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
+
+        iSplitR "Hproph HΦ"; first iSteps.
+        iModIntro. clear- Hhist2.
+
+        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_load.
+        iSplitR "HΦ"; first iSteps.
+
+        iSteps.
+        iApply int_positive_part_spec .
+        rewrite length_drop Hhist2 Z2Nat.inj_sub; first lia.
+        rewrite !Nat2Z.id //.
+
+      + iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb1") as %?.
+        iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb2".
+        iSplitR "Hproph HΦ"; first iSteps.
+        iModIntro.
+
+        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_load.
+        iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb2") as %?.
+        iSplitR "HΦ"; first iSteps.
+        iSteps.
+
+    - iSplitR "Hproph HΦ"; first iSteps.
+      iModIntro. clear- Hproph.
+
+      wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+      iInv "Hinv" as "(:inv_inner =3)".
+      wp_load.
+      iSplitR "HΦ"; first iSteps.
+      iSteps.
+  Qed.
+
+  Lemma inf_mpmc_queue_1_is_empty_spec t ι :
+    <<<
+      inf_mpmc_queue_1_inv t ι
+    | ∀∀ vs,
+      inf_mpmc_queue_1_model t vs
+    >>>
+      inf_mpmc_queue_1_is_empty t @ ↑ι
+    <<<
+      inf_mpmc_queue_1_model t vs
+    | RET #(bool_decide (vs = []%list));
+      True
+    >>>.
+  Proof.
+    iIntros "!> %Φ #Hinv HΦ".
+
+    wp_rec.
+
+    awp_apply (inf_mpmc_queue_1_size_spec with "Hinv").
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; iSteps.
+    destruct vs; iSteps.
   Qed.
 
   Lemma inf_mpmc_queue_1_push_spec t ι v :
