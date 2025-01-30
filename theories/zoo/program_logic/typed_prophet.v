@@ -100,6 +100,101 @@ End typed_strong_prophet.
 
 #[global] Opaque typed_strong_prophet_model.
 
+Record typed_strong_prophet1 := {
+  typed_strong_prophet1_type : Type ;
+  typed_strong_prophet1_of_val : val → val → option typed_strong_prophet1_type ;
+  typed_strong_prophet1_to_val : typed_strong_prophet1_type → val * val ;
+
+  #[global] typed_strong_prophet1_type_inhabited ::
+    Inhabited typed_strong_prophet1_type ;
+
+  typed_strong_prophet1_of_to_val proph w v :
+    (w, v) = typed_strong_prophet1_to_val proph →
+    typed_strong_prophet1_of_val w v = Some proph ;
+}.
+#[global] Arguments Build_typed_strong_prophet1 {_ _ _ _} _ : assert.
+
+Section typed_strong_prophet1.
+  Context (prophet : typed_strong_prophet1).
+  Context `{zoo_G : !ZooG Σ}.
+
+  Program Definition typed_strong_prophet1_to_prophet := {|
+    typed_strong_prophet_type :=
+      prophet.(typed_strong_prophet1_type) ;
+    typed_strong_prophet_of_val :=
+      prophet.(typed_strong_prophet1_of_val) ;
+    typed_strong_prophet_to_val :=
+      prophet.(typed_strong_prophet1_to_val) ;
+  |}.
+  Next Obligation.
+    apply typed_strong_prophet1_of_to_val.
+  Qed.
+
+  Definition typed_strong_prophet1_model pid proph : iProp Σ :=
+    ∃ prophs,
+    typed_strong_prophet_model typed_strong_prophet1_to_prophet pid prophs ∗
+    ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %prophs{} &
+      Hmodel{} &
+      %
+    )".
+
+  #[global] Instance typed_strong_prophet1_model_timeless pid proph :
+    Timeless (typed_strong_prophet1_model pid proph).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma typed_strong_prophet1_model_exclusive pid proph1 proph2 :
+    typed_strong_prophet1_model pid proph1 -∗
+    typed_strong_prophet1_model pid proph2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)".
+    iApply (typed_strong_prophet_model_exclusive with "Hmodel1 Hmodel2").
+  Qed.
+
+  Lemma typed_strong_prophet1_wp_proph E :
+    {{{
+      True
+    }}}
+      Proph @ E
+    {{{ pid proph,
+      RET #pid;
+      typed_strong_prophet1_model pid proph
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+    wp_apply (typed_strong_prophet_wp_proph with "[//]") as "%pid %prophs Hmodel".
+    destruct prophs as [| proph prophs'] eqn:Heq.
+    1: iApply ("HΦ" $! pid inhabitant).
+    2: iApply ("HΦ" $! pid proph).
+    all: iSteps.
+  Qed.
+
+  Lemma typed_strong_prophet1_wp_resolve e pid v proph E Φ :
+    Atomic e →
+    to_val e = None →
+    typed_strong_prophet1_model pid proph -∗
+    WP e @ E {{ w,
+      ∃ proph',
+      ⌜(w, v) = prophet.(typed_strong_prophet1_to_val) proph'⌝ ∗
+      (⌜proph = proph'⌝ -∗ Φ w)
+    }} -∗
+    WP Resolve e #pid v @ E {{ Φ }}.
+  Proof.
+    iIntros (? ?) "(:model) HΦ".
+    wp_apply (typed_strong_prophet_wp_resolve with "Hmodel"); first done.
+    iSteps.
+  Qed.
+End typed_strong_prophet1.
+
+#[global] Opaque typed_strong_prophet1_model.
+
+Coercion typed_strong_prophet1_to_prophet : typed_strong_prophet1 >-> typed_strong_prophet.
+
 Record typed_prophet := {
   typed_prophet_type : Type ;
   typed_prophet_of_val : val → option typed_prophet_type ;
@@ -216,7 +311,7 @@ Section typed_prophet1.
   Context (prophet : typed_prophet1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition typed_prophet1_to_prophet prophet := {|
+  Program Definition typed_prophet1_to_prophet := {|
     typed_prophet_type :=
       prophet.(typed_prophet1_type) ;
     typed_prophet_of_val :=
@@ -230,7 +325,7 @@ Section typed_prophet1.
 
   Definition typed_prophet1_model pid proph : iProp Σ :=
     ∃ prophs,
-    typed_prophet_model (typed_prophet1_to_prophet prophet) pid prophs ∗
+    typed_prophet_model typed_prophet1_to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
