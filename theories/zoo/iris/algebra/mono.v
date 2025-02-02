@@ -186,7 +186,7 @@ Section relation.
     intros. eapply mono_principal_op_R'; done.
   Qed.
 
-  Lemma mono_principal_includedN `{!PreOrder R} n a b :
+  Lemma mono_principal_includedN `{!Reflexive R} `{!Transitive R} n a b :
     mono_principal a ≼{n} mono_principal b ↔
     R a b.
   Proof.
@@ -197,7 +197,7 @@ Section relation.
     - intros.
       exists (mono_principal b). rewrite mono_principal_R_opN //.
   Qed.
-  Lemma mono_principal_included `{!PreOrder R} a b :
+  Lemma mono_principal_included `{!Reflexive R} `{!Transitive R} a b :
     mono_principal a ≼ mono_principal b ↔
     R a b.
   Proof.
@@ -223,7 +223,7 @@ Section relation.
         etrans; eauto.
   Qed.
 
-  Lemma mono_local_update_get_frag `{!PreOrder R} a b:
+  Lemma mono_local_update_get_frag `{!Reflexive R} `{!Transitive R} a b:
     R b a →
     (mono_principal a, ε) ~l~> (mono_principal a, mono_principal b).
   Proof.

@@ -17,7 +17,7 @@ Section relation.
     - induction 1; last etrans; done.
     - apply tc_once.
   Qed.
-  Lemma preorder_rtc `{!PreOrder R} x1 x2 :
+  Lemma preorder_rtc `{!Reflexive R} `{!Transitive R} x1 x2 :
     rtc R x1 x2 ↔
     R x1 x2.
   Proof.
@@ -31,7 +31,7 @@ Section relation.
   Proof.
     intros x1 x2 H1%transitive_tc H2%transitive_tc. naive_solver.
   Qed.
-  #[global] Instance preorder_rtc_antisymm `{!PreOrder R} `{!AntiSymm R' R} :
+  #[global] Instance preorder_rtc_antisymm `{!Reflexive R} `{!Transitive R} `{!AntiSymm R' R} :
     AntiSymm R' (rtc R).
   Proof.
     intros x1 x2 H1%preorder_rtc H2%preorder_rtc. naive_solver.
