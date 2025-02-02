@@ -151,6 +151,9 @@ theories/zoo_std/xtchain.v
 theories/zoo_std/xdlchain__types.v
 theories/zoo_std/xdlchain__code.v
 theories/zoo_std/xdlchain.v
+theories/zoo_std/xtdlchain__types.v
+theories/zoo_std/xtdlchain__code.v
+theories/zoo_std/xtdlchain.v
 theories/zoo_std/chunk.v
 theories/zoo_std/array__types.v
 theories/zoo_std/array__code.v

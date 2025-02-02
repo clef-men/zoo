@@ -69,7 +69,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma xdlchain_cons_unfold src node nodes dst :
+  #[local] Lemma xdlchain_cons_unfold {src} node nodes dst :
     xdlchain src (node :: nodes) dst ⊣⊢
       node.[xdlchain_prev] ↦ src ∗
       match nodes with
@@ -83,7 +83,7 @@ Section zoo_G.
     done.
   Qed.
 
-  Lemma xdlchain_cons src nodes node nodes' dst :
+  Lemma xdlchain_cons {src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊣⊢
       node.[xdlchain_prev] ↦ src ∗
@@ -92,7 +92,7 @@ Section zoo_G.
   Proof.
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain_cons_1 src nodes node nodes' dst :
+  Lemma xdlchain_cons_1 {src} nodes node nodes' dst :
     nodes = node :: nodes' →
     xdlchain src nodes dst ⊢
       node.[xdlchain_prev] ↦ src ∗
@@ -107,10 +107,10 @@ Section zoo_G.
     xdlchain #node nodes dst -∗
     xdlchain src (node :: nodes) dst.
   Proof.
-    rewrite (xdlchain_cons _ (node :: nodes)) //. iSteps.
+    rewrite (xdlchain_cons (node :: nodes)) //. iSteps.
   Qed.
 
-  Lemma xdlchain_app src nodes nodes1 nodes2 dst :
+  Lemma xdlchain_app {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊣⊢
       xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
@@ -128,7 +128,7 @@ Section zoo_G.
         iIntros "(($ & $ & H1) & H2)".
         iApply ("IH" with "[$H1 $H2]").
   Qed.
-  Lemma xdlchain_app_1 src nodes nodes1 nodes2 dst :
+  Lemma xdlchain_app_1 {src} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
     xdlchain src nodes dst ⊢
       xdlchain src nodes1 (from_option #@{location} dst (head nodes2)) ∗
@@ -141,10 +141,10 @@ Section zoo_G.
     xdlchain (from_option #@{location} src (last nodes1)) nodes2 dst -∗
     xdlchain src (nodes1 ++ nodes2) dst.
   Proof.
-    rewrite (xdlchain_app _ (nodes1 ++ nodes2)) //. iSteps.
+    rewrite (xdlchain_app (nodes1 ++ nodes2)) //. iSteps.
   Qed.
 
-  Lemma xdlchain_snoc src nodes nodes' node dst :
+  Lemma xdlchain_snoc {src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊣⊢
       xdlchain src nodes' #node ∗
@@ -153,7 +153,7 @@ Section zoo_G.
   Proof.
     intros. rewrite xdlchain_app //.
   Qed.
-  Lemma xdlchain_snoc_1 src nodes nodes' node dst :
+  Lemma xdlchain_snoc_1 {src} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
     xdlchain src nodes dst ⊢
       xdlchain src nodes' #node ∗
@@ -168,7 +168,7 @@ Section zoo_G.
     node.[xdlchain_next] ↦ dst -∗
     xdlchain src (nodes ++ [node]) dst.
   Proof.
-    rewrite (xdlchain_snoc _ (nodes ++ [node])) //. iSteps.
+    rewrite (xdlchain_snoc (nodes ++ [node])) //. iSteps.
   Qed.
 
   Lemma xdlchain_last {src nodes} node dst :
@@ -195,7 +195,7 @@ Section zoo_G.
   Proof.
     intros Hlookup.
     pose proof Hlookup as Hnodes%take_drop_middle.
-    rewrite -{1}Hnodes xdlchain_app // (xdlchain_cons _ (node :: _)) //.
+    rewrite -{1}Hnodes xdlchain_app // (xdlchain_cons (node :: _)) //.
   Qed.
   Lemma xdlchain_lookup_1 {src nodes} i node dst :
     nodes !! i = Some node →
