@@ -608,7 +608,7 @@ Section vertex_G.
           { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
           assert (1 < preds).
           { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
-          iFrame. iSteps; iPureIntro.
+          iFrameSteps; iPureIntro.
           - set_solver.
           - rewrite size_difference; first set_solver. rewrite size_singleton.
             apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
@@ -647,8 +647,7 @@ Section vertex_G.
     iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
     iDestruct "Hstate" as ">%HΠ".
     iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-    iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model".
-    { iFrame. iSteps. }
+    iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model"; first iFrameSteps.
     iMod (state_update Done with "Hstate₁ Hstate₂") as "(Hstate₁ & _)".
     iSplitR "Hsuccs"; first iSteps.
     iIntros "!> H£ (Hctx & HΦ)". clear.

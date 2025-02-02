@@ -342,7 +342,7 @@ Section mpmc_queue_1_G.
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc.
-    iExists [front], [], front, [], front, [], ∅. iFrame. iSteps.
+    iExists [front], [], front, [], front, [], ∅. iFrameSteps.
     - rewrite elem_of_list_singleton //.
     - rewrite xtchain_singleton big_sepM_empty. iSteps.
   Qed.
@@ -552,7 +552,7 @@ Section mpmc_queue_1_G.
           iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
           iMod ("HΨ" with "Hmodel₁") as "HΨ".
-          iSplitR "HΨ_is_empty HΨ HΦ". { iFrame. iSteps. }
+          iSplitR "HΨ_is_empty HΨ HΦ". { iFrameSteps. }
           iModIntro. clear.
 
           iApply "HΦ".
@@ -564,7 +564,7 @@ Section mpmc_queue_1_G.
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
           iDestruct ("Hβ" with "[Hmodel₁]") as "Hβ"; first iSteps.
           iMod ("HΨ" with "Hβ") as "HΨ".
-          iSplitR "HΨ HΦ". { iFrame. iSteps. }
+          iSplitR "HΨ HΦ". { iFrameSteps. }
           iSteps.
   Qed.
   #[local] Lemma mpmc_queue_1_xtchain_next_spec l γ ι i node :

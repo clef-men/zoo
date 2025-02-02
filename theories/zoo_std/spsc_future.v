@@ -369,7 +369,7 @@ Section spsc_future_G.
     { iDestruct (oneshot_pending_shot with "Ho Hshot") as %[]. }
     iDestruct "Ho" as "(_Hshot & Ho)".
     iDestruct (oneshot_shot_agree with "Hshot _Hshot") as %<-. iClear "_Hshot".
-    iSplitR "HΨ HΦ". { iExists (Some _). iFrame. iSteps. }
+    iSplitR "HΨ HΦ". { iExists (Some _). iFrameSteps. }
     iSteps.
   Qed.
   Lemma spsc_future_get_spec_result t Ψ v :

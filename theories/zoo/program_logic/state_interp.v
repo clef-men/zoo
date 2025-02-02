@@ -389,7 +389,7 @@ Proof.
   iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders & _)".
   iMod (gen_heap_init σ.(state_heap)) as (?) "(Hσ & _)".
   iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hκ)".
-  iExists (Build_ZooG Σ). iFrame. iSteps.
+  iExists (Build_ZooG Σ). iFrameSteps.
 Qed.
 Lemma zoo_init' `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ κ :
   ⊢ |==>

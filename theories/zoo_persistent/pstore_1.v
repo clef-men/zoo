@@ -781,7 +781,7 @@ Section pstore_G.
     { destruct Hinv as [_ Hincl _ _].
       specialize (Hincl l). rewrite Hl in Hincl. destruct (σ0!!l); naive_solver. }
 
-    iStep 8. iFrame. iSteps.
+    iStep 8. iFrameSteps.
   Qed.
 
   Lemma pstore_set_spec t σ l v :

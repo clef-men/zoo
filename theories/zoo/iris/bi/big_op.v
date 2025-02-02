@@ -106,7 +106,9 @@ Section bi.
       ([∗ list] k ↦ y ∈ l, if decide (k = i) then emp else Φ k y) -∗
       [∗ list] k ↦ y ∈ l, Φ k y.
     Proof.
-      intros. setoid_rewrite big_sepL_delete at 2; iSmash+.
+      intros.
+      setoid_rewrite big_sepL_delete at 2; last done.
+      iSteps.
     Qed.
     Lemma big_sepL_delete'_1 `{!BiAffine PROP} Φ l i x :
       l !! i = Some x →
@@ -122,7 +124,9 @@ Section bi.
       ([∗ list] k ↦ y ∈ l, ⌜k ≠ i⌝ → Φ k y) -∗
       [∗ list] k ↦ y ∈ l, Φ k y.
     Proof.
-      intros. setoid_rewrite big_sepL_delete' at 2; iSmash+.
+      intros.
+      setoid_rewrite big_sepL_delete' at 2; last done.
+      iSteps.
     Qed.
 
     Lemma big_sepL_replicate `{!BiAffine PROP} Φ n x :
@@ -588,7 +592,9 @@ Section bi.
       ([∗ list] k ↦ y1; y2 ∈ l1; l2, if decide (k = i) then emp else Φ k y1 y2) -∗
       [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2.
     Proof.
-      intros. setoid_rewrite big_sepL2_delete at 2; iSmash+.
+      intros.
+      setoid_rewrite big_sepL2_delete at 2; [| done..].
+      iSteps.
     Qed.
     Lemma big_sepL2_delete'_1 `{!BiAffine PROP} Φ l1 l2 i x1 x2 :
       l1 !! i = Some x1 →
@@ -606,7 +612,9 @@ Section bi.
       ([∗ list] k ↦ y1; y2 ∈ l1; l2, ⌜k ≠ i⌝ → Φ k y1 y2) -∗
       [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2.
     Proof.
-      intros. setoid_rewrite big_sepL2_delete' at 2; iSmash+.
+      intros.
+      setoid_rewrite big_sepL2_delete' at 2; [| done..].
+      iSteps.
     Qed.
 
     Lemma big_sepL2_insert_acc_l Φ l1 l2 i x1 :

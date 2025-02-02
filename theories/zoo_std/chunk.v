@@ -394,7 +394,7 @@ Section zoo_G.
       - iIntros "(%vs & % & Hmodel)".
         destruct vs as [| v vs]; first done.
         iDestruct (chunk_model_cons_2 with "Hmodel") as "(H↦ & Hmodel)".
-        iExists v. iFrame. iSteps.
+        iExists v. iFrameSteps.
     Qed.
     Lemma chunk_span_cons_1 l dq v n :
       l ↦{dq} v -∗

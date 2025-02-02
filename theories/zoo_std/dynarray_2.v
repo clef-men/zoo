@@ -445,7 +445,7 @@ Section zoo_G.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     case_bool_decide as Htest; wp_pures.
-    { iApply "HΦ". iFrame. iSteps. }
+    { iApply "HΦ". iFrameSteps. }
     wp_store.
     wp_smart_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel"; first lia.
     wp_pures.

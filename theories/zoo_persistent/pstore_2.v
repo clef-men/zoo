@@ -984,8 +984,7 @@ Module raw.
         + iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
           wp_load.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
-          wp_smart_apply (pstore_collect_spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
-          { iFrame. iSteps. }
+          wp_smart_apply (pstore_collect_spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
           rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
           rewrite -tail_app // reverse_cons fmap_app.
@@ -1004,7 +1003,7 @@ Module raw.
           wp_load.
           iDestruct (deltas_chain_cons with "H𝝳 H𝝳s") as "H𝝳s".
           wp_smart_apply (pstore_collect_spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
-          { iSplitL; first (iFrame; iSteps).
+          { iSplitL; first iFrameSteps.
             iClear "Helem_cnode". clear.
             iIntros "%cnode %cnode_descr %path %acc !> %Φ (%Hdescrs_lookup & %Hpath & Hinv) HΦ".
             wp_apply ("HLöb" with "[//] [//] Hinv HΦ").

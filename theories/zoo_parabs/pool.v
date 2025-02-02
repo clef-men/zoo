@@ -312,7 +312,7 @@ Section pool_G.
 
     awp_smart_apply (ws_hub_push_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
     iInv "Hinv" as "(%tasks & >Hhub_model & Htasks)".
-    iAaccIntro with "Hhub_model". { iFrame. iSteps. } iIntros "Hhub_model".
+    iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
     iSplitL.
     { iExists _. iFrame. rewrite big_sepMS_singleton. iIntros "!> !> %j Hhub_owner".
       wp_smart_apply (wp_wand with "(Htask [Hhub_owner])"); last iSteps.

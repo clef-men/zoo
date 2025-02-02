@@ -790,7 +790,7 @@ Section inf_mpmc_queue_1_G.
       iDestruct ("Hpast" with "[]") as "Hpast"; first iSteps.
       iSplitR "HΨ HΦ".
       { rewrite Nat2Z.id -(fn_compose_insert _ _ _ Anything).
-        iFrame. iSteps.
+        iFrameSteps.
         rewrite function.fn_lookup_insert.
         case_decide; first subst; iSteps.
       }
@@ -848,7 +848,7 @@ Section inf_mpmc_queue_1_G.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
 
         iSplitL.
-        { iFrame. iSteps.
+        { iFrameSteps.
           rewrite Nat.max_r //.
           assert (S front - back = 0) as -> by lia.
           iSteps.
@@ -869,7 +869,7 @@ Section inf_mpmc_queue_1_G.
         rewrite -Nat.sub_succ_l; first lia.
 
         iSplitL.
-        { iFrame. iSteps.
+        { iFrameSteps.
           rewrite !skipn_all2; [lia.. |].
           rewrite Nat.max_l; first lia.
           iSteps.

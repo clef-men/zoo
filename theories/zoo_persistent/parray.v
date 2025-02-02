@@ -234,7 +234,7 @@ Section parray_G.
         iSteps.
       }
       iApply (big_sepM_impl with "Hmap"). clear. iIntros "!> !>" (l'' vs'' (Hl''1 & (Hl''2 & Hmap_lookup'')%lookup_delete_Some)%lookup_delete_Some) "(%descr'' & %Hvs''_len & Hl'' & Hdescr'')".
-      iExists _. rewrite decide_False // decide_False //. iFrame. iSteps.
+      iExists _. rewrite decide_False // decide_False //. iFrameSteps.
   Qed.
 
   Lemma parray_get_spec τ `{!iType _ τ} {t γ vs} {i : Z} v :
@@ -318,7 +318,7 @@ Section parray_G.
         iPureIntro. rewrite /vs_root list_insert_insert list_insert_id //.
       }
       iApply (big_sepM_impl with "Hmap"). iIntros "!> !>" (l' vs'' (Hne & Hmap_lookup')%lookup_delete_Some) "(%descr' & %Hvs'_len & Hl' & Hdescr')".
-      iExists _. rewrite decide_False // decide_False; first congruence. iFrame. iSteps.
+      iExists _. rewrite decide_False // decide_False; first congruence. iFrameSteps.
   Qed.
 End parray_G.
 

@@ -8,6 +8,7 @@ From zoo.iris Require Export
 From zoo Require Import
   options.
 
-(* FIXME: some goals are solved by [done] but not by [iSmash] *)
-Tactic Notation "iSmash+" :=
-  done || iSmash.
+Tactic Notation "iFrameSteps" integer(n) :=
+  do n iFrame; iSteps.
+Tactic Notation "iFrameSteps" :=
+  iFrameSteps 1.

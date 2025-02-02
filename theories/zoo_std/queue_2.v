@@ -61,7 +61,7 @@ Section zoo_G.
     wp_apply (chain_block_spec (Some _)) as (back) "Hback_model".
     { iApply chain_model_nil. iSteps. }
     wp_block l as "(Hfront & Hback & _)".
-    iApply "HΦ". iExists l, back, back. iFrame. iSteps.
+    iApply "HΦ". iExists l, back, back. iFrameSteps.
     iApply chain_model_nil. iSteps.
   Qed.
 

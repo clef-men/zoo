@@ -690,10 +690,10 @@ Section inf_ws_deque_1_G.
       - rewrite (nil_length_inv model); first lia. erewrite lookup_app_l_Some => //.
     }
     iAaccIntro with "Harray_model"; iIntros "Harray_model".
-    { iModIntro. rewrite right_id. repeat iExists _. iFrame. iSteps. }
+    { iModIntro. rewrite right_id. repeat iExists _. iFrameSteps. }
     (* close invariant *)
     iModIntro. iSplitL.
-    { repeat iExists _. iFrame. iSteps. }
+    { repeat iExists _. iFrameSteps. }
     iIntros "_ HΦ".
     clear- Hlookup.
 

@@ -909,7 +909,7 @@ Section ws_hub_std_G.
 
       + iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
         iRight. iExists (Some v).
-        iSplitL "Hmodel". { iExists vs'. iFrame. iSteps. }
+        iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
         iIntros "HΦ !> Howner Hwaiter". clear.
 
         wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
@@ -934,7 +934,7 @@ Section ws_hub_std_G.
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v).
-      iSplitL "Hmodel". { iExists vs'. iFrame. iSteps. }
+      iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
       iSteps.
   Qed.
 

@@ -1503,7 +1503,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
     iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w H↦".
     rewrite /atomic_acc /=.
-    repeat iExists _. iFrame. iSteps.
+    repeat iExists _. iFrameSteps.
   Qed.
   Lemma array_unsafe_fill_slice_spec t vs (i : Z) i_ (n : Z) v :
     i = ⁺i_ →
@@ -4300,7 +4300,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w Hslice".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iSteps.
+      repeat iExists _. iFrameSteps.
       iExists (vs ++ [v]). rewrite length_app. iSteps.
     }
     rewrite Z.sub_0_r. iSteps.
@@ -5250,7 +5250,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_cset_spec_atomic with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w Hslice".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iSteps.
+      repeat iExists _. iFrameSteps.
       iExists (vs ++ [v]). rewrite length_app. iSteps.
     }
     rewrite Z.sub_0_r. iSteps.

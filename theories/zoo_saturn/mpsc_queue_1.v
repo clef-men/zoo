@@ -273,7 +273,7 @@ Section mpsc_queue_1_G.
     iApply "HΦ".
     iSplitR "Hmodel₁ Hl_front_"; last iSteps.
     iStep 2. iApply inv_alloc.
-    iExists [front], [], front, [], front, []. iFrame. iSteps.
+    iExists [front], [], front, [], front, []. iFrameSteps.
     - rewrite elem_of_list_singleton //.
     - rewrite xtchain_singleton. iSteps.
   Qed.

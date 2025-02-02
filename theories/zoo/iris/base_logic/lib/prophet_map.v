@@ -118,7 +118,7 @@ Section prophet_map_G.
     assert (prophs = proph :: prophecies_resolve xprophs pid) as ->.
     { rewrite (Hprophets pid prophs Hlookup) /= decide_True //. }
     iMod (ghost_map_update (prophecies_resolve xprophs pid) with "Hauth Hp") as "(Hauth & Helem)".
-    iExists (prophecies_resolve xprophs pid). iFrame. iSteps; iPureIntro.
+    iExists (prophecies_resolve xprophs pid). iFrameSteps; iPureIntro.
     - intros pid' prophs' Hlookup'. destruct (decide (pid = pid')) as [<- | Hne].
       + rewrite lookup_insert in Hlookup'.
         inversion Hlookup'. done.

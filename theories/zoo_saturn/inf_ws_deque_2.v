@@ -107,7 +107,7 @@ Section inf_ws_deque_2_G.
     awp_apply (inf_ws_deque_1_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
-    iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. iFrame. iSteps.
+    iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. iFrameSteps.
   Qed.
 
   Lemma inf_ws_deque_2_steal_spec t ι :

@@ -225,7 +225,7 @@ Section boxroot_G.
     iMod (roots_insert root ω with "Hroots_auth") as "(Hroots_auth & Hroots_elem)"; first done.
     wp_pures.
     iApply "HΦ".
-    iFrame. iSteps.
+    iFrameSteps.
     - iPureIntro. set_solver.
     - rewrite big_sepM_insert //. iSteps.
   Qed.
