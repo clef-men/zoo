@@ -82,7 +82,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_alloc l as "Hhdr" "Hmeta" "Hl"; [done.. |].
+    wp_alloc l as "Hheader" "Hmeta" "Hl"; [done.. |].
     iSteps.
   Qed.
 
@@ -102,7 +102,7 @@ Section zoo_G.
   | 30.
   Proof.
     iSteps.
-    wp_block l as "Hhdr" "Hmeta" "Hl".
+    wp_block l as "Hheader" "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -123,7 +123,7 @@ Section zoo_G.
   Proof.
     move=> <-.
     iSteps.
-    wp_ref l as "Hhdr" "Hmeta" "Hl".
+    wp_ref l as "Hheader" "Hmeta" "Hl".
     iSteps.
   Qed.
 
@@ -154,7 +154,7 @@ Section zoo_G.
       True
     }}.
   Proof.
-    iSteps as (hdr) "Hhdr".
+    iSteps as (hdr) "Hheader".
     wp_get_tag.
     iSteps.
   Qed.
@@ -170,7 +170,7 @@ Section zoo_G.
       True
     }}.
   Proof.
-    iSteps as (hdr) "Hhdr".
+    iSteps as (hdr) "Hheader".
     wp_get_size.
     iSteps.
   Qed.

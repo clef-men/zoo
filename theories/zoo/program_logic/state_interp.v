@@ -313,8 +313,8 @@ Section zoo_G.
       l ↦∗ vs.
   Proof.
     iIntros "%Hheaders_lookup %Hheap_lookup (Hheaders & Hheap & $)".
-    iMod (gen_heap_alloc with "Hheaders") as "($ & Hhdr & $)"; first done.
-    iMod (gen_heap.pointsto_persist with "Hhdr") as "$".
+    iMod (gen_heap_alloc with "Hheaders") as "($ & Hheader & $)"; first done.
+    iMod (gen_heap.pointsto_persist with "Hheader") as "$".
     iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap") as "($ & Hl & _)".
     { apply heap_array_map_disjoint. done. }
     rewrite big_sepM_heap_array. iSteps.
@@ -324,8 +324,8 @@ Section zoo_G.
     l ↦ₕ hdr -∗
     ⌜σ.(state_headers) !! l = Some hdr⌝.
   Proof.
-    iIntros "(Hheaders & _ & _) Hhdr".
-    iApply (gen_heap_valid with "Hheaders Hhdr").
+    iIntros "(Hheaders & _ & _) Hheader".
+    iApply (gen_heap_valid with "Hheaders Hheader").
   Qed.
   Lemma state_interp_pointsto_valid nt σ κ l dq v :
     state_interp nt σ κ -∗

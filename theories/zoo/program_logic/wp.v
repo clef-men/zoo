@@ -99,7 +99,7 @@ Section zoo_G.
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
+    iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hσ") as "(Hσ & Hheader & Hmeta & Hl)".
     all: rewrite ?length_replicate //.
     iSteps.
   Qed.
@@ -122,7 +122,7 @@ Section zoo_G.
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iMod (state_interp_alloc with "Hσ") as "(Hσ & Hhdr & Hmeta & Hl)".
+    iMod (state_interp_alloc with "Hσ") as "(Hσ & Hheader & Hmeta & Hl)".
     all: rewrite -> length_of_vals in *; try done.
     iSteps.
   Qed.
@@ -160,10 +160,10 @@ Section zoo_G.
     ▷ Φ #hdr.(header_tag) -∗
     WP GetTag #l @ E {{ Φ }}.
   Proof.
-    iIntros ">Hhdr HΦ".
+    iIntros ">Hheader HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iDestruct (state_interp_has_header_valid with "Hσ Hhdr") as %Hheaders_lookup.
+    iDestruct (state_interp_has_header_valid with "Hσ Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%e %σ2 %es %Hstep _ !>".
     invert_base_step.
     iSteps.
@@ -174,10 +174,10 @@ Section zoo_G.
     ▷ Φ #hdr.(header_size) -∗
     WP GetSize #l @ E {{ Φ }}.
   Proof.
-    iIntros ">Hhdr HΦ".
+    iIntros ">Hheader HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iDestruct (state_interp_has_header_valid with "Hσ Hhdr") as %Hheaders_lookup.
+    iDestruct (state_interp_has_header_valid with "Hσ Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%e %σ2 %es %Hstep _ !>".
     invert_base_step.
     iSteps.

@@ -35,7 +35,7 @@ Section zoo_G.
     elem.[value] ↦ v.
   #[local] Instance : CustomIpatFormat "element_model" :=
     "(
-      Helem_hdr &
+      Helem_header &
       Helem_value
     )".
   Definition dynarray_2_model t vs : iProp Σ :=
@@ -363,7 +363,7 @@ Section zoo_G.
       rewrite list_lookup_fmap_Some. naive_solver.
     }
     wp_match. wp_store.
-    iDestruct ("Helems" with "[Helem_hdr Helem_value]") as "Helems"; first iSteps.
+    iDestruct ("Helems" with "[Helem_header Helem_value]") as "Helems"; first iSteps.
     rewrite (list_insert_id elems) //.
     iSteps. rewrite length_insert //.
   Qed.
@@ -872,7 +872,7 @@ Section zoo_G.
     ) -∗
     WP match: slot with Empty => e1 | Element <> as: x => e2 end {{ Φ }}.
   Proof.
-    iIntros "[-> | (%elem & -> & Helem_hdr & #Hinv)] H".
+    iIntros "[-> | (%elem & -> & Helem_header & #Hinv)] H".
     - rewrite bi.and_elim_l. iSteps.
     - rewrite bi.and_elim_r. wp_match. iSteps.
   Qed.

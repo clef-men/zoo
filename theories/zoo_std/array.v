@@ -62,8 +62,8 @@ Section zoo_G.
       array_inv t sz2 -∗
       ⌜sz1 = sz2⌝.
     Proof.
-      iIntros "(%l & -> & #Hhdr1) (%_l & %Heq & #Hhdr2)". injection Heq as <-.
-      iDestruct (has_header_agree with "Hhdr1 Hhdr2") as %[= ->]. done.
+      iIntros "(%l & -> & #Hheader1) (%_l & %Heq & #Hheader2)". injection Heq as <-.
+      iDestruct (has_header_agree with "Hheader1 Hheader2") as %[= ->]. done.
     Qed.
   End array_inv.
 
@@ -363,8 +363,8 @@ Section zoo_G.
       Fractional (λ q, array_model t (DfracOwn q) vs).
     Proof.
       intros q1 q2. iSplit.
-      - iIntros "(%l & -> & #Hhdr & Hmodel1 & Hmodel2)". iSteps.
-      - iIntros "((%l & -> & #Hhdr & Hmodel1) & (%_l & %Heq & _ & Hmodel2))". injection Heq as <-.
+      - iIntros "(%l & -> & #Hheader & Hmodel1 & Hmodel2)". iSteps.
+      - iIntros "((%l & -> & #Hheader & Hmodel1) & (%_l & %Heq & _ & Hmodel2))". injection Heq as <-.
         iExists l. iSteps.
         iApply chunk_model_fractional. iSteps.
     Qed.
@@ -389,7 +389,7 @@ Section zoo_G.
       array_model t dq vs ⊢
       ⌜✓ dq⌝.
     Proof.
-      iIntros "% (%l & -> & #Hhdr & Hmodel)".
+      iIntros "% (%l & -> & #Hheader & Hmodel)".
       iApply (chunk_model_valid with "Hmodel"); first done.
     Qed.
     Lemma array_model_combine t dq1 vs1 dq2 vs2 :
@@ -398,8 +398,8 @@ Section zoo_G.
         ⌜vs1 = vs2⌝ ∗
         array_model t (dq1 ⋅ dq2) vs1.
     Proof.
-      iIntros "(%l & -> & #Hhdr1 & Hmodel1) (%_l & %Heq & #Hhdr2 & Hmodel2)". injection Heq as <-.
-      iDestruct (has_header_agree with "Hhdr1 Hhdr2") as %[= Hlength].
+      iIntros "(%l & -> & #Hheader1 & Hmodel1) (%_l & %Heq & #Hheader2 & Hmodel2)". injection Heq as <-.
+      iDestruct (has_header_agree with "Hheader1 Hheader2") as %[= Hlength].
       iDestruct (chunk_model_combine with "Hmodel1 Hmodel2") as "(<- & Hmodel)"; first done.
       iSteps.
     Qed.
@@ -453,7 +453,7 @@ Section zoo_G.
       array_model t dq vs ⊢ |==>
       array_model t DfracDiscarded vs.
     Proof.
-      iIntros "(%l & -> & #Hhdr & Hmodel)".
+      iIntros "(%l & -> & #Hheader & Hmodel)".
       iMod (chunk_model_persist with "Hmodel") as "Hmodel".
       iSteps.
     Qed.
@@ -543,9 +543,9 @@ Section zoo_G.
       Fractional (λ q, array_cslice t sz i (DfracOwn q) vs).
     Proof.
       intros q1 q2. iSplit.
-      - iIntros "(%l & -> & #Hhdr & (Hcslice1 & Hcslice2))".
+      - iIntros "(%l & -> & #Hheader & (Hcslice1 & Hcslice2))".
         iSteps.
-      - iIntros "((%l & -> & #Hhdr & Hcslice1) & (%_l & %Heq & _ & Hcslice2))". injection Heq as <-.
+      - iIntros "((%l & -> & #Hheader & Hcslice1) & (%_l & %Heq & _ & Hcslice2))". injection Heq as <-.
         iCombine "Hcslice1 Hcslice2" as "Hcslice".
         iSteps.
     Qed.
@@ -697,7 +697,7 @@ Section zoo_G.
         ⌜vs1 = vs2⌝ ∗
         array_cslice t sz i (dq1 ⋅ dq2) vs1.
     Proof.
-      iIntros "% (%l & -> & #Hhdr & Hcslice1) (%_l & %Heq & _ & Hcslice2)". injection Heq as <-.
+      iIntros "% (%l & -> & #Hheader & Hcslice1) (%_l & %Heq & _ & Hcslice2)". injection Heq as <-.
       iDestruct (chunk_cslice_combine with "Hcslice1 Hcslice2") as "($ & Hcslice)"; first done.
       iSteps.
     Qed.
@@ -826,7 +826,7 @@ Section zoo_G.
     rewrite /array_model /array_slice.
     iIntros "%Hsz %Φ _ HΦ".
     wp_rec.
-    wp_alloc l as "#Hhdr" "_" "Hl"; [done.. |].
+    wp_alloc l as "#Hheader" "_" "Hl"; [done.. |].
     iSteps. rewrite length_replicate. iSteps.
   Qed.
 
@@ -893,7 +893,7 @@ Section zoo_G.
     rewrite /array_model.
     iIntros "!> %Φ _ HΦ".
     wp_rec credit:"H£".
-    iMod "HΦ" as "(%dq & %vs & (%l & -> & #Hhdr & Hmodel) & _ & HΦ)".
+    iMod "HΦ" as "(%dq & %vs & (%l & -> & #Hheader & Hmodel) & _ & HΦ)".
     wp_get_size.
     iApply ("HΦ" with "[Hmodel] H£").
     iSteps.
@@ -914,7 +914,7 @@ Section zoo_G.
     rewrite /array_cslice.
     iIntros "!> %Φ _ HΦ".
     wp_rec credit:"H£".
-    iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & #Hhdr & Hcslice) & _ & HΦ)".
+    iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & #Hheader & Hcslice) & _ & HΦ)".
     wp_get_size.
     iApply ("HΦ" with "[Hcslice] H£").
     iSteps.
@@ -5012,7 +5012,7 @@ Section zoo_G.
     iAaccIntro with "Hcslice"; first iSteps. iIntros "$ !>". iStep. iIntros "HΦ !> H£". clear.
     wp_pures. wp_rec. wp_pures.
     rewrite /array_cslice.
-    iMod "HΦ" as "(%i_ & %dq & %v & (-> & (%l & -> & #Hhdr & Hcslice)) & _ & HΦ)".
+    iMod "HΦ" as "(%i_ & %dq & %v & (-> & (%l & -> & #Hheader & Hcslice)) & _ & HΦ)".
     rewrite -chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_load.
     iApply ("HΦ" with "[Hcslice] H£").
@@ -5118,7 +5118,7 @@ Section zoo_G.
     iAaccIntro with "Hcslice"; first iSteps. iIntros "$ !>". iStep. iIntros "HΦ !> H£". clear.
     wp_pures. wp_rec. wp_pures.
     rewrite /array_cslice.
-    iMod "HΦ" as "(%i_ & %w & (-> & (%l & -> & #Hhdr & Hcslice)) & _ & HΦ)".
+    iMod "HΦ" as "(%i_ & %w & (-> & (%l & -> & #Hheader & Hcslice)) & _ & HΦ)".
     rewrite -chunk_cslice_singleton Z_rem_mod; [lia.. |].
     wp_store.
     iApply ("HΦ" with "[Hcslice] H£").
@@ -5579,7 +5579,7 @@ Section zoo_G.
     itype_array τ sz t.
   Proof.
     rewrite /array_inv /array_slice.
-    iIntros "% (%l & -> & #Hhdr) (%_l & %Heq & Hmodel) #Hvs". injection Heq as <-.
+    iIntros "% (%l & -> & #Hheader) (%_l & %Heq & Hmodel) #Hvs". injection Heq as <-.
     rewrite location_add_0.
     iSteps. iExists vs. iSteps.
   Qed.
@@ -5605,7 +5605,7 @@ Section zoo_G.
     iApply wp_fupd.
     wp_apply (array_create_spec with "[//]") as (t) "Hmodel".
     rewrite /array_model.
-    iDestruct "Hmodel" as "(%l & -> & #Hhdr & Hmodel)".
+    iDestruct "Hmodel" as "(%l & -> & #Hheader & Hmodel)".
     iApply "HΦ". iStep 2. iApply itype_chunk_0.
   Qed.
 
@@ -5633,7 +5633,7 @@ Section zoo_G.
       τ v
     }}}.
   Proof.
-    iIntros "%Hi %Φ (%l & -> & #Hhdr & #Htype) HΦ".
+    iIntros "%Hi %Φ (%l & -> & #Hheader & #Htype) HΦ".
     wp_rec. wp_pures.
     Z_to_nat i.
     iInv "Htype" as "(%vs & >%Hvs & Hmodel & #Hvs)".
@@ -5676,7 +5676,7 @@ Section zoo_G.
       True
     }}}.
   Proof.
-    iIntros "%Hi %Φ ((%l & -> & #Hhdr & Htype) & #Hv) HΦ".
+    iIntros "%Hi %Φ ((%l & -> & #Hheader & Htype) & #Hv) HΦ".
     wp_rec. wp_pures.
     Z_to_nat i.
     iInv "Htype" as "(%vs & >%Hvs & Hmodel & Hvs)".
@@ -5785,7 +5785,7 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
     wp_smart_apply (array_fill_spec with "[Hmodel]") as "Hmodel"; first iSteps.
     rewrite /array_model !length_replicate.
-    iDestruct "Hmodel" as "(%l & -> & #Hhdr & Hmodel)".
+    iDestruct "Hmodel" as "(%l & -> & #Hheader & Hmodel)".
     iStep 7.
     iApply inv_alloc. iExists (replicate ₊sz v). iSteps.
     - rewrite length_replicate //.
@@ -5824,7 +5824,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Htype & Hacc & #Hfn) HΦ".
     iDestruct (itype_array_to_inv with "Htype") as "#Hinv".
-    iDestruct "Htype" as "(%l & -> & #Hhdr & #Htype)".
+    iDestruct "Htype" as "(%l & -> & #Hheader & #Htype)".
     pose (Ψ i vs o acc := (
       from_option τ True o ∗
       υ acc
@@ -5878,7 +5878,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn & Hacc) HΦ".
     iDestruct (itype_array_to_inv with "Htype") as "#Hinv".
-    iDestruct "Htype" as "(%l & -> & #Hhdr & #Htype)".
+    iDestruct "Htype" as "(%l & -> & #Hheader & #Htype)".
     pose (Ψ i acc o vs := (
       from_option τ True o ∗
       υ acc
@@ -6095,7 +6095,7 @@ Section zoo_G.
       apply lookup_lt_Some in Hlookup. rewrite length_replicate in Hlookup. iSteps.
     }
     rewrite /array_model.
-    iDestruct "Hmodel" as "(%l & -> & #Hhdr & Hmodel)".
+    iDestruct "Hmodel" as "(%l & -> & #Hheader & Hmodel)".
     rewrite length_replicate Nat2Z.id in Hvs. rewrite -Hvs. iSteps.
   Qed.
 

@@ -102,9 +102,9 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (chain_block_spec (Some _)) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
-    iDestruct (chain_model_tag with "Hback'") as "#(%back'_ & -> & Hback'_hdr)"; first done. wp_match.
+    iDestruct (chain_model_tag with "Hback'") as "#(%back'_ & -> & Hback'_header)"; first done. wp_match.
     wp_load.
-    iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_hdr)"; first done. wp_match.
+    iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
     wp_smart_apply (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
     wp_smart_apply (chain_set_data_spec with "Hback") as "Hback".
     iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
@@ -128,7 +128,7 @@ Section zoo_G.
       ∃ front_ : location,
       ⌜front = #front_⌝ ∗
       front_ ↦ₕ Header §Node 2
-    )%I as "(%front_ & -> & #Hfront_hdr)".
+    )%I as "(%front_ & -> & #Hfront_header)".
     { iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
       iApply (chain_model_tag with "Hfront").
       { rewrite length_app /=. lia. }
@@ -142,11 +142,11 @@ Section zoo_G.
     - wp_apply (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
       destruct vs as [| v2 vs].
       + iDestruct (chain_model_nil with "Hfront'") as %->.
-        iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_hdr)"; first done. wp_match.
+        iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
         wp_store.
         wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
         iSteps.
-      + iDestruct (chain_model_tag with "Hfront'") as "#(%front'_ & -> & Hfront'_hdr)"; first done. wp_match.
+      + iDestruct (chain_model_tag with "Hfront'") as "#(%front'_ & -> & Hfront'_header)"; first done. wp_match.
         wp_store.
         wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
         iSteps.

@@ -34,7 +34,7 @@ Section zoo_G.
       %l{} &
       %t{}' &
       {%Heq{eq}=->} &
-      Hl{}_hdr &
+      Hl{}_header &
       Hl{}_next &
       Hl{}_data &
       Hmodel{}'
@@ -90,7 +90,7 @@ Section zoo_G.
     destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2]; [naive_solver lia.. |].
     iIntros "(:model =1) (:model =2) HΦ".
     wp_pures.
-    iDestruct ("HΦ" with "[$Hl1_hdr $Hl1_next $Hl1_data $Hmodel1' //] [$Hl2_hdr $Hl2_next $Hl2_data $Hmodel2' //]") as "HΦ".
+    iDestruct ("HΦ" with "[$Hl1_header $Hl1_next $Hl1_data $Hmodel1' //] [$Hl2_header $Hl2_next $Hl2_data $Hmodel2' //]") as "HΦ".
     case_bool_decide.
     - iDestruct "HΦ" as "(_ & HΦ)". iSteps.
     - iDestruct "HΦ" as "(HΦ & _)". iSteps.

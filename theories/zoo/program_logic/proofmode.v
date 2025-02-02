@@ -140,10 +140,10 @@ Section zoo_G.
     rewrite envs_entails_unseal => Htag Hn HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_alloc with "[//]"); [done.. |]. iIntros "!> %l (Hhdr & Hmeta & Hl)".
+    iApply (wp_alloc with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= right_id.
-    iApply ("HΔ'" with "[$Hhdr $Hl $Hmeta]").
+    iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
   Lemma tac_wp_block Δ Δ' id1 id2 id3 K tag es vs E Φ :
@@ -169,10 +169,10 @@ Section zoo_G.
     rewrite envs_entails_unseal => Hlen Hes HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_block with "[//]"); [done.. |]. iIntros "!> %l (Hhdr & Hmeta & Hl)".
+    iApply (wp_block with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= right_id.
-    iApply ("HΔ'" with "[$Hhdr $Hl $Hmeta]").
+    iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
   Lemma tac_wp_ref Δ Δ' id1 id2 id3 K v E Φ :
@@ -196,10 +196,10 @@ Section zoo_G.
     rewrite envs_entails_unseal => HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_block with "[//]"); [simpl; lia | done |]. iIntros "!> %l (Hhdr & Hmeta & Hl)".
+    iApply (wp_block with "[//]"); [simpl; lia | done |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= !right_id.
-    iApply ("HΔ'" with "[$Hhdr $Hl $Hmeta]").
+    iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
   Lemma tac_wp_reveal Δ Δ' K tag vs E Φ :
@@ -241,10 +241,10 @@ Section zoo_G.
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
     rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
-    iIntros "(Hhdr & H)".
-    iAssert (▷ l ↦ₕ hdr)%I with "[Hhdr]" as "#Hhdr_".
+    iIntros "(Hheader & H)".
+    iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wp_get_tag with "Hhdr_").
+    iApply (wp_get_tag with "Hheader_").
     iSteps.
   Qed.
 
@@ -256,10 +256,10 @@ Section zoo_G.
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
     rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
-    iIntros "(Hhdr & H)".
-    iAssert (▷ l ↦ₕ hdr)%I with "[Hhdr]" as "#Hhdr_".
+    iIntros "(Hheader & H)".
+    iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wp_get_size with "Hhdr_").
+    iApply (wp_get_size with "Hheader_").
     iSteps.
   Qed.
 
@@ -579,15 +579,15 @@ Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropatte
     ]
   ).
 
-Tactic Notation "wp_alloc" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :=
-  let Hhdr' := Hhdr in
+Tactic Notation "wp_alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
+  let Hheader' := Hheader in
   let Hmeta' := iFresh in
   let Hl' := iFresh in
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_alloc _ _ Hhdr' Hmeta' Hl' K)
+        eapply (tac_wp_alloc _ _ Hheader' Hmeta' Hl' K)
       )
     | fail 1 "wp_alloc: cannot find 'Alloc' in" e
     ];
@@ -600,8 +600,8 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :
       ];
       pm_reduce;
       first
-      [ iDestructHyp Hhdr' as Hhdr
-      | fail 1 "wp_alloc:" Hhdr "is not fresh"
+      [ iDestructHyp Hheader' as Hheader
+      | fail 1 "wp_alloc:" Hheader "is not fresh"
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
@@ -621,15 +621,15 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(Hl) :=
 Tactic Notation "wp_alloc" ident(l) :=
   wp_alloc l as "?".
 
-Tactic Notation "wp_block" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :=
-  let Hhdr' := iFresh in
+Tactic Notation "wp_block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
+  let Hheader' := iFresh in
   let Hmeta' := iFresh in
   let Hl' := iFresh in
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_block _ _ Hhdr' Hmeta' Hl' K);
+        eapply (tac_wp_block _ _ Hheader' Hmeta' Hl' K);
         [ simpl; lia
         | fast_done
         | idtac..
@@ -644,8 +644,8 @@ Tactic Notation "wp_block" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :
       ];
       pm_reduce;
       first
-      [ iDestructHyp Hhdr' as Hhdr
-      | fail 1 "wp_block:" Hhdr "is not fresh"
+      [ iDestructHyp Hheader' as Hheader
+      | fail 1 "wp_block:" Hheader "is not fresh"
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
@@ -665,15 +665,15 @@ Tactic Notation "wp_block" ident(l) "as" constr(Hl) :=
 Tactic Notation "wp_block" ident(l) :=
   wp_block l as "?".
 
-Tactic Notation "wp_ref" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :=
-  let Hhdr' := Hhdr in
+Tactic Notation "wp_ref" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
+  let Hheader' := Hheader in
   let Hmeta' := iFresh in
   let Hl' := iFresh in
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_ref _ _ Hhdr' Hmeta' Hl' K)
+        eapply (tac_wp_ref _ _ Hheader' Hmeta' Hl' K)
       )
     | fail 1 "wp_ref: cannot find 'ref' in" e
     ];
@@ -684,8 +684,8 @@ Tactic Notation "wp_ref" ident(l) "as" constr(Hhdr) constr(Hmeta) constr(Hl) :=
       ];
       pm_reduce;
       first
-      [ iDestructHyp Hhdr' as Hhdr
-      | fail 1 "wp_ref:" Hhdr "is not fresh"
+      [ iDestructHyp Hheader' as Hheader
+      | fail 1 "wp_ref:" Hheader "is not fresh"
       ];
       first
       [ iDestructHyp Hmeta' as Hmeta
