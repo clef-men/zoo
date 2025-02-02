@@ -222,7 +222,7 @@ Section zoo_G.
     set nodes1 := take i nodes.
     set nodes2 := drop (S i) nodes.
     set nodes' := nodes1 ++ nodes2.
-    wp_bind (Store _ _ _).
+    wp_bind (_ <-{xdeque_next} _)%E.
     wp_apply (wp_wand _ _ (λ res,
       ⌜res = ()%V⌝ ∗
       l.[xdeque_next] ↦ from_option #@{location} #l (head nodes') ∗

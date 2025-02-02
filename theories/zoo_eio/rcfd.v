@@ -377,7 +377,7 @@ Section rcfd_G.
 
     wp_pures. destruct (decide (ops1 = 1)) as [-> | Hops]; wp_pures; last iSteps.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
     wp_load.
     destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
@@ -401,7 +401,7 @@ Section rcfd_G.
 
       wp_pures.
 
-      wp_bind (Load _ _).
+      wp_bind (_.{ops})%E.
       iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & Hops & Hfd & Hlstate_auth & Hlstate3)".
       wp_load.
       iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
@@ -501,7 +501,7 @@ Section rcfd_G.
     }
     iModIntro. wp_pures. clear.
 
-    wp_bind ((#l).{state})%E.
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
     wp_load.
     destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
@@ -545,7 +545,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
     wp_load.
     destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
@@ -598,7 +598,7 @@ Section rcfd_G.
 
         wp_pures.
 
-        wp_bind (Load _ _).
+        wp_bind (_.{ops})%E.
         iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & Hops & Hfd & Hlstate_auth & Hlstate3)".
         wp_load.
         destruct (decide (ops3 = 0)) as [-> | Hops3]; last iSteps.
@@ -693,7 +693,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
     wp_load.
     destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
@@ -852,7 +852,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind ((#l).{state})%E.
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
     wp_load.
     destruct closing; last iClear "Hclosing".
@@ -939,7 +939,7 @@ Section rcfd_G.
 
     wp_rec. wp_pures.
 
-    wp_bind ((#l).{state})%E.
+    wp_bind (_.{state})%E.
     iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
     wp_load.
     destruct closing; last iClear "Hclosing".

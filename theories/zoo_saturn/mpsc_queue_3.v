@@ -386,7 +386,7 @@ Section mpsc_queue_3_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{back})%E.
     iInv "Hinv" as "(%front & %v_back & Hfront₂ & Hback & [(>Hopen₂ & %back1 & >-> & Hmodel₂) | (Hclosed & >->)])".
 
     - wp_load.
@@ -435,7 +435,7 @@ Section mpsc_queue_3_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{back})%E.
     iInv "Hinv" as "(%front & %v_back & Hfront₂ & Hback & [(>Hopen₂ & _) | (_ & >->)])".
     { iDestruct (lstate_open₂_closed with "Hopen₂ Hclosed") as %[]. }
     iSteps.
@@ -637,7 +637,7 @@ Section mpsc_queue_3_G.
 
     destruct front as [| v front]; wp_pures.
 
-    - wp_bind (Load _ _).
+    - wp_bind (_.{back})%E.
       iInv "Hinv" as "(%_front & %v_back & Hfront₂ & Hback & [(Hopen₂ & %back & >-> & Hmodel₂) | (>Hclosed & _)])"; last first.
       { iDestruct (lstate_open₁_closed with "Hopen₁ Hclosed") as %[]. }
       wp_load.

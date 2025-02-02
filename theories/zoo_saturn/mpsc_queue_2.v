@@ -225,7 +225,7 @@ Section mpsc_queue_2_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (_.{back})%E.
     iInv "Hinv" as "(%front & %back & Hfront₂ & Hback & Hmodel₂)".
     wp_load.
     iSplitR "HΦ"; first iSteps.

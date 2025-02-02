@@ -952,7 +952,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Store _ _ _)%E.
+    wp_bind (_ <-{killed} _)%E.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     wp_store.
     iSplitR "HΦ"; first iSteps.

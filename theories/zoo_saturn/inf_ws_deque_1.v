@@ -958,7 +958,7 @@ Section inf_ws_deque_1_G.
     wp_rec. wp_pures.
 
     (* → [!#l.[back]] *)
-    wp_bind (Load _ _)%E.
+    wp_bind (_.{back})%E.
     (* open invariant *)
     iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1087,7 +1087,7 @@ Section inf_ws_deque_1_G.
     wp_pures.
 
     (* → [!#l.[front]] *)
-    wp_bind (Load _ _)%E.
+    wp_bind (_.{front})%E.
     (* open invariant *)
     iInv "Hinv" as "(%front1 & %back1 & %hist & %model & %priv & %past1 & %prophs1 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast1 & Hstate)".
     (* do load front *)
@@ -1102,7 +1102,7 @@ Section inf_ws_deque_1_G.
     wp_pures.
 
     (* → [!#l.[back]] *)
-    wp_bind (Load _ _)%E.
+    wp_bind (_.{back})%E.
     (* open invariant *)
     iInv "Hinv" as "(%front2 & %back2 & %hist & %model & %priv & %past2 & %prophs2 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast2 & Hstate)".
     (* do load back *)
@@ -1417,7 +1417,7 @@ Section inf_ws_deque_1_G.
     wp_pures.
 
     (* → [!#l.[back]] *)
-    wp_bind (Load _ _)%E.
+    wp_bind (_.{back})%E.
     (* open invariant *)
     iInv "Hinv" as "(%front1 & %_back & %hist & %model & %_priv & %past1 & %prophs1 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast1 & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1431,7 +1431,7 @@ Section inf_ws_deque_1_G.
     wp_pures.
 
     (* → [#l.[back] <- #(back - 1)] *)
-    wp_bind (Store _ _ _)%E.
+    wp_bind (_ <-{back} _)%E.
     (* open invariant *)
     iInv "Hinv" as "(%front2 & %_back & %hist & %model & %_priv & %past2 & %prophs2 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast2 & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1470,7 +1470,7 @@ Section inf_ws_deque_1_G.
       wp_pures.
 
       (* → [!#l.[front]] *)
-      wp_bind (Load _ _)%E.
+      wp_bind (_.{front})%E.
       (* open invariant *)
       iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1494,7 +1494,7 @@ Section inf_ws_deque_1_G.
       wp_pures.
 
       (* → [#l.[back] <- #front2] *)
-      wp_bind (Store _ _ _)%E.
+      wp_bind (_ <-{back} _)%E.
       (* open invariant *)
       iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast4 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1546,7 +1546,7 @@ Section inf_ws_deque_1_G.
       wp_pures.
 
       (* → [!#l.[front]] *)
-      wp_bind (Load _ _)%E.
+      wp_bind (_.{front})%E.
       (* open invariant *)
       iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1650,7 +1650,7 @@ Section inf_ws_deque_1_G.
         wp_pures.
 
         (* → [#l.[back] <- #(front3 + 1)] *)
-        wp_bind (Store _ _ _)%E.
+        wp_bind (_ <-{back} _)%E.
         (* open invariant *)
         iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1716,7 +1716,7 @@ Section inf_ws_deque_1_G.
         wp_pures.
 
         (* → [!#l.[front]] *)
-        wp_bind (Load _ _)%E.
+        wp_bind (_.{front})%E.
         (* open invariant *)
         iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1783,7 +1783,7 @@ Section inf_ws_deque_1_G.
         wp_pures.
 
         (* → [!#l.[front]] *)
-        wp_bind (Load _ _)%E.
+        wp_bind (_.{front})%E.
         (* open invariant *)
         iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1848,7 +1848,7 @@ Section inf_ws_deque_1_G.
         wp_pures.
 
         (* → [#l.[back] <- #(front2 + 1)] *)
-        wp_bind (Store _ _ _)%E.
+        wp_bind (_ <-{back} _)%E.
         (* open invariant *)
         iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1907,7 +1907,7 @@ Section inf_ws_deque_1_G.
           wp_pures.
 
           (* → [!#l.[front]] *)
-          wp_bind (Load _ _)%E.
+          wp_bind (_.{front})%E.
           (* open invariant *)
           iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
           iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -1969,7 +1969,7 @@ Section inf_ws_deque_1_G.
           wp_pures.
 
           (* → [!#l.[front]] *)
-          wp_bind (Load _ _)%E.
+          wp_bind (_.{front})%E.
           (* open invariant *)
           iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
           iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -2019,7 +2019,7 @@ Section inf_ws_deque_1_G.
               wp_pures.
 
               (* → [#l.[back] <- #(front2 + 1)] *)
-              wp_bind (Store _ _ _)%E.
+              wp_bind (_ <-{back} _)%E.
               (* open invariant *)
               iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
               iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
@@ -2063,7 +2063,7 @@ Section inf_ws_deque_1_G.
               wp_pures.
 
               (* → [#l.[back] <- #(front2 + 1)] *)
-              wp_bind (Store _ _ _)%E.
+              wp_bind (_ <-{back} _)%E.
               (* open invariant *)
               iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast4 & Hstate)".
               iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).

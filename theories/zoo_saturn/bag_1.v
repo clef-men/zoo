@@ -288,7 +288,7 @@ Section bag_1_G.
 
     wp_rec. wp_pures.
 
-    wp_bind (Load _ _).
+    wp_bind (!_)%E.
     iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
