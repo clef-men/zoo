@@ -876,16 +876,16 @@ Section kcas_G.
   Qed.
   #[local] Lemma lock_allocs n :
     ⊢ |==>
-      ∃ η_locks,
-      ⌜length η_locks = n⌝ ∗
-      [∗ list] η_lock ∈ η_locks,
+      ∃ ηs_lock,
+      ⌜length ηs_lock = n⌝ ∗
+      [∗ list] η_lock ∈ ηs_lock,
         lock' η_lock.
   Proof.
     iInduction n as [| n] "IH".
     - iExists []. iSteps.
     - iMod lock_alloc as "(%η_lock & Hlock)".
-      iMod "IH" as "(%η_locks & %Hlength & Hlocks)".
-      iExists (η_lock :: η_locks). iSteps.
+      iMod "IH" as "(%ηs_lock & %Hlength & Hlocks)".
+      iExists (η_lock :: ηs_lock). iSteps.
   Qed.
   #[local] Lemma lock_exclusive η i :
     lock η i -∗
@@ -1195,7 +1195,7 @@ Section kcas_G.
             }
             iDestruct (big_sepL2_sep_sepL_l with "Hmodels") as "(Hmodels & Hvs)".
             iDestruct (big_sepL_sep with "Hmodels") as "(Hmodels₁ & Hmodels₂)".
-            iDestruct (big_sepL2_Forall with "Hvs") as %Hvs.
+            iDestruct (big_sepL2_Forall2 with "Hvs") as %Hvs.
 
             iMod ("HP" with "[Hmodels₁]") as "HP"; first iSteps.
             iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hhistory_elems)".
@@ -1789,76 +1789,101 @@ Section kcas_G.
     iApply (lc_fupd_elim_later with "H£2 HΦ").
   Qed.
 
-  Lemma kcas_cas_spec {ι v_cass} cass :
-    NoDup cass.*1 →
-    lst_model' v_cass ((λ cas, (#cas.1, cas.2.1, cas.2.2)%V) <$> cass) →
+  Lemma kcas_cas_spec {ι v_spec} locs befores afters :
+    length locs = length befores →
+    length locs = length afters →
+    NoDup locs →
+    lst_model' v_spec $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
     <<<
-      [∗ list] cas ∈ cass, kcas_loc_inv cas.1 ι
+      [∗ list] loc ∈ locs, kcas_loc_inv loc ι
     | ∀∀ vs,
-      [∗ list] cas; v ∈ cass; vs, kcas_loc_model cas.1 v
+      [∗ list] loc; v ∈ locs; vs, kcas_loc_model loc v
     >>>
-      kcas_cas v_cass @ ↑ι
+      kcas_cas v_spec @ ↑ι
     <<<
       ∃∃ b,
       if b then
-        ⌜Forall2 (λ cas v, cas.2.1 = v) cass vs⌝ ∗
-        [∗ list] cas ∈ cass, kcas_loc_model cas.1 cas.2.2
+        ⌜vs = befores⌝ ∗
+        [∗ list] loc; after ∈ locs; afters, kcas_loc_model loc after
       else
-        ∃ i cas v,
-        ⌜cass !! i = Some cas⌝ ∗
+        ∃ i loc before v,
+        ⌜locs !! i = Some loc⌝ ∗
+        ⌜befores !! i = Some before⌝ ∗
         ⌜vs !! i = Some v⌝ ∗
-        ⌜cas.2.1 ≠ v⌝ ∗
-        [∗ list] cas; v ∈ cass; vs, kcas_loc_model cas.1 v
+        ⌜v ≠ before⌝ ∗
+        [∗ list] loc; v ∈ locs; vs, kcas_loc_model loc v
     | RET #b;
       True
     >>>.
   Proof.
-    iIntros (Hnodup ->) "!> %Φ _Hlocs_inv HΦ".
-    iDestruct (big_sepL_exists with "_Hlocs_inv") as "(%γs & %Hγs & #Hlocs_inv)". iClear "_Hlocs_inv".
+    iIntros (? ? Hnodup ->) "!> %Φ Hlocs_inv_ HΦ".
+    iDestruct (big_sepL_exists with "Hlocs_inv_") as "(%γs & %Hγs & #Hlocs_inv)". iClear "Hlocs_inv_".
 
     wp_rec credit:"H£".
     wp_smart_apply (typed_prophet_wp_proph prophet with "[//]") as (pid prophs0) "Hproph".
     wp_block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
 
-    pose (Ψ i (_ : list val) vs_cass := (
-      ∃ descrs,
-      ⌜ vs_cass =
-        (λ descr,
-          (#descr.(descriptor_loc), state_to_val casn descr)%V
-        ) <$> descrs
-      ⌝ ∗
-      ⌜Forall3 (λ cas γ descr,
-        descr.(descriptor_loc) = cas.1 ∧
-        descr.(descriptor_before) = cas.2.1 ∧
-        descr.(descriptor_after) = cas.2.2 ∧
-        descr.(descriptor_meta) = γ
-      ) (take i cass) (take i γs) descrs⌝
+    pose (Ψ i (_ : val) v_cas := (
+      ∃ descr,
+      ⌜v_cas = (#descr.(descriptor_loc), state_to_val casn descr)%V⌝ ∗
+        ∃ γ,
+        ⌜γs !! i = Some γ⌝ ∗
+        ⌜ ∃ loc before after,
+          locs !! i = Some loc ∧
+          befores !! i = Some before ∧
+          afters !! i = Some after ∧
+          descr.(descriptor_loc) = loc ∧
+          descr.(descriptor_meta) = γ ∧
+          descr.(descriptor_before) = before ∧
+          descr.(descriptor_after) = after
+        ⌝
     )%I : iProp Σ).
-    wp_smart_apply (lst_map_spec Ψ with "[]") as (v_cass vs_cass) "(%Hlength & -> & (%descrs & -> & %Hdescrs))".
-    { iSplit. { iExists []. iSteps. iPureIntro. apply Forall3_nil. }
-      iSplit; first iSteps.
-      iIntros "!> %i %v_cass %vs_cass".
-      admit.
+    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (v_cass vs_cass) "(%Hvs_cass & -> & Hdescrs)".
+    { iSplit; first iSteps.
+      iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
+      wp_reveal bid.
+      wp_pures.
+      destruct (lookup_lt_is_Some_2 γs i) as (γ & Hγs_lookup).
+      { rewrite Hγs. eapply lookup_lt_Some. done. }
+      pose descr := {|
+        descriptor_loc := loc ;
+        descriptor_meta := γ ;
+        descriptor_before := before ;
+        descriptor_after := after ;
+        descriptor_state := bid ;
+      |}.
+      iExists descr. iSteps.
     }
-    rewrite !length_fmap in Hdescrs Hlength.
-    rewrite -{2}Hγs !firstn_all in Hdescrs.
+    iDestruct (big_sepL2_const_sepL_r with "Hdescrs") as "(_ & Hdescrs)".
+    iDestruct (big_sepL_exists with "Hdescrs") as "(%descrs & _ & Hdescrs)".
+    iDestruct (big_sepL2_sep_sepL_r with "Hdescrs") as "(Hvs_cass & Hdescrs)".
+    iDestruct (big_sepL2_Forall2 with "Hvs_cass") as %->%list_fmap_alt_Forall2.
+    rewrite length_zip3_with // length_fmap in Hvs_cass.
+    iDestruct (big_sepL_lift with "Hdescrs") as "Hdescrs"; first lia.
 
-    (* pose (Ψ i (_ : val) v_cass := ( *)
-    (*   ∃ cas γ descr, *)
-    (*   ⌜cass !! i = Some cas⌝ ∗ *)
-    (*   ⌜γs !! i = Some γ⌝ ∗ *)
-    (*   ⌜v_cass = (#descr.(descriptor_loc), state_to_val casn descr)%V⌝ ∗ *)
-    (*   ⌜descr.(descriptor_loc) = cas.1⌝ ∗ *)
-    (*   ⌜descr.(descriptor_before) = cas.2.1⌝ ∗ *)
-    (*   ⌜descr.(descriptor_after) = cas.2.2⌝ ∗ *)
-    (*   ⌜descr.(descriptor_meta) = γ⌝ *)
+    (* pose (Ψ i (_ : list val) vs_cass := ( *)
+    (*   ∃ descrs, *)
+    (*   ⌜ vs_cass = *)
+    (*     (λ descr, *)
+    (*       (#descr.(descriptor_loc), state_to_val casn descr)%V *)
+    (*     ) <$> descrs *)
+    (*   ⌝ ∗ *)
+    (*   ⌜Forall3 (λ cas γ descr, *)
+    (*     descr.(descriptor_loc) = cas.1 ∧ *)
+    (*     descr.(descriptor_before) = cas.2.1 ∧ *)
+    (*     descr.(descriptor_after) = cas.2.2 ∧ *)
+    (*     descr.(descriptor_meta) = γ *)
+    (*   ) (take i cass) (take i γs) descrs⌝ *)
     (* )%I : iProp Σ). *)
-    (* wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (v_cass vs_cass) "(% & -> & Hdescrs)". *)
-    (* { iSplit; first iSteps. *)
-    (*   iIntros "!> %i %v_cass %Hlookup". *)
+    (* wp_smart_apply (lst_map_spec Ψ with "[]") as (v_cass vs_cass) "(%Hlength & -> & (%descrs & -> & %Hdescrs))". *)
+    (* { iSplit. { iExists []. iSteps. iPureIntro. apply Forall3_nil. } *)
+    (*   iSplit; first iSteps. *)
+    (*   iIntros "!> %i %v_cass %vs_cass". *)
     (*   admit. *)
     (* } *)
+    (* rewrite !length_fmap in Hdescrs Hlength. *)
+    (* rewrite -{2}Hγs !firstn_all in Hdescrs. *)
 
     wp_reveal bid.
     wp_store.
@@ -1867,7 +1892,7 @@ Section kcas_G.
 
     iMod (saved_prop_alloc P) as "(%η_post & #Hpost)".
     iMod (lstatus_alloc (Running 0)) as "(%η_lstatus & Hlstatus_auth)".
-    iMod (lock_allocs (length cass)) as "(%η_locks & %Hη_locks & Hlocks)".
+    iMod (lock_allocs (length descrs)) as "(%ηs_lock & %Hηs_lock & Hlocks)".
     iMod helpers_alloc as "(%η_helpers & Hhelpers_auth)".
     iMod winning_alloc as "(%η_winning & Hwinning)".
     iMod owner_alloc as "(%η_owner & Howner)".
@@ -1879,7 +1904,7 @@ Section kcas_G.
       metadata_undetermined := bid ;
       metadata_post := η_post ;
       metadata_lstatus := η_lstatus ;
-      metadata_locks := η_locks ;
+      metadata_locks := ηs_lock ;
       metadata_helpers := η_helpers ;
       metadata_winning := η_winning ;
       metadata_owner := η_owner ;
@@ -1891,11 +1916,11 @@ Section kcas_G.
     iMod (inv_alloc _ _ (casn_inv_inner casn η ι P) with "[Hproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning HΦ]") as "#Hcasn_inv".
     { iExists _, (Running 0), ∅, _. iSteps.
       iSplitL "Hlocks".
-      { iApply (big_sepL_seq_index η_locks); first lia.
+      { iApply (big_sepL_seq_index ηs_lock); first lia.
         iApply (big_sepL_impl with "Hlocks").
         iSteps.
       }
-      iSplitR. { rewrite big_sepM_empty. iSteps. }
+      iSplitR. { rewrite big_sepM_empty //. }
       iLeft. iFrame.
       rewrite /au. iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodels".
@@ -1906,12 +1931,13 @@ Section kcas_G.
     { iSteps.
       - iPureIntro.
         apply NoDup_alt. intros i1 i2 loc (descr1 & Hdescrs_lookup_1 & ->)%list_lookup_fmap_Some (descr2 & Hdescrs_lookup_2 & Heq)%list_lookup_fmap_Some.
-        odestruct (Forall3_lookup_r _ _ _ _ i1) as (cas1 & γ1 & Hcass_lookup_1 & Hγs_lookup_1 & H1); [done.. |].
-        destruct H1 as (-> & _) in Heq.
-        odestruct (Forall3_lookup_r _ _ _ _ i2) as (cas2 & γ2 & Hcass_lookup_2 & Hγs_lookup_2 & H2); [done.. |].
-        destruct H2 as (-> & _) in Heq.
-        eapply NoDup_lookup; first done.
-        all: rewrite list_lookup_fmap_Some; naive_solver.
+        admit.
+        (* odestruct (Forall3_lookup_r _ _ _ _ i1) as (cas1 & γ1 & Hcass_lookup_1 & Hγs_lookup_1 & H1); [done.. |]. *)
+        (* destruct H1 as (-> & _) in Heq. *)
+        (* odestruct (Forall3_lookup_r _ _ _ _ i2) as (cas2 & γ2 & Hcass_lookup_2 & Hγs_lookup_2 & H2); [done.. |]. *)
+        (* destruct H2 as (-> & _) in Heq. *)
+        (* eapply NoDup_lookup; first done. *)
+        (* all: rewrite list_lookup_fmap_Some; naive_solver. *)
       - admit.
     }
 

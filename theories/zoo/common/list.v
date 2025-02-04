@@ -166,6 +166,44 @@ Section zip.
   Qed.
 End zip.
 
+Section zip3_with.
+  Context {A1 A2 A3 B : Type}.
+
+  Implicit Types f : A1 → A2 → A3 → B.
+
+  Fixpoint zip3_with f l1 l2 l3 :=
+    match l1, l2, l3 with
+    | x1 :: l1, x2 :: l2, x3 :: l3 =>
+        f x1 x2 x3 :: zip3_with f l1 l2 l3
+    | _, _, _ =>
+        []
+    end.
+  #[global] Arguments zip3_with _ !_ !_ !_ / : assert.
+
+  Lemma length_zip3_with f l1 l2 l3 :
+    length l1 = length l2 →
+    length l1 = length l3 →
+    length (zip3_with f l1 l2 l3) = length l1.
+  Proof.
+    move: l2 l3. induction l1 => l2 l3; first done.
+    destruct l2, l3; try done.
+    naive_solver.
+  Qed.
+
+  Lemma lookup_zip3_with_Some f l1 l2 l3 i x :
+    zip3_with f l1 l2 l3 !! i = Some x ↔
+      ∃ x1 x2 x3,
+      l1 !! i = Some x1 ∧
+      l2 !! i = Some x2 ∧
+      l3 !! i = Some x3 ∧
+      x = f x1 x2 x3.
+  Proof.
+    move: l1 l2 l3. induction i => l1 l2 l3.
+    all: destruct l1, l2, l3; try done.
+    all: naive_solver.
+  Qed.
+End zip3_with.
+
 Section foldri.
   Implicit Types i : nat.
 
@@ -366,6 +404,13 @@ Section fmap.
   Proof.
     intros (l1 & ? & -> & (x & l2 & -> & -> & ->)%symmetry%fmap_cons_inv & ->)%fmap_app_inv.
     naive_solver.
+  Qed.
+
+  Lemma list_fmap_alt_Forall2 f l 𝑙 :
+    Forall2 (λ (b : B) a, b = f a) 𝑙 l →
+    𝑙 = f <$> l.
+  Proof.
+    rewrite list_eq_Forall2 Forall2_fmap_r //.
   Qed.
 End fmap.
 

@@ -167,7 +167,7 @@ Section bi.
     Qed.
 
     Lemma big_sepL_exists `{!BiAffine PROP} {B} l (Φ : nat → A → B → PROP) :
-      ([∗ list] k ↦ x ∈ l, ∃ (y : B), Φ k x y) ⊢
+      ([∗ list] k ↦ x ∈ l, ∃ y, Φ k x y) ⊢
         ∃ ys,
         ⌜length ys = length l⌝ ∗
         [∗ list] k ↦ x; y ∈ l; ys, Φ k x y.
@@ -677,12 +677,27 @@ Section bi.
       intros. rewrite big_sepL2_replicate_r //.
     Qed.
 
-    Lemma big_sepL2_Forall `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 ϕ :
+    Lemma big_sepL2_Forall2 `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 ϕ :
       ([∗ list] x1; x2 ∈ l1; l2, ⌜ϕ x1 x2⌝) ⊢@{PROP}
       ⌜Forall2 ϕ l1 l2⌝.
     Proof.
       rewrite Forall2_same_length_lookup big_sepL2_forall.
       iSteps.
+    Qed.
+
+    Lemma big_sepL_lift `{!BiAffine PROP} l1 l2 Φ :
+      length l1 = length l2 →
+      ( [∗ list] k ↦ x1 ∈ l1,
+        ∃ x2,
+        ⌜l2 !! k = Some x2⌝ ∗
+        Φ k x1 x2
+      ) ⊢
+      [∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2.
+    Proof.
+      iIntros "% H".
+      iDestruct (big_sepL2_const_sepL_l with "[$H //]") as "H".
+      iApply (big_sepL2_impl with "H"). iModIntro.
+      iSteps. simplify. iSteps.
     Qed.
   End big_sepL2.
 
