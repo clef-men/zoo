@@ -2,7 +2,7 @@
    https://github.com/ocaml-multicore/kcas/blob/44c732c83585f662abda0ef0984fdd2fe8990f4a/doc/gkmz-with-read-only-cmp-ops.md
 *)
 
-[@@@zoo.prefix "kcas"]
+[@@@zoo.exclude]
 
 type 'a loc =
   'a state Atomic.t
@@ -19,7 +19,8 @@ and 'a cas =
   }
 
 and 'a casn =
-  { mutable status: 'a status [@atomic];
+  { cmps: 'a cas list;
+    mutable status: 'a status [@atomic];
     proph: (Zoo.id * bool) Zoo.proph;
   }
 
@@ -46,7 +47,13 @@ let rec determine_as casn cass =
   let gid = Zoo.id in
   match cass with
   | [] ->
-      finish gid casn After
+      let status =
+        if Lst.forall (fun cas -> Atomic.get cas.loc == cas.state) casn.cmps then
+          After
+        else
+          Before
+      in
+      finish gid casn status
   | cas :: cass' ->
       let { loc; state } = cas in
       let proph = Zoo.proph in
@@ -83,15 +90,25 @@ and determine casn =
 
 let make v =
   let _gid = Zoo.id in
-  let casn = { status= After; proph= Zoo.proph } in
+  let casn = { cmps= []; status= After; proph= Zoo.proph } in
   let state = { casn; before= v; after= v } in
   Atomic.make state
 
 let get loc =
   get_as (Atomic.get loc)
 
-let cas cass =
-  let casn = { status= After; proph= Zoo.proph } in
+let cas cmps cass =
+  let cmps =
+    Lst.map (fun cmp ->
+      let loc, expected = cmp in
+      let state = Atomic.get loc in
+      if get_as state == expected then
+        { loc; state }
+      else
+        raise Exit
+    ) cmps
+  in
+  let casn = { cmps; status= After; proph= Zoo.proph } in
   let cass =
     Lst.map (fun cas ->
       let loc, before, after = cas in
@@ -101,3 +118,5 @@ let cas cass =
   in
   casn.status <- Undetermined cass ;
   determine_as casn cass
+let cas cmps cass =
+  try cas cmps cass with Exit -> false

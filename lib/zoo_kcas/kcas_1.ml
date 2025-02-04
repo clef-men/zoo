@@ -49,11 +49,13 @@ let rec determine_as casn cass =
       finish gid casn After
   | cas :: cass' ->
       let { loc; state } = cas in
+      (* let proph = Zoo.proph in *)
       let state' = Atomic.get loc in
       if state == state' then
         determine_as casn cass'
       else
         if state.before != get_as state' then
+        (* if Zoo.resolve (state.before != get_as state') proph () then *)
           finish gid casn Before
         else
           match casn.status with
