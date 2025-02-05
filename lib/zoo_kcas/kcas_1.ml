@@ -2,8 +2,6 @@
    https://github.com/ocaml-multicore/kcas/blob/44c732c83585f662abda0ef0984fdd2fe8990f4a/doc/gkmz-with-read-only-cmp-ops.md
 *)
 
-[@@@zoo.prefix "kcas"]
-
 type 'a loc =
   'a state Atomic.t
 

@@ -2,8 +2,6 @@
    https://github.com/ocaml-multicore/kcas/blob/44c732c83585f662abda0ef0984fdd2fe8990f4a/doc/gkmz-with-read-only-cmp-ops.md
 *)
 
-[@@@zoo.exclude]
-
 type 'a loc =
   'a state Atomic.t
 
@@ -97,17 +95,7 @@ let make v =
 let get loc =
   get_as (Atomic.get loc)
 
-let cas cmps cass =
-  let cmps =
-    Lst.map (fun cmp ->
-      let loc, expected = cmp in
-      let state = Atomic.get loc in
-      if get_as state == expected then
-        { loc; state }
-      else
-        raise Exit
-    ) cmps
-  in
+let cas_2 cmps cass =
   let casn = { cmps; status= After; proph= Zoo.proph } in
   let cass =
     Lst.map (fun cas ->
@@ -118,5 +106,16 @@ let cas cmps cass =
   in
   casn.status <- Undetermined cass ;
   determine_as casn cass
+let rec cas_1 acc cmps cass =
+  match cmps with
+  | [] ->
+      cas_2 (Lst.rev acc) cass
+  | cmp :: cmps ->
+      let loc, expected = cmp in
+      let state = Atomic.get loc in
+      if get_as state == expected then
+        cas_1 ({ loc; state } :: acc) cmps cass
+      else
+        false
 let cas cmps cass =
-  try cas cmps cass with Exit -> false
+  cas_1 [] cmps cass

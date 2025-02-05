@@ -276,18 +276,18 @@ Qed.
   else
     descr.(descriptor_before).
 
-Class KcasG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] kcas_G_model_G :: TwinsG Σ val_O ;
-  #[local] kcas_G_saved_prop :: SavedPropG Σ ;
-  #[local] kcas_G_lstatus_G :: AuthMonoG (A := leibnizO lstatus) Σ lstep ;
-  #[local] kcas_G_history_G :: MonoListG Σ location ;
-  #[local] kcas_G_lock_G :: ExclG Σ unitO ;
-  #[local] kcas_G_helpers_G :: ghost_mapG Σ gname nat ;
-  #[local] kcas_G_winning_G :: ExclG Σ unitO ;
-  #[local] kcas_G_owner_G :: ExclG Σ unitO ;
+Class Kcas1G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] kcas_1_G_model_G :: TwinsG Σ val_O ;
+  #[local] kcas_1_G_saved_prop :: SavedPropG Σ ;
+  #[local] kcas_1_G_lstatus_G :: AuthMonoG (A := leibnizO lstatus) Σ lstep ;
+  #[local] kcas_1_G_history_G :: MonoListG Σ location ;
+  #[local] kcas_1_G_lock_G :: ExclG Σ unitO ;
+  #[local] kcas_1_G_helpers_G :: ghost_mapG Σ gname nat ;
+  #[local] kcas_1_G_winning_G :: ExclG Σ unitO ;
+  #[local] kcas_1_G_owner_G :: ExclG Σ unitO ;
 }.
 
-Definition kcas_Σ := #[
+Definition kcas_1_Σ := #[
   twins_Σ val_O ;
   saved_prop_Σ ;
   auth_mono_Σ (A := leibnizO lstatus) lstep ;
@@ -297,15 +297,15 @@ Definition kcas_Σ := #[
   excl_Σ unitO ;
   excl_Σ unitO
 ].
-#[global] Instance subG_kcas_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG kcas_Σ Σ →
-  KcasG Σ.
+#[global] Instance subG_kcas_1_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG kcas_1_Σ Σ →
+  Kcas1G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section kcas_G.
-  Context `{kcas_G : KcasG Σ}.
+Section kcas_1_G.
+  Context `{kcas_1_G : Kcas1G Σ}.
 
   Implicit Types P Q : iProp Σ.
 
@@ -573,12 +573,12 @@ Section kcas_G.
     fixpoint_B (casn_inv_pre ι) (loc_inv_pre ι).
   #[local] Definition loc_inv_inner loc γ ι : iProp Σ :=
     loc_inv_inner'' true (casn_inv'' ι) loc γ.
-  Definition kcas_loc_inv loc ι : iProp Σ :=
+  Definition kcas_1_loc_inv loc ι : iProp Σ :=
     ∃ γ,
     meta loc nroot γ ∗
     loc_inv' ι (loc, γ).
 
-  Definition kcas_loc_model loc v : iProp Σ :=
+  Definition kcas_1_loc_model loc v : iProp Σ :=
     ∃ γ,
     meta loc nroot γ ∗
     model₁ γ v.
@@ -638,8 +638,8 @@ Section kcas_G.
       case_decide; iSteps.
   Qed.
 
-  #[global] Instance kcas_loc_model_persistent loc ι :
-    Timeless (kcas_loc_model loc ι).
+  #[global] Instance kcas_1_loc_model_persistent loc ι :
+    Timeless (kcas_1_loc_model loc ι).
   Proof.
     apply _.
   Qed.
@@ -649,10 +649,10 @@ Section kcas_G.
     rewrite loc_inv'_unfold.
     apply _.
   Qed.
-  #[global] Instance kcas_loc_inv_persistent loc γ ι :
-    Persistent (kcas_loc_inv loc ι).
+  #[global] Instance kcas_1_loc_inv_persistent loc γ ι :
+    Persistent (kcas_1_loc_inv loc ι).
   Proof.
-    rewrite /kcas_loc_inv.
+    rewrite /kcas_1_loc_inv.
     apply _.
   Qed.
   #[local] Instance casn_inv''_persistent casn η (i : option nat) ι :
@@ -1027,11 +1027,11 @@ Section kcas_G.
     do 3 iModIntro. iRewrite "Heq". iSteps.
   Qed.
 
-  #[local] Lemma kcas_status_to_bool_spec fstatus :
+  #[local] Lemma kcas_1_status_to_bool_spec fstatus :
     {{{
       True
     }}}
-      kcas_status_to_bool (final_status_to_val fstatus)
+      kcas_1_status_to_bool (final_status_to_val fstatus)
     {{{
       RET #(final_status_to_bool fstatus);
       True
@@ -1042,7 +1042,7 @@ Section kcas_G.
     destruct fstatus; iSteps.
   Qed.
 
-  #[local] Lemma kcas_finish_spec {gid casn η ι} fstatus :
+  #[local] Lemma kcas_1_finish_spec {gid casn η ι} fstatus :
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
@@ -1064,7 +1064,7 @@ Section kcas_G.
         )
       )
     }}}
-      kcas_finish #gid #casn (final_status_to_val fstatus)
+      kcas_1_finish #gid #casn (final_status_to_val fstatus)
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
@@ -1084,7 +1084,7 @@ Section kcas_G.
       iSplitR "H HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      wp_smart_apply (kcas_status_to_bool_spec with "[//]") as "_".
+      wp_smart_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
       wp_load. wp_pures.
 
       wp_bind (Resolve _ _ _).
@@ -1222,7 +1222,7 @@ Section kcas_G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      wp_apply (kcas_status_to_bool_spec with "[//]") as "_".
+      wp_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
       rewrite final_status_to_of_bool. iSteps.
 
     - iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
@@ -1233,24 +1233,24 @@ Section kcas_G.
       rewrite /metadata_final.
       destruct (metadata_success η); iSteps.
   Qed.
-  #[local] Lemma kcas_finish_spec_loser {gid casn η ι} fstatus :
+  #[local] Lemma kcas_1_finish_spec_loser {gid casn η ι} fstatus :
     gid ≠ metadata_winner η →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
       identifier_model gid
     }}}
-      kcas_finish #gid #casn (final_status_to_val fstatus)
+      kcas_1_finish #gid #casn (final_status_to_val fstatus)
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
     }}}.
   Proof.
     iIntros "%Hgid %Φ (#Hcasn_meta & #Hcasn_inv' & Hgid) HΦ".
-    wp_apply (kcas_finish_spec with "[- HΦ] HΦ").
+    wp_apply (kcas_1_finish_spec with "[- HΦ] HΦ").
     iSteps.
   Qed.
-  #[local] Lemma kcas_finish_spec_winner_before gid casn η ι P :
+  #[local] Lemma kcas_1_finish_spec_winner_before gid casn η ι P :
     gid = metadata_winner η →
     {{{
       meta casn nroot η ∗
@@ -1259,17 +1259,17 @@ Section kcas_G.
       saved_prop η.(metadata_post) P ∗
       P
     }}}
-      kcas_finish #gid #casn §Before
+      kcas_1_finish #gid #casn §Before
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
     }}}.
   Proof.
     iIntros "%Hgid %Φ (#Hcasn_meta & #Hcasn_inv' & Hwinning & #Hpost & HP) HΦ".
-    wp_apply (kcas_finish_spec FinalBefore with "[- HΦ] HΦ").
+    wp_apply (kcas_1_finish_spec FinalBefore with "[- HΦ] HΦ").
     iSteps.
   Qed.
-  #[local] Lemma kcas_finish_spec_after {gid casn η ι} i :
+  #[local] Lemma kcas_1_finish_spec_after {gid casn η ι} i :
     metadata_size η ≤ i →
     {{{
       meta casn nroot η ∗
@@ -1277,18 +1277,18 @@ Section kcas_G.
       identifier_model gid ∗
       lstatus_lb η (Running i)
     }}}
-      kcas_finish #gid #casn §After
+      kcas_1_finish #gid #casn §After
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
     }}}.
   Proof.
     iIntros "%Hi %Φ (#Hcasn_meta & #Hcasn_inv' & Hgid & #Hlstatus_lb) HΦ".
-    wp_apply (kcas_finish_spec FinalAfter with "[- HΦ] HΦ").
+    wp_apply (kcas_1_finish_spec FinalAfter with "[- HΦ] HΦ").
     destruct (decide (gid = metadata_winner η)); iSteps.
   Qed.
 
-  #[local] Lemma kcas_determine_as_get_as_determine_spec ι :
+  #[local] Lemma kcas_1_determine_as_get_as_determine_spec ι :
     ⊢ (
       ∀ casn η v_cass i,
       {{{
@@ -1297,7 +1297,7 @@ Section kcas_G.
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i)
       }}}
-        kcas_determine_as #casn v_cass
+        kcas_1_determine_as #casn v_cass
       {{{
         RET #(metadata_success η);
         lstatus_lb η Finished
@@ -1310,7 +1310,7 @@ Section kcas_G.
         meta casn nroot η ∗
         casn_inv' ι casn η
       }}}
-        kcas_get_as state
+        kcas_1_get_as state
       {{{
         RET descriptor_final descr η;
         lstatus_lb η Finished ∗
@@ -1322,7 +1322,7 @@ Section kcas_G.
         meta casn nroot η ∗
         casn_inv' ι casn η
       }}}
-        kcas_determine #casn
+        kcas_1_determine #casn
       {{{
         RET #(metadata_success η);
         lstatus_lb η Finished
@@ -1409,7 +1409,7 @@ Section kcas_G.
 
             wp_smart_apply wp_equal.
             rewrite bool_decide_eq_false_2 //.
-            wp_smart_apply (kcas_finish_spec_winner_before with "[$Hcasn_meta $Hcasn_inv' $Hwinning $Hpost $HP] HΦ"); first done.
+            wp_smart_apply (kcas_1_finish_spec_winner_before with "[$Hcasn_meta $Hcasn_inv' $Hwinning $Hpost $HP] HΦ"); first done.
 
           * iSplitR "Hgid HΦ". { iFrameSteps. }
             iModIntro.
@@ -1424,7 +1424,7 @@ Section kcas_G.
             destruct Hok as [(Hgid & Hfail) | Hok%dec_stable].
 
             -- rewrite bool_decide_eq_false_2 //.
-               wp_smart_apply (kcas_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
+               wp_smart_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
 
             -- rewrite bool_decide_eq_true_2 //.
                wp_pures.
@@ -1579,7 +1579,7 @@ Section kcas_G.
 
       - rewrite drop_lookup_None //.
         { rewrite list_lookup_fmap Hdescrs_lookup //. }
-        wp_smart_apply (kcas_finish_spec_after with "[$Hcasn_meta $Hcasn_inv' $Hgid $Hlstatus_lb] HΦ").
+        wp_smart_apply (kcas_1_finish_spec_after with "[$Hcasn_meta $Hcasn_inv' $Hgid $Hlstatus_lb] HΦ").
         { rewrite lookup_ge_None // in Hdescrs_lookup. }
     }
 
@@ -1618,66 +1618,66 @@ Section kcas_G.
         destruct (metadata_success η); iSteps.
     }
   Qed.
-  #[local] Lemma kcas_determine_as_spec casn η ι v_cass i :
+  #[local] Lemma kcas_1_determine_as_spec casn η ι v_cass i :
     v_cass = lst_to_val (drop i (metadata_cass casn η)) →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
       lstatus_lb η (Running i)
     }}}
-      kcas_determine_as #casn v_cass
+      kcas_1_determine_as #casn v_cass
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
     }}}.
   Proof.
-    iDestruct kcas_determine_as_get_as_determine_spec as "(H & _)".
+    iDestruct kcas_1_determine_as_get_as_determine_spec as "(H & _)".
     iIntros (->) "%Φ (#Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
   Qed.
-  #[local] Lemma kcas_get_as_spec state casn η ι descr :
+  #[local] Lemma kcas_1_get_as_spec state casn η ι descr :
     state = state_to_val casn descr →
     descr ∈ η.(metadata_descrs) →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η
     }}}
-      kcas_get_as state
+      kcas_1_get_as state
     {{{
       RET descriptor_final descr η;
       lstatus_lb η Finished ∗
       £ 1
     }}}.
   Proof.
-    iDestruct kcas_determine_as_get_as_determine_spec as "(_ & H & _)".
+    iDestruct kcas_1_determine_as_get_as_determine_spec as "(_ & H & _)".
     iIntros (-> Hdescr) "%Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' //] HΦ").
   Qed.
-  #[local] Lemma kcas_determine_spec casn η ι :
+  #[local] Lemma kcas_1_determine_spec casn η ι :
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η
     }}}
-      kcas_determine #casn
+      kcas_1_determine #casn
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
     }}}.
   Proof.
-    iDestruct kcas_determine_as_get_as_determine_spec as "(_ & _ & H)".
+    iDestruct kcas_1_determine_as_get_as_determine_spec as "(_ & _ & H)".
     iIntros "%Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' //] HΦ").
   Qed.
 
-  Lemma kcas_make_spec ι v :
+  Lemma kcas_1_make_spec ι v :
     {{{
       True
     }}}
-      kcas_make v
+      kcas_1_make v
     {{{ loc,
       RET #loc;
-      kcas_loc_inv loc ι ∗
-      kcas_loc_model loc v
+      kcas_1_loc_inv loc ι ∗
+      kcas_1_loc_model loc v
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -1748,15 +1748,15 @@ Section kcas_G.
     iSteps.
   Qed.
 
-  Lemma kcas_get_spec loc ι :
+  Lemma kcas_1_get_spec loc ι :
     <<<
-      kcas_loc_inv loc ι
+      kcas_1_loc_inv loc ι
     | ∀∀ v,
-      kcas_loc_model loc v
+      kcas_1_loc_model loc v
     >>>
-      kcas_get #loc @ ↑ι
+      kcas_1_get #loc @ ↑ι
     <<<
-      kcas_loc_model loc v
+      kcas_1_loc_model loc v
     | RET v;
       True
     >>>.
@@ -1782,36 +1782,36 @@ Section kcas_G.
     iModIntro. clear Hlocs.
 
     iApply wp_fupd. iClear "Hlstatus_lb".
-    wp_apply (kcas_get_as_spec with "[$Hcasn_meta $Hcasn_inv']") as "(#Hlstatus_lb & H£2)"; first done.
+    wp_apply (kcas_1_get_as_spec with "[$Hcasn_meta $Hcasn_inv']") as "(#Hlstatus_lb & H£2)"; first done.
     { eapply elem_of_list_lookup_2. done. }
     iMod (casn_retrieve with "Hcasn_inv Hlstatus_lb Hhelper Hhelpers_elem") as "HΦ".
     iMod (lc_fupd_elim_later with "H£1 HΦ") as "HΦ".
     iApply (lc_fupd_elim_later with "H£2 HΦ").
   Qed.
 
-  Lemma kcas_cas_spec {ι v_spec} locs befores afters :
+  Lemma kcas_1_cas_spec {ι v_spec} locs befores afters :
     length locs = length befores →
     length locs = length afters →
     NoDup locs →
     lst_model' v_spec $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
     <<<
-      [∗ list] loc ∈ locs, kcas_loc_inv loc ι
+      [∗ list] loc ∈ locs, kcas_1_loc_inv loc ι
     | ∀∀ vs,
-      [∗ list] loc; v ∈ locs; vs, kcas_loc_model loc v
+      [∗ list] loc; v ∈ locs; vs, kcas_1_loc_model loc v
     >>>
-      kcas_cas v_spec @ ↑ι
+      kcas_1_cas v_spec @ ↑ι
     <<<
       ∃∃ b,
       if b then
         ⌜vs = befores⌝ ∗
-        [∗ list] loc; after ∈ locs; afters, kcas_loc_model loc after
+        [∗ list] loc; after ∈ locs; afters, kcas_1_loc_model loc after
       else
         ∃ i loc before v,
         ⌜locs !! i = Some loc⌝ ∗
         ⌜befores !! i = Some before⌝ ∗
         ⌜vs !! i = Some v⌝ ∗
         ⌜v ≠ before⌝ ∗
-        [∗ list] loc; v ∈ locs; vs, kcas_loc_model loc v
+        [∗ list] loc; v ∈ locs; vs, kcas_1_loc_model loc v
     | RET #b;
       True
     >>>.
@@ -1942,7 +1942,7 @@ Section kcas_G.
     }
 
     iApply wp_fupd.
-    wp_smart_apply (kcas_determine_as_spec with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb]") as "#Hlstatus_lb_finished"; first done.
+    wp_smart_apply (kcas_1_determine_as_spec with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb]") as "#Hlstatus_lb_finished"; first done.
 
     iInv "Hcasn_inv" as "(:casn_inv_inner >)".
     iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb_finished") as %->.
@@ -1954,11 +1954,11 @@ Section kcas_G.
 
     iApply (lc_fupd_elim_later with "H£ HP").
   Admitted.
-End kcas_G.
+End kcas_1_G.
 
-#[global] Opaque kcas_make.
-#[global] Opaque kcas_get.
-#[global] Opaque kcas_cas.
+#[global] Opaque kcas_1_make.
+#[global] Opaque kcas_1_get.
+#[global] Opaque kcas_1_cas.
 
-#[global] Opaque kcas_loc_inv.
-#[global] Opaque kcas_loc_model.
+#[global] Opaque kcas_1_loc_inv.
+#[global] Opaque kcas_1_loc_model.

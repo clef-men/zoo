@@ -362,6 +362,9 @@ theories/zoo_boxroot/boxroot.v
 theories/zoo_kcas/kcas_1__types.v
 theories/zoo_kcas/kcas_1__code.v
 theories/zoo_kcas/kcas_1.v
+theories/zoo_kcas/kcas_2__types.v
+theories/zoo_kcas/kcas_2__code.v
+theories/zoo_kcas/kcas_2.v
 
 #END zoo-kcas
 

@@ -8,15 +8,15 @@ From zoo Require Import
 From zoo_std Require Import
   lst.
 From zoo_kcas Require Import
-  kcas_1__types.
+  kcas_2__types.
 From zoo Require Import
   options.
 
-Definition kcas_1_status_to_bool : val :=
+Definition kcas_2_status_to_bool : val :=
   fun: "status" =>
     "status" == §After.
 
-Definition kcas_1_finish : val :=
+Definition kcas_2_finish : val :=
   fun: "gid" "casn" "status" =>
     match: "casn".{status} with
     | Before =>
@@ -27,8 +27,8 @@ Definition kcas_1_finish : val :=
         Resolve
           (CAS "casn".[status] "old_status" "status")
           "casn".{proph}
-          ("gid", kcas_1_status_to_bool "status") ;;
-        kcas_1_status_to_bool "casn".{status}
+          ("gid", kcas_2_status_to_bool "status") ;;
+        kcas_2_status_to_bool "casn".{status}
     end.
 
 #[local] Definition __zoo_recs_0 := (
@@ -36,14 +36,28 @@ Definition kcas_1_finish : val :=
     let: "gid" := Id in
     match: "cass" with
     | [] =>
-        kcas_1_finish "gid" "casn" §After
+        let: "status" :=
+          if:
+            lst_forall
+              (fun: "cas" => !"cas".<loc> == "cas".<state>)
+              "casn".{cmps}
+          then (
+            §After
+          ) else (
+            §Before
+          )
+        in
+        kcas_2_finish "gid" "casn" "status"
     | "cas" :: "cass'" =>
         let: "loc", "state" := "cas" in
+        let: "proph" := Proph in
         let: "state'" := !"loc" in
         if: "state" == "state'" then (
           "determine_as" "casn" "cass'"
-        ) else if: "state".<before> != "get_as" "state'" then (
-          kcas_1_finish "gid" "casn" §Before
+        ) else if:
+           Resolve ("state".<before> != "get_as" "state'") "proph" ()
+         then (
+          kcas_2_finish "gid" "casn" §Before
         ) else (
           match: "casn".{status} with
           | Before =>
@@ -75,54 +89,54 @@ Definition kcas_1_finish : val :=
         "determine_as" "casn" "cass"
     end
 )%zoo_recs.
-Definition kcas_1_determine_as :=
+Definition kcas_2_determine_as :=
   ValRecs 0 __zoo_recs_0.
-Definition kcas_1_get_as :=
+Definition kcas_2_get_as :=
   ValRecs 1 __zoo_recs_0.
-Definition kcas_1_determine :=
+Definition kcas_2_determine :=
   ValRecs 2 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' kcas_1_determine_as 0 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_get_as ;
-    kcas_1_determine
+  AsValRecs' kcas_2_determine_as 0 __zoo_recs_0 [
+    kcas_2_determine_as ;
+    kcas_2_get_as ;
+    kcas_2_determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_get_as 1 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_get_as ;
-    kcas_1_determine
+  AsValRecs' kcas_2_get_as 1 __zoo_recs_0 [
+    kcas_2_determine_as ;
+    kcas_2_get_as ;
+    kcas_2_determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_determine 2 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_get_as ;
-    kcas_1_determine
+  AsValRecs' kcas_2_determine 2 __zoo_recs_0 [
+    kcas_2_determine_as ;
+    kcas_2_get_as ;
+    kcas_2_determine
   ].
 Proof.
   done.
 Qed.
 
-Definition kcas_1_make : val :=
+Definition kcas_2_make : val :=
   fun: "v" =>
     let: "_gid" := Id in
-    let: "casn" := { §After, Proph } in
+    let: "casn" := { [], §After, Proph } in
     let: "state" := Reveal ("casn", "v", "v") in
     ref "state".
 
-Definition kcas_1_get : val :=
+Definition kcas_2_get : val :=
   fun: "loc" =>
-    kcas_1_get_as !"loc".
+    kcas_2_get_as !"loc".
 
-Definition kcas_1_cas : val :=
-  fun: "cass" =>
-    let: "casn" := { §After, Proph } in
+Definition kcas_2_cas_2 : val :=
+  fun: "cmps" "cass" =>
+    let: "casn" := { "cmps", §After, Proph } in
     let: "cass" :=
       lst_map
         (fun: "cas" =>
@@ -132,4 +146,23 @@ Definition kcas_1_cas : val :=
         "cass"
     in
     "casn" <-{status} Reveal ‘Undetermined( "cass" ) ;;
-    kcas_1_determine_as "casn" "cass".
+    kcas_2_determine_as "casn" "cass".
+
+Definition kcas_2_cas_1 : val :=
+  rec: "cas_1" "acc" "cmps" "cass" =>
+    match: "cmps" with
+    | [] =>
+        kcas_2_cas_2 (lst_rev "acc") "cass"
+    | "cmp" :: "cmps" =>
+        let: "loc", "expected" := "cmp" in
+        let: "state" := !"loc" in
+        if: kcas_2_get_as "state" == "expected" then (
+          "cas_1" (("loc", "state") :: "acc") "cmps" "cass"
+        ) else (
+          #false
+        )
+    end.
+
+Definition kcas_2_cas : val :=
+  fun: "cmps" "cass" =>
+    kcas_2_cas_1 [] "cmps" "cass".
