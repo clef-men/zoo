@@ -77,6 +77,7 @@ theories/zoo/iris/base_logic/lib/auth_dgset.v
 theories/zoo/iris/base_logic/lib/auth_gmultiset.v
 theories/zoo/iris/base_logic/lib/auth_mono.v
 theories/zoo/iris/base_logic/lib/auth_twins.v
+theories/zoo/iris/base_logic/lib/semiauth_twins.v
 theories/zoo/iris/base_logic/lib/mono_list.v
 theories/zoo/iris/base_logic/lib/mono_map.v
 theories/zoo/iris/base_logic/lib/mono_set.v
