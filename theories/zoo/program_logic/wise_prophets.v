@@ -347,6 +347,8 @@ Section wise_prophets_G.
   Context (prophet : typed_prophet).
   Context `{wise_prophets_G : WiseProphetsG Σ prophet}.
 
+  Implicit Types spasts sprophss : nat → list (val * prophet.(typed_prophet_type)).
+
   Definition wise_prophets_name :=
     wise_strong_prophets_name.
   Implicit Types γ : wise_prophets_name.
