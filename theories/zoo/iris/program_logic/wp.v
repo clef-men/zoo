@@ -84,12 +84,14 @@ Notation "'WP' e @ E {{ v , Q } }" := (
   wp e%E E (λ v, Q)
 )(at level 20,
   e, Q at level 200,
+  v at level 200 as pattern,
   format "'[hv' 'WP'  e  '/' @  E  '/' {{  '[' v ,  '/' Q  ']' } } ']'"
 ) : bi_scope.
 Notation "'WP' e {{ v , Q } }" := (
   wp e%E ⊤ (λ v, Q)
 )(at level 20,
   e, Q at level 200,
+  v at level 200 as pattern,
   format "'[hv' 'WP'  e  '/' {{  '[' v ,  '/' Q  ']' } } ']'"
 ) : bi_scope.
 
