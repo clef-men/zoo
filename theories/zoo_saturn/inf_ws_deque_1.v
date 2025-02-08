@@ -35,7 +35,7 @@ Implicit Types back : Z.
 Implicit Types l slot : location.
 Implicit Types id : identifier.
 Implicit Types v t : val.
-Implicit Types hist model : list val.
+Implicit Types vs hist : list val.
 Implicit Types priv : nat → val.
 
 #[local] Program Definition prophet := {|
@@ -138,14 +138,14 @@ Section inf_ws_deque_1_G.
   #[local] Definition history_at γ i v :=
     mono_list_at γ.(metadata_hist) i v.
 
-  #[local] Definition model₁' γ_model model :=
-    twins_twin2 (twins_G := inf_ws_deque_1_G_model_G) γ_model model.
-  #[local] Definition model₁ γ model :=
-    model₁' γ.(metadata_model) model.
-  #[local] Definition model₂' γ_model model :=
-    twins_twin1 (twins_G := inf_ws_deque_1_G_model_G) γ_model (DfracOwn 1) model.
-  #[local] Definition model₂ γ model :=
-    model₂' γ.(metadata_model) model.
+  #[local] Definition model₁' γ_model vs :=
+    twins_twin2 (twins_G := inf_ws_deque_1_G_model_G) γ_model vs.
+  #[local] Definition model₁ γ vs :=
+    model₁' γ.(metadata_model) vs.
+  #[local] Definition model₂' γ_model vs :=
+    twins_twin1 (twins_G := inf_ws_deque_1_G_model_G) γ_model (DfracOwn 1) vs.
+  #[local] Definition model₂ γ vs :=
+    model₂' γ.(metadata_model) vs.
 
   #[local] Definition lock' γ_lock :=
     excl γ_lock ().
@@ -169,13 +169,13 @@ Section inf_ws_deque_1_G.
     winner₁ γ front Φ1 ∗
     winner₂ γ front Φ2.
 
-  Definition inf_ws_deque_1_model t model : iProp Σ :=
+  Definition inf_ws_deque_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     (* metadata *)
     meta l nroot γ ∗
     (* model values *)
-    model₂ γ model.
+    model₂ γ vs.
 
   Definition inf_ws_deque_1_owner t : iProp Σ :=
     ∃ l γ back priv,
@@ -189,11 +189,11 @@ Section inf_ws_deque_1_G.
 
   #[local] Definition au γ ι Φ : iProp Σ :=
     AU <{
-      ∃∃ model,
-      model₂ γ model
+      ∃∃ vs,
+      model₂ γ vs
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      ∀∀ v model',
-      ⌜model = v :: model'⌝ ∗ model₂ γ model',
+      ∀∀ v vs',
+      ⌜vs = v :: vs'⌝ ∗ model₂ γ vs',
       COMM Φ ‘Some( v )%V
     }>.
   #[local] Definition state_inner₁ γ :=
@@ -217,11 +217,11 @@ Section inf_ws_deque_1_G.
           winner₁ γ front Φ ∗
           au γ ι Φ
     end.
-  #[local] Definition state₂ γ ι front back hist model prophs : iProp Σ :=
+  #[local] Definition state₂ γ ι front back hist vs prophs : iProp Σ :=
     (* physical configuration *)
     ⌜(front < back)%Z⌝ ∗
     (* history values *)
-    history_auth γ (hist ++ [model !!! 0]) ∗
+    history_auth γ (hist ++ [vs !!! 0]) ∗
     ⌜length hist = front⌝ ∗
     (* inner state *)
     state_inner₂ γ ι front prophs.
@@ -258,9 +258,9 @@ Section inf_ws_deque_1_G.
     ( state₃₁ γ front back hist prophs
     ∨ state₃₂ γ front back hist
     ).
-  #[local] Definition state γ ι front back hist model prophs : iProp Σ :=
+  #[local] Definition state γ ι front back hist vs prophs : iProp Σ :=
       state₁ γ front back hist
-    ∨ state₂ γ ι front back hist model prophs
+    ∨ state₂ γ ι front back hist vs prophs
     ∨ state₃ γ front back hist prophs.
   #[local] Typeclasses Opaque state_inner₁.
   #[local] Typeclasses Opaque state_inner₂.
@@ -276,7 +276,7 @@ Section inf_ws_deque_1_G.
       /state_inner₃₂.
 
   #[local] Definition inv_inner l γ ι : iProp Σ :=
-    ∃ front back hist model priv past prophs,
+    ∃ front back hist vs priv past prophs,
     (* mutable physical fields *)
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
@@ -285,15 +285,15 @@ Section inf_ws_deque_1_G.
     (* front authority *)
     front_auth γ front ∗
     (* data model *)
-    inf_array_model' γ.(metadata_data) (hist ++ model) priv ∗
+    inf_array_model' γ.(metadata_data) (hist ++ vs) priv ∗
     (* model values *)
-    model₁ γ model ∗
-    ⌜length model = ₊(back - front)⌝ ∗
+    model₁ γ vs ∗
+    ⌜length vs = ₊(back - front)⌝ ∗
     (* prophet model *)
     wise_prophet_model prophet γ.(metadata_prophet) γ.(metadata_prophet_name) past prophs ∗
     ⌜Forall (λ '(front', _), front' < front) past⌝ ∗
     (* state *)
-    state γ ι front back hist model prophs.
+    state γ ι front back hist vs prophs.
   Definition inf_ws_deque_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -306,8 +306,8 @@ Section inf_ws_deque_1_G.
     inf_array_inv γ.(metadata_data) ∗
     inv ι (inv_inner l γ ι).
 
-  #[global] Instance inf_ws_deque_1_model_timeless t model :
-    Timeless (inf_ws_deque_1_model t model).
+  #[global] Instance inf_ws_deque_1_model_timeless t vs :
+    Timeless (inf_ws_deque_1_model t vs).
   Proof.
     apply _.
   Qed.
@@ -382,11 +382,11 @@ Section inf_ws_deque_1_G.
   Proof.
     apply auth_nat_max_lb_le.
   Qed.
-  #[local] Lemma front_state₃₂ γ ι front front' back hist model prophs :
+  #[local] Lemma front_state₃₂ γ ι front front' back hist vs prophs :
     back = (front' - 1)%Z →
     front_auth γ front -∗
     front_lb γ front' -∗
-    state γ ι front back hist model prophs -∗
+    state γ ι front back hist vs prophs -∗
       ⌜front = front'⌝ ∗
       front_auth γ front' ∗
       lock γ ∗
@@ -437,20 +437,20 @@ Section inf_ws_deque_1_G.
     iMod (twins_alloc' (twins_G := inf_ws_deque_1_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iSteps.
   Qed.
-  #[local] Lemma model_agree γ model1 model2 :
-    model₁ γ model1 -∗
-    model₂ γ model2 -∗
-    ⌜model1 = model2⌝.
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
     iDestruct (twins_agree_L with "Hmodel₂ Hmodel₁") as %->.
     iSteps.
   Qed.
-  #[local] Lemma model_update {γ model1 model2} model :
-    model₁ γ model1 -∗
-    model₂ γ model2 ==∗
-      model₁ γ model ∗
-      model₂ γ model.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
     iMod (twins_update' with "Hmodel₂ Hmodel₁") as "(Hmodel₂ & Hmodel₁)".
@@ -471,12 +471,12 @@ Section inf_ws_deque_1_G.
   Proof.
     apply excl_exclusive.
   Qed.
-  #[local] Lemma lock_state γ ι front back hist model prophs :
+  #[local] Lemma lock_state γ ι front back hist vs prophs :
     lock γ -∗
-    state γ ι front back hist model prophs -∗
+    state γ ι front back hist vs prophs -∗
       lock γ ∗
       ( state₁ γ front back hist
-      ∨ state₂ γ ι front back hist model prophs
+      ∨ state₂ γ ι front back hist vs prophs
       ).
   Proof.
     unfold_state. iIntros "Hlock [Hstate | [Hstate | (Hlock' & Hstate)]]"; [iFrame.. |].
@@ -546,9 +546,9 @@ Section inf_ws_deque_1_G.
     iMod (twins_update (twins_G := inf_ws_deque_1_G_winner_G) (front, Next ∘ Φ) with "Hwinner₂ Hwinner₁") as "($ & $)"; first done.
     iSteps.
   Qed.
-  #[local] Lemma winner₁_state γ ι front front' back hist model prophs Φ :
+  #[local] Lemma winner₁_state γ ι front front' back hist vs prophs Φ :
     winner₁ γ front Φ -∗
-    state γ ι front' back hist model prophs -∗
+    state γ ι front' back hist vs prophs -∗
       ⌜front' = front⌝ ∗
       ⌜back = front⌝ ∗
       lock γ ∗
@@ -577,12 +577,12 @@ Section inf_ws_deque_1_G.
           iSteps.
       + iDestruct (winner₁_exclusive' with "Hwinner₁ Hstate") as %[].
   Qed.
-  #[local] Lemma winner₂_state γ ι front front' back hist model prophs Φ :
+  #[local] Lemma winner₂_state γ ι front front' back hist vs prophs Φ :
     winner₂ γ front Φ -∗
-    state γ ι front' back hist model prophs -∗
+    state γ ι front' back hist vs prophs -∗
       ⌜front' = front⌝ ∗
       ( ⌜(front < back)%Z⌝ ∗
-        history_auth γ (hist ++ [model !!! 0]) ∗
+        history_auth γ (hist ++ [vs !!! 0]) ∗
         ⌜length hist = front⌝ ∗
         ( ∃ id Φ',
           ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
@@ -622,9 +622,9 @@ Section inf_ws_deque_1_G.
           iDestruct (winner₂_exclusive with "Hwinner₂ Hwinner₂'") as %[].
       + iDestruct (winner₂_exclusive' with "Hwinner₂ Hstate") as %[].
   Qed.
-  #[local] Lemma winner₂_state' γ ι front front' hist model prophs Φ :
+  #[local] Lemma winner₂_state' γ ι front front' hist vs prophs Φ :
     winner₂ γ front Φ -∗
-    state γ ι front' front hist model prophs -∗
+    state γ ι front' front hist vs prophs -∗
       ⌜front' = front⌝ ∗
       lock γ ∗
       history_auth γ hist ∗
@@ -672,19 +672,19 @@ Section inf_ws_deque_1_G.
     (* → [array.(inf_array_get) data #i] *)
     awp_apply (inf_array_get_spec with "Harray_inv") without "HΦ"; first lia.
     (* open invariant *)
-    iInv "Hinv" as "(%front & %back & %hist & %model & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
-    (* we have [(hist ++ model) !! i = Some v] *)
-    iAssert (◇ ⌜(hist ++ model) !! i = Some v⌝)%I as "#>%Hlookup".
+    iInv "Hinv" as "(%front & %back & %hist & %vs & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
+    (* we have [(hist ++ vs) !! i = Some v] *)
+    iAssert (◇ ⌜(hist ++ vs) !! i = Some v⌝)%I as "#>%Hlookup".
     { unfold_state. iDestruct "Hstate" as "[Hstate | [Hstate | (_ & [Hstate | Hstate])]]";
         iDestruct "Hstate" as "(>%Hstate & >Hhist_auth & >%Hhist & _)";
         iModIntro;
         iDestruct (history_agree with "Hhist_auth Hhist_at") as %?;
         iPureIntro.
       - erewrite lookup_app_l_Some => //.
-      - destruct model as [| w model]; simpl in *; first lia.
+      - destruct vs as [| w vs]; simpl in *; first lia.
         rewrite (assoc (++) hist [w]). erewrite lookup_app_l_Some => //.
-      - rewrite (nil_length_inv model); first lia. list_simplifier. done.
-      - rewrite (nil_length_inv model); first lia. erewrite lookup_app_l_Some => //.
+      - rewrite (nil_length_inv vs); first lia. list_simplifier. done.
+      - rewrite (nil_length_inv vs); first lia. erewrite lookup_app_l_Some => //.
     }
     iAaccIntro with "Harray_model"; iIntros "Harray_model".
     { iModIntro. rewrite right_id. repeat iExists _. iFrameSteps. }
@@ -720,7 +720,7 @@ Section inf_ws_deque_1_G.
     wp_load.
 
     (* open invariant *)
-    iApply fupd_wp. iMod (inv_acc with "Hinv") as "((%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate) & Hclose)"; first done.
+    iApply fupd_wp. iMod (inv_acc with "Hinv") as "((%front & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate) & Hclose)"; first done.
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     (* we have [0 ≤ back] *)
     iAssert (◇ ⌜0 ≤ back⌝)%I%Z as "#>%Hback".
@@ -737,10 +737,10 @@ Section inf_ws_deque_1_G.
     (* → [array.(inf_array_get) data #i] *)
     awp_apply (inf_array_get_spec' with "Harray_inv"); first lia.
     (* open invariant *)
-    iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
-    (* we have [back = length (hist ++ model)] *)
-    iAssert (◇ ⌜back = length (hist ++ model)⌝)%I%Z as "#>%Hback'".
+    (* we have [back = length (hist ++ vs)] *)
+    iAssert (◇ ⌜back = length (hist ++ vs)⌝)%I%Z as "#>%Hback'".
     { (* we have lock, hence we are in state 1 or in state 2 *)
       iDestruct (lock_state with "Hlock Hstate") as "(Hlock & [Hstate | Hstate])";
         iDestruct "Hstate" as "(>%Hstate & _ & >%Hhist & _)";
@@ -755,7 +755,7 @@ Section inf_ws_deque_1_G.
     clear- Hi Hback Hback'.
 
     rewrite decide_False; first lia.
-    assert (₊i - length (hist ++ model) = ₊(i - back)) as -> by lia.
+    assert (₊i - length (hist ++ vs) = ₊(i - back)) as -> by lia.
     iApply "HΦ". iFrame.
   Qed.
 
@@ -774,7 +774,7 @@ Section inf_ws_deque_1_G.
     iIntros (Hprophs_lb%head_None) "%Φ (#Harray_inv & #Hinv & #Hprophet_lb) HΦ".
 
     (* open invariant *)
-    iInv "Hinv" as "(%front' & %back & %hist & %model & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front' & %back & %hist & %vs & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast & Hstate)".
     (* current prophecies are a suffix of prophet lower bound *)
     iDestruct (wise_prophet_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
     (* do resolve *)
@@ -803,7 +803,7 @@ Section inf_ws_deque_1_G.
     iIntros "%Hprophs_lb %Hid %Φ (#Harray_inv & #Hinv & #Hfront_lb & #Hprophet_lb) HΦ".
 
     (* open invariant *)
-    iInv "Hinv" as "(%front' & %back & %hist & %model & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front' & %back & %hist & %vs & %priv & %past & %prophs & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast & Hstate)".
     (* current prophecies are a suffix of prophet lower bound *)
     iDestruct (wise_prophet_lb_valid with "Hprophet_model Hprophet_lb") as %(past1 & past2 & -> & ->).
     (* do resolve *)
@@ -828,7 +828,7 @@ Section inf_ws_deque_1_G.
     iClear "_Hfront_lb".
     (* close invariant *)
     iModIntro. iSplitR "HΦ".
-    { iExists front', back, hist, model, priv, _, prophs'. iFrame.
+    { iExists front', back, hist, vs, priv, _, prophs'. iFrame.
       iSplit; first done.
       iSplit. { iPureIntro. decompose_Forall; done. }
       unfold_state. iDestruct "Hstate" as "[Hstate | [(%Hstate & Hstate) | (Hlock & [(%Hstate & Hstate) | Hstate])]]".
@@ -866,7 +866,7 @@ Section inf_ws_deque_1_G.
     wp_apply (wp_resolve_loser with "[$Harray_inv $Hinv $Hfront_lb $Hprophet_lb]"); [done.. |]. iClear "Hfront_lb". iIntros "#Hfront_lb".
 
     (* open invariant *)
-    iMod (inv_acc with "Hinv") as "((%front' & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate) & Hclose)"; first done.
+    iMod (inv_acc with "Hinv") as "((%front' & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast & Hstate) & Hclose)"; first done.
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as "(-> & ->)".
     (* we are in state 3.1, hence [front' = front] *)
     iAssert (◇ ⌜front' = front⌝)%I as "#>->".
@@ -939,12 +939,12 @@ Section inf_ws_deque_1_G.
     <<<
       inf_ws_deque_1_inv t ι ∗
       inf_ws_deque_1_owner t
-    | ∀∀ model,
-      inf_ws_deque_1_model t model
+    | ∀∀ vs,
+      inf_ws_deque_1_model t vs
     >>>
       inf_ws_deque_1_push t v @ ↑ι
     <<<
-      inf_ws_deque_1_model t (model ++ [v])
+      inf_ws_deque_1_model t (vs ++ [v])
     | RET ();
       inf_ws_deque_1_owner t
     >>>.
@@ -957,7 +957,7 @@ Section inf_ws_deque_1_G.
     (* → [!#l.[back]] *)
     wp_bind (_.{back})%E.
     (* open invariant *)
-    iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     (* do load back *)
     wp_load.
@@ -977,7 +977,7 @@ Section inf_ws_deque_1_G.
     (* → [array.(inf_array_set) data #back v] *)
     awp_apply (inf_array_set_spec' with "Harray_inv") without "HΦ"; first done.
     (* open invariant *)
-    iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & >Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     iAaccIntro with "Harray_model"; iIntros "Harray_model".
     { iFrame. repeat iExists _. iFrame. done. }
@@ -992,12 +992,12 @@ Section inf_ws_deque_1_G.
         iDestruct "Hstate" as "(>%Hstate & _ & >%Hhist & _)";
         iPureIntro; lia.
     }
-    (* hence [back = length (hist ++ model)] *)
-    assert (₊back = length (hist ++ model)) as Heq. { rewrite length_app. lia. }
+    (* hence [back = length (hist ++ vs)] *)
+    assert (₊back = length (hist ++ vs)) as Heq. { rewrite length_app. lia. }
     rewrite Heq decide_False; first lia. rewrite Nat.sub_diag.
     (* close invariant *)
     iModIntro. iSplitR "Hctl₂ Hlock".
-    { iExists front, back, hist, model, priv', past, prophs. iFrame.
+    { iExists front, back, hist, vs, priv', past, prophs. iFrame.
       do 2 (iSplit; first auto).
       unfold_state. iDestruct "Hstate" as "[Hstate | Hstate]"; [iLeft | iRight; iLeft]; done.
     }
@@ -1008,7 +1008,7 @@ Section inf_ws_deque_1_G.
 
     (* → [#l <-{back} #(back + 1)] *)
     (* open invariant *)
-    iInv "Hinv" as "(%front & %_back & %hist & %model & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast & Hstate)".
+    iInv "Hinv" as "(%front & %_back & %hist & %vs & %_priv & %past & %prophs & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     (* do increment back *)
     wp_store.
@@ -1016,28 +1016,28 @@ Section inf_ws_deque_1_G.
     set (priv'' i := priv (S i)).
     iMod (clt_update (back + 1) priv'' with "Hctl₁ Hctl₂") as "(Hctl₁ & Hctl₂)".
     (* begin transaction *)
-    iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+    iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
     (* update model values *)
-    set (model' := model ++ [v]).
-    iMod (model_update model' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    set (vs' := vs ++ [v]).
+    iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     (* end transaction *)
     iMod ("HΦ" with "[Hmodel₂]") as "HΦ".
     { repeat iExists _. iFrame "#∗". done. }
     (* update data model *)
     iDestruct (inf_array_model'_shift_l with "Harray_model") as "Harray_model"; first by intros [].
-    rewrite -(assoc (++)) -/model'.
+    rewrite -(assoc (++)) -/vs'.
     (* we have lock, hence we are in state 1 or state 2 *)
     iDestruct (lock_state with "Hlock Hstate") as "(Hlock & [Hstate | Hstate])".
 
     - iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & Hstate)".
-      destruct (nil_or_length_pos model) as [-> |]; last lia.
+      destruct (nil_or_length_pos vs) as [-> |]; last lia.
       (* update history values *)
       iMod (history_update v with "Hhist_auth") as "Hhist_auth".
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-      { iExists front, (back + 1)%Z, hist, model', priv'', past, prophs. iFrame.
+      { iExists front, (back + 1)%Z, hist, vs', priv'', past, prophs. iFrame.
         do 2 (iSplit; first (simpl; auto with lia)).
         unfold_state. iRight. iLeft. iFrame. iSplit; first auto with lia.
         unfold_state. destruct (head $ filter _ _) as [[] |]; auto.
@@ -1047,10 +1047,10 @@ Section inf_ws_deque_1_G.
       iApply "HΦ". repeat iExists _. iFrame "#∗". done.
 
     - iDestruct "Hstate" as "(%Hstate & Hhist_auth & %Hhist & Hstate)".
-      destruct model as [| w model]; first naive_solver lia.
+      destruct vs as [| w vs]; first naive_solver lia.
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-      { iExists front, (back + 1)%Z, hist, model', priv'', past, prophs. iFrame.
+      { iExists front, (back + 1)%Z, hist, vs', priv'', past, prophs. iFrame.
         iSplit. { iPureIntro. rewrite length_app. simpl in *. lia. }
         iSplit; first done.
         unfold_state. iRight. iLeft. iFrame. auto with lia.
@@ -1063,13 +1063,13 @@ Section inf_ws_deque_1_G.
   Lemma inf_ws_deque_1_steal_spec t ι :
     <<<
       inf_ws_deque_1_inv t ι
-    | ∀∀ model,
-      inf_ws_deque_1_model t model
+    | ∀∀ vs,
+      inf_ws_deque_1_model t vs
     >>>
       inf_ws_deque_1_steal t @ ↑ι
     <<<
-      inf_ws_deque_1_model t (tail model)
-    | RET head model;
+      inf_ws_deque_1_model t (tail vs)
+    | RET head vs;
       True
     >>>.
   Proof.
@@ -1086,7 +1086,7 @@ Section inf_ws_deque_1_G.
     (* → [!#l.[front]] *)
     wp_bind (_.{front})%E.
     (* open invariant *)
-    iInv "Hinv" as "(%front1 & %back1 & %hist & %model & %priv & %past1 & %prophs1 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast1 & Hstate)".
+    iInv "Hinv" as "(%front1 & %back1 & %hist & %vs & %priv & %past1 & %prophs1 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast1 & Hstate)".
     (* do load front *)
     wp_load.
     (* emit front fragment at [front1] *)
@@ -1101,17 +1101,17 @@ Section inf_ws_deque_1_G.
     (* → [!#l.[back]] *)
     wp_bind (_.{back})%E.
     (* open invariant *)
-    iInv "Hinv" as "(%front2 & %back2 & %hist & %model & %priv & %past2 & %prophs2 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast2 & Hstate)".
+    iInv "Hinv" as "(%front2 & %back2 & %hist & %vs & %priv & %past2 & %prophs2 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast2 & Hstate)".
     (* do load back *)
     wp_load.
     (* we have [front1 ≤ front2] *)
     iDestruct (front_valid with "Hfront_auth Hfront_lb") as %Hfront2.
     (* branching 1: enforce [front1 < back2] *)
     destruct (decide (front1 < back2)%Z) as [Hbranch1 | Hbranch1]; last first.
-    { (* we have [model = []] *)
-      assert (length model = 0) as ->%nil_length_inv by lia.
+    { (* we have [vs = []] *)
+      assert (length vs = 0) as ->%nil_length_inv by lia.
       (* begin transaction *)
-      iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+      iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
       (* end transation *)
@@ -1153,7 +1153,7 @@ Section inf_ws_deque_1_G.
       (* → [Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)] *)
       wp_bind (Resolve (CAS (#l).[front]%V #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)%V).
       (* open invariant *)
-      iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
+      iInv "Hinv" as "(%front3 & %back3 & %hist & %vs & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast3 & Hstate)".
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve prophet (front1, id) with "Hprophet_model"); [done.. |].
       (* branching 3: CAS must fail as we have seen [front2] such that [front1 < front2] *)
@@ -1168,7 +1168,7 @@ Section inf_ws_deque_1_G.
       iModIntro. iIntros "%prophs3' -> Hprophet_model".
       (* close invariant *)
       iModIntro. iSplitR "Hid HΦ".
-      { iExists front3, back3, hist, model, priv, (past3 ++ [_]), prophs3'. iFrame.
+      { iExists front3, back3, hist, vs, priv, (past3 ++ [_]), prophs3'. iFrame.
         iSplit; first done.
         iSplit. { iPureIntro. decompose_Forall; done. }
         unfold_state. iDestruct "Hstate" as "[Hstate | [(%Hstate & Hhist_auth & %Hhist & Hstate) | (Hlock & [(%Hstate & Hhist_auth & %Hhist & Hstate) | Hstate])]]".
@@ -1189,7 +1189,7 @@ Section inf_ws_deque_1_G.
     (* we are in state 2 *)
     unfold_state. iDestruct "Hstate" as "[(%Hstate & _) | [(_ & Hhist_auth & %Hhist & Hstate) | (_ & [(%Hstate & _) | (%Hstate & _)])]]"; try lia.
     (* hence there is at least one model value *)
-    destruct model as [| v model]; first naive_solver lia.
+    destruct vs as [| v vs]; first naive_solver lia.
     (* emit history fragment at [front1] *)
     iDestruct (history_at_get front1 v with "Hhist_auth") as "#Hhist_at".
     { rewrite lookup_app_r; first lia. rewrite Hhist Nat.sub_diag //. }
@@ -1199,7 +1199,7 @@ Section inf_ws_deque_1_G.
     unfold_state. destruct (head $ filter _ prophs2) as [(_front1 & id') |] eqn:Hbranch3; first last.
     { (* close invariant *)
       iModIntro. iSplitR "Hid HΦ".
-      { iExists front1, back2, hist, (v :: model), priv, past2, prophs2. iFrame.
+      { iExists front1, back2, hist, (v :: vs), priv, past2, prophs2. iFrame.
         do 2 (iSplit; first done).
         unfold_state. iRight. iLeft. iFrame. do 2 (iSplit; first done).
         unfold_state. rewrite Hbranch3 //.
@@ -1221,7 +1221,7 @@ Section inf_ws_deque_1_G.
     destruct (decide (id' = id)) as [-> | Hbranch4]; first last.
     { (* close invariant *)
       iModIntro. iSplitR "Hid HΦ".
-      { iExists front1, back2, hist, (v :: model), priv, past2, prophs2. iFrame.
+      { iExists front1, back2, hist, (v :: vs), priv, past2, prophs2. iFrame.
         do 2 (iSplit; first done).
         unfold_state. iRight. iLeft. iFrame. do 2 (iSplit; first done).
         unfold_state. rewrite Hbranch3 //.
@@ -1252,18 +1252,18 @@ Section inf_ws_deque_1_G.
     iMod (winner_update front1 Φ with "Hwinner₁ Hwinner₂") as "(Hwinner₁ & Hwinner₂)".
     (* close invariant *)
     iModIntro. iSplitR "Hwinner₂".
-    { iExists front1, back2, hist, (v :: model), priv, past2, prophs2. iFrame.
+    { iExists front1, back2, hist, (v :: vs), priv, past2, prophs2. iFrame.
       do 2 (iSplit; first done).
       unfold_state. iRight. iLeft. iFrame. do 2 (iSplit; first done).
       unfold_state. rewrite Hbranch3. iRight. iFrame.
       iModIntro. rewrite /au. iAuIntro.
-      iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%_model (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂)". injection Heq as <-.
+      iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%_vs (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iAaccIntro with "Hmodel₂".
       { iIntros "Hmodel₂ !>". iSplitL "Hmodel₂"; last auto.
         repeat iExists _. iFrame "#∗". done.
       }
-      iIntros "%w %model' (-> & Hmodel₂) !>". iSplitL.
+      iIntros "%w %vs' (-> & Hmodel₂) !>". iSplitL.
       - repeat iExists _. iSplit; first done. repeat iExists _. naive_solver.
       - iIntros "HΦ". iApply ("HΦ" with "[//]").
     }
@@ -1282,7 +1282,7 @@ Section inf_ws_deque_1_G.
     (* → [Resolve (CAS #l.[front] #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)] *)
     wp_bind (Resolve (CAS (#l).[front]%V #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)%V).
     (* open invariant *)
-    iInv "Hinv" as "(%front3 & %back3 & %hist & %model & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast3 & Hstate)".
+    iInv "Hinv" as "(%front3 & %back3 & %hist & %vs & %priv & %past3 & %prophs3 & Hfront & Hback & Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast3 & Hstate)".
     (* we are in state 2 or state 3.1 *)
     iDestruct (winner₂_state with "Hwinner₂ Hstate") as "(>-> & Hstate)".
     (* do resolve *)
@@ -1299,10 +1299,10 @@ Section inf_ws_deque_1_G.
       (* update front *)
       iMod (front_auth_update (S front1) with "Hfront_auth") as "Hfront_auth"; first lia.
       (* begin transaction *)
-      iMod "HΦ'" as "(%_model & Hmodel₂ & _ & HΦ')".
+      iMod "HΦ'" as "(%_vs & Hmodel₂ & _ & HΦ')".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
       (* update model values *)
-      destruct model as [| _v model]; first naive_solver lia.
+      destruct vs as [| _v vs]; first naive_solver lia.
       iAssert ⌜_v = v⌝%I as %->.
       { (* exploit history fragment *)
         iDestruct (history_agree with "Hhist_auth Hhist_at") as %Hlookup.
@@ -1310,13 +1310,13 @@ Section inf_ws_deque_1_G.
         rewrite lookup_app_r in Hlookup; first lia.
         rewrite list_lookup_singleton_Some in Hlookup. naive_solver.
       }
-      iMod (model_update model with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       (* end transaction *)
       iMod ("HΦ'" with "[$Hmodel₂ //]") as "HΦ'".
       (* close invariant *)
       iSplitR "HΦ HΦ'".
-      { simpl in Hmodel.
-        iExists (S front1), back3, (hist ++ [v]), model, priv, (past3 ++ [_]), prophs3'. iFrame.
+      { simpl in Hvs.
+        iExists (S front1), back3, (hist ++ [v]), vs, priv, (past3 ++ [_]), prophs3'. iFrame.
         iSplitL "Hfront". { assert (front1 + 1 = S front1)%Z as -> by lia. done. }
         iSplitL "Harray_model". { rewrite -(assoc (++)) //. }
         iSplitR; first auto with lia.
@@ -1324,7 +1324,7 @@ Section inf_ws_deque_1_G.
         { iPureIntro. rewrite Forall_app Forall_singleton. split; last lia.
           eapply Forall_impl; first done. intros (? & ?) ?. lia.
         }
-        unfold_state. destruct model as [| w model]; simpl in Hmodel.
+        unfold_state. destruct vs as [| w vs]; simpl in Hvs.
         - iModIntro. iLeft. iFrame. iSplit; first auto with lia.
           iSplit. { rewrite length_app /=. auto with lia. }
           repeat iExists _. iFrame.
@@ -1350,7 +1350,7 @@ Section inf_ws_deque_1_G.
       iDestruct (winner_agree ‘Some( v ) with "Hwinner₁ Hwinner₂") as "(_ & HΦ & Hwinner₁ & Hwinner₂)".
       iModIntro. iIntros "%prophs3' -> Hprophet_model".
       (* we know there is no model value and [hist !!! front1 = v] *)
-      destruct (nil_or_length_pos model) as [-> |]; last lia.
+      destruct (nil_or_length_pos vs) as [-> |]; last lia.
       iAssert ⌜hist !!! front1 = v⌝%I as %->.
       { (* exploit history fragment *)
         iDestruct (history_agree with "Hhist_auth Hhist_at") as %Hlookup.
@@ -1384,20 +1384,20 @@ Section inf_ws_deque_1_G.
     <<<
       inf_ws_deque_1_inv t ι ∗
       inf_ws_deque_1_owner t
-    | ∀∀ model,
-      inf_ws_deque_1_model t model
+    | ∀∀ vs,
+      inf_ws_deque_1_model t vs
     >>>
       inf_ws_deque_1_pop t @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ⌜model = []⌝ ∗
+          ⌜vs = []⌝ ∗
           inf_ws_deque_1_model t []
       | Some v =>
-          ∃ model',
-          ⌜model = model' ++ [v]⌝ ∗
-          inf_ws_deque_1_model t model'
+          ∃ vs',
+          ⌜vs = vs' ++ [v]⌝ ∗
+          inf_ws_deque_1_model t vs'
       end
     | RET o;
       inf_ws_deque_1_owner t
@@ -1416,7 +1416,7 @@ Section inf_ws_deque_1_G.
     (* → [!#l.[back]] *)
     wp_bind (_.{back})%E.
     (* open invariant *)
-    iInv "Hinv" as "(%front1 & %_back & %hist & %model & %_priv & %past1 & %prophs1 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast1 & Hstate)".
+    iInv "Hinv" as "(%front1 & %_back & %hist & %vs & %_priv & %past1 & %prophs1 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast1 & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     (* do load back *)
     wp_load.
@@ -1430,7 +1430,7 @@ Section inf_ws_deque_1_G.
     (* → [#l.[back] <- #(back - 1)] *)
     wp_bind (_ <-{back} _)%E.
     (* open invariant *)
-    iInv "Hinv" as "(%front2 & %_back & %hist & %model & %_priv & %past2 & %prophs2 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast2 & Hstate)".
+    iInv "Hinv" as "(%front2 & %_back & %hist & %vs & %_priv & %past2 & %prophs2 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast2 & Hstate)".
     iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
     (* do decrement back *)
     wp_store.
@@ -1448,9 +1448,9 @@ Section inf_ws_deque_1_G.
       (* emit front fragment at [front2] *)
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
       (* hence there is no model value *)
-      destruct (nil_or_length_pos model) as [-> |]; last lia.
+      destruct (nil_or_length_pos vs) as [-> |]; last lia.
       (* begin transaction *)
-      iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+      iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
       (* end transaction *)
@@ -1469,7 +1469,7 @@ Section inf_ws_deque_1_G.
       (* → [!#l.[front]] *)
       wp_bind (_.{front})%E.
       (* open invariant *)
-      iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+      iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
       (* do load front *)
       wp_load.
@@ -1477,7 +1477,7 @@ Section inf_ws_deque_1_G.
       iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & Hstate)"; first done.
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ HΦ".
-      { iExists front2, (front2 - 1)%Z, hist, model, priv, past3, prophs3. iFrame.
+      { iExists front2, (front2 - 1)%Z, hist, vs, priv, past3, prophs3. iFrame.
         do 2 (iSplit; first auto with lia).
         unfold_state. do 2 iRight. iFrame.
       }
@@ -1493,7 +1493,7 @@ Section inf_ws_deque_1_G.
       (* → [#l.[back] <- #front2] *)
       wp_bind (_ <-{back} _)%E.
       (* open invariant *)
-      iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast4 & Hstate)".
+      iInv "Hinv" as "(%front4 & %_back & %hist & %vs & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast4 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
       (* do increment back *)
       wp_store.
@@ -1503,7 +1503,7 @@ Section inf_ws_deque_1_G.
       iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & (%state & Hhist_auth & %Hhist & Hstate))"; first done.
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-      { iExists front2, front2, hist, model, priv, past4, prophs4. iFrame.
+      { iExists front2, front2, hist, vs, priv, past4, prophs4. iFrame.
         do 2 (iSplit; first auto with lia).
         unfold_state. iLeft. iFrame. unfold_state. iFrame. done.
       }
@@ -1515,8 +1515,8 @@ Section inf_ws_deque_1_G.
 
     (* branch 1.2: front2 + 1 < back; no conflict *)
     - (* there is stricly more than one model value *)
-      rename model into _model. destruct (rev_elim _model) as [-> | (model & v & ->)]; first naive_solver lia.
-      destruct model as [| w model]; rewrite length_app /= in Hmodel; first lia.
+      rename vs into _vs. destruct (rev_elim _vs) as [-> | (vs & v & ->)]; first naive_solver lia.
+      destruct vs as [| w vs]; rewrite length_app /= in Hvs; first lia.
       (* update data model *)
       iEval (rewrite assoc) in "Harray_model".
       iDestruct (inf_array_model'_shift_r with "Harray_model") as "Harray_model".
@@ -1524,17 +1524,17 @@ Section inf_ws_deque_1_G.
       set (priv' := λ i, match i with 0 => v | S i => priv i end).
       iMod (clt_update (back - 1) priv' with "Hctl₁ Hctl₂") as "(Hctl₁ & Hctl₂)".
       (* begin transaction *)
-      iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & (_ & HΦ))". injection Heq as <-.
+      iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₂) & (_ & HΦ))". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
       (* update model values *)
-      iMod (model_update (w :: model) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update (w :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       (* end transaction *)
       iMod ("HΦ" $! (Some v) with "[Hmodel₂]") as "HΦ".
       { repeat iExists _. iSplit; first done. repeat iExists _. naive_solver. }
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-      { iExists front2, (back - 1)%Z, hist, (w :: model), priv', past2, prophs2. iFrame.
+      { iExists front2, (back - 1)%Z, hist, (w :: vs), priv', past2, prophs2. iFrame.
         do 2 (iSplit; first (simpl; auto with lia)).
         unfold_state. iRight. iLeft. iFrame. iSplit; auto with lia.
       }
@@ -1545,7 +1545,7 @@ Section inf_ws_deque_1_G.
       (* → [!#l.[front]] *)
       wp_bind (_.{front})%E.
       (* open invariant *)
-      iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+      iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
       iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
       (* do load front *)
       wp_load.
@@ -1596,7 +1596,7 @@ Section inf_ws_deque_1_G.
         (* → [Resolve (CAS #l.[front] #front3 #(front3 + 1)) #γ.(metadata_prophet) (#front3, #id)] *)
         wp_bind (Resolve (CAS (#l).[front]%V #front3 #(front3 + 1)) #γ.(metadata_prophet) (#front3, #id)%V).
         (* open invariant *)
-        iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
+        iInv "Hinv" as "(%front4 & %_back & %hist & %vs & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & >Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast4 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* we have lock, hence we are in state 1 or in state 2 *)
         iDestruct (lock_state with "Hlock Hstate") as "(Hlock & [Hstate | Hstate])";
@@ -1618,7 +1618,7 @@ Section inf_ws_deque_1_G.
         iClear "Hfront_lb".
         iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
         (* we know there is no model value *)
-        destruct (nil_or_length_pos model) as [-> |]; last lia.
+        destruct (nil_or_length_pos vs) as [-> |]; last lia.
         (* update history values *)
         set (hist' := hist ++ [v]).
         iMod (history_update v with "Hhist_auth") as "Hhist_auth".
@@ -1649,7 +1649,7 @@ Section inf_ws_deque_1_G.
         (* → [#l.[back] <- #(front3 + 1)] *)
         wp_bind (_ <-{back} _)%E.
         (* open invariant *)
-        iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
+        iInv "Hinv" as "(%front5 & %_back & %hist & %vs & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast5 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* do increment back *)
         wp_store.
@@ -1659,7 +1659,7 @@ Section inf_ws_deque_1_G.
         iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & (%Hstate & Hhist_auth & %Hhist & Hstate))"; first lia.
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-        { iExists (S front3), (front3 + 1)%Z, hist, model, priv, past5, prophs5. iFrame.
+        { iExists (S front3), (front3 + 1)%Z, hist, vs, priv, past5, prophs5. iFrame.
           do 2 (iSplit; first auto with lia).
           unfold_state. iLeft. iFrame. iSplit; first auto with lia. unfold_state. iFrame. done.
         }
@@ -1675,8 +1675,8 @@ Section inf_ws_deque_1_G.
     (* branch 1.3: [front2 + 1 = back]; potential conflict *)
     - subst back.
       assert (S front2 - 1 = front2)%Z as -> by lia.
-      destruct model as [| v model]; simpl in Hmodel; first lia.
-      destruct model; simpl in Hmodel; last lia.
+      destruct vs as [| v vs]; simpl in Hvs; first lia.
+      destruct vs; simpl in Hvs; last lia.
       (* emit front fragment at [front2] *)
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
       (* emit history fragment at [front2] *)
@@ -1687,7 +1687,7 @@ Section inf_ws_deque_1_G.
       (* branching 2: enforce [filter (λ '(_, _, front', _), front' = front2) prophs2 ≠ []] *)
       unfold_state. destruct (head $ filter _ prophs2) as [(_front2 & id') |] eqn:Hbranch2; first last.
       { (* begin transaction *)
-        iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+        iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
         (* update model values *)
@@ -1715,7 +1715,7 @@ Section inf_ws_deque_1_G.
         (* → [!#l.[front]] *)
         wp_bind (_.{front})%E.
         (* open invariant *)
-        iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+        iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* do load front *)
         wp_load.
@@ -1723,7 +1723,7 @@ Section inf_ws_deque_1_G.
         iDestruct (winner₁_state with "Hwinner₁ Hstate") as "(-> & _ & Hlock & Hhist_auth & %Hhist & %Φ' & %Hprophs3 & Hwinner₁ & Hwinner₂)".
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hwinner₁".
-        { iExists front2, front2, hist, model, priv, past3, prophs3. iFrame.
+        { iExists front2, front2, hist, vs, priv, past3, prophs3. iFrame.
           do 2 (iSplit; first done).
           unfold_state. do 2 iRight. iFrame. iLeft. do 2 (iSplit; first done).
           unfold_state. rewrite Hprophs3. naive_solver.
@@ -1751,7 +1751,7 @@ Section inf_ws_deque_1_G.
 
       (* branch 3.1: [id = id']; we are the next winner *)
       + (* begin transaction *)
-        iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+        iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
         (* update model values *)
@@ -1782,7 +1782,7 @@ Section inf_ws_deque_1_G.
         (* → [!#l.[front]] *)
         wp_bind (_.{front})%E.
         (* open invariant *)
-        iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+        iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* do load front *)
         wp_load.
@@ -1791,7 +1791,7 @@ Section inf_ws_deque_1_G.
         { iDestruct (winner₂_state' with "Hwinner₂ Hstate") as "($ & _)". }
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hwinner₂".
-        { repeat iExists front2, front2, hist, model, priv, past3, prophs3. iFrame. done. }
+        { repeat iExists front2, front2, hist, vs, priv, past3, prophs3. iFrame. done. }
         clear- Hbranch2.
 
         wp_pures.
@@ -1812,7 +1812,7 @@ Section inf_ws_deque_1_G.
         (* → [Resolve (CAS #l.[front] #front2 #(front2 + 1)) #γ.(metadata_prophet) (#front2, #id)] *)
         wp_bind (Resolve (CAS (#l).[front]%V #front2 #(front2 + 1)) #γ.(metadata_prophet) (#front2, #id)%V).
         (* open invariant *)
-        iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & >Hprophet_model & >%Hpast4 & Hstate)".
+        iInv "Hinv" as "(%front4 & %_back & %hist & %vs & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & >Hprophet_model & >%Hpast4 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* we are in state 3.1 *)
         iDestruct (winner₂_state' with "Hwinner₂ Hstate") as "(>-> & Hlock & >Hhist_auth & >%Hhist & %id' & %Ψ' & >%Hprophs4 & Hwinner₁ & Hwinner₂ & HΨ')".
@@ -1831,7 +1831,7 @@ Section inf_ws_deque_1_G.
         iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ HΨ HΨ'".
-        { iExists (S front2), front2, hist, model, priv, (past4 ++ [_]), prophs4'. iFrame.
+        { iExists (S front2), front2, hist, vs, priv, (past4 ++ [_]), prophs4'. iFrame.
           iSplitL "Hfront". { assert (front2 + 1 = S front2)%Z as -> by lia. done. }
           iSplit; first auto with lia.
           iSplit.
@@ -1847,7 +1847,7 @@ Section inf_ws_deque_1_G.
         (* → [#l.[back] <- #(front2 + 1)] *)
         wp_bind (_ <-{back} _)%E.
         (* open invariant *)
-        iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
+        iInv "Hinv" as "(%front5 & %_back & %hist & %vs & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast5 & Hstate)".
         iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
         (* do increment back *)
         wp_store.
@@ -1857,7 +1857,7 @@ Section inf_ws_deque_1_G.
         iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & (%Hstate & Hhist_auth & %Hhist & Hstate))"; first lia.
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hlock HΨ HΨ'".
-        { iExists (S front2), (front2 + 1)%Z, hist, model, priv, past5, prophs5. iFrame.
+        { iExists (S front2), (front2 + 1)%Z, hist, vs, priv, past5, prophs5. iFrame.
           do 2 (iSplit; first auto with lia).
           unfold_state. iLeft. iFrame. iSplit; first auto with lia. unfold_state. iFrame. done.
         }
@@ -1877,7 +1877,7 @@ Section inf_ws_deque_1_G.
         (* branch 4.1: winning thief did not show up; contradiction *)
         * iDestruct "Hstate" as "(% & % & % & Hwinner₁ & Hwinner₂)".
           (* begin transaction *)
-          iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+          iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
           iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
           (* update model values *)
@@ -1906,7 +1906,7 @@ Section inf_ws_deque_1_G.
           (* → [!#l.[front]] *)
           wp_bind (_.{front})%E.
           (* open invariant *)
-          iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+          iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
           iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
           (* do load front *)
           wp_load.
@@ -1915,7 +1915,7 @@ Section inf_ws_deque_1_G.
           { iDestruct (winner₂_state' with "Hwinner₂ Hstate") as "($ & _)". }
           (* close invariant *)
           iModIntro. iSplitR "Hctl₂ Hwinner₂".
-          { repeat iExists front2, front2, hist, model, priv, past3, prophs3. iFrame. done. }
+          { repeat iExists front2, front2, hist, vs, priv, past3, prophs3. iFrame. done. }
           clear- Hbranch2 Hbranch3.
 
           wp_pures.
@@ -1937,14 +1937,14 @@ Section inf_ws_deque_1_G.
         (* branch 4.2: winning thief did show up *)
         * iDestruct "Hstate" as "(Hid' & %Φ' & Hwinner₁ & HΦ')".
           (* begin transaction *)
-          iMod "HΦ'" as "(%_model & Hmodel₂ & _ & HΦ')".
+          iMod "HΦ'" as "(%_vs & Hmodel₂ & _ & HΦ')".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
           (* update model values *)
           iMod (model_update [] with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           (* end transaction *)
           iMod ("HΦ'" $! v with "[$Hmodel₂ //]") as "HΦ'".
           (* begin transaction *)
-          iMod "HΦ" as "(%_model & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
+          iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₂) & _ & HΦ)". injection Heq as <-.
           iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
           (* end transaction *)
@@ -1968,7 +1968,7 @@ Section inf_ws_deque_1_G.
           (* → [!#l.[front]] *)
           wp_bind (_.{front})%E.
           (* open invariant *)
-          iInv "Hinv" as "(%front3 & %_back & %hist & %model & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast3 & Hstate)".
+          iInv "Hinv" as "(%front3 & %_back & %hist & %vs & %_priv & %past3 & %prophs3 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast3 & Hstate)".
           iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
           (* do load front *)
           wp_load.
@@ -1991,7 +1991,7 @@ Section inf_ws_deque_1_G.
           --- apply (inj _) in Hstate as ->.
               (* close invariant *)
               iModIntro. iSplitR "Hctl₂ HΦ".
-              { iExists front2, front2, hist, model, priv, past3, prophs3. iFrame.
+              { iExists front2, front2, hist, vs, priv, past3, prophs3. iFrame.
                 do 2 (iSplit; first done).
                 unfold_state. do 2 iRight. iFrame. iLeft. auto with iFrame.
               }
@@ -2018,7 +2018,7 @@ Section inf_ws_deque_1_G.
               (* → [#l.[back] <- #(front2 + 1)] *)
               wp_bind (_ <-{back} _)%E.
               (* open invariant *)
-              iInv "Hinv" as "(%front5 & %_back & %hist & %model & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast5 & Hstate)".
+              iInv "Hinv" as "(%front5 & %_back & %hist & %vs & %_priv & %past5 & %prophs5 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast5 & Hstate)".
               iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
               (* do increment back *)
               wp_store.
@@ -2028,7 +2028,7 @@ Section inf_ws_deque_1_G.
               iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & (%state & Hhist_auth & %Hhist & Hstate))"; first lia.
               (* close invariant *)
               iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-              { iExists (S front2), (S front2), hist, model, priv, past5, prophs5. iFrame.
+              { iExists (S front2), (S front2), hist, vs, priv, past5, prophs5. iFrame.
                 iSplitL "Hback". { assert (front2 + 1 = S front2)%Z as -> by lia. done. }
                 do 2 (iSplit; first auto with lia).
                 unfold_state. iLeft. iFrame. unfold_state. iFrame. done.
@@ -2046,7 +2046,7 @@ Section inf_ws_deque_1_G.
               iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
               (* close invariant *)
               iModIntro. iSplitR "Hctl₂ HΦ".
-              { iExists (S front2), front2, hist, model, priv, past3, prophs3. iFrame.
+              { iExists (S front2), front2, hist, vs, priv, past3, prophs3. iFrame.
                 do 2 (iSplit; first done).
                 unfold_state. do 2 iRight. iFrame. iRight. auto with iFrame.
               }
@@ -2062,7 +2062,7 @@ Section inf_ws_deque_1_G.
               (* → [#l.[back] <- #(front2 + 1)] *)
               wp_bind (_ <-{back} _)%E.
               (* open invariant *)
-              iInv "Hinv" as "(%front4 & %_back & %hist & %model & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hmodel & Hprophet_model & >%Hpast4 & Hstate)".
+              iInv "Hinv" as "(%front4 & %_back & %hist & %vs & %_priv & %past4 & %prophs4 & Hfront & Hback & >Hctl₁ & Hfront_auth & Harray_model & Hmodel₁ & >%Hvs & Hprophet_model & >%Hpast4 & Hstate)".
               iDestruct (clt_agree with "Hctl₁ Hctl₂") as %(-> & ->).
               (* do increment back *)
               wp_store.
@@ -2072,7 +2072,7 @@ Section inf_ws_deque_1_G.
               iDestruct (front_state₃₂ with "Hfront_auth Hfront_lb Hstate") as "(-> & Hfront_auth & Hlock & (%state & Hhist_auth & %Hhist & Hstate))"; first lia.
               (* close invariant *)
               iModIntro. iSplitR "Hctl₂ Hlock HΦ".
-              { iExists (S front2), (S front2), hist, model, priv, past4, prophs4. iFrame.
+              { iExists (S front2), (S front2), hist, vs, priv, past4, prophs4. iFrame.
                 do 2 (iSplit; first auto with lia).
                 unfold_state. iLeft. iFrame. unfold_state. iFrame. done.
               }

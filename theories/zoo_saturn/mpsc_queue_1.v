@@ -195,10 +195,10 @@ Section mpsc_queue_1_G.
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma model_agree γ model1 model2 :
-    model₁ γ model1 -∗
-    model₂ γ model2 -∗
-    ⌜model1 = model2⌝.
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
