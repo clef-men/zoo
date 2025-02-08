@@ -21,13 +21,12 @@ let create cap =
 let push t data back =
   let cap = Array.size data in
   let front_cache = t.front_cache in
-  if back < front_cache + cap then (
+  if back < front_cache + cap then
     true
-  ) else (
+  else
     let front = t.front in
     t.front_cache <- front ;
     back < front + cap
-  )
 let push t v =
   let data = t.data in
   let back = t.back in
@@ -41,21 +40,19 @@ let push t v =
 
 let pop t front =
   let back_cache = t.back_cache in
-  if front < back_cache then (
+  if front < back_cache then
     true
-  ) else (
+  else
     let back = t.back in
     t.back_cache <- back ;
     front < back
-  )
 let pop t =
   let front = t.front in
-  if pop t front then (
+  if pop t front then
     let data = t.data in
     let res = Array.unsafe_cget data front in
     Array.unsafe_cset data front None ;
     t.front <- front + 1 ;
     res
-  ) else (
+  else
     None
-  )
