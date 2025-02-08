@@ -14,6 +14,16 @@ Definition spsc_bqueue_create : val :=
   fun: "cap" =>
     { array_unsafe_make "cap" §None, #0, #0, #0, #0 }.
 
+Definition spsc_bqueue_size : val :=
+  fun: "t" =>
+    let: "back" := "t".{back} in
+    let: "front" := "t".{front} in
+    "back" - "front".
+
+Definition spsc_bqueue_is_empty : val :=
+  fun: "t" =>
+    spsc_bqueue_size "t" == #0.
+
 Definition spsc_bqueue_push_0 : val :=
   fun: "t" "data" "back" =>
     let: "cap" := array_size "data" in

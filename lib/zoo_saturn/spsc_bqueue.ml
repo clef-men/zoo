@@ -18,6 +18,14 @@ let create cap =
     back_cache= 0;
   }
 
+let size t =
+  let back = t.back in
+  let front = t.front in
+  back - front
+
+let is_empty t =
+  size t == 0
+
 let push t data back =
   let cap = Array.size data in
   let front_cache = t.front_cache in

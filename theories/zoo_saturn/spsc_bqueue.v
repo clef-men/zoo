@@ -547,6 +547,148 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
+  Lemma spsc_bqueue_size_spec_producer t ι cap ws :
+    <<<
+      spsc_bqueue_inv t ι cap ∗
+      spsc_bqueue_producer t ws
+    | ∀∀ vs,
+      spsc_bqueue_model t vs
+    >>>
+      spsc_bqueue_size t @ ↑ι
+    <<<
+      spsc_bqueue_model t vs
+    | RET #(length vs);
+      spsc_bqueue_producer t ws
+    >>>.
+  Proof.
+    iIntros "!> %Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp_rec.
+
+    wp_bind (_.{back})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+    iSplitR "Hl_front_cache Hproducer_ctl₁ Hproducer_region HΦ". { iFrameSteps. }
+    iModIntro. clear.
+
+    wp_pures.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =2)".
+    wp_load.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+
+    iSplitR "Hl_front_cache Hproducer_ctl₁ Hproducer_region HΦ". { iFrameSteps. }
+    assert (⁺back - ⁺front2 = length vs)%Z as Hlen by lia.
+    iModIntro. clear- Hlen.
+
+    iSteps. rewrite Hlen. iSteps.
+  Qed.
+  Lemma spsc_bqueue_size_spec_consumer t ι cap :
+    <<<
+      spsc_bqueue_inv t ι cap ∗
+      spsc_bqueue_consumer t
+    | ∀∀ vs,
+      spsc_bqueue_model t vs
+    >>>
+      spsc_bqueue_size t @ ↑ι
+    <<<
+      spsc_bqueue_model t vs
+    | RET #(length vs);
+      spsc_bqueue_consumer t
+    >>>.
+  Proof.
+    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp_rec.
+
+    wp_bind (_.{back})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+
+    iSplitR "Hl_back_cache Hconsumer_ctl₁ Hconsumer_region HΦ". { iFrameSteps. }
+    assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
+    iModIntro. clear- Hlen.
+
+    wp_pures.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =2)".
+    wp_load.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+    iSplitR "Hl_back_cache Hconsumer_ctl₁ Hconsumer_region HΦ". { iFrameSteps. }
+    iModIntro. clear- Hlen.
+
+    iSteps. rewrite Hlen. iSteps.
+  Qed.
+
+  Lemma spsc_bqueue_is_empty_spec_producer t ι cap ws :
+    <<<
+      spsc_bqueue_inv t ι cap ∗
+      spsc_bqueue_producer t ws
+    | ∀∀ vs,
+      spsc_bqueue_model t vs
+    >>>
+      spsc_bqueue_is_empty t @ ↑ι
+    <<<
+      spsc_bqueue_model t vs
+    | RET #(bool_decide (vs = []%list));
+      spsc_bqueue_producer t ws
+    >>>.
+  Proof.
+    iIntros "!> %Φ (#Hinv & Hproducer) HΦ".
+
+    wp_rec.
+
+    wp_apply (spsc_bqueue_size_spec_producer with "[$Hinv $Hproducer]").
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ Hproducer".
+
+    wp_pures.
+    setoid_rewrite (bool_decide_ext _ (vs = [])) at 2; last first.
+    { rewrite -length_zero_iff_nil. lia. }
+    iApply ("HΦ" with "Hproducer").
+  Qed.
+  Lemma spsc_bqueue_is_empty_spec_consumer t ι cap :
+    <<<
+      spsc_bqueue_inv t ι cap ∗
+      spsc_bqueue_consumer t
+    | ∀∀ vs,
+      spsc_bqueue_model t vs
+    >>>
+      spsc_bqueue_is_empty t @ ↑ι
+    <<<
+      spsc_bqueue_model t vs
+    | RET #(bool_decide (vs = []%list));
+      spsc_bqueue_consumer t
+    >>>.
+  Proof.
+    iIntros "!> %Φ (#Hinv & Hconsumer) HΦ".
+
+    wp_rec.
+
+    wp_apply (spsc_bqueue_size_spec_consumer with "[$Hinv $Hconsumer]").
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ Hconsumer".
+
+    wp_pures.
+    setoid_rewrite (bool_decide_ext _ (vs = [])) at 2; last first.
+    { rewrite -length_zero_iff_nil. lia. }
+    iApply ("HΦ" with "Hconsumer").
+  Qed.
+
   #[local] Definition au_push l γ ι v Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
@@ -877,6 +1019,8 @@ Section spsc_bqueue_G.
 End spsc_bqueue_G.
 
 #[global] Opaque spsc_bqueue_create.
+#[global] Opaque spsc_bqueue_size.
+#[global] Opaque spsc_bqueue_is_empty.
 #[global] Opaque spsc_bqueue_push.
 #[global] Opaque spsc_bqueue_pop.
 
