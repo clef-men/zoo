@@ -177,6 +177,7 @@ Section spsc_bqueue_G.
     ⌜cap = γ.(metadata_capacity)⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
+    array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
@@ -186,6 +187,7 @@ Section spsc_bqueue_G.
       -> &
       #Hmeta &
       #Hl_data &
+      #Hdata_inv &
       #Hinv
     )".
 
@@ -509,6 +511,7 @@ Section spsc_bqueue_G.
     wp_rec.
     iApply wp_fupd.
     wp_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
+    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_inv". rewrite length_replicate.
     wp_block l as "Hmeta" "(Hl_data & Hl_front & Hl_front_cache & Hl_back & Hl_back_cache & _)".
     iMod (pointsto_persist with "Hl_data") as "#Hl_data".
 
@@ -535,16 +538,54 @@ Section spsc_bqueue_G.
 
     iApply "HΦ".
     iSplitL "Hdata_model Hl_front Hl_back Hmodel₂ Hhistory_auth Hproducer_ctl₂ Hconsumer_ctl₂"; last iSteps.
-    iExists l, γ. iStep 4.
-    iApply inv_alloc. iExists 0, 0, [], []. iStep 7.
-    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_size". rewrite length_replicate.
-    iStep 4.
+    iExists l, γ. iStep 5.
+    iApply inv_alloc. iExists 0, 0, [], []. iStep 11.
     Z_to_nat cap. rewrite Nat2Z.id. destruct cap as [| cap]; first iSteps.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
     rewrite length_replicate -(take_drop 1 (replicate _ _)).
     iDestruct (array_cslice_app with "Hdata_cslice") as "(Hback & Hextra)".
     rewrite Nat.add_0_l take_replicate_add. iStep.
     rewrite Nat.sub_0_r. iSteps.
+  Qed.
+
+  #[local] Lemma spsc_bqueue_front_spec l γ ι front :
+    {{{
+      inv ι (inv_inner l γ) ∗
+      consumer_ctl₁ γ front
+    }}}
+      (#l).{front}
+    {{{
+      RET #front;
+      consumer_ctl₁ γ front
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & Hconsumer_ctl₁) HΦ".
+
+    iInv "Hinv" as "(:inv_inner =')".
+    wp_load.
+    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
+    iSplitR "Hconsumer_ctl₁ HΦ". { iFrameSteps. }
+    iSteps.
+  Qed.
+
+  #[local] Lemma spsc_bqueue_back_spec l γ ι back ws :
+    {{{
+      inv ι (inv_inner l γ) ∗
+      producer_ctl₁ γ back ws
+    }}}
+      (#l).{back}
+    {{{
+      RET #back;
+      producer_ctl₁ γ back ws
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & Hproducer_ctl₁) HΦ".
+
+    iInv "Hinv" as "(:inv_inner =')".
+    wp_load.
+    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
+    iSplitR "Hproducer_ctl₁ HΦ". { iFrameSteps. }
+    iSteps.
   Qed.
 
   Lemma spsc_bqueue_size_spec_producer t ι cap ws :
@@ -566,13 +607,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_bind (_.{back})%E.
-    iInv "Hinv" as "(:inv_inner =1)".
-    wp_load.
-    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
-    iSplitR "Hl_front_cache Hproducer_ctl₁ Hproducer_region HΦ". { iFrameSteps. }
-    iModIntro. clear.
-
+    wp_apply (spsc_bqueue_back_spec with "[$Hinv $Hproducer_ctl₁]") as "Hproducer_ctl₁".
     wp_pures.
 
     wp_bind (_.{front})%E.
@@ -624,15 +659,7 @@ Section spsc_bqueue_G.
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
     iModIntro. clear- Hlen.
 
-    wp_pures.
-
-    wp_bind (_.{front})%E.
-    iInv "Hinv" as "(:inv_inner =2)".
-    wp_load.
-    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
-    iSplitR "Hl_back_cache Hconsumer_ctl₁ Hconsumer_region HΦ". { iFrameSteps. }
-    iModIntro. clear- Hlen.
-
+    wp_smart_apply (spsc_bqueue_front_spec with "[$Hinv $Hconsumer_ctl₁]") as "Hconsumer_ctl₁".
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
@@ -701,8 +728,8 @@ Section spsc_bqueue_G.
   #[local] Lemma spsc_bqueue_push_0_spec l ι γ front_cache back ws v Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
       array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
+      inv ι (inv_inner l γ) ∗
       l.[front_cache] ↦ #front_cache ∗
       producer_ctl₁ γ back ws ∗
       front_lb γ front_cache ∗
@@ -723,7 +750,7 @@ Section spsc_bqueue_G.
         Ψ vs
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hdata_inv & Hl_front_cache & Hproducer_ctl₁ & #Hfront_lb & HΨ) HΦ".
+    iIntros "%Φ (#Hmeta & #Hdata_inv & #Hinv & Hl_front_cache & Hproducer_ctl₁ & #Hfront_lb & HΨ) HΦ".
 
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hdata_inv") as "_".
@@ -779,16 +806,8 @@ Section spsc_bqueue_G.
     iIntros "!> %Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    wp_rec. wp_load. wp_pures.
-
-    wp_bind (_.{back})%E.
-    iInv "Hinv" as "(:inv_inner =1)".
-    wp_load.
-    iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
-    iDestruct (array_cslice_to_inv with "Hvs") as "#Hdata_inv".
-    iSplitR "Hl_front_cache Hproducer_ctl₁ Hproducer_region HΦ". { iFrameSteps. }
-    iModIntro. clear.
-
+    wp_rec. wp_load.
+    wp_smart_apply (spsc_bqueue_back_spec with "[$Hinv $Hproducer_ctl₁]") as "Hproducer_ctl₁".
     iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer_ctl₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch.
 
@@ -936,16 +955,8 @@ Section spsc_bqueue_G.
     iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    wp_rec. wp_pures.
-
-    wp_bind (_.{front})%E.
-    iInv "Hinv" as "(:inv_inner =1)".
-    wp_load.
-    iDestruct (consumer_ctl_agree with "Hconsumer_ctl₁ Hconsumer_ctl₂") as %<-.
-    iDestruct (array_cslice_to_inv with "Hvs") as "#Hdata_inv".
-    iSplitR "Hl_back_cache Hconsumer_ctl₁ Hconsumer_region HΦ". { iFrameSteps. }
-    iModIntro. clear.
-
+    wp_rec.
+    wp_smart_apply (spsc_bqueue_front_spec with "[$Hinv $Hconsumer_ctl₁]") as "Hconsumer_ctl₁".
     iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer_ctl₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
