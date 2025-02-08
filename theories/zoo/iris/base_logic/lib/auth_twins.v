@@ -13,27 +13,27 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthTwinsG Σ {A : ofe} (R : relation A) := {
+Class AuthTwinsG Σ (A : ofe) (R : relation A) := {
   #[local] auth_twins_G_var_G :: GhostVarG Σ gname ;
   #[local] auth_twins_G_mono_G :: AuthMonoG Σ R ;
   #[local] auth_twins_G_twins_G :: TwinsG Σ A ;
 }.
 
-Definition auth_twins_Σ {A : ofe} (R : relation A) := #[
+Definition auth_twins_Σ (A : ofe) (R : relation A) := #[
   ghost_var_Σ gname ;
   auth_mono_Σ R ;
   twins_Σ A
 ].
-#[global] Instance subG_auth_twins_Σ Σ {A : ofe} (R : relation A) :
-  subG (auth_twins_Σ R) Σ →
-  AuthTwinsG Σ R.
+#[global] Instance subG_auth_twins_Σ Σ (A : ofe) (R : relation A) :
+  subG (auth_twins_Σ A R) Σ →
+  AuthTwinsG Σ A R.
 Proof.
   solve_inG.
 Qed.
 
 Section auth_twins_G.
   Context {A : ofe} (R : relation A).
-  Context `{auth_twins_G : !AuthTwinsG Σ R}.
+  Context `{auth_twins_G : !AuthTwinsG Σ A R}.
 
   Notation Rs := (
     rtc R

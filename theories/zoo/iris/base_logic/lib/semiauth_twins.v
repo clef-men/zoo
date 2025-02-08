@@ -12,24 +12,25 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class SemiauthTwinsG Σ {A : ofe} (R : relation A) F := {
-  #[local] semiauth_twins_G_left_twins_G :: AuthTwinsG Σ R ;
+Class SemiauthTwinsG Σ (A : ofe) (R : relation A) F := {
+  #[local] semiauth_twins_G_left_twins_G :: AuthTwinsG Σ A R ;
   #[local] semiauth_twins_G_right_twins_G :: TwinsG Σ F ;
 }.
 
-Definition semiauth_twins_Σ {A : ofe} (R : relation A) F `{!oFunctorContractive F} := #[
-  auth_twins_Σ R ;
+Definition semiauth_twins_Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} := #[
+  auth_twins_Σ A R ;
   twins_Σ F
 ].
-#[global] Instance subG_semiauth_twins_Σ Σ {A : ofe} (R : relation A) F `{!oFunctorContractive F} :
-  subG (semiauth_twins_Σ R F) Σ →
-  SemiauthTwinsG Σ R F.
+#[global] Instance subG_semiauth_twins_Σ Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} :
+  subG (semiauth_twins_Σ A R F) Σ →
+  SemiauthTwinsG Σ A R F.
 Proof.
   solve_inG.
 Qed.
 
 Section semiauth_twins_G.
-  Context {A : ofe} (R : relation A) F `{semiauth_twins_G : !SemiauthTwinsG Σ R F}.
+  Context {A : ofe} (R : relation A) (F : oFunctor).
+  Context `{semiauth_twins_G : !SemiauthTwinsG Σ A R F}.
 
   Notation Rs := (
     rtc R
