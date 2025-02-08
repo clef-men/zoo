@@ -345,11 +345,10 @@ Section Foralli.
     l !! j = Some x →
     P (i + j) x.
   Proof.
-    move: i j. induction l as [| y l IH] => i j H Hlookup; first done.
-    destruct j.
+    move: l i. induction j => l i.
+    all: destruct l; first done.
     - rewrite right_id. naive_solver.
-    - rewrite -Nat.add_succ_comm.
-      apply (IH (S i) j); [naive_solver | done].
+    - rewrite -Nat.add_succ_comm. naive_solver.
   Qed.
   Lemma Foralli_lookup {l} i x :
     Foralli l →
@@ -384,6 +383,130 @@ Section Forall2.
     apply Forall2_insert; done.
   Qed.
 End Forall2.
+
+Section Forall2i.
+  Context `(P : nat → A1 → A2 → Prop).
+
+  #[local] Fixpoint Forall2i' l1 l2 i :=
+    match l1, l2 with
+    | [], [] =>
+        True
+    | x1 :: l1, x2 :: l2 =>
+        P i x1 x2 ∧ Forall2i' l1 l2 (S i)
+    | _, _ =>
+        False
+    end.
+  #[global] Arguments Forall2i' !_ !_ _ / : assert.
+  Definition Forall2i l1 l2 :=
+    Forall2i' l1 l2 0.
+
+  #[local] Lemma Forall2i'_length l1 l2 i :
+    Forall2i' l1 l2 i →
+    length l1 = length l2.
+  Proof.
+    move: l2 i. induction l1.
+    all: destruct l2; first done.
+    all: naive_solver.
+  Qed.
+  Lemma Forall2i_length l1 l2 :
+    Forall2i l1 l2 →
+    length l1 = length l2.
+  Proof.
+    apply Forall2i'_length.
+  Qed.
+
+  #[local] Lemma Forall2i'_lookup_lr l1 l2 i j x1 x2 :
+    Forall2i' l1 l2 i →
+    l1 !! j = Some x1 →
+    l2 !! j = Some x2 →
+    P (i + j) x1 x2.
+  Proof.
+    move: l1 l2 i. induction j => l1 l2 i.
+    all: destruct l1; first done.
+    all: destruct l2; first done.
+    - rewrite right_id. naive_solver.
+    - rewrite -Nat.add_succ_comm. naive_solver.
+  Qed.
+  Lemma Forall2i_lookup_lr {l1 l2} i x1 x2 :
+    Forall2i l1 l2 →
+    l1 !! i = Some x1 →
+    l2 !! i = Some x2 →
+    P i x1 x2.
+  Proof.
+    apply Forall2i'_lookup_lr.
+  Qed.
+
+  Lemma Forall2i_lookup_r l1 l2 i x1 :
+    Forall2i l1 l2 →
+    l1 !! i = Some x1 →
+      ∃ x2,
+      l2 !! i = Some x2 ∧
+      P i x1 x2.
+  Proof.
+    intros H Hlookup1.
+    opose proof* Forall2i_length as Hlen; first done.
+    destruct (lookup_lt_is_Some_2 l2 i) as (x2 & Hlookup2).
+    { rewrite -Hlen. eapply lookup_lt_Some. done. }
+    eauto using Forall2i_lookup_lr.
+  Qed.
+  Lemma Forall2i_lookup_l l1 l2 i x2 :
+    Forall2i l1 l2 →
+    l2 !! i = Some x2 →
+      ∃ x1,
+      l1 !! i = Some x1 ∧
+      P i x1 x2.
+  Proof.
+    intros H Hlookup2.
+    opose proof* Forall2i_length as Hlen; first done.
+    destruct (lookup_lt_is_Some_2 l1 i) as (x1 & Hlookup1).
+    { rewrite Hlen. eapply lookup_lt_Some. done. }
+    eauto using Forall2i_lookup_lr.
+  Qed.
+
+  #[local] Lemma Forall2i'_same_length_lookup_2 l1 l2 i :
+    length l1 = length l2 →
+    ( ∀ j x1 x2,
+      l1 !! j = Some x1 →
+      l2 !! j = Some x2 →
+      P (i + j) x1 x2
+    ) →
+    Forall2i' l1 l2 i.
+  Proof.
+    move: l2 i. induction l1 as [| x1 l1 IH] => l2 i.
+    all: destruct l2 as [| x2 l2]; try done.
+    intros [= Hlen] H. split.
+    - specialize (H 0). rewrite right_id in H. naive_solver.
+    - apply IH; first done. intros j.
+      specialize (H (S j)). rewrite -Nat.add_succ_comm // in H.
+  Qed.
+  Lemma Forall2i_same_length_lookup_2 l1 l2 :
+    length l1 = length l2 →
+    ( ∀ i x1 x2,
+      l1 !! i = Some x1 →
+      l2 !! i = Some x2 →
+      P i x1 x2
+    ) →
+    Forall2i l1 l2.
+  Proof.
+    intros.
+    apply Forall2i'_same_length_lookup_2; done.
+  Qed.
+  Lemma Forall2i_same_length_lookup l1 l2 :
+    Forall2i l1 l2 ↔
+      length l1 = length l2 ∧
+        ∀ i x1 x2,
+        l1 !! i = Some x1 →
+        l2 !! i = Some x2 →
+        P i x1 x2.
+  Proof.
+    split.
+    - intros H.
+      opose proof* Forall2i_length as Hlen; first done.
+      eauto using Forall2i_lookup_lr.
+    - intros (? & ?).
+      auto using Forall2i_same_length_lookup_2.
+  Qed.
+End Forall2i.
 
 Section fmap.
   Context {A B : Type}.

@@ -417,7 +417,6 @@ Section bi.
   Section big_sepL2.
     Context {A1 A2 : Type}.
 
-    Implicit Types ϕ : A1 → A2 → Prop.
     Implicit Types Φ Ψ : nat → A1 → A2 → PROP.
 
     Lemma big_sepL2_bupd `{BiBUpd PROP} Φ l1 l2 :
@@ -677,11 +676,18 @@ Section bi.
       intros. rewrite big_sepL2_replicate_r //.
     Qed.
 
-    Lemma big_sepL2_Forall2 `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 ϕ :
+    Lemma big_sepL2_Forall2 `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 (ϕ : A1 → A2 → Prop) :
       ([∗ list] x1; x2 ∈ l1; l2, ⌜ϕ x1 x2⌝) ⊢@{PROP}
       ⌜Forall2 ϕ l1 l2⌝.
     Proof.
       rewrite Forall2_same_length_lookup big_sepL2_forall.
+      iSteps.
+    Qed.
+    Lemma big_sepL2_Forall2i `{!BiAffine PROP} `{!BiPureForall PROP} l1 l2 (ϕ : nat → A1 → A2 → Prop) :
+      ([∗ list] k ↦ x1; x2 ∈ l1; l2, ⌜ϕ k x1 x2⌝) ⊢@{PROP}
+      ⌜Forall2i ϕ l1 l2⌝.
+    Proof.
+      rewrite Forall2i_same_length_lookup big_sepL2_forall.
       iSteps.
     Qed.
 
