@@ -57,6 +57,7 @@ Section spsc_bqueue_G.
   Context `{spsc_bqueue_G : SpscBqueueG Σ}.
 
   Record metadata := {
+    metadata_capacity : nat ;
     metadata_data : val ;
     metadata_model : auth_twins_name ;
     metadata_history : gname ;
@@ -129,10 +130,10 @@ Section spsc_bqueue_G.
   #[local] Definition consumer_region γ :=
     consumer_region' γ.(metadata_consumer_region).
 
-  #[local] Definition inv_inner l γ cap : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ front back vs hist,
     ⌜back = (front + length vs)%nat⌝ ∗
-    ⌜back ≤ front + cap⌝ ∗
+    ⌜back ≤ front + γ.(metadata_capacity)⌝ ∗
     ⌜length hist = back⌝ ∗
     ⌜vs = drop front hist⌝ ∗
     l.[front] ↦ #front ∗
@@ -141,14 +142,14 @@ Section spsc_bqueue_G.
     producer_ctl₂ γ back ∗
     model₂ γ vs ∗
     history_auth γ hist ∗
-    ( array_cslice γ.(metadata_data) cap front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> take 1 vs)
+    ( array_cslice γ.(metadata_data) γ.(metadata_capacity) front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> take 1 vs)
     ∨ consumer_region γ
     ) ∗
-    array_cslice γ.(metadata_data) cap (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
-    ( array_cslice γ.(metadata_data) cap back (DfracOwn 1) (if decide (back = front + cap) then [] else [§None%V])
+    array_cslice γ.(metadata_data) γ.(metadata_capacity) (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
+    ( array_cslice γ.(metadata_data) γ.(metadata_capacity) back (DfracOwn 1) (if decide (back = front + γ.(metadata_capacity)) then [] else [§None%V])
     ∨ producer_region γ
     ) ∗
-    array_cslice γ.(metadata_data) cap (S back) (DfracOwn 1) (replicate (cap - (back - front) - 1) §None%V).
+    array_cslice γ.(metadata_data) γ.(metadata_capacity) (S back) (DfracOwn 1) (replicate (γ.(metadata_capacity) - (back - front) - 1) §None%V).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %front{} &
@@ -173,13 +174,15 @@ Section spsc_bqueue_G.
   Definition spsc_bqueue_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜cap = γ.(metadata_capacity)⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
-    inv ι (inv_inner l γ cap).
+    inv ι (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       #Hmeta &
       #Hl_data &
@@ -516,6 +519,7 @@ Section spsc_bqueue_G.
     iMod consumer_region_alloc as "(%γ_consumer_region & Hconsumer_region)".
 
     pose γ := {|
+      metadata_capacity := ₊cap ;
       metadata_data := data ;
       metadata_model := γ_model ;
       metadata_history := γ_history ;
@@ -531,7 +535,8 @@ Section spsc_bqueue_G.
 
     iApply "HΦ".
     iSplitL "Hdata_model Hl_front Hl_back Hmodel₂ Hhistory_auth Hproducer_ctl₂ Hconsumer_ctl₂"; last iSteps.
-    iStep 3. iApply inv_alloc. iExists 0, 0, [], []. iStep 7.
+    iExists l, γ. iStep 4.
+    iApply inv_alloc. iExists 0, 0, [], []. iStep 7.
     iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_size". rewrite length_replicate.
     iStep 4.
     Z_to_nat cap. rewrite Nat2Z.id. destruct cap as [| cap]; first iSteps.
@@ -542,37 +547,37 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  #[local] Definition au_push l ι cap v Ψ : iProp Σ :=
+  #[local] Definition au_push l γ ι v Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_bqueue_model #l vs
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      spsc_bqueue_model #l (if decide (length vs = cap) then vs else vs ++ [v]),
+      spsc_bqueue_model #l (if decide (length vs = γ.(metadata_capacity)) then vs else vs ++ [v]),
     COMM
       Ψ vs
     }>.
-  #[local] Lemma spsc_bqueue_push_0_spec l ι γ cap front_cache back ws v Ψ :
+  #[local] Lemma spsc_bqueue_push_0_spec l ι γ front_cache back ws v Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ cap) ∗
-      array_inv γ.(metadata_data) cap ∗
+      inv ι (inv_inner l γ) ∗
+      array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
       l.[front_cache] ↦ #front_cache ∗
       producer_ctl₁ γ back ws ∗
       front_lb γ front_cache ∗
-      au_push l ι cap v Ψ
+      au_push l γ ι v Ψ
     }}}
       spsc_bqueue_push_0 #l γ.(metadata_data) #back
     {{{ b front_cache,
       RET #b;
-      ⌜b = bool_decide (back < front_cache + cap)⌝ ∗
+      ⌜b = bool_decide (back < front_cache + γ.(metadata_capacity))⌝ ∗
       l.[front_cache] ↦ #front_cache ∗
       producer_ctl₁ γ back ws ∗
       front_lb γ front_cache ∗
       if b then
-        au_push l ι cap v Ψ
+        au_push l γ ι v Ψ
       else
         ∃ vs,
-        ⌜length vs = cap⌝ ∗
+        ⌜length vs = γ.(metadata_capacity)⌝ ∗
         Ψ vs
     }}}.
   Proof.
@@ -591,7 +596,7 @@ Section spsc_bqueue_G.
       wp_load.
       iDestruct (producer_ctl_agree with "Hproducer_ctl₁ Hproducer_ctl₂") as %<-.
       iClear "Hfront_lb". iDestruct (front_lb_get with "Hconsumer_ctl₂") as "#Hfront_lb".
-      destruct (decide (back < front1 + cap)) as [Hbranch2 | Hbranch2].
+      destruct (decide (back < front1 + γ.(metadata_capacity))) as [Hbranch2 | Hbranch2].
 
       + iSplitR "Hl_front_cache Hproducer_ctl₁ HΨ HΦ". { iFrameSteps. }
         iModIntro. clear- Hbranch2.
@@ -600,7 +605,7 @@ Section spsc_bqueue_G.
         iApply ("HΦ" $! _ front1).
         rewrite !bool_decide_eq_true_2; [lia.. |]. iSteps.
 
-      + assert (length vs1 = cap) as Hvs1_len by lia.
+      + assert (length vs1 = γ.(metadata_capacity)) as Hvs1_len by lia.
 
         iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -689,8 +694,8 @@ Section spsc_bqueue_G.
             iApply (array_cslice_app_1 with "Hvs Hback_").
             rewrite length_fmap. naive_solver lia.
         - case_decide.
-          + assert (cap - (S back - front3) - 1 = 0) as -> by lia. iSteps.
-          + iDestruct (array_cslice_app_2 [§None%V] (replicate (cap - (S back - front3) - 1) §None%V) with "Hextra") as "(Hback & Hextra)".
+          + assert (γ.(metadata_capacity) - (S back - front3) - 1 = 0) as -> by lia. iSteps.
+          + iDestruct (array_cslice_app_2 [§None%V] (replicate (γ.(metadata_capacity) - (S back - front3) - 1) §None%V) with "Hextra") as "(Hback & Hextra)".
             { rewrite /= -replicate_S. f_equal. lia. }
             rewrite Nat.add_1_r. iSteps.
       }
@@ -711,10 +716,10 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Ψ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_0_spec l ι γ cap front back_cache Ψ :
+  #[local] Lemma spsc_bqueue_pop_0_spec l ι γ front back_cache Ψ :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ cap) ∗
+      inv ι (inv_inner l γ) ∗
       l.[back_cache] ↦ #back_cache ∗
       consumer_ctl₁ γ front ∗
       back_lb γ back_cache ∗
@@ -857,14 +862,14 @@ Section spsc_bqueue_G.
       - iDestruct (array_cslice_shift with "Hfront_") as "Hfront".
         case_decide as Hcase.
         + rewrite -Hcase decide_False; first lia.
-          assert (cap - (back3 - S front) - 1 = 0) as -> by lia.
+          assert (γ.(metadata_capacity) - (back3 - S front) - 1 = 0) as -> by lia.
           iSteps.
         + rewrite decide_False; first lia.
           iFrame.
           iDestruct (array_cslice_app_1 with "Hextra Hfront") as "Hextra".
           { rewrite length_replicate. lia. }
           rewrite -replicate_S_end.
-          assert (S (cap - (back3 - front) - 1) = cap - (back3 - S front) - 1) as -> by lia.
+          assert (S (γ.(metadata_capacity) - (back3 - front) - 1) = γ.(metadata_capacity) - (back3 - S front) - 1) as -> by lia.
           iSteps.
     }
     iSteps.
