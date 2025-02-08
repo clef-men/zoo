@@ -1,6 +1,3 @@
-From iris.algebra Require Import
-  list.
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -29,11 +26,11 @@ Implicit Types vs front back : list val.
 Implicit Types o : option val.
 
 Class MpscQueue2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpsc_queue_2_G_twins_G :: TwinsG Σ (listO val) ;
+  #[local] mpsc_queue_2_G_twins_G :: TwinsG Σ (leibnizO (list val)) ;
 }.
 
 Definition mpsc_queue_2_Σ := #[
-  twins_Σ (listO val)
+  twins_Σ (leibnizO (list val))
 ].
 #[global] Instance subG_mpsc_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_2_Σ Σ →

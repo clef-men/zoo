@@ -1,9 +1,6 @@
 From Coq.Logic Require Import
   FunctionalExtensionality.
 
-From iris.algebra Require Import
-  list.
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -66,7 +63,7 @@ Class InfWsDeque1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_ws_deque_1_G_ctl_G :: TwinsG Σ (ZO * (nat -d> val_O)) ;
   #[local] inf_ws_deque_1_G_front_G :: AuthNatMaxG Σ ;
   #[local] inf_ws_deque_1_G_hist_G :: MonoListG Σ val ;
-  #[local] inf_ws_deque_1_G_model_G :: TwinsG Σ (listO val_O) ;
+  #[local] inf_ws_deque_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_ws_deque_1_G_lock_G :: ExclG Σ unitO ;
   #[local] inf_ws_deque_1_G_prophet_G :: WiseProphetG Σ prophet ;
   #[local] inf_ws_deque_1_G_winner_G :: TwinsG Σ (natO * (val_O -d> ▶ ∙)) ;
@@ -77,7 +74,7 @@ Definition inf_ws_deque_1_Σ := #[
   twins_Σ (ZO * (nat -d> val_O)) ;
   auth_nat_max_Σ ;
   mono_list_Σ val ;
-  twins_Σ (listO val_O) ;
+  twins_Σ (leibnizO (list val)) ;
   excl_Σ unitO ;
   wise_prophet_Σ prophet ;
   twins_Σ (natO * (val_O -d> ▶ ∙))
