@@ -229,16 +229,16 @@ Section zoo_G.
       ▷ (l +ₗ fld) ↦{dq} v ∗
       ⌜val_physical v⌝ ∗
       ⌜val_physical v1⌝ ∗
-      ⌜dq = DfracOwn 1 ∨ ¬ val_eq v v1⌝
+      ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
     }}
       CAS (#l, #fld)%V v1 v2
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
-        ⌜val_neq v v1⌝ ∗
+        ⌜v ≉ v1⌝ ∗
         (l +ₗ fld) ↦{dq} v
       ∨ ⌜b = true⌝ ∗
-        ⌜val_eq v v1⌝ ∗
+        ⌜v ≈ v1⌝ ∗
         (l +ₗ fld) ↦ v2
     }}.
   Proof.

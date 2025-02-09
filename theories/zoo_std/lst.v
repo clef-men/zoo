@@ -69,15 +69,15 @@ Proof.
 Qed.
 
 #[global] Instance lst_to_val_inj' :
-  Inj (=) val_eq lst_to_val.
+  Inj (=) (≈@{val}) lst_to_val.
 Proof.
   intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [naive_solver.. |].
-  intros (_ & _ & [= -> ->%val_eq_refl%IH]) => //.
+  intros (_ & _ & [= -> ->%val_similar_refl%IH]) => //.
 Qed.
 #[global] Instance lst_to_val_inj :
   Inj (=) (=) lst_to_val.
 Proof.
-  intros ?* ->%val_eq_refl%(inj _) => //.
+  intros ?* ->%val_similar_refl%(inj _) => //.
 Qed.
 #[global] Instance lst_to_val_physical vs :
   ValPhysical (lst_to_val vs).

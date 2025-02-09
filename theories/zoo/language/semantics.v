@@ -25,7 +25,8 @@ From zoo Require Import
   prelude.
 From zoo.common Require Export
   option
-  list.
+  list
+  typeclasses.
 From zoo.language Require Export
   metatheory.
 From zoo Require Import
@@ -71,40 +72,40 @@ Definition val_physical v :=
 Class ValPhysical v :=
   val_physical' : val_physical v.
 
-Definition val_neq v1 v2 :=
-  match v1 with
-  | ValLit lit1 =>
-      match v2 with
-      | ValLit lit2 =>
-          lit1 ≠ lit2
-      | _ =>
-          True
-      end
-  | ValBlock bid1 tag1 vs1 =>
-      match v2 with
-      | ValBlock bid2 tag2 vs2 =>
-          match bid1, bid2 with
-          | Some bid1, Some bid2 =>
-              bid1 ≠ bid2 ∨
-              tag1 ≠ tag2 ∨
-              vs1 ≠ vs2
-          | _, _ =>
-              match vs1, vs2 with
-              | [], [] =>
-                  tag1 ≠ tag2
-              | _, _ =>
-                  True
-              end
-          end
-      | _ =>
-          True
-      end
-  | _ =>
-      True
-  end.
-#[global] Arguments val_neq !_ !_ / : assert.
+#[global] Instance val_nonsimilar : Nonsimilar val :=
+  λ v1 v2,
+    match v1 with
+    | ValLit lit1 =>
+        match v2 with
+        | ValLit lit2 =>
+            lit1 ≠ lit2
+        | _ =>
+            True
+        end
+    | ValBlock bid1 tag1 vs1 =>
+        match v2 with
+        | ValBlock bid2 tag2 vs2 =>
+            match bid1, bid2 with
+            | Some bid1, Some bid2 =>
+                bid1 ≠ bid2 ∨
+                tag1 ≠ tag2 ∨
+                vs1 ≠ vs2
+            | _, _ =>
+                match vs1, vs2 with
+                | [], [] =>
+                    tag1 ≠ tag2
+                | _, _ =>
+                    True
+                end
+            end
+        | _ =>
+            True
+        end
+    | _ =>
+        True
+    end.
 
-#[global] Instance val_neq_dec : RelDecision val_neq.
+#[global] Instance val_nonsimilar_dec : RelDecision (≉@{val}).
 Proof.
   unshelve refine (
     λ v1 v2,
@@ -145,44 +146,44 @@ Proof.
   all: abstract naive_solver.
 Defined.
 
-Definition val_eq v1 v2 :=
-  match v1, v2 with
-  | ValLit lit1, ValLit lit2 =>
-      lit1 = lit2
-  | ValRecs i1 recs1, ValRecs i2 recs2 =>
-      i1 = i2 ∧
-      recs1 = recs2
-  | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
-      match bid1, bid2 with
-      | Some bid1, Some bid2 =>
-          bid1 = bid2
-      | _, _ =>
-          True
-      end ∧
-      tag1 = tag2 ∧
-      vs1 = vs2
-  | _, _ =>
-      False
-  end.
-#[global] Arguments val_eq !_ !_ / : assert.
+#[global] Instance val_similar : Similar val :=
+  λ v1 v2,
+    match v1, v2 with
+    | ValLit lit1, ValLit lit2 =>
+        lit1 = lit2
+    | ValRecs i1 recs1, ValRecs i2 recs2 =>
+        i1 = i2 ∧
+        recs1 = recs2
+    | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
+        match bid1, bid2 with
+        | Some bid1, Some bid2 =>
+            bid1 = bid2
+        | _, _ =>
+            True
+        end ∧
+        tag1 = tag2 ∧
+        vs1 = vs2
+    | _, _ =>
+        False
+    end.
 
-#[global] Instance val_eq_reflexive :
-  Reflexive val_eq.
+#[global] Instance val_similar_reflexive :
+  Reflexive (≈@{val}).
 Proof.
   intros [| | []] => //.
 Qed.
-#[global] Instance val_eq_sym :
-  Symmetric val_eq.
+#[global] Instance val_similar_sym :
+  Symmetric (≈@{val}).
 Proof.
   do 2 intros [| | []]; naive_solver.
 Qed.
-Lemma val_eq_refl v1 v2 :
+Lemma val_similar_refl v1 v2 :
   v1 = v2 →
-  val_eq v1 v2.
+  v1 ≈ v2.
 Proof.
   naive_solver.
 Qed.
-#[global] Instance val_eq_dec : RelDecision val_eq.
+#[global] Instance val_similar_dec : RelDecision val_similar.
 Proof.
   unshelve refine (
     λ v1 v2,
@@ -440,7 +441,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_equal_fail v1 v2 σ :
       val_physical v1 →
       val_physical v2 →
-      val_neq v1 v2 →
+      v1 ≉ v2 →
       base_step
         (Equal (Val v1) (Val v2))
         σ
@@ -450,7 +451,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_equal_suc v1 v2 σ :
       val_physical v1 →
-      val_eq v1 v2 →
+      v1 ≈ v2 →
       base_step
         (Equal (Val v1) (Val v2))
         σ
@@ -615,7 +616,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       val_physical v →
       val_physical v1 →
-      val_neq v v1 →
+      v ≉ v1 →
       base_step
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
@@ -627,7 +628,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       val_physical v →
       val_physical v1 →
-      val_eq v v1 →
+      v ≈ v1 →
       base_step
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ

@@ -124,12 +124,12 @@ Ltac invert_base_step :=
   end.
 
 #[global] Hint Extern 0 (
-  val_neq _ _
+  @nonsimilar val _ _ _
 ) => (
   progress simpl; try injection
 ) : zoo.
 #[global] Hint Extern 0 (
-  val_eq _ _
+  @similar val _ _ _
 ) => (
   progress simpl
 ) : zoo.

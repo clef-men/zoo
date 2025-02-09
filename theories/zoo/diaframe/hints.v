@@ -397,7 +397,7 @@ Section instances.
 End instances.
 
 Section side_condition_lemmas.
-  Lemma val_neq_lit_neq lit1 lit2 :
+  Lemma val_nonsimilar_lit_neq lit1 lit2 :
     lit1 ≠ lit2 →
     ValLit lit1 ≠ ValLit lit2.
   Proof.
@@ -487,7 +487,7 @@ Ltac trySolvePureAdd1 :=
   | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
       assert_fails (has_evar lit1);
       assert_fails (has_evar lit2);
-      eapply val_neq_lit_neq; solve [pure_solver.trySolvePure]
+      eapply val_nonsimilar_lit_neq; solve [pure_solver.trySolvePure]
   | |- LitInt ?n1 ≠ LitInt ?n2 =>
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);

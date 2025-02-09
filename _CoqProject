@@ -39,6 +39,7 @@ theories/zoo/common/gmultiset.v
 theories/zoo/common/treemap.v
 theories/zoo/common/string.v
 theories/zoo/common/format.v
+theories/zoo/common/typeclasses.v
 
 theories/zoo/iris/algebra/base.v
 theories/zoo/iris/algebra/big_op.v

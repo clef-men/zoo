@@ -31,10 +31,10 @@ Fixpoint clist_to_val cvs :=
 Coercion clist_to_val : clist >-> val.
 
 #[global] Instance clist_to_val_inj :
-  Inj (=) val_eq clist_to_val.
+  Inj (=) (≈@{val}) clist_to_val.
 Proof.
   intros cvs1. induction cvs1 as [| | v1 cvs1 IH]; intros [| | v2 cvs2]; [naive_solver.. |].
-  intros (_ & _ & [= -> ->%val_eq_refl%IH]) => //.
+  intros (_ & _ & [= -> ->%val_similar_refl%IH]) => //.
 Qed.
 #[global] Instance clist_to_val_physical cvs :
   ValPhysical (clist_to_val cvs).

@@ -45,10 +45,10 @@ Section zoo_G.
     val_physical v1 →
     val_physical v2 →
     ▷ (
-      ( ⌜val_neq v1 v2⌝ -∗
+      ( ⌜v1 ≉ v2⌝ -∗
         Φ #false
       ) ∧ (
-        ⌜val_eq v1 v2⌝ -∗
+        ⌜v1 ≈ v2⌝ -∗
         Φ #true
       )
     ) ⊢
@@ -260,11 +260,11 @@ Section zoo_G.
     val_physical v1 →
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
-      ( ⌜val_neq v v1⌝ -∗
+      ( ⌜v ≉ v1⌝ -∗
         (l +ₗ fld) ↦{dq} v -∗
         Φ #false
       ) ∧ (
-        ⌜val_eq v v1⌝ -∗
+        ⌜v ≈ v1⌝ -∗
         (l +ₗ fld) ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
           (l +ₗ fld) ↦{dq} v ∗

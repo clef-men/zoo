@@ -102,10 +102,10 @@ Section zoo_G.
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ValPhysical v1 →
     ValPhysical v2 →
-    ( val_neq v1 v2 →
+    ( v1 ≉ v2 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
-    ( val_eq v1 v2 →
+    ( v1 ≈ v2 →
       envs_entails Δ' (WP fill K #true @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (v1 == v2) @ E {{ Φ }}).
@@ -329,10 +329,10 @@ Section zoo_G.
     envs_lookup_delete true id Δ' = Some (p, (l +ₗ fld) ↦{dq} v, Δ'')%I →
     ValPhysical v →
     ValPhysical v1 →
-    ( val_neq v v1 →
+    ( v ≉ v1 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
-    ( val_eq v v1 →
+    ( v ≈ v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
     ) →
     match
@@ -341,7 +341,7 @@ Section zoo_G.
         Δ''
     with
     | Some Δ''' =>
-        val_eq v v1 →
+        v ≈ v1 →
         envs_entails Δ''' (WP fill K #true @ E {{ Φ }})
     | None =>
         False

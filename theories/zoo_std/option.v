@@ -21,14 +21,14 @@ Coercion option_to_val o :=
 #[global] Arguments option_to_val !_ / : assert.
 
 #[global] Instance option_to_val_inj' :
-  Inj (=) val_eq option_to_val.
+  Inj (=) (≈@{val}) option_to_val.
 Proof.
   intros [] []; naive_solver.
 Qed.
 #[global] Instance option_to_val_inj :
   Inj (=) (=) option_to_val.
 Proof.
-  intros ?* ->%val_eq_refl%(inj _) => //.
+  intros ?* ->%val_similar_refl%(inj _) => //.
 Qed.
 #[global] Instance option_to_val_physical o :
   ValPhysical (option_to_val o).

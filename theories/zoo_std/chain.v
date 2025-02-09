@@ -57,7 +57,7 @@ Section zoo_G.
   Lemma chain_physically_distinct tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →
-    val_neq t1 t2 →
+    t1 ≉ t2 →
     chain_model tag1 t1 vs1 dst1 -∗
     chain_model tag2 t2 vs2 dst2 -∗
     ⌜t1 ≠ t2⌝.
@@ -67,7 +67,7 @@ Section zoo_G.
   Qed.
   Lemma chain_physically_distinct' tag t vs dst :
     0 < length vs →
-    val_neq t t →
+    t ≉ t →
     chain_model tag t vs dst ⊢
     False.
   Proof.

@@ -75,7 +75,7 @@ Section mpmc_bstack_G.
   Qed.
 
   Lemma lst_to_val_inj' vs1 vs2 :
-    val_eq (lst_to_val (length vs1) vs1) (lst_to_val (length vs2) vs2) →
+    lst_to_val (length vs1) vs1 ≈ lst_to_val (length vs2) vs2 →
     vs1 = vs2.
   Proof.
     destruct vs1, vs2; try naive_solver.
