@@ -124,7 +124,7 @@ Section zoo_G.
     iSteps.
     - rewrite length_replicate. iSteps.
     - iExists elems, 0. rewrite right_id. iSteps.
-      iApply (big_sepL2_replicate_r_2 _ _ (λ _, element_model) with "Helems").
+      iApply (big_sepL2_replicate_r_2 (λ _, element_model) with "Helems").
       { rewrite length_fmap // in Helems. }
   Qed.
 
