@@ -558,14 +558,14 @@ Section mpsc_queue_3_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_pop_front_spec_open t ι :
+  Lemma mpsc_queue_3_pop_spec_open t ι :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t None
     | ∀∀ vs,
       mpsc_queue_3_model t vs
     >>>
-      mpsc_queue_3_pop_front t @ ↑ι
+      mpsc_queue_3_pop t @ ↑ι
     <<<
       mpsc_queue_3_model t (tail vs)
     | RET head vs;
@@ -623,14 +623,14 @@ Section mpsc_queue_3_G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-  Lemma mpsc_queue_3_pop_front_spec_closed t ι vs :
+  Lemma mpsc_queue_3_pop_spec_closed t ι vs :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t (Some vs)
     | ∀∀ vs',
       mpsc_queue_3_model t vs'
     >>>
-      mpsc_queue_3_pop_front t @ ↑ι
+      mpsc_queue_3_pop t @ ↑ι
     <<<
       ⌜vs' = vs⌝ ∗
       mpsc_queue_3_model t (tail vs)
@@ -734,7 +734,7 @@ End mpsc_queue_3_G.
 #[global] Opaque mpsc_queue_3_is_empty.
 #[global] Opaque mpsc_queue_3_push_front.
 #[global] Opaque mpsc_queue_3_push_back.
-#[global] Opaque mpsc_queue_3_pop_front.
+#[global] Opaque mpsc_queue_3_pop.
 #[global] Opaque mpsc_queue_3_close.
 
 #[global] Opaque mpsc_queue_3_inv.

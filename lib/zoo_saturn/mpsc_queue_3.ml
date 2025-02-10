@@ -43,7 +43,7 @@ let rec push_back t v =
         push_back t v
       )
 
-let pop_front t =
+let pop t =
   match t.front with
   | ClstClosed ->
       None

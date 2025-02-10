@@ -55,7 +55,7 @@ Definition mpsc_queue_3_push_back : val :=
         )
     end.
 
-Definition mpsc_queue_3_pop_front : val :=
+Definition mpsc_queue_3_pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>

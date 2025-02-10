@@ -9,7 +9,7 @@ val push_front :
 val push_back :
   'a t -> 'a -> bool
 
-val pop_front :
+val pop :
   'a t -> 'a option
 
 val close :
