@@ -79,17 +79,41 @@ Section mpsc_queue_2_G.
     front₂ γ front ∗
     l.[back] ↦ lst_to_val back ∗
     model₂ γ (front ++ reverse back).
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %front{} &
+      %back{} &
+      >Hfront₂ &
+      >Hl_back &
+      >Hmodel₂
+    )".
   Definition mpsc_queue_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      #Hinv
+    )".
 
   Definition mpsc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l_ &
+      %γ_ &
+      %Heq &
+      Hmeta_ &
+      Hmodel₁
+    )".
 
   Definition mpsc_queue_2_consumer t : iProp Σ :=
     ∃ l γ front,
@@ -97,6 +121,16 @@ Section mpsc_queue_2_G.
     meta l nroot γ ∗
     l.[front] ↦ lst_to_val front ∗
     front₁ γ front.
+  #[local] Instance : CustomIpatFormat "consumer" :=
+    "(
+      %l_ &
+      %γ_ &
+      %front &
+      %Heq &
+      Hmeta_ &
+      Hl_front &
+      Hfront₁
+    )".
 
   #[global] Instance mpsc_queue_2_model_timeless t vs :
     Timeless (mpsc_queue_2_model t vs).
@@ -216,30 +250,32 @@ Section mpsc_queue_2_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "!> %Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec. wp_pures.
 
     wp_bind (_.{back})%E.
-    iInv "Hinv" as "(%front & %back & Hfront₂ & Hback & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
     iModIntro. clear.
 
     wp_pures.
 
     wp_bind (CAS _ _ _).
-    iInv "Hinv" as "(%front & %back' & Hfront₂ & Hback & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner =2)".
     wp_cas as _ | ->%(inj _); first iSteps.
-    iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
     iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ".
-    { iSteps. iExists (v :: back). iSteps. rewrite Hvs reverse_cons assoc //. }
+    { iExists _, (v :: back1). iSteps.
+      rewrite Hvs reverse_cons assoc //.
+    }
     iSteps.
   Qed.
 
@@ -257,23 +293,23 @@ Section mpsc_queue_2_G.
       mpsc_queue_2_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %front & %Heq & _Hmeta & Hfront & Hfront₁)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
     destruct front as [| v front]; wp_pures.
 
     - wp_bind (Xchg _ _).
-      iInv "Hinv" as "(%_front & %back & Hfront₂ & Hback & Hmodel₂)".
+      iInv "Hinv" as "(:inv_inner)".
       wp_xchg.
       iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
-      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       destruct (rev_elim back) as [-> | (back' & v & ->)].
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-        iSplitR "Hfront Hfront₁ HΦ". { iExists [], []. iSteps. }
+        iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
         iModIntro. clear.
 
         wp_apply (lst_rev_spec _ [] with "[//]") as "%back ->".
@@ -287,7 +323,7 @@ Section mpsc_queue_2_G.
         iMod (model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
         { rewrite reverse_snoc. iSteps. }
-        iSplitR "Hfront Hfront₁ HΦ".
+        iSplitR "Hl_front Hfront₁ HΦ".
         { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
@@ -295,13 +331,15 @@ Section mpsc_queue_2_G.
         iSteps.
 
     - wp_store.
-      iApply fupd_wp. iInv "Hinv" as "(%_front & %back & >Hfront₂ & Hback & >Hmodel₂)".
+
+      iApply fupd_wp.
+      iInv "Hinv" as "(:inv_inner =1)".
       iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
       iMod (front_update with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
-      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
-      set vs' := front ++ reverse back.
+      set vs' := front ++ reverse back1.
       iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       rewrite Hvs.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
