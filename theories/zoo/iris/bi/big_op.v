@@ -385,10 +385,10 @@ Section bi.
       rewrite big_sepL_seq_lookup_acc' //. iSteps.
     Qed.
 
-    Lemma big_sepL_seq_index `{!BiAffine PROP} {Φ} l n :
+    Lemma big_sepL_seq_index `{!BiAffine PROP} {Φ} l i n :
       length l = n →
-      ([∗ list] k ∈ seq 0 n, Φ k) ⊣⊢
-      [∗ list] k ↦ _ ∈ l, Φ k.
+      ([∗ list] k ∈ seq i n, Φ k) ⊣⊢
+      [∗ list] k ↦ _ ∈ l, Φ (i + k).
     Proof.
       intros. iSplit.
       all: iIntros "H".
@@ -397,10 +397,10 @@ Section bi.
       all: pose proof lookup_seq.
       all: naive_solver.
     Qed.
-    Lemma big_sepL_seq_index_1 `{!BiAffine PROP} {Φ} l n :
+    Lemma big_sepL_seq_index_1 `{!BiAffine PROP} {Φ} l i n :
       length l = n →
-      ([∗ list] k ∈ seq 0 n, Φ k) ⊢
-      [∗ list] k ↦ _ ∈ l, Φ k.
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+      [∗ list] k ↦ _ ∈ l, Φ (i + k).
     Proof.
       intros. rewrite big_sepL_seq_index //.
     Qed.

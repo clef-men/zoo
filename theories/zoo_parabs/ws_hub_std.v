@@ -362,7 +362,7 @@ Section ws_hub_std_G.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
       iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
-      iDestruct (big_sepL_seq_index with "Hdeques_owner") as "Hdeques_owner"; first done.
+      iDestruct (big_sepL_seq_index_1 with "Hdeques_owner") as "Hdeques_owner"; first done.
       iDestruct (big_sepL_sep_2 with "Hdeques_owner Hrounds") as "H".
       iApply big_sepL_seq_index; first done.
       iApply (big_sepL_impl with "H").

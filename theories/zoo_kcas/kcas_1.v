@@ -420,8 +420,8 @@ Section kcas_1_G.
           model₂ descr.(descriptor_meta) descr.(descriptor_before) ∗
           history_elem descr.(descriptor_meta) casn
         ) ∗
-        ( [∗ list] j ∈ seq 0 (metadata_size η - i),
-          lock η (i + j)
+        ( [∗ list] j ∈ seq i (metadata_size η - i),
+          lock η j
         ) ∗
         ( [∗ map] helper ↦ j ∈ helpers,
           ∃ P,
@@ -992,11 +992,10 @@ Section kcas_1_G.
 
       iAssert ⌜i < j⌝%I as %Hi.
       { destruct (decide (i < j)); first iSteps.
-        iDestruct (big_sepL_seq_lookup' (i - j) with "Hlocks") as "_Hlock".
+        iDestruct (big_sepL_seq_lookup' i with "Hlocks") as "_Hlock".
         { apply lookup_lt_Some in Hdescrs_lookup.
           rewrite /metadata_size. lia.
         }
-        rewrite -Nat.le_add_sub; first lia.
         iDestruct (lock_exclusive with "Hlock _Hlock") as %[].
       }
 
@@ -1518,10 +1517,6 @@ Section kcas_1_G.
                              rewrite -(Nat.succ_pred_pos (metadata_size η - i)).
                              { rewrite /metadata_size. lia. }
                              iDestruct (big_sepL_seq_cons_1 with "Hlocks") as "(Hlock & Hlocks)".
-                             iEval (rewrite Nat.add_0_r) in "Hlock".
-                             iDestruct (big_sepL_seq_shift_2 1 0 with "Hlocks") as "Hlocks".
-                             iEval (setoid_rewrite Nat.add_1_r) in "Hlocks".
-                             iEval (setoid_rewrite Nat.add_succ_r) in "Hlocks".
                              assert (Nat.pred (metadata_size η - i) = metadata_size η - S i) as -> by lia.
                              iSplitR "Hloc Hhistory_auth Hlock HΦ".
                              { iFrameSteps 2. do 2 iModIntro.
