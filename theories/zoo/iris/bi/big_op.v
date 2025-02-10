@@ -97,6 +97,28 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_impl_sepL2 `{!BiAffine PROP} {B1 B2} Φ1 l (Φ2 : nat → B1 → B2 → PROP) 𝑙1 𝑙2 :
+      length l = length 𝑙1 →
+      length l = length 𝑙2 →
+      ([∗ list] k ↦ y ∈ l, Φ1 k y) -∗
+      □ (
+        ∀ k x 𝑥1 𝑥2,
+        ⌜l !! k = Some x⌝ -∗
+        ⌜𝑙1 !! k = Some 𝑥1⌝ -∗
+        ⌜𝑙2 !! k = Some 𝑥2⌝ -∗
+        Φ1 k x -∗
+        Φ2 k 𝑥1 𝑥2
+      ) -∗
+      [∗ list] k ↦ y1; y2 ∈ 𝑙1; 𝑙2, Φ2 k y1 y2.
+    Proof.
+      rewrite big_sepL2_alt.
+      iIntros "% % HΦ #H". iStep 2.
+      iApply (big_sepL_impl_strong with "HΦ").
+      { rewrite length_zip_with. lia. }
+      iIntros "!>" (k x (𝑥1, 𝑥2) ? (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
+      iSteps.
+    Qed.
+
     Lemma big_sepL_delete_1 Φ l i x :
       l !! i = Some x →
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊢
@@ -430,6 +452,84 @@ Section bi.
     Proof.
       rewrite !big_sepL2_alt big_sepL_bupd.
       iIntros "($ & H)". iSteps.
+    Qed.
+
+    Lemma big_sepL2_impl_strong `{!BiAffine PROP} {B1 B2} Φ1 l1 l2 (Φ2 : nat → B1 → B2 → PROP) 𝑙1 𝑙2 :
+      length l1 = length 𝑙1 →
+      length l2 = length 𝑙2 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2 𝑥1 𝑥2,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        ⌜𝑙1 !! k = Some 𝑥1⌝ -∗
+        ⌜𝑙2 !! k = Some 𝑥2⌝ -∗
+        Φ1 k x1 x2 -∗
+        Φ2 k 𝑥1 𝑥2
+      ) -∗
+      [∗ list] k ↦ y1; y2 ∈ 𝑙1; 𝑙2, Φ2 k y1 y2.
+    Proof.
+      rewrite !big_sepL2_alt.
+      iIntros "% % (% & HΦ) #H". iStep 2.
+      iApply (big_sepL_impl_strong with "HΦ").
+      { rewrite !length_zip_with. lia. }
+      iIntros "!>" (k (x1, x2) (𝑥1, 𝑥2) (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
+      iSteps.
+    Qed.
+    Lemma big_sepL2_impl_strong_l `{!BiAffine PROP} {B} Φ1 l1 l2 (Φ2 : nat → B → A2 → PROP) 𝑙 :
+      length l1 = length 𝑙 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2 𝑥,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        ⌜𝑙 !! k = Some 𝑥⌝ -∗
+        Φ1 k x1 x2 -∗
+        Φ2 k 𝑥 x2
+      ) -∗
+      [∗ list] k ↦ y1; y2 ∈ 𝑙; l2, Φ2 k y1 y2.
+    Proof.
+      iIntros "% HΦ #H".
+      iApply (big_sepL2_impl_strong with "HΦ"); [done.. |].
+      iModIntro. iSteps. simplify. iSteps.
+    Qed.
+    Lemma big_sepL2_impl_strong_r `{!BiAffine PROP} {B} Φ1 l1 l2 (Φ2 : nat → A1 → B → PROP) 𝑙 :
+      length l2 = length 𝑙 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2 𝑥,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        ⌜𝑙 !! k = Some 𝑥⌝ -∗
+        Φ1 k x1 x2 -∗
+        Φ2 k x1 𝑥
+      ) -∗
+      [∗ list] k ↦ y1; y2 ∈ l1; 𝑙, Φ2 k y1 y2.
+    Proof.
+      iIntros "% HΦ #H".
+      iApply (big_sepL2_impl_strong with "HΦ"); [done.. |].
+      iModIntro. iSteps. simplify. iSteps.
+    Qed.
+
+    Lemma big_sepL2_impl_sepL `{!BiAffine PROP} {B} Φ1 l1 l2 (Φ2 : nat → B → PROP) 𝑙 :
+      length l1 = length 𝑙 ∨ length l2 = length 𝑙 →
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ1 k y1 y2) -∗
+      □ (
+        ∀ k x1 x2 𝑥,
+        ⌜l1 !! k = Some x1⌝ -∗
+        ⌜l2 !! k = Some x2⌝ -∗
+        ⌜𝑙 !! k = Some 𝑥⌝ -∗
+        Φ1 k x1 x2 -∗
+        Φ2 k 𝑥
+      ) -∗
+      [∗ list] k ↦ y ∈ 𝑙, Φ2 k y.
+    Proof.
+      rewrite big_sepL2_alt.
+      iIntros "% (% & HΦ) #H".
+      iApply (big_sepL_impl_strong with "HΦ").
+      { rewrite length_zip_with. lia. }
+      iIntros "!>" (k (x1, x2) 𝑥 (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some ?).
+      iSteps.
     Qed.
 
     Lemma big_sepL2_impl_bupd `{!BiBUpd PROP} Φ1 l1 Φ2 l2 :

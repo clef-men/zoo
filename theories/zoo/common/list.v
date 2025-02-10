@@ -529,11 +529,17 @@ Section fmap.
     naive_solver.
   Qed.
 
-  Lemma list_fmap_alt_Forall2 f l 𝑙 :
-    Forall2 (λ (b : B) a, b = f a) 𝑙 l →
+  Lemma list_fmap_alt_Forall2_l f 𝑙 l :
+    Forall2 (λ b a, b = f a) 𝑙 l →
     𝑙 = f <$> l.
   Proof.
     rewrite list_eq_Forall2 Forall2_fmap_r //.
+  Qed.
+  Lemma list_fmap_alt_Forall2_r f l 𝑙 :
+    Forall2 (λ a b, f a = b) l 𝑙 →
+    𝑙 = f <$> l.
+  Proof.
+    rewrite list_eq_Forall2 -Forall2_fmap_l //.
   Qed.
 End fmap.
 
