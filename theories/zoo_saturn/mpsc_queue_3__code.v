@@ -15,6 +15,22 @@ Definition mpsc_queue_3_create : val :=
   fun: <> =>
     { §ClstOpen, §ClstOpen }.
 
+Definition mpsc_queue_3_is_empty : val :=
+  fun: "t" =>
+    match: "t".{front} with
+    | ClstClosed =>
+        #true
+    | ClstCons <> <> =>
+        #false
+    | ClstOpen =>
+        match: "t".{back} with
+        | ClstCons <> <> =>
+            #false
+        |_ =>
+            #true
+        end
+    end.
+
 Definition mpsc_queue_3_push_front : val :=
   fun: "t" "v" =>
     match: "t".{front} with
@@ -70,20 +86,4 @@ Definition mpsc_queue_3_close : val :=
     |_ as "back" =>
         "t" <-{front} clst_app "t".{front} (clst_rev_app "back" §ClstClosed) ;;
         #false
-    end.
-
-Definition mpsc_queue_3_is_empty : val :=
-  fun: "t" =>
-    match: "t".{front} with
-    | ClstClosed =>
-        #true
-    | ClstCons <> <> =>
-        #false
-    | ClstOpen =>
-        match: "t".{back} with
-        | ClstCons <> <> =>
-            #false
-        |_ =>
-            #true
-        end
     end.

@@ -10,6 +10,19 @@ type 'a t =
 let create () =
   { front= ClstOpen; back= ClstOpen }
 
+let is_empty t =
+  match t.front with
+  | ClstClosed ->
+      true
+  | ClstCons _ ->
+      false
+  | ClstOpen ->
+      match t.back with
+      | ClstCons _ ->
+          false
+      | _ ->
+          true
+
 let push_front t v =
   match t.front with
   | ClstClosed ->
@@ -56,16 +69,3 @@ let close t =
   | _ as back ->
       t.front <- Clst.app t.front (Clst.rev_app back ClstClosed) ;
       false
-
-let is_empty t =
-  match t.front with
-  | ClstClosed ->
-      true
-  | ClstCons _ ->
-      false
-  | ClstOpen ->
-      match t.back with
-      | ClstCons _ ->
-          false
-      | _ ->
-          true

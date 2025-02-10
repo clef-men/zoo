@@ -283,6 +283,78 @@ Section mpsc_queue_3_G.
     iSteps. iExists []. iSteps.
   Qed.
 
+  Lemma mpsc_queue_3_is_empty_spec_open t ι :
+    <<<
+      mpsc_queue_3_inv t ι ∗
+      mpsc_queue_3_consumer t None
+    | ∀∀ vs,
+      mpsc_queue_3_model t vs
+    >>>
+      mpsc_queue_3_is_empty t @ ↑ι
+    <<<
+      mpsc_queue_3_model t vs
+    | RET #(bool_decide (vs = []%list));
+      mpsc_queue_3_consumer t None
+    >>>.
+  Proof.
+    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %v_front & %front & %Heq & _Hmeta & Hfront & Hfront₁ & Hlstate)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct "Hlstate" as "[((_ & ->) & Hopen₁) | ((% & _) & _)]"; last done.
+
+    wp_rec. wp_load.
+
+    destruct front as [| v front]; wp_pures.
+
+    - wp_bind (_.{back})%E.
+      iInv "Hinv" as "(%_front & %v_back & Hfront₂ & Hback & [(Hopen₂ & %back & >-> & Hmodel₂) | (>Hclosed & _)])"; last first.
+      { iDestruct (lstate_open₁_closed with "Hopen₁ Hclosed") as %[]. }
+      wp_load.
+      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
+      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      destruct back as [| v back].
+
+      + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+        iSplitR "Hfront Hfront₁ Hopen₁ HΦ".
+        { iSteps. iExists []. iSteps. }
+        iSteps.
+
+      + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+        iSplitR "Hfront Hfront₁ Hopen₁ HΦ".
+        { iSteps. iExists (v :: back). iSteps. }
+        rewrite reverse_cons bool_decide_eq_false_2 /=; first intros (_ & [=])%app_nil.
+        iSteps.
+
+    - iInv "Hinv" as "(%_front & %v_back & >Hfront₂ & Hback & [(Hopen₂ & %back & >-> & >Hmodel₂) | (>Hclosed & _)])"; last first.
+      { iDestruct (lstate_open₁_closed with "Hopen₁ Hclosed") as %[]. }
+      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
+      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+      iSteps.
+  Qed.
+  Lemma mpsc_queue_3_is_empty_spec_closed t ι vs :
+    {{{
+      mpsc_queue_3_inv t ι ∗
+      mpsc_queue_3_consumer t (Some vs)
+    }}}
+      mpsc_queue_3_is_empty t
+    {{{
+      RET #(bool_decide (vs = []%list));
+      mpsc_queue_3_consumer t (Some vs)
+    }}}.
+  Proof.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %v_front & %front & %Heq & _Hmeta & Hfront & Hfront₁ & Hlstate)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iDestruct "Hlstate" as "[((% & _) & _) | ((%Heq & ->) & Hclosed & Hmodel₂)]"; first done. injection Heq as ->.
+
+    wp_rec. wp_load.
+
+    destruct front as [| v front]; iSteps.
+  Qed.
+
   Lemma mpsc_queue_3_push_front_spec_open t ι v :
     <<<
       mpsc_queue_3_inv t ι ∗
@@ -614,86 +686,14 @@ Section mpsc_queue_3_G.
     { iDestruct (lstate_open₂_closed with "Hopen₂ Hclosed") as %[]. }
     iSteps.
   Qed.
-
-  Lemma mpsc_queue_3_is_empty_spec_open t ι :
-    <<<
-      mpsc_queue_3_inv t ι ∗
-      mpsc_queue_3_consumer t None
-    | ∀∀ vs,
-      mpsc_queue_3_model t vs
-    >>>
-      mpsc_queue_3_is_empty t @ ↑ι
-    <<<
-      mpsc_queue_3_model t vs
-    | RET #(bool_decide (vs = []%list));
-      mpsc_queue_3_consumer t None
-    >>>.
-  Proof.
-    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %v_front & %front & %Heq & _Hmeta & Hfront & Hfront₁ & Hlstate)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct "Hlstate" as "[((_ & ->) & Hopen₁) | ((% & _) & _)]"; last done.
-
-    wp_rec. wp_load.
-
-    destruct front as [| v front]; wp_pures.
-
-    - wp_bind (_.{back})%E.
-      iInv "Hinv" as "(%_front & %v_back & Hfront₂ & Hback & [(Hopen₂ & %back & >-> & Hmodel₂) | (>Hclosed & _)])"; last first.
-      { iDestruct (lstate_open₁_closed with "Hopen₁ Hclosed") as %[]. }
-      wp_load.
-      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
-      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      destruct back as [| v back].
-
-      + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-        iSplitR "Hfront Hfront₁ Hopen₁ HΦ".
-        { iSteps. iExists []. iSteps. }
-        iSteps.
-
-      + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-        iSplitR "Hfront Hfront₁ Hopen₁ HΦ".
-        { iSteps. iExists (v :: back). iSteps. }
-        rewrite reverse_cons bool_decide_eq_false_2 /=; first intros (_ & [=])%app_nil.
-        iSteps.
-
-    - iInv "Hinv" as "(%_front & %v_back & >Hfront₂ & Hback & [(Hopen₂ & %back & >-> & >Hmodel₂) | (>Hclosed & _)])"; last first.
-      { iDestruct (lstate_open₁_closed with "Hopen₁ Hclosed") as %[]. }
-      iDestruct (front_agree with "Hfront₁ Hfront₂") as %<-.
-      iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSteps.
-  Qed.
-  Lemma mpsc_queue_3_is_empty_spec_closed t ι vs :
-    {{{
-      mpsc_queue_3_inv t ι ∗
-      mpsc_queue_3_consumer t (Some vs)
-    }}}
-      mpsc_queue_3_is_empty t
-    {{{
-      RET #(bool_decide (vs = []%list));
-      mpsc_queue_3_consumer t (Some vs)
-    }}}.
-  Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %v_front & %front & %Heq & _Hmeta & Hfront & Hfront₁ & Hlstate)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct "Hlstate" as "[((% & _) & _) | ((%Heq & ->) & Hclosed & Hmodel₂)]"; first done. injection Heq as ->.
-
-    wp_rec. wp_load.
-
-    destruct front as [| v front]; iSteps.
-  Qed.
 End mpsc_queue_3_G.
 
 #[global] Opaque mpsc_queue_3_create.
+#[global] Opaque mpsc_queue_3_is_empty.
 #[global] Opaque mpsc_queue_3_push_front.
 #[global] Opaque mpsc_queue_3_push_back.
 #[global] Opaque mpsc_queue_3_pop_front.
 #[global] Opaque mpsc_queue_3_close.
-#[global] Opaque mpsc_queue_3_is_empty.
 
 #[global] Opaque mpsc_queue_3_inv.
 #[global] Opaque mpsc_queue_3_model.
