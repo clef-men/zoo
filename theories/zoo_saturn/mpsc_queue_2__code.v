@@ -15,12 +15,25 @@ Definition mpsc_queue_2_create : val :=
   fun: <> =>
     { [], [] }.
 
-Definition mpsc_queue_2_push : val :=
-  rec: "push" "t" "v" =>
+Definition mpsc_queue_2_is_empty : val :=
+  fun: "t" =>
+    match: "t".{front} with
+    | <> :: <> =>
+        #false
+    | [] =>
+        "t".{back} == []
+    end.
+
+Definition mpsc_queue_2_push_front : val :=
+  fun: "t" "v" =>
+    "t" <-{front} "v" :: "t".{front}.
+
+Definition mpsc_queue_2_push_back : val :=
+  rec: "push_back" "t" "v" =>
     let: "back" := "t".{back} in
     if: ~ CAS "t".[back] "back" ("v" :: "back") then (
       domain_yield () ;;
-      "push" "t" "v"
+      "push_back" "t" "v"
     ).
 
 Definition mpsc_queue_2_pop : val :=

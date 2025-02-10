@@ -3,7 +3,13 @@ type 'a t
 val create :
   unit -> 'a t
 
-val push :
+val is_empty :
+  'a t -> bool
+
+val push_front :
+  'a t -> 'a -> unit
+
+val push_back :
   'a t -> 'a -> unit
 
 val pop :

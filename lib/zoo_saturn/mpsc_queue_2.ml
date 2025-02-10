@@ -10,11 +10,21 @@ type 'a t =
 let create () =
   { front= []; back= [] }
 
-let rec push t v =
+let is_empty t =
+  match t.front with
+  | _ :: _ ->
+      false
+  | [] ->
+      t.back == []
+
+let push_front t v =
+  t.front <- v :: t.front
+
+let rec push_back t v =
   let back = t.back in
   if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (v :: back) then (
     Domain.yield () ;
-    push t v
+    push_back t v
   )
 
 let pop t =
