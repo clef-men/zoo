@@ -3,7 +3,7 @@
 *)
 
 type 'a t =
-  { mutable front: 'a list [@atomic];
+  { mutable front: 'a list;
     mutable back: 'a list [@atomic];
   }
 
