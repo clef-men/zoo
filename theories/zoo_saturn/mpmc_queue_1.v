@@ -614,7 +614,7 @@ Section mpmc_queue_1_G.
     wp_smart_apply (mpmc_queue_1_xtchain_next_spec_strong IsEmpty [tele_pair bool] _ _ inhabitant [tele_arg true] inhabitant with "[$Hmeta $Hinv $Hhistory_at $Hfront_lb $Hwaiter $Hwaiters_frag $H£]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_at' & HΦ)]"; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_queue_1_do_push_spec l γ ι i node new_back v :
+  #[local] Lemma mpmc_queue_1_push_0_spec l γ ι i node new_back v :
     <<<
       meta l nroot γ ∗
       inv ι (inv_inner l γ ι) ∗
@@ -626,7 +626,7 @@ Section mpmc_queue_1_G.
     | ∀∀ vs,
       mpmc_queue_1_model #l vs
     >>>
-      mpmc_queue_1_do_push #node #new_back @ ↑ι
+      mpmc_queue_1_push_0 #node #new_back @ ↑ι
     <<<
       mpmc_queue_1_model #l (vs ++ [v])
     | RET ();
@@ -733,7 +733,7 @@ Section mpmc_queue_1_G.
     wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
     wp_match.
     wp_smart_apply (mpmc_queue_1_back_spec with "Hinv") as (back i) "(#Hback_header & #Hhistory_at_back)".
-    wp_smart_apply (mpmc_queue_1_do_push_spec with "[$Hmeta $Hinv $Hhistory_at_back $Hnew_back_header $Hnew_back_next $Hnew_back_data //]").
+    wp_smart_apply (mpmc_queue_1_push_0_spec with "[$Hmeta $Hinv $Hhistory_at_back $Hnew_back_header $Hnew_back_next $Hnew_back_data //]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
     wp_smart_apply (mpmc_queue_1_fix_back_spec with "[$Hmeta $Hinv Hhistory_at_back Hhistory_at_new_back] HΦ").
     iSteps.

@@ -22,18 +22,18 @@ Definition mpmc_queue_1_is_empty : val :=
         "front_r".{next} == §Null
     end.
 
-Definition mpmc_queue_1_do_push : val :=
-  rec: "do_push" "node" "new_back" =>
+Definition mpmc_queue_1_push_0 : val :=
+  rec: "push" "node" "new_back" =>
     match: "node" with
     | Node <> <> as "node_r" =>
         match: "node_r".{next} with
+        | Node <> <> as "next" =>
+            "push" "next" "new_back"
         | Null =>
             if: ~ CAS "node_r".[next] §Null "new_back" then (
               domain_yield () ;;
-              "do_push" "node" "new_back"
+              "push" "node" "new_back"
             )
-        | Node <> <> as "next" =>
-            "do_push" "next" "new_back"
         end
     end.
 
@@ -42,7 +42,8 @@ Definition mpmc_queue_1_fix_back : val :=
     match: "new_back" with
     | Node <> <> as "new_back_r" =>
         if:
-          "new_back_r".{next} == §Null and CAS "t".[back] "back" "new_back"
+          "new_back_r".{next} == §Null and
+          ~ CAS "t".[back] "back" "new_back"
         then (
           domain_yield () ;;
           "fix_back" "t" "t".{back} "new_back"
@@ -54,7 +55,7 @@ Definition mpmc_queue_1_push : val :=
     match: ‘Node{ §Null, "v" } with
     | Node <> <> as "new_back" =>
         let: "back" := "t".{back} in
-        mpmc_queue_1_do_push "back" "new_back" ;;
+        mpmc_queue_1_push_0 "back" "new_back" ;;
         mpmc_queue_1_fix_back "t" "back" "new_back"
     end.
 
