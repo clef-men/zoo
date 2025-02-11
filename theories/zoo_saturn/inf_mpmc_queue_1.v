@@ -48,7 +48,7 @@ Implicit Types ηs : list gname.
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val 'i :=
+  typed_strong_prophet1_to_val i :=
     (#i, ()%V) ;
 |}.
 Solve Obligations of prophet with
