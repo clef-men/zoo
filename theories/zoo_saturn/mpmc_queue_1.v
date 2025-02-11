@@ -104,7 +104,7 @@ Section mpmc_queue_1_G.
     ghost_map_auth γ_waiters 1 waiters.
   #[local] Definition waiters_auth γ waiters :=
     waiters_auth' γ.(metadata_waiters) waiters.
-  #[local] Definition waiters_frag γ waiter i :=
+  #[local] Definition waiters_at γ waiter i :=
     ghost_map_elem γ.(metadata_waiters) waiter (DfracOwn 1) i.
 
   #[local] Definition waiter_au γ ι Ψ : iProp Σ :=
@@ -287,7 +287,7 @@ Section mpmc_queue_1_G.
   Qed.
   #[local] Lemma waiters_lookup γ waiters waiter i :
     waiters_auth γ waiters -∗
-    waiters_frag γ waiter i -∗
+    waiters_at γ waiter i -∗
     ⌜waiters !! waiter = Some i⌝.
   Proof.
     apply ghost_map_lookup.
@@ -296,15 +296,15 @@ Section mpmc_queue_1_G.
     waiters !! waiter = None →
     waiters_auth γ waiters ⊢ |==>
       waiters_auth γ (<[waiter := i]> waiters) ∗
-      waiters_frag γ waiter i.
+      waiters_at γ waiter i.
   Proof.
     iIntros "%Hlookup Hwaiters_auth".
     iApply (ghost_map_insert with "Hwaiters_auth"); first done.
   Qed.
   #[local] Lemma waiters_delete γ waiters waiter i :
     waiters_auth γ waiters -∗
-    waiters_frag γ waiter i ==∗
-      waiters_auth γ (delete waiter waiters).
+    waiters_at γ waiter i ==∗
+    waiters_auth γ (delete waiter waiters).
   Proof.
     apply ghost_map_delete.
   Qed.
@@ -364,7 +364,7 @@ Section mpmc_queue_1_G.
       if negb au then True else
         ∃ waiter,
         saved_pred waiter Ψ ∗
-        waiters_frag γ waiter i
+        waiters_at γ waiter i
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HΨ) HΦ".
@@ -380,10 +380,10 @@ Section mpmc_queue_1_G.
 
     - iMod (saved_pred_alloc_cofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & #Hwaiter)".
       rewrite not_elem_of_dom in Hwaiter.
-      iMod (waiters_insert _ (length past) with "Hwaiters_auth") as "(Hwaiter_auth & Hwaiters_frag)"; first done.
+      iMod (waiters_insert _ (length past) with "Hwaiters_auth") as "(Hwaiter_auth & Hwaiters_at)"; first done.
       iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
       { iExists Ψ. rewrite decide_False; first lia. iSteps. }
-      iSplitR "Hwaiters_frag HΦ"; first iSteps.
+      iSplitR "Hwaiters_at HΦ"; first iSteps.
       iSteps.
 
     - iSplitR "HΦ"; first iSteps.
@@ -444,7 +444,7 @@ Section mpmc_queue_1_G.
         front_lb γ i ∗
         if decide (op = IsEmpty) then
           saved_pred waiter Ψ_is_empty ∗
-          waiters_frag γ waiter i ∗
+          waiters_at γ waiter i ∗
           £ 1
         else
           atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_1_model #l) β Ψ_pop ∗
@@ -493,9 +493,9 @@ Section mpmc_queue_1_G.
       iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at'"; first done.
       destruct op.
 
-      + iDestruct "Hop" as "(#Hfront_lb & #Hwaiter & Hwaiters_frag & H£)".
-        iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_frag") as %Hwaiters_lookup.
-        iMod (waiters_delete with "Hwaiters_auth Hwaiters_frag") as "Hwaiters_auth".
+      + iDestruct "Hop" as "(#Hfront_lb & #Hwaiter & Hwaiters_at & H£)".
+        iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_at") as %Hwaiters_lookup.
+        iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "Hwaiters_auth".
         iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ & _Hwaiter & HΨ) & Hwaiters)"; first done.
         iDestruct (saved_pred_agree false with "Hwaiter _Hwaiter") as "HΨ_is_empty".
         iMod (lc_fupd_elim_later with "H£ HΨ_is_empty") as "HΨ_is_empty".
@@ -544,9 +544,9 @@ Section mpmc_queue_1_G.
         iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
         destruct op; last done.
 
-        * iDestruct "Hop" as "(#Hwaiter & Hwaiters_frag & H£)".
-          iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_frag") as %Hwaiters_lookup.
-          iMod (waiters_delete with "Hwaiters_auth Hwaiters_frag") as "Hwaiters_auth".
+        * iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
+          iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_at") as %Hwaiters_lookup.
+          iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "Hwaiters_auth".
           iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ & _Hwaiter & HΨ) & Hwaiters)"; first done.
           iDestruct (saved_pred_agree true with "Hwaiter _Hwaiter") as "HΨ_is_empty".
           iMod (lc_fupd_elim_later with "H£ HΨ_is_empty") as "HΨ_is_empty".
@@ -606,14 +606,14 @@ Section mpmc_queue_1_G.
     iIntros "!> %Φ (:inv) HΦ".
 
     wp_rec credit:"H£".
-    wp_smart_apply (front_spec_strong true (λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "(#Hnode_header & #Hhistory_at & #Hfront_lb & %waiter & #Hwaiter & Hwaiters_frag)".
+    wp_smart_apply (front_spec_strong true (λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "(#Hnode_header & #Hhistory_at & #Hfront_lb & %waiter & #Hwaiter & Hwaiters_at)".
     { rewrite /= /waiter_au. iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAaccIntro with "Hmodel₁"; iSteps.
     }
     wp_match.
-    wp_smart_apply (mpmc_queue_1_xtchain_next_spec_strong IsEmpty [tele_pair bool] _ _ inhabitant [tele_arg true] inhabitant with "[$Hmeta $Hinv $Hhistory_at $Hfront_lb $Hwaiter $Hwaiters_frag $H£]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_at' & HΦ)]"; iSteps.
+    wp_smart_apply (mpmc_queue_1_xtchain_next_spec_strong IsEmpty [tele_pair bool] _ _ inhabitant [tele_arg true] inhabitant with "[$Hmeta $Hinv $Hhistory_at $Hfront_lb $Hwaiter $Hwaiters_at $H£]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_at' & HΦ)]"; iSteps.
   Qed.
 
   #[local] Lemma mpmc_queue_1_push_0_spec l γ ι i node new_back v :
