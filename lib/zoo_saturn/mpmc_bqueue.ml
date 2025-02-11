@@ -22,7 +22,7 @@ type 'a t =
 let create cap =
   let front =
     Node {
-      next= Obj.magic ();
+      next= Null;
       data= Obj.magic ();
       index= 0;
       estimated_capacity= cap;

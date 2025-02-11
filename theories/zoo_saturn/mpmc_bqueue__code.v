@@ -14,7 +14,7 @@ From zoo Require Import
 
 Definition mpmc_bqueue_create : val :=
   fun: "cap" =>
-    let: "front" := ‘Node{ (), (), #0, "cap" } in
+    let: "front" := ‘Node{ §Null, (), #0, "cap" } in
     { "cap", "front", "front" }.
 
 Definition mpmc_bqueue_capacity : val :=
