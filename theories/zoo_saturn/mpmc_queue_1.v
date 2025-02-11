@@ -60,6 +60,8 @@ Qed.
 Section mpmc_queue_1_G.
   Context `{mpmc_queue_1_G : MpmcQueue1G Σ}.
 
+  Implicit Types Ψ : bool → iProp Σ.
+
   Record metadata := {
     metadata_history : gname ;
     metadata_front : gname ;
@@ -105,7 +107,7 @@ Section mpmc_queue_1_G.
   #[local] Definition waiters_frag γ waiter i :=
     ghost_map_elem γ.(metadata_waiters) waiter (DfracOwn 1) i.
 
-  #[local] Definition waiter_au γ ι (Ψ : bool → iProp Σ) : iProp Σ :=
+  #[local] Definition waiter_au γ ι Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
