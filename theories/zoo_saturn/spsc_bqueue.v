@@ -583,7 +583,7 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  #[local] Lemma spsc_bqueue_front_spec l γ ι stable front :
+  #[local] Lemma front_spec l γ ι stable front :
     {{{
       inv ι (inv_inner l γ) ∗
       consumer₁ γ stable front
@@ -603,7 +603,7 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma spsc_bqueue_back_spec l γ ι stable back ws :
+  #[local] Lemma back_spec l γ ι stable back ws :
     {{{
       inv ι (inv_inner l γ) ∗
       producer₁ γ stable back ws
@@ -642,7 +642,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_apply (spsc_bqueue_back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
+    wp_apply (back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
     wp_pures.
 
     wp_bind (_.{front})%E.
@@ -694,7 +694,7 @@ Section spsc_bqueue_G.
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
     iModIntro. clear- Hlen.
 
-    wp_smart_apply (spsc_bqueue_front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
+    wp_smart_apply (front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
@@ -842,7 +842,7 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_smart_apply (spsc_bqueue_back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
+    wp_smart_apply (back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
     iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch.
 
@@ -989,7 +989,7 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
-    wp_smart_apply (spsc_bqueue_front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
+    wp_smart_apply (front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
     iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
