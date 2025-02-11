@@ -267,6 +267,8 @@ theories/zoo_saturn/inf_mpmc_queue_2.v
 theories/zoo_saturn/spsc_bqueue__types.v
 theories/zoo_saturn/spsc_bqueue__code.v
 theories/zoo_saturn/spsc_bqueue.v
+theories/zoo_saturn/mpmc_bqueue__types.v
+theories/zoo_saturn/mpmc_bqueue__code.v
 theories/zoo_saturn/mpmc_bqueue.v
 theories/zoo_saturn/spmc_queue__types.v
 theories/zoo_saturn/spmc_queue__code.v
