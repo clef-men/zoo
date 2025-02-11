@@ -226,7 +226,7 @@ Section mpsc_queue_1_G.
     { rewrite Hhist1 list_lookup_middle //. }
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront_header"; first done.
     iDestruct (history_at_get (length past1) front with "Hhistory_auth") as "#Hhistory_at"; first done.
-    iSplitR "Hl_front_"; first iSteps.
+    iSplitR "Hl_front_". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -297,7 +297,7 @@ Section mpsc_queue_1_G.
     { rewrite Hhist list_lookup_middle //. }
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront_header"; first done.
     iDestruct (history_at_get _ front with "Hhistory_auth") as "#Hhistory_at"; first done.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -319,7 +319,7 @@ Section mpsc_queue_1_G.
     pose proof Hback as (i & Hlookup)%elem_of_list_lookup.
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hback_header"; first done.
     iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -401,38 +401,34 @@ Section mpsc_queue_1_G.
           lia.
         }
         iMod ("HΨ" $! x_nonempty with "Hβ") as "HΨ".
-        iSplitR "Hl_front_ HΨ HΦ"; first iSteps.
+        iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
         iSteps.
 
-      + iSplitR "Hop HΦ"; first iSteps.
+      + iSplitR "Hop HΦ". { iFrameSteps. }
         destruct op; [done | iSteps..].
 
-    - destruct (decide (op = Other)) as [-> | Hop].
-
-      + iSplitR "HΦ"; first iSteps.
-        iSteps.
-
-      + iDestruct "Hop" as "(Hl_front_ & HΨ & Hβ_empty & _)".
-        iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
-        iAssert ⌜length past = i⌝%I as %Hpast_length.
-        { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
-          iPureIntro. eapply NoDup_lookup; try done.
-          rewrite Hhist list_lookup_middle //.
-        }
-        destruct (decide (length vs = 0)) as [->%nil_length_inv | Hvs]; last first.
-        { iDestruct (big_sepL2_length with "Hnodes") as %?.
-          exfalso.
-          apply (f_equal length) in Hhist.
-          opose proof* length_lookup_last as Heq; [done.. |].
-          rewrite Heq length_app /= in Hhist. lia.
-        }
-        iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iDestruct ("Hβ_empty" with "[Hmodel₁]") as "Hβ"; first iSteps.
-        iMod ("HΨ" with "Hβ") as "HΨ".
-        iSplitR "Hl_front_ HΨ HΦ"; first iSteps.
-        iSteps.
+    - destruct (decide (op = Other)) as [-> | Hop]; first iSteps.
+      iDestruct "Hop" as "(Hl_front_ & HΨ & Hβ_empty & _)".
+      iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
+      iAssert ⌜length past = i⌝%I as %Hpast_length.
+      { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
+        iPureIntro. eapply NoDup_lookup; try done.
+        rewrite Hhist list_lookup_middle //.
+      }
+      destruct (decide (length vs = 0)) as [->%nil_length_inv | Hvs]; last first.
+      { iDestruct (big_sepL2_length with "Hnodes") as %?.
+        exfalso.
+        apply (f_equal length) in Hhist.
+        opose proof* length_lookup_last as Heq; [done.. |].
+        rewrite Heq length_app /= in Hhist. lia.
+      }
+      iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct ("Hβ_empty" with "[Hmodel₁]") as "Hβ"; first iSteps.
+      iMod ("HΨ" with "Hβ") as "HΨ".
+      iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
+      iSteps.
   Qed.
   #[local] Lemma mpsc_queue_1_xtchain_next_spec l γ ι i node :
     {{{
@@ -533,7 +529,7 @@ Section mpsc_queue_1_G.
 
     - wp_cas as _ | [].
       iDestruct (xtchain_lookup_2 with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
-      iSplitR "Hnew_back_next Hnew_back_data HΦ"; first iSteps.
+      iSplitR "Hnew_back_next Hnew_back_data HΦ". { iFrameSteps. }
       iSteps.
 
     - wp_cas as ? | _; first naive_solver.
@@ -670,7 +666,7 @@ Section mpsc_queue_1_G.
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-    iSplitR "Hl_front_ Hnew_front_data HΦ"; first iSteps.
+    iSplitR "Hl_front_ Hnew_front_data HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 End mpsc_queue_1_G.

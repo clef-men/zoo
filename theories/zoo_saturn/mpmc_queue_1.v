@@ -376,18 +376,14 @@ Section mpmc_queue_1_G.
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront_header"; first done.
     iDestruct (history_at_get _ front with "Hhistory_auth") as "#Hhistory_at"; first done.
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
-    destruct au.
-
-    - iMod (saved_pred_alloc_cofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & #Hwaiter)".
-      rewrite not_elem_of_dom in Hwaiter.
-      iMod (waiters_insert _ (length past) with "Hwaiters_auth") as "(Hwaiter_auth & Hwaiters_at)"; first done.
-      iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
-      { iExists Ψ. rewrite decide_False; first lia. iSteps. }
-      iSplitR "Hwaiters_at HΦ"; first iSteps.
-      iSteps.
-
-    - iSplitR "HΦ"; first iSteps.
-      iSteps.
+    destruct au; last iSteps.
+    iMod (saved_pred_alloc_cofinite (dom waiters) Ψ) as "(%waiter & %Hwaiter & #Hwaiter)".
+    rewrite not_elem_of_dom in Hwaiter.
+    iMod (waiters_insert _ (length past) with "Hwaiters_auth") as "(Hwaiter_auth & Hwaiters_at)"; first done.
+    iDestruct (big_sepM_insert_2 _ _ waiter (length past) with "[HΨ] Hwaiters") as "Hwaiters".
+    { iExists Ψ. rewrite decide_False; first lia. iSteps. }
+    iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
+    iSteps.
   Qed.
   #[local] Lemma front_spec l γ ι :
     {{{
@@ -424,7 +420,7 @@ Section mpmc_queue_1_G.
     pose proof Hback as (i & Hlookup)%elem_of_list_lookup.
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hback_header"; first done.
     iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -491,83 +487,72 @@ Section mpmc_queue_1_G.
 
     - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
       iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at'"; first done.
-      destruct op.
+      destruct op; [| iSteps..].
+      iDestruct "Hop" as "(#Hfront_lb & #Hwaiter & Hwaiters_at & H£)".
+      iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_at") as %Hwaiters_lookup.
+      iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "Hwaiters_auth".
+      iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ & _Hwaiter & HΨ) & Hwaiters)"; first done.
+      iDestruct (saved_pred_agree false with "Hwaiter _Hwaiter") as "HΨ_is_empty".
+      iMod (lc_fupd_elim_later with "H£ HΨ_is_empty") as "HΨ_is_empty".
+      destruct (decide (i = length past)) as [-> | Hi].
 
-      + iDestruct "Hop" as "(#Hfront_lb & #Hwaiter & Hwaiters_at & H£)".
+      + rewrite decide_False; first lia.
+        iMod "HΨ" as "(%_vs & Hmodel₁ & _ & HΨ)".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
+        assert (nodes ≠ []) as Hnodes.
+        { apply lookup_lt_Some in Hlookup'.
+          rewrite Hhist length_app /= in Hlookup'.
+          naive_solver lia.
+        }
+        iAssert ⌜vs ≠ []⌝%I as %Hvs.
+        { destruct (decide (vs = [])) as [-> |]; last done.
+          iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
+          iSteps.
+        }
+        rewrite bool_decide_eq_false_2 //.
+        iSplitR "HΨ_is_empty HΨ HΦ". { iFrameSteps. }
+        iSteps. iRewrite "HΨ_is_empty". iSteps.
+
+      + iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi_.
+        rewrite decide_True; first lia.
+        iSplitR "HΨ_is_empty HΨ HΦ". { iFrameSteps. }
+        iSteps. iRewrite "HΨ_is_empty". iSteps.
+
+    - destruct (decide (op = Other)) as [-> | Hop]; first iSteps.
+      iDestruct "Hop" as "(#Hfront_lb & Hop)".
+      iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi.
+      opose proof* length_lookup_last as Hlength; [done.. |].
+      rewrite Hhist length_app /= in Hlength.
+      assert (i = length past) as -> by lia.
+      assert (length nodes = 0) as ->%nil_length_inv by lia.
+      iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
+      destruct op; last done.
+
+      + iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
         iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_at") as %Hwaiters_lookup.
         iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "Hwaiters_auth".
         iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ & _Hwaiter & HΨ) & Hwaiters)"; first done.
-        iDestruct (saved_pred_agree false with "Hwaiter _Hwaiter") as "HΨ_is_empty".
+        iDestruct (saved_pred_agree true with "Hwaiter _Hwaiter") as "HΨ_is_empty".
         iMod (lc_fupd_elim_later with "H£ HΨ_is_empty") as "HΨ_is_empty".
-        destruct (decide (i = length past)) as [-> | Hi].
+        rewrite decide_False; first lia.
+        iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
+        iSplitR "HΨ_is_empty HΨ HΦ". { iFrameSteps. }
+        iModIntro. clear.
 
-        * rewrite decide_False; first lia.
-          iMod "HΨ" as "(%_vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" with "Hmodel₁") as "HΨ".
-          assert (nodes ≠ []) as Hnodes.
-          { apply lookup_lt_Some in Hlookup'.
-            rewrite Hhist length_app /= in Hlookup'.
-            naive_solver lia.
-          }
-          iAssert ⌜vs ≠ []⌝%I as %Hvs.
-          { destruct (decide (vs = [])) as [-> |]; last done.
-            iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
-            iSteps.
-          }
-          rewrite bool_decide_eq_false_2 //.
-          iSplitR "HΨ_is_empty HΨ HΦ"; first iSteps.
-          iSteps. iRewrite "HΨ_is_empty". iSteps.
+        iApply "HΦ".
+        iLeft. iRewrite "HΨ_is_empty". iSteps.
 
-        * iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi_.
-          rewrite decide_True; first lia.
-          iSplitR "HΨ_is_empty HΨ HΦ"; first iSteps.
-          iSteps. iRewrite "HΨ_is_empty". iSteps.
-
-      + iSplitR "Hop HΦ"; first iSteps.
+      + iDestruct "Hop" as "(HΨ & Hβ)".
+        iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct ("Hβ" with "[Hmodel₁]") as "Hβ"; first iSteps.
+        iMod ("HΨ" with "Hβ") as "HΨ".
+        iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
-
-      + iSplitR "Hop HΦ"; first iSteps.
-        iSteps.
-
-    - destruct (decide (op = Other)) as [-> | Hop].
-
-      + iSplitR "HΦ"; first iSteps.
-        iSteps.
-
-      + iDestruct "Hop" as "(#Hfront_lb & Hop)".
-        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi.
-        opose proof* length_lookup_last as Hlength; [done.. |].
-        rewrite Hhist length_app /= in Hlength.
-        assert (i = length past) as -> by lia.
-        assert (length nodes = 0) as ->%nil_length_inv by lia.
-        iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
-        destruct op; last done.
-
-        * iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
-          iDestruct (waiters_lookup with "Hwaiters_auth Hwaiters_at") as %Hwaiters_lookup.
-          iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "Hwaiters_auth".
-          iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ & _Hwaiter & HΨ) & Hwaiters)"; first done.
-          iDestruct (saved_pred_agree true with "Hwaiter _Hwaiter") as "HΨ_is_empty".
-          iMod (lc_fupd_elim_later with "H£ HΨ_is_empty") as "HΨ_is_empty".
-          rewrite decide_False; first lia.
-          iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
-          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-          iMod ("HΨ" with "Hmodel₁") as "HΨ".
-          iSplitR "HΨ_is_empty HΨ HΦ". { iFrameSteps. }
-          iModIntro. clear.
-
-          iApply "HΦ".
-          iLeft. iRewrite "HΨ_is_empty". iSteps.
-
-        * iDestruct "Hop" as "(HΨ & Hβ)".
-          iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-          iDestruct ("Hβ" with "[Hmodel₁]") as "Hβ"; first iSteps.
-          iMod ("HΨ" with "Hβ") as "HΨ".
-          iSplitR "HΨ HΦ". { iFrameSteps. }
-          iSteps.
   Qed.
   #[local] Lemma mpmc_queue_1_xtchain_next_spec l γ ι i node :
     {{{
@@ -653,7 +638,7 @@ Section mpmc_queue_1_G.
 
     - wp_cas as _ | [].
       iDestruct (xtchain_lookup_2 with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
-      iSplitR "Hnew_back_next Hnew_back_data HΦ"; first iSteps.
+      iSplitR "Hnew_back_next Hnew_back_data HΦ". { iFrameSteps. }
       iSteps.
 
     - wp_cas as ? | _; first naive_solver.
@@ -768,51 +753,47 @@ Section mpmc_queue_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     iDestruct (history_agree with "Hhistory_auth Hhistory_at_new") as %Hlookup.
     iDestruct (xtchain_lookup_acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
-    wp_cas as _ | [= ->].
-    all: iDestruct ("Hhist" with "Hnode ") as "Hhist".
-
-    - iSplitR "HΦ"; first iSteps.
-      iSteps.
-
-    - iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup_old.
-      iAssert ⌜length past1 = i⌝%I as %Hpast_length.
-      { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
-        iPureIntro. eapply NoDup_lookup; try done.
-        rewrite Hhist1 list_lookup_middle //.
-      }
-      rewrite Hhist1 (assoc _ _ [_]) lookup_app_r length_app /= in Hlookup; first lia.
-      rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup.
-      destruct nodes1 as [| node nodes1]; first done. injection Hlookup as ->.
-      rewrite (assoc _ _ [_]) in Hhist1.
-      iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
-      set past := past1 ++ [front].
-      iMod (front_update (length past) with "Hfront_auth") as "Hfront_auth".
-      { rewrite length_app. lia. }
-      iDestruct (big_sepM_impl_thread_fupd _ (waiter_model γ ι past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
-      { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
-        destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
-        - rewrite decide_True //.
-          rewrite /waiter_model. setoid_rewrite decide_True; last first.
-          { rewrite length_app /=. lia. }
-          iSteps.
-        - rewrite decide_False; first lia.
-          rewrite /waiter_model. setoid_rewrite decide_True; last first.
-          { rewrite length_app /=. lia. }
-          iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
-          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-          iSteps.
-        - rewrite decide_False; first lia.
-          rewrite /waiter_model. setoid_rewrite decide_False; last first.
-          { rewrite length_app /=. lia. }
-          iSteps.
-      }
-      iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "Hfront_data HΦ"; first iSteps.
-      iSteps.
+    wp_cas as _ | [= ->]; first iSteps.
+    iDestruct ("Hhist" with "Hnode ") as "Hhist".
+    iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup_old.
+    iAssert ⌜length past1 = i⌝%I as %Hpast_length.
+    { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
+      iPureIntro. eapply NoDup_lookup; try done.
+      rewrite Hhist1 list_lookup_middle //.
+    }
+    rewrite Hhist1 (assoc _ _ [_]) lookup_app_r length_app /= in Hlookup; first lia.
+    rewrite Nat.add_1_r Hpast_length Nat.sub_diag in Hlookup.
+    destruct nodes1 as [| node nodes1]; first done. injection Hlookup as ->.
+    rewrite (assoc _ _ [_]) in Hhist1.
+    iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hfront_data & Hnodes)".
+    set past := past1 ++ [front].
+    iMod (front_update (length past) with "Hfront_auth") as "Hfront_auth".
+    { rewrite length_app. lia. }
+    iDestruct (big_sepM_impl_thread_fupd _ (waiter_model γ ι past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
+    { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
+      destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
+      - rewrite decide_True //.
+        rewrite /waiter_model. setoid_rewrite decide_True; last first.
+        { rewrite length_app /=. lia. }
+        iSteps.
+      - rewrite decide_False; first lia.
+        rewrite /waiter_model. setoid_rewrite decide_True; last first.
+        { rewrite length_app /=. lia. }
+        iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iSteps.
+      - rewrite decide_False; first lia.
+        rewrite /waiter_model. setoid_rewrite decide_False; last first.
+        { rewrite length_app /=. lia. }
+        iSteps.
+    }
+    iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iSplitR "Hfront_data HΦ". { iFrameSteps. }
+    iSteps.
   Qed.
 End mpmc_queue_1_G.
 
