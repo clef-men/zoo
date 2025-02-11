@@ -349,10 +349,8 @@ Section spsc_bqueue_G.
       model₁ γ vs1 ∗
       model₂ γ vs1.
   Proof.
-    iIntros "Hmodel₁ Hmodel₂".
-    iMod (auth_twins_update_twins_L _ (auth_twins_G := spsc_bqueue_G_model_G) vs1 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    { rewrite preorder_rtc. solve_suffix. }
-    iSteps.
+    apply: auth_twins_update_twins_L.
+    rewrite preorder_rtc. solve_suffix.
   Qed.
 
   #[local] Lemma history_alloc :
