@@ -12,15 +12,15 @@ From zoo Require Import
 
 Notation "'casn'" := (
   in_type "state" 0
-)(in custom zoo_proj
+)(in custom zoo_field
 ).
 Notation "'before'" := (
   in_type "state" 1
-)(in custom zoo_proj
+)(in custom zoo_field
 ).
 Notation "'after'" := (
   in_type "state" 2
-)(in custom zoo_proj
+)(in custom zoo_field
 ).
 
 Notation "'loc'" := (

@@ -12,6 +12,18 @@ From zoo_kcas Require Import
 From zoo Require Import
   options.
 
+Definition kcas_1_clear : val :=
+  fun: "cass" "is_after" =>
+    if: "is_after" then (
+      lst_iter
+        (fun: "cas" => "cas".<state> <-{before} "cas".<state>.{after})
+        "cass"
+    ) else (
+      lst_iter
+        (fun: "cas" => "cas".<state> <-{after} "cas".<state>.{before})
+        "cass"
+    ).
+
 Definition kcas_1_status_to_bool : val :=
   fun: "status" =>
     "status" == §After.
@@ -23,11 +35,18 @@ Definition kcas_1_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> as "old_status" =>
-        Resolve
-          (CAS "casn".[status] "old_status" "status")
-          "casn".{proph}
-          ("gid", kcas_1_status_to_bool "status") ;;
+    | Undetermined "cass" as "old_status" =>
+        let: "is_after" := kcas_1_status_to_bool "status" in
+        if:
+          Resolve
+            (CAS "casn".[status] "old_status" "status")
+            "casn".{proph}
+            ("gid", "is_after")
+        then (
+          kcas_1_clear "cass" "is_after"
+        ) else (
+          ()
+        ) ;;
         kcas_1_status_to_bool "casn".{status}
     end.
 
@@ -37,33 +56,35 @@ Definition kcas_1_finish : val :=
     match: "cass" with
     | [] =>
         kcas_1_finish "gid" "casn" §After
-    | "cas" :: "cass'" =>
+    | "cas" :: "continue" as "retry" =>
         let: "loc", "state" := "cas" in
-        let: "state'" := !"loc" in
-        if: "state" == "state'" then (
-          "determine_as" "casn" "cass'"
-        ) else if: "state".<before> != "get_as" "state'" then (
+        let: "old_state" := !"loc" in
+        if: "state" == "old_state" then (
+          "determine_as" "casn" "continue"
+        ) else if: "state".{before} != "eval" "old_state" then (
           kcas_1_finish "gid" "casn" §Before
         ) else (
-          match: "casn".{status} with
-          | Before =>
-              #false
-          | After =>
-              #true
-          | Undetermined <> =>
-              if: CAS "loc".[contents] "state'" "state" then (
-                "determine_as" "casn" "cass'"
-              ) else (
-                "determine_as" "casn" "cass"
-              )
-          end
+          "lock" "casn" "loc" "old_state" "state" "retry" "continue"
         )
     end
-  and: "get_as" "state" =>
-    if: "determine" "state".<casn> then (
-      "state".<after>
+  and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
+    match: "casn".{status} with
+    | Before =>
+        #false
+    | After =>
+        #true
+    | Undetermined <> =>
+        if: CAS "loc".[contents] "old_state" "state" then (
+          "determine_as" "casn" "continue"
+        ) else (
+          "determine_as" "casn" "retry"
+        )
+    end
+  and: "eval" "state" =>
+    if: "determine" "state".{casn} then (
+      "state".{after}
     ) else (
-      "state".<before>
+      "state".{before}
     )
   and: "determine" "casn" =>
     match: "casn".{status} with
@@ -77,32 +98,47 @@ Definition kcas_1_finish : val :=
 )%zoo_recs.
 Definition kcas_1_determine_as :=
   ValRecs 0 __zoo_recs_0.
-Definition kcas_1_get_as :=
+Definition kcas_1_lock :=
   ValRecs 1 __zoo_recs_0.
-Definition kcas_1_determine :=
+Definition kcas_1_eval :=
   ValRecs 2 __zoo_recs_0.
+Definition kcas_1_determine :=
+  ValRecs 3 __zoo_recs_0.
 #[global] Instance :
   AsValRecs' kcas_1_determine_as 0 __zoo_recs_0 [
     kcas_1_determine_as ;
-    kcas_1_get_as ;
+    kcas_1_lock ;
+    kcas_1_eval ;
     kcas_1_determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_get_as 1 __zoo_recs_0 [
+  AsValRecs' kcas_1_lock 1 __zoo_recs_0 [
     kcas_1_determine_as ;
-    kcas_1_get_as ;
+    kcas_1_lock ;
+    kcas_1_eval ;
     kcas_1_determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_determine 2 __zoo_recs_0 [
+  AsValRecs' kcas_1_eval 2 __zoo_recs_0 [
     kcas_1_determine_as ;
-    kcas_1_get_as ;
+    kcas_1_lock ;
+    kcas_1_eval ;
+    kcas_1_determine
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' kcas_1_determine 3 __zoo_recs_0 [
+    kcas_1_determine_as ;
+    kcas_1_lock ;
+    kcas_1_eval ;
     kcas_1_determine
   ].
 Proof.
@@ -113,12 +149,12 @@ Definition kcas_1_make : val :=
   fun: "v" =>
     let: "_gid" := Id in
     let: "casn" := { §After, Proph } in
-    let: "state" := Reveal ("casn", "v", "v") in
+    let: "state" := { "casn", "v", "v" } in
     ref "state".
 
 Definition kcas_1_get : val :=
   fun: "loc" =>
-    kcas_1_get_as !"loc".
+    kcas_1_eval !"loc".
 
 Definition kcas_1_cas : val :=
   fun: "cass" =>
@@ -127,7 +163,7 @@ Definition kcas_1_cas : val :=
       lst_map
         (fun: "cas" =>
            let: "loc", "before", "after" := "cas" in
-           let: "state" := Reveal ("casn", "before", "after") in
+           let: "state" := { "casn", "before", "after" } in
            ("loc", "state"))
         "cass"
     in

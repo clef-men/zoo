@@ -89,19 +89,22 @@ Record descriptor := {
   descriptor_meta : loc_metadata ;
   descriptor_before : val ;
   descriptor_after : val ;
-  descriptor_state : block_id ;
+  descriptor_state : location ;
 }.
 Implicit Types descr : descriptor.
 Implicit Types descrs : list descriptor.
 
+#[local] Definition descriptor_cas descr : val :=
+  (#descr.(descriptor_loc), #descr.(descriptor_state)).
+
 #[local] Instance descriptor_inhabited : Inhabited descriptor :=
   populate {|
-      descriptor_loc := inhabitant ;
-      descriptor_meta := inhabitant ;
-      descriptor_before := inhabitant ;
-      descriptor_after := inhabitant ;
-      descriptor_state := inhabitant ;
-    |}.
+    descriptor_loc := inhabitant ;
+    descriptor_meta := inhabitant ;
+    descriptor_before := inhabitant ;
+    descriptor_after := inhabitant ;
+    descriptor_state := inhabitant ;
+  |}.
 #[local] Instance descriptor_eq_dec : EqDecision descriptor :=
   ltac:(solve_decision).
 #[local] Instance descriptor_countable :
@@ -109,13 +112,6 @@ Implicit Types descrs : list descriptor.
 Proof.
   solve_countable.
 Qed.
-
-#[local] Definition state_to_val casn descr : val :=
-  ‘0@descr.(descriptor_state)(
-    #casn,
-    descr.(descriptor_before),
-    descr.(descriptor_after)
-  ).
 
 Inductive status :=
   | Undetermined
@@ -153,6 +149,11 @@ Qed.
   final_status_to_bool (final_status_of_bool b) = b.
 Proof.
   destruct b; done.
+Qed.
+#[local] Lemma final_status_to_val_Undetermined fstatus bid v_cass :
+  ¬ final_status_to_val fstatus ≈ ‘Undetermined@bid( v_cass )%V.
+Proof.
+  destruct fstatus; naive_solver.
 Qed.
 
 Record metadata := {
@@ -192,10 +193,8 @@ Qed.
 
 #[local] Definition metadata_size η :=
   length η.(metadata_descrs).
-#[local] Definition metadata_cass casn η :=
-  (λ descr,
-    (#descr.(descriptor_loc), state_to_val casn descr)%V
-  ) <$> η.(metadata_descrs).
+#[local] Definition metadata_cass η :=
+  descriptor_cas <$> η.(metadata_descrs).
 #[local] Definition metadata_outcome η :=
   hd inhabitant η.(metadata_prophs).
 #[local] Definition metadata_winner η :=
@@ -203,7 +202,7 @@ Qed.
 #[local] Definition metadata_success η :=
   (metadata_outcome η).2.
 #[local] Definition metadata_final η :=
-  final_status_of_bool (metadata_success η).
+  final_status_to_val $ final_status_of_bool $ metadata_success η.
 
 #[local] Instance status_inhabited : Inhabited status :=
   populate Undetermined.
@@ -211,7 +210,7 @@ Qed.
 #[local] Definition status_to_val casn η status : val :=
   match status with
   | Undetermined =>
-      ‘Undetermined@η.(metadata_undetermined)( lst_to_val $ metadata_cass casn η )
+      ‘Undetermined@η.(metadata_undetermined)( lst_to_val $ metadata_cass η )
   | After =>
       §After
   | Before =>
@@ -406,6 +405,8 @@ Section kcas_1_G.
     ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
     helper_au' η ι descr P.
 
+  #[local] Definition casn_inv_name ι casn :=
+    ι.@"casn".@casn.
   #[local] Definition casn_inv_inner casn η ι Ψ : iProp Σ :=
     ∃ v_status lstatus helpers prophs,
     casn.[status] ↦ v_status ∗
@@ -416,12 +417,9 @@ Section kcas_1_G.
     | Running i =>
         ⌜v_status = status_to_val casn η Undetermined⌝ ∗
         ⌜prophs = η.(metadata_prophs)⌝ ∗
-        ( [∗ list] descr ∈ take i η.(metadata_descrs),
-          model₂ descr.(descriptor_meta) descr.(descriptor_before) ∗
-          history_elem descr.(descriptor_meta) casn
-        ) ∗
-        ( [∗ list] j ∈ seq i (metadata_size η - i),
-          lock η j
+        ( au η ι Ψ ∗
+          winning η
+        ∨ identifier_model (metadata_winner η)
         ) ∗
         ( [∗ map] helper ↦ j ∈ helpers,
           ∃ P,
@@ -429,29 +427,39 @@ Section kcas_1_G.
           saved_prop helper P ∗
           helper_au η ι j P
         ) ∗
-        ( au η ι Ψ ∗
-          winning η
-        ∨ identifier_model (metadata_winner η)
+        ( [∗ list] descr ∈ η.(metadata_descrs),
+          descr.(descriptor_state).[before] ↦ descr.(descriptor_before) ∗
+          descr.(descriptor_state).[after] ↦ descr.(descriptor_after)
+        ) ∗
+        ( [∗ list] descr ∈ take i η.(metadata_descrs),
+          model₂ descr.(descriptor_meta) descr.(descriptor_before) ∗
+          history_elem descr.(descriptor_meta) casn
+        ) ∗
+        ( [∗ list] j ∈ seq i (metadata_size η - i),
+          lock η j
         )
     | Finished =>
-        ⌜v_status = final_status_to_val (metadata_final η)⌝ ∗
-        ( [∗ list] i ↦ descr ∈ η.(metadata_descrs),
-          ( model₂ descr.(descriptor_meta) (descriptor_final descr η)
-          ∨ lock η i
-          ) ∗
-          if metadata_success η then
-            history_elem descr.(descriptor_meta) casn
-          else
-            True
-        ) ∗
+        ⌜v_status = metadata_final η⌝ ∗
+        winning η ∗
+        identifier_model (metadata_winner η) ∗
+        (owner η ∨ Ψ (metadata_success η)) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
           ∃ P,
           saved_prop helper P ∗
           P
         ) ∗
-        winning η ∗
-        identifier_model (metadata_winner η) ∗
-        (owner η ∨ Ψ (metadata_success η))
+        ( [∗ list] i ↦ descr ∈ η.(metadata_descrs),
+          ( model₂ descr.(descriptor_meta) (descriptor_final descr η)
+          ∨ lock η i
+          ) ∗
+          if metadata_success η then
+            history_elem descr.(descriptor_meta) casn ∗
+            descr.(descriptor_state).[after] ↦ descr.(descriptor_after) ∗
+            ∃ v, descr.(descriptor_state).[before] ↦ v
+          else
+            descr.(descriptor_state).[before] ↦ descr.(descriptor_before) ∗
+            ∃ v, descr.(descriptor_state).[after] ↦ v
+        )
     end.
   #[local] Instance : CustomIpatFormat "casn_inv_inner" :=
     "(
@@ -459,29 +467,30 @@ Section kcas_1_G.
       %lstatus{} &
       %helpers{} &
       %prophs{} &
-      {>=}Hcasn{}_status &
-      {>=}Hlstatus{}_auth &
-      {>=}Hhelpers{}_auth &
-      {>=}Hproph{} &
+      >Hcasn{}_status &
+      >Hlstatus{}_auth &
+      >Hhelpers{}_auth &
+      >Hproph{} &
       Hlstatus{}
     )".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_running" :=
     "(
       {>=}-> &
       {>=}-> &
-      {>=}Hmodels₂ &
-      {>=}Hlocks &
-      Hhelpers &
-      Hau
+      Hau{} &
+      Hhelpers{} &
+      {>=}Hdescrs{} &
+      {>=}Hmodels₂{} &
+      {>=}Hlocks{}
     )".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_finished" :=
     "(
       {>=}-> &
-      {>=}Hmodels{}₂ &
-      Hhelpers{} &
       {>=}Hwinning{} &
       {>=}Hwinner{} &
-      HΨ{}
+      HΨ{} &
+      Hhelpers{} &
+      {>=}Hdescrs{}
     )".
   #[local] Definition casn_inv_pre ι
     (casn_inv' : location * metadata * option nat -d> iProp Σ)
@@ -493,19 +502,20 @@ Section kcas_1_G.
       casn.[proph] ↦□ #η.(metadata_prophet) ∗
       saved_pred η.(metadata_post) Ψ ∗
       ⌜NoDup (descriptor_loc <$> η.(metadata_descrs))⌝ ∗
-      inv (ι.@"casn") (casn_inv_inner casn η ι Ψ) ∗
-      ( if i is Some i then
-          [∗ list] j ↦ descr ∈ η.(metadata_descrs),
+      inv (casn_inv_name ι casn) (casn_inv_inner casn η ι Ψ) ∗
+      [∗ list] j ↦ descr ∈ η.(metadata_descrs),
+        if i is Some i then
           if decide (j = i) then
-            meta descr.(descriptor_loc) nroot descr.(descriptor_meta)
+            meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+            descr.(descriptor_state).[casn] ↦□ #casn
           else
             meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+            descr.(descriptor_state).[casn] ↦□ #casn ∗
             loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
         else
-          [∗ list] descr ∈ η.(metadata_descrs),
           meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+          descr.(descriptor_state).[casn] ↦□ #casn ∗
           loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
-      )
     )%I.
   #[local] Instance : CustomIpatFormat "casn_inv" :=
     "(
@@ -514,7 +524,7 @@ Section kcas_1_G.
       Hpost{} &
       %Hlocs{} &
       Hcasn{}_inv &
-      Hlocs{}_inv
+      Hlocs{}
     )".
   #[local] Instance casn_inv_pre_contractive ι n :
     Proper (dist_later n ==> (≡{n}≡) ==> (≡{n}≡)) (casn_inv_pre ι).
@@ -522,12 +532,14 @@ Section kcas_1_G.
     solve_proper.
   Qed.
 
+  #[local] Definition loc_inv_name ι :=
+    ι.@"loc".
   #[local] Definition loc_inv_inner'' full casn_inv' loc γ : iProp Σ :=
     ∃ casns casn η i descr,
     meta casn nroot η ∗
     ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
     ⌜loc = descr.(descriptor_loc)⌝ ∗
-    loc ↦ᵣ state_to_val casn descr ∗
+    loc ↦ᵣ #descr.(descriptor_state) ∗
     lstatus_lb η (Running (S i)) ∗
     lock η i ∗
     history_auth γ (casns ++ [casn]) ∗
@@ -556,7 +568,7 @@ Section kcas_1_G.
   : location * loc_metadata -d> iProp Σ
   :=
     λ '(loc, γ),
-      inv (ι.@"loc") (loc_inv_inner' casn_inv' loc γ).
+      inv (loc_inv_name ι) (loc_inv_inner' casn_inv' loc γ).
   #[local] Instance loc_inv_pre_contractive ι n :
     Proper (dist_later n ==> dist_later n ==> (≡{n}≡)) (loc_inv_pre ι).
   Proof.
@@ -608,12 +620,12 @@ Section kcas_1_G.
 
   #[local] Lemma loc_inv'_unfold loc γ ι :
     loc_inv' ι (loc, γ) ⊣⊢
-    inv (ι.@"loc") (loc_inv_inner' (casn_inv'' ι) loc γ).
+    inv (loc_inv_name ι) (loc_inv_inner' (casn_inv'' ι) loc γ).
   Proof.
     symmetry. apply (fixpoint_B_unfold (casn_inv_pre ι) (loc_inv_pre ι) (loc, γ)).
   Qed.
   #[local] Lemma loc_inv'_intro loc γ ι :
-    inv (ι.@"loc") (loc_inv_inner' (casn_inv'' ι) loc γ) ⊢
+    inv (loc_inv_name ι) (loc_inv_inner' (casn_inv'' ι) loc γ) ⊢
     loc_inv' ι (loc, γ).
   Proof.
     setoid_rewrite <- (fixpoint_B_unfold (casn_inv_pre ι) (loc_inv_pre ι) _).
@@ -624,7 +636,7 @@ Section kcas_1_G.
   #[local] Lemma loc_inv'_elim loc γ ι :
     meta loc nroot γ -∗
     loc_inv' ι (loc, γ) -∗
-    inv (ι.@"loc") (loc_inv_inner loc γ ι).
+    inv (loc_inv_name ι) (loc_inv_inner loc γ ι).
   Proof.
     setoid_rewrite <- (fixpoint_B_unfold (casn_inv_pre ι) (loc_inv_pre ι) _).
     iIntros "#Hloc_meta #Hloc_inv".
@@ -634,9 +646,9 @@ Section kcas_1_G.
       setoid_rewrite <- (fixpoint_A_unfold (casn_inv_pre ι) (loc_inv_pre ι) _).
       iDestruct "Hcasn_inv'" as "(:casn_inv)".
       iSteps.
-      iApply (big_sepL_impl with "Hlocs_inv"). iIntros "!> %i' %descr' %Hdescr_lookup' H".
-      case_decide; last iSteps.
-      simplify.
+      iApply (big_sepL_impl with "Hlocs"). iIntros "!> %i' %descr' %Hdescr_lookup' H".
+      case_decide; last iSteps. simplify.
+      iDestruct "H" as "(H & $)".
       iDestruct (meta_agree with "Hloc_meta H") as %->.
       setoid_rewrite <- (fixpoint_B_unfold (casn_inv_pre ι) (loc_inv_pre ι) _).
       iSteps.
@@ -648,8 +660,18 @@ Section kcas_1_G.
       case_decide; iSteps.
   Qed.
 
-  #[global] Instance kcas_1_loc_model_persistent loc ι :
+  #[local] Instance history_auth_timeless γ casns :
+    Timeless (history_auth γ casns).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance kcas_1_loc_model_timeless loc ι :
     Timeless (kcas_1_loc_model loc ι).
+  Proof.
+    apply _.
+  Qed.
+  #[local] Instance history_lb_persistent γ casns :
+    Persistent (history_lb γ casns).
   Proof.
     apply _.
   Qed.
@@ -972,19 +994,22 @@ Section kcas_1_G.
     apply excl_exclusive.
   Qed.
 
+  Opaque history_auth'.
+  Opaque history_lb.
+
   #[local] Lemma casn_help {casn η ι Ψ i} descr P :
     η.(metadata_descrs) !! i = Some descr →
-    inv (ι.@"casn") (casn_inv_inner casn η ι Ψ) -∗
+    inv (casn_inv_name ι casn) (casn_inv_inner casn η ι Ψ) -∗
     lock η i -∗
     helper_au' η ι descr P -∗
-      |={⊤ ∖ ↑ι.@"loc"}=>
+      |={⊤ ∖ ↑loc_inv_name ι}=>
       ∃ helper,
       lock η i ∗
       saved_prop helper P ∗
       helpers_elem η helper i.
   Proof.
     iIntros "%Hdescrs_lookup #Hcasn_inv Hlock H".
-    iInv "Hcasn_inv" as "(:casn_inv_inner >)".
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
     iMod (helpers_insert i P with "Hhelpers_auth") as "(%helper & Hhelpers_auth & Hhelpers_elem & #Hhelper)".
     destruct lstatus as [j |].
 
@@ -1004,26 +1029,26 @@ Section kcas_1_G.
       iFrameSteps.
 
     - iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-      iDestruct (big_sepL_lookup_acc with "Hmodels₂") as "(([Hmodel₂ | _Hlock] & Hhistory_elem) & Hmodels₂)"; first done; last first.
+      iDestruct (big_sepL_lookup_acc with "Hdescrs") as "(([Hmodel₂ | _Hlock] & Hhistory_elem) & Hdescrs)"; first done; last first.
       { iDestruct (lock_exclusive with "Hlock _Hlock") as %[]. }
       iApply (fupd_mask_mono (⊤ ∖ ↑ι)); first solve_ndisj.
       iMod "H" as "(%v & Hmodel₁ & _ & H)".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("H" with "[$Hmodel₁ //]") as "HQ".
-      iDestruct ("Hmodels₂" with "[Hmodel₂ Hhistory_elem]") as "Hmodels₂"; first iSteps.
+      iDestruct ("Hdescrs" with "[Hmodel₂ Hhistory_elem]") as "Hdescrs"; first iSteps.
       iDestruct (big_sepM_insert_2 _ _ helper i with "[HQ] Hhelpers") as "Hhelpers"; first iSteps.
       iSplitR "Hlock Hhelpers_elem". { iFrameSteps 2. }
       iFrameSteps.
   Qed.
   #[local] Lemma casn_retrieve casn η ι Ψ helper P i :
-    inv (ι.@"casn") (casn_inv_inner casn η ι Ψ) -∗
+    inv (casn_inv_name ι casn) (casn_inv_inner casn η ι Ψ) -∗
     lstatus_lb η Finished -∗
     saved_prop helper P -∗
     helpers_elem η helper i ={⊤}=∗
     ▷^2 P.
   Proof.
     iIntros "#Hcasn_inv #Hlstatus_lb #Hhelper Hhelpers_elem".
-    iInv "Hcasn_inv" as "(:casn_inv_inner >)".
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
     iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
     iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
     iDestruct (helpers_lookup with "Hhelpers_auth Hhelpers_elem") as %Hhelpers_lookup.
@@ -1034,6 +1059,168 @@ Section kcas_1_G.
     iModIntro.
 
     do 3 iModIntro. iRewrite "Heq". iSteps.
+  Qed.
+
+  #[local] Lemma status_spec_finished casn η ι :
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      (#casn).{status}
+    {{{
+      RET metadata_final η;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    wp_load.
+    iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
+    iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
+    iSplitR "HΦ". { iFrameSteps 2. }
+    iSteps.
+  Qed.
+
+  #[local] Lemma before_spec {casn η ι} i descr :
+    η.(metadata_descrs) !! i = Some descr →
+    {{{
+      casn_inv' ι casn η
+    }}}
+      (#descr.(descriptor_state)).{before}
+    {{{ v,
+      RET v;
+        ⌜v = descr.(descriptor_before)⌝
+      ∨ lstatus_lb η Finished
+    }}}.
+  Proof.
+    iIntros "%Hdescrs_lookup %Φ #Hcasn_inv' HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    destruct lstatus as [j |].
+
+    - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
+      iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hstate_before & Hstate_after) & Hdescrs)"; first done.
+      wp_load.
+      iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+      iSplitR "HΦ". { iFrameSteps 2. }
+      iSteps.
+
+    - iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+      iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
+      destruct (metadata_success η) eqn:Hsuccess.
+      1: iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & History_elem & Hstate_after & %v & Hstate_before) & Hdescrs)"; first done.
+      2: iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hstate_before & Hstate_after) & Hdescrs)"; first done.
+      all: wp_load.
+      all: iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+      all: iSplitR "HΦ"; first (rewrite /casn_inv_inner Hsuccess; iFrameSteps 2).
+      all: iApply "HΦ"; iRight; iSteps.
+  Qed.
+  #[local] Lemma before_spec_finished {casn η ι} i descr :
+    η.(metadata_descrs) !! i = Some descr →
+    metadata_success η = false →
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      (#descr.(descriptor_state)).{before}
+    {{{
+      RET descr.(descriptor_before);
+      True
+    }}}.
+  Proof.
+    iIntros "%Hdescrs_lookup %Hsuccess %Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
+    iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+    rewrite Hsuccess.
+    iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hstate_before & Hstate_after) & Hdescrs)"; first done.
+    wp_load.
+    iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+    iSplitR "HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
+    iSteps.
+  Qed.
+  #[local] Lemma set_before_spec_finished {casn η ι} i descr v :
+    η.(metadata_descrs) !! i = Some descr →
+    metadata_success η = true →
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      (#descr.(descriptor_state)) <-{before} v
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Hdescrs_lookup %Hsuccess %Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
+    iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+    rewrite Hsuccess.
+    iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hhistory_elem & Hstate_before & % & Hstate_after) & Hdescrs)"; first done.
+    wp_store.
+    iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+    iSplitR "HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
+    iSteps.
+  Qed.
+
+  #[local] Lemma after_spec_finished {casn η ι} i descr :
+    η.(metadata_descrs) !! i = Some descr →
+    metadata_success η = true →
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      (#descr.(descriptor_state)).{after}
+    {{{
+      RET descr.(descriptor_after);
+      True
+    }}}.
+  Proof.
+    iIntros "%Hdescrs_lookup %Hsuccess %Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
+    iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+    rewrite Hsuccess.
+    iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hhistory_elem & Hstate_before & Hstate_after) & Hdescrs)"; first done.
+    wp_load.
+    iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+    iSplitR "HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
+    iSteps.
+  Qed.
+  #[local] Lemma set_after_spec_finished {casn η ι} i descr v :
+    η.(metadata_descrs) !! i = Some descr →
+    metadata_success η = false →
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      (#descr.(descriptor_state)) <-{after} v
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Hdescrs_lookup %Hsuccess %Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
+    iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
+    iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+    rewrite Hsuccess.
+    iDestruct (big_sepL_lookup_acc with "Hdescrs") as "((Hmodel₂ & Hstate_before & % & Hstate_after) & Hdescrs)"; first done.
+    wp_store.
+    iDestruct ("Hdescrs" with "[$]") as "Hdescrs".
+    iSplitR "HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
+    iSteps.
   Qed.
 
   #[local] Lemma kcas_1_status_to_bool_spec fstatus :
@@ -1049,6 +1236,35 @@ Section kcas_1_G.
     iIntros "%Φ _ HΦ".
     wp_rec.
     destruct fstatus; iSteps.
+  Qed.
+
+  #[local] Lemma kcas_1_clear_spec casn η ι b :
+    b = metadata_success η →
+    {{{
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      kcas_1_clear (lst_to_val $ metadata_cass η) #b
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros (->) "%Φ (#Hcasn_inv' & #Hlstatus_lb) HΦ".
+    iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+
+    wp_rec. wp_pures.
+    destruct (metadata_success η) eqn:Hsuccess.
+    all: wp_smart_apply (lst_iter_spec_disentangled (λ _ _, True)%I); [done | | iSteps].
+    all: iIntros "!>" (i v (descr & Hdescrs_lookup & ->)%list_lookup_fmap_Some).
+
+    - wp_smart_apply (after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
+      wp_smart_apply (set_before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+      iSteps.
+
+    - wp_smart_apply (before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
+      wp_smart_apply (set_after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+      iSteps.
   Qed.
 
   #[local] Lemma kcas_1_finish_spec {gid casn η ι} fstatus :
@@ -1070,6 +1286,8 @@ Section kcas_1_G.
           ⌜fstatus = FinalAfter⌝ ∗
           ⌜metadata_size η ≤ i⌝ ∗
           lstatus_lb η (Running i)
+        ) ∨ (
+          lstatus_lb η Finished
         )
       )
     }}}
@@ -1085,7 +1303,7 @@ Section kcas_1_G.
     wp_rec. wp_pures.
 
     wp_bind (_.{status})%E.
-    iInv "Hcasn_inv" as "(:casn_inv_inner >)".
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
     wp_load.
     destruct lstatus as [i |].
 
@@ -1097,9 +1315,14 @@ Section kcas_1_G.
       wp_load. wp_pures.
 
       wp_bind (Resolve _ _ _).
-      wp_apply (wp_wand _ _ (λ _, lstatus_lb η Finished) with "[- HΦ]") as (res) "#Hlstatus_lb".
+      wp_apply (wp_wand _ _ (λ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        ⌜b = true → final_status_to_bool fstatus = metadata_success η⌝ ∗
+        lstatus_lb η Finished
+      )%I with "[- HΦ]") as (res) "(%b & -> & % & #Hlstatus_lb)".
 
-      { iInv "Hcasn_inv" as "(:casn_inv_inner >)".
+      { iInv "Hcasn_inv" as "(:casn_inv_inner)".
         wp_apply (typed_prophet_wp_resolve prophet (_, _) with "Hproph"); [done.. |].
         destruct lstatus as [i |].
 
@@ -1113,7 +1336,7 @@ Section kcas_1_G.
           iAssert (
             ( [∗ list] descr ∈ take i η.(metadata_descrs),
               model₂ descr.(descriptor_meta) (descriptor_final descr η)
-            ) ={⊤ ∖ ↑ι.@"casn"}=∗
+            ) ={⊤ ∖ ↑casn_inv_name ι casn}=∗
               ( [∗ map] helper ↦ j ∈ helpers,
                 ∃ P,
                 saved_prop helper P ∗
@@ -1138,7 +1361,7 @@ Section kcas_1_G.
             iSteps.
           }
 
-          iDestruct "H" as "[(%Hgid & Hgid) | [(%Ψ_ & -> & Hwinning & Hpost_ & HΨ) | (%j & -> & Hgid & -> & %Hj & #Hlstatus_lb)]]".
+          iDestruct "H" as "[(%Hgid & Hgid) | [(%Ψ_ & -> & Hwinning & Hpost_ & HΨ) | [(%j & -> & Hgid & -> & %Hj & #Hlstatus_lb)| #Hlstatus_lb]]]".
 
           + apply (f_equal (fst ∘ hd inhabitant)) in Hprophs. done.
 
@@ -1152,13 +1375,8 @@ Section kcas_1_G.
 
             iAssert (
               [∗ list] i ↦ descr ∈ η.(metadata_descrs),
-              ( model₂ descr.(descriptor_meta) (descriptor_final descr η)
-              ∨ lock η i
-              ) ∗
-              if metadata_success η then
-                history_elem descr.(descriptor_meta) casn
-              else
-                True
+                  model₂ descr.(descriptor_meta) (descriptor_final descr η)
+                ∨ lock η i
             )%I with "[Hmodels₂ Hlocks]" as "Hmodels₂".
             { iApply big_sepL_take_drop. iSplitL "Hmodels₂".
               - iApply (big_sepL_impl with "Hmodels₂").
@@ -1166,16 +1384,19 @@ Section kcas_1_G.
               - iDestruct (big_sepL_seq_index_1 (drop i η.(metadata_descrs)) with "Hlocks") as "Hlocks".
                 { rewrite length_drop //. }
                 iApply (big_sepL_impl with "Hlocks").
-                rewrite Hsuccess. iSteps.
+                iSteps.
             }
 
             iMod (lstatus_update Finished with "Hlstatus_auth") as "Hlstatus_auth"; first done.
             iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#$".
-            do 2 iModIntro.
+            iSplitL; last iSteps. do 2 iModIntro.
             iRewrite -"Heq" in "HΨ".
-            iFrameSteps 2.
+            rewrite /casn_inv_inner Hsuccess. iFrameSteps 2.
             { rewrite /metadata_final Hsuccess //. }
-            { rewrite Hsuccess. iSteps. }
+            { iApply (big_sepL_sep_2 with "Hmodels₂ [Hdescrs]").
+              iApply (big_sepL_impl with "Hdescrs").
+              iSteps.
+            }
 
           + iDestruct "Hau" as "[(Hau & Hwinning) | Hwinner]"; last first.
             { iDestruct (identifier_model_exclusive with "Hgid Hwinner") as %[]. }
@@ -1190,10 +1411,7 @@ Section kcas_1_G.
             iMod (big_sepL2_impl_bupd _ _ (λ _ descr v,
               ( model₁ descr.(descriptor_meta) descr.(descriptor_after) ∗
                 model₂ descr.(descriptor_meta) (descriptor_final descr η) ∗
-                if metadata_success η then
-                  history_elem descr.(descriptor_meta) casn
-                else
-                  True
+                history_elem descr.(descriptor_meta) casn
               ) ∗
               ⌜descr.(descriptor_before) = v⌝
             )%I with "Hmodels []") as "Hmodels".
@@ -1205,34 +1423,39 @@ Section kcas_1_G.
             }
             iDestruct (big_sepL2_sep_sepL_l with "Hmodels") as "(Hmodels & Hvs)".
             iDestruct (big_sepL_sep with "Hmodels") as "(Hmodels₁ & Hmodels₂)".
-            iDestruct (big_sepL2_Forall2 with "Hvs") as %Hvs.
+            iDestruct (big_sepL2_Forall2 with "Hvs") as %Hvs. iClear "Hvs".
 
             iMod ("HΨ" $! true with "[Hmodels₁]") as "HΨ"; first iSteps.
             iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hhistory_elems)".
             iMod ("Hhelpers" with "Hmodels₂") as "(Hhelpers & Hmodels₂)".
-            iDestruct (big_sepL_or_r with "Hmodels₂") as "Hmodels₂".
+            iDestruct (big_sepL_or_r (λ i _, lock η i) with "Hmodels₂") as "Hmodels₂".
             iDestruct (big_sepL_sep_2 with "Hmodels₂ Hhistory_elems") as "Hmodels₂".
-            iSteps.
+            iSplitL; last iSteps. do 2 iModIntro.
+            rewrite /casn_inv_inner Hsuccess. iFrameSteps 2.
             { rewrite /metadata_final Hsuccess //. }
-            { rewrite Hsuccess. iSteps. }
+            { iDestruct (big_sepL_sep with "[$Hmodels₂ $Hdescrs]") as "Hdescrs".
+              iApply (big_sepL_impl with "Hdescrs"). iIntros "!>".
+              iSteps.
+            }
+
+          + iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %[=].
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-          wp_cas as _ | Hcas; last first.
-          { destruct (metadata_final η) in Hcas; naive_solver. }
+          wp_cas as _ | []%final_status_to_val_Undetermined.
           iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
           iSteps.
       }
 
-      wp_pures.
+      wp_bind (if: _ then _ else _)%E.
+      wp_apply (wp_wand _ _ (λ res,
+        ⌜res = ()%V⌝
+      )%I with "[- HΦ]") as (res) "->".
+      { destruct b; last iSteps.
+        wp_smart_apply (kcas_1_clear_spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
+        iSteps.
+      }
 
-      wp_bind (_.{status})%E.
-      iInv "Hcasn_inv" as "(:casn_inv_inner >)".
-      wp_load.
-      iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %->.
-      iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
-      iSplitR "HΦ". { iFrameSteps 2. }
-      iModIntro. clear.
-
+      wp_smart_apply (status_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_".
       wp_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
       rewrite final_status_to_of_bool. iSteps.
 
@@ -1241,8 +1464,7 @@ Section kcas_1_G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      rewrite /metadata_final.
-      destruct (metadata_success η); iSteps.
+      rewrite /metadata_final. destruct (metadata_success η); iSteps.
   Qed.
   #[local] Lemma kcas_1_finish_spec_loser {gid casn η ι} fstatus :
     gid ≠ metadata_winner η →
@@ -1298,12 +1520,73 @@ Section kcas_1_G.
     wp_apply (kcas_1_finish_spec FinalAfter with "[- HΦ] HΦ").
     destruct (decide (gid = metadata_winner η)); iSteps.
   Qed.
+  #[local] Lemma kcas_1_finish_spec_finished gid casn η ι :
+    {{{
+      meta casn nroot η ∗
+      casn_inv' ι casn η ∗
+      lstatus_lb η Finished
+    }}}
+      kcas_1_finish #gid #casn §Before
+    {{{
+      RET #(metadata_success η);
+      lstatus_lb η Finished
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
+    wp_apply (kcas_1_finish_spec FinalBefore with "[- HΦ] HΦ").
+    iSmash.
+  Qed.
 
-  #[local] Lemma kcas_1_determine_as_get_as_determine_spec ι :
+  #[local] Lemma descriptor_state_inj {ι casn1 η1 casn2 η2} i1 descr1 i2 descr2 :
+    casn1 ≠ casn2 →
+    η1.(metadata_descrs) !! i1 = Some descr1 →
+    η2.(metadata_descrs) !! i2 = Some descr2 →
+    casn_inv' ι casn1 η1 -∗
+    casn_inv' ι casn2 η2 ={⊤ ∖ ↑loc_inv_name ι}=∗
+    ⌜descr1.(descriptor_state) ≠ descr2.(descriptor_state)⌝.
+  Proof.
+    iIntros "%Hneq %Hdescrs1_lookup %Hdescrs2_lookup #Hcasn1_inv' #Hcasn2_inv'".
+    iDestruct (casn_inv'_unfold with "Hcasn1_inv'") as "(:casn_inv =1)".
+    iDestruct (casn_inv'_unfold with "Hcasn2_inv'") as "(:casn_inv =2)".
+    iInv "Hcasn1_inv" as "(:casn_inv_inner =1)".
+    iInv "Hcasn2_inv" as "(:casn_inv_inner =2)".
+    all:
+      destruct lstatus1 as [j1 |];
+      [ iDestruct "Hlstatus1" as "(:casn_inv_inner_running > =1)";
+        iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hstate1_before & Hstate1_after) & Hdescrs1)"; first done
+      | iDestruct "Hlstatus1" as "(:casn_inv_inner_finished > =1)";
+        destruct (metadata_success η1) eqn:Hsuccess1;
+        [ iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hmodel₂1 & Hhistory1_elem & Hstate1_after & (% & Hstate1_before)) & Hdescrs1)"; first done
+        | iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "((Hmodel₂1 & Hstate1_before & Hstate1_after) & Hdescrs1)"; first done
+        ]
+      ].
+    all:
+      destruct lstatus2 as [j2 |];
+      [ iDestruct "Hlstatus2" as "(:casn_inv_inner_running > =2)";
+        iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hstate2_before & Hstate2_after) & Hdescrs2)"; first done
+      | iDestruct "Hlstatus2" as "(:casn_inv_inner_finished > =2)";
+        destruct (metadata_success η2) eqn:Hsuccess2;
+        [ iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hmodel₂2 & Hhistory2_elem & Hstate2_after & (% & Hstate2_before)) & Hdescrs2)"; first done
+        | iDestruct (big_sepL_lookup_acc with "Hdescrs2") as "((Hmodel₂2 & Hstate2_before & Hstate2_after) & Hdescrs2)"; first done
+        ]
+      ].
+    all: iDestruct (pointsto_ne with "Hstate1_before Hstate2_before") as %?.
+    all: iDestruct ("Hdescrs1" with "[$]") as "Hdescrs1".
+    all: iDestruct ("Hdescrs2" with "[$]") as "Hdescrs2".
+    all:
+      ( iSplitR "Hcasn1_status Hlstatus1_auth Hhelpers1_auth Hproph1 Hau1 Hhelpers1 Hmodels₂1 Hlocks1 Hdescrs1" ||
+        iSplitR "Hcasn1_status Hlstatus1_auth Hhelpers1_auth Hproph1 Hwinning1 Hwinner1 HΨ1 Hhelpers1 Hdescrs1"
+      );
+      first (rewrite /casn_inv_inner ?Hsuccess2; iFrameSteps 2).
+    all: iSplitL; first (rewrite /casn_inv_inner ?Hsuccess1; iFrameSteps 2).
+    all: iPureIntro; congruence.
+  Qed.
+
+  #[local] Lemma kcas_1_determine_as_eval_determine_spec ι :
     ⊢ (
       ∀ casn η v_cass i,
       {{{
-        ⌜v_cass = lst_to_val (drop i (metadata_cass casn η))⌝ ∗
+        ⌜v_cass = lst_to_val (drop i (metadata_cass η))⌝ ∗
         meta casn nroot η ∗
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i)
@@ -1314,14 +1597,39 @@ Section kcas_1_G.
         lstatus_lb η Finished
       }}}
     ) ∧ (
-      ∀ state casn η descr,
+      ∀ casn η i descr casn1 η1 i1 descr1 casns1 v_retry v_continue,
       {{{
-        ⌜state = state_to_val casn descr⌝ ∗
-        ⌜descr ∈ η.(metadata_descrs)⌝ ∗
+        ⌜v_retry = lst_to_val (drop i (metadata_cass η))⌝ ∗
+        ⌜v_continue = lst_to_val (drop (S i) (metadata_cass η))⌝ ∗
+        ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
+        ⌜η1.(metadata_descrs) !! i1 = Some descr1⌝ ∗
+        ⌜descr1.(descriptor_loc) = descr.(descriptor_loc)⌝ ∗
+        ⌜descr1.(descriptor_meta) = descr.(descriptor_meta)⌝ ∗
+        ⌜casn1 ≠ casn⌝ ∗
+        meta casn nroot η ∗
+        casn_inv' ι casn η ∗
+        lstatus_lb η (Running i) ∗
+        meta casn1 nroot η1 ∗
+        casn_inv' ι casn1 η1 ∗
+        lstatus_lb η1 Finished ∗
+        history_lb descr.(descriptor_meta) (casns1 ++ [casn1]) ∗
+        ( lstatus_lb η Finished
+        ∨ ⌜descriptor_final descr1 η1 = descr.(descriptor_before)⌝
+        )
+      }}}
+        kcas_1_lock #casn #descr.(descriptor_loc) #descr1.(descriptor_state) #descr.(descriptor_state) v_retry v_continue
+      {{{
+        RET #(metadata_success η);
+        lstatus_lb η Finished
+      }}}
+    ) ∧ (
+      ∀ casn η i descr,
+      {{{
+        ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
         meta casn nroot η ∗
         casn_inv' ι casn η
       }}}
-        kcas_1_get_as state
+        kcas_1_eval #descr.(descriptor_state)
       {{{
         RET descriptor_final descr η;
         lstatus_lb η Finished ∗
@@ -1341,7 +1649,7 @@ Section kcas_1_G.
     ).
   Proof.
     iLöb as "HLöb".
-    iDestruct "HLöb" as "(Hdetermine_as & Hget_as & Hdetermine)".
+    iDestruct "HLöb" as "(IHdetermine_as & IHlock & IHeval & IHdetermine)".
     repeat iSplit.
 
     { iIntros "%casn %η %v_cass %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
@@ -1355,7 +1663,7 @@ Section kcas_1_G.
       - apply lookup_lt_Some in Hdescrs_lookup as Hi.
         erewrite drop_S; last first.
         { apply list_lookup_fmap_Some. naive_solver. }
-        iDestruct (big_sepL_lookup with "Hlocs_inv") as "(Hloc_meta & Hloc_inv')"; first done.
+        iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
         wp_pures.
 
@@ -1366,8 +1674,8 @@ Section kcas_1_G.
         iDestruct (history_lb_get with "Hhistory_auth") as "#Hhistory_lb1".
 
         iAssert ⌜descr1.(descriptor_meta) = descr.(descriptor_meta)⌝%I as %Hmeta1.
-        { iDestruct (big_sepL_lookup with "Hlocs_inv") as "(Hloc_meta_1 & _)"; first done.
-          iDestruct (big_sepL_lookup with "Hlocs1_inv") as "(Hloc_meta_2 & _)"; first done.
+        { iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta_1 & _)"; first done.
+          iDestruct (big_sepL_lookup with "Hlocs1") as "(Hloc_meta_2 & _)"; first done.
           iEval (rewrite -Hloc1) in "Hloc_meta_2".
           iApply (meta_agree with "Hloc_meta_2 Hloc_meta_1").
         }
@@ -1384,10 +1692,11 @@ Section kcas_1_G.
           iSplitR "HΦ". { iFrameSteps. }
           iModIntro. clear.
 
-          wp_equal as ? | _; first naive_solver.
-          wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus1_lb //] HΦ").
+          wp_pures. rewrite bool_decide_eq_true_2 //.
+          wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus1_lb //] HΦ").
 
-        + destruct (decide (gid = metadata_winner η ∧ descr.(descriptor_before) ≠ descriptor_final descr1 η1)) as [(-> & Hfail) | Hok%not_and_r_alt].
+        + iMod (descriptor_state_inj with "Hcasn_inv' Hcasn1_inv'") as %?; [done.. |].
+          destruct (decide (gid = metadata_winner η ∧ descr.(descriptor_before) ≠ descriptor_final descr1 η1)) as [(-> & Hfail) | Hok%not_and_r_alt].
 
           * iInv "Hcasn_inv" as "(:casn_inv_inner)".
             destruct lstatus as [j |]; last first.
@@ -1412,178 +1721,57 @@ Section kcas_1_G.
             iSplitR "Hwinning Hhelpers1_elem HΦ". { iFrameSteps 2. }
             iModIntro.
 
-            wp_equal as _ | ?; last naive_solver.
+            wp_pures. rewrite bool_decide_eq_false_2 //.
 
             iClear "Hlstatus1_lb".
-            wp_smart_apply ("Hget_as" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)".
-            { iSteps. iPureIntro. eapply elem_of_list_lookup_2. done. }
+            wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             iMod (casn_retrieve with "Hcasn1_inv Hlstatus1_lb Hhelper Hhelpers1_elem") as "HΨ".
 
-            wp_smart_apply wp_equal.
-            rewrite bool_decide_eq_false_2 //.
-            wp_smart_apply (kcas_1_finish_spec_winner_before with "[$Hcasn_meta $Hcasn_inv' $Hwinning $Hpost $HΨ] HΦ"); first done.
+            wp_apply (before_spec with "Hcasn_inv'") as (v) "[-> | #Hlstatus_lb_finished]"; first done.
+
+            -- wp_apply wp_equal.
+               rewrite bool_decide_eq_false_2 //.
+               wp_smart_apply (kcas_1_finish_spec_winner_before with "[$Hcasn_meta $Hcasn_inv' $Hwinning $Hpost $HΨ] HΦ"); first done.
+
+            -- wp_apply wp_equal. case_bool_decide.
+
+               ++ wp_smart_apply ("IHlock" with "[- HΦ] HΦ").
+                  erewrite (drop_S _ _ i); last first.
+                  { rewrite list_lookup_fmap Hdescrs_lookup //. }
+                  iFrameSteps. done.
+
+               ++ wp_smart_apply (kcas_1_finish_spec_finished with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb_finished] HΦ").
 
           * iSplitR "Hgid HΦ". { iFrameSteps. }
             iModIntro.
 
-            wp_equal as _ | ?; last naive_solver.
+            wp_pures. rewrite bool_decide_eq_false_2 //.
 
             iClear "Hlstatus1_lb".
-            wp_smart_apply ("Hget_as" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)".
-            { iSteps. iPureIntro. eapply elem_of_list_lookup_2. done. }
+            wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
 
-            wp_smart_apply wp_equal.
-            destruct Hok as [(Hgid & Hfail) | Hok%dec_stable].
+            wp_apply (before_spec with "Hcasn_inv'") as (v) "[-> | #Hlstatus_lb_finished]"; first done.
 
-            -- rewrite bool_decide_eq_false_2 //.
-               wp_smart_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
+            -- wp_apply wp_equal.
+               destruct Hok as [(Hgid & Hfail) | Hok%dec_stable].
 
-            -- rewrite bool_decide_eq_true_2 //.
-               wp_pures.
+               ++ rewrite bool_decide_eq_false_2 //.
+                  wp_smart_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
 
-               wp_bind (_.{status})%E.
-               iInv "Hcasn_inv" as "(:casn_inv_inner)".
-               wp_load.
-               destruct lstatus as [j |].
+               ++ rewrite bool_decide_eq_true_2 //.
+                  wp_smart_apply ("IHlock" with "[- HΦ] HΦ").
+                  erewrite (drop_S _ _ i); last first.
+                  { rewrite list_lookup_fmap Hdescrs_lookup //. }
+                  iFrameSteps. done.
 
-               ++ iDestruct "Hlstatus" as "(:casn_inv_inner_running)".
+            -- wp_apply wp_equal. case_bool_decide.
 
-                  iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
-                  destruct (decide (casn1 = casn2)) as [<- | Hcasn2].
+               ++ wp_smart_apply ("IHlock" with "[- HΦ] HΦ").
+                  erewrite (drop_S _ _ i); last first.
+                  { rewrite list_lookup_fmap Hdescrs_lookup //. }
+                  iFrameSteps. done.
 
-                  ** iDestruct (history_lb_get with "Hhistory_auth") as "#Hhistory_lb2".
-                     iDestruct (history_running with "Hhistory_auth Hcasn_meta Hlstatus_auth") as %?.
-                     iSplitL "Hloc Hlock2 Hhistory_auth". { iFrameSteps. }
-                     iModIntro.
-
-                     iSplitR "HΦ". { iFrameSteps 2. }
-                     iModIntro. clear j helpers.
-
-                     wp_pures.
-
-                     wp_bind (CAS _ _ _).
-                     iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
-                     wp_cas as _ | (_ & _ & [= -> _ _]).
-
-                     --- iSplitR "HΦ". { iFrameSteps. }
-                         iModIntro.
-
-                         wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
-                         { iPureIntro.
-                           erewrite (drop_S _ _ i); first done.
-                           rewrite list_lookup_fmap Hdescrs_lookup //.
-                         }
-
-                     --- iDestruct (meta_agree with "Hcasn1_meta Hcasn3_meta") as %<-. iClear "Hcasn3_meta Hcasn3_inv' Hlstatus3_lb".
-                         assert (i3 = i1) as ->.
-                         { eapply NoDup_lookup.
-                           - apply Hlocs1.
-                           - rewrite list_lookup_fmap Hdescrs3_lookup //.
-                           - rewrite list_lookup_fmap Hdescrs1_lookup /=. congruence.
-                         }
-                         simplify.
-
-                         iInv "Hcasn1_inv" as "(:casn_inv_inner > =1)".
-                         iDestruct (lstatus_finished with "Hlstatus1_auth Hlstatus1_lb") as %->.
-                         iDestruct "Hlstatus1" as "(:casn_inv_inner_finished > =1)".
-                         iDestruct (big_sepL_lookup_acc with "Hmodels1₂") as "(([Hmodel₂ | Hlock1] & Hhistory_elem) & Hmodels1₂)"; first done; last first.
-                         { iDestruct (lock_exclusive with "Hlock3 Hlock1") as %[]. }
-
-                         iDestruct ("Hmodels1₂" with "[$Hlock3 $Hhistory_elem]") as "Hmodels1₂".
-                         iSplitR "Hloc Hhistory_auth Hmodel₂ HΦ". { iFrameSteps 2. }
-                         iModIntro. clear helpers1 prophs1.
-
-                         iEval (rewrite Hmeta1) in "Hmodel₂".
-                         iInv "Hcasn_inv" as "(:casn_inv_inner >)".
-                         destruct lstatus as [j |].
-
-                         +++ iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
-
-                             iAssert ⌜j = i⌝%I as %->.
-                             { destruct (Nat.lt_trichotomy j i) as [? | [-> | ?]].
-                               - iDestruct (lstatus_le with "Hlstatus_auth Hlstatus_lb") as %?. lia.
-                               - iSteps.
-                               - iDestruct (big_sepL_lookup with "Hmodels₂") as "(_Hmodel₂ & _)".
-                                 { apply lookup_take_Some. done. }
-                                 iDestruct (model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[].
-                             }
-
-                             iMod (history_update_running casn with "Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn_meta Hlstatus_auth") as "(Hhistory_auth & #Hhistory_elem & Hlstatus_auth)"; first done.
-                             iMod (lstatus_update (Running (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
-                             iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
-                             iEval (rewrite -Hok) in "Hmodel₂".
-                             iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
-                             iEval (rewrite -take_S_r //) in "Hmodels₂".
-                             rewrite -(Nat.succ_pred_pos (metadata_size η - i)).
-                             { rewrite /metadata_size. lia. }
-                             iDestruct (big_sepL_seq_cons_1 with "Hlocks") as "(Hlock & Hlocks)".
-                             assert (Nat.pred (metadata_size η - i) = metadata_size η - S i) as -> by lia.
-                             iSplitR "Hloc Hhistory_auth Hlock HΦ".
-                             { iFrameSteps 2. do 2 iModIntro.
-                               iApply (big_sepM_impl with "Hhelpers").
-                               iSteps.
-                             }
-                             iModIntro. clear helpers.
-
-                             iSplitR "HΦ". { iFrameSteps. }
-                             iModIntro.
-
-                             wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
-
-                         +++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-                             iDestruct (history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(-> & _).
-                             destruct (metadata_success η) eqn:Hsuccess.
-
-                             *** iDestruct (big_sepL_lookup with "Hmodels₂") as "(_ & Hhistory_elem)"; first done.
-                                 iDestruct (history_elem_valid with "Hhistory_auth Hhistory_elem") as %[| ?%elem_of_list_singleton]%elem_of_app.
-                                 all: exfalso; done.
-
-                             *** iDestruct (big_sepL_lookup_acc with "Hmodels₂") as "(([_Hmodel₂ | Hlock] & _) & Hmodels₂)"; first done.
-                                 { iDestruct (model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[]. }
-                                 iDestruct ("Hmodels₂" with "[Hmodel₂]") as "Hmodels₂".
-                                 { rewrite -Hok /descriptor_final Hsuccess. iSteps. }
-                                 iClear "Hlstatus_lb". iDestruct (lstatus_lb_get_finished (Running (S i)) with "Hlstatus_auth") as "#Hlstatus_lb".
-                                 iSplitR "Hloc Hhistory_auth Hlock HΦ". { do 2 iFrame. rewrite Hsuccess. iFrameSteps. }
-                                 iModIntro. clear helpers prophs.
-
-                                 iMod (history_update with "Hhistory_auth Hcasn1_meta Hlstatus1_lb") as "(Hhistory_auth & _)"; [done.. |].
-                                 iSplitR "HΦ". { iFrameSteps. }
-                                 iModIntro.
-
-                                 wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
-                                 rewrite Hsuccess. iSteps.
-
-                  ** iDestruct (history_lb_valid_ne with "Hhistory_auth Hhistory_lb1") as "(%casns & #Hhistory_lb2)"; first done.
-                     iSplitL "Hloc Hlock2 Hhistory_auth". { iFrameSteps. }
-                     iModIntro.
-
-                     iSplitR "HΦ". { iFrameSteps 2. }
-                     iModIntro. clear j helpers.
-
-                     wp_pures.
-
-                     wp_bind (CAS _ _ _).
-                     iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
-                     wp_cas as _ | (_ & _ & [= -> _ _]).
-
-                     --- iSplitR "HΦ". { iFrameSteps. }
-                         iModIntro.
-
-                         wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
-                         { iPureIntro.
-                           erewrite (drop_S _ _ i); first done.
-                           rewrite list_lookup_fmap Hdescrs_lookup //.
-                         }
-
-                     --- iDestruct (history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(_ & (_ & [=])%app_nil).
-
-               ++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
-                  iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
-                  iSplitR "HΦ". { iFrameSteps 2. }
-                  iModIntro. clear helpers prophs.
-
-                  rewrite /metadata_final.
-                  destruct (metadata_success η); iSteps.
+               ++ wp_smart_apply (kcas_1_finish_spec_finished with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb_finished] HΦ").
 
       - rewrite drop_lookup_None //.
         { rewrite list_lookup_fmap Hdescrs_lookup //. }
@@ -1591,12 +1779,187 @@ Section kcas_1_G.
         { rewrite lookup_ge_None // in Hdescrs_lookup. }
     }
 
-    { iIntros "%state %casn %η %descr !> %Φ (-> & %Hdescr & #Hcasn_meta & #Hcasn_inv') HΦ".
+    { iIntros "%casn %η %i %descr %casn1 %η1 %i1 %descr1 %casns1 %v_retry %v_continue !> %Φ (-> & -> & %Hdescrs_lookup & %Hdescrs1_lookup & %Hloc1 & %Hmeta1 & %Hcasn1 & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb & #Hcasn1_meta & #Hcasn1_inv' & #Hlstatus1_lb & #Hhistory_lb1 & H) HΦ".
+      iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+      iDestruct (casn_inv'_unfold with "Hcasn1_inv'") as "(:casn_inv =1)".
+      iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
+      iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
+      iDestruct (big_sepL_lookup with "Hlocs1") as "(_ & Hstate1_casn & _)"; first done.
 
-      wp_recs credit:"H£".
-      wp_smart_apply ("Hdetermine" with "[$Hcasn_meta $Hcasn_inv']") as "#Hlstatus_lb".
-      rewrite /descriptor_final.
-      destruct (metadata_success η); iSteps.
+      wp_recs. wp_pures.
+
+      iDestruct "H" as "[#Hlstatus_lb_finished | %Hfinal1]".
+
+      - wp_apply (status_spec_finished with "[$Hcasn_inv' $Hlstatus_lb_finished]") as "_".
+        rewrite /metadata_final. destruct (metadata_success η); iSteps.
+
+      - wp_bind (_.{status})%E.
+        iInv "Hcasn_inv" as "(:casn_inv_inner)".
+        wp_load.
+        destruct lstatus as [j |].
+
+        + iDestruct "Hlstatus" as "(:casn_inv_inner_running)".
+
+          iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
+          destruct (decide (casn1 = casn2)) as [<- | Hcasn2].
+
+          * iDestruct (history_lb_get with "Hhistory_auth") as "#Hhistory_lb2".
+            iDestruct (history_running with "Hhistory_auth Hcasn_meta Hlstatus_auth") as %?.
+            iSplitL "Hloc Hlock2 Hhistory_auth". { iFrameSteps. }
+            iModIntro.
+
+            iSplitR "HΦ". { iFrameSteps 2. }
+            iModIntro. clear j helpers.
+
+            wp_pures.
+
+            wp_bind (CAS _ _ _).
+            iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
+            wp_cas as _ | [= Hcas].
+
+            -- iSplitR "HΦ". { iFrameSteps. }
+               iModIntro.
+
+               wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
+               { iPureIntro.
+                 erewrite (drop_S _ _ i); first done.
+                 rewrite list_lookup_fmap Hdescrs_lookup //.
+               }
+
+            -- iDestruct (casn_inv'_unfold with "Hcasn3_inv'") as "(:casn_inv =3)".
+               iDestruct (big_sepL_lookup with "Hlocs3") as "(_ & Hstate3_casn & _)"; first done.
+               rewrite Hcas.
+               iDestruct (pointsto_agree with "Hstate1_casn Hstate3_casn") as %[= <-].
+               iDestruct (meta_agree with "Hcasn1_meta Hcasn3_meta") as %<-. iClear "Hcasn3_meta Hcasn3_inv' Hlstatus3_lb".
+               assert (i3 = i1) as ->.
+               { eapply NoDup_lookup.
+                 - apply Hlocs1.
+                 - rewrite list_lookup_fmap Hdescrs3_lookup //.
+                 - rewrite list_lookup_fmap Hdescrs1_lookup /=. congruence.
+               }
+               simplify.
+
+               iInv "Hcasn1_inv" as "(:casn_inv_inner =1)".
+               iDestruct (lstatus_finished with "Hlstatus1_auth Hlstatus1_lb") as %->.
+               iDestruct "Hlstatus1" as "(:casn_inv_inner_finished > =1)".
+               iDestruct (big_sepL_lookup_acc with "Hdescrs1") as "(([Hmodel₂ | Hlock1] & Hdescr1) & Hdescrs1)"; first done; last first.
+               { iDestruct (lock_exclusive with "Hlock3 Hlock1") as %[]. }
+
+               iDestruct ("Hdescrs1" with "[$Hlock3 $Hdescr1]") as "Hdescrs1".
+               iSplitR "Hloc Hhistory_auth Hmodel₂ HΦ". { iFrameSteps 2. }
+               iModIntro. clear helpers1 prophs1.
+
+               iEval (rewrite Hmeta1) in "Hmodel₂".
+               iInv "Hcasn_inv" as "(:casn_inv_inner)".
+               destruct lstatus as [j |].
+
+               ++ iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
+
+                  iAssert ⌜j = i⌝%I as %->.
+                  { destruct (Nat.lt_trichotomy j i) as [? | [-> | ?]].
+                    - iDestruct (lstatus_le with "Hlstatus_auth Hlstatus_lb") as %?. lia.
+                    - iSteps.
+                    - iDestruct (big_sepL_lookup with "Hmodels₂") as "(_Hmodel₂ & _)".
+                      { apply lookup_take_Some. done. }
+                      iDestruct (model₂_exclusive with "Hmodel₂ _Hmodel₂") as %[].
+                  }
+
+                  iMod (history_update_running casn with "Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn_meta Hlstatus_auth") as "(Hhistory_auth & #Hhistory_elem & Hlstatus_auth)"; first done.
+                  iMod (lstatus_update (Running (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
+                  iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
+                  iEval (rewrite Hfinal1) in "Hmodel₂".
+                  iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
+                  iEval (rewrite -take_S_r //) in "Hmodels₂".
+                  rewrite -(Nat.succ_pred_pos (metadata_size η - i)).
+                  { apply lookup_lt_Some in Hdescrs_lookup.
+                    rewrite /metadata_size. lia.
+                  }
+                  iDestruct (big_sepL_seq_cons_1 with "Hlocks") as "(Hlock & Hlocks)".
+                  assert (Nat.pred (metadata_size η - i) = metadata_size η - S i) as -> by lia.
+                  iSplitR "Hloc Hhistory_auth Hlock HΦ".
+                  { iFrameSteps 2. do 2 iModIntro.
+                    iApply (big_sepM_impl with "Hhelpers").
+                    iSteps.
+                  }
+                  iModIntro. clear helpers.
+
+                  iSplitR "HΦ". { iFrameSteps. }
+                  iModIntro.
+
+                  wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
+
+               ++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
+                  iDestruct (history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(-> & _).
+                  destruct (metadata_success η) eqn:Hsuccess.
+
+                  ** iDestruct (big_sepL_lookup with "Hdescrs") as "(_ & Hhistory_elem & _)"; first done.
+                     iDestruct (history_elem_valid with "Hhistory_auth Hhistory_elem") as %[| ?%elem_of_list_singleton]%elem_of_app.
+                     all: exfalso; done.
+
+                  ** iDestruct (big_sepL_lookup_acc with "Hdescrs") as "(([Hmodel₂_ | Hlock] & Hdescr) & Hdescrs)"; first done.
+                     { iDestruct (model₂_exclusive with "Hmodel₂ Hmodel₂_") as %[]. }
+                       iDestruct ("Hdescrs" with "[Hmodel₂ Hdescr]") as "Hdescrs".
+                       { rewrite Hfinal1 /descriptor_final Hsuccess. iSteps. }
+                       iClear "Hlstatus_lb". iDestruct (lstatus_lb_get_finished (Running (S i)) with "Hlstatus_auth") as "#Hlstatus_lb".
+                       iSplitR "Hloc Hhistory_auth Hlock HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
+                       iModIntro. clear helpers prophs.
+
+                       iMod (history_update with "Hhistory_auth Hcasn1_meta Hlstatus1_lb") as "(Hhistory_auth & _)"; [done.. |].
+                       iSplitR "HΦ". { iFrameSteps. }
+                       iModIntro.
+
+                       wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
+                       rewrite Hsuccess. iSteps.
+
+          * iDestruct (history_lb_valid_ne with "Hhistory_auth Hhistory_lb1") as "(%casns & #Hhistory_lb2)"; first done.
+            iSplitL "Hloc Hlock2 Hhistory_auth". { iFrameSteps. }
+            iModIntro.
+
+            iSplitR "HΦ". { iFrameSteps 2. }
+            iModIntro. clear j helpers.
+
+            wp_pures.
+
+            wp_bind (CAS _ _ _).
+            iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
+            wp_cas as _ | [= Hcas].
+
+            -- iSplitR "HΦ". { iFrameSteps. }
+               iModIntro.
+
+               wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
+               { iPureIntro.
+                 erewrite (drop_S _ _ i); first done.
+                 rewrite list_lookup_fmap Hdescrs_lookup //.
+               }
+
+            -- iDestruct (casn_inv'_unfold with "Hcasn3_inv'") as "(:casn_inv =3)".
+               iDestruct (big_sepL_lookup with "Hlocs3") as "(_ & Hstate3_casn & _)"; first done.
+               rewrite Hcas.
+               iDestruct (pointsto_agree with "Hstate1_casn Hstate3_casn") as %[= <-].
+               iDestruct (history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(_ & (_ & [=])%app_nil).
+
+        + iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
+          iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
+          iSplitR "HΦ". { iFrameSteps 2. }
+          iModIntro. clear helpers prophs.
+
+          rewrite /metadata_final. destruct (metadata_success η); iSteps.
+    }
+
+    { iIntros "%casn %η %i %descr !> %Φ (%Hdescrs_lookup & #Hcasn_meta & #Hcasn_inv') HΦ".
+      iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
+      iDestruct (big_sepL_lookup with "Hlocs") as "(_ & #Hstate_casn & _)"; first done.
+
+      wp_recs credit:"H£". wp_load.
+      wp_apply ("IHdetermine" with "[$Hcasn_meta $Hcasn_inv']") as "#Hlstatus_lb".
+      destruct (metadata_success η) eqn:Hsuccess; wp_pures.
+
+      - wp_apply (after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+        rewrite /descriptor_final Hsuccess. iSteps.
+
+      - wp_apply (before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+        rewrite /descriptor_final Hsuccess. iSteps.
     }
 
     { iIntros "%casn %η !> %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
@@ -1614,7 +1977,7 @@ Section kcas_1_G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iModIntro. clear.
 
-        wp_smart_apply ("Hdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
+        wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
         iSteps.
 
       - iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
@@ -1622,12 +1985,11 @@ Section kcas_1_G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iModIntro. clear.
 
-        rewrite /metadata_final.
-        destruct (metadata_success η); iSteps.
+        rewrite /metadata_final. destruct (metadata_success η); iSteps.
     }
   Qed.
   #[local] Lemma kcas_1_determine_as_spec casn η ι v_cass i :
-    v_cass = lst_to_val (drop i (metadata_cass casn η)) →
+    v_cass = lst_to_val (drop i (metadata_cass η)) →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
@@ -1639,26 +2001,25 @@ Section kcas_1_G.
       lstatus_lb η Finished
     }}}.
   Proof.
-    iDestruct kcas_1_determine_as_get_as_determine_spec as "(H & _)".
+    iDestruct kcas_1_determine_as_eval_determine_spec as "(H & _)".
     iIntros (->) "%Φ (#Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
   Qed.
-  #[local] Lemma kcas_1_get_as_spec state casn η ι descr :
-    state = state_to_val casn descr →
-    descr ∈ η.(metadata_descrs) →
+  #[local] Lemma kcas_1_eval_spec {casn η ι} i descr :
+    η.(metadata_descrs) !! i = Some descr →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η
     }}}
-      kcas_1_get_as state
+      kcas_1_eval #descr.(descriptor_state)
     {{{
       RET descriptor_final descr η;
       lstatus_lb η Finished ∗
       £ 1
     }}}.
   Proof.
-    iDestruct kcas_1_determine_as_get_as_determine_spec as "(_ & H & _)".
-    iIntros (-> Hdescr) "%Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
+    iDestruct kcas_1_determine_as_eval_determine_spec as "(_ & _ & H & _)".
+    iIntros "%Hdescrs_lookup %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' //] HΦ").
   Qed.
   #[local] Lemma kcas_1_determine_spec casn η ι :
@@ -1672,7 +2033,7 @@ Section kcas_1_G.
       lstatus_lb η Finished
     }}}.
   Proof.
-    iDestruct kcas_1_determine_as_get_as_determine_spec as "(_ & _ & H)".
+    iDestruct kcas_1_determine_as_eval_determine_spec as "(_ & _ & H)".
     iIntros "%Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
     wp_apply ("H" with "[$Hcasn_meta $Hcasn_inv' //] HΦ").
   Qed.
@@ -1693,9 +2054,10 @@ Section kcas_1_G.
     wp_rec.
     wp_apply (wp_id with "[//]") as (gid) "Hgid".
     wp_smart_apply (typed_prophet_wp_proph prophet with "[//]") as (pid prophs) "Hproph".
-    wp_block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
+    wp_block casn as "Hcasn_meta" "(Hcasn_status & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
-    wp_reveal bid.
+    wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
+    iMod (pointsto_persist with "Hstate_casn") as "#Hstate_casn".
     wp_ref loc as "Hloc_meta" "Hloc".
 
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
@@ -1719,13 +2081,13 @@ Section kcas_1_G.
       descriptor_meta := γ ;
       descriptor_before := v ;
       descriptor_after := v ;
-      descriptor_state := bid ;
+      descriptor_state := state ;
     |}.
-    pose η := {|
+    set η := {|
       metadata_descrs := [descr] ;
       metadata_prophet := pid ;
       metadata_prophs := ((gid, true) :: prophs) ;
-      metadata_undetermined := bid ;
+      metadata_undetermined := inhabitant ;
       metadata_post := η_post ;
       metadata_lstatus := η_lstatus ;
       metadata_locks := [η_lock] ;
@@ -1737,7 +2099,7 @@ Section kcas_1_G.
 
     iDestruct (lstatus_lb_get_finished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
 
-    iMod (inv_alloc _ _ (casn_inv_inner casn η ι (λ _, True)%I) with "[Hgid Hproph Hcasn_state Hmodel₂ Hlstatus_auth Hhelpers_auth Hwinning Howner]") as "#Hcasn_inv".
+    iMod (inv_alloc _ _ (casn_inv_inner casn η ι (λ _, True)%I) with "[Hgid Hproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Hwinning Howner]") as "#Hcasn_inv".
     { iExists §After%V, Finished, ∅.
       setoid_rewrite big_sepM_empty. iSteps.
     }
@@ -1778,7 +2140,7 @@ Section kcas_1_G.
     iInv "Hloc_inv" as "(:loc_inv_inner >)".
     wp_load.
     iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
-    iDestruct (big_sepL_lookup with "Hlocs_inv") as "(_Hloc_meta & _)"; first done.
+    iDestruct (big_sepL_lookup with "Hlocs") as "(_Hloc_meta & _)"; first done.
     iDestruct (meta_agree with "Hloc_meta _Hloc_meta") as %->. iClear "_Hloc_meta".
     iMod (casn_help _ (Φ (descriptor_final descr η)) with "Hcasn_inv Hlock [HΦ]") as "(%helper & Hlock & #Hhelper & Hhelpers_elem)"; [solve_ndisj | done.. | |].
     { rewrite /helper_au'. iAuIntro.
@@ -1790,8 +2152,7 @@ Section kcas_1_G.
     iModIntro. clear Hlocs.
 
     iApply wp_fupd. iClear "Hlstatus_lb".
-    wp_apply (kcas_1_get_as_spec with "[$Hcasn_meta $Hcasn_inv']") as "(#Hlstatus_lb & H£2)"; first done.
-    { eapply elem_of_list_lookup_2. done. }
+    wp_apply (kcas_1_eval_spec with "[$Hcasn_meta $Hcasn_inv']") as "(#Hlstatus_lb & H£2)"; first done.
     iMod (casn_retrieve with "Hcasn_inv Hlstatus_lb Hhelper Hhelpers_elem") as "HΦ".
     iMod (lc_fupd_elim_later with "H£1 HΦ") as "HΦ".
     iApply (lc_fupd_elim_later with "H£2 HΦ").
@@ -1824,8 +2185,8 @@ Section kcas_1_G.
       True
     >>>.
   Proof.
-    iIntros (? ? Hnodup ->) "!> %Φ Hlocs_inv_ HΦ".
-    iDestruct (big_sepL_exists with "Hlocs_inv_") as "(%γs & %Hγs & #Hlocs_inv)". iClear "Hlocs_inv_".
+    iIntros (? ? Hnodup ->) "!> %Φ Hlocs_ HΦ".
+    iDestruct (big_sepL_exists with "Hlocs_") as "(%γs & %Hγs & #Hlocs)". iClear "Hlocs_".
 
     wp_rec credit:"H£".
     wp_smart_apply (typed_prophet_wp_proph prophet with "[//]") as (pid prophs0) "Hproph".
@@ -1834,7 +2195,11 @@ Section kcas_1_G.
 
     pose (Ψ i (_ : val) v_cas := (
       ∃ descr,
-      ⌜v_cas = (#descr.(descriptor_loc), state_to_val casn descr)%V⌝ ∗
+      ⌜v_cas = descriptor_cas descr⌝ ∗
+      descr.(descriptor_state).[casn] ↦□ #casn ∗
+      ( descr.(descriptor_state).[before] ↦ descr.(descriptor_before) ∗
+        descr.(descriptor_state).[after] ↦ descr.(descriptor_after)
+      ) ∗
         ∃ γ,
         ⌜γs !! i = Some γ⌝ ∗
         ⌜ ∃ loc before after,
@@ -1847,10 +2212,10 @@ Section kcas_1_G.
           descr.(descriptor_after) = after
         ⌝
     )%I : iProp Σ).
-    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (v_cass vs_cass) "(%Hvs_cass & -> & Hdescrs)".
-    { iSplit; first iSteps.
-      iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
-      wp_reveal bid.
+    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (v_cass vs_cass) "(%Hvs_cass & -> & Hdescrs)"; first done.
+    { iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
+      wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
+      iMod (pointsto_persist with "Hstate_casn") as "#Hstate_casn".
       wp_pures.
       destruct (lookup_lt_is_Some_2 γs i) as (γ & Hγs_lookup).
       { rewrite Hγs. eapply lookup_lt_Some. done. }
@@ -1859,20 +2224,21 @@ Section kcas_1_G.
         descriptor_meta := γ ;
         descriptor_before := before ;
         descriptor_after := after ;
-        descriptor_state := bid ;
+        descriptor_state := state ;
       |}.
       iExists descr. iSteps.
     }
     iDestruct (big_sepL2_const_sepL_r with "Hdescrs") as "(_ & Hdescrs)".
     iDestruct (big_sepL_exists with "Hdescrs") as "(%descrs & _ & Hdescrs)".
     iDestruct (big_sepL2_sep_sepL_r with "Hdescrs") as "(Hvs_cass & Hdescrs)".
-    iDestruct (big_sepL2_Forall2 with "Hvs_cass") as %->%list_fmap_alt_Forall2_l.
+    iDestruct (big_sepL2_Forall2 with "Hvs_cass") as %->%list_fmap_alt_Forall2_l. iClear "Hvs_cass".
     rewrite length_zip3_with // length_fmap in Hvs_cass.
+    iDestruct (big_sepL_sep with "Hdescrs") as "(#Hstates_casn & Hdescrs)".
+    iDestruct (big_sepL_sep with "Hdescrs") as "(Hstates & Hdescrs)".
     iDestruct (big_sepL_lift with "Hdescrs") as "Hdescrs"; first lia.
     iDestruct (big_sepL2_Forall2i with "Hdescrs") as %Hdescrs. iClear "Hdescrs".
 
-    wp_reveal bid.
-    wp_store.
+    wp_reveal bid. wp_store.
 
     pose Φ' b := Φ #b.
 
@@ -1899,24 +2265,23 @@ Section kcas_1_G.
 
     iDestruct (lstatus_lb_get η with "Hlstatus_auth") as "#Hlstatus_lb".
 
-    iMod (inv_alloc _ _ (casn_inv_inner casn η ι Φ') with "[Hproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning HΦ]") as "#Hcasn_inv".
-    { iExists _, (Running 0), ∅, _. iSteps.
+    iMod (inv_alloc _ _ (casn_inv_inner casn η ι Φ') with "[Hproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
+    { iExists _, (Running 0), ∅, _. iFrame. iStep 3.
+      rewrite big_sepM_empty comm. iSteps.
       iSplitL "Hlocks".
       { iApply (big_sepL_seq_index ηs_lock); first lia.
         iApply (big_sepL_impl with "Hlocks").
         iSteps.
       }
-      iSplitR. { rewrite big_sepM_empty //. }
       iLeft. iFrame.
-
       rewrite /au. iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodels".
       iAssert (
         [∗ list] descr; v ∈ descrs; vs,
-        model₁ descr.(descriptor_meta) v
+          model₁ descr.(descriptor_meta) v
       )%I with "[Hmodels]" as "Hmodels".
       { iApply (big_sepL2_impl_strong_l with "Hmodels"); first done. iIntros "!> %i %loc %v %descr %Hlocs_lookup %Hvs_lookup %Hdescrs_lookup (:loc_model)".
-        iDestruct (big_sepL2_lookup_l with "Hlocs_inv") as "(%γ_ & %Hγs_lookup & Hmeta_ & _)"; first done.
+        iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ_ & %Hγs_lookup & Hmeta_ & _)"; first done.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         odestruct Forall2i_lookup_r; [done.. |]. simplify.
         iSteps.
@@ -1930,7 +2295,7 @@ Section kcas_1_G.
       )%I as "?".
       { iIntros "Hmodels₁".
         iApply (big_sepL2_impl_strong_l with "Hmodels₁"); first done. iIntros "!> %i %descr %v %loc %Hdescrs_lookup %Hvs_lookup %Hlocs_lookup Hmodel₁".
-        iDestruct (big_sepL2_lookup_l with "Hlocs_inv") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
+        iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
         odestruct Forall2i_lookup_r; [done.. |]. simplify.
         iSteps.
       }
@@ -1948,7 +2313,7 @@ Section kcas_1_G.
             odestruct Forall2i_lookup_r; [done.. |]. simplify.
             done.
         + iApply (big_sepL_impl_sepL2 with "Hmodels₁"); [simpl; congruence.. |]. iIntros "!> %i %descr %loc %after %Hdescrs_lookup %Hlocs_lookup %Hafters_lookup Hmodel₁".
-          iDestruct (big_sepL2_lookup_l with "Hlocs_inv") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
+          iDestruct (big_sepL2_lookup_l with "Hlocs") as "(%γ & %Hγs_lookup & Hmeta & _)"; first done.
           odestruct Forall2i_lookup_r; [done.. |]. simplify.
           iSteps.
       - iDestruct "H" as "(%i & %descr & %v & %Hdescrs_lookup & %Hvs_lookup & %Hneq & Hmodels₁)".
@@ -1965,7 +2330,8 @@ Section kcas_1_G.
         odestruct (Forall2i_lookup_r _ _ _ i2) as (γ2 & _ & H2); [done.. |].
         destruct H2 as (loc2 & before2 & after2 & Hlocs_lookup_2 & _ & _ & -> & _) in Heq.
         eapply NoDup_lookup; [done | naive_solver..].
-      - iApply (big_sepL2_impl_sepL with "Hlocs_inv"); first auto. iIntros "!> %i %loc %γ %descr %Hlocs_lookup %Hγs_lookup %Hdescrs_lookup (Hmeta & Hloc_inv)".
+      - iApply (big_sepL_wand with "Hstates_casn").
+        iApply (big_sepL2_impl_sepL with "Hlocs"); first auto. iIntros "!> %i %loc %γ %descr %Hlocs_lookup %Hγs_lookup %Hdescrs_lookup (Hmeta & Hloc_inv)".
         odestruct Forall2i_lookup_r; [done.. |]. simplify.
         iSteps.
     }
@@ -1973,7 +2339,7 @@ Section kcas_1_G.
     iApply wp_fupd.
     wp_smart_apply (kcas_1_determine_as_spec with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb]") as "#Hlstatus_lb_finished"; first done.
 
-    iInv "Hcasn_inv" as "(:casn_inv_inner >)".
+    iInv "Hcasn_inv" as "(:casn_inv_inner)".
     iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb_finished") as %->.
     iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
     iDestruct "HΨ" as "[>Howner_ | HΨ]".

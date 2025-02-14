@@ -5,10 +5,10 @@
 type 'a loc =
   'a state Atomic.t
 
-and[@zoo.reveal] 'a state =
+and 'a state =
   { casn: 'a casn;
-    before: 'a;
-    after: 'a;
+    mutable before: 'a;
+    mutable after: 'a;
   }
 
 and 'a cas =
@@ -27,6 +27,12 @@ and 'a status =
   | Before
   | After
 
+let clear cass is_after =
+  if is_after then
+    Lst.iter (fun cas -> cas.state.before <- cas.state.after) cass
+  else
+    Lst.iter (fun cas -> cas.state.after <- cas.state.before) cass
+
 let[@inline] status_to_bool status =
   status == After
 let finish gid casn status =
@@ -35,10 +41,14 @@ let finish gid casn status =
       false
   | After ->
       true
-  | Undetermined _ as old_status ->
-      Zoo.resolve (
-        Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
-      ) casn.proph (gid, status_to_bool status) |> ignore ;
+  | Undetermined cass as old_status ->
+      let is_after = status_to_bool status in
+      if
+        Zoo.resolve (
+          Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
+        ) casn.proph (gid, is_after)
+      then
+        clear cass is_after ;
       status_to_bool casn.status
 
 let rec determine_as casn cass =
@@ -52,27 +62,29 @@ let rec determine_as casn cass =
           Before
       in
       finish gid casn status
-  | cas :: cass' ->
+  | cas :: continue as retry ->
       let { loc; state } = cas in
       let proph = Zoo.proph in
-      let state' = Atomic.get loc in
-      if state == state' then
-        determine_as casn cass'
+      let old_state = Atomic.get loc in
+      if state == old_state then
+        determine_as casn continue
       else
-        if Zoo.resolve (state.before != get_as state') proph () then
+        if Zoo.resolve (state.before != eval old_state) proph () then
           finish gid casn Before
         else
-          match casn.status with
-          | Before ->
-              false
-          | After ->
-              true
-          | Undetermined _ ->
-              if Atomic.compare_and_set loc state' state then
-                determine_as casn cass'
-              else
-                determine_as casn cass
-and get_as state =
+          lock casn loc old_state state retry continue
+and[@inline] lock casn loc old_state state retry continue =
+  match casn.status with
+  | Before ->
+      false
+  | After ->
+      true
+  | Undetermined _ ->
+      if Atomic.compare_and_set loc old_state state then
+        determine_as casn continue
+      else
+        determine_as casn retry
+and eval state =
   if determine state.casn then
     state.after
   else
@@ -93,7 +105,7 @@ let make v =
   Atomic.make state
 
 let get loc =
-  get_as (Atomic.get loc)
+  eval (Atomic.get loc)
 
 let cas_2 cmps cass =
   let casn = { cmps; status= After; proph= Zoo.proph } in
@@ -113,7 +125,7 @@ let rec cas_1 acc cmps cass =
   | cmp :: cmps ->
       let loc, expected = cmp in
       let state = Atomic.get loc in
-      if get_as state == expected then
+      if eval state == expected then
         cas_1 ({ loc; state } :: acc) cmps cass
       else
         false

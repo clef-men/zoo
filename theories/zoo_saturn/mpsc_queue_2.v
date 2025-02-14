@@ -392,7 +392,7 @@ Section mpsc_queue_2_G.
         iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
         iModIntro. clear.
 
-        wp_apply (lst_rev_spec _ [] with "[//]") as "%back ->".
+        wp_apply (lst_rev_spec _ [] with "[//]") as "%back ->"; first done.
         wp_pures.
 
         iApply "HΦ".
@@ -407,8 +407,8 @@ Section mpsc_queue_2_G.
         { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
-        wp_apply (lst_rev_spec with "[//]") as "%back ->". rewrite reverse_snoc.
-        iSteps.
+        wp_apply (lst_rev_spec with "[//]") as "%back ->"; first done.
+        rewrite reverse_snoc. iSteps.
 
     - wp_store.
 

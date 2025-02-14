@@ -48,7 +48,8 @@ Section zoo_G.
       True
     }}}.
   Proof.
-    apply lst_is_empty_spec.
+    iIntros "%Φ -> HΦ".
+    wp_apply (lst_is_empty_spec with "[//] HΦ"); first done.
   Qed.
 
   Lemma pstack_push_spec t vs v :
