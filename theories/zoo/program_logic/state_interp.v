@@ -95,6 +95,11 @@ Notation "l ↦ dq v" := (
   dq custom dfrac at level 1,
   format "l  ↦ dq  v"
 ) : bi_scope.
+Notation "l ↦-" := (
+  @bi_exist _ val (λ v, pointsto l (DfracOwn 1) v)
+)(at level 20,
+  format "l  ↦-"
+) : bi_scope.
 
 Notation "l ↦∗ dq vs" :=
   ([∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v)%I

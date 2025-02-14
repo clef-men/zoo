@@ -455,10 +455,10 @@ Section kcas_1_G.
           if metadata_success η then
             history_elem descr.(descriptor_meta) casn ∗
             descr.(descriptor_state).[after] ↦ descr.(descriptor_after) ∗
-            ∃ v, descr.(descriptor_state).[before] ↦ v
+            descr.(descriptor_state).[before] ↦-
           else
             descr.(descriptor_state).[before] ↦ descr.(descriptor_before) ∗
-            ∃ v, descr.(descriptor_state).[after] ↦ v
+            descr.(descriptor_state).[after] ↦-
         )
     end.
   #[local] Instance : CustomIpatFormat "casn_inv_inner" :=
