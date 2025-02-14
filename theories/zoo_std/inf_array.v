@@ -161,6 +161,34 @@ Section inf_array_G.
     apply twins_update'.
   Qed.
 
+  Lemma inf_array_model_to_model' {t vs} vsₗ :
+    (∀ i v, vsₗ !! i = Some v → vs i = v) →
+    inf_array_model t vs ⊢
+    inf_array_model' t vsₗ (λ i, vs (length vsₗ + i)).
+  Proof.
+    intros Hvs.
+    rewrite /inf_array_model' inf_array_model_proper; last done.
+    intros i. case_decide.
+    - apply Hvs, list_lookup_lookup_total_lt. done.
+    - rewrite -Nat.le_add_sub //; first lia.
+  Qed.
+  Lemma inf_array_model_to_model'_replicate {t vs} n v :
+    (∀ i, i < n → vs i = v) →
+    inf_array_model t vs ⊢
+    inf_array_model' t (replicate n v) (λ i, vs (n + i)).
+  Proof.
+    intros Hvs.
+    rewrite -{2}(length_replicate n v).
+    apply inf_array_model_to_model'. intros i v_ (-> & Hi)%lookup_replicate.
+    auto.
+  Qed.
+  Lemma inf_array_model_to_model'_constant {t v} n :
+    inf_array_model t (λ _, v) ⊢
+    inf_array_model' t (replicate n v) (λ _, v).
+  Proof.
+    apply: inf_array_model_to_model'_replicate. done.
+  Qed.
+
   Lemma inf_array_model'_shift t vsₗ v vsᵣ :
     inf_array_model' t (vsₗ ++ [v]) vsᵣ ⊣⊢
     inf_array_model' t vsₗ (λ i, match i with 0 => v | S i => vsᵣ i end).
@@ -188,7 +216,8 @@ Section inf_array_G.
     inf_array_model' t vsₗ vsᵣ ⊢
     inf_array_model' t (vsₗ ++ [v]) vsᵣ'.
   Proof.
-    intros. rewrite inf_array_model'_shift inf_array_model'_proper; last done; done.
+    intros.
+    rewrite inf_array_model'_shift inf_array_model'_proper; last done; done.
   Qed.
 
   Lemma inf_array_create_spec default :
