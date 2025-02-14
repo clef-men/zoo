@@ -17,13 +17,16 @@ and 'a cas =
   }
 
 and 'a casn =
-  { cmps: 'a cas list;
-    mutable status: 'a status [@atomic];
+  { mutable status: 'a status [@atomic];
     proph: (Zoo.id * bool) Zoo.proph;
   }
 
 and 'a status =
-  | Undetermined of 'a cas list [@zoo.reveal]
+  | Undetermined of
+    { cmps: 'a cas list;
+      cass: 'a cas list;
+    }
+    [@zoo.reveal]
   | Before
   | After
 
@@ -41,7 +44,15 @@ let finish gid casn status =
       false
   | After ->
       true
-  | Undetermined cass as old_status ->
+  | Undetermined { cmps; cass } as old_status ->
+      let status =
+        if status == Before then
+          Before
+        else if Lst.forall (fun cmp -> Atomic.get cmp.loc == cmp.state) cmps then
+          After
+        else
+          Before
+      in
       let is_after = status_to_bool status in
       if
         Zoo.resolve (
@@ -55,13 +66,7 @@ let rec determine_as casn cass =
   let gid = Zoo.id in
   match cass with
   | [] ->
-      let status =
-        if Lst.forall (fun cas -> Atomic.get cas.loc == cas.state) casn.cmps then
-          After
-        else
-          Before
-      in
-      finish gid casn status
+      finish gid casn After
   | cas :: continue as retry ->
       let { loc; state } = cas in
       let proph = Zoo.proph in
@@ -95,12 +100,12 @@ and determine casn =
       false
   | After ->
       true
-  | Undetermined cass ->
+  | Undetermined { cmps= _; cass } ->
       determine_as casn cass
 
 let make v =
   let _gid = Zoo.id in
-  let casn = { cmps= []; status= After; proph= Zoo.proph } in
+  let casn = { status= After; proph= Zoo.proph } in
   let state = { casn; before= v; after= v } in
   Atomic.make state
 
@@ -108,7 +113,7 @@ let get loc =
   eval (Atomic.get loc)
 
 let cas_2 cmps cass =
-  let casn = { cmps; status= After; proph= Zoo.proph } in
+  let casn = { status= After; proph= Zoo.proph } in
   let cass =
     Lst.map (fun cas ->
       let loc, before, after = cas in
@@ -116,7 +121,7 @@ let cas_2 cmps cass =
       { loc; state }
     ) cass
   in
-  casn.status <- Undetermined cass ;
+  casn.status <- Undetermined { cmps; cass } ;
   determine_as casn cass
 let rec cas_1 acc cmps cass =
   match cmps with

@@ -35,7 +35,18 @@ Definition kcas_2_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined "cass" as "old_status" =>
+    | Undetermined "cmps" "cass" as "old_status" =>
+        let: "status" :=
+          if: "status" == §Before then (
+            §Before
+          ) else if:
+             lst_forall (fun: "cmp" => !"cmp".<loc> == "cmp".<state>) "cmps"
+           then (
+            §After
+          ) else (
+            §Before
+          )
+        in
         let: "is_after" := kcas_2_status_to_bool "status" in
         if:
           Resolve
@@ -55,18 +66,7 @@ Definition kcas_2_finish : val :=
     let: "gid" := Id in
     match: "cass" with
     | [] =>
-        let: "status" :=
-          if:
-            lst_forall
-              (fun: "cas" => !"cas".<loc> == "cas".<state>)
-              "casn".{cmps}
-          then (
-            §After
-          ) else (
-            §Before
-          )
-        in
-        kcas_2_finish "gid" "casn" "status"
+        kcas_2_finish "gid" "casn" §After
     | "cas" :: "continue" as "retry" =>
         let: "loc", "state" := "cas" in
         let: "proph" := Proph in
@@ -87,7 +87,7 @@ Definition kcas_2_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> =>
+    | Undetermined <> <> =>
         if: CAS "loc".[contents] "old_state" "state" then (
           "determine_as" "casn" "continue"
         ) else (
@@ -106,7 +106,7 @@ Definition kcas_2_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined "cass" =>
+    | Undetermined <> "cass" =>
         "determine_as" "casn" "cass"
     end
 )%zoo_recs.
@@ -162,7 +162,7 @@ Qed.
 Definition kcas_2_make : val :=
   fun: "v" =>
     let: "_gid" := Id in
-    let: "casn" := { [], §After, Proph } in
+    let: "casn" := { §After, Proph } in
     let: "state" := { "casn", "v", "v" } in
     ref "state".
 
@@ -172,7 +172,7 @@ Definition kcas_2_get : val :=
 
 Definition kcas_2_cas_2 : val :=
   fun: "cmps" "cass" =>
-    let: "casn" := { "cmps", §After, Proph } in
+    let: "casn" := { §After, Proph } in
     let: "cass" :=
       lst_map
         (fun: "cas" =>
@@ -181,7 +181,7 @@ Definition kcas_2_cas_2 : val :=
            ("loc", "state"))
         "cass"
     in
-    "casn" <-{status} Reveal ‘Undetermined( "cass" ) ;;
+    "casn" <-{status} Reveal ‘Undetermined( "cmps", "cass" ) ;;
     kcas_2_determine_as "casn" "cass".
 
 Definition kcas_2_cas_1 : val :=

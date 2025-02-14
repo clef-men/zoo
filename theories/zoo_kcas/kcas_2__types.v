@@ -32,16 +32,12 @@ Notation "'state'" := (
 )(in custom zoo_proj
 ).
 
-Notation "'cmps'" := (
+Notation "'status'" := (
   in_type "casn" 0
 )(in custom zoo_field
 ).
-Notation "'status'" := (
-  in_type "casn" 1
-)(in custom zoo_field
-).
 Notation "'proph'" := (
-  in_type "casn" 2
+  in_type "casn" 1
 )(in custom zoo_field
 ).
 
@@ -56,4 +52,13 @@ Notation "'Before'" := (
 Notation "'After'" := (
   in_type "status" 2
 )(in custom zoo_tag
+).
+
+Notation "'cmps'" := (
+  in_type "status__Undetermined" 0
+)(in custom zoo_proj
+).
+Notation "'cass'" := (
+  in_type "status__Undetermined" 1
+)(in custom zoo_proj
 ).
