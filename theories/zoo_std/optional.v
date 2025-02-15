@@ -17,6 +17,7 @@ Inductive optional {A} :=
   | Anything
   | Something (a : A).
 #[global] Arguments optional : clear implicits.
+Implicit Types o : optional val.
 
 #[global] Instance optional_inhabited A : Inhabited (optional A) :=
   populate Nothing.
@@ -51,10 +52,31 @@ Coercion optional_to_val o :=
 Proof.
   intros [] []; naive_solver.
 Qed.
-#[global] Instance optional_to_val_physical o :
-  ValPhysical (optional_to_val o).
+
+Lemma optional_to_val_similar_Nothing_l o :
+  §Nothing%V ≈ o →
+  o = Nothing.
 Proof.
-  destruct o; done.
+  destruct o; naive_solver.
+Qed.
+Lemma optional_to_val_similar_Nothing_r o :
+  (o : val) ≈ §Nothing%V →
+  o = Nothing.
+Proof.
+  intros ?%symmetry%optional_to_val_similar_Nothing_l. done.
+Qed.
+
+Lemma optional_to_val_similar_Anything_l o :
+  §Anything%V ≈ o →
+  o = Anything.
+Proof.
+  destruct o; naive_solver.
+Qed.
+Lemma optional_to_val_similar_Anything_r o :
+  (o : val) ≈ §Anything%V →
+  o = Anything.
+Proof.
+  intros ?%symmetry%optional_to_val_similar_Anything_l. done.
 Qed.
 
 Section zoo_G.
@@ -64,7 +86,9 @@ Section zoo_G.
   Definition itype_optional t : iProp Σ :=
       ⌜t = §Nothing%V⌝
     ∨ ⌜t = §Anything%V⌝
-    ∨ ∃ v, ⌜t = ‘Something( v )%V⌝ ∗ τ v.
+    ∨ ∃ v,
+      ⌜t = ‘Something( v )%V⌝ ∗
+      τ v.
   #[global] Instance itype_optional_itype :
     iType _ itype_optional.
   Proof.

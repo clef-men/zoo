@@ -27,23 +27,20 @@ Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   Lemma base_reducible_equal v1 v2 σ :
-    val_physical v1 →
-    val_physical v2 →
     base_reducible (v1 == v2) σ.
   Proof.
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
-      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
-    all: try (destruct (decide (lit1 = lit2)); first subst).
-    all: try (destruct (decide (bid1 = bid2)); first subst).
+      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
+      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
+    all: try (destruct (decide (b1 = b2)); first subst).
+    all: try (destruct (decide (n1 = n2)); first subst).
+    all: try (destruct (decide (l1 = l2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
     all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
     all: auto with zoo.
   Qed.
   Lemma wp_equal v1 v2 E Φ :
-    val_physical v1 →
-    val_physical v2 →
     ▷ (
       ( ⌜v1 ≉ v2⌝ -∗
         Φ #false
@@ -54,15 +51,16 @@ Section zoo_G.
     ) ⊢
     WP v1 == v2 @ E {{ Φ }}.
   Proof.
-    iIntros "% % HΦ".
+    iIntros "HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iSplit. { iPureIntro. apply base_reducible_equal; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
-      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
-    all: try (destruct (decide (lit1 = lit2)); first subst).
-    all: try (destruct (decide (bid1 = bid2)); first subst).
+      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
+      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
+    all: try (destruct (decide (b1 = b2)); first subst).
+    all: try (destruct (decide (n1 = n2)); first subst).
+    all: try (destruct (decide (l1 = l2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
     all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
@@ -127,21 +125,8 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma wp_reveal tag vs E Φ :
-    ( ∀ bid,
-      ▷ Φ (ValBlock (Some bid) tag vs)
-    ) ⊢
-    WP Reveal $ ValBlock None tag vs @ E {{ Φ }}.
-  Proof.
-    iIntros "H".
-    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
-    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
-    invert_base_step.
-    iSteps.
-  Qed.
-
   Lemma wp_match l hdr x_fb e_fb brs e E Φ :
-    eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP e @ E {{ Φ }} -∗
     WP Match #l x_fb e_fb brs @ E {{ Φ }}.
@@ -241,23 +226,20 @@ Section zoo_G.
 
   Lemma base_reducible_cas l fld v v1 v2 σ :
     σ.(state_heap) !! (l +ₗ fld) = Some v →
-    val_physical v →
-    val_physical v1 →
     base_reducible (CAS (#l, #fld)%V v1 v2) σ.
   Proof.
     destruct
-      v as [lit | | [bid |] tag [| v vs]],
-      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]].
-    all: try (destruct (decide (lit = lit1)); first subst).
-    all: try (destruct (decide (bid = bid1)); first subst).
-    all: try (destruct (decide (tag = tag1)); first subst).
-    all: try (destruct (decide (v = v1)); first subst).
-    all: try (destruct (decide (vs = vs1)); first subst).
-    all: eauto 10 with zoo.
+      v as [[b0 | n0 | l0 | |] | | [] tag0 [| v0 vs0]],
+      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]].
+    all: try (destruct (decide (b0 = b1)); first subst).
+    all: try (destruct (decide (n0 = n1)); first subst).
+    all: try (destruct (decide (l0 = l1)); first subst).
+    all: try (destruct (decide (tag0 = tag1)); first subst).
+    all: try (destruct (decide (v0 = v1)); first subst).
+    all: try (destruct (decide (vs0 = vs1)); first subst).
+    all: eauto with zoo.
   Qed.
   Lemma wp_cas l fld dq v v1 v2 E Φ :
-    val_physical v →
-    val_physical v1 →
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
       ( ⌜v ≉ v1⌝ -∗
@@ -275,16 +257,17 @@ Section zoo_G.
     ) -∗
     WP CAS (#l, #fld)%V v1 v2 @ E {{ Φ }}.
   Proof.
-    iIntros "% % >Hl HΦ".
+    iIntros ">Hl HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iDestruct (state_interp_pointsto_valid with "Hσ Hl") as %Hlookup.
     iSplit. { iPureIntro. eapply base_reducible_cas; done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     destruct
-      v1 as [lit1 | | [bid1 |] tag1 [| v1 vs1]],
-      v2 as [lit2 | | [bid2 |] tag2 [| v2 vs2]].
-    all: try (destruct (decide (lit1 = lit2)); first subst).
-    all: try (destruct (decide (bid1 = bid2)); first subst).
+      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
+      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
+    all: try (destruct (decide (b1 = b2)); first subst).
+    all: try (destruct (decide (n1 = n2)); first subst).
+    all: try (destruct (decide (l1 = l2)); first subst).
     all: try (destruct (decide (tag1 = tag2)); first subst).
     all: try (destruct (decide (v1 = v2)); first subst).
     all: try (destruct (decide (vs1 = vs2)); first subst).
@@ -315,9 +298,9 @@ Section zoo_G.
       (l +ₗ fld) ↦ v2
     }}}.
   Proof.
-    iIntros (Hlit ->) "%Φ >Hl HΦ".
-    iApply (wp_cas with "Hl"); [done.. |].
-    iSteps.
+    iIntros (Hlit <-) "%Φ >Hl HΦ".
+    iApply (wp_cas with "Hl").
+    destruct lit; [iSteps.. | done | done].
   Qed.
 
   Lemma wp_faa l fld (i1 i2 : Z) E :

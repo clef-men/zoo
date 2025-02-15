@@ -10,14 +10,14 @@ From zoo Require Import
   options.
 
 Notation "'random'" := (
-  in_type "t" 0
+  in_type "zoo_std.random_round.t" 0
 )(in custom zoo_field
 ).
 Notation "'array'" := (
-  in_type "t" 1
+  in_type "zoo_std.random_round.t" 1
 )(in custom zoo_field
 ).
 Notation "'index'" := (
-  in_type "t" 2
+  in_type "zoo_std.random_round.t" 2
 )(in custom zoo_field
 ).

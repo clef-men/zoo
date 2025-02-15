@@ -10,4 +10,4 @@ val pop :
   'a t -> 'a option
 
 val snapshot :
-  'a t -> 'a list
+  'a t -> 'a Glst.t

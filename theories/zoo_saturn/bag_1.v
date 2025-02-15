@@ -10,7 +10,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  option
+  goption
   array.
 From zoo_saturn Require Export
   base
@@ -147,7 +147,7 @@ Section bag_1_G.
       ∃ slots,
       ⌜vs = #@{location} <$> slots⌝ ∗
       [∗ list] slot ∈ slots,
-        slot ↦ᵣ §None
+        slot ↦ᵣ None
     )%I).
     wp_smart_apply (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
@@ -189,7 +189,7 @@ Section bag_1_G.
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
-      bag_1_push_0 #slot ’Some( v ) @ ↑ι
+      bag_1_push_0 #slot ’Some[ v ] @ ↑ι
     <<<
       bag_1_model #l ({[+v+]} ⊎ vs)
     | RET ();
@@ -208,7 +208,7 @@ Section bag_1_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj option_to_val _ None).
+    wp_cas as _ | ->%(inj goption_to_val _ None).
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
@@ -305,7 +305,7 @@ Section bag_1_G.
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
-    wp_cas as _ | ->%(inj option_to_val _ (Some v)).
+    wp_cas as _ | ->%(inj goption_to_val _ (Some v)).
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.

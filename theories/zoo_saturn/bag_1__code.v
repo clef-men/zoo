@@ -4,6 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
+  goption
   array
   domain.
 From zoo_saturn Require Import
@@ -13,11 +14,11 @@ From zoo Require Import
 
 Definition bag_1_create : val :=
   fun: "sz" =>
-    { array_unsafe_init "sz" (fun: <> => ref §None), #0, #0 }.
+    { array_unsafe_init "sz" (fun: <> => ref §Gnone), #0, #0 }.
 
 Definition bag_1_push_0 : val :=
   rec: "push" "slot" "o" =>
-    if: ~ CAS "slot".[contents] §None "o" then (
+    if: ~ CAS "slot".[contents] §Gnone "o" then (
       domain_yield () ;;
       "push" "slot" "o"
     ).
@@ -26,15 +27,15 @@ Definition bag_1_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
-    bag_1_push_0 (array_unsafe_get "data" "i") ‘Some( "v" ).
+    bag_1_push_0 (array_unsafe_get "data" "i") ‘Gsome[ "v" ].
 
 Definition bag_1_pop_0 : val :=
   rec: "pop" "slot" =>
     match: !"slot" with
-    | None =>
+    | Gnone =>
         "pop" "slot"
-    | Some "v" as "o" =>
-        if: CAS "slot".[contents] "o" §None then (
+    | Gsome "v" as "o" =>
+        if: CAS "slot".[contents] "o" §Gnone then (
           "v"
         ) else (
           domain_yield () ;;

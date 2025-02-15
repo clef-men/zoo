@@ -21,17 +21,40 @@ Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
 
-Definition block_id :=
-  positive.
-Implicit Types bid : option block_id.
-
 Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
+Inductive generativity :=
+  | Generative
+  | Nongenerative.
+Implicit Types gen : generativity.
+
+#[global] Instance generativity_eq_dec : EqDecision generativity :=
+  ltac:(solve_decision).
+#[global] Instance generativity_countable :
+  Countable generativity.
+Proof.
+  pose encode gen :=
+    match gen with
+    | Generative =>
+        0
+    | Nongenerative =>
+        1
+    end.
+  pose decode _gen :=
+    match _gen with
+    | 0 =>
+        Generative
+    | _ =>
+        Nongenerative
+    end.
+  refine (inj_countable' encode decode _); intros []; done.
+Qed.
+
 Inductive mutability :=
   | Mutable
-  | Immutable.
+  | Immutable gen.
 Implicit Types mut : mutability.
 
 #[global] Instance mutability_eq_dec : EqDecision mutability :=
@@ -42,16 +65,16 @@ Proof.
   pose encode mut :=
     match mut with
     | Mutable =>
-        0
-    | Immutable =>
-        1
+        inl ()
+    | Immutable gen =>
+        inr gen
     end.
   pose decode _mut :=
     match _mut with
-    | 0 =>
+    | inl () =>
         Mutable
-    | _ =>
-        Immutable
+    | inr gen =>
+        Immutable gen
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -203,7 +226,6 @@ Inductive expr :=
   | For (e1 e2 e3 : expr)
   | Alloc (e1 e2 : expr)
   | Block mut tag (es : list expr)
-  | Reveal (e : expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
   | GetTag (e : expr)
   | GetSize (e : expr)
@@ -218,7 +240,7 @@ Inductive expr :=
 with val :=
   | ValLit lit
   | ValRecs i (recs : list (binder * binder * expr))
-  | ValBlock bid tag (vs : list val).
+  | ValBlock gen tag (vs : list val).
 Set Elimination Schemes.
 Implicit Types e : expr.
 Implicit Types es : list expr.
@@ -288,9 +310,6 @@ Section expr_ind.
     ∀ mut tag,
     ∀ es, Forall P es →
     P (Block mut tag es).
-  Variable HReveal :
-    ∀ e, P e →
-    P (Reveal e).
   Variable HMatch :
     ∀ e0, P e0 →
     ∀ x,
@@ -388,9 +407,6 @@ Section expr_ind.
         HBlock
           mut tag
           es (Forall_true P es expr_ind)
-    | Reveal e =>
-        HReveal
-          e (expr_ind e)
     | Match e0 x e1 brs =>
         HMatch
           e0 (expr_ind e0)
@@ -448,9 +464,9 @@ Section val_ind.
     ∀ i recs,
     P (ValRecs i recs).
   Variable HValBlock :
-    ∀ bid tag,
+    ∀ gen tag,
     ∀ vs, Forall P vs →
-    P (ValBlock bid tag vs).
+    P (ValBlock gen tag vs).
 
   Fixpoint val_ind v :=
     match v with
@@ -460,9 +476,9 @@ Section val_ind.
     | ValRecs i recs =>
         HValRecs
           i recs
-    | ValBlock bid tag vs =>
+    | ValBlock gen tag vs =>
         HValBlock
-          bid tag
+          gen tag
           vs (Forall_true P vs val_ind)
     end.
 End val_ind.
@@ -521,9 +537,6 @@ Section expr_val_ind.
     ∀ mut tag,
     ∀ es, Forall Pexpr es →
     Pexpr (Block mut tag es).
-  Variable HReveal :
-    ∀ e, Pexpr e →
-    Pexpr (Reveal e).
   Variable HMatch :
     ∀ e0, Pexpr e0 →
     ∀ x,
@@ -577,9 +590,9 @@ Section expr_val_ind.
     ∀ recs, Forall (λ rec, Pexpr rec.2) recs →
     Pval (ValRecs i recs).
   Variable HValBlock :
-    ∀ bid tag,
+    ∀ gen tag,
     ∀ vs, Forall Pval vs →
-    Pval (ValBlock bid tag vs).
+    Pval (ValBlock gen tag vs).
 
   Fixpoint expr_val_ind e :=
     match e with
@@ -633,9 +646,6 @@ Section expr_val_ind.
         HBlock
           mut tag
           es (Forall_true Pexpr es expr_val_ind)
-    | Reveal e =>
-        HReveal
-          e (expr_val_ind e)
     | Match e0 x e1 brs =>
         HMatch
           e0 (expr_val_ind e0)
@@ -690,9 +700,9 @@ Section expr_val_ind.
         HValRecs
           i
           recs (Forall_true (λ rec, Pexpr rec.2) recs (λ rec, expr_val_ind rec.2))
-    | ValBlock bid tag vs =>
+    | ValBlock gen tag vs =>
         HValBlock
-          bid tag
+          gen tag
           vs (Forall_true Pval vs val_expr_ind)
     end.
 End expr_val_ind.
@@ -760,11 +770,11 @@ Notation ValPoison := (
 ).
 
 Notation Tuple := (
-  Block Immutable 0
+  Block (Immutable Nongenerative) 0
 )(only parsing
 ).
 Notation ValTuple := (
-  ValBlock None 0
+  ValBlock Nongenerative 0
 )(only parsing
 ).
 
@@ -935,9 +945,6 @@ Proof.
             (decide (mut1 = mut2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
-      | Reveal e1, Reveal e2 =>
-          cast_if
-            (decide (e1 = e2))
       | Match e10 x1 e11 brs1, Match e20 x2 e21 brs2 =>
           cast_if_and4
             (decide (e10 = e20))
@@ -1019,9 +1026,9 @@ Proof.
           cast_if_and
             (decide (i1 = i2))
             (decide (recs1 = recs2))
-      | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
+      | ValBlock gen1 tag1 vs1, ValBlock gen2 tag2 vs2 =>
           cast_if_and3
-            (decide (bid1 = bid2))
+            (decide (gen1 = gen2))
             (decide (tag1 = tag2))
             (decide (vs1 = vs2))
       | _, _ =>
@@ -1072,9 +1079,9 @@ Proof.
           cast_if_and
             (decide (i1 = i2))
             (decide (recs1 = recs2))
-      | ValBlock bid1 tag1 es1, ValBlock bid2 tag2 es2 =>
+      | ValBlock gen1 tag1 es1, ValBlock gen2 tag2 es2 =>
           cast_if_and3
-            (decide (bid1 = bid2))
+            (decide (gen1 = gen2))
             (decide (tag1 = tag2))
             (decide (es1 = es2))
       | _, _ =>
@@ -1089,7 +1096,7 @@ Defined.
 Variant encode_leaf :=
   | EncodeNat tag
   | EncodeBinder x
-  | EncodeBlockId bid
+  | EncodeGenerativity gen
   | EncodeMutability mut
   | EncodeLit lit
   | EncodeUnop (op : unop)
@@ -1106,8 +1113,8 @@ Proof.
         inl $ inl $ inl $ inl $ inl $ inl $ inl tag
     | EncodeBinder bdr =>
         inl $ inl $ inl $ inl $ inl $ inl $ inr bdr
-    | EncodeBlockId bid =>
-        inl $ inl $ inl $ inl $ inl $ inr bid
+    | EncodeGenerativity gen =>
+        inl $ inl $ inl $ inl $ inl $ inr gen
     | EncodeMutability mut =>
         inl $ inl $ inl $ inl $ inr mut
     | EncodeLit lit =>
@@ -1125,8 +1132,8 @@ Proof.
         EncodeNat tag
     | inl (inl (inl (inl (inl (inl (inr bdr)))))) =>
         EncodeBinder bdr
-    | inl (inl (inl (inl (inl (inr bid))))) =>
-        EncodeBlockId bid
+    | inl (inl (inl (inl (inl (inr gen))))) =>
+        EncodeGenerativity gen
     | inl (inl (inl (inl (inr mut)))) =>
         EncodeMutability mut
     | inl (inl (inl (inr lit))) =>
@@ -1168,32 +1175,30 @@ Proof.
     9.
   #[local] Notation code_Block :=
     10.
-  #[local] Notation code_Reveal :=
-    11.
   #[local] Notation code_Match :=
-    12.
+    11.
   #[local] Notation code_branch :=
-    13.
+    12.
   #[local] Notation code_GetTag :=
-    14.
+    13.
   #[local] Notation code_GetSize :=
-    15.
+    14.
   #[local] Notation code_Load :=
-    16.
+    15.
   #[local] Notation code_Store :=
-    17.
+    16.
   #[local] Notation code_Xchg :=
-    18.
+    17.
   #[local] Notation code_CAS :=
-    19.
+    18.
   #[local] Notation code_FAA :=
-    20.
+    19.
   #[local] Notation code_Fork :=
-    21.
+    20.
   #[local] Notation code_Proph :=
-    22.
+    21.
   #[local] Notation code_Resolve :=
-    23.
+    22.
   #[local] Notation code_ValRecs :=
     0.
   #[local] Notation code_recursive :=
@@ -1236,8 +1241,6 @@ Proof.
           GenNode code_Alloc [go e1; go e2]
       | Block mut tag es =>
           GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: go_list es
-      | Reveal e =>
-          GenNode code_Reveal [go e]
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
       | GetTag e =>
@@ -1276,8 +1279,8 @@ Proof.
           GenLeaf (EncodeLit lit)
       | ValRecs i recs =>
          GenNode code_ValRecs (GenLeaf (EncodeNat i) :: go_recursives recs)
-      | ValBlock bid tag vs =>
-          GenNode code_ValBlock $ GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeNat tag) :: go_list vs
+      | ValBlock gen tag vs =>
+          GenNode code_ValBlock $ GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeNat tag) :: go_list vs
       end
     for go.
   pose decode :=
@@ -1321,8 +1324,6 @@ Proof.
           Alloc (go e1) (go e2)
       | GenNode code_Block (GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: es) =>
           Block mut tag $ go_list es
-      | GenNode code_Reveal [e] =>
-          Reveal (go e)
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
       | GenNode code_GetTag [e] =>
@@ -1368,8 +1369,8 @@ Proof.
           ValLit lit
       | GenNode code_ValRecs (GenLeaf (EncodeNat i) :: recs) =>
           ValRecs i (go_recursives recs)
-      | GenNode code_ValBlock (GenLeaf (EncodeBlockId bid) :: GenLeaf (EncodeNat tag) :: vs) =>
-          ValBlock bid tag $ go_list vs
+      | GenNode code_ValBlock (GenLeaf (EncodeGenerativity gen) :: GenLeaf (EncodeNat tag) :: vs) =>
+          ValBlock gen tag $ go_list vs
       | _ =>
           @inhabitant _ val_inhabited
       end

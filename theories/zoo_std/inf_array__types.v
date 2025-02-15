@@ -11,14 +11,14 @@ From zoo Require Import
   options.
 
 Notation "'data'" := (
-  in_type "t" 0
+  in_type "zoo_std.inf_array.t" 0
 )(in custom zoo_field
 ).
 Notation "'default'" := (
-  in_type "t" 1
+  in_type "zoo_std.inf_array.t" 1
 )(in custom zoo_field
 ).
 Notation "'mutex'" := (
-  in_type "t" 2
+  in_type "zoo_std.inf_array.t" 2
 )(in custom zoo_field
 ).

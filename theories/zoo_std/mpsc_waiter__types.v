@@ -10,14 +10,14 @@ From zoo Require Import
   options.
 
 Notation "'flag'" := (
-  in_type "t" 0
+  in_type "zoo_std.mpsc_waiter.t" 0
 )(in custom zoo_field
 ).
 Notation "'mutex'" := (
-  in_type "t" 1
+  in_type "zoo_std.mpsc_waiter.t" 1
 )(in custom zoo_field
 ).
 Notation "'condition'" := (
-  in_type "t" 2
+  in_type "zoo_std.mpsc_waiter.t" 2
 )(in custom zoo_field
 ).

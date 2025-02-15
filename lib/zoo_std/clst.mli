@@ -1,7 +1,7 @@
 type 'a t =
   | ClstClosed
   | ClstOpen
-  | ClstCons of 'a * 'a t
+  | ClstCons of 'a * 'a t [@generative]
 
 val app :
   'a t -> 'a t -> 'a t

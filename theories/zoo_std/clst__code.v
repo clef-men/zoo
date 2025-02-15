@@ -16,7 +16,7 @@ Definition clst_app : val :=
     | ClstOpen =>
         "t2"
     | ClstCons "v" "t1" =>
-        ‘ClstCons( "v", "app" "t1" "t2" )
+        ‘ClstCons[ "v", "app" "t1" "t2" ]
     end.
 
 Definition clst_rev_app : val :=
@@ -27,12 +27,12 @@ Definition clst_rev_app : val :=
     | ClstOpen =>
         "t2"
     | ClstCons "v" "t1" =>
-        "rev_app" "t1" ‘ClstCons( "v", "t2" )
+        "rev_app" "t1" ‘ClstCons[ "v", "t2" ]
     end.
 
 Definition clst_iter : val :=
-  rec: "iter" "fn" "t" =>
-    match: "t" with
+  rec: "iter" "fn" "param" =>
+    match: "param" with
     | ClstClosed =>
         Fail
     | ClstOpen =>

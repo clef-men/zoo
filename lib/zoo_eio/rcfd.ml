@@ -3,8 +3,8 @@
 *)
 
 type state =
-  | Open of Unix.file_descr [@zoo.reveal]
-  | Closing of (unit -> unit)
+  | Open of { fd: Unix.file_descr } [@generative] [@zoo.reveal]
+  | Closing of (unit -> unit) [@generative]
 
 type t =
   { mutable ops: int [@atomic];
@@ -12,7 +12,7 @@ type t =
   }
 
 let make fd =
-  { ops= 0; state= Open fd }
+  { ops= 0; state= Open { fd } }
 
 let closed =
   Closing (fun () -> ())
@@ -30,17 +30,17 @@ let put t =
 let get t =
   Atomic.Loc.incr [%atomic.loc t.ops] ;
   match t.state with
-  | Open fd ->
-      Some fd
+  | Open open_r ->
+      Some open_r.fd
   | Closing _ ->
       put t ;
       None
 
 let close t =
   match t.state with
-  | Open fd as prev ->
+  | Open open_r as prev ->
       let close () =
-        Unix.close fd
+        Unix.close open_r.fd
       in
       let next = Closing close in
       if Atomic.Loc.compare_and_set [%atomic.loc t.state] prev next then (
@@ -55,12 +55,12 @@ let close t =
 
 let remove t =
   match t.state with
-  | Open fd as prev ->
+  | Open open_r as prev ->
       let waiter = Spsc_waiter.create () in
       let next = Closing (fun () -> Spsc_waiter.notify waiter) in
       if Atomic.Loc.compare_and_set [%atomic.loc t.state] prev next then (
         Spsc_waiter.wait waiter ;
-        Some fd
+        Some open_r.fd
       ) else (
         None
       )
@@ -85,7 +85,7 @@ let is_open t =
 
 let peek t =
   match t.state with
-  | Open fd ->
-      Some fd
+  | Open open_r ->
+      Some open_r.fd
   | Closing _ ->
       None

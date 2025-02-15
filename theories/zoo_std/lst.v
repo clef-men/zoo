@@ -23,13 +23,6 @@ Fixpoint plst_to_val nil vs :=
   end.
 #[global] Arguments plst_to_val _ !_ : assert.
 
-#[global] Instance plst_to_val_physical nil vs :
-  ValPhysical nil →
-  ValPhysical (plst_to_val nil vs).
-Proof.
-  destruct vs; done.
-Qed.
-
 Lemma plst_to_val_nil nil :
   plst_to_val nil [] = nil.
 Proof.
@@ -68,22 +61,10 @@ Proof.
   rewrite /= IH //.
 Qed.
 
-#[global] Instance lst_to_val_inj' :
-  Inj (=) (≈@{val}) lst_to_val.
-Proof.
-  intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [naive_solver.. |].
-  intros (_ & _ & [= -> ->%val_similar_refl%IH]) => //.
-Qed.
 #[global] Instance lst_to_val_inj :
   Inj (=) (=) lst_to_val.
 Proof.
-  intros ?* ->%val_similar_refl%(inj _) => //.
-Qed.
-#[global] Instance lst_to_val_physical vs :
-  ValPhysical (lst_to_val vs).
-Proof.
-  rewrite lst_to_val_plst_to_val.
-  apply plst_to_val_physical. done.
+  intros vs1. induction vs1 as []; intros []; naive_solver.
 Qed.
 
 Lemma lst_to_val_nil :

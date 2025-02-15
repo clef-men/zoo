@@ -51,8 +51,6 @@ Fixpoint occurs x e :=
       occurs x e2
   | Block _ _ es =>
       existsb (occurs x) es
-  | Reveal e =>
-      occurs x e
   | Match e0 y e1 brs =>
       occurs x e0 ||
       binder_neqb (BNamed x) y && occurs x e1 ||
@@ -172,9 +170,6 @@ Fixpoint subst (x : string) v e :=
       Block
         mut tag
         (subst x v <$> es)
-  | Reveal e =>
-      Reveal
-        (subst x v e)
   | Match e0 y e1 brs =>
       Match
         (subst x v e0)

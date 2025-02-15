@@ -9,19 +9,19 @@ From zoo Require Import
   options.
 
 Notation "'Nil'" := (
-  in_type "lst" 0
+  in_type "zoo_saturn.mpmc_bstack.lst" 0
 )(in custom zoo_tag
 ).
 Notation "'Cons'" := (
-  in_type "lst" 1
+  in_type "zoo_saturn.mpmc_bstack.lst" 1
 )(in custom zoo_tag
 ).
 
 Notation "'capacity'" := (
-  in_type "t" 0
+  in_type "zoo_saturn.mpmc_bstack.t" 0
 )(in custom zoo_field
 ).
 Notation "'front'" := (
-  in_type "t" 1
+  in_type "zoo_saturn.mpmc_bstack.t" 1
 )(in custom zoo_field
 ).

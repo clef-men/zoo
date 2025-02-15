@@ -79,7 +79,6 @@ Section zoo_G.
     wp_rec. do 2 wp_load.
     destruct vs as [| v vs].
     - iDestruct (chain_model_nil with "Hfront") as %->.
-      iDestruct (chain_physical with "Hback") as %Hphysical; first naive_solver.
       wp_equal as ? | _.
       { iDestruct (chain_physically_distinct' with "Hback") as %[]; naive_solver. }
       iSteps.

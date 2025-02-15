@@ -9,6 +9,7 @@ type ('a, _) front =
   | Cons :
     int * 'a * ('a, [`Front | `Cons]) front ->
     ('a, [> `Cons]) front
+    [@generative]
 
 type ('a, _) back =
   | Back :
@@ -19,6 +20,7 @@ type ('a, _) back =
   | Snoc :
     int * 'a * ('a, [`Back | `Snoc]) back ->
     ('a, [> `Snoc]) back
+    [@generative]
   | Used :
     ('a, [> `Used]) back
 

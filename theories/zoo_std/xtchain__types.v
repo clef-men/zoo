@@ -7,10 +7,10 @@ From zoo Require Import
   options.
 
 Notation "'xtchain_next'" := (
-  in_type "t" 0
+  in_type "zoo_std.xtchain.t" 0
 )(in custom zoo_field
 ).
 Notation "'xtchain_data'" := (
-  in_type "t" 1
+  in_type "zoo_std.xtchain.t" 1
 )(in custom zoo_field
 ).

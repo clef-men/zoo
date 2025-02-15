@@ -179,34 +179,34 @@ Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} b footprint,
     structeq_footprint footprint
   }}}.
 
-Fixpoint val_is_abstract v :=
+Fixpoint val_abstract v :=
   match v with
   | ValBool _
   | ValInt _ =>
       True
-  | ValBlock None _ vs =>
-      Forall' val_is_abstract vs
+  | ValBlock Nongenerative _ vs =>
+      Forall' val_abstract vs
   | _ =>
       False
   end.
-#[global] Arguments val_is_abstract !_ / : assert.
+#[global] Arguments val_abstract !_ / : assert.
 
-Lemma val_is_abstract_traversable v :
-  val_is_abstract v →
+Lemma val_abstract_traversable v :
+  val_abstract v →
   val_traversable ∅ v.
 Proof.
-  induction v as [[] | | [bid |] tag vs IH] => //.
+  induction v as [[] | | [] tag vs IH] => //.
   rewrite /= !Forall'_Forall !Forall_forall in IH |- *.
   naive_solver.
 Qed.
 
 Lemma val_structeq_abstract_1 v1 v2 :
-  val_is_abstract v1 →
-  val_is_abstract v2 →
+  val_abstract v1 →
+  val_abstract v2 →
   val_structeq ∅ v1 v2 →
   v1 = v2.
 Proof.
-  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => // Habstract1 Habstract2 Hstructeq.
+  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [] tag1 vs1 IH] => //; intros [[b2 | i2 | l2 | |] | | [] tag2 vs2] => // Habstract1 Habstract2 Hstructeq.
   all:
     try solve [
       ospecialize* (Hstructeq []) => //;
@@ -223,12 +223,12 @@ Proof.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
 Lemma val_structeq_abstract_2 v1 v2 :
-  val_is_abstract v1 →
+  val_abstract v1 →
   v1 = v2 →
   val_structeq ∅ v1 v2.
 Proof.
   intros Habstract <-.
-  induction v1 as [[b | i | l | |]| | [bid |] tag vs IH] => //.
+  induction v1 as [[b | i | l | |]| | [] tag vs IH] => //.
   - intros [] v1 v2; last done. intros <- <-.
     rewrite /= bool_decide_eq_true_2 //.
   - intros [] v1 v2; last done. intros <- <-.
@@ -243,8 +243,8 @@ Proof.
       naive_solver.
 Qed.
 Lemma val_structeq_abstract v1 v2 :
-  val_is_abstract v1 →
-  val_is_abstract v2 →
+  val_abstract v1 →
+  val_abstract v2 →
   val_structeq ∅ v1 v2 ↔
   v1 = v2.
 Proof.
@@ -254,14 +254,14 @@ Proof.
 Qed.
 
 Lemma val_structneq_abstract v1 v2 :
-  val_is_abstract v1 →
-  val_is_abstract v2 →
+  val_abstract v1 →
+  val_abstract v2 →
   val_structneq ∅ v1 v2 →
   v1 ≠ v2.
 Proof.
   move: v2.
-  induction v1 as [[b1 | i1 | l1 | |]| | [bid1 |] tag1 vs1 IH] => //.
-  all: intros [[b2 | i2 | l2 | |] | | [bid2 |] tag2 vs2] => //.
+  induction v1 as [[b1 | i1 | l1 | |]| | [] tag1 vs1 IH] => //.
+  all: intros [[b2 | i2 | l2 | |] | | [] tag2 vs2] => //.
   all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hsimilar).
   - intros [= [= <-]].
     destruct path; last done. simplify.
@@ -280,22 +280,22 @@ Proof.
 Qed.
 
 Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} b Φ :
-  val_is_abstract v1 →
-  val_is_abstract v2 →
+  val_abstract v1 →
+  val_abstract v2 →
   (if b then val_structeq else val_structneq) ∅ v1 v2 →
   Φ #b ⊢
   WP v1 = v2 {{ Φ }}.
 Proof.
   iIntros "%Habstract1 %Habstract2 %Hb HΦ".
   wp_apply (structeq_spec b ∅) as "_"; last iSteps.
-  { apply val_is_abstract_traversable => //. }
-  { apply val_is_abstract_traversable => //. }
+  { apply val_abstract_traversable => //. }
+  { apply val_abstract_traversable => //. }
   { done. }
   { iApply structeq_footprint_empty. }
 Qed.
 Lemma structeq_spec_abstract_eq `{zoo_G : !ZooG Σ} v1 v2 Φ :
-  val_is_abstract v1 →
-  val_is_abstract v2 →
+  val_abstract v1 →
+  val_abstract v2 →
   v1 = v2 →
   Φ #true ⊢
   WP v1 = v2 {{ Φ }}.

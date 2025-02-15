@@ -14,10 +14,10 @@ From zoo Require Import
 
 Definition rcfd_make : val :=
   fun: "fd" =>
-    { #0, Reveal ‘Open( "fd" ) }.
+    { #0, ‘Open{ "fd" } }.
 
 Definition rcfd_closed : val :=
-  ‘Closing( fun: <> => () ).
+  ‘Closing[ fun: <> => () ].
 
 Definition rcfd_put : val :=
   fun: "t" =>
@@ -37,8 +37,8 @@ Definition rcfd_get : val :=
   fun: "t" =>
     FAA "t".[ops] #1 ;;
     match: "t".{state} with
-    | Open "fd" =>
-        ‘Some( "fd" )
+    | Open <> as "open_r" =>
+        ‘Some( "open_r".<fd> )
     | Closing <> =>
         rcfd_put "t" ;;
         §None
@@ -47,9 +47,10 @@ Definition rcfd_get : val :=
 Definition rcfd_close : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open "fd" as "prev" =>
-        let: "close" <> := unix_close "fd" in
-        let: "next" := ‘Closing( "close" ) in
+    | Open <> as "prev" =>
+        let: "open_r" := "prev" in
+        let: "close" <> := unix_close "open_r".<fd> in
+        let: "next" := ‘Closing[ "close" ] in
         if: CAS "t".[state] "prev" "next" then (
           if: "t".{ops} == #0 and CAS "t".[state] "next" rcfd_closed then (
             "close" ()
@@ -67,14 +68,15 @@ Definition rcfd_close : val :=
 Definition rcfd_remove : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open "fd" as "prev" =>
+    | Open <> as "prev" =>
+        let: "open_r" := "prev" in
         let: "waiter" := spsc_waiter_create () in
         let: "next" :=
-          ‘Closing( fun: <> => spsc_waiter_notify "waiter" )
+          ‘Closing[ fun: <> => spsc_waiter_notify "waiter" ]
         in
         if: CAS "t".[state] "prev" "next" then (
           spsc_waiter_wait "waiter" ;;
-          ‘Some( "fd" )
+          ‘Some( "open_r".<fd> )
         ) else (
           §None
         )
@@ -105,8 +107,8 @@ Definition rcfd_is_open : val :=
 Definition rcfd_peek : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open "fd" =>
-        ‘Some( "fd" )
+    | Open <> as "open_r" =>
+        ‘Some( "open_r".<fd> )
     | Closing <> =>
         §None
     end.

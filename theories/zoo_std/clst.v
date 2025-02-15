@@ -26,20 +26,20 @@ Fixpoint clist_to_val cvs :=
   | ClistOpen =>
       §ClstOpen
   | ClistCons v cvs =>
-      ‘ClstCons( v, clist_to_val cvs )
+      ‘ClstCons[ v, clist_to_val cvs ]
   end%V.
 Coercion clist_to_val : clist >-> val.
 
-#[global] Instance clist_to_val_inj :
+#[global] Instance clist_to_val_inj_similar :
   Inj (=) (≈@{val}) clist_to_val.
 Proof.
-  intros cvs1. induction cvs1 as [| | v1 cvs1 IH]; intros [| | v2 cvs2]; [naive_solver.. |].
-  intros (_ & _ & [= -> ->%val_similar_refl%IH]) => //.
+  intros cvs1. induction cvs1 as [| | v1 cvs1 IH]; intros [| | v2 cvs2]; try naive_solver.
+  intros (_ & [= <- <-%val_similar_refl%IH]). done.
 Qed.
-#[global] Instance clist_to_val_physical cvs :
-  ValPhysical (clist_to_val cvs).
+#[global] Instance clist_to_val_inj :
+  Inj (=) (=) clist_to_val.
 Proof.
-  destruct cvs => //.
+  intros ?* ->%val_similar_refl%(inj _). done.
 Qed.
 
 Fixpoint list_to_clist_open vs :=

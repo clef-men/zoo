@@ -22,7 +22,7 @@ Definition mpmc_stack_2_push : val :=
     | ClstClosed =>
         #true
     |_ as "old" =>
-        let: "new_" := ‘ClstCons( "v", "old" ) in
+        let: "new_" := ‘ClstCons[ "v", "old" ] in
         if: CAS "t".[contents] "old" "new_" then (
           #false
         ) else (

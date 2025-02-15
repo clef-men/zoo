@@ -18,7 +18,7 @@ Definition mpmc_queue_2_rev_0 : val :=
         | Back <> <> =>
             "suffix"
         | Snoc "i" "v" "prefix" =>
-            "rev" ‘Cons( "i", "v", "suffix" ) "prefix"
+            "rev" ‘Cons[ "i", "v", "suffix" ] "prefix"
         end
     end.
 
@@ -26,7 +26,7 @@ Definition mpmc_queue_2_rev : val :=
   fun: "back" =>
     match: "back" with
     | Snoc "i" "v" "prefix" =>
-        mpmc_queue_2_rev_0 ‘Cons( "i", "v", ‘Front( "i" + #1 ) ) "prefix"
+        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front( "i" + #1 ) ] "prefix"
     end.
 
 Definition mpmc_queue_2_create : val :=
@@ -87,7 +87,7 @@ Definition mpmc_queue_2_help : val :=
 
 #[local] Definition __zoo_recs_0 := (
   recs: "push_back_aux" "t" "v" "i" "back" =>
-    let: "new_back" := ‘Snoc( "i" + #1, "v", "back" ) in
+    let: "new_back" := ‘Snoc[ "i" + #1, "v", "back" ] in
     if: ~ CAS "t".[back] "back" "new_back" then (
       domain_yield () ;;
       "push_back" "t" "v"
@@ -132,7 +132,7 @@ Definition mpmc_queue_2_push_front : val :=
   rec: "push_front" "t" "v" =>
     match: "t".{front} with
     | Cons "i" <> <> as "front" =>
-        let: "new_front" := ‘Cons( "i" - #1, "v", "front" ) in
+        let: "new_front" := ‘Cons[ "i" - #1, "v", "front" ] in
         if: ~ CAS "t".[front] "front" "new_front" then (
           domain_yield () ;;
           "push_front" "t" "v"
@@ -144,10 +144,10 @@ Definition mpmc_queue_2_push_front : val :=
               "push_front" "t" "v"
             ) else if: "i_front" == "i_back" then (
               let: "new_back" :=
-                ‘Snoc( "i_back" + #1,
+                ‘Snoc[ "i_back" + #1,
                   "v_back",
-                  ‘Snoc( "i_back", "v", "prefix" )
-                )
+                  ‘Snoc[ "i_back", "v", "prefix" ]
+                ]
               in
               if: ~ CAS "t".[back] "back" "new_back" then (
                 domain_yield () ;;
@@ -170,7 +170,7 @@ Definition mpmc_queue_2_push_front : val :=
                   "push_front" "t" "v"
                 ) else (
                   let: "new_back" :=
-                    ‘Snoc( "back_r".{index} + #1, "v", "back" )
+                    ‘Snoc[ "back_r".{index} + #1, "v", "back" ]
                   in
                   if: ~ CAS "t".[back] "back" "new_back" then (
                     domain_yield () ;;

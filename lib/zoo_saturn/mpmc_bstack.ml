@@ -4,7 +4,7 @@
 
 type 'a lst =
   | Nil
-  | Cons of int * 'a * 'a lst
+  | Cons of int * 'a * 'a lst [@generative]
 
 type 'a t =
   { capacity: int;

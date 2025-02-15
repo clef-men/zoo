@@ -46,14 +46,6 @@ Section zoo_G.
     move: t. induction vs; apply _.
   Qed.
 
-  Lemma chain_physical tag t vs dst :
-    0 < length vs →
-    chain_model tag t vs dst ⊢
-    ⌜val_physical t⌝.
-  Proof.
-    intros Hlen. destruct vs as [| v vs]; first naive_solver lia.
-    iSteps.
-  Qed.
   Lemma chain_physically_distinct tag1 t1 vs1 dst1 tag2 t2 vs2 dst2 :
     0 < length vs1 →
     0 < length vs2 →

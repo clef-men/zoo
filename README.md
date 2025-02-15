@@ -36,7 +36,7 @@ To make sure it is up-to-date, run:
 opam update --all --repositories
 ```
 
-Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/atomic_array) featuring atomic record fields and atomic arrays.
+Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring atomic record fields, atomic arrays and generative constructors.
 Hopefully, it should be merged into the OCaml compiler one day.
 
 The following commands take care of this:
@@ -44,7 +44,7 @@ The following commands take care of this:
 ```
 opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
 eval $(opam env --switch=. --set-switch)
-opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#atomic_array --yes
+opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_constructors --yes
 ```
 
 Then, install dependencies including [`ocaml2zoo`](https://github.com/clef-men/ocaml2zoo) with:

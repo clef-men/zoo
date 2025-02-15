@@ -27,7 +27,7 @@ Implicit Types b closing : bool.
 Implicit Types ops : Z.
 Implicit Types q : Qp.
 Implicit Types qs : gmultiset Qp.
-Implicit Types l l_state : location.
+Implicit Types l open : location.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
@@ -41,20 +41,14 @@ Implicit Types state : state.
 #[local] Instance state_eq_dec : EqDecision state :=
   ltac:(solve_decision).
 
-#[local] Definition state_to_val open fd state :=
+#[local] Definition state_to_val open state :=
   match state with
   | Open =>
-      ‘Open@open( fd )
+      #open
   | Closing fn =>
-      ‘Closing( fn )
+      ‘Closing[ fn ]
   end%V.
-#[local] Arguments state_to_val _ _ !_ / : assert.
-
-#[local] Instance state_to_val_physical open fd state :
-  ValPhysical (state_to_val open fd state).
-Proof.
-  destruct state; done.
-Qed.
+#[local] Arguments state_to_val _ !_ / : assert.
 
 Inductive lstate :=
   | LOpen
@@ -96,9 +90,11 @@ Section rcfd_G.
   Context `{rcfd_G : RcfdG Σ}.
 
   Record metadata := {
+    metadata_fd : val ;
+    metadata_chars : list ascii ;
+    metadata_open : location ;
     metadata_tokens : gname ;
     metadata_lstate : gname ;
-    metadata_open : block_id ;
   }.
   Implicit Types γ : metadata.
 
@@ -124,47 +120,121 @@ Section rcfd_G.
   #[local] Definition lstate_lb γ lstate :=
     auth_mono_lb _ γ.(metadata_lstate) lstate.
 
-  #[local] Definition inv_inner l γ fd chars : iProp Σ :=
+  #[local] Definition inv_inner_open γ state ops : iProp Σ :=
+    ∃ q qs,
+    ⌜ops = size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
+    ⌜state = Open⌝ ∗
+    tokens_auth γ qs ∗
+    unix_fd_model γ.(metadata_fd) (DfracOwn q) γ.(metadata_chars).
+  #[local] Instance : CustomIpatFormat "inv_inner_open" :=
+    "(
+      %q{} &
+      %qs{} &
+      (-> & %Hqs{}) &
+      {%H{eq}=->} &
+      Htokens_auth &
+      Hmodel_
+    )".
+  #[local] Definition inv_inner_closing_users γ state ops : iProp Σ :=
+    ∃ q qs fn,
+    ⌜ops = size qs ∧ 0 < size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
+    ⌜state = Closing fn⌝ ∗
+    tokens_auth γ qs ∗
+    unix_fd_model γ.(metadata_fd) (DfracOwn q) γ.(metadata_chars) ∗
+    (unix_fd_model γ.(metadata_fd) (DfracOwn 1) γ.(metadata_chars) -∗ WP fn () {{ res, ⌜res = ()%V⌝ }}).
+  #[local] Instance : CustomIpatFormat "inv_inner_closing_users" :=
+    "(
+      %q{} &
+      %qs{} &
+      %fn{} &
+      ({%H{eq_ops}=->} & %Hqs{}_size & %Hqs{}) &
+      {%H{eq}=->} &
+      Htokens_auth &
+      Hmodel_ &
+      Hfn{}
+    )".
+  #[local] Definition inv_inner_closing_no_users state : iProp Σ :=
+    ∃ fn,
+    ⌜state = Closing fn⌝ ∗
+    WP fn () {{ res, ⌜res = ()%V⌝ }}.
+  #[local] Instance : CustomIpatFormat "inv_inner_closing_no_users" :=
+    "(
+      %fn{} &
+      {%H{eq}=->} &
+      Hfn{}
+    )".
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ state lstate ops,
     l.[ops] ↦ #ops ∗
-    l.[state] ↦ state_to_val γ.(metadata_open) fd state ∗
+    l.[state] ↦ state_to_val γ.(metadata_open) state ∗
     lstate_auth γ lstate ∗
     match lstate with
     | LOpen =>
-        ∃ q qs,
-        ⌜ops = size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
-        ⌜state = Open⌝ ∗
-        tokens_auth γ qs ∗
-        unix_fd_model fd (DfracOwn q) chars
+        inv_inner_open γ state ops
     | LClosingUsers =>
-        ∃ q qs fn,
-        ⌜ops = size qs ∧ 0 < size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
-        ⌜state = Closing fn⌝ ∗
-        tokens_auth γ qs ∗
-        unix_fd_model fd (DfracOwn q) chars ∗
-        (unix_fd_model fd (DfracOwn 1) chars -∗ WP fn () {{ res, ⌜res = ()%V⌝ }})
+        inv_inner_closing_users γ state ops
     | LClosingNoUsers =>
-        ∃ fn,
-        ⌜state = Closing fn⌝ ∗
-        WP fn () {{ res, ⌜res = ()%V⌝ }}
+        inv_inner_closing_no_users state
     end.
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %state{} &
+      %lstate{} &
+      %ops{} &
+      Hl_ops &
+      Hl_state &
+      Hlstate_auth &
+      Hlstate
+    )".
   Definition rcfd_inv t fd chars : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜fd = γ.(metadata_fd)⌝ ∗
+    ⌜chars = γ.(metadata_chars)⌝ ∗
     meta l nroot γ ∗
-    inv nroot (inv_inner l γ fd chars).
+    γ.(metadata_open) ↦ₕ Header §Open 1 ∗
+    γ.(metadata_open).[0] ↦□ γ.(metadata_fd) ∗
+    inv nroot (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      -> &
+      -> &
+      #Hmeta &
+      #Hopen_header &
+      #Hopen_fd &
+      #Hinv
+    )".
 
   Definition rcfd_token t q : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     tokens_frag γ q.
+  #[local] Instance : CustomIpatFormat "token" :=
+    "(
+      %l_ &
+      %γ_ &
+      %Heq &
+      #Hmeta_ &
+      Htokens_frag
+    )".
 
   Definition rcfd_closing t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     lstate_lb γ LClosingUsers.
+  #[local] Instance : CustomIpatFormat "closing" :=
+    "(
+      %l_ &
+      %γ_ &
+      %Heq &
+      #Hmeta_ &
+      #Hlstate_lb
+    )".
 
   #[global] Instance rcfd_inv_timeless t q :
     Timeless (rcfd_token t q).
@@ -295,29 +365,33 @@ Section rcfd_G.
     iIntros "%Φ Hmodel HΦ".
 
     wp_rec.
-    wp_reveal open.
+    wp_block open as "#Hopen_header" "_" "(Hopen_fd & _)".
+    iMod (pointsto_persist with "Hopen_fd") as "#Hopen_fd".
     wp_block l as "Hmeta" "(Hops & Hfd & _)".
 
     iMod tokens_alloc as "(%γ_tokens & Htokens_auth)".
     iMod lstate_alloc as "(%γ_lstate & Hlstate_auth)".
     pose γ := {|
+      metadata_fd := fd ;
+      metadata_chars := chars ;
+      metadata_open := open ;
       metadata_tokens := γ_tokens ;
       metadata_lstate := γ_lstate ;
-      metadata_open := open ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "Hmeta"; first done.
+    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iStep 2. iApply inv_alloc.
-    iExists Open. iStep 4. iExists 1%Qp, ∅. iSteps.
+    iExists l, γ. iSteps. iExists Open. iSteps. iExists ∅. iSteps.
   Qed.
 
-  #[local] Lemma rcfd_put_spec' l γ fd chars :
+  #[local] Lemma rcfd_put_spec' l γ :
     {{{
-      inv nroot (inv_inner l γ fd chars) ∗
+      γ.(metadata_open) ↦ₕ Header §Open 1 ∗
+      γ.(metadata_open).[0] ↦□ γ.(metadata_fd) ∗
+      inv nroot (inv_inner l γ) ∗
       ( ( ∃ q,
           tokens_frag γ q ∗
-          unix_fd_model fd (DfracOwn q) chars
+          unix_fd_model γ.(metadata_fd) (DfracOwn q) γ.(metadata_chars)
         )
       ∨ lstate_lb γ LClosingNoUsers
       )
@@ -328,49 +402,49 @@ Section rcfd_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & H) HΦ".
+    iIntros "%Φ (#Hopen_header & #Hopen_fd & #Hinv & H) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (FAA _ _).
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_faa.
     iSplitR "HΦ".
     { iDestruct "H" as "[(%q & Htokens_frag & Hmodel) | #Hlstate_lb]".
       - destruct lstate1.
-        + iDestruct "Hlstate1" as "(%q' & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel')".
+        + iDestruct "Hlstate" as "(:inv_inner_open =1)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
-          iExists Open. iStep 3. iExists (q + q')%Qp, (qs ∖ {[+q+]}).
-          iSplitR; [iSplitR; iPureIntro | iSplitR; [| iSplitR "Hmodel Hmodel'"]].
-          * assert (qs ≠ ∅) as Hqs_size%gmultiset_size_non_empty_iff by multiset_solver.
+          iExists Open. iStep 3. iExists (q + q1)%Qp, (qs1 ∖ {[+q+]}).
+          iSplitR; [iSplitR; iPureIntro | iSplitR; [| iSplitR "Hmodel Hmodel_"]].
+          * assert (qs1 ≠ ∅) as Hqs1_size%gmultiset_size_non_empty_iff by multiset_solver.
             rewrite gmultiset_size_difference; first multiset_solver.
             rewrite gmultiset_size_singleton. lia.
-          * rewrite (gmultiset_disj_union_difference' q qs) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs.
+          * rewrite (gmultiset_disj_union_difference' q qs1) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs1.
           * iSteps.
           * iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "$". iSteps.
-          * iCombine "Hmodel Hmodel'" as "$". iSteps.
-        + iDestruct "Hlstate1" as "(%q' & %qs & %fn1 & (-> & %Hqs_size & %Hqs) & -> & Htokens_auth & Hmodel' & Hfn1)".
+          * iCombine "Hmodel Hmodel_" as "$". iSteps.
+        + iDestruct "Hlstate" as "(:inv_inner_closing_users =1)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
-          destruct (decide (size qs = 1)) as [Hqs_size' | Hqs_size'].
-          * apply gmultiset_size_1_elem_of in Hqs_size' as (q_ & ->%leibniz_equiv). rewrite gmultiset_set_fold_singleton in Hqs.
+          destruct (decide (size qs1 = 1)) as [Hqs_size' | Hqs_size'].
+          * apply gmultiset_size_1_elem_of in Hqs_size' as (q_ & ->%leibniz_equiv). rewrite gmultiset_set_fold_singleton in Hqs1.
             apply gmultiset_elem_of_singleton in Hq as <-.
             iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "Htokens_auth".
             rewrite gmultiset_difference_diag.
             iMod (lstate_update LClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
-            iCombine "Hmodel Hmodel'" as "Hmodel". rewrite Hqs. iDestruct ("Hfn1" with "Hmodel") as "Hfn1".
+            iCombine "Hmodel Hmodel_" as "Hmodel". rewrite Hqs1. iDestruct ("Hfn1" with "Hmodel") as "Hfn1".
             iExists (Closing _). iStep 4. done.
           * iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "Htokens_auth".
-            iCombine "Hmodel Hmodel'" as "Hmodel".
-            iExists (Closing _). iStep 3. iExists (q + q')%Qp, (qs ∖ {[+q+]}). iSteps; iPureIntro.
+            iCombine "Hmodel Hmodel_" as "Hmodel".
+            iExists (Closing _). iStep 3. iExists (q + q1)%Qp, (qs1 ∖ {[+q+]}). iSteps; iPureIntro.
             -- rewrite gmultiset_size_difference; first multiset_solver.
                rewrite gmultiset_size_singleton. lia.
             -- rewrite gmultiset_size_difference; first multiset_solver.
                rewrite gmultiset_size_singleton. lia.
-            -- rewrite (gmultiset_disj_union_difference' q qs) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs.
-        + iDestruct "Hlstate1" as "(%fn1 & -> & Hfn1)".
+            -- rewrite (gmultiset_disj_union_difference' q qs1) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs1.
+        + iDestruct "Hlstate" as "(:inv_inner_closing_no_users =1)".
           iExists (Closing _). iStep 4. done.
       - iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
-        iDestruct "Hlstate1" as "(%fn1 & -> & Hfn1)".
+        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =1)".
         iExists (Closing _). iStep 4. done.
     }
     iModIntro. clear.
@@ -378,20 +452,22 @@ Section rcfd_G.
     wp_pures. destruct (decide (ops1 = 1)) as [-> | Hops]; wp_pures; last iSteps.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
+    iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
     destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
 
-    - iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel)".
+    - iDestruct "Hlstate" as "(:inv_inner_open =2)".
       iSplitR "HΦ". { iExists Open. iSteps. }
-      iSteps.
+      iModIntro. clear.
+
+      wp_match. iSteps.
 
     - iAssert (∃ fn2, ⌜state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "(%fn2 & -> & #Hlstate_lb)".
       { destruct lstate2; first done.
-        - iDestruct "Hlstate2" as "(%q & %qs & %fn2 & _ & -> & _)".
+        - iDestruct "Hlstate" as "(:inv_inner_closing_users =2)".
           iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
           iSteps.
-        - iDestruct "Hlstate2" as "(%fn2 & -> & _)".
+        - iDestruct "Hlstate" as "(:inv_inner_closing_no_users =2)".
           iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
           iDestruct (lstate_lb_mono LClosingUsers with "Hlstate_lb") as "Hlstate_lb"; first done.
           iSteps.
@@ -402,15 +478,15 @@ Section rcfd_G.
       wp_pures.
 
       wp_bind (_.{ops})%E.
-      iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & Hops & Hfd & Hlstate_auth & Hlstate3)".
+      iInv "Hinv" as "(:inv_inner =3)".
       wp_load.
       iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
 
-      + iDestruct "Hlstate3" as "(%q & %qs & %fn3 & (-> & %Hqs_size & %Hqs) & -> & Htokens_auth & Hmodel & Hfn3)".
+      + iDestruct "Hlstate" as "(:inv_inner_closing_users =3)".
         iSplitR "HΦ". { iExists (Closing _). iSteps. }
         iSteps.
 
-      + iDestruct "Hlstate3" as "(%fn3 & -> & Hfn3)".
+      + iDestruct "Hlstate" as "(:inv_inner_closing_no_users =3)".
         iClear "Hlstate_lb". iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "HΦ". { iExists (Closing _). iStep 4. done. }
         iModIntro. clear.
@@ -418,11 +494,12 @@ Section rcfd_G.
         wp_pures. case_bool_decide as Hops3; wp_pures; last iSteps.
 
         wp_bind (CAS _ _ _).
-        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & Hops & Hfd & Hlstate_auth & Hlstate4)".
+        iInv "Hinv" as "(:inv_inner =4)".
         wp_cas as _ | Hcas; first iSteps.
-        destruct state4; first naive_solver. destruct Hcas as (_ & _ & [= <-]).
+        destruct state4; first done.
+        destruct Hcas as (_ & [= <-]).
         iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
-        iDestruct "Hlstate4" as (fn4 [= <-]) "Hfn4".
+        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =4 eq)". injection Heq as <-.
         iSplitR "Hfn4 HΦ". { iExists (Closing _). iSteps. }
         iSteps.
   Qed.
@@ -438,8 +515,8 @@ Section rcfd_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & _Hmeta & Htokens_frag) & Hmodel) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros "%Φ ((:inv) & (:token) & Hmodel) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iApply (rcfd_put_spec' with "[$Hinv Htokens_frag Hmodel] HΦ").
     iSteps.
   Qed.
@@ -462,39 +539,39 @@ Section rcfd_G.
       end
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (FAA _ _).
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_faa.
     iAssert (|==>
-      inv_inner l γ fd chars ∗
+      inv_inner l γ ∗
       ( ( ∃ q,
           tokens_frag γ q ∗
-          unix_fd_model fd (DfracOwn q) chars
+          unix_fd_model γ.(metadata_fd) (DfracOwn q) γ.(metadata_chars)
         )
       ∨ lstate_lb γ LClosingNoUsers
       )
     )%I with "[- HΦ]" as ">($ & H)".
     { destruct lstate1.
-      - iDestruct "Hlstate1" as "(%q & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel)".
+      - iDestruct "Hlstate" as "(:inv_inner_open)".
         iMod (tokens_update_alloc (q / 2) with "Htokens_auth") as "(Htokens_auth & Htokens_frag)".
-        iDestruct "Hmodel" as "(Hmodel1 & Hmodel2)".
+        iDestruct "Hmodel_" as "(Hmodel1 & Hmodel2)".
         iSplitR "Htokens_frag Hmodel2"; last iSteps.
         iExists Open. iStep 3. iExists (q / 2)%Qp, (qs ⊎ {[+q / 2+]})%Qp. iSteps; iPureIntro.
         + rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
         + rewrite (comm (⊎)) gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
-      - iDestruct "Hlstate1" as "(%q & %qs & %fn1 & (-> & %Hqs_size & %Hqs) & -> & Htokens_auth & Hmodel & Hfn1)".
+      - iDestruct "Hlstate" as "(:inv_inner_closing_users)".
         iMod (tokens_update_alloc (q / 2) with "Htokens_auth") as "(Htokens_auth & Htokens_frag)".
-        iDestruct "Hmodel" as "(Hmodel1 & Hmodel2)".
+        iDestruct "Hmodel_" as "(Hmodel1 & Hmodel2)".
         iSplitR "Htokens_frag Hmodel2"; last iSteps.
         iExists (Closing _). iStep 3. iExists (q / 2)%Qp, (qs ⊎ {[+q / 2+]})%Qp. iSteps; iPureIntro.
         + rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
         + rewrite gmultiset_size_disj_union. lia.
         + rewrite (comm (⊎)) gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
-      - iDestruct "Hlstate1" as "(%fn1 & -> & Hfn1)".
+      - iDestruct "Hlstate" as "(:inv_inner_closing_no_users)".
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitL; last iSteps.
         iExists (Closing _). iSteps.
@@ -502,25 +579,25 @@ Section rcfd_G.
     iModIntro. wp_pures. clear.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
+    iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
     destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
 
-    - iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel)".
-      iDestruct "H" as "[(%q' & Htokens_frag & Hmodel') | Hlstate_lb]"; last first.
+    - iDestruct "Hlstate" as "(:inv_inner_open)".
+      iDestruct "H" as "[(%q' & Htokens_frag & Hmodel) | Hlstate_lb]"; last first.
       { iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %?. done. }
-      iSplitR "Htokens_frag Hmodel' HΦ". { iExists Open. iSteps. }
+      iSplitR "Htokens_frag Hmodel HΦ". { iExists Open. iSteps. }
       iModIntro. clear.
 
-      wp_pures.
+      wp_match. wp_load. wp_pures.
       iApply ("HΦ" $! (Some _)). iSteps.
 
     - iAssert ⌜∃ fn2, state2 = Closing fn2⌝%I as %(fn2 & ->).
-      { destruct lstate2; iDecompose "Hlstate2"; iSteps. }
+      { destruct lstate2; iDecompose "Hlstate"; iSteps. }
       iSplitR "H HΦ". { iExists (Closing fn2). iSteps. }
       iModIntro. clear.
 
-      wp_smart_apply (rcfd_put_spec' with "[$Hinv $H]") as "_".
+      wp_smart_apply (rcfd_put_spec' with "[$]") as "_".
       iSteps. iApply ("HΦ" $! None). iSteps.
   Qed.
 
@@ -541,32 +618,32 @@ Section rcfd_G.
         rcfd_closing t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & Hclosing) HΦ".
+    iIntros "%Φ ((:inv) & Hclosing) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
     destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
 
-    - iDestruct "Hlstate1" as "(%q & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel)".
+    - iDestruct "Hlstate" as "(:inv_inner_open =1)".
       destruct closing; last iClear "Hclosing".
-      { iDestruct "Hclosing" as "(%_l & %_γ & %Heq & _Hmeta & Hlstate_lb)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      { iDestruct "Hclosing" as "(:closing)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[[=] | [=]].
       }
       iSplitR "HΦ". { iExists Open. iSteps. }
       iModIntro. clear.
 
-      wp_pures.
+      wp_match. wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
-      wp_cas as Hcas | Hcas.
+      iInv "Hinv" as "(:inv_inner =2)".
+      wp_cas as Hcas.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2"; first naive_solver.
+        { destruct lstate2; iDecompose "Hlstate"; first naive_solver.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -578,14 +655,14 @@ Section rcfd_G.
 
       + destruct state2; last naive_solver.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
-        { destruct lstate2; iDecompose "Hlstate2"; iSteps. }
-        iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & _ & Htokens_auth & Hmodel)".
+        { destruct lstate2; iDecompose "Hlstate"; iSteps. }
+        iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".
         iMod (lstate_update LClosingUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "HΦ".
-        { destruct (decide (size qs = 0)) as [Hqs_size | Hqs_size].
+        { destruct (decide (size qs2 = 0)) as [Hqs_size | Hqs_size].
           - apply gmultiset_size_empty_iff in Hqs_size as ->.
-            rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
+            rewrite gmultiset_set_fold_empty in Hqs2. rewrite {}Hqs2.
             iMod (lstate_update LClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iExists (Closing _). iSteps. iModIntro.
             wp_apply (unix_close_spec with "[$]").
@@ -599,12 +676,12 @@ Section rcfd_G.
         wp_pures.
 
         wp_bind (_.{ops})%E.
-        iInv "Hinv" as "(%state3 & %lstate3 & %ops3 & Hops & Hfd & Hlstate_auth & Hlstate3)".
+        iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
         destruct (decide (ops3 = 0)) as [-> | Hops3]; last iSteps.
         iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
-        { iDestruct "Hlstate3" as "(%q & %qs & %fn3 & (% & % & _) & _)". lia. }
-        iDestruct "Hlstate3" as "(%fn3 & -> & Hfn3)".
+        { iDestruct "Hlstate" as "(:inv_inner_closing_users =3 eq_ops)". lia. }
+        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =3)".
         iRename "Hlstate_lb" into "Hlstate_lb'". iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "HΦ". { iExists (Closing _). iStep 4. done. }
         iModIntro. clear.
@@ -612,12 +689,12 @@ Section rcfd_G.
         wp_pures.
 
         wp_bind (CAS _ _ _).
-        iInv "Hinv" as "(%state4 & %lstate4 & %ops4 & Hops & Hfd & Hlstate_auth & Hlstate4)".
+        iInv "Hinv" as "(:inv_inner =4)".
         wp_cas as _ | Hcas; first iSteps.
 
         iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
-        iDestruct "Hlstate4" as "(%fn4 & -> & Hfn4)".
-        destruct Hcas as (_ & _ & [= ->]).
+        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =4)".
+        destruct Hcas as (_ & [= ->]).
         iSplitR "Hfn4 HΦ". { iExists (Closing _). iSteps. }
         iModIntro. clear.
 
@@ -625,7 +702,7 @@ Section rcfd_G.
         iSteps.
 
     - iAssert (⌜∃ fn1, state1 = Closing fn1⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn1 & ->) & #Hlstate_lb)".
-      { destruct lstate1; iDecompose "Hlstate1".
+      { destruct lstate1; iDecompose "Hlstate".
         - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
           iSteps.
         - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -689,33 +766,34 @@ Section rcfd_G.
         end
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & Hclosing) HΦ".
+    iIntros "%Φ ((:inv) & Hclosing) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state1 & %lstate1 & %ops1 & Hops & Hfd & Hlstate_auth & Hlstate1)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
     destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
 
-    - iDestruct "Hlstate1" as "(%q & %qs & (-> & %Hqs) & -> & Htokens_auth & Hmodel)".
+    - iDestruct "Hlstate" as "(:inv_inner_open =1)".
       destruct closing; last iClear "Hclosing".
-      { iDestruct "Hclosing" as "(%_l & %_γ & %Heq & _Hmeta & Hlstate_lb)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      { iDestruct "Hclosing" as "(:closing)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[[=] | [=]].
       }
       iSplitR "HΦ". { iExists Open. iSteps. }
       iModIntro. clear.
 
-      wp_smart_apply (spsc_waiter_create_spec (unix_fd_model fd (DfracOwn 1) chars) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
+      wp_match.
+      wp_smart_apply (spsc_waiter_create_spec (unix_fd_model γ.(metadata_fd) (DfracOwn 1) γ.(metadata_chars)) with "[//]") as "%chan (#Hchan_inv & Hchan_producer & Hchan_consumer)".
       wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%state2 & %lstate2 & %ops2 & Hops & Hfd & Hlstate_auth & Hlstate2)".
-      wp_cas as Hcas | Hcas.
+      iInv "Hinv" as "(:inv_inner =2)".
+      wp_cas as Hcas.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate2"; first naive_solver.
+        { destruct lstate2; iDecompose "Hlstate"; first naive_solver.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -727,17 +805,17 @@ Section rcfd_G.
 
       + destruct state2; last naive_solver.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
-        { destruct lstate2; iDecompose "Hlstate2"; iSteps. }
-        iDestruct "Hlstate2" as "(%q & %qs & (-> & %Hqs) & _ & Htokens_auth & Hmodel)".
+        { destruct lstate2; iDecompose "Hlstate"; iSteps. }
+        iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".
         iMod (lstate_update LClosingUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "Hchan_consumer HΦ".
-        { destruct (decide (size qs = 0)) as [Hqs_size | Hqs_size].
+        { destruct (decide (size qs2 = 0)) as [Hqs_size | Hqs_size].
           - apply gmultiset_size_empty_iff in Hqs_size as ->.
-            rewrite gmultiset_set_fold_empty in Hqs. rewrite {}Hqs.
+            rewrite gmultiset_set_fold_empty in Hqs2. rewrite {}Hqs2.
             iMod (lstate_update LClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iExists (Closing _). iStep 8. iModIntro.
-            wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
+            wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel_]").
             iSteps.
           - iExists (Closing _). iSteps as "Hmodel". iModIntro.
             wp_apply (spsc_waiter_notify_spec with "[$Hchan_inv $Hchan_producer $Hmodel]").
@@ -749,7 +827,7 @@ Section rcfd_G.
         iSteps. iApply ("HΦ" $! (Some _)). iSteps.
 
     - iAssert (⌜∃ fn1, state1 = Closing fn1⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn1 & ->) & #Hlstate_lb)".
-      { destruct lstate1; iDecompose "Hlstate1".
+      { destruct lstate1; iDecompose "Hlstate".
         - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
           iSteps.
         - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -848,17 +926,17 @@ Section rcfd_G.
         rcfd_closing t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & Hclosing) HΦ".
+    iIntros "%Φ ((:inv) & Hclosing) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct closing; last iClear "Hclosing".
 
-    - iDestruct "Hclosing" as "(%_l & %_γ & %Heq & _Hmeta & Hlstate_lb)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iDestruct "Hclosing" as "(:closing)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAssert ⌜∃ fn, state = Closing fn⌝%I as %(fn & ->).
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
         all: iDecompose "Hlstate"; iSteps.
@@ -869,7 +947,9 @@ Section rcfd_G.
     - destruct state.
 
       + iSplitR "HΦ". { iExists Open. iSteps. }
-        iSteps.
+        iModIntro. clear.
+
+        wp_match. iSteps.
 
       + iAssert (lstate_lb γ LClosingUsers) as "#Hlstate_lb".
         { destruct lstate; iDecompose "Hlstate".
@@ -935,17 +1015,17 @@ Section rcfd_G.
         end
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & Hclosing) HΦ".
+    iIntros "%Φ ((:inv) & Hclosing) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (_.{state})%E.
-    iInv "Hinv" as "(%state & %lstate & %ops & Hops & Hfd & Hlstate_auth & Hlstate)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct closing; last iClear "Hclosing".
 
-    - iDestruct "Hclosing" as "(%_l & %_γ & %Heq & _Hmeta & Hlstate_lb)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iDestruct "Hclosing" as "(:closing)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAssert ⌜∃ fn, state = Closing fn⌝%I as %(fn & ->).
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
         all: iDecompose "Hlstate"; iSteps.
@@ -958,7 +1038,7 @@ Section rcfd_G.
       + iSplitR "HΦ". { iExists Open. iSteps. }
         iModIntro. clear.
 
-        wp_pures.
+        wp_match. wp_load. wp_pures.
         iApply ("HΦ" $! (Some _)). iSteps.
 
       + iAssert (lstate_lb γ LClosingUsers) as "#Hlstate_lb".

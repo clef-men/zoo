@@ -11,7 +11,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  lst.
+  glst.
 From zoo_saturn Require Export
   base
   mpsc_queue_2__code.
@@ -77,7 +77,7 @@ Section mpsc_queue_2_G.
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ front back,
     front₂ γ front ∗
-    l.[back] ↦ lst_to_val back ∗
+    l.[back] ↦ glst_to_val back ∗
     model₂ γ (front ++ reverse back).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
@@ -119,7 +119,7 @@ Section mpsc_queue_2_G.
     ∃ l γ front,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[front] ↦ lst_to_val front ∗
+    l.[front] ↦ glst_to_val front ∗
     front₁ γ front.
   #[local] Instance : CustomIpatFormat "consumer" :=
     "(
@@ -392,7 +392,7 @@ Section mpsc_queue_2_G.
         iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
         iModIntro. clear.
 
-        wp_apply (lst_rev_spec _ [] with "[//]") as "%back ->"; first done.
+        wp_apply (glst_rev_spec with "[//]") as "_"; first done.
         wp_pures.
 
         iApply "HΦ".
@@ -407,7 +407,7 @@ Section mpsc_queue_2_G.
         { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
-        wp_apply (lst_rev_spec with "[//]") as "%back ->"; first done.
+        wp_apply (glst_rev_spec with "[//]") as "_"; first done.
         rewrite reverse_snoc. iSteps.
 
     - wp_store.

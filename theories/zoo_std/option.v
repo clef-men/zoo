@@ -9,6 +9,7 @@ From zoo_std Require Export
 From zoo Require Import
   options.
 
+Implicit Types o : option val.
 Implicit Types v : val.
 
 Coercion option_to_val o :=
@@ -20,20 +21,23 @@ Coercion option_to_val o :=
   end%V.
 #[global] Arguments option_to_val !_ / : assert.
 
-#[global] Instance option_to_val_inj' :
-  Inj (=) (≈@{val}) option_to_val.
-Proof.
-  intros [] []; naive_solver.
-Qed.
 #[global] Instance option_to_val_inj :
   Inj (=) (=) option_to_val.
 Proof.
-  intros ?* ->%val_similar_refl%(inj _) => //.
+  intros [] []; naive_solver.
 Qed.
-#[global] Instance option_to_val_physical o :
-  ValPhysical (option_to_val o).
+
+Lemma option_to_val_similar_None_l o :
+  §None%V ≈ o →
+  o = None.
 Proof.
-  destruct o => //.
+  destruct o; naive_solver.
+Qed.
+Lemma option_to_val_similar_None_r o :
+  (o : val) ≈ §None%V →
+  o = None.
+Proof.
+  intros ?%symmetry%option_to_val_similar_None_l. done.
 Qed.
 
 Section zoo_G.
@@ -42,7 +46,9 @@ Section zoo_G.
 
   Definition itype_option t : iProp Σ :=
       ⌜t = §None%V⌝
-    ∨ ∃ v, ⌜t = ‘Some( v )%V⌝ ∗ τ v.
+    ∨ ∃ v,
+      ⌜t = ‘Some( v )%V⌝ ∗
+      τ v.
   #[global] Instance itype_option_itype :
     iType _ itype_option.
   Proof.

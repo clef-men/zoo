@@ -48,8 +48,6 @@ Ltac reshape_expr e tac :=
         add_ectxi (CtxAlloc2 e1) K prophs e2
     | Block ?mut ?tag ?es =>
         go_list K prophs (CtxBlock mut tag) es
-    | Reveal ?e =>
-        add_ectxi CtxReveal K prophs e
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K prophs e0
     | GetTag ?e =>
@@ -153,12 +151,14 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step_equal_fail; simpl; [try done | try done | simpl; try naive_solver done]
+  eapply base_step_equal_fail;
+  simpl; try naive_solver done
 : zoo.
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step_equal_suc; simpl
+  eapply base_step_equal_suc;
+  simpl
 : zoo.
 #[global] Hint Extern 0 (
   base_step (Alloc _ _) _ _ _ _ _
@@ -171,19 +171,18 @@ Ltac invert_base_step :=
   eapply base_step_block_mutable'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Reveal _) _ _ _ _ _
+  base_step (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step_reveal'
+  eapply base_step_cas_fail;
+  [ try done
+  | simpl; try naive_solver done
+  ]
 : zoo.
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step_cas_fail; simpl; [try done | try done | try done | simpl; try naive_solver done]
-: zoo.
-#[global] Hint Extern 0 (
-  base_step (CAS _ _ _) _ _ _ _ _
-) =>
-  eapply base_step_cas_suc; simpl
+  eapply base_step_cas_suc;
+  simpl
 : zoo.
 #[global] Hint Extern 0 (
   base_step Proph _ _ _ _ _

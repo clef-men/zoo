@@ -37,7 +37,7 @@ Definition mpsc_queue_3_push_front : val :=
     | ClstClosed =>
         #true
     |_ as "front" =>
-        "t" <-{front} ‘ClstCons( "v", "front" ) ;;
+        "t" <-{front} ‘ClstCons[ "v", "front" ] ;;
         #false
     end.
 
@@ -47,7 +47,7 @@ Definition mpsc_queue_3_push_back : val :=
     | ClstClosed =>
         #true
     |_ as "back" =>
-        if: CAS "t".[back] "back" ‘ClstCons( "v", "back" ) then (
+        if: CAS "t".[back] "back" ‘ClstCons[ "v", "back" ] then (
           #false
         ) else (
           domain_yield () ;;

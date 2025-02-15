@@ -4,16 +4,16 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst
+  glst
   domain.
 From zoo Require Import
   options.
 
 Notation "'front'" := (
-  in_type "t" 0
+  in_type "zoo_saturn.mpsc_queue_2.t" 0
 )(in custom zoo_field
 ).
 Notation "'back'" := (
-  in_type "t" 1
+  in_type "zoo_saturn.mpsc_queue_2.t" 1
 )(in custom zoo_field
 ).

@@ -127,22 +127,6 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_reveal tag vs :
-    SPEC
-    {{
-      True
-    }}
-      Reveal $ ValBlock None tag vs
-    {{ bid,
-      RET ValBlock (Some bid) tag vs;
-      True
-    }}.
-  Proof.
-    iSteps.
-    wp_reveal bid.
-    iSteps.
-  Qed.
-
   #[global] Instance step_wp_get_tag l :
     SPEC hdr,
     {{
@@ -227,8 +211,6 @@ Section zoo_G.
     SPEC ⟨E1, E2⟩ v dq,
     {{
       ▷ (l +ₗ fld) ↦{dq} v ∗
-      ⌜val_physical v⌝ ∗
-      ⌜val_physical v1⌝ ∗
       ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
     }}
       CAS (#l, #fld)%V v1 v2
@@ -242,8 +224,8 @@ Section zoo_G.
         (l +ₗ fld) ↦ v2
     }}.
   Proof.
-    iStep as (v). iIntros "%dq (_ & Hl & %Hlit & %Hlit1 & %H)".
-    wp_cas as ? | ?; iSteps.
+    iStep as (v). iIntros "%dq (_ & Hl & %H)".
+    wp_cas; iSteps.
     destruct H; iSteps.
   Qed.
 

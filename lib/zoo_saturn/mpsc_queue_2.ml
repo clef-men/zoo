@@ -3,40 +3,40 @@
 *)
 
 type 'a t =
-  { mutable front: 'a list;
-    mutable back: 'a list [@atomic];
+  { mutable front: 'a Glst.t;
+    mutable back: 'a Glst.t [@atomic];
   }
 
 let create () =
-  { front= []; back= [] }
+  { front= Gnil; back= Gnil }
 
 let is_empty t =
   match t.front with
-  | _ :: _ ->
+  | Gcons _ ->
       false
-  | [] ->
-      t.back == []
+  | Gnil ->
+      t.back == Gnil
 
 let push_front t v =
-  t.front <- v :: t.front
+  t.front <- Gcons (v, t.front)
 
 let rec push_back t v =
   let back = t.back in
-  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (v :: back) then (
+  if not @@ Atomic.Loc.compare_and_set [%atomic.loc t.back] back (Gcons (v, back)) then (
     Domain.yield () ;
     push_back t v
   )
 
 let pop t =
   match t.front with
-  | [] ->
-      begin match Lst.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] [] with
-      | [] ->
+  | Gnil ->
+      begin match Glst.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] Gnil with
+      | Gnil ->
           None
-      | v :: front ->
+      | Gcons (v, front) ->
           t.front <- front ;
           Some v
       end
-  | v :: front ->
+  | Gcons (v, front) ->
       t.front <- front ;
       Some v

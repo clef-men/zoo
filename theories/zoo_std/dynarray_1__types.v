@@ -10,10 +10,10 @@ From zoo Require Import
   options.
 
 Notation "'size'" := (
-  in_type "t" 0
+  in_type "zoo_std.dynarray_1.t" 0
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "t" 1
+  in_type "zoo_std.dynarray_1.t" 1
 )(in custom zoo_field
 ).

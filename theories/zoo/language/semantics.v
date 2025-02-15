@@ -1,20 +1,3 @@
-(* Important notice:
-
-   In this semantics, we assume expressions are syntactically or semantically well-typed:
-   - operands of boolean operators are booleans;
-   - operands of integer operators are integers;
-   - physically compared values in [Equal] and [CAS] are loosely compatible:
-     + a boolean may be compared with another boolean or a location;
-     + an integer may be compared with another integer or a location;
-     + an immutable block may be compared with another immutable block or a location.
-
-   This means we never physically compare, e.g., a boolean and an integer, an integer and an immutable block.
-   If we wanted to allow it, we would have to extend the semantics of physical comparison to account for conflicts in the memory representation of values.
-
-   This also means a location may be compared with anything.
-   In particular, comparing a location [Val (ValLoc l)] — as obtained with [Block Mutable tag es] — and an immutable block [ValBlock tag vs] — as obtained with [Block Immutable tag es] — is allowed.
-*)
-
 From stdpp Require Import
   gmap.
 
@@ -36,6 +19,7 @@ Implicit Types b : bool.
 Implicit Types tag : nat.
 Implicit Types n m : Z.
 Implicit Types l : location.
+Implicit Types gen : generativity.
 Implicit Types mut : mutability.
 Implicit Types lit : literal.
 Implicit Types x : binder.
@@ -58,19 +42,68 @@ Definition literal_physical lit :=
   | LitPoison =>
       False
   end.
-#[global] Arguments literal_physical !_ / : assert.
+#[global] Arguments literal_physical !_ / : simpl nomatch, assert.
 
-Definition val_physical v :=
-  match v with
-  | ValLit lit =>
-      literal_physical lit
-  | _ =>
-      True
-  end.
-#[global] Arguments val_physical !_ / : assert.
+#[global] Instance literal_nonsimilar : Nonsimilar literal :=
+  λ lit1 lit2,
+    match lit1 with
+    | LitBool b1 =>
+        match lit2 with
+        | LitBool b2 =>
+            b1 ≠ b2
+        | _ =>
+            True
+        end
+    | LitInt n1 =>
+        match lit2 with
+        | LitInt n2 =>
+            n1 ≠ n2
+        | _ =>
+            True
+        end
+    | LitLoc l1 =>
+        match lit2 with
+        | LitLoc l2 =>
+            l1 ≠ l2
+        | _ =>
+            True
+        end
+    | _ =>
+        True
+    end.
 
-Class ValPhysical v :=
-  val_physical' : val_physical v.
+#[global] Instance literal_nonsimilar_dec : RelDecision (≉@{literal}).
+Proof.
+  unshelve refine (
+    λ lit1 lit2,
+      match lit1 with
+      | LitBool b1 =>
+          match lit2 with
+          | LitBool b2 =>
+              decide (b1 ≠ b2)
+          | _ =>
+              left _
+          end
+      | LitInt n1 =>
+          match lit2 with
+          | LitInt n2 =>
+              decide (n1 ≠ n2)
+          | _ =>
+              left _
+          end
+      | LitLoc l1 =>
+          match lit2 with
+          | LitLoc l2 =>
+              decide (l1 ≠ l2)
+          | _ =>
+              left _
+          end
+      | _ =>
+          left _
+      end
+  ).
+  all: abstract done.
+Defined.
 
 #[global] Instance val_nonsimilar : Nonsimilar val :=
   λ v1 v2,
@@ -78,25 +111,20 @@ Class ValPhysical v :=
     | ValLit lit1 =>
         match v2 with
         | ValLit lit2 =>
-            lit1 ≠ lit2
+            lit1 ≉ lit2
         | _ =>
             True
         end
-    | ValBlock bid1 tag1 vs1 =>
+    | ValBlock Generative tag1 vs1 =>
+        True
+    | ValBlock Nongenerative tag1 vs1 =>
         match v2 with
-        | ValBlock bid2 tag2 vs2 =>
-            match bid1, bid2 with
-            | Some bid1, Some bid2 =>
-                bid1 ≠ bid2 ∨
-                tag1 ≠ tag2 ∨
-                vs1 ≠ vs2
+        | ValBlock Nongenerative tag2 vs2 =>
+            match vs1, vs2 with
+            | [], [] =>
+                tag1 ≠ tag2
             | _, _ =>
-                match vs1, vs2 with
-                | [], [] =>
-                    tag1 ≠ tag2
-                | _, _ =>
-                    True
-                end
+                True
             end
         | _ =>
             True
@@ -114,28 +142,106 @@ Proof.
           match v2 with
           | ValLit lit2 =>
               cast_if
-                (decide (lit1 ≠ lit2))
+                (decide (lit1 ≉ lit2))
           | _ =>
               left _
           end
-      | ValBlock bid1 tag1 vs1 =>
+      | ValBlock Generative tag1 vs1 =>
+          left _
+      | ValBlock Nongenerative tag1 vs1 =>
           match v2 with
-          | ValBlock bid2 tag2 vs2 =>
-              match bid1, bid2 with
-              | Some bid1, Some bid2 =>
-                  cast_if_or3
-                    (decide (bid1 ≠ bid2))
-                    (decide (tag1 ≠ tag2))
-                    (decide (vs1 ≠ vs2))
+          | ValBlock Nongenerative tag2 vs2 =>
+              match vs1, vs2 with
+              | [], [] =>
+                  decide (tag1 ≠ tag2)
               | _, _ =>
-                  match vs1, vs2 with
-                  | [], [] =>
-                      cast_if
-                        (decide (tag1 ≠ tag2))
-                  | _, _ =>
-                      left _
-                  end
+                  left _
               end
+          | _ =>
+              left _
+          end
+      | _ =>
+          left _
+      end
+  ).
+  all: abstract done.
+Defined.
+
+#[global] Instance literal_similar : Similar literal :=
+  λ lit1 lit2,
+    match lit1 with
+    | LitBool b1 =>
+        match lit2 with
+        | LitBool b2 =>
+            b1 = b2
+        | LitLoc _ =>
+            False
+        | _ =>
+            True
+        end
+    | LitInt n1 =>
+        match lit2 with
+        | LitInt n2 =>
+            n1 = n2
+        | LitLoc _ =>
+            False
+        | _ =>
+            True
+        end
+    | LitLoc l1 =>
+        match lit2 with
+        | LitBool _
+        | LitInt _ =>
+            False
+        | LitLoc l2 =>
+            l1 = l2
+        | _ =>
+            True
+        end
+    | _ =>
+        True
+    end.
+
+#[global] Instance literal_similar_reflexive :
+  Reflexive (≈@{literal}).
+Proof.
+  intros []; done.
+Qed.
+#[global] Instance literal_similar_sym :
+  Symmetric (≈@{literal}).
+Proof.
+  do 2 intros []; done.
+Qed.
+#[global] Instance literal_similar_dec : RelDecision (≈@{literal}).
+Proof.
+  unshelve refine (
+    λ lit1 lit2,
+      match lit1 with
+      | LitBool b1 =>
+          match lit2 with
+          | LitBool b2 =>
+              decide (b1 = b2)
+          | LitLoc _ =>
+              right _
+          | _ =>
+              left _
+          end
+      | LitInt n1 =>
+          match lit2 with
+          | LitInt n2 =>
+              decide (n1 = n2)
+          | LitLoc _ =>
+              right _
+          | _ =>
+              left _
+          end
+      | LitLoc l1 =>
+          match lit2 with
+          | LitBool _
+          | LitInt _ =>
+              right _
+          | LitLoc l2 =>
+              decide (l1 = l2)
           | _ =>
               left _
           end
@@ -148,29 +254,58 @@ Defined.
 
 #[global] Instance val_similar : Similar val :=
   λ v1 v2,
-    match v1, v2 with
-    | ValLit lit1, ValLit lit2 =>
-        lit1 = lit2
-    | ValRecs i1 recs1, ValRecs i2 recs2 =>
-        i1 = i2 ∧
-        recs1 = recs2
-    | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
-        match bid1, bid2 with
-        | Some bid1, Some bid2 =>
-            bid1 = bid2
-        | _, _ =>
+    match v1 with
+    | ValLit lit1 =>
+        match v2 with
+        | ValLit lit2 =>
+            lit1 ≈ lit2
+        | ValRecs _ _ =>
+            False
+        | ValBlock _ _ _ =>
+            match lit1 with
+            | LitLoc _ =>
+                False
+            | _ =>
+                True
+            end
+        end
+    | ValRecs _ _ =>
+        match v2 with
+        | ValRecs _ _ =>
             True
-        end ∧
-        tag1 = tag2 ∧
-        vs1 = vs2
-    | _, _ =>
-        False
+        | _ =>
+            False
+        end
+    | ValBlock gen1 tag1 vs1 =>
+        match v2 with
+        | ValLit lit2 =>
+            match lit2 with
+            | LitLoc _ =>
+                False
+            | _ =>
+                True
+            end
+        | ValRecs _ _ =>
+            False
+        | ValBlock gen2 tag2 vs2 =>
+            match gen1, gen2 with
+            | Generative, Nongenerative
+            | Nongenerative, Generative =>
+                False
+            | Generative, Generative =>
+                tag1 = tag2 ∧
+                vs1 = vs2
+            | Nongenerative, Nongenerative =>
+                tag1 = tag2 ∧
+                length vs1 = length vs2
+            end
+        end
     end.
 
 #[global] Instance val_similar_reflexive :
   Reflexive (≈@{val}).
 Proof.
-  intros [| | []] => //.
+  intros [| | []]; naive_solver.
 Qed.
 #[global] Instance val_similar_sym :
   Symmetric (≈@{val}).
@@ -187,28 +322,54 @@ Qed.
 Proof.
   unshelve refine (
     λ v1 v2,
-      match v1, v2 with
-      | ValLit lit1, ValLit lit2 =>
-          cast_if
-            (decide (lit1 = lit2))
-      | ValRecs i1 recs1, ValRecs i2 recs2 =>
-          cast_if_and
-            (decide (i1 = i2))
-            (decide (recs1 = recs2))
-      | ValBlock bid1 tag1 vs1, ValBlock bid2 tag2 vs2 =>
-            match bid1, bid2 with
-            | Some bid1, Some bid2 =>
-                cast_if_and3
-                  (decide (bid1 = bid2))
-                  (decide (tag1 = tag2))
-                  (decide (vs1 = vs2))
-            | _, _ =>
-                cast_if_and
-                  (decide (tag1 = tag2))
-                  (decide (vs1 = vs2))
-            end
-      | _, _ =>
-          right _
+      match v1 with
+      | ValLit lit1 =>
+          match v2 with
+          | ValLit lit2 =>
+              decide (lit1 ≈ lit2)
+          | ValRecs _ _ =>
+              right _
+          | ValBlock _ _ _ =>
+              match lit1 with
+              | LitLoc _ =>
+                  right _
+              | _ =>
+                  left _
+              end
+          end
+      | ValRecs _ _ =>
+          match v2 with
+          | ValRecs _ _ =>
+              left _
+          | _ =>
+              right _
+          end
+      | ValBlock gen1 tag1 vs1 =>
+          match v2 with
+          | ValLit lit2 =>
+                match lit2 with
+                | LitLoc _ =>
+                    right _
+                | _ =>
+                    left _
+                end
+          | ValRecs _ _ =>
+              right _
+          | ValBlock gen2 tag2 vs2 =>
+              match gen1, gen2 with
+              | Generative, Nongenerative
+              | Nongenerative, Generative =>
+                  right _
+              | Generative, Generative =>
+                  cast_if_and
+                    (decide (tag1 = tag2))
+                    (decide (vs1 = vs2))
+              | Nongenerative, Nongenerative =>
+                  cast_if_and
+                    (decide (tag1 = tag2))
+                    (decide (length vs1 = length vs2))
+              end
+          end
       end
   ).
   all: abstract naive_solver.
@@ -267,13 +428,13 @@ Definition eval_binop op v1 v2 :=
 Definition eval_app recs x v e :=
   foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) (subst' x v e) recs.
 
-Fixpoint eval_match bid tag sz (vs : location + list val) x_fb e_fb brs :=
+Fixpoint eval_match tag sz (vs : location + generativity * list val) x_fb e_fb brs :=
   let subj :=
     match vs with
     | inl l =>
         ValLoc l
-    | inr vs =>
-        ValBlock bid tag vs
+    | inr (gen, vs) =>
+        ValBlock gen tag vs
     end
   in
   match brs with
@@ -289,13 +450,13 @@ Fixpoint eval_match bid tag sz (vs : location + list val) x_fb e_fb brs :=
               Some res
             else
               None
-        | inr vs =>
+        | inr (_, vs) =>
             Some $ subst_list pat.(pattern_fields) vs res
         end
       else
-        eval_match bid tag sz vs x_fb e_fb brs
+        eval_match tag sz vs x_fb e_fb brs
   end.
-#[global] Arguments eval_match _ _ _ !_ _ _ !_ / : assert.
+#[global] Arguments eval_match _ _ !_ _ _ !_ / : assert.
 
 Record header := Header {
   header_tag : nat ;
@@ -439,8 +600,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_equal_fail v1 v2 σ :
-      val_physical v1 →
-      val_physical v2 →
       v1 ≉ v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -450,7 +609,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ
         []
   | base_step_equal_suc v1 v2 σ :
-      val_physical v1 →
       v1 ≈ v2 →
       base_step
         (Equal (Val v1) (Val v2))
@@ -504,26 +662,18 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_alloc l (Header tag (length es)) vs σ)
         []
-  | base_step_block_immutable tag es vs σ :
+  | base_step_block_immutable gen tag es vs σ :
       es = of_vals vs →
       base_step
-        (Block Immutable tag es)
+        (Block (Immutable gen) tag es)
         σ
         []
-        (Val $ ValBlock None tag vs)
-        σ
-        []
-  | base_step_reveal tag vs σ bid :
-      base_step
-        (Reveal $ Val $ ValBlock None tag vs)
-        σ
-        []
-        (Val $ ValBlock (Some bid) tag vs)
+        (Val $ ValBlock gen tag vs)
         σ
         []
   | base_step_match_mutable l hdr x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
-      eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
+      eval_match hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
       base_step
         (Match (Val $ ValLoc l) x e brs)
         σ
@@ -531,10 +681,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         e'
         σ
         []
-  | base_step_match_immutable bid tag vs x e brs e' σ :
-      eval_match bid tag (length vs) (inr vs) x e brs = Some e' →
+  | base_step_match_immutable gen tag vs x e brs e' σ :
+      eval_match tag (length vs) (inr (gen, vs)) x e brs = Some e' →
       base_step
-        (Match (Val $ ValBlock bid tag vs) x e brs)
+        (Match (Val $ ValBlock gen tag vs) x e brs)
         σ
         []
         e'
@@ -549,10 +699,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_tag))
         σ
         []
-  | base_step_get_tag_immutable cid tag vs σ :
+  | base_step_get_tag_immutable gen tag vs σ :
       0 < length vs →
       base_step
-        (GetTag $ Val $ ValBlock cid tag vs)
+        (GetTag $ Val $ ValBlock gen tag vs)
         σ
         []
         (Val $ ValInt tag)
@@ -567,10 +717,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValInt hdr.(header_size))
         σ
         []
-  | base_step_get_size_immutable cid tag vs σ :
+  | base_step_get_size_immutable gen tag vs σ :
       0 < length vs →
       base_step
-        (GetSize $ Val $ ValBlock cid tag vs)
+        (GetSize $ Val $ ValBlock gen tag vs)
         σ
         []
         (Val $ ValInt (length vs))
@@ -585,10 +735,10 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val v)
         σ
         []
-  | base_step_get_field_immutable cid tag vs (fld : nat) v σ :
+  | base_step_get_field_immutable gen tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
-        (Load (Val $ ValBlock cid tag vs) (Val $ ValInt fld))
+        (Load (Val $ ValBlock gen tag vs) (Val $ ValInt fld))
         σ
         []
         (Val v)
@@ -614,8 +764,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_cas_fail l fld v1 v2 v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
-      val_physical v →
-      val_physical v1 →
       v ≉ v1 →
       base_step
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
@@ -626,8 +774,6 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_cas_suc l fld v1 v2 v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
-      val_physical v →
-      val_physical v1 →
       v ≈ v1 →
       base_step
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
@@ -691,17 +837,6 @@ Proof.
   1: rewrite -(location_add_0 l).
   all: apply Hfresh; lia.
 Qed.
-Lemma base_step_reveal' tag vs σ :
-  base_step
-    (Reveal $ Val $ ValBlock None tag vs)
-    σ
-    []
-    (Val $ ValBlock (Some inhabitant) tag vs)
-    σ
-    [].
-Proof.
-  apply base_step_reveal.
-Qed.
 Lemma base_step_block_mutable' tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
@@ -757,7 +892,6 @@ Inductive ectxi :=
   | CtxAlloc1 v2
   | CtxAlloc2 e1
   | CtxBlock mut tag es vs
-  | CtxReveal
   | CtxMatch x e1 brs
   | CtxGetTag
   | CtxGetSize
@@ -813,8 +947,6 @@ Fixpoint ectxi_fill k e : expr :=
       Alloc e1 e
   | CtxBlock mut tag es vs =>
       Block mut tag $ es ++ e :: of_vals vs
-  | CtxReveal =>
-      Reveal e
   | CtxMatch x e1 brs =>
       Match e x e1 brs
   | CtxGetTag =>

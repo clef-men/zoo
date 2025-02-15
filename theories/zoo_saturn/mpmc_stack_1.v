@@ -8,7 +8,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  lst.
+  glst.
 From zoo_saturn Require Export
   base
   mpmc_stack_1__code.
@@ -47,7 +47,7 @@ Section zoo_G.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ᵣ lst_to_val vs ∗
+    l ↦ᵣ glst_to_val vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
@@ -220,7 +220,7 @@ Section zoo_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(:inv_inner =')".
       wp_cas as _ | Hcas; first iSteps.
-      destruct vs'; first naive_solver. apply (inj lst_to_val _ (_ :: _)) in Hcas as [= -> ->].
+      destruct vs'; first naive_solver. apply (inj glst_to_val _ (_ :: _)) in Hcas as [= -> ->].
       iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
@@ -239,7 +239,7 @@ Section zoo_G.
       mpmc_stack_1_snapshot t @ ↑ι
     <<<
       mpmc_stack_1_model t vs
-    | RET lst_to_val vs;
+    | RET glst_to_val vs;
       True
     >>>.
   Proof.

@@ -4,20 +4,21 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
+  goption
   array
   domain.
 From zoo Require Import
   options.
 
 Notation "'data'" := (
-  in_type "t" 0
+  in_type "zoo_saturn.bag_1.t" 0
 )(in custom zoo_field
 ).
 Notation "'front'" := (
-  in_type "t" 1
+  in_type "zoo_saturn.bag_1.t" 1
 )(in custom zoo_field
 ).
 Notation "'back'" := (
-  in_type "t" 2
+  in_type "zoo_saturn.bag_1.t" 2
 )(in custom zoo_field
 ).

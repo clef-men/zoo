@@ -11,38 +11,38 @@ From zoo Require Import
   options.
 
 Notation "'Null'" := (
-  in_type "producers_" 0
+  in_type "zoo_saturn.bag_2.producers_" 0
 )(in custom zoo_tag
 ).
 Notation "'Node'" := (
-  in_type "producers_" 1
+  in_type "zoo_saturn.bag_2.producers_" 1
 )(in custom zoo_tag
 ).
 
 Notation "'next'" := (
-  in_type "producers___Node" 0
+  in_type "zoo_saturn.bag_2.producers___Node" 0
 )(in custom zoo_field
 ).
 Notation "'queue'" := (
-  in_type "producers___Node" 1
+  in_type "zoo_saturn.bag_2.producers___Node" 1
 )(in custom zoo_field
 ).
 
 Notation "'producer_queue'" := (
-  in_type "producer" 0
+  in_type "zoo_saturn.bag_2.producer" 0
 )(in custom zoo_proj
 ).
 Notation "'producer_node'" := (
-  in_type "producer" 1
+  in_type "zoo_saturn.bag_2.producer" 1
 )(in custom zoo_proj
 ).
 
 Notation "'consumer_queue'" := (
-  in_type "consumer" 0
+  in_type "zoo_saturn.bag_2.consumer" 0
 )(in custom zoo_field
 ).
 
 Notation "'producers'" := (
-  in_type "t" 0
+  in_type "zoo_saturn.bag_2.t" 0
 )(in custom zoo_field
 ).

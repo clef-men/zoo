@@ -196,7 +196,7 @@ Section pure_exec.
   #[local] Ltac solve_exec_puredet :=
     intros;
     invert_base_step;
-    naive_solver.
+    try naive_solver.
   #[local] Ltac solve_pure_exec :=
     intros ?; destruct_and?;
     apply nsteps_once, pure_base_step_pure_step;
@@ -311,56 +311,68 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_block tag1 tag2 :
+  #[global] Instance pure_equal_location_block l gen tag vs :
     PureExec
       True
       1
-      (Equal (Val $ ValBlock None tag1 []) (Val $ ValBlock None tag2 []))
+      (Equal (Val $ ValLoc l) (Val $ ValBlock gen tag vs))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_location gen tag vs l :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValBlock gen tag vs) (Val $ ValLoc l))
+      (Val $ ValBool false).
+  Proof.
+    destruct gen; solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_generative_nongenerative tag1 vs1 tag2 vs2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValBlock Generative tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_nongenerative_generative tag1 vs1 tag2 vs2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock Generative tag2 vs2))
+      (Val $ ValBool false).
+  Proof.
+    solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_empty tag1 tag2 :
+    PureExec
+      True
+      1
+      (Equal (Val $ ValBlock Nongenerative tag1 []) (Val $ ValBlock Nongenerative tag2 []))
       (Val $ ValBool (bool_decide (tag1 = tag2))).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_block_1 bid1 tag1 bid2 tag2 v2 vs2 :
+  #[global] Instance pure_equal_block_empty_1 gen1 tag1 gen2 tag2 v2 vs2 :
     PureExec
       True
       1
-      (Equal (Val $ ValBlock bid1 tag1 []) (Val $ ValBlock bid2 tag2 (v2 :: vs2)))
+      (Equal (Val $ ValBlock gen1 tag1 []) (Val $ ValBlock gen2 tag2 (v2 :: vs2)))
       (Val $ ValBool false).
   Proof.
-    solve_pure_exec.
-    repeat eexists.
-    apply base_step_equal_fail; [done.. |].
-    destruct bid1, bid2; naive_solver.
+    destruct gen1, gen2; solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_block_2 bid1 tag1 v1 vs1 bid2 tag2 :
+  #[global] Instance pure_equal_block_empty_2 gen1 tag1 v1 vs1 gen2 tag2 :
     PureExec
       True
       1
-      (Equal (Val $ ValBlock bid1 tag1 (v1 :: vs1)) (Val $ ValBlock bid2 tag2 []))
+      (Equal (Val $ ValBlock gen1 tag1 (v1 :: vs1)) (Val $ ValBlock gen2 tag2 []))
       (Val $ ValBool false).
   Proof.
-    solve_pure_exec.
-    repeat eexists.
-    apply base_step_equal_fail; [done.. |].
-    destruct bid1, bid2; naive_solver.
-  Qed.
-  #[global] Instance pure_equal_location_block l bid tag vs :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValLoc l) (Val $ ValBlock bid tag vs))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
-  Qed.
-  #[global] Instance pure_equal_block_location bid tag vs l :
-    PureExec
-      True
-      1
-      (Equal (Val $ ValBlock bid tag vs) (Val $ ValLoc l))
-      (Val $ ValBool false).
-  Proof.
-    solve_pure_exec.
+    destruct gen1, gen2; solve_pure_exec.
   Qed.
 
   #[global] Instance pure_if_true e1 e2 :
@@ -392,52 +404,52 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_block tag es vs :
+  #[global] Instance pure_block gen tag es vs :
     PureExec
       (to_vals es = Some vs)
       1
-      (Block Immutable tag es)
-      (Val $ ValBlock None tag vs).
+      (Block (Immutable gen) tag es)
+      (Val $ ValBlock gen tag vs).
   Proof.
     intros <-%of_to_vals.
     apply nsteps_once, pure_base_step_pure_step.
     split; [solve_exec_safe | solve_exec_puredet].
   Qed.
 
-  #[global] Instance pure_match bid tag vs x_fb e_fb brs e :
+  #[global] Instance pure_match gen tag vs x_fb e_fb brs e :
     PureExec
-      (eval_match bid tag (length vs) (inr vs) x_fb e_fb brs = Some e)
+      (eval_match tag (length vs) (inr (gen, vs)) x_fb e_fb brs = Some e)
       1
-      (Match (Val $ ValBlock bid tag vs) x_fb e_fb brs)
+      (Match (Val $ ValBlock gen tag vs) x_fb e_fb brs)
       e.
   Proof.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_get_tag bid tag vs :
+  #[global] Instance pure_get_tag gen tag vs :
     PureExec
       (0 < length vs)
       1
-      (GetTag $ Val $ ValBlock bid tag vs)
+      (GetTag $ Val $ ValBlock gen tag vs)
       (Val $ ValInt tag).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_get_size bid tag vs :
+  #[global] Instance pure_get_size gen tag vs :
     PureExec
       (0 < length vs)
       1
-      (GetSize $ Val $ ValBlock bid tag vs)
+      (GetSize $ Val $ ValBlock gen tag vs)
       (Val $ ValInt (length vs)).
   Proof.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_load bid tag vs (fld : nat) v :
+  #[global] Instance pure_load gen tag vs (fld : nat) v :
     PureExec
       (vs !! fld = Some v)
       1
-      (Load (Val $ ValBlock bid tag vs) (Val $ ValInt fld))
+      (Load (Val $ ValBlock gen tag vs) (Val $ ValInt fld))
       (Val v).
   Proof.
     solve_pure_exec.

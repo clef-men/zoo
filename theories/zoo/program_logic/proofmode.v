@@ -100,8 +100,6 @@ Section zoo_G.
 
   Lemma tac_wp_equal Δ Δ' K v1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    ValPhysical v1 →
-    ValPhysical v2 →
     ( v1 ≉ v2 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
@@ -110,7 +108,7 @@ Section zoo_G.
     ) →
     envs_entails Δ (WP fill K (v1 == v2) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => HΔ Hv1 Hv2 Hfail Hsuc.
+    rewrite envs_entails_unseal => HΔ Hfail Hsuc.
     rewrite into_laterN_env_sound -wp_bind -wp_equal //.
     apply bi.later_mono, bi.and_intro.
     all: repeat (rewrite bi.pure_wand_forall; apply bi.forall_intro => ?).
@@ -202,23 +200,10 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tac_wp_reveal Δ Δ' K tag vs E Φ :
-    MaybeIntoLaterNEnvs 1 Δ Δ' →
-    ( ∀ bid,
-      envs_entails Δ' (WP fill K (ValBlock (Some bid) tag vs) @ E {{ Φ }})
-    ) →
-    envs_entails Δ (WP fill K (Reveal $ ValBlock None tag vs) @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal => HΔ HΔ'.
-    rewrite into_laterN_env_sound -wp_bind -wp_reveal.
-    apply bi.forall_intro => bid.
-    rewrite (HΔ' bid) //.
-  Qed.
-
   Lemma tac_wp_match Δ Δ' id p K l hdr x_fb e_fb brs e E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
-    eval_match None hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
     envs_entails Δ' (WP fill K e @ E {{ Φ }}) →
     envs_entails Δ (WP fill K (Match #l x_fb e_fb brs) @ E {{ Φ }}).
   Proof.
@@ -327,8 +312,6 @@ Section zoo_G.
   Lemma tac_wp_cas Δ Δ' Δ'' id p K l fld dq v v1 v2 E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup_delete true id Δ' = Some (p, (l +ₗ fld) ↦{dq} v, Δ'')%I →
-    ValPhysical v →
-    ValPhysical v1 →
     ( v ≉ v1 →
       envs_entails Δ' (WP fill K #false @ E {{ Φ }})
     ) →
@@ -348,7 +331,7 @@ Section zoo_G.
     end →
     envs_entails Δ (WP fill K (CAS (#l, #fld)%V v1 v2) @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hv Hv1 Hfail Hsuc1 Hsuc2.
+    rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hfail Hsuc1 Hsuc2.
     destruct (envs_app _ _ _) as [Δ''' |] eqn:HΔ'''; last done.
     rewrite into_laterN_env_sound -wp_bind //=.
     iIntros "HΔ'".
@@ -557,9 +540,6 @@ Tactic Notation "wp_bind" open_constr(e_foc) :=
     ]
   ).
 
-#[local] Ltac solve_val_physical :=
-  try (fast_done || tc_solve).
-
 Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropattern(Hsuc) :=
   wp_pures;
   wp_start ltac:(fun e =>
@@ -570,14 +550,16 @@ Tactic Notation "wp_equal" "as" simple_intropattern(Hfail) "|" simple_intropatte
     | fail 1 "wp_equal: cannot find 'Equal' in" e
     ];
     [ tc_solve
-    | solve_val_physical
-    | solve_val_physical
     | intros Hfail;
       wp_finish
     | intros Hsuc;
       wp_finish
     ]
   ).
+Tactic Notation "wp_equal" "as" simple_intropattern(H) :=
+  wp_equal as H | H.
+Tactic Notation "wp_equal" :=
+  wp_equal as ?.
 
 Tactic Notation "wp_alloc" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl) :=
   let Hheader' := Hheader in
@@ -704,21 +686,6 @@ Tactic Notation "wp_ref" ident(l) "as" constr(Hl) :=
   wp_ref l as "_" Hl.
 Tactic Notation "wp_ref" ident(l) :=
   wp_ref l as "?".
-
-Tactic Notation "wp_reveal" simple_intropattern(bid) :=
-  wp_pures;
-  wp_start ltac:(fun e =>
-    first
-    [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_reveal _ _ K)
-      )
-    | fail 1 "wp_reveal: cannot find 'Reveal' in" e
-    ];
-    [ tc_solve
-    | intros bid;
-      wp_finish
-    ]
-  ).
 
 Tactic Notation "wp_match" :=
   wp_pures;
@@ -852,8 +819,6 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
       [ iAssumptionCore
       | fail 1 "wp_cas: cannot find" l "↦ ?"
       ]
-    | solve_val_physical
-    | solve_val_physical
     | intros Hfail;
       wp_finish
     | intros Hsuc;
@@ -863,6 +828,10 @@ Tactic Notation "wp_cas" "as" simple_intropattern(Hfail) "|" simple_intropattern
       wp_finish
     ]
   ).
+Tactic Notation "wp_cas" "as" simple_intropattern(H) :=
+  wp_cas as H | H.
+Tactic Notation "wp_cas" :=
+  wp_cas as ?.
 Ltac wp_cas_suc :=
   wp_pures;
   wp_start ltac:(fun e =>

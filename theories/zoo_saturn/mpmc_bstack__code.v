@@ -29,7 +29,7 @@ Definition mpmc_bstack_is_empty : val :=
 
 #[local] Definition __zoo_recs_0 := (
   recs: "push_aux" "t" "sz" "v" "front" =>
-    let: "new_front" := ‘Cons( "sz" + #1, "v", "front" ) in
+    let: "new_front" := ‘Cons[ "sz" + #1, "v", "front" ] in
     if: CAS "t".[front] "front" "new_front" then (
       #true
     ) else (
