@@ -34,6 +34,9 @@ Notation "(.≈ x2 )" := (
 )(only parsing
 ) : stdpp_scope.
 
+#[global] Instance list_similar X `{!Similar X} : Similar (list X) :=
+  Forall2 similar.
+
 Class Nonsimilar X :=
   nonsimilar : X → X → Prop.
 #[global] Arguments nonsimilar {_ _} !_ !_ / : simpl nomatch, assert.
