@@ -2168,10 +2168,9 @@ Section kcas_1_G.
       ∃∃ b,
       if b then
         ⌜vs = befores⌝ ∗
-        [∗ list] loc; after ∈ locs; afters, kcas_1_loc_model loc after
+        [∗ list] loc; v ∈ locs; afters, kcas_1_loc_model loc v
       else
-        ∃ i loc before v,
-        ⌜locs !! i = Some loc⌝ ∗
+        ∃ i before v,
         ⌜befores !! i = Some before⌝ ∗
         ⌜vs !! i = Some v⌝ ∗
         ⌜v ≠ before⌝ ∗
