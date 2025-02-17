@@ -461,6 +461,11 @@ Notation "‘ tag [ v1 , .. , vn ]" := (
   format "'[hv' ‘ tag [  '/  ' '[' v1 ']' '/' ,  .. '/' ,  '[' vn ']'  '/' ] ']'"
 ): val_scope.
 
+Notation "( v1 , v2 , .. , vn )" := (
+  Val (ValBlock Nongenerative 0 (@cons val v1%V (@cons val v2%V .. (@cons val vn%V (@nil val)) ..)))
+)(at level 0,
+  only printing
+) : expr_scope.
 Notation "( e1 , e2 , .. , en )" := (
   Block (Immutable Nongenerative) 0 (@cons expr e1%E (@cons expr e2%E .. (@cons expr en%E (@nil expr)) ..))
 )(at level 0
