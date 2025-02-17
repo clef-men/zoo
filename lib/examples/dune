@@ -1,0 +1,7 @@
+(library
+  (name examples)
+  (libraries
+    zoo_parabs
+  )
+  (flags (:standard -open Zoo_parabs))
+)

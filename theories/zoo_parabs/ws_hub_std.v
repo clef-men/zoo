@@ -1,7 +1,3 @@
-(* Based on:
-   https://github.com/ocaml-multicore/domainslib/blob/731f08891c87e788f2cc95f2a600328f6682a5e2/lib/multi_channel.ml
-*)
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -23,9 +19,11 @@ From zoo_std Require Import
   random_round
   domain.
 From zoo_parabs Require Export
-  ws_hub.
+  base
+  ws_hub_std__code.
 From zoo_parabs Require Import
-  ws_deques
+  ws_hub_std__types
+  ws_deques_public
   waiters.
 From zoo Require Import
   options.
@@ -35,153 +33,14 @@ Implicit Types l : location.
 Implicit Types v t until pred : val.
 Implicit Types vs : gmultiset val.
 
-#[local] Notation "'deques'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'rounds'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'waiters'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-#[local] Notation "'killed'" := (
-  in_type "t" 3
-)(in custom zoo_field
-).
-
-Section ws_deques.
-  Context `{zoo_G : !ZooG Σ}.
-  Context (ws_deques : ws_deques Σ).
-
-  Definition ws_hub_std_create : val :=
-    fun: "sz" =>
-      { ws_deques.(ws_deques_create) "sz",
-        array_unsafe_init "sz" (fun: <> => random_round_create (int_positive_part ("sz" - #1))),
-        waiters_create (),
-        #false
-      }.
-
-  #[local] Definition ws_hub_std_size : val :=
-    fun: "t" =>
-      array_size "t".{rounds}.
-
-  Definition ws_hub_std_killed : val :=
-    fun: "t" =>
-      "t".{killed}.
-
-  #[local] Definition ws_hub_std_notify : val :=
-    fun: "t" =>
-      waiters_notify "t".{waiters}.
-  #[local] Definition ws_hub_std_notify_all : val :=
-    fun: "t" =>
-      waiters_notify_many "t".{waiters} (ws_hub_std_size "t").
-
-  Definition ws_hub_std_push : val :=
-    fun: "t" "i" "v" =>
-      ws_deques.(ws_deques_push) "t".{deques} "i" "v" ;;
-      ws_hub_std_notify "t".
-
-  Definition ws_hub_std_pop : val :=
-    fun: "t" "i" =>
-      ws_deques.(ws_deques_pop) "t".{deques} "i".
-
-  #[local] Definition ws_hub_std_try_steal_once : val :=
-    fun: "t" "i" =>
-      let: "round" := array_unsafe_get "t".{rounds} "i" in
-      random_round_reset "round" ;;
-      ws_deques_steal_as ws_deques "t".{deques} "i" "round".
-
-  #[local] Definition ws_hub_std_try_steal : val :=
-    rec: "ws_hub_std_try_steal" "t" "i" "yield" "max_round" "until" =>
-      if: "max_round" ≤ #0 then
-        §Nothing
-      else
-        match: ws_hub_std_try_steal_once "t" "i" with
-        | Some "v" =>
-            ‘Something( "v" )
-        | None =>
-            if: "until" () then (
-             §Anything
-            ) else (
-              if: "yield" then domain_yield () else () ;;
-              "ws_hub_std_try_steal" "t" "i" "yield" ("max_round" - #1) "until"
-            )
-        end.
-
-  #[local] Definition ws_hub_std_steal_until_aux : val :=
-    rec: "ws_hub_std_steal_until_aux" "t" "i" "pred" =>
-      match: ws_hub_std_try_steal_once "t" "i" with
-      | Some <> as "res" =>
-          "res"
-      | None =>
-          if: "pred" () then (
-            §None
-          ) else (
-            domain_yield () ;;
-            "ws_hub_std_steal_until_aux" "t" "i" "pred"
-          )
-      end.
-  Definition ws_hub_std_steal_until : val :=
-    fun: "t" "i" "max_round_noyield" "pred" =>
-      match: ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred" with
-      | Something "v" =>
-          ‘Some( "v" )
-      | Anything =>
-          §None
-      | Nothing =>
-          ws_hub_std_steal_until_aux "t" "i" "pred"
-      end.
-
-  #[local] Definition ws_hub_std_steal_aux : val :=
-    fun: "t" "i" "max_round" "until" =>
-      match: ws_hub_std_try_steal "t" "i" #false "max_round".<0> "until" with
-      | Something <> as "res" =>
-          "res"
-      | Anything =>
-          §Anything
-      | Nothing =>
-          ws_hub_std_try_steal "t" "i" #true "max_round".<1> "until"
-      end.
-  Definition ws_hub_std_steal : val :=
-    rec: "ws_hub_std_steal" "t" "i" "max_round" =>
-      match: ws_hub_std_steal_aux "t" "i" "max_round" (fun: <> => ws_hub_std_killed "t") with
-      | Something "v" =>
-          ‘Some( "v" )
-      | Anything =>
-          §None
-      | Nothing =>
-          let: "waiters" := "t".{waiters} in
-          let: "waiter" := waiters_prepare_wait "waiters" in
-          match: ws_hub_std_try_steal_once "t" "i" with
-          | Some <> as "res" =>
-              waiters_cancel_wait "waiters" "waiter" ;;
-              "res"
-          | None =>
-              if: ws_hub_std_killed "t" then (
-                waiters_cancel_wait "waiters" "waiter" ;;
-                §None
-              ) else (
-                waiters_commit_wait "waiters" "waiter" ;;
-                "ws_hub_std_steal" "t" "i" "max_round"
-              )
-          end
-      end.
-
-  Definition ws_hub_std_kill : val :=
-    fun: "t" =>
-      "t" <-{killed} #true ;;
-      ws_hub_std_notify_all "t".
-End ws_deques.
-
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
+  #[local] ws_hub_std_G_deques_G :: WsDequesPublicG Σ ;
   #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
   #[local] ws_hub_std_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
 }.
 
 Definition ws_hub_std_Σ := #[
+  ws_deques_public_Σ ;
   waiters_Σ ;
   twins_Σ (leibnizO (gmultiset val))
 ].
@@ -194,7 +53,6 @@ Qed.
 
 Section ws_hub_std_G.
   Context `{ws_hub_std_G : WsHubStdG Σ}.
-  Context (ws_deques : ws_deques Σ).
 
   Record metadata := {
     metadata_size : nat ;
@@ -229,7 +87,7 @@ Section ws_hub_std_G.
     ∃ vs vss killed,
     ⌜vs = foldr (λ vs_deques vs, list_to_set_disj vs_deques ⊎ vs) ∅ vss⌝ ∗
     l.[killed] ↦ #killed ∗
-    ws_deques.(ws_deques_model) γ.(metadata_deques) vss ∗
+    ws_deques_public_model γ.(metadata_deques) vss ∗
     model₂ γ vs.
   Definition ws_hub_std_inv t ι : iProp Σ :=
     ∃ l γ,
@@ -238,12 +96,11 @@ Section ws_hub_std_G.
     l.[deques] ↦□ γ.(metadata_deques) ∗
     l.[rounds] ↦□ γ.(metadata_rounds) ∗
     l.[waiters] ↦□ γ.(metadata_waiters) ∗
-    ws_deques.(ws_deques_inv) γ.(metadata_deques) (ι.@"deques") γ.(metadata_size) ∗
+    ws_deques_public_inv γ.(metadata_deques) (ι.@"deques") γ.(metadata_size) ∗
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
     waiters_inv γ.(metadata_waiters) ∗
     inv (ι.@"inv") (inv_inner l γ).
 
-  #[using="ws_deques"]
   Definition ws_hub_std_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -254,7 +111,7 @@ Section ws_hub_std_G.
     ∃ l γ round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ws_deques.(ws_deques_owner) γ.(metadata_deques) i ∗
+    ws_deques_public_owner γ.(metadata_deques) i ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
 
@@ -300,7 +157,7 @@ Section ws_hub_std_G.
   Proof.
     iIntros "(%l & %γ & %rounds & %n & -> & #Hmeta & Howner1 & _) (%_l & %_γ & %_rounds & %_n & %Heq & #_Hmeta & Howner2 & _)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iApply (ws_deques_owner_exclusive with "Howner1 Howner2").
+    iApply (ws_deques_public_owner_exclusive with "Howner1 Howner2").
   Qed.
 
   Lemma ws_hub_std_create_spec ι sz :
@@ -308,7 +165,7 @@ Section ws_hub_std_G.
     {{{
       True
     }}}
-      ws_hub_std_create ws_deques #sz
+      ws_hub_std_create #sz
     {{{ t,
       RET t;
       ws_hub_std_inv t ι ∗
@@ -335,7 +192,7 @@ Section ws_hub_std_G.
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
     rewrite Hrounds.
 
-    wp_smart_apply (ws_deques_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
+    wp_smart_apply (ws_deques_public_create_spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
 
     wp_block l as "Hmeta" "(Hl_deques & Hl_rounds & Hl_waiters & Hl_killed & _)".
     iMod (pointsto_persist with "Hl_deques") as "#Hl_deques".
@@ -441,7 +298,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_push ws_deques t #i v @ ↑ι
+      ws_hub_std_push t #i v @ ↑ι
     <<<
       ws_hub_std_model t ({[+v+]} ⊎ vs)
     | RET ();
@@ -453,7 +310,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_apply (ws_deques_push_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
+    awp_apply (ws_deques_public_push_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -486,7 +343,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_pop ws_deques t #i @ ↑ι
+      ws_hub_std_pop t #i @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -506,7 +363,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_smart_apply (ws_deques_pop_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
+    awp_smart_apply (ws_deques_public_pop_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -558,7 +415,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_try_steal_once ws_deques t #i @ ↑ι
+      ws_hub_std_try_steal_once t #i @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -581,8 +438,8 @@ Section ws_hub_std_G.
     wp_smart_apply (random_round_reset_spec' with "Hround") as "Hround".
     wp_load.
 
-    iDestruct (ws_deques_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
-    awp_apply (ws_deques_steal_as_spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
+    iDestruct (ws_deques_public_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
+    awp_apply (ws_deques_public_steal_as_spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
     iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -636,7 +493,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_try_steal ws_deques t #i #yield #max_round until @ ↑ι
+      ws_hub_std_try_steal t #i #yield #max_round until @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -704,7 +561,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until_aux ws_deques t #i pred @ ↑ι
+      ws_hub_std_steal_until_0 t #i pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -763,7 +620,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until ws_deques t #i #max_round_noyield pred @ ↑ι
+      ws_hub_std_steal_until t #i #max_round_noyield pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -817,7 +674,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_aux ws_deques t #i (#max_round_noyield, #max_round_yield)%V until @ ↑ι
+      ws_hub_std_steal_aux t #i #max_round_noyield #max_round_yield until @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -866,7 +723,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal ws_deques t #i (#max_round_noyield, #max_round_yield)%V @ ↑ι
+      ws_hub_std_steal t #i #max_round_noyield #max_round_yield @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -961,17 +818,110 @@ Section ws_hub_std_G.
     wp_smart_apply ws_hub_std_notify_all_spec as "_"; first iSteps.
     iSteps.
   Qed.
+End ws_hub_std_G.
 
-  Definition ws_hub_std :=
-    Build_ws_hub
-      ws_hub_std_owner_exclusive
-      ws_hub_std_create_spec
-      ws_hub_std_push_spec
-      ws_hub_std_pop_spec
-      ws_hub_std_steal_until_spec
-      ws_hub_std_steal_spec
-      ws_hub_std_killed_spec
-      ws_hub_std_kill_spec.
+#[global] Opaque ws_hub_std_inv.
+#[global] Opaque ws_hub_std_model.
+#[global] Opaque ws_hub_std_owner.
+
+Section ws_hub_std_G.
+  Context `{ws_hub_std_G : WsHubStdG Σ}.
+
+  Lemma ws_hub_std_pop_steal_until_spec P t ι i i_ max_round_noyield pred :
+    i = ⁺i_ →
+    (0 ≤ max_round_noyield)%Z →
+    <<<
+      ws_hub_std_inv t ι ∗
+      ws_hub_std_owner t i_ ∗
+      □ WP pred () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_pop_steal_until t #i #max_round_noyield pred @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_std_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_ ∗
+      if o then True else P
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hpred) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
+
+    - iRight. iExists (Some v). iFrame.
+      iIntros "HΦ !> Howner". clear.
+
+      iSpecialize ("HΦ" with "[$Howner]").
+      iSteps.
+
+    - iLeft. iFrame.
+      iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
+
+      wp_smart_apply (ws_hub_std_steal_until_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
+  Qed.
+
+  Lemma ws_hub_std_pop_steal_spec t ι i i_ max_round_noyield max_round_yield :
+    i = ⁺i_ →
+    (0 ≤ max_round_noyield)%Z →
+    (0 ≤ max_round_yield)%Z →
+    <<<
+      ws_hub_std_inv t ι ∗
+      ws_hub_std_owner t i_
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_pop_steal t #i #max_round_noyield #max_round_yield @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_std_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
+
+    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+      iRight. iExists (Some v). iStep.
+      iIntros "HΦ !> Howner". clear.
+
+      iSpecialize ("HΦ" with "Howner").
+      iSteps.
+
+    - iLeft. iFrame.
+      iIntros "HΦ !> Howner". clear- Hmax_round_noyield Hmax_round_yield.
+
+      wp_smart_apply (ws_hub_std_steal_spec with "[$Hinv $Howner] HΦ"); done.
+  Qed.
 End ws_hub_std_G.
 
 #[global] Opaque ws_hub_std_create.
@@ -981,7 +931,5 @@ End ws_hub_std_G.
 #[global] Opaque ws_hub_std_steal_until.
 #[global] Opaque ws_hub_std_steal.
 #[global] Opaque ws_hub_std_kill.
-
-#[global] Opaque ws_hub_std_inv.
-#[global] Opaque ws_hub_std_model.
-#[global] Opaque ws_hub_std_owner.
+#[global] Opaque ws_hub_std_pop_steal_until.
+#[global] Opaque ws_hub_std_pop_steal.

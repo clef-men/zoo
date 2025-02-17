@@ -1,7 +1,3 @@
-(* Based on:
-   https://inria.hal.science/hal-01409022v1
-*)
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
@@ -20,9 +16,10 @@ From zoo_std Require Import
 From zoo_saturn Require Import
   mpmc_stack_2.
 From zoo_parabs Require Export
-  base.
+  base
+  vertex__code.
 From zoo_parabs Require Import
-  ws_hub
+  vertex__types
   pool.
 From zoo Require Import
   options.
@@ -31,56 +28,6 @@ Implicit Types closed : bool.
 Implicit Types preds : nat.
 Implicit Types vtx succ : location.
 Implicit Types run : val.
-
-#[local] Notation "'task'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'preds'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'succs'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-
-Definition vertex_create : val :=
-  fun: "task" =>
-    { "task",
-      #1,
-      mpmc_stack_2_create ()
-    }.
-
-Definition vertex_precede : val :=
-  fun: "t1" "t2" =>
-    let: "succs1" := "t1".{succs} in
-    if: ~ mpmc_stack_2_is_closed "succs1" then (
-      FAA "t2".[preds] #1 ;;
-      if: mpmc_stack_2_push "succs1" "t2" then (
-        FAA "t2".[preds] #(-1) ;;
-        ()
-      )
-    ).
-
-Section ws_hub.
-  Context `{zoo_G : !ZooG Σ}.
-  Context (ws_hub : ws_hub Σ).
-
-  #[local] Definition vertex_propagate : val :=
-    fun: "ctx" "t" "run" =>
-      if: FAA "t".[preds] #(-1) == #1 then
-        pool_silent_async ws_hub "ctx" (fun: "ctx" => "run" "ctx" "t").
-  #[local] Definition vertex_run : val :=
-    rec: "vertex_run" "ctx" "t" =>
-      "t".{task} "ctx" ;;
-      clst_iter (fun: "t'" =>
-        vertex_propagate "ctx" "t'" "vertex_run"
-      ) (mpmc_stack_2_close "t".{succs}).
-  Definition vertex_release : val :=
-    fun: "ctx" "t" =>
-      vertex_propagate "ctx" "t" vertex_run.
-End ws_hub.
 
 Inductive state :=
   | Init
@@ -120,7 +67,6 @@ Qed.
 
 Section vertex_G.
   Context `{vertex_G : VertexG Σ}.
-  Context (ws_hub : ws_hub Σ).
 
   Implicit Types P Q : iProp Σ.
 
@@ -203,10 +149,10 @@ Section vertex_G.
         state₂ γ Released ∗
         dependencies γ false (Δ ∪ Π) ∗
         ( ∀ ctx,
-          pool_context ws_hub ctx -∗
+          pool_context ctx -∗
           □ (∀ Q E, input' γ Q ={E}=∗ □ Q) -∗
           WP γ.(metadata_task) ctx {{ res,
-            pool_context ws_hub ctx ∗
+            pool_context ctx ∗
             ▷ □ P
           }}
         )
@@ -516,29 +462,29 @@ Section vertex_G.
 
   #[local] Lemma vertex_propagate_spec ctx vtx γ P π Q run :
     {{{
-      pool_context ws_hub ctx ∗
+      pool_context ctx ∗
       inv' vtx γ P ∗
       saved_prop π Q ∗
       predecessor γ π ∗
       □ Q ∗
       ( ∀ ctx,
-        pool_context ws_hub ctx -∗
+        pool_context ctx -∗
         state₂ γ Running -∗
-        ( pool_context ws_hub ctx -∗
+        ( pool_context ctx -∗
           WP γ.(metadata_task) ctx {{ res,
-            pool_context ws_hub ctx ∗
+            pool_context ctx ∗
             ▷ □ P
           }}
         ) -∗
         WP run ctx #vtx {{ res,
-          pool_context ws_hub ctx
+          pool_context ctx
         }}
       )
     }}}
-      vertex_propagate ws_hub ctx #vtx run
+      vertex_propagate ctx #vtx run
     {{{
       RET ();
-      pool_context ws_hub ctx
+      pool_context ctx
     }}}.
   Proof.
     setoid_rewrite inv'_unfold.
@@ -617,20 +563,20 @@ Section vertex_G.
   Qed.
   #[local] Lemma vertex_run_spec ctx vtx γ P :
     {{{
-      pool_context ws_hub ctx ∗
+      pool_context ctx ∗
       inv' vtx γ P ∗
       state₂ γ Running ∗
-      ( pool_context ws_hub ctx -∗
+      ( pool_context ctx -∗
         WP γ.(metadata_task) ctx {{ res,
-          pool_context ws_hub ctx ∗
+          pool_context ctx ∗
           ▷ □ P
         }}
       )
     }}}
-      vertex_run ws_hub ctx #vtx
+      vertex_run ctx #vtx
     {{{
       RET ();
-      pool_context ws_hub ctx
+      pool_context ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (ctx vtx γ P).
@@ -653,7 +599,7 @@ Section vertex_G.
     iIntros "!> H£ (Hctx & HΦ)". clear.
 
     iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-    wp_smart_apply (clst_iter_spec (λ _, pool_context ws_hub ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+    wp_smart_apply (clst_iter_spec (λ _, pool_context ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
     rewrite big_sepL_fmap.
     iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
     wp_smart_apply (vertex_propagate_spec with "[$Hinv_succ $Hctx $Hπ $Hpred $HP]"); last iSteps.
@@ -663,22 +609,22 @@ Section vertex_G.
   Qed.
   Lemma vertex_release_spec ctx t P task :
     {{{
-      pool_context ws_hub ctx ∗
+      pool_context ctx ∗
       vertex_inv t P ∗
       vertex_init t task ∗
       ( ∀ ctx,
-        pool_context ws_hub ctx -∗
+        pool_context ctx -∗
         □ (∀ Q E, vertex_input t Q ={E}=∗ □ Q) -∗
         WP task ctx {{ res,
-          pool_context ws_hub ctx ∗
+          pool_context ctx ∗
           ▷ □ P
         }}
       )
     }}}
-      vertex_release ws_hub ctx t
+      vertex_release ctx t
     {{{
       RET ();
-      pool_context ws_hub ctx
+      pool_context ctx
     }}}.
   Proof.
     rewrite /vertex_inv. setoid_rewrite inv'_unfold.

@@ -1,7 +1,3 @@
-(* Based on:
-   https://inria.hal.science/hal-00863028
-*)
-
 From zoo Require Import
   prelude.
 From zoo.language Require Import
@@ -12,159 +8,16 @@ From zoo_std Require Import
   option
   array
   deque
-  domain.
+  random_round.
 From zoo_parabs Require Export
-  ws_deques.
+  base
+  ws_deques_private__code.
 From zoo Require Import
   options.
 
-Implicit Types v t : val.
+Implicit Types v t round : val.
 Implicit Types vs : list val.
 Implicit Types vss : list (list val).
-
-Parameter array_cas : val.
-
-#[local] Notation "'Blocked'" := (
-  in_type "request" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'No_request'" := (
-  in_type "request" 1
-)(in custom zoo_tag
-).
-#[local] Notation "'Request'" := (
-  in_type "request" 2
-)(in custom zoo_tag
-).
-
-#[local] Notation "'No_response'" := (
-  in_type "response" 0
-)(in custom zoo_tag
-).
-#[local] Notation "'No'" := (
-  in_type "response" 1
-)(in custom zoo_tag
-).
-#[local] Notation "'Yes'" := (
-  in_type "response" 2
-)(in custom zoo_tag
-).
-
-#[local] Notation "'deques'" := (
-  in_type "t" 0
-)(in custom zoo_field
-).
-#[local] Notation "'flags'" := (
-  in_type "t" 1
-)(in custom zoo_field
-).
-#[local] Notation "'requests'" := (
-  in_type "t" 2
-)(in custom zoo_field
-).
-#[local] Notation "'responses'" := (
-  in_type "t" 3
-)(in custom zoo_field
-).
-
-Definition ws_deques_private_create : val :=
-  fun: "sz" =>
-    { array_init "sz" deque_create,
-      array_make "sz" #false,
-      array_make "sz" §Blocked,
-      array_make "sz" §No_response
-    }.
-
-Definition ws_deques_private_size : val :=
-  fun: "t" =>
-    array_size "t".{deques}.
-
-#[local] Definition ws_deques_private_block_aux : val :=
-  fun: "t" "i" "j" =>
-    array_unsafe_set "t".{responses} "j" §No ;;
-    array_unsafe_set "t".{requests} "i" §Blocked.
-#[local] Definition ws_deques_private_block : val :=
-  fun: "t" "i" =>
-    array_unsafe_set "t".{flags} "i" #false ;;
-    let: "requests" := "t".{requests} in
-    match: array_unsafe_get "requests" "i" with
-    | Blocked =>
-        ()
-    | No_request =>
-        if: ~ array_cas "requests" "i" §No_request §Blocked then
-          match: array_unsafe_get "requests" "i" with
-          | Request "j" =>
-              ws_deques_private_block_aux "t" "i" "j"
-          |_ =>
-              () (* unreachable *)
-          end
-    | Request "j" =>
-        ws_deques_private_block_aux "t" "i" "j"
-    end.
-
-#[local] Definition ws_deques_private_unblock : val :=
-  fun: "t" "i" =>
-    array_unsafe_set "t".{requests} "i" §No_request ;;
-    array_unsafe_set "t".{flags} "i" "true".
-
-#[local] Definition ws_deques_private_respond : val :=
-  fun: "t" "i" =>
-    let: "deque" := array_unsafe_get "t".{deques} "i" in
-    let: "requests" := "t".{requests} in
-    match: array_unsafe_get "requests" "i" with
-    | Request "j" =>
-        let: ‘Some "v" := deque_pop_front "deque" in
-        array_unsafe_set "t".{responses} "j" ‘Yes( "v" ) ;;
-        array_unsafe_set "requests" "i" (if: deque_is_empty "deque" then §Blocked else §No_request)
-    |_ =>
-        ()
-    end.
-
-Definition ws_deques_private_push : val :=
-  fun: "t" "i" "v" =>
-    deque_push_back (array_unsafe_get "t".{deques} "i") "v" ;;
-    if: array_unsafe_get "t".{flags} "i" then (
-      ws_deques_private_respond "t" "i"
-    ) else (
-      ws_deques_private_unblock "t" "i"
-    ).
-
-Definition ws_deques_private_pop : val :=
-  fun: "t" "i" =>
-    let: "deque" := array_unsafe_get "t".{deques} "i" in
-    let: "res" := deque_pop_back "deque" in
-    match: "res" with
-    | None =>
-        ()
-    | Some <> =>
-        if: deque_is_empty "deque" then (
-          ws_deques_private_block "t" "i"
-        ) else (
-          ws_deques_private_respond "t" "i"
-        )
-    end ;;
-    "res".
-
-#[local] Definition ws_deques_private_steal_to_aux : val :=
-  rec: "ws_deques_private_steal_to_aux" "t" "i" =>
-    let: "responses" := "t".{responses} in
-    match: array_unsafe_get "responses" "i" with
-    | No_response =>
-        domain_yield () ;;
-        "ws_deques_private_steal_to_aux" "t" "i"
-    | No =>
-        §None
-    | Yes "v" =>
-        array_unsafe_set "responses" "i" §No_response ;;
-        ‘Some( "v" )
-    end.
-Definition ws_deques_private_steal_to : val :=
-  fun: "t" "i" "j" =>
-    if: array_unsafe_get "t".{flags} "j" and array_cas "t".{requests} "j" §No_request ‘Request( "i" ) then (
-      ws_deques_private_steal_to_aux "t" "i"
-    ) else (
-      §None
-    ).
 
 Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
 }.
@@ -335,15 +188,35 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
-  Definition ws_deques_private :=
-    Build_ws_deques
-      ws_deques_private_owner_valid
-      ws_deques_private_owner_exclusive
-      ws_deques_private_create_spec
-      ws_deques_private_size_spec
-      ws_deques_private_push_spec
-      ws_deques_private_pop_spec
-      ws_deques_private_steal_to_spec.
+  Lemma ws_deques_private_steal_as_spec t ι sz i i_ round :
+    i = ⁺i_ →
+    0 < sz →
+    <<<
+      ws_deques_private_inv t ι sz ∗
+      ws_deques_private_owner t i_ ∗
+      random_round_model' round (sz - 1) (sz - 1)
+    | ∀∀ vss,
+      ws_deques_private_model t vss
+    >>>
+      ws_deques_private_steal_as t #i round @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_deques_private_model t vss
+      | Some v =>
+          ∃ j vs,
+          ⌜₊i ≠ j⌝ ∗
+          ⌜vss !! j = Some (v :: vs)⌝ ∗
+          ws_deques_private_model t (<[j := vs]> vss)
+      end
+    | RET o;
+      ∃ n,
+      ws_deques_private_owner t i_ ∗
+      random_round_model' round (sz - 1) n
+    >>>.
+  Proof.
+  Admitted.
 End ws_deques_private_G.
 
 #[global] Opaque ws_deques_private_create.
@@ -351,6 +224,7 @@ End ws_deques_private_G.
 #[global] Opaque ws_deques_private_push.
 #[global] Opaque ws_deques_private_pop.
 #[global] Opaque ws_deques_private_steal_to.
+#[global] Opaque ws_deques_private_steal_as.
 
 #[global] Opaque ws_deques_private_inv.
 #[global] Opaque ws_deques_private_model.

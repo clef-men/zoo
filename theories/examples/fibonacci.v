@@ -5,8 +5,9 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_parabs Require Import
-  ws_hub
   pool.
+From examples Require Export
+  fibonacci__code.
 From zoo Require Import
   options.
 
@@ -51,30 +52,16 @@ Qed.
 
 Section pool_G.
   Context `{pool_G : SchedulerG Σ}.
-  Context (ws_hub : ws_hub Σ).
 
-  #[local] Definition fibonacci_aux : val :=
-    rec: "fibonacci_aux" "n" "ctx" =>
-      if: "n" ≤ #1 then (
-        "n"
-      ) else (
-        let: "fut1" := pool_async ws_hub "ctx" (fun: "ctx" => "fibonacci_aux" ("n" - #1) "ctx") in
-        let: "fut2" := pool_async ws_hub "ctx" (fun: "ctx" => "fibonacci_aux" ("n" - #2) "ctx") in
-        pool_await ws_hub "ctx" "fut1" + pool_await ws_hub "ctx" "fut2"
-      ).
-  Definition fibonacci : val :=
-    fun: "n" "pool" =>
-      pool_run ws_hub "pool" (fun: "ctx" => fibonacci_aux "n" "ctx").
-
-  #[local] Lemma fibonacci_aux_spec n ctx :
+  #[local] Lemma fibonacci_fibonacci_0_spec n ctx :
     (0 ≤ n)%Z →
     {{{
-      pool_context ws_hub ctx
+      pool_context ctx
     }}}
-      fibonacci_aux #n ctx
+      fibonacci_fibonacci_0 #n ctx
     {{{
       RET #(fib ₊n);
-      pool_context ws_hub ctx
+      pool_context ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).
@@ -86,11 +73,11 @@ Section pool_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_smart_apply (pool_async_spec _ (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
+    - wp_apply (pool_async_spec (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (pool_async_spec _ (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
+      wp_smart_apply (pool_async_spec (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
@@ -101,22 +88,22 @@ Section pool_G.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma fibonacci_spec (n : nat) pool :
+  Lemma fibonacci_fibonacci_spec (n : nat) pool :
     {{{
-      pool_model ws_hub pool
+      pool_model pool
     }}}
-      fibonacci #n pool
+      fibonacci_fibonacci #n pool
     {{{
       RET #(fib n);
-      pool_model ws_hub pool
+      pool_model pool
     }}}.
   Proof.
     iIntros "%Φ Hpool HΦ".
     wp_rec.
-    wp_smart_apply (pool_run_spec _ (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
-    wp_smart_apply (fibonacci_aux_spec with "Hctx"); first lia.
+    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
+    wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.
 End pool_G.
 
-#[global] Opaque fibonacci.
+#[global] Opaque fibonacci_fibonacci.

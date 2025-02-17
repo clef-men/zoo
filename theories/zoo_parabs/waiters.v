@@ -10,53 +10,13 @@ From zoo_std Require Import
 From zoo_saturn Require Import
   mpmc_queue_1.
 From zoo_parabs Require Export
-  base.
+  base
+  waiters__code.
 From zoo Require Import
   options.
 
 Implicit Types b : bool.
 Implicit Types v t : val.
-
-Definition waiters_create : val :=
-  mpmc_queue_1_create.
-
-#[local] Definition waiters_notify' : val :=
-  rec: "waiters_notify'" "t" =>
-    match: mpmc_queue_1_pop "t" with
-    | None =>
-        #false
-    | Some "waiter" =>
-        if: mpsc_waiter_notify "waiter" then
-          "waiters_notify'" "t"
-        else
-          #true
-    end.
-Definition waiters_notify : val :=
-  fun: "t" =>
-    waiters_notify' "t" ;;
-    ().
-Definition waiters_notify_many : val :=
-  rec: "waiters_notify_many" "t" "n" =>
-    if: "n" ≤ #0 then (
-      ()
-    ) else if: waiters_notify' "t" then (
-      "waiters_notify_many" "t" ("n" - #1)
-    ).
-
-Definition waiters_prepare_wait : val :=
-  fun: "t" =>
-    let: "waiter" := mpsc_waiter_create () in
-    mpmc_queue_1_push "t" "waiter" ;;
-    "waiter".
-
-Definition waiters_cancel_wait : val :=
-  fun: "t" "waiter" =>
-    if: mpsc_waiter_notify "waiter" then
-      waiters_notify "t".
-
-Definition waiters_commit_wait : val :=
-  fun: "t" "waiter" =>
-    mpsc_waiter_wait "waiter".
 
 Class WaitersG Σ `{zoo_G : !ZooG Σ} := {
   #[local] waiters_G_queue_G :: MpmcQueue1G Σ ;
@@ -183,7 +143,7 @@ Section waiters_G.
     iLöb as "HLöb" forall (n Hn).
 
     wp_rec. wp_pures.
-    case_bool_decide; first iSteps.
+    case_bool_decide; last iSteps.
     wp_smart_apply (waiters_notify'_spec with "Hinv") as ([]) "_"; last iSteps.
     wp_smart_apply ("HLöb" with "[] HΦ"); first iSteps.
   Qed.

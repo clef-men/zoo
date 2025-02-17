@@ -325,13 +325,26 @@ theories/zoo_saturn/htbl.v
 -Q theories/zoo_parabs zoo_parabs
 
 theories/zoo_parabs/base.v
-theories/zoo_parabs/ws_deques.v
+theories/zoo_parabs/ws_deques_public__types.v
+theories/zoo_parabs/ws_deques_public__code.v
 theories/zoo_parabs/ws_deques_public.v
+theories/zoo_parabs/ws_deques_private__types.v
+theories/zoo_parabs/ws_deques_private__code.v
 theories/zoo_parabs/ws_deques_private.v
+theories/zoo_parabs/waiters__types.v
+theories/zoo_parabs/waiters__code.v
 theories/zoo_parabs/waiters.v
-theories/zoo_parabs/ws_hub.v
+theories/zoo_parabs/ws_hub_fifo__types.v
+theories/zoo_parabs/ws_hub_fifo__code.v
+theories/zoo_parabs/ws_hub_fifo.v
+theories/zoo_parabs/ws_hub_std__types.v
+theories/zoo_parabs/ws_hub_std__code.v
 theories/zoo_parabs/ws_hub_std.v
+theories/zoo_parabs/pool__types.v
+theories/zoo_parabs/pool__code.v
 theories/zoo_parabs/pool.v
+theories/zoo_parabs/vertex__types.v
+theories/zoo_parabs/vertex__code.v
 theories/zoo_parabs/vertex.v
 
 #END zoo-parabs
@@ -339,6 +352,8 @@ theories/zoo_parabs/vertex.v
 #BEGIN examples
 -Q theories/examples examples
 
+theories/examples/fibonacci__types.v
+theories/examples/fibonacci__code.v
 theories/examples/fibonacci.v
 
 #END examples

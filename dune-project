@@ -42,6 +42,16 @@
 )
 
 (package
+  (name zoo_parabs)
+  (synopsis "Parabs")
+  (depends
+    zoo
+    zoo_std
+    zoo_saturn
+  )
+)
+
+(package
   (name zoo_eio)
   (synopsis "Eio")
   (depends
