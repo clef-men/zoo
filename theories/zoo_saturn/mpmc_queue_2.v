@@ -345,7 +345,7 @@ Section mpmc_queue_2_G.
     | ∀∀ vs,
       mpmc_queue_2_model t vs
     >>>
-      mpmc_queue_2_size t
+      mpmc_queue_2_size t @ ↑ι
     <<<
       mpmc_queue_2_model t vs
     | RET #(length vs);
@@ -360,7 +360,7 @@ Section mpmc_queue_2_G.
     | ∀∀ vs,
       mpmc_queue_2_model t vs
     >>>
-      mpmc_queue_2_is_empty t
+      mpmc_queue_2_is_empty t @ ↑ι
     <<<
       mpmc_queue_2_model t vs
     | RET #(bool_decide (vs = []%list));
