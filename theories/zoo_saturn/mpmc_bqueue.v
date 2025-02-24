@@ -501,7 +501,7 @@ Section mpmc_bqueue_G.
     | ∀∀ vs,
       mpmc_bqueue_model t vs
     >>>
-      mpmc_bqueue_size t
+      mpmc_bqueue_size t @ ↑ι
     <<<
       mpmc_bqueue_model t vs
     | RET #(length vs);
@@ -516,7 +516,7 @@ Section mpmc_bqueue_G.
     | ∀∀ vs,
       mpmc_bqueue_model t vs
     >>>
-      mpmc_bqueue_is_empty t
+      mpmc_bqueue_is_empty t @ ↑ι
     <<<
       mpmc_bqueue_model t vs
     | RET #(bool_decide (vs = []%list));
