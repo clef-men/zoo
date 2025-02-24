@@ -49,7 +49,8 @@ Coercion goptional_to_val o :=
 #[global] Instance goptional_to_val_inj_similar :
   Inj (=) (≈@{val}) goptional_to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros [] [] ?; try done.
+  zoo_simplifier. done.
 Qed.
 #[global] Instance goptional_to_val_inj :
   Inj (=) (=) goptional_to_val.

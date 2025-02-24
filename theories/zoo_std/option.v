@@ -31,7 +31,7 @@ Lemma option_to_val_similar_None_l o :
   §None%V ≈ o →
   o = None.
 Proof.
-  destruct o; naive_solver.
+  destruct o; done.
 Qed.
 Lemma option_to_val_similar_None_r o :
   (o : val) ≈ §None%V →

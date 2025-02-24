@@ -94,11 +94,12 @@ theories/zoo/iris/program_logic/atomic.v
 
 theories/zoo/language/location.v
 theories/zoo/language/syntax.v
+theories/zoo/language/metatheory.v
+theories/zoo/language/physical_equality.v
 theories/zoo/language/semantics.v
 theories/zoo/language/language.v
 theories/zoo/language/notations.v
 theories/zoo/language/tactics.v
-theories/zoo/language/metatheory.v
 theories/zoo/language/typeclasses.v
 # theories/zoo/language/prophecy_erasure.v
 
@@ -111,7 +112,7 @@ theories/zoo/program_logic/typed_prophet.v
 theories/zoo/program_logic/wise_prophet.v
 theories/zoo/program_logic/wise_prophets.v
 theories/zoo/program_logic/identifier.v
-theories/zoo/program_logic/structeq.v
+theories/zoo/program_logic/structural_equality.v
 
 theories/zoo/diaframe/hints.v
 theories/zoo/diaframe/specs.v

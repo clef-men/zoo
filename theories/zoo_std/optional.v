@@ -57,7 +57,7 @@ Lemma optional_to_val_similar_Nothing_l o :
   §Nothing%V ≈ o →
   o = Nothing.
 Proof.
-  destruct o; naive_solver.
+  destruct o; done.
 Qed.
 Lemma optional_to_val_similar_Nothing_r o :
   (o : val) ≈ §Nothing%V →
@@ -70,7 +70,7 @@ Lemma optional_to_val_similar_Anything_l o :
   §Anything%V ≈ o →
   o = Anything.
 Proof.
-  destruct o; naive_solver.
+  destruct o; done.
 Qed.
 Lemma optional_to_val_similar_Anything_r o :
   (o : val) ≈ §Anything%V →

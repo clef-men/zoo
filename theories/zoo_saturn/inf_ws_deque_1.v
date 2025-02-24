@@ -809,10 +809,10 @@ Section inf_ws_deque_1_G.
     (* do resolve *)
     wp_apply (wise_prophet_wp_resolve prophet (front, id) with "Hprophet_model"); [done.. |].
     (* CAS must fail as we are not the winner: [id ≠ id'] *)
-    wp_cas as _Hfront | ?; last simplify; last first.
+    wp_cas as _Hfront | ->%val_similar_nat; last first.
     { iModIntro. iIntros "%prophs' -> Hprophet_model".
       rewrite filter_app filter_cons_True // in Hprophs_lb.
-      destruct (filter _ past2) as [| (__front & id'')] eqn:Hpast2; first naive_solver.
+      simpl in *. destruct (filter _ past2) as [| (__front & id'')] eqn:Hpast2; first naive_solver.
       apply (f_equal head), head_Some_elem_of, elem_of_list_filter in Hpast2 as (-> & Hpast2).
       rewrite Forall_app !Forall_forall in Hpast. naive_solver lia.
     }
@@ -1157,7 +1157,7 @@ Section inf_ws_deque_1_G.
       (* do resolve *)
       wp_apply (wise_prophet_wp_resolve prophet (front1, id) with "Hprophet_model"); [done.. |].
       (* branching 3: CAS must fail as we have seen [front2] such that [front1 < front2] *)
-      wp_cas as _Hbranch3 | ?; last simplify; last first.
+      wp_cas as _Hbranch3 | ->%val_similar_nat; last first.
       { iDestruct (front_valid with "Hfront_auth Hfront_lb") as %?.
         lia.
       }

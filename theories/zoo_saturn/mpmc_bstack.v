@@ -398,7 +398,7 @@ Section mpmc_bstack_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(%vs' & Hl_front & Hmodel₂)".
       wp_cas as _ | Hcas; first iSteps.
-      destruct vs'; first naive_solver.
+      destruct vs'; first done.
       destruct Hcas as (_ & [= ->%(inj _) -> ->%(inj _)]).
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".

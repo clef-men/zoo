@@ -26,20 +26,6 @@ Implicit Types κ : list observation.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Lemma base_reducible_equal v1 v2 σ :
-    base_reducible (v1 == v2) σ.
-  Proof.
-    destruct
-      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
-      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
-    all: try (destruct (decide (b1 = b2)); first subst).
-    all: try (destruct (decide (n1 = n2)); first subst).
-    all: try (destruct (decide (l1 = l2)); first subst).
-    all: try (destruct (decide (tag1 = tag2)); first subst).
-    all: try (destruct (decide (v1 = v2)); first subst).
-    all: try (destruct (decide (vs1 = vs2)); first subst).
-    all: auto with zoo.
-  Qed.
   Lemma wp_equal v1 v2 E Φ :
     ▷ (
       ( ⌜v1 ≉ v2⌝ -∗
@@ -53,29 +39,13 @@ Section zoo_G.
   Proof.
     iIntros "HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
-    iSplit. { iPureIntro. apply base_reducible_equal; done. }
+    iSplit. { iPureIntro. apply base_reducible_equal. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !> !>".
-    destruct
-      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
-      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
-    all: try (destruct (decide (b1 = b2)); first subst).
-    all: try (destruct (decide (n1 = n2)); first subst).
-    all: try (destruct (decide (l1 = l2)); first subst).
-    all: try (destruct (decide (tag1 = tag2)); first subst).
-    all: try (destruct (decide (v1 = v2)); first subst).
-    all: try (destruct (decide (vs1 = vs2)); first subst).
-    all: invert_base_step; simplify; last try by exfalso.
-    all:
-      match goal with |- _ _ ?P =>
-        lazymatch P with
-        | context [false] =>
-            iDestruct "HΦ" as "(HΦ & _)";
-            iSteps
-        | context [true] =>
-            iDestruct "HΦ" as "(_ & HΦ)";
-            iSteps
-        end
-      end.
+    invert_base_step.
+    - iDestruct "HΦ" as "(HΦ & _)".
+      iSteps.
+    - iDestruct "HΦ" as "(_ & HΦ)".
+      iSteps.
   Qed.
 
   Lemma wp_alloc (tag : Z) n E :
@@ -224,21 +194,6 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma base_reducible_cas l fld v v1 v2 σ :
-    σ.(state_heap) !! (l +ₗ fld) = Some v →
-    base_reducible (CAS (#l, #fld)%V v1 v2) σ.
-  Proof.
-    destruct
-      v as [[b0 | n0 | l0 | |] | | [] tag0 [| v0 vs0]],
-      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]].
-    all: try (destruct (decide (b0 = b1)); first subst).
-    all: try (destruct (decide (n0 = n1)); first subst).
-    all: try (destruct (decide (l0 = l1)); first subst).
-    all: try (destruct (decide (tag0 = tag1)); first subst).
-    all: try (destruct (decide (v0 = v1)); first subst).
-    all: try (destruct (decide (vs0 = vs1)); first subst).
-    all: eauto with zoo.
-  Qed.
   Lemma wp_cas l fld dq v v1 v2 E Φ :
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
@@ -260,31 +215,15 @@ Section zoo_G.
     iIntros ">Hl HΦ".
     iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
     iDestruct (state_interp_pointsto_valid with "Hσ Hl") as %Hlookup.
-    iSplit. { iPureIntro. eapply base_reducible_cas; done. }
+    iSplit. { iPureIntro. eapply base_reducible_cas. done. }
     iIntros "%e2 %σ2 %es %Hstep _ !> !>".
-    destruct
-      v1 as [[b1 | n1 | l1 | |] | | [] tag1 [| v1 vs1]],
-      v2 as [[b2 | n2 | l2 | |] | | [] tag2 [| v2 vs2]].
-    all: try (destruct (decide (b1 = b2)); first subst).
-    all: try (destruct (decide (n1 = n2)); first subst).
-    all: try (destruct (decide (l1 = l2)); first subst).
-    all: try (destruct (decide (tag1 = tag2)); first subst).
-    all: try (destruct (decide (v1 = v2)); first subst).
-    all: try (destruct (decide (vs1 = vs2)); first subst).
-    all: invert_base_step; simplify; last try by exfalso.
-    all:
-      match goal with |- _ _ ?P =>
-        lazymatch P with
-        | context [false] =>
-            iDestruct "HΦ" as "(HΦ & _)";
-            iSteps
-        | context [true] =>
-            iDestruct "HΦ" as "(_ & HΦ)";
-            iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)";
-            iMod (state_interp_pointsto_update with "Hσ Hl") as "($ & Hl)";
-            iSteps
-        end
-      end.
+    invert_base_step.
+    - iDestruct "HΦ" as "(HΦ & _)".
+      iSteps.
+    - iDestruct "HΦ" as "(_ & HΦ)".
+      iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
+      iMod (state_interp_pointsto_update with "Hσ Hl") as "($ & Hl)".
+      iSteps.
   Qed.
   Lemma wp_cas_suc l fld lit lit1 v2 E :
     literal_physical lit →
@@ -352,44 +291,6 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma resolve_reducible e σ pid v :
-    Atomic e →
-    reducible e σ →
-    reducible (Resolve e #pid v) σ.
-  Proof.
-    intros A (κ & e' & σ' & es & H).
-    exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es.
-    eapply (base_step_fill_prim_step' []); try done.
-    assert (∃ w, Val w = e') as (w & <-).
-    { unfold Atomic in A. apply (A σ e' κ σ' es) in H. unfold is_Some in H.
-      destruct H as [w H]. exists w. simpl in H. apply (of_to_val _ _ H).
-    }
-    simpl. econstructor. apply prim_step_to_val_is_base_step. done.
-  Qed.
-  Lemma step_resolve e v1 v2 σ1 κ e2 σ2 es :
-    Atomic e →
-    prim_step (Resolve e v1 v2) σ1 κ e2 σ2 es →
-    base_step (Resolve e v1 v2) σ1 κ e2 σ2 es.
-  Proof.
-    intros A [K e1' e2' Hfill -> step]. simpl in *.
-    induction K as [| k K _] using rev_ind.
-    - simpl in *. subst. invert_base_step. constructor. done.
-    - rewrite fill_app /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
-      + assert (fill_item k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fill_app.
-        assert (fill_item k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fill_app.
-        rewrite fill_app /=. rewrite Heq1 in A.
-        assert (is_Some (to_val (fill (K ++ [k]) e2'))) as H.
-        { eapply (A σ1 _ κ σ2 es), (base_step_fill_prim_step' (K ++ [k])); done. }
-        destruct H as [v H]. apply to_val_fill_some in H. destruct H, K; done.
-      + rename select (of_val v1 = _) into Hv1.
-        assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
-        apply to_val_fill_some in Hfill_v1 as (-> & ->).
-        invert_base_step.
-      + rename select (of_val v2 = _) into Hv2.
-        assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
-        apply to_val_fill_some in Hfill_v2 as (-> & ->).
-        invert_base_step.
-  Qed.
   Lemma wp_resolve e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
@@ -407,16 +308,16 @@ Section zoo_G.
     iIntros "%nt %σ1 %κ %κs Hσ".
     destruct κ as [| (pid' & (w' & v')) κ' _] using rev_ind.
     - iMod ("H" with "Hσ") as "(%Hreducible & H)".
-      iSplitR. { iPureIntro. apply resolve_reducible; done. }
+      iSplitR. { iPureIntro. apply reducible_resolve; done. }
       iIntros "!> %e2 %σ2 %es %Hstep".
-      exfalso. apply step_resolve in Hstep; last done.
+      exfalso. apply prim_step_resolve_inv in Hstep; last done.
       invert_base_step.
       destruct κ; done.
     - rewrite -assoc.
       iMod ("H" with "Hσ") as "(%Hreducible & H)".
-      iSplitR. { iPureIntro. apply resolve_reducible; done. }
+      iSplitR. { iPureIntro. apply reducible_resolve; done. }
       iIntros "!> %e2 %σ2 %es %Hstep H£".
-      apply step_resolve in Hstep; last done.
+      apply prim_step_resolve_inv in Hstep; last done.
       invert_base_step. simplify_list_eq.
       iMod ("H" $! (Val w') σ2 es with "[%] H£") as "H".
       { eexists [] _ _; done. }

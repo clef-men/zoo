@@ -643,7 +643,7 @@ Section rcfd_G.
       wp_cas as Hcas.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate"; first naive_solver.
+        { destruct lstate2; iDecompose "Hlstate"; first done.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -653,7 +653,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (Closing _). iSteps. }
         iSteps.
 
-      + destruct state2; last naive_solver.
+      + destruct state2; last done.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate"; iSteps. }
         iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".
@@ -793,7 +793,7 @@ Section rcfd_G.
       wp_cas as Hcas.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
-        { destruct lstate2; iDecompose "Hlstate"; first naive_solver.
+        { destruct lstate2; iDecompose "Hlstate"; first done.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -803,7 +803,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (Closing _). iSteps. }
         iSteps. iApply ("HΦ" $! None). iSteps.
 
-      + destruct state2; last naive_solver.
+      + destruct state2; last done.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate"; iSteps. }
         iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".

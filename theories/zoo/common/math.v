@@ -3,6 +3,12 @@ From zoo Require Import
 From zoo Require Import
   options.
 
+#[global] Instance b2n_inj :
+  Inj (=) (=) Nat.b2n.
+Proof.
+  intros [] []; done.
+Qed.
+
 Definition nat_elim {A} (x : A) f n :=
   match n with
   | 0 =>

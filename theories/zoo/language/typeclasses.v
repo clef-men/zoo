@@ -327,11 +327,11 @@ Section pure_exec.
       (Equal (Val $ ValBlock gen tag vs) (Val $ ValLoc l))
       (Val $ ValBool false).
   Proof.
-    destruct gen; solve_pure_exec.
+    solve_pure_exec.
   Qed.
   #[global] Instance pure_equal_block_generative_nongenerative tag1 vs1 tag2 vs2 :
     PureExec
-      True
+      (0 < length vs1 ∨ 0 < length vs2)
       1
       (Equal (Val $ ValBlock Generative tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
       (Val $ ValBool false).
@@ -340,7 +340,7 @@ Section pure_exec.
   Qed.
   #[global] Instance pure_equal_block_nongenerative_generative tag1 vs1 tag2 vs2 :
     PureExec
-      True
+      (0 < length vs1 ∨ 0 < length vs2)
       1
       (Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock Generative tag2 vs2))
       (Val $ ValBool false).
@@ -363,7 +363,7 @@ Section pure_exec.
       (Equal (Val $ ValBlock gen1 tag1 []) (Val $ ValBlock gen2 tag2 (v2 :: vs2)))
       (Val $ ValBool false).
   Proof.
-    destruct gen1, gen2; solve_pure_exec.
+    solve_pure_exec.
   Qed.
   #[global] Instance pure_equal_block_empty_2 gen1 tag1 v1 vs1 gen2 tag2 :
     PureExec
@@ -372,7 +372,7 @@ Section pure_exec.
       (Equal (Val $ ValBlock gen1 tag1 (v1 :: vs1)) (Val $ ValBlock gen2 tag2 []))
       (Val $ ValBool false).
   Proof.
-    destruct gen1, gen2; solve_pure_exec.
+    solve_pure_exec.
   Qed.
 
   #[global] Instance pure_if_true e1 e2 :

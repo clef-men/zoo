@@ -636,12 +636,12 @@ Section mpmc_queue_1_G.
     iDestruct (xtchain_lookup with "Hhist") as "(Hhist1 & _ & Hnode & Hhist2)"; first done.
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
-    - wp_cas as _ | [].
+    - wp_cas as _ | [=].
       iDestruct (xtchain_lookup_2 with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].
       iSplitR "Hnew_back_next Hnew_back_data HΦ". { iFrameSteps. }
       iSteps.
 
-    - wp_cas as ? | _; first naive_solver.
+    - wp_cas as ? | _; first done.
       iDestruct (xtchain_lookup_2 with "Hhist1 Hnode_header Hnode []") as "Hhist"; [done | rewrite Hlookup' // | ..].
       { rewrite -(length_lookup_last hist i) // drop_all.
         iApply xtchain_nil.
@@ -753,7 +753,7 @@ Section mpmc_queue_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     iDestruct (history_agree with "Hhistory_auth Hhistory_at_new") as %Hlookup.
     iDestruct (xtchain_lookup_acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
-    wp_cas as _ | [= ->]; first iSteps.
+    wp_cas as _ | [= <-]; first iSteps.
     iDestruct ("Hhist" with "Hnode ") as "Hhist".
     iDestruct (history_agree with "Hhistory_auth Hhistory_at") as %Hlookup_old.
     iAssert ⌜length past1 = i⌝%I as %Hpast_length.

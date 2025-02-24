@@ -25,7 +25,8 @@ Coercion goption_to_val o :=
 #[global] Instance goption_to_val_inj_similar :
   Inj (=) (≈@{val}) goption_to_val.
 Proof.
-  intros [] []; naive_solver.
+  intros [] [] ?; try done.
+  zoo_simplifier. done.
 Qed.
 #[global] Instance goption_to_val_inj :
   Inj (=) (=) goption_to_val.

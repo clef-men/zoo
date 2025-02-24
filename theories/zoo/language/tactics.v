@@ -8,8 +8,6 @@ From zoo.language Require Export
 From zoo Require Import
   options.
 
-Create HintDb zoo.
-
 Ltac reshape_expr e tac :=
   let rec go K prophs e :=
     match e with
@@ -110,16 +108,127 @@ Ltac reshape_expr e tac :=
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
-Ltac invert_base_step :=
+Ltac zoo_simplifier :=
   repeat match goal with
   | _ =>
       progress simplify_map_eq/=
+
   | H: to_val _ = Some _ |- _ =>
       apply of_to_val in H
-  | H: base_step ?e _ _ _ _ _ |- _ =>
-     try (is_var e; fail 1);
-     invert H
+
+  | H: @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+      apply val_nonsimilar_bool in H
+  | H: val_nonsimilar (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+      apply val_nonsimilar_bool in H
+
+  | H: @nonsimilar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+      apply val_nonsimilar_nat in H
+  | H: val_nonsimilar (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+      apply val_nonsimilar_nat in H
+
+  | H: @nonsimilar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+      apply val_nonsimilar_int in H
+  | H: val_nonsimilar (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+      apply val_nonsimilar_int in H
+
+  | H: @nonsimilar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+      apply val_nonsimilar_location in H
+  | H: val_nonsimilar (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+      apply val_nonsimilar_location in H
+
+  | H: @nonsimilar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_nonsimilar_block_empty in H
+  | H: val_nonsimilar (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_nonsimilar_block_empty in H
+
+  | H: @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+      apply val_similar_bool in H
+  | H: val_similar (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+      apply val_similar_bool in H
+
+  | H: @similar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+      apply val_similar_nat in H
+  | H: val_similar (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+      apply val_similar_nat in H
+
+  | H: @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+      apply val_similar_int in H
+  | H: val_similar (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+      apply val_similar_int in H
+
+  | H: @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+      apply val_similar_location in H
+  | H: val_similar (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+      apply val_similar_location in H
+
+  | H: @similar val _ (ValBlock Generative _ _) (ValBlock Generative _ _) |- _ =>
+      apply val_similar_block_generative in H as (? & ?)
+  | H: val_similar (ValBlock Generative _ _) (ValBlock Generative _ _) |- _ =>
+      apply val_similar_block_generative in H as (? & ?)
+
+  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) |- _ =>
+      apply val_similar_block_nongenerative in H as (? & ?)
+  | H: val_similar (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) |- _ =>
+      apply val_similar_block_nongenerative in H as (? & ?)
+
+  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty in H
+  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty in H
+
+  | H: @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) |- _ =>
+      apply val_similar_location_block in H as []
+  | H: val_similar (ValLit (LitLoc _)) (ValBlock _ _ _) |- _ =>
+      apply val_similar_location_block in H as []
+
+  | H: @similar val _ (ValBlock _ _ _) (ValLit (LitLoc _)) |- _ =>
+      apply val_similar_block_location in H as []
+  | H: val_similar (ValBlock _ _ _) (ValLit (LitLoc _)) |- _ =>
+      apply val_similar_block_location in H as []
+
+  | H: @similar val _ (ValBlock Generative _ _) (ValBlock Nongenerative _ _) |- _ =>
+      apply val_similar_block_generative_nongenerative in H as []; done
+  | H: val_similar (ValBlock Generative _ _) (ValBlock Nongenerative _ _) |- _ =>
+      apply val_similar_block_generative_nongenerative in H as []; done
+
+  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock Generative _ _) |- _ =>
+      apply val_similar_block_nongenerative_generative in H as []; done
+  | H: val_similar (ValBlock Nongenerative _ _) (ValBlock Generative _ _) |- _ =>
+      apply val_similar_block_nongenerative_generative in H as []; done
+
+  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
+      apply val_similar_block_empty_1 in H as []
+  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
+      apply val_similar_block_empty_1 in H as []
+
+  | H: @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty_2 in H as []
+  | H: val_similar (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty_2 in H as []
   end.
+
+Ltac invert_base_step :=
+  simpl in *;
+  repeat match goal with
+  | H: base_step ?e _ _ _ _ _ |- _ =>
+      try (is_var e; fail 1);
+      invert H
+  end;
+  zoo_simplifier.
+
+Create HintDb zoo.
+
+#[global] Hint Resolve
+  val_similar_refl
+
+  base_reducible_no_obs_equal
+  base_reducible_equal
+  reducible_equal
+
+  base_reducible_no_obs_cas
+  base_reducible_cas
+  reducible_cas
+: zoo.
 
 #[global] Hint Extern 0 (
   @nonsimilar val _ _ _
@@ -157,7 +266,7 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_step (Equal _ _) _ _ _ _ _
 ) =>
-  eapply base_step_equal_suc;
+  eapply base_step_equal_success;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
@@ -181,7 +290,7 @@ Ltac invert_base_step :=
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _
 ) =>
-  eapply base_step_cas_suc;
+  eapply base_step_cas_success;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
