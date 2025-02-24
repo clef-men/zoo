@@ -153,3 +153,12 @@ Definition lst_forall : val :=
     | "v" :: "t" =>
         "pred" "v" and "forall" "pred" "t"
     end.
+
+Definition lst_exists : val :=
+  rec: "exists" "pred" "param" =>
+    match: "param" with
+    | [] =>
+        #false
+    | "v" :: "t" =>
+        "pred" "v" or "exists" "pred" "t"
+    end.

@@ -55,3 +55,6 @@ val map :
 
 val forall :
   ('a -> bool) -> 'a t -> bool
+
+val exists :
+  ('a -> bool) -> 'a t -> bool

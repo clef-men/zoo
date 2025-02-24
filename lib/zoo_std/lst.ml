@@ -98,3 +98,9 @@ let rec forall pred = function
       true
   | v :: t ->
       pred v && forall pred t
+
+let rec exists pred = function
+  | [] ->
+      false
+  | v :: t ->
+      pred v || exists pred t

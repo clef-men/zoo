@@ -1329,3 +1329,5 @@ End zoo_G.
 #[global] Opaque lst_iter.
 #[global] Opaque lst_mapi.
 #[global] Opaque lst_map.
+#[global] Opaque lst_forall.
+#[global] Opaque lst_exists.
