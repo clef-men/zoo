@@ -3,8 +3,6 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  structeq.
 From zoo_std Require Import
   domain.
 From zoo_saturn Require Import
@@ -71,7 +69,7 @@ Definition mpmc_bqueue_push_0 : val :=
         match: "new_back" with
         | Node <> <> <> <> as "new_back" =>
             let: "new_back_r" := "new_back" in
-            if: "cap" = #0 then (
+            if: "cap" == #0 then (
               match: "t".{front} with
               | Node <> <> <> <> as "front_r" =>
                   let: "cap" :=

@@ -62,7 +62,7 @@ let rec fix_back t back new_back =
 let rec push t back (new_back : (_, [`Node]) node) cap =
   let Node back_r = back in
   let (Node new_back_r as new_back) = new_back in
-  if cap = 0 then (
+  if cap == 0 then (
     let Node front_r = t.front in
     let cap = t.capacity - (back_r.index - front_r.index) in
     if cap <= 0 then (
