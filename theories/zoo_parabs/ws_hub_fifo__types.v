@@ -12,11 +12,11 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Notation "'queue'" := (
+Notation "'size'" := (
   in_type "zoo_parabs.ws_hub_fifo.t" 0
 )(in custom zoo_field
 ).
-Notation "'size'" := (
+Notation "'queue'" := (
   in_type "zoo_parabs.ws_hub_fifo.t" 1
 )(in custom zoo_field
 ).

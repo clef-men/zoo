@@ -16,7 +16,7 @@ From zoo Require Import
 
 Definition ws_hub_fifo_create : val :=
   fun: "sz" =>
-    { mpmc_queue_1_create (), "sz", waiters_create (), #false }.
+    { "sz", mpmc_queue_1_create (), waiters_create (), #false }.
 
 Definition ws_hub_fifo_size : val :=
   fun: "t" =>

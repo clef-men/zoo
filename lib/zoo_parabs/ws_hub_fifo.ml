@@ -1,13 +1,13 @@
 type 'a t =
-  { queue: 'a Mpmc_queue_1.t;
-    size: int;
+  { size: int;
+    queue: 'a Mpmc_queue_1.t;
     waiters: Waiters.t;
     mutable killed: bool;
   }
 
 let create sz =
-  { queue= Mpmc_queue_1.create ();
-    size= sz;
+  { size= sz;
+    queue= Mpmc_queue_1.create ();
     waiters= Waiters.create ();
     killed= false;
   }
