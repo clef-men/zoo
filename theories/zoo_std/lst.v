@@ -10,8 +10,9 @@ From zoo_std Require Export
 From zoo Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types i j : nat.
-Implicit Types v w t fn acc : val.
+Implicit Types v w t fn acc pred : val.
 Implicit Types vs vs_left vs_right ws : list val.
 
 Fixpoint plst_to_val nil vs :=
@@ -1306,6 +1307,90 @@ Section zoo_G.
     wp_smart_apply (lst_mapi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
+  Qed.
+
+  Lemma lst_forall_spec Ψ pred t vs :
+    lst_model' t vs →
+    {{{
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP pred v {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          Ψ i v b
+        }}
+      )
+    }}}
+      lst_forall pred t
+    {{{ b,
+      RET #b;
+      if b then
+        [∗ list] i ↦ v ∈ vs, Ψ i v true
+      else
+        ∃ i v,
+        ⌜vs !! i = Some v⌝ ∗
+        Ψ i v false
+    }}}.
+  Proof.
+    iInduction vs as [| v vs] "IH" forall (Ψ t).
+    all: iIntros (->) "%Φ #Hpred HΦ".
+    all: wp_rec.
+    - iSteps.
+    - wp_smart_apply (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+      { rewrite lookup_cons_Some. left. done. }
+      destruct b.
+      + wp_smart_apply ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
+        { iIntros "!> %i %w %Hlookup".
+          iSpecialize ("Hpred" $! (S i)).
+          iSteps.
+        }
+        * iSteps.
+        * iDestruct "HΨ" as "(%i & %w & %Hlookup & HΨ)".
+          iSteps. iExists (S i). iSteps.
+      + iSteps. iExists 0. iSteps.
+  Qed.
+
+  Lemma lst_exists_spec Ψ pred t vs :
+    lst_model' t vs →
+    {{{
+      □ (
+        ∀ i v,
+        ⌜vs !! i = Some v⌝ -∗
+        WP pred v {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          Ψ i v b
+        }}
+      )
+    }}}
+      lst_exists pred t
+    {{{ b,
+      RET #b;
+      if b then
+        ∃ i v,
+        ⌜vs !! i = Some v⌝ ∗
+        Ψ i v true
+      else
+        [∗ list] i ↦ v ∈ vs, Ψ i v false
+    }}}.
+  Proof.
+    iInduction vs as [| v vs] "IH" forall (Ψ t).
+    all: iIntros (->) "%Φ #Hpred HΦ".
+    all: wp_rec.
+    - iSteps.
+    - wp_smart_apply (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+      { rewrite lookup_cons_Some. left. done. }
+      destruct b.
+      + iSteps. iExists 0. iSteps.
+      + wp_smart_apply ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
+        { iIntros "!> %i %w %Hlookup".
+          iSpecialize ("Hpred" $! (S i)).
+          iSteps.
+        }
+        * iDestruct "HΨ" as "(%i & %w & %Hlookup & HΨ)".
+          iSteps. iExists (S i). iSteps.
+        * iSteps.
   Qed.
 End zoo_G.
 
