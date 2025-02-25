@@ -59,13 +59,16 @@ Definition kcas_1_finish : val :=
         kcas_1_finish "gid" "casn" §After
     | "cas" :: "continue" as "retry" =>
         let: "loc", "state" := "cas" in
+        let: "proph" := Proph in
         let: "old_state" := !"loc" in
         if: "state" == "old_state" then (
           "determine_as" "casn" "continue"
-        ) else if: "state".{before} != "eval" "old_state" then (
-          kcas_1_finish "gid" "casn" §Before
-        ) else (
+        ) else if:
+           Resolve ("state".{before} == "eval" "old_state") "proph" ()
+         then (
           "lock" "casn" "loc" "old_state" "state" "retry" "continue"
+        ) else (
+          kcas_1_finish "gid" "casn" §Before
         )
     end
   and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>

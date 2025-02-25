@@ -57,16 +57,15 @@ let rec determine_as casn cass =
       finish gid casn After
   | cas :: continue as retry ->
       let { loc; state } = cas in
-      (* let proph = Zoo.proph in *)
+      let proph = Zoo.proph in
       let old_state = Atomic.get loc in
       if state == old_state then
         determine_as casn continue
       else
-        if state.before != eval old_state then
-        (* if Zoo.resolve (state.before != eval old_state) proph () then *)
-          finish gid casn Before
-        else
+        if Zoo.resolve (state.before == eval old_state) proph () then
           lock casn loc old_state state retry continue
+        else
+          finish gid casn Before
 and[@inline] lock casn loc old_state state retry continue =
   match casn.status with
   | Before ->

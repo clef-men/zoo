@@ -77,11 +77,11 @@ Definition kcas_2_finish : val :=
         if: "state" == "old_state" then (
           "determine_as" "casn" "continue"
         ) else if:
-           Resolve ("state".{before} != "eval" "old_state") "proph" ()
+           Resolve ("state".{before} == "eval" "old_state") "proph" ()
          then (
-          kcas_2_finish "gid" "casn" §Before
-        ) else (
           "lock" "casn" "loc" "old_state" "state" "retry" "continue"
+        ) else (
+          kcas_2_finish "gid" "casn" §Before
         )
     end
   and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>

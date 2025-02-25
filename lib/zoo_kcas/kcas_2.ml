@@ -74,10 +74,10 @@ let rec determine_as casn cass =
       if state == old_state then
         determine_as casn continue
       else
-        if Zoo.resolve (state.before != eval old_state) proph () then
-          finish gid casn Before
-        else
+        if Zoo.resolve (state.before == eval old_state) proph () then
           lock casn loc old_state state retry continue
+        else
+          finish gid casn Before
 and[@inline] lock casn loc old_state state retry continue =
   match casn.status with
   | Before ->
