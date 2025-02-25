@@ -305,7 +305,7 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "!> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -358,7 +358,7 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "!> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -430,7 +430,7 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "!> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
+    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_load.
@@ -513,7 +513,7 @@ Section ws_hub_std_G.
     intros ->.
     iLöb as "HLöb" forall (max_round).
 
-    iIntros "%Hmax_round !> %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround) & #Huntil) HΦ". injection Heq as <-.
+    iIntros "%Hmax_round %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround) & #Huntil) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_pures.
@@ -577,7 +577,7 @@ Section ws_hub_std_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "!> %Φ (#Hinv & Howner & #Hpred) HΦ".
+    iIntros (->) "%Φ (#Hinv & Howner & #Hpred) HΦ".
 
     iLöb as "HLöb".
 
@@ -636,7 +636,7 @@ Section ws_hub_std_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hpred) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     wp_rec.
 
@@ -691,7 +691,7 @@ Section ws_hub_std_G.
       if o is Anything then P else True
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner & #Huntil) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner & #Huntil) HΦ".
 
     wp_rec.
 
@@ -738,7 +738,7 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
 
     iLöb as "HLöb".
 
@@ -857,7 +857,7 @@ Section ws_hub_std_G.
       if o then True else P
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield !> %Φ (#Hinv & Howner & #Hpred) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     wp_rec.
 
@@ -902,7 +902,7 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield !> %Φ (#Hinv & Howner) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
 

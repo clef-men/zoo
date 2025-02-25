@@ -102,7 +102,7 @@ Section inf_ws_deque_2_G.
       inf_ws_deque_2_owner t
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hinv & Howner) HΦ".
+    iIntros "%Φ (#Hinv & Howner) HΦ".
     wp_rec. wp_ref slot as "Hslot".
     awp_apply (inf_ws_deque_1_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
@@ -123,7 +123,7 @@ Section inf_ws_deque_2_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
     wp_rec.
     awp_smart_apply (inf_ws_deque_1_steal_spec with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
@@ -156,7 +156,7 @@ Section inf_ws_deque_2_G.
       inf_ws_deque_2_owner t
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hinv & Howner) HΦ".
+    iIntros "%Φ (#Hinv & Howner) HΦ".
     wp_rec.
     awp_smart_apply (inf_ws_deque_1_pop_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".

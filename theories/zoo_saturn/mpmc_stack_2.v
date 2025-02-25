@@ -153,7 +153,7 @@ Section zoo_G.
       | RET #(bool_decide (vs = None)); £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     iLöb as "HLöb".
 
@@ -232,7 +232,7 @@ Section zoo_G.
     | RET default Anything (option_to_optional ∘ head <$> vs); £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     iLöb as "HLöb".
 
@@ -315,7 +315,7 @@ Section zoo_G.
     | RET #(bool_decide (vs = None)); £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     wp_rec credit:"H£".
 
@@ -370,7 +370,7 @@ Section zoo_G.
     | RET from_option list_to_clist_open ClistClosed vs; £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
 
     wp_rec credit:"H£". wp_pures.
 

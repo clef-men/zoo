@@ -345,7 +345,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t None
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -415,7 +415,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t None
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -449,7 +449,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t (Some $ if vs is [] then [] else v :: vs)
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -497,7 +497,7 @@ Section mpsc_queue_3_G.
         True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -572,7 +572,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t None
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -638,7 +638,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t (Some $ tail vs)
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -679,7 +679,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_consumer t (Some vs)
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer open=)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_pures.

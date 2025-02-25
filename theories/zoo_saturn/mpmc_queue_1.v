@@ -588,7 +588,7 @@ Section mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec credit:"H£".
     wp_smart_apply (front_spec_strong true (λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "(#Hnode_header & #Hhistory_at & #Hfront_lb & %waiter & #Hwaiter & Hwaiters_at)".
@@ -621,7 +621,7 @@ Section mpmc_queue_1_G.
       history_at γ j new_back
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hmeta & #Hinv & #Hnode_header & #Hhistory_at & #Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hnode_header & #Hhistory_at & #Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
 
     iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at".
 
@@ -714,7 +714,7 @@ Section mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
     wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
@@ -739,7 +739,7 @@ Section mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 

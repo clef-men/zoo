@@ -2126,7 +2126,7 @@ Section kcas_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%γ & #Hloc_meta & #Hloc_inv') HΦ".
+    iIntros "%Φ (%γ & #Hloc_meta & #Hloc_inv') HΦ".
     iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "#Hloc_inv".
 
     wp_rec credit:"H£1".
@@ -2179,7 +2179,7 @@ Section kcas_1_G.
       True
     >>>.
   Proof.
-    iIntros (? ? Hnodup ->) "!> %Φ Hlocs_ HΦ".
+    iIntros (? ? Hnodup ->) "%Φ Hlocs_ HΦ".
     iDestruct (big_sepL_exists with "Hlocs_") as "(%γs & %Hγs & #Hlocs)". iClear "Hlocs_".
 
     wp_rec credit:"H£".

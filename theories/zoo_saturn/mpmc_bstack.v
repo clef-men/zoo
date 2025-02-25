@@ -202,7 +202,7 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
 
     wp_rec.
 
@@ -232,7 +232,7 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
 
     wp_rec.
 
@@ -284,7 +284,7 @@ Section mpmc_bstack_G.
     iDestruct "HLöb" as "(Hpush_aux & Hpush)".
     iSplit.
 
-    - iIntros "%sz %front %ws !> %Φ (-> & -> & %Hws & #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv)) HΦ".
+    - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv)) HΦ".
 
       wp_recs. wp_pures.
 
@@ -293,10 +293,7 @@ Section mpmc_bstack_G.
       wp_cas as _ | <-%lst_to_val_inj'.
 
       + iSplitR "HΦ"; first iSteps.
-        iModIntro.
-
-        iSteps. iModIntro.
-        wp_apply ("Hpush" with "[] HΦ"); first iSteps.
+        iSteps.
 
       + iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
@@ -308,7 +305,7 @@ Section mpmc_bstack_G.
         iSplitR "HΦ". { iExists (v :: vs). iSteps. rewrite Nat.sub_0_r //. }
         iSteps.
 
-    - iIntros "!> %Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    - iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
 
       wp_recs. wp_pures.
 
@@ -372,7 +369,7 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
 
     iLöb as "HLöb".
 

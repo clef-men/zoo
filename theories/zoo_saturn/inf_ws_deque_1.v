@@ -949,7 +949,7 @@ Section inf_ws_deque_1_G.
       inf_ws_deque_1_owner t
     >>>.
   Proof.
-    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec. wp_pures.
@@ -1073,7 +1073,7 @@ Section inf_ws_deque_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) HΦ".
     iLöb as "IH".
 
     wp_rec.
@@ -1403,7 +1403,7 @@ Section inf_ws_deque_1_G.
       inf_ws_deque_1_owner t
     >>>.
   Proof.
-    iIntros "!> %Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
     wp_rec.

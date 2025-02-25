@@ -465,7 +465,7 @@ Section mpsc_queue_1_G.
       mpsc_queue_1_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer suff=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer suff=)) HΦ". injection Heq as <-.
 
     iMod (inv_inner_history_at with "Hinv Hl_front_") as "(%i & Hl_front & #Hfront_header & #Hhistory_at)".
 
@@ -512,7 +512,7 @@ Section mpsc_queue_1_G.
       history_at γ j new_back
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hmeta & #Hinv & #Hnode_header & #Hhistory_at & #Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hnode_header & #Hhistory_at & #Hnew_back_header & Hnew_back_next & Hnew_back_data) HΦ".
 
     iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at".
 
@@ -605,7 +605,7 @@ Section mpsc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
     wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
@@ -631,7 +631,7 @@ Section mpsc_queue_1_G.
       mpsc_queue_1_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer suff=)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer suff=)) HΦ". injection Heq as <-.
 
     iLöb as "HLöb".
 

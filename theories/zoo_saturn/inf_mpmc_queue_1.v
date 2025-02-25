@@ -562,7 +562,7 @@ Section inf_mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -638,7 +638,7 @@ Section inf_mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
 
@@ -661,7 +661,7 @@ Section inf_mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_pures.
 
@@ -814,7 +814,7 @@ Section inf_mpmc_queue_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_pures.
 

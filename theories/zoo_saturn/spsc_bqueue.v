@@ -635,7 +635,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer t ws
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
@@ -673,7 +673,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
@@ -710,7 +710,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer t ws
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hinv & Hproducer) HΦ".
+    iIntros "%Φ (#Hinv & Hproducer) HΦ".
 
     wp_rec.
 
@@ -736,7 +736,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ (#Hinv & Hconsumer) HΦ".
+    iIntros "%Φ (#Hinv & Hconsumer) HΦ".
 
     wp_rec.
 
@@ -836,7 +836,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_producer t (if decide (length vs = cap) then ws else vs ++ [v])
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -983,7 +983,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.

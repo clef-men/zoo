@@ -155,7 +155,7 @@ Section zoo_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -194,7 +194,7 @@ Section zoo_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -243,7 +243,7 @@ Section zoo_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
 

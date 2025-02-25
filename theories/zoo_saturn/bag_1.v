@@ -196,7 +196,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "!> %Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
     iLöb as "HLöb".
@@ -245,7 +245,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
@@ -281,7 +281,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "!> %Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
     iLöb as "HLöb".
@@ -351,7 +351,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "%Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".

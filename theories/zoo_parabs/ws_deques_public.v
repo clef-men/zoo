@@ -167,7 +167,7 @@ Section ws_deques_public_G.
       ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros (->) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
+    iIntros (->) "%Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     wp_rec.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done | lia |].
@@ -210,7 +210,7 @@ Section ws_deques_public_G.
       ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros (->) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
+    iIntros (->) "%Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & (%_deques & %deque & %Hdeques_lookup & _Hdeques & Hdeque_owner)) HΦ".
     iDestruct (array_model_agree with "Hdeques _Hdeques") as %<-. iClear "_Hdeques".
     wp_rec.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done | lia |].
@@ -258,7 +258,7 @@ Section ws_deques_public_G.
       ws_deques_public_owner t i_
     >>>.
   Proof.
-    iIntros (-> Hj) "!> %Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & Howner) HΦ".
+    iIntros (-> Hj) "%Φ ((%deques & %Hdeques_length & #Hdeques & #Hdeques_inv) & Howner) HΦ".
     wp_rec.
     destruct (lookup_lt_is_Some_2 deques ₊j) as (deque & Hdeque_lookup); first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hdeques") as "_"; [lia | done.. |].
@@ -316,7 +316,7 @@ Section ws_deques_public_G.
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
-    iIntros (->) "!> %Φ (#Hinv & Howner & Hround) HΦ".
+    iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
     iDestruct (ws_deques_public_owner_valid with "Hinv Howner") as %Hi.
     iLöb as "HLöb" forall (n).
     wp_rec. wp_pures.
@@ -372,7 +372,7 @@ Section ws_deques_public_G.
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
-    iIntros (->) "%Hsz !> %Φ (#Hinv & Hround) HΦ".
+    iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
     wp_rec.
     wp_smart_apply (ws_deques_public_size_spec with "Hinv") as "_".
     wp_pures.

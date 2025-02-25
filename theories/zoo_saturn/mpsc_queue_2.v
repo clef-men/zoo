@@ -251,7 +251,7 @@ Section mpsc_queue_2_G.
       mpsc_queue_2_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
@@ -299,7 +299,7 @@ Section mpsc_queue_2_G.
       mpsc_queue_2_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load. wp_store.
@@ -330,7 +330,7 @@ Section mpsc_queue_2_G.
       True
     >>>.
   Proof.
-    iIntros "!> %Φ (:inv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
@@ -373,7 +373,7 @@ Section mpsc_queue_2_G.
       mpsc_queue_2_consumer t
     >>>.
   Proof.
-    iIntros "!> %Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:consumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.

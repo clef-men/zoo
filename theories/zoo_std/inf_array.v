@@ -313,7 +313,7 @@ Section inf_array_G.
       True
     >>>.
   Proof.
-    iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hl_mtx & #Hl_default & #Hmtx_inv) HΦ".
+    iIntros "% %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hl_mtx & #Hl_default & #Hmtx_inv) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
@@ -360,7 +360,7 @@ Section inf_array_G.
       True
     >>>.
   Proof.
-    iIntros "% !> %Φ Hinv HΦ".
+    iIntros "% %Φ Hinv HΦ".
     awp_apply (inf_array_get_spec with "Hinv"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; iSteps.
@@ -380,7 +380,7 @@ Section inf_array_G.
       True
     >>>.
   Proof.
-    iIntros "% !> %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hl_mtx & #Hl_default & #Hmtx_inv) HΦ".
+    iIntros "% %Φ (%l & %γ & %mtx & -> & #Hmeta & #Hl_mtx & #Hl_default & #Hmtx_inv) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
 
     wp_rec. wp_load.
@@ -423,7 +423,7 @@ Section inf_array_G.
       True
     >>>.
   Proof.
-    iIntros "% !> %Φ Hinv HΦ".
+    iIntros "% %Φ Hinv HΦ".
     awp_apply (inf_array_set_spec with "Hinv"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".

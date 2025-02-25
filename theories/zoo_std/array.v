@@ -891,7 +891,7 @@ Section zoo_G.
     >>>.
   Proof.
     rewrite /array_model.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec credit:"H£".
     iMod "HΦ" as "(%dq & %vs & (%l & -> & #Hheader & Hmodel) & _ & HΦ)".
     wp_get_size.
@@ -912,7 +912,7 @@ Section zoo_G.
     >>>.
   Proof.
     rewrite /array_cslice.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec credit:"H£".
     iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & #Hheader & Hcslice) & _ & HΦ)".
     wp_get_size.
@@ -960,7 +960,7 @@ Section zoo_G.
     >>>.
   Proof.
     rewrite /array_slice.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec credit:"H£". wp_pures.
     iMod "HΦ" as "(%dq & %vs & %i & %v & (%Hi & %Hlookup & (%l & -> & Hmodel)) & _ & HΦ)".
     iDestruct (chunk_model_lookup_acc' j with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
@@ -982,7 +982,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     awp_apply (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %dq %v (-> & Hslice)".
     rewrite /atomic_acc /= Nat2Z.id.
@@ -1003,7 +1003,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ _ HΦ".
+    iIntros "%Hi %Φ _ HΦ".
     awp_apply (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %v (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
@@ -1084,7 +1084,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hj1".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
@@ -1111,7 +1111,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros (->) "!> %Φ #Hinv HΦ".
+    iIntros (->) "%Φ #Hinv HΦ".
     awp_apply (array_get_spec_atomic_slice with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %v H".
     rewrite /atomic_acc /=.
@@ -1133,7 +1133,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hi1".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
@@ -1228,7 +1228,7 @@ Section zoo_G.
     >>>.
   Proof.
     rewrite /array_model /array_slice.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec credit:"H£". wp_pures.
     iMod "HΦ" as "(%vs & %i & (%Hj & (%l & -> & Hmodel)) & _ & HΦ)".
     iDestruct (chunk_model_update' j with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
@@ -1251,7 +1251,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     awp_apply (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %w (-> & Hslice)".
     rewrite /atomic_acc /= Nat2Z.id.
@@ -1272,7 +1272,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Hi !> %Φ _ HΦ".
+    iIntros "%Hi %Φ _ HΦ".
     awp_apply (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
@@ -1352,7 +1352,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hj1".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
@@ -1379,7 +1379,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros (->) "!> %Φ #Hinv HΦ".
+    iIntros (->) "%Φ #Hinv HΦ".
     awp_apply (array_set_spec_atomic_slice with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%w Hslice".
     rewrite /atomic_acc /=.
@@ -1401,7 +1401,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ #Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%Hi1".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
@@ -5005,7 +5005,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec.
     awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
     iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%i_ %dq %v (%Heq & Hcslice)".
@@ -5059,7 +5059,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros (->) "!> %Φ #Hinv HΦ".
+    iIntros (->) "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
@@ -5111,7 +5111,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "!> %Φ _ HΦ".
+    iIntros "%Φ _ HΦ".
     wp_rec.
     awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
     iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%i_ %w (%Heq & Hcslice)".
@@ -5164,7 +5164,7 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros (->) "!> %Φ #Hinv HΦ".
+    iIntros (->) "%Φ #Hinv HΦ".
     wp_rec.
     wp_smart_apply assume_spec' as "%".
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
