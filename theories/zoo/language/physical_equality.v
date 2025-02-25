@@ -79,6 +79,12 @@ Proof.
   all: abstract done.
 Defined.
 
+#[global] Instance lowliteral_nonsimilar_symmetric :
+  Symmetric (≉@{lowliteral}).
+Proof.
+  intros [] []; done.
+Qed.
+
 Inductive lowval :=
   | LowvalLit llit
   | LowvalRecs
@@ -192,6 +198,12 @@ Proof.
   all: abstract naive_solver.
 Defined.
 
+#[global] Instance lowval_nonsimilar_symmetric :
+  Symmetric (≉@{lowval}).
+Proof.
+  intros [] []; naive_solver.
+Qed.
+
 #[global] Instance lowval_similar_reflexive :
   Reflexive (≈@{lowval}).
 Proof.
@@ -246,6 +258,11 @@ Qed.
 #[global] Instance val_similar_dec : RelDecision (≈@{val}) :=
   ltac:(rewrite /similar /val_similar; solve_decision).
 
+#[global] Instance val_nonsimilar_symmetric :
+  Symmetric (≉@{val}).
+Proof.
+  rewrite /nonsimilar /val_nonsimilar /Symmetric //.
+Qed.
 Lemma val_nonsimilar_bool b1 b2 :
   ValBool b1 ≉ ValBool b2 →
   b1 ≠ b2.
