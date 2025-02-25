@@ -13,7 +13,7 @@ let create () =
   { front= 0;
     back= 0;
     data= Inf_array.create (Obj.magic ());
-    proph= Zoo.proph;
+    proph= Zoo.proph ();
   }
 
 let push t v =
@@ -22,7 +22,7 @@ let push t v =
   t.back <- back + 1
 
 let rec steal t =
-  let id = Zoo.id in
+  let id = Zoo.id () in
   let front = t.front in
   let back = t.back in
   if back <= front then (
@@ -39,7 +39,7 @@ let rec steal t =
   )
 
 let pop t =
-  let id = Zoo.id in
+  let id = Zoo.id () in
   let back = t.back - 1 in
   t.back <- back ;
   let front = t.front in

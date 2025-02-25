@@ -1,12 +1,19 @@
-type 'a proph =
-  unit
+type dummy =
+  Obj.t
 
-let proph =
-  ()
+let dummy =
+  Obj.repr (ref ())
+
+type _ proph =
+  dummy
+
+let proph () =
+  dummy
 let resolve x _ _ =
   x
 
 type id =
-  unit
-let id =
-  ()
+  dummy
+
+let id () =
+  dummy

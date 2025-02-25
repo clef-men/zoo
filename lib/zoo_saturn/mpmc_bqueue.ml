@@ -35,7 +35,7 @@ let capacity t =
 
 let rec size t =
   let (Node front_r as front) = t.front in
-  let proph = Zoo.proph in
+  let proph = Zoo.proph () in
   let (Node back_r as back) = t.back in
   match back_r.next with
   | Node _ as node ->
