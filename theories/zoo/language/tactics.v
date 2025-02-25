@@ -141,6 +141,11 @@ Ltac zoo_simplifier :=
   | H: val_nonsimilar (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
       apply val_nonsimilar_block_empty in H
 
+  | H: @nonsimilar val _ (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) |- _ =>
+      apply val_nonsimilar_block_generative in H; try done
+  | H: val_nonsimilar (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) |- _ =>
+      apply val_nonsimilar_block_generative in H; try done
+
   | H: @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
       apply val_similar_bool in H
   | H: val_similar (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
@@ -161,20 +166,30 @@ Ltac zoo_simplifier :=
   | H: val_similar (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
       apply val_similar_location in H
 
-  | H: @similar val _ (ValBlock Generative _ _) (ValBlock Generative _ _) |- _ =>
-      apply val_similar_block_generative in H as (? & ?)
-  | H: val_similar (ValBlock Generative _ _) (ValBlock Generative _ _) |- _ =>
-      apply val_similar_block_generative in H as (? & ?)
+  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty in H
+  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty in H
+
+  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
+      apply val_similar_block_empty_1 in H as []
+  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
+      apply val_similar_block_empty_1 in H as []
+
+  | H: @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty_2 in H as []
+  | H: val_similar (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
+      apply val_similar_block_empty_2 in H as []
+
+  | H: @similar val _ (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) |- _ =>
+      apply val_similar_block_generative in H as (? & ? & ?); last naive_solver
+  | H: val_similar (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) |- _ =>
+      apply val_similar_block_generative in H as (? & ? & ?); last naive_solver
 
   | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) |- _ =>
       apply val_similar_block_nongenerative in H as (? & ?)
   | H: val_similar (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) |- _ =>
       apply val_similar_block_nongenerative in H as (? & ?)
-
-  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
-      apply val_similar_block_empty in H
-  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
-      apply val_similar_block_empty in H
 
   | H: @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) |- _ =>
       apply val_similar_location_block in H as []
@@ -186,25 +201,15 @@ Ltac zoo_simplifier :=
   | H: val_similar (ValBlock _ _ _) (ValLit (LitLoc _)) |- _ =>
       apply val_similar_block_location in H as []
 
-  | H: @similar val _ (ValBlock Generative _ _) (ValBlock Nongenerative _ _) |- _ =>
+  | H: @similar val _ (ValBlock (Generative _) _ _) (ValBlock Nongenerative _ _) |- _ =>
       apply val_similar_block_generative_nongenerative in H as []; done
-  | H: val_similar (ValBlock Generative _ _) (ValBlock Nongenerative _ _) |- _ =>
+  | H: val_similar (ValBlock (Generative _) _ _) (ValBlock Nongenerative _ _) |- _ =>
       apply val_similar_block_generative_nongenerative in H as []; done
 
-  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock Generative _ _) |- _ =>
+  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) |- _ =>
       apply val_similar_block_nongenerative_generative in H as []; done
-  | H: val_similar (ValBlock Nongenerative _ _) (ValBlock Generative _ _) |- _ =>
+  | H: val_similar (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) |- _ =>
       apply val_similar_block_nongenerative_generative in H as []; done
-
-  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
-      apply val_similar_block_empty_1 in H as []
-  | H: val_similar (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
-      apply val_similar_block_empty_1 in H as []
-
-  | H: @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
-      apply val_similar_block_empty_2 in H as []
-  | H: val_similar (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
-      apply val_similar_block_empty_2 in H as []
   end.
 
 Ltac invert_base_step :=
@@ -278,6 +283,11 @@ Create HintDb zoo.
   base_step (Block Mutable _ _) _ _ _ _ _
 ) =>
   eapply base_step_block_mutable'
+: zoo.
+#[global] Hint Extern 0 (
+  base_step (Block ImmutableGenerativeStrong _ _) _ _ _ _ _
+) =>
+  eapply base_step_block_immutable_generative_strong'
 : zoo.
 #[global] Hint Extern 0 (
   base_step (CAS _ _ _) _ _ _ _ _

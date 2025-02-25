@@ -14,7 +14,7 @@ From zoo Require Import
 
 Definition rcfd_make : val :=
   fun: "fd" =>
-    { #0, ‘Open{ "fd" } }.
+    { #0, ‘Open@[ "fd" ] }.
 
 Definition rcfd_closed : val :=
   ‘Closing[ fun: <> => () ].

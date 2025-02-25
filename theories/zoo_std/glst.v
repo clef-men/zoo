@@ -27,7 +27,7 @@ Fixpoint glst_to_val vs :=
   Inj (=) (≈@{val}) glst_to_val.
 Proof.
   intros vs1. induction vs1 as [| v1 vs1 IH]; intros [| v2 vs2]; [done.. |].
-  intros (_ & [= <- <-%val_similar_refl%IH]). done.
+  intros (_ & _ & [= <- <-%val_similar_refl%IH]). done.
 Qed.
 #[global] Instance glst_to_val_inj :
   Inj (=) (=) glst_to_val.

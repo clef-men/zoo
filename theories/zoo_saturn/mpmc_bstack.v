@@ -67,7 +67,7 @@ Section mpmc_bstack_G.
     Inj (=) (≈@{val}) (lst_to_val sz).
   Proof.
     intros vs1. move: sz. induction vs1 as [| v1 vs1 IH]; intros sz [| v2 vs2]; [done.. |].
-    intros (_ & [= <- <-%val_similar_refl%IH]). done.
+    intros (_ & _ & [= <- <-%val_similar_refl%IH]). done.
   Qed.
   #[local] Instance lst_to_val_inj sz :
     Inj (=) (=) (lst_to_val sz).
@@ -80,7 +80,7 @@ Section mpmc_bstack_G.
     vs1 = vs2.
   Proof.
     destruct vs1, vs2; try done.
-    intros (_ & [= ->%(inj _) -> ?%(inj _)]). naive_solver.
+    intros (_ & _ & [= ->%(inj _) -> ?%(inj _)]). naive_solver.
   Qed.
 
   #[local] Definition model₁' γ_model vs :=
@@ -396,7 +396,7 @@ Section mpmc_bstack_G.
       iInv "Hinv" as "(%vs' & Hl_front & Hmodel₂)".
       wp_cas as _ | Hcas; first iSteps.
       destruct vs'; first done.
-      destruct Hcas as (_ & [= ->%(inj _) -> ->%(inj _)]).
+      destruct Hcas as (_ & _ & [= ->%(inj _) -> ->%(inj _)]).
       iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.

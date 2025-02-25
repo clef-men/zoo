@@ -53,8 +53,3 @@ Notation "'After'" := (
   in_type "zoo_kcas.kcas_1.status" 2
 )(in custom zoo_tag
 ).
-
-Notation "'cass'" := (
-  in_type "zoo_kcas.kcas_1.status__Undetermined" 0
-)(in custom zoo_proj
-).

@@ -72,7 +72,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma wp_block {es tag} vs E :
+  Lemma wp_block_mutable {es tag} vs E :
     0 < length es →
     to_vals es = Some vs →
     {{{
@@ -92,6 +92,24 @@ Section zoo_G.
     invert_base_step.
     iMod (state_interp_alloc with "Hσ") as "(Hσ & Hheader & Hmeta & Hl)".
     all: rewrite -> length_of_vals in *; try done.
+    iSteps.
+  Qed.
+
+  Lemma wp_block_generative {es tag} vs E :
+    to_vals es = Some vs →
+    {{{
+      True
+    }}}
+      Block ImmutableGenerativeStrong tag es @ E
+    {{{ bid,
+      RET ValBlock (Generative (Some bid)) tag vs;
+      True
+    }}}.
+  Proof.
+    iIntros (<-%of_to_vals) "%Φ _ HΦ".
+    iApply wp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
+    invert_base_step.
     iSteps.
   Qed.
 

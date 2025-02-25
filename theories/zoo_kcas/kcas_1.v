@@ -160,8 +160,8 @@ Definition final_status_to_val fstatus :=
 Proof.
   destruct b; done.
 Qed.
-#[local] Lemma final_status_to_val_location fstatus l :
-  ¬ final_status_to_val fstatus ≈ #l.
+#[local] Lemma final_status_to_val_undetermined fstatus bid v_cass :
+  ¬ final_status_to_val fstatus ≈ ‘Undetermined@bid[ v_cass ]%V.
 Proof.
   destruct fstatus; done.
 Qed.
@@ -170,7 +170,7 @@ Record metadata := {
   metadata_descrs : list descriptor ;
   metadata_prophet : prophet_id ;
   metadata_prophs : list global_prophet.(typed_prophet_type) ;
-  metadata_undetermined : location ;
+  metadata_undetermined : block_id ;
   metadata_post : gname ;
   metadata_lstatus : gname ;
   metadata_locks : list gname ;
@@ -205,6 +205,8 @@ Qed.
   length η.(metadata_descrs).
 #[local] Definition metadata_cass η :=
   descriptor_cas <$> η.(metadata_descrs).
+#[local] Definition metadata_cass_val η :=
+  lst_to_val $ metadata_cass η.
 #[local] Definition metadata_outcome η :=
   hd inhabitant η.(metadata_prophs).
 #[local] Definition metadata_winner η :=
@@ -217,10 +219,10 @@ Qed.
 #[local] Instance status_inhabited : Inhabited status :=
   populate Undetermined.
 
-#[local] Definition status_to_val casn η status : val :=
+#[local] Definition status_to_val η status : val :=
   match status with
   | Undetermined =>
-      #η.(metadata_undetermined)
+      ‘Undetermined@η.(metadata_undetermined)[ metadata_cass_val η ]
   | After =>
       §After
   | Before =>
@@ -421,10 +423,8 @@ Section kcas_1_G.
     typed_prophet_model global_prophet η.(metadata_prophet) prophs ∗
     match lstatus with
     | Running i =>
-        ⌜v_status = status_to_val casn η Undetermined⌝ ∗
+        ⌜v_status = status_to_val η Undetermined⌝ ∗
         ⌜prophs = η.(metadata_prophs)⌝ ∗
-        η.(metadata_undetermined) ↦ₕ Header §Undetermined 1 ∗
-        η.(metadata_undetermined).[0] ↦□ lst_to_val (metadata_cass η) ∗
         ( au η ι Ψ ∗
           winning η
         ∨ identifier_model (metadata_winner η)
@@ -485,8 +485,6 @@ Section kcas_1_G.
     "(
       {>=}-> &
       {>=}-> &
-      #? &
-      #? &
       Hau{} &
       Hhelpers{} &
       {>=}Hdescrs{} &
@@ -1279,7 +1277,7 @@ Section kcas_1_G.
       casn_inv' ι casn η ∗
       lstatus_lb η Finished
     }}}
-      kcas_1_clear (lst_to_val $ metadata_cass η) #b
+      kcas_1_clear (metadata_cass_val η) #b
     {{{
       RET ();
       True
@@ -1346,7 +1344,6 @@ Section kcas_1_G.
       iSplitR "H HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      wp_match.
       wp_smart_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
       wp_load. wp_pures.
 
@@ -1363,7 +1360,8 @@ Section kcas_1_G.
         destruct lstatus as [i |].
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
-          wp_cas as ? | _; first done.
+          wp_cas as Hcas | _.
+          { exfalso. zoo_simplifier. naive_solver. }
           iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata_success η = final_status_to_bool fstatus) as Hsuccess.
@@ -1480,7 +1478,7 @@ Section kcas_1_G.
           + iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb") as %[=].
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
-          wp_cas as _ | []%final_status_to_val_location.
+          wp_cas as _ | []%final_status_to_val_undetermined.
           iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
           iSteps.
       }
@@ -1490,7 +1488,6 @@ Section kcas_1_G.
         ⌜res = ()%V⌝
       )%I with "[- HΦ]") as (res) "->".
       { destruct b; last iSteps.
-        wp_load.
         wp_smart_apply (kcas_1_clear_spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
         iSteps.
       }
@@ -1850,7 +1847,7 @@ Section kcas_1_G.
             iSplitR "HΦ". { iFrameSteps 2. }
             iModIntro. clear j helpers.
 
-            wp_match. wp_pures.
+            wp_pures.
 
             wp_bind (CAS _ _ _).
             iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
@@ -1958,7 +1955,7 @@ Section kcas_1_G.
             iSplitR "HΦ". { iFrameSteps 2. }
             iModIntro. clear j helpers.
 
-            wp_match. wp_pures.
+            wp_pures.
 
             wp_bind (CAS _ _ _).
             iInv "Hloc_inv" as "(:loc_inv_inner > =3)".
@@ -2017,8 +2014,7 @@ Section kcas_1_G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iModIntro. clear.
 
-        wp_match. wp_load.
-        wp_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
+        wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
         iSteps.
 
       - iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
@@ -2291,8 +2287,7 @@ Section kcas_1_G.
       naive_solver.
     }
 
-    wp_block undetermined as "#Hundetermined_header" "_" "(Hundetermined_cass & _)".
-    iMod (pointsto_persist with "Hundetermined_cass") as "#Hundetermined_cass".
+    wp_block_generative undetermined.
     wp_store.
 
     pose Φ' b := Φ #b.
@@ -2321,7 +2316,7 @@ Section kcas_1_G.
     iDestruct (lstatus_lb_get η with "Hlstatus_auth") as "#Hlstatus_lb".
 
     iMod (inv_alloc _ _ (casn_inv_inner casn η ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
-    { iExists _, (Running 0), ∅, _. iFrame. iStep 5.
+    { iExists _, (Running 0), ∅, _. iFrame. iStep 3.
       rewrite big_sepM_empty comm. iSteps.
       iSplitL "Hlocks".
       { iApply (big_sepL_seq_index ηs_lock); first lia.

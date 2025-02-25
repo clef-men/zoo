@@ -21,40 +21,19 @@ Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types f x : binder.
 
+Definition block_id :=
+  positive.
+Implicit Types bid : option block_id.
+
 Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
-Inductive generativity :=
-  | Generative
-  | Nongenerative.
-Implicit Types gen : generativity.
-
-#[global] Instance generativity_eq_dec : EqDecision generativity :=
-  ltac:(solve_decision).
-#[global] Instance generativity_countable :
-  Countable generativity.
-Proof.
-  pose encode gen :=
-    match gen with
-    | Generative =>
-        0
-    | Nongenerative =>
-        1
-    end.
-  pose decode _gen :=
-    match _gen with
-    | 0 =>
-        Generative
-    | _ =>
-        Nongenerative
-    end.
-  refine (inj_countable' encode decode _); intros []; done.
-Qed.
-
 Inductive mutability :=
   | Mutable
-  | Immutable gen.
+  | ImmutableNongenerative
+  | ImmutableGenerativeWeak
+  | ImmutableGenerativeStrong.
 Implicit Types mut : mutability.
 
 #[global] Instance mutability_eq_dec : EqDecision mutability :=
@@ -65,16 +44,51 @@ Proof.
   pose encode mut :=
     match mut with
     | Mutable =>
-        inl ()
-    | Immutable gen =>
-        inr gen
+        0
+    | ImmutableNongenerative =>
+        1
+    | ImmutableGenerativeWeak =>
+        2
+    | ImmutableGenerativeStrong =>
+        3
     end.
   pose decode _mut :=
     match _mut with
-    | inl () =>
+    | 0 =>
         Mutable
-    | inr gen =>
-        Immutable gen
+    | 1 =>
+        ImmutableNongenerative
+    | 2 =>
+        ImmutableGenerativeWeak
+    | _ =>
+        ImmutableGenerativeStrong
+    end.
+  refine (inj_countable' encode decode _); intros []; done.
+Qed.
+
+Inductive generativity :=
+  | Generative bid
+  | Nongenerative.
+Implicit Types gen : generativity.
+
+#[global] Instance generativity_eq_dec : EqDecision generativity :=
+  ltac:(solve_decision).
+#[global] Instance generativity_countable :
+  Countable generativity.
+Proof.
+  pose encode gen :=
+    match gen with
+    | Generative bid =>
+        inl bid
+    | Nongenerative =>
+        inr ()
+    end.
+  pose decode _gen :=
+    match _gen with
+    | inl bid =>
+        Generative bid
+    | inr () =>
+        Nongenerative
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -770,7 +784,7 @@ Notation ValPoison := (
 ).
 
 Notation Tuple := (
-  Block (Immutable Nongenerative) 0
+  Block ImmutableNongenerative 0
 )(only parsing
 ).
 Notation ValTuple := (

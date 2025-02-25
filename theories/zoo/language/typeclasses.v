@@ -329,20 +329,29 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_block_generative_nongenerative tag1 vs1 tag2 vs2 :
+  #[global] Instance pure_equal_block_generative bid tag vs :
     PureExec
-      (0 < length vs1 ∨ 0 < length vs2)
+      True
       1
-      (Equal (Val $ ValBlock Generative tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
+      (Equal (Val $ ValBlock (Generative (Some bid)) tag vs) (Val $ ValBlock (Generative (Some bid)) tag vs))
+      (Val $ ValBool true).
+  Proof.
+    destruct vs; solve_pure_exec.
+  Qed.
+  #[global] Instance pure_equal_block_generative_nongenerative bid1 tag1 vs1 tag2 vs2 :
+    PureExec
+      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
+      1
+      (Equal (Val $ ValBlock (Generative bid1) tag1 vs1) (Val $ ValBlock Nongenerative tag2 vs2))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
   Qed.
-  #[global] Instance pure_equal_block_nongenerative_generative tag1 vs1 tag2 vs2 :
+  #[global] Instance pure_equal_block_nongenerative_generative tag1 vs1 bid2 tag2 vs2 :
     PureExec
-      (0 < length vs1 ∨ 0 < length vs2)
+      (length vs1 ≠ 0 ∨ length vs2 ≠ 0)
       1
-      (Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock Generative tag2 vs2))
+      (Equal (Val $ ValBlock Nongenerative tag1 vs1) (Val $ ValBlock (Generative bid2) tag2 vs2))
       (Val $ ValBool false).
   Proof.
     solve_pure_exec.
@@ -404,12 +413,23 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_block gen tag es vs :
+  #[global] Instance pure_block_immutable_nongenerative tag es vs :
     PureExec
       (to_vals es = Some vs)
       1
-      (Block (Immutable gen) tag es)
-      (Val $ ValBlock gen tag vs).
+      (Block ImmutableNongenerative tag es)
+      (Val $ ValBlock Nongenerative tag vs).
+  Proof.
+    intros <-%of_to_vals.
+    apply nsteps_once, pure_base_step_pure_step.
+    split; [solve_exec_safe | solve_exec_puredet].
+  Qed.
+  #[global] Instance pure_block_immutable_generative tag es vs :
+    PureExec
+      (to_vals es = Some vs)
+      1
+      (Block ImmutableGenerativeWeak tag es)
+      (Val $ ValBlock (Generative None) tag vs).
   Proof.
     intros <-%of_to_vals.
     apply nsteps_once, pure_base_step_pure_step.

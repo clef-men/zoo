@@ -116,6 +116,15 @@ Definition val_to_low v :=
         | _ =>
             True
         end
+    | LowvalBlock (Generative (Some bid1)) tag1 vs1 =>
+        match v2 with
+        | LowvalBlock (Generative (Some bid2)) tag2 vs2 =>
+            bid1 ≠ bid2 ∨
+            tag1 ≠ tag2 ∨
+            vs1 ≠ vs2
+        | _ =>
+            True
+        end
     | _ =>
         True
     end.
@@ -132,11 +141,21 @@ Proof.
           | _ =>
               left _
           end
+      | LowvalBlock (Generative (Some bid1)) tag1 vs1 =>
+          match v2 with
+          | LowvalBlock (Generative (Some bid2)) tag2 vs2 =>
+              cast_if_or3
+                (decide (bid1 ≠ bid2))
+                (decide (tag1 ≠ tag2))
+                (decide (vs1 ≠ vs2))
+          | _ =>
+              left _
+          end
       | _ =>
           left _
       end
   ).
-  all: abstract done.
+  all: abstract naive_solver.
 Defined.
 
 #[global] Instance lowval_similar : Similar lowval :=
@@ -150,15 +169,15 @@ Defined.
         match v2 with
         | LowvalBlock gen2 tag2 vs2 =>
             match gen1, gen2 with
-            | Generative, Nongenerative
-            | Nongenerative, Generative =>
-                False
-            | Generative, Generative =>
+            | Generative bid1, Generative bid2 =>
+                bid1 = bid2 ∧
                 tag1 = tag2 ∧
                 vs1 = vs2
             | Nongenerative, Nongenerative =>
                 tag1 = tag2 ∧
                 length vs1 = length vs2
+            | _, _ =>
+                False
             end
         | _ =>
             False
@@ -178,17 +197,17 @@ Proof.
           match v2 with
           | LowvalBlock gen2 tag2 vs2 =>
               match gen1, gen2 with
-              | Generative, Nongenerative
-              | Nongenerative, Generative =>
-                  right _
-              | Generative, Generative =>
-                  cast_if_and
+              | Generative bid1, Generative bid2 =>
+                  cast_if_and3
+                    (decide (bid1 = bid2))
                     (decide (tag1 = tag2))
                     (decide (vs1 = vs2))
               | Nongenerative, Nongenerative =>
                   cast_if_and
                     (decide (tag1 = tag2))
                     (decide (length vs1 = length vs2))
+              | _, _ =>
+                  right _
               end
           | _ =>
               right _
@@ -201,7 +220,7 @@ Defined.
 #[global] Instance lowval_nonsimilar_symmetric :
   Symmetric (≉@{lowval}).
 Proof.
-  intros [] []; naive_solver.
+  intros [| | [[] |]] [| | [[] |]]; naive_solver.
 Qed.
 
 #[global] Instance lowval_similar_reflexive :
@@ -230,10 +249,14 @@ Lemma lowval_similar_or_nonsimilar v1 v2 :
   v1 ≈ v2 ∨ v1 ≉ v2.
 Proof.
   destruct
-    v1 as [[n1 | l1 | |] | | [] tag1 []],
-    v2 as [[n2 | l2 | |] | | [] tag2 []].
+    v1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]],
+    v2 as [[n2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
   all: try destruct (decide (n1 = n2)).
   all: try destruct (decide (l1 = l2)).
+  all: try destruct (decide (bid1 = bid2)).
+  all: try destruct (decide (tag1 = tag2)).
+  all: try destruct (decide (v1 = v2)).
+  all: try destruct (decide (vs1 = vs2)).
   all: cbn; naive_solver.
 Qed.
 Lemma lowval_nonsimilar_similar (v1 v2 v3 : lowval) :
@@ -241,7 +264,7 @@ Lemma lowval_nonsimilar_similar (v1 v2 v3 : lowval) :
   v2 ≈ v3 →
   v1 ≉ v3.
 Proof.
-  destruct v2, v3; naive_solver.
+  destruct v2 as [| | []], v3 as [| | []]; naive_solver.
 Qed.
 
 #[global] Instance val_nonsimilar : Nonsimilar val :=
@@ -293,6 +316,16 @@ Lemma val_nonsimilar_block_empty gen1 tag1 gen2 tag2 :
 Proof.
   naive_solver.
 Qed.
+Lemma val_nonsimilar_block_generative bid1 tag1 vs1 bid2 tag2 vs2 :
+  tag1 = tag2 →
+  vs1 = vs2 →
+  ValBlock (Generative (Some bid1)) tag1 vs1 ≉ ValBlock (Generative (Some bid2)) tag2 vs2 →
+  length vs1 = 0 ∨ bid1 ≠ bid2.
+Proof.
+  intros <- <-.
+  destruct vs1; first done.
+  cbn. naive_solver.
+Qed.
 
 #[global] Instance val_similar_reflexive :
   Reflexive (≈@{val}).
@@ -340,13 +373,31 @@ Lemma val_similar_location l1 l2 :
 Proof.
   intros [= ->]. done.
 Qed.
-Lemma val_similar_block_generative tag1 vs1 tag2 vs2 :
-  ValBlock Generative tag1 vs1 ≈ ValBlock Generative tag2 vs2 →
+Lemma val_similar_block_empty gen1 tag1 gen2 tag2 :
+  ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 [] →
+  tag1 = tag2.
+Proof.
+  intros [= ->%(inj _)]. done.
+Qed.
+Lemma val_similar_block_empty_1 gen1 tag1 gen2 tag2 v2 vs2 :
+  ¬ ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 (v2 :: vs2).
+Proof.
+  done.
+Qed.
+Lemma val_similar_block_empty_2 gen1 tag1 v1 vs1 gen2 tag2 :
+  ¬ ValBlock gen1 tag1 (v1 :: vs1) ≈ ValBlock gen2 tag2 [].
+Proof.
+  intros []%symmetry%val_similar_block_empty_1.
+Qed.
+Lemma val_similar_block_generative bid1 tag1 vs1 bid2 tag2 vs2 :
+  length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
+  ValBlock (Generative bid1) tag1 vs1 ≈ ValBlock (Generative bid2) tag2 vs2 →
+    bid1 = bid2 ∧
     tag1 = tag2 ∧
     vs1 = vs2.
 Proof.
   destruct vs1, vs2; try done.
-  intros [= ->%(inj _)]. done.
+  simpl. lia.
 Qed.
 Lemma val_similar_block_nongenerative tag1 vs1 tag2 vs2 :
   ValBlock Nongenerative tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2 →
@@ -354,12 +405,6 @@ Lemma val_similar_block_nongenerative tag1 vs1 tag2 vs2 :
     length vs1 = length vs2.
 Proof.
   destruct vs1, vs2; try done.
-  intros [= ->%(inj _)]. done.
-Qed.
-Lemma val_similar_block_empty gen1 tag1 gen2 tag2 :
-  ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 [] →
-  tag1 = tag2.
-Proof.
   intros [= ->%(inj _)]. done.
 Qed.
 Lemma val_similar_location_block l gen tag vs :
@@ -372,27 +417,17 @@ Lemma val_similar_block_location gen tag vs l :
 Proof.
   intros []%symmetry%val_similar_location_block.
 Qed.
-Lemma val_similar_block_generative_nongenerative tag1 vs1 tag2 vs2 :
-  0 < length vs1 ∨ 0 < length vs2 →
-  ¬ ValBlock Generative tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2.
+Lemma val_similar_block_generative_nongenerative bid1 tag1 vs1 tag2 vs2 :
+  length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
+  ¬ ValBlock (Generative bid1) tag1 vs1 ≈ ValBlock Nongenerative tag2 vs2.
 Proof.
   destruct vs1, vs2; cbn; naive_solver lia.
 Qed.
-Lemma val_similar_block_nongenerative_generative tag1 vs1 tag2 vs2 :
-  0 < length vs1 ∨ 0 < length vs2 →
-  ¬ ValBlock Nongenerative tag1 vs1 ≈ ValBlock Generative tag2 vs2.
+Lemma val_similar_block_nongenerative_generative tag1 vs1 bid2 tag2 vs2 :
+  length vs1 ≠ 0 ∨ length vs2 ≠ 0 →
+  ¬ ValBlock Nongenerative tag1 vs1 ≈ ValBlock (Generative bid2) tag2 vs2.
 Proof.
   intros ? []%symmetry%val_similar_block_generative_nongenerative. naive_solver.
-Qed.
-Lemma val_similar_block_empty_1 gen1 tag1 gen2 tag2 v2 vs2 :
-  ¬ ValBlock gen1 tag1 [] ≈ ValBlock gen2 tag2 (v2 :: vs2).
-Proof.
-  done.
-Qed.
-Lemma val_similar_block_empty_2 gen1 tag1 v1 vs1 gen2 tag2 :
-  ¬ ValBlock gen1 tag1 (v1 :: vs1) ≈ ValBlock gen2 tag2 [].
-Proof.
-  intros []%symmetry%val_similar_block_empty_1.
 Qed.
 
 Lemma val_similar_or_nonsimilar v1 v2 :

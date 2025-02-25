@@ -35,8 +35,7 @@ Definition kcas_1_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> as "old_status" =>
-        let: "undet_r" := "old_status" in
+    | Undetermined "cass" as "old_status" =>
         let: "is_after" := kcas_1_status_to_bool "status" in
         if:
           Resolve
@@ -44,7 +43,7 @@ Definition kcas_1_finish : val :=
             "casn".{proph}
             ("gid", "is_after")
         then (
-          kcas_1_clear "undet_r".<cass> "is_after"
+          kcas_1_clear "cass" "is_after"
         ) else (
           ()
         ) ;;
@@ -96,8 +95,8 @@ Definition kcas_1_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> as "undet_r" =>
-        "determine_as" "casn" "undet_r".<cass>
+    | Undetermined "cass" =>
+        "determine_as" "casn" "cass"
     end
 )%zoo_recs.
 Definition kcas_1_determine_as :=
@@ -171,5 +170,5 @@ Definition kcas_1_cas : val :=
            ("loc", "state"))
         "cass"
     in
-    "casn" <-{status} ‘Undetermined{ "cass" } ;;
+    "casn" <-{status} ‘Undetermined@[ "cass" ] ;;
     kcas_1_determine_as "casn" "cass".

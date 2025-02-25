@@ -320,13 +320,31 @@ Inductive base_step : expr → state → list observation → expr → state →
         (Val $ ValLoc l)
         (state_alloc l (Header tag (length es)) vs σ)
         []
-  | base_step_block_immutable gen tag es vs σ :
+  | base_step_block_immutable_nongenerative tag es vs σ :
       es = of_vals vs →
       base_step
-        (Block (Immutable gen) tag es)
+        (Block ImmutableNongenerative tag es)
         σ
         []
-        (Val $ ValBlock gen tag vs)
+        (Val $ ValBlock Nongenerative tag vs)
+        σ
+        []
+  | base_step_block_immutable_generative_weak tag es vs σ :
+      es = of_vals vs →
+      base_step
+        (Block ImmutableGenerativeWeak tag es)
+        σ
+        []
+        (Val $ ValBlock (Generative None) tag vs)
+        σ
+        []
+  | base_step_block_immutable_generative_strong tag es vs σ bid :
+      es = of_vals vs →
+      base_step
+        (Block ImmutableGenerativeStrong tag es)
+        σ
+        []
+        (Val $ ValBlock (Generative (Some bid)) tag vs)
         σ
         []
   | base_step_match_mutable l hdr x e brs e' σ :
@@ -514,6 +532,18 @@ Proof.
   all: intros; apply not_elem_of_dom.
   - rewrite -(location_add_0 l). naive_solver.
   - apply Hfresh. lia.
+Qed.
+Lemma base_step_block_immutable_generative_strong' tag es vs σ :
+  es = of_vals vs →
+  base_step
+    (Block ImmutableGenerativeStrong tag es)
+    σ
+    []
+    (Val $ ValBlock (Generative (Some inhabitant)) tag vs)
+    σ
+    [].
+Proof.
+  apply base_step_block_immutable_generative_strong.
 Qed.
 Lemma base_step_proph' σ :
   let pid := fresh σ.(state_prophets) in

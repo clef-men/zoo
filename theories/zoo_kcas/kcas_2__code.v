@@ -35,15 +35,12 @@ Definition kcas_2_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> <> as "old_status" =>
-        let: "undet_r" := "old_status" in
+    | Undetermined "cmps" "cass" as "old_status" =>
         let: "status" :=
           if: "status" == §Before then (
             §Before
           ) else if:
-             lst_forall
-               (fun: "cmp" => !"cmp".<loc> == "cmp".<state>)
-               "undet_r".<cmps>
+             lst_forall (fun: "cmp" => !"cmp".<loc> == "cmp".<state>) "cmps"
            then (
             §After
           ) else (
@@ -57,7 +54,7 @@ Definition kcas_2_finish : val :=
             "casn".{proph}
             ("gid", "is_after")
         then (
-          kcas_2_clear "undet_r".<cass> "is_after"
+          kcas_2_clear "cass" "is_after"
         ) else (
           ()
         ) ;;
@@ -109,8 +106,8 @@ Definition kcas_2_finish : val :=
         #false
     | After =>
         #true
-    | Undetermined <> <> as "undet_r" =>
-        "determine_as" "casn" "undet_r".<cass>
+    | Undetermined <> "cass" =>
+        "determine_as" "casn" "cass"
     end
 )%zoo_recs.
 Definition kcas_2_determine_as :=
@@ -184,7 +181,7 @@ Definition kcas_2_cas_2 : val :=
            ("loc", "state"))
         "cass"
     in
-    "casn" <-{status} ‘Undetermined{ "cmps", "cass" } ;;
+    "casn" <-{status} ‘Undetermined@[ "cmps", "cass" ] ;;
     kcas_2_determine_as "casn" "cass".
 
 Definition kcas_2_cas_1 : val :=

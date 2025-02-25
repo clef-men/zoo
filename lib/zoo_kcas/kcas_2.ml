@@ -44,11 +44,11 @@ let finish gid casn status =
       false
   | After ->
       true
-  | Undetermined undet_r as old_status ->
+  | Undetermined { cmps; cass } as old_status ->
       let status =
         if status == Before then
           Before
-        else if Lst.forall (fun cmp -> Atomic.get cmp.loc == cmp.state) undet_r.cmps then
+        else if Lst.forall (fun cmp -> Atomic.get cmp.loc == cmp.state) cmps then
           After
         else
           Before
@@ -59,7 +59,7 @@ let finish gid casn status =
           Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
         ) casn.proph (gid, is_after)
       then
-        clear undet_r.cass is_after ;
+        clear cass is_after ;
       status_to_bool casn.status
 
 let rec determine_as casn cass =
@@ -100,8 +100,8 @@ and determine casn =
       false
   | After ->
       true
-  | Undetermined undet_r ->
-      determine_as casn undet_r.cass
+  | Undetermined { cmps= _; cass }  ->
+      determine_as casn cass
 
 let make v =
   let _gid = Zoo.id () in

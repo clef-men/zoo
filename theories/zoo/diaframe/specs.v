@@ -127,6 +127,22 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  #[global] Instance step_wp_block_generative tag es :
+    SPEC vs,
+    {{
+      ⌜to_vals es = Some vs⌝
+    }}
+      Block ImmutableGenerativeStrong tag es
+    {{ bid,
+      RET ValBlock (Generative (Some bid)) tag vs;
+      True
+    }}.
+  Proof.
+    iSteps.
+    wp_block_generative bid.
+    iSteps.
+  Qed.
+
   #[global] Instance step_wp_get_tag l :
     SPEC hdr,
     {{

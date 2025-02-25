@@ -22,7 +22,7 @@ and 'a casn =
   }
 
 and 'a status =
-  | Undetermined of { cass: 'a cas list } [@generative] [@zoo.reveal]
+  | Undetermined of 'a cas list [@generative] [@zoo.reveal]
   | Before
   | After
 
@@ -40,14 +40,14 @@ let finish gid casn status =
       false
   | After ->
       true
-  | Undetermined undet_r as old_status ->
+  | Undetermined cass as old_status ->
       let is_after = status_to_bool status in
       if
         Zoo.resolve (
           Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
         ) casn.proph (gid, is_after)
       then
-        clear undet_r.cass is_after ;
+        clear cass is_after ;
       status_to_bool casn.status
 
 let rec determine_as casn cass =
@@ -88,8 +88,8 @@ and determine casn =
       false
   | After ->
       true
-  | Undetermined undet_r ->
-      determine_as casn undet_r.cass
+  | Undetermined cass ->
+      determine_as casn cass
 
 let make v =
   let _gid = Zoo.id () in
@@ -109,5 +109,5 @@ let cas cass =
       { loc; state }
     ) cass
   in
-  casn.status <- Undetermined { cass } ;
+  casn.status <- Undetermined cass ;
   determine_as casn cass

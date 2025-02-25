@@ -144,7 +144,7 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tac_wp_block Δ Δ' id1 id2 id3 K tag es vs E Φ :
+  Lemma tac_wp_block_mutable Δ Δ' id1 id2 id3 K tag es vs E Φ :
     0 < length es →
     to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -167,7 +167,7 @@ Section zoo_G.
     rewrite envs_entails_unseal => Hlen Hes HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_block with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
+    iApply (wp_block_mutable with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= right_id.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
@@ -194,10 +194,25 @@ Section zoo_G.
     rewrite envs_entails_unseal => HΔ HΔ''.
     rewrite into_laterN_env_sound -wp_bind.
     iIntros "HΔ'".
-    iApply (wp_block with "[//]"); [simpl; lia | done |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
+    iApply (wp_block_mutable with "[//]"); [simpl; lia | done |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
     rewrite -HΔ'' envs_app_sound //= !right_id.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
+  Qed.
+
+  Lemma tac_wp_block_generative Δ Δ' K tag es vs E Φ :
+    to_vals es = Some vs →
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    ( ∀ bid,
+      envs_entails Δ' (WP fill K (ValBlock (Generative (Some bid)) tag vs) @ E {{ Φ }})
+    ) →
+    envs_entails Δ (WP fill K (Block ImmutableGenerativeStrong tag es) @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => Hes HΔ HΔ'.
+    rewrite into_laterN_env_sound -wp_bind.
+    iIntros "HΔ'".
+    iApply (wp_block_generative with "[//]"); first done. iIntros "!> %bid _".
+    iApply (HΔ' with "HΔ'").
   Qed.
 
   Lemma tac_wp_match Δ Δ' id p K l hdr x_fb e_fb brs e E Φ :
@@ -611,7 +626,7 @@ Tactic Notation "wp_block" ident(l) "as" constr(Hheader) constr(Hmeta) constr(Hl
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_block _ _ Hheader' Hmeta' Hl' K);
+        eapply (tac_wp_block_mutable _ _ Hheader' Hmeta' Hl' K);
         [ simpl; lia
         | fast_done
         | idtac..
@@ -686,6 +701,26 @@ Tactic Notation "wp_ref" ident(l) "as" constr(Hl) :=
   wp_ref l as "_" Hl.
 Tactic Notation "wp_ref" ident(l) :=
   wp_ref l as "?".
+
+Tactic Notation "wp_block_generative" simple_intropattern(bid) :=
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_block_generative _ _ K);
+        [ fast_done
+        | idtac..
+        ]
+      )
+    | fail 1 "wp_block_generative: cannot find 'Block ImmutableGenerativeStrong' in" e
+    ];
+    [ tc_solve
+    | intros bid;
+      wp_finish
+    ]
+  ).
+Tactic Notation "wp_block_generative" :=
+  wp_block_generative ?.
 
 Tactic Notation "wp_match" :=
   wp_pures;

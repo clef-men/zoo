@@ -34,7 +34,7 @@ Coercion clist_to_val : clist >-> val.
   Inj (=) (≈@{val}) clist_to_val.
 Proof.
   intros cvs1. induction cvs1 as [| | v1 cvs1 IH]; intros [| | v2 cvs2]; try done.
-  intros (_ & [= <- <-%val_similar_refl%IH]). done.
+  intros (_ & _ & [= <- <-%val_similar_refl%IH]). done.
 Qed.
 #[global] Instance clist_to_val_inj :
   Inj (=) (=) clist_to_val.
