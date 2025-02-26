@@ -448,7 +448,6 @@ Section kcas_1_G.
         )
     | Finished =>
         ⌜v_status = metadata_final η⌝ ∗
-        winning η ∗
         identifier_model (metadata_winner η) ∗
         (owner η ∨ Ψ (metadata_success η)) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
@@ -494,7 +493,6 @@ Section kcas_1_G.
   #[local] Instance : CustomIpatFormat "casn_inv_inner_finished" :=
     "(
       {>=}-> &
-      {>=}Hwinning{} &
       {>=}Hwinner{} &
       HΨ{} &
       Hhelpers{} &
@@ -1612,7 +1610,7 @@ Section kcas_1_G.
     all: iDestruct ("Hdescrs2" with "[$]") as "Hdescrs2".
     all:
       ( iSplitR "Hcasn1_status Hlstatus1_auth Hhelpers1_auth Hgproph1 Hau1 Hhelpers1 Hmodels₂1 Hlocks1 Hdescrs1" ||
-        iSplitR "Hcasn1_status Hlstatus1_auth Hhelpers1_auth Hgproph1 Hwinning1 Hwinner1 HΨ1 Hhelpers1 Hdescrs1"
+        iSplitR "Hcasn1_status Hlstatus1_auth Hhelpers1_auth Hgproph1 Hwinner1 HΨ1 Hhelpers1 Hdescrs1"
       );
       first (rewrite /casn_inv_inner ?Hsuccess2; iFrameSteps 2).
     all: iSplitL; first (rewrite /casn_inv_inner ?Hsuccess1; iFrameSteps 2).
@@ -2110,7 +2108,6 @@ Section kcas_1_G.
     iMod (lstatus_alloc Finished) as "(%η_lstatus & Hlstatus_auth)".
     iMod lock_alloc as "(%η_lock & Hlock)".
     iMod helpers_alloc as "(%η_helpers & Hhelpers_auth)".
-    iMod winning_alloc as "(%η_winning & Hwinning)".
     iMod owner_alloc as "(%η_owner & Howner)".
 
     pose descr := {|
@@ -2129,14 +2126,14 @@ Section kcas_1_G.
       metadata_lstatus := η_lstatus ;
       metadata_locks := [η_lock] ;
       metadata_helpers := η_helpers ;
-      metadata_winning := η_winning ;
+      metadata_winning := inhabitant ;
       metadata_owner := η_owner ;
     |}.
     iMod (meta_set _ _ η with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
     iDestruct (lstatus_lb_get_finished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
 
-    iMod (inv_alloc _ _ (casn_inv_inner casn η ι (λ _, True)%I) with "[Hgid Hgproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Hwinning Howner]") as "#Hcasn_inv".
+    iMod (inv_alloc _ _ (casn_inv_inner casn η ι (λ _, True)%I) with "[Hgid Hgproph Hcasn_status Hstate_before Hstate_after Hmodel₂ Hlstatus_auth Hhelpers_auth Howner]") as "#Hcasn_inv".
     { iExists §After%V, Finished, ∅.
       setoid_rewrite big_sepM_empty. iSteps.
     }
