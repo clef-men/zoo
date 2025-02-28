@@ -89,6 +89,16 @@ Section ws_hub_std_G.
     l.[killed] ↦ #killed ∗
     ws_deques_public_model γ.(metadata_deques) vss ∗
     model₂ γ vs.
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %vs &
+      %vss &
+      %killed &
+      >%Hvs &
+      >Hl_killed &
+      >Hdeques_model &
+      >Hmodel₂
+    )".
   Definition ws_hub_std_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -100,12 +110,34 @@ Section ws_hub_std_G.
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
     waiters_inv γ.(metadata_waiters) ∗
     inv (ι.@"inv") (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      #Hl_deques &
+      #Hl_rounds &
+      #Hl_waiters &
+      #Hdeques_inv &
+      #Hrounds_inv &
+      #Hwaiters_inv &
+      #Hinv
+    )".
 
   Definition ws_hub_std_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l_ &
+      %γ_ &
+      %Heq &
+      Hmeta_ &
+      Hmodel₁
+    )".
 
   Definition ws_hub_std_owner t i : iProp Σ :=
     ∃ l γ round n,
@@ -114,6 +146,18 @@ Section ws_hub_std_G.
     ws_deques_public_owner γ.(metadata_deques) i ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
+  #[local] Instance : CustomIpatFormat "owner" :=
+    "(
+      %l{=_} &
+      %γ{=_} &
+      %round{} &
+      %n{} &
+      %Heq{} &
+      Hmeta{=_} &
+      Hdeques_owner{} &
+      #Hrounds{} &
+      Hround{}
+    )".
 
   #[global] Instance ws_hub_std_model_timeless t vs :
     Timeless (ws_hub_std_model t vs).
@@ -155,9 +199,9 @@ Section ws_hub_std_G.
     ws_hub_std_owner t i -∗
     False.
   Proof.
-    iIntros "(%l & %γ & %rounds & %n & -> & #Hmeta & Howner1 & _) (%_l & %_γ & %_rounds & %_n & %Heq & #_Hmeta & Howner2 & _)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iApply (ws_deques_public_owner_exclusive with "Howner1 Howner2").
+    iIntros "(:owner =1) (:owner =2)". simplify.
+    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
+    iApply (ws_deques_public_owner_exclusive with "Hdeques_owner1 Hdeques_owner2").
   Qed.
 
   Lemma ws_hub_std_create_spec ι sz :
@@ -236,7 +280,7 @@ Section ws_hub_std_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
     wp_apply (array_size_spec_inv with "Hrounds_inv").
@@ -266,7 +310,7 @@ Section ws_hub_std_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
     wp_apply (waiters_notify_spec with "Hwaiters_inv HΦ").
@@ -282,7 +326,7 @@ Section ws_hub_std_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
     wp_apply (ws_hub_std_size_spec) as (sz) "_"; first iSteps.
@@ -305,15 +349,15 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
 
     awp_apply (ws_deques_public_push_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
-    iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iInv "Hinv" as "(:inv_inner)".
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
@@ -330,7 +374,7 @@ Section ws_hub_std_G.
       { rewrite list_to_set_disj_app. multiset_solver. }
       set_solver.
     }
-    iIntros "Hdeques_owner Hround". clear.
+    iIntros "Hdeques_owner Hround {%}".
 
     wp_smart_apply ws_hub_std_notify_spec; iSteps.
   Qed.
@@ -358,15 +402,15 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
 
     awp_smart_apply (ws_deques_public_pop_spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
-    iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iInv "Hinv" as "(:inv_inner)".
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
@@ -430,19 +474,19 @@ Section ws_hub_std_G.
       ws_hub_std_owner t i_
     >>>.
   Proof.
-    iIntros (->) "%Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (array_unsafe_get_spec_cell with "Hv_rounds") as "_"; first lia.
+    wp_apply (array_unsafe_get_spec_cell with "Hrounds") as "_"; first lia.
     wp_smart_apply (random_round_reset_spec' with "Hround") as "Hround".
     wp_load.
 
     iDestruct (ws_deques_public_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
     awp_apply (ws_deques_public_steal_as_spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
-    iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%_vs (%_l & %_γ & %Heq & _Hmeta & Hmodel₁)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iInv "Hinv" as "(:inv_inner)".
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iAaccIntro with "Hdeques_model".
     { iIntros "Hdeques_model !>".
@@ -513,8 +557,8 @@ Section ws_hub_std_G.
     intros ->.
     iLöb as "HLöb" forall (max_round).
 
-    iIntros "%Hmax_round %Φ ((%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) & (%_l & %_γ & %round & %n & %Heq & _Hmeta & Hdeques_owner & #Hv_rounds & Hround) & #Huntil) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros "%Hmax_round %Φ ((:inv) & (:owner) & #Huntil) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_pures.
     case_bool_decide as Hcase; wp_pures.
@@ -528,7 +572,7 @@ Section ws_hub_std_G.
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
       + iRight. iExists (Something v). iFrame.
-        iIntros "HΦ !> Howner". clear.
+        iIntros "HΦ !> Howner {%}".
 
         iSpecialize ("HΦ" with "[$Howner]").
         iSteps.
@@ -588,14 +632,14 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       iStep.
       iSpecialize ("HΦ" with "[$Howner]").
       iSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
       destruct b; wp_pures.
@@ -645,7 +689,7 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
-      iIntros "HΦ !> (Howner & _)". clear.
+      iIntros "HΦ !> (Howner & _) {%}".
 
       wp_smart_apply (ws_hub_std_steal_until_aux_spec with "[$Hinv $Howner $Hpred] HΦ"); first done.
 
@@ -653,7 +697,7 @@ Section ws_hub_std_G.
       iSteps.
 
     - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       iSpecialize ("HΦ" with "Howner").
       iSteps.
@@ -708,7 +752,7 @@ Section ws_hub_std_G.
       iSteps.
 
     - iRight. iExists (Something v). iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       iSpecialize ("HΦ" with "Howner").
       iSteps.
@@ -753,9 +797,9 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
-      iIntros "HΦ !> (Howner & _)". clear.
+      iIntros "HΦ !> (Howner & _) {%}".
 
-      iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv)".
+      iDestruct "Hinv" as "(:inv)".
 
       wp_load.
       wp_smart_apply (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
@@ -767,14 +811,14 @@ Section ws_hub_std_G.
       + iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
         iRight. iExists (Some v).
         iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
-        iIntros "HΦ !> Howner Hwaiter". clear.
+        iIntros "HΦ !> Howner Hwaiter {%}".
 
         wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
         wp_pures.
         iApply ("HΦ" with "Howner").
 
       + iLeft. iFrame.
-        iIntros "HΦ !> Howner Hwaiter". clear.
+        iIntros "HΦ !> Howner Hwaiter {%}".
 
         wp_smart_apply ws_hub_std_killed_spec as ([]) "_"; first iSteps.
 
@@ -805,15 +849,15 @@ Section ws_hub_std_G.
       True
     }}}.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hl_deques & #Hl_rounds & #Hl_waiters & #Hdeques_inv & #Hrounds_inv & #Hwaiters_inv & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_pures.
 
     wp_bind (_ <-{killed} _)%E.
-    iInv "Hinv" as "(%vs & %vss & %killed & >%Hvs & Hl_killed & >Hdeques_model & >Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_store.
     iSplitR "HΦ"; first iSteps.
-    iModIntro. clear.
+    iIntros "!> {%}".
 
     wp_smart_apply ws_hub_std_notify_all_spec as "_"; first iSteps.
     iSteps.
@@ -866,7 +910,7 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       iSpecialize ("HΦ" with "[$Howner]").
       iSteps.
@@ -912,7 +956,7 @@ Section ws_hub_std_G.
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v). iStep.
-      iIntros "HΦ !> Howner". clear.
+      iIntros "HΦ !> Howner {%}".
 
       iSpecialize ("HΦ" with "Howner").
       iSteps.
