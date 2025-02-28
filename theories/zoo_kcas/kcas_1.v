@@ -2270,7 +2270,7 @@ Section kcas_1_G.
     rewrite length_zip3_with // length_fmap in Hvs_cass.
     iDestruct (big_sepL_sep with "Hdescrs") as "(#Hstates_casn & Hdescrs)".
     iDestruct (big_sepL_sep with "Hdescrs") as "(Hstates & Hdescrs)".
-    iDestruct (big_sepL_lift with "Hdescrs") as "Hdescrs"; first lia.
+    iDestruct (big_sepL_extract_r with "Hdescrs") as "Hdescrs"; first lia.
     iDestruct (big_sepL2_Forall2i with "Hdescrs") as %Hdescrs. iClear "Hdescrs".
 
     assert (Hafters : afters = descriptor_after <$> descrs).

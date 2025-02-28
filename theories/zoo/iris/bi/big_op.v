@@ -796,7 +796,21 @@ Section bi.
       iSteps.
     Qed.
 
-    Lemma big_sepL_lift `{!BiAffine PROP} Φ l1 l2 :
+    Lemma big_sepL_extract_l `{!BiAffine PROP} Φ l1 l2 :
+      length l1 = length l2 →
+      ( [∗ list] k ↦ x2 ∈ l2,
+        ∃ x1,
+        ⌜l1 !! k = Some x1⌝ ∗
+        Φ k x1 x2
+      ) ⊢
+      [∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2.
+    Proof.
+      iIntros "% H".
+      iDestruct (big_sepL2_const_sepL_r with "[$H //]") as "H".
+      iApply (big_sepL2_impl with "H"). iModIntro.
+      iSteps. simplify. iSteps.
+    Qed.
+    Lemma big_sepL_extract_r `{!BiAffine PROP} Φ l1 l2 :
       length l1 = length l2 →
       ( [∗ list] k ↦ x1 ∈ l1,
         ∃ x2,
@@ -808,6 +822,33 @@ Section bi.
       iIntros "% H".
       iDestruct (big_sepL2_const_sepL_l with "[$H //]") as "H".
       iApply (big_sepL2_impl with "H"). iModIntro.
+      iSteps. simplify. iSteps.
+    Qed.
+
+    Lemma big_sepL2_retract_l `{!BiAffine PROP} Φ l1 l2 :
+      ([∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2) ⊢
+        ⌜length l1 = length l2⌝ ∗
+        [∗ list] k ↦ x2 ∈ l2,
+          ∃ x1,
+          ⌜l1 !! k = Some x1⌝ ∗
+          Φ k x1 x2.
+    Proof.
+      iIntros "H".
+      iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
+      iApply (big_sepL2_impl_sepL with "H"); first naive_solver. iIntros "!>".
+      iSteps. simplify. iSteps.
+    Qed.
+    Lemma big_sepL2_retract_r `{!BiAffine PROP} Φ l1 l2 :
+      ([∗ list] k ↦ x1; x2 ∈ l1; l2, Φ k x1 x2) ⊢
+        ⌜length l1 = length l2⌝ ∗
+        [∗ list] k ↦ x1 ∈ l1,
+          ∃ x2,
+          ⌜l2 !! k = Some x2⌝ ∗
+          Φ k x1 x2.
+    Proof.
+      iIntros "H".
+      iDestruct (big_sepL2_length with "H") as %Hlen. iStep.
+      iApply (big_sepL2_impl_sepL with "H"); first naive_solver. iIntros "!>".
       iSteps. simplify. iSteps.
     Qed.
   End big_sepL2.
