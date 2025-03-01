@@ -15,6 +15,9 @@ let create sz =
 let size t =
   t.size
 
+let killed t =
+  t.killed
+
 let notify t =
   Waiters.notify t.waiters
 let notify_all t =
@@ -28,9 +31,6 @@ let pop' t =
   Mpmc_queue_1.pop t.queue
 let pop t _i =
   pop' t
-
-let killed t =
-  t.killed
 
 let rec steal_until t pred =
   if pred () then (

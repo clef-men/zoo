@@ -22,6 +22,10 @@ Definition ws_hub_fifo_size : val :=
   fun: "t" =>
     "t".{size}.
 
+Definition ws_hub_fifo_killed : val :=
+  fun: "t" =>
+    "t".{killed}.
+
 Definition ws_hub_fifo_notify : val :=
   fun: "t" =>
     waiters_notify "t".{waiters}.
@@ -42,10 +46,6 @@ Definition ws_hub_fifo_pop' : val :=
 Definition ws_hub_fifo_pop : val :=
   fun: "t" "_i" =>
     ws_hub_fifo_pop' "t".
-
-Definition ws_hub_fifo_killed : val :=
-  fun: "t" =>
-    "t".{killed}.
 
 Definition ws_hub_fifo_steal_until_0 : val :=
   rec: "steal_until" "t" "pred" =>
