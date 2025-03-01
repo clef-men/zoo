@@ -68,6 +68,7 @@ Section mpmc_queue_1_G.
     metadata_model : gname ;
     metadata_waiters : gname ;
   }.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).

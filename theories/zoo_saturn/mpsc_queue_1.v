@@ -51,6 +51,7 @@ Section mpsc_queue_1_G.
     metadata_history : gname ;
     metadata_model : gname ;
   }.
+  Implicit Type γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
