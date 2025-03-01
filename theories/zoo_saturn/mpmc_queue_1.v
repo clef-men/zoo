@@ -601,6 +601,23 @@ Section mpmc_queue_1_G.
     wp_match.
     wp_smart_apply (xtchain_next_spec_strong IsEmpty [tele_pair bool] _ _ inhabitant [tele_arg true] inhabitant with "[$Hmeta $Hinv $Hhistory_at $Hfront_lb $Hwaiter $Hwaiters_at $H£]") as (res) "[(-> & HΦ) | (%node' & -> & #Hhistory_at' & HΦ)]"; iSteps.
   Qed.
+  Lemma mpmc_queue_1_is_empty_spec' t ι :
+    {{{
+      mpmc_queue_1_inv t ι
+    }}}
+      mpmc_queue_1_is_empty t
+    {{{ b,
+      RET #b;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_rec.
+    wp_apply (front_spec with "Hinv") as (front i) "(#Hfront_header & #Hhistory_at & _)".
+    wp_match.
+    wp_apply (xtchain_next_spec with "[$Hmeta $Hinv $Hhistory_at]") as (res) "[-> | (%node & -> & _)]"; iSteps.
+  Qed.
 
   #[local] Lemma mpmc_queue_1_push_0_spec l γ ι i node new_back v :
     <<<
