@@ -1482,9 +1482,7 @@ Section kcas_1_G.
       }
 
       wp_bind (if: _ then _ else _)%E.
-      wp_apply (wp_wand _ _ (λ res,
-        ⌜res = ()%V⌝
-      )%I with "[- HΦ]") as (res) "->".
+      wp_apply (wp_wand _ _ itype_unit with "[- HΦ]") as (res) "->".
       { destruct b; last iSteps.
         wp_smart_apply (kcas_1_clear_spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
         iSteps.

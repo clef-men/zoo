@@ -141,7 +141,7 @@ Section rcfd_G.
     ⌜state = Closing fn⌝ ∗
     tokens_auth γ qs ∗
     unix_fd_model γ.(metadata_fd) (DfracOwn q) γ.(metadata_chars) ∗
-    (unix_fd_model γ.(metadata_fd) (DfracOwn 1) γ.(metadata_chars) -∗ WP fn () {{ res, ⌜res = ()%V⌝ }}).
+    (unix_fd_model γ.(metadata_fd) (DfracOwn 1) γ.(metadata_chars) -∗ WP fn () {{ itype_unit }}).
   #[local] Instance : CustomIpatFormat "inv_inner_closing_users" :=
     "(
       %q{} &
@@ -156,7 +156,7 @@ Section rcfd_G.
   #[local] Definition inv_inner_closing_no_users state : iProp Σ :=
     ∃ fn,
     ⌜state = Closing fn⌝ ∗
-    WP fn () {{ res, ⌜res = ()%V⌝ }}.
+    WP fn () {{ itype_unit }}.
   #[local] Instance : CustomIpatFormat "inv_inner_closing_no_users" :=
     "(
       %fn{} &
