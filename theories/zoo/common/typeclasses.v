@@ -12,7 +12,7 @@ Infix "≈" :=
   no associativity
 ) : stdpp_scope.
 Infix "≈@{ X }" := (
-  @similar X
+  @similar X _
 )(at level 70,
   only parsing,
   no associativity
@@ -21,8 +21,8 @@ Notation "(≈)" :=
   similar
 ( only parsing
 ) : stdpp_scope.
-Notation "(≈@{ A } )" := (
-  @similar A
+Notation "(≈@{ X } )" := (
+  @similar X _
 )( only parsing
 ) : stdpp_scope.
 Notation "( x1 ≈.)" := (
@@ -46,7 +46,7 @@ Infix "≉" :=
   no associativity
 ) : stdpp_scope.
 Infix "≉@{ X }" := (
-  @nonsimilar X
+  @nonsimilar X _
 )(at level 70,
   only parsing,
   no associativity
@@ -55,8 +55,8 @@ Notation "(≉)" :=
   nonsimilar
 ( only parsing
 ) : stdpp_scope.
-Notation "(≉@{ A } )" := (
-  @nonsimilar A
+Notation "(≉@{ X } )" := (
+  @nonsimilar X _
 )( only parsing
 ) : stdpp_scope.
 Notation "( x1 ≉.)" := (
