@@ -101,7 +101,7 @@ Fixpoint val_reachable footprint src path dst :=
   end.
 #[global] Arguments val_reachable _ !_ !_ / _ : assert.
 
-Definition val_alike footprint v1 v2 :=
+Definition val_compatible footprint v1 v2 :=
   match v1 with
   | ValBool b1 =>
       match v2 with
@@ -156,19 +156,19 @@ Definition val_alike footprint v1 v2 :=
   | _ =>
       None
   end.
-#[global] Arguments val_alike _ !_ !_ / : assert.
+#[global] Arguments val_compatible _ !_ !_ / : assert.
 
 Definition val_structeq footprint v1 v2 :=
   ∀ path v1' v2',
   val_reachable footprint v1 path v1' →
   val_reachable footprint v2 path v2' →
-  val_alike footprint v1' v2' = Some true.
+  val_compatible footprint v1' v2' = Some true.
 
 Definition val_structneq footprint v1 v2 :=
   ∃ path v1' v2',
   val_reachable footprint v1 path v1' ∧
   val_reachable footprint v2 path v2' ∧
-  val_alike footprint v1' v2' = Some false.
+  val_compatible footprint v1' v2' = Some false.
 
 Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} b footprint,
   val_traversable footprint v1 →
@@ -219,8 +219,8 @@ Proof.
       injection Hstructeq as [= ?%beq_eq];
       naive_solver
     ).
-  opose proof* (Hstructeq []) as Halike => //.
-  injection Halike as [= (<-%beq_eq & Hlength%beq_eq)%andb_prop].
+  opose proof* (Hstructeq []) as Hcompatible => //.
+  injection Hcompatible as [= (<-%beq_eq & Hlength%beq_eq)%andb_prop].
   rewrite /= !Forall'_Forall in Habstract1 Habstract2.
   rewrite !Forall_lookup in IH Habstract1 Habstract2.
   destruct (proj2 (list_eq_Forall2 vs1 vs2)); last done.
@@ -268,16 +268,16 @@ Proof.
   move: v2.
   induction v1 as [[b1 | i1 | l1 | |]| | [] tag1 vs1 IH] => //.
   all: intros [[b2 | i2 | l2 | |] | | [] tag2 vs2] => //.
-  all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Halike).
+  all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hcompatible).
   - intros [= [= <-]].
     destruct path; last done. simplify.
-    rewrite /= beq_true // in Halike.
+    rewrite /= beq_true // in Hcompatible.
   - intros [= [= <-]].
     destruct path; last done. simplify.
-    rewrite /= beq_true // in Halike.
+    rewrite /= beq_true // in Hcompatible.
   - intros [= <- <-].
     destruct path as [| i path]; simplify.
-    + rewrite /= !beq_true // in Halike.
+    + rewrite /= !beq_true // in Hcompatible.
     + destruct (vs1 !! i) as [v |] eqn:Hlookup; last done.
       rewrite Forall'_Forall in Habstract1.
       rewrite !Forall_lookup in Habstract1 IH.
