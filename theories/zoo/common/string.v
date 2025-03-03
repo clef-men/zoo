@@ -3,6 +3,8 @@ From stdpp Require Export
 
 From zoo Require Import
   prelude.
+From zoo.common Require Export
+  typeclasses.
 From zoo Require Import
   options.
 
@@ -14,7 +16,14 @@ From zoo Require Import
       if Ascii.eqb chr chr' then
         (String.rev acc, Some str)
       else
-      split_on_go chr str (String chr' acc)
+        split_on_go chr str (String chr' acc)
   end.
 Definition split_on chr str :=
   split_on_go chr str "".
+
+#[global] Program Instance string_beq : Beq string := {|
+  beq := String.eqb ;
+|}.
+Next Obligation.
+  apply String.eqb_eq.
+Qed.

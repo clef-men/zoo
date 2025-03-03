@@ -3,19 +3,29 @@ From stdpp Require Export
 
 From zoo Require Import
   prelude.
+From zoo.common Require Export
+  string.
 From zoo Require Import
   options.
 
-Definition binder_eqb bdr1 bdr2 :=
-  match bdr1, bdr2 with
-  | BAnon, BAnon =>
-      true
-  | BNamed str1, BNamed str2 =>
-      String.eqb str1 str2
-  | _, _ =>
-      false
-  end.
-#[global] Arguments binder_eqb !_ !_ / : assert.
-
-Definition binder_neqb bdr1 bdr2 :=
-  negb (binder_eqb bdr1 bdr2).
+#[global] Program Instance binder_beq : Beq binder := {|
+  beq bdr1 bdr2 :=
+    match bdr1, bdr2 with
+    | BAnon, BAnon =>
+        true
+    | BNamed str1, BNamed str2 =>
+        str1 ≟ str2
+    | _, _ =>
+        false
+    end ;
+|}.
+Next Obligation.
+  naive_solver.
+Qed.
+Next Obligation.
+  naive_solver.
+Qed.
+Next Obligation.
+  intros [] [] => //=.
+  rewrite beq_spec. naive_solver.
+Qed.

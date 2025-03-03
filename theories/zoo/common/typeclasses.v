@@ -67,3 +67,97 @@ Notation "(.≉ x2 )" := (
   λ x1, nonsimilar x1 x2
 )(only parsing
 ) : stdpp_scope.
+
+Class Beq {X} := {
+  beq : X → X → bool ;
+  beq_spec x1 x2 :
+    beq x1 x2 = true ↔
+    x1 = x2 ;
+}.
+#[global] Arguments Beq : clear implicits.
+#[global] Arguments beq {_ _} !_ !_ / : simpl nomatch, assert.
+
+Infix "≟" :=
+  beq
+( at level 30,
+  no associativity
+) : stdpp_scope.
+Infix "≟@{ X }" := (
+  @beq X _
+)(at level 30,
+  only parsing,
+  no associativity
+) : stdpp_scope.
+Notation "(≟)" :=
+  beq
+( only parsing
+) : stdpp_scope.
+Notation "(≟@{ X } )" := (
+  @beq X _
+)( only parsing
+) : stdpp_scope.
+Notation "( x1 ≟.)" := (
+  beq x1
+)(only parsing
+) : stdpp_scope.
+Notation "(.≟ x2 )" := (
+  λ x1, beq x1 x2
+)(only parsing
+) : stdpp_scope.
+
+Section beq.
+  Context `{!Beq X}.
+
+  Lemma beq_eq x1 x2 :
+    x1 ≟ x2 = true →
+    x1 = x2.
+  Proof.
+    apply beq_spec.
+  Qed.
+  Lemma beq_ne x1 x2 :
+    x1 ≟ x2 = false →
+    x1 ≠ x2.
+  Proof.
+    intros ? ?%beq_spec. congruence.
+  Qed.
+
+  Lemma beq_true x1 x2 :
+    x1 = x2 →
+    x1 ≟ x2 = true.
+  Proof.
+    apply beq_spec.
+  Qed.
+  Lemma beq_true' x :
+    x ≟ x = true.
+  Proof.
+    apply beq_true. done.
+  Qed.
+  Lemma beq_false x1 x2 :
+    x1 ≠ x2 →
+    x1 ≟ x2 = false.
+  Proof.
+    rewrite -not_true_iff_false.
+    intros ? ?%beq_spec. done.
+  Qed.
+End beq.
+
+#[global] Program Instance bool_beq : Beq bool := {|
+  beq := Bool.eqb ;
+|}.
+Next Obligation.
+  apply Bool.eqb_true_iff.
+Qed.
+
+#[global] Program Instance nat_beq : Beq nat := {|
+  beq := Nat.eqb ;
+|}.
+Next Obligation.
+  apply Nat.eqb_eq.
+Qed.
+
+#[global] Program Instance Z_beq : Beq Z := {|
+  beq := Z.eqb ;
+|}.
+Next Obligation.
+  apply Z.eqb_eq.
+Qed.

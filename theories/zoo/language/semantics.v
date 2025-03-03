@@ -100,11 +100,11 @@ Fixpoint eval_match tag sz (vs : location + generativity * list val) x_fb e_fb b
       Some $ subst' x_fb subj e_fb
   | br :: brs =>
       let pat := br.1 in
-      if Nat.eqb pat.(pattern_tag) tag && Nat.eqb (length pat.(pattern_fields)) sz then
+      if pat.(pattern_tag) ≟ tag && length pat.(pattern_fields) ≟ sz then
         let res := subst' pat.(pattern_as) subj br.2 in
         match vs with
         | inl l =>
-            if forallb (binder_eqb BAnon) pat.(pattern_fields) then
+            if forallb (BAnon ≟.) pat.(pattern_fields) then
               Some res
             else
               None

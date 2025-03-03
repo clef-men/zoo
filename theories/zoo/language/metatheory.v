@@ -17,18 +17,18 @@ Fixpoint occurs x e :=
   | Val _ =>
       false
   | Var y =>
-      String.eqb x y
+      x ≟ y
   | Rec f y e =>
-      binder_neqb (BNamed x) f &&
-      binder_neqb (BNamed x) f &&
-      binder_neqb (BNamed x) y &&
+      negb (BNamed x ≟ f) &&
+      negb (BNamed x ≟ f) &&
+      negb (BNamed x ≟ y) &&
       occurs x e
   | App e1 e2 =>
       occurs x e1 ||
       occurs x e2
   | Let y e1 e2 =>
       occurs x e1 ||
-        binder_neqb (BNamed x) y &&
+        negb (BNamed x ≟ y) &&
         occurs x e2
   | Unop _ e =>
       occurs x e
@@ -53,11 +53,11 @@ Fixpoint occurs x e :=
       existsb (occurs x) es
   | Match e0 y e1 brs =>
       occurs x e0 ||
-      binder_neqb (BNamed x) y && occurs x e1 ||
+      negb (BNamed x ≟ y) && occurs x e1 ||
       existsb (λ br,
         let pat := br.1 in
-        forallb (λ y, binder_neqb (BNamed x) y) pat.(pattern_fields) &&
-        binder_neqb (BNamed x) pat.(pattern_as) &&
+        forallb (λ y, negb (BNamed x ≟ y)) pat.(pattern_fields) &&
+        negb (BNamed x ≟ pat.(pattern_as)) &&
         occurs x br.2
       ) brs
   | GetTag e =>
@@ -100,7 +100,7 @@ Definition val_recursive v :=
             false
         | BNamed f =>
             existsb (λ rec,
-              binder_neqb (BNamed f) rec.1.2 &&
+              negb (BNamed f ≟ rec.1.2) &&
               occurs f rec.2
             ) recs
         end
@@ -114,14 +114,14 @@ Fixpoint subst (x : string) v e :=
   | Val _ =>
       e
   | Var y =>
-      if String.eqb x y then
+      if x ≟ y then
         Val v
       else
         Var y
   | Rec f y e =>
       Rec
         f y
-        ( if binder_eqb (BNamed x) f || binder_eqb (BNamed x) y then
+        ( if BNamed x ≟ f || BNamed x ≟ y then
             e
           else
             subst x v e
@@ -134,7 +134,7 @@ Fixpoint subst (x : string) v e :=
       Let
         y
         (subst x v e1)
-        ( if binder_eqb (BNamed x) y then
+        ( if BNamed x ≟ y then
             e2
           else
             subst x v e2
@@ -174,7 +174,7 @@ Fixpoint subst (x : string) v e :=
       Match
         (subst x v e0)
         y
-        ( if binder_eqb (BNamed x) y then
+        ( if BNamed x ≟ y then
             e1
           else
             subst x v e1
@@ -182,8 +182,8 @@ Fixpoint subst (x : string) v e :=
         ( ( λ br,
               ( br.1,
                 if
-                  existsb (binder_eqb (BNamed x)) br.1.(pattern_fields) ||
-                  binder_eqb (BNamed x) br.1.(pattern_as)
+                  existsb (BNamed x ≟.) br.1.(pattern_fields) ||
+                  BNamed x ≟ br.1.(pattern_as)
                 then
                   br.2
                 else
