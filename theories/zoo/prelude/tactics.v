@@ -69,41 +69,8 @@ Tactic Notation "simplify" "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5)
 
 Tactic Notation "invert" ident(H) "as" simple_intropattern(pat) :=
   inversion H as pat; clear H; simplify_eq/=.
-Tactic Notation "invert" ident(H) "-" ident(x1) "as" simple_intropattern(pat) :=
-  protect x1; invert H as pat; unprotect x1.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) "as" simple_intropattern(pat) :=
-  protect x2; invert H - x1 as pat; unprotect x2.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) "as" simple_intropattern(pat) :=
-  protect x3; invert H - x1 x2 as pat; unprotect x3.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) "as" simple_intropattern(pat) :=
-  protect x4; invert H - x1 x2 x3 as pat; unprotect x4.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) "as" simple_intropattern(pat) :=
-  protect x5; invert H - x1 x2 x3 x4 as pat; unprotect x5.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) "as" simple_intropattern(pat) :=
-  protect x6; invert H - x1 x2 x3 x4 x5 as pat; unprotect x6.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7) "as" simple_intropattern(pat) :=
-  protect x7; invert H - x1 x2 x3 x4 x5 x6 as pat; unprotect x7.
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7) ident(x8) "as" simple_intropattern(pat) :=
-  protect x8; invert H - x1 x2 x3 x4 x5 x6 x7 as pat; unprotect x8.
-
 Tactic Notation "invert" ident(H) :=
   invert H as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) :=
-  invert H - x1 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) :=
-  invert H - x1 x2 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) :=
-  invert H - x1 x2 x3 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) :=
-  invert H - x1 x2 x3 x4 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) :=
-  invert H - x1 x2 x3 x4 x5 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) :=
-  invert H - x1 x2 x3 x4 x5 x6 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7) :=
-  invert H - x1 x2 x3 x4 x5 x6 x7 as [].
-Tactic Notation "invert" ident(H) "-" ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7) ident(x8) :=
-  invert H - x1 x2 x3 x4 x5 x6 x7 x8 as [].
 
 Tactic Notation "solve_proper+" :=
   solve_proper_core ltac:(fun _ => f_equiv || solve_proper_prepare).
