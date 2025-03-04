@@ -384,6 +384,101 @@ Section Forall2.
   Qed.
 End Forall2.
 
+Section Forall2'.
+  Context `(P : A1 → A2 → Prop).
+
+  Fixpoint Forall2' l1 l2 :=
+    match l1, l2 with
+    | [], [] =>
+        True
+    | x1 :: l1, x2 :: l2 =>
+        P x1 x2 ∧ Forall2' l1 l2
+    | _, _ =>
+        False
+    end.
+  #[global] Arguments Forall2' !_ !_ / : assert.
+
+  Lemma Forall2'_Forall2 l1 l2 :
+    Forall2' l1 l2 ↔ Forall2 P l1 l2.
+  Proof.
+    move: l2. induction l1 => l2.
+    all: destruct l2; try done.
+    all: split; try naive_solver.
+    - intros ?%Forall2_nil_cons_inv. done.
+    - intros ?%Forall2_cons_nil_inv. done.
+    - rewrite Forall2_cons. naive_solver.
+  Qed.
+
+  #[global] Instance Forall2'_dec `{!RelDecision P} :
+    RelDecision Forall2'.
+  Proof.
+    refine (
+      fix go l1 l2 : Decision (Forall2' l1 l2) :=
+        match l1, l2 with
+        | [], [] =>
+            left _
+        | x1 :: l1, x2 :: l2 =>
+            cast_if_and
+              (decide (P x1 x2))
+              (go l1 l2)
+        | _, _ =>
+            right _
+        end
+    ).
+    all: clear go.
+    all: abstract first [constructor; done | inv 1; done].
+  Defined.
+
+  Lemma Forall2'_length l1 l2 :
+    Forall2' l1 l2 →
+    length l1 = length l2.
+  Proof.
+    rewrite Forall2'_Forall2. apply Forall2_length.
+  Qed.
+End Forall2'.
+
+Section Forall2'.
+  Context `(P : A → A → Prop).
+
+  Lemma Forall2'_refl :
+    (∀ x, P x x) →
+    Reflexive (Forall2' P).
+  Proof.
+    intros ? l. induction l; done.
+  Defined.
+  #[global] Instance Forall2'_reflexive `{!Reflexive P} :
+    Reflexive (Forall2' P).
+  Proof.
+    apply Forall2'_refl. done.
+  Qed.
+
+  Lemma Forall2'_sym :
+    (∀ x1 x2, P x1 x2 → P x2 x1) →
+    Symmetric (Forall2' P).
+  Proof.
+    intros ? l1. induction l1 => l2.
+    all: destruct l2; naive_solver.
+  Defined.
+  #[global] Instance Forall2'_symmetric `{!Symmetric P} :
+    Symmetric (Forall2' P).
+  Proof.
+    apply Forall2'_sym. done.
+  Qed.
+
+  Lemma Forall2'_trans :
+    (∀ x1 x2 x3, P x1 x2 → P x2 x3 → P x1 x3) →
+    Transitive (Forall2' P).
+  Proof.
+    intros ? l1. induction l1 => l2 l3.
+    all: destruct l2, l3; naive_solver.
+  Defined.
+  #[global] Instance Forall2'_transitive `{!Transitive P} :
+    Transitive (Forall2' P).
+  Proof.
+    apply Forall2'_trans. done.
+  Defined.
+End Forall2'.
+
 Section Forall2i.
   Context `(P : nat → A1 → A2 → Prop).
 
