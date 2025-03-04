@@ -101,6 +101,48 @@ Fixpoint val_reachable footprint src path dst :=
   end.
 #[global] Arguments val_reachable _ !_ !_ / _ : assert.
 
+#[global] Instance val_reachable_dec footprint src path dst :
+  Decision (val_reachable footprint src path dst).
+Proof.
+  move: src path.
+  refine (
+    fix go src path {struct path} :=
+      match path with
+      | [] =>
+          cast_if (decide (src = dst))
+      | pos :: path =>
+          match src with
+          | ValLoc l =>
+              (match footprint !! l as x return _ = x → _ with
+              | None => λ Hfootprint_lookup,
+                  right _
+              | Some blk => λ Hfootprint_lookup,
+                  (match blk.(structeq_block_fields) !! pos as x return _ = x → _ with
+                  | None => λ Hfields_lookup,
+                      right _
+                  | Some fld => λ Hfields_lookup,
+                      cast_if (go fld.(structeq_field_val) path)
+                  end) (eq_refl (blk.(structeq_block_fields) !! pos))
+              end) (eq_refl (footprint !! l))
+          | ValBlock _ _ vs =>
+              (match vs !! pos as x return _ = x → _ with
+              | None => λ Hvs_lookup,
+                  right _
+              | Some src => λ Hvs_lookup,
+                  cast_if (go src path)
+              end) (eq_refl (vs !! pos))
+          | _ =>
+              right _
+          end
+      end
+  ).
+  all:
+    abstract (
+      rewrite /= ?Hfootprint_lookup ?Hfields_lookup ?Hvs_lookup;
+      congruence
+    ).
+Defined.
+
 Definition val_compatible footprint v1 v2 :=
   match v1 with
   | ValBool b1 =>
