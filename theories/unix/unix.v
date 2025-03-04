@@ -1,13 +1,12 @@
 From Coq.Strings Require Export
   Ascii.
 
-From iris.bi Require Export
-  lib.fractional.
-
 From zoo Require Import
   prelude.
 From zoo.language Require Import
   notations.
+From zoo.program_logic Require Export
+  wp.
 From zoo.diaframe Require Import
   diaframe.
 From zoo Require Import

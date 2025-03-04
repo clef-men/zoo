@@ -39,7 +39,7 @@ Section typed_strong_prophet.
   Definition typed_strong_prophet_model pid prophs : iProp Σ :=
     ∃ uprophs,
     ⌜prophs = typed_strong_prophet_process uprophs⌝ ∗
-    prophet_model pid uprophs.
+    prophet_model' pid uprophs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %uprophs &

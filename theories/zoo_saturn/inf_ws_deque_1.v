@@ -212,7 +212,7 @@ Section inf_ws_deque_1_G.
         winner γ
     | Some (_, id) =>
           winner γ
-        ∨ identifier_model id ∗
+        ∨ identifier_model' id ∗
           ∃ Φ,
           winner₁ γ front Φ ∗
           au γ ι Φ
@@ -588,7 +588,7 @@ Section inf_ws_deque_1_G.
           ⌜head $ filter (λ '(front', _), front' = front) prophs = Some (front, id)⌝ ∗
           winner₁ γ front Φ' ∗
           winner₂ γ front Φ ∗
-          identifier_model id ∗
+          identifier_model' id ∗
           au γ ι Φ'
         )
       ∨ ⌜back = front⌝ ∗

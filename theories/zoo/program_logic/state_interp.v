@@ -1,4 +1,4 @@
-From iris.bi Require Import
+From iris.bi Require Export
   lib.fractional.
 From iris.base_logic Require Import
   lib.gen_heap.
@@ -81,6 +81,8 @@ Section zoo_G.
 
   Definition prophet_model :=
     prophet_model.
+  Definition prophet_model' pid :=
+    prophet_model pid (DfracOwn 1).
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
@@ -276,18 +278,84 @@ Section zoo_G.
     apply _.
   Qed.
 
-  #[global] Instance prophet_model_timeless pid prophs :
-    Timeless (prophet_model pid prophs).
+  #[global] Instance prophet_model_timeless pid dq prophs :
+    Timeless (prophet_model pid dq prophs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prophet_model_persistent pid prophs :
+    Persistent (prophet_model pid DfracDiscarded prophs).
   Proof.
     apply _.
   Qed.
 
-  Lemma prophet_model_exclusive pid prophs1 prophs2 :
-    prophet_model pid prophs1 -∗
-    prophet_model pid prophs2 -∗
+  #[global] Instance prophet_model_fractional pid prophs :
+    Fractional (λ q, prophet_model pid (DfracOwn q) prophs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance prophet_model_as_fractional pid q prophs :
+    AsFractional (prophet_model pid (DfracOwn q) prophs) (λ q, prophet_model pid (DfracOwn q) prophs) q.
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma prophet_model_valid pid dq prophs :
+    prophet_model pid dq prophs ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    apply prophet_model_valid.
+  Qed.
+  Lemma prophet_model_combine pid dq1 prophs1 dq2 prophs2 :
+    prophet_model pid dq1 prophs1 -∗
+    prophet_model pid dq2 prophs2 -∗
+      ⌜prophs1 = prophs2⌝ ∗
+      prophet_model pid (dq1 ⋅ dq2) prophs1.
+  Proof.
+    apply prophet_model_combine.
+  Qed.
+  Lemma prophet_model_valid_2 pid dq1 prophs1 dq2 prophs2 :
+    prophet_model pid dq1 prophs1 -∗
+    prophet_model pid dq2 prophs2 -∗
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜prophs1 = prophs2⌝.
+  Proof.
+    apply prophet_model_valid_2.
+  Qed.
+  Lemma prophet_model_agree pid dq1 prophs1 dq2 prophs2 :
+    prophet_model pid dq1 prophs1 -∗
+    prophet_model pid dq2 prophs2 -∗
+    ⌜prophs1 = prophs2⌝.
+  Proof.
+    apply prophet_model_agree.
+  Qed.
+  Lemma prophet_model_dfrac_ne pid1 dq1 prophs1 pid2 dq2 prophs2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    prophet_model pid1 dq1 prophs1 -∗
+    prophet_model pid2 dq2 prophs2 -∗
+    ⌜pid1 ≠ pid2⌝.
+  Proof.
+    apply prophet_model_dfrac_ne.
+  Qed.
+  Lemma prophet_model_ne pid1 prophs1 pid2 dq2 prophs2 :
+    prophet_model pid1 (DfracOwn 1) prophs1 -∗
+    prophet_model pid2 dq2 prophs2 -∗
+    ⌜pid1 ≠ pid2⌝.
+  Proof.
+    apply prophet_model_ne.
+  Qed.
+  Lemma prophet_model_exclusive pid prophs1 dq2 prophs2 :
+    prophet_model pid (DfracOwn 1) prophs1 -∗
+    prophet_model pid dq2 prophs2 -∗
     False.
   Proof.
     apply prophet_model_exclusive.
+  Qed.
+  Lemma prophet_model_persist pid dq prophs :
+    prophet_model pid dq prophs ⊢ |==>
+    prophet_model pid DfracDiscarded prophs.
+  Proof.
+    apply prophet_model_persist.
   Qed.
 
   #[local] Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
@@ -366,7 +434,7 @@ Section zoo_G.
     state_interp nt σ κ ⊢ |==>
       ∃ prophs,
       state_interp nt (state_update_prophets ({[pid]} ∪.) σ) κ ∗
-      prophet_model pid prophs.
+      prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid ($ & $ & Hκ)".
     iMod (prophet_map_new with "Hκ") as "(Hκ & Hpid)"; first done.
@@ -374,11 +442,11 @@ Section zoo_G.
   Qed.
   Lemma state_interp_prophet_resolve nt σ κ pid proph prophs :
     state_interp nt σ ((pid, proph) :: κ) -∗
-    prophet_model pid prophs ==∗
+    prophet_model pid (DfracOwn 1) prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
       state_interp nt σ κ ∗
-      prophet_model pid prophs'.
+      prophet_model pid (DfracOwn 1) prophs'.
   Proof.
     iIntros "($ & $ & Hκ) Hpid".
     iMod (prophet_map_resolve with "Hκ Hpid") as "(%prophs' & -> & Hκ & Hpid)".

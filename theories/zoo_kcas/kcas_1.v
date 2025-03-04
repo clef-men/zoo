@@ -427,7 +427,7 @@ Section kcas_1_G.
         ⌜prophs = η.(metadata_prophs)⌝ ∗
         ( au η ι Ψ ∗
           winning η
-        ∨ identifier_model (metadata_winner η)
+        ∨ identifier_model' (metadata_winner η)
         ) ∗
         ( [∗ map] helper ↦ j ∈ helpers,
           ∃ P,
@@ -448,7 +448,7 @@ Section kcas_1_G.
         )
     | Finished =>
         ⌜v_status = metadata_final η⌝ ∗
-        identifier_model (metadata_winner η) ∗
+        identifier_model' (metadata_winner η) ∗
         (owner η ∨ Ψ (metadata_success η)) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
           ∃ P,
@@ -1303,7 +1303,7 @@ Section kcas_1_G.
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
       ( ( ⌜gid ≠ metadata_winner η⌝ ∗
-          identifier_model gid
+          identifier_model' gid
         ) ∨ (
           ∃ Ψ,
           ⌜fstatus = FinalBefore⌝ ∗
@@ -1313,7 +1313,7 @@ Section kcas_1_G.
         ) ∨ (
           ∃ i,
           ⌜gid = metadata_winner η⌝ ∗
-          identifier_model gid ∗
+          identifier_model' gid ∗
           ⌜fstatus = FinalAfter⌝ ∗
           ⌜metadata_size η ≤ i⌝ ∗
           lstatus_lb η (Running i)
@@ -1504,7 +1504,7 @@ Section kcas_1_G.
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
-      identifier_model gid
+      identifier_model' gid
     }}}
       kcas_1_finish #gid #casn (final_status_to_val fstatus)
     {{{
@@ -1540,7 +1540,7 @@ Section kcas_1_G.
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
-      identifier_model gid ∗
+      identifier_model' gid ∗
       lstatus_lb η (Running i)
     }}}
       kcas_1_finish #gid #casn §After

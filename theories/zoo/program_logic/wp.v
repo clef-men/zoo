@@ -298,7 +298,7 @@ Section zoo_G.
       Proph @ E
     {{{ prophs pid,
       RET #pid;
-      prophet_model pid prophs
+      prophet_model' pid prophs
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -312,11 +312,11 @@ Section zoo_G.
   Lemma wp_resolve e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
-    prophet_model pid prophs -∗
+    prophet_model' pid prophs -∗
     WP e @ E {{ res,
       ∀ prophs',
       ⌜prophs = (res, v) :: prophs'⌝ -∗
-      prophet_model pid prophs' -∗
+      prophet_model' pid prophs' -∗
       Φ res
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
