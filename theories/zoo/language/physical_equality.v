@@ -89,6 +89,23 @@ Inductive lowval :=
   | LowvalRecs
   | LowvalBlock gen tag (vs : list val) (lvs : list lowval).
 
+Notation LowvalInt n := (
+  LowvalLit (LowlitInt n)
+)(only parsing
+).
+Notation LowvalLoc l := (
+  LowvalLit (LowlitLoc l)
+)(only parsing
+).
+Notation LowvalProph := (
+  LowvalLit LowlitProph
+)(only parsing
+).
+Notation LowvalPoison := (
+  LowvalLit LowlitPoison
+)(only parsing
+).
+
 #[global] Instance lowval_eq_dec : EqDecision lowval.
 Proof.
   unshelve refine (
