@@ -877,7 +877,8 @@ Qed.
   populate ValUnit.
 #[global] Instance expr_inhabited : Inhabited expr :=
   populate (Val inhabitant).
-#[global] Instance expr_eq_dec : EqDecision expr.
+#[global] Instance expr_eq_dec :
+  EqDecision expr.
 Proof.
   unshelve refine (
     fix go e1 e2 : Decision (e1 = e2) :=
@@ -1049,14 +1050,15 @@ Proof.
           right _
       end
     for go
-  );
-  try clear go_list;
-  try clear go_branches;
-  try clear go_recursives;
-  clear go go_val;
-  abstract intuition congruence.
+  ).
+  all: try clear go_list.
+  all: try clear go_branches.
+  all: try clear go_recursives.
+  all: clear go go_val.
+  all: abstract congruence.
 Defined.
-#[global] Instance val_eq_dec : EqDecision val.
+#[global] Instance val_eq_dec :
+  EqDecision val.
 Proof.
   unshelve refine (
     fix go_val v1 v2 : Decision (v1 = v2) :=
@@ -1101,11 +1103,11 @@ Proof.
       | _, _ =>
           right _
       end
-  );
-  clear go_recursives;
-  try clear go_list;
-  clear go_val;
-  abstract intuition congruence.
+  ).
+  all: clear go_recursives.
+  all: try clear go_list.
+  all: clear go_val.
+  all: abstract congruence.
 Defined.
 Variant encode_leaf :=
   | EncodeNat tag
