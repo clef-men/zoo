@@ -84,10 +84,39 @@ Proof.
   intros [] []; done.
 Qed.
 
+Unset Elimination Schemes.
 Inductive lowval :=
   | LowvalLit (lit : lowliteral)
   | LowvalRecs
   | LowvalBlock gen tag (vs : list val) (lvs : list lowval).
+Set Elimination Schemes.
+
+Section lowval_ind.
+  Variable P : lowval → Prop.
+
+  Variable HLit :
+    ∀ lit,
+    P (LowvalLit lit).
+  Variable HRecs :
+    P LowvalRecs.
+  Variable HBlock :
+    ∀ gen tag vs,
+    ∀ lvs, Forall P lvs →
+    P (LowvalBlock gen tag vs lvs).
+
+  Fixpoint lowval_ind lv :=
+    match lv with
+    | LowvalLit lit =>
+        HLit
+          lit
+    | LowvalRecs =>
+        HRecs
+    | LowvalBlock gen tag vs lvs =>
+        HBlock
+          gen tag vs
+          lvs (Forall_true P lvs lowval_ind)
+    end.
+End lowval_ind.
 
 Notation LowvalInt n := (
   LowvalLit (LowlitInt n)
