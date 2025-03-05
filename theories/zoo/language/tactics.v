@@ -108,7 +108,7 @@ Ltac reshape_expr e tac :=
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
-Ltac zoo_simplifier :=
+Ltac zoo_simpl :=
   repeat match goal with
   | _ =>
       progress simplify_map_eq/=
@@ -219,7 +219,7 @@ Ltac invert_base_step :=
       try (is_var e; fail 1);
       invert H
   end;
-  zoo_simplifier.
+  zoo_simpl.
 
 Create HintDb zoo.
 

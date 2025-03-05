@@ -254,7 +254,7 @@ Proof.
   destruct v1 as [[] | | [] tag1 [| v1 vs1]] => //.
   all: destruct v2 as [[] | | [] tag2 [| v2 vs2]] => //.
   all: try rewrite bool_decide_eq_true //.
-  intros Habstract1 Habstract2 Hsimilar. zoo_simplifier.
+  intros Habstract1 Habstract2 Hsimilar. zoo_simpl.
   rewrite andb_true_iff.
   split; apply beq_true; naive_solver.
 Qed.
@@ -272,7 +272,7 @@ Proof.
     try (
       ospecialize* (Hstructeq []) => //;
       apply bool_decide_eq_true in Hstructeq;
-      zoo_simplifier;
+      zoo_simpl;
       naive_solver
     ).
   opose proof* (Hstructeq []) as Hcompatible => //.

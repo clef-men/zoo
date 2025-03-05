@@ -50,7 +50,7 @@ Coercion goptional_to_val o :=
   Inj (=) (≈@{val}) goptional_to_val.
 Proof.
   intros [] [] ?; try done.
-  zoo_simplifier. done.
+  zoo_simpl. done.
 Qed.
 #[global] Instance goptional_to_val_inj :
   Inj (=) (=) goptional_to_val.

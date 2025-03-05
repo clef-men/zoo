@@ -487,7 +487,7 @@ Section rcfd_G.
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(:inv_inner =4)".
         wp_cas as _ | Hcas; first iSteps.
-        destruct state4; first zoo_simplifier.
+        destruct state4; first zoo_simpl.
         destruct Hcas as (_ & _ & [= <-]).
         iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate" as "(:inv_inner_closing_no_users =4 eq)". injection Heq as <-.
@@ -635,7 +635,7 @@ Section rcfd_G.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
         { destruct lstate2; iDecompose "Hlstate".
-          - zoo_simplifier. naive_solver.
+          - zoo_simpl. naive_solver.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -645,7 +645,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (Closing _). iSteps. }
         iSteps.
 
-      + destruct state2; last zoo_simplifier.
+      + destruct state2; last zoo_simpl.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate"; iSteps. }
         iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".
@@ -785,7 +785,7 @@ Section rcfd_G.
 
       + iAssert (⌜∃ fn2, state2 = Closing fn2⌝ ∗ lstate_lb γ LClosingUsers)%I as "((%fn2 & ->) & #Hlstate_lb)".
         { destruct lstate2; iDecompose "Hlstate".
-          - zoo_simplifier. naive_solver.
+          - zoo_simpl. naive_solver.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "$".
             iSteps.
           - iDestruct (lstate_lb_get with "Hlstate_auth") as "Hlstate_lb".
@@ -795,7 +795,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iExists (Closing _). iSteps. }
         iSteps. iApply ("HΦ" $! None). iSteps.
 
-      + destruct state2; last zoo_simplifier.
+      + destruct state2; last zoo_simpl.
         destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2]; last first.
         { destruct lstate2; iDecompose "Hlstate"; iSteps. }
         iDestruct "Hlstate" as "(:inv_inner_open =2 eq)".
