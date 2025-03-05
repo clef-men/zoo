@@ -14,6 +14,7 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types n : Z.
 Implicit Types v : val.
+Implicit Types lv : lowval.
 
 Parameter structeq : val.
 
@@ -35,6 +36,12 @@ Record structeq_field := StructeqField {
 Add Printing Constructor structeq_field.
 Implicit Types fld : structeq_field.
 
+#[global] Instance structeq_field_inhabited : Inhabited structeq_field :=
+  populate
+    {|structeq_field_dfrac := inhabitant ;
+      structeq_field_val := inhabitant ;
+    |}.
+
 Record structeq_block := StructeqBlock {
   structeq_block_tag : nat ;
   structeq_block_fields : list structeq_field ;
@@ -43,13 +50,19 @@ Add Printing Constructor structeq_block.
 Implicit Types blk : structeq_block.
 Implicit Types footprint : gmap location structeq_block.
 
+#[global] Instance structeq_block_inhabited : Inhabited structeq_block :=
+  populate
+    {|structeq_block_tag := inhabitant ;
+      structeq_block_fields := inhabitant ;
+    |}.
+
 Fixpoint val_traversable footprint v :=
   match v with
   | ValBool _
   | ValInt _ =>
       True
   | ValLoc l =>
-      bool_decide (l ∈ dom footprint)
+      l ∈ dom footprint
   | ValBlock _ _ vs =>
       Forall' (val_traversable footprint) vs
   | _ =>
@@ -143,87 +156,73 @@ Proof.
     ).
 Defined.
 
-Definition val_compatible footprint v1 v2 :=
-  match v1 with
-  | ValBool b1 =>
-      match v2 with
-      | ValBool b2 =>
-          Some (b1 ≟ b2)
-      | ValRecs _ _
-      | ValLoc _ =>
-          Some false
+Definition lowval_compatible footprint lv1 lv2 :=
+  match lv1 with
+  | LowvalLit lit1 =>
+      match lit1 with
+      | LowlitLoc l1 =>
+          match lv2 with
+          | LowvalLoc l2 =>
+              let blk1 := footprint !!! l1 in
+              let blk2 := footprint !!! l2 in
+              blk1.(structeq_block_tag) ≟ blk2.(structeq_block_tag) &&
+              length blk1.(structeq_block_fields) ≟ length blk2.(structeq_block_fields)
+          | LowvalBlock _ tag2 vs2 _ =>
+              let blk1 := footprint !!! l1 in
+              blk1.(structeq_block_tag) ≟ tag2 &&
+              length blk1.(structeq_block_fields) ≟ length vs2
+          | _ =>
+              false
+          end
       | _ =>
-          None
+          bool_decide (lv2 = LowvalLit lit1)
       end
-  | ValInt n1 =>
-      match v2 with
-      | ValInt n2 =>
-          Some (n1 ≟ n2)
-      | ValRecs _ _
-      | ValLoc _ =>
-          Some false
+  | LowvalRecs =>
+      bool_decide (lv2 = LowvalRecs)
+  | LowvalBlock _ tag1 vs1 _ =>
+      match lv2 with
+      | LowvalLoc l2 =>
+          let blk2 := footprint !!! l2 in
+          tag1 ≟ blk2.(structeq_block_tag) &&
+          length vs1 ≟ length blk2.(structeq_block_fields)
+      | LowvalBlock _ tag2 vs2 _ =>
+          tag1 ≟ tag2 &&
+          length vs1 ≟ length vs2
       | _ =>
-          None
+          false
       end
-  | ValLoc l1 =>
-      match v2 with
-      | ValLoc l2 =>
-          blk1 ← footprint !! l1 ;
-          blk2 ← footprint !! l2 ;
-          Some $
-            blk1.(structeq_block_tag) ≟ blk2.(structeq_block_tag) &&
-            length blk1.(structeq_block_fields) ≟ length blk2.(structeq_block_fields)
-      | ValBlock _ tag2 vs2 =>
-          blk1 ← footprint !! l1 ;
-          Some $
-            blk1.(structeq_block_tag) ≟ tag2 &&
-            length blk1.(structeq_block_fields) ≟ length vs2
-      | _ =>
-          None
-      end
-  | ValBlock _ tag1 vs1 =>
-      match v2 with
-      | ValLoc l2 =>
-          blk2 ← footprint !! l2 ;
-          Some $
-            tag1 ≟ blk2.(structeq_block_tag) &&
-            length vs1 ≟ length blk2.(structeq_block_fields)
-      | ValBlock _ tag2 vs2 =>
-          Some $
-            tag1 ≟ tag2 &&
-            length vs1 ≟ length vs2
-      | _ =>
-          None
-      end
-  | _ =>
-      None
   end.
-#[global] Arguments val_compatible _ !_ !_ / : assert.
+#[global] Arguments lowval_compatible _ !_ !_ / : assert.
+
+Definition val_compatible footprint v1 v2 :=
+  lowval_compatible footprint (val_to_low v1) (val_to_low v2).
 
 Definition val_structeq footprint v1 v2 :=
   ∀ path v1' v2',
   val_reachable footprint v1 path v1' →
   val_reachable footprint v2 path v2' →
-  val_compatible footprint v1' v2' = Some true.
+  val_compatible footprint v1' v2' = true.
 
 Definition val_structneq footprint v1 v2 :=
   ∃ path v1' v2',
   val_reachable footprint v1 path v1' ∧
   val_reachable footprint v2 path v2' ∧
-  val_compatible footprint v1' v2' = Some false.
+  val_compatible footprint v1' v2' = false.
 
-Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} b footprint,
+Axiom structeq_spec : ∀ `{zoo_G : !ZooG Σ} {v1 v2} footprint,
   val_traversable footprint v1 →
   val_traversable footprint v2 →
-  (if b then val_structeq else val_structneq) footprint v1 v2 →
   {{{
     structeq_footprint footprint
   }}}
     v1 = v2
-  {{{
+  {{{ b,
     RET #b;
+    ⌜(if b then val_structeq else val_structneq) footprint v1 v2⌝ ∗
     structeq_footprint footprint
   }}}.
+
+(* Abstract (tree-like) values *)
 
 Fixpoint val_abstract v :=
   match v with
@@ -246,55 +245,79 @@ Proof.
   naive_solver.
 Qed.
 
-Lemma val_structeq_abstract_1 v1 v2 :
+Lemma val_compatible_refl_abstract footprint v1 v2 :
   val_abstract v1 →
   val_abstract v2 →
-  val_structeq ∅ v1 v2 →
-  v1 = v2.
+  v1 ≈ v2 →
+  val_compatible footprint v1 v2 = true.
 Proof.
-  move: v2. induction v1 as [[b1 | i1 | l1 | |]| | [] tag1 vs1 IH] => //.
-  all: intros [[b2 | i2 | l2 | |] | | [] tag2 vs2] => //.
+  destruct v1 as [[] | | [] tag1 [| v1 vs1]] => //.
+  all: destruct v2 as [[] | | [] tag2 [| v2 vs2]] => //.
+  all: try rewrite bool_decide_eq_true //.
+  intros Habstract1 Habstract2 Hsimilar. zoo_simplifier.
+  rewrite andb_true_iff.
+  split; apply beq_true; naive_solver.
+Qed.
+
+Lemma val_structeq_abstract_1 footprint v1 v2 :
+  val_abstract v1 →
+  val_abstract v2 →
+  val_structeq footprint v1 v2 →
+  v1 ≈ v2.
+Proof.
+  move: v2. induction v1 as [[] | | [] tag1 [| v1 vs1'] IH] => //.
+  all: intros [[] | | [] tag2 [| v2 vs2']] => //.
   all: intros Habstract1 Habstract2 Hstructeq.
   all:
     try (
       ospecialize* (Hstructeq []) => //;
-      injection Hstructeq as [= ?%beq_eq];
+      apply bool_decide_eq_true in Hstructeq;
+      zoo_simplifier;
       naive_solver
     ).
   opose proof* (Hstructeq []) as Hcompatible => //.
-  injection Hcompatible as [= (<-%beq_eq & Hlength%beq_eq)%andb_prop].
-  rewrite /= !Forall'_Forall in Habstract1 Habstract2.
-  rewrite !Forall_lookup in IH Habstract1 Habstract2.
-  destruct (proj2 (list_eq_Forall2 vs1 vs2)); last done.
-  apply Forall2_same_length_lookup_2; first done. intros i v1 v2 Hlookup1 Hlookup2.
+  apply andb_prop in Hcompatible as (<-%beq_eq & Hlen%beq_eq).
+  split; first done.
+  remember (v1 :: vs1') as vs1 eqn:Hvs1 => {v1 vs1' Hvs1}.
+  remember (v2 :: vs2') as vs2 eqn:Hvs2 => {v2 vs2' Hvs2}.
+  rewrite Forall2'_Forall2 Forall2_fmap Forall2_same_length_lookup.
+  split; first done. intros i v1 v2 Hlookup1 Hlookup2.
+  rewrite /= !Forall'_Forall !Forall_lookup in IH Habstract1 Habstract2.
   eapply IH; [naive_solver.. |]. intros path v1' v2' Hreachable1 Hreachable2.
   apply (Hstructeq (i :: path)); rewrite /= ?Hlookup1 ?Hlookup2 //.
 Qed.
 Lemma val_structeq_abstract_2 v1 v2 :
   val_abstract v1 →
-  v1 = v2 →
+  val_abstract v2 →
+  v1 ≈ v2 →
   val_structeq ∅ v1 v2.
 Proof.
-  intros Habstract <-.
-  induction v1 as [[b | i | l | |]| | [] tag vs IH] => //.
-  - intros [] v1 v2; last done. intros <- <-.
-    rewrite /= beq_true //.
-  - intros [] v1 v2; last done. intros <- <-.
-    rewrite /= beq_true //.
-  - intros [| i path] v1 v2.
-    + intros <- <-.
-      rewrite /= !beq_true //.
-    + move=> /= Hreachable1 Hreachable2.
-      destruct (vs !! i) as [v |] eqn:Hlookup; last done.
-      rewrite /= Forall'_Forall in Habstract.
-      rewrite !Forall_lookup in IH Habstract.
-      naive_solver.
+  move: v2. induction v1 as [[] | | [] tag1 [| v1 vs1'] IH] => //.
+  all: intros [[] | | [] tag2 [| v2 vs2']] => //.
+  all: intros Habstract1 Habstract2 Hsimilar.
+  all:
+    try (
+      intros [] v1 v2; last done; intros <- <-;
+      apply val_compatible_refl_abstract; done
+    ).
+  intros [| i path] w1 w2.
+  - intros <- <-.
+    apply val_compatible_refl_abstract; done.
+  - destruct Hsimilar as (<- & Hsimilar).
+    remember (v1 :: vs1') as vs1 eqn:Hvs1 => {v1 vs1' Hvs1}.
+    remember (v2 :: vs2') as vs2 eqn:Hvs2 => {v2 vs2' Hvs2}.
+    move=> /= Hreachable1 Hreachable2.
+    destruct (vs1 !! i) as [v1 |] eqn:Hlookup1; last done.
+    destruct (vs2 !! i) as [v2 |] eqn:Hlookup2; last done.
+    rewrite /= !Forall'_Forall !Forall_lookup in IH Habstract1 Habstract2.
+    rewrite Forall2'_Forall2 Forall2_fmap Forall2_same_length_lookup in Hsimilar.
+    eapply IH; last done; naive_solver.
 Qed.
 Lemma val_structeq_abstract v1 v2 :
   val_abstract v1 →
   val_abstract v2 →
   val_structeq ∅ v1 v2 ↔
-  v1 = v2.
+  v1 ≈ v2.
 Proof.
   intros Habstract1 Habstract2. split.
   - apply val_structeq_abstract_1; done.
@@ -305,50 +328,35 @@ Lemma val_structneq_abstract v1 v2 :
   val_abstract v1 →
   val_abstract v2 →
   val_structneq ∅ v1 v2 →
-  v1 ≠ v2.
+  v1 ≉ v2.
 Proof.
-  move: v2.
-  induction v1 as [[b1 | i1 | l1 | |]| | [] tag1 vs1 IH] => //.
-  all: intros [[b2 | i2 | l2 | |] | | [] tag2 vs2] => //.
+  move: v2. induction v1 as [[] | | [] tag1 [| v1 vs1'] IH] => //.
+  all: intros [[] | | [] tag2 [| v2 vs2']] => //.
   all: intros Habstract1 Habstract2 (path & v1 & v2 & Hreachable1 & Hreachable2 & Hcompatible).
-  - intros [= [= <-]].
-    destruct path; last done. simplify.
-    rewrite /= beq_true // in Hcompatible.
-  - intros [= [= <-]].
-    destruct path; last done. simplify.
-    rewrite /= beq_true // in Hcompatible.
-  - intros [= <- <-].
-    destruct path as [| i path]; simplify.
-    + rewrite /= !beq_true // in Hcompatible.
-    + destruct (vs1 !! i) as [v |] eqn:Hlookup; last done.
-      rewrite Forall'_Forall in Habstract1.
-      rewrite !Forall_lookup in Habstract1 IH.
-      eapply IH => //; [naive_solver.. |].
-      rewrite /val_structneq. naive_solver.
+  all: destruct path; last done; simplify.
+  all: rewrite bool_decide_eq_false in Hcompatible.
+  all: cbn; naive_solver.
 Qed.
 
-Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} b Φ :
+Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} :
   val_abstract v1 →
   val_abstract v2 →
-  (if b then val_structeq else val_structneq) ∅ v1 v2 →
-  Φ #b ⊢
-  WP v1 = v2 {{ Φ }}.
+  {{{
+    True
+  }}}
+    v1 = v2
+  {{{ b,
+    RET #b;
+    ⌜(if b then (≈) else (≉)) v1 v2⌝
+  }}}.
 Proof.
-  iIntros "%Habstract1 %Habstract2 %Hb HΦ".
-  wp_apply (structeq_spec b ∅) as "_"; last iSteps.
+  iIntros "%Habstract1 %Habstract2 %Φ _ HΦ".
+  wp_apply (structeq_spec ∅) as ([]) "(%H & _)".
   { apply val_abstract_traversable => //. }
   { apply val_abstract_traversable => //. }
-  { done. }
   { iApply structeq_footprint_empty. }
-Qed.
-Lemma structeq_spec_abstract_eq `{zoo_G : !ZooG Σ} v1 v2 Φ :
-  val_abstract v1 →
-  val_abstract v2 →
-  v1 = v2 →
-  Φ #true ⊢
-  WP v1 = v2 {{ Φ }}.
-Proof.
-  iIntros (Habstract1 Habstract2 <-) "HΦ".
-  wp_apply (structeq_spec_abstract true with "HΦ"); [done.. |].
-  { apply val_structeq_abstract_2; done. }
+  - apply val_structeq_abstract in H; [| done..].
+    iSteps.
+  - apply val_structneq_abstract in H; [| done..].
+    iSteps.
 Qed.
