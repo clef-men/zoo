@@ -93,8 +93,8 @@ Section auth_dgset_G.
   Lemma auth_dgset_auth_combine γ dq1 x1 dq2 x2 :
     auth_dgset_auth γ dq1 x1 -∗
     auth_dgset_auth γ dq2 x2 -∗
-      auth_dgset_auth γ (dq1 ⋅ dq2) x1 ∗
-      ⌜x1 = x2⌝.
+      ⌜x1 = x2⌝ ∗
+      auth_dgset_auth γ (dq1 ⋅ dq2) x1.
   Proof.
     iIntros "H●1 H●2". iCombine "H●1 H●2" as "H●".
     iDestruct (own_valid with "H●") as %(_ & [= ->]%leibniz_equiv & _)%auth_auth_dfrac_op_valid.
@@ -103,11 +103,12 @@ Section auth_dgset_G.
   Lemma auth_dgset_auth_valid_2 γ dq1 x1 dq2 x2 :
     auth_dgset_auth γ dq1 x1 -∗
     auth_dgset_auth γ dq2 x2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ x1 = x2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜x1 = x2⌝.
   Proof.
     iIntros "H●1 H●2".
-    iDestruct (auth_dgset_auth_combine with "H●1 H●2") as "(H● & ->)".
-    iDestruct (auth_dgset_auth_valid with "H●") as %?.
+    iDestruct (auth_dgset_auth_combine with "H●1 H●2") as "(-> & H●)".
+    iDestruct (auth_dgset_auth_valid with "H●") as "$".
     iSteps.
   Qed.
   Lemma auth_dgset_auth_agree γ dq1 x1 dq2 x2 :
@@ -125,25 +126,22 @@ Section auth_dgset_G.
     ⌜γ1 ≠ γ2⌝.
   Proof.
     iIntros "% H●1 H●2 ->".
-    iDestruct (auth_dgset_auth_valid_2 with "H●1 H●2") as "(% & _)".
-    iSmash.
+    iDestruct (auth_dgset_auth_valid_2 with "H●1 H●2") as "(% & _)". done.
   Qed.
   Lemma auth_dgset_auth_ne γ1 x1 γ2 dq2 x2 :
     auth_dgset_auth γ1 (DfracOwn 1) x1 -∗
     auth_dgset_auth γ2 dq2 x2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    intros.
     iApply auth_dgset_auth_dfrac_ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma auth_dgset_auth_exclusive γ x1 x2 :
+  Lemma auth_dgset_auth_exclusive γ x1 dq2 x2 :
     auth_dgset_auth γ (DfracOwn 1) x1 -∗
-    auth_dgset_auth γ (DfracOwn 1) x2 -∗
+    auth_dgset_auth γ dq2 x2 -∗
     False.
   Proof.
     iIntros "H●1 H●2".
-    iDestruct (auth_dgset_auth_valid_2 with "H●1 H●2") as "(% & _)".
-    iSmash.
+    iDestruct (auth_dgset_auth_ne with "H●1 H●2") as %?. done.
   Qed.
   Lemma auth_dgset_auth_persist γ dq x :
     auth_dgset_auth γ dq x ⊢ |==>

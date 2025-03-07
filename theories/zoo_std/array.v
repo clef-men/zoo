@@ -123,11 +123,12 @@ Section zoo_G.
       length vs1 = length vs2 →
       array_slice t i dq1 vs1 -∗
       array_slice t i dq2 vs2 -∗
-      ⌜✓ (dq1 ⋅ dq2) ∧ vs1 = vs2⌝.
+        ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+        ⌜vs1 = vs2⌝.
     Proof.
       iIntros "% % Hslice1 Hslice2".
-      iDestruct (array_slice_combine with "Hslice1 Hslice2") as "(<- & Hslice)"; first done.
-      iDestruct (array_slice_valid with "Hslice") as %?; done.
+      iDestruct (array_slice_combine with "Hslice1 Hslice2") as "($ & Hslice)"; first done.
+      iApply (array_slice_valid with "Hslice"); first done.
     Qed.
     Lemma array_slice_agree t i dq1 vs1 dq2 vs2 :
       length vs1 = length vs2 →
@@ -136,7 +137,7 @@ Section zoo_G.
       ⌜vs1 = vs2⌝.
     Proof.
       iIntros "% Hslice1 Hslice2".
-      iDestruct (array_slice_combine with "Hslice1 Hslice2") as "(% & _)"; done.
+      iDestruct (array_slice_combine with "Hslice1 Hslice2") as "($ & _)"; first done.
     Qed.
     Lemma array_slice_dfrac_ne t1 i1 dq1 vs1 t2 i2 dq2 vs2 :
       0 < length vs1 →
@@ -159,15 +160,15 @@ Section zoo_G.
       intros.
       iApply array_slice_dfrac_ne; [done.. | intros []%(exclusive_l _)].
     Qed.
-    Lemma array_slice_exclusive t i vs1 vs2 :
+    Lemma array_slice_exclusive t i vs1 dq2 vs2 :
       0 < length vs1 →
       length vs1 = length vs2 →
       array_slice t i (DfracOwn 1) vs1 -∗
-      array_slice t i (DfracOwn 1) vs2 -∗
+      array_slice t i dq2 vs2 -∗
       False.
     Proof.
       iIntros "% % Hslice1 Hslice2".
-      iDestruct (array_slice_valid_2 with "Hslice1 Hslice2") as %?; naive_solver.
+      iDestruct (array_slice_ne with "Hslice1 Hslice2") as %?; naive_solver.
     Qed.
     Lemma array_slice_persist t i dq vs :
       array_slice t i dq vs ⊢ |==>
@@ -407,11 +408,12 @@ Section zoo_G.
       0 < length vs1 →
       array_model t dq1 vs1 -∗
       array_model t dq2 vs2 -∗
-      ⌜✓ (dq1 ⋅ dq2) ∧ vs1 = vs2⌝.
+        ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+        ⌜vs1 = vs2⌝.
     Proof.
       iIntros "% Hmodel1 Hmodel2".
-      iDestruct (array_model_combine with "Hmodel1 Hmodel2") as "(-> & Hmodel)".
-      iDestruct (array_model_valid with "Hmodel") as %?; done.
+      iDestruct (array_model_combine with "Hmodel1 Hmodel2") as "($ & Hmodel)".
+      iApply (array_model_valid with "Hmodel"); first done.
     Qed.
     Lemma array_model_agree t dq1 vs1 dq2 vs2 :
       array_model t dq1 vs1 -∗
@@ -419,8 +421,7 @@ Section zoo_G.
       ⌜vs1 = vs2⌝.
     Proof.
       iIntros "Hmodel1 Hmodel2".
-      iDestruct (array_model_combine with "Hmodel1 Hmodel2") as "(-> & _)".
-      iSteps.
+      iDestruct (array_model_combine with "Hmodel1 Hmodel2") as "($ & _)".
     Qed.
     Lemma array_model_dfrac_ne t1 dq1 vs1 t2 dq2 vs2 :
       0 < length vs1 →
@@ -438,16 +439,17 @@ Section zoo_G.
       array_model t2 dq2 vs2 -∗
       ⌜t1 ≠ t2⌝.
     Proof.
-      intros. iApply array_model_dfrac_ne; [done.. | intros []%(exclusive_l _)].
+      intros.
+      iApply array_model_dfrac_ne; [done.. | intros []%(exclusive_l _)].
     Qed.
-    Lemma array_model_exclusive t vs1 vs2 :
+    Lemma array_model_exclusive t vs1 dq2 vs2 :
       0 < length vs1 →
       array_model t (DfracOwn 1) vs1 -∗
-      array_model t (DfracOwn 1) vs2 -∗
+      array_model t dq2 vs2 -∗
       False.
     Proof.
       iIntros "% Hmodel1 Hmodel2".
-      iDestruct (array_model_valid_2 with "Hmodel1 Hmodel2") as %?; naive_solver.
+      iDestruct (array_model_ne with "Hmodel1 Hmodel2") as %?; done.
     Qed.
     Lemma array_model_persist t dq vs :
       array_model t dq vs ⊢ |==>
@@ -706,12 +708,12 @@ Section zoo_G.
       length vs1 = length vs2 →
       array_cslice t sz i dq1 vs1 -∗
       array_cslice t sz i dq2 vs2 -∗
-      ⌜✓ (dq1 ⋅ dq2) ∧ vs1 = vs2⌝.
+        ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+        ⌜vs1 = vs2⌝.
     Proof.
       iIntros "% % Hcslice1 Hcslice2".
-      iDestruct (array_cslice_combine with "Hcslice1 Hcslice2") as "(-> & Hcslice)"; first done.
-      iDestruct (array_cslice_valid with "Hcslice") as %?; first done.
-      iSteps.
+      iDestruct (array_cslice_combine with "Hcslice1 Hcslice2") as "($ & Hcslice)"; first done.
+      iApply (array_cslice_valid with "Hcslice"); first done.
     Qed.
     Lemma array_cslice_agree t sz i dq1 vs1 dq2 vs2 :
       length vs1 = length vs2 →
@@ -720,8 +722,7 @@ Section zoo_G.
       ⌜vs1 = vs2⌝.
     Proof.
       iIntros "% Hcslice1 Hcslice2".
-      iDestruct (array_cslice_combine with "Hcslice1 Hcslice2") as "(-> & _)"; first done.
-      iSteps.
+      iDestruct (array_cslice_combine with "Hcslice1 Hcslice2") as "($ & _)"; first done.
     Qed.
     Lemma array_cslice_dfrac_ne t sz i1 dq1 vs1 i2 dq2 vs2 :
       0 < length vs1 →
@@ -744,15 +745,15 @@ Section zoo_G.
       intros.
       iApply array_cslice_dfrac_ne; [done.. | intros []%(exclusive_l _)].
     Qed.
-    Lemma array_cslice_exclusive t sz i vs1 vs2 :
+    Lemma array_cslice_exclusive t sz i vs1 dq2 vs2 :
       0 < length vs1 →
       length vs1 = length vs2 →
       array_cslice t sz i (DfracOwn 1) vs1 -∗
-      array_cslice t sz i (DfracOwn 1) vs2 -∗
+      array_cslice t sz i dq2 vs2 -∗
       False.
     Proof.
       iIntros "% % Hcslice1 Hcslice2".
-      iDestruct (array_cslice_valid_2 with "Hcslice1 Hcslice2") as %?; naive_solver.
+      iDestruct (array_cslice_ne with "Hcslice1 Hcslice2") as %?; done.
     Qed.
     Lemma array_cslice_persist t sz i dq vs :
       array_cslice t sz i dq vs ⊢ |==>

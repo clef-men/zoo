@@ -78,21 +78,22 @@ Section oneshot_G.
   Lemma oneshot_pending_combine γ dq1 a1 dq2 a2 :
     oneshot_pending γ dq1 a1 -∗
     oneshot_pending γ dq2 a2 -∗
-      oneshot_pending γ (dq1 ⋅ dq2) a1 ∗
-      ⌜a1 = a2⌝.
+      ⌜a1 = a2⌝ ∗
+      oneshot_pending γ (dq1 ⋅ dq2) a1.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var_combine with "H1 H2") as "($ & %Heq)". injection Heq as <-.
+    iDestruct (ghost_var_combine with "H1 H2") as "(%Heq & $)". injection Heq as ->.
     iSteps.
   Qed.
   Lemma oneshot_pending_valid_2 γ dq1 a1 dq2 a2 :
     oneshot_pending γ dq1 a1 -∗
     oneshot_pending γ dq2 a2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ a1 = a2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜a1 = a2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (oneshot_pending_combine with "H1 H2") as "(H & <-)".
-    iDestruct (oneshot_pending_valid with "H") as %?.
+    iDestruct (oneshot_pending_combine with "H1 H2") as "(-> & H)".
+    iDestruct (oneshot_pending_valid with "H") as "$".
     iSteps.
   Qed.
   Lemma oneshot_pending_agree γ dq1 a1 dq2 a2 :
@@ -118,9 +119,9 @@ Section oneshot_G.
   Proof.
     apply ghost_var_ne.
   Qed.
-  Lemma oneshot_pending_exclusive γ a1 a2 :
+  Lemma oneshot_pending_exclusive γ a1 dq2 a2 :
     oneshot_pending γ (DfracOwn 1) a1 -∗
-    oneshot_pending γ (DfracOwn 1) a2 -∗
+    oneshot_pending γ dq2 a2 -∗
     False.
   Proof.
     apply ghost_var_exclusive.

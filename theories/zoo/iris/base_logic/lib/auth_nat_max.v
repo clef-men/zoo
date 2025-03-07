@@ -84,15 +84,16 @@ Section auth_nat_max_G.
   Lemma auth_nat_max_auth_combine γ dq1 n1 dq2 n2 :
     auth_nat_max_auth γ dq1 n1 -∗
     auth_nat_max_auth γ dq2 n2 -∗
-      auth_nat_max_auth γ (dq1 ⋅ dq2) n1 ∗
-      ⌜n1 = n2⌝.
+      ⌜n1 = n2⌝ ∗
+      auth_nat_max_auth γ (dq1 ⋅ dq2) n1.
   Proof.
     apply: auth_mono_auth_combine.
   Qed.
   Lemma auth_nat_max_auth_valid_2 γ dq1 n1 dq2 n2 :
     auth_nat_max_auth γ dq1 n1 -∗
     auth_nat_max_auth γ dq2 n2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ n1 = n2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜n1 = n2⌝.
   Proof.
     apply: auth_mono_auth_valid_2.
   Qed.
@@ -118,9 +119,9 @@ Section auth_nat_max_G.
   Proof.
     apply: auth_mono_auth_ne.
   Qed.
-  Lemma auth_nat_max_auth_exclusive γ n1 n2 :
+  Lemma auth_nat_max_auth_exclusive γ n1 dq2 n2 :
     auth_nat_max_auth γ (DfracOwn 1) n1 -∗
-    auth_nat_max_auth γ (DfracOwn 1) n2 -∗
+    auth_nat_max_auth γ dq2 n2 -∗
     False.
   Proof.
     apply: auth_mono_auth_exclusive.

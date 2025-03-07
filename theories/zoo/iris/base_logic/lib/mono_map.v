@@ -93,15 +93,16 @@ Section mono_map_G.
   Lemma mono_map_auth_combine γ dq1 m1 dq2 m2 :
     mono_map_auth γ dq1 m1 -∗
     mono_map_auth γ dq2 m2 -∗
-      mono_map_auth γ (dq1 ⋅ dq2) m1 ∗
-      ⌜m1 = m2⌝.
+      ⌜m1 = m2⌝ ∗
+      mono_map_auth γ (dq1 ⋅ dq2) m1.
   Proof.
     apply: auth_mono_auth_combine.
   Qed.
   Lemma mono_map_auth_valid_2 γ dq1 m1 dq2 m2 :
     mono_map_auth γ dq1 m1 -∗
     mono_map_auth γ dq2 m2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ m1 = m2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜m1 = m2⌝.
   Proof.
     apply: auth_mono_auth_valid_2.
   Qed.
@@ -127,9 +128,9 @@ Section mono_map_G.
   Proof.
     apply: auth_mono_auth_ne.
   Qed.
-  Lemma mono_map_auth_exclusive γ m1 m2 :
+  Lemma mono_map_auth_exclusive γ m1 dq2 m2 :
     mono_map_auth γ (DfracOwn 1) m1 -∗
-    mono_map_auth γ (DfracOwn 1) m2 -∗
+    mono_map_auth γ dq2 m2 -∗
     False.
   Proof.
     apply: auth_mono_auth_exclusive.

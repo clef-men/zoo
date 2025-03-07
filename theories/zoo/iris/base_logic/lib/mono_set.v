@@ -98,15 +98,16 @@ Section mono_set_G.
   Lemma mono_set_auth_combine γ dq1 s1 dq2 s2 :
     mono_set_auth γ dq1 s1 -∗
     mono_set_auth γ dq2 s2 -∗
-      mono_set_auth γ (dq1 ⋅ dq2) s1 ∗
-      ⌜s1 = s2⌝.
+      ⌜s1 = s2⌝ ∗
+      mono_set_auth γ (dq1 ⋅ dq2) s1.
   Proof.
     apply: auth_mono_auth_combine.
   Qed.
   Lemma mono_set_auth_valid_2 γ dq1 s1 dq2 s2 :
     mono_set_auth γ dq1 s1 -∗
     mono_set_auth γ dq2 s2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ s1 = s2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜s1 = s2⌝.
   Proof.
     apply: auth_mono_auth_valid_2.
   Qed.
@@ -132,9 +133,9 @@ Section mono_set_G.
   Proof.
     apply: auth_mono_auth_ne.
   Qed.
-  Lemma mono_set_auth_exclusive γ s1 s2 :
+  Lemma mono_set_auth_exclusive γ s1 dq2 s2 :
     mono_set_auth γ (DfracOwn 1) s1 -∗
-    mono_set_auth γ (DfracOwn 1) s2 -∗
+    mono_set_auth γ dq2 s2 -∗
     False.
   Proof.
     apply: auth_mono_auth_exclusive.

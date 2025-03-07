@@ -108,15 +108,16 @@ Section mono_list_G.
   Lemma mono_list_auth_combine γ dq1 l1 dq2 l2 :
     mono_list_auth γ dq1 l1 -∗
     mono_list_auth γ dq2 l2 -∗
-      mono_list_auth γ (dq1 ⋅ dq2) l1 ∗
-      ⌜l1 = l2⌝.
+      ⌜l1 = l2⌝ ∗
+      mono_list_auth γ (dq1 ⋅ dq2) l1.
   Proof.
     apply: auth_mono_auth_combine.
   Qed.
   Lemma mono_list_auth_valid_2 γ dq1 l1 dq2 l2 :
     mono_list_auth γ dq1 l1 -∗
     mono_list_auth γ dq2 l2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ l1 = l2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜l1 = l2⌝.
   Proof.
     apply: auth_mono_auth_valid_2.
   Qed.
@@ -142,9 +143,9 @@ Section mono_list_G.
   Proof.
     apply: auth_mono_auth_ne.
   Qed.
-  Lemma mono_list_auth_exclusive γ l1 l2 :
+  Lemma mono_list_auth_exclusive γ l1 dq2 l2 :
     mono_list_auth γ (DfracOwn 1) l1 -∗
-    mono_list_auth γ (DfracOwn 1) l2 -∗
+    mono_list_auth γ dq2 l2 -∗
     False.
   Proof.
     apply: auth_mono_auth_exclusive.

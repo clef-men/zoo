@@ -112,7 +112,7 @@ Section prophet_map_G.
       prophet_model pid (dq1 ⋅ dq2) prophs1.
   Proof.
     iIntros "Hmodel1 Hmodel2".
-    iDestruct (ghost_map_elem_combine with "Hmodel1 Hmodel2") as "(Hmodel & <-)".
+    iDestruct (ghost_map_elem_combine with "Hmodel1 Hmodel2") as "($ & <-)".
     iSteps.
   Qed.
   Lemma prophet_model_valid_2 pid dq1 prophs1 dq2 prophs2 :
@@ -123,7 +123,7 @@ Section prophet_map_G.
   Proof.
     iIntros "Hmodel1 Hmodel2".
     iDestruct (prophet_model_combine with "Hmodel1 Hmodel2") as "(<- & Hmodel)".
-    iDestruct (prophet_model_valid with "Hmodel") as %?.
+    iDestruct (prophet_model_valid with "Hmodel") as "$".
     iSteps.
   Qed.
   Lemma prophet_model_agree pid dq1 prophs1 dq2 prophs2 :
@@ -132,8 +132,7 @@ Section prophet_map_G.
     ⌜prophs1 = prophs2⌝.
   Proof.
     iIntros "Hmodel1 Hmodel2".
-    iDestruct (prophet_model_combine with "Hmodel1 Hmodel2") as "(<- & _)".
-    iSteps.
+    iDestruct (prophet_model_combine with "Hmodel1 Hmodel2") as "($ & _)".
   Qed.
   Lemma prophet_model_dfrac_ne pid1 dq1 prophs1 pid2 dq2 prophs2 :
     ¬ ✓ (dq1 ⋅ dq2) →

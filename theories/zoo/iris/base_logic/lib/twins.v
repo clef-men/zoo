@@ -103,22 +103,23 @@ Section twins_G.
   Lemma twins_twin1_combine γ dq1 a1 dq2 a2 :
     twins_twin1 γ dq1 a1 -∗
     twins_twin1 γ dq2 a2 -∗
-      twins_twin1 γ (dq1 ⋅ dq2) a1 ∗
-      a1 ≡ a2.
+      a1 ≡ a2 ∗
+      twins_twin1 γ (dq1 ⋅ dq2) a1.
   Proof.
     iIntros "Htwin11 Htwin12". iCombine "Htwin11 Htwin12" as "Htwin1".
     iDestruct (own_valid with "Htwin1") as "#Hvalid".
     iDestruct (twins_twin1_dfrac_op_validI with "Hvalid") as "(% & Hequiv)".
     iRewrite -"Hequiv" in "Htwin1". rewrite -twins_twin1_dfrac_op.
-    auto with iFrame.
+    auto.
   Qed.
   Lemma twins_twin1_valid_2 γ dq1 a1 dq2 a2 :
     twins_twin1 γ dq1 a1 -∗
     twins_twin1 γ dq2 a2 -∗
-    ⌜✓ (dq1 ⋅ dq2)⌝ ∧ a1 ≡ a2.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      a1 ≡ a2.
   Proof.
     iIntros "Htwin11 Htwin12".
-    iDestruct (twins_twin1_combine with "Htwin11 Htwin12") as "(Htwin1 & $)".
+    iDestruct (twins_twin1_combine with "Htwin11 Htwin12") as "($ & Htwin1)".
     iDestruct (twins_twin1_valid with "Htwin1") as "$".
   Qed.
   Lemma twins_twin1_agree γ dq1 a1 dq2 a2 :
@@ -136,25 +137,22 @@ Section twins_G.
     ⌜γ1 ≠ γ2⌝.
   Proof.
     iIntros "% Htwin11 Htwin12 ->".
-    iDestruct (twins_twin1_valid_2 with "Htwin11 Htwin12") as "(% & _)".
-    iSmash.
+    iDestruct (twins_twin1_valid_2 with "Htwin11 Htwin12") as "(% & _)". done.
   Qed.
   Lemma twins_twin1_ne γ1 a1 γ2 dq2 a2 :
     twins_twin1 γ1 (DfracOwn 1) a1 -∗
     twins_twin1 γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    intros.
     iApply twins_twin1_dfrac_ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma twins_twin1_exclusive γ a1 a2 :
+  Lemma twins_twin1_exclusive γ a1 dq2 a2 :
     twins_twin1 γ (DfracOwn 1) a1 -∗
-    twins_twin1 γ (DfracOwn 1) a2 -∗
+    twins_twin1 γ dq2 a2 -∗
     False.
   Proof.
     iIntros "Htwin11 Htwin12".
-    iDestruct (twins_twin1_valid_2 with "Htwin11 Htwin12") as "(% & _)".
-    iSmash.
+    iDestruct (twins_twin1_ne with "Htwin11 Htwin12") as %?. done.
   Qed.
   Lemma twins_twin1_persist γ dq a :
     twins_twin1 γ dq a ⊢ |==>
@@ -189,17 +187,18 @@ Section twins_G.
     Lemma twins_twin1_combine_discrete γ dq1 a1 dq2 a2 :
       twins_twin1 γ dq1 a1 -∗
       twins_twin1 γ dq2 a2 -∗
-        twins_twin1 γ (dq1 ⋅ dq2) a1 ∗
-        ⌜a1 ≡ a2⌝.
+        ⌜a1 ≡ a2⌝ ∗
+        twins_twin1 γ (dq1 ⋅ dq2) a1.
     Proof.
       rewrite -discrete_eq -twins_twin1_combine //.
     Qed.
     Lemma twins_twin1_valid_2_discrete γ dq1 a1 dq2 a2 :
       twins_twin1 γ dq1 a1 -∗
       twins_twin1 γ dq2 a2 -∗
-      ⌜✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2⌝.
+        ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+        ⌜a1 ≡ a2⌝.
     Proof.
-      rewrite bi.pure_and -discrete_eq -twins_twin1_valid_2 //.
+      rewrite -discrete_eq -twins_twin1_valid_2 //.
     Qed.
     Lemma twins_twin1_agree_discrete γ dq1 a1 dq2 a2 :
       twins_twin1 γ dq1 a1 -∗
@@ -223,15 +222,16 @@ Section twins_G.
       Lemma twins_twin1_combine_L γ dq1 a1 dq2 a2 :
         twins_twin1 γ dq1 a1 -∗
         twins_twin1 γ dq2 a2 -∗
-          twins_twin1 γ (dq1 ⋅ dq2) a1 ∗
-          ⌜a1 = a2⌝.
+          ⌜a1 = a2⌝ ∗
+          twins_twin1 γ (dq1 ⋅ dq2) a1.
       Proof.
         rewrite -leibniz_equiv_iff -twins_twin1_combine_discrete //.
       Qed.
       Lemma twins_twin1_valid_2_L γ dq1 a1 dq2 a2 :
         twins_twin1 γ dq1 a1 -∗
         twins_twin1 γ dq2 a2 -∗
-        ⌜✓ (dq1 ⋅ dq2) ∧ a1 = a2⌝.
+          ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+          ⌜a1 = a2⌝.
       Proof.
         rewrite -leibniz_equiv_iff -twins_twin1_valid_2_discrete //.
       Qed.

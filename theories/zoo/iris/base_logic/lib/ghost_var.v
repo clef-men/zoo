@@ -73,21 +73,22 @@ Section ghost_var_G.
   Lemma ghost_var_combine γ dq1 a1 dq2 a2 :
     ghost_var γ dq1 a1 -∗
     ghost_var γ dq2 a2 -∗
-      ghost_var γ (dq1 ⋅ dq2) a1 ∗
-      ⌜a1 = a2⌝.
+      ⌜a1 = a2⌝ ∗
+      ghost_var γ (dq1 ⋅ dq2) a1.
   Proof.
     iIntros "H1 H2". iCombine "H1 H2" as "H".
-    iDestruct (own_valid with "H") as %(? & <-)%dfrac_agree_op_valid_L.
+    iDestruct (own_valid with "H") as %(? & ->)%dfrac_agree_op_valid_L.
     rewrite -dfrac_agree_op. iSteps.
   Qed.
   Lemma ghost_var_valid_2 γ dq1 a1 dq2 a2 :
     ghost_var γ dq1 a1 -∗
     ghost_var γ dq2 a2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ a1 = a2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜a1 = a2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var_combine with "H1 H2") as "(H & <-)".
-    iDestruct (ghost_var_valid with "H") as %?.
+    iDestruct (ghost_var_combine with "H1 H2") as "(-> & H)".
+    iDestruct (ghost_var_valid with "H") as "$".
     iSteps.
   Qed.
   Lemma ghost_var_agree γ dq1 a1 dq2 a2 :
@@ -105,25 +106,22 @@ Section ghost_var_G.
     ⌜γ1 ≠ γ2⌝.
   Proof.
     iIntros "% H1 H2 ->".
-    iDestruct (ghost_var_valid_2 with "H1 H2") as "(% & _)".
-    iSmash.
+    iDestruct (ghost_var_valid_2 with "H1 H2") as "(% & _)". done.
   Qed.
   Lemma ghost_var_ne γ1 a1 γ2 dq2 a2 :
     ghost_var γ1 (DfracOwn 1) a1 -∗
     ghost_var γ2 dq2 a2 -∗
     ⌜γ1 ≠ γ2⌝.
   Proof.
-    intros.
     iApply ghost_var_dfrac_ne; [done.. | intros []%(exclusive_l _)].
   Qed.
-  Lemma ghost_var_exclusive γ a1 a2 :
+  Lemma ghost_var_exclusive γ a1 dq2 a2 :
     ghost_var γ (DfracOwn 1) a1 -∗
-    ghost_var γ (DfracOwn 1) a2 -∗
+    ghost_var γ dq2 a2 -∗
     False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var_valid_2 with "H1 H2") as "(% & _)".
-    iSmash.
+    iDestruct (ghost_var_ne with "H1 H2") as %?. done.
   Qed.
   Lemma ghost_var_persist γ dq a :
     ghost_var γ dq a ⊢ |==>

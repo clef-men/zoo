@@ -217,9 +217,11 @@ Section zoo_G.
   Lemma pointsto_valid_2 l dq1 v1 dq2 v2 :
     l ↦{dq1} v1 -∗
     l ↦{dq2} v2 -∗
-    ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝.
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜v1 = v2⌝.
   Proof.
-    apply pointsto_valid_2.
+    iIntros "H1 H2".
+    iDestruct (pointsto_valid_2 with "H1 H2") as "$".
   Qed.
   Lemma pointsto_agree l dq2 v1 dq1 v2 :
     l ↦{dq1} v1 -∗
@@ -243,9 +245,9 @@ Section zoo_G.
   Proof.
     apply pointsto_ne.
   Qed.
-  Lemma pointsto_exclusive l v1 v2 :
+  Lemma pointsto_exclusive l v1 dq2 v2 :
     l ↦ v1 -∗
-    l ↦ v2 -∗
+    l ↦{dq2} v2 -∗
     False.
   Proof.
     iIntros "H1 H2".
