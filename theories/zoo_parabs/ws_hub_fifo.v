@@ -572,7 +572,7 @@ Section ws_hub_fifo_G.
       wp_smart_apply (mpmc_queue_1_is_empty_spec' with "Hqueue_inv") as (b) "_".
 
       wp_bind (if: _ then _ else _)%E.
-      wp_apply (wp_wand _ _ itype_unit with "[Hwaiter]") as (res) "->".
+      wp_apply (wp_wand itype_unit with "[Hwaiter]") as (res) "->".
       { destruct b; wp_pures.
         1: wp_apply (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]").
         2: wp_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]").

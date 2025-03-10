@@ -127,10 +127,11 @@ Section atomic.
     Atomic e →
     Atomic (Resolve e (Val v1) (Val v2)).
   Proof.
-    rename e into e1. intros H σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
+    rename e into e1.
+    intros H tid σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
     simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
     - subst. inversion_clear Hstep.
-      eapply (H σ1 (Val _) _ σ2 es), base_step_prim_step. done.
+      eapply (H tid σ1 (Val _) _ σ2 es), base_step_prim_step. done.
     - rewrite fill_app. rewrite fill_app in Hfill.
       assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
       { intros v Hv.
@@ -143,7 +144,7 @@ Section atomic.
           apply Hfill_absurd in H; done
         end
       ).
-      refine (_ (H σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
+      refine (_ (H tid σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
       + intro Hs. simpl in *.
         destruct Hs as [v Hs]. apply to_val_fill_some in Hs. destruct Hs, K; done.
       + econstructor; try done. simpl. by rewrite fill_app.
@@ -223,7 +224,7 @@ Section pure_exec.
     destruct HAsValRecs as (Hvs & -> & Hlength) => Hlookup.
     apply nsteps_once, pure_base_step_pure_step.
     split; first solve_exec_safe.
-    intros σ1 κ e σ2 es Hstep.
+    intros tid σ1 κ e σ2 es Hstep.
     invert_base_step.
     split_and!; try done.
     cut (
@@ -244,7 +245,7 @@ Section pure_exec.
     rewrite !length_app /= in Hlength1.
     rewrite foldri_app foldr2_app /=; first lia.
     assert (ValRecs (length recs1) recs = v) as ->.
-    { eapply Foralli_lookup in Hvs; first done.
+    { eapply Foralli_lookup_1 in Hvs; first done.
       rewrite Hvs_eq lookup_app_l.
       { rewrite length_app /=. lia. }
       rewrite lookup_snoc_Some. naive_solver lia.

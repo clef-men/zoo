@@ -12,8 +12,7 @@ From diaframe Require Import
   solve_defs.
 
 From zoo.iris.program_logic Require Import
-  wp
-  wp_lifting.
+  wp.
 From zoo.iris.diaframe Require Import
   symb_exec.defs
   symb_exec.wp.

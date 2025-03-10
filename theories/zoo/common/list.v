@@ -340,7 +340,7 @@ Section Foralli.
   Definition Foralli l :=
     Foralli' l 0.
 
-  #[local] Lemma Foralli'_lookup l i j x :
+  #[local] Lemma Foralli'_lookup_1 l i j x :
     Foralli' l i →
     l !! j = Some x →
     P (i + j) x.
@@ -350,12 +350,38 @@ Section Foralli.
     - rewrite right_id. naive_solver.
     - rewrite -Nat.add_succ_comm. naive_solver.
   Qed.
-  Lemma Foralli_lookup {l} i x :
+  Lemma Foralli_lookup_1 {l} i x :
     Foralli l →
     l !! i = Some x →
     P i x.
   Proof.
-    apply Foralli'_lookup.
+    apply Foralli'_lookup_1.
+  Qed.
+
+  Lemma Foralli'_lookup_2 l i :
+    (∀ j x, l !! j = Some x → P (i + j) x) →
+    Foralli' l i.
+  Proof.
+    move: i. induction l as [| x l IH] => i H; first done.
+    split.
+    - specialize (H 0). rewrite right_id in H. auto.
+    - apply IH => j y.
+      rewrite Nat.add_succ_comm. naive_solver.
+  Qed.
+  Lemma Foralli_lookup_2 l :
+    (∀ i x, l !! i = Some x → P i x) →
+    Foralli l.
+  Proof.
+    apply (Foralli'_lookup_2 l 0).
+  Qed.
+
+  Lemma Foralli_lookup l :
+    Foralli l ↔
+    ∀ i x, l !! i = Some x → P i x.
+  Proof.
+    split.
+    - eauto using Foralli_lookup_1.
+    - apply Foralli_lookup_2.
   Qed.
 End Foralli.
 

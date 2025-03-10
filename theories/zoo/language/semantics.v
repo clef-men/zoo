@@ -6,10 +6,8 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
-From zoo.common Require Export
-  option
-  list
-  typeclasses.
+From zoo.iris.program_logic Require Import
+  language.
 From zoo.language Require Export
   physical_equality
   metatheory.
@@ -32,6 +30,7 @@ Implicit Types br : branch.
 Implicit Types brs : list branch.
 Implicit Types rec : recursive.
 Implicit Types recs : list recursive.
+Implicit Types tid : thread_id.
 
 Definition eval_unop op v :=
   match op, v with
@@ -213,9 +212,10 @@ Definition state_alloc l hdr vs σ :=
 Definition observation : Set :=
   prophet_id * (val * val).
 
-Inductive base_step : expr → state → list observation → expr → state → list expr → Prop :=
+Inductive base_step tid : expr → state → list observation → expr → state → list expr → Prop :=
   | base_step_rec f x e σ :
       base_step
+        tid
         (Rec f x e)
         σ
         []
@@ -225,6 +225,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_app i recs rec v σ :
       recs !! i = Some rec →
       base_step
+        tid
         (App (Val $ ValRecs i recs) (Val v))
         σ
         []
@@ -233,6 +234,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_let x v1 e2 σ :
       base_step
+        tid
         (Let x (Val v1) e2)
         σ
         []
@@ -242,6 +244,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_unop op v v' σ :
       eval_unop op v = Some v' →
       base_step
+        tid
         (Unop op $ Val v)
         σ
         []
@@ -251,6 +254,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_binop op v1 v2 v' σ :
       eval_binop op v1 v2 = Some v' →
       base_step
+        tid
         (Binop op (Val v1) (Val v2))
         σ
         []
@@ -260,6 +264,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_equal_fail v1 v2 σ :
       v1 ≉ v2 →
       base_step
+        tid
         (Equal (Val v1) (Val v2))
         σ
         []
@@ -269,6 +274,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_equal_success v1 v2 σ :
       v1 ≈ v2 →
       base_step
+        tid
         (Equal (Val v1) (Val v2))
         σ
         []
@@ -277,6 +283,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_if b e1 e2 σ :
       base_step
+        tid
         (If (Val $ ValBool b) e1 e2)
         σ
         []
@@ -285,6 +292,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_for n1 n2 e σ :
       base_step
+        tid
         (For (Val $ ValInt n1) (Val $ ValInt n2) e)
         σ
         []
@@ -299,6 +307,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
+        tid
         (Alloc (Val $ ValInt tag) (Val $ ValInt n))
         σ
         []
@@ -314,6 +323,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
+        tid
         (Block Mutable tag es)
         σ
         []
@@ -323,6 +333,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_block_immutable_nongenerative tag es vs σ :
       es = of_vals vs →
       base_step
+        tid
         (Block ImmutableNongenerative tag es)
         σ
         []
@@ -332,6 +343,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_block_immutable_generative_weak tag es vs σ :
       es = of_vals vs →
       base_step
+        tid
         (Block ImmutableGenerativeWeak tag es)
         σ
         []
@@ -341,6 +353,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_block_immutable_generative_strong tag es vs σ bid :
       es = of_vals vs →
       base_step
+        tid
         (Block ImmutableGenerativeStrong tag es)
         σ
         []
@@ -351,6 +364,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       σ.(state_headers) !! l = Some hdr →
       eval_match hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
       base_step
+        tid
         (Match (Val $ ValLoc l) x e brs)
         σ
         []
@@ -360,6 +374,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_match_immutable gen tag vs x e brs e' σ :
       eval_match tag (length vs) (inr (gen, vs)) x e brs = Some e' →
       base_step
+        tid
         (Match (Val $ ValBlock gen tag vs) x e brs)
         σ
         []
@@ -369,6 +384,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_tag_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
+        tid
         (GetTag $ Val $ ValLoc l)
         σ
         []
@@ -378,6 +394,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_tag_immutable gen tag vs σ :
       0 < length vs →
       base_step
+        tid
         (GetTag $ Val $ ValBlock gen tag vs)
         σ
         []
@@ -387,6 +404,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_size_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
+        tid
         (GetSize $ Val $ ValLoc l)
         σ
         []
@@ -396,6 +414,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_size_immutable gen tag vs σ :
       0 < length vs →
       base_step
+        tid
         (GetSize $ Val $ ValBlock gen tag vs)
         σ
         []
@@ -405,6 +424,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_field_mutable l fld v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       base_step
+        tid
         (Load (Val $ ValLoc l) (Val $ ValInt fld))
         σ
         []
@@ -414,6 +434,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_get_field_immutable gen tag vs (fld : nat) v σ :
       vs !! fld = Some v →
       base_step
+        tid
         (Load (Val $ ValBlock gen tag vs) (Val $ ValInt fld))
         σ
         []
@@ -423,6 +444,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_set_field l fld v σ :
       is_Some (σ.(state_heap) !! (l +ₗ fld)) →
       base_step
+        tid
         (Store (Val $ ValLoc l) (Val $ ValInt fld) (Val v))
         σ
         []
@@ -432,6 +454,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_xchg l fld v w σ :
       σ.(state_heap) !! (l +ₗ fld) = Some w →
       base_step
+        tid
         (Xchg (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v))
         σ
         []
@@ -442,6 +465,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       v ≉ v1 →
       base_step
+        tid
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
         []
@@ -452,6 +476,7 @@ Inductive base_step : expr → state → list observation → expr → state →
       σ.(state_heap) !! (l +ₗ fld) = Some v →
       v ≈ v1 →
       base_step
+        tid
         (CAS (Val $ ValTuple [ValLoc l; ValInt fld]) (Val v1) (Val v2))
         σ
         []
@@ -461,6 +486,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_faa l fld n m σ :
       σ.(state_heap) !! (l +ₗ fld) = Some $ ValInt m →
       base_step
+        tid
         (FAA (Val $ ValTuple [ValLoc l; ValInt fld]) (Val $ ValInt n))
         σ
         []
@@ -469,6 +495,7 @@ Inductive base_step : expr → state → list observation → expr → state →
         []
   | base_step_fork e σ :
       base_step
+        tid
         (Fork e)
         σ
         []
@@ -478,6 +505,7 @@ Inductive base_step : expr → state → list observation → expr → state →
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →
       base_step
+        tid
         Proph
         σ
         []
@@ -485,8 +513,9 @@ Inductive base_step : expr → state → list observation → expr → state →
         (state_update_prophets ({[pid]} ∪.) σ)
         []
   | base_step_resolve e pid v σ κ w σ' es :
-      base_step e σ κ (Val w) σ' es →
+      base_step tid e σ κ (Val w) σ' es →
       base_step
+        tid
         (Resolve e (Val $ ValProph pid) (Val v))
         σ
         (κ ++ [(pid, (w, v))])
@@ -494,10 +523,11 @@ Inductive base_step : expr → state → list observation → expr → state →
         σ'
         es.
 
-Lemma base_step_alloc' tag n σ :
+Lemma base_step_alloc' tid tag n σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   (0 ≤ n)%Z →
   base_step
+    tid
     (Alloc (Val $ ValInt tag) (Val $ ValInt n))
     σ
     []
@@ -513,11 +543,12 @@ Proof.
   1: rewrite -(location_add_0 l).
   all: apply Hfresh; lia.
 Qed.
-Lemma base_step_block_mutable' tag es vs σ :
+Lemma base_step_block_mutable' tid tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
   0 < length es →
   es = of_vals vs →
   base_step
+    tid
     (Block Mutable tag es)
     σ
     []
@@ -533,9 +564,10 @@ Proof.
   - rewrite -(location_add_0 l). naive_solver.
   - apply Hfresh. lia.
 Qed.
-Lemma base_step_block_immutable_generative_strong' tag es vs σ :
+Lemma base_step_block_immutable_generative_strong' tid tag es vs σ :
   es = of_vals vs →
   base_step
+    tid
     (Block ImmutableGenerativeStrong tag es)
     σ
     []
@@ -545,9 +577,10 @@ Lemma base_step_block_immutable_generative_strong' tag es vs σ :
 Proof.
   apply base_step_block_immutable_generative_strong.
 Qed.
-Lemma base_step_proph' σ :
+Lemma base_step_proph' tid σ :
   let pid := fresh σ.(state_prophets) in
   base_step
+    tid
     Proph
     σ
     []
@@ -558,8 +591,8 @@ Proof.
   constructor. apply is_fresh.
 Qed.
 
-Lemma val_base_stuck e1 σ1 κ e2 σ2 es :
-  base_step e1 σ1 κ e2 σ2 es →
+Lemma val_base_stuck tid e1 σ1 κ e2 σ2 es :
+  base_step tid e1 σ1 κ e2 σ2 es →
   to_val e1 = None.
 Proof.
   destruct 1; naive_solver.
@@ -703,8 +736,8 @@ Proof.
     clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive_solver
   end.
 Qed.
-Lemma base_step_ectxi_fill_val k e σ1 κ e2 σ2 es :
-  base_step (ectxi_fill k e) σ1 κ e2 σ2 es →
+Lemma base_step_ectxi_fill_val tid k e σ1 κ e2 σ2 es :
+  base_step tid (ectxi_fill k e) σ1 κ e2 σ2 es →
   is_Some (to_val e).
 Proof.
   move: κ e2.

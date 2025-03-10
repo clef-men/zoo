@@ -31,27 +31,27 @@ Section zoo_G.
 
   Implicit Types Φ : val → iProp Σ.
 
-  Lemma tac_wp_expr_eval Δ e e' E Φ :
+  Lemma tac_wp_expr_eval Δ e e' tid E Φ :
     (∀ (e'' := e'), e = e'') →
-    envs_entails Δ (WP e' @ E {{ Φ }}) →
-    envs_entails Δ (WP e @ E {{ Φ }}).
+    envs_entails Δ (WP e' ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP e ∷ tid @ E {{ Φ }}).
   Proof.
     intros ->. done.
   Qed.
 
-  Lemma tac_wp_pure Δ Δ' K e1 e2 ϕ n E Φ :
+  Lemma tac_wp_pure Δ Δ' K e1 e2 ϕ n tid E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs n Δ Δ' →
-    envs_entails Δ' (WP (fill K e2) @ E {{ Φ }}) →
-    envs_entails Δ (WP (fill K e1) @ E {{ Φ }}).
+    envs_entails Δ' (WP (fill K e2) ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ HΔ'.
-    pose proof @pure_exec_fill. rewrite -wp_lifting.wp_pure_step_later //.
+    pose proof @pure_exec_fill. rewrite -wp_pure_step_later //.
     rewrite into_laterN_env_sound HΔ'.
     iSteps.
   Qed.
-  Lemma tac_wp_pure_credit Δ Δ' id K e1 e2 ϕ E Φ :
+  Lemma tac_wp_pure_credit Δ Δ' id K e1 e2 ϕ tid E Φ :
     PureExec ϕ 1 e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -61,61 +61,61 @@ Section zoo_G.
         Δ'
     with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K e2 @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP (fill K e1) @ E {{ Φ }}).
+    envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ HΔ''.
     destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
-    pose proof @pure_exec_fill. rewrite -wp_lifting.wp_pure_step_later //=.
+    pose proof @pure_exec_fill. rewrite -wp_pure_step_later //=.
     rewrite into_laterN_env_sound envs_app_sound //= HΔ''.
     iSteps.
   Qed.
 
-  Lemma tac_wp_value_nofupd Δ v E Φ :
+  Lemma tac_wp_value_nofupd Δ v tid E Φ :
     envs_entails Δ (Φ v) →
-    envs_entails Δ (WP (Val v) @ E {{ Φ }}).
+    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => ->.
     apply: wp_value.
   Qed.
-  Lemma tac_wp_value Δ v E Φ :
+  Lemma tac_wp_value Δ v tid E Φ :
     envs_entails Δ (|={E}=> Φ v) →
-    envs_entails Δ (WP (Val v) @ E {{ Φ }}).
+    envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => ->.
     rewrite wp_value_fupd //.
   Qed.
 
-  Lemma tac_wp_bind Δ K e (f : expr → expr) E Φ :
+  Lemma tac_wp_bind Δ K e (f : expr → expr) tid E Φ :
     f = (λ e, fill K e) →
-    envs_entails Δ (WP e @ E {{ v, WP f (Val v) @ E {{ Φ }} }})%I →
-    envs_entails Δ (WP fill K e @ E {{ Φ }}).
+    envs_entails Δ (WP e ∷ tid @ E {{ v, WP f (Val v) ∷ tid @ E {{ Φ }} }})%I →
+    envs_entails Δ (WP fill K e ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => -> ->.
-    apply: wp_bind.
+    apply: wp_bind'.
   Qed.
 
-  Lemma tac_wp_equal Δ Δ' K v1 v2 E Φ :
+  Lemma tac_wp_equal Δ Δ' K v1 v2 tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( v1 ≉ v2 →
-      envs_entails Δ' (WP fill K #false @ E {{ Φ }})
+      envs_entails Δ' (WP fill K #false ∷ tid @ E {{ Φ }})
     ) →
     ( v1 ≈ v2 →
-      envs_entails Δ' (WP fill K #true @ E {{ Φ }})
+      envs_entails Δ' (WP fill K #true ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ (WP fill K (v1 == v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (v1 == v2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hfail Hsuc.
-    rewrite into_laterN_env_sound -wp_bind -wp_equal //.
+    rewrite into_laterN_env_sound -wp_bind' -wp_equal //.
     apply bi.later_mono, bi.and_intro.
     all: repeat (rewrite bi.pure_wand_forall; apply bi.forall_intro => ?).
     all: naive_solver.
   Qed.
 
-  Lemma tac_wp_alloc Δ Δ' id1 id2 id3 K tag n E Φ :
+  Lemma tac_wp_alloc Δ Δ' id1 id2 id3 K tag n tid E Φ :
     (0 ≤ tag)%Z →
     (0 ≤ n)%Z →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -128,15 +128,15 @@ Section zoo_G.
           Δ'
       with
       | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
+          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
       | None =>
           False
       end
     ) →
-    envs_entails Δ (WP fill K (Alloc #tag #n) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Alloc #tag #n) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Htag Hn HΔ HΔ''.
-    rewrite into_laterN_env_sound -wp_bind.
+    rewrite into_laterN_env_sound -wp_bind'.
     iIntros "HΔ'".
     iApply (wp_alloc with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
@@ -144,7 +144,7 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tac_wp_block_mutable Δ Δ' id1 id2 id3 K tag es vs E Φ :
+  Lemma tac_wp_block_mutable Δ Δ' id1 id2 id3 K tag es vs tid E Φ :
     0 < length es →
     to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -157,15 +157,15 @@ Section zoo_G.
           Δ'
       with
       | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
+          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
       | None =>
           False
       end
     ) →
-    envs_entails Δ (WP fill K (Block Mutable tag es) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Block Mutable tag es) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hlen Hes HΔ HΔ''.
-    rewrite into_laterN_env_sound -wp_bind.
+    rewrite into_laterN_env_sound -wp_bind'.
     iIntros "HΔ'".
     iApply (wp_block_mutable with "[//]"); [done.. |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
@@ -173,7 +173,7 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tac_wp_ref Δ Δ' id1 id2 id3 K v E Φ :
+  Lemma tac_wp_ref Δ Δ' id1 id2 id3 K v tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
       match
@@ -184,15 +184,15 @@ Section zoo_G.
           Δ'
       with
       | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l @ E {{ Φ }})
+          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
       | None =>
           False
       end
     ) →
-    envs_entails Δ (WP fill K (ref v) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (ref v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ HΔ''.
-    rewrite into_laterN_env_sound -wp_bind.
+    rewrite into_laterN_env_sound -wp_bind'.
     iIntros "HΔ'".
     iApply (wp_block_mutable with "[//]"); [simpl; lia | done |]. iIntros "!> %l (Hheader & Hmeta & Hl)".
     specialize (HΔ'' l). destruct (envs_app _ _ _) as [Δ'' |] eqn:HΔ'; last done.
@@ -200,47 +200,47 @@ Section zoo_G.
     iApply ("HΔ'" with "[$Hheader $Hl $Hmeta]").
   Qed.
 
-  Lemma tac_wp_block_generative Δ Δ' K tag es vs E Φ :
+  Lemma tac_wp_block_generative Δ Δ' K tag es vs tid E Φ :
     to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ bid,
-      envs_entails Δ' (WP fill K (ValBlock (Generative (Some bid)) tag vs) @ E {{ Φ }})
+      envs_entails Δ' (WP fill K (ValBlock (Generative (Some bid)) tag vs) ∷ tid @ E {{ Φ }})
     ) →
-    envs_entails Δ (WP fill K (Block ImmutableGenerativeStrong tag es) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Block ImmutableGenerativeStrong tag es) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hes HΔ HΔ'.
-    rewrite into_laterN_env_sound -wp_bind.
+    rewrite into_laterN_env_sound -wp_bind'.
     iIntros "HΔ'".
     iApply (wp_block_generative with "[//]"); first done. iIntros "!> %bid _".
     iApply (HΔ' with "HΔ'").
   Qed.
 
-  Lemma tac_wp_match Δ Δ' id p K l hdr x_fb e_fb brs e E Φ :
+  Lemma tac_wp_match Δ Δ' id p K l hdr x_fb e_fb brs e tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
     eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
-    envs_entails Δ' (WP fill K e @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (Match #l x_fb e_fb brs) @ E {{ Φ }}).
+    envs_entails Δ' (WP fill K e ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup He HΔ'.
-    rewrite into_laterN_env_sound -wp_bind /=.
+    rewrite into_laterN_env_sound /=.
     iIntros "HΔ'".
     iAssert (▷ l ↦ₕ hdr)%I as "#Hl".
     { iDestruct (envs_lookup_split with "HΔ'") as "(Hl & _)"; first done.
       destruct p; iSteps.
     }
-    iApply (wp_match with "Hl"); first done.
-    rewrite -wp_bind_inv HΔ'. iSteps.
+    iApply (wp_match_fill with "Hl"); first done.
+    rewrite HΔ'. iSteps.
   Qed.
 
-  Lemma tac_wp_get_tag Δ Δ' id p K l hdr E Φ :
+  Lemma tac_wp_get_tag Δ Δ' id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
-    envs_entails Δ' (WP fill K #hdr.(header_tag) @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (GetTag #l) @ E {{ Φ }}).
+    envs_entails Δ' (WP fill K #hdr.(header_tag) ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (GetTag #l) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
-    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_lookup_split //= HΔ'.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
@@ -248,14 +248,14 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma tac_wp_get_size Δ Δ' id p K l hdr E Φ :
+  Lemma tac_wp_get_size Δ Δ' id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
-    envs_entails Δ' (WP fill K #hdr.(header_size) @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (GetSize #l) @ E {{ Φ }}).
+    envs_entails Δ' (WP fill K #hdr.(header_size) ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (GetSize #l) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
-    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_lookup_split //= HΔ'.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
@@ -263,14 +263,14 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma tac_wp_load Δ Δ' id p K l fld dq v E Φ :
+  Lemma tac_wp_load Δ Δ' id p K l fld dq v tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, (l +ₗ fld) ↦{dq} v)%I →
-    envs_entails Δ' (WP fill K v @ E {{ Φ }}) →
-    envs_entails Δ (WP fill K (Load #l #fld) @ E {{ Φ }}).
+    envs_entails Δ' (WP fill K v ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (Load #l #fld) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
-    rewrite into_laterN_env_sound -wp_bind envs_lookup_split //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_lookup_split //= HΔ'.
     iIntros "(Hl & H)".
     iAssert (▷ (□ (if p then (l +ₗ fld) ↦{dq} v else True) ∗ (l +ₗ fld) ↦{dq} v))%I with "[Hl]" as "(#Hl_ & Hl)".
     { destruct p; iSteps. }
@@ -278,7 +278,7 @@ Section zoo_G.
     iSteps. destruct p; iSteps.
   Qed.
 
-  Lemma tac_wp_store Δ Δ' id K l fld v w E Φ :
+  Lemma tac_wp_store Δ Δ' id K l fld v w tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ w)%I →
     match
@@ -287,21 +287,21 @@ Section zoo_G.
       ) Δ'
     with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K () @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K () ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (Store #l #fld v) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Store #l #fld v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
     destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
-    rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_simple_replace_sound //= HΔ'.
     iIntros "(Hl & H)".
     iApply (wp_store with "Hl").
     iSteps.
   Qed.
 
-  Lemma tac_wp_xchg Δ Δ' id K l fld v w E Φ :
+  Lemma tac_wp_xchg Δ Δ' id K l fld v w tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ w)%I →
     match
@@ -310,25 +310,25 @@ Section zoo_G.
       ) Δ'
     with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K w @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K w ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (Xchg (#l, #fld)%V v) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (Xchg (#l, #fld)%V v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
     destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
-    rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_simple_replace_sound //= HΔ'.
     iIntros "(Hl & H)".
     iApply (wp_xchg with "Hl").
     iSteps.
   Qed.
 
-  Lemma tac_wp_cas Δ Δ' Δ'' id p K l fld dq v v1 v2 E Φ :
+  Lemma tac_wp_cas Δ Δ' Δ'' id p K l fld dq v v1 v2 tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup_delete true id Δ' = Some (p, (l +ₗ fld) ↦{dq} v, Δ'')%I →
     ( v ≉ v1 →
-      envs_entails Δ' (WP fill K #false @ E {{ Φ }})
+      envs_entails Δ' (WP fill K #false ∷ tid @ E {{ Φ }})
     ) →
     ( v ≈ v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
@@ -340,15 +340,15 @@ Section zoo_G.
     with
     | Some Δ''' =>
         v ≈ v1 →
-        envs_entails Δ''' (WP fill K #true @ E {{ Φ }})
+        envs_entails Δ''' (WP fill K #true ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (CAS (#l, #fld)%V v1 v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (CAS (#l, #fld)%V v1 v2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hfail Hsuc1 Hsuc2.
     destruct (envs_app _ _ _) as [Δ''' |] eqn:HΔ'''; last done.
-    rewrite into_laterN_env_sound -wp_bind //=.
+    rewrite into_laterN_env_sound -wp_bind' //=.
     iIntros "HΔ'".
     iAssert (▷ ⌜envs_wf Δ'⌝)%I as "#>%Hwf".
     { iDestruct (of_envs_alt with "HΔ'") as "($ & _)". }
@@ -368,7 +368,7 @@ Section zoo_G.
       iDestruct (envs_lookup_sound with "HΔ'") as "(Hl & HΔ'')"; first done.
       rewrite envs_app_sound //= Hsuc2 // bi.intuitionistically_if_elim. iSteps.
   Qed.
-  Lemma tac_wp_cas_suc Δ Δ' id K l fld lit lit1 v2 E Φ :
+  Lemma tac_wp_cas_suc Δ Δ' id K l fld lit lit1 v2 tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ #lit)%I →
     literal_physical lit →
@@ -379,21 +379,21 @@ Section zoo_G.
       ) Δ'
     with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K #true @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K #true ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (CAS (#l, #fld)%V #lit1 v2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (CAS (#l, #fld)%V #lit1 v2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ Hlookup Hlit -> HΔ'.
     destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
-    rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_simple_replace_sound //= HΔ'.
     iIntros "(Hl & H)".
     iApply (wp_cas_suc with "Hl"); [done.. |].
     iSteps.
   Qed.
 
-  Lemma tac_wp_faa Δ Δ' id K l fld (i1 i2 : Z) E Φ :
+  Lemma tac_wp_faa Δ Δ' id K l fld (i1 i2 : Z) tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ #i1)%I →
     match
@@ -402,15 +402,15 @@ Section zoo_G.
       ) Δ'
     with
     | Some Δ'' =>
-        envs_entails Δ'' (WP fill K #i1 @ E {{ Φ }})
+        envs_entails Δ'' (WP fill K #i1 ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →
-    envs_entails Δ (WP fill K (FAA (#l, #fld)%V #i2) @ E {{ Φ }}).
+    envs_entails Δ (WP fill K (FAA (#l, #fld)%V #i2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ''.
     destruct (envs_simple_replace _ _ _) as [Δ'' |] eqn:HΔ'; last done.
-    rewrite into_laterN_env_sound -wp_bind envs_simple_replace_sound //= HΔ''.
+    rewrite into_laterN_env_sound -wp_bind' envs_simple_replace_sound //= HΔ''.
     iIntros "(Hl & H)".
     iApply (wp_faa with "Hl").
     iSteps.
@@ -420,7 +420,7 @@ End zoo_G.
 #[local] Ltac wp_start tac :=
   iStartProof;
   lazymatch goal with
-  | |- envs_entails _ (wp ?e _ _) =>
+  | |- envs_entails _ (wp ?e _ _ _) =>
       tac e
   | _ =>
       fail "not a 'wp'"
@@ -428,7 +428,7 @@ End zoo_G.
 
 Tactic Notation "wp_expr_eval" tactic3(tac) :=
   wp_start ltac:(fun e =>
-    notypeclasses refine (tac_wp_expr_eval _ e _ _ _ _ _);
+    notypeclasses refine (tac_wp_expr_eval _ e _ _ _ _ _ _);
     [ let x := fresh in
       intros x;
       tac;
@@ -442,11 +442,11 @@ Ltac wp_expr_simpl :=
 
 #[local] Ltac wp_value_head :=
   lazymatch goal with
-  | |- envs_entails _ (wp (Val _) _ (λ _, fupd _ _ _)) =>
+  | |- envs_entails _ (wp (Val _) _ _ (λ _, fupd _ _ _)) =>
       eapply tac_wp_value_nofupd
-  | |- envs_entails _ (wp (Val _) _ (λ _, wp _ _ _ _)) =>
+  | |- envs_entails _ (wp (Val _) _ _ (λ _, wp _ _ _ _)) =>
       eapply tac_wp_value_nofupd
-  | |- envs_entails _ (wp (Val _) _ _) =>
+  | |- envs_entails _ (wp (Val _) _ _ _) =>
       eapply tac_wp_value
   end.
 #[local] Ltac wp_finish :=

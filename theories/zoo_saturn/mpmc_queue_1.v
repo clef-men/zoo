@@ -703,7 +703,7 @@ Section mpmc_queue_1_G.
 
     wp_rec. wp_match.
     wp_bind (_ and _)%E.
-    wp_apply (wp_wand _ _ itype_bool) as (res) "(%b & ->)".
+    wp_apply (wp_wand itype_bool) as (res) "(%b & ->)".
     { wp_smart_apply (xtchain_next_spec with "[$Hmeta $Hinv $Hhistory_at_new_back]") as (res) "[-> | (%new_back' & -> & #Hnew_back'_header & #Hhistory_at_new_back')]"; last iSteps.
       wp_pures.
 

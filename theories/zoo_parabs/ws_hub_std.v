@@ -587,7 +587,7 @@ Section ws_hub_std_G.
           iApply ("HΦ" $! Anything with "Hmodel [$Howner $HP]").
 
         * wp_bind (if: _ then _ else _)%E.
-          wp_apply (wp_wand _ _ itype_unit) as (res) "->".
+          wp_apply (wp_wand itype_unit) as (res) "->".
           { destruct yield; iSteps. }
           wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
   Qed.

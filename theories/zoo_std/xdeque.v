@@ -223,7 +223,7 @@ Section zoo_G.
     set nodes2 := drop (S i) nodes.
     set nodes' := nodes1 ++ nodes2.
     wp_bind (_ <-{xdeque_next} _)%E.
-    wp_apply (wp_wand _ _ (λ res,
+    wp_apply (wp_wand (λ res,
       ⌜res = ()%V⌝ ∗
       l.[xdeque_next] ↦ from_option #@{location} #l (head nodes') ∗
       xdlchain #l nodes1 (from_option #@{location} #l $ head nodes2)
@@ -237,7 +237,7 @@ Section zoo_G.
       rewrite -(take_drop i nodes) -/nodes1 /nodes' Hnodes1 -!assoc !head_app_cons //.
     }
     wp_pures.
-    wp_apply (wp_wand _ _ (λ res,
+    wp_apply (wp_wand (λ res,
       ⌜res = ()%V⌝ ∗
       l.[xdeque_prev] ↦ from_option #@{location} #l (last nodes') ∗
       xdlchain (from_option #@{location} #l $ last nodes1) nodes2 #l

@@ -215,7 +215,7 @@ Ltac zoo_simpl :=
 Ltac invert_base_step :=
   simpl in *;
   repeat match goal with
-  | H: base_step ?e _ _ _ _ _ |- _ =>
+  | H: base_step _ ?e _ _ _ _ _ |- _ =>
       try (is_var e; fail 1);
       invert H
   end;
@@ -247,50 +247,50 @@ Create HintDb zoo.
 ) : zoo.
 
 #[global] Hint Extern 0 (
-  base_reducible _ _
+  base_reducible _ _ _
 ) =>
   do 4 eexists; simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_reducible_no_obs _ _
+  base_reducible_no_obs _ _ _
 ) =>
   do 3 eexists; simpl
 : zoo.
 
 #[global] Hint Extern 1 (
-  base_step _ _ _ _ _ _
+  base_step _ _ _ _ _ _ _
 ) =>
   econstructor
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _
+  base_step _ (Equal _ _) _ _ _ _ _
 ) =>
   eapply base_step_equal_fail;
   simpl; try naive_solver done
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Equal _ _) _ _ _ _ _
+  base_step _ (Equal _ _) _ _ _ _ _
 ) =>
   eapply base_step_equal_success;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Alloc _ _) _ _ _ _ _
+  base_step _ (Alloc _ _) _ _ _ _ _
 ) =>
   apply base_step_alloc'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Block Mutable _ _) _ _ _ _ _
+  base_step _ (Block Mutable _ _) _ _ _ _ _
 ) =>
   eapply base_step_block_mutable'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (Block ImmutableGenerativeStrong _ _) _ _ _ _ _
+  base_step _ (Block ImmutableGenerativeStrong _ _) _ _ _ _ _
 ) =>
   eapply base_step_block_immutable_generative_strong'
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (CAS _ _ _) _ _ _ _ _
+  base_step _ (CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_step_cas_fail;
   [ try done
@@ -298,13 +298,13 @@ Create HintDb zoo.
   ]
 : zoo.
 #[global] Hint Extern 0 (
-  base_step (CAS _ _ _) _ _ _ _ _
+  base_step _ (CAS _ _ _) _ _ _ _ _
 ) =>
   eapply base_step_cas_success;
   simpl
 : zoo.
 #[global] Hint Extern 0 (
-  base_step Proph _ _ _ _ _
+  base_step _ Proph _ _ _ _ _
 ) =>
   apply base_step_proph'
 : zoo.

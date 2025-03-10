@@ -11,7 +11,7 @@ Section ectxi_language_mixin.
   Context (of_val : val → expr).
   Context (to_val : expr → option val).
   Context (fill_item : ectx_item → expr → expr).
-  Context (base_step : expr → state → list observation → expr → state → list expr → Prop).
+  Context (base_step : thread_id → expr → state → list observation → expr → state → list expr → Prop).
 
   Record EctxiLanguageMixin := {
     mixin_to_of_val v :
@@ -19,8 +19,8 @@ Section ectxi_language_mixin.
     mixin_of_to_val e v :
       to_val e = Some v →
       of_val v = e ;
-    mixin_val_stuck e1 σ1 κ e2 σ2 es :
-      base_step e1 σ1 κ e2 σ2 es →
+    mixin_val_stuck tid e1 σ1 κ e2 σ2 es :
+      base_step tid e1 σ1 κ e2 σ2 es →
       to_val e1 = None ;
 
     mixin_fill_item_val Ki e :
@@ -34,8 +34,8 @@ Section ectxi_language_mixin.
       fill_item Ki1 e1 = fill_item Ki2 e2 →
       Ki1 = Ki2 ;
 
-    mixin_base_ctx_step_val Ki e σ1 κ e2 σ2 es :
-      base_step (fill_item Ki e) σ1 κ e2 σ2 es →
+    mixin_base_ctx_step_val tid Ki e σ1 κ e2 σ2 es :
+      base_step tid (fill_item Ki e) σ1 κ e2 σ2 es →
       is_Some (to_val e) ;
   }.
 End ectxi_language_mixin.
@@ -50,7 +50,7 @@ Structure ectxi_language := {
   of_val : val → expr ;
   to_val : expr → option val ;
   fill_item : ectx_item → expr → expr ;
-  base_step : expr → state → list observation → expr → state → list expr → Prop ;
+  base_step : thread_id → expr → state → list observation → expr → state → list expr → Prop ;
 
   ectxi_language_mixin : EctxiLanguageMixin of_val to_val fill_item base_step ;
 }.
@@ -62,7 +62,7 @@ Bind Scope val_scope with val.
 #[global] Arguments of_val {_} _ : assert.
 #[global] Arguments to_val {_} _ : assert.
 #[global] Arguments fill_item {_} _ _ : assert.
-#[global] Arguments base_step {_} _ _ _ _ _ _ : assert.
+#[global] Arguments base_step {_} _ _ _ _ _ _ _ : assert.
 
 Section ectxi_language.
   Context {Λ : ectxi_language}.
@@ -97,8 +97,8 @@ Section ectxi_language.
   Proof.
     apply ectxi_language_mixin.
   Qed.
-  Lemma base_ctx_step_val Ki e σ1 κ e2 σ2 es :
-    base_step (fill_item Ki e) σ1 κ e2 σ2 es →
+  Lemma base_ctx_step_val tid Ki e σ1 κ e2 σ2 es :
+    base_step tid (fill_item Ki e) σ1 κ e2 σ2 es →
     is_Some (to_val e).
   Proof.
     apply ectxi_language_mixin.
@@ -125,7 +125,7 @@ Section ectxi_language.
     - intros K1 K2 e. rewrite /fill /= foldl_app //.
     - intros K; induction K as [| Ki K IH]; rewrite /Inj; naive_solver.
     - done.
-    - intros K K' e1 κ e1' σ1 e2 σ2 es Hfill Hred Hstep; revert K' Hfill.
+    - intros tid K K' e1 κ e1' σ1 e2 σ2 es Hfill Hred Hstep; revert K' Hfill.
       induction K as [| Ki K IH] using rev_ind=> /= K' Hfill; eauto using app_nil_r.
       destruct K' as [| Ki' K' _] using @rev_ind; simplify_eq/=.
       { rewrite fill_app in Hstep. apply base_ctx_step_val in Hstep.
@@ -137,7 +137,7 @@ Section ectxi_language.
         apply fill_not_val. revert Hstep. apply ectxi_language_mixin. }
       simplify_eq. destruct (IH K') as [K'' ->]; auto.
       exists K''. rewrite assoc //.
-    - intros K e1 σ1 κ e2 σ2 es.
+    - intros tid K e1 σ1 κ e2 σ2 es.
       destruct K as [| Ki K _] using rev_ind; simpl; first by auto.
       rewrite fill_app /=.
       intros ?%base_ctx_step_val; eauto using fill_val.
@@ -156,7 +156,10 @@ Section ectxi_language.
   Qed.
 
   Lemma ectxi_language_sub_redexes_are_values e :
-    (∀ Ki e', e = fill_item Ki e' → is_Some (to_val e')) →
+    ( ∀ Ki e',
+      e = fill_item Ki e' →
+      is_Some (to_val e')
+    ) →
     sub_redexes_are_values e.
   Proof.
     intros Hsub K e' ->. destruct K as [| Ki K _] using @rev_ind=> //=.

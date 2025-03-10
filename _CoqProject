@@ -87,8 +87,8 @@ theories/zoo/iris/base_logic/lib/prophet_map.v
 theories/zoo/iris/program_logic/language.v
 theories/zoo/iris/program_logic/ectx_language.v
 theories/zoo/iris/program_logic/ectxi_language.v
+theories/zoo/iris/program_logic/bwp.v
 theories/zoo/iris/program_logic/wp.v
-theories/zoo/iris/program_logic/wp_lifting.v
 theories/zoo/iris/program_logic/adequacy.v
 theories/zoo/iris/program_logic/atomic.v
 

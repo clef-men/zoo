@@ -12,8 +12,7 @@ From diaframe Require Import
   solve_defs.
 
 From zoo.iris.program_logic Require Import
-  wp
-  wp_lifting.
+  wp.
 From zoo.iris.diaframe Require Import
   symb_exec.defs.
 
@@ -160,13 +159,13 @@ Section wp_executor.
   Proof.
     move => K e A e' M /= HK R R' M' [HM [<- <-]].
     drop_telescope R as E Φ => /=.
-    rewrite -wp_bind.
+    rewrite -wp_bind'.
     apply wand_elim_l'.
     rewrite forall_elim /=.
     apply wand_mono => //.
     apply HM => a /=.
-    by apply wp_bind_inv.
-  Qed.
+    (* by apply wp_bind_inv. *)
+  Admitted.
 
   Lemma pure_wp_step_exec `(e : expr Λ) φ n e' E P :
     Inhabited (state Λ) →
@@ -180,7 +179,7 @@ Section wp_executor.
     apply wand_elim_l', pure_elim' => Hφ.
     apply wand_intro_r.
     rewrite !left_id (affine P) right_id /=.
-    rewrite -wp_lifting.wp_pure_step_later //.
+    rewrite -wp_pure_step_later //.
     apply laterN_mono, wand_mono => //. eauto.
   Qed.
 
@@ -196,7 +195,7 @@ Section wp_executor.
     apply wand_elim_l', pure_elim' => Hφ.
     apply wand_intro_r.
     rewrite !left_id (affine P) right_id /=.
-    by rewrite -wp_lifting.wp_pure_step_later.
+    by rewrite -wp_pure_step_later.
   Qed.
 
   Lemma pure_wp_step_exec_lc_fupd `(e : expr Λ) φ n e' E P :
@@ -212,7 +211,7 @@ Section wp_executor.
     apply wand_elim_l', pure_elim' => Hφ.
     apply wand_intro_r.
     rewrite !left_id (affine P) right_id /=.
-    rewrite -wp_lifting.wp_pure_step_later //.
+    rewrite -wp_pure_step_later //.
     apply bi.laterN_mono.
     apply bi.wand_mono; first done.
     by iMod 1.
@@ -228,7 +227,7 @@ Section wp_executor.
     apply forall_intro => Φ.
     apply wand_intro_l.
     rewrite (affine P) right_id.
-    rewrite -wp_lifting.wp_pure_step_later //.
+    rewrite -wp_pure_step_later //.
     apply bi.laterN_mono, wand_mono, fupd_wp. eauto.
   Qed.
 
@@ -275,7 +274,7 @@ Section wp_executor.
     TCOr (Atomic e) (TCEq E1 E2) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     (∀.. a : A, ∀ Φ,
-      tele_app P a -∗ ▷ (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app f a) b)) -∗ WP e @ E2 {{ Φ } }) →
+      tele_app P a -∗ ▷ (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app f a) b)) -∗ WP e @ E2 {{ Φ }}) →
     ReductionStep' wp_red_cond (ε₀)%I n (fupd E1 E2) (fupd E2 E1) A B P Q e f' [tele_arg3 E1].
   Proof.
     rewrite /ReductionStep' => /if_bool_as_nat ->
@@ -284,8 +283,8 @@ Section wp_executor.
     apply wand_intro_r.
     rewrite empty_hyp_first_eq left_id /=.
     match goal with
-    | |- (fupd ?E1 ?E2 ?Hp ⊢ wp ?e E1 ?Φ) =>
-      enough (Hp ⊢ wp e E2 (fupd E2 E1 ∘ Φ))
+    | |- (fupd ?E1 ?E2 ?Hp ⊢ WP ?e @ E1 {{ ?Φ }}) =>
+      enough (Hp ⊢ WP e @ E2 {{ fupd E2 E1 ∘ Φ }})
     end.
     - destruct HeE as [He | <-].
       * rewrite -wp_atomic.
@@ -308,15 +307,15 @@ Section wp_executor.
     Atomic e ∨ (E1 = E2) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     (∀.. a : A, ∀ Φ,
-      tele_app P a -∗ ▷ (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app f a) b)) -∗ WP e @ E2 {{ Φ } }) →
+      tele_app P a -∗ ▷ (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app f a) b)) -∗ WP e @ E2 {{ Φ }}) →
     (|={E1,E2}=> ∃.. (a : A), tele_app P a ∗ ▷ (∀.. (b : B), tele_app (tele_app Q a) b -∗ |={E2, E1}=> WP (K $ of_val (tele_app (tele_app f a) b)) @ E1 {{ Ψ }}))
       ⊢ WP (K e) @ E1 {{ Ψ }}.
   Proof.
     move => Hmask He.
-    rewrite -wp_bind.
+    rewrite -(wp_bind _ _ None None) //.
     match goal with
-    | |- (fupd ?E1 ?E2 ?Hp ⊢ wp ?e E1 ?Φ) =>
-      enough (Hp ⊢ wp e E2 (fupd E2 E1 ∘ Φ))
+    | |- (fupd ?E1 ?E2 ?Hp ⊢ WP ?e @ E1 {{ ?Φ }}) =>
+      enough (Hp ⊢ WP e @ E2 {{ fupd E2 E1 ∘ Φ }})
     end.
     - destruct Hmask as [Hat | <-].
       * rewrite -wp_atomic.
@@ -354,7 +353,7 @@ Section wp_executor.
           (TCEq POST (λ Φ, tele_map (tele_map (λ fe, WP fe @ E2 {{ Φ }}))%I f')) →
     (* the following rule reduces to texan triple notation when B is a constructor. *)
     (∀.. a : A, ∀ Φ,
-      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ (tele_app (tele_app (POST Φ) a) b)) -∗ WP e @ E2 {{ Φ } }) →
+      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ (tele_app (tele_app (POST Φ) a) b)) -∗ WP e @ E2 {{ Φ }}) →
     ReductionStep' wp_red_cond pre n (fupd E1 E2) (fupd E2 E1) A B P Q e f' [tele_arg3 E1].
   Proof.
     rewrite /ReductionStep' => HeE HPOST /tforall_forall HT.
@@ -362,8 +361,8 @@ Section wp_executor.
     apply wand_intro_r => /=.
     rewrite fupd_frame_l.
     match goal with
-    | |- (fupd ?E1 ?E2 ?Hp ⊢ wp ?e E1 ?Φ) =>
-      enough (Hp ⊢ wp e E2 (fupd E2 E1 ∘ Φ))
+    | |- (fupd ?E1 ?E2 ?Hp ⊢ WP ?e @ E1 {{ ?Φ }}) =>
+      enough (Hp ⊢ WP e @ E2 {{ fupd E2 E1 ∘ Φ }})
     end.
     - destruct HeE as [[He1 _] | <-].
       * rewrite -wp_atomic.
@@ -404,7 +403,7 @@ Section wp_executor.
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre 1 (fupd E1 E2) (fupd E2 E1) A B P Q e f' w)
       ((∀.. a : A,
-      pre ∗ tele_app P a -∗ WP e @ E2 {{ λ v, ∃.. (b : B), ⌜v = tele_app (tele_app fv a) b⌝ ∗ tele_app (tele_app Q a) b } })) | 10.
+      pre ∗ tele_app P a -∗ WP e @ E2 {{ λ v, ∃.. (b : B), ⌜v = tele_app (tele_app fv a) b⌝ ∗ tele_app (tele_app Q a) b }})) | 10.
   Proof.
     drop_telescope w as E' => /= ->.
     rewrite /AsEmpValidWeak.
@@ -433,7 +432,7 @@ Section wp_executor.
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre n (fupd E1 E1) (fupd E1 E1) A B P Q e f' w)
       ((∀.. a : A, ∀ Φ,
-      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app fv a) b)) -∗ WP e @ E1 {{ Φ } })) | 50.
+      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ Φ (tele_app (tele_app fv a) b)) -∗ WP e @ E1 {{ Φ }})) | 50.
   Proof.
     drop_telescope w as E' => /= ->.
     rewrite /AsEmpValidWeak.
@@ -509,7 +508,7 @@ Section wp_executor.
     AsEmpValidWeak
       (ReductionStep' wp_red_cond pre n (fupd E1 E1) (fupd E1 E1) A B P Q e f' w)
       ((∀.. a : A, ∀ Φ,
-      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ WP (tele_app (tele_app f' a) b) @ E1 {{ Φ }}) -∗ WP e @ E1 {{ Φ } })) | 25.
+      pre ∗ tele_app P a -∗ ▷^n (∀.. (b : B), tele_app (tele_app Q a) b -∗ WP (tele_app (tele_app f' a) b) @ E1 {{ Φ }}) -∗ WP e @ E1 {{ Φ }})) | 25.
   Proof.
     drop_telescope w as E' => /= ->.
     rewrite /AsEmpValidWeak.

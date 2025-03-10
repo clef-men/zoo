@@ -666,15 +666,12 @@ Section inf_mpmc_queue_1_G.
     wp_rec. wp_pures.
 
     wp_bind (FAA _ _).
-    wp_apply (wp_wand _ _
-      ( λ res,
-        ∃ back,
-        ⌜res = #back⌝ ∗
-        history_at γ back v ∗
-        Φ ()%V
-      )%I
-      with "[HΦ]"
-    ) as (res) "(%back & -> & #Hhistory_at & HΦ)".
+    wp_apply (wp_wand (λ res,
+      ∃ back,
+      ⌜res = #back⌝ ∗
+      history_at γ back v ∗
+      Φ ()%V
+    )%I with "[HΦ]") as (res) "(%back & -> & #Hhistory_at & HΦ)".
     { iInv "Hinv" as "(:inv_inner =1)".
       wp_faa.
 
@@ -819,15 +816,12 @@ Section inf_mpmc_queue_1_G.
     wp_rec. wp_pures.
 
     wp_bind (FAA _ _).
-    wp_apply (wp_wand _ _
-      ( λ res,
-        ∃ front,
-        ⌜res = #front⌝ ∗
-        consumers_at γ front Φ ∗
-        tokens_pending γ front
-      )%I
-      with "[HΦ]"
-    ) as (res) "(%front & -> & Hconsumers_at & Htokens_pending)".
+    wp_apply (wp_wand (λ res,
+      ∃ front,
+      ⌜res = #front⌝ ∗
+      consumers_at γ front Φ ∗
+      tokens_pending γ front
+    )%I with "[HΦ]") as (res) "(%front & -> & Hconsumers_at & Htokens_pending)".
     { iInv "Hinv" as "(:inv_inner)".
       wp_faa.
       destruct (decide (front < back)) as [Hfront1 | Hfront1].

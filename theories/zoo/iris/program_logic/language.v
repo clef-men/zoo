@@ -3,14 +3,20 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  list.
 From zoo Require Import
   options.
+
+Definition thread_id :=
+  nat.
+Implicit Types tid : thread_id.
 
 Section language_mixin.
   Context {expr val state observation : Type}.
   Context (of_val : val → expr).
   Context (to_val : expr → option val).
-  Context (prim_step : expr → state → list observation → expr → state → list expr → Prop).
+  Context (prim_step : thread_id → expr → state → list observation → expr → state → list expr → Prop).
 
   Record LanguageMixin := {
     mixin_to_of_val v :
@@ -18,8 +24,8 @@ Section language_mixin.
     mixin_of_to_val e v :
       to_val e = Some v →
       of_val v = e ;
-    mixin_val_stuck e σ κ e' σ' es :
-      prim_step e σ κ e' σ' es →
+    mixin_val_stuck tid e σ κ e' σ' es :
+      prim_step tid e σ κ e' σ' es →
       to_val e = None ;
   }.
 End language_mixin.
@@ -31,13 +37,13 @@ Structure language := {
   observation : Type ;
   of_val : val → expr ;
   to_val : expr → option val ;
-  prim_step : expr → state → list observation → expr → state → list expr → Prop ;
+  prim_step : thread_id → expr → state → list observation → expr → state → list expr → Prop ;
   language_mixin : LanguageMixin of_val to_val prim_step ;
 }.
 #[global] Arguments Build_language {_ _ _ _ _ _ _} _ : assert.
-#[global] Arguments of_val {_} _ : assert.
-#[global] Arguments to_val {_} _ : assert.
-#[global] Arguments prim_step {_} _ _ _ _ _ _ : assert.
+#[global] Arguments of_val {_}.
+#[global] Arguments to_val {_}.
+#[global] Arguments prim_step {_}.
 
 Implicit Types Λ : language.
 
@@ -64,15 +70,15 @@ Class LanguageCtx {Λ} (K : expr Λ → expr Λ) := {
   fill_not_val e :
     to_val e = None →
     to_val (K e) = None ;
-  fill_step e1 σ1 κ e2 σ2 es :
-    prim_step e1 σ1 κ e2 σ2 es →
-    prim_step (K e1) σ1 κ (K e2) σ2 es ;
-  fill_step_inv e1' σ1 κ e2 σ2 es :
+  fill_step tid e1 σ1 κ e2 σ2 es :
+    prim_step tid e1 σ1 κ e2 σ2 es →
+    prim_step tid (K e1) σ1 κ (K e2) σ2 es ;
+  fill_step_inv tid e1' σ1 κ e2 σ2 es :
     to_val e1' = None →
-    prim_step (K e1') σ1 κ e2 σ2 es →
+    prim_step tid (K e1') σ1 κ e2 σ2 es →
       ∃ e2',
       e2 = K e2' ∧
-      prim_step e1' σ1 κ e2' σ2 es ;
+      prim_step tid e1' σ1 κ e2' σ2 es ;
 }.
 
 #[global] Instance language_ctx_id Λ :
@@ -91,15 +97,15 @@ Section language.
   Implicit Types κ : list (observation Λ).
 
   Class Atomic e :=
-    atomic σ e' κ σ' es :
-      prim_step e σ κ e' σ' es →
+    atomic tid σ e' κ σ' es :
+      prim_step tid e σ κ e' σ' es →
       is_Some (to_val e').
 
   Definition step ρ1 κ ρ2 :=
-    ∃ i e1 e2 σ2 es,
-    prim_step e1 ρ1.2 κ e2 σ2 es ∧
-    ρ1.1 !! i = Some e1 ∧
-    ρ2 = (<[i := e2]> ρ1.1 ++ es, σ2).
+    ∃ tid e1 e2 σ2 es,
+    prim_step tid e1 ρ1.2 κ e2 σ2 es ∧
+    ρ1.1 !! tid = Some e1 ∧
+    ρ2 = (<[tid := e2]> ρ1.1 ++ es, σ2).
 
   Definition silent_step ρ1 ρ2 :=
     ∃ κ,
@@ -114,31 +120,31 @@ Section language.
        nsteps (S n) ρ1 (κ ++ κs) ρ3.
   #[local] Hint Constructors nsteps : core.
 
-  Definition reducible e σ :=
+  Definition reducible tid e σ :=
     ∃ κ e' σ' es,
-    prim_step e σ κ e' σ' es.
-  Definition reducible_no_obs e σ :=
+    prim_step tid e σ κ e' σ' es.
+  Definition reducible_no_obs tid e σ :=
     ∃ e' σ' es,
-    prim_step e σ [] e' σ' es.
-  Definition irreducible e σ :=
+    prim_step tid e σ [] e' σ' es.
+  Definition irreducible tid e σ :=
     ∀ κ e' σ' es,
-    ¬ prim_step e σ κ e' σ' es.
-  Definition stuck e σ :=
+    ¬ prim_step tid e σ κ e' σ' es.
+  Definition stuck tid e σ :=
     to_val e = None ∧
-    irreducible e σ.
-  Definition not_stuck e σ :=
+    irreducible tid e σ.
+  Definition not_stuck tid e σ :=
     is_Some (to_val e) ∨
-    reducible e σ.
+    reducible tid e σ.
   Definition safe ρ :=
     ∀ ρ',
     rtc silent_step ρ ρ' →
-    Forall (λ e, not_stuck e ρ'.2) ρ'.1.
+    Foralli (λ tid e, not_stuck tid e ρ'.2) ρ'.1.
 
   Record pure_step e1 e2 := {
-    pure_step_safe σ1 :
-      reducible_no_obs e1 σ1 ;
-    pure_step_det σ1 κ e2' σ2 es :
-      prim_step e1 σ1 κ e2' σ2 es →
+    pure_step_safe tid σ1 :
+      reducible_no_obs tid e1 σ1 ;
+    pure_step_det tid σ1 κ e2' σ2 es :
+      prim_step tid e1 σ1 κ e2' σ2 es →
         κ = [] ∧
         σ2 = σ1 ∧
         e2' = e2 ∧
@@ -161,8 +167,8 @@ Section language.
   Proof.
     apply language_mixin.
   Qed.
-  Lemma val_stuck e σ κ e' σ' es :
-    prim_step e σ κ e' σ' es →
+  Lemma val_stuck tid e σ κ e' σ' es :
+    prim_step tid e σ κ e' σ' es →
     to_val e = None.
   Proof.
     apply language_mixin.
@@ -186,103 +192,105 @@ Section language.
     intros <-. rewrite to_of_val //.
   Qed.
 
-  Lemma not_reducible e σ :
-    ¬ reducible e σ ↔
-    irreducible e σ.
+  Lemma not_reducible tid e σ :
+    ¬ reducible tid e σ ↔
+    irreducible tid e σ.
   Proof.
     rewrite /reducible /irreducible. naive_solver.
   Qed.
-  Lemma reducible_not_val e σ :
-    reducible e σ →
+  Lemma reducible_not_val tid e σ :
+    reducible tid e σ →
     to_val e = None.
   Proof.
-    intros (? & ? & ? & ? & ?); eauto using val_stuck.
+    intros (? & ? & ? & ? & ?). eauto using val_stuck.
   Qed.
-  Lemma reducible_no_obs_reducible e σ :
-    reducible_no_obs e σ →
-    reducible e σ.
+  Lemma reducible_no_obs_reducible tid e σ :
+    reducible_no_obs tid e σ →
+    reducible tid e σ.
   Proof.
-    intros (? & ? & ? & ?); eexists; eauto.
+    intros (? & ? & ? & ?). eexists. eauto.
   Qed.
-  Lemma val_irreducible e σ :
+  Lemma val_irreducible tid e σ :
     is_Some (to_val e) →
-    irreducible e σ.
+    irreducible tid e σ.
   Proof.
-    intros [? ?] ? ? ? ? ?%val_stuck. destruct (to_val e); done.
+    intros [? ?] ? ? ? ? ?%val_stuck.
+    destruct (to_val e); done.
   Qed.
   #[global] Instance of_val_inj :
     Inj (=) (=) (@of_val Λ).
   Proof.
-    intros v v' Hv; apply (inj Some); rewrite -!to_of_val Hv //.
+    intros v v' Hv.
+    apply (inj Some). rewrite -!to_of_val Hv //.
   Qed.
-  Lemma val_not_stuck e σ :
+  Lemma val_not_stuck tid e σ :
     is_Some (to_val e) →
-    not_stuck e σ.
+    not_stuck tid e σ.
   Proof.
     intros (v & ?). left. done.
   Qed.
-  Lemma not_not_stuck e σ :
-    ¬ not_stuck e σ ↔
-    stuck e σ.
+  Lemma not_not_stuck tid e σ :
+    ¬ not_stuck tid e σ ↔
+    stuck tid e σ.
   Proof.
     rewrite /stuck /not_stuck -not_eq_None_Some -not_reducible.
     destruct (decide (to_val e = None)); naive_solver.
   Qed.
 
-  Lemma reducible_fill `{!@LanguageCtx Λ K} e σ :
-    reducible e σ →
-    reducible (K e) σ.
+  Lemma reducible_fill K `{!@LanguageCtx Λ K} tid e σ :
+    reducible tid e σ →
+    reducible tid (K e) σ.
   Proof.
     rewrite /reducible. naive_solver eauto using fill_step.
   Qed.
-  Lemma reducible_fill_inv `{!@LanguageCtx Λ K} e σ :
+  Lemma reducible_fill_inv K `{!@LanguageCtx Λ K} tid e σ :
     to_val e = None →
-    reducible (K e) σ →
-    reducible e σ.
+    reducible tid (K e) σ →
+    reducible tid e σ.
   Proof.
     intros He (e' & σ' & k & es & Hstep). rewrite /reducible.
     apply fill_step_inv in Hstep as (e2' & _ & Hstep); naive_solver.
   Qed.
-  Lemma reducible_no_obs_fill `{!@LanguageCtx Λ K} e σ :
-    reducible_no_obs e σ →
-    reducible_no_obs (K e) σ.
+  Lemma reducible_no_obs_fill K `{!@LanguageCtx Λ K} tid e σ :
+    reducible_no_obs tid e σ →
+    reducible_no_obs tid (K e) σ.
   Proof.
     rewrite /reducible_no_obs. naive_solver eauto using fill_step.
   Qed.
-  Lemma reducible_no_obs_fill_inv `{!@LanguageCtx Λ K} e σ :
+  Lemma reducible_no_obs_fill_inv K `{!@LanguageCtx Λ K} tid e σ :
     to_val e = None →
-    reducible_no_obs (K e) σ →
-    reducible_no_obs e σ.
+    reducible_no_obs tid (K e) σ →
+    reducible_no_obs tid e σ.
   Proof.
     intros He (e' & σ' & es & Hstep); rewrite /reducible_no_obs.
     apply fill_step_inv in Hstep as (e2' & _ & Hstep); eauto.
   Qed.
-  Lemma irreducible_fill `{!@LanguageCtx Λ K} e σ :
+  Lemma irreducible_fill K `{!@LanguageCtx Λ K} tid e σ :
     to_val e = None →
-    irreducible e σ →
-    irreducible (K e) σ.
+    irreducible tid e σ →
+    irreducible tid (K e) σ.
   Proof.
     rewrite -!not_reducible. naive_solver eauto using reducible_fill_inv.
   Qed.
-  Lemma irreducible_fill_inv `{!@LanguageCtx Λ K} e σ :
-    irreducible (K e) σ →
-    irreducible e σ.
+  Lemma irreducible_fill_inv K `{!@LanguageCtx Λ K} tid e σ :
+    irreducible tid (K e) σ →
+    irreducible tid e σ.
   Proof.
     rewrite -!not_reducible. naive_solver auto using reducible_fill.
   Qed.
 
-  Lemma not_stuck_fill_inv K `{!@LanguageCtx Λ K} e σ :
-    not_stuck (K e) σ →
-    not_stuck e σ.
+  Lemma not_stuck_fill_inv K `{!@LanguageCtx Λ K} tid e σ :
+    not_stuck tid (K e) σ →
+    not_stuck tid e σ.
   Proof.
     rewrite /not_stuck -!not_eq_None_Some. intros [? | ?].
     - auto using fill_not_val.
     - destruct (decide (to_val e = None)); eauto using reducible_fill_inv.
   Qed.
 
-  Lemma stuck_fill `{!@LanguageCtx Λ K} e σ :
-    stuck e σ →
-    stuck (K e) σ.
+  Lemma stuck_fill K `{!@LanguageCtx Λ K} tid e σ :
+    stuck tid e σ →
+    stuck tid (K e) σ.
   Proof.
     rewrite -!not_not_stuck. eauto using not_stuck_fill_inv.
   Qed.
@@ -293,10 +301,10 @@ Section language.
   Proof.
     intros [Hred Hstep]. split.
     - rewrite /reducible_no_obs in Hred |- *. naive_solver eauto using fill_step.
-    - intros σ1 κ e2' σ2 es Hpstep.
-      destruct (fill_step_inv e1 σ1 κ e2' σ2 es) as (e2'' & -> & ?); [|exact Hpstep|].
-      + destruct (Hred σ1) as (? & ? & ? & ?); eauto using val_stuck.
-      + edestruct (Hstep σ1 κ e2'' σ2 es) as (? & -> & -> & ->); auto.
+    - intros tid σ1 κ e2' σ2 es Hpstep.
+      destruct (fill_step_inv tid e1 σ1 κ e2' σ2 es) as (e2'' & -> & ?); [|exact Hpstep|].
+      + destruct (Hred tid σ1) as (? & ? & ? & ?); eauto using val_stuck.
+      + edestruct (Hstep tid σ1 κ e2'' σ2 es) as (? & -> & -> & ->); done.
   Qed.
 
   Lemma pure_step_nsteps_ctx K `{!@LanguageCtx Λ K} n e1 e2 :
@@ -330,21 +338,21 @@ Section language.
     intros [v <-]. rewrite to_of_val. auto.
   Qed.
 
-  Lemma reducible_not_stuck e σ :
-    reducible e σ →
-    not_stuck e σ.
+  Lemma reducible_not_stuck tid e σ :
+    reducible tid e σ →
+    not_stuck tid e σ.
   Proof.
     rewrite /not_stuck. naive_solver.
   Qed.
-  Lemma prim_step_not_stuck e σ κ e' σ' es :
-    prim_step e σ κ e' σ' es →
-    not_stuck e σ.
+  Lemma prim_step_not_stuck tid e σ κ e' σ' es :
+    prim_step tid e σ κ e' σ' es →
+    not_stuck tid e σ.
   Proof.
     rewrite /not_stuck /reducible. eauto 10.
   Qed.
-  Lemma pure_step_not_stuck e1 e2 σ :
+  Lemma pure_step_not_stuck tid e1 e2 σ :
     pure_step e1 e2 →
-    not_stuck e1 σ.
+    not_stuck tid e1 σ.
   Proof.
     intros Hstep.
     eapply reducible_not_stuck, reducible_no_obs_reducible, pure_step_safe. done.
@@ -357,7 +365,7 @@ Section language.
     intros ?; rewrite <- to_of_val.
     f_equal; symmetry; eapply rtc_nf; first done.
     intros [e' [Hstep _]].
-    destruct (Hstep inhabitant) as (? & ? & ? & Hval%val_stuck).
+    destruct (Hstep inhabitant inhabitant) as (? & ? & ? & Hval%val_stuck).
     rewrite to_of_val // in Hval.
   Qed.
 
@@ -369,14 +377,28 @@ Section language.
     intros Hsafe Hstep ρ3 Hsteps.
     apply Hsafe. eauto using rtc.
   Qed.
-  Lemma safe_not_stuck {ρ} e :
+  Lemma safe_not_stuck ρ tid e :
     safe ρ →
-    e ∈ ρ.1 →
-    not_stuck e ρ.2.
+    ρ.1 !! tid = Some e →
+    not_stuck tid e ρ.2.
   Proof.
-    intros Hsafe He.
-    specialize (Hsafe ρ). rewrite Forall_forall in Hsafe.
+    intros Hsafe Hlookup.
+    specialize (Hsafe ρ). rewrite Foralli_lookup in Hsafe.
     eauto using rtc.
+  Qed.
+
+  Lemma step_length ρ1 κ ρ2 :
+    step ρ1 κ ρ2 →
+    length ρ1.1 ≤ length ρ2.1.
+  Proof.
+    intros (tid & e1 & e2 & σ2 & es & Hstep & Hlookup & ->).
+    rewrite length_app length_insert. lia.
+  Qed.
+  Lemma nsteps_length n ρ1 κs ρ2 :
+    nsteps n ρ1 κs ρ2 →
+    length ρ1.1 ≤ length ρ2.1.
+  Proof.
+    induction 1 as [| ? ? ? ? ? ? Hstep%step_length]; lia.
   Qed.
 End language.
 
