@@ -59,7 +59,6 @@ theories/zoo/iris/proofmode/proofmode.v
 theories/zoo/iris/diaframe/diaframe.v
 theories/zoo/iris/diaframe/symb_exec/defs.v
 theories/zoo/iris/diaframe/symb_exec/wp.v
-theories/zoo/iris/diaframe/symb_exec/spec_notations.v
 
 theories/zoo/iris/bi/big_op.v
 

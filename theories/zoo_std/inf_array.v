@@ -263,7 +263,7 @@ Section inf_array_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
+    iSteps; wp_apply int_max_spec; iSteps.
   Qed.
   #[local] Lemma inf_array_reserve_spec l γ us n :
     (0 ≤ n)%Z →

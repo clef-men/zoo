@@ -68,8 +68,8 @@ Notation "'WP' e tid E {{ v , Q } }" := (
   e at level 200,
   tid custom wp_thread_id at level 200,
   E custom wp_mask at level 200,
-  Q at level 200,
   v at level 200 as pattern,
+  Q at level 200,
   format "'[hv' WP  '/  ' '[' e ']'  tid E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 
@@ -86,6 +86,7 @@ Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" :=
   E custom wp_mask at level 200,
   x1 closed binder,
   xn closed binder,
+  Q at level 200,
   format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  x1  ..  xn ,  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
 ) : bi_scope.
 Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
@@ -99,6 +100,7 @@ Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
   e at level 200,
   tid custom wp_thread_id at level 200,
   E custom wp_mask at level 200,
+  Q at level 200,
   format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
 ) : bi_scope.
 

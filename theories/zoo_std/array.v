@@ -5787,7 +5787,7 @@ Section zoo_G.
     wp_smart_apply (array_fill_spec with "[Hmodel]") as "Hmodel"; first iSteps.
     rewrite /array_model !length_replicate.
     iDestruct "Hmodel" as "(%l & -> & #Hheader & Hmodel)".
-    iStep 7.
+    iStep 8.
     iApply inv_alloc. iExists (replicate ₊sz v). iSteps.
     - rewrite length_replicate //.
     - iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate).
@@ -6373,7 +6373,7 @@ Section zoo_G.
     { rewrite length_replicate //. }
     { rewrite length_replicate. lia. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'"; first done.
-    iStep 4.
+    iStep 5.
     rewrite length_replicate.
     iApply (itype_array_intro with "Hinv' Hslice'").
     { rewrite length_app Hvs !length_replicate. lia. }
@@ -6421,7 +6421,7 @@ Section zoo_G.
     iDestruct (array_model_to_slice with "Hmodel'") as "(#Hinv' & Hslice')".
     wp_smart_apply (array_unsafe_copy_slice_type' with "[$Htype $Hslice']") as (vs) "(%Hvs & Hslice' & Hvs)"; try done.
     { rewrite length_replicate. lia. }
-    iStep 4.
+    iStep 5.
     rewrite length_replicate.
     iApply (itype_array_intro with "Hinv' Hslice' Hvs").
     { rewrite Hvs length_replicate //. }

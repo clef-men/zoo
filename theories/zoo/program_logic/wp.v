@@ -22,7 +22,6 @@ Implicit Types es : list expr.
 Implicit Types v w : val.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
-Implicit Types K : ectx.
 
 #[local] Ltac wp_unseal :=
   rewrite wp.wp_unseal /wp.wp_def;
@@ -136,11 +135,11 @@ Section zoo_G.
     invert_base_step.
     iSteps.
   Qed.
-  Lemma bwp_match_fill K l hdr x_fb e_fb brs e tid E Φ :
+  Lemma bwp_match_ctx K `{!LanguageCtx K} l hdr x_fb e_fb brs e tid E Φ :
     eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
-    ▷ BWP fill K e ∶ tid @ E {{ Φ }} -∗
-    BWP fill K (Match #l x_fb e_fb brs) ∶ tid @ E {{ Φ }}.
+    ▷ BWP K e ∶ tid @ E {{ Φ }} -∗
+    BWP K (Match #l x_fb e_fb brs) ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He Hl H".
     iApply bwp_bind.
@@ -159,17 +158,17 @@ Section zoo_G.
       iSpecialize ("H" $! tid).
       iApply (bwp_match with "Hl H"); first done.
   Qed.
-  Lemma wp_match_fill K l hdr x_fb e_fb brs e tid E Φ :
+  Lemma wp_match_ctx K `{!LanguageCtx K} l hdr x_fb e_fb brs e tid E Φ :
     eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
-    ▷ WP fill K e ∷ tid @ E {{ Φ }} -∗
-    WP fill K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
+    ▷ WP K e ∷ tid @ E {{ Φ }} -∗
+    WP K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
   Proof.
     wp_unseal.
-    - apply bwp_match_fill.
+    - apply: bwp_match_ctx.
     - iIntros "%He >#Hl H %tid".
       iSpecialize ("H" $! tid).
-      iApply (bwp_match_fill with "Hl H"); first done.
+      iApply (bwp_match_ctx with "Hl H"); first done.
   Qed.
 
   Lemma wp_get_tag l hdr tid E Φ :

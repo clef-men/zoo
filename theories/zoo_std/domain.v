@@ -80,28 +80,28 @@ Section domain_G.
 End domain_G.
 
 Axiom domain_yield_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
-  Φ ()%V ⊢
+  ▷ Φ ()%V ⊢
   WP domain_yield () {{ Φ }}.
 
 Axiom domain_self_index_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
-  (∀ (i : nat), Φ #i) ⊢
+  (∀ (i : nat), ▷ Φ #i) ⊢
   WP domain_self_index () {{ Φ }}.
 
 Axiom domain_recommended_domain_count_spec : ∀ `{zoo_G : !ZooG Σ} Φ,
-  (∀ (i : nat), Φ #i) ⊢
+  (∀ (i : nat), ▷ Φ #i) ⊢
   WP domain_recommended_domain_count () {{ Φ }}.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   #[global] Instance domain_yield_diaspec :
-    SPEC
+    DIASPEC
     {{
       True
     }}
       domain_yield ()%V
     {{
-      RET ()%V;
+      RET ();
       True
     }}.
   Proof.
@@ -111,7 +111,7 @@ Section zoo_G.
   Qed.
 
   #[global] Instance domain_self_index_diaspec :
-    SPEC
+    DIASPEC
     {{
       True
     }}
@@ -127,7 +127,7 @@ Section zoo_G.
   Qed.
 
   #[global] Instance domain_recommended_domain_count_diaspec :
-    SPEC
+    DIASPEC
     {{
       True
     }}
