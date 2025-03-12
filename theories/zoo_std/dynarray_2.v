@@ -379,7 +379,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
+    iSteps; wp_apply int_max_spec; iSteps.
   Qed.
   Lemma dynarray_2_reserve_spec t vs (n : Z) :
     {{{
@@ -1256,8 +1256,7 @@ Section zoo_G.
     wp_smart_apply (dynarray_2_data_type with "Htype") as "%cap %data #Hdata_type".
     wp_smart_apply (array_size_type with "Hdata_type") as "_".
     wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Hdata_type]"); [lia.. | |].
-    { iSteps. iModIntro. wp_match. iSteps. }
+    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Hdata_type]"); [lia.. | iSteps |].
     iSteps.
   Qed.
 

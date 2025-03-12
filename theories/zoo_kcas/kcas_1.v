@@ -1769,7 +1769,7 @@ Section kcas_1_G.
 
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_apply (typed_strong_prophet1_wp_resolve local_prophet with "Hlproph"); first done.
-            wp_equal; last iSteps. iStep 4. iModIntro.
+            wp_equal; last iSteps. iStep 5.
             wp_apply (kcas_1_finish_spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
 
@@ -1785,7 +1785,7 @@ Section kcas_1_G.
             iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
 
             -- destruct Hok as [(Hgid & -> & _) | Hbefore%not_and_l].
-               all: wp_equal; iStep 4; iModIntro.
+               all: wp_equal; iStep 5.
 
                ++ wp_smart_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
 
@@ -1796,7 +1796,7 @@ Section kcas_1_G.
                   { rewrite list_lookup_fmap Hdescrs_lookup //. }
                   iFrameSteps. done.
 
-            -- wp_equal; iStep 4; iModIntro.
+            -- wp_equal; iStep 5.
 
                ++ wp_apply (kcas_1_finish_spec_finished with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb_finished] HΦ").
 

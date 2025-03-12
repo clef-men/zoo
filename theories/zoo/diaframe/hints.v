@@ -1,21 +1,13 @@
-From iris.algebra Require Import
-  lib.frac_auth
-  numbers
-  auth.
-From iris.bi Require Import
-  bi
-  telescopes.
-
 From diaframe Require Import
-  proofmode_base
   steps.pure_solver
   lib.persistently
-  lib.intuitionistically.
+  lib.intuitionistically
+  lib.iris_hints.
 
 From zoo Require Import
   prelude.
 From zoo.iris Require Import
-  proofmode.
+  diaframe.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import

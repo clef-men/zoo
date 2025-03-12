@@ -36,6 +36,7 @@ Canonical zoo_ectx_lang :=
   EctxLanguageOfEctxi zoo_ectxi_lang.
 Canonical zoo :=
   LanguageOfEctx zoo_ectx_lang.
+#[global] Arguments zoo : simpl never.
 
 Lemma to_val_fill_some K e v :
   to_val (fill K e) = Some v →

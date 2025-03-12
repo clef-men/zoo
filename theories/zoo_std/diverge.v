@@ -24,14 +24,14 @@ Section zoo_G.
     iLöb as "IH". wp_rec. iSteps.
   Qed.
 
-  #[global] Instance diverge_diaspec :
-    SPEC
+  #[global] Instance diverge_diaspec E :
+    DIASPEC
     {{
       True
     }}
-      diverge ()%V
+      diverge ()%V @ E
     {{
-      RET ()%V;
+      RET ();
       False
     }}.
   Proof.

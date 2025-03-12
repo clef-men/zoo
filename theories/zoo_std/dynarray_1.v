@@ -304,7 +304,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; iModIntro; wp_apply int_max_spec; iSteps.
+    iSteps; wp_apply int_max_spec; iSteps.
   Qed.
   #[local] Lemma dynarray_1_reserve_spec' l data vs extra n :
     (0 ≤ n)%Z →

@@ -94,8 +94,8 @@ Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
   e at level 200,
   tid at level 200,
   E custom wp_mask at level 200,
-  Q at level 200,
   v at level 200 as pattern,
+  Q at level 200,
   format "'[hv' BWP  '/  ' '[' e ']'  '/  ' ∶  tid  E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 

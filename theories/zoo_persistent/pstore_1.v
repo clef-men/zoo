@@ -806,7 +806,7 @@ Section pstore_G.
 
     iDestruct (big_sepM_insert_acc with "Hσ0") as "(?&Hσ0)". done.
     wp_load. wp_load. wp_store.
-    iStep 12.
+    iStep 13.
 
     iSpecialize ("Hσ0" with "[$]").
 
@@ -881,7 +881,7 @@ Section pstore_G.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
     wp_rec. wp_load.
-    iStep 4.
+    iStep 5.
 
     iDestruct "HC" as "[% [% (%Hsnap&#?&HC)]]".
     iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
@@ -1020,13 +1020,13 @@ Section pstore_G.
     iIntros (-> Hlocs Hg Hacy Hsub Hpath Φ) "(Hr'&Hσ&Hg1&Hg2) HΦ".
     iInduction xs as [|((r0,(l,v)),r1) ] "IH" using rev_ind forall (σ w r r' g1 g2  Hpath Hg Hlocs Hacy Hsub).
     { wp_rec.
-      iStep 10.
+      iStep 13.
       inversion Hpath. subst.
       iApply "HΦ". iExists nil. rewrite !right_id_L. iFrame.
       iPureIntro. eauto using undo_nil.
     } {
       wp_rec. simpl. rewrite rev_unit. simpl.
-      iStep 6. iModIntro.
+      iStep 9.
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L.
       rewrite Hg list_to_set_app_L in Hsub.
       assert ((r0, (l, v), r1) ∉ (list_to_set xs : gset (location * diff * location))).
@@ -1551,12 +1551,12 @@ Section pstore_G.
 
     iDestruct (use_snapshots_model with "[$][$][$]") as %(σ1&HMrs&?).
 
-    wp_rec. iStep 19. iModIntro.
+    wp_rec. iStep 20.
 
     iDestruct (extract_unaliased with "Hg") as "%".
     destruct_decide (decide (rs=r)).
     { subst. wp_load.
-      iStep 4.
+      iStep 5.
       repeat iExists _. iDecompose "HC". iFrame "#∗".
       iPureIntro. split_and!; try done.
       destruct Hinv as [X1 X2 X3 X4]. constructor; eauto. naive_solver.
@@ -1587,7 +1587,7 @@ Section pstore_G.
 
     iIntros "[%ys (%Hundo&Hrs&?&?)]".
     assert (mirror xs ys) as Hmirror by eauto using undo_mirror.
-    iStep 7.
+    iStep 8.
     iDestruct (big_sepS_union_2 with "[$][$]") as "Hs".
 
     remember ((rs, (l, v), r') :: bs) as xs'.

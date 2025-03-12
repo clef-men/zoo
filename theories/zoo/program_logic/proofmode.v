@@ -229,7 +229,7 @@ Section zoo_G.
     { iDestruct (envs_lookup_split with "HΔ'") as "(Hl & _)"; first done.
       destruct p; iSteps.
     }
-    iApply (wp_match_fill with "Hl"); first done.
+    iApply (wp_match_ctx with "Hl"); first done.
     rewrite HΔ'. iSteps.
   Qed.
 

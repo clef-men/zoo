@@ -170,13 +170,11 @@ Section mutex_G.
     wp_rec. wp_pures.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
-    destruct b.
-    - wp_cas as _ | [=].
-      iModIntro. iSplitR "HΦ"; first iSteps.
-      wp_pures.
-      iApply ("HLöb" with "HΦ").
-    - wp_cas_suc.
-      iSteps.
+    destruct b; last iSteps.
+    wp_cas as _ | [=].
+    iModIntro. iSplitR "HΦ"; first iSteps.
+    wp_pures.
+    iApply ("HLöb" with "HΦ").
   Qed.
 
   Lemma mutex_unlock_spec t P :

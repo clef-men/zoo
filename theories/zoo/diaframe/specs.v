@@ -1,19 +1,9 @@
-From iris.bi Require Export
-  bi
-  telescopes
-  derived_laws.
-
-From diaframe Require Import
-  proofmode_base
-  lib.iris_hints.
-
 From zoo Require Import
   prelude.
-From zoo.iris.diaframe Require Import
-  symb_exec.defs
-  symb_exec.wp.
+From zoo.iris Require Import
+  diaframe.
 From zoo.iris.diaframe Require Export
-  symb_exec.spec_notations.
+  symb_exec.wp.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
@@ -21,14 +11,10 @@ From zoo.program_logic Require Import
 From zoo Require Import
   options.
 
+Implicit Types l : location.
 Implicit Types pid : prophet_id.
 Implicit Types e : expr.
 Implicit Types v : val.
-
-Unset Universe Polymorphism.
-
-(* prevent unfolding by cbn *)
-#[global] Arguments zoo : simpl never.
 
 (* relax hint mode (set to "+" by Diaframe) *)
 Hint Mode SolveSepSideCondition ! : typeclass_instances.
@@ -39,41 +25,67 @@ Class PureExecNorec ϕ n e1 e2 :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance pure_wp_step_exec_1 e ϕ n e' E :
-    PureExecNorec ϕ n e e' →
-    SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₀)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E))
+  #[global] Instance pure_step_diaspec_1 e K ϕ n e1 e2 tid E Φ :
+    ReshapeExprAnd _ e K e1 (
+      TCAnd
+        (PureExecNorec ϕ n e1 e2)
+        (SolveSepSideCondition ϕ)
+    ) →
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ▷^n (
+        emp -∗
+        WP K e2 ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}
   | 8.
   Proof.
-    intros.
-    eapply pure_wp_step_exec2; [tc_solve | done..].
+    rewrite /PureExecNorec.
+    pose proof @pure_exec_ctx.
+    intros (-> & Hexec & Hϕ) HK.
+    iSteps.
+    iApply wp_pure_step_later; [done.. |].
+    iSteps.
   Qed.
-
-  #[global] Instance pure_wp_step_exec_2 e ϕ n e' E :
-    ( ( ∀ x e v,
-        PureExec True 1 (App (ValFun x e) v) (subst' x v e)
-      ) →
-      PureExec ϕ n e e'
+  #[global] Instance pure_step_diaspec_2 e K ϕ n e1 e2 tid E Φ :
+    ReshapeExprAnd _ e K e1 (
+      TCAnd
+        ( ( ∀ x e v,
+            PureExec True 1 (App (ValFun x e) v) (subst' x v e)
+          ) →
+          PureExec ϕ n e1 e2
+        )
+        (SolveSepSideCondition ϕ)
     ) →
-    SolveSepSideCondition ϕ →
-    ReductionTemplateStep wp_red_cond [tele] (ε₁)%I [tele_arg3 E] e (tele_app (TT := [tele]) e') (template_I n (fupd E E)).
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ▷^n (
+        emp -∗
+        WP K e2 ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}.
   Proof.
-    intros H ?.
-    eapply pure_wp_step_exec2; [tc_solve | | done].
-    apply H. intros * _.
-    apply nsteps_once, pure_base_step_pure_step.
-    split.
-    - auto with zoo.
-    - intros. invert_base_step. done.
+    intros (-> & Hexec & Hϕ) HK.
+    eapply pure_step_diaspec_1; try done.
+    split; first done. split.
+    - rewrite /PureExecNorec.
+      apply Hexec => * _.
+      apply nsteps_once, pure_base_step_pure_step.
+      split.
+      + auto with zoo.
+      + intros. invert_base_step. done.
+    - done.
   Qed.
 
-  #[global] Instance step_wp_alloc E1 E2 tag n :
-    SPEC ⟨E1, E2⟩
+  #[global] Instance alloc_diaspec tag n E :
+    DIASPEC
     {{
       ⌜0 ≤ tag⌝%Z ∗
       ⌜0 ≤ n⌝%Z
     }}
-      Alloc #tag #n
+      Alloc #tag #n @ E
     {{ l,
       RET #l;
       l ↦ₕ Header ₊tag ₊n ∗
@@ -86,13 +98,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_block tag es :
-    SPEC vs,
+  #[global] Instance block_diaspec tag es E :
+    DIASPEC vs
     {{
       ⌜0 < length es⌝%nat ∗
       ⌜to_vals es = Some vs⌝
     }}
-      Block Mutable tag es
+      Block Mutable tag es @ E
     {{ l,
       RET #l;
       l ↦ₕ Header tag (length es) ∗
@@ -106,13 +118,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_ref e v :
+  #[global] Instance ref_diaspec e v E :
     AsVal e v →
-    SPEC
+    DIASPEC
     {{
       True
     }}
-      (ref e)%E
+      ref e @ E
     {{ l,
       RET #l;
       l ↦ₕ Header 0 1 ∗
@@ -127,12 +139,12 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_block_generative tag es :
-    SPEC vs,
+  #[global] Instance block_generative_diaspec tag es E :
+    DIASPEC vs
     {{
       ⌜to_vals es = Some vs⌝
     }}
-      Block ImmutableGenerativeStrong tag es
+      Block ImmutableGenerativeStrong tag es @ E
     {{ bid,
       RET ValBlock (Generative (Some bid)) tag vs;
       True
@@ -143,93 +155,93 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_get_tag l :
-    SPEC hdr,
+  #[global] Instance get_tag_diaspec l E :
+    DIASPEC hdr
     {{
       l ↦ₕ hdr
     }}
-      GetTag #l
+      GetTag #l @ E
     {{
       RET #hdr.(header_tag);
       True
     }}.
   Proof.
-    iSteps as (hdr) "Hheader".
+    iSteps.
     wp_get_tag.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_get_size l :
-    SPEC hdr,
+  #[global] Instance get_size_diaspec l E :
+    DIASPEC hdr
     {{
       l ↦ₕ hdr
     }}
-      GetSize #l
+      GetSize #l @ E
     {{
       RET #hdr.(header_size);
       True
     }}.
   Proof.
-    iSteps as (hdr) "Hheader".
+    iSteps.
     wp_get_size.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_load l fld E1 E2 :
-    SPEC ⟨E1, E2⟩ v dq,
+  #[global] Instance load_diaspec l fld E :
+    DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v
     }}
-      Load #l #fld
+      Load #l #fld @ E
     {{
       RET v;
       (l +ₗ fld) ↦{dq} v
     }}.
   Proof.
-    iSteps as (v dq) "Hl".
+    iSteps.
     wp_load.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_store l fld v E1 E2 :
-    SPEC ⟨E1, E2⟩ w,
+  #[global] Instance store_diaspec l fld v E :
+    DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
     }}
-      Store #l #fld v
+      Store #l #fld v @ E
     {{
-      RET ()%V;
+      RET ();
       (l +ₗ fld) ↦ v
     }}.
   Proof.
-    iSteps as (w) "Hl".
+    iSteps.
     wp_store.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_xchg l fld v E1 E2 :
-    SPEC ⟨E1, E2⟩ w,
+  #[global] Instance xchg_diaspec l fld v E :
+    DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
     }}
-      Xchg (#l, #fld)%V v
+      Xchg (#l, #fld)%V v @ E
     {{
       RET w;
       (l +ₗ fld) ↦ v
     }}.
   Proof.
-    iSteps as (w) "Hl".
+    iSteps.
     wp_xchg.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_cas l fld v1 v2 E1 E2 :
-    SPEC ⟨E1, E2⟩ v dq,
+  #[global] Instance cas_diaspec l fld v1 v2 E :
+    DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v ∗
       ⌜dq = DfracOwn 1 ∨ ¬ v ≈ v1⌝
     }}
-      CAS (#l, #fld)%V v1 v2
+      CAS (#l, #fld)%V v1 v2 @ E
     {{ (b : bool),
       RET #b;
         ⌜b = false⌝ ∗
@@ -240,33 +252,33 @@ Section zoo_G.
         (l +ₗ fld) ↦ v2
     }}.
   Proof.
-    iStep as (v). iIntros "%dq (_ & Hl & %H)".
-    wp_cas; iSteps.
-    destruct H; iSteps.
+    iSteps.
+    all: wp_cas.
+    all: iSteps.
   Qed.
 
-  #[global] Instance step_wp_faa l fld i E1 E2 :
-    SPEC ⟨E1, E2⟩ (z : Z),
+  #[global] Instance faa_diaspec l fld (n : Z) E :
+    DIASPEC (z : Z)
     {{
       ▷ (l +ₗ fld) ↦ #z
     }}
-      FAA (#l, #fld)%V #i
+      FAA (#l, #fld)%V #n @ E
     {{
       RET #z;
-      (l +ₗ fld) ↦ #(z + i)
+      (l +ₗ fld) ↦ #(z + n)
     }}.
   Proof.
-    iSteps as (z) "Hl".
+    iSteps.
     wp_faa.
     iSteps.
   Qed.
 
-  #[global] Instance step_wp_proph :
-    SPEC
+  #[global] Instance proph_diaspec E :
+    DIASPEC
     {{
       True
     }}
-      Proph
+      Proph @ E
     {{ prophs pid,
       RET #pid;
       prophet_model' pid prophs
@@ -277,89 +289,97 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  (* #[global] Instance abduct_resolve_atomic_spec K (e e_in : expr) (p : prophet_id) (v : val) Φ pre n E1 E2 (TT1 TT2 : tele) *)
-  (*     L e' v' U M1 M2 : *)
-  (*   ReshapeExprAnd expr e_in K (Resolve e #p v) (TCAnd (LanguageCtx K) $ *)
-  (*                                                TCAnd (Atomic StronglyAtomic e) $ *)
-  (*                                                TCAnd (Atomic WeaklyAtomic e) $ (SolveSepSideCondition (to_val e = None))) → *)
-  (*   ReductionStep' wp_red_cond pre n M1 M2 TT1 TT2 L U e e' [tele_arg3 E2; NotStuck] → (1* does not work for pure since that is a ReductionTemplateStep *1) *)
-  (*   IntroducableModality M1 → IntroducableModality M2 → *)
-  (*   (TC∀.. ttl, TC∀.. ttr, AsVal (tele_app (tele_app e' ttl) ttr) (tele_app (tele_app v' ttl) ttr)) → *)
-  (*   HINT1 pre ✱ [|={E1, E2}=> ∃ pvs, proph p pvs ∗ ∃.. ttl, tele_app L ttl ∗ *)
-  (*     ▷^n (∀ pvs', ∀.. ttr, ⌜pvs = (pair (tele_app (tele_app v' ttl) ttr) v)::pvs'⌝ ∗ proph p pvs' ∗ tele_app (tele_app U ttl) ttr ={E2,E1}=∗ *)
-  (*           WP K $ tele_app (tele_app e' ttl) ttr @ E1 {{ Φ }} ) ] *)
-  (*         ⊫ [id]; WP e_in @ E1 {{ Φ }} *)
-  (* | 45. *)
-  (* Proof. *)
-  (*   case => -> [HK [He1 [He3 He2]]] HLU HM1 HM2 Hev'. *)
-  (*   iStep as "Hpre HL". iApply wp_bind. iMod "HL" as (pvs) "[Hp Hwp]". *)
-  (*   { apply resolve_atomic. destruct s; try tc_solve. } *)
-  (*   iApply (wp_resolve with "Hp"). apply He2. simpl. *)
-  (*   iDestruct "Hwp" as (ttl) "[Hl HΦ]". *)
-  (*   rewrite /ReductionStep' /ReductionTemplateStep in HLU. *)
-  (*   iPoseProof (HLU with "Hpre") as "HWP". simpl. *)
-  (*   iApply "HWP". iApply HM1 => /=. *)
-  (*   iExists ttl. iFrame. iIntros "!>" (tt2) "HU". iApply HM2 => /=. *)
-  (*   revert Hev'. rewrite /TCTForall /AsVal => /(dep_eval_tele ttl) /(dep_eval_tele tt2) => Hev'. *)
-  (*   rewrite -Hev'. *)
-  (*   iApply wp_value. iIntros (pvs'). *)
-  (*   iStep 2 as "Hpost Hproph". *)
-  (*   iSpecialize ("Hpost" $! pvs' tt2). rewrite -Hev'. iApply "Hpost". *)
-  (*   iSteps. *)
-  (* Qed. *)
+  #[global] Instance match_diaspec e K l x_fb e_fb brs tid E Φ :
+    ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ∃ hdr e,
+      ▷ l ↦ₕ hdr ∗
+      ⌜eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e⌝ ∗
+      ▷ (
+        emp -∗
+        WP K e ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}.
+  Proof.
+    intros (->, _) HK.
+    iSteps as (hdr e He) "Hl_header H".
+    iApply (wp_match_ctx with "Hl_header"); first done.
+    iSteps.
+  Qed.
 
-  (* #[global] Instance abduct_resolve_skip K (e_in : expr) (p : proph_id) (v : val) s E1 E2 Φ : *)
-  (*   ReshapeExprAnd expr e_in K (Resolve Skip #p v) (LanguageCtx K) → *)
-  (*   HINT1 ε₀ ✱ [|={E1, E2}=> ∃ pvs, proph p pvs ∗ *)
-  (*     ▷ (∀ pvs', ⌜pvs = (pair (#()) v)::pvs'⌝ ∗ proph p pvs' ={E2,E1}=∗ *)
-  (*           WP K $ #() @ s ; E1 {{ Φ }} ) ] *)
-  (*         ⊫ [id]; WP e_in @ s ; E1 {{ Φ }} | 45. *)
-  (* Proof. *)
-  (*   case => -> HK. *)
-  (*   iStep as "H". iApply wp_bind. iMod "H". iDecompose "H" as (ps) "Hproph Hpost". *)
-  (*   iApply (wp_resolve with "Hproph"). done. *)
-  (*   wp_pures. iStep 3 as (ps') "Hpost Hproph". *)
-  (*   iMod ("Hpost" with "[Hproph]"); iSteps. *)
-  (* Qed. *)
-
-  #[global] Instance if_step_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(bool_decide P) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
-      ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬P⌝
+  #[global] Instance if_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+    ReshapeExprAnd _ e K (if: #(bool_decide P) then e1 else e2)%E TCTrue →
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ∀ b,
+      (⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬ P⌝) -∗
+      ▷ (
+        emp -∗
+        WP K (if b then e1 else e2) ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}
   | 50.
   Proof.
-    rewrite /ReductionStep' /=.
-    apply bi.forall_intro => Φ.
-    iIntros "_ [_ H]".
-    case_bool_decide; wp_pures => /=.
-    - iApply ("H" $! true). eauto.
-    - iApply ("H" $! false). eauto.
+    rewrite /PureExecNorec.
+    pose proof @pure_exec_ctx.
+    intros (->, _) HK.
+    iSteps as "H".
+    case_bool_decide.
+    all: iApply wp_pure_step_later; first done.
+    1: iSpecialize ("H" $! true with "[]"); first iSteps.
+    2: iSpecialize ("H" $! false with "[]"); first iSteps.
+    all: iSteps.
   Qed.
-  #[global] Instance if_step_bool_decide_neg P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(bool_decide (¬P)) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
-      ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝
+  #[global] Instance if_bool_decide_neg_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+    ReshapeExprAnd _ e K (if: #(bool_decide (¬ P)) then e1 else e2)%E TCTrue →
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ∀ b,
+      (⌜b = true⌝ ∗ ⌜¬ P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝) -∗
+      ▷ (
+        emp -∗
+        WP K (if b then e1 else e2) ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}
   | 49.
   Proof.
-    rewrite /ReductionStep' /=.
-    apply bi.forall_intro => Φ.
-    iIntros "_ [_ H]".
-    case_bool_decide => /=.
-    - wp_pures.
-      iApply ("H" $! true). eauto.
-    - wp_pures.
-      iApply ("H" $! false). eauto.
+    rewrite /PureExecNorec.
+    pose proof @pure_exec_ctx.
+    intros (->, _) HK.
+    iSteps as "H".
+    case_bool_decide.
+    all: iApply wp_pure_step_later; first done.
+    1: iSpecialize ("H" $! true with "[]"); first iSteps.
+    2: iSpecialize ("H" $! false with "[]"); first iSteps.
+    all: iSteps.
   Qed.
-  #[global] Instance if_step_negb_bool_decide P `{Decision P} e1 e2 E :
-    ReductionStep (wp_red_cond, [tele_arg3 E]) (if: #(negb $ bool_decide P) then e1 else e2)%E ⊣ ⟨id⟩ emp; ε₀ =[▷^1]=>
-      ∃ b : bool, ⟨id⟩ (if b then e1 else e2)%V ⊣ ⌜b = true⌝ ∗ ⌜¬P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝ | 49.
+  #[global] Instance if_negb_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+    ReshapeExprAnd _ e K (if: #(negb $ bool_decide P) then e1 else e2)%E TCTrue →
+    LanguageCtx K →
+    HINT1 ε₀ ✱ [
+      ∀ b,
+      (⌜b = true⌝ ∗ ⌜¬ P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝) -∗
+      ▷ (
+        emp -∗
+        WP K (if b then e1 else e2) ∷ tid @ E {{ Φ }}
+      )
+    ] ⊫ [id];
+      WP e ∷ tid @ E {{ Φ }}
+  | 49.
   Proof.
-    rewrite /ReductionStep' /=.
-    apply bi.forall_intro => Φ.
-    iIntros "_ [_ H]".
-    case_bool_decide => /=.
-    - wp_pures.
-      iApply ("H" $! false). eauto.
-    - wp_pures.
-      iApply ("H" $! true). eauto.
+    rewrite /PureExecNorec.
+    pose proof @pure_exec_ctx.
+    intros (->, _) HK.
+    iSteps as "H".
+    case_bool_decide.
+    all: iApply wp_pure_step_later; first done.
+    1: iSpecialize ("H" $! false with "[]"); first iSteps.
+    2: iSpecialize ("H" $! true with "[]"); first iSteps.
+    all: iSteps.
   Qed.
 End zoo_G.
 
@@ -387,9 +407,9 @@ Ltac find_reshape e K e' :=
   find_reshape e K e'
 : typeclass_instances.
 #[global] Hint Extern 4 (
-  ReshapeExprAnd (language.expr ?L) ?e ?K ?e' _
+  ReshapeExprAnd (language.expr ?Λ) ?e ?K ?e' _
 ) =>
-  unify L zoo;
+  unify Λ zoo;
   find_reshape e K e'
 : typeclass_instances.
 

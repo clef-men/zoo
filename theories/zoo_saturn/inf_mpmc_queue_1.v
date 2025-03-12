@@ -766,7 +766,7 @@ Section inf_mpmc_queue_1_G.
 
     rewrite Nat2Z.id /=. destruct (slots1 front) as [| | v].
 
-    - iStep 7. iModIntro.
+    - iStep 8.
       wp_apply ("HLöb" with "Htokens_pending HΦ").
 
     - iDestruct (tokens_pending_done with "Htokens_pending Hslot") as %[].
