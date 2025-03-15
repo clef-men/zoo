@@ -330,17 +330,22 @@ Section zoo_G.
   Qed.
 
   Lemma wp_fork e tid E Φ :
-    ▷ WP e {{ _, True }} -∗
+    ▷ (
+      ∀ tid v,
+      tid ↦ₗ v -∗
+      WP e ∶ tid {{ λ _, True }}
+    ) -∗
     ▷ Φ ()%V -∗
     WP Fork e ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "H HΦ".
     iApply bwp_wp. iIntros.
     iApply bwp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κ %κs Hσ !>".
-    iSplit; first auto with zoo. iIntros "%v2 %σ2 %es %Hstep _ !> !> !>".
+    iSplit; first auto with zoo. iIntros "%e2 %σ2 %es %Hstep _ !> !>".
     invert_base_step.
-    iDestruct (wp_bwp with "H") as "$".
-    iSteps.
+    iMod (state_interp_fork with "Hσ") as "(Hσ & Htid)".
+    iStep 2. rewrite right_id Nat.add_0_r.
+    iApply (wp_bwp with "(H Htid)").
   Qed.
 
   Lemma wp_proph tid E :

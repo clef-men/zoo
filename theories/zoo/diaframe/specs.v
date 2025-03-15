@@ -25,6 +25,8 @@ Class PureExecNorec ϕ n e1 e2 :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
+  Implicit Types Φ : val → iProp Σ.
+
   #[global] Instance pure_step_diaspec_1 e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd

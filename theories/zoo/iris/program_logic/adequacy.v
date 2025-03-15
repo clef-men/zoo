@@ -128,7 +128,7 @@ Section iris_G.
   Qed.
 End iris_G.
 
-Lemma bwp_progress Λ Σ `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
+Lemma bwp_progress Λ `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
   ( ∀ `{inv_G : !invGS Σ},
     ⊢ |={⊤}=>
       ∃ state_interp fork_post Φs,
@@ -151,7 +151,7 @@ Proof.
   - iApply step_fupdN_S_fupd. iSteps.
 Qed.
 
-Lemma bwp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e σ :
+Lemma bwp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
     ⊢ |={⊤}=>
       ∃ state_interp fork_post Φ,
@@ -167,21 +167,19 @@ Proof.
   iExists state_interp, fork_post, [Φ].
   rewrite /bwps /=. iSteps.
 Qed.
-Lemma wp_adequacy Λ Σ `{inv_Gpre : !invGpreS Σ} e tid σ :
-  (if tid is Some tid then tid = 0 else True) →
+Lemma wp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
     ⊢ |={⊤}=>
       ∃ state_interp fork_post Φ,
       let iris_G : IrisG Λ Σ := Build_IrisG state_interp fork_post in
       state_interp 1 σ κs ∗
-      WP e ∷ tid {{ Φ }}
+      WP e ∶ 0 {{ Φ }}
   ) →
   safe ([e], σ).
 Proof.
-  intros Htid H.
+  intros H.
   apply: bwp_adequacy => inv_G κs.
-  iMod H as "(%state_interp & %fork_post & %Φ & Hσ & H)".
-  iExists state_interp, fork_post, Φ.
-  rewrite wp.wp_unseal.
-  destruct tid; first subst; iSteps.
+  iMod H as "(%state_interp & %fork_post & %Φ & Hσ & Hwp)".
+  iExists state_interp, fork_post, Φ. iFrame.
+  iApply (wp_bwp with "Hwp").
 Qed.
