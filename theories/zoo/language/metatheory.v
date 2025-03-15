@@ -83,6 +83,10 @@ Fixpoint occurs x e :=
       occurs x e2
   | Fork e =>
       occurs x e
+  | GetLocal =>
+      false
+  | SetLocal e =>
+      occurs x e
   | Proph =>
       false
   | Resolve e0 e1 e2 =>
@@ -221,6 +225,11 @@ Fixpoint subst (x : string) v e :=
         (subst x v e2)
   | Fork e =>
       Fork
+        (subst x v e)
+  | GetLocal =>
+      GetLocal
+  | SetLocal e =>
+      SetLocal
         (subst x v e)
   | Proph =>
       Proph

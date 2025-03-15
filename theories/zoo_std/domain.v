@@ -57,10 +57,9 @@ Section domain_G.
     iIntros "%Φ Hfn HΦ".
     wp_rec.
     wp_apply (spsc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer & Hfut_consumer)".
-    wp_pures.
-    wp_bind (Fork _). iApply (wp_fork with "[Hfn Hfut_producer]"); last iSteps.
-    iModIntro.
-    wp_apply (wp_wand with "Hfn") as (v) "HΨ".
+    wp_smart_apply (wp_fork with "[Hfn Hfut_producer]"); last iSteps. iIntros "!> %tid %v _".
+    iApply wp_thread_id_mono.
+    wp_apply (wp_wand with "Hfn") as (res) "HΨ".
     wp_apply (spsc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]").
     iSteps.
   Qed.

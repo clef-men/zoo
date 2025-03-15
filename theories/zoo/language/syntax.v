@@ -249,6 +249,8 @@ Inductive expr :=
   | CAS (e0 e1 e2 : expr)
   | FAA (e1 e2 : expr)
   | Fork (e : expr)
+  | GetLocal
+  | SetLocal (e : expr)
   | Proph
   | Resolve (e0 e1 e2 : expr)
 with val :=
@@ -361,6 +363,11 @@ Section expr_ind.
   Variable HFork :
     ∀ e, P e →
     P (Fork e).
+  Variable HGetLocal :
+    P GetLocal.
+  Variable HSetLocal :
+    ∀ e, P e →
+    P (SetLocal e).
   Variable HProph :
     P Proph.
   Variable HResolve :
@@ -457,6 +464,11 @@ Section expr_ind.
           e2 (expr_ind e2)
     | Fork e =>
         HFork
+          e (expr_ind e)
+    | GetLocal =>
+        HGetLocal
+    | SetLocal e =>
+        HSetLocal
           e (expr_ind e)
     | Proph =>
         HProph
@@ -588,6 +600,11 @@ Section expr_val_ind.
   Variable HFork :
     ∀ e, Pexpr e →
     Pexpr (Fork e).
+  Variable HGetLocal :
+    Pexpr GetLocal.
+  Variable HSetLocal :
+    ∀ e, Pexpr e →
+    Pexpr (SetLocal e).
   Variable HProph :
     Pexpr Proph.
   Variable HResolve :
@@ -696,6 +713,11 @@ Section expr_val_ind.
           e2 (expr_val_ind e2)
     | Fork e =>
         HFork
+          e (expr_val_ind e)
+    | GetLocal =>
+        HGetLocal
+    | SetLocal e =>
+        HSetLocal
           e (expr_val_ind e)
     | Proph =>
         HProph
@@ -997,6 +1019,11 @@ Proof.
       | Fork e1, Fork e2 =>
           cast_if
             (decide (e1 = e2))
+      | GetLocal, GetLocal =>
+          left _
+      | SetLocal e1, SetLocal e2 =>
+          cast_if
+            (decide (e1 = e2))
       | Proph, Proph =>
           left _
       | Resolve e10 e11 e12, Resolve e20 e21 e22 =>
@@ -1211,10 +1238,14 @@ Proof.
     19.
   #[local] Notation code_Fork :=
     20.
-  #[local] Notation code_Proph :=
+  #[local] Notation code_GetLocal :=
     21.
-  #[local] Notation code_Resolve :=
+  #[local] Notation code_SetLocal :=
     22.
+  #[local] Notation code_Proph :=
+    23.
+  #[local] Notation code_Resolve :=
+    24.
   #[local] Notation code_ValRecs :=
     0.
   #[local] Notation code_recursive :=
@@ -1275,6 +1306,10 @@ Proof.
           GenNode code_FAA [go e1; go e2]
       | Fork e =>
           GenNode code_Fork [go e]
+      | GetLocal =>
+          GenNode code_GetLocal []
+      | SetLocal e =>
+          GenNode code_SetLocal [go e]
       | Proph =>
           GenNode code_Proph []
       | Resolve e0 e1 e2 =>
@@ -1358,6 +1393,10 @@ Proof.
           FAA (go e1) (go e2)
       | GenNode code_Fork [e] =>
           Fork $ go e
+      | GenNode code_GetLocal [] =>
+          GetLocal
+      | GenNode code_SetLocal [e] =>
+          SetLocal (go e)
       | GenNode code_Proph [] =>
           Proph
       | GenNode code_Resolve [e0; e1; e2] =>

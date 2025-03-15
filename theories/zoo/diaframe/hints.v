@@ -378,14 +378,6 @@ Section instances.
     (*   rewrite firstn_all. iSteps. *)
     (* Qed. *)
   End biabds_pointsto_array.
-
-  Section abds.
-    #[global] Instance fork_abduct e (Φ : val → iPropI Σ) E :
-      HINT1 ε₁ ✱ [▷ Φ ()%V ∗ ▷ WP e @ ⊤ {{ _, True }}] ⊫ [id]; WP Fork e @ E {{ Φ }}.
-    Proof.
-      iSteps as "HΦ HWP". iApply (wp_fork with "HWP"). iSteps.
-    Qed.
-  End abds.
 End instances.
 
 Section side_condition_lemmas.

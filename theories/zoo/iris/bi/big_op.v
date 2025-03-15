@@ -293,6 +293,27 @@ Section bi.
         iApply ("HΦ" with "[%] Hx' HP"); first done.
       }
     Qed.
+
+    Lemma big_sepM_map_seq start l Φ :
+      ([∗ map] k ↦ x ∈ map_seq start l, Φ k x) ⊣⊢
+      [∗ list] k ↦ x ∈ l, Φ (start + k) x.
+    Proof.
+      iInduction l as [| x l] "IH" forall (start).
+      - rewrite big_sepM_empty. iSteps.
+      - rewrite /= Nat.add_0_r.
+        setoid_rewrite <- Nat.add_succ_comm.
+        rewrite big_sepM_insert.
+        { rewrite map_seq_cons_disjoint //. }
+        iSplit.
+        all: iIntros "($ & Hl)".
+        all: iApply ("IH" with "Hl").
+    Qed.
+    Lemma big_sepM_map_seq_0 l Φ :
+      ([∗ map] k ↦ x ∈ map_seq 0 l, Φ k x) ⊣⊢
+      [∗ list] k ↦ x ∈ l, Φ k x.
+    Proof.
+      apply big_sepM_map_seq.
+    Qed.
   End big_sepL.
 
   Section big_sepL_seq.

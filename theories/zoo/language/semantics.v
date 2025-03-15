@@ -124,6 +124,7 @@ Add Printing Constructor header.
 Record state := {
   state_headers : gmap location header ;
   state_heap : gmap location val ;
+  state_locals : list val ;
   state_prophets : gset prophet_id ;
 }.
 Implicit Types σ : state.
@@ -134,16 +135,25 @@ Canonical state_O :=
 Definition state_update_heap f σ :=
   {|state_headers := σ.(state_headers) ;
     state_heap := f σ.(state_heap) ;
+    state_locals := σ.(state_locals) ;
     state_prophets := σ.(state_prophets) ;
   |}.
 Definition state_update_headers f σ :=
   {|state_headers := f σ.(state_headers) ;
     state_heap := σ.(state_heap) ;
+    state_locals := σ.(state_locals) ;
+    state_prophets := σ.(state_prophets) ;
+  |}.
+Definition state_update_locals f σ :=
+  {|state_headers := σ.(state_headers) ;
+    state_heap := σ.(state_heap) ;
+    state_locals := f σ.(state_locals) ;
     state_prophets := σ.(state_prophets) ;
   |}.
 Definition state_update_prophets f σ :=
   {|state_headers := σ.(state_headers) ;
     state_heap := σ.(state_heap) ;
+    state_locals := σ.(state_locals) ;
     state_prophets := f σ.(state_prophets) ;
   |}.
 
@@ -151,6 +161,7 @@ Definition state_update_prophets f σ :=
   populate
     {|state_headers := inhabitant ;
       state_heap := inhabitant ;
+      state_locals := inhabitant ;
       state_prophets := inhabitant ;
     |}.
 
@@ -206,6 +217,7 @@ Qed.
 Definition state_alloc l hdr vs σ :=
   {|state_headers := <[l := hdr]> σ.(state_headers) ;
     state_heap := heap_array l vs ∪ σ.(state_heap) ;
+    state_locals := σ.(state_locals) ;
     state_prophets := σ.(state_prophets) ;
   |}.
 
@@ -493,15 +505,35 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValInt m)
         (state_update_heap <[l +ₗ fld := ValInt (m + n)]> σ)
         []
-  | base_step_fork e σ :
+  | base_step_fork e σ v :
       base_step
         tid
         (Fork e)
         σ
         []
         Unit
-        σ
+        (state_update_locals (.++ [v]) σ)
         [e]
+  | base_step_get_local v σ :
+      σ.(state_locals) !! tid = Some v →
+      base_step
+        tid
+        GetLocal
+        σ
+        []
+        (Val v)
+        σ
+        []
+  | base_step_set_local v σ :
+      is_Some (σ.(state_locals) !! tid) →
+      base_step
+        tid
+        (SetLocal (Val v))
+        σ
+        []
+        Unit
+        (state_update_locals (insert tid v) σ)
+        []
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →
       base_step
@@ -577,6 +609,18 @@ Lemma base_step_block_immutable_generative_strong' tid tag es vs σ :
 Proof.
   apply base_step_block_immutable_generative_strong.
 Qed.
+Lemma base_step_fork' tid e σ :
+  base_step
+    tid
+    (Fork e)
+    σ
+    []
+    Unit
+    (state_update_locals (.++ [inhabitant]) σ)
+    [e].
+Proof.
+  apply base_step_fork.
+Qed.
 Lemma base_step_proph' tid σ :
   let pid := fresh σ.(state_prophets) in
   base_step
@@ -628,6 +672,7 @@ Inductive ectxi :=
   | CtxCAS2 e0 e1
   | CtxFAA1 v2
   | CtxFAA2 e1
+  | CtxSetLocal
   | CtxResolve0 (k : ectxi) v1 v2
   | CtxResolve1 e0 v2
   | CtxResolve2 e0 e1.
@@ -698,6 +743,8 @@ Fixpoint ectxi_fill k e : expr :=
       FAA e $ Val v2
   | CtxFAA2 e1 =>
       FAA e1 e
+  | CtxSetLocal =>
+      SetLocal e
   | CtxResolve0 k v1 v2 =>
       Resolve (ectxi_fill k e) (Val v1) (Val v2)
   | CtxResolve1 e0 v2 =>

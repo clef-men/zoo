@@ -155,7 +155,7 @@ Section iris_G.
   Qed.
 
   Lemma wp_bwp e tid E Φ :
-    WP e @ E {{ Φ }} ⊢
+    WP e ∶ tid @ E {{ Φ }} ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite wp_unseal. iSteps.
