@@ -18,19 +18,19 @@ Notation "'Node'" := (
 ).
 
 Notation "'next'" := (
-  in_type "zoo_saturn.mpmc_bqueue.node__Node" 0
+  in_type "zoo_saturn.mpmc_bqueue.node.Node" 0
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "zoo_saturn.mpmc_bqueue.node__Node" 1
+  in_type "zoo_saturn.mpmc_bqueue.node.Node" 1
 )(in custom zoo_field
 ).
 Notation "'index'" := (
-  in_type "zoo_saturn.mpmc_bqueue.node__Node" 2
+  in_type "zoo_saturn.mpmc_bqueue.node.Node" 2
 )(in custom zoo_field
 ).
 Notation "'estimated_capacity'" := (
-  in_type "zoo_saturn.mpmc_bqueue.node__Node" 3
+  in_type "zoo_saturn.mpmc_bqueue.node.Node" 3
 )(in custom zoo_field
 ).
 

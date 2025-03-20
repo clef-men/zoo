@@ -37,11 +37,11 @@ Notation "'Resizing'" := (
 ).
 
 Notation "'resizing_buckets'" := (
-  in_type "zoo_saturn.htbl.status__Resizing" 0
+  in_type "zoo_saturn.htbl.status.Resizing" 0
 )(in custom zoo_proj
 ).
 Notation "'resizing_mask'" := (
-  in_type "zoo_saturn.htbl.status__Resizing" 1
+  in_type "zoo_saturn.htbl.status.Resizing" 1
 )(in custom zoo_proj
 ).
 

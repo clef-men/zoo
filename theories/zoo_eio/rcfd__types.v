@@ -20,7 +20,7 @@ Notation "'Closing'" := (
 ).
 
 Notation "'fd'" := (
-  in_type "zoo_eio.rcfd.state__Open" 0
+  in_type "zoo_eio.rcfd.state.Open" 0
 )(in custom zoo_proj
 ).
 

@@ -18,11 +18,11 @@ Notation "'Node'" := (
 ).
 
 Notation "'next'" := (
-  in_type "zoo_saturn.mpmc_queue_1.node__Node" 0
+  in_type "zoo_saturn.mpmc_queue_1.node.Node" 0
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "zoo_saturn.mpmc_queue_1.node__Node" 1
+  in_type "zoo_saturn.mpmc_queue_1.node.Node" 1
 )(in custom zoo_field
 ).
 

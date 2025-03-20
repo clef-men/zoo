@@ -31,11 +31,11 @@ Notation "'Used'" := (
 ).
 
 Notation "'index'" := (
-  in_type "zoo_saturn.mpmc_queue_2.back__Back" 0
+  in_type "zoo_saturn.mpmc_queue_2.back.Back" 0
 )(in custom zoo_field
 ).
 Notation "'move'" := (
-  in_type "zoo_saturn.mpmc_queue_2.back__Back" 1
+  in_type "zoo_saturn.mpmc_queue_2.back.Back" 1
 )(in custom zoo_field
 ).
 

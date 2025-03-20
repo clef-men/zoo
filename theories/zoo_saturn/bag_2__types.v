@@ -20,11 +20,11 @@ Notation "'Node'" := (
 ).
 
 Notation "'next'" := (
-  in_type "zoo_saturn.bag_2.producers___Node" 0
+  in_type "zoo_saturn.bag_2.producers_.Node" 0
 )(in custom zoo_field
 ).
 Notation "'queue'" := (
-  in_type "zoo_saturn.bag_2.producers___Node" 1
+  in_type "zoo_saturn.bag_2.producers_.Node" 1
 )(in custom zoo_field
 ).
 

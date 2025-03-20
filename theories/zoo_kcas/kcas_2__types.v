@@ -55,10 +55,10 @@ Notation "'After'" := (
 ).
 
 Notation "'cmps'" := (
-  in_type "zoo_kcas.kcas_2.status__Undetermined" 0
+  in_type "zoo_kcas.kcas_2.status.Undetermined" 0
 )(in custom zoo_proj
 ).
 Notation "'cass'" := (
-  in_type "zoo_kcas.kcas_2.status__Undetermined" 1
+  in_type "zoo_kcas.kcas_2.status.Undetermined" 1
 )(in custom zoo_proj
 ).

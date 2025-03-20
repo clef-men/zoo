@@ -21,7 +21,7 @@ Notation "'Element'" := (
 ).
 
 Notation "'value'" := (
-  in_type "zoo_std.dynarray_2.slot__Element" 0
+  in_type "zoo_std.dynarray_2.slot.Element" 0
 )(in custom zoo_field
 ).
 
