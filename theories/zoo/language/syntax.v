@@ -241,7 +241,6 @@ Inductive expr :=
   | Alloc (e1 e2 : expr)
   | Block mut tag (es : list expr)
   | Match (e0 : expr) x (e1 : expr) (brs : list (pattern * expr))
-  | GetTag (e : expr)
   | GetSize (e : expr)
   | Load (e1 e2 : expr)
   | Store (e1 e2 e3 : expr)
@@ -332,9 +331,6 @@ Section expr_ind.
     ∀ e1, P e1 →
     ∀ brs, Forall (λ br, P br.2) brs →
     P (Match e0 x e1 brs).
-  Variable HGetTag :
-    ∀ e, P e →
-    P (GetTag e).
   Variable HGetSize :
     ∀ e, P e →
     P (GetSize e).
@@ -434,9 +430,6 @@ Section expr_ind.
           x
           e1 (expr_ind e1)
           brs (Forall_true (λ br, P br.2) brs (λ br, expr_ind br.2))
-    | GetTag e =>
-        HGetTag
-          e (expr_ind e)
     | GetSize e =>
         HGetSize
           e (expr_ind e)
@@ -569,9 +562,6 @@ Section expr_val_ind.
     ∀ e1, Pexpr e1 →
     ∀ brs, Forall (λ br, Pexpr br.2) brs →
     Pexpr (Match e0 x e1 brs).
-  Variable HGetTag :
-    ∀ e, Pexpr e →
-    Pexpr (GetTag e).
   Variable HGetSize :
     ∀ e, Pexpr e →
     Pexpr (GetSize e).
@@ -683,9 +673,6 @@ Section expr_val_ind.
           x
           e1 (expr_val_ind e1)
           brs (Forall_true (λ br, Pexpr br.2) brs (λ br, expr_val_ind br.2))
-    | GetTag e =>
-        HGetTag
-          e (expr_val_ind e)
     | GetSize e =>
         HGetSize
           e (expr_val_ind e)
@@ -988,9 +975,6 @@ Proof.
             (decide (x1 = x2))
             (decide (e11 = e21))
             (decide (brs1 = brs2))
-      | GetTag e1, GetTag e2 =>
-          cast_if
-            (decide (e1 = e2))
       | GetSize e1, GetSize e2 =>
           cast_if
             (decide (e1 = e2))
@@ -1222,30 +1206,28 @@ Proof.
     11.
   #[local] Notation code_branch :=
     12.
-  #[local] Notation code_GetTag :=
-    13.
   #[local] Notation code_GetSize :=
-    14.
+    13.
   #[local] Notation code_Load :=
-    15.
+    14.
   #[local] Notation code_Store :=
-    16.
+    15.
   #[local] Notation code_Xchg :=
-    17.
+    16.
   #[local] Notation code_CAS :=
-    18.
+    17.
   #[local] Notation code_FAA :=
-    19.
+    18.
   #[local] Notation code_Fork :=
-    20.
+    19.
   #[local] Notation code_GetLocal :=
-    21.
+    20.
   #[local] Notation code_SetLocal :=
-    22.
+    21.
   #[local] Notation code_Proph :=
-    23.
+    22.
   #[local] Notation code_Resolve :=
-    24.
+    23.
   #[local] Notation code_ValRecs :=
     0.
   #[local] Notation code_recursive :=
@@ -1290,8 +1272,6 @@ Proof.
           GenNode code_Block $ GenLeaf (EncodeMutability mut) :: GenLeaf (EncodeNat tag) :: go_list es
       | Match e0 x e1 brs =>
           GenNode code_Match $ go e0 :: GenLeaf (EncodeBinder x) :: go e1 :: go_branches brs
-      | GetTag e =>
-          GenNode code_GetTag [go e]
       | GetSize e =>
           GenNode code_GetSize [go e]
       | Load e1 e2 =>
@@ -1377,8 +1357,6 @@ Proof.
           Block mut tag $ go_list es
       | GenNode code_Match (e0 :: GenLeaf (EncodeBinder x) :: e1 :: brs) =>
           Match (go e0) x (go e1) (go_branches brs)
-      | GenNode code_GetTag [e] =>
-          GetTag (go e)
       | GenNode code_GetSize [e] =>
           GetSize (go e)
       | GenNode code_Load [e1; e2] =>

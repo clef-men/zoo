@@ -393,26 +393,6 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
-  | base_step_get_tag_mutable l hdr σ :
-      σ.(state_headers) !! l = Some hdr →
-      base_step
-        tid
-        (GetTag $ Val $ ValLoc l)
-        σ
-        []
-        (Val $ ValInt hdr.(header_tag))
-        σ
-        []
-  | base_step_get_tag_immutable gen tag vs σ :
-      0 < length vs →
-      base_step
-        tid
-        (GetTag $ Val $ ValBlock gen tag vs)
-        σ
-        []
-        (Val $ ValInt tag)
-        σ
-        []
   | base_step_get_size_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
@@ -658,7 +638,6 @@ Inductive ectxi :=
   | CtxAlloc2 e1
   | CtxBlock mut tag es vs
   | CtxMatch x e1 brs
-  | CtxGetTag
   | CtxGetSize
   | CtxLoad1 v2
   | CtxLoad2 e1
@@ -715,8 +694,6 @@ Fixpoint ectxi_fill k e : expr :=
       Block mut tag $ es ++ e :: of_vals vs
   | CtxMatch x e1 brs =>
       Match e x e1 brs
-  | CtxGetTag =>
-      GetTag e
   | CtxGetSize =>
       GetSize e
   | CtxLoad1 v2 =>

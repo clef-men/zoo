@@ -73,8 +73,6 @@ Fixpoint expr_wf e :=
       expr_wf e0 ∧
       expr_wf e1 ∧
       Forall' (λ br, expr_wf br.2) brs
-  | GetTag e =>
-      expr_wf e
   | GetSize e =>
       expr_wf e
   | Load e1 e2 =>
@@ -214,9 +212,6 @@ Fixpoint erase_expr e :=
         x
         (erase_expr e1)
         ((λ br, (br.1, erase_expr br.2)) <$> brs)
-  | GetTag e =>
-      GetTag
-        (erase_expr e)
   | GetSize e =>
       GetSize
         (erase_expr e)
@@ -311,8 +306,6 @@ Fixpoint erase_ectxi k : ectx :=
       [CtxReveal]
   | CtxMatch x e1 brs =>
       [CtxMatch x (erase_expr e1) ((λ br, (br.1, erase_expr br.2)) <$> brs)]
-  | CtxGetTag =>
-      [CtxGetTag]
   | CtxGetSize =>
       [CtxGetSize]
   | CtxLoad1 v2 =>

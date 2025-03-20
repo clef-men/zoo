@@ -72,11 +72,6 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance get_tag_atomic v :
-    Atomic (GetTag (Val v)).
-  Proof.
-    solve_atomic.
-  Qed.
   #[global] Instance get_size_atomic v :
     Atomic (GetSize (Val v)).
   Proof.
@@ -447,15 +442,6 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
-  #[global] Instance pure_get_tag gen tag vs :
-    PureExec
-      (0 < length vs)
-      1
-      (GetTag $ Val $ ValBlock gen tag vs)
-      (Val $ ValInt tag).
-  Proof.
-    solve_pure_exec.
-  Qed.
   #[global] Instance pure_get_size gen tag vs :
     PureExec
       (0 < length vs)

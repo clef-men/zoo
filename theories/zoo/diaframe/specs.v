@@ -157,22 +157,6 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance get_tag_diaspec l E :
-    DIASPEC hdr
-    {{
-      l ↦ₕ hdr
-    }}
-      GetTag #l @ E
-    {{
-      RET #hdr.(header_tag);
-      True
-    }}.
-  Proof.
-    iSteps.
-    wp_get_tag.
-    iSteps.
-  Qed.
-
   #[global] Instance get_size_diaspec l E :
     DIASPEC hdr
     {{
