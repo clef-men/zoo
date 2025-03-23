@@ -79,14 +79,14 @@ Section zoo_G.
     envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => ->.
-    apply: wp_value.
+    apply wp_value'.
   Qed.
   Lemma tac_wp_value Δ v tid E Φ :
     envs_entails Δ (|={E}=> Φ v) →
     envs_entails Δ (WP (Val v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => ->.
-    rewrite wp_value_fupd //.
+    apply wp_value_fupd'.
   Qed.
 
   Lemma tac_wp_bind Δ K e (f : expr → expr) tid E Φ :

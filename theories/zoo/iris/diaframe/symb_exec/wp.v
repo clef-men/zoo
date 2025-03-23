@@ -37,8 +37,8 @@ Section iris_G.
       WP e @ E {{ Φ }}
   | 10.
   Proof.
-    rewrite /AsVal /Abduct /= empty_hyp_first_eq left_id => <-.
-    apply wp_value_fupd'.
+    rewrite /AsVal /Abduct /= empty_hyp_first_eq left_id => He.
+    apply wp_value_fupd. done.
   Qed.
 
   #[global] Instance dia_wp_mono e1 K e2 e2' tid E Φ1 Φ2 :
