@@ -113,6 +113,7 @@ theories/zoo/program_logic/wise_prophet.v
 theories/zoo/program_logic/wise_prophets.v
 theories/zoo/program_logic/identifier.v
 theories/zoo/program_logic/structural_equality.v
+theories/zoo/program_logic/counter.v
 
 theories/zoo/diaframe/hints.v
 theories/zoo/diaframe/specs.v

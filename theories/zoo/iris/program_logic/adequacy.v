@@ -35,9 +35,10 @@ Section iris_G.
   Proof.
     iIntros "%Hstep Hσ H£ H".
     rewrite {1}bwp_unfold /bwp_pre (val_stuck tid e1 σ1 κ e2 σ2 es) //.
-    iMod ("H" with "Hσ") as "(_ & H)".
-    iMod ("H" with "[//] H£") as "H".
-    iModIntro. iSteps. rewrite /bwps big_sepL2_replicate_r //.
+    iMod ("H" with "Hσ") as "(_ & >H)".
+    iMod ("H" with "[//] [//] H£") as "H".
+    iModIntro.
+    iSteps. rewrite /bwps big_sepL2_replicate_r //.
   Qed.
   #[local] Lemma bwps_step es1 σ1 es2 σ2 κ κs Φs :
     step (es1, σ1) κ (es2, σ2) →
@@ -103,8 +104,7 @@ Section iris_G.
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq ∅); first done.
       iSteps.
-    - iSpecialize ("H" $! _ _ [] with "Hσ").
-      iMod "H" as "(%Hreducible & _)".
+    - iMod ("H" with "Hσ") as ">(%Hreducible & _)".
       iSteps.
   Qed.
 

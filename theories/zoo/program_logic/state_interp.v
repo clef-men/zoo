@@ -1,13 +1,15 @@
 From iris.bi Require Export
   lib.fractional.
 From iris.base_logic Require Import
-  lib.gen_heap.
+  lib.gen_heap
+  lib.invariants.
 
 From zoo Require Import
   prelude.
 From zoo.iris.base_logic Require Import
   lib.ghost_list
-  lib.prophet_map.
+  lib.prophet_map
+  lib.mono_list.
 From zoo.iris.program_logic Require Export
   wp.
 From zoo.iris Require Import
@@ -19,11 +21,14 @@ From zoo.language Require Import
 From zoo Require Import
   options.
 
+Implicit Types cnt : nat.
 Implicit Types tid : thread_id.
 Implicit Types l : location.
 Implicit Types hdr : header.
 Implicit Types σ : state.
 Implicit Types κ : list observation.
+
+Parameter zoo_counter : location.
 
 Class ZooGpre Σ := {
   #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ ;
@@ -31,6 +36,7 @@ Class ZooGpre Σ := {
   #[local] zoo_Gpre_heap_Gpre :: gen_heapGpreS location val Σ ;
   #[local] zoo_Gpre_locals_G :: GhostListG Σ val ;
   #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val) ;
+  #[local] zoo_Gpre_counter_G :: MonoListG Σ val ;
 }.
 
 Definition zoo_Σ := #[
@@ -38,7 +44,8 @@ Definition zoo_Σ := #[
   gen_heapΣ location header ;
   gen_heapΣ location val ;
   ghost_list_Σ val ;
-  prophet_map_Σ prophet_id (val * val)
+  prophet_map_Σ prophet_id (val * val) ;
+  mono_list_Σ val
 ].
 #[global] Instance subG_zoo_Σ Σ :
   subG zoo_Σ Σ →
@@ -54,27 +61,13 @@ Class ZooG Σ := {
   #[local] zoo_G_locals_G :: GhostListG Σ val ;
   zoo_G_locals_name : gname ;
   #[local] zoo_G_prophecy_map_G :: ProphetMapG Σ prophet_id (val * val) ;
+  #[local] zoo_G_counter_G :: MonoListG Σ val ;
+  zoo_G_counter_name : gname ;
 }.
-#[global] Arguments Build_ZooG _ {_ _ _ _} _ {_} : assert.
+#[global] Arguments Build_ZooG _ {_ _ _ _} _ {_ _} _ : assert.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
-
-  Definition zoo_state_interp nt σ κ : iProp Σ :=
-    gen_heap_interp σ.(state_headers) ∗
-    gen_heap_interp σ.(state_heap) ∗
-    ghost_list_auth zoo_G_locals_name σ.(state_locals) ∗
-    ⌜length σ.(state_locals) = nt⌝ ∗
-    prophet_map_interp κ σ.(state_prophets).
-
-  #[global] Instance zoo_G_iris_G : IrisG zoo Σ := {
-    iris_G_inv_G :=
-      zoo_G_inv_G ;
-    state_interp :=
-      zoo_state_interp ;
-    fork_post _ :=
-      True%I ;
-  }.
 
   Definition has_header l hdr :=
     pointsto l DfracDiscarded hdr.
@@ -96,6 +89,40 @@ Section zoo_G.
     prophet_model.
   Definition prophet_model' pid :=
     prophet_model pid (DfracOwn 1).
+
+  Definition zoo_counter_name :=
+    zoo_G_counter_name.
+  Definition zoo_counter_inv_inner : iProp Σ :=
+    ∃ cnt vs,
+    pointsto zoo_counter.[contents] (DfracOwn 1) #cnt ∗
+    mono_list_auth zoo_counter_name (DfracOwn 1) vs ∗
+    ⌜length vs = cnt⌝.
+  Definition zoo_counter_inv : iProp Σ :=
+    @inv _ _ zoo_G_inv_G nroot zoo_counter_inv_inner.
+
+  Definition zoo_state_interp nt σ κ : iProp Σ :=
+    gen_heap_interp σ.(state_headers) ∗
+    gen_heap_interp σ.(state_heap) ∗
+    ghost_list_auth zoo_G_locals_name σ.(state_locals) ∗
+    ⌜length σ.(state_locals) = nt⌝ ∗
+    prophet_map_interp κ σ.(state_prophets) ∗
+    zoo_counter_inv.
+
+  #[global] Instance zoo_G_iris_G : IrisG zoo Σ := {
+    iris_G_inv_G :=
+      zoo_G_inv_G ;
+    state_interp :=
+      zoo_state_interp ;
+    fork_post _ :=
+      True%I ;
+  }.
+
+  Lemma state_interp_counter_inv nt σ κs :
+    state_interp nt σ κs ⊢
+    inv nroot zoo_counter_inv_inner.
+  Proof.
+    iSteps.
+  Qed.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
@@ -494,11 +521,12 @@ Section zoo_G.
 
   #[local] Instance : CustomIpatFormat "state_interp" :=
     "(
-      Hheaders &
-      Hheap &
-      Hlocals &
+      Hheaders_interp &
+      Hheap_interp &
+      Hlocals_interp &
       %Hlocals &
-      Hprophets
+      Hprophets_interp &
+      Hcounter_inv
     )".
   Lemma state_interp_alloc {nt σ κ} l tag vs :
     σ.(state_headers) !! l = None →
@@ -514,9 +542,9 @@ Section zoo_G.
       l ↦∗ vs.
   Proof.
     iIntros "%Hheaders_lookup %Hheap_lookup (:state_interp)".
-    iMod (gen_heap_alloc with "Hheaders") as "($ & Hheader & $)"; first done.
-    iMod (gen_heap.pointsto_persist with "Hheader") as "$".
-    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap") as "($ & Hl & _)".
+    iMod (gen_heap_alloc with "Hheaders_interp") as "($ & Hl_header & $)"; first done.
+    iMod (gen_heap.pointsto_persist with "Hl_header") as "$".
+    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap_interp") as "($ & Hl & _)".
     { apply heap_array_map_disjoint. done. }
     rewrite big_sepM_heap_array. iSteps.
   Qed.
@@ -525,8 +553,8 @@ Section zoo_G.
     l ↦ₕ hdr -∗
     ⌜σ.(state_headers) !! l = Some hdr⌝.
   Proof.
-    iIntros "(:state_interp) Hheader".
-    iApply (gen_heap_valid with "Hheaders Hheader").
+    iIntros "(:state_interp) Hl_header".
+    iApply (gen_heap_valid with "Hheaders_interp Hl_header").
   Qed.
   Lemma state_interp_pointsto_valid nt σ κ l dq v :
     state_interp nt σ κ -∗
@@ -534,7 +562,7 @@ Section zoo_G.
     ⌜σ.(state_heap) !! l = Some v⌝.
   Proof.
     iIntros "(:state_interp) Hl".
-    iApply (gen_heap_valid with "Hheap Hl").
+    iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
   Lemma state_interp_pointstos_valid nt σ κ l dq vs :
     state_interp nt σ κ -∗
@@ -546,7 +574,7 @@ Section zoo_G.
   Proof.
     iIntros "(:state_interp) Hl %i %v %Hvs_lookup".
     iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
-    iApply (gen_heap_valid with "Hheap Hl").
+    iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
   Lemma state_interp_pointsto_update {nt σ κ l w} v :
     state_interp nt σ κ -∗
@@ -555,7 +583,7 @@ Section zoo_G.
       l ↦ v.
   Proof.
     iIntros "(:state_interp) Hl".
-    iMod (gen_heap_update with "Hheap Hl") as "(Hheap & Hl)".
+    iMod (gen_heap_update with "Hheap_interp Hl") as "(Hheap_interp & Hl)".
     iFrameSteps.
   Qed.
   Lemma state_interp_fork {nt σ κ} v :
@@ -564,7 +592,7 @@ Section zoo_G.
       nt ↦ₗ v.
   Proof.
     iIntros "(:state_interp)".
-    iMod (ghost_list_update_push with "Hlocals") as "(Hlocals & Htid)".
+    iMod (ghost_list_update_push with "Hlocals_interp") as "(Hlocals_interp & Hlocals)".
     rewrite Hlocals. iFrameSteps. iPureIntro.
     rewrite length_app /=. lia.
   Qed.
@@ -574,7 +602,7 @@ Section zoo_G.
     ⌜σ.(state_locals) !! tid = Some v⌝.
   Proof.
     iIntros "(:state_interp) Htid".
-    iApply (ghost_list_lookup with "Hlocals Htid").
+    iApply (ghost_list_lookup with "Hlocals_interp Htid").
   Qed.
   Lemma state_interp_thread_pointsto_update {nt σ κ tid w} v :
     state_interp nt σ κ -∗
@@ -583,7 +611,7 @@ Section zoo_G.
       tid ↦ₗ v.
   Proof.
     iIntros "(:state_interp) Htid".
-    iMod (ghost_list_update_at with "Hlocals Htid") as "(Hlocals & Htid)".
+    iMod (ghost_list_update_at with "Hlocals_interp Htid") as "(Hlocals_interp & Htid)".
     iFrameSteps. rewrite length_insert //.
   Qed.
   Lemma state_interp_prophet_new {nt σ κ} pid :
@@ -594,7 +622,7 @@ Section zoo_G.
       prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
-    iMod (prophet_map_new with "Hprophets") as "(Hprophets & Hpid)"; first done.
+    iMod (prophet_map_new with "Hprophets_interp") as "(Hprophets_interp & Hpid)"; first done.
     iFrameSteps.
   Qed.
   Lemma state_interp_prophet_resolve nt σ κ pid proph prophs :
@@ -606,36 +634,57 @@ Section zoo_G.
       prophet_model pid (DfracOwn 1) prophs'.
   Proof.
     iIntros "(:state_interp) Hpid".
-    iMod (prophet_map_resolve with "Hprophets Hpid") as "(%prophs' & -> & Hprophets & Hpid)".
+    iMod (prophet_map_resolve with "Hprophets_interp Hpid") as "(%prophs' & -> & Hprophets_interp & Hpid)".
     iFrameSteps.
   Qed.
 End zoo_G.
 
-Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} nt σ κ :
+Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} nt σ cnt κ :
   length σ.(state_locals) = nt →
-  ⊢ |==>
+  σ.(state_heap) !! zoo_counter = Some #cnt →
+  ⊢ |={⊤}=>
     ∃ zoo_G : ZooG Σ,
+    ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
     state_interp nt σ κ ∗
-    [∗ list] tid ↦ v ∈ σ.(state_locals),
-      tid ↦ₗ v.
+    ( [∗ map] l ↦ v ∈ delete zoo_counter σ.(state_heap),
+      l ↦ v
+    ) ∗
+    ( [∗ list] tid ↦ v ∈ σ.(state_locals),
+      tid ↦ₗ v
+    ).
 Proof.
-  intros Hlocals.
-  iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders & _)".
-  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hheap & _)".
-  iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & Hlocals & Htids)".
-  iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hprophets)".
-  iExists (Build_ZooG Σ γ_locals). iFrameSteps.
+  intros Hlocals Hcounter.
+
+  iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders_interp & _)".
+
+  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hheap_interp & Hheap & _)".
+  iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)"; first done.
+  iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
+
+  iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & Hlocals_interp & Hlocals)".
+
+  iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hprophets_interp)".
+
+  iMod (mono_list_alloc (replicate cnt inhabitant)) as "(%γ_counter & Hcounter_auth)".
+
+  iExists (Build_ZooG Σ γ_locals γ_counter). iFrameSteps.
+  iApply inv_alloc. iSteps. rewrite length_replicate //.
 Qed.
-Lemma zoo_init' `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ v κ :
+Lemma zoo_init' `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ v cnt κ :
   σ.(state_locals) = [v] →
-  ⊢ |==>
+  σ.(state_heap) !! zoo_counter = Some #cnt →
+  ⊢ |={⊤}=>
     ∃ zoo_G : ZooG Σ,
+    ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
     state_interp 1 σ κ ∗
+    ( [∗ map] l ↦ v ∈ delete zoo_counter σ.(state_heap),
+      l ↦ v
+    ) ∗
     0 ↦ₗ v.
 Proof.
-  intros Hlocals.
-  iMod (zoo_init 1 σ κ) as "(%zoo_G & $ & Htids)".
-  all: rewrite Hlocals //.
+  intros Hlocals Hcounter.
+  iMod (zoo_init 1 σ cnt κ) as "(%zoo_G & $ & $ & Hlocals)".
+  all: rewrite ?Hlocals //.
   iSteps.
 Qed.
 

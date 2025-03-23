@@ -167,31 +167,44 @@ Section iris_G.
     rewrite -wp_thread_id_mono wp_unseal //.
   Qed.
 
+  Lemma wp_state_interp e tid E Φ :
+    ( ∀ nt σ κs,
+      state_interp nt σ κs ={E}=∗
+        state_interp nt σ κs ∗
+        WP e ∷ tid @ E {{ Φ }}
+    ) ⊢
+    WP e ∷ tid @ E {{ Φ }}.
+  Proof.
+    wp_unseal.
+    - apply bwp_state_interp.
+    - iIntros "H %tid".
+      iApply bwp_state_interp. iIntros "%nt %σ %κs Hσ".
+      iMod ("H" with "Hσ") as "($ & H)".
+      iSteps.
+  Qed.
+
   Lemma wp_value_fupd' v tid E Φ :
-    WP of_val v ∷ tid @ E {{ Φ }} ⊣⊢
-    |={E}=> Φ v.
+    (|={E}=> Φ v) ⊢
+    WP of_val v ∷ tid @ E {{ Φ }}.
   Proof.
     wp_unseal.
     - apply bwp_value_fupd'.
-    - iSplit.
-      + iIntros "H".
-        iSpecialize ("H" $! 0).
-        rewrite bwp_value_fupd' //.
-      + iIntros "H %tid".
-        rewrite bwp_value_fupd' //.
+    - iIntros "H %tid".
+      iApply (bwp_value_fupd' with "H").
   Qed.
   Lemma wp_value_fupd e v tid E Φ :
     AsVal e v →
-    WP e ∷ tid @ E {{ Φ }} ⊣⊢
-    |={E}=> Φ v.
+    (|={E}=> Φ v) ⊢
+    WP e ∷ tid @ E {{ Φ }}.
   Proof.
-    rewrite -wp_value_fupd' => <- //.
+    rewrite wp_value_fupd' => <- //.
   Qed.
   Lemma wp_value' v tid E Φ :
     Φ v ⊢
     WP of_val v ∷ tid @ E {{ Φ }}.
   Proof.
-    rewrite wp_value_fupd'. auto.
+    iIntros "HΦ".
+    iApply (wp_value_fupd' with "HΦ").
   Qed.
   Lemma wp_value e v tid E Φ :
     AsVal e v →
@@ -199,6 +212,17 @@ Section iris_G.
     WP e ∷ tid @ E {{ Φ }}.
   Proof.
     rewrite wp_value' => <- //.
+  Qed.
+
+  Lemma wp_value_mono v tid E Φ1 Φ2 :
+    WP of_val v ∷ tid @ E {{ Φ1 }} -∗
+    (Φ1 v ={E}=∗ Φ2 v) -∗
+    WP of_val v ∷ tid @ E {{ Φ2 }}.
+  Proof.
+    wp_unseal.
+    - apply bwp_value_mono.
+    - iIntros "H HΦ %tid".
+      iApply (bwp_value_mono with "H HΦ").
   Qed.
 
   Lemma wp_strong_mono e tid E1 Φ1 E2 Φ2 :
