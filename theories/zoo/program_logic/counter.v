@@ -55,8 +55,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hids HΦ".
 
-    iApply wp_state_interp. iIntros "%nt %σ %κs Hσ !>".
-    iDestruct (state_interp_counter_inv with "Hσ") as "#Hinv".
+    iApply wp_state_interp. iIntros "%nt %σ %κs Hinterp !>".
+    iDestruct (state_interp_counter_inv with "Hinterp") as "#Hinv".
     iFrame.
 
     wp_rec.

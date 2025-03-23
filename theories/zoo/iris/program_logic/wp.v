@@ -178,8 +178,8 @@ Section iris_G.
     wp_unseal.
     - apply bwp_state_interp.
     - iIntros "H %tid".
-      iApply bwp_state_interp. iIntros "%nt %σ %κs Hσ".
-      iMod ("H" with "Hσ") as "($ & H)".
+      iApply bwp_state_interp. iIntros "%nt %σ %κs Hinterp".
+      iMod ("H" with "Hinterp") as "($ & H)".
       iSteps.
   Qed.
 

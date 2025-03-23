@@ -152,9 +152,9 @@ Section iris_G.
   Proof.
     iIntros "H".
     iEval (rewrite bwp_unfold /bwp_pre).
-    iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "(Hσ & H)".
-    iApply (bwp_unfold with "H Hσ").
+    iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "(Hinterp & H)".
+    iApply (bwp_unfold with "H Hinterp").
   Qed.
 
   Lemma bwp_value_fupd' v tid E Φ :
@@ -192,8 +192,8 @@ Section iris_G.
     BWP of_val v ∶ tid @ E {{ Φ2 }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre to_of_val.
-    iIntros "H HΦ %nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iIntros "H HΦ %nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iSteps.
   Qed.
 
@@ -206,14 +206,14 @@ Section iris_G.
     iIntros "%HE H HΦ".
     iLöb as "HLöb" forall (e).
     rewrite !bwp_unfold /bwp_pre /=.
-    iIntros "%nt %σ1 %κs Hσ".
+    iIntros "%nt %σ1 %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
-      iMod ("H" with "Hσ") as "(Hσ & HΦ1)".
+      iMod ("H" with "Hinterp") as "(Hinterp & HΦ1)".
       iSteps.
     - iModIntro.
       iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
-      iMod ("H" with "Hσ") as ">(%Hreducible & H)".
+      iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
       iStep. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep H£".
       iMod ("H" with "[//] [//] H£") as "H".
       do 2 iModIntro.
@@ -247,11 +247,11 @@ Section iris_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite bwp_unfold /bwp_pre.
-    iIntros "H %nt %σ %κs Hσ".
+    iIntros "H %nt %σ %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
-    - iMod ("H" with "Hσ") as "$".
+    - iMod ("H" with "Hinterp") as "$".
     - iModIntro.
-      iMod ("H" with "Hσ") as ">>(%Hreducible & H)".
+      iMod ("H" with "Hinterp") as ">>(%Hreducible & H)".
       iSteps.
   Qed.
   Lemma bwp_fupd e tid E Φ :
@@ -304,20 +304,20 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre.
-    iIntros "H %nt %σ %κs Hσ".
+    iIntros "H %nt %σ %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
-    - iMod ("H" with "Hσ") as ">($ & $)".
+    - iMod ("H" with "Hinterp") as ">($ & $)".
     - iModIntro.
-      iMod ("H" with "Hσ") as ">>(%Hreducible & H)".
+      iMod ("H" with "Hinterp") as ">>(%Hreducible & H)".
       iStep. iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
       iMod ("H" with "[//] [//] H£") as "H".
       do 2 iModIntro.
-      iMod "H" as "(Hσ & H & $)".
+      iMod "H" as "(Hinterp & H & $)".
       rewrite !bwp_unfold /bwp_pre.
       destruct (to_val e2) as [v2 |] eqn:He2.
-      + iMod ("H" with "Hσ") as "($ & >H)".
+      + iMod ("H" with "Hinterp") as "($ & >H)".
         iSteps.
-      + iMod ("H" with "Hσ") as ">(%Hreducible2 & _)".
+      + iMod ("H" with "Hinterp") as ">(%Hreducible2 & _)".
         destruct Hreducible2 as (κ2 & e3 & σ3 & es2 & Hstep2).
         edestruct atomic; [done | congruence].
   Qed.
@@ -330,9 +330,9 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre /=.
-    iIntros (-> HE) "HP H %nt %σ1 %κs Hσ !>".
+    iIntros (-> HE) "HP H %nt %σ1 %κs Hinterp !>".
     iMod "HP".
-    iMod ("H" with "Hσ") as ">($ & H)".
+    iMod ("H" with "Hinterp") as ">($ & H)".
     iIntros "!> %κ %κs' %e2 %σ2 %es1 -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
@@ -353,8 +353,8 @@ Section iris_G.
     - apply of_to_val in He as <-.
       iApply (bwp_state_interp with "H").
     - rewrite bwp_unfold /bwp_pre fill_not_val //.
-      iIntros "%nt %σ1 %κs Hσ !>".
-      iMod ("H" with "Hσ") as ">(%Hreducible1 & H)".
+      iIntros "%nt %σ1 %κs Hinterp !>".
+      iMod ("H" with "Hinterp") as ">(%Hreducible1 & H)".
       iModIntro; iSplit; first eauto using reducible_fill.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
       destruct (fill_step_inv tid e σ1 κ e2 σ2 es1) as (e2' & -> & Hstep1'); [done.. |].
@@ -373,8 +373,8 @@ Section iris_G.
       iApply bwp_value'.
       iApply "H".
     - rewrite !bwp_unfold /bwp_pre fill_not_val He //.
-      iIntros "%nt %σ1 %κs Hσ !>".
-      iMod ("H" with "Hσ") as ">(%Hreducible & H)".
+      iIntros "%nt %σ1 %κs Hinterp !>".
+      iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
       iModIntro; iSplit; first eauto using reducible_fill_inv.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
       iMod ("H" with "[//] [] H£") as "H".
@@ -541,8 +541,8 @@ Section iris_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite bwp_unfold /bwp_pre => ->.
-    iIntros "H %nt %σ %κs Hσ !>".
-    iMod ("H" with "Hσ") as "(%Hreducible & H)".
+    iIntros "H %nt %σ %κs Hinterp !>".
+    iMod ("H" with "Hinterp") as "(%Hreducible & H)".
     iSteps.
   Qed.
   Lemma bwp_lift_step_nofork e tid E Φ :
@@ -563,12 +563,12 @@ Section iris_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
-    iMod "H" as "(-> & Hσ & H)".
+    iMod "H" as "(-> & Hinterp & H)".
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
@@ -590,8 +590,8 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod "Hclose" as "_".
     iMod ("H" with "[//] [//] H£") as "H".
@@ -619,12 +619,12 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
-    iMod "H" as "(-> & Hσ & H)".
+    iMod "H" as "(-> & Hinterp & H)".
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
@@ -649,7 +649,7 @@ Section iris_G.
     iIntros "%Hsafe %Hpure H".
     iApply bwp_lift_step.
     { specialize (Hsafe inhabitant). eauto using reducible_not_val. }
-    iIntros "%nt %σ %κs Hσ".
+    iIntros "%nt %σ %κs Hinterp".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep H£ !> !>".
@@ -752,8 +752,8 @@ Section iris_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "(%Hreducible & H)".
+    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "(%Hreducible & H)".
     iModIntro. iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep".
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
@@ -775,12 +775,12 @@ Section iris_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_base_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iApply bwp_lift_base_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
-    iMod "H" as "(-> & Hσ & H)".
+    iMod "H" as "(-> & Hinterp & H)".
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
@@ -803,8 +803,8 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "(%Hreducible & H)".
+    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "(%Hreducible & H)".
     iModIntro. iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep".
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
@@ -826,12 +826,12 @@ Section iris_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_base_step; first done. iIntros "%nt %σ %κs Hσ".
-    iMod ("H" with "Hσ") as "($ & H)".
+    iApply bwp_lift_atomic_base_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
-    iMod "H" as "(-> & Hσ & H)".
+    iMod "H" as "(-> & Hinterp & H)".
     rewrite Nat.add_0_r. iSteps.
   Qed.
 

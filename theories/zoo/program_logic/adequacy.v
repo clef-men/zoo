@@ -29,7 +29,7 @@ Definition zoo_adequacy `{zoo_Gpre : !ZooGpre Σ} e σ v cnt :
 Proof.
   intros Hlocals Hcounter Hwp.
   apply: wp_adequacy => // Hinv_G κs.
-  iMod (zoo_init' σ v cnt κs) as "(%zoo_G & <- & Hσ & Hheap & Hlocals)"; [done.. |].
+  iMod (zoo_init' σ v cnt κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; [done.. |].
   iExists zoo_state_interp, (λ _, True)%I, (λ _, True)%I. iFrame.
   iApply (Hwp with "Hheap Hlocals").
 Qed.

@@ -33,9 +33,9 @@ Section iris_G.
       BWP e2 ∶ tid {{ Φ }} ∗
       bwps nt es (replicate (length es) fork_post).
   Proof.
-    iIntros "%Hstep Hσ H£ H".
+    iIntros "%Hstep Hinterp H£ H".
     rewrite {1}bwp_unfold /bwp_pre (val_stuck tid e1 σ1 κ e2 σ2 es) //.
-    iMod ("H" with "Hσ") as "(_ & >H)".
+    iMod ("H" with "Hinterp") as "(_ & >H)".
     iMod ("H" with "[//] [//] H£") as "H".
     iModIntro.
     iSteps. rewrite /bwps big_sepL2_replicate_r //.
@@ -49,11 +49,11 @@ Section iris_G.
       state_interp (length es2) σ2 κs ∗
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
-    iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hσ H£ H".
+    iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hinterp H£ H".
     iDestruct (big_sepL2_insert_acc_l with "H") as "(%Φ & %HΦs_lookup & He1 & H)"; first done.
-    iMod (bwp_step with "Hσ H£ He1") as "He1"; first done.
+    iMod (bwp_step with "Hinterp H£ He1") as "He1"; first done.
     do 2 iModIntro.
-    iMod "He1" as "(Hσ & He2 & Hes)".
+    iMod "He1" as "(Hinterp & He2 & Hes)".
     iDestruct ("H" with "He2") as "H".
     rewrite length_app length_insert Nat.add_sub'.
     rewrite (list_insert_id Φs) // big_sepL2_app length_insert.
@@ -69,21 +69,21 @@ Section iris_G.
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
     iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 Φs) => /=.
-    all: iIntros "%Hsteps Hσ H£s H".
+    all: iIntros "%Hsteps Hinterp H£s H".
     - invert Hsteps.
       rewrite Nat.sub_diag right_id. iSteps.
     - invert Hsteps as [| ? ? (es1' & σ1') ? κ κs1' Hstep Hsteps'].
       rewrite -(assoc (++)).
       iDestruct "H£s" as "(H£ & H£s)".
-      iMod (bwps_step with "Hσ H£ H") as "H"; [done.. |].
+      iMod (bwps_step with "Hinterp H£ H") as "H"; [done.. |].
       do 3 iModIntro.
       iApply (fupd_trans _ ⊤).
-      iMod "H" as "(Hσ & H)".
+      iMod "H" as "(Hinterp & H)".
       iModIntro.
-      iMod ("IH" with "[//] Hσ H£s H") as "H".
+      iMod ("IH" with "[//] Hinterp H£s H") as "H".
       iModIntro.
       iApply (step_fupdN_wand with "H"). iIntros ">H".
-      iDestruct "H" as "(Hσ & H)".
+      iDestruct "H" as "(Hinterp & H)".
       rewrite -assoc -replicate_add.
       assert (length es1' - length es1 + (length es2 - length es1') = length es2 - length es1) as ->.
       { apply step_length in Hstep.
@@ -99,12 +99,12 @@ Section iris_G.
       |={⊤, ∅}=>
       ⌜not_stuck tid e σ⌝.
   Proof.
-    iIntros "Hσ H".
+    iIntros "Hinterp H".
     rewrite bwp_unfold /bwp_pre /not_stuck.
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq ∅); first done.
       iSteps.
-    - iMod ("H" with "Hσ") as ">(%Hreducible & _)".
+    - iMod ("H" with "Hinterp") as ">(%Hreducible & _)".
       iSteps.
   Qed.
 
@@ -117,14 +117,14 @@ Section iris_G.
       |={⊤, ∅}=> |={∅}▷=>^n |={∅}=>
       ⌜not_stuck tid e2 σ2⌝.
   Proof.
-    iIntros (Hsteps Hes2_lookup) "Hσ H£s He".
-    iMod (bwps_steps with "Hσ H£s He") as "H"; [done.. |].
+    iIntros (Hsteps Hes2_lookup) "Hinterp H£s He".
+    iMod (bwps_steps with "Hinterp H£s He") as "H"; [done.. |].
     iModIntro.
     iApply (step_fupdN_wand with "H").
-    iMod 1 as "(Hσ & H)".
+    iMod 1 as "(Hinterp & H)".
     iDestruct (big_sepL2_lookup_Some_l with "H") as %(Φ & Hposts_lookup); first done.
     iDestruct (big_sepL2_lookup with "H") as "H"; [done.. |].
-    iApply (bwp_not_stuck with "Hσ H").
+    iApply (bwp_not_stuck with "Hinterp H").
   Qed.
 End iris_G.
 
@@ -143,8 +143,8 @@ Proof.
   apply Foralli_lookup => tid e2 Hlookup.
   eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n n).
   iIntros "%Hinv_G H£s".
-  iMod H as "(%state_interp & %fork_post & %Φs & Hσ & H)".
-  iMod (bwps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hσ] H£s H") as "H"; [done.. | |].
+  iMod H as "(%state_interp & %fork_post & %Φs & Hinterp & H)".
+  iMod (bwps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hinterp] H£s H") as "H"; [done.. | |].
   { erewrite app_nil_r => //. }
   destruct n.
   - iMod "H". iSteps.
@@ -163,7 +163,7 @@ Lemma bwp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
 Proof.
   intros H (es, σ') (n & κs & Hsteps)%silent_steps_nsteps.
   move: Hsteps. apply: bwp_progress => inv_G.
-  iMod H as "(%state_interp & %fork_post & %Φ & Hσ & H)".
+  iMod H as "(%state_interp & %fork_post & %Φ & Hinterp & H)".
   iExists state_interp, fork_post, [Φ].
   rewrite /bwps /=. iSteps.
 Qed.
@@ -179,7 +179,7 @@ Lemma wp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
 Proof.
   intros H.
   apply: bwp_adequacy => inv_G κs.
-  iMod H as "(%state_interp & %fork_post & %Φ & Hσ & Hwp)".
+  iMod H as "(%state_interp & %fork_post & %Φ & Hinterp & Hwp)".
   iExists state_interp, fork_post, Φ. iFrame.
   iApply (wp_bwp with "Hwp").
 Qed.
