@@ -36,3 +36,71 @@ Section kmap.
     rewrite map_to_list_to_map //.
   Qed.
 End kmap.
+
+Section map_oflatten.
+  Context `{FinMap K M}.
+  Context {A : Type}.
+
+  Definition map_oflatten (m : M (option A)) :=
+    omap id m.
+
+  Lemma lookup_map_oflatten_None m k :
+    m !! k = None →
+    map_oflatten m !! k = None.
+  Proof.
+    rewrite lookup_omap => -> //.
+  Qed.
+  Lemma lookup_map_oflatten_Some_None m k :
+    m !! k = Some None →
+    map_oflatten m !! k = None.
+  Proof.
+    rewrite lookup_omap => -> //.
+  Qed.
+  Lemma lookup_map_oflatten_Some_Some {m k} a :
+    m !! k = Some (Some a) →
+    map_oflatten m !! k = Some a.
+  Proof.
+    rewrite lookup_omap_id_Some //.
+  Qed.
+
+  Lemma lookup_map_oflatten_Some_inv m k a :
+    map_oflatten m !! k = Some a →
+    m !! k = Some (Some a).
+  Proof.
+    intros Hoflatten_lookup.
+    destruct (m !! k) as [[v |] |] eqn:Hm_lookup.
+    all: rewrite lookup_omap Hm_lookup /= in Hoflatten_lookup.
+    all: congruence.
+  Qed.
+
+  Lemma map_oflatten_empty m :
+    (∀ k o, m !! k = Some o → o = None) →
+    map_oflatten m = ∅.
+  Proof.
+    intros Hm.
+    apply map_empty => k.
+    rewrite eq_None_not_Some. intros (a & Hlookup%lookup_map_oflatten_Some_inv).
+    naive_solver.
+  Qed.
+
+  Lemma map_oflatten_union m1 m2 :
+    m1 ##ₘ m2 →
+    map_oflatten (m1 ∪ m2) = map_oflatten m1 ∪ map_oflatten m2.
+  Proof.
+    intros.
+    rewrite /map_oflatten map_omap_union //.
+  Qed.
+
+  Lemma map_oflatten_insert {m} k :
+    m !! k = None →
+    map_oflatten (<[k := None]> m) = map_oflatten m.
+  Proof.
+    intros Hlookup.
+    rewrite /map_oflatten omap_insert_None // delete_notin // lookup_omap Hlookup //.
+  Qed.
+  Lemma map_oflatten_update {m} k a :
+    map_oflatten (<[k := Some a]> m) = <[k := a]> (map_oflatten m).
+  Proof.
+    rewrite /map_oflatten omap_insert //.
+  Qed.
+End map_oflatten.

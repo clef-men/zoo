@@ -52,6 +52,24 @@ Section zoo_G.
     apply _.
   Qed.
 
+  Lemma dynarray_1_create_spec' :
+    {{{
+      True
+    }}}
+      dynarray_1_create ()
+    {{{ l,
+      RET #l;
+      dynarray_1_model #l [] ∗
+      meta_token l (↑nroot.@"user")
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+    wp_rec.
+    wp_apply (array_create_spec with "[//]") as "%data Hmodel".
+    wp_block l as "Hl_meta" "(Hl_size & Hl_data & _)".
+    iDestruct (meta_token_difference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
+    iSteps. iExists 0. iSteps.
+  Qed.
   Lemma dynarray_1_create_spec :
     {{{
       True
@@ -63,10 +81,8 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_rec.
-    wp_apply (array_create_spec with "[//]") as "%data Hmodel".
-    wp_block l as "(Hl_size & Hl_data & _)".
-    iApply "HΦ". iExists l, data, 0. iSteps.
+    wp_apply (dynarray_1_create_spec' with "[//]").
+    iSteps.
   Qed.
 
   Lemma dynarray_1_make_spec sz v :
@@ -351,6 +367,7 @@ Section zoo_G.
     wp_apply (dynarray_1_reserve_spec' with "Hmodel"); first done.
     iSteps.
   Qed.
+
   #[local] Lemma dynarray_1_reserve_extra_spec' l data vs extra n :
     (0 ≤ n)%Z →
     {{{
@@ -385,6 +402,38 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma dynarray_1_grow_spec t vs sz v :
+    (0 ≤ sz)%Z →
+    {{{
+      dynarray_1_model t vs
+    }}}
+      dynarray_1_grow t #sz v
+    {{{
+      RET ();
+      dynarray_1_model t (vs ++ replicate (₊sz - length vs) v)
+    }}}.
+  Proof.
+    iIntros "% %Φ (:model) HΦ".
+    wp_rec. wp_load. wp_pures.
+    case_bool_decide.
+    - wp_smart_apply (dynarray_1_reserve_spec' with "[$]") as "%data' %extra' (%Hextra' & (:model'))"; first lia.
+      wp_load.
+      wp_smart_apply (array_unsafe_fill_slice_spec with "Hmodel") as "Hmodel".
+      { lia. }
+      { rewrite length_app length_replicate. lia. }
+      iSteps.
+      { iPureIntro.
+        rewrite length_app length_replicate -Nat.le_add_sub; first lia.
+        rewrite Z2Nat.id //.
+      } {
+        rewrite assoc Nat2Z.id take_app_length drop_app_add drop_replicate.
+        assert (₊(sz - ⁺(length vs)) = ₊sz - length vs) as -> by lia.
+        iSteps.
+      }
+    - assert (₊sz - length vs = 0) as -> by lia.
+      rewrite right_id. iSteps.
+  Qed.
+
   Lemma dynarray_1_push_spec t vs v :
     {{{
       dynarray_1_model t vs
@@ -397,7 +446,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model lazy=) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%data' %extra' (%Hextra' & (Hl_size & Hl_data & Hmodel))"; first lia.
+    wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%data' %extra' (%Hextra' & (:model'))"; first lia.
     wp_load. wp_store. wp_load.
     wp_apply (array_unsafe_set_spec with "Hmodel").
     { rewrite length_app length_replicate. lia. }
@@ -707,6 +756,7 @@ End zoo_G.
 #[global] Opaque dynarray_1_set.
 #[global] Opaque dynarray_1_reserve.
 #[global] Opaque dynarray_1_reserve_extra.
+#[global] Opaque dynarray_1_grow.
 #[global] Opaque dynarray_1_push.
 #[global] Opaque dynarray_1_pop.
 #[global] Opaque dynarray_1_fit_capacity.

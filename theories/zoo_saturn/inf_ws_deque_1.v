@@ -922,7 +922,7 @@ Section inf_ws_deque_1_G.
       metadata_prophet_name := γ_prophet ;
       metadata_winner := γ_winner ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iSplitR "Hctl₂ Hmodel₂ Hlock".
     { repeat iExists _. iFrame "#∗". iSplitR; first done.

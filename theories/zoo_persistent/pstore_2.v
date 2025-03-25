@@ -489,8 +489,8 @@ Module raw.
 
       iMod (descriptors_alloc root) as "(%γ & Hauth)".
 
-      iDestruct (meta_token_difference _ (↑nroot.@"user") with "Hmeta") as "(Hmeta_user & Hmeta)"; first done.
-      iDestruct (meta_token_difference _ (↑nroot.@"impl") with "Hmeta") as "(Hmeta & _)"; first solve_ndisj.
+      iDestruct (meta_token_difference (↑nroot.@"user") with "Hmeta") as "(Hmeta_user & Hmeta)"; first done.
+      iDestruct (meta_token_difference (↑nroot.@"impl") with "Hmeta") as "(Hmeta & _)"; first solve_ndisj.
       iMod (meta_set with "Hmeta") as "Hmeta"; first done.
 
       iApply "HΦ".

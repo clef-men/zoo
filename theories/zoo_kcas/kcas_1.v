@@ -2100,7 +2100,7 @@ Section kcas_1_G.
       loc_metadata_model := γ_model ;
       loc_metadata_history := γ_history ;
     |}.
-    iMod (meta_set _ _ γ with "Hloc_meta") as "#Hloc_meta"; first done.
+    iMod (meta_set γ with "Hloc_meta") as "#Hloc_meta"; first done.
 
     iMod (saved_pred_alloc (λ _, True)%I) as "(%η_post & #Hpost)".
     iMod (lstatus_alloc Finished) as "(%η_lstatus & Hlstatus_auth)".
@@ -2127,7 +2127,7 @@ Section kcas_1_G.
       metadata_winning := inhabitant ;
       metadata_owner := η_owner ;
     |}.
-    iMod (meta_set _ _ η with "Hcasn_meta") as "#Hcasn_meta"; first done.
+    iMod (meta_set η with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
     iDestruct (lstatus_lb_get_finished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
 
@@ -2306,7 +2306,7 @@ Section kcas_1_G.
       metadata_winning := η_winning ;
       metadata_owner := η_owner ;
     |}.
-    iMod (meta_set _ _ η with "Hcasn_meta") as "#Hcasn_meta"; first done.
+    iMod (meta_set η with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
     iDestruct (lstatus_lb_get η with "Hlstatus_auth") as "#Hlstatus_lb".
 

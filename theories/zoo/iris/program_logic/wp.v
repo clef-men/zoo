@@ -160,7 +160,14 @@ Section iris_G.
   Proof.
     rewrite wp_unseal. iSteps.
   Qed.
+
   Lemma bwp_wp e tid E Φ :
+    BWP e ∶ tid @ E {{ Φ }} ⊢
+    WP e ∶ tid @ E {{ Φ }}.
+  Proof.
+    rewrite wp_unseal //.
+  Qed.
+  Lemma bwp_wp_weak e tid E Φ :
     (∀ tid, BWP e ∶ tid @ E {{ Φ }}) ⊢
     WP e ∷ tid @ E {{ Φ }}.
   Proof.

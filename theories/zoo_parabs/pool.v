@@ -172,7 +172,8 @@ Section pool_G.
     { iApply (big_sepL_impl_strong with "Hhub_owners").
       { rewrite !length_seq. lia. }
       iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "Hhub_owner".
-      wp_smart_apply (domain_spawn_spec itype_unit with "[Hhub_owner]"); last iSteps.
+      wp_smart_apply (domain_spawn_spec itype_unit with "[Hhub_owner]"); last iSteps. iIntros "%tid _".
+      iApply wp_thread_id_mono.
       wp_smart_apply (pool_worker_spec with "[Hhub_owner]"); last iSteps.
       rewrite Z.add_1_r -Nat2Z.inj_succ. iExists _. iSteps.
     }

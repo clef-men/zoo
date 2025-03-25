@@ -542,7 +542,7 @@ Section inf_mpmc_queue_1_G.
       metadata_consumers := γ_consumers ;
       metadata_tokens := γ_tokens ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.

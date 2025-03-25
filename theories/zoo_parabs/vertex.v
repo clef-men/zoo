@@ -336,7 +336,7 @@ Section vertex_G.
       metadata_predecessors := γ_predecessors ;
       metadata_state := γ_state ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hstate₂".

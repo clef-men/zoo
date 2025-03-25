@@ -564,7 +564,7 @@ Section spsc_bqueue_G.
       metadata_consumer := γ_consumer ;
       metadata_front := γ_front ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iDestruct (back_lb_get γ with "Hproducer₂") as "#Hback_lb".
     iDestruct (front_lb_get γ with "Hconsumer₂") as "#Hfront_lb".

@@ -245,7 +245,7 @@ Section inf_array_G.
       metadata_default := default ;
       metadata_model := γ_model ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iMod (mutex_init_to_inv (inv_1 l γ) with "Hmtx_init [Hl_data Hdata Hmodel₂]") as "#Hmtx_inv".
     { rewrite /inv_1. iSteps. }

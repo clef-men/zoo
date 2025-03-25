@@ -277,7 +277,7 @@ Section ws_hub_fifo_G.
       metadata_model := γ_model ;
       metadata_owners := γ_owners ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Howners". { iSteps. rewrite Z2Nat.id //. iSteps. }

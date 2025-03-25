@@ -217,7 +217,7 @@ Section zoo_G.
     apply _.
   Qed.
 
-  Lemma meta_token_difference l E1 E2 :
+  Lemma meta_token_difference {l} E1 E2 :
     E1 ⊆ E2 →
     meta_token l E2 ⊣⊢
       meta_token l E1 ∗
@@ -226,7 +226,7 @@ Section zoo_G.
     apply meta_token_difference.
   Qed.
 
-  Lemma meta_set `{Countable A} E l (x : A) N :
+  Lemma meta_set `{Countable A} {l E} (x : A) N :
     ↑ N ⊆ E →
     meta_token l E ⊢ |==>
     meta l N x.

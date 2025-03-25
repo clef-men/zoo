@@ -40,6 +40,14 @@ let reserve t n =
 let reserve_extra t n =
   reserve t (t.size + n)
 
+let grow t sz v =
+  let old_sz = t.size in
+  if old_sz < sz then (
+    reserve t sz ;
+    Array.unsafe_fill_slice t.data old_sz (sz - old_sz) v ;
+    t.size <- sz
+  )
+
 let push t v =
   reserve_extra t 1 ;
   let sz = t.size in

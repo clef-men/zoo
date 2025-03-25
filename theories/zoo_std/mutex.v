@@ -133,7 +133,7 @@ Section mutex_G.
     wp_rec.
     wp_ref l as "Hmeta" "Hl".
     iMod excl_alloc as "(%γ & Hlocked)".
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 

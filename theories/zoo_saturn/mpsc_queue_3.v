@@ -324,7 +324,7 @@ Section mpsc_queue_3_G.
       metadata_front := γ_front ;
       metadata_lstate := γ_lstate ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Hfront Hfront₁ Hopen₁"; last iSteps.

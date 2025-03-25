@@ -68,6 +68,15 @@ Definition dynarray_1_reserve_extra : val :=
   fun: "t" "n" =>
     dynarray_1_reserve "t" ("t".{size} + "n").
 
+Definition dynarray_1_grow : val :=
+  fun: "t" "sz" "v" =>
+    let: "old_sz" := "t".{size} in
+    if: "old_sz" < "sz" then (
+      dynarray_1_reserve "t" "sz" ;;
+      array_unsafe_fill_slice "t".{data} "old_sz" ("sz" - "old_sz") "v" ;;
+      "t" <-{size} "sz"
+    ).
+
 Definition dynarray_1_push : val :=
   fun: "t" "v" =>
     dynarray_1_reserve_extra "t" #1 ;;

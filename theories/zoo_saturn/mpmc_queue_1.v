@@ -340,7 +340,7 @@ Section mpmc_queue_1_G.
       metadata_waiters := γ_waiters ;
     |}.
 
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.

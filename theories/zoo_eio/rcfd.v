@@ -373,7 +373,7 @@ Section rcfd_G.
       metadata_tokens := γ_tokens ;
       metadata_lstate := γ_lstate ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iExists l, γ. iSteps. iExists Open. iSteps. iExists ∅. iSteps.

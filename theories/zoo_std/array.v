@@ -1476,7 +1476,6 @@ Section zoo_G.
 
   Lemma array_unsafe_fill_slice_spec_atomic Ψ t (i n : Z) v :
     (0 ≤ i)%Z →
-    (0 ≤ n)%Z →
     {{{
       ▷ Ψ 0 ∗
       □ (
@@ -1494,7 +1493,7 @@ Section zoo_G.
       Ψ ₊n
     }}}.
   Proof.
-    iIntros "%Hi %Hn %Φ (HΨ & #H) HΦ".
+    iIntros "%Hi %Φ (HΨ & #H) HΦ".
     wp_rec.
     pose Ψ' (_ : Z) i :=
       Ψ i.
@@ -1506,9 +1505,9 @@ Section zoo_G.
     rewrite /atomic_acc /=.
     repeat iExists _. iFrameSteps.
   Qed.
-  Lemma array_unsafe_fill_slice_spec t vs (i : Z) i_ (n : Z) v :
+  Lemma array_unsafe_fill_slice_spec_slice_fit t vs (i : Z) i_ (n : Z) v :
     i = ⁺i_ →
-    n = length vs →
+    ₊n = length vs →
     {{{
       array_slice t i_ (DfracOwn 1) vs
     }}}
@@ -1518,7 +1517,7 @@ Section zoo_G.
       array_slice t i_ (DfracOwn 1) (replicate ₊n v)
     }}}.
   Proof.
-    iIntros (-> ->) "%Φ Hslice HΦ".
+    iIntros (-> Hn) "%Φ Hslice HΦ".
     pose Ψ j :=
       array_slice t i_ (DfracOwn 1) (replicate j v ++ drop j vs).
     wp_apply (array_unsafe_fill_slice_spec_atomic Ψ with "[$Hslice]"); [lia.. | |]; last first.
@@ -1531,6 +1530,52 @@ Section zoo_G.
     iDestruct ("Hslice" with "H↦") as "Hslice".
     rewrite /Ψ replicate_S_end -assoc insert_app_r_alt length_replicate // Nat.sub_diag.
     erewrite drop_S => //.
+  Qed.
+  Lemma array_unsafe_fill_slice_spec_slice t vs (i : Z) j (n : Z) v :
+    (j ≤ i)%Z →
+    ₊i + ₊n ≤ j + length vs →
+    {{{
+      array_slice t j (DfracOwn 1) vs
+    }}}
+      array_unsafe_fill_slice t #i #n v
+    {{{
+      RET ();
+      array_slice t j (DfracOwn 1) (take (₊i - j) vs ++ replicate ₊n v ++ drop (₊i - j + ₊n) vs)
+    }}}.
+  Proof.
+    iIntros "% % %Φ Hslice HΦ".
+    iEval (setoid_rewrite <- (take_drop (₊i - j) vs)) in "Hslice".
+    iEval (rewrite -(drop_take_drop _ _ (₊i - j + ₊n)); first lia) in "Hslice".
+    iDestruct (array_slice_app_2 with "Hslice") as "(Hslice1 & Hslice2)"; first done.
+    iDestruct (array_slice_app_2 with "Hslice2") as "(Hslice2 & Hslice3)"; first done.
+    rewrite length_drop !length_take !Nat.min_l; [ lia.. |].
+    wp_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice2") as "Hslice2".
+    { lia. }
+    { rewrite length_drop length_take. lia. }
+    iDestruct (array_slice_app_1' with "Hslice2 Hslice3") as "Hslice2".
+    { rewrite length_replicate. lia. }
+    iDestruct (array_slice_app_1' with "Hslice1 Hslice2") as "Hslice".
+    { rewrite length_take. lia. }
+    iSteps.
+  Qed.
+  Lemma array_unsafe_fill_slice_spec t vs (i : Z) (n : Z) v :
+    (0 ≤ i)%Z →
+    ₊i + ₊n ≤ length vs →
+    {{{
+      array_model t (DfracOwn 1) vs
+    }}}
+      array_unsafe_fill_slice t #i #n v
+    {{{
+      RET ();
+      array_model t (DfracOwn 1) (take ₊i vs ++ replicate ₊n v ++ drop (₊i + ₊n) vs)
+    }}}.
+  Proof.
+    iIntros "% % %Φ Hmodel HΦ".
+    iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & Hmodel)".
+    wp_apply (array_unsafe_fill_slice_spec_slice with "Hslice") as "Hslice"; [done.. |].
+    iDestruct ("Hmodel" with "[%] Hslice") as "Hmodel".
+    { rewrite !length_app length_take length_drop length_replicate. lia. }
+    rewrite Nat.sub_0_r. iSteps.
   Qed.
 
   Lemma array_fill_slice_spec t sz vs (i : Z) i_ (n : Z) v :
@@ -1553,7 +1598,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
     repeat (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_fill_slice_spec with "Hslice"); [lia.. |].
+    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice"); [lia.. |].
     iSteps.
   Qed.
 
@@ -1571,7 +1616,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
-    wp_apply (array_unsafe_fill_slice_spec with "Hslice") as "Hslice"; [done.. |].
+    wp_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice") as "Hslice"; [lia.. |].
     iSteps.
     - rewrite length_replicate //.
     - rewrite Nat2Z.id //.
@@ -4752,7 +4797,7 @@ Section zoo_G.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
     wp_smart_apply (array_unsafe_copy_spec_slice with "[$Hmodel $Hslice1']") as "(Hmodel & Hslice1')"; first done.
     { rewrite length_replicate //. }
-    wp_smart_apply (array_unsafe_fill_slice_spec with "Hslice2'") as "Hslice2'".
+    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
     { rewrite length_replicate //. }
     { rewrite length_replicate. lia. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'".
@@ -6369,7 +6414,7 @@ Section zoo_G.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
     wp_smart_apply (array_unsafe_copy_type' with "[$Htype $Hslice1']") as (vs) "(%Hvs & Hslice1' & #Hvs)"; first done.
     { rewrite length_replicate //. }
-    wp_smart_apply (array_unsafe_fill_slice_spec with "Hslice2'") as "Hslice2'".
+    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
     { rewrite length_replicate //. }
     { rewrite length_replicate. lia. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'"; first done.

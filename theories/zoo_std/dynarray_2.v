@@ -77,6 +77,24 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma dynarray_2_create_spec' :
+    {{{
+      True
+    }}}
+      dynarray_2_create ()
+    {{{ l,
+      RET #l;
+      dynarray_2_model #l [] ∗
+      meta_token l (↑nroot.@"user")
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+    wp_rec.
+    wp_apply (array_create_spec with "[//]") as "%data Hmodel".
+    wp_block l as "Hl_meta" "(Hl_size & Hl_data & _)".
+    iDestruct (meta_token_difference (↑nroot.@"user") with "Hl_meta") as "(Hl_meta & _)"; first done.
+    iSteps. iExists [], 0. iSteps.
+  Qed.
   Lemma dynarray_2_create_spec :
     {{{
       True
@@ -88,11 +106,8 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_rec.
-    wp_apply (array_create_spec with "[//]") as "%data Hmodel".
-    wp_block l as "(Hl_size & Hl_data & _)".
-    iApply "HΦ".
-    iExists l, data, [], 0. iSteps.
+    wp_apply (dynarray_2_create_spec' with "[//]").
+    iSteps.
   Qed.
 
   Lemma dynarray_2_make_spec sz v :
@@ -405,6 +420,7 @@ Section zoo_G.
     rewrite /dynarray_2_set_data. wp_store.
     rewrite -assoc -replicate_add. iSteps.
   Qed.
+
   Lemma dynarray_2_reserve_extra_spec t vs (n : Z) :
     {{{
       dynarray_2_model t vs

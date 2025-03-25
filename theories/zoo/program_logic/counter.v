@@ -26,6 +26,11 @@ Section zoo_G.
   Definition zoo_counter_at :=
     mono_list_at (mono_list_G := zoo_G_counter_G) zoo_counter_name.
 
+  #[global] Instance zoo_counter_at_timeless id v :
+    Timeless (zoo_counter_at id v).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance zoo_counter_at_persistent id v :
     Persistent (zoo_counter_at id v).
   Proof.

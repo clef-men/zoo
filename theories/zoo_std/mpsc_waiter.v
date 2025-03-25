@@ -165,7 +165,7 @@ Section mpsc_waiter_G.
       metadata_lstate := γ_lstate ;
       metadata_consumer := γ_consumer ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.
   Qed.

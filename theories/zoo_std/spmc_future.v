@@ -164,7 +164,7 @@ Section spmc_future_G.
       metadata_condition := cond ;
       metadata_lstate := γ_lstate ;
     |}.
-    iMod (meta_set _ _ γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps. iExists None. iSteps.
   Qed.
