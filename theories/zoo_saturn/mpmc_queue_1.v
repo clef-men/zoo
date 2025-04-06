@@ -431,23 +431,25 @@ Section mpmc_queue_1_G.
     | Other.
   #[local] Instance op_eq_dec : EqDecision op :=
     ltac:(solve_decision).
-
   #[local] Lemma xtchain_next_spec_strong op TB waiter Ψ_is_empty β x Ψ_pop l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (inv_inner l γ ι) ∗
       history_at γ i node ∗
-      if decide (op = Other) then True else
-        front_lb γ i ∗
-        if decide (op = IsEmpty) then
+      ( if decide (op = Other) then True else
+          front_lb γ i
+      ) ∗
+      match op with
+      | IsEmpty =>
           saved_pred waiter Ψ_is_empty ∗
           waiters_at γ waiter i ∗
           £ 1
-        else
+      | Pop =>
           atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpmc_queue_1_model #l) β Ψ_pop ∗
-          ( mpmc_queue_1_model #l [] -∗
-            β [tele_arg []] x
-          )
+          (mpmc_queue_1_model #l [] -∗ β [tele_arg []] x)
+      | Other =>
+          True
+      end
     }}}
       (#node).{xtchain_next}
     {{{ res,
@@ -572,8 +574,7 @@ Section mpmc_queue_1_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at) HΦ".
-    wp_apply (xtchain_next_spec_strong Other TeleO inhabitant inhabitant inhabitant inhabitant inhabitant with "[$]").
-    iSteps.
+    wp_apply (xtchain_next_spec_strong Other TeleO inhabitant inhabitant inhabitant inhabitant inhabitant); iSteps.
   Qed.
 
   Lemma mpmc_queue_1_is_empty_spec t ι :
