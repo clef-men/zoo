@@ -330,23 +330,22 @@ Section mpsc_queue_1_G.
     | Other.
   #[local] Instance op_eq_dec : EqDecision op :=
     ltac:(solve_decision).
-
   #[local] Lemma xtchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ ι i node :
     {{{
       meta l nroot γ ∗
       inv ι (inv_inner l γ) ∗
       history_at γ i node ∗
-      if decide (op = Other) then True else
-        l.[front] ↦{#3/4} #node ∗
-        atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
-        ( mpsc_queue_1_model #l [] -∗
-          β [tele_arg []] x_empty
-        ) ∗
-        if decide (op = Pop) then True else
+      ( if decide (op = Other) then True else
+          l.[front] ↦{#3/4} #node ∗
+          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
+          (mpsc_queue_1_model #l [] -∗ β [tele_arg []] x_empty)
+      ) ∗
+      ( if decide (op ≠ IsEmpty) then True else
           ∀ vs,
           ⌜vs ≠ []⌝ -∗
           mpsc_queue_1_model #l vs -∗
           β (TeleArgCons vs ()) x_nonempty
+      )
     }}}
       (#node).{xtchain_next}
     {{{ res,
@@ -360,12 +359,18 @@ Section mpsc_queue_1_G.
         ⌜res = #node'⌝ ∗
         node' ↦ₕ Header §Node 2 ∗
         history_at γ (S i) node' ∗
-        if decide (op = Other) then True else
-          l.[front] ↦{#3/4} #node ∗
-          if decide (op = IsEmpty) then
-            ∃ vs, Ψ (TeleArgCons vs ()) x_nonempty
-          else
+        ( if decide (op = Other) then True else
+            l.[front] ↦{#3/4} #node
+        ) ∗
+        match op with
+        | IsEmpty =>
+            ∃ vs,
+            Ψ (TeleArgCons vs ()) x_nonempty
+        | Pop =>
             atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ
+        | Other =>
+            True
+        end
       )
     }}}.
   Proof.
@@ -382,7 +387,7 @@ Section mpsc_queue_1_G.
       iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at'"; first done.
       destruct (decide (op = IsEmpty)) as [-> | Hop].
 
-      + iDestruct "Hop" as "(Hl_front_ & HΨ & Hβ_empty & Hβ_nonempty)".
+      + iDestruct "Hop" as "((Hl_front_ & HΨ & Hβ_empty) & Hβ_nonempty)".
         iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
         iMod "HΨ" as "(%_vs & (:model) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -409,7 +414,7 @@ Section mpsc_queue_1_G.
         destruct op; [done | iSteps..].
 
     - destruct (decide (op = Other)) as [-> | Hop]; first iSteps.
-      iDestruct "Hop" as "(Hl_front_ & HΨ & Hβ_empty & _)".
+      iDestruct "Hop" as "((Hl_front_ & HΨ & Hβ_empty) & _)".
       iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
       iAssert ⌜length past = i⌝%I as %Hpast_length.
       { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
@@ -448,8 +453,7 @@ Section mpsc_queue_1_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at) HΦ".
-    wp_apply (xtchain_next_spec_strong Other TeleO inhabitant inhabitant inhabitant inhabitant with "[$Hmeta $Hinv $Hhistory_at //]").
-    iSteps.
+    wp_apply (xtchain_next_spec_strong Other TeleO inhabitant inhabitant inhabitant inhabitant); iSteps.
   Qed.
 
   Lemma mpsc_queue_1_is_empty_spec t ι :
