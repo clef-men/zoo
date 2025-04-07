@@ -29,26 +29,25 @@ let push_back t back =
   insert t.xdeque_prev back t
 
 let pop_front t =
-  if is_empty t then (
+  if is_empty t then
     None
-  ) else (
+  else
     let old_front = t.xdeque_next in
     let front = old_front.xdeque_next in
     front.xdeque_prev <- t ;
     t.xdeque_next <- front ;
     Some old_front
-  )
 
 let pop_back t =
-  if is_empty t then (
+  if is_empty t then
     None
-  ) else (
+  else
     let old_back = t.xdeque_prev in
     let back = old_back.xdeque_prev in
     t.xdeque_prev <- back ;
     back.xdeque_next <- t ;
     Some old_back
-  )
+
 let remove node =
   let prev = node.xdeque_prev in
   let next = node.xdeque_next in
