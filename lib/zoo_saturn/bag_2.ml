@@ -52,7 +52,7 @@ let create_producer t =
     producer_node= node;
   }
 
-let destroy_producer producer =
+let close_producer producer =
   let Node node_r = producer.producer_node in
   node_r.queue <- None
 

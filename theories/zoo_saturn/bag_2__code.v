@@ -39,7 +39,7 @@ Definition bag_2_create_producer : val :=
     let: "node" := bag_2_add_producer "t" "queue" in
     ("queue", "node").
 
-Definition bag_2_destroy_producer : val :=
+Definition bag_2_close_producer : val :=
   fun: "producer" =>
     match: "producer".<producer_node> with
     | Node <> <> as "node_r" =>

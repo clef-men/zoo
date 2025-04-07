@@ -9,7 +9,7 @@ val create :
 
 val create_producer :
   'a t -> 'a producer
-val destroy_producer :
+val close_producer :
   'a producer -> unit
 
 val create_consumer :
