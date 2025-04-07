@@ -22,6 +22,11 @@ Definition mutex_unlock : val :=
   fun: "t" =>
     "t" <- #false.
 
+Definition mutex_synchronize : val :=
+  fun: "t" =>
+    mutex_lock "t" ;;
+    mutex_unlock "t".
+
 Definition mutex_protect : val :=
   fun: "t" "fn" =>
     mutex_lock "t" ;;

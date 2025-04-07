@@ -23,6 +23,10 @@ let unlock =
     Atomic.set t false
 ]
 
+let synchronize t =
+  lock t ;
+  unlock t
+
 let protect =
   Stdlib.Mutex.protect
 [@@zoo.overwrite

@@ -194,6 +194,36 @@ Section mutex_G.
     iSteps.
   Qed.
 
+  Lemma mutex_synchronize_spec t P :
+    {{{
+      mutex_inv t P
+    }}}
+      mutex_synchronize t
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+    wp_rec.
+    wp_apply (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
+    wp_smart_apply (mutex_unlock_spec with "[$Hinv $Hlocked $HP] HΦ").
+  Qed.
+  #[global] Instance mutex_synchronize_diaspec t P :
+    DIASPEC
+    {{
+      mutex_inv t P
+    }}
+      mutex_synchronize t
+    {{
+      RET ();
+      True
+    }}.
+  Proof.
+    iStep.
+    iApply mutex_synchronize_spec.
+  Qed.
+
   Lemma mutex_protect_spec Ψ t P fn :
     {{{
       mutex_inv t P ∗
@@ -224,6 +254,7 @@ End mutex_G.
 #[global] Opaque mutex_create.
 #[global] Opaque mutex_lock.
 #[global] Opaque mutex_unlock.
+#[global] Opaque mutex_synchronize.
 #[global] Opaque mutex_protect.
 
 #[global] Opaque mutex_init.

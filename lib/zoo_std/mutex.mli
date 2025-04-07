@@ -9,5 +9,8 @@ val lock :
 val unlock :
   t -> unit
 
+val synchronize :
+  t -> unit
+
 val protect :
   t -> (unit -> 'a) -> 'a
