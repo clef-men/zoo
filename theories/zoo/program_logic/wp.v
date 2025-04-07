@@ -14,6 +14,7 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types pid : prophet_id.
 Implicit Types lit : literal.
@@ -30,6 +31,21 @@ Implicit Types κ : list observation.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
+  Lemma wp_equal' v1 v2 tid E Φ :
+    ▷ (
+      ∀ b,
+      ⌜(if b then (≈) else (≉)) v1 v2⌝ -∗
+      Φ #b
+    ) ⊢
+    WP v1 == v2 ∷ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "HΦ".
+    iApply bwp_wp_weak. iIntros.
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iSplit. { iPureIntro. apply base_reducible_equal. }
+    iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
+    invert_base_step; iSteps.
+  Qed.
   Lemma wp_equal v1 v2 tid E Φ :
     ▷ (
       ( ⌜v1 ≉ v2⌝ -∗
@@ -42,15 +58,10 @@ Section zoo_G.
     WP v1 == v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "HΦ".
-    iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
-    iSplit. { iPureIntro. apply base_reducible_equal. }
-    iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
-    invert_base_step.
-    - iDestruct "HΦ" as "(HΦ & _)".
-      iSteps.
-    - iDestruct "HΦ" as "(_ & HΦ)".
-      iSteps.
+    iApply wp_equal'. iIntros "!>" ([]).
+    1: iDestruct "HΦ" as "(_ & HΦ)".
+    2: iDestruct "HΦ" as "(HΦ & _)".
+    all: iSteps.
   Qed.
 
   Lemma wp_alloc (tag : Z) n tid E :
@@ -245,6 +256,31 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma wp_cas' l fld dq v v1 v2 tid E Φ :
+    ▷ (l +ₗ fld) ↦{dq} v -∗
+    ▷ (
+      ∀ b,
+      ⌜(if b then (≈) else (≉)) v v1⌝ -∗
+      (l +ₗ fld) ↦{dq} v -∗
+        ⌜if b then dq = DfracOwn 1 else True⌝ ∗
+        (l +ₗ fld) ↦{dq} v ∗
+        ( (l +ₗ fld) ↦{dq} (if b then v2 else v) -∗
+          Φ #b
+        )
+    ) -∗
+    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+  Proof.
+    iIntros ">Hl HΦ".
+    iApply bwp_wp_weak. iIntros.
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
+    iSplit. { iPureIntro. eapply base_reducible_cas. done. }
+    iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
+    invert_base_step; first iSteps.
+    iDestruct ("HΦ" $! true with "[//] Hl") as "(-> & Hl & HΦ)".
+    iMod (state_interp_pointsto_update with "Hinterp Hl") as "($ & Hl)".
+    iSteps.
+  Qed.
   Lemma wp_cas l fld dq v v1 v2 tid E Φ :
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
@@ -263,19 +299,11 @@ Section zoo_G.
     ) -∗
     WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
-    iIntros ">Hl HΦ".
-    iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
-    iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
-    iSplit. { iPureIntro. eapply base_reducible_cas. done. }
-    iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
-    invert_base_step.
-    - iDestruct "HΦ" as "(HΦ & _)".
-      iSteps.
-    - iDestruct "HΦ" as "(_ & HΦ)".
-      iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
-      iMod (state_interp_pointsto_update with "Hinterp Hl") as "($ & Hl)".
-      iSteps.
+    iIntros "Hl HΦ".
+    iApply (wp_cas' with "Hl"). iIntros "!>" ([] ?) "Hl".
+    1: iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
+    2: iDestruct "HΦ" as "(HΦ & _)".
+    all: iSteps.
   Qed.
   Lemma wp_cas_suc l fld lit lit1 v2 tid E :
     literal_physical lit →
