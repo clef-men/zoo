@@ -28,6 +28,7 @@ Definition spmc_future_get : val :=
   fun: "t" =>
     match: spmc_future_try_get "t" with
     | Some "v" =>
+        mutex_synchronize "t".{mutex} ;;
         "v"
     | None =>
         let: "mtx" := "t".{mutex} in
@@ -49,9 +50,4 @@ Definition spmc_future_get : val :=
 
 Definition spmc_future_is_set : val :=
   fun: "t" =>
-    match: spmc_future_try_get "t" with
-    | None =>
-        #false
-    | Some <> =>
-        #true
-    end.
+    spmc_future_try_get "t" != §None.

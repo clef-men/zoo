@@ -288,11 +288,11 @@ Section spmc_future_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_apply (spmc_future_try_get_spec with "Hinv") as ([]) "HΨ".
+    wp_apply (spmc_future_try_get_spec with "Hinv") as (b) "HΨ".
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    destruct b.
     { iSpecialize ("HΦ" with "HΨ"). iSteps. }
     iClear "HΨ".
-
-    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
 
     do 2 wp_load.
     pose (Ψ_mtx (_ : val) := (
@@ -352,6 +352,7 @@ Section spmc_future_G.
 
     wp_rec.
     wp_apply (spmc_future_try_get_spec_result with "[$Hinv $Hresult]") as "HΨ".
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
     iSteps.
   Qed.
 

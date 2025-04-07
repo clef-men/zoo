@@ -320,9 +320,9 @@ Section spsc_future_G.
     iIntros "%Φ (#Hinv & Hconsumer) HΦ".
 
     wp_rec.
-    wp_apply (spsc_future_try_get_spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
-
+    wp_apply (spsc_future_try_get_spec with "[$Hinv $Hconsumer]") as (b) "Hconsumer".
     iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
+    destruct b; first iSteps.
     iDestruct "Hconsumer" as "(%_l & %_γ & %Heq & _Hmeta & Hconsumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
@@ -388,6 +388,7 @@ Section spsc_future_G.
 
     wp_rec.
     wp_apply (spsc_future_try_get_spec_result with "[$Hinv $Hconsumer $Hresult]").
+    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hmtx & #Hmtx_inv & #Hcond & #Hcond_inv & #Hinv)".
     iSteps.
   Qed.
 

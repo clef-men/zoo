@@ -22,6 +22,7 @@ let try_get t =
 let get t =
   match try_get t with
   | Some v ->
+      Mutex.synchronize t.mutex ;
       v
   | None ->
       let mtx = t.mutex in
@@ -38,8 +39,4 @@ let get t =
           assert false
 
 let is_set t =
-  match try_get t with
-  | None ->
-      false
-  | Some _ ->
-      true
+  try_get t != None
