@@ -14,32 +14,31 @@ let next_capacity n =
 let reserve t n =
   let data = t.data in
   let cap = Array.size data in
-  if cap < n then (
+  if cap < n then
     let cap = Int.max n (next_capacity cap) in
     let data = Array.unsafe_grow data cap t.default in
     t.data <- data
-  )
 
 let get t i =
   Mutex.protect t.mutex @@ fun () ->
     let data = t.data in
-    if i < Array.size data then (
+    if i < Array.size data then
       Array.unsafe_get data i
-    ) else (
+    else
       t.default
-    )
 
-let set t i v =
+let update t i fn =
   Mutex.protect t.mutex @@ fun () ->
     reserve t (i + 1) ;
-    Array.unsafe_set t.data i v
+    let v = Array.unsafe_get t.data i in
+    Array.unsafe_set t.data i (fn v) ;
+    v
 
 let xchg t i v =
-  Mutex.protect t.mutex @@ fun () ->
-    reserve t (i + 1) ;
-    let v' = Array.unsafe_get t.data i in
-    Array.unsafe_set t.data i v ;
-    v'
+  update t i (fun _ -> v)
+
+let set t i v =
+  xchg t i v |> ignore
 
 let cas t i v1 v2 =
   Mutex.protect t.mutex @@ fun () ->
@@ -52,8 +51,4 @@ let cas t i v1 v2 =
     )
 
 let faa t i incr =
-  Mutex.protect t.mutex @@ fun () ->
-    reserve t (i + 1) ;
-    let n = Array.unsafe_get t.data i in
-    Array.unsafe_set t.data i (n + incr) ;
-    n
+  update t i (fun n -> n + incr)

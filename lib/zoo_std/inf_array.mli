@@ -5,6 +5,10 @@ val create :
 
 val get :
   'a t -> int -> 'a
+
+val update :
+  'a t -> int -> ('a -> 'a) -> 'a
+
 val set :
   'a t -> int -> 'a -> unit
 
