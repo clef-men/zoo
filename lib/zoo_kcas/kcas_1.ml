@@ -61,11 +61,10 @@ let rec determine_as casn cass =
       let old_state = Atomic.get loc in
       if state == old_state then
         determine_as casn continue
+      else if Zoo.resolve (state.before == eval old_state) proph () then
+        lock casn loc old_state state retry continue
       else
-        if Zoo.resolve (state.before == eval old_state) proph () then
-          lock casn loc old_state state retry continue
-        else
-          finish gid casn Before
+        finish gid casn Before
 and[@inline] lock casn loc old_state state retry continue =
   match casn.status with
   | Before ->
