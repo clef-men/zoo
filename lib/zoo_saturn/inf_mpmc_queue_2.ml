@@ -36,5 +36,4 @@ let rec pop t =
   | Anything ->
       assert false
   | Something v ->
-      Inf_array.set t.data i Anything ;
       v

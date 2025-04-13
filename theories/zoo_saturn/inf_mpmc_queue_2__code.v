@@ -49,6 +49,5 @@ Definition inf_mpmc_queue_2_pop : val :=
     | Anything =>
         Fail
     | Something "v" =>
-        inf_array_set "t".{data} "i" §Anything ;;
         "v"
     end.
