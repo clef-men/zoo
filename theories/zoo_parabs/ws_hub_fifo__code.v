@@ -22,6 +22,14 @@ Definition ws_hub_fifo_size : val :=
   fun: "t" =>
     "t".{size}.
 
+Definition ws_hub_fifo_block : val :=
+  fun: "_t" "_i" =>
+    ().
+
+Definition ws_hub_fifo_unblock : val :=
+  fun: "_t" "_i" =>
+    ().
+
 Definition ws_hub_fifo_killed : val :=
   fun: "t" =>
     "t".{killed}.

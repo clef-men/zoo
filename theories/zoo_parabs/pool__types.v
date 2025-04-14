@@ -12,20 +12,28 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Notation "'context_hub'" := (
+Notation "'context_size'" := (
   in_type "zoo_parabs.pool.context" 0
 )(in custom zoo_proj
 ).
-Notation "'context_id'" := (
+Notation "'context_hub'" := (
   in_type "zoo_parabs.pool.context" 1
 )(in custom zoo_proj
 ).
+Notation "'context_id'" := (
+  in_type "zoo_parabs.pool.context" 2
+)(in custom zoo_proj
+).
 
-Notation "'hub'" := (
+Notation "'size'" := (
   in_type "zoo_parabs.pool.t" 0
 )(in custom zoo_proj
 ).
-Notation "'domains'" := (
+Notation "'hub'" := (
   in_type "zoo_parabs.pool.t" 1
+)(in custom zoo_proj
+).
+Notation "'domains'" := (
+  in_type "zoo_parabs.pool.t" 2
 )(in custom zoo_proj
 ).

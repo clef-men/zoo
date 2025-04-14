@@ -56,12 +56,12 @@ Section pool_G.
   #[local] Lemma fibonacci_fibonacci_0_spec n ctx :
     (0 ≤ n)%Z →
     {{{
-      pool_context ctx
+      pool_context_model ctx
     }}}
       fibonacci_fibonacci_0 #n ctx
     {{{
       RET #(fib ₊n);
-      pool_context ctx
+      pool_context_model ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).

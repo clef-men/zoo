@@ -17,122 +17,81 @@ From zoo Require Import
 Definition ws_deques_private_create : val :=
   fun: "sz" =>
     (array_unsafe_init "sz" deque_create,
-     array_unsafe_make "sz" #false,
-     atomic_array_make "sz" §Blocked,
-     array_unsafe_make "sz" §No_response
+     array_unsafe_make "sz" §Nonblocked,
+     atomic_array_make "sz" §RequestNone,
+     array_unsafe_make "sz" §ResponseWaiting
     ).
 
 Definition ws_deques_private_size : val :=
   fun: "t" =>
     array_size "t".<deques>.
 
-Definition ws_deques_private_block_0 : val :=
-  fun: "t" "i" "j" =>
-    array_unsafe_set "t".<responses> "j" §No ;;
-    atomic_array_unsafe_set "t".<requests> "i" §Blocked.
-
 Definition ws_deques_private_block : val :=
   fun: "t" "i" =>
-    array_unsafe_set "t".<flags> "i" #false ;;
-    let: "requests" := "t".<requests> in
-    match: atomic_array_unsafe_get "requests" "i" with
-    | Blocked =>
+    array_unsafe_set "t".<statuses> "i" §Blocked ;;
+    match: atomic_array_unsafe_xchg "t".<requests> "i" §RequestBlocked with
+    | RequestSome "j" =>
+        array_unsafe_set "t".<responses> "j" §ResponseNone
+    |_ =>
         ()
-    | No_request =>
-        if:
-          ~ atomic_array_unsafe_cas "requests" "i" §No_request §Blocked
-        then (
-          match: atomic_array_unsafe_get "requests" "i" with
-          | Request "j" =>
-              ws_deques_private_block_0 "t" "i" "j"
-          |_ =>
-              Fail
-          end
-        )
-    | Request "j" =>
-        ws_deques_private_block_0 "t" "i" "j"
     end.
 
 Definition ws_deques_private_unblock : val :=
   fun: "t" "i" =>
-    atomic_array_unsafe_set "t".<requests> "i" §No_request ;;
-    array_unsafe_set "t".<flags> "i" #true.
+    atomic_array_unsafe_set "t".<requests> "i" §RequestNone ;;
+    array_unsafe_set "t".<statuses> "i" §Nonblocked.
 
 Definition ws_deques_private_respond : val :=
   fun: "t" "i" =>
-    let: "deque" := array_unsafe_get "t".<deques> "i" in
-    let: "requests" := "t".<requests> in
-    match: atomic_array_unsafe_get "requests" "i" with
-    | Request "j" =>
-        let: "v" :=
-          match: deque_pop_front "deque" with
+    match: atomic_array_unsafe_xchg "t".<requests> "i" §RequestNone with
+    | RequestSome "j" =>
+        let: "response" :=
+          match: deque_pop_front (array_unsafe_get "t".<deques> "i") with
           | Some "v" =>
-              "v"
+              ‘ResponseSome( "v" )
           |_ =>
-              Fail
+              §ResponseNone
           end
         in
-        array_unsafe_set "t".<responses> "j" ‘Yes( "v" ) ;;
-        atomic_array_unsafe_set
-          "requests"
-          "i"
-          if: deque_is_empty "deque" then (
-            §Blocked
-          ) else (
-            §No_request
-          )
+        array_unsafe_set "t".<responses> "j" "response"
     |_ =>
         ()
     end.
 
 Definition ws_deques_private_push : val :=
   fun: "t" "i" "v" =>
-    let: "deque" := array_unsafe_get "t".<deques> "i" in
-    deque_push_back "deque" "v" ;;
-    if: array_unsafe_get "t".<flags> "i" then (
-      ws_deques_private_respond "t" "i"
-    ) else (
-      ws_deques_private_unblock "t" "i"
-    ).
+    deque_push_back (array_unsafe_get "t".<deques> "i") "v" ;;
+    ws_deques_private_respond "t" "i".
 
 Definition ws_deques_private_pop : val :=
   fun: "t" "i" =>
-    let: "deque" := array_unsafe_get "t".<deques> "i" in
-    let: "res" := deque_pop_back "deque" in
-    match: "res" with
-    | None =>
-        ()
-    | Some <> =>
-        if: deque_is_empty "deque" then (
-          ws_deques_private_block "t" "i"
-        ) else (
-          ws_deques_private_respond "t" "i"
-        )
-    end ;;
+    let: "res" := deque_pop_back (array_unsafe_get "t".<deques> "i") in
+    ws_deques_private_respond "t" "i" ;;
     "res".
 
 Definition ws_deques_private_steal_to_0 : val :=
   rec: "steal_to" "t" "i" =>
     match: array_unsafe_get "t".<responses> "i" with
-    | No_response =>
+    | ResponseWaiting =>
         domain_yield () ;;
         "steal_to" "t" "i"
-    | No =>
+    | ResponseNone =>
+        array_unsafe_set "t".<responses> "i" §ResponseWaiting ;;
         §None
-    | Yes "v" =>
-        array_unsafe_set "t".<responses> "i" §No_response ;;
+    | ResponseSome "v" =>
+        array_unsafe_set "t".<responses> "i" §ResponseWaiting ;;
         ‘Some( "v" )
     end.
 
 Definition ws_deques_private_steal_to : val :=
   fun: "t" "i" "j" =>
     if:
-      array_unsafe_get "t".<flags> "j" and
+      array_unsafe_get "t".<statuses> "j" == §Nonblocked and
       atomic_array_unsafe_cas
         "t".<requests>
         "j"
-        §No_request
-        ‘Request( "i" )
+        §RequestNone
+        ‘RequestSome( "i" )
     then (
       ws_deques_private_steal_to_0 "t" "i"
     ) else (

@@ -19,6 +19,12 @@ let create sz =
 let size t =
   Array.size t.rounds
 
+let block t i =
+  Ws_deques_public.block t.deques i
+
+let unblock t i =
+  Ws_deques_public.unblock t.deques i
+
 let killed t =
   t.killed
 
@@ -74,6 +80,11 @@ let steal_until t i max_round_noyield pred =
       None
   | Nothing ->
       steal_until t i pred
+let steal_until t i max_round_noyield pred =
+  block t i ;
+  let res = steal_until t i max_round_noyield pred in
+  unblock t i ;
+  res
 
 let steal_aux t i max_round_noyield max_round_yield until =
   match try_steal t i false max_round_noyield until with
@@ -104,6 +115,11 @@ let rec steal t i max_round_noyield max_round_yield =
             Waiters.commit_wait waiters waiter ;
             steal t i max_round_noyield max_round_yield
           )
+let steal t i max_round_noyield pred =
+  block t i ;
+  let res = steal t i max_round_noyield pred in
+  unblock t i ;
+  res
 
 let kill t =
   t.killed <- true ;

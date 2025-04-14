@@ -7,6 +7,12 @@ let create sz =
 let size =
   Array.size
 
+let block _t _i =
+  ()
+
+let unblock _t _i =
+  ()
+
 let push t i v =
   let deque = Array.unsafe_get t i in
   Inf_ws_deque_2.push deque v

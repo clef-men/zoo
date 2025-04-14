@@ -7,3 +7,7 @@ From zoo.program_logic Require Export
   wp.
 From zoo Require Import
   options.
+
+Inductive status :=
+  | Blocked
+  | Nonblocked.

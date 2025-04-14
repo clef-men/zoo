@@ -2,124 +2,101 @@
    https://inria.hal.science/hal-00863028
 *)
 
-type request =
+type status =
   | Blocked
-  | No_request
-  | Request of int
+  | Nonblocked
+
+type request =
+  | RequestBlocked
+  | RequestNone
+  | RequestSome of int
 
 type 'a response =
-  | No_response
-  | No
-  | Yes of 'a
+  | ResponseWaiting
+  | ResponseNone
+  | ResponseSome of 'a
 
 type 'a t =
   { deques: 'a Deque.t array;
-    flags: bool array;
+    statuses: status array;
     requests: request Atomic_array.t;
     responses: 'a response array;
   }
 
 let create sz =
   { deques= Array.unsafe_init sz Deque.create;
-    flags= Array.unsafe_make sz false;
-    requests= Atomic_array.make sz Blocked;
-    responses= Array.unsafe_make sz No_response;
+    statuses= Array.unsafe_make sz Nonblocked;
+    requests= Atomic_array.make sz RequestNone;
+    responses= Array.unsafe_make sz ResponseWaiting;
   }
 
 let size t =
   Array.size t.deques
 
-let block t i j =
-  Array.unsafe_set t.responses j No ;
-  Atomic_array.unsafe_set t.requests i Blocked
 let block t i =
-  Array.unsafe_set t.flags  i false ;
-  let requests = t.requests in
-  match Atomic_array.unsafe_get requests i with
-  | Blocked ->
+  Array.unsafe_set t.statuses i Blocked ;
+  match Atomic_array.unsafe_xchg t.requests i RequestBlocked with
+  | RequestSome j ->
+      Array.unsafe_set t.responses j ResponseNone
+  | _ ->
       ()
-  | No_request ->
-      if not @@ Atomic_array.unsafe_cas requests i No_request Blocked then
-        begin match Atomic_array.unsafe_get requests i with
-        | Request j ->
-            block t i j
-        | _ ->
-            assert false
-        end
-  | Request j ->
-      block t i j
 
 let unblock t i =
-  Atomic_array.unsafe_set t.requests i No_request ;
-  Array.unsafe_set t.flags i true
+  Atomic_array.unsafe_set t.requests i RequestNone ;
+  Array.unsafe_set t.statuses i Nonblocked
 
 let respond t i =
-  let deque = Array.unsafe_get t.deques i in
-  let requests = t.requests in
-  match Atomic_array.unsafe_get requests i with
-  | Request j ->
-      let v =
-        match Deque.pop_front deque with
+  match Atomic_array.unsafe_xchg t.requests i RequestNone with
+  | RequestSome j ->
+      let response =
+        match Deque.pop_front (Array.unsafe_get t.deques i) with
         | Some v ->
-            v
+            ResponseSome v
         | _ ->
-            assert false
+            ResponseNone
       in
-      Array.unsafe_set t.responses j (Yes v) ;
-      Atomic_array.unsafe_set requests i (if Deque.is_empty deque then Blocked else No_request)
+      Array.unsafe_set t.responses j response
   | _ ->
       ()
 
 let push t i v =
-  let deque = Array.unsafe_get t.deques i in
-  Deque.push_back deque v ;
-  if Array.unsafe_get t.flags i then
-    respond t i
-  else
-    unblock t i
+  Deque.push_back (Array.unsafe_get t.deques i) v ;
+  respond t i
 
 let pop t i =
-  let deque = Array.unsafe_get t.deques i in
-  let res = Deque.pop_back deque in
-  begin match res with
-  | None ->
-      ()
-  | Some _ ->
-      if Deque.is_empty deque then
-        block t i
-      else
-        respond t i
-  end ;
+  let res = Deque.pop_back (Array.unsafe_get t.deques i) in
+  respond t i ;
   res
 
 let rec steal_to t i =
   match Array.unsafe_get t.responses i with
-  | No_response ->
+  | ResponseWaiting ->
       Domain.yield () ;
       steal_to t i
-  | No ->
+  | ResponseNone ->
+      Array.unsafe_set t.responses i ResponseWaiting ;
       None
-  | Yes v ->
-      Array.unsafe_set t.responses i No_response ;
+  | ResponseSome v ->
+      Array.unsafe_set t.responses i ResponseWaiting ;
       Some v
 let steal_to t i j =
-  if Array.unsafe_get t.flags j
-  && Atomic_array.unsafe_cas t.requests j No_request (Request i) then
+  if Array.unsafe_get t.statuses j == Nonblocked
+  && Atomic_array.unsafe_cas t.requests j RequestNone (RequestSome i)
+  then
     steal_to t i
   else
     None
 
 let rec steal_as t sz i round n =
-  if n <= 0 then (
+  if n <= 0 then
     None
-  ) else (
+  else
     let j = (i + 1 + Random_round.next round) mod sz in
     match steal_to t i j with
     | None ->
         steal_as t sz i round (n - 1)
     | _ as res ->
         res
-  )
 let steal_as t i round =
   let sz = size t in
   steal_as t sz i round (sz - 1)

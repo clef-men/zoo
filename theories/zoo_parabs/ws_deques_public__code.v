@@ -20,6 +20,14 @@ Definition ws_deques_public_create : val :=
 Definition ws_deques_public_size : val :=
   array_size.
 
+Definition ws_deques_public_block : val :=
+  fun: "_t" "_i" =>
+    ().
+
+Definition ws_deques_public_unblock : val :=
+  fun: "_t" "_i" =>
+    ().
+
 Definition ws_deques_public_push : val :=
   fun: "t" "i" "v" =>
     let: "deque" := array_unsafe_get "t" "i" in

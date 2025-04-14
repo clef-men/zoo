@@ -13,6 +13,12 @@ val create :
 val run :
   t -> 'a task -> 'a
 
+val kill :
+  t -> unit
+
+val size :
+  context -> int
+
 val silent_async :
   context -> unit task -> unit
 val async :
@@ -25,6 +31,3 @@ val wait_while :
 
 val await :
   context -> 'a future -> 'a
-
-val kill :
-  t -> unit

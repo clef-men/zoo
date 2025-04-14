@@ -149,10 +149,10 @@ Section vertex_G.
         state₂ γ Released ∗
         dependencies γ false (Δ ∪ Π) ∗
         ( ∀ ctx,
-          pool_context ctx -∗
+          pool_context_model ctx -∗
           □ (∀ Q E, input' γ Q ={E}=∗ □ Q) -∗
           WP γ.(metadata_task) ctx {{ res,
-            pool_context ctx ∗
+            pool_context_model ctx ∗
             ▷ □ P
           }}
         )
@@ -375,7 +375,7 @@ Section vertex_G.
       iDestruct "Hsuccs" as ">Hsuccs_model".
       iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
       iSplitL; first iSteps.
-      iIntros "H£ (Hstate₂ & HΦ)". clear.
+      iIntros "{%} H£ (Hstate₂ & HΦ)".
 
       iApply fupd_wp.
       iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
@@ -426,7 +426,7 @@ Section vertex_G.
         iDestruct "Hsuccs" as ">Hsuccs_model".
         iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
         iSplitR "Hpred"; first iSteps.
-        iIntros "_ (Hstate₂ & H£ & HΦ)". clear.
+        iIntros "_ (Hstate₂ & H£ & HΦ) {%}".
 
         wp_pures.
 
@@ -462,29 +462,29 @@ Section vertex_G.
 
   #[local] Lemma vertex_propagate_spec ctx vtx γ P π Q run :
     {{{
-      pool_context ctx ∗
+      pool_context_model ctx ∗
       inv' vtx γ P ∗
       saved_prop π Q ∗
       predecessor γ π ∗
       □ Q ∗
       ( ∀ ctx,
-        pool_context ctx -∗
+        pool_context_model ctx -∗
         state₂ γ Running -∗
-        ( pool_context ctx -∗
+        ( pool_context_model ctx -∗
           WP γ.(metadata_task) ctx {{ res,
-            pool_context ctx ∗
+            pool_context_model ctx ∗
             ▷ □ P
           }}
         ) -∗
         WP run ctx #vtx {{ res,
-          pool_context ctx
+          pool_context_model ctx
         }}
       )
     }}}
       vertex_propagate ctx #vtx run
     {{{
       RET ();
-      pool_context ctx
+      pool_context_model ctx
     }}}.
   Proof.
     setoid_rewrite inv'_unfold.
@@ -535,10 +535,10 @@ Section vertex_G.
         iDestruct (big_sepS_insert_2' with "[] HΔ") as "HΔ'"; first iSteps.
         iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
         iMod (dependencies_close with "Hdeps") as "#Hdeps".
-        iModIntro. clear.
+        iIntros "!> {%}".
 
         wp_smart_apply (pool_silent_async_spec with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
-        clear ctx. iIntros "%ctx Hctx".
+        iIntros "{%} %ctx Hctx".
         wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
         wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
         iDestruct (dependencies_elem_of with "Hdeps Hdep") as %Hδ.
@@ -563,12 +563,12 @@ Section vertex_G.
   Qed.
   #[local] Lemma vertex_run_spec ctx vtx γ P :
     {{{
-      pool_context ctx ∗
+      pool_context_model ctx ∗
       inv' vtx γ P ∗
       state₂ γ Running ∗
-      ( pool_context ctx -∗
+      ( pool_context_model ctx -∗
         WP γ.(metadata_task) ctx {{ res,
-          pool_context ctx ∗
+          pool_context_model ctx ∗
           ▷ □ P
         }}
       )
@@ -576,7 +576,7 @@ Section vertex_G.
       vertex_run ctx #vtx
     {{{
       RET ();
-      pool_context ctx
+      pool_context_model ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (ctx vtx γ P).
@@ -596,27 +596,27 @@ Section vertex_G.
     iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model"; first iFrameSteps.
     iMod (state_update Done with "Hstate₁ Hstate₂") as "(Hstate₁ & _)".
     iSplitR "Hsuccs"; first iSteps.
-    iIntros "!> H£ (Hctx & HΦ)". clear.
+    iIntros "!> H£ (Hctx & HΦ) {%}".
 
     iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-    wp_smart_apply (clst_iter_spec (λ _, pool_context ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+    wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
     rewrite big_sepL_fmap.
     iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
     wp_smart_apply (vertex_propagate_spec with "[$Hinv_succ $Hctx $Hπ $Hpred $HP]"); last iSteps.
-    clear. iIntros "%ctx Hctx Hstate₂ Htask".
+    iIntros "{%} %ctx Hctx Hstate₂ Htask".
     wp_apply ("HLöb" with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
     rewrite -inv'_unfold //.
   Qed.
   Lemma vertex_release_spec ctx t P task :
     {{{
-      pool_context ctx ∗
+      pool_context_model ctx ∗
       vertex_inv t P ∗
       vertex_init t task ∗
       ( ∀ ctx,
-        pool_context ctx -∗
+        pool_context_model ctx -∗
         □ (∀ Q E, vertex_input t Q ={E}=∗ □ Q) -∗
         WP task ctx {{ res,
-          pool_context ctx ∗
+          pool_context_model ctx ∗
           ▷ □ P
         }}
       )
@@ -624,7 +624,7 @@ Section vertex_G.
       vertex_release ctx t
     {{{
       RET ();
-      pool_context ctx
+      pool_context_model ctx
     }}}.
   Proof.
     rewrite /vertex_inv. setoid_rewrite inv'_unfold.
@@ -648,19 +648,19 @@ Section vertex_G.
       { iPureIntro. set_solver. }
       iStep. iSplitR.
       { rewrite size_union; first set_solver. rewrite size_singleton //. }
-      clear. iIntros "!> !> %ctx Hctx #H".
+      iIntros "{%} !> !> %ctx Hctx #H".
       iApply (wp_wand with "(Htask Hctx [])"); last iSteps.
       iIntros "!> %Q %E (%_vtx & %_γ & %Heq & _Hmeta & Hinput)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
       iApply ("H" with "Hinput").
     }
-    do 2 iModIntro. clear.
+    iIntros "!> !> {%}".
 
     wp_rec.
 
     wp_smart_apply (vertex_propagate_spec with "[$Hctx $Hπ $Hpred] HΦ").
     rewrite inv'_unfold. do 2 iStep.
-    clear. iIntros "%ctx Hctx Hstate₂ Htask".
+    iIntros "{%} %ctx Hctx Hstate₂ Htask".
     wp_apply (vertex_run_spec with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
     rewrite inv'_unfold. iSteps.
   Qed.

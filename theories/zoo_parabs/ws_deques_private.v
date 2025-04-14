@@ -18,6 +18,7 @@ From zoo Require Import
 Implicit Types v t round : val.
 Implicit Types vs : list val.
 Implicit Types vss : list (list val).
+Implicit Types status : status.
 
 Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
 }.
@@ -59,15 +60,15 @@ Section ws_deques_private_G.
   Definition ws_deques_private_model t vss : iProp Σ.
   Proof. Admitted.
 
-  Definition ws_deques_private_owner t (i : nat) : iProp Σ.
+  Definition ws_deques_private_owner t (i : nat) status : iProp Σ.
   Proof. Admitted.
 
   #[global] Instance ws_deques_private_model_timeless t vss :
     Timeless (ws_deques_private_model t vss).
   Proof.
   Admitted.
-  #[global] Instance ws_deques_private_owner_timeless t i :
-    Timeless (ws_deques_private_owner t i).
+  #[global] Instance ws_deques_private_owner_timeless t i status :
+    Timeless (ws_deques_private_owner t i status).
   Proof.
   Admitted.
   #[global] Instance ws_deques_private_inv_persistent t ι sz :
@@ -75,15 +76,22 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_owner_valid t ι sz i :
+  Lemma ws_deques_private_inv_agree t ι sz1 sz2 :
+    ws_deques_private_inv t ι sz1 -∗
+    ws_deques_private_inv t ι sz2 -∗
+    ⌜sz1 = sz2⌝.
+  Proof.
+  Admitted.
+
+  Lemma ws_deques_private_owner_valid t ι sz i status :
     ws_deques_private_inv t ι sz -∗
-    ws_deques_private_owner t i -∗
+    ws_deques_private_owner t i status -∗
     ⌜i < sz⌝.
   Proof.
   Admitted.
-  Lemma ws_deques_private_owner_exclusive t i :
-    ws_deques_private_owner t i -∗
-    ws_deques_private_owner t i -∗
+  Lemma ws_deques_private_owner_exclusive t i status1 status2 :
+    ws_deques_private_owner t i status1 -∗
+    ws_deques_private_owner t i status2 -∗
     False.
   Proof.
   Admitted.
@@ -99,7 +107,7 @@ Section ws_deques_private_G.
       ws_deques_private_inv t ι ₊sz ∗
       ws_deques_private_model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_deques_private_owner t i
+        ws_deques_private_owner t i Nonblocked
     }}}.
   Proof.
   Admitted.
@@ -116,11 +124,39 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
+  Lemma ws_deques_private_block_spec t ι sz i i_ :
+    i = ⁺i_ →
+    {{{
+      ws_deques_private_inv t ι sz ∗
+      ws_deques_private_owner t i_ Nonblocked
+    }}}
+      ws_deques_private_block t #i
+    {{{
+      RET ();
+      ws_deques_private_owner t i_ Blocked
+    }}}.
+  Proof.
+  Admitted.
+
+  Lemma ws_deques_private_unblock_spec t ι sz i i_ :
+    i = ⁺i_ →
+    {{{
+      ws_deques_private_inv t ι sz ∗
+      ws_deques_private_owner t i_ Blocked
+    }}}
+      ws_deques_private_unblock t #i
+    {{{
+      RET ();
+      ws_deques_private_owner t i_ Nonblocked
+    }}}.
+  Proof.
+  Admitted.
+
   Lemma ws_deques_private_push_spec t ι sz i i_ v :
     i = ⁺i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Nonblocked
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
@@ -130,7 +166,7 @@ Section ws_deques_private_G.
       ⌜vss !! i_ = Some vs⌝ ∗
       ws_deques_private_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Nonblocked
     >>>.
   Proof.
   Admitted.
@@ -139,7 +175,7 @@ Section ws_deques_private_G.
     i = ⁺i_ →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Nonblocked
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
@@ -156,7 +192,7 @@ Section ws_deques_private_G.
           ws_deques_private_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Nonblocked
     >>>.
   Proof.
   Admitted.
@@ -166,7 +202,7 @@ Section ws_deques_private_G.
     (0 ≤ j < sz)%Z →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Blocked
     | ∀∀ vss,
       ws_deques_private_model t vss
     >>>
@@ -183,7 +219,7 @@ Section ws_deques_private_G.
           ws_deques_private_model t (<[₊j := vs]> vss)
       end
     | RET o;
-      ws_deques_private_owner t i_
+      ws_deques_private_owner t i_ Blocked
     >>>.
   Proof.
   Admitted.
@@ -193,7 +229,7 @@ Section ws_deques_private_G.
     0 < sz →
     <<<
       ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ ∗
+      ws_deques_private_owner t i_ Blocked ∗
       random_round_model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
       ws_deques_private_model t vss
@@ -212,7 +248,7 @@ Section ws_deques_private_G.
       end
     | RET o;
       ∃ n,
-      ws_deques_private_owner t i_ ∗
+      ws_deques_private_owner t i_ Blocked ∗
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
@@ -221,6 +257,8 @@ End ws_deques_private_G.
 
 #[global] Opaque ws_deques_private_create.
 #[global] Opaque ws_deques_private_size.
+#[global] Opaque ws_deques_private_block.
+#[global] Opaque ws_deques_private_unblock.
 #[global] Opaque ws_deques_private_push.
 #[global] Opaque ws_deques_private_pop.
 #[global] Opaque ws_deques_private_steal_to.

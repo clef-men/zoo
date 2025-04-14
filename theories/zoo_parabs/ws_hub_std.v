@@ -99,10 +99,11 @@ Section ws_hub_std_G.
       >Hdeques_model &
       >Hmodel₂
     )".
-  Definition ws_hub_std_inv t ι : iProp Σ :=
+  Definition ws_hub_std_inv t ι sz : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
+    ⌜sz = γ.(metadata_size)⌝ ∗
     l.[deques] ↦□ γ.(metadata_deques) ∗
     l.[rounds] ↦□ γ.(metadata_rounds) ∗
     l.[waiters] ↦□ γ.(metadata_waiters) ∗
@@ -112,17 +113,18 @@ Section ws_hub_std_G.
     inv (ι.@"inv") (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
-      %l &
-      %γ &
+      %l{} &
+      %γ{} &
+      {%Heq{}=->} &
+      #Hmeta{} &
       -> &
-      #Hmeta &
-      #Hl_deques &
-      #Hl_rounds &
-      #Hl_waiters &
-      #Hdeques_inv &
-      #Hrounds_inv &
-      #Hwaiters_inv &
-      #Hinv
+      #Hl{}_deques &
+      #Hl{}_rounds &
+      #Hl{}_waiters &
+      #Hdeques{}_inv &
+      #Hrounds{}_inv &
+      #Hwaiters{}_inv &
+      #Hinv{}
     )".
 
   Definition ws_hub_std_model t vs : iProp Σ :=
@@ -139,11 +141,11 @@ Section ws_hub_std_G.
       Hmodel₁
     )".
 
-  Definition ws_hub_std_owner t i : iProp Σ :=
+  Definition ws_hub_std_owner t i status : iProp Σ :=
     ∃ l γ round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ws_deques_public_owner γ.(metadata_deques) i ∗
+    ws_deques_public_owner γ.(metadata_deques) i status ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpatFormat "owner" :=
@@ -164,8 +166,8 @@ Section ws_hub_std_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_hub_std_inv_persistent t ι :
-    Persistent (ws_hub_std_inv t ι).
+  #[global] Instance ws_hub_std_inv_persistent t ι sz :
+    Persistent (ws_hub_std_inv t ι sz).
   Proof.
     apply _.
   Qed.
@@ -194,9 +196,19 @@ Section ws_hub_std_G.
     apply twins_update'.
   Qed.
 
-  Lemma ws_hub_std_owner_exclusive t i :
-    ws_hub_std_owner t i -∗
-    ws_hub_std_owner t i -∗
+  Lemma ws_hub_std_inv_agree t ι sz1 sz2 :
+    ws_hub_std_inv t ι sz1 -∗
+    ws_hub_std_inv t ι sz2 -∗
+    ⌜sz1 = sz2⌝.
+  Proof.
+    iIntros "(:inv =1) (:inv =2)". simplify.
+    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
+    iSteps.
+  Qed.
+
+  Lemma ws_hub_std_owner_exclusive t i status1 status2 :
+    ws_hub_std_owner t i status1 -∗
+    ws_hub_std_owner t i status2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
@@ -212,25 +224,23 @@ Section ws_hub_std_G.
       ws_hub_std_create #sz
     {{{ t,
       RET t;
-      ws_hub_std_inv t ι ∗
+      ws_hub_std_inv t ι ₊sz ∗
       ws_hub_std_model t ∅ ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_hub_std_owner t i
+        ws_hub_std_owner t i Nonblocked
     }}}.
   Proof.
-    set sz' := ₊sz.
-
     iIntros "%Hsz %Φ _ HΦ".
 
     wp_rec.
 
     wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
 
-    wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (sz' - 1) (sz' - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
+    wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
       wp_smart_apply int_positive_part_spec.
       wp_apply (random_round_create_spec' with "[//]"); first lia.
-      rewrite Nat2Z.id. assert (₊(sz - 1) = sz' - 1) as -> by lia.
+      rewrite Nat2Z.id. assert (₊(sz - 1) = ₊sz - 1) as -> by lia.
       iSteps.
     }
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
@@ -246,7 +256,7 @@ Section ws_hub_std_G.
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
-      metadata_size := sz' ;
+      metadata_size := ₊sz ;
       metadata_deques := deques ;
       metadata_rounds := v_rounds ;
       metadata_waiters := waiters ;
@@ -270,12 +280,12 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_size_spec t ι :
+  Lemma ws_hub_std_size_spec t ι sz :
     {{{
-      ws_hub_std_inv t ι
+      ws_hub_std_inv t ι sz
     }}}
       ws_hub_std_size t
-    {{{ (sz : nat),
+    {{{
       RET #sz;
       True
     }}}.
@@ -283,13 +293,52 @@ Section ws_hub_std_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (array_size_spec_inv with "Hrounds_inv").
+    wp_apply (array_size_spec_inv with "Hrounds_inv HΦ").
+  Qed.
+
+  Lemma ws_hub_std_block_spec t ι sz i i_ :
+    i = ⁺i_ →
+    {{{
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked
+    }}}
+      ws_hub_std_block t #i
+    {{{
+      RET ();
+      ws_hub_std_owner t i_ Blocked
+    }}}.
+  Proof.
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp_rec. wp_load.
+    wp_apply (ws_deques_public_block_spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
     iSteps.
   Qed.
 
-  Lemma ws_hub_std_killed_spec t ι :
+  Lemma ws_hub_std_unblock_spec t ι sz i i_ :
+    i = ⁺i_ →
     {{{
-      ws_hub_std_inv t ι
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked
+    }}}
+      ws_hub_std_unblock t #i
+    {{{
+      RET ();
+      ws_hub_std_owner t i_ Nonblocked
+    }}}.
+  Proof.
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp_rec. wp_load.
+    wp_apply (ws_deques_public_unblock_spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
+    iSteps.
+  Qed.
+
+  Lemma ws_hub_std_killed_spec t ι sz :
+    {{{
+      ws_hub_std_inv t ι sz
     }}}
       ws_hub_std_killed t
     {{{ killed,
@@ -300,9 +349,9 @@ Section ws_hub_std_G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_notify_spec t ι :
+  #[local] Lemma ws_hub_std_notify_spec t ι sz :
     {{{
-      ws_hub_std_inv t ι
+      ws_hub_std_inv t ι sz
     }}}
       ws_hub_std_notify t
     {{{
@@ -316,9 +365,9 @@ Section ws_hub_std_G.
     wp_apply (waiters_notify_spec with "Hwaiters_inv HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_std_notify_all_spec t ι :
+  #[local] Lemma ws_hub_std_notify_all_spec t ι sz :
     {{{
-      ws_hub_std_inv t ι
+      ws_hub_std_inv t ι sz
     }}}
       ws_hub_std_notify_all t
     {{{
@@ -329,16 +378,16 @@ Section ws_hub_std_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
-    wp_apply (ws_hub_std_size_spec) as (sz) "_"; first iSteps.
+    wp_apply (ws_hub_std_size_spec) as "_"; first iSteps.
     wp_load.
     wp_apply (waiters_notify_many_spec with "Hwaiters_inv HΦ"); first lia.
   Qed.
 
-  Lemma ws_hub_std_push_spec t ι i i_ v :
+  Lemma ws_hub_std_push_spec t ι sz i i_ v :
     i = ⁺i_ →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -346,7 +395,7 @@ Section ws_hub_std_G.
     <<<
       ws_hub_std_model t ({[+v+]} ⊎ vs)
     | RET ();
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -379,11 +428,11 @@ Section ws_hub_std_G.
     wp_smart_apply ws_hub_std_notify_spec; iSteps.
   Qed.
 
-  Lemma ws_hub_std_pop_spec t ι i i_ :
+  Lemma ws_hub_std_pop_spec t ι sz i i_ :
     i = ⁺i_ →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -399,7 +448,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -451,11 +500,11 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_once_spec t ι i i_ :
+  #[local] Lemma ws_hub_std_try_steal_once_spec t ι sz i i_ :
     i = ⁺i_ →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -471,7 +520,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ Blocked
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -523,12 +572,12 @@ Section ws_hub_std_G.
       iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_spec P t ι i i_ yield max_round until :
+  #[local] Lemma ws_hub_std_try_steal_spec P t ι sz i i_ yield max_round until :
     i = ⁺i_ →
     (0 ≤ max_round)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked ∗
       □ WP until () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -550,7 +599,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_owner t i_ Blocked ∗
       if o is Anything then P else True
     >>>.
   Proof.
@@ -592,11 +641,11 @@ Section ws_hub_std_G.
           wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_until_aux_spec P t ι i i_ pred :
+  #[local] Lemma ws_hub_std_steal_until_0_spec P t ι sz i i_ pred :
     i = ⁺i_ →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -617,7 +666,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_owner t i_ Blocked ∗
       if o then True else P
     >>>.
   Proof.
@@ -650,12 +699,64 @@ Section ws_hub_std_G.
       + wp_apply domain_yield_spec.
         wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
-  Lemma ws_hub_std_steal_until_spec P t ι i i_ max_round_noyield pred :
+  Lemma ws_hub_std_steal_until_1_spec P t ι sz i i_ max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked ∗
+      □ WP pred () {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        if b then P else True
+      }}
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_steal_until_1 t #i #max_round_noyield pred @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_std_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_ Blocked ∗
+      if o then True else P
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
+    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
+
+    - iLeft. iFrame.
+      iIntros "HΦ !> (Howner & _) {%}".
+
+      wp_smart_apply (ws_hub_std_steal_until_0_spec with "[$Hinv $Howner $Hpred] HΦ"); first done.
+
+    - iRight. iExists None. iFrame.
+      iSteps.
+
+    - iRight. iExists (Some v). iFrame.
+      iIntros "HΦ !> Howner {%}".
+
+      iSpecialize ("HΦ" with "Howner").
+      iSteps.
+  Qed.
+  Lemma ws_hub_std_steal_until_spec P t ι sz i i_ max_round_noyield pred :
+    i = ⁺i_ →
+    (0 ≤ max_round_noyield)%Z →
+    <<<
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -676,40 +777,28 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_owner t i_ Nonblocked ∗
       if o then True else P
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
 
     wp_rec.
-
-    awp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
-    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
-
-    - iLeft. iFrame.
-      iIntros "HΦ !> (Howner & _) {%}".
-
-      wp_smart_apply (ws_hub_std_steal_until_aux_spec with "[$Hinv $Howner $Hpred] HΦ"); first done.
-
-    - iRight. iExists None. iFrame.
-      iSteps.
-
-    - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner {%}".
-
-      iSpecialize ("HΦ" with "Howner").
-      iSteps.
+    wp_smart_apply (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_smart_apply (ws_hub_std_steal_until_1_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
+    iApply (atomic_update_wand with "HΦ"). iIntros "_ %o HΦ (Howner & HP)".
+    wp_smart_apply (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_pures.
+    iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_aux_spec P t ι i i_ max_round_noyield max_round_yield until :
+  #[local] Lemma ws_hub_std_steal_aux_spec P t ι i i_ sz max_round_noyield max_round_yield until :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked ∗
       □ WP until () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -731,7 +820,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_owner t i_ Blocked ∗
       if o is Anything then P else True
     >>>.
   Proof.
@@ -757,17 +846,17 @@ Section ws_hub_std_G.
       iSpecialize ("HΦ" with "Howner").
       iSteps.
   Qed.
-  Lemma ws_hub_std_steal_spec t ι i i_ max_round_noyield max_round_yield :
+  Lemma ws_hub_std_steal_0_spec t ι i i_ sz max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Blocked
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal t #i #max_round_noyield #max_round_yield @ ↑ι
+      ws_hub_std_steal_0 t #i #max_round_noyield #max_round_yield @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -779,7 +868,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ Blocked
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -838,10 +927,45 @@ Section ws_hub_std_G.
       iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
       iSteps.
   Qed.
+  Lemma ws_hub_std_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
+    i = ⁺i_ →
+    (0 ≤ max_round_noyield)%Z →
+    (0 ≤ max_round_yield)%Z →
+    <<<
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked
+    | ∀∀ vs,
+      ws_hub_std_model t vs
+    >>>
+      ws_hub_std_steal t #i #max_round_noyield #max_round_yield @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_std_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_std_model t vs'
+      end
+    | RET o;
+      ws_hub_std_owner t i_ Nonblocked
+    >>>.
+  Proof.
+    iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
 
-  Lemma ws_hub_std_kill_spec t ι :
+    wp_rec.
+    wp_smart_apply (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_smart_apply (ws_hub_std_steal_0_spec with "[$Hinv $Howner]"); [done.. |].
+    iApply (atomic_update_wand with "HΦ"). iIntros "_ %o HΦ Howner".
+    wp_smart_apply (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_pures.
+    iApply ("HΦ" with "Howner").
+  Qed.
+
+  Lemma ws_hub_std_kill_spec t ι sz :
     {{{
-      ws_hub_std_inv t ι
+      ws_hub_std_inv t ι sz
     }}}
       ws_hub_std_kill t
     {{{
@@ -871,12 +995,12 @@ End ws_hub_std_G.
 Section ws_hub_std_G.
   Context `{ws_hub_std_G : WsHubStdG Σ}.
 
-  Lemma ws_hub_std_pop_steal_until_spec P t ι i i_ max_round_noyield pred :
+  Lemma ws_hub_std_pop_steal_until_spec P t ι i i_ sz max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -897,7 +1021,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ ∗
+      ws_hub_std_owner t i_ Nonblocked ∗
       if o then True else P
     >>>.
   Proof.
@@ -921,13 +1045,13 @@ Section ws_hub_std_G.
       wp_smart_apply (ws_hub_std_steal_until_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
   Qed.
 
-  Lemma ws_hub_std_pop_steal_spec t ι i i_ max_round_noyield max_round_yield :
+  Lemma ws_hub_std_pop_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
-      ws_hub_std_inv t ι ∗
-      ws_hub_std_owner t i_
+      ws_hub_std_inv t ι sz ∗
+      ws_hub_std_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -943,7 +1067,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_
+      ws_hub_std_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -969,6 +1093,9 @@ Section ws_hub_std_G.
 End ws_hub_std_G.
 
 #[global] Opaque ws_hub_std_create.
+#[global] Opaque ws_hub_std_size.
+#[global] Opaque ws_hub_std_block.
+#[global] Opaque ws_hub_std_unblock.
 #[global] Opaque ws_hub_std_killed.
 #[global] Opaque ws_hub_std_push.
 #[global] Opaque ws_hub_std_pop.

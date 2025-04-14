@@ -15,6 +15,12 @@ let create sz =
 let size t =
   t.size
 
+let block _t _i =
+  ()
+
+let unblock _t _i =
+  ()
+
 let killed t =
   t.killed
 

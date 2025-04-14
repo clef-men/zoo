@@ -21,7 +21,6 @@ From zoo_parabs Require Export
   ws_hub_fifo__code.
 From zoo_parabs Require Import
   ws_hub_fifo__types
-  ws_deques_public
   waiters.
 From zoo Require Import
   options.
@@ -31,6 +30,7 @@ Implicit Types l : location.
 Implicit Types v t until pred : val.
 Implicit Types ws : list val.
 Implicit Types vs : gmultiset val.
+Implicit Types status : status.
 
 Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_fifo_G_queue_G :: MpmcQueue1G Σ ;
@@ -56,7 +56,6 @@ Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
   Record metadata := {
-    metadata_size : nat ;
     metadata_queue : val ;
     metadata_waiters : val ;
     metadata_model : gname ;
@@ -108,11 +107,11 @@ Section ws_hub_fifo_G.
       >Hqueue_model &
       >Hmodel₂
     )".
-  Definition ws_hub_fifo_inv t ι : iProp Σ :=
+  Definition ws_hub_fifo_inv t ι (sz : nat) : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l.[size] ↦□ #γ.(metadata_size) ∗
+    l.[size] ↦□ #sz ∗
     l.[queue] ↦□ γ.(metadata_queue) ∗
     l.[waiters] ↦□ γ.(metadata_waiters) ∗
     mpmc_queue_1_inv γ.(metadata_queue) (ι.@"queue") ∗
@@ -120,16 +119,16 @@ Section ws_hub_fifo_G.
     inv (ι.@"inv") (ws_hub_fifo_inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hl_size &
-      #Hl_queue &
-      #Hl_waiters &
-      #Hqueue_inv &
-      #Hwaiters_inv &
-      #Hinv
+      %l{} &
+      %γ{} &
+      {%Heq{}=->} &
+      #Hmeta{} &
+      #Hl{}_size &
+      #Hl{}_queue &
+      #Hl{}_waiters &
+      #Hqueue{}_inv &
+      #Hwaiters{}_inv &
+      #Hinv{}
     )".
 
   Definition ws_hub_fifo_model t vs : iProp Σ :=
@@ -146,7 +145,7 @@ Section ws_hub_fifo_G.
       Hmodel₁
     )".
 
-  Definition ws_hub_fifo_owner t i : iProp Σ :=
+  Definition ws_hub_fifo_owner t i status : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -165,13 +164,13 @@ Section ws_hub_fifo_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_hub_fifo_owner_timeless t i :
-    Timeless (ws_hub_fifo_owner t i).
+  #[global] Instance ws_hub_fifo_owner_timeless t i status :
+    Timeless (ws_hub_fifo_owner t i status).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_hub_fifo_inv_persistent t ι :
-    Persistent (ws_hub_fifo_inv t ι).
+  #[global] Instance ws_hub_fifo_inv_persistent t ι sz :
+    Persistent (ws_hub_fifo_inv t ι sz).
   Proof.
     apply _.
   Qed.
@@ -233,9 +232,19 @@ Section ws_hub_fifo_G.
 
   Opaque owner'.
 
-  Lemma ws_hub_fifo_owner_exclusive t i :
-    ws_hub_fifo_owner t i -∗
-    ws_hub_fifo_owner t i -∗
+  Lemma ws_hub_fifo_inv_agree t ι sz1 sz2 :
+    ws_hub_fifo_inv t ι sz1 -∗
+    ws_hub_fifo_inv t ι sz2 -∗
+    ⌜sz1 = sz2⌝.
+  Proof.
+    iIntros "(:inv =1) (:inv =2)". simplify.
+    iDestruct (pointsto_agree with "Hl1_size Hl2_size") as %[=].
+    iSteps.
+  Qed.
+
+  Lemma ws_hub_fifo_owner_exclusive t i status1 status2 :
+    ws_hub_fifo_owner t i status1 -∗
+    ws_hub_fifo_owner t i status2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
@@ -251,10 +260,10 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_create #sz
     {{{ t,
       RET t;
-      ws_hub_fifo_inv t ι ∗
+      ws_hub_fifo_inv t ι ₊sz ∗
       ws_hub_fifo_model t ∅ ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_hub_fifo_owner t i
+        ws_hub_fifo_owner t i Nonblocked
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -271,7 +280,6 @@ Section ws_hub_fifo_G.
     iMod owner_alloc as "(%γ_owners & Howners)".
 
     pose γ := {|
-      metadata_size := ₊sz ;
       metadata_queue := queue ;
       metadata_waiters := waiters ;
       metadata_model := γ_model ;
@@ -285,12 +293,12 @@ Section ws_hub_fifo_G.
     iApply (big_sepL_impl with "Howners"). iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_size_spec t ι :
+  Lemma ws_hub_fifo_size_spec t ι sz :
     {{{
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_size t
-    {{{ (sz : nat),
+    {{{
       RET #sz;
       True
     }}}.
@@ -298,9 +306,39 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo_killed_spec t ι :
+  Lemma ws_hub_fifo_block_spec t ι sz i i_ :
+    i = ⁺i_ →
     {{{
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked
+    }}}
+      ws_hub_fifo_block t #i
+    {{{
+      RET ();
+      ws_hub_fifo_owner t i_ Blocked
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  Lemma ws_hub_fifo_unblock_spec t ι sz i i_ :
+    i = ⁺i_ →
+    {{{
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Blocked
+    }}}
+      ws_hub_fifo_unblock t #i
+    {{{
+      RET ();
+      ws_hub_fifo_owner t i_ Nonblocked
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  Lemma ws_hub_fifo_killed_spec t ι sz :
+    {{{
+      ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_killed t
     {{{ killed,
@@ -311,9 +349,9 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_notify_spec t ι :
+  #[local] Lemma ws_hub_fifo_notify_spec t ι sz :
     {{{
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_notify t
     {{{
@@ -327,9 +365,9 @@ Section ws_hub_fifo_G.
     wp_apply (waiters_notify_spec with "Hwaiters_inv HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_notify_all_spec t ι :
+  #[local] Lemma ws_hub_fifo_notify_all_spec t ι sz :
     {{{
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_notify_all t
     {{{
@@ -340,16 +378,16 @@ Section ws_hub_fifo_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
-    wp_apply (ws_hub_fifo_size_spec) as (sz) "_"; first iSteps.
+    wp_apply (ws_hub_fifo_size_spec) as "_"; first iSteps.
     wp_load.
     wp_apply (waiters_notify_many_spec with "Hwaiters_inv HΦ"); first lia.
   Qed.
 
-  Lemma ws_hub_fifo_push_spec t ι i i_ v :
+  Lemma ws_hub_fifo_push_spec t ι sz i i_ v :
     i = ⁺i_ →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -357,7 +395,7 @@ Section ws_hub_fifo_G.
     <<<
       ws_hub_fifo_model t ({[+v+]} ⊎ vs)
     | RET ();
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & Howner) HΦ".
@@ -381,9 +419,9 @@ Section ws_hub_fifo_G.
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo_pop'_spec t ι :
+  Lemma ws_hub_fifo_pop'_spec t ι sz :
     <<<
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -417,11 +455,11 @@ Section ws_hub_fifo_G.
     iMod (model_update (list_to_set_disj ws) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iSteps.
   Qed.
-  Lemma ws_hub_fifo_pop_spec t ι i i_ :
+  Lemma ws_hub_fifo_pop_spec t ι sz i i_ :
     i = ⁺i_ →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -437,7 +475,7 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Φ (Hinv & Howner) HΦ".
@@ -448,9 +486,9 @@ Section ws_hub_fifo_G.
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo_steal_until_0_spec P t ι pred :
+  Lemma ws_hub_fifo_steal_until_0_spec P t ι sz pred :
     <<<
-      ws_hub_fifo_inv t ι ∗
+      ws_hub_fifo_inv t ι sz ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -495,12 +533,12 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_until_spec P t ι i i_ max_round_noyield pred :
+  Lemma ws_hub_fifo_steal_until_spec P t ι i i_ sz max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_ ∗
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -521,7 +559,7 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_ ∗
+      ws_hub_fifo_owner t i_ Nonblocked ∗
       if o then True else P
     >>>.
   Proof.
@@ -533,9 +571,9 @@ Section ws_hub_fifo_G.
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  Lemma ws_hub_fifo_steal_0_spec t ι :
+  Lemma ws_hub_fifo_steal_0_spec t ι sz :
     <<<
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -587,13 +625,13 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_spec t ι i i_ max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -609,7 +647,7 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner) HΦ".
@@ -620,9 +658,9 @@ Section ws_hub_fifo_G.
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  Lemma ws_hub_fifo_kill_spec t ι :
+  Lemma ws_hub_fifo_kill_spec t ι sz :
     {{{
-      ws_hub_fifo_inv t ι
+      ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_kill t
     {{{
@@ -652,12 +690,12 @@ End ws_hub_fifo_G.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
-  Lemma ws_hub_fifo_pop_steal_until_spec P t ι i i_ max_round_noyield pred :
+  Lemma ws_hub_fifo_pop_steal_until_spec P t ι i i_ sz max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_ ∗
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -678,7 +716,7 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_ ∗
+      ws_hub_fifo_owner t i_ Nonblocked ∗
       if o then True else P
     >>>.
   Proof.
@@ -702,13 +740,13 @@ Section ws_hub_fifo_G.
       wp_smart_apply (ws_hub_fifo_steal_until_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
   Qed.
 
-  Lemma ws_hub_fifo_pop_steal_spec t ι i i_ max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_pop_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
-      ws_hub_fifo_inv t ι ∗
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -724,7 +762,7 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_
+      ws_hub_fifo_owner t i_ Nonblocked
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -750,6 +788,9 @@ Section ws_hub_fifo_G.
 End ws_hub_fifo_G.
 
 #[global] Opaque ws_hub_fifo_create.
+#[global] Opaque ws_hub_fifo_size.
+#[global] Opaque ws_hub_fifo_block.
+#[global] Opaque ws_hub_fifo_unblock.
 #[global] Opaque ws_hub_fifo_killed.
 #[global] Opaque ws_hub_fifo_push.
 #[global] Opaque ws_hub_fifo_pop.

@@ -18,6 +18,10 @@ Parameter pool_max_round_noyield : val.
 
 Parameter pool_max_round_yield : val.
 
+Definition pool_context : val :=
+  fun: "sz" "hub" "id" =>
+    ("sz", "hub", "id").
+
 Definition pool_execute : val :=
   fun: "ctx" "job" =>
     "job" "ctx".
@@ -32,7 +36,7 @@ Definition pool_worker : val :=
         pool_max_round_yield
     with
     | None =>
-        ()
+        ws_hub_std_block "ctx".<context_hub> "ctx".<context_id>
     | Some "job" =>
         pool_execute "ctx" "job" ;;
         "worker" "ctx"
@@ -41,16 +45,33 @@ Definition pool_worker : val :=
 Definition pool_create : val :=
   fun: "sz" =>
     let: "hub" := ws_hub_std_create ("sz" + #1) in
+    ws_hub_std_block "hub" #0 ;;
     let: "domains" :=
       array_unsafe_initi
         "sz"
-        (fun: "i" => domain_spawn (fun: <> => pool_worker ("hub", "i" + #1)))
+        (fun: "i" =>
+           domain_spawn
+             (fun: <> => pool_worker (pool_context "sz" "hub" ("i" + #1))))
     in
-    ("hub", "domains").
+    ("sz", "hub", "domains").
 
 Definition pool_run : val :=
   fun: "t" "job" =>
-    pool_execute ("t".<hub>, #0) "job".
+    ws_hub_std_unblock "t".<hub> #0 ;;
+    let: "res" :=
+      pool_execute (pool_context "t".<size> "t".<hub> #0) "job"
+    in
+    ws_hub_std_block "t".<hub> #0 ;;
+    "res".
+
+Definition pool_kill : val :=
+  fun: "t" =>
+    ws_hub_std_kill "t".<hub> ;;
+    array_iter domain_join "t".<domains>.
+
+Definition pool_size : val :=
+  fun: "ctx" =>
+    "ctx".<context_size>.
 
 Definition pool_silent_async : val :=
   fun: "ctx" "task" =>
@@ -90,8 +111,3 @@ Definition pool_await : val :=
   fun: "ctx" "fut" =>
     pool_wait_until "ctx" (fun: <> => spmc_future_is_set "fut") ;;
     spmc_future_get "fut".
-
-Definition pool_kill : val :=
-  fun: "t" =>
-    ws_hub_std_kill "t".<hub> ;;
-    array_iter domain_join "t".<domains>.

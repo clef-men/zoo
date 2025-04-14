@@ -31,6 +31,14 @@ Definition ws_hub_std_size : val :=
   fun: "t" =>
     array_size "t".{rounds}.
 
+Definition ws_hub_std_block : val :=
+  fun: "t" "i" =>
+    ws_deques_public_block "t".{deques} "i".
+
+Definition ws_hub_std_unblock : val :=
+  fun: "t" "i" =>
+    ws_deques_public_unblock "t".{deques} "i".
+
 Definition ws_hub_std_killed : val :=
   fun: "t" =>
     "t".{killed}.
@@ -94,7 +102,7 @@ Definition ws_hub_std_steal_until_0 : val :=
         )
     end.
 
-Definition ws_hub_std_steal_until : val :=
+Definition ws_hub_std_steal_until_1 : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
     match:
       ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred"
@@ -106,6 +114,15 @@ Definition ws_hub_std_steal_until : val :=
     | Nothing =>
         ws_hub_std_steal_until_0 "t" "i" "pred"
     end.
+
+Definition ws_hub_std_steal_until : val :=
+  fun: "t" "i" "max_round_noyield" "pred" =>
+    ws_hub_std_block "t" "i" ;;
+    let: "res" :=
+      ws_hub_std_steal_until_1 "t" "i" "max_round_noyield" "pred"
+    in
+    ws_hub_std_unblock "t" "i" ;;
+    "res".
 
 Definition ws_hub_std_steal_aux : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" "until" =>
@@ -120,7 +137,7 @@ Definition ws_hub_std_steal_aux : val :=
         ws_hub_std_try_steal "t" "i" #true "max_round_yield" "until"
     end.
 
-Definition ws_hub_std_steal : val :=
+Definition ws_hub_std_steal_0 : val :=
   rec: "steal" "t" "i" "max_round_noyield" "max_round_yield" =>
     match:
       ws_hub_std_steal_aux
@@ -151,6 +168,13 @@ Definition ws_hub_std_steal : val :=
             )
         end
     end.
+
+Definition ws_hub_std_steal : val :=
+  fun: "t" "i" "max_round_noyield" "pred" =>
+    ws_hub_std_block "t" "i" ;;
+    let: "res" := ws_hub_std_steal_0 "t" "i" "max_round_noyield" "pred" in
+    ws_hub_std_unblock "t" "i" ;;
+    "res".
 
 Definition ws_hub_std_kill : val :=
   fun: "t" =>
