@@ -141,12 +141,14 @@ Definition htbl_split_buckets : val :=
       #false
     ) else (
       if: atomic_array_unsafe_get "buckets" "i" == §Init then (
-        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket_1"
+        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket_1" ;;
+        ()
       ) else (
         ()
       ) ;;
       if: atomic_array_unsafe_get "buckets" ("i" + "cap") == §Init then (
-        atomic_array_unsafe_cas "buckets" ("i" + "cap") §Init "new_bucket_2"
+        atomic_array_unsafe_cas "buckets" ("i" + "cap") §Init "new_bucket_2" ;;
+        ()
       ) else (
         ()
       ) ;;
@@ -165,7 +167,8 @@ Definition htbl_merge_buckets : val :=
       #false
     ) else (
       if: atomic_array_unsafe_get "buckets" "i" == §Init then (
-        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket"
+        atomic_array_unsafe_cas "buckets" "i" §Init "new_bucket" ;;
+        ()
       ) else (
         ()
       ) ;;
