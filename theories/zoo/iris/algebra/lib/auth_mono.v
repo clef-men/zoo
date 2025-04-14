@@ -15,7 +15,7 @@ From zoo Require Import
 
 #[local] Hint Resolve monopo_principal_valid : core.
 
-Section ofe.
+Section relation.
   Context {A : ofe} (R : relation A).
 
   Implicit Types a b : A.
@@ -126,7 +126,8 @@ Section ofe.
 
   Lemma auth_mono_auth_dfrac_op_valid `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
     ✓ (auth_mono_auth dq1 a1 ⋅ auth_mono_auth dq2 a2) →
-    ✓ (dq1 ⋅ dq2) ∧ a1 ≡ a2.
+      ✓ (dq1 ⋅ dq2) ∧
+      a1 ≡ a2.
   Proof.
     rewrite /auth_mono_auth (comm _ (●{dq2} _)) -!assoc (assoc _ (◯ _)).
     rewrite -auth_frag_op (comm _ (◯ _)) assoc.
@@ -136,7 +137,8 @@ Section ofe.
   Qed.
   Lemma auth_mono_auth_dfrac_op_valid_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
     ✓ (auth_mono_auth dq1 a1 ⋅ auth_mono_auth dq2 a2) ↔
-    ✓ (dq1 ⋅ dq2) ∧ a1 = a2.
+      ✓ (dq1 ⋅ dq2) ∧
+      a1 = a2.
   Proof.
     split.
     - intros (? & ->%leibniz_equiv)%auth_mono_auth_dfrac_op_valid. done.
@@ -170,7 +172,8 @@ Section ofe.
 
   Lemma auth_mono_both_dfrac_valid dq a b :
     ✓ (auth_mono_auth dq a ⋅ auth_mono_lb b) ↔
-    ✓ dq ∧ Rs b a.
+      ✓ dq ∧
+      Rs b a.
   Proof.
     rewrite -assoc -auth_frag_op auth_both_dfrac_valid_discrete. split.
     - intros. split; first naive_solver.
@@ -195,14 +198,16 @@ Section ofe.
 
   Lemma auth_mono_auth_dfrac_included `{!AntiSymm (≡) Rs} dq1 a1 dq2 a2 :
     auth_mono_auth dq1 a1 ≼ auth_mono_auth dq2 a2 →
-    (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 ≡ a2.
+      (dq1 ≼ dq2 ∨ dq1 = dq2) ∧
+      a1 ≡ a2.
   Proof.
     rewrite auth_both_dfrac_included monopo_principal_included.
     intros (? & ?%(@inj _ _ (≡) _ _ _) & _). done.
   Qed.
   Lemma auth_mono_auth_dfrac_included_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} dq1 a1 dq2 a2 :
     auth_mono_auth dq1 a1 ≼ auth_mono_auth dq2 a2 ↔
-    (dq1 ≼ dq2 ∨ dq1 = dq2) ∧ a1 = a2.
+      (dq1 ≼ dq2 ∨ dq1 = dq2) ∧
+      a1 = a2.
   Proof.
     split.
     - intros (? & ->%leibniz_equiv)%auth_mono_auth_dfrac_included. done.
@@ -256,7 +261,7 @@ Section ofe.
     - rewrite monopo_principal_included //.
     - done.
   Qed.
-End ofe.
+End relation.
 
 #[global] Opaque auth_mono_auth.
 #[global] Opaque auth_mono_lb.

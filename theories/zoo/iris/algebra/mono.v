@@ -249,14 +249,15 @@ Section ofe_relation.
     (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
     NonExpansive (mono_principal R).
   Proof.
-    intros ? n a1 a2 Ha.
-    split; rewrite !below_principal !Ha //.
+    intros HR n a1 a2 Ha.
+    split; rewrite !below_principal Ha //.
   Qed.
   #[global] Instance mono_principal_proper :
-    (∀ n, Proper ((≡{n}≡) ==> (≡{n}≡) ==> (↔)) R) →
+    Proper ((≡) ==> (≡) ==> (↔)) R →
     Proper ((≡) ==> (≡)) (mono_principal R).
   Proof.
-    intros ?. apply: ne_proper.
+    intros HR a1 a2 Ha.
+    split; rewrite !below_principal Ha //.
   Qed.
 
   Lemma mono_principal_inj_related a b :

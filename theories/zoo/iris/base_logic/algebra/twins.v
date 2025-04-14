@@ -43,7 +43,8 @@ Section upred.
 
     Lemma twins_twin1_dfrac_op_validI dq1 a1 dq2 a2 :
       ✓ (twins_twin1 dq1 a1 ⋅ twins_twin1 dq2 a2) ⊣⊢
-      ⌜✓ (dq1 ⋅ dq2)⌝ ∧ a1 ≡ a2.
+        ⌜✓ (dq1 ⋅ dq2)⌝ ∧
+        a1 ≡ a2.
     Proof.
       uPred.unseal. split=> n x Hx.
       rewrite /uPred_holds /= twins_twin1_dfrac_op_validN //.
@@ -73,7 +74,8 @@ Section upred.
 
     Lemma twins_both_dfrac_validI dq a b :
       ✓ (twins_twin1 dq a ⋅ twins_twin2 b) ⊣⊢
-      ⌜✓ dq⌝ ∧ a ≡ b.
+        ⌜✓ dq⌝ ∧
+        a ≡ b.
     Proof.
       uPred.unseal. split=> n x Hx.
       rewrite /uPred_holds /= twins_both_dfrac_validN //.
