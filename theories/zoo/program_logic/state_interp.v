@@ -594,7 +594,7 @@ Section zoo_G.
     iIntros "(:state_interp)".
     iMod (ghost_list_update_push with "Hlocals_interp") as "(Hlocals_interp & Hlocals)".
     rewrite Hlocals. iFrameSteps. iPureIntro.
-    rewrite length_app /=. lia.
+    simpl_length/=. lia.
   Qed.
   Lemma state_interp_thread_pointsto_valid nt σ κ tid dq v :
     state_interp nt σ κ -∗
@@ -612,7 +612,7 @@ Section zoo_G.
   Proof.
     iIntros "(:state_interp) Htid".
     iMod (ghost_list_update_at with "Hlocals_interp Htid") as "(Hlocals_interp & Htid)".
-    iFrameSteps. rewrite length_insert //.
+    iFrameSteps. simpl_length.
   Qed.
   Lemma state_interp_prophet_new {nt σ κ} pid :
     pid ∉ σ.(state_prophets) →
@@ -668,7 +668,7 @@ Proof.
   iMod (mono_list_alloc (replicate cnt inhabitant)) as "(%γ_counter & Hcounter_auth)".
 
   iExists (Build_ZooG Σ γ_locals γ_counter). iFrameSteps.
-  iApply inv_alloc. iSteps. rewrite length_replicate //.
+  iApply inv_alloc. iSteps. simpl_length.
 Qed.
 Lemma zoo_init' `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ v cnt κ :
   σ.(state_locals) = [v] →

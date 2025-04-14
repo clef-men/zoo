@@ -137,10 +137,10 @@ Section zoo_G.
         rewrite -fmap_snoc big_sepL_snoc. iSteps.
     }
     iSteps.
-    - rewrite length_replicate. iSteps.
+    - simpl_length. iSteps.
     - iExists elems, 0. rewrite right_id. iSteps.
       iApply (big_sepL2_replicate_r_2 (λ _, element_model) with "Helems").
-      { rewrite length_fmap // in Helems. }
+      { simpl_length in Helems. }
   Qed.
 
   Lemma dynarray_2_initi_spec Ψ sz fn :
@@ -175,7 +175,7 @@ Section zoo_G.
     { iSplit.
       - iExists []. iSteps.
       - iIntros "!> %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
-        rewrite length_fmap in Hi2.
+        simpl_length in Hi2.
         iDestruct (big_sepL2_length with "Helems") as %Helems.
         wp_smart_apply (wp_wand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
         wp_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
@@ -185,7 +185,7 @@ Section zoo_G.
     wp_block l as "(Hl_size & Hl_data & _)".
     iDestruct (big_sepL2_length with "Helems") as %Helems'.
     iApply "HΦ".
-    rewrite length_fmap in Helems.
+    simpl_length in Helems.
     iFrame. iStep. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_2_initi_spec' Ψ sz fn :
@@ -304,7 +304,7 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_apply (array_size_spec with "Hmodel") as "Hmodel".
-    rewrite length_app length_fmap.
+    simpl_length.
     iDestruct (big_sepL2_length with "Helems") as %->.
     iSteps.
   Qed.
@@ -347,10 +347,10 @@ Section zoo_G.
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_smart_apply (array_get_spec with "[$Hmodel]") as "(% & Hmodel)".
     { rewrite Nat2Z.id lookup_app_l.
-      { rewrite length_fmap. lia. }
+      { simpl_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
     }
-    wp_match. iSteps.
+    iSteps.
   Qed.
 
   Lemma dynarray_2_set_spec t vs (i : Z) v :
@@ -374,13 +374,13 @@ Section zoo_G.
     wp_rec. rewrite /dynarray_2_data. wp_load.
     wp_smart_apply (array_get_spec with "[$Hmodel]") as "Hmodel".
     { rewrite Nat2Z.id lookup_app_l.
-      { rewrite length_fmap. lia. }
+      { simpl_length. lia. }
       rewrite list_lookup_fmap_Some. naive_solver.
     }
     wp_match. wp_store.
     iDestruct ("Helems" with "[Helem_header Helem_value]") as "Helems"; first iSteps.
     rewrite (list_insert_id elems) //.
-    iSteps. rewrite length_insert //.
+    iSteps. simpl_length.
   Qed.
 
   #[local] Lemma dynarray_2_next_capacity_spec n :
@@ -469,10 +469,9 @@ Section zoo_G.
     iExists l, data, (elems ++ [elem]), (extra - 1). iStep.
     rewrite length_app Z.add_1_r -Nat2Z.inj_succ Nat.add_comm /=. iFrame.
     rewrite insert_app_r_alt.
-    { rewrite length_fmap. lia. }
+    { simpl_length. lia. }
     destruct extra.
-    - rewrite length_app length_fmap in Htest.
-      naive_solver lia.
+    - simpl_length in Htest. lia.
     - rewrite Nat2Z.id length_fmap Helems Nat.sub_diag.
       rewrite fmap_snoc -assoc /= Nat.sub_0_r.
       iSteps.
@@ -530,21 +529,21 @@ Section zoo_G.
     do 2 (wp_smart_apply assume_spec' as "_").
     wp_pures.
     rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
-    iDestruct (big_sepL2_length with "Helems") as %Helems. rewrite length_app /= in Helems.
+    iDestruct (big_sepL2_length with "Helems") as %Helems. simpl_length/= in Helems.
     destruct (rev_elim elems) as [-> | (slots & elem & ->)]; first (simpl in Helems; lia).
     rewrite length_app Nat.add_cancel_r in Helems. iEval (rewrite -Helems).
     iDestruct (big_sepL2_snoc with "Helems") as "(Helems & (:element_model))".
     wp_apply (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
     { rewrite Nat2Z.id lookup_app_l.
-      { rewrite length_fmap length_app /=. lia. }
+      { simpl_length/=. lia. }
       rewrite list_lookup_fmap lookup_app_r // Nat.sub_diag //.
     }
     wp_match.
     wp_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel".
-    { rewrite length_app length_fmap length_app /=. lia. }
+    { simpl_length/=. lia. }
 
     rewrite fmap_snoc -assoc Nat2Z.id insert_app_r_alt.
-    all: rewrite length_fmap //.
+    all: simpl_length.
     rewrite Nat.sub_diag /=.
     wp_store. wp_load.
     iApply "HΦ".
@@ -572,7 +571,7 @@ Section zoo_G.
     iApply "HΦ".
     iExists l, data', elems, 0.
     rewrite take_app_length'.
-    { rewrite length_fmap. lia. }
+    { simpl_length. lia. }
     rewrite right_id. iSteps.
   Qed.
 
@@ -628,12 +627,12 @@ Section zoo_G.
     { iIntros "!> %i %slots%Hi %Hlookup (HΨ & Helems)".
       iDestruct (big_sepL2_length with "Helems") as "%Helems".
       rewrite lookup_app_l in Hlookup.
-      { rewrite length_fmap. lia. }
+      { simpl_length. lia. }
       apply list_lookup_fmap_Some in Hlookup as (elem & Hlookup & ->).
       iDestruct (big_sepL2_lookup_acc_l with "Helems") as "(%v & % & (:element_model) & Helems)"; first done.
       wp_match. wp_load.
       rewrite slice_0 take_app_le.
-      { rewrite length_fmap. lia. }
+      { simpl_length. lia. }
       wp_apply (wp_wand with "(Hfn [//] HΨ)").
       rewrite -take_S_r //. iSteps.
     }
@@ -889,8 +888,9 @@ Section zoo_G.
     WP match: slot with Empty => e1 | Element <> as: x => e2 end {{ Φ }}.
   Proof.
     iIntros "[-> | (%elem & -> & Helem_header & #Hinv)] H".
-    - rewrite bi.and_elim_l. iSteps.
-    - rewrite bi.and_elim_r. wp_match. iSteps.
+    1: rewrite bi.and_elim_l.
+    2: rewrite bi.and_elim_r.
+    all: iSteps.
   Qed.
 
   Definition itype_dynarray_2 t : iProp Σ :=

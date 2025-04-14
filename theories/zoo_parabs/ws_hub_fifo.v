@@ -218,7 +218,7 @@ Section ws_hub_fifo_G.
     iDestruct (big_sepL_exists with "H") as "(%γ_owners & _ & H)".
     iDestruct (big_sepL2_retract_r with "H") as "(_ & H)".
     iDestruct (big_sepL_seq_index_2 with "H") as "H".
-    { rewrite length_seq //. }
+    { simpl_length. }
     iSteps.
   Qed.
   #[local] Lemma owner_exclusive γ i :

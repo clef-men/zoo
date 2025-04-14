@@ -117,7 +117,7 @@ Section bi.
       rewrite big_sepL2_alt.
       iIntros "% % HΦ #H". iStep 2.
       iApply (big_sepL_impl_strong with "HΦ").
-      { rewrite length_zip_with. lia. }
+      { simpl_length. lia. }
       iIntros "!>" (k x (𝑥1, 𝑥2) ? (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
       iSteps.
     Qed.
@@ -165,7 +165,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_impl_strong with "H"); first rewrite length_replicate length_seq //.
+      all: iApply (big_sepL_impl_strong with "H"); first simpl_length.
       1: iIntros "!>" (? ? ? (-> & _)%lookup_replicate_1 (-> & _)%lookup_seq).
       2: iIntros "!>" (? ? ? (-> & _)%lookup_seq (-> & _)%lookup_replicate_1).
       all: iSteps.
@@ -416,7 +416,7 @@ Section bi.
     Proof.
       intros. iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_impl_strong with "H"); first rewrite length_seq //.
+      all: iApply (big_sepL_impl_strong with "H"); first simpl_length.
       all: iIntros "!> %k %k_ % % % HΦ".
       all: pose proof lookup_seq.
       all: naive_solver.
@@ -442,7 +442,7 @@ Section bi.
     Proof.
       iSplit.
       all: iIntros "H".
-      all: iApply (big_sepL_impl_strong with "H"); first rewrite !length_seq //.
+      all: iApply (big_sepL_impl_strong with "H"); first simpl_length.
       all: iIntros "!>" (k ? ? (-> & _)%lookup_seq (-> & _)%lookup_seq).
       all: assert (i + j + k - j = i + k) as -> by lia.
       all: iSteps.
@@ -496,7 +496,7 @@ Section bi.
       rewrite !big_sepL2_alt.
       iIntros "% % (% & HΦ) #H". iStep 2.
       iApply (big_sepL_impl_strong with "HΦ").
-      { rewrite !length_zip_with. lia. }
+      { simpl_length. lia. }
       iIntros "!>" (k (x1, x2) (𝑥1, 𝑥2) (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some).
       iSteps.
     Qed.
@@ -551,7 +551,7 @@ Section bi.
       rewrite big_sepL2_alt.
       iIntros "% (% & HΦ) #H".
       iApply (big_sepL_impl_strong with "HΦ").
-      { rewrite length_zip_with. lia. }
+      { simpl_length. lia. }
       iIntros "!>" (k (x1, x2) 𝑥 (? & ? & [= <- <-] & ? & ?)%lookup_zip_with_Some ?).
       iSteps.
     Qed.

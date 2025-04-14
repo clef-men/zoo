@@ -4,6 +4,7 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  list
   fin_maps.
 From zoo.language Require Import
   notations.
@@ -620,13 +621,13 @@ Section domain_G.
     { rewrite Nat2Z.id -(fmap_replicate option_to_val _ None) -fmap_app list_lookup_fmap_Some.
       exists None. split; last done.
       eapply consistent_lookup_Some_None; last done.
-      { rewrite length_app length_fmap length_replicate. lia. }
+      { simpl_length. lia. }
       apply consistent_app_None. done.
     }
     wp_smart_apply (domain_key_init_spec with "Hkey") as (v) "HΨ".
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
-    { rewrite length_app length_fmap length_replicate. lia. }
+    { simpl_length. lia. }
     iSteps.
   Qed.
   Lemma domain_local_get_spec_pointsto keys key dq v tid :
@@ -701,7 +702,7 @@ Section domain_G.
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
-    { rewrite length_app length_fmap length_replicate. lia. }
+    { simpl_length. lia. }
     iSteps.
   Qed.
   Lemma domain_local_set_spec_pointsto keys key w v tid :
@@ -727,7 +728,7 @@ Section domain_G.
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
-    { rewrite length_app length_fmap length_replicate. lia. }
+    { simpl_length. lia. }
     iSteps.
   Qed.
   Lemma domain_local_set_spec_pointstopred keys key Ψ v tid :

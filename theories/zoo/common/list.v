@@ -742,3 +742,30 @@ Section slice.
     done.
   Qed.
 End slice.
+
+Create HintDb simpl_length.
+Hint Rewrite
+  @length_reverse
+  @length_app
+  @length_insert
+  @length_take
+  @length_drop
+  @length_fmap
+  @length_replicate
+  @length_seq
+  @length_zip_with
+  @length_zip3_with
+: simpl_length.
+
+Tactic Notation "simpl_length" :=
+  autorewrite with simpl_length; try done.
+Tactic Notation "simpl_length" "/=" :=
+  repeat (progress csimpl in * || simpl_length).
+Tactic Notation "simpl_length" "in" ne_hyp_list(Hs) :=
+  autorewrite with simpl_length in Hs; try done.
+Tactic Notation "simpl_length" "/=" "in" ne_hyp_list(Hs) :=
+  repeat (progress csimpl in * || simpl_length in Hs).
+Tactic Notation "simpl_length" "in" "*" :=
+  autorewrite with simpl_length in *; try done.
+Tactic Notation "simpl_length" "/=" "in" "*" :=
+  repeat (progress csimpl in * || simpl_length in * ).

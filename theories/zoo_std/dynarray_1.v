@@ -102,7 +102,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hmodel"; first done.
     iStepFrameSteps 7.
-    - rewrite length_replicate //.
+    - simpl_length.
     - iExists 0. rewrite right_id Nat2Z.id. iSteps.
   Qed.
 
@@ -254,8 +254,7 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec. wp_load.
     wp_apply (array_size_spec with "Hmodel") as "Hmodel".
-    rewrite length_app.
-    iStepFrameSteps 2.
+    simpl_length. iStepFrameSteps 2.
   Qed.
 
   Lemma dynarray_1_is_empty_spec t vs :
@@ -308,7 +307,7 @@ Section zoo_G.
     iIntros "%Hi %Φ (:model) HΦ".
     wp_rec. wp_load.
     wp_apply (array_unsafe_set_spec with "Hmodel") as "Hmodel".
-    { rewrite length_app. lia. }
+    { simpl_length. lia. }
     iApply "HΦ".
     iExists extra. iStep.
     rewrite length_insert insert_app_l; first lia. iSteps.
@@ -345,14 +344,14 @@ Section zoo_G.
     wp_pures.
     case_bool_decide as Htest.
     all: wp_pures.
-    all: rewrite length_app length_replicate in Htest.
+    all: simpl_length in Htest.
     - wp_apply (dynarray_1_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
       wp_apply int_max_spec.
       wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%data' Hmodel'"; first lia.
       wp_load.
       wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hmodel $Hmodel']") as "(Hmodel & Hmodel')"; try lia.
-      { rewrite length_app. lia. }
-      { rewrite length_replicate. lia. }
+      { simpl_length. lia. }
+      { simpl_length. lia. }
       wp_store.
       iApply ("HΦ" $! (₊(n `max` n') - length vs)).
       iSteps. rewrite Nat2Z.id drop_replicate take_app_length //.
@@ -427,10 +426,11 @@ Section zoo_G.
       wp_load.
       wp_smart_apply (array_unsafe_fill_slice_spec with "Hmodel") as "Hmodel".
       { lia. }
-      { rewrite length_app length_replicate. lia. }
+      { simpl_length. lia. }
       iStepFrameSteps 8.
       { iPureIntro.
-        rewrite length_app length_replicate -Nat.le_add_sub; first lia.
+        simpl_length.
+        rewrite -Nat.le_add_sub; first lia.
         rewrite Z2Nat.id //.
       } {
         rewrite assoc Nat2Z.id take_app_length drop_app_add drop_replicate.
@@ -456,9 +456,9 @@ Section zoo_G.
     wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%extra (%Hextra & (:model'))"; first lia.
     wp_load. wp_store. wp_load.
     wp_apply (array_unsafe_set_spec with "Hmodel").
-    { rewrite length_app length_replicate. lia. }
+    { simpl_length. lia. }
     rewrite Nat2Z.id insert_app_r_alt // Nat.sub_diag insert_replicate_lt // /= (assoc (++) vs [v] (replicate _ _)).
-    iStepFrameSteps 2. rewrite length_app. iSteps.
+    iStepFrameSteps 2. simpl_length. iSteps.
   Qed.
 
   Lemma dynarray_1_pop_spec {t vs} vs' v :
@@ -474,14 +474,14 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (:model) HΦ".
     wp_rec. wp_load. wp_store. wp_load.
-    rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
+    simpl_length. rewrite Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
     wp_smart_apply (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
-    { rewrite lookup_app_l; first (rewrite length_app /=; lia).
+    { rewrite lookup_app_l; first (simpl_length/=; lia).
       rewrite lookup_app_r; first lia.
       rewrite Nat2Z.id Nat.sub_diag //.
     }
     wp_smart_apply (array_unsafe_set_spec with "Hmodel").
-    { rewrite !length_app /=. lia. }
+    { simpl_length/=. lia. }
     iStepFrameSteps 6. iExists (S extra).
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
@@ -502,7 +502,7 @@ Section zoo_G.
     wp_pures. case_bool_decide; wp_pures.
     - iStepFrameSteps.
     - wp_apply (array_unsafe_shrink_spec with "Hmodel") as "%data' (_ & Hmodel)".
-      { rewrite length_app. lia. }
+      { simpl_length. lia. }
       wp_store.
       iStepFrameSteps. iExists 0. rewrite Nat2Z.id take_app_length right_id //.
   Qed.
@@ -550,7 +550,7 @@ Section zoo_G.
     wp_apply (array_unsafe_iteri_slice_spec Ψ with "[$HΨ $Hmodel]").
     { lia. }
     { lia. }
-    { rewrite length_app. lia. }
+    { simpl_length. lia. }
     { iIntros "!> %i %v %Hi %Hlookup HΨ".
       rewrite slice_0 take_app_le; first lia.
       wp_apply (wp_wand with "(Hfn [%] HΨ)").

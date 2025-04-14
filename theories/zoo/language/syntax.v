@@ -7,7 +7,8 @@ From iris.algebra Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable.
+  countable
+  list.
 From zoo.common Require Export
   binder.
 From zoo.language Require Export
@@ -879,8 +880,11 @@ Qed.
 Lemma length_of_vals vs :
   length (of_vals vs) = length vs.
 Proof.
-  rewrite length_map //.
+  apply length_fmap.
 Qed.
+Hint Rewrite
+  @length_of_vals
+: simpl_length.
 
 #[global] Instance val_inhabited : Inhabited val :=
   populate ValUnit.

@@ -130,7 +130,7 @@ Section zoo_G.
     )%I as "(%front_ & -> & #Hfront_header)".
     { iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
       iApply (chain_model_tag with "Hfront").
-      { rewrite length_app /=. lia. }
+      { simpl_length/=. lia. }
     }
 
     wp_match.

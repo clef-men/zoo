@@ -392,7 +392,7 @@ Section language.
     length ρ1.1 ≤ length ρ2.1.
   Proof.
     intros (tid & e1 & e2 & σ2 & es & Hstep & Hlookup & ->).
-    rewrite length_app length_insert. lia.
+    simpl_length/=. lia.
   Qed.
   Lemma nsteps_length n ρ1 κs ρ2 :
     nsteps n ρ1 κs ρ2 →

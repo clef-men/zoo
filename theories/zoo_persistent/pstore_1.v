@@ -29,7 +29,7 @@ Section map.
   Context {V : Type}.
 
   Lemma gmap_included_insert (σ1 σ2:gmap K V) (l:K) (v:V) :
-    σ1 ⊆ σ2 ->
+    σ1 ⊆ σ2 →
     <[l:=v]>σ1 ⊆ <[l:=v]>σ2.
   Proof.
     intros ? l'. destruct_decide (decide (l=l')).
@@ -38,8 +38,8 @@ Section map.
   Qed.
 
   Lemma gmap_included_insert_notin (σ1 σ2:gmap K V) (l:K) (v:V) :
-    l ∉ dom σ1 ->
-    σ1 ⊆ σ2 ->
+    l ∉ dom σ1 →
+    σ1 ⊆ σ2 →
     σ1 ⊆ <[l:=v]>σ2.
   Proof.
     intros ?? l'. destruct_decide (decide (l=l')).
@@ -48,7 +48,7 @@ Section map.
   Qed.
 
   Lemma incl_dom_incl (σ1 σ2:gmap K V)  :
-    σ1 ⊆ σ2 ->
+    σ1 ⊆ σ2 →
     dom σ1 ⊆ dom σ2.
   Proof.
     intros X1.
@@ -61,7 +61,7 @@ Section list.
   Context {A : Type}.
 
   Lemma list_case_r (l:list A) :
-    l = nil \/ exists (l':list A) x, l = l' ++ [x].
+    l = nil ∨ ∃ (l':list A) x, l = l' ++ [x].
   Proof.
     induction l using rev_ind.
     naive_solver. right.
@@ -69,8 +69,8 @@ Section list.
   Qed.
 
   Lemma elem_of_middle (x:A) (xs:list A) :
-    x ∈ xs ->
-    exists (l1 l2:list A), xs = l1 ++ x::l2.
+    x ∈ xs →
+    ∃ (l1 l2:list A), xs = l1 ++ x::l2.
   Proof.
     intros Hx. apply elem_of_list_lookup_1 in Hx.
     destruct Hx as (?&?).
@@ -103,9 +103,9 @@ Section graph.
     match x with (_,_,x) => x end.
 
   Lemma elem_of_vertices x (g:graph A B) :
-    x ∈ vertices g <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g).
+    x ∈ vertices g ↔ ∃ b y, ((x,b,y) ∈ g ∨ (y,b,x) ∈ g).
   Proof.
-    apply set_fold_ind_L with (P := fun f g => x ∈ f  <-> exists b y, ((x,b,y) ∈ g \/ (y,b,x) ∈ g)).
+    apply set_fold_ind_L with (P := fun f g => x ∈ f  ↔ ∃ b y, ((x,b,y) ∈ g ∨ (y,b,x) ∈ g)).
     set_solver.
     intros ((?,?),?). set_solver.
   Qed.
@@ -140,16 +140,17 @@ Section graph.
   Definition edge (g:graph A B) x c y :=
     (x,c,y) ∈ g.
 
-  Inductive path (g:graph A B) : A -> list (A*B*A) -> A -> Prop :=
-  | path_nil : forall a, path g a [] a
-  | path_cons : forall a1 b a2 bs a3,
-      (a1,b,a2) ∈ g ->
-      path g a2 bs a3 ->
-      path g a1 ((a1,b,a2)::bs) a3.
+  Inductive path (g:graph A B) : A → list (A*B*A) → A → Prop :=
+    | path_nil a :
+        path g a [] a
+    | path_cons a1 b a2 bs a3 :
+        (a1,b,a2) ∈ g →
+        path g a2 bs a3 →
+        path g a1 ((a1,b,a2)::bs) a3.
 
   Lemma path_app_inv g a1 a2 xs ys :
-    path g a1 (xs ++ ys) a2 ->
-    exists a, path g a1 xs a /\ path g a ys a2.
+    path g a1 (xs ++ ys) a2 →
+    ∃ a, path g a1 xs a ∧ path g a ys a2.
   Proof.
     revert a1 ys a2. induction xs as [| ((?,?),?)].
     { eauto using path_nil. }
@@ -159,29 +160,29 @@ Section graph.
   Qed.
 
   Lemma path_snoc_inv g a1 a2 a3 a4 b xs :
-    path g a1 (xs ++ [(a2,b,a3)]) a4 ->
-    path g a1 xs a2 /\ a3 = a4 /\ (a2,b,a3) ∈ g.
+    path g a1 (xs ++ [(a2,b,a3)]) a4 →
+    path g a1 xs a2 ∧ a3 = a4 ∧ (a2,b,a3) ∈ g.
   Proof.
     intros Hpath. apply path_app_inv in Hpath. destruct Hpath as (?&?&Hpath).
     inversion Hpath. subst. inversion H9. naive_solver.
   Qed.
 
-  Definition acyclic g := forall a xs, path g a xs a -> xs = nil.
+  Definition acyclic g := ∀ a xs, path g a xs a → xs = nil.
 
   Record rooted_dag g (r:A) :=
-    { ti1 : forall a, a ∈ vertices g -> exists xs, path g a xs r;
+    { ti1 : ∀ a, a ∈ vertices g → ∃ xs, path g a xs r;
       ti2 : acyclic g
     }.
 
   Definition unaliased (g:graph A B) :=
-      forall r x1 r1 x2 r2,
-      (r,x1,r1) ∈ g ->
-      (r,x2,r2) ∈ g ->
-      x1 = x2 /\ r1 = r2.
+      ∀ r x1 r1 x2 r2,
+      (r,x1,r1) ∈ g →
+      (r,x2,r2) ∈ g →
+      x1 = x2 ∧ r1 = r2.
 
   Lemma path_app (g:graph A B) x3 x1 xs ys x2 :
-    path g x1 xs x3 ->
-    path g x3 ys x2 ->
+    path g x1 xs x3 →
+    path g x3 ys x2 →
     path g x1 (xs++ys) x2.
   Proof.
     intros Hp.
@@ -191,19 +192,19 @@ Section graph.
   Qed.
 
   Definition all_uniq_path g :=
-    forall a1 a2 xs ys, path g a1 xs a2 -> path g a1 ys a2 -> xs = ys.
+    ∀ a1 a2 xs ys, path g a1 xs a2 → path g a1 ys a2 → xs = ys.
 
   Lemma rooted_tree_impl_acyclic_unaliased g r :
-    (forall a, a ∈ vertices g -> exists xs, path g a xs r) -> (* If every vertex can reach the root, *)
-    all_uniq_path g -> (* then the property of uniq path *)
-    acyclic g /\ unaliased g. (* implies acyclicity + unalising *)
+    (∀ a, a ∈ vertices g → ∃ xs, path g a xs r) → (* If every vertex can reach the root, *)
+    all_uniq_path g → (* then the property of uniq path *)
+    acyclic g ∧ unaliased g. (* implies acyclicity + unalising *)
   Proof.
     intros Hroot  Huniq. split.
     { intros ?? Hpath.
       assert (path g a (xs++xs) a) as Hloop.
       { by eapply path_app. }
       specialize (Huniq a a xs (xs++xs) Hpath Hloop).
-      apply (@f_equal _ _ length) in Huniq. rewrite length_app in Huniq.
+      apply (f_equal length) in Huniq. simpl_length in Huniq.
       assert (length xs = 0) by lia. destruct xs; simpl in *; try done; lia. }
     { intros ????? X1 X2.
       destruct (Hroot r1) as (xs1&Hxs1).
@@ -216,8 +217,8 @@ Section graph.
   Qed.
 
   Lemma acyclic_unaliased_impl_uniq_path g :
-    acyclic g ->
-    unaliased g ->
+    acyclic g →
+    unaliased g →
     all_uniq_path g.
   Proof.
     intros Hacy Hinj. intros ???? Hpath.
@@ -241,10 +242,10 @@ Section graph.
   Qed.
 
   Lemma path_cycle_end_inv_aux g (r r':A) b ds x1 x2 :
-    r ≠ r' ->
-    x2 ≠ r' ->
-    r' ∉ vertices g ->
-    path ({[(r, b, r')]} ∪ g) x1 ds x2 ->
+    r ≠ r' →
+    x2 ≠ r' →
+    r' ∉ vertices g →
+    path ({[(r, b, r')]} ∪ g) x1 ds x2 →
     path g x1 ds x2.
   Proof.
     induction 4.
@@ -258,9 +259,9 @@ Section graph.
   Qed.
 
   Lemma path_cycle_end_inv g (r r':A) b ds x :
-    r ≠ r' ->
-    r' ∉ vertices g ->
-    path ({[(r, b, r')]} ∪ g) x ds x ->
+    r ≠ r' →
+    r' ∉ vertices g →
+    path ({[(r, b, r')]} ∪ g) x ds x →
     path g x ds x.
   Proof.
     intros.
@@ -270,8 +271,8 @@ Section graph.
   Qed.
 
   Lemma path_snoc g a1 b a2 bs a3 :
-    path g a1 bs a2 ->
-    (a2,b,a3) ∈ g ->
+    path g a1 bs a2 →
+    (a2,b,a3) ∈ g →
     path g a1 (bs++[(a2,b,a3)]) a3.
   Proof.
     induction 1.
@@ -280,8 +281,8 @@ Section graph.
   Qed.
 
   Lemma path_weak g1 g2 x bs y :
-    path g1 x bs y ->
-    g1 ⊆ g2 ->
+    path g1 x bs y →
+    g1 ⊆ g2 →
     path g2 x bs y.
   Proof.
     induction 1; intros Hi. apply path_nil. eapply path_cons.
@@ -289,9 +290,9 @@ Section graph.
   Qed.
 
   Lemma rooted_dag_add (r r':A) g x:
-    r ≠ r' ->
-    r' ∉ vertices g ->
-    rooted_dag g r ->
+    r ≠ r' →
+    r' ∉ vertices g →
+    rooted_dag g r →
     rooted_dag ({[(r, x, r')]} ∪ g) r'.
   Proof.
     intros Hne Hg Hroot. inversion Hroot as [X1 X2].
@@ -309,22 +310,22 @@ Section graph.
   Qed.
 
   Lemma acyclic_weak (g1 g2:graph A B) :
-    acyclic g1 ->
-    g2 ⊆ g1 ->
+    acyclic g1 →
+    g2 ⊆ g1 →
     acyclic g2.
   Proof.
     intros Hacy ? ???. eapply Hacy. by eapply path_weak.
   Qed.
 
   Lemma path_all_in (g:graph A B) a1 xs a2 :
-    path g a1 xs a2 ->
+    path g a1 xs a2 →
     list_to_set xs ⊆ g.
   Proof.
     induction 1; simpl; set_solver.
   Qed.
 
   Lemma path_restrict (g:graph A B) r xs r' :
-    path g r xs r' ->
+    path g r xs r' →
     path (list_to_set xs) r xs r'.
   Proof.
     induction 1; eauto using path_nil.
@@ -333,8 +334,8 @@ Section graph.
   Qed.
 
   Lemma path_inv_r (g:graph A B) x bs z :
-    path g x bs z ->
-    (x = z /\ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] /\ path g x bs' y ∧ (y,b,z) ∈ g.
+    path g x bs z →
+    (x = z ∧ bs = nil) ∨ ∃ bs' b y, bs = bs' ++ [(y,b,z)] ∧ path g x bs' y ∧ (y,b,z) ∈ g.
   Proof.
     induction 1.
     { naive_solver.  }
@@ -345,16 +346,16 @@ Section graph.
   Qed.
 
   Lemma path_add_inv_r (r r':A) b x xs g :
-    r ≠ r' ->
-    r' ∉ vertices g ->
-    path ({[(r, b, r')]} ∪ g) x xs r' ->
-    (xs = nil /\ x = r') \/ (exists xs', xs = xs' ++ [(r, b, r')] /\ path g x xs' r).
+    r ≠ r' →
+    r' ∉ vertices g →
+    path ({[(r, b, r')]} ∪ g) x xs r' →
+    (xs = nil ∧ x = r') ∨ (∃ xs', xs = xs' ++ [(r, b, r')] ∧ path g x xs' r).
   Proof.
     intros Hrr' Hr' Hreach. apply path_inv_r in Hreach.
     destruct Hreach as [(->&->)|(bs'&b0&y&->&Hreach&Hedge)].
     { eauto. }
     right.
-    assert (b0=b /\ y=r) as (->&->).
+    assert (b0=b ∧ y=r) as (->&->).
     { rewrite /edge elem_of_union elem_of_singleton in Hedge.
       destruct Hedge. naive_solver. exfalso. apply Hr', elem_of_vertices. eauto. }
     eexists. split; first done.
@@ -362,17 +363,15 @@ Section graph.
   Qed.
 
   (* [mirror xs ys] asserts that, up-to labels, the path xs is the reverse of ys *)
-  Inductive mirror :
-    list (A*B*A) -> list (A*B*A) -> Prop :=
-  | mirror_nil :
-    mirror [] []
-  | mirror_cons :
-    forall r x x' r' xs ys,
-      mirror xs ys  ->
-      mirror (xs++[(r,x,r')]) ((r',x',r)::ys).
+  Inductive mirror : list (A*B*A) → list (A*B*A) → Prop :=
+    | mirror_nil :
+        mirror [] []
+    | mirror_cons r x x' r' xs ys :
+        mirror xs ys  →
+        mirror (xs++[(r,x,r')]) ((r',x',r)::ys).
 
   Lemma mirror_snoc ys xs a a' x x' :
-    mirror ys xs ->
+    mirror ys xs →
     mirror ((a,x,a') :: ys) (xs ++ [(a',x',a)]).
   Proof.
     induction 1.
@@ -381,15 +380,15 @@ Section graph.
   Qed.
 
   Lemma mirror_symm xs ys :
-    mirror xs ys -> mirror ys xs.
+    mirror xs ys → mirror ys xs.
   Proof.
     induction 1. eauto using mirror_nil.
     apply mirror_snoc; eauto.
   Qed.
 
   Lemma use_mirror xs ys (g:graph A B) r y :
-    mirror xs ys ->
-    path g r xs y ->
+    mirror xs ys →
+    path g r xs y →
     path (list_to_set ys) y ys r.
   Proof.
     intros Hu. revert r y. induction Hu; intros r0 y.
@@ -399,7 +398,7 @@ Section graph.
   Qed.
 
   Lemma mirror_vertices (xs ys:list (A*B*A)) :
-    mirror xs ys ->
+    mirror xs ys →
     vertices (list_to_set ys) = vertices (list_to_set xs).
   Proof.
     revert xs. induction ys; intros xs; inversion 1; subst. done.
@@ -408,13 +407,15 @@ Section graph.
   Qed.
 
   Lemma mirror_same_length (xs ys:list (A*B*A)):
-    mirror xs ys ->
+    mirror xs ys →
     length xs = length ys.
-  Proof. induction 1. done. rewrite length_app. simpl. lia. Qed.
+  Proof.
+    induction 1. done. simpl_length/=. lia.
+  Qed.
 
   Lemma mirror_mirrored_edges xs ys r x r' :
-    mirror xs ys ->
-    (r,x,r') ∈ xs -> exists x', (r',x',r) ∈ ys.
+    mirror xs ys →
+    (r,x,r') ∈ xs → ∃ x', (r',x',r) ∈ ys.
   Proof.
     induction 1. intros ?. set_solver.
     rewrite elem_of_app elem_of_list_singleton.
@@ -424,8 +425,8 @@ Section graph.
   Qed.
 
   Lemma path_middle (g:graph A B) x xs ys z :
-    path g x (xs ++ ys) z ->
-    exists y, path g x xs y /\ path g y ys z.
+    path g x (xs ++ ys) z →
+    ∃ y, path g x xs y ∧ path g y ys z.
   Proof.
     revert g x ys z. induction xs; intros g x ys z.
     { simpl. eauto using path_nil. }
@@ -435,10 +436,10 @@ Section graph.
   Qed.
 
   Lemma use_mirror_subset xs ys xs' g r y :
-    xs' ⊆ xs ->
-    mirror xs ys ->
-    path g r xs' y ->
-    exists zs, path (list_to_set ys) y zs r /\ length xs' = length zs.
+    xs' ⊆ xs →
+    mirror xs ys →
+    path g r xs' y →
+    ∃ zs, path (list_to_set ys) y zs r ∧ length xs' = length zs.
   Proof.
     intros Hincl Hundo Hpath.
     induction Hpath.
@@ -449,15 +450,17 @@ Section graph.
       destruct Hundo as (b'&?).
       exists (zs ++ [(a2, b', a1)]). split.
       { eapply path_app. done.
-        apply path_cons.  set_solver. apply path_nil. }
-      { rewrite length_app. simpl. lia. } }
+        apply path_cons.  set_solver. apply path_nil.
+      }
+      { simpl_length/=. lia. }
+    }
   Qed.
 
   Definition pathlike (ys:list (A*B*A)) r :=
-    forall a b a', (a,b,a') ∈ ys -> a' = r \/ exists b' a'', (a',b',a'') ∈ ys.
+    ∀ a b a', (a,b,a') ∈ ys → a' = r ∨ ∃ b' a'', (a',b',a'') ∈ ys.
 
   Lemma path_pathlike g r ys y :
-    path g y ys r ->
+    path g y ys r →
     pathlike ys r.
   Proof.
     intros Hpath a b a' Hedge.
@@ -469,10 +472,10 @@ Section graph.
   Qed.
 
   Lemma same_path g (xs:list (A*B*A)) a1 a2 a3 a4 :
-    path g a1 xs a2 ->
-    path g a3 xs a4 ->
-    xs ≠ nil ->
-    a1 = a3 /\ a2=a4.
+    path g a1 xs a2 →
+    path g a3 xs a4 →
+    xs ≠ nil →
+    a1 = a3 ∧ a2=a4.
   Proof.
     intros Hp1. revert a3 a4. induction Hp1.
     { intros. congruence. }
@@ -482,8 +485,8 @@ Section graph.
   Qed.
 
   Lemma path_ends_vertices g x1 xs x2 :
-    path g x1 xs x2 ->
-    (x1 = x2) \/ (x1 ∈ vertices g /\ x2 ∈ vertices g).
+    path g x1 xs x2 →
+    (x1 = x2) ∨ (x1 ∈ vertices g ∧ x2 ∈ vertices g).
   Proof.
      inversion 1. eauto. subst. right.
      split. apply elem_of_vertices. eauto.
@@ -511,7 +514,7 @@ Section adiffl.
   Qed.
 
   Lemma apply_diffl_insert_ne ds l v σ :
-    l ∉ ds.*1 ->
+    l ∉ ds.*1 →
     apply_diffl ds (<[l:=v]> σ) = <[l:=v]> (apply_diffl ds σ).
   Proof.
     induction ds as [|(?&?)].
@@ -539,7 +542,7 @@ Section adiffl.
   Qed.
 
   Lemma apply_diffl_included xs σ1 σ2 :
-    σ1 ⊆ σ2 ->
+    σ1 ⊆ σ2 →
     apply_diffl xs σ1 ⊆ apply_diffl xs σ2.
   Proof.
     revert σ1 σ2. induction xs as [|(?,?)]; intros;
@@ -579,8 +582,8 @@ Section pstore_G.
   ).
 
   Definition correct_path_diff (M:map_model) (g:graph_store) :=
-    forall r1 ds r2 σ1 σ2,
-      path g r1 ds r2 -> M !! r1 = Some σ1 -> M !! r2 = Some σ2 ->
+    ∀ r1 ds r2 σ1 σ2,
+    path g r1 ds r2 → M !! r1 = Some σ1 → M !! r2 = Some σ2 →
       σ1 = (apply_diffl (proj2 <$> ds) σ2).
 
   Record store_inv (M:map_model) (g:graph_store) (r:location) (σ σ0:gmap location val) :=
@@ -591,15 +594,15 @@ Section pstore_G.
     }.
 
   Definition locations_of_edges_in g (X:gset location) :=
-    forall (r:location) l v r', edge g r (l,v) r' -> l ∈ X.
+    ∀ (r:location) l v r', edge g r (l,v) r' → l ∈ X.
 
   Record coherent (M:map_model) (σ0:gmap location val) (g:graph_store) :=
-    { coh1 : forall r σ, M !! r = Some σ -> dom σ = dom σ0;
+    { coh1 : ∀ r σ, M !! r = Some σ → dom σ = dom σ0;
       coh2 : locations_of_edges_in g (dom σ0);
     }.
 
   Definition snap_inv (M:map_model) (C:gset (location * gmap location val)) :=
-    forall l σ, (l,σ) ∈ C -> exists σ', M !! l = Some σ' /\ σ ⊆ σ'.
+    ∀ l σ, (l,σ) ∈ C → ∃ σ', M !! l = Some σ' ∧ σ ⊆ σ'.
 
   #[local] Definition pstore_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
     mono_set_auth γ (DfracOwn 1) s.
@@ -632,7 +635,7 @@ Section pstore_G.
       (σ0:gmap location val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
       (M:map_model), (* the map model, associating to each node its model *)
-    ⌜t=#t0 /\ store_inv M g r σ σ0 /\ coherent M σ0 g /\ rooted_dag g r⌝ ∗
+    ⌜t=#t0 ∧ store_inv M g r σ σ0 ∧ coherent M σ0 g ∧ rooted_dag g r⌝ ∗
     t0 ↦ᵣ #r ∗
     r ↦ᵣ §Root ∗
     snapshosts_model t0 M ∗
@@ -643,7 +646,7 @@ Section pstore_G.
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
   Definition pstore_snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:location) l, ⌜t=#t0 /\ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
+    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
 
   #[global] Instance pstore_snapshot_timeless t s σ :
     Timeless (pstore_snapshot t s σ).
@@ -690,8 +693,8 @@ Section pstore_G.
   Qed.
 
   Lemma use_locations_of_edges_in g r xs r' X :
-    locations_of_edges_in g X ->
-    path g r xs r' ->
+    locations_of_edges_in g X →
+    path g r xs r' →
     (list_to_set (proj2 <$> xs).*1) ⊆ X.
   Proof.
     intros He.
@@ -799,7 +802,7 @@ Section pstore_G.
     wp_rec. wp_pures.
     wp_ref r' as "Hr'".
 
-    assert (exists w, σ0 !! l = Some w) as (w&Hl0).
+    assert (∃ w, σ0 !! l = Some w) as (w&Hl0).
     { apply elem_of_dom. destruct Hinv as [_ Hincl].
       apply incl_dom_incl in Hincl.
       set_solver. }
@@ -897,8 +900,8 @@ Section pstore_G.
     (fun '(x,_,_) => ValLoc x) <$> ys.
 
   Lemma pstore_collect_spec_aux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
-    lst_model' t' xs ->
-    path g r ys r' ->
+    lst_model' t' xs →
+    path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
@@ -925,7 +928,7 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_collect_spec (r r':location) (ys:list (location*(location*val)*location)) (g:graph_store) :
-    path g r ys r' ->
+    path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
@@ -945,10 +948,10 @@ Section pstore_G.
   Qed.
 
   Lemma use_path r g (xs:list (location*(location*val)*location)) r0 x r1 r':
-    list_to_set xs ⊆ g ->
-    path g r (xs ++ [(r0, x, r1)]) r' ->
-    (r0, x, r1) ∈ (list_to_set xs : gset(location*(location*val)*location) ) ->
-    exists ds, path g r0 ds r0 /\ ds ≠ nil.
+    list_to_set xs ⊆ g →
+    path g r (xs ++ [(r0, x, r1)]) r' →
+    (r0, x, r1) ∈ (list_to_set xs : gset(location*(location*val)*location) ) →
+    ∃ ds, path g r0 ds r0 ∧ ds ≠ nil.
   Proof.
     revert r r0 r1 r' x. induction xs; intros r r0 r1 r' x ?.
     { set_solver. }
@@ -966,18 +969,16 @@ Section pstore_G.
 
   (* [undo xs ys σ] asserts [mirror xs ys] and that [σ = apply_diffl (proj2 <$> ys ++ xs) σ],
      ie, ys undo the changes of xs *)
-  Inductive undo :
-    list (location*(location*val)*location) -> list (location*(location*val)*location) -> gmap location val -> Prop :=
-  | undo_nil :
-    forall σ, undo [] [] σ
-  | undo_cons :
-    forall σ r l v v' r' xs ys,
-      σ !! l = Some v' ->
-      undo xs ys (<[l:=v]> σ) ->
-      undo (xs++[(r,(l,v),r')]) ((r',(l,v'),r)::ys) σ.
+  Inductive undo : list (location*(location*val)*location) → list (location*(location*val)*location) → gmap location val → Prop :=
+    | undo_nil :
+        ∀ σ, undo [] [] σ
+    | undo_cons σ r l v v' r' xs ys :
+        σ !! l = Some v' →
+        undo xs ys (<[l:=v]> σ) →
+        undo (xs++[(r,(l,v),r')]) ((r',(l,v'),r)::ys) σ.
 
   Lemma use_undo xs ys σ :
-    undo xs ys σ ->
+    undo xs ys σ →
     σ = apply_diffl (proj2 <$> ys ++ xs) σ.
   Proof.
     induction 1.
@@ -988,19 +989,19 @@ Section pstore_G.
   Qed.
 
   Lemma undo_mirror xs ys g :
-    undo xs ys g ->
+    undo xs ys g →
     mirror xs ys.
   Proof.
     induction 1; eauto using mirror_cons,mirror_nil.
   Qed.
 
   Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
-    lst_model' t (fsts (rev xs)) ->
-    locations_of_edges_in g2 (dom σ) ->
-    g2 = list_to_set xs ->
-    acyclic g ->
-    g2 ⊆ g ->
-    path g r xs r' ->
+    lst_model' t (fsts (rev xs)) →
+    locations_of_edges_in g2 (dom σ) →
+    g2 = list_to_set xs →
+    acyclic g →
+    g2 ⊆ g →
+    path g r xs r' →
     {{{
       r' ↦ᵣ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
@@ -1037,7 +1038,7 @@ Section pstore_G.
       rewrite big_sepS_singleton. iStep 3. iModIntro.
 
       rewrite Hg list_to_set_app_L list_to_set_cons list_to_set_nil right_id_L in Hlocs.
-      assert (exists v', σ !! l = Some v') as (v',Hl).
+      assert (∃ v', σ !! l = Some v') as (v',Hl).
       { apply elem_of_dom. eapply Hlocs. rewrite /edge.
 
         rewrite elem_of_union elem_of_singleton. right. reflexivity. }
@@ -1070,11 +1071,11 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_revert_spec r t g xs r' w σ σ0 :
-    lst_model' t (fsts (rev xs)) ->
-    locations_of_edges_in g (dom σ) ->
-    g = list_to_set xs ->
-    acyclic g ->
-    path g r xs r' ->
+    lst_model' t (fsts (rev xs)) →
+    locations_of_edges_in g (dom σ) →
+    g = list_to_set xs →
+    acyclic g →
+    path g r xs r' →
     {{{
       r' ↦ᵣ w ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
@@ -1104,10 +1105,10 @@ Section pstore_G.
   Qed.
 
   Lemma pstore_reroot_spec r (xs:list (location*(location*val)*location)) r' g σ :
-    locations_of_edges_in g (dom σ) ->
-    g = list_to_set xs ->
-    acyclic g ->
-    path g r xs r' ->
+    locations_of_edges_in g (dom σ) →
+    g = list_to_set xs →
+    acyclic g →
+    path g r xs r' →
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
@@ -1131,16 +1132,16 @@ Section pstore_G.
   Qed.
 
   Lemma locations_of_edges_weak g1 g2 X :
-    locations_of_edges_in g1 X ->
-    g2 ⊆ g1 ->
+    locations_of_edges_in g1 X →
+    g2 ⊆ g1 →
     locations_of_edges_in g2 X.
   Proof.
     intros Z ? a b c d ?. eapply (Z a b c d). set_solver.
   Qed.
 
   Lemma undo_same_fst_label xs ys r l v r' σ :
-    undo xs ys σ ->
-    (r, (l, v), r') ∈ (list_to_set ys :  gset (location*(location*val)*location)) ->
+    undo xs ys σ →
+    (r, (l, v), r') ∈ (list_to_set ys :  gset (location*(location*val)*location)) →
     l ∈ (list_to_set (proj2 <$> xs).*1 : gset location).
   Proof.
     revert xs σ. induction ys as [|(?,?)]. set_solver.
@@ -1160,12 +1161,12 @@ Section pstore_G.
     end.
 
   Lemma path_extract_suffix (g:gset (location*(location*val)*location)) a1 a2 xs1 r xs2 :
-    unaliased g ->
-    path g a1 xs1 r ->
-    path g a2 xs2 r  ->
-    exists ys1 ys2 xs,
-      xs1 = ys1 ++ xs /\
-      xs2 = ys2 ++ xs /\ diff_last ys1 ys2.
+    unaliased g →
+    path g a1 xs1 r →
+    path g a2 xs2 r →
+    ∃ ys1 ys2 xs,
+      xs1 = ys1 ++ xs ∧
+      xs2 = ys2 ++ xs ∧ diff_last ys1 ys2.
   Proof.
     intros Hinj.
     revert r a1 a2 xs2. induction xs1 using rev_ind; intros r a1 a2 xs2.
@@ -1191,7 +1192,7 @@ Section pstore_G.
   Qed.
 
   Lemma diff_last_app_middle {A:Type} x (l1' l2' l1 l2:list A) :
-    diff_last (l1' ++ x :: l2') (l1 ++ x :: l2) ->
+    diff_last (l1' ++ x :: l2') (l1 ++ x :: l2) →
     diff_last (x :: l2') (x :: l2).
   Proof.
     unfold diff_last. rewrite !last_app !last_cons.
@@ -1199,7 +1200,7 @@ Section pstore_G.
   Qed.
 
   Lemma diff_last_irrefl {A:Type} (l:list A) :
-    l ≠ nil ->
+    l ≠ nil →
     ¬ (diff_last l l).
   Proof.
     destruct (list_case_r l) as [|(?&?&->)]. naive_solver.
@@ -1208,12 +1209,12 @@ Section pstore_G.
   Qed.
 
   Lemma path_use_diff_last (g:gset (location*(location*val)*location)) a1 a2 ys1 ys2 xs r :
-    acyclic g ->
-    unaliased g ->
-    path g a1 (ys1 ++ xs) r ->
-    path g a2 (ys2 ++ xs) r  ->
-    diff_last ys1 ys2 ->
-    forall x, x ∈ ys2 -> x ∉ (ys1 ++ xs).
+    acyclic g →
+    unaliased g →
+    path g a1 (ys1 ++ xs) r →
+    path g a2 (ys2 ++ xs) r →
+    diff_last ys1 ys2 →
+    ∀ x, x ∈ ys2 → x ∉ (ys1 ++ xs).
   Proof.
     intros Hacy Hroot Hp1 Hp2 Hdiff x Hx Hx'.
     apply elem_of_app in Hx'. destruct Hx' as [Hx'|Hx'].
@@ -1257,15 +1258,15 @@ Section pstore_G.
   Qed.
 
   Lemma diff_last_comm {A:Type} (l1 l2:list A) :
-    diff_last l1 l2 <-> diff_last l2 l1.
+    diff_last l1 l2 ↔ diff_last l2 l1.
   Proof.
     unfold diff_last.
     destruct (last l1),(last l2); naive_solver.
   Qed.
 
   Lemma path_union_inv (g1: graph location (location*val)) g2 a1 xs a2 :
-    path (g1 ∪ g2) a1 xs a2 ->
-    path g1 a1 xs a2 \/ exists a' x xs1 xs2, path g1 a1 xs1 a' /\ x ∈ g2 /\ path (g1 ∪ g2) a' (x::xs2) a2 /\ xs=xs1++x::xs2.
+    path (g1 ∪ g2) a1 xs a2 →
+    path g1 a1 xs a2 ∨ ∃ a' x xs1 xs2, path g1 a1 xs1 a' ∧ x ∈ g2 ∧ path (g1 ∪ g2) a' (x::xs2) a2 ∧ xs=xs1++x::xs2.
   Proof.
     induction 1.
     left. eauto using path_nil.
@@ -1285,11 +1286,11 @@ Section pstore_G.
   Qed.
 
   Lemma path_cannot_escape (x:(location * diff * location)) (xs ys:list (location * diff * location)) (g1: graph location (location*val)) a a' r :
-    (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) ->
-    unaliased (g1 ∪ list_to_set ys) ->
-    x ∈ (list_to_set ys : gset _) ->
-    pathlike ys r ->
-    path (g1 ∪ list_to_set ys) a (x :: xs) a' ->
+    (∀ x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) →
+    unaliased (g1 ∪ list_to_set ys) →
+    x ∈ (list_to_set ys : gset _) →
+    pathlike ys r →
+    path (g1 ∪ list_to_set ys) a (x :: xs) a' →
     path (list_to_set ys) a (x::xs) a'.
   Proof.
     intros ? X1 X2 X3. remember (x::xs) as zs.
@@ -1306,12 +1307,12 @@ Section pstore_G.
   Qed.
 
   Lemma path_in_seg_complete (r a a':location) (x:(location * diff * location)) (xs0 xs1 ys: list (location * diff * location)) (g1:graph location (location*val)) :
-    (forall x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) -> (* root has no succ *)
-    unaliased (g1 ∪ list_to_set ys) ->
-    pathlike ys r ->
-    path (g1 ∪ list_to_set ys) a xs0 a' ->
-    path (list_to_set ys) a' (x :: xs1) a ->
-    exists zs, path (list_to_set ys) a zs a'.
+    (∀ x l', ¬ (r,x,l') ∈ (g1 ∪ list_to_set ys)) → (* root has no succ *)
+    unaliased (g1 ∪ list_to_set ys) →
+    pathlike ys r →
+    path (g1 ∪ list_to_set ys) a xs0 a' →
+    path (list_to_set ys) a' (x :: xs1) a →
+    ∃ zs, path (list_to_set ys) a zs a'.
   Proof.
     intros Hroot Hinj Hclosed Hp1 Hp2.
     inversion Hp1.
@@ -1328,12 +1329,12 @@ Section pstore_G.
   Qed.
 
   Lemma undo_preserves_rooted_dag (g:graph location (location*val)) xs ys rs r :
-    (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
-    unaliased g ->
-    unaliased (list_to_set ys ∪ g ∖ list_to_set xs) ->
-    path g rs xs r ->
-    mirror xs ys ->
-    rooted_dag g r ->
+    (∀ x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) → (* root has no succ *)
+    unaliased g →
+    unaliased (list_to_set ys ∪ g ∖ list_to_set xs) →
+    path g rs xs r →
+    mirror xs ys →
+    rooted_dag g r →
     rooted_dag (list_to_set ys ∪ g ∖ list_to_set xs) rs.
   Proof.
     intros Hnr Hinj Hinj' Hpath Hmirror Hroot. inversion Hroot as [X1 X2].
@@ -1402,8 +1403,8 @@ Section pstore_G.
   Qed.
 
   Lemma undo_app_inv xs ys1 ys2 σ :
-    undo xs (ys1 ++ ys2) σ ->
-    exists xs1 xs2, xs = xs2 ++ xs1 /\ undo xs2 ys2 (apply_diffl (proj2 <$> xs1) σ) /\ undo xs1 ys1 σ.
+    undo xs (ys1 ++ ys2) σ →
+    ∃ xs1 xs2, xs = xs2 ++ xs1 ∧ undo xs2 ys2 (apply_diffl (proj2 <$> xs1) σ) ∧ undo xs1 ys1 σ.
   Proof.
     revert xs ys2 σ. induction ys1; intros xs ys2 σ Hundo.
     { exists nil,xs. rewrite right_id_L. split; eauto using undo_nil. }
@@ -1416,11 +1417,11 @@ Section pstore_G.
   Qed.
 
   Lemma construct_middlepoint (g:graph location (location*val)) a1 xs ys a2 a2' :
-    unaliased g ->
-    (forall x l', ¬ (a2,x,l') ∈ g) -> (* root has no succ *)
-    path g a1 xs a2 ->
-    path g a1 ys a2' ->
-    exists zs, xs = ys ++ zs.
+    unaliased g →
+    (∀ x l', ¬ (a2,x,l') ∈ g) → (* root has no succ *)
+    path g a1 xs a2 →
+    path g a1 ys a2' →
+    ∃ zs, xs = ys ++ zs.
   Proof.
     intros Hinj Hroot Hpath. revert ys. induction Hpath; intros ys.
     { intros Hpath. inversion Hpath. eauto. subst. set_solver. }
@@ -1434,13 +1435,13 @@ Section pstore_G.
 
 
   Lemma undo_preserves_model g (M:map_model) (xs ys:list (location* (location*val)*location)) rs σ0 r:
-    dom M = vertices g ∪ {[r]} ->
-    correct_path_diff M g ->
-    (forall x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) -> (* root has no succ *)
-    unaliased (g ∖ list_to_set xs ∪ list_to_set ys) ->
-    path g rs xs r ->
-    undo xs ys σ0 ->
-    M !! r = Some σ0 ->
+    dom M = vertices g ∪ {[r]} →
+    correct_path_diff M g →
+    (∀ x l', ¬ (rs,x,l') ∈ (list_to_set ys ∪ g ∖ list_to_set xs)) → (* root has no succ *)
+    unaliased (g ∖ list_to_set xs ∪ list_to_set ys) →
+    path g rs xs r →
+    undo xs ys σ0 →
+    M !! r = Some σ0 →
     correct_path_diff M (list_to_set ys ∪ g ∖ list_to_set xs).
   Proof.
     intros Hdom Hinv Hroot Hinj' Hrs Hundo E0.
@@ -1478,7 +1479,7 @@ Section pstore_G.
     f_equal. clear dependent σ1 l1.
 
     (* XXX facto a lemma. *)
-    assert (exists u1 u2, ys = u1 ++ (x::l2) ++ u2) as (u1&u2&Hys).
+    assert (∃ u1 u2, ys = u1 ++ (x::l2) ++ u2) as (u1&u2&Hys).
     { eapply use_mirror in Hrs. 2:done.
       apply elem_of_list_to_set, elem_of_middle in Hx.
       destruct Hx as (p1&p2&->).
@@ -1523,7 +1524,7 @@ Section pstore_G.
     meta t0 nroot γ -∗
     snapshosts_model t0 M -∗
     pstore_map_elem γ r σ -∗
-    ⌜exists σ1, M !! r = Some σ1 /\ σ ⊆ σ1⌝.
+    ⌜exists σ1, M !! r = Some σ1 ∧ σ ⊆ σ1⌝.
   Proof.
     iIntros "Hmeta [%γ' [%C (%Hsnap&Hmeta'&HC)]] ?".
     iDestruct (meta_agree with "Hmeta' Hmeta") as "->".
@@ -1597,7 +1598,7 @@ Section pstore_G.
     assert (({[(rs, (l, v), r')]} ∪ list_to_set bs) = (list_to_set xs : gset _)) as Hbs.
     { subst xs xs'. reflexivity. }
 
-    iAssert ⌜forall x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
+    iAssert ⌜∀ x y, (rs,x,y) ∉ (list_to_set ys ∪ g ∖ list_to_set xs)⌝%I as "%".
     { iIntros (???). destruct a. iDestruct (big_sepS_elem_of with "Hs") as "H". done.
       iApply (pointsto_exclusive with "Hrs H"). }
 

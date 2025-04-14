@@ -37,6 +37,19 @@ Section mutex_G.
   Proof.
     iSteps.
   Qed.
+  Lemma condition_create_diaspec :
+    DIASPEC
+    {{
+      True
+    }}
+      condition_create ()
+    {{ t,
+      RET t;
+      condition_inv t
+    }}.
+  Proof.
+    iSteps.
+  Qed.
 
   Lemma condition_wait_spec t mtx P :
     {{{
@@ -54,6 +67,23 @@ Section mutex_G.
   Proof.
     iSteps.
   Qed.
+  Lemma condition_wait_diaspec t mtx P :
+    DIASPEC
+    {{
+      condition_inv t ∗
+      mutex_inv mtx P ∗
+      mutex_locked mtx ∗
+      P
+    }}
+      condition_wait t mtx
+    {{
+      RET ();
+      mutex_locked mtx ∗
+      P
+    }}.
+  Proof.
+    iSteps.
+  Qed.
 
   Lemma condition_notify_spec t :
     {{{
@@ -67,6 +97,19 @@ Section mutex_G.
   Proof.
     iSteps.
   Qed.
+  Lemma condition_notify_diaspec t :
+    DIASPEC
+    {{
+      condition_inv t
+    }}
+      condition_notify t
+    {{
+      RET ();
+      True
+    }}.
+  Proof.
+    iSteps.
+  Qed.
 
   Lemma condition_notify_all_spec t :
     {{{
@@ -77,6 +120,19 @@ Section mutex_G.
       RET ();
       True
     }}}.
+  Proof.
+    iSteps.
+  Qed.
+  #[global] Instance condition_notify_all_diaspec t :
+    DIASPEC
+    {{
+      condition_inv t
+    }}
+      condition_notify_all t
+    {{
+      RET ();
+      True
+    }}.
   Proof.
     iSteps.
   Qed.

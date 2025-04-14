@@ -447,7 +447,7 @@ Section inf_mpmc_queue_1_G.
     iMod (mono_list_update_snoc with "Hauth") as "Hauth".
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { rewrite list_lookup_middle //. }
-    iFrame. rewrite length_app. iSteps.
+    iFrame. simpl_length. iSteps.
   Qed.
   #[local] Lemma consumers_lb_get γ i :
     consumers_auth γ i ⊢
@@ -494,7 +494,7 @@ Section inf_mpmc_queue_1_G.
     iMod (mono_list_update_snoc with "Hauth") as "Hauth".
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { rewrite list_lookup_middle //. }
-    iFrame. rewrite length_app. iSteps.
+    iFrame. simpl_length. iSteps.
   Qed.
   #[local] Lemma tokens_pending_update γ i :
     tokens_pending γ i ⊢ |==>
@@ -693,7 +693,7 @@ Section inf_mpmc_queue_1_G.
 
         iSplitL.
         { iExists front1, (S back1). iFrame.
-          rewrite length_app /=.
+          simpl_length.
           rewrite Hvs drop_app_le; first lia.
           rewrite Nat.max_r; first lia.
           assert (front1 - S back1 = 0) as -> by lia.

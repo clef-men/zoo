@@ -1414,7 +1414,7 @@ Section kcas_1_G.
               - iApply (big_sepL_impl with "Hmodels₂").
                 rewrite /descriptor_final Hsuccess /=. iSteps.
               - iDestruct (big_sepL_seq_index_1 (drop i η.(metadata_descrs)) with "Hlocks") as "Hlocks".
-                { rewrite length_drop //. }
+                { simpl_length. }
                 iApply (big_sepL_impl with "Hlocks").
                 iSteps.
             }
@@ -2265,7 +2265,7 @@ Section kcas_1_G.
     iDestruct (big_sepL_exists with "Hdescrs") as "(%descrs & _ & Hdescrs)".
     iDestruct (big_sepL2_sep_sepL_r with "Hdescrs") as "(Hvs_cass & Hdescrs)".
     iDestruct (big_sepL2_Forall2 with "Hvs_cass") as %->%list_fmap_alt_Forall2_l. iClear "Hvs_cass".
-    rewrite length_zip3_with // length_fmap in Hvs_cass.
+    simpl_length in Hvs_cass.
     iDestruct (big_sepL_sep with "Hdescrs") as "(#Hstates_casn & Hdescrs)".
     iDestruct (big_sepL_sep with "Hdescrs") as "(Hstates & Hdescrs)".
     iDestruct (big_sepL_extract_r with "Hdescrs") as "Hdescrs"; first lia.

@@ -228,7 +228,7 @@ Section inf_array_G.
     inf_array_model' t vsₗ (λ i, match i with 0 => v | S i => vsᵣ i end).
   Proof.
     rewrite /inf_array_model' inf_array_model_proper; last done.
-    intros j. rewrite length_app /=.
+    intros j. simpl_length/=.
     destruct (Nat.lt_total j (length vsₗ)) as [| [-> |]].
     - rewrite !decide_True; try lia.
       rewrite lookup_total_app_l //.
@@ -323,7 +323,7 @@ Section inf_array_G.
     wp_smart_apply (array_unsafe_grow_spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
     wp_store.
 
-    iSteps; iPureIntro; rewrite length_app length_replicate; last lia.
+    iSteps; iPureIntro; simpl_length; last lia.
     apply functional_extensionality => i. rewrite Hvs.
     case_decide; last case_decide.
     - rewrite decide_True; first lia.
@@ -528,7 +528,7 @@ Section inf_array_G.
     iSplitL "Hmodel"; last iSteps.
     Z_to_nat i. rewrite Nat2Z.id. case_decide.
     all: iApply (inf_array_model_proper with "Hmodel"); intros j.
-    - rewrite length_insert. case_decide.
+    - simpl_length. case_decide.
       + destruct (decide (j = i)) as [-> |].
         * rewrite list_lookup_total_insert // fn_lookup_insert //.
         * rewrite list_lookup_total_insert_ne // fn_lookup_insert_ne // decide_True //.

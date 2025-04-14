@@ -498,7 +498,7 @@ Proof.
   destruct vs1, vs2; try done.
   - intros [= ->%(inj _)]. done.
   - intros (<- & Hlen%Forall2'_length).
-    rewrite !length_fmap // in Hlen.
+    simpl_length in Hlen.
 Qed.
 Lemma val_similar_location_block l gen tag vs :
   ¬ ValLit (LitLoc l) ≈ ValBlock gen tag vs.

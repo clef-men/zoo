@@ -402,7 +402,7 @@ Section mpsc_queue_1_G.
           iDestruct (big_sepL2_length with "Hnodes") as %<-.
           iIntros "%Hnodes_length". iPureIntro.
           apply (f_equal length) in Hhist as Hhist_length.
-          rewrite length_app /= in Hhist_length.
+          simpl_length/= in Hhist_length.
           apply lookup_lt_Some in Hlookup'.
           lia.
         }
@@ -426,7 +426,7 @@ Section mpsc_queue_1_G.
         exfalso.
         apply (f_equal length) in Hhist.
         opose proof* length_lookup_last as Heq; [done.. |].
-        rewrite Heq length_app /= in Hhist. lia.
+        simpl_length/= in Hhist. lia.
       }
       iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".

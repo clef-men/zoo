@@ -546,7 +546,7 @@ Section spsc_bqueue_G.
     wp_rec.
     iApply wp_fupd.
     wp_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
-    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_inv". rewrite length_replicate.
+    iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_inv". simpl_length.
     wp_block l as "Hmeta" "(Hl_data & Hl_front & Hl_front_cache & Hl_back & Hl_back_cache & _)".
     iMod (pointsto_persist with "Hl_data") as "#Hl_data".
 
@@ -874,7 +874,7 @@ Section spsc_bqueue_G.
 
       iSplitR "Hl_front_cache Hproducer₁ HΦ".
       { do 2 iModIntro. iExists _, front3, _, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
-        rewrite !length_app. iStep 3.
+        simpl_length. iStep 3.
         iSplit. { rewrite Hvs3 drop_app_le //; first lia. }
         iStep.
         rewrite assoc. iSplitL "Hfront Hvs Hback_".
@@ -883,7 +883,7 @@ Section spsc_bqueue_G.
             destruct cstable3; iSteps.
           + rewrite /= !drop_0 fmap_app.
             iApply (array_cslice_app_1 with "Hvs Hback_").
-            rewrite length_fmap. naive_solver lia.
+            simpl_length. naive_solver lia.
         - case_decide.
           + assert (γ.(metadata_capacity) - (S back - front3) - 1 = 0) as -> by lia.
             iSteps.
@@ -1039,7 +1039,7 @@ Section spsc_bqueue_G.
       iSplit. { erewrite drop_S in Hvs3 => //. naive_solver. }
       iStep.
       rewrite assoc. iSplitL "Hvs".
-      - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app length_fmap length_take.
+      - rewrite -{1}(take_drop 1 vs3) fmap_app -array_cslice_app. simpl_length.
         destruct vs3.
         2: rewrite Nat.add_1_r.
         all: destruct pstable3; iSteps.
@@ -1050,7 +1050,7 @@ Section spsc_bqueue_G.
           destruct pstable3; iSteps.
         + rewrite decide_False; first lia. iFrame.
           iDestruct (array_cslice_app_1 with "Hextra Hfront_") as "Hextra".
-          { rewrite length_replicate. lia. }
+          { simpl_length. lia. }
           rewrite -replicate_S_end.
           assert (S (γ.(metadata_capacity) - (back3 - front) - 1) = γ.(metadata_capacity) - (back3 - S front) - 1) as -> by lia.
           iSteps.

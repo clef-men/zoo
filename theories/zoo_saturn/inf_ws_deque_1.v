@@ -744,7 +744,7 @@ Section inf_ws_deque_1_G.
     { (* we have lock, hence we are in state 1 or in state 2 *)
       iDestruct (lock_state with "Hlock Hstate") as "(Hlock & [Hstate | Hstate])";
         iDestruct "Hstate" as "(>%Hstate & _ & >%Hhist & _)";
-        rewrite length_app; auto with lia.
+        simpl_length; auto with lia.
     }
     iAaccIntro with "Harray_model"; iIntros "Harray_model".
     { iModIntro. iFrame. repeat iExists _. iFrame. done. }
@@ -993,7 +993,7 @@ Section inf_ws_deque_1_G.
         iPureIntro; lia.
     }
     (* hence [back = length (hist ++ vs)] *)
-    assert (₊back = length (hist ++ vs)) as Heq. { rewrite length_app. lia. }
+    assert (₊back = length (hist ++ vs)) as Heq. { simpl_length. lia. }
     rewrite Heq decide_False; first lia. rewrite Nat.sub_diag.
     (* close invariant *)
     iModIntro. iSplitR "Hctl₂ Hlock".
@@ -1051,7 +1051,7 @@ Section inf_ws_deque_1_G.
       (* close invariant *)
       iModIntro. iSplitR "Hctl₂ Hlock HΦ".
       { iExists front, (back + 1)%Z, hist, vs', priv'', past, prophs. iFrame.
-        iSplit. { iPureIntro. rewrite length_app. simpl in *. lia. }
+        iSplit. { simpl_length/=. iSteps. }
         iSplit; first done.
         unfold_state. iRight. iLeft. iFrame. auto with lia.
       }
@@ -1326,11 +1326,11 @@ Section inf_ws_deque_1_G.
         }
         unfold_state. destruct vs as [| w vs]; simpl in Hvs.
         - iModIntro. iLeft. iFrame. iSplit; first auto with lia.
-          iSplit. { rewrite length_app /=. auto with lia. }
+          iSplit. { simpl_length/=. auto with lia. }
           repeat iExists _. iFrame.
         - iMod (history_update w with "Hhist_auth") as "Hhist_auth".
           iModIntro. iRight. iLeft. iFrame. iSplit; first auto with lia.
-          iSplit. { rewrite length_app /=. auto with lia. }
+          iSplit. { simpl_length/=. auto with lia. }
           unfold_state. destruct (head $ filter _ prophs3') as [[] |].
           + iLeft. repeat iExists _. iFrame.
           + repeat iExists _. iFrame.
@@ -1640,7 +1640,7 @@ Section inf_ws_deque_1_G.
             eapply Forall_impl; first done. intros (? & ?) ?. lia.
           }
           unfold_state. do 2 iRight. iFrame. iRight. iFrame. iSplit; first auto with lia.
-          rewrite length_app /=. auto with lia.
+          simpl_length/=. auto with lia.
         }
         clear.
 
@@ -1705,7 +1705,7 @@ Section inf_ws_deque_1_G.
           iSplit. { list_simplifier. auto with lia. }
           iSplit; first done.
           unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-          iSplit. { rewrite length_app /=. auto with lia. }
+          iSplit. { simpl_length/=. auto with lia. }
           unfold_state. rewrite Hbranch2. naive_solver.
         }
         clear- Hbranch2.
@@ -1771,7 +1771,7 @@ Section inf_ws_deque_1_G.
           iSplitL "Harray_model". { list_simplifier. done. }
           do 2 (iSplit; first (simpl; auto with lia)).
           unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-          iSplit. { rewrite length_app /=. auto with lia. }
+          iSplit. { simpl_length/=. auto with lia. }
           unfold_state. rewrite Hbranch2. iFrame.
           rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
         }
@@ -1895,7 +1895,7 @@ Section inf_ws_deque_1_G.
             iSplit. { list_simplifier. auto with lia. }
             iSplit; first done.
             unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-            iSplit. { rewrite length_app /=. auto with lia. }
+            iSplit. { simpl_length/=. auto with lia. }
             unfold_state. rewrite Hbranch2. iFrame.
             rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
           }
@@ -1957,7 +1957,7 @@ Section inf_ws_deque_1_G.
             iSplit. { list_simplifier. auto with lia. }
             iSplit; first done.
             unfold_state. do 2 iRight. iFrame. iLeft. iSplit; first done.
-            iSplit. { rewrite length_app /=. auto with lia. }
+            iSplit. { simpl_length/=. auto with lia. }
             unfold_state. rewrite Hbranch2. iFrame.
             rewrite lookup_total_app_r; first lia. rewrite Hhist Nat.sub_diag //.
           }

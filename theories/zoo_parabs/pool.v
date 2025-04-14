@@ -328,7 +328,7 @@ Section pool_G.
     wp_smart_apply (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
     wp_smart_apply (array_unsafe_initi_spec_disentangled' (λ _ dom, domain_model dom itype_unit) with "[Hhub_owners]") as (domains doms) "(_ & Hdomains & Hdoms)"; first done.
     { iApply (big_sepL_impl_strong with "Hhub_owners").
-      { rewrite !length_seq. lia. }
+      { simpl_length. }
       iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "Hhub_owner".
       wp_smart_apply (domain_spawn_spec itype_unit with "[Hhub_owner]"); last iSteps. iIntros "%tid _".
       iApply wp_thread_id_mono.

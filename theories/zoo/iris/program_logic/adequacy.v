@@ -55,8 +55,7 @@ Section iris_G.
     do 2 iModIntro.
     iMod "He1" as "(Hinterp & He2 & Hes)".
     iDestruct ("H" with "He2") as "H".
-    rewrite length_app length_insert Nat.add_sub'.
-    rewrite (list_insert_id Φs) // big_sepL2_app length_insert.
+    simpl_length. rewrite Nat.add_sub' (list_insert_id Φs) // big_sepL2_app. simpl_length.
     iSteps.
   Qed.
   #[local] Lemma bwps_steps n es1 σ1 es2 σ2 κs1 κs2 Φs :

@@ -78,7 +78,7 @@ Section zoo_G.
     iMod (mono_list_update_snoc v with "Hauth") as "Hauth".
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }
-    iSteps. iPureIntro. rewrite length_app /=. lia.
+    iSteps. iPureIntro. simpl_length/=. lia.
   Qed.
 End zoo_G.
 
