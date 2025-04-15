@@ -100,7 +100,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ Hpool HΦ".
     wp_rec.
-    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
+    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx _ Hctx".
     wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.

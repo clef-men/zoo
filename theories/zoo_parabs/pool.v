@@ -20,7 +20,7 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Implicit Types b not_killed : bool.
+Implicit Types b : bool.
 Implicit Types v t ctx hub task pred : val.
 
 #[local] Parameter pool_max_round_noyield_ : nat.
@@ -196,9 +196,9 @@ Section pool_G.
   #[local] Instance : CustomIpatFormat "context_inv" :=
     "(
       %𝑡{} &
-      %𝑐𝑡𝑥{} &
+      %𝑐𝑡𝑥{=_} &
       {%H𝑡{}_eq=->} &
-      {%H𝑐𝑡𝑥{}_eq=->} &
+      %H𝑐𝑡𝑥{}_eq &
       %Hcommon{}
     )".
 
@@ -356,6 +356,7 @@ Section pool_G.
     {{{
       pool_model t ∗
       ( ∀ ctx,
+        pool_context_inv t ctx -∗
         pool_context_model ctx -∗
         WP task ctx {{ v,
           pool_context_model ctx ∗
@@ -376,7 +377,7 @@ Section pool_G.
     wp_smart_apply (ws_hub_std_unblock_spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
     wp_smart_apply (pool_execute_spec _ 0 _ Ψ with "[$Hhub_owner Htask]") as (v) "(Hhub_owner & HΨ)".
     { iIntros "%i Hhub_owner".
-      wp_apply (wp_wand with "(Htask [Hhub_owner])") as "%v ((:context_model =1) & $)"; first iSteps.
+      wp_apply (wp_wand with "(Htask [] [Hhub_owner])") as "%v ((:context_model =1) & $)"; [iSteps.. |].
       apply (inj context_to_val) in H𝑐𝑡𝑥1_eq as <-.
       iSteps.
     }
@@ -421,6 +422,35 @@ Section pool_G.
     iSteps.
   Qed.
 
+  Lemma pool_silent_async_spec_inv t ctx task :
+    {{{
+      pool_context_inv t ctx ∗
+      pool_context_model ctx ∗
+      ( ∀ ctx,
+        pool_context_inv t ctx -∗
+        pool_context_model ctx -∗
+        WP task ctx {{ res,
+          pool_context_model ctx
+        }}
+      )
+    }}}
+      pool_silent_async ctx task
+    {{{
+      RET ();
+      pool_context_model ctx
+    }}}.
+  Proof.
+    iIntros "%Φ ((:context_inv) & (:context_model) & Htask) HΦ".
+    apply (inj context_to_val) in H𝑐𝑡𝑥_eq as <-.
+
+    wp_rec.
+
+    awp_smart_apply (ws_hub_std_push_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
+    iInv "Hinv" as "(:inv_inner)".
+    iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
+    iSplitL. { iFrame. rewrite big_sepMS_singleton. iSteps. }
+    iSteps.
+  Qed.
   Lemma pool_silent_async_spec ctx task :
     {{{
       pool_context_model ctx ∗
@@ -444,13 +474,42 @@ Section pool_G.
     awp_smart_apply (ws_hub_std_push_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
     iInv "Hinv" as "(:inv_inner)".
     iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
-    iSplitL.
-    { iExists _. iFrame.
-      rewrite big_sepMS_singleton. iSteps.
-    }
+    iSplitL. { iFrame. rewrite big_sepMS_singleton. iSteps. }
     iSteps.
   Qed.
 
+  Lemma pool_async_spec_inv Ψ t ctx task :
+    {{{
+      pool_context_inv t ctx ∗
+      pool_context_model ctx ∗
+      ( ∀ ctx,
+        pool_context_inv t ctx -∗
+        pool_context_model ctx -∗
+        WP task ctx {{ v,
+          pool_context_model ctx ∗
+          □ Ψ v
+        }}
+      )
+    }}}
+      pool_async ctx task
+    {{{ fut,
+      RET fut;
+      pool_context_model ctx ∗
+      pool_future fut Ψ
+    }}}.
+  Proof.
+    iIntros "%Φ (Hctx_inv & Hctx_model & Htask) HΦ".
+
+    wp_rec.
+    wp_smart_apply (spmc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer)".
+    wp_smart_apply (pool_silent_async_spec_inv with "[$Hctx_inv $Hctx_model Htask Hfut_producer]") as "Hctx_model".
+    { clear ctx. iIntros "%ctx Hctx_inv Hctx_model".
+      wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ)".
+      wp_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]") as "_ //".
+    }
+    wp_pures.
+    iApply ("HΦ" with "[$Hctx_model $Hfut_inv]").
+  Qed.
   Lemma pool_async_spec Ψ ctx task :
     {{{
       pool_context_model ctx ∗
