@@ -7,7 +7,7 @@ From zoo_std Require Import
   array
   random_round.
 From zoo_saturn Require Import
-  inf_ws_deque_2.
+  ws_deque_2.
 From zoo Require Import
   options.
 

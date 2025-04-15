@@ -1,8 +1,8 @@
 type 'a t =
-  'a Inf_ws_deque_2.t array
+  'a Ws_deque_2.t array
 
 let create sz =
-  Array.unsafe_init sz Inf_ws_deque_2.create
+  Array.unsafe_init sz Ws_deque_2.create
 
 let size =
   Array.size
@@ -15,15 +15,15 @@ let unblock _t _i =
 
 let push t i v =
   let deque = Array.unsafe_get t i in
-  Inf_ws_deque_2.push deque v
+  Ws_deque_2.push deque v
 
 let pop t i =
   let deque = Array.unsafe_get t i in
-  Inf_ws_deque_2.pop deque
+  Ws_deque_2.pop deque
 
 let steal_to t _i j =
   let deque = Array.unsafe_get t j in
-  Inf_ws_deque_2.steal deque
+  Ws_deque_2.steal deque
 
 let rec steal_as t sz i round n =
   if n <= 0 then (

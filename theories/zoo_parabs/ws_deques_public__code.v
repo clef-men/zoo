@@ -7,7 +7,7 @@ From zoo_std Require Import
   array
   random_round.
 From zoo_saturn Require Import
-  inf_ws_deque_2.
+  ws_deque_2.
 From zoo_parabs Require Import
   ws_deques_public__types.
 From zoo Require Import
@@ -15,7 +15,7 @@ From zoo Require Import
 
 Definition ws_deques_public_create : val :=
   fun: "sz" =>
-    array_unsafe_init "sz" inf_ws_deque_2_create.
+    array_unsafe_init "sz" ws_deque_2_create.
 
 Definition ws_deques_public_size : val :=
   array_size.
@@ -31,17 +31,17 @@ Definition ws_deques_public_unblock : val :=
 Definition ws_deques_public_push : val :=
   fun: "t" "i" "v" =>
     let: "deque" := array_unsafe_get "t" "i" in
-    inf_ws_deque_2_push "deque" "v".
+    ws_deque_2_push "deque" "v".
 
 Definition ws_deques_public_pop : val :=
   fun: "t" "i" =>
     let: "deque" := array_unsafe_get "t" "i" in
-    inf_ws_deque_2_pop "deque".
+    ws_deque_2_pop "deque".
 
 Definition ws_deques_public_steal_to : val :=
   fun: "t" "_i" "j" =>
     let: "deque" := array_unsafe_get "t" "j" in
-    inf_ws_deque_2_steal "deque".
+    ws_deque_2_steal "deque".
 
 Definition ws_deques_public_steal_as_0 : val :=
   rec: "steal_as" "t" "sz" "i" "round" "n" =>
