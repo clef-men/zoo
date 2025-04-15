@@ -20,10 +20,9 @@ let try_wait t =
   t.flag
 
 let wait t =
-  if not @@ try_wait t then (
+  if not @@ try_wait t then
     let mtx = t.mutex in
     let cond = t.condition in
     Mutex.protect mtx (fun () ->
       Condition.wait_until cond mtx (fun () -> t.flag)
     )
-  )
