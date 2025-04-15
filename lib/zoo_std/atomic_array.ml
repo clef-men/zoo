@@ -42,7 +42,7 @@ let unsafe_faa =
   Stdlib.Atomic_array.unsafe_fetch_and_add
 [@@zoo.overwrite_raw "zoo_std.array.array_unsafe_faa"]
 
-let[@zoo.exclude] rec foldli_aux fn t sz i acc =
+let[@zoo.ignore] rec foldli_aux fn t sz i acc =
   if sz <= i then (
     acc
   ) else (

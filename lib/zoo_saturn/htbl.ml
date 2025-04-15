@@ -49,7 +49,7 @@ let rec bucket_assoc equal key = function
   | Resize bucket ->
       bucket_assoc equal key bucket
 
-let[@zoo.exclude] rec bucket_dissoc equal key = function
+let[@zoo.ignore] rec bucket_dissoc equal key = function
   | Nil ->
       raise_notrace Not_found
   | Cons (key', v, bucket) ->

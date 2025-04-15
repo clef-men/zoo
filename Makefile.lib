@@ -1,3 +1,5 @@
+ignore := zoo
+
 targets_nocoq += lib
 .PHONY : lib
 lib :
@@ -6,7 +8,7 @@ lib :
 targets_nocoq += ocaml2zoo
 .PHONY : ocaml2zoo
 ocaml2zoo :
-	@ ocaml2zoo --exclude zoo . theories
+	@ ocaml2zoo $(addprefix --ignore ,$(ignore)) . theories
 
 .PHONY : clean
 clean ::

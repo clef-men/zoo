@@ -1,4 +1,4 @@
-[@@@zoo.exclude]
+[@@@zoo.ignore]
 
 module type S = sig
   type 'a t

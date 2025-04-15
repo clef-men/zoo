@@ -2,7 +2,7 @@
    https://github.com/pramalhe/ConcurrencyFreaks/blob/5b3b9fcd232ccb5417724fa154e948d0f26b6442/CPP/queues/array/FAAArrayQueue.hpp
 *)
 
-[@@@zoo.exclude]
+[@@@zoo.ignore]
 
 type ('a, _) node =
   | Null :

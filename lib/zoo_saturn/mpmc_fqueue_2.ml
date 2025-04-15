@@ -1,4 +1,4 @@
-[@@@zoo.exclude]
+[@@@zoo.ignore]
 
 type 'a t =
   { data: 'a Optional.t Atomic_array.t;
