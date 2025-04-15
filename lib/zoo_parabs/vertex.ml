@@ -24,12 +24,10 @@ let precede t1 t2 =
     )
   )
 
-let propagate ctx t run =
+let rec release ctx t =
   if Atomic.Loc.fetch_and_add [%atomic.loc t.preds] (-1) == 1 then
     Pool.silent_async ctx (fun ctx -> run ctx t)
-let rec run ctx t =
+and run ctx t =
   t.task ctx ;
   let succs = Mpmc_stack_2.close t.succs in
-  Clst.iter (fun t' -> propagate ctx t' run) succs
-let release ctx t =
-  propagate ctx t run
+  Clst.iter (fun succ -> release ctx succ) succs

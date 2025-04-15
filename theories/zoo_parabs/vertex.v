@@ -27,7 +27,7 @@ From zoo Require Import
 Implicit Types closed : bool.
 Implicit Types preds : nat.
 Implicit Types vtx succ : location.
-Implicit Types run : val.
+Implicit Types ctx run : val.
 
 Inductive state :=
   | Init
@@ -460,152 +460,161 @@ Section vertex_G.
         iSteps.
   Qed.
 
-  #[local] Lemma vertex_propagate_spec ctx vtx γ P π Q run :
-    {{{
-      pool_context_model ctx ∗
-      inv' vtx γ P ∗
-      saved_prop π Q ∗
-      predecessor γ π ∗
-      □ Q ∗
-      ( ∀ ctx,
-        pool_context_model ctx -∗
-        state₂ γ Running -∗
+  #[local] Lemma vertex_release_run_spec :
+    ⊢ (
+      ∀ ctx vtx γ P π Q,
+      {{{
+        pool_context_model ctx ∗
+        inv' vtx γ P ∗
+        saved_prop π Q ∗
+        predecessor γ π ∗
+        □ Q
+      }}}
+        vertex_release ctx #vtx
+      {{{
+        RET ();
+        pool_context_model ctx
+      }}}
+    ) ∧ (
+      ∀ ctx vtx γ P,
+      {{{
+        pool_context_model ctx ∗
+        inv' vtx γ P ∗
+        state₂ γ Running ∗
         ( pool_context_model ctx -∗
           WP γ.(metadata_task) ctx {{ res,
             pool_context_model ctx ∗
             ▷ □ P
           }}
-        ) -∗
-        WP run ctx #vtx {{ res,
-          pool_context_model ctx
-        }}
-      )
-    }}}
-      vertex_propagate ctx #vtx run
-    {{{
-      RET ();
-      pool_context_model ctx
-    }}}.
+        )
+      }}}
+        vertex_run ctx #vtx
+      {{{
+        RET ();
+        pool_context_model ctx
+      }}}
+    ).
   Proof.
-    setoid_rewrite inv'_unfold.
-    iIntros "%Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ & Hrun) HΦ".
+    iLöb as "HLöb".
+    iDestruct "HLöb" as "(IHrelease & IHrun)".
+    iSplit.
 
-    wp_rec. wp_pures.
+    { iClear "IHrelease".
+      setoid_rewrite inv'_unfold.
+      iIntros "%ctx %vtx %γ %P %π %Q !> %Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ) HΦ".
 
-    wp_bind (FAA _ _).
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
-    wp_faa.
-    iDestruct (predecessors_elem_of with "Hpreds Hpred") as %Hπ.
-    destruct state.
-    3: iDestruct "Hstate" as "%HΠ".
-    4: iDestruct "Hstate" as "(%HΠ & _)".
-    3,4: apply size_empty_inv in HΠ; set_solver.
-    all: iMod (predecessors_remove with "Hpreds Hpred") as "Hpreds".
-    all: iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
+      wp_recs. wp_pures.
 
-    - iClear "Hrun".
-      iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-      iSplitR "Hctx HΦ".
-      { iExists Init, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
-        rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-        assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
-        { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
-        iSteps; iPureIntro.
-        - set_solver.
-        - rewrite size_difference; first set_solver. rewrite size_singleton.
-          apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
-      }
-      assert (preds ≠ 1).
-      { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
-      iSteps.
+      wp_bind (FAA _ _).
+      iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+      wp_faa.
+      iDestruct (predecessors_elem_of with "Hpreds Hpred") as %Hπ.
+      destruct state.
+      3: iDestruct "Hstate" as "%HΠ".
+      4: iDestruct "Hstate" as "(%HΠ & _)".
+      3,4: apply size_empty_inv in HΠ; set_solver.
+      all: iMod (predecessors_remove with "Hpreds Hpred") as "Hpreds".
+      all: iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
 
-    - iDestruct "Hstate" as "(%Hpreds & Hstate₂ & Hdeps & Htask)".
-      destruct (decide (preds = 1)) as [-> | ?].
-
-      + assert (Π = {[π]}) as ->.
-        { apply symmetry, size_1_elem_of in Hpreds as (_π & Heq). set_solver. }
-        rewrite difference_diag_L.
-        iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-        iDestruct "HΔ" as "#HΔ".
-        iSplitR "Hctx Hrun Hstate₂ Hdeps Htask HΦ".
-        { iExists Running, 0, ({[π]} ∪ Δ), ∅.
-          rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-          iSteps.
-        }
-        iDestruct (big_sepS_insert_2' with "[] HΔ") as "HΔ'"; first iSteps.
-        iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
-        iMod (dependencies_close with "Hdeps") as "#Hdeps".
-        iIntros "!> {%}".
-
-        wp_smart_apply (pool_silent_async_spec with "[$Hctx Hrun Hstate₂ Hdeps Htask]"); last iSteps.
-        iIntros "{%} %ctx Hctx".
-        wp_smart_apply (wp_wand with "(Hrun Hctx Hstate₂ [Hdeps Htask])"); last iSteps. iIntros "Hctx".
-        wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
-        iDestruct (dependencies_elem_of with "Hdeps Hdep") as %Hδ.
-        iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
-        iDestruct (saved_prop_agree with "Hδ _Hδ") as "-#Heq".
-        iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-        iRewrite "Heq". iSteps.
-
-      + iSplitR "Hctx HΦ".
-        { iExists Released, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
+      - iDestruct "Hstate" as "(%Hpreds & Hdeps)".
+        iSplitR "Hctx HΦ".
+        { iExists Init, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
           rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
           assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
           { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
-          assert (1 < preds).
-          { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
-          iFrameSteps; iPureIntro.
+          iSteps; iPureIntro.
           - set_solver.
           - rewrite size_difference; first set_solver. rewrite size_singleton.
             apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
         }
+        assert (preds ≠ 1).
+        { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
         iSteps.
+
+      - iDestruct "Hstate" as "(%Hpreds & Hstate₂ & Hdeps & Htask)".
+        destruct (decide (preds = 1)) as [-> | ?].
+
+        + assert (Π = {[π]}) as ->.
+          { apply symmetry, size_1_elem_of in Hpreds as (_π & Heq). set_solver. }
+          rewrite difference_diag_L.
+          iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iDestruct "HΔ" as "#HΔ".
+          iSplitR "Hctx Hstate₂ Hdeps Htask HΦ".
+          { iExists Running, 0, ({[π]} ∪ Δ), ∅.
+            rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
+            iSteps.
+          }
+          iDestruct (big_sepS_insert_2' with "[] HΔ") as "HΔ'"; first iSteps.
+          iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
+          iMod (dependencies_close with "Hdeps") as "#Hdeps".
+          iIntros "!> {%}".
+
+          wp_smart_apply (pool_silent_async_spec with "[$Hctx Hstate₂ Hdeps Htask]"); last iSteps. iIntros "{%} %ctx Hctx".
+          wp_smart_apply ("IHrun" with "[-]"); last iSteps. iStep 4 as "Hctx".
+          wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
+          iDestruct (dependencies_elem_of with "Hdeps Hdep") as %Hδ.
+          iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
+          iDestruct (saved_prop_agree with "Hδ _Hδ") as "-#Heq".
+          iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+          iRewrite "Heq". iSteps.
+
+        + iSplitR "Hctx HΦ".
+          { iExists Released, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
+            rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
+            assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
+            { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
+            assert (1 < preds).
+            { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
+            iFrameSteps; iPureIntro.
+            - set_solver.
+            - rewrite size_difference; first set_solver. rewrite size_singleton.
+              apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
+          }
+          iSteps.
+    }
+
+    { iClear "IHrun".
+      setoid_rewrite inv'_unfold.
+      iIntros "%ctx %vtx %γ %P !> %Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & Hstate₂ & Htask) HΦ".
+
+      wp_recs. wp_load.
+      wp_apply (wp_wand with "(Htask Hctx)") as (res) "(Hctx & #HP)".
+      wp_load.
+
+      awp_smart_apply (mpmc_stack_2_close_spec with "Hsuccs_inv") without "Hctx HΦ".
+      iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
+      iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
+      iDestruct "Hstate" as ">%HΠ".
+      iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
+      iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model"; first iFrameSteps.
+      iMod (state_update Done with "Hstate₁ Hstate₂") as "(Hstate₁ & _)".
+      iSplitR "Hsuccs"; first iSteps.
+      iIntros "!> H£ (Hctx & HΦ) {%}".
+
+      iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
+      wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+      rewrite big_sepL_fmap.
+      iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
+      wp_smart_apply ("IHrelease" with "[$Hctx $Hπ $Hpred $HP]"); last iSteps.
+      iApply (inv'_unfold with "Hinv_succ").
+    }
   Qed.
-  #[local] Lemma vertex_run_spec ctx vtx γ P :
+  #[local] Lemma vertex_release_spec' ctx vtx γ P π Q :
     {{{
       pool_context_model ctx ∗
       inv' vtx γ P ∗
-      state₂ γ Running ∗
-      ( pool_context_model ctx -∗
-        WP γ.(metadata_task) ctx {{ res,
-          pool_context_model ctx ∗
-          ▷ □ P
-        }}
-      )
+      saved_prop π Q ∗
+      predecessor γ π ∗
+      □ Q
     }}}
-      vertex_run ctx #vtx
+      vertex_release ctx #vtx
     {{{
       RET ();
       pool_context_model ctx
     }}}.
   Proof.
-    iLöb as "HLöb" forall (ctx vtx γ P).
-
-    setoid_rewrite inv'_unfold.
-    iIntros "%Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & Hstate₂ & Htask) HΦ".
-
-    wp_rec. wp_load.
-    wp_apply (wp_wand with "(Htask Hctx)") as (res) "(Hctx & #HP)".
-    wp_load.
-
-    awp_smart_apply (mpmc_stack_2_close_spec with "Hsuccs_inv") without "Hctx HΦ".
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
-    iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-    iDestruct "Hstate" as ">%HΠ".
-    iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-    iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model"; first iFrameSteps.
-    iMod (state_update Done with "Hstate₁ Hstate₂") as "(Hstate₁ & _)".
-    iSplitR "Hsuccs"; first iSteps.
-    iIntros "!> H£ (Hctx & HΦ) {%}".
-
-    iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-    wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
-    rewrite big_sepL_fmap.
-    iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
-    wp_smart_apply (vertex_propagate_spec with "[$Hinv_succ $Hctx $Hπ $Hpred $HP]"); last iSteps.
-    iIntros "{%} %ctx Hctx Hstate₂ Htask".
-    wp_apply ("HLöb" with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
-    rewrite -inv'_unfold //.
+    iDestruct vertex_release_run_spec as "(H & _)".
+    iApply "H".
   Qed.
   Lemma vertex_release_spec ctx t P task :
     {{{
@@ -656,12 +665,7 @@ Section vertex_G.
     }
     iIntros "!> !> {%}".
 
-    wp_rec.
-
-    wp_smart_apply (vertex_propagate_spec with "[$Hctx $Hπ $Hpred] HΦ").
-    rewrite inv'_unfold. do 2 iStep.
-    iIntros "{%} %ctx Hctx Hstate₂ Htask".
-    wp_apply (vertex_run_spec with "[$Hctx $Hstate₂ $Htask]"); last iSteps.
+    wp_smart_apply (vertex_release_spec' with "[$Hctx $Hπ $Hpred] HΦ").
     rewrite inv'_unfold. iSteps.
   Qed.
 End vertex_G.

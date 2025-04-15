@@ -29,18 +29,33 @@ Definition vertex_precede : val :=
       )
     ).
 
-Definition vertex_propagate : val :=
-  fun: "ctx" "t" "run" =>
+#[local] Definition __zoo_recs_0 := (
+  recs: "release" "ctx" "t" =>
     if: FAA "t".[preds] #(-1) == #1 then (
       pool_silent_async "ctx" (fun: "ctx" => "run" "ctx" "t")
-    ).
-
-Definition vertex_run : val :=
-  rec: "run" "ctx" "t" =>
+    )
+  and: "run" "ctx" "t" =>
     "t".{task} "ctx" ;;
     let: "succs" := mpmc_stack_2_close "t".{succs} in
-    clst_iter (fun: "t'" => vertex_propagate "ctx" "t'" "run") "succs".
-
-Definition vertex_release : val :=
-  fun: "ctx" "t" =>
-    vertex_propagate "ctx" "t" vertex_run.
+    clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
+)%zoo_recs.
+Definition vertex_release :=
+  ValRecs 0 __zoo_recs_0.
+Definition vertex_run :=
+  ValRecs 1 __zoo_recs_0.
+#[global] Instance :
+  AsValRecs' vertex_release 0 __zoo_recs_0 [
+    vertex_release ;
+    vertex_run
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' vertex_run 1 __zoo_recs_0 [
+    vertex_release ;
+    vertex_run
+  ].
+Proof.
+  done.
+Qed.
