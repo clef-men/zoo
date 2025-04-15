@@ -16,11 +16,13 @@ let create () =
 let is_empty t =
   t.xdeque_next == t
 
+let link node1 node2 =
+  node1.xdeque_next <- node2 ;
+  node2.xdeque_prev <- node1
+
 let insert prev node next =
-  node.xdeque_prev <- prev ;
-  node.xdeque_next <- next ;
-  prev.xdeque_next <- node ;
-  next.xdeque_prev <- node
+  link prev node ;
+  link node next
 
 let push_front t front =
   insert t front t.xdeque_next
@@ -34,8 +36,7 @@ let pop_front t =
   else
     let old_front = t.xdeque_next in
     let front = old_front.xdeque_next in
-    front.xdeque_prev <- t ;
-    t.xdeque_next <- front ;
+    link t front ;
     Some old_front
 
 let pop_back t =
@@ -44,15 +45,13 @@ let pop_back t =
   else
     let old_back = t.xdeque_prev in
     let back = old_back.xdeque_prev in
-    t.xdeque_prev <- back ;
-    back.xdeque_next <- t ;
+    link back t ;
     Some old_back
 
 let remove node =
   let prev = node.xdeque_prev in
   let next = node.xdeque_next in
-  prev.xdeque_next <- next ;
-  next.xdeque_prev <- prev
+  link prev next
 
 let rec iter_aux fn t node =
   if node == t then (

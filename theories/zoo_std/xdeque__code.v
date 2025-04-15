@@ -19,12 +19,15 @@ Definition xdeque_is_empty : val :=
   fun: "t" =>
     "t".{xdeque_next} == "t".
 
+Definition xdeque_link : val :=
+  fun: "node1" "node2" =>
+    "node1" <-{xdeque_next} "node2" ;;
+    "node2" <-{xdeque_prev} "node1".
+
 Definition xdeque_insert : val :=
   fun: "prev" "node" "next" =>
-    "node" <-{xdeque_prev} "prev" ;;
-    "node" <-{xdeque_next} "next" ;;
-    "prev" <-{xdeque_next} "node" ;;
-    "next" <-{xdeque_prev} "node".
+    xdeque_link "prev" "node" ;;
+    xdeque_link "node" "next".
 
 Definition xdeque_push_front : val :=
   fun: "t" "front" =>
@@ -41,8 +44,7 @@ Definition xdeque_pop_front : val :=
     ) else (
       let: "old_front" := "t".{xdeque_next} in
       let: "front" := "old_front".{xdeque_next} in
-      "front" <-{xdeque_prev} "t" ;;
-      "t" <-{xdeque_next} "front" ;;
+      xdeque_link "t" "front" ;;
       ‘Some( "old_front" )
     ).
 
@@ -53,8 +55,7 @@ Definition xdeque_pop_back : val :=
     ) else (
       let: "old_back" := "t".{xdeque_prev} in
       let: "back" := "old_back".{xdeque_prev} in
-      "t" <-{xdeque_prev} "back" ;;
-      "back" <-{xdeque_next} "t" ;;
+      xdeque_link "back" "t" ;;
       ‘Some( "old_back" )
     ).
 
@@ -62,8 +63,7 @@ Definition xdeque_remove : val :=
   fun: "node" =>
     let: "prev" := "node".{xdeque_prev} in
     let: "next" := "node".{xdeque_next} in
-    "prev" <-{xdeque_next} "next" ;;
-    "next" <-{xdeque_prev} "prev".
+    xdeque_link "prev" "next".
 
 Definition xdeque_iter_aux : val :=
   rec: "iter_aux" "fn" "t" "node" =>
