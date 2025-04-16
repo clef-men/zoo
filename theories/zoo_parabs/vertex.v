@@ -256,7 +256,7 @@ Section vertex_G.
       ∃ γ_predecessors,
       predecessors' γ_predecessors ∅.
   Proof.
-    apply auth_dgset_alloc.
+    apply auth_dgset_alloc_empty.
   Qed.
   #[local] Lemma predecessors_elem_of γ Π π :
     predecessors γ Π -∗

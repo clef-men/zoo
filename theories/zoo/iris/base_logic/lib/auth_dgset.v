@@ -74,7 +74,16 @@ Section auth_dgset_G.
     split; [done | apply _].
   Qed.
 
-  Lemma auth_dgset_alloc :
+  Lemma auth_dgset_alloc x :
+    ⊢ |==>
+      ∃ γ,
+      auth_dgset_auth γ (DfracOwn 1) x ∗
+      auth_dgset_frag γ x.
+  Proof.
+     iMod (own_alloc (● GSet x ⋅ ◯ GSet x)) as "(%γ & $ & $)"; last iSteps.
+     apply auth_both_valid_2; done.
+  Qed.
+  Lemma auth_dgset_alloc_empty :
     ⊢ |==>
       ∃ γ,
       auth_dgset_auth γ (DfracOwn 1) ∅.
