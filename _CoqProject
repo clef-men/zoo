@@ -213,6 +213,15 @@ theories/zoo_std/spsc_waiter.v
 theories/zoo_std/mpsc_waiter__types.v
 theories/zoo_std/mpsc_waiter__code.v
 theories/zoo_std/mpsc_waiter.v
+theories/zoo_std/ivar_1__types.v
+theories/zoo_std/ivar_1__code.v
+theories/zoo_std/ivar_1.v
+theories/zoo_std/ivar_2__types.v
+theories/zoo_std/ivar_2__code.v
+theories/zoo_std/ivar_2.v
+theories/zoo_std/ivar_3__types.v
+theories/zoo_std/ivar_3__code.v
+theories/zoo_std/ivar_3.v
 theories/zoo_std/spsc_future__types.v
 theories/zoo_std/spsc_future__code.v
 theories/zoo_std/spsc_future.v

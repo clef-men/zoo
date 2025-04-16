@@ -17,7 +17,7 @@ From zoo_std Require Export
   domain__code.
 From zoo_std Require Import
   option
-  spsc_future
+  ivar_2
   dynarray_1.
 From zoo Require Import
   options.
@@ -41,16 +41,16 @@ Implicit Types ids : gmap val nat.
 
 Definition domain_spawn : val :=
   fun: "fn" =>
-    let: "t" := spsc_future_create () in
+    let: "t" := ivar_2_create () in
     Fork (
       let: "local" := dynarray_1_create () in
       SetLocal "local" ;;
-      spsc_future_set "t" ("fn" ())
+      ivar_2_set "t" ("fn" ())
     ) ;;
     "t".
 
 Definition domain_join : val :=
-  spsc_future_get.
+  ivar_2_get.
 
 Definition domain_local_new : val :=
   fun: "fn" =>
@@ -86,12 +86,12 @@ Definition domain_local_set : val :=
     dynarray_1_set "local" "id" ‘Some( "v" ).
 
 Class DomainG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] domain_G_future_G :: SpscFutureG Σ ;
+  #[local] domain_G_ivar_G :: Ivar2G Σ ;
   #[local] domain_G_locals_G :: ghost_mapG Σ nat (option val) ;
 }.
 
 Definition domain_Σ := #[
-  spsc_future_Σ ;
+  ivar_2_Σ ;
   ghost_mapΣ nat (option val)
 ].
 #[global] Instance subG_domain_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -115,8 +115,13 @@ Section domain_G.
     ghost_map_elem.
 
   Definition domain_model t Ψ : iProp Σ :=
-    spsc_future_inv t Ψ ∗
-    spsc_future_consumer t.
+    ivar_2_inv t Ψ (λ _, True)%I ∗
+    ivar_2_consumer t.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      #Hivar_inv &
+      Hivar_consumer
+    )".
 
   #[local] Definition key_id key id : iProp Σ :=
     ∃ fn,
@@ -524,8 +529,8 @@ Section domain_G.
   Proof.
     iIntros "%Φ Hfn HΦ".
     wp_rec.
-    wp_apply (spsc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer & Hfut_consumer)".
-    wp_smart_apply (wp_fork with "[Hfn Hfut_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
+    wp_apply (ivar_2_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_smart_apply (wp_fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
     wp_bind (dynarray_1_create ())%E. iApply wp_thread_id_mono.
     wp_apply (dynarray_1_create_spec' with "[//]") as (l) "(Hl & Hl_meta)".
     wp_smart_apply (wp_set_local with "Hlocal") as "Hlocal".
@@ -537,7 +542,7 @@ Section domain_G.
     wp_smart_apply (wp_wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
     { iExists l, γ, [], ∅, ∅. rewrite big_sepM_empty. iSteps. }
     iApply wp_thread_id_mono.
-    wp_apply (spsc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]").
+    wp_apply (ivar_2_set_spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
     iSteps.
   Qed.
 
@@ -551,7 +556,11 @@ Section domain_G.
       Ψ v
     }}}.
   Proof.
-    apply spsc_future_get_spec.
+    iIntros "%Φ (:model) HΦ".
+    iApply wp_fupd.
+    wp_apply (ivar_2_get_spec with "Hivar_inv") as (v) "(_ & Hivar_result & Hivar_synchronized)".
+    iMod (ivar_2_inv_result_consumer with "Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
+    iSteps.
   Qed.
 
   Lemma domain_local_new_spec {fn} Ψ keys :

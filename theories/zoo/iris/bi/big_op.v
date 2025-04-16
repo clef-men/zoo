@@ -37,6 +37,13 @@ Section bi.
     Proof.
       rewrite big_sepL_cons. iSteps.
     Qed.
+    Lemma big_sepL_cons_2' (Φ : A → PROP) x l :
+      Φ x -∗
+      ([∗ list] y ∈ l, Φ y) -∗
+      [∗ list] y ∈ (x :: l), Φ y.
+    Proof.
+      rewrite big_sepL_cons. iSteps.
+    Qed.
 
     Lemma big_sepL_snoc_1 Φ l x :
       ([∗ list] k↦y ∈ (l ++ [x]), Φ k y) ⊢
