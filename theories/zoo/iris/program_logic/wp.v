@@ -518,7 +518,7 @@ Section iris_G.
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
-      £ n -∗
+      £ (n * num_later_per_step) -∗
       WP e2 ∷ tid @ E {{ Φ }}
     ) ⊢
     WP e1 ∷ tid @ E {{ Φ }}.

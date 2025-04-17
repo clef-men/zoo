@@ -26,7 +26,7 @@ Section iris_G.
   #[local] Lemma bwp_step tid e1 σ1 e2 σ2 κ κs es nt Φ :
     prim_step tid e1 σ1 κ e2 σ2 es →
     state_interp nt σ1 (κ ++ κs) -∗
-    £ 1 -∗
+    £ num_later_per_step -∗
     BWP e1 ∶ tid {{ Φ }} -∗
       |={⊤}[∅]▷=>
       state_interp (nt + length es) σ2 κs ∗
@@ -43,7 +43,7 @@ Section iris_G.
   #[local] Lemma bwps_step es1 σ1 es2 σ2 κ κs Φs :
     step (es1, σ1) κ (es2, σ2) →
     state_interp (length es1) σ1 (κ ++ κs) -∗
-    £ 1 -∗
+    £ num_later_per_step -∗
     bwps 0 es1 Φs -∗
       |={⊤}[∅]▷=>
       state_interp (length es2) σ2 κs ∗
@@ -61,7 +61,7 @@ Section iris_G.
   #[local] Lemma bwps_steps n es1 σ1 es2 σ2 κs1 κs2 Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     state_interp (length es1) σ1 (κs1 ++ κs2) -∗
-    £ n -∗
+    £ (n * num_later_per_step) -∗
     bwps 0 es1 Φs -∗
       |={⊤,∅}=> |={∅}▷=>^n |={∅,⊤}=>
       state_interp (length es2) σ2 κs2 ∗
@@ -111,7 +111,7 @@ Section iris_G.
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     es2 !! tid = Some e2 →
     state_interp (length es1) σ1 (κs1 ++ κs2) -∗
-    £ n -∗
+    £ (n * num_later_per_step) -∗
     bwps 0 es1 Φs -∗
       |={⊤, ∅}=> |={∅}▷=>^n |={∅}=>
       ⌜not_stuck tid e2 σ2⌝.
@@ -140,7 +140,7 @@ Lemma bwp_progress Λ `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
 Proof.
   intros H Hsteps.
   apply Foralli_lookup => tid e2 Hlookup.
-  eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n n).
+  eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n (n * num_later_per_step)).
   iIntros "%Hinv_G H£s".
   iMod H as "(%state_interp & %fork_post & %Φs & Hinterp & H)".
   iMod (bwps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hinterp] H£s H") as "H"; [done.. | |].

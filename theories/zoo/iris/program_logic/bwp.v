@@ -10,6 +10,14 @@ From zoo.iris.program_logic Require Export
 From zoo Require Import
   options.
 
+Parameter num_later_per_step : nat.
+
+Axiom num_later_per_step_lb :
+  2 ≤ num_later_per_step.
+#[global] Hint Resolve
+  num_later_per_step_lb
+: core.
+
 Class IrisG Λ Σ := {
   #[global] iris_G_inv_G :: invGS Σ ;
   state_interp : nat → state Λ → list (observation Λ) → iProp Σ ;
@@ -37,7 +45,7 @@ Section iris_G.
             ∀ κ κs' e' σ' es,
             ⌜κs = κ ++ κs'⌝ -∗
             ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-            £ 1 ={∅}=∗
+            £ num_later_per_step ={∅}=∗
               ▷ |={∅,E}=>
               state_interp (nt + length es) σ' κs' ∗
               bwp e' tid E Φ ∗
@@ -531,7 +539,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 ={∅}=∗
+          £ num_later_per_step ={∅}=∗
             ▷ |={∅, E}=>
             state_interp (nt + length es) σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }} ∗
@@ -554,7 +562,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 ={∅}=∗
+          £ num_later_per_step ={∅}=∗
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
             state_interp nt σ' κs' ∗
@@ -580,7 +588,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 -∗
+          £ num_later_per_step -∗
             |={E1}[E2]▷=>
             state_interp (nt + length es) σ' κs' ∗
             from_option Φ False (to_val e') ∗
@@ -610,7 +618,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 -∗
+          £ num_later_per_step -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp nt σ' κs' ∗
@@ -641,7 +649,7 @@ Section iris_G.
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜prim_step tid e σ κ e' σ es⌝ -∗
-      £ 1 -∗
+      £ num_later_per_step -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -669,7 +677,7 @@ Section iris_G.
         es = []
     ) →
     ( |={E1}[E2]▷=>
-      £ 1 -∗
+      £ num_later_per_step -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
@@ -685,7 +693,7 @@ Section iris_G.
     PureExec ϕ n e1 e2 →
     ϕ →
     ( |={E1}[E2]▷=>^n
-      £ n -∗
+      £ (n * num_later_per_step) -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
@@ -701,13 +709,13 @@ Section iris_G.
       + iApply (step_fupd_wand with "H"). iIntros "H H£".
         iApply "IH".
         iApply (step_fupdN_wand with "H").
-        rewrite (lc_succ n). iSteps.
+        rewrite lc_split. iSteps.
   Qed.
   Lemma bwp_pure_step_later `{!Inhabited (state Λ)} ϕ n tid e1 e2 E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
-      £ n -∗
+      £ (n * num_later_per_step) -∗
       BWP e2 ∶ tid @ E {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E {{ Φ }}.
@@ -742,7 +750,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 ={∅}=∗
+          £ num_later_per_step ={∅}=∗
             ▷ |={∅, E}=>
             state_interp (nt + length es) σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }} ∗
@@ -766,7 +774,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 ={∅}=∗
+          £ num_later_per_step ={∅}=∗
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
             state_interp nt σ' κs' ∗
@@ -793,7 +801,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 -∗
+          £ num_later_per_step -∗
             |={E1}[E2]▷=>
             state_interp (nt + length es) σ' κs' ∗
             from_option Φ False (to_val e') ∗
@@ -817,7 +825,7 @@ Section iris_G.
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ 1 -∗
+          £ num_later_per_step -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp nt σ' κs' ∗
@@ -848,7 +856,7 @@ Section iris_G.
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜base_step tid e σ κ e' σ es⌝ -∗
-      £ 1 -∗
+      £ num_later_per_step -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -874,7 +882,7 @@ Section iris_G.
         es = []
     ) →
     ( |={E1}[E2]▷=>
-      £ 1 -∗
+      £ num_later_per_step -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
