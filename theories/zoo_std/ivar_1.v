@@ -4,7 +4,7 @@ From zoo.common Require Import
   countable.
 From zoo.iris.base_logic Require Import
   lib.oneshot
-  lib.excl.
+  lib.subpreds.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -23,12 +23,12 @@ Implicit Types o state : option val.
 
 Class Ivar1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] ivar_1_G_lstate_G :: OneshotG Σ unit val ;
-  #[local] ivar_1_G_excl_G :: ExclG Σ unitO ;
+  #[local] ivar_1_G_consumer_G :: SubpredsG Σ val ;
 }.
 
 Definition ivar_1_Σ := #[
   oneshot_Σ unit val ;
-  excl_Σ unitO
+  subpreds_Σ val
 ].
 #[global] Instance subG_ivar_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ivar_1_Σ Σ →
@@ -40,7 +40,7 @@ Qed.
 Section ivar_1_G.
   Context `{ivar_1_G : Ivar1G Σ}.
 
-  Implicit Types Ψ Χ : val → iProp Σ.
+  Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
   Record metadata := {
     metadata_lstate : gname ;
@@ -67,33 +67,38 @@ Section ivar_1_G.
   #[local] Definition lstate_set γ :=
     oneshot_shot γ.(metadata_lstate).
 
-  #[local] Definition consumer' γ_consumer :=
-    excl γ_consumer ().
-  #[local] Definition consumer γ :=
-    consumer' γ.(metadata_consumer).
+  #[local] Definition consumer_auth' :=
+    subpreds_auth.
+  #[local] Definition consumer_auth γ :=
+    consumer_auth' γ.(metadata_consumer).
+  #[local] Definition consumer_frag' :=
+    subpreds_frag.
+  #[local] Definition consumer_frag γ :=
+    consumer_frag' γ.(metadata_consumer).
 
-  #[local] Definition inv_inner l γ Ψ Χ : iProp Σ :=
+  #[local] Definition inv_inner l γ Ψ Ξ : iProp Σ :=
     ∃ state,
     l.[contents] ↦ state ∗
+    consumer_auth γ Ψ state ∗
     match state with
     | None =>
         lstate_unset₁ γ
     | Some v =>
         lstate_set γ v ∗
-        (Ψ v ∗ £ 1 ∨ consumer γ) ∗
-        □ Χ v
+        □ Ξ v
     end.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %state &
       Hl &
+      Hconsumer_auth &
       Hstate
     )".
-  Definition ivar_1_inv t Ψ Χ : iProp Σ :=
+  Definition ivar_1_inv t Ψ Ξ : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    inv nroot (inv_inner l γ Ψ Χ).
+    inv nroot (inv_inner l γ Ψ Ξ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
@@ -117,18 +122,18 @@ Section ivar_1_G.
       Hlstate{}_unset₂
     )".
 
-  Definition ivar_1_consumer t : iProp Σ :=
+  Definition ivar_1_consumer t Χ : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    consumer γ.
+    consumer_frag γ Χ.
   #[local] Instance : CustomIpatFormat "consumer" :=
     "(
       %l{=_} &
       %γ{=_} &
       %Heq{} &
       #Hmeta{=_} &
-      Hconsumer{}
+      Hconsumer{}_frag
     )".
 
   Definition ivar_1_result t v : iProp Σ :=
@@ -165,20 +170,28 @@ Section ivar_1_G.
       (≡)
     ) (ivar_1_inv t).
   Proof.
-    intros Ψ1 Ψ2 HΨ Χ1 Χ2 HΧ.
-    apply equiv_dist => n.
-    apply ivar_1_inv_contractive => v.
-    all: dist_later_intro.
-    all: apply equiv_dist; done.
+    rewrite /ivar_1_inv /inv_inner.
+    solve_proper.
+  Qed.
+  #[global] Instance ivar_1_consumer_contractive t n :
+    Proper (
+      (pointwise_relation _ (dist_later n)) ==>
+      (≡{n}≡)
+    ) (ivar_1_consumer t).
+  Proof.
+    solve_contractive.
+  Qed.
+  #[global] Instance ivar_1_consumer_proper t :
+    Proper (
+      (pointwise_relation _ (≡)) ==>
+      (≡)
+    ) (ivar_1_consumer t).
+  Proof.
+    solve_proper.
   Qed.
 
   #[global] Instance ivar_1_producer_timeless t :
     Timeless (ivar_1_producer t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance ivar_1_consumer_timeless t :
-    Timeless (ivar_1_consumer t).
   Proof.
     apply _.
   Qed.
@@ -187,8 +200,8 @@ Section ivar_1_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_1_inv_persistent t Ψ Χ :
-    Persistent (ivar_1_inv t Ψ Χ).
+  #[global] Instance ivar_1_inv_persistent t Ψ Ξ :
+    Persistent (ivar_1_inv t Ψ Ξ).
   Proof.
     apply _.
   Qed.
@@ -249,19 +262,37 @@ Section ivar_1_G.
     iApply (oneshot_update_shot with "Hunset").
   Qed.
 
-  #[local] Lemma consumer_alloc :
+  #[local] Lemma consumer_alloc Ψ :
     ⊢ |==>
       ∃ γ_consumer,
-      consumer' γ_consumer.
+      consumer_auth' γ_consumer Ψ None ∗
+      consumer_frag' γ_consumer Ψ.
   Proof.
-    apply excl_alloc.
+    apply subpreds_alloc.
   Qed.
-  #[local] Lemma consumer_exclusive γ :
-    consumer γ -∗
-    consumer γ -∗
-    False.
+  #[local] Lemma consumer_divide {γ Ψ state Χ} Χs :
+    consumer_auth γ Ψ state -∗
+    consumer_frag γ Χ -∗
+    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ==∗
+      consumer_auth γ Ψ state ∗
+      [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
   Proof.
-    apply excl_exclusive.
+    apply subpreds_divide.
+  Qed.
+  #[local] Lemma consumer_produce {γ Ψ} v :
+    consumer_auth γ Ψ None -∗
+    Ψ v -∗
+    consumer_auth γ Ψ (Some v).
+  Proof.
+    apply subpreds_produce.
+  Qed.
+  #[local] Lemma consumer_consume γ Ψ v Χ :
+    consumer_auth γ Ψ (Some v) -∗
+    consumer_frag γ Χ ==∗
+      consumer_auth γ Ψ (Some v) ∗
+      ▷ Χ v.
+  Proof.
+    apply subpreds_consume.
   Qed.
 
   Lemma ivar_1_producer_exclusive t :
@@ -274,14 +305,32 @@ Section ivar_1_G.
     iApply (lstate_unset₂_exclusive with "Hlstate1_unset₂ Hlstate2_unset₂").
   Qed.
 
-  Lemma ivar_1_consumer_exclusive t :
-    ivar_1_consumer t -∗
-    ivar_1_consumer t -∗
-    False.
+  Lemma ivar_1_consumer_divide {t Ψ Ξ Χ} Χs :
+    £ 1 -∗
+    ivar_1_inv t Ψ Ξ -∗
+    ivar_1_consumer t Χ -∗
+    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, ivar_1_consumer t Χ.
   Proof.
-    iIntros "(:consumer =1) (:consumer =2)". simplify.
-    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (consumer_exclusive with "Hconsumer1 Hconsumer2").
+    iIntros "H£ (:inv) (:consumer) H". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iInv "Hinv" as "(:inv_inner)".
+    iMod (lc_fupd_elim_later with "H£ Hconsumer_auth") as "Hconsumer_auth".
+    iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag H") as "(Hconsumer_auth & H)".
+    iSplitR "H". { iFrameSteps. }
+    iApply (big_sepL_impl with "H").
+    iSteps.
+  Qed.
+  Lemma ivar_1_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
+    £ 1 -∗
+    ivar_1_inv t Ψ Ξ -∗
+    ivar_1_consumer t Χ -∗
+    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
+      ivar_1_consumer t Χ1 ∗
+      ivar_1_consumer t Χ2.
+  Proof.
+    iIntros "H£ #Hinv Hconsumer H".
+    iMod (ivar_1_consumer_divide [Χ1;Χ2] with "H£ Hinv Hconsumer [H]") as "($ & $ & _)"; iSteps.
   Qed.
 
   Lemma ivar_1_result_agree t v1 v2 :
@@ -304,10 +353,10 @@ Section ivar_1_G.
     iApply (lstate_unset₂_set with "Hlstate1_unset₂ Hlstate2_set").
   Qed.
 
-  Lemma ivar_1_inv_result t Ψ Χ v :
-    ivar_1_inv t Ψ Χ -∗
+  Lemma ivar_1_inv_result t Ψ Ξ v :
+    ivar_1_inv t Ψ Ξ -∗
     ivar_1_result t v ={⊤}=∗
-    ▷ □ Χ v.
+    ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) (:result)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -316,29 +365,30 @@ Section ivar_1_G.
     { iDestruct "Hstate" as ">Hlstate_unset₁".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & HΨ & #HΧ)".
+    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
     iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
-    iSplitL. { iFrameSteps 2. }
+    iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma ivar_1_inv_result' t Ψ Χ v :
+  Lemma ivar_1_inv_result' t Ψ Ξ v :
     £ 1 -∗
-    ivar_1_inv t Ψ Χ -∗
+    ivar_1_inv t Ψ Ξ -∗
     ivar_1_result t v ={⊤}=∗
-    □ Χ v.
+    □ Ξ v.
   Proof.
     iIntros "H£ Hinv Hresult".
-    iMod (ivar_1_inv_result with "Hinv Hresult") as "HΧ".
-    iApply (lc_fupd_elim_later with "H£ HΧ").
+    iMod (ivar_1_inv_result with "Hinv Hresult") as "HΞ".
+    iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma ivar_1_inv_result_consumer t Ψ Χ v :
-    ivar_1_inv t Ψ Χ -∗
+  Lemma ivar_1_inv_result_consumer t Ψ Ξ v Χ :
+    £ 1 -∗
+    ivar_1_inv t Ψ Ξ -∗
     ivar_1_result t v -∗
-    ivar_1_consumer t ={⊤}=∗
-      Ψ v ∗
-      ▷ □ Χ v.
+    ivar_1_consumer t Χ ={⊤}=∗
+      ▷ Χ v ∗
+      ▷ □ Ξ v.
   Proof.
-    iIntros "(:inv) (:result)". injection Heq as <-.
+    iIntros "H£ (:inv) (:result)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iIntros "(:consumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -347,36 +397,37 @@ Section ivar_1_G.
     { iDestruct "Hstate" as ">Hlstate_unset₁".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & [(HΨ & >H£) | >Hconsumer_] & #HΧ)"; last first.
-    { iDestruct (consumer_exclusive with "Hconsumer Hconsumer_") as %[]. }
-    iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
     iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
-    iSplitR "HΨ". { iFrameSteps 2. }
+    iMod (lc_fupd_elim_later with "H£ Hconsumer_auth") as "Hconsumer_auth".
+    iMod (consumer_consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
+    iSplitR "HΧ". { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma ivar_1_inv_result_consumer' t Ψ Χ v :
-    £ 1 -∗
-    ivar_1_inv t Ψ Χ -∗
+  Lemma ivar_1_inv_result_consumer' t Ψ Ξ v Χ :
+    £ 2 -∗
+    ivar_1_inv t Ψ Ξ -∗
     ivar_1_result t v -∗
-    ivar_1_consumer t ={⊤}=∗
-      Ψ v ∗
-      □ Χ v.
+    ivar_1_consumer t Χ ={⊤}=∗
+      Χ v ∗
+      □ Ξ v.
   Proof.
-    iIntros "H£ Hinv Hresult Hconsumer".
-    iMod (ivar_1_inv_result_consumer with "Hinv Hresult Hconsumer") as "($ & HΧ)".
-    iApply (lc_fupd_elim_later with "H£ HΧ").
+    iIntros "(H£1 & H£2) Hinv Hresult Hconsumer".
+    iMod (ivar_1_inv_result_consumer with "H£1 Hinv Hresult Hconsumer") as "(HΧ & #HΞ)".
+    iApply (lc_fupd_elim_later with "H£2 [HΧ]").
+    iSteps.
   Qed.
 
-  Lemma ivar_1_create_spec Ψ Χ :
+  Lemma ivar_1_create_spec Ψ Ξ :
     {{{
       True
     }}}
       ivar_1_create ()
     {{{ t,
       RET t;
-      ivar_1_inv t Ψ Χ ∗
+      ivar_1_inv t Ψ Ξ ∗
       ivar_1_producer t ∗
-      ivar_1_consumer t
+      ivar_1_consumer t Ψ
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -385,7 +436,7 @@ Section ivar_1_G.
     wp_ref l as "Hmeta" "Hl".
 
     iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
-    iMod consumer_alloc as "(%γ_consumer & Hconsumer)".
+    iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
     pose γ := {|
       metadata_lstate := γ_lstate ;
@@ -394,19 +445,19 @@ Section ivar_1_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hconsumer Hlstate_unset₂"; last iFrameSteps.
+    iSplitR "Hconsumer_frag Hlstate_unset₂"; last iFrameSteps.
     iSteps. iExists None. iSteps.
   Qed.
 
-  Lemma ivar_1_try_get_spec t Ψ Χ :
+  Lemma ivar_1_try_get_spec t Ψ Ξ :
     {{{
-      ivar_1_inv t Ψ Χ
+      ivar_1_inv t Ψ Ξ
     }}}
       ivar_1_try_get t
     {{{ o,
       RET o : val;
       if o is Some v then
-        £ 1 ∗
+        £ 2 ∗
         ivar_1_result t v
       else
         True
@@ -414,7 +465,8 @@ Section ivar_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec credit:"H£".
+    wp_rec credits:"H£".
+    iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
 
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
@@ -428,21 +480,22 @@ Section ivar_1_G.
     - iSplitR "HΦ". { iFrameSteps 2. }
       iSteps.
   Qed.
-  Lemma ivar_1_try_get_spec_result t Ψ Χ v :
+  Lemma ivar_1_try_get_spec_result t Ψ Ξ v :
     {{{
-      ivar_1_inv t Ψ Χ ∗
+      ivar_1_inv t Ψ Ξ ∗
       ivar_1_result t v
     }}}
       ivar_1_try_get t
     {{{
       RET Some v : val;
-      £ 1
+      £ 2
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:result)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    wp_rec credit:"H£".
+    wp_rec credits:"H£".
+    iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
 
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
@@ -454,15 +507,15 @@ Section ivar_1_G.
     iSteps.
   Qed.
 
-  Lemma ivar_1_is_set_spec t Ψ Χ :
+  Lemma ivar_1_is_set_spec t Ψ Ξ :
     {{{
-      ivar_1_inv t Ψ Χ
+      ivar_1_inv t Ψ Ξ
     }}}
       ivar_1_is_set t
     {{{ b,
       RET #b;
       if b then
-        £ 1 ∗
+        £ 2 ∗
         ivar_1_result' t
       else
         True
@@ -477,15 +530,15 @@ Section ivar_1_G.
     iDestruct "H" as "(H£ & Hresult)".
     iApply "HΦ". iStepFrameSteps.
   Qed.
-  Lemma ivar_1_is_set_spec_result t Ψ Χ v :
+  Lemma ivar_1_is_set_spec_result t Ψ Ξ v :
     {{{
-      ivar_1_inv t Ψ Χ ∗
+      ivar_1_inv t Ψ Ξ ∗
       ivar_1_result t v
     }}}
       ivar_1_is_set t
     {{{
       RET #true;
-      £ 1
+      £ 2
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & #Hresult) HΦ".
@@ -495,15 +548,15 @@ Section ivar_1_G.
     iSteps.
   Qed.
 
-  Lemma ivar_1_get_spec t Ψ Χ v :
+  Lemma ivar_1_get_spec t Ψ Ξ v :
     {{{
-      ivar_1_inv t Ψ Χ ∗
+      ivar_1_inv t Ψ Ξ ∗
       ivar_1_result t v
     }}}
       ivar_1_get t
     {{{
       RET v;
-      £ 1
+      £ 2
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & Hresult) HΦ".
@@ -513,12 +566,12 @@ Section ivar_1_G.
     iSteps.
   Qed.
 
-  Lemma ivar_1_set_spec t Ψ Χ v :
+  Lemma ivar_1_set_spec t Ψ Ξ v :
     {{{
-      ivar_1_inv t Ψ Χ ∗
+      ivar_1_inv t Ψ Ξ ∗
       ivar_1_producer t ∗
       Ψ v ∗
-      □ Χ v
+      □ Ξ v
     }}}
       ivar_1_set t v
     {{{
@@ -526,10 +579,10 @@ Section ivar_1_G.
       ivar_1_result t v
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & (:producer) & HΨ & #HΧ) HΦ". injection Heq as <-.
+    iIntros "%Φ ((:inv) & (:producer) & HΨ & #HΞ) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    wp_rec credit:"H£". wp_pures.
+    wp_rec. wp_pures.
 
     iInv "Hinv" as "(:inv_inner)".
     wp_store.
@@ -538,6 +591,7 @@ Section ivar_1_G.
       iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set") as %[].
     }
     iMod (lstate_update with "Hstate Hlstate_unset₂") as "#Hlstate_set".
+    iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
     iSplitR "HΦ". { iExists (Some v). iSteps. }
     iSteps.
   Qed.

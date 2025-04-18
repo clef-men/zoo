@@ -116,7 +116,7 @@ Section domain_G.
 
   Definition domain_model t Ψ : iProp Σ :=
     ivar_2_inv t Ψ (λ _, True)%I ∗
-    ivar_2_consumer t.
+    ivar_2_consumer t Ψ.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       #Hivar_inv &
@@ -558,8 +558,9 @@ Section domain_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     iApply wp_fupd.
-    wp_apply (ivar_2_get_spec with "Hivar_inv") as (v) "(_ & Hivar_result & Hivar_synchronized)".
-    iMod (ivar_2_inv_result_consumer with "Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
+    wp_apply (ivar_2_get_spec with "Hivar_inv") as (v) "((H£1 & H£2) & Hivar_result & Hivar_synchronized)".
+    iMod (ivar_2_inv_result_consumer with "H£1 Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
+    iMod (lc_fupd_elim_later with "H£2 HΨ") as "HΨ".
     iSteps.
   Qed.
 

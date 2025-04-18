@@ -30,6 +30,11 @@ Section agree_G.
   Definition agree_on γ a :=
     own γ (to_agree a).
 
+  #[global] Instance agree_on_ne γ :
+    NonExpansive (agree_on γ).
+  Proof.
+    solve_proper.
+  Qed.
   #[global] Instance agree_on_proper γ :
     Proper ((≡) ==> (≡)) (agree_on γ).
   Proof.

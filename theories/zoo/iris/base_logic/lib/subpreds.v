@@ -60,6 +60,15 @@ Section subpreds_G.
       #Hη
     )".
 
+  #[global] Instance subpreds_auth_ne γ n :
+    Proper (
+      (pointwise_relation _ (≡{n}≡)) ==>
+      (=) ==>
+      (≡{n}≡)
+    ) (subpreds_auth γ).
+  Proof.
+    solve_proper.
+  Qed.
   #[global] Instance subpreds_auth_proper γ :
     Proper (
       (pointwise_relation _ (≡)) ==>
@@ -68,6 +77,14 @@ Section subpreds_G.
     ) (subpreds_auth γ).
   Proof.
     solve_proper.
+  Qed.
+  #[global] Instance subpreds_frag_contractive γ n :
+    Proper (
+      (pointwise_relation _ (dist_later n)) ==>
+      (≡{n}≡)
+    ) (subpreds_frag γ).
+  Proof.
+    solve_contractive.
   Qed.
   #[global] Instance subpreds_frag_proper γ :
     Proper (
@@ -116,6 +133,19 @@ Section subpreds_G.
     }
     do 2 (rewrite big_sepS_union; first set_solver).
     rewrite !big_sepS_singleton. iFrame "#∗".
+  Qed.
+  Lemma subpreds_divide {γ Ψ state Χ} Χs :
+    subpreds_auth γ Ψ state -∗
+    subpreds_frag γ Χ -∗
+    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ==∗
+      subpreds_auth γ Ψ state ∗
+      [∗ list] Χ ∈ Χs, subpreds_frag γ Χ.
+  Proof.
+    iInduction Χs as [| Χ0 Χs] "IH" forall (Χ); first auto.
+    iIntros "Hauth Hfrag H".
+    iMod (subpreds_split Χ0 (λ x, [∗ list] Χ ∈ Χs, Χ x)%I with "Hauth Hfrag [H]") as "(Hauth & $ & Hfrag)"; first iSteps.
+    iApply ("IH" with "Hauth Hfrag").
+    iSteps.
   Qed.
 
   Lemma subpreds_produce {γ Ψ} v :

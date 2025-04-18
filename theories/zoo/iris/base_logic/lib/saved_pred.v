@@ -31,6 +31,11 @@ Section saved_pred_G.
   Definition saved_pred γ Ψ :=
     agree_on γ (Next ∘ Ψ).
 
+  #[global] Instance saved_pred_contractive γ n :
+    Proper ((pointwise_relation _ (dist_later n)) ==> (≡{n}≡)) (saved_pred γ).
+  Proof.
+    solve_contractive.
+  Qed.
   #[global] Instance saved_pred_proper γ :
     Proper ((≡) ==> (≡)) (saved_pred γ : (A -d> iProp Σ) → _).
   Proof.
