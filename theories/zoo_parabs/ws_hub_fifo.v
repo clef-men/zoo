@@ -206,7 +206,7 @@ Section ws_hub_fifo_G.
         owner' γ_owners i.
   Proof.
     iAssert (
-      [∗ list] i ∈ seq 0 sz,
+      [∗ list] _ ∈ seq 0 sz,
         |==>
         ∃ γ_owner,
         excl (excl_G := ws_hub_fifo_G_owner_G) γ_owner ()

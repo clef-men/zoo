@@ -72,7 +72,8 @@ Section mutex_G.
   #[global] Instance mutex_inv_contractive t :
     Contractive (mutex_inv t).
   Proof.
-    rewrite /mutex_inv /inv_inner. solve_contractive.
+    rewrite /mutex_inv /inv_inner.
+    solve_contractive.
   Qed.
   #[global] Instance mutex_inv_ne t :
     NonExpansive (mutex_inv t).
@@ -136,7 +137,6 @@ Section mutex_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
-
   Lemma mutex_create_spec P :
     {{{
       P

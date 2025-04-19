@@ -208,6 +208,9 @@ theories/zoo_std/mutex.v
 theories/zoo_std/condition__types.v
 theories/zoo_std/condition__code.v
 theories/zoo_std/condition.v
+theories/zoo_std/semaphore__types.v
+theories/zoo_std/semaphore__code.v
+theories/zoo_std/semaphore.v
 theories/zoo_std/spsc_waiter__types.v
 theories/zoo_std/spsc_waiter__code.v
 theories/zoo_std/spsc_waiter.v
