@@ -41,16 +41,14 @@ Section mono_map_G.
     auth_mono_auth subseteq γ dq m.
   Definition mono_map_lb γ m :=
     auth_mono_lb subseteq γ m.
-  Definition mono_map_elem γ i v :=
+  Definition mono_map_at γ i v :=
     mono_map_lb γ {[i := v]}.
+  Definition mono_map_elem γ i : iProp Σ :=
+    ∃ v,
+    mono_map_at γ i v.
 
   #[global] Instance mono_map_auth_timeless γ dq m :
     Timeless (mono_map_auth γ dq m).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance mono_map_auth_persistent γ m :
-    Persistent (mono_map_auth γ DfracDiscarded m).
   Proof.
     apply _.
   Qed.
@@ -59,8 +57,23 @@ Section mono_map_G.
   Proof.
     apply _.
   Qed.
+  #[global] Instance mono_map_elem_timeless γ i :
+    Timeless (mono_map_elem γ i).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_map_auth_persistent γ m :
+    Persistent (mono_map_auth γ DfracDiscarded m).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance mono_map_lb_persistent γ m :
     Persistent (mono_map_lb γ m).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_map_elem_persistent γ i :
+    Persistent (mono_map_elem γ i).
   Proof.
     apply _.
   Qed.
@@ -82,6 +95,20 @@ Section mono_map_G.
       mono_map_auth γ (DfracOwn 1) m.
   Proof.
     apply auth_mono_alloc.
+  Qed.
+
+  Lemma mono_map_at_to_elem γ i v :
+    mono_map_at γ i v ⊢
+    mono_map_elem γ i.
+  Proof.
+    rewrite /mono_map_elem. iSteps.
+  Qed.
+  Lemma mono_map_elem_to_at γ i :
+    mono_map_elem γ i ⊢
+      ∃ v,
+      mono_map_at γ i v.
+  Proof.
+    done.
   Qed.
 
   Lemma mono_map_auth_valid γ dq m :
@@ -155,10 +182,10 @@ Section mono_map_G.
   Proof.
     apply auth_mono_lb_mono'.
   Qed.
-  Lemma mono_map_elem_get {γ dq m} i v :
+  Lemma mono_map_at_get {γ dq m} i v :
     m !! i = Some v →
     mono_map_auth γ dq m ⊢
-    mono_map_elem γ i v.
+    mono_map_at γ i v.
   Proof.
     iIntros "%Hlookup Hauth".
     iDestruct (mono_map_lb_get with "Hauth") as "Hlb".
@@ -175,14 +202,23 @@ Section mono_map_G.
     iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %Hm2.
     rewrite preorder_rtc in Hm2. iSteps.
   Qed.
-  Lemma mono_map_elem_valid γ dq m i v :
+  Lemma mono_map_at_valid γ dq m i v :
     mono_map_auth γ dq m -∗
-    mono_map_elem γ i v -∗
+    mono_map_at γ i v -∗
     ⌜m !! i = Some v⌝.
   Proof.
-    iIntros "Hauth Helem".
-    iDestruct (mono_map_lb_valid with "Hauth Helem") as %?%map_singleton_subseteq_l.
+    iIntros "Hauth Hat".
+    iDestruct (mono_map_lb_valid with "Hauth Hat") as %?%map_singleton_subseteq_l.
     iSteps.
+  Qed.
+  Lemma mono_map_elem_valid γ dq m i :
+    mono_map_auth γ dq m -∗
+    mono_map_elem γ i -∗
+      ∃ v,
+      ⌜m !! i = Some v⌝.
+  Proof.
+    iIntros "Hauth (%v & Hat)".
+    iDestruct (mono_map_at_valid with "Hauth Hat") as "$".
   Qed.
 
   Lemma mono_map_update {γ m} m' :
@@ -204,14 +240,15 @@ Section mono_map_G.
     m !! i = None →
     mono_map_auth γ (DfracOwn 1) m ⊢ |==>
       mono_map_auth γ (DfracOwn 1) (<[i := v]> m) ∗
-      mono_map_elem γ i v.
+      mono_map_at γ i v.
   Proof.
     iIntros "%Hlookup Hauth".
     iMod (mono_map_insert i v with "Hauth") as "Hauth"; first done.
-    iDestruct (mono_map_elem_get i v with "Hauth") as "#Helem"; first rewrite lookup_insert //.
+    iDestruct (mono_map_at_get i v with "Hauth") as "#Hat"; first rewrite lookup_insert //.
     iSteps.
   Qed.
 End mono_map_G.
 
 #[global] Opaque mono_map_auth.
 #[global] Opaque mono_map_lb.
+#[global] Opaque mono_map_elem.
