@@ -131,7 +131,7 @@ Section mpmc_queue_1_G.
     ⌜back ∈ hist⌝ ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    xtchain (Header §Node 2) hist §Null ∗
+    xtchain (Header §Node 2) (DfracOwn 1) hist §Null ∗
     ([∗ list] node; v ∈ nodes; vs, node.[xtchain_data] ↦ v) ∗
     history_auth γ hist ∗
     front_auth γ (length past) ∗

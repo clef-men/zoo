@@ -151,7 +151,7 @@ Section mpmc_bqueue_G.
     ⌜back ∈ hist⌝ ∗
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
-    xtchain (Header §Node 4) hist §Null ∗
+    xtchain (Header §Node 4) (DfracOwn 1) hist §Null ∗
     ( [∗ list] node; v ∈ nodes; vs,
       node.[data] ↦ v
     ) ∗

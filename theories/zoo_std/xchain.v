@@ -19,81 +19,101 @@ Implicit Types v next dst : val.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Fixpoint xchain nodes dst : iProp Σ :=
+  Fixpoint xchain dq nodes dst : iProp Σ :=
     match nodes with
     | [] =>
         True
     | node :: nodes =>
         match nodes with
         | [] =>
-            node.[xchain_next] ↦ dst
+            node.[xchain_next] ↦{dq} dst
         | node' :: _ =>
-            node.[xchain_next] ↦ #node' ∗
-            xchain nodes dst
+            node.[xchain_next] ↦{dq} #node' ∗
+            xchain dq nodes dst
         end
     end.
-  #[global] Arguments xchain !_ _ / : assert.
+  #[global] Arguments xchain _ !_ _ / : assert.
 
-  #[global] Instance xchain_timeless nodes dst :
-    Timeless (xchain nodes dst).
+  #[global] Instance xchain_timeless dq nodes dst :
+    Timeless (xchain dq nodes dst).
+  Proof.
+    induction nodes as [| ? []]; apply _.
+  Qed.
+  #[global] Instance xchain_persistent nodes dst :
+    Persistent (xchain DfracDiscarded nodes dst).
   Proof.
     induction nodes as [| ? []]; apply _.
   Qed.
 
   Lemma xchain_nil dst :
-    ⊢ xchain [] dst.
+    ⊢ xchain (DfracOwn 1) [] dst.
   Proof.
     iSteps.
   Qed.
 
-  Lemma xchain_singleton node dst :
-    xchain [node] dst ⊣⊢
-    node.[xchain_next] ↦ dst.
+  Lemma xchain_singleton dq node dst :
+    xchain dq [node] dst ⊣⊢
+    node.[xchain_next] ↦{dq} dst.
   Proof.
     iSteps.
   Qed.
-  Lemma xchain_singleton_1 node dst :
-    xchain [node] dst ⊢
-    node.[xchain_next] ↦ dst.
+  Lemma xchain_singleton_1 dq node dst :
+    xchain dq [node] dst ⊢
+    node.[xchain_next] ↦{dq} dst.
   Proof.
     iSteps.
   Qed.
-  Lemma xchain_singleton_2 node dst :
-    node.[xchain_next] ↦ dst ⊢
-    xchain [node] dst.
+  Lemma xchain_singleton_2 dq node dst :
+    node.[xchain_next] ↦{dq} dst ⊢
+    xchain dq [node] dst.
   Proof.
     iSteps.
   Qed.
 
-  Lemma xchain_cons nodes node nodes' dst :
+  Lemma xchain_cons {dq} nodes node nodes' dst :
     nodes = node :: nodes' →
-    xchain nodes dst ⊣⊢
-      node.[xchain_next] ↦ from_option #@{location} dst (head nodes') ∗
-      xchain nodes' dst.
+    xchain dq nodes dst ⊣⊢
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      xchain dq nodes' dst.
   Proof.
     destruct nodes'; iSteps.
   Qed.
-  Lemma xchain_cons_1 nodes node nodes' dst :
-    nodes = node :: nodes' →
-    xchain nodes dst ⊢
-      node.[xchain_next] ↦ from_option #@{location} dst (head nodes') ∗
-      xchain nodes' dst.
+  Lemma xchain_cons' {dq} node nodes dst :
+    xchain dq (node :: nodes) dst ⊣⊢
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      xchain dq nodes dst.
   Proof.
-    intros. rewrite xchain_cons //.
+    rewrite xchain_cons //.
   Qed.
-  Lemma xchain_cons_2 node nodes dst :
-    node.[xchain_next] ↦ from_option #@{location} dst (head nodes) -∗
-    xchain nodes dst -∗
-    xchain (node :: nodes) dst.
+  Lemma xchain_cons_1 {dq} nodes node nodes' dst :
+    nodes = node :: nodes' →
+    xchain dq nodes dst ⊢
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes') ∗
+      xchain dq nodes' dst.
+  Proof.
+    intros.
+    rewrite xchain_cons //.
+  Qed.
+  Lemma xchain_cons_1' {dq} node nodes dst :
+    xchain dq (node :: nodes) dst ⊢
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) ∗
+      xchain dq nodes dst.
+  Proof.
+    rewrite xchain_cons //.
+  Qed.
+  Lemma xchain_cons_2 dq node nodes dst :
+    node.[xchain_next] ↦{dq} from_option #@{location} dst (head nodes) -∗
+    xchain dq nodes dst -∗
+    xchain dq (node :: nodes) dst.
   Proof.
     rewrite (xchain_cons (node :: nodes)) //. iSteps.
   Qed.
 
-  Lemma xchain_app nodes nodes1 nodes2 dst :
+  Lemma xchain_app {dq} nodes nodes1 nodes2 dst :
     nodes = nodes1 ++ nodes2 →
-    xchain nodes dst ⊣⊢
-      xchain nodes1 (from_option #@{location} dst (head nodes2)) ∗
-      xchain nodes2 dst.
+    xchain dq nodes dst ⊣⊢
+      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes2 dst.
   Proof.
     intros ->.
     iInduction nodes1 as [| node1 [| node1' nodes1]] "IH".
@@ -105,103 +125,214 @@ Section zoo_G.
       + iIntros "(($ & H1) & H2)".
         iApply ("IH" with "[$H1 $H2]").
   Qed.
-  Lemma xchain_app_1 nodes nodes1 nodes2 dst :
-    nodes = nodes1 ++ nodes2 →
-    xchain nodes dst ⊢
-      xchain nodes1 (from_option #@{location} dst (head nodes2)) ∗
-      xchain nodes2 dst.
+  Lemma xchain_app' {dq} nodes1 nodes2 dst :
+    xchain dq (nodes1 ++ nodes2) dst ⊣⊢
+      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes2 dst.
   Proof.
-    intros. rewrite xchain_app //.
+    rewrite xchain_app //.
   Qed.
-  Lemma xchain_app_2 nodes1 nodes2 dst :
-    xchain nodes1 (from_option #@{location} dst (head nodes2)) -∗
-    xchain nodes2 dst -∗
-    xchain (nodes1 ++ nodes2) dst.
+  Lemma xchain_app_1 {dq} nodes nodes1 nodes2 dst :
+    nodes = nodes1 ++ nodes2 →
+    xchain dq nodes dst ⊢
+      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes2 dst.
+  Proof.
+    intros.
+    rewrite xchain_app //.
+  Qed.
+  Lemma xchain_app_1' {dq} nodes1 nodes2 dst :
+    xchain dq (nodes1 ++ nodes2) dst ⊢
+      xchain dq nodes1 (from_option #@{location} dst (head nodes2)) ∗
+      xchain dq nodes2 dst.
+  Proof.
+    rewrite xchain_app //.
+  Qed.
+  Lemma xchain_app_2 dq nodes1 nodes2 dst :
+    xchain dq nodes1 (from_option #@{location} dst (head nodes2)) -∗
+    xchain dq nodes2 dst -∗
+    xchain dq (nodes1 ++ nodes2) dst.
   Proof.
     rewrite (xchain_app (nodes1 ++ nodes2)) //. iSteps.
   Qed.
 
-  Lemma xchain_snoc nodes nodes' node dst :
+  Lemma xchain_snoc {dq} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
-    xchain nodes dst ⊣⊢
-      xchain nodes' #node ∗
-      node.[xchain_next] ↦ dst.
+    xchain dq nodes dst ⊣⊢
+      xchain dq nodes' #node ∗
+      node.[xchain_next] ↦{dq} dst.
   Proof.
-    intros. rewrite xchain_app //.
+    intros.
+    rewrite xchain_app //.
   Qed.
-  Lemma xchain_snoc_1 nodes nodes' node dst :
+  Lemma xchain_snoc' {dq} nodes node dst :
+    xchain dq (nodes ++ [node]) dst ⊣⊢
+      xchain dq nodes #node ∗
+      node.[xchain_next] ↦{dq} dst.
+  Proof.
+    rewrite xchain_snoc //.
+  Qed.
+  Lemma xchain_snoc_1 {dq} nodes nodes' node dst :
     nodes = nodes' ++ [node] →
-    xchain nodes dst ⊢
-      xchain nodes' #node ∗
-      node.[xchain_next] ↦ dst.
+    xchain dq nodes dst ⊢
+      xchain dq nodes' #node ∗
+      node.[xchain_next] ↦{dq} dst.
   Proof.
-    intros. rewrite xchain_snoc //.
+    intros.
+    rewrite xchain_snoc //.
   Qed.
-  Lemma xchain_snoc_2 nodes node dst :
-    xchain nodes #node -∗
-    node.[xchain_next] ↦ dst -∗
-    xchain (nodes ++ [node]) dst.
+  Lemma xchain_snoc_1' {dq} nodes node dst :
+    xchain dq (nodes ++ [node]) dst ⊢
+      xchain dq nodes #node ∗
+      node.[xchain_next] ↦{dq} dst.
+  Proof.
+    rewrite xchain_snoc_1 //.
+  Qed.
+  Lemma xchain_snoc_2 dq nodes node dst :
+    xchain dq nodes #node -∗
+    node.[xchain_next] ↦{dq} dst -∗
+    xchain dq (nodes ++ [node]) dst.
   Proof.
     rewrite (xchain_snoc (nodes ++ [node])) //. iSteps.
   Qed.
 
-  Lemma xchain_lookup {nodes} i node dst :
+  Lemma xchain_lookup {dq nodes} i node dst :
     nodes !! i = Some node →
-    xchain nodes dst ⊣⊢
-      xchain (take i nodes) #node ∗
-      node.[xchain_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
-      xchain (drop (S i) nodes) dst.
+    xchain dq nodes dst ⊣⊢
+      xchain dq (take i nodes) #node ∗
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
+      xchain dq (drop (S i) nodes) dst.
   Proof.
     intros Hlookup.
     pose proof Hlookup as Hnodes%take_drop_middle.
     rewrite -{1}Hnodes xchain_app // (xchain_cons (node :: _)) // head_drop //.
   Qed.
-  Lemma xchain_lookup_1 {nodes} i node dst :
+  Lemma xchain_lookup_1 {dq nodes} i node dst :
     nodes !! i = Some node →
-    xchain nodes dst ⊢
-      xchain (take i nodes) #node ∗
-      node.[xchain_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
-      xchain (drop (S i) nodes) dst.
+    xchain dq nodes dst ⊢
+      xchain dq (take i nodes) #node ∗
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
+      xchain dq (drop (S i) nodes) dst.
   Proof.
-    intros. rewrite xchain_lookup //.
+    intros.
+    rewrite xchain_lookup //.
   Qed.
-  Lemma xchain_lookup_2 {nodes} i node next dst :
+  Lemma xchain_lookup_2 {dq nodes} i node next dst :
     nodes !! i = Some node →
     next = from_option #@{location} dst (nodes !! S i) →
-    xchain (take i nodes) #node -∗
-    node.[xchain_next] ↦ next -∗
-    xchain (drop (S i) nodes) dst -∗
-    xchain nodes dst.
+    xchain dq (take i nodes) #node -∗
+    node.[xchain_next] ↦{dq} next -∗
+    xchain dq (drop (S i) nodes) dst -∗
+    xchain dq nodes dst.
   Proof.
-    intros. rewrite (@xchain_lookup nodes) //. iSteps.
+    intros. subst.
+    rewrite (@xchain_lookup _ nodes) //. iSteps.
   Qed.
 
-  Lemma xchain_lookup_acc {nodes} i node dst :
+  Lemma xchain_lookup_acc {dq nodes} i node dst :
     nodes !! i = Some node →
-    xchain nodes dst ⊢
-      node.[xchain_next] ↦ from_option #@{location} dst (nodes !! S i) ∗
-      ( node.[xchain_next] ↦ from_option #@{location} dst (nodes !! S i) -∗
-        xchain nodes dst
+    xchain dq nodes dst ⊢
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
+      ( node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) -∗
+        xchain dq nodes dst
       ).
   Proof.
     intros. rewrite xchain_lookup //. iSteps.
   Qed.
 
-  Lemma xchain_exclusive nodes dst1 dst2 :
+  Lemma xchain_valid dq nodes dst :
     0 < length nodes →
-    xchain nodes dst1 -∗
-    xchain nodes dst2 -∗
+    xchain dq nodes dst ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    intros Hvs.
+    destruct nodes as [| node nodes]; first naive_solver lia.
+    destruct nodes.
+    1: iIntros "Hnode".
+    2: iIntros "(Hnode & _)".
+    all: iApply (pointsto_valid with "Hnode").
+  Qed.
+  Lemma xchain_combine nodes dq1 dst1 dq2 dst2 :
+    0 < length nodes →
+    xchain dq1 nodes dst1 -∗
+    xchain dq2 nodes dst2 -∗
+      ⌜dst1 = dst2⌝ ∗
+      xchain (dq1 ⋅ dq2) nodes dst1.
+  Proof.
+    iInduction nodes as [| node1 nodes] "IH"; first iSteps.
+    iIntros "% H1 H2".
+    iDestruct (xchain_cons_1' with "H1") as "(Hnode_1 & H1)".
+    iDestruct (xchain_cons_1' with "H2") as "(Hnode_2 & H2)".
+    iDestruct (pointsto_agree with "Hnode_1 Hnode_2") as %?.
+    iDestruct (pointsto_combine with "Hnode_1 Hnode_2") as "(-> & Hnode)".
+    destruct nodes as [| node2 nodes].
+    - simplify. iSteps.
+    - iDestruct ("IH" with "[%] H1 H2") as "(-> & H)".
+      { simpl. lia. }
+      iSteps.
+  Qed.
+  Lemma xchain_valid_2 nodes dq1 dst1 dq2 dst2 :
+    0 < length nodes →
+    xchain dq1 nodes dst1 -∗
+    xchain dq2 nodes dst2 -∗
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜dst1 = dst2⌝.
+  Proof.
+    iIntros "% H1 H2".
+    iDestruct (xchain_combine with "H1 H2") as "(-> & H)"; first done.
+    iDestruct (xchain_valid with "H") as "$"; first done.
+    iSteps.
+  Qed.
+  Lemma xchain_agree nodes dq1 dst1 dq2 dst2 :
+    0 < length nodes →
+    xchain dq1 nodes dst1 -∗
+    xchain dq2 nodes dst2 -∗
+    ⌜dst1 = dst2⌝.
+  Proof.
+    iIntros "% H1 H2".
+    iDestruct (xchain_combine with "H1 H2") as "($ & _)"; first done.
+  Qed.
+  Lemma xchain_dfrac_ne dq1 nodes1 dst1 dq2 nodes2 dst2 :
+    0 < length nodes1 →
+    ¬ ✓ (dq1 ⋅ dq2) →
+    xchain dq1 nodes1 dst1 -∗
+    xchain dq2 nodes2 dst2 -∗
+    ⌜nodes1 ≠ nodes2⌝.
+  Proof.
+    iIntros "% % H1 H2" (->).
+    iDestruct (xchain_valid_2 with "H1 H2") as %?; naive_solver.
+  Qed.
+  Lemma xchain_ne nodes1 dst1 dq2 nodes2 dst2 :
+    0 < length nodes1 →
+    xchain (DfracOwn 1) nodes1 dst1 -∗
+    xchain dq2 nodes2 dst2 -∗
+    ⌜nodes1 ≠ nodes2⌝.
+  Proof.
+    intros.
+    iApply xchain_dfrac_ne; [done.. | intros []%(exclusive_l _)].
+  Qed.
+  Lemma xchain_exclusive nodes dst1 dq2 dst2 :
+    0 < length nodes →
+    xchain (DfracOwn 1) nodes dst1 -∗
+    xchain dq2 nodes dst2 -∗
     False.
   Proof.
     iIntros "% H1 H2".
-    destruct nodes as [| ? []]; first naive_solver lia.
-    2: iDestruct "H1" as "(H1 & _)".
-    2: iDestruct "H2" as "(H2 & _)".
-    all: iApply (pointsto_exclusive with "H1 H2").
+    iDestruct (xchain_ne with "H1 H2") as %?; done.
+  Qed.
+  Lemma xchain_persist dq nodes dst :
+    xchain dq nodes dst ⊢ |==>
+    xchain DfracDiscarded nodes dst.
+  Proof.
+    iInduction nodes as [| node nodes] "IH"; first iSteps.
+    rewrite !xchain_cons'.
+    iIntros "(Hnode & H)".
+    iMod (pointsto_persist with "Hnode") as "$".
+    iApply ("IH" with "H").
   Qed.
 
   Lemma xchain_NoDup nodes dst :
-    xchain nodes dst ⊢
+    xchain (DfracOwn 1) nodes dst ⊢
     ⌜NoDup nodes⌝.
   Proof.
     rewrite NoDup_alt.
@@ -217,29 +348,29 @@ Section zoo_G.
     iApply (pointsto_exclusive with "Hnode_1 Hnode_2").
   Qed.
 
-  Lemma xchain_next_spec {nodes node} nodes' dst E :
+  Lemma xchain_next_spec {dq nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
-      xchain nodes dst
+      xchain dq nodes dst
     }}}
       (#node).{xchain_next} @ E
     {{{
       RET from_option #@{location} dst (head nodes');
-      xchain nodes dst
+      xchain dq nodes dst
     }}}.
   Proof.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xchain_next_spec_lookup {nodes} i node dst E :
+  Lemma xchain_next_spec_lookup {dq nodes} i node dst E :
     nodes !! i = Some node →
     {{{
-      xchain nodes dst
+      xchain dq nodes dst
     }}}
       (#node).{xchain_next} @ E
     {{{
       RET from_option #@{location} dst (nodes !! S i);
-      xchain nodes dst
+      xchain dq nodes dst
     }}}.
   Proof.
     intros Hlookup.
@@ -250,13 +381,13 @@ Section zoo_G.
   Lemma xchain_set_next_spec {nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
-      xchain nodes dst
+      xchain (DfracOwn 1) nodes dst
     }}}
       (#node) <-{xchain_next} v @ E
     {{{
       RET ();
-      xchain [node] v ∗
-      xchain nodes' dst
+      xchain (DfracOwn 1) [node] v ∗
+      xchain (DfracOwn 1) nodes' dst
     }}}.
   Proof.
     iIntros (->) "%Φ H HΦ".
@@ -265,13 +396,13 @@ Section zoo_G.
   Lemma xchain_set_next_spec_lookup {nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
-      xchain nodes dst
+      xchain (DfracOwn 1) nodes dst
     }}}
       #node <-{xchain_next} v @ E
     {{{
       RET ();
-      xchain (take (S i) nodes) v ∗
-      xchain (drop (S i) nodes) dst
+      xchain (DfracOwn 1) (take (S i) nodes) v ∗
+      xchain (DfracOwn 1) (drop (S i) nodes) dst
     }}}.
   Proof.
     intros Hlookup.
