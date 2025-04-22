@@ -6,6 +6,25 @@ From zoo Require Import
 From zoo Require Import
   options.
 
+Section basic.
+  Context `{FinMap K M}.
+  Context {A : Type}.
+
+  Implicit Types m : M A.
+
+  Lemma map_Forall_impl' P1 P2 m :
+    map_Forall P1 m →
+    ( ∀ k x,
+      m !! k = Some x →
+      P1 k x →
+      P2 k x
+    ) →
+    map_Forall P2 m.
+  Proof.
+    rewrite !map_Forall_lookup. auto.
+  Qed.
+End basic.
+
 Section kmap.
   Context `{FinMap K1 M1} `{FinMap K2 M2}.
   Context (f : K1 → K2) `{!Inj (=) (=) f}.
