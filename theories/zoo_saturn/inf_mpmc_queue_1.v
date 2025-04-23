@@ -90,6 +90,7 @@ Section inf_mpmc_queue_1_G.
 
   Record metadata := {
     metadata_data : val ;
+    metadata_inv : namespace ;
     metadata_model : gname ;
     metadata_history : gname ;
     metadata_consumers : gname ;
@@ -187,11 +188,11 @@ Section inf_mpmc_queue_1_G.
       Hshot{}
     )".
 
-  #[local] Definition consumer_au γ ι Ψ : iProp Σ :=
+  #[local] Definition consumer_au γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
-    }> @ ⊤ ∖ ↑ι, ∅ <{
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
       ∀∀ v vs',
       ⌜vs = v :: vs'⌝ ∗
       model₁ γ vs'
@@ -208,7 +209,7 @@ Section inf_mpmc_queue_1_G.
     | Nothing =>
         True
     end.
-  #[local] Definition inv_inner l γ ι : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ front back hist slots,
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
@@ -231,7 +232,7 @@ Section inf_mpmc_queue_1_G.
     ( [∗ list] i ∈ seq back (front - back),
       ∃ Ψ,
       consumers_at γ i Ψ ∗
-      consumer_au γ ι Ψ
+      consumer_au γ Ψ
     ) ∗
     (∀ i, slot_model γ i (slots i)).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
@@ -252,11 +253,11 @@ Section inf_mpmc_queue_1_G.
       Hwaiters &
       Hslots
     )".
-  Definition inv' l γ ι : iProp Σ :=
+  Definition inv' l γ : iProp Σ :=
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     inf_array_inv γ.(metadata_data) ∗
-    inv ι (inv_inner l γ ι).
+    inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv'" :=
     "(
       #Hmeta &
@@ -267,11 +268,13 @@ Section inf_mpmc_queue_1_G.
   Definition inf_mpmc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    inv' l γ ι.
+    ⌜ι = γ.(metadata_inv)⌝ ∗
+    inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       (:inv')
     )".
@@ -537,6 +540,7 @@ Section inf_mpmc_queue_1_G.
 
     pose γ := {|
       metadata_data := data ;
+      metadata_inv := ι ;
       metadata_model := γ_model ;
       metadata_history := γ_history ;
       metadata_consumers := γ_consumers ;
@@ -546,7 +550,7 @@ Section inf_mpmc_queue_1_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
-    iSteps. iExists (λ _, Nothing). iSteps.
+    iExists l, γ. iSteps. iExists (λ _, Nothing). iSteps.
   Qed.
 
   Lemma inf_mpmc_queue_1_size_spec t ι :
@@ -739,9 +743,9 @@ Section inf_mpmc_queue_1_G.
     iSteps.
   Qed.
 
-  #[local] Lemma inf_mpmc_queue_1_pop_0_spec l γ ι front Ψ :
+  #[local] Lemma inf_mpmc_queue_1_pop_0_spec l γ front Ψ :
     {{{
-      inv' l γ ι ∗
+      inv' l γ ∗
       consumers_at γ front Ψ ∗
       tokens_pending γ front
     }}}
