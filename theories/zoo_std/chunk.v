@@ -773,6 +773,50 @@ Section zoo_G.
       rewrite Nat2Z.inj_add. apply: big_sepL_lookup.
     Qed.
 
+    Lemma chunk_cslice_update' {l sz i dq vs} j k v :
+      (i ≤ j)%Z →
+      vs !! k = Some v →
+      k = ₊j - i →
+      chunk_cslice l sz i dq vs ⊢
+        (l +ₗ j `mod` sz) ↦{dq} v ∗
+        ( ∀ w,
+          (l +ₗ j `mod` sz) ↦{dq} w -∗
+          chunk_cslice l sz i dq (<[k := w]> vs)
+        ).
+    Proof.
+      intros Hij Hlookup ->.
+      remember (₊j - i) as k eqn:Hk.
+      rewrite {1}(chunk_cslice_update k) //.
+      replace ⁺(i + k) with j by lia. done.
+    Qed.
+    Lemma chunk_cslice_lookup_acc' {l sz i dq vs} j k v :
+      (i ≤ j)%Z →
+      vs !! k = Some v →
+      k = ₊j - i →
+      chunk_cslice l sz i dq vs ⊢
+        (l +ₗ j `mod` sz) ↦{dq} v ∗
+        ( (l +ₗ j `mod` sz) ↦{dq} v -∗
+          chunk_cslice l sz i dq vs
+        ).
+    Proof.
+      intros Hij Hlookup ->.
+      remember (₊j - i) as k eqn:Hk.
+      rewrite {1}(chunk_cslice_lookup_acc k) //.
+      replace ⁺(i + k) with j by lia. done.
+    Qed.
+    Lemma chunk_cslice_lookup' {l sz i dq vs} j k v :
+      (i ≤ j)%Z →
+      vs !! k = Some v →
+      k = ₊j - i →
+      chunk_cslice l sz i dq vs ⊢
+      (l +ₗ j `mod` sz) ↦{dq} v.
+    Proof.
+      intros Hij Hlookup ->.
+      remember (₊j - i) as k eqn:Hk.
+      rewrite {1}(chunk_cslice_lookup k) //.
+      replace ⁺(i + k) with j by lia. done.
+    Qed.
+
     Lemma chunk_cslice_shift l sz i dq vs :
       chunk_cslice l sz i dq vs ⊢
       chunk_cslice l sz (i + sz) dq vs.

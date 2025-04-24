@@ -853,7 +853,7 @@ Section spsc_bqueue_G.
       iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
       iModIntro. clear- Hbranch. iModIntro.
 
-      wp_smart_apply (array_unsafe_cset_spec with "Hback") as "Hback_"; first done.
+      wp_smart_apply (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
       wp_pures.
 
       wp_bind (_ <-{back} _)%E.
@@ -1006,8 +1006,8 @@ Section spsc_bqueue_G.
     iModIntro. clear- Hbranch. iModIntro.
 
     wp_load.
-    wp_smart_apply (array_unsafe_cget_spec with "Hfront") as "Hfront"; first done.
-    wp_smart_apply (array_unsafe_cset_spec with "Hfront") as "Hfront_"; first done.
+    wp_smart_apply (array_unsafe_cget_spec_cell with "Hfront") as "Hfront"; first done.
+    wp_smart_apply (array_unsafe_cset_spec_cell with "Hfront") as "Hfront_"; first done.
     wp_pures.
 
     wp_bind (_ <-{front} _)%E.
