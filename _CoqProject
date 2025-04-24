@@ -69,6 +69,8 @@ theories/zoo/iris/base_logic/lib/saved_prop.v
 theories/zoo/iris/base_logic/lib/saved_pred.v
 theories/zoo/iris/base_logic/lib/excl.v
 theories/zoo/iris/base_logic/lib/ghost_var.v
+theories/zoo/iris/base_logic/lib/ghost_prop.v
+theories/zoo/iris/base_logic/lib/ghost_pred.v
 theories/zoo/iris/base_logic/lib/ghost_list.v
 theories/zoo/iris/base_logic/lib/oneshot.v
 theories/zoo/iris/base_logic/lib/twins.v
