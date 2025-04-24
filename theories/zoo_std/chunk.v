@@ -818,7 +818,7 @@ Section zoo_G.
     Qed.
 
     Lemma chunk_cslice_shift l sz i dq vs :
-      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + sz) dq vs.
     Proof.
       rewrite /chunk_cslice.
@@ -830,6 +830,21 @@ Section zoo_G.
       setoid_rewrite Z_mod_same_full.
       setoid_rewrite Z.add_0_l at 7.
       done.
+    Qed.
+    Lemma chunk_cslice_shift_forward l sz i dq vs :
+      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz (i + sz) dq vs.
+    Proof.
+      rewrite chunk_cslice_shift //.
+    Qed.
+    Lemma chunk_cslice_shift_backward l sz i dq vs :
+      sz ≤ i →
+      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz (i - sz) dq vs.
+    Proof.
+      intros.
+      setoid_rewrite chunk_cslice_shift at 2.
+      replace (i - sz + sz) with i by lia. done.
     Qed.
 
     Lemma chunk_cslice_valid l sz i dq vs :
