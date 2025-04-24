@@ -10,11 +10,11 @@ From zoo Require Import
   options.
 
 Class OneshotG Σ A B := {
-  #[local] oneshot_G_var_G :: GhostVarG Σ (A + B) ;
+  #[local] oneshot_G_var_G :: GhostVarG Σ (leibnizO (A + B)) ;
 }.
 
 Definition oneshot_Σ A B := #[
-  ghost_var_Σ (A + B)
+  ghost_var_Σ (leibnizO (A + B))
 ].
 #[global] Instance subG_oneshot_Σ Σ A B :
   subG (oneshot_Σ A B) Σ →
@@ -82,7 +82,7 @@ Section oneshot_G.
       oneshot_pending γ (dq1 ⋅ dq2) a1.
   Proof.
     iIntros "H1 H2".
-    iDestruct (ghost_var_combine with "H1 H2") as "(%Heq & $)". injection Heq as ->.
+    iDestruct (ghost_var_combine_L with "H1 H2") as "(%Heq & $)". injection Heq as ->.
     iSteps.
   Qed.
   Lemma oneshot_pending_valid_2 γ dq1 a1 dq2 a2 :
@@ -139,7 +139,7 @@ Section oneshot_G.
     ⌜b1 = b2⌝.
   Proof.
     iIntros "Hshot1 Hshot2".
-    iDestruct (ghost_var_agree with "Hshot1 Hshot2") as %[= <-].
+    iDestruct (ghost_var_agree_L with "Hshot1 Hshot2") as %[= <-].
     iSteps.
   Qed.
 
@@ -149,7 +149,7 @@ Section oneshot_G.
     False.
   Proof.
     iIntros "Hpending Hshot".
-    iDestruct (ghost_var_valid_2 with "Hpending Hshot") as %(_ & [=]).
+    iDestruct (ghost_var_valid_2_L with "Hpending Hshot") as %(_ & [=]).
   Qed.
 
   Lemma oneshot_update_pending γ a a' :

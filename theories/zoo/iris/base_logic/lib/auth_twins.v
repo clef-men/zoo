@@ -14,13 +14,13 @@ From zoo Require Import
   options.
 
 Class AuthTwinsG Σ (A : ofe) (R : relation A) := {
-  #[local] auth_twins_G_var_G :: GhostVarG Σ gname ;
+  #[local] auth_twins_G_var_G :: GhostVarG Σ (leibnizO gname) ;
   #[local] auth_twins_G_mono_G :: AuthMonoG Σ R ;
   #[local] auth_twins_G_twins_G :: TwinsG Σ A ;
 }.
 
 Definition auth_twins_Σ (A : ofe) (R : relation A) := #[
-  ghost_var_Σ gname ;
+  ghost_var_Σ (leibnizO gname) ;
   auth_mono_Σ R ;
   twins_Σ A
 ].
@@ -118,7 +118,7 @@ Section auth_twins_G.
     iMod (auth_mono_alloc _ a) as "(%η & Hauth)".
     iDestruct (auth_mono_lb_get with "Hauth") as "#Hlb".
     iMod (twins_alloc' (twins_G := auth_twins_G_twins_G) a) as "(%γ_twins & Htwin1 & Htwin2)".
-    iMod (ghost_var_alloc η) as "(%γ_var & Hvar)".
+    iMod (ghost_var_alloc (ghost_var_G := auth_twins_G_var_G ) η) as "(%γ_var & Hvar)".
     iEval (assert (1 = 1/3 + (1/3 + 1/3))%Qp as -> by compute_done) in "Hvar".
     iDestruct "Hvar" as "(Hvar1 & (Hvar2 & Hvar3))".
     iExists {|
@@ -134,7 +134,7 @@ Section auth_twins_G.
     False.
   Proof.
     iIntros "(:auth =1) (:auth =2 pref=)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iApply (auth_mono_auth_exclusive with "Hauth _Hauth").
   Qed.
   Lemma auth_twins_auth_exclusive_L `{!LeibnizEquiv A} `{!AntiSymm (=) Rs} γ a1 a2 :
@@ -143,7 +143,7 @@ Section auth_twins_G.
     False.
   Proof.
     iIntros "(:auth =1) (:auth =2 pref=)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iApply (auth_mono_auth_exclusive_L with "Hauth _Hauth").
   Qed.
 
@@ -171,7 +171,7 @@ Section auth_twins_G.
     ⌜Rs a2 a1⌝.
   Proof.
     iIntros "(:auth =1) (:twin1 =2 pref=)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iApply (auth_mono_lb_valid with "Hauth Hlb2").
   Qed.
   Lemma auth_twins_valid_2 γ a1 a2 :
@@ -180,7 +180,7 @@ Section auth_twins_G.
     ⌜Rs a2 a1⌝.
   Proof.
     iIntros "(:auth =1) (:twin2 =2 pref=)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iApply (auth_mono_lb_valid with "Hauth Hlb2").
   Qed.
 
@@ -217,13 +217,13 @@ Section auth_twins_G.
   Proof.
     assert (1 = 1/3 + (1/3 + 1/3))%Qp as Heq by compute_done.
     iIntros "(:auth =1) (:twin1 =2 pref=) (:twin2 =3 pref=_)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
-    iDestruct (ghost_var_agree with "Hvar1 Hvar3") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar3") as %<-.
     iCombine "Hvar1 Hvar2 Hvar3" as "Hvar". rewrite -Heq.
     iMod (twins_update (twins_G := auth_twins_G_twins_G) a' a' with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)"; first done.
     iMod (auth_mono_alloc _ a') as "(%η' & Hauth')".
     iDestruct (auth_mono_lb_get with "Hauth'") as "#Hlb".
-    iMod (ghost_var_update η' with "Hvar") as "Hvar".
+    iMod (ghost_var_update (ghost_var_G := auth_twins_G_var_G ) η' with "Hvar") as "Hvar".
     iEval (rewrite Heq) in "Hvar". iDestruct "Hvar" as "(Hvar1 & (Hvar2 & Hvar3))".
     iSteps.
   Qed.
@@ -236,7 +236,7 @@ Section auth_twins_G.
       auth_twins_twin2 γ a.
   Proof.
     iIntros "%Ha1 %Ha2 (:twin1 =1) (:twin2 =2 pref=)".
-    iDestruct (ghost_var_agree with "Hvar1 Hvar2") as %<-.
+    iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iMod (twins_update' (twins_G := auth_twins_G_twins_G) a with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)".
     iDestruct (auth_mono_lb_mono with "Hlb1") as "#Hlb1'"; first done.
     iSteps.
