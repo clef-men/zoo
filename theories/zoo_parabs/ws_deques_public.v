@@ -101,7 +101,7 @@ Section ws_deques_public_G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public_owner_valid t ι sz i status :
+  Lemma ws_deques_public_inv_owner t ι sz i status :
     ws_deques_public_inv t ι sz -∗
     ws_deques_public_owner t i status -∗
     ⌜i < sz⌝.
@@ -388,7 +388,7 @@ Section ws_deques_public_G.
     >>>.
   Proof.
     iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
-    iDestruct (ws_deques_public_owner_valid with "Hinv Howner") as %Hi.
+    iDestruct (ws_deques_public_inv_owner with "Hinv Howner") as %Hi.
 
     iLöb as "HLöb" forall (n).
 

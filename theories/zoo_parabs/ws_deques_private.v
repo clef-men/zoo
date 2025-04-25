@@ -79,7 +79,7 @@ Section ws_deques_private_G.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_owner_valid t ι sz i status :
+  Lemma ws_deques_private_inv_owner t ι sz i status :
     ws_deques_private_inv t ι sz -∗
     ws_deques_private_owner t i status -∗
     ⌜i < sz⌝.

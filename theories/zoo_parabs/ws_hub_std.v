@@ -531,7 +531,7 @@ Section ws_hub_std_G.
     wp_smart_apply (random_round_reset_spec' with "Hround") as "Hround".
     wp_load.
 
-    iDestruct (ws_deques_public_owner_valid with "Hdeques_inv Hdeques_owner") as %?.
+    iDestruct (ws_deques_public_inv_owner with "Hdeques_inv Hdeques_owner") as %?.
     awp_apply (ws_deques_public_steal_as_spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
     iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
