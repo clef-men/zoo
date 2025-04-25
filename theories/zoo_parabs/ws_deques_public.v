@@ -467,7 +467,3 @@ End ws_deques_public_G.
 #[global] Opaque ws_deques_public_pop.
 #[global] Opaque ws_deques_public_steal_to.
 #[global] Opaque ws_deques_public_steal_as.
-
-#[global] Opaque ws_deques_public_inv.
-#[global] Opaque ws_deques_public_model.
-#[global] Opaque ws_deques_public_owner.
