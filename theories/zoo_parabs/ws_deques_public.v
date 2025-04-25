@@ -313,7 +313,6 @@ Section ws_deques_public_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! ₊j = Some []⌝ ∗
           ws_deques_public_model t vss
       | Some v =>
           ∃ vs,
@@ -418,7 +417,7 @@ Section ws_deques_public_G.
           assert ((i_ + 1 + j) `div` sz = 1) by lia.
           lia.
 
-      + iSteps as (_) "HΦ Howner Hround".
+      + iSteps as "HΦ Howner Hround".
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
         iSteps.
   Qed.

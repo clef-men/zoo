@@ -207,7 +207,6 @@ Section ws_deques_private_G.
       ∃∃ o,
       match o with
       | None =>
-          ⌜vss !! ₊j = Some []⌝ ∗
           ws_deques_private_model t vss
       | Some v =>
           ∃ vs,
