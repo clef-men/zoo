@@ -186,6 +186,9 @@ theories/zoo_std/dynarray_2.v
 theories/zoo_std/inf_array__types.v
 theories/zoo_std/inf_array__code.v
 theories/zoo_std/inf_array.v
+theories/zoo_std/bqueue__types.v
+theories/zoo_std/bqueue__code.v
+theories/zoo_std/bqueue.v
 theories/zoo_std/queue_1__types.v
 theories/zoo_std/queue_1__code.v
 theories/zoo_std/queue_1.v

@@ -248,11 +248,34 @@ Section zoo_G.
     Qed.
 
     Lemma array_slice_cons t i dq v vs :
+      array_slice t i dq (v :: vs) ⊣⊢
+        array_slice t i dq [v] ∗
+        array_slice t (S i) dq vs.
+    Proof.
+      rewrite -Nat.add_1_r array_slice_app //.
+    Qed.
+    Lemma array_slice_cons_1 t i dq v vs :
       array_slice t i dq (v :: vs) ⊢
         array_slice t i dq [v] ∗
         array_slice t (S i) dq vs.
     Proof.
-      rewrite -Nat.add_1_r (array_slice_app_2 [v] vs) //.
+      rewrite array_slice_cons //.
+    Qed.
+    Lemma array_slice_cons_2 t i dq v vs :
+      array_slice t i dq [v] -∗
+      array_slice t (S i) dq vs -∗
+      array_slice t i dq (v :: vs).
+    Proof.
+      setoid_rewrite array_slice_cons at 2. iSteps.
+    Qed.
+    Lemma array_slice_cons_2' t i1 dq v i2 vs :
+      i2 = S i1 →
+      array_slice t i1 dq [v] -∗
+      array_slice t i2 dq vs -∗
+      array_slice t i1 dq (v :: vs).
+    Proof.
+      intros ->.
+      apply array_slice_cons_2.
     Qed.
 
     Lemma array_slice_atomize t i dq vs :
@@ -629,11 +652,34 @@ Section zoo_G.
     Qed.
 
     Lemma array_cslice_cons t sz i dq v vs :
+      array_cslice t sz i dq (v :: vs) ⊣⊢
+        array_cslice t sz i dq [v] ∗
+        array_cslice t sz (S i) dq vs.
+    Proof.
+      rewrite -Nat.add_1_r array_cslice_app //.
+    Qed.
+    Lemma array_cslice_cons_1 t sz i dq v vs :
       array_cslice t sz i dq (v :: vs) ⊢
         array_cslice t sz i dq [v] ∗
         array_cslice t sz (S i) dq vs.
     Proof.
-      rewrite -Nat.add_1_r (array_cslice_app_2 [v] vs) //.
+      rewrite array_cslice_cons //.
+    Qed.
+    Lemma array_cslice_cons_2 t sz i dq v vs :
+      array_cslice t sz i dq [v] -∗
+      array_cslice t sz (S i) dq vs -∗
+      array_cslice t sz i dq (v :: vs).
+    Proof.
+      setoid_rewrite array_cslice_cons at 2. iSteps.
+    Qed.
+    Lemma array_cslice_cons_2' t sz i1 dq v i2 vs :
+      i2 = S i1 →
+      array_cslice t sz i1 dq [v] -∗
+      array_cslice t sz i2 dq vs -∗
+      array_cslice t sz i1 dq (v :: vs).
+    Proof.
+      intros ->.
+      apply array_cslice_cons_2.
     Qed.
 
     Lemma array_cslice_atomize sz t i dq vs :
