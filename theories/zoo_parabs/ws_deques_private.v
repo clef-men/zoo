@@ -67,10 +67,6 @@ Section ws_deques_private_G.
     Timeless (ws_deques_private_model t vss).
   Proof.
   Admitted.
-  #[global] Instance ws_deques_private_owner_timeless t i status :
-    Timeless (ws_deques_private_owner t i status).
-  Proof.
-  Admitted.
   #[global] Instance ws_deques_private_inv_persistent t ι sz :
     Persistent (ws_deques_private_inv t ι sz).
   Proof.
