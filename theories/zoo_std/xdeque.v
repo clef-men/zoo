@@ -37,6 +37,15 @@ Section zoo_G.
     apply _.
   Qed.
 
+  Lemma xdeque_model_exclusive t nodes1 nodes2 :
+    xdeque_model t nodes1 -∗
+    xdeque_model t nodes2 -∗
+    False.
+  Proof.
+    iIntros "(%l1 & %Heq1 & Hprev1 & _) (%l2 & %Heq2 & Hprev2 & _)". simplify.
+    iApply (pointsto_exclusive with "Hprev1 Hprev2").
+  Qed.
+
   Lemma xdeque_model_NoDup t nodes :
     xdeque_model t nodes ⊢
     ⌜NoDup nodes⌝.

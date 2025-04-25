@@ -31,6 +31,15 @@ Section zoo_G.
     apply _.
   Qed.
 
+  Lemma deque_model_exclusive t vs1 vs2 :
+    deque_model t vs1 -∗
+    deque_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(%nodes1 & Hmodel1 & _) (%nodes2 & Hmodel2 & _)".
+    iApply (xdeque_model_exclusive with "Hmodel1 Hmodel2").
+  Qed.
+
   Lemma deque_create_spec :
     {{{
       True
