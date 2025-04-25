@@ -17,21 +17,25 @@ type 'a response =
   | ResponseSome of 'a
 
 type 'a t =
-  { deques: 'a Deque.t array;
+  { size: int;
+    deques: 'a Deque.t array;
     statuses: status array;
     requests: request Atomic_array.t;
     responses: 'a response array;
+    mutable force_mutable: unit; (* for verification *)
   }
 
 let create sz =
-  { deques= Array.unsafe_init sz Deque.create;
+  { size= sz;
+    deques= Array.unsafe_init sz Deque.create;
     statuses= Array.unsafe_make sz Nonblocked;
     requests= Atomic_array.make sz RequestNone;
     responses= Array.unsafe_make sz ResponseWaiting;
+    force_mutable= ();
   }
 
 let size t =
-  Array.size t.deques
+  t.size
 
 let block t i =
   Array.unsafe_set t.statuses i Blocked ;

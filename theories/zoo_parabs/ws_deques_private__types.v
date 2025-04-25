@@ -47,19 +47,27 @@ Notation "'ResponseSome'" := (
 )(in custom zoo_tag
 ).
 
-Notation "'deques'" := (
+Notation "'size'" := (
   in_type "zoo_parabs.ws_deques_private.t" 0
-)(in custom zoo_proj
+)(in custom zoo_field
+).
+Notation "'deques'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 1
+)(in custom zoo_field
 ).
 Notation "'statuses'" := (
-  in_type "zoo_parabs.ws_deques_private.t" 1
-)(in custom zoo_proj
+  in_type "zoo_parabs.ws_deques_private.t" 2
+)(in custom zoo_field
 ).
 Notation "'requests'" := (
-  in_type "zoo_parabs.ws_deques_private.t" 2
-)(in custom zoo_proj
+  in_type "zoo_parabs.ws_deques_private.t" 3
+)(in custom zoo_field
 ).
 Notation "'responses'" := (
-  in_type "zoo_parabs.ws_deques_private.t" 3
-)(in custom zoo_proj
+  in_type "zoo_parabs.ws_deques_private.t" 4
+)(in custom zoo_field
+).
+Notation "'force_mutable'" := (
+  in_type "zoo_parabs.ws_deques_private.t" 5
+)(in custom zoo_field
 ).
