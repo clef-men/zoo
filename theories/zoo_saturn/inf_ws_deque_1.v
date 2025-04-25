@@ -1515,7 +1515,7 @@ Section inf_ws_deque_1_G.
 
     (* branch 1.2: front2 + 1 < back; no conflict *)
     - (* there is stricly more than one model value *)
-      rename vs into _vs. destruct (rev_elim _vs) as [-> | (vs & v & ->)]; first naive_solver lia.
+      destruct vs as [| v vs _] using rev_ind; first naive_solver lia.
       destruct vs as [| w vs]; rewrite length_app /= in Hvs; first lia.
       (* update data model *)
       iEval (rewrite assoc) in "Harray_model".

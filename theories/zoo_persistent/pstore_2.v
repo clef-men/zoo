@@ -1090,17 +1090,17 @@ Module raw.
 
       iIntros (Hdescr_lookup_base' Hpath Hϵs_lookup_cnode Hδs_cnode_length Hnodup ->) "%Φ (%v_node & Hnode & Hς & %Hϵs & Hauth & %Hdescrs_lookup_base & ((%Hbase_store_dom & %Hbase_store_gen) & #Helem_base & %Hδs_base_nodup & %Hδs_base & Hδs_base) & %Hdescrs_lookup_cnode & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_cnode_nodup & %Hδs_cnode & Hδs_cnode) & Hdescrs) HΦ".
 
-      destruct (rev_elim δs_cnode) as [-> | (δs_cnode_ & (r1, g1, v1, _node) & ->)]; first naive_solver lia.
+      destruct δs_cnode as [| (r1, g1, v1, _node) δs_cnode _] using rev_ind; first naive_solver lia.
       simpl in *.
       iDestruct (deltas_chain_snoc_inv with "Hδs_cnode") as "(%Hnode & Hδs_cnode & Hδ)".
       simplify.
 
       wp_rec.
-      destruct (rev_elim δs_cnode_) as [-> | (δs_cnode & (r2, g2, v2, node') & ->)].
+      destruct δs_cnode as [| (r2, g2, v2, node') δs_cnode _] using rev_ind.
 
       - iDestruct (deltas_chain_nil_inv with "Hδs_cnode") as %->.
         simpl in *.
-        destruct (rev_elim path) as [-> | (path' & δs_cnode' & ->)]; simpl.
+        destruct path as [| δs_cnode path _] using rev_ind => /=.
 
         + apply treemap_path_nil_inv in Hpath as <-.
           wp_load.
@@ -1148,7 +1148,7 @@ Module raw.
           { rewrite lookup_delete_ne //. }
           simpl in *.
           rewrite Hdescrs_lookup_cnode in Hdescrs_lookup_cnode_. injection Hdescrs_lookup_cnode_ as <-.
-          destruct (rev_elim δs_cnode') as [-> | (δs_cnode'' & (r2, g2, v2, cnode_) & ->)].
+          destruct δs_cnode as [| (r2, g2, v2, cnode_) δs_cnode _] using rev_ind.
           { iDestruct (deltas_chain_nil_inv with "Hδs_cnode'") as %<-.
             opose proof* treemap_rooted_acyclic as []; done.
           }
@@ -1171,7 +1171,7 @@ Module raw.
           set δs_base' := δs_base ++ [Delta r1 g1' v1' cnode].
           set ϵs' := treemap_reroot ϵs base cnode δs_base'.
           opose proof* (treemap_reroot_rooted cnode _ δs_base') as Hϵs'; [done.. |].
-          wp_smart_apply ("HLöb" $! _ ϵs' cnode cnode_descr [] cnode' cnode_descr' (δs_cnode'' ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
+          wp_smart_apply ("HLöb" $! _ ϵs' cnode cnode_descr [] cnode' cnode_descr' (δs_cnode ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
           { eapply treemap_reroot_path; done. }
           { rewrite lookup_insert_ne // lookup_delete_ne //. }
           { simpl_length/=. lia. }
@@ -1259,11 +1259,11 @@ Module raw.
       iIntros (Hdescrs_lookup_base' Hpath ->) "%Φ (%v_root & Hroot & Hς & %Hϵs & Hauth & %Hdescrs_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hdescrs) HΦ".
       simpl in *.
 
-      destruct (rev_elim δs) as [-> | (δs' & (r1, g1, v1, _root) & ->)].
+      destruct δs as [| (r1, g1, v1, _root) δs _] using rev_ind.
 
       - iDestruct (deltas_chain_nil_inv with "Hδs") as %<-.
         specialize (Hδs_nil eq_refl) as ->.
-        destruct (rev_elim path) as [-> | (path' & δs_cnode & ->)]; simpl.
+        destruct path as [| δs_cnode path _] using rev_ind => /=.
 
         + apply treemap_path_nil_inv in Hpath as ->.
           assert (base_descr' = base_descr) as -> by congruence.
@@ -1292,9 +1292,9 @@ Module raw.
         simpl in Heq. subst _root.
         rewrite reverse_snoc. cbn.
         wp_rec.
-        destruct (rev_elim δs') as [-> | (δs & (r2, g2, v2, node) & ->)].
+        destruct δs as [| (r2, g2, v2, node) δs _] using rev_ind.
 
-        + destruct (rev_elim path) as [-> | (path' & δs_cnode & ->)]; simpl.
+        + destruct path as [| δs_cnode path _] using rev_ind => /=.
 
           * apply treemap_path_nil_inv in Hpath as ->.
             assert (base_descr' = base_descr) as -> by congruence.
@@ -1322,7 +1322,7 @@ Module raw.
             { intros ->.
               opose proof* treemap_rooted_acyclic as []; done.
             }
-            destruct (rev_elim δs_cnode) as [->| (δs_cnode' & (r2, g2, v2, _base) & ->)].
+            destruct δs_cnode as [| (r2, g2, v2, _base) δs_cnode' _] using rev_ind.
             { iDestruct (deltas_chain_nil_inv with "Hδs_cnode") as %?. done. }
             iDestruct (deltas_chain_snoc_inv with "Hδs_cnode") as "(%Heq & Hδs_cnode & Hδ')".
             simpl in Heq. subst _base.

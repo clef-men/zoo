@@ -162,10 +162,10 @@ Section inf_ws_deque_2_G.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([w |]).
     - iIntros "(%ws & %Heq & Hmodel) !>".
-      destruct (rev_elim slots) as [-> | (slots' & slot & ->)].
+      destruct slots as [| slot slots _] using rev_ind.
       { rewrite fmap_nil in Heq. edestruct app_cons_not_nil. done. }
       rewrite fmap_app app_inj_tail_iff in Heq. destruct Heq as (<- & <-).
-      destruct (rev_elim vs) as [-> | (vs' & v & ->)].
+      destruct vs as [| v vs _] using rev_ind.
       { iDestruct (big_sepL2_nil_inv_r with "Hslots") as %?.
         edestruct app_cons_not_nil. done.
       }

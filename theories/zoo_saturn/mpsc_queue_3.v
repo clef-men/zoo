@@ -587,14 +587,14 @@ Section mpsc_queue_3_G.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      destruct (rev_elim back) as [-> | (back' & v' & ->)].
+      destruct back as [| v back _] using rev_ind.
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
         iSplitR "Hl_front Hfront₁ Hopen₂ HΦ".
         { iSteps. iExists []. iSteps. }
         iSteps.
 
-      + set front := reverse back'.
+      + set front := reverse back.
         iMod (front_update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
         iMod (model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         rewrite reverse_snoc /=.
@@ -603,9 +603,9 @@ Section mpsc_queue_3_G.
         { iSteps. iExists []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
-        remember (back' ++ [v']) as back eqn:Hback.
-        destruct back as [| v'' back'']; first by eelim app_cons_not_nil.
-        wp_smart_apply (clst_rev_app_spec (v'' :: back'') ClistOpen with "[//]") as "_"; [done.. |].
+        remember (back ++ [v]) as back' eqn:Hback.
+        destruct back' as [| v' back']; first by eelim app_cons_not_nil.
+        wp_smart_apply (clst_rev_app_spec (v' :: back') ClistOpen with "[//]") as "_"; [done.. |].
         rewrite clist_app_ClistOpen {}Hback reverse_snoc.
         iSteps.
 

@@ -235,7 +235,7 @@ Section pure_exec.
     }
     clear- Hvs Hlength.
     induction recs1 as [| rec recs1 IH] using rev_ind => recs2 vs1 vs2 e Hrecs_eq Hvs_eq Hlength1; first done.
-    destruct (rev_elim vs1) as [-> | (vs1' & v & ->)].
+    destruct vs1 as [| v vs1 _] using rev_ind.
     all: simpl_length/= in Hlength1.
     1: lia.
     rewrite foldri_app foldr2_app /=; first lia.
@@ -245,7 +245,7 @@ Section pure_exec.
       { simpl_length/=. lia. }
       rewrite lookup_snoc_Some. naive_solver lia.
     }
-    apply (IH (rec :: recs2) vs1' (v :: vs2)).
+    apply (IH (rec :: recs2) vs1 (v :: vs2)).
     { rewrite Hrecs_eq -assoc //. }
     { rewrite Hvs_eq -assoc //. }
     { lia. }

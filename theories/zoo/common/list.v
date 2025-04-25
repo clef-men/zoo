@@ -33,17 +33,11 @@ Section basic.
     intros. apply app_not_nil. auto.
   Qed.
 
-  Lemma rev_elim l :
-    l = [] ∨ ∃ l' x, l = l' ++ [x].
-  Proof.
-    revert l. refine (rev_ind _ _ _); [| intros x l _]; naive_solver.
-  Qed.
-
   Lemma reverse_nil_iff l :
     reverse l = [] ↔
     l = [].
   Proof.
-    destruct (rev_elim l) as [-> | (l' & x & ->)]; first done.
+    destruct l as [| x l _] using rev_ind; first done.
     rewrite reverse_snoc app_nil. naive_solver.
   Qed.
 

@@ -386,7 +386,7 @@ Section mpsc_queue_2_G.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      destruct (rev_elim back) as [-> | (back' & v & ->)].
+      destruct back as [| v back _] using rev_ind.
 
       + iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
         iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
@@ -398,7 +398,7 @@ Section mpsc_queue_2_G.
         iApply "HΦ".
         iExists l, γ, []. iSteps.
 
-      + set front := reverse back'.
+      + set front := reverse back.
         iMod (front_update front with "Hfront₁ Hfront₂") as "(Hfront₁ & Hfront₂)".
         iMod (model_update front with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" with "[Hmodel₁]") as "HΦ".

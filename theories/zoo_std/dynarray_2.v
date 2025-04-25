@@ -530,7 +530,7 @@ Section zoo_G.
     wp_pures.
     rewrite length_app Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
     iDestruct (big_sepL2_length with "Helems") as %Helems. simpl_length/= in Helems.
-    destruct (rev_elim elems) as [-> | (slots & elem & ->)]; first (simpl in Helems; lia).
+    destruct elems as [| elem elems _] using rev_ind; first (simpl in Helems; lia).
     rewrite length_app Nat.add_cancel_r in Helems. iEval (rewrite -Helems).
     iDestruct (big_sepL2_snoc with "Helems") as "(Helems & (:element_model))".
     wp_apply (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
@@ -547,7 +547,7 @@ Section zoo_G.
     rewrite Nat.sub_diag /=.
     wp_store. wp_load.
     iApply "HΦ".
-    iExists l, data, slots, (S extra). iSteps.
+    iExists l, data, elems, (S extra). iSteps.
   Qed.
 
   Lemma dynarray_2_fit_capacity_spec t vs :

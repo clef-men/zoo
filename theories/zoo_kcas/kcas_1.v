@@ -865,14 +865,14 @@ Section kcas_1_G.
     iIntros "%Hne (Hhistory_auth & %Hcasns1 & _) (#Hhistory_lb2 & %Hcasns2)".
     iDestruct (mono_list_lb_get with "Hhistory_auth") as "#Hhistory_lb1".
     iDestruct (mono_list_lb_valid with "Hhistory_auth Hhistory_lb2") as %(casns3 & Heq).
-    destruct (rev_elim casns3) as [-> | (casns4 & casn3 & ->)].
+    destruct casns3 as [| casn3 casns3 _] using rev_ind.
     - apply (f_equal last) in Heq.
       rewrite right_id !last_snoc in Heq.
       naive_solver.
     - apply (f_equal last) in Heq as H.
       rewrite assoc last_app_cons !last_snoc /= in H.
       injection H as <-.
-      iExists casns4. rewrite assoc -Heq. iSteps.
+      iExists casns3. rewrite assoc -Heq. iSteps.
   Qed.
   #[local] Lemma history_elem_valid γ casns casn :
     history_auth γ casns -∗

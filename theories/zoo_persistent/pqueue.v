@@ -100,12 +100,12 @@ Section zoo_G.
     wp_rec.
     destruct front as [| v front]; wp_pures.
     - wp_apply (lst_rev_spec with "[//]") as "%front ->"; first done.
-      destruct (rev_elim back) as [-> | (back' & v & ->)].
+      destruct back as [| v back _] using rev_ind.
       + wp_pures.
         iApply ("HΦ" $! None with "[//]").
       + rewrite reverse_snoc. wp_pures.
         iApply ("HΦ" $! (Some _)).
-        iExists v, (reverse back'), _. iSplitR; first iSteps.
+        iExists v, (reverse back), _. iSplitR; first iSteps.
         iExists _, []. iSteps. rewrite right_id //.
     - iApply ("HΦ" $! (Some (_, _)%V)).
       iSteps.

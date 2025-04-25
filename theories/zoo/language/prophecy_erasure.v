@@ -446,10 +446,10 @@ Proof.
       eexists;
       rewrite erase_ectx_app fill_app //
     ].
-  - destruct (rev_elim 𝐾) as [-> | (𝐾' & 𝑘 & ->)].
+  - destruct 𝐾 as [| 𝑘 𝐾 _] using rev_ind.
     + apply base_reducible_not_val in H𝑒. naive_solver.
     + rewrite fill_app /= in Heq. destruct 𝑘; done.
-  - destruct (rev_elim 𝐾) as [-> | (𝐾' & 𝑘 & ->)].
+  - destruct 𝐾 as [| 𝑘 𝐾 _] using rev_ind.
     + apply base_reducible_not_val in H𝑒. naive_solver.
     + rewrite fill_app /= in H. destruct 𝑘; done.
   - select (erase_expr <$> _ = _) (fun Heq =>
@@ -459,7 +459,7 @@ Proof.
     rewrite erase_ectx_app fill_app //.
   - rewrite /erase_resolve /= in Heq.
     simplify.
-    destruct (rev_elim 𝐾) as [-> | (𝐾' & 𝑘 & ->)].
+    destruct 𝐾 as [| 𝑘 𝐾 _] using rev_ind.
     + assert (∃ σ, reducible (Resolve e1 e2 e3) σ) as (σ & He) by admit.
       simplify.
       destruct H𝑒 as (𝜅 & 𝑒' & 𝜎' & 𝑒s & H𝑠𝑡𝑒𝑝).
