@@ -353,7 +353,7 @@ Section semaphore_G.
     )%I with "[$Hmutex_inv Htokens_frag HP]"); last iSteps.
     iIntros "Hmutex_locked (:inv_inner)".
     wp_load. wp_store.
-    iDestruct (big_sepL_snoc_2 _ (S cnt) with "H [$]") as "H".
+    iDestruct (big_sepL_snoc_2 (S cnt) with "H [$]") as "H".
     rewrite -seq_S. iFrameSteps.
   Qed.
 End semaphore_G.

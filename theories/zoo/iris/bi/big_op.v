@@ -23,6 +23,44 @@ Section bi.
 
     Implicit Types Φ : nat → A → PROP.
 
+    Lemma big_sepL_to_seq `{!BiAffine PROP} Φ l i :
+      ([∗ list] k ↦ y ∈ l, Φ k y) ⊣⊢
+      [∗ list] k ∈ seq i (length l),
+        ∃ y,
+        ⌜l !! (k - i) = Some y⌝ ∗
+        Φ (k - i) y.
+    Proof.
+      iInduction l as [| x l] "IH" forall (Φ i) => /=; first iSteps.
+      iSplit.
+      - rewrite Nat.sub_diag. iSteps as "H".
+        iApply (big_sepL_impl with "(IH H)"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "/=".
+        replace (i + k - i) with k by lia.
+        replace (S (i + k) - i) with (S k) by lia.
+        iSteps.
+      - rewrite Nat.sub_diag. iSteps as (y) "H".
+        iApply "IH".
+        iApply (big_sepL_impl with "H"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "/=".
+        replace (i + k - i) with k by lia.
+        replace (S (i + k) - i) with (S k) by lia.
+        iSteps.
+    Qed.
+    Lemma big_sepL_to_seq0 `{!BiAffine PROP} Φ l :
+      ([∗ list] k ↦ y ∈ l, Φ k y) ⊣⊢
+      [∗ list] k ∈ seq 0 (length l),
+        ∃ y,
+        ⌜l !! k = Some y⌝ ∗
+        Φ k y.
+    Proof.
+      rewrite (big_sepL_to_seq _ _ 0).
+      setoid_rewrite Nat.sub_0_r. done.
+    Qed.
+  End big_sepL.
+
+  Section big_sepL.
+    Context {A : Type}.
+
+    Implicit Types Φ : nat → A → PROP.
+
     Lemma big_sepL_cons_1 Φ x l :
       ([∗ list] k ↦ y ∈ (x :: l), Φ k y) ⊢
         Φ 0 x ∗
@@ -46,16 +84,16 @@ Section bi.
     Qed.
 
     Lemma big_sepL_snoc_1 Φ l x :
-      ([∗ list] k↦y ∈ (l ++ [x]), Φ k y) ⊢
-        ([∗ list] k↦y ∈ l, Φ k y) ∗
+      ([∗ list] k ↦ y ∈ (l ++ [x]), Φ k y) ⊢
+        ([∗ list] k ↦ y ∈ l, Φ k y) ∗
         Φ (length l) x.
     Proof.
       rewrite big_sepL_snoc //.
     Qed.
-    Lemma big_sepL_snoc_2 l x Φ :
-      ([∗ list] k↦y ∈ l, Φ k y) -∗
+    Lemma big_sepL_snoc_2 {Φ l} x :
+      ([∗ list] k ↦ y ∈ l, Φ k y) -∗
       Φ (length l) x -∗
-      ([∗ list] k↦y ∈ (l ++ [x]), Φ k y).
+      ([∗ list] k ↦ y ∈ (l ++ [x]), Φ k y).
     Proof.
       rewrite big_sepL_snoc. iSteps.
     Qed.
@@ -72,22 +110,13 @@ Section bi.
       ) -∗
       [∗ list] k ↦ x ∈ l2, Φ2 k x.
     Proof.
-      iIntros "%Hl2 HΦ H". remember (length l1) as sz eqn:Hl1.
-      iInduction sz as [| sz] "IH" forall (l1 l2 Hl1 Hl2).
-      { apply symmetry, nil_length_inv in Hl2 as ->. iSteps. }
-      destruct l1 as [| x1 l1 _] using rev_ind; first done.
-      destruct l2 as [| x2 l2 _] using rev_ind; first done.
-      rewrite !length_app !Nat.add_1_r !Nat.succ_inj_wd in Hl1 Hl2.
-      rewrite List.seq_S /=. iDestruct (big_sepL_snoc with "H") as "(H1 & H2)".
-      iDestruct (big_sepL_snoc with "HΦ") as "(HΦ1 & HΦ2)".
-      iApply big_sepL_snoc. iSplitL "H1 HΦ1".
-      - iApply ("IH" with "[] [] HΦ1 [H1]"); [iSteps.. |].
-        iApply (big_sepL_mono with "H1"). iIntros (k k_ (-> & ?)%lookup_seq) "H %x1' %x2' % % HΦ".
-        iApply ("H" with "[%] [%] HΦ").
-        all: auto using lookup_app_l_Some.
-      - rewrite -Hl1 -Hl2.
-        iApply ("H2" with "[%] [%] HΦ2").
-        all: rewrite list_lookup_middle //.
+      setoid_rewrite big_sepL_to_seq0. simpl_length.
+      iIntros "%Hlength Hl1 H". rewrite -Hlength.
+      iDestruct (big_sepL_sep_2 with "Hl1 H") as "H".
+      iApply (big_sepL_impl with "H"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "((%x1 & %Hl1_lookup & Hx1) & (% & %H & H))".
+      apply lookup_seq in H as (-> & _) => /=.
+      destruct (lookup_lt_is_Some_2 l2 k) as (x2 & Hl2_lookup); first lia.
+      iSteps.
     Qed.
     Lemma big_sepL_impl_strong `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) (l1 : list A1) (Φ2 : nat → A2 → PROP) (l2 : list A2) :
       length l1 = length l2 →
