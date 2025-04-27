@@ -28,7 +28,7 @@ let push t v =
     Array.unsafe_cset data back v
   ) else (
     let new_cap = cap lsl 1 in
-    let new_data = Array.unsafe_cresize_slice data front (back - front) new_cap (Obj.magic ()) in
+    let new_data = Array.unsafe_cgrow_slice data front (back - front) new_cap (Obj.magic ()) in
     Array.unsafe_cset new_data back v ;
     t.data <- new_data
   ) ;
@@ -69,7 +69,7 @@ let pop t =
     let sz = back - front in
     if min_capacity + 3 * sz <= cap then (
       let new_cap = cap lsr 1 in
-      let new_data = Array.unsafe_cresize_slice data front sz new_cap (Obj.magic ()) in
+      let new_data = Array.unsafe_cshrink_slice data front new_cap in
       t.data <- new_data
     ) ;
     Some v

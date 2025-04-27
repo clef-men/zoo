@@ -128,5 +128,10 @@ val unsafe_ccopy :
 val ccopy :
   'a t -> int -> 'a t -> int -> unit
 
-val unsafe_cresize_slice :
+val unsafe_cgrow_slice :
   'a t -> int -> int -> int -> 'a -> 'a t
+val unsafe_cgrow :
+  'a t -> int -> int -> 'a -> 'a t
+
+val unsafe_cshrink_slice :
+  'a t -> int -> int -> 'a t

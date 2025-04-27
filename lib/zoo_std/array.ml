@@ -297,7 +297,14 @@ let ccopy t1 i1 t2 i2 =
     invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
   unsafe_ccopy t1 i1 t2 i2
 
-let unsafe_cresize_slice t i n sz' v =
+let unsafe_cgrow_slice t i n sz' v =
   let t' = unsafe_make sz' v in
   unsafe_ccopy_slice t i t' i n ;
+  t'
+let unsafe_cgrow t i sz' v =
+  unsafe_cgrow_slice t i (size t) sz' v
+
+let unsafe_cshrink_slice t i sz' =
+  let t' = unsafe_alloc sz' in
+  unsafe_ccopy_slice t i t' i sz' ;
   t'

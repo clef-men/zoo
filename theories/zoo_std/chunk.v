@@ -671,6 +671,13 @@ Section zoo_G.
       iApply (big_sepL_impl with "Hmodel"). iIntros (k v Hk%lookup_lt_Some) "!> H↦".
       rewrite left_id Z.mod_small //; first lia.
     Qed.
+    Lemma chunk_model_cslice_cell l i sz dq v :
+      chunk_model (l +ₗ i `mod` sz) dq [v] ⊣⊢
+      chunk_cslice l sz i dq [v].
+    Proof.
+      rewrite /chunk_model /chunk_cslice.
+      rewrite !big_sepL_singleton location_add_0 right_id //.
+    Qed.
 
     Lemma chunk_cslice_nil l sz i dq :
       ⊢ chunk_cslice l sz i dq [].

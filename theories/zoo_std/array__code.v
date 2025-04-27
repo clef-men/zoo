@@ -317,8 +317,18 @@ Definition array_ccopy : val :=
     assume ("sz1" ≤ "sz2") ;;
     array_unsafe_ccopy "t1" "i1" "t2" "i2".
 
-Definition array_unsafe_cresize_slice : val :=
+Definition array_unsafe_cgrow_slice : val :=
   fun: "t" "i" "n" "sz'" "v" =>
     let: "t'" := array_unsafe_make "sz'" "v" in
     array_unsafe_ccopy_slice "t" "i" "t'" "i" "n" ;;
+    "t'".
+
+Definition array_unsafe_cgrow : val :=
+  fun: "t" "i" "sz'" "v" =>
+    array_unsafe_cgrow_slice "t" "i" (array_size "t") "sz'" "v".
+
+Definition array_unsafe_cshrink_slice : val :=
+  fun: "t" "i" "sz'" =>
+    let: "t'" := array_unsafe_alloc "sz'" in
+    array_unsafe_ccopy_slice "t" "i" "t'" "i" "sz'" ;;
     "t'".

@@ -30,7 +30,7 @@ Definition ws_deque_1_push : val :=
     ) else (
       let: "new_cap" := "cap" `lsl` #1 in
       let: "new_data" :=
-        array_unsafe_cresize_slice
+        array_unsafe_cgrow_slice
           "data"
           "front"
           ("back" - "front")
@@ -82,7 +82,7 @@ Definition ws_deque_1_pop : val :=
       if: ws_deque_1_min_capacity + #3 * "sz" ≤ "cap" then (
         let: "new_cap" := "cap" `lsr` #1 in
         let: "new_data" :=
-          array_unsafe_cresize_slice "data" "front" "sz" "new_cap" ()
+          array_unsafe_cshrink_slice "data" "front" "new_cap"
         in
         "t" <-{data} "new_data"
       ) else (
