@@ -10,122 +10,122 @@ From zoo_std Require Import
   option.
 From zoo_saturn Require Export
   base
-  ws_deque_2__code.
+  inf_ws_queue_2__code.
 From zoo_saturn Require Import
-  ws_deque_1.
+  inf_ws_queue_1.
 From zoo Require Import
   options.
 
 Implicit Types v t : val.
 
-Class WsDeque2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_deque_2_G :: WsDeque1G Σ ;
+Class InfWsQueue2G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] inf_ws_queue_2_G :: InfWsQueue1G Σ ;
 }.
 
-Definition ws_deque_2_Σ := #[
-  ws_deque_1_Σ
+Definition inf_ws_queue_2_Σ := #[
+  inf_ws_queue_1_Σ
 ].
-#[global] Instance subG_ws_deque_2_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG ws_deque_2_Σ Σ →
-  WsDeque2G Σ .
+#[global] Instance subG_inf_ws_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG inf_ws_queue_2_Σ Σ →
+  InfWsQueue2G Σ .
 Proof.
   solve_inG.
 Qed.
 
-Section ws_deque_2_G.
-  Context `{ws_deque_2_G : WsDeque2G Σ}.
+Section inf_ws_queue_2_G.
+  Context `{inf_ws_queue_2_G : InfWsQueue2G Σ}.
 
-  Definition ws_deque_2_inv t :=
-    ws_deque_1_inv t.
+  Definition inf_ws_queue_2_inv t :=
+    inf_ws_queue_1_inv t.
 
-  Definition ws_deque_2_model t vs : iProp Σ :=
+  Definition inf_ws_queue_2_model t vs : iProp Σ :=
       ∃ slots,
-      ws_deque_1_model t (#@{location} <$> slots) ∗
+      inf_ws_queue_1_model t (#@{location} <$> slots) ∗
       [∗ list] slot; v ∈ slots; vs,
         slot ↦ᵣ v.
 
-  Definition ws_deque_2_owner t :=
-    ws_deque_1_owner t.
+  Definition inf_ws_queue_2_owner t :=
+    inf_ws_queue_1_owner t.
 
-  #[global] Instance ws_deque_2_model_timeless t model :
-    Timeless (ws_deque_2_model t model).
+  #[global] Instance inf_ws_queue_2_model_timeless t model :
+    Timeless (inf_ws_queue_2_model t model).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_deque_2_owner_timeless t :
-    Timeless (ws_deque_2_owner t).
+  #[global] Instance inf_ws_queue_2_owner_timeless t :
+    Timeless (inf_ws_queue_2_owner t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_deque_2_inv_persistent t ι :
-    Persistent (ws_deque_2_inv t ι).
+  #[global] Instance inf_ws_queue_2_inv_persistent t ι :
+    Persistent (inf_ws_queue_2_inv t ι).
   Proof.
     apply _.
   Qed.
 
-  Lemma ws_deque_2_owner_exclusive t :
-    ws_deque_2_owner t -∗
-    ws_deque_2_owner t -∗
+  Lemma inf_ws_queue_2_owner_exclusive t :
+    inf_ws_queue_2_owner t -∗
+    inf_ws_queue_2_owner t -∗
     False.
   Proof.
-    apply ws_deque_1_owner_exclusive.
+    apply inf_ws_queue_1_owner_exclusive.
   Qed.
 
-  Lemma ws_deque_2_create_spec ι :
+  Lemma inf_ws_queue_2_create_spec ι :
     {{{
       True
     }}}
-      ws_deque_2_create ()
+      inf_ws_queue_2_create ()
     {{{ t,
       RET t;
-      ws_deque_2_inv t ι ∗
-      ws_deque_2_model t [] ∗
-      ws_deque_2_owner t
+      inf_ws_queue_2_inv t ι ∗
+      inf_ws_queue_2_model t [] ∗
+      inf_ws_queue_2_owner t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (ws_deque_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel & Howner)".
+    wp_apply (inf_ws_queue_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel & Howner)".
     iSteps. iExists []. iSteps.
   Qed.
 
-  Lemma ws_deque_2_push_spec t ι v :
+  Lemma inf_ws_queue_2_push_spec t ι v :
     <<<
-      ws_deque_2_inv t ι ∗
-      ws_deque_2_owner t
+      inf_ws_queue_2_inv t ι ∗
+      inf_ws_queue_2_owner t
     | ∀∀ model,
-      ws_deque_2_model t model
+      inf_ws_queue_2_model t model
     >>>
-      ws_deque_2_push t v @ ↑ι
+      inf_ws_queue_2_push t v @ ↑ι
     <<<
-      ws_deque_2_model t (model ++ [v])
+      inf_ws_queue_2_model t (model ++ [v])
     | RET ();
-      ws_deque_2_owner t
+      inf_ws_queue_2_owner t
     >>>.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
     wp_rec. wp_ref slot as "Hslot".
-    awp_apply (ws_deque_1_push_spec with "[$Hinv $Howner]").
+    awp_apply (inf_ws_queue_1_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
     iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. iFrameSteps.
   Qed.
 
-  Lemma ws_deque_2_steal_spec t ι :
+  Lemma inf_ws_queue_2_steal_spec t ι :
     <<<
-      ws_deque_2_inv t ι
+      inf_ws_queue_2_inv t ι
     | ∀∀ model,
-      ws_deque_2_model t model
+      inf_ws_queue_2_model t model
     >>>
-      ws_deque_2_steal t @ ↑ι
+      inf_ws_queue_2_steal t @ ↑ι
     <<<
-      ws_deque_2_model t (tail model)
+      inf_ws_queue_2_model t (tail model)
     | RET head model;
       True
     >>>.
   Proof.
     iIntros "%Φ #Hinv HΦ".
     wp_rec.
-    awp_smart_apply (ws_deque_1_steal_spec with "Hinv").
+    awp_smart_apply (inf_ws_queue_1_steal_spec with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
     destruct slots as [| slot slots], vs as [| v vs]; try done.
@@ -133,32 +133,32 @@ Section ws_deque_2_G.
     - iSteps.
   Qed.
 
-  Lemma ws_deque_2_pop_spec t ι :
+  Lemma inf_ws_queue_2_pop_spec t ι :
     <<<
-      ws_deque_2_inv t ι ∗
-      ws_deque_2_owner t
+      inf_ws_queue_2_inv t ι ∗
+      inf_ws_queue_2_owner t
     | ∀∀ model,
-      ws_deque_2_model t model
+      inf_ws_queue_2_model t model
     >>>
-      ws_deque_2_pop t @ ↑ι
+      inf_ws_queue_2_pop t @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
           ⌜model = []⌝ ∗
-          ws_deque_2_model t []
+          inf_ws_queue_2_model t []
       | Some v =>
           ∃ model',
           ⌜model = model' ++ [v]⌝ ∗
-          ws_deque_2_model t model'
+          inf_ws_queue_2_model t model'
       end
     | RET o;
-      ws_deque_2_owner t
+      inf_ws_queue_2_owner t
     >>>.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
     wp_rec.
-    awp_smart_apply (ws_deque_1_pop_spec with "[$Hinv $Howner]").
+    awp_smart_apply (inf_ws_queue_1_pop_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([w |]).
     - iIntros "(%ws & %Heq & Hmodel) !>".
@@ -175,13 +175,13 @@ Section ws_deque_2_G.
       apply fmap_nil_inv in Heq as ->. iDestruct (big_sepL2_nil_inv_l with "Hslots") as %->.
       iExists None. iSplitL; last iSteps. iSplit; first iSteps. iExists _. auto.
   Qed.
-End ws_deque_2_G.
+End inf_ws_queue_2_G.
 
-#[global] Opaque ws_deque_2_create.
-#[global] Opaque ws_deque_2_push.
-#[global] Opaque ws_deque_2_steal.
-#[global] Opaque ws_deque_2_pop.
+#[global] Opaque inf_ws_queue_2_create.
+#[global] Opaque inf_ws_queue_2_push.
+#[global] Opaque inf_ws_queue_2_steal.
+#[global] Opaque inf_ws_queue_2_pop.
 
-#[global] Opaque ws_deque_2_inv.
-#[global] Opaque ws_deque_2_model.
-#[global] Opaque ws_deque_2_owner.
+#[global] Opaque inf_ws_queue_2_inv.
+#[global] Opaque inf_ws_queue_2_model.
+#[global] Opaque inf_ws_queue_2_owner.

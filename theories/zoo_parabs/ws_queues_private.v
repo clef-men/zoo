@@ -19,9 +19,9 @@ From zoo_std Require Import
   random_round.
 From zoo_parabs Require Export
   base
-  ws_deques_private__code.
+  ws_queues_private__code.
 From zoo_parabs Require Import
-  ws_deques_private__types.
+  ws_queues_private__types.
 From zoo Require Import
   options.
 
@@ -33,18 +33,18 @@ Implicit Types vss wss : list (list val).
 Implicit Types status : status.
 Implicit Types statuses : list status.
 
-Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_deques_private_G_models_G :: GhostListG Σ (list val) ;
-  #[local] ws_deques_private_G_channels_G :: GhostPredG Σ (option val) ;
+Class WsQueuesPrivateG Σ `{zoo_G : !ZooG Σ} := {
+  #[local] ws_queues_private_G_models_G :: GhostListG Σ (list val) ;
+  #[local] ws_queues_private_G_channels_G :: GhostPredG Σ (option val) ;
 }.
 
-Definition ws_deques_private_Σ := #[
+Definition ws_queues_private_Σ := #[
   ghost_list_Σ (list val) ;
   ghost_pred_Σ (option val)
 ].
-#[global] Instance subG_ws_deques_private_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG ws_deques_private_Σ Σ →
-  WsDequesPrivateG Σ.
+#[global] Instance subG_ws_queues_private_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG ws_queues_private_Σ Σ →
+  WsQueuesPrivateG Σ.
 Proof.
   solve_inG.
 Qed.
@@ -91,8 +91,8 @@ Implicit Types responses : list response.
       ‘ResponseSome( v )
   end.
 
-Section ws_deques_private_G.
-  Context `{ws_deques_private_G : WsDequesPrivateG Σ}.
+Section ws_queues_private_G.
+  Context `{ws_queues_private_G : WsQueuesPrivateG Σ}.
 
   Implicit Types Ψ : option val → iProp Σ.
 
@@ -195,7 +195,7 @@ Section ws_deques_private_G.
       Hrequests &
       Hresponses
     )".
-  Definition ws_deques_private_inv t ι (sz : nat) : iProp Σ :=
+  Definition ws_queues_private_inv t ι (sz : nat) : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
@@ -231,7 +231,7 @@ Section ws_deques_private_G.
       #Hinv{}
     )".
 
-  Definition ws_deques_private_model t vss : iProp Σ :=
+  Definition ws_queues_private_model t vss : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -245,7 +245,7 @@ Section ws_deques_private_G.
       Hmodels_auth
     )".
 
-  Definition ws_deques_private_owner t i status ws : iProp Σ :=
+  Definition ws_queues_private_owner t i status ws : iProp Σ :=
     ∃ l γ deque vs Ψ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
@@ -270,13 +270,13 @@ Section ws_deques_private_G.
       Hchannels_at{_{}}
     )".
 
-  #[global] Instance ws_deques_private_model_timeless t vss :
-    Timeless (ws_deques_private_model t vss).
+  #[global] Instance ws_queues_private_model_timeless t vss :
+    Timeless (ws_queues_private_model t vss).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ws_deques_private_inv_persistent t ι sz :
-    Persistent (ws_deques_private_inv t ι sz).
+  #[global] Instance ws_queues_private_inv_persistent t ι sz :
+    Persistent (ws_queues_private_inv t ι sz).
   Proof.
     apply _.
   Qed.
@@ -324,18 +324,18 @@ Section ws_deques_private_G.
 
   Opaque channels_at'.
 
-  Lemma ws_deques_private_inv_agree t ι sz1 sz2 :
-    ws_deques_private_inv t ι sz1 -∗
-    ws_deques_private_inv t ι sz2 -∗
+  Lemma ws_queues_private_inv_agree t ι sz1 sz2 :
+    ws_queues_private_inv t ι sz1 -∗
+    ws_queues_private_inv t ι sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
     iDestruct (pointsto_agree with "Hl1_size Hl2_size") as %?. naive_solver.
   Qed.
 
-  Lemma ws_deques_private_inv_owner t ι sz i status ws :
-    ws_deques_private_inv t ι sz -∗
-    ws_deques_private_owner t i status ws -∗
+  Lemma ws_queues_private_inv_owner t ι sz i status ws :
+    ws_queues_private_inv t ι sz -∗
+    ws_queues_private_owner t i status ws -∗
     ⌜i < sz⌝.
   Proof.
     iIntros "(:inv) (:owner)". injection Heq as <-.
@@ -343,9 +343,9 @@ Section ws_deques_private_G.
     apply lookup_lt_Some in Hdeques_lookup.
     iSteps.
   Qed.
-  Lemma ws_deques_private_model_owner t vss i status ws :
-    ws_deques_private_model t vss -∗
-    ws_deques_private_owner t i status ws -∗
+  Lemma ws_queues_private_model_owner t vss i status ws :
+    ws_queues_private_model t vss -∗
+    ws_queues_private_owner t i status ws -∗
       ∃ vs,
       ⌜vss !! i = Some vs⌝ ∗
       ⌜vs `suffix_of` ws⌝.
@@ -355,9 +355,9 @@ Section ws_deques_private_G.
     iDestruct (models_lookup with "Hmodels_auth Hmodels_at_2") as %Hlookup.
     iSteps.
   Qed.
-  Lemma ws_deques_private_owner_exclusive t i status1 ws1 status2 ws2 :
-    ws_deques_private_owner t i status1 ws1 -∗
-    ws_deques_private_owner t i status2 ws2 -∗
+  Lemma ws_queues_private_owner_exclusive t i status1 ws1 status2 ws2 :
+    ws_queues_private_owner t i status1 ws1 -∗
+    ws_queues_private_owner t i status2 ws2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
@@ -365,18 +365,18 @@ Section ws_deques_private_G.
     iApply (deque_model_exclusive with "Hdeque_model_1 Hdeque_model_2").
   Qed.
 
-  Lemma ws_deques_private_create_spec ι sz :
+  Lemma ws_queues_private_create_spec ι sz :
     (0 ≤ sz)%Z →
     {{{
       True
     }}}
-      ws_deques_private_create #sz
+      ws_queues_private_create #sz
     {{{ t,
       RET t;
-      ws_deques_private_inv t ι ₊sz ∗
-      ws_deques_private_model t (replicate ₊sz []) ∗
+      ws_queues_private_inv t ι ₊sz ∗
+      ws_queues_private_model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_deques_private_owner t i Nonblocked []
+        ws_queues_private_owner t i Nonblocked []
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -437,11 +437,11 @@ Section ws_deques_private_G.
       iSteps.
   Qed.
 
-  Lemma ws_deques_private_size_spec t ι sz :
+  Lemma ws_queues_private_size_spec t ι sz :
     {{{
-      ws_deques_private_inv t ι sz
+      ws_queues_private_inv t ι sz
     }}}
-      ws_deques_private_size t
+      ws_queues_private_size t
     {{{
       RET #sz;
       True
@@ -453,144 +453,144 @@ Section ws_deques_private_G.
     iSteps.
   Qed.
 
- Lemma ws_deques_private_block_spec t ι sz i i_ ws :
+ Lemma ws_queues_private_block_spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Nonblocked ws
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Nonblocked ws
     }}}
-      ws_deques_private_block t #i
+      ws_queues_private_block t #i
     {{{
       RET ();
-      ws_deques_private_owner t i_ Blocked ws
+      ws_queues_private_owner t i_ Blocked ws
     }}}.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_unblock_spec t ι sz i i_ ws :
+  Lemma ws_queues_private_unblock_spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Blocked ws
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Blocked ws
     }}}
-      ws_deques_private_unblock t #i
+      ws_queues_private_unblock t #i
     {{{
       RET ();
-      ws_deques_private_owner t i_ Nonblocked ws
+      ws_queues_private_owner t i_ Nonblocked ws
     }}}.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_push_spec t ι sz i i_ ws v :
+  Lemma ws_queues_private_push_spec t ι sz i i_ ws v :
     i = ⁺i_ →
     <<<
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Nonblocked ws
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Nonblocked ws
     | ∀∀ vss,
-      ws_deques_private_model t vss
+      ws_queues_private_model t vss
     >>>
-      ws_deques_private_push t #i v @ ↑ι
+      ws_queues_private_push t #i v @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
-      ws_deques_private_model t (<[i_ := vs ++ [v]]> vss)
+      ws_queues_private_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_deques_private_owner t i_ Nonblocked (vs ++ [v])
+      ws_queues_private_owner t i_ Nonblocked (vs ++ [v])
     >>>.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_pop_spec t ι sz i i_ ws :
+  Lemma ws_queues_private_pop_spec t ι sz i i_ ws :
     i = ⁺i_ →
     <<<
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Nonblocked ws
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Nonblocked ws
     | ∀∀ vss,
-      ws_deques_private_model t vss
+      ws_queues_private_model t vss
     >>>
-      ws_deques_private_pop t #i @ ↑ι
+      ws_queues_private_pop t #i @ ↑ι
     <<<
       ∃∃ o ws,
       match o with
       | None =>
           ⌜vss !! i_ = Some []⌝ ∗
           ⌜ws = []⌝ ∗
-          ws_deques_private_model t vss
+          ws_queues_private_model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
           ⌜ws = vs ++ [v]⌝ ∗
-          ws_deques_private_model t (<[i_ := vs]> vss)
+          ws_queues_private_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_deques_private_owner t i_ Nonblocked ws
+      ws_queues_private_owner t i_ Nonblocked ws
     >>>.
   Proof.
   Admitted.
 
-  Lemma ws_deques_private_steal_to_spec t ι (sz : nat) i i_ ws j :
+  Lemma ws_queues_private_steal_to_spec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Blocked ws
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Blocked ws
     | ∀∀ vss,
-      ws_deques_private_model t vss
+      ws_queues_private_model t vss
     >>>
-      ws_deques_private_steal_to t #i #j @ ↑ι
+      ws_queues_private_steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_private_model t vss
+          ws_queues_private_model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! ₊j = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[₊j := vs]> vss)
+          ws_queues_private_model t (<[₊j := vs]> vss)
       end
     | RET o;
-      ws_deques_private_owner t i_ Blocked ws
+      ws_queues_private_owner t i_ Blocked ws
     >>>.
   Proof.
   Admitted.
-End ws_deques_private_G.
+End ws_queues_private_G.
 
-#[global] Opaque ws_deques_private_inv.
-#[global] Opaque ws_deques_private_model.
-#[global] Opaque ws_deques_private_owner.
+#[global] Opaque ws_queues_private_inv.
+#[global] Opaque ws_queues_private_model.
+#[global] Opaque ws_queues_private_owner.
 
-Section ws_deques_private_G.
-  Context `{ws_deques_private_G : WsDequesPrivateG Σ}.
+Section ws_queues_private_G.
+  Context `{ws_queues_private_G : WsQueuesPrivateG Σ}.
 
-  #[local] Lemma ws_deques_private_steal_as_0_spec t ι (sz : nat) i i_ ws round (n : nat) :
+  #[local] Lemma ws_queues_private_steal_as_0_spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Blocked ws ∗
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     | ∀∀ vss,
-      ws_deques_private_model t vss
+      ws_queues_private_model t vss
     >>>
-      ws_deques_private_steal_as_0 t #sz #i round #n @ ↑ι
+      ws_queues_private_steal_as_0 t #sz #i round #n @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_private_model t vss
+          ws_queues_private_model t vss
       | Some v =>
           ∃ j vs,
           ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[j := vs]> vss)
+          ws_queues_private_model t (<[j := vs]> vss)
       end
     | RET o;
       ∃ n,
-      ws_deques_private_owner t i_ Blocked ws ∗
+      ws_queues_private_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Φ (#Hinv & Howner & Hround) HΦ".
-    iDestruct (ws_deques_private_inv_owner with "Hinv Howner") as %Hi.
+    iDestruct (ws_queues_private_inv_owner with "Hinv Howner") as %Hi.
 
     iLöb as "HLöb" forall (n).
 
@@ -606,7 +606,7 @@ Section ws_deques_private_G.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_smart_apply (ws_deques_private_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      awp_smart_apply (ws_queues_private_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
@@ -623,49 +623,49 @@ Section ws_deques_private_G.
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
         iSteps.
   Qed.
-  Lemma ws_deques_private_steal_as_spec t ι sz i i_ ws round :
+  Lemma ws_queues_private_steal_as_spec t ι sz i i_ ws round :
     i = ⁺i_ →
     0 < sz →
     <<<
-      ws_deques_private_inv t ι sz ∗
-      ws_deques_private_owner t i_ Blocked ws ∗
+      ws_queues_private_inv t ι sz ∗
+      ws_queues_private_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
-      ws_deques_private_model t vss
+      ws_queues_private_model t vss
     >>>
-      ws_deques_private_steal_as t #i round @ ↑ι
+      ws_queues_private_steal_as t #i round @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
-          ws_deques_private_model t vss
+          ws_queues_private_model t vss
       | Some v =>
           ∃ j vs,
           ⌜₊i ≠ j⌝ ∗
           ⌜vss !! j = Some (v :: vs)⌝ ∗
-          ws_deques_private_model t (<[j := vs]> vss)
+          ws_queues_private_model t (<[j := vs]> vss)
       end
     | RET o;
       ∃ n,
-      ws_deques_private_owner t i_ Blocked ws ∗
+      ws_queues_private_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_deques_private_size_spec with "Hinv") as "_".
+    wp_smart_apply (ws_queues_private_size_spec with "Hinv") as "_".
     wp_pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp_apply (ws_deques_private_steal_as_0_spec with "[$Hinv $Hround] HΦ"); first done.
+    wp_apply (ws_queues_private_steal_as_0_spec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
-End ws_deques_private_G.
+End ws_queues_private_G.
 
-#[global] Opaque ws_deques_private_create.
-#[global] Opaque ws_deques_private_size.
-#[global] Opaque ws_deques_private_block.
-#[global] Opaque ws_deques_private_unblock.
-#[global] Opaque ws_deques_private_push.
-#[global] Opaque ws_deques_private_pop.
-#[global] Opaque ws_deques_private_steal_to.
-#[global] Opaque ws_deques_private_steal_as.
+#[global] Opaque ws_queues_private_create.
+#[global] Opaque ws_queues_private_size.
+#[global] Opaque ws_queues_private_block.
+#[global] Opaque ws_queues_private_unblock.
+#[global] Opaque ws_queues_private_push.
+#[global] Opaque ws_queues_private_pop.
+#[global] Opaque ws_queues_private_steal_to.
+#[global] Opaque ws_queues_private_steal_as.

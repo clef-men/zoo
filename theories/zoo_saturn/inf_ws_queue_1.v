@@ -24,9 +24,9 @@ From zoo_std Require Import
   domain.
 From zoo_saturn Require Export
   base
-  inf_ws_deque_1__code.
+  inf_ws_queue_1__code.
 From zoo_saturn Require Import
-  inf_ws_deque_1__types.
+  inf_ws_queue_1__types.
 From zoo Require Import
   options.
 
@@ -58,18 +58,18 @@ Next Obligation.
 Qed.
 Implicit Types past prophs : list prophet.(typed_prophet_type).
 
-Class InfWsDeque1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_ws_deque_1_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_ws_deque_1_G_ctl_G :: TwinsG Σ (ZO * (nat -d> val_O)) ;
-  #[local] inf_ws_deque_1_G_front_G :: AuthNatMaxG Σ ;
-  #[local] inf_ws_deque_1_G_hist_G :: MonoListG Σ val ;
-  #[local] inf_ws_deque_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] inf_ws_deque_1_G_lock_G :: ExclG Σ unitO ;
-  #[local] inf_ws_deque_1_G_prophet_G :: WiseProphetG Σ prophet ;
-  #[local] inf_ws_deque_1_G_winner_G :: TwinsG Σ (natO * (val_O -d> ▶ ∙)) ;
+Class InfWsQueue1G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] inf_ws_queue_1_G_inf_array_G :: InfArrayG Σ ;
+  #[local] inf_ws_queue_1_G_ctl_G :: TwinsG Σ (ZO * (nat -d> val_O)) ;
+  #[local] inf_ws_queue_1_G_front_G :: AuthNatMaxG Σ ;
+  #[local] inf_ws_queue_1_G_hist_G :: MonoListG Σ val ;
+  #[local] inf_ws_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
+  #[local] inf_ws_queue_1_G_lock_G :: ExclG Σ unitO ;
+  #[local] inf_ws_queue_1_G_prophet_G :: WiseProphetG Σ prophet ;
+  #[local] inf_ws_queue_1_G_winner_G :: TwinsG Σ (natO * (val_O -d> ▶ ∙)) ;
 }.
 
-Definition inf_ws_deque_1_Σ := #[
+Definition inf_ws_queue_1_Σ := #[
   inf_array_Σ ;
   twins_Σ (ZO * (nat -d> val_O)) ;
   auth_nat_max_Σ ;
@@ -79,15 +79,15 @@ Definition inf_ws_deque_1_Σ := #[
   wise_prophet_Σ prophet ;
   twins_Σ (natO * (val_O -d> ▶ ∙))
 ].
-#[global] Instance subG_inf_ws_deque_1_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG inf_ws_deque_1_Σ Σ →
-  InfWsDeque1G Σ .
+#[global] Instance subG_inf_ws_queue_1_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG inf_ws_queue_1_Σ Σ →
+  InfWsQueue1G Σ .
 Proof.
   solve_inG.
 Qed.
 
-Section inf_ws_deque_1_G.
-  Context `{inf_ws_deque_1_G : InfWsDeque1G Σ}.
+Section inf_ws_queue_1_G.
+  Context `{inf_ws_queue_1_G : InfWsQueue1G Σ}.
 
   Implicit Types Φ : val → iProp Σ.
 
@@ -116,11 +116,11 @@ Section inf_ws_deque_1_G.
   Qed.
 
   #[local] Definition clt₁' γ_ctl back priv :=
-    twins_twin1 (twins_G := inf_ws_deque_1_G_ctl_G) γ_ctl (DfracOwn 1) (back, priv).
+    twins_twin1 (twins_G := inf_ws_queue_1_G_ctl_G) γ_ctl (DfracOwn 1) (back, priv).
   #[local] Definition clt₁ γ back priv :=
     clt₁' γ.(metadata_ctl) back priv.
   #[local] Definition clt₂' γ_ctl back priv :=
-    twins_twin2 (twins_G := inf_ws_deque_1_G_ctl_G) γ_ctl (back, priv).
+    twins_twin2 (twins_G := inf_ws_queue_1_G_ctl_G) γ_ctl (back, priv).
   #[local] Definition clt₂ γ back priv :=
     clt₂' γ.(metadata_ctl) back priv.
 
@@ -139,11 +139,11 @@ Section inf_ws_deque_1_G.
     mono_list_at γ.(metadata_hist) i v.
 
   #[local] Definition model₁' γ_model vs :=
-    twins_twin2 (twins_G := inf_ws_deque_1_G_model_G) γ_model vs.
+    twins_twin2 (twins_G := inf_ws_queue_1_G_model_G) γ_model vs.
   #[local] Definition model₁ γ vs :=
     model₁' γ.(metadata_model) vs.
   #[local] Definition model₂' γ_model vs :=
-    twins_twin1 (twins_G := inf_ws_deque_1_G_model_G) γ_model (DfracOwn 1) vs.
+    twins_twin1 (twins_G := inf_ws_queue_1_G_model_G) γ_model (DfracOwn 1) vs.
   #[local] Definition model₂ γ vs :=
     model₂' γ.(metadata_model) vs.
 
@@ -153,11 +153,11 @@ Section inf_ws_deque_1_G.
     lock' γ.(metadata_lock).
 
   #[local] Definition winner₁' γ_winner front Φ :=
-    twins_twin2 (twins_G := inf_ws_deque_1_G_winner_G) γ_winner (front, Next ∘ Φ).
+    twins_twin2 (twins_G := inf_ws_queue_1_G_winner_G) γ_winner (front, Next ∘ Φ).
   #[local] Definition winner₁ γ front Φ :=
     winner₁' γ.(metadata_winner) front Φ.
   #[local] Definition winner₂' γ_winner front Φ :=
-    twins_twin1 (twins_G := inf_ws_deque_1_G_winner_G) γ_winner (DfracOwn 1) (front, Next ∘ Φ).
+    twins_twin1 (twins_G := inf_ws_queue_1_G_winner_G) γ_winner (DfracOwn 1) (front, Next ∘ Φ).
   #[local] Definition winner₂ γ front Φ :=
     winner₂' γ.(metadata_winner) front Φ.
   #[local] Definition winner' γ_winner : iProp Σ :=
@@ -169,7 +169,7 @@ Section inf_ws_deque_1_G.
     winner₁ γ front Φ1 ∗
     winner₂ γ front Φ2.
 
-  Definition inf_ws_deque_1_model t vs : iProp Σ :=
+  Definition inf_ws_queue_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     (* metadata *)
@@ -177,7 +177,7 @@ Section inf_ws_deque_1_G.
     (* model values *)
     model₂ γ vs.
 
-  Definition inf_ws_deque_1_owner t : iProp Σ :=
+  Definition inf_ws_queue_1_owner t : iProp Σ :=
     ∃ l γ back priv,
     ⌜t = #l⌝ ∗
     (* metadata *)
@@ -294,7 +294,7 @@ Section inf_ws_deque_1_G.
     ⌜Forall (λ '(front', _), front' < front) past⌝ ∗
     (* state *)
     state γ ι front back hist vs prophs.
-  Definition inf_ws_deque_1_inv t ι : iProp Σ :=
+  Definition inf_ws_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     (* metadata *)
@@ -306,18 +306,18 @@ Section inf_ws_deque_1_G.
     inf_array_inv γ.(metadata_data) ∗
     inv ι (inv_inner l γ ι).
 
-  #[global] Instance inf_ws_deque_1_model_timeless t vs :
-    Timeless (inf_ws_deque_1_model t vs).
+  #[global] Instance inf_ws_queue_1_model_timeless t vs :
+    Timeless (inf_ws_queue_1_model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance inf_ws_deque_1_owner_timeless t :
-    Timeless (inf_ws_deque_1_owner t).
+  #[global] Instance inf_ws_queue_1_owner_timeless t :
+    Timeless (inf_ws_queue_1_owner t).
   Proof.
     apply _.
   Qed.
-  #[global] Instance inf_ws_deque_1_inv_persistent t ι :
-    Persistent (inf_ws_deque_1_inv t ι).
+  #[global] Instance inf_ws_queue_1_inv_persistent t ι :
+    Persistent (inf_ws_queue_1_inv t ι).
   Proof.
     apply _.
   Qed.
@@ -434,7 +434,7 @@ Section inf_ws_deque_1_G.
       model₁' γ_model [] ∗
       model₂' γ_model [].
   Proof.
-    iMod (twins_alloc' (twins_G := inf_ws_deque_1_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod (twins_alloc' (twins_G := inf_ws_queue_1_G_model_G) []) as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iSteps.
   Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
@@ -488,7 +488,7 @@ Section inf_ws_deque_1_G.
       ∃ γ_winner,
       winner' γ_winner.
   Proof.
-    iMod (twins_alloc' (twins_G := inf_ws_deque_1_G_winner_G) (inhabitant, λ _, Next inhabitant)) as "(%γ_winner & Hwinner₁ & Hwinner₂)".
+    iMod (twins_alloc' (twins_G := inf_ws_queue_1_G_winner_G) (inhabitant, λ _, Next inhabitant)) as "(%γ_winner & Hwinner₁ & Hwinner₂)".
     iSteps.
   Qed.
   #[local] Lemma winner₁_exclusive γ front1 Φ1 front2 Φ2 :
@@ -543,7 +543,7 @@ Section inf_ws_deque_1_G.
       winner₂ γ front Φ.
   Proof.
     iIntros "Hwinner₁ Hwinner₂".
-    iMod (twins_update (twins_G := inf_ws_deque_1_G_winner_G) (front, Next ∘ Φ) with "Hwinner₂ Hwinner₁") as "($ & $)"; first done.
+    iMod (twins_update (twins_G := inf_ws_queue_1_G_winner_G) (front, Next ∘ Φ) with "Hwinner₂ Hwinner₁") as "($ & $)"; first done.
     iSteps.
   Qed.
   #[local] Lemma winner₁_state γ ι front front' back hist vs prophs Φ :
@@ -641,9 +641,9 @@ Section inf_ws_deque_1_G.
     - iSteps.
   Qed.
 
-  Lemma inf_ws_deque_1_owner_exclusive t :
-    inf_ws_deque_1_owner t -∗
-    inf_ws_deque_1_owner t -∗
+  Lemma inf_ws_queue_1_owner_exclusive t :
+    inf_ws_queue_1_owner t -∗
+    inf_ws_queue_1_owner t -∗
     False.
   Proof.
     iIntros "(%l & %γ & %back & %priv & -> & #Hmeta & Hctl₂1 & Hlock1) (%_l & %_γ & %_back & %_priv & %Heq & #_Hmeta & Hctl₂2 & Hlock2)". injection Heq as <-.
@@ -875,16 +875,16 @@ Section inf_ws_deque_1_G.
     iDestruct (front_valid with "Hfront_auth Hfront_lb") as %?. lia.
   Qed.
 
-  Lemma inf_ws_deque_1_create_spec ι :
+  Lemma inf_ws_queue_1_create_spec ι :
     {{{
       True
     }}}
-      inf_ws_deque_1_create ()
+      inf_ws_queue_1_create ()
     {{{ t,
       RET t;
-      inf_ws_deque_1_inv t ι ∗
-      inf_ws_deque_1_model t [] ∗
-      inf_ws_deque_1_owner t
+      inf_ws_queue_1_inv t ι ∗
+      inf_ws_queue_1_model t [] ∗
+      inf_ws_queue_1_owner t
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -935,18 +935,18 @@ Section inf_ws_deque_1_G.
     iExists l, γ, 0%Z, (λ _, ()%V). iFrame "#∗". done.
   Qed.
 
-  Lemma inf_ws_deque_1_push_spec t ι v :
+  Lemma inf_ws_queue_1_push_spec t ι v :
     <<<
-      inf_ws_deque_1_inv t ι ∗
-      inf_ws_deque_1_owner t
+      inf_ws_queue_1_inv t ι ∗
+      inf_ws_queue_1_owner t
     | ∀∀ vs,
-      inf_ws_deque_1_model t vs
+      inf_ws_queue_1_model t vs
     >>>
-      inf_ws_deque_1_push t v @ ↑ι
+      inf_ws_queue_1_push t v @ ↑ι
     <<<
-      inf_ws_deque_1_model t (vs ++ [v])
+      inf_ws_queue_1_model t (vs ++ [v])
     | RET ();
-      inf_ws_deque_1_owner t
+      inf_ws_queue_1_owner t
     >>>.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
@@ -1060,15 +1060,15 @@ Section inf_ws_deque_1_G.
       iApply "HΦ". repeat iExists _. iFrame "#∗". done.
   Qed.
 
-  Lemma inf_ws_deque_1_steal_spec t ι :
+  Lemma inf_ws_queue_1_steal_spec t ι :
     <<<
-      inf_ws_deque_1_inv t ι
+      inf_ws_queue_1_inv t ι
     | ∀∀ vs,
-      inf_ws_deque_1_model t vs
+      inf_ws_queue_1_model t vs
     >>>
-      inf_ws_deque_1_steal t @ ↑ι
+      inf_ws_queue_1_steal t @ ↑ι
     <<<
-      inf_ws_deque_1_model t (tail vs)
+      inf_ws_queue_1_model t (tail vs)
     | RET head vs;
       True
     >>>.
@@ -1183,7 +1183,7 @@ Section inf_ws_deque_1_G.
 
       wp_smart_apply domain_yield_spec.
 
-      (* → [inf_ws_deque_1_steal #l] *)
+      (* → [inf_ws_queue_1_steal #l] *)
       wp_smart_apply ("IH" with "HΦ").
     }
     (* we are in state 2 *)
@@ -1241,7 +1241,7 @@ Section inf_ws_deque_1_G.
 
       wp_smart_apply domain_yield_spec.
 
-      (* → [inf_ws_deque_1_steal #l] *)
+      (* → [inf_ws_queue_1_steal #l] *)
       wp_smart_apply ("IH" with "HΦ").
     }
     (* we now know we are the next winner *)
@@ -1380,27 +1380,27 @@ Section inf_ws_deque_1_G.
       iRewrite -"HΦ". done.
   Qed.
 
-  Lemma inf_ws_deque_1_pop_spec t ι :
+  Lemma inf_ws_queue_1_pop_spec t ι :
     <<<
-      inf_ws_deque_1_inv t ι ∗
-      inf_ws_deque_1_owner t
+      inf_ws_queue_1_inv t ι ∗
+      inf_ws_queue_1_owner t
     | ∀∀ vs,
-      inf_ws_deque_1_model t vs
+      inf_ws_queue_1_model t vs
     >>>
-      inf_ws_deque_1_pop t @ ↑ι
+      inf_ws_queue_1_pop t @ ↑ι
     <<<
       ∃∃ o,
       match o with
       | None =>
           ⌜vs = []⌝ ∗
-          inf_ws_deque_1_model t []
+          inf_ws_queue_1_model t []
       | Some v =>
           ∃ vs',
           ⌜vs = vs' ++ [v]⌝ ∗
-          inf_ws_deque_1_model t vs'
+          inf_ws_queue_1_model t vs'
       end
     | RET o;
-      inf_ws_deque_1_owner t
+      inf_ws_queue_1_owner t
     >>>.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hdata & #Hpid & #Harray_inv & #Hinv) & (%_l & %_γ & %back & %priv & %Heq & #_Hmeta & Hctl₂ & Hlock)) HΦ". injection Heq as <-.
@@ -1763,7 +1763,7 @@ Section inf_ws_deque_1_G.
         iDestruct "Hstate" as "[(% & % & % & Hwinner₁ & Hwinner₂) | (Hid' & _)]"; last first.
         { iDestruct (identifier_model_exclusive with "Hid Hid'") as %[]. }
         (* update winner tokens *)
-        set Ψ := (λ v, inf_ws_deque_1_owner #l -∗ Φ v)%I.
+        set Ψ := (λ v, inf_ws_queue_1_owner #l -∗ Φ v)%I.
         iMod (winner_update front2 Ψ with "Hwinner₁ Hwinner₂") as "(Hwinner₁ & Hwinner₂)".
         (* close invariant *)
         iModIntro. iSplitR "Hctl₂ Hwinner₂".
@@ -1886,7 +1886,7 @@ Section inf_ws_deque_1_G.
           iMod ("HΦ" $! (Some v) with "[Hmodel₂]") as "HΦ".
           { iExists []. iSplit; first done. repeat iExists _. naive_solver. }
           (* update winner tokens *)
-          set Ψ := (λ v, inf_ws_deque_1_owner #l -∗ Φ v)%I.
+          set Ψ := (λ v, inf_ws_queue_1_owner #l -∗ Φ v)%I.
           iMod (winner_update front2 Ψ with "Hwinner₁ Hwinner₂") as "(Hwinner₁ & Hwinner₂)".
           (* close invariant *)
           iModIntro. iSplitR "Hctl₂ Hwinner₂".
@@ -2082,13 +2082,13 @@ Section inf_ws_deque_1_G.
 
               iApply "HΦ". repeat iExists _. iFrame "#∗". done.
   Qed.
-End inf_ws_deque_1_G.
+End inf_ws_queue_1_G.
 
-#[global] Opaque inf_ws_deque_1_create.
-#[global] Opaque inf_ws_deque_1_push.
-#[global] Opaque inf_ws_deque_1_steal.
-#[global] Opaque inf_ws_deque_1_pop.
+#[global] Opaque inf_ws_queue_1_create.
+#[global] Opaque inf_ws_queue_1_push.
+#[global] Opaque inf_ws_queue_1_steal.
+#[global] Opaque inf_ws_queue_1_pop.
 
-#[global] Opaque inf_ws_deque_1_inv.
-#[global] Opaque inf_ws_deque_1_model.
-#[global] Opaque inf_ws_deque_1_owner.
+#[global] Opaque inf_ws_queue_1_inv.
+#[global] Opaque inf_ws_queue_1_model.
+#[global] Opaque inf_ws_queue_1_owner.

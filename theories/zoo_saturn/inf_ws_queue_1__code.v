@@ -9,21 +9,21 @@ From zoo_std Require Import
   inf_array
   domain.
 From zoo_saturn Require Import
-  inf_ws_deque_1__types.
+  inf_ws_queue_1__types.
 From zoo Require Import
   options.
 
-Definition inf_ws_deque_1_create : val :=
+Definition inf_ws_queue_1_create : val :=
   fun: <> =>
     { #0, #0, inf_array_create (), Proph }.
 
-Definition inf_ws_deque_1_push : val :=
+Definition inf_ws_queue_1_push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in
     inf_array_set "t".{data} "back" "v" ;;
     "t" <-{back} "back" + #1.
 
-Definition inf_ws_deque_1_steal : val :=
+Definition inf_ws_queue_1_steal : val :=
   rec: "steal" "t" =>
     let: "id" := Id in
     let: "front" := "t".{front} in
@@ -42,7 +42,7 @@ Definition inf_ws_deque_1_steal : val :=
       "steal" "t"
     ).
 
-Definition inf_ws_deque_1_pop : val :=
+Definition inf_ws_queue_1_pop : val :=
   fun: "t" =>
     let: "id" := Id in
     let: "back" := "t".{back} - #1 in

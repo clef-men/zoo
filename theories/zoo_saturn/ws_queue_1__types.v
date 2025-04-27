@@ -12,18 +12,18 @@ From zoo Require Import
   options.
 
 Notation "'front'" := (
-  in_type "zoo_saturn.ws_deque_1.t" 0
+  in_type "zoo_saturn.ws_queue_1.t" 0
 )(in custom zoo_field
 ).
 Notation "'back'" := (
-  in_type "zoo_saturn.ws_deque_1.t" 1
+  in_type "zoo_saturn.ws_queue_1.t" 1
 )(in custom zoo_field
 ).
 Notation "'data'" := (
-  in_type "zoo_saturn.ws_deque_1.t" 2
+  in_type "zoo_saturn.ws_queue_1.t" 2
 )(in custom zoo_field
 ).
 Notation "'proph'" := (
-  in_type "zoo_saturn.ws_deque_1.t" 3
+  in_type "zoo_saturn.ws_queue_1.t" 3
 )(in custom zoo_field
 ).

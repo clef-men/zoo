@@ -10,11 +10,11 @@ From zoo_std Require Import
   random_round
   domain.
 From zoo_parabs Require Import
-  ws_deques_private__types.
+  ws_queues_private__types.
 From zoo Require Import
   options.
 
-Definition ws_deques_private_create : val :=
+Definition ws_queues_private_create : val :=
   fun: "sz" =>
     { "sz",
       array_unsafe_init "sz" deque_create,
@@ -24,11 +24,11 @@ Definition ws_deques_private_create : val :=
       ()
     }.
 
-Definition ws_deques_private_size : val :=
+Definition ws_queues_private_size : val :=
   fun: "t" =>
     "t".{size}.
 
-Definition ws_deques_private_block : val :=
+Definition ws_queues_private_block : val :=
   fun: "t" "i" =>
     array_unsafe_set "t".{statuses} "i" §Blocked ;;
     match: atomic_array_unsafe_xchg "t".{requests} "i" §RequestBlocked with
@@ -38,12 +38,12 @@ Definition ws_deques_private_block : val :=
         ()
     end.
 
-Definition ws_deques_private_unblock : val :=
+Definition ws_queues_private_unblock : val :=
   fun: "t" "i" =>
     atomic_array_unsafe_set "t".{requests} "i" §RequestNone ;;
     array_unsafe_set "t".{statuses} "i" §Nonblocked.
 
-Definition ws_deques_private_respond : val :=
+Definition ws_queues_private_respond : val :=
   fun: "t" "i" =>
     match: atomic_array_unsafe_xchg "t".{requests} "i" §RequestNone with
     | RequestSome "j" =>
@@ -60,18 +60,18 @@ Definition ws_deques_private_respond : val :=
         ()
     end.
 
-Definition ws_deques_private_push : val :=
+Definition ws_queues_private_push : val :=
   fun: "t" "i" "v" =>
     deque_push_back (array_unsafe_get "t".{deques} "i") "v" ;;
-    ws_deques_private_respond "t" "i".
+    ws_queues_private_respond "t" "i".
 
-Definition ws_deques_private_pop : val :=
+Definition ws_queues_private_pop : val :=
   fun: "t" "i" =>
     let: "res" := deque_pop_back (array_unsafe_get "t".{deques} "i") in
-    ws_deques_private_respond "t" "i" ;;
+    ws_queues_private_respond "t" "i" ;;
     "res".
 
-Definition ws_deques_private_steal_to_0 : val :=
+Definition ws_queues_private_steal_to_0 : val :=
   rec: "steal_to" "t" "i" =>
     match: array_unsafe_get "t".{responses} "i" with
     | ResponseWaiting =>
@@ -85,7 +85,7 @@ Definition ws_deques_private_steal_to_0 : val :=
         ‘Some( "v" )
     end.
 
-Definition ws_deques_private_steal_to : val :=
+Definition ws_queues_private_steal_to : val :=
   fun: "t" "i" "j" =>
     if:
       array_unsafe_get "t".{statuses} "j" == §Nonblocked and
@@ -95,18 +95,18 @@ Definition ws_deques_private_steal_to : val :=
         §RequestNone
         ‘RequestSome( "i" )
     then (
-      ws_deques_private_steal_to_0 "t" "i"
+      ws_queues_private_steal_to_0 "t" "i"
     ) else (
       §None
     ).
 
-Definition ws_deques_private_steal_as_0 : val :=
+Definition ws_queues_private_steal_as_0 : val :=
   rec: "steal_as" "t" "sz" "i" "round" "n" =>
     if: "n" ≤ #0 then (
       §None
     ) else (
       let: "j" := ("i" + #1 + random_round_next "round") `rem` "sz" in
-      match: ws_deques_private_steal_to "t" "i" "j" with
+      match: ws_queues_private_steal_to "t" "i" "j" with
       | None =>
           "steal_as" "t" "sz" "i" "round" ("n" - #1)
       |_ as "res" =>
@@ -114,7 +114,7 @@ Definition ws_deques_private_steal_as_0 : val :=
       end
     ).
 
-Definition ws_deques_private_steal_as : val :=
+Definition ws_queues_private_steal_as : val :=
   fun: "t" "i" "round" =>
-    let: "sz" := ws_deques_private_size "t" in
-    ws_deques_private_steal_as_0 "t" "sz" "i" "round" ("sz" - #1).
+    let: "sz" := ws_queues_private_size "t" in
+    ws_queues_private_steal_as_0 "t" "sz" "i" "round" ("sz" - #1).

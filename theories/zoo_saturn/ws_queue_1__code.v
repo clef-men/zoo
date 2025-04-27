@@ -9,17 +9,17 @@ From zoo_std Require Import
   array
   domain.
 From zoo_saturn Require Import
-  ws_deque_1__types.
+  ws_queue_1__types.
 From zoo Require Import
   options.
 
-Parameter ws_deque_1_min_capacity : val.
+Parameter ws_queue_1_min_capacity : val.
 
-Definition ws_deque_1_create : val :=
+Definition ws_queue_1_create : val :=
   fun: <> =>
-    { #0, #0, array_unsafe_make ws_deque_1_min_capacity (), Proph }.
+    { #0, #0, array_unsafe_make ws_queue_1_min_capacity (), Proph }.
 
-Definition ws_deque_1_push : val :=
+Definition ws_queue_1_push : val :=
   fun: "t" "v" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
@@ -42,7 +42,7 @@ Definition ws_deque_1_push : val :=
     ) ;;
     "t" <-{back} "back" + #1.
 
-Definition ws_deque_1_steal : val :=
+Definition ws_queue_1_steal : val :=
   rec: "steal" "t" =>
     let: "id" := Id in
     let: "front" := "t".{front} in
@@ -65,7 +65,7 @@ Definition ws_deque_1_steal : val :=
       )
     ).
 
-Definition ws_deque_1_pop : val :=
+Definition ws_queue_1_pop : val :=
   fun: "t" =>
     let: "id" := Id in
     let: "back" := "t".{back} - #1 in
@@ -79,7 +79,7 @@ Definition ws_deque_1_pop : val :=
       let: "cap" := array_size "data" in
       let: "v" := array_unsafe_cget "data" "back" in
       let: "sz" := "back" - "front" in
-      if: ws_deque_1_min_capacity + #3 * "sz" ≤ "cap" then (
+      if: ws_queue_1_min_capacity + #3 * "sz" ≤ "cap" then (
         let: "new_cap" := "cap" `lsr` #1 in
         let: "new_data" :=
           array_unsafe_cshrink_slice "data" "front" "new_cap"

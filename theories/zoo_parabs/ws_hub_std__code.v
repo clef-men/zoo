@@ -10,7 +10,7 @@ From zoo_std Require Import
   int
   domain.
 From zoo_parabs Require Import
-  ws_deques_public
+  ws_queues_public
   waiters.
 From zoo_parabs Require Import
   ws_hub_std__types.
@@ -19,7 +19,7 @@ From zoo Require Import
 
 Definition ws_hub_std_create : val :=
   fun: "sz" =>
-    { ws_deques_public_create "sz",
+    { ws_queues_public_create "sz",
       array_unsafe_init
         "sz"
         (fun: <> => random_round_create (int_positive_part ("sz" - #1))),
@@ -33,11 +33,11 @@ Definition ws_hub_std_size : val :=
 
 Definition ws_hub_std_block : val :=
   fun: "t" "i" =>
-    ws_deques_public_block "t".{deques} "i".
+    ws_queues_public_block "t".{queues} "i".
 
 Definition ws_hub_std_unblock : val :=
   fun: "t" "i" =>
-    ws_deques_public_unblock "t".{deques} "i".
+    ws_queues_public_unblock "t".{queues} "i".
 
 Definition ws_hub_std_killed : val :=
   fun: "t" =>
@@ -53,18 +53,18 @@ Definition ws_hub_std_notify_all : val :=
 
 Definition ws_hub_std_push : val :=
   fun: "t" "i" "v" =>
-    ws_deques_public_push "t".{deques} "i" "v" ;;
+    ws_queues_public_push "t".{queues} "i" "v" ;;
     ws_hub_std_notify "t".
 
 Definition ws_hub_std_pop : val :=
   fun: "t" "i" =>
-    ws_deques_public_pop "t".{deques} "i".
+    ws_queues_public_pop "t".{queues} "i".
 
 Definition ws_hub_std_try_steal_once : val :=
   fun: "t" "i" =>
     let: "round" := array_unsafe_get "t".{rounds} "i" in
     random_round_reset "round" ;;
-    ws_deques_public_steal_as "t".{deques} "i" "round".
+    ws_queues_public_steal_as "t".{queues} "i" "round".
 
 Definition ws_hub_std_try_steal : val :=
   rec: "try_steal" "t" "i" "yield" "max_round" "until" =>

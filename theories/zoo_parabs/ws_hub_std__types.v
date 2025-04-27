@@ -10,12 +10,12 @@ From zoo_std Require Import
   int
   domain.
 From zoo_parabs Require Import
-  ws_deques_public
+  ws_queues_public
   waiters.
 From zoo Require Import
   options.
 
-Notation "'deques'" := (
+Notation "'queues'" := (
   in_type "zoo_parabs.ws_hub_std.t" 0
 )(in custom zoo_field
 ).

@@ -18,15 +18,15 @@ digraph {
 		node [style=filled, color=peachpuff]
 		mpmc_stack [label="mpmc_stack"]
 		mpmc_queue [label="mpmc_queue"]
-		ws_deque [label="ws_deque"]
+		ws_queue [label="ws_queue"]
 	}
 
 	subgraph cluster_parabs {
 		label="parabs"
 		node [style=filled, color=violet]
-		ws_deques [label="ws_deques"]
-		ws_deques_public [label="ws_deques_public"]
-		ws_deques_private [label="ws_deques_private"]
+		ws_queues [label="ws_queues"]
+		ws_queues_public [label="ws_queues_public"]
+		ws_queues_private [label="ws_queues_private"]
 		waiters [label="waiters"]
 		ws_hub [label="ws_hub"]
 		ws_hub_std [label="ws_hub_std"]
@@ -36,18 +36,18 @@ digraph {
 
 	random_round -> random_state
 
-	ws_deques_public -> ws_deque
-	ws_deques_public -> ws_deques [style=dotted]
+	ws_queues_public -> ws_queue
+	ws_queues_public -> ws_queues [style=dotted]
 
-	ws_deques_private -> deque
-	ws_deques_private -> ws_deques [style=dotted]
+	ws_queues_private -> deque
+	ws_queues_private -> ws_queues [style=dotted]
 
-	ws_deques -> random_round
+	ws_queues -> random_round
 
 	waiters -> mpsc_waiter
 	waiters -> mpmc_queue
 
-	ws_hub_std -> ws_deques
+	ws_hub_std -> ws_queues
 	ws_hub_std -> waiters
 	ws_hub_std -> ws_hub [style=dotted]
 
