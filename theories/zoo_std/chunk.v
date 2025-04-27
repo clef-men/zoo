@@ -1,3 +1,6 @@
+From Coq Require Import
+  ZifyNat.
+
 From zoo Require Import
   prelude.
 From zoo.diaframe Require Import
@@ -832,19 +835,50 @@ Section zoo_G.
       done.
     Qed.
     Lemma chunk_cslice_shift_forward l sz i dq vs :
-      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + sz) dq vs.
     Proof.
       rewrite chunk_cslice_shift //.
     Qed.
     Lemma chunk_cslice_shift_backward l sz i dq vs :
       sz ≤ i →
-      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i - sz) dq vs.
     Proof.
       intros.
       setoid_rewrite chunk_cslice_shift at 2.
       replace (i - sz + sz) with i by lia. done.
+    Qed.
+
+    Lemma chunk_cslice_mod l sz i dq vs :
+      sz ≠ 0 →
+      chunk_cslice l sz i dq vs ⊣⊢
+      chunk_cslice l sz (i `mod` sz) dq vs.
+    Proof.
+      intros.
+      rewrite /chunk_cslice Nat2Z.inj_mod.
+      setoid_rewrite Z.add_mod_idemp_l; last lia.
+      done.
+    Qed.
+
+    Lemma chunk_cslice_rotate0 {l sz dq vs} i :
+      sz ≠ 0 →
+      length vs = sz →
+      chunk_cslice l sz 0 dq vs ⊣⊢
+      chunk_cslice l sz i dq (drop (i `mod` sz) vs ++ take (i `mod` sz) vs).
+    Proof.
+      intros Hsz Hlength.
+      rewrite -{1}(take_drop (i `mod` sz) vs).
+      rewrite -!chunk_cslice_app. simpl_length/=.
+      rewrite Nat.min_l; first lia.
+      rewrite (chunk_cslice_mod _ _ i) //.
+      rewrite (chunk_cslice_mod _ _ (_ + _)) //.
+      assert ((i + (length vs - i `mod` sz)) `mod` sz = 0) as ->.
+      { rewrite -Nat.Div0.add_mod_idemp_l.
+        rewrite Nat.add_sub_assoc; first lia.
+        rewrite Nat.add_comm Nat.add_sub Hlength Nat.Div0.mod_same //.
+      }
+      iSteps.
     Qed.
 
     Lemma chunk_cslice_valid l sz i dq vs :
