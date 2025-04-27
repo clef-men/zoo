@@ -61,20 +61,20 @@ Class InfMpmcQueue1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_1_G_inf_array_G :: InfArrayG Σ ;
   #[local] inf_mpmc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_mpmc_queue_1_G_history_G :: MonoListG Σ val ;
-  #[local] inf_mpmc_queue_1_G_consumers_list_G :: MonoListG Σ gname ;
-  #[local] inf_mpmc_queue_1_G_consumers_pred_G :: SavedPredG Σ val ;
-  #[local] inf_mpmc_queue_1_G_tokens_list_G :: MonoListG Σ gname ;
-  #[local] inf_mpmc_queue_1_G_tokens_state_G :: OneshotG Σ () () ;
+  #[local] inf_mpmc_queue_1_G_consumer_G :: SavedPredG Σ val ;
+  #[local] inf_mpmc_queue_1_G_consumers_G :: MonoListG Σ gname ;
+  #[local] inf_mpmc_queue_1_G_token_G :: OneshotG Σ () () ;
+  #[local] inf_mpmc_queue_1_G_tokens_G :: MonoListG Σ gname ;
 }.
 
 Definition inf_mpmc_queue_1_Σ := #[
   inf_array_Σ ;
   twins_Σ (leibnizO (list val)) ;
   mono_list_Σ val ;
-  mono_list_Σ gname ;
   saved_pred_Σ val ;
   mono_list_Σ gname ;
-  oneshot_Σ unit unit
+  oneshot_Σ () () ;
+  mono_list_Σ gname
 ].
 #[global] Instance subG_inf_mpmc_queue_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_mpmc_queue_1_Σ Σ →
