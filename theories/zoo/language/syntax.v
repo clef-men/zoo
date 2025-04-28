@@ -815,6 +815,16 @@ Notation Fail := (
   App Unit Unit
 ).
 
+Definition val_to_int v :=
+  match v with
+  | ValInt n =>
+      n
+  | _ =>
+      inhabitant
+  end.
+Definition val_to_nat v :=
+  ₊(val_to_int v).
+
 Notation of_val :=
   Val
 ( only parsing
