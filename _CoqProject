@@ -195,6 +195,9 @@ theories/zoo_std/queue_1.v
 theories/zoo_std/queue_2__types.v
 theories/zoo_std/queue_2__code.v
 theories/zoo_std/queue_2.v
+theories/zoo_std/queue_3__types.v
+theories/zoo_std/queue_3__code.v
+theories/zoo_std/queue_3.v
 theories/zoo_std/stack__types.v
 theories/zoo_std/stack__code.v
 theories/zoo_std/stack.v
