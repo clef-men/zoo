@@ -23,13 +23,25 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types v t ctx hub task pred : val.
 
-#[local] Parameter pool_max_round_noyield_ : nat.
-Axiom pool_max_round_noyield_eq :
-  pool_max_round_noyield = #pool_max_round_noyield_.
+#[local] Definition max_round_noyield :=
+  val_to_nat pool_max_round_noyield.
+#[local] Lemma pool_max_round_noyield :
+  pool_max_round_noyield = #max_round_noyield.
+Proof.
+  done.
+Qed.
+Opaque pool__code.pool_max_round_noyield.
+Opaque max_round_noyield.
 
-#[local] Parameter pool_max_round_yield_ : nat.
-Axiom pool_max_round_yield_eq :
-  pool_max_round_yield = #pool_max_round_yield_.
+#[local] Definition max_round_yield :=
+  val_to_nat pool_max_round_yield.
+#[local] Lemma pool_max_round_yield :
+  pool_max_round_yield = #max_round_yield.
+Proof.
+  done.
+Qed.
+Opaque pool__code.pool_max_round_yield.
+Opaque max_round_yield.
 
 Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pool_G_domain_G :: DomainG Σ ;
@@ -275,8 +287,7 @@ Section pool_G.
 
     iLöb as "HLöb".
 
-    wp_rec.
-    rewrite pool_max_round_noyield_eq pool_max_round_yield_eq.
+    wp_rec. rewrite pool_max_round_noyield pool_max_round_yield.
 
     awp_smart_apply (ws_hub_std_pop_steal_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
     iInv "Hinv" as "(:inv_inner)".
@@ -561,8 +572,7 @@ Section pool_G.
 
     iLöb as "HLöb".
 
-    wp_rec.
-    rewrite pool_max_round_noyield_eq.
+    wp_rec. rewrite pool_max_round_noyield.
     wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
     destruct b; first iSteps.
     awp_smart_apply (ws_hub_std_pop_steal_until_spec P with "[$Hhub_inv $Hhub_owner $Hpred]") without "HΦ"; [lia.. |].

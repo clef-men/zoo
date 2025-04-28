@@ -14,9 +14,11 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Parameter pool_max_round_noyield : val.
+Definition pool_max_round_noyield : val :=
+  #1024.
 
-Parameter pool_max_round_yield : val.
+Definition pool_max_round_yield : val :=
+  #32.
 
 Definition pool_context : val :=
   fun: "sz" "hub" "id" =>

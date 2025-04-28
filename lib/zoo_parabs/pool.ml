@@ -19,9 +19,9 @@ type 'a task =
 type 'a future =
   'a Spmc_future.t
 
-let[@zoo.opaque] max_round_noyield =
+let max_round_noyield =
   1024
-let[@zoo.opaque] max_round_yield =
+let max_round_yield =
   32
 
 let context sz hub id =
