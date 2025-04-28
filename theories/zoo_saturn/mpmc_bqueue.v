@@ -240,8 +240,8 @@ Section mpmc_bqueue_G.
 
   #[local] Lemma history_alloc front :
     ⊢ |==>
-      ∃ γ_hist,
-      history_auth' γ_hist [front].
+      ∃ γ_history,
+      history_auth' γ_history [front].
   Proof.
     apply mono_list_alloc.
   Qed.

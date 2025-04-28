@@ -131,8 +131,8 @@ Section inf_ws_queue_1_G.
   #[local] Definition front_lb γ front :=
     auth_nat_max_lb γ.(metadata_front) front.
 
-  #[local] Definition history_auth' γ_hist hist :=
-    mono_list_auth γ_hist (DfracOwn 1) hist.
+  #[local] Definition history_auth' γ_history hist :=
+    mono_list_auth γ_history (DfracOwn 1) hist.
   #[local] Definition history_auth γ hist :=
     history_auth' γ.(metadata_hist) hist.
   #[local] Definition history_at γ i v :=
@@ -402,8 +402,8 @@ Section inf_ws_queue_1_G.
 
   #[local] Lemma history_alloc :
     ⊢ |==>
-      ∃ γ_hist,
-      history_auth' γ_hist [].
+      ∃ γ_history,
+      history_auth' γ_history [].
   Proof.
     apply mono_list_alloc.
   Qed.
@@ -906,7 +906,7 @@ Section inf_ws_queue_1_G.
 
     iMod clt_alloc as "(%γ_ctl & Hctl₁ & Hctl₂)".
     iMod front_alloc as "(%γ_front & Hfront_auth)".
-    iMod history_alloc as "(%γ_hist & Hhist_auth)".
+    iMod history_alloc as "(%γ_history & Hhist_auth)".
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod lock_alloc as "(%γ_lock & Hlock)".
     iMod winner_alloc as "(%γ_winner & Hwinner)".
@@ -916,7 +916,7 @@ Section inf_ws_queue_1_G.
       metadata_prophet := pid ;
       metadata_ctl := γ_ctl ;
       metadata_front := γ_front ;
-      metadata_hist := γ_hist ;
+      metadata_hist := γ_history ;
       metadata_model := γ_model ;
       metadata_lock := γ_lock ;
       metadata_prophet_name := γ_prophet ;
