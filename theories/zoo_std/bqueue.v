@@ -32,8 +32,8 @@ Section zoo_G.
     l.[back] ↦ #back ∗
     array_cslice data cap front (DfracOwn 1) vs ∗
     array_cslice data cap back (DfracOwn 1) (replicate extra ()%V) ∗
-    ⌜(front + length vs)%nat = back⌝ ∗
-    ⌜(length vs + extra)%nat = cap⌝.
+    ⌜back = (front + length vs)%nat⌝ ∗
+    ⌜cap = (length vs + extra)%nat⌝.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l &
