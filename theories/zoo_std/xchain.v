@@ -228,7 +228,6 @@ Section zoo_G.
     intros. subst.
     rewrite (@xchain_lookup _ nodes) //. iSteps.
   Qed.
-
   Lemma xchain_lookup_acc {dq nodes} i node dst :
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
@@ -238,6 +237,29 @@ Section zoo_G.
       ).
   Proof.
     intros. rewrite xchain_lookup //. iSteps.
+  Qed.
+
+  Lemma xchain_last {dq nodes dst} node :
+    last nodes = Some node →
+    xchain dq nodes dst ⊣⊢
+      xchain dq (removelast nodes) #node ∗
+      node.[xchain_next] ↦{dq} dst.
+  Proof.
+    intros.
+    rewrite {1}(last_removelast nodes node) // xchain_snoc' //.
+  Qed.
+  Lemma xchain_last_acc {dq nodes dst} node :
+    last nodes = Some node →
+    xchain dq nodes dst ⊢
+      node.[xchain_next] ↦{dq} dst ∗
+      ( ∀ dst,
+        node.[xchain_next] ↦{dq} dst -∗
+        xchain dq nodes dst
+      ).
+  Proof.
+    intros.
+    setoid_rewrite (@xchain_last _ nodes); [| done..].
+    iSteps.
   Qed.
 
   Lemma xchain_valid dq nodes dst :
@@ -348,7 +370,7 @@ Section zoo_G.
     iApply (pointsto_exclusive with "Hnode_1 Hnode_2").
   Qed.
 
-  Lemma xchain_next_spec {dq nodes node} nodes' dst E :
+  Lemma xchain_next_spec {dq nodes dst node} nodes' E :
     nodes = node :: nodes' →
     {{{
       xchain dq nodes dst
@@ -362,7 +384,7 @@ Section zoo_G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xchain_next_spec_lookup {dq nodes} i node dst E :
+  Lemma xchain_next_spec_lookup {dq nodes dst} i node E :
     nodes !! i = Some node →
     {{{
       xchain dq nodes dst
@@ -377,8 +399,23 @@ Section zoo_G.
     setoid_rewrite xchain_lookup_acc at 1; last done.
     iSteps.
   Qed.
+  Lemma xchain_next_spec_last dq nodes dst node E :
+    last nodes = Some node →
+    {{{
+      xchain dq nodes dst
+    }}}
+      (#node).{xchain_next} @ E
+    {{{
+      RET dst;
+      xchain dq nodes dst
+    }}}.
+  Proof.
+    intros.
+    setoid_rewrite xchain_last_acc at 1; last done.
+    iSteps.
+  Qed.
 
-  Lemma xchain_set_next_spec {nodes node} nodes' dst v E :
+  Lemma xchain_set_next_spec {nodes dst node} nodes' v E :
     nodes = node :: nodes' →
     {{{
       xchain (DfracOwn 1) nodes dst
@@ -393,7 +430,7 @@ Section zoo_G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xchain_set_next_spec_lookup {nodes} i node dst v E :
+  Lemma xchain_set_next_spec_lookup {nodes dst} i node v E :
     nodes !! i = Some node →
     {{{
       xchain (DfracOwn 1) nodes dst
@@ -411,6 +448,38 @@ Section zoo_G.
     wp_store.
     iDestruct (xchain_snoc_2 with "H1 Hnode") as "H1".
     rewrite -take_S_r //. iSteps.
+  Qed.
+  Lemma xchain_set_next_spec_last nodes dst node v E :
+    last nodes = Some node →
+    {{{
+      xchain (DfracOwn 1) nodes dst
+    }}}
+      #node <-{xchain_next} v @ E
+    {{{
+      RET ();
+      xchain (DfracOwn 1) nodes v
+    }}}.
+  Proof.
+    intros.
+    setoid_rewrite xchain_last_acc at 1; last done.
+    iSteps.
+  Qed.
+  Lemma xchain_set_next_spec_last' nodes dst node node' dst' E :
+    last nodes = Some node →
+    {{{
+      xchain (DfracOwn 1) nodes dst ∗
+      node'.[xchain_next] ↦ dst'
+    }}}
+      #node <-{xchain_next} #node' @ E
+    {{{
+      RET ();
+      xchain (DfracOwn 1) (nodes ++ [node']) dst'
+    }}}.
+  Proof.
+    intros.
+    setoid_rewrite xchain_last_acc at 1; last done.
+    rewrite xchain_snoc'.
+    iSteps.
   Qed.
 End zoo_G.
 

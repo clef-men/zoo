@@ -139,6 +139,13 @@ Section basic.
     { apply lookup_lt_is_Some in Hlookup. lia. }
     rewrite /= Hlookup'. apply last_take. done.
   Qed.
+  Lemma last_removelast l x :
+    last l = Some x →
+    l = removelast l ++ [x].
+  Proof.
+    destruct l as [| y l _] using rev_ind; first done.
+    rewrite last_snoc removelast_last. naive_solver.
+  Qed.
 
   Lemma drop_lookup_None l i :
     l !! i = None →
