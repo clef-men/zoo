@@ -36,18 +36,18 @@ Section zoo_G.
     ⌜(length vs + extra)%nat = cap⌝.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l{} &
-      %data{} &
-      %front{} &
-      %back{} &
-      %extra{} &
-      {%Heq{}=->} &
-      Hl{}_capacity &
-      Hl{}_data &
-      Hl{}_front &
-      Hl{}_back &
-      Hvs{} &
-      Hextra{} &
+      %l &
+      %data &
+      %front &
+      %back &
+      %extra &
+      -> &
+      Hl_capacity &
+      Hl_data &
+      Hl_front &
+      Hl_back &
+      Hvs &
+      Hextra &
       % &
       %
     )".
