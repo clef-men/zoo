@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.common Require Import
   countable
   list.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.iris.base_logic Require Import
   lib.mono_list
   lib.twins.
@@ -542,7 +544,7 @@ Section mpsc_queue_1_G.
       { rewrite -(length_lookup_last hist i) // drop_all.
         iApply xtchain_nil.
       }
-      iDestruct (big_sepL2_snoc with "[$Hnodes $Hnew_back_data]") as "Hnodes".
+      iDestruct (big_sepL2_snoc_2 with "Hnodes Hnew_back_data") as "Hnodes".
       iDestruct (xtchain_snoc_2 with "Hhist Hnew_back_header Hnew_back_next") as "Hhist".
       iMod (history_update new_back with "Hhistory_auth") as "Hhistory_auth".
       iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_new_back".

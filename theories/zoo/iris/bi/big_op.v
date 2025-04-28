@@ -507,6 +507,14 @@ Section bi.
       iApply (big_sepL2_wand with "H1 H2").
     Qed.
 
+    Lemma big_sepL2_snoc_2 {Φ l1 l2} x1 x2 :
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) -∗
+      Φ (length l1) x1 x2 -∗
+      [∗ list] k ↦ y1; y2 ∈ l1 ++ [x1]; l2 ++ [x2], Φ k y1 y2.
+    Proof.
+      rewrite big_sepL2_snoc. iSteps.
+    Qed.
+
     Lemma big_sepL2_snoc_inv_l Φ l1 x1 l2 :
       ([∗ list] k ↦ y1; y2 ∈ l1 ++ [x1]; l2, Φ k y1 y2) ⊢
         ∃ l2' x2,
