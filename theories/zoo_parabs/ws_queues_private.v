@@ -324,9 +324,9 @@ Section ws_queues_private_G.
 
   Opaque channels_at'.
 
-  Lemma ws_queues_private_inv_agree t ι sz1 sz2 :
-    ws_queues_private_inv t ι sz1 -∗
-    ws_queues_private_inv t ι sz2 -∗
+  Lemma ws_queues_private_inv_agree t ι1 sz1 ι2 sz2 :
+    ws_queues_private_inv t ι1 sz1 -∗
+    ws_queues_private_inv t ι2 sz2 -∗
     ⌜sz1 = sz2⌝.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
