@@ -50,6 +50,7 @@ Section mpsc_queue_1_G.
   Context `{mpsc_queue_1_G : MpscQueue1G Σ}.
 
   Record metadata := {
+    metadata_inv : namespace ;
     metadata_history : gname ;
     metadata_model : gname ;
   }.
@@ -109,12 +110,14 @@ Section mpsc_queue_1_G.
   Definition mpsc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
-    inv ι (inv_inner l γ).
+    inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       #Hmeta &
       #Hinv
@@ -214,8 +217,8 @@ Section mpsc_queue_1_G.
     apply twins_update'.
   Qed.
 
-  #[local] Lemma inv_inner_history_at ι l γ front :
-    inv ι (inv_inner l γ) -∗
+  #[local] Lemma inv_inner_history_at l γ front :
+    inv γ.(metadata_inv) (inv_inner l γ) -∗
     l.[front] ↦{#3/4} #front ={⊤}=∗
       ∃ i,
       l.[front] ↦{#3/4} #front ∗
@@ -267,6 +270,7 @@ Section mpsc_queue_1_G.
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
     pose γ := {|
+      metadata_inv := ι ;
       metadata_history := γ_history ;
       metadata_model := γ_model ;
     |}.
@@ -275,15 +279,15 @@ Section mpsc_queue_1_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Hl_front_"; last iSteps.
-    iStep 2. iApply inv_alloc.
+    iExists l, γ. iStep 3. iApply inv_alloc.
     iExists [front], [], front, [], front, []. iFrameSteps.
     - rewrite elem_of_list_singleton //.
     - rewrite xtchain_singleton. iSteps.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_front_spec l γ ι :
+  #[local] Lemma mpsc_queue_1_front_spec l γ :
     {{{
-      inv ι (inv_inner l γ)
+      inv γ.(metadata_inv) (inv_inner l γ)
     }}}
       (#l).{front}
     {{{ front i,
@@ -304,9 +308,9 @@ Section mpsc_queue_1_G.
     iSteps.
   Qed.
 
-  #[local] Lemma back_spec l γ ι :
+  #[local] Lemma back_spec l γ :
     {{{
-      inv ι (inv_inner l γ)
+      inv γ.(metadata_inv) (inv_inner l γ)
     }}}
       (#l).{back}
     {{{ back i,
@@ -332,14 +336,14 @@ Section mpsc_queue_1_G.
     | Other.
   #[local] Instance op_eq_dec : EqDecision op :=
     ltac:(solve_decision).
-  #[local] Lemma xtchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ ι i node :
+  #[local] Lemma xtchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ i node :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       history_at γ i node ∗
       ( if decide (op = Other) then True else
           l.[front] ↦{#3/4} #node ∗
-          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
+          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
           (mpsc_queue_1_model #l [] -∗ β [tele_arg []] x_empty)
       ) ∗
       ( if decide (op ≠ IsEmpty) then True else
@@ -369,7 +373,7 @@ Section mpsc_queue_1_G.
             ∃ vs,
             Ψ (TeleArgCons vs ()) x_nonempty
         | Pop =>
-            atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ
+            atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ
         | Other =>
             True
         end
@@ -438,10 +442,10 @@ Section mpsc_queue_1_G.
       iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  #[local] Lemma xtchain_next_spec l γ ι i node :
+  #[local] Lemma xtchain_next_spec l γ i node :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       history_at γ i node
     }}}
       (#node).{xtchain_next}
@@ -480,7 +484,7 @@ Section mpsc_queue_1_G.
       AU <{
         ∃∃ vs,
         mpsc_queue_1_model #l vs
-      }> @ ⊤ ∖ ↑ι, ∅ <{
+      }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
         ∀∀ b,
         ⌜b = bool_decide (vs = [])⌝ ∗
         mpsc_queue_1_model #l vs
@@ -499,10 +503,10 @@ Section mpsc_queue_1_G.
     iSplitR; iSteps.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_push_0_spec l γ ι i node new_back v :
+  #[local] Lemma mpsc_queue_1_push_0_spec l γ i node new_back v :
     <<<
       meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       node ↦ₕ Header §Node 2 ∗
       history_at γ i node ∗
       new_back ↦ₕ Header §Node 2 ∗
@@ -511,7 +515,7 @@ Section mpsc_queue_1_G.
     | ∀∀ vs,
       mpsc_queue_1_model #l vs
     >>>
-      mpsc_queue_1_push_0 #node #new_back @ ↑ι
+      mpsc_queue_1_push_0 #node #new_back @ ↑γ.(metadata_inv)
     <<<
       mpsc_queue_1_model #l (vs ++ [v])
     | RET ();
@@ -563,10 +567,10 @@ Section mpsc_queue_1_G.
       iSteps.
   Qed.
 
-  #[local] Lemma mpsc_queue_1_fix_back_spec l γ ι i back j new_back :
+  #[local] Lemma mpsc_queue_1_fix_back_spec l γ i back j new_back :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       history_at γ i back ∗
       new_back ↦ₕ Header §Node 2 ∗
       history_at γ j new_back

@@ -64,6 +64,7 @@ Section spmc_queue_G.
   Implicit Types Ψ : bool → iProp Σ.
 
   Record metadata := {
+    metadata_inv : namespace ;
     metadata_history : gname ;
     metadata_front : gname ;
     metadata_model : auth_twins_name ;
@@ -126,24 +127,24 @@ Section spmc_queue_G.
   #[local] Definition waiters_at γ waiter i :=
     ghost_map_elem γ.(metadata_waiters) waiter (DfracOwn 1) i.
 
-  #[local] Definition waiter_au γ ι Ψ : iProp Σ :=
+  #[local] Definition waiter_au γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
-    }> @ ⊤ ∖ ↑ι, ∅ <{
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
       model₁ γ vs
     , COMM
       Ψ (bool_decide (vs = []))
     }>.
-  #[local] Definition waiter_model γ ι past waiter i : iProp Σ :=
+  #[local] Definition waiter_model γ past waiter i : iProp Σ :=
     ∃ Ψ,
     saved_pred waiter Ψ ∗
     if decide (i < length past) then
       Ψ false
     else
-      waiter_au γ ι Ψ.
+      waiter_au γ Ψ.
 
-  #[local] Definition inv_inner l γ ι : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ hist past front nodes vs waiters,
     ⌜hist = past ++ front :: nodes⌝ ∗
     l.[front] ↦ #front ∗
@@ -153,7 +154,7 @@ Section spmc_queue_G.
     front_auth γ (length past) ∗
     model₂ γ vs ∗
     waiters_auth γ waiters ∗
-    ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ ι past waiter i).
+    ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %hist{} &
@@ -175,12 +176,14 @@ Section spmc_queue_G.
   Definition spmc_queue_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
-    inv ι (inv_inner l γ ι).
+    inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       #Hmeta &
       #Hinv
@@ -440,6 +443,7 @@ Section spmc_queue_G.
     iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
     pose γ := {|
+      metadata_inv := ι ;
       metadata_history := γ_history ;
       metadata_front := γ_front ;
       metadata_model := γ_model ;
@@ -450,16 +454,16 @@ Section spmc_queue_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Hl_back Hhistory_last Hproducer"; last iSteps.
-    iStep 2. iApply inv_alloc.
+    iExists l, γ. iStep 3. iApply inv_alloc.
     iExists [front], [], front, [], [], ∅. iFrameSteps.
     rewrite xtchain_singleton big_sepM_empty. iSteps.
   Qed.
 
-  #[local] Lemma front_spec_strong au Ψ l γ ι :
+  #[local] Lemma front_spec_strong au Ψ l γ :
     {{{
-      inv ι (inv_inner l γ ι) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       if negb au then True else
-        waiter_au γ ι Ψ
+        waiter_au γ Ψ
     }}}
       (#l).{front}
     {{{ front i,
@@ -491,9 +495,9 @@ Section spmc_queue_G.
     iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
     iSteps.
   Qed.
-  #[local] Lemma front_spec l γ ι :
+  #[local] Lemma front_spec l γ :
     {{{
-      inv ι (inv_inner l γ ι)
+      inv γ.(metadata_inv) (inv_inner l γ)
     }}}
       (#l).{front}
     {{{ front i,
@@ -514,10 +518,10 @@ Section spmc_queue_G.
     | Other.
   #[local] Instance op_eq_dec : EqDecision op :=
     ltac:(solve_decision).
-  #[local] Lemma xtchain_next_spec_strong op TB waiter Ψ_is_empty β x Ψ_pop l γ ι i node :
+  #[local] Lemma xtchain_next_spec_strong op TB waiter Ψ_is_empty β x Ψ_pop l γ i node :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ ι) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       history_at γ i node ∗
       ( if decide (op = Other) then True else
           front_lb γ i
@@ -528,7 +532,7 @@ Section spmc_queue_G.
           waiters_at γ waiter i ∗
           £ 1
       | Pop =>
-          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ spmc_queue_model #l) β Ψ_pop ∗
+          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ spmc_queue_model #l) β Ψ_pop ∗
           (spmc_queue_model #l [] -∗ β [tele_arg []] x)
       | Other =>
           True
@@ -555,7 +559,7 @@ Section spmc_queue_G.
         | IsEmpty =>
             Ψ_is_empty false
         | Pop =>
-            atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑ι) ∅ (tele_app $ spmc_queue_model #l) β Ψ_pop
+            atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ spmc_queue_model #l) β Ψ_pop
         | Other =>
             True
         end
@@ -640,10 +644,10 @@ Section spmc_queue_G.
         iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
   Qed.
-  #[local] Lemma xtchain_next_spec l γ ι i node :
+  #[local] Lemma xtchain_next_spec l γ i node :
     {{{
       meta l nroot γ ∗
-      inv ι (inv_inner l γ ι) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       history_at γ i node
     }}}
       (#node).{xtchain_next}
@@ -768,7 +772,7 @@ Section spmc_queue_G.
     set past := past1 ++ [front].
     iMod (front_update (length past) with "Hfront_auth") as "Hfront_auth".
     { rewrite /past. simpl_length. lia. }
-    iDestruct (big_sepM_impl_thread_fupd _ (waiter_model γ ι past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
+    iDestruct (big_sepM_impl_thread_fupd _ (waiter_model γ past)%I with "Hwaiters Hmodel₂ [#]") as ">(Hwaiters & Hmodel₂)".
     { iIntros "!> %waiter %j %Hlookup (%P & #Hwaiter & HP) Hmodel₂".
       destruct (Nat.lt_trichotomy j (length past1)) as [Hj | [-> | Hj]].
       - rewrite decide_True //.

@@ -82,6 +82,7 @@ Section mpmc_bqueue_G.
   Implicit Types Ψ : bool → iProp Σ.
 
   Record metadata := {
+    metadata_inv : namespace ;
     metadata_capacity : nat ;
     metadata_history : gname ;
     metadata_front : gname ;
@@ -128,24 +129,24 @@ Section mpmc_bqueue_G.
   #[local] Definition waiters_at γ waiter :=
     ghost_map_elem γ.(metadata_waiters) waiter (DfracOwn 1).
 
-  #[local] Definition waiter_au γ ι Ψ : iProp Σ :=
+  #[local] Definition waiter_au γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
-    }> @ ⊤ ∖ ↑ι, ∅ <{
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
       model₁ γ vs
     , COMM
       Ψ (bool_decide (vs = []))
     }>.
-  #[local] Definition waiter_model γ ι past waiter i : iProp Σ :=
+  #[local] Definition waiter_model γ past waiter i : iProp Σ :=
     ∃ Ψ,
     saved_pred waiter Ψ ∗
     if decide (i < length past) then
       Ψ false
     else
-      waiter_au γ ι Ψ.
+      waiter_au γ Ψ.
 
-  #[local] Definition inv_inner l γ ι : iProp Σ :=
+  #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ hist past front nodes back vs waiters,
     ⌜hist = past ++ front :: nodes⌝ ∗
     ⌜back ∈ hist⌝ ∗
@@ -168,7 +169,7 @@ Section mpmc_bqueue_G.
     model₂ γ vs ∗
     waiters_auth γ waiters ∗
     ( [∗ map] waiter ↦ i ∈ waiters,
-      waiter_model γ ι past waiter i
+      waiter_model γ past waiter i
     ).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
@@ -196,14 +197,16 @@ Section mpmc_bqueue_G.
   Definition mpmc_bqueue_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜ι = γ.(metadata_inv)⌝ ∗
     ⌜cap = γ.(metadata_capacity)⌝ ∗
     meta l nroot γ ∗
     l.[capacity] ↦□ #cap ∗
-    inv ι (inv_inner l γ ι).
+    inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       -> &
       #Hmeta &
@@ -387,6 +390,7 @@ Section mpmc_bqueue_G.
     iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
     pose γ := {|
+      metadata_inv := ι ;
       metadata_capacity := ₊cap ;
       metadata_history := γ_history ;
       metadata_front := γ_front ;
@@ -398,7 +402,7 @@ Section mpmc_bqueue_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
-    iExists l, γ. rewrite Z2Nat.id //. iStep 4.
+    iExists l, γ. rewrite Z2Nat.id //. iStep 5.
     iApply inv_alloc.
     iExists [front], [], front, [], front, [], ∅. iFrameSteps.
     { rewrite elem_of_list_singleton //. }
@@ -419,11 +423,11 @@ Section mpmc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma front_spec_strong au Ψ l γ ι :
+  #[local] Lemma front_spec_strong au Ψ l γ :
     {{{
-      inv ι (inv_inner l γ ι) ∗
+      inv γ.(metadata_inv) (inv_inner l γ) ∗
       if negb au then True else
-        waiter_au γ ι Ψ
+        waiter_au γ Ψ
     }}}
       (#l).{front}
     {{{ front i,
@@ -455,9 +459,9 @@ Section mpmc_bqueue_G.
     iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
     iSteps.
   Qed.
-  #[local] Lemma front_spec l γ ι :
+  #[local] Lemma front_spec l γ :
     {{{
-      inv ι (inv_inner l γ ι)
+      inv γ.(metadata_inv) (inv_inner l γ)
     }}}
       (#l).{front}
     {{{ front i,
@@ -472,9 +476,9 @@ Section mpmc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma back_spec l γ ι :
+  #[local] Lemma back_spec l γ :
     {{{
-      inv ι (inv_inner l γ ι)
+      inv γ.(metadata_inv) (inv_inner l γ)
     }}}
       (#l).{back}
     {{{ back i,
