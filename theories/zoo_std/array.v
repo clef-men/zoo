@@ -1389,6 +1389,28 @@ Section zoo_G.
     rewrite /atomic_acc /=.
     iExists vs, 0. rewrite Nat.sub_0_r. iSteps. simpl_length.
   Qed.
+  Lemma array_unsafe_set_spec_atomic_inv t (sz : nat) (i : Z) v :
+    (0 ≤ i < sz)%Z →
+    <<<
+      array_inv t sz
+    | ∀∀ vs,
+      array_model t (DfracOwn 1) vs
+    >>>
+      array_unsafe_set t #i v
+    <<<
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
+    | RET ();
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Hi %Φ #Hinv HΦ".
+
+    awp_apply (array_unsafe_set_spec_atomic with "[//]"); first lia.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
+    rewrite /atomic_acc /=.
+    iFrameSteps.
+  Qed.
   Lemma array_unsafe_set_spec_slice t i vs (j : Z) v :
     (i ≤ j < i + length vs)%Z →
     {{{
@@ -1654,6 +1676,30 @@ Section zoo_G.
     rewrite /atomic_acc /=.
     iExists vs, 0. rewrite Nat.sub_0_r. iSteps. simpl_length.
   Qed.
+  Lemma array_unsafe_xchg_spec_atomic_inv t (sz : nat) (i : Z) v :
+    (0 ≤ i < sz)%Z →
+    <<<
+      array_inv t sz
+    | ∀∀ vs,
+      array_model t (DfracOwn 1) vs
+    >>>
+      array_unsafe_xchg t #i v
+    <<<
+      ∃∃ w,
+      ⌜vs !! ₊i = Some w⌝ ∗
+      array_model t (DfracOwn 1) (<[₊i := v]> vs)
+    | RET w;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Hi %Φ #Hinv HΦ".
+
+    awp_apply (array_unsafe_xchg_spec_atomic with "[//]"); first lia.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
+    rewrite /atomic_acc /=.
+    iFrameSteps.
+  Qed.
   Lemma array_unsafe_xchg_spec_slice t i vs (j : Z) v :
     (i ≤ j < i + length vs)%Z →
     {{{
@@ -1790,6 +1836,31 @@ Section zoo_G.
     rewrite /atomic_acc /=.
     iExists vs, 0. rewrite Nat.sub_0_r. iSteps as (b) / --silent.
     iPureIntro. destruct b; simpl_length.
+  Qed.
+  Lemma array_unsafe_cas_spec_atomic_inv t (sz : nat) (i : Z) v1 v2 :
+    (0 ≤ i < sz)%Z →
+    <<<
+      array_inv t sz
+    | ∀∀ vs,
+      array_model t (DfracOwn 1) vs
+    >>>
+      array_unsafe_cas t #i v1 v2
+    <<<
+      ∃∃ b v,
+      ⌜vs !! ₊i = Some v⌝ ∗
+      ⌜(if b then (≈) else (≉)) v v1⌝ ∗
+      array_model t (DfracOwn 1) (if b then <[₊i := v2]> vs else vs)
+    | RET #b;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Hi %Φ #Hinv HΦ".
+
+    awp_apply (array_unsafe_cas_spec_atomic with "[//]"); first lia.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
+    rewrite /atomic_acc /=.
+    iFrameSteps.
   Qed.
   Lemma array_unsafe_cas_spec_slice t i vs (j : Z) v1 v2 :
     (i ≤ j < i + length vs)%Z →
