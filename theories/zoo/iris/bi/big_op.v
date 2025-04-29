@@ -158,6 +158,16 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_insert `{!BiAffine PROP} {Φ l} i x :
+      i < length l →
+      ([∗ list] k ↦ y ∈ l, Φ k y) -∗
+      Φ i x -∗
+      [∗ list] k ↦ y ∈ <[i := x]> l, Φ k y.
+    Proof.
+      intros (y & Hlookup)%lookup_lt_is_Some.
+      rewrite big_sepL_insert_acc //. iSteps.
+    Qed.
+
     Lemma big_sepL_delete_1 Φ l i x :
       l !! i = Some x →
       ([∗ list] k ↦ y ∈ l, Φ k y) ⊢
