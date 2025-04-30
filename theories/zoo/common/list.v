@@ -156,6 +156,21 @@ Section basic.
   Qed.
 End basic.
 
+Section suffix.
+  Context {A : Type}.
+
+  Implicit Types x : A.
+  Implicit Types l : list A.
+
+  Lemma suffix_tail l1 l2 :
+    l1 `suffix_of` l2 →
+    tail l1 `suffix_of` l2.
+  Proof.
+    destruct l1; first done.
+    intros ?%suffix_cons_l. done.
+  Qed.
+End suffix.
+
 Section zip.
   Context {A1 A2 : Type}.
 

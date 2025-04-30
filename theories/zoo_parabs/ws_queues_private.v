@@ -64,7 +64,7 @@ Inductive request :=
 Implicit Types request : request.
 Implicit Types requests : list request.
 
-#[local] Coercion request_to_val request : val :=
+#[local] Definition request_to_val request : val :=
   match request with
   | RequestBlocked =>
       §RequestBlocked
@@ -81,7 +81,14 @@ Inductive response :=
 Implicit Types response : response.
 Implicit Types responses : list response.
 
-#[local] Coercion response_to_val response : val :=
+#[local] Coercion option_to_response o :=
+  match o with
+  | None =>
+      ResponseNone
+  | Some v =>
+      ResponseSome v
+  end.
+#[local] Definition response_to_val response : val :=
   match response with
   | ResponseWaiting =>
       §ResponseWaiting
@@ -140,7 +147,7 @@ Section ws_queues_private_G.
       Hγ_channel
     )".
 
-  #[local] Definition request_au γ j Ψ : iProp Σ :=
+  #[local] Definition request_au γ i Ψ : iProp Σ :=
     AU <{
       ∃∃ vss,
       models_auth γ vss
@@ -151,41 +158,53 @@ Section ws_queues_private_G.
           models_auth γ vss
       | Some v =>
           ∃ vs,
-          ⌜vss !! j = Some (v :: vs)⌝ ∗
-          models_auth γ (<[j := vs]> vss)
+          ⌜vss !! i = Some (v :: vs)⌝ ∗
+          models_auth γ (<[i := vs]> vss)
       end
     , COMM
       Ψ o
     }>.
+
+  #[local] Definition request_model γ i request : iProp Σ :=
+    match request with
+    | RequestSome j =>
+        ∃ Ψ,
+        ⌜j < γ.(metadata_size)⌝ ∗
+        channels_at γ j (1/2) Ψ ∗
+        request_au γ i Ψ
+    | _ =>
+        True
+    end.
+  #[local] Instance : CustomIpatFormat "request_model" :=
+    "(
+      %Χ &
+      >% &
+      Hchannels_at_j &
+      HΧ
+    )".
+
+  #[local] Definition response_model γ i response : iProp Σ :=
+    match response with
+    | ResponseWaiting =>
+        True
+    | ResponseNone =>
+        ∃ Ψ,
+        channels_at γ i (1/2) Ψ ∗
+        Ψ None
+    | ResponseSome v =>
+        ∃ Ψ,
+        channels_at γ i (1/2) Ψ ∗
+        Ψ (Some v)
+    end.
 
   #[local] Definition inv_inner γ : iProp Σ :=
     ∃ statuses requests responses,
     array_model γ.(metadata_statuses_array) (DfracOwn 1) (status_to_val <$> statuses) ∗
     array_model γ.(metadata_requests_array) (DfracOwn 1) (request_to_val <$> requests) ∗
     array_model γ.(metadata_responses_array) (DfracOwn 1) (response_to_val <$> responses) ∗
-    ( [∗ list] i ↦ request ∈ requests,
-      if request is RequestSome j then
-        ∃ Ψ,
-        ⌜j < γ.(metadata_size)⌝ ∗
-        channels_at γ j (1/2) Ψ ∗
-        request_au γ j Ψ
-      else
-        True
-    ) ∗
-    ( [∗ list] i ↦ response ∈ responses,
-      match response with
-      | ResponseWaiting =>
-          True
-      | ResponseNone =>
-          ∃ Ψ,
-          channels_at γ i (1/2) Ψ ∗
-          Ψ None
-      | ResponseSome v =>
-          ∃ Ψ,
-          channels_at γ i (1/2) Ψ ∗
-          Ψ (Some v)
-      end
-    ).
+    ([∗ list] i ↦ request ∈ requests, request_model γ i request) ∗
+    ([∗ list] i ↦ response ∈ responses, response_model γ i response).
+
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %statuses{} &
@@ -467,7 +486,7 @@ Section ws_queues_private_G.
     iSteps.
   Qed.
 
- Lemma ws_queues_private_block_spec t ι sz i i_ ws :
+  Lemma ws_queues_private_block_spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_queues_private_inv t ι sz ∗
@@ -509,7 +528,7 @@ Section ws_queues_private_G.
     iIntros "_".
 
     destruct request as [| | j]; [iSteps.. |].
-    iDestruct "Hrequest" as "(%Χ & >% & Hchannels_at_j & HΧ)".
+    iDestruct "Hrequest" as "(:request_model)".
 
     wp_load.
 
@@ -574,7 +593,7 @@ Section ws_queues_private_G.
     i = ⁺i_ →
     {{{
       ws_queues_private_inv t ι sz ∗
-      ws_queues_private_owner t i_ Blocked ws
+      ws_queues_private_owner t i_ Nonblocked ws
     }}}
       ws_queues_private_respond t #i
     {{{
@@ -582,7 +601,63 @@ Section ws_queues_private_G.
       ws_queues_private_owner t i_ Nonblocked ws
     }}}.
   Proof.
-  Admitted.
+    iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    opose proof* lookup_lt_Some; first done.
+
+    wp_rec. wp_load.
+
+    awp_apply (array_unsafe_xchg_spec_atomic_inv with "Hrequests_inv") without "Hdeque_model Hmodels_at Hchannels_at HΦ"; first lia.
+    iInv "Hinv" as "(:inv_inner =1)".
+    iAaccIntro with "Hrequests_model"; first iSteps.
+    rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestNone).
+    iIntros "% (%Hrequests1_lookup & Hrequests_model) !>".
+    apply list_lookup_fmap_Some in Hrequests1_lookup as (request & Hrequests1_lookup & ->).
+    iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
+    iDestruct ("Hrequests" $! RequestNone with "[//]") as "Hrequests".
+    iSplitR "Hrequest". { iFrameSteps. }
+    iIntros "_ (Hdeque_model & Hmodels_at & Hchannels_at & HΦ)".
+
+    destruct request as [| | j]; [iSteps.. |].
+    iDestruct "Hrequest" as "(:request_model)".
+
+    wp_load.
+    wp_apply (array_unsafe_get_spec with "Hdeques_model") as "_"; [lia | done | lia |].
+    wp_apply (deque_pop_front_spec with "Hdeque_model") as "Hdeque_model".
+
+    wp_bind (Match _ _ _ _)%E.
+    wp_apply (wp_wand (λ res,
+      ⌜res = response_to_val $ head vs⌝
+    )%I) as "%res ->".
+    { destruct vs; iSteps. }
+
+    iAssert (
+      |={⊤}=>
+      models_at γ i_ (tail vs) ∗
+      response_model γ j (head vs)
+    )%I with "[Hmodels_at Hchannels_at_j HΧ]" as ">(Hmodels_at & Hresponse)".
+    { iMod "HΧ" as "(%vss & Hmodels_auth & _ & HΧ)".
+      iDestruct (models_lookup with "Hmodels_auth Hmodels_at") as %Hvss_lookup.
+      iSpecialize ("HΧ" $! (head vs)).
+      destruct vs as [| v vs].
+      - iMod ("HΧ" with "Hmodels_auth") as "HΧ".
+        iSteps.
+      - iMod (models_update vs with "Hmodels_auth Hmodels_at") as "(Hmodels_auth & Hmodels_at)".
+        iMod ("HΧ" with "[$Hmodels_auth //]") as "HΧ".
+        iSteps.
+    }
+
+    wp_load.
+    awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "Hdeque_model Hmodels_at Hchannels_at HΦ"; first lia.
+    iInv "Hinv" as "(:inv_inner =2)".
+    iAaccIntro with "Hresponses_model"; first iSteps.
+    rewrite Nat2Z.id -list_fmap_insert.
+    iIntros "Hresponses_model !>".
+    iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses2. simpl_length in Hresponses2.
+    iDestruct (big_sepL_insert j with "Hresponses [$Hresponse]") as "Hresponses"; first lia.
+    iSplitL. { iFrameSteps. }
+    iSteps. iPureIntro. apply suffix_tail. done.
+  Qed.
 
   Lemma ws_queues_private_push_spec t ι sz i i_ ws v :
     i = ⁺i_ →
