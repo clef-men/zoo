@@ -73,16 +73,18 @@ Section pool_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_apply (pool_async_spec (λ v1, ⌜v1 = #_⌝)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1)".
+    - wp_apply (pool_async_spec (λ v1, ⌜v1 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (pool_async_spec (λ v2, ⌜v2 = #_⌝)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2)".
+      wp_smart_apply (pool_async_spec (λ v2, ⌜v2 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut2]") as (?) "(Hctx & ->)".
-      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut1]") as (?) "(Hctx & ->)".
+      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut2_inv]") as (?) "(H£ & Hctx & Hfut2_result)".
+      iMod (pool_future_inv_result_consumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
+      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut1_inv]") as (?) "(H£ & Hctx & Hfut1_result)".
+      iMod (pool_future_inv_result_consumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
       wp_pures.
       rewrite (fib_spec_Z n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.

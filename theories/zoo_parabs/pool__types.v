@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  spmc_future
+  ivar_3
   array
   domain.
 From zoo_parabs Require Import

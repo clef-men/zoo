@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  spmc_future
+  ivar_3
   array
   domain.
 From zoo_parabs Require Import
@@ -81,10 +81,11 @@ Definition pool_silent_async : val :=
 
 Definition pool_async : val :=
   fun: "ctx" "task" =>
-    let: "fut" := spmc_future_create () in
+    let: "fut" := ivar_3_create () in
     pool_silent_async
       "ctx"
-      (fun: "ctx" => spmc_future_set "fut" ("task" "ctx")) ;;
+      (fun: "ctx" => ivar_3_set "fut" ("task" "ctx") ;;
+                     ()) ;;
     "fut".
 
 Definition pool_wait_until : val :=
@@ -111,5 +112,5 @@ Definition pool_wait_while : val :=
 
 Definition pool_await : val :=
   fun: "ctx" "fut" =>
-    pool_wait_until "ctx" (fun: <> => spmc_future_is_set "fut") ;;
-    spmc_future_get "fut".
+    pool_wait_until "ctx" (fun: <> => ivar_3_is_set "fut") ;;
+    ivar_3_get "fut".

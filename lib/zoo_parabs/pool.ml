@@ -17,7 +17,7 @@ type 'a task =
   context -> 'a
 
 type 'a future =
-  'a Spmc_future.t
+  'a Ivar_3.t
 
 let max_round_noyield =
   1024
@@ -67,9 +67,9 @@ let size ctx =
 let silent_async ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 let async ctx task =
-  let fut = Spmc_future.create () in
+  let fut = Ivar_3.create () in
   silent_async ctx (fun ctx ->
-    Spmc_future.set fut (task ctx)
+    Ivar_3.set fut (task ctx) |> ignore
   ) ;
   fut
 
@@ -85,5 +85,5 @@ let wait_while ctx pred =
   wait_until ctx (fun () -> not @@ pred ())
 
 let await ctx fut =
-  wait_until ctx (fun () -> Spmc_future.is_set fut) ;
-  Spmc_future.get fut
+  wait_until ctx (fun () -> Ivar_3.is_set fut) ;
+  Ivar_3.get fut

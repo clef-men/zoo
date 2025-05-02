@@ -10,7 +10,7 @@ digraph {
 		random_round [label="random_round"]
 		deque [label="deque"]
 		mpsc_waiter [label="mpsc_waiter"]
-		spmc_future [label="spmc_future"]
+		ivar [label="ivar"]
 	}
 
 	subgraph cluster_saturn {
@@ -51,7 +51,7 @@ digraph {
 	ws_hub_std -> waiters
 	ws_hub_std -> ws_hub [style=dotted]
 
-	pool -> spmc_future
+	pool -> ivar
 	pool -> ws_hub
 
 	vertex -> mpmc_stack

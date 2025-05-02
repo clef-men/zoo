@@ -10,7 +10,7 @@ From zoo_std Require Import
   option
   array
   domain
-  spmc_future.
+  ivar_3.
 From zoo_parabs Require Export
   base
   pool__code.
@@ -45,13 +45,13 @@ Opaque max_round_yield.
 
 Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pool_G_domain_G :: DomainG Σ ;
-  #[local] pool_G_future_G :: SpmcFutureG Σ ;
+  #[local] pool_G_ivar_G :: Ivar3G Σ ;
   #[local] pool_G_ws_hub_G :: WsHubStdG Σ ;
 }.
 
 Definition pool_Σ := #[
   domain_Σ ;
-  spmc_future_Σ ;
+  ivar_3_Σ ;
   ws_hub_std_Σ
 ].
 #[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -141,6 +141,8 @@ Qed.
 Section pool_G.
   Context `{pool_G : SchedulerG Σ}.
 
+  Implicit Types Ψ Χ Ξ : val → iProp Σ.
+
   #[local] Definition task_model 𝑐𝑜𝑚 task Ψ : iProp Σ :=
     ∀ i,
     ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked -∗
@@ -227,22 +229,42 @@ Section pool_G.
       Hhub_owner
     )".
 
-  Definition pool_future :=
-    spmc_future_inv.
+  Definition pool_future_inv :=
+    ivar_3_inv.
+
+  Definition pool_future_consumer :=
+    ivar_3_consumer.
+
+  Definition pool_future_result :=
+    ivar_3_result.
 
   #[global] Instance pool_future_proper t :
-    Proper ((pointwise_relation _ (≡)) ==> (≡)) (pool_future t).
+    Proper (
+      (pointwise_relation _ (≡)) ==>
+      (pointwise_relation _ (≡)) ==>
+      (≡)
+    ) (pool_future_inv t).
   Proof.
     solve_proper.
   Qed.
 
+  #[global] Instance pool_future_result_timeless fut v :
+    Timeless (pool_future_result fut v).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance pool_context_inv_persistent t ctx :
     Persistent (pool_context_inv t ctx).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pool_future_persistent fut Ψ :
-    Persistent (pool_future fut Ψ).
+  #[global] Instance pool_future_inv_persistent fut Ψ Ξ :
+    Persistent (pool_future_inv fut Ψ Ξ).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance pool_future_result_persistent fut v :
+    Persistent (pool_future_result fut v).
   Proof.
     apply _.
   Qed.
@@ -254,6 +276,67 @@ Section pool_G.
   Proof.
     iIntros "(:inv =1) (:inv =2)".
     erewrite (t_to_val_inj' _ 𝑡1 𝑡2); done.
+  Qed.
+
+  Lemma pool_future_consumer_divide {t Ψ Ξ Χ} Χs :
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_consumer t Χ -∗
+    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, pool_future_consumer t Χ.
+  Proof.
+    apply ivar_3_consumer_divide.
+  Qed.
+  Lemma pool_future_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_consumer t Χ -∗
+    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
+      pool_future_consumer t Χ1 ∗
+      pool_future_consumer t Χ2.
+  Proof.
+    apply ivar_3_consumer_split.
+  Qed.
+
+  Lemma pool_future_result_agree t v1 v2 :
+    pool_future_result t v1 -∗
+    pool_future_result t v2 -∗
+    ⌜v1 = v2⌝.
+  Proof.
+    apply ivar_3_result_agree.
+  Qed.
+
+  Lemma pool_future_inv_result t Ψ Ξ v :
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_result t v ={⊤}=∗
+    ▷ □ Ξ v.
+  Proof.
+    apply ivar_3_inv_result.
+  Qed.
+  Lemma pool_future_inv_result' t Ψ Ξ v :
+    £ 1 -∗
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_result t v ={⊤}=∗
+    □ Ξ v.
+  Proof.
+    apply ivar_3_inv_result'.
+  Qed.
+  Lemma pool_future_inv_result_consumer t Ψ Ξ v Χ :
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_result t v -∗
+    pool_future_consumer t Χ ={⊤}=∗
+      ▷^2 Χ v ∗
+      ▷ □ Ξ v.
+  Proof.
+    apply ivar_3_inv_result_consumer.
+  Qed.
+  Lemma pool_future_inv_result_consumer' t Ψ Ξ v Χ :
+    £ 2 -∗
+    pool_future_inv t Ψ Ξ -∗
+    pool_future_result t v -∗
+    pool_future_consumer t Χ ={⊤}=∗
+      Χ v ∗
+      □ Ξ v.
+  Proof.
+    apply ivar_3_inv_result_consumer'.
   Qed.
 
   #[local] Lemma pool_execute_spec 𝑐𝑜𝑚 i task Ψ :
@@ -489,7 +572,7 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_async_spec_inv Ψ t ctx task :
+  Lemma pool_async_spec_inv Ψ Ξ t ctx task :
     {{{
       pool_context_inv t ctx ∗
       pool_context_model ctx ∗
@@ -498,7 +581,8 @@ Section pool_G.
         pool_context_model ctx -∗
         WP task ctx {{ v,
           pool_context_model ctx ∗
-          □ Ψ v
+          Ψ v ∗
+          □ Ξ v
         }}
       )
     }}}
@@ -506,29 +590,32 @@ Section pool_G.
     {{{ fut,
       RET fut;
       pool_context_model ctx ∗
-      pool_future fut Ψ
+      pool_future_inv fut Ψ Ξ ∗
+      pool_future_consumer fut Ψ
     }}}.
   Proof.
     iIntros "%Φ (Hctx_inv & Hctx_model & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (spmc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer)".
-    wp_smart_apply (pool_silent_async_spec_inv with "[$Hctx_inv $Hctx_model Htask Hfut_producer]") as "Hctx_model".
+    wp_smart_apply (ivar_3_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_smart_apply (pool_silent_async_spec_inv with "[$Hctx_inv $Hctx_model Htask Hivar_producer]") as "Hctx_model".
     { clear ctx. iIntros "%ctx Hctx_inv Hctx_model".
       wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ)".
-      wp_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]") as "_ //".
+      wp_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ]") as (waiters) "_".
+      iFrameSteps.
     }
     wp_pures.
-    iApply ("HΦ" with "[$Hctx_model $Hfut_inv]").
+    iApply ("HΦ" with "[$]").
   Qed.
-  Lemma pool_async_spec Ψ ctx task :
+  Lemma pool_async_spec Ψ Ξ ctx task :
     {{{
       pool_context_model ctx ∗
       ( ∀ ctx,
         pool_context_model ctx -∗
         WP task ctx {{ v,
           pool_context_model ctx ∗
-          □ Ψ v
+          Ψ v ∗
+          □ Ξ v
         }}
       )
     }}}
@@ -536,20 +623,22 @@ Section pool_G.
     {{{ fut,
       RET fut;
       pool_context_model ctx ∗
-      pool_future fut Ψ
+      pool_future_inv fut Ψ Ξ ∗
+      pool_future_consumer fut Ψ
     }}}.
   Proof.
     iIntros "%Φ (Hctx & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (spmc_future_create_spec with "[//]") as (fut) "(#Hfut_inv & Hfut_producer)".
-    wp_smart_apply (pool_silent_async_spec with "[$Hctx Htask Hfut_producer]") as "Hctx".
+    wp_smart_apply (ivar_3_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_smart_apply (pool_silent_async_spec with "[$Hctx Htask Hivar_producer]") as "Hctx".
     { clear ctx. iIntros "%ctx Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ)".
-      wp_apply (spmc_future_set_spec with "[$Hfut_inv $Hfut_producer $HΨ]") as "_ //".
+      wp_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ]") as (waiters) "_".
+      iFrameSteps.
     }
     wp_pures.
-    iApply ("HΦ" with "[$Hctx $Hfut_inv]").
+    iApply ("HΦ" with "[$]").
   Qed.
 
   Lemma pool_wait_until_spec P ctx pred :
@@ -611,28 +700,29 @@ Section pool_G.
     destruct b; iSteps.
   Qed.
 
-  Lemma pool_await_spec ctx fut Ψ :
+  Lemma pool_await_spec ctx fut Ψ Ξ :
     {{{
       pool_context_model ctx ∗
-      pool_future fut Ψ
+      pool_future_inv fut Ψ Ξ
     }}}
       pool_await ctx fut
     {{{ v,
       RET v;
+      £ 2 ∗
       pool_context_model ctx ∗
-      Ψ v
+      pool_future_result fut v
     }}}.
   Proof.
-    iIntros "%Φ (Hctx & #Hfut_inv) HΦ".
+    iIntros "%Φ (Hctx & #Hivar_inv) HΦ".
 
     wp_rec.
-    wp_smart_apply (pool_wait_until_spec (∃ v, spmc_future_result fut v)%I with "[$Hctx]") as "(Hctx & %v & #Hfut_result)".
+    wp_smart_apply (pool_wait_until_spec (ivar_3_result' fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
     { iModIntro.
-      wp_smart_apply (spmc_future_is_set_spec with "Hfut_inv") as (b) "HΨ".
-      destruct b; iSteps.
+      wp_smart_apply (ivar_3_is_set_spec with "Hivar_inv") as (b) "Hivar_result".
+      rewrite /ivar_3_result'. destruct b; iSteps.
     }
-    wp_smart_apply (spmc_future_get_spec_result with "[$Hfut_inv $Hfut_result]") as "HΨ".
-    iApply ("HΦ" with "[$Hctx $HΨ]").
+    wp_smart_apply (ivar_3_get_spec with "[$Hivar_inv $Hivar_result]") as "H£".
+    iApply ("HΦ" with "[$]").
   Qed.
 End pool_G.
 
@@ -650,4 +740,6 @@ End pool_G.
 #[global] Opaque pool_model.
 #[global] Opaque pool_context_inv.
 #[global] Opaque pool_context_model.
-#[global] Opaque pool_future.
+#[global] Opaque pool_future_inv.
+#[global] Opaque pool_future_consumer.
+#[global] Opaque pool_future_result.
