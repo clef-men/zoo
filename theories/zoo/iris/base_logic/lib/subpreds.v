@@ -3,7 +3,7 @@ From iris.base_logic Require Import
 
 From zoo Require Import
   prelude.
-From zoo.iris.base_logic Require Export
+From zoo.iris.base_logic Require Import
   lib.auth_dgset
   lib.saved_pred.
 From zoo.iris.base_logic Require Export
@@ -151,10 +151,10 @@ Section subpreds_G.
     iSteps.
   Qed.
 
-  Lemma subpreds_produce {γ Ψ} v :
+  Lemma subpreds_produce {γ Ψ} x :
     subpreds_auth γ Ψ None -∗
-    Ψ v -∗
-    subpreds_auth γ Ψ (Some v).
+    Ψ x -∗
+    subpreds_auth γ Ψ (Some x).
   Proof.
     iSteps.
   Qed.

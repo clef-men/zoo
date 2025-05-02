@@ -65,12 +65,12 @@ theories/zoo/iris/bi/big_op.v
 theories/zoo/iris/base_logic/algebra/twins.v
 theories/zoo/iris/base_logic/lib/base.v
 theories/zoo/iris/base_logic/lib/agree.v
-theories/zoo/iris/base_logic/lib/saved_prop.v
 theories/zoo/iris/base_logic/lib/saved_pred.v
+theories/zoo/iris/base_logic/lib/saved_prop.v
 theories/zoo/iris/base_logic/lib/excl.v
 theories/zoo/iris/base_logic/lib/ghost_var.v
-theories/zoo/iris/base_logic/lib/ghost_prop.v
 theories/zoo/iris/base_logic/lib/ghost_pred.v
+theories/zoo/iris/base_logic/lib/ghost_prop.v
 theories/zoo/iris/base_logic/lib/ghost_list.v
 theories/zoo/iris/base_logic/lib/oneshot.v
 theories/zoo/iris/base_logic/lib/twins.v
@@ -86,6 +86,7 @@ theories/zoo/iris/base_logic/lib/mono_map.v
 theories/zoo/iris/base_logic/lib/mono_set.v
 theories/zoo/iris/base_logic/lib/prophet_map.v
 theories/zoo/iris/base_logic/lib/subpreds.v
+theories/zoo/iris/base_logic/lib/subprops.v
 
 theories/zoo/iris/program_logic/language.v
 theories/zoo/iris/program_logic/ectx_language.v
