@@ -337,12 +337,6 @@ Section zoo_G.
       l ↦ₕ Header 0 (length vs) ∗
       chunk_model l dq vs.
 
-    Lemma array_model_to_inv t dq vs :
-      array_model t dq vs ⊢
-      array_inv t (length vs).
-    Proof.
-      iSteps.
-    Qed.
     Lemma array_slice_to_model t sz dq vs :
       sz = length vs →
       array_inv t sz -∗
@@ -350,6 +344,12 @@ Section zoo_G.
       array_model t dq vs.
     Proof.
       iSteps. rewrite location_add_0 //.
+    Qed.
+    Lemma array_model_to_inv t dq vs :
+      array_model t dq vs ⊢
+      array_inv t (length vs).
+    Proof.
+      iSteps.
     Qed.
     Lemma array_model_to_slice t dq vs :
       array_model t dq vs ⊣⊢
@@ -540,12 +540,6 @@ Section zoo_G.
       l ↦ₕ Header 0 sz ∗
       chunk_cslice l sz i dq vs.
 
-    Lemma array_cslice_to_inv t sz i dq vs :
-      array_cslice t sz i dq vs ⊢
-      array_inv t sz.
-    Proof.
-      iSteps.
-    Qed.
     Lemma array_model_to_cslice t dq vs :
       array_model t dq vs ⊢
       array_cslice t (length vs) 0 dq vs.
@@ -561,6 +555,26 @@ Section zoo_G.
       rewrite /array_slice Nat2Z.inj_mod.
       setoid_rewrite chunk_model_cslice_cell.
       iSteps.
+    Qed.
+    Lemma array_cslice_to_inv t sz i dq vs :
+      array_cslice t sz i dq vs ⊢
+      array_inv t sz.
+    Proof.
+      iSteps.
+    Qed.
+    Lemma array_cslice_to_model t sz i dq vs :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz i dq vs ⊢
+      array_model t dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs.
+      rewrite /array_cslice /array_model.
+      setoid_rewrite chunk_cslice_to_model; [| done..].
+      simpl_length.
+      rewrite Nat.min_l; first lia.
+      rewrite Nat.sub_add; first lia.
+      rewrite -Hvs //.
     Qed.
     Lemma array_cslice_to_slice_cell t sz i dq v :
       array_cslice t sz i dq [v] ⊢
@@ -780,15 +794,43 @@ Section zoo_G.
       apply array_cslice_shift_backward. done.
     Qed.
 
-    Lemma array_cslice_rotate0 {t sz dq vs} i :
+    Lemma array_cslice_rotate_forward {t sz i dq vs} n :
       sz ≠ 0 →
       length vs = sz →
-      array_cslice t sz 0 dq vs ⊢
+      array_cslice t sz i dq vs ⊣⊢
+      array_cslice t sz (i + n) dq (drop (n `mod` sz) vs ++ take (n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite /array_cslice.
+      setoid_rewrite chunk_cslice_rotate_forward at 1; done.
+    Qed.
+    Lemma array_cslice_rotate_forward_0 {t sz dq vs} i :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz 0 dq vs ⊣⊢
       array_cslice t sz i dq (drop (i `mod` sz) vs ++ take (i `mod` sz) vs).
     Proof.
-      iIntros "% % (%l & -> & #Hl_header & Hcslice)".
-      iDestruct (chunk_cslice_rotate0 i with "Hcslice") as "Hcslice"; [done.. |].
-      iSteps.
+      intros.
+      rewrite array_cslice_rotate_forward //.
+    Qed.
+
+    Lemma array_cslice_rotate_backward t sz i n dq vs :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz (i + n) dq vs ⊣⊢
+      array_cslice t sz i dq (drop (sz - n `mod` sz) vs ++ take (sz - n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite /array_cslice.
+      setoid_rewrite chunk_cslice_rotate_backward at 1; done.
+    Qed.
+    Lemma array_cslice_rotate_backward_0 t sz i dq vs :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz i dq vs ⊣⊢
+      array_cslice t sz 0 dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+    Proof.
+      apply (array_cslice_rotate_backward _ _ 0).
     Qed.
 
     Lemma array_cslice_valid t sz i dq vs :
@@ -6366,7 +6408,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
-    iDestruct (array_cslice_rotate0 i_ with "Hcslice'") as "Hcslice'".
+    iDestruct (array_cslice_rotate_forward_0 i_ with "Hcslice'") as "Hcslice'".
     { lia. }
     { simpl_length. }
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
@@ -6417,7 +6459,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
-    iDestruct (array_cslice_rotate0 i_ with "Hcslice'") as "Hcslice'".
+    iDestruct (array_cslice_rotate_forward_0 i_ with "Hcslice'") as "Hcslice'".
     { lia. }
     { simpl_length. }
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
@@ -7725,7 +7767,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'".
-    iDestruct (array_cslice_rotate0 ₊i with "Hcslice'") as "Hcslice'"; simpl_length; [lia.. |].
+    iDestruct (array_cslice_rotate_forward_0 ₊i with "Hcslice'") as "Hcslice'"; simpl_length; [lia.. |].
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
     rewrite Nat.sub_add; first lia.
     wp_smart_apply (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(% & Hcslice' & Hvs')"; simpl_length; [lia.. |].
