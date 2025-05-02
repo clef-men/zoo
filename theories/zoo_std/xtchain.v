@@ -454,7 +454,7 @@ Section zoo_G.
     setoid_rewrite xtchain_last_acc at 1; last done.
     iSteps.
   Qed.
-  Lemma xtchain_set_next_spec_last' hdr nodes dst node node' dst' E :
+  Lemma xtchain_set_next_spec_last' {hdr nodes dst node} node' dst' E :
     last nodes = Some node →
     {{{
       xtchain hdr (DfracOwn 1) nodes dst ∗

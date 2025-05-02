@@ -464,7 +464,7 @@ Section zoo_G.
     setoid_rewrite xchain_last_acc at 1; last done.
     iSteps.
   Qed.
-  Lemma xchain_set_next_spec_last' nodes dst node node' dst' E :
+  Lemma xchain_set_next_spec_last' {nodes dst node} node' dst' E :
     last nodes = Some node →
     {{{
       xchain (DfracOwn 1) nodes dst ∗
