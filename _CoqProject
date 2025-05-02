@@ -235,12 +235,6 @@ theories/zoo_std/ivar_2.v
 theories/zoo_std/ivar_3__types.v
 theories/zoo_std/ivar_3__code.v
 theories/zoo_std/ivar_3.v
-theories/zoo_std/spsc_future__types.v
-theories/zoo_std/spsc_future__code.v
-theories/zoo_std/spsc_future.v
-theories/zoo_std/spmc_future__types.v
-theories/zoo_std/spmc_future__code.v
-theories/zoo_std/spmc_future.v
 theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random.v
