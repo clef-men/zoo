@@ -5,8 +5,7 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   relations
-  countable
-  list.
+  countable.
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
@@ -184,12 +183,14 @@ Section spmc_queue_G.
       >Hwaiters_auth &
       Hwaiters
     )".
+  #[local] Definition inv' l γ :=
+    inv γ.(metadata_inv) (inv_inner l γ).
   Definition spmc_queue_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
-    inv γ.(metadata_inv) (inv_inner l γ).
+    inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
@@ -472,7 +473,7 @@ Section spmc_queue_G.
 
   #[local] Lemma front_spec_strong au Ψ l γ :
     {{{
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       if negb au then True else
         waiter_au γ Ψ
     }}}
@@ -506,7 +507,7 @@ Section spmc_queue_G.
   Qed.
   #[local] Lemma front_spec l γ :
     {{{
-      inv γ.(metadata_inv) (inv_inner l γ)
+      inv' l γ
     }}}
       (#l).{front}
     {{{ front i,
@@ -528,7 +529,7 @@ Section spmc_queue_G.
   #[local] Lemma xtchain_next_spec_strong op TB waiter Ψ_is_empty β x Ψ_pop l γ i node :
     {{{
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       history_at γ i node ∗
       ( if decide (op = Other) then True else
           front_lb γ i
@@ -659,7 +660,7 @@ Section spmc_queue_G.
   #[local] Lemma xtchain_next_spec l γ i node :
     {{{
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       history_at γ i node
     }}}
       (#node).{xtchain_next}
@@ -802,7 +803,7 @@ Section spmc_queue_G.
         iSteps.
     }
 
-    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_pop with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".

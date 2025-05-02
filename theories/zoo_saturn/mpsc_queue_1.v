@@ -1,8 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable
-  list.
+  countable.
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
@@ -116,12 +115,14 @@ Section mpsc_queue_1_G.
       >Hhistory_auth &
       >Hmodel₂
     )".
+  #[local] Definition inv' l γ :=
+    inv γ.(metadata_inv) (inv_inner l γ).
   Definition mpsc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
-    inv γ.(metadata_inv) (inv_inner l γ).
+    inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
@@ -227,7 +228,7 @@ Section mpsc_queue_1_G.
   Qed.
 
   #[local] Lemma inv_inner_history_at l γ front :
-    inv γ.(metadata_inv) (inv_inner l γ) -∗
+    inv' l γ -∗
     l.[front] ↦{#3/4} #front ={⊤}=∗
       ∃ i,
       l.[front] ↦{#3/4} #front ∗
@@ -295,7 +296,7 @@ Section mpsc_queue_1_G.
 
   #[local] Lemma mpsc_queue_1_front_spec l γ :
     {{{
-      inv γ.(metadata_inv) (inv_inner l γ)
+      inv' l γ
     }}}
       (#l).{front}
     {{{ front i,
@@ -317,7 +318,7 @@ Section mpsc_queue_1_G.
 
   #[local] Lemma back_spec l γ :
     {{{
-      inv γ.(metadata_inv) (inv_inner l γ)
+      inv' l γ
     }}}
       (#l).{back}
     {{{ back i,
@@ -345,7 +346,7 @@ Section mpsc_queue_1_G.
   #[local] Lemma xtchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ i node :
     {{{
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       history_at γ i node ∗
       ( if decide (op = Other) then True else
           l.[front] ↦{#3/4} #node ∗
@@ -454,7 +455,7 @@ Section mpsc_queue_1_G.
   #[local] Lemma xtchain_next_spec {l γ i} node :
     {{{
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       history_at γ i node
     }}}
       (#node).{xtchain_next}
@@ -514,7 +515,7 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_push_0_spec l γ i node new_back v :
     <<<
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       node_model γ node i ∗
       new_back ↦ₕ Header §Node 2 ∗
       new_back.[xtchain_next] ↦ () ∗
@@ -579,7 +580,7 @@ Section mpsc_queue_1_G.
   #[local] Lemma mpsc_queue_1_fix_back_spec l γ i back j new_back :
     {{{
       meta l nroot γ ∗
-      inv γ.(metadata_inv) (inv_inner l γ) ∗
+      inv' l γ ∗
       history_at γ i back ∗
       node_model γ new_back j
     }}}
@@ -680,7 +681,7 @@ Section mpsc_queue_1_G.
     rewrite (assoc _ _ [_]) in Hhist.
     iDestruct (big_sepL2_cons_inv_l with "Hnodes") as "(%v & %vs' & -> & Hnew_front_data & Hnodes)".
 
-    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
