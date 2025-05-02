@@ -6506,19 +6506,42 @@ Section zoo_G.
     split. apply _.
   Qed.
 
-  Lemma itype_array_intro τ `{!iType _ τ} t sz vs :
+  Lemma itype_array_intro τ `{!iType _ τ} t vs :
+    array_model t (DfracOwn 1) vs -∗
+    ([∗ list] v ∈ vs, τ v) ={⊤}=∗
+    itype_array τ (length vs) t.
+  Proof.
+    rewrite /array_model.
+    iSteps.
+  Qed.
+  Lemma itype_array_intro_slice τ `{!iType _ τ} t sz vs :
     length vs = sz →
     array_inv t sz -∗
     array_slice t 0 (DfracOwn 1) vs -∗
     ([∗ list] v ∈ vs, τ v) ={⊤}=∗
     itype_array τ sz t.
   Proof.
-    rewrite /array_inv /array_slice.
-    iIntros "% (%l & -> & #Hheader) (%_l & %Heq & Hmodel) #Hvs". injection Heq as <-.
-    rewrite location_add_0.
-    iSteps. iExists vs. iSteps.
+    iIntros "%Hvs #Hinv Hslice".
+    iDestruct (array_slice_to_model with "Hinv Hslice") as "Hmodel"; first done.
+    rewrite -Hvs.
+    iApply (itype_array_intro with "Hmodel").
   Qed.
-
+  Lemma itype_array_intro_cslice τ `{!iType _ τ} t sz i vs :
+    sz ≠ 0 →
+    length vs = sz →
+    array_cslice t sz i (DfracOwn 1) vs -∗
+    ([∗ list] v ∈ vs, τ v) ={⊤}=∗
+    itype_array τ sz t.
+  Proof.
+    iIntros "% %Hvs Hcslice #Hvs".
+    iDestruct (array_cslice_to_model with "Hcslice") as "Hmodel"; [done.. |].
+    iMod (itype_array_intro τ with "Hmodel []") as "Htype".
+    { rewrite big_sepL_app comm -big_sepL_app take_drop //. }
+    simpl_length.
+    rewrite Nat.min_l; first lia.
+    rewrite Nat.sub_add; first lia.
+    rewrite -Hvs //.
+  Qed.
   Lemma itype_array_to_inv τ `{!iType _ τ} sz t :
     itype_array τ sz t ⊢
     array_inv t sz.
@@ -6768,13 +6791,9 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
     wp_smart_apply (array_fill_spec with "[Hmodel]") as "Hmodel"; first iSteps.
-    rewrite /array_model. simpl_length.
-    iDestruct "Hmodel" as "(%l & -> & #Hheader & Hmodel)".
-    iStep 7.
-    iApply inv_alloc. iExists (replicate ₊sz v). iSteps.
-    - simpl_length.
-    - iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate).
-      iSteps.
+    iStep 5.
+    iMod (itype_array_intro with "Hmodel []") as "#Htype"; simpl_length.
+    iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate) "//".
   Qed.
 
   Lemma array_make_type τ `{!iType _ τ} sz v :
@@ -7358,7 +7377,7 @@ Section zoo_G.
     { simpl_length. lia. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'"; first done.
     iStep 5. simpl_length.
-    iApply (itype_array_intro with "Hinv' Hslice'").
+    iApply (itype_array_intro_slice with "Hinv' Hslice'").
     { rewrite length_app Hvs !length_replicate. lia. }
     iApply big_sepL_app. iSteps.
     iApply big_sepL_intro. iIntros "!>" (i _v' (-> & _)%lookup_replicate).
@@ -7405,7 +7424,7 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_copy_slice_type' with "[$Htype $Hslice']") as (vs) "(%Hvs & Hslice' & Hvs)"; try done.
     { simpl_length. lia. }
     iStep 5. simpl_length.
-    iApply (itype_array_intro with "Hinv' Hslice' Hvs").
+    iApply (itype_array_intro_slice with "Hinv' Hslice' Hvs").
     { rewrite Hvs length_replicate //. }
   Qed.
 
@@ -7705,8 +7724,8 @@ Section zoo_G.
 
   Lemma array_unsafe_cgrow_slice_type τ `{!iType _ τ} sz t (i n : Z) sz' v :
     0 < sz →
-    (0 < i)%Z →
-    (0 < n)%Z →
+    (0 ≤ i)%Z →
+    (0 ≤ n)%Z →
     (0 < sz')%Z →
     {{{
       itype_array τ sz t ∗
@@ -7729,7 +7748,7 @@ Section zoo_G.
 
   Lemma array_unsafe_cgrow_type τ `{!iType _ τ} sz t (i n : Z) sz' v :
     0 < sz →
-    (0 < i)%Z →
+    (0 ≤ i)%Z →
     (0 < sz')%Z →
     {{{
       itype_array τ sz t ∗
@@ -7748,10 +7767,9 @@ Section zoo_G.
     wp_apply (array_unsafe_cgrow_slice_type with "[$Htype $Hv] HΦ"); lia.
   Qed.
 
-(*
   Lemma array_unsafe_cshrink_slice_type τ `{!iType _ τ} sz t (i : Z) sz' :
     0 < sz →
-    (0 < i)%Z →
+    (0 ≤ i)%Z →
     (0 < sz')%Z →
     {{{
       itype_array τ sz t
@@ -7770,10 +7788,11 @@ Section zoo_G.
     iDestruct (array_cslice_rotate_forward_0 ₊i with "Hcslice'") as "Hcslice'"; simpl_length; [lia.. |].
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
     rewrite Nat.sub_add; first lia.
-    wp_smart_apply (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(% & Hcslice' & Hvs')"; simpl_length; [lia.. |].
+    wp_smart_apply (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(%Hvs' & Hcslice' & Hvs')"; simpl_length; [lia.. |].
+    simpl_length in Hvs'.
     iStep 5.
-  Admitted.
-*)
+    iApply (itype_array_intro_cslice with "Hcslice' Hvs'"); lia.
+  Qed.
 End zoo_G.
 
 #[global] Opaque array_unsafe_alloc.
