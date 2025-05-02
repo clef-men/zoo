@@ -391,7 +391,7 @@ Section mpsc_queue_1_G.
     iDestruct (history_agree with "Hhistory_auth Hhistory_at_node") as %Hlookup.
     iDestruct (xtchain_lookup_acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
     wp_load.
-    iDestruct ("Hhist" with "Hnode ") as "Hhist".
+    iDestruct ("Hhist" with "Hnode") as "Hhist".
     destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
 
     - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
