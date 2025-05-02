@@ -558,9 +558,8 @@ Section domain_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     iApply wp_fupd.
-    wp_apply (ivar_2_get_spec with "Hivar_inv") as (v) "((H£1 & H£2) & Hivar_result & Hivar_synchronized)".
-    iMod (ivar_2_inv_result_consumer with "H£1 Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
-    iMod (lc_fupd_elim_later with "H£2 HΨ") as "HΨ".
+    wp_apply (ivar_2_get_spec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
+    iMod (ivar_2_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
     iSteps.
   Qed.
 

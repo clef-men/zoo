@@ -298,11 +298,11 @@ Section ivar_2_G.
   Proof.
     apply subpreds_alloc.
   Qed.
-  #[local] Lemma consumer_divide {γ Ψ state Χ} Χs :
-    consumer_auth γ Ψ state -∗
+  #[local] Lemma consumer_divide {γ Ψ state Χ} Χs E :
+    ▷ consumer_auth γ Ψ state -∗
     consumer_frag γ Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ==∗
-      consumer_auth γ Ψ state ∗
+    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
+      ▷ consumer_auth γ Ψ state ∗
       [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
   Proof.
     apply subpreds_divide.
@@ -314,11 +314,11 @@ Section ivar_2_G.
   Proof.
     apply subpreds_produce.
   Qed.
-  #[local] Lemma consumer_consume γ Ψ v Χ :
-    consumer_auth γ Ψ (Some v) -∗
-    consumer_frag γ Χ ==∗
-      consumer_auth γ Ψ (Some v) ∗
-      ▷ Χ v.
+  #[local] Lemma consumer_consume γ Ψ v Χ E :
+    ▷ consumer_auth γ Ψ (Some v) -∗
+    consumer_frag γ Χ ={E}=∗
+      ▷ consumer_auth γ Ψ (Some v) ∗
+      ▷^2 Χ v.
   Proof.
     apply subpreds_consume.
   Qed.
@@ -334,31 +334,28 @@ Section ivar_2_G.
   Qed.
 
   Lemma ivar_2_consumer_divide {t Ψ Ξ Χ} Χs :
-    £ 1 -∗
     ivar_2_inv t Ψ Ξ -∗
     ivar_2_consumer t Χ -∗
     (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_2_consumer t Χ.
   Proof.
-    iIntros "H£ (:inv) (:consumer) H". injection Heq as <-.
+    iIntros "(:inv) (:consumer) H". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
     iInv "Hinv" as "(:inv_inner)".
-    iMod (lc_fupd_elim_later with "H£ Hconsumer_auth") as "Hconsumer_auth".
     iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag H") as "(Hconsumer_auth & H)".
     iSplitR "H". { iFrameSteps. }
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
   Lemma ivar_2_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
-    £ 1 -∗
     ivar_2_inv t Ψ Ξ -∗
     ivar_2_consumer t Χ -∗
     (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
       ivar_2_consumer t Χ1 ∗
       ivar_2_consumer t Χ2.
   Proof.
-    iIntros "H£ #Hinv Hconsumer H".
-    iMod (ivar_2_consumer_divide [Χ1;Χ2] with "H£ Hinv Hconsumer [H]") as "($ & $ & _)"; iSteps.
+    iIntros "#Hinv Hconsumer H".
+    iMod (ivar_2_consumer_divide [Χ1;Χ2] with "Hinv Hconsumer [H]") as "($ & $ & _)"; iSteps.
   Qed.
 
   Lemma ivar_2_result_agree t v1 v2 :
@@ -411,15 +408,14 @@ Section ivar_2_G.
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
   Lemma ivar_2_inv_result_consumer t Ψ Ξ v Χ :
-    £ 1 -∗
     ivar_2_inv t Ψ Ξ -∗
     ivar_2_result t v -∗
     ivar_2_synchronized t -∗
     ivar_2_consumer t Χ ={⊤}=∗
-      ▷ Χ v ∗
+      ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
-    iIntros "H£ (:inv) (:result) _". injection Heq as <-.
+    iIntros "(:inv) (:result) _". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iIntros "(:consumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -430,7 +426,6 @@ Section ivar_2_G.
     }
     iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
     iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
-    iMod (lc_fupd_elim_later with "H£ Hconsumer_auth") as "Hconsumer_auth".
     iMod (consumer_consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
     iSplitR "HΧ". { iFrameSteps. }
     iSteps.
@@ -445,9 +440,10 @@ Section ivar_2_G.
       □ Ξ v.
   Proof.
     iIntros "(H£1 & H£2) Hinv Hresult Hsynchronized Hconsumer".
-    iMod (ivar_2_inv_result_consumer with "H£1 Hinv Hresult Hsynchronized Hconsumer") as "(HΧ & #HΞ)".
-    iApply (lc_fupd_elim_later with "H£2 [HΧ]").
-    iSteps.
+    iMod (ivar_2_inv_result_consumer with "Hinv Hresult Hsynchronized Hconsumer") as "H".
+    rewrite -bi.later_sep.
+    iMod (lc_fupd_elim_later with "H£1 H") as "(HΧ & $)".
+    iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
   Lemma ivar_2_create_spec Ψ Ξ :
