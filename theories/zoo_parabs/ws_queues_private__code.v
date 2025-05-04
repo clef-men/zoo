@@ -4,8 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  deque
   atomic_array
+  queue_3
   array
   random_round
   domain.
@@ -17,7 +17,7 @@ From zoo Require Import
 Definition ws_queues_private_create : val :=
   fun: "sz" =>
     { "sz",
-      array_unsafe_init "sz" deque_create,
+      array_unsafe_init "sz" queue_3_create,
       array_unsafe_make "sz" §Nonblocked,
       atomic_array_make "sz" §RequestNone,
       array_unsafe_make "sz" §ResponseWaiting,
@@ -48,7 +48,7 @@ Definition ws_queues_private_respond : val :=
     match: atomic_array_unsafe_xchg "t".{requests} "i" §RequestNone with
     | RequestSome "j" =>
         let: "response" :=
-          match: deque_pop_front (array_unsafe_get "t".{deques} "i") with
+          match: queue_3_pop_front (array_unsafe_get "t".{queues} "i") with
           | Some "v" =>
               ‘ResponseSome( "v" )
           |_ =>
@@ -62,12 +62,12 @@ Definition ws_queues_private_respond : val :=
 
 Definition ws_queues_private_push : val :=
   fun: "t" "i" "v" =>
-    deque_push_back (array_unsafe_get "t".{deques} "i") "v" ;;
+    queue_3_push (array_unsafe_get "t".{queues} "i") "v" ;;
     ws_queues_private_respond "t" "i".
 
 Definition ws_queues_private_pop : val :=
   fun: "t" "i" =>
-    let: "res" := deque_pop_back (array_unsafe_get "t".{deques} "i") in
+    let: "res" := queue_3_pop_back (array_unsafe_get "t".{queues} "i") in
     ws_queues_private_respond "t" "i" ;;
     "res".
 

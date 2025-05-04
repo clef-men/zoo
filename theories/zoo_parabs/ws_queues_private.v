@@ -17,7 +17,7 @@ From zoo_std Require Import
   option
   array
   atomic_array
-  deque
+  queue_3
   domain
   random_round.
 From zoo_parabs Require Export
@@ -29,7 +29,7 @@ From zoo Require Import
   options.
 
 Implicit Types l : location.
-Implicit Types v t deque round : val.
+Implicit Types v t queue round : val.
 Implicit Types o : option val.
 Implicit Types vs ws : list val.
 Implicit Types vss wss : list (list val).
@@ -111,8 +111,8 @@ Section ws_queues_private_G.
   Implicit Types Ψ : option val → iProp Σ.
 
   Record metadata := {
-    metadata_deques_array : val ;
-    metadata_deques : list val ;
+    metadata_queues_array : val ;
+    metadata_queues : list val ;
     metadata_statuses_array : val ;
     metadata_requests_array : val ;
     metadata_responses_array : val ;
@@ -288,9 +288,9 @@ Section ws_queues_private_G.
     ⌜sz = γ.(metadata_size)⌝ ∗
     meta l nroot γ ∗
     l.[size] ↦□ #γ.(metadata_size) ∗
-    l.[deques] ↦□ γ.(metadata_deques_array) ∗
-    ⌜length γ.(metadata_deques) = γ.(metadata_size)⌝ ∗
-    array_model γ.(metadata_deques_array) DfracDiscarded γ.(metadata_deques) ∗
+    l.[queues] ↦□ γ.(metadata_queues_array) ∗
+    ⌜length γ.(metadata_queues) = γ.(metadata_size)⌝ ∗
+    array_model γ.(metadata_queues_array) DfracDiscarded γ.(metadata_queues) ∗
     l.[statuses] ↦□ γ.(metadata_statuses_array) ∗
     array_inv γ.(metadata_statuses_array) γ.(metadata_size) ∗
     l.[requests] ↦□ γ.(metadata_requests_array) ∗
@@ -307,9 +307,9 @@ Section ws_queues_private_G.
       {%Hsz_eq{}=->} &
       #Hmeta{_{}} &
       #Hl{}_size &
-      #Hl{}_deques &
-      %Hdeques{}_length &
-      #Hdeques{}_model &
+      #Hl{}_queues &
+      %Hqueues{}_length &
+      #Hqueues{}_model &
       #Hl{}_statuses &
       #Hstatuses{}_inv &
       #Hl{}_requests &
@@ -334,11 +334,11 @@ Section ws_queues_private_G.
     )".
 
   Definition ws_queues_private_owner t i status ws : iProp Σ :=
-    ∃ l γ deque vs Ψ_sender Ψ_receiver,
+    ∃ l γ queue vs Ψ_sender Ψ_receiver,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ⌜γ.(metadata_deques) !! i = Some deque⌝ ∗
-    deque_model deque vs ∗
+    ⌜γ.(metadata_queues) !! i = Some queue⌝ ∗
+    queue_3_model queue vs ∗
     models_at γ i vs ∗
     ⌜vs `suffix_of` ws⌝ ∗
     channels_sender γ i Ψ_sender None ∗
@@ -347,14 +347,14 @@ Section ws_queues_private_G.
     "(
       %l{=_} &
       %γ{=_} &
-      %deque{} &
+      %queue{} &
       %vs{} &
       %Ψ_sender{_{}} &
       %Ψ_receiver{_{}} &
       %Heq{} &
       #Hmeta_{} &
-      %Hdeques_lookup{_{}} &
-      Hdeque_model{_{}} &
+      %Hqueues_lookup{_{}} &
+      Hqueue_model{_{}} &
       Hmodels_at{_{}} &
       %Hws{} &
       Hchannels_sender{_{}} &
@@ -588,7 +588,7 @@ Section ws_queues_private_G.
   Proof.
     iIntros "(:inv) (:owner)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
-    apply lookup_lt_Some in Hdeques_lookup.
+    apply lookup_lt_Some in Hqueues_lookup.
     iSteps.
   Qed.
   Lemma ws_queues_private_model_owner t vss i status ws :
@@ -610,7 +610,7 @@ Section ws_queues_private_G.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. simplify.
-    iApply (deque_model_exclusive with "Hdeque_model_1 Hdeque_model_2").
+    iApply (queue_3_model_exclusive with "Hqueue_model_1 Hqueue_model_2").
   Qed.
 
   Lemma ws_queues_private_create_spec ι sz :
@@ -636,16 +636,16 @@ Section ws_queues_private_G.
     iDestruct (array_model_to_inv with "Hrequests_model") as "#Hrequests_inv".
     wp_apply (array_unsafe_make_spec with "[//]") as (statuses_array) "Hstatuses_model"; first done.
     iDestruct (array_model_to_inv with "Hstatuses_model") as "#Hstatuses_inv".
-    wp_apply (array_unsafe_init_spec_disentangled (λ _ deque, deque_model deque [])) as (deques_array deques) "(%Hdeques_length & Hdeques_model & Hdeques)"; first done.
+    wp_apply (array_unsafe_init_spec_disentangled (λ _ queue, queue_3_model queue [])) as (queues_array queues) "(%Hqueues_length & Hqueues_model & Hqueues)"; first done.
     { iIntros "!> %i %Hi".
-      wp_apply (deque_create_spec with "[//]").
+      wp_apply (queue_3_create_spec with "[//]").
       iSteps.
     }
-    iDestruct (array_model_to_inv with "Hdeques_model") as "#Hdeques_inv".
-    iMod (array_model_persist with "Hdeques_model") as "#Hdeques_model".
-    wp_block l as "Hmeta" "(Hl_size & Hl_deques & Hl_statuses & Hl_requests & Hl_responses & _)".
+    iDestruct (array_model_to_inv with "Hqueues_model") as "#Hqueues_inv".
+    iMod (array_model_persist with "Hqueues_model") as "#Hqueues_model".
+    wp_block l as "Hmeta" "(Hl_size & Hl_queues & Hl_statuses & Hl_requests & Hl_responses & _)".
     iMod (pointsto_persist with "Hl_size") as "#Hl_size".
-    iMod (pointsto_persist with "Hl_deques") as "#Hl_deques".
+    iMod (pointsto_persist with "Hl_queues") as "#Hl_queues".
     iMod (pointsto_persist with "Hl_statuses") as "#Hl_statuses".
     iMod (pointsto_persist with "Hl_requests") as "#Hl_requests".
     iMod (pointsto_persist with "Hl_responses") as "#Hl_responses".
@@ -654,8 +654,8 @@ Section ws_queues_private_G.
     iMod channels_alloc as "(%γ_channels & Hchannels_1 & Hchannels_2)".
 
     pose γ := {|
-      metadata_deques_array := deques_array ;
-      metadata_deques := deques ;
+      metadata_queues_array := queues_array ;
+      metadata_queues := queues ;
       metadata_statuses_array := statuses_array ;
       metadata_requests_array := requests_array ;
       metadata_responses_array := responses_array ;
@@ -667,9 +667,9 @@ Section ws_queues_private_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hmodels_auth Hdeques Hmodels_ats Hchannels_2".
+    iSplitR "Hmodels_auth Hqueues Hmodels_ats Hchannels_2".
 
-    - rewrite Hdeques_length. simpl_length.
+    - rewrite Hqueues_length. simpl_length.
       iEval (rewrite -(fmap_replicate status_to_val _ Nonblocked)) in "Hstatuses_model".
       iEval (rewrite -(fmap_replicate request_to_val _ RequestNone)) in "Hrequests_model".
       iEval (rewrite -(fmap_replicate response_to_val _ ResponseWaiting)) in "Hresponses_model".
@@ -683,8 +683,8 @@ Section ws_queues_private_G.
 
     - iSteps.
       iDestruct (big_sepL_sep_2 with "Hmodels_ats Hchannels_2") as "H".
-      iDestruct (big_sepL_to_seq0 with "Hdeques") as "Hdeques". rewrite Hdeques_length.
-      iDestruct (big_sepL_sep_2 with "Hdeques H") as "H".
+      iDestruct (big_sepL_to_seq0 with "Hqueues") as "Hqueues". rewrite Hqueues_length.
+      iDestruct (big_sepL_sep_2 with "Hqueues H") as "H".
       iApply (big_sepL_impl with "H").
       iSteps.
   Qed.
@@ -831,7 +831,7 @@ Section ws_queues_private_G.
     iApply (wp_frame_wand with "[Hchannels_sender Hchannels_receiver HΦ]"); first iAccu.
     wp_load.
 
-    awp_apply (array_unsafe_xchg_spec_atomic_inv with "Hrequests_inv") without "Hdeque_model Hmodels_at"; first lia.
+    awp_apply (array_unsafe_xchg_spec_atomic_inv with "Hrequests_inv") without "Hqueue_model Hmodels_at"; first lia.
     iInv "Hinv" as "(:inv_inner =1)".
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestNone).
@@ -840,14 +840,14 @@ Section ws_queues_private_G.
     iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iDestruct ("Hrequests" $! RequestNone with "[//]") as "Hrequests".
     iSplitR "Hrequest". { iFrameSteps. }
-    iIntros "_ (Hdeque_model & Hmodels_at)".
+    iIntros "_ (Hqueue_model & Hmodels_at)".
 
     destruct request as [| | j]; [iSteps.. |].
     iDestruct "Hrequest" as "(:request_model)".
 
     wp_load.
-    wp_apply (array_unsafe_get_spec with "Hdeques_model") as "_"; [lia | done | lia |].
-    wp_apply (deque_pop_front_spec with "Hdeque_model") as "Hdeque_model".
+    wp_apply (array_unsafe_get_spec with "Hqueues_model") as "_"; [lia | done | lia |].
+    wp_apply (queue_3_pop_front_spec with "Hqueue_model") as "Hqueue_model".
 
     wp_bind (Match _ _ _ _)%E.
     wp_apply (wp_wand (λ res,
@@ -857,7 +857,7 @@ Section ws_queues_private_G.
 
     wp_load.
 
-    awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "Hdeque_model"; first lia.
+    awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "Hqueue_model"; first lia.
     iInv "Hinv" as "(:inv_inner =2)".
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id -list_fmap_insert.
@@ -906,8 +906,8 @@ Section ws_queues_private_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (array_unsafe_get_spec with "Hdeques_model") as "_"; [lia | done | lia |].
-    wp_apply (deque_push_back_spec with "Hdeque_model") as "Hdeque_model".
+    wp_apply (array_unsafe_get_spec with "Hqueues_model") as "_"; [lia | done | lia |].
+    wp_apply (queue_3_push_spec with "Hqueue_model") as "Hqueue_model".
 
     iApply fupd_wp.
     iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
@@ -950,8 +950,8 @@ Section ws_queues_private_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (array_unsafe_get_spec with "Hdeques_model") as "_"; [lia | done | lia |].
-    wp_apply (deque_pop_back_spec with "Hdeque_model") as (o) "Hdeque_model".
+    wp_apply (array_unsafe_get_spec with "Hqueues_model") as "_"; [lia | done | lia |].
+    wp_apply (queue_3_pop_back_spec with "Hqueue_model") as (o) "Hqueue_model".
 
     iApply fupd_wp.
     iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
@@ -959,7 +959,7 @@ Section ws_queues_private_G.
     iDestruct (models_lookup with "Hmodels_auth Hmodels_at") as %Hvss_lookup.
     destruct o as [v |].
 
-    - iDestruct "Hdeque_model" as "(%vs' & -> & Hdeque_model)".
+    - iDestruct "Hqueue_model" as "(%vs' & -> & Hqueue_model)".
       iMod (models_update vs' with "Hmodels_auth Hmodels_at") as "(Hmodels_auth & Hmodels_at)".
       iMod ("HΦ" $! (Some v) with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
@@ -968,7 +968,7 @@ Section ws_queues_private_G.
       wp_pures.
       iApply ("HΦ" with "Howner").
 
-    - iDestruct "Hdeque_model" as "(-> & Hdeque_model)".
+    - iDestruct "Hqueue_model" as "(-> & Hqueue_model)".
       iMod ("HΦ" $! None with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
 
@@ -1103,7 +1103,7 @@ Section ws_queues_private_G.
     opose proof* lookup_lt_Some; first done.
 
     wp_rec.
-    iApply (wp_frame_wand with "[Hdeque_model Hmodels_at]"); first iAccu.
+    iApply (wp_frame_wand with "[Hqueue_model Hmodels_at]"); first iAccu.
     wp_load.
 
     awp_apply (array_unsafe_get_spec_atomic with "[//]") without "Hchannels_sender Hchannels_receiver HΦ"; first lia.

@@ -18,7 +18,7 @@ type 'a response =
 
 type 'a t =
   { size: int;
-    deques: 'a Deque.t array;
+    queues: 'a Queue_3.t array;
     statuses: status array;
     requests: request Atomic_array.t;
     responses: 'a response array;
@@ -27,7 +27,7 @@ type 'a t =
 
 let create sz =
   { size= sz;
-    deques= Array.unsafe_init sz Deque.create;
+    queues= Array.unsafe_init sz Queue_3.create;
     statuses= Array.unsafe_make sz Nonblocked;
     requests= Atomic_array.make sz RequestNone;
     responses= Array.unsafe_make sz ResponseWaiting;
@@ -53,7 +53,7 @@ let respond t i =
   match Atomic_array.unsafe_xchg t.requests i RequestNone with
   | RequestSome j ->
       let response =
-        match Deque.pop_front (Array.unsafe_get t.deques i) with
+        match Queue_3.pop_front (Array.unsafe_get t.queues i) with
         | Some v ->
             ResponseSome v
         | _ ->
@@ -64,11 +64,11 @@ let respond t i =
       ()
 
 let push t i v =
-  Deque.push_back (Array.unsafe_get t.deques i) v ;
+  Queue_3.push (Array.unsafe_get t.queues i) v ;
   respond t i
 
 let pop t i =
-  let res = Deque.pop_back (Array.unsafe_get t.deques i) in
+  let res = Queue_3.pop_back (Array.unsafe_get t.queues i) in
   respond t i ;
   res
 

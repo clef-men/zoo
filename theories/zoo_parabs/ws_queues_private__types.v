@@ -4,8 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  deque
   atomic_array
+  queue_3
   array
   random_round
   domain.
@@ -51,7 +51,7 @@ Notation "'size'" := (
   in_type "zoo_parabs.ws_queues_private.t" 0
 )(in custom zoo_field
 ).
-Notation "'deques'" := (
+Notation "'queues'" := (
   in_type "zoo_parabs.ws_queues_private.t" 1
 )(in custom zoo_field
 ).
