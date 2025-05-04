@@ -286,10 +286,10 @@ Section inf_mpmc_queue_1_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %_l &
-      %_γ &
+      %l_ &
+      %γ_ &
       %Heq &
-      _Hmeta &
+      Hmeta_ &
       Hmodel₁
     )".
 
@@ -590,7 +590,7 @@ Section inf_mpmc_queue_1_G.
     - destruct (decide (front2 = front1)) as [-> | ?].
 
       + iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
 
@@ -683,7 +683,7 @@ Section inf_mpmc_queue_1_G.
       iEval (rewrite Hhist1) in "Hhistory_at".
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %Hvs.
       iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁] [//]") as "$"; first iSteps.
@@ -840,7 +840,7 @@ Section inf_mpmc_queue_1_G.
         iMod (consumers_update Φ with "Hconsumers_auth") as "(Hconsumers_auth & #Hconsumers_at)".
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod (model_update (drop (S front) hist) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
@@ -861,7 +861,7 @@ Section inf_mpmc_queue_1_G.
         { rewrite -Nat.le_add_sub; first lia.
           iSteps. rewrite /consumer_au. iAuIntro.
           iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
-          iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
           iAaccIntro with "Hmodel₁"; iSteps.
         }
         rewrite -Nat.sub_succ_l; first lia.
