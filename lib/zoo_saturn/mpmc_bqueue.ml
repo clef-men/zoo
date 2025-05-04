@@ -42,10 +42,10 @@ let rec size t =
       Atomic.Loc.compare_and_set [%atomic.loc t.back] back node |> ignore ;
       size t
   | Null ->
-      if Zoo.resolve t.front proph () != front then
-        size t
-      else
+      if Zoo.resolve t.front proph () == front then
         back_r.index - front_r.index
+      else
+        size t
 
 let is_empty t =
   let Node front_r = t.front in

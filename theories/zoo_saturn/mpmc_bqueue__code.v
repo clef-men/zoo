@@ -33,10 +33,10 @@ Definition mpmc_bqueue_size : val :=
                 CAS "t".[back] "back" "node" ;;
                 "size" "t"
             | Null =>
-                if: Resolve "t".{front} "proph" () != "front" then (
-                  "size" "t"
-                ) else (
+                if: Resolve "t".{front} "proph" () == "front" then (
                   "back_r".{index} - "front_r".{index}
+                ) else (
+                  "size" "t"
                 )
             end
         end
