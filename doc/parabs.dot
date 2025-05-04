@@ -8,7 +8,7 @@ digraph {
 		node [style=filled, color=lightblue]
 		random_state [label="random_state"]
 		random_round [label="random_round"]
-		deque [label="deque"]
+		queue [label="queue"]
 		mpsc_waiter [label="mpsc_waiter"]
 		ivar [label="ivar"]
 	}
@@ -39,7 +39,7 @@ digraph {
 	ws_queues_public -> ws_queue
 	ws_queues_public -> ws_queues [style=dotted]
 
-	ws_queues_private -> deque
+	ws_queues_private -> queue
 	ws_queues_private -> ws_queues [style=dotted]
 
 	ws_queues -> random_round
