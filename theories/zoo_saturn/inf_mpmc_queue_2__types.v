@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo Require Import
+  identifier.
 From zoo_std Require Import
   inf_array
   int
@@ -21,5 +23,9 @@ Notation "'front'" := (
 ).
 Notation "'back'" := (
   in_type "zoo_saturn.inf_mpmc_queue_2.t" 2
+)(in custom zoo_field
+).
+Notation "'proph'" := (
+  in_type "zoo_saturn.inf_mpmc_queue_2.t" 3
 )(in custom zoo_field
 ).

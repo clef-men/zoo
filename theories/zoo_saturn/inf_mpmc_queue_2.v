@@ -42,7 +42,7 @@ Implicit Types slots : nat → optional val.
 Implicit Types η : gname.
 Implicit Types ηs : list gname.
 
-#[local] Program Definition prophet := {|
+#[local] Program Definition global_prophet := {|
   typed_prophet_type :=
     identifier ;
   typed_prophet_of_val v :=
@@ -55,12 +55,31 @@ Implicit Types ηs : list gname.
   typed_prophet_to_val id :=
     #id ;
 |}.
-Solve Obligations of prophet with
+Solve Obligations of global_prophet with
   try done.
 Next Obligation.
   naive_solver.
 Qed.
-Implicit Types pasts prophss : nat → list prophet.(typed_prophet_type).
+Implicit Types pasts prophss : nat → list global_prophet.(typed_prophet_type).
+
+#[local] Program Definition local_prophet := {|
+  typed_strong_prophet1_type :=
+    nat ;
+  typed_strong_prophet1_of_val v _ :=
+    match v with
+    | ValInt i =>
+        Some (Z.to_nat i)
+    | _ =>
+        None
+    end ;
+  typed_strong_prophet1_to_val i :=
+    (#i, ()%V) ;
+|}.
+Solve Obligations of local_prophet with
+  try done.
+Next Obligation.
+  intros i v _ [= -> ->]. rewrite /= Nat2Z.id //.
+Qed.
 
 Inductive lstate :=
   | Producer
@@ -86,7 +105,7 @@ Inductive lstep : lstate → lstate → Prop :=
 
 Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_mpmc_queue_2_G_prophets_G :: WiseProphetsG Σ prophet ;
+  #[local] inf_mpmc_queue_2_G_prophets_G :: WiseProphetsG Σ global_prophet ;
   #[local] inf_mpmc_queue_2_G_front_G :: AuthNatMaxG Σ ;
   #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val) ;
@@ -101,7 +120,7 @@ Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
 
 Definition inf_mpmc_queue_2_Σ := #[
   inf_array_Σ ;
-  wise_prophets_Σ prophet ;
+  wise_prophets_Σ global_prophet ;
   auth_nat_max_Σ ;
   twins_Σ (leibnizO (list val)) ;
   mono_list_Σ (option val) ;
@@ -220,7 +239,7 @@ Section inf_mpmc_queue_2_G.
 
   #[local] Definition winner γ i : iProp Σ :=
     ∃ id prophs,
-    wise_prophets_full prophet γ.(metadata_prophet_name) i prophs ∗
+    wise_prophets_full global_prophet γ.(metadata_prophet_name) i prophs ∗
     ⌜head prophs = Some id⌝ ∗
     identifier_model' id.
 
@@ -248,7 +267,7 @@ Section inf_mpmc_queue_2_G.
     ⌜length hist = back⌝ ∗
     lstates_auth γ lstates ∗
     ⌜length lstates = front `max` back⌝ ∗
-    wise_prophets_model prophet γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
+    wise_prophets_model global_prophet γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
     producers_auth γ back ∗
     consumers_auth γ front ∗
     ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -307,6 +326,17 @@ Section inf_mpmc_queue_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+
+  #[global] Instance inf_mpmc_queue_2_model_timeless t vs :
+    Timeless (inf_mpmc_queue_2_model t vs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance inf_mpmc_queue_2_inv_persistent t ι :
+    Persistent (inf_mpmc_queue_2_inv t ι).
+  Proof.
+    apply _.
+  Qed.
 
   Opaque lstates_auth'.
   Opaque lstates_lb.

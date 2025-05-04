@@ -2,12 +2,14 @@ type 'a t =
   { data: 'a Optional.t Inf_array.t;
     mutable front: int [@atomic];
     mutable back: int [@atomic];
+    proph: (int * Zoo.id) Zoo.proph;
   }
 
 let create () =
   { data= Inf_array.create Optional.Nothing;
     front= 0;
     back= 0;
+    proph= Zoo.proph ();
   }
 
 let rec size t =
@@ -23,13 +25,23 @@ let is_empty t =
   size t == 0
 
 let rec push t v =
+  let id = Zoo.id () in
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
-  if not @@ Inf_array.cas t.data i Nothing (Something v) then
+  if not @@
+    Zoo.resolve (
+      Inf_array.cas t.data i Nothing (Something v)
+    ) t.proph (i, id)
+  then
     push t v
 
 let rec pop t =
+  let id = Zoo.id () in
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-  match Inf_array.xchg t.data i Anything with
+  match
+    Zoo.resolve (
+      Inf_array.xchg t.data i Anything
+    ) t.proph (i, id)
+  with
   | Nothing ->
       Domain.yield () ;
       pop t

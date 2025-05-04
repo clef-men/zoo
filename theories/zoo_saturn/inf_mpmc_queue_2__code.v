@@ -3,6 +3,8 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo Require Import
+  identifier.
 From zoo_std Require Import
   inf_array
   int
@@ -15,7 +17,7 @@ From zoo Require Import
 
 Definition inf_mpmc_queue_2_create : val :=
   fun: <> =>
-    { inf_array_create §Nothing, #0, #0 }.
+    { inf_array_create §Nothing, #0, #0, Proph }.
 
 Definition inf_mpmc_queue_2_size : val :=
   rec: "size" "t" =>
@@ -34,15 +36,27 @@ Definition inf_mpmc_queue_2_is_empty : val :=
 
 Definition inf_mpmc_queue_2_push : val :=
   rec: "push" "t" "v" =>
+    let: "id" := Id in
     let: "i" := FAA "t".[back] #1 in
-    if: ~ inf_array_cas "t".{data} "i" §Nothing ‘Something( "v" ) then (
+    if:
+      ~ Resolve
+          (inf_array_cas "t".{data} "i" §Nothing ‘Something( "v" ))
+          "t".{proph}
+          ("i", "id")
+    then (
       "push" "t" "v"
     ).
 
 Definition inf_mpmc_queue_2_pop : val :=
   rec: "pop" "t" =>
+    let: "id" := Id in
     let: "i" := FAA "t".[front] #1 in
-    match: inf_array_xchg "t".{data} "i" §Anything with
+    match:
+      Resolve
+        (inf_array_xchg "t".{data} "i" §Anything)
+        "t".{proph}
+        ("i", "id")
+    with
     | Nothing =>
         domain_yield () ;;
         "pop" "t"
