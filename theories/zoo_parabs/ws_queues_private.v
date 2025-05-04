@@ -5,8 +5,10 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
+  lib.ghost_var
   lib.ghost_pred
-  lib.ghost_list.
+  lib.ghost_list
+  lib.oneshot.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -16,6 +18,7 @@ From zoo_std Require Import
   array
   atomic_array
   deque
+  domain
   random_round.
 From zoo_parabs Require Export
   base
@@ -35,12 +38,16 @@ Implicit Types statuses : list status.
 
 Class WsQueuesPrivateG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_queues_private_G_models_G :: GhostListG Σ (list val) ;
-  #[local] ws_queues_private_G_channels_G :: GhostPredG Σ (option val) ;
+  #[local] ws_queues_private_G_channel_pred_G :: GhostPredG Σ (option val) ;
+  #[local] ws_queues_private_G_channel_generation_G :: GhostVarG Σ (leibnizO gname) ;
+  #[local] ws_queues_private_G_channel_state_G :: OneshotG Σ () (option val) ;
 }.
 
 Definition ws_queues_private_Σ := #[
   ghost_list_Σ (list val) ;
-  ghost_pred_Σ (option val)
+  ghost_pred_Σ (option val) ;
+  ghost_var_Σ (leibnizO gname) ;
+  oneshot_Σ () (option val)
 ].
 #[global] Instance subG_ws_queues_private_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_queues_private_Σ Σ →
@@ -112,10 +119,10 @@ Section ws_queues_private_G.
     metadata_inv : namespace ;
     metadata_size : nat ;
     metadata_models : gname ;
-    metadata_channels : list gname ;
+    metadata_channels : list (gname * gname) ;
   }.
   Implicit Types γ : metadata.
-  Implicit Types γ_channels : list gname.
+  Implicit Types γ_channels : list (gname * gname).
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
@@ -134,17 +141,69 @@ Section ws_queues_private_G.
   #[local] Definition models_at γ :=
     models_at' γ.(metadata_models).
 
-  #[local] Definition channels_at' γ_channels i q Ψ : iProp Σ :=
+  #[local] Definition channels_waiting' γ_channels i : iProp Σ :=
+    ∃ γ_channel gen,
+    ⌜γ_channels !! i = Some γ_channel⌝ ∗
+    ghost_var γ_channel.2 (DfracOwn (1/2)) gen ∗
+    oneshot_pending gen (DfracOwn 1) ().
+  #[local] Definition channels_waiting γ :=
+    channels_waiting' γ.(metadata_channels).
+  #[local] Instance : CustomIpatFormat "channels_waiting" :=
+    "(
+      %γ_channel_{} &
+      %gen{} &
+      %Hlookup_{} &
+      Hgeneration_{} &
+      Hpending_{}
+    )".
+  #[local] Definition channels_sender' γ_channels i Ψ state : iProp Σ :=
     ∃ γ_channel,
     ⌜γ_channels !! i = Some γ_channel⌝ ∗
-    ghost_pred γ_channel (DfracOwn q) Ψ.
-  #[local] Definition channels_at γ :=
-    channels_at' γ.(metadata_channels).
-  #[local] Instance : CustomIpatFormat "channels_at" :=
+    ghost_pred γ_channel.1 (DfracOwn (3/4)) Ψ ∗
+    match state with
+    | None =>
+        True
+    | Some o =>
+        ∃ gen,
+        ghost_var γ_channel.2 (DfracOwn (1/2)) gen ∗
+        oneshot_shot gen o
+    end.
+  #[local] Definition channels_sender γ :=
+    channels_sender' γ.(metadata_channels).
+  #[local] Instance : CustomIpatFormat "channels_sender" :=
     "(
-      %γ_channel &
-      %Hlookup &
-      Hγ_channel
+      %γ_channel_{} &
+      {>=}%Hlookup_{} &
+      Hpred_{} &
+      { {done}
+        ( %gen{} &
+          Hgeneration_{} &
+          #Hshot_{}
+        )
+        =_
+      }
+    )".
+  #[local] Definition channels_receiver' γ_channels i Ψ state : iProp Σ :=
+    ∃ γ_channel gen,
+    ⌜γ_channels !! i = Some γ_channel⌝ ∗
+    ghost_pred γ_channel.1 (DfracOwn (1/4)) Ψ ∗
+    ghost_var γ_channel.2 (DfracOwn (1/2)) gen ∗
+    match state with
+    | None =>
+        True
+    | Some o =>
+        oneshot_shot gen o
+    end.
+  #[local] Definition channels_receiver γ :=
+    channels_receiver' γ.(metadata_channels).
+  #[local] Instance : CustomIpatFormat "channels_receiver" :=
+    "(
+      %γ_channel_{} &
+      %gen{} &
+      %Hlookup_{} &
+      Hpred_{} &
+      Hgeneration_{} &
+      {{done}#Hshot_{}=_}
     )".
 
   #[local] Definition request_au γ i Ψ : iProp Σ :=
@@ -170,7 +229,7 @@ Section ws_queues_private_G.
     | RequestSome j =>
         ∃ Ψ,
         ⌜j < γ.(metadata_size)⌝ ∗
-        channels_at γ j (1/2) Ψ ∗
+        channels_sender γ j Ψ None ∗
         request_au γ i Ψ
     | _ =>
         True
@@ -179,23 +238,29 @@ Section ws_queues_private_G.
     "(
       %Χ &
       >% &
-      Hchannels_at_j &
+      Hchannels_sender &
       HΧ
     )".
 
   #[local] Definition response_model γ i response : iProp Σ :=
     match response with
     | ResponseWaiting =>
-        True
+        channels_waiting γ i
     | ResponseNone =>
         ∃ Ψ,
-        channels_at γ i (1/2) Ψ ∗
+        channels_sender γ i Ψ (Some None) ∗
         Ψ None
     | ResponseSome v =>
         ∃ Ψ,
-        channels_at γ i (1/2) Ψ ∗
+        channels_sender γ i Ψ (Some $ Some v) ∗
         Ψ (Some v)
     end.
+  #[local] Instance : CustomIpatFormat "response_model" :=
+    "(
+      %Ψ{} &
+      Hchannels_sender{_{}} &
+      HΨ{}
+    )".
 
   #[local] Definition inv_inner γ : iProp Σ :=
     ∃ statuses requests responses,
@@ -269,30 +334,38 @@ Section ws_queues_private_G.
     )".
 
   Definition ws_queues_private_owner t i status ws : iProp Σ :=
-    ∃ l γ deque vs Ψ,
+    ∃ l γ deque vs Ψ_sender Ψ_receiver,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     ⌜γ.(metadata_deques) !! i = Some deque⌝ ∗
     deque_model deque vs ∗
     models_at γ i vs ∗
     ⌜vs `suffix_of` ws⌝ ∗
-    channels_at γ i 1 Ψ.
+    channels_sender γ i Ψ_sender None ∗
+    channels_receiver γ i Ψ_receiver None.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
       %l{=_} &
       %γ{=_} &
       %deque{} &
       %vs{} &
-      %Ψ{} &
+      %Ψ_sender{_{}} &
+      %Ψ_receiver{_{}} &
       %Heq{} &
       #Hmeta_{} &
       %Hdeques_lookup{_{}} &
       Hdeque_model{_{}} &
       Hmodels_at{_{}} &
       %Hws{} &
-      Hchannels_at{_{}}
+      Hchannels_sender{_{}} &
+      Hchannels_receiver{_{}}
     )".
 
+  #[global] Instance channels_waiting_timeless γ i :
+    Timeless (channels_waiting γ i).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance ws_queues_private_model_timeless t vss :
     Timeless (ws_queues_private_model t vss).
   Proof.
@@ -333,27 +406,171 @@ Section ws_queues_private_G.
   #[local] Lemma channels_alloc sz :
     ⊢ |==>
       ∃ γ_channels,
-      [∗ list] i ∈ seq 0 sz,
-        channels_at' γ_channels i 1 inhabitant.
+      ( [∗ list] i ∈ seq 0 sz,
+        channels_waiting' γ_channels i
+      ) ∗
+      ( [∗ list] i ∈ seq 0 sz,
+        channels_sender' γ_channels i inhabitant None ∗
+        channels_receiver' γ_channels i inhabitant None
+      ).
   Proof.
     iAssert (
       [∗ list] _ ∈ seq 0 sz,
         |==>
         ∃ γ_channel,
-        ghost_pred γ_channel (DfracOwn 1) inhabitant
+        ( ∃ gen,
+          ghost_var (ghost_var_G := ws_queues_private_G_channel_generation_G) γ_channel.2 (DfracOwn (1/2)) gen ∗
+          oneshot_pending gen (DfracOwn 1) ()
+        ) ∗
+        ( ∃ gen,
+          ghost_pred γ_channel.1 (DfracOwn (3/4)) inhabitant ∗
+          ghost_pred γ_channel.1 (DfracOwn (1/4)) inhabitant ∗
+          ghost_var γ_channel.2 (DfracOwn (1/2)) gen
+        )
     )%I as "-#H".
     { iApply big_sepL_intro. iIntros "!> % % _".
-      iApply ghost_pred_alloc.
+      iMod (ghost_pred_alloc inhabitant) as "(%γ_pred & Hpred)".
+      iEval (rewrite -Qp.three_quarter_quarter) in "Hpred". iDestruct "Hpred" as "(Hpred_1 & Hpred_2)".
+      iMod (oneshot_alloc ()) as "(%gen & Hpending)".
+      iMod (ghost_var_alloc (ghost_var_G := ws_queues_private_G_channel_generation_G) gen) as "(%γ_state & Hgeneration_1 & Hgeneration_2)".
+      iExists (γ_pred, γ_state). iSteps.
     }
     iMod (big_sepL_bupd with "H") as "H".
     iDestruct (big_sepL_exists with "H") as "(%γ_channels & _ & H)".
-    iDestruct (big_sepL2_retract_r with "H") as "(_ & H)".
-    iDestruct (big_sepL_seq_index_2 with "H") as "H".
+    iDestruct (big_sepL2_sep with "H") as "(H1 & H2)".
+    iDestruct (big_sepL2_retract_r with "H1") as "(_ & H1)".
+    iDestruct (big_sepL2_retract_r with "H2") as "(_ & H2)".
+    iDestruct (big_sepL_seq_index_2 with "H1") as "H1".
     { simpl_length. }
+    iDestruct (big_sepL_seq_index_2 with "H2") as "H2".
+    { simpl_length. }
+    iExists γ_channels. iSplitL "H1".
+    1: iApply (big_sepL_impl with "H1").
+    2: iApply (big_sepL_impl with "H2").
+    all: iSteps.
+  Qed.
+  #[local] Lemma channels_sender_exclusive γ i Ψ1 state1 Ψ2 state2 :
+    channels_sender γ i Ψ1 state1 -∗
+    channels_sender γ i Ψ2 state2 -∗
+    False.
+  Proof.
+    iIntros "(:channels_sender =1) (:channels_sender =2)". simplify_eq.
+    iDestruct (ghost_pred_dfrac_ne with "Hpred_1 Hpred_2") as %?; naive_solver.
+  Qed.
+  #[local] Lemma channels_prepare {γ i Ψ1 Ψ2} Ψ :
+    channels_sender γ i Ψ1 None -∗
+    channels_receiver γ i Ψ2 None ==∗
+      channels_sender γ i Ψ None ∗
+      channels_receiver γ i Ψ None.
+  Proof.
+    iIntros "(:channels_sender =1) (:channels_receiver =2)". simplify_eq.
+    iDestruct (ghost_pred_combine inhabitant with "Hpred_1 Hpred_2") as "(_ & Hpred)". rewrite dfrac_op_own Qp.three_quarter_quarter.
+    iMod (ghost_pred_update Ψ with "Hpred") as "Hpred".
+    iEval (rewrite -Qp.three_quarter_quarter) in "Hpred". iDestruct "Hpred" as "(Hpred_1 & Hpred_2)".
     iSteps.
   Qed.
+  #[local] Lemma channels_send {γ i Ψ} o :
+    channels_waiting γ i -∗
+    channels_sender γ i Ψ None ==∗
+    channels_sender γ i Ψ (Some o).
+  Proof.
+    iIntros "(:channels_waiting =1) (:channels_sender =2)". simplify_eq.
+    iMod (oneshot_update_shot o with "Hpending_1") as "#Hshot".
+    iSteps.
+  Qed.
+  #[local] Lemma channels_receive γ i Ψ1 Ψ2 o :
+    ▷ channels_sender γ i Ψ1 (Some o) -∗
+    channels_receiver γ i Ψ2 None -∗
+      ◇ (
+        ▷ channels_sender γ i Ψ1 (Some o) ∗
+        channels_receiver γ i Ψ2 (Some o)
+      ).
+  Proof.
+    iIntros "(:channels_sender =1 > done=) (:channels_receiver =2)". simplify_eq.
+    iDestruct "Hgeneration_1" as ">Hgeneration_1".
+    iDestruct "Hshot_1" as ">Hshot_1".
+    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
+    iModIntro. iFrameSteps.
+  Qed.
+  #[local] Lemma channels_reset γ i Ψ1 o1 Ψ2 o2 E :
+    ▷ channels_sender γ i Ψ1 (Some o1) -∗
+    channels_receiver γ i Ψ2 (Some o2) ={E}=∗
+      channels_waiting γ i ∗
+      ▷ channels_sender γ i Ψ1 None ∗
+      channels_receiver γ i Ψ2 None.
+  Proof.
+    iIntros "(:channels_sender =1 > done=) (:channels_receiver =2)". simplify_eq.
+    iDestruct "Hgeneration_1" as ">Hgeneration_1".
+    iMod (oneshot_alloc ()) as "(%gen & Hpending)".
+    iDestruct (ghost_var_combine with "Hgeneration_1 Hgeneration_2") as "(_ & Hgeneration)". rewrite dfrac_op_own Qp.half_half.
+    iMod (ghost_var_update (ghost_var_G := ws_queues_private_G_channel_generation_G) gen with "Hgeneration") as "Hgeneration".
+    iDestruct "Hgeneration" as "(Hgeneration_1 & Hgeneration_2)".
+    iSteps.
+  Qed.
+  #[local] Lemma channels_waiting_receiver γ i Ψ o :
+    ▷ channels_waiting γ i -∗
+    channels_receiver γ i Ψ (Some o) -∗
+    ◇ False.
+  Proof.
+    iIntros ">(:channels_waiting =1) (:channels_receiver =2 done=)". simplify_eq.
+    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
+    iApply (oneshot_pending_shot with "Hpending_1 Hshot_2").
+  Qed.
+  #[local] Lemma channels_sender_receiver_agree γ i Ψ1 o1 Ψ2 o2 E :
+    ▷ channels_sender γ i Ψ1 (Some o1) -∗
+    channels_receiver γ i Ψ2 (Some o2) ={E}=∗
+      ▷^2 (Ψ1 o1 ≡ Ψ2 o1) ∗
+      ⌜o1 = o2⌝ ∗
+      ▷ channels_sender γ i Ψ1 (Some o1) ∗
+      channels_receiver γ i Ψ2 (Some o1).
+  Proof.
+    iIntros "(:channels_sender =1 > done=) (:channels_receiver =2 done=)". simplify_eq.
+    iDestruct "Hgeneration_1" as ">Hgeneration_1".
+    iDestruct "Hshot_1" as ">Hshot_1".
+    iDestruct (ghost_pred_agree o1 with "Hpred_1 [$Hpred_2]") as "#Heq".
+    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
+    iDestruct (oneshot_shot_agree with "Hshot_1 Hshot_2") as %<-.
+    iFrame "#∗". iSteps.
+  Qed.
 
-  Opaque channels_at'.
+  Opaque channels_waiting'.
+  Opaque channels_sender'.
+  Opaque channels_receiver'.
+
+  #[local] Lemma response_model_sender γ i response Ψ state :
+    ▷ response_model γ i response -∗
+    channels_sender γ i Ψ state -∗
+      ◇ (
+        ⌜response = ResponseWaiting⌝ ∗
+        channels_waiting γ i ∗
+        channels_sender γ i Ψ state
+      ).
+  Proof.
+    iIntros "Hresponse Hchannels_sender".
+    destruct response.
+    1: iDestruct "Hresponse" as ">Hresponse".
+    1: iModIntro; iSteps.
+    all: iDestruct "Hresponse" as "(:response_model =1)".
+    all: iDestruct (channels_sender_exclusive with "Hchannels_sender Hchannels_sender_1") as ">%".
+    all: done.
+  Qed.
+  #[local] Lemma response_model_receiver γ i response Ψ o E :
+    ▷ response_model γ i response -∗
+    channels_receiver γ i Ψ (Some o) ={E}=∗
+      ∃ Ψ_,
+      ▷^2 (Ψ_ o ≡ Ψ o) ∗
+      ⌜response = o⌝ ∗
+      ▷ channels_sender γ i Ψ_ (Some o) ∗
+      channels_receiver γ i Ψ (Some o) ∗
+      ▷ Ψ_ o.
+  Proof.
+    iIntros "Hresponse Hchannels_receiver".
+    destruct response.
+    1: iMod (channels_waiting_receiver with "Hresponse Hchannels_receiver") as %[].
+    all: iDestruct "Hresponse" as "(:response_model =1)".
+    all: iMod (channels_sender_receiver_agree with "Hchannels_sender_1 Hchannels_receiver") as "(Heq & <- & $ & $)".
+    all: iFrame "#∗"; iSteps.
+  Qed.
 
   Lemma ws_queues_private_inv_agree t ι1 sz1 ι2 sz2 :
     ws_queues_private_inv t ι1 sz1 -∗
@@ -434,7 +651,7 @@ Section ws_queues_private_G.
     iMod (pointsto_persist with "Hl_responses") as "#Hl_responses".
 
     iMod models_alloc as "(%γ_models & Hmodels_auth & Hmodels_ats)".
-    iMod channels_alloc as "(%γ_channels & Hchannels_ats)".
+    iMod channels_alloc as "(%γ_channels & Hchannels_1 & Hchannels_2)".
 
     pose γ := {|
       metadata_deques_array := deques_array ;
@@ -450,7 +667,7 @@ Section ws_queues_private_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hmodels_auth Hdeques Hmodels_ats Hchannels_ats".
+    iSplitR "Hmodels_auth Hdeques Hmodels_ats Hchannels_2".
 
     - rewrite Hdeques_length. simpl_length.
       iEval (rewrite -(fmap_replicate status_to_val _ Nonblocked)) in "Hstatuses_model".
@@ -458,12 +675,14 @@ Section ws_queues_private_G.
       iEval (rewrite -(fmap_replicate response_to_val _ ResponseWaiting)) in "Hresponses_model".
       iExists l, γ. rewrite Z2Nat.id //. iStep 14.
       iApply inv_alloc.
-      iSteps. iSplitL => /=.
+      iSteps. iSplitR => /=.
       + iApply big_sepL_intro. iIntros "!>" (i request (-> & _)%lookup_replicate) "//".
-      + iApply big_sepL_intro. iIntros "!>" (i request (-> & _)%lookup_replicate) "//".
+      + rewrite big_op.big_sepL_replicate.
+        iApply (big_sepL_impl with "Hchannels_1").
+        iSteps.
 
     - iSteps.
-      iDestruct (big_sepL_sep_2 with "Hmodels_ats Hchannels_ats") as "H".
+      iDestruct (big_sepL_sep_2 with "Hmodels_ats Hchannels_2") as "H".
       iDestruct (big_sepL_to_seq0 with "Hdeques") as "Hdeques". rewrite Hdeques_length.
       iDestruct (big_sepL_sep_2 with "Hdeques H") as "H".
       iApply (big_sepL_impl with "H").
@@ -541,9 +760,12 @@ Section ws_queues_private_G.
     iInv "Hinv" as "(:inv_inner =3)".
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseNone).
-    iIntros "Hresponses_model !>".
+    iIntros "Hresponses_model".
     iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses3. simpl_length in Hresponses3.
-    iDestruct (big_sepL_insert j ResponseNone with "Hresponses [Hchannels_at_j HΧ]") as "Hresponses"; [lia | iSteps |].
+    destruct (lookup_lt_is_Some_2 responses3 j) as (response & Hresponses3_lookup); first lia.
+    iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+    iMod (response_model_sender with "Hresponse Hchannels_sender") as "(-> & Hchannels_waiting & Hchannels_sender)".
+    iMod (channels_send with "Hchannels_waiting Hchannels_sender") as "Hchannels_sender".
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
@@ -605,9 +827,11 @@ Section ws_queues_private_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     opose proof* lookup_lt_Some; first done.
 
-    wp_rec. wp_load.
+    wp_rec.
+    iApply (wp_frame_wand with "[Hchannels_sender Hchannels_receiver HΦ]"); first iAccu.
+    wp_load.
 
-    awp_apply (array_unsafe_xchg_spec_atomic_inv with "Hrequests_inv") without "Hdeque_model Hmodels_at Hchannels_at HΦ"; first lia.
+    awp_apply (array_unsafe_xchg_spec_atomic_inv with "Hrequests_inv") without "Hdeque_model Hmodels_at"; first lia.
     iInv "Hinv" as "(:inv_inner =1)".
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestNone).
@@ -616,7 +840,7 @@ Section ws_queues_private_G.
     iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iDestruct ("Hrequests" $! RequestNone with "[//]") as "Hrequests".
     iSplitR "Hrequest". { iFrameSteps. }
-    iIntros "_ (Hdeque_model & Hmodels_at & Hchannels_at & HΦ)".
+    iIntros "_ (Hdeque_model & Hmodels_at)".
 
     destruct request as [| | j]; [iSteps.. |].
     iDestruct "Hrequest" as "(:request_model)".
@@ -631,31 +855,33 @@ Section ws_queues_private_G.
     )%I) as "%res ->".
     { destruct vs; iSteps. }
 
-    iAssert (
-      |={⊤}=>
-      models_at γ i_ (tail vs) ∗
-      response_model γ j (head vs)
-    )%I with "[Hmodels_at Hchannels_at_j HΧ]" as ">(Hmodels_at & Hresponse)".
-    { iMod "HΧ" as "(%vss & Hmodels_auth & _ & HΧ)".
-      iDestruct (models_lookup with "Hmodels_auth Hmodels_at") as %Hvss_lookup.
-      iSpecialize ("HΧ" $! (head vs)).
-      destruct vs as [| v vs].
-      - iMod ("HΧ" with "Hmodels_auth") as "HΧ".
-        iSteps.
-      - iMod (models_update vs with "Hmodels_auth Hmodels_at") as "(Hmodels_auth & Hmodels_at)".
-        iMod ("HΧ" with "[$Hmodels_auth //]") as "HΧ".
-        iSteps.
-    }
-
     wp_load.
-    awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "Hdeque_model Hmodels_at Hchannels_at HΦ"; first lia.
+
+    awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "Hdeque_model"; first lia.
     iInv "Hinv" as "(:inv_inner =2)".
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id -list_fmap_insert.
-    iIntros "Hresponses_model !>".
+    iIntros "Hresponses_model".
     iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses2. simpl_length in Hresponses2.
-    iDestruct (big_sepL_insert j with "Hresponses [$Hresponse]") as "Hresponses"; first lia.
-    iSplitL. { iFrameSteps. }
+    destruct (lookup_lt_is_Some_2 responses2 j) as (response & Hresponses2_lookup); first lia.
+    iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+    iMod (response_model_sender with "Hresponse Hchannels_sender") as "(-> & Hchannels_waiting & Hchannels_sender)".
+    iMod (channels_send (head vs) with "Hchannels_waiting Hchannels_sender") as "Hchannels_sender".
+
+    iAssert (
+      |={_}=>
+      models_at γ i_ (tail vs) ∗
+      response_model γ j (head vs)
+    )%I with "[Hmodels_at Hchannels_sender HΧ]" as ">(Hmodels_at & Hresponse)".
+    { iMod "HΧ" as "(%vss & Hmodels_auth & _ & HΧ)".
+      iDestruct (models_lookup with "Hmodels_auth Hmodels_at") as %Hvss_lookup.
+      destruct vs as [| v vs]; first iSteps.
+      iMod (models_update vs with "Hmodels_auth Hmodels_at") as "(Hmodels_auth & Hmodels_at)".
+      iMod ("HΧ" $! (Some v) with "[$Hmodels_auth //]") as "HΧ".
+      iSteps.
+    }
+
+    iSplitR "Hmodels_at". { iFrameSteps. }
     iSteps. iPureIntro. apply suffix_tail. done.
   Qed.
 
@@ -751,6 +977,103 @@ Section ws_queues_private_G.
       iApply ("HΦ" with "Howner").
   Qed.
 
+  #[local] Lemma ws_queues_private_steal_to_0_spec l γ i i_ Ψ :
+    i = ⁺i_ →
+    i_ < γ.(metadata_size) →
+    {{{
+      meta l nroot γ ∗
+      l.[responses] ↦□ γ.(metadata_responses_array) ∗
+      array_inv γ.(metadata_responses_array) γ.(metadata_size) ∗
+      inv γ.(metadata_inv) (inv_inner γ) ∗
+      channels_receiver γ i_ Ψ None
+    }}}
+      ws_queues_private_steal_to_0 #l #i
+    {{{ o Ψ_sender Ψ_receiver,
+      RET o : val;
+      channels_sender γ i_ Ψ_sender None ∗
+      channels_receiver γ i_ Ψ_receiver None ∗
+      Ψ o
+    }}}.
+  Proof.
+    iIntros (-> Hi) "%Φ (#Hmeta & #Hl_responses & #Hresponses_inv & #Hinv & Hchannels_receiver) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec. wp_load.
+
+    awp_apply (array_unsafe_get_spec_atomic with "[//]") without "HΦ"; first lia.
+    iInv "Hinv" as "(:inv_inner =1)".
+    iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses1. simpl_length in Hresponses1.
+    destruct (lookup_lt_is_Some_2 responses1 i_) as (response & Hresponses1_lookup); first lia.
+    rewrite /atomic_acc /=.
+    iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
+    repeat iExists _. iSplitL "Hresponses_model".
+    { iFrame. rewrite Nat2Z.id list_lookup_fmap_Some. iSteps. }
+    iSplit; first iSteps. iIntros "Hresponses_model". iMod "Hclose" as "_".
+    destruct response as [| | v].
+
+    - iSplitR "Hchannels_receiver". { iFrameSteps. }
+      iIntros "!> _ HΦ".
+
+      wp_smart_apply domain_yield_spec.
+      wp_smart_apply ("HLöb" with "Hchannels_receiver HΦ").
+
+    - iDestruct (big_sepL_lookup_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+      iDestruct "Hresponse" as "(:response_model =1)".
+      iMod (channels_receive with "Hchannels_sender_1 Hchannels_receiver") as "(Hchannels_sender & Hchannels_receiver)".
+      iSplitR "Hchannels_receiver". { iFrameSteps. }
+      iIntros "!> _ HΦ".
+
+      wp_load.
+
+      awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "HΦ"; first lia.
+      iInv "Hinv" as "(:inv_inner =2)".
+      iAaccIntro with "Hresponses_model"; first iSteps.
+      rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseWaiting).
+      iIntros "Hresponses_model".
+      iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses2. simpl_length in Hresponses2.
+      destruct (lookup_lt_is_Some_2 responses2 i_) as (response & Hresponses2_lookup); first lia.
+      iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+      iMod (response_model_receiver with "Hresponse Hchannels_receiver") as "(%Ψ_ & Heq & -> & Hchannels_sender & Hchannels_receiver & HΨ)".
+      iMod (channels_reset with "Hchannels_sender Hchannels_receiver") as "(Hchannels_waiting & Hchannels_sender & Hchannels_receiver)".
+      iDestruct ("Hresponses" $! ResponseWaiting with "[$Hchannels_waiting]") as "Hresponses".
+      iSplitR "Hchannels_sender Hchannels_receiver Heq HΨ". { iFrameSteps. }
+      iIntros "!> H£ HΦ".
+
+      wp_pures.
+      iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+      iRewrite "Heq" in "HΨ".
+      iApply ("HΦ" $! None).
+      iSteps.
+
+    - iDestruct (big_sepL_lookup_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+      iDestruct "Hresponse" as "(:response_model =1)".
+      iMod (channels_receive with "Hchannels_sender_1 Hchannels_receiver") as "(Hchannels_sender & Hchannels_receiver)".
+      iSplitR "Hchannels_receiver". { iFrameSteps. }
+      iIntros "!> _ HΦ".
+
+      wp_load.
+
+      awp_apply (array_unsafe_set_spec_atomic_inv with "Hresponses_inv") without "HΦ"; first lia.
+      iInv "Hinv" as "(:inv_inner =2)".
+      iAaccIntro with "Hresponses_model"; first iSteps.
+      rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseWaiting).
+      iIntros "Hresponses_model".
+      iDestruct (array_inv_model_agree with "Hresponses_inv Hresponses_model") as %Hresponses2. simpl_length in Hresponses2.
+      destruct (lookup_lt_is_Some_2 responses2 i_) as (response & Hresponses2_lookup); first lia.
+      iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
+      iMod (response_model_receiver with "Hresponse Hchannels_receiver") as "(%Ψ_ & Heq & -> & Hchannels_sender & Hchannels_receiver & HΨ)".
+      iMod (channels_reset with "Hchannels_sender Hchannels_receiver") as "(Hchannels_waiting & Hchannels_sender & Hchannels_receiver)".
+      iDestruct ("Hresponses" $! ResponseWaiting with "[$Hchannels_waiting]") as "Hresponses".
+      iSplitR "Hchannels_sender Hchannels_receiver Heq HΨ". { iFrameSteps. }
+      iIntros "!> H£ HΦ".
+
+      wp_pures.
+      iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
+      iRewrite "Heq" in "HΨ".
+      iApply ("HΦ" $! (Some v)).
+      iSteps.
+  Qed.
   Lemma ws_queues_private_steal_to_spec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
@@ -775,7 +1098,70 @@ Section ws_queues_private_G.
       ws_queues_private_owner t i_ Blocked ws
     >>>.
   Proof.
-  Admitted.
+    iIntros (-> Hj) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    opose proof* lookup_lt_Some; first done.
+
+    wp_rec.
+    iApply (wp_frame_wand with "[Hdeque_model Hmodels_at]"); first iAccu.
+    wp_load.
+
+    awp_apply (array_unsafe_get_spec_atomic with "[//]") without "Hchannels_sender Hchannels_receiver HΦ"; first lia.
+    iInv "Hinv" as "(:inv_inner =1)".
+    iDestruct (array_inv_model_agree with "Hstatuses_inv Hstatuses_model") as %Hstatuses1. simpl_length in Hstatuses1.
+    destruct (lookup_lt_is_Some_2 statuses1 ₊j) as (status & Hstatuses1_lookup); first lia.
+    rewrite /atomic_acc /=.
+    iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
+    repeat iExists _. iSplitL "Hstatuses_model".
+    { iFrame. rewrite list_lookup_fmap_Some. iSteps. }
+    iSplit; first iSteps. iIntros "Hstatuses_model". iMod "Hclose" as "_". iIntros "!>".
+    iSplitL. { iFrameSteps. }
+    iIntros "_ (Hchannels_sender & Hchannels_receiver & HΦ)".
+
+    destruct status; wp_pures.
+
+    - iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iMod ("HΦ" $! None with "[Hmodels_auth]") as "HΦ"; first iSteps.
+
+      iSteps.
+
+    - wp_load.
+
+      awp_apply (array_unsafe_cas_spec_atomic_inv with "Hrequests_inv"); first lia.
+      iInv "Hinv" as "(:inv_inner =2)".
+      iAaccIntro with "Hrequests_model"; first iSteps.
+      rewrite -(list_fmap_insert _ _ _ (RequestSome _)).
+      iIntros "%b % (%Hrequests2_lookup & %Hcas & Hrequests_model)".
+      apply list_lookup_fmap_Some in Hrequests2_lookup as (request & Hrequests2_lookup & ->).
+      destruct b.
+
+      + iMod (channels_prepare (λ o, ws_queues_private_owner #l i_ Blocked ws -∗ Φ o)%I with "Hchannels_sender Hchannels_receiver") as "(Hchannels_sender & Hchannels_receiver)".
+        iDestruct (big_sepL_insert ₊j (RequestSome i_) with "Hrequests [Hchannels_sender HΦ]") as "Hrequests".
+        { eapply lookup_lt_Some. done. }
+        { iSteps.
+          rewrite /request_au. iAuIntro.
+          iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+          iAaccIntro with "Hmodels_auth"; first iSteps. iIntros (o) "Hmodels_auth".
+          iExists o. iRevert "Hmodels_auth".
+          destruct o; iSteps.
+        }
+        iSplitR "Hchannels_receiver". { iFrameSteps. }
+        iIntros "!> _".
+
+        wp_smart_apply (ws_queues_private_steal_to_0_spec with "[$Hmeta $Hl_responses $Hresponses_inv $Hinv $Hchannels_receiver]"); [lia.. |].
+        iSteps.
+
+      + iSplitR "Hchannels_sender Hchannels_receiver HΦ". { iFrameSteps. }
+        iIntros "!> _".
+
+        iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iMod ("HΦ" $! None with "[Hmodels_auth]") as "HΦ"; first iSteps.
+
+        iSteps.
+  Qed.
 End ws_queues_private_G.
 
 #[global] Opaque ws_queues_private_inv.
