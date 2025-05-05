@@ -224,6 +224,13 @@ Section wise_prophets_G.
     iDestruct (wise_strong_prophet_full_get with "Hmodel") as "$".
     rewrite Hpasts Hprophss untangle_app //.
   Qed.
+  Lemma wise_strong_prophets_full_get' {pid γ pasts prophss} i :
+    wise_strong_prophets_model pid γ pasts prophss ⊢
+      ∃ prophs,
+      wise_strong_prophets_full γ i prophs.
+  Proof.
+    rewrite wise_strong_prophets_full_get. iSteps.
+  Qed.
   Lemma wise_strong_prophets_full_valid pid γ pasts prophss i prophs :
     wise_strong_prophets_model pid γ pasts prophss -∗
     wise_strong_prophets_full γ i prophs -∗
@@ -455,6 +462,13 @@ Section wise_prophets_G.
     iIntros "(:model)".
     iDestruct (wise_strong_prophets_full_get with "Hmodel") as "$".
     rewrite Hpasts Hprophss fmap_app //.
+  Qed.
+  Lemma wise_prophets_full_get' {pid γ pasts prophss} i :
+    wise_prophets_model pid γ pasts prophss ⊢
+      ∃ prophs,
+      wise_prophets_full γ i prophs.
+  Proof.
+    rewrite wise_prophets_full_get. iSteps.
   Qed.
   Lemma wise_prophets_full_valid pid γ pasts prophss i prophs :
     wise_prophets_model pid γ pasts prophss -∗
