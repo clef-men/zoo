@@ -23,6 +23,46 @@ Section basic.
   Proof.
     rewrite !map_Forall_lookup. auto.
   Qed.
+
+  Lemma map_Forall_insert_2' {P m} k x :
+    P k x →
+    map_Forall P (delete k m) →
+    map_Forall P (<[k := x]> m).
+  Proof.
+    rewrite -insert_delete_insert.
+    apply map_Forall_insert_2.
+  Qed.
+
+  Lemma map_Forall_delete_lookup P m k :
+    map_Forall P (delete k m) ↔
+      ∀ k' x,
+      k ≠ k' →
+      m !! k' = Some x →
+      P k' x.
+  Proof.
+    rewrite map_Forall_lookup.
+    setoid_rewrite lookup_delete_Some.
+    naive_solver.
+  Qed.
+  Lemma map_Forall_delete_lookup_1 {P m k} k' x :
+    map_Forall P (delete k m) →
+    k ≠ k' →
+    m !! k' = Some x →
+    P k' x.
+  Proof.
+    rewrite map_Forall_delete_lookup.
+    naive_solver.
+  Qed.
+  Lemma map_Forall_delete_lookup_2 P m k :
+    ( ∀ k' x,
+      k ≠ k' →
+      m !! k' = Some x →
+      P k' x
+    ) →
+    map_Forall P (delete k m).
+  Proof.
+    rewrite map_Forall_delete_lookup //.
+  Qed.
 End basic.
 
 Section kmap.
