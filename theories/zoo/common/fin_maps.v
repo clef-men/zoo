@@ -6,7 +6,7 @@ From zoo Require Import
 From zoo Require Import
   options.
 
-Section basic.
+Section map_Forall.
   Context `{FinMap K M}.
   Context {A : Type}.
 
@@ -63,7 +63,7 @@ Section basic.
   Proof.
     rewrite map_Forall_delete_lookup //.
   Qed.
-End basic.
+End map_Forall.
 
 Section kmap.
   Context `{FinMap K1 M1} `{FinMap K2 M2}.
