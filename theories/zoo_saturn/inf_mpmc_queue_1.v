@@ -576,8 +576,8 @@ Section inf_mpmc_queue_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
     iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb1".
-    iSplitR "HΦ"; first iSteps.
-    iModIntro. clear.
+    iSplitR "HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
 
     wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
     wp_pures.
@@ -594,38 +594,38 @@ Section inf_mpmc_queue_1_G.
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
 
-        iSplitR "Hproph HΦ"; first iSteps.
+        iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro. clear- Hhist2.
 
         wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
-        iSplitR "HΦ"; first iSteps.
+        iSplitR "HΦ". { iFrameSteps. }
 
         iSteps.
-        iApply int_positive_part_spec .
+        wp_apply int_positive_part_spec.
         rewrite length_drop Hhist2 Z2Nat.inj_sub; first lia.
         rewrite !Nat2Z.id //.
 
       + iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb1") as %?.
         iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb2".
-        iSplitR "Hproph HΦ"; first iSteps.
+        iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro.
 
         wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
         iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb2") as %?.
-        iSplitR "HΦ"; first iSteps.
+        iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
-    - iSplitR "Hproph HΦ"; first iSteps.
+    - iSplitR "Hproph HΦ". { iFrameSteps. }
       iModIntro. clear- Hproph.
 
       wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
       iInv "Hinv" as "(:inv_inner =3)".
       wp_load.
-      iSplitR "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
 
@@ -765,7 +765,7 @@ Section inf_mpmc_queue_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     iAaccIntro with "Hdata_model"; first auto with iFrame. iIntros "Hdata_model".
     iAssert (▷ slot_model γ front (slots1 front))%I with "[Hslots]" as "#>Hslot"; first iSteps.
-    iSplitL; first iSteps.
+    iSplitL. { iFrameSteps. }
     iIntros "!> _ (Htokens_pending & H£ & HΦ) {%}".
 
     rewrite Nat2Z.id /=. destruct (slots1 front) as [| | v].

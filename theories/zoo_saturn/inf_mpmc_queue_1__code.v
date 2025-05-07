@@ -22,10 +22,10 @@ Definition inf_mpmc_queue_1_size : val :=
     let: "front" := "t".{front} in
     let: "proph" := Proph in
     let: "back" := "t".{back} in
-    if: Resolve "t".{front} "proph" () != "front" then (
-      "size" "t"
-    ) else (
+    if: Resolve "t".{front} "proph" () == "front" then (
       int_positive_part ("back" - "front")
+    ) else (
+      "size" "t"
     ).
 
 Definition inf_mpmc_queue_1_is_empty : val :=
