@@ -759,6 +759,54 @@ Section slice.
   Qed.
 End slice.
 
+Section omap.
+  Lemma length_omap `(f : A → option B) l :
+    length (omap f l) ≤ length l.
+  Proof.
+    induction l as [| x l IH] => //=.
+    destruct (f x) => /=.
+    - rewrite -Nat.succ_le_mono //.
+    - apply Nat.le_le_succ_r. done.
+  Qed.
+End omap.
+
+Section oflatten.
+  Context {A : Type}.
+
+  Implicit Types l : list (option A).
+
+  Definition oflatten l :=
+    omap id l.
+
+  Lemma length_oflatten l :
+    length (oflatten l) ≤ length l.
+  Proof.
+    apply length_omap.
+  Qed.
+
+  Lemma oflatten_app l1 l2 :
+    oflatten (l1 ++ l2) = oflatten l1 ++ oflatten l2.
+  Proof.
+    apply omap_app.
+  Qed.
+
+  Lemma oflatten_snoc l o :
+    oflatten (l ++ [o]) = oflatten l ++ from_option (λ x, [x]) [] o.
+  Proof.
+    rewrite oflatten_app //.
+  Qed.
+  Lemma oflatten_snoc_None l :
+    oflatten (l ++ [None]) = oflatten l.
+  Proof.
+    rewrite oflatten_snoc /= right_id //.
+  Qed.
+  Lemma oflatten_snoc_Some l x :
+    oflatten (l ++ [Some x]) = oflatten l ++ [x].
+  Proof.
+    rewrite oflatten_snoc //.
+  Qed.
+End oflatten.
+
 Create HintDb simpl_length.
 Hint Rewrite
   @length_reverse
@@ -771,6 +819,8 @@ Hint Rewrite
   @length_seq
   @length_zip_with
   @length_zip3_with
+  @length_omap
+  @length_oflatten
 : simpl_length.
 
 Tactic Notation "simpl_length" :=
