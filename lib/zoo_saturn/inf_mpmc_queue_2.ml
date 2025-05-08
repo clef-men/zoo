@@ -16,10 +16,10 @@ let rec size t =
   let front = t.front in
   let proph = Zoo.proph () in
   let back = t.back in
-  if Zoo.resolve t.front proph () != front then
-    size t
-  else
+  if Zoo.resolve t.front proph () == front then
     Int.positive_part (back - front)
+  else
+    size t
 
 let is_empty t =
   size t == 0
