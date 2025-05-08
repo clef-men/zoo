@@ -1,7 +1,11 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable.
+  countable
+  list
+  relations.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.iris.base_logic Require Import
   lib.auth_nat_max
   lib.twins
@@ -18,7 +22,8 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   optional
-  inf_array.
+  inf_array
+  int.
 From zoo_saturn Require Export
   base
   inf_mpmc_queue_2__code.
@@ -27,14 +32,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Section oflatten.
-  Definition oflatten `(l : list $ option A) :=
-    omap id l.
-End oflatten.
-
+Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types front back : nat.
 Implicit Types v t : val.
+Implicit Types o : option val.
 Implicit Types vs : list val.
 Implicit Types hist : list (option val).
 Implicit Types slot : optional val.
@@ -93,15 +95,47 @@ Inductive lstate :=
 Implicit Types lstate : lstate.
 Implicit Types lstates : list lstate.
 
+#[local] Definition lstate_winner lstate :=
+  match lstate with
+  | Producer =>
+      Producer
+  | ProducerProducer =>
+      Producer
+  | ProducerConsumer =>
+      Consumer
+  | Consumer =>
+      Consumer
+  | ConsumerProducer η =>
+      Producer
+  | ConsumerConsumer =>
+      Consumer
+  end.
+
 Inductive lstep : lstate → lstate → Prop :=
   | lstep_producer_producer :
       lstep Producer ProducerProducer
   | lstep_producer_consumer :
-      lstep Producer ProducerConsumer
+      lstep Consumer ProducerConsumer
   | lstep_consumer_producer η :
-      lstep Consumer (ConsumerProducer η)
+      lstep Producer (ConsumerProducer η)
   | lstep_consumer_consumer :
       lstep Consumer ConsumerConsumer.
+
+#[local] Lemma lstep_winner lstate1 lstate2 :
+  lstep lstate1 lstate2 →
+  lstate_winner lstate1 = lstate_winner lstate2.
+Proof.
+  intros Hlstep. invert Hlstep; done.
+Qed.
+#[local] Lemma lsteps_winner lstate1 lstate2 :
+  rtc lstep lstate1 lstate2 →
+  lstate_winner lstate1 = lstate_winner lstate2.
+Proof.
+  intros.
+  apply preorder_rtc; [apply _.. |].
+  eapply (rtc_congruence lstate_winner); last done.
+  apply lstep_winner.
+Qed.
 
 Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
@@ -141,7 +175,7 @@ Qed.
 
 Inductive ownership :=
   | Own
-  | Discarded.
+  | Discard.
 
 Section inf_mpmc_queue_2_G.
   Context `{inf_mpmc_queue_2_G : InfMpmcQueue2G Σ}.
@@ -151,7 +185,7 @@ Section inf_mpmc_queue_2_G.
   Record metadata := {
     metadata_data : val ;
     metadata_inv : namespace ;
-    metadata_prophet : gname ;
+    metadata_prophet : prophet_id ;
     metadata_prophet_name : wise_prophets_name ;
     metadata_front : gname ;
     metadata_model : gname ;
@@ -200,10 +234,22 @@ Section inf_mpmc_queue_2_G.
       auth_mono_auth _ η (DfracOwn 1) lstate.
   #[local] Definition lstates_auth γ :=
     lstates_auth' γ.(metadata_lstates).
+  #[local] Instance : CustomIpatFormat "lstates_auth" :=
+    "(
+      %ηs &
+      Hauth &
+      Hηs
+    )".
   #[local] Definition lstates_lb γ i lstate : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_lstates) i η ∗
     auth_mono_lb _ η lstate.
+  #[local] Instance : CustomIpatFormat "lstates_lb" :=
+    "(
+      %η{} &
+      #Hat{_{}} &
+      #Hη_lb{_{}}
+    )".
 
   #[local] Definition producers_auth' γ_producers i : iProp Σ :=
     ∃ ηs,
@@ -211,15 +257,27 @@ Section inf_mpmc_queue_2_G.
     ⌜length ηs = i⌝.
   #[local] Definition producers_auth γ :=
     producers_auth' γ.(metadata_producers).
+  #[local] Instance : CustomIpatFormat "producers_auth" :=
+    "(
+      %ηs &
+      Hauth &
+      %Hηs
+    )".
   #[local] Definition producers_at γ i own : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_producers) i η ∗
     match own with
     | Own =>
         oneshot_pending η (DfracOwn 1) ()
-    | Discarded =>
+    | Discard =>
         oneshot_shot η ()
     end.
+  #[local] Instance : CustomIpatFormat "producers_at" :=
+    "(
+      %η{} &
+      Hat{_{}} &
+      Hη{}
+    )".
 
   #[local] Definition consumers_auth' γ_consumers i : iProp Σ :=
     ∃ ηs,
@@ -227,15 +285,37 @@ Section inf_mpmc_queue_2_G.
     ⌜length ηs = i⌝.
   #[local] Definition consumers_auth γ :=
     consumers_auth' γ.(metadata_consumers).
+  #[local] Instance : CustomIpatFormat "consumers_auth" :=
+    "(
+      %ηs{} &
+      Hauth{} &
+      %Hηs{}
+    )".
   #[local] Definition consumers_at γ i own : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_consumers) i η ∗
     match own with
     | Own =>
         oneshot_pending η (DfracOwn 1) ()
-    | Discarded =>
+    | Discard =>
         oneshot_shot η ()
     end.
+  #[local] Instance : CustomIpatFormat "consumers_at" :=
+    "(
+      %η{} &
+      Hat{_{}} &
+      Hη{}
+    )".
+  #[local] Definition consumers_lb γ i : iProp Σ :=
+    ∃ ηs,
+    mono_list_lb γ.(metadata_consumers) ηs ∗
+    ⌜length ηs = i⌝.
+  #[local] Instance : CustomIpatFormat "consumers_lb" :=
+    "(
+      %ηs{} &
+      Hlb{} &
+      %Hηs{}
+    )".
 
   #[local] Definition winner γ i : iProp Σ :=
     ∃ id prophs,
@@ -256,10 +336,10 @@ Section inf_mpmc_queue_2_G.
     }>.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
-    ∃ slots front back vs hist lstates pasts prophss,
-    inf_array_model γ.(metadata_data) slots ∗
+    ∃ front back hist slots vs lstates pasts prophss,
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
+    inf_array_model γ.(metadata_data) slots ∗
     front_auth γ front ∗
     model₂ γ vs ∗
     ⌜vs = oflatten (drop front hist)⌝ ∗
@@ -281,7 +361,7 @@ Section inf_mpmc_queue_2_G.
           front_lb γ i ∗
           saved_pred η Ψ ∗
           history_at γ i v ∗
-          Ψ v ∨ consumers_at γ i Discarded
+          Ψ v ∨ consumers_at γ i Discard
       | ConsumerConsumer =>
           front_lb γ i
       | _ =>
@@ -307,26 +387,83 @@ Section inf_mpmc_queue_2_G.
       | Something v =>
           history_at γ i v ∗
           lstates_lb γ i Producer ∗
-          producers_at γ i Discarded
+          producers_at γ i Discard
       | Anything =>
           lstates_lb γ i Consumer ∗
-          consumers_at γ i Discarded
+          consumers_at γ i Discard
       end
     ).
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %front{} &
+      %back{} &
+      %hist{} &
+      %slots{} &
+      %vs{} &
+      %lstates{} &
+      %pasts{} &
+      %prophss{} &
+      Hl_front &
+      Hl_back &
+      Hdata_model &
+      Hfront_auth &
+      Hmodel₂ &
+      >%Hvs{} &
+      Hhistory_auth &
+      >%Hhist{} &
+      Hlstates_auth &
+      >%Hlstates{} &
+      >Hprophet_model &
+      Hproducers_auth &
+      Hconsumers_auth &
+      Hlstates_1 &
+      Hlstates_2 &
+      Hslots
+    )".
   Definition inf_mpmc_queue_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
+    l.[proph] ↦□ #γ.(metadata_prophet) ∗
     inf_array_inv γ.(metadata_data) ∗
     inv ι (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      #Hl_data &
+      #Hl_proph &
+      #Hdata_inv &
+      #Hinv
+    )".
 
   Definition inf_mpmc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l_ &
+      %γ_ &
+      %Heq &
+      Hmeta_ &
+      Hmodel₁
+    )".
 
+  #[local] Instance lstates_lb_persistent γ i lstate :
+    Persistent (lstates_lb γ i lstate).
+  Proof.
+    apply _.
+  Qed.
+  #[local] Instance consumers_lb_persistent γ i :
+    Persistent (consumers_lb γ i).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance inf_mpmc_queue_2_model_timeless t vs :
     Timeless (inf_mpmc_queue_2_model t vs).
   Proof.
@@ -338,12 +475,226 @@ Section inf_mpmc_queue_2_G.
     apply _.
   Qed.
 
+  #[local] Lemma front_alloc :
+    ⊢ |==>
+      ∃ γ_front,
+      front_auth' γ_front 0.
+  Proof.
+    apply auth_nat_max_alloc.
+  Qed.
+  #[local] Lemma front_lb_get γ i :
+    front_auth γ i ⊢
+    front_lb γ i.
+  Proof.
+    apply auth_nat_max_lb_get.
+  Qed.
+  #[local] Lemma front_lb_valid γ i1 i2 :
+    front_auth γ i1 -∗
+    front_lb γ i2 -∗
+    ⌜i2 ≤ i1⌝.
+  Proof.
+    apply auth_nat_max_lb_valid.
+  Qed.
+  #[local] Lemma front_update {γ i} i' :
+    i ≤ i' →
+    front_auth γ i ⊢ |==>
+    front_auth γ i'.
+  Proof.
+    apply auth_nat_max_update.
+  Qed.
+
+  #[local] Lemma model_alloc :
+    ⊢ |==>
+      ∃ γ_model,
+      model₁' γ_model [] ∗
+      model₂' γ_model [].
+  Proof.
+    apply twins_alloc'.
+  Qed.
+  #[local] Lemma model_agree γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply: twins_agree_L.
+  Qed.
+  #[local] Lemma model_update {γ vs1 vs2} vs :
+    model₁ γ vs1 -∗
+    model₂ γ vs2 ==∗
+      model₁ γ vs ∗
+      model₂ γ vs.
+  Proof.
+    apply twins_update'.
+  Qed.
+
+  #[local] Lemma history_alloc :
+    ⊢ |==>
+      ∃ γ_history,
+      history_auth' γ_history [].
+  Proof.
+    apply mono_list_alloc.
+  Qed.
+  #[local] Lemma history_at_valid γ hist i v :
+    history_auth γ hist -∗
+    history_at γ i v -∗
+    ⌜hist !! i = Some (Some v)⌝.
+  Proof.
+    apply mono_list_at_valid.
+  Qed.
+  #[local] Lemma history_at_agree γ i v1 v2 :
+    history_at γ i v1 -∗
+    history_at γ i v2 -∗
+    ⌜v1 = v2⌝.
+  Proof.
+    iIntros "Hat1 Hat2".
+    iDestruct (mono_list_at_agree with "Hat1 Hat2") as %[= <-]. done.
+  Qed.
+  #[local] Lemma history_at_get {γ hist} i v :
+    hist !! i = Some (Some v) →
+    history_auth γ hist ⊢
+    history_at γ i v.
+  Proof.
+    apply mono_list_at_get.
+  Qed.
+  #[local] Lemma history_update {γ hist} o :
+    history_auth γ hist ⊢ |==>
+      history_auth γ (hist ++ [o]) ∗
+      if o is Some v then
+        history_at γ (length hist) v
+      else
+        True.
+  Proof.
+    iIntros "Hhistory_auth".
+    iMod (mono_list_update_snoc o with "Hhistory_auth") as "Hhistory_auth".
+    iDestruct (mono_list_at_get with "Hhistory_auth") as "#Hhistory_at".
+    { rewrite list_lookup_middle //. }
+    destruct o; iSteps.
+  Qed.
+
+  #[local] Lemma lstates_alloc :
+    ⊢ |==>
+      ∃ γ_lstates,
+      lstates_auth' γ_lstates [].
+  Proof.
+    iMod (mono_list_alloc []) as "(%γ_lstates & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma lstates_lb_agree γ i lstate1 lstate2 :
+    lstates_lb γ i lstate1 -∗
+    lstates_lb γ i lstate2 -∗
+    ⌜lstate_winner lstate1 = lstate_winner lstate2⌝.
+  Proof.
+    iIntros "(:lstates_lb =1) (:lstates_lb =2)".
+    iDestruct (mono_list_at_agree with "Hat_1 Hat_2") as %<-.
+    iDestruct (auth_mono_lb_agree with "Hη_lb_1 Hη_lb_2") as %(lstate & ->%lsteps_winner & ->%lsteps_winner).
+    iSteps.
+  Qed.
+  #[local] Lemma lstates_update {γ lstates} lstate :
+    lstates_auth γ lstates ⊢ |==>
+      lstates_auth γ (lstates ++ [lstate]) ∗
+      lstates_lb γ (length lstates) (lstate_winner lstate).
+  Proof.
+    iIntros "(:lstates_auth)".
+    iMod (auth_mono_alloc _ lstate) as "(%η & Hη_auth)".
+    iMod (mono_list_update_snoc η with "Hauth") as "Hauth".
+    iDestruct (mono_list_at_get with "Hauth") as "#Hat".
+    { apply list_lookup_middle. done. }
+    iDestruct (auth_mono_lb_get with "Hη_auth") as "#-#Hη_lb".
+    iDestruct (auth_mono_lb_mono _ (lstate_winner lstate) with "Hη_lb") as "Hη_lb".
+    { destruct lstate; eauto using rtc, lstep. }
+    iDestruct (big_sepL2_length with "Hηs") as %->.
+    iDestruct (big_sepL2_snoc_2 with "Hηs Hη_auth") as "Hηs".
+    iSteps.
+  Qed.
+
+  #[local] Lemma producers_alloc :
+    ⊢ |==>
+      ∃ γ_producers,
+      producers_auth' γ_producers 0.
+  Proof.
+    iMod (mono_list_alloc []) as "(%γ_producers & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma producers_at_exclusive γ i own :
+    producers_at γ i Own -∗
+    producers_at γ i own -∗
+    False.
+  Proof.
+    iIntros "(:producers_at =1) (:producers_at =2)".
+    iDestruct (mono_list_at_agree with "Hat_1 Hat_2") as %<-.
+    destruct own.
+    - iApply (oneshot_pending_exclusive with "Hη1 Hη2").
+    - iApply (oneshot_pending_shot with "Hη1 Hη2").
+  Qed.
+  #[local] Lemma producers_update γ i :
+    producers_auth γ i ⊢ |==>
+      producers_auth γ (S i) ∗
+      producers_at γ i Own.
+  Proof.
+    iIntros "(:producers_auth)".
+    iMod oneshot_alloc as "(%η & Hη_pending)".
+    iMod (mono_list_update_snoc η with "Hauth") as "Hauth".
+    iDestruct (mono_list_at_get with "Hauth") as "#Hat".
+    { apply list_lookup_middle. done. }
+    iSteps. simpl_length/=. iSteps.
+  Qed.
+
+  #[local] Lemma consumers_alloc :
+    ⊢ |==>
+      ∃ γ_consumers,
+      consumers_auth' γ_consumers 0.
+  Proof.
+    iMod (mono_list_alloc []) as "(%γ_consumers & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma consumers_at_exclusive γ i own :
+    consumers_at γ i Own -∗
+    consumers_at γ i own -∗
+    False.
+  Proof.
+    iIntros "(:consumers_at =1) (:consumers_at =2)".
+    iDestruct (mono_list_at_agree with "Hat_1 Hat_2") as %<-.
+    destruct own.
+    - iApply (oneshot_pending_exclusive with "Hη1 Hη2").
+    - iApply (oneshot_pending_shot with "Hη1 Hη2").
+  Qed.
+  #[local] Lemma consumers_lb_valid γ i j :
+    consumers_auth γ i -∗
+    consumers_lb γ j -∗
+    ⌜j ≤ i⌝.
+  Proof.
+    iIntros "(:consumers_auth =1) (:consumers_lb =2)".
+    iDestruct (mono_list_lb_valid with "Hauth1 Hlb2") as %?%prefix_length.
+    iSteps.
+  Qed.
+  #[local] Lemma consumers_update γ i :
+    consumers_auth γ i ⊢ |==>
+      consumers_auth γ (S i) ∗
+      consumers_at γ i Own.
+  Proof.
+    iIntros "(:consumers_auth)".
+    iMod oneshot_alloc as "(%η & Hη_pending)".
+    iMod (mono_list_update_snoc η with "Hauth") as "Hauth".
+    iDestruct (mono_list_at_get with "Hauth") as "#Hat".
+    { apply list_lookup_middle. done. }
+    iSteps. simpl_length/=. iSteps.
+  Qed.
+  #[local] Lemma consumers_lb_get γ i :
+    consumers_auth γ i ⊢
+    consumers_lb γ i.
+  Proof.
+    iIntros "(:consumers_auth)".
+    iDestruct (mono_list_lb_get with "Hauth") as "Hlb".
+    iSteps.
+  Qed.
+
   Opaque lstates_auth'.
   Opaque lstates_lb.
   Opaque producers_auth'.
   Opaque producers_at.
   Opaque consumers_auth'.
   Opaque consumers_at.
+  Opaque consumers_lb.
 
   Lemma inf_mpmc_queue_2_create_spec ι :
     {{{
@@ -356,7 +707,40 @@ Section inf_mpmc_queue_2_G.
       inf_mpmc_queue_2_model t []
     }}}.
   Proof.
-  Admitted.
+    iIntros "%Φ _ HΦ".
+
+    wp_rec.
+    wp_apply (wise_prophets_wp_proph global_prophet with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
+    wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
+    wp_block l as "Hmeta" "(Hl_data & Hl_front & Hl_back & Hl_proph & _)".
+    iMod (pointsto_persist with "Hl_data") as "#Hl_data".
+    iMod (pointsto_persist with "Hl_proph") as "#Hl_proph".
+
+    iMod front_alloc as "(%γ_front & Hfront_auth)".
+    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
+    iMod history_alloc as "(%γ_history & Hhistory_auth)".
+    iMod lstates_alloc as "(%γ_lstates & Hlstates_auth)".
+    iMod producers_alloc as "(%γ_producers & Hproducers_auth)".
+    iMod consumers_alloc as "(%γ_consumers & Hconsumers_auth)".
+
+    pose γ := {|
+      metadata_data := data ;
+      metadata_inv := ι ;
+      metadata_prophet := pid ;
+      metadata_prophet_name := γ_prophet ;
+      metadata_front := γ_front ;
+      metadata_model := γ_model ;
+      metadata_history := γ_history ;
+      metadata_lstates := γ_lstates ;
+      metadata_producers := γ_producers ;
+      metadata_consumers := γ_consumers ;
+    |}.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+
+    iApply "HΦ".
+    iSplitR "Hmodel₁"; last iSteps.
+    iSteps. iExists (λ _, Nothing). iSteps. iExists []. iSteps.
+  Qed.
 
   Lemma inf_mpmc_queue_2_size_spec t ι :
     <<<
@@ -367,11 +751,73 @@ Section inf_mpmc_queue_2_G.
       inf_mpmc_queue_2_size t @ ↑ι
     <<<
       inf_mpmc_queue_2_model t vs
-    | RET #(length vs);
-      True
+    | sz,
+      RET #sz;
+      ⌜length vs ≤ sz⌝
     >>>.
   Proof.
-  Admitted.
+    iIntros "%Φ (:inv) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb1".
+    iSplitR "HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
+
+    wp_smart_apply (typed_strong_prophet1_wp_proph local_prophet with "[//]") as (pid proph) "Hproph".
+    wp_pures.
+
+    wp_bind (_.{back})%E.
+    iInv "Hinv" as "(:inv_inner =2)".
+    wp_load.
+    destruct (decide (proph = front1)) as [-> | Hproph].
+
+    - destruct (decide (front2 = front1)) as [-> | ?].
+
+      + iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+
+        iSplitR "Hproph HΦ". { iFrameSteps. }
+        iModIntro. clear- Hvs2 Hhist2.
+
+        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_load.
+        iSplitR "HΦ". { iFrameSteps. }
+
+        iSteps.
+        wp_apply int_positive_part_spec.
+        iSteps. iPureIntro.
+        rewrite Hvs2. simpl_length. lia.
+
+      + iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb1") as %?.
+        iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb2".
+        iSplitR "Hproph HΦ". { iFrameSteps. }
+        iModIntro.
+
+        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_load.
+        iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb2") as %?.
+        iSplitR "HΦ". { iFrameSteps. }
+        iSteps.
+
+    - iSplitR "Hproph HΦ". { iFrameSteps. }
+      iModIntro. clear- Hproph.
+
+      wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+      iInv "Hinv" as "(:inv_inner =3)".
+      wp_load.
+      iSplitR "HΦ". { iFrameSteps. }
+      iSteps.
+  Qed.
 
   Lemma inf_mpmc_queue_2_is_empty_spec t ι :
     <<<
@@ -382,11 +828,21 @@ Section inf_mpmc_queue_2_G.
       inf_mpmc_queue_2_is_empty t @ ↑ι
     <<<
       inf_mpmc_queue_2_model t vs
-    | RET #(bool_decide (vs = []%list));
-      True
+    | b,
+      RET #b;
+      ⌜if b then vs = [] else True⌝
     >>>.
   Proof.
-  Admitted.
+    iIntros "%Φ #Hinv HΦ".
+
+    wp_rec.
+
+    awp_apply (inf_mpmc_queue_2_size_spec with "Hinv").
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel"; iSteps. iPureIntro.
+    case_bool_decide as Hlength; last done.
+    apply nil_length_inv. lia.
+  Qed.
 
   Lemma inf_mpmc_queue_2_push_spec t ι v :
     <<<
