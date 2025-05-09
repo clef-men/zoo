@@ -476,12 +476,12 @@ Section zoo_G.
       rewrite fmap_snoc -assoc /= Nat.sub_0_r.
       iSteps.
   Qed.
-  #[local] Lemma dynarray_2_push_aux_spec t vs elem v :
+  #[local] Lemma dynarray_2_push_0_spec t vs elem v :
     {{{
       dynarray_2_model t vs ∗
       element_model elem v
     }}}
-      dynarray_2_push_aux t #elem
+      dynarray_2_push_0 t #elem
     {{{
       RET ();
       dynarray_2_model t (vs ++ [v])
@@ -508,7 +508,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
     wp_smart_apply (dynarray_2_try_push_spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
-    wp_smart_apply (dynarray_2_push_aux_spec with "[$Hmodel $Helem]").
+    wp_smart_apply (dynarray_2_push_0_spec with "[$Hmodel $Helem]").
     iSteps.
   Qed.
 
@@ -1152,12 +1152,12 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_set_type with "[$Hdata_type $Hslot]") as "_"; first lia.
     iSteps.
   Qed.
-  #[local] Lemma dynarray_2_push_aux_type t slot :
+  #[local] Lemma dynarray_2_push_0_type t slot :
     {{{
       itype_dynarray_2 t ∗
       itype_slot slot
     }}}
-      dynarray_2_push_aux t slot
+      dynarray_2_push_0 t slot
     {{{
       RET ();
       True
@@ -1185,7 +1185,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (dynarray_2_element_type with "[//]") as (slot) "#Hslot".
     wp_smart_apply (dynarray_2_try_push_type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
-    wp_smart_apply (dynarray_2_push_aux_type with "[$Htype $Hslot]").
+    wp_smart_apply (dynarray_2_push_0_type with "[$Htype $Hslot]").
     iSteps.
   Qed.
 

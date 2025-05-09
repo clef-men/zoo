@@ -109,18 +109,18 @@ Definition dynarray_2_try_push : val :=
       #true
     ).
 
-Definition dynarray_2_push_aux : val :=
-  rec: "push_aux" "t" "slot" =>
+Definition dynarray_2_push_0 : val :=
+  rec: "push" "t" "slot" =>
     dynarray_2_reserve_extra "t" #1 ;;
     if: ~ dynarray_2_try_push "t" "slot" then (
-      "push_aux" "t" "slot"
+      "push" "t" "slot"
     ).
 
 Definition dynarray_2_push : val :=
   fun: "t" "v" =>
     let: "slot" := dynarray_2_element "v" in
     if: ~ dynarray_2_try_push "t" "slot" then (
-      dynarray_2_push_aux "t" "slot"
+      dynarray_2_push_0 "t" "slot"
     ).
 
 Definition dynarray_2_pop : val :=

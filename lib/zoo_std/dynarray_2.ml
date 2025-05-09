@@ -79,14 +79,14 @@ let try_push t slot =
     Array.unsafe_set data sz slot ;
     true
   )
-let rec push_aux t slot =
+let rec push t slot =
   reserve_extra t 1 ;
-  if not (try_push t slot) then
-    push_aux t slot
+  if not @@ try_push t slot then
+    push t slot
 let push t v =
   let slot = element v in
-  if not (try_push t slot) then
-    push_aux t slot
+  if not @@ try_push t slot then
+    push t slot
 
 let pop t =
   let sz = size t in
