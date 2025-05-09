@@ -7841,7 +7841,6 @@ End zoo_G.
 #[global] Opaque array_unsafe_shrink.
 #[global] Opaque array_shrink.
 #[global] Opaque array_clone.
-#[global] Opaque array_unsafe_resize_slice.
 #[global] Opaque array_unsafe_cget.
 #[global] Opaque array_cget.
 #[global] Opaque array_unsafe_cset.

@@ -235,11 +235,6 @@ let shrink t sz' =
 let clone t =
   unsafe_shrink t (size t)
 
-let unsafe_resize_slice t i n sz' v =
-  let t' = unsafe_make sz' v in
-  unsafe_copy_slice t i t' i n ;
-  t'
-
 let unsafe_cget t i =
   unsafe_get t (i mod size t)
 let cget t i =
