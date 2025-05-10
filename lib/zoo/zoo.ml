@@ -11,6 +11,8 @@ let proph () =
   dummy
 let resolve x _ _ =
   x
+let resolve' proph v_proph =
+  resolve ((fun () -> ()) ()) proph v_proph
 
 type id =
   dummy
