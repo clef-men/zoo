@@ -69,6 +69,27 @@ let reserve_extra t n =
     invalid_arg @@ __FUNCTION__ ^ ": negative extra capacity" ;
   reserve t (size t + n)
 
+let try_grow t sz v =
+  let old_sz = size t in
+  if sz <= old_sz then
+    true
+  else
+    let data = data t in
+    if Array.size data < sz then
+      false
+    else (
+      set_size t sz ;
+      Array.unsafe_apply_slice (fun _ -> element v) data old_sz (sz - old_sz) ;
+      true
+    )
+let rec grow t sz v =
+  reserve t sz ;
+  if not @@ try_grow t sz v then
+    grow t sz v
+let grow t sz v =
+  if not @@ try_grow t sz v then
+    grow t sz v
+
 let try_push t slot =
   let sz = size t in
   let data = data t in

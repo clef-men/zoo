@@ -27,6 +27,9 @@ val reserve :
 val reserve_extra :
   'a t -> int -> unit
 
+val grow :
+  'a t -> int -> 'a -> unit
+
 val push :
   'a t -> 'a -> unit
 

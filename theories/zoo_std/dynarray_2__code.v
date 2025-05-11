@@ -97,6 +97,39 @@ Definition dynarray_2_reserve_extra : val :=
     assume (#0 ≤ "n") ;;
     dynarray_2_reserve "t" (dynarray_2_size "t" + "n").
 
+Definition dynarray_2_try_grow : val :=
+  fun: "t" "sz" "v" =>
+    let: "old_sz" := dynarray_2_size "t" in
+    if: "sz" ≤ "old_sz" then (
+      #true
+    ) else (
+      let: "data" := dynarray_2_data "t" in
+      if: array_size "data" < "sz" then (
+        #false
+      ) else (
+        dynarray_2_set_size "t" "sz" ;;
+        array_unsafe_apply_slice
+          (fun: <> => dynarray_2_element "v")
+          "data"
+          "old_sz"
+          ("sz" - "old_sz") ;;
+        #true
+      )
+    ).
+
+Definition dynarray_2_grow_0 : val :=
+  rec: "grow" "t" "sz" "v" =>
+    dynarray_2_reserve "t" "sz" ;;
+    if: ~ dynarray_2_try_grow "t" "sz" "v" then (
+      "grow" "t" "sz" "v"
+    ).
+
+Definition dynarray_2_grow : val :=
+  fun: "t" "sz" "v" =>
+    if: ~ dynarray_2_try_grow "t" "sz" "v" then (
+      dynarray_2_grow_0 "t" "sz" "v"
+    ).
+
 Definition dynarray_2_try_push : val :=
   fun: "t" "slot" =>
     let: "sz" := dynarray_2_size "t" in
