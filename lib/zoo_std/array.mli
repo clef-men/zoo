@@ -60,6 +60,14 @@ val iteri :
 val iter :
   ('a -> unit) -> 'a t -> unit
 
+val unsafe_applyi_slice :
+  (int -> 'a -> 'a) -> 'a t -> int -> int -> unit
+val applyi_slice :
+  (int -> 'a -> 'a) -> 'a t -> int -> int -> unit
+val unsafe_apply_slice :
+  ('a -> 'a) -> 'a t -> int -> int -> unit
+val apply_slice :
+  ('a -> 'a) -> 'a t -> int -> int -> unit
 val applyi :
   (int -> 'a -> 'a) -> 'a t -> unit
 val apply :

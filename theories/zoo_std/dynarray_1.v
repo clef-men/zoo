@@ -354,7 +354,8 @@ Section zoo_G.
       { simpl_length. lia. }
       wp_store.
       iApply ("HΦ" $! (₊(n `max` n') - length vs)).
-      iSteps. rewrite Nat2Z.id drop_replicate take_app_length //.
+      rewrite Nat2Z.id with_slice_0 drop_replicate take_app_length.
+      iSteps.
     - iApply ("HΦ" $! extra).
       iSteps.
   Qed.
@@ -433,8 +434,8 @@ Section zoo_G.
         rewrite -Nat.le_add_sub; first lia.
         rewrite Z2Nat.id //.
       } {
-        rewrite assoc Nat2Z.id take_app_length drop_app_add drop_replicate.
-        assert (₊(sz - ⁺(length vs)) = ₊sz - length vs) as -> by lia.
+        rewrite Z2Nat.inj_sub; first lia.
+        rewrite Nat2Z.id with_slice_app_length drop_replicate assoc.
         iSteps.
       }
     - assert (₊sz - length vs = 0) as -> by lia. rewrite right_id.

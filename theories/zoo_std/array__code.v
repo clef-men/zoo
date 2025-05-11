@@ -151,13 +151,43 @@ Definition array_iter : val :=
   fun: "fn" =>
     array_iteri (fun: "_i" => "fn").
 
+Definition array_unsafe_applyi_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    array_unsafe_iteri_slice
+      (fun: "k" "v" => array_unsafe_set "t" ("i" + "k") ("fn" "k" "v"))
+      "t"
+      "i"
+      "n".
+
+Definition array_applyi_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    assume (#0 ≤ "i") ;;
+    assume (#0 ≤ "n") ;;
+    let: "sz" := array_size "t" in
+    assume ("i" ≤ "sz") ;;
+    assume ("i" + "n" ≤ "sz") ;;
+    array_unsafe_applyi_slice "fn" "t" "i" "n".
+
+Definition array_unsafe_apply_slice : val :=
+  fun: "fn" =>
+    array_unsafe_applyi_slice (fun: "_i" => "fn").
+
+Definition array_apply_slice : val :=
+  fun: "fn" "t" "i" "n" =>
+    assume (#0 ≤ "i") ;;
+    assume (#0 ≤ "n") ;;
+    let: "sz" := array_size "t" in
+    assume ("i" ≤ "sz") ;;
+    assume ("i" + "n" ≤ "sz") ;;
+    array_unsafe_apply_slice "fn" "t" "i" "n".
+
 Definition array_applyi : val :=
   fun: "fn" "t" =>
-    array_iteri (fun: "i" "v" => array_unsafe_set "t" "i" ("fn" "i" "v")) "t".
+    array_unsafe_applyi_slice "fn" "t" #0 (array_size "t").
 
 Definition array_apply : val :=
-  fun: "fn" "t" =>
-    array_applyi (fun: "_i" => "fn") "t".
+  fun: "fn" =>
+    array_applyi (fun: "_i" => "fn").
 
 Definition array_unsafe_initi : val :=
   fun: "sz" "fn" =>

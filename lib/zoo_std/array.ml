@@ -146,10 +146,36 @@ let iteri fn t =
 let iter fn =
   iteri (fun _i -> fn)
 
+let unsafe_applyi_slice fn t i n =
+  unsafe_iteri_slice (fun k v -> unsafe_set t (i + k) (fn k v)) t i n
+let applyi_slice fn t i n =
+  if not (0 <= i) then
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
+  if not (0 <= n) then
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
+  let sz = size t in
+  if not (i <= sz) then
+    invalid_arg @@ __FUNCTION__ ^ ": invalid index" ;
+  if not (i + n <= sz) then
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
+  unsafe_applyi_slice fn t i n
+let unsafe_apply_slice fn =
+  unsafe_applyi_slice (fun _i -> fn)
+let apply_slice fn t i n =
+  if not (0 <= i) then
+    invalid_arg @@ __FUNCTION__ ^ ": negative index" ;
+  if not (0 <= n) then
+    invalid_arg @@ __FUNCTION__ ^ ": negative span" ;
+  let sz = size t in
+  if not (i <= sz) then
+    invalid_arg @@ __FUNCTION__ ^ ": invalid index" ;
+  if not (i + n <= sz) then
+    invalid_arg @@ __FUNCTION__ ^ ": invalid arguments" ;
+  unsafe_apply_slice fn t i n
 let applyi fn t =
-  iteri (fun i v -> unsafe_set t i (fn i v)) t
-let apply fn t =
-  applyi (fun _i -> fn) t
+  unsafe_applyi_slice fn t 0 (size t)
+let apply fn =
+  applyi (fun _i -> fn)
 
 let unsafe_initi sz fn =
   let t = unsafe_alloc sz in

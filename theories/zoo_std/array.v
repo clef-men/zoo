@@ -2032,7 +2032,7 @@ Section zoo_G.
       array_unsafe_fill_slice t #i #n v
     {{{
       RET ();
-      array_slice t j (DfracOwn 1) (take (₊i - j) vs ++ replicate ₊n v ++ drop (₊i - j + ₊n) vs)
+      array_slice t j (DfracOwn 1) (with_slice (₊i - j) ₊n vs (replicate ₊n v))
     }}}.
   Proof.
     iIntros "% % %Φ Hslice HΦ".
@@ -2059,14 +2059,14 @@ Section zoo_G.
       array_unsafe_fill_slice t #i #n v
     {{{
       RET ();
-      array_model t (DfracOwn 1) (take ₊i vs ++ replicate ₊n v ++ drop (₊i + ₊n) vs)
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs (replicate ₊n v))
     }}}.
   Proof.
     iIntros "% % %Φ Hmodel HΦ".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & Hmodel)".
     wp_apply (array_unsafe_fill_slice_spec_slice with "Hslice") as "Hslice"; [done.. |].
     iDestruct ("Hmodel" with "[%] Hslice") as "Hmodel".
-    { simpl_length. lia. }
+    { rewrite length_with_slice //; [lia | simpl_length]. }
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
@@ -3630,6 +3630,763 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma array_unsafe_applyi_slice_spec_atomic Ψ fn t (sz : nat) (i n : Z) :
+    (0 ≤ i ≤ sz)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ sz)%Z →
+    {{{
+      array_inv t sz ∗
+      ▷ Ψ 0 [] None [] ∗
+      □ (
+        ∀ k vs (o : option (val + val * val)) ws,
+        ⌜k < ₊n⌝ -∗
+        ⌜k = length vs⌝ -∗
+        ⌜length vs = length ws⌝ -∗
+        Ψ k vs o ws -∗
+        match o with
+        | None =>
+            au_load t (₊i + k) (λ v,
+              ▷ Ψ k vs (Some $ inl v) ws
+            )
+        | Some (inl v) =>
+            WP fn #k v {{ w,
+              ▷ Ψ k vs (Some $ inr (v, w)) ws
+            }}
+        | Some (inr (v, w)) =>
+            au_store t (₊i + k) w (
+              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+            )
+        end
+      )
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{ vs ws,
+      RET ();
+      ⌜length vs = ₊n⌝ ∗
+      ⌜length vs = length ws⌝ ∗
+      Ψ ₊n vs None ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (#Hinv & HΨ & #H) HΦ".
+
+    wp_rec credit:"H£".
+
+    pose (Ψ' k vs o := (
+      ∃ ws,
+      ⌜length vs = length ws⌝ ∗
+      Ψ k vs (inl <$> o) ws ∗
+      £ 1
+    )%I).
+    wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $HΨ $H£]"); [done.. | | iSteps].
+    iStep. iIntros "!> %k %vs %o % % (%ws & %Hws & HΨ & H£)".
+    destruct o as [v |].
+    - wp_smart_apply (wp_wand with "(H [//] [//] [//] HΨ)") as "%w HΨ".
+      iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+      iDestruct ("H" with "[//] [//] [//] HΨ") as "H'".
+      awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
+      iApply (aacc_aupd_commit with "H'"); first done. iIntros "%v' Hslice".
+      rewrite /atomic_acc /=.
+      repeat iExists _. iFrame. iStep 8. iFrame. simpl_length. iSteps.
+    - iApply (atomic_update_wand with "(H [//] [//] [//] HΨ)").
+      iSteps.
+  Qed.
+  Lemma array_unsafe_applyi_slice_spec Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v ws,
+        ⌜k = length ws⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn #k v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
+    iDestruct (array_model_to_inv with "Hmodel") as "#Hinv".
+
+    pose (Ψ' k vs_left o ws := (
+      ⌜vs_left = slice ₊i k vs⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i k vs ws) ∗
+      match o with
+      | None =>
+          Ψ k vs_left ws
+      | Some (inl v) =>
+          ⌜vs !! (₊i + k)%nat = Some v⌝ ∗
+          Ψ k vs_left ws
+      | Some (inr (v, w)) =>
+          ⌜vs !! (₊i + k)%nat = Some v⌝ ∗
+          Ψ (S k) (vs_left ++ [v]) (ws ++ [w])
+      end
+    )%I).
+    wp_apply (array_unsafe_applyi_slice_spec_atomic Ψ' with "[$Hinv Hmodel $HΨ]"); [done.. | |].
+    { rewrite with_slice_slice_nil //. iStep.
+      iIntros "!> %k %vs_left %o %ws % % % (-> & Hmodel & HΨ)".
+      destruct (lookup_lt_is_Some_2 vs (₊i + k)) as (v & Hlookup); first lia.
+      destruct o as [[v_ | (v_ & w)] |].
+      - iDestruct "HΨ" as "(% & HΨ)". simplify.
+        wp_apply (wp_wand with "(Hfn [%] [//] [//] HΨ)"); first lia.
+        iSteps.
+      - iDestruct "HΨ" as "(% & HΨ)". simplify.
+        iDestruct (array_model_update (₊i + k) with "Hmodel") as "(_ & H↦ & Hmodel)".
+        { apply with_slice_lookup_right; done || lia. }
+        iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦ !>". iFrame.
+        iSplit. { rewrite slice_snoc //. }
+        iDestruct ("Hmodel" with "H↦") as "Hmodel".
+        rewrite with_slice_slice_snoc //; lia.
+      - iDestruct (array_model_lookup_acc (₊i + k) with "Hmodel") as "(H↦ & Hmodel)".
+        { apply with_slice_lookup_right; done || lia. }
+        iAuIntro. iAaccIntro with "H↦"; iSteps.
+    }
+    iIntros "%vs_left %ws (%Hvs_left_1 & %Hws & (-> & Hmodel & HΨ))".
+    iApply ("HΦ" $! ws).
+    iSteps.
+  Qed.
+  Lemma array_unsafe_applyi_slice_spec' Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        ∀ ws,
+        ⌜k = length ws⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn #k v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
+
+    match goal with |- context [big_opL bi_sep ?Ξ' _] => set Ξ := Ξ' end.
+    pose (Ψ' k vs_left ws := (
+      Ψ k vs_left ws ∗
+      [∗ list] j ↦ v ∈ slice (₊i + k) (₊n - k) vs, Ξ (k + j) v
+    )%I).
+
+    wp_apply (array_unsafe_applyi_slice_spec Ψ' with "[$HΨ $Hmodel Hfn]"); [done.. | | iSteps].
+    rewrite !right_id. iFrame.
+    iIntros "!> %k %v %ws % % % (HΨ & HΞ)".
+    rewrite -(slice_cons' (₊i + k) _ v) //; first lia.
+    iDestruct "HΞ" as "(Hfn & HΞ)".
+    setoid_rewrite Nat.add_succ_r.
+    rewrite Nat.add_0_r -Nat.add_succ_r -Nat.sub_add_distr Nat.add_1_r.
+    iSteps.
+  Qed.
+  Lemma array_unsafe_applyi_slice_spec_disentangled Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v,
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        WP fn #k v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (Hmodel & #Hfn) HΦ".
+
+    pose (Ψ' k vs_left ws := (
+      [∗ list] j ↦ w ∈ ws, Ψ j w
+    )%I).
+    wp_apply (array_unsafe_applyi_slice_spec Ψ' with "[$Hmodel]"); [done.. | | iSteps].
+    rewrite /Ψ'. iSteps.
+    rewrite big_sepL_snoc. iSteps.
+  Qed.
+  Lemma array_unsafe_applyi_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        WP fn #k v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (Hmodel & Hfn) HΦ".
+
+    pose (Ψ' k vs_left ws := (
+      [∗ list] j ↦ w ∈ ws, Ψ j w
+    )%I).
+    wp_apply (array_unsafe_applyi_slice_spec' Ψ' with "[Hmodel Hfn]"); [done.. | | iSteps].
+    rewrite /Ψ'. iSteps.
+    iApply (big_sepL_impl with "Hfn"). iSteps.
+    rewrite big_sepL_snoc. iSteps.
+  Qed.
+
+  Lemma array_applyi_slice_spec_atomic Ψ fn t (sz : nat) (i n : Z) :
+    {{{
+      array_inv t sz ∗
+      ▷ Ψ 0 [] None [] ∗
+      □ (
+        ∀ k vs (o : option (val + val * val)) ws,
+        ⌜k < ₊n⌝ -∗
+        ⌜k = length vs⌝ -∗
+        ⌜length vs = length ws⌝ -∗
+        Ψ k vs o ws -∗
+        match o with
+        | None =>
+            au_load t (₊i + k) (λ v,
+              ▷ Ψ k vs (Some $ inl v) ws
+            )
+        | Some (inl v) =>
+            WP fn #k v {{ w,
+              ▷ Ψ k vs (Some $ inr (v, w)) ws
+            }}
+        | Some (inr (v, w)) =>
+            au_store t (₊i + k) w (
+              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+            )
+        end
+      )
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{ vs ws,
+      RET ();
+      ⌜0 ≤ i ≤ sz⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ sz⌝%Z ∗
+      ⌜length vs = ₊n⌝ ∗
+      ⌜length vs = length ws⌝ ∗
+      Ψ ₊n vs None ws
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_applyi_slice_spec Ψ fn t vs (i n : Z) :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v ws,
+        ⌜k = length ws⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn #k v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_applyi_slice_spec' Ψ fn t vs (i n : Z) :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        ∀ ws,
+        ⌜k = length ws⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn #k v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_applyi_slice_spec_disentangled Ψ fn t vs (i n : Z) :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v,
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        WP fn #k v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ (Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_applyi_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        WP fn #k v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ (Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+
+  Lemma array_unsafe_apply_slice_spec_atomic Ψ fn t (sz : nat) (i n : Z) :
+    (0 ≤ i ≤ sz)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ sz)%Z →
+    {{{
+      array_inv t sz ∗
+      ▷ Ψ 0 [] None [] ∗
+      □ (
+        ∀ k vs (o : option (val + val * val)) ws,
+        ⌜k < ₊n⌝ -∗
+        ⌜k = length vs⌝ -∗
+        ⌜length vs = length ws⌝ -∗
+        Ψ k vs o ws -∗
+        match o with
+        | None =>
+            au_load t (₊i + k) (λ v,
+              ▷ Ψ k vs (Some $ inl v) ws
+            )
+        | Some (inl v) =>
+            WP fn v {{ w,
+              ▷ Ψ k vs (Some $ inr (v, w)) ws
+            }}
+        | Some (inr (v, w)) =>
+            au_store t (₊i + k) w (
+              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+            )
+        end
+      )
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{ vs ws,
+      RET ();
+      ⌜length vs = ₊n⌝ ∗
+      ⌜length vs = length ws⌝ ∗
+      Ψ ₊n vs None ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (#Hinv & HΨ & #H) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %k %vs %o %ws % % % HΨ"; [done.. |].
+    repeat case_match; try wp_pures; iApply ("H" with "[//] [//] [//] HΨ").
+  Qed.
+  Lemma array_unsafe_apply_slice_spec Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v ws,
+        ⌜k = length ws⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel] HΦ"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_unsafe_apply_slice_spec' Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        ∀ ws,
+        ⌜k = length ws⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ"); [done.. |].
+    iApply (big_sepL_impl with "Hfn").
+    iSteps.
+  Qed.
+  Lemma array_unsafe_apply_slice_spec_disentangled Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v,
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        WP fn v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel] HΦ"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_unsafe_apply_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
+    (0 ≤ i ≤ length vs)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ length vs)%Z →
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        WP fn v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ"); [done.. |].
+    iApply (big_sepL_impl with "Hfn").
+    iSteps.
+  Qed.
+
+  Lemma array_apply_slice_spec_atomic Ψ fn t (sz : nat) (i n : Z) :
+    {{{
+      array_inv t sz ∗
+      ▷ Ψ 0 [] None [] ∗
+      □ (
+        ∀ k vs (o : option (val + val * val)) ws,
+        ⌜k < ₊n⌝ -∗
+        ⌜k = length vs⌝ -∗
+        ⌜length vs = length ws⌝ -∗
+        Ψ k vs o ws -∗
+        match o with
+        | None =>
+            au_load t (₊i + k) (λ v,
+              ▷ Ψ k vs (Some $ inl v) ws
+            )
+        | Some (inl v) =>
+            WP fn v {{ w,
+              ▷ Ψ k vs (Some $ inr (v, w)) ws
+            }}
+        | Some (inr (v, w)) =>
+            au_store t (₊i + k) w (
+              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+            )
+        end
+      )
+    }}}
+      array_apply_slice fn t #i #n
+    {{{ vs ws,
+      RET ();
+      ⌜0 ≤ i ≤ sz⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ sz⌝%Z ∗
+      ⌜length vs = ₊n⌝ ∗
+      ⌜length vs = length ws⌝ ∗
+      Ψ ₊n vs None ws
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_apply_slice_spec Ψ fn t vs (i n : Z) :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v ws,
+        ⌜k = length ws⌝ -∗
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_apply_slice_spec' Ψ fn t vs (i n : Z) :
+    {{{
+      ▷ Ψ 0 [] [] ∗
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        ∀ ws,
+        ⌜k = length ws⌝ -∗
+        Ψ k (slice ₊i k vs) ws -∗
+        WP fn v {{ w,
+          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+        }}
+      )
+    }}}
+      array_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      Ψ ₊n (slice ₊i ₊n vs) ws
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_apply_slice_spec_disentangled Ψ fn t vs (i n : Z) :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      □ (
+        ∀ k v,
+        ⌜k < ₊n⌝ -∗
+        ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
+        WP fn v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      ⌜length ws = ₊n⌝ ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ (Hmodel & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+  Lemma array_apply_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
+    {{{
+      array_model t (DfracOwn 1) vs ∗
+      ( [∗ list] k ↦ v ∈ slice ₊i ₊n vs,
+        WP fn v {{ w,
+          ▷ Ψ k w
+        }}
+      )
+    }}}
+      array_apply_slice fn t #i #n
+    {{{ ws,
+      RET ();
+      ⌜0 ≤ i ≤ length vs⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ length vs⌝%Z ∗
+      array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
+      ( [∗ list] i ↦ w ∈ ws,
+        Ψ i w
+      )
+    }}}.
+  Proof.
+    iIntros "%Φ (Hmodel & Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+
   Lemma array_applyi_spec_atomic Ψ fn t sz :
     {{{
       array_inv t sz ∗
@@ -3665,27 +4422,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
-    wp_rec credit:"H£".
-    pose (Ψ' i vs o := (
-      ∃ ws,
-      ⌜length vs = length ws⌝ ∗
-      Ψ i vs (inl <$> o) ws ∗
-      £ 1
-    )%I).
-    wp_smart_apply (array_iteri_spec_atomic Ψ' with "[$Hinv HΨ $H£]"); last iSteps.
-    iSplitL "HΨ". { iExists []. iSteps. }
-    iIntros "!> %i %vs %o %Hi1 %Hi2 (%ws & %Hws & HΨ & H£)".
-    destruct o as [v |].
-    - wp_smart_apply (wp_wand with "(H [//] [//] [//] HΨ)") as "%w HΨ".
-      iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      iDestruct ("H" with "[//] [//] [//] HΨ") as "H'".
-      awp_apply (array_unsafe_set_spec_atomic_cell with "[//]").
-      iApply (aacc_aupd_commit with "H'"); first done. iIntros "%v' Hslice".
-      rewrite /atomic_acc /=.
-      iStep 2; first iSteps. iIntros "$ !> HΨ !> H£". iStep.
-      iExists (ws ++ [w]). simpl_length. iSteps.
-    - iApply (atomic_update_wand with "(H [//] [//] [//] HΨ)").
-      iSteps.
+
+    wp_rec.
+    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ]"); [lia.. | iSteps |].
+    rewrite Nat2Z.id. iSteps.
   Qed.
   Lemma array_applyi_spec Ψ fn t vs :
     {{{
@@ -3709,53 +4450,13 @@ Section zoo_G.
       Ψ (length vs) vs ws
     }}}.
   Proof.
-    iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
-    iDestruct (array_model_to_inv with "Hmodel") as "#Hinv".
-    pose (Ψ' i vs_left o ws := (
-      ⌜vs_left = take i vs⌝ ∗
-      array_model t (DfracOwn 1) (ws ++ drop i vs) ∗
-      match o with
-      | None =>
-          Ψ i vs_left ws
-      | Some (inl v) =>
-          ⌜v = vs !!! i⌝ ∗
-          Ψ i vs_left ws
-      | Some (inr (v, w)) =>
-          ⌜v = vs !!! i⌝ ∗
-          Ψ (S i) (vs_left ++ [v]) (ws ++ [w])
-      end
-    )%I).
-    wp_apply (array_applyi_spec_atomic Ψ' with "[$Hinv $HΨ $Hmodel]"); last first.
-    { iIntros "%vs_left %ws (%Hvs_left_1 & %Hws & (-> & Hmodel & HΨ))".
-      rewrite firstn_all2; first lia. rewrite skipn_all2; first lia. rewrite right_id.
-      iApply ("HΦ" $! ws). iSteps.
-    }
-    iStep. iIntros "!> %i %vs_left %o %ws %Hvs_left %Hi %Hws (-> & Hmodel & HΨ)".
-    opose proof* (list_lookup_lookup_total_lt vs i); first lia.
-    destruct o as [[v | (v & w)] |].
-    - iDestruct "HΨ" as "(-> & HΨ)".
-      wp_apply (wp_wand with "(Hfn [%] [//] HΨ)"); first lia.
-      iSteps.
-    - iDestruct "HΨ" as "(-> & HΨ)".
-      assert ((ws ++ drop i vs) !! i = Some (vs !!! i)).
-      { rewrite lookup_app_r; first lia.
-        rewrite lookup_drop list_lookup_lookup_total_lt; first lia.
-        repeat f_equal. lia.
-      }
-      iDestruct (array_model_update i with "Hmodel") as "(_ & H↦ & Hmodel)"; first done.
-      iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦ !>". iFrame.
-      iSplit; first rewrite -take_S_r //.
-      iDestruct ("Hmodel" with "H↦") as "Hmodel".
-      rewrite insert_app_r_alt; first lia.
-      erewrite drop_S => //.
-      rewrite Hi Hws Nat.sub_diag -assoc //.
-    - assert ((ws ++ drop i vs) !! i = Some (vs !!! i)).
-      { rewrite lookup_app_r; first lia.
-        rewrite lookup_drop list_lookup_lookup_total_lt; first lia.
-        repeat f_equal. lia.
-      }
-      iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
-      iAuIntro. iAaccIntro with "H↦"; iSteps.
+    iIntros "%Φ (HΨ & Hmodel & #H) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel]"); [lia.. | iSteps |].
+    iStep 3 as (ws) / --silent. iExists ws.
+    rewrite Nat2Z.id with_slice_all // slice_0 firstn_all. iSteps.
   Qed.
   Lemma array_applyi_spec' Ψ fn t vs :
     {{{
@@ -3986,7 +4687,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ");
+    wp_smart_apply (array_applyi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -4904,11 +5605,7 @@ Section zoo_G.
     {{{
       RET ();
       array_slice t1 i1 dq1 vs1 ∗
-      array_slice t2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        take ₊n (drop (₊j1 - i1) vs1) ++
-        drop (₊j2 - i2 + ₊n) vs2
-      )
+      array_slice t2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) ₊n vs2 (take ₊n (drop (₊j1 - i1) vs1)))
     }}}.
   Proof.
     iIntros "% % % % % %Φ (Hslice1 & Hslice2) HΦ".
@@ -4943,11 +5640,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t1 dq1 vs1 ∗
-      array_model t2 (DfracOwn 1) (
-        take ₊i2 vs2 ++
-        take ₊n (drop ₊i1 vs1) ++
-        drop (₊i2 + ₊n) vs2
-      )
+      array_model t2 (DfracOwn 1) (with_slice ₊i2 ₊n vs2 (take ₊n (drop ₊i1 vs1)))
     }}}.
   Proof.
     iIntros "% % % % % %Φ (Hmodel1 & Hmodel2) HΦ".
@@ -4955,7 +5648,7 @@ Section zoo_G.
     iDestruct (array_model_to_slice' with "Hmodel2") as "(Hslice2 & #?)".
     wp_apply (array_unsafe_copy_slice_spec_slice with "[$Hslice1 $Hslice2]") as "(Hslice1 & Hslice2)"; [lia.. |].
     rewrite !Nat.sub_0_r. iSteps. iPureIntro.
-    simpl_length. lia.
+    rewrite length_with_slice //; simpl_length; lia.
   Qed.
 
   Lemma array_copy_slice_spec_slice_fit t1 sz1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
@@ -5022,11 +5715,7 @@ Section zoo_G.
       ⌜j1 + n ≤ sz1⌝%Z ∗
       ⌜j2 + n ≤ sz2⌝%Z ∗
       array_slice t1 i1 dq1 vs1 ∗
-      array_slice t2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        take ₊n (drop (₊j1 - i1) vs1) ++
-        drop (₊j2 - i2 + ₊n) vs2
-      )
+      array_slice t2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) ₊n vs2 (take ₊n (drop (₊j1 - i1) vs1)))
     }}}.
   Proof.
     iIntros "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
@@ -5052,11 +5741,7 @@ Section zoo_G.
       ⌜i1 + n ≤ length vs1⌝%Z ∗
       ⌜i2 + n ≤ length vs2⌝%Z ∗
       array_model t1 dq1 vs1 ∗
-      array_model t2 (DfracOwn 1) (
-        take ₊i2 vs2 ++
-        take ₊n (drop ₊i1 vs1) ++
-        drop (₊i2 + ₊n) vs2
-      )
+      array_model t2 (DfracOwn 1) (with_slice ₊i2 ₊n vs2 (take ₊n (drop ₊i1 vs1)))
     }}}.
   Proof.
     iIntros "%Φ (Hmodel1 & Hmodel2) HΦ".
@@ -5136,11 +5821,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t1 dq1 vs1 ∗
-      array_slice t2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        vs1 ++
-        drop (₊j2 - i2 + length vs1) vs2
-      )
+      array_slice t2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros "% % %Φ (Hmodel1 & Hslice2) HΦ".
@@ -5161,11 +5842,7 @@ Section zoo_G.
     {{{
       RET ();
       array_model t1 dq1 vs1 ∗
-      array_model t2 (DfracOwn 1) (
-        take ₊i2 vs2 ++
-        vs1 ++
-        drop (₊i2 + length vs1) vs2
-      )
+      array_model t2 (DfracOwn 1) (with_slice ₊i2 (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros "% % %Φ (Hmodel1 & Hmodel2) HΦ".
@@ -5222,11 +5899,7 @@ Section zoo_G.
       ⌜0 ≤ i2⌝ ∗
       ⌜i2 + length vs1 ≤ sz2⌝ ∗
       array_model t1 dq1 vs1 ∗
-      array_slice t2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        vs1 ++
-        drop (₊j2 - i2 + length vs1) vs2
-      )
+      array_slice t2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros "%Φ (Hmodel1 & #Hinv2 & H) HΦ".
@@ -5250,11 +5923,7 @@ Section zoo_G.
       ⌜0 ≤ i2⌝%Z ∗
       ⌜i2 + length vs1 ≤ length vs2⌝%Z ∗
       array_model t1 dq1 vs1 ∗
-      array_model t2 (DfracOwn 1) (
-        take ₊i2 vs2 ++
-        vs1 ++
-        drop (₊i2 + length vs1) vs2
-      )
+      array_model t2 (DfracOwn 1) (with_slice ₊i2 (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros "%Φ (Hmodel1 & Hmodel2) HΦ".
@@ -5293,10 +5962,11 @@ Section zoo_G.
     { simpl_length. }
     { simpl_length. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'".
-    { rewrite skipn_all2 length_replicate //= right_id //. }
+    { rewrite length_with_slice //. simpl_length. }
     iSteps.
     - iPureIntro. simpl_length. lia.
-    - rewrite drop_replicate /= Nat.sub_diag right_id Nat.add_sub' //.
+    - rewrite with_slice_all; first simpl_length.
+      rewrite Nat.add_sub' //.
   Qed.
 
   Lemma array_grow_spec t dq vs sz' v' :
@@ -6144,11 +6814,7 @@ Section zoo_G.
     {{{
       RET ();
       array_cslice t1 sz1 i1 dq1 vs1 ∗
-      array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        take ₊n (drop (₊j1 - i1) vs1) ++
-        drop (₊j2 - i2 + ₊n) vs2
-      )
+      array_cslice t2 sz2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) ₊n vs2 (take ₊n (drop (₊j1 - i1) vs1)))
     }}}.
   Proof.
     iIntros "% % % % % %Φ (Hcslice1 & Hcslice2) HΦ".
@@ -6243,11 +6909,7 @@ Section zoo_G.
       ⌜n ≤ sz1⌝%Z ∗
       ⌜n ≤ sz2⌝%Z ∗
       array_cslice t1 sz1 i1 dq1 vs1 ∗
-      array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        take ₊n (drop (₊j1 - i1) vs1) ++
-        drop (₊j2 - i2 + ₊n) vs2
-      )
+      array_cslice t2 sz2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) ₊n vs2 (take ₊n (drop (₊j1 - i1) vs1)))
     }}}.
   Proof.
     iIntros "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
@@ -6296,11 +6958,7 @@ Section zoo_G.
     {{{
       RET ();
       array_cslice t1 sz1 i1_ dq1 vs1 ∗
-      array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        vs1 ++
-        drop (₊j2 - i2 + length vs1) vs2
-      )
+      array_cslice t2 sz2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros (-> Hvs1 ? ?) "%Φ (Hcslice1 & Hcslice2) HΦ".
@@ -6370,11 +7028,7 @@ Section zoo_G.
       ⌜0 ≤ i1⌝%Z ∗
       ⌜0 ≤ j2⌝%Z ∗
       array_cslice t1 sz1 ₊i1 dq1 vs1 ∗
-      array_cslice t2 sz2 i2 (DfracOwn 1) (
-        take (₊j2 - i2) vs2 ++
-        vs1 ++
-        drop (₊j2 - i2 + length vs1) vs2
-      )
+      array_cslice t2 sz2 i2 (DfracOwn 1) (with_slice (₊j2 - i2) (length vs1) vs2 vs1)
     }}}.
   Proof.
     iIntros "% %Φ (#Hinv1 & #Hinv2 & H) HΦ".
@@ -6414,7 +7068,7 @@ Section zoo_G.
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
     rewrite Nat.sub_add; first lia.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
-    rewrite !Nat2Z.id Nat.sub_diag firstn_all drop_replicate /=.
+    rewrite !Nat2Z.id Nat.sub_diag firstn_all with_slice_0 drop_replicate.
     iSteps.
   Qed.
 
@@ -6465,7 +7119,7 @@ Section zoo_G.
     rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
     rewrite Nat.sub_add; first lia.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
-    rewrite Nat2Z.id Nat.sub_diag drop_0 drop_replicate Nat.sub_diag right_id /=.
+    rewrite Nat2Z.id Nat.sub_diag with_slice_0 drop_replicate Nat.sub_diag right_id.
     iSteps.
   Qed.
   Lemma array_unsafe_cshrink_slice_spec t sz i dq vs (j : Z) sz' :
@@ -6928,7 +7582,7 @@ Section zoo_G.
     (i + n ≤ sz)%Z →
     {{{
       itype_array τ sz t ∗
-      (itype_nat_upto sz --> τ --> itype_unit)%T fn
+      (itype_nat_upto ₊n --> τ --> itype_unit)%T fn
     }}}
       array_unsafe_iteri_slice fn t #i #n
     {{{
@@ -6946,7 +7600,7 @@ Section zoo_G.
   Lemma array_iteri_slice_type τ `{!iType _ τ} fn t (sz : nat) (i n : Z) :
     {{{
       itype_array τ sz t ∗
-      (itype_nat_upto sz --> τ --> itype_unit)%T fn
+      (itype_nat_upto ₊n --> τ --> itype_unit)%T fn
     }}}
       array_iteri_slice fn t #i #n
     {{{
@@ -7021,7 +7675,7 @@ Section zoo_G.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
     wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Htype $Hfn] HΦ"); lia.
+    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Htype Hfn] HΦ"); [lia.. | iSteps].
   Qed.
 
   Lemma array_iter_type τ `{!iType _ τ} fn t sz :
@@ -7041,6 +7695,98 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma array_unsafe_applyi_slice_type τ `{!iType _ τ} fn t (sz : nat) (i n : Z) :
+    (0 ≤ i ≤ sz)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ sz)%Z →
+    {{{
+      itype_array τ sz t ∗
+      (itype_nat_upto ₊n --> τ --> τ)%T fn
+    }}}
+      array_unsafe_applyi_slice fn t #i #n
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_iteri_slice_type τ with "[$Htype] HΦ"); [done.. |].
+    iIntros "!> % (%k & -> & %Hk)". wp_pures. iIntros "!> !> %v Hv".
+    wp_smart_apply (wp_wand with "(Hfn [])"); first iSteps. iClear "Hfn". clear fn. iIntros "%fn Hfn".
+    wp_apply (wp_wand with "(Hfn Hv)") as "%w Hw".
+    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hw]"); first lia.
+    iSteps.
+  Qed.
+
+  Lemma array_applyi_slice_type τ `{!iType _ τ} fn t (sz : nat) (i n : Z) :
+    {{{
+      itype_array τ sz t ∗
+      (itype_nat_upto ₊n --> τ --> τ)%T fn
+    }}}
+      array_applyi_slice fn t #i #n
+    {{{
+      RET ();
+      ⌜0 ≤ i ≤ sz⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ sz⌝%Z
+    }}}.
+  Proof.
+    iIntros "%Φ (#Htype & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_type with "Htype") as "_".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_applyi_slice_type with "[$Htype $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+
+  Lemma array_unsafe_apply_slice_type τ `{!iType _ τ} fn t (sz : nat) (i n : Z) :
+    (0 ≤ i ≤ sz)%Z →
+    (0 ≤ n)%Z →
+    (i + n ≤ sz)%Z →
+    {{{
+      itype_array τ sz t ∗
+      (τ --> τ)%T fn
+    }}}
+      array_unsafe_apply_slice fn t #i #n
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_applyi_slice_type τ with "[$Htype] HΦ"); [done.. |].
+    iSteps.
+  Qed.
+
+  Lemma array_apply_slice_type τ `{!iType _ τ} fn t (sz : nat) (i n : Z) :
+    {{{
+      itype_array τ sz t ∗
+      (τ --> τ)%T fn
+    }}}
+      array_apply_slice fn t #i #n
+    {{{
+      RET ();
+      ⌜0 ≤ i ≤ sz⌝%Z ∗
+      ⌜0 ≤ n⌝%Z ∗
+      ⌜i + n ≤ sz⌝%Z
+    }}}.
+  Proof.
+    iIntros "%Φ (#Htype & #Hfn) HΦ".
+
+    wp_rec.
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_size_type with "Htype") as "_".
+    do 2 (wp_smart_apply assume_spec' as "%").
+    wp_smart_apply (array_unsafe_apply_slice_type with "[$Htype $Hfn]"); [done.. |].
+    iSteps.
+  Qed.
+
   Lemma array_applyi_type τ `{!iType _ τ} fn t sz :
     {{{
       itype_array τ sz t ∗
@@ -7053,13 +7799,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
+
     wp_rec.
-    wp_smart_apply (array_iteri_type τ with "[$Htype] HΦ").
-    iIntros "!> % (%i & -> & %Hi)". wp_pures. iIntros "!> !> %v Hv".
-    wp_smart_apply (wp_wand with "(Hfn [])"); first iSteps. iClear "Hfn". clear fn. iIntros "%fn Hfn".
-    wp_apply (wp_wand with "(Hfn Hv)") as "%w Hw".
-    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hw]"); first lia.
-    iSteps.
+    wp_smart_apply (array_size_type with "Htype") as "_".
+    wp_apply (array_unsafe_applyi_slice_type τ with "[$Htype] HΦ"); [lia.. | iSteps].
   Qed.
 
   Lemma array_apply_type τ `{!iType _ τ} fn t sz :
@@ -7822,6 +8565,10 @@ End zoo_G.
 #[global] Opaque array_iter_slice.
 #[global] Opaque array_iteri.
 #[global] Opaque array_iter.
+#[global] Opaque array_unsafe_applyi_slice.
+#[global] Opaque array_applyi_slice.
+#[global] Opaque array_unsafe_apply_slice.
+#[global] Opaque array_apply_slice.
 #[global] Opaque array_applyi.
 #[global] Opaque array_apply.
 #[global] Opaque array_unsafe_initi.
