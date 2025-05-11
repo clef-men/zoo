@@ -9,10 +9,7 @@ val size :
 val is_empty :
   'a t -> bool
 
-val push_back :
-  'a t -> 'a -> unit
-
-val push_front :
+val push :
   'a t -> 'a -> unit
 
 val pop :

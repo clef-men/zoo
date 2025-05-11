@@ -5,7 +5,8 @@ From zoo.common Require Import
   relations.
 From zoo.iris.base_logic Require Import
   lib.twins
-  lib.auth_mono.
+  lib.auth_mono
+  lib.auth_nat_max.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -122,13 +123,15 @@ Proof.
 Qed.
 
 Class MpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpmc_queue_2_G_model :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] mpmc_queue_2_G_lstate :: AuthMonoG (A := leibnizO lstate) Σ lstep ;
+  #[local] mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
+  #[local] mpmc_queue_2_G_lstate_G :: AuthMonoG (A := leibnizO lstate) Σ lstep ;
+  #[local] mpmc_queue_2_G_front_G :: AuthNatMaxG Σ ;
 }.
 
 Definition mpmc_queue_2_Σ := #[
   twins_Σ (leibnizO (list val)) ;
-  auth_mono_Σ (A := leibnizO lstate) lstep
+  auth_mono_Σ (A := leibnizO lstate) lstep ;
+  auth_nat_max_Σ
 ].
 #[global] Instance subG_mpmc_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_queue_2_Σ Σ →
@@ -137,12 +140,29 @@ Proof.
   solve_inG.
 Qed.
 
+#[local] Fixpoint suffix_to_val (i : nat) vs :=
+  match vs with
+  | [] =>
+      ‘Front( #i )%V
+  | v :: vs =>
+      ‘Cons( #i, v, suffix_to_val (S i) vs )%V
+  end.
+
+#[local] Fixpoint prefix_to_val (i : nat) back vs :=
+  match vs with
+  | [] =>
+      #back
+  | v :: vs =>
+      ‘Snoc( #(i + length vs), v, prefix_to_val i back vs )%V
+  end.
+
 Section mpmc_queue_2_G.
   Context `{mpmc_queue_2_G : MpmcQueue2G Σ}.
 
   Record metadata := {
     metadata_model : gname ;
     metadata_lstate : gname ;
+    metadata_front : gname ;
   }.
   Implicit Types γ : metadata.
 
@@ -178,21 +198,12 @@ Section mpmc_queue_2_G.
         lstate_lstatus := lstatus ;
       |}.
 
-  #[local] Fixpoint frontlst_to_val (i : nat) vs :=
-    match vs with
-    | [] =>
-        ‘Front( #i )%V
-    | v :: vs =>
-        ‘Cons( #i, v, frontlst_to_val (S i) vs )%V
-    end.
-
-  #[local] Fixpoint backlst_to_val (i : nat) back vs :=
-    match vs with
-    | [] =>
-        #back
-    | v :: vs =>
-        ‘Snoc( #(i + length vs), v, backlst_to_val i back vs )%V
-    end.
+  #[local] Definition front_auth' γ_front i :=
+    auth_nat_max_auth γ_front (DfracOwn 1) i.
+  #[local] Definition front_auth γ i :=
+    front_auth' γ.(metadata_front) i.
+  #[local] Definition front_lb γ i :=
+    auth_nat_max_lb γ.(metadata_front) i.
 
   #[local] Definition back_model back (i : nat) v_move : iProp Σ :=
     back ↦ₕ Header §Back 2 ∗
@@ -204,8 +215,9 @@ Section mpmc_queue_2_G.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ backs i lstatus i_front vs_front i_back back vs_back vs,
-    l.[front] ↦ frontlst_to_val i_front vs_front ∗
-    l.[back] ↦ backlst_to_val i_back back vs_front ∗
+    l.[front] ↦ suffix_to_val i_front vs_front ∗
+    front_auth γ i_front ∗
+    l.[back] ↦ prefix_to_val i_back back vs_front ∗
     ([∗ map] back ↦ i ∈ backs, back_model' back i) ∗
     model₂ γ vs ∗
     lstate_auth γ backs i lstatus ∗
@@ -223,7 +235,7 @@ Section mpmc_queue_2_G.
         ⌜i_back = (i + length move)%nat⌝ ∗
         ⌜vs_front = []⌝ ∗
         ⌜vs_back = []⌝ ∗
-        back_model back i_back (backlst_to_val i back' move)
+        back_model back i_back (prefix_to_val i back' move)
     end.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
@@ -237,6 +249,7 @@ Section mpmc_queue_2_G.
       %vs_back{} &
       %vs{} &
       Hl_front &
+      Hfront_auth &
       Hl_back &
       Hbacks &
       Hmodel₂ &
@@ -398,30 +411,15 @@ Section mpmc_queue_2_G.
     iFrameSteps.
   Qed.
 
-  Lemma mpmc_queue_2_push_back_spec t ι v :
+  Lemma mpmc_queue_2_push_spec t ι v :
     <<<
       mpmc_queue_2_inv t ι
     | ∀∀ vs,
       mpmc_queue_2_model t vs
     >>>
-      mpmc_queue_2_push_back t v @ ↑ι
+      mpmc_queue_2_push t v @ ↑ι
     <<<
       mpmc_queue_2_model t (vs ++ [v])
-    | RET ();
-      True
-    >>>.
-  Proof.
-  Admitted.
-
-  Lemma mpmc_queue_2_push_front_spec t ι v :
-    <<<
-      mpmc_queue_2_inv t ι
-    | ∀∀ vs,
-      mpmc_queue_2_model t vs
-    >>>
-      mpmc_queue_2_push_front t v @ ↑ι
-    <<<
-      mpmc_queue_2_model t (v :: vs)
     | RET ();
       True
     >>>.
@@ -445,7 +443,9 @@ Section mpmc_queue_2_G.
 End mpmc_queue_2_G.
 
 #[global] Opaque mpmc_queue_2_create.
-#[global] Opaque mpmc_queue_2_push_back.
+#[global] Opaque mpmc_queue_2_size.
+#[global] Opaque mpmc_queue_2_is_empty.
+#[global] Opaque mpmc_queue_2_push.
 #[global] Opaque mpmc_queue_2_pop.
 
 #[global] Opaque mpmc_queue_2_inv.
