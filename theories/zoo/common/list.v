@@ -759,6 +759,135 @@ Section slice.
   Qed.
 End slice.
 
+Section with_slice.
+  Context {A : Type}.
+
+  Implicit Types x : A.
+  Implicit Types l s : list A.
+
+  Definition with_slice i n l s :=
+    take i l ++ s ++ drop (i + n) l.
+
+  Lemma length_with_slice i n l s :
+    i + n ≤ length l →
+    length s = n →
+    length (with_slice i n l s) = length l.
+  Proof.
+    intros.
+    rewrite /with_slice !length_app length_take length_drop. lia.
+  Qed.
+
+  Lemma with_slice_0 n l s :
+    with_slice 0 n l s = s ++ drop n l.
+  Proof.
+    rewrite /with_slice //.
+  Qed.
+  Lemma with_slice_all n l s :
+    length l ≤ n →
+    with_slice 0 n l s = s.
+  Proof.
+    intros.
+    rewrite with_slice_0 skipn_all2 // right_id //.
+  Qed.
+
+  Lemma with_slice_app_l i n l1 l2 s :
+    i + n ≤ length l1 →
+    with_slice i n (l1 ++ l2) s = with_slice i n l1 s ++ l2.
+  Proof.
+    intros.
+    rewrite /with_slice take_app_le; first lia.
+    rewrite drop_app_le // !assoc //.
+  Qed.
+  Lemma with_slice_app_r i n l1 l2 s :
+    length l1 ≤ i →
+    with_slice i n (l1 ++ l2) s = l1 ++ with_slice (i - length l1) n l2 s.
+  Proof.
+    intros.
+    rewrite /with_slice take_app_ge // drop_app_ge; first lia.
+    rewrite Nat.add_sub_swap // !assoc //.
+  Qed.
+  Lemma with_slice_app_length n l1 l2 s :
+    with_slice (length l1) n (l1 ++ l2) s = l1 ++ s ++ drop n l2.
+  Proof.
+    rewrite with_slice_app_r // Nat.sub_diag with_slice_0 //.
+  Qed.
+  Lemma with_slice_app_length' i n l1 l2 s :
+    i = length l1 →
+    with_slice i n (l1 ++ l2) s = l1 ++ s ++ drop n l2.
+  Proof.
+    intros ->.
+    apply with_slice_app_length.
+  Qed.
+
+  Lemma with_slice_slice_nil i l s :
+    with_slice i 0 l [] = l.
+  Proof.
+    rewrite /with_slice Nat.add_0_r left_id take_drop //.
+  Qed.
+
+  Lemma with_slice_slice_snoc i n l s x :
+    i + n < length l →
+    length s = n →
+    with_slice i (S n) l (s ++ [x]) = <[i + n := x]> (with_slice i n l s).
+  Proof.
+    intros.
+    destruct (lookup_lt_is_Some_2 l (i + n)) as (y & Hlookup); first done.
+    rewrite /with_slice.
+    rewrite insert_app_r_alt length_take; first lia.
+    rewrite Nat.min_l; first lia.
+    rewrite insert_app_r_alt; first lia.
+    replace (i + n - i - length s) with 0 by lia.
+    rewrite (drop_S l y (i + n)) //.
+    rewrite -assoc Nat.add_succ_r //.
+  Qed.
+
+  Lemma with_slice_lookup_left {i n l s} k x :
+    l !! k = Some x →
+    k < i →
+    with_slice i n l s !! k = Some x.
+  Proof.
+    intros Hlookup Hk.
+    apply lookup_lt_Some in Hlookup as ?.
+    rewrite lookup_app_l.
+    { rewrite length_take. lia. }
+    rewrite lookup_take_Some //.
+  Qed.
+  Lemma with_slice_lookup_middle {i n l s} k x :
+    s !! (k - i) = Some x →
+    i ≤ length l →
+    i ≤ k →
+    with_slice i n l s !! k = Some x.
+  Proof.
+    intros Hlookup Hi Hk.
+    apply lookup_lt_Some in Hlookup as ?.
+    rewrite lookup_app_r length_take; first lia.
+    rewrite Nat.min_l; first lia.
+    rewrite lookup_app_l //.
+  Qed.
+  Lemma with_slice_lookup_middle' {i n l s} k1 k2 x :
+    s !! k2 = Some x →
+    k2 = k1 - i →
+    i ≤ length l →
+    i ≤ k1 →
+    with_slice i n l s !! k1 = Some x.
+  Proof.
+    intros Hlookup ->.
+    apply with_slice_lookup_middle. done.
+  Qed.
+  Lemma with_slice_lookup_right {i n l s} k x :
+    l !! k = Some x →
+    length s = n →
+    i + n ≤ k →
+    with_slice i n l s !! k = Some x.
+  Proof.
+    intros Hlookup Hs Hk.
+    apply lookup_lt_Some in Hlookup as ?.
+    rewrite lookup_app_r length_take; first lia.
+    rewrite lookup_app_r; first lia.
+    rewrite lookup_drop -Hlookup. f_equal. lia.
+  Qed.
+End with_slice.
+
 Section omap.
   Lemma length_omap `(f : A → option B) l :
     length (omap f l) ≤ length l.
