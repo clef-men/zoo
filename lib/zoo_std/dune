@@ -1,4 +1,7 @@
 (library
   (name zoo_std)
   (public_name zoo_std)
+  (libraries
+    zoo
+  )
 )

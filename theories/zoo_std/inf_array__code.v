@@ -72,12 +72,27 @@ Definition inf_array_cas : val :=
     mutex_protect "t".{mutex}
       (fun: <> =>
          inf_array_reserve "t" ("i" + #1) ;;
-         if: array_unsafe_get "t".{data} "i" != "v1" then (
-           #false
+         let: "res" := array_unsafe_get "t".{data} "i" == "v1" in
+         if: "res" then (
+           array_unsafe_set "t".{data} "i" "v2"
          ) else (
-           array_unsafe_set "t".{data} "i" "v2" ;;
-           #true
-         )).
+           ()
+         ) ;;
+         "res").
+
+Definition inf_array_cas_resolve : val :=
+  fun: "t" "i" "v1" "v2" "proph" "v_resolve" =>
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         inf_array_reserve "t" ("i" + #1) ;;
+         let: "res" := array_unsafe_get "t".{data} "i" == "v1" in
+         if: "res" then (
+           array_unsafe_set "t".{data} "i" "v2"
+         ) else (
+           ()
+         ) ;;
+         Resolve ((fun: <> => ()) ()) "proph" "v_resolve" ;;
+         "res").
 
 Definition inf_array_faa : val :=
   fun: "t" "i" "incr" =>

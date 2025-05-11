@@ -257,3 +257,14 @@ Fixpoint subst_list xs vs e :=
       end
   end.
 #[global] Arguments subst_list !_ !_ _ / : assert.
+
+Lemma subst_val x v1 v2 :
+  subst x v1 (Val v2) = Val v2.
+Proof.
+  done.
+Qed.
+Lemma subst'_val x v1 v2 :
+  subst' x v1 (Val v2) = Val v2.
+Proof.
+  destruct x; done.
+Qed.

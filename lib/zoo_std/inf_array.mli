@@ -17,6 +17,8 @@ val xchg :
 
 val cas :
   'a t -> int -> 'a -> 'a -> bool
+val cas_resolve :
+  'a t -> int -> 'a -> 'a -> 'b Zoo.proph -> 'b -> bool
 
 val faa :
   int t -> int -> int -> int

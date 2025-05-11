@@ -3,7 +3,8 @@ From zoo Require Import
 From zoo.common Require Export
   list.
 From zoo.language Require Export
-  language.
+  language
+  metatheory.
 From zoo.language Require Import
   tactics
   notations.
@@ -25,6 +26,15 @@ Section atomic.
     [ inversion 1; naive_solver
     | apply ectxi_language_sub_redexes_are_values; intros [] **; naive_solver
     ].
+
+  #[global] Instance pure_atomic e v :
+    PureExec True 1 e v →
+    Atomic e.
+  Proof.
+    intros Hpure%nsteps_once_inv tid σ κ e' σ' es Hstep; last done.
+    eapply pure_step_det in Hstep; last done.
+    naive_solver.
+  Qed.
 
   #[global] Instance rec_atomic f x e :
     Atomic (Rec f x e).
@@ -249,6 +259,13 @@ Section pure_exec.
     { rewrite Hrecs_eq -assoc //. }
     { rewrite Hvs_eq -assoc //. }
     { lia. }
+  Qed.
+  #[global] Instance pure_app_rec f x v1 v2 :
+    PureExec True 1 (App (ValRec f x (Val v1)) (Val v2)) v1.
+  Proof.
+    pose proof (pure_app (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
+    rewrite /= !subst'_val in H.
+    intros _. naive_solver.
   Qed.
 
   #[global] Instance pure_let x v1 e2 :

@@ -24,7 +24,8 @@ From zoo Require Import
 
 Implicit Types b : bool.
 Implicit Types l : location.
-Implicit Types v t fn : val.
+Implicit Types pid : prophet_id.
+Implicit Types v v_resolve t fn : val.
 Implicit Types us : list val.
 Implicit Types vs : nat → val.
 
@@ -350,7 +351,7 @@ Section inf_array_G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "Hmtx_locked (:inv_1)".
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1)".
     wp_load.
     wp_smart_apply (array_size_spec with "Hdata") as "Hdata".
     wp_pures. case_decide.
@@ -420,7 +421,7 @@ Section inf_array_G.
     iIntros "% %Φ ((:inv) & Hfn) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv Hfn HΦ]"); last iSteps. iIntros "Hmtx_locked (:inv_1 =1 lazy=)".
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv Hfn HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
     wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
@@ -446,13 +447,11 @@ Section inf_array_G.
     iMod "HΦ" as "(%vs_ & ((:model) & _) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    set us3 := <[₊i := w]> us2.
-    set vs3 := <[₊i := w]> vs.
-    iMod (model_update vs3 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (model_update (<[₊i := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[$Hmodel₁ Hw]") as "HΦ"; first naive_solver.
 
     iFrame. rewrite Hv. iSplitR "HΦ"; last iSteps. iPureIntro.
-    rewrite /vs3 length_insert Hvs.
+    rewrite length_insert Hvs.
     apply functional_extensionality => j.
     destruct (decide (j = ₊i)) as [-> |].
     - rewrite fn_lookup_insert decide_True; first lia.
@@ -562,7 +561,7 @@ Section inf_array_G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "Hmtx_locked (:inv_1 =1 lazy=)".
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
     wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
@@ -574,34 +573,114 @@ Section inf_array_G.
 
     wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_apply wp_equal' as (b) "%".
+    wp_pures.
 
-    iApply fupd_wp.
+    wp_bind (if: _ then _ else _)%E.
+    wp_apply (wp_wand (λ res,
+      l.[data] ↦ data ∗
+      array_model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
+    )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
+    { destruct b; last iSteps.
+      wp_load.
+      wp_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+      iSteps.
+    }
+
+    wp_pures.
+
     iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    destruct b.
+    set vs' := if b then <[₊i := v2]> vs else vs.
+    iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" $! b with "[Hmodel₁] [//]") as "$".
+    { rewrite Hv. iSteps. }
 
-    - set us3 := <[₊i := v2]> us2.
-      set vs3 := <[₊i := v2]> vs.
-      iMod (model_update vs3 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ"; first naive_solver.
-      iModIntro.
+    iFrame. iPureIntro.
+    destruct b; last done.
+    rewrite /vs' length_insert Hvs.
+    apply functional_extensionality => j.
+    destruct (decide (j = ₊i)) as [-> |].
+    - rewrite fn_lookup_insert decide_True; first lia.
+      rewrite list_lookup_total_insert //. lia.
+    - rewrite fn_lookup_insert_ne //. case_decide; last done.
+      rewrite list_lookup_total_insert_ne //.
+  Qed.
+  Lemma inf_array_cas_resolve_spec t i v1 v2 pid v_resolve Φ :
+    (0 ≤ i)%Z →
+    inf_array_inv t -∗
+    ( |={⊤,∅}=>
+      ∃ vs,
+      inf_array_model t vs ∗
+      ( ∀ e b,
+        ⌜PureExec True 1 e ()⌝ -∗
+        ⌜to_val e = None⌝ -∗
+        ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ -∗
+        inf_array_model t (if b then <[₊i := v2]> vs else vs) -∗
+        WP Resolve e #pid v_resolve @ ∅ {{ _,
+          |={∅,⊤}=>
+          Φ #b
+        }}
+      )
+    ) -∗
+    WP inf_array_cas_resolve t #i v1 v2 #pid v_resolve {{ Φ }}.
+  Proof.
+    iIntros "% (:inv) HΦ".
 
+    wp_rec. wp_load.
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_load.
+
+    destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
+    assert (vs ₊i = v) as Hv.
+    { rewrite Hvs decide_True; first lia.
+      apply list_lookup_total_correct. done.
+    }
+
+    wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply wp_equal' as (b) "%".
+    wp_pures.
+
+    wp_bind (if: _ then _ else _)%E.
+    wp_apply (wp_wand (λ res,
+      l.[data] ↦ data ∗
+      array_model data (DfracOwn 1) (if b then <[₊i := v2]> us2 else us2)
+    )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
+    { destruct b; last iSteps.
       wp_load.
-      wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
-      wp_pures.
+      wp_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+      iSteps.
+    }
 
-      iFrame. iSplitR "HΦ"; last iSteps. iPureIntro.
-      rewrite /vs3 length_insert Hvs.
-      apply functional_extensionality => j.
-      destruct (decide (j = ₊i)) as [-> |].
-      + rewrite fn_lookup_insert decide_True; first lia.
-        rewrite list_lookup_total_insert //. lia.
-      + rewrite fn_lookup_insert_ne //. case_decide; last done.
-        rewrite list_lookup_total_insert_ne //.
+    wp_pures.
 
-    - iMod ("HΦ" $! false with "[$Hmodel₁]") as "HΦ"; first naive_solver.
-      iStepFrameSteps 7.
+    set vs' := if b then <[₊i := v2]> vs else vs.
+    wp_bind (Resolve _ _ _).
+    wp_apply (wp_wand (λ _,
+      model₂ γ vs' ∗
+      Φ #b
+    )%I with "[Hmodel₂ HΦ]") as (?) "(Hmodel₂ & HΦ)".
+    { iMod "HΦ" as "(%vs_ & (:model) & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
+      wp_apply (wp_wand with "(HΦ [%] [%] [%] [Hmodel₁])") as (?) "$".
+      { done. }
+      { rewrite Hv //. }
+      { iSteps. }
+    }
+
+    wp_pures.
+    iFrame. iPureIntro.
+    destruct b; last done.
+    rewrite /vs' length_insert Hvs.
+    apply functional_extensionality => j.
+    destruct (decide (j = ₊i)) as [-> |].
+    - rewrite fn_lookup_insert decide_True; first lia.
+      rewrite list_lookup_total_insert //. lia.
+    - rewrite fn_lookup_insert_ne //. case_decide; last done.
+      rewrite list_lookup_total_insert_ne //.
   Qed.
 
   Lemma inf_array_faa_spec t i (incr : Z) :
@@ -631,9 +710,11 @@ End inf_array_G.
 
 #[global] Opaque inf_array_create.
 #[global] Opaque inf_array_get.
+#[global] Opaque inf_array_update.
 #[global] Opaque inf_array_set.
 #[global] Opaque inf_array_xchg.
 #[global] Opaque inf_array_cas.
+#[global] Opaque inf_array_cas_resolve.
 #[global] Opaque inf_array_faa.
 
 #[global] Opaque inf_array_inv.

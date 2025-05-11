@@ -43,12 +43,18 @@ let set t i v =
 let cas t i v1 v2 =
   Mutex.protect t.mutex @@ fun () ->
     reserve t (i + 1) ;
-    if Array.unsafe_get t.data i != v1 then (
-      false
-    ) else (
+    let res = Array.unsafe_get t.data i == v1 in
+    if res then
       Array.unsafe_set t.data i v2 ;
-      true
-    )
+    res
+let cas_resolve t i v1 v2 proph v_resolve =
+  Mutex.protect t.mutex @@ fun () ->
+    reserve t (i + 1) ;
+    let res = Array.unsafe_get t.data i == v1 in
+    if res then
+      Array.unsafe_set t.data i v2 ;
+    Zoo.resolve' proph v_resolve ;
+    res
 
 let faa t i incr =
   update t i (fun n -> n + incr)
