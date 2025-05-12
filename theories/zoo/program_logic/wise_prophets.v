@@ -129,9 +129,9 @@ Section wise_prophets_G.
     wise_strong_prophet_full prophetx γ iprophs.
   #[local] Instance : CustomIpatFormat "full" :=
     "(
-      %iprophs{_{suff}} &
+      %iprophs{} &
       -> &
-      Hfull
+      Hfull{}
     )".
 
   Definition wise_strong_prophets_model pid γ pasts prophss : iProp Σ :=
@@ -236,9 +236,18 @@ Section wise_prophets_G.
     wise_strong_prophets_full γ i prophs -∗
     ⌜prophs = pasts i ++ prophss i⌝.
   Proof.
-    iIntros "(:model) (:full suff=)".
-    iDestruct (wise_strong_prophet_full_valid with "Hmodel Hfull") as %->.
-    rewrite Hpasts Hprophss untangle_app //.
+    iIntros "(:model =1) (:full =2)". simplify.
+    iDestruct (wise_strong_prophet_full_valid with "Hmodel1 Hfull2") as %->.
+    rewrite Hpasts1 Hprophss1 untangle_app //.
+  Qed.
+  Lemma wise_strong_prophets_full_agree γ i prophs1 prophs2 :
+    wise_strong_prophets_full γ i prophs1 -∗
+    wise_strong_prophets_full γ i prophs2 -∗
+    ⌜prophs1 = prophs2⌝.
+  Proof.
+    iIntros "(:full =1) (:full =2)". simplify.
+    iDestruct (wise_strong_prophet_full_agree with "Hfull1 Hfull2") as %->.
+    iSteps.
   Qed.
 
   Lemma wise_strong_prophets_snapshot_get {pid γ pasts prophss} i :
@@ -368,7 +377,7 @@ Section wise_prophets_G.
     "(
       %sprophs{} &
       -> &
-      Hfull
+      Hfull{}
     )".
 
   Definition wise_prophets_model pid γ pasts prophss : iProp Σ :=
@@ -475,9 +484,18 @@ Section wise_prophets_G.
     wise_prophets_full γ i prophs -∗
     ⌜prophs = pasts i ++ prophss i⌝.
   Proof.
-    iIntros "(:model) (:full suff=)".
-    iDestruct (wise_strong_prophets_full_valid with "Hmodel Hfull") as %->.
-    rewrite Hpasts Hprophss fmap_app //.
+    iIntros "(:model =1) (:full =2)". simplify.
+    iDestruct (wise_strong_prophets_full_valid with "Hmodel1 Hfull2") as %->.
+    rewrite Hpasts1 Hprophss1 fmap_app //.
+  Qed.
+  Lemma wise_prophets_full_agree γ i prophs1 prophs2 :
+    wise_prophets_full γ i prophs1 -∗
+    wise_prophets_full γ i prophs2 -∗
+    ⌜prophs1 = prophs2⌝.
+  Proof.
+    iIntros "(:full =1) (:full =2)". simplify.
+    iDestruct (wise_strong_prophets_full_agree with "Hfull1 Hfull2") as %->.
+    iSteps.
   Qed.
 
   Lemma wise_prophets_snapshot_get {pid γ pasts prophss} i :
