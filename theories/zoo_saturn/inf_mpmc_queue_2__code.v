@@ -39,8 +39,11 @@ Definition inf_mpmc_queue_2_push : val :=
     let: "id" := Id in
     let: "i" := FAA "t".[back] #1 in
     if:
-      ~ Resolve
-          (inf_array_cas "t".{data} "i" §Nothing ‘Something( "v" ))
+      ~ inf_array_cas_resolve
+          "t".{data}
+          "i"
+          §Nothing
+          ‘Something( "v" )
           "t".{proph}
           ("i", "id")
     then (

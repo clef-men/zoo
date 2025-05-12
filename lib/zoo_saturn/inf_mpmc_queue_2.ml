@@ -27,11 +27,7 @@ let is_empty t =
 let rec push t v =
   let id = Zoo.id () in
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
-  if not @@
-    Zoo.resolve (
-      Inf_array.cas t.data i Nothing (Something v)
-    ) t.proph (i, id)
-  then
+  if not @@ Inf_array.cas_resolve t.data i Nothing (Something v) t.proph (i, id) then
     push t v
 
 let rec pop t =
