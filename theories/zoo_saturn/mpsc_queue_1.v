@@ -27,6 +27,7 @@ Implicit Types b : bool.
 Implicit Types l front node back new_back : location.
 Implicit Types hist past nodes : list location.
 Implicit Types v t : val.
+Implicit Types o : option val.
 Implicit Types vs : list val.
 
 Class MpscQueue1G Σ `{zoo_G : !ZooG Σ} := {
@@ -337,49 +338,84 @@ Section mpsc_queue_1_G.
     iSteps.
   Qed.
 
-  Inductive op :=
-    | IsEmpty
-    | Pop
+  Inductive operation :=
+    | IsEmpty (Ψ : bool → iProp Σ)
+    | Pop (Ψ : option val → iProp Σ)
     | Other.
-  #[local] Instance op_eq_dec : EqDecision op :=
+  Implicit Types op : operation.
+  Inductive operation' :=
+    | IsEmpty'
+    | Pop'
+    | Other'.
+  #[local] Instance operation'_eq_dec : EqDecision operation' :=
     ltac:(solve_decision).
-  #[local] Lemma xtchain_next_spec_strong op TB β x_empty x_nonempty Ψ l γ i node :
+  #[local] Coercion operation_to_operation' op :=
+    match op with
+    | IsEmpty _ =>
+        IsEmpty'
+    | Pop _ =>
+        Pop'
+    | Other =>
+        Other'
+    end.
+  #[local] Definition is_empty_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      mpsc_queue_1_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      mpsc_queue_1_model #l vs
+    , COMM
+      Ψ (bool_decide (vs = []))
+    }>.
+  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      mpsc_queue_1_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      mpsc_queue_1_model #l (tail vs)
+    , COMM
+      Ψ (head vs)
+    }>.
+  #[local] Lemma xtchain_next_spec_aux op l γ i node :
     {{{
       meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
-      ( if decide (op = Other) then True else
-          l.[front] ↦{#3/4} #node ∗
-          atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ ∗
-          (mpsc_queue_1_model #l [] -∗ β [tele_arg []] x_empty)
+      ( if decide (op = Other' :> operation') then True else
+          l.[front] ↦{#3/4} #node
       ) ∗
-      ( if decide (op ≠ IsEmpty) then True else
-          ∀ vs,
-          ⌜vs ≠ []⌝ -∗
-          mpsc_queue_1_model #l vs -∗
-          β (TeleArgCons vs ()) x_nonempty
-      )
+      match op with
+      | IsEmpty Ψ =>
+          is_empty_au l γ Ψ
+      | Pop Ψ =>
+          pop_au l γ Ψ
+      | Other =>
+          True
+      end
     }}}
       (#node).{xtchain_next}
     {{{ res,
       RET res;
-      ( ⌜res = ()%V⌝ ∗
-        if decide (op = Other) then True else
-          l.[front] ↦{#3/4} #node ∗
-          Ψ [tele_arg []] x_empty
-      ) ∨ (
-        ∃ node',
+      ( if decide (op = Other' :> operation') then True else
+          l.[front] ↦{#3/4} #node
+      ) ∗
+      ( ⌜res = §Null%V⌝ ∗
+        match op with
+        | IsEmpty Ψ =>
+            Ψ true
+        | Pop Ψ =>
+            Ψ None
+        | Other =>
+            True
+        end
+      ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i) ∗
-        ( if decide (op = Other) then True else
-            l.[front] ↦{#3/4} #node
-        ) ∗
         match op with
-        | IsEmpty =>
-            ∃ vs,
-            Ψ (TeleArgCons vs ()) x_nonempty
-        | Pop =>
-            atomic_update (TA := [tele vs]) (TB := TB) (⊤ ∖ ↑γ.(metadata_inv)) ∅ (tele_app $ mpsc_queue_1_model #l) β Ψ
+        | IsEmpty Ψ =>
+            Ψ false
+        | Pop Ψ =>
+            pop_au l γ Ψ
         | Other =>
             True
         end
@@ -397,39 +433,37 @@ Section mpsc_queue_1_G.
 
     - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
       iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
-      destruct (decide (op = IsEmpty)) as [-> | Hop].
-
-      + iDestruct "Hop" as "((Hl_front_ & HΨ & Hβ_empty) & Hβ_nonempty)".
-        iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
-
-        iMod "HΨ" as "(%vs_ & (:model) & _ & HΨ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iDestruct ("Hβ_nonempty" with "[#] [Hmodel₁]") as "Hβ"; [| iSteps |].
-        { iAssert ⌜length past = i⌝%I as %Hpast_length.
-          { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
-            iPureIntro. eapply NoDup_lookup; try done.
-            rewrite Hhist list_lookup_middle //.
-          }
-          rewrite -length_zero_iff_nil.
-          iDestruct (big_sepL2_length with "Hnodes") as %<-.
-          iIntros "%Hnodes_length". iPureIntro.
-          apply (f_equal length) in Hhist as Hhist_length.
-          simpl_length/= in Hhist_length.
-          apply lookup_lt_Some in Hlookup'.
-          lia.
-        }
-        iMod ("HΨ" $! x_nonempty with "Hβ") as "HΨ".
-
-        iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
-        iSteps.
-
-      + iSplitR "Hop HΦ". { iFrameSteps. }
-        destruct op; [done | iSteps..].
-
-    - destruct (decide (op = Other)) as [-> | Hop]; first iSteps.
-      iDestruct "Hop" as "((Hl_front_ & HΨ & Hβ_empty) & _)".
+      destruct op; [| iFrameSteps..].
+      iDestruct "Hop" as "(Hl_front_ & HΨ)".
       iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
+
+      iMod "HΨ" as "(%vs_ & (:model) & _ & HΨ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
+
+      iAssert ⌜length past = i⌝%I as %Hpast_length.
+      { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
+        iPureIntro. eapply NoDup_lookup; try done.
+        rewrite Hhist list_lookup_middle //.
+      }
+      rewrite -(bool_decide_ext _ _ (length_zero_iff_nil _)).
+      iDestruct (big_sepL2_length with "Hnodes") as %<-.
+      rewrite bool_decide_eq_false_2.
+      { apply (f_equal length) in Hhist as Hhist_length.
+        simpl_length/= in Hhist_length.
+        apply lookup_lt_Some in Hlookup'.
+        lia.
+      }
+
+      iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
+      iSteps.
+
+    - destruct (decide (op = Other' :> operation')).
+      { destruct op; try done. iSteps. }
+      iDestruct "Hop" as "(Hl_front_ & HΨ)".
+      iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
+
       iAssert ⌜length past = i⌝%I as %Hpast_length.
       { iDestruct (xtchain_NoDup with "Hhist") as %Hnodup.
         iPureIntro. eapply NoDup_lookup; try done.
@@ -443,14 +477,23 @@ Section mpsc_queue_1_G.
         simpl_length/= in Hhist. lia.
       }
 
-      iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iDestruct ("Hβ_empty" with "[Hmodel₁]") as "Hβ"; first iSteps.
-      iMod ("HΨ" with "Hβ") as "HΨ".
+      destruct op; last done.
 
-      iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
-      iSteps.
+      + iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
+
+        iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
+        iSteps.
+
+      + iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
+
+        iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
+        iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec {l γ i} node :
     {{{
@@ -461,14 +504,72 @@ Section mpsc_queue_1_G.
       (#node).{xtchain_next}
     {{{ res,
       RET res;
-        ⌜res = ()%V⌝
+        ⌜res = §Null%V⌝
       ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i)
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node) HΦ".
-    wp_apply (xtchain_next_spec_strong Other TeleO inhabitant inhabitant inhabitant inhabitant); iSteps.
+    wp_apply (xtchain_next_spec_aux Other); iSteps.
+  Qed.
+  #[local] Lemma xtchain_next_spec_is_empty {l γ i node} Ψ :
+    let Ψ b := (
+      mpsc_queue_1_consumer #l -∗
+      Ψ #b
+    )%I in
+    {{{
+      meta l nroot γ ∗
+      inv' l γ ∗
+      history_at γ i node ∗
+      l.[front] ↦{#3/4} #node ∗
+      is_empty_au l γ Ψ
+    }}}
+      (#node).{xtchain_next}
+    {{{ res,
+      RET res;
+      l.[front] ↦{#3/4} #node ∗
+      ( ⌜res = §Null%V⌝ ∗
+        Ψ true
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node_model γ node' (S i) ∗
+        Ψ false
+      )
+    }}}.
+  Proof.
+    iIntros "%Ψ' %Φ (#Hmeta & #Hinv & #Hhistory_at_node & Hl_front & Hau) HΦ".
+    wp_apply (xtchain_next_spec_aux (IsEmpty _) with "[$]").
+    iSteps.
+  Qed.
+  #[local] Lemma xtchain_next_spec_pop {l γ i node} Ψ :
+    let Ψ o := (
+      mpsc_queue_1_consumer #l -∗
+      Ψ (o : val)
+    )%I in
+    {{{
+      meta l nroot γ ∗
+     inv' l γ ∗
+      history_at γ i node ∗
+      l.[front] ↦{#3/4} #node ∗
+      pop_au l γ Ψ
+    }}}
+      (#node).{xtchain_next}
+    {{{ res,
+      RET res;
+      l.[front] ↦{#3/4} #node ∗
+      ( ⌜res = §Null%V⌝ ∗
+        Ψ None
+      ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node_model γ node' (S i) ∗
+        pop_au l γ Ψ
+      )
+    }}}.
+  Proof.
+    iIntros "%Ψ' %Φ (#Hmeta & #Hinv & #Hhistory_at_node & Hl_front & Hau) HΦ".
+    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]").
+    iSteps.
   Qed.
 
   Lemma mpsc_queue_1_is_empty_spec t ι :
@@ -489,27 +590,9 @@ Section mpsc_queue_1_G.
 
     iMod (inv_inner_history_at with "Hinv Hl_front_") as "(%i & Hl_front & #Hfront_header & #Hhistory_at_front)".
 
-    iAssert (
-      AU <{
-        ∃∃ vs,
-        mpsc_queue_1_model #l vs
-      }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-        ∀∀ b,
-        ⌜b = bool_decide (vs = [])⌝ ∗
-        mpsc_queue_1_model #l vs
-      , COMM
-        mpsc_queue_1_consumer #l -∗
-        Φ #b
-      }>
-    )%I with "[HΦ]" as "HΦ".
-    { iAuIntro.
-      iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
-      iAaccIntro with "Hmodel"; iSteps.
-    }
-
     wp_rec. wp_load. wp_match.
-    wp_smart_apply (xtchain_next_spec_strong IsEmpty [tele_pair bool] _ [tele_arg true] [tele_arg false] with "[$Hl_front $HΦ]"); last iSteps.
-    iSteps. iSplitR; iSteps.
+    wp_smart_apply (xtchain_next_spec_is_empty with "[$]").
+    iSteps.
   Qed.
 
   #[local] Lemma mpsc_queue_1_push_0_spec l γ i node new_back v :
@@ -518,7 +601,7 @@ Section mpsc_queue_1_G.
       inv' l γ ∗
       node_model γ node i ∗
       new_back ↦ₕ Header §Node 2 ∗
-      new_back.[xtchain_next] ↦ () ∗
+      new_back.[xtchain_next] ↦ §Null ∗
       new_back.[xtchain_data] ↦ v
     | ∀∀ vs,
       mpsc_queue_1_model #l vs
@@ -536,8 +619,7 @@ Section mpsc_queue_1_G.
     iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at_node".
 
     wp_rec. wp_match.
-    wp_smart_apply (xtchain_next_spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]".
-    2:{ wp_match. iSteps. }
+    wp_smart_apply (xtchain_next_spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]"; last iSteps.
     wp_pures.
 
     wp_bind (CAS _ _ _).
@@ -657,7 +739,7 @@ Section mpsc_queue_1_G.
     iMod (inv_inner_history_at with "Hinv Hl_front_") as "(%i & Hl_front_ & (:node_model =front))".
 
     wp_rec. wp_load. wp_match.
-    wp_smart_apply (xtchain_next_spec_strong Pop _ _ [tele_arg] inhabitant with "[$Hl_front_ $HΦ]") as (res) "[(-> & Hl_front_ & HΦ) | (%new_front & -> & (:node_model =new_front) & Hl_front_ & HΦ)]"; [auto | iSteps |].
+    wp_smart_apply (xtchain_next_spec_pop with "[$]") as (res) "(Hl_front_ & [(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)])"; first iSteps.
     wp_match. wp_pures.
 
     wp_bind (_ <-{front} _)%E.
