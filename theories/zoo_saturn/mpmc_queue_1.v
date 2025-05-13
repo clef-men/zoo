@@ -202,16 +202,6 @@ Section mpmc_queue_1_G.
       Hmodel₁
     )".
 
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
-    AU <{
-      ∃∃ vs,
-      mpmc_queue_1_model #l vs
-    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      mpmc_queue_1_model #l (tail vs)
-    , COMM
-      True -∗ Ψ (head vs)
-    }>.
-
   #[global] Instance mpmc_queue_1_model_timeless t vs :
     Timeless (mpmc_queue_1_model t vs).
   Proof.
@@ -457,13 +447,22 @@ Section mpmc_queue_1_G.
     ltac:(solve_decision).
   #[local] Coercion operation_to_operation' op :=
     match op with
-    | IsEmpty waiter Ψ =>
+    | IsEmpty _ _ =>
         IsEmpty'
-    | Pop Ψ =>
+    | Pop _ =>
         Pop'
     | Other =>
         Other'
     end.
+  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      mpmc_queue_1_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      mpmc_queue_1_model #l (tail vs)
+    , COMM
+      True -∗ Ψ (head vs)
+    }>.
   #[local] Lemma xtchain_next_spec_aux op l γ i node :
     {{{
       meta l nroot γ ∗
@@ -628,7 +627,8 @@ Section mpmc_queue_1_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]").
+    iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec_pop {l γ i node} Ψ :
     {{{
@@ -650,7 +650,8 @@ Section mpmc_queue_1_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
-    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]").
+    iSteps.
   Qed.
 
   Lemma mpmc_queue_1_is_empty_spec t ι :
@@ -720,8 +721,7 @@ Section mpmc_queue_1_G.
     iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at_node".
 
     wp_rec. wp_match.
-    wp_smart_apply (xtchain_next_spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]".
-    2:{ wp_match. iSteps. }
+    wp_smart_apply (xtchain_next_spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]"; last iSteps.
     wp_pures.
 
     wp_bind (CAS _ _ _).
