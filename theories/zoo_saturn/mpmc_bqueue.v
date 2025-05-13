@@ -245,16 +245,6 @@ Section mpmc_bqueue_G.
       Hmodel₁
     )".
 
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
-    AU <{
-      ∃∃ vs,
-      mpmc_bqueue_model #l vs
-    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      mpmc_bqueue_model #l (tail vs)
-    , COMM
-      True -∗ Ψ (head vs)
-    }>.
-
   #[global] Instance mpmc_bqueue_model_timeless t vs :
     Timeless (mpmc_bqueue_model t vs).
   Proof.
@@ -530,9 +520,9 @@ Section mpmc_bqueue_G.
     ltac:(solve_decision).
   #[local] Coercion operation_to_operation' op :=
     match op with
-    | IsEmpty waiter Ψ =>
+    | IsEmpty _ _ =>
         IsEmpty'
-    | Pop Ψ =>
+    | Pop _ =>
         Pop'
     | Other =>
         Other'
@@ -542,15 +532,14 @@ Section mpmc_bqueue_G.
       meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
-      ( if decide (op = Other' :> operation') then True else
-          front_lb γ i
-      ) ∗
       match op with
       | IsEmpty waiter Ψ =>
+          front_lb γ i ∗
           saved_pred waiter Ψ ∗
           waiters_at γ waiter i ∗
           £ 1
       | Pop Ψ =>
+          front_lb γ i ∗
           pop_au l γ Ψ
       | Other =>
           True
@@ -626,18 +615,15 @@ Section mpmc_bqueue_G.
         iSplitR "Heq HΨ HΦ". { iFrameSteps. }
         iSteps. iRewrite "Heq". iSteps.
 
-    - destruct (decide (op = Other' :> operation')).
-      { destruct op; try done. iSteps. }
-      iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
-      iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.
-      opose proof* length_lookup_last as Hlength; [done.. |].
-      rewrite Hhist length_app /= in Hlength.
-      assert (i = length past) as -> by lia.
-      assert (length nodes = 0) as ->%nil_length_inv by lia.
-      iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
-      destruct op; last done.
+    - destruct op.
 
-      + iDestruct "Hop" as "(#Hwaiter & Hwaiters_at & H£)".
+      + iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
+        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.
+        opose proof* length_lookup_last as Hlength; [done.. |].
+        rewrite Hhist length_app /= in Hlength.
+        assert (i = length past) as -> by lia.
+        assert (length nodes = 0) as ->%nil_length_inv by lia.
+        iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
         iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
         iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
         iDestruct (saved_pred_agree true with "Hwaiter Hwaiter_") as "Heq".
@@ -654,13 +640,23 @@ Section mpmc_bqueue_G.
         iApply "HΦ".
         iLeft. iRewrite "Heq". iSteps.
 
-      + iMod "Hop" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+      + iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
+        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.
+        opose proof* length_lookup_last as Hlength; [done.. |].
+        rewrite Hhist length_app /= in Hlength.
+        assert (i = length past) as -> by lia.
+        assert (length nodes = 0) as ->%nil_length_inv by lia.
+        iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
+
+        iMod "Hop" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
 
         iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
+
+      + iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec {l γ i} node :
     {{{
@@ -678,7 +674,7 @@ Section mpmc_bqueue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node) HΦ".
-+    wp_apply (xtchain_next_spec_aux Other); iSteps.
+    wp_apply (xtchain_next_spec_aux Other); iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec_is_empty {l γ i node} waiter Ψ :
     {{{
@@ -702,7 +698,8 @@ Section mpmc_bqueue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]").
+    iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec_pop {l γ i node} Ψ :
     {{{
@@ -724,7 +721,8 @@ Section mpmc_bqueue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
-    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]").
+    iSteps.
    Qed.
 
   Lemma mpmc_bqueue_size_spec t ι cap :
