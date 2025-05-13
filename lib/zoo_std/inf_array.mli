@@ -14,6 +14,8 @@ val set :
 
 val xchg :
   'a t -> int -> 'a -> 'a
+val xchg_resolve :
+  'a t -> int -> 'a -> 'b Zoo.proph -> 'b -> 'a
 
 val cas :
   'a t -> int -> 'a -> 'a -> bool

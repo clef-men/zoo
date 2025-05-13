@@ -62,6 +62,16 @@ Definition inf_array_xchg : val :=
   fun: "t" "i" "v" =>
     inf_array_update "t" "i" (fun: <> => "v").
 
+Definition inf_array_xchg_resolve : val :=
+  fun: "t" "i" "v" "proph" "v_resolve" =>
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         inf_array_reserve "t" ("i" + #1) ;;
+         let: "old_v" := array_unsafe_get "t".{data} "i" in
+         array_unsafe_set "t".{data} "i" "v" ;;
+         Resolve ((fun: <> => ()) ()) "proph" "v_resolve" ;;
+         "old_v").
+
 Definition inf_array_set : val :=
   fun: "t" "i" "v" =>
     inf_array_xchg "t" "i" "v" ;;

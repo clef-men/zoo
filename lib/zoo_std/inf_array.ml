@@ -36,6 +36,13 @@ let update t i fn =
 
 let xchg t i v =
   update t i (fun _ -> v)
+let xchg_resolve t i v proph v_resolve =
+  Mutex.protect t.mutex @@ fun () ->
+    reserve t (i + 1) ;
+    let old_v = Array.unsafe_get t.data i in
+    Array.unsafe_set t.data i v ;
+    Zoo.resolve' proph v_resolve ;
+    old_v
 
 let set t i v =
   xchg t i v |> ignore

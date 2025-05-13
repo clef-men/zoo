@@ -482,6 +482,69 @@ Section inf_array_G.
     rewrite /atomic_acc /=. iFrameSteps.
   Qed.
 
+  Lemma inf_array_xchg_resolve_spec t i v pid v_resolve Φ :
+    (0 ≤ i)%Z →
+    inf_array_inv t -∗
+    ( |={⊤,∅}=>
+      ∃ vs,
+      inf_array_model t vs ∗
+      ( ∀ e,
+        ⌜PureExec True 1 e ()⌝ -∗
+        ⌜to_val e = None⌝ -∗
+        inf_array_model t (<[₊i := v]> vs) -∗
+        WP Resolve e #pid v_resolve @ ∅ {{ _,
+          |={∅,⊤}=>
+          Φ (vs ₊i)
+        }}
+      )
+    ) -∗
+    WP inf_array_xchg_resolve t #i v #pid v_resolve {{ Φ }}.
+  Proof.
+    iIntros "% (:inv) HΦ".
+
+    wp_rec. wp_load.
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_load.
+
+    destruct (lookup_lt_is_Some_2 us2 ₊i) as (w & Hlookup); first lia.
+    assert (vs ₊i = w) as Hw.
+    { rewrite Hvs decide_True; first lia.
+      apply list_lookup_total_correct. done.
+    }
+
+    wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_load.
+    wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+    wp_pures.
+
+    set vs' := <[₊i := v]> vs.
+    wp_bind (Resolve _ _ _).
+    wp_apply (wp_wand (λ _,
+      model₂ γ vs' ∗
+      Φ w
+    )%I with "[Hmodel₂ HΦ]") as (?) "(Hmodel₂ & HΦ)".
+    { iMod "HΦ" as "(%vs_ & (:model) & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & $)".
+      rewrite Hw.
+      wp_apply (wp_wand with "(HΦ [%] [%] [Hmodel₁])") as (?) "$".
+      { done. }
+      { iSteps. }
+    }
+
+    wp_pures.
+    iFrame. iPureIntro.
+    rewrite /vs' length_insert Hvs.
+    apply functional_extensionality => j.
+    destruct (decide (j = ₊i)) as [-> |].
+    - rewrite fn_lookup_insert decide_True; first lia.
+      rewrite list_lookup_total_insert //. lia.
+    - rewrite fn_lookup_insert_ne //. case_decide; last done.
+      rewrite list_lookup_total_insert_ne //.
+  Qed.
+
   Lemma inf_array_set_spec t i v :
     (0 ≤ i)%Z →
     <<<
@@ -606,6 +669,7 @@ Section inf_array_G.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
       rewrite list_lookup_total_insert_ne //.
   Qed.
+
   Lemma inf_array_cas_resolve_spec t i v1 v2 pid v_resolve Φ :
     (0 ≤ i)%Z →
     inf_array_inv t -∗
