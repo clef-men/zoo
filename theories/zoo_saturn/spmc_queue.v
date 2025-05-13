@@ -236,16 +236,6 @@ Section spmc_queue_G.
       Hmodel₁
     )".
 
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
-    AU <{
-      ∃∃ vs,
-      spmc_queue_model #l vs
-    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      spmc_queue_model #l (tail vs)
-    , COMM
-      True -∗ Ψ (head vs)
-    }>.
-
   #[global] Instance spmc_queue_model_timeless t vs :
     Timeless (spmc_queue_model t vs).
   Proof.
@@ -541,13 +531,22 @@ Section spmc_queue_G.
     ltac:(solve_decision).
   #[local] Coercion operation_to_operation' op :=
     match op with
-    | IsEmpty waiter Ψ =>
+    | IsEmpty _ _ =>
         IsEmpty'
-    | Pop Ψ =>
+    | Pop _ =>
         Pop'
     | Other =>
         Other'
     end.
+  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      spmc_queue_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      spmc_queue_model #l (tail vs)
+    , COMM
+      True -∗ Ψ (head vs)
+    }>.
   #[local] Lemma xtchain_next_spec_aux op l γ i node :
     {{{
       meta l nroot γ ∗
@@ -712,7 +711,8 @@ Section spmc_queue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (IsEmpty _ _) with "[$]").
+    iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec_pop {l γ i node} Ψ :
     {{{
@@ -734,7 +734,8 @@ Section spmc_queue_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
-    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]"); iSteps.
+    wp_apply (xtchain_next_spec_aux (Pop _) with "[$]").
+    iSteps.
    Qed.
 
   Lemma spmc_queue_is_empty_spec t ι :
