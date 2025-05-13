@@ -39,21 +39,21 @@ Implicit Types waiters : gmap gname nat.
 
 #[local] Program Definition prophet := {|
   typed_strong_prophet1_type :=
-    nat ;
+    location ;
   typed_strong_prophet1_of_val v _ :=
     match v with
-    | ValInt i =>
-        Some (Z.to_nat i)
+    | ValLoc l =>
+        Some l
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val i :=
-    (#i, ()%V) ;
+  typed_strong_prophet1_to_val l :=
+    (#l, ()%V) ;
 |}.
 Solve Obligations of prophet with
   try done.
 Next Obligation.
-  intros i v _ [= -> ->]. rewrite /= Nat2Z.id //.
+  naive_solver.
 Qed.
 
 Class MpmcBqueueG Σ `{zoo_G : !ZooG Σ} := {
@@ -269,6 +269,15 @@ Section mpmc_bqueue_G.
     history_at γ i node.
   Proof.
     apply mono_list_at_get.
+  Qed.
+  #[local] Lemma history_at_elem_of γ hist i node :
+    history_auth γ hist -∗
+    history_at γ i node -∗
+    ⌜node ∈ hist⌝.
+  Proof.
+    iIntros "Hauth Hat".
+    iDestruct (mono_list_at_valid with "Hauth Hat") as %?%elem_of_list_lookup_2.
+    iSteps.
   Qed.
   #[local] Lemma history_agree γ hist i node :
     history_auth γ hist -∗
@@ -508,11 +517,13 @@ Section mpmc_bqueue_G.
   Qed.
 
   Inductive operation :=
+    | Size (i_front : nat) (Ψ : val → iProp Σ)
     | IsEmpty waiter (Ψ : bool → iProp Σ)
     | Pop (Ψ : option val → iProp Σ)
     | Other.
   Implicit Types op : operation.
   Inductive operation' :=
+    | Size'
     | IsEmpty'
     | Pop'
     | Other'.
@@ -520,6 +531,8 @@ Section mpmc_bqueue_G.
     ltac:(solve_decision).
   #[local] Coercion operation_to_operation' op :=
     match op with
+    | Size _ _ =>
+        Size'
     | IsEmpty _ _ =>
         IsEmpty'
     | Pop _ =>
@@ -527,12 +540,33 @@ Section mpmc_bqueue_G.
     | Other =>
         Other'
     end.
+  #[local] Definition size_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      mpmc_bqueue_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      mpmc_bqueue_model #l vs
+    , COMM
+      True -∗ Ψ #(length vs)
+    }>.
+  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+    AU <{
+      ∃∃ vs,
+      mpmc_bqueue_model #l vs
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
+      mpmc_bqueue_model #l (tail vs)
+    , COMM
+      True -∗ Ψ (head vs)
+    }>.
   #[local] Lemma xtchain_next_spec_aux op l γ i node :
     {{{
       meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       match op with
+      | Size i_front Ψ =>
+          front_lb γ i_front ∗
+          size_au l γ Ψ
       | IsEmpty waiter Ψ =>
           front_lb γ i ∗
           saved_pred waiter Ψ ∗
@@ -550,17 +584,25 @@ Section mpmc_bqueue_G.
       RET res;
         ⌜res = §Null%V⌝ ∗
         match op with
+        | Size i_front Ψ =>
+              Ψ #(i - i_front)
+            ∨ ∃ i_front',
+              front_lb γ i_front' ∗
+              ⌜i_front < i_front'⌝ ∗
+              size_au l γ Ψ
         | IsEmpty waiter Ψ =>
             Ψ true
         | Pop Ψ =>
             Ψ None
-        | Other =>
+        | _ =>
             True
         end
      ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i) false ∗
         match op with
+        | Size _ Ψ =>
+            size_au l γ Ψ
         | IsEmpty waiter Ψ =>
             Ψ false
         | Pop Ψ =>
@@ -582,7 +624,7 @@ Section mpmc_bqueue_G.
     - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
       iDestruct (big_sepL_lookup with "Hindices") as "#Hnode'_index"; first done.
       iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
-      destruct op; [| iSteps..].
+      destruct op. 1,3,4: iSteps.
       iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
       iMod (waiters_delete with "Hwaiters_auth Hwaiters_at") as "(%Hwaiters_lookup & Hwaiters_auth)".
       iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
@@ -615,7 +657,29 @@ Section mpmc_bqueue_G.
         iSplitR "Heq HΨ HΦ". { iFrameSteps. }
         iSteps. iRewrite "Heq". iSteps.
 
-    - destruct op.
+    - destruct op as [i_front | | |].
+
+      + iDestruct "Hop" as "(#Hfront_lb_front & HΨ)".
+        destruct (decide (length past = i_front)).
+
+        * iMod "HΨ" as "(%vs_ & (:model) & _ & HΨ)". injection Heq as <-.
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+          iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
+          assert ((i - i_front)%Z = length nodes) as ->.
+          { opose proof* length_lookup_last as Hlength; [done.. |].
+            rewrite Hhist length_app /= in Hlength.
+            lia.
+          }
+          iDestruct (big_sepL2_length with "Hnodes") as %->.
+
+          iSplitR "HΨ HΦ". { iFrameSteps. }
+          iSteps.
+
+        * iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_front") as %?. iClear "Hfront_lb_front".
+          iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front".
+          iSplitR "HΨ HΦ". { iFrameSteps. }
+          iSteps.
 
       + iDestruct "Hop" as "(#Hfront_lb_node & #Hwaiter & Hwaiters_at & H£)".
         iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.
@@ -640,7 +704,7 @@ Section mpmc_bqueue_G.
         iApply "HΦ".
         iLeft. iRewrite "Heq". iSteps.
 
-      + iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
+      + iDestruct "Hop" as "(#Hfront_lb_node & HΨ)".
         iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.
         opose proof* length_lookup_last as Hlength; [done.. |].
         rewrite Hhist length_app /= in Hlength.
@@ -648,7 +712,7 @@ Section mpmc_bqueue_G.
         assert (length nodes = 0) as ->%nil_length_inv by lia.
         iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
 
-        iMod "Hop" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
+        iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
@@ -675,6 +739,34 @@ Section mpmc_bqueue_G.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node) HΦ".
     wp_apply (xtchain_next_spec_aux Other); iSteps.
+  Qed.
+  #[local] Lemma xtchain_next_spec_size {l γ i node} i_front Ψ :
+    {{{
+      meta l nroot γ ∗
+      inv' l γ ∗
+      history_at γ i node ∗
+      front_lb γ i_front ∗
+      size_au l γ Ψ
+    }}}
+      (#node).{xtchain_next}
+    {{{ res,
+      RET res;
+        ⌜res = §Null%V⌝ ∗
+        ( Ψ #(i - i_front)
+        ∨ ∃ i_front',
+          front_lb γ i_front' ∗
+          ⌜i_front < i_front'⌝ ∗
+          size_au l γ Ψ
+        )
+     ∨ ∃ node',
+        ⌜res = #node'⌝ ∗
+        node_model γ node' (S i) false ∗
+        size_au l γ Ψ
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_front & HΨ) HΦ".
+    wp_apply (xtchain_next_spec_aux (Size _ _) with "[$]").
+    iSteps.
   Qed.
   #[local] Lemma xtchain_next_spec_is_empty {l γ i node} waiter Ψ :
     {{{
@@ -720,10 +812,10 @@ Section mpmc_bqueue_G.
         pop_au l γ Ψ
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & HΨ) HΦ".
     wp_apply (xtchain_next_spec_aux (Pop _) with "[$]").
     iSteps.
-   Qed.
+  Qed.
 
   Lemma mpmc_bqueue_size_spec t ι cap :
     <<<
@@ -738,7 +830,93 @@ Section mpmc_bqueue_G.
       True
     >>>.
   Proof.
-  Admitted.
+    iIntros "%Φ (:inv) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
+    assert (hist1 !! (length past1) = Some front1) as Hlookup.
+    { rewrite Hhist1 list_lookup_middle //. }
+    iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront1_header"; first done.
+    iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index"; first done.
+    iSplitR "HΦ". { iFrameSteps. }
+    remember (length past1) as i_front1.
+    iIntros "!> {%}".
+
+    wp_match.
+    wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_pures.
+
+    wp_bind (_.{back})%E.
+    iInv "Hinv" as "(:inv_inner =2)".
+    wp_load.
+    pose proof Hback2 as (i & Hlookup)%elem_of_list_lookup.
+    iDestruct (xtchain_lookup_header with "Hhist") as "#Hback2_header"; first done.
+    iDestruct (big_sepL_lookup with "Hindices") as "#Hback2_index"; first done.
+    iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
+    iSplitR "Hproph HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
+
+    wp_match. wp_pures.
+    destruct (decide (proph = front1)) as [-> | Hproph].
+
+    - wp_apply (xtchain_next_spec_size with "[$]") as (res) "[(-> & HΦ) | (%node & -> & (:node_model =node) & HΦ)]".
+
+      + wp_pures.
+
+        wp_bind (Resolve _ _ _).
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        wp_load.
+        iStep. iIntros "<-".
+        iDestruct "HΦ" as "[HΦ | (%i_front2 & #Hfront_lb_front2 & % & HΦ)]"; last first.
+        { assert (hist3 !! (length past3) = Some front1) as Hlookup.
+          { rewrite Hhist3 list_lookup_middle //. }
+          iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index_"; first done.
+          iDestruct (pointsto_agree with "Hfront1_index Hfront1_index_") as %[= ?%(inj _)].
+          iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_front2") as %?.
+          lia.
+        }
+        iSteps.
+
+      + wp_match. wp_pures.
+
+        wp_bind (CAS _ _ _).
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_apply (wp_cas' with "Hl_back") as (b) "% $".
+        iSplit; first by destruct b. iIntros "Hl_back".
+        iSplitR "HΦ".
+        { iDestruct (history_at_elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
+          destruct b; iFrameSteps.
+        }
+        iSteps.
+
+    - wp_apply (xtchain_next_spec with "[$]") as (res) "[-> | (%node & -> & (:node_model =node))]".
+
+      + wp_pures.
+
+        wp_bind (Resolve _ _ _).
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        iSteps.
+
+      + wp_match. wp_pures.
+
+        wp_bind (CAS _ _ _).
+        iInv "Hinv" as "(:inv_inner =3)".
+        wp_apply (wp_cas' with "Hl_back") as (b) "% $".
+        iSplit; first by destruct b. iIntros "Hl_back".
+        iSplitR "HΦ".
+        { iDestruct (history_at_elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
+          destruct b; iFrameSteps.
+        }
+        iSteps.
+  Qed.
 
   Lemma mpmc_bqueue_is_empty_spec t ι cap :
     <<<
