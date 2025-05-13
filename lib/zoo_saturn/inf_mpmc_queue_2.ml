@@ -33,11 +33,7 @@ let rec push t v =
 let rec pop t =
   let id = Zoo.id () in
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-  match
-    Zoo.resolve (
-      Inf_array.xchg t.data i Anything
-    ) t.proph (i, id)
-  with
+  match Inf_array.xchg_resolve t.data i Anything t.proph (i, id) with
   | Nothing ->
       Domain.yield () ;
       pop t

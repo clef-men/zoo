@@ -55,8 +55,10 @@ Definition inf_mpmc_queue_2_pop : val :=
     let: "id" := Id in
     let: "i" := FAA "t".[front] #1 in
     match:
-      Resolve
-        (inf_array_xchg "t".{data} "i" §Anything)
+      inf_array_xchg_resolve
+        "t".{data}
+        "i"
+        §Anything
         "t".{proph}
         ("i", "id")
     with
