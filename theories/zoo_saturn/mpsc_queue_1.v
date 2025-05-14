@@ -677,6 +677,7 @@ Section mpsc_queue_1_G.
     iLöb as "HLöb" forall (i back) "Hhistory_at_back".
 
     wp_rec. wp_match.
+
     wp_bind (_ and _)%E.
     wp_apply (wp_wand itype_bool) as (res) "(%b & ->)".
     { wp_smart_apply (xtchain_next_spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node_model =new_back'))]"; last iSteps.
@@ -688,6 +689,7 @@ Section mpsc_queue_1_G.
       iDestruct (history_agree with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%elem_of_list_lookup_2.
       iSteps.
     }
+
     destruct b; last iSteps.
     wp_smart_apply domain_yield_spec.
     wp_smart_apply (back_spec with "Hinv") as (back' i') "(:node_model =back')".
