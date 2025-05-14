@@ -835,33 +835,10 @@ Section mpmc_bqueue_G.
     iLöb as "HLöb".
 
     wp_rec.
-
-    wp_bind (_.{front})%E.
-    iInv "Hinv" as "(:inv_inner =1)".
-    wp_load.
-    iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
-    assert (hist1 !! (length past1) = Some front1) as Hlookup.
-    { rewrite Hhist1 list_lookup_middle //. }
-    iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront1_header"; first done.
-    iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index"; first done.
-    iSplitR "HΦ". { iFrameSteps. }
-    remember (length past1) as i_front1.
-    iIntros "!> {%}".
-
+    wp_apply (front_spec with "Hinv") as (front1 i_front1) "(:node_model =front1 front=)".
     wp_match.
     wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
-    wp_pures.
-
-    wp_bind (_.{back})%E.
-    iInv "Hinv" as "(:inv_inner =2)".
-    wp_load.
-    pose proof Hback2 as (i & Hlookup)%elem_of_list_lookup.
-    iDestruct (xtchain_lookup_header with "Hhist") as "#Hback2_header"; first done.
-    iDestruct (big_sepL_lookup with "Hindices") as "#Hback2_index"; first done.
-    iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
-    iSplitR "Hproph HΦ". { iFrameSteps. }
-    iIntros "!> {%}".
-
+    wp_smart_apply (back_spec with "Hinv") as (back2 i_back2) "(:node_model =back2)".
     wp_match. wp_pures.
     destruct (decide (proph = front1)) as [-> | Hproph].
 
