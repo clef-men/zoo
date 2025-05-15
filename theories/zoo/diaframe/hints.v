@@ -134,16 +134,39 @@ Section instances.
     #[global] Instance pointsto_val_may_need_more (l : location) (v1 v2 : val) (q1 q2 : Qp) mq q :
       FracSub q2 q1 mq →
       TCEq mq (Some q) →
-      HINT l ↦{#q1} v1 ✱ [v'; ⌜v1 = v2⌝ ∗ l ↦{#q} v'] ⊫ [id]; l ↦{#q2} v2 ✱ [⌜v1 = v2⌝ ∗ ⌜v' = v1⌝]
+      HINT
+        l ↦{#q1} v1
+      ✱ [v';
+        ⌜v1 = v2⌝ ∗
+        l ↦{#q} v'
+      ] ⊫ [id];
+        l ↦{#q2} v2
+      ✱ [
+        ⌜v1 = v2⌝ ∗
+        ⌜v' = v1⌝
+      ]
     | 55.
     Proof.
       rewrite /FracSub => <- -> v' /=.
       iSteps.
     Qed.
-
     #[global] Instance pointsto_val_have_enough (l : location) (v1 v2 : val) (q1 q2 : Qp) mq :
       FracSub q1 q2 mq →
-      HINT l ↦{#q1} v1 ✱ [- ; ⌜v1 = v2⌝] ⊫ [id]; l ↦{#q2}v2 ✱ [⌜v1 = v2⌝ ∗ match mq with | Some q => l ↦{#q} v1 | _ => True end]
+      HINT
+        l ↦{#q1} v1
+      ✱ [- ;
+        ⌜v1 = v2⌝
+      ] ⊫ [id];
+        l ↦{#q2} v2
+      ✱ [
+        ⌜v1 = v2⌝ ∗
+        match mq with
+        | Some q =>
+            l ↦{#q} v1
+        | _ =>
+            True
+        end
+      ]
     | 54.
     Proof.
       rewrite /= /FracSub => <-.
@@ -151,9 +174,31 @@ Section instances.
       iDestruct "Hl" as "[Hl Hl']".
       iSteps.
     Qed.
+    #[global] Instance pointsto_val_discarded (l : location) (v1 v2 : val) :
+      HINT
+        l ↦□ v1
+      ✱ [- ;
+        ⌜v1 = v2⌝
+      ] ⊫ [id];
+        l ↦□ v2
+      ✱ [
+        ⌜v1 = v2⌝
+      ]
+    | 54.
+    Proof.
+      iSteps.
+    Qed.
 
     #[global] Instance as_persistent_pointsto p l q v :
-      HINT □⟨p⟩ l ↦{q} v ✱ [- ; emp] ⊫ [bupd]; l ↦□ v ✱ [l ↦□ v]
+      HINT
+        □⟨p⟩ l ↦{q} v
+      ✱ [- ;
+        emp
+      ] ⊫ [bupd];
+        l ↦□ v
+      ✱ [
+        l ↦□ v
+      ]
     | 100.
     Proof.
       iIntros "Hl" => /=.
@@ -237,146 +282,6 @@ Section instances.
     Proof.
       move => ? ? /TCEq_eq; split; subst; eapply tc_no_backtrack.
     Qed.
-
-    (* #[global] Instance array_pointsto_index l1 vs l2 v lb j1 j2 lo q : *)
-    (*   SharedBaseLoc l1 l2 lb j1 j2 → *)
-    (*   SolveSepSideCondition (j1 ≤ j2 < j1 + length vs)%Z → *)
-    (*   ComputeOffsetLoc lb (Z.succ j2) lo → *)
-    (*   HINT l1 ↦∗{q} vs ✱ [- ; ⌜vs !! ₊(j2 - j1) = Some v⌝ ] ⊫ [id]; *)
-    (*        l2 ↦{q} v   ✱ [ l1 ↦∗{q} take ₊(j2 - j1) vs ∗ *)
-    (*                        lo ↦∗{q} drop (S ₊(j2 - j1)) vs ∗ *)
-    (*                        ⌜vs !! ₊(j2 - j1) = Some v⌝]. *)
-    (* Proof. *)
-    (*   move => [-> ->] [? ?] <-. *)
-    (*   iStep as (Hvs) "Hlvs". *)
-    (*   rewrite -{1}(take_drop_middle _ _ _ Hvs). *)
-    (*   rewrite array_app array_cons. *)
-    (*   iDecompose "Hlvs" as "Hlhd Hlv Hltl". *)
-    (*   rewrite length_take min_l; last lia. *)
-    (*   rewrite !location_add_assoc. replace (j1 + ₊(j2 - j1))%Z with j2 by lia. *)
-    (*   iSteps. *)
-    (* Qed. *)
-
-    (* Lemma array_pointsto_head l v vs q l' : *)
-    (*   ComputeOffsetLoc l 1 l' → *)
-    (*   HINT l ↦∗{q} vs ✱ [- ; ⌜vs !! 0 = Some v⌝] ⊫ [id]; l ↦{q} v ✱ [l' ↦∗{q} tail vs ∗ ⌜vs !! 0 = Some v⌝]. *)
-    (* Proof. *)
-    (*   rewrite /= /ComputeOffsetLoc => <-. *)
-    (*   iStep as (Hvs) "Hl". destruct vs; first naive_solver. *)
-    (*   iSteps. *)
-    (* Qed. *)
-
-    (* #[global] Instance head_pointsto_array_better l1 l2 lb j1 j2 v vs q l' : *)
-    (*   SharedBaseLoc l1 l2 lb j1 j2 → *)
-    (*   SolveSepSideCondition (j1 = j2) → (1* i.e., l1 and l2 are aliases up to lia *1) *)
-    (*   ComputeOffsetLoc lb (Z.succ j1) l' → *)
-    (*   HINT l1 ↦{q} v ✱ [- ; ⌜vs !! 0 = Some v⌝ ∗ l' ↦∗{q} tail vs] ⊫ [id]; l2 ↦∗{q} vs ✱ [⌜vs !! 0 = Some v⌝]. *)
-    (* Proof. *)
-    (*   move => [-> ->] -> /= <-. *)
-    (*   iIntros "(H & % & Htl) /=". *)
-    (*   destruct vs => //. *)
-    (*   case: H => ->. *)
-    (*   rewrite array_cons location_add_assoc. *)
-    (*   iSteps. *)
-    (* Qed. *)
-
-    (* Lemma head_pointsto_array l v vs q l' : *)
-    (*   ComputeOffsetLoc l 1 l' → *)
-    (*   HINT l ↦{q} v ✱ [- ; ⌜vs !! 0 = Some v⌝ ∗ l' ↦∗{q} tail vs] ⊫ [id]; l ↦∗{q} vs ✱ [emp]. *)
-    (* Proof. *)
-    (*   rewrite /= => <-. *)
-    (*   iSteps. *)
-    (* Qed. *)
-
-    (* Lemma array_pointsto_head_offset l v vs q i l': *)
-    (*   SolveSepSideCondition (0 ≤ i < length vs)%Z → *)
-    (*   ComputeOffsetLoc l (Z.succ i) l' → *)
-    (*   HINT l ↦∗{q} vs ✱ [ - ; ⌜vs !! ₊i = Some v⌝] ⊫ [id]; (l +ₗ i) ↦{q} v ✱ [ *)
-    (*        (l ↦∗{q} take ₊i vs) ∗ ⌜vs !! ₊i = Some v⌝ ∗ (l' ↦∗{q} drop (S ₊i) vs)]. *)
-    (* Proof. *)
-    (*   rewrite /SolveSepSideCondition /= => Hi <-. *)
-    (*   iStep as (Hvs) "Hl". iStep. replace (0 + i - 0)%Z with i by lia. iSteps. *)
-    (*   Unshelve. replace (0 + i - 0)%Z with i by lia. iSteps. *)
-    (* Qed. *)
-
-    (* #[global] Instance empty_array_solve l q : *)
-    (*   HINT ε₁ ✱ [- ; emp] ⊫ [id]; l ↦∗{q} [] ✱ [emp]. *)
-    (* Proof. *)
-    (*   iSteps. rewrite array_nil. iSteps. *)
-    (* Qed. *)
-
-    (* #[global] Instance array_from_overlapping_array vs1 vs2 l1 l2 q lb j1 j2 l2t l1t : *)
-    (*   SharedBaseLoc l1 l2 lb j1 j2 → *)
-    (*   let jub := ((j1 + length vs1) `min` (j2 + length vs2))%Z in *)
-    (*   let jlb := (j1 `max` j2)%Z in *)
-    (*   SolveSepSideCondition (jlb < jub)%Z → *)
-    (*   ComputeOffsetLoc lb (j1 + length vs1) l2t → *)
-    (*   ComputeOffsetLoc lb (j2 + length vs2) l1t → *)
-    (*   HINT l1 ↦∗{q} vs1 ✱ [- ; *)
-    (*           ⌜take ₊(jub - jlb) (drop ₊(j2 - j1) vs1) = take ₊(jub - jlb) (drop ₊(j1 - j2) vs2)⌝ ∗ *)
-    (*           l2 ↦∗{q} (take ₊(j1 - j2) vs2) ∗ *)
-    (*           l2t ↦∗{q} (drop ₊(j1 + length vs1 - j2) vs2) *)
-    (*        ]  ⊫ [id]; *)
-    (*        l2 ↦∗{q} vs2 ✱ [ *)
-    (*           l1 ↦∗{q} (take ₊(j2 - j1) vs1) ∗ *)
-    (*           l1t ↦∗{q} (drop ₊(j2 + length vs2 - j1) vs1) *)
-    (*        ] | 51. *)
-    (* Proof. *)
-    (*   move => [-> ->] jub jlb. *)
-    (*   rewrite /SolveSepSideCondition => Hjs <- <-. *)
-    (*   iStep as (Hvs) "Hj1 Hl2h Hl2t". *)
-    (*   rewrite -{3}(take_drop ₊(j1 - j2) vs2) array_app -assoc location_add_assoc. *)
-    (*   iStep. rewrite -{1}(take_drop ₊(j2 - j1) vs1) array_app location_add_assoc. *)
-    (*   iDestruct "Hj1" as "[$ Hjtl]". *)
-    (*   rewrite -{1}(take_drop ₊(jub - jlb) (drop _ vs1)) array_app location_add_assoc {1}Hvs. *)
-    (*   iDestruct "Hjtl" as "[Hjtl1 Hjtl2]". *)
-    (*   rewrite -{2}(take_drop ₊(jub - jlb) (drop ₊(j1 - j2) vs2)) array_app location_add_assoc. *)
-    (*   rewrite -bi.sep_assoc. *)
-    (*   rewrite !length_take !length_drop. *)
-    (*   replace ( (j1 + (₊(j2 - j1) `min` length vs1)%nat))%Z with (j2 + (₊(j1 - j2) `min` length vs2)%nat)%Z by lia. *)
-    (*   iFrame "Hjtl1". *)
-    (*   rewrite !drop_drop. (1* and now comes the part with non-trivial integer arithmetic *1) *)
-    (*   destruct (decide (length vs1 ≤ j2 + length vs2 - j1)%Z) as [Hnotail1 | Htail1]; last *)
-    (*     destruct (decide (length vs2 ≤ j1 + length vs1 - j2)%Z) as [Hnotail2 | Htail2]. *)
-    (*   - rewrite drop_ge; last lia. *)
-    (*     rewrite array_nil. *)
-    (*     rewrite (drop_ge vs1); last lia. *)
-    (*     rewrite array_nil right_id. *)
-    (*     replace ((j2 + (₊(j1 - j2) `min` length vs2)%nat + (₊(jub - jlb) `min` (length vs2 - ₊(j1 - j2)))%nat))%Z with *)
-    (*       (j1 + length vs1)%Z by lia. *)
-    (*     replace ₊(j1 + length vs1 - j2) with (₊(j1 - j2) + ₊(jub - jlb)) by lia. *)
-    (*     iSteps. *)
-    (*   - rewrite (drop_ge vs2); last lia. rewrite array_nil. *)
-    (*     rewrite (drop_ge vs2); last lia. rewrite array_nil. *)
-    (*     replace ((j2 + (₊(j1 - j2) `min` length vs2)%nat + (₊(jub - jlb) `min` (length vs1 - ₊(j2 - j1)))%nat))%Z with *)
-    (*       (j2 + length vs2)%Z by lia. *)
-    (*     replace ₊(j2 + length vs2 - j1) with (₊(j2 - j1) + ₊(jub - jlb)) by lia. *)
-    (*     iSteps. *)
-    (*   - assert (j1 = j2) by lia; subst. *)
-    (*     assert (length vs1 = length vs2) as Hlen by lia. rewrite !Hlen. *)
-    (*     rewrite drop_ge; last lia. *)
-    (*     rewrite drop_ge; last lia. *)
-    (*     rewrite drop_ge; last lia. *)
-    (*     rewrite drop_ge; last lia. *)
-    (*     rewrite !array_nil. iSteps. *)
-    (* Qed. *)
-
-    (* Lemma array_from_shorter vs1 vs2 l l' q : *)
-    (*   SolveSepSideCondition (0 < length vs1 ≤ length vs2) → *)
-    (*   ComputeOffsetLoc l (length vs1) l' → *)
-    (*   HINT l ↦∗{q} vs1 ✱ [- ; ⌜take (length vs1) vs2 = vs1⌝ ∗ l' ↦∗{q} (list.drop (length vs1) vs2) ] ⊫ [id]; *)
-    (*        l ↦∗{q} vs2 ✱ [emp]. *)
-    (* Proof. *)
-    (*   rewrite /SolveSepSideCondition => Hl <- /=. *)
-    (*   iStep as (Hvs) "Hl Hvs". enough (0 < length vs1). *)
-    (*   iStep. replace ₊(0 + length vs1 - 0) with (length vs1) by lia. *)
-    (*   iSteps. lia. *)
-    (*   Unshelve. rewrite !drop_0. *)
-    (*   rewrite !Z.max_l; last lia. *)
-    (*   rewrite Z.min_l; last lia. *)
-    (*   replace ₊(0 + length vs1 - 0) with (length vs1) by lia. *)
-    (*   rewrite firstn_all. iSteps. *)
-    (* Qed. *)
   End biabds_pointsto_array.
 End instances.
 

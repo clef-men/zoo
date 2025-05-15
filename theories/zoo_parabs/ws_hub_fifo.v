@@ -283,7 +283,7 @@ Section ws_hub_fifo_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hmodel₁ Howners". { iSteps. rewrite Z2Nat.id //. iSteps. }
+    iSplitR "Hmodel₁ Howners"; first iSteps.
     iSteps.
     iApply (big_sepL_impl with "Howners"). iSteps.
   Qed.
