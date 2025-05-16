@@ -59,17 +59,17 @@ let rec fix_back t back new_back =
     Domain.yield () ;
     fix_back t t.back new_back
   )
-let rec push t back (new_back : (_, [`Node]) node) cap =
+let rec push_1 t back cap (new_back : (_, [`Node]) node) =
   let Node back_r = back in
   let (Node new_back_r as new_back) = new_back in
   if cap == 0 then (
     let Node front_r = t.front in
     let cap = t.capacity - (back_r.index - front_r.index) in
-    if cap <= 0 then (
+    if cap == 0 then (
       false
     ) else (
       back_r.estimated_capacity <- cap ;
-      push t back new_back cap
+      push_1 t back cap new_back
     )
   ) else (
     new_back_r.index <- back_r.index + 1 ;
@@ -81,10 +81,13 @@ let rec push t back (new_back : (_, [`Node]) node) cap =
       match back_r.next with
       | Null ->
           assert false
-      | Node back_r as back ->
-          push t back new_back back_r.estimated_capacity
+      | Node _ as back ->
+          push_2 t back new_back
     )
   )
+and push_2 t (back : (_, [`Node]) node) new_back =
+  let Node back_r as back = back in
+  push_1 t back back_r.estimated_capacity new_back
 let push t v =
   let new_back =
     Node {
@@ -94,8 +97,7 @@ let push t v =
       estimated_capacity= 0;
     }
   in
-  let Node back_r as back = t.back in
-  push t back new_back back_r.estimated_capacity
+  push_2 t t.back new_back
 
 let rec pop t =
   let Node front_r as front = t.front in

@@ -62,8 +62,8 @@ Definition mpmc_bqueue_fix_back : val :=
         )
     end.
 
-Definition mpmc_bqueue_push_0 : val :=
-  rec: "push" "t" "back" "new_back" "cap" =>
+#[local] Definition __zoo_recs_0 := (
+  recs: "push_1" "t" "back" "cap" "new_back" =>
     match: "back" with
     | Node <> <> <> <> as "back_r" =>
         match: "new_back" with
@@ -75,11 +75,11 @@ Definition mpmc_bqueue_push_0 : val :=
                   let: "cap" :=
                     "t".{capacity} - ("back_r".{index} - "front_r".{index})
                   in
-                  if: "cap" ≤ #0 then (
+                  if: "cap" == #0 then (
                     #false
                   ) else (
                     "back_r" <-{estimated_capacity} "cap" ;;
-                    "push" "t" "back" "new_back" "cap"
+                    "push_1" "t" "back" "cap" "new_back"
                   )
               end
             ) else (
@@ -93,30 +93,44 @@ Definition mpmc_bqueue_push_0 : val :=
                 | Null =>
                     Fail
                 | Node <> <> <> <> as "back" =>
-                    let: "back_r" := "back" in
-                    "push"
-                      "t"
-                      "back"
-                      "new_back"
-                      "back_r".{estimated_capacity}
+                    "push_2" "t" "back" "new_back"
                 end
               )
             )
         end
-    end.
+    end
+  and: "push_2" "t" "back" "new_back" =>
+    match: "back" with
+    | Node <> <> <> <> as "back" =>
+        let: "back_r" := "back" in
+        "push_1" "t" "back" "back_r".{estimated_capacity} "new_back"
+    end
+)%zoo_recs.
+Definition mpmc_bqueue_push_1 :=
+  ValRecs 0 __zoo_recs_0.
+Definition mpmc_bqueue_push_2 :=
+  ValRecs 1 __zoo_recs_0.
+#[global] Instance :
+  AsValRecs' mpmc_bqueue_push_1 0 __zoo_recs_0 [
+    mpmc_bqueue_push_1 ;
+    mpmc_bqueue_push_2
+  ].
+Proof.
+  done.
+Qed.
+#[global] Instance :
+  AsValRecs' mpmc_bqueue_push_2 1 __zoo_recs_0 [
+    mpmc_bqueue_push_1 ;
+    mpmc_bqueue_push_2
+  ].
+Proof.
+  done.
+Qed.
 
 Definition mpmc_bqueue_push : val :=
   fun: "t" "v" =>
     let: "new_back" := ‘Node{ §Null, "v", #0, #0 } in
-    match: "t".{back} with
-    | Node <> <> <> <> as "back" =>
-        let: "back_r" := "back" in
-        mpmc_bqueue_push_0
-          "t"
-          "back"
-          "new_back"
-          "back_r".{estimated_capacity}
-    end.
+    mpmc_bqueue_push_2 "t" "t".{back} "new_back".
 
 Definition mpmc_bqueue_pop : val :=
   rec: "pop" "t" =>
