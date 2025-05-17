@@ -913,6 +913,22 @@ Section oflatten.
     apply length_omap.
   Qed.
 
+  Lemma oflatten_cons o l :
+    oflatten (o :: l) = from_option (λ x, [x]) [] o ++ oflatten l.
+  Proof.
+    destruct o; done.
+  Qed.
+  Lemma oflatten_cons_None l :
+    oflatten (None :: l) = oflatten l.
+  Proof.
+    rewrite oflatten_cons //.
+  Qed.
+  Lemma oflatten_cons_Some x l :
+    oflatten (Some x :: l) = x :: oflatten l.
+  Proof.
+    rewrite oflatten_cons //.
+  Qed.
+
   Lemma oflatten_app l1 l2 :
     oflatten (l1 ++ l2) = oflatten l1 ++ oflatten l2.
   Proof.

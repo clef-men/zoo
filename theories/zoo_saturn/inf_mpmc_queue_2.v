@@ -113,6 +113,18 @@ Implicit Types lstates : list lstate.
       Consumer
   end.
 
+#[local] Definition lstate_measure lstate :=
+  match lstate with
+  | Producer
+  | Consumer =>
+      0
+  | ProducerProducer
+  | ProducerConsumer
+  | ConsumerProducer _
+  | ConsumerConsumer =>
+      1
+  end.
+
 Inductive lstep : lstate → lstate → Prop :=
   | lstep_producer_producer :
       lstep Producer ProducerProducer
@@ -122,6 +134,36 @@ Inductive lstep : lstate → lstate → Prop :=
       lstep Producer (ConsumerProducer η)
   | lstep_consumer_consumer :
       lstep Consumer ConsumerConsumer.
+
+#[local] Lemma lstep_measure lstate1 lstate2 :
+  lstep lstate1 lstate2 →
+  lstate_measure lstate1 < lstate_measure lstate2.
+Proof.
+  intros []; simpl; lia.
+Qed.
+#[local] Lemma lstep_tc_measure lstate1 lstate2 :
+  tc lstep lstate1 lstate2 →
+  lstate_measure lstate1 < lstate_measure lstate2.
+Proof.
+  intros Hlsteps.
+  apply transitive_tc; first apply _.
+  eapply (tc_congruence lstate_measure); last done.
+  apply lstep_measure.
+Qed.
+#[local] Lemma lstep_rtc_measure lstate1 lstate2 :
+  rtc lstep lstate1 lstate2 →
+  lstate_measure lstate1 ≤ lstate_measure lstate2.
+Proof.
+  intros [<- | Hlsteps%lstep_tc_measure]%rtc_tc; lia.
+Qed.
+
+#[local] Instance lsteps_antisymm :
+  AntiSymm (=) (rtc lstep).
+Proof.
+  intros lstate1 lstate2 Hlsteps1 Hlsteps2%lstep_rtc_measure.
+  apply rtc_tc in Hlsteps1 as [<- | Hlsteps1%lstep_tc_measure]; first done.
+  lia.
+Qed.
 
 #[local] Lemma lstate_winner_lb lstate :
   rtc lstep (lstate_winner lstate) lstate.
@@ -138,7 +180,7 @@ Qed.
   rtc lstep lstate1 lstate2 →
   lstate_winner lstate1 = lstate_winner lstate2.
 Proof.
-  intros.
+  intros Hlsteps.
   apply preorder_rtc; [apply _.. |].
   eapply (rtc_congruence lstate_winner); last done.
   apply lstep_winner.
@@ -231,14 +273,14 @@ Section inf_mpmc_queue_2_G.
     mono_list_auth γ_history (DfracOwn 1) hist.
   #[local] Definition history_auth γ :=
     history_auth' γ.(metadata_history).
-  #[local] Definition history_at γ i v :=
-    mono_list_at γ.(metadata_history) i (Some v).
+  #[local] Definition history_at γ i o :=
+    mono_list_at γ.(metadata_history) i o.
 
   #[local] Definition lstates_auth' γ_lstates lstates : iProp Σ :=
     ∃ ηs,
     mono_list_auth γ_lstates (DfracOwn 1) ηs ∗
     [∗ list] η; lstate ∈ ηs; lstates,
-      auth_mono_auth _ η (DfracOwn 1) lstate.
+      auth_mono_auth _ η DfracDiscarded lstate.
   #[local] Definition lstates_auth γ :=
     lstates_auth' γ.(metadata_lstates).
   #[local] Instance : CustomIpatFormat "lstates_auth" :=
@@ -246,6 +288,16 @@ Section inf_mpmc_queue_2_G.
       %ηs &
       Hauth &
       Hηs
+    )".
+  #[local] Definition lstates_at γ i lstate : iProp Σ :=
+    ∃ η,
+    mono_list_at γ.(metadata_lstates) i η ∗
+    auth_mono_auth _ η DfracDiscarded lstate.
+  #[local] Instance : CustomIpatFormat "lstates_at" :=
+    "(
+      %η{} &
+      #Hat{_{}} &
+      #Hη_auth{_{}}
     )".
   #[local] Definition lstates_lb γ i lstate : iProp Σ :=
     ∃ η,
@@ -353,27 +405,37 @@ Section inf_mpmc_queue_2_G.
   #[local] Definition inv_lstate_left γ back i lstate : iProp Σ :=
     match lstate with
     | ProducerProducer =>
+        ∃ v,
+        history_at γ i (Some v) ∗
         winner γ i
     | ProducerConsumer =>
-        True
+        history_at γ i None
     | ConsumerProducer η =>
         ∃ Ψ v,
-        front_lb γ i ∗
+        front_lb γ (S i) ∗
         saved_pred η Ψ ∗
-        history_at γ i v ∗
-        (Ψ v ∨ consumers_at γ i Discard)
+        history_at γ i (Some v) ∗
+        ( Ψ v
+        ∨ consumers_at γ i Discard
+        )
     | ConsumerConsumer =>
-        front_lb γ i
+        front_lb γ (S i)
     | _ =>
         False
     end.
-  #[local] Instance : CustomIpatFormat "inv_lstate_left" :=
+  #[local] Instance : CustomIpatFormat "inv_lstate_left_producer" :=
+    "(
+      %v &
+      #Hhistory_at &
+      Hwinner
+    )".
+  #[local] Instance : CustomIpatFormat "inv_lstate_left_consumer" :=
     "(
       %Ψ &
-      v% &
-      #front_lb &
-      #Hη &
-      #Hhistory_at &
+      %v_ &
+      #Hfront_lb &
+      #Hη_ &
+      #Hhistory_at_ &
       HΨ
     )".
 
@@ -400,25 +462,31 @@ Section inf_mpmc_queue_2_G.
     | Nothing =>
         ⌜past = []⌝
     | Something v =>
-        history_at γ i v ∗
-        lstates_lb γ i Producer ∗
-        producers_at γ i Discard
+        history_at γ i (Some v) ∗
+        producers_at γ i Discard ∗
+        lstates_lb γ i Producer
     | Anything =>
-        lstates_lb γ i Consumer ∗
-        consumers_at γ i Discard
+        consumers_at γ i Discard ∗
+        ( lstates_lb γ i Consumer
+        ∨ producers_at γ i Discard
+        )
     end.
   #[local] Instance : CustomIpatFormat "inv_slot_nothing" :=
     "%Hpast".
   #[local] Instance : CustomIpatFormat "inv_slot_something" :=
     "(
       #Hhistory_at{_{suff}} &
-      #Hlstates_lb_producer &
-      #Hproducers_at{_{suff}}
+      #Hproducers_at{_{suff}} &
+      #Hlstates_lb_producer
     )".
   #[local] Instance : CustomIpatFormat "inv_slot_anything" :=
     "(
-      #Hlstates_lb_consumer &
-      #Hconsumers_at{_{suff}}
+      #Hconsumers_at{_{suff}} &
+      { _{suff}
+      = [ #Hlstates_lb_consumer
+        | #Hproducers_at_
+        ]
+      }
     )".
 
   #[local] Definition inv_inner l γ : iProp Σ :=
@@ -513,6 +581,11 @@ Section inf_mpmc_queue_2_G.
   Proof.
     apply _.
   Qed.
+  #[local] Instance lstates_at_persistent γ i lstate :
+    Persistent (lstates_at γ i lstate).
+  Proof.
+    apply _.
+  Qed.
   #[local] Instance lstates_lb_persistent γ i lstate :
     Persistent (lstates_lb γ i lstate).
   Proof.
@@ -532,6 +605,11 @@ Section inf_mpmc_queue_2_G.
     Persistent (consumers_lb γ i).
   Proof.
     apply _.
+  Qed.
+  #[local] Instance inv_slot_persistent γ i slot past :
+    Persistent (inv_slot γ i slot past).
+  Proof.
+    destruct slot; apply _.
   Qed.
   #[global] Instance inf_mpmc_queue_2_inv_persistent t ι :
     Persistent (inf_mpmc_queue_2_inv t ι).
@@ -562,12 +640,11 @@ Section inf_mpmc_queue_2_G.
   Proof.
     apply auth_nat_max_lb_valid.
   Qed.
-  #[local] Lemma front_update {γ i} i' :
-    i ≤ i' →
+  #[local] Lemma front_update γ i :
     front_auth γ i ⊢ |==>
-    front_auth γ i'.
+    front_auth γ (S i).
   Proof.
-    apply auth_nat_max_update.
+    apply auth_nat_max_update. lia.
   Qed.
 
   #[local] Lemma model_alloc :
@@ -601,41 +678,38 @@ Section inf_mpmc_queue_2_G.
   Proof.
     apply mono_list_alloc.
   Qed.
-  #[local] Lemma history_at_valid γ hist i v :
+  #[local] Lemma history_at_lookup γ hist i o :
     history_auth γ hist -∗
-    history_at γ i v -∗
-    ⌜hist !! i = Some (Some v)⌝.
+    history_at γ i o -∗
+    ⌜hist !! i = Some o⌝.
   Proof.
     apply mono_list_at_valid.
   Qed.
-  #[local] Lemma history_at_agree γ i v1 v2 :
-    history_at γ i v1 -∗
-    history_at γ i v2 -∗
-    ⌜v1 = v2⌝.
+  #[local] Lemma history_at_agree γ i o1 o2 :
+    history_at γ i o1 -∗
+    history_at γ i o2 -∗
+    ⌜o1 = o2⌝.
   Proof.
     iIntros "Hat1 Hat2".
     iDestruct (mono_list_at_agree with "Hat1 Hat2") as %[= <-]. done.
   Qed.
-  #[local] Lemma history_at_get {γ hist} i v :
-    hist !! i = Some (Some v) →
+  #[local] Lemma history_at_get {γ hist} i o :
+    hist !! i = Some o →
     history_auth γ hist ⊢
-    history_at γ i v.
+    history_at γ i o.
   Proof.
     apply mono_list_at_get.
   Qed.
   #[local] Lemma history_update {γ hist} o :
     history_auth γ hist ⊢ |==>
       history_auth γ (hist ++ [o]) ∗
-      if o is Some v then
-        history_at γ (length hist) v
-      else
-        True.
+      history_at γ (length hist) o.
   Proof.
     iIntros "Hhistory_auth".
     iMod (mono_list_update_snoc o with "Hhistory_auth") as "Hhistory_auth".
     iDestruct (mono_list_at_get with "Hhistory_auth") as "#Hhistory_at".
     { rewrite list_lookup_middle //. }
-    destruct o; iSteps.
+    iSteps.
   Qed.
 
   #[local] Lemma lstates_alloc :
@@ -644,6 +718,17 @@ Section inf_mpmc_queue_2_G.
       lstates_auth' γ_lstates [].
   Proof.
     iMod (mono_list_alloc []) as "(%γ_lstates & $)".
+    iSteps.
+  Qed.
+  #[local] Lemma lstates_at_lookup γ lstates i lstate :
+    lstates_auth γ lstates -∗
+    lstates_at γ i lstate -∗
+    ⌜lstates !! i = Some lstate⌝.
+  Proof.
+    iIntros "(:lstates_auth) (:lstates_at)".
+    iDestruct (mono_list_at_valid with "Hauth Hat") as %Hηs_lookup.
+    iDestruct (big_sepL2_lookup_l with "Hηs") as "(%lstate_ & %Hlstates_lookup & Hη_auth_)"; first done.
+    iDestruct (auth_mono_auth_agree_L with "Hη_auth Hη_auth_") as %<-.
     iSteps.
   Qed.
   #[local] Lemma lstates_lb_get {γ lstates} i lstate :
@@ -672,15 +757,17 @@ Section inf_mpmc_queue_2_G.
   #[local] Lemma lstates_update {γ lstates} lstate :
     lstates_auth γ lstates ⊢ |==>
       lstates_auth γ (lstates ++ [lstate]) ∗
-      lstates_lb γ (length lstates) (lstate_winner lstate).
+      lstates_lb γ (length lstates) (lstate_winner lstate) ∗
+      lstates_at γ (length lstates) lstate.
   Proof.
     iIntros "(:lstates_auth)".
     iMod (auth_mono_alloc _ lstate) as "(%η & Hη_auth)".
+    iMod (auth_mono_auth_persist with "Hη_auth") as "#Hη_auth".
     iMod (mono_list_update_snoc η with "Hauth") as "Hauth".
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }
-    iDestruct (auth_mono_lb_get with "Hη_auth") as "#-#Hη_lb".
-    iDestruct (auth_mono_lb_mono _ (lstate_winner lstate) with "Hη_lb") as "Hη_lb".
+    iDestruct (auth_mono_lb_get with "Hη_auth") as "#Hη_lb".
+    iDestruct (auth_mono_lb_mono _ (lstate_winner lstate) with "Hη_lb") as "#Hη_lb_winner".
     { destruct lstate; eauto using rtc, lstep. }
     iDestruct (big_sepL2_length with "Hηs") as %->.
     iDestruct (big_sepL2_snoc_2 with "Hηs Hη_auth") as "Hηs".
@@ -785,6 +872,7 @@ Section inf_mpmc_queue_2_G.
   Qed.
 
   Opaque lstates_auth'.
+  Opaque lstates_at.
   Opaque lstates_lb.
   Opaque producers_auth'.
   Opaque producers_at.
@@ -992,7 +1080,7 @@ Section inf_mpmc_queue_2_G.
       destruct (decide (head prophs = Some id)) as [Hwinner | Hloser].
 
       + iMod (history_update (Some v) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)". rewrite Hhist1.
-        iMod (lstates_update ProducerProducer with "Hlstates_auth") as "(Hlstates_auth & #Hlstates_lb)". rewrite Hlstates1.
+        iMod (lstates_update ProducerProducer with "Hlstates_auth") as "(Hlstates_auth & #Hlstates_lb & _)". rewrite Hlstates1.
         iDestruct (big_sepL_snoc_2 ProducerProducer with "Hlstates_left [Hid]") as "Hlstates_left".
         { rewrite Hlstates1. iSteps. }
 
@@ -1030,7 +1118,8 @@ Section inf_mpmc_queue_2_G.
           destruct (slots2 back1).
           - exfalso. done.
           - iDestruct "Hslot" as "(:inv_slot_anything)".
-            iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_consumer") as %[=].
+            + iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_consumer") as %[=].
+            + iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
           - iDestruct "Hslot" as "(:inv_slot_something suff=)".
             iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
         }
@@ -1045,9 +1134,10 @@ Section inf_mpmc_queue_2_G.
         }
         iSteps.
 
-      + iMod (history_update None with "Hhistory_auth") as "(Hhistory_auth & _)".
-        iMod (lstates_update ProducerConsumer with "Hlstates_auth") as "(Hlstates_auth & Hlstates_lb)".
-        iDestruct (big_sepL_snoc_2 ProducerConsumer with "Hlstates_left [//]") as "Hlstates_left".
+      + iMod (history_update None with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)". rewrite Hhist1.
+        iMod (lstates_update ProducerConsumer with "Hlstates_auth") as "(Hlstates_auth & Hlstates_lb & _)".
+        iDestruct (big_sepL_snoc_2 ProducerConsumer with "Hlstates_left []") as "Hlstates_left".
+        { rewrite Hlstates1 //. }
         iSplitR "HΦ".
         { iFrame.
           rewrite firstn_all2. { simpl_length/=. lia. }
@@ -1092,7 +1182,7 @@ Section inf_mpmc_queue_2_G.
 
     - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
       rewrite Nat.max_l in Hlstates1; first lia.
-      iDestruct (front_lb_get back1 with "Hfront_auth") as "#Hfront_lb"; first lia.
+      iDestruct (front_lb_get (S back1) with "Hfront_auth") as "#Hfront_lb"; first lia.
       destruct (lookup_lt_is_Some_2 lstates1 back1) as (lstate & Hlstates_lookup); first lia.
       iDestruct (lstates_lb_get with "Hlstates_auth") as "#Hlstates_lb"; first done.
       erewrite drop_S; last done.
@@ -1144,7 +1234,8 @@ Section inf_mpmc_queue_2_G.
             exfalso.
             rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
           - iDestruct "Hslot" as "(:inv_slot_anything)".
-            iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_consumer") as %[=].
+            + iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_consumer") as %[=].
+            + iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
           - iDestruct "Hslot" as "(:inv_slot_something suff=)".
             iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
         }
@@ -1222,7 +1313,239 @@ Section inf_mpmc_queue_2_G.
       True
     >>>.
   Proof.
-  Admitted.
+    iIntros "%Φ (:inv) HΦ".
+
+    iLöb as "HLöb".
+
+    wp_rec.
+    wp_smart_apply (wp_id with "[//]") as (id) "Hid".
+    wp_pures.
+
+    wp_bind (FAA _ _).
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_faa.
+    iMod (consumers_update with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
+    iDestruct (wise_prophets_full_get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
+    destruct (decide (back1 ≤ front1)) as [Hfirst | Hlast].
+
+    - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
+      rewrite Nat.max_l // in Hlstates1.
+      iMod (front_update with "Hfront_auth") as "Hfront_auth".
+
+      destruct (decide (head prophs = Some id)) as [Hwinner | Hloser].
+
+      + iMod (lstates_update ConsumerConsumer with "Hlstates_auth") as "(Hlstates_auth & #Hlstates_lb & _)". rewrite Hlstates1.
+        iDestruct (big_sepL_snoc_2 ConsumerConsumer with "Hlstates_right [Hid]") as "Hlstates_right".
+        { rewrite length_drop Hlstates1 -Nat.le_add_sub; first lia.
+          iSteps.
+        }
+
+        iSplitR "Hconsumers_at HΦ".
+        { iFrame.
+          rewrite (drop_ge hist1); first lia.
+          rewrite take_app_le; first lia.
+          rewrite drop_app_le; first lia.
+          iFrameSteps. iPureIntro.
+          simpl_length/=. lia.
+        }
+        iModIntro. clear- Hwinner.
+
+        do 2 wp_load.
+
+        wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+        iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
+        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
+        iStep. iIntros "%e % % Hdata_model".
+        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        wp_pures.
+        iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+        rewrite Nat2Z.id in Hprophss2 |- *.
+        iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
+        destruct (slots2 front1); first last.
+        { iDestruct "Hslot" as "(:inv_slot_something)".
+          iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_producer") as %[=].
+        } {
+          iDestruct "Hslot" as "(:inv_slot_anything suff=)".
+          iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
+        }
+        iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
+        iMod "Hclose2" as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
+        { rewrite -(fn_compose_insert _ _ _ Anything).
+          iFrameSteps.
+          rewrite function.fn_lookup_insert. case_decide.
+          - subst. iSteps.
+          - rewrite fn_lookup_alter_ne //.
+        }
+        iSteps.
+
+      + iMod (saved_pred_alloc Φ) as "(%η & #Hη)".
+        iMod (lstates_update (ConsumerProducer η) with "Hlstates_auth") as "(Hlstates_auth & _ & #Hlstates_at)". rewrite Hlstates1.
+        iDestruct (big_sepL_snoc_2 (ConsumerProducer η) with "Hlstates_right [HΦ]") as "Hlstates_right".
+        { iSteps.
+          rewrite /consumer_au. iAuIntro.
+          iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+          iAaccIntro with "Hmodel₁"; iSteps.
+        }
+
+        iSplitR "Hconsumers_at".
+        { iFrame.
+          rewrite (drop_ge hist1); first lia.
+          rewrite take_app_le; first lia.
+          rewrite drop_app_le; first lia.
+          iFrameSteps. iPureIntro.
+          simpl_length/=. lia.
+        }
+        iModIntro. clear- Hloser.
+
+        do 2 wp_load.
+
+        wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+        iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
+        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
+        iStep. iIntros "%e % % Hdata_model".
+        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        wp_pures.
+        iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+        rewrite Nat2Z.id in Hprophss2 |- *.
+        iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
+        destruct (slots2 front1) as [| | v].
+        { iDestruct "Hslot" as "(:inv_slot_nothing)".
+          iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+          exfalso.
+          rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+        } {
+          iDestruct "Hslot" as "(:inv_slot_anything suff=)".
+          iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
+        }
+        iDestruct "Hslot" as "(:inv_slot_something)".
+
+        iDestruct (lstates_at_lookup with "Hlstates_auth Hlstates_at") as %Hlstates2_lookup.
+        iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at") as %?%lookup_lt_Some.
+        iDestruct (big_sepL_lookup_acc with "Hlstates_left") as "(Hlstate & Hlstates_left)".
+        { rewrite lookup_take_Some. naive_solver. }
+        iDestruct "Hlstate" as "(:inv_lstate_left_consumer suff=)".
+        iDestruct (history_at_agree with "Hhistory_at Hhistory_at_") as %[= <-].
+        iDestruct (saved_pred_agree v with "Hη Hη_") as "#Heq".
+        iDestruct "HΨ" as "[HΦ | Hconsumers_at_]"; last first.
+        { iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[]. }
+
+        iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
+        iMod "Hclose2" as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
+        { rewrite -(fn_compose_insert _ _ _ Anything).
+          iFrameSteps.
+          rewrite function.fn_lookup_insert. case_decide.
+          - subst. iSteps.
+          - rewrite fn_lookup_alter_ne //.
+        }
+        iIntros "!> {%}".
+
+        wp_pures.
+        iRewrite "Heq". iSteps.
+
+    - rewrite Nat.max_r in Hlstates1; first lia.
+      destruct (lookup_lt_is_Some_2 lstates1 front1) as (lstate & Hlstates_lookup); first lia.
+      iDestruct (big_sepL_lookup_acc with "Hlstates_left") as "(Hlstate & Hlstates_left)".
+      { rewrite lookup_take_Some. naive_solver lia. }
+      destruct lstate.
+      all: try iDestruct "Hlstate" as %[].
+
+      + iDestruct "Hlstate" as "(:inv_lstate_left_producer)".
+        iMod (front_update with "Hfront_auth") as "Hfront_auth".
+        iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at") as %Hhist1_lookup.
+        erewrite drop_S, oflatten_cons_Some in Hvs1; last done.
+
+        iAssert ⌜head prophs ≠ Some id⌝%I as %Hloser.
+        { iIntros (Hwinner).
+          iDestruct (winner_exclusive with "Hwinner [Hid]") as %[]; first iSteps.
+        }
+
+        iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+        iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
+
+        iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
+        iModIntro. clear- Hloser.
+
+        do 2 wp_load.
+
+        wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+        iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
+        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
+        iStep. iIntros "%e % % Hdata_model".
+        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        wp_pures.
+        iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+        rewrite Nat2Z.id in Hprophss2 |- *.
+        iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
+        destruct (slots2 front1) as [| | v_].
+        { iDestruct "Hslot" as "(:inv_slot_nothing)".
+          iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+          exfalso.
+          rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
+        } {
+          iDestruct "Hslot" as "(:inv_slot_anything suff=)".
+          iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
+        }
+        iDestruct "Hslot" as "(:inv_slot_something suff=)".
+        iDestruct (history_at_agree with "Hhistory_at Hhistory_at_") as %[= <-].
+        iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
+        iMod "Hclose2" as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
+        { rewrite -(fn_compose_insert _ _ _ Anything).
+          iFrameSteps.
+          rewrite function.fn_lookup_insert. case_decide.
+          - subst. iSteps.
+          - rewrite fn_lookup_alter_ne //.
+        }
+        iSteps.
+
+      + iMod (front_update with "Hfront_auth") as "Hfront_auth".
+        iDestruct (history_at_lookup with "Hhistory_auth Hlstate") as %Hhist1_lookup.
+        erewrite drop_S, oflatten_cons_None in Hvs1; last done.
+        iDestruct (lstates_lb_get with "Hlstates_auth") as "#Hlstates_lb"; first done.
+
+        iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
+        iIntros "!> {%}".
+
+        do 2 wp_load.
+
+        wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+        iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
+        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
+        iStep. iIntros "%e % % Hdata_model".
+        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        wp_pures.
+        iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+        rewrite Nat2Z.id in Hprophss2 |- *.
+        iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
+        destruct (slots2 front1) as [| | v]; first last.
+        { iDestruct "Hslot" as "(:inv_slot_something)".
+          iDestruct (lstates_lb_agree with "Hlstates_lb Hlstates_lb_producer") as %[=].
+        } {
+          iDestruct "Hslot" as "(:inv_slot_anything suff=)".
+          iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
+        }
+        iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
+        iMod "Hclose2" as "_".
+        iMod ("Hclose1" with "[- HΦ]") as "_".
+        { rewrite -(fn_compose_insert _ _ _ Anything).
+          iFrameSteps.
+          rewrite function.fn_lookup_insert. case_decide.
+          - subst. iSteps.
+          - rewrite fn_lookup_alter_ne //.
+        }
+        iSteps.
+
+      + iDestruct "Hlstate" as "(:inv_lstate_left_consumer)".
+        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?. lia.
+
+      + iDestruct (front_lb_valid with "Hfront_auth Hlstate") as %?. lia.
+  Qed.
 End inf_mpmc_queue_2_G.
 
 #[global] Opaque inf_mpmc_queue_2_create.
