@@ -31,7 +31,7 @@ Implicit Types κ : list observation.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Lemma wp_equal' v1 v2 tid E Φ :
+  Lemma wp_equal_nobranch v1 v2 tid E Φ :
     ▷ (
       ∀ b,
       ⌜(if b then (≈) else (≉)) v1 v2⌝ -∗
@@ -58,7 +58,7 @@ Section zoo_G.
     WP v1 == v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "HΦ".
-    iApply wp_equal'. iIntros "!>" ([]).
+    iApply wp_equal_nobranch. iIntros "!>" ([]).
     1: iDestruct "HΦ" as "(_ & HΦ)".
     2: iDestruct "HΦ" as "(HΦ & _)".
     all: iSteps.
@@ -256,7 +256,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma wp_cas' l fld dq v v1 v2 tid E Φ :
+  Lemma wp_cas_nobranch l fld dq v v1 v2 tid E Φ :
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
       ∀ b,
@@ -281,6 +281,20 @@ Section zoo_G.
     iMod (state_interp_pointsto_update with "Hinterp Hl") as "($ & Hl)".
     iSteps.
   Qed.
+  Lemma wp_cas_nobranch' l fld v v1 v2 tid E Φ :
+    ▷ (l +ₗ fld) ↦ v -∗
+    ▷ (
+      ∀ b,
+      ⌜(if b then (≈) else (≉)) v v1⌝ -∗
+      (l +ₗ fld) ↦ (if b then v2 else v) -∗
+      Φ #b
+    ) -∗
+    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "Hl HΦ".
+    iApply (wp_cas_nobranch with "Hl"). iIntros "!> %b".
+    destruct b; iSteps.
+  Qed.
   Lemma wp_cas l fld dq v v1 v2 tid E Φ :
     ▷ (l +ₗ fld) ↦{dq} v -∗
     ▷ (
@@ -300,9 +314,30 @@ Section zoo_G.
     WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
   Proof.
     iIntros "Hl HΦ".
-    iApply (wp_cas' with "Hl"). iIntros "!>" ([] ?) "Hl".
+    iApply (wp_cas_nobranch with "Hl"). iIntros "!>" ([] ?) "Hl".
     1: iDestruct ("HΦ" with "[//] Hl") as "(-> & Hl & HΦ)".
     2: iDestruct "HΦ" as "(HΦ & _)".
+    all: iSteps.
+  Qed.
+  Lemma wp_cas' l fld v v1 v2 tid E Φ :
+    ▷ (l +ₗ fld) ↦ v -∗
+    ▷ (
+      ( ⌜v ≉ v1⌝ -∗
+        (l +ₗ fld) ↦ v -∗
+        Φ #false
+      ) ∧ (
+        ⌜v ≈ v1⌝ -∗
+        (l +ₗ fld) ↦ v2 -∗
+        Φ #true
+      )
+    ) -∗
+    WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "Hl HΦ".
+    iApply (wp_cas with "Hl").
+    iSplit.
+    1: iDestruct "HΦ" as "(HΦ & _)".
+    2: iDestruct "HΦ" as "(_ & HΦ)".
     all: iSteps.
   Qed.
   Lemma wp_cas_suc l fld lit lit1 v2 tid E :

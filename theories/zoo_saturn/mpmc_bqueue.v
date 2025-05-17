@@ -910,8 +910,7 @@ Section mpmc_bqueue_G.
 
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(:inv_inner =3)".
-        wp_apply (wp_cas' with "Hl_back") as (b) "% $".
-        iSplit; first by destruct b. iIntros "Hl_back".
+        wp_apply (wp_cas_nobranch' with "Hl_back") as (b) "% Hl_back".
         iSplitR "HΦ".
         { iDestruct (history_at_elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
           destruct b; iFrameSteps.
@@ -931,8 +930,7 @@ Section mpmc_bqueue_G.
 
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(:inv_inner =3)".
-        wp_apply (wp_cas' with "Hl_back") as (b) "% $".
-        iSplit; first by destruct b. iIntros "Hl_back".
+        wp_apply (wp_cas_nobranch' with "Hl_back") as (b) "% Hl_back".
         iSplitR "HΦ".
         { iDestruct (history_at_elem_of with "Hhistory_auth Hhistory_at_node") as %Hnode.
           destruct b; iFrameSteps.

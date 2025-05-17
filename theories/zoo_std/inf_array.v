@@ -635,7 +635,7 @@ Section inf_array_G.
     }
 
     wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp_apply wp_equal' as (b) "%".
+    wp_apply wp_equal_nobranch as (b) "%".
     wp_pures.
 
     wp_bind (if: _ then _ else _)%E.
@@ -703,7 +703,7 @@ Section inf_array_G.
     }
 
     wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp_apply wp_equal' as (b) "%".
+    wp_apply wp_equal_nobranch as (b) "%".
     wp_pures.
 
     wp_bind (if: _ then _ else _)%E.

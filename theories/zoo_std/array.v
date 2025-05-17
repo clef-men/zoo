@@ -7363,8 +7363,7 @@ Section zoo_G.
     iInv "Htype" as "(%vs & >%Hvs & Hmodel & Hvs)".
     destruct (lookup_lt_is_Some_2 vs i) as (v & Hlookup); first lia.
     iDestruct (chunk_model_update i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
-    wp_apply (wp_cas' with "H↦") as (b) "_ $".
-    iSplit; first by destruct b. iIntros "H↦ !>".
+    wp_apply (wp_cas_nobranch' with "H↦") as (b) "_ H↦ !>".
     iDestruct (big_sepL_insert_acc with "Hvs") as "(#Hv & Hvs)"; first done.
     iSplitR "HΦ"; last iSteps.
     iExists (<[i := if b then v2 else v]> vs). simpl_length. destruct b; iSteps.
