@@ -337,6 +337,24 @@ Section wise_prophets_G.
         * rewrite function.fn_lookup_insert Hprophss untangle_cons /=.
           case_decide; subst; done.
   Qed.
+  Lemma wise_strong_prophets_wp_resolve' e pid i v γ pasts prophss E Φ :
+    Atomic e →
+    to_val e = None →
+    wise_strong_prophets_model pid γ pasts prophss -∗
+    WP e @ E {{ w,
+      ∃ proph,
+      ⌜(w, v) = prophet.(typed_strong_prophet_to_val) proph⌝ ∗
+        ∀ prophs,
+        ⌜prophss i = proph :: prophs⌝ -∗
+        wise_strong_prophets_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% % Hmodel HΦ".
+    iApply (wise_strong_prophets_wp_resolve with "Hmodel"); [done | lia |].
+    rewrite Nat2Z.id. iSteps.
+  Qed.
 End wise_prophets_G.
 
 #[global] Opaque wise_strong_prophets_name.
@@ -581,6 +599,23 @@ Section wise_prophets_G.
       case_decide; last done. rewrite fmap_app Hpasts //.
     - rewrite /= !function.fn_lookup_insert /=.
       case_decide; done.
+  Qed.
+  Lemma wise_prophets_wp_resolve' proph e pid i v γ pasts prophss E Φ :
+    Atomic e →
+    to_val e = None →
+    v = prophet.(typed_prophet_to_val) proph →
+    wise_prophets_model pid γ pasts prophss -∗
+    WP e @ E {{ w,
+      ∀ prophs,
+      ⌜prophss i = proph :: prophs⌝ -∗
+      wise_prophets_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+      Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% % % Hmodel HΦ".
+    iApply (wise_prophets_wp_resolve with "Hmodel"); [done | lia | done |].
+    rewrite Nat2Z.id. iSteps.
   Qed.
 End wise_prophets_G.
 

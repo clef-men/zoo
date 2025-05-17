@@ -22,9 +22,10 @@ From zoo.program_logic Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  optional
+  domain
   inf_array
-  int.
+  int
+  optional.
 From zoo_saturn Require Export
   base
   inf_mpmc_queue_2__code.
@@ -1109,10 +1110,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id in Hslots2 |- *.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hslots2 Hprophss2 |- *.
         destruct b; last first.
         { iDestruct ("Hslots" $! back1) as "Hslot".
           destruct (slots2 back1).
@@ -1157,10 +1158,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id in Hslots2 |- *.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hslots2 Hprophss2 |- *.
         destruct b.
         { iDestruct ("Hslots" $! back1) as "Hslot".
           destruct (slots2 back1).
@@ -1222,10 +1223,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id in Hslots2 |- *.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hslots2 Hprophss2 |- *.
         destruct b; last first.
         { iDestruct ("Hslots" $! back1) as "Hslot".
           destruct (slots2 back1).
@@ -1274,10 +1275,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id in Hslots2 |- *.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hslots2 Hprophss2 |- *.
         destruct b.
         { iDestruct ("Hslots" $! back1) as "Hslot".
           destruct (slots2 back1).
@@ -1356,10 +1357,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hprophss2 |- *.
         iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
         destruct (slots2 front1); first last.
         { iDestruct "Hslot" as "(:inv_slot_something)".
@@ -1405,10 +1406,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hprophss2 |- *.
         iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
         destruct (slots2 front1) as [| | v].
         { iDestruct "Hslot" as "(:inv_slot_nothing)".
@@ -1477,10 +1478,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hprophss2 |- *.
         iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
         destruct (slots2 front1) as [| | v_].
         { iDestruct "Hslot" as "(:inv_slot_nothing)".
@@ -1518,10 +1519,10 @@ Section inf_mpmc_queue_2_G.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
         iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
-        wp_apply (wise_prophets_wp_resolve with "Hprophet_model"); [done | lia | done |].
+        rewrite Nat2Z.id.
+        wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
         wp_pures.
         iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
-        rewrite Nat2Z.id in Hprophss2 |- *.
         iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
         destruct (slots2 front1) as [| | v]; first last.
         { iDestruct "Hslot" as "(:inv_slot_something)".
