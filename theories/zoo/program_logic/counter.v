@@ -47,7 +47,7 @@ Section zoo_G.
 
   Lemma zoo_counter_incr_spec ids v :
     {{{
-      [∗ set] id ∈ ids,
+      [∗ list] id ∈ ids,
         ∃ v,
         zoo_counter_at id v
     }}}
@@ -55,7 +55,7 @@ Section zoo_G.
     {{{ id,
       RET #id;
       zoo_counter_at id v ∗
-      ⌜set_Forall (.≠ id) ids⌝
+      ⌜Forall (.≠ id) ids⌝
     }}}.
   Proof.
     iIntros "%Φ Hids HΦ".
@@ -69,12 +69,14 @@ Section zoo_G.
 
     iInv "Hinv" as "(%cnt & %vs & Hcounter & Hauth & ><-)".
     wp_faa.
-    iAssert ⌜set_Forall (.≠ length vs) ids⌝%I as "%Hids".
-    { iApply big_sepS_pure.
-      iDestruct (big_sepS_impl_thread with "Hids Hauth []") as "($ & _)". iIntros "!> %id _ (%w & Hat) Hauth".
+
+    iAssert ⌜Forall (.≠ length vs) ids⌝%I as "%Hids".
+    { rewrite Forall_lookup. iIntros "%i %id %Hlookup".
+      iDestruct (big_sepL_lookup with "Hids") as "(%w & Hat)"; first done.
       iDestruct (mono_list_at_valid with "Hauth Hat") as %Hid%lookup_lt_Some.
       iSteps.
     }
+
     iMod (mono_list_update_snoc v with "Hauth") as "Hauth".
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }

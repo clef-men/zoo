@@ -6,6 +6,8 @@ From zoo Require Import
 From zoo.common Require Import
   list
   fin_maps.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
@@ -25,7 +27,6 @@ From zoo Require Import
 Implicit Types id : nat.
 Implicit Types l : location.
 Implicit Types t fn key : val.
-Implicit Types keys : gset val.
 Implicit Types vs : list (option val).
 Implicit Types ws : gmap nat (option val).
 Implicit Types ids : gmap val nat.
@@ -565,41 +566,41 @@ Section domain_G.
 
   Lemma domain_local_new_spec {fn} Ψ keys :
     {{{
-      □ WP fn () {{ Ψ }}
-      (* ([∗ set] key ∈ keys, domain_key' key) *)
+      □ WP fn () {{ Ψ }} ∗
+      [∗ list] key ∈ keys, domain_key' key
     }}}
       domain_local_new fn
     {{{ key,
       RET key;
-      domain_key key Ψ
-      (* ⌜set_Forall (.≠ key) keys⌝ *)
+      domain_key key Ψ ∗
+      ⌜Forall (.≠ key) keys⌝
     }}}.
   Proof.
-    iIntros "%Φ #Hfn HΦ".
+    iIntros "%Φ (#Hfn & Hkeys) HΦ".
 
-    (* iAssert ( *)
-    (*   [∗ set] key ∈ keys, *)
-    (*     ∃ id fn, *)
-    (*     ⌜key = (#id, fn)%V⌝ ∗ *)
-    (*     zoo_counter_at id fn *)
-    (* )%I with "[Hkeys]" as "Hkeys". *)
-    (* { iApply (big_sepS_impl with "Hkeys"). iIntros "!> %key %Hkey (%Ψ' & (:key ='))". *)
-    (*   iSteps. *)
-    (* } *)
-    (* iAssert ( *)
-    (*   ∃ ids, *)
-    (*   [∗ map] key ↦ id ∈ ids, *)
-    (*     ∃ fn, *)
-    (*     ⌜key = (#id, fn)%V⌝ ∗ *)
-    (*     zoo_counter_at id fn *)
-    (* )%I with "[Hkeys]" as "(%ids & #Hids)". *)
-    (* { admit. *)
-    (* } *)
+    iAssert (
+      [∗ list] key ∈ keys,
+        ∃ id,
+        ( ∃ fn,
+          ⌜key = (#id, fn)%V⌝
+        ) ∗
+        ( ∃ fn,
+          zoo_counter_at id fn
+        )
+    )%I with "[Hkeys]" as "Hkeys".
+    { iApply (big_sepL_impl with "Hkeys").
+      iSteps.
+    }
+    iDestruct (big_sepL_exists with "Hkeys") as "(%ids & % & Hkeys)".
+    iDestruct (big_sepL2_sep with "Hkeys") as "(Hkeys & Hids)".
+    iDestruct (big_sepL2_const_sepL_r with "Hids") as "(_ & Hids)".
 
     wp_rec.
-    wp_apply (zoo_counter_incr_spec ∅ fn) as (id) "(Hid & %_)".
-    { rewrite big_sepS_empty //. }
+    wp_apply (zoo_counter_incr_spec ids fn with "Hids") as (id) "(Hid & %Hids)".
     iSteps.
+    rewrite Forall_lookup. iIntros "%i %key %Hkeys_lookup ->".
+    iDestruct (big_sepL2_lookup_l with "Hkeys") as "(%id' & %Hids_lookup & %fn' & %)"; first done. simplify.
+    eapply Forall_lookup_1 in Hids; done.
   Qed.
 
   Lemma domain_local_get_spec_init keys key Ψ tid :
