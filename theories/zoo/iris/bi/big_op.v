@@ -352,6 +352,24 @@ Section bi.
       }
     Qed.
 
+    Lemma big_sepL_Forall `{!BiPureForall PROP} (ϕ : A → Prop) l :
+      ([∗ list] x ∈ l, ⌜ϕ x⌝) ⊢@{PROP}
+      ⌜Forall ϕ l⌝.
+    Proof.
+      rewrite Forall_lookup.
+      iIntros "H %i %x %Hlookup".
+      iApply (big_sepL_lookup with "H"); first done.
+    Qed.
+
+    Lemma big_sepL_Foralli `{!BiPureForall PROP} (ϕ : nat → A → Prop) l :
+      ([∗ list] k ↦ x ∈ l, ⌜ϕ k x⌝) ⊢@{PROP}
+      ⌜Foralli ϕ l⌝.
+    Proof.
+      rewrite Foralli_lookup.
+      iIntros "H %i %x %Hlookup".
+      iApply (big_sepL_lookup with "H"); first done.
+    Qed.
+
     Lemma big_sepM_map_seq start l Φ :
       ([∗ map] k ↦ x ∈ map_seq start l, Φ k x) ⊣⊢
       [∗ list] k ↦ x ∈ l, Φ (start + k) x.
