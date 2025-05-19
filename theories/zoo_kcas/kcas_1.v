@@ -160,8 +160,8 @@ Definition final_status_to_val fstatus :=
 Proof.
   destruct b; done.
 Qed.
-#[local] Lemma final_status_to_val_undetermined fstatus bid v_cass :
-  ¬ final_status_to_val fstatus ≈ ‘Undetermined@bid[ v_cass ]%V.
+#[local] Lemma final_status_to_val_undetermined fstatus bid 𝑐𝑎𝑠𝑠 :
+  ¬ final_status_to_val fstatus ≈ ‘Undetermined@bid[ 𝑐𝑎𝑠𝑠 ]%V.
 Proof.
   destruct fstatus; done.
 Qed.
@@ -416,14 +416,14 @@ Section kcas_1_G.
   #[local] Definition casn_inv_name ι casn :=
     ι.@"casn".@casn.
   #[local] Definition casn_inv_inner casn η ι Ψ : iProp Σ :=
-    ∃ v_status lstatus helpers prophs,
-    casn.[status] ↦ v_status ∗
+    ∃ 𝑠𝑡𝑎𝑡𝑢𝑠 lstatus helpers prophs,
+    casn.[status] ↦ 𝑠𝑡𝑎𝑡𝑢𝑠 ∗
     lstatus_auth η lstatus ∗
     helpers_auth η helpers ∗
     typed_prophet_model global_prophet η.(metadata_prophet) prophs ∗
     match lstatus with
     | Running i =>
-        ⌜v_status = status_to_val η Undetermined⌝ ∗
+        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = status_to_val η Undetermined⌝ ∗
         ⌜prophs = η.(metadata_prophs)⌝ ∗
         ( au η ι Ψ ∗
           winning η
@@ -447,7 +447,7 @@ Section kcas_1_G.
           lock η j
         )
     | Finished =>
-        ⌜v_status = metadata_final η⌝ ∗
+        ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = metadata_final η⌝ ∗
         identifier_model' (metadata_winner η) ∗
         (owner η ∨ Ψ (metadata_success η)) ∗
         ( [∗ map] helper ↦ _ ∈ helpers,
@@ -1617,23 +1617,23 @@ Section kcas_1_G.
 
   #[local] Lemma kcas_1_determine_as_eval_determine_spec ι :
     ⊢ (
-      ∀ casn η v_cass i,
+      ∀ casn η 𝑐𝑎𝑠𝑠 i,
       {{{
-        ⌜v_cass = lst_to_val (drop i (metadata_cass η))⌝ ∗
+        ⌜𝑐𝑎𝑠𝑠 = lst_to_val (drop i (metadata_cass η))⌝ ∗
         meta casn nroot η ∗
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i)
       }}}
-        kcas_1_determine_as #casn v_cass
+        kcas_1_determine_as #casn 𝑐𝑎𝑠𝑠
       {{{
         RET #(metadata_success η);
         lstatus_lb η Finished
       }}}
     ) ∧ (
-      ∀ casn η i descr casn1 η1 i1 descr1 casns1 v_retry v_continue,
+      ∀ casn η i descr casn1 η1 i1 descr1 casns1 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒,
       {{{
-        ⌜v_retry = lst_to_val (drop i (metadata_cass η))⌝ ∗
-        ⌜v_continue = lst_to_val (drop (S i) (metadata_cass η))⌝ ∗
+        ⌜𝑟𝑒𝑡𝑟𝑦 = lst_to_val (drop i (metadata_cass η))⌝ ∗
+        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = lst_to_val (drop (S i) (metadata_cass η))⌝ ∗
         ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
         ⌜η1.(metadata_descrs) !! i1 = Some descr1⌝ ∗
         ⌜descr1.(descriptor_loc) = descr.(descriptor_loc)⌝ ∗
@@ -1650,7 +1650,7 @@ Section kcas_1_G.
         ∨ ⌜descriptor_final descr1 η1 ≈ descr.(descriptor_before)⌝
         )
       }}}
-        kcas_1_lock #casn #descr.(descriptor_loc) #descr1.(descriptor_state) #descr.(descriptor_state) v_retry v_continue
+        kcas_1_lock #casn #descr.(descriptor_loc) #descr1.(descriptor_state) #descr.(descriptor_state) 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒
       {{{
         RET #(metadata_success η);
         lstatus_lb η Finished
@@ -1685,7 +1685,7 @@ Section kcas_1_G.
     iDestruct "HLöb" as "(IHdetermine_as & IHlock & IHeval & IHdetermine)".
     repeat iSplit.
 
-    { iIntros "%casn %η %v_cass %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
+    { iIntros "%casn %η %𝑐𝑎𝑠𝑠 %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
 
       wp_recs credit:"H£".
@@ -1811,7 +1811,7 @@ Section kcas_1_G.
         { rewrite lookup_ge_None // in Hdescrs_lookup. }
     }
 
-    { iIntros "%casn %η %i %descr %casn1 %η1 %i1 %descr1 %casns1 %v_retry %v_continue !> %Φ (-> & -> & %Hdescrs_lookup & %Hdescrs1_lookup & %Hloc1 & %Hmeta1 & %Hcasn1 & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb & #Hcasn1_meta & #Hcasn1_inv' & #Hlstatus1_lb & #Hhistory_lb1 & H) HΦ".
+    { iIntros "%casn %η %i %descr %casn1 %η1 %i1 %descr1 %casns1 %𝑟𝑒𝑡𝑟𝑦 %𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 !> %Φ (-> & -> & %Hdescrs_lookup & %Hdescrs1_lookup & %Hloc1 & %Hmeta1 & %Hcasn1 & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb & #Hcasn1_meta & #Hcasn1_inv' & #Hlstatus1_lb & #Hhistory_lb1 & H) HΦ".
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
       iDestruct (casn_inv'_unfold with "Hcasn1_inv'") as "(:casn_inv =1)".
       iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
@@ -2021,14 +2021,14 @@ Section kcas_1_G.
         rewrite /metadata_final. destruct (metadata_success η); iSteps.
     }
   Qed.
-  #[local] Lemma kcas_1_determine_as_spec casn η ι v_cass i :
-    v_cass = lst_to_val (drop i (metadata_cass η)) →
+  #[local] Lemma kcas_1_determine_as_spec casn η ι 𝑐𝑎𝑠𝑠 i :
+    𝑐𝑎𝑠𝑠 = lst_to_val (drop i (metadata_cass η)) →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
       lstatus_lb η (Running i)
     }}}
-      kcas_1_determine_as #casn v_cass
+      kcas_1_determine_as #casn 𝑐𝑎𝑠𝑠
     {{{
       RET #(metadata_success η);
       lstatus_lb η Finished
@@ -2192,17 +2192,17 @@ Section kcas_1_G.
     iApply (lc_fupd_elim_later with "H£2 HΦ").
   Qed.
 
-  Lemma kcas_1_cas_spec {ι v_spec} locs befores afters :
+  Lemma kcas_1_cas_spec {ι 𝑠𝑝𝑒𝑐} locs befores afters :
     length locs = length befores →
     length locs = length afters →
     NoDup locs →
-    lst_model' v_spec $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
+    lst_model' 𝑠𝑝𝑒𝑐 $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
     <<<
       [∗ list] loc ∈ locs, kcas_1_loc_inv loc ι
     | ∀∀ vs,
       [∗ list] loc; v ∈ locs; vs, kcas_1_loc_model loc v
     >>>
-      kcas_1_cas v_spec @ ↑ι
+      kcas_1_cas 𝑠𝑝𝑒𝑐 @ ↑ι
     <<<
       ∃∃ b,
       if b then
@@ -2226,9 +2226,9 @@ Section kcas_1_G.
     wp_block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
 
-    pose (Ψ i (_ : val) v_cas := (
+    pose (Ψ i (_ : val) 𝑐𝑎𝑠 := (
       ∃ descr,
-      ⌜v_cas = descriptor_cas descr⌝ ∗
+      ⌜𝑐𝑎𝑠 = descriptor_cas descr⌝ ∗
       descr.(descriptor_state).[casn] ↦□ #casn ∗
       ( descr.(descriptor_state).[before] ↦ descr.(descriptor_before) ∗
         descr.(descriptor_state).[after] ↦ descr.(descriptor_after)
@@ -2245,7 +2245,7 @@ Section kcas_1_G.
           descr.(descriptor_after) = after
         ⌝
     )%I : iProp Σ).
-    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (v_cass vs_cass) "(%Hvs_cass & -> & Hdescrs)"; first done.
+    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
     { iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
       wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
       iMod (pointsto_persist with "Hstate_casn") as "#Hstate_casn".
