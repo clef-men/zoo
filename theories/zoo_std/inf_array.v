@@ -345,13 +345,13 @@ Section inf_array_G.
     <<<
       inf_array_model t vs
     | RET vs ₊i;
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1)".
+    wp_rec credit:"H£". wp_load.
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1)".
     wp_load.
     wp_smart_apply (array_size_spec with "Hdata") as "Hdata".
     wp_pures. case_decide.
@@ -374,7 +374,7 @@ Section inf_array_G.
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+      iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
 
       rewrite /inv_1. iSteps.
       rewrite Hvs decide_False; first lia. iSteps.
@@ -390,8 +390,11 @@ Section inf_array_G.
     <<<
       inf_array_model' t vsₗ vsᵣ
     | RET
-        if decide (₊i < length vsₗ) then vsₗ !!! ₊i else vsᵣ (₊i - length vsₗ);
-      True
+        if decide (₊i < length vsₗ) then
+          vsₗ !!! ₊i
+        else
+          vsᵣ (₊i - length vsₗ);
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
@@ -415,13 +418,13 @@ Section inf_array_G.
       inf_array_model t (<[₊i := v]> vs) ∗
       Ψ2 (vs ₊i) v
     | RET vs ₊i;
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ ((:inv) & Hfn) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv Hfn HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_rec credit:"H£". wp_load.
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
     wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
@@ -448,7 +451,7 @@ Section inf_array_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update (<[₊i := w]> vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[$Hmodel₁ Hw]") as "HΦ"; first naive_solver.
+    iMod ("HΦ" with "[$Hmodel₁ Hw] H£") as "HΦ"; first naive_solver.
 
     iFrame. rewrite Hv. iSplitR "HΦ"; last iSteps. iPureIntro.
     rewrite length_insert Hvs.
@@ -471,7 +474,7 @@ Section inf_array_G.
     <<<
       inf_array_model t (<[₊i := v]> vs)
     | RET vs ₊i;
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
@@ -556,7 +559,7 @@ Section inf_array_G.
     <<<
       inf_array_model t (<[₊i := v]> vs)
     | RET ();
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
@@ -580,7 +583,7 @@ Section inf_array_G.
       else
         inf_array_model' t vsₗ (<[₊i - length vsₗ := v]> vsᵣ)
     | RET ();
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
@@ -618,13 +621,13 @@ Section inf_array_G.
       ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ ∗
       inf_array_model t (if b then <[₊i := v2]> vs else vs)
     | RET #b;
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ (:inv) HΦ".
 
-    wp_rec. wp_load.
-    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_rec credit:"H£". wp_load.
+    wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
     wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
@@ -656,7 +659,7 @@ Section inf_array_G.
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     set vs' := if b then <[₊i := v2]> vs else vs.
     iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" $! b with "[Hmodel₁] [//]") as "$".
+    iMod ("HΦ" $! b with "[Hmodel₁] H£") as "$".
     { rewrite Hv. iSteps. }
 
     iFrame. iPureIntro.
@@ -759,7 +762,7 @@ Section inf_array_G.
     <<<
       inf_array_model t (<[₊i := #(n + incr)]> vs)
     | RET vs ₊i;
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
