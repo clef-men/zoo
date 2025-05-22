@@ -254,6 +254,13 @@ Section inf_array_G.
     intros.
     rewrite inf_array_model'_shift inf_array_model'_proper; last done; done.
   Qed.
+  Lemma inf_array_model'_shift_l' t vsₗ vsᵣ :
+    inf_array_model' t vsₗ vsᵣ ⊢
+    inf_array_model' t (vsₗ ++ [vsᵣ 0]) (vsᵣ ∘ S).
+  Proof.
+    rewrite inf_array_model'_shift_l //.
+    intros []; done.
+  Qed.
 
   Lemma inf_array_create_spec default :
     {{{
