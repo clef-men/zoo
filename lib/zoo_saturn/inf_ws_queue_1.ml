@@ -10,8 +10,8 @@ type 'a t =
   }
 
 let create () =
-  { front= 0;
-    back= 0;
+  { front= 1;
+    back= 1;
     data= Inf_array.create (Obj.magic ());
     proph= Zoo.proph ();
   }
@@ -38,24 +38,27 @@ let rec steal t =
     steal t
   )
 
-let pop t =
-  let id = Zoo.id () in
-  let back = t.back - 1 in
-  t.back <- back ;
+let[@inline] pop t id back =
   let front = t.front in
   if back < front then (
     t.back <- front ;
     None
   ) else if front < back then (
     Some (Inf_array.get t.data back)
-  ) else if
-    Zoo.resolve (
-      Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
-    ) t.proph (front, id)
-  then (
-    t.back <- front + 1 ;
-    Some (Inf_array.get t.data back)
   ) else (
+    let won =
+      Zoo.resolve (
+        Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
+      ) t.proph (front, id)
+    in
     t.back <- front + 1 ;
-    None
+    if won then
+      Some (Inf_array.get t.data front)
+    else
+      None
   )
+let pop t =
+  let id = Zoo.id () in
+  let back = t.back - 1 in
+  t.back <- back ;
+  pop t id back

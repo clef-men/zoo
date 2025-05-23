@@ -15,7 +15,7 @@ From zoo Require Import
 
 Definition inf_ws_queue_1_create : val :=
   fun: <> =>
-    { #0, #0, inf_array_create (), Proph }.
+    { #1, #1, inf_array_create (), Proph }.
 
 Definition inf_ws_queue_1_push : val :=
   fun: "t" "v" =>
@@ -42,26 +42,32 @@ Definition inf_ws_queue_1_steal : val :=
       "steal" "t"
     ).
 
-Definition inf_ws_queue_1_pop : val :=
-  fun: "t" =>
-    let: "id" := Id in
-    let: "back" := "t".{back} - #1 in
-    "t" <-{back} "back" ;;
+Definition inf_ws_queue_1_pop_0 : val :=
+  fun: "t" "id" "back" =>
     let: "front" := "t".{front} in
     if: "back" < "front" then (
       "t" <-{back} "front" ;;
       §None
     ) else if: "front" < "back" then (
       ‘Some( inf_array_get "t".{data} "back" )
-    ) else if:
-       Resolve
-         (CAS "t".[front] "front" ("front" + #1))
-         "t".{proph}
-         ("front", "id")
-     then (
-      "t" <-{back} "front" + #1 ;;
-      ‘Some( inf_array_get "t".{data} "back" )
     ) else (
+      let: "won" :=
+        Resolve
+          (CAS "t".[front] "front" ("front" + #1))
+          "t".{proph}
+          ("front", "id")
+      in
       "t" <-{back} "front" + #1 ;;
-      §None
+      if: "won" then (
+        ‘Some( inf_array_get "t".{data} "front" )
+      ) else (
+        §None
+      )
     ).
+
+Definition inf_ws_queue_1_pop : val :=
+  fun: "t" =>
+    let: "id" := Id in
+    let: "back" := "t".{back} - #1 in
+    "t" <-{back} "back" ;;
+    inf_ws_queue_1_pop_0 "t" "id" "back".

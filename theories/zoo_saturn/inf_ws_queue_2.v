@@ -4,6 +4,8 @@ From zoo.common Require Import
   list.
 From zoo.language Require Import
   notations.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -35,25 +37,38 @@ Qed.
 Section inf_ws_queue_2_G.
   Context `{inf_ws_queue_2_G : InfWsQueue2G Σ}.
 
-  Definition inf_ws_queue_2_inv t :=
-    inf_ws_queue_1_inv t.
+  Definition inf_ws_queue_2_inv :=
+    inf_ws_queue_1_inv.
 
   Definition inf_ws_queue_2_model t vs : iProp Σ :=
-      ∃ slots,
-      inf_ws_queue_1_model t (#@{location} <$> slots) ∗
-      [∗ list] slot; v ∈ slots; vs,
-        slot ↦ᵣ v.
+    ∃ slots,
+    inf_ws_queue_1_model t (#@{location} <$> slots) ∗
+    [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ□ v.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %slots_vs{} &
+      Hmodel{_{}} &
+      Hslots_vs{}
+    )".
 
-  Definition inf_ws_queue_2_owner t :=
-    inf_ws_queue_1_owner t.
+  Definition inf_ws_queue_2_owner t ws : iProp Σ :=
+    ∃ slots,
+    inf_ws_queue_1_owner t (#@{location} <$> slots) ∗
+    [∗ list] slot; v ∈ slots; ws, slot ↦ᵣ□ v.
+  #[local] Instance : CustomIpatFormat "owner" :=
+    "(
+      %slots_ws{} &
+      Howner{_{}} &
+      Hslots_ws{}
+    )".
 
-  #[global] Instance inf_ws_queue_2_model_timeless t model :
-    Timeless (inf_ws_queue_2_model t model).
+  #[global] Instance inf_ws_queue_2_model_timeless t vs :
+    Timeless (inf_ws_queue_2_model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance inf_ws_queue_2_owner_timeless t :
-    Timeless (inf_ws_queue_2_owner t).
+  #[global] Instance inf_ws_queue_2_owner_timeless t ws :
+    Timeless (inf_ws_queue_2_owner t ws).
   Proof.
     apply _.
   Qed.
@@ -63,12 +78,13 @@ Section inf_ws_queue_2_G.
     apply _.
   Qed.
 
-  Lemma inf_ws_queue_2_owner_exclusive t :
-    inf_ws_queue_2_owner t -∗
-    inf_ws_queue_2_owner t -∗
+  Lemma inf_ws_queue_2_owner_exclusive t ws1 ws2 :
+    inf_ws_queue_2_owner t ws1 -∗
+    inf_ws_queue_2_owner t ws2 -∗
     False.
   Proof.
-    apply inf_ws_queue_1_owner_exclusive.
+    iIntros "(:owner =1) (:owner =2)".
+    iApply (inf_ws_queue_1_owner_exclusive with "Howner_1 Howner_2").
   Qed.
 
   Lemma inf_ws_queue_2_create_spec ι :
@@ -80,100 +96,107 @@ Section inf_ws_queue_2_G.
       RET t;
       inf_ws_queue_2_inv t ι ∗
       inf_ws_queue_2_model t [] ∗
-      inf_ws_queue_2_owner t
+      inf_ws_queue_2_owner t []
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
+
     wp_apply (inf_ws_queue_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel & Howner)".
-    iSteps. iExists []. iSteps.
+
+    iSteps. iExists []. iSteps. iExists []. iSteps.
   Qed.
 
-  Lemma inf_ws_queue_2_push_spec t ι v :
+  Lemma inf_ws_queue_2_push_spec t ι ws v :
     <<<
       inf_ws_queue_2_inv t ι ∗
-      inf_ws_queue_2_owner t
-    | ∀∀ model,
-      inf_ws_queue_2_model t model
+      inf_ws_queue_2_owner t ws
+    | ∀∀ vs,
+      inf_ws_queue_2_model t vs
     >>>
       inf_ws_queue_2_push t v @ ↑ι
     <<<
-      inf_ws_queue_2_model t (model ++ [v])
+      inf_ws_queue_2_model t (vs ++ [v])
     | RET ();
-      inf_ws_queue_2_owner t
+      inf_ws_queue_2_owner t (vs ++ [v])
     >>>.
   Proof.
-    iIntros "%Φ (#Hinv & Howner) HΦ".
-    wp_rec. wp_ref slot as "Hslot".
+    iIntros "%Φ (#Hinv & (:owner)) HΦ".
+
+    wp_rec.
+    wp_ref slot as "Hslot".
+    iMod (pointsto_persist with "Hslot") as "Hslot".
+
     awp_apply (inf_ws_queue_1_push_spec with "[$Hinv $Howner]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
-    iSplitL; last iSteps. rewrite -fmap_snoc. iExists _. iFrameSteps.
+    iDestruct (big_sepL2_snoc_2 with "Hslots_vs Hslot") as "-##Hslots_vs".
+    rewrite -fmap_snoc. iSteps.
   Qed.
 
   Lemma inf_ws_queue_2_steal_spec t ι :
     <<<
       inf_ws_queue_2_inv t ι
-    | ∀∀ model,
-      inf_ws_queue_2_model t model
+    | ∀∀ vs,
+      inf_ws_queue_2_model t vs
     >>>
       inf_ws_queue_2_steal t @ ↑ι
     <<<
-      inf_ws_queue_2_model t (tail model)
-    | RET head model;
+      inf_ws_queue_2_model t (tail vs)
+    | RET head vs;
       True
     >>>.
   Proof.
     iIntros "%Φ #Hinv HΦ".
+
     wp_rec.
+
     awp_smart_apply (inf_ws_queue_1_steal_spec with "Hinv").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
     iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
-    destruct slots as [| slot slots], vs as [| v vs]; try done.
-    - iSplitL; last iSteps. iExists _. auto.
-    - iSteps.
+    destruct slots_vs as [| slot slots_vs], vs as [| v vs] => //.
+    all: iFrameSteps.
   Qed.
 
-  Lemma inf_ws_queue_2_pop_spec t ι :
+  Lemma inf_ws_queue_2_pop_spec t ι ws :
     <<<
       inf_ws_queue_2_inv t ι ∗
-      inf_ws_queue_2_owner t
-    | ∀∀ model,
-      inf_ws_queue_2_model t model
+      inf_ws_queue_2_owner t ws
+    | ∀∀ vs,
+      inf_ws_queue_2_model t vs
     >>>
       inf_ws_queue_2_pop t @ ↑ι
     <<<
-      ∃∃ o,
+      ∃∃ o ws,
       match o with
       | None =>
-          ⌜model = []⌝ ∗
+          ⌜vs = []⌝ ∗
+          ⌜ws = []⌝ ∗
           inf_ws_queue_2_model t []
       | Some v =>
-          ∃ model',
-          ⌜model = model' ++ [v]⌝ ∗
-          inf_ws_queue_2_model t model'
+          ∃ vs',
+          ⌜vs = vs' ++ [v]⌝ ∗
+          ⌜ws = vs'⌝ ∗
+          inf_ws_queue_2_model t vs'
       end
     | RET o;
-      inf_ws_queue_2_owner t
+      inf_ws_queue_2_owner t ws
     >>>.
   Proof.
-    iIntros "%Φ (#Hinv & Howner) HΦ".
+    iIntros "%Φ (#Hinv & (:owner)) HΦ".
+
     wp_rec.
+
     awp_smart_apply (inf_ws_queue_1_pop_spec with "[$Hinv $Howner]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%slots & Hmodel & Hslots)".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([w |]).
-    - iIntros "(%ws & %Heq & Hmodel) !>".
-      destruct slots as [| slot slots _] using rev_ind.
-      { rewrite fmap_nil in Heq. edestruct app_cons_not_nil. done. }
-      rewrite fmap_app app_inj_tail_iff in Heq. destruct Heq as (<- & <-).
-      destruct vs as [| v vs _] using rev_ind.
-      { iDestruct (big_sepL2_nil_inv_r with "Hslots") as %?.
-        edestruct app_cons_not_nil. done.
-      }
-      iDestruct (big_sepL2_snoc with "Hslots") as "(Hslots & Hslot)".
-      iExists (Some v). iSteps.
-    - iIntros "(%Heq & Hmodel) !>".
-      apply fmap_nil_inv in Heq as ->. iDestruct (big_sepL2_nil_inv_l with "Hslots") as %->.
-      iExists None. iSplitL; last iSteps. iSplit; first iSteps. iExists _. auto.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros ([𝑠𝑙𝑜𝑡 |] ?).
+    - iIntros "(%𝑠𝑙𝑜𝑡s & %Hslots & -> & Hmodel) !>".
+      apply fmap_snoc_inv in Hslots as (slots' & slot & -> & -> & ->).
+      iDestruct (big_sepL2_snoc_inv_l with "Hslots_vs") as "(%vs' & %v & -> & #Hslots & #Hslot)".
+      iExists (Some v). iFrameSteps.
+    - iIntros "(%Hslots & -> & Hmodel) !>".
+      apply fmap_nil_inv in Hslots as ->.
+      iDestruct (big_sepL2_nil_inv_l with "Hslots_vs") as %->.
+      iExists None. iFrameSteps. iExists []. iSteps.
   Qed.
 End inf_ws_queue_2_G.
 
