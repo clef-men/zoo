@@ -23,6 +23,21 @@ Notation "(≡ᶠ)" :=
 ( only parsing
 ) : stdpp_scope.
 
+Definition scons `(x : X) f i :=
+  match i with
+  | 0 =>
+      x
+  | S i =>
+      f i
+  end.
+
+Notation "x .: f" := (
+  scons x f
+)(at level 55,
+  f at level 56,
+  right associativity
+) : stdpp_scope.
+
 Section lookup.
   Context `{!EqDecision A} {B : Type}.
 

@@ -4,7 +4,8 @@ From Coq.Logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable.
+  countable
+  function.
 From zoo.iris.base_logic Require Import
   lib.twins.
 From zoo.language Require Import
@@ -226,7 +227,7 @@ Section inf_array_G.
 
   Lemma inf_array_model'_shift t vsₗ v vsᵣ :
     inf_array_model' t (vsₗ ++ [v]) vsᵣ ⊣⊢
-    inf_array_model' t vsₗ (λ i, match i with 0 => v | S i => vsᵣ i end).
+    inf_array_model' t vsₗ (v .: vsᵣ).
   Proof.
     rewrite /inf_array_model' inf_array_model_proper; last done.
     intros j. simpl_length/=.
@@ -238,21 +239,21 @@ Section inf_array_G.
       rewrite lookup_total_app_r //.
       rewrite Nat.sub_diag //.
     - rewrite !decide_False; try lia.
-      case_match; [lia | f_equal; lia].
+      rewrite /scons. case_match; [lia | f_equal; lia].
   Qed.
   Lemma inf_array_model'_shift_r t vsₗ v vsᵣ :
     inf_array_model' t (vsₗ ++ [v]) vsᵣ ⊢
-    inf_array_model' t vsₗ (λ i, match i with 0 => v | S i => vsᵣ i end).
+    inf_array_model' t vsₗ (v .: vsᵣ).
   Proof.
     rewrite inf_array_model'_shift. iSteps.
   Qed.
   Lemma inf_array_model'_shift_l t vsₗ vsᵣ v vsᵣ' :
-    (∀ i, vsᵣ i = match i with 0 => v | S i => vsᵣ' i end) →
+    vsᵣ ≡ᶠ v .: vsᵣ' →
     inf_array_model' t vsₗ vsᵣ ⊢
     inf_array_model' t (vsₗ ++ [v]) vsᵣ'.
   Proof.
     intros.
-    rewrite inf_array_model'_shift inf_array_model'_proper; last done; done.
+    rewrite inf_array_model'_shift inf_array_model'_proper //.
   Qed.
   Lemma inf_array_model'_shift_l' t vsₗ vsᵣ :
     inf_array_model' t vsₗ vsᵣ ⊢
