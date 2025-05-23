@@ -665,6 +665,16 @@ Section fmap.
     intros (l1 & ? & -> & (x & l2 & -> & -> & ->)%symmetry%fmap_cons_inv & ->)%fmap_app_inv.
     naive_solver.
   Qed.
+  Lemma fmap_snoc_inv f l 𝑙 𝑥 :
+    f <$> l = 𝑙 ++ [𝑥] →
+      ∃ l' x,
+      l = l' ++ [x] ∧
+      𝑙 = f <$> l' ∧
+      𝑥 = f x.
+  Proof.
+    intros (l' & x & ? & -> & -> & -> & ->%symmetry%fmap_nil_inv)%fmap_app_cons_inv.
+    eauto.
+  Qed.
 
   Lemma list_fmap_alt_Forall2_l f 𝑙 l :
     Forall2 (λ b a, b = f a) 𝑙 l →
