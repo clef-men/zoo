@@ -1154,6 +1154,14 @@ Section bi.
         iSteps.
     Qed.
 
+    Lemma big_sepM_insert_delete_2 {Φ m i} x :
+      ([∗ map] k ↦ y ∈ delete i m, Φ k y) -∗
+      Φ i x -∗
+      [∗ map] k ↦ y ∈ <[i := x]> m, Φ k y.
+    Proof.
+      rewrite big_sepM_insert_delete. iSteps.
+    Qed.
+
     Lemma big_sepM_kmap Φ f `{!Inj (=) (=) f} m :
       ([∗ map] k ↦ x ∈ (kmap f m), Φ k x) ⊣⊢
       [∗ map] k ↦ x ∈ m, Φ (f k) x.
