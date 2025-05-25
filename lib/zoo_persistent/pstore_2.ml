@@ -2,8 +2,6 @@
    https://gitlab.com/basile.clement/store/-/blob/main/src/store.ml?ref_type=heads
 *)
 
-[@@@zoo.prefix "pstore"]
-
 type gen =
   int
 

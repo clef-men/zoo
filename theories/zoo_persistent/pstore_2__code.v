@@ -10,19 +10,19 @@ From zoo_persistent Require Import
 From zoo Require Import
   options.
 
-Definition pstore_create : val :=
+Definition pstore_2_create : val :=
   fun: <> =>
     { #0, ref §Root }.
 
-Definition pstore_ref : val :=
+Definition pstore_2_ref : val :=
   fun: "_t" "v" =>
     { #0, "v" }.
 
-Definition pstore_get : val :=
+Definition pstore_2_get : val :=
   fun: "_t" "r" =>
     "r".{ref_value}.
 
-Definition pstore_set : val :=
+Definition pstore_2_set : val :=
   fun: "t" "r" "v" =>
     let: "g_t" := "t".{gen} in
     let: "g_r" := "r".{ref_gen} in
@@ -36,13 +36,13 @@ Definition pstore_set : val :=
       "t" <-{root} "root"
     ).
 
-Definition pstore_capture : val :=
+Definition pstore_2_capture : val :=
   fun: "t" =>
     let: "g" := "t".{gen} in
     "t" <-{gen} "g" + #1 ;;
     ("t", "g", "t".{root}).
 
-Definition pstore_collect : val :=
+Definition pstore_2_collect : val :=
   rec: "collect" "node" "path" =>
     match: !"node" with
     | Root =>
@@ -51,7 +51,7 @@ Definition pstore_collect : val :=
         "collect" "node'" ("node" :: "path")
     end.
 
-Definition pstore_revert : val :=
+Definition pstore_2_revert : val :=
   rec: "revert" "node" "param" =>
     match: "param" with
     | [] =>
@@ -69,12 +69,12 @@ Definition pstore_revert : val :=
         end
     end.
 
-Definition pstore_reroot : val :=
+Definition pstore_2_reroot : val :=
   fun: "node" =>
-    let: "root", "path" := pstore_collect "node" [] in
-    pstore_revert "root" "path".
+    let: "root", "path" := pstore_2_collect "node" [] in
+    pstore_2_revert "root" "path".
 
-Definition pstore_restore : val :=
+Definition pstore_2_restore : val :=
   fun: "t" "s" =>
     if: "t" != "s".<snapshot_store> then (
       Fail
@@ -84,7 +84,7 @@ Definition pstore_restore : val :=
       | Root =>
           ()
       | Diff <> <> <> <> =>
-          pstore_reroot "root" ;;
+          pstore_2_reroot "root" ;;
           "t" <-{gen} "s".<snapshot_gen> + #1 ;;
           "t" <-{root} "root"
       end

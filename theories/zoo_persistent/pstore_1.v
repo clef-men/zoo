@@ -553,22 +553,22 @@ End adiffl.
 (* ------------------------------------------------------------------------ *)
 (* Proof. *)
 
-Class PstoreG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pstore_G_set_G :: MonoSetG Σ (location * gmap location val)%type ;
+Class Pstore1G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] pstore_1_G_set_G :: MonoSetG Σ (location * gmap location val)%type ;
 }.
 
-Definition pstore_Σ := #[
+Definition pstore_1_Σ := #[
   mono_set_Σ (location * gmap location val)%type
 ].
-#[global] Instance subG_pstore_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG pstore_Σ Σ →
-  PstoreG Σ.
+#[global] Instance subG_pstore_1_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG pstore_1_Σ Σ →
+  Pstore1G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section pstore_G.
-  Context `{pstore_G : PstoreG Σ}.
+Section pstore_1_G.
+  Context `{pstore_1_G : Pstore1G Σ}.
 
   Notation diff := (
     (* location and its old value. *)
@@ -604,9 +604,9 @@ Section pstore_G.
   Definition snapshot_inv (M:map_model) (C:gset (location * gmap location val)) :=
     ∀ l σ, (l,σ) ∈ C → ∃ σ', M !! l = Some σ' ∧ σ ⊆ σ'.
 
-  #[local] Definition pstore_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
+  #[local] Definition pstore_1_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
     mono_set_auth γ (DfracOwn 1) s.
-  #[local] Definition pstore_map_elem γ l σ :=
+  #[local] Definition pstore_1_map_elem γ l σ :=
     mono_set_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
@@ -628,9 +628,9 @@ Section pstore_G.
 
   #[local] Definition snapshosts_model (t0:location) (M:map_model) : iProp Σ :=
     ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
-      ⌜snapshot_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_map_auth γ C.
+      ⌜snapshot_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_1_map_auth γ C.
 
-  #[local] Definition pstore (t:val) (σ:gmap location val) : iProp Σ :=
+  #[local] Definition pstore_1 (t:val) (σ:gmap location val) : iProp Σ :=
     ∃ (t0 r:location)
       (σ0:gmap location val) (* the global map, with all the points-to ever allocated *)
       (g:graph_store) (* the global graph *)
@@ -645,28 +645,28 @@ Section pstore_G.
   Definition open_inv : string :=
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
-  Definition pstore_snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_map_elem γ l σ.
+  Definition pstore_1_snapshot t s σ : iProp Σ :=
+    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_1_map_elem γ l σ.
 
-  #[global] Instance pstore_snapshot_timeless t s σ :
-    Timeless (pstore_snapshot t s σ).
+  #[global] Instance pstore_1_snapshot_timeless t s σ :
+    Timeless (pstore_1_snapshot t s σ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pstore_snapshot_persistent t s σ :
-    Persistent (pstore_snapshot t s σ).
+  #[global] Instance pstore_1_snapshot_persistent t s σ :
+    Persistent (pstore_1_snapshot t s σ).
   Proof.
     apply _.
   Qed.
 
-  Lemma pstore_create_spec :
+  Lemma pstore_1_create_spec :
     {{{
       True
     }}}
-      pstore_create ()
+      pstore_1_create ()
     {{{ t,
       RET t;
-        pstore t ∅
+        pstore_1 t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
@@ -702,15 +702,15 @@ Section pstore_G.
     apply He in H. set_solver.
   Qed.
 
-  Lemma pstore_ref_spec t σ v :
+  Lemma pstore_1_ref_spec t σ v :
     {{{
-      pstore t σ
+      pstore_1 t σ
     }}}
-      pstore_ref t v
+      pstore_1_ref t v
     {{{ l,
       RET #l;
       ⌜l ∉ dom σ⌝ ∗
-      pstore t (<[l := v]> σ)
+      pstore_1 t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (ϕ) open_inv. iIntros "HΦ".
@@ -766,15 +766,15 @@ Section pstore_G.
       apply not_elem_of_dom in Hl0. set_solver. }
   Qed.
 
-  Lemma pstore_get_spec {t σ l} v :
+  Lemma pstore_1_get_spec {t σ l} v :
     σ !! l = Some v →
     {{{
-      pstore t σ
+      pstore_1 t σ
     }}}
-      pstore_get t #l
+      pstore_1_get t #l
     {{{
       RET v;
-      pstore t σ
+      pstore_1 t σ
     }}}.
   Proof.
     iIntros (Hl ϕ) open_inv. iIntros "HΦ".
@@ -787,15 +787,15 @@ Section pstore_G.
     iStepFrameSteps 8.
   Qed.
 
-  Lemma pstore_set_spec t σ l v :
+  Lemma pstore_1_set_spec t σ l v :
     l ∈ dom σ →
     {{{
-      pstore t σ
+      pstore_1 t σ
     }}}
-      pstore_set t #l v
+      pstore_1_set t #l v
     {{{
       RET ();
-      pstore t (<[l := v]> σ)
+      pstore_1 t (<[l := v]> σ)
     }}}.
   Proof.
     iIntros (Hl Φ) open_inv. iIntros "HΦ".
@@ -871,15 +871,15 @@ Section pstore_G.
       rewrite lookup_insert_ne //. eauto. }
   Qed.
 
-  Lemma pstore_capture_spec t σ :
+  Lemma pstore_1_capture_spec t σ :
     {{{
-      pstore t σ
+      pstore_1 t σ
     }}}
-      pstore_capture t
+      pstore_1_capture t
     {{{ s,
       RET s;
-      pstore t σ ∗
-      pstore_snapshot t s σ
+      pstore_1 t σ ∗
+      pstore_1_snapshot t s σ
     }}}.
   Proof.
     iIntros (Φ) open_inv. iIntros "HΦ".
@@ -899,14 +899,14 @@ Section pstore_G.
   Definition fsts  (ys:list (location*(location*val)*location)) : list val :=
     (fun '(x,_,_) => ValLoc x) <$> ys.
 
-  Lemma pstore_collect_spec_aux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
+  Lemma pstore_1_collect_spec_aux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
     lst_model' t' xs →
     path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_collect #r t'
+      pstore_1_collect #r t'
     {{{ t,
       RET (#r',t);
       r' ↦ᵣ §Root ∗
@@ -927,13 +927,13 @@ Section pstore_G.
     }
   Qed.
 
-  Lemma pstore_collect_spec (r r':location) (ys:list (location*(location*val)*location)) (g:graph_store) :
+  Lemma pstore_1_collect_spec (r r':location) (ys:list (location*(location*val)*location)) (g:graph_store) :
     path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_collect #r []
+      pstore_1_collect #r []
     {{{ t,
       RET (#r',t);
       r' ↦ᵣ §Root ∗
@@ -942,7 +942,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (? Φ) "(?&?) HΦ".
-    iDestruct (pstore_collect_spec_aux with "[$]") as "Go"; [done.. |].
+    iDestruct (pstore_1_collect_spec_aux with "[$]") as "Go"; [done.. |].
     rewrite -lst_to_val_nil.
     iApply "Go". rewrite -rev_alt //.
   Qed.
@@ -995,7 +995,7 @@ Section pstore_G.
     induction 1; eauto using mirror_cons,mirror_nil.
   Qed.
 
-  Lemma pstore_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
+  Lemma pstore_1_revert_spec_aux g g1 r t g2 xs r' w σ σ0 :
     lst_model' t (fsts (rev xs)) →
     locations_of_edges_in g2 (dom σ) →
     g2 = list_to_set xs →
@@ -1008,7 +1008,7 @@ Section pstore_G.
       ([∗ set] '(r, (l, v), r') ∈ g1, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       ([∗ set] '(r, (l, v), r') ∈ g2, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_revert #r' t
+      pstore_1_revert #r' t
     {{{
       RET ();
       ∃ ys,
@@ -1070,7 +1070,7 @@ Section pstore_G.
     }
   Qed.
 
-  Lemma pstore_revert_spec r t g xs r' w σ σ0 :
+  Lemma pstore_1_revert_spec r t g xs r' w σ σ0 :
     lst_model' t (fsts (rev xs)) →
     locations_of_edges_in g (dom σ) →
     g = list_to_set xs →
@@ -1081,7 +1081,7 @@ Section pstore_G.
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_revert #r' t
+      pstore_1_revert #r' t
     {{{
       RET ();
       ∃ ys,
@@ -1092,7 +1092,7 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (->???? Φ) "(?&?&?) HΦ".
-    iApply (pstore_revert_spec_aux g ∅ with "[-HΦ]"); try done.
+    iApply (pstore_1_revert_spec_aux g ∅ with "[-HΦ]"); try done.
     { rewrite big_sepS_empty. iFrame. }
     { iModIntro. iIntros "[% ?]". iApply "HΦ". iExists _. rewrite left_id_L //. }
   Qed.
@@ -1104,7 +1104,7 @@ Section pstore_G.
     rewrite IHxs /fsts fmap_app //.
   Qed.
 
-  Lemma pstore_reroot_spec r (xs:list (location*(location*val)*location)) r' g σ :
+  Lemma pstore_1_reroot_spec r (xs:list (location*(location*val)*location)) r' g σ :
     locations_of_edges_in g (dom σ) →
     g = list_to_set xs →
     acyclic g →
@@ -1114,7 +1114,7 @@ Section pstore_G.
       ([∗ map] l0↦v0 ∈ σ, l0 ↦ᵣ v0) ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
-      pstore_reroot #r
+      pstore_1_reroot #r
     {{{
       RET ();
       ∃ ys,
@@ -1125,9 +1125,9 @@ Section pstore_G.
     }}}.
   Proof.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
-    wp_rec. wp_apply (pstore_collect_spec with "[$]"). done.
+    wp_rec. wp_apply (pstore_1_collect_spec with "[$]"). done.
     iIntros (?) "(?&?&%Heq)". rewrite {}Heq.
-    wp_smart_apply (pstore_revert_spec with "[-HΦ]"); try done; first rewrite rev_fsts //.
+    wp_smart_apply (pstore_1_revert_spec with "[-HΦ]"); try done; first rewrite rev_fsts //.
     iSteps.
   Qed.
 
@@ -1523,7 +1523,7 @@ Section pstore_G.
   Lemma use_snapshots_model γ (t0:location) M r σ :
     meta t0 nroot γ -∗
     snapshosts_model t0 M -∗
-    pstore_map_elem γ r σ -∗
+    pstore_1_map_elem γ r σ -∗
     ⌜exists σ1, M !! r = Some σ1 ∧ σ ⊆ σ1⌝.
   Proof.
     iIntros "Hmeta [%γ' [%C (%Hsnapshot&Hmeta'&HC)]] ?".
@@ -1533,15 +1533,15 @@ Section pstore_G.
     eauto.
   Qed.
 
-  Lemma pstore_restore_spec t σ s σ' :
+  Lemma pstore_1_restore_spec t σ s σ' :
     {{{
-      pstore t σ ∗
-      pstore_snapshot t s σ'
+      pstore_1 t σ ∗
+      pstore_1_snapshot t s σ'
     }}}
-      pstore_restore t s
+      pstore_1_restore t s
     {{{
       RET ();
-      pstore t σ'
+      pstore_1 t σ'
     }}}.
   Proof.
     iIntros (Φ) "(HI&Hsnapshot) HΦ".
@@ -1579,7 +1579,7 @@ Section pstore_G.
     rewrite (union_difference_L (list_to_set xs) g) //.
 
     iDestruct (big_sepS_union with "Hg") as "(Hxs&Hg)". set_solver.
-    wp_apply (pstore_reroot_spec with "[Hr Hxs Hσ0]").
+    wp_apply (pstore_1_reroot_spec with "[Hr Hxs Hσ0]").
     4:{ eapply path_restrict. done. }
     2:done.
     { destruct Hcoh as [_ X]. eapply locations_of_edges_weak; eauto. }
@@ -1642,14 +1642,14 @@ Section pstore_G.
       }
     }
   Qed.
-End pstore_G.
+End pstore_1_G.
 
-#[global] Opaque pstore_create.
-#[global] Opaque pstore_ref.
-#[global] Opaque pstore_get.
-#[global] Opaque pstore_set.
-#[global] Opaque pstore_capture.
-#[global] Opaque pstore_restore.
+#[global] Opaque pstore_1_create.
+#[global] Opaque pstore_1_ref.
+#[global] Opaque pstore_1_get.
+#[global] Opaque pstore_1_set.
+#[global] Opaque pstore_1_capture.
+#[global] Opaque pstore_1_restore.
 
-#[global] Opaque pstore.
-#[global] Opaque pstore_snapshot.
+#[global] Opaque pstore_1.
+#[global] Opaque pstore_1_snapshot.
