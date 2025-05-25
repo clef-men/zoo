@@ -35,15 +35,15 @@ Notation "'root'" := (
 )(in custom zoo_field
 ).
 
-Notation "'snap_store'" := (
-  in_type "zoo_persistent.pstore_2.snap" 0
+Notation "'snapshot_store'" := (
+  in_type "zoo_persistent.pstore_2.snapshot" 0
 )(in custom zoo_proj
 ).
-Notation "'snap_gen'" := (
-  in_type "zoo_persistent.pstore_2.snap" 1
+Notation "'snapshot_gen'" := (
+  in_type "zoo_persistent.pstore_2.snapshot" 1
 )(in custom zoo_proj
 ).
-Notation "'snap_root'" := (
-  in_type "zoo_persistent.pstore_2.snap" 2
+Notation "'snapshot_root'" := (
+  in_type "zoo_persistent.pstore_2.snapshot" 2
 )(in custom zoo_proj
 ).

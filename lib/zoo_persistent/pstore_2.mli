@@ -12,9 +12,9 @@ val get :
 val set :
   'a t -> 'a ref -> 'a -> unit
 
-type 'a snap
+type 'a snapshot
 
 val capture :
-  'a t -> 'a snap
+  'a t -> 'a snapshot
 val restore :
-  'a t -> 'a snap -> unit
+  'a t -> 'a snapshot -> unit

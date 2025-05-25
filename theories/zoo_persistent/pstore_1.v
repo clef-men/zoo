@@ -601,7 +601,7 @@ Section pstore_G.
       coh2 : locations_of_edges_in g (dom σ0);
     }.
 
-  Definition snap_inv (M:map_model) (C:gset (location * gmap location val)) :=
+  Definition snapshot_inv (M:map_model) (C:gset (location * gmap location val)) :=
     ∀ l σ, (l,σ) ∈ C → ∃ σ', M !! l = Some σ' ∧ σ ⊆ σ'.
 
   #[local] Definition pstore_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
@@ -628,7 +628,7 @@ Section pstore_G.
 
   #[local] Definition snapshosts_model (t0:location) (M:map_model) : iProp Σ :=
     ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
-      ⌜snap_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_map_auth γ C.
+      ⌜snapshot_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_map_auth γ C.
 
   #[local] Definition pstore (t:val) (σ:gmap location val) : iProp Σ :=
     ∃ (t0 r:location)
@@ -756,9 +756,9 @@ Section pstore_G.
         destruct (M !! r') eqn:Hor. 2:simpl in *; congruence.
         inversion E. subst. rewrite !dom_insert_L. set_solver. }
       { intros. rewrite dom_insert_L. intros ??. set_solver. } }
-    { iDestruct "HC" as "[% [% (%Hsnap&?&?)]]".
+    { iDestruct "HC" as "[% [% (%Hsnapshot&?&?)]]".
       iExists _,_. iFrame. iPureIntro.
-      intros r' ? HC. apply Hsnap in HC. destruct HC as (x&Hx&?).
+      intros r' ? HC. apply Hsnapshot in HC. destruct HC as (x&Hx&?).
       exists (<[l:=v]>x). rewrite lookup_fmap Hx. split. done.
       apply gmap_included_insert_notin; last done.
       apply incl_dom_incl in H0. intros X. apply H0 in X.
@@ -862,9 +862,9 @@ Section pstore_G.
           apply X1 in HM. rewrite dom_insert_lookup_L //. }
         { intros ?. set_solver. } }
       { eauto using rooted_dag_add. } }
-    { iDestruct "HC" as "[% [% (%Hsnap&?&?)]]". iExists _,C. iFrame.
+    { iDestruct "HC" as "[% [% (%Hsnapshot&?&?)]]". iExists _,C. iFrame.
       iPureIntro.
-      intros r0 ? HC. apply Hsnap in HC. destruct HC as (?&HC&?).
+      intros r0 ? HC. apply Hsnapshot in HC. destruct HC as (?&HC&?).
       destruct_decide (decide (r0=r')).
       { exfalso. subst. destruct Hinv as [X1 X2 X3].
         assert (r' ∉ dom M) as F by set_solver. apply F. by eapply elem_of_dom. }
@@ -886,10 +886,10 @@ Section pstore_G.
     wp_rec. wp_load.
     iStep 5.
 
-    iDestruct "HC" as "[% [% (%Hsnap&#?&HC)]]".
-    iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnap)".
+    iDestruct "HC" as "[% [% (%Hsnapshot&#?&HC)]]".
+    iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnapshot)".
     iModIntro.
-    iSplitR "Hsnap"; last iSteps.
+    iSplitR "Hsnapshot"; last iSteps.
     iExists _,_,_,_,_. iFrame "#∗". iStep. iPureIntro.
     intros r' ? HC. rewrite elem_of_union elem_of_singleton in HC.
     destruct HC as [HC|HC]; last eauto.
@@ -1526,10 +1526,10 @@ Section pstore_G.
     pstore_map_elem γ r σ -∗
     ⌜exists σ1, M !! r = Some σ1 ∧ σ ⊆ σ1⌝.
   Proof.
-    iIntros "Hmeta [%γ' [%C (%Hsnap&Hmeta'&HC)]] ?".
+    iIntros "Hmeta [%γ' [%C (%Hsnapshot&Hmeta'&HC)]] ?".
     iDestruct (meta_agree with "Hmeta' Hmeta") as "->".
     iDestruct (mono_set_elem_valid with "[$][$]") as "%Hrs".
-    apply Hsnap in Hrs. destruct Hrs as (σ1&HMrs&?).
+    apply Hsnapshot in Hrs. destruct Hrs as (σ1&HMrs&?).
     eauto.
   Qed.
 
@@ -1544,10 +1544,10 @@ Section pstore_G.
       pstore t σ'
     }}}.
   Proof.
-    iIntros (Φ) "(HI&Hsnap) HΦ".
+    iIntros (Φ) "(HI&Hsnapshot) HΦ".
     iDestruct "HI" as open_inv.
 
-    iDestruct "Hsnap" as "[%γ [%t0' [%rs ((%Eq&->)&Hmeta'&Hsnap)]]]".
+    iDestruct "Hsnapshot" as "[%γ [%t0' [%rs ((%Eq&->)&Hmeta'&Hsnapshot)]]]".
     inversion Eq. subst t0'. clear Eq.
 
     iDestruct (use_snapshots_model with "[$][$][$]") as %(σ1&HMrs&?).

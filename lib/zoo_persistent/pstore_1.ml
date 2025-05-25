@@ -16,9 +16,9 @@ and 'a node =
 type 'a t =
   'a node Stdlib.ref
 
-type 'a snap =
-  { snap_store: 'a t;
-    snap_root: 'a node;
+type 'a snapshot =
+  { snapshot_store: 'a t;
+    snapshot_root: 'a node;
   }
 
 let create () =
@@ -37,7 +37,9 @@ let set t r v =
   t := root
 
 let capture t =
-  { snap_store= t; snap_root= !t }
+  { snapshot_store= t;
+    snapshot_root= !t;
+  }
 
 let rec collect node acc =
   match !node with
@@ -62,10 +64,10 @@ let reroot node =
   revert root nodes
 
 let restore t s =
-  if t != s.snap_store then (
+  if t != s.snapshot_store then (
     assert false
   ) else (
-    let root = s.snap_root in
+    let root = s.snapshot_root in
     match !root with
     | Root ->
         ()

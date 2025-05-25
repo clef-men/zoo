@@ -17,11 +17,11 @@ Notation "'Diff'" := (
 )(in custom zoo_tag
 ).
 
-Notation "'snap_store'" := (
-  in_type "zoo_persistent.pstore_1.snap" 0
+Notation "'snapshot_store'" := (
+  in_type "zoo_persistent.pstore_1.snapshot" 0
 )(in custom zoo_proj
 ).
-Notation "'snap_root'" := (
-  in_type "zoo_persistent.pstore_1.snap" 1
+Notation "'snapshot_root'" := (
+  in_type "zoo_persistent.pstore_1.snapshot" 1
 )(in custom zoo_proj
 ).

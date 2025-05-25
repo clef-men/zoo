@@ -23,10 +23,10 @@ type 'a t =
     mutable root: 'a node;
   }
 
-type 'a snap =
-  { snap_store: 'a t;
-    snap_gen: gen;
-    snap_root: 'a node;
+type 'a snapshot =
+  { snapshot_store: 'a t;
+    snapshot_gen: gen;
+    snapshot_root: 'a node;
   }
 
 let create () =
@@ -54,7 +54,10 @@ let set t r v =
 let capture t =
   let g = t.gen in
   t.gen <- g + 1 ;
-  { snap_store= t; snap_gen= g; snap_root= t.root }
+  { snapshot_store= t;
+    snapshot_gen= g;
+    snapshot_root= t.root;
+  }
 
 let rec collect node path =
   match !node with
@@ -80,15 +83,15 @@ let reroot node =
   revert root path
 
 let restore t s =
-  if t != s.snap_store then (
+  if t != s.snapshot_store then (
     assert false
   ) else (
-    let root = s.snap_root in
+    let root = s.snapshot_root in
     match !root with
     | Root ->
         ()
     | Diff _ ->
         reroot root ;
-        t.gen <- s.snap_gen + 1 ;
+        t.gen <- s.snapshot_gen + 1 ;
         t.root <- root
   )

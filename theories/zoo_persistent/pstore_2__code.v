@@ -76,16 +76,16 @@ Definition pstore_reroot : val :=
 
 Definition pstore_restore : val :=
   fun: "t" "s" =>
-    if: "t" != "s".<snap_store> then (
+    if: "t" != "s".<snapshot_store> then (
       Fail
     ) else (
-      let: "root" := "s".<snap_root> in
+      let: "root" := "s".<snapshot_root> in
       match: !"root" with
       | Root =>
           ()
       | Diff <> <> <> <> =>
           pstore_reroot "root" ;;
-          "t" <-{gen} "s".<snap_gen> + #1 ;;
+          "t" <-{gen} "s".<snapshot_gen> + #1 ;;
           "t" <-{root} "root"
       end
     ).
