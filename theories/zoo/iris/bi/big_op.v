@@ -1154,6 +1154,25 @@ Section bi.
         iSteps.
     Qed.
 
+    Lemma big_sepM_delete_1 {Φ m} i x :
+      m !! i = Some x →
+      ([∗ map] k ↦ y ∈ m, Φ k y) ⊢
+        Φ i x ∗
+        [∗ map] k ↦ y ∈ delete i m, Φ k y.
+    Proof.
+      intros.
+      rewrite big_sepM_delete //.
+    Qed.
+    Lemma big_sepM_delete_2 Φ m i x :
+      m !! i = Some x →
+      ([∗ map] k ↦ y ∈ delete i m, Φ k y) -∗
+      Φ i x -∗
+      [∗ map] k ↦ y ∈ m, Φ k y.
+    Proof.
+      iIntros "%Hlookup Hm Hx".
+      iApply (big_sepM_delete with "[$Hm $Hx]"); first done.
+    Qed.
+
     Lemma big_sepM_insert_delete_2 {Φ m i} x :
       ([∗ map] k ↦ y ∈ delete i m, Φ k y) -∗
       Φ i x -∗
