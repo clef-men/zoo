@@ -270,6 +270,9 @@ theories/zoo_persistent/pstore_1.v
 theories/zoo_persistent/pstore_2__types.v
 theories/zoo_persistent/pstore_2__code.v
 theories/zoo_persistent/pstore_2.v
+theories/zoo_persistent/puf__types.v
+theories/zoo_persistent/puf__code.v
+theories/zoo_persistent/puf.v
 
 #END zoo-persistent
 
