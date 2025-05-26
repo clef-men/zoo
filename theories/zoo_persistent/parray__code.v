@@ -14,31 +14,42 @@ Definition parray_make : val :=
   fun: "sz" "v" =>
     ref ‘Root( array_unsafe_make "sz" "v" ).
 
-Definition parray_reroot : val :=
+Definition parray_reroot_0 : val :=
   rec: "reroot" "t" =>
     match: !"t" with
-    | Root "arr" =>
-        "arr"
+    | Root "data" =>
+        "data"
     | Diff "i" "v" "t'" =>
-        let: "arr" := "reroot" "t'" in
-        "t'" <- ‘Diff( "i", array_unsafe_get "arr" "i", "t" ) ;;
-        array_unsafe_set "arr" "i" "v" ;;
-        "t" <- ‘Root( "arr" ) ;;
-        "arr"
+        let: "data" := "reroot" "t'" in
+        "t'" <- ‘Diff( "i", array_unsafe_get "data" "i", "t" ) ;;
+        array_unsafe_set "data" "i" "v" ;;
+        "data"
+    end.
+
+Definition parray_reroot : val :=
+  fun: "t" =>
+    match: !"t" with
+    | Root "data" =>
+        "data"
+    | Diff <> <> <> =>
+        let: "data" := parray_reroot_0 "t" in
+        "t" <- ‘Root( "data" ) ;;
+        "data"
     end.
 
 Definition parray_get : val :=
   fun: "t" "i" =>
-    array_unsafe_get (parray_reroot "t") "i".
+    let: "data" := parray_reroot "t" in
+    array_unsafe_get "data" "i".
 
 Definition parray_set : val :=
-  fun: "t" "eq" "i" "v" =>
-    let: "arr" := parray_reroot "t" in
-    let: "v'" := array_unsafe_get "arr" "i" in
-    if: "eq" "v" "v'" then (
+  fun: "t" "equal" "i" "v" =>
+    let: "data" := parray_reroot "t" in
+    let: "v'" := array_unsafe_get "data" "i" in
+    if: "equal" "v" "v'" then (
       "t"
     ) else (
-      array_unsafe_set "arr" "i" "v" ;;
+      array_unsafe_set "data" "i" "v" ;;
       let: "t'" := ref !"t" in
       "t" <- ‘Diff( "i", "v'", "t'" ) ;;
       "t'"

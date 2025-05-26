@@ -13,25 +13,33 @@ let make sz v =
 
 let rec reroot t =
   match !t with
-  | Root arr ->
-      arr
+  | Root data ->
+      data
   | Diff (i, v, t') ->
-      let arr = reroot t' in
-      t' := Diff (i, Array.unsafe_get arr i, t) ;
-      Array.unsafe_set arr i v ;
-      t := Root arr ;
-      arr
+      let data = reroot t' in
+      t' := Diff (i, Array.unsafe_get data i, t) ;
+      Array.unsafe_set data i v ;
+      data
+let reroot t =
+  match !t with
+  | Root data ->
+      data
+  | Diff _ ->
+      let data = reroot t in
+      t := Root data ;
+      data
 
 let get t i =
-  Array.unsafe_get (reroot t) i
+  let data = reroot t in
+  Array.unsafe_get data i
 
-let set t eq i v =
-  let arr = reroot t in
-  let v' = Array.unsafe_get arr i in
-  if eq v v' then (
+let set t equal i v =
+  let data = reroot t in
+  let v' = Array.unsafe_get data i in
+  if equal v v' then (
     t
   ) else (
-    Array.unsafe_set arr i v ;
+    Array.unsafe_set data i v ;
     let t' = ref !t in
     t := Diff (i, v', t') ;
     t'
