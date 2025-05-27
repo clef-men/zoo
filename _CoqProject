@@ -261,9 +261,9 @@ theories/zoo_persistent/pstack.v
 theories/zoo_persistent/pqueue__types.v
 theories/zoo_persistent/pqueue__code.v
 theories/zoo_persistent/pqueue.v
-theories/zoo_persistent/parray__types.v
-theories/zoo_persistent/parray__code.v
-theories/zoo_persistent/parray.v
+theories/zoo_persistent/parray_1__types.v
+theories/zoo_persistent/parray_1__code.v
+theories/zoo_persistent/parray_1.v
 theories/zoo_persistent/pstore_1__types.v
 theories/zoo_persistent/pstore_1__code.v
 theories/zoo_persistent/pstore_1.v

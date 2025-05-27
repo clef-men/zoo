@@ -9,10 +9,10 @@ From zoo Require Import
   options.
 
 Notation "'Root'" := (
-  in_type "zoo_persistent.parray.descr" 0
+  in_type "zoo_persistent.parray_1.descr" 0
 )(in custom zoo_tag
 ).
 Notation "'Diff'" := (
-  in_type "zoo_persistent.parray.descr" 1
+  in_type "zoo_persistent.parray_1.descr" 1
 )(in custom zoo_tag
 ).

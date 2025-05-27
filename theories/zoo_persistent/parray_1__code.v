@@ -6,15 +6,15 @@ From zoo.language Require Import
 From zoo_std Require Import
   array.
 From zoo_persistent Require Import
-  parray__types.
+  parray_1__types.
 From zoo Require Import
   options.
 
-Definition parray_make : val :=
+Definition parray_1_make : val :=
   fun: "sz" "v" =>
     ref ‘Root( array_unsafe_make "sz" "v" ).
 
-Definition parray_reroot_0 : val :=
+Definition parray_1_reroot_0 : val :=
   rec: "reroot" "t" =>
     match: !"t" with
     | Root "data" =>
@@ -26,25 +26,25 @@ Definition parray_reroot_0 : val :=
         "data"
     end.
 
-Definition parray_reroot : val :=
+Definition parray_1_reroot : val :=
   fun: "t" =>
     match: !"t" with
     | Root "data" =>
         "data"
     | Diff <> <> <> =>
-        let: "data" := parray_reroot_0 "t" in
+        let: "data" := parray_1_reroot_0 "t" in
         "t" <- ‘Root( "data" ) ;;
         "data"
     end.
 
-Definition parray_get : val :=
+Definition parray_1_get : val :=
   fun: "t" "i" =>
-    let: "data" := parray_reroot "t" in
+    let: "data" := parray_1_reroot "t" in
     array_unsafe_get "data" "i".
 
-Definition parray_set : val :=
+Definition parray_1_set : val :=
   fun: "t" "equal" "i" "v" =>
-    let: "data" := parray_reroot "t" in
+    let: "data" := parray_1_reroot "t" in
     let: "v'" := array_unsafe_get "data" "i" in
     if: "equal" "v" "v'" then (
       "t"
