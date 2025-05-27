@@ -80,12 +80,13 @@ Section parray_1_G.
       % &
       %Hvs_{node}
     )".
+
   #[local] Definition inv' γ nodes root : iProp Σ :=
     ∃ vs_root,
     nodes_auth γ nodes ∗
     root ↦ᵣ ‘Root( γ.(metadata_data) ) ∗
     array_model γ.(metadata_data) (DfracOwn 1) vs_root ∗
-    ⌜nodes !! root = Some vs_root⌝ ∗
+    nodes_elem γ root vs_root ∗
     ⌜length vs_root = γ.(metadata_size)⌝ ∗
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
@@ -96,7 +97,7 @@ Section parray_1_G.
       Hnodes_auth &
       H{root} &
       Hdata &
-      %Hnodes_lookup_{root} &
+      #Hnodes_elem_{root}{_{suff}} &
       % &
       #Hvs_{root} &
       Hnodes
@@ -150,12 +151,19 @@ Section parray_1_G.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
   Qed.
-  #[local] Lemma nodes_lookup γ nodes node vs :
+  #[local] Lemma nodes_elem_lookup γ nodes node vs :
     nodes_auth γ nodes -∗
     nodes_elem γ node vs -∗
     ⌜nodes !! node = Some vs⌝.
   Proof.
     apply ghost_map_lookup.
+  Qed.
+  #[local] Lemma nodes_elem_agree γ node vs1 vs2 :
+    nodes_elem γ node vs1 -∗
+    nodes_elem γ node vs2 -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    apply ghost_map_elem_agree.
   Qed.
   #[local] Lemma nodes_insert {γ nodes} node vs :
     nodes !! node = None →
@@ -187,7 +195,7 @@ Section parray_1_G.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
     wp_ref root as "Hroot".
 
-    iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & Hnodes_elem)".
+    iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
 
     pose γ := {|
       metadata_size := ₊sz ;
@@ -196,8 +204,8 @@ Section parray_1_G.
     |}.
 
     iApply ("HΦ" $! _ γ).
-    iModIntro. iFrame.
-    rewrite lookup_insert length_replicate delete_singleton big_sepM_empty.
+    iModIntro. iFrame "#∗".
+    rewrite length_replicate delete_singleton big_sepM_empty.
     rewrite big_op.big_sepL_replicate -big_sepL_intro.
     auto 10.
   Qed.
@@ -235,15 +243,15 @@ Section parray_1_G.
     iLöb as "HLöb" forall (node vs).
 
     iIntros "%Φ ((:inv') & #Hnodes_elem_node) HΦ".
+    iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
     wp_rec.
     destruct (decide (node = root)) as [-> | Hnode].
 
-    - iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_root_. simplify.
+    - iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_root") as %<-.
       iSteps.
 
-    - iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
-      iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model =1) & Hnodes)".
+    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model =1) & Hnodes)".
       { rewrite lookup_delete_ne //. }
       wp_load.
 
@@ -259,7 +267,7 @@ Section parray_1_G.
       iDestruct (big_sepL_insert i_node with "Hvs_node1 Hv_node") as "Hvs"; first lia.
       rewrite -Hvs_node.
 
-      iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node1") as %Hnodes_lookup_node1.
+      iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node1") as %Hnodes_lookup_node1.
       iDestruct (big_sepM_delete_2 with "Hnodes [$Hnode1]") as "Hnodes"; first done.
       { iDestruct (big_sepL_lookup with "Hvs_node1") as "$"; first done.
         iSteps. iPureIntro.
@@ -282,11 +290,11 @@ Section parray_1_G.
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & #Hnodes_elem_node) HΦ".
+    iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
     wp_rec.
     destruct (decide (node = root)) as [-> | Hnode]; first iSteps.
 
-    iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
     iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model) & Hnodes)".
     { rewrite lookup_delete_ne //. }
     wp_load.
@@ -311,9 +319,10 @@ Section parray_1_G.
     iIntros "% %Hvs_lookup %Φ (Hinv & (:model)) HΦ".
 
     wp_rec.
-    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node)".
 
-    iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node_. simplify.
+    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node suff=)".
+    iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
+
     wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
 
     iSteps.
@@ -345,11 +354,12 @@ Section parray_1_G.
     iIntros "% %Φ (Hinv & (:model) & Hequal & #Hv) HΦ".
 
     wp_rec.
-    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node)".
 
-    iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node_. simplify.
-    destruct (lookup_lt_is_Some_2 vs_node ₊i) as (w & Hvs_node_lookup); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
+    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node suff=)".
+    iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
+
+    destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_node_lookup); first lia.
+    wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hvs_node") as "#Hw"; first done.
     wp_smart_apply (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
@@ -370,19 +380,18 @@ Section parray_1_G.
         iApply (pointsto_exclusive with "Hroot Hroot_").
       }
 
-      set vs_root := <[₊i := v]> vs_node.
+      set vs' := <[₊i := v]> vs.
       iDestruct (big_sepL_insert ₊i with "Hvs_node Hv") as "Hvs_root"; first lia.
-      iMod (nodes_insert root vs_root with "Hnodes_auth") as "(Hnodes_auth & #Hnodes_elem_root)"; first done.
-      iDestruct (big_sepM_insert_delete_2 with "Hnodes [Hnode]") as "Hnodes".
-      { iExists ₊i, w, root, vs_root. iSteps; iPureIntro.
-        - rewrite Z2Nat.id //.
+      iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
+      iMod (nodes_insert root vs' with "Hnodes_auth") as "(Hnodes_auth & #Hnodes_elem_root)"; first done.
+      iDestruct (big_sepM_delete_2 with "Hnodes [Hnode]") as "Hnodes"; first done.
+      { iExists ₊i, w, root, vs'. iSteps; iPureIntro.
+        - rewrite Z2Nat.id //. lia.
         - rewrite list_insert_insert list_insert_id //.
       }
-      iEval (rewrite insert_id //) in "Hnodes".
-      rewrite -{2}(delete_insert nodes root vs_root) //.
-      iSteps; iPureIntro.
-      { rewrite lookup_insert //. }
-      { rewrite /vs_root. simpl_length. }
+      rewrite -{2}(delete_insert nodes root vs') //.
+      iSteps. iPureIntro.
+      rewrite /vs'. simpl_length.
   Qed.
 End parray_1_G.
 
