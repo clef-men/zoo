@@ -316,7 +316,7 @@ Section parray_1_G.
     iDestruct (nodes_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node_. simplify.
     wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
 
-    iStepFrameSteps.
+    iSteps.
   Qed.
 
   Lemma parray_1_set_spec t γ vs equal i v :
@@ -355,8 +355,7 @@ Section parray_1_G.
     wp_smart_apply (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
     destruct b; first subst w; wp_pures.
 
-    - rewrite list_insert_id //.
-      iStepFrameSteps.
+    - rewrite list_insert_id //. iSteps.
 
     - wp_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first done.
       wp_load.
@@ -381,7 +380,7 @@ Section parray_1_G.
       }
       iEval (rewrite insert_id //) in "Hnodes".
       rewrite -{2}(delete_insert nodes root vs_root) //.
-      iStepFrameSteps; iPureIntro.
+      iSteps; iPureIntro.
       { rewrite lookup_insert //. }
       { rewrite /vs_root. simpl_length. }
   Qed.
