@@ -78,7 +78,8 @@ Section zoo_G.
           ⌜vs = []⌝
       | Some p =>
           ∃ v vs' t',
-          ⌜vs = v :: vs' ∧ p = (v, t')%V⌝ ∗
+          ⌜vs = v :: vs'⌝ ∗
+          ⌜p = (v, t')%V⌝ ∗
           pstack_model t' vs'
       end
     }}}.
