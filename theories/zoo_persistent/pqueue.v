@@ -91,7 +91,8 @@ Section zoo_G.
           ⌜vs = []⌝
       | Some p =>
           ∃ v vs' t',
-          ⌜vs = v :: vs' ∧ p = (v, t')%V⌝ ∗
+          ⌜vs = v :: vs'⌝ ∗
+          ⌜p = (v, t')%V⌝ ∗
           pqueue_model t' vs'
       end
     }}}.
@@ -105,8 +106,8 @@ Section zoo_G.
         iApply ("HΦ" $! None with "[//]").
       + rewrite reverse_snoc. wp_pures.
         iApply ("HΦ" $! (Some _)).
-        iExists v, (reverse back), _. iSplitR; first iSteps.
-        iExists _, []. iSteps. rewrite right_id //.
+        iSteps.
+        iExists _, []. rewrite right_id. iSteps.
     - iApply ("HΦ" $! (Some (_, _)%V)).
       iSteps.
   Qed.
