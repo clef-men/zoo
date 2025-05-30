@@ -173,14 +173,14 @@ Section ws_queues_private_G.
   #[local] Instance : CustomIpatFormat "channels_sender" :=
     "(
       %γ_channel_{} &
-      {>=}%Hlookup_{} &
+      {>;}%Hlookup_{} &
       Hpred_{} &
       { {done}
         ( %gen{} &
           Hgeneration_{} &
           #Hshot_{}
         )
-        =_
+      ; _
       }
     )".
   #[local] Definition channels_receiver' γ_channels i Ψ state : iProp Σ :=
@@ -203,7 +203,7 @@ Section ws_queues_private_G.
       %Hlookup_{} &
       Hpred_{} &
       Hgeneration_{} &
-      {{done}#Hshot_{}=_}
+      {{done}#Hshot_{};_}
     )".
 
   #[local] Definition request_au γ i Ψ : iProp Σ :=
@@ -302,9 +302,9 @@ Section ws_queues_private_G.
     "(
       %l{} &
       %γ{} &
-      {%Ht_eq{}=->} &
-      {%Hι_eq{}=->} &
-      {%Hsz_eq{}=->} &
+      {%Ht_eq{};->} &
+      {%Hι_eq{};->} &
+      {%Hsz_eq{};->} &
       #Hmeta{_{}} &
       #Hl{}_size &
       #Hl{}_queues &
@@ -326,8 +326,8 @@ Section ws_queues_private_G.
     models_auth γ vss.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
       Hmodels_auth
@@ -345,8 +345,8 @@ Section ws_queues_private_G.
     channels_receiver γ i Ψ_receiver None.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %queue{} &
       %vs{} &
       %Ψ_sender{_{}} &

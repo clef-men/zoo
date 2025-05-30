@@ -484,7 +484,7 @@ Section inf_mpmc_queue_2_G.
     "(
       #Hconsumers_at{_{suff}} &
       { _{suff}
-      = [ #Hlstates_lb_consumer
+      ; [ #Hlstates_lb_consumer
         | #Hproducers_at_
         ]
       }

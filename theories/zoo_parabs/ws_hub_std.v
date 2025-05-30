@@ -115,7 +115,7 @@ Section ws_hub_std_G.
     "(
       %l{} &
       %γ{} &
-      {%Heq{}=->} &
+      {%Heq{};->} &
       #Hmeta{} &
       -> &
       #Hl{}_queues &
@@ -150,12 +150,12 @@ Section ws_hub_std_G.
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %round{} &
       %n{} &
       %Heq{} &
-      Hmeta{=_} &
+      Hmeta{;_} &
       Hqueues_owner{} &
       #Hrounds{} &
       Hround{}

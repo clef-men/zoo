@@ -165,7 +165,7 @@ Section mpsc_queue_3_G.
       Hmeta_ &
       Hl_front &
       Hfront₁ &
-      {{open}(-> & Hopen₁)={closed}(-> & -> & Hclosed & Hmodel₂)=Hlstate}
+      {{open}(-> & Hopen₁);{closed}(-> & -> & Hclosed & Hmodel₂);Hlstate}
     )".
 
   Definition mpsc_queue_3_closed t : iProp Σ :=

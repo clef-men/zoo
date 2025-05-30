@@ -44,7 +44,7 @@ Section zoo_G.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %extra &
-      {{lazy}Hmodel=(:model')}
+      {{lazy}Hmodel;(:model')}
     )".
 
   #[global] Instance dynarray_1_model_timeless t vs :

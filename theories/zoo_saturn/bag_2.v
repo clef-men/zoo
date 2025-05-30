@@ -170,9 +170,9 @@ Section bag_2_G.
     "(
       %o{} &
       Hnode{}_queue &
-      {>=}%Ho{} &
-      {{inv}#Hqueue{}_inv={inv}#Hqueue_inv=_} &
-      {>=}Hqueue{}_model
+      {>;}%Ho{} &
+      {{inv}#Hqueue{}_inv;{inv}#Hqueue_inv;_} &
+      {>;}Hqueue{}_model
     )".
 
   #[local] Definition inv_inner l γ : iProp Σ :=
@@ -219,8 +219,8 @@ Section bag_2_G.
     model₁ γ vss.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
       Hmodel₁
@@ -237,12 +237,12 @@ Section bag_2_G.
     spmc_queue_producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ws.
   #[local] Instance : CustomIpatFormat "producer" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{} &
       %Ht_eq{} &
-      {%Hproducer_eq{}=->} &
-      #Hmeta{_{}=_} &
+      {%Hproducer_eq{};->} &
+      #Hmeta{_{};_} &
       #Hnode_header{_{}} &
       #Hqueues_at{_{}} &
       #Hqueue_inv{_{}} &

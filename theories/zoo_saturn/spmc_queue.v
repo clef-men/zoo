@@ -134,7 +134,7 @@ Section spmc_queue_G.
     "(
       #H{}_header &
       #Hhistory_at_{} &
-      {{front}#Hfront_lb_{}=_}
+      {{front}#Hfront_lb_{};_}
     )".
 
   #[local] Definition waiter_au γ (Ψ : bool → iProp Σ) : iProp Σ :=

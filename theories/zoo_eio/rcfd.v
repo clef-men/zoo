@@ -131,7 +131,7 @@ Section rcfd_G.
       %q{} &
       %qs{} &
       (-> & %Hqs{}) &
-      {%H{eq}=->} &
+      {%H{eq};->} &
       Htokens_auth &
       Hmodel_
     )".
@@ -147,8 +147,8 @@ Section rcfd_G.
       %q{} &
       %qs{} &
       %fn{} &
-      ({%H{eq_ops}=->} & %Hqs{}_size & %Hqs{}) &
-      {%H{eq}=->} &
+      ({%H{eq_ops};->} & %Hqs{}_size & %Hqs{}) &
+      {%H{eq};->} &
       Htokens_auth &
       Hmodel_ &
       Hfn{}
@@ -160,7 +160,7 @@ Section rcfd_G.
   #[local] Instance : CustomIpatFormat "inv_inner_closing_no_users" :=
     "(
       %fn{} &
-      {%H{eq}=->} &
+      {%H{eq};->} &
       Hfn{}
     )".
   #[local] Definition inv_inner l γ : iProp Σ :=

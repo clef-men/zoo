@@ -68,7 +68,7 @@ Section zoo_G.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %extra &
-      {{lazy}Hmodel=(:model')}
+      {{lazy}Hmodel;(:model')}
     )".
 
   #[global] Instance queue_3_model_timeless t vs :

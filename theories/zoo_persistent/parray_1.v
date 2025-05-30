@@ -71,11 +71,11 @@ Section parray_1_G.
     "(
       %i_{node} &
       %v_{node} &
-      %node{='} &
-      %vs_node{='} &
+      %node{;'} &
+      %vs_node{;'} &
       H{node}{_{suff}} &
       #Hv_{node} &
-      #Hnodes_elem_node{='} &
+      #Hnodes_elem_node{;'} &
       % &
       % &
       %Hvs_{node}

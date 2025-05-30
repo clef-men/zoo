@@ -154,10 +154,10 @@ Section ivar_3_G.
     lstate_unset₂ γ.
   #[local] Instance : CustomIpatFormat "producer" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
-      #Hmeta{=_} &
+      #Hmeta{;_} &
       Hlstate{}_unset₂
     )".
 
@@ -168,10 +168,10 @@ Section ivar_3_G.
     consumer_frag γ Χ.
   #[local] Instance : CustomIpatFormat "consumer" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
-      #Hmeta{=_} &
+      #Hmeta{;_} &
       Hconsumer{}_frag
     )".
 
@@ -182,10 +182,10 @@ Section ivar_3_G.
     lstate_set γ v.
   #[local] Instance : CustomIpatFormat "result" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
-      #Hmeta{=_} &
+      #Hmeta{;_} &
       #Hlstate{}_set
     )".
   Definition ivar_3_result' t : iProp Σ :=

@@ -33,7 +33,7 @@ Section zoo_G.
     "(
       %l{} &
       %t{}' &
-      {%Heq{eq}=->} &
+      {%Heq{eq};->} &
       Hl{}_header &
       Hl{}_next &
       Hl{}_data &

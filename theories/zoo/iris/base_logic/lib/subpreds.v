@@ -48,7 +48,7 @@ Section subpreds_G.
   #[local] Instance : CustomIpatFormat "auth" :=
     "(
       %ηs &
-      {>=}Hauth &
+      {>;}Hauth &
       Hηs
     )".
 

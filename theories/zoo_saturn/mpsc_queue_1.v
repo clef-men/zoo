@@ -156,7 +156,7 @@ Section mpsc_queue_1_G.
     "(
       %l{_{suff}} &
       %front{_{suff}} &
-      {%Heq{suff}=->} &
+      {%Heq{suff};->} &
       Hl_front{_{suff}}
     )".
 

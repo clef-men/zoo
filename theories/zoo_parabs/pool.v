@@ -178,9 +178,9 @@ Section pool_G.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %𝑡{} &
-      {%Heq{}=->} &
+      {%Heq{};->} &
       -> &
-      {#Hinv{}=(:inv')}
+      {#Hinv{};(:inv')}
     )".
 
   Definition pool_model t : iProp Σ :=
@@ -195,8 +195,8 @@ Section pool_G.
     "(
       %𝑡{} &
       %doms{} &
-      {%Heq{}=->} &
-      {#Hinv{}=(:inv')} &
+      {%Heq{};->} &
+      {#Hinv{};(:inv')} &
       Hhub{}_owner &
       Hdomains{} &
       Hdoms{}
@@ -210,8 +210,8 @@ Section pool_G.
   #[local] Instance : CustomIpatFormat "context_inv" :=
     "(
       %𝑡{} &
-      %𝑐𝑡𝑥{=_} &
-      {%H𝑡{}_eq=->} &
+      %𝑐𝑡𝑥{;_} &
+      {%H𝑡{}_eq;->} &
       %H𝑐𝑡𝑥{}_eq &
       %Hcommon{}
     )".
@@ -224,8 +224,8 @@ Section pool_G.
   #[local] Instance : CustomIpatFormat "context_model" :=
     "(
       %𝑐𝑡𝑥{} &
-      {%H𝑐𝑡𝑥{}_eq=->} &
-      {#Hinv{}=(:inv')} &
+      {%H𝑐𝑡𝑥{}_eq;->} &
+      {#Hinv{};(:inv')} &
       Hhub_owner
     )".
 

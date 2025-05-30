@@ -238,12 +238,12 @@ Section spsc_bqueue_G.
     front_lb γ front_cache.
   #[local] Instance : CustomIpatFormat "producer" :=
     "(
-      %l{{}=_} &
-      %γ{{}=_} &
+      %l{{};_} &
+      %γ{{};_} &
       %front_cache &
       %back &
-      {{}->=%Heq} &
-      #Hmeta{{}=_} &
+      {{}->;%Heq} &
+      #Hmeta{{};_} &
       Hl_front_cache &
       Hproducer₁ &
       #Hfront_lb

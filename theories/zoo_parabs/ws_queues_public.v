@@ -73,10 +73,10 @@ Section ws_queues_public_G.
     ws_queue_2_owner queue.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
-      %queues{=_} &
+      %queues{;_} &
       %queue{} &
       %Hqueues{}_lookup &
-      Hqueues{=_} &
+      Hqueues{;_} &
       Hqueue{}_owner
     )".
 

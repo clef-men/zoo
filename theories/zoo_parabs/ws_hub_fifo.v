@@ -121,7 +121,7 @@ Section ws_hub_fifo_G.
     "(
       %l{} &
       %γ{} &
-      {%Heq{}=->} &
+      {%Heq{};->} &
       #Hmeta{} &
       #Hl{}_size &
       #Hl{}_queue &
@@ -152,10 +152,10 @@ Section ws_hub_fifo_G.
     owner γ i.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
-      %l{=_} &
-      %γ{=_} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
-      #Hmeta{=_} &
+      #Hmeta{;_} &
       Howner{}
     )".
 

@@ -93,7 +93,7 @@ Section inf_array_G.
   #[local] Instance : CustomIpatFormat "inv_1" :=
     "(
       %us{} &
-      {{lazy}Hinv=(:inv_2)}
+      {{lazy}Hinv;(:inv_2)}
     )".
   Definition inf_array_inv t : iProp Σ :=
     ∃ l γ mtx,

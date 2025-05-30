@@ -482,21 +482,21 @@ Section kcas_1_G.
     )".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_running" :=
     "(
-      {>=}-> &
-      {>=}-> &
+      {>;}-> &
+      {>;}-> &
       Hau{} &
       Hhelpers{} &
-      {>=}Hdescrs{} &
-      {>=}Hmodels₂{} &
-      {>=}Hlocks{}
+      {>;}Hdescrs{} &
+      {>;}Hmodels₂{} &
+      {>;}Hlocks{}
     )".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_finished" :=
     "(
-      {>=}-> &
-      {>=}Hwinner{} &
+      {>;}-> &
+      {>;}Hwinner{} &
       HΨ{} &
       Hhelpers{} &
-      {>=}Hdescrs{}
+      {>;}Hdescrs{}
     )".
   #[local] Definition casn_inv_pre ι
     (casn_inv' : location * metadata * option nat -d> iProp Σ)
@@ -557,13 +557,13 @@ Section kcas_1_G.
       %η{} &
       %i{} &
       %descr{} &
-      {>=}{#}Hcasn{}_meta &
-      {>=}%Hdescrs{}_lookup &
-      {>=}{%Hloc{}=->} &
-      {>=}Hloc &
-      {>=}{#}Hlstatus{}_lb &
-      {>=}Hlock{} &
-      {>=}Hhistory_auth &
+      {>;}{#}Hcasn{}_meta &
+      {>;}%Hdescrs{}_lookup &
+      {>;}{%Hloc{};->} &
+      {>;}Hloc &
+      {>;}{#}Hlstatus{}_lb &
+      {>;}Hlock{} &
+      {>;}Hhistory_auth &
       {#}Hcasn{}_inv'
     )".
   #[local] Definition loc_inv_inner' :=
