@@ -85,6 +85,7 @@ theories/zoo/iris/base_logic/lib/semiauth_twins.v
 theories/zoo/iris/base_logic/lib/mono_list.v
 theories/zoo/iris/base_logic/lib/mono_gmap.v
 theories/zoo/iris/base_logic/lib/mono_gset.v
+theories/zoo/iris/base_logic/lib/mono_gmultiset.v
 theories/zoo/iris/base_logic/lib/prophet_map.v
 theories/zoo/iris/base_logic/lib/subpreds.v
 theories/zoo/iris/base_logic/lib/subprops.v
