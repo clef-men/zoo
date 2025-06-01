@@ -1237,4 +1237,47 @@ Section bi.
       iApply ("HΦ" with "[//] HΦ1 HP").
     Qed.
   End big_sepS.
+
+  Section big_sepMS.
+    Context `{Countable K}.
+
+    Implicit Types s : gmultiset K.
+    Implicit Types P : PROP.
+    Implicit Types Φ : K → PROP.
+
+    Lemma big_sepMS_insert_1 {Φ} x s :
+      ([∗ mset] y ∈ ({[+x+]} ⊎ s), Φ y) ⊢
+        Φ x ∗
+        [∗ mset] y ∈ s, Φ y.
+    Proof.
+      rewrite big_sepMS_insert //.
+    Qed.
+    Lemma big_sepMS_insert_2 {Φ} x s :
+      ([∗ mset] y ∈ s, Φ y) -∗
+      Φ x -∗
+      [∗ mset] y ∈ ({[+x+]} ⊎ s), Φ y.
+    Proof.
+      rewrite big_sepMS_insert. iSteps.
+    Qed.
+
+    Lemma big_sepMS_delete_1 {Φ} x s :
+      x ∈ s →
+      ([∗ mset] y ∈ s, Φ y) ⊢
+        Φ x ∗
+        [∗ mset] y ∈ (s ∖ {[+x+]}), Φ y.
+    Proof.
+      intros.
+      rewrite big_sepMS_delete //.
+    Qed.
+    Lemma big_sepMS_delete_2 {Φ} x s :
+      x ∈ s →
+      ([∗ mset] y ∈ (s ∖ {[+x+]}), Φ y) -∗
+      Φ x -∗
+      [∗ mset] y ∈ s, Φ y.
+    Proof.
+      intros.
+      setoid_rewrite big_sepMS_delete at 2; last done.
+      iSteps.
+    Qed.
+  End big_sepMS.
 End bi.
