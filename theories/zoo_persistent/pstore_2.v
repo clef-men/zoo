@@ -7,7 +7,7 @@ From zoo.common Require Import
   list
   treemap.
 From zoo.iris.base_logic Require Import
-  lib.mono_map.
+  lib.mono_gmap.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -1512,12 +1512,12 @@ End raw.
 
 Class Pstore2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] pstore_2_G_raw_G :: raw.Pstore2G Σ ;
-  #[local] pstore_2_G_support_G :: MonoMapG Σ location val ;
+  #[local] pstore_2_G_support_G :: MonoGmapG Σ location val ;
 }.
 
 Definition pstore_2_Σ := #[
   raw.pstore_2_Σ ;
-  mono_map_Σ location val
+  mono_gmap_Σ location val
 ].
 #[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_2_Σ Σ →
@@ -1538,7 +1538,7 @@ Section pstore_2_G.
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     meta l (nroot.@"user") γ ∗
-    mono_map_auth γ (DfracOwn 1) σ₀ ∗
+    mono_gmap_auth γ (DfracOwn 1) σ₀ ∗
     raw.pstore_2_model t σ₀ ς.
 
   Definition pstore_2_snapshot s t σ : iProp Σ :=
@@ -1546,7 +1546,7 @@ Section pstore_2_G.
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     meta l (nroot.@"user") γ ∗
-    mono_map_lb γ σ₀ ∗
+    mono_gmap_lb γ σ₀ ∗
     raw.pstore_2_snapshot s t ς.
 
   #[global] Instance pstore_2_model_timeless t σ :
@@ -1582,7 +1582,7 @@ Section pstore_2_G.
     iIntros "%Φ _ HΦ".
     iApply wp_fupd.
     wp_apply (raw.pstore_2_create_spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
-    iMod mono_map_alloc as "(%γ & Hauth)".
+    iMod mono_gmap_alloc as "(%γ & Hauth)".
     iMod (meta_set with "Hmeta") as "Hmeta"; first done.
     iSteps. iExists ∅, ∅. iSteps.
   Qed.
@@ -1606,7 +1606,7 @@ Section pstore_2_G.
     { rewrite -!not_elem_of_dom in Hσ₀_lookup |- *. set_solver. }
     assert (σ !! r = None) as Hσ_lookup.
     { eapply lookup_weaken_None; last done. apply lookup_union_None_2; done. }
-    iMod (mono_map_insert with "Hauth") as "Hauth"; first done.
+    iMod (mono_gmap_insert with "Hauth") as "Hauth"; first done.
     iApply "HΦ".
     iStep. iExists l, γ, (<[r := v]> σ₀), ς. iSteps. iPureIntro.
     rewrite -insert_union_r //. apply insert_mono. done.
@@ -1661,7 +1661,7 @@ Section pstore_2_G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (mono_map_lb_get with "Hauth") as "#Hlb".
+    iDestruct (mono_gmap_lb_get with "Hauth") as "#Hlb".
     wp_apply (raw.pstore_2_capture_spec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.
@@ -1680,7 +1680,7 @@ Section pstore_2_G.
     iIntros "%Φ ((%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) & (%_l & %_γ & %σ₀' & %ς' & %Heq & %Hσ' & _Hmeta & #Hlb & Hs)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
     wp_apply (raw.pstore_2_restore_spec with "[$Ht $Hs]") as "Ht".
-    iDestruct (mono_map_lb_valid with "Hauth Hlb") as %Hσ₀'.
+    iDestruct (mono_gmap_lb_valid with "Hauth Hlb") as %Hσ₀'.
     iApply "HΦ".
     iExists l, γ, σ₀, ς'. iSteps. iPureIntro.
     trans (ς' ∪ σ₀'); first done. apply map_union_mono_l. done.

@@ -7,7 +7,7 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
-  lib.mono_map
+  lib.mono_gmap
   lib.twins.
 From zoo.language Require Import
   notations.
@@ -34,13 +34,13 @@ Implicit Types vss wss : gmap val (list val).
 
 Class Bag2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] bag_2_G_spmc_queue_G :: SpmcQueueG Σ ;
-  #[local] bag_2_G_queues_G :: MonoMapG Σ location val ;
+  #[local] bag_2_G_queues_G :: MonoGmapG Σ location val ;
   #[local] bag_2_G_model_G :: TwinsG Σ (leibnizO (gmap val (list val))) ;
 }.
 
 Definition bag_2_Σ := #[
   spmc_queue_Σ ;
-  mono_map_Σ location val ;
+  mono_gmap_Σ location val ;
   twins_Σ (leibnizO (gmap val (list val)))
 ].
 #[global] Instance subG_bag_2_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -117,7 +117,7 @@ Section bag_2_G.
   Qed.
 
   #[local] Definition queues_auth' γ_queues nodes descrs wss : iProp Σ :=
-    mono_map_auth γ_queues (DfracOwn 1) (descriptor_queue <$> descrs) ∗
+    mono_gmap_auth γ_queues (DfracOwn 1) (descriptor_queue <$> descrs) ∗
     ⌜dom descrs = list_to_set nodes⌝ ∗
     ⌜ map_Forall (λ node descr,
         wss !! (descriptor_to_producer descr node : val) = Some descr.(descriptor_vals)
@@ -132,7 +132,7 @@ Section bag_2_G.
   #[local] Definition queues_auth γ :=
     queues_auth' γ.(metadata_queues).
   #[local] Definition queues_at' :=
-    mono_map_at.
+    mono_gmap_at.
   #[local] Definition queues_at γ :=
     queues_at' γ.(metadata_queues).
   #[local] Definition queues_elem γ queue : iProp Σ :=
@@ -290,7 +290,7 @@ Section bag_2_G.
       ∃ γ_queues,
       queues_auth' γ_queues [] ∅ ∅.
   Proof.
-    iMod mono_map_alloc as "(%γ_queues & Hauth)".
+    iMod mono_gmap_alloc as "(%γ_queues & Hauth)".
     iSteps.
   Qed.
   #[local] Lemma queues_at_get {γ nodes descrs wss} i node :
@@ -303,7 +303,7 @@ Section bag_2_G.
     iIntros "%Hnodes_lookup (:queues_auth)".
     destruct (elem_of_dom_1 descrs node) as (descr & Hdescrs_lookup).
     { rewrite Hnodes elem_of_list_to_set elem_of_list_lookup. eauto. }
-    iDestruct (mono_map_at_get with "Hauth") as "#Hat".
+    iDestruct (mono_gmap_at_get with "Hauth") as "#Hat".
     { rewrite lookup_fmap_Some. eauto. }
     iSteps.
   Qed.
@@ -316,7 +316,7 @@ Section bag_2_G.
       ⌜wss !! (descriptor_to_producer descr node : val) = Some descr.(descriptor_vals)⌝.
   Proof.
     iIntros "(:queues_auth) Hat".
-    iDestruct (mono_map_at_valid with "Hauth Hat") as %(descr & ? & Hdescrs_lookup)%lookup_fmap_Some.
+    iDestruct (mono_gmap_at_valid with "Hauth Hat") as %(descr & ? & Hdescrs_lookup)%lookup_fmap_Some.
     iSteps.
   Qed.
   #[local] Lemma queues_at_valid_producer γ nodes descrs wss 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :
@@ -342,7 +342,7 @@ Section bag_2_G.
       queues_at γ node descr.(descriptor_queue).
   Proof.
     iIntros "%Hdescrs_lookup (:queues_auth)".
-    iMod (mono_map_insert' node descr.(descriptor_queue) with "Hauth") as "(Hauth & Hat)".
+    iMod (mono_gmap_insert' node descr.(descriptor_queue) with "Hauth") as "(Hauth & Hat)".
     { rewrite lookup_fmap Hdescrs_lookup //. }
     rewrite -fmap_insert. iSteps; iPureIntro.
     - set_solver.
