@@ -178,17 +178,17 @@ Section auth_gmultiset_G.
 
   Lemma auth_gmultiset_update_alloc {γ x} y :
     auth_gmultiset_auth γ (DfracOwn 1) x ⊢ |==>
-      auth_gmultiset_auth γ (DfracOwn 1) (x ⊎ y) ∗
+      auth_gmultiset_auth γ (DfracOwn 1) (y ⊎ x) ∗
       auth_gmultiset_frag γ y.
   Proof.
     iIntros "H●".
     iMod (own_update with "H●") as "(H● & H◯)".
     { apply auth_update_alloc, gmultiset_local_update_alloc. }
-    rewrite left_id. iSteps.
+    rewrite left_id comm. iSteps.
   Qed.
   Lemma auth_gmultiset_update_alloc_singleton {γ x} a :
     auth_gmultiset_auth γ (DfracOwn 1) x ⊢ |==>
-      auth_gmultiset_auth γ (DfracOwn 1) (x ⊎ {[+a+]}) ∗
+      auth_gmultiset_auth γ (DfracOwn 1) ({[+a+]} ⊎ x) ∗
       auth_gmultiset_frag γ {[+a+]}.
   Proof.
     apply auth_gmultiset_update_alloc.

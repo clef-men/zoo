@@ -276,7 +276,7 @@ Section rcfd_G.
   Qed.
   #[local] Lemma tokens_update_alloc {γ qs} q :
     tokens_auth γ qs ⊢ |==>
-      tokens_auth γ (qs ⊎ {[+q+]}) ∗
+      tokens_auth γ ({[+q+]} ⊎ qs) ∗
       tokens_frag γ q.
   Proof.
     apply auth_gmultiset_update_alloc_singleton.
@@ -551,17 +551,17 @@ Section rcfd_G.
         iMod (tokens_update_alloc (q / 2) with "Htokens_auth") as "(Htokens_auth & Htokens_frag)".
         iDestruct "Hmodel_" as "(Hmodel1 & Hmodel2)".
         iSplitR "Htokens_frag Hmodel2"; last iSteps.
-        iExists Open. iStep 3. iExists (q / 2)%Qp, (qs ⊎ {[+q / 2+]})%Qp. iSteps; iPureIntro.
+        iExists Open. iStep 3. iExists (q / 2)%Qp, ({[+q / 2+]} ⊎ qs)%Qp. iSteps; iPureIntro.
         + rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
-        + rewrite (comm (⊎)) gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
+        + rewrite gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
       - iDestruct "Hlstate" as "(:inv_inner_closing_users)".
         iMod (tokens_update_alloc (q / 2) with "Htokens_auth") as "(Htokens_auth & Htokens_frag)".
         iDestruct "Hmodel_" as "(Hmodel1 & Hmodel2)".
         iSplitR "Htokens_frag Hmodel2"; last iSteps.
-        iExists (Closing _). iStep 3. iExists (q / 2)%Qp, (qs ⊎ {[+q / 2+]})%Qp. iSteps; iPureIntro.
+        iExists (Closing _). iStep 3. iExists (q / 2)%Qp, ({[+q / 2+]} ⊎ qs)%Qp. iSteps; iPureIntro.
         + rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
         + rewrite gmultiset_size_disj_union. lia.
-        + rewrite (comm (⊎)) gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
+        + rewrite gmultiset_set_fold_disj_union gmultiset_set_fold_singleton Qp.div_2 //.
       - iDestruct "Hlstate" as "(:inv_inner_closing_no_users)".
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitL; last iSteps.
