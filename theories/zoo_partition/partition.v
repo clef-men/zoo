@@ -6,7 +6,7 @@ From zoo.common Require Import
 From zoo.iris.algebra Require Import
   big_op.
 From zoo.iris.base_logic Require Import
-  mono_set.
+  mono_gset.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -52,11 +52,11 @@ Implicit Types descr : descriptor.
 Implicit Types descrs : gmap location descriptor.
 
 Class PartitionG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] partition_G_elts_G :: MonoSetG Σ location ;
+  #[local] partition_G_elts_G :: MonoGsetG Σ location ;
 }.
 
 Definition partition_Σ := #[
-  mono_set_Σ location
+  mono_gset_Σ location
 ].
 #[global] Instance subG_partition_Σ Σ `{zoo_G : !ZooG Σ} :
   subG partition_Σ Σ →
@@ -73,9 +73,9 @@ Section partition_G.
   Implicit Types γ : metadata.
 
   #[local] Definition elements_auth γ elts :=
-    mono_set_auth γ (DfracOwn 1) elts.
+    mono_gset_auth γ (DfracOwn 1) elts.
   #[local] Definition elements_elem γ elt :=
-    mono_set_elem γ elt.
+    mono_gset_elem γ elt.
 
   #[local] Definition element_model class descr elt : iProp Σ :=
     elt.[class_] ↦ #class ∗
@@ -173,21 +173,21 @@ Section partition_G.
       ∃ γ,
       elements_auth γ ∅.
   Proof.
-    apply mono_set_alloc.
+    apply mono_gset_alloc.
   Qed.
   #[local] Lemma elements_elem_valid γ elts elt :
     elements_auth γ elts -∗
     elements_elem γ elt -∗
     ⌜elt ∈ elts⌝.
   Proof.
-    apply mono_set_elem_valid.
+    apply mono_gset_elem_valid.
   Qed.
   #[local] Lemma elements_insert {γ elts} elt :
     elements_auth γ elts ⊢ |==>
       elements_auth γ ({[elt]} ∪ elts) ∗
       elements_elem γ elt.
   Proof.
-    apply mono_set_insert'.
+    apply mono_gset_insert'.
   Qed.
 
   #[local] Lemma model_disjoint' {γ descrs} class1 descr1 class2 descr2 elt :
@@ -394,7 +394,7 @@ Section partition_G.
       rewrite map_to_set_insert_L //= right_id_L. set_solver.
     }
     iSplitL "Helts_auth".
-    { iApply (mono_set_auth_proper with "Helts_auth").
+    { iApply (mono_gset_auth_proper with "Helts_auth").
       rewrite big_opM_insert //. set_solver.
     }
     iApply (big_sepM_insert_2 with "[- Hdescrs] [Hdescrs]").

@@ -1,7 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.iris.base_logic Require Import
-  lib.mono_set.
+  lib.mono_gset.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -554,11 +554,11 @@ End adiffl.
 (* Proof. *)
 
 Class Pstore1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pstore_1_G_set_G :: MonoSetG Σ (location * gmap location val)%type ;
+  #[local] pstore_1_G_set_G :: MonoGsetG Σ (location * gmap location val)%type ;
 }.
 
 Definition pstore_1_Σ := #[
-  mono_set_Σ (location * gmap location val)%type
+  mono_gset_Σ (location * gmap location val)%type
 ].
 #[global] Instance subG_pstore_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_1_Σ Σ →
@@ -605,9 +605,9 @@ Section pstore_1_G.
     ∀ l σ, (l,σ) ∈ C → ∃ σ', M !! l = Some σ' ∧ σ ⊆ σ'.
 
   #[local] Definition pstore_1_map_auth (γ:gname) (s:gset (location*(gmap location val))) :=
-    mono_set_auth γ (DfracOwn 1) s.
+    mono_gset_auth γ (DfracOwn 1) s.
   #[local] Definition pstore_1_map_elem γ l σ :=
-    mono_set_elem γ (l,σ).
+    mono_gset_elem γ (l,σ).
 
   Lemma extract_unaliased (g : graph_store) :
     ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) -∗
@@ -673,7 +673,7 @@ Section pstore_1_G.
     wp_rec.
     wp_ref r as "Hroot".
     wp_ref t0 as "Hmeta" "Ht0".
-    iMod (mono_set_alloc ∅) as "[%γ ?]".
+    iMod (mono_gset_alloc ∅) as "[%γ ?]".
     iMod (meta_set _ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
@@ -887,7 +887,7 @@ Section pstore_1_G.
     iStep 5.
 
     iDestruct "HC" as "[% [% (%Hsnapshot&#?&HC)]]".
-    iMod (mono_set_insert' (r,σ) with "HC") as "(HC&Hsnapshot)".
+    iMod (mono_gset_insert' (r,σ) with "HC") as "(HC&Hsnapshot)".
     iModIntro.
     iSplitR "Hsnapshot"; last iSteps.
     iExists _,_,_,_,_. iFrame "#∗". iStep. iPureIntro.
@@ -1528,7 +1528,7 @@ Section pstore_1_G.
   Proof.
     iIntros "Hmeta [%γ' [%C (%Hsnapshot&Hmeta'&HC)]] ?".
     iDestruct (meta_agree with "Hmeta' Hmeta") as "->".
-    iDestruct (mono_set_elem_valid with "[$][$]") as "%Hrs".
+    iDestruct (mono_gset_elem_valid with "[$][$]") as "%Hrs".
     apply Hsnapshot in Hrs. destruct Hrs as (σ1&HMrs&?).
     eauto.
   Qed.
