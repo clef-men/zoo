@@ -10,6 +10,24 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
+Definition mpmc_queue_2_suffix_index : val :=
+  fun: "suff" =>
+    match: "suff" with
+    | Front "i" =>
+        "i"
+    | Cons "i" <> <> =>
+        "i"
+    end.
+
+Definition mpmc_queue_2_prefix_index : val :=
+  fun: "pref" =>
+    match: "pref" with
+    | Back <> <> as "back_r" =>
+        "back_r".{index}
+    | Snoc "i" <> <> =>
+        "i"
+    end.
+
 Definition mpmc_queue_2_rev_0 : val :=
   rec: "rev" "suff" "pref" =>
     match: "suff" with
@@ -26,38 +44,23 @@ Definition mpmc_queue_2_rev : val :=
   fun: "back" =>
     match: "back" with
     | Snoc "i" "v" "pref" =>
-        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front( "i" + #1 ) ] "pref"
+        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front[ "i" + #1 ] ] "pref"
     end.
 
 Definition mpmc_queue_2_create : val :=
   fun: <> =>
-    { ‘Front( #1 ), ‘Back{ #0, §Used } }.
+    { ‘Front[ #1 ], ‘Back{ #0, §Used } }.
 
 Definition mpmc_queue_2_size : val :=
   rec: "size" "t" =>
     let: "front" := "t".{front} in
     let: "proph" := Proph in
     let: "back" := "t".{back} in
-    if: Resolve "t".{front} "proph" () != "front" then (
-      "size" "t"
+    if: Resolve ("t".{front} == "front") "proph" () then (
+      mpmc_queue_2_prefix_index "back" - mpmc_queue_2_suffix_index "front" +
+      #1
     ) else (
-      let: "i_front" :=
-        match: "front" with
-        | Front "i" =>
-            "i"
-        | Cons "i" <> <> =>
-            "i"
-        end
-      in
-      let: "i_back" :=
-        match: "back" with
-        | Back <> <> as "back_r" =>
-            "back_r".{index}
-        | Snoc "i" <> <> =>
-            "i"
-        end
-      in
-      "i_back" - "i_front" + #1
+      "size" "t"
     ).
 
 Definition mpmc_queue_2_is_empty : val :=
