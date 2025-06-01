@@ -223,10 +223,6 @@ Proof.
   solve_inG.
 Qed.
 
-Inductive ownership :=
-  | Own
-  | Discard.
-
 Section inf_mpmc_queue_2_G.
   Context `{inf_mpmc_queue_2_G : InfMpmcQueue2G Σ}.
 

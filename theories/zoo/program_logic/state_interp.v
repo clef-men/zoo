@@ -695,3 +695,15 @@ Qed.
 #[global] Opaque pointsto.
 #[global] Opaque thread_pointsto.
 #[global] Opaque prophet_model.
+
+Inductive ownership :=
+  | Own
+  | Discard.
+
+Coercion ownership_to_dfrac own :=
+  match own with
+  | Own =>
+      DfracOwn 1
+  | Discard =>
+      DfracDiscarded
+  end.
