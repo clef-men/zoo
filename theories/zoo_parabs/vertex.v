@@ -4,7 +4,7 @@ From zoo.common Require Import
   countable.
 From zoo.iris.base_logic Require Import
   lib.auth_dgset
-  lib.mono_set
+  lib.mono_gset
   lib.saved_prop
   lib.twins.
 From zoo.language Require Import
@@ -45,7 +45,7 @@ Class VertexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
   #[local] vertex_G_pool_G :: SchedulerG Σ ;
   #[local] vertex_G_saved_prop_G :: SavedPropG Σ ;
-  #[local] vertex_G_dependencies_G :: MonoSetG Σ gname ;
+  #[local] vertex_G_dependencies_G :: MonoGsetG Σ gname ;
   #[local] vertex_G_predecessors_G :: AuthDgsetG Σ gname ;
   #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
 }.
@@ -54,7 +54,7 @@ Definition vertex_Σ := #[
   mpmc_stack_2_Σ ;
   pool_Σ ;
   saved_prop_Σ ;
-  mono_set_Σ gname ;
+  mono_gset_Σ gname ;
   auth_dgset_Σ gname ;
   twins_Σ (leibnizO state)
 ].
@@ -88,11 +88,11 @@ Section vertex_G.
   Qed.
 
   #[local] Definition dependencies' γ_dependencies closed Δ :=
-    mono_set_auth γ_dependencies (if closed then DfracDiscarded else DfracOwn 1) Δ.
+    mono_gset_auth γ_dependencies (if closed then DfracDiscarded else DfracOwn 1) Δ.
   #[local] Definition dependencies γ closed Δ :=
     dependencies' γ.(metadata_dependencies) closed Δ.
   #[local] Definition dependency' γ_dependencies δ :=
-    mono_set_elem γ_dependencies δ.
+    mono_gset_elem γ_dependencies δ.
   #[local] Definition dependency γ δ :=
     dependency' γ.(metadata_dependencies) δ.
 
@@ -228,27 +228,27 @@ Section vertex_G.
       ∃ γ_dependencies,
       dependencies' γ_dependencies false ∅.
   Proof.
-    apply mono_set_alloc.
+    apply mono_gset_alloc.
   Qed.
   #[local] Lemma dependencies_add {γ Δ} δ :
     dependencies γ false Δ ⊢ |==>
       dependencies γ false ({[δ]} ∪ Δ) ∗
       dependency γ δ.
   Proof.
-    apply mono_set_insert'.
+    apply mono_gset_insert'.
   Qed.
   #[local] Lemma dependencies_elem_of γ closed Δ δ :
     dependencies γ closed Δ -∗
     dependency γ δ -∗
     ⌜δ ∈ Δ⌝.
   Proof.
-    apply mono_set_elem_valid.
+    apply mono_gset_elem_valid.
   Qed.
   #[local] Lemma dependencies_close γ Δ :
     dependencies γ false Δ ⊢ |==>
     dependencies γ true Δ.
   Proof.
-    apply mono_set_auth_persist.
+    apply mono_gset_auth_persist.
   Qed.
 
   #[local] Lemma predecessors_alloc :
