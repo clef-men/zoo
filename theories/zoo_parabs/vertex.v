@@ -1111,6 +1111,32 @@ Section vertex_G.
     iDestruct vertex_release_run_spec as "(H & _)".
     iApply "H".
   Qed.
+  Lemma vertex_release_spec' ctx t γ P task gen :
+    {{{
+      pool_context_model ctx ∗
+      vertex_inv t γ P ∗
+      vertex_model t γ task gen ∗
+      ( ∀ ctx,
+        pool_context_model ctx -∗
+        vertex_running gen -∗
+        WP task ctx {{ res,
+          ⌜res = #false⌝ ∗
+          ▷ pool_context_model ctx ∗
+          ▷ P
+        }}
+      )
+    }}}
+      vertex_release ctx #t
+    {{{
+      RET ();
+      pool_context_model ctx
+    }}}.
+  Proof.
+    iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".
+
+    wp_apply (vertex_release_spec with "[- HΦ] HΦ").
+    rewrite vertex_task_unfold. iFrameSteps.
+  Qed.
 End vertex_G.
 
 #[global] Opaque vertex_create.
