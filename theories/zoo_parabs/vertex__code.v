@@ -16,7 +16,23 @@ From zoo Require Import
 
 Definition vertex_create : val :=
   fun: "task" =>
+    let: "task" :=
+      match: "task" with
+      | Some "task" =>
+          "task"
+      | None =>
+          ()
+      end
+    in
     { "task", #1, mpmc_stack_2_create () }.
+
+Definition vertex_get_task : val :=
+  fun: "t" =>
+    "t".{task}.
+
+Definition vertex_set_task : val :=
+  fun: "t" "task" =>
+    "t" <-{task} "task".
 
 Definition vertex_precede : val :=
   fun: "t1" "t2" =>
@@ -32,12 +48,18 @@ Definition vertex_precede : val :=
 #[local] Definition __zoo_recs_0 := (
   recs: "release" "ctx" "t" =>
     if: FAA "t".[preds] #(-1) == #1 then (
-      pool_silent_async "ctx" (fun: "ctx" => "run" "ctx" "t")
+      "run" "ctx" "t"
     )
   and: "run" "ctx" "t" =>
-    "t".{task} "ctx" ;;
-    let: "succs" := mpmc_stack_2_close "t".{succs} in
-    clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
+    pool_silent_async "ctx"
+      (fun: "ctx" =>
+         "t" <-{preds} #1 ;;
+         if: "t".{task} "ctx" then (
+           "release" "ctx" "t"
+         ) else (
+           let: "succs" := mpmc_stack_2_close "t".{succs} in
+           clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
+         ))
 )%zoo_recs.
 Definition vertex_release :=
   ValRecs 0 __zoo_recs_0.

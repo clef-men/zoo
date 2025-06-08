@@ -1,18 +1,22 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable.
+  countable
+  gmultiset.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.iris.base_logic Require Import
-  lib.auth_dgset
-  lib.mono_gset
-  lib.saved_prop
+  lib.auth_gmultiset
+  lib.mono_gmultiset
+  lib.subprops
   lib.twins.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  clst.
+  clst
+  option.
 From zoo_saturn Require Import
   mpmc_stack_2.
 From zoo_parabs Require Export
@@ -24,16 +28,17 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Implicit Types closed : bool.
+Implicit Types b finished : bool.
 Implicit Types preds : nat.
-Implicit Types vtx succ : location.
-Implicit Types ctx run : val.
+Implicit Types t succ : location.
+Implicit Types task ctx : val.
+Implicit Types own : ownership.
 
 Inductive state :=
   | Init
   | Released
   | Running
-  | Done.
+  | Finished.
 Implicit Types state : state.
 
 #[local] Instance state_inhabited : Inhabited state :=
@@ -41,22 +46,46 @@ Implicit Types state : state.
 #[local] Instance state_eq_dec : EqDecision state :=
   ltac:(solve_decision).
 
+Record vertex_name:= {
+  vertex_name_successors : val ;
+  vertex_name_state : gname ;
+  vertex_name_generation : gname ;
+  vertex_name_predecessors : gname ;
+  vertex_name_output : gname ;
+}.
+Implicit Types γ δ π : vertex_name.
+
+#[local] Instance vertex_name_eq_dec : EqDecision vertex_name :=
+  ltac:(solve_decision).
+#[local] Instance vertex_name_countable :
+  Countable vertex_name.
+Proof.
+  solve_countable.
+Qed.
+Implicit Types Δ Π : gmultiset vertex_name.
+
+Definition vertex_generation :=
+  gname.
+Implicit Types gen : vertex_generation.
+
 Class VertexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
   #[local] vertex_G_pool_G :: SchedulerG Σ ;
-  #[local] vertex_G_saved_prop_G :: SavedPropG Σ ;
-  #[local] vertex_G_dependencies_G :: MonoGsetG Σ gname ;
-  #[local] vertex_G_predecessors_G :: AuthDgsetG Σ gname ;
   #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
+  #[local] vertex_G_generation_G :: TwinsG Σ (leibnizO vertex_generation) ;
+  #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name ;
+  #[local] vertex_G_predecessors_G :: AuthGmultisetG Σ vertex_name ;
+  #[local] vertex_G_output_G :: SubpropsG Σ ;
 }.
 
 Definition vertex_Σ := #[
   mpmc_stack_2_Σ ;
   pool_Σ ;
-  saved_prop_Σ ;
-  mono_gset_Σ gname ;
-  auth_dgset_Σ gname ;
-  twins_Σ (leibnizO state)
+  twins_Σ (leibnizO state) ;
+  twins_Σ (leibnizO vertex_generation) ;
+  mono_gmultiset_Σ vertex_name ;
+  auth_gmultiset_Σ vertex_name ;
+  subprops_Σ
 ].
 #[global] Instance subG_vertex_Σ Σ `{zoo_G : !ZooG Σ}:
   subG vertex_Σ Σ →
@@ -70,425 +99,817 @@ Section vertex_G.
 
   Implicit Types P Q : iProp Σ.
 
-  Record metadata := {
-    metadata_task : val ;
-    metadata_successors : val ;
-    metadata_dependencies : gname ;
-    metadata_predecessors : gname ;
-    metadata_state : gname ;
-  }.
-  Implicit Types γ : metadata.
+  #[local] Definition state₁' γ_state own state :=
+    twins_twin1 (twins_G := vertex_G_state_G) γ_state own state.
+  #[local] Definition state₁ γ :=
+    state₁' γ.(vertex_name_state).
+  #[local] Definition state₂' γ_state state :=
+    twins_twin2 (twins_G := vertex_G_state_G) γ_state state.
+  #[local] Definition state₂ γ :=
+    state₂' γ.(vertex_name_state).
 
-  #[local] Instance metadata_eq_dec : EqDecision metadata :=
-    ltac:(solve_decision).
-  #[local] Instance metadata_countable :
-    Countable metadata.
+  #[local] Definition generation₁' γ_generation gen :=
+    twins_twin1 γ_generation (DfracOwn 1) gen.
+  #[local] Definition generation₁ γ :=
+    generation₁' γ.(vertex_name_generation).
+  #[local] Definition generation₂' γ_generation gen :=
+    twins_twin2 γ_generation gen.
+  #[local] Definition generation₂ γ :=
+    generation₂' γ.(vertex_name_generation).
+
+  #[local] Definition dependencies_auth gen own :=
+    mono_gmultiset_auth gen own.
+  #[local] Definition dependencies_elem gen :=
+    mono_gmultiset_elem gen.
+
+  #[local] Definition predecessors_auth' γ_predecessors Π :=
+    auth_gmultiset_auth γ_predecessors (DfracOwn 1) Π.
+  #[local] Definition predecessors_auth γ Π :=
+    predecessors_auth' γ.(vertex_name_predecessors) Π.
+  #[local] Definition predecessors_elem γ π :=
+    auth_gmultiset_frag γ.(vertex_name_predecessors) {[+π+]}.
+
+  #[local] Definition output_auth' γ_output :=
+    subprops_auth γ_output.
+  #[local] Definition output_auth γ :=
+    subprops_auth γ.(vertex_name_output).
+  #[local] Definition output_frag' γ_output :=
+    subprops_frag γ_output.
+  #[local] Definition output_frag γ :=
+    output_frag' γ.(vertex_name_output).
+
+  #[local] Definition model' t γ task state gen : iProp Σ :=
+    t.[task] ↦ task ∗
+    state₁ γ Own state ∗
+    generation₁ γ gen.
+  #[local] Instance : CustomIpatFormat "model'" :=
+    "(
+      Ht{which;}_task{_{}} &
+      Hstate{which;}₁{_{}} &
+      Hgeneration{which;}₁{_{}}
+    )".
+  Definition vertex_model t γ task gen : iProp Σ :=
+    model' t γ task Init gen.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(:model' {//} {/which/})".
+
+  Definition vertex_running gen : iProp Σ :=
+    ∃ Δ,
+    dependencies_auth gen Discard Δ ∗
+    [∗ mset] δ ∈ Δ, state₁ δ Discard Finished.
+  #[local] Instance : CustomIpatFormat "running" :=
+    "(
+      %Δ{} &
+      #Hdependencies{which;}_auth{_{}} &
+      #HΔ{}
+    )".
+
+  Definition vertex_finished γ :=
+    state₁ γ Discard Finished.
+  #[local] Instance : CustomIpatFormat "finished" :=
+    "#Hstate{which;}₁{_{}}".
+
+  Definition vertex_task_body t γ P body task gen : iProp Σ :=
+    ∀ ctx gen',
+    pool_context_model ctx -∗
+    vertex_running gen -∗
+    vertex_model t γ task gen' -∗
+    WP task ctx {{ res,
+      ∃ b task,
+      ⌜res = #b⌝ ∗
+      ▷ (
+        pool_context_model ctx ∗
+        vertex_model t γ task gen' ∗
+        if b then
+          body task gen'
+        else
+          P
+      )
+    }}.
+  #[local] Definition vertex_task_pre
+  : location → vertex_name → iProp Σ →
+    (val -d> vertex_generation -d> iProp Σ) →
+    val -d> vertex_generation -d> iProp Σ
+  :=
+    vertex_task_body.
+  #[local] Instance vertex_task_pre_contractive t γ P :
+    Contractive (vertex_task_pre t γ P).
   Proof.
-    solve_countable.
+    rewrite /vertex_task_pre /vertex_task_body.
+    solve_contractive.
+  Qed.
+  #[local] Instance vertex_task_pre_ne t γ P :
+    NonExpansive (vertex_task_pre t γ P).
+  Proof.
+    apply _.
+  Qed.
+  Definition vertex_task t γ P : val → vertex_generation → iProp Σ :=
+    fixpoint (vertex_task_pre t γ P).
+
+  Lemma vertex_task_unfold t γ P task gen :
+    vertex_task t γ P task gen ⊣⊢
+    vertex_task_body t γ P (vertex_task t γ P) task gen.
+  Proof.
+    apply (fixpoint_unfold (vertex_task_pre t γ P)).
+  Qed.
+  #[global] Instance vertex_task_ne n :
+    Proper ((=) ==> (=) ==> (≡{n}≡) ==> (≡{n}≡) ==> (≡{n}≡) ==> (≡{n}≡)) vertex_task.
+  Proof.
+    intros t t_ <- γ γ_ <-.
+    induction (lt_wf n) as [n _ IH] => P1 P2 HP task task_ <- gen gen_ <-.
+    rewrite !vertex_task_unfold /vertex_task_body.
+    do 14 f_equiv. f_contractive. do 3 f_equiv.
+    - apply IH; try done.
+      eapply dist_le; [apply HP | lia].
+    - eapply dist_le; [apply HP | lia].
   Qed.
 
-  #[local] Definition dependencies' γ_dependencies closed Δ :=
-    mono_gset_auth γ_dependencies (if closed then DfracDiscarded else DfracOwn 1) Δ.
-  #[local] Definition dependencies γ closed Δ :=
-    dependencies' γ.(metadata_dependencies) closed Δ.
-  #[local] Definition dependency' γ_dependencies δ :=
-    mono_gset_elem γ_dependencies δ.
-  #[local] Definition dependency γ δ :=
-    dependency' γ.(metadata_dependencies) δ.
-
-  #[local] Definition predecessors' γ_predecessors Π :=
-    auth_dgset_auth γ_predecessors (DfracOwn 1) Π.
-  #[local] Definition predecessors γ Π :=
-    predecessors' γ.(metadata_predecessors) Π.
-  #[local] Definition predecessor' γ_predecessors π :=
-    auth_dgset_frag γ_predecessors {[π]}.
-  #[local] Definition predecessor γ π :=
-    predecessor' γ.(metadata_predecessors) π.
-
-  #[local] Definition state₁' γ_state state :=
-    twins_twin1 γ_state (DfracOwn 1) state.
-  #[local] Definition state₁ γ state :=
-    state₁' γ.(metadata_state) state.
-  #[local] Definition state₂' γ_state state :=
-    twins_twin2 γ_state state.
-  #[local] Definition state₂ γ state :=
-    state₂' γ.(metadata_state) state.
-
-  Definition vertex_init t task : iProp Σ :=
-    ∃ vtx γ,
-    ⌜t = #vtx⌝ ∗
-    ⌜task = γ.(metadata_task)⌝ ∗
-    meta vtx nroot γ ∗
-    state₂ γ Init.
-
-  #[local] Definition input' γ P : iProp Σ :=
-    ∃ δ,
-    saved_prop δ P ∗
-    dependency γ δ ∗
-    £ 1.
-  Definition vertex_input t P : iProp Σ :=
-    ∃ vtx γ,
-    ⌜t = #vtx⌝ ∗
-    meta vtx nroot γ ∗
-    input' γ P.
-
-  #[local] Definition inv_inner' (inv' : location → metadata → iProp Σ → iProp Σ) vtx γ P : iProp Σ :=
-    ∃ state preds Δ Π,
-    ⌜Δ ## Π⌝ ∗
-    vtx.[preds] ↦ #preds ∗
-    ([∗ set] δ ∈ Δ, ∃ P, saved_prop δ P ∗ □ P) ∗
-    ([∗ set] π ∈ Π, ∃ P, saved_prop π P) ∗
-    predecessors γ Π ∗
-    state₁ γ state ∗
+  #[local] Definition inv_state_init preds gen Π : iProp Σ :=
+    ∃ Δ,
+    dependencies_auth gen Own (Δ ⊎ Π) ∗
+    ⌜preds = S (size Π)⌝ ∗
+    [∗ mset] δ ∈ Δ, vertex_finished δ.
+  #[local] Instance : CustomIpatFormat "inv_state_init" :=
+    "(
+      %Δ &
+      {>;}Hdependencies{which;}_auth &
+      {>;}-> &
+      {>;}HΔ
+    )".
+  #[local] Definition inv_state_released t γ P preds gen Π : iProp Σ :=
+    ∃ task Δ,
+    model' t γ task Released gen ∗
+    dependencies_auth gen Discard (Δ ⊎ Π) ∗
+    ⌜preds = size Π⌝ ∗
+    ([∗ mset] δ ∈ Δ, vertex_finished δ) ∗
+    vertex_task t γ P task gen.
+  #[local] Instance : CustomIpatFormat "inv_state_released" :=
+    "(
+      %task &
+      %Δ &
+      (:model' {//} {/which/}) &
+      {>;}Hdependencies{which;}_auth &
+      {>;}-> &
+      {>;}HΔ &
+      Htask
+    )".
+  #[local] Definition inv_state_running Π : iProp Σ :=
+    ⌜Π = ∅⌝.
+  #[local] Instance : CustomIpatFormat "inv_state_running" :=
+    "{>;}->".
+  #[local] Definition inv_state_finished γ preds Π : iProp Σ :=
+    vertex_finished γ ∗
+    ⌜preds = S (size Π)⌝.
+  #[local] Instance : CustomIpatFormat "inv_state_finished" :=
+    "(
+      {>;}#Hstate{which;}₁ &
+      {>;}->
+    )".
+  #[local] Definition inv_state t γ P state preds gen Π : iProp Σ :=
     match state with
     | Init =>
-        ⌜preds = S (size Π)⌝ ∗
-        dependencies γ false (Δ ∪ Π)
+        inv_state_init preds gen Π
     | Released =>
-        ⌜preds = size Π⌝ ∗
-        state₂ γ Released ∗
-        dependencies γ false (Δ ∪ Π) ∗
-        ( ∀ ctx,
-          pool_context_model ctx -∗
-          □ (∀ Q E, input' γ Q ={E}=∗ □ Q) -∗
-          WP γ.(metadata_task) ctx {{ res,
-            pool_context_model ctx ∗
-            ▷ □ P
-          }}
-        )
+        inv_state_released t γ P preds gen Π
     | Running =>
-        ⌜size Π = 0⌝
-    | Done =>
-        ⌜size Π = 0⌝ ∗
-        □ P
-    end ∗
-    if decide (state = Done) then
-      mpmc_stack_2_model γ.(metadata_successors) None
-    else
+        inv_state_running Π
+    | Finished =>
+        inv_state_finished γ preds Π
+    end.
+
+  #[local] Definition inv_successor (inv : location → vertex_name → iProp Σ → iProp Σ) γ succ : iProp Σ :=
+    ∃ γ_succ P_succ,
+    inv succ γ_succ P_succ ∗
+    predecessors_elem γ_succ γ.
+  #[local] Instance : CustomIpatFormat "inv_successor" :=
+    "(
+      %γ_succ &
+      %P_succ &
+      #Hinv_succ &
+      Hpredecessors_elem
+    )".
+  #[local] Definition inv_successors (inv : location → vertex_name → iProp Σ → iProp Σ) γ finished :=
+    if finished then (
+      mpmc_stack_2_model γ.(vertex_name_successors) None
+    ) else (
       ∃ succs,
-      mpmc_stack_2_model γ.(metadata_successors) (Some $ #@{location} <$> succs) ∗
-      ( [∗ list] succ ∈ succs,
-        ∃ γ_succ P_succ π,
-        meta succ nroot γ_succ ∗
-        inv' succ γ_succ P_succ ∗
-        saved_prop π P ∗
-        predecessor γ_succ π
-      ).
-  #[local] Definition inv_pre
-  : (location -d> metadata -d> iProp Σ -d> iProp Σ) →
-    location -d> metadata -d> iProp Σ -d> iProp Σ
-  :=
-    λ inv' vtx γ P, (
-      vtx.[task] ↦□ γ.(metadata_task) ∗
-      vtx.[succs] ↦□ γ.(metadata_successors) ∗
-      mpmc_stack_2_inv γ.(metadata_successors) (nroot.@"successors") ∗
-      inv (nroot.@"inv") (inv_inner' inv' vtx γ P)
+      mpmc_stack_2_model γ.(vertex_name_successors) (Some $ #@{location} <$> succs) ∗
+      [∗ list] succ ∈ succs, inv_successor inv γ succ
     )%I.
-  #[local] Instance inv_pre_contractive :
+  #[local] Instance : CustomIpatFormat "inv_successors_finished" :=
+    ">Hsuccessors{which;}_model".
+  #[local] Instance : CustomIpatFormat "inv_successors" :=
+    "(
+      %succs &
+      >Hsuccessors{which;}_model &
+      Hsuccs
+    )".
+
+  #[local] Definition inv_inner (inv : location → vertex_name → iProp Σ → iProp Σ) t γ P : iProp Σ :=
+    ∃ preds state gen Π,
+    t.[preds] ↦ #preds ∗
+    state₂ γ state ∗
+    generation₂ γ gen ∗
+    predecessors_auth γ Π ∗
+    output_auth γ P (bool_decide (state = Finished)) ∗
+    inv_state t γ P state preds gen Π ∗
+    inv_successors inv γ (bool_decide (state = Finished)).
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %preds{} &
+      %state{} &
+      %gen{} &
+      %Π &
+      Ht{which;}_preds &
+      >Hstate{which;}₂ &
+      >Hgeneration{which;}₂ &
+      Hpredecessors{which;}_auth &
+      Houtput{which;}_auth &
+      Hinv_state{which;} &
+      Hinv_successors{which;}
+    )".
+  #[local] Definition inv_pre
+  : (location -d> vertex_name -d> iProp Σ -d> iProp Σ) →
+    location -d> vertex_name -d> iProp Σ -d> iProp Σ
+  :=
+    λ inv t γ P, (
+      t.[succs] ↦□ γ.(vertex_name_successors) ∗
+      mpmc_stack_2_inv γ.(vertex_name_successors) (nroot.@"successors") ∗
+      invariants.inv (nroot.@"inv") (inv_inner inv t γ P)
+    )%I.
+  #[local] Instance : CustomIpatFormat "inv_pre" :=
+    "(
+      #Ht{}_succs &
+      #Hsuccessors{}_inv &
+      #Hinv{_{}}
+    )".
+  #[local] Instance inv_pre_contractive_1 inv t γ :
+    Contractive (inv_pre inv t γ).
+  Proof.
+    rewrite /inv_pre /inv_inner /inv_successors /inv_state /inv_state_released /vertex_model.
+    intros n P1 P2 HP.
+    do 2 f_equiv. f_contractive. solve_proper.
+  Qed.
+  #[local] Instance inv_pre_contractive_2 :
     Contractive inv_pre.
   Proof.
-    rewrite /inv_pre /inv_inner' => n Ψ1 Ψ2 HΨ vtx γ P.
+    rewrite /inv_pre /inv_inner /inv_successors /inv_successor => n Ψ1 Ψ2 HΨ t γ P.
     repeat (apply HΨ || f_contractive || f_equiv).
   Qed.
-  #[local] Definition inv' : location → metadata → iProp Σ → iProp Σ :=
+  Definition vertex_inv : location → vertex_name → iProp Σ → iProp Σ :=
     fixpoint inv_pre.
-  #[local] Definition inv_inner :=
-    inv_inner' inv'.
-  Definition vertex_inv t P : iProp Σ :=
-    ∃ vtx γ,
-    ⌜t = #vtx⌝ ∗
-    meta vtx nroot γ ∗
-    inv' vtx γ P.
 
-  #[local] Lemma inv'_unfold vtx γ P :
-    inv' vtx γ P ⊣⊢
-    inv_pre inv' vtx γ P.
+  #[local] Lemma vertex_inv_unfold t γ P :
+    vertex_inv t γ P ⊣⊢
+    inv_pre vertex_inv t γ P.
   Proof.
     apply (fixpoint_unfold inv_pre).
   Qed.
+  #[local] Instance vertex_inv_contractive t γ :
+    Contractive (vertex_inv t γ).
+  Proof.
+    intros n.
+    induction (lt_wf n) as [n _ IH] => P1 P2 HP.
+    rewrite !vertex_inv_unfold /inv_pre /inv_inner /inv_state /inv_state_released /inv_successors /inv_successor.
+    solve_contractive.
+  Qed.
+  #[global] Instance vertex_inv_proper t γ :
+    Proper ((≡) ==> (≡)) (vertex_inv t γ).
+  Proof.
+    solve_proper.
+  Qed.
 
-  #[global] Instance vertex_init_timeless t task :
-    Timeless (vertex_init t task).
+  Definition vertex_output γ Q :=
+    output_frag γ Q.
+  #[local] Instance : CustomIpatFormat "output" :=
+    "Houtput{which;}_frag{_{}}".
+
+  #[global] Instance vertex_output_contractive γ :
+    Contractive (vertex_output γ).
+  Proof.
+    solve_contractive.
+  Qed.
+  #[global] Instance vertex_output_proper γ :
+    Proper ((≡) ==> (≡)) (vertex_output γ).
+  Proof.
+    solve_proper.
+  Qed.
+
+  Definition vertex_predecessor γ gen :=
+    dependencies_elem gen γ.
+  #[local] Instance : CustomIpatFormat "predecessor" :=
+    "#Hdependencies{which;}_elem{_{}}".
+
+  #[global] Instance vertex_model_timeless t γ task gen :
+    Timeless (vertex_model t γ task gen).
   Proof.
     apply _.
   Qed.
-  #[local] Instance inv'_persistent vtx γ P :
-    Persistent (inv' vtx γ P).
+  #[global] Instance vertex_running_timeless gen :
+    Timeless (vertex_running gen).
   Proof.
-    rewrite inv'_unfold. apply _.
+    apply _.
   Qed.
-  #[global] Instance vertex_inv_persistent t P :
-    Persistent (vertex_inv t P).
+  #[global] Instance vertex_finished_timeless γ :
+    Timeless (vertex_finished γ).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance vertex_predecessor_timeless γ gen :
+    Timeless (vertex_predecessor γ gen).
   Proof.
     apply _.
   Qed.
 
-  #[local] Lemma dependencies_alloc :
-    ⊢ |==>
-      ∃ γ_dependencies,
-      dependencies' γ_dependencies false ∅.
+  #[local] Instance vertex_inv_persistent t γ P :
+    Persistent (vertex_inv t γ P).
   Proof.
-    apply mono_gset_alloc.
+    rewrite vertex_inv_unfold.
+    apply _.
   Qed.
-  #[local] Lemma dependencies_add {γ Δ} δ :
-    dependencies γ false Δ ⊢ |==>
-      dependencies γ false ({[δ]} ∪ Δ) ∗
-      dependency γ δ.
+  #[global] Instance vertex_running_persistent gen :
+    Persistent (vertex_running gen).
   Proof.
-    apply mono_gset_insert'.
+    apply _.
   Qed.
-  #[local] Lemma dependencies_elem_of γ closed Δ δ :
-    dependencies γ closed Δ -∗
-    dependency γ δ -∗
-    ⌜δ ∈ Δ⌝.
+  #[global] Instance vertex_finished_persistent γ :
+    Persistent (vertex_finished γ).
   Proof.
-    apply mono_gset_elem_valid.
+    apply _.
   Qed.
-  #[local] Lemma dependencies_close γ Δ :
-    dependencies γ false Δ ⊢ |==>
-    dependencies γ true Δ.
+  #[global] Instance vertex_predecessor_persistent γ gen :
+    Persistent (vertex_predecessor γ gen).
   Proof.
-    apply mono_gset_auth_persist.
-  Qed.
-
-  #[local] Lemma predecessors_alloc :
-    ⊢ |==>
-      ∃ γ_predecessors,
-      predecessors' γ_predecessors ∅.
-  Proof.
-    apply auth_dgset_alloc_empty.
-  Qed.
-  #[local] Lemma predecessors_elem_of γ Π π :
-    predecessors γ Π -∗
-    predecessor γ π -∗
-    ⌜π ∈ Π⌝.
-  Proof.
-    apply auth_dgset_elem_of.
-  Qed.
-  #[local] Lemma predecessors_add {γ Π} π :
-    π ∉ Π →
-    predecessors γ Π ⊢ |==>
-      predecessors γ ({[π]} ∪ Π) ∗
-      predecessor γ π.
-  Proof.
-    apply auth_dgset_update_alloc_singleton.
-  Qed.
-  #[local] Lemma predecessors_remove γ Π π :
-    predecessors γ Π -∗
-    predecessor γ π ==∗
-      predecessors γ (Π ∖ {[π]}).
-  Proof.
-    apply auth_dgset_update_dealloc.
+    apply _.
   Qed.
 
   #[local] Lemma state_alloc :
     ⊢ |==>
       ∃ γ_state,
-      state₁' γ_state Init ∗
+      state₁' γ_state Own Init ∗
       state₂' γ_state Init.
   Proof.
     apply twins_alloc'.
   Qed.
-  #[local] Lemma state_agree γ state1 state2 :
-    state₁ γ state1 -∗
+  #[local] Lemma state_agree γ own1 state1 state2 :
+    state₁ γ own1 state1 -∗
     state₂ γ state2 -∗
     ⌜state1 = state2⌝.
   Proof.
     apply: twins_agree_L.
   Qed.
+  #[local] Lemma state₁_exclusive γ state1 own2 state2 :
+    state₁ γ Own state1 -∗
+    state₁ γ own2 state2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma state_update {γ state1 state2} state :
-    state₁ γ state1 -∗
+    state₁ γ Own state1 -∗
     state₂ γ state2 ==∗
-      state₁ γ state ∗
+      state₁ γ Own state ∗
       state₂ γ state.
   Proof.
     apply twins_update'.
   Qed.
+  #[local] Lemma state₁_discard γ state :
+    state₁ γ Own state ⊢ |==>
+    state₁ γ Discard state.
+  Proof.
+    apply twins_twin1_persist.
+  Qed.
 
-  Lemma vertex_create_spec P task :
+  #[local] Lemma generation_alloc gen :
+    ⊢ |==>
+      ∃ γ_generation,
+      generation₁' γ_generation gen ∗
+      generation₂' γ_generation gen.
+  Proof.
+    apply twins_alloc'.
+  Qed.
+  #[local] Lemma generation_agree γ generation1 generation2 :
+    generation₁ γ generation1 -∗
+    generation₂ γ generation2 -∗
+    ⌜generation1 = generation2⌝.
+  Proof.
+    apply: twins_agree_L.
+  Qed.
+  #[local] Lemma generation₁_exclusive γ generation1 generation2 :
+    generation₁ γ generation1 -∗
+    generation₁ γ generation2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
+  #[local] Lemma generation_update {γ generation1 generation2} generation :
+    generation₁ γ generation1 -∗
+    generation₂ γ generation2 ==∗
+      generation₁ γ generation ∗
+      generation₂ γ generation.
+  Proof.
+    apply twins_update'.
+  Qed.
+
+  #[local] Lemma dependencies_alloc :
+    ⊢ |==>
+      ∃ gen,
+      dependencies_auth gen Own ∅.
+  Proof.
+    apply mono_gmultiset_alloc.
+  Qed.
+  #[local] Lemma dependencies_add {gen Δ} δ :
+    dependencies_auth gen Own Δ ⊢ |==>
+      dependencies_auth gen Own ({[+δ+]} ⊎ Δ) ∗
+      dependencies_elem gen δ.
+  Proof.
+    apply mono_gmultiset_insert'.
+  Qed.
+  #[local] Lemma dependencies_elem_of gen own Δ δ :
+    dependencies_auth gen own Δ -∗
+    dependencies_elem gen δ -∗
+    ⌜δ ∈ Δ⌝.
+  Proof.
+    apply mono_gmultiset_elem_valid.
+  Qed.
+  #[local] Lemma dependencies_discard gen Δ :
+    dependencies_auth gen Own Δ ⊢ |==>
+    dependencies_auth gen Discard Δ.
+  Proof.
+    apply mono_gmultiset_auth_persist.
+  Qed.
+
+  #[local] Lemma predecessors_alloc :
+    ⊢ |==>
+      ∃ γ_predecessors,
+      predecessors_auth' γ_predecessors ∅.
+  Proof.
+    apply auth_gmultiset_alloc.
+  Qed.
+  #[local] Lemma predecessors_elem_of γ Π π :
+    predecessors_auth γ Π -∗
+    predecessors_elem γ π -∗
+    ⌜π ∈ Π⌝.
+  Proof.
+    apply auth_gmultiset_elem_of.
+  Qed.
+  #[local] Lemma predecessors_add {γ Π} π :
+    predecessors_auth γ Π ⊢ |==>
+      predecessors_auth γ ({[+π+]} ⊎ Π) ∗
+      predecessors_elem γ π.
+  Proof.
+    apply auth_gmultiset_update_alloc_singleton.
+  Qed.
+  #[local] Lemma predecessors_remove γ Π π :
+    predecessors_auth γ Π -∗
+    predecessors_elem γ π ==∗
+    predecessors_auth γ (Π ∖ {[+π+]}).
+  Proof.
+    apply auth_gmultiset_update_dealloc.
+  Qed.
+
+  #[local] Lemma output_alloc P :
+    ⊢ |==>
+      ∃ γ_output,
+      output_auth' γ_output P false ∗
+      output_frag' γ_output P.
+  Proof.
+    apply subprops_alloc.
+  Qed.
+  #[local] Lemma output_divide {γ P finished Q} Qs E :
+    ▷ output_auth γ P finished -∗
+    output_frag γ Q -∗
+    (Q -∗ [∗ list] Q ∈ Qs, Q) ={E}=∗
+      ▷ output_auth γ P finished ∗
+      [∗ list] Q ∈ Qs, output_frag γ Q.
+  Proof.
+    apply subprops_divide.
+  Qed.
+  #[local] Lemma output_produce γ P :
+    ▷ output_auth γ P false -∗
+    P -∗
+    ▷ output_auth γ P true.
+  Proof.
+    iIntros "Hauth HP".
+    iApply (subprops_produce with "Hauth [$HP]").
+  Qed.
+  #[local] Lemma output_consume γ P Q E :
+    ▷ output_auth γ P true -∗
+    output_frag γ Q ={E}=∗
+      ▷ output_auth γ P true ∗
+      ▷^2 Q.
+  Proof.
+    apply subprops_consume.
+  Qed.
+
+  Lemma vertex_model_exclusive t γ task1 gen1 task2 gen2 :
+    vertex_model t γ task1 gen1 -∗
+    vertex_model t γ task2 gen2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)".
+    iApply (generation₁_exclusive with "Hgeneration₁_1 Hgeneration₁_2").
+  Qed.
+  Lemma vertex_model_not_finished t γ task gen :
+    vertex_model t γ task gen -∗
+    vertex_finished γ -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:finished =2)".
+    iApply (state₁_exclusive with "Hstate₁_1 Hstate₁_2").
+  Qed.
+
+  Lemma vertex_output_divide {t γ P Q} Qs :
+    vertex_inv t γ P -∗
+    vertex_output γ Q -∗
+    (Q -∗ [∗ list] Q ∈ Qs, Q) ={⊤}=∗
+    [∗ list] Q ∈ Qs, vertex_output γ Q.
+  Proof.
+    rewrite vertex_inv_unfold.
+    iIntros "(:inv_pre) (:output) H".
+    iInv "Hinv" as "(:inv_inner)".
+    iMod (output_divide with "Houtput_auth Houtput_frag H") as "(Houtput_auth & H)".
+    iSplitR "H". { iFrameSteps. }
+    iApply (big_sepL_impl with "H").
+    iSteps.
+  Qed.
+  Lemma vertex_output_split {t γ P Q} Q1 Q2 :
+    vertex_inv t γ P -∗
+    vertex_output γ Q -∗
+    (Q -∗ Q1 ∗ Q2) ={⊤}=∗
+      vertex_output γ Q1 ∗
+      vertex_output γ Q2.
+  Proof.
+    iIntros "#Hinv Houtput H".
+    iMod (vertex_output_divide [Q1;Q2] with "Hinv Houtput [H]") as "($ & $ & _)"; iSteps.
+  Qed.
+
+  Lemma vertex_predecessor_finished γ gen :
+    vertex_predecessor γ gen -∗
+    vertex_running gen -∗
+    vertex_finished γ.
+  Proof.
+    iIntros "(:predecessor) (:running)".
+    iDestruct (dependencies_elem_of with "Hdependencies_auth Hdependencies_elem") as %Hγ.
+    iDestruct (big_sepMS_elem_of with "HΔ") as "#Hstate₁"; first done.
+    iSteps.
+  Qed.
+
+  Lemma vertex_finished_output t γ P Q :
+    vertex_inv t γ P -∗
+    vertex_finished γ -∗
+    vertex_output γ Q ={⊤}=∗
+    ▷^2 Q.
+  Proof.
+    setoid_rewrite vertex_inv_unfold.
+    iIntros "(:inv_pre) (:finished) (:output)".
+    iInv "Hinv" as "(:inv_inner)".
+    iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
+    iMod (output_consume with "Houtput_auth Houtput_frag") as "(Houtput_auth & HP)".
+    iSplitR "HP". { iFrameSteps. }
+    iSteps.
+  Qed.
+  Lemma vertex_finished_output' t γ P Q :
+    £ 2 -∗
+    vertex_inv t γ P -∗
+    vertex_finished γ -∗
+    vertex_output γ Q ={⊤}=∗
+    Q.
+  Proof.
+    iIntros "(H£1 & H£2) Hinv Hfinished Houtput".
+    iMod (vertex_finished_output with "Hinv Hfinished Houtput") as "HP".
+    iMod (lc_fupd_elim_later with "H£1 HP") as "HP".
+    iApply (lc_fupd_elim_later with "H£2 HP").
+  Qed.
+
+  Lemma vertex_create_spec P (task : option val) :
     {{{
       True
     }}}
       vertex_create task
-    {{{ t,
-      RET t;
-      vertex_inv t P ∗
-      vertex_init t task
+    {{{ t γ gen,
+      RET #t;
+      vertex_inv t γ P ∗
+      vertex_model t γ (default ()%V task) gen ∗
+      vertex_output γ P
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply (mpmc_stack_2_create_spec with "[//]") as (succs) "(#Hsuccs_inv & Hsuccs_model)".
-    wp_block vtx as "Hmeta" "(Hvtx_task & Hvtx_preds & Hvtx_succs & _)".
-    iMod (pointsto_persist with "Hvtx_task") as "#Hvtx_task".
-    iMod (pointsto_persist with "Hvtx_succs") as "#Hvtx_succs".
 
-    iMod (saved_prop_alloc True) as "(%π & #Hπ)".
-    iMod dependencies_alloc as "(%γ_dependencies & Hdeps)".
-    iMod predecessors_alloc as "(%γ_predecessors & Hpreds)".
+    wp_bind (Match _ _ _ _).
+    wp_apply (wp_wand (λ res,
+      ⌜res = default ()%V task⌝
+    )%I) as (res) "->".
+    { destruct task; iSteps. }
+
+    wp_smart_apply (mpmc_stack_2_create_spec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
+    wp_block t as "(Ht_task & Ht_preds & Ht_succs & _)".
+    iMod (pointsto_persist with "Ht_succs") as "#Ht_succs".
+
     iMod state_alloc as "(%γ_state & Hstate₁ & Hstate₂)".
+    iMod dependencies_alloc as "(%gen & Hdependencies_auth)".
+    iMod (generation_alloc gen) as "(%γ_generation & Hgeneration₁ & Hgeneration₂)".
+    iMod predecessors_alloc as "(%γ_predecessors & Hpredecessors_auth)".
+    iMod (output_alloc P) as "(%γ_output & Houtput_auth & Houtput_frag)".
 
     pose γ := {|
-      metadata_task := task ;
-      metadata_successors := succs ;
-      metadata_dependencies := γ_dependencies ;
-      metadata_predecessors := γ_predecessors ;
-      metadata_state := γ_state ;
+      vertex_name_successors := succs ;
+      vertex_name_state := γ_state ;
+      vertex_name_generation := γ_generation ;
+      vertex_name_predecessors := γ_predecessors ;
+      vertex_name_output := γ_output ;
     |}.
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
-    iApply "HΦ".
-    iSplitR "Hstate₂".
-    - iSteps. rewrite inv'_unfold. iStep 3.
-      iApply inv_alloc.
-      iExists Init, 1, ∅, ∅. iFrame.
-      rewrite !big_sepS_empty size_empty. iStep 5.
-      iExists []. iSteps.
-    - iSteps. iExists γ. iSteps.
+    iApply ("HΦ" $! t γ).
+    iSplitR "Ht_task Hstate₁ Hgeneration₁ Houtput_frag"; last iSteps.
+    rewrite vertex_inv_unfold. iStep 2.
+    iApply inv_alloc.
+    iExists 1, Init, gen, ∅. iFrame. iSplitR "Hsuccessors_model".
+    - rewrite /inv_state /inv_state_init.
+      iExists ∅. rewrite big_sepMS_empty left_id. iSteps.
+    - iExists []. iSteps.
   Qed.
 
-  Lemma vertex_precede_spec t1 P1 t2 P2 task :
+  Lemma vertex_get_task_spec t γ P task gen :
     {{{
-      vertex_inv t1 P1 ∗
-      vertex_inv t2 P2 ∗
-      vertex_init t2 task
+      vertex_model t γ task gen
     }}}
-      vertex_precede t1 t2
+      vertex_get_task #t
     {{{
-      RET ();
-      vertex_init t2 task ∗
-      vertex_input t2 P1
+      RET task;
+      vertex_model t γ task gen
     }}}.
   Proof.
-    rewrite /vertex_inv. setoid_rewrite inv'_unfold.
-    iIntros "%Φ ((%vtx1 & %γ1 & -> & #Hmeta1 & #Hvtx1_task & #Hvtx1_succs & #Hsuccs1_inv & #Hinv1) & (%vtx2 & %γ2 & -> & #Hmeta2 & #Hvtx2_task & #Hvtx2_succs & #Hsuccs2_inv & #Hinv2) & (%_vtx2 & %_γ2 & %Heq & -> & _Hmeta2 & Hstate₂)) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta2 _Hmeta2") as %<-. iClear "_Hmeta2".
+    iSteps.
+  Qed.
 
-    wp_rec. wp_load.
+  Lemma vertex_set_task_spec t γ P task1 gen task2 :
+    {{{
+      vertex_model t γ task1 gen
+    }}}
+      vertex_set_task #t task2
+    {{{
+      RET ();
+      vertex_model t γ task2 gen
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
 
-    awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccs1_inv") without "Hstate₂ HΦ".
-    iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
-    case_decide as Hstate; first subst.
+  Lemma vertex_precede_spec t1 γ1 P1 t2 γ2 P2 task gen :
+    {{{
+      vertex_inv t1 γ1 P1 ∗
+      vertex_inv t2 γ2 P2 ∗
+      vertex_model t2 γ2 task gen
+    }}}
+      vertex_precede #t1 #t2
+    {{{
+      RET ();
+      vertex_model t2 γ2 task gen ∗
+      vertex_predecessor γ1 gen
+    }}}.
+  Proof.
+    setoid_rewrite vertex_inv_unfold.
+    iIntros "%Φ ((:inv_pre =1) & (:inv_pre =2) & (:model which=2)) HΦ".
 
-    - iDestruct "Hstate" as "(>%HΠ & #HP1)".
-      iDestruct "Hsuccs" as ">Hsuccs_model".
-      iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
-      iSplitL; first iSteps.
-      iIntros "{%} H£ (Hstate₂ & HΦ)".
+    wp_rec.
+    iApply (wp_frame_wand with "[Ht2_task HΦ]"); first iAccu.
+    wp_load.
+
+    awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hgeneration2₁".
+    iInv "Hinv_1" as "(:inv_inner which=1 =1)".
+    case_decide as Hstate1; first subst.
+
+    - iDestruct "Hinv_state1" as "(:inv_state_finished which=1 =1 >) /=".
+      iDestruct "Hinv_successors1" as "(:inv_successors_finished which=1 =1)".
+      iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs1_model !>".
+      { iFrameSteps. }
+      iSplitL. { iFrameSteps. }
+      iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
 
       iApply fupd_wp.
-      iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
-      iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-      iDestruct "Hstate" as ">(%Hpreds & Hdeps)".
-      iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
-      apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
-      iMod (dependencies_add π with "Hdeps") as "(Hdeps & #Hdep)".
-      iSplitR "Hstate₂ H£ HΦ".
-      { iExists Init, preds, ({[π]} ∪ Δ), Π.
-        rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-        assert ({[π]} ∪ (Δ ∪ Π) = ({[π]} ∪ Δ) ∪ Π) as -> by set_solver.
-        iSteps. iPureIntro. set_solver.
+      iInv "Hinv_2" as "(:inv_inner which=2 =1)".
+      iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
+      iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+      iDestruct "Hinv_state2" as "(:inv_state_init which=2 =1 >)".
+      iMod (dependencies_add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
+      iDestruct (big_sepMS_insert_2 γ1 with "HΔ Hstate1₁") as "HΔ".
+      iSplitR "Hstate2₁ Hgeneration2₁".
+      { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = ({[+γ1+]} ⊎ Δ) ⊎ Π) as ->.
+        { rewrite assoc //. }
+        iFrame. rewrite /inv_state. iFrameSteps.
       }
       iSteps.
 
-    - iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-      iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
-      { iFrame. rewrite decide_False //. iSteps. }
-      iSplitL. { iSteps. rewrite decide_False //. iSteps. }
-      iIntros "H£ (Hstate₂ & HΦ)". wp_pures. clear.
+    - iDestruct "Hinv_successors1" as "(:inv_successors which=1 =1)".
+      iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs_model !>".
+      { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps. }
+      iSplitL.
+      { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps. }
+      iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
+
+      wp_pures.
 
       wp_bind (FAA _ _).
-      iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+      iInv "Hinv_2" as "(:inv_inner which=2 =1)".
       wp_faa.
-      iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-      iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-      iMod (saved_prop_alloc_cofinite (Δ ∪ Π) P1) as "(%π & %Hπ & #Hπ)".
-      apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
-      iMod (predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
-      iMod (dependencies_add π with "Hdeps") as "(Hdeps & #Hdep)".
-      iSplitR "Hstate₂ Hpred H£ HΦ".
-      { iExists Init, (S preds), Δ, ({[π]} ∪ Π).
-        rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-        assert ({[π]} ∪ (Δ ∪ Π) = Δ ∪ ({[π]} ∪ Π)) as -> by set_solver.
-        iSteps; iPureIntro.
-        - set_solver.
-        - rewrite size_union; first set_solver.
-          rewrite size_singleton. lia.
+      iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
+      iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+      iDestruct "Hinv_state2" as "(:inv_state_init which=2 =1)".
+      iMod (dependencies_add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
+      iMod (predecessors_add γ1 with "Hpredecessors2_auth") as "(Hpredecessors2_auth & Hpredecessors2_elem )".
+      iSplitR "Hstate2₁ Hgeneration2₁ Hpredecessors2_elem".
+      { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = Δ ⊎ ({[+γ1+]} ⊎ Π)) as ->.
+        { rewrite assoc (comm _ _ Δ) -assoc //. }
+        iFrameSteps. iPureIntro.
+        rewrite gmultiset_size_disj_union gmultiset_size_singleton. lia.
       }
-      iModIntro. wp_pures. clear.
+      iIntros "!> {%}".
 
-      awp_apply (mpmc_stack_2_push_spec with "Hsuccs1_inv") without "Hstate₂ H£ HΦ".
-      iInv "Hinv1" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx1_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
-      case_decide as Hstate; first subst.
+      wp_pures. clear.
 
-      + iDestruct "Hstate" as "(>%HΠ & #HP1)".
-        iDestruct "Hsuccs" as ">Hsuccs_model".
-        iAaccIntro with "Hsuccs_model"; first iSteps. iIntros "Hsuccs_model !>".
-        iSplitR "Hpred"; first iSteps.
-        iIntros "_ (Hstate₂ & H£ & HΦ) {%}".
+      awp_apply (mpmc_stack_2_push_spec with "Hsuccessors1_inv") without "Hstate2₁ Hgeneration2₁".
+      iInv "Hinv_1" as "(:inv_inner which=1 =2)".
+      case_decide as Hstate2; first subst.
+
+      + iDestruct "Hinv_state1" as "(:inv_state_finished which=1 =2 >) /=".
+        iDestruct "Hinv_successors1" as "(:inv_successors_finished which=1 =2)".
+        iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs1_model !>".
+        { iFrameSteps. }
+        iSplitR "Hpredecessors2_elem". { iFrameSteps. }
+        iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
 
         wp_pures.
 
         wp_bind (FAA _ _).
-        iInv "Hinv2" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx2_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+        iInv "Hinv_2" as "(:inv_inner which=2 =2)".
         wp_faa.
-        iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-        iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-        iDestruct (predecessors_elem_of with "Hpreds Hpred") as %Hπ.
-        iMod (predecessors_remove with "Hpreds Hpred") as "Hpreds".
-        iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
-        iSplitR "Hstate₂ H£ HΦ".
-        { iExists Init, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
-          rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-          assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
-          { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
-          iSteps; iPureIntro.
-          - set_solver.
-          - rewrite size_difference; first set_solver. rewrite size_singleton.
-            apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
+        iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
+        iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+        iDestruct "Hinv_state2" as "(:inv_state_init which=2 =2)".
+        iDestruct (predecessors_elem_of with "Hpredecessors2_auth Hpredecessors2_elem") as %Hγ1.
+        iMod (predecessors_remove with "Hpredecessors2_auth Hpredecessors2_elem") as "Hpredecessors2_auth".
+        iDestruct (big_sepMS_insert_2 γ1 with "HΔ Hstate1₁") as "HΔ".
+        iSplitR "Hstate2₁ Hgeneration2₁".
+        { replace (Δ ⊎ Π) with ({[+γ1+]} ⊎ Δ ⊎ Π ∖ {[+γ1+]}) by multiset_solver.
+          iFrameSteps. iPureIntro.
+          rewrite gmultiset_size_difference; first multiset_solver.
+          rewrite gmultiset_size_singleton.
+          apply gmultiset_elem_of_size_non_empty in Hγ1.
+          lia.
         }
         iSteps.
 
-      + iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-        iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model !>".
-        { iFrame. rewrite decide_False //. iSteps. }
+      + iDestruct "Hinv_successors1" as "(:inv_successors which=1 =2)".
+        iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs_model !>".
+        { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps. }
         iSplitL.
-        { iSteps. rewrite decide_False //. iExists (vtx2 :: succs). iFrame.
-          setoid_rewrite inv'_unfold. iSteps.
+        { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps.
+          iExists (t2 :: succs). iSteps.
+          iExists γ2, P2. rewrite vertex_inv_unfold. iSteps.
         }
         iSteps.
   Qed.
 
   #[local] Lemma vertex_release_run_spec :
     ⊢ (
-      ∀ ctx vtx γ P π Q,
+      ∀ ctx t γ P task gen,
       {{{
         pool_context_model ctx ∗
-        inv' vtx γ P ∗
-        saved_prop π Q ∗
-        predecessor γ π ∗
-        □ Q
+        vertex_inv t γ P ∗
+        vertex_model t γ task gen ∗
+        vertex_task t γ P task gen
       }}}
-        vertex_release ctx #vtx
+        vertex_release ctx #t
       {{{
         RET ();
         pool_context_model ctx
       }}}
     ) ∧ (
-      ∀ ctx vtx γ P,
+      ∀ ctx t γ P π,
       {{{
         pool_context_model ctx ∗
-        inv' vtx γ P ∗
-        state₂ γ Running ∗
-        ( pool_context_model ctx -∗
-          WP γ.(metadata_task) ctx {{ res,
-            pool_context_model ctx ∗
-            ▷ □ P
-          }}
-        )
+        vertex_inv t γ P ∗
+        predecessors_elem γ π ∗
+        vertex_finished π
       }}}
-        vertex_run ctx #vtx
+        vertex_release ctx #t
+      {{{
+        RET ();
+        pool_context_model ctx
+      }}}
+    ) ∧ (
+      ∀ ctx t γ gen P task,
+      {{{
+        pool_context_model ctx ∗
+        vertex_inv t γ P ∗
+        vertex_running gen ∗
+        model' t γ task Running gen ∗
+        vertex_task t γ P task gen
+      }}}
+        vertex_run ctx #t
       {{{
         RET ();
         pool_context_model ctx
@@ -496,118 +917,176 @@ Section vertex_G.
     ).
   Proof.
     iLöb as "HLöb".
-    iDestruct "HLöb" as "(IHrelease & IHrun)".
-    iSplit.
+    iDestruct "HLöb" as "(Hrelease & Hrelease_successor & Hrun)".
+    repeat iSplit.
 
-    { iClear "IHrelease".
-      setoid_rewrite inv'_unfold.
-      iIntros "%ctx %vtx %γ %P %π %Q !> %Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & #Hπ & Hpred & #HQ) HΦ".
+    { iClear "Hrelease Hrelease_successor".
+      setoid_rewrite vertex_inv_unfold.
+      iIntros "%ctx %t %γ %P %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
-      wp_recs. wp_pures.
+      wp_recs.
+      iApply (wp_frame_wand with "HΦ").
+      wp_pures.
 
       wp_bind (FAA _ _).
-      iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & Hstate₁ & Hstate & Hsuccs)".
+      iInv "Hinv" as "(:inv_inner =1)".
       wp_faa.
-      iDestruct (predecessors_elem_of with "Hpreds Hpred") as %Hπ.
-      destruct state.
-      3: iDestruct "Hstate" as "%HΠ".
-      4: iDestruct "Hstate" as "(%HΠ & _)".
-      3,4: apply size_empty_inv in HΠ; set_solver.
-      all: iMod (predecessors_remove with "Hpreds Hpred") as "Hpreds".
-      all: iDestruct (big_sepS_delete with "HΠ") as "(_ & HΠ)"; first done.
+      iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
+      iDestruct (generation_agree with "Hgeneration₁ Hgeneration₂") as %<-.
+      iDestruct "Hinv_state" as "(:inv_state_init =1)".
 
-      - iDestruct "Hstate" as "(%Hpreds & Hdeps)".
-        iSplitR "Hctx HΦ".
-        { iExists Init, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
-          rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-          assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
-          { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
-          iSteps; iPureIntro.
-          - set_solver.
-          - rewrite size_difference; first set_solver. rewrite size_singleton.
-            apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
-        }
-        assert (preds ≠ 1).
-        { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
+      destruct (decide (size Π = 0)) as [->%gmultiset_size_empty_inv | HΠ].
+
+      - rewrite gmultiset_size_empty right_id.
+        iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+        iMod (dependencies_discard with "Hdependencies_auth") as "#Hdependencies_auth".
+        iDestruct "HΔ" as "#HΔ".
+        iSplitR "Hctx Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
+        iIntros "{%} !>".
+
+        wp_smart_apply ("Hrun" with "[$]").
         iSteps.
 
-      - iDestruct "Hstate" as "(%Hpreds & Hstate₂ & Hdeps & Htask)".
-        destruct (decide (preds = 1)) as [-> | ?].
+      - iMod (state_update Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+        iMod (dependencies_discard with "Hdependencies_auth") as "#Hdependencies_auth".
+        iSplitR "Hctx". { iFrameSteps. }
+        iSteps.
+    }
 
-        + assert (Π = {[π]}) as ->.
-          { apply symmetry, size_1_elem_of in Hpreds as (_π & Heq). set_solver. }
-          rewrite difference_diag_L.
-          iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-          iDestruct "HΔ" as "#HΔ".
-          iSplitR "Hctx Hstate₂ Hdeps Htask HΦ".
-          { iExists Running, 0, ({[π]} ∪ Δ), ∅.
-            rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-            iSteps.
+    { iClear "Hrelease Hrelease_successor".
+      setoid_rewrite vertex_inv_unfold.
+      iIntros "%ctx %t %γ %P %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
+
+      wp_recs.
+      iApply (wp_frame_wand with "HΦ").
+      wp_pures.
+
+      wp_bind (FAA _ _).
+      iInv "Hinv" as "(:inv_inner)".
+      wp_faa.
+      iDestruct (predecessors_elem_of with "Hpredecessors_auth Hpredecessors_elem") as %Hπ.
+      iMod (predecessors_remove with "Hpredecessors_auth Hpredecessors_elem") as "Hpredecessors_auth".
+
+      destruct state.
+
+      - iDestruct "Hinv_state" as "(:inv_state_init)".
+        iDestruct (big_sepMS_insert_2 with "HΔ Hπ") as "HΔ".
+        apply gmultiset_elem_of_size_non_empty in Hπ as ?.
+        iSplitR "Hctx".
+        { replace (Δ ⊎ Π) with (({[+π+]} ⊎ Δ) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
+          iFrameSteps. iPureIntro.
+          rewrite gmultiset_size_difference; first multiset_solver.
+          rewrite gmultiset_size_singleton.
+          lia.
+        }
+        iSteps.
+
+      - iDestruct "Hinv_state" as "(:inv_state_released)".
+        iDestruct (big_sepMS_insert_2 with "HΔ Hπ") as "-##HΔ".
+        iEval (rewrite (comm (⊎))) in "HΔ".
+        destruct (decide (size Π = 1)) as [HΠ |].
+
+        + rewrite HΠ.
+          assert (Π = {[+π+]}) as ->.
+          { apply gmultiset_size_1_elem_of in HΠ as (π_ & ->).
+            set_solver.
           }
-          iDestruct (big_sepS_insert_2' with "[] HΔ") as "HΔ'"; first iSteps.
-          iClear "Hπ HQ HΔ". remember (Δ ∪ {[π]}) as Δ'.
-          iMod (dependencies_close with "Hdeps") as "#Hdeps".
-          iIntros "!> {%}".
+          rewrite gmultiset_difference_diag.
 
-          wp_smart_apply (pool_silent_async_spec with "[$Hctx Hstate₂ Hdeps Htask]"); last iSteps. iIntros "{%} %ctx Hctx".
-          wp_smart_apply ("IHrun" with "[-]"); last iSteps. iStep 4 as "Hctx".
-          wp_apply ("Htask" with "Hctx"). iIntros "!> %Q %E (%δ & #Hδ & #Hdep & H£)".
-          iDestruct (dependencies_elem_of with "Hdeps Hdep") as %Hδ.
-          iDestruct (big_sepS_elem_of with "HΔ'") as "(%_Q & _Hδ & #HQ)"; first done.
-          iDestruct (saved_prop_agree with "Hδ _Hδ") as "-#Heq".
-          iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-          iRewrite "Heq". iSteps.
+          iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
+          iIntros "{%} !>".
 
-        + iSplitR "Hctx HΦ".
-          { iExists Released, (preds - 1), ({[π]} ∪ Δ), (Π ∖ {[π]}).
-            rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-            assert ({[π]} ∪ Δ ∪ Π ∖ {[π]} = Δ ∪ Π) as ->.
-            { apply leibniz_equiv. rewrite (comm (∪) {[_]}) -assoc -union_difference_singleton_L //. }
-            assert (1 < preds).
-            { apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia. }
-            iFrameSteps; iPureIntro.
-            - set_solver.
-            - rewrite size_difference; first set_solver. rewrite size_singleton.
-              apply non_empty_inhabited in Hπ as ?%size_non_empty_iff. lia.
+          wp_smart_apply ("Hrun" with "[$]").
+          iSteps.
+
+        + apply gmultiset_elem_of_size_non_empty in Hπ as ?.
+          iSplitR "Hctx".
+          { replace (Δ ⊎ Π) with ((Δ ⊎ {[+π+]}) ⊎ (Π ∖ {[+π+]})) by multiset_solver.
+            iFrameSteps. iPureIntro.
+            rewrite gmultiset_size_difference; first multiset_solver.
+            rewrite gmultiset_size_singleton.
+            lia.
           }
           iSteps.
+
+      - iDestruct "Hinv_state" as "(:inv_state_running)".
+        exfalso. set_solver.
+
+      - iDestruct "Hinv_state" as "(:inv_state_finished)".
+        assert (Π ≠ ∅) as ?%gmultiset_size_non_empty_iff by multiset_solver.
+        iSplitR "Hctx".
+        { iFrameSteps. iPureIntro.
+          rewrite gmultiset_size_difference; first multiset_solver.
+          rewrite gmultiset_size_singleton.
+          lia.
+        }
+        iSteps.
     }
 
-    { iClear "IHrun".
-      setoid_rewrite inv'_unfold.
-      iIntros "%ctx %vtx %γ %P !> %Φ (Hctx & (#Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & Hstate₂ & Htask) HΦ".
+    { iClear "Hrun".
+      setoid_rewrite vertex_inv_unfold.
+      iIntros "%ctx %t %γ %gen %P %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
-      wp_recs. wp_load.
-      wp_apply (wp_wand with "(Htask Hctx)") as (res) "(Hctx & #HP)".
+      wp_recs.
+      wp_smart_apply (pool_silent_async_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
+      wp_pures.
+
+      wp_bind (_ <-{preds} _)%E.
+      iInv "Hinv" as "(:inv_inner =1)".
+      wp_store.
+      iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
+      iMod (state_update Init with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+      iDestruct "Hinv_state" as "(:inv_state_running =1)".
+      iMod dependencies_alloc as "(%gen' & Hdependencies_auth)".
+      iMod (generation_update gen' with "Hgeneration₁ Hgeneration₂") as "(Hgeneration₁ & Hgeneration₂)".
+      iSplitR "Hctx Ht_task Hstate₁ Hgeneration₁ Htask".
+      { iFrameSteps.
+        iExists ∅. rewrite left_id big_sepMS_empty. iSteps.
+      }
+      iIntros "{%} !>".
+
       wp_load.
 
-      awp_smart_apply (mpmc_stack_2_close_spec with "Hsuccs_inv") without "Hctx HΦ".
-      iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & Hpreds & >Hstate₁ & Hstate & Hsuccs)".
-      iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-      iDestruct "Hstate" as ">%HΠ".
-      iDestruct "Hsuccs" as "(%succs & >Hsuccs_model & Hsuccs)".
-      iAaccIntro with "Hsuccs_model"; iIntros "Hsuccs_model"; first iFrameSteps.
-      iMod (state_update Done with "Hstate₁ Hstate₂") as "(Hstate₁ & _)".
-      iSplitR "Hsuccs"; first iSteps.
-      iIntros "!> H£ (Hctx & HΦ) {%}".
+      rewrite vertex_task_unfold.
+      wp_apply (wp_wand with "(Htask Hctx [$] [$])") as (res) "{%} (%b & %task & -> & Hctx & (:model) & Hb)".
+      destruct b.
 
-      iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-      wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
-      rewrite big_sepL_fmap.
-      iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (%γ_succ & %P_succ & %π & #Hmeta_succ & #Hinv_succ & #Hπ & Hpred) Hctx".
-      wp_smart_apply ("IHrelease" with "[$Hctx $Hπ $Hpred $HP]"); last iSteps.
-      iApply (inv'_unfold with "Hinv_succ").
+      - wp_smart_apply ("Hrelease" with "[$]").
+        iSteps.
+
+      - iDestruct "Hb" as "HP".
+
+        wp_load.
+
+        awp_apply (mpmc_stack_2_close_spec with "Hsuccessors_inv") without "Hctx".
+        iInv "Hinv" as "(:inv_inner =2)".
+        iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
+        iDestruct "Hinv_state" as "(:inv_state_init =2 >)".
+        iDestruct "Hinv_successors" as "(:inv_successors =2)".
+        iAaccIntro with "Hsuccessors_model"; iIntros "Hsuccessors_model"; first iFrameSteps.
+        iMod (state_update Finished with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+        iMod (state₁_discard with "Hstate₁") as "#Hstate₁".
+        iDestruct (output_produce with "Houtput_auth HP") as "Houtput_auth".
+        iSplitR "Hsuccs". { iFrameSteps. }
+        iIntros "!> H£ Hctx {%}".
+
+        iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
+        wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+        rewrite big_sepL_fmap.
+        iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
+        wp_smart_apply ("Hrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
+        iApply (vertex_inv_unfold with "Hinv_succ").
     }
   Qed.
-  #[local] Lemma vertex_release_spec' ctx vtx γ P π Q :
+  Lemma vertex_release_spec ctx t γ P task gen :
     {{{
       pool_context_model ctx ∗
-      inv' vtx γ P ∗
-      saved_prop π Q ∗
-      predecessor γ π ∗
-      □ Q
+      vertex_inv t γ P ∗
+      vertex_model t γ task gen ∗
+      vertex_task t γ P task gen
     }}}
-      vertex_release ctx #vtx
+      vertex_release ctx #t
     {{{
       RET ();
       pool_context_model ctx
@@ -616,64 +1095,18 @@ Section vertex_G.
     iDestruct vertex_release_run_spec as "(H & _)".
     iApply "H".
   Qed.
-  Lemma vertex_release_spec ctx t P task :
-    {{{
-      pool_context_model ctx ∗
-      vertex_inv t P ∗
-      vertex_init t task ∗
-      ( ∀ ctx,
-        pool_context_model ctx -∗
-        □ (∀ Q E, vertex_input t Q ={E}=∗ □ Q) -∗
-        WP task ctx {{ res,
-          pool_context_model ctx ∗
-          ▷ □ P
-        }}
-      )
-    }}}
-      vertex_release ctx t
-    {{{
-      RET ();
-      pool_context_model ctx
-    }}}.
-  Proof.
-    rewrite /vertex_inv. setoid_rewrite inv'_unfold.
-    iIntros "%Φ (Hctx & (%vtx & %γ & -> & #Hmeta & #Hvtx_task & #Hvtx_succs & #Hsuccs_inv & #Hinv) & (%_vtx & %_γ & %Heq & -> & _Hmeta & Hstate₂) & Htask) HΦ". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-
-    iApply fupd_wp.
-    iInv "Hinv" as "(%state & %preds & %Δ & %Π & >%HΔ & Hvtx_preds & HΔ & HΠ & >Hpreds & >Hstate₁ & Hstate & Hsuccs)".
-    iDestruct (state_agree with "Hstate₁ Hstate₂") as %->.
-    iMod (state_update Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-    iDestruct "Hstate" as ">(%Hpreds & Hdeps)".
-    iMod (saved_prop_alloc_cofinite (Δ ∪ Π) True) as "(%π & %Hπ & #Hπ)".
-    apply not_elem_of_union in Hπ as (Hπ_Δ & Hπ_Π).
-    iMod (predecessors_add with "Hpreds") as "(Hpreds & Hpred)"; first done.
-    iMod (dependencies_add π with "Hdeps") as "(Hdeps & #Hdep_π)".
-    iSplitR "Hctx Hpred HΦ".
-    { iExists Released, preds, Δ, ({[π]} ∪ Π).
-      rewrite big_sepS_union; first set_solver. rewrite big_sepS_singleton.
-      assert ({[π]} ∪ (Δ ∪ Π) = Δ ∪ ({[π]} ∪ Π)) as -> by set_solver.
-      iFrame. iSplitR.
-      { iPureIntro. set_solver. }
-      iStep. iSplitR.
-      { rewrite size_union; first set_solver. rewrite size_singleton //. }
-      iIntros "{%} !> !> %ctx Hctx #H".
-      iApply (wp_wand with "(Htask Hctx [])"); last iSteps.
-      iIntros "!> %Q %E (%_vtx & %_γ & %Heq & _Hmeta & Hinput)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-      iApply ("H" with "Hinput").
-    }
-    iIntros "!> !> {%}".
-
-    wp_smart_apply (vertex_release_spec' with "[$Hctx $Hπ $Hpred] HΦ").
-    rewrite inv'_unfold. iSteps.
-  Qed.
 End vertex_G.
 
 #[global] Opaque vertex_create.
+#[global] Opaque vertex_get_task.
+#[global] Opaque vertex_set_task.
 #[global] Opaque vertex_precede.
 #[global] Opaque vertex_release.
 
 #[global] Opaque vertex_inv.
-#[global] Opaque vertex_init.
-#[global] Opaque vertex_input.
+#[global] Opaque vertex_model.
+#[global] Opaque vertex_output.
+#[global] Opaque vertex_running.
+#[global] Opaque vertex_finished.
+#[global] Opaque vertex_predecessor.
+#[global] Opaque vertex_task.

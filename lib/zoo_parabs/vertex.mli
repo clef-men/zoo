@@ -1,7 +1,12 @@
 type t
 
 val create :
-  unit Pool.task -> t
+  bool Pool.task option -> t
+
+val get_task :
+  t -> bool Pool.task
+val set_task :
+  t -> bool Pool.task -> unit
 
 val precede :
   t -> t -> unit
