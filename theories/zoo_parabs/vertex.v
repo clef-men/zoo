@@ -732,7 +732,7 @@ Section vertex_G.
     - iExists []. iSteps.
   Qed.
 
-  Lemma vertex_get_task_spec t γ P task gen :
+  Lemma vertex_get_task_spec t γ task gen :
     {{{
       vertex_model t γ task gen
     }}}
@@ -745,7 +745,7 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_set_task_spec t γ P task1 gen task2 :
+  Lemma vertex_set_task_spec t γ task1 gen task2 :
     {{{
       vertex_model t γ task1 gen
     }}}
@@ -756,6 +756,22 @@ Section vertex_G.
     }}}.
   Proof.
     iSteps.
+  Qed.
+
+  Lemma vertex_set_task'_spec t γ task1 gen task2 :
+    {{{
+      vertex_model t γ task1 gen
+    }}}
+      vertex_set_task' #t task2
+    {{{
+      RET ();
+      vertex_model t γ (fun: "ctx" => task2 "ctx" ;; #false) gen
+    }}}.
+  Proof.
+    iIntros "%Φ Hmodel HΦ".
+
+    wp_rec.
+    wp_smart_apply (vertex_set_task_spec with "Hmodel HΦ").
   Qed.
 
   Lemma vertex_precede_spec t1 γ1 P1 t2 γ2 P2 task gen :
@@ -1100,6 +1116,7 @@ End vertex_G.
 #[global] Opaque vertex_create.
 #[global] Opaque vertex_get_task.
 #[global] Opaque vertex_set_task.
+#[global] Opaque vertex_set_task'.
 #[global] Opaque vertex_precede.
 #[global] Opaque vertex_release.
 

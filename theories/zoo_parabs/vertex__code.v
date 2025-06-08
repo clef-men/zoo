@@ -34,6 +34,11 @@ Definition vertex_set_task : val :=
   fun: "t" "task" =>
     "t" <-{task} "task".
 
+Definition vertex_set_task' : val :=
+  fun: "t" "task" =>
+    vertex_set_task "t" (fun: "ctx" => "task" "ctx" ;;
+                                       #false).
+
 Definition vertex_precede : val :=
   fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in

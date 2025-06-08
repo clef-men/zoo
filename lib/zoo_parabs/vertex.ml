@@ -25,6 +25,10 @@ let get_task t =
   t.task
 let set_task t task =
   t.task <- task
+let set_task' t task =
+  set_task t @@ fun ctx ->
+    task ctx ;
+    false
 
 let precede t1 t2 =
   let succs1 = t1.succs in
