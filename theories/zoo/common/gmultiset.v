@@ -34,4 +34,12 @@ Section lemmas.
     assert (X ∖ {[+x+]} = ∅) as ->; last rewrite right_id //.
     rewrite -gmultiset_size_empty_iff gmultiset_size_difference // gmultiset_size_singleton. lia.
   Qed.
+
+  Lemma gmultiset_elem_of_size_non_empty x X :
+    x ∈ X →
+    size X ≠ 0.
+  Proof.
+    rewrite gmultiset_size_non_empty_iff.
+    multiset_solver.
+  Qed.
 End lemmas.
