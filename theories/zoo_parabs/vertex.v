@@ -917,10 +917,10 @@ Section vertex_G.
     ).
   Proof.
     iLöb as "HLöb".
-    iDestruct "HLöb" as "(Hrelease & Hrelease_successor & Hrun)".
+    iDestruct "HLöb" as "(IHrelease & IHrelease_successor & IHrun)".
     repeat iSplit.
 
-    { iClear "Hrelease Hrelease_successor".
+    { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %P %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
@@ -944,7 +944,7 @@ Section vertex_G.
         iSplitR "Hctx Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
         iIntros "{%} !>".
 
-        wp_smart_apply ("Hrun" with "[$]").
+        wp_smart_apply ("IHrun" with "[$]").
         iSteps.
 
       - iMod (state_update Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
@@ -953,7 +953,7 @@ Section vertex_G.
         iSteps.
     }
 
-    { iClear "Hrelease Hrelease_successor".
+    { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %P %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
 
@@ -997,7 +997,7 @@ Section vertex_G.
           iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
           iIntros "{%} !>".
 
-          wp_smart_apply ("Hrun" with "[$]").
+          wp_smart_apply ("IHrun" with "[$]").
           iSteps.
 
         + apply gmultiset_elem_of_size_non_empty in Hπ as ?.
@@ -1024,7 +1024,7 @@ Section vertex_G.
         iSteps.
     }
 
-    { iClear "Hrun".
+    { iClear "IHrun".
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %gen %P %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
@@ -1052,7 +1052,7 @@ Section vertex_G.
       wp_apply (wp_wand with "(Htask Hctx [$] [$])") as (res) "{%} (%b & %task & -> & Hctx & (:model) & Hb)".
       destruct b.
 
-      - wp_smart_apply ("Hrelease" with "[$]").
+      - wp_smart_apply ("IHrelease" with "[$]").
         iSteps.
 
       - iDestruct "Hb" as "HP".
@@ -1075,7 +1075,7 @@ Section vertex_G.
         wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
         rewrite big_sepL_fmap.
         iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
-        wp_smart_apply ("Hrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
+        wp_smart_apply ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
         iApply (vertex_inv_unfold with "Hinv_succ").
     }
   Qed.

@@ -281,7 +281,7 @@ Section mpmc_bstack_G.
     ).
   Proof.
     iLöb as "HLöb".
-    iDestruct "HLöb" as "(Hpush_aux & Hpush)".
+    iDestruct "HLöb" as "(IHpush_aux & IHpush)".
     iSplit.
 
     - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv)) HΦ".
@@ -332,12 +332,12 @@ Section mpmc_bstack_G.
 
         destruct vs as [| w vs]; wp_pures.
 
-        * wp_apply ("Hpush_aux" $! _ _ [] with "[] HΦ"); first iSteps.
+        * wp_apply ("IHpush_aux" $! _ _ [] with "[] HΦ"); first iSteps.
 
         * simpl in Hlen.
           wp_load. wp_pures.
           rewrite bool_decide_eq_false_2; first lia.
-          wp_smart_apply ("Hpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
+          wp_smart_apply ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
   Qed.
   Lemma mpmc_bstack_push_spec t ι cap v :
     <<<
@@ -347,8 +347,8 @@ Section mpmc_bstack_G.
     >>>
       mpmc_bstack_push t v @ ↑ι
     <<<
-        mpmc_bstack_model t (if decide (length vs < cap) then v :: vs else vs)
-      | RET #(bool_decide (length vs < cap));
+      mpmc_bstack_model t (if decide (length vs < cap) then v :: vs else vs)
+    | RET #(bool_decide (length vs < cap));
       True
     >>>.
   Proof.
