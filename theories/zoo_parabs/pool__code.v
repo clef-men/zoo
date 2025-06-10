@@ -113,7 +113,7 @@ Definition pool_wait_while : val :=
   fun: "ctx" "pred" =>
     pool_wait_until "ctx" (fun: <> => ~ "pred" ()).
 
-Definition pool_await : val :=
+Definition pool_wait : val :=
   fun: "ctx" "fut" =>
     pool_wait_until "ctx" (fun: <> => ivar_3_is_set "fut") ;;
     ivar_3_get "fut".

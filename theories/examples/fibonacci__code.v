@@ -21,7 +21,7 @@ Definition fibonacci_fibonacci_0 : val :=
       let: "fut2" :=
         pool_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #2) "ctx")
       in
-      pool_await "ctx" "fut1" + pool_await "ctx" "fut2"
+      pool_wait "ctx" "fut1" + pool_wait "ctx" "fut2"
     ).
 
 Definition fibonacci_fibonacci : val :=

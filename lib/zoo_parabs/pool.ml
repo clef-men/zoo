@@ -86,6 +86,6 @@ let rec wait_until ctx pred =
 let wait_while ctx pred =
   wait_until ctx (fun () -> not @@ pred ())
 
-let await ctx fut =
+let wait ctx fut =
   wait_until ctx (fun () -> Ivar_3.is_set fut) ;
   Ivar_3.get fut

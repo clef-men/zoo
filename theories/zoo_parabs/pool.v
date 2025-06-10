@@ -709,12 +709,12 @@ Section pool_G.
     destruct b; iSteps.
   Qed.
 
-  Lemma pool_await_spec ctx fut Ψ Ξ :
+  Lemma pool_wait_spec ctx fut Ψ Ξ :
     {{{
       pool_context_model ctx ∗
       pool_future_inv fut Ψ Ξ
     }}}
-      pool_await ctx fut
+      pool_wait ctx fut
     {{{ v,
       RET v;
       £ 2 ∗
@@ -743,7 +743,7 @@ End pool_G.
 #[global] Opaque pool_async.
 #[global] Opaque pool_wait_until.
 #[global] Opaque pool_wait_while.
-#[global] Opaque pool_await.
+#[global] Opaque pool_wait.
 
 #[global] Opaque pool_inv.
 #[global] Opaque pool_model.

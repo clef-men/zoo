@@ -81,9 +81,9 @@ Section pool_G.
       { clear ctx. iIntros "%ctx Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut2_inv]") as (?) "(H£ & Hctx & Hfut2_result)".
+      wp_smart_apply (pool_wait_spec with "[$Hctx $Hfut2_inv]") as (?) "(H£ & Hctx & Hfut2_result)".
       iMod (pool_future_inv_result_consumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
-      wp_smart_apply (pool_await_spec with "[$Hctx $Hfut1_inv]") as (?) "(H£ & Hctx & Hfut1_result)".
+      wp_smart_apply (pool_wait_spec with "[$Hctx $Hfut1_inv]") as (?) "(H£ & Hctx & Hfut1_result)".
       iMod (pool_future_inv_result_consumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
       wp_pures.
       rewrite (fib_spec_Z n) // -Nat2Z.inj_add.

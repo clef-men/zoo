@@ -29,5 +29,5 @@ val wait_until :
 val wait_while :
   context -> (unit -> bool) -> unit
 
-val await :
+val wait :
   context -> 'a future -> 'a
