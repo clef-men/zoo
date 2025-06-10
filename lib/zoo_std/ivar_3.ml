@@ -8,6 +8,9 @@ type ('a, 'waiter) t =
 let create () =
   Atomic.make (Unset [])
 
+let make v =
+  Atomic.make (Set v)
+
 let is_set t =
   match Atomic.get t with
   | Unset _ ->

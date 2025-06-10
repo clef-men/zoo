@@ -12,6 +12,10 @@ Definition ivar_1_create : val :=
   fun: <> =>
     ref §None.
 
+Definition ivar_1_make : val :=
+  fun: "v" =>
+    ref ‘Some( "v" ).
+
 Definition ivar_1_try_get : val :=
   fun: "t" =>
     !"t".

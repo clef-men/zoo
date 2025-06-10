@@ -3,6 +3,9 @@ type 'a t
 val create :
   unit -> 'a t
 
+val make :
+  'a -> 'a t
+
 val is_set :
   'a t -> bool
 

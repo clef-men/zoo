@@ -12,6 +12,10 @@ Definition ivar_3_create : val :=
   fun: <> =>
     ref ‘Unset[ [] ].
 
+Definition ivar_3_make : val :=
+  fun: "v" =>
+    ref ‘Set( "v" ).
+
 Definition ivar_3_is_set : val :=
   fun: "t" =>
     match: !"t" with

@@ -13,6 +13,12 @@ let create () =
     condition= Condition.create ();
   }
 
+let make v =
+  { result= Some v;
+    mutex= Mutex.create ();
+    condition= Condition.create ();
+  }
+
 let try_get t =
   t.result
 

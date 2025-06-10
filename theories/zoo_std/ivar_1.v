@@ -19,6 +19,7 @@ From zoo Require Import
 
 Implicit Types b : bool.
 Implicit Types l : location.
+Implicit Types v : val.
 Implicit Types o state : option val.
 
 Class Ivar1G Σ `{zoo_G : !ZooG Σ} := {
@@ -64,8 +65,10 @@ Section ivar_1_G.
     oneshot_pending γ_lstate (DfracOwn (2/3)) ().
   #[local] Definition lstate_unset₂ γ :=
     lstate_unset₂' γ.(metadata_lstate).
+  #[local] Definition lstate_set' γ_lstate :=
+    oneshot_shot γ_lstate.
   #[local] Definition lstate_set γ :=
-    oneshot_shot γ.(metadata_lstate).
+    lstate_set' γ.(metadata_lstate).
 
   #[local] Definition consumer_auth' :=
     subpreds_auth.
@@ -217,9 +220,9 @@ Section ivar_1_G.
       lstate_unset₁' γ_lstate ∗
       lstate_unset₂' γ_lstate.
   Proof.
-    iMod oneshot_alloc as "(%γ_lstate & Hunset)".
+    iMod oneshot_alloc as "(%γ_lstate & Hpending)".
     assert (1 = 1/3 + 2/3)%Qp as -> by compute_done.
-    iDestruct "Hunset" as "(Hunset₁ & Hunset₂)".
+    iDestruct "Hpending" as "(Hpending₁ & Hpending₂)".
     iSteps.
   Qed.
   #[local] Lemma lstate_unset₂_exclusive γ :
@@ -256,10 +259,10 @@ Section ivar_1_G.
     lstate_unset₂ γ ==∗
     lstate_set γ v.
   Proof.
-    iIntros "Hunset₁ Hunset₂".
-    iCombine "Hunset₁ Hunset₂" as "Hunset".
+    iIntros "Hpending₁ Hpending₂".
+    iCombine "Hpending₁ Hpending₂" as "Hpending".
     assert (1/3 + 2/3 = 1)%Qp as -> by compute_done.
-    iApply (oneshot_update_shot with "Hunset").
+    iApply (oneshot_update_shot with "Hpending").
   Qed.
 
   #[local] Lemma consumer_alloc Ψ :
@@ -441,8 +444,43 @@ Section ivar_1_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hconsumer_frag Hlstate_unset₂"; last iFrameSteps.
+    iSplitR "Hconsumer_frag Hlstate_unset₂"; last iSteps.
     iSteps. iExists None. iSteps.
+  Qed.
+
+  Lemma ivar_1_make_spec Ψ Ξ v :
+    {{{
+      ▷ Ψ v ∗
+      ▷ □ Ξ v
+    }}}
+      ivar_1_make v
+    {{{ t,
+      RET t;
+      ivar_1_inv t Ψ Ξ ∗
+      ivar_1_result t v ∗
+      ivar_1_consumer t Ψ
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & #HΞ) HΦ".
+
+    wp_rec.
+    wp_ref l as "Hmeta" "Hl".
+
+    iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
+    iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
+
+    pose γ := {|
+      metadata_lstate := γ_lstate ;
+      metadata_consumer := γ_consumer ;
+    |}.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+
+    iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
+    iDestruct (consumer_produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+
+    iApply "HΦ".
+    iSplitR "Hconsumer_frag Hlstate_set"; last iSteps.
+    iSteps. iExists (Some v). iSteps.
   Qed.
 
   Lemma ivar_1_try_get_spec t Ψ Ξ :
@@ -594,6 +632,7 @@ Section ivar_1_G.
 End ivar_1_G.
 
 #[global] Opaque ivar_1_create.
+#[global] Opaque ivar_1_make.
 #[global] Opaque ivar_1_is_set.
 #[global] Opaque ivar_1_try_get.
 #[global] Opaque ivar_1_get.

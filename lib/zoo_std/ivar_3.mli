@@ -3,6 +3,9 @@ type ('a, 'waiter) t
 val create :
   unit -> ('a, 'waiter) t
 
+val make :
+  'a -> ('a, 'waiter) t
+
 val is_set :
   ('a, 'waiter) t -> bool
 

@@ -15,6 +15,10 @@ Definition ivar_2_create : val :=
   fun: <> =>
     { §None, mutex_create (), condition_create () }.
 
+Definition ivar_2_make : val :=
+  fun: "v" =>
+    { ‘Some( "v" ), mutex_create (), condition_create () }.
+
 Definition ivar_2_try_get : val :=
   fun: "t" =>
     "t".{result}.

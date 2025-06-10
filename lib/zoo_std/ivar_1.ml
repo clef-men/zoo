@@ -7,6 +7,9 @@ type 'a t =
 let create () =
   Atomic.make None
 
+let make v =
+  Atomic.make (Some v)
+
 let try_get t =
   Atomic.get t
 
