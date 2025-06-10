@@ -319,7 +319,7 @@ Section ivar_1_G.
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma ivar_1_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
+  Lemma ivar_1_consumer_split {t Ψ Ξ Χ} Χ1 Χ2 :
     ivar_1_inv t Ψ Ξ -∗
     ivar_1_consumer t Χ -∗
     (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
@@ -566,8 +566,8 @@ Section ivar_1_G.
     {{{
       ivar_1_inv t Ψ Ξ ∗
       ivar_1_producer t ∗
-      Ψ v ∗
-      □ Ξ v
+      ▷ Ψ v ∗
+      ▷ □ Ξ v
     }}}
       ivar_1_set t v
     {{{

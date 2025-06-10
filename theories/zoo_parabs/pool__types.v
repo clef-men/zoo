@@ -4,6 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
+  lst
   ivar_3
   array
   domain.

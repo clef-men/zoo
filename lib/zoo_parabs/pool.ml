@@ -17,7 +17,7 @@ type 'a task =
   context -> 'a
 
 type 'a future =
-  'a Ivar_3.t
+  ('a, 'a -> unit) Ivar_3.t
 
 let max_round_noyield =
   1024
@@ -69,7 +69,9 @@ let silent_async ctx task =
 let async ctx task =
   let fut = Ivar_3.create () in
   silent_async ctx (fun ctx ->
-    Ivar_3.set fut (task ctx) |> ignore
+    let res = task ctx in
+    let waiters = Ivar_3.set fut res in
+    Lst.iter (fun waiter -> waiter res) waiters
   ) ;
   fut
 

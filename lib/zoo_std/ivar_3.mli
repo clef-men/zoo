@@ -1,22 +1,19 @@
-type 'a t
-
-type 'a waiter =
-  'a -> unit
+type ('a, 'waiter) t
 
 val create :
-  unit -> 'a t
+  unit -> ('a, 'waiter) t
 
 val is_set :
-  'a t -> bool
+  ('a, 'waiter) t -> bool
 
 val try_get :
-  'a t -> 'a option
+  ('a, 'waiter) t -> 'a option
 
 val get :
-  'a t -> 'a
+  ('a, 'waiter) t -> 'a
 
 val wait :
-  'a t -> 'a waiter -> 'a option
+  ('a, 'waiter) t -> 'waiter -> 'a option
 
 val set :
-  'a t -> 'a -> 'a waiter list
+  ('a, 'waiter) t -> 'a -> 'waiter list

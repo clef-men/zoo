@@ -7,10 +7,11 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  option
   array
   domain
-  ivar_3.
+  ivar_3
+  lst
+  option.
 From zoo_parabs Require Export
   base
   pool__code.
@@ -21,7 +22,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v t ctx hub task pred : val.
+Implicit Types v t ctx hub task fut waiter pred : val.
 
 #[local] Definition max_round_noyield :=
   val_to_nat pool_max_round_noyield.
@@ -229,8 +230,12 @@ Section pool_G.
       Hhub_owner
     )".
 
-  Definition pool_future_inv :=
-    ivar_3_inv.
+  Definition pool_future_inv fut Ψ Ξ :=
+    ivar_3_inv fut Ψ Ξ (λ fut waiter,
+      ∀ v,
+      ivar_3_result fut v -∗
+      WP waiter v {{ res, ⌜res = ()%V⌝ }}
+    )%I.
 
   Definition pool_future_consumer :=
     ivar_3_consumer.
@@ -597,12 +602,14 @@ Section pool_G.
     iIntros "%Φ (Hctx_inv & Hctx_model & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (ivar_3_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
     wp_smart_apply (pool_silent_async_spec_inv with "[$Hctx_inv $Hctx_model Htask Hivar_producer]") as "Hctx_model".
-    { clear ctx. iIntros "%ctx Hctx_inv Hctx_model".
-      wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ)".
-      wp_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ]") as (waiters) "_".
-      iFrameSteps.
+    { iIntros "{%} %ctx Hctx_inv Hctx_model".
+      wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ & HΞ)".
+      wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
+      wp_smart_apply (lst_iter_spec_disentangled' (λ _ _, True)%I _ _ waiters with "[Hwaiters]") as "_"; try done.
+      iApply (big_sepL_impl with "Hwaiters").
+      iSteps.
     }
     wp_pures.
     iApply ("HΦ" with "[$]").
@@ -630,12 +637,14 @@ Section pool_G.
     iIntros "%Φ (Hctx & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (ivar_3_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
     wp_smart_apply (pool_silent_async_spec with "[$Hctx Htask Hivar_producer]") as "Hctx".
-    { clear ctx. iIntros "%ctx Hctx".
-      wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ)".
-      wp_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ]") as (waiters) "_".
-      iFrameSteps.
+    { iIntros "{%} %ctx Hctx".
+      wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
+      wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
+      wp_smart_apply (lst_iter_spec_disentangled' (λ _ _, True)%I _ _ waiters with "[Hwaiters]") as "_"; try done.
+      iApply (big_sepL_impl with "Hwaiters").
+      iSteps.
     }
     wp_pures.
     iApply ("HΦ" with "[$]").

@@ -76,6 +76,7 @@ Section ivar_3_G.
   Context `{ivar_3_G : Ivar3G Σ}.
 
   Implicit Types Ψ Χ Ξ : val → iProp Σ.
+  Implicit Types Ω : val → val → iProp Σ.
 
   Record metadata := {
     metadata_lstate : gname ;
@@ -111,17 +112,14 @@ Section ivar_3_G.
   #[local] Definition consumer_frag γ :=
     consumer_frag' γ.(metadata_consumer).
 
-  #[local] Definition inv_inner l γ Ψ Ξ : iProp Σ :=
+  #[local] Definition inv_inner l γ Ψ Ξ Ω : iProp Σ :=
     ∃ state,
     l.[contents] ↦ state ∗
     consumer_auth γ Ψ (state_to_option state) ∗
     match state with
     | Unset waiters =>
         lstate_unset₁ γ ∗
-        [∗ list] waiter ∈ waiters,
-          ∀ v,
-          lstate_set γ v -∗
-          WP waiter v {{ _, True }}
+        [∗ list] waiter ∈ waiters, Ω #l waiter
     | Set_ v =>
         lstate_set γ v ∗
         □ Ξ v
@@ -133,11 +131,11 @@ Section ivar_3_G.
       Hconsumer_auth &
       Hstate
     )".
-  Definition ivar_3_inv t Ψ Ξ : iProp Σ :=
+  Definition ivar_3_inv t Ψ Ξ Ω : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    inv nroot (inv_inner l γ Ψ Ξ).
+    inv nroot (inv_inner l γ Ψ Ξ Ω).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
@@ -192,26 +190,23 @@ Section ivar_3_G.
     ∃ v,
     ivar_3_result t v.
 
-  Definition ivar_3_waiter t waiter : iProp Σ :=
-    ∀ v,
-    £ 2 -∗
-    ivar_3_result t v -∗
-    WP waiter v {{ _, True }}.
-
   #[global] Instance ivar_3_inv_contractive t n :
     Proper (
       (pointwise_relation _ (dist_later n)) ==>
       (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ (pointwise_relation _ (dist_later n))) ==>
       (≡{n}≡)
     ) (ivar_3_inv t).
   Proof.
     rewrite /ivar_3_inv /inv_inner.
-    solve_contractive.
+    intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
+    repeat (apply HΩ || f_contractive || f_equiv). done.
   Qed.
   #[global] Instance ivar_3_inv_proper t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
+      (pointwise_relation _ (pointwise_relation _ (≡))) ==>
       (≡)
     ) (ivar_3_inv t).
   Proof.
@@ -245,8 +240,8 @@ Section ivar_3_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3_inv_persistent t Ψ Ξ :
-    Persistent (ivar_3_inv t Ψ Ξ).
+  #[global] Instance ivar_3_inv_persistent t Ψ Ξ Ω :
+    Persistent (ivar_3_inv t Ψ Ξ Ω).
   Proof.
     apply _.
   Qed.
@@ -350,8 +345,8 @@ Section ivar_3_G.
     iApply (lstate_unset₂_exclusive with "Hlstate1_unset₂ Hlstate2_unset₂").
   Qed.
 
-  Lemma ivar_3_consumer_divide {t Ψ Ξ Χ} Χs :
-    ivar_3_inv t Ψ Ξ -∗
+  Lemma ivar_3_consumer_divide {t Ψ Ξ Ω Χ} Χs :
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_consumer t Χ -∗
     (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_3_consumer t Χ.
@@ -364,8 +359,8 @@ Section ivar_3_G.
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma ivar_3_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
-    ivar_3_inv t Ψ Ξ -∗
+  Lemma ivar_3_consumer_split {t Ψ Ξ Ω Χ} Χ1 Χ2 :
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_consumer t Χ -∗
     (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
       ivar_3_consumer t Χ1 ∗
@@ -395,8 +390,8 @@ Section ivar_3_G.
     iApply (lstate_unset₂_set with "Hlstate1_unset₂ Hlstate2_set").
   Qed.
 
-  Lemma ivar_3_inv_result t Ψ Ξ v :
-    ivar_3_inv t Ψ Ξ -∗
+  Lemma ivar_3_inv_result t Ψ Ξ Ω v :
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
@@ -412,9 +407,9 @@ Section ivar_3_G.
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma ivar_3_inv_result' t Ψ Ξ v :
+  Lemma ivar_3_inv_result' t Ψ Ξ Ω v :
     £ 1 -∗
-    ivar_3_inv t Ψ Ξ -∗
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_result t v ={⊤}=∗
     □ Ξ v.
   Proof.
@@ -422,8 +417,8 @@ Section ivar_3_G.
     iMod (ivar_3_inv_result with "Hinv Hresult") as "HΞ".
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma ivar_3_inv_result_consumer t Ψ Ξ v Χ :
-    ivar_3_inv t Ψ Ξ -∗
+  Lemma ivar_3_inv_result_consumer t Ψ Ξ Ω v Χ :
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_result t v -∗
     ivar_3_consumer t Χ ={⊤}=∗
       ▷^2 Χ v ∗
@@ -444,9 +439,9 @@ Section ivar_3_G.
     iSplitR "HΧ". { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma ivar_3_inv_result_consumer' t Ψ Ξ v Χ :
+  Lemma ivar_3_inv_result_consumer' t Ψ Ξ Ω v Χ :
     £ 2 -∗
-    ivar_3_inv t Ψ Ξ -∗
+    ivar_3_inv t Ψ Ξ Ω -∗
     ivar_3_result t v -∗
     ivar_3_consumer t Χ ={⊤}=∗
       Χ v ∗
@@ -459,14 +454,14 @@ Section ivar_3_G.
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
-  Lemma ivar_3_create_spec Ψ Ξ :
+  Lemma ivar_3_create_spec Ψ Ξ Ω :
     {{{
       True
     }}}
       ivar_3_create ()
     {{{ t,
       RET t;
-      ivar_3_inv t Ψ Ξ ∗
+      ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_producer t ∗
       ivar_3_consumer t Ψ
     }}}.
@@ -490,9 +485,9 @@ Section ivar_3_G.
     iSteps. iExists (Unset []). iSteps.
   Qed.
 
-  Lemma ivar_3_is_set_spec t Ψ Ξ :
+  Lemma ivar_3_is_set_spec t Ψ Ξ Ω :
     {{{
-      ivar_3_inv t Ψ Ξ
+      ivar_3_inv t Ψ Ξ Ω
     }}}
       ivar_3_is_set t
     {{{ b,
@@ -522,9 +517,9 @@ Section ivar_3_G.
       iSplitR "H£ HΦ". { iFrameSteps 2. }
       iStep 5. iExists v. iSteps.
   Qed.
-  Lemma ivar_3_is_set_spec_result t Ψ Ξ v :
+  Lemma ivar_3_is_set_spec_result t Ψ Ξ Ω v :
     {{{
-      ivar_3_inv t Ψ Ξ ∗
+      ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
       ivar_3_is_set t
@@ -552,9 +547,9 @@ Section ivar_3_G.
     iSteps.
   Qed.
 
-  Lemma ivar_3_try_get_spec t Ψ Ξ :
+  Lemma ivar_3_try_get_spec t Ψ Ξ Ω :
     {{{
-      ivar_3_inv t Ψ Ξ
+      ivar_3_inv t Ψ Ξ Ω
     }}}
       ivar_3_try_get t
     {{{ o,
@@ -584,9 +579,9 @@ Section ivar_3_G.
       iSplitR "H£ HΦ". { iFrameSteps 2. }
       iSteps.
   Qed.
-  Lemma ivar_3_try_get_spec_result t Ψ Ξ v :
+  Lemma ivar_3_try_get_spec_result t Ψ Ξ Ω v :
     {{{
-      ivar_3_inv t Ψ Ξ ∗
+      ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
       ivar_3_try_get t
@@ -614,9 +609,9 @@ Section ivar_3_G.
     iSteps.
   Qed.
 
-  Lemma ivar_3_get_spec t Ψ Ξ v :
+  Lemma ivar_3_get_spec t Ψ Ξ Ω v :
     {{{
-      ivar_3_inv t Ψ Ξ ∗
+      ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
       ivar_3_get t
@@ -644,10 +639,10 @@ Section ivar_3_G.
     iSteps.
   Qed.
 
-  Lemma ivar_3_wait_spec t Ψ Ξ waiter :
+  Lemma ivar_3_wait_spec t Ψ Ξ Ω waiter :
     {{{
-      ivar_3_inv t Ψ Ξ ∗
-      ivar_3_waiter t waiter
+      ivar_3_inv t Ψ Ξ Ω ∗
+      ▷ Ω t waiter
     }}}
       ivar_3_wait t waiter
     {{{ o,
@@ -697,19 +692,18 @@ Section ivar_3_G.
       iSteps.
   Qed.
 
-  Lemma ivar_3_set_spec t Ψ Ξ v :
+  Lemma ivar_3_set_spec t Ψ Ξ Ω v :
     {{{
-      ivar_3_inv t Ψ Ξ ∗
+      ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_producer t ∗
-      Ψ v ∗
-      □ Ξ v
+      ▷ Ψ v ∗
+      ▷ □ Ξ v
     }}}
       ivar_3_set t v
     {{{ waiters,
       RET lst_to_val waiters;
       ivar_3_result t v ∗
-      [∗ list] waiter ∈ waiters,
-        ivar_3_waiter t waiter
+      [∗ list] waiter ∈ waiters, Ω t waiter
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & (:producer) & HΨ & #HΞ) HΦ". injection Heq as <-.
@@ -728,10 +722,6 @@ Section ivar_3_G.
     iMod (lstate_update with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
     iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
     iSplitR "Hwaiters HΦ". { iExists (Set_ v). iSteps. }
-    iSteps.
-    iApply (big_sepL_impl with "Hwaiters"). iIntros "!> !> %k %waiter %Hlookup Hwaiter %v_ H£ (:result =1)". injection Heq1 as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta1") as %<-. iClear "Hmeta1".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate1_set") as %?.
     iSteps.
   Qed.
 End ivar_3_G.

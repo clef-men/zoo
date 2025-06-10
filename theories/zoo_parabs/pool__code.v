@@ -4,6 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
+  lst
   ivar_3
   array
   domain.
@@ -84,8 +85,10 @@ Definition pool_async : val :=
     let: "fut" := ivar_3_create () in
     pool_silent_async
       "ctx"
-      (fun: "ctx" => ivar_3_set "fut" ("task" "ctx") ;;
-                     ()) ;;
+      (fun: "ctx" =>
+         let: "res" := "task" "ctx" in
+         let: "waiters" := ivar_3_set "fut" "res" in
+         lst_iter (fun: "waiter" => "waiter" "res") "waiters") ;;
     "fut".
 
 Definition pool_wait_until : val :=

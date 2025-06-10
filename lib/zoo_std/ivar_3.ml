@@ -1,12 +1,9 @@
-type 'a waiter =
-  'a -> unit
-
-type 'a state =
-  | Unset of 'a waiter list [@generative]
+type ('a, 'waiter) state =
+  | Unset of 'waiter list [@generative]
   | Set of 'a
 
-type 'a t =
-  'a state Atomic.t
+type ('a, 'waiter) t =
+  ('a, 'waiter) state Atomic.t
 
 let create () =
   Atomic.make (Unset [])
