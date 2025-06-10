@@ -88,7 +88,7 @@ Definition pool_async : val :=
       (fun: "ctx" =>
          let: "res" := "task" "ctx" in
          let: "waiters" := ivar_3_set "fut" "res" in
-         lst_iter (fun: "waiter" => "waiter" "res") "waiters") ;;
+         lst_iter (fun: "waiter" => "waiter" "ctx" "res") "waiters") ;;
     "fut".
 
 Definition pool_wait_until : val :=
@@ -117,3 +117,24 @@ Definition pool_wait : val :=
   fun: "ctx" "fut" =>
     pool_wait_until "ctx" (fun: <> => ivar_3_is_set "fut") ;;
     ivar_3_get "fut".
+
+Definition pool_iter : val :=
+  fun: "ctx" "fut" "fn" =>
+    match: ivar_3_wait "fut" "fn" with
+    | None =>
+        ()
+    | Some "res" =>
+        "fn" "ctx" "res"
+    end.
+
+Definition pool_map : val :=
+  fun: "ctx" "fut" "fn" =>
+    let: "fut'" := ivar_3_create () in
+    pool_iter
+      "ctx"
+      "fut"
+      (fun: "ctx" "res" =>
+         let: "res'" := "fn" "ctx" "res" in
+         let: "waiters" := ivar_3_set "fut'" "res'" in
+         lst_iter (fun: "waiter" => "waiter" "ctx" "res'") "waiters") ;;
+    "fut'".

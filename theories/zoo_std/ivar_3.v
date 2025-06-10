@@ -684,7 +684,8 @@ Section ivar_3_G.
       RET o : val;
       if o is Some v then
         £ 2 ∗
-        ivar_3_result t v
+        ivar_3_result t v ∗
+        Ω t waiter
       else
         True
     }}}.
@@ -722,7 +723,7 @@ Section ivar_3_G.
         iSteps.
 
     - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-      iSplitR "H£ HΦ". { iFrameSteps 2. }
+      iSplitR "H£ Hwaiter HΦ". { iFrameSteps 2. }
       iSpecialize ("HΦ" $! (Some v)).
       iSteps.
   Qed.

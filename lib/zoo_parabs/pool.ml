@@ -17,7 +17,7 @@ type 'a task =
   context -> 'a
 
 type 'a future =
-  ('a, 'a -> unit) Ivar_3.t
+  ('a, ('a -> unit) task) Ivar_3.t
 
 let max_round_noyield =
   1024
@@ -71,7 +71,7 @@ let async ctx task =
   silent_async ctx (fun ctx ->
     let res = task ctx in
     let waiters = Ivar_3.set fut res in
-    Lst.iter (fun waiter -> waiter res) waiters
+    Lst.iter (fun waiter -> waiter ctx res) waiters
   ) ;
   fut
 
@@ -89,3 +89,19 @@ let wait_while ctx pred =
 let wait ctx fut =
   wait_until ctx (fun () -> Ivar_3.is_set fut) ;
   Ivar_3.get fut
+
+let iter ctx fut fn =
+  match Ivar_3.wait fut fn with
+  | None ->
+      ()
+  | Some res ->
+      fn ctx res
+
+let map ctx fut1 fn =
+  let fut2 = Ivar_3.create () in
+  iter ctx fut1 (fun ctx res1 ->
+    let res2 = fn ctx res1 in
+    let waiters = Ivar_3.set fut2 res2 in
+    Lst.iter (fun waiter -> waiter ctx res2) waiters
+  ) ;
+  fut2

@@ -22,7 +22,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v t ctx hub task fut waiter pred : val.
+Implicit Types v t ctx hub task fut waiter pred fn : val.
 
 #[local] Definition max_round_noyield :=
   val_to_nat pool_max_round_noyield.
@@ -232,9 +232,13 @@ Section pool_G.
 
   Definition pool_future_inv fut Ψ Ξ :=
     ivar_3_inv fut Ψ Ξ (λ fut waiter,
-      ∀ v,
+      ∀ ctx v,
+      pool_context_model ctx -∗
       ivar_3_result fut v -∗
-      WP waiter v {{ res, ⌜res = ()%V⌝ }}
+      WP waiter ctx v {{ res,
+        ⌜res = ()%V⌝ ∗
+        pool_context_model ctx
+      }}
     )%I.
 
   Definition pool_future_consumer :=
@@ -607,7 +611,7 @@ Section pool_G.
     { iIntros "{%} %ctx Hctx_inv Hctx_model".
       wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ & HΞ)".
       wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
-      wp_smart_apply (lst_iter_spec_disentangled' (λ _ _, True)%I _ _ waiters with "[Hwaiters]") as "_"; try done.
+      wp_smart_apply (lst_iter_spec' (λ _ _, pool_context_model ctx)%I with "[$Hctx_model Hwaiters]") as "$"; try done.
       iApply (big_sepL_impl with "Hwaiters").
       iSteps.
     }
@@ -642,7 +646,7 @@ Section pool_G.
     { iIntros "{%} %ctx Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
       wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
-      wp_smart_apply (lst_iter_spec_disentangled' (λ _ _, True)%I _ _ waiters with "[Hwaiters]") as "_"; try done.
+      wp_smart_apply (lst_iter_spec' (λ _ _, pool_context_model ctx)%I with "[$Hctx Hwaiters]") as "$"; try done.
       iApply (big_sepL_impl with "Hwaiters").
       iSteps.
     }
@@ -733,6 +737,73 @@ Section pool_G.
     wp_smart_apply (ivar_3_get_spec with "[$Hivar_inv $Hivar_result]") as "H£".
     iApply ("HΦ" with "[$]").
   Qed.
+
+  Lemma pool_iter_spec ctx fut Ψ Ξ fn :
+    {{{
+      pool_context_model ctx ∗
+      pool_future_inv fut Ψ Ξ ∗
+      ( ∀ ctx v,
+        pool_context_model ctx -∗
+        pool_future_result fut v -∗
+        WP fn ctx v {{ res,
+          ⌜res = ()%V⌝ ∗
+          pool_context_model ctx
+        }}
+      )
+    }}}
+      pool_iter ctx fut fn
+    {{{
+      RET ();
+      pool_context_model ctx
+    }}}.
+  Proof.
+    iIntros "%Φ (Hctx & #Hivar_inv & Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (ivar_3_wait_spec with "[$Hivar_inv $Hfn]") as ([v |]) "H".
+    all: wp_pures.
+
+    - iDestruct "H" as "(_ & #Hivar_result & Hfn)".
+      wp_apply (wp_wand with "(Hfn Hctx Hivar_result)").
+      iSteps.
+
+    - iApply ("HΦ" with "Hctx").
+  Qed.
+
+  Lemma pool_map_spec {ctx fut1 Ψ1 Ξ1} Ψ2 Ξ2 fn :
+    {{{
+      pool_context_model ctx ∗
+      pool_future_inv fut1 Ψ1 Ξ1 ∗
+      ( ∀ ctx v1,
+        pool_context_model ctx -∗
+        pool_future_result fut1 v1 -∗
+        WP fn ctx v1 {{ v2,
+          pool_context_model ctx ∗
+          ▷ Ψ2 v2 ∗
+          ▷ □ Ξ2 v2
+        }}
+      )
+    }}}
+      pool_map ctx fut1 fn
+    {{{ fut2,
+      RET fut2;
+      pool_context_model ctx ∗
+      pool_future_inv fut2 Ψ2 Ξ2 ∗
+      pool_future_consumer fut2 Ψ2
+    }}}.
+  Proof.
+    iIntros "%Φ (Hctx & #Hfut1_inv & Hfn) HΦ".
+
+    wp_rec.
+    wp_smart_apply (ivar_3_create_spec Ψ2 Ξ2 with "[//]") as (fut2) "(#Hivar2_inv & Hivar2_producer & Hivar2_consumer)".
+    wp_smart_apply (pool_iter_spec with "[$Hctx $Hfut1_inv Hfn Hivar2_producer]"); last iSteps.
+    iIntros "{%} %ctx %v1 Hctx #Hfut1_result".
+    wp_smart_apply (wp_wand with "(Hfn Hctx Hfut1_result)") as (v2) "(Hctx & HΨ2 & HΞ2)".
+    wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters) "(#Hivar2_result & Hwaiters)".
+    wp_smart_apply (lst_iter_spec' (λ _ _, pool_context_model ctx)%I with "[$Hctx Hwaiters]") as "$"; try done.
+    iApply (big_sepL_impl with "Hwaiters").
+    iSteps.
+  Qed.
 End pool_G.
 
 #[global] Opaque pool_create.
@@ -744,6 +815,8 @@ End pool_G.
 #[global] Opaque pool_wait_until.
 #[global] Opaque pool_wait_while.
 #[global] Opaque pool_wait.
+#[global] Opaque pool_iter.
+#[global] Opaque pool_map.
 
 #[global] Opaque pool_inv.
 #[global] Opaque pool_model.

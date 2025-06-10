@@ -31,3 +31,9 @@ val wait_while :
 
 val wait :
   context -> 'a future -> 'a
+
+val iter :
+  context -> 'a future -> ('a -> unit) task -> unit
+
+val map :
+  context -> 'a future -> ('a -> 'b) task -> 'b future
