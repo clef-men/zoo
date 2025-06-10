@@ -97,7 +97,7 @@ Qed.
 Section vertex_G.
   Context `{vertex_G : VertexG Σ}.
 
-  Implicit Types P Q : iProp Σ.
+  Implicit Types P Q R : iProp Σ.
 
   #[local] Definition state₁' γ_state own state :=
     twins_twin1 (twins_G := vertex_G_state_G) γ_state own state.
@@ -169,7 +169,7 @@ Section vertex_G.
   #[local] Instance : CustomIpatFormat "finished" :=
     "#Hstate{which;}₁{_{}}".
 
-  Definition vertex_task_body t γ P body task gen : iProp Σ :=
+  Definition vertex_task_body t γ P R body task gen : iProp Σ :=
     ∀ ctx gen',
     pool_context_model ctx -∗
     vertex_running gen -∗
@@ -183,45 +183,55 @@ Section vertex_G.
         if b then
           body task gen'
         else
-          P
+          P ∗
+          □ R
       )
     }}.
   #[local] Definition vertex_task_pre
-  : location → vertex_name → iProp Σ →
+  : location → vertex_name → iProp Σ → iProp Σ →
     (val -d> vertex_generation -d> iProp Σ) →
     val -d> vertex_generation -d> iProp Σ
   :=
     vertex_task_body.
-  #[local] Instance vertex_task_pre_contractive t γ P :
-    Contractive (vertex_task_pre t γ P).
+  #[local] Instance vertex_task_pre_contractive t γ P R :
+    Contractive (vertex_task_pre t γ P R).
   Proof.
     rewrite /vertex_task_pre /vertex_task_body.
     solve_contractive.
   Qed.
-  #[local] Instance vertex_task_pre_ne t γ P :
-    NonExpansive (vertex_task_pre t γ P).
+  #[local] Instance vertex_task_pre_ne t γ P R :
+    NonExpansive (vertex_task_pre t γ P R).
   Proof.
     apply _.
   Qed.
-  Definition vertex_task t γ P : val → vertex_generation → iProp Σ :=
-    fixpoint (vertex_task_pre t γ P).
+  Definition vertex_task t γ P R : val → vertex_generation → iProp Σ :=
+    fixpoint (vertex_task_pre t γ P R).
 
-  Lemma vertex_task_unfold t γ P task gen :
-    vertex_task t γ P task gen ⊣⊢
-    vertex_task_body t γ P (vertex_task t γ P) task gen.
+  Lemma vertex_task_unfold t γ P R task gen :
+    vertex_task t γ P R task gen ⊣⊢
+    vertex_task_body t γ P R (vertex_task t γ P R) task gen.
   Proof.
-    apply (fixpoint_unfold (vertex_task_pre t γ P)).
+    apply (fixpoint_unfold (vertex_task_pre t γ P R)).
   Qed.
   #[global] Instance vertex_task_ne n :
-    Proper ((=) ==> (=) ==> (≡{n}≡) ==> (≡{n}≡) ==> (≡{n}≡) ==> (≡{n}≡)) vertex_task.
+    Proper (
+      (=) ==>
+      (=) ==>
+      (≡{n}≡) ==>
+      (≡{n}≡) ==>
+      (≡{n}≡) ==>
+      (≡{n}≡) ==>
+      (≡{n}≡)
+    ) vertex_task.
   Proof.
     intros t t_ <- γ γ_ <-.
-    induction (lt_wf n) as [n _ IH] => P1 P2 HP task task_ <- gen gen_ <-.
+    induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
     rewrite !vertex_task_unfold /vertex_task_body.
-    do 14 f_equiv. f_contractive. do 3 f_equiv.
-    - apply IH; try done.
-      eapply dist_le; [apply HP | lia].
-    - eapply dist_le; [apply HP | lia].
+    do 14 f_equiv. f_contractive.
+    apply (dist_le _ m) in HP; last lia.
+    apply (dist_le _ m) in HR; last lia.
+    do 3 f_equiv; last solve_proper.
+    apply IH; done.
   Qed.
 
   #[local] Definition inv_state_init preds gen Π : iProp Σ :=
@@ -236,13 +246,13 @@ Section vertex_G.
       {>;}-> &
       {>;}HΔ
     )".
-  #[local] Definition inv_state_released t γ P preds gen Π : iProp Σ :=
+  #[local] Definition inv_state_released t γ P R preds gen Π : iProp Σ :=
     ∃ task Δ,
     model' t γ task Released gen ∗
     dependencies_auth gen Discard (Δ ⊎ Π) ∗
     ⌜preds = size Π⌝ ∗
     ([∗ mset] δ ∈ Δ, vertex_finished δ) ∗
-    vertex_task t γ P task gen.
+    vertex_task t γ P R task gen.
   #[local] Instance : CustomIpatFormat "inv_state_released" :=
     "(
       %task &
@@ -257,38 +267,41 @@ Section vertex_G.
     ⌜Π = ∅⌝.
   #[local] Instance : CustomIpatFormat "inv_state_running" :=
     "{>;}->".
-  #[local] Definition inv_state_finished γ preds Π : iProp Σ :=
+  #[local] Definition inv_state_finished γ R preds Π : iProp Σ :=
     vertex_finished γ ∗
-    ⌜preds = S (size Π)⌝.
+    ⌜preds = S (size Π)⌝ ∗
+    □ R.
   #[local] Instance : CustomIpatFormat "inv_state_finished" :=
     "(
       {>;}#Hstate{which;}₁ &
-      {>;}->
+      {>;}-> &
+      #HR{which;}
     )".
-  #[local] Definition inv_state t γ P state preds gen Π : iProp Σ :=
+  #[local] Definition inv_state t γ P R state preds gen Π : iProp Σ :=
     match state with
     | Init =>
         inv_state_init preds gen Π
     | Released =>
-        inv_state_released t γ P preds gen Π
+        inv_state_released t γ P R preds gen Π
     | Running =>
         inv_state_running Π
     | Finished =>
-        inv_state_finished γ preds Π
+        inv_state_finished γ R preds Π
     end.
 
-  #[local] Definition inv_successor (inv : location → vertex_name → iProp Σ → iProp Σ) γ succ : iProp Σ :=
-    ∃ γ_succ P_succ,
-    inv succ γ_succ P_succ ∗
+  #[local] Definition inv_successor (inv : location → vertex_name → iProp Σ → iProp Σ → iProp Σ) γ succ : iProp Σ :=
+    ∃ γ_succ P_succ R_succ,
+    inv succ γ_succ P_succ R_succ ∗
     predecessors_elem γ_succ γ.
   #[local] Instance : CustomIpatFormat "inv_successor" :=
     "(
       %γ_succ &
       %P_succ &
+      %R_succ &
       #Hinv_succ &
       Hpredecessors_elem
     )".
-  #[local] Definition inv_successors (inv : location → vertex_name → iProp Σ → iProp Σ) γ finished :=
+  #[local] Definition inv_successors inv γ finished :=
     if finished then (
       mpmc_stack_2_model γ.(vertex_name_successors) None
     ) else (
@@ -305,14 +318,14 @@ Section vertex_G.
       Hsuccs
     )".
 
-  #[local] Definition inv_inner (inv : location → vertex_name → iProp Σ → iProp Σ) t γ P : iProp Σ :=
+  #[local] Definition inv_inner inv t γ P R : iProp Σ :=
     ∃ preds state gen Π,
     t.[preds] ↦ #preds ∗
     state₂ γ state ∗
     generation₂ γ gen ∗
     predecessors_auth γ Π ∗
     output_auth γ P (bool_decide (state = Finished)) ∗
-    inv_state t γ P state preds gen Π ∗
+    inv_state t γ P R state preds gen Π ∗
     inv_successors inv γ (bool_decide (state = Finished)).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
@@ -329,13 +342,13 @@ Section vertex_G.
       Hinv_successors{which;}
     )".
   #[local] Definition inv_pre
-  : (location -d> vertex_name -d> iProp Σ -d> iProp Σ) →
-    location -d> vertex_name -d> iProp Σ -d> iProp Σ
+  : (location -d> vertex_name -d> iProp Σ -d> iProp Σ -d> iProp Σ) →
+    location -d> vertex_name -d> iProp Σ -d> iProp Σ -d> iProp Σ
   :=
-    λ inv t γ P, (
+    λ inv t γ P R, (
       t.[succs] ↦□ γ.(vertex_name_successors) ∗
       mpmc_stack_2_inv γ.(vertex_name_successors) (nroot.@"successors") ∗
-      invariants.inv (nroot.@"inv") (inv_inner inv t γ P)
+      invariants.inv (nroot.@"inv") (inv_inner inv t γ P R)
     )%I.
   #[local] Instance : CustomIpatFormat "inv_pre" :=
     "(
@@ -343,40 +356,54 @@ Section vertex_G.
       #Hsuccessors{}_inv &
       #Hinv{_{}}
     )".
-  #[local] Instance inv_pre_contractive_1 inv t γ :
-    Contractive (inv_pre inv t γ).
-  Proof.
-    rewrite /inv_pre /inv_inner /inv_successors /inv_state /inv_state_released /vertex_model.
-    intros n P1 P2 HP.
-    do 2 f_equiv. f_contractive. solve_proper.
-  Qed.
   #[local] Instance inv_pre_contractive_2 :
     Contractive inv_pre.
   Proof.
-    rewrite /inv_pre /inv_inner /inv_successors /inv_successor => n Ψ1 Ψ2 HΨ t γ P.
+    rewrite /inv_pre /inv_inner /inv_successors /inv_successor.
+    intros n Ψ1 Ψ2 HΨ t γ P R.
     repeat (apply HΨ || f_contractive || f_equiv).
   Qed.
-  Definition vertex_inv : location → vertex_name → iProp Σ → iProp Σ :=
+  Definition vertex_inv : location → vertex_name → iProp Σ → iProp Σ → iProp Σ :=
     fixpoint inv_pre.
 
-  #[local] Lemma vertex_inv_unfold t γ P :
-    vertex_inv t γ P ⊣⊢
-    inv_pre vertex_inv t γ P.
+  #[local] Lemma vertex_inv_unfold t γ P R :
+    vertex_inv t γ P R ⊣⊢
+    inv_pre vertex_inv t γ P R.
   Proof.
     apply (fixpoint_unfold inv_pre).
   Qed.
-  #[local] Instance vertex_inv_contractive t γ :
-    Contractive (vertex_inv t γ).
+  #[local] Instance vertex_inv_contractive t γ n :
+    Proper (
+      dist_later n ==>
+      dist_later n ==>
+      (≡{n}≡)
+    ) (vertex_inv t γ).
   Proof.
-    intros n.
-    induction (lt_wf n) as [n _ IH] => P1 P2 HP.
-    rewrite !vertex_inv_unfold /inv_pre /inv_inner /inv_state /inv_state_released /inv_successors /inv_successor.
+    induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR.
+    rewrite !vertex_inv_unfold /inv_pre /inv_inner /inv_state /inv_state_released /inv_state_finished /inv_successors /inv_successor.
     solve_contractive.
   Qed.
-  #[global] Instance vertex_inv_proper t γ :
-    Proper ((≡) ==> (≡)) (vertex_inv t γ).
+  #[global] Instance vertex_inv_ne t γ n :
+    Proper (
+      (≡{n}≡) ==>
+      (≡{n}≡) ==>
+      (≡{n}≡)
+    ) (vertex_inv t γ).
   Proof.
-    solve_proper.
+    intros P1 P2 HP R1 R2 HR.
+    apply vertex_inv_contractive.
+    all: apply dist_dist_later; done.
+  Qed.
+  #[global] Instance vertex_inv_proper t γ :
+    Proper (
+      (≡) ==>
+      (≡) ==>
+      (≡)
+    ) (vertex_inv t γ).
+  Proof.
+    intros P1 P2 HP R1 R2 HR.
+    rewrite !equiv_dist in HP HR |- * => n.
+    apply vertex_inv_ne; done.
   Qed.
 
   Definition vertex_output γ Q :=
@@ -421,8 +448,8 @@ Section vertex_G.
     apply _.
   Qed.
 
-  #[local] Instance vertex_inv_persistent t γ P :
-    Persistent (vertex_inv t γ P).
+  #[local] Instance vertex_inv_persistent t γ P R :
+    Persistent (vertex_inv t γ P R).
   Proof.
     rewrite vertex_inv_unfold.
     apply _.
@@ -619,8 +646,8 @@ Section vertex_G.
     iApply (state₁_exclusive with "Hstate₁_1 Hstate₁_2").
   Qed.
 
-  Lemma vertex_output_divide {t γ P Q} Qs :
-    vertex_inv t γ P -∗
+  Lemma vertex_output_divide {t γ P R Q} Qs :
+    vertex_inv t γ P R -∗
     vertex_output γ Q -∗
     (Q -∗ [∗ list] Q ∈ Qs, Q) ={⊤}=∗
     [∗ list] Q ∈ Qs, vertex_output γ Q.
@@ -633,8 +660,8 @@ Section vertex_G.
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma vertex_output_split {t γ P Q} Q1 Q2 :
-    vertex_inv t γ P -∗
+  Lemma vertex_output_split {t γ P R Q} Q1 Q2 :
+    vertex_inv t γ P R -∗
     vertex_output γ Q -∗
     (Q -∗ Q1 ∗ Q2) ={⊤}=∗
       vertex_output γ Q1 ∗
@@ -655,8 +682,31 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_finished_output t γ P Q :
-    vertex_inv t γ P -∗
+  Lemma vertex_inv_finished t γ P R :
+    vertex_inv t γ P R -∗
+    vertex_finished γ ={⊤}=∗
+    ▷ □ R.
+  Proof.
+    setoid_rewrite vertex_inv_unfold.
+    iIntros "(:inv_pre) (:finished)".
+    iInv "Hinv" as "(:inv_inner)".
+    iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
+    iDestruct "Hinv_state" as "{Hstate₁} (:inv_state_finished >)".
+    iSplitL. { iFrameSteps. }
+    iSteps.
+  Qed.
+  Lemma vertex_inv_finished' t γ P R :
+    £ 1 -∗
+    vertex_inv t γ P R -∗
+    vertex_finished γ ={⊤}=∗
+    □ R.
+  Proof.
+    iIntros "H£ Hinv Hfinished".
+    iMod (vertex_inv_finished with "Hinv Hfinished") as "HR".
+    iApply (lc_fupd_elim_later with "H£ HR").
+  Qed.
+  Lemma vertex_inv_finished_output t γ P R Q :
+    vertex_inv t γ P R -∗
     vertex_finished γ -∗
     vertex_output γ Q ={⊤}=∗
     ▷^2 Q.
@@ -669,27 +719,27 @@ Section vertex_G.
     iSplitR "HP". { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma vertex_finished_output' t γ P Q :
+  Lemma vertex_inv_finished_output' t γ P R Q :
     £ 2 -∗
-    vertex_inv t γ P -∗
+    vertex_inv t γ P R -∗
     vertex_finished γ -∗
     vertex_output γ Q ={⊤}=∗
     Q.
   Proof.
     iIntros "(H£1 & H£2) Hinv Hfinished Houtput".
-    iMod (vertex_finished_output with "Hinv Hfinished Houtput") as "HP".
+    iMod (vertex_inv_finished_output with "Hinv Hfinished Houtput") as "HP".
     iMod (lc_fupd_elim_later with "H£1 HP") as "HP".
     iApply (lc_fupd_elim_later with "H£2 HP").
   Qed.
 
-  Lemma vertex_create_spec P (task : option val) :
+  Lemma vertex_create_spec P R (task : option val) :
     {{{
       True
     }}}
       vertex_create task
     {{{ t γ gen,
       RET #t;
-      vertex_inv t γ P ∗
+      vertex_inv t γ P R ∗
       vertex_model t γ (default ()%V task) gen ∗
       vertex_output γ P
     }}}.
@@ -774,10 +824,10 @@ Section vertex_G.
     wp_smart_apply (vertex_set_task_spec with "Hmodel HΦ").
   Qed.
 
-  Lemma vertex_precede_spec t1 γ1 P1 t2 γ2 P2 task gen :
+  Lemma vertex_precede_spec t1 γ1 P1 R1 t2 γ2 P2 R2 task gen :
     {{{
-      vertex_inv t1 γ1 P1 ∗
-      vertex_inv t2 γ2 P2 ∗
+      vertex_inv t1 γ1 P1 R1 ∗
+      vertex_inv t2 γ2 P2 R2 ∗
       vertex_model t2 γ2 task gen
     }}}
       vertex_precede #t1 #t2
@@ -884,19 +934,19 @@ Section vertex_G.
         iSplitL.
         { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps.
           iExists (t2 :: succs). iSteps.
-          iExists γ2, P2. rewrite vertex_inv_unfold. iSteps.
+          iExists γ2, P2, R2. rewrite vertex_inv_unfold. iSteps.
         }
         iSteps.
   Qed.
 
   #[local] Lemma vertex_release_run_spec :
     ⊢ (
-      ∀ ctx t γ P task gen,
+      ∀ ctx t γ P R task gen,
       {{{
         pool_context_model ctx ∗
-        vertex_inv t γ P ∗
+        vertex_inv t γ P R ∗
         vertex_model t γ task gen ∗
-        vertex_task t γ P task gen
+        vertex_task t γ P R task gen
       }}}
         vertex_release ctx #t
       {{{
@@ -904,10 +954,10 @@ Section vertex_G.
         pool_context_model ctx
       }}}
     ) ∧ (
-      ∀ ctx t γ P π,
+      ∀ ctx t γ P R π,
       {{{
         pool_context_model ctx ∗
-        vertex_inv t γ P ∗
+        vertex_inv t γ P R ∗
         predecessors_elem γ π ∗
         vertex_finished π
       }}}
@@ -917,13 +967,13 @@ Section vertex_G.
         pool_context_model ctx
       }}}
     ) ∧ (
-      ∀ ctx t γ gen P task,
+      ∀ ctx t γ gen P R task,
       {{{
         pool_context_model ctx ∗
-        vertex_inv t γ P ∗
+        vertex_inv t γ P R ∗
         vertex_running gen ∗
         model' t γ task Running gen ∗
-        vertex_task t γ P task gen
+        vertex_task t γ P R task gen
       }}}
         vertex_run ctx #t
       {{{
@@ -938,7 +988,7 @@ Section vertex_G.
 
     { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %P %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
+      iIntros "%ctx %t %γ %P %R %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
       wp_recs.
       iApply (wp_frame_wand with "HΦ").
@@ -971,7 +1021,7 @@ Section vertex_G.
 
     { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %P %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
+      iIntros "%ctx %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
 
       wp_recs.
       iApply (wp_frame_wand with "HΦ").
@@ -1042,7 +1092,7 @@ Section vertex_G.
 
     { iClear "IHrun".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %gen %P %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
+      iIntros "%ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
       wp_recs.
       wp_smart_apply (pool_silent_async_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
@@ -1071,7 +1121,7 @@ Section vertex_G.
       - wp_smart_apply ("IHrelease" with "[$]").
         iSteps.
 
-      - iDestruct "Hb" as "HP".
+      - iDestruct "Hb" as "(HP & #HR)".
 
         wp_load.
 
@@ -1095,12 +1145,12 @@ Section vertex_G.
         iApply (vertex_inv_unfold with "Hinv_succ").
     }
   Qed.
-  Lemma vertex_release_spec ctx t γ P task gen :
+  Lemma vertex_release_spec ctx t γ P R task gen :
     {{{
       pool_context_model ctx ∗
-      vertex_inv t γ P ∗
+      vertex_inv t γ P R ∗
       vertex_model t γ task gen ∗
-      vertex_task t γ P task gen
+      vertex_task t γ P R task gen
     }}}
       vertex_release ctx #t
     {{{
@@ -1111,10 +1161,10 @@ Section vertex_G.
     iDestruct vertex_release_run_spec as "(H & _)".
     iApply "H".
   Qed.
-  Lemma vertex_release_spec' ctx t γ P task gen :
+  Lemma vertex_release_spec' ctx t γ P R task gen :
     {{{
       pool_context_model ctx ∗
-      vertex_inv t γ P ∗
+      vertex_inv t γ P R ∗
       vertex_model t γ task gen ∗
       ( ∀ ctx,
         pool_context_model ctx -∗
@@ -1122,7 +1172,8 @@ Section vertex_G.
         WP task ctx {{ res,
           ⌜res = #false⌝ ∗
           ▷ pool_context_model ctx ∗
-          ▷ P
+          ▷ P ∗
+          ▷ □ R
         }}
       )
     }}}
