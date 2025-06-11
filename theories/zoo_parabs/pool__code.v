@@ -128,13 +128,13 @@ Definition pool_iter : val :=
     end.
 
 Definition pool_map : val :=
-  fun: "ctx" "fut" "fn" =>
-    let: "fut'" := ivar_3_create () in
+  fun: "ctx" "fut1" "fn" =>
+    let: "fut2" := ivar_3_create () in
     pool_iter
       "ctx"
-      "fut"
-      (fun: "ctx" "res" =>
-         let: "res'" := "fn" "ctx" "res" in
-         let: "waiters" := ivar_3_set "fut'" "res'" in
-         lst_iter (fun: "waiter" => "waiter" "ctx" "res'") "waiters") ;;
-    "fut'".
+      "fut1"
+      (fun: "ctx" "res1" =>
+         let: "res2" := "fn" "ctx" "res1" in
+         let: "waiters" := ivar_3_set "fut2" "res2" in
+         lst_iter (fun: "waiter" => "waiter" "ctx" "res2") "waiters") ;;
+    "fut2".
