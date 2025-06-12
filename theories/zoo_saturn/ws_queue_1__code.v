@@ -98,8 +98,7 @@ Definition ws_queue_1_pop : val :=
       in
       "t" <-{back} "front" + #1 ;;
       if: "won" then (
-        let: "data" := "t".{data} in
-        let: "v" := array_unsafe_cget "data" "back" in
+        let: "v" := array_unsafe_cget "t".{data} "back" in
         ‘Some( "v" )
       ) else (
         §None

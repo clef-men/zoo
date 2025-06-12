@@ -81,8 +81,7 @@ let pop t =
     in
     t.back <- front + 1 ;
     if won then
-      let data = t.data in
-      let v = Array.unsafe_cget data back in
+      let v = Array.unsafe_cget t.data back in
       Some v
     else
       None
