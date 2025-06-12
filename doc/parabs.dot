@@ -1,9 +1,9 @@
 digraph {
-	layout=sfdp
+	layout=neato
 	overlap=false
 	splines=curved
 
-	subgraph cluster_std {
+	subgraph std {
 		label="std"
 		node [style=filled, color=lightblue]
 		random_state [label="random_state"]
@@ -13,7 +13,7 @@ digraph {
 		ivar [label="ivar"]
 	}
 
-	subgraph cluster_saturn {
+	subgraph saturn {
 		label="saturn"
 		node [style=filled, color=peachpuff]
 		mpmc_stack [label="mpmc_stack"]
@@ -21,7 +21,7 @@ digraph {
 		ws_queue [label="ws_queue"]
 	}
 
-	subgraph cluster_parabs {
+	subgraph parabs {
 		label="parabs"
 		node [style=filled, color=violet]
 		ws_queues [label="ws_queues"]
@@ -30,6 +30,7 @@ digraph {
 		waiters [label="waiters"]
 		ws_hub [label="ws_hub"]
 		ws_hub_std [label="ws_hub_std"]
+		ws_hub_fifo [label="ws_hub_fifo"]
 		pool [label="pool"]
 		vertex [label="vertex"]
 	}
@@ -50,6 +51,10 @@ digraph {
 	ws_hub_std -> ws_queues
 	ws_hub_std -> waiters
 	ws_hub_std -> ws_hub [style=dotted]
+
+	ws_hub_fifo -> mpmc_queue
+	ws_hub_fifo -> waiters
+	ws_hub_fifo -> ws_hub [style=dotted]
 
 	pool -> ivar
 	pool -> ws_hub
