@@ -1270,11 +1270,5 @@ Section ws_queues_private_G.
   Qed.
 End ws_queues_private_G.
 
-#[global] Opaque ws_queues_private_create.
-#[global] Opaque ws_queues_private_size.
-#[global] Opaque ws_queues_private_block.
-#[global] Opaque ws_queues_private_unblock.
-#[global] Opaque ws_queues_private_push.
-#[global] Opaque ws_queues_private_pop.
-#[global] Opaque ws_queues_private_steal_to.
-#[global] Opaque ws_queues_private_steal_as.
+From zoo_parabs Require
+  ws_queues_private__opaque.

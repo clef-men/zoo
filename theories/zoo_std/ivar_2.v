@@ -744,12 +744,8 @@ Section ivar_2_G.
   Qed.
 End ivar_2_G.
 
-#[global] Opaque ivar_2_create.
-#[global] Opaque ivar_2_make.
-#[global] Opaque ivar_2_is_set.
-#[global] Opaque ivar_2_try_get.
-#[global] Opaque ivar_2_get.
-#[global] Opaque ivar_2_set.
+From zoo_std Require
+  ivar_2__opaque.
 
 #[global] Opaque ivar_2_inv.
 #[global] Opaque ivar_2_producer.

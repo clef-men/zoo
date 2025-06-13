@@ -202,12 +202,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque deque_create.
-#[global] Opaque deque_is_empty.
-#[global] Opaque deque_push_front.
-#[global] Opaque deque_push_back.
-#[global] Opaque deque_pop_front.
-#[global] Opaque deque_pop_back.
-#[global] Opaque deque_iter.
+From zoo_std Require
+  deque__opaque.
 
 #[global] Opaque deque_model.

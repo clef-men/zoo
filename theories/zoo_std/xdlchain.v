@@ -455,4 +455,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
+From zoo_std Require
+  xdlchain__opaque.
+
 #[global] Opaque xdlchain.

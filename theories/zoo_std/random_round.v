@@ -140,9 +140,8 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque random_round_create.
-#[global] Opaque random_round_reset.
-#[global] Opaque random_round_next.
+From zoo_std Require
+  random_round__opaque.
 
 #[global] Opaque random_round_model.
 

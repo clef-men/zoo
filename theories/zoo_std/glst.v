@@ -98,5 +98,5 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque glst_rev_app.
-#[global] Opaque glst_rev.
+From zoo_std Require
+  glst__opaque.

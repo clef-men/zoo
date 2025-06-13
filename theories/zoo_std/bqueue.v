@@ -267,13 +267,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque bqueue_create.
-#[global] Opaque bqueue_size.
-#[global] Opaque bqueue_is_empty.
-#[global] Opaque bqueue_unsafe_get.
-#[global] Opaque bqueue_unsafe_set.
-#[global] Opaque bqueue_push.
-#[global] Opaque bqueue_pop_front.
-#[global] Opaque bqueue_pop_back.
+From zoo_std Require
+  bqueue__opaque.
 
 #[global] Opaque bqueue_model.

@@ -902,10 +902,8 @@ Section mpmc_queue_1_G.
   Qed.
 End mpmc_queue_1_G.
 
-#[global] Opaque mpmc_queue_1_create.
-#[global] Opaque mpmc_queue_1_is_empty.
-#[global] Opaque mpmc_queue_1_push.
-#[global] Opaque mpmc_queue_1_pop.
+From zoo_saturn Require
+  mpmc_queue_1__opaque.
 
 #[global] Opaque mpmc_queue_1_inv.
 #[global] Opaque mpmc_queue_1_model.

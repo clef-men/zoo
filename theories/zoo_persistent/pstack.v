@@ -92,9 +92,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque pstack_empty.
-#[global] Opaque pstack_is_empty.
-#[global] Opaque pstack_push.
-#[global] Opaque pstack_pop.
+From zoo_persistent Require
+  pstack__opaque.
 
 #[global] Opaque pstack_model.

@@ -251,11 +251,8 @@ Section mutex_G.
   Qed.
 End mutex_G.
 
-#[global] Opaque mutex_create.
-#[global] Opaque mutex_lock.
-#[global] Opaque mutex_unlock.
-#[global] Opaque mutex_synchronize.
-#[global] Opaque mutex_protect.
+From zoo_std Require
+  mutex__opaque.
 
 #[global] Opaque mutex_init.
 #[global] Opaque mutex_inv.

@@ -257,10 +257,8 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque mpmc_stack_1_create.
-#[global] Opaque mpmc_stack_1_push.
-#[global] Opaque mpmc_stack_1_pop.
-#[global] Opaque mpmc_stack_1_snapshot.
+From zoo_saturn Require
+  mpmc_stack_1__opaque.
 
 #[global] Opaque mpmc_stack_1_inv.
 #[global] Opaque mpmc_stack_1_model.

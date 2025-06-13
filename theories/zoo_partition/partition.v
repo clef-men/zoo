@@ -572,14 +572,8 @@ Section partition_G.
   Admitted.
 End partition_G.
 
-#[global] Opaque partition_make.
-#[global] Opaque partition_make_same_class.
-#[global] Opaque partition_get.
-#[global] Opaque partition_equal.
-#[global] Opaque partition_equiv.
-#[global] Opaque partition_repr.
-#[global] Opaque partition_cardinal.
-#[global] Opaque partition_refine.
+From zoo_partition Require
+  partition__opaque.
 
 #[global] Opaque partition_model.
 #[global] Opaque partition_element.

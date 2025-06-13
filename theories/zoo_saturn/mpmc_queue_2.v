@@ -976,11 +976,8 @@ Section mpmc_queue_2_G.
   Admitted.
 End mpmc_queue_2_G.
 
-#[global] Opaque mpmc_queue_2_create.
-#[global] Opaque mpmc_queue_2_size.
-#[global] Opaque mpmc_queue_2_is_empty.
-#[global] Opaque mpmc_queue_2_push.
-#[global] Opaque mpmc_queue_2_pop.
+From zoo_saturn Require
+  mpmc_queue_2__opaque.
 
 #[global] Opaque mpmc_queue_2_inv.
 #[global] Opaque mpmc_queue_2_model.

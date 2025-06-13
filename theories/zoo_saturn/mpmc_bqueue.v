@@ -1308,12 +1308,8 @@ Section mpmc_bqueue_G.
   Qed.
 End mpmc_bqueue_G.
 
-#[global] Opaque mpmc_bqueue_create.
-#[global] Opaque mpmc_bqueue_capacity.
-#[global] Opaque mpmc_bqueue_size.
-#[global] Opaque mpmc_bqueue_is_empty.
-#[global] Opaque mpmc_bqueue_push.
-#[global] Opaque mpmc_bqueue_pop.
+From zoo_saturn Require
+  mpmc_bqueue__opaque.
 
 #[global] Opaque mpmc_bqueue_inv.
 #[global] Opaque mpmc_bqueue_model.

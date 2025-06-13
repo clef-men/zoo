@@ -1801,10 +1801,8 @@ Section inf_ws_queue_1_G.
   Qed.
 End inf_ws_queue_1_G.
 
-#[global] Opaque inf_ws_queue_1_create.
-#[global] Opaque inf_ws_queue_1_push.
-#[global] Opaque inf_ws_queue_1_steal.
-#[global] Opaque inf_ws_queue_1_pop.
+From zoo_saturn Require
+  inf_ws_queue_1__opaque.
 
 #[global] Opaque inf_ws_queue_1_inv.
 #[global] Opaque inf_ws_queue_1_model.

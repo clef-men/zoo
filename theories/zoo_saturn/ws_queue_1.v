@@ -132,10 +132,8 @@ Section ws_queue_1_G.
   Admitted.
 End ws_queue_1_G.
 
-#[global] Opaque ws_queue_1_create.
-#[global] Opaque ws_queue_1_push.
-#[global] Opaque ws_queue_1_pop.
-#[global] Opaque ws_queue_1_steal.
+From zoo_saturn Require
+  ws_queue_1__opaque.
 
 #[global] Opaque ws_queue_1_inv.
 #[global] Opaque ws_queue_1_model.

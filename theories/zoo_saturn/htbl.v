@@ -8,8 +8,5 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-#[global] Opaque htbl_create.
-#[global] Opaque htbl_find.
-#[global] Opaque htbl_mem.
-#[global] Opaque htbl_add.
-#[global] Opaque htbl_remove.
+From zoo_saturn Require
+  htbl__opaque.

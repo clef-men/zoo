@@ -73,4 +73,5 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque random_int_in_range.
+From zoo_std Require
+  random__opaque.

@@ -7,6 +7,5 @@ From zoo_kcas Require Export
 From zoo Require Import
   options.
 
-#[global] Opaque kcas_2_make.
-#[global] Opaque kcas_2_get.
-#[global] Opaque kcas_2_cas.
+From zoo_kcas Require
+  kcas_2__opaque.

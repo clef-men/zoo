@@ -1,3 +1,5 @@
+[@@@zoo.ignore]
+
 type !'a t
 
 type 'a key

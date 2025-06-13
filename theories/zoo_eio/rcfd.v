@@ -1076,11 +1076,8 @@ Section rcfd_G.
   Qed.
 End rcfd_G.
 
-#[global] Opaque rcfd_make.
-#[global] Opaque rcfd_close.
-#[global] Opaque rcfd_use.
-#[global] Opaque rcfd_is_open.
-#[global] Opaque rcfd_peek.
+From zoo_eio Require
+  rcfd__opaque.
 
 #[global] Opaque rcfd_inv.
 #[global] Opaque rcfd_token.

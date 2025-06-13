@@ -879,11 +879,8 @@ Section inf_mpmc_queue_1_G.
   Qed.
 End inf_mpmc_queue_1_G.
 
-#[global] Opaque inf_mpmc_queue_1_create.
-#[global] Opaque inf_mpmc_queue_1_size.
-#[global] Opaque inf_mpmc_queue_1_is_empty.
-#[global] Opaque inf_mpmc_queue_1_push.
-#[global] Opaque inf_mpmc_queue_1_pop.
+From zoo_saturn Require
+  inf_mpmc_queue_1__opaque.
 
 #[global] Opaque inf_mpmc_queue_1_inv.
 #[global] Opaque inf_mpmc_queue_1_model.

@@ -252,6 +252,5 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque clst_app.
-#[global] Opaque clst_rev_app.
-#[global] Opaque clst_iter.
+From zoo_std Require
+  clst__opaque.

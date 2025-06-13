@@ -188,10 +188,8 @@ Section ws_queue_2_G.
   Qed.
 End ws_queue_2_G.
 
-#[global] Opaque ws_queue_2_create.
-#[global] Opaque ws_queue_2_push.
-#[global] Opaque ws_queue_2_steal.
-#[global] Opaque ws_queue_2_pop.
+From zoo_saturn Require
+  ws_queue_2__opaque.
 
 #[global] Opaque ws_queue_2_inv.
 #[global] Opaque ws_queue_2_model.

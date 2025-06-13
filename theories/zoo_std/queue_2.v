@@ -152,9 +152,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque queue_2_create.
-#[global] Opaque queue_2_is_empty.
-#[global] Opaque queue_2_push.
-#[global] Opaque queue_2_pop.
+From zoo_std Require
+  queue_2__opaque.
 
 #[global] Opaque queue_2_model.

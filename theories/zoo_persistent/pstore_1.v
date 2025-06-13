@@ -1644,12 +1644,8 @@ Section pstore_1_G.
   Qed.
 End pstore_1_G.
 
-#[global] Opaque pstore_1_create.
-#[global] Opaque pstore_1_ref.
-#[global] Opaque pstore_1_get.
-#[global] Opaque pstore_1_set.
-#[global] Opaque pstore_1_capture.
-#[global] Opaque pstore_1_restore.
+From zoo_persistent Require
+  pstore_1__opaque.
 
 #[global] Opaque pstore_1.
 #[global] Opaque pstore_1_snapshot.

@@ -909,12 +909,8 @@ Section bag_2_G.
   Qed.
 End bag_2_G.
 
-#[global] Opaque bag_2_create.
-#[global] Opaque bag_2_create_producer.
-#[global] Opaque bag_2_close_producer.
-#[global] Opaque bag_2_create_consumer.
-#[global] Opaque bag_2_push.
-#[global] Opaque bag_2_pop.
+From zoo_saturn Require
+  bag_2__opaque.
 
 #[global] Opaque bag_2_inv.
 #[global] Opaque bag_2_model.

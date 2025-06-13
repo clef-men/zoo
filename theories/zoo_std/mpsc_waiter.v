@@ -322,10 +322,8 @@ Section mpsc_waiter_G.
   Qed.
 End mpsc_waiter_G.
 
-#[global] Opaque mpsc_waiter_create.
-#[global] Opaque mpsc_waiter_notify.
-#[global] Opaque mpsc_waiter_try_wait.
-#[global] Opaque mpsc_waiter_wait.
+From zoo_std Require
+  mpsc_waiter__opaque.
 
 #[global] Opaque mpsc_waiter_inv.
 #[global] Opaque mpsc_waiter_consumer.

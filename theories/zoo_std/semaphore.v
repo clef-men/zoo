@@ -358,10 +358,8 @@ Section semaphore_G.
   Qed.
 End semaphore_G.
 
-#[global] Opaque semaphore_create.
-#[global] Opaque semaphore_try_lock.
-#[global] Opaque semaphore_lock.
-#[global] Opaque semaphore_unlock.
+From zoo_std Require
+  semaphore__opaque.
 
 #[global] Opaque semaphore_inv.
 #[global] Opaque semaphore_locked.

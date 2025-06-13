@@ -783,14 +783,8 @@ Section inf_array_G.
   Qed.
 End inf_array_G.
 
-#[global] Opaque inf_array_create.
-#[global] Opaque inf_array_get.
-#[global] Opaque inf_array_update.
-#[global] Opaque inf_array_set.
-#[global] Opaque inf_array_xchg.
-#[global] Opaque inf_array_cas.
-#[global] Opaque inf_array_cas_resolve.
-#[global] Opaque inf_array_faa.
+From zoo_std Require
+  inf_array__opaque.
 
 #[global] Opaque inf_array_inv.
 #[global] Opaque inf_array_model.

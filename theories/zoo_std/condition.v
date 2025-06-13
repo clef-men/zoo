@@ -286,11 +286,7 @@ Section mutex_G.
   Qed.
 End mutex_G.
 
-#[global] Opaque condition_create.
-#[global] Opaque condition_wait.
-#[global] Opaque condition_notify.
-#[global] Opaque condition_notify_all.
-#[global] Opaque condition_wait_until.
-#[global] Opaque condition_wait_while.
+From zoo_std Require
+  condition__opaque.
 
 #[global] Opaque condition_inv.

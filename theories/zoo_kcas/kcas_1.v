@@ -2388,9 +2388,8 @@ Section kcas_1_G.
   Qed.
 End kcas_1_G.
 
-#[global] Opaque kcas_1_make.
-#[global] Opaque kcas_1_get.
-#[global] Opaque kcas_1_cas.
+From zoo_kcas Require
+  kcas_1__opaque.
 
 #[global] Opaque kcas_1_loc_inv.
 #[global] Opaque kcas_1_loc_model.

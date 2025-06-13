@@ -335,10 +335,8 @@ Section spsc_waiter_G.
   Qed.
 End spsc_waiter_G.
 
-#[global] Opaque spsc_waiter_create.
-#[global] Opaque spsc_waiter_notify.
-#[global] Opaque spsc_waiter_try_wait.
-#[global] Opaque spsc_waiter_wait.
+From zoo_std Require
+  spsc_waiter__opaque.
 
 #[global] Opaque spsc_waiter_inv.
 #[global] Opaque spsc_waiter_producer.

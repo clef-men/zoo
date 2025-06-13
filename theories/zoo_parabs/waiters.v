@@ -206,12 +206,8 @@ Section waiters_G.
   Qed.
 End waiters_G.
 
-#[global] Opaque waiters_create.
-#[global] Opaque waiters_notify.
-#[global] Opaque waiters_notify_many.
-#[global] Opaque waiters_prepare_wait.
-#[global] Opaque waiters_cancel_wait.
-#[global] Opaque waiters_commit_wait.
+From zoo_parabs Require
+  waiters__opaque.
 
 #[global] Opaque waiters_inv.
 #[global] Opaque waiters_waiter.

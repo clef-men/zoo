@@ -483,4 +483,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
+From zoo_std Require xchain__opaque.
+
 #[global] Opaque xchain.

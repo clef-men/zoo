@@ -1059,11 +1059,8 @@ Section spsc_bqueue_G.
   Qed.
 End spsc_bqueue_G.
 
-#[global] Opaque spsc_bqueue_create.
-#[global] Opaque spsc_bqueue_size.
-#[global] Opaque spsc_bqueue_is_empty.
-#[global] Opaque spsc_bqueue_push.
-#[global] Opaque spsc_bqueue_pop.
+From zoo_saturn Require
+  spsc_bqueue__opaque.
 
 #[global] Opaque spsc_bqueue_inv.
 #[global] Opaque spsc_bqueue_model.

@@ -82,6 +82,5 @@ Section zoo_G.
   End nat.
 End zoo_G.
 
-#[global] Opaque int_min.
-#[global] Opaque int_max.
-#[global] Opaque int_positive_part.
+From zoo_std Require
+  int__opaque.

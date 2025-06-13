@@ -371,9 +371,8 @@ Section bag_1_G.
   Qed.
 End bag_1_G.
 
-#[global] Opaque bag_1_create.
-#[global] Opaque bag_1_push.
-#[global] Opaque bag_1_pop.
+From zoo_saturn Require
+  bag_1__opaque.
 
 #[global] Opaque bag_1_inv.
 #[global] Opaque bag_1_model.

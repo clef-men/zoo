@@ -395,9 +395,8 @@ Section parray_1_G.
   Qed.
 End parray_1_G.
 
-#[global] Opaque parray_1_make.
-#[global] Opaque parray_1_get.
-#[global] Opaque parray_1_set.
+From zoo_persistent Require
+  parray_1__opaque.
 
 #[global] Opaque parray_1_inv.
 #[global] Opaque parray_1_model.

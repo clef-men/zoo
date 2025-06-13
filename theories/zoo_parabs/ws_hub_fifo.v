@@ -782,15 +782,5 @@ Section ws_hub_fifo_G.
   Qed.
 End ws_hub_fifo_G.
 
-#[global] Opaque ws_hub_fifo_create.
-#[global] Opaque ws_hub_fifo_size.
-#[global] Opaque ws_hub_fifo_block.
-#[global] Opaque ws_hub_fifo_unblock.
-#[global] Opaque ws_hub_fifo_killed.
-#[global] Opaque ws_hub_fifo_push.
-#[global] Opaque ws_hub_fifo_pop.
-#[global] Opaque ws_hub_fifo_steal_until.
-#[global] Opaque ws_hub_fifo_steal.
-#[global] Opaque ws_hub_fifo_kill.
-#[global] Opaque ws_hub_fifo_pop_steal_until.
-#[global] Opaque ws_hub_fifo_pop_steal.
+From zoo_parabs Require
+  ws_hub_fifo__opaque.

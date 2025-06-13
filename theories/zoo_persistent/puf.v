@@ -495,13 +495,8 @@ Section puf_G.
   Qed.
 End puf_G.
 
-#[global] Opaque puf_create.
-#[global] Opaque puf_make.
-#[global] Opaque puf_repr.
-#[global] Opaque puf_equiv.
-#[global] Opaque puf_union.
-#[global] Opaque puf_capture.
-#[global] Opaque puf_restore.
+From zoo_persistent Require
+  puf__opaque.
 
 #[global] Opaque puf_model.
 #[global] Opaque puf_snapshot.

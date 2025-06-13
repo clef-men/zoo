@@ -103,4 +103,5 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque random_state_int_in_range.
+From zoo_std Require
+  random_state__opaque.

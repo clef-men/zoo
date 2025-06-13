@@ -1503,12 +1503,8 @@ Module raw.
   #[global] Opaque pstore_2_snapshot.
 End raw.
 
-#[global] Opaque pstore_2_create.
-#[global] Opaque pstore_2_ref.
-#[global] Opaque pstore_2_get.
-#[global] Opaque pstore_2_set.
-#[global] Opaque pstore_2_capture.
-#[global] Opaque pstore_2_restore.
+From zoo_persistent Require
+  pstore_2__opaque.
 
 Class Pstore2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] pstore_2_G_raw_G :: raw.Pstore2G Σ ;

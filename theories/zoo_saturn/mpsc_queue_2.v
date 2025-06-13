@@ -427,11 +427,8 @@ Section mpsc_queue_2_G.
   Qed.
 End mpsc_queue_2_G.
 
-#[global] Opaque mpsc_queue_2_create.
-#[global] Opaque mpsc_queue_2_is_empty.
-#[global] Opaque mpsc_queue_2_push_front.
-#[global] Opaque mpsc_queue_2_push_back.
-#[global] Opaque mpsc_queue_2_pop.
+From zoo_saturn Require
+  mpsc_queue_2__opaque.
 
 #[global] Opaque mpsc_queue_2_inv.
 #[global] Opaque mpsc_queue_2_model.

@@ -443,11 +443,8 @@ Section parray_2_G.
   Qed.
 End parray_2_G.
 
-#[global] Opaque parray_2_make.
-#[global] Opaque parray_2_get.
-#[global] Opaque parray_2_set.
-#[global] Opaque parray_2_capture.
-#[global] Opaque parray_2_restore.
+From zoo_persistent Require
+  parray_2__opaque.
 
 #[global] Opaque parray_2_model.
 #[global] Opaque parray_2_snapshot.

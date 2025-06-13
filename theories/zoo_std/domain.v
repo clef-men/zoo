@@ -827,6 +827,9 @@ End zoo_G.
 #[global] Opaque domain_local_new.
 #[global] Opaque domain_local_get.
 #[global] Opaque domain_local_set.
+#[global] Opaque domain_yield.
+#[global] Opaque domain_self_index.
+#[global] Opaque domain_recommended_domain_count.
 
 #[global] Opaque domain_model.
 #[global] Opaque domain_key.

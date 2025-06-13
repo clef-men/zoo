@@ -8,8 +8,5 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-#[global] Opaque hashtbl_create.
-#[global] Opaque hashtbl_find.
-#[global] Opaque hashtbl_mem.
-#[global] Opaque hashtbl_add.
-#[global] Opaque hashtbl_remove.
+From zoo_std Require
+  hashtbl__opaque.

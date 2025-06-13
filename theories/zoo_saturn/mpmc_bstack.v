@@ -408,11 +408,8 @@ Section mpmc_bstack_G.
   Qed.
 End mpmc_bstack_G.
 
-#[global] Opaque mpmc_bstack_create.
-#[global] Opaque mpmc_bstack_size.
-#[global] Opaque mpmc_bstack_is_empty.
-#[global] Opaque mpmc_bstack_push.
-#[global] Opaque mpmc_bstack_pop.
+From zoo_saturn Require
+  mpmc_bstack__opaque.
 
 #[global] Opaque mpmc_bstack_inv.
 #[global] Opaque mpmc_bstack_model.

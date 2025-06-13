@@ -108,4 +108,5 @@ Section pool_G.
   Qed.
 End pool_G.
 
-#[global] Opaque fibonacci_fibonacci.
+From examples Require
+  fibonacci__opaque.

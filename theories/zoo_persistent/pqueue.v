@@ -113,9 +113,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-#[global] Opaque pqueue_empty.
-#[global] Opaque pqueue_is_empty.
-#[global] Opaque pqueue_push.
-#[global] Opaque pqueue_pop.
+From zoo_persistent Require
+  pqueue__opaque.
 
 #[global] Opaque pqueue_model.

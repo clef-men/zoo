@@ -762,13 +762,8 @@ Section ivar_3_G.
   Qed.
 End ivar_3_G.
 
-#[global] Opaque ivar_3_create.
-#[global] Opaque ivar_3_make.
-#[global] Opaque ivar_3_is_set.
-#[global] Opaque ivar_3_try_get.
-#[global] Opaque ivar_3_get.
-#[global] Opaque ivar_3_wait.
-#[global] Opaque ivar_3_set.
+From zoo_std Require
+  ivar_3__opaque.
 
 #[global] Opaque ivar_3_inv.
 #[global] Opaque ivar_3_producer.

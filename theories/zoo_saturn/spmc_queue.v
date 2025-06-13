@@ -880,10 +880,8 @@ Section spmc_queue_G.
   Qed.
 End spmc_queue_G.
 
-#[global] Opaque spmc_queue_create.
-#[global] Opaque spmc_queue_is_empty.
-#[global] Opaque spmc_queue_push.
-#[global] Opaque spmc_queue_pop.
+From zoo_saturn Require
+  spmc_queue__opaque.
 
 #[global] Opaque spmc_queue_inv.
 #[global] Opaque spmc_queue_producer.

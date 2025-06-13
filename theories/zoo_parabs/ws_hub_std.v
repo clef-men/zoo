@@ -1092,15 +1092,5 @@ Section ws_hub_std_G.
   Qed.
 End ws_hub_std_G.
 
-#[global] Opaque ws_hub_std_create.
-#[global] Opaque ws_hub_std_size.
-#[global] Opaque ws_hub_std_block.
-#[global] Opaque ws_hub_std_unblock.
-#[global] Opaque ws_hub_std_killed.
-#[global] Opaque ws_hub_std_push.
-#[global] Opaque ws_hub_std_pop.
-#[global] Opaque ws_hub_std_steal_until.
-#[global] Opaque ws_hub_std_steal.
-#[global] Opaque ws_hub_std_kill.
-#[global] Opaque ws_hub_std_pop_steal_until.
-#[global] Opaque ws_hub_std_pop_steal.
+From zoo_parabs Require
+  ws_hub_std__opaque.

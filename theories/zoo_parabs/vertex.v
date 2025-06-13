@@ -1190,12 +1190,8 @@ Section vertex_G.
   Qed.
 End vertex_G.
 
-#[global] Opaque vertex_create.
-#[global] Opaque vertex_get_task.
-#[global] Opaque vertex_set_task.
-#[global] Opaque vertex_set_task'.
-#[global] Opaque vertex_precede.
-#[global] Opaque vertex_release.
+From zoo_parabs Require
+  vertex__opaque.
 
 #[global] Opaque vertex_inv.
 #[global] Opaque vertex_model.
