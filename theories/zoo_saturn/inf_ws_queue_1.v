@@ -1766,7 +1766,7 @@ Section inf_ws_queue_1_G.
         iMod ("HΦ" $! None with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
 
         iSplitR "Howner₁ HΦ".
-        { iExists Emptyish. iFrame. iStep 7. iExists P. iSteps. iPureIntro.
+        { iExists Emptyish. iFrameStep 7. iExists P. iSteps. iPureIntro.
           simpl_length/=. lia.
         }
         iModIntro. clear- Hbranch2.

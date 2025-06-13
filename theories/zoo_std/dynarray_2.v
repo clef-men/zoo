@@ -186,7 +186,7 @@ Section zoo_G.
     iDestruct (big_sepL2_length with "Helems") as %Helems'.
     iApply "HΦ".
     simpl_length in Helems.
-    iFrame. iStep. iExists 0. rewrite right_id. iSteps.
+    iFrameStep. iExists 0. rewrite right_id. iSteps.
   Qed.
   Lemma dynarray_2_initi_spec' Ψ sz fn :
     {{{

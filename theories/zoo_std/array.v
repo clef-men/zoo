@@ -2191,7 +2191,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite /atomic_acc /= Nat2Z.id.
-      repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
+      repeat iExists _. iFrameStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
       wp_pures.
@@ -2434,7 +2434,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite /atomic_acc /= Nat2Z.id.
-      repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
+      repeat iExists _. iFrameStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] HΨ)") as "%acc' HΨ"; first lia.
       wp_apply ("IH" with "[] [] HΨ [HΦ]"); simpl_length; [iSteps.. |]. clear acc. iIntros "!> %acc %vs' (<- & HΨ)".
@@ -2683,7 +2683,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "H↦ !>".
+      repeat iExists _. iFrameStep 2; first iSteps. iIntros "H↦ !>".
       rewrite Z2Nat.inj_add; [lia.. |]. rewrite Nat2Z.id. iFrame.
       iIntros "HΨ !> H£".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
@@ -3686,7 +3686,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%v' Hslice".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iStep 8. iFrame. simpl_length. iSteps.
+      repeat iExists _. iFrameStep 8. iFrame. simpl_length. iSteps.
     - iApply (atomic_update_wand with "(H [//] [//] [//] HΨ)").
       iSteps.
   Qed.
@@ -5532,7 +5532,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "Hslice !>".
+      repeat iExists _. iFrameStep 2; first iSteps. iIntros "Hslice !>".
       rewrite Z.add_0_l Z2Nat.inj_add; [lia.. |]. rewrite !Nat2Z.id. iFrame.
       iIntros "HΨ !> _".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
@@ -6743,7 +6743,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_cget_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hcslice".
       rewrite /atomic_acc /=.
-      repeat iExists _. iFrame. iStep 2; first iSteps. iIntros "$ !> HΨ !> _".
+      repeat iExists _. iFrameStep 2; first iSteps. iIntros "$ !> HΨ !> _".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_cset_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w Hslice".

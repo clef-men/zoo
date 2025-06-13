@@ -2311,7 +2311,7 @@ Section kcas_1_G.
     iDestruct (lstatus_lb_get η with "Hlstatus_auth") as "#Hlstatus_lb".
 
     iMod (inv_alloc _ _ (casn_inv_inner casn η ι Φ') with "[Hgproph Hcasn_state Hlstatus_auth Hlocks Hhelpers_auth Hwinning Hstates HΦ]") as "#Hcasn_inv".
-    { iExists _, (Running 0), ∅, _. iFrame. iStep 3.
+    { iExists _, (Running 0), ∅, _. iFrameStep 3.
       rewrite big_sepM_empty comm. iSteps.
       iSplitL "Hlocks".
       { iApply (big_sepL_seq_index ηs_lock); first lia.
