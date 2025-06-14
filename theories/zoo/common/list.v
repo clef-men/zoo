@@ -912,6 +912,15 @@ Section rotate.
   Proof.
     rewrite /rotate right_id //.
   Qed.
+  Lemma rotate_S n x l :
+    n ≤ length l →
+    rotate (S n) (x :: l) = rotate n (l ++ [x]).
+  Proof.
+    intros Hn.
+    rewrite /rotate.
+    rewrite skipn_cons firstn_cons.
+    rewrite drop_app_le // take_app_le // -assoc //.
+  Qed.
 
   Lemma rotate_Permutation n l :
     rotate n l ≡ₚ l.
