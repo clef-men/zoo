@@ -801,6 +801,15 @@ Section zoo_G.
       rewrite /array_cslice.
       setoid_rewrite chunk_cslice_rotate_right at 1; done.
     Qed.
+    Lemma array_cslice_rotate_right_1 {t sz i dq vs} n :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz i dq vs ⊢
+      array_cslice t sz (i + n) dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_right //.
+    Qed.
     Lemma array_cslice_rotate_right_0 {t sz dq vs} i :
       sz ≠ 0 →
       length vs = sz →
@@ -820,6 +829,15 @@ Section zoo_G.
       intros.
       rewrite /array_cslice.
       setoid_rewrite chunk_cslice_rotate_left at 1; done.
+    Qed.
+    Lemma array_cslice_rotate_left_1 t sz i n dq vs :
+      sz ≠ 0 →
+      length vs = sz →
+      array_cslice t sz (i + n) dq vs ⊢
+      array_cslice t sz i dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left //.
     Qed.
     Lemma array_cslice_rotate_left_0 t sz i dq vs :
       sz ≠ 0 →
