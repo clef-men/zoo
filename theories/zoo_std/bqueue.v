@@ -218,7 +218,7 @@ Section zoo_G.
       wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
       wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
       wp_store. wp_pures.
-      iDestruct (array_cslice_shift_forward with "Hcell") as "Hcell".
+      iDestruct (array_cslice_shift_right with "Hcell") as "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       iApply "HΦ".

@@ -857,13 +857,13 @@ Section zoo_G.
       setoid_rewrite Z.add_0_l at 7.
       done.
     Qed.
-    Lemma chunk_cslice_shift_forward l sz i dq vs :
+    Lemma chunk_cslice_shift_right l sz i dq vs :
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + sz) dq vs.
     Proof.
       rewrite chunk_cslice_shift //.
     Qed.
-    Lemma chunk_cslice_shift_backward l sz i dq vs :
+    Lemma chunk_cslice_shift_left l sz i dq vs :
       sz ≤ i →
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i - sz) dq vs.
@@ -884,7 +884,7 @@ Section zoo_G.
       done.
     Qed.
 
-    #[local] Lemma chunk_cslice_rotate_forward_aux {l sz} i1 i2 dq vs :
+    #[local] Lemma chunk_cslice_rotate_right_aux {l sz} i1 i2 dq vs :
       sz ≠ 0 →
       length vs = sz →
       i1 `mod` sz ≤ i2 `mod` sz →
@@ -901,7 +901,7 @@ Section zoo_G.
       setoid_rewrite (chunk_cslice_app3 (j2 - j1) j2 (sz - j2) sz) at 1; [| lia..].
       setoid_rewrite (chunk_cslice_app3 (sz - j2) sz j1 (j1 + sz)) at 4; [| simpl_length; lia..].
 
-      rewrite (chunk_cslice_shift_backward _ _ (j1 + sz)); first lia.
+      rewrite (chunk_cslice_shift_left _ _ (j1 + sz)); first lia.
       rewrite Nat.add_sub.
       rewrite (drop_app_length' _ _ (sz - j2 + j1)).
       { simpl_length. lia. }
@@ -914,7 +914,7 @@ Section zoo_G.
 
       iSteps.
     Qed.
-    Lemma chunk_cslice_rotate_forward {l sz i dq vs} n :
+    Lemma chunk_cslice_rotate_right {l sz i dq vs} n :
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
@@ -930,9 +930,9 @@ Section zoo_G.
 
       destruct (Nat.le_ge_cases j1 j2).
 
-      - rewrite chunk_cslice_rotate_forward_aux // minus_mod_1'' //.
+      - rewrite chunk_cslice_rotate_right_aux // minus_mod_1'' //.
 
-      - rewrite (chunk_cslice_rotate_forward_aux i2 i1) //.
+      - rewrite (chunk_cslice_rotate_right_aux i2 i1) //.
         { simpl_length. lia. }
         rewrite minus_mod_2; [lia.. |].
         rewrite Nat.add_sub'.
@@ -945,17 +945,17 @@ Section zoo_G.
           { simpl_length. lia. }
           rewrite take_drop //.
     Qed.
-    Lemma chunk_cslice_rotate_forward_0 {l sz dq vs} i :
+    Lemma chunk_cslice_rotate_right_0 {l sz dq vs} i :
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz 0 dq vs ⊣⊢
       chunk_cslice l sz i dq (drop (i `mod` sz) vs ++ take (i `mod` sz) vs).
     Proof.
       intros.
-      rewrite chunk_cslice_rotate_forward //.
+      rewrite chunk_cslice_rotate_right //.
     Qed.
 
-    Lemma chunk_cslice_rotate_backward l sz i n dq vs :
+    Lemma chunk_cslice_rotate_left l sz i n dq vs :
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz (i + n) dq vs ⊣⊢
@@ -970,16 +970,16 @@ Section zoo_G.
         rewrite take_app_length' //.
         { simpl_length. lia. }
       }
-      rewrite -chunk_cslice_rotate_forward //.
+      rewrite -chunk_cslice_rotate_right //.
       { rewrite /ws. simpl_length. lia. }
     Qed.
-    Lemma chunk_cslice_rotate_backward_0 l sz i dq vs :
+    Lemma chunk_cslice_rotate_left_0 l sz i dq vs :
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz 0 dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
     Proof.
-      apply (chunk_cslice_rotate_backward _ _ 0).
+      apply (chunk_cslice_rotate_left _ _ 0).
     Qed.
 
     Lemma chunk_cslice_to_model l sz i dq vs :
@@ -989,7 +989,7 @@ Section zoo_G.
       chunk_model l dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
     Proof.
       iIntros "% % Hcslice".
-      rewrite chunk_cslice_rotate_backward_0 //.
+      rewrite chunk_cslice_rotate_left_0 //.
       iApply (big_sepL_impl with "Hcslice"). iIntros (k v Hk%lookup_lt_Some) "!> H↦".
       simpl_length in Hk.
       rewrite Z.add_0_l Z.mod_small //; first lia.
