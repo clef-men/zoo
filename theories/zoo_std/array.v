@@ -566,15 +566,12 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       array_cslice t sz i dq vs ⊢
-      array_model t dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+      array_model t dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       intros Hsz Hvs.
       rewrite /array_cslice /array_model.
       setoid_rewrite chunk_cslice_to_model; [| done..].
-      simpl_length.
-      rewrite Nat.min_l; first lia.
-      rewrite Nat.sub_add; first lia.
-      rewrite -Hvs //.
+      rewrite list.length_rotate Hvs //.
     Qed.
     Lemma array_cslice_to_slice_cell t sz i dq v :
       array_cslice t sz i dq [v] ⊢
@@ -798,7 +795,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       array_cslice t sz i dq vs ⊣⊢
-      array_cslice t sz (i + n) dq (drop (n `mod` sz) vs ++ take (n `mod` sz) vs).
+      array_cslice t sz (i + n) dq (list.rotate (n `mod` sz) vs).
     Proof.
       intros.
       rewrite /array_cslice.
@@ -808,7 +805,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       array_cslice t sz 0 dq vs ⊣⊢
-      array_cslice t sz i dq (drop (i `mod` sz) vs ++ take (i `mod` sz) vs).
+      array_cslice t sz i dq (list.rotate (i `mod` sz) vs).
     Proof.
       intros.
       rewrite array_cslice_rotate_right //.
@@ -818,7 +815,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       array_cslice t sz (i + n) dq vs ⊣⊢
-      array_cslice t sz i dq (drop (sz - n `mod` sz) vs ++ take (sz - n `mod` sz) vs).
+      array_cslice t sz i dq (list.rotate (sz - n `mod` sz) vs).
     Proof.
       intros.
       rewrite /array_cslice.
@@ -828,7 +825,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       array_cslice t sz i dq vs ⊣⊢
-      array_cslice t sz 0 dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+      array_cslice t sz 0 dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       apply (array_cslice_rotate_left _ _ 0).
     Qed.
@@ -7065,8 +7062,7 @@ Section zoo_G.
     iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'".
     { lia. }
     { simpl_length. }
-    rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
-    rewrite Nat.sub_add; first lia.
+    rewrite list.rotate_replicate.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite !Nat2Z.id Nat.sub_diag firstn_all with_slice_0 drop_replicate.
     iSteps.
@@ -7116,8 +7112,7 @@ Section zoo_G.
     iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'".
     { lia. }
     { simpl_length. }
-    rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
-    rewrite Nat.sub_add; first lia.
+    rewrite list.rotate_replicate.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite Nat2Z.id Nat.sub_diag with_slice_0 drop_replicate Nat.sub_diag right_id.
     iSteps.
@@ -7191,10 +7186,7 @@ Section zoo_G.
     iDestruct (array_cslice_to_model with "Hcslice") as "Hmodel"; [done.. |].
     iMod (itype_array_intro τ with "Hmodel []") as "Htype".
     { rewrite big_sepL_app comm -big_sepL_app take_drop //. }
-    simpl_length.
-    rewrite Nat.min_l; first lia.
-    rewrite Nat.sub_add; first lia.
-    rewrite -Hvs //.
+    rewrite list.length_rotate Hvs //.
   Qed.
   Lemma itype_array_to_inv τ `{!iType _ τ} sz t :
     itype_array τ sz t ⊢
@@ -8528,8 +8520,7 @@ Section zoo_G.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'".
     iDestruct (array_cslice_rotate_right_0 ₊i with "Hcslice'") as "Hcslice'"; simpl_length; [lia.. |].
-    rewrite drop_replicate take_replicate -replicate_add Nat.min_l; first lia.
-    rewrite Nat.sub_add; first lia.
+    rewrite list.rotate_replicate.
     wp_smart_apply (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(%Hvs' & Hcslice' & Hvs')"; simpl_length; [lia.. |].
     simpl_length in Hvs'.
     iStep 5.

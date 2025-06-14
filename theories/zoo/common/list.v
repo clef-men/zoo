@@ -898,6 +898,40 @@ Section with_slice.
   Qed.
 End with_slice.
 
+Section rotate.
+  Context {A : Type}.
+
+  Implicit Types x : A.
+  Implicit Types l : list A.
+
+  Definition rotate n l :=
+    drop n l ++ take n l.
+
+  Lemma rotate_0 l :
+    rotate 0 l = l.
+  Proof.
+    rewrite /rotate right_id //.
+  Qed.
+
+  Lemma rotate_Permutation n l :
+    rotate n l ≡ₚ l.
+  Proof.
+    rewrite /rotate comm take_drop //.
+  Qed.
+
+  Lemma length_rotate n l :
+    length (rotate n l) = length l.
+  Proof.
+    apply Permutation_length, rotate_Permutation.
+  Qed.
+
+  Lemma rotate_replicate n k x :
+    rotate n (replicate k x) = replicate k x.
+  Proof.
+    pose proof (rotate_Permutation n (replicate k x)) as <-%symmetry%replicate_Permutation. done.
+  Qed.
+End rotate.
+
 Section omap.
   Lemma length_omap `(f : A → option B) l :
     length (omap f l) ≤ length l.
@@ -974,6 +1008,7 @@ Hint Rewrite
   @length_seq
   @length_zip_with
   @length_zip3_with
+  @length_rotate
   @length_omap
   @length_oflatten
 : simpl_length.

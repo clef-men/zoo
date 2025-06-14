@@ -889,7 +889,7 @@ Section zoo_G.
       length vs = sz →
       i1 `mod` sz ≤ i2 `mod` sz →
       chunk_cslice l sz i1 dq vs ⊣⊢
-      chunk_cslice l sz i2 dq (drop (i2 `mod` sz - i1 `mod` sz) vs ++ take (i2 `mod` sz - i1 `mod` sz) vs).
+      chunk_cslice l sz i2 dq (list.rotate (i2 `mod` sz - i1 `mod` sz) vs).
     Proof.
       intros.
 
@@ -918,7 +918,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
-      chunk_cslice l sz (i + n) dq (drop (n `mod` sz) vs ++ take (n `mod` sz) vs).
+      chunk_cslice l sz (i + n) dq (list.rotate (n `mod` sz) vs).
     Proof.
       intros.
 
@@ -932,14 +932,13 @@ Section zoo_G.
 
       - rewrite chunk_cslice_rotate_right_aux // minus_mod_1'' //.
 
-      - rewrite (chunk_cslice_rotate_right_aux i2 i1) //.
-        { simpl_length. lia. }
+      - rewrite (chunk_cslice_rotate_right_aux i2 i1) //; first  simpl_length.
         rewrite minus_mod_2; [lia.. |].
         rewrite Nat.add_sub'.
         destruct (decide (n `mod` sz = 0)) as [-> |].
-        + rewrite Nat.sub_0_r Nat.Div0.mod_same take_0 drop_0 !right_id //.
+        + rewrite Nat.sub_0_r Nat.Div0.mod_same !rotate_0 //.
         + rewrite Nat.mod_small; first lia.
-          rewrite drop_app_length'.
+          rewrite /list.rotate drop_app_length'.
           { simpl_length. lia. }
           rewrite take_app_length'.
           { simpl_length. lia. }
@@ -949,7 +948,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz 0 dq vs ⊣⊢
-      chunk_cslice l sz i dq (drop (i `mod` sz) vs ++ take (i `mod` sz) vs).
+      chunk_cslice l sz i dq (list.rotate (i `mod` sz) vs).
     Proof.
       intros.
       rewrite chunk_cslice_rotate_right //.
@@ -959,25 +958,25 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz (i + n) dq vs ⊣⊢
-      chunk_cslice l sz i dq (drop (sz - n `mod` sz) vs ++ take (sz - n `mod` sz) vs).
+      chunk_cslice l sz i dq (list.rotate (sz - n `mod` sz) vs).
     Proof.
       intros.
-      pose ws := (drop (sz - n `mod` sz) vs ++ take (sz - n `mod` sz) vs).
-      replace vs with (drop (n `mod` sz) ws ++ take (n `mod` sz) ws) at 1; first last.
+      pose ws := (list.rotate (sz - n `mod` sz) vs).
+      replace vs with (list.rotate (n `mod` sz) ws) at 1; first last.
       { rewrite -(take_drop (sz - n `mod` sz) vs) /ws.
-        rewrite drop_app_length'.
+        rewrite /list.rotate drop_app_length'.
         { simpl_length. lia. }
         rewrite take_app_length' //.
         { simpl_length. lia. }
       }
       rewrite -chunk_cslice_rotate_right //.
-      { rewrite /ws. simpl_length. lia. }
+      { rewrite /ws. simpl_length. }
     Qed.
     Lemma chunk_cslice_rotate_left_0 l sz i dq vs :
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
-      chunk_cslice l sz 0 dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+      chunk_cslice l sz 0 dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       apply (chunk_cslice_rotate_left _ _ 0).
     Qed.
@@ -986,7 +985,7 @@ Section zoo_G.
       sz ≠ 0 →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊢
-      chunk_model l dq (drop (sz - i `mod` sz) vs ++ take (sz - i `mod` sz) vs).
+      chunk_model l dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       iIntros "% % Hcslice".
       rewrite chunk_cslice_rotate_left_0 //.
