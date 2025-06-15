@@ -26,7 +26,7 @@ Definition vertex_create : val :=
     in
     { "task", #1, mpmc_stack_2_create () }.
 
-Definition vertex_get_task : val :=
+Definition vertex_task : val :=
   fun: "t" =>
     "t".{task}.
 

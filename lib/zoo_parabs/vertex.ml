@@ -21,7 +21,7 @@ let create task =
     succs= Mpmc_stack_2.create ();
   }
 
-let get_task t =
+let task t =
   t.task
 let set_task t task =
   t.task <- task

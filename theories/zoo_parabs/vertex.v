@@ -782,11 +782,11 @@ Section vertex_G.
     - iExists []. iSteps.
   Qed.
 
-  Lemma vertex_get_task_spec t γ task gen :
+  Lemma vertex_task_spec t γ task gen :
     {{{
       vertex_model t γ task gen
     }}}
-      vertex_get_task #t
+      vertex_task #t
     {{{
       RET task;
       vertex_model t γ task gen
