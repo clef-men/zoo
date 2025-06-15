@@ -1157,7 +1157,7 @@ Section inf_ws_queue_1_G.
     iSteps.
   Qed.
 
-  #[local] Lemma inf_array_set_spec_owner {l γ back priv ws} v :
+  #[local] Lemma inf_array_set_spec_owner l γ back priv ws v :
     {{{
       inv' l γ ∗
       owner₁ γ Stable back priv ws
