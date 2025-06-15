@@ -1,6 +1,3 @@
-From iris.algebra Require Import
-  list.
-
 From zoo Require Import
   prelude.
 From zoo.common Require Import
