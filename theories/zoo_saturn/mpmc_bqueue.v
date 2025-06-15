@@ -1023,8 +1023,10 @@ Section mpmc_bqueue_G.
       >>>
         mpmc_bqueue_push_1 #l #back #cap #new_back @ ↑γ.(metadata_inv)
       <<<
-        model₁ γ (if decide (length vs = γ.(metadata_capacity)) then vs else vs ++ [v])
-      | RET #(bool_decide (length vs ≠ γ.(metadata_capacity)));
+        ∃∃ b,
+        ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
+        model₁ γ (if b then vs else vs ++ [v])
+      | RET #(negb b);
         True
       >>>
     ) ∧ (
@@ -1045,8 +1047,10 @@ Section mpmc_bqueue_G.
       >>>
         mpmc_bqueue_push_2 #l #back #new_back @ ↑γ.(metadata_inv)
       <<<
-        model₁ γ (if decide (length vs = γ.(metadata_capacity)) then vs else vs ++ [v])
-      | RET #(bool_decide (length vs ≠ γ.(metadata_capacity)));
+        ∃∃ b,
+        ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
+        model₁ γ (if b then vs else vs ++ [v])
+      | RET #(negb b);
         True
       >>>
     ).
@@ -1101,8 +1105,8 @@ Section mpmc_bqueue_G.
             apply (f_equal length) in Hhist1. simpl_length/= in Hhist1.
             lia.
           }
-          rewrite decide_True // bool_decide_eq_false_2; first auto.
-          iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
+          rewrite bool_decide_eq_true_2 //.
+          iMod ("HΦ" $! true with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
           iModIntro. clear- Hif.
@@ -1139,8 +1143,8 @@ Section mpmc_bqueue_G.
           iDestruct (big_sepL2_length with "Hnodes") as %<-.
           assert (length nodes1 ≠ γ.(metadata_capacity)).
           { rewrite Hhist1 length_app /= in Hlength. lia. }
-          rewrite decide_False // bool_decide_eq_true_2 //.
-          iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
+          rewrite bool_decide_eq_false_2 //.
+          iMod ("HΦ" $! false with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iDestruct (xtchain_lookup_2 with "Hhist1 Hback_header Hback []") as "Hhist"; [done | rewrite Hlookup_next // | ..].
           { rewrite -Hlength // drop_all -xtchain_nil //. }
@@ -1195,8 +1199,10 @@ Section mpmc_bqueue_G.
     >>>
       mpmc_bqueue_push_2 #l #back #new_back @ ↑γ.(metadata_inv)
     <<<
-      model₁ γ (if decide (length vs = γ.(metadata_capacity)) then vs else vs ++ [v])
-    | RET #(bool_decide (length vs ≠ γ.(metadata_capacity)));
+      ∃∃ b,
+      ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
+      model₁ γ (if b then vs else vs ++ [v])
+    | RET #(negb b);
       True
     >>>.
   Proof.
@@ -1211,8 +1217,10 @@ Section mpmc_bqueue_G.
     >>>
       mpmc_bqueue_push t v @ ↑ι
     <<<
-      mpmc_bqueue_model t (if decide (length vs = cap) then vs else vs ++ [v])
-    | RET #(bool_decide (length vs ≠ cap));
+      ∃∃ b,
+      ⌜b = bool_decide (length vs = cap)⌝ ∗
+      mpmc_bqueue_model t (if b then vs else vs ++ [v])
+    | RET #(negb b);
       True
     >>>.
   Proof.
@@ -1226,8 +1234,8 @@ Section mpmc_bqueue_G.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     rewrite /atomic_acc /=.
-    iStep. iSplitR; first iSteps. iIntros "!> $". iSteps. iPureIntro.
-    case_decide; simpl_length/=; lia.
+    iStep. iSplitR; first iSteps. iIntros "!> %b (-> & $)". iSteps. iPureIntro.
+    case_bool_decide; simpl_length/=; lia.
   Qed.
 
   Lemma mpmc_bqueue_pop_spec t ι cap :
