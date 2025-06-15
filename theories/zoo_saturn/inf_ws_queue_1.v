@@ -206,7 +206,12 @@ Section inf_ws_queue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_empty" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}-> &
       {>;}-> &
       {>;}%Hhist{} &
@@ -230,7 +235,12 @@ Section inf_ws_queue_1_G.
     ).
   #[local] Instance : CustomIpatFormat "inv_state_nonempty" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}% &
       {>;}-> &
       {>;}%Hhist{} &
@@ -251,7 +261,12 @@ Section inf_ws_queue_1_G.
     end.
   #[local] Instance : CustomIpatFormat "inv_state_nonempty_steal" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}% &
       {>;}-> &
       {>;}%Hhist{} &
@@ -259,7 +274,7 @@ Section inf_ws_queue_1_G.
       Hwinner_steal &
       HP
     )".
-  #[local] Definition inv_state_emptyish γ stable front back hist lhist prophs : iProp Σ :=
+  #[local] Definition inv_state_emptyish γ stable front back hist lhist : iProp Σ :=
     ∃ P,
     ⌜stable = Unstable⌝ ∗
     ⌜front = back⌝ ∗
@@ -272,7 +287,12 @@ Section inf_ws_queue_1_G.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish" :=
     "(
       %P_ &
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}-> &
       {>;}-> &
       {>;}%Hhist{} &
@@ -286,7 +306,12 @@ Section inf_ws_queue_1_G.
     winner_pop γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_pop" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}-> &
       {>;}-> &
       {>;}%Hhist{} &
@@ -301,7 +326,12 @@ Section inf_ws_queue_1_G.
     P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_steal" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}-> &
       {>;}-> &
       {>;}%Hhist{} &
@@ -316,7 +346,12 @@ Section inf_ws_queue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_superempty" :=
     "(
-      {{lazy}{>}%Hstate{};{lazy}%Hstate{};{lazy}%Hstate;{>}->;->} &
+      { {lazy}{>}%Hstate{}
+      ; {lazy}%Hstate{}
+      ; {lazy}%Hstate
+      ; {>}->
+      ; ->
+      } &
       {>;}-> &
       {>;}-> &
       {>;}%Hhist{} &
@@ -329,7 +364,7 @@ Section inf_ws_queue_1_G.
     | Nonempty =>
         inv_state_nonempty γ stable front back hist lhist vs prophs
     | Emptyish =>
-        inv_state_emptyish γ stable front back hist lhist prophs
+        inv_state_emptyish γ stable front back hist lhist
     | Superempty =>
         inv_state_superempty γ stable front back hist lhist
     end.
@@ -373,16 +408,23 @@ Section inf_ws_queue_1_G.
       >%Hpasts{} &
       Hstate
     )".
-  #[local] Definition inv' l γ :=
+  #[local] Definition inv' l γ : iProp Σ :=
+    l.[data] ↦□ γ.(metadata_data) ∗
+    l.[proph] ↦□ #γ.(metadata_prophet) ∗
+    inf_array_inv γ.(metadata_data) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv'" :=
+    "(
+      #Hl_data &
+      #Hl_proph &
+      #Hdata_inv &
+      #Hinv
+    )".
   Definition inf_ws_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
-    l.[data] ↦□ γ.(metadata_data) ∗
-    l.[proph] ↦□ #γ.(metadata_prophet) ∗
-    inf_array_inv γ.(metadata_data) ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
@@ -391,10 +433,7 @@ Section inf_ws_queue_1_G.
       -> &
       -> &
       #Hmeta &
-      #Hl_data &
-      #Hl_proph &
-      #Hdata_inv &
-      #Hinv
+      (:inv')
     )".
 
   Definition inf_ws_queue_1_model t vs : iProp Σ :=
@@ -850,9 +889,11 @@ Section inf_ws_queue_1_G.
 
     wp_rec.
 
-    wp_apply (wise_prophets_wp_proph with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
-    wp_apply (inf_array_create_spec with "[//]") as "%data (#Hdata_inv & Hdata_model)".
+    wp_apply (wise_prophets_wp_proph with "[//]") as (pid γ_prophet prophss) "Hprophet_model".
+
+    wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
     iDestruct (inf_array_model_to_model'_constant 1 with "Hdata_model") as "Hdata_model".
+
     wp_block l as "Hmeta" "(Hl_front & Hl_back & Hl_data & Hl_proph & _)".
     iMod (pointsto_persist with "Hl_data") as "#Hl_data".
     iMod (pointsto_persist with "Hl_proph") as "#Hl_proph".
@@ -876,7 +917,7 @@ Section inf_ws_queue_1_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Howner₁ Hmodel₁"; last iSteps.
+    iSplitR "Hmodel₁ Howner₁"; last iSteps.
     iExists l, γ. iStep 6.
     iApply inv_alloc.
     iExists Empty, Stable, 1, 1, [()%V], [inhabitant], [], (λ _, ()%V), (λ _, []), prophss. iFrameSteps.
@@ -892,7 +933,7 @@ Section inf_ws_queue_1_G.
       front_lb γ front
     }}}.
   Proof.
-    iIntros "%Φ #Hinv HΦ".
+    iIntros "%Φ (:inv') HΦ".
 
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
@@ -913,7 +954,7 @@ Section inf_ws_queue_1_G.
       ⌜front ≤ back⌝
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Howner₁) HΦ".
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
@@ -936,7 +977,7 @@ Section inf_ws_queue_1_G.
       ⌜front = back ∨ front = S back⌝
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Howner₁) HΦ".
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
@@ -959,7 +1000,7 @@ Section inf_ws_queue_1_G.
       owner₁ γ Unstable back priv ws
     }}}.
   Proof.
-    iIntros "% %Φ (#Hinv & Howner₁ & #Hfront_lb) HΦ".
+    iIntros "% %Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
@@ -982,7 +1023,7 @@ Section inf_ws_queue_1_G.
       winner_steal γ front P
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Hwinner_steal) HΦ".
+    iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
@@ -1005,7 +1046,7 @@ Section inf_ws_queue_1_G.
       owner₁ γ stable back priv ws
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Howner₁) HΦ".
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
@@ -1028,7 +1069,7 @@ Section inf_ws_queue_1_G.
       owner₁ γ Stable (S back) priv ws
     }}}.
   Proof.
-    iIntros (? ->) "%Φ (#Hinv & Howner₁ & #Hfront_lb) HΦ".
+    iIntros (? ->) "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_store.
@@ -1044,7 +1085,6 @@ Section inf_ws_queue_1_G.
   #[local] Lemma inf_array_get_spec_history l γ (i : nat) (i_ : Z) v :
     i_ = i →
     {{{
-      inf_array_inv γ.(metadata_data) ∗
       inv' l γ ∗
       history_at γ i v
     }}}
@@ -1054,7 +1094,7 @@ Section inf_ws_queue_1_G.
       True
     }}}.
   Proof.
-    iIntros (->) "%Φ (#Hdata_inv & #Hinv & #Hhistory_at) HΦ".
+    iIntros (->) "%Φ ((:inv') & #Hhistory_at) HΦ".
 
     iApply wp_fupd.
     awp_apply (inf_array_get_spec' with "Hdata_inv") without "HΦ"; first lia.
@@ -1092,7 +1132,6 @@ Section inf_ws_queue_1_G.
     back_ = back →
     priv 0 = v →
     {{{
-      inf_array_inv γ.(metadata_data) ∗
       inv' l γ ∗
       owner₁ γ Stable back priv ws
     }}}
@@ -1102,7 +1141,7 @@ Section inf_ws_queue_1_G.
       owner₁ γ Stable back priv ws
     }}}.
   Proof.
-    iIntros (->) "%Hpriv %Φ (#Hdata_inv & #Hinv & Howner₁) HΦ".
+    iIntros (->) "%Hpriv %Φ ((:inv') & Howner₁) HΦ".
 
     iApply wp_fupd.
     awp_apply (inf_array_get_spec' with "Hdata_inv") without "HΦ"; first lia.
@@ -1120,7 +1159,6 @@ Section inf_ws_queue_1_G.
 
   #[local] Lemma inf_array_set_spec_owner {l γ back priv ws} v :
     {{{
-      inf_array_inv γ.(metadata_data) ∗
       inv' l γ ∗
       owner₁ γ Stable back priv ws
     }}}
@@ -1130,7 +1168,7 @@ Section inf_ws_queue_1_G.
       owner₁ γ Stable back (<[0 := v]> priv) ws
     }}}.
   Proof.
-    iIntros "%Φ (#Hdata_inv & #Hinv & Howner₁) HΦ".
+    iIntros "%Φ ((:inv') & Howner₁) HΦ".
 
     iApply wp_fupd.
     awp_apply (inf_array_set_spec' with "Hdata_inv") without "HΦ"; first lia.
@@ -1159,7 +1197,7 @@ Section inf_ws_queue_1_G.
       True
     }}}.
   Proof.
-    iIntros "%Hloser %Φ (#Hinv & #Hfront_lb) HΦ".
+    iIntros "%Hloser %Φ ((:inv') & #Hfront_lb) HΦ".
 
     iInv "Hinv" as "(:inv_inner =3)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
@@ -1188,7 +1226,7 @@ Section inf_ws_queue_1_G.
       front_lb γ (S front)
     }}}.
   Proof.
-    iIntros "%Hloser %Φ (#Hinv & #Hfront_lb & #Hprophet_full) HΦ".
+    iIntros "%Hloser %Φ ((:inv') & #Hfront_lb & #Hprophet_full) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
@@ -1222,7 +1260,7 @@ Section inf_ws_queue_1_G.
       ▷ P
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Hwinner_pop) HΦ".
+    iIntros "%Φ ((:inv') & Hwinner_pop) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1289,7 +1327,7 @@ Section inf_ws_queue_1_G.
       front_lb γ (S front)
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Hwinner_steal) HΦ".
+    iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1321,7 +1359,7 @@ Section inf_ws_queue_1_G.
       history_at γ back (priv 0)
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Howner₁ & #Hfront_lb) HΦ".
+    iIntros "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1332,6 +1370,7 @@ Section inf_ws_queue_1_G.
     iDestruct (inv_state_Stable with "Hstate") as "#([-> | ->] & _)"; first done.
 
     - iDestruct "Hstate" as "(:inv_state_empty =1 lazy=)".
+      assert (length vs1 = 0) as ->%nil_length_inv by lia.
       destruct b; zoo_simpl.
 
       iMod (front_update with "Hfront_auth") as "Hfront_auth".
@@ -1339,8 +1378,8 @@ Section inf_ws_queue_1_G.
       iMod (history_update (priv 0) with "Hhistory_auth") as "Hhistory_auth".
       iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at"; first done.
       iMod (owner_update Unstable (length hist1) (priv ∘ S) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+
       iDestruct (inf_array_model'_shift_l' with "Hdata_model") as "Hdata_model".
-      assert (length vs1 = 0) as ->%nil_length_inv by lia.
       iEval (rewrite app_nil_r -(app_nil_r (hist1 ++ [priv 0]))) in "Hdata_model".
 
       iSplitR "Howner₁ HΦ".
@@ -1374,9 +1413,9 @@ Section inf_ws_queue_1_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
-    wp_smart_apply (back_spec with "[$Hinv $Howner₁]") as "Howner₁".
+    wp_smart_apply (back_spec with "[$]") as "Howner₁".
     wp_load.
-    wp_apply (inf_array_set_spec_owner with "[$Hdata_inv $Hinv $Howner₁]") as "Howner₁".
+    wp_apply (inf_array_set_spec_owner with "[$]") as "Howner₁".
     wp_pures.
 
     iInv "Hinv" as "(:inv_inner =1)".
@@ -1384,8 +1423,9 @@ Section inf_ws_queue_1_G.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
     set priv1 := priv ∘ S.
     iMod (owner_update Stable (S back) priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+
     iDestruct (inf_array_model'_shift_l with "Hdata_model") as "Hdata_model"; first by intros [].
-    rewrite -(assoc (++)).
+    iEval (rewrite -assoc) in "Hdata_model".
 
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -1430,7 +1470,7 @@ Section inf_ws_queue_1_G.
 
     wp_rec.
     wp_apply (wp_id with "[//]") as (id) "Hid".
-    wp_smart_apply (front_spec with "Hinv") as (front1) "#Hfront_lb_1".
+    wp_smart_apply (front_spec with "[$]") as (front1) "#Hfront_lb_1".
     wp_pures.
 
     wp_bind (_.{back})%E.
@@ -1459,7 +1499,7 @@ Section inf_ws_queue_1_G.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_load.
-      wp_smart_apply (resolve_spec_loser_1 with "[$Hinv $Hfront_lb_2]") as "_"; first done.
+      wp_smart_apply (resolve_spec_loser_1 with "[$]") as "_"; first done.
       iSteps.
     }
 
@@ -1474,7 +1514,7 @@ Section inf_ws_queue_1_G.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_load.
-      wp_smart_apply (resolve_spec_loser_2 with "[$Hinv $Hfront_lb_1 $Hprophet_full]") as "_"; first done.
+      wp_smart_apply (resolve_spec_loser_2 with "[$]") as "_"; first done.
       iSteps.
     }
     rewrite Hbranch3.
@@ -1503,9 +1543,9 @@ Section inf_ws_queue_1_G.
     wp_pures.
     rewrite bool_decide_eq_false_2; first lia.
     wp_load.
-    wp_smart_apply (resolve_spec_winner_pop with "[$Hinv $Hwinner_pop]") as "HΦ".
+    wp_smart_apply (resolve_spec_winner_pop with "[$]") as "HΦ".
     wp_load.
-    wp_apply (inf_array_get_spec_history with "[$Hdata_inv $Hinv $Hhistory_at]") as "_"; first done.
+    wp_apply (inf_array_get_spec_history with "[$]") as "_"; first done.
     iSteps.
   Qed.
 
@@ -1517,9 +1557,6 @@ Section inf_ws_queue_1_G.
   #[local] Lemma inf_ws_queue_1_pop_0_spec (state : pop_state) l γ stable back (back_ : Z) priv ws id :
     back_ = back →
     {{{
-      l.[data] ↦□ γ.(metadata_data) ∗
-      l.[proph] ↦□ #γ.(metadata_prophet) ∗
-      inf_array_inv γ.(metadata_data) ∗
       inv' l γ ∗
       owner₁ γ stable back priv ws ∗
       match state with
@@ -1558,7 +1595,7 @@ Section inf_ws_queue_1_G.
       end
     }}}.
   Proof.
-    iIntros (->) "%Φ (#Hl_data & #Hl_proph & #Hdata_inv & #Hinv & Howner₁ & H) HΦ".
+    iIntros (->) "%Φ ((:inv') & Howner₁ & H) HΦ".
 
     wp_rec. wp_pures.
     destruct state.
@@ -1566,44 +1603,44 @@ Section inf_ws_queue_1_G.
     - iDestruct "H" as "(-> & %Hpriv)".
       iSpecialize ("HΦ" $! (Some v)).
 
-      wp_apply (front_spec_owner_Stable with "[$Hinv $Howner₁]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hfront2)".
+      wp_apply (front_spec_owner_Stable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hfront2)".
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_pures.
       case_bool_decide as Hbranch.
 
       + wp_load.
-        wp_apply (inf_array_get_spec_owner with "[$Hdata_inv $Hinv $Howner₁]") as "Howner₁"; [lia | done |].
+        wp_apply (inf_array_get_spec_owner with "[$]") as "Howner₁"; [lia | done |].
         iSteps.
 
       + replace front2 with back by lia.
 
         wp_load.
-        wp_smart_apply (resolve_spec_Empty with "[$Hinv $Howner₁ $Hfront_lb_1]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
-        wp_smart_apply (set_back_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb_2]") as "Howner₁"; [lia.. |].
+        wp_smart_apply (resolve_spec_Empty with "[$]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
+        wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
         wp_load.
-        wp_smart_apply (inf_array_get_spec_history with "[$Hdata_inv $Hinv $Hhistory_at]"); first lia.
+        wp_smart_apply (inf_array_get_spec_history with "[$]"); first lia.
         rewrite Hpriv. iSteps.
 
     - iDestruct "H" as "(-> & #Hhistory_at & Hwinner_steal)".
       iSpecialize ("HΦ" $! (Some v)).
 
-      wp_apply (front_spec_winner_steal with "[$Hinv $Hwinner_steal]") as "Hwinner_steal".
+      wp_apply (front_spec_winner_steal with "[$]") as "Hwinner_steal".
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_load.
-      wp_smart_apply (resolve_spec_winner_steal with "[$Hinv $Hwinner_steal]") as "#Hfront_lb".
-      wp_smart_apply (set_back_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. |].
+      wp_smart_apply (resolve_spec_winner_steal with "[$]") as "#Hfront_lb".
+      wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
       wp_load.
-      wp_apply (inf_array_get_spec_history with "[$Hdata_inv $Hinv $Hhistory_at]"); first done.
+      wp_apply (inf_array_get_spec_history with "[$]"); first done.
       iSteps.
 
     - iDestruct "H" as "(%id_winner & %prophs & -> & #Hprophet_full & %Hloser)".
       iSpecialize ("HΦ" $! None).
 
-      wp_apply (front_spec_owner_Unstable with "[$Hinv $Howner₁]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hbranch)".
+      wp_apply (front_spec_owner_Unstable with "[$]") as (front2) "(Howner₁ & #Hfront_lb_1 & %Hbranch)".
       wp_pures.
       destruct Hbranch as [-> | ->].
 
@@ -1611,21 +1648,21 @@ Section inf_ws_queue_1_G.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_loser_2 with "[$Hinv $Hfront_lb_1 $Hprophet_full]") as "#Hfront_lb_2"; first done.
-        wp_smart_apply (set_back_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb_2]"); [lia.. |].
+        wp_smart_apply (resolve_spec_loser_2 with "[$]") as "#Hfront_lb_2"; first done.
+        wp_smart_apply (set_back_spec_Superempty with "[$]"); [lia.. |].
         iSteps.
 
       + rewrite bool_decide_eq_true_2; first lia.
-        wp_smart_apply (set_back_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb_1]"); [lia.. |].
+        wp_smart_apply (set_back_spec_Superempty with "[$]"); [lia.. |].
         iSteps.
 
     - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
       iSpecialize ("HΦ" $! None).
 
-      wp_apply (front_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb]") as "Howner₁"; first lia.
+      wp_apply (front_spec_Superempty with "[$]") as "Howner₁"; first lia.
       wp_pures.
       rewrite bool_decide_eq_true_2; first lia.
-      wp_smart_apply (set_back_spec_Superempty with "[$Hinv $Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. |].
+      wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
       iSteps.
   Qed.
   Lemma inf_ws_queue_1_pop_spec t ι ws :
@@ -1658,7 +1695,7 @@ Section inf_ws_queue_1_G.
 
     wp_rec.
     wp_apply (wp_id with "[//]") as (id) "Hid".
-    wp_smart_apply (back_spec with "[$Hinv $Howner₁]") as "Howner₁".
+    wp_smart_apply (back_spec with "[$]") as "Howner₁".
     wp_pures.
 
     wp_bind (_ <-{back} _)%E.
@@ -1777,6 +1814,7 @@ Section inf_ws_queue_1_G.
         iSteps.
 
     - iMod (owner_update Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+
       iEval (rewrite assoc) in "Hdata_model".
       iDestruct (inf_array_model'_shift_r with "Hdata_model") as "Hdata_model".
 
