@@ -751,9 +751,11 @@ Section spsc_bqueue_G.
       ∃∃ vs,
       spsc_bqueue_model #l vs
     }> @ ⊤ ∖ ↑ι, ∅ <{
-      spsc_bqueue_model #l (if decide (length vs = γ.(metadata_capacity)) then vs else vs ++ [v]),
+      ∀∀ b,
+      ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
+      spsc_bqueue_model #l (if b then vs else vs ++ [v]),
     COMM
-      Ψ vs
+      Ψ vs b
     }>.
   #[local] Lemma spsc_bqueue_push_0_spec l ι γ front_cache stable back ws v Ψ :
     {{{
@@ -777,7 +779,7 @@ Section spsc_bqueue_G.
       else
         ∃ vs,
         ⌜length vs = γ.(metadata_capacity)⌝ ∗
-        Ψ vs
+        Ψ vs true
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hdata_inv & #Hinv & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΨ) HΦ".
@@ -809,7 +811,7 @@ Section spsc_bqueue_G.
         iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        rewrite decide_True; [lia.. |].
+        rewrite bool_decide_eq_true_2 //.
         iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
 
         iSplitR "Hl_front_cache Hproducer₁ HΨ HΦ". { iFrameSteps. }
@@ -828,9 +830,11 @@ Section spsc_bqueue_G.
     >>>
       spsc_bqueue_push t v @ ↑ι
     <<<
-      spsc_bqueue_model t (if decide (length vs = cap) then vs else vs ++ [v])
-    | RET #(bool_decide (length vs = cap));
-      spsc_bqueue_producer t (if decide (length vs = cap) then ws else vs ++ [v])
+      ∃∃ b,
+      ⌜b = bool_decide (length vs = cap)⌝ ∗
+      spsc_bqueue_model t (if b then vs else vs ++ [v])
+    | RET #b;
+      spsc_bqueue_producer t (if b then ws else vs ++ [v])
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:producer)) HΦ". injection Heq as <-.
@@ -839,60 +843,56 @@ Section spsc_bqueue_G.
     wp_rec. wp_load.
     wp_smart_apply (back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
     iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
-    case_bool_decide as Hbranch.
+    case_bool_decide as Hbranch; last iSteps.
 
-    - iApply fupd_wp.
-      iInv "Hinv" as "(:inv_inner =2)".
-      iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
-      iDestruct (front_lb_valid with "Hconsumer₂ Hfront_lb") as %Hfront2.
-      rewrite decide_False; first lia.
-      iMod (producer_update_stability Unstable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
-      iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
-      iModIntro. clear- Hbranch. iModIntro.
+    iApply fupd_wp.
+    iInv "Hinv" as "(:inv_inner =2)".
+    iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
+    iDestruct (front_lb_valid with "Hconsumer₂ Hfront_lb") as %Hfront2.
+    rewrite decide_False; first lia.
+    iMod (producer_update_stability Unstable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
+    iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
+    iModIntro. clear- Hbranch. iModIntro.
 
-      wp_smart_apply (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
-      wp_pures.
+    wp_smart_apply (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
+    wp_pures.
 
-      wp_bind (_ <-{back} _)%E.
-      iInv "Hinv" as "(:inv_inner =3)".
-      wp_store.
-      iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
-      iDestruct (front_lb_valid with "Hconsumer₂ Hfront_lb") as %Hfront3_ge.
-      iMod (producer_update_stability Stable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
-      iMod (producer_update_back (S back) with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)"; first lia.
-      iMod (history_update v with "Hhistory_auth") as "Hhistory_auth".
+    wp_bind (_ <-{back} _)%E.
+    iInv "Hinv" as "(:inv_inner =3)".
+    wp_store.
+    iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
+    iDestruct (front_lb_valid with "Hconsumer₂ Hfront_lb") as %Hfront3_ge.
+    iMod (producer_update_stability Stable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
+    iMod (producer_update_back (S back) with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)"; first lia.
+    iMod (history_update v with "Hhistory_auth") as "Hhistory_auth".
 
-      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model_push v with "Hproducer₁ Hmodel₁ Hmodel₂") as "(Hproducer₁ & Hmodel₁ & Hmodel₂)".
-      rewrite !decide_False; [lia.. |]. rewrite bool_decide_eq_false_2; first lia.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iMod (model_push v with "Hproducer₁ Hmodel₁ Hmodel₂") as "(Hproducer₁ & Hmodel₁ & Hmodel₂)".
+    rewrite bool_decide_eq_false_2; first lia.
+    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
 
-      iSplitR "Hl_front_cache Hproducer₁ HΦ".
-      { do 2 iModIntro. iExists _, front3, _, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
-        simpl_length. iStep 3.
-        iSplit. { rewrite Hvs3 drop_app_le //; first lia. }
-        iStep.
-        rewrite assoc. iSplitL "Hfront Hvs Hback_".
-        - destruct vs3 as [| v' vs3]; iFrame.
-          + assert (front3 = back) as -> by naive_solver lia.
-            destruct cstable3; iSteps.
-          + rewrite /= !drop_0 fmap_app.
-            iApply (array_cslice_app_1 with "Hvs Hback_").
-            simpl_length. naive_solver lia.
-        - case_decide.
-          + assert (γ.(metadata_capacity) - (S back - front3) - 1 = 0) as -> by lia.
-            iSteps.
-          + iDestruct (array_cslice_app_2 [§None%V] (replicate (γ.(metadata_capacity) - (S back - front3) - 1) §None%V) with "Hextra") as "($ & Hextra)".
-            { rewrite /= -replicate_S. f_equal. lia. }
-            rewrite Nat.add_1_r //.
-      }
-      iSteps.
-
-    - iDestruct "HΦ" as "(%vs & %Hvs & HΦ)".
-      rewrite decide_True // bool_decide_eq_true_2 //.
-      iSteps.
+    iSplitR "Hl_front_cache Hproducer₁ HΦ".
+    { do 2 iModIntro. iExists _, front3, _, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
+      simpl_length. iStep 3.
+      iSplit. { rewrite Hvs3 drop_app_le //; first lia. }
+      iStep.
+      rewrite assoc. iSplitL "Hfront Hvs Hback_".
+      - destruct vs3 as [| v' vs3]; iFrame.
+        + assert (front3 = back) as -> by naive_solver lia.
+          destruct cstable3; iSteps.
+        + rewrite /= !drop_0 fmap_app.
+          iApply (array_cslice_app_1 with "Hvs Hback_").
+          simpl_length. naive_solver lia.
+      - case_decide.
+        + assert (γ.(metadata_capacity) - (S back - front3) - 1 = 0) as -> by lia.
+          iSteps.
+        + iDestruct (array_cslice_app_2 [§None%V] (replicate (γ.(metadata_capacity) - (S back - front3) - 1) §None%V) with "Hextra") as "($ & Hextra)".
+          { rewrite /= -replicate_S. f_equal. lia. }
+          rewrite Nat.add_1_r //.
+    }
+    iSteps.
   Qed.
 
   #[local] Definition au_pop l ι Ψ : iProp Σ :=
