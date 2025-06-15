@@ -169,7 +169,7 @@ Section vertex_G.
   #[local] Instance : CustomIpatFormat "finished" :=
     "#Hstate{which;}₁{_{}}".
 
-  Definition vertex_task_body t γ P R body task gen : iProp Σ :=
+  Definition vertex_wp_body t γ P R body task gen : iProp Σ :=
     ∀ ctx gen',
     pool_context_model ctx -∗
     vertex_running gen -∗
@@ -187,33 +187,33 @@ Section vertex_G.
           □ R
       )
     }}.
-  #[local] Definition vertex_task_pre
+  #[local] Definition vertex_wp_pre
   : location → vertex_name → iProp Σ → iProp Σ →
     (val -d> vertex_generation -d> iProp Σ) →
     val -d> vertex_generation -d> iProp Σ
   :=
-    vertex_task_body.
-  #[local] Instance vertex_task_pre_contractive t γ P R :
-    Contractive (vertex_task_pre t γ P R).
+    vertex_wp_body.
+  #[local] Instance vertex_wp_pre_contractive t γ P R :
+    Contractive (vertex_wp_pre t γ P R).
   Proof.
-    rewrite /vertex_task_pre /vertex_task_body.
+    rewrite /vertex_wp_pre /vertex_wp_body.
     solve_contractive.
   Qed.
-  #[local] Instance vertex_task_pre_ne t γ P R :
-    NonExpansive (vertex_task_pre t γ P R).
+  #[local] Instance vertex_wp_pre_ne t γ P R :
+    NonExpansive (vertex_wp_pre t γ P R).
   Proof.
     apply _.
   Qed.
-  Definition vertex_task t γ P R : val → vertex_generation → iProp Σ :=
-    fixpoint (vertex_task_pre t γ P R).
+  Definition vertex_wp t γ P R : val → vertex_generation → iProp Σ :=
+    fixpoint (vertex_wp_pre t γ P R).
 
-  Lemma vertex_task_unfold t γ P R task gen :
-    vertex_task t γ P R task gen ⊣⊢
-    vertex_task_body t γ P R (vertex_task t γ P R) task gen.
+  Lemma vertex_wp_unfold t γ P R task gen :
+    vertex_wp t γ P R task gen ⊣⊢
+    vertex_wp_body t γ P R (vertex_wp t γ P R) task gen.
   Proof.
-    apply (fixpoint_unfold (vertex_task_pre t γ P R)).
+    apply (fixpoint_unfold (vertex_wp_pre t γ P R)).
   Qed.
-  #[global] Instance vertex_task_ne n :
+  #[global] Instance vertex_wp_ne n :
     Proper (
       (=) ==>
       (=) ==>
@@ -222,11 +222,11 @@ Section vertex_G.
       (≡{n}≡) ==>
       (≡{n}≡) ==>
       (≡{n}≡)
-    ) vertex_task.
+    ) vertex_wp.
   Proof.
     intros t t_ <- γ γ_ <-.
     induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
-    rewrite !vertex_task_unfold /vertex_task_body.
+    rewrite !vertex_wp_unfold /vertex_wp_body.
     do 14 f_equiv. f_contractive.
     apply (dist_le _ m) in HP; last lia.
     apply (dist_le _ m) in HR; last lia.
@@ -252,7 +252,7 @@ Section vertex_G.
     dependencies_auth gen Discard (Δ ⊎ Π) ∗
     ⌜preds = size Π⌝ ∗
     ([∗ mset] δ ∈ Δ, vertex_finished δ) ∗
-    vertex_task t γ P R task gen.
+    vertex_wp t γ P R task gen.
   #[local] Instance : CustomIpatFormat "inv_state_released" :=
     "(
       %task &
@@ -946,7 +946,7 @@ Section vertex_G.
         pool_context_model ctx ∗
         vertex_inv t γ P R ∗
         vertex_model t γ task gen ∗
-        vertex_task t γ P R task gen
+        vertex_wp t γ P R task gen
       }}}
         vertex_release ctx #t
       {{{
@@ -973,7 +973,7 @@ Section vertex_G.
         vertex_inv t γ P R ∗
         vertex_running gen ∗
         model' t γ task Running gen ∗
-        vertex_task t γ P R task gen
+        vertex_wp t γ P R task gen
       }}}
         vertex_run ctx #t
       {{{
@@ -1114,7 +1114,7 @@ Section vertex_G.
 
       wp_load.
 
-      rewrite vertex_task_unfold.
+      rewrite vertex_wp_unfold.
       wp_apply (wp_wand with "(Htask Hctx [$] [$])") as (res) "{%} (%b & %task & -> & Hctx & (:model) & Hb)".
       destruct b.
 
@@ -1150,7 +1150,7 @@ Section vertex_G.
       pool_context_model ctx ∗
       vertex_inv t γ P R ∗
       vertex_model t γ task gen ∗
-      vertex_task t γ P R task gen
+      vertex_wp t γ P R task gen
     }}}
       vertex_release ctx #t
     {{{
@@ -1186,7 +1186,7 @@ Section vertex_G.
     iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".
 
     wp_apply (vertex_release_spec with "[- HΦ] HΦ").
-    rewrite vertex_task_unfold. iFrameSteps.
+    rewrite vertex_wp_unfold. iFrameSteps.
   Qed.
 End vertex_G.
 
@@ -1199,4 +1199,4 @@ From zoo_parabs Require
 #[global] Opaque vertex_running.
 #[global] Opaque vertex_finished.
 #[global] Opaque vertex_predecessor.
-#[global] Opaque vertex_task.
+#[global] Opaque vertex_wp.
