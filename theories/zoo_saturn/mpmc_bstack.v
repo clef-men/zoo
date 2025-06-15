@@ -262,8 +262,10 @@ Section mpmc_bstack_G.
       >>>
         mpmc_bstack_push_aux t #sz v front @ ↑ι
       <<<
-        mpmc_bstack_model t (if decide (length vs < cap) then v :: vs else vs)
-      | RET #(bool_decide (length vs < cap));
+        ∃∃ b,
+        ⌜b = bool_decide (length vs < cap)⌝ ∗
+        mpmc_bstack_model t (if b then v :: vs else vs)
+      | RET #b;
         True
       >>>
     ) ∧ (
@@ -274,8 +276,10 @@ Section mpmc_bstack_G.
       >>>
         mpmc_bstack_push t v @ ↑ι
       <<<
-        mpmc_bstack_model t (if decide (length vs < cap) then v :: vs else vs)
-      | RET #(bool_decide (length vs < cap));
+        ∃∃ b,
+        ⌜b = bool_decide (length vs < cap)⌝ ∗
+        mpmc_bstack_model t (if b then v :: vs else vs)
+      | RET #b;
         True
       >>>
     ).
@@ -299,7 +303,7 @@ Section mpmc_bstack_G.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod (model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-        rewrite decide_True; first lia. rewrite bool_decide_eq_true_2; first lia.
+        rewrite bool_decide_eq_true_2 //.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         rewrite Z.add_1_r -Nat2Z.inj_succ.
         iSplitR "HΦ". { iExists (v :: vs). iSteps. rewrite Nat.sub_0_r //. }
@@ -317,7 +321,7 @@ Section mpmc_bstack_G.
       + iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        rewrite decide_False; first lia. rewrite bool_decide_eq_false_2; first lia.
+        rewrite bool_decide_eq_false_2; first lia.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         iSplitR "HΦ"; first iSteps.
         iModIntro.
@@ -347,8 +351,10 @@ Section mpmc_bstack_G.
     >>>
       mpmc_bstack_push t v @ ↑ι
     <<<
-      mpmc_bstack_model t (if decide (length vs < cap) then v :: vs else vs)
-    | RET #(bool_decide (length vs < cap));
+      ∃∃ b,
+      ⌜b = bool_decide (length vs < cap)⌝ ∗
+      mpmc_bstack_model t (if b then v :: vs else vs)
+    | RET #b;
       True
     >>>.
   Proof.
