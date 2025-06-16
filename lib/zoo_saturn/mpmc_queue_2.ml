@@ -79,7 +79,7 @@ let finish (back : (_, [< `Back]) prefix) =
 let help t back i_move move =
   match t.front with
   | Front i_front as front ->
-      if i_move <= i_front
+      if i_move < i_front
       || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move)
       then
         finish back

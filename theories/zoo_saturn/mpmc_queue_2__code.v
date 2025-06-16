@@ -79,7 +79,7 @@ Definition mpmc_queue_2_help : val :=
     match: "t".{front} with
     | Front "i_front" as "front" =>
         if:
-          "i_move" ≤ "i_front" or
+          "i_move" < "i_front" or
           CAS "t".[front] "front" (mpmc_queue_2_rev "move")
         then (
           mpmc_queue_2_finish "back"
