@@ -21,7 +21,7 @@ Definition vertex_create : val :=
       | Some "task" =>
           "task"
       | None =>
-          ()
+          fun: <> => #false
       end
     in
     { "task", #1, mpmc_stack_2_create () }.

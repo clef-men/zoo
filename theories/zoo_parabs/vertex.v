@@ -740,7 +740,7 @@ Section vertex_G.
     {{{ t γ gen,
       RET #t;
       vertex_inv t γ P R ∗
-      vertex_model t γ (default ()%V task) gen ∗
+      vertex_model t γ (default (fun: <> => #false)%V task) gen ∗
       vertex_output γ P
     }}}.
   Proof.
@@ -750,7 +750,7 @@ Section vertex_G.
 
     wp_bind (Match _ _ _ _).
     wp_apply (wp_wand (λ res,
-      ⌜res = default ()%V task⌝
+      ⌜res = default (fun: <> => #false)%V task⌝
     )%I) as (res) "->".
     { destruct task; iSteps. }
 

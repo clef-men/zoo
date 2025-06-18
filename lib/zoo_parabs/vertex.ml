@@ -14,7 +14,7 @@ let create task =
     | Some task ->
         task
     | None ->
-        Obj.magic ()
+        fun _ -> false
   in
   { task;
     preds= 1;
