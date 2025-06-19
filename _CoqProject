@@ -378,10 +378,6 @@ theories/zoo_saturn/mpmc_queue_2__types.v
 theories/zoo_saturn/mpmc_queue_2__code.v
 theories/zoo_saturn/mpmc_queue_2__opaque.v
 theories/zoo_saturn/mpmc_queue_2.v
-theories/zoo_saturn/mpmc_queue_3__types.v
-theories/zoo_saturn/mpmc_queue_3__code.v
-theories/zoo_saturn/mpmc_queue_3__opaque.v
-theories/zoo_saturn/mpmc_queue_3.v
 theories/zoo_saturn/bag_1__types.v
 theories/zoo_saturn/bag_1__code.v
 theories/zoo_saturn/bag_1__opaque.v

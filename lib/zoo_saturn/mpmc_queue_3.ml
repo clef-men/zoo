@@ -2,10 +2,13 @@
    https://github.com/ocaml-multicore/picos/blob/0c8d97df54b319ed4a7857d66f801b18a9e76f38/lib/picos_aux.mpmcq/picos_aux_mpmcq.ml
 *)
 
+[@@@zoo.ignore]
+
 type ('a, _) suffix =
   | Front :
     int ->
     ('a, [> `Front]) suffix
+    [@generative]
   | Cons :
     int * 'a * ('a, [`Front | `Cons]) suffix ->
     ('a, [> `Cons]) suffix
@@ -29,6 +32,20 @@ type 'a t =
     mutable back: ('a, [`Back | `Snoc]) prefix [@atomic];
   }
 
+let suffix_index suff =
+  match suff with
+  | Front i ->
+      i
+  | Cons (i, _, _) ->
+      i
+
+let prefix_index (pref : (_, [`Back | `Snoc]) prefix) =
+  match pref with
+  | Back back_r ->
+      back_r.index
+  | Snoc (i, _, _) ->
+      i
+
 let rec rev (suff : (_, [< `Cons]) suffix) pref =
   let Cons _ as suff = suff in
   match pref with
@@ -49,24 +66,10 @@ let rec size t =
   let front = t.front in
   let proph = Zoo.proph () in
   let back = t.back in
-  if Zoo.resolve t.front proph () != front then
-    size t
+  if Zoo.resolve (t.front == front) proph () then
+    prefix_index back - suffix_index front + 1
   else
-    let i_front =
-      match front with
-      | Front i ->
-          i
-      | Cons (i, _, _) ->
-          i
-    in
-    let i_back =
-      match back with
-      | Back back_r ->
-          back_r.index
-      | Snoc (i, _, _) ->
-          i
-    in
-    i_back - i_front + 1
+    size t
 
 let is_empty t =
   size t == 0
@@ -78,7 +81,7 @@ let finish (back : (_, [< `Back]) prefix) =
 let help t back i_move move =
   match t.front with
   | Front i_front as front ->
-      if i_move <= i_front
+      if i_move < i_front
       || Atomic.Loc.compare_and_set [%atomic.loc t.front] front (rev move)
       then
         finish back
