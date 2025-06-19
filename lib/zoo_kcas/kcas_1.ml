@@ -18,7 +18,7 @@ and 'a cas =
 
 and 'a casn =
   { mutable status: 'a status [@atomic];
-    proph: (Zoo.id * bool) Zoo.proph;
+    proph: (bool, Zoo.id * bool) Zoo.proph;
   }
 
 and 'a status =
@@ -43,7 +43,7 @@ let finish gid casn status =
   | Undetermined cass as old_status ->
       let is_after = status_to_bool status in
       if
-        Zoo.resolve (
+        Zoo.resolve_with (
           Atomic.Loc.compare_and_set [%atomic.loc casn.status] old_status status
         ) casn.proph (gid, is_after)
       then
@@ -61,7 +61,7 @@ let rec determine_as casn cass =
       let old_state = Atomic.get loc in
       if state == old_state then
         determine_as casn continue
-      else if Zoo.resolve (state.before == eval old_state) proph () then
+      else if Zoo.resolve proph (state.before == eval old_state) then
         lock casn loc old_state state retry continue
       else
         finish gid casn Before

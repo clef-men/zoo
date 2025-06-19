@@ -6,7 +6,7 @@ type 'a t =
   { mutable front: int [@atomic];
     mutable back: int [@atomic];
     data: 'a Inf_array.t;
-    proph: (int * Zoo.id) Zoo.proph;
+    proph: (bool, int * Zoo.id) Zoo.proph;
   }
 
 let create () =
@@ -28,7 +28,7 @@ let rec steal t =
   if back <= front then (
     None
   ) else if
-    Zoo.resolve (
+    Zoo.resolve_with (
       Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
     ) t.proph (front, id)
   then (
@@ -47,7 +47,7 @@ let[@inline] pop t id back =
     Some (Inf_array.get t.data back)
   ) else (
     let won =
-      Zoo.resolve (
+      Zoo.resolve_with (
         Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
       ) t.proph (front, id)
     in

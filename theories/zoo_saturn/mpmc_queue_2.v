@@ -31,17 +31,17 @@ Implicit Types v w t pref suff 𝑚𝑜𝑣𝑒 : val.
 Implicit Types vs vs_front vs_back move : list val.
 
 #[local] Program Definition prophet := {|
-  typed_strong_prophet1_type :=
+  typed_prophet1_type :=
     bool ;
-  typed_strong_prophet1_of_val v _ :=
+  typed_prophet1_of_val v :=
     match v with
     | ValBool b =>
         Some b
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val b :=
-    (#b, inhabitant) ;
+  typed_prophet1_to_val b :=
+    #b ;
 |}.
 Solve Obligations of prophet with
   try done.
@@ -880,7 +880,7 @@ Section mpmc_queue_2_G.
     wp_rec.
     wp_apply (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb_1".
 
-    wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_smart_apply (typed_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
     wp_pures.
 
     wp_bind (_.{back})%E.
@@ -926,9 +926,9 @@ Section mpmc_queue_2_G.
       iSplitR "Hproph HΦ". { iFrameSteps. }
       iModIntro. clear- Hi_front2 Hi_front3 Hsize.
 
-      wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
-      wp_equal as _ | (-> & ->)%(inj2 _); first iSteps.
-      iStep 5.
+      wp_equal as _ | (-> & ->)%(inj2 _).
+      all: wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+      all: iStep 11.
       wp_apply (mpmc_queue_2_suffix_index_spec with "[//]") as "_".
       wp_apply (mpmc_queue_2_prefix_index_spec with "[$]") as "_".
       wp_pures.
@@ -940,8 +940,9 @@ Section mpmc_queue_2_G.
       iIntros "!> {%}".
 
       wp_smart_apply (front_spec with "Hinv") as (i_front3 vs_front3) "_".
-      wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
-      wp_equal; iSteps.
+      wp_equal.
+      all: wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+      all: iSteps.
   Qed.
 
   Lemma mpmc_queue_2_is_empty_spec t ι :

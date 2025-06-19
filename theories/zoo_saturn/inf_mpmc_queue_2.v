@@ -68,22 +68,22 @@ Implicit Types past prophs : list global_prophet.(typed_prophet_type).
 Implicit Types pasts prophss : nat → list global_prophet.(typed_prophet_type).
 
 #[local] Program Definition local_prophet := {|
-  typed_strong_prophet1_type :=
+  typed_prophet1_type :=
     nat ;
-  typed_strong_prophet1_of_val v _ :=
+  typed_prophet1_of_val v :=
     match v with
     | ValInt i =>
         Some (Z.to_nat i)
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val i :=
-    (#i, ()%V) ;
+  typed_prophet1_to_val i :=
+    #i ;
 |}.
 Solve Obligations of local_prophet with
   try done.
 Next Obligation.
-  intros i v _ [= -> ->]. rewrite /= Nat2Z.id //.
+  intros i v ->. rewrite /= Nat2Z.id //.
 Qed.
 
 Inductive lstate :=
@@ -968,7 +968,7 @@ Section inf_mpmc_queue_2_G.
     iSplitR "HΦ". { iFrameSteps. }
     iIntros "!> {%}".
 
-    wp_smart_apply (typed_strong_prophet1_wp_proph local_prophet with "[//]") as (pid proph) "Hproph".
+    wp_smart_apply (typed_prophet1_wp_proph local_prophet with "[//]") as (pid proph) "Hproph".
     wp_pures.
 
     wp_bind (_.{back})%E.
@@ -986,11 +986,15 @@ Section inf_mpmc_queue_2_G.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro. clear- Hvs2 Hhist2.
 
-        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        wp_pures.
+
+        wp_bind (_.{front})%E.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
-        iSplitR "HΦ". { iFrameSteps. }
+        iSplitR "Hproph HΦ". { iFrameSteps. }
+        iModIntro. clear -Hvs2 Hhist2.
 
+        wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
         wp_apply int_positive_part_spec.
         iSteps. iPureIntro.
@@ -1001,20 +1005,30 @@ Section inf_mpmc_queue_2_G.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro.
 
-        wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        wp_pures.
+
+        wp_bind (_.{front})%E.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
         iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb2") as %?.
-        iSplitR "HΦ". { iFrameSteps. }
+        iSplitR "Hproph HΦ". { iFrameSteps. }
+        iModIntro.
+
+        wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
 
     - iSplitR "Hproph HΦ". { iFrameSteps. }
       iModIntro. clear- Hproph.
 
-      wp_smart_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+      wp_pures.
+
+      wp_bind (_.{front})%E.
       iInv "Hinv" as "(:inv_inner =3)".
       wp_load.
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitR "Hproph HΦ". { iFrameSteps. }
+      iModIntro. clear- Hproph.
+
+      wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
       iSteps.
   Qed.
 

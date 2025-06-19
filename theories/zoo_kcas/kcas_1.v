@@ -63,17 +63,17 @@ Qed.
 Implicit Types prophs : list global_prophet.(typed_prophet_type).
 
 #[local] Program Definition local_prophet := {|
-  typed_strong_prophet1_type :=
+  typed_prophet1_type :=
     bool ;
-  typed_strong_prophet1_of_val v _ :=
+  typed_prophet1_of_val v :=
     match v with
     | ValBool b =>
         Some b
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val b :=
-    (#b, inhabitant) ;
+  typed_prophet1_to_val b :=
+    #b ;
 |}.
 Solve Obligations of local_prophet with
   try done.
@@ -1699,7 +1699,7 @@ Section kcas_1_G.
         iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
 
-        wp_smart_apply (typed_strong_prophet1_wp_proph local_prophet with "[//]") as (pid b) "Hlproph".
+        wp_smart_apply (typed_prophet1_wp_proph local_prophet with "[//]") as (pid b) "Hlproph".
         wp_pures.
 
         wp_bind (!_)%E.
@@ -1768,8 +1768,9 @@ Section kcas_1_G.
             iMod (casn_retrieve with "Hcasn1_inv Hlstatus1_lb Hhelper Hhelpers1_elem") as "HΨ".
 
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
-            wp_apply (typed_strong_prophet1_wp_resolve local_prophet with "Hlproph"); first done.
-            wp_equal; last iSteps. iStep 5.
+            wp_equal.
+            all: wp_smart_apply (typed_prophet1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: iStep 11.
             wp_apply (kcas_1_finish_spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
 
@@ -1781,29 +1782,24 @@ Section kcas_1_G.
             iClear "Hlstatus1_lb".
             wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
-            wp_apply (typed_strong_prophet1_wp_resolve local_prophet with "Hlproph"); first done.
-            iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
+            wp_equal.
+            all: wp_smart_apply (typed_prophet1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: iStep 11.
 
-            -- destruct Hok as [(Hgid & -> & _) | Hbefore%not_and_l].
-               all: wp_equal; iStep 5.
+            -- iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
 
-               ++ wp_smart_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
+               ++ destruct Hok as [(Hgid & _ & _) | Hbefore%not_and_l].
 
-               ++ exfalso. naive_solver.
+                  ** wp_apply (kcas_1_finish_spec_loser FinalBefore with "[$Hcasn_meta $Hcasn_inv' $Hgid] HΦ"); first done.
 
-               ++ wp_smart_apply ("IHlock" with "[- HΦ] HΦ").
-                  erewrite (drop_S _ _ i); last first.
-                  { rewrite list_lookup_fmap Hdescrs_lookup //. }
-                  iFrameSteps. done.
-
-            -- wp_equal; iStep 5.
+                  ** exfalso. naive_solver.
 
                ++ wp_apply (kcas_1_finish_spec_finished with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb_finished] HΦ").
 
-               ++ wp_apply ("IHlock" with "[- HΦ] HΦ").
-                  erewrite (drop_S _ _ i); last first.
-                  { rewrite list_lookup_fmap Hdescrs_lookup //. }
-                  iFrameSteps. done.
+            -- wp_apply ("IHlock" with "[- HΦ] HΦ").
+               erewrite (drop_S _ _ i); last first.
+               { rewrite list_lookup_fmap Hdescrs_lookup //. }
+               iFrameSteps. done.
 
       - rewrite drop_lookup_None //.
         { rewrite list_lookup_fmap Hdescrs_lookup //. }

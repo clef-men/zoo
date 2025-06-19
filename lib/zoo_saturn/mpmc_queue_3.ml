@@ -66,7 +66,7 @@ let rec size t =
   let front = t.front in
   let proph = Zoo.proph () in
   let back = t.back in
-  if Zoo.resolve (t.front == front) proph () then
+  if Zoo.resolve proph (t.front == front) then
     prefix_index back - suffix_index front + 1
   else
     size t
@@ -193,7 +193,7 @@ and pop_2 t front back move =
     pop t
   )
 and pop_3 t proph front =
-  let front' = Zoo.resolve t.front proph () in
+  let front' = Zoo.resolve proph t.front in
   if front' != front then
     pop_1 t front'
   else

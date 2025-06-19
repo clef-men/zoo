@@ -14,7 +14,7 @@ let rec size t =
   let front = t.front in
   let proph = Zoo.proph () in
   let back = t.back in
-  if Zoo.resolve t.front proph () == front then
+  if Zoo.resolve proph t.front == front then
     Int.positive_part (back - front)
   else
     size t

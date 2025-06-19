@@ -56,7 +56,11 @@ Definition mpmc_queue_2_size : val :=
     let: "front" := "t".{front} in
     let: "proph" := Proph in
     let: "back" := "t".{back} in
-    if: Resolve ("t".{front} == "front") "proph" () then (
+    if:
+      let: "__tmp__" := "t".{front} == "front" in
+      Resolve Skip "proph" "__tmp__" ;;
+      "__tmp__"
+    then (
       mpmc_queue_2_prefix_index "back" - mpmc_queue_2_suffix_index "front" +
       #1
     ) else (
@@ -190,7 +194,11 @@ Qed.
         )
     end
   and: "pop_3" "t" "proph" "front" =>
-    let: "front'" := Resolve "t".{front} "proph" () in
+    let: "front'" :=
+      let: "__tmp__" := "t".{front} in
+      Resolve Skip "proph" "__tmp__" ;;
+      "__tmp__"
+    in
     if: "front'" != "front" then (
       "pop_1" "t" "front'"
     ) else (

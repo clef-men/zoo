@@ -814,6 +814,9 @@ Notation Unit := (
 Notation Fail := (
   App Unit Unit
 ).
+Notation Skip := (
+  App (Val (ValFun BAnon Unit)) Unit
+).
 
 Definition val_to_int v :=
   match v with

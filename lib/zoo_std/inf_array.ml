@@ -41,7 +41,7 @@ let xchg_resolve t i v proph v_resolve =
     reserve t (i + 1) ;
     let old_v = Array.unsafe_get t.data i in
     Array.unsafe_set t.data i v ;
-    Zoo.resolve' proph v_resolve ;
+    Zoo.resolve_silent proph v_resolve ;
     old_v
 
 let set t i v =
@@ -60,7 +60,7 @@ let cas_resolve t i v1 v2 proph v_resolve =
     let res = Array.unsafe_get t.data i == v1 in
     if res then
       Array.unsafe_set t.data i v2 ;
-    Zoo.resolve' proph v_resolve ;
+    Zoo.resolve_silent proph v_resolve ;
     res
 
 let faa t i incr =

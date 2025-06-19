@@ -69,7 +69,7 @@ Definition inf_array_xchg_resolve : val :=
          inf_array_reserve "t" ("i" + #1) ;;
          let: "old_v" := array_unsafe_get "t".{data} "i" in
          array_unsafe_set "t".{data} "i" "v" ;;
-         Resolve ((fun: <> => ()) ()) "proph" "v_resolve" ;;
+         Resolve Skip "proph" "v_resolve" ;;
          "old_v").
 
 Definition inf_array_set : val :=
@@ -101,7 +101,7 @@ Definition inf_array_cas_resolve : val :=
          ) else (
            ()
          ) ;;
-         Resolve ((fun: <> => ()) ()) "proph" "v_resolve" ;;
+         Resolve Skip "proph" "v_resolve" ;;
          "res").
 
 Definition inf_array_faa : val :=

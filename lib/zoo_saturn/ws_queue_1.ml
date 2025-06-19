@@ -6,7 +6,7 @@ type 'a t =
   { mutable front: int [@atomic];
     mutable back: int [@atomic];
     mutable data: 'a array [@atomic];
-    proph: (int * Zoo.id) Zoo.proph;
+    proph: (bool, int * Zoo.id) Zoo.proph;
   }
 
 let[@zoo.opaque] min_capacity =
@@ -44,7 +44,7 @@ let rec steal t =
     let data = t.data in
     let v = Array.unsafe_cget data front in
     if
-      Zoo.resolve (
+      Zoo.resolve_with (
         Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
       ) t.proph (front, id)
     then (
@@ -75,7 +75,7 @@ let pop t =
     Some v
   ) else (
     let won =
-      Zoo.resolve (
+      Zoo.resolve_with (
         Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
       ) t.proph (front, id)
     in
