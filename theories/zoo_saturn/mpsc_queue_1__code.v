@@ -42,7 +42,8 @@ Definition mpsc_queue_1_fix_back : val :=
     match: "new_back" with
     | Node <> <> as "new_back_r" =>
         if:
-          "new_back_r".{next} == §Null and
+          "new_back_r".{next} == §Null
+          and
           ~ CAS "t".[back] "back" "new_back"
         then (
           domain_yield () ;;

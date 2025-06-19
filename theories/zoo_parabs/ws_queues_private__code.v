@@ -88,7 +88,8 @@ Definition ws_queues_private_steal_to_0 : val :=
 Definition ws_queues_private_steal_to : val :=
   fun: "t" "i" "j" =>
     if:
-      array_unsafe_get "t".{statuses} "j" == §Nonblocked and
+      array_unsafe_get "t".{statuses} "j" == §Nonblocked
+      and
       atomic_array_unsafe_cas
         "t".{requests}
         "j"

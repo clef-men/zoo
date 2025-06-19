@@ -237,7 +237,8 @@ Definition htbl_resize : val :=
     let: "i" := domain_self_index () `rem` atomic_array_size "t".{sizes} in
     atomic_array_unsafe_faa "t".{sizes} "i" "delta" ;;
     if:
-      "state".<status> == §Normal and
+      "state".<status> == §Normal
+      and
       (random_bits () `land` "state".<mask> == #0 and "t".{state} == "state")
     then (
       let: "sz" := atomic_array_sum "t".{sizes} in

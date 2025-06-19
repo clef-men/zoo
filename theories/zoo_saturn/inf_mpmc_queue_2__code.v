@@ -27,7 +27,8 @@ Definition inf_mpmc_queue_2_size : val :=
     if:
       (let: "__tmp__" := "t".{front} in
        Resolve Skip "proph" "__tmp__" ;;
-       "__tmp__") ==
+       "__tmp__")
+      ==
       "front"
     then (
       int_positive_part ("back" - "front")
@@ -44,13 +45,14 @@ Definition inf_mpmc_queue_2_push : val :=
     let: "id" := Id in
     let: "i" := FAA "t".[back] #1 in
     if:
-      ~ inf_array_cas_resolve
-          "t".{data}
-          "i"
-          §Nothing
-          ‘Something( "v" )
-          "t".{proph}
-          ("i", "id")
+      ~
+      inf_array_cas_resolve
+        "t".{data}
+        "i"
+        §Nothing
+        ‘Something( "v" )
+        "t".{proph}
+        ("i", "id")
     then (
       "push" "t" "v"
     ).

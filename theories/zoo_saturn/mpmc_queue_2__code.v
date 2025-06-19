@@ -61,7 +61,8 @@ Definition mpmc_queue_2_size : val :=
       Resolve Skip "proph" "__tmp__" ;;
       "__tmp__"
     then (
-      mpmc_queue_2_prefix_index "back" - mpmc_queue_2_suffix_index "front" +
+      mpmc_queue_2_prefix_index "back" - mpmc_queue_2_suffix_index "front"
+      +
       #1
     ) else (
       "size" "t"
@@ -83,7 +84,8 @@ Definition mpmc_queue_2_help : val :=
     match: "t".{front} with
     | Front "i_front" as "front" =>
         if:
-          "i_move" < "i_front" or
+          "i_move" < "i_front"
+          or
           CAS "t".[front] "front" (mpmc_queue_2_rev "move")
         then (
           mpmc_queue_2_finish "back"

@@ -25,7 +25,8 @@ Definition inf_mpmc_queue_1_size : val :=
     if:
       (let: "__tmp__" := "t".{front} in
        Resolve Skip "proph" "__tmp__" ;;
-       "__tmp__") ==
+       "__tmp__")
+      ==
       "front"
     then (
       int_positive_part ("back" - "front")
