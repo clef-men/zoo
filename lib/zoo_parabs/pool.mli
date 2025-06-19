@@ -19,7 +19,7 @@ val kill :
 val size :
   context -> int
 
-val silent_async :
+val async_silent :
   context -> unit task -> unit
 val async :
   context -> 'a task -> 'a future

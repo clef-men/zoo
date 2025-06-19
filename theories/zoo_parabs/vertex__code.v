@@ -56,7 +56,7 @@ Definition vertex_precede : val :=
       "run" "ctx" "t"
     )
   and: "run" "ctx" "t" =>
-    pool_silent_async "ctx"
+    pool_async_silent "ctx"
       (fun: "ctx" =>
          "t" <-{preds} #1 ;;
          if: "t".{task} "ctx" then (

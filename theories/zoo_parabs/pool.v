@@ -525,7 +525,7 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_silent_async_spec_inv t ctx task :
+  Lemma pool_async_silent_spec_inv t ctx task :
     {{{
       pool_context_inv t ctx ∗
       pool_context_model ctx ∗
@@ -537,7 +537,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_silent_async ctx task
+      pool_async_silent ctx task
     {{{
       RET ();
       pool_context_model ctx
@@ -554,7 +554,7 @@ Section pool_G.
     iSplitL. { iFrame. rewrite big_sepMS_singleton. iSteps. }
     iSteps.
   Qed.
-  Lemma pool_silent_async_spec ctx task :
+  Lemma pool_async_silent_spec ctx task :
     {{{
       pool_context_model ctx ∗
       ( ∀ ctx,
@@ -564,7 +564,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_silent_async ctx task
+      pool_async_silent ctx task
     {{{
       RET ();
       pool_context_model ctx
@@ -607,7 +607,7 @@ Section pool_G.
 
     wp_rec.
     wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-    wp_smart_apply (pool_silent_async_spec_inv with "[$Hctx_inv $Hctx_model Htask Hivar_producer]") as "Hctx_model".
+    wp_smart_apply (pool_async_silent_spec_inv with "[$Hctx_inv $Hctx_model Htask Hivar_producer]") as "Hctx_model".
     { iIntros "{%} %ctx Hctx_inv Hctx_model".
       wp_smart_apply (wp_wand with "(Htask Hctx_inv Hctx_model)") as (v) "(Hctx_model & HΨ & HΞ)".
       wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
@@ -642,7 +642,7 @@ Section pool_G.
 
     wp_rec.
     wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-    wp_smart_apply (pool_silent_async_spec with "[$Hctx Htask Hivar_producer]") as "Hctx".
+    wp_smart_apply (pool_async_silent_spec with "[$Hctx Htask Hivar_producer]") as "Hctx".
     { iIntros "{%} %ctx Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
       wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".

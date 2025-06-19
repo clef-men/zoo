@@ -64,11 +64,11 @@ let kill t =
 let size ctx =
   ctx.context_size
 
-let silent_async ctx task =
+let async_silent ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 let async ctx task =
   let fut = Ivar_3.create () in
-  silent_async ctx (fun ctx ->
+  async_silent ctx (fun ctx ->
     let res = task ctx in
     let waiters = Ivar_3.set fut res in
     Lst.iter (fun waiter -> waiter ctx res) waiters

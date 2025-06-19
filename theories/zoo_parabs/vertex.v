@@ -1095,7 +1095,7 @@ Section vertex_G.
       iIntros "%ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
       wp_recs.
-      wp_smart_apply (pool_silent_async_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
+      wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
       wp_pures.
 
       wp_bind (_ <-{preds} _)%E.

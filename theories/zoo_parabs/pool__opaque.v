@@ -5,7 +5,7 @@ From zoo_parabs Require Import
 #[global] Opaque pool_run.
 #[global] Opaque pool_kill.
 #[global] Opaque pool_size.
-#[global] Opaque pool_silent_async.
+#[global] Opaque pool_async_silent.
 #[global] Opaque pool_async.
 #[global] Opaque pool_wait_until.
 #[global] Opaque pool_wait_while.

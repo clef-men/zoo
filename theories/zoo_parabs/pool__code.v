@@ -76,14 +76,14 @@ Definition pool_size : val :=
   fun: "ctx" =>
     "ctx".<context_size>.
 
-Definition pool_silent_async : val :=
+Definition pool_async_silent : val :=
   fun: "ctx" "task" =>
     ws_hub_std_push "ctx".<context_hub> "ctx".<context_id> "task".
 
 Definition pool_async : val :=
   fun: "ctx" "task" =>
     let: "fut" := ivar_3_create () in
-    pool_silent_async
+    pool_async_silent
       "ctx"
       (fun: "ctx" =>
          let: "res" := "task" "ctx" in
