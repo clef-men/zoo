@@ -669,11 +669,16 @@ Section inf_ws_queue_1_G.
   Proof.
     apply mono_list_at_agree.
   Qed.
-  #[local] Lemma history_update {γ hist} v :
+  #[local] Lemma history_update {γ hist} i v :
+    i = length hist →
     history_auth γ hist ⊢ |==>
-    history_auth γ (hist ++ [v]).
+      history_auth γ (hist ++ [v]) ∗
+      history_at γ i v.
   Proof.
-    apply mono_list_update_snoc.
+    iIntros (->) "Hauth".
+    iMod (mono_list_update_snoc with "Hauth") as "Hauth".
+    iDestruct (history_at_get with "Hauth") as "#Hat"; first done.
+    iSteps.
   Qed.
 
   #[local] Lemma winner_alloc :
@@ -1293,7 +1298,7 @@ Section inf_ws_queue_1_G.
 
         - destruct vs1 as [| v2 vs1] => /=; first naive_solver lia.
           simpl in Hvs1.
-          iMod (history_update v2 with "Hhistory_auth") as "Hhistory_auth".
+          iMod (history_update _ v2 with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
           iExists Nonempty. iFrameSteps; iPureIntro.
           + intros.
             rewrite fn_lookup_alter_ne; first lia.
@@ -1375,8 +1380,7 @@ Section inf_ws_queue_1_G.
 
       iMod (front_update with "Hfront_auth") as "Hfront_auth".
       iClear "Hfront_lb". iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
-      iMod (history_update (priv 0) with "Hhistory_auth") as "Hhistory_auth".
-      iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at"; first done.
+      iMod (history_update _ (priv 0) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)"; first done.
       iMod (owner_update Unstable (length hist1) (priv ∘ S) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
       iDestruct (inf_array_model'_shift_l' with "Hdata_model") as "Hdata_model".
@@ -1440,7 +1444,7 @@ Section inf_ws_queue_1_G.
 
       - iDestruct "Hstate" as "(:inv_state_empty =1 lazy=)".
         assert (length vs = 0) as ->%nil_length_inv by lia.
-        iMod (history_update v with "Hhistory_auth") as "Hhistory_auth".
+        iMod (history_update _ v with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
         iFrameSteps.
 
       - iDestruct "Hstate" as "(:inv_state_nonempty =1 lazy=)".
