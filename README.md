@@ -1,7 +1,7 @@
 ## Synopsis
 
 This project is part of the [Iris Masterplan](https://julesjacobs.com/slides/iris-masterplan.pdf).
-It aims at verifying OCaml 5 programs, including lockfree algorithms from [Saturn](https://github.com/ocaml-multicore/saturn) and a [work-stealing scheduler](https://github.com/clef-men/parabs) based on [Domainslib](https://github.com/ocaml-multicore/domainslib).
+It aims at verifying OCaml 5 programs, including [lock-free data structures](lib/zoo_saturn) from [Saturn](https://github.com/ocaml-multicore/saturn), a [lock-free multi-word compare-and-set algorithm](lib/zoo_kcas) from [Kcas](https://github.com/ocaml-multicore/kcas) and a [work-stealing scheduler](lib/zoo_parabs) based on [Domainslib](https://github.com/ocaml-multicore/domainslib).
 
 ## Building (Coq proofs only)
 
