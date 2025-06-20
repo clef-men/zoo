@@ -874,7 +874,7 @@ Section zoo_G.
     Qed.
 
     Lemma chunk_cslice_mod l sz i dq vs :
-      sz ≠ 0 →
+      0 < sz →
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i `mod` sz) dq vs.
     Proof.
@@ -885,7 +885,7 @@ Section zoo_G.
     Qed.
 
     #[local] Lemma chunk_cslice_rotate_right_aux {l sz} i1 i2 dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       i1 `mod` sz ≤ i2 `mod` sz →
       chunk_cslice l sz i1 dq vs ⊣⊢
@@ -915,7 +915,7 @@ Section zoo_G.
       iSteps.
     Qed.
     Lemma chunk_cslice_rotate_right {l sz i dq vs} n :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + n) dq (list.rotate (n `mod` sz) vs).
@@ -930,7 +930,7 @@ Section zoo_G.
 
       destruct (Nat.le_ge_cases j1 j2).
 
-      - rewrite chunk_cslice_rotate_right_aux // minus_mod_1'' //.
+      - rewrite chunk_cslice_rotate_right_aux // minus_mod_1'' //; first lia.
 
       - rewrite (chunk_cslice_rotate_right_aux i2 i1) //; first  simpl_length.
         rewrite minus_mod_2; [lia.. |].
@@ -945,7 +945,7 @@ Section zoo_G.
           rewrite take_drop //.
     Qed.
     Lemma chunk_cslice_rotate_right_0 {l sz dq vs} i :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       chunk_cslice l sz 0 dq vs ⊣⊢
       chunk_cslice l sz i dq (list.rotate (i `mod` sz) vs).
@@ -955,7 +955,7 @@ Section zoo_G.
     Qed.
 
     Lemma chunk_cslice_rotate_left l sz i n dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       chunk_cslice l sz (i + n) dq vs ⊣⊢
       chunk_cslice l sz i dq (list.rotate (sz - n `mod` sz) vs).
@@ -973,7 +973,7 @@ Section zoo_G.
       { rewrite /ws. simpl_length. }
     Qed.
     Lemma chunk_cslice_rotate_left_0 l sz i dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz 0 dq (list.rotate (sz - i `mod` sz) vs).
@@ -982,7 +982,7 @@ Section zoo_G.
     Qed.
 
     Lemma chunk_cslice_to_model l sz i dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       chunk_cslice l sz i dq vs ⊢
       chunk_model l dq (list.rotate (sz - i `mod` sz) vs).

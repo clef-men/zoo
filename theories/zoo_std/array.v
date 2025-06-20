@@ -563,7 +563,7 @@ Section zoo_G.
       iSteps.
     Qed.
     Lemma array_cslice_to_model t sz i dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz i dq vs ⊢
       array_model t dq (list.rotate (sz - i `mod` sz) vs).
@@ -792,7 +792,7 @@ Section zoo_G.
     Qed.
 
     Lemma array_cslice_rotate_right {t sz i dq vs} n :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz i dq vs ⊣⊢
       array_cslice t sz (i + n) dq (list.rotate (n `mod` sz) vs).
@@ -802,7 +802,7 @@ Section zoo_G.
       setoid_rewrite chunk_cslice_rotate_right at 1; done.
     Qed.
     Lemma array_cslice_rotate_right_1 {t sz i dq vs} n :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz i dq vs ⊢
       array_cslice t sz (i + n) dq (list.rotate (n `mod` sz) vs).
@@ -811,7 +811,7 @@ Section zoo_G.
       rewrite array_cslice_rotate_right //.
     Qed.
     Lemma array_cslice_rotate_right_0 {t sz dq vs} i :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz 0 dq vs ⊣⊢
       array_cslice t sz i dq (list.rotate (i `mod` sz) vs).
@@ -820,8 +820,73 @@ Section zoo_G.
       rewrite array_cslice_rotate_right //.
     Qed.
 
+    Lemma array_cslice_rotate_right' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      array_cslice t sz i1 dq vs ⊣⊢
+      array_cslice t sz i2 dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs ->.
+      rewrite array_cslice_rotate_right //.
+    Qed.
+    Lemma array_cslice_rotate_right_1' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_right' //.
+    Qed.
+
+    Lemma array_cslice_rotate_right_small {t sz i dq vs} n :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz i dq vs ⊣⊢
+      array_cslice t sz (i + n) dq (list.rotate n vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_right // Nat.mod_small //.
+    Qed.
+    Lemma array_cslice_rotate_right_small_1 {t sz i dq vs} n :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz i dq vs ⊢
+      array_cslice t sz (i + n) dq (list.rotate n vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_right_small //.
+    Qed.
+
+    Lemma array_cslice_rotate_right_small' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊣⊢
+      array_cslice t sz i2 dq (list.rotate n vs).
+    Proof.
+      intros Hsz Hvs -> Hn.
+      rewrite array_cslice_rotate_right_small //.
+    Qed.
+    Lemma array_cslice_rotate_right_small_1' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq (list.rotate n vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_right_small' //.
+    Qed.
+
     Lemma array_cslice_rotate_left t sz i n dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz (i + n) dq vs ⊣⊢
       array_cslice t sz i dq (list.rotate (sz - n `mod` sz) vs).
@@ -831,7 +896,7 @@ Section zoo_G.
       setoid_rewrite chunk_cslice_rotate_left at 1; done.
     Qed.
     Lemma array_cslice_rotate_left_1 t sz i n dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz (i + n) dq vs ⊢
       array_cslice t sz i dq (list.rotate (sz - n `mod` sz) vs).
@@ -840,7 +905,7 @@ Section zoo_G.
       rewrite array_cslice_rotate_left //.
     Qed.
     Lemma array_cslice_rotate_left_0 t sz i dq vs :
-      sz ≠ 0 →
+      0 < sz →
       length vs = sz →
       array_cslice t sz i dq vs ⊣⊢
       array_cslice t sz 0 dq (list.rotate (sz - i `mod` sz) vs).
@@ -6570,7 +6635,7 @@ Section zoo_G.
     iApply ("HΦ" with "Hcslice").
   Qed.
   Lemma array_unsafe_cset_spec_model t vs (j : Z) v :
-    length vs ≠ 0 →
+    0 < length vs →
     (0 ≤ j)%Z →
     {{{
       array_model t (DfracOwn 1) vs
@@ -7060,7 +7125,7 @@ Section zoo_G.
   Lemma array_unsafe_cgrow_slice_spec t sz (i : Z) i_ dq vs (n : Z) sz' v :
     i = ⁺i_ →
     n = ⁺(length vs) →
-    sz' ≠ 0%Z →
+    (0 < sz')%Z →
     (n ≤ sz')%Z →
     {{{
       array_cslice t sz i_ dq vs
@@ -7089,7 +7154,7 @@ Section zoo_G.
   Lemma array_unsafe_cgrow_spec t (sz : nat) (i : Z) i_ dq vs sz' v :
     i = ⁺i_ →
     length vs = sz →
-    sz' ≠ 0%Z →
+    (0 < sz')%Z →
     (sz ≤ sz')%Z →
     {{{
       array_cslice t sz i_ dq vs
@@ -7194,7 +7259,7 @@ Section zoo_G.
     iApply (itype_array_intro with "Hmodel").
   Qed.
   Lemma itype_array_intro_cslice τ `{!iType _ τ} t sz i vs :
-    sz ≠ 0 →
+    0 < sz →
     length vs = sz →
     array_cslice t sz i (DfracOwn 1) vs -∗
     ([∗ list] v ∈ vs, τ v) ={⊤}=∗
