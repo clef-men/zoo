@@ -443,10 +443,12 @@ Section mpsc_queue_3_G.
     >>>
       mpsc_queue_3_push_front t v @ ↑ι
     <<<
+      ∃∃ b,
+      ⌜b = bool_decide (vs = [])⌝ ∗
       ⌜vs' = vs⌝ ∗
-      mpsc_queue_3_model t (if vs is [] then [] else v :: vs)
-    | RET #(bool_decide (vs = []%list));
-      mpsc_queue_3_consumer t (Some $ if vs is [] then [] else v :: vs)
+      mpsc_queue_3_model t (if b then [] else v :: vs)
+    | RET #b;
+      mpsc_queue_3_consumer t (Some $ if b then [] else v :: vs)
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:consumer closed=)) HΦ". injection Heq as <-.
