@@ -90,11 +90,17 @@ Section basic.
     destruct l1; done.
   Qed.
 
+  Lemma head_app l1 l2 :
+    0 < length l1 →
+    head (l1 ++ l2) = head l1.
+  Proof.
+    destruct l1; naive_solver lia.
+  Qed.
   Lemma head_app_cons l1 x l2 :
     head (l1 ++ x :: l2) = head (l1 ++ [x]).
   Proof.
-    move: l1 x. induction l2 as [| x' l2 IH] => l1 x; first done.
-    rewrite (assoc _ l1 [x]) IH -assoc head_snoc_snoc //.
+    rewrite (assoc _ _ [_]) head_app //.
+    { rewrite length_app /=. lia. }
   Qed.
   Lemma head_drop_Some l i x :
     l !! i = Some x →
@@ -112,6 +118,29 @@ Section basic.
     destruct (l !! i) as [x |] eqn:Hlookup.
     - apply head_drop_Some. done.
     - rewrite skipn_all2 // -lookup_ge_None //.
+  Qed.
+
+  Lemma hd_app default l1 l2 :
+    0 < length l1 →
+    hd default (l1 ++ l2) = hd default l1.
+  Proof.
+    destruct l1; naive_solver lia.
+  Qed.
+  Lemma hd_app_cons default l1 x l2 :
+    hd default (l1 ++ x :: l2) = hd default (l1 ++ [x]).
+  Proof.
+    rewrite (assoc _ _ [_]) hd_app //.
+    { rewrite length_app /=. lia. }
+  Qed.
+  Lemma hd_drop_Some default l i x :
+    l !! i = Some x →
+    hd default (drop i l) = x.
+  Proof.
+    intros Hlookup.
+    assert (length (take i l) = i) as Hlength_take.
+    { apply lookup_lt_Some in Hlookup. rewrite length_take. lia. }
+    apply take_drop_middle in Hlookup as <-.
+    rewrite drop_app Hlength_take Nat.sub_diag skipn_all2 //; first lia.
   Qed.
 
   Lemma last_cons' x l :
