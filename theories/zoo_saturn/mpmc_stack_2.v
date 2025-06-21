@@ -150,7 +150,8 @@ Section zoo_G.
       mpmc_stack_2_push t v @ ↑ι
     <<<
       mpmc_stack_2_model t (cons v <$> vs)
-      | RET #(bool_decide (vs = None)); £ 1
+    | RET #(bool_decide (vs = None));
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -229,7 +230,8 @@ Section zoo_G.
       mpmc_stack_2_pop t @ ↑ι
     <<<
       mpmc_stack_2_model t (tail <$> vs)
-    | RET default Anything (option_to_optional ∘ head <$> vs); £ 1
+    | RET default Anything (option_to_optional ∘ head <$> vs);
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -312,7 +314,8 @@ Section zoo_G.
       mpmc_stack_2_is_closed t @ ↑ι
     <<<
       mpmc_stack_2_model t vs
-    | RET #(bool_decide (vs = None)); £ 1
+    | RET #(bool_decide (vs = None));
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
@@ -367,7 +370,8 @@ Section zoo_G.
       mpmc_stack_2_close t @ ↑ι
     <<<
       mpmc_stack_2_model t None
-    | RET from_option list_to_clist_open ClistClosed vs; £ 1
+    | RET from_option list_to_clist_open ClistClosed vs;
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
