@@ -2,6 +2,8 @@
    https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/htbl/htbl.body.ml
 *)
 
+[@@@zoo.ignore]
+
 type ('k, 'v) bucket =
   | Init
   | Nil

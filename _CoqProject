@@ -402,10 +402,6 @@ theories/zoo_saturn/ws_queue_2__types.v
 theories/zoo_saturn/ws_queue_2__code.v
 theories/zoo_saturn/ws_queue_2__opaque.v
 theories/zoo_saturn/ws_queue_2.v
-theories/zoo_saturn/htbl__types.v
-theories/zoo_saturn/htbl__code.v
-theories/zoo_saturn/htbl__opaque.v
-theories/zoo_saturn/htbl.v
 
 #END zoo-saturn
 
