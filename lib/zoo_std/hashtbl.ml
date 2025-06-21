@@ -2,6 +2,8 @@
    https://github.com/ocaml-multicore/picos/blob/fa1da88bf3643fa18af2357a426e74ea2ac31072/lib/picos_aux.htbl/picos_aux_htbl.ml
 *)
 
+[@@@zoo.ignore]
+
 type ('k, 'v) bucket =
   | Nil
   | Cons of 'k * 'v * ('k, 'v) bucket
