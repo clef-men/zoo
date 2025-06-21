@@ -190,7 +190,7 @@ Section zoo_G.
           iSplitR "HΦ". { iExists (Some ws'). iSteps. }
           iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed'.
+      + wp_cas as _ | []%(inj clist_to_val ClstClosed)%list_to_clist_open_not_closed'.
         iSplitR "HΦ". { iExists None. iSteps. }
         iSteps.
 
@@ -261,7 +261,7 @@ Section zoo_G.
       iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
       destruct vs' as [ws' |].
 
-      + wp_cas as _ | ->%(inj clist_to_val _ (ClistCons _ _))%(inj list_to_clist_open _ (_ :: _)).
+      + wp_cas as _ | ->%(inj clist_to_val _ (ClstCons _ _))%(inj list_to_clist_open _ (_ :: _)).
 
         * iSplitR "HΦ". { iExists (Some ws'). iSteps. }
           iSteps.
@@ -334,7 +334,7 @@ Section zoo_G.
       iSplitR "HΦ". { iExists (Some _). iSteps. }
       iModIntro.
 
-      wp_equal as _ | []%(inj clist_to_val _ ClistClosed)%list_to_clist_open_not_closed.
+      wp_equal as _ | []%(inj clist_to_val _ ClstClosed)%list_to_clist_open_not_closed.
       iSteps.
 
     - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
@@ -370,7 +370,7 @@ Section zoo_G.
       mpmc_stack_2_close t @ ↑ι
     <<<
       mpmc_stack_2_model t None
-    | RET from_option list_to_clist_open ClistClosed vs;
+    | RET from_option list_to_clist_open ClstClosed vs;
       £ 1
     >>>.
   Proof.

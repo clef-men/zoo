@@ -14,18 +14,18 @@ From zoo Require Import
 Implicit Types v t fn : val.
 
 Inductive clist :=
-  | ClistClosed
-  | ClistOpen
-  | ClistCons v (cvs : clist).
+  | ClstClosed
+  | ClstOpen
+  | ClstCons v (cvs : clist).
 Implicit Types cvs : clist.
 
 Fixpoint clist_to_val cvs :=
   match cvs with
-  | ClistClosed =>
+  | ClstClosed =>
       §ClstClosed
-  | ClistOpen =>
+  | ClstOpen =>
       §ClstOpen
-  | ClistCons v cvs =>
+  | ClstCons v cvs =>
       ‘ClstCons[ v, clist_to_val cvs ]
   end%V.
 Coercion clist_to_val : clist >-> val.
@@ -45,16 +45,16 @@ Qed.
 Fixpoint list_to_clist_open vs :=
   match vs with
   | [] =>
-      ClistOpen
+      ClstOpen
   | v :: vs =>
-      ClistCons v (list_to_clist_open vs)
+      ClstCons v (list_to_clist_open vs)
   end.
 Fixpoint list_to_clist_closed vs :=
   match vs with
   | [] =>
-      ClistClosed
+      ClstClosed
   | v :: vs =>
-      ClistCons v (list_to_clist_closed vs)
+      ClstCons v (list_to_clist_closed vs)
   end.
 
 #[global] Instance list_to_clist_open_inj :
@@ -73,12 +73,12 @@ Proof.
   move: vs2. induction vs1; destruct vs2; naive_solver.
 Qed.
 Lemma list_to_clist_open_not_closed vs :
-  list_to_clist_open vs ≠ ClistClosed.
+  list_to_clist_open vs ≠ ClstClosed.
 Proof.
   apply (list_to_clist_open_closed vs []).
 Qed.
 Lemma list_to_clist_open_not_closed' vs :
-  ClistClosed ≠ list_to_clist_open vs.
+  ClstClosed ≠ list_to_clist_open vs.
 Proof.
   symmetry. apply list_to_clist_open_not_closed.
 Qed.
@@ -88,7 +88,7 @@ Fixpoint clist_app vs1 cvs2 :=
   | [] =>
       cvs2
   | v :: vs1 =>
-      ClistCons v (clist_app vs1 cvs2)
+      ClstCons v (clist_app vs1 cvs2)
   end.
 
 Lemma clist_app_open {vs1 cvs2} vs2 :
@@ -98,8 +98,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClistOpen vs :
-  clist_app vs ClistOpen = list_to_clist_open vs.
+Lemma clist_app_ClstOpen vs :
+  clist_app vs ClstOpen = list_to_clist_open vs.
 Proof.
   rewrite (clist_app_open []) // right_id //.
 Qed.
@@ -110,8 +110,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClistClosed vs :
-  clist_app vs ClistClosed = list_to_clist_closed vs.
+Lemma clist_app_ClstClosed vs :
+  clist_app vs ClstClosed = list_to_clist_closed vs.
 Proof.
   rewrite (clist_app_closed []) // right_id //.
 Qed.
@@ -167,7 +167,7 @@ Section zoo_G.
     all: wp_rec.
     - iSteps.
     - wp_pures.
-      wp_smart_apply ("IH" $! _ _ (ClistCons v1 cvs2) with "[//]"); iSteps.
+      wp_smart_apply ("IH" $! _ _ (ClstCons v1 cvs2) with "[//]"); iSteps.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
