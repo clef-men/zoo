@@ -1024,9 +1024,9 @@ Section mpmc_bqueue_G.
         mpmc_bqueue_push_1 #l #back #cap #new_back @ ↑γ.(metadata_inv)
       <<<
         ∃∃ b,
-        ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
-        model₁ γ (if b then vs else vs ++ [v])
-      | RET #(negb b);
+        ⌜b = bool_decide (length vs < γ.(metadata_capacity))⌝ ∗
+        model₁ γ (if b then vs ++ [v] else vs)
+      | RET #b;
         True
       >>>
     ) ∧ (
@@ -1048,9 +1048,9 @@ Section mpmc_bqueue_G.
         mpmc_bqueue_push_2 #l #back #new_back @ ↑γ.(metadata_inv)
       <<<
         ∃∃ b,
-        ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
-        model₁ γ (if b then vs else vs ++ [v])
-      | RET #(negb b);
+        ⌜b = bool_decide (length vs < γ.(metadata_capacity))⌝ ∗
+        model₁ γ (if b then vs ++ [v] else vs)
+      | RET #b;
         True
       >>>
     ).
@@ -1059,12 +1059,12 @@ Section mpmc_bqueue_G.
     iDestruct "HLöb" as "(IHpush_1 & IHpush_2)".
     iSplit.
 
-    - iIntros "%back %i_back %i_front %cap %Φ (#Hmeta & #Hl_capacity & #Hinv & (:node_model =back) & #Hfront_lb_front & % & % & #Hnew_back_header & Hnew_back_next & Hnew_back_data & (% & Hnew_back_index) & (% & Hnew_back_estimated_capacity)) HΦ".
+    { iIntros "%back %i_back %i_front %cap %Φ (#Hmeta & #Hl_capacity & #Hinv & (:node_model =back) & #Hfront_lb_front & % & % & #Hnew_back_header & Hnew_back_next & Hnew_back_data & (% & Hnew_back_index) & (% & Hnew_back_estimated_capacity)) HΦ".
 
       wp_recs. do 2 wp_match. wp_pures.
       case_bool_decide; wp_pures.
 
-      + wp_bind (_.{front})%E.
+      - wp_bind (_.{front})%E.
         iInv "Hinv" as "(:inv_inner =1)".
         wp_load.
         assert (hist1 !! (length past1) = Some front1) as Hlookup.
@@ -1074,7 +1074,7 @@ Section mpmc_bqueue_G.
 
         destruct (decide (i_back < length past1 + γ.(metadata_capacity))) as [Hnotfull | Hfull].
 
-        * iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
+        + iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
           remember (length past1) as i_front1.
           iModIntro. clear- Hnotfull.
@@ -1093,7 +1093,7 @@ Section mpmc_bqueue_G.
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
           iSteps.
 
-        * iMod "HΦ" as "(%vs & (%Hvs & Hmodel₁) & _ & HΦ)".
+        + iMod "HΦ" as "(%vs & (%Hvs & Hmodel₁) & _ & HΦ)".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
           iAssert ⌜
             length vs = γ.(metadata_capacity) ∧
@@ -1105,17 +1105,17 @@ Section mpmc_bqueue_G.
             apply (f_equal length) in Hhist1. simpl_length/= in Hhist1.
             lia.
           }
-          rewrite bool_decide_eq_true_2 //.
-          iMod ("HΦ" $! true with "[$Hmodel₁ //] [//]") as "HΦ".
+          rewrite bool_decide_eq_false_2; first lia.
+          iMod ("HΦ" $! false with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
           iModIntro. clear- Hif.
 
           wp_match. do 3 wp_load. wp_pures.
-          rewrite bool_decide_eq_true_2 //.
+          iEval (rewrite bool_decide_eq_true_2 //).
           iSteps.
 
-      + wp_load. do 2 wp_store. wp_pures.
+      - wp_load. do 2 wp_store. wp_pures.
 
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(:inv_inner =1)".
@@ -1123,7 +1123,7 @@ Section mpmc_bqueue_G.
         iDestruct (xtchain_lookup with "Hhist") as "(Hhist1 & _ & Hback & Hhist2)"; first done.
         destruct (hist1 !! (S i_back)) as [next |] eqn:Hlookup_next; simpl.
 
-        * wp_cas as _ | [=].
+        + wp_cas as _ | [=].
           iDestruct (history_at_get (S i_back) with "Hhistory_auth") as "#Hhistory_at_next"; first done.
           iDestruct (xtchain_lookup_2 with "Hhist1 Hback_header Hback Hhist2") as "Hhist"; [done | rewrite Hlookup_next // |].
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
@@ -1133,7 +1133,7 @@ Section mpmc_bqueue_G.
           wp_smart_apply (next_spec' back next with "[$]") as "(:node_model =next)".
           iSteps.
 
-        * wp_cas as ? | _; first done.
+        + wp_cas as ? | _; first done.
           opose proof* length_lookup_last as Hlength; [done.. |].
           iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_front") as %?.
 
@@ -1141,10 +1141,10 @@ Section mpmc_bqueue_G.
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
           iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           iDestruct (big_sepL2_length with "Hnodes") as %<-.
-          assert (length nodes1 ≠ γ.(metadata_capacity)).
+          assert (length nodes1 < γ.(metadata_capacity)).
           { rewrite Hhist1 length_app /= in Hlength. lia. }
-          rewrite bool_decide_eq_false_2 //.
-          iMod ("HΦ" $! false with "[$Hmodel₁ //] [//]") as "HΦ".
+          iEval (rewrite bool_decide_eq_true_2 //) in "HΦ".
+          iMod ("HΦ" $! true with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iDestruct (xtchain_lookup_2 with "Hhist1 Hback_header Hback []") as "Hhist"; [done | rewrite Hlookup_next // | ..].
           { rewrite -Hlength // drop_all -xtchain_nil //. }
@@ -1165,8 +1165,9 @@ Section mpmc_bqueue_G.
           wp_smart_apply mpmc_bqueue_fix_back_spec.
           { iFrame "#". iSteps. }
           iSteps.
+    }
 
-    - iClear "IHpush_2".
+    { iClear "IHpush_2".
 
       iIntros "%back %i_back %Φ (#Hmeta & #Hl_capacity & #Hinv & (:node_model =back) & #Hnew_back_header & Hnew_back_next & Hnext_back_data & Hnew_back_index & Hnew_back_estimated_capacity) HΦ".
 
@@ -1181,6 +1182,7 @@ Section mpmc_bqueue_G.
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
+    }
   Qed.
   #[local] Lemma mpmc_bqueue_push_2_spec l γ back i_back new_back v :
     <<<
@@ -1200,9 +1202,9 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_push_2 #l #back #new_back @ ↑γ.(metadata_inv)
     <<<
       ∃∃ b,
-      ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
-      model₁ γ (if b then vs else vs ++ [v])
-    | RET #(negb b);
+      ⌜b = bool_decide (length vs < γ.(metadata_capacity))⌝ ∗
+      model₁ γ (if b then vs ++ [v] else vs)
+    | RET #b;
       True
     >>>.
   Proof.
@@ -1218,9 +1220,9 @@ Section mpmc_bqueue_G.
       mpmc_bqueue_push t v @ ↑ι
     <<<
       ∃∃ b,
-      ⌜b = bool_decide (length vs = cap)⌝ ∗
-      mpmc_bqueue_model t (if b then vs else vs ++ [v])
-    | RET #(negb b);
+      ⌜b = bool_decide (length vs < cap)⌝ ∗
+      mpmc_bqueue_model t (if b then vs ++ [v] else vs)
+    | RET #b;
       True
     >>>.
   Proof.
