@@ -6335,6 +6335,51 @@ Section zoo_G.
     iApply ("HΦ" with "[H↦ Hcslice] H£").
     iSteps.
   Qed.
+  Lemma array_unsafe_cget_spec_atomic_weak t sz (i : Z) :
+    0 < sz →
+    (0 ≤ i)%Z →
+    <<<
+      array_inv t sz
+    | ∀∀ j dq vs,
+      array_cslice t sz j dq vs ∗
+      ⌜length vs = sz⌝
+    >>>
+      array_unsafe_cget t #i
+    <<<
+      array_cslice t sz j dq vs
+    | v,
+      RET v;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Hsz %Hi %Φ #Hinv HΦ".
+
+    awp_apply (array_unsafe_cget_spec_atomic with "[//]").
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %Hvs)".
+
+    iAssert (
+      ∃ ws,
+      array_cslice t sz ₊i dq ws ∗
+      ⌜length ws = sz⌝ ∗
+      ( array_cslice t sz ₊i dq ws -∗
+        array_cslice t sz j dq vs
+      )
+    )%I with "[Hcslice]" as "(%ws & Hcslice & % & H)".
+    { destruct (decide (₊i ≤ j)).
+      1: iDestruct (array_cslice_rotate_left_1' ₊i (j - ₊i) with "Hcslice") as "$"; [lia.. |].
+      2: iDestruct (array_cslice_rotate_right_1' ₊i (₊i - j) with "Hcslice") as "$"; [lia.. |].
+      all: iSplit; first simpl_length.
+      all: iIntros "Hcslice".
+      1: iDestruct (array_cslice_rotate_right_1' j (j - ₊i) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
+      2: iDestruct (array_cslice_rotate_left_1' j (₊i - j) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
+      all: rewrite rotate_add; first lia.
+      all: rewrite rotate_length //; first lia.
+    }
+
+    rewrite /atomic_acc /=.
+    destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup); first lia.
+    iExists sz, ₊i, dq, ws, v. iSteps. rewrite Nat.sub_diag //.
+  Qed.
   Lemma array_unsafe_cget_spec_atomic_cell t sz (i : Z) :
     <<<
       True
@@ -6457,6 +6502,33 @@ Section zoo_G.
     iDestruct ("H" with "[//] [//]") as "(% & %Hlookup & Hcslice)".
     rewrite /atomic_acc /=.
     repeat iExists _. iFrame. iSplitL; first iSteps. iSplitL; last iSteps. iIntros "!> (_ & _ & Hslice)". iSplitL; iSteps.
+  Qed.
+  Lemma array_cget_spec_atomic_weak t sz (i : Z) :
+    <<<
+      array_inv t sz
+    | ∀∀ j dq vs,
+      array_cslice t sz j dq vs ∗
+      ⌜length vs = sz⌝
+    >>>
+      array_cget t #i
+    <<<
+      array_cslice t sz j dq vs
+    | v,
+      RET v;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Φ #Hinv HΦ".
+
+    wp_rec.
+    wp_smart_apply assume_spec' as "%".
+    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_smart_apply assume_spec' as "%".
+
+    awp_smart_apply (array_unsafe_cget_spec_atomic_weak with "[//]"); [lia.. |].
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %)".
+    rewrite /atomic_acc /=.
+    iSteps.
   Qed.
   Lemma array_cget_spec_atomic_cell t sz (i : Z) i_ :
     i_ = ₊i →
