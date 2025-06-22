@@ -1,6 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  list
   math.
 From zoo.diaframe Require Import
   diaframe.
@@ -944,6 +945,15 @@ Section zoo_G.
           { simpl_length. lia. }
           rewrite take_drop //.
     Qed.
+    Lemma chunk_cslice_rotate_right_1 {l sz i dq vs} n :
+      0 < sz →
+      length vs = sz →
+      chunk_cslice l sz i dq vs ⊢
+      chunk_cslice l sz (i + n) dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite chunk_cslice_rotate_right //.
+    Qed.
     Lemma chunk_cslice_rotate_right_0 {l sz dq vs} i :
       0 < sz →
       length vs = sz →
@@ -952,6 +962,27 @@ Section zoo_G.
     Proof.
       intros.
       rewrite chunk_cslice_rotate_right //.
+    Qed.
+
+    Lemma chunk_cslice_rotate_right' {l sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      chunk_cslice l sz i1 dq vs ⊣⊢
+      chunk_cslice l sz i2 dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs ->.
+      rewrite chunk_cslice_rotate_right //.
+    Qed.
+    Lemma chunk_cslice_rotate_right_1' {l sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i2 = i1 + n →
+      chunk_cslice l sz i1 dq vs ⊢
+      chunk_cslice l sz i2 dq (list.rotate (n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite chunk_cslice_rotate_right' //.
     Qed.
 
     Lemma chunk_cslice_rotate_left l sz i n dq vs :
@@ -972,6 +1003,15 @@ Section zoo_G.
       rewrite -chunk_cslice_rotate_right //.
       { rewrite /ws. simpl_length. }
     Qed.
+    Lemma chunk_cslice_rotate_left_1 l sz i n dq vs :
+      0 < sz →
+      length vs = sz →
+      chunk_cslice l sz (i + n) dq vs ⊢
+      chunk_cslice l sz i dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite chunk_cslice_rotate_left //.
+    Qed.
     Lemma chunk_cslice_rotate_left_0 l sz i dq vs :
       0 < sz →
       length vs = sz →
@@ -979,6 +1019,50 @@ Section zoo_G.
       chunk_cslice l sz 0 dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       apply (chunk_cslice_rotate_left _ _ 0).
+    Qed.
+
+    Lemma chunk_cslice_rotate_left' {l sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      chunk_cslice l sz i1 dq vs ⊣⊢
+      chunk_cslice l sz i2 dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs ->.
+      rewrite chunk_cslice_rotate_left //.
+    Qed.
+    Lemma chunk_cslice_rotate_left_1' {l sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      chunk_cslice l sz i1 dq vs ⊢
+      chunk_cslice l sz i2 dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite chunk_cslice_rotate_left' //.
+    Qed.
+
+    Lemma chunk_cslice_rebase {l sz i1 dq vs1} i2 :
+      0 < sz →
+      length vs1 = sz →
+      chunk_cslice l sz i1 dq vs1 ⊢
+        ∃ vs2 n,
+        ⌜vs2 = list.rotate n vs1⌝ ∗
+        chunk_cslice l sz i2 dq vs2 ∗
+        ( chunk_cslice l sz i2 dq vs2 -∗
+          chunk_cslice l sz i1 dq vs1
+        ).
+    Proof.
+      iIntros "%Hsz %Hvs Hcslice".
+      destruct (decide (i1 ≤ i2)).
+      1: iDestruct (chunk_cslice_rotate_right_1' i2 (i2 - i1) with "Hcslice") as "$"; [lia.. |].
+      2: iDestruct (chunk_cslice_rotate_left_1' i2 (i1 - i2) with "Hcslice") as "$"; [lia.. |].
+      all: iStep.
+      all: iIntros "Hcslice".
+      1: iDestruct (chunk_cslice_rotate_left_1' i1 (i2 - i1) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
+      2: iDestruct (chunk_cslice_rotate_right_1' i1 (i1 - i2) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
+      all: rewrite rotate_add; first lia.
+      all: rewrite rotate_length //; first lia.
     Qed.
 
     Lemma chunk_cslice_to_model l sz i dq vs :
