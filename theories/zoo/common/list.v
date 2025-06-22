@@ -950,6 +950,24 @@ Section rotate.
     rewrite skipn_cons firstn_cons.
     rewrite drop_app_le // take_app_le // -assoc //.
   Qed.
+  Lemma rotate_add n1 n2 l :
+    n1 + n2 = length l →
+    rotate n1 (rotate n2 l) = rotate (n1 + n2) l.
+  Proof.
+    intros ?.
+    rewrite /rotate.
+    rewrite drop_app drop_drop length_drop.
+    rewrite take_app length_drop.
+    replace (n1 - (length l - n2)) with 0 by lia.
+    rewrite drop_0 app_nil_r -assoc take_take_drop Nat.add_comm //.
+  Qed.
+  Lemma rotate_length n l :
+    n = length l →
+    rotate n l = l.
+  Proof.
+    intros ->.
+    rewrite /rotate drop_all firstn_all //.
+  Qed.
 
   Lemma rotate_Permutation n l :
     rotate n l ≡ₚ l.
