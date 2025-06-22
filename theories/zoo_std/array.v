@@ -934,6 +934,23 @@ Section zoo_G.
       rewrite array_cslice_rotate_left' //.
     Qed.
 
+    Lemma array_cslice_rebase {t sz i1 dq vs1} i2 :
+      0 < sz →
+      length vs1 = sz →
+      array_cslice t sz i1 dq vs1 ⊢
+        ∃ vs2 n,
+        ⌜vs2 = list.rotate n vs1⌝ ∗
+        array_cslice t sz i2 dq vs2 ∗
+        ( array_cslice t sz i2 dq vs2 -∗
+          array_cslice t sz i1 dq vs1
+        ).
+    Proof.
+      intros.
+      rewrite /array_cslice.
+      setoid_rewrite chunk_cslice_rebase at 1; [| done..].
+      iSteps.
+    Qed.
+
     Lemma array_cslice_valid t sz i dq vs :
       0 < length vs →
       array_cslice t sz i dq vs ⊢
@@ -6356,28 +6373,10 @@ Section zoo_G.
 
     awp_apply (array_unsafe_cget_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %Hvs)".
-
-    iAssert (
-      ∃ ws,
-      array_cslice t sz ₊i dq ws ∗
-      ⌜length ws = sz⌝ ∗
-      ( array_cslice t sz ₊i dq ws -∗
-        array_cslice t sz j dq vs
-      )
-    )%I with "[Hcslice]" as "(%ws & Hcslice & % & H)".
-    { destruct (decide (₊i ≤ j)).
-      1: iDestruct (array_cslice_rotate_left_1' ₊i (j - ₊i) with "Hcslice") as "$"; [lia.. |].
-      2: iDestruct (array_cslice_rotate_right_1' ₊i (₊i - j) with "Hcslice") as "$"; [lia.. |].
-      all: iSplit; first simpl_length.
-      all: iIntros "Hcslice".
-      1: iDestruct (array_cslice_rotate_right_1' j (j - ₊i) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
-      2: iDestruct (array_cslice_rotate_left_1' j (₊i - j) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
-      all: rewrite rotate_add; first lia.
-      all: rewrite rotate_length //; first lia.
-    }
-
+    iDestruct (array_cslice_rebase with "Hcslice") as "(%ws & %n & %Hws & Hcslice)"; [done.. |].
     rewrite /atomic_acc /=.
-    destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup); first lia.
+    destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup).
+    { rewrite Hws. simpl_length. lia. }
     iExists sz, ₊i, dq, ws, v. iSteps. rewrite Nat.sub_diag //.
   Qed.
   Lemma array_unsafe_cget_spec_atomic_cell t sz (i : Z) :
@@ -7235,9 +7234,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
-    iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'".
-    { lia. }
-    { simpl_length. }
+    iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'"; [lia | simpl_length |].
     rewrite list.rotate_replicate.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite !Nat2Z.id Nat.sub_diag firstn_all with_slice_0 drop_replicate.
@@ -7285,9 +7282,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
-    iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'".
-    { lia. }
-    { simpl_length. }
+    iDestruct (array_cslice_rotate_right_0 i_ with "Hcslice'") as "Hcslice'"; [lia | simpl_length |].
     rewrite list.rotate_replicate.
     wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite Nat2Z.id Nat.sub_diag with_slice_0 drop_replicate Nat.sub_diag right_id.
