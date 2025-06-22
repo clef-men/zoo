@@ -120,6 +120,13 @@ Section basic.
     - rewrite skipn_all2 // -lookup_ge_None //.
   Qed.
 
+  Lemma hd_correct default l x :
+    0 < length l →
+    hd default l = x →
+    head l = Some x.
+  Proof.
+    destruct l; naive_solver lia.
+  Qed.
   Lemma hd_app default l1 l2 :
     0 < length l1 →
     hd default (l1 ++ l2) = hd default l1.
