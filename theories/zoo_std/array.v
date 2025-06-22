@@ -913,6 +913,27 @@ Section zoo_G.
       apply (array_cslice_rotate_left _ _ 0).
     Qed.
 
+    Lemma array_cslice_rotate_left' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      array_cslice t sz i1 dq vs ⊣⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs ->.
+      rewrite array_cslice_rotate_left //.
+    Qed.
+    Lemma array_cslice_rotate_left_1' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left' //.
+    Qed.
+
     Lemma array_cslice_valid t sz i dq vs :
       0 < length vs →
       array_cslice t sz i dq vs ⊢
