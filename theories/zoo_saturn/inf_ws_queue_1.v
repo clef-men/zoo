@@ -772,7 +772,7 @@ Section inf_ws_queue_1_G.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
     iApply (owner₁_exclusive with "Howner₁_1 Howner₁_2").
   Qed.
-  Lemma inf_ws_queue_1_model_valid t ws vs :
+  Lemma inf_ws_queue_1_owner_model t ws vs :
     inf_ws_queue_1_owner t ws -∗
     inf_ws_queue_1_model t vs -∗
     ⌜vs `suffix_of` ws⌝.
