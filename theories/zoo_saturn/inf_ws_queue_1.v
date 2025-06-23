@@ -448,11 +448,11 @@ Section inf_ws_queue_1_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      Hmeta_ &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
   Definition inf_ws_queue_1_owner t ws : iProp Σ :=
@@ -467,7 +467,7 @@ Section inf_ws_queue_1_G.
       %back{} &
       %priv{} &
       %Heq{} &
-      Hmeta{;_} &
+      Hmeta_{} &
       Howner₁{_{}}
     )".
 
@@ -507,6 +507,13 @@ Section inf_ws_queue_1_G.
     iIntros "(:owner₁) Hmodel₁".
     iDestruct (auth_twins_valid_1 with "Hmodel_auth Hmodel₁") as %H.
     rewrite preorder_rtc in H. iSteps.
+  Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply auth_twins_twin1_exclusive.
   Qed.
   #[local] Lemma model₂_valid γ stable back priv ws vs :
     owner₁ γ stable back priv ws -∗
@@ -746,13 +753,23 @@ Section inf_ws_queue_1_G.
 
   Opaque owner₁'.
 
+  Lemma inf_ws_queue_1_model_exclusive t vs1 vs2 :
+    inf_ws_queue_1_model t vs1 -∗
+    inf_ws_queue_1_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
+
   Lemma inf_ws_queue_1_owner_exclusive t ws1 ws2 :
     inf_ws_queue_1_owner t ws1 -∗
     inf_ws_queue_1_owner t ws2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". subst t. injection Heq2 as <-.
-    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
     iApply (owner₁_exclusive with "Howner₁_1 Howner₁_2").
   Qed.
   Lemma inf_ws_queue_1_model_valid t ws vs :
@@ -761,7 +778,7 @@ Section inf_ws_queue_1_G.
     ⌜vs `suffix_of` ws⌝.
   Proof.
     iIntros "(:owner =1) (:model)". subst t. injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta1 Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_") as %->.
     iApply (model₁_valid with "Howner₁_1 Hmodel₁").
   Qed.
 
