@@ -76,11 +76,11 @@ Section zoo_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %_l &
-      %_γ &
-      %Heq &
-      _Hmeta &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
   #[global] Instance mpmc_stack_1_model_timeless t vs :
@@ -102,6 +102,13 @@ Section zoo_G.
   Proof.
     apply twins_alloc'.
   Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -116,6 +123,16 @@ Section zoo_G.
       model₂ γ vs.
   Proof.
     apply twins_update'.
+  Qed.
+
+  Lemma mpmc_stack_1_model_exclusive t vs1 vs2 :
+    mpmc_stack_1_model t vs1 -∗
+    mpmc_stack_1_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma mpmc_stack_1_create_spec ι :
@@ -172,11 +189,11 @@ Section zoo_G.
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(:inv_inner =')".
     wp_cas as _ | ->%(inj _); first iSteps.
-    iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSplitR "HΦ". { iExists (v :: vs). iSteps. }
     iSteps.
   Qed.
@@ -205,10 +222,10 @@ Section zoo_G.
     wp_load.
     destruct vs as [| v vs].
 
-    - iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ". { iExists []. iSteps. }
       iSteps.
 
@@ -221,11 +238,11 @@ Section zoo_G.
       iInv "Hinv" as "(:inv_inner =')".
       wp_cas as _ | Hcas; first iSteps.
       destruct vs'; first done. apply (inj glst_to_val _ (_ :: _)) in Hcas as [= -> ->].
-      iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod (model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iSplitR "HΦ"; first iSteps.
       iSteps.
   Qed.
@@ -249,10 +266,10 @@ Section zoo_G.
 
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
-    iMod "HΦ" as "(%_vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iSteps.
   Qed.
 End zoo_G.
