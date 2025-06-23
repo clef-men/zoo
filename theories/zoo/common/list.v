@@ -205,6 +205,14 @@ Section suffix.
     destruct l1; first done.
     intros ?%suffix_cons_l. done.
   Qed.
+
+  Lemma suffix_fmap `(f : A → B) `{!Inj (=) (=) f} l1 l2 :
+    suffix (f <$> l1) (f <$> l2) →
+    suffix l1 l2.
+  Proof.
+    intros (l & (l21 & l22 & -> & <-%(inj _) & ->)%fmap_app_inv).
+    exists l21. done.
+  Qed.
 End suffix.
 
 Section zip.
