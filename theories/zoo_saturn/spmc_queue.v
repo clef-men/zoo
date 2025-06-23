@@ -229,11 +229,11 @@ Section spmc_queue_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_{} &
-      %γ_{} &
+      %l{;_} &
+      %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
-      Hmodel₁
+      Hmodel₁{_{}}
     )".
 
   #[global] Instance spmc_queue_model_timeless t vs :
@@ -350,6 +350,13 @@ Section spmc_queue_G.
   Proof.
     apply auth_twins_alloc.
   Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply auth_twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -411,6 +418,16 @@ Section spmc_queue_G.
 
   Opaque history_last'.
 
+  Lemma spmc_queue_model_exclusive t vs1 vs2 :
+    spmc_queue_model t vs1 -∗
+    spmc_queue_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
+
   Lemma spmc_queue_producer_valid t vs ws :
     spmc_queue_producer t ws -∗
     spmc_queue_model t vs -∗
@@ -418,7 +435,7 @@ Section spmc_queue_G.
   Proof.
     iIntros "(:producer =1) (:model =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (producer_valid_1 with "Hproducer_1 Hmodel₁").
+    iApply (producer_valid_1 with "Hproducer_1 Hmodel₁_2").
   Qed.
   Lemma spmc_queue_producer_exclusive t ws1 ws2 :
     spmc_queue_producer t ws1 -∗
