@@ -54,6 +54,13 @@ Section ws_queue_1_G.
   Proof.
   Admitted.
 
+  Lemma ws_queue_1_model_exclusive t vs1 vs2 :
+    ws_queue_1_model t vs1 -∗
+    ws_queue_1_model t vs2 -∗
+    False.
+  Proof.
+  Admitted.
+
   Lemma ws_queue_1_owner_exclusive t :
     ws_queue_1_owner t -∗
     ws_queue_1_owner t -∗
