@@ -19,7 +19,6 @@ From zoo Require Import
 Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types ws : list val.
-Implicit Types vs : option (list val).
 
 Class MpmcStack2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] mpmc_stack_2_G_model_G :: TwinsG Σ (leibnizO (option $ list val)) ;
@@ -51,17 +50,39 @@ Section zoo_G.
     ∃ vs,
     l ↦ᵣ from_option (clist_to_val ∘ list_to_clist_open) §ClstClosed vs ∗
     model₂ γ vs.
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %vs &
+      Hl &
+      Hmodel₂
+    )".
   Definition mpmc_stack_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      #Hinv
+    )".
 
   Definition mpmc_stack_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      Hmodel₁{_{}}
+    )".
 
   Definition mpmc_stack_2_closed t :=
     mpmc_stack_2_model t None.
@@ -76,7 +97,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mpmc_stack_2_model_persistent t vs :
+  #[global] Instance mpmc_stack_2_model_persistent t :
     Persistent (mpmc_stack_2_model t None).
   Proof.
     apply _.
@@ -89,6 +110,13 @@ Section zoo_G.
       model₂ γ (Some []).
   Proof.
     apply twins_alloc'.
+  Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ (Some vs1) -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
   Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
@@ -117,6 +145,16 @@ Section zoo_G.
     iSteps.
   Qed.
 
+  Lemma mpmc_stack_2_model_exclusive t vs1 vs2 :
+    mpmc_stack_2_model t (Some vs1) -∗
+    mpmc_stack_2_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
+
   Lemma mpmc_stack_2_create_spec ι :
     {{{
       True
@@ -137,7 +175,8 @@ Section zoo_G.
 
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
 
-    iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
+    iApply "HΦ".
+    iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc. iExists (Some []). iSteps.
   Qed.
 
@@ -154,51 +193,51 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec credit:"H£". wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%vs & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct vs as [ws |].
 
-    - iSplitR "H£ HΦ". { iExists (Some _). iSteps. }
-      iModIntro.
+    - iSplitR "H£ HΦ". { iFrameSteps. }
+      iIntros "!> {%}".
 
       wp_smart_apply wp_match_clist_open.
       wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-      destruct vs' as [ws' |].
+      iInv "Hinv" as "(:inv_inner)".
+      destruct vs as [vs |].
 
       + simpl.
         wp_cas as _ | ->%(inj _)%(inj _).
 
-        * iSplitR "HΦ". { iExists (Some _). iSteps. }
+        * iSplitR "HΦ". { iFrameSteps. }
           iSteps.
 
-        * iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-          iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+        * iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
           pose ws' := v :: ws.
           iMod (model_update ws' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-          iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-          iSplitR "HΦ". { iExists (Some ws'). iSteps. }
+          iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+          iSplitR "HΦ". { iFrameSteps. }
           iSteps.
 
       + wp_cas as _ | []%(inj clist_to_val ClstClosed)%list_to_clist_open_not_closed'.
-        iSplitR "HΦ". { iExists None. iSteps. }
+        iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
-    - iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists None. iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma mpmc_stack_2_push_spec_closed t ι v :
@@ -234,55 +273,55 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec credit:"H£".
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%vs & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct vs as [[| v ws] |].
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "H£ HΦ". { iExists (Some []). iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+      iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
 
-    - iSplitR "H£ HΦ". { iExists (Some (v :: ws)). iSteps. }
-      iModIntro.
+    - iSplitR "H£ HΦ". { iFrameSteps. }
+      iIntros "!> {%}".
 
       wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
-      destruct vs' as [ws' |].
+      iInv "Hinv" as "(:inv_inner)".
+      destruct vs as [vs |].
 
       + wp_cas as _ | ->%(inj clist_to_val _ (ClstCons _ _))%(inj list_to_clist_open _ (_ :: _)).
 
-        * iSplitR "HΦ". { iExists (Some ws'). iSteps. }
+        * iSplitR "HΦ". { iFrameSteps. }
           iSteps.
 
-        * iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-          iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+        * iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+          iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
           iMod (model_update ws with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-          iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-          iSplitR "H£ HΦ". { iExists (Some ws). iSteps. }
+          iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+          iSplitR "H£ HΦ". { iFrameSteps. }
           iSteps.
 
       + wp_cas as _ | [=].
-        iSplitR "HΦ". { iExists None. iSteps. }
+        iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "H£ HΦ". { iExists None. iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+      iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma mpmc_stack_2_pop_spec_closed t ι v :
@@ -318,27 +357,27 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec credit:"H£".
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
-    iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
-    destruct vs as [ws |].
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    destruct vs as [vs |].
 
-    - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists (Some _). iSteps. }
-      iModIntro.
+    - iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
+      iIntros "!> {%}".
 
       wp_equal as _ | []%(inj clist_to_val _ ClstClosed)%list_to_clist_open_not_closed.
       iSteps.
 
-    - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists None. iSteps. }
+    - iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma mpmc_stack_2_is_closed_spec_closed t ι :
@@ -374,24 +413,24 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec credit:"H£". wp_pures.
 
-    iInv "Hinv" as "(%vs' & Hl & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_xchg.
-    iMod "HΦ" as "(%vs & (%_l & %_γ & %Heq & _Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
-    destruct vs as [ws |].
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    destruct vs as [vs |].
 
     - iMod (model_close with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists None. iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iMod ("HΦ" with "[Hmodel₁] H£") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists None. iSteps. }
+    - iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma mpmc_stack_2_closed_spec_closed t ι v :
