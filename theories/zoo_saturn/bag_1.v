@@ -77,6 +77,18 @@ Section bag_1_G.
     model₂ γ vs ∗
     [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %front &
+      %back &
+      %os &
+      %vs &
+      >%Hvs &
+      Hfront &
+      Hback &
+      Hmodel₂ &
+      Hslots
+    )".
   Definition bag_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -85,12 +97,31 @@ Section bag_1_G.
     l.[data] ↦□ γ.(metadata_data) ∗
     array_model γ.(metadata_data) DfracDiscarded (#@{location} <$> γ.(metadata_slots)) ∗
     inv ι (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      %Hsz &
+      #Hmeta &
+      #Hdata &
+      #Hdata_model &
+      #Hinv
+    )".
 
   Definition bag_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      #Hmeta_{} &
+      Hmodel₁{_{}}
+    )".
 
   Instance bag_1_inv_timeless t vs :
     Timeless (bag_1_model t vs).
@@ -111,6 +142,13 @@ Section bag_1_G.
   Proof.
     apply twins_alloc'.
   Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -125,6 +163,16 @@ Section bag_1_G.
       model₂ γ vs.
   Proof.
     apply twins_update'.
+  Qed.
+
+  Lemma bag_1_model_exclusive t vs1 vs2 :
+    bag_1_model t vs1 -∗
+    bag_1_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma bag_1_create_spec ι (sz : Z) :
@@ -204,7 +252,7 @@ Section bag_1_G.
     wp_rec. wp_pures.
 
     wp_bind (CAS _ _ _).
-    iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
+    iInv "Hinv" as "(:inv_inner)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
@@ -212,20 +260,20 @@ Section bag_1_G.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
-      iSplitR "HΦ". { iExists front, back, os, vs. iSteps. }
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := {[+v+]} ⊎ vs.
       set os' := <[i := Some v]> os.
       iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ". { repeat iExists _. iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iDestruct ("Hslots" $! _ (Some v) with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
-      { iExists front, back, os', vs'. iSteps. iPureIntro.
+      { iFrameSteps. iPureIntro.
         rewrite (foldr_insert_strong _ option_union _ _ None (Some v)) //.
         { intros [w |] acc; last done. set_solver by lia. }
         set_solver.
@@ -245,16 +293,16 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
-    iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_faa.
-    iSplitR "HΦ". { iExists front, (S back), os, vs. iSteps. }
+    iSplitR "HΦ". { iFrameSteps. }
     iModIntro. clear- Hsz.
 
     simpl_length.
@@ -289,19 +337,19 @@ Section bag_1_G.
     wp_rec. wp_pures.
 
     wp_bind (!_)%E.
-    iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
+    iInv "Hinv" as "(:inv_inner)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_lookup_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
     wp_load.
-    iSplitR "HΦ". { iExists front, back, os, vs. iSteps. }
+    iSplitR "HΦ". { iFrameSteps. }
     iModIntro. clear- Hslots_lookup Hi.
 
     destruct o as [v |]; last iSteps.
     wp_pures.
 
     wp_bind (CAS _ _ _).
-    iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
+    iInv "Hinv" as "(:inv_inner)".
     iDestruct (big_sepL2_length with "Hslots") as "#>%Hlen".
     destruct (lookup_lt_is_Some_2 os i) as (o & Hos_lookup); first congruence.
     iDestruct (big_sepL2_insert_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
@@ -309,16 +357,16 @@ Section bag_1_G.
 
     - iDestruct ("Hslots" with "Hslot") as "Hslots".
       rewrite !list_insert_id //.
-      iSplitR "HΦ". { iExists front, back, os, vs. iSteps. }
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & #_Hmeta & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       set vs' := vs ∖ {[+v+]}.
       set os' := <[i := None]> os.
       iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
       { iSplit; last iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.
         rewrite Hvs -(take_drop_middle os i (Some v)) // foldr_app /=.
@@ -328,7 +376,7 @@ Section bag_1_G.
       iDestruct ("Hslots" $! _ None with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
-      { iExists front, back, os', vs'. iSteps. iPureIntro.
+      { iFrameSteps. iPureIntro.
         rewrite /vs' /os' insert_take_drop; first congruence.
         rewrite Hvs -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
         rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
@@ -351,16 +399,16 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros "%Φ (%l & %γ & -> & %Hsz & #Hmeta & #Hdata & #Hdata_model & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
     wp_smart_apply (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
-    iInv "Hinv" as "(%front & %back & %os & %vs & >%Hvs & Hfront & Hback & Hmodel₂ & Hslots)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_faa.
-    iSplitR "HΦ". { iExists (S front), back, os, vs. iSteps. }
+    iSplitR "HΦ". { iFrameSteps. }
     iModIntro. clear- Hsz.
 
     simpl_length.
