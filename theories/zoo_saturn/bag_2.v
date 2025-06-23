@@ -223,7 +223,7 @@ Section bag_2_G.
       %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
-      Hmodel₁
+      Hmodel₁{_{}}
     )".
 
   Definition bag_2_producer t producer ws : iProp Σ :=
@@ -395,6 +395,13 @@ Section bag_2_G.
   Proof.
     apply twins_alloc'.
   Qed.
+  #[local] Lemma model₁_exclusive γ vss1 vss2 :
+    model₁ γ vss1 -∗
+    model₁ γ vss2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vss1 vss2 :
     model₁ γ vss1 -∗
     model₂ γ vss2 -∗
@@ -413,6 +420,16 @@ Section bag_2_G.
 
   Opaque queues_auth'.
 
+  Lemma bag_2_model_exclusive t vss1 vss2 :
+    bag_2_model t vss1 -∗
+    bag_2_model t vss2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
+
   Lemma bag_2_producer_valid t ι vss producer ws E :
     ↑ι ⊆ E →
     bag_2_inv t ι -∗
@@ -427,7 +444,7 @@ Section bag_2_G.
     iDestruct (meta_agree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
 
     iInv "Hinv" as "(:inv_inner)".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    iDestruct (model_agree with "Hmodel₁_1 Hmodel₂") as %<-.
     iDestruct (queues_at_valid_producer with "Hqueues_auth Hqueues_at_2") as %(descr & Hdescrs_lookup & Hdescr_queue & Hvss_lookup).
     iAssert (◇ ⌜descr.(descriptor_vals) `suffix_of` ws⌝)%I as "#>%".
     { iDestruct (big_sepM_lookup with "Hdescrs") as "(:descriptor_model >)"; first done.
