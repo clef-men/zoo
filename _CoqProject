@@ -394,6 +394,10 @@ theories/zoo_saturn/ws_bqueue_1__types.v
 theories/zoo_saturn/ws_bqueue_1__code.v
 theories/zoo_saturn/ws_bqueue_1__opaque.v
 theories/zoo_saturn/ws_bqueue_1.v
+theories/zoo_saturn/ws_bqueue_2__types.v
+theories/zoo_saturn/ws_bqueue_2__code.v
+theories/zoo_saturn/ws_bqueue_2__opaque.v
+theories/zoo_saturn/ws_bqueue_2.v
 theories/zoo_saturn/ws_queue_1__types.v
 theories/zoo_saturn/ws_queue_1__code.v
 theories/zoo_saturn/ws_queue_1__opaque.v
