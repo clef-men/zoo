@@ -500,15 +500,6 @@ Section spsc_bqueue_G.
   Opaque consumer₁'.
   Opaque consumer₂'.
 
-  Lemma spsc_bqueue_model_excusive t vs1 vs2 :
-    spsc_bqueue_model t vs1 -∗
-    spsc_bqueue_model t vs2 -∗
-    False.
-  Proof.
-    iIntros "(:model =1) (:model =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
-  Qed.
   Lemma spsc_bqueue_model_valid t ι cap vs :
     spsc_bqueue_inv t ι cap -∗
     spsc_bqueue_model t vs ={⊤}=∗
@@ -521,6 +512,15 @@ Section spsc_bqueue_G.
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
     iSplitR "Hmodel₁". { iFrameSteps. }
     iFrameSteps.
+  Qed.
+  Lemma spsc_bqueue_model_exclusive t vs1 vs2 :
+    spsc_bqueue_model t vs1 -∗
+    spsc_bqueue_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma spsc_bqueue_producer_exclusive t ws :
