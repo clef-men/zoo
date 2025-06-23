@@ -216,14 +216,16 @@ Section spsc_bqueue_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    model₁ γ vs.
+    model₁ γ vs ∗
+    ⌜length vs ≤ γ.(metadata_capacity)⌝.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l{;_} &
       %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
-      Hmodel₁{_{}}
+      Hmodel₁{_{}} &
+      %Hvs{}
     )".
 
   Definition spsc_bqueue_producer t ws : iProp Σ :=
@@ -502,16 +504,12 @@ Section spsc_bqueue_G.
 
   Lemma spsc_bqueue_model_valid t ι cap vs :
     spsc_bqueue_inv t ι cap -∗
-    spsc_bqueue_model t vs ={⊤}=∗
-      spsc_bqueue_model t vs ∗
-      ⌜length vs ≤ cap⌝.
+    spsc_bqueue_model t vs -∗
+    ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv) (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iInv "Hinv" as "(:inv_inner =1)".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
-    iSplitR "Hmodel₁". { iFrameSteps. }
-    iFrameSteps.
+    iSteps.
   Qed.
   Lemma spsc_bqueue_model_exclusive t vs1 vs2 :
     spsc_bqueue_model t vs1 -∗
@@ -901,7 +899,8 @@ Section spsc_bqueue_G.
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_push v with "Hproducer₁ Hmodel₁ Hmodel₂") as "(Hproducer₁ & Hmodel₁ & Hmodel₂)".
     rewrite bool_decide_eq_false_2; first lia.
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
+    { iSteps. iPureIntro. simpl_length/=. lia. }
 
     iSplitR "Hl_front_cache Hproducer₁ HΦ".
     { do 2 iModIntro. iExists _, front3, _, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
@@ -987,7 +986,7 @@ Section spsc_bqueue_G.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         assert (length vs1 = 0) as ->%nil_length_inv by lia.
-        iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
+        iMod ("HΨ" with "[$Hmodel₁]") as "HΨ"; first iSteps.
 
         iSplitR "Hl_back_cache Hconsumer₁ HΨ HΦ". { iFrameSteps. }
         iModIntro. clear- Hbranch2.
@@ -1058,7 +1057,8 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_pop with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
+    { simpl in Hvs. iSteps. }
 
     iSplitR "Hl_back_cache Hconsumer₁ HΦ".
     { do 2 iModIntro. iExists _, (S front), _, back3, vs3, hist3. iFrame. simpl in *.
