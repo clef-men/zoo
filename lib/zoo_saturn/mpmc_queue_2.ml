@@ -114,6 +114,7 @@ let rec pop_1 t front =
         pop t
       )
   | Front i_front as front ->
+      let proph = Zoo.proph () in
       match t.back with
       | Snoc (i_move, v, move_pref) as move ->
           if i_front == i_move then (
@@ -132,15 +133,16 @@ let rec pop_1 t front =
               pop t
           )
       | Back back_r as back ->
-          let proph = Zoo.proph () in
           match back_r.move with
           | Used ->
               pop_3 t proph front
           | Snoc (i_move, _, _) as move ->
-              if i_front < i_move then
+              if i_front < i_move then (
+                Zoo.resolve_silent proph false ;
                 pop_2 t front back move
-              else
+              ) else (
                 pop_3 t proph front
+              )
 and pop_2 t front back move =
   let (Cons (_, v, new_front) : (_, [`Cons]) suffix) = rev move in
   if Atomic.Loc.compare_and_set [%atomic.loc t.front] front new_front then (
@@ -151,10 +153,10 @@ and pop_2 t front back move =
     pop t
   )
 and pop_3 t proph front =
-  let front' = Zoo.resolve proph t.front in
-  if front' != front then
-    pop_1 t front'
-  else
+  let front' = t.front in
+  if Zoo.resolve proph (front' == front) then
     None
+  else
+    pop_1 t front'
 and pop t =
   pop_1 t t.front

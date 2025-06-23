@@ -148,6 +148,7 @@ Qed.
           "pop" "t"
         )
     | Front "i_front" as "front" =>
+        let: "proph" := Proph in
         match: "t".{back} with
         | Snoc "i_move" "v" "move_pref" as "move" =>
             if: "i_front" == "i_move" then (
@@ -171,12 +172,12 @@ Qed.
             )
         | Back <> <> as "back" =>
             let: "back_r" := "back" in
-            let: "proph" := Proph in
             match: "back_r".{move} with
             | Used =>
                 "pop_3" "t" "proph" "front"
             | Snoc "i_move" <> <> as "move" =>
                 if: "i_front" < "i_move" then (
+                  Resolve Skip "proph" #false ;;
                   "pop_2" "t" "front" "back" "move"
                 ) else (
                   "pop_3" "t" "proph" "front"
@@ -196,15 +197,15 @@ Qed.
         )
     end
   and: "pop_3" "t" "proph" "front" =>
-    let: "front'" :=
-      let: "__tmp__" := "t".{front} in
+    let: "front'" := "t".{front} in
+    if:
+      let: "__tmp__" := "front'" == "front" in
       Resolve Skip "proph" "__tmp__" ;;
       "__tmp__"
-    in
-    if: "front'" != "front" then (
-      "pop_1" "t" "front'"
-    ) else (
+    then (
       §None
+    ) else (
+      "pop_1" "t" "front'"
     )
   and: "pop" "t" =>
     "pop_1" "t" "t".{front}

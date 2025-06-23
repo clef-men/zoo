@@ -82,6 +82,9 @@ Implicit Types state : state.
     state_status := status ;
   |}.
 
+#[local] Definition state_wf backs i :=
+  map_Forall (λ _ i_back, i_back ≤ i) backs.
+
 #[local] Definition state_le state1 state2 :=
   state1.(state_backs) ⊆ state2.(state_backs) ∧
   state1.(state_index) ≤ state2.(state_index).
@@ -264,12 +267,18 @@ Section mpmc_queue_2_G.
   #[local] Definition model₂ γ :=
     model₂' γ.(metadata_model).
 
-  #[local] Definition state_auth' γ_state backs i status :=
+  #[local] Definition state_auth' γ_state backs i status : iProp Σ :=
     auth_mono_auth _ γ_state (DfracOwn 1)
       {|state_backs := backs ;
         state_index := i ;
         state_status := status ;
-      |}.
+      |} ∗
+    ⌜state_wf backs i⌝.
+  #[local] Instance : CustomIpatFormat "state_auth" :=
+    "(
+      Hauth &
+      %Hwf
+    )".
   #[local] Definition state_auth γ backs i status :=
     state_auth' γ.(metadata_state) backs i status.
   #[local] Definition state_lb γ backs i status :=
@@ -281,14 +290,16 @@ Section mpmc_queue_2_G.
   #[local] Definition state_at γ back i_back : iProp Σ :=
     ∃ backs i status,
     state_lb γ backs i status ∗
-    ⌜backs !! back = Some i_back⌝.
+    ⌜backs !! back = Some i_back⌝ ∗
+    ⌜i_back ≤ i⌝.
   #[local] Instance : CustomIpatFormat "state_at" :=
     "(
       %backs{} &
       %i{} &
       %status{} &
       #Hstate_lb{_{}} &
-      %Hbacks{}_lookup
+      %Hbacks{}_lookup &
+      %Hi{}
     )".
 
   #[local] Definition front_auth' γ_front i :=
@@ -366,7 +377,7 @@ Section mpmc_queue_2_G.
     "(
       {>;}-> &
       {>;}%Hvs{} &
-      {>;}{{empty}->;%} &
+      {>;}{{empty}->;%Hempty{};%Hempty} &
       {>;}#Hstate_at{_{}}
     )".
   #[local] Definition inv_status_unstable strong γ backs i vs_front i_back back vs_back vs back_ move : iProp Σ :=
@@ -436,7 +447,7 @@ Section mpmc_queue_2_G.
       Hbacks &
       Hmodel₂ &
       {>;}Hstate_auth &
-      {>;}%Hi{} &
+      {>;}%Hfront{} &
       Hstatus
     )".
   #[local] Definition inv' l γ : iProp Σ :=
@@ -464,13 +475,18 @@ Section mpmc_queue_2_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      #Hmeta_ &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      #Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
+  #[local] Instance state_auth_timeless γ backs i status :
+    Timeless (state_auth γ backs i status).
+  Proof.
+    apply _.
+  Qed.
   #[local] Instance state_at_timeless γ back i_back :
     Timeless (state_at γ back i_back).
   Proof.
@@ -500,6 +516,13 @@ Section mpmc_queue_2_G.
   Proof.
     apply twins_alloc'.
   Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -521,21 +544,28 @@ Section mpmc_queue_2_G.
       ∃ γ_state,
       state_auth' γ_state ∅ 0 (Unstable back []).
   Proof.
-    apply auth_mono_alloc.
+    set state := {|
+      state_backs := ∅ ;
+      state_index := 0 ;
+      state_status := Unstable back [] ;
+    |}.
+    iMod (auth_mono_alloc _ (auth_mono_G := mpmc_queue_2_G_state_G) state) as "(%γ_state & $)".
+    iSteps.
   Qed.
   #[local] Lemma state_lb_get γ backs i status :
     state_auth γ backs i status ⊢
     state_lb γ backs i status.
   Proof.
-    apply auth_mono_lb_get.
+    iIntros "(:state_auth)".
+    iApply (auth_mono_lb_get with "Hauth").
   Qed.
   #[local] Lemma state_at_get {γ backs i status} back i_back :
     backs !! back = Some i_back →
     state_auth γ backs i status ⊢
     state_at γ back i_back.
   Proof.
-    iIntros "%Hbacks_lookup Hauth".
-    iDestruct (state_lb_get with "Hauth") as "#$".
+    iIntros "%Hbacks_lookup (:state_auth)".
+    iDestruct (state_lb_get with "[$Hauth //]") as "#Hlb".
     iSteps.
   Qed.
   #[local] Lemma state_lb_valid γ backs1 i1 status1 backs2 i2 status2 :
@@ -544,7 +574,7 @@ Section mpmc_queue_2_G.
       ⌜backs2 ⊆ backs1⌝ ∗
       ⌜i2 ≤ i1⌝.
   Proof.
-    iIntros "Hauth Hlb".
+    iIntros "(:state_auth) Hlb".
     iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %(? & ?)%steps_mono. done.
   Qed.
   #[local] Lemma state_lb_valid_Unstable γ backs1 i1 status1 backs2 i2 back2 move2 :
@@ -557,7 +587,7 @@ Section mpmc_queue_2_G.
         ⌜i2 + length move2 ≤ i1⌝ ∗
         state_at γ back2 (i2 + length move2).
   Proof.
-    iIntros "Hauth Hlb".
+    iIntros "(:state_auth) Hlb".
     iDestruct (auth_mono_lb_valid with "Hauth Hlb") as %[| (state & Hstep & (? & ?)%steps_mono)]%rtc_inv.
     - naive_solver.
     - invert Hstep.
@@ -565,7 +595,7 @@ Section mpmc_queue_2_G.
       { eapply lookup_weaken; last done.
         apply lookup_insert.
       }
-      iDestruct (state_at_get with "Hauth") as "Hstate_at"; first done.
+      iDestruct (state_at_get with "[$Hauth //]") as "Hstate_at"; first done.
       iRight. iSteps.
   Qed.
   #[local] Lemma state_lb_lookup {γ backs1 i1 status1 backs2 i2 status2} back i_back  :
@@ -581,10 +611,13 @@ Section mpmc_queue_2_G.
   #[local] Lemma state_at_valid γ backs i status back i_back :
     state_auth γ backs i status -∗
     state_at γ back i_back -∗
-    ⌜backs !! back = Some i_back⌝.
+      ⌜backs !! back = Some i_back⌝ ∗
+      ⌜i_back ≤ i⌝.
   Proof.
     iIntros "Hstate_auth (:state_at =1)".
-    iApply (state_lb_lookup with "Hstate_auth Hstate_lb_1"); first done.
+    iDestruct (state_lb_lookup with "Hstate_auth Hstate_lb_1") as %Hbacks_lookup; first done.
+    iDestruct (state_lb_valid with "Hstate_auth Hstate_lb_1") as "(_ & %Hi)".
+    iSteps.
   Qed.
   #[local] Lemma state_lb_stabilized γ backs1 i1 status1 backs2 i2 back2 move2 :
     ( status1 ≠ Unstable back2 move2
@@ -619,18 +652,36 @@ Section mpmc_queue_2_G.
       state_lb γ (<[back := i + length move]> backs) (i + length move) (Stable Nonempty) ∗
       state_at γ back (i + length move).
   Proof.
-    iIntros "%Hbacks_lookup Hauth".
+    iIntros "%Hbacks_lookup (:state_auth)".
     iMod (auth_mono_update' with "Hauth") as "Hauth"; first eauto. simpl.
-    iDestruct (state_lb_get with "Hauth") as "#Hstate_lb".
-    iDestruct (state_at_get back with "Hauth") as "#Hat".
+    set i' := i + length move.
+    set backs' := <[back := i']> backs.
+    assert (state_wf backs' i') as Hwf'.
+    { apply map_Forall_insert; first done.
+      split; first done.
+      eapply map_Forall_impl; first done.
+      naive_solver lia.
+    }
+    iDestruct (state_lb_get with "[$Hauth //]") as "#Hstate_lb".
+    iDestruct (state_at_get back with "[$Hauth //]") as "#Hat".
     { apply lookup_insert. }
-    auto.
+    iFrame "#∗". iSteps.
   Qed.
   #[local] Lemma state_empty γ backs i :
     state_auth γ backs i (Stable Nonempty) ⊢ |==>
     state_auth γ backs i (Stable Empty).
   Proof.
-    apply auth_mono_update'. auto.
+    iIntros "(:state_auth)".
+    iMod (auth_mono_update' with "Hauth") as "$"; first auto.
+    iSteps.
+  Qed.
+  #[local] Lemma state_destabilize {γ backs i} back move :
+    state_auth γ backs i (Stable Empty) ⊢ |==>
+    state_auth γ backs i (Unstable back move).
+  Proof.
+    iIntros "(:state_auth)".
+    iMod (auth_mono_update' with "Hauth") as "$"; first eauto.
+    iSteps.
   Qed.
 
   #[local] Lemma front_alloc :
@@ -660,6 +711,7 @@ Section mpmc_queue_2_G.
     apply auth_nat_max_update. lia.
   Qed.
 
+  Opaque state_auth.
   Opaque state_at.
 
   #[local] Lemma inv_status_weaken γ backs i status vs_front i_back back vs_back vs :
@@ -667,6 +719,26 @@ Section mpmc_queue_2_G.
     inv_status false γ backs i status vs_front i_back back vs_back vs.
   Proof.
     destruct status as [empty | back_ move]; iSteps.
+  Qed.
+  #[local] Lemma inv_status_Stable strong γ backs i status vs_front i_back back vs_back vs :
+    ( strong = true ∧ is_Some (backs !! back)
+    ∨ 0 < length vs_front
+    ∨ 0 < length vs_back
+    ) →
+    inv_status strong γ backs i status vs_front i_back back vs_back vs ⊢
+      ∃ empty,
+      ⌜status = Stable empty⌝ ∗
+      inv_status_stable γ i vs_front i_back back vs_back vs empty.
+  Proof.
+    iIntros "%H H".
+    destruct status as [empty | back_ move].
+    - iDestruct "H" as "(:inv_status_stable)".
+      iSteps.
+    - destruct H as [(-> & i_back_ & Hbacks_lookup) |].
+      + iDestruct "H" as "(:inv_status_unstable =1 strong=)".
+        congruence.
+      + iDestruct "H" as "(:inv_status_unstable)".
+        simpl in *. lia.
   Qed.
 
   #[local] Lemma inv_inner_strengthen l γ :
@@ -690,7 +762,7 @@ Section mpmc_queue_2_G.
       }
 
       iAssert (back_prev ↦ₕ Header §Back 2)%I as "#Hback_prev_header".
-      { iDestruct (state_at_valid with "Hstate_auth Hstate_at_back_prev") as %Hbacks_lookup_prev.
+      { iDestruct (state_at_valid with "Hstate_auth Hstate_at_back_prev") as %(Hbacks_lookup_prev & _).
         iDestruct (big_sepM_lookup with "Hbacks") as "(:back_model_3 =_prev)"; first done.
         iFrame "#".
       }
@@ -708,13 +780,23 @@ Section mpmc_queue_2_G.
     iInv "Hinv" as "(:inv_inner =1 >)".
 
     iAssert (▷ back_model_1 back i_back)%I as "#>$".
-    { iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %Hbacks_lookup.
+    { iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %(Hbacks_lookup & _).
       iDestruct (big_sepM_lookup with "Hbacks") as "(:back_model_3)".
       { eapply lookup_weaken; done. }
       iFrame "#".
     }
 
     iFrameSteps.
+  Qed.
+
+  Lemma mpmc_queue_2_model_exclusive t vs1 vs2 :
+    mpmc_queue_2_model t vs1 -∗
+    mpmc_queue_2_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   #[local] Lemma mpmc_queue_2_suffix_index_spec (i : nat) vs :
@@ -840,23 +922,94 @@ Section mpmc_queue_2_G.
     iFrameSteps.
   Qed.
 
+  #[local] Lemma front_spec_strong {l γ} i_front i_back :
+    {{{
+      inv' l γ ∗
+      match i_front with
+      | None =>
+          True
+      | Some i_front =>
+          front_lb γ i_front
+      end ∗
+      match i_back with
+      | None =>
+          True
+      | Some i_back =>
+          ∃ back,
+          state_at γ back i_back
+      end
+    }}}
+      (#l).{front}
+    {{{ i_front' vs_front',
+      RET suffix_to_val i_front' vs_front';
+      front_lb γ i_front' ∗
+      match i_front with
+      | None =>
+          True
+      | Some i_front =>
+          ⌜i_front ≤ i_front'⌝
+      end ∗
+      match i_back with
+      | None =>
+          True
+      | Some i_back =>
+          ∃ i',
+          ⌜i_back ≤ i'⌝ ∗
+          ⌜(i_front' + length vs_front')%nat = S i'⌝
+      end
+    }}}.
+  Proof.
+    iIntros "%Φ (Hinv & #Hfront_lb & #Hstate_at) HΦ".
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =1 >)".
+    wp_load.
+    iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_1".
+
+    iAssert
+      match i_front with
+      | None =>
+          True
+      | Some i_front =>
+          ⌜i_front ≤ i_front1⌝
+      end%I
+    as "#?".
+    { destruct i_front as [i_state |]; last iSteps.
+      iApply (front_lb_valid with "Hfront_auth Hfront_lb").
+    }
+
+    iAssert
+      match i_back with
+      | None =>
+          True
+      | Some i_back =>
+          ∃ i1,
+          ⌜i_back ≤ i1⌝ ∗
+          ⌜(i_front1 + length vs_front1)%nat = S i1⌝
+      end%I
+    as "#?".
+    { destruct i_back as [i_back |]; last iSteps.
+      iDestruct "Hstate_at" as "(%back & Hstate_at)".
+      iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %(_ & ?).
+      iSteps.
+    }
+
+    iSplitR "HΦ". { iFrameSteps. }
+    iSteps.
+  Qed.
   #[local] Lemma front_spec l γ :
     {{{
       inv' l γ
     }}}
       (#l).{front}
-    {{{ i_front vs_front,
-      RET suffix_to_val i_front vs_front;
-      front_lb γ i_front
+    {{{ i_front' vs_front',
+      RET suffix_to_val i_front' vs_front';
+      front_lb γ i_front'
     }}}.
   Proof.
-    iIntros "%Φ Hinv HΦ".
+    iIntros "%Φ #Hinv HΦ".
 
-    wp_bind (_.{front})%E.
-    iInv "Hinv" as "(:inv_inner >)".
-    wp_load.
-    iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
-    iSplitR "HΦ". { iFrameSteps. }
+    wp_apply (front_spec_strong None None with "[$Hinv //]").
     iSteps.
   Qed.
 
@@ -894,7 +1047,7 @@ Section mpmc_queue_2_G.
       iAssert (back_model_1 back2 i_back2) as "#(:back_model_1 =2)".
       { destruct status2.
         - iDestruct "Hstatus" as "(:inv_status_stable =2)".
-          iDestruct (state_at_valid with "Hstate_auth Hstate_at_2") as %Hbacks2_lookup.
+          iDestruct (state_at_valid with "Hstate_auth Hstate_at_2") as %(Hbacks2_lookup & _).
           iDestruct (big_sepM_lookup with "Hbacks") as "(:back_model_3 =2)"; first done.
           iFrame "#".
         - iDestruct "Hstatus" as "(:inv_status_unstable =2)".
@@ -906,6 +1059,7 @@ Section mpmc_queue_2_G.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
+
       iAssert ⌜(i_front2 + length vs2 = i_back2 + length vs_back2 + 1)%nat⌝%I as %Hsize.
       { destruct status2.
         - iDestruct "Hstatus" as "(:inv_status_stable =2)". iPureIntro.
@@ -917,15 +1071,7 @@ Section mpmc_queue_2_G.
       iSplitR "Hproph HΦ". { iFrameSteps. }
       iModIntro. clear- Hi_front2 Hsize.
 
-      wp_pures.
-
-      wp_bind (_.{front})%E.
-      iInv "Hinv" as "(:inv_inner =3 >)".
-      wp_load.
-      iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_2") as %Hi_front3.
-      iSplitR "Hproph HΦ". { iFrameSteps. }
-      iModIntro. clear- Hi_front2 Hi_front3 Hsize.
-
+      wp_smart_apply (front_spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
       wp_equal as _ | (-> & ->)%(inj2 _).
       all: wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
       all: iStep 11.
@@ -985,7 +1131,7 @@ Section mpmc_queue_2_G.
     wp_rec. wp_match.
 
     iInv "Hinv" as "(:inv_inner =1 >)".
-    iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %Hbacks1_lookup.
+    iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %(Hbacks1_lookup & _).
     iDestruct (big_sepM_lookup_acc with "Hbacks") as "((:back_model_3 only_move=) & Hbacks)".
     { eapply lookup_weaken; done. }
     wp_store.
@@ -1020,7 +1166,7 @@ Section mpmc_queue_2_G.
 
     destruct vs_front1 as [| v vs_front1'].
 
-    - rewrite right_id in Hi1. simplify.
+    - rewrite Nat.add_0_r in Hfront1. subst i_front1.
 
       destruct (decide (i + length move < S i1)) as [Hif | Hif].
 
@@ -1034,6 +1180,7 @@ Section mpmc_queue_2_G.
         wp_smart_apply (mpmc_queue_2_finish_spec with "[$] HΦ").
 
       + iDestruct (state_lb_unstabilized with "Hstate_auth Hstate_lb") as %(-> & -> & ->); first lia.
+
         iSplitR "HΦ". { iFrameSteps. }
         iModIntro. clear- Hmove Hif.
 
@@ -1051,9 +1198,10 @@ Section mpmc_queue_2_G.
           { rewrite inv_status_weaken. iFrameSteps. }
           iSteps.
 
-        * rewrite Nat.add_0_r in Hi2. injection Hi2 as <-.
+        * rewrite Nat.add_0_r in Hfront2. injection Hfront2 as <-.
           iDestruct (state_lb_unstabilized with "Hstate_auth Hstate_lb") as %(-> & _ & ->); first lia.
           iDestruct "Hstatus" as "(:inv_status_unstable =2 strong= lazy=)".
+
           iMod (state_stabilize with "Hstate_auth") as "(Hstate_auth & _ & #Hstate_at)"; first done.
           iDestruct (big_sepM_insert_2 with "[Hback2] Hbacks") as "Hbacks"; first iFrameSteps.
           iSplitR "HΦ".
@@ -1120,19 +1268,17 @@ Section mpmc_queue_2_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "Hinv_inner".
       iDestruct (inv_inner_strengthen with "Hinv_inner") as "(:inv_inner =1 >)".
-      iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %Hbacks1_lookup_.
+      iDestruct (state_at_valid with "Hstate_auth Hstate_at") as %(Hbacks1_lookup_ & _).
       wp_cas as _ | (_ & -> & ->)%prefix_to_val_inj'.
 
       - iSplitR "HΦ".
         { rewrite inv_status_weaken. iFrameSteps. }
         iSteps.
 
-      - destruct status1 as [empty1 | back_ move1]; last first.
-        { iDestruct "Hstatus" as "(:inv_status_unstable =1 strong=)". congruence. }
-        iDestruct "Hstatus" as "(:inv_status_stable =1)".
+      - iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first auto.
 
         iAssert ⌜i1 = i⌝%I as %->.
-        { iDestruct (state_at_valid with "Hstate_auth Hstate_at_1") as %Hbacks1_lookup. simplify.
+        { iDestruct (state_at_valid with "Hstate_auth Hstate_at_1") as %(Hbacks1_lookup & _). simplify.
           iSteps.
         }
 
@@ -1166,7 +1312,7 @@ Section mpmc_queue_2_G.
         )%I as "#(%backs1_prev & %i1_prev & %move1 & (:back_model_1 =1) & #Hstate_lb_1)".
         { destruct status1 as [empty1 | back1_ move1].
           - iDestruct "Hstatus" as "(:inv_status_stable =1)".
-            iDestruct (state_at_valid with "Hstate_auth Hstate_at_1") as %Hbacks_lookup.
+            iDestruct (state_at_valid with "Hstate_auth Hstate_at_1") as %(Hbacks_lookup & _).
             iDestruct (big_sepM_lookup with "Hbacks") as "(:back_model_3 =1)"; first done.
             iDestruct "H𝑚𝑜𝑣𝑒1" as "(:move_model_2 =1)".
             iSteps.
@@ -1196,7 +1342,7 @@ Section mpmc_queue_2_G.
           - iDestruct "Hstatus" as "(:inv_status_unstable =2 >)".
             iDestruct "Hback2" as "(:back_model_2 =2)".
             wp_load.
-            iDestruct (state_at_valid with "Hstate_auth Hstate_at_back2_prev") as %Hbacks2_lookup.
+            iDestruct (state_at_valid with "Hstate_auth Hstate_at_back2_prev") as %(Hbacks2_lookup & _).
             iAssert (back2_prev ↦ₕ Header §Back 2)%I as "#Hback2_prev_header".
             { iDestruct (big_sepM_lookup with "Hbacks") as "(:back_model_3 =2_prev)"; first done.
               iFrame "#".
@@ -1220,9 +1366,7 @@ Section mpmc_queue_2_G.
           wp_smart_apply (mpmc_queue_2_help_spec with "[$]"); first done.
           iSteps.
 
-      - destruct status1 as [empty1 | back1_ move1]; last first.
-        { iDestruct "Hstatus" as "(:inv_status_unstable =1 lazy=)". congruence. }
-        iDestruct "Hstatus" as "(:inv_status_stable =1)".
+      - iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first naive_solver lia.
 
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
@@ -1252,6 +1396,225 @@ Section mpmc_queue_2_G.
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
+  #[local] Lemma mpmc_queue_2_pop_spec_aux l γ :
+    ⊢ (
+      ∀ i_front vs_front,
+      <<<
+        inv' l γ ∗
+        front_lb γ i_front
+      | ∀∀ vs,
+        model₁ γ vs
+      >>>
+        mpmc_queue_2_pop_1 #l (suffix_to_val i_front vs_front) @ ↑γ.(metadata_inv)
+      <<<
+        model₁ γ (tail vs)
+      | RET head vs;
+        True
+      >>>
+    ) ∧ (
+      ∀ backs i back_prev back move,
+      <<<
+        ⌜1 < length move⌝ ∗
+        inv' l γ ∗
+        state_lb γ backs i (Unstable back move) ∗
+        back_prev ↦ₕ Header §Back 2
+      | ∀∀ vs,
+        model₁ γ vs
+      >>>
+        mpmc_queue_2_pop_2 #l ’Front[ #(S i) ] #back (prefix_to_val i back_prev move) @ ↑γ.(metadata_inv)
+      <<<
+        model₁ γ (tail vs)
+      | RET head vs;
+        True
+      >>>
+    ) ∧ (
+      <<<
+        inv' l γ
+      | ∀∀ vs,
+        model₁ γ vs
+      >>>
+        mpmc_queue_2_pop #l @ ↑γ.(metadata_inv)
+      <<<
+        model₁ γ (tail vs)
+      | RET head vs;
+        True
+      >>>
+    ).
+  Proof.
+    iLöb as "HLöb".
+    iDestruct "HLöb" as "(IHpop_1 & IHpop_2 & IHpop)".
+    repeat iSplit.
+
+    { iIntros "%i_front %vs_front %Φ (#Hinv & #Hfront_lb) HΦ".
+
+      wp_recs. wp_pures.
+      destruct vs_front as [| v vs_front]; wp_pures.
+
+      - wp_apply (typed_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+        wp_pures.
+
+        wp_bind (_.{back})%E.
+        iInv "Hinv" as "(:inv_inner =1 >)".
+        wp_load.
+        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi_front1.
+        iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_1".
+
+        destruct vs_back1 as [| v vs_back1].
+
+        + admit.
+
+        + iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first naive_solver lia.
+
+          iSplitR "HΦ". { iFrameSteps. }
+          iModIntro. clear- Hfront1 Hi_front1.
+
+          wp_pures.
+          case_bool_decide as Hif; wp_pures.
+
+          * assert (length vs_front1 = 0) as ->%nil_length_inv by lia.
+            assert (length vs_back1 = 0) as ->%nil_length_inv by lia.
+            replace i_front with (S i1) by lia.
+            replace i_front1 with (S i1) by lia.
+            simpl. clear.
+
+            wp_bind (CAS _ _ _).
+            iInv "Hinv" as "(:inv_inner =2 >)".
+            wp_cas as _ | (Hcas & -> & ->)%(prefix_to_val_inj' _ _ _ _ _ [v]).
+
+            -- iSplitR "HΦ". { iFrameSteps. }
+               iSteps.
+
+            -- ospecialize* Hcas; first done. subst i_back2.
+               iDestruct (inv_status_Stable with "Hstatus") as "(%empty2 & -> & (:inv_status_stable =2))"; first naive_solver lia.
+               iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
+               assert (length vs_front2 = 0) as ->%nil_length_inv by lia.
+               replace i_front2 with (S i2) by lia.
+               rewrite reverse_singleton /= in Hvs2. subst vs2.
+
+               iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
+               iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+               iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+               iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
+
+               iSplitR "HΦ".
+               { iFrameSteps. iExists _, _, []. iSteps. }
+               iSteps.
+
+          * wp_block back as "#Hback_header" "_" "(Hback_index & Hback_move & _) /=".
+            wp_match.
+            wp_apply (front_spec_strong (Some i_front1) (Some i1) with "[$Hinv $Hfront_lb_1 $Hstate_at_1]") as (i_front3 vs_front3) "(#Hfront_lb_3 & %Hi_front3 & (%i3 & %Hi3 & %Hfront3))".
+            wp_equal as _ | (-> & ->)%(inj2 suffix_to_val _ _ _ []); wp_pures.
+            1: iSteps.
+
+            simpl in Hfront3.
+            replace i_front with (S i1) in * by lia.
+            replace i_front1 with (S i1) in * by lia.
+            replace i3 with i1 in * by lia.
+            assert (length vs_front1 = 0) as ->%nil_length_inv by lia.
+            assert (0 < length vs_back1) as Hvs_back1 by lia.
+            clear- Hvs_back1.
+
+            wp_bind (CAS _ _ _).
+            iInv "Hinv" as "(:inv_inner =4 >)".
+            wp_cas as _ | (Hcas & -> & ->)%(prefix_to_val_inj' _ _ _ _ _ (v :: vs_back1)).
+
+            -- iSplitR "HΦ". { iFrameSteps. }
+               iSteps.
+
+            -- ospecialize* Hcas; first done. subst i_back4.
+               iDestruct (inv_status_Stable with "Hstatus") as "(%empty4 & -> & (:inv_status_stable =4))"; first naive_solver lia.
+               iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi_front4.
+               replace i_front4 with (S i4) in * by lia.
+               destruct empty4; last lia. subst vs_front4.
+
+               iMod (state_destabilize with "Hstate_auth") as "Hstate_auth".
+               iDestruct (state_lb_get with "Hstate_auth") as "#Hstate_lb_4".
+               iSplitR "HΦ".
+               { iFrameSteps. iExists _, _, []. iSteps. }
+               iModIntro. clear- Hvs_back1.
+
+               wp_smart_apply ("IHpop_2" $! _ _ _ _ (v :: vs_back1) with "[> $Hinv $Hstate_lb_4] HΦ").
+               { iSteps.
+                 iMod (inv'_state_at with "Hinv Hstate_at_1") as "(:back_model_1 =1)".
+                 iSteps.
+               }
+
+      - wp_bind (CAS _ _ _).
+        iInv "Hinv" as "(:inv_inner =1 >)".
+        wp_cas as _ | (-> & ->)%(inj2 suffix_to_val _ _ _ (v :: vs_front)).
+
+        + iSplitR "HΦ". { iFrameSteps. }
+          iSteps.
+
+        + iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first naive_solver lia.
+          destruct empty1; first congruence.
+
+          iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
+          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+          iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+          iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
+          rewrite Hvs1 /=.
+
+          iMod (front_update with "Hfront_auth") as "Hfront_auth".
+          iSplitR "HΦ".
+          { destruct (nil_or_length_pos vs_front) as [-> | Hvs_front].
+            1: iMod (state_empty with "Hstate_auth") as "Hstate_auth".
+            all: iFrameSteps; iPureIntro.
+            all: naive_solver lia.
+          }
+          iSteps.
+    }
+
+    { iClear "IHpop_1 IHpop_2".
+      iIntros "%backs %i %back_prev %back %move %Φ (%Hmove & #Hinv & #Hstate_lb & #Hback_prev_header) HΦ".
+
+      wp_recs.
+      wp_smart_apply (mpmc_queue_2_rev_spec with "[$]") as "_"; first lia.
+      destruct move as [| v move _] using rev_ind; first naive_solver lia.
+      rewrite reverse_snoc /=. wp_pures.
+
+      wp_bind (CAS _ _ _).
+      iInv "Hinv" as "Hinv_inner".
+      iDestruct (inv_inner_strengthen with "Hinv_inner") as "(:inv_inner =1 >)".
+      wp_cas as _ | (-> & ->)%(inj2 suffix_to_val _ _ _ []).
+
+      - iSplitR "HΦ".
+        { rewrite inv_status_weaken. iFrameSteps. }
+        iSteps.
+
+      - rewrite Nat.add_0_r in Hfront1. injection Hfront1 as <-.
+        iDestruct (state_lb_unstabilized with "Hstate_auth Hstate_lb") as %(-> & _ & ->); first lia.
+        iDestruct "Hstatus" as "(:inv_status_unstable =1 strong= lazy=)".
+        rewrite reverse_snoc.
+
+        iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
+        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+        iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ /=".
+
+        iMod (state_stabilize with "Hstate_auth") as "(Hstate_auth & _ & #Hstate_at)"; first done.
+        iMod (front_update with "Hfront_auth") as "Hfront_auth".
+        iDestruct (big_sepM_insert_2 with "[Hback1] Hbacks") as "Hbacks"; first iFrameSteps.
+        iSplitR "HΦ".
+        { iFrameSteps; iPureIntro.
+          - simpl_length/=. lia.
+          - rewrite Hvs_back1 right_id //.
+          - simpl_length/= in *. lia.
+        }
+        iIntros "!> {%}".
+
+        wp_smart_apply (mpmc_queue_2_finish_spec with "[$]").
+        iSteps.
+    }
+
+    { iClear "IHpop_2 IHpop".
+      iIntros "%Φ #Hinv HΦ".
+
+      wp_recs.
+      wp_apply (front_spec with "Hinv").
+      iSteps.
+    }
+  Admitted.
   Lemma mpmc_queue_2_pop_spec t ι :
     <<<
       mpmc_queue_2_inv t ι
@@ -1265,7 +1628,13 @@ Section mpmc_queue_2_G.
       True
     >>>.
   Proof.
-  Admitted.
+    iIntros "%Φ (:inv) HΦ".
+
+    awp_apply (mpmc_queue_2_pop_spec_aux with "Hinv").
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iAaccIntro with "Hmodel₁"; iSteps.
+  Qed.
 End mpmc_queue_2_G.
 
 From zoo_saturn Require
