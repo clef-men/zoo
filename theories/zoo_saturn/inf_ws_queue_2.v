@@ -78,6 +78,15 @@ Section inf_ws_queue_2_G.
     apply _.
   Qed.
 
+  Lemma inf_ws_queue_2_model_exclusive t vs1 vs2 :
+    inf_ws_queue_2_model t vs1 -∗
+    inf_ws_queue_2_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)".
+    iApply (inf_ws_queue_1_model_exclusive with "Hmodel_1 Hmodel_2").
+  Qed.
+
   Lemma inf_ws_queue_2_owner_exclusive t ws1 ws2 :
     inf_ws_queue_2_owner t ws1 -∗
     inf_ws_queue_2_owner t ws2 -∗
