@@ -132,11 +132,11 @@ Section mpsc_queue_3_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      Hmeta_ &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
   Definition mpsc_queue_3_consumer t ws : iProp Σ :=
@@ -211,6 +211,13 @@ Section mpsc_queue_3_G.
   Proof.
     apply twins_alloc'.
   Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
@@ -282,6 +289,16 @@ Section mpsc_queue_3_G.
     iIntros "Hopen₁ Hopen₂".
     iCombine "Hopen₁ Hopen₂" as "Hopen".
     iApply (oneshot_update_shot with "Hopen").
+  Qed.
+
+  Lemma mpsc_queue_3_model_exclusive t vs1 vs2 :
+    mpsc_queue_3_model t vs1 -∗
+    mpsc_queue_3_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma mpsc_queue_3_consumer_exclusive t ws1 ws2 :
