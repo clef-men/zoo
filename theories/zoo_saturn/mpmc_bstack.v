@@ -96,14 +96,31 @@ Section mpmc_bstack_G.
     ∃ vs,
     l.[front] ↦ lst_to_val (length vs) vs ∗
     model₂ γ vs.
+  #[local] Instance : CustomIpatFormat "inv_inner" :=
+    "(
+      %vs{} &
+      Hl_front &
+      Hmodel₂
+    )".
   Definition mpmc_bstack_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     ⌜cap = γ.(metadata_capacity)⌝ ∗
-    ⌜0 < cap⌝ ∗
-    l.[capacity] ↦□ #cap ∗
+    ⌜0 < γ.(metadata_capacity)⌝ ∗
+    l.[capacity] ↦□ #γ.(metadata_capacity) ∗
     inv ι (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv" :=
+    "(
+      %l &
+      %γ &
+      -> &
+      #Hmeta &
+      -> &
+      %Hcapacity &
+      #Hl_capacity &
+      #Hinv
+    )".
 
   Definition mpmc_bstack_model t vs : iProp Σ :=
     ∃ l γ,
@@ -111,6 +128,15 @@ Section mpmc_bstack_G.
     meta l nroot γ ∗
     ⌜length vs ≤ γ.(metadata_capacity)⌝ ∗
     model₁ γ vs.
+  #[local] Instance : CustomIpatFormat "model" :=
+    "(
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      %Hvs{} &
+      Hmodel₁{_{}}
+    )".
 
   #[global] Instance mpmc_bstack_model_timeless t vs :
     Timeless (mpmc_bstack_model t vs).
@@ -130,6 +156,13 @@ Section mpmc_bstack_G.
       model₂' γ_model [].
   Proof.
     apply twins_alloc'.
+  Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply: twins_twin1_exclusive.
   Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
@@ -152,9 +185,18 @@ Section mpmc_bstack_G.
     mpmc_bstack_model t vs -∗
     ⌜length vs ≤ cap⌝.
   Proof.
-    iIntros "(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iIntros "(:inv) (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
+  Qed.
+  Lemma mpmc_bstack_model_exclusive t vs1 vs2 :
+    mpmc_bstack_model t vs1 -∗
+    mpmc_bstack_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
   Lemma mpmc_bstack_create_spec ι (cap : Z) :
@@ -202,19 +244,19 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
 
     wp_bind (_.{front})%E.
-    iInv "Hinv" as "(%vs & Hl_front & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
-    iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-    iSplitR "HΦ"; first iSteps.
-    iModIntro. clear.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
 
     destruct vs as [| v vs]; iSteps.
   Qed.
@@ -232,19 +274,19 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
 
     wp_bind (_.{front})%E.
-    iInv "Hinv" as "(%vs & Hl_front & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner)".
     wp_load.
-    iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-    iSplitR "HΦ"; first iSteps.
-    iModIntro. clear.
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+    iSplitR "HΦ". { iFrameSteps. }
+    iIntros "!> {%}".
 
     destruct vs as [| v vs]; iSteps.
   Qed.
@@ -288,51 +330,52 @@ Section mpmc_bstack_G.
     iDestruct "HLöb" as "(IHpush_aux & IHpush)".
     iSplit.
 
-    - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv)) HΦ".
+    - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & (:inv)) HΦ".
 
       wp_recs. wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%vs & Hl_front & Hmodel₂)".
+      iInv "Hinv" as "(:inv_inner)".
       wp_cas as _ | <-%lst_to_val_inj'.
 
-      + iSplitR "HΦ"; first iSteps.
+      + iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
-      + iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod (model_update (v :: vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
         rewrite bool_decide_eq_true_2 //.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         rewrite Z.add_1_r -Nat2Z.inj_succ.
-        iSplitR "HΦ". { iExists (v :: vs). iSteps. rewrite Nat.sub_0_r //. }
+        iSplitR "HΦ".
+        { iFrameSteps. rewrite Nat.sub_0_r //. }
         iSteps.
 
-    - iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    - iIntros "%Φ (:inv) HΦ".
 
       wp_recs. wp_pures.
 
       wp_bind (_.{front})%E.
-      iInv "Hinv" as "(%vs & Hl_front & Hmodel₂)".
+      iInv "Hinv" as "(:inv_inner)".
       wp_load.
       destruct (decide (γ.(metadata_capacity) ≤ length vs)) as [Hlen | Hlen].
 
-      + iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         rewrite bool_decide_eq_false_2; first lia.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
-        iSplitR "HΦ"; first iSteps.
-        iModIntro.
+        iSplitR "HΦ". { iFrameSteps. }
+        iModIntro. clear- Hcapacity Hlen.
 
         destruct vs as [| w vs]; first naive_solver lia.
         wp_load. wp_pures.
         rewrite bool_decide_eq_true_2; first naive_solver lia.
         iSteps.
 
-      + iSplitR "HΦ"; first iSteps.
-        iModIntro.
+      + iSplitR "HΦ". { iFrameSteps. }
+        iModIntro. clear- Hlen.
 
         destruct vs as [| w vs]; wp_pures.
 
@@ -375,41 +418,41 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iIntros "%Φ #(%l & %γ & -> & #Hmeta & -> & %Hcap & #Hl_capacity & #Hinv) HΦ".
+    iIntros "%Φ (:inv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec.
 
     wp_bind (_.{front})%E.
-    iInv "Hinv" as "(%vs & Hl_front & Hmodel₂)".
+    iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
-    destruct vs as [| v vs].
+    destruct vs1 as [| v vs1].
 
-    - iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+    - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "HΦ". { iExists []. iSteps. }
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iSplitR "HΦ". { iExists (v :: vs). iSteps. }
-      iModIntro.
+    - iSplitR "HΦ". { iFrameSteps. }
+      iIntros "{%} !>".
 
       wp_pures.
 
       wp_bind (CAS _ _ _).
-      iInv "Hinv" as "(%vs' & Hl_front & Hmodel₂)".
+      iInv "Hinv" as "(:inv_inner =2)".
       wp_cas as _ | Hcas; first iSteps.
-      destruct vs'; first done.
+      destruct vs2; first done.
       destruct Hcas as (_ & _ & [= ->%(inj _) -> ->%(inj _)]).
-      iMod "HΦ" as "(%_vs & (%_l & %_γ & %Heq & _Hmeta & %Hvs & Hmodel₁) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+      iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod (model_update vs with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-      simpl in Hvs.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
-      iSplitR "HΦ"; first iSteps.
+      iMod (model_update vs1 with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
+      { simpl in Hvs. iSteps. }
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
 End mpmc_bstack_G.
