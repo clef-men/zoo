@@ -142,8 +142,8 @@ Section inf_ws_queue_1_G.
     owner₁' γ.(metadata_owner) γ.(metadata_model).
   #[local] Instance : CustomIpatFormat "owner₁" :=
     "(
-      Howner₁{} &
-      Hmodel_auth{}
+      Howner₁{_{}} &
+      Hmodel_auth{_{}}
     )".
   #[local] Definition owner₂' γ_owner stable back priv :=
     twins_twin2 (twins_G := inf_ws_queue_1_G_owner_G) γ_owner (stable, back, priv).
@@ -468,7 +468,7 @@ Section inf_ws_queue_1_G.
       %priv{} &
       %Heq{} &
       Hmeta{;_} &
-      Howner₁{}
+      Howner₁{_{}}
     )".
 
   #[global] Instance inf_ws_queue_1_model_timeless t vs :
@@ -587,7 +587,7 @@ Section inf_ws_queue_1_G.
     False.
   Proof.
     iIntros "(:owner₁ =1) (:owner₁ =2)".
-    iApply (twins_twin1_exclusive with "Howner₁1 Howner₁2").
+    iApply (twins_twin1_exclusive with "Howner₁_1 Howner₁_2").
   Qed.
   #[local] Lemma owner_agree γ stable1 back1 priv1 ws stable2 back2 priv2 :
     owner₁ γ stable1 back1 priv1 ws -∗
@@ -753,7 +753,7 @@ Section inf_ws_queue_1_G.
   Proof.
     iIntros "(:owner =1) (:owner =2)". subst t. injection Heq2 as <-.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
-    iApply (owner₁_exclusive with "Howner₁1 Howner₁2").
+    iApply (owner₁_exclusive with "Howner₁_1 Howner₁_2").
   Qed.
   Lemma inf_ws_queue_1_model_valid t ws vs :
     inf_ws_queue_1_owner t ws -∗
@@ -762,7 +762,7 @@ Section inf_ws_queue_1_G.
   Proof.
     iIntros "(:owner =1) (:model)". subst t. injection Heq as <-.
     iDestruct (meta_agree with "Hmeta1 Hmeta_") as %<-. iClear "Hmeta_".
-    iApply (model₁_valid with "Howner₁1 Hmodel₁").
+    iApply (model₁_valid with "Howner₁_1 Hmodel₁").
   Qed.
 
   #[local] Lemma inv_state_Stable γ state front back hist lhist vs prophs :
