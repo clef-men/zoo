@@ -95,6 +95,27 @@ Section inf_ws_queue_2_G.
     iIntros "(:owner =1) (:owner =2)".
     iApply (inf_ws_queue_1_owner_exclusive with "Howner_1 Howner_2").
   Qed.
+  Lemma inf_ws_queue_2_owner_model t ws vs :
+    inf_ws_queue_2_owner t ws -∗
+    inf_ws_queue_2_model t vs -∗
+    ⌜vs `suffix_of` ws⌝.
+  Proof.
+    iIntros "(:owner =1) (:model)".
+    iDestruct (inf_ws_queue_1_owner_model with "Howner_1 Hmodel") as %(slots & ->)%suffix_fmap; last congruence.
+    iDestruct (big_sepL2_app_inv_l with "Hslots_ws1") as "(%ws1 & %vs_ & -> & _ & Hslots_vs_)".
+
+    iAssert ⌜vs = vs_⌝%I as %<-.
+    { rewrite list_eq_Forall2.
+      iApply big_sepL2_Forall2.
+      iDestruct (big_sepL2_retract_l with "Hslots_vs") as "(% & Hvs)".
+      iDestruct (big_sepL2_retract_l with "Hslots_vs_") as "(% & Hvs_)".
+      iDestruct (big_sepL2_sepL_2 with "Hvs Hvs_") as "H"; first congruence.
+      iApply (big_sepL2_impl with "H"). iIntros "!> %i %v %v_ _ _ ((%slot1 & %Hslots_vs_lookup_1 & Hl1) & (%slot2 & %Hslots_vs_lookup_2 & Hl2))". simplify.
+      iApply (pointsto_agree with "Hl1 Hl2").
+    }
+
+    iExists ws1. iSteps.
+  Qed.
 
   Lemma inf_ws_queue_2_create_spec ι :
     {{{
