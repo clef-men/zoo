@@ -286,11 +286,11 @@ Section inf_mpmc_queue_1_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      Hmeta_ &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
   #[local] Instance tokens_pending_timeless γ i :
@@ -346,6 +346,13 @@ Section inf_mpmc_queue_1_G.
       model₂' γ_model [].
   Proof.
     apply twins_alloc'.
+  Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
   Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
@@ -514,6 +521,16 @@ Section inf_mpmc_queue_1_G.
   Opaque tokens_auth'.
   Opaque tokens_pending.
   Opaque tokens_done.
+
+  Lemma inf_mpmc_queue_1_model_exclusive t vs1 vs2 :
+    inf_mpmc_queue_1_model t vs1 -∗
+    inf_mpmc_queue_1_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
 
   Lemma inf_mpmc_queue_1_create_spec ι :
     {{{
