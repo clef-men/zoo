@@ -219,11 +219,11 @@ Section spsc_bqueue_G.
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      #Hmeta_ &
-      Hmodel₁
+      %l{;_} &
+      %γ{;_} &
+      %Heq{} &
+      #Hmeta_{} &
+      Hmodel₁{_{}}
     )".
 
   Definition spsc_bqueue_producer t ws : iProp Σ :=
@@ -318,6 +318,13 @@ Section spsc_bqueue_G.
     iIntros "(:producer₁) Hmodel₁".
     iDestruct (auth_twins_valid_1 with "Hmodel_auth Hmodel₁") as %H.
     rewrite preorder_rtc in H. iSteps.
+  Qed.
+  #[local] Lemma model₁_exclusive γ vs1 vs2 :
+    model₁ γ vs1 -∗
+    model₁ γ vs2 -∗
+    False.
+  Proof.
+    apply auth_twins_twin1_exclusive.
   Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
@@ -493,6 +500,15 @@ Section spsc_bqueue_G.
   Opaque consumer₁'.
   Opaque consumer₂'.
 
+  Lemma spsc_bqueue_model_excusive t vs1 vs2 :
+    spsc_bqueue_model t vs1 -∗
+    spsc_bqueue_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
   Lemma spsc_bqueue_model_valid t ι cap vs :
     spsc_bqueue_inv t ι cap -∗
     spsc_bqueue_model t vs ={⊤}=∗
