@@ -493,6 +493,20 @@ Section spsc_bqueue_G.
   Opaque consumer₁'.
   Opaque consumer₂'.
 
+  Lemma spsc_bqueue_model_valid t ι cap vs :
+    spsc_bqueue_inv t ι cap -∗
+    spsc_bqueue_model t vs ={⊤}=∗
+      spsc_bqueue_model t vs ∗
+      ⌜length vs ≤ cap⌝.
+  Proof.
+    iIntros "(:inv) (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iInv "Hinv" as "(:inv_inner =1)".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    iSplitR "Hmodel₁". { iFrameSteps. }
+    iFrameSteps.
+  Qed.
+
   Lemma spsc_bqueue_producer_exclusive t ws :
     spsc_bqueue_producer t ws -∗
     spsc_bqueue_producer t ws -∗
@@ -500,7 +514,7 @@ Section spsc_bqueue_G.
   Proof.
     iSteps.
   Qed.
-  Lemma spsc_bqueue_model_valid t ws vs :
+  Lemma spsc_bqueue_producer_model t ws vs :
     spsc_bqueue_producer t ws -∗
     spsc_bqueue_model t vs -∗
     ⌜vs `suffix_of` ws⌝.
