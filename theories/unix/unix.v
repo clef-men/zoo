@@ -34,3 +34,17 @@ Axiom unix_close_spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
     RET ();
     True
   }}}.
+#[global] Instance unix_close_diaspec `{zoo_G : !ZooG Σ} fd chars :
+  DIASPEC
+  {{
+    unix_fd_model fd (DfracOwn 1) chars
+  }}
+    unix_close fd
+  {{
+    RET ();
+    True
+  }}.
+Proof.
+  iSteps as (Φ) "Hfd HΦ".
+  wp_apply (unix_close_spec with "Hfd HΦ").
+Qed.
