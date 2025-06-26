@@ -37,8 +37,8 @@ Definition rcfd_get : val :=
   fun: "t" =>
     FAA "t".[ops] #1 ;;
     match: "t".{state} with
-    | Open <> as "open_r" =>
-        ‘Some( "open_r".<fd> )
+    | Open "fd" =>
+        ‘Some( "fd" )
     | Closing <> =>
         rcfd_put "t" ;;
         §None
@@ -47,9 +47,10 @@ Definition rcfd_get : val :=
 Definition rcfd_close : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open <> as "prev" =>
-        let: "open_r" := "prev" in
-        let: "close" <> := unix_close "open_r".<fd> in
+    | Closing <> =>
+        #false
+    | Open "fd" as "prev" =>
+        let: "close" <> := unix_close "fd" in
         let: "next" := ‘Closing[ "close" ] in
         if: CAS "t".[state] "prev" "next" then (
           if: "t".{ops} == #0 and CAS "t".[state] "next" rcfd_closed then (
@@ -61,27 +62,24 @@ Definition rcfd_close : val :=
         ) else (
           #false
         )
-    | Closing <> =>
-        #false
     end.
 
 Definition rcfd_remove : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open <> as "prev" =>
-        let: "open_r" := "prev" in
+    | Closing <> =>
+        §None
+    | Open "fd" as "prev" =>
         let: "waiter" := spsc_waiter_create () in
         let: "next" :=
           ‘Closing[ fun: <> => spsc_waiter_notify "waiter" ]
         in
         if: CAS "t".[state] "prev" "next" then (
           spsc_waiter_wait "waiter" ;;
-          ‘Some( "open_r".<fd> )
+          ‘Some( "fd" )
         ) else (
           §None
         )
-    | Closing <> =>
-        §None
     end.
 
 Definition rcfd_use : val :=
@@ -107,8 +105,8 @@ Definition rcfd_is_open : val :=
 Definition rcfd_peek : val :=
   fun: "t" =>
     match: "t".{state} with
-    | Open <> as "open_r" =>
-        ‘Some( "open_r".<fd> )
+    | Open "fd" =>
+        ‘Some( "fd" )
     | Closing <> =>
         §None
     end.

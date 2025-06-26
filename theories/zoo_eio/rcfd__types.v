@@ -19,11 +19,6 @@ Notation "'Closing'" := (
 )(in custom zoo_tag
 ).
 
-Notation "'fd'" := (
-  in_type "zoo_eio.rcfd.state.Open" 0
-)(in custom zoo_proj
-).
-
 Notation "'ops'" := (
   in_type "zoo_eio.rcfd.t" 0
 )(in custom zoo_field
