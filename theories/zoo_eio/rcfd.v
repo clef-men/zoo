@@ -718,7 +718,7 @@ Section rcfd_G.
     wp_apply (rcfd_close_spec' false with "[$Hinv]").
     iSteps.
   Qed.
-  Lemma rcfd_close_spec_closed t fd chars :
+  Lemma rcfd_close_spec_closing t fd chars :
     {{{
       rcfd_inv t fd chars ∗
       rcfd_closing t
@@ -967,7 +967,7 @@ Section rcfd_G.
     wp_apply (rcfd_is_open_spec' false with "[$Hinv]").
     iSteps.
   Qed.
-  Lemma rcfd_is_open_spec_closed t fd chars :
+  Lemma rcfd_is_open_spec_closing t fd chars :
     {{{
       rcfd_inv t fd chars ∗
       rcfd_closing t
@@ -1059,7 +1059,7 @@ Section rcfd_G.
     wp_apply (rcfd_peek_spec' false with "[$Hinv]").
     iSteps.
   Qed.
-  Lemma rcfd_peek_spec_closed t fd chars :
+  Lemma rcfd_peek_spec_closing t fd chars :
     {{{
       rcfd_inv t fd chars ∗
       rcfd_closing t
