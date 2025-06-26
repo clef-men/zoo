@@ -752,8 +752,8 @@ Section rcfd_G.
         match o with
         | None =>
             True
-        | Some fd' =>
-            ⌜fd' = fd⌝ ∗
+        | Some fd_ =>
+            ⌜fd_ = fd⌝ ∗
             unix_fd_model fd (DfracOwn 1) chars
         end
     }}}.
@@ -840,8 +840,8 @@ Section rcfd_G.
       match o with
       | None =>
           True
-      | Some fd' =>
-          ⌜fd' = fd⌝ ∗
+      | Some fd_ =>
+          ⌜fd_ = fd⌝ ∗
           unix_fd_model fd (DfracOwn 1) chars
       end
     }}}.
@@ -996,8 +996,8 @@ Section rcfd_G.
         match o with
         | None =>
             rcfd_closing t
-        | Some fd' =>
-            ⌜fd' = fd⌝
+        | Some fd_ =>
+            ⌜fd_ = fd⌝
         end
     }}}.
   Proof.
@@ -1046,8 +1046,8 @@ Section rcfd_G.
       match o with
       | None =>
           rcfd_closing t
-      | Some fd' =>
-          ⌜fd' = fd⌝
+      | Some fd_ =>
+          ⌜fd_ = fd⌝
       end
     }}}.
   Proof.
