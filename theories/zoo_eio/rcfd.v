@@ -869,32 +869,28 @@ Section rcfd_G.
   Lemma rcfd_use_spec Ψ t fd chars (closed open : val) :
     {{{
       rcfd_inv t fd chars ∗
-      WP closed () {{ res,
-        ⌜res = ()%V⌝ ∗
-        Ψ false
-      }} ∗
+      WP closed () {{ Ψ false }} ∗
       ( ∀ q,
         rcfd_token t q -∗
         unix_fd_model fd (DfracOwn q) chars -∗
         WP open fd {{ res,
-          ⌜res = ()%V⌝ ∗
           rcfd_token t q ∗
           unix_fd_model fd (DfracOwn q) chars ∗
-          Ψ true
+          Ψ true res
         }}
       )
     }}}
       rcfd_use t closed open
-    {{{ b,
-      RET ();
-      Ψ b
+    {{{ b res,
+      RET res;
+      Ψ b res
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & Hclosed & Hopen) HΦ".
     wp_rec.
     wp_smart_apply (rcfd_get_spec with "Hinv") as ([]) ""; last iSteps.
     iIntros "(%q & -> & Htoken & Hmodel)".
-    wp_smart_apply (wp_wand with "(Hopen Htoken Hmodel)") as "%res (-> & Htoken & Hmodel & HΨ)".
+    wp_smart_apply (wp_wand with "(Hopen Htoken Hmodel)") as "%res (Htoken & Hmodel & HΨ)".
     wp_smart_apply (rcfd_put_spec with "[$Hinv $Htoken $Hmodel]").
     iSteps.
   Qed.
