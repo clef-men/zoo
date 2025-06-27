@@ -5,11 +5,11 @@ From zoo.common Require Import
   function
   relations.
 From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.twins
-  lib.auth_twins
   lib.auth_nat_max
-  lib.mono_list.
+  lib.auth_twins
+  lib.excl
+  lib.mono_list
+  lib.twins.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
@@ -116,6 +116,7 @@ Section ws_bqueue_1_G.
     metadata_history : gname ;
     metadata_winner : gname ;
   }.
+  Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
     ltac:(solve_decision).
@@ -184,7 +185,7 @@ Section ws_bqueue_1_G.
       Hwinner_steal{_{}}
     )".
 
-  #[local] Definition au γ front P : iProp Σ :=
+  #[local] Definition winner_au γ front P : iProp Σ :=
     AU <{
       ∃∃ vs,
       model₁ γ vs
@@ -196,16 +197,31 @@ Section ws_bqueue_1_G.
     , COMM
       P
     }>.
-
-  #[local] Definition winner_model γ id front P : iProp Σ :=
-    identifier_model' id ∗
+  #[local] Definition winner_pending_1 γ front P id : iProp Σ :=
     winner_steal γ front P ∗
-    au γ front P.
-  #[local] Instance : CustomIpatFormat "winner_model" :=
+    identifier_model' id ∗
+    winner_au γ front P.
+  #[local] Instance : CustomIpatFormat "winner_pending_1" :=
     "(
-      Hid{_{!}} &
       Hwinner_steal{_{!}} &
-      HP
+      Hid{_{!}} &
+      HP{}
+    )".
+  #[local] Definition winner_pending_2 γ front id : iProp Σ :=
+    ∃ P,
+    winner_pending_1 γ front P id.
+  #[local] Instance : CustomIpatFormat "winner_pending_2" :=
+    "(
+      %P{} &
+      (:winner_pending_1 {//} {/!/})
+    )".
+  #[local] Definition winner_linearized γ front P : iProp Σ :=
+    winner_steal γ front P ∗
+    P.
+  #[local] Instance : CustomIpatFormat "winner_linearized" :=
+    "(
+      Hwinner_steal{_{!}} &
+      HP{}
     )".
 
   #[local] Definition inv_state_empty γ stable front back hist : iProp Σ :=
@@ -235,8 +251,7 @@ Section ws_bqueue_1_G.
       | [] =>
           False
       | id :: _ =>
-          ∃ P,
-          winner_model γ id front P
+          winner_pending_2 γ front id
       end
     ).
   #[local] Instance : CustomIpatFormat "inv_state_nonempty" :=
@@ -261,7 +276,7 @@ Section ws_bqueue_1_G.
     | [] =>
         False
     | id :: _ =>
-        winner_model γ id front P
+        winner_pending_1 γ front P id
     end.
   #[local] Instance : CustomIpatFormat "inv_state_nonempty_steal" :=
     "(
@@ -283,8 +298,7 @@ Section ws_bqueue_1_G.
     ⌜length hist = S front⌝ ∗
     history_at γ front (hd inhabitant priv) ∗
     ( winner_pop γ front P
-    ∨ winner_steal γ front P ∗
-      P
+    ∨ winner_linearized γ front P
     ).
   #[local] Instance : CustomIpatFormat "inv_state_emptyish" :=
     "(
@@ -324,8 +338,7 @@ Section ws_bqueue_1_G.
     ⌜front = back⌝ ∗
     ⌜length hist = S front⌝ ∗
     history_at γ front (hd inhabitant priv) ∗
-    winner_steal γ front P ∗
-    P.
+    winner_linearized γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_steal" :=
     "(
       { {lazy}{>}%Hstate{}
@@ -337,8 +350,7 @@ Section ws_bqueue_1_G.
       {>;}-> &
       {>;}%Hhist{} &
       #Hhistory_at_front{} &
-      Hwinner_steal &
-      HP
+      (:winner_linearized)
     )".
   #[local] Definition inv_state_superempty γ stable front back hist : iProp Σ :=
     ⌜stable = Unstable⌝ ∗
@@ -895,11 +907,11 @@ Section ws_bqueue_1_G.
       iDestruct "Hwinner" as "[(:winner =3) | Hwinner]".
       + iDestruct (winner_pop_exclusive with "Hwinner_pop Hwinner_pop_3") as %[].
       + destruct prophs as [| id prophs]; first done.
-        iDestruct "Hwinner" as "(%P_ & (:winner_model))".
+        iDestruct "Hwinner" as "(:winner_pending_2 =_)".
         iDestruct (winner_agree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
         iSteps.
     - iDestruct "Hstate" as "(:inv_state_emptyish)".
-      iDestruct "Hwinner" as "[Hwinner_pop_ | (Hwinner_steal & HP)]".
+      iDestruct "Hwinner" as "[Hwinner_pop_ | (:winner_linearized)]".
       + iDestruct (winner_pop_exclusive with "Hwinner_pop Hwinner_pop_") as %[].
       + iDestruct (winner_agree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
         iSteps.
@@ -925,11 +937,11 @@ Section ws_bqueue_1_G.
       destruct prophs as [| id prophs].
       + iDestruct "Hwinner" as "[(:winner =3) | []]".
         iDestruct (winner_steal_exclusive with "Hwinner_steal Hwinner_steal_3") as %[].
-      + iDestruct "Hwinner" as "[(:winner =3) | (%P_ & (:winner_model !=))]".
+      + iDestruct "Hwinner" as "[(:winner =3) | (:winner_pending_2 =_ !=)]".
         * iDestruct (winner_steal_exclusive with "Hwinner_steal Hwinner_steal_3") as %[].
         * iDestruct (winner_steal_exclusive with "Hwinner_steal Hwinner_steal_") as %[].
     - iDestruct "Hstate" as "(:inv_state_emptyish)".
-      iDestruct "Hwinner" as "[Hwinner_pop | (Hwinner_steal_ & _)]".
+      iDestruct "Hwinner" as "[Hwinner_pop | (:winner_linearized !=)]".
       + iDestruct (winner_agree with "Hwinner_pop Hwinner_steal") as "#(<- & $)".
         iSteps.
       + iDestruct (winner_steal_exclusive with "Hwinner_steal Hwinner_steal_") as %[].
@@ -1399,7 +1411,7 @@ Section ws_bqueue_1_G.
     iMod (front_update with "Hfront_auth") as "Hfront_auth".
     iDestruct "Hstate" as "[(:inv_state_nonempty_steal =1) | (:inv_state_emptyish_steal =1)]".
 
-    - iDestruct "Hwinner" as "(:winner_model)".
+    - iDestruct "Hwinner" as "(:winner_pending_1)".
       destruct vs1 as [| v1 vs1] => /=; first naive_solver lia.
 
       iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
@@ -1726,7 +1738,7 @@ Section ws_bqueue_1_G.
 
     iDestruct (inv_state_Nonempty with "Hstate") as %->; first done.
     iDestruct "Hstate" as "(:inv_state_nonempty =2)".
-    iDestruct "Hwinner" as "[(:winner) | (%P & Hid_ & _)]"; last first.
+    iDestruct "Hwinner" as "[(:winner) | (:winner_pending_2 !=)]"; last first.
     { iDestruct (identifier_model_exclusive with "Hid Hid_") as %[]. }
 
     destruct vs2 as [| v vs2] => /=; first naive_solver lia.
@@ -1734,8 +1746,8 @@ Section ws_bqueue_1_G.
 
     iSplitR "Hwinner_pop".
     { iExists Nonempty. iFrameSteps.
-      rewrite Hbranch3. iSteps. iIntros "!> !>".
-      rewrite /au. iAuIntro.
+      rewrite Hbranch3 /winner_pending_2. iSteps. iIntros "!> !>".
+      rewrite /winner_au. iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%v_ %vs' (-> & Hmodel₁ & Hhistory_at) !>".
@@ -1954,7 +1966,7 @@ Section ws_bqueue_1_G.
       destruct (decide (head $ prophss1 front1 = Some id)) as [(prophs0 & Hprophss1)%head_Some | Hbranch2].
 
       + rewrite Hprophss1.
-        iDestruct "Hwinner" as "[(:winner) | (%P & (:winner_model !=))]"; last first.
+        iDestruct "Hwinner" as "[(:winner) | (:winner_pending_2 !=)]"; last first.
         { iDestruct (identifier_model_exclusive with "Hid Hid_") as %[]. }
         iMod (winner_update front1 inhabitant with "Hwinner_pop Hwinner_steal") as "(Hwinner_pop & Hwinner_steal)".
 
@@ -1992,7 +2004,7 @@ Section ws_bqueue_1_G.
         iDestruct (wise_prophets_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
         iEval (rewrite Hpasts1 //=) in "Hprophet_full".
         destruct (prophss1 front1) as [| id_winner prophs]; first done.
-        iDestruct "Hwinner" as "(%P & (:winner_model !=))".
+        iDestruct "Hwinner" as "(:winner_pending_2 !=)".
 
         iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
