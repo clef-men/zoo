@@ -7,10 +7,6 @@ predicate inv
   (Ψ : fraction → Prop)
 persistent inv
 
-predicate token
-  (t : val)
-  (f : fraction)
-
 predicate closing
   (t : val)
 persistent closing
@@ -27,6 +23,39 @@ val make :
     ?t
   ensures
     inv ?t fd Ψ
+|}]
+
+val use :
+  t -> (unit -> 'a) -> (Unix.file_descr -> 'a) -> 'a
+[@@zoo{|
+  arguments
+    t
+  , closed
+  , open
+  requires
+    inv t fd Ψ
+  , spec_once closed {
+      returns
+        ?res
+      ensures
+        Χ false ?res
+    }
+  , spec_once open {
+      arguments
+        fd_
+      requires
+        fd_ = fd
+      , Ψ f
+      returns
+        ?res
+      ensures
+        Ψ f
+      , Χ true ?res
+    }
+  returns
+    ?res
+  ensures
+    Χ ?b ?res
 |}]
 
 val close :
@@ -85,41 +114,6 @@ val remove :
   , closing t
   returns
     None
-|}]
-
-val use :
-  t -> (unit -> 'a) -> (Unix.file_descr -> 'a) -> 'a
-[@@zoo{|
-  arguments
-    t
-  , closed
-  , open
-  requires
-    inv t fd Ψ
-  , spec_once closed {
-      returns
-        ?res
-      ensures
-        Χ false ?res
-    }
-  , spec_once open {
-      arguments
-        fd_
-      requires
-        fd_ = fd
-      , token t f
-      , Ψ f
-      returns
-        ?res
-      ensures
-        token t f
-      , Ψ f
-      , Χ true ?res
-    }
-  returns
-    ?res
-  ensures
-    Χ ?b ?res
 |}]
 
 val is_open :

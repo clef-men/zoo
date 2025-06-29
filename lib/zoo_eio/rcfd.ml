@@ -38,6 +38,15 @@ let get t =
       put t ;
       None
 
+let use t closed open_ =
+  match get t with
+  | None ->
+      closed ()
+  | Some fd ->
+      let res = open_ fd in
+      put t ;
+      res
+
 let close t =
   match t.state with
   | Closing _ ->
@@ -68,15 +77,6 @@ let remove t =
       ) else (
         None
       )
-
-let use t closed open_ =
-  match get t with
-  | None ->
-      closed ()
-  | Some fd ->
-      let res = open_ fd in
-      put t ;
-      res
 
 let is_open t =
   match t.state with
