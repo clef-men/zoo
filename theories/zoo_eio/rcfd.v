@@ -123,24 +123,28 @@ Section rcfd_G.
 
   #[local] Definition inv_inner_open γ Ψ state ops : iProp Σ :=
     ∃ q qs,
-    ⌜ops = size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
-    ⌜state = Open⌝ ∗
     tokens_auth γ qs ∗
+    ⌜state = Open⌝ ∗
+    ⌜ops = size qs⌝ ∗
+    ⌜set_fold Qp.add q qs = 1%Qp⌝ ∗
     Ψ q.
   #[local] Instance : CustomIpatFormat "inv_inner_open" :=
     "(
       %q{} &
       %qs{} &
-      (-> & %Hqs{}) &
-      {%H{eq};->} &
       Htokens_auth &
+      {%H{eq};->} &
+      -> &
+      %Hqs{} &
       HΨ{_{!}}
     )".
   #[local] Definition inv_inner_closing_users γ Ψ state ops : iProp Σ :=
     ∃ q qs fn,
-    ⌜ops = size qs ∧ 0 < size qs ∧ set_fold Qp.add q qs = 1%Qp⌝ ∗
-    ⌜state = Closing fn⌝ ∗
     tokens_auth γ qs ∗
+    ⌜state = Closing fn⌝ ∗
+    ⌜ops = size qs⌝ ∗
+    ⌜0 < size qs⌝ ∗
+    ⌜set_fold Qp.add q qs = 1%Qp⌝ ∗
     Ψ q ∗
     (Ψ 1%Qp -∗ WP fn () {{ itype_unit }}).
   #[local] Instance : CustomIpatFormat "inv_inner_closing_users" :=
@@ -148,9 +152,11 @@ Section rcfd_G.
       %q{} &
       %qs{} &
       %fn{} &
-      ({%H{eq_ops};->} & %Hqs{}_size & %Hqs{}) &
-      {%H{eq};->} &
       Htokens_auth &
+      {%H{eq};->} &
+      {%H{eq_ops};->} &
+      %Hqs{}_size &
+      %Hqs{} &
       HΨ{_{!}} &
       Hfn{}
     )".
@@ -369,9 +375,7 @@ Section rcfd_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iExists l, γ. iSteps.
-    iExists Open. iSteps.
-    iExists ∅. iSteps.
+    iExists l, γ. iSteps. iExists Open. iSteps.
   Qed.
 
   #[local] Lemma rcfd_put_spec l γ Ψ `{!Fractional Ψ} :
@@ -400,21 +404,17 @@ Section rcfd_G.
     { iDestruct "H" as "[#Hlstate_lb | (%q & Htokens_frag & HΨ)]".
       - iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
         iDestruct "Hlstate" as "(:inv_inner_closing_no_users =1)".
-        iExists (Closing _). iStep 4. done.
+        iFrameSteps 2.
       - destruct lstate1.
         + iDestruct "Hlstate" as "(:inv_inner_open =1 !=)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
-          iExists Open. iStep 3. iExists (q + q1)%Qp, (qs1 ∖ {[+q+]}).
-          iSplitR; [iSplitR; iPureIntro | iSplitR; [| iSplitR "HΨ HΨ_"]].
+          iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "Htokens_auth".
+          iDestruct (fractional with "[$HΨ $HΨ_]") as "HΨ".
+          iFrameSteps 2; iPureIntro.
           * assert (qs1 ≠ ∅) as Hqs1_size%gmultiset_size_non_empty_iff by multiset_solver.
             rewrite gmultiset_size_difference; first multiset_solver.
             rewrite gmultiset_size_singleton. lia.
           * rewrite (gmultiset_disj_union_difference' q qs1) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs1.
-          * iSteps.
-          * iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "$".
-            iSteps.
-          * iDestruct (fractional with "[$HΨ $HΨ_]") as "$".
-            iSteps.
         + iDestruct "Hlstate" as "(:inv_inner_closing_users =1 !=)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
           destruct (decide (size qs1 = 1)) as [Hqs_size' | Hqs_size'].
@@ -686,7 +686,7 @@ Section rcfd_G.
             iMod (lstate_update LClosingNoUsers with "Hlstate_auth") as "Hlstate_auth"; first done.
             iDestruct ("Hclosing" with "HΨ") as "(%chars & Hfd)".
             iExists (Closing _). iFrameSteps.
-          - iExists (Closing _). iFrame. iStep 3 as "HΨ".
+          - iExists (Closing _). iFrame. iStep 8 as "HΨ".
             iDestruct ("Hclosing" with "HΨ") as "(%chars & Hfd)".
             iSteps.
         }

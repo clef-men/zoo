@@ -44,6 +44,17 @@ Definition rcfd_get : val :=
         §None
     end.
 
+Definition rcfd_use : val :=
+  fun: "t" "closed" "open_" =>
+    match: rcfd_get "t" with
+    | None =>
+        "closed" ()
+    | Some "fd" =>
+        let: "res" := "open_" "fd" in
+        rcfd_put "t" ;;
+        "res"
+    end.
+
 Definition rcfd_close : val :=
   fun: "t" =>
     match: "t".{state} with
@@ -80,17 +91,6 @@ Definition rcfd_remove : val :=
         ) else (
           §None
         )
-    end.
-
-Definition rcfd_use : val :=
-  fun: "t" "closed" "open_" =>
-    match: rcfd_get "t" with
-    | None =>
-        "closed" ()
-    | Some "fd" =>
-        let: "res" := "open_" "fd" in
-        rcfd_put "t" ;;
-        "res"
     end.
 
 Definition rcfd_is_open : val :=
