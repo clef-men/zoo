@@ -378,6 +378,50 @@ Section rcfd_G.
     iExists l, γ. iSteps. iExists Open. iSteps.
   Qed.
 
+  #[local] Lemma rcfd_finish_spec l γ Ψ (close : val) :
+    {{{
+      inv' l γ Ψ ∗
+      lstate_lb γ LClosingUsers
+    }}}
+      rcfd_finish #l close ’Closing[ close ]
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (#Hinv & #Hlstate_lb) HΦ".
+
+    wp_rec. wp_pures.
+
+    wp_bind (_.{ops})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
+
+    - iDestruct "Hlstate" as "(:inv_inner_closing_users =1)".
+      iSplitR "HΦ". { iFrameSteps 2. }
+      iSteps.
+
+    - iDestruct "Hlstate" as "(:inv_inner_closing_no_users =1)".
+      iDestruct (lstate_lb_get with "Hlstate_auth") as "{Hlstate_lb} #Hlstate_lb".
+      iSplitR "HΦ". { iFrameSteps 2. }
+      iIntros "!> {%}".
+
+      wp_pures.
+      case_bool_decide as Hops3; wp_pures; last iSteps.
+
+      wp_bind (CAS _ _ _).
+      iInv "Hinv" as "(:inv_inner =2)".
+      wp_cas as _ | Hcas; first iSteps.
+      destruct state2; first zoo_simpl.
+      destruct Hcas as (_ & _ & [= <-]).
+      iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
+      iDestruct "Hlstate" as "(:inv_inner_closing_no_users =2 eq)". injection Heq as <-.
+      iSplitR "Hfn2 HΦ".
+      { iExists (Closing _). iFrameSteps. }
+      iSteps.
+  Qed.
+
   #[local] Lemma rcfd_put_spec l γ Ψ `{!Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
@@ -468,34 +512,7 @@ Section rcfd_G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp_pures.
-
-      wp_bind (_.{ops})%E.
-      iInv "Hinv" as "(:inv_inner =3)".
-      wp_load.
-      iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
-
-      + iDestruct "Hlstate" as "(:inv_inner_closing_users =3)".
-        iSplitR "HΦ". { iFrameSteps 2. }
-        iSteps.
-
-      + iDestruct "Hlstate" as "(:inv_inner_closing_no_users =3)".
-        iClear "Hlstate_lb". iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
-        iSplitR "HΦ". { iFrameSteps 2. }
-        iIntros "!> {%}".
-
-        wp_pures. case_bool_decide as Hops3; wp_pures; last iSteps.
-
-        wp_bind (CAS _ _ _).
-        iInv "Hinv" as "(:inv_inner =4)".
-        wp_cas as _ | Hcas; first iSteps.
-        destruct state4; first zoo_simpl.
-        destruct Hcas as (_ & _ & [= <-]).
-        iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
-        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =4 eq)". injection Heq as <-.
-        iSplitR "Hfn4 HΦ".
-        { iExists (Closing _). iFrameSteps. }
-        iSteps.
+      wp_smart_apply (rcfd_finish_spec with "[$] HΦ").
   Qed.
 
   #[local] Lemma rcfd_get_spec l γ Ψ `{HΨ : !Fractional Ψ} :
@@ -692,35 +709,7 @@ Section rcfd_G.
         }
         iIntros "!> {%}".
 
-        wp_pures.
-
-        wp_bind (_.{ops})%E.
-        iInv "Hinv" as "(:inv_inner =3)".
-        wp_load.
-
-        destruct (decide (ops3 = 0)) as [-> | Hops3]; last iSteps.
-
-        iDestruct (lstate_valid_closing_users with "Hlstate_auth Hlstate_lb") as %[-> | ->].
-        { iDestruct "Hlstate" as "(:inv_inner_closing_users =3 eq_ops)". lia. }
-        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =3)".
-        iRename "Hlstate_lb" into "Hlstate_lb'". iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
-        iSplitR "HΦ". { iFrameSteps 2. }
-        iIntros "!> {%}".
-
-        wp_pures.
-
-        wp_bind (CAS _ _ _).
-        iInv "Hinv" as "(:inv_inner =4)".
-        wp_cas as _ | Hcas; first iSteps.
-
-        iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
-        iDestruct "Hlstate" as "(:inv_inner_closing_no_users =4)".
-        destruct Hcas as (_ & _ & [= ->]).
-        iSplitR "Hfn4 HΦ".
-        { iExists (Closing _). iFrameSteps. }
-        iIntros "!> {%}".
-
-        wp_smart_apply (wp_wand with "Hfn4").
+        wp_smart_apply (rcfd_finish_spec with "[$]").
         iSteps.
 
     - iAssert (
