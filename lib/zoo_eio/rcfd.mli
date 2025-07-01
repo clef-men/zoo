@@ -3,9 +3,13 @@ type t
 [@@@zoo{|
 predicate inv
   (t : val)
+  (owned : bool)
   (fd : val)
   (Ψ : fraction → Prop)
 persistent inv
+
+predicate owner
+  (t : val)
 
 predicate closing
   (t : val)
@@ -22,7 +26,11 @@ val make :
   returns
     ?t
   ensures
-    inv ?t fd Ψ
+    inv ?t owned fd Ψ
+  , if owned then
+      owner ?t
+    else
+      True
 |}]
 
 val use :
@@ -33,7 +41,7 @@ val use :
   , closed
   , open
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
   , spec_once closed {
       returns
         ?res
@@ -57,6 +65,52 @@ val use :
   ensures
     Χ ?b ?res
 |}]
+[@@zoo{|
+  specification
+    owner
+  arguments
+    t
+  , closed
+  , open
+  requires
+    inv t owned fd Ψ
+  , owner t
+  , spec_once open {
+      arguments
+        fd_
+      requires
+        fd_ = fd
+      , Ψ f
+      returns
+        ?res
+      ensures
+        Ψ f
+      , Χ ?res
+    }
+  returns
+    ?res
+  ensures
+    Χ ?res
+|}]
+[@@zoo{|
+  arguments
+    t
+  , closed
+  , open
+  requires
+    inv t owned fd Ψ
+  , closing t
+  , spec_once closed {
+      returns
+        ?res
+      ensures
+        Χ ?res
+    }
+  returns
+    ?res
+  ensures
+    Χ ?res
+|}]
 
 val close :
   t -> bool
@@ -64,7 +118,11 @@ val close :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
+  , if owned then
+      owner t
+    else
+      True
   , Ψ 1 -∗
       ∃ chars.
       Unix.fd_model fd 1 chars
@@ -72,6 +130,10 @@ val close :
     ?b
   ensures
     closing t
+  , if owned then
+      ?b = true
+    else
+      True
 |}]
 [@@zoo{|
   specification
@@ -79,7 +141,7 @@ val close :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t false fd Ψ
   , closing t
   returns
     false
@@ -91,18 +153,26 @@ val remove :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
+  , if owned then
+      owner t
+    else
+      True
   returns
     ?o
   ensures
     closing t
-  , match ?o with
-    | None ->
-        True
-    | Some fd_ ->
-        fd_ = fd ∗
-        Ψ 1
-    end
+  , if owned then
+      ?o = Some fd ∗
+      Ψ 1
+    else
+      match ?o with
+      | None ->
+          True
+      | Some fd_ ->
+          fd_ = fd ∗
+          Ψ 1
+      end
 |}]
 [@@zoo{|
   specification
@@ -110,7 +180,7 @@ val remove :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t false fd Ψ
   , closing t
   returns
     None
@@ -122,7 +192,7 @@ val is_open :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
   returns
     ?b
   ensures
@@ -133,11 +203,24 @@ val is_open :
 |}]
 [@@zoo{|
   specification
+    owner
+  arguments
+    t
+  requires
+    inv t owned fd Ψ
+  , owner t
+  returns
+    true
+  ensures
+    owner t
+|}]
+[@@zoo{|
+  specification
     closing
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t false fd Ψ
   , closing t
   returns
     false
@@ -149,7 +232,7 @@ val peek :
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
   returns
     ?o
   ensures
@@ -162,11 +245,24 @@ val peek :
 |}]
 [@@zoo{|
   specification
+    owner
+  arguments
+    t
+  requires
+    inv t owned fd Ψ
+  , owner t
+  returns
+    Some fd
+  ensures
+    owner t
+|}]
+[@@zoo{|
+  specification
     closing
   arguments
     t
   requires
-    inv t fd Ψ
+    inv t owned fd Ψ
   , closing t
   returns
     None
