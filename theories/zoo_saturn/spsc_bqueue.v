@@ -64,6 +64,7 @@ Section spsc_bqueue_G.
   Record metadata := {
     metadata_capacity : nat ;
     metadata_data : val ;
+    metadata_inv : namespace ;
     metadata_model : auth_twins_name ;
     metadata_history : gname ;
     metadata_producer : gname ;
@@ -192,24 +193,32 @@ Section spsc_bqueue_G.
       >Hback &
       >Hextra
     )".
-  Definition spsc_bqueue_inv t ι cap : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    ⌜cap = γ.(metadata_capacity)⌝ ∗
+  #[local] Definition inv' l γ : iProp Σ :=
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
-    inv ι (inv_inner l γ).
+    inv γ.(metadata_inv) (inv_inner l γ).
+  #[local] Instance : CustomIpatFormat "inv'" :=
+    "(
+      #Hmeta &
+      #Hl_data &
+      #Hdata_inv &
+      #Hinv
+    )".
+  Definition spsc_bqueue_inv t ι cap : iProp Σ :=
+    ∃ l γ,
+    ⌜t = #l⌝ ∗
+    ⌜ι = γ.(metadata_inv)⌝ ∗
+    ⌜cap = γ.(metadata_capacity)⌝ ∗
+    inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
       -> &
       -> &
-      #Hmeta &
-      #Hl_data &
-      #Hdata_inv &
-      #Hinv
+      -> &
+      (:inv')
     )".
 
   Definition spsc_bqueue_model t vs : iProp Σ :=
@@ -508,7 +517,7 @@ Section spsc_bqueue_G.
     ⌜length vs ≤ cap⌝.
   Proof.
     iIntros "(:inv) (:model)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
     iSteps.
   Qed.
   Lemma spsc_bqueue_model_exclusive t vs1 vs2 :
@@ -547,7 +556,13 @@ Section spsc_bqueue_G.
   Qed.
 
   #[local] Instance hint_array_cslice_nil t cap i dq :
-    HINT ε₁ ✱ [- ; array_inv t cap] ⊫ [id]; array_cslice t cap i dq [] ✱ [emp].
+    HINT ε₁ ✱ [- ;
+      array_inv t cap
+    ] ⊫ [id];
+      array_cslice t cap i dq []
+    ✱ [
+      emp
+    ].
   Proof.
     iSteps. rewrite array_cslice_nil. iSteps.
   Qed.
@@ -582,6 +597,7 @@ Section spsc_bqueue_G.
     pose γ := {|
       metadata_capacity := ₊cap ;
       metadata_data := data ;
+      metadata_inv := ι ;
       metadata_model := γ_model ;
       metadata_history := γ_history ;
       metadata_producer := γ_producer ;
@@ -596,7 +612,7 @@ Section spsc_bqueue_G.
 
     iApply "HΦ".
     iSplitL "Hdata_model Hl_front Hl_back Hmodel₂ Hhistory_auth Hproducer₂ Hconsumer₂"; last iSteps.
-    iExists l, γ. iStep 5.
+    iExists l, γ. iStep 6.
     iApply inv_alloc. iExists Stable, 0, Stable, 0, [], []. iStep 11.
     Z_to_nat cap. rewrite Nat2Z.id. destruct cap as [| cap]; first iSteps.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
@@ -606,9 +622,9 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  #[local] Lemma front_spec l γ ι stable front :
+  #[local] Lemma front_spec l γ stable front :
     {{{
-      inv ι (inv_inner l γ) ∗
+      inv' l γ ∗
       consumer₁ γ stable front
     }}}
       (#l).{front}
@@ -617,7 +633,7 @@ Section spsc_bqueue_G.
       consumer₁ γ stable front
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Hconsumer₁) HΦ".
+    iIntros "%Φ ((:inv') & Hconsumer₁) HΦ".
 
     iInv "Hinv" as "(:inv_inner =')".
     wp_load.
@@ -626,9 +642,9 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma back_spec l γ ι stable back ws :
+  #[local] Lemma back_spec l γ stable back ws :
     {{{
-      inv ι (inv_inner l γ) ∗
+      inv' l γ ∗
       producer₁ γ stable back ws
     }}}
       (#l).{back}
@@ -637,7 +653,7 @@ Section spsc_bqueue_G.
       producer₁ γ stable back ws
     }}}.
   Proof.
-    iIntros "%Φ (#Hinv & Hproducer₁) HΦ".
+    iIntros "%Φ ((:inv') & Hproducer₁) HΦ".
 
     iInv "Hinv" as "(:inv_inner =')".
     wp_load.
@@ -665,7 +681,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_apply (back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
+    wp_apply (back_spec with "[$]") as "Hproducer₁".
     wp_pures.
 
     wp_bind (_.{front})%E.
@@ -717,7 +733,7 @@ Section spsc_bqueue_G.
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
     iModIntro. clear- Hlen.
 
-    wp_smart_apply (front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
+    wp_smart_apply (front_spec with "[$]") as "Hconsumer₁".
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
@@ -774,26 +790,24 @@ Section spsc_bqueue_G.
     iApply ("HΦ" with "Hconsumer").
   Qed.
 
-  #[local] Definition au_push l γ ι v Ψ : iProp Σ :=
+  #[local] Definition au_push l γ v Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_bqueue_model #l vs
-    }> @ ⊤ ∖ ↑ι, ∅ <{
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
       ∀∀ b,
       ⌜b = bool_decide (length vs = γ.(metadata_capacity))⌝ ∗
       spsc_bqueue_model #l (if b then vs else vs ++ [v]),
     COMM
       Ψ vs b
     }>.
-  #[local] Lemma spsc_bqueue_push_0_spec l ι γ front_cache stable back ws v Ψ :
+  #[local] Lemma spsc_bqueue_push_0_spec l γ front_cache stable back ws v Ψ :
     {{{
-      meta l nroot γ ∗
-      array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
-      inv ι (inv_inner l γ) ∗
+      inv' l γ ∗
       l.[front_cache] ↦ #front_cache ∗
       producer₁ γ stable back ws ∗
       front_lb γ front_cache ∗
-      au_push l γ ι v Ψ
+      au_push l γ v Ψ
     }}}
       spsc_bqueue_push_0 #l γ.(metadata_data) #back
     {{{ b front_cache,
@@ -803,14 +817,14 @@ Section spsc_bqueue_G.
       producer₁ γ stable back ws ∗
       front_lb γ front_cache ∗
       if b then
-        au_push l γ ι v Ψ
+        au_push l γ v Ψ
       else
         ∃ vs,
         ⌜length vs = γ.(metadata_capacity)⌝ ∗
         Ψ vs true
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hdata_inv & #Hinv & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΨ) HΦ".
+    iIntros "%Φ ((:inv') & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΨ) HΦ".
 
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hdata_inv") as "_".
@@ -869,7 +883,7 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_smart_apply (back_spec with "[$Hinv $Hproducer₁]") as "Hproducer₁".
+    wp_smart_apply (back_spec with "[$]") as "Hproducer₁".
     iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
@@ -924,24 +938,23 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Definition au_pop l ι Ψ : iProp Σ :=
+  #[local] Definition au_pop l γ Ψ : iProp Σ :=
     AU <{
       ∃∃ vs,
       spsc_bqueue_model #l vs
-    }> @ ⊤ ∖ ↑ι, ∅ <{
+    }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
       spsc_bqueue_model #l (tail vs),
     COMM
       spsc_bqueue_consumer #l -∗
       Ψ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_0_spec l ι γ back_cache stable front Ψ :
+  #[local] Lemma spsc_bqueue_pop_0_spec l γ back_cache stable front Ψ :
     {{{
-      meta l nroot γ ∗
-      inv ι (inv_inner l γ) ∗
+      inv' l γ ∗
       l.[back_cache] ↦ #back_cache ∗
       consumer₁ γ stable front ∗
       back_lb γ back_cache ∗
-      au_pop l ι Ψ
+      au_pop l γ Ψ
     }}}
       spsc_bqueue_pop_0 #l #front
     {{{ b back_cache,
@@ -951,13 +964,13 @@ Section spsc_bqueue_G.
       consumer₁ γ stable front ∗
       back_lb γ back_cache ∗
       if b then
-        au_pop l ι Ψ
+        au_pop l γ Ψ
       else
         spsc_bqueue_consumer #l -∗
         Ψ None
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΨ) HΦ".
+    iIntros "%Φ ((:inv') & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΨ) HΦ".
 
     wp_rec.
     wp_load. wp_pures.
@@ -1013,7 +1026,7 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
-    wp_smart_apply (front_spec with "[$Hinv $Hconsumer₁]") as "Hconsumer₁".
+    wp_smart_apply (front_spec with "[$]") as "Hconsumer₁".
     iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
