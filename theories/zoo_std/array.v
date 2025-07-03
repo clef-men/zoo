@@ -6352,13 +6352,13 @@ Section zoo_G.
     iApply ("HΦ" with "[H↦ Hcslice] H£").
     iSteps.
   Qed.
-  Lemma array_unsafe_cget_spec_atomic_weak t sz (i : Z) :
-    0 < sz →
+  Lemma array_unsafe_cget_spec_atomic_weak t (i : Z) :
     (0 ≤ i)%Z →
     <<<
-      array_inv t sz
-    | ∀∀ j dq vs,
+      True
+    | ∀∀ sz j dq vs,
       array_cslice t sz j dq vs ∗
+      ⌜0 < sz⌝ ∗
       ⌜length vs = sz⌝
     >>>
       array_unsafe_cget t #i
@@ -6369,10 +6369,10 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Hsz %Hi %Φ #Hinv HΦ".
+    iIntros "%Hi %Φ _ HΦ".
 
     awp_apply (array_unsafe_cget_spec_atomic with "[//]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %Hvs)".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%sz %j %dq %vs (Hcslice & %Hsz & %Hvs)".
     iDestruct (array_cslice_rebase with "Hcslice") as "(%ws & %n & %Hws & Hcslice)"; [done.. |].
     rewrite /atomic_acc /=.
     destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup).

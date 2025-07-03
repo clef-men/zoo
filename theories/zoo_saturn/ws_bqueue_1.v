@@ -426,7 +426,6 @@ Section ws_bqueue_1_G.
     l.[capacity] ↦□ #γ.(metadata_capacity) ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     l.[proph] ↦□ #γ.(metadata_prophet) ∗
-    array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv'" :=
     "(
@@ -434,7 +433,6 @@ Section ws_bqueue_1_G.
       #Hl_capacity &
       #Hl_data &
       #Hl_proph &
-      #Hdata_inv &
       #Hinv
     )".
   Definition ws_bqueue_1_inv t ι cap : iProp Σ :=
@@ -972,7 +970,6 @@ Section ws_bqueue_1_G.
     wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hdata_model"; first lia.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
     iEval (simpl_length) in "Hdata_cslice".
-    iDestruct (array_cslice_to_inv with "Hdata_cslice") as "#Hdata_inv".
     iDestruct (array_cslice_rotate_right_0 1 with "Hdata_cslice") as "Hdata_cslice"; [lia | simpl_length |].
     iEval (rewrite list.rotate_replicate) in "Hdata_cslice".
     iDestruct "Hdata_cslice" as "(Hdata_cslice₁ & Hdata_cslice₂)".
@@ -1199,7 +1196,7 @@ Section ws_bqueue_1_G.
     iIntros "%Hi %Φ (:inv') HΦ".
 
     iApply wp_fupd.
-    awp_apply (array_unsafe_cget_spec_atomic_weak with "Hdata_inv") without "HΦ"; [done.. |].
+    awp_apply (array_unsafe_cget_spec_atomic_weak with "[//]") without "HΦ"; first done.
     iInv "Hinv" as "(:inv_inner)".
     rewrite /atomic_acc /=.
     iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
