@@ -934,6 +934,50 @@ Section zoo_G.
       rewrite array_cslice_rotate_left' //.
     Qed.
 
+    Lemma array_cslice_rotate_left_small t sz i n dq vs :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz (i + n) dq vs ⊣⊢
+      array_cslice t sz i dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left // Nat.mod_small //.
+    Qed.
+    Lemma array_cslice_rotate_left_small_1 t sz i n dq vs :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz (i + n) dq vs ⊢
+      array_cslice t sz i dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left_small //.
+    Qed.
+
+    Lemma array_cslice_rotate_left_small' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊣⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n) vs).
+    Proof.
+      intros Hsz Hvs -> Hn.
+      rewrite array_cslice_rotate_left_small //.
+    Qed.
+    Lemma array_cslice_rotate_left_small_1' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left_small' //.
+    Qed.
+
     Lemma array_cslice_rebase {t sz i1 dq vs1} i2 :
       0 < sz →
       length vs1 = sz →
