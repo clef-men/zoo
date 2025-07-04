@@ -57,6 +57,8 @@ theories/zoo/iris/proofmode/intro_patterns.v
 theories/zoo/iris/proofmode/ltac_tactics.v
 theories/zoo/iris/proofmode/proofmode.v
 
+theories/zoo/iris/diaframe/base.v
+theories/zoo/iris/diaframe/tactics.v
 theories/zoo/iris/diaframe/diaframe.v
 theories/zoo/iris/diaframe/symb_exec/defs.v
 theories/zoo/iris/diaframe/symb_exec/wp.v
