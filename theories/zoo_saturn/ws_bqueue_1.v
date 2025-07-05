@@ -524,8 +524,8 @@ Section ws_bqueue_1_G.
       owner₂' γ_owner Stable 1.
   Proof.
     iMod (auth_twins_alloc _ (auth_twins_G := ws_bqueue_1_G_model_G)) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
-    iMod (twins_alloc' (twins_G := ws_bqueue_1_G_owner_G) (Stable, 1)) as "(%γ_owner & Howner₁ & Howner₂)".
-    iSteps.
+    iMod (twins_alloc' (twins_G := ws_bqueue_1_G_owner_G)) as "(%γ_owner & Howner₁ & Howner₂)".
+    iFrameSteps.
   Qed.
   #[local] Lemma model₁_valid γ stable back ws vs :
     owner₁ γ stable back ws -∗
@@ -885,7 +885,7 @@ Section ws_bqueue_1_G.
     - iDestruct "Hstate" as "(:inv_state_emptyish lazy=)". lia.
     - done.
   Qed.
-  #[local] Lemma inv_state_winner_pop γ state stable front2 back hist vs priv prophs front1 P :
+  #[local] Lemma inv_state_winner_pop γ state stable front1 back hist vs priv prophs front2 P :
     inv_state γ state stable front1 back hist vs priv prophs -∗
     winner_pop γ front2 P -∗
       ∃ P_,
@@ -917,7 +917,7 @@ Section ws_bqueue_1_G.
       iDestruct "Hwinner" as "(:winner =3)".
       iDestruct (winner_pop_exclusive with "Hwinner_pop Hwinner_pop_3") as %[].
   Qed.
-  #[local] Lemma inv_state_winner_steal γ state stable front2 back hist vs priv prophs front1 P :
+  #[local] Lemma inv_state_winner_steal γ state stable front1 back hist vs priv prophs front2 P :
     inv_state γ state stable front1 back hist vs priv prophs -∗
     winner_steal γ front2 P -∗
       ∃ P_,
@@ -1000,7 +1000,7 @@ Section ws_bqueue_1_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Howner₁ Hdata_cslice₂".
-    - iExists l, γ. unshelve iStep 9; first iSteps.
+    - iExists l, γ. unshelve iStep 8; first iSteps.
       iApply inv_alloc.
       iExists Empty, Stable, 1, 1, [()%V], [], (replicate ₊cap ()%V), (λ _, []), prophss. iFrameSteps.
       simpl_length.
@@ -1419,7 +1419,8 @@ Section ws_bqueue_1_G.
       iDestruct (array_cslice_rotate_right_1' (S front) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia | ].
       eassert (list.rotate _ _ = vs1 ++ priv1 ++ [v1]) as ->.
       { destruct (decide (γ.(metadata_capacity) = 1)) as [Heq |].
-        - rewrite -> Heq in *. simpl in *.
+        - rewrite -> Heq in *.
+          simpl in Hdata1.
           assert (length vs1 = 0) as ->%nil_length_inv by lia.
           assert (length priv1 = 0) as ->%nil_length_inv by lia.
           done.
