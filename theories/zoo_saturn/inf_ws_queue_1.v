@@ -1241,7 +1241,7 @@ Section inf_ws_queue_1_G.
     iInv "Hinv" as "(:inv_inner =3)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
-    wp_cas as Hcas; zoo_simpl; last lia.
+    wp_cas as Hcas; zoo_simplify in Hcas; last lia.
     iIntros "!> %prophs %Hprophss3 Hprophet_model".
     iSplitR "HΦ".
     { iFrameSteps.
@@ -1272,7 +1272,7 @@ Section inf_ws_queue_1_G.
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; first subst front1.
 
     - iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %->.
       rewrite fn_lookup_alter Hpasts1 // in Hloser.
@@ -1307,7 +1307,7 @@ Section inf_ws_queue_1_G.
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
     rewrite Hprophss1.
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; last congruence.
     iMod (front_update with "Hfront_auth") as "Hfront_auth".
     iDestruct "Hstate" as "[(:inv_state_nonempty_steal =1) | (:inv_state_emptyish_steal =1)]".
 
@@ -1373,7 +1373,7 @@ Section inf_ws_queue_1_G.
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv_state_emptyish_pop =1) & Hwinner_steal)".
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; last congruence.
     iMod (front_update with "Hfront_auth") as "Hfront_auth".
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
     iSplitR "HΦ".
@@ -1410,7 +1410,7 @@ Section inf_ws_queue_1_G.
 
     - iDestruct "Hstate" as "(:inv_state_empty =1 lazy=)".
       assert (length vs1 = 0) as ->%nil_length_inv by lia.
-      destruct b; zoo_simpl.
+      destruct b; zoo_simplify in Hcas; last lia.
 
       iMod (front_update with "Hfront_auth") as "Hfront_auth".
       iClear "Hfront_lb". iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
@@ -1427,7 +1427,7 @@ Section inf_ws_queue_1_G.
           apply Hpasts1; first lia.
         - simpl_length/=. lia.
       }
-      iSteps.
+      rewrite Hhist1. iSteps.
 
     - iDestruct "Hstate" as "(:inv_state_nonempty =1 lazy=)".
       exfalso. lia.

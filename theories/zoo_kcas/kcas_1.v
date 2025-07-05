@@ -1359,7 +1359,7 @@ Section kcas_1_G.
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
           wp_cas as Hcas | _.
-          { exfalso. zoo_simpl. naive_solver. }
+          { exfalso. zoo_simplify in Hcas. naive_solver. }
           iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata_success η = final_status_to_bool fstatus) as Hsuccess.

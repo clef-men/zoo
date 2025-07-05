@@ -108,65 +108,96 @@ Ltac reshape_expr e tac :=
   in
   go (@nil ectxi) (@nil (val * val)) e.
 
-Ltac zoo_fold_typeclasses :=
-  repeat match goal with
-  | H: val_nonsimilar _ _ |- _ =>
+Tactic Notation "zoo_fold_typeclasses" "in" hyp(H) :=
+  try match type of H with
+  | val_nonsimilar _ _ =>
       change val_nonsimilar with (@nonsimilar val val_nonsimilar) in H
-  | H: val_similar _ _ |- _ =>
+  | val_similar _ _ =>
       change val_similar with (@similar val val_similar) in H
+  end.
+Tactic Notation "zoo_fold_typeclasses" :=
+  try match goal with
   | |- val_nonsimilar _ _ =>
       change val_nonsimilar with (@nonsimilar val val_nonsimilar)
   | |- val_similar _ _ =>
       change val_similar with (@similar val val_similar)
   end.
-Ltac zoo_simpl :=
-  repeat match goal with
-  | _ =>
-      progress (simplify_eq/=; zoo_fold_typeclasses)
+Tactic Notation "zoo_fold_typeclasses" "in" "*" :=
+  repeat_on_hyps (fun H =>
+    zoo_fold_typeclasses in H
+  );
+  zoo_fold_typeclasses.
 
-  | H: to_val _ = Some _ |- _ =>
+Tactic Notation "zoo_simpl" "in" hyp(H) :=
+  simpl in H;
+  zoo_fold_typeclasses in H.
+Tactic Notation "zoo_simpl" :=
+  simpl;
+  zoo_fold_typeclasses.
+
+Tactic Notation "zoo_simplify" "in" hyp(H) :=
+  zoo_simpl in H;
+  try match type of H with
+  | to_val _ = Some _ =>
       apply of_to_val in H
 
-  | H: @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+  | @nonsimilar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
       apply val_nonsimilar_bool in H
-  | H: @nonsimilar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+  | @nonsimilar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
       apply val_nonsimilar_nat in H
-  | H: @nonsimilar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+  | @nonsimilar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
       apply val_nonsimilar_int in H
-  | H: @nonsimilar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+  | @nonsimilar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
       apply val_nonsimilar_location in H
-  | H: @nonsimilar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+  | @nonsimilar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
       apply val_nonsimilar_block_empty in H
-  | H: @nonsimilar val _ (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) |- _ =>
+  | @nonsimilar val _ (ValBlock (Generative (Some _)) _ _) (ValBlock (Generative (Some _)) _ _) =>
       apply val_nonsimilar_block_generative in H; try done
 
-  | H: @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) |- _ =>
+  | @similar val _ (ValLit (LitBool _)) (ValLit (LitBool _)) =>
       apply val_similar_bool in H
-  | H: @similar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) |- _ =>
+  | @similar val _ (ValLit (LitInt (Z.of_nat _))) (ValLit (LitInt (Z.of_nat _))) =>
       apply val_similar_nat in H
-  | H: @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) |- _ =>
+  | @similar val _ (ValLit (LitInt _)) (ValLit (LitInt _)) =>
       apply val_similar_int in H
-  | H: @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) |- _ =>
+  | @similar val _ (ValLit (LitLoc _)) (ValLit (LitLoc _)) =>
       apply val_similar_location in H
-  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) |- _ =>
+  | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ nil) =>
       apply val_similar_block_empty in H
-  | H: @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) |- _ =>
+  | @similar val _ (ValBlock _ _ nil) (ValBlock _ _ (cons _ _)) =>
       apply val_similar_block_empty_1 in H as []
-  | H: @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) |- _ =>
+  | @similar val _ (ValBlock _ _ (cons _ _)) (ValBlock _ _ nil) =>
       apply val_similar_block_empty_2 in H as []
-  | H: @similar val _ (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) |- _ =>
-      apply val_similar_block_generative in H as (? & ? & ?); last naive_solver
-  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) |- _ =>
-      apply val_similar_block_nongenerative in H as (? & ?)
-  | H: @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) |- _ =>
+  | @similar val _ (ValBlock (Generative _) _ _) (ValBlock (Generative _) _ _) =>
+      let H1 := fresh in
+      let H2 := fresh in
+      let H3 := fresh in
+      apply val_similar_block_generative in H as (H1 & H2 & H3); last naive_solver;
+      zoo_simpl in H1;
+      zoo_simpl in H2;
+      zoo_simpl in H3
+  | @similar val _ (ValBlock Nongenerative _ _) (ValBlock Nongenerative _ _) =>
+      let H1 := fresh in
+      let H2 := fresh in
+      apply val_similar_block_nongenerative in H as (H1 & H2);
+      zoo_simpl in H1;
+      zoo_simpl in H2
+  | @similar val _ (ValLit (LitLoc _)) (ValBlock _ _ _) =>
       apply val_similar_location_block in H as []
-  | H: @similar val _ (ValBlock _ _ _) (ValLit (LitLoc _)) |- _ =>
+  | @similar val _ (ValBlock _ _ _) (ValLit (LitLoc _)) =>
       apply val_similar_block_location in H as []
-  | H: @similar val _ (ValBlock (Generative _) _ _) (ValBlock Nongenerative _ _) |- _ =>
+  | @similar val _ (ValBlock (Generative _) _ _) (ValBlock Nongenerative _ _) =>
       apply val_similar_block_generative_nongenerative in H as []; done
-  | H: @similar val _ (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) |- _ =>
+  | @similar val _ (ValBlock Nongenerative _ _) (ValBlock (Generative _) _ _) =>
       apply val_similar_block_nongenerative_generative in H as []; done
-  end.
+  end;
+  try zoo_simpl in H.
+Tactic Notation "zoo_simplify" :=
+  repeat_on_hyps (fun H =>
+    zoo_simplify in H
+  );
+  simplify_eq/=;
+  zoo_fold_typeclasses in *.
 
 Ltac invert_base_step :=
   simpl in *;
@@ -175,7 +206,7 @@ Ltac invert_base_step :=
       try (is_var e; fail 1);
       invert H
   end;
-  zoo_simpl.
+  zoo_simplify.
 
 Create HintDb zoo.
 

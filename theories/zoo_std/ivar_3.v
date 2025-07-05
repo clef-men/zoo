@@ -715,7 +715,7 @@ Section ivar_3_G.
 
         wp_smart_apply ("HLöb" with "Hwaiter HΦ").
 
-      + destruct state as [waiters' | v]; zoo_simpl.
+      + destruct state as [waiters' | v]; zoo_simplify.
         iDestruct "Hstate" as "(Hlstate_unset₁ & Hwaiters)".
         iDestruct (big_sepL_cons_2' _ waiter with "[Hwaiter H£] Hwaiters") as "Hwaiters"; first iSteps.
         iSplitR "HΦ". { iExists (Unset (waiter :: waiters)). iFrameSteps. }

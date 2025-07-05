@@ -670,7 +670,7 @@ Section rcfd_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(:inv_inner =2)".
       wp_cas as _ | Hcas; first iSteps.
-      destruct state2; first zoo_simpl.
+      destruct state2; first zoo_simplify.
       destruct Hcas as (_ & _ & [= <-]).
       iDestruct (lstate_valid_closing_no_users with "Hlstate_auth Hlstate_lb") as %->.
       iDestruct "Hlstate" as "(:inv_lstate_closing_no_users =2 eq)". injection Heq as <-.
@@ -1140,7 +1140,7 @@ Section rcfd_G.
       wp_cas as Hcas.
 
       + iDestruct (inv_lstate_Closing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo_simpl. naive_solver. }
+        { intros ->. zoo_simplify in Hcas. naive_solver. }
 
         destruct γ.(metadata_owned).
         { iDestruct (owner_lstate_auth with "Howner Hlstate_auth") as %->. congruence. }
@@ -1148,7 +1148,7 @@ Section rcfd_G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iSteps.
 
-      + destruct state2; last zoo_simpl.
+      + destruct state2; last zoo_simplify.
         iDestruct (inv_lstate_Open with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv_lstate_open =2 eq)".
 
@@ -1290,7 +1290,7 @@ Section rcfd_G.
       wp_cas as Hcas.
 
       + iDestruct (inv_lstate_Closing with "Hlstate Hlstate_auth") as "(%fn2 & -> & %Hlstate2 & #Hlstate_lb)".
-        { intros ->. zoo_simpl. naive_solver. }
+        { intros ->. zoo_simplify in Hcas. naive_solver. }
 
         destruct γ.(metadata_owned).
         { iDestruct (owner_lstate_auth with "Howner Hlstate_auth") as %->. congruence. }
@@ -1302,7 +1302,7 @@ Section rcfd_G.
         iApply ("HΦ" $! None).
         iSteps.
 
-      + destruct state2; last zoo_simpl.
+      + destruct state2; last zoo_simplify.
         iDestruct (inv_lstate_Open with "Hlstate") as %->.
         iDestruct "Hlstate" as "(:inv_lstate_open =2 eq)".
 
