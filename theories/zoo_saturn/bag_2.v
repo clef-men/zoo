@@ -349,7 +349,7 @@ Section bag_2_G.
     - apply map_Forall_insert_2.
       + rewrite lookup_insert //.
       + eapply map_Forall_impl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
-        destruct (decide (node' = node)) as [-> |].
+        destruct_decide (node' = node) as -> | ?.
         * simplify.
         * rewrite lookup_insert_ne //.
           intros ?%(inj _)%descriptor_to_producer_inj. done.

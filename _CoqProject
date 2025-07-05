@@ -8,9 +8,9 @@
 #BEGIN zoo
 -Q theories/zoo zoo
 
-theories/zoo/prelude/base.v
-theories/zoo/prelude/tactics.v
-theories/zoo/prelude/prelude.v
+theories/zoo/prelude.v
+
+theories/zoo/tactics.v
 
 theories/zoo/options.v
 

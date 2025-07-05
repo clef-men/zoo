@@ -991,9 +991,9 @@ Section inf_mpmc_queue_2_G.
     wp_bind (_.{back})%E.
     iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
-    destruct (decide (proph = front1)) as [-> | Hproph].
+    destruct_decide (proph = front1) as -> | Hproph.
 
-    - destruct (decide (front2 = front1)) as [-> | ?].
+    - destruct_decide (front2 = front1) as -> | ?.
 
       + iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -1100,12 +1100,12 @@ Section inf_mpmc_queue_2_G.
     wp_faa.
     iMod (producers_update with "Hproducers_auth") as "(Hproducers_auth & Hproducers_at)".
     iDestruct (wise_prophets_full_get' _ back1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
-    destruct (decide (front1 ≤ back1)) as [Hfirst | Hlast].
+    destruct_decide (front1 ≤ back1) as Hfirst | Hlast.
 
     - rewrite Nat.max_r // in Hlstates1.
       rewrite firstn_all2; first lia.
 
-      destruct (decide (head prophs = Some id)) as [Hwinner | Hloser].
+      destruct_decide (head prophs = Some id) as Hwinner | Hloser.
 
       + iMod (history_update (Some v) with "Hhistory_auth") as "(Hhistory_auth & #Hhistory_at)". rewrite Hhist1.
         iMod (lstates_update ProducerProducer with "Hlstates_auth") as "(Hlstates_auth & #Hlstates_lb & _)". rewrite Hlstates1.
@@ -1354,13 +1354,13 @@ Section inf_mpmc_queue_2_G.
     wp_faa.
     iMod (consumers_update with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
     iDestruct (wise_prophets_full_get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
-    destruct (decide (back1 ≤ front1)) as [Hfirst | Hlast].
+    destruct_decide (back1 ≤ front1) as Hfirst | Hlast.
 
     - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
       rewrite Nat.max_l // in Hlstates1.
       iMod (front_update with "Hfront_auth") as "Hfront_auth".
 
-      destruct (decide (head prophs = Some id)) as [Hwinner | Hloser].
+      destruct_decide (head prophs = Some id) as Hwinner | Hloser.
 
       + iMod (lstates_update ConsumerConsumer with "Hlstates_auth") as "(Hlstates_auth & #Hlstates_lb & _)". rewrite Hlstates1.
         iDestruct (big_sepL_snoc_2 ConsumerConsumer with "Hlstates_right [Hid]") as "Hlstates_right".

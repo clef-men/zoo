@@ -839,7 +839,7 @@ Section spsc_bqueue_G.
       wp_load.
       iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
       iClear "Hfront_lb". iDestruct (front_lb_get with "Hconsumer₂") as "#Hfront_lb".
-      destruct (decide (back < front1 + γ.(metadata_capacity))) as [Hbranch2 | Hbranch2].
+      destruct_decide (back < front1 + γ.(metadata_capacity)) as Hbranch2.
 
       + iSplitR "Hl_front_cache Hproducer₁ HΨ HΦ". { iFrameSteps. }
         iModIntro. clear- Hbranch2.
@@ -984,7 +984,7 @@ Section spsc_bqueue_G.
       wp_load.
       iDestruct (consumer_agree with "Hconsumer₁ Hconsumer₂") as %(<- & <-).
       iClear "Hback_lb". iDestruct (back_lb_get with "Hproducer₂") as "#Hback_lb".
-      destruct (decide (front < back1)) as [Hbranch2 | Hbranch2].
+      destruct_decide (front < back1) as Hbranch2.
 
       + iSplitR "Hl_back_cache Hconsumer₁ HΨ HΦ". { iFrameSteps. }
         iModIntro. clear- Hbranch2.

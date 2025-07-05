@@ -196,7 +196,7 @@ Section puf_G.
     - intros elt repr descr Hreprs_lookup_elt [(<- & <-) | (? & Hdescrs_lookup_elt)]%lookup_insert_Some. simplify.
       + right. exists repr2.
         rewrite unify_at_1 unify_lookup_2' //.
-      + destruct (decide (repr = repr1)) as [-> |].
+      + destruct_decide (repr = repr1) as -> | ?.
         * rewrite unify_at_1.
           ospecialize* (Hconsistent elt); [done.. |].
           destruct Hconsistent as [| (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr1_)]; first naive_solver. simplify.

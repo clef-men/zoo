@@ -464,7 +464,7 @@ Section inf_array_G.
     iFrame. rewrite Hv. iSplitR "HΦ"; last iSteps. iPureIntro.
     rewrite length_insert Hvs.
     apply functional_extensionality => j.
-    destruct (decide (j = ₊i)) as [-> |].
+    destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
       rewrite list_lookup_total_insert //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
@@ -549,7 +549,7 @@ Section inf_array_G.
     iFrame. iPureIntro.
     rewrite /vs' length_insert Hvs.
     apply functional_extensionality => j.
-    destruct (decide (j = ₊i)) as [-> |].
+    destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
       rewrite list_lookup_total_insert //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
@@ -602,7 +602,7 @@ Section inf_array_G.
     Z_to_nat i. rewrite Nat2Z.id. case_decide.
     all: iApply (inf_array_model_proper with "Hmodel"); intros j.
     - simpl_length. case_decide.
-      + destruct (decide (j = i)) as [-> |].
+      + destruct_decide (j = i) as -> | ?.
         * rewrite list_lookup_total_insert // fn_lookup_insert //.
         * rewrite list_lookup_total_insert_ne // fn_lookup_insert_ne // decide_True //.
       + rewrite fn_lookup_insert_ne; first lia.
@@ -610,7 +610,7 @@ Section inf_array_G.
     - case_decide.
       + rewrite fn_lookup_insert_ne; first lia.
         rewrite decide_True //.
-      + destruct (decide (j = i)) as [-> |].
+      + destruct_decide (j = i) as -> | ?.
         * rewrite !fn_lookup_insert //.
         * rewrite !fn_lookup_insert_ne; try lia.
           rewrite decide_False //.
@@ -674,7 +674,7 @@ Section inf_array_G.
     destruct b; last done.
     rewrite /vs' length_insert Hvs.
     apply functional_extensionality => j.
-    destruct (decide (j = ₊i)) as [-> |].
+    destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
       rewrite list_lookup_total_insert //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
@@ -751,7 +751,7 @@ Section inf_array_G.
     destruct b; last done.
     rewrite /vs' length_insert Hvs.
     apply functional_extensionality => j.
-    destruct (decide (j = ₊i)) as [-> |].
+    destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
       rewrite list_lookup_total_insert //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.

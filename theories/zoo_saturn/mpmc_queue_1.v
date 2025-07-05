@@ -550,7 +550,7 @@ Section mpmc_queue_1_G.
       iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
       iDestruct (saved_pred_agree false with "Hwaiter Hwaiter_") as "Heq".
       iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-      destruct (decide (i = length past)) as [-> | Hi].
+      destruct_decide (i = length past) as -> | Hi.
 
       + rewrite decide_False; first lia.
 
@@ -563,7 +563,7 @@ Section mpmc_queue_1_G.
           naive_solver lia.
         }
         iAssert ⌜vs ≠ []⌝%I as %Hvs.
-        { destruct (decide (vs = [])) as [-> |]; last done.
+        { destruct_decide (vs = []) as -> | ?; last done.
           iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
           iSteps.
         }
@@ -577,7 +577,7 @@ Section mpmc_queue_1_G.
         iSplitR "Heq HΨ HΦ". { iFrameSteps. }
         iSteps. iRewrite "Heq". iSteps.
 
-    - destruct (decide (op = Other' :> operation')).
+    - destruct_decide (op = Other' :> operation').
       { destruct op; try done. iSteps. }
       iDestruct "Hop" as "(#Hfront_lb_node & Hop)".
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_node") as %Hi.

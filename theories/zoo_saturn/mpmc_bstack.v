@@ -359,7 +359,7 @@ Section mpmc_bstack_G.
       wp_bind (_.{front})%E.
       iInv "Hinv" as "(:inv_inner)".
       wp_load.
-      destruct (decide (γ.(metadata_capacity) ≤ length vs)) as [Hlen | Hlen].
+      destruct_decide (γ.(metadata_capacity) ≤ length vs) as Hlen.
 
       + iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".

@@ -343,12 +343,12 @@ Proof.
   destruct
     v1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]],
     v2 as [[n2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
-  all: try destruct (decide (n1 = n2)).
-  all: try destruct (decide (l1 = l2)).
-  all: try destruct (decide (bid1 = bid2)).
-  all: try destruct (decide (tag1 = tag2)).
-  all: try destruct (decide (v1 = v2)).
-  all: try destruct (decide (vs1 = vs2)).
+  all: try destruct_decide (n1 = n2).
+  all: try destruct_decide (l1 = l2).
+  all: try destruct_decide (bid1 = bid2).
+  all: try destruct_decide (tag1 = tag2).
+  all: try destruct_decide (v1 = v2).
+  all: try destruct_decide (vs1 = vs2).
   all: cbn; naive_solver.
 Qed.
 Lemma lowval_nonsimilar_similar (v1 v2 v3 : lowval) :

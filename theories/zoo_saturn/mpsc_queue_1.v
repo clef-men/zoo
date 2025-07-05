@@ -481,7 +481,7 @@ Section mpsc_queue_1_G.
       iSplitR "Hl_front_ HΨ HΦ". { iFrameSteps. }
       iSteps.
 
-    - destruct (decide (op = Other' :> operation')).
+    - destruct_decide (op = Other' :> operation').
       { destruct op; try done. iSteps. }
       iDestruct "Hop" as "(Hl_front_ & HΨ)".
       iDestruct (pointsto_agree with "Hl_front Hl_front_") as %[= <-].
@@ -491,7 +491,7 @@ Section mpsc_queue_1_G.
         iPureIntro. eapply NoDup_lookup; try done.
         rewrite Hhist list_lookup_middle //.
       }
-      destruct (decide (length vs = 0)) as [->%nil_length_inv | Hvs]; last first.
+      destruct_decide (length vs = 0) as ->%nil_length_inv | Hvs; last first.
       { iDestruct (big_sepL2_length with "Hnodes") as %?.
         exfalso.
         apply (f_equal length) in Hhist.

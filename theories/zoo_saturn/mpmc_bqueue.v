@@ -672,7 +672,7 @@ Section mpmc_bqueue_G.
       iDestruct (big_sepM_delete with "Hwaiters") as "((%Ψ_ & Hwaiter_ & HΨ) & Hwaiters)"; first done.
       iDestruct (saved_pred_agree false with "Hwaiter Hwaiter_") as "Heq".
       iMod (lc_fupd_elim_later with "H£ Heq") as "Heq".
-      destruct (decide (i = length past)) as [-> | Hi].
+      destruct_decide (i = length past) as -> | Hi.
 
       + rewrite decide_False; first lia.
 
@@ -685,7 +685,7 @@ Section mpmc_bqueue_G.
           naive_solver lia.
         }
         iAssert ⌜vs ≠ []⌝%I as %Hvs.
-        { destruct (decide (vs = [])) as [-> |]; last done.
+        { destruct_decide (vs = []) as -> | ?; last done.
           iDestruct (big_sepL2_length with "Hnodes") as %->%nil_length_inv.
           iSteps.
         }
@@ -705,7 +705,7 @@ Section mpmc_bqueue_G.
       destruct op as [i_front | | |].
 
       + iDestruct "Hop" as "(#Hfront_lb_front & HΨ)".
-        destruct (decide (length past = i_front)).
+        destruct_decide (length past = i_front).
 
         * iMod "HΨ" as "(%vs_ & (:model) & _ & HΨ)". injection Heq as <-.
           iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -901,7 +901,7 @@ Section mpmc_bqueue_G.
     wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
     wp_smart_apply (back_spec with "Hinv") as (back2 i_back2) "(:node_model =back2)".
     wp_match. wp_pures.
-    destruct (decide (proph = front1)) as [-> | Hproph].
+    destruct_decide (proph = front1) as -> | Hproph.
 
     - wp_apply (next_spec_size with "[$]") as (res) "[(-> & HΦ) | (%node & -> & (:node_model =node) & HΦ)]".
 
@@ -1088,7 +1088,7 @@ Section mpmc_bqueue_G.
         iDestruct (xtchain_lookup_header with "Hhist") as "#Hfront1_header"; first done.
         iDestruct (big_sepL_lookup with "Hindices") as "#Hfront1_index"; first done.
 
-        destruct (decide (i_back < length past1 + γ.(metadata_capacity))) as [Hnotfull | Hfull].
+        destruct_decide (i_back < length past1 + γ.(metadata_capacity)) as Hnotfull | Hfull.
 
         + iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
           iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }

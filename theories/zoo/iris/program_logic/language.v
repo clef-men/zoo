@@ -234,7 +234,7 @@ Section language.
     stuck tid e σ.
   Proof.
     rewrite /stuck /not_stuck -not_eq_None_Some -not_reducible.
-    destruct (decide (to_val e = None)); naive_solver.
+    destruct_decide (to_val e = None); naive_solver.
   Qed.
 
   Lemma reducible_fill K `{!@LanguageCtx Λ K} tid e σ :
@@ -285,7 +285,7 @@ Section language.
   Proof.
     rewrite /not_stuck -!not_eq_None_Some. intros [? | ?].
     - auto using fill_not_val.
-    - destruct (decide (to_val e = None)); eauto using reducible_fill_inv.
+    - destruct_decide (to_val e = None); eauto using reducible_fill_inv.
   Qed.
 
   Lemma stuck_fill K `{!@LanguageCtx Λ K} tid e σ :

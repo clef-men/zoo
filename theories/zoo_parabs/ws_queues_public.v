@@ -411,7 +411,7 @@ Section ws_queues_public_G.
       + rewrite Nat2Z.id.
         iSteps as (vs Hlookup) "Hmodel". iExists (Some v). iSteps. iExists k. iSteps. iPureIntro.
         clear Hlookup. rewrite {}/k.
-        destruct (decide (i_ + 1 + j < sz)).
+        destruct_decide (i_ + 1 + j < sz).
         * rewrite Nat.mod_small //. lia.
         * assert (i_ + 1 + j < sz * 2) as ?%Nat.div_lt_upper_bound by lia; last lia.
           assert ((i_ + 1 + j) `div` sz = 1) by lia.

@@ -718,7 +718,7 @@ Section rcfd_G.
           * rewrite (gmultiset_disj_union_difference' q qs1) // gmultiset_set_fold_disj_union gmultiset_set_fold_singleton // in Hqs1.
         + iDestruct "Hlstate" as "(:inv_lstate_closing_users =1 !=)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
-          destruct (decide (size qs1 = 1)) as [Hqs_size' | Hqs_size'].
+          destruct_decide (size qs1 = 1) as Hqs_size'.
           * apply gmultiset_size_1_elem_of in Hqs_size' as (q_ & ->%leibniz_equiv). rewrite gmultiset_set_fold_singleton in Hqs1.
             apply gmultiset_elem_of_singleton in Hq as <-.
             iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "Htokens_auth".
@@ -740,12 +740,12 @@ Section rcfd_G.
     iIntros "!> {%}".
 
     wp_pures.
-    destruct (decide (ops1 = 1)) as [-> | Hops]; wp_pures; last iSteps.
+    destruct_decide (ops1 = 1) as -> | Hops; wp_pures; last iSteps.
 
     wp_bind (_.{state})%E.
     iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
-    destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
+    destruct_decide (lstate2 = LOpen) as -> | Hlstate2.
 
     - iDestruct "Hlstate" as "(:inv_lstate_open =2)".
       iSplitR "HΦ". { iFrameSteps 2. }
@@ -866,7 +866,7 @@ Section rcfd_G.
     wp_bind (_.{state})%E.
     iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
-    destruct (decide (lstate2 = LOpen)) as [-> | Hlstate2].
+    destruct_decide (lstate2 = LOpen) as -> | Hlstate2.
 
     - iDestruct "Hlstate" as "(:inv_lstate_open)".
 
@@ -1002,7 +1002,7 @@ Section rcfd_G.
 
     - iDestruct "H" as "(%q & -> & Htoken & HΨ)".
 
-      destruct (decide (spec = SpecClosing)) as [-> | Hspec].
+      destruct_decide (spec = SpecClosing) as -> | Hspec.
       { iDestruct "Hspec" as %[=]. }
       iEval (rewrite decide_True //) in "Hopen".
 
@@ -1011,7 +1011,7 @@ Section rcfd_G.
       wp_pures.
       destruct spec; try congruence; iSteps.
 
-    - destruct (decide (spec = SpecOwner)) as [-> | Hspec].
+    - destruct_decide (spec = SpecOwner) as -> | Hspec.
       { iDestruct "Hspec" as "(% & _)". congruence. }
       iEval (rewrite decide_True //) in "Hclosed".
 
@@ -1123,7 +1123,7 @@ Section rcfd_G.
     wp_bind (_.{state})%E.
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
-    destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
+    destruct_decide (lstate1 = LOpen) as -> | Hlstate1.
 
     - iDestruct "Hlstate" as "(:inv_lstate_open =1)".
 
@@ -1155,7 +1155,7 @@ Section rcfd_G.
         iMod (lstate_update_close_users with "Hlstate_auth Howner") as "Hlstate_auth".
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "HΦ".
-        { destruct (decide (size qs2 = 0)) as [Hqs_size | Hqs_size].
+        { destruct_decide (size qs2 = 0) as Hqs_size.
           - apply gmultiset_size_empty_iff in Hqs_size as ->.
             rewrite gmultiset_set_fold_empty in Hqs2. rewrite {}Hqs2.
             iMod (lstate_update_close_no_users with "Hlstate_auth") as "Hlstate_auth".
@@ -1272,7 +1272,7 @@ Section rcfd_G.
     wp_bind (_.{state})%E.
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
-    destruct (decide (lstate1 = LOpen)) as [-> | Hlstate1].
+    destruct_decide (lstate1 = LOpen) as -> | Hlstate1.
 
     - iDestruct "Hlstate" as "(:inv_lstate_open =1)".
 
@@ -1309,7 +1309,7 @@ Section rcfd_G.
         iMod (lstate_update_close_users with "Hlstate_auth Howner") as "Hlstate_auth".
         iDestruct (lstate_lb_get with "Hlstate_auth") as "#Hlstate_lb".
         iSplitR "Hwaiter_consumer HΦ".
-        { destruct (decide (size qs2 = 0)) as [Hqs_size | Hqs_size].
+        { destruct_decide (size qs2 = 0) as Hqs_size.
           - apply gmultiset_size_empty_iff in Hqs_size as ->.
             rewrite gmultiset_set_fold_empty in Hqs2. rewrite {}Hqs2.
             iMod (lstate_update_close_no_users with "Hlstate_auth") as "Hlstate_auth".
@@ -1420,7 +1420,7 @@ Section rcfd_G.
 
     - iDestruct (inv_lstate_Open with "Hlstate") as %->.
 
-      destruct (decide (spec = SpecClosing)) as [-> | Hspec].
+      destruct_decide (spec = SpecClosing) as -> | Hspec.
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
@@ -1431,7 +1431,7 @@ Section rcfd_G.
 
     - iDestruct (inv_lstate_Closing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
 
-      destruct (decide (spec = SpecOwner)) as [-> | Hspec].
+      destruct_decide (spec = SpecOwner) as -> | Hspec.
       { iDestruct (owner_lstate_auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
@@ -1527,7 +1527,7 @@ Section rcfd_G.
 
     - iDestruct (inv_lstate_Open with "Hlstate") as %->.
 
-      destruct (decide (spec = SpecClosing)) as [-> | Hspec].
+      destruct_decide (spec = SpecClosing) as -> | Hspec.
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
@@ -1539,7 +1539,7 @@ Section rcfd_G.
 
     - iDestruct (inv_lstate_Closing with "Hlstate Hlstate_auth") as "#(%fn_ & _ & %Hlstate & #Hlstate_lb)"; first done.
 
-      destruct (decide (spec = SpecOwner)) as [-> | Hspec].
+      destruct_decide (spec = SpecOwner) as -> | Hspec.
       { iDestruct (owner_lstate_auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }

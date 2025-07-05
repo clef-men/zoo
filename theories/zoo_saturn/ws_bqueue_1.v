@@ -1418,7 +1418,7 @@ Section ws_bqueue_1_G.
 
       iDestruct (array_cslice_rotate_right_1' (S front) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia | ].
       eassert (list.rotate _ _ = vs1 ++ priv1 ++ [v1]) as ->.
-      { destruct (decide (γ.(metadata_capacity) = 1)) as [Heq |].
+      { destruct_decide (γ.(metadata_capacity) = 1) as Heq | ?.
         - rewrite -> Heq in *.
           simpl in Hdata1.
           assert (length vs1 = 0) as ->%nil_length_inv by lia.
@@ -1430,7 +1430,7 @@ Section ws_bqueue_1_G.
       }
 
       iSplitR "HP HΦ".
-      { destruct (decide (S front = back1)) as [<- |].
+      { destruct_decide (S front = back1) as <- | ?.
 
         - simpl in Hvs1.
           iExists Empty. iFrameSteps; iPureIntro.
@@ -1583,7 +1583,7 @@ Section ws_bqueue_1_G.
     wp_load.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <-).
 
-    destruct (decide (front1 + γ.(metadata_capacity) = back)) as [Hif |].
+    destruct_decide (front1 + γ.(metadata_capacity) = back) as Hif | ?.
 
     - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -1689,7 +1689,7 @@ Section ws_bqueue_1_G.
     wp_load.
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_1") as %?.
 
-    destruct (decide (front1 < back2)) as [Hbranch1 | Hbranch1]; last first.
+    destruct_decide (front1 < back2) as Hbranch1; last first.
     { assert (length vs2 = 0) as ->%nil_length_inv by lia.
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
@@ -1701,7 +1701,7 @@ Section ws_bqueue_1_G.
       iSteps.
     }
 
-    destruct (decide (front1 = front2)) as [<- |]; last first.
+    destruct_decide (front1 = front2) as <- | ?; last first.
     { assert (front1 < front2) as Hbranch2 by lia.
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_2".
       iSplitR "HΦ". { iFrameSteps. }
@@ -1719,7 +1719,7 @@ Section ws_bqueue_1_G.
     iDestruct (wise_prophets_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
     iEval (rewrite Hpasts2 //=) in "Hprophet_full".
 
-    destruct (decide (head $ prophss2 front1 = Some id)) as [(prophs0 & Hbranch3)%head_Some | Hbranch3]; last first.
+    destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
     { iSplitR "HΦ". { iFrameSteps. }
       remember (prophss2 front1) as prophs0.
       iModIntro. clear- Hcapacity Hbranch1 Hbranch3.
@@ -1947,7 +1947,7 @@ Section ws_bqueue_1_G.
     simpl_length/= in Hvs1.
     simpl_length/= in Hdata1.
 
-    destruct (decide (S front1 = back)) as [<- | Hbranch1].
+    destruct_decide (S front1 = back) as <- | Hbranch1.
 
     - assert (length vs1 = 0) as ->%nil_length_inv.
       { simpl_length/= in Hvs1. lia. }
@@ -1961,7 +1961,7 @@ Section ws_bqueue_1_G.
 
       iMod (owner_update Unstable front1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-      destruct (decide (head $ prophss1 front1 = Some id)) as [(prophs0 & Hprophss1)%head_Some | Hbranch2].
+      destruct_decide (head $ prophss1 front1 = Some id) as (prophs0 & Hprophss1)%head_Some | Hbranch2.
 
       + rewrite Hprophss1.
         iDestruct "Hwinner" as "[(:winner) | (:winner_pending_2 !=)]"; last first.

@@ -602,9 +602,9 @@ Section inf_mpmc_queue_1_G.
     wp_bind (_.{back})%E.
     iInv "Hinv" as "(:inv_inner =2)".
     wp_load.
-    destruct (decide (proph = front1)) as [-> | Hproph].
+    destruct_decide (proph = front1) as -> | Hproph.
 
-    - destruct (decide (front2 = front1)) as [-> | ?].
+    - destruct_decide (front2 = front1) as -> | ?.
 
       + iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -719,7 +719,7 @@ Section inf_mpmc_queue_1_G.
       iMod (model_update (vs ++ [v]) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[Hmodel₁] [//]") as "$"; first iSteps.
 
-      destruct (decide (front1 ≤ back1)) as [Hback1 | Hback1].
+      destruct_decide (front1 ≤ back1) as Hback1.
 
       - rewrite Nat.max_r //.
 
@@ -859,7 +859,7 @@ Section inf_mpmc_queue_1_G.
     )%I with "[HΦ]") as (res) "(%front & -> & Hconsumers_at & Htokens_pending)".
     { iInv "Hinv" as "(:inv_inner)".
       wp_faa.
-      destruct (decide (front < back)) as [Hfront1 | Hfront1].
+      destruct_decide (front < back) as Hfront1.
 
       - rewrite Nat.max_r; first lia.
         destruct (lookup_lt_is_Some_2 hist front) as (v & Hhist_lookup); first lia.

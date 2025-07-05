@@ -1168,7 +1168,7 @@ Section mpmc_queue_2_G.
 
     - rewrite Nat.add_0_r in Hfront1. subst i_front1.
 
-      destruct (decide (i + length move < S i1)) as [Hif | Hif].
+      destruct_decide (i + length move < S i1) as Hif.
 
       + iDestruct (state_lb_stabilized with "Hstate_auth Hstate_lb") as "#(_ & #Hstate_at)"; first lia.
 

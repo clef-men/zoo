@@ -359,7 +359,7 @@ Section zoo_G.
   Proof.
     rewrite NoDup_alt.
     iIntros "H %i1 %i2 %node %Hlookup_1 %Hlookup_2".
-    destruct (decide (i1 = i2)) as [| Hne]; [done | iExFalso].
+    destruct_decide (i1 = i2) as ? | Hne; [done | iExFalso].
     assert (nodes !! (i1 `min` i2) = Some node) as Hlookup_min.
     { destruct (Nat.min_spec i1 i2) as [(_ & ->) | (_ & ->)]; done. }
     assert (nodes !! (i1 `max` i2) = Some node) as Hlookup_max.

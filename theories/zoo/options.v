@@ -1,5 +1,8 @@
-From zoo Require Import
-  prelude.
+From Coq.ssr Require Import
+  ssreflect.
+
+From zoo Require Export
+  tactics.
 
 #[export] Set Default Proof Using "Type*".
 #[export] Set Suggest Proof Using.

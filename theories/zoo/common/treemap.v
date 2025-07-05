@@ -167,7 +167,7 @@ Section treemap_rooted.
       { rewrite lookup_insert //. }
       assert (treemap_path tree' root' root [edge]) as Hpath_root.
       { econstructor; done. }
-      destruct (decide (node = root)) as [-> | Hnode]; first eauto.
+      destruct_decide (node = root) as -> | Hnode; first eauto.
       pose proof Htree'_lookup_node as Htree_lookup_node.
       rewrite lookup_insert_ne // in Htree_lookup_node.
       odestruct Hrooted as (path & Hpath); first done.
@@ -190,8 +190,8 @@ Section treemap_rooted.
     intros (Htree_lookup_root & Hrooted) Htree_lookup_root' [= ->] Hdst.
     assert (root ≠ root') as Hroot' by congruence.
     induction 1 as [| node ϵ node' edge'' path Htree_lookup_node ? ? Hpath Hpath']; first done.
-    destruct (decide (node = root)) as [-> | Hnode]; first congruence.
-    destruct (decide (node = root')) as [-> | Hnode_]; first invert Hpath.
+    destruct_decide (node = root) as -> | Hnode; first congruence.
+    destruct_decide (node = root') as -> | Hnode_; first invert Hpath.
     econstructor; try done.
     rewrite lookup_insert_ne // lookup_delete_ne //.
   Qed.
@@ -223,13 +223,13 @@ Section treemap_rooted.
       { rewrite lookup_insert //. }
       assert (treemap_path tree' root' root [edge]) as Hpath_root.
       { econstructor; done. }
-      destruct (decide (node = root)) as [-> | Hnode]; first eauto.
+      destruct_decide (node = root) as -> | Hnode; first eauto.
       rewrite lookup_insert_ne // in Htree'_lookup_node.
       apply lookup_delete_Some in Htree'_lookup_node as (Hnode_ & Htree_lookup_node).
       odestruct Hrooted as (path & Hpath); first done.
       clear- Htree_lookup_root Hpath_root Hpath.
       induction Hpath as [| node ϵ node' edge' path Htree_lookup_node ? ? Hpath (path' & Hpath')]; first eauto.
-      destruct (decide (node = root')) as [-> | Hnode]; first eauto.
+      destruct_decide (node = root') as -> | Hnode; first eauto.
       exists (edge' :: path'). econstructor; try done.
       rewrite lookup_insert_ne; first congruence.
       rewrite lookup_delete_ne //.
