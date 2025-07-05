@@ -508,8 +508,8 @@ Section inf_ws_queue_1_G.
       owner₂' γ_owner Stable 1 (λ _, ()%V).
   Proof.
     iMod (auth_twins_alloc _ (auth_twins_G := inf_ws_queue_1_G_model_G)) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
-    iMod (twins_alloc' (twins_G := inf_ws_queue_1_G_owner_G) (Stable, 1, λ _, ()%V)) as "(%γ_owner & Howner₁ & Howner₂)".
-    iSteps.
+    iMod (twins_alloc' (twins_G := inf_ws_queue_1_G_owner_G)) as "(%γ_owner & Howner₁ & Howner₂)".
+    iFrameSteps.
   Qed.
   #[local] Lemma model₁_valid γ stable back priv ws vs :
     owner₁ γ stable back priv ws -∗
@@ -849,7 +849,7 @@ Section inf_ws_queue_1_G.
     - iDestruct "Hstate" as "(:inv_state_emptyish lazy=)". lia.
     - done.
   Qed.
-  #[local] Lemma inv_state_winner_pop γ state stable front2 back hist lhist vs prophs front1 P :
+  #[local] Lemma inv_state_winner_pop γ state stable front1 back hist lhist vs prophs front2 P :
     inv_state γ state stable front1 back hist lhist vs prophs -∗
     winner_pop γ front2 P -∗
       ∃ P_,
@@ -881,7 +881,7 @@ Section inf_ws_queue_1_G.
       iDestruct "Hwinner" as "(:winner =3)".
       iDestruct (winner_pop_exclusive with "Hwinner_pop Hwinner_pop_3") as %[].
   Qed.
-  #[local] Lemma inv_state_winner_steal γ state stable front2 back hist lhist vs prophs front1 P :
+  #[local] Lemma inv_state_winner_steal γ state stable front1 back hist lhist vs prophs front2 P :
     inv_state γ state stable front1 back hist lhist vs prophs -∗
     winner_steal γ front2 P -∗
       ∃ P_,
@@ -1771,7 +1771,6 @@ Section inf_ws_queue_1_G.
 
     - assert (length vs1 = 0) as ->%nil_length_inv.
       { simpl_length/= in Hvs1. lia. }
-      simpl in *.
 
       iDestruct (history_at_get front1 with "Hhistory_auth") as "#Hhistory_at"; first done.
       iMod (owner_update Unstable front1 priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
