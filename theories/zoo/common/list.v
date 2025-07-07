@@ -190,6 +190,14 @@ Section basic.
     intros Hlookup.
     apply drop_ge, lookup_ge_None_1. done.
   Qed.
+
+  Lemma insert_app_r_0 i x l1 l2 :
+    i = length l1 →
+    <[i := x]> (l1 ++ l2) = l1 ++ <[0 := x]> l2.
+  Proof.
+    intros ->.
+    rewrite insert_app_r_alt // Nat.sub_diag //.
+  Qed.
 End basic.
 
 Section suffix.
