@@ -12,6 +12,7 @@ predicate model
 
 predicate owner
   (t : val)
+  (ws : list val)
 |}]
 
 val create :
@@ -22,7 +23,7 @@ val create :
   ensures
     inv ?t ι
   , model ?t []
-  , owner ?t
+  , owner ?t []
 |}]
 
 val push :
@@ -35,13 +36,13 @@ val push :
     ι
   requires
     inv t ι
-  , owner t
+  , owner t ws
   arequires
     model t ?vs
   aensures
     model t (?vs ++ [v])
   ensures
-    owner t
+    owner t (?vs ++ [v])
 |}]
 
 val pop :
@@ -53,23 +54,25 @@ val pop :
     ι
   requires
     inv t ι
-  , owner t
+  , owner t ws
   arequires
     model t ?vs
   aensures
     match ?o with
     | None ->
         ?vs = [] ∗
+        ?ws = [] ∗
         model t []
     | Some v ->
         ∃ vs'.
         ?vs = vs' ++ [v] ∗
+        ?ws = vs' ∗
         model t vs'
     end
   returns
     ?o
   ensures
-    owner t
+    owner t ?ws
 |}]
 
 val steal :

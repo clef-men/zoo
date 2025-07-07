@@ -32,6 +32,7 @@ Implicit Types b yield killed : bool.
 Implicit Types l : location.
 Implicit Types v t until pred : val.
 Implicit Types vs : gmultiset val.
+Implicit Types ws : list val.
 
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_std_G_queues_G :: WsQueuesPublicG Σ ;
@@ -142,16 +143,17 @@ Section ws_hub_std_G.
     )".
 
   Definition ws_hub_std_owner t i status : iProp Σ :=
-    ∃ l γ round n,
+    ∃ l γ ws round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    ws_queues_public_owner γ.(metadata_queues) i status ∗
+    ws_queues_public_owner γ.(metadata_queues) i status ws ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
       %l{;_} &
       %γ{;_} &
+      %ws{} &
       %round{} &
       %n{} &
       %Heq{} &
@@ -466,16 +468,16 @@ Section ws_hub_std_G.
       iSplitL "Hmodel₁"; first iSteps.
       iIntros "$". iSteps.
     }
-    iIntros ([v |]) "Hqueues_model".
+    iIntros ([v |] ws') "Hqueues_model".
 
-    - iDestruct "Hqueues_model" as "(%ws & %Hlookup & Hqueues_model)".
+    - iDestruct "Hqueues_model" as "(% & %Hlookup & <- & Hqueues_model)".
       set vs' := vs ∖ {[+v+]}.
       iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iExists (Some v).
       iSplitL "Hmodel₁".
       { iExists vs'. iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.
-        rewrite {}Hvs -(take_drop_middle vss i_ (ws ++ [v])) // foldr_app /=.
+        rewrite {}Hvs -(take_drop_middle vss i_ (ws' ++ [v])) // foldr_app /=.
         rewrite foldr_comm_acc_strong; first multiset_solver.
         rewrite gmultiset_elem_of_disj_union list_to_set_disj_app.
         set_solver.
@@ -483,7 +485,7 @@ Section ws_hub_std_G.
       iIntros "!> HΦ !>".
       iSplitR "HΦ".
       { repeat iExists _. iFrame. iPureIntro.
-        rewrite /vs' Hvs -{1}(take_drop_middle vss i_ (ws ++ [v])) // insert_take_drop.
+        rewrite /vs' Hvs -{1}(take_drop_middle vss i_ (ws' ++ [v])) // insert_take_drop.
         { eapply lookup_lt_Some. done. }
         rewrite !foldr_app /= foldr_comm_acc_strong; first multiset_solver.
         rewrite (foldr_comm_acc_strong _ _ _ (foldr _ _ _)); first multiset_solver.
@@ -492,7 +494,7 @@ Section ws_hub_std_G.
       }
       iSteps.
 
-    - iDestruct "Hqueues_model" as "(%Hlookup & Hqueues_model)".
+    - iDestruct "Hqueues_model" as "(%Hlookup & -> & Hqueues_model)".
       iExists None.
       iSplitL "Hmodel₁"; first iSteps.
       iIntros "!> HΦ !>".
@@ -544,21 +546,21 @@ Section ws_hub_std_G.
     }
     iIntros ([v |]) "Hqueues_model".
 
-    - iDestruct "Hqueues_model" as "(%j & %ws & %Hj & %Hlookup & Hqueues_model)".
+    - iDestruct "Hqueues_model" as "(%j & %ws' & %Hj & %Hlookup & Hqueues_model)".
       set vs' := vs ∖ {[+v+]}.
       iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iExists (Some v).
       iSplitL "Hmodel₁".
       { iExists vs'. iSteps. iPureIntro.
         apply gmultiset_disj_union_difference'.
-        rewrite {}Hvs -(take_drop_middle vss j (v :: ws)) // foldr_app /=.
+        rewrite {}Hvs -(take_drop_middle vss j (v :: ws')) // foldr_app /=.
         rewrite foldr_comm_acc_strong; first multiset_solver.
         set_solver.
       }
       iIntros "!> HΦ !>".
       iSplitR "HΦ".
       { repeat iExists _. iFrame. iPureIntro.
-        rewrite /vs' Hvs -{1}(take_drop_middle vss j (v :: ws)) // insert_take_drop.
+        rewrite /vs' Hvs -{1}(take_drop_middle vss j (v :: ws')) // insert_take_drop.
         { eapply lookup_lt_Some. done. }
         rewrite !foldr_app /= foldr_comm_acc_strong; first multiset_solver.
         rewrite (foldr_comm_acc_strong _ _ _ (foldr _ _ _)); multiset_solver.

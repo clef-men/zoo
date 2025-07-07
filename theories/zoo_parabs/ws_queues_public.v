@@ -19,7 +19,7 @@ From zoo Require Import
   options.
 
 Implicit Types v t queue round : val.
-Implicit Types vs queues : list val.
+Implicit Types vs ws queues : list val.
 Implicit Types vss : list (list val).
 Implicit Types status : status.
 
@@ -61,16 +61,16 @@ Section ws_queues_public_G.
       ws_queue_2_model queue vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %queues_ &
-      Hqueues_ &
-      Hqueues_model
+      %queues{;_} &
+      Hqueues{;_} &
+      Hqueues{}_model
     )".
 
-  Definition ws_queues_public_owner t i status : iProp Σ :=
+  Definition ws_queues_public_owner t i status ws : iProp Σ :=
     ∃ queues queue,
     ⌜queues !! i = Some queue⌝ ∗
     array_model t DfracDiscarded queues ∗
-    ws_queue_2_owner queue.
+    ws_queue_2_owner queue ws.
   #[local] Instance : CustomIpatFormat "owner" :=
     "(
       %queues{;_} &
@@ -101,18 +101,30 @@ Section ws_queues_public_G.
     iSteps.
   Qed.
 
-  Lemma ws_queues_public_inv_owner t ι sz i status :
+  Lemma ws_queues_public_inv_owner t ι sz i status ws :
     ws_queues_public_inv t ι sz -∗
-    ws_queues_public_owner t i status -∗
+    ws_queues_public_owner t i status ws -∗
     ⌜i < sz⌝.
   Proof.
     iIntros "(:inv) (:owner)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iPureIntro. rewrite Hqueues_length. eapply lookup_lt_Some. done.
   Qed.
-  Lemma ws_queues_public_owner_exclusive t i status1 status2 :
-    ws_queues_public_owner t i status1 -∗
-    ws_queues_public_owner t i status2 -∗
+  Lemma ws_queues_public_model_owner t vss i status ws :
+    ws_queues_public_model t vss -∗
+    ws_queues_public_owner t i status ws -∗
+      ∃ vs,
+      ⌜vss !! i = Some vs⌝ ∗
+      ⌜vs `suffix_of` ws⌝.
+  Proof.
+    iIntros "(:model =1) (:owner =2)".
+    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    iDestruct (big_sepL2_lookup_l with "Hqueues1_model") as "(%vs & $ & Hqueue2_model)"; first done.
+    iApply (ws_queue_2_owner_model with "Hqueue2_owner Hqueue2_model").
+  Qed.
+  Lemma ws_queues_public_owner_exclusive t i status1 ws1 status2 ws2 :
+    ws_queues_public_owner t i status1 ws1 -∗
+    ws_queues_public_owner t i status2 ws2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)".
@@ -132,7 +144,7 @@ Section ws_queues_public_G.
       ws_queues_public_inv t ι ₊sz ∗
       ws_queues_public_model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_queues_public_owner t i Nonblocked
+        ws_queues_public_owner t i Nonblocked []
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -147,7 +159,7 @@ Section ws_queues_public_G.
         ws_queue_2_model queue []
       ) ∗
       ( [∗ list] queue ∈ queues,
-        ws_queue_2_owner queue
+        ws_queue_2_owner queue []
       )
     )%I).
     iApply wp_fupd.
@@ -180,41 +192,41 @@ Section ws_queues_public_G.
     wp_apply array_size_spec; iSteps.
   Qed.
 
-  Lemma ws_queues_public_block_spec t ι sz i i_ :
+  Lemma ws_queues_public_block_spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Nonblocked
+      ws_queues_public_owner t i_ Nonblocked ws
     }}}
       ws_queues_public_block t #i
     {{{
       RET ();
-      ws_queues_public_owner t i_ Blocked
+      ws_queues_public_owner t i_ Blocked ws
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma ws_queues_public_unblock_spec t ι sz i i_ :
+  Lemma ws_queues_public_unblock_spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Blocked
+      ws_queues_public_owner t i_ Blocked ws
     }}}
       ws_queues_public_unblock t #i
     {{{
       RET ();
-      ws_queues_public_owner t i_ Nonblocked
+      ws_queues_public_owner t i_ Nonblocked ws
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  Lemma ws_queues_public_push_spec t ι sz i i_ v :
+  Lemma ws_queues_public_push_spec t ι sz i i_ ws v :
     i = ⁺i_ →
     <<<
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Nonblocked
+      ws_queues_public_owner t i_ Nonblocked ws
     | ∀∀ vss,
       ws_queues_public_model t vss
     >>>
@@ -224,7 +236,7 @@ Section ws_queues_public_G.
       ⌜vss !! i_ = Some vs⌝ ∗
       ws_queues_public_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-      ws_queues_public_owner t i_ Nonblocked
+        ws_queues_public_owner t i_ Nonblocked (vs ++ [v])
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
@@ -246,28 +258,30 @@ Section ws_queues_public_G.
     - rewrite list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_queues_public_pop_spec t ι sz i i_ :
+  Lemma ws_queues_public_pop_spec t ι sz i i_ ws :
     i = ⁺i_ →
     <<<
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Nonblocked
+      ws_queues_public_owner t i_ Nonblocked ws
     | ∀∀ vss,
       ws_queues_public_model t vss
     >>>
       ws_queues_public_pop t #i @ ↑ι
     <<<
-      ∃∃ o,
+      ∃∃ o ws,
       match o with
       | None =>
           ⌜vss !! i_ = Some []⌝ ∗
+          ⌜ws = []⌝ ∗
           ws_queues_public_model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
+          ⌜ws = vs⌝ ∗
           ws_queues_public_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_queues_public_owner t i_ Nonblocked
+      ws_queues_public_owner t i_ Nonblocked ws
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
@@ -288,23 +302,25 @@ Section ws_queues_public_G.
       iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
       rewrite !list_insert_id //. iSteps.
 
-    - iIntros "%o Hqueue_model". iExists o. iSplitL; last iSteps. destruct o as [v |].
+    - iIntros "%o %ws' Hqueue_model".
+      iExists o, ws'. iSplitL; last iSteps.
+      destruct o as [v |].
 
-      + iDestruct "Hqueue_model" as "(%vs' & -> & Hqueue_model)".
+      + iDestruct "Hqueue_model" as "(%vs' & -> & -> & Hqueue_model)".
         iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
         rewrite list_insert_id //. iSteps.
 
-      + iDestruct "Hqueue_model" as "(-> & Hqueue_model)".
+      + iDestruct "Hqueue_model" as "(-> & -> & Hqueue_model)".
         iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
         rewrite !list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_queues_public_steal_to_spec t ι (sz : nat) i i_ j :
+  Lemma ws_queues_public_steal_to_spec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Blocked
+      ws_queues_public_owner t i_ Blocked ws
     | ∀∀ vss,
       ws_queues_public_model t vss
     >>>
@@ -320,7 +336,7 @@ Section ws_queues_public_G.
           ws_queues_public_model t (<[₊j := vs]> vss)
       end
     | RET o;
-      ws_queues_public_owner t i_ Blocked
+      ws_queues_public_owner t i_ Blocked ws
     >>>.
   Proof.
     iIntros (-> Hj) "%Φ ((:inv) & Howner) HΦ".
@@ -360,11 +376,11 @@ End ws_queues_public_G.
 Section ws_queues_public_G.
   Context `{ws_queues_public_G : WsQueuesPublicG Σ}.
 
-  #[local] Lemma ws_queues_public_steal_as_0_spec t ι (sz : nat) i i_ round (n : nat) :
+  #[local] Lemma ws_queues_public_steal_as_0_spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Blocked ∗
+      ws_queues_public_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     | ∀∀ vss,
       ws_queues_public_model t vss
@@ -383,7 +399,7 @@ Section ws_queues_public_G.
       end
     | RET o;
       ∃ n,
-      ws_queues_public_owner t i_ Blocked ∗
+      ws_queues_public_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
@@ -421,12 +437,12 @@ Section ws_queues_public_G.
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
         iSteps.
   Qed.
-  Lemma ws_queues_public_steal_as_spec t ι sz i i_ round :
+  Lemma ws_queues_public_steal_as_spec t ι sz i i_ ws round :
     i = ⁺i_ →
     0 < sz →
     <<<
       ws_queues_public_inv t ι sz ∗
-      ws_queues_public_owner t i_ Blocked ∗
+      ws_queues_public_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) (sz - 1)
     | ∀∀ vss,
       ws_queues_public_model t vss
@@ -445,7 +461,7 @@ Section ws_queues_public_G.
       end
     | RET o;
       ∃ n,
-      ws_queues_public_owner t i_ Blocked ∗
+      ws_queues_public_owner t i_ Blocked ws ∗
       random_round_model' round (sz - 1) n
     >>>.
   Proof.
