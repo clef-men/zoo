@@ -178,9 +178,9 @@ Section ws_bqueue_1_G.
     winner_steal γ front P2.
   #[local] Instance : CustomIpatFormat "winner" :=
     "(
-      %front{} &
-      %P1 &
-      %P2 &
+      %front_winner &
+      %P_winner_1 &
+      %P_winner_2 &
       Hwinner_pop{_{}} &
       Hwinner_steal{_{}}
     )".
@@ -1818,7 +1818,7 @@ Section ws_bqueue_1_G.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_pures.
-      case_bool_decide as Hbranch.
+      case_bool_decide as Hbranch; wp_pures.
 
       + wp_load.
         wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂"); [done.. | lia |].
