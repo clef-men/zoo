@@ -858,12 +858,14 @@ Section zoo_G.
       setoid_rewrite Z.add_0_l at 7.
       done.
     Qed.
+
     Lemma chunk_cslice_shift_right l sz i dq vs :
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + sz) dq vs.
     Proof.
       rewrite chunk_cslice_shift //.
     Qed.
+
     Lemma chunk_cslice_shift_left l sz i dq vs :
       sz ≤ i →
       chunk_cslice l sz i dq vs ⊣⊢

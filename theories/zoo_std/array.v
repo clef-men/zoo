@@ -766,12 +766,22 @@ Section zoo_G.
       setoid_rewrite chunk_cslice_shift at 1.
       done.
     Qed.
+
     Lemma array_cslice_shift_right t sz i dq vs :
       array_cslice t sz i dq vs ⊢
       array_cslice t sz (i + sz) dq vs.
     Proof.
       rewrite array_cslice_shift //.
     Qed.
+    Lemma array_cslice_shift_right' {t sz i1 dq vs} i2 :
+      i2 = i1 + sz →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq vs.
+    Proof.
+      intros ->.
+      apply array_cslice_shift_right.
+    Qed.
+
     Lemma array_cslice_shift_left t sz i dq vs :
       sz ≤ i →
       array_cslice t sz i dq vs ⊢
