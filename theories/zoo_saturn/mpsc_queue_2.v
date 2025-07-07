@@ -176,7 +176,7 @@ Section mpsc_queue_2_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   #[local] Lemma front_alloc :
@@ -200,7 +200,7 @@ Section mpsc_queue_2_G.
       front₁ γ front ∗
       front₂ γ front.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Lemma mpsc_queue_2_model_exclusive t vs1 vs2 :

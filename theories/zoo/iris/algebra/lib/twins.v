@@ -220,11 +220,12 @@ Section ofe.
   Proof.
     apply auth_option_auth_persist.
   Qed.
-  Lemma twins_both_update a b a' b' :
-    a' ≡ b' →
-    twins_twin1 (DfracOwn 1) a ⋅ twins_twin2 b ~~> twins_twin1 (DfracOwn 1) a' ⋅ twins_twin2 b'.
+  Lemma twins_both_update a1 b1 a2 b2 :
+    a2 ≡ b2 →
+    twins_twin1 (DfracOwn 1) a1 ⋅ twins_twin2 b1 ~~> twins_twin1 (DfracOwn 1) a2 ⋅ twins_twin2 b2.
   Proof.
-    intros <-. apply auth_option_both_update, exclusive_local_update. done.
+    intros <-.
+    apply auth_option_both_update, exclusive_local_update. done.
   Qed.
 End ofe.
 

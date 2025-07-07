@@ -177,7 +177,7 @@ Section mpmc_bstack_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Lemma mpmc_bstack_model_valid t ι cap vs :

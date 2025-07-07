@@ -193,7 +193,7 @@ Section ws_hub_std_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Lemma ws_hub_std_inv_agree t ι sz1 sz2 :

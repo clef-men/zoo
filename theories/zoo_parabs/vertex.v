@@ -498,7 +498,7 @@ Section vertex_G.
       state₁ γ Own state ∗
       state₂ γ state.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
   #[local] Lemma state₁_discard γ state :
     state₁ γ Own state ⊢ |==>
@@ -535,7 +535,7 @@ Section vertex_G.
       generation₁ γ generation ∗
       generation₂ γ generation.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   #[local] Lemma dependencies_alloc :

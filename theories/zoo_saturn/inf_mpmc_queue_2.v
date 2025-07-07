@@ -672,7 +672,7 @@ Section inf_mpmc_queue_2_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   #[local] Lemma history_alloc :

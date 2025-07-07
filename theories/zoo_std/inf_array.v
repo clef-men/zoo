@@ -194,7 +194,7 @@ Section inf_array_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Lemma inf_array_model_to_model' {t vs} vsₗ :

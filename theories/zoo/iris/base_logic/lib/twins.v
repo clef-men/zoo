@@ -253,24 +253,35 @@ Section twins_G.
     End leibniz_equiv.
   End ofe_discrete.
 
-  Lemma twins_update {γ a b} a' b' :
-    a' ≡ b' →
-    twins_twin1 γ (DfracOwn 1) a -∗
-    twins_twin2 γ b ==∗
-      twins_twin1 γ (DfracOwn 1) a' ∗
-      twins_twin2 γ b'.
+  Lemma twins_update_equivI {γ a1 b1} a2 b2 :
+    twins_twin1 γ (DfracOwn 1) a1 -∗
+    twins_twin2 γ b1 -∗
+    a2 ≡ b2 ==∗
+      twins_twin1 γ (DfracOwn 1) a2 ∗
+      twins_twin2 γ b2.
+  Proof.
+    iIntros "Htwin1 Htwin2 Heq".
+    iMod (own_update_2 with "Htwin1 Htwin2") as "($ & Htwin2)"; first by apply twins_both_update.
+    iRewrite "Heq" in "Htwin2" => //.
+  Qed.
+  Lemma twins_update_equiv {γ a1 b1} a2 b2 :
+    a2 ≡ b2 →
+    twins_twin1 γ (DfracOwn 1) a1 -∗
+    twins_twin2 γ b1 ==∗
+      twins_twin1 γ (DfracOwn 1) a2 ∗
+      twins_twin2 γ b2.
   Proof.
     iIntros "% Htwin1 Htwin2".
-    iMod (own_update_2 with "Htwin1 Htwin2") as "(? & ?)"; first by apply twins_both_update.
+    iApply (twins_update_equivI with "Htwin1 Htwin2").
     iSteps.
   Qed.
-  Lemma twins_update' {γ a b} a' :
+  Lemma twins_update {γ a b} a' :
     twins_twin1 γ (DfracOwn 1) a -∗
     twins_twin2 γ b ==∗
       twins_twin1 γ (DfracOwn 1) a' ∗
       twins_twin2 γ a'.
   Proof.
-    iApply twins_update. done.
+    iApply twins_update_equiv. done.
   Qed.
 End twins_G.
 

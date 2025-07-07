@@ -415,7 +415,7 @@ Section bag_2_G.
       model₁ γ vss ∗
       model₂ γ vss.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Opaque queues_auth'.

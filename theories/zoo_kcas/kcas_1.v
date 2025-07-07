@@ -740,7 +740,7 @@ Section kcas_1_G.
       model₂ γ v.
   Proof.
     iIntros "Hmodel₁ (% & % & Hmodel₂)".
-    iMod (twins_update' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (twins_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iFrameSteps.
   Qed.
   #[local] Lemma model₂_similar {γ v1} v2 :

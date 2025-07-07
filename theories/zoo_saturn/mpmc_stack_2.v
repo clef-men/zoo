@@ -131,7 +131,7 @@ Section zoo_G.
       model₁ γ (Some ws) ∗
       model₂ γ (Some ws).
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
   #[local] Lemma model_close γ ws1 ws2 :
     model₁ γ (Some ws1) -∗
@@ -140,7 +140,7 @@ Section zoo_G.
       model₂ γ None.
   Proof.
     iIntros "Hmodel₁ Hmodel₂".
-    iMod (twins_update' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (twins_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod (twins_twin1_persist with "Hmodel₁") as "Hmodel₁".
     iSteps.
   Qed.

@@ -625,7 +625,7 @@ Section inf_ws_queue_1_G.
       owner₂ γ stable back priv.
   Proof.
     iIntros "(:owner₁) Howner₂".
-    iMod (twins_update' with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iMod (twins_update with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
     iSteps.
   Qed.
 
@@ -759,7 +759,7 @@ Section inf_ws_queue_1_G.
       winner_pop γ front P ∗
       winner_steal γ front P.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Opaque owner₁'.

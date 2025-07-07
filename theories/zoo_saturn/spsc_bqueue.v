@@ -414,7 +414,7 @@ Section spsc_bqueue_G.
       producer₂ γ stable back2.
   Proof.
     iIntros "(:producer₁) (:producer₂)".
-    iMod (twins_update' with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
+    iMod (twins_update with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
     iSteps.
   Qed.
   #[local] Lemma producer_update_back {γ stable1 back1 ws stable2 back2} back :
@@ -487,7 +487,7 @@ Section spsc_bqueue_G.
       consumer₂ γ stable front2.
   Proof.
     iIntros "(:consumer₁) (:consumer₂)".
-    iMod (twins_update' with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)".
+    iMod (twins_update with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)".
     iSteps.
   Qed.
   #[local] Lemma front_lb_get γ stable front :
