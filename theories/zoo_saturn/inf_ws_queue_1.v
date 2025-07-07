@@ -233,9 +233,8 @@ Section inf_ws_queue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_empty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -259,9 +258,8 @@ Section inf_ws_queue_1_G.
     ).
   #[local] Instance : CustomIpatFormat "inv_state_nonempty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -270,7 +268,8 @@ Section inf_ws_queue_1_G.
       {>;}%Hhist{} &
       Hwinner
     )".
-  #[local] Definition inv_state_nonempty_steal γ stable front back hist lhist vs prophs P : iProp Σ :=
+  #[local] Definition inv_state_nonempty_steal γ state stable front back hist lhist vs prophs P : iProp Σ :=
+    ⌜state = Nonempty⌝ ∗
     ⌜stable = Stable⌝ ∗
     ⌜front < back⌝ ∗
     ⌜lhist = hist ++ take 1 vs⌝ ∗
@@ -283,9 +282,9 @@ Section inf_ws_queue_1_G.
     end.
   #[local] Instance : CustomIpatFormat "inv_state_nonempty_steal" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -306,9 +305,8 @@ Section inf_ws_queue_1_G.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish" :=
     "(
       %P_ &
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -317,7 +315,8 @@ Section inf_ws_queue_1_G.
       {>;}%Hhist{} &
       Hwinner
     )".
-  #[local] Definition inv_state_emptyish_pop γ stable front back hist lhist P : iProp Σ :=
+  #[local] Definition inv_state_emptyish_pop γ state stable front back hist lhist P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
     ⌜stable = Unstable⌝ ∗
     ⌜front = back⌝ ∗
     ⌜lhist = hist⌝ ∗
@@ -325,9 +324,9 @@ Section inf_ws_queue_1_G.
     winner_pop γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_pop" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -336,7 +335,8 @@ Section inf_ws_queue_1_G.
       {>;}%Hhist{} &
       Hwinner_pop
     )".
-  #[local] Definition inv_state_emptyish_steal γ stable front back hist lhist P : iProp Σ :=
+  #[local] Definition inv_state_emptyish_steal γ state stable front back hist lhist P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
     ⌜stable = Unstable⌝ ∗
     ⌜front = back⌝ ∗
     ⌜lhist = hist⌝ ∗
@@ -344,9 +344,9 @@ Section inf_ws_queue_1_G.
     winner_linearized γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_steal" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -363,9 +363,8 @@ Section inf_ws_queue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_superempty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -855,8 +854,8 @@ Section inf_ws_queue_1_G.
       ∃ P_,
       ⌜front1 = front2⌝ ∗
       ▷ (P ≡ P_) ∗
-      ( inv_state_nonempty_steal γ stable front2 back hist lhist vs prophs P_
-      ∨ inv_state_emptyish_steal γ stable front2 back hist lhist P_
+      ( inv_state_nonempty_steal γ state stable front2 back hist lhist vs prophs P_
+      ∨ inv_state_emptyish_steal γ state stable front2 back hist lhist P_
       ) ∗
       winner_pop γ front2 P.
   Proof.
@@ -887,7 +886,7 @@ Section inf_ws_queue_1_G.
       ∃ P_,
       ⌜front1 = front2⌝ ∗
       ▷ (P_ ≡ P) ∗
-      inv_state_emptyish_pop γ stable front2 back hist lhist P_ ∗
+      inv_state_emptyish_pop γ state stable front2 back hist lhist P_ ∗
       winner_steal γ front2 P.
   Proof.
     iIntros "Hstate Hwinner_steal".
