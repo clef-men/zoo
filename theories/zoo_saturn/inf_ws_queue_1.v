@@ -179,9 +179,9 @@ Section inf_ws_queue_1_G.
     winner_steal γ front P2.
   #[local] Instance : CustomIpatFormat "winner" :=
     "(
-      %front{} &
-      %P1 &
-      %P2 &
+      %front_winner &
+      %P_winner_1 &
+      %P_winner_2 &
       Hwinner_pop{_{}} &
       Hwinner_steal{_{}}
     )".
@@ -1644,10 +1644,10 @@ Section inf_ws_queue_1_G.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_pures.
-      case_bool_decide as Hbranch.
+      case_bool_decide as Hbranch; wp_pures.
 
       + wp_load.
-        wp_apply (inf_array_get_spec_owner with "[$]") as "Howner₁"; [lia | done |].
+        wp_apply (inf_array_get_spec_owner with "[$]") as "Howner₁"; [done.. |].
         iSteps.
 
       + replace front2 with back by lia.
