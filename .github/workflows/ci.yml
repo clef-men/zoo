@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image (runs make -j4 inside)
+      - name: Build Docker image
         run: docker build -t zoo-ci .
 
       - name: Run Coq build (default zoo)
