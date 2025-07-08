@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
+      - ci-clean
   pull_request:
       - main
+      - ci-clean
 
 jobs:
   build-image:
@@ -17,3 +19,6 @@ jobs:
 
       - name: Build Docker image (runs make -j4 inside)
         run: docker build -t zoo-ci .
+
+      - name: Run Coq build (default zoo)
+        run: docker run --rm zoo-ci
