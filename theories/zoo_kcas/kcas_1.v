@@ -740,7 +740,7 @@ Section kcas_1_G.
       model₂ γ v.
   Proof.
     iIntros "Hmodel₁ (% & % & Hmodel₂)".
-    iMod (twins_update' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    iMod (twins_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iFrameSteps.
   Qed.
   #[local] Lemma model₂_similar {γ v1} v2 :
@@ -1047,7 +1047,7 @@ Section kcas_1_G.
     - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
 
       iAssert ⌜i < j⌝%I as %Hi.
-      { destruct (decide (i < j)); first iSteps.
+      { destruct_decide (i < j); first iSteps.
         iDestruct (big_sepL_seq_lookup' i with "Hlocks") as "_Hlock".
         { apply lookup_lt_Some in Hdescrs_lookup.
           rewrite /metadata_size. lia.
@@ -1359,7 +1359,7 @@ Section kcas_1_G.
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
           wp_cas as Hcas | _.
-          { exfalso. zoo_simpl. naive_solver. }
+          { exfalso. zoo_simplify in Hcas. naive_solver. }
           iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata_success η = final_status_to_bool fstatus) as Hsuccess.
@@ -1551,7 +1551,7 @@ Section kcas_1_G.
   Proof.
     iIntros "%Hi %Φ (#Hcasn_meta & #Hcasn_inv' & Hgid & #Hlstatus_lb) HΦ".
     wp_apply (kcas_1_finish_spec FinalAfter with "[- HΦ] HΦ").
-    destruct (decide (gid = metadata_winner η)); iSteps.
+    destruct_decide (gid = metadata_winner η); iSteps.
   Qed.
   #[local] Lemma kcas_1_finish_spec_finished gid casn η ι :
     {{{
@@ -1715,7 +1715,7 @@ Section kcas_1_G.
           iApply (meta_agree with "Hloc_meta_2 Hloc_meta_1").
         }
 
-        destruct (decide (casn1 = casn)) as [-> | Hcasn1].
+        destruct_decide (casn1 = casn) as -> | Hcasn1.
 
         + iDestruct (meta_agree with "Hcasn_meta Hcasn1_meta") as %<-. iClear "Hcasn1_meta".
           assert (i1 = i) as ->.
@@ -1731,11 +1731,11 @@ Section kcas_1_G.
           wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus1_lb //] HΦ").
 
         + iMod (descriptor_state_inj with "Hcasn_inv' Hcasn1_inv'") as %?; [done.. |].
-          destruct (decide (
+          destruct_decide (
             gid = metadata_winner η ∧
             b = false ∧
             descr.(descriptor_before) ≉ descriptor_final descr1 η1
-          )) as [(-> & -> & Hbefore) | Hok%not_and_r_alt].
+          ) as (-> & -> & Hbefore) | Hok%not_and_r_alt.
 
           * iInv "Hcasn_inv" as "(:casn_inv_inner)".
             destruct lstatus as [j |]; last first.
@@ -1829,7 +1829,7 @@ Section kcas_1_G.
         + iDestruct "Hlstatus" as "(:casn_inv_inner_running)".
 
           iInv "Hloc_inv" as "(:loc_inv_inner > =2)".
-          destruct (decide (casn1 = casn2)) as [<- | Hcasn2].
+          destruct_decide (casn1 = casn2) as <- | Hcasn2.
 
           * iDestruct (history_lb_get with "Hhistory_auth") as "#Hhistory_lb2".
             iDestruct (history_running with "Hhistory_auth Hcasn_meta Hlstatus_auth") as %?.

@@ -95,7 +95,7 @@ Section relation.
       rewrite !below_app. naive_solver.
     - intros ?*. done.
     - intros x1 x2 H.
-      destruct (decide (x1 = [])) as [-> |].
+      destruct_decide (x1 = []) as -> | ?.
       + apply symmetry, monopo_equiv_nil in H.
         intros ?* ?*. done.
       + intros (a & Ha); first done.
@@ -106,7 +106,7 @@ Section relation.
     - intros ?* ?*. rewrite !below_app. naive_solver.
     - intros ? ?*. rewrite below_app. naive_solver.
     - intros x1 x2 H.
-      destruct (decide (x1 = [])) as [-> |].
+      destruct_decide (x1 = []) as -> | ?.
       + intros ?*. done.
       + destruct H as (a & (? & _)%Forall_app).
         { apply app_not_nil_l. done. }

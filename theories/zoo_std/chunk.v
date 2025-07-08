@@ -858,12 +858,14 @@ Section zoo_G.
       setoid_rewrite Z.add_0_l at 7.
       done.
     Qed.
+
     Lemma chunk_cslice_shift_right l sz i dq vs :
       chunk_cslice l sz i dq vs ⊣⊢
       chunk_cslice l sz (i + sz) dq vs.
     Proof.
       rewrite chunk_cslice_shift //.
     Qed.
+
     Lemma chunk_cslice_shift_left l sz i dq vs :
       sz ≤ i →
       chunk_cslice l sz i dq vs ⊣⊢
@@ -936,7 +938,7 @@ Section zoo_G.
       - rewrite (chunk_cslice_rotate_right_aux i2 i1) //; first  simpl_length.
         rewrite minus_mod_2; [lia.. |].
         rewrite Nat.add_sub'.
-        destruct (decide (n `mod` sz = 0)) as [-> |].
+        destruct_decide (n `mod` sz = 0) as -> | ?.
         + rewrite Nat.sub_0_r Nat.Div0.mod_same !rotate_0 //.
         + rewrite Nat.mod_small; first lia.
           rewrite /list.rotate drop_app_length'.
@@ -1054,7 +1056,7 @@ Section zoo_G.
         ).
     Proof.
       iIntros "%Hsz %Hvs Hcslice".
-      destruct (decide (i1 ≤ i2)).
+      destruct_decide (i1 ≤ i2).
       1: iDestruct (chunk_cslice_rotate_right_1' i2 (i2 - i1) with "Hcslice") as "$"; [lia.. |].
       2: iDestruct (chunk_cslice_rotate_left_1' i2 (i1 - i2) with "Hcslice") as "$"; [lia.. |].
       all: iStep.

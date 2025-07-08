@@ -8,9 +8,9 @@
 #BEGIN zoo
 -Q theories/zoo zoo
 
-theories/zoo/prelude/base.v
-theories/zoo/prelude/tactics.v
-theories/zoo/prelude/prelude.v
+theories/zoo/prelude.v
+
+theories/zoo/tactics.v
 
 theories/zoo/options.v
 
@@ -57,6 +57,8 @@ theories/zoo/iris/proofmode/intro_patterns.v
 theories/zoo/iris/proofmode/ltac_tactics.v
 theories/zoo/iris/proofmode/proofmode.v
 
+theories/zoo/iris/diaframe/base.v
+theories/zoo/iris/diaframe/tactics.v
 theories/zoo/iris/diaframe/diaframe.v
 theories/zoo/iris/diaframe/symb_exec/defs.v
 theories/zoo/iris/diaframe/symb_exec/wp.v

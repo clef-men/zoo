@@ -27,12 +27,12 @@ Definition ws_bqueue_1_push : val :=
     let: "back" := "t".{back} in
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
-    if: "front" + "cap" == "back" then (
-      #false
-    ) else (
+    if: "back" < "front" + "cap" then (
       array_unsafe_cset "data" "back" "v" ;;
       "t" <-{back} "back" + #1 ;;
       #true
+    ) else (
+      #false
     ).
 
 Definition ws_bqueue_1_steal : val :=

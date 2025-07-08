@@ -17,17 +17,20 @@ let make fd =
 let closed =
   Closing (fun () -> ())
 
+let[@inline] finish t close state =
+  if t.ops == 0
+  && Atomic.Loc.compare_and_set [%atomic.loc t.state] state closed
+  then
+    close ()
+
 let put t =
   let old = Atomic.Loc.fetch_and_add [%atomic.loc t.ops] (-1) in
   if old == 1 then
     match t.state with
     | Open _ ->
         ()
-    | Closing no_users as prev ->
-        if t.ops <= 0
-        && Atomic.Loc.compare_and_set [%atomic.loc t.state] prev closed
-        then
-          no_users ()
+    | Closing close as state ->
+        finish t close state
 
 let get t =
   Atomic.Loc.incr [%atomic.loc t.ops] ;
@@ -51,14 +54,11 @@ let close t =
   match t.state with
   | Closing _ ->
       false
-  | Open fd as prev ->
+  | Open fd as state ->
       let close () = Unix.close fd in
-      let next = Closing close in
-      if Atomic.Loc.compare_and_set [%atomic.loc t.state] prev next then (
-        if t.ops == 0
-        && Atomic.Loc.compare_and_set [%atomic.loc t.state] next closed
-        then
-          close () ;
+      let new_state = Closing close in
+      if Atomic.Loc.compare_and_set [%atomic.loc t.state] state new_state then (
+        finish t close new_state ;
         true
       ) else (
         false
@@ -68,10 +68,10 @@ let remove t =
   match t.state with
   | Closing _ ->
       None
-  | Open fd as prev ->
+  | Open fd as state ->
       let waiter = Spsc_waiter.create () in
-      let next = Closing (fun () -> Spsc_waiter.notify waiter) in
-      if Atomic.Loc.compare_and_set [%atomic.loc t.state] prev next then (
+      let new_state = Closing (fun () -> Spsc_waiter.notify waiter) in
+      if Atomic.Loc.compare_and_set [%atomic.loc t.state] state new_state then (
         Spsc_waiter.wait waiter ;
         Some fd
       ) else (

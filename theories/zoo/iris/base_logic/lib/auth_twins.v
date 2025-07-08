@@ -220,7 +220,7 @@ Section auth_twins_G.
     iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
     iDestruct (ghost_var_agree_L with "Hvar1 Hvar3") as %<-.
     iCombine "Hvar1 Hvar2 Hvar3" as "Hvar". rewrite -Heq.
-    iMod (twins_update (twins_G := auth_twins_G_twins_G) a' a' with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)"; first done.
+    iMod (twins_update (twins_G := auth_twins_G_twins_G) a' with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)".
     iMod (auth_mono_alloc _ a') as "(%η' & Hauth')".
     iDestruct (auth_mono_lb_get with "Hauth'") as "#Hlb".
     iMod (ghost_var_update (ghost_var_G := auth_twins_G_var_G ) η' with "Hvar") as "Hvar".
@@ -237,7 +237,7 @@ Section auth_twins_G.
   Proof.
     iIntros "%Ha1 %Ha2 (:twin1 =1) (:twin2 =2 pref=)".
     iDestruct (ghost_var_agree_L with "Hvar1 Hvar2") as %<-.
-    iMod (twins_update' (twins_G := auth_twins_G_twins_G) a with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)".
+    iMod (twins_update (twins_G := auth_twins_G_twins_G) a with "Htwin1 Htwin2") as "(Htwin1 & Htwin2)".
     iDestruct (auth_mono_lb_mono with "Hlb1") as "#Hlb1'"; first done.
     iSteps.
   Qed.

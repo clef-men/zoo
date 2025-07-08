@@ -123,7 +123,7 @@ Section zoo_G.
     - rewrite Nat2Z.id -!list_fmap_insert.
       assert (₊(i - 1) = i - 1) as -> by lia.
       assert (<[j := next]> (take (i - 1) nexts) ++ [prev] = <[i - 1 := prev]> (<[j := next]> nexts)) as Heq.
-      { destruct (decide (j = i - 1)) as [-> | H].
+      { destruct_decide (j = i - 1) as -> | H.
         - rewrite list_insert_ge. { simpl_length. lia. }
           rewrite list_insert_insert insert_take_drop; first lia.
           rewrite skipn_all2 //; first lia.

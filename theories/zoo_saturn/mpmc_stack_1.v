@@ -122,7 +122,7 @@ Section zoo_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Lemma mpmc_stack_1_model_exclusive t vs1 vs2 :

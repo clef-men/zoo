@@ -192,7 +192,7 @@ Proof.
   - intros [[-> ?] | (Hl & j & ? & -> & ?)].
     { eexists 0. rewrite location_add_0. naive_solver lia. }
     eexists (1 + j)%Z. rewrite location_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
-  - intros (j & ? & -> & Hil). destruct (decide (j = 0)); simplify_eq/=.
+  - intros (j & ? & -> & Hil). destruct_decide (j = 0); simplify_eq/=.
     { rewrite location_add_0; eauto. }
     right. split.
     { rewrite -{1}(location_add_0 l). intros ?%(inj (location_add _)); lia. }

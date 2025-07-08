@@ -207,7 +207,7 @@ Section semiauth_twins_G.
   Proof.
     iIntros "% % (:twin1) (:twin2)".
     iMod (auth_twins_update_twins with "Hltwin1 Hltwin2") as "($ & $)"; [done.. |].
-    iMod (twins_update with "Hrtwin1 Hrtwin2") as "($ & $)"; [done.. |].
+    iMod (twins_update with "Hrtwin1 Hrtwin2") as "($ & $)".
     iSteps.
   Qed.
   Lemma semiauth_twins_update_twins_L `{!OfeDiscrete A} `{!LeibnizEquiv A} {γ a1 𝑎1 a2 𝑎2} a 𝑎 :
@@ -251,7 +251,7 @@ Section semiauth_twins_G.
       semiauth_twins_twin2 γ a2 𝑎.
   Proof.
     iIntros "(:twin1) (:twin2)".
-    iMod (twins_update with "Hrtwin1 Hrtwin2") as "($ & $)"; [done.. |].
+    iMod (twins_update with "Hrtwin1 Hrtwin2") as "($ & $)".
     iSteps.
   Qed.
 End semiauth_twins_G.

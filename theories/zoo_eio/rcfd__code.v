@@ -19,6 +19,12 @@ Definition rcfd_make : val :=
 Definition rcfd_closed : val :=
   ‘Closing[ fun: <> => () ].
 
+Definition rcfd_finish : val :=
+  fun: "t" "close" "state" =>
+    if: "t".{ops} == #0 and CAS "t".[state] "state" rcfd_closed then (
+      "close" ()
+    ).
+
 Definition rcfd_put : val :=
   fun: "t" =>
     let: "old" := FAA "t".[ops] #(-1) in
@@ -26,10 +32,8 @@ Definition rcfd_put : val :=
       match: "t".{state} with
       | Open <> =>
           ()
-      | Closing "no_users" as "prev" =>
-          if: "t".{ops} ≤ #0 and CAS "t".[state] "prev" rcfd_closed then (
-            "no_users" ()
-          )
+      | Closing "close" as "state" =>
+          rcfd_finish "t" "close" "state"
       end
     ).
 
@@ -60,15 +64,11 @@ Definition rcfd_close : val :=
     match: "t".{state} with
     | Closing <> =>
         #false
-    | Open "fd" as "prev" =>
+    | Open "fd" as "state" =>
         let: "close" <> := unix_close "fd" in
-        let: "next" := ‘Closing[ "close" ] in
-        if: CAS "t".[state] "prev" "next" then (
-          if: "t".{ops} == #0 and CAS "t".[state] "next" rcfd_closed then (
-            "close" ()
-          ) else (
-            ()
-          ) ;;
+        let: "new_state" := ‘Closing[ "close" ] in
+        if: CAS "t".[state] "state" "new_state" then (
+          rcfd_finish "t" "close" "new_state" ;;
           #true
         ) else (
           #false
@@ -80,12 +80,12 @@ Definition rcfd_remove : val :=
     match: "t".{state} with
     | Closing <> =>
         §None
-    | Open "fd" as "prev" =>
+    | Open "fd" as "state" =>
         let: "waiter" := spsc_waiter_create () in
-        let: "next" :=
+        let: "new_state" :=
           ‘Closing[ fun: <> => spsc_waiter_notify "waiter" ]
         in
-        if: CAS "t".[state] "prev" "next" then (
+        if: CAS "t".[state] "state" "new_state" then (
           spsc_waiter_wait "waiter" ;;
           ‘Some( "fd" )
         ) else (

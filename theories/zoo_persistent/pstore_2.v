@@ -601,7 +601,7 @@ Module raw.
       }
       iDestruct (big_sepM_insert_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.
       wp_load. wp_pures.
-      destruct (decide (g = 0)) as [-> | Hg].
+      destruct_decide (g = 0) as -> | Hg.
 
       - assert (g_r = 0) as -> by lia.
         rewrite bool_decide_eq_true_2 //. wp_pures.
@@ -613,7 +613,7 @@ Module raw.
         iSplitL. { rewrite insert_union_l //. }
         iPureIntro. split; first set_solver. apply map_Forall_insert_2; done.
 
-      - destruct (decide (g = g_r)) as [<- | Hcase].
+      - destruct_decide (g = g_r) as <- | Hcase.
 
         + rewrite bool_decide_eq_true_2 //.
           wp_store.
@@ -636,7 +636,7 @@ Module raw.
               opose proof* (map_Forall_lookup_1 _ descr.(descriptor_store)); [done.. |].
               naive_solver lia.
             - rewrite deltas_apply_snoc /=.
-              destruct (decide (r = r')) as [<- | Hr'].
+              destruct_decide (r = r') as <- | Hr'.
               + rewrite deltas_apply_snoc /= in Hδs.
                 rewrite insert_insert //.
               + rewrite insert_commute //.
@@ -667,7 +667,7 @@ Module raw.
             - naive_solver lia.
           } {
             eapply Forall_impl; first done. intros (r', g', v', node) H.
-            destruct (decide (r = r')) as [<- | Hr'].
+            destruct_decide (r = r') as <- | Hr'.
             - rewrite lookup_insert. naive_solver.
             - rewrite lookup_insert_ne //.
           }
@@ -769,7 +769,7 @@ Module raw.
             rewrite lookup_delete // in Hdescrs_lookup.
           }
           iAssert ⌜descrs !! root = None⌝%I as %Hdescrs_lookup_root.
-          { destruct (decide (root = base)) as [-> | Hcase].
+          { destruct_decide (root = base) as -> | Hcase.
             - iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hbase & _)".
               iDestruct (pointsto_exclusive with "Hroot Hbase") as %[].
             - rewrite -eq_None_ne_Some. iIntros "%descr' %Hdescrs_lookup".
@@ -981,7 +981,7 @@ Module raw.
       simpl in *.
 
       wp_rec.
-      destruct (decide (cnode = base)) as [-> | Hcnode].
+      destruct_decide (cnode = base) as -> | Hcnode.
 
       - apply treemap_path_is_nil in Hpath as ->; last done.
         destruct δs as [| δ δs].
@@ -1427,9 +1427,9 @@ Module raw.
       { iDestruct (descriptors_lookup with "Hmodel Helem_base'") as %[]%lookup_empty_Some. }
       iDecompose "Hmodel" as (descrs ϵs base descr δs Hϵs Hdescrs_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hdescrs".
       iDestruct (descriptors_lookup with "Hauth Helem_base'") as %Hdescrs_lookup_base'.
-      destruct (decide (base' = root)) as [-> | Hbase'].
+      destruct_decide (base' = root) as -> | Hbase'.
 
-      - destruct (decide (root = base)) as [-> | Hroot]; last first.
+      - destruct_decide (root = base) as -> | Hroot; last first.
         { assert (delete base descrs !! root = Some descr') as Hdelete_descrs_lookup_root.
           { rewrite lookup_delete_ne //. }
           iAssert (∃ ϵ, ⌜ϵs !! root = Some ϵ⌝)%I as "(%ϵ & %Hϵs_lookup_root)".
@@ -1452,7 +1452,7 @@ Module raw.
         specialize (Hδs_nil eq_refl) as ->.
         iSteps. rewrite decide_False //. iSteps.
 
-      - destruct (decide (base' = base)) as [-> | Hbase'_].
+      - destruct_decide (base' = base) as -> | Hbase'_.
 
         + assert (descr = descr') as <- by congruence.
           destruct δs as [| δ δs].

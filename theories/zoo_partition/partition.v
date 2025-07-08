@@ -200,7 +200,7 @@ Section partition_G.
       ⌜descr1 = descr2⌝.
   Proof.
     iIntros (Hdescrs_lookup_1 (i1 & Helts1_lookup)%elem_of_list_lookup Hdescrs_lookup_2 (i2 & Helts2_lookup)%elem_of_list_lookup) "(:model')".
-    destruct (decide (class1 = class2)) as [<- | Hneq]; first naive_solver.
+    destruct_decide (class1 = class2) as <- | Hneq; first naive_solver.
     iDestruct (big_sepM_delete _ _ class1 with "Hdescrs") as "((:descriptor_model =1) & Hdescrs)"; first done.
     iDestruct (big_sepM_lookup _ _ class2 with "Hdescrs") as "(:descriptor_model =2)".
     { rewrite lookup_delete_ne //. }

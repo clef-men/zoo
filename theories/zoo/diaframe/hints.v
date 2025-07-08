@@ -126,7 +126,7 @@ Section instances.
     Proof.
       move => b Pin Pout [-> ->].
       rewrite bi.intuitionistically_if_elim.
-      destruct (decide (pid = pid')) as [-> | Hneq]; iSteps.
+      destruct_decide (pid = pid') as -> | Hneq; iSteps.
     Qed.
   End mergable.
 

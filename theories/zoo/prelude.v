@@ -1,6 +1,10 @@
-From zoo.prelude Require Export
-  base
-  tactics.
+From Coq.ssr Require Export
+  ssreflect.
+
+From stdpp Require Export
+  prelude.
+
+Open Scope general_if_scope.
 
 Coercion Z.of_nat : nat >-> Z.
 

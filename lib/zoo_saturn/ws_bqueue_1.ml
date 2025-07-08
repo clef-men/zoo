@@ -22,12 +22,12 @@ let push t v =
   let back = t.back in
   let data = t.data in
   let cap = Array.size data in
-  if front + cap == back then (
-    false
-  ) else (
+  if back < front + cap then (
     Array.unsafe_cset data back v ;
     t.back <- back + 1 ;
     true
+  ) else (
+    false
   )
 
 let rec steal t =

@@ -178,9 +178,9 @@ Section ws_bqueue_1_G.
     winner_steal γ front P2.
   #[local] Instance : CustomIpatFormat "winner" :=
     "(
-      %front{} &
-      %P1 &
-      %P2 &
+      %front_winner &
+      %P_winner_1 &
+      %P_winner_2 &
       Hwinner_pop{_{}} &
       Hwinner_steal{_{}}
     )".
@@ -231,9 +231,8 @@ Section ws_bqueue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_empty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -256,9 +255,8 @@ Section ws_bqueue_1_G.
     ).
   #[local] Instance : CustomIpatFormat "inv_state_nonempty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -267,7 +265,8 @@ Section ws_bqueue_1_G.
       #Hhistory_at_front{} &
       Hwinner
     )".
-  #[local] Definition inv_state_nonempty_steal γ stable front back hist vs prophs P : iProp Σ :=
+  #[local] Definition inv_state_nonempty_steal γ state stable front back hist vs prophs P : iProp Σ :=
+    ⌜state = Nonempty⌝ ∗
     ⌜stable = Stable⌝ ∗
     ⌜front < back⌝ ∗
     ⌜length hist = S front⌝ ∗
@@ -280,9 +279,9 @@ Section ws_bqueue_1_G.
     end.
   #[local] Instance : CustomIpatFormat "inv_state_nonempty_steal" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -303,9 +302,8 @@ Section ws_bqueue_1_G.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish" :=
     "(
       %P_ &
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -314,7 +312,8 @@ Section ws_bqueue_1_G.
       #Hhistory_at_front{} &
       Hwinner
     )".
-  #[local] Definition inv_state_emptyish_pop γ stable front back hist priv P : iProp Σ :=
+  #[local] Definition inv_state_emptyish_pop γ state stable front back hist priv P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
     ⌜stable = Unstable⌝ ∗
     ⌜front = back⌝ ∗
     ⌜length hist = S front⌝ ∗
@@ -322,9 +321,9 @@ Section ws_bqueue_1_G.
     winner_pop γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_pop" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -333,7 +332,8 @@ Section ws_bqueue_1_G.
       #Hhistory_at_front{} &
       Hwinner_pop
     )".
-  #[local] Definition inv_state_emptyish_steal γ stable front back hist priv P : iProp Σ :=
+  #[local] Definition inv_state_emptyish_steal γ state stable front back hist priv P : iProp Σ :=
+    ⌜state = Emptyish⌝ ∗
     ⌜stable = Unstable⌝ ∗
     ⌜front = back⌝ ∗
     ⌜length hist = S front⌝ ∗
@@ -341,9 +341,9 @@ Section ws_bqueue_1_G.
     winner_linearized γ front P.
   #[local] Instance : CustomIpatFormat "inv_state_emptyish_steal" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      {>;}-> &
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -359,9 +359,8 @@ Section ws_bqueue_1_G.
     winner γ.
   #[local] Instance : CustomIpatFormat "inv_state_superempty" :=
     "(
-      { {lazy}{>}%Hstate{}
-      ; {lazy}%Hstate{}
-      ; {lazy}%Hstate
+      { {lazy}{>}%
+      ; {lazy}%
       ; {>}->
       ; ->
       } &
@@ -426,7 +425,6 @@ Section ws_bqueue_1_G.
     l.[capacity] ↦□ #γ.(metadata_capacity) ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     l.[proph] ↦□ #γ.(metadata_prophet) ∗
-    array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv'" :=
     "(
@@ -434,7 +432,6 @@ Section ws_bqueue_1_G.
       #Hl_capacity &
       #Hl_data &
       #Hl_proph &
-      #Hdata_inv &
       #Hinv
     )".
   Definition ws_bqueue_1_inv t ι cap : iProp Σ :=
@@ -526,8 +523,8 @@ Section ws_bqueue_1_G.
       owner₂' γ_owner Stable 1.
   Proof.
     iMod (auth_twins_alloc _ (auth_twins_G := ws_bqueue_1_G_model_G)) as "(%γ_model & Hmodel_auth & Hmodel₁ & Hmodel₂)".
-    iMod (twins_alloc' (twins_G := ws_bqueue_1_G_owner_G) (Stable, 1)) as "(%γ_owner & Howner₁ & Howner₂)".
-    iSteps.
+    iMod (twins_alloc' (twins_G := ws_bqueue_1_G_owner_G)) as "(%γ_owner & Howner₁ & Howner₂)".
+    iFrameSteps.
   Qed.
   #[local] Lemma model₁_valid γ stable back ws vs :
     owner₁ γ stable back ws -∗
@@ -643,7 +640,7 @@ Section ws_bqueue_1_G.
       owner₂ γ stable back.
   Proof.
     iIntros "(:owner₁) Howner₂".
-    iMod (twins_update' with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+    iMod (twins_update with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
     iSteps.
   Qed.
 
@@ -777,7 +774,7 @@ Section ws_bqueue_1_G.
       winner_pop γ front P ∗
       winner_steal γ front P.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Opaque owner₁'.
@@ -887,14 +884,14 @@ Section ws_bqueue_1_G.
     - iDestruct "Hstate" as "(:inv_state_emptyish lazy=)". lia.
     - done.
   Qed.
-  #[local] Lemma inv_state_winner_pop γ state stable front2 back hist vs priv prophs front1 P :
+  #[local] Lemma inv_state_winner_pop γ state stable front1 back hist vs priv prophs front2 P :
     inv_state γ state stable front1 back hist vs priv prophs -∗
     winner_pop γ front2 P -∗
       ∃ P_,
       ⌜front1 = front2⌝ ∗
       ▷ (P ≡ P_) ∗
-      ( inv_state_nonempty_steal γ stable front2 back hist vs prophs P_
-      ∨ inv_state_emptyish_steal γ stable front2 back hist priv P_
+      ( inv_state_nonempty_steal γ state stable front2 back hist vs prophs P_
+      ∨ inv_state_emptyish_steal γ state stable front2 back hist priv P_
       ) ∗
       winner_pop γ front2 P.
   Proof.
@@ -919,13 +916,13 @@ Section ws_bqueue_1_G.
       iDestruct "Hwinner" as "(:winner =3)".
       iDestruct (winner_pop_exclusive with "Hwinner_pop Hwinner_pop_3") as %[].
   Qed.
-  #[local] Lemma inv_state_winner_steal γ state stable front2 back hist vs priv prophs front1 P :
+  #[local] Lemma inv_state_winner_steal γ state stable front1 back hist vs priv prophs front2 P :
     inv_state γ state stable front1 back hist vs priv prophs -∗
     winner_steal γ front2 P -∗
       ∃ P_,
       ⌜front1 = front2⌝ ∗
       ▷ (P_ ≡ P) ∗
-      inv_state_emptyish_pop γ stable front2 back hist priv P_ ∗
+      inv_state_emptyish_pop γ state stable front2 back hist priv P_ ∗
       winner_steal γ front2 P.
   Proof.
     iIntros "Hstate Hwinner_steal".
@@ -972,7 +969,6 @@ Section ws_bqueue_1_G.
     wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hdata_model"; first lia.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
     iEval (simpl_length) in "Hdata_cslice".
-    iDestruct (array_cslice_to_inv with "Hdata_cslice") as "#Hdata_inv".
     iDestruct (array_cslice_rotate_right_0 1 with "Hdata_cslice") as "Hdata_cslice"; [lia | simpl_length |].
     iEval (rewrite list.rotate_replicate) in "Hdata_cslice".
     iDestruct "Hdata_cslice" as "(Hdata_cslice₁ & Hdata_cslice₂)".
@@ -1003,7 +999,7 @@ Section ws_bqueue_1_G.
 
     iApply "HΦ".
     iSplitR "Hmodel₁ Howner₁ Hdata_cslice₂".
-    - iExists l, γ. unshelve iStep 9; first iSteps.
+    - iExists l, γ. unshelve iStep 8; first iSteps.
       iApply inv_alloc.
       iExists Empty, Stable, 1, 1, [()%V], [], (replicate ₊cap ()%V), (λ _, []), prophss. iFrameSteps.
       simpl_length.
@@ -1199,7 +1195,7 @@ Section ws_bqueue_1_G.
     iIntros "%Hi %Φ (:inv') HΦ".
 
     iApply wp_fupd.
-    awp_apply (array_unsafe_cget_spec_atomic_weak with "Hdata_inv") without "HΦ"; [done.. |].
+    awp_apply (array_unsafe_cget_spec_atomic_weak with "[//]") without "HΦ"; first done.
     iInv "Hinv" as "(:inv_inner)".
     rewrite /atomic_acc /=.
     iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
@@ -1341,7 +1337,7 @@ Section ws_bqueue_1_G.
     iInv "Hinv" as "(:inv_inner =3)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
-    wp_cas as Hcas; zoo_simpl; last lia.
+    wp_cas as Hcas; zoo_simplify in Hcas; last lia.
     iIntros "!> %prophs %Hprophss3 Hprophet_model".
     iSplitR "HΦ".
     { iFrameSteps.
@@ -1372,7 +1368,7 @@ Section ws_bqueue_1_G.
     wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; first subst front1.
 
     - iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %->.
       rewrite fn_lookup_alter Hpasts1 // in Hloser.
@@ -1407,7 +1403,7 @@ Section ws_bqueue_1_G.
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
     rewrite Hprophss1.
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; last congruence.
     iMod (front_update with "Hfront_auth") as "Hfront_auth".
     iDestruct "Hstate" as "[(:inv_state_nonempty_steal =1) | (:inv_state_emptyish_steal =1)]".
 
@@ -1421,8 +1417,9 @@ Section ws_bqueue_1_G.
 
       iDestruct (array_cslice_rotate_right_1' (S front) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia | ].
       eassert (list.rotate _ _ = vs1 ++ priv1 ++ [v1]) as ->.
-      { destruct (decide (γ.(metadata_capacity) = 1)) as [Heq |].
-        - rewrite -> Heq in *. simpl in *.
+      { destruct_decide (γ.(metadata_capacity) = 1) as Heq | ?.
+        - rewrite -> Heq in *.
+          simpl in Hdata1.
           assert (length vs1 = 0) as ->%nil_length_inv by lia.
           assert (length priv1 = 0) as ->%nil_length_inv by lia.
           done.
@@ -1432,7 +1429,7 @@ Section ws_bqueue_1_G.
       }
 
       iSplitR "HP HΦ".
-      { destruct (decide (S front = back1)) as [<- |].
+      { destruct_decide (S front = back1) as <- | ?.
 
         - simpl in Hvs1.
           iExists Empty. iFrameSteps; iPureIntro.
@@ -1491,7 +1488,7 @@ Section ws_bqueue_1_G.
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv_state_emptyish_pop =1) & Hwinner_steal)".
-    destruct b; zoo_simpl.
+    destruct b; zoo_simplify in Hcas; last congruence.
     iMod (front_update with "Hfront_auth") as "Hfront_auth".
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
 
@@ -1534,7 +1531,7 @@ Section ws_bqueue_1_G.
 
     - iDestruct "Hstate" as "(:inv_state_empty =1 lazy=)".
       assert (length vs1 = 0) as ->%nil_length_inv by lia.
-      destruct b; zoo_simpl.
+      destruct b; zoo_simplify in Hcas; last lia.
 
       iMod (front_update with "Hfront_auth") as "Hfront_auth".
       iClear "Hfront_lb". iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
@@ -1552,7 +1549,7 @@ Section ws_bqueue_1_G.
           apply Hpasts1; first lia.
         - simpl_length/=. lia.
       }
-      iSteps.
+      rewrite Hhist1. iSteps.
 
     - iDestruct "Hstate" as "(:inv_state_nonempty =1 lazy=)".
       exfalso. lia.
@@ -1585,25 +1582,9 @@ Section ws_bqueue_1_G.
     wp_load.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <-).
 
-    destruct (decide (front1 + γ.(metadata_capacity) = back)) as [Hif |].
+    destruct_decide (back < front1 + γ.(metadata_capacity)) as Hif.
 
-    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
-      rewrite bool_decide_eq_false_2; first lia.
-      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
-
-      iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
-      iModIntro. clear- Hcapacity Hus Hif.
-
-      wp_smart_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
-      wp_load.
-      wp_smart_apply (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
-      iSteps.
-
-    - assert (back < front1 + γ.(metadata_capacity)) as Hif by lia.
-
-      iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
+    - iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
       iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
       iModIntro. clear- Hcapacity Hus Hif.
 
@@ -1611,7 +1592,7 @@ Section ws_bqueue_1_G.
       wp_load.
       wp_smart_apply (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
       wp_pures.
-      rewrite bool_decide_eq_false_2; first lia.
+      rewrite bool_decide_eq_true_2; first lia.
       wp_smart_apply (array_unsafe_cset_spec_owner with "[$Howner₁ $Hdata_cslice₂]") as "(:owner' !=)"; [done | iSteps |].
       wp_pures.
 
@@ -1624,7 +1605,7 @@ Section ws_bqueue_1_G.
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
 
       iAssert ⌜head priv2 = Some v⌝%I as %(priv2' & ->)%head_Some.
-      { iDestruct (array_cslice_rotate_right_small_1' back (length vs2) with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length | lia.. |].
+      { iDestruct (array_cslice_rotate_right_small_1' back (length vs2) with "Hdata_cslice₁") as "Hdata_cslice₁"; [done | simpl_length | lia.. |].
         rewrite /list.rotate drop_app_length.
         rewrite head_lookup -(lookup_app_l _ (take (length vs2) (vs2 ++ priv2))); first lia.
         iDestruct (array_cslice_agree with "Hdata_cslice₁ Hdata_cslice₂") as %->.
@@ -1637,8 +1618,8 @@ Section ws_bqueue_1_G.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
       iMod (model_push v with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! true with "[Hmodel₁]") as "HΦ".
-      { iFrameSteps; iPureIntro.
+      iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ".
+      { iSteps; iPureIntro.
         - rewrite bool_decide_eq_true_2 //; first lia.
         - simpl_length/=. lia.
       }
@@ -1662,6 +1643,20 @@ Section ws_bqueue_1_G.
       iModIntro. clear- Hcapacity Hus.
 
       iSteps. iPureIntro. simpl_length.
+
+    - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+      iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+      rewrite bool_decide_eq_false_2; first lia.
+      iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+
+      iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
+      iModIntro. clear- Hcapacity Hus Hif.
+
+      wp_smart_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
+      wp_load.
+      wp_smart_apply (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
+      iSteps.
   Qed.
 
   Lemma ws_bqueue_1_steal_spec t ι cap :
@@ -1691,7 +1686,7 @@ Section ws_bqueue_1_G.
     wp_load.
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb_1") as %?.
 
-    destruct (decide (front1 < back2)) as [Hbranch1 | Hbranch1]; last first.
+    destruct_decide (front1 < back2) as Hbranch1; last first.
     { assert (length vs2 = 0) as ->%nil_length_inv by lia.
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
@@ -1703,7 +1698,7 @@ Section ws_bqueue_1_G.
       iSteps.
     }
 
-    destruct (decide (front1 = front2)) as [<- |]; last first.
+    destruct_decide (front1 = front2) as <- | ?; last first.
     { assert (front1 < front2) as Hbranch2 by lia.
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_2".
       iSplitR "HΦ". { iFrameSteps. }
@@ -1721,7 +1716,7 @@ Section ws_bqueue_1_G.
     iDestruct (wise_prophets_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
     iEval (rewrite Hpasts2 //=) in "Hprophet_full".
 
-    destruct (decide (head $ prophss2 front1 = Some id)) as [(prophs0 & Hbranch3)%head_Some | Hbranch3]; last first.
+    destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
     { iSplitR "HΦ". { iFrameSteps. }
       remember (prophss2 front1) as prophs0.
       iModIntro. clear- Hcapacity Hbranch1 Hbranch3.
@@ -1823,7 +1818,7 @@ Section ws_bqueue_1_G.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_pures.
-      case_bool_decide as Hbranch.
+      case_bool_decide as Hbranch; wp_pures.
 
       + wp_load.
         wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂"); [done.. | lia |].
@@ -1949,7 +1944,7 @@ Section ws_bqueue_1_G.
     simpl_length/= in Hvs1.
     simpl_length/= in Hdata1.
 
-    destruct (decide (S front1 = back)) as [<- | Hbranch1].
+    destruct_decide (S front1 = back) as <- | Hbranch1.
 
     - assert (length vs1 = 0) as ->%nil_length_inv.
       { simpl_length/= in Hvs1. lia. }
@@ -1963,7 +1958,7 @@ Section ws_bqueue_1_G.
 
       iMod (owner_update Unstable front1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-      destruct (decide (head $ prophss1 front1 = Some id)) as [(prophs0 & Hprophss1)%head_Some | Hbranch2].
+      destruct_decide (head $ prophss1 front1 = Some id) as (prophs0 & Hprophss1)%head_Some | Hbranch2.
 
       + rewrite Hprophss1.
         iDestruct "Hwinner" as "[(:winner) | (:winner_pending_2 !=)]"; last first.

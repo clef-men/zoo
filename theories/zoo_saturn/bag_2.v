@@ -349,7 +349,7 @@ Section bag_2_G.
     - apply map_Forall_insert_2.
       + rewrite lookup_insert //.
       + eapply map_Forall_impl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
-        destruct (decide (node' = node)) as [-> |].
+        destruct_decide (node' = node) as -> | ?.
         * simplify.
         * rewrite lookup_insert_ne //.
           intros ?%(inj _)%descriptor_to_producer_inj. done.
@@ -415,7 +415,7 @@ Section bag_2_G.
       model₁ γ vss ∗
       model₂ γ vss.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   Opaque queues_auth'.
@@ -537,7 +537,7 @@ Section bag_2_G.
     iInv "Hinv" as "(:inv_inner =2)".
     wp_cas as Hcas; first iSteps.
     assert (head nodes1 = head nodes2) as ->.
-    { destruct nodes1, nodes2; zoo_simpl; done. }
+    { destruct nodes1, nodes2; zoo_simplify; done. }
     iDestruct (xtchain_cons_2 with "Hnode_header [] Hnodes2") as "Hnodes"; first iSteps.
 
     iAssert ⌜descrs2 !! node = None⌝%I as %Hdescr2_lookup.

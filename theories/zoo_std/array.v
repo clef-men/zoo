@@ -766,12 +766,22 @@ Section zoo_G.
       setoid_rewrite chunk_cslice_shift at 1.
       done.
     Qed.
+
     Lemma array_cslice_shift_right t sz i dq vs :
       array_cslice t sz i dq vs ⊢
       array_cslice t sz (i + sz) dq vs.
     Proof.
       rewrite array_cslice_shift //.
     Qed.
+    Lemma array_cslice_shift_right' {t sz i1 dq vs} i2 :
+      i2 = i1 + sz →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq vs.
+    Proof.
+      intros ->.
+      apply array_cslice_shift_right.
+    Qed.
+
     Lemma array_cslice_shift_left t sz i dq vs :
       sz ≤ i →
       array_cslice t sz i dq vs ⊢
@@ -932,6 +942,50 @@ Section zoo_G.
     Proof.
       intros.
       rewrite array_cslice_rotate_left' //.
+    Qed.
+
+    Lemma array_cslice_rotate_left_small t sz i n dq vs :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz (i + n) dq vs ⊣⊢
+      array_cslice t sz i dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left // Nat.mod_small //.
+    Qed.
+    Lemma array_cslice_rotate_left_small_1 t sz i n dq vs :
+      0 < sz →
+      length vs = sz →
+      n < sz →
+      array_cslice t sz (i + n) dq vs ⊢
+      array_cslice t sz i dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left_small //.
+    Qed.
+
+    Lemma array_cslice_rotate_left_small' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊣⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n) vs).
+    Proof.
+      intros Hsz Hvs -> Hn.
+      rewrite array_cslice_rotate_left_small //.
+    Qed.
+    Lemma array_cslice_rotate_left_small_1' {t sz i1 dq vs} i2 n :
+      0 < sz →
+      length vs = sz →
+      i1 = i2 + n →
+      n < sz →
+      array_cslice t sz i1 dq vs ⊢
+      array_cslice t sz i2 dq (list.rotate (sz - n) vs).
+    Proof.
+      intros.
+      rewrite array_cslice_rotate_left_small' //.
     Qed.
 
     Lemma array_cslice_rebase {t sz i1 dq vs1} i2 :
@@ -6352,13 +6406,13 @@ Section zoo_G.
     iApply ("HΦ" with "[H↦ Hcslice] H£").
     iSteps.
   Qed.
-  Lemma array_unsafe_cget_spec_atomic_weak t sz (i : Z) :
-    0 < sz →
+  Lemma array_unsafe_cget_spec_atomic_weak t (i : Z) :
     (0 ≤ i)%Z →
     <<<
-      array_inv t sz
-    | ∀∀ j dq vs,
+      True
+    | ∀∀ sz j dq vs,
       array_cslice t sz j dq vs ∗
+      ⌜0 < sz⌝ ∗
       ⌜length vs = sz⌝
     >>>
       array_unsafe_cget t #i
@@ -6369,10 +6423,10 @@ Section zoo_G.
       £ 1
     >>>.
   Proof.
-    iIntros "%Hsz %Hi %Φ #Hinv HΦ".
+    iIntros "%Hi %Φ _ HΦ".
 
     awp_apply (array_unsafe_cget_spec_atomic with "[//]").
-    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %Hvs)".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%sz %j %dq %vs (Hcslice & %Hsz & %Hvs)".
     iDestruct (array_cslice_rebase with "Hcslice") as "(%ws & %n & %Hws & Hcslice)"; [done.. |].
     rewrite /atomic_acc /=.
     destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup).

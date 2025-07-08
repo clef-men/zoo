@@ -9,26 +9,26 @@ type 'a t =
     proph: (bool, int * Zoo.id) Zoo.proph;
   }
 
-let[@zoo.opaque] min_capacity =
-  1 lsl 4
+let min_capacity =
+  16
 
 let create () =
-  { front= 0;
-    back= 0;
+  { front= 1;
+    back= 1;
     data= Array.unsafe_make min_capacity (Obj.magic ());
     proph= Zoo.proph ();
   }
 
 let push t v =
-  let front = t.front in
   let back = t.back in
   let data = t.data in
   let cap = Array.size data in
+  let front = t.front in
   if back < front + cap then (
     Array.unsafe_cset data back v
   ) else (
     let new_cap = cap lsl 1 in
-    let new_data = Array.unsafe_cgrow_slice data front (back - front) new_cap (Obj.magic ()) in
+    let new_data = Array.unsafe_cgrow data front new_cap (Obj.magic ()) in
     Array.unsafe_cset new_data back v ;
     t.data <- new_data
   ) ;
@@ -54,10 +54,7 @@ let rec steal t =
       steal t
     )
 
-let pop t =
-  let id = Zoo.id () in
-  let back = t.back - 1 in
-  t.back <- back ;
+let[@inline] pop t id back =
   let front = t.front in
   if back < front then (
     t.back <- front ;
@@ -65,14 +62,12 @@ let pop t =
   ) else if front < back then (
     let data = t.data in
     let cap = Array.size data in
-    let v = Array.unsafe_cget data back in
-    let sz = back - front in
-    if min_capacity + 3 * sz <= cap then (
+    if min_capacity + 3 * (back - front) <= cap then (
       let new_cap = cap lsr 1 in
       let new_data = Array.unsafe_cshrink_slice data front new_cap in
       t.data <- new_data
     ) ;
-    Some v
+    Some (Array.unsafe_cget data back)
   ) else (
     let won =
       Zoo.resolve_with (
@@ -81,8 +76,12 @@ let pop t =
     in
     t.back <- front + 1 ;
     if won then
-      let v = Array.unsafe_cget t.data back in
-      Some v
+      Some (Array.unsafe_cget t.data front)
     else
       None
   )
+let pop t =
+  let id = Zoo.id () in
+  let back = t.back - 1 in
+  t.back <- back ;
+  pop t id back

@@ -498,7 +498,7 @@ Section vertex_G.
       state₁ γ Own state ∗
       state₂ γ state.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
   #[local] Lemma state₁_discard γ state :
     state₁ γ Own state ⊢ |==>
@@ -535,7 +535,7 @@ Section vertex_G.
       generation₁ γ generation ∗
       generation₂ γ generation.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   #[local] Lemma dependencies_alloc :
@@ -1001,7 +1001,7 @@ Section vertex_G.
       iDestruct (generation_agree with "Hgeneration₁ Hgeneration₂") as %<-.
       iDestruct "Hinv_state" as "(:inv_state_init =1)".
 
-      destruct (decide (size Π = 0)) as [->%gmultiset_size_empty_inv | HΠ].
+      destruct_decide (size Π = 0) as ->%gmultiset_size_empty_inv | HΠ.
 
       - rewrite gmultiset_size_empty right_id.
         iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
@@ -1050,7 +1050,7 @@ Section vertex_G.
       - iDestruct "Hinv_state" as "(:inv_state_released)".
         iDestruct (big_sepMS_insert_2 with "HΔ Hπ") as "-##HΔ".
         iEval (rewrite (comm (⊎))) in "HΔ".
-        destruct (decide (size Π = 1)) as [HΠ |].
+        destruct_decide (size Π = 1) as HΠ.
 
         + rewrite HΠ.
           assert (Π = {[+π+]}) as ->.

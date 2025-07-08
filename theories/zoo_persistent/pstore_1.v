@@ -32,7 +32,7 @@ Section map.
     σ1 ⊆ σ2 →
     <[l:=v]>σ1 ⊆ <[l:=v]>σ2.
   Proof.
-    intros ? l'. destruct_decide (decide (l=l')).
+    intros ? l'. destruct_decide (l = l').
     { subst. rewrite !lookup_insert //. }
     { rewrite !lookup_insert_ne //. }
   Qed.
@@ -42,7 +42,7 @@ Section map.
     σ1 ⊆ σ2 →
     σ1 ⊆ <[l:=v]>σ2.
   Proof.
-    intros ?? l'. destruct_decide (decide (l=l')).
+    intros ?? l'. destruct_decide (l = l').
     { subst. rewrite lookup_insert // not_elem_of_dom_1 //. }
     { rewrite !lookup_insert_ne //. }
   Qed.
@@ -124,7 +124,7 @@ Section graph.
     replace ({[x]} ∪ X ∪ g2) with (X ∪ ({[x]} ∪ g2)) by set_solver.
     rewrite (union_comm_L _  X).
     rewrite !IHg1. rewrite -union_assoc_L. f_equal.
-    destruct_decide (decide (x ∈ g2)).
+    destruct_decide (x ∈ g2).
     { replace ({[x]} ∪ g2) with g2 by set_solver.
       rewrite vertices_singleton.
       assert ({[proj1 x; proj3 x]} ⊆ vertices g2); last by set_solver.
@@ -265,7 +265,7 @@ Section graph.
     path g x ds x.
   Proof.
     intros.
-    destruct_decide (decide (x=r')).
+    destruct_decide (x = r').
     { subst. inversion H3. apply path_nil. subst. exfalso. apply H2. apply elem_of_vertices. set_solver. }
     eapply path_cycle_end_inv_aux; last done. all:done.
   Qed.
@@ -614,7 +614,7 @@ Section pstore_1_G.
     ⌜unaliased g⌝.
   Proof.
     iIntros "Hg" (???????).
-    destruct_decide (decide (a0 = a2 ∧ a1 = a3)). done.
+    destruct_decide (a0 = a2 ∧ a1 = a3); first done.
     rewrite (big_sepS_delete _ _ (a, a0, a1)). set_solver.
     rewrite (big_sepS_delete _ _ (a, a2, a3)). set_solver.
     iDestruct "Hg" as "(?&?&_)". destruct a0,a2.
@@ -838,14 +838,14 @@ Section pstore_1_G.
         { apply gmap_included_insert. done. }
         { rewrite lookup_insert //. }
         { intros r1 ds r2 σ1 σ2 Hreach.
-          destruct_decide (decide (r'=r1)).
+          destruct_decide (r' = r1).
           { subst. rewrite lookup_insert. inversion_clear 1.
             inversion Hreach. subst.
             2:{ exfalso. subst. rewrite /edge elem_of_union in H0.
                 destruct H0. set_solver. apply Hr'. apply elem_of_vertices. set_solver. }
             rewrite lookup_insert. inversion 1. done. }
           rewrite lookup_insert_ne //. intros E1.
-          destruct_decide (decide (r2=r')).
+          destruct_decide (r2 = r').
           { subst. rewrite lookup_insert. inversion 1. subst.
             apply path_add_inv_r in Hreach; try done.
             destruct Hreach as [(->&->)|(ds'&->&Hreach)].
@@ -856,7 +856,7 @@ Section pstore_1_G.
             apply path_cycle_end_inv_aux in Hreach; eauto. } } }
       { destruct Hcoh as [X1 X2].
         constructor.
-        { intros r0 ?. destruct_decide (decide (r0=r')).
+        { intros r0 ?. destruct_decide (r0 = r').
           { subst. rewrite lookup_insert. inversion 1. done. }
           rewrite lookup_insert_ne //. intros HM.
           apply X1 in HM. rewrite dom_insert_lookup_L //. }
@@ -865,7 +865,7 @@ Section pstore_1_G.
     { iDestruct "HC" as "[% [% (%Hsnapshot&?&?)]]". iExists _,C. iFrame.
       iPureIntro.
       intros r0 ? HC. apply Hsnapshot in HC. destruct HC as (?&HC&?).
-      destruct_decide (decide (r0=r')).
+      destruct_decide (r0 = r').
       { exfalso. subst. destruct Hinv as [X1 X2 X3].
         assert (r' ∉ dom M) as F by set_solver. apply F. by eapply elem_of_dom. }
       rewrite lookup_insert_ne //. eauto. }
@@ -957,7 +957,7 @@ Section pstore_1_G.
     { set_solver. }
     rewrite -app_comm_cons. inversion 1. subst.
     rewrite list_to_set_cons.
-    destruct_decide (decide ((r0, x, r1) = (r, b, a2))) as X.
+    destruct_decide ((r0, x, r1) = (r, b, a2)) as X.
     { inversion X. subst. intros _. clear IHxs.
       rewrite app_comm_cons in H0. apply path_snoc_inv in H0.
       destruct H0 as (?&?&?). subst a2.
@@ -1147,7 +1147,7 @@ Section pstore_1_G.
     revert xs σ. induction ys as [|(?,?)]. set_solver.
     intros xs σ. inversion 1. subst.
     simpl. rewrite !fmap_app list_to_set_app_L. simpl in *. subst.
-    destruct_decide (decide ((r, (l, v), r') = (r'0, (l1, v'), l0))) as Heq.
+    destruct_decide ((r, (l, v), r') = (r'0, (l1, v'), l0)) as Heq.
     { inversion Heq. subst. intros _. set_solver. }
     intros ?. simpl. apply elem_of_union. left. eapply IHys. done. set_solver.
   Qed.
@@ -1181,7 +1181,7 @@ Section pstore_1_G.
     { exists (xs1 ++ [(y, b', r)]),nil,nil. rewrite right_id. split_and !; try done.
       unfold diff_last. destruct (last (xs1 ++ [(y, b', r)])); try done. }
 
-    destruct_decide (decide (y'=y)); last first.
+    destruct_decide (y' = y); last first.
     { eexists _,_,nil. rewrite !right_id_L. split_and!; try done.
       unfold diff_last. rewrite !last_app. simpl. naive_solver. }
     subst.
@@ -1271,12 +1271,12 @@ Section pstore_1_G.
     induction 1.
     left. eauto using path_nil.
     destruct IHpath as [|(x&?&?&?&?&?&?&->)].
-    { destruct_decide (decide ((a1,b,a2) ∈ g1)).
+    { destruct_decide ((a1,b,a2) ∈ g1).
       { left. apply path_cons; eauto. }
       { right. exists a1,(a1,b,a2),nil. eexists. split_and !. apply path_nil. set_solver.
         apply path_cons. set_solver. eauto. done. } }
     { right.
-      destruct_decide (decide ((a1,b,a2) ∈ g1)).
+      destruct_decide ((a1,b,a2) ∈ g1).
       { eexists _,_,_,_. split_and !;eauto.
         2:{ rewrite app_comm_cons. reflexivity. }
         apply path_cons. set_solver. done. }
@@ -1555,7 +1555,7 @@ Section pstore_1_G.
     wp_rec. iStep 20.
 
     iDestruct (extract_unaliased with "Hg") as "%".
-    destruct_decide (decide (rs=r)).
+    destruct_decide (rs = r).
     { subst. wp_load.
       iStep 5.
       repeat iExists _. iDecompose "HC". iFrame "#∗".

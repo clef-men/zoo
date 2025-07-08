@@ -183,7 +183,7 @@ Qed.
   suffix_to_val i1 vs1 = suffix_to_val i2 vs2.
 Proof.
   destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2] => Hsimilar.
-  all: zoo_simpl.
+  all: zoo_simplify.
   all: congruence.
 Qed.
 
@@ -213,7 +213,7 @@ Qed.
   prefix_to_val i1 back1 vs1 = prefix_to_val i2 back2 vs2.
 Proof.
   destruct vs1 as [| v1 vs1], vs2 as [| v2 vs2] => Hsimilar.
-  all: zoo_simpl.
+  all: zoo_simplify.
   all: congruence.
 Qed.
 
@@ -224,7 +224,7 @@ Qed.
     vs1 = vs2.
 Proof.
   move: i1 i2 vs2. induction vs1 as [| v1 vs1 IH] => i1 i2 [| v2 vs2] /= Hsimilar.
-  all: zoo_simpl; try done.
+  all: zoo_simplify; try done.
   edestruct IH as (_ & -> & Hvs); first done.
   rewrite {}Hvs in Hsimilar |- *.
   auto with lia.
@@ -536,7 +536,7 @@ Section mpmc_queue_2_G.
       model₁ γ vs ∗
       model₂ γ vs.
   Proof.
-    apply twins_update'.
+    apply twins_update.
   Qed.
 
   #[local] Lemma state_alloc back :
@@ -1168,7 +1168,7 @@ Section mpmc_queue_2_G.
 
     - rewrite Nat.add_0_r in Hfront1. subst i_front1.
 
-      destruct (decide (i + length move < S i1)) as [Hif | Hif].
+      destruct_decide (i + length move < S i1) as Hif.
 
       + iDestruct (state_lb_stabilized with "Hstate_auth Hstate_lb") as "#(_ & #Hstate_at)"; first lia.
 

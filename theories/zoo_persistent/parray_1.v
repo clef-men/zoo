@@ -246,7 +246,7 @@ Section parray_1_G.
     iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
     wp_rec.
-    destruct (decide (node = root)) as [-> | Hnode].
+    destruct_decide (node = root) as -> | Hnode.
 
     - iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_root") as %<-.
       iSteps.
@@ -293,7 +293,7 @@ Section parray_1_G.
     iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
     wp_rec.
-    destruct (decide (node = root)) as [-> | Hnode]; first iSteps.
+    destruct_decide (node = root) as -> | Hnode; first iSteps.
 
     iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model) & Hnodes)".
     { rewrite lookup_delete_ne //. }

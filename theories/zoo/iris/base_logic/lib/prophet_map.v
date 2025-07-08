@@ -55,7 +55,7 @@ Section prophecies_resolve.
     prophets_resolve (<[pid := prophecies_resolve xprophs pid]> prophets) xprophs.
   Proof.
     intros Hinlist Hpid pid' prophs Hlookup.
-    destruct (decide (pid = pid')) as [-> | Hne].
+    destruct_decide (pid = pid') as -> | Hne.
     - rewrite lookup_insert in Hlookup.
       inversion Hlookup. done.
     - rewrite lookup_insert_ne // in Hlookup.
@@ -193,7 +193,7 @@ Section prophet_map_G.
     { rewrite (Hprophets pid prophs Hlookup) /= decide_True //. }
     iMod (ghost_map_update (prophecies_resolve xprophs pid) with "Hauth Hp") as "(Hauth & Helem)".
     iExists (prophecies_resolve xprophs pid). iFrameSteps; iPureIntro.
-    - intros pid' prophs' Hlookup'. destruct (decide (pid = pid')) as [<- | Hne].
+    - intros pid' prophs' Hlookup'. destruct_decide (pid = pid') as <- | Hne.
       + rewrite lookup_insert in Hlookup'.
         inversion Hlookup'. done.
       + rewrite lookup_insert_ne // in Hlookup'.

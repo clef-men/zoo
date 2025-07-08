@@ -13,30 +13,24 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Parameter ws_queue_1_min_capacity : val.
+Definition ws_queue_1_min_capacity : val :=
+  #16.
 
 Definition ws_queue_1_create : val :=
   fun: <> =>
-    { #0, #0, array_unsafe_make ws_queue_1_min_capacity (), Proph }.
+    { #1, #1, array_unsafe_make ws_queue_1_min_capacity (), Proph }.
 
 Definition ws_queue_1_push : val :=
   fun: "t" "v" =>
-    let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
+    let: "front" := "t".{front} in
     if: "back" < "front" + "cap" then (
       array_unsafe_cset "data" "back" "v"
     ) else (
       let: "new_cap" := "cap" `lsl` #1 in
-      let: "new_data" :=
-        array_unsafe_cgrow_slice
-          "data"
-          "front"
-          ("back" - "front")
-          "new_cap"
-          ()
-      in
+      let: "new_data" := array_unsafe_cgrow "data" "front" "new_cap" () in
       array_unsafe_cset "new_data" "back" "v" ;;
       "t" <-{data} "new_data"
     ) ;;
@@ -65,11 +59,8 @@ Definition ws_queue_1_steal : val :=
       )
     ).
 
-Definition ws_queue_1_pop : val :=
-  fun: "t" =>
-    let: "id" := Id in
-    let: "back" := "t".{back} - #1 in
-    "t" <-{back} "back" ;;
+Definition ws_queue_1_pop_0 : val :=
+  fun: "t" "id" "back" =>
     let: "front" := "t".{front} in
     if: "back" < "front" then (
       "t" <-{back} "front" ;;
@@ -77,9 +68,7 @@ Definition ws_queue_1_pop : val :=
     ) else if: "front" < "back" then (
       let: "data" := "t".{data} in
       let: "cap" := array_size "data" in
-      let: "v" := array_unsafe_cget "data" "back" in
-      let: "sz" := "back" - "front" in
-      if: ws_queue_1_min_capacity + #3 * "sz" ≤ "cap" then (
+      if: ws_queue_1_min_capacity + #3 * ("back" - "front") ≤ "cap" then (
         let: "new_cap" := "cap" `lsr` #1 in
         let: "new_data" :=
           array_unsafe_cshrink_slice "data" "front" "new_cap"
@@ -88,7 +77,7 @@ Definition ws_queue_1_pop : val :=
       ) else (
         ()
       ) ;;
-      ‘Some( "v" )
+      ‘Some( array_unsafe_cget "data" "back" )
     ) else (
       let: "won" :=
         Resolve
@@ -98,9 +87,15 @@ Definition ws_queue_1_pop : val :=
       in
       "t" <-{back} "front" + #1 ;;
       if: "won" then (
-        let: "v" := array_unsafe_cget "t".{data} "back" in
-        ‘Some( "v" )
+        ‘Some( array_unsafe_cget "t".{data} "front" )
       ) else (
         §None
       )
     ).
+
+Definition ws_queue_1_pop : val :=
+  fun: "t" =>
+    let: "id" := Id in
+    let: "back" := "t".{back} - #1 in
+    "t" <-{back} "back" ;;
+    ws_queue_1_pop_0 "t" "id" "back".

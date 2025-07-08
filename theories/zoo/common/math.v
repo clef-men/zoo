@@ -71,7 +71,7 @@ Section nat.
     rewrite -(Nat2Z.id ((a `mod` n - b `mod` n) `mod` n)).
     rewrite Nat2Z.inj_mod Nat2Z.inj_sub // !Nat2Z.inj_mod -Zminus_mod.
     assert (a - b = - ⁺(b - a))%Z as -> by lia.
-    destruct (decide (⁺(b - a) `mod` n = 0)%Z).
+    destruct_decide (⁺(b - a) `mod` n = 0)%Z.
     - rewrite Z.mod_opp_l_z; [lia.. |].
       replace ((b - a) `mod` n) with 0 by lia.
       rewrite Nat.sub_0_r Nat.Div0.mod_same //.
@@ -91,7 +91,7 @@ Section Z.
     x `rem` y = x `mod` y.
   Proof.
     intros Hx Hy.
-    destruct (decide (y = 0)) as [-> | Hy'].
+    destruct_decide (y = 0) as -> | Hy'.
     - rewrite Z.mod_0_r_ext // Z.rem_0_r_ext //.
     - rewrite Z.rem_mod_nonneg //. lia.
   Qed.
