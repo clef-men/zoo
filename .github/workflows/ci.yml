@@ -6,6 +6,7 @@ on:
       - main
       - ci-clean
   pull_request:
+    branches:
       - main
       - ci-clean
 
