@@ -60,6 +60,8 @@ Fixpoint occurs x e :=
         negb (BNamed x ≟ pat.(pattern_as)) &&
         occurs x br.2
       ) brs
+  | GetTag e =>
+      occurs x e
   | GetSize e =>
       occurs x e
   | Load e1 e2 =>
@@ -193,6 +195,9 @@ Fixpoint subst (x : string) v e :=
               )
           ) <$> brs
         )
+  | GetTag e =>
+      GetTag
+        (subst x v e)
   | GetSize e =>
       GetSize
         (subst x v e)

@@ -82,6 +82,12 @@ Section atomic.
     solve_atomic.
   Qed.
 
+  #[global] Instance get_tag_atomic v :
+    Atomic (GetTag (Val v)).
+  Proof.
+    solve_atomic.
+  Qed.
+
   #[global] Instance get_size_atomic v :
     Atomic (GetSize (Val v)).
   Proof.
@@ -459,12 +465,22 @@ Section pure_exec.
     solve_pure_exec.
   Qed.
 
+  #[global] Instance pure_get_tag gen tag vs :
+    PureExec
+      (0 < length vs)
+      1
+      (GetTag $ Val $ ValBlock gen tag vs)
+      (Val $ ValNat (encode_tag tag)).
+  Proof.
+    solve_pure_exec.
+  Qed.
+
   #[global] Instance pure_get_size gen tag vs :
     PureExec
       (0 < length vs)
       1
       (GetSize $ Val $ ValBlock gen tag vs)
-      (Val $ ValInt (length vs)).
+      (Val $ ValNat (length vs)).
   Proof.
     solve_pure_exec.
   Qed.
@@ -473,7 +489,7 @@ Section pure_exec.
     PureExec
       (vs !! fld = Some v)
       1
-      (Load (Val $ ValBlock gen tag vs) (Val $ ValInt fld))
+      (Load (Val $ ValBlock gen tag vs) (Val $ ValNat fld))
       (Val v).
   Proof.
     solve_pure_exec.

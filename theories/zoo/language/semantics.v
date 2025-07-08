@@ -32,6 +32,12 @@ Implicit Types rec : recursive.
 Implicit Types recs : list recursive.
 Implicit Types tid : thread_id.
 
+Parameter encode_tag : nat → nat.
+
+Axiom encode_tag_inj :
+  Inj (=) (=) encode_tag.
+#[global] Existing Instance encode_tag_inj.
+
 Definition eval_unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
@@ -320,7 +326,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
       ) →
       base_step
         tid
-        (Alloc (Val $ ValInt tag) (Val $ ValInt n))
+        (Alloc (Val $ ValNat tag) (Val $ ValInt n))
         σ
         []
         (Val $ ValLoc l)
@@ -393,6 +399,26 @@ Inductive base_step tid : expr → state → list observation → expr → state
         e'
         σ
         []
+  | base_step_get_tag_mutable l hdr σ :
+      σ.(state_headers) !! l = Some hdr →
+      base_step
+        tid
+        (GetTag $ Val $ ValLoc l)
+        σ
+        []
+        (Val $ ValNat (encode_tag hdr.(header_tag)))
+        σ
+        []
+  | base_step_get_tag_immutable gen tag vs σ :
+      0 < length vs →
+      base_step
+        tid
+        (GetTag $ Val $ ValBlock gen tag vs)
+        σ
+        []
+        (Val $ ValNat (encode_tag tag))
+        σ
+        []
   | base_step_get_size_mutable l hdr σ :
       σ.(state_headers) !! l = Some hdr →
       base_step
@@ -400,7 +426,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetSize $ Val $ ValLoc l)
         σ
         []
-        (Val $ ValInt hdr.(header_size))
+        (Val $ ValNat hdr.(header_size))
         σ
         []
   | base_step_get_size_immutable gen tag vs σ :
@@ -410,7 +436,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (GetSize $ Val $ ValBlock gen tag vs)
         σ
         []
-        (Val $ ValInt (length vs))
+        (Val $ ValNat (length vs))
         σ
         []
   | base_step_get_field_mutable l fld v σ :
@@ -427,7 +453,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
       vs !! fld = Some v →
       base_step
         tid
-        (Load (Val $ ValBlock gen tag vs) (Val $ ValInt fld))
+        (Load (Val $ ValBlock gen tag vs) (Val $ ValNat fld))
         σ
         []
         (Val v)
@@ -540,7 +566,7 @@ Lemma base_step_alloc' tid tag n σ :
   (0 ≤ n)%Z →
   base_step
     tid
-    (Alloc (Val $ ValInt tag) (Val $ ValInt n))
+    (Alloc (Val $ ValNat tag) (Val $ ValInt n))
     σ
     []
     (Val $ ValLoc l)
@@ -638,6 +664,7 @@ Inductive ectxi :=
   | CtxAlloc2 e1
   | CtxBlock mut tag es vs
   | CtxMatch x e1 brs
+  | CtxGetTag
   | CtxGetSize
   | CtxLoad1 v2
   | CtxLoad2 e1
@@ -694,6 +721,8 @@ Fixpoint ectxi_fill k e : expr :=
       Block mut tag $ es ++ e :: of_vals vs
   | CtxMatch x e1 brs =>
       Match e x e1 brs
+  | CtxGetTag =>
+      GetTag e
   | CtxGetSize =>
       GetSize e
   | CtxLoad1 v2 =>

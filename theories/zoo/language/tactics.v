@@ -48,6 +48,8 @@ Ltac reshape_expr e tac :=
         go_list K prophs (CtxBlock mut tag) es
     | Match ?e0 ?x ?e1 ?brs =>
         add_ectxi (CtxMatch x e1 brs) K prophs e0
+    | GetTag ?e =>
+        add_ectxi CtxGetTag K prophs e
     | GetSize ?e =>
         add_ectxi CtxGetSize K prophs e
     | Load ?e1 (Val ?v2) =>

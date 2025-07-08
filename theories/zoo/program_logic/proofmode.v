@@ -272,6 +272,21 @@ Section zoo_G.
     rewrite HΔ'. iSteps.
   Qed.
 
+  Lemma tac_wp_get_tag Δ Δ' id p K l hdr tid E Φ :
+    MaybeIntoLaterNEnvs 1 Δ Δ' →
+    envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
+    envs_entails Δ' (WP fill K #(encode_tag hdr.(header_tag)) ∷ tid @ E {{ Φ }}) →
+    envs_entails Δ (WP fill K (GetTag #l) ∷ tid @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
+    rewrite into_laterN_env_sound -wp_bind' envs_lookup_split //= HΔ'.
+    iIntros "(Hheader & H)".
+    iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
+    { destruct p; iSteps. }
+    iApply (wp_get_tag with "Hheader_").
+    iSteps.
+  Qed.
+
   Lemma tac_wp_get_size Δ Δ' id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
@@ -802,6 +817,25 @@ Tactic Notation "wp_match" :=
       | fail 1 "wp_match: cannot find" l "↦ₕ ?"
       ]
     | try fast_done
+    | wp_finish
+    ]
+  ).
+
+Ltac wp_get_tag :=
+  wp_pures;
+  wp_start ltac:(fun e =>
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        eapply (tac_wp_get_tag _ _ _ _ K)
+      )
+    | fail 1 "wp_get_tag: cannot find 'GetTag' in" e
+    ];
+    [ tc_solve
+    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+      first
+      [ iAssumptionCore
+      | fail 1 "wp_get_tag: cannot find" l "↦ₕ ?"
+      ]
     | wp_finish
     ]
   ).
