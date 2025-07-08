@@ -53,6 +53,7 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance binop_atomic op v1 v2 :
     Atomic (Binop op (Val v1) (Val v2)).
   Proof.
@@ -99,6 +100,7 @@ Section atomic.
   Proof.
     solve_atomic.
   Qed.
+
   #[global] Instance store_atomic v1 v2 v3 :
     Atomic (Store (Val v1) (Val v2) (Val v3)).
   Proof.
@@ -293,6 +295,7 @@ Section pure_exec.
   Proof.
     solve_pure_exec.
   Qed.
+
   #[global] Instance pure_binop op v1 v2 v' :
     PureExec
       (eval_binop op v1 v2 = Some v')

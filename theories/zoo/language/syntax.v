@@ -138,7 +138,8 @@ Qed.
 
 Inductive unop :=
   | UnopNeg
-  | UnopMinus.
+  | UnopMinus
+  | UnopIsImmediate.
 
 #[global] Instance unop_eq_dec : EqDecision unop :=
   ltac:(solve_decision).
@@ -151,13 +152,17 @@ Proof.
         0
     | UnopMinus =>
         1
+    | UnopIsImmediate =>
+        2
     end.
   pose decode op :=
     match op with
     | 0 =>
         UnopNeg
-    | _ =>
+    | 1 =>
         UnopMinus
+    | _ =>
+        UnopIsImmediate
     end.
   refine (inj_countable' encode decode _); intros []; done.
 Qed.
@@ -829,6 +834,10 @@ Notation Fail := (
 ).
 Notation Skip := (
   App (Val (ValFun BAnon Unit)) Unit
+).
+
+Notation IsImmediate := (
+  Unop UnopIsImmediate
 ).
 
 Definition val_to_int v :=

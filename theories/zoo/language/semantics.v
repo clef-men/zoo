@@ -38,12 +38,33 @@ Axiom encode_tag_inj :
   Inj (=) (=) encode_tag.
 #[global] Existing Instance encode_tag_inj.
 
+Definition val_immediate v :=
+  match v with
+  | ValLit lit =>
+      match lit with
+      | LitBool _
+      | LitInt _ =>
+          true
+      | _ =>
+          false
+      end
+  | ValRecs _ _ =>
+      false
+  | ValBlock _ _ [] =>
+      true
+  | ValBlock _ _ _ =>
+      false
+  end.
+#[global] Arguments val_immediate !_ / : assert.
+
 Definition eval_unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
       Some $ ValBool (negb b)
   | UnopMinus, ValInt n =>
       Some $ ValInt (- n)
+  | UnopIsImmediate, v =>
+      Some $ ValBool (val_immediate v)
   | _, _ =>
       None
   end.
