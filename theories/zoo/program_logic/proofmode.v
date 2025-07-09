@@ -493,6 +493,8 @@ Ltac wp_expr_simpl :=
   try wp_value_head;
   pm_prettify.
 
+#[local] Ltac solve_pure_exec_obligation :=
+  simpl; split_and?; done || lia.
 Tactic Notation "wp_pure" open_constr(e_foc) :=
   wp_start ltac:(fun e =>
     let e := eval simpl in e in
@@ -500,7 +502,7 @@ Tactic Notation "wp_pure" open_constr(e_foc) :=
       unify e' e_foc;
       eapply (tac_wp_pure _ _ K e');
       [ tc_solve
-      | split_and?; fast_done
+      | solve_pure_exec_obligation
       | tc_solve
       | wp_finish
       ]
@@ -522,7 +524,7 @@ Tactic Notation "wp_pure" open_constr(e_foc) "credits:" constr(Hcredit) :=
       unify e' e_foc;
       eapply (tac_wp_pure_credits _ _ Htmp K e');
       [ tc_solve
-      | split_and?; fast_done
+      | solve_pure_exec_obligation
       | tc_solve
       | pm_reduce;
         first
@@ -547,7 +549,7 @@ Tactic Notation "wp_pure" open_constr(e_foc) "credit:" constr(Hcredit) :=
       unify e' e_foc;
       eapply (tac_wp_pure_credit _ _ Htmp K e');
       [ tc_solve
-      | split_and?; fast_done
+      | solve_pure_exec_obligation
       | tc_solve
       | pm_reduce;
         first
