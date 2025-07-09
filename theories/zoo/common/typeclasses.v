@@ -108,6 +108,13 @@ Notation "(.≟ x2 )" := (
 Section beq.
   Context `{!Beq X}.
 
+  Lemma beq_spec' x1 x2 :
+    x1 ≟ x2 = false ↔
+    x1 ≠ x2.
+  Proof.
+    rewrite -beq_spec not_true_iff_false //.
+  Qed.
+
   Lemma beq_eq x1 x2 :
     x1 ≟ x2 = true →
     x1 = x2.
@@ -118,7 +125,7 @@ Section beq.
     x1 ≟ x2 = false →
     x1 ≠ x2.
   Proof.
-    intros ? ?%beq_spec. congruence.
+    apply beq_spec'.
   Qed.
 
   Lemma beq_true x1 x2 :
@@ -136,8 +143,7 @@ Section beq.
     x1 ≠ x2 →
     x1 ≟ x2 = false.
   Proof.
-    rewrite -not_true_iff_false.
-    intros ? ?%beq_spec. done.
+    apply beq_spec'.
   Qed.
 End beq.
 
