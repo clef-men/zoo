@@ -272,7 +272,7 @@ Section zoo_G.
     rewrite HΔ'. iSteps.
   Qed.
 
-  Lemma tac_wp_get_tag Δ Δ' id p K l hdr tid E Φ :
+  Lemma tac_wp_tag Δ Δ' id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
     envs_entails Δ' (WP fill K #(encode_tag hdr.(header_tag)) ∷ tid @ E {{ Φ }}) →
@@ -283,11 +283,11 @@ Section zoo_G.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wp_get_tag with "Hheader_").
+    iApply (wp_tag with "Hheader_").
     iSteps.
   Qed.
 
-  Lemma tac_wp_get_size Δ Δ' id p K l hdr tid E Φ :
+  Lemma tac_wp_size Δ Δ' id p K l hdr tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, l ↦ₕ hdr)%I →
     envs_entails Δ' (WP fill K #hdr.(header_size) ∷ tid @ E {{ Φ }}) →
@@ -298,7 +298,7 @@ Section zoo_G.
     iIntros "(Hheader & H)".
     iAssert (▷ l ↦ₕ hdr)%I with "[Hheader]" as "#Hheader_".
     { destruct p; iSteps. }
-    iApply (wp_get_size with "Hheader_").
+    iApply (wp_size with "Hheader_").
     iSteps.
   Qed.
 
@@ -823,39 +823,39 @@ Tactic Notation "wp_match" :=
     ]
   ).
 
-Ltac wp_get_tag :=
+Ltac wp_tag :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_get_tag _ _ _ _ K)
+        eapply (tac_wp_tag _ _ _ _ K)
       )
-    | fail 1 "wp_get_tag: cannot find 'GetTag' in" e
+    | fail 1 "wp_tag: cannot find 'GetTag' in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
       first
       [ iAssumptionCore
-      | fail 1 "wp_get_tag: cannot find" l "↦ₕ ?"
+      | fail 1 "wp_tag: cannot find" l "↦ₕ ?"
       ]
     | wp_finish
     ]
   ).
 
-Ltac wp_get_size :=
+Ltac wp_size :=
   wp_pures;
   wp_start ltac:(fun e =>
     first
     [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_get_size _ _ _ _ K)
+        eapply (tac_wp_size _ _ _ _ K)
       )
-    | fail 1 "wp_get_size: cannot find 'GetSize' in" e
+    | fail 1 "wp_size: cannot find 'GetSize' in" e
     ];
     [ tc_solve
     | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
       first
       [ iAssumptionCore
-      | fail 1 "wp_get_size: cannot find" l "↦ₕ ?"
+      | fail 1 "wp_size: cannot find" l "↦ₕ ?"
       ]
     | wp_finish
     ]

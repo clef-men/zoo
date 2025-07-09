@@ -182,7 +182,7 @@ Section zoo_G.
       iApply (bwp_match_ctx with "Hl H"); first done.
   Qed.
 
-  Lemma wp_get_tag l hdr tid E Φ :
+  Lemma wp_tag l hdr tid E Φ :
     ▷ l ↦ₕ hdr -∗
     ▷ Φ #(encode_tag hdr.(header_tag)) -∗
     WP GetTag #l ∷ tid @ E {{ Φ }}.
@@ -197,7 +197,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma wp_get_size l hdr tid E Φ :
+  Lemma wp_size l hdr tid E Φ :
     ▷ l ↦ₕ hdr -∗
     ▷ Φ #hdr.(header_size) -∗
     WP GetSize #l ∷ tid @ E {{ Φ }}.

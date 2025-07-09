@@ -1219,7 +1219,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec credit:"H£".
     iMod "HΦ" as "(%dq & %vs & (%l & -> & #Hheader & Hmodel) & _ & HΦ)".
-    wp_get_size.
+    wp_size.
     iApply ("HΦ" with "[$Hmodel]"); iSteps.
   Qed.
   Lemma array_size_spec_atomic_cslice t :
@@ -1240,7 +1240,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec credit:"H£".
     iMod "HΦ" as "(%sz & %i & %dq & %vs & (%l & -> & #Hheader & Hcslice) & _ & HΦ)".
-    wp_get_size.
+    wp_size.
     iApply ("HΦ" with "[Hcslice]"); iSteps.
   Qed.
   Lemma array_size_spec t dq vs :

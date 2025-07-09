@@ -169,7 +169,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_get_tag.
+    wp_tag.
     iSteps.
   Qed.
 
@@ -185,7 +185,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_get_size.
+    wp_size.
     iSteps.
   Qed.
 
