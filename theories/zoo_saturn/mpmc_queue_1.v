@@ -361,7 +361,6 @@ Section mpmc_queue_1_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-
     wp_block front as "#Hfront_header" "_" "(Hfront_next & _)".
     wp_block l as "Hmeta" "(Hl_front & Hl_back & _)".
 
@@ -480,18 +479,17 @@ Section mpmc_queue_1_G.
     | Other =>
         Other'
     end.
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+  #[local] Definition pop_au γ (Ψ : option val → iProp Σ) : iProp Σ :=
     AU <{
       ∃∃ vs,
-      mpmc_queue_1_model #l vs
+      model₁ γ vs
     }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      mpmc_queue_1_model #l (tail vs)
+      model₁ γ (tail vs)
     , COMM
-      True -∗ Ψ (head vs)
+      Ψ (head vs)
     }>.
   #[local] Lemma next_spec_aux op l γ i node :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       ( if decide (op = Other' :> operation') then True else
@@ -503,7 +501,7 @@ Section mpmc_queue_1_G.
           waiters_at γ waiter i ∗
           £ 1
       | Pop Ψ =>
-          pop_au l γ Ψ
+          pop_au γ Ψ
       | Other =>
           True
       end
@@ -527,13 +525,13 @@ Section mpmc_queue_1_G.
         | IsEmpty waiter Ψ =>
             Ψ false
         | Pop Ψ =>
-            pop_au l γ Ψ
+            pop_au γ Ψ
         | Other =>
             True
         end
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & Hop) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & Hop) HΦ".
 
     iInv "Hinv" as "(:inv_inner)".
     iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
@@ -605,17 +603,15 @@ Section mpmc_queue_1_G.
         iApply "HΦ".
         iLeft. iRewrite "Heq". iSteps.
 
-      + iMod "Hop" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      + iMod "Hop" as "(%vs & Hmodel₁ & _ & HΨ)".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
 
         iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
   Qed.
   #[local] Lemma next_spec {l γ i} node :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node
     }}}
@@ -628,12 +624,11 @@ Section mpmc_queue_1_G.
         node_model γ node' (S i) false
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
     wp_apply (next_spec_aux Other); iSteps.
   Qed.
   #[local] Lemma next_spec_is_empty {l γ i node} waiter Ψ :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       front_lb γ i ∗
@@ -652,17 +647,16 @@ Section mpmc_queue_1_G.
         Ψ false
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
     wp_apply (next_spec_aux (IsEmpty _ _) with "[$]").
     iSteps.
   Qed.
   #[local] Lemma next_spec_pop {l γ i node} Ψ :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       front_lb γ i ∗
-      pop_au l γ Ψ
+      pop_au γ Ψ
     }}}
       (#node).{next}
     {{{ res,
@@ -672,10 +666,10 @@ Section mpmc_queue_1_G.
       ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i) false ∗
-        pop_au l γ Ψ
+        pop_au γ Ψ
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
     wp_apply (next_spec_aux (Pop _) with "[$]").
     iSteps.
   Qed.
@@ -690,13 +684,17 @@ Section mpmc_queue_1_G.
     <<<
       mpmc_queue_1_model t vs
     | RET #(bool_decide (vs = []%list));
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec credit:"H£".
-    wp_smart_apply (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
+    wp_rec credits:"H£".
+    iDestruct (lc_weaken 2 with "H£") as "(H£1 & H£2)"; first done.
+    iDestruct (atomic_update_frame_l with "[H£1 $HΦ]") as "HΦ"; first iAccu.
+
+    wp_smart_apply (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
+    as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
     { rewrite /= /waiter_au. iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -832,41 +830,43 @@ Section mpmc_queue_1_G.
     <<<
       mpmc_queue_1_model t (vs ++ [v])
     | RET ();
-      True
+      £ 1
     >>>.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec.
+    wp_rec credit:"H£".
+    iDestruct (atomic_update_frame_l with "[H£ $HΦ]") as "HΦ"; first iAccu.
     wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
     wp_match.
     wp_smart_apply (back_spec with "Hinv") as (back i) "(:node_model =back)".
     wp_smart_apply (mpmc_queue_1_push_0_spec with "[$]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
-    wp_smart_apply (mpmc_queue_1_fix_back_spec with "[] HΦ"); first iSteps.
+    wp_smart_apply (mpmc_queue_1_fix_back_spec with "[]"); first iSteps.
+    iSteps.
   Qed.
 
-  Lemma mpmc_queue_1_pop_spec t ι :
+  #[local] Lemma mpmc_queue_1_pop_spec_aux l γ :
     <<<
-      mpmc_queue_1_inv t ι
+      inv' l γ
     | ∀∀ vs,
-      mpmc_queue_1_model t vs
+      model₁ γ vs
     >>>
-      mpmc_queue_1_pop t @ ↑ι
+      mpmc_queue_1_pop #l @ ↑γ.(metadata_inv)
     <<<
-      mpmc_queue_1_model t (tail vs)
+      model₁ γ (tail vs)
     | RET head vs;
-      True
+      £ 1
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ #Hinv HΦ".
 
     iLöb as "HLöb".
 
-    wp_rec.
+    wp_rec credit:"H£".
     wp_smart_apply (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
     wp_match.
-    wp_smart_apply (next_spec_pop Φ with "[$HΦ]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
     wp_match. wp_pures.
 
     wp_bind (CAS _ _ _).
@@ -908,14 +908,34 @@ Section mpmc_queue_1_G.
         iSteps.
     }
 
-    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
-    iSplitR "Hfront_data HΦ". { iFrameSteps. }
+    iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
     iSteps.
+  Qed.
+  Lemma mpmc_queue_1_pop_spec t ι :
+    <<<
+      mpmc_queue_1_inv t ι
+    | ∀∀ vs,
+      mpmc_queue_1_model t vs
+    >>>
+      mpmc_queue_1_pop t @ ↑ι
+    <<<
+      mpmc_queue_1_model t (tail vs)
+    | RET head vs;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_apply (mpmc_queue_1_pop_spec_aux with "Hinv").
+    iAuIntro.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 End mpmc_queue_1_G.
 
@@ -924,3 +944,125 @@ From zoo_saturn Require
 
 #[global] Opaque mpmc_queue_1_inv.
 #[global] Opaque mpmc_queue_1_model.
+
+Section mpmc_queue_1_G.
+  Context `{mpmc_queue_1_G : MpmcQueue1G Σ}.
+  Context τ `{!iType (iProp Σ) τ}.
+
+  #[local] Definition itype_inner t : iProp Σ :=
+    ∃ vs,
+    mpmc_queue_1_model t vs ∗
+    [∗ list] v ∈ vs, τ v.
+  #[local] Instance : CustomIpatFormat "itype_inner" :=
+    "(
+      %vs &
+      >Hmodel &
+      #Hvs
+    )".
+  Definition itype_mpmc_queue_1 t : iProp Σ :=
+    mpmc_queue_1_inv t (nroot.@"1") ∗
+    inv (nroot.@"2") (itype_inner t).
+  #[local] Instance : CustomIpatFormat "itype" :=
+    "(
+      #Hinv1 &
+      #Hinv2
+    )".
+
+  #[global] Instance itype_mpmc_queue_1_itype :
+    iType _ itype_mpmc_queue_1.
+  Proof.
+    split. apply _.
+  Qed.
+
+  Lemma mpmc_queue_1_create_type :
+    {{{
+      True
+    }}}
+      mpmc_queue_1_create ()
+    {{{ t,
+      RET t;
+      itype_mpmc_queue_1 t
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    iApply wp_fupd.
+    wp_apply (mpmc_queue_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel)".
+    rewrite /itype_mpmc_queue_1 /itype_inner. iSteps.
+  Qed.
+
+  Lemma mpmc_queue_1_is_empty_type t :
+    {{{
+      itype_mpmc_queue_1 t
+    }}}
+      mpmc_queue_1_is_empty t
+    {{{ b,
+      RET #b;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (:itype) HΦ".
+
+    iApply wp_fupd.
+    awp_apply (mpmc_queue_1_is_empty_spec with "Hinv1").
+    iInv "Hinv2" as "(:itype_inner)".
+    iAaccIntro with "Hmodel"; first iSteps. iSteps as "_ H£".
+    iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
+    iSteps.
+  Qed.
+
+  Lemma mpmc_queue_1_push_type t v :
+    {{{
+      itype_mpmc_queue_1 t ∗
+      τ v
+    }}}
+      mpmc_queue_1_push t v
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ ((:itype) & #Hv) HΦ".
+
+    iApply wp_fupd.
+    awp_apply (mpmc_queue_1_push_spec with "Hinv1").
+    iInv "Hinv2" as "(:itype_inner)".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros "$ !>".
+    iSplitR.
+    { iModIntro.
+      iApply (big_sepL_snoc_2 with "Hvs Hv").
+    }
+    iIntros "H£".
+    iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
+    iSteps.
+  Qed.
+
+  Lemma mpmc_queue_1_pop_type t :
+    {{{
+      itype_mpmc_queue_1 t
+    }}}
+      mpmc_queue_1_pop t
+    {{{ o,
+      RET o;
+      itype_option τ o
+    }}}.
+  Proof.
+    iIntros "%Φ (:itype) HΦ".
+
+    iApply wp_fupd.
+    awp_apply (mpmc_queue_1_pop_spec with "Hinv1").
+    iInv "Hinv2" as "(:itype_inner)".
+    iAaccIntro with "Hmodel"; first iSteps. iIntros "$ !>".
+    iSplitR.
+    { iModIntro.
+      destruct vs as [| v vs]; first iSteps.
+      iDestruct (big_sepL_cons_1 with "Hvs") as "(_ & $)".
+    }
+    iIntros "H£".
+    iDestruct "Hvs" as "-#Hvs".
+    iMod (lc_fupd_elim_later with "H£ [-]") as "H"; first (iModIntro; iAccu). iDestruct "H" as "(Hvs & HΦ)".
+    destruct vs; iSteps.
+  Qed.
+End mpmc_queue_1_G.
+
+#[global] Opaque itype_mpmc_queue_1.
