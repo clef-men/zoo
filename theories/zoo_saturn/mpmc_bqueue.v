@@ -4,7 +4,8 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
-  countable.
+  countable
+  list.
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
@@ -431,7 +432,6 @@ Section mpmc_bqueue_G.
     iIntros "%Hcap %Φ _ HΦ".
 
     wp_rec.
-
     wp_block front as "Hfront_header" "_" "(Hfront_next & Hfront_data & Hfront_index & Hfront_capacity & _)".
     iMod (pointsto_persist with "Hfront_index") as "#Hfront_index".
     wp_block l as "Hmeta" "(Hl_capacity & Hl_front & Hl_back & _)".
@@ -582,16 +582,16 @@ Section mpmc_bqueue_G.
     , COMM
       True -∗ Ψ #(length vs)
     }>.
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+  #[local] Definition pop_au γ (Ψ : option val → iProp Σ) : iProp Σ :=
     AU <{
       ∃∃ vs,
-      mpmc_bqueue_model #l vs
+      model₁ γ vs
     }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      mpmc_bqueue_model #l (tail vs)
+      model₁ γ (tail vs)
     , COMM
       True -∗ Ψ (head vs)
     }>.
-  #[local] Lemma next_spec_aux (next :option location) op l γ i node :
+  #[local] Lemma next_spec_aux (next : option location) op l γ i node :
     {{{
       meta l nroot γ ∗
       inv' l γ ∗
@@ -608,7 +608,7 @@ Section mpmc_bqueue_G.
           £ 1
       | Pop Ψ =>
           front_lb γ i ∗
-          pop_au l γ Ψ
+          pop_au γ Ψ
       | Other =>
           True
       end
@@ -642,7 +642,7 @@ Section mpmc_bqueue_G.
         | IsEmpty waiter Ψ =>
             Ψ false
         | Pop Ψ =>
-            pop_au l γ Ψ
+            pop_au γ Ψ
         | Other =>
             True
         end
@@ -757,10 +757,9 @@ Section mpmc_bqueue_G.
         assert (length nodes = 0) as ->%nil_length_inv by lia.
         iDestruct (big_sepL2_length with "Hnodes") as %->%symmetry%nil_length_inv.
 
-        iMod "HΨ" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+        iMod "HΨ" as "(%vs & Hmodel₁ & _ & HΨ)".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
 
         iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
@@ -860,7 +859,7 @@ Section mpmc_bqueue_G.
       inv' l γ ∗
       history_at γ i node ∗
       front_lb γ i ∗
-      pop_au l γ Ψ
+      pop_au γ Ψ
     }}}
       (#node).{next}
     {{{ res,
@@ -870,7 +869,7 @@ Section mpmc_bqueue_G.
       ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i) false ∗
-        pop_au l γ Ψ
+        pop_au γ Ψ
     }}}.
   Proof.
     iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & HΨ) HΦ".
@@ -1256,27 +1255,28 @@ Section mpmc_bqueue_G.
     case_bool_decide; simpl_length/=; lia.
   Qed.
 
-  Lemma mpmc_bqueue_pop_spec t ι cap :
+  #[local] Lemma mpmc_bqueue_pop_spec_aux l γ :
     <<<
-      mpmc_bqueue_inv t ι cap
+      meta l nroot γ ∗
+      inv' l γ
     | ∀∀ vs,
-      mpmc_bqueue_model t vs
+      model₁ γ vs
     >>>
-      mpmc_bqueue_pop t @ ↑ι
+      mpmc_bqueue_pop #l @ ↑γ.(metadata_inv)
     <<<
-      mpmc_bqueue_model t (tail vs)
+      model₁ γ (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ (#Hmeta & #Hinv) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec.
     wp_smart_apply (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
     wp_match.
-    wp_smart_apply (next_spec_pop Φ with "[$HΦ]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (next_spec_pop Φ with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
     wp_match. wp_pures.
 
     wp_bind (CAS _ _ _).
@@ -1318,12 +1318,10 @@ Section mpmc_bqueue_G.
         iSteps.
     }
 
-    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ".
-    { iExists l, γ. simpl in *. iSteps. }
+    iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
     iSplitR "Hfront_data HΦ".
     { iFrameSteps.
@@ -1331,6 +1329,29 @@ Section mpmc_bqueue_G.
       iSteps. rewrite /past length_app /=. iSteps.
     }
     iSteps.
+  Qed.
+  Lemma mpmc_bqueue_pop_spec t ι cap :
+    <<<
+      mpmc_bqueue_inv t ι cap
+    | ∀∀ vs,
+      mpmc_bqueue_model t vs
+    >>>
+      mpmc_bqueue_pop t @ ↑ι
+    <<<
+      mpmc_bqueue_model t (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_apply (mpmc_bqueue_pop_spec_aux with "[$]").
+    iAuIntro.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iAaccIntro with "Hmodel₁"; first iSteps.
+    iStepFrameSteps. iPureIntro.
+    etrans; last done. apply length_tail.
   Qed.
 End mpmc_bqueue_G.
 

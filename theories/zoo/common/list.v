@@ -89,6 +89,11 @@ Section basic.
   Proof.
     destruct l1; done.
   Qed.
+  Lemma length_tail l :
+    length (tail l) ≤ length l.
+  Proof.
+    destruct l => /=; lia.
+  Qed.
 
   Lemma head_app l1 l2 :
     0 < length l1 →
