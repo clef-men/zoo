@@ -462,7 +462,6 @@ Section spmc_queue_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-
     wp_block front as "#Hfront_header" "_" "(Hfront_next & _)".
     wp_block l as "Hmeta" "(Hl_front & Hl_back & _)".
 
@@ -559,18 +558,17 @@ Section spmc_queue_G.
     | Other =>
         Other'
     end.
-  #[local] Definition pop_au l γ Ψ : iProp Σ :=
+  #[local] Definition pop_au γ (Ψ : option val → iProp Σ) : iProp Σ :=
     AU <{
       ∃∃ vs,
-      spmc_queue_model #l vs
+      model₁ γ vs
     }> @ ⊤ ∖ ↑γ.(metadata_inv), ∅ <{
-      spmc_queue_model #l (tail vs)
+      model₁ γ (tail vs)
     , COMM
-      True -∗ Ψ (head vs)
+      Ψ (head vs)
     }>.
   #[local] Lemma next_spec_aux op l γ i node :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       ( if decide (op = Other' :> operation') then True else
@@ -582,7 +580,7 @@ Section spmc_queue_G.
           waiters_at γ waiter i ∗
           £ 1
       | Pop Ψ =>
-          pop_au l γ Ψ
+          pop_au γ Ψ
       | Other =>
           True
       end
@@ -606,13 +604,13 @@ Section spmc_queue_G.
         | IsEmpty waiter Ψ =>
             Ψ false
         | Pop Ψ =>
-            pop_au l γ Ψ
+            pop_au γ Ψ
         | Other =>
             True
         end
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & Hop) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & Hop) HΦ".
 
     iInv "Hinv" as "(:inv_inner)".
     iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
@@ -684,17 +682,15 @@ Section spmc_queue_G.
         iApply "HΦ".
         iLeft. iRewrite "Heq". iSteps.
 
-      + iMod "Hop" as "(%vs & (:model) & _ & HΨ)". injection Heq as <-.
-        iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+      + iMod "Hop" as "(%vs & Hmodel₁ & _ & HΨ)".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-        iMod ("HΨ" with "[Hmodel₁] [//]") as "HΨ"; first iSteps.
+        iMod ("HΨ" with "Hmodel₁") as "HΨ".
 
         iSplitR "HΨ HΦ". { iFrameSteps. }
         iSteps.
   Qed.
   #[local] Lemma next_spec l γ i node :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node
     }}}
@@ -707,12 +703,11 @@ Section spmc_queue_G.
         node_model γ node' (S i) false
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
     wp_apply (next_spec_aux Other); iSteps.
   Qed.
   #[local] Lemma next_spec_is_empty {l γ i node} waiter Ψ :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       front_lb γ i ∗
@@ -731,17 +726,16 @@ Section spmc_queue_G.
         Ψ false
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
     wp_apply (next_spec_aux (IsEmpty _ _) with "[$]").
     iSteps.
   Qed.
   #[local] Lemma next_spec_pop {l γ i node} Ψ :
     {{{
-      meta l nroot γ ∗
       inv' l γ ∗
       history_at γ i node ∗
       front_lb γ i ∗
-      pop_au l γ Ψ
+      pop_au γ Ψ
     }}}
       (#node).{next}
     {{{ res,
@@ -751,10 +745,10 @@ Section spmc_queue_G.
       ∨ ∃ node',
         ⌜res = #node'⌝ ∗
         node_model γ node' (S i) false ∗
-        pop_au l γ Ψ
+        pop_au γ Ψ
     }}}.
   Proof.
-    iIntros "%Φ (#Hmeta & #Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
+    iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
     wp_apply (next_spec_aux (Pop _) with "[$]").
     iSteps.
    Qed.
@@ -824,27 +818,27 @@ Section spmc_queue_G.
     iSteps.
   Qed.
 
-  Lemma spmc_queue_pop_spec t ι :
+  #[local] Lemma spmc_queue_pop_spec_aux l γ :
     <<<
-      spmc_queue_inv t ι
+      inv' l γ
     | ∀∀ vs,
-      spmc_queue_model t vs
+      model₁ γ vs
     >>>
-      spmc_queue_pop t @ ↑ι
+      spmc_queue_pop #l @ ↑γ.(metadata_inv)
     <<<
-      spmc_queue_model t (tail vs)
+      model₁ γ (tail vs)
     | RET head vs;
       True
     >>>.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
+    iIntros "%Φ #Hinv HΦ".
 
     iLöb as "HLöb".
 
-    wp_rec.
+    wp_rec credit:"H£".
     wp_smart_apply (front_spec with "Hinv") as (front i) "(#Hfront_header & #Hhistory_at_front & #Hfront_lb_front)".
     wp_match.
-    wp_smart_apply (next_spec_pop Φ with "[$HΦ]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; [iSteps.. |].
+    wp_smart_apply (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
     wp_match. wp_pures.
 
     wp_bind (CAS _ _ _).
@@ -886,14 +880,34 @@ Section spmc_queue_G.
         iSteps.
     }
 
-    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
-    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
     iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
     iMod (model_pop with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
+    iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
-    iSplitR "Hfront_data HΦ". { iFrameSteps. }
+    iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
     iSteps.
+  Qed.
+  Lemma spmc_queue_pop_spec t ι :
+    <<<
+      spmc_queue_inv t ι
+    | ∀∀ vs,
+      spmc_queue_model t vs
+    >>>
+      spmc_queue_pop t @ ↑ι
+    <<<
+      spmc_queue_model t (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_apply (spmc_queue_pop_spec_aux with "Hinv").
+    iAuIntro.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 End spmc_queue_G.
 
