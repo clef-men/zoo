@@ -622,6 +622,23 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
+  Lemma spsc_bqueue_capacity_spec t ι cap :
+    {{{
+      spsc_bqueue_inv t ι cap
+    }}}
+      spsc_bqueue_capacity t
+    {{{
+      RET #cap;
+      True
+    }}}.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_rec. wp_load.
+    wp_apply (array_size_spec_inv with "Hdata_inv").
+    iSteps.
+  Qed.
+
   #[local] Lemma front_spec l γ stable front :
     {{{
       inv' l γ ∗

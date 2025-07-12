@@ -35,6 +35,17 @@ val create :
   , consumer ?t
 |}]
 
+val capacity :
+  'a t -> int
+[@@zoo{|
+  arguments
+    t
+  requires
+    inv t ι cap
+  returns
+    cap
+|}]
+
 val size :
   'a t -> int
 [@@zoo{|

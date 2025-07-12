@@ -18,6 +18,9 @@ let create cap =
     back_cache= 0;
   }
 
+let capacity t =
+  Array.size t.data
+
 let size t =
   let back = t.back in
   let front = t.front in
