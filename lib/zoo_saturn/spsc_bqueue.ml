@@ -28,8 +28,7 @@ let is_empty t =
 
 let push t data back =
   let cap = Array.size data in
-  let front_cache = t.front_cache in
-  if back < front_cache + cap then
+  if back < t.front_cache + cap then
     true
   else
     let front = t.front in
@@ -47,8 +46,7 @@ let push t v =
   )
 
 let pop t front =
-  let back_cache = t.back_cache in
-  if front < back_cache then
+  if front < t.back_cache then
     true
   else
     let back = t.back in
