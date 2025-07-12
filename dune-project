@@ -22,6 +22,9 @@
 (package
   (name zoo_std)
   (synopsis "Zoo standard library")
+  (depends
+    zoo
+  )
 )
 
 (package

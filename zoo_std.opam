@@ -8,6 +8,7 @@ homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
 depends: [
   "dune" {>= "3.0"}
+  "zoo"
   "odoc" {with-doc}
 ]
 build: [
