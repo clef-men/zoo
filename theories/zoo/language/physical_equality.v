@@ -17,18 +17,6 @@ Implicit Types lit : literal.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Definition literal_physical lit :=
-  match lit with
-  | LitBool _
-  | LitInt _
-  | LitLoc _ =>
-      True
-  | LitProph _
-  | LitPoison =>
-      False
-  end.
-#[global] Arguments literal_physical !_ / : simpl nomatch, assert.
-
 Inductive lowliteral :=
   | LowlitInt n
   | LowlitLoc l

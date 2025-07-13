@@ -355,22 +355,6 @@ Section zoo_G.
     2: iDestruct "HΦ" as "(_ & HΦ)".
     all: iSteps.
   Qed.
-  Lemma wp_cas_suc l fld lit lit1 v2 tid E :
-    literal_physical lit →
-    lit = lit1 →
-    {{{
-      ▷ (l +ₗ fld) ↦ #lit
-    }}}
-      CAS (#l, #fld)%V #lit1 v2 ∷ tid @ E
-    {{{
-      RET #true;
-      (l +ₗ fld) ↦ v2
-    }}}.
-  Proof.
-    iIntros (Hlit <-) "%Φ >Hl HΦ".
-    iApply (wp_cas with "Hl").
-    destruct lit; [iSteps.. | done | done].
-  Qed.
 
   Lemma wp_faa l fld (i1 i2 : Z) tid E :
     {{{

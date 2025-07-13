@@ -407,30 +407,6 @@ Section zoo_G.
       iDestruct (envs_lookup_sound with "HΔ'") as "(Hl & HΔ'')"; first done.
       rewrite envs_app_sound //= Hsuc2 // bi.intuitionistically_if_elim. iSteps.
   Qed.
-  Lemma tac_wp_cas_suc Δ Δ' id K l fld lit lit1 v2 tid E Φ :
-    MaybeIntoLaterNEnvs 1 Δ Δ' →
-    envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ #lit)%I →
-    literal_physical lit →
-    lit = lit1 →
-    match
-      envs_simple_replace id false (Esnoc Enil
-        id ((l +ₗ fld) ↦ v2)
-      ) Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K #true ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
-    envs_entails Δ (WP fill K (CAS (#l, #fld)%V #lit1 v2) ∷ tid @ E {{ Φ }}).
-  Proof.
-    rewrite envs_entails_unseal. intros HΔ Hlookup Hlit -> HΔ'.
-    destruct (envs_simple_replace _ _ _ _) as [Δ'' |] eqn:HΔ''; last done.
-    rewrite into_laterN_env_sound -wp_bind' envs_simple_replace_sound //= HΔ'.
-    iIntros "(Hl & H)".
-    iApply (wp_cas_suc with "Hl"); [done.. |].
-    iSteps.
-  Qed.
 
   Lemma tac_wp_faa Δ Δ' id K l fld (i1 i2 : Z) tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -948,27 +924,6 @@ Tactic Notation "wp_cas" "as" simple_intropattern(H) :=
   wp_cas as H | H.
 Tactic Notation "wp_cas" :=
   wp_cas as ?.
-Ltac wp_cas_suc :=
-  wp_pures;
-  wp_start ltac:(fun e =>
-    first
-    [ reshape_expr e ltac:(fun K e' =>
-        eapply (tac_wp_cas_suc _ _ _ K)
-      )
-    | fail 1 "wp_cas_suc: cannot find 'CAS' with literal arguments in" e
-    ];
-    [ tc_solve
-    | let l := match goal with |- _ = Some (_, (pointsto ?l _ _)) => l end in
-      first
-      [ iAssumptionCore
-      | fail 1 "wp_cas_suc: cannot find" l "↦ ?"
-      ]
-    | try fast_done
-    | try (simpl; congruence)
-    | pm_reduce;
-      wp_finish
-    ]
-  ).
 
 Ltac wp_faa :=
   wp_pures;
