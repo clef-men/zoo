@@ -13,6 +13,9 @@ Implicit Types i tag : nat.
 Implicit Types n : Z.
 Implicit Types l : location.
 Implicit Types gen : generativity.
+Implicit Types lit : literal.
+Implicit Types v : val.
+Implicit Types vs : list val.
 
 Definition literal_physical lit :=
   match lit with
@@ -31,6 +34,7 @@ Inductive lowliteral :=
   | LowlitLoc l
   | LowlitProph
   | LowlitPoison.
+Implicit Types llit : lowliteral.
 
 #[global] Instance lowliteral_eq_dec : EqDecision lowliteral :=
   ltac:(solve_decision).
@@ -51,12 +55,12 @@ Definition literal_to_low lit :=
 #[global] Arguments literal_to_low !_ / : simpl nomatch, assert.
 
 #[global] Instance lowliteral_nonsimilar : Nonsimilar lowliteral :=
-  λ lit1 lit2,
-    match lit1 with
+  λ llit1 llit2,
+    match llit1 with
     | LowlitInt n1 =>
-        lit2 ≠ LowlitInt n1
+        llit2 ≠ LowlitInt n1
     | LowlitLoc l1 =>
-        lit2 ≠ LowlitLoc l1
+        llit2 ≠ LowlitLoc l1
     | _ =>
         True
     end.
@@ -65,12 +69,12 @@ Definition literal_to_low lit :=
   RelDecision (≉@{lowliteral}).
 Proof.
   unshelve refine (
-    λ lit1 lit2,
-      match lit1 with
+    λ llit1 llit2,
+      match llit1 with
       | LowlitInt n1 =>
-          decide (lit2 ≠ LowlitInt n1)
+          decide (llit2 ≠ LowlitInt n1)
       | LowlitLoc l1 =>
-          decide (lit2 ≠ LowlitLoc l1)
+          decide (llit2 ≠ LowlitLoc l1)
       | _ =>
           left _
       end
@@ -86,17 +90,19 @@ Qed.
 
 Unset Elimination Schemes.
 Inductive lowval :=
-  | LowvalLit (lit : lowliteral)
+  | LowvalLit llit
   | LowvalRecs
-  | LowvalBlock gen tag (vs : list val) (lvs : list lowval).
+  | LowvalBlock gen tag vs (lvs : list lowval).
 Set Elimination Schemes.
+Implicit Types lv : lowval.
+Implicit Types lvs : list lowval.
 
 Section lowval_ind.
   Variable P : lowval → Prop.
 
   Variable HLit :
-    ∀ lit,
-    P (LowvalLit lit).
+    ∀ llit,
+    P (LowvalLit llit).
   Variable HRecs :
     P LowvalRecs.
   Variable HBlock :
@@ -106,9 +112,9 @@ Section lowval_ind.
 
   Fixpoint lowval_ind lv :=
     match lv with
-    | LowvalLit lit =>
+    | LowvalLit llit =>
         HLit
-          lit
+          llit
     | LowvalRecs =>
         HRecs
     | LowvalBlock gen tag vs lvs =>
@@ -152,9 +158,9 @@ Proof.
         end
       in
       match lv1, lv2 with
-      | LowvalLit lit1, LowvalLit lit2 =>
+      | LowvalLit llit1, LowvalLit llit2 =>
           cast_if
-            (decide (lit1 = lit2))
+            (decide (llit1 = llit2))
       | LowvalRecs, LowvalRecs =>
           left _
       | LowvalBlock gen1 tag1 vs1 lvs1, LowvalBlock gen2 tag2 vs2 lvs2 =>
@@ -172,8 +178,8 @@ Defined.
 
 Fixpoint val_to_low v :=
   match v with
-  | ValLit lit =>
-      LowvalLit (literal_to_low lit)
+  | ValLit llit =>
+      LowvalLit (literal_to_low llit)
   | ValRecs _ _ =>
       LowvalRecs
   | ValBlock _ tag [] =>
@@ -184,17 +190,17 @@ Fixpoint val_to_low v :=
 #[global] Arguments val_to_low !_ / : simpl nomatch, assert.
 
 #[global] Instance lowval_nonsimilar : Nonsimilar lowval :=
-  λ v1 v2,
-    match v1 with
-    | LowvalLit lit1 =>
-        match v2 with
-        | LowvalLit lit2 =>
-            lit1 ≉ lit2
+  λ lv1 lv2,
+    match lv1 with
+    | LowvalLit llit1 =>
+        match lv2 with
+        | LowvalLit llit2 =>
+            llit1 ≉ llit2
         | _ =>
             True
         end
     | LowvalBlock (Generative (Some bid1)) tag1 vs1 _ =>
-        match v2 with
+        match lv2 with
         | LowvalBlock (Generative (Some bid2)) tag2 vs2 _ =>
             bid1 ≠ bid2 ∨
             tag1 ≠ tag2 ∨
@@ -210,17 +216,17 @@ Fixpoint val_to_low v :=
   RelDecision (≉@{lowval}).
 Proof.
   unshelve refine (
-    λ v1 v2,
-      match v1 with
-      | LowvalLit lit1 =>
-          match v2 with
-          | LowvalLit lit2 =>
-              decide (lit1 ≉ lit2)
+    λ lv1 lv2,
+      match lv1 with
+      | LowvalLit llit1 =>
+          match lv2 with
+          | LowvalLit llit2 =>
+              decide (llit1 ≉ llit2)
           | _ =>
               left _
           end
       | LowvalBlock (Generative (Some bid1)) tag1 vs1 _ =>
-          match v2 with
+          match lv2 with
           | LowvalBlock (Generative (Some bid2)) tag2 vs2 _ =>
               cast_if_or3
                 (decide (bid1 ≠ bid2))
@@ -237,14 +243,14 @@ Proof.
 Defined.
 
 #[global] Instance lowval_similar : Similar lowval :=
-  fix go v1 v2 :=
-    match v1 with
-    | LowvalLit lit1 =>
-        v2 = LowvalLit lit1
+  fix go lv1 lv2 :=
+    match lv1 with
+    | LowvalLit llit1 =>
+        lv2 = LowvalLit llit1
     | LowvalRecs =>
-        v2 = LowvalRecs
+        lv2 = LowvalRecs
     | LowvalBlock gen1 tag1 vs1 lvs1 =>
-        match v2 with
+        match lv2 with
         | LowvalBlock gen2 tag2 vs2 lvs2 =>
             match gen1, gen2 with
             | Generative bid1, Generative bid2 =>
@@ -266,14 +272,14 @@ Defined.
   RelDecision (≈@{lowval}).
 Proof.
   refine (
-    fix go v1 v2 :=
-      match v1 with
-      | LowvalLit lit1 =>
-          decide (v2 = LowvalLit lit1)
+    fix go lv1 lv2 :=
+      match lv1 with
+      | LowvalLit llit1 =>
+          decide (lv2 = LowvalLit llit1)
       | LowvalRecs =>
-          decide (v2 = LowvalRecs)
+          decide (lv2 = LowvalRecs)
       | LowvalBlock gen1 tag1 vs1 lvs1 =>
-          match v2 with
+          match lv2 with
           | LowvalBlock gen2 tag2 vs2 lvs2 =>
               match gen1, gen2 with
               | Generative bid1, Generative bid2 =>
@@ -312,9 +318,9 @@ Proof.
   all: clear IH.
   all: naive_solver.
 Qed.
-Lemma lowval_similar_refl v1 v2 :
-  v1 = v2 →
-  v1 ≈ v2.
+Lemma lowval_similar_refl lv1 lv2 :
+  lv1 = lv2 →
+  lv1 ≈ lv2.
 Proof.
   naive_solver.
 Qed.
@@ -337,12 +343,11 @@ Proof.
   all: naive_solver.
 Qed.
 
-Lemma lowval_similar_or_nonsimilar v1 v2 :
-  v1 ≈ v2 ∨ v1 ≉ v2.
+Lemma lowval_similar_or_nonsimilar lv1 lv2 :
+  lv1 ≈ lv2 ∨ lv1 ≉ lv2.
 Proof.
-  destruct
-    v1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]],
-    v2 as [[n2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
+  all: destruct lv1 as [[n1 | l1 | |] | | [[bid1 |] |] tag1 [| v1 vs1]].
+  all: destruct lv2 as [[n2 | l2 | |] | | [[bid2 |] |] tag2 [| v2 vs2]].
   all: try destruct_decide (n1 = n2).
   all: try destruct_decide (l1 = l2).
   all: try destruct_decide (bid1 = bid2).
@@ -351,12 +356,14 @@ Proof.
   all: try destruct_decide (vs1 = vs2).
   all: cbn; naive_solver.
 Qed.
-Lemma lowval_nonsimilar_similar (v1 v2 v3 : lowval) :
-  v1 ≉ v2 →
-  v2 ≈ v3 →
-  v1 ≉ v3.
+Lemma lowval_nonsimilar_similar lv1 lv2 lv3 :
+  lv1 ≉ lv2 →
+  lv2 ≈ lv3 →
+  lv1 ≉ lv3.
 Proof.
-  destruct v2 as [| | []], v3 as [| | []]; naive_solver.
+  all: destruct lv2 as [| | []].
+  all: destruct lv3 as [| | []].
+  all: naive_solver.
 Qed.
 
 #[global] Instance val_nonsimilar : Nonsimilar val :=
