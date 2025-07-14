@@ -8,6 +8,12 @@ type 'a t =
 let create =
   Inf_ws_queue_1.create
 
+let size =
+  Inf_ws_queue_1.size
+
+let is_empty =
+  Inf_ws_queue_1.is_empty
+
 let push t v =
   Inf_ws_queue_1.push t (ref v)
 

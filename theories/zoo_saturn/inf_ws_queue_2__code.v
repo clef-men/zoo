@@ -13,6 +13,12 @@ From zoo Require Import
 Definition inf_ws_queue_2_create : val :=
   inf_ws_queue_1_create.
 
+Definition inf_ws_queue_2_size : val :=
+  inf_ws_queue_1_size.
+
+Definition inf_ws_queue_2_is_empty : val :=
+  inf_ws_queue_1_is_empty.
+
 Definition inf_ws_queue_2_push : val :=
   fun: "t" "v" =>
     inf_ws_queue_1_push "t" (ref "v").

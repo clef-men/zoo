@@ -618,6 +618,18 @@ Section inf_ws_queue_1_G.
     iDestruct (twins_agree_L with "Howner₁ Howner₂") as %[= <- <- <-].
     iSteps.
   Qed.
+  #[local] Lemma owner₁_update γ stable back priv ws vs :
+    owner₁ γ stable back priv ws -∗
+    model₁ γ vs -∗
+    model₂ γ vs ==∗
+      owner₁ γ stable back priv vs ∗
+      model₁ γ vs ∗
+      model₂ γ vs.
+  Proof.
+    iIntros "(:owner₁) Hmodel₁ Hmodel₂".
+    iMod (auth_twins_update_auth with "Hmodel_auth Hmodel₁ Hmodel₂") as "($ & $ & $)".
+    iSteps.
+  Qed.
   #[local] Lemma owner_update {γ stable1 back1 priv1 ws stable2 back2 priv2} stable back priv :
     owner₁ γ stable1 back1 priv1 ws -∗
     owner₂ γ stable2 back2 priv2 ==∗
@@ -1430,6 +1442,77 @@ Section inf_ws_queue_1_G.
 
     - iDestruct "Hstate" as "(:inv_state_nonempty =1 lazy=)".
       exfalso. lia.
+  Qed.
+
+  Lemma inf_ws_queue_1_size_spec t ι ws :
+    <<<
+      inf_ws_queue_1_inv t ι ∗
+      inf_ws_queue_1_owner t ws
+    | ∀∀ vs,
+      inf_ws_queue_1_model t vs
+    >>>
+      inf_ws_queue_1_size t @ ↑ι
+    <<<
+      inf_ws_queue_1_model t vs
+    | RET #(length vs);
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_queue_1_owner t vs
+    >>>.
+  Proof.
+    iIntros "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+
+    wp_rec.
+
+    wp_bind (_.{front})%E.
+    iInv "Hinv" as "(:inv_inner =1)".
+    wp_load.
+    iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
+    iDestruct (inv_state_Stable with "Hstate") as %(_ & Hback & _); first done.
+
+    iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+    iDestruct (model₁_valid with "Howner₁ Hmodel₁") as %Hsuffix.
+    iMod (owner₁_update with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
+    iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
+
+    iSplitR "Howner₁ HΦ". { iFrameSteps. }
+    iModIntro. clear- Hvs1 Hback Hsuffix.
+
+    wp_apply (back_spec with "[$]") as "Howner₁".
+    wp_pures.
+
+    replace (⁺back - ⁺front1)%Z with ⁺(length vs) by lia.
+    iSteps.
+  Qed.
+
+  Lemma inf_ws_queue_1_is_empty_spec t ι ws :
+    <<<
+      inf_ws_queue_1_inv t ι ∗
+      inf_ws_queue_1_owner t ws
+    | ∀∀ vs,
+      inf_ws_queue_1_model t vs
+    >>>
+      inf_ws_queue_1_is_empty t @ ↑ι
+    <<<
+      inf_ws_queue_1_model t vs
+    | RET #(bool_decide (vs = []%list));
+      ⌜vs `suffix_of` ws⌝ ∗
+      inf_ws_queue_1_owner t vs
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & Howner) HΦ".
+
+    wp_rec.
+    wp_apply (inf_ws_queue_1_size_spec with "[$]").
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
+    wp_pures.
+
+    rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
+    { rewrite -length_zero_iff_nil. lia. }
+    iApply "HΦ".
+    iFrameSteps.
   Qed.
 
   Lemma inf_ws_queue_1_push_spec t ι ws v :

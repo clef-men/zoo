@@ -17,6 +17,14 @@ Definition inf_ws_queue_1_create : val :=
   fun: <> =>
     { #1, #1, inf_array_create (), Proph }.
 
+Definition inf_ws_queue_1_size : val :=
+  fun: "t" =>
+    "t".{back} - "t".{front}.
+
+Definition inf_ws_queue_1_is_empty : val :=
+  fun: "t" =>
+    inf_ws_queue_1_size "t" == #0.
+
 Definition inf_ws_queue_1_push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in

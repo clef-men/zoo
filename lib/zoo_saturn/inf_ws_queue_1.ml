@@ -16,6 +16,12 @@ let create () =
     proph= Zoo.proph ();
   }
 
+let size t =
+  t.back - t.front
+
+let is_empty t =
+  size t == 0
+
 let push t v =
   let back = t.back in
   Inf_array.set t.data back v ;
