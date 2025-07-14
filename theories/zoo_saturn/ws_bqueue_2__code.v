@@ -16,6 +16,12 @@ Definition ws_bqueue_2_create : val :=
 Definition ws_bqueue_2_capacity : val :=
   ws_bqueue_1_capacity.
 
+Definition ws_bqueue_2_size : val :=
+  ws_bqueue_1_size.
+
+Definition ws_bqueue_2_is_empty : val :=
+  ws_bqueue_1_is_empty.
+
 Definition ws_bqueue_2_push : val :=
   fun: "t" "v" =>
     ws_bqueue_1_push "t" (ref "v").

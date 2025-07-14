@@ -7,6 +7,12 @@ let create =
 let capacity =
   Ws_bqueue_1.capacity
 
+let size =
+  Ws_bqueue_1.size
+
+let is_empty =
+  Ws_bqueue_1.is_empty
+
 let push t v =
   Ws_bqueue_1.push t (ref v)
 

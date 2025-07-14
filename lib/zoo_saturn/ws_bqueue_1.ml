@@ -17,6 +17,12 @@ let create cap =
 let capacity t =
   t.capacity
 
+let size t =
+  t.back - t.front
+
+let is_empty t =
+  size t == 0
+
 let push t v =
   let front = t.front in
   let back = t.back in

@@ -150,6 +150,64 @@ Section ws_bqueue_2_G.
     apply: ws_bqueue_1_capacity_spec.
   Qed.
 
+  Lemma ws_bqueue_2_size_spec t ι cap ws :
+    <<<
+      ws_bqueue_2_inv t ι cap ∗
+      ws_bqueue_2_owner t ws
+    | ∀∀ vs,
+      ws_bqueue_2_model t vs
+    >>>
+      ws_bqueue_2_size t @ ↑ι
+    <<<
+      ws_bqueue_2_model t vs
+    | RET #(length vs);
+      ⌜vs `suffix_of` ws⌝ ∗
+      ws_bqueue_2_owner t vs
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & (:owner)) HΦ".
+
+    awp_apply (ws_bqueue_1_size_spec with "[$]") without "Hslots_ws".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
+    iAaccIntro with "Hmodel"; first iSteps. iSteps --silent / as ((slots & ->)%suffix_fmap) "Hslots_vs Hslots_ws HΦ Howner"; last congruence.
+    rewrite length_fmap.
+    iDestruct (big_sepL2_length with "Hslots_vs") as %->.
+    iSteps.
+    iDestruct (big_sepL2_app_inv_l with "Hslots_ws") as "(%ws1 & %vs_ & -> & _ & Hslots_vs_)".
+    iDestruct (big_sepL2_ref_pointsto_agree with "Hslots_vs Hslots_vs_") as %<-.
+    iPureIntro. solve_suffix.
+  Qed.
+
+  Lemma ws_bqueue_2_is_empty_spec t ι cap ws :
+    <<<
+      ws_bqueue_2_inv t ι cap ∗
+      ws_bqueue_2_owner t ws
+    | ∀∀ vs,
+      ws_bqueue_2_model t vs
+    >>>
+      ws_bqueue_2_is_empty t @ ↑ι
+    <<<
+      ws_bqueue_2_model t vs
+    | RET #(bool_decide (vs = []%list));
+      ⌜vs `suffix_of` ws⌝ ∗
+      ws_bqueue_2_owner t vs
+    >>>.
+  Proof.
+    iIntros "%Φ (#Hinv & (:owner)) HΦ".
+
+    awp_apply (ws_bqueue_1_is_empty_spec with "[$]") without "Hslots_ws".
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
+    iAaccIntro with "Hmodel"; first iSteps. iSteps --silent / as ((slots & ->)%suffix_fmap) "Hslots_vs Hslots_ws HΦ Howner"; last congruence.
+    erewrite (bool_decide_ext (_ <$> _ = []) (length _ = 0)); last rewrite length_zero_iff_nil //.
+    rewrite length_fmap.
+    iDestruct (big_sepL2_length with "Hslots_vs") as %->.
+    erewrite (bool_decide_ext (length _ = 0)); last apply length_zero_iff_nil.
+    iSteps.
+    iDestruct (big_sepL2_app_inv_l with "Hslots_ws") as "(%ws1 & %vs_ & -> & _ & Hslots_vs_)".
+    iDestruct (big_sepL2_ref_pointsto_agree with "Hslots_vs Hslots_vs_") as %<-.
+    iPureIntro. solve_suffix.
+  Qed.
+
   Lemma ws_bqueue_2_push_spec t ι cap ws v :
     <<<
       ws_bqueue_2_inv t ι cap ∗

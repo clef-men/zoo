@@ -21,6 +21,14 @@ Definition ws_bqueue_1_capacity : val :=
   fun: "t" =>
     "t".{capacity}.
 
+Definition ws_bqueue_1_size : val :=
+  fun: "t" =>
+    "t".{back} - "t".{front}.
+
+Definition ws_bqueue_1_is_empty : val :=
+  fun: "t" =>
+    ws_bqueue_1_size "t" == #0.
+
 Definition ws_bqueue_1_push : val :=
   fun: "t" "v" =>
     let: "front" := "t".{front} in
