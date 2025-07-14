@@ -20,6 +20,14 @@ Definition ws_queue_1_create : val :=
   fun: <> =>
     { #1, #1, array_unsafe_make ws_queue_1_min_capacity (), Proph }.
 
+Definition ws_queue_1_size : val :=
+  fun: "t" =>
+    "t".{back} - "t".{front}.
+
+Definition ws_queue_1_is_empty : val :=
+  fun: "t" =>
+    ws_queue_1_size "t" == #0.
+
 Definition ws_queue_1_push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in

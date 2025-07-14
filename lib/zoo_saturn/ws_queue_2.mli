@@ -26,6 +26,48 @@ val create :
   , owner ?t []
 |}]
 
+val size :
+  'a t -> int
+[@@zoo{|
+  arguments
+    t
+  atomically
+    ι
+  requires
+    inv t ι
+  , owner t ws
+  arequires
+    model t ?vs
+  aensures
+    model t ?vs
+  returns
+    length ?vs
+  ensures
+    suffix ?vs ws
+  , owner t ?vs
+|}]
+
+val is_empty :
+  'a t -> bool
+[@@zoo{|
+  arguments
+    t
+  atomically
+    ι
+  requires
+    inv t ι
+  , owner t ws
+  arequires
+    model t ?vs
+  aensures
+    model t ?vs
+  decides
+    ?vs = []
+  ensures
+    suffix ?vs ws
+  , owner t ?vs
+|}]
+
 val push :
   'a t -> 'a -> unit
 [@@zoo{|
