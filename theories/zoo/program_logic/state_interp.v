@@ -6,6 +6,8 @@ From iris.base_logic Require Import
 
 From zoo Require Import
   prelude.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.iris.base_logic Require Import
   lib.ghost_list
   lib.prophet_map
@@ -341,6 +343,29 @@ Section zoo_G.
   | 5.
   Proof.
     apply _.
+  Qed.
+
+  Lemma big_sepL2_pointsto_agree ls dq1 vs1 dq2 vs2 :
+    ([∗ list] k ↦ l; v ∈ ls; vs1, l ↦{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls; vs2, l ↦{dq2} v) -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    iIntros "H1 H2".
+    rewrite list_eq_Forall2.
+    iApply big_sepL2_Forall2.
+    iDestruct (big_sepL2_retract_l with "H1") as "(% & H1)".
+    iDestruct (big_sepL2_retract_l with "H2") as "(% & H2)".
+    iDestruct (big_sepL2_sepL_2 with "H1 H2") as "H"; first congruence.
+    iApply (big_sepL2_impl with "H"). iIntros "!> %k %v1 %v2 _ _ ((%l1 & %Hl1_lookup & Hl1) & (%l2 & %Hl2_lookup & Hl2))". simplify.
+    iApply (pointsto_agree with "Hl1 Hl2").
+  Qed.
+  Lemma big_sepL2_ref_pointsto_agree ls dq1 vs1 dq2 vs2 :
+    ([∗ list] k ↦ l; v ∈ ls; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls; vs2, l ↦ᵣ{dq2} v) -∗
+    ⌜vs1 = vs2⌝.
+  Proof.
+    setoid_rewrite location_add_0.
+    apply big_sepL2_pointsto_agree.
   Qed.
 
   #[global] Instance thread_pointsto_timeless tid dq v :
