@@ -337,6 +337,12 @@ Section zoo_G.
       l ↦ₕ Header 0 (length vs) ∗
       chunk_model l dq vs.
 
+    Lemma array_model_to_inv t dq vs :
+      array_model t dq vs ⊢
+      array_inv t (length vs).
+    Proof.
+      iSteps.
+    Qed.
     Lemma array_slice_to_model t sz dq vs :
       sz = length vs →
       array_inv t sz -∗
@@ -344,12 +350,6 @@ Section zoo_G.
       array_model t dq vs.
     Proof.
       iSteps. rewrite location_add_0 //.
-    Qed.
-    Lemma array_model_to_inv t dq vs :
-      array_model t dq vs ⊢
-      array_inv t (length vs).
-    Proof.
-      iSteps.
     Qed.
     Lemma array_model_to_slice t dq vs :
       array_model t dq vs ⊣⊢
@@ -540,6 +540,12 @@ Section zoo_G.
       l ↦ₕ Header 0 sz ∗
       chunk_cslice l sz i dq vs.
 
+    Lemma array_cslice_to_inv t sz i dq vs :
+      array_cslice t sz i dq vs ⊢
+      array_inv t sz.
+    Proof.
+      iSteps.
+    Qed.
     Lemma array_model_to_cslice t dq vs :
       array_model t dq vs ⊢
       array_cslice t (length vs) 0 dq vs.
@@ -547,25 +553,35 @@ Section zoo_G.
       rewrite /array_model /array_slice /array_cslice.
       setoid_rewrite chunk_model_to_cslice. done.
     Qed.
-    Lemma array_slice_to_cslice_cell t sz i dq v :
-      array_inv t sz -∗
-      array_slice t (i `mod` sz) dq [v] -∗
-      array_cslice t sz i dq [v].
+    Lemma array_cslice_to_slice t sz i dq vs :
+      0 < sz →
+      length vs ≤ sz →
+      array_cslice t sz i dq vs ⊣⊢
+        array_inv t sz ∗
+        array_slice t (i `mod` sz) dq (take (sz - i `mod` sz) vs) ∗
+        array_slice t 0 dq (drop (sz - i `mod` sz) vs).
     Proof.
-      rewrite /array_slice Nat2Z.inj_mod.
-      setoid_rewrite chunk_model_cslice_cell.
+      intros Hsz Hvs.
+      rewrite /array_cslice /array_slice.
+      setoid_rewrite chunk_cslice_to_model; [| done..].
+      setoid_rewrite location_add_0.
       iSteps.
     Qed.
-    Lemma array_cslice_to_inv t sz i dq vs :
+    Lemma array_cslice_to_slice' t sz i dq vs :
+      0 < sz →
+      length vs ≤ sz →
       array_cslice t sz i dq vs ⊢
-      array_inv t sz.
+        array_slice t (i `mod` sz) dq (take (sz - i `mod` sz) vs) ∗
+        array_slice t 0 dq (drop (sz - i `mod` sz) vs).
     Proof.
+      intros Hsz Hvs.
+      rewrite array_cslice_to_slice //.
       iSteps.
     Qed.
     Lemma array_cslice_to_model t sz i dq vs :
       0 < sz →
       length vs = sz →
-      array_cslice t sz i dq vs ⊢
+      array_cslice t sz i dq vs ⊣⊢
       array_model t dq (list.rotate (sz - i `mod` sz) vs).
     Proof.
       intros Hsz Hvs.
@@ -574,11 +590,27 @@ Section zoo_G.
       rewrite list.length_rotate Hvs //.
     Qed.
     Lemma array_cslice_to_slice_cell t sz i dq v :
-      array_cslice t sz i dq [v] ⊢
-      array_slice t (i `mod` sz) dq [v].
+      array_cslice t sz i dq [v] ⊣⊢
+        array_inv t sz ∗
+        array_slice t (i `mod` sz) dq [v].
     Proof.
       rewrite /array_slice Nat2Z.inj_mod.
       setoid_rewrite chunk_model_cslice_cell.
+      iSteps.
+    Qed.
+    Lemma array_cslice_to_slice_cell' t sz i dq v :
+      array_cslice t sz i dq [v] ⊢
+      array_slice t (i `mod` sz) dq [v].
+    Proof.
+      rewrite array_cslice_to_slice_cell.
+      iSteps.
+    Qed.
+    Lemma array_slice_to_cslice_cell t sz i dq v :
+      array_inv t sz -∗
+      array_slice t (i `mod` sz) dq [v] -∗
+      array_cslice t sz i dq [v].
+    Proof.
+      rewrite array_cslice_to_slice_cell.
       iSteps.
     Qed.
 
@@ -6520,7 +6552,7 @@ Section zoo_G.
     iDestruct (array_model_lookup_acc with "Hmodel") as "(Hslice & Hmodel)"; first done.
     iDestruct (array_slice_to_cslice_cell with "Hinv Hslice") as "Hcslice".
     wp_apply (array_unsafe_cget_spec_cell with "Hcslice") as "Hcslice"; first lia.
-    iDestruct (array_cslice_to_slice_cell with "Hcslice") as "Hslice".
+    iDestruct (array_cslice_to_slice_cell' with "Hcslice") as "Hslice".
     iSteps.
   Qed.
 
@@ -6798,7 +6830,7 @@ Section zoo_G.
     iDestruct (array_model_update with "Hmodel") as "(#Hinv & Hslice & Hmodel)"; first done.
     iDestruct (array_slice_to_cslice_cell with "Hinv Hslice") as "Hcslice".
     wp_apply (array_unsafe_cset_spec_cell with "Hcslice") as "Hcslice"; first lia.
-    iDestruct (array_cslice_to_slice_cell with "Hcslice") as "Hslice".
+    iDestruct (array_cslice_to_slice_cell' with "Hcslice") as "Hslice".
     iSteps.
   Qed.
 
