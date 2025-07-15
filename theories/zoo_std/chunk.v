@@ -98,14 +98,14 @@ Section zoo_G.
     Lemma chunk_model_app3 l dq vs1 vs2 vs3 :
       chunk_model l dq vs1 ∗
       chunk_model (l +ₗ length vs1) dq vs2 ∗
-      chunk_model (l +ₗ (length vs1 + length vs2)%nat) dq vs3 ⊣⊢
+      chunk_model (l +ₗ ⁺(length vs1 + length vs2)) dq vs3 ⊣⊢
       chunk_model l dq (vs1 ++ vs2 ++ vs3).
     Proof.
       rewrite -!chunk_model_app location_add_assoc Nat2Z.inj_add //.
     Qed.
     Lemma chunk_model_app3_1 dq l1 vs1 l2 vs2 l3 vs3 :
       l2 = l1 +ₗ length vs1 →
-      l3 = l1 +ₗ (length vs1 + length vs2)%nat →
+      l3 = l1 +ₗ ⁺(length vs1 + length vs2) →
       chunk_model l1 dq vs1 -∗
       chunk_model l2 dq vs2 -∗
       chunk_model l3 dq vs3 -∗
@@ -118,7 +118,7 @@ Section zoo_G.
       chunk_model l dq vs ⊢
         chunk_model l dq vs1 ∗
         chunk_model (l +ₗ length vs1) dq vs2 ∗
-        chunk_model (l +ₗ (length vs1 + length vs2)%nat) dq vs3.
+        chunk_model (l +ₗ ⁺(length vs1 + length vs2)) dq vs3.
     Proof.
       intros ->. rewrite chunk_model_app3 //.
     Qed.
@@ -458,14 +458,14 @@ Section zoo_G.
     Lemma chunk_span_app3 l dq n1 (n2 : nat) n3 :
       chunk_span l dq n1 ∗
       chunk_span (l +ₗ n1) dq n2 ∗
-      chunk_span (l +ₗ (n1 + n2)%nat) dq n3 ⊣⊢
+      chunk_span (l +ₗ ⁺(n1 + n2)) dq n3 ⊣⊢
       chunk_span l dq (n1 + n2 + n3).
     Proof.
       rewrite -!chunk_span_app. iSteps.
     Qed.
     Lemma chunk_span_app3_1 dq l1 n1 l2 n2 l3 n3 :
       l2 = l1 +ₗ n1 →
-      l3 = l1 +ₗ (n1 + n2)%nat →
+      l3 = l1 +ₗ ⁺(n1 + n2) →
       chunk_span l1 dq n1 -∗
       chunk_span l2 dq n2 -∗
       chunk_span l3 dq n3 -∗
@@ -478,7 +478,7 @@ Section zoo_G.
       chunk_span l dq n ⊢
         chunk_span l dq n1 ∗
         chunk_span (l +ₗ n1) dq n2 ∗
-        chunk_span (l +ₗ (n1 + n2)%nat) dq n3.
+        chunk_span (l +ₗ ⁺(n1 + n2)) dq n3.
     Proof.
       intros ->. rewrite chunk_span_app3 //.
     Qed.
@@ -774,9 +774,9 @@ Section zoo_G.
     Lemma chunk_cslice_update {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-        (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v ∗
+        (l +ₗ ⁺(i + k) `mod` sz) ↦{dq} v ∗
         ( ∀ w,
-          (l +ₗ (i + k)%nat `mod` sz) ↦{dq} w -∗
+          (l +ₗ ⁺(i + k) `mod` sz) ↦{dq} w -∗
           chunk_cslice l sz i dq (<[k := w]> vs)
         ).
     Proof.
@@ -785,8 +785,8 @@ Section zoo_G.
     Lemma chunk_cslice_lookup_acc {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-        (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v ∗
-        ( (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v -∗
+        (l +ₗ ⁺(i + k) `mod` sz) ↦{dq} v ∗
+        ( (l +ₗ ⁺(i + k) `mod` sz) ↦{dq} v -∗
           chunk_cslice l sz i dq vs
         ).
     Proof.
@@ -795,7 +795,7 @@ Section zoo_G.
     Lemma chunk_cslice_lookup {l sz i dq vs} k v :
       vs !! k = Some v →
       chunk_cslice l sz i dq vs ⊢
-      (l +ₗ (i + k)%nat `mod` sz) ↦{dq} v.
+      (l +ₗ ⁺(i + k) `mod` sz) ↦{dq} v.
     Proof.
       rewrite Nat2Z.inj_add. apply: big_sepL_lookup.
     Qed.
@@ -885,6 +885,57 @@ Section zoo_G.
       rewrite /chunk_cslice Nat2Z.inj_mod.
       setoid_rewrite Z.add_mod_idemp_l; last lia.
       done.
+    Qed.
+
+    #[local] Lemma chunk_cslice_to_model_aux l sz i dq vs :
+      0 < sz →
+      i + length vs ≤ sz →
+      chunk_cslice l sz i dq vs ⊣⊢
+      chunk_model (l +ₗ i) dq vs.
+    Proof.
+      intros.
+      iSplit.
+      all: iIntros "H".
+      all: iApply (big_sepL_impl with "H"); iIntros "!>" (k v Hk%lookup_lt_Some) "H↦".
+      all: rewrite location_add_assoc Z.mod_small //; first lia.
+    Qed.
+    Lemma chunk_cslice_to_model l sz i dq vs :
+      0 < sz →
+      length vs ≤ sz →
+      chunk_cslice l sz i dq vs ⊣⊢
+        chunk_model (l +ₗ ⁺(i `mod` sz)) dq (take (sz - i `mod` sz) vs) ∗
+        chunk_model l dq (drop (sz - i `mod` sz) vs).
+    Proof.
+      intros Hsz Hvs.
+      rewrite chunk_cslice_mod //.
+      destruct_decide (i `mod` sz + length vs ≤ sz).
+      - rewrite firstn_all2; first lia.
+        rewrite skipn_all2; first lia.
+        rewrite chunk_cslice_to_model_aux //.
+        iSteps.
+        iApply chunk_model_nil.
+      - rewrite -{1}(take_drop (sz - i `mod` sz) vs) -chunk_cslice_app.
+        rewrite length_take Nat.min_l; first lia.
+        rewrite -Nat.le_add_sub; first lia.
+        setoid_rewrite chunk_cslice_mod at 2; last done.
+        rewrite Nat.Div0.mod_same.
+        rewrite chunk_cslice_to_model_aux //.
+        { simpl_length. lia. }
+        rewrite chunk_cslice_to_model_aux //.
+        { simpl_length. lia. }
+        rewrite location_add_0 //.
+    Qed.
+    Lemma chunk_cslice_to_model_full l sz i dq vs :
+      0 < sz →
+      length vs = sz →
+      chunk_cslice l sz i dq vs ⊣⊢
+      chunk_model l dq (list.rotate (sz - i `mod` sz) vs).
+    Proof.
+      intros.
+      rewrite chunk_cslice_to_model; [lia.. |].
+      rewrite -chunk_model_app length_drop.
+      replace (length vs - (sz - i `mod` sz)) with (i `mod` sz) by lia.
+      iSteps.
     Qed.
 
     #[local] Lemma chunk_cslice_rotate_right_aux {l sz} i1 i2 dq vs :
@@ -1065,19 +1116,6 @@ Section zoo_G.
       2: iDestruct (chunk_cslice_rotate_right_1' i1 (i1 - i2) with "Hcslice") as "Hcslice"; [done | simpl_length | lia |].
       all: rewrite rotate_add; first lia.
       all: rewrite rotate_length //; first lia.
-    Qed.
-
-    Lemma chunk_cslice_to_model l sz i dq vs :
-      0 < sz →
-      length vs = sz →
-      chunk_cslice l sz i dq vs ⊢
-      chunk_model l dq (list.rotate (sz - i `mod` sz) vs).
-    Proof.
-      iIntros "% % Hcslice".
-      rewrite chunk_cslice_rotate_left_0 //.
-      iApply (big_sepL_impl with "Hcslice"). iIntros (k v Hk%lookup_lt_Some) "!> H↦".
-      simpl_length in Hk.
-      rewrite Z.add_0_l Z.mod_small //; first lia.
     Qed.
 
     Lemma chunk_cslice_valid l sz i dq vs :

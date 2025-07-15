@@ -570,7 +570,7 @@ Section zoo_G.
     Proof.
       intros Hsz Hvs.
       rewrite /array_cslice /array_model.
-      setoid_rewrite chunk_cslice_to_model; [| done..].
+      setoid_rewrite chunk_cslice_to_model_full; [| done..].
       rewrite list.length_rotate Hvs //.
     Qed.
     Lemma array_cslice_to_slice_cell t sz i dq v :
