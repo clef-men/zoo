@@ -8,6 +8,33 @@ From zoo.common Require Import
 From zoo Require Import
   options.
 
+Create HintDb simpl_length.
+
+Hint Rewrite
+  @length_reverse
+  @length_app
+  @length_insert
+  @length_take
+  @length_drop
+  @length_fmap
+  @length_replicate
+  @length_seq
+  @length_zip_with
+: simpl_length.
+
+Tactic Notation "simpl_length" :=
+  autorewrite with simpl_length; try done.
+Tactic Notation "simpl_length" "/=" :=
+  repeat (progress csimpl in * || simpl_length).
+Tactic Notation "simpl_length" "in" ne_hyp_list(Hs) :=
+  autorewrite with simpl_length in Hs; try done.
+Tactic Notation "simpl_length" "/=" "in" ne_hyp_list(Hs) :=
+  repeat (progress csimpl in * || simpl_length in Hs).
+Tactic Notation "simpl_length" "in" "*" :=
+  autorewrite with simpl_length in *; try done.
+Tactic Notation "simpl_length" "/=" "in" "*" :=
+  repeat (progress csimpl in * || simpl_length in * ).
+
 Section basic.
   Context {A : Type}.
 
@@ -287,6 +314,10 @@ Section zip3_with.
     all: naive_solver.
   Qed.
 End zip3_with.
+
+Hint Rewrite
+  @length_zip3_with
+: simpl_length.
 
 Section foldri.
   Implicit Types i : nat.
@@ -816,11 +847,16 @@ Section slice.
     rewrite -take_S_r // lookup_drop //.
   Qed.
 
-  Lemma slice_length i n l :
+  Lemma length_slice i n l :
+    length (slice i n l) = n `min` (length l - i).
+  Proof.
+    rewrite length_take length_drop //.
+  Qed.
+  Lemma length_slice' i n l :
     i + n ≤ length l →
     length (slice i n l) = n.
   Proof.
-    rewrite length_take length_drop. lia.
+    rewrite length_slice. lia.
   Qed.
 
   Lemma slice_lookup_Some_inv i n l k x :
@@ -837,6 +873,10 @@ Section slice.
   Qed.
 End slice.
 
+Hint Rewrite
+  @length_slice
+: simpl_length.
+
 Section with_slice.
   Context {A : Type}.
 
@@ -847,12 +887,17 @@ Section with_slice.
     take i l ++ s ++ drop (i + n) l.
 
   Lemma length_with_slice i n l s :
+    length (with_slice i n l s) = i `min` length l + length s + (length l - i - n).
+  Proof.
+    rewrite !length_app length_take length_drop. lia.
+  Qed.
+  Lemma length_with_slice' i n l s :
     i + n ≤ length l →
     length s = n →
     length (with_slice i n l s) = length l.
   Proof.
     intros.
-    rewrite /with_slice !length_app length_take length_drop. lia.
+    rewrite length_with_slice. lia.
   Qed.
 
   Lemma with_slice_0 n l s :
@@ -966,6 +1011,10 @@ Section with_slice.
   Qed.
 End with_slice.
 
+Hint Rewrite
+  @length_with_slice
+: simpl_length.
+
 Section rotate.
   Context {A : Type}.
 
@@ -1027,6 +1076,10 @@ Section rotate.
   Qed.
 End rotate.
 
+Hint Rewrite
+  @length_rotate
+: simpl_length.
+
 Section omap.
   Lemma length_omap `(f : A → option B) l :
     length (omap f l) ≤ length l.
@@ -1037,6 +1090,10 @@ Section omap.
     - apply Nat.le_le_succ_r. done.
   Qed.
 End omap.
+
+Hint Rewrite
+  @length_omap
+: simpl_length.
 
 Section oflatten.
   Context {A : Type}.
@@ -1091,32 +1148,6 @@ Section oflatten.
   Qed.
 End oflatten.
 
-Create HintDb simpl_length.
 Hint Rewrite
-  @length_reverse
-  @length_app
-  @length_insert
-  @length_take
-  @length_drop
-  @length_fmap
-  @length_replicate
-  @length_seq
-  @length_zip_with
-  @length_zip3_with
-  @length_rotate
-  @length_omap
   @length_oflatten
 : simpl_length.
-
-Tactic Notation "simpl_length" :=
-  autorewrite with simpl_length; try done.
-Tactic Notation "simpl_length" "/=" :=
-  repeat (progress csimpl in * || simpl_length).
-Tactic Notation "simpl_length" "in" ne_hyp_list(Hs) :=
-  autorewrite with simpl_length in Hs; try done.
-Tactic Notation "simpl_length" "/=" "in" ne_hyp_list(Hs) :=
-  repeat (progress csimpl in * || simpl_length in Hs).
-Tactic Notation "simpl_length" "in" "*" :=
-  autorewrite with simpl_length in *; try done.
-Tactic Notation "simpl_length" "/=" "in" "*" :=
-  repeat (progress csimpl in * || simpl_length in * ).
