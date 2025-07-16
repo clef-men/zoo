@@ -14,6 +14,17 @@ Section basic.
   Implicit Types x y z : A.
   Implicit Types l : list A.
 
+  Lemma list_eq l1 l2 :
+    l1 = l2 ↔
+      length l1 = length l2 ∧
+        ∀ i x1 x2,
+        l1 !! i = Some x1 →
+        l2 !! i = Some x2 →
+        x1 = x2.
+  Proof.
+    rewrite list_eq_Forall2 Forall2_same_length_lookup //.
+  Qed.
+
   Lemma app_not_nil l1 l2 :
     l1 ≠ [] ∨ l2 ≠ [] →
     l1 ++ l2 ≠ [].
