@@ -1205,6 +1205,22 @@ Section zoo_G.
       iApply big_sepL_bupd. iApply (big_sepL_impl with "Hcslice").
       iSteps.
     Qed.
+
+    Lemma chunk_cslice_length l sz i vs :
+      0 < sz →
+      chunk_cslice l sz i (DfracOwn 1) vs ⊢
+      ⌜length vs ≤ sz⌝.
+    Proof.
+      rewrite Nat.le_ngt.
+      iIntros "%Hsz Hcslice %Hvs".
+      destruct vs as [| v1 vs]; simpl in Hvs; first lia.
+      iDestruct (chunk_cslice_cons with "Hcslice") as "(H↦1 & Hcslice)".
+      destruct (lookup_lt_is_Some_2 vs (sz - 1)) as (v2 & Hlookup2); first lia.
+      iDestruct (chunk_cslice_lookup with "Hcslice") as "H↦2"; first done.
+      replace (S i + (sz - 1)) with (i + sz) by lia.
+      rewrite -!Nat2Z.inj_mod -Nat.Div0.add_mod_idemp_r Nat.Div0.mod_same Nat.add_0_r.
+      iApply (pointsto_exclusive with "H↦1 H↦2").
+    Qed.
   End chunk_cslice.
 
   Section itype_chunk.
