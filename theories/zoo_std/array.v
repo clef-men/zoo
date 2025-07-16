@@ -1118,6 +1118,15 @@ Section zoo_G.
       setoid_rewrite chunk_cslice_persist at 1.
       iSteps.
     Qed.
+
+    Lemma array_cslice_length t sz i vs :
+      0 < sz →
+      array_cslice t sz i (DfracOwn 1) vs ⊢
+      ⌜length vs ≤ sz⌝.
+    Proof.
+      iIntros "%Hsz (%l & -> & _ & Hcslice)".
+      iApply (chunk_cslice_length with "Hcslice"); first done.
+    Qed.
   End array_cslice.
 
   #[local] Typeclasses Opaque
