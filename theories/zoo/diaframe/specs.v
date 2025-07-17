@@ -297,7 +297,7 @@ Section zoo_G.
     HINT1 ε₀ ✱ [
       ∃ hdr e,
       ▷ l ↦ₕ hdr ∗
-      ⌜eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e⌝ ∗
+      ⌜eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e⌝ ∗
       ▷ (
         emp -∗
         WP K e ∷ tid @ E {{ Φ }}

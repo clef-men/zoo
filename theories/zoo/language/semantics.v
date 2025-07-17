@@ -112,33 +112,38 @@ Definition eval_binop op v1 v2 :=
 Definition eval_app recs x v e :=
   foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) (subst' x v e) recs.
 
-Fixpoint eval_match tag sz (vs : location + generativity * list val) x_fb e_fb brs :=
-  let subj :=
-    match vs with
-    | inl l =>
-        ValLoc l
-    | inr (gen, vs) =>
-        ValBlock gen tag vs
-    end
-  in
+Inductive subject :=
+  | SubjectLoc l
+  | SubjectBlock gen vs.
+Implicit Types subj : subject.
+
+Definition subject_to_val tag subj :=
+  match subj with
+  | SubjectLoc l =>
+      ValLoc l
+  | SubjectBlock gen vs =>
+      ValBlock gen tag vs
+  end.
+
+Fixpoint eval_match tag sz subj x_fb e_fb brs :=
   match brs with
   | [] =>
-      Some $ subst' x_fb subj e_fb
+      Some $ subst' x_fb (subject_to_val tag subj) e_fb
   | br :: brs =>
       let pat := br.1 in
       if pat.(pattern_tag) ≟ tag && length pat.(pattern_fields) ≟ sz then
-        let res := subst' pat.(pattern_as) subj br.2 in
-        match vs with
-        | inl l =>
+        let res := subst' pat.(pattern_as) (subject_to_val tag subj) br.2 in
+        match subj with
+        | SubjectLoc l =>
             if forallb (BAnon ≟.) pat.(pattern_fields) then
               Some res
             else
               None
-        | inr (_, vs) =>
+        | SubjectBlock _ vs =>
             Some $ subst_list pat.(pattern_fields) vs res
         end
       else
-        eval_match tag sz vs x_fb e_fb brs
+        eval_match tag sz subj x_fb e_fb brs
   end.
 #[global] Arguments eval_match _ _ !_ _ _ !_ / : assert.
 
@@ -401,7 +406,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         []
   | base_step_match_mutable l hdr x e brs e' σ :
       σ.(state_headers) !! l = Some hdr →
-      eval_match hdr.(header_tag) hdr.(header_size) (inl l) x e brs = Some e' →
+      eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x e brs = Some e' →
       base_step
         tid
         (Match (Val $ ValLoc l) x e brs)
@@ -411,7 +416,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
   | base_step_match_immutable gen tag vs x e brs e' σ :
-      eval_match tag (length vs) (inr (gen, vs)) x e brs = Some e' →
+      eval_match tag (length vs) (SubjectBlock gen vs) x e brs = Some e' →
       base_step
         tid
         (Match (Val $ ValBlock gen tag vs) x e brs)

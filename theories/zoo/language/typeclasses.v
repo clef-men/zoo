@@ -460,7 +460,7 @@ Section pure_exec.
 
   #[global] Instance pure_match gen tag vs x_fb e_fb brs e :
     PureExec
-      (eval_match tag (length vs) (inr (gen, vs)) x_fb e_fb brs = Some e)
+      (eval_match tag (length vs) (SubjectBlock gen vs) x_fb e_fb brs = Some e)
       1
       (Match (Val $ ValBlock gen tag vs) x_fb e_fb brs)
       e.

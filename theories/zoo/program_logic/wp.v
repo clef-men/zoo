@@ -133,7 +133,7 @@ Section zoo_G.
   Qed.
 
   Lemma bwp_match l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ BWP e ∶ tid @ E {{ Φ }} -∗
     BWP Match #l x_fb e_fb brs ∶ tid @ E {{ Φ }}.
@@ -147,7 +147,7 @@ Section zoo_G.
     iSteps.
   Qed.
   Lemma bwp_match_ctx K `{!LanguageCtx K} l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ BWP K e ∶ tid @ E {{ Φ }} -∗
     BWP K (Match #l x_fb e_fb brs) ∶ tid @ E {{ Φ }}.
@@ -158,7 +158,7 @@ Section zoo_G.
     iApply (bwp_bind_inv with "H").
   Qed.
   Lemma wp_match l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP e ∷ tid @ E {{ Φ }} -∗
     WP Match #l x_fb e_fb brs ∷ tid @ E {{ Φ }}.
@@ -170,7 +170,7 @@ Section zoo_G.
       iApply (bwp_match with "Hl H"); first done.
   Qed.
   Lemma wp_match_ctx K `{!LanguageCtx K} l hdr x_fb e_fb brs e tid E Φ :
-    eval_match hdr.(header_tag) hdr.(header_size) (inl l) x_fb e_fb brs = Some e →
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
     ▷ l ↦ₕ hdr -∗
     ▷ WP K e ∷ tid @ E {{ Φ }} -∗
     WP K (Match #l x_fb e_fb brs) ∷ tid @ E {{ Φ }}.
