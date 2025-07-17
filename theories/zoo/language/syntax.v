@@ -515,7 +515,7 @@ Section val_ind.
     end.
 End val_ind.
 
-Section expr_val_ind.
+Section expr_val_mutind.
   Variable Pexpr : expr → Prop.
   Variable Pval : val → Prop.
 
@@ -747,7 +747,12 @@ Section expr_val_ind.
           gen tag
           vs (Forall_true Pval vs val_expr_ind)
     end.
-End expr_val_ind.
+
+  Definition expr_val_mutind :=
+    conj
+      expr_val_ind
+      val_expr_ind.
+End expr_val_mutind.
 
 Canonical val_O :=
   leibnizO val.
