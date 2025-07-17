@@ -83,6 +83,21 @@ Section bi.
       rewrite big_sepL_cons. iSteps.
     Qed.
 
+    Lemma big_sepL_app_1 Φ l1 l2 :
+      ([∗ list] k ↦ y ∈ l1 ++ l2, Φ k y) ⊢
+        ([∗ list] k ↦ y ∈ l1, Φ k y) ∗
+        ([∗ list] k ↦ y ∈ l2, Φ (length l1 + k) y).
+    Proof.
+      rewrite big_sepL_app //.
+    Qed.
+    Lemma big_sepL_app_2 Φ l1 l2 :
+      ([∗ list] k ↦ y ∈ l1, Φ k y) -∗
+      ([∗ list] k ↦ y ∈ l2, Φ (length l1 + k) y) -∗
+      [∗ list] k ↦ y ∈ l1 ++ l2, Φ k y.
+    Proof.
+      rewrite big_sepL_app. iSteps.
+    Qed.
+
     Lemma big_sepL_snoc_1 Φ l x :
       ([∗ list] k ↦ y ∈ (l ++ [x]), Φ k y) ⊢
         ([∗ list] k ↦ y ∈ l, Φ k y) ∗
