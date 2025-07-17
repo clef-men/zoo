@@ -4,6 +4,7 @@ From iris.base_logic Require Import
 From zoo Require Import
   prelude.
 From zoo.common Require Import
+  fin_maps
   list
   treemap.
 From zoo.iris.base_logic Require Import
@@ -569,7 +570,7 @@ Module raw.
         apply lookup_union_Some_raw in Hσ_lookup as [Hσ_lookup | (Hσ_lookup & Hσ₀_lookup)].
         - apply lookup_fmap_Some in Hσ_lookup as ((g_r & _v) & ? & Hς_lookup).
           naive_solver.
-        - rewrite lookup_fmap fmap_None in Hσ_lookup.
+        - rewrite lookup_fmap_None in Hσ_lookup.
           naive_solver.
       }
       iDestruct (big_sepM_lookup_acc with "Hς") as "((Hr_gen & Hr_value) & Hς)"; first done.

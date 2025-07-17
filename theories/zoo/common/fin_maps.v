@@ -21,6 +21,20 @@ Section dom.
   Qed.
 End dom.
 
+Section fmap.
+  Context `{FinMapDom K M D}.
+  Context {A : Type}.
+
+  Implicit Types m : M A.
+
+  Lemma lookup_fmap_None {B} (f : A → B) m k :
+    (f <$> m) !! k = None ↔
+    m !! k = None.
+  Proof.
+    rewrite lookup_fmap fmap_None //.
+  Qed.
+End fmap.
+
 Section map_Forall.
   Context `{FinMap K M}.
   Context {A : Type}.
