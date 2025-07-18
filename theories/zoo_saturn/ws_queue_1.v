@@ -2005,13 +2005,13 @@ Section ws_queue_1_G.
         iEval (rewrite Z.shiftl_mul_pow2 //).
 
         iDestruct (array_cslice_reshape front1 with "Hdata_cslice₂") as "(%vs & %priv & % & % & Hdata_cslice₂ & _)"; [lia.. |].
-        wp_apply (array_unsafe_cgrow_spec with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [done | simpl_length | lia.. |].
+        wp_apply (array_unsafe_cgrow_spec with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [simpl_length; lia.. |].
 
         wp_smart_apply (array_unsafe_cset_spec with "Hdata'_cslice") as "Hdata'_cslice".
         { simpl_length. lia. }
         iEval (rewrite -assoc insert_app_r_0; first lia) in "Hdata'_cslice".
         iDestruct "Hdata'_cslice" as "(Hdata'_cslice₁ & Hdata'_cslice₂)".
-        wp_smart_apply (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & _)"; [lia.. | simpl_length; lia | iSteps |].
+        wp_smart_apply (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & _)"; [simpl_length; lia.. | iSteps |].
 
         iDestruct (array_cslice_rotate_right_small_1' back cap with "Hdata'_cslice₂") as "Hdata'_cslice₂"; [lia | simpl_length; lia | lia.. |].
         iEval (rewrite /list.rotate drop_app_length'; first lia) in "Hdata'_cslice₂".
@@ -2249,7 +2249,7 @@ Section ws_queue_1_G.
           iEval (rewrite Z.shiftr_div_pow2 //).
 
           iDestruct (array_cslice_reshape front2 with "Hdata_cslice₂") as "(%vs & %priv & % & % & Hdata_cslice₂ & Hdata_cslice₂_rebase)"; [lia.. |].
-          wp_apply (array_unsafe_cshrink_slice_spec_fit with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [lia | simpl_length; lia |].
+          wp_apply (array_unsafe_cshrink_slice_spec_fit with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [simpl_length; lia.. |].
           iEval (rewrite take_app_ge; first lia) in "Hdata'_cslice".
           iDestruct "Hdata'_cslice" as "(Hdata'_cslice₁ & Hdata'_cslice₂)".
           wp_smart_apply (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & Hdata_cslice₂)"; [lia.. | simpl_length; lia | iSteps |].

@@ -280,10 +280,25 @@ let cset t i v =
   unsafe_cset t i v
 
 let unsafe_ccopy_slice t1 i1 t2 i2 n =
-  for j = 0 to n - 1 do
-    let v = unsafe_cget t1 (i1 + j) in
-    unsafe_cset t2 (i2 + j) v
-  done
+  let sz2 = size t2 in
+  let i2 = i2 mod sz2 in
+  if i2 + n <= sz2 then
+    unsafe_copy_slice t1 i1 t2 i2 n
+  else
+    let n1 = sz2 - i2 in
+    let n2 = n - n1 in
+    unsafe_copy_slice t1 i1 t2 i2 n1 ;
+    unsafe_copy_slice t1 (i1 + n1) t2 0 n2
+let unsafe_ccopy_slice t1 i1 t2 i2 n =
+  let sz1 = size t1 in
+  let i1 = i1 mod sz1 in
+  if i1 + n <= sz1 then
+    unsafe_ccopy_slice t1 i1 t2 i2 n
+  else
+    let n1 = sz1 - i1 in
+    let n2 = n - n1 in
+    unsafe_ccopy_slice t1 i1 t2 i2 n1 ;
+    unsafe_ccopy_slice t1 0 t2 (i2 + n1) n2
 let ccopy_slice t1 i1 t2 i2 n =
   if not (0 <= i1) then
     invalid_arg @@ __FUNCTION__ ^ ": negative index" ;

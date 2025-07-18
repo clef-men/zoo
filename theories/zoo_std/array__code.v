@@ -307,12 +307,31 @@ Definition array_cset : val :=
     assume (#0 < array_size "t") ;;
     array_unsafe_cset "t" "i" "v".
 
+Definition array_unsafe_ccopy_slice_0 : val :=
+  fun: "t1" "i1" "t2" "i2" "n" =>
+    let: "sz2" := array_size "t2" in
+    let: "i2" := "i2" `rem` "sz2" in
+    if: "i2" + "n" ≤ "sz2" then (
+      array_unsafe_copy_slice "t1" "i1" "t2" "i2" "n"
+    ) else (
+      let: "n1" := "sz2" - "i2" in
+      let: "n2" := "n" - "n1" in
+      array_unsafe_copy_slice "t1" "i1" "t2" "i2" "n1" ;;
+      array_unsafe_copy_slice "t1" ("i1" + "n1") "t2" #0 "n2"
+    ).
+
 Definition array_unsafe_ccopy_slice : val :=
   fun: "t1" "i1" "t2" "i2" "n" =>
-    for: "j" := #0 to "n" begin
-      let: "v" := array_unsafe_cget "t1" ("i1" + "j") in
-      array_unsafe_cset "t2" ("i2" + "j") "v"
-    end.
+    let: "sz1" := array_size "t1" in
+    let: "i1" := "i1" `rem` "sz1" in
+    if: "i1" + "n" ≤ "sz1" then (
+      array_unsafe_ccopy_slice_0 "t1" "i1" "t2" "i2" "n"
+    ) else (
+      let: "n1" := "sz1" - "i1" in
+      let: "n2" := "n" - "n1" in
+      array_unsafe_ccopy_slice_0 "t1" "i1" "t2" "i2" "n1" ;;
+      array_unsafe_ccopy_slice_0 "t1" #0 "t2" ("i2" + "n1") "n2"
+    ).
 
 Definition array_ccopy_slice : val :=
   fun: "t1" "i1" "t2" "i2" "n" =>
