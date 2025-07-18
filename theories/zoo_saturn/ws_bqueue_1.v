@@ -981,7 +981,7 @@ Section ws_bqueue_1_G.
     wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hdata_model"; first lia.
     iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
     iEval (simpl_length) in "Hdata_cslice".
-    iDestruct (array_cslice_rotate_right_0 1 with "Hdata_cslice") as "Hdata_cslice"; [lia | simpl_length |].
+    iDestruct (array_cslice_rotate_right_0 1 with "Hdata_cslice") as "Hdata_cslice"; [simpl_length; lia.. |].
     iEval (rewrite list.rotate_replicate) in "Hdata_cslice".
     iDestruct "Hdata_cslice" as "(Hdata_cslice₁ & Hdata_cslice₂)".
 
@@ -1427,7 +1427,7 @@ Section ws_bqueue_1_G.
       iMod (model_steal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
       iMod ("HP" with "[$Hmodel₁ $Hhistory_at_front1 //]") as "HP".
 
-      iDestruct (array_cslice_rotate_right_1' (S front) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia | ].
+      iDestruct (array_cslice_rotate_right_1' (S front) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length/=; lia.. |].
       eassert (list.rotate _ _ = vs1 ++ priv1 ++ [v1]) as ->.
       { destruct_decide (γ.(metadata_capacity) = 1) as Heq | ?.
         - rewrite -> Heq in *.
@@ -1467,7 +1467,7 @@ Section ws_bqueue_1_G.
 
     - assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-      iDestruct (array_cslice_rotate_right_1' (S back1) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia |].
+      iDestruct (array_cslice_rotate_right_1' (S back1) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
       iEval (rewrite /= -(app_nil_l (list.rotate _ _))) in "Hdata_cslice₁".
 
       iSplitR "HP HΦ".
@@ -1506,7 +1506,7 @@ Section ws_bqueue_1_G.
 
     assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-    iDestruct (array_cslice_rotate_right_1' (S back1) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia |].
+    iDestruct (array_cslice_rotate_right_1' (S back1) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
     iEval (rewrite /= -(app_nil_l (list.rotate _ _))) in "Hdata_cslice₁".
 
     iSplitR "HΦ".
@@ -1550,7 +1550,7 @@ Section ws_bqueue_1_G.
       iMod (history_update _ inhabitant with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
       iMod (owner_update Unstable (length hist1) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-      iDestruct (array_cslice_rotate_right_1' (S (length hist1)) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [lia | simpl_length/= | lia |].
+      iDestruct (array_cslice_rotate_right_1' (S (length hist1)) 1 with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
       iEval (rewrite -(app_nil_l (list.rotate _ _ ))) in "Hdata_cslice₁".
 
       iSplitR "Howner₁ HΦ".
@@ -1689,7 +1689,7 @@ Section ws_bqueue_1_G.
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
 
       iAssert ⌜head priv2 = Some v⌝%I as %(priv2' & ->)%head_Some.
-      { iDestruct (array_cslice_rotate_right_small_1' back (length vs2) with "Hdata_cslice₁") as "Hdata_cslice₁"; [done | simpl_length | lia.. |].
+      { iDestruct (array_cslice_rotate_right_small_1' back (length vs2) with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
         rewrite /list.rotate drop_app_length.
         rewrite head_lookup -(lookup_app_l _ (take (length vs2) (vs2 ++ priv2))); first lia.
         iDestruct (array_cslice_agree with "Hdata_cslice₁ Hdata_cslice₂") as %->.
@@ -2113,7 +2113,7 @@ Section ws_bqueue_1_G.
       iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
 
       iAssert ⌜us !! 0 = Some v⌝%I as %Hus_lookup.
-      { iDestruct (array_cslice_rotate_right_small_1' (back - 1) (length vs1) with "Hdata_cslice₁") as "Hdata_cslice₁"; [done | simpl_length/=; lia | lia.. |].
+      { iDestruct (array_cslice_rotate_right_small_1' (back - 1) (length vs1) with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length/=; lia.. |].
         iDestruct (array_cslice_agree with "Hdata_cslice₁ Hdata_cslice₂") as %<-.
         { simpl_length/=. lia. }
         rewrite /list.rotate drop_app_length //.
