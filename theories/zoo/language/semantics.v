@@ -538,6 +538,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (state_update_heap <[l +ₗ fld := ValInt (m + n)]> σ)
         []
   | base_step_fork e σ v :
+      val_immediate v →
       base_step
         tid
         (Fork e)
@@ -651,7 +652,7 @@ Lemma base_step_fork' tid e σ :
     (state_update_locals (.++ [inhabitant]) σ)
     [e].
 Proof.
-  apply base_step_fork.
+  apply base_step_fork. done.
 Qed.
 Lemma base_step_proph' tid σ :
   let pid := fresh σ.(state_prophets) in
