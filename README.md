@@ -16,7 +16,8 @@ opam update --all --repositories
 Then, create a new local `opam` switch and install dependencies with:
 
 ```
-opam switch create . --deps-only --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
+opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
+opam install ./coq-*.opam --deps-only --yes
 eval $(opam env --switch=. --set-switch)
 ```
 
@@ -51,7 +52,7 @@ Then, install dependencies including [`ocaml2zoo`](https://github.com/clef-men/o
 
 ```
 opam pin add ocaml2zoo git+https://github.com/clef-men/ocaml2zoo#main --yes
-opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') ./coq-zoo.opam --deps-only --yes
+opam install . --deps-only --yes
 ```
 
 To compile OCaml libraries (see `lib/`), run:
