@@ -12,6 +12,7 @@ Definition mono `(R : relation A) : Type :=
   list A.
 
 Section relation.
+  Context {SI : sidx}.
   Context `{R : relation A}.
 
   Implicit Types a b c : A.
@@ -118,7 +119,7 @@ Section relation.
   Lemma mono_included x y :
     x ≼ y ↔
     y ≡ x ⋅ y.
-  Proof.
+  Proof using SI.
     split.
     - intros (z & ->). rewrite assoc mono_idemp //.
     - eexists. done.
@@ -159,7 +160,8 @@ Section relation.
     R a b →
     mono_principal a ⋅ mono_principal b ≡ mono_principal b.
   Proof.
-    intros ? ?*. apply (mono_principal_R_opN 0). done.
+    intros ? ?*.
+    apply (mono_principal_R_opN 0ᵢ). done.
   Qed.
 
   Lemma mono_principal_opN_R n a b x :
@@ -177,13 +179,15 @@ Section relation.
     mono_principal a ⋅ x ≡ mono_principal b →
     R a b.
   Proof.
-    intros. eapply (mono_principal_opN_R 0); done.
+    intros.
+    eapply (mono_principal_opN_R 0ᵢ); done.
   Qed.
   Lemma mono_principal_op_R `{!Reflexive R} a b x :
     mono_principal a ⋅ x ≡ mono_principal b →
     R a b.
   Proof.
-    intros. eapply mono_principal_op_R'; done.
+    intros.
+    eapply mono_principal_op_R'; done.
   Qed.
 
   Lemma mono_principal_includedN `{!Reflexive R} `{!Transitive R} n a b :
@@ -201,7 +205,7 @@ Section relation.
     mono_principal a ≼ mono_principal b ↔
     R a b.
   Proof.
-    apply (mono_principal_includedN 0).
+    apply (mono_principal_includedN 0ᵢ).
   Qed.
 
   Lemma mono_local_update_grow `{!Transitive R} a x b:
@@ -235,11 +239,12 @@ Section relation.
   Qed.
 End relation.
 
-#[global] Arguments mono_R {_} _ : assert.
-#[global] Arguments mono_UR {_} _ : assert.
-#[global] Arguments mono_principal {_} _ _ : assert.
+#[global] Arguments mono_R {_ _} _ : assert.
+#[global] Arguments mono_UR {_ _} _ : assert.
+#[global] Arguments mono_principal {_ _} _ _ : assert.
 
 Section ofe_relation.
+  Context {SI : sidx}.
   Context {A : ofe} {R : relation A}.
 
   Implicit Types a b c : A.

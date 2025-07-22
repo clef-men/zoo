@@ -16,6 +16,7 @@ From zoo Require Import
 #[local] Hint Resolve monopo_principal_valid : core.
 
 Section relation.
+  Context {SI : sidx}.
   Context {A : ofe} (R : relation A).
 
   Implicit Types a b : A.
@@ -178,7 +179,9 @@ Section relation.
     rewrite -assoc -auth_frag_op auth_both_dfrac_valid_discrete. split.
     - intros. split; first naive_solver.
       rewrite -monopo_principal_included.
-      etrans; [apply @cmra_included_r | naive_solver].
+      eapply (cmra_included_trans (A := monopo_UR _)).
+      + apply cmra_included_r.
+      + naive_solver.
     - intros (? & ?).
       rewrite (comm op) monopo_principal_R_op //.
   Qed.

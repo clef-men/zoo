@@ -11,61 +11,62 @@ From zoo.iris.algebra Require Import
 From zoo Require Import
   options.
 
-Definition twins A :=
+Definition twins {SI : sidx} A :=
   auth_option (exclR A).
-Definition twins_R A :=
+Definition twins_R {SI : sidx} A :=
   auth_option_R (exclR A).
-Definition twins_UR A :=
+Definition twins_UR {SI : sidx} A :=
   auth_option_UR (exclR A).
 
-Definition twins_twin1 {A : ofe} dq (a : A) : twins_UR A :=
-  ●O{dq} (Excl a).
-Definition twins_twin2 {A : ofe} (a : A) : twins_UR A :=
-  ◯O (Excl a).
-
 Section ofe.
+  Context {SI : sidx}.
   Context {A : ofe}.
 
   Implicit Types a b : A.
 
+  Definition twins_twin1 dq a : twins_UR A :=
+    ●O{dq} (Excl a).
+  Definition twins_twin2 a : twins_UR A :=
+    ◯O (Excl a).
+
   #[global] Instance twins_twin1_ne dq :
-    NonExpansive (@twins_twin1 A dq).
+    NonExpansive (twins_twin1 dq).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance twins_twin1_proper dq :
-    Proper ((≡) ==> (≡)) (@twins_twin1 A dq).
+    Proper ((≡) ==> (≡)) (twins_twin1 dq).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance twins_twin2_ne :
-    NonExpansive (@twins_twin2 A).
+    NonExpansive twins_twin2.
   Proof.
     solve_proper.
   Qed.
   #[global] Instance twins_twin2_proper :
-    Proper ((≡) ==> (≡)) (@twins_twin2 A).
+    Proper ((≡) ==> (≡)) twins_twin2.
   Proof.
     solve_proper.
   Qed.
 
   #[global] Instance twins_twin1_dist_inj n :
-    Inj2 (=) (≡{n}≡) (≡{n}≡) (@twins_twin1 A).
+    Inj2 (=) (≡{n}≡) (≡{n}≡) twins_twin1.
   Proof.
     intros ?* (-> & ?%(inj Excl))%(inj2 auth_option_auth). done.
   Qed.
   #[global] Instance twins_twin1_inj :
-    Inj2 (=) (≡) (≡) (@twins_twin1 A).
+    Inj2 (=) (≡) (≡) twins_twin1.
   Proof.
     intros ?* (-> & ?%(inj Excl))%(inj2 auth_option_auth). done.
   Qed.
   #[global] Instance twins_twin2_dist_inj n :
-    Inj (≡{n}≡) (≡{n}≡) (@twins_twin2 A).
+    Inj (≡{n}≡) (≡{n}≡) twins_twin2.
   Proof.
     intros ?* ?%(inj auth_option_frag)%(inj Excl). done.
   Qed.
   #[global] Instance twins_twin2_inj :
-    Inj (≡) (≡) (@twins_twin2 A).
+    Inj (≡) (≡) twins_twin2.
   Proof.
     intros ?* ?%(inj auth_option_frag)%(inj Excl). done.
   Qed.
@@ -232,18 +233,18 @@ End ofe.
 #[global] Opaque twins_twin1.
 #[global] Opaque twins_twin2.
 
-Definition twins_URF F :=
+Definition twins_URF {SI : sidx} F :=
   auth_option_URF $ exclRF F.
-#[global] Instance twins_URF_contractive F :
+#[global] Instance twins_URF_contractive {SI : sidx} F :
   oFunctorContractive F →
   urFunctorContractive (twins_URF F).
 Proof.
   apply _.
 Qed.
 
-Definition twins_RF F :=
+Definition twins_RF {SI : sidx} F :=
   auth_option_RF $ exclRF F.
-#[global] Instance twins_RF_contractive F :
+#[global] Instance twins_RF_contractive {SI : sidx} F :
   oFunctorContractive F →
   rFunctorContractive (twins_RF F).
 Proof.

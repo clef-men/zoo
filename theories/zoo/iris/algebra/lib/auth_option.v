@@ -9,18 +9,18 @@ From zoo.iris.algebra Require Export
 From zoo Require Import
   options.
 
-Definition auth_option A :=
+Definition auth_option {SI : sidx} A :=
   auth (optionUR A).
-Definition auth_option_O A :=
+Definition auth_option_O {SI : sidx} A :=
   authO (optionUR A).
-Definition auth_option_R A :=
+Definition auth_option_R {SI : sidx} A :=
   authR (optionUR A).
-Definition auth_option_UR A :=
+Definition auth_option_UR {SI : sidx} A :=
   authUR (optionUR A).
 
-Definition auth_option_auth {A : cmra} dq (a : A) : auth_option_UR A :=
+Definition auth_option_auth {SI : sidx} {A : cmra} dq (a : A) : auth_option_UR A :=
   ●{dq} (Some a).
-Definition auth_option_frag {A : cmra} (a : A) : auth_option_UR A :=
+Definition auth_option_frag {SI : sidx} {A : cmra} (a : A) : auth_option_UR A :=
   ◯ (Some a).
 
 Notation "●O dq a" := (
@@ -35,48 +35,49 @@ Notation "◯O a" := (
 ).
 
 Section cmra.
+  Context {SI : sidx}.
   Context {A : cmra}.
 
   Implicit Types a b : A.
 
   #[global] Instance auth_option_auth_ne dq :
-    NonExpansive (@auth_option_auth A dq).
+    NonExpansive (@auth_option_auth _ A dq).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance auth_option_auth_proper dq :
-    Proper ((≡) ==> (≡)) (@auth_option_auth A dq).
+    Proper ((≡) ==> (≡)) (@auth_option_auth _ A dq).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance auth_option_frag_ne :
-    NonExpansive (@auth_option_frag A).
+    NonExpansive (@auth_option_frag _ A).
   Proof.
     solve_proper.
   Qed.
   #[global] Instance auth_option_frag_proper :
-    Proper ((≡) ==> (≡)) (@auth_option_frag A).
+    Proper ((≡) ==> (≡)) (@auth_option_frag _ A).
   Proof.
     solve_proper.
   Qed.
 
   #[global] Instance auth_option_auth_dist_inj n :
-    Inj2 (=) (≡{n}≡) (≡{n}≡) (@auth_option_auth A).
+    Inj2 (=) (≡{n}≡) (≡{n}≡) (@auth_option_auth _ A).
   Proof.
     rewrite /Inj2. intros * (-> & ?%(inj Some))%(inj2 auth_auth). done.
   Qed.
   #[global] Instance auth_option_auth_inj :
-    Inj2 (=) (≡) (≡) (@auth_option_auth A).
+    Inj2 (=) (≡) (≡) (@auth_option_auth _ A).
   Proof.
     rewrite /Inj2. intros * (-> & ?%(inj Some))%(inj2 auth_auth). done.
   Qed.
   #[global] Instance auth_option_frag_dist_inj n :
-    Inj (≡{n}≡) (≡{n}≡) (@auth_option_frag A).
+    Inj (≡{n}≡) (≡{n}≡) (@auth_option_frag _ A).
   Proof.
     rewrite /Inj. intros * ?%(inj auth_frag)%(inj Some). done.
   Qed.
   #[global] Instance auth_option_frag_inj :
-    Inj (≡) (≡) (@auth_option_frag A).
+    Inj (≡) (≡) (@auth_option_frag _ A).
   Proof.
     rewrite /Inj. intros * ?%(inj auth_frag)%(inj Some). done.
   Qed.
@@ -473,18 +474,18 @@ End cmra.
 #[global] Opaque auth_option_auth.
 #[global] Opaque auth_option_frag.
 
-Definition auth_option_URF F :=
+Definition auth_option_URF {SI : sidx} F :=
   authURF $ optionURF F.
-#[global] Instance auth_option_URF_contractive F :
+#[global] Instance auth_option_URF_contractive {SI : sidx} F :
   rFunctorContractive F →
   urFunctorContractive (auth_option_URF F).
 Proof.
   apply _.
 Qed.
 
-Definition auth_option_RF F :=
+Definition auth_option_RF {SI : sidx} F :=
   authRF $ optionURF F.
-#[global] Instance auth_option_RF_contractive F :
+#[global] Instance auth_option_RF_contractive {SI : sidx} F :
   rFunctorContractive F →
   rFunctorContractive (auth_option_RF F).
 Proof.

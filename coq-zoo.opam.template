@@ -1,8 +1,8 @@
 depends: [
   "coq" {= "8.20.0"}
-  "coq-stdpp" {= "dev.2024-09-11.0.f6973baf"}
-  "coq-iris" {= "dev.2024-09-11.3.0203d5ca"}
-  "coq-diaframe" {= "dev.2024-10-07.2.b763ca07"}
+  "coq-stdpp" {= "dev.2025-06-05.0.567f831e"}
+  "coq-iris" {= "dev.2025-07-02.1.019c1f06"}
+  "coq-diaframe" {= "dev.2025-07-09.0.8721cef5"}
 ]
 
 build: [

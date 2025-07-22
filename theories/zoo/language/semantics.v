@@ -161,7 +161,7 @@ Record state := {
 }.
 Implicit Types σ : state.
 
-Canonical state_O :=
+Canonical state_O {SI : sidx} :=
   leibnizO state.
 
 Definition state_update_heap f σ :=

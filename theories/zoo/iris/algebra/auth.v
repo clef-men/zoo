@@ -11,6 +11,7 @@ From zoo Require Import
   options.
 
 Section ucmra.
+  Context {SI : sidx}.
   Context {A : ucmra}.
 
   Implicit Types a b : A.

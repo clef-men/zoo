@@ -133,7 +133,8 @@ Section iris_G.
     do 29 (f_contractive || f_equiv).
     apply IH; first done.
     f_equiv.
-    eapply dist_le; [apply HΦ | lia].
+    eapply dist_le; last by apply SIdx.lt_le_incl.
+    apply HΦ.
   Qed.
   #[global] Instance bwp_proper e tid E :
     Proper (pointwise_relation _ (≡) ==> (≡)) (bwp e tid E).

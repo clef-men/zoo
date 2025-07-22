@@ -10,7 +10,7 @@ From zoo Require Import
 
 Create HintDb simpl_length.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_reverse
   @length_app
   @length_insert
@@ -315,7 +315,7 @@ Section zip3_with.
   Qed.
 End zip3_with.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_zip3_with
 : simpl_length.
 
@@ -873,7 +873,7 @@ Section slice.
   Qed.
 End slice.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_slice
 : simpl_length.
 
@@ -1011,73 +1011,73 @@ Section with_slice.
   Qed.
 End with_slice.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_with_slice
 : simpl_length.
 
-Section rotate.
+Section rotation.
   Context {A : Type}.
 
   Implicit Types x : A.
   Implicit Types l : list A.
 
-  Definition rotate n l :=
+  Definition rotation n l :=
     drop n l ++ take n l.
 
-  Lemma rotate_0 l :
-    rotate 0 l = l.
+  Lemma rotation_0 l :
+    rotation 0 l = l.
   Proof.
-    rewrite /rotate right_id //.
+    rewrite /rotation right_id //.
   Qed.
-  Lemma rotate_S n x l :
+  Lemma rotation_S n x l :
     n ≤ length l →
-    rotate (S n) (x :: l) = rotate n (l ++ [x]).
+    rotation (S n) (x :: l) = rotation n (l ++ [x]).
   Proof.
     intros Hn.
-    rewrite /rotate.
+    rewrite /rotation.
     rewrite skipn_cons firstn_cons.
     rewrite drop_app_le // take_app_le // -assoc //.
   Qed.
-  Lemma rotate_add n1 n2 l :
+  Lemma rotation_add n1 n2 l :
     n1 + n2 = length l →
-    rotate n1 (rotate n2 l) = rotate (n1 + n2) l.
+    rotation n1 (rotation n2 l) = rotation (n1 + n2) l.
   Proof.
     intros ?.
-    rewrite /rotate.
+    rewrite /rotation.
     rewrite drop_app drop_drop length_drop.
     rewrite take_app length_drop.
     replace (n1 - (length l - n2)) with 0 by lia.
     rewrite drop_0 app_nil_r -assoc take_take_drop Nat.add_comm //.
   Qed.
-  Lemma rotate_length n l :
+  Lemma rotation_length n l :
     n = length l →
-    rotate n l = l.
+    rotation n l = l.
   Proof.
     intros ->.
-    rewrite /rotate drop_all firstn_all //.
+    rewrite /rotation drop_all firstn_all //.
   Qed.
 
-  Lemma rotate_Permutation n l :
-    rotate n l ≡ₚ l.
+  Lemma rotation_Permutation n l :
+    rotation n l ≡ₚ l.
   Proof.
-    rewrite /rotate comm take_drop //.
+    rewrite /rotation comm take_drop //.
   Qed.
 
-  Lemma length_rotate n l :
-    length (rotate n l) = length l.
+  Lemma length_rotation n l :
+    length (rotation n l) = length l.
   Proof.
-    apply Permutation_length, rotate_Permutation.
+    apply Permutation_length, rotation_Permutation.
   Qed.
 
-  Lemma rotate_replicate n k x :
-    rotate n (replicate k x) = replicate k x.
+  Lemma rotation_replicate n k x :
+    rotation n (replicate k x) = replicate k x.
   Proof.
-    pose proof (rotate_Permutation n (replicate k x)) as <-%symmetry%replicate_Permutation. done.
+    pose proof (rotation_Permutation n (replicate k x)) as <-%symmetry%replicate_Permutation. done.
   Qed.
-End rotate.
+End rotation.
 
-Hint Rewrite
-  @length_rotate
+#[global] Hint Rewrite
+  @length_rotation
 : simpl_length.
 
 Section omap.
@@ -1091,7 +1091,7 @@ Section omap.
   Qed.
 End omap.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_omap
 : simpl_length.
 
@@ -1148,6 +1148,6 @@ Section oflatten.
   Qed.
 End oflatten.
 
-Hint Rewrite
+#[global] Hint Rewrite
   @length_oflatten
 : simpl_length.

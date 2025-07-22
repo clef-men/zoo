@@ -6,6 +6,8 @@ From zoo Require Import
 From zoo Require Import
   options.
 
+#[global] Hint Constructors option_Forall2 : core.
+
 Lemma from_option_default {A B} (f : A → B) x o :
   from_option f (f x) o = f (default x o).
 Proof.

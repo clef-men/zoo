@@ -14,6 +14,7 @@ Definition monopo `(R : relation A) : Type :=
   list A.
 
 Section relation.
+  Context {SI : sidx}.
   Context `{R : relation A}.
   Context `{!Reflexive R} `{!Transitive R}.
 
@@ -151,7 +152,7 @@ Section relation.
   Lemma monopo_included x y :
     x ≼ y ↔
     y ≡ x ⋅ y.
-  Proof.
+  Proof using All.
     split.
     - intros (z & ->). rewrite assoc monopo_idemp //.
     - eexists. done.
@@ -192,7 +193,8 @@ Section relation.
     R a b →
     monopo_principal a ⋅ monopo_principal b ≡ monopo_principal b.
   Proof.
-    intros ? ?*. apply (monopo_principal_R_opN 0). done.
+    intros ? ?*.
+    apply (monopo_principal_R_opN 0ᵢ). done.
   Qed.
 
   Lemma monopo_principal_opN_R n a b x :
@@ -210,13 +212,15 @@ Section relation.
     monopo_principal a ⋅ x ≡ monopo_principal b →
     R a b.
   Proof.
-    intros. eapply (monopo_principal_opN_R 0); done.
+    intros.
+    eapply (monopo_principal_opN_R 0ᵢ); done.
   Qed.
   Lemma monopo_principal_op_R a b x :
     monopo_principal a ⋅ x ≡ monopo_principal b →
     R a b.
   Proof.
-    intros. eapply monopo_principal_op_R'; done.
+    intros.
+    eapply monopo_principal_op_R'; done.
   Qed.
 
   Lemma monopo_principal_valid a :
@@ -249,7 +253,7 @@ Section relation.
     monopo_principal a ≼ monopo_principal b ↔
     R a b.
   Proof.
-    apply (monopo_principal_includedN 0).
+    apply (monopo_principal_includedN 0ᵢ).
   Qed.
 
   Lemma monopo_local_update_grow a x b:
@@ -286,11 +290,12 @@ Section relation.
   Qed.
 End relation.
 
-#[global] Arguments monopo_R {_} _ {_ _} : assert.
-#[global] Arguments monopo_UR {_} _ {_ _} : assert.
-#[global] Arguments monopo_principal {_} _ {_ _} _ : assert.
+#[global] Arguments monopo_R {_ _} _ {_ _} : assert.
+#[global] Arguments monopo_UR {_ _} _ {_ _} : assert.
+#[global] Arguments monopo_principal {_ _} _ {_ _} _ : assert.
 
 Section ofe_relation.
+  Context {SI : sidx}.
   Context {A : ofe} {R : relation A}.
   Context `{!Reflexive R} `{!Transitive R}.
 

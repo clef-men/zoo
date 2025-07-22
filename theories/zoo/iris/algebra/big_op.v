@@ -10,6 +10,7 @@ From zoo Require Import
   options.
 
 Section big_opS.
+  Context {SI : sidx}.
   Context `{!Monoid (M := M) o}.
   Context `{Countable A}.
 
@@ -40,6 +41,7 @@ Notation "'[∪' 'list]' s ∈ l , P" := (
 ) : stdpp_scope.
 
 Section big_unionL.
+  Context {SI : sidx}.
   Context {A : Type}.
   Context `{Countable K}.
 
@@ -82,6 +84,7 @@ Notation "'[∪' 'set]' s ∈ X , P" := (
 ) : stdpp_scope.
 
 Section big_unionS.
+  Context {SI : sidx}.
   Context `{Countable A}.
   Context `{Countable K}.
 
@@ -119,6 +122,7 @@ Notation "'[∪' 'map]' x ∈ m , P" := (
 ) : stdpp_scope.
 
 Section big_unionM.
+  Context {SI : sidx}.
   Context `{Countable K}.
   Context {A : Type}.
   Context `{Countable B}.

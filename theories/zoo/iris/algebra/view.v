@@ -9,7 +9,8 @@ From zoo Require Import
   options.
 
 Section cmra.
-  Context {A B} (rel : view_rel A B).
+  Context {SI : sidx}.
+  Context `(rel : view_rel A B).
 
   Implicit Types a : A.
   Implicit Types b : B.

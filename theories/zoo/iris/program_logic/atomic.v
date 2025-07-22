@@ -97,7 +97,7 @@ Section atomic_update.
     iIntros "HΨ H".
     iEval (rewrite atomic.atomic_update_unseal /atomic.atomic_update_def /atomic_update_pre).
     set Φ := (λ (_ : ()), (∀.. x y, Ψ1 x y -∗ Ψ2 x y) ∗ atomic_update Eo Ei α β Ψ1)%I.
-    iApply (fixpoint.greatest_fixpoint_coiter _ Φ); last iFrame.
+    iApply (fixpoint_mono.greatest_fixpoint_coiter _ Φ); last iFrame.
     iIntros "!>" ([]) "(HΨ & H)". rewrite atomic.aupd_unfold /atomic_acc.
     iMod "H" as "(%x & Hα & H)".
     iModIntro. iExists x. iFrame. iSplit.

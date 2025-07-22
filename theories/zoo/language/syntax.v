@@ -754,9 +754,9 @@ Section expr_val_mutind.
       val_expr_ind.
 End expr_val_mutind.
 
-Canonical val_O :=
+Canonical val_O {SI : sidx} :=
   leibnizO val.
-Canonical expr_O :=
+Canonical expr_O {SI : sidx} :=
   leibnizO expr.
 
 Notation Fun x e := (

@@ -56,11 +56,11 @@ Delimit Scope val_scope with V.
 Bind Scope expr_scope with expr.
 Bind Scope val_scope with val.
 
-Canonical state_O Λ :=
+Canonical state_O {SI : sidx} Λ :=
   leibnizO (state Λ).
-Canonical val_O Λ :=
+Canonical val_O {SI : sidx} Λ :=
   leibnizO (val Λ).
-Canonical expr_O Λ :=
+Canonical expr_O {SI : sidx} Λ :=
   leibnizO (expr Λ).
 
 Definition config Λ : Type :=

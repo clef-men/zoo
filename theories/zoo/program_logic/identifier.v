@@ -11,7 +11,7 @@ From zoo Require Import
 
 Definition identifier :=
   prophet_id.
-Canonical identifier_O :=
+Canonical identifier_O {SI : sidx} :=
   leibnizO identifier.
 
 Implicit Types id : identifier.

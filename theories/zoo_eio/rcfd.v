@@ -719,7 +719,7 @@ Section rcfd_G.
         + iDestruct "Hlstate" as "(:inv_lstate_closing_users =1 !=)".
           iDestruct (tokens_elem_of with "Htokens_auth Htokens_frag") as %Hq.
           destruct_decide (size qs1 = 1) as Hqs_size'.
-          * apply gmultiset_size_1_elem_of in Hqs_size' as (q_ & ->%leibniz_equiv). rewrite gmultiset_set_fold_singleton in Hqs1.
+          * apply gmultiset_size_1_elem_of in Hqs_size' as (q_ & ->). rewrite gmultiset_set_fold_singleton in Hqs1.
             apply gmultiset_elem_of_singleton in Hq as <-.
             iMod (tokens_update_dealloc with "Htokens_auth Htokens_frag") as "Htokens_auth".
             rewrite gmultiset_difference_diag.

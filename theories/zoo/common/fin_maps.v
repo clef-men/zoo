@@ -4,6 +4,8 @@ From stdpp Require Export
 
 From zoo Require Import
   prelude.
+From zoo.common Require Import
+  option.
 From zoo Require Import
   options.
 
@@ -111,12 +113,13 @@ Section map_Forall2.
       + intros k x 𝑥 Hm_lookup H𝑚_lookup.
         specialize (Hm𝑚 k).
         rewrite Hm_lookup H𝑚_lookup // in Hm𝑚.
+        invert Hm𝑚. done.
     - intros (Hdom & Hm𝑚) k.
       specialize (Hm𝑚 k).
       destruct (m !! k) as [x |] eqn:Hm_lookup.
       + destruct (elem_of_dom_1 𝑚 k) as (𝑥 & H𝑚_lookup).
         { apply elem_of_dom_2 in Hm_lookup. set_solver. }
-        rewrite H𝑚_lookup. naive_solver.
+        rewrite H𝑚_lookup. auto.
       + opose proof* (not_elem_of_dom_1 𝑚 k) as H𝑚_lookup.
         { apply not_elem_of_dom in Hm_lookup. set_solver. }
         rewrite H𝑚_lookup //.

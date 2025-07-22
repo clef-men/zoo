@@ -93,7 +93,7 @@ Inductive lstate :=
   | Consumer
   | ConsumerProducer η
   | ConsumerConsumer.
-#[local] Canonical lstate_O :=
+#[local] Canonical lstate_O {SI : sidx} :=
   leibnizO lstate.
 Implicit Types lstate : lstate.
 Implicit Types lstates : list lstate.

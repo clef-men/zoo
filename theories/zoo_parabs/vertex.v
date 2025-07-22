@@ -228,8 +228,8 @@ Section vertex_G.
     induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
     rewrite !vertex_wp_unfold /vertex_wp_body.
     do 14 f_equiv. f_contractive.
-    apply (dist_le _ m) in HP; last lia.
-    apply (dist_le _ m) in HR; last lia.
+    apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
+    apply (dist_le _ m) in HR; last by apply SIdx.lt_le_incl.
     do 3 f_equiv; last solve_proper.
     apply IH; done.
   Qed.

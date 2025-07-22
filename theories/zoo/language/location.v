@@ -18,7 +18,7 @@ Record location := Loc {
 }.
 Add Printing Constructor location.
 
-Canonical location_O :=
+Canonical location_O {SI : sidx} :=
   leibnizO location.
 
 Lemma location_eq_spec l1 l2 :
