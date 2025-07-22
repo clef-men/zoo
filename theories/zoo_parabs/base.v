@@ -11,3 +11,7 @@ From zoo Require Import
 Inductive status :=
   | Blocked
   | Nonblocked.
+
+Inductive emptiness :=
+  | Empty
+  | Nonempty.
