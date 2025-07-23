@@ -13,8 +13,6 @@ From iris.proofmode Require Import
   coq_tactics
   reduction
   string_ident.
-From zoo.iris.proofmode Require Import
-  intro_patterns.
 From iris.proofmode Require Export
   classes
   notation.
@@ -23,6 +21,8 @@ From iris.prelude Require Import
 
 From zoo.common Require Import
   format.
+From zoo.iris.proofmode Require Import
+  intro_patterns.
 
 Export ident.
 
@@ -235,7 +235,7 @@ Ltac iElaborateSelPat pat :=
     let pat := sel_pat.parse pat in iElaborateSelPat_go pat Δ (@nil esel_pat)
   end.
 
-Local Ltac iClearHyp H :=
+Ltac _iClearHyp H :=
   eapply tac_clear with H _ _; (* (i:=H) *)
     [pm_reflexivity ||
      let H := pretty_ident H in
@@ -250,7 +250,7 @@ Local Ltac iClear_go Hs :=
   lazymatch Hs with
   | [] => idtac
   | ESelPure :: ?Hs => clear; iClear_go Hs
-  | ESelIdent _ ?H :: ?Hs => iClearHyp H; iClear_go Hs
+  | ESelIdent _ ?H :: ?Hs => _iClearHyp H; iClear_go Hs
   end.
 Tactic Notation "iClear" constr(Hs) :=
   iStartProof; let Hs := iElaborateSelPat Hs in iClear_go Hs.
@@ -374,7 +374,7 @@ Tactic Notation "iExFalso" :=
   apply tac_ex_falso.
 
 (** * Making hypotheses intuitionistic or pure *)
-Local Tactic Notation "iIntuitionistic" constr(H) "as" constr(H') :=
+Ltac _iIntuitionistic H H' :=
   eapply tac_intuitionistic with H H' _ _ _; (* (i:=H) (j:=H') *)
     [pm_reflexivity ||
      let H := pretty_ident H in
@@ -393,7 +393,7 @@ Local Tactic Notation "iIntuitionistic" constr(H) "as" constr(H') :=
      | _ => idtac (* subgoal *)
      end].
 
-Local Tactic Notation "iSpatial" constr(H) "as" constr(H') :=
+Ltac _iSpatial H H' :=
   eapply tac_spatial with H H' _ _ _;
     [pm_reflexivity ||
      let H := pretty_ident H in
@@ -512,7 +512,7 @@ Tactic Notation "iFrame" "select" open_constr(pat) :=
   iSelect pat ltac:(fun H => iFrameHyp H).
 
 (** * Basic introduction tactics *)
-Local Tactic Notation "iIntro" "(" simple_intropattern(x) ")" :=
+Tactic Notation "_iIntro" "(" simple_intropattern(x) ")" :=
   (* In the case the goal starts with an [let x := _ in _], we do not
      want to unfold x and start the proof mode. Instead, we want to
      use intros. So [iStartProof] has to be called only if [intros]
@@ -540,7 +540,7 @@ Local Tactic Notation "iIntro" "(" simple_intropattern(x) ")" :=
          (* subgoal *)]
     end).
 
-Local Tactic Notation "iIntro" constr(H) :=
+Ltac _iIntroSpatial H :=
   iStartProof;
   first
   [(* (?Q → _) *)
@@ -573,7 +573,7 @@ Local Tactic Notation "iIntro" constr(H) :=
   | let H := pretty_ident H in
     fail 1 "iIntro: could not introduce" H ", goal is not a wand or implication" ].
 
-Local Tactic Notation "iIntro" "#" constr(H) :=
+Ltac _iIntroPersistent H :=
   iStartProof;
   first
   [(* (?P → _) *)
@@ -607,13 +607,15 @@ Local Tactic Notation "iIntro" "#" constr(H) :=
       end]
   |fail 1 "iIntro: nothing to introduce"].
 
-Local Tactic Notation "iIntro" constr(H) "as" constr(p) :=
+(* Introduce [H] into persistent (if [p] is true) or spatial (if [p] is false)
+context *)
+Ltac _iIntroMaybePersistent H p :=
   lazymatch p with
-  | true => iIntro #H
-  | _ =>  iIntro H
+  | true => _iIntroPersistent H
+  | _ =>  _iIntroSpatial H
   end.
 
-Local Tactic Notation "iIntro" "_" :=
+Ltac _iIntroDrop :=
   iStartProof;
   first
   [(* (?Q → _) *)
@@ -628,11 +630,11 @@ Local Tactic Notation "iIntro" "_" :=
       fail 1 "iIntro:" P "not affine and the goal not absorbing"
      |(* subgoal *)]
   |(* (∀ _, _) *)
-   iIntro (_)
+   _iIntro (_)
    (* subgoal *)
   |fail 1 "iIntro: nothing to introduce"].
 
-Local Tactic Notation "iIntroForall" :=
+Ltac _iIntroForall :=
   lazymatch goal with
   | |- ∀ _, ?P => fail (* actually an →, this is handled by iIntro below *)
   | |- ∀ _, _ => intro
@@ -640,17 +642,23 @@ Local Tactic Notation "iIntroForall" :=
   | |- _ =>
     iStartProof;
     lazymatch goal with
-    | |- envs_entails _ (∀ x : _, _) => let x' := fresh x in iIntro (x')
+    | |- envs_entails _ (∀ x : _, _) => let x' := fresh x in _iIntro (x')
     end
   end.
-Local Tactic Notation "iIntro" :=
+Ltac _iIntro :=
   lazymatch goal with
   | |- _ → ?P => intro
   | |- _ =>
     iStartProof;
     lazymatch goal with
-    | |- envs_entails _ (_ -∗ _) => iIntro (?) || let H := iFresh in iIntro #H || iIntro H
-    | |- envs_entails _ (_ → _) => iIntro (?) || let H := iFresh in iIntro #H || iIntro H
+    | |- envs_entails _ (_ -∗ _) => _iIntro (?) ||
+        let H := iFresh in
+        _iIntroPersistent H ||
+        _iIntroSpatial H
+    | |- envs_entails _ (_ → _) => _iIntro (?) ||
+         let H := iFresh in
+         _iIntroSpatial H ||
+         _iIntroSpatial H
     end
   end.
 
@@ -759,7 +767,7 @@ following shape:
 
 [∀ (x_1 : A_1) .. (x_n : A_n), φ]
 
-for which we have an instance [AsEmpValid φ ?Q].
+for which we have an instance [AsEmpValid DirectionIntoEmpValid φ ?Q].
 
 Examples of such [φ]s are
 
@@ -818,7 +826,7 @@ Ltac iIntoEmpValid :=
   iIntoEmpValid_go;
     [.. (* goals for premises *)
     |tc_solve ||
-     let φ := lazymatch goal with |- AsEmpValid ?φ _ => φ end in
+     let φ := lazymatch goal with |- AsEmpValid _ ?φ _ => φ end in
      fail "iPoseProof:" φ "not a BI assertion"].
 
 Tactic Notation "iPoseProofCoreLem" open_constr(lem) "as" tactic3(tac) :=
@@ -903,7 +911,7 @@ Ltac iSpecializePat_go H1 pats :=
        iRevertHyp H1 with (fun p =>
          iSpecializePat_go H2tmp pats1;
            [.. (* side-conditions of [iSpecialize] *)
-           |iIntro H1 as p]);
+           |_iIntroMaybePersistent H1 p]);
          (* We put the stuff below outside of the closure to get less verbose
          Ltac backtraces (which would otherwise include the whole closure). *)
          [.. (* side-conditions of [iSpecialize] *)
@@ -995,7 +1003,7 @@ Ltac iSpecializePat_go H1 pats :=
             |let P :=
                match goal with |- envs_entails _ (?P ∗ locked _)%I => P end in
              fail 1 "iSpecialize: premise" P "cannot be solved by framing"]
-         |exact eq_refl]; iIntro H1; iSpecializePat_go H1 pats
+         |exact eq_refl]; _iIntroSpatial H1; iSpecializePat_go H1 pats
     end.
 
 Local Tactic Notation "iSpecializePat" open_constr(H) constr(pat) :=
@@ -1284,7 +1292,8 @@ Tactic Notation "iSplitR" constr(Hs) :=
 Tactic Notation "iSplitL" := iSplitR "".
 Tactic Notation "iSplitR" := iSplitL "".
 
-Local Tactic Notation "iAndDestruct" constr(H) "as" constr(H1) constr(H2) :=
+(* iDestruct H as [H1 H2] *)
+Ltac _iAndDestruct H H1 H2 :=
   eapply tac_and_destruct with H _ H1 H2 _ _ _; (* (i:=H) (j1:=H1) (j2:=H2) *)
     [pm_reflexivity ||
      let H := pretty_ident H in
@@ -1305,7 +1314,8 @@ Local Tactic Notation "iAndDestruct" constr(H) "as" constr(H1) constr(H2) :=
        | _ => idtac (* subgoal *)
      end].
 
-Local Tactic Notation "iAndDestructChoice" constr(H) "as" constr(d) constr(H') :=
+(* iDestruct H as (depending on d) [H _] or [_ H] *)
+Ltac _iAndDestructChoice H d H' :=
   eapply tac_and_destruct_choice with H _ d H' _ _ _;
     [pm_reflexivity || fail "iAndDestructChoice:" H "not found"
     |pm_reduce; tc_solve ||
@@ -1333,7 +1343,7 @@ Ltac _iExists x :=
 Tactic Notation "iExists" ne_uconstr_list_sep(xs,",") :=
   ltac1_list_iter _iExists xs.
 
-Local Tactic Notation "iExistDestruct" constr(H)
+Tactic Notation "_iExistDestruct" constr(H)
     "as" simple_intropattern(x) constr(Hx) :=
   eapply tac_exist_destruct with H _ Hx _ _ _; (* (i:=H) (j:=Hx) *)
     [pm_reflexivity ||
@@ -1414,13 +1424,13 @@ Tactic Notation "iModCore" constr(H) "as" constr(H') :=
    [ident_for_pat_default] uses the [default] name that it was provided if
    it is an anonymous name.
 *)
-Local Ltac ident_for_pat pat :=
+Ltac _ident_for_pat pat :=
   lazymatch pat with
   | IIdent ?x => x
   | _ => let x := iFresh in x
   end.
 
-Local Ltac ident_for_pat_default pat default :=
+Ltac _ident_for_pat_default pat default :=
   lazymatch pat with
   | IIdent ?x => x
   | _ =>
@@ -1431,14 +1441,14 @@ Local Ltac ident_for_pat_default pat default :=
   end.
 
 (** [pat0] is the unparsed pattern, and is only used in error messages *)
-Local Ltac iDestructHypGo Hz pat0 pat :=
+Ltac _iDestructHypGo Hz pat0 pat :=
   lazymatch pat with
   | IFresh =>
      lazymatch Hz with
      | IAnon _ => idtac
      | INamed ?Hz => let Hz' := iFresh in iRename Hz into Hz'
      end
-  | IDrop => iClearHyp Hz
+  | IDrop => _iClearHyp Hz
   | IFrame => iFrameHyp Hz
   | IIdent Hz => idtac
   | IIdent ?y => iRename Hz into y
@@ -1446,42 +1456,42 @@ Local Ltac iDestructHypGo Hz pat0 pat :=
 
   (* conjunctive patterns like [H1 H2] *)
   | IList [[?pat1; IDrop]] =>
-     let x := ident_for_pat_default pat1 Hz in
-     iAndDestructChoice Hz as Left x;
-     iDestructHypGo x pat0 pat1
+     let x := _ident_for_pat_default pat1 Hz in
+     _iAndDestructChoice Hz Left x;
+     _iDestructHypGo x pat0 pat1
   | IList [[IDrop; ?pat2]] =>
-     let x := ident_for_pat_default pat2 Hz in
-     iAndDestructChoice Hz as Right x;
-     iDestructHypGo x pat0 pat2
+     let x := _ident_for_pat_default pat2 Hz in
+     _iAndDestructChoice Hz Right x;
+     _iDestructHypGo x pat0 pat2
   (* [% ...] is always interpreted as an existential; there are [IntoExist]
   instances in place to handle conjunctions with a pure left-hand side this way
   as well. *)
   | IList [[IPure IGallinaAnon; ?pat2]] =>
-     let x := ident_for_pat_default pat2 Hz in
-     iExistDestruct Hz as ? x; iDestructHypGo x pat0 pat2
+     let x := _ident_for_pat_default pat2 Hz in
+     _iExistDestruct Hz as ? x; _iDestructHypGo x pat0 pat2
   | IList [[IPure (IGallinaNamed ?s); ?pat2]] =>
      let x := fresh in
-     let y := ident_for_pat_default pat2 Hz in
-     iExistDestruct Hz as x y;
+     let y := _ident_for_pat_default pat2 Hz in
+     _iExistDestruct Hz as x y;
      rename_by_string x s;
-     iDestructHypGo y pat0 pat2
+     _iDestructHypGo y pat0 pat2
   | IList [[?pat1; ?pat2]] =>
      (* We have to take care of not using the same name for the two hypotheses:
-        [ident_for_pat_default] will thus only reuse [Hz] (which could in principle
+        [_ident_for_pat_default] will thus only reuse [Hz] (which could in principle
         clash with a name from [pat2]) if it is an anonymous name. *)
-     let x1 := ident_for_pat_default pat1 Hz in
-     let x2 := ident_for_pat pat2 in
-     iAndDestruct Hz as x1 x2;
-     iDestructHypGo x1 pat0 pat1; iDestructHypGo x2 pat0 pat2
+     let x1 := _ident_for_pat_default pat1 Hz in
+     let x2 := _ident_for_pat pat2 in
+     _iAndDestruct Hz x1 x2;
+     _iDestructHypGo x1 pat0 pat1; _iDestructHypGo x2 pat0 pat2
   | IList [_ :: _ :: _] => fail "iDestruct:" pat0 "has too many conjuncts"
   | IList [[_]] => fail "iDestruct:" pat0 "has just a single conjunct"
 
   (* disjunctive patterns like [H1|H2] *)
   | IList [[?pat1];[?pat2]] =>
-     let x1 := ident_for_pat_default pat1 Hz in
-     let x2 := ident_for_pat_default pat2 Hz in
+     let x1 := _ident_for_pat_default pat1 Hz in
+     let x2 := _ident_for_pat_default pat2 Hz in
      iOrDestruct Hz as x1 x2;
-     [iDestructHypGo x1 pat0 pat1|iDestructHypGo x2 pat0 pat2]
+     [_iDestructHypGo x1 pat0 pat1|_iDestructHypGo x2 pat0 pat2]
   (* this matches a list of three or more disjunctions [H1|H2|H3] *)
   | IList (_ :: _ :: _ :: _) => fail "iDestruct:" pat0 "has too many disjuncts"
   (* the above patterns don't match [H1 H2|H3] *)
@@ -1495,14 +1505,14 @@ Local Ltac iDestructHypGo Hz pat0 pat :=
   | IRewrite Right => iPure Hz as ->
   | IRewrite Left => iPure Hz as <-
   | IIntuitionistic ?pat =>
-    let x := ident_for_pat_default pat Hz in
-    iIntuitionistic Hz as x; iDestructHypGo x pat0 pat
+    let x := _ident_for_pat_default pat Hz in
+    _iIntuitionistic Hz x; _iDestructHypGo x pat0 pat
   | ISpatial ?pat =>
-    let x := ident_for_pat_default pat Hz in
-    iSpatial Hz as x; iDestructHypGo x pat0 pat
+    let x := _ident_for_pat_default pat Hz in
+    _iSpatial Hz x; _iDestructHypGo x pat0 pat
   | IModalElim ?pat =>
-    let x := ident_for_pat_default pat Hz in
-    iModCore Hz as x; iDestructHypGo x pat0 pat
+    let x := _ident_for_pat_default pat Hz in
+    iModCore Hz as x; _iDestructHypGo x pat0 pat
   | ICustom ?custom ?arg =>
       first
       [ lazymatch eval vm_compute in (custom_ipat custom arg) with
@@ -1513,7 +1523,7 @@ Local Ltac iDestructHypGo Hz pat0 pat :=
             | None =>
                 fail 1 "iDestruct: invalid intro pattern generated by custom intro pattern:" custom
             | Some [?pat] =>
-                iDestructHypGo Hz pat0 pat
+                _iDestructHypGo Hz pat0 pat
             | Some _ =>
                 fail 1 "iDestruct: custom intro pattern" custom "should generate exactly one intro pattern"
             end
@@ -1522,28 +1532,29 @@ Local Ltac iDestructHypGo Hz pat0 pat :=
       ]
   | _ => fail "iDestruct:" pat0 "is not supported due to" pat
   end.
-Local Ltac iDestructHypFindPat Hgo pat found pats :=
+Ltac _iDestructHypFindPat Hgo pat found pats :=
   lazymatch pats with
   | [] =>
     lazymatch found with
     | true => pm_prettify (* post-tactic prettification *)
     | false => fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
     end
-  | ISimpl :: ?pats => simpl; iDestructHypFindPat Hgo pat found pats
-  | IClear ?H :: ?pats => iClear H; iDestructHypFindPat Hgo pat found pats
-  | IClearFrame ?H :: ?pats => iFrame H; iDestructHypFindPat Hgo pat found pats
+  | ISimpl :: ?pats => simpl; _iDestructHypFindPat Hgo pat found pats
+  | IClear ?H :: ?pats => iClear H; _iDestructHypFindPat Hgo pat found pats
+  | IClearFrame ?H :: ?pats => iFrame H; _iDestructHypFindPat Hgo pat found pats
   | ?pat1 :: ?pats =>
      lazymatch found with
-     | false => iDestructHypGo Hgo pat pat1; iDestructHypFindPat Hgo pat true pats
+     | false => _iDestructHypGo Hgo pat pat1; _iDestructHypFindPat Hgo pat true pats
      | true => fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
      end
   end.
 
+(* This is the core implementation of [iDestruct]. *)
 Ltac _iDestructHyp0 H pat :=
   let pats := intro_pat.parse pat in
-  iDestructHypFindPat H pat false pats.
+  _iDestructHypFindPat H pat false pats.
 Ltac _iDestructHyp H xs pat :=
-  ltac1_list_iter ltac:(fun x => iExistDestruct H as x H) xs;
+  ltac1_list_iter ltac:(fun x => _iExistDestruct H as x H) xs;
   _iDestructHyp0 H pat.
 
 Tactic Notation "iDestructHyp" constr(H) "as" constr(pat) :=
@@ -1651,18 +1662,18 @@ Ltac _iIntros_go pats startproof :=
   (* Optimizations to avoid generating fresh names *)
   | IPure (IGallinaNamed ?s) :: ?pats =>
      let i := fresh in
-     iIntro (i);
+     _iIntro (i);
      rename_by_string i s;
      _iIntros_go pats startproof
-  | IPure IGallinaAnon :: ?pats => iIntro (?); _iIntros_go pats startproof
-  | IIntuitionistic (IIdent ?H) :: ?pats => iIntro #H; _iIntros_go pats false
-  | IDrop :: ?pats => iIntro _; _iIntros_go pats startproof
-  | IIdent ?H :: ?pats => iIntro H; _iIntros_go pats startproof
+  | IPure IGallinaAnon :: ?pats => _iIntro (?); _iIntros_go pats startproof
+  | IIntuitionistic (IIdent ?H) :: ?pats => _iIntroPersistent H; _iIntros_go pats false
+  | IDrop :: ?pats => _iIntroDrop; _iIntros_go pats startproof
+  | IIdent ?H :: ?pats => _iIntroSpatial H; _iIntros_go pats startproof
   (* Introduction patterns that can only occur at the top-level *)
   | IPureIntro :: ?pats => iPureIntro; _iIntros_go pats false
   | IModalIntro :: ?pats => iModIntro; _iIntros_go pats false
-  | IForall :: ?pats => repeat iIntroForall; _iIntros_go pats startproof
-  | IAll :: ?pats => repeat (iIntroForall || iIntro); _iIntros_go pats startproof
+  | IForall :: ?pats => repeat _iIntroForall; _iIntros_go pats startproof
+  | IAll :: ?pats => repeat (_iIntroForall || _iIntro); _iIntros_go pats startproof
   (* Clearing and simplifying introduction patterns *)
   | ISimpl :: ?pats => simpl; _iIntros_go pats startproof
   | IClear ?H :: ?pats => iClear H; _iIntros_go pats false
@@ -1670,7 +1681,7 @@ Ltac _iIntros_go pats startproof :=
   | IDone :: ?pats => try done; _iIntros_go pats startproof
   (* Introduction + destruct *)
   | IIntuitionistic ?pat :: ?pats =>
-     let H := iFresh in iIntro #H; iDestructHyp H as pat; _iIntros_go pats false
+     let H := iFresh in _iIntroPersistent H; iDestructHyp H as pat; _iIntros_go pats false
   | ICustom ?custom ?arg :: ?pats =>
       first
       [ lazymatch eval vm_compute in (custom_ipat custom arg) with
@@ -1688,9 +1699,10 @@ Ltac _iIntros_go pats startproof :=
       | fail 1 "iIntros: unrecognized custom intro pattern:" custom
       ]
   | ?pat :: ?pats =>
-     let H := iFresh in iIntro H; iDestructHyp H as pat; _iIntros_go pats false
+     let H := iFresh in _iIntroSpatial H; iDestructHyp H as pat; _iIntros_go pats false
   end.
 
+(* This is the core implementation of [iIntros]. *)
 Ltac _iIntros0 pat :=
   let pats := intro_pat.parse pat in
   (* HACK to avoid calling [iStartProof] on side-conditions opened by [iIntros (?%lemma)]. *)
@@ -1699,7 +1711,7 @@ Ltac _iIntros0 pat :=
   | _ => _iIntros_go pats true
   end.
 Ltac _iIntros xs pat :=
-  ltac1_list_iter ltac:(fun x => iIntro (x)) xs;
+  ltac1_list_iter ltac:(fun x => _iIntro (x)) xs;
   _iIntros0 pat.
 
 Tactic Notation "iIntros" := _iIntros0 [IAll].
@@ -1719,7 +1731,8 @@ Ltac _iRevertIntros_go Hs tac :=
   lazymatch Hs with
   | [] => tac ()
   | ESelPure :: ?Hs => fail "iRevertIntros: % not supported"
-  | ESelIdent ?p ?H :: ?Hs => iRevertHyp H; _iRevertIntros_go Hs tac; iIntro H as p
+  | ESelIdent ?p ?H :: ?Hs =>
+    iRevertHyp H; _iRevertIntros_go Hs tac; _iIntroMaybePersistent H p
   end.
 
 Ltac _iRevertIntros0 Hs tac :=
@@ -1766,8 +1779,8 @@ Tactic Notation "iDestructCore" open_constr(lem) "as" constr(p) tactic3(tac) :=
     let rec go n' :=
       lazymatch n' with
       | 0 => fail "iDestruct: cannot introduce" n "hypotheses"
-      | 1 => repeat iIntroForall; let H := iFresh in iIntro H; tac H
-      | S ?n' => repeat iIntroForall; let H := iFresh in iIntro H; go n'
+      | 1 => repeat _iIntroForall; let H := iFresh in _iIntroSpatial H; tac H
+      | S ?n' => repeat _iIntroForall; let H := iFresh in _iIntroSpatial H; go n'
       end in
     intros; go n in
   lazymatch type of lem with
@@ -2041,7 +2054,7 @@ Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) :=
        let P := match goal with |- IntoInternalEq ?P _ _ ⊢ _ => P end in
        fail "iRewrite:" P "not an equality"
       |iRewriteFindPred
-      |intros ??? ->; reflexivity|pm_prettify; iClearHyp Heq]).
+      |intros ??? ->; reflexivity|pm_prettify; _iClearHyp Heq]).
 
 Tactic Notation "iRewrite" open_constr(lem) := iRewriteCore Right lem.
 Tactic Notation "iRewrite" "-" open_constr(lem) := iRewriteCore Left lem.
@@ -2060,7 +2073,7 @@ Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) "in" constr(H) 
        fail "iRewrite:" P "not an equality"
       |iRewriteFindPred
       |intros ??? ->; reflexivity
-      |pm_reduce; pm_prettify; iClearHyp Heq]).
+      |pm_reduce; pm_prettify; _iClearHyp Heq]).
 
 Tactic Notation "iRewrite" open_constr(lem) "in" constr(H) :=
   iRewriteCore Right lem in H.
@@ -2141,7 +2154,8 @@ Tactic Notation "iInvCore" constr(select) "with" constr(pats) "as" open_constr(H
           reduced because we can rely on Pclose being a constructor. *)
        let x := fresh in
        iIntros (x);
-       iIntro H; (* H was spatial, so it's gone due to the apply and we can reuse the name *)
+       _iIntroSpatial H; (* H was spatial, so it's gone due to the apply and we
+       can reuse the name *)
        lazymatch Hclose with
        | Some ?Hcl => iIntros Hcl
        | None => idtac
