@@ -1,0 +1,25 @@
+name: Zoo CI
+
+on:
+  push:
+    branches:
+      - main
+      - ci-clean
+  pull_request:
+    branches:
+      - main
+      - ci-clean
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t zoo-ci .
+
+      - name: Run Coq build (default zoo)
+        run: docker run --rm zoo-ci
