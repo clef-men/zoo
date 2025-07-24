@@ -6,8 +6,6 @@ From zoo.common Require Import
   list.
 From zoo.iris.bi Require Import
   big_op.
-From zoo.iris.base_logic Require Import
-  lib.twins.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -39,13 +37,11 @@ Implicit Types vss : list $ list val.
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_std_G_queues_G :: WsQueuesPublicG Σ ;
   #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
-  #[local] ws_hub_std_G_model_G :: TwinsG Σ (leibnizO (list $ list val)) ;
 }.
 
 Definition ws_hub_std_Σ := #[
   ws_queues_public_Σ ;
-  waiters_Σ ;
-  twins_Σ (leibnizO (list $ list val))
+  waiters_Σ
 ].
 #[global] Instance subG_ws_hub_std_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_std_Σ Σ →
@@ -53,6 +49,70 @@ Definition ws_hub_std_Σ := #[
 Proof.
   solve_inG.
 Qed.
+
+#[local] Definition consistent vs vss :=
+  vs = ⋃+ (list_to_set_disj <$> vss).
+
+#[local] Lemma consistent_empty sz :
+  consistent ∅ (replicate sz []).
+Proof.
+  symmetry.
+  rewrite gmultiset_disj_union_list_empty => vs.
+  rewrite elem_of_list_fmap.
+  setoid_rewrite elem_of_replicate.
+  naive_solver.
+Qed.
+#[local] Lemma consistent_push {vs vss i us} v :
+  vss !! i = Some us →
+  consistent vs vss →
+  consistent ({[+v+]} ⊎ vs) (<[i := us ++ [v]]> vss).
+Proof.
+  intros Hlookup ->.
+  rewrite /consistent.
+  rewrite list_fmap_insert list_to_set_disj_snoc gmultiset_disj_union_list_insert_disj_union_l //.
+  rewrite list_lookup_fmap Hlookup //.
+Qed.
+#[local] Lemma consistent_remove {vs vss i us} us1 v us2 :
+  vss !! i = Some us →
+  us = us1 ++ v :: us2 →
+  consistent vs vss →
+    v ∈ vs ∧
+    consistent (vs ∖ {[+v+]}) (<[i := us1 ++ us2]> vss).
+Proof.
+  intros Hlookup -> ->.
+  assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
+  { rewrite list_lookup_fmap Hlookup //. }
+  split.
+  - apply elem_of_gmultiset_disj_union_list.
+    eexists. split.
+    + rewrite elem_of_list_lookup. eauto.
+    + rewrite list_to_set_disj_app. set_solver.
+  - rewrite (gmultiset_disj_union_list_delete _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
+    rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.
+    rewrite !list_to_set_disj_app.
+    multiset_solver.
+Qed.
+#[local] Lemma consistent_pop vs vss i us v :
+  vss !! i = Some (us ++ [v]) →
+  consistent vs vss →
+    v ∈ vs ∧
+    consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+Proof.
+  intros Hlookup Hconsistent.
+  eapply (consistent_remove us v []) in Hconsistent; [| done..].
+  rewrite app_nil_r // in Hconsistent.
+Qed.
+#[local] Lemma consistent_steal vs vss i v us :
+  vss !! i = Some (v :: us) →
+  consistent vs vss →
+    v ∈ vs ∧
+    consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+Proof.
+  intros Hlookup.
+  eapply (consistent_remove [] v us); done.
+Qed.
+
+Opaque consistent.
 
 Section ws_hub_std_G.
   Context `{ws_hub_std_G : WsHubStdG Σ}.
@@ -62,7 +122,6 @@ Section ws_hub_std_G.
     metadata_queues : val ;
     metadata_rounds : val ;
     metadata_waiters : val ;
-    metadata_model : gname ;
   }.
   Implicit Types γ : metadata.
 
@@ -77,35 +136,13 @@ Section ws_hub_std_G.
     solve_countable.
   Qed.
 
-  #[local] Definition model₁' γ_model vs : iProp Σ :=
-    ∃ vss,
-    twins_twin1 γ_model (DfracOwn 1) vss ∗
-    ⌜vs = ⋃+ (list_to_set_disj <$> vss)⌝.
-  #[local] Definition model₁ γ :=
-    model₁' γ.(metadata_model).
-  #[local] Instance : CustomIpatFormat "model₁" :=
-    "(
-      %vss{} &
-      Htwin1 &
-      ->
-    )".
-  #[local] Definition model₂' γ_model vss :=
-    twins_twin2 γ_model vss.
-  #[local] Definition model₂ γ :=
-    model₂' γ.(metadata_model) .
-
-  #[local] Definition inv_inner l γ : iProp Σ :=
-    ∃ vss killed,
-    l.[killed] ↦ #killed ∗
-    ws_queues_public_model γ.(metadata_queues) vss ∗
-    model₂ γ vss.
+  #[local] Definition inv_inner l : iProp Σ :=
+    ∃ killed,
+    l.[killed] ↦ #killed.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
-      %vss &
       %killed &
-      >Hl_killed &
-      >Hqueues_model &
-      >Hmodel₂
+      Hl_killed
     )".
   Definition ws_hub_std_inv t ι sz : iProp Σ :=
     ∃ l γ,
@@ -115,10 +152,10 @@ Section ws_hub_std_G.
     l.[queues] ↦□ γ.(metadata_queues) ∗
     l.[rounds] ↦□ γ.(metadata_rounds) ∗
     l.[waiters] ↦□ γ.(metadata_waiters) ∗
-    ws_queues_public_inv γ.(metadata_queues) (ι.@"queues") γ.(metadata_size) ∗
+    ws_queues_public_inv γ.(metadata_queues) ι γ.(metadata_size) ∗
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
     waiters_inv γ.(metadata_waiters) ∗
-    inv (ι.@"inv") (inv_inner l γ).
+    inv nroot (inv_inner l).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l{} &
@@ -136,17 +173,20 @@ Section ws_hub_std_G.
     )".
 
   Definition ws_hub_std_model t vs : iProp Σ :=
-    ∃ l γ,
+    ∃ l γ vss,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    model₁ γ vs.
+    ws_queues_public_model γ.(metadata_queues) vss ∗
+    ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l_ &
       %γ_ &
+      %vss &
       %Heq &
       Hmeta_ &
-      Hmodel₁
+      Hqueues_model &
+      %Hconsistent
     )".
 
   Definition ws_hub_std_owner t i status : iProp Σ :=
@@ -180,108 +220,6 @@ Section ws_hub_std_G.
   Proof.
     apply _.
   Qed.
-
-  #[local] Lemma model_alloc sz :
-    ⊢ |==>
-      ∃ γ_model,
-      model₁' γ_model ∅ ∗
-      model₂' γ_model (replicate sz []).
-  Proof.
-    iMod twins_alloc' as "(%γ_model & $ & $)".
-    iPureIntro.
-    symmetry.
-    rewrite gmultiset_disj_union_list_empty => vs.
-    rewrite elem_of_list_fmap.
-    setoid_rewrite elem_of_replicate.
-    naive_solver.
-  Qed.
-  #[local] Lemma model_agree γ vs1 vss2 :
-    model₁ γ vs1 -∗
-    model₂ γ vss2 -∗
-    ⌜vs1 = ⋃+ (list_to_set_disj <$> vss2)⌝.
-  Proof.
-    iIntros "(:model₁) Htwin2".
-    iDestruct (twins_agree_L with "Htwin1 Htwin2") as %<-.
-    iSteps.
-  Qed.
-  #[local] Lemma model_update {γ vs1 vss2} vs vss :
-    vs = ⋃+ (list_to_set_disj <$> vss) →
-    model₁ γ vs1 -∗
-    model₂ γ vss2 ==∗
-      model₁ γ vs ∗
-      model₂ γ vss.
-  Proof.
-    iIntros "% (:model₁ =1) Htwin2".
-    iMod (twins_update with "Htwin1 Htwin2") as "($ & $)".
-    iSteps.
-  Qed.
-  #[local] Lemma model_push {γ vs vss i us} v :
-    vss !! i = Some us →
-    model₁ γ vs -∗
-    model₂ γ vss ==∗
-      model₁ γ ({[+v+]} ⊎ vs) ∗
-      model₂ γ (<[i := us ++ [v]]> vss).
-  Proof.
-    iIntros "%Hlookup Hmodel₁ Hmodel₂".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iApply (model_update with "Hmodel₁ Hmodel₂").
-    { rewrite list_fmap_insert list_to_set_disj_snoc gmultiset_disj_union_list_insert_disj_union_l //.
-      rewrite list_lookup_fmap Hlookup //.
-    }
-  Qed.
-  #[local] Lemma model_remove {γ vs vss i us} us1 v us2 :
-    vss !! i = Some us →
-    us = us1 ++ v :: us2 →
-    model₁ γ vs -∗
-    model₂ γ vss ==∗
-      ⌜v ∈ vs⌝ ∗
-      model₁ γ (vs ∖ {[+v+]}) ∗
-      model₂ γ (<[i := us1 ++ us2]> vss).
-  Proof.
-    iIntros (Hlookup ->) "Hmodel₁ Hmodel₂".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
-    { rewrite list_lookup_fmap Hlookup //. }
-    iSplitR.
-    { iPureIntro.
-      apply elem_of_gmultiset_disj_union_list.
-      eexists. split.
-      - rewrite elem_of_list_lookup. eauto.
-      - rewrite list_to_set_disj_app. set_solver.
-    }
-    iApply (model_update with "Hmodel₁ Hmodel₂").
-    { rewrite (gmultiset_disj_union_list_delete _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
-      rewrite list_fmap_insert gmultiset_disj_union_list_insert //.
-      rewrite !list_to_set_disj_app.
-      multiset_solver.
-    }
-  Qed.
-  #[local] Lemma model_pop γ vs vss i us v :
-    vss !! i = Some (us ++ [v]) →
-    model₁ γ vs -∗
-    model₂ γ vss ==∗
-      ⌜v ∈ vs⌝ ∗
-      model₁ γ (vs ∖ {[+v+]}) ∗
-      model₂ γ (<[i := us]> vss).
-  Proof.
-    iIntros "%Hlookup Hmodel₁ Hmodel₂".
-    iMod (model_remove us v [] with "Hmodel₁ Hmodel₂") as "($ & $ & Hmodel₂)"; [done.. |].
-    iEval (rewrite app_nil_r) in "Hmodel₂".
-    iSteps.
-  Qed.
-  #[local] Lemma model_steal γ vs vss i v us :
-    vss !! i = Some (v :: us) →
-    model₁ γ vs -∗
-    model₂ γ vss ==∗
-      ⌜v ∈ vs⌝ ∗
-      model₁ γ (vs ∖ {[+v+]}) ∗
-      model₂ γ (<[i := us]> vss).
-  Proof.
-    iIntros "%Hlookup Hmodel₁ Hmodel₂".
-    iApply (model_remove [] v us with "Hmodel₁ Hmodel₂"); done.
-  Qed.
-
-  Opaque model₁'.
 
   Lemma ws_hub_std_inv_agree t ι sz1 sz2 :
     ws_hub_std_inv t ι sz1 -∗
@@ -340,28 +278,26 @@ Section ws_hub_std_G.
     iMod (pointsto_persist with "Hl_rounds") as "#Hl_rounds".
     iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".
 
-    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
-
     pose γ := {|
       metadata_size := ₊sz ;
       metadata_queues := queues ;
       metadata_rounds := v_rounds ;
       metadata_waiters := waiters ;
-      metadata_model := γ_model ;
     |}.
 
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitL "Hqueues_model Hl_killed Hmodel₂"; iSteps.
-    iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
-    iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
-    iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
-    iDestruct (big_sepL_seq_index_1 with "Hqueues_owner") as "Hqueues_owner"; first done.
-    iDestruct (big_sepL_sep_2 with "Hqueues_owner Hrounds") as "H".
-    iApply big_sepL_seq_index; first done.
-    iApply (big_sepL_impl with "H").
-    iSteps.
+    iSplitL "Hl_killed"; iSteps.
+    - iPureIntro. apply consistent_empty.
+    - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
+      iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
+      iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
+      iDestruct (big_sepL_seq_index_1 with "Hqueues_owner") as "Hqueues_owner"; first done.
+      iDestruct (big_sepL_sep_2 with "Hqueues_owner Hrounds") as "H".
+      iApply big_sepL_seq_index; first done.
+      iApply (big_sepL_impl with "H").
+      iSteps.
   Qed.
 
   Lemma ws_hub_std_size_spec t ι sz :
@@ -488,15 +424,12 @@ Section ws_hub_std_G.
     wp_rec. wp_load.
 
     awp_apply (ws_queues_public_push_spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
-    iInv "Hinv" as "(:inv_inner)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueues_model"; first iSteps. iIntros "%us (%Hlookup & Hqueues_model)".
-    iMod (model_push v with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)"; first done.
-    iSplitL "Hmodel₁". { iFrameSteps. }
-    iIntros "!> HΦ !>".
-    iSplitR "HΦ". { iFrameSteps. }
-    iIntros "Hqueues_owner Hround {%}".
+    iSplitL.
+    { iFrameSteps. iPureIntro. apply consistent_push; done. }
+    iIntros "!> HΦ !> Hqueues_owner Hround {%}".
 
     wp_smart_apply ws_hub_std_notify_spec; iSteps.
   Qed.
@@ -530,26 +463,22 @@ Section ws_hub_std_G.
     wp_rec. wp_load.
 
     awp_smart_apply (ws_queues_public_pop_spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
-    iInv "Hinv" as "(:inv_inner)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |] us) "Ho".
 
     - iDestruct "Ho" as "(% & %Hlookup & <- & Hqueues_model)".
-      iMod (model_pop with "Hmodel₁ Hmodel₂") as "(% & Hmodel₁ & Hmodel₂)"; first done.
       iExists (Some v).
-      iSplitL "Hmodel₁".
-      { iFrameSteps. iPureIntro. multiset_solver. }
-      iIntros "!> HΦ !>".
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitL.
+      { eapply consistent_pop in Hconsistent; last done.
+        iExists (vs ∖ {[+v+]}). iFrameSteps; iPureIntro.
+        - multiset_solver.
+        - naive_solver.
+      }
       iSteps.
 
     - iDestruct "Ho" as "(%Hlookup & -> & Hqueues_model)".
-      iExists None.
-      iSplitL "Hmodel₁". { iFrameSteps. }
-      iIntros "!> HΦ !>".
-      iSplitR "HΦ". { iFrameSteps. }
-      iSteps.
+      iExists None. iFrameSteps.
   Qed.
 
   #[local] Lemma ws_hub_std_try_steal_once_spec t ι sz i i_ :
@@ -585,25 +514,21 @@ Section ws_hub_std_G.
 
     iDestruct (ws_queues_public_inv_owner with "Hqueues_inv Hqueues_owner") as %?.
     awp_apply (ws_queues_public_steal_as_spec with "[$Hqueues_inv $Hqueues_owner $Hround]"); [lia.. |].
-    iInv "Hinv" as "(:inv_inner)".
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
+    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |]) "Ho".
 
     - iDestruct "Ho" as "(%j & %ws' & %Hj & %Hlookup & Hqueues_model)".
-      iMod (model_steal with "Hmodel₁ Hmodel₂") as "(% & Hmodel₁ & Hmodel₂)"; first done.
       iExists (Some v).
-      iSplitL "Hmodel₁".
-      { iFrameSteps. iPureIntro. multiset_solver. }
-      iIntros "!> HΦ !>".
-      iSplitR "HΦ". { iFrameSteps. }
+      iSplitL.
+      { eapply consistent_steal in Hconsistent; last done.
+        iExists (vs ∖ {[+v+]}). iFrameSteps; iPureIntro.
+        - multiset_solver.
+        - naive_solver.
+      }
       iSteps.
 
-    - iExists None.
-      iSplitL "Hmodel₁". { iFrameSteps. }
-      iIntros "!> HΦ !>".
-      iSplitR "HΦ". { iFrameSteps. }
-      iSteps.
+    - iExists None. iFrameSteps.
   Qed.
 
   #[local] Lemma ws_hub_std_try_steal_spec P t ι sz i i_ yield max_round until :
