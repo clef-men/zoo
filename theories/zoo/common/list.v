@@ -241,6 +241,16 @@ Section basic.
     intros ->.
     rewrite insert_app_r_alt // Nat.sub_diag //.
   Qed.
+
+  Lemma list_delete_insert_delete l i x :
+    i < length l →
+    delete i (<[i := x]> l) = delete i l.
+  Proof.
+    intros Hi.
+    rewrite insert_take_drop //.
+    replace i with (length $ take i l) at 1 by (simpl_length; lia).
+    rewrite delete_middle delete_take_drop //.
+  Qed.
 End basic.
 
 Section suffix.

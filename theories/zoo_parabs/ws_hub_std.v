@@ -2,6 +2,7 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   countable
+  gmultiset
   list.
 From zoo.iris.bi Require Import
   big_op.
@@ -32,18 +33,19 @@ Implicit Types b yield killed : bool.
 Implicit Types l : location.
 Implicit Types v t until pred : val.
 Implicit Types vs : gmultiset val.
-Implicit Types ws : list val.
+Implicit Types ws us : list val.
+Implicit Types vss : list $ list val.
 
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_std_G_queues_G :: WsQueuesPublicG Σ ;
   #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
-  #[local] ws_hub_std_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
+  #[local] ws_hub_std_G_model_G :: TwinsG Σ (leibnizO (list $ list val)) ;
 }.
 
 Definition ws_hub_std_Σ := #[
   ws_queues_public_Σ ;
   waiters_Σ ;
-  twins_Σ (leibnizO (gmultiset val))
+  twins_Σ (leibnizO (list $ list val))
 ].
 #[global] Instance subG_ws_hub_std_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_std_Σ Σ →
@@ -75,27 +77,32 @@ Section ws_hub_std_G.
     solve_countable.
   Qed.
 
-  #[local] Definition model₁' γ_model vs :=
-    twins_twin1 γ_model (DfracOwn 1) vs.
-  #[local] Definition model₁ γ vs :=
-    model₁' γ.(metadata_model) vs.
-  #[local] Definition model₂' γ_model vs :=
-    twins_twin2 γ_model vs.
-  #[local] Definition model₂ γ vs :=
-    model₂' γ.(metadata_model) vs.
+  #[local] Definition model₁' γ_model vs : iProp Σ :=
+    ∃ vss,
+    twins_twin1 γ_model (DfracOwn 1) vss ∗
+    ⌜vs = ⋃+ (list_to_set_disj <$> vss)⌝.
+  #[local] Definition model₁ γ :=
+    model₁' γ.(metadata_model).
+  #[local] Instance : CustomIpatFormat "model₁" :=
+    "(
+      %vss{} &
+      Htwin1 &
+      ->
+    )".
+  #[local] Definition model₂' γ_model vss :=
+    twins_twin2 γ_model vss.
+  #[local] Definition model₂ γ :=
+    model₂' γ.(metadata_model) .
 
   #[local] Definition inv_inner l γ : iProp Σ :=
-    ∃ vs vss killed,
-    ⌜vs = foldr (λ vs_queues vs, list_to_set_disj vs_queues ⊎ vs) ∅ vss⌝ ∗
+    ∃ vss killed,
     l.[killed] ↦ #killed ∗
     ws_queues_public_model γ.(metadata_queues) vss ∗
-    model₂ γ vs.
+    model₂ γ vss.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
-      %vs &
       %vss &
       %killed &
-      >%Hvs &
       >Hl_killed &
       >Hqueues_model &
       >Hmodel₂
@@ -174,29 +181,107 @@ Section ws_hub_std_G.
     apply _.
   Qed.
 
-  #[local] Lemma model_alloc :
+  #[local] Lemma model_alloc sz :
     ⊢ |==>
       ∃ γ_model,
       model₁' γ_model ∅ ∗
-      model₂' γ_model ∅.
+      model₂' γ_model (replicate sz []).
   Proof.
-    apply twins_alloc'.
+    iMod twins_alloc' as "(%γ_model & $ & $)".
+    iPureIntro.
+    symmetry.
+    rewrite gmultiset_disj_union_list_empty => vs.
+    rewrite elem_of_list_fmap.
+    setoid_rewrite elem_of_replicate.
+    naive_solver.
   Qed.
-  #[local] Lemma model_agree γ vs1 vs2 :
+  #[local] Lemma model_agree γ vs1 vss2 :
     model₁ γ vs1 -∗
-    model₂ γ vs2 -∗
-    ⌜vs1 = vs2⌝.
+    model₂ γ vss2 -∗
+    ⌜vs1 = ⋃+ (list_to_set_disj <$> vss2)⌝.
   Proof.
-    apply: twins_agree_L.
+    iIntros "(:model₁) Htwin2".
+    iDestruct (twins_agree_L with "Htwin1 Htwin2") as %<-.
+    iSteps.
   Qed.
-  #[local] Lemma model_update {γ vs1 vs2} vs :
+  #[local] Lemma model_update {γ vs1 vss2} vs vss :
+    vs = ⋃+ (list_to_set_disj <$> vss) →
     model₁ γ vs1 -∗
-    model₂ γ vs2 ==∗
+    model₂ γ vss2 ==∗
       model₁ γ vs ∗
-      model₂ γ vs.
+      model₂ γ vss.
   Proof.
-    apply twins_update.
+    iIntros "% (:model₁ =1) Htwin2".
+    iMod (twins_update with "Htwin1 Htwin2") as "($ & $)".
+    iSteps.
   Qed.
+  #[local] Lemma model_push {γ vs vss i us} v :
+    vss !! i = Some us →
+    model₁ γ vs -∗
+    model₂ γ vss ==∗
+      model₁ γ ({[+v+]} ⊎ vs) ∗
+      model₂ γ (<[i := us ++ [v]]> vss).
+  Proof.
+    iIntros "%Hlookup Hmodel₁ Hmodel₂".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iApply (model_update with "Hmodel₁ Hmodel₂").
+    { rewrite list_fmap_insert list_to_set_disj_snoc gmultiset_disj_union_list_insert_disj_union_l //.
+      rewrite list_lookup_fmap Hlookup //.
+    }
+  Qed.
+  #[local] Lemma model_remove {γ vs vss i us} us1 v us2 :
+    vss !! i = Some us →
+    us = us1 ++ v :: us2 →
+    model₁ γ vs -∗
+    model₂ γ vss ==∗
+      ⌜v ∈ vs⌝ ∗
+      model₁ γ (vs ∖ {[+v+]}) ∗
+      model₂ γ (<[i := us1 ++ us2]> vss).
+  Proof.
+    iIntros (Hlookup ->) "Hmodel₁ Hmodel₂".
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
+    { rewrite list_lookup_fmap Hlookup //. }
+    iSplitR.
+    { iPureIntro.
+      apply elem_of_gmultiset_disj_union_list.
+      eexists. split.
+      - rewrite elem_of_list_lookup. eauto.
+      - rewrite list_to_set_disj_app. set_solver.
+    }
+    iApply (model_update with "Hmodel₁ Hmodel₂").
+    { rewrite (gmultiset_disj_union_list_delete _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
+      rewrite list_fmap_insert gmultiset_disj_union_list_insert //.
+      rewrite !list_to_set_disj_app.
+      multiset_solver.
+    }
+  Qed.
+  #[local] Lemma model_pop γ vs vss i us v :
+    vss !! i = Some (us ++ [v]) →
+    model₁ γ vs -∗
+    model₂ γ vss ==∗
+      ⌜v ∈ vs⌝ ∗
+      model₁ γ (vs ∖ {[+v+]}) ∗
+      model₂ γ (<[i := us]> vss).
+  Proof.
+    iIntros "%Hlookup Hmodel₁ Hmodel₂".
+    iMod (model_remove us v [] with "Hmodel₁ Hmodel₂") as "($ & $ & Hmodel₂)"; [done.. |].
+    iEval (rewrite app_nil_r) in "Hmodel₂".
+    iSteps.
+  Qed.
+  #[local] Lemma model_steal γ vs vss i v us :
+    vss !! i = Some (v :: us) →
+    model₁ γ vs -∗
+    model₂ γ vss ==∗
+      ⌜v ∈ vs⌝ ∗
+      model₁ γ (vs ∖ {[+v+]}) ∗
+      model₂ γ (<[i := us]> vss).
+  Proof.
+    iIntros "%Hlookup Hmodel₁ Hmodel₂".
+    iApply (model_remove [] v us with "Hmodel₁ Hmodel₂"); done.
+  Qed.
+
+  Opaque model₁'.
 
   Lemma ws_hub_std_inv_agree t ι sz1 sz2 :
     ws_hub_std_inv t ι sz1 -∗
@@ -268,18 +353,15 @@ Section ws_hub_std_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitR "Hmodel₁ Hqueues_owner Hrounds_model Hrounds"; iSteps.
-    - assert (∀ sz, foldr (λ vs_queues vs, list_to_set_disj vs_queues ⊎ vs) ∅ (replicate sz []) = ∅) as ->.
-      { clear. induction sz as [| sz IH]; first done. rewrite /= left_id //. }
-      iSteps.
-    - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
-      iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
-      iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
-      iDestruct (big_sepL_seq_index_1 with "Hqueues_owner") as "Hqueues_owner"; first done.
-      iDestruct (big_sepL_sep_2 with "Hqueues_owner Hrounds") as "H".
-      iApply big_sepL_seq_index; first done.
-      iApply (big_sepL_impl with "H").
-      iSteps.
+    iSplitL "Hqueues_model Hl_killed Hmodel₂"; iSteps.
+    iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
+    iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
+    iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
+    iDestruct (big_sepL_seq_index_1 with "Hqueues_owner") as "Hqueues_owner"; first done.
+    iDestruct (big_sepL_sep_2 with "Hqueues_owner Hrounds") as "H".
+    iApply big_sepL_seq_index; first done.
+    iApply (big_sepL_impl with "H").
+    iSteps.
   Qed.
 
   Lemma ws_hub_std_size_spec t ι sz :
@@ -409,22 +491,11 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iAaccIntro with "Hqueues_model".
-    { iIntros "Hqueues_model !>".
-      iSplitL "Hmodel₁"; first iSteps. iIntros "$ !>".
-      iSteps.
-    }
-    iIntros "%vs' (%Hlookup & Hqueues_model)".
-    iMod (model_update ({[+v+]} ⊎ vs) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
-    iSplitL "Hmodel₁"; first iSteps. iIntros "!> HΦ !>".
-    iSplitR "HΦ".
-    { repeat iExists _. iFrame. iPureIntro.
-      rewrite (foldr_insert_strong _ (flip (++))) //.
-      { set_solver by lia. }
-      { rewrite list_to_set_disj_app. multiset_solver. }
-      set_solver.
-    }
+    iAaccIntro with "Hqueues_model"; first iSteps. iIntros "%us (%Hlookup & Hqueues_model)".
+    iMod (model_push v with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)"; first done.
+    iSplitL "Hmodel₁". { iFrameSteps. }
+    iIntros "!> HΦ !>".
+    iSplitR "HΦ". { iFrameSteps. }
     iIntros "Hqueues_owner Hround {%}".
 
     wp_smart_apply ws_hub_std_notify_spec; iSteps.
@@ -462,43 +533,22 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iAaccIntro with "Hqueues_model".
-    { iIntros "Hqueues_model !>".
-      iSplitL "Hmodel₁"; first iSteps.
-      iIntros "$". iSteps.
-    }
-    iIntros ([v |] ws') "Hqueues_model".
+    iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |] us) "Ho".
 
-    - iDestruct "Hqueues_model" as "(% & %Hlookup & <- & Hqueues_model)".
-      set vs' := vs ∖ {[+v+]}.
-      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    - iDestruct "Ho" as "(% & %Hlookup & <- & Hqueues_model)".
+      iMod (model_pop with "Hmodel₁ Hmodel₂") as "(% & Hmodel₁ & Hmodel₂)"; first done.
       iExists (Some v).
       iSplitL "Hmodel₁".
-      { iExists vs'. iSteps. iPureIntro.
-        apply gmultiset_disj_union_difference'.
-        rewrite {}Hvs -(take_drop_middle vss i_ (ws' ++ [v])) // foldr_app /=.
-        rewrite foldr_comm_acc_strong; first multiset_solver.
-        rewrite gmultiset_elem_of_disj_union list_to_set_disj_app.
-        set_solver.
-      }
+      { iFrameSteps. iPureIntro. multiset_solver. }
       iIntros "!> HΦ !>".
-      iSplitR "HΦ".
-      { repeat iExists _. iFrame. iPureIntro.
-        rewrite /vs' Hvs -{1}(take_drop_middle vss i_ (ws' ++ [v])) // insert_take_drop.
-        { eapply lookup_lt_Some. done. }
-        rewrite !foldr_app /= foldr_comm_acc_strong; first multiset_solver.
-        rewrite (foldr_comm_acc_strong _ _ _ (foldr _ _ _)); first multiset_solver.
-        rewrite list_to_set_disj_app.
-        multiset_solver.
-      }
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iDestruct "Hqueues_model" as "(%Hlookup & -> & Hqueues_model)".
+    - iDestruct "Ho" as "(%Hlookup & -> & Hqueues_model)".
       iExists None.
-      iSplitL "Hmodel₁"; first iSteps.
+      iSplitL "Hmodel₁". { iFrameSteps. }
       iIntros "!> HΦ !>".
-      iSplitR "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
 
@@ -538,39 +588,21 @@ Section ws_hub_std_G.
     iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs_ (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iAaccIntro with "Hqueues_model".
-    { iIntros "Hqueues_model !>".
-      iSplitL "Hmodel₁"; first iSteps.
-      iIntros "$". iSteps.
-    }
-    iIntros ([v |]) "Hqueues_model".
+    iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |]) "Ho".
 
-    - iDestruct "Hqueues_model" as "(%j & %ws' & %Hj & %Hlookup & Hqueues_model)".
-      set vs' := vs ∖ {[+v+]}.
-      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+    - iDestruct "Ho" as "(%j & %ws' & %Hj & %Hlookup & Hqueues_model)".
+      iMod (model_steal with "Hmodel₁ Hmodel₂") as "(% & Hmodel₁ & Hmodel₂)"; first done.
       iExists (Some v).
       iSplitL "Hmodel₁".
-      { iExists vs'. iSteps. iPureIntro.
-        apply gmultiset_disj_union_difference'.
-        rewrite {}Hvs -(take_drop_middle vss j (v :: ws')) // foldr_app /=.
-        rewrite foldr_comm_acc_strong; first multiset_solver.
-        set_solver.
-      }
+      { iFrameSteps. iPureIntro. multiset_solver. }
       iIntros "!> HΦ !>".
-      iSplitR "HΦ".
-      { repeat iExists _. iFrame. iPureIntro.
-        rewrite /vs' Hvs -{1}(take_drop_middle vss j (v :: ws')) // insert_take_drop.
-        { eapply lookup_lt_Some. done. }
-        rewrite !foldr_app /= foldr_comm_acc_strong; first multiset_solver.
-        rewrite (foldr_comm_acc_strong _ _ _ (foldr _ _ _)); multiset_solver.
-      }
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
     - iExists None.
-      iSplitL "Hmodel₁"; first iSteps.
+      iSplitL "Hmodel₁". { iFrameSteps. }
       iIntros "!> HΦ !>".
-      iSplitR "HΦ"; first iSteps.
+      iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
 
@@ -622,11 +654,7 @@ Section ws_hub_std_G.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-      + iRight. iExists (Something v). iFrame.
-        iIntros "HΦ !> Howner {%}".
-
-        iSpecialize ("HΦ" with "[$Howner]").
-        iSteps.
+      + iRight. iExists (Something v). iFrameSteps.
 
       + iLeft. iFrame.
         iIntros "HΦ !> Howner". clear- Hmax_round Hcase.
@@ -682,12 +710,7 @@ Section ws_hub_std_G.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-    - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner {%}".
-
-      iStep.
-      iSpecialize ("HΦ" with "[$Howner]").
-      iSteps.
+    - iRight. iExists (Some v). iFrameSteps.
 
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%}".
@@ -744,14 +767,9 @@ Section ws_hub_std_G.
 
       wp_smart_apply (ws_hub_std_steal_until_0_spec with "[$Hinv $Howner $Hpred] HΦ"); first done.
 
-    - iRight. iExists None. iFrame.
-      iSteps.
+    - iRight. iExists None. iFrameSteps.
 
-    - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner {%}".
-
-      iSpecialize ("HΦ" with "Howner").
-      iSteps.
+    - iRight. iExists (Some v). iFrameSteps.
   Qed.
   Lemma ws_hub_std_steal_until_spec P t ι sz i i_ max_round_noyield pred :
     i = ⁺i_ →
@@ -839,14 +857,9 @@ Section ws_hub_std_G.
 
       wp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Huntil] HΦ"); done.
 
-    - iRight. iExists Anything. iFrame.
-      iSteps.
+    - iRight. iExists Anything. iFrameSteps.
 
-    - iRight. iExists (Something v). iFrame.
-      iIntros "HΦ !> Howner {%}".
-
-      iSpecialize ("HΦ" with "Howner").
-      iSteps.
+    - iRight. iExists (Something v). iFrameSteps.
   Qed.
   Lemma ws_hub_std_steal_0_spec t ι i i_ sz max_round_noyield max_round_yield :
     i = ⁺i_ →
@@ -901,7 +914,7 @@ Section ws_hub_std_G.
 
       + iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
         iRight. iExists (Some v).
-        iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
+        iSplitL "Hmodel". { iFrameSteps. }
         iIntros "HΦ !> Howner Hwaiter {%}".
 
         wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
@@ -921,12 +934,11 @@ Section ws_hub_std_G.
         * wp_smart_apply (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
           wp_smart_apply ("HLöb" with "Howner HΦ").
 
-    - iRight. iExists None. iFrame.
-      iSteps.
+    - iRight. iExists None. iFrameSteps.
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v).
-      iSplitL "Hmodel". { iExists vs'. iFrameSteps. }
+      iSplitL "Hmodel". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma ws_hub_std_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
@@ -982,7 +994,7 @@ Section ws_hub_std_G.
     wp_bind (_ <-{killed} _)%E.
     iInv "Hinv" as "(:inv_inner)".
     wp_store.
-    iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ". { iSteps. }
     iIntros "!> {%}".
 
     wp_smart_apply ws_hub_std_notify_all_spec as "_"; first iSteps.
@@ -1035,11 +1047,7 @@ Section ws_hub_std_G.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-    - iRight. iExists (Some v). iFrame.
-      iIntros "HΦ !> Howner {%}".
-
-      iSpecialize ("HΦ" with "[$Howner]").
-      iSteps.
+    - iRight. iExists (Some v). iFrameSteps.
 
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
@@ -1080,12 +1088,7 @@ Section ws_hub_std_G.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
-      iRight. iExists (Some v). iStep.
-      iIntros "HΦ !> Howner {%}".
-
-      iSpecialize ("HΦ" with "Howner").
-      iSteps.
+    - iRight. iExists (Some v). iFrameSteps.
 
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hmax_round_noyield Hmax_round_yield.
