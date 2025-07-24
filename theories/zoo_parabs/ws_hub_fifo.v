@@ -6,8 +6,7 @@ From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
   lib.excl
-  lib.ghost_list
-  lib.twins.
+  lib.ghost_list.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -38,7 +37,6 @@ Implicit Types emptys : list emptiness.
 Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_fifo_G_queue_G :: MpmcQueue1G Σ ;
   #[local] ws_hub_fifo_G_waiters_G :: WaitersG Σ ;
-  #[local] ws_hub_fifo_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] ws_hub_fifo_G_owner_G :: ExclG Σ unitO ;
   #[local] ws_hub_fifo_G_emptiness_G :: GhostListG Σ emptiness ;
 }.
@@ -46,7 +44,6 @@ Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} := {
 Definition ws_hub_fifo_Σ := #[
   mpmc_queue_1_Σ ;
   waiters_Σ ;
-  twins_Σ (leibnizO (list val)) ;
   excl_Σ unitO ;
   ghost_list_Σ emptiness
 ].
@@ -57,6 +54,34 @@ Proof.
   solve_inG.
 Qed.
 
+#[local] Definition consistent vs ws :=
+  vs = list_to_set_disj ws.
+
+#[local] Lemma consistent_nil_inv vs :
+  consistent vs [] →
+  vs = ∅.
+Proof.
+  done.
+Qed.
+#[local] Lemma consistent_push {vs ws} v :
+  consistent vs ws →
+  consistent ({[+v+]} ⊎ vs) (ws ++ [v]).
+Proof.
+  intros ->.
+  rewrite /consistent.
+  rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //.
+Qed.
+#[local] Lemma consistent_pop vs v ws :
+  consistent vs (v :: ws) →
+    ∃ vs',
+    vs = {[+v+]} ⊎ vs' ∧
+    consistent vs' ws.
+Proof.
+  naive_solver.
+Qed.
+
+Opaque consistent.
+
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
@@ -64,7 +89,6 @@ Section ws_hub_fifo_G.
     metadata_size : nat ;
     metadata_queue : val ;
     metadata_waiters : val ;
-    metadata_model : gname ;
     metadata_owners : list gname ;
     metadata_emptiness : gname ;
   }.
@@ -78,23 +102,6 @@ Section ws_hub_fifo_G.
   Proof.
     solve_countable.
   Qed.
-
-  #[local] Definition model₁' γ_model vs : iProp Σ :=
-    ∃ ws,
-    twins_twin1 γ_model (DfracOwn 1) ws ∗
-    ⌜vs = list_to_set_disj ws⌝.
-  #[local] Instance : CustomIpatFormat "model₁" :=
-    "(
-      %ws{} &
-      Htwin1 &
-      ->
-    )".
-  #[local] Definition model₁ γ :=
-    model₁' γ.(metadata_model).
-  #[local] Definition model₂' γ_model ws :=
-    twins_twin2 γ_model ws.
-  #[local] Definition model₂ γ ws :=
-    model₂' γ.(metadata_model) ws.
 
   #[local] Definition owner' γ_owners i : iProp Σ :=
     ∃ γ_owner,
@@ -131,18 +138,13 @@ Section ws_hub_fifo_G.
   #[local] Definition emptiness_at γ :=
     emptiness_at' γ.(metadata_emptiness).
 
-  #[local] Definition inv_inner l γ : iProp Σ :=
-    ∃ ws killed,
-    l.[killed] ↦ #killed ∗
-    mpmc_queue_1_model γ.(metadata_queue) ws ∗
-    model₂ γ ws.
+  #[local] Definition inv_inner l : iProp Σ :=
+    ∃ killed,
+    l.[killed] ↦ #killed.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
-      %ws &
       %killed &
-      >Hl_killed &
-      >Hqueue_model &
-      >Hmodel₂
+      Hl_killed
     )".
   Definition ws_hub_fifo_inv t ι (sz : nat) : iProp Σ :=
     ∃ l γ,
@@ -152,9 +154,9 @@ Section ws_hub_fifo_G.
     l.[size] ↦□ #γ.(metadata_size) ∗
     l.[queue] ↦□ γ.(metadata_queue) ∗
     l.[waiters] ↦□ γ.(metadata_waiters) ∗
-    mpmc_queue_1_inv γ.(metadata_queue) (ι.@"queue") ∗
+    mpmc_queue_1_inv γ.(metadata_queue) ι ∗
     waiters_inv γ.(metadata_waiters) ∗
-    inv (ι.@"inv") (inv_inner l γ).
+    inv nroot (inv_inner l).
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l{} &
@@ -171,18 +173,21 @@ Section ws_hub_fifo_G.
     )".
 
   Definition ws_hub_fifo_model t vs : iProp Σ :=
-    ∃ l γ,
+    ∃ l γ ws,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    model₁ γ vs ∗
+    mpmc_queue_1_model γ.(metadata_queue) ws ∗
+    ⌜consistent vs ws⌝ ∗
     emptiness_auth γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l_ &
       %γ_ &
+      %ws &
       %Heq &
       Hmeta_ &
-      Hmodel₁ &
+      Hqueue_model &
+      %Hconsistent &
       Hemptiness_auth
     )".
 
@@ -211,69 +216,6 @@ Section ws_hub_fifo_G.
     Persistent (ws_hub_fifo_inv t ι sz).
   Proof.
     apply _.
-  Qed.
-
-  #[local] Lemma model_alloc :
-    ⊢ |==>
-      ∃ γ_model,
-      model₁' γ_model ∅ ∗
-      model₂' γ_model [].
-  Proof.
-    iMod twins_alloc' as "(%γ_model & $ & $)".
-    iSteps.
-  Qed.
-  #[local] Lemma model_agree γ vs1 ws2 :
-    model₁ γ vs1 -∗
-    model₂ γ ws2 -∗
-    ⌜vs1 = list_to_set_disj ws2⌝.
-  Proof.
-    iIntros "(:model₁ =1) Htwin2".
-    iDestruct (twins_agree_L with "Htwin1 Htwin2") as %<-.
-    iSteps.
-  Qed.
-  #[local] Lemma model_agree_empty γ vs :
-    model₁ γ vs -∗
-    model₂ γ [] -∗
-    ⌜vs = ∅⌝.
-  Proof.
-    iIntros "Hmodel₁ Hmodel₂".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iSteps.
-  Qed.
-  #[local] Lemma model_update {γ vs1 ws2} vs ws :
-    vs = list_to_set_disj ws →
-    model₁ γ vs1 -∗
-    model₂ γ ws2 ==∗
-      model₁ γ vs ∗
-      model₂ γ ws.
-  Proof.
-    iIntros "% (:model₁ =1) Htwin2".
-    iMod (twins_update with "Htwin1 Htwin2") as "($ & $)".
-    iSteps.
-  Qed.
-  #[local] Lemma model_push {γ vs ws} v :
-    model₁ γ vs -∗
-    model₂ γ ws ==∗
-      model₁ γ ({[+v+]} ⊎ vs) ∗
-      model₂ γ (ws ++ [v]).
-  Proof.
-    iIntros "Hmodel₁ Hmodel₂".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iApply (model_update with "Hmodel₁ Hmodel₂").
-    { rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //. }
-  Qed.
-  #[local] Lemma model_pop γ vs v ws :
-    model₁ γ vs -∗
-    model₂ γ (v :: ws) ==∗
-      ∃ vs',
-      ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
-      model₁ γ vs' ∗
-      model₂ γ ws.
-  Proof.
-    iIntros "Hmodel₁ Hmodel₂".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-    iMod (model_update with "Hmodel₁ Hmodel₂") as "($ & $)"; first done.
-    iSteps.
   Qed.
 
   #[local] Lemma owner_alloc sz :
@@ -365,7 +307,6 @@ Section ws_hub_fifo_G.
     iSteps. simpl_length.
   Qed.
 
-  Opaque model₁'.
   Opaque owner'.
   Opaque emptiness_auth'.
 
@@ -430,7 +371,6 @@ Section ws_hub_fifo_G.
     iMod (pointsto_persist with "Hl_queue") as "#Hl_queue".
     iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".
 
-    iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod owner_alloc as "(%γ_owners & Howners)".
     iMod (emptiness_alloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".
 
@@ -438,16 +378,17 @@ Section ws_hub_fifo_G.
       metadata_size := ₊sz ;
       metadata_queue := queue ;
       metadata_waiters := waiters ;
-      metadata_model := γ_model ;
       metadata_owners := γ_owners ;
       metadata_emptiness := γ_emptiness ;
     |}.
+
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitL "Hqueue_model Hl_killed Hmodel₂".
+    iSplitL "Hl_killed".
     { iExists l, γ. iSteps. }
-    iSplitL "Hmodel₁ Hemptiness_auth". { iSteps. }
+    iSplitL "Hqueue_model Hemptiness_auth".
+    { iSteps. }
     iDestruct (big_sepL_sep_2 with "Howners Hemptiness_ats") as "Howners".
     iApply (big_sepL_impl with "Howners").
     iSteps.
@@ -566,16 +507,13 @@ Section ws_hub_fifo_G.
     wp_rec. wp_load.
 
     awp_apply (mpmc_queue_1_push_spec with "Hqueue_inv").
-    iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
-    iMod (model_push v with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iMod (emptiness_update_Nonempty ({[+v+]} ⊎ vs) with "Hemptiness_auth Hemptiness_at") as "(Hemptiness_auth & Hemptiness_at)".
-    iSplitL "Hmodel₁ Hemptiness_auth". { iFrameSteps. }
-    iIntros "!> HΦ !>".
-    iSplitR "Hemptiness_at HΦ". { iFrameSteps. }
-    iIntros "_ {%}".
+    iSplitL "Hqueue_model Hemptiness_auth".
+    { iFrameSteps. iPureIntro. apply consistent_push. done. }
+    iIntros "!> HΦ !> _ {%}".
 
     wp_smart_apply ws_hub_fifo_notify_spec as "_"; first iSteps.
     iSteps.
@@ -618,14 +556,13 @@ Section ws_hub_fifo_G.
     wp_rec. wp_load.
 
     awp_smart_apply (mpmc_queue_1_pop_spec with "Hqueue_inv").
-    iInv "Hinv" as "(:inv_inner)".
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
     iExists (head ws).
     destruct ws as [| w ws].
 
-    - iDestruct (model_agree_empty with "Hmodel₁ Hmodel₂") as %->.
+    - apply consistent_nil_inv in Hconsistent as ->.
 
       iAssert (
         emptiness_auth γ ∅ ∗
@@ -645,7 +582,7 @@ Section ws_hub_fifo_G.
 
       iSteps.
 
-    - iMod (model_pop with "Hmodel₁ Hmodel₂") as "(%vs' & -> & Hmodel₁ & Hmodel₂)".
+    - apply consistent_pop in Hconsistent as (vs' & -> & Hconsistent).
       iDestruct (emptiness_update_auth with "Hemptiness_auth") as "Hemptiness_auth".
       iSteps.
   Qed.
