@@ -101,6 +101,17 @@ Section ws_queues_public_G.
     iSteps.
   Qed.
 
+  Lemma ws_queues_public_inv_model t ι sz vss :
+    ws_queues_public_inv t ι sz -∗
+    ws_queues_public_model t vss -∗
+    ⌜length vss = sz⌝.
+  Proof.
+    iIntros "(:inv) (:model)".
+    iDestruct (big_sepL2_length with "Hqueues_model") as %<-.
+    iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-.
+    iSteps.
+  Qed.
+
   Lemma ws_queues_public_inv_owner t ι sz i status ws :
     ws_queues_public_inv t ι sz -∗
     ws_queues_public_owner t i status ws -∗
