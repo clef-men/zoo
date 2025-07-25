@@ -48,7 +48,7 @@ Section inf_ws_queue_2_G.
     "(
       %slots_vs{} &
       Hmodel{_{}} &
-      Hslots_vs{}
+      #Hslots_vs{}
     )".
 
   Definition inf_ws_queue_2_owner t ws : iProp Σ :=
@@ -59,7 +59,7 @@ Section inf_ws_queue_2_G.
     "(
       %slots_ws{} &
       Howner{_{}} &
-      Hslots_ws{}
+      #Hslots_ws{}
     )".
 
   #[global] Instance inf_ws_queue_2_model_timeless t vs :
@@ -135,9 +135,9 @@ Section inf_ws_queue_2_G.
     >>>
       inf_ws_queue_2_size t @ ↑ι
     <<<
+      ⌜vs `suffix_of` ws⌝ ∗
       inf_ws_queue_2_model t vs
     | RET #(length vs);
-      ⌜vs `suffix_of` ws⌝ ∗
       inf_ws_queue_2_owner t vs
     >>>.
   Proof.
@@ -145,13 +145,13 @@ Section inf_ws_queue_2_G.
 
     awp_apply (inf_ws_queue_1_size_spec with "[$]") without "Hslots_ws".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-    iAaccIntro with "Hmodel"; first iSteps. iSteps --silent / as ((slots & ->)%suffix_fmap) "Hslots_vs Hslots_ws HΦ Howner"; last congruence.
+    iAaccIntro with "Hmodel"; first iSteps.
+    iSteps --silent / as (Hsuffix%suffix_fmap) / as (_) "HΦ Howner".
+    { iApply (big_sepL2_ref_pointsto_suffix with "Hslots_vs Hslots_ws"); first done. }
+    { congruence. }
     rewrite length_fmap.
     iDestruct (big_sepL2_length with "Hslots_vs") as %->.
     iSteps.
-    iDestruct (big_sepL2_app_inv_l with "Hslots_ws") as "(%ws1 & %vs_ & -> & _ & Hslots_vs_)".
-    iDestruct (big_sepL2_ref_pointsto_agree with "Hslots_vs Hslots_vs_") as %<-.
-    iPureIntro. solve_suffix.
   Qed.
 
   Lemma inf_ws_queue_2_is_empty_spec t ι ws :
@@ -163,9 +163,9 @@ Section inf_ws_queue_2_G.
     >>>
       inf_ws_queue_2_is_empty t @ ↑ι
     <<<
+      ⌜vs `suffix_of` ws⌝ ∗
       inf_ws_queue_2_model t vs
     | RET #(bool_decide (vs = []%list));
-      ⌜vs `suffix_of` ws⌝ ∗
       inf_ws_queue_2_owner t vs
     >>>.
   Proof.
@@ -173,15 +173,15 @@ Section inf_ws_queue_2_G.
 
     awp_apply (inf_ws_queue_1_is_empty_spec with "[$]") without "Hslots_ws".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-    iAaccIntro with "Hmodel"; first iSteps. iSteps --silent / as ((slots & ->)%suffix_fmap) "Hslots_vs Hslots_ws HΦ Howner"; last congruence.
+    iAaccIntro with "Hmodel"; first iSteps.
+    iSteps --silent / as (Hsuffix%suffix_fmap) / as (_) "HΦ Howner".
+    { iApply (big_sepL2_ref_pointsto_suffix with "Hslots_vs Hslots_ws"); first done. }
+    { congruence. }
     erewrite (bool_decide_ext (_ <$> _ = []) (length _ = 0)); last rewrite length_zero_iff_nil //.
     rewrite length_fmap.
     iDestruct (big_sepL2_length with "Hslots_vs") as %->.
     erewrite (bool_decide_ext (length _ = 0)); last apply length_zero_iff_nil.
     iSteps.
-    iDestruct (big_sepL2_app_inv_l with "Hslots_ws") as "(%ws1 & %vs_ & -> & _ & Hslots_vs_)".
-    iDestruct (big_sepL2_ref_pointsto_agree with "Hslots_vs Hslots_vs_") as %<-.
-    iPureIntro. solve_suffix.
   Qed.
 
   Lemma inf_ws_queue_2_push_spec t ι ws v :
@@ -193,6 +193,7 @@ Section inf_ws_queue_2_G.
     >>>
       inf_ws_queue_2_push t v @ ↑ι
     <<<
+      ⌜vs `suffix_of` ws⌝ ∗
       inf_ws_queue_2_model t (vs ++ [v])
     | RET ();
       inf_ws_queue_2_owner t (vs ++ [v])
@@ -206,9 +207,11 @@ Section inf_ws_queue_2_G.
 
     awp_apply (inf_ws_queue_1_push_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-    iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
-    iDestruct (big_sepL2_snoc_2 with "Hslots_vs Hslot") as "-##Hslots_vs".
+    iAaccIntro with "Hmodel"; first iSteps.
+    iStep --silent / as (Hsuffix%suffix_fmap) "Hmodel"; last congruence.
+    iDestruct (big_sepL2_snoc_2 with "Hslots_vs Hslot") as "#Hslots_vs'".
     rewrite -fmap_snoc. iSteps.
+    iApply (big_sepL2_ref_pointsto_suffix with "Hslots_vs Hslots_ws"); first done.
   Qed.
 
   Lemma inf_ws_queue_2_steal_spec t ι :
@@ -230,9 +233,14 @@ Section inf_ws_queue_2_G.
 
     awp_smart_apply (inf_ws_queue_1_steal_spec with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-    iAaccIntro with "Hmodel"; iIntros "Hmodel !>"; first iSteps.
+    iAaccIntro with "Hmodel"; first iSteps.
+    iStep as "Hmodel".
     destruct slots_vs as [| slot slots_vs], vs as [| v vs] => //.
-    all: iFrameSteps.
+
+    - iFrame "#". iSteps.
+
+    - iDestruct "Hslots_vs" as "/= (Hslot & Hslots_vs)".
+      iSteps.
   Qed.
 
   Lemma inf_ws_queue_2_pop_spec t ι ws :
@@ -244,20 +252,21 @@ Section inf_ws_queue_2_G.
     >>>
       inf_ws_queue_2_pop t @ ↑ι
     <<<
-      ∃∃ o ws,
+      ∃∃ o ws',
+      ⌜vs `suffix_of` ws⌝ ∗
       match o with
       | None =>
           ⌜vs = []⌝ ∗
-          ⌜ws = []⌝ ∗
+          ⌜ws' = []⌝ ∗
           inf_ws_queue_2_model t []
       | Some v =>
           ∃ vs',
           ⌜vs = vs' ++ [v]⌝ ∗
-          ⌜ws = vs'⌝ ∗
+          ⌜ws' = vs'⌝ ∗
           inf_ws_queue_2_model t vs'
       end
     | RET o;
-      inf_ws_queue_2_owner t ws
+      inf_ws_queue_2_owner t ws'
     >>>.
   Proof.
     iIntros "%Φ (#Hinv & (:owner)) HΦ".
@@ -266,15 +275,20 @@ Section inf_ws_queue_2_G.
 
     awp_smart_apply (inf_ws_queue_1_pop_spec with "[$Hinv $Howner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([𝑠𝑙𝑜𝑡 |] ?).
-    - iIntros "(%𝑠𝑙𝑜𝑡s & %Hslots & -> & Hmodel) !>".
+    iAaccIntro with "Hmodel"; first iSteps.
+    iStep 3 --silent / as (o slots_ws' Hsuffix%suffix_fmap) "Ho"; last congruence.
+    iDestruct (big_sepL2_ref_pointsto_suffix with "Hslots_vs Hslots_ws") as %?; first done.
+    destruct o as [𝑠𝑙𝑜𝑡 |].
+
+    - iDestruct "Ho" as "(%𝑠𝑙𝑜𝑡s & %Hslots & -> & Hmodel)".
       apply fmap_snoc_inv in Hslots as (slots' & slot & -> & -> & ->).
-      iDestruct (big_sepL2_snoc_inv_l with "Hslots_vs") as "(%vs' & %v & -> & #Hslots & #Hslot)".
+      iDestruct (big_sepL2_snoc_inv_l with "Hslots_vs") as "(%vs' & %v & -> & #Hslots' & #Hslot)".
       iExists (Some v). iFrameSteps.
-    - iIntros "(%Hslots & -> & Hmodel) !>".
+
+    - iDestruct "Ho" as "(%Hslots & -> & Hmodel)".
       apply fmap_nil_inv in Hslots as ->.
       iDestruct (big_sepL2_nil_inv_l with "Hslots_vs") as %->.
-      iExists None. iFrameSteps. iExists []. iSteps.
+      iExists None. iSteps. do 2 (iExists []; iSteps).
   Qed.
 End inf_ws_queue_2_G.
 
