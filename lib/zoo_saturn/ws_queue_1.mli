@@ -39,12 +39,12 @@ val size :
   arequires
     model t ?vs
   aensures
-    model t ?vs
+    suffix ?vs ws
+  , model t ?vs
   returns
     length ?vs
   ensures
-    suffix ?vs ws
-  , owner t ?vs
+    owner t ?vs
 |}]
 
 val is_empty :
@@ -60,12 +60,12 @@ val is_empty :
   arequires
     model t ?vs
   aensures
-    model t ?vs
+    suffix ?vs ws
+  , model t ?vs
   decides
     ?vs = []
   ensures
-    suffix ?vs ws
-  , owner t ?vs
+    owner t ?vs
 |}]
 
 val push :
@@ -82,7 +82,8 @@ val push :
   arequires
     model t ?vs
   aensures
-    model t (?vs ++ [v])
+    suffix ?vs ws
+  , model t (?vs ++ [v])
   ensures
     owner t (?vs ++ [v])
 |}]
@@ -100,21 +101,22 @@ val pop :
   arequires
     model t ?vs
   aensures
-    match ?o with
+    suffix ?vs ws
+  , match ?o with
     | None ->
         ?vs = [] ∗
-        ?ws = [] ∗
+        ?ws' = [] ∗
         model t []
     | Some v ->
         ∃ vs'.
         ?vs = vs' ++ [v] ∗
-        ?ws = vs' ∗
+        ?ws' = vs' ∗
         model t vs'
     end
   returns
     ?o
   ensures
-    owner t ?ws
+    owner t ?ws'
 |}]
 
 val steal :
