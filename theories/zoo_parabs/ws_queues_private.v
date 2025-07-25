@@ -132,10 +132,16 @@ Section ws_queues_private_G.
     solve_countable.
   Qed.
 
-  #[local] Definition models_auth' :=
-    ghost_list_auth.
+  #[local] Definition models_auth' γ_models sz vss : iProp Σ :=
+    ghost_list_auth γ_models vss ∗
+    ⌜length vss = sz⌝.
   #[local] Definition models_auth γ :=
-    models_auth' γ.(metadata_models).
+    models_auth' γ.(metadata_models) γ.(metadata_size).
+  #[local] Instance : CustomIpatFormat "models_auth" :=
+    "(
+      Hauth &
+      %Hvss
+    )".
   #[local] Definition models_at' γ_models i :=
     ghost_list_at γ_models i (DfracOwn 1).
   #[local] Definition models_at γ :=
@@ -380,19 +386,28 @@ Section ws_queues_private_G.
   #[local] Lemma models_alloc sz :
     ⊢ |==>
       ∃ γ_models,
-      models_auth' γ_models (replicate sz []) ∗
+      models_auth' γ_models sz (replicate sz []) ∗
       [∗ list] i ∈ seq 0 sz,
         models_at' γ_models i [].
   Proof.
     iMod ghost_list_alloc as "(%γ_models & $ & Hats)".
-    iApply (big_sepL_replicate_1 with "Hats").
+    iSplitR.
+    - iPureIntro. apply length_replicate.
+    - iApply (big_sepL_replicate_1 with "Hats").
+  Qed.
+  #[local] Lemma models_auth_length γ vss :
+    models_auth γ vss ⊢
+    ⌜length vss = γ.(metadata_size)⌝.
+  Proof.
+    iSteps.
   Qed.
   #[local] Lemma models_lookup γ vss i vs :
     models_auth γ vss -∗
     models_at γ i vs -∗
     ⌜vss !! i = Some vs⌝.
   Proof.
-    apply ghost_list_lookup.
+    iIntros "(:models_auth) Hat".
+    iApply (ghost_list_lookup with "Hauth Hat").
   Qed.
   #[local] Lemma models_update {γ vss i vs} vs' :
     models_auth γ vss -∗
@@ -400,8 +415,12 @@ Section ws_queues_private_G.
       models_auth γ (<[i := vs']> vss) ∗
       models_at γ i vs'.
   Proof.
-    apply ghost_list_update_at.
+    iIntros "(:models_auth) Hat".
+    iMod (ghost_list_update_at with "Hauth Hat") as "($ & $)".
+    iPureIntro. simpl_length.
   Qed.
+
+  Opaque models_auth'.
 
   #[local] Lemma channels_alloc sz :
     ⊢ |==>
@@ -579,6 +598,16 @@ Section ws_queues_private_G.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
     iDestruct (pointsto_agree with "Hl1_size Hl2_size") as %?. naive_solver.
+  Qed.
+
+  Lemma ws_queues_private_inv_model t ι sz vss :
+    ws_queues_private_inv t ι sz -∗
+    ws_queues_private_model t vss -∗
+    ⌜length vss = sz⌝.
+  Proof.
+    iIntros "(:inv) (:model)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iApply (models_auth_length with "Hmodels_auth").
   Qed.
 
   Lemma ws_queues_private_inv_owner t ι sz i status ws :
