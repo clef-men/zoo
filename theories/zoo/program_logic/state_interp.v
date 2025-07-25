@@ -368,6 +368,48 @@ Section zoo_G.
     apply big_sepL2_pointsto_agree.
   Qed.
 
+  Lemma big_sepL2_pointsto_prefix ls1 dq1 vs1 ls2 dq2 vs2 :
+    ls1 `prefix_of` ls2 →
+    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
+    ⌜vs1 `prefix_of` vs2⌝.
+  Proof.
+    iIntros ((ls & ->)) "H1 H2".
+    iDestruct (big_sepL2_app_inv_l with "H2") as "(%vs & %vs1_ & -> & H1_ & _)".
+    iDestruct (big_sepL2_pointsto_agree with "H1 H1_") as %<-.
+    iPureIntro. apply prefix_app_r. done.
+  Qed.
+  Lemma big_sepL2_ref_pointsto_prefix ls1 dq1 vs1 ls2 dq2 vs2 :
+    ls1 `prefix_of` ls2 →
+    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
+    ⌜vs1 `prefix_of` vs2⌝.
+  Proof.
+    setoid_rewrite location_add_0.
+    apply big_sepL2_pointsto_prefix.
+  Qed.
+
+  Lemma big_sepL2_pointsto_suffix ls1 dq1 vs1 ls2 dq2 vs2 :
+    ls1 `suffix_of` ls2 →
+    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
+    ⌜vs1 `suffix_of` vs2⌝.
+  Proof.
+    iIntros ((ls & ->)) "H1 H2".
+    iDestruct (big_sepL2_app_inv_l with "H2") as "(%vs & %vs1_ & -> & _ & H1_)".
+    iDestruct (big_sepL2_pointsto_agree with "H1 H1_") as %<-.
+    iPureIntro. solve_suffix.
+  Qed.
+  Lemma big_sepL2_ref_pointsto_suffix ls1 dq1 vs1 ls2 dq2 vs2 :
+    ls1 `suffix_of` ls2 →
+    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
+    ⌜vs1 `suffix_of` vs2⌝.
+  Proof.
+    setoid_rewrite location_add_0.
+    apply big_sepL2_pointsto_suffix.
+  Qed.
+
   #[global] Instance thread_pointsto_timeless tid dq v :
     Timeless (tid ↦ₗ{dq} v).
   Proof.
