@@ -558,6 +558,18 @@ Section ws_bqueue_1_G.
   Proof.
     apply: auth_twins_agree_L.
   Qed.
+  #[local] Lemma model_owner₁_agree γ stable back ws vs1 vs2 :
+    owner₁ γ stable back ws -∗
+    model₁ γ vs1 -∗
+    model₂ γ vs2 -∗
+      ⌜vs1 `suffix_of` ws⌝ ∗
+      ⌜vs1 = vs2⌝.
+  Proof.
+    iIntros "Howner₁ Hmodel₁ Hmodel₂".
+    iDestruct (model₁_valid with "Howner₁ Hmodel₁") as %Hsuffix.
+    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+    iSteps.
+  Qed.
   #[local] Lemma model_empty {γ stable back ws vs1 vs2} :
     owner₁ γ stable back ws -∗
     model₁ γ vs1 -∗
@@ -1576,9 +1588,9 @@ Section ws_bqueue_1_G.
     >>>
       ws_bqueue_1_size t @ ↑ι
     <<<
+      ⌜vs `suffix_of` ws⌝ ∗
       ws_bqueue_1_model t vs
     | RET #(length vs);
-      ⌜vs `suffix_of` ws⌝ ∗
       ws_bqueue_1_owner t vs
     >>>.
   Proof.
@@ -1596,13 +1608,12 @@ Section ws_bqueue_1_G.
 
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
-    iDestruct (model₁_valid with "Howner₁ Hmodel₁") as %Hsuffix.
+    iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
     iMod (owner₁_update with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
     iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
-    iModIntro. clear- Hcapacity Hus Hvs1 Hback Hsuffix.
+    iModIntro. clear- Hcapacity Hus Hvs1 Hback.
 
     wp_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
     wp_pures.
@@ -1620,9 +1631,9 @@ Section ws_bqueue_1_G.
     >>>
       ws_bqueue_1_is_empty t @ ↑ι
     <<<
+      ⌜vs `suffix_of` ws⌝ ∗
       ws_bqueue_1_model t vs
     | RET #(bool_decide (vs = []%list));
-      ⌜vs `suffix_of` ws⌝ ∗
       ws_bqueue_1_owner t vs
     >>>.
   Proof.
@@ -1650,6 +1661,7 @@ Section ws_bqueue_1_G.
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
+      ⌜vs `suffix_of` ws⌝ ∗
       ws_bqueue_1_model t (if b then vs ++ [v] else vs)
     | RET #b;
       ws_bqueue_1_owner t (if b then vs ++ [v] else ws)
@@ -1700,7 +1712,7 @@ Section ws_bqueue_1_G.
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+      iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
       iMod (model_push v with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ".
       { iSteps; iPureIntro.
@@ -1730,7 +1742,7 @@ Section ws_bqueue_1_G.
 
     - iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %<-.
+      iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & <-).
       rewrite bool_decide_eq_false_2; first lia.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
 
@@ -1776,7 +1788,7 @@ Section ws_bqueue_1_G.
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iFrameSteps.
+      iMod ("HΦ" with "[$Hmodel₁] [//]") as "HΦ"; first iSteps.
 
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
@@ -1969,20 +1981,21 @@ Section ws_bqueue_1_G.
     >>>
       ws_bqueue_1_pop t @ ↑ι
     <<<
-      ∃∃ o ws,
+      ∃∃ o ws',
+      ⌜vs `suffix_of` ws⌝ ∗
       match o with
       | None =>
           ⌜vs = []⌝ ∗
-          ⌜ws = []⌝ ∗
+          ⌜ws' = []⌝ ∗
           ws_bqueue_1_model t []
       | Some v =>
           ∃ vs',
           ⌜vs = vs' ++ [v]⌝ ∗
-          ⌜ws = vs'⌝ ∗
+          ⌜ws' = vs'⌝ ∗
           ws_bqueue_1_model t vs'
       end
     | RET o;
-      ws_bqueue_1_owner t ws
+      ws_bqueue_1_owner t ws'
     >>>.
   Proof.
     iIntros "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -2010,9 +2023,9 @@ Section ws_bqueue_1_G.
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
       iMod (model_empty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! None with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+      iMod ("HΦ" $! None with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
       iSplitR "Howner₁ Hdata_cslice₂ HΦ".
       { iExists Superempty. iFrameSteps. }
@@ -2051,9 +2064,9 @@ Section ws_bqueue_1_G.
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
         iMod (model_pop with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂) /=".
-        iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+        iMod ("HΦ" $! (Some v) with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
         iSplitR "Howner₁ Hdata_cslice₂ Hwinner_steal HΦ".
         { iExists Emptyish. iFrameSteps. }
@@ -2068,9 +2081,9 @@ Section ws_bqueue_1_G.
 
           iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
           iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-          iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+          iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
           iMod (model_pop with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂) /=".
-          iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+          iMod ("HΦ" $! (Some v) with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
           iSplitR "Howner₁ Hdata_cslice₂ Hwinner_steal HΦ".
           { iExists Emptyish. iFrameSteps. }
@@ -2088,13 +2101,13 @@ Section ws_bqueue_1_G.
         iMod "HP" as "(%vs & Hmodel₁ & _ & HP)".
         iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
         iMod (model_steal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
-        iMod ("HP" with "[Hmodel₁]") as "HP"; first iFrameSteps.
+        iMod ("HP" with "[$Hmodel₁]") as "HP"; first iSteps.
 
         iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-        iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+        iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
         iMod (model_empty with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-        iMod ("HΦ" $! None with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+        iMod ("HΦ" $! None with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
         iSplitR "Howner₁ Hdata_cslice₂ HΦ".
         { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
@@ -2108,9 +2121,9 @@ Section ws_bqueue_1_G.
 
       iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+      iDestruct (model_owner₁_agree with "Howner₁ Hmodel₁ Hmodel₂") as %(Hsuffix & ->).
       iMod (model_pop' with "Howner₁ Hmodel₁ Hmodel₂") as "(Howner₁ & Hmodel₁ & Hmodel₂)".
-      iMod ("HΦ" $! (Some v) with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
+      iMod ("HΦ" $! (Some v) with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
       iAssert ⌜us !! 0 = Some v⌝%I as %Hus_lookup.
       { iDestruct (array_cslice_rotation_right_small_1' (back - 1) (length vs1) with "Hdata_cslice₁") as "Hdata_cslice₁"; [simpl_length/=; lia.. |].
