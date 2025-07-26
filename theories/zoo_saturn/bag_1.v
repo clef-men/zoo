@@ -2,6 +2,7 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   countable
+  gmultiset
   list.
 From zoo.iris.base_logic Require Import
   lib.twins.
@@ -43,18 +44,18 @@ Proof.
 Qed.
 
 #[local] Definition consistent vs os :=
-  vs = foldr (λ o vs, from_option (λ v, {[+v+]} ⊎ vs) vs o) ∅ os.
+  vs = ⋃+ (singletonMS <$> oflatten os).
 
 #[local] Lemma consistent_lookup vs os i v :
   os !! i = Some $ Some v →
   consistent vs os →
   v ∈ vs.
 Proof.
-  intros Hlookup ->.
-  rewrite -(take_drop_middle os i (Some v)) // foldr_app /=.
-  rewrite foldr_comm_acc_strong.
-  { intros []; set_solver by lia. }
-  multiset_solver.
+  intros Hlookup%elem_of_list_lookup_2 ->.
+  setoid_rewrite elem_of_gmultiset_disj_union_list.
+  setoid_rewrite elem_of_list_fmap.
+  setoid_rewrite elem_of_oflatten.
+  eexists. split; naive_solver set_solver.
 Qed.
 #[local] Lemma consistent_insert {vs os i} v :
   os !! i = Some None →
@@ -62,9 +63,7 @@ Qed.
   consistent ({[+v+]} ⊎ vs) (<[i := Some v]> os).
 Proof.
   intros Hlookup ->.
-  rewrite /consistent.
-  rewrite (foldr_insert_strong _ option_union _ _ None (Some v)) //.
-  { intros [w |] acc; last done. set_solver by lia. }
+  rewrite /consistent oflatten_insert_None_Some //.
 Qed.
 #[local] Lemma consistent_remove vs os i v :
   os !! i = Some $ Some v →
@@ -73,12 +72,12 @@ Qed.
 Proof.
   intros Hlookup ->.
   rewrite /consistent.
-  rewrite insert_take_drop.
-  { eapply lookup_lt_Some. done. }
-  rewrite -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
-  rewrite foldr_comm_acc_strong.
-  { intros []; set_solver by lia. }
-  multiset_solver.
+  erewrite oflatten_insert_Some_None; last done.
+  rewrite list_fmap_delete.
+  erewrite gmultiset_disj_union_list_delete; first done.
+  rewrite list_lookup_fmap_Some.
+  erewrite oflatten_lookup_Some; last done.
+  eauto.
 Qed.
 
 Opaque consistent.
