@@ -67,6 +67,17 @@ Section list_to_set_disj.
   Implicit Types x y : A.
   Implicit Types l : list A.
 
+  Lemma list_to_set_disj_empty l :
+    list_to_set_disj l =@{gmultiset _} ∅ ↔
+    l = [].
+  Proof.
+    split.
+    - destruct l as [| x l]; first done.
+      multiset_solver.
+    - intros ->.
+      apply list_to_set_disj_nil.
+  Qed.
+
   Lemma list_to_set_disj_snoc l x :
     list_to_set_disj (l ++ [x]) =@{gmultiset _} {[+x+]} ⊎ list_to_set_disj l.
   Proof.
