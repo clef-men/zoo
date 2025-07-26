@@ -245,9 +245,10 @@ Section ws_queues_public_G.
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
+      ⌜vs `suffix_of` ws⌝ ∗
       ws_queues_public_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
-        ws_queues_public_owner t i_ Nonblocked (vs ++ [v])
+      ws_queues_public_owner t i_ Nonblocked (vs ++ [v])
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
@@ -263,10 +264,14 @@ Section ws_queues_public_G.
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
     iDestruct (big_sepL2_insert_acc with "Hqueues_model") as "(Hqueue_model & Hqueues_model)"; [done.. |].
     iAaccIntro with "Hqueue_model".
-    all: iIntros "Hqueue_model".
-    all: iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
-    - rewrite !list_insert_id //. iSteps.
-    - rewrite list_insert_id //. iSteps.
+
+    - iIntros "Hqueue_model".
+      iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
+      rewrite !list_insert_id //. iSteps.
+
+    - iIntros "(%Hsuffix & Hqueue_model)".
+      iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
+      rewrite list_insert_id //. iSteps.
   Qed.
 
   Lemma ws_queues_public_pop_spec t ι sz i i_ ws :
@@ -279,20 +284,21 @@ Section ws_queues_public_G.
     >>>
       ws_queues_public_pop t #i @ ↑ι
     <<<
-      ∃∃ o ws,
+      ∃∃ o ws',
       match o with
       | None =>
           ⌜vss !! i_ = Some []⌝ ∗
-          ⌜ws = []⌝ ∗
+          ⌜ws' = []⌝ ∗
           ws_queues_public_model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
-          ⌜ws = vs⌝ ∗
+          ⌜vs ++ [v] `suffix_of` ws⌝ ∗
+          ⌜ws' = vs⌝ ∗
           ws_queues_public_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_queues_public_owner t i_ Nonblocked ws
+      ws_queues_public_owner t i_ Nonblocked ws'
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ".
@@ -313,7 +319,7 @@ Section ws_queues_public_G.
       iDestruct ("Hqueues_model" with "Hqueue_model") as "Hqueues_model".
       rewrite !list_insert_id //. iSteps.
 
-    - iIntros "%o %ws' Hqueue_model".
+    - iIntros "%o %ws' (%Hsuffix & Hqueue_model)".
       iExists o, ws'. iSplitL; last iSteps.
       destruct o as [v |].
 
