@@ -926,6 +926,7 @@ Section ws_queues_private_G.
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
+      ⌜vs `suffix_of` ws⌝ ∗
       ws_queues_private_model t (<[i_ := vs ++ [v]]> vss)
     | RET ();
       ws_queues_private_owner t i_ Nonblocked (vs ++ [v])
@@ -946,7 +947,7 @@ Section ws_queues_private_G.
     iMod ("HΦ" with "[Hmodels_auth]") as "HΦ"; first iSteps.
     iModIntro.
 
-    wp_smart_apply (ws_queues_private_respond_spec with "[-HΦ] HΦ"); [done | iFrameSteps].
+    wp_smart_apply (ws_queues_private_respond_spec with "[- HΦ] HΦ"); [done | iFrameSteps].
   Qed.
 
   Lemma ws_queues_private_pop_spec t ι sz i i_ ws :
@@ -959,20 +960,21 @@ Section ws_queues_private_G.
     >>>
       ws_queues_private_pop t #i @ ↑ι
     <<<
-      ∃∃ o ws,
+      ∃∃ o ws',
       match o with
       | None =>
           ⌜vss !! i_ = Some []⌝ ∗
-          ⌜ws = []⌝ ∗
+          ⌜ws' = []⌝ ∗
           ws_queues_private_model t vss
       | Some v =>
           ∃ vs,
           ⌜vss !! i_ = Some (vs ++ [v])⌝ ∗
-          ⌜ws = vs⌝ ∗
+          ⌜vs ++ [v] `suffix_of` ws⌝ ∗
+          ⌜ws' = vs⌝ ∗
           ws_queues_private_model t (<[i_ := vs]> vss)
       end
     | RET o;
-      ws_queues_private_owner t i_ Nonblocked ws
+      ws_queues_private_owner t i_ Nonblocked ws'
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -993,7 +995,7 @@ Section ws_queues_private_G.
       iMod ("HΦ" $! (Some v) with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
 
-      wp_smart_apply (ws_queues_private_respond_spec with "[-HΦ]") as "Howner"; [done | iFrameSteps |].
+      wp_smart_apply (ws_queues_private_respond_spec with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
       wp_pures.
       iApply ("HΦ" with "Howner").
 
@@ -1001,7 +1003,7 @@ Section ws_queues_private_G.
       iMod ("HΦ" $! None with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
 
-      wp_smart_apply (ws_queues_private_respond_spec [] with "[-HΦ]") as "Howner"; [done | iFrameSteps |].
+      wp_smart_apply (ws_queues_private_respond_spec [] with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
       wp_pures.
       iApply ("HΦ" with "Howner").
   Qed.
