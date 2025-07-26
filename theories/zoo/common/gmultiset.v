@@ -105,6 +105,14 @@ Section disj_union_list.
 
   Lemma gmultiset_disj_union_list_delete Xs i X :
     Xs !! i = Some X →
+    ⋃+ (delete i Xs) = ⋃+ Xs ∖ X.
+  Proof.
+    intros Hlookup.
+    rewrite {2}(delete_Permutation Xs i X) //.
+    multiset_solver.
+  Qed.
+  Lemma gmultiset_disj_union_list_delete' Xs i X :
+    Xs !! i = Some X →
     ⋃+ Xs = X ⊎ ⋃+ (delete i Xs).
   Proof.
     intros Hlookup.
@@ -117,7 +125,7 @@ Section disj_union_list.
   Proof.
     intros (Y & Hlookup).
     opose proof* (lookup_lt_Some Xs i Y); first done.
-    rewrite (gmultiset_disj_union_list_delete (<[i := X]> Xs) i X).
+    rewrite (gmultiset_disj_union_list_delete' (<[i := X]> Xs) i X).
     { rewrite list_lookup_insert //. }
     rewrite list_delete_insert_delete //.
   Qed.

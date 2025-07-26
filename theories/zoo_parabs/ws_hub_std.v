@@ -107,7 +107,7 @@ Proof.
     eexists. split.
     + rewrite elem_of_list_lookup. eauto.
     + rewrite list_to_set_disj_app. set_solver.
-  - rewrite (gmultiset_disj_union_list_delete _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
+  - rewrite (gmultiset_disj_union_list_delete' _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
     rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.
     rewrite !list_to_set_disj_app.
     multiset_solver.
