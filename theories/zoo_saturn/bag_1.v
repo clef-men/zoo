@@ -42,12 +42,54 @@ Proof.
   solve_inG.
 Qed.
 
+#[local] Definition consistent vs os :=
+  vs = foldr (λ o vs, from_option (λ v, {[+v+]} ⊎ vs) vs o) ∅ os.
+
+#[local] Lemma consistent_lookup vs os i v :
+  os !! i = Some $ Some v →
+  consistent vs os →
+  v ∈ vs.
+Proof.
+  intros Hlookup ->.
+  rewrite -(take_drop_middle os i (Some v)) // foldr_app /=.
+  rewrite foldr_comm_acc_strong.
+  { intros []; set_solver by lia. }
+  multiset_solver.
+Qed.
+#[local] Lemma consistent_insert {vs os i} v :
+  os !! i = Some None →
+  consistent vs os →
+  consistent ({[+v+]} ⊎ vs) (<[i := Some v]> os).
+Proof.
+  intros Hlookup ->.
+  rewrite /consistent.
+  rewrite (foldr_insert_strong _ option_union _ _ None (Some v)) //.
+  { intros [w |] acc; last done. set_solver by lia. }
+Qed.
+#[local] Lemma consistent_remove vs os i v :
+  os !! i = Some $ Some v →
+  consistent vs os →
+  consistent (vs ∖ {[+v+]}) (<[i := None]> os).
+Proof.
+  intros Hlookup ->.
+  rewrite /consistent.
+  rewrite insert_take_drop.
+  { eapply lookup_lt_Some. done. }
+  rewrite -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
+  rewrite foldr_comm_acc_strong.
+  { intros []; set_solver by lia. }
+  multiset_solver.
+Qed.
+
+Opaque consistent.
+
 Section bag_1_G.
   Context `{bag_1_G : Bag1G Σ}.
 
   Record metadata := {
     metadata_data : val ;
     metadata_slots : list location ;
+    metadata_inv : namespace ;
     metadata_model : gname ;
   }.
   Implicit Types γ : metadata.
@@ -70,37 +112,41 @@ Section bag_1_G.
     model₂' γ.(metadata_model) vs.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
-    ∃ front back os vs,
-    ⌜vs = foldr (λ o vs, from_option (λ v, {[+v+]} ⊎ vs) vs o) ∅ os⌝ ∗
+    ∃ front back vs os,
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
     model₂ γ vs ∗
+    ⌜consistent vs os⌝ ∗
     [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %front &
       %back &
-      %os &
       %vs &
-      >%Hvs &
+      %os &
       Hfront &
       Hback &
       Hmodel₂ &
+      >%Hconsistent &
       Hslots
     )".
+  #[local] Definition inv' l γ :=
+    inv γ.(metadata_inv) (inv_inner l γ).
   Definition bag_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
+    ⌜ι = γ.(metadata_inv)⌝ ∗
     ⌜0 < length γ.(metadata_slots)⌝ ∗
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     array_model γ.(metadata_data) DfracDiscarded (#@{location} <$> γ.(metadata_slots)) ∗
-    inv ι (inv_inner l γ).
+    inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
       %l &
       %γ &
+      -> &
       -> &
       %Hsz &
       #Hmeta &
@@ -215,29 +261,31 @@ Section bag_1_G.
     pose γ := {|
       metadata_data := data ;
       metadata_slots := slots ;
+      metadata_inv := ι ;
       metadata_model := γ_model ;
     |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.
-    iExists l, γ. simpl_length in Hslots. iStep 5. iApply inv_alloc.
-    iExists 0, 0, (replicate ₊sz None), ∅. iSteps.
+    iExists l, γ. simpl_length in Hslots. iStep 6.
+    iApply inv_alloc.
+    iExists 0, 0, ∅, (replicate ₊sz None). iSteps.
     - iPureIntro. Z_to_nat sz. clear. rewrite Nat2Z.id.
       induction sz; first done. rewrite replicate_S //.
     - iApply big_sepL2_replicate_r; first done.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_1_push_0_spec slot v ι l γ :
+  #[local] Lemma bag_1_push_0_spec slot v l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (inv_inner l γ)
+      inv' l γ
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
-      bag_1_push_0 #slot ’Some[ v ] @ ↑ι
+      bag_1_push_0 #slot ’Some[ v ] @ ↑γ.(metadata_inv)
     <<<
       bag_1_model #l ({[+v+]} ⊎ vs)
     | RET ();
@@ -266,17 +314,13 @@ Section bag_1_G.
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      set vs' := {[+v+]} ⊎ vs.
-      set os' := <[i := Some v]> os.
-      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
       iDestruct ("Hslots" $! _ (Some v) with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
       { iFrameSteps. iPureIntro.
-        rewrite (foldr_insert_strong _ option_union _ _ None (Some v)) //.
-        { intros [w |] acc; last done. set_solver by lia. }
-        set_solver.
+        apply consistent_insert; done.
       }
       iSteps.
   Qed.
@@ -312,15 +356,15 @@ Section bag_1_G.
     apply elem_of_list_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_1_pop_0_spec slot ι l γ :
+  #[local] Lemma bag_1_pop_0_spec slot l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
-      inv ι (inv_inner l γ)
+      inv' l γ
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
-      bag_1_pop_0 #slot @ ↑ι
+      bag_1_pop_0 #slot @ ↑γ.(metadata_inv)
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -363,24 +407,16 @@ Section bag_1_G.
     - iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
       iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-      set vs' := vs ∖ {[+v+]}.
-      set os' := <[i := None]> os.
-      iMod (model_update vs' with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+      iMod (model_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
       iMod ("HΦ" with "[$Hmodel₁]") as "HΦ".
       { iSplit; last iSteps. iPureIntro.
-        apply gmultiset_disj_union_difference'.
-        rewrite Hvs -(take_drop_middle os i (Some v)) // foldr_app /=.
-        rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
-        set_solver.
+        eapply gmultiset_disj_union_difference', consistent_lookup; done.
       }
       iDestruct ("Hslots" $! _ None with "Hslot") as "Hslots".
       rewrite list_insert_id //.
       iSplitR "HΦ".
       { iFrameSteps. iPureIntro.
-        rewrite /vs' /os' insert_take_drop; first congruence.
-        rewrite Hvs -{1}(take_drop_middle os i (Some v)) // !foldr_app /=.
-        rewrite foldr_comm_acc_strong. { intros []; set_solver by lia. }
-        multiset_solver.
+        apply consistent_remove; done.
       }
       iSteps.
   Qed.
