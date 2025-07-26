@@ -716,7 +716,7 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_until_spec P t ι i i_ sz empty max_round_noyield pred :
+  Lemma ws_hub_fifo_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
@@ -809,7 +809,7 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_spec t ι i i_ sz empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -874,7 +874,7 @@ End ws_hub_fifo_G.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
-  Lemma ws_hub_fifo_pop_steal_until_spec P t ι i i_ sz empty max_round_noyield pred :
+  Lemma ws_hub_fifo_pop_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
@@ -928,7 +928,7 @@ Section ws_hub_fifo_G.
       destruct o; iFrameSteps.
   Qed.
 
-  Lemma ws_hub_fifo_pop_steal_spec t ι i i_ sz empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_pop_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
