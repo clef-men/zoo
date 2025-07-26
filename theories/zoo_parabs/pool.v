@@ -23,6 +23,7 @@ From zoo Require Import
 
 Implicit Types b : bool.
 Implicit Types v t ctx hub task fut waiter pred fn : val.
+Implicit Types empty : emptiness.
 
 #[local] Definition max_round_noyield :=
   val_to_nat pool_max_round_noyield.
@@ -145,10 +146,11 @@ Section pool_G.
   Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
   #[local] Definition task_model 𝑐𝑜𝑚 task Ψ : iProp Σ :=
-    ∀ i,
-    ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked -∗
+    ∀ i empty,
+    ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked empty -∗
     WP task (common_to_context 𝑐𝑜𝑚 i) {{ v,
-      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked ∗
+      ∃ empty,
+      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked empty ∗
       Ψ v
     }}.
 
@@ -185,16 +187,17 @@ Section pool_G.
     )".
 
   Definition pool_model t : iProp Σ :=
-    ∃ 𝑡 doms,
+    ∃ 𝑡 empty doms,
     ⌜t = 𝑡⌝ ∗
     inv' 𝑡 ∗
-    ws_hub_std_owner 𝑡.(t_hub) 0 Blocked ∗
+    ws_hub_std_owner 𝑡.(t_hub) 0 Blocked empty ∗
     array_model 𝑡.(t_domains) DfracDiscarded doms ∗
     [∗ list] dom ∈ doms,
       domain_model dom itype_unit.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %𝑡{} &
+      %empty{} &
       %doms{} &
       {%Heq{};->} &
       {#Hinv{};(:inv')} &
@@ -218,13 +221,14 @@ Section pool_G.
     )".
 
   Definition pool_context_model ctx : iProp Σ :=
-    ∃ 𝑐𝑡𝑥,
+    ∃ 𝑐𝑡𝑥 empty,
     ⌜ctx = 𝑐𝑡𝑥⌝ ∗
     inv' 𝑐𝑡𝑥 ∗
-    ws_hub_std_owner 𝑐𝑡𝑥.(context_hub) 𝑐𝑡𝑥.(context_id) Nonblocked.
+    ws_hub_std_owner 𝑐𝑡𝑥.(context_hub) 𝑐𝑡𝑥.(context_id) Nonblocked empty.
   #[local] Instance : CustomIpatFormat "context_model" :=
     "(
       %𝑐𝑡𝑥{} &
+      %empty{} &
       {%H𝑐𝑡𝑥{}_eq;->} &
       {#Hinv{};(:inv')} &
       Hhub_owner
@@ -348,26 +352,26 @@ Section pool_G.
     apply ivar_3_inv_result_consumer'.
   Qed.
 
-  #[local] Lemma pool_execute_spec 𝑐𝑜𝑚 i task Ψ :
+  #[local] Lemma pool_execute_spec 𝑐𝑜𝑚 i empty task Ψ :
     {{{
-      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked ∗
+      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked empty ∗
       task_model 𝑐𝑜𝑚 task Ψ
     }}}
       pool_execute (common_to_context 𝑐𝑜𝑚 i) task
-    {{{ v,
+    {{{ v empty,
       RET v;
-      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked ∗
+      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked empty ∗
       Ψ v
     }}}.
   Proof.
     iSteps.
   Qed.
 
-  #[local] Lemma pool_worker_spec 𝑐𝑜𝑚 i ctx :
+  #[local] Lemma pool_worker_spec 𝑐𝑜𝑚 i empty ctx :
     ctx = common_to_context 𝑐𝑜𝑚 i →
     {{{
       inv' 𝑐𝑜𝑚 ∗
-      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked
+      ws_hub_std_owner 𝑐𝑜𝑚.(common_hub) i Nonblocked empty
     }}}
       pool_worker ctx
     {{{
@@ -377,7 +381,7 @@ Section pool_G.
   Proof.
     iIntros (->) "%Φ ((:inv') & Hhub_owner) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (empty).
 
     wp_rec. rewrite pool_max_round_noyield pool_max_round_yield.
 
@@ -389,13 +393,13 @@ Section pool_G.
       iDestruct (big_sepMS_disj_union with "Htasks") as "(Htask & Htasks)".
       rewrite big_sepMS_singleton.
       iSplitR "Htask"; first iSteps.
-      iIntros "{%} Hhub_owner HΦ".
+      iIntros "{%} %empty (Hhub_owner & _) HΦ".
 
-      wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
+      wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res empty') "(Hhub_owner & _)".
       wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
 
     - iSplitL; first iSteps.
-      iIntros "{%} Hhub_owner HΦ".
+      iIntros "{%} %empty (Hhub_owner & ->) HΦ".
 
       wp_smart_apply (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]"); first done.
       iSteps.
@@ -478,8 +482,8 @@ Section pool_G.
 
     wp_rec. rewrite /pool_context.
     wp_smart_apply (ws_hub_std_unblock_spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
-    wp_smart_apply (pool_execute_spec _ 0 _ Ψ with "[$Hhub_owner Htask]") as (v) "(Hhub_owner & HΨ)".
-    { iIntros "%i Hhub_owner".
+    wp_smart_apply (pool_execute_spec _ 0 _ _ Ψ with "[$Hhub_owner Htask]") as (v empty') "(Hhub_owner & HΨ)".
+    { iIntros "{%} %i %empty Hhub_owner".
       wp_apply (wp_wand with "(Htask [] [Hhub_owner])") as "%v ((:context_model =1) & $)"; [iSteps.. |].
       apply (inj context_to_val) in H𝑐𝑡𝑥1_eq as <-.
       iSteps.
@@ -672,7 +676,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:context_model) & #Hpred) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (empty).
 
     wp_rec. rewrite pool_max_round_noyield.
     wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
@@ -683,9 +687,9 @@ Section pool_G.
     iDestruct "Hhub_model" as "(%tasks' & -> & Hhub_model)".
     iDestruct (big_sepMS_insert with "Htasks") as "(Htask & Htasks')".
     iSplitR "Htask"; first iSteps.
-    iIntros "{%} (Hhub_owner & _) HΦ".
+    iIntros "{%} %empty (Hhub_owner & _) HΦ".
 
-    wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res) "(Hhub_owner & _)".
+    wp_smart_apply (pool_execute_spec with "[$Hhub_owner $Htask]") as (res empty') "(Hhub_owner & _)".
     wp_smart_apply ("HLöb" with "Hhub_owner HΦ").
   Qed.
 

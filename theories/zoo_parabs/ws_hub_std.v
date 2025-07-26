@@ -33,6 +33,8 @@ Implicit Types v t until pred : val.
 Implicit Types vs : gmultiset val.
 Implicit Types ws us : list val.
 Implicit Types vss : list $ list val.
+Implicit Types status : status.
+Implicit Types empty : emptiness.
 
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_hub_std_G_queues_G :: WsQueuesPublicG Σ ;
@@ -53,7 +55,7 @@ Qed.
 #[local] Definition consistent vs vss :=
   vs = ⋃+ (list_to_set_disj <$> vss).
 
-#[local] Lemma consistent_empty sz :
+#[local] Lemma consistent_alloc sz :
   consistent ∅ (replicate sz []).
 Proof.
   symmetry.
@@ -61,6 +63,24 @@ Proof.
   rewrite elem_of_list_fmap.
   setoid_rewrite elem_of_replicate.
   naive_solver.
+Qed.
+#[local] Lemma consistent_empty vs vss :
+  consistent vs vss →
+  vs = ∅ ↔
+    ∀ i us,
+    vss !! i = Some us →
+    us = [].
+Proof.
+  intros ->.
+  rewrite gmultiset_disj_union_list_empty.
+  setoid_rewrite elem_of_list_fmap.
+  split.
+  - intros H i us Hus%elem_of_list_lookup_2.
+    rewrite -list_to_set_disj_empty.
+    eauto.
+  - intros H ? (us & -> & Hus%elem_of_list_lookup).
+    rewrite list_to_set_disj_empty.
+    naive_solver.
 Qed.
 #[local] Lemma consistent_push {vs vss i us} v :
   vss !! i = Some us →
@@ -189,11 +209,12 @@ Section ws_hub_std_G.
       %Hconsistent
     )".
 
-  Definition ws_hub_std_owner t i status : iProp Σ :=
+  Definition ws_hub_std_owner t i status empty : iProp Σ :=
     ∃ l γ ws round n,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     ws_queues_public_owner γ.(metadata_queues) i status ws ∗
+    ⌜empty = Empty → ws = []⌝ ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpatFormat "owner" :=
@@ -206,6 +227,7 @@ Section ws_hub_std_G.
       %Heq{} &
       Hmeta{;_} &
       Hqueues_owner{} &
+      %Hempty{} &
       #Hrounds{} &
       Hround{}
     )".
@@ -231,9 +253,31 @@ Section ws_hub_std_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_std_owner_exclusive t i status1 status2 :
-    ws_hub_std_owner t i status1 -∗
-    ws_hub_std_owner t i status2 -∗
+  Lemma ws_hub_std_model_empty t ι sz vs :
+    ws_hub_std_inv t ι sz -∗
+    ws_hub_std_model t vs -∗
+    ( [∗ list] i ∈ seq 0 sz,
+      ∃ status,
+      ws_hub_std_owner t i status Empty
+    ) -∗
+    ⌜vs = ∅⌝.
+  Proof.
+    iIntros "(:inv) (:model) Howners". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iEval (rewrite consistent_empty //). iIntros "%i %us %Hlookup".
+    iDestruct (ws_queues_public_inv_model with "Hqueues_inv Hqueues_model") as %Hvss.
+    opose proof* (lookup_lt_Some vss i us) as Hi; first done.
+    iDestruct (big_sepL_lookup _ _ i with "Howners") as "(%status & Howner)".
+    { rewrite lookup_seq. auto with lia. }
+    iDestruct "Howner" as "(:owner)". injection Heq as <-.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
+    iDestruct (ws_queues_public_model_owner with "Hqueues_model Hqueues_owner") as "(%us_ & %Hlookup_ & %Hws)". simplify.
+    iPureIntro. apply suffix_nil_inv. naive_solver.
+  Qed.
+
+  Lemma ws_hub_std_owner_exclusive t i status1 empty1 status2 empty2 :
+    ws_hub_std_owner t i status1 empty1 -∗
+    ws_hub_std_owner t i status2 empty2 -∗
     False.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
@@ -252,7 +296,7 @@ Section ws_hub_std_G.
       ws_hub_std_inv t ι ₊sz ∗
       ws_hub_std_model t ∅ ∗
       [∗ list] i ∈ seq 0 ₊sz,
-        ws_hub_std_owner t i Nonblocked
+        ws_hub_std_owner t i Nonblocked Empty
     }}}.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
@@ -289,7 +333,7 @@ Section ws_hub_std_G.
 
     iApply "HΦ".
     iSplitL "Hl_killed"; iSteps.
-    - iPureIntro. apply consistent_empty.
+    - iPureIntro. apply consistent_alloc.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
       iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
@@ -316,16 +360,16 @@ Section ws_hub_std_G.
     wp_apply (array_size_spec_inv with "Hrounds_inv HΦ").
   Qed.
 
-  Lemma ws_hub_std_block_spec t ι sz i i_ :
+  Lemma ws_hub_std_block_spec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     }}}
       ws_hub_std_block t #i
     {{{
       RET ();
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     }}}.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -336,16 +380,16 @@ Section ws_hub_std_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_std_unblock_spec t ι sz i i_ :
+  Lemma ws_hub_std_unblock_spec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     }}}
       ws_hub_std_unblock t #i
     {{{
       RET ();
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     }}}.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -403,11 +447,11 @@ Section ws_hub_std_G.
     wp_apply (waiters_notify_many_spec with "Hwaiters_inv HΦ"); first lia.
   Qed.
 
-  Lemma ws_hub_std_push_spec t ι sz i i_ v :
+  Lemma ws_hub_std_push_spec t ι sz i i_ empty v :
     i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -415,7 +459,7 @@ Section ws_hub_std_G.
     <<<
       ws_hub_std_model t ({[+v+]} ⊎ vs)
     | RET ();
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked Nonempty
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -434,11 +478,11 @@ Section ws_hub_std_G.
     wp_smart_apply ws_hub_std_notify_spec; iSteps.
   Qed.
 
-  Lemma ws_hub_std_pop_spec t ι sz i i_ :
+  Lemma ws_hub_std_pop_spec t ι sz i i_ empty :
     i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -454,7 +498,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked (if o then empty else Empty)
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -467,7 +511,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |] us) "Ho".
 
-    - iDestruct "Ho" as "(% & %Hlookup & <- & Hqueues_model)".
+    - iDestruct "Ho" as "(% & %Hlookup & %Hws & <- & Hqueues_model)".
       iExists (Some v).
       iSplitL.
       { eapply consistent_pop in Hconsistent; last done.
@@ -475,17 +519,20 @@ Section ws_hub_std_G.
         - multiset_solver.
         - naive_solver.
       }
-      iSteps.
+      iSteps. iPureIntro.
+      intros ->. exfalso.
+      opose proof* Hempty as ->; first done.
+      eapply suffix_cons_nil_inv, suffix_app_l. done.
 
     - iDestruct "Ho" as "(%Hlookup & -> & Hqueues_model)".
       iExists None. iFrameSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_once_spec t ι sz i i_ :
+  #[local] Lemma ws_hub_std_try_steal_once_spec t ι sz i i_ empty :
     i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -501,7 +548,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     >>>.
   Proof.
     iIntros (->) "%Φ ((:inv) & (:owner)) HΦ". injection Heq as <-.
@@ -531,12 +578,12 @@ Section ws_hub_std_G.
     - iExists None. iFrameSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_try_steal_spec P t ι sz i i_ yield max_round until :
+  #[local] Lemma ws_hub_std_try_steal_spec P t ι sz i i_ empty yield max_round until :
     i = ⁺i_ →
     (0 ≤ max_round)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       □ WP until () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -558,7 +605,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       if o is Anything then P else True
     >>>.
   Proof.
@@ -596,11 +643,11 @@ Section ws_hub_std_G.
           wp_smart_apply ("HLöb" with "[] [$Howner] HΦ"); iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_until_0_spec P t ι sz i i_ pred :
+  #[local] Lemma ws_hub_std_steal_until_0_spec P t ι sz i i_ empty pred :
     i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -621,7 +668,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       if o then True else P
     >>>.
   Proof.
@@ -649,12 +696,12 @@ Section ws_hub_std_G.
       + wp_apply domain_yield_spec.
         wp_smart_apply ("HLöb" with "Howner HΦ").
   Qed.
-  Lemma ws_hub_std_steal_until_1_spec P t ι sz i i_ max_round_noyield pred :
+  #[local] Lemma ws_hub_std_steal_until_1_spec P t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -675,7 +722,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       if o then True else P
     >>>.
   Proof.
@@ -696,12 +743,12 @@ Section ws_hub_std_G.
 
     - iRight. iExists (Some v). iFrameSteps.
   Qed.
-  Lemma ws_hub_std_steal_until_spec P t ι sz i i_ max_round_noyield pred :
+  Lemma ws_hub_std_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked ∗
+      ws_hub_std_owner t i_ Nonblocked empty ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -722,7 +769,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Nonblocked ∗
+      ws_hub_std_owner t i_ Nonblocked empty ∗
       if o then True else P
     >>>.
   Proof.
@@ -737,13 +784,13 @@ Section ws_hub_std_G.
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_aux_spec P t ι i i_ sz max_round_noyield max_round_yield until :
+  #[local] Lemma ws_hub_std_steal_aux_spec P t ι sz i i_ empty max_round_noyield max_round_yield until :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       □ WP until () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -765,7 +812,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked ∗
+      ws_hub_std_owner t i_ Blocked empty ∗
       if o is Anything then P else True
     >>>.
   Proof.
@@ -786,13 +833,13 @@ Section ws_hub_std_G.
 
     - iRight. iExists (Something v). iFrameSteps.
   Qed.
-  Lemma ws_hub_std_steal_0_spec t ι i i_ sz max_round_noyield max_round_yield :
+  Lemma ws_hub_std_steal_0_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -808,7 +855,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Blocked
+      ws_hub_std_owner t i_ Blocked empty
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -866,13 +913,13 @@ Section ws_hub_std_G.
       iSplitL "Hmodel". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma ws_hub_std_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
+  Lemma ws_hub_std_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -888,7 +935,7 @@ Section ws_hub_std_G.
           ws_hub_std_model t vs'
       end
     | RET o;
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -934,12 +981,12 @@ End ws_hub_std_G.
 Section ws_hub_std_G.
   Context `{ws_hub_std_G : WsHubStdG Σ}.
 
-  Lemma ws_hub_std_pop_steal_until_spec P t ι i i_ sz max_round_noyield pred :
+  Lemma ws_hub_std_pop_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked ∗
+      ws_hub_std_owner t i_ Nonblocked empty ∗
       □ WP pred () {{ res,
         ∃ b,
         ⌜res = #b⌝ ∗
@@ -959,9 +1006,14 @@ Section ws_hub_std_G.
           ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
           ws_hub_std_model t vs'
       end
-    | RET o;
-      ws_hub_std_owner t i_ Nonblocked ∗
-      if o then True else P
+    | empty,
+      RET o;
+      ws_hub_std_owner t i_ Nonblocked empty ∗
+      if o then
+        True
+      else
+        ⌜empty = Empty⌝ ∗
+        P
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
@@ -977,16 +1029,19 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
 
-      wp_smart_apply (ws_hub_std_steal_until_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
+      wp_smart_apply (ws_hub_std_steal_until_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
+      iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP)".
+      iApply ("HΦ" with "[- $Howner]").
+      destruct o; iFrameSteps.
   Qed.
 
-  Lemma ws_hub_std_pop_steal_spec t ι i i_ sz max_round_noyield max_round_yield :
+  Lemma ws_hub_std_pop_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_std_inv t ι sz ∗
-      ws_hub_std_owner t i_ Nonblocked
+      ws_hub_std_owner t i_ Nonblocked empty
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
@@ -1001,8 +1056,13 @@ Section ws_hub_std_G.
           ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
           ws_hub_std_model t vs'
       end
-    | RET o;
-      ws_hub_std_owner t i_ Nonblocked
+    | empty,
+      RET o;
+      ws_hub_std_owner t i_ Nonblocked empty ∗
+      if o then
+        True
+      else
+        ⌜empty = Empty⌝
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
@@ -1013,12 +1073,16 @@ Section ws_hub_std_G.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
-    - iRight. iExists (Some v). iFrameSteps.
+    - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
+      iRight. iExists (Some v). iSteps.
 
     - iLeft. iFrame.
       iIntros "HΦ !> Howner". clear- Hmax_round_noyield Hmax_round_yield.
 
-      wp_smart_apply (ws_hub_std_steal_spec with "[$Hinv $Howner] HΦ"); done.
+      wp_smart_apply (ws_hub_std_steal_spec with "[$Hinv $Howner]"); [done.. |].
+      iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
+      iApply ("HΦ" with "[$Howner]").
+      destruct o; iFrameSteps.
   Qed.
 End ws_hub_std_G.
 
