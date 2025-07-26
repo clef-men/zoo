@@ -1091,13 +1091,76 @@ End rotation.
 : simpl_length.
 
 Section omap.
-  Lemma length_omap `(f : A → option B) l :
+  Context {A : Type}.
+  Context {B : Type}.
+
+  Implicit Types x y : A.
+  Implicit Types 𝑥 𝑦 : B.
+  Implicit Types o : option B.
+  Implicit Types l : list A.
+  Implicit Types 𝑙 : list B.
+  Implicit Types f : A → option B.
+
+  Lemma length_omap f l :
     length (omap f l) ≤ length l.
   Proof.
     induction l as [| x l IH] => //=.
     destruct (f x) => /=.
     - rewrite -Nat.succ_le_mono //.
     - apply Nat.le_le_succ_r. done.
+  Qed.
+
+  Lemma list_omap_insert_None {f l} i x1 x2 o :
+    l !! i = Some x1 →
+    f x1 = None →
+    f x2 = o →
+    omap f (<[i := x2]> l) ≡ₚ
+      match o with
+      | None =>
+          id
+      | Some 𝑥 =>
+          cons 𝑥
+      end $
+      omap f l.
+  Proof.
+    intros Hlookup Hx1 Hx2.
+    apply lookup_lt_Some in Hlookup as Hi.
+    rewrite insert_take_drop //.
+    rewrite -{3}(take_drop_middle l i x1) //.
+    rewrite omap_app /= Hx2.
+    rewrite omap_app /= Hx1.
+    destruct o; solve_Permutation.
+  Qed.
+  Lemma list_omap_insert_None_Some {f l} i x1 x2 𝑥 :
+    l !! i = Some x1 →
+    f x1 = None →
+    f x2 = Some 𝑥 →
+    omap f (<[i := x2]> l) ≡ₚ 𝑥 :: omap f l.
+  Proof.
+    apply: list_omap_insert_None.
+  Qed.
+  Lemma list_omap_insert_None_None {f l} i x1 x2 :
+    l !! i = Some x1 →
+    f x1 = None →
+    f x2 = None →
+    omap f (<[i := x2]> l) ≡ₚ omap f l.
+  Proof.
+    apply: list_omap_insert_None.
+  Qed.
+
+  Lemma list_omap_insert_Some_None {f l} i x1 𝑥 x2 :
+    l !! i = Some x1 →
+    f x1 = Some 𝑥 →
+    f x2 = None →
+    omap f (<[i := x2]> l) = delete (length $ omap f $ take i l) (omap f l).
+  Proof.
+    intros Hlookup Hx1 Hx2.
+    apply lookup_lt_Some in Hlookup as Hi.
+    rewrite insert_take_drop //.
+    rewrite -{4}(take_drop_middle l i x1) //.
+    rewrite omap_app /= Hx2.
+    rewrite omap_app /= Hx1.
+    rewrite delete_middle //.
   Qed.
 End omap.
 
@@ -1108,6 +1171,8 @@ End omap.
 Section oflatten.
   Context {A : Type}.
 
+  Implicit Types x y : A.
+  Implicit Types o : option A.
   Implicit Types l : list (option A).
 
   Definition oflatten l :=
@@ -1155,6 +1220,59 @@ Section oflatten.
     oflatten (l ++ [Some x]) = oflatten l ++ [x].
   Proof.
     rewrite oflatten_snoc //.
+  Qed.
+
+  Lemma elem_of_oflatten l x :
+    x ∈ oflatten l ↔
+    Some x ∈ l.
+  Proof.
+    rewrite elem_of_list_omap. naive_solver.
+  Qed.
+
+  Lemma oflatten_lookup_Some l i x :
+    l !! i = Some $ Some x →
+    oflatten l !! (length $ oflatten $ take i l) = Some x.
+  Proof.
+    intros Hlookup.
+    rewrite -{2}(take_drop_middle l i (Some x)) //.
+    rewrite oflatten_app list_lookup_middle //.
+  Qed.
+
+  Lemma oflatten_insert_None {l} i o :
+    l !! i = Some None →
+    oflatten (<[i := o]> l) ≡ₚ
+      match o with
+      | None =>
+          id
+      | Some x =>
+          cons x
+      end $
+      oflatten l.
+  Proof.
+    intros Hlookup.
+    apply: list_omap_insert_None; done.
+  Qed.
+  Lemma oflatten_insert_None_Some {l} i x :
+    l !! i = Some None →
+    oflatten (<[i := Some x]> l) ≡ₚ x :: oflatten l.
+  Proof.
+    intros Hlookup.
+    apply: oflatten_insert_None. done.
+  Qed.
+  Lemma oflatten_insert_None_None {l} i x :
+    l !! i = Some None →
+    oflatten (<[i := None]> l) ≡ₚ oflatten l.
+  Proof.
+    intros Hlookup.
+    apply: oflatten_insert_None. done.
+  Qed.
+
+  Lemma oflatten_insert_Some_None {l} i x :
+    l !! i = Some $ Some x →
+    oflatten (<[i := None]> l) = delete (length $ oflatten $ take i l) (oflatten l).
+  Proof.
+    intros Hlookup.
+    apply: list_omap_insert_Some_None; done.
   Qed.
 End oflatten.
 
