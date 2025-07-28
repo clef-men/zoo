@@ -47,3 +47,6 @@ nia.cache
 nlia.cache
 nra.cache
 native_compute_profile_*.data
+
+# Visual Studio Code
+.vscode/
