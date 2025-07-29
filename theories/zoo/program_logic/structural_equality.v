@@ -40,7 +40,7 @@ Implicit Types lv : lowval.
       #true
     else
       let: "i" := "i" - #1 in
-      "structeq" (Load "v1" "i" ) (Load "v2" "i") and
+      "structeq" (Load "v1" "i") (Load "v2" "i") and
       "structeq_aux" "v1" "v2" "i"
 )%zoo_recs.
 Definition structeq :=
