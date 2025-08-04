@@ -109,8 +109,12 @@ Definition eval_binop op v1 v2 :=
   end.
 #[global] Arguments eval_binop _ !_ !_ / : assert.
 
+Definition eval_app_aux recs i rec :=
+  subst' rec.1.1 (ValRecs i recs).
+Definition eval_app' {A} foldri recs x v e : A :=
+  foldri (eval_app_aux recs) (subst' x v e).
 Definition eval_app recs x v e :=
-  foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) (subst' x v e) recs.
+  eval_app' foldri recs x v e recs.
 
 Inductive subject :=
   | SubjectLoc l
