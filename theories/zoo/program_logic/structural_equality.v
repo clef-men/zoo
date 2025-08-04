@@ -896,8 +896,8 @@ Proof.
   opose proof* (Hstructeq []) as Hcompatible => //.
   apply andb_prop in Hcompatible as (<-%beq_eq & Hlen%beq_eq).
   split; first done.
-  remember (v1 :: vs1') as vs1 eqn:Hvs1 => {v1 vs1' Hvs1}.
-  remember (v2 :: vs2') as vs2 eqn:Hvs2 => {v2 vs2' Hvs2}.
+  set (vs1 := v1 :: vs1') in *. clearbody vs1 => {v1 vs1'}.
+  set (vs2 := v2 :: vs2') in *. clearbody vs2 => {v2 vs2'}.
   rewrite Forall2'_Forall2 Forall2_fmap Forall2_same_length_lookup.
   split; first done. intros i v1 v2 Hlookup1 Hlookup2.
   rewrite /= !Forall'_Forall !Forall_lookup in IH Habstract1 Habstract2.
@@ -922,8 +922,8 @@ Proof.
   - intros <- <-.
     apply val_compatible_refl_abstract; done.
   - destruct Hsimilar as (<- & Hsimilar).
-    remember (v1 :: vs1') as vs1 eqn:Hvs1 => {v1 vs1' Hvs1}.
-    remember (v2 :: vs2') as vs2 eqn:Hvs2 => {v2 vs2' Hvs2}.
+    set (vs1 := v1 :: vs1') in *. clearbody vs1 => {v1 vs1'}.
+    set (vs2 := v2 :: vs2') in *. clearbody vs2 => {v2 vs2'}.
     move=> /= Hreachable1 Hreachable2.
     destruct (vs1 !! i) as [v1 |] eqn:Hlookup1; last done.
     destruct (vs2 !! i) as [v2 |] eqn:Hlookup2; last done.

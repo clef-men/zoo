@@ -82,10 +82,10 @@ Lemma location_fresh_fresh ls i :
   location_fresh ls +ₗ i ∉ ls.
 Proof.
   intros Hi.
-  cut (∀ l, l ∈ ls → location_car l < location_car (location_fresh ls) + i).
-  { intros help Hf%help. simpl in *. lia. }
-  apply (set_fold_ind_L (λ r ls, ∀ l, l ∈ ls → (location_car l < r + i)));
-    set_solver by eauto with lia.
+  enough (∀ l, l ∈ ls → location_car l < location_car (location_fresh ls) + i).
+  { naive_solver lia. }
+  apply (set_fold_ind_L (λ r ls, ∀ l, l ∈ ls → (location_car l < r + i))).
+  all: set_solver by eauto with lia.
 Qed.
 
 #[global] Opaque location_fresh.

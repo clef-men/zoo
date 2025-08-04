@@ -240,15 +240,15 @@ Section pure_exec.
     intros tid σ1 κ e σ2 es Hstep.
     invert_base_step.
     split_and!; try done.
-    cut (
+    enough (
       ∀ recs1 recs2 vs1 vs2 e,
       recs = recs1 ++ recs2 →
       vs = vs1 ++ vs2 →
       length recs1 = length vs1 →
         foldri (λ i rec, subst' rec.1.1 (ValRecs i recs)) e recs1 =
         foldr2 (λ rec v, subst' rec.1.1 v) e recs1 vs1
-    ). {
-      intros H. apply (H _ [] _ []); last done.
+    ) as H.
+    { apply (H _ [] _ []); last done.
       all: rewrite right_id //.
     }
     clear- Hvs Hlength.

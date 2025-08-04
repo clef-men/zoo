@@ -820,7 +820,8 @@ Proof.
   rewrite !reverse_app !reverse_cons -!fmap_reverse /= in H.
   match goal with |- ?vs1 = ?vs2 =>
     apply (inj reverse);
-    remember (reverse vs1) as vs1'; remember (reverse vs2) as vs2';
+    remember (reverse vs1) as vs1';
+    remember (reverse vs2) as vs2';
     clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive_solver
   end.
 Qed.
@@ -835,7 +836,8 @@ Proof.
     match goal with H: _ ++ _ :: of_vals ?vs1 = of_vals ?vs2 |- _ =>
       apply (f_equal reverse) in H;
       rewrite reverse_app reverse_cons -!fmap_reverse /= in H;
-      remember (reverse vs1) as vs1'; remember (reverse vs2) as vs2';
+      remember (reverse vs1) as vs1';
+      remember (reverse vs2) as vs2';
       clear- H; move: vs2' H; induction vs1'; intros []; naive_solver
     end.
 Qed.

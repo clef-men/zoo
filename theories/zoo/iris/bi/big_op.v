@@ -307,9 +307,8 @@ Section bi.
         ) -∗
           ([∗ list] k ↦ x ∈ l, Φ2 (n + k) x) ∗
           P
-      ). {
-        intros Hcut. apply (Hcut 0).
-      }
+      ).
+      { move/(_ 0) => //. }
       iIntros "%n Hl HP #HΦ".
       iInduction l as [| x l] "IH" forall (n); first iSteps.
       iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
@@ -352,9 +351,8 @@ Section bi.
           |={E}=>
           ([∗ list] k ↦ x ∈ l, Φ2 (n + k) x) ∗
           P
-      ). {
-        intros Hcut. apply (Hcut 0).
-      }
+      ).
+      { move/(_ 0) => //. }
       iIntros "%n Hl HP #HΦ".
       iInduction l as [| x l] "IH" forall (n); first iSteps.
       iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
