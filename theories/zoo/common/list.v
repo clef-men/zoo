@@ -332,7 +332,7 @@ End zip3_with.
 Section foldri.
   Implicit Types i : nat.
 
-  #[local] Fixpoint foldri' `(f : nat → A → B → B) acc l i :=
+  Fixpoint foldri' `(f : nat → A → B → B) acc l i :=
     match l with
     | [] =>
         acc
