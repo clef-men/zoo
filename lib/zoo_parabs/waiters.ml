@@ -17,8 +17,7 @@ let rec notify' t =
       else
         true
 let notify t =
-  notify' t |> ignore ;
-  ()
+  notify' t |> ignore
 let rec notify_many t n =
   if 0 < n && notify' t then
     notify_many t (n - 1)
