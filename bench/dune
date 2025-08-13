@@ -1,0 +1,8 @@
+(executable
+  (name bench_fibonacci)
+  (libraries
+    zoo_parabs
+    domainslib
+    moonpool
+  )
+)
