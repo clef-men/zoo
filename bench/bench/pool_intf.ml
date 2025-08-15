@@ -9,7 +9,7 @@ module type S = sig
   type 'a future
 
   val create :
-    int -> t
+    num_domains:int -> unit -> t
 
   val run :
     t -> 'a task -> 'a
@@ -22,4 +22,7 @@ module type S = sig
 
   val wait :
     context -> 'a future -> 'a
+
+  val for_ :
+    context -> beg:int -> end_:int -> chunk:int -> (context -> int -> unit) -> unit
 end

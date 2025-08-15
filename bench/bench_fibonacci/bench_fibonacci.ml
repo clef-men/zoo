@@ -1,3 +1,5 @@
+open Bench
+
 let rec seq n =
   if n <= 1 then
     n
@@ -46,6 +48,6 @@ let num_domains =
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create num_domains in
+  let pool = Pool.create ~num_domains () in
   let _ = Pool.run pool (M.par ~cutoff input) in
   Pool.kill pool

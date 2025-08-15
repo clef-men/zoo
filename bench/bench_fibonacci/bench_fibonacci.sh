@@ -12,5 +12,5 @@ for input in $inputs; do
     -L method parabs,domainslib,moonpool-fifo,moonpool-ws \
     -L cutoff 20,25,30 \
     --command-name "method:{method} cutoff:{cutoff} input:$input" \
-    "./_build/default/bench/bench_fibonacci.exe {method} {cutoff} $input"
+    "./_build/default/bench/bench_fibonacci/bench_fibonacci.exe {method} {cutoff} $input"
 done

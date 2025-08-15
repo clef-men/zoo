@@ -1,8 +1,9 @@
-(executable
-  (name bench_fibonacci)
+(library
+  (name bench)
   (libraries
     zoo_parabs
     domainslib
     moonpool
+    moonpool.forkjoin
   )
 )
