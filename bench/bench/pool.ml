@@ -100,8 +100,8 @@ module Moonpool_fifo : S = struct
     Fut.await fut
 
   let for_ t ~beg ~end_ ~chunk fn =
-    Moonpool_forkjoin.for_ (end_ - beg) ~chunk_size:chunk @@ fun beg end_ ->
-      for i = beg to end_ do
+    Moonpool_forkjoin.for_ (end_ - beg) ~chunk_size:chunk @@ fun beg' end' ->
+      for i = beg + beg' to beg + end' do
         fn t i
       done
 end
@@ -137,8 +137,8 @@ module Moonpool_ws : S = struct
     Fut.await fut
 
   let for_ t ~beg ~end_ ~chunk fn =
-    Moonpool_forkjoin.for_ (end_ - beg) ~chunk_size:chunk @@ fun beg end_ ->
-      for i = beg to end_ do
+    Moonpool_forkjoin.for_ (end_ - beg) ~chunk_size:chunk @@ fun beg' end' ->
+      for i = beg + beg' to beg + end' do
         fn t i
       done
 end
