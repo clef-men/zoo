@@ -1,0 +1,4 @@
+(test
+  (name bench_matmul)
+  (libraries bench)
+)
