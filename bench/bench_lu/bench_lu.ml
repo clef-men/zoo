@@ -6,46 +6,24 @@ let dls =
 module Make
   (Pool : Pool.S)
 = struct
-  let[@inline] row sz i =
-    i / sz
-  let[@inline] col sz i =
-    i mod sz
-
-  let[@inline] index sz x y =
-    x * sz + y
+  module Matrix_parallel =
+    Matrix.Parallel(Pool)
 
   let create ctx sz fn =
-    let len = sz * sz in
-    let mat = Array.create_float len in
-    Pool.for_ ctx ~beg:0 ~end_:len (fun _ctx i ->
-      fn (row sz i) (col sz i)
-      |> Array.unsafe_set mat i
-    ) ;
+    let mat = Matrix.create sz in
+    Matrix_parallel.apply ctx mat fn ;
     mat
 
-  let get sz mat x y =
-    Array.unsafe_get mat (index sz x y)
-  let set sz mat x y v =
-    Array.unsafe_set mat (index sz x y) v
-
-  let copy ctx mat =
-    let len = Array.length mat in
-    let mat' = Array.create_float len in
-    Pool.divide ctx ~beg:0 ~end_:len (fun _ctx i sz ->
-      Array.blit mat i mat' i sz
-    ) ;
-    mat'
-
   let lu ctx sz mat0 =
-    let mat = copy ctx mat0 in
+    let mat = Matrix_parallel.copy ctx mat0 in
     for k = 0 to sz - 2 do
-      Pool.for_ ctx ~beg:(k + 1) ~end_:sz @@ fun _ctx x ->
-        let factor = get sz mat x k /. get sz mat k k in
-        for y = k + 1 to sz - 1 do
-          (get sz mat x y -. factor *. get sz mat k y)
-          |> set sz mat x y
+      Pool.for_ ctx ~beg:(k + 1) ~end_:sz @@ fun _ctx i ->
+        let factor = Matrix.get mat i k /. Matrix.get mat k k in
+        for j = k + 1 to sz - 1 do
+          (Matrix.get mat i j -. factor *. Matrix.get mat k j)
+          |> Matrix.set mat i j
         done ;
-        set sz mat x k factor
+        Matrix.set mat i k factor
     done ;
     mat
 
@@ -56,18 +34,18 @@ module Make
     in
     let lu = lu ctx sz mat in
     let _ =
-      create ctx sz @@ fun x y ->
-        if y < x then
-          get sz lu x y
-        else if x = y then
+      create ctx sz @@ fun i j ->
+        if j < i then
+          Matrix.get lu i j
+        else if i = j then
           1.0
         else
           0.0
     in
     let _ =
-      create ctx sz @@ fun x y ->
-        if x <= y then
-          get sz lu x y
+      create ctx sz @@ fun i j ->
+        if i <= j then
+          Matrix.get lu i j
         else
           0.0
     in
