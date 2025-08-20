@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-inputs="800 1000"
+inputs="700"
 
 for input in $inputs; do
   hyperfine \
