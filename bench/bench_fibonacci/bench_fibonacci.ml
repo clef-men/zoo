@@ -9,12 +9,12 @@ let rec seq n =
 module Make
   (Pool : Pool.S)
 = struct
-  let rec par ~cutoff n ctx =
+  let rec main ~cutoff n ctx =
     if n <= cutoff then
       seq n
     else
-      let fut1 = Pool.async ctx @@ par ~cutoff (n - 1) in
-      let fut2 = Pool.async ctx @@ par ~cutoff (n - 2) in
+      let fut1 = Pool.async ctx @@ main ~cutoff (n - 1) in
+      let fut2 = Pool.async ctx @@ main ~cutoff (n - 2) in
       Pool.wait ctx fut1 + Pool.wait ctx fut2
 end
 
@@ -49,5 +49,5 @@ let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
   let pool = Pool.create ~num_domains () in
-  let _ = Pool.run pool (M.par ~cutoff input) in
+  let _ = Pool.run pool (M.main ~cutoff input) in
   Pool.kill pool

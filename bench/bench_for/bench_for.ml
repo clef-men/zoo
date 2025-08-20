@@ -8,7 +8,7 @@ let work _ctx _i =
 module Make
   (Pool : Pool.S)
 = struct
-  let par ~cutoff n ctx =
+  let main ~cutoff n ctx =
     Pool.for_ ctx work ~beg:0 ~end_:n ~chunk:cutoff
 end
 
@@ -43,5 +43,5 @@ let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
   let pool = Pool.create ~num_domains () in
-  let _ = Pool.run pool (M.par ~cutoff input) in
+  let _ = Pool.run pool (M.main ~cutoff input) in
   Pool.kill pool
