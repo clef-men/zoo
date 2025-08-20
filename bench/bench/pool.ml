@@ -19,6 +19,9 @@ module Parabs : S = struct
   let create ~num_domains () =
     Pool.create num_domains
 
+  let size =
+    Pool.size
+
   let run =
     Pool.run
 
@@ -55,6 +58,9 @@ module Domainslib : S = struct
 
   let create ~num_domains () =
     Task.setup_pool ~num_domains ()
+
+  let size t =
+    Task.get_num_domains t - 1
 
   let run t task =
     Task.run t (fun () -> task t)
@@ -103,6 +109,9 @@ module Moonpool_fifo : S = struct
   let create ~num_domains () =
     Fifo_pool.create ~num_threads:num_domains ()
 
+  let size _t =
+    Moonpool.Private.num_domains ()
+
   let run t task =
     Fifo_pool.run_wait_block t (fun () -> task t)
 
@@ -143,6 +152,9 @@ module Moonpool_ws : S = struct
 
   let create ~num_domains () =
     Fifo_pool.create ~num_threads:num_domains ()
+
+  let size _t =
+    Moonpool.Private.num_domains ()
 
   let run t task =
     Ws_pool.run_wait_block t (fun () -> task t)

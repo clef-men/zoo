@@ -11,6 +11,9 @@ module type S = sig
   val create :
     num_domains:int -> unit -> t
 
+  val size :
+    context -> int
+
   val run :
     t -> 'a task -> 'a
 
