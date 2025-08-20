@@ -33,6 +33,9 @@ module Parabs : S = struct
 
   let for_ ctx ~beg ~end_ ~chunk fn =
     Algo.for_ ctx beg end_ chunk fn
+
+  let divide ctx ~beg ~end_ fn =
+    Algo.divide ctx beg end_ fn
 end
 
 module Domainslib : S = struct
@@ -67,6 +70,19 @@ module Domainslib : S = struct
 
   let for_ t ~beg ~end_ ~chunk fn =
     Task.parallel_for t ~chunk_size:chunk ~start:beg ~finish:(end_ - 1) ~body:(fn t)
+
+  let divide t ~beg ~end_ fn =
+    let num_dom = Task.get_num_domains t in
+    let sz = end_ - beg in
+    let chunk = sz / num_dom in
+    let rest = sz mod num_dom in
+    let num_chunk = num_dom + Bool.to_int (rest != 0) in
+    let futs =
+      Array.init num_chunk @@ fun i ->
+        Task.async t @@ fun () ->
+          fn t (i * chunk) (if i == num_dom then rest else chunk)
+    in
+    Array.iter (Task.await t) futs
 end
 
 module Moonpool_fifo : S = struct
@@ -104,6 +120,10 @@ module Moonpool_fifo : S = struct
       for i = beg + beg' to beg + end' do
         fn t i
       done
+
+  let divide t ~beg ~end_ fn =
+    Moonpool_forkjoin.for_ (end_ - beg) @@ fun beg' end' ->
+      fn t (beg + beg') (end' - beg')
 end
 
 module Moonpool_ws : S = struct
@@ -141,4 +161,8 @@ module Moonpool_ws : S = struct
       for i = beg + beg' to beg + end' do
         fn t i
       done
+
+  let divide t ~beg ~end_ fn =
+    Moonpool_forkjoin.for_ (end_ - beg) @@ fun beg' end' ->
+      fn t (beg + beg') (end' - beg')
 end

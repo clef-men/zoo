@@ -25,4 +25,7 @@ module type S = sig
 
   val for_ :
     context -> beg:int -> end_:int -> chunk:int -> (context -> int -> unit) -> unit
+
+  val divide :
+    context -> beg:int -> end_:int -> (context -> int -> int -> unit) -> unit
 end
