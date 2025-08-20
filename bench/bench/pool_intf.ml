@@ -1,4 +1,4 @@
-module type S = sig
+module type BASE = sig
   type t
 
   type context
@@ -31,4 +31,11 @@ module type S = sig
 
   val divide :
     context -> beg:int -> end_:int -> (context -> int -> int -> unit) -> unit
+end
+
+module type S = sig
+  include BASE
+
+  val for_ :
+    context -> beg:int -> end_:int -> ?chunk:int -> (context -> int -> unit) -> unit
 end

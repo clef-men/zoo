@@ -1,7 +1,23 @@
-module type S =
-  Pool_intf.S
+include Pool_intf
 
-module Parabs : S = struct
+module Make
+  (Base : BASE)
+= struct
+  include Base
+
+  let for_ ctx ~beg ~end_ ?chunk fn =
+    let chunk =
+      match chunk with
+      | Some chunk ->
+          chunk
+      | None ->
+          let num_dom = Base.size ctx + 1 in
+          max 1 ((end_ - end_) / num_dom)
+    in
+    Base.for_ ctx ~beg ~end_ ~chunk fn
+end
+
+module Parabs = Make(struct
   open Zoo_parabs
 
   type t =
@@ -39,9 +55,9 @@ module Parabs : S = struct
 
   let divide ctx ~beg ~end_ fn =
     Algo.divide ctx beg end_ fn
-end
+end)
 
-module Domainslib : S = struct
+module Domainslib = Make(struct
   open Domainslib
 
   type t =
@@ -89,9 +105,9 @@ module Domainslib : S = struct
           fn t (i * chunk) (if i == num_dom then rest else chunk)
     in
     Array.iter (Task.await t) futs
-end
+end)
 
-module Moonpool_fifo : S = struct
+module Moonpool_fifo = Make(struct
   open Moonpool
 
   type t =
@@ -133,9 +149,9 @@ module Moonpool_fifo : S = struct
   let divide t ~beg ~end_ fn =
     Moonpool_forkjoin.for_ (end_ - beg) @@ fun beg' end' ->
       fn t (beg + beg') (end' - beg')
-end
+end)
 
-module Moonpool_ws : S = struct
+module Moonpool_ws = Make(struct
   open Moonpool
 
   type t =
@@ -177,4 +193,4 @@ module Moonpool_ws : S = struct
   let divide t ~beg ~end_ fn =
     Moonpool_forkjoin.for_ (end_ - beg) @@ fun beg' end' ->
       fn t (beg + beg') (end' - beg')
-end
+end)
