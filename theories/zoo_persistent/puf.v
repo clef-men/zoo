@@ -499,8 +499,8 @@ Section puf_G.
       puf_snapshot s t reprs'
     }}}
       puf_restore t s
-    {{{ s,
-      RET s;
+    {{{
+      RET ();
       puf_model t reprs'
     }}}.
   Proof.
