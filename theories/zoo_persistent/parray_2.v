@@ -212,7 +212,7 @@ Section parray_2_G.
       τ v
     }}}
       parray_2_make equal #sz v
-    {{{ t γ,
+    {{{ t,
       RET t;
       parray_2_model t (replicate ₊sz v)
     }}}.
@@ -236,7 +236,7 @@ Section parray_2_G.
     |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
-    iApply ("HΦ" $! _ γ).
+    iApply "HΦ".
     iModIntro. iFrame "#∗".
     rewrite length_replicate delete_singleton big_sepM_empty.
     rewrite big_op.big_sepL_replicate -big_sepL_intro.
@@ -406,7 +406,7 @@ Section parray_2_G.
 
       iSteps.
   Qed.
-  #[local] Lemma parray_2_restore_spec t vs s vs' :
+  Lemma parray_2_restore_spec t vs s vs' :
     {{{
       parray_2_model t vs ∗
       parray_2_snapshot s t vs'
