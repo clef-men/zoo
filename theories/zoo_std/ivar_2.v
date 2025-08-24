@@ -301,7 +301,7 @@ Section ivar_2_G.
   #[local] Lemma consumer_divide {γ Ψ state Χ} Χs E :
     ▷ consumer_auth γ Ψ state -∗
     consumer_frag γ Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
+    (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
       ▷ consumer_auth γ Ψ state ∗
       [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
   Proof.
@@ -336,7 +336,7 @@ Section ivar_2_G.
   Lemma ivar_2_consumer_divide {t Ψ Ξ Χ} Χs :
     ivar_2_inv t Ψ Ξ -∗
     ivar_2_consumer t Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
+    (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
     [∗ list] Χ ∈ Χs, ivar_2_consumer t Χ.
   Proof.
     iIntros "(:inv) (:consumer) H". injection Heq as <-.
