@@ -569,7 +569,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         Unit
-        (state_update_locals (insert tid v) σ)
+        (state_update_locals <[tid := v]> σ)
         []
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →
