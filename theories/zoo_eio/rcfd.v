@@ -220,7 +220,7 @@ Section rcfd_G.
       {%H{eq};->} &
       Hfn{}
     )".
-  #[local] Definition inv_lstate l γ Ψ state lstate ops :=
+  #[local] Definition inv_lstate γ Ψ state lstate ops :=
     match lstate with
     | LOpen =>
         inv_lstate_open γ Ψ state ops
@@ -235,7 +235,7 @@ Section rcfd_G.
     l.[ops] ↦ #ops ∗
     l.[state] ↦ state_to_val γ state ∗
     lstate_auth γ lstate ∗
-    inv_lstate l γ Ψ state lstate ops.
+    inv_lstate γ Ψ state lstate ops.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     "(
       %state{} &
@@ -596,15 +596,15 @@ Section rcfd_G.
     iApply (rcfd_closing_elim with "Hmeta Hclosing").
   Qed.
 
-  #[local] Lemma inv_lstate_Open l γ Ψ lstate ops :
-    inv_lstate l γ Ψ Open lstate ops ⊢
+  #[local] Lemma inv_lstate_Open γ Ψ lstate ops :
+    inv_lstate γ Ψ Open lstate ops ⊢
     ⌜lstate = LOpen⌝.
   Proof.
     destruct lstate; iSteps.
   Qed.
-  #[local] Lemma inv_lstate_Closing l γ Ψ state lstate ops :
+  #[local] Lemma inv_lstate_Closing γ Ψ state lstate ops :
     state ≠ Open →
-    inv_lstate l γ Ψ state lstate ops -∗
+    inv_lstate γ Ψ state lstate ops -∗
     lstate_auth γ lstate -∗
       ∃ fn,
       ⌜state = Closing fn⌝ ∗
@@ -622,9 +622,9 @@ Section rcfd_G.
       iDestruct (lstate_lb_mono with "Hlstate_lb") as "$"; first done.
       iSteps.
   Qed.
-  #[local] Lemma inv_lstate_LClosing l γ Ψ state lstate ops :
+  #[local] Lemma inv_lstate_LClosing γ Ψ state lstate ops :
     lstate ≠ LOpen →
-    inv_lstate l γ Ψ state lstate ops -∗
+    inv_lstate γ Ψ state lstate ops -∗
     lstate_auth γ lstate -∗
       ∃ fn,
       ⌜state = Closing fn⌝ ∗
