@@ -10,21 +10,21 @@ type 'a ref =
     mutable ref_value: 'a;
   }
 
-type 'a descr =
+type descr =
   | Root
-  | Diff of 'a ref * gen * 'a * 'a node
-and 'a node =
-  'a descr Stdlib.ref
+  | Diff : 'a ref * gen * 'a * node -> descr
+and node =
+  descr Stdlib.ref
 
-type 'a t =
+type t =
   { mutable gen: gen;
-    mutable root: 'a node;
+    mutable root: node;
   }
 
-type 'a snapshot =
-  { snapshot_store: 'a t;
+type snapshot =
+  { snapshot_store: t;
     snapshot_gen: gen;
-    snapshot_root: 'a node;
+    snapshot_root: node;
   }
 
 let create () =

@@ -6,7 +6,7 @@ and element =
   descr Pstore_2.ref
 
 type t =
-  descr Pstore_2.t
+  Pstore_2.t
 
 let create =
   Pstore_2.create
@@ -47,7 +47,7 @@ let union t elt1 elt2 =
     )
 
 type snapshot =
-  descr Pstore_2.snapshot
+  Pstore_2.snapshot
 
 let capture =
   Pstore_2.capture

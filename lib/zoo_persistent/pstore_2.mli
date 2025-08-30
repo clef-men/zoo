@@ -1,20 +1,20 @@
-type 'a t
+type t
 
 type 'a ref
 
 val create :
-  unit -> 'a t
+  unit -> t
 
 val ref :
-  'a t -> 'a -> 'a ref
+  t -> 'a -> 'a ref
 val get :
-  'a t -> 'a ref -> 'a
+  t -> 'a ref -> 'a
 val set :
-  'a t -> 'a ref -> 'a -> unit
+  t -> 'a ref -> 'a -> unit
 
-type 'a snapshot
+type snapshot
 
 val capture :
-  'a t -> 'a snapshot
+  t -> snapshot
 val restore :
-  'a t -> 'a snapshot -> unit
+  t -> snapshot -> unit

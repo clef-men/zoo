@@ -5,18 +5,18 @@
 type 'a ref =
   'a Stdlib.ref
 
-type 'a descr =
+type descr =
   | Root
-  | Diff of 'a ref * 'a * 'a node
-and 'a node =
-  'a descr Stdlib.ref
+  | Diff : 'a ref * 'a * node -> descr
+and node =
+  descr Stdlib.ref
 
-type 'a t =
-  'a node Stdlib.ref
+type t =
+  node Stdlib.ref
 
-type 'a snapshot =
-  { snapshot_store: 'a t;
-    snapshot_root: 'a node;
+type snapshot =
+  { snapshot_store: t;
+    snapshot_root: node;
   }
 
 let create () =
