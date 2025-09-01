@@ -73,7 +73,7 @@ Definition domain_local_get : val :=
     match: dynarray_1_get "local" "id" with
     | None =>
         let: "v" := domain_key_init "key" in
-        dynarray_1_set "local" "id" "v" ;;
+        dynarray_1_set "local" "id" ‘Some( "v" ) ;;
         "v"
     | Some "v" =>
         "v"
@@ -614,6 +614,7 @@ Section domain_G.
       domain_local_get key ∶ tid
     {{{ v,
       RET v;
+      domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v
     }}}.
@@ -628,9 +629,13 @@ Section domain_G.
     iApply wp_thread_id_mono.
     wp_smart_apply (domain_key_id_spec with "Hid") as "_".
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+
+    iEval (simpl_length) in "Hl".
+    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+
     wp_smart_apply (dynarray_1_get_spec _ _ _ None with "Hl") as "Hl".
     { lia. }
-    { rewrite Nat2Z.id -(fmap_replicate option_to_val _ None) -fmap_app list_lookup_fmap_Some.
+    { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists None. split; last done.
       eapply consistent_lookup_Some_None; last done.
       { simpl_length. lia. }
@@ -640,7 +645,16 @@ Section domain_G.
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
-    iSteps.
+    wp_pures.
+
+    iApply "HΦ".
+    rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
+    iFrameSteps; iPureIntro.
+    { rewrite dom_insert_lookup_L //. }
+    { apply consistent_update.
+      { simpl_length. lia. }
+      { apply consistent_app_None. done. }
+    }
   Qed.
   Lemma domain_local_get_spec_pointsto keys key dq v tid :
     {{{
@@ -650,6 +664,7 @@ Section domain_G.
       domain_local_get key ∶ tid
     {{{
       RET v;
+      domain_local tid keys ∗
       domain_local_pointsto tid key dq v
     }}}.
   Proof.
@@ -663,14 +678,22 @@ Section domain_G.
     iApply wp_thread_id_mono.
     wp_smart_apply (domain_key_id_spec with "Hid") as "_".
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+
+    iEval (simpl_length) in "Hl".
+    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+
     wp_smart_apply (dynarray_1_get_spec _ _ _ (Some v) with "Hl") as "Hl".
     { lia. }
-    { rewrite Nat2Z.id -(fmap_replicate option_to_val _ None) -fmap_app list_lookup_fmap_Some.
+    { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists (Some v). split; last done.
       eapply consistent_lookup_Some_Some; last done.
       apply consistent_app_None. done.
     }
-    iSteps.
+    wp_pures.
+
+    iApply "HΦ".
+    iFrameSteps. iPureIntro.
+    apply consistent_app_None. done.
   Qed.
   Lemma domain_local_get_spec_pointstopred keys key Ψ tid :
     {{{
@@ -680,14 +703,15 @@ Section domain_G.
       domain_local_get key ∶ tid
     {{{ v,
       RET v;
+      domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v
     }}}.
   Proof.
     iIntros "%Φ (Hlocal & (:local_pointstopred)) HΦ".
     - wp_apply (domain_local_get_spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
-    - wp_apply (domain_local_get_spec_pointsto with "[$Hlocal $Hlocal_pointsto]").
-      iSteps.
+    - wp_apply (domain_local_get_spec_pointsto with "[$Hlocal $Hlocal_pointsto]") as "(Hlocal & Hlocal_pointsto)".
+      iApply ("HΦ" with "[$]").
   Qed.
 
   Lemma domain_local_set_spec_init keys key Ψ v tid :
@@ -699,6 +723,7 @@ Section domain_G.
       domain_local_set key v ∶ tid
     {{{
       RET ();
+      domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
@@ -712,10 +737,22 @@ Section domain_G.
     iApply wp_thread_id_mono.
     wp_smart_apply (domain_key_id_spec with "Hid") as "_".
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+
+    iEval (simpl_length) in "Hl".
+    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
-    iSteps.
+
+    iApply "HΦ".
+    rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
+    iFrameSteps; iPureIntro.
+    { rewrite dom_insert_lookup_L //. }
+    { apply consistent_update.
+      { simpl_length. lia. }
+      { apply consistent_app_None. done. }
+    }
   Qed.
   Lemma domain_local_set_spec_pointsto keys key w v tid :
     {{{
@@ -725,6 +762,7 @@ Section domain_G.
       domain_local_set key v ∶ tid
     {{{
       RET ();
+      domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
@@ -738,10 +776,22 @@ Section domain_G.
     iApply wp_thread_id_mono.
     wp_smart_apply (domain_key_id_spec with "Hid") as "_".
     wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+
+    iEval (simpl_length) in "Hl".
+    iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
+
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
     wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
-    iSteps.
+
+    iApply "HΦ".
+    rewrite Nat2Z.id -(list_fmap_insert _ _ _ (Some _)).
+    iFrameSteps; iPureIntro.
+    { rewrite dom_insert_lookup_L //. }
+    { apply consistent_update.
+      { simpl_length. lia. }
+      { apply consistent_app_None. done. }
+    }
   Qed.
   Lemma domain_local_set_spec_pointstopred keys key Ψ v tid :
     {{{
@@ -751,6 +801,7 @@ Section domain_G.
       domain_local_set key v ∶ tid
     {{{
       RET ();
+      domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v
     }}}.
   Proof.
