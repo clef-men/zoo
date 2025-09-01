@@ -71,6 +71,15 @@ Section basic.
     intros. apply app_not_nil. auto.
   Qed.
 
+  Lemma lookup_app_r_Some l1 l2 i x :
+    l2 !! i = Some x →
+    (l1 ++ l2) !! (length l1 + i) = Some x.
+  Proof.
+    intros Hlookup.
+    rewrite lookup_app_r; first lia.
+    rewrite Nat.add_sub' //.
+  Qed.
+
   Lemma reverse_nil_iff l :
     reverse l = [] ↔
     l = [].
