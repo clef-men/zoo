@@ -11,6 +11,8 @@ depends: [
   "zoo"
   "zoo_std"
   "zoo_saturn"
+  "domainslib" {with-dev-setup}
+  "moonpool" {with-dev-setup}
   "odoc" {with-doc}
 ]
 build: [
