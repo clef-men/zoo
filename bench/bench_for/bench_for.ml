@@ -12,19 +12,8 @@ module Make
     Pool.for_ ctx work ~beg:0 ~end_:n ~chunk:cutoff
 end
 
-let pool : (module Pool.S) =
-  let open Pool in
-  match Sys.argv.(1) with
-  | "parabs" ->
-      (module Parabs)
-  | "domainslib" ->
-      (module Domainslib)
-  | "moonpool-fifo" ->
-      (module Moonpool_fifo)
-  | "moonpool-ws" ->
-      (module Moonpool_ws)
-  | _ ->
-      failwith "illegal method"
+let pool =
+  Pool.impl_of_string Sys.argv.(1)
 
 let cutoff =
   int_of_string Sys.argv.(2)

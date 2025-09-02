@@ -194,3 +194,16 @@ module Moonpool_ws = Make(struct
     Moonpool_forkjoin.for_ (end_ - beg) @@ fun beg' end' ->
       fn t (beg + beg') (end' - beg')
 end)
+
+let impl_of_string s : (module S) =
+  match s with
+  | "parabs" ->
+      (module Parabs)
+  | "domainslib" ->
+      (module Domainslib)
+  | "moonpool-fifo" ->
+      (module Moonpool_fifo)
+  | "moonpool-ws" ->
+      (module Moonpool_ws)
+  | _ ->
+      failwith "illegal method"
