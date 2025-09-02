@@ -9,7 +9,7 @@ for input in $inputs; do
     "$@" \
     --warmup 10 \
     --runs 20 \
-    -L method parabs,domainslib \
+    -L method parabs,domainslib,moonpool-fifo,moonpool-ws \
     --command-name "method:{method} size:$input" \
     "./_build/default/bench/bench_lu/bench_lu.exe {method} $input"
 done

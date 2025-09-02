@@ -14,8 +14,8 @@ module Make
     Matrix_parallel.apply ctx mat2 (fun i j -> Float.of_int (i * j));
     Matrix_parallel.fill ctx mat3 0.0 ;
     Pool.for_ ctx ~beg:0 ~end_:sz (fun _ctx i ->
-      for j = 0 to sz do
-        for k = 0 to sz do
+      for j = 0 to sz - 1 do
+        for k = 0 to sz - 1 do
           let v = Matrix.get mat3 i j in
           let v = v +. Matrix.get mat1 i k *. Matrix.get mat2 k j in
           Matrix.set mat3 i j v

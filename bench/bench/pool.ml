@@ -12,7 +12,7 @@ module Make
           chunk
       | None ->
           let num_dom = Base.size ctx + 1 in
-          max 1 ((end_ - end_) / num_dom)
+          max 1 ((end_ - beg) / num_dom)
     in
     Base.for_ ctx ~beg ~end_ ~chunk fn
 end
