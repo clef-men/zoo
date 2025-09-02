@@ -75,26 +75,46 @@ make -j
 
 ## Building (OCaml libraries only)
 
-The repository contains the output of `ocaml2zoo` for all provided packages. If you do not wish to re-check the Coq proofs, you can build only the OCaml libraries.
+First, you need to install [`opam`](https://opam.ocaml.org/) (>= 2.0).
+
+To make sure it is up-to-date, run:
 
 ```
-# install the OCaml dependencies
-opam install --deps-only ./zoo*.opam
+opam update --all --repositories
+```
 
-# build the OCaml libraries
+Then, you need to install [this custom version of the OCaml compiler](https://github.com/clef-men/ocaml/tree/generative_constructors) featuring atomic record fields, atomic arrays and generative constructors.
+Hopefully, it should be merged into the OCaml compiler one day.
+
+The following commands take care of this:
+
+```
+opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
+eval $(opam env --switch=. --set-switch)
+opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_constructors --yes
+```
+
+Then, install dependencies with:
+
+```
+opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') --deps-only --yes
+```
+
+To compile benchmarks, you also need to install benchmark-only dependencies with:
+
+```
+opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') --with-dev-setup --deps-only --yes
+```
+
+To compile OCaml libraries (see `lib/`), run:
+
+```
 make lib
 ```
 
-If you want to compile and run the benchmarks, you need to invoke opam with `--with-dev-setup` to get the benchmark-only dependencies.
+To compile benchmarks, run:
 
 ```
-# install the OCaml development dependencies
-opam install --with-dev-setup --deps-only ./zoo*.opam
-
-# build the OCaml libraries
-make lib
-
-# build the benchmarks
 make bench
 ```
 
