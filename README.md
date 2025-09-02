@@ -73,6 +73,31 @@ Finally, to compile Coq proofs, run:
 make -j
 ```
 
+## Building (OCaml libraries only)
+
+The repository contains the output of `ocaml2zoo` for all provided packages. If you do not wish to re-check the Coq proofs, you can build only the OCaml libraries.
+
+```
+# install the OCaml dependencies
+opam install --deps-only ./zoo*.opam
+
+# build the OCaml libraries
+make lib
+```
+
+If you want to compile and run the benchmarks, you need to invoke opam with `--with-dev-setup` to get the benchmark-only dependencies.
+
+```
+# install the OCaml development dependencies
+opam install --with-dev-setup --deps-only ./zoo*.opam
+
+# build the OCaml libraries
+make lib
+
+# build the benchmarks
+make bench
+```
+
 ## Installation
 
 Zoo is not available on `opam` yet, but you can already use it in your Coq developments by adding the following `opam` dependency:
