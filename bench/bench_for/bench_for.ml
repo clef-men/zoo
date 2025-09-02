@@ -1,7 +1,7 @@
 open Bench
 
 let work _ctx _i =
-  for _ = 1 to 100 do
+  for _ = 1 to 1024 do
     Sys.opaque_identity ()
   done
 

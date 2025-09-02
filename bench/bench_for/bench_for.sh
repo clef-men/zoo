@@ -3,7 +3,7 @@
 set -eou pipefail
 
 impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
-inputs="100000 1000000 10000000"
+inputs="500_000"
 
 for input in $inputs; do
   hyperfine \
@@ -11,7 +11,7 @@ for input in $inputs; do
     --warmup 10 \
     --runs 20 \
     -L method $impls \
-    -L cutoff 20,50,100 \
+    -L cutoff 1,10,100,1000 \
     --command-name "method:{method} cutoff:{cutoff} input:$input" \
     "./_build/default/bench/bench_for/bench_for.exe {method} {cutoff} $input"
 done
