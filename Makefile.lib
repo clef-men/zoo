@@ -8,6 +8,11 @@ targets_nocoq += ocaml2zoo
 ocaml2zoo :
 	@ ocaml2zoo . theories
 
+targets_nocoq += bench
+.PHONY : bench
+bench :
+	@ dune build @bench/check @bench/all
+
 .PHONY : clean
 clean ::
 	@ dune clean
