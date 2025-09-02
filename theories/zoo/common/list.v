@@ -827,6 +827,16 @@ Section Permutation.
   Implicit Types x : A.
   Implicit Types l : list A.
 
+  #[global] Instance Permutation_disjoint :
+    Proper (Permutation ==> Permutation ==> iff) (disjoint (A := list A)).
+  Proof.
+    intros x1 x2 Hx l1 l2 Hl.
+    rewrite /disjoint /set_disjoint_instance.
+    setoid_rewrite Hx.
+    setoid_rewrite Hl.
+    done.
+  Qed.
+
   Lemma Permutation_swap' l i1 x1 i2 x2 :
     l !! i1 = Some x1 →
     l !! i2 = Some x2 →
