@@ -22,11 +22,8 @@ let input =
   int_of_string Sys.argv.(3)
 
 let num_domains =
-  match Sys.argv.(4) with
-  | num_domains ->
-      int_of_string num_domains
-  | exception Invalid_argument _ ->
-      Domain.recommended_domain_count () - 1
+  let default = Domain.recommended_domain_count () - 1 in
+  Utils.get_int_param "EXTRA_DOMAINS" ~default
 
 let () =
   let (module Pool) = pool in
