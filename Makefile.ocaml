@@ -11,7 +11,7 @@ ocaml2zoo :
 targets_nocoq += bench
 .PHONY : bench
 bench :
-	@ dune build @bench/check @bench/all
+	@ dune build bench
 
 .PHONY : clean
 clean ::

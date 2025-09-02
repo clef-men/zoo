@@ -9,6 +9,6 @@ phony :
 .PHONY : clean
 clean ::
 
-include Makefile.lib
+include Makefile.ocaml
 
 include Makefile.theories
