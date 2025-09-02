@@ -80,6 +80,19 @@ Section basic.
     rewrite Nat.add_sub' //.
   Qed.
 
+  Lemma elem_of_app_l l1 l2 x :
+    x ∈ l1 →
+    x ∈ l1 ++ l2.
+  Proof.
+    rewrite elem_of_app. auto.
+  Qed.
+  Lemma elem_of_app_r l1 l2 x :
+    x ∈ l2 →
+    x ∈ l1 ++ l2.
+  Proof.
+    rewrite elem_of_app. auto.
+  Qed.
+
   Lemma reverse_nil_iff l :
     reverse l = [] ↔
     l = [].
