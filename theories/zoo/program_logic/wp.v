@@ -1,7 +1,5 @@
 From zoo Require Import
   prelude.
-From zoo.iris.program_logic Require Import
-  wp.
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Import
