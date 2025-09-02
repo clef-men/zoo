@@ -1,12 +1,17 @@
 targets_nocoq += lib
 .PHONY : lib
 lib :
-	@ dune build @check @all
+	@ dune build @lib/check @lib/all
 
 targets_nocoq += ocaml2zoo
 .PHONY : ocaml2zoo
 ocaml2zoo :
 	@ ocaml2zoo . theories
+
+targets_nocoq += bench
+.PHONY : bench
+bench :
+	@ dune build @bench/check @bench/all
 
 .PHONY : clean
 clean ::

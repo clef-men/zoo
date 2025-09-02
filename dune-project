@@ -51,6 +51,10 @@
     zoo
     zoo_std
     zoo_saturn
+
+    ; benchmark dependencies
+    (domainslib :with-dev-setup)
+    (moonpool :with-dev-setup)
   )
 )
 
