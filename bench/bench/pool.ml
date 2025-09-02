@@ -17,6 +17,35 @@ module Make
     Base.for_ ctx ~beg ~end_ ~chunk fn
 end
 
+module Sequential = Make(struct
+  type context = unit
+  type 'a task = context -> 'a
+
+  let size () = 1
+
+  type t = unit
+
+  let create ~num_domains:_ () = ()
+
+  let run () task = task ()
+
+  let kill () = ()
+
+  type 'a future = unit -> 'a
+
+  let async () task = task
+
+  let wait () fut = fut ()
+
+  let for_ () ~beg ~end_ ~chunk:_ f =
+    for i = beg to end_ - 1 do
+      f () i
+    done
+
+  let divide () ~beg ~end_ f =
+    f () beg (end_ - beg)
+end)
+
 module Parabs = Make(struct
   open Zoo_parabs
 
@@ -205,5 +234,7 @@ let impl_of_string s : (module S) =
       (module Moonpool_fifo)
   | "moonpool-ws" ->
       (module Moonpool_ws)
+  | "sequential" ->
+      (module Sequential)
   | _ ->
       failwith "illegal method"
