@@ -11,7 +11,7 @@ let create cap =
   }
 
 let try_lock t =
-  Mutex.protect t.mutex (fun () ->
+  Mutex.protect t.mutex @@ fun () ->
     let cnt = t.count in
     if 0 < cnt then (
       t.count <- cnt - 1 ;
@@ -19,15 +19,13 @@ let try_lock t =
     ) else (
       false
     )
-  )
 
 let lock t =
-  Mutex.protect t.mutex (fun () ->
+  Mutex.protect t.mutex @@ fun () ->
     Condition.wait_until t.condition t.mutex (fun () ->
       0 < t.count
     ) ;
     t.count <- t.count - 1
-  )
 
 let unlock t =
   Mutex.protect t.mutex (fun () ->

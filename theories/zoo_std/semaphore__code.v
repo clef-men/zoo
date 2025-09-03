@@ -17,8 +17,7 @@ Definition semaphore_create : val :=
 
 Definition semaphore_try_lock : val :=
   fun: "t" =>
-    mutex_protect
-      "t".{mutex}
+    mutex_protect "t".{mutex}
       (fun: <> =>
          let: "cnt" := "t".{count} in
          if: #0 < "cnt" then (
@@ -30,8 +29,7 @@ Definition semaphore_try_lock : val :=
 
 Definition semaphore_lock : val :=
   fun: "t" =>
-    mutex_protect
-      "t".{mutex}
+    mutex_protect "t".{mutex}
       (fun: <> =>
          condition_wait_until
            "t".{condition}
