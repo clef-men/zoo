@@ -8,13 +8,6 @@ let create =
     ()
 ]
 
-let wait =
-  Stdlib.Condition.wait
-[@@zoo.overwrite
-  fun _t _mtx ->
-    ()
-]
-
 let notify =
   Stdlib.Condition.signal
 [@@zoo.overwrite
@@ -26,6 +19,13 @@ let notify_all =
   Stdlib.Condition.broadcast
 [@@zoo.overwrite
   fun _t ->
+    ()
+]
+
+let wait =
+  Stdlib.Condition.wait
+[@@zoo.overwrite
+  fun _t _mtx ->
     ()
 ]
 

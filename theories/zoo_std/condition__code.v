@@ -12,16 +12,16 @@ Definition condition_create : val :=
   fun: <> =>
     ().
 
-Definition condition_wait : val :=
-  fun: "_t" "_mtx" =>
-    ().
-
 Definition condition_notify : val :=
   fun: "_t" =>
     ().
 
 Definition condition_notify_all : val :=
   fun: "_t" =>
+    ().
+
+Definition condition_wait : val :=
+  fun: "_t" "_mtx" =>
     ().
 
 Definition condition_wait_until_aux : val :=
