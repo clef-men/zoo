@@ -4,7 +4,7 @@ of the 'zoo' repository.
 ## Running benchmarks
 
 ```
-EXTRA_DOMAINS=3 sh bench/bench_fibonacci/bench_fibonacci.sh
+EXTRA_DOMAINS=3 sh bench/fibonacci/run.sh
 ```
 
 Note: the EXTRA_DOMAINS=3 variable is interpreted by the Pool
@@ -15,8 +15,8 @@ main domain, so in practice this is a 4-domains configuration.
 
 ```
 # generates data/fibonacci_plot_4.data, the 4-domains results
-EXTRA_DOMAINS=3 sh bench/bench_fibonacci/gen_plot_data.sh
+EXTRA_DOMAINS=3 sh bench/fibonacci/gen_plot_data.sh
 
 # plot the data
-sh bench/bench_fibonacci/plot.sh bench/bench_fibonacci/data/fibonacci_plot_4.data
+sh bench/fibonacci/plot.sh bench/fibonacci/data/plot_4.data
 ```

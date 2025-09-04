@@ -3,7 +3,7 @@
 set -eou pipefail
 
 impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
-inputs="1000000 2000000 3000000"
+inputs="30 40 42"
 
 for input in $inputs; do
   hyperfine \
@@ -11,6 +11,7 @@ for input in $inputs; do
     --warmup 10 \
     --runs 20 \
     -L method $impls \
-    --command-name "method:{method} size:$input" \
-    "./_build/default/bench/bench_iota/bench_iota.exe {method} $input"
+    -L cutoff 20,25,30 \
+    --command-name "method:{method} cutoff:{cutoff} input:$input" \
+    "./_build/default/bench/fibonacci/run.exe {method} {cutoff} $input"
 done

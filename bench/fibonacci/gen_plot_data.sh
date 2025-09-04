@@ -5,12 +5,12 @@ set -eou pipefail
 input="35"
 cutoffs="5 7 10 12 15 17 20 22 25 27 30 32 35"
 impls="sequential parabs domainslib moonpool-fifo moonpool-ws"
-prog="./_build/default/bench/bench_fibonacci/bench_fibonacci.exe"
+prog="./_build/default/bench/fibonacci/run.exe"
 
-dune build bench/bench_fibonacci/bench_fibonacci.exe
+dune build bench/fibonacci/run.exe
 
 DOMAINS=$(($EXTRA_DOMAINS + 1))
-outfile=bench/bench_fibonacci/data/fibonacci_plot_$DOMAINS.data
+outfile=bench/fibonacci/data/plot_$DOMAINS.data
 
 rm -f $outfile
 

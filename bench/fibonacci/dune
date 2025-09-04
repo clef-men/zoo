@@ -1,4 +1,4 @@
 (test
-  (name bench_fibonacci)
+  (name run)
   (libraries bench)
 )

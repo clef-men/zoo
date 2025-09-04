@@ -13,5 +13,5 @@ for input in $inputs; do
     -L method $impls \
     -L cutoff 1,10,100,1000 \
     --command-name "method:{method} cutoff:{cutoff} input:$input" \
-    "./_build/default/bench/bench_for/bench_for.exe {method} {cutoff} $input"
+    "./_build/default/bench/for/run.exe {method} {cutoff} $input"
 done

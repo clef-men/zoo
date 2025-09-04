@@ -1,4 +1,4 @@
 (test
-  (name bench_for)
+  (name run)
   (libraries bench)
 )

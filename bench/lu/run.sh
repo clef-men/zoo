@@ -3,7 +3,7 @@
 set -eou pipefail
 
 impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
-inputs="500"
+inputs="700"
 
 for input in $inputs; do
   hyperfine \
@@ -12,5 +12,5 @@ for input in $inputs; do
     --runs 20 \
     -L method $impls \
     --command-name "method:{method} size:$input" \
-    "./_build/default/bench/bench_matmul/bench_matmul.exe {method} $input"
+    "./_build/default/bench/lu/run.exe {method} $input"
 done

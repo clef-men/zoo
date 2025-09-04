@@ -1,4 +1,4 @@
 (test
-  (name bench_iota)
+  (name run)
   (libraries bench)
 )

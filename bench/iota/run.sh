@@ -3,7 +3,7 @@
 set -eou pipefail
 
 impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
-inputs="700"
+inputs="1000000 2000000 3000000"
 
 for input in $inputs; do
   hyperfine \
@@ -12,5 +12,5 @@ for input in $inputs; do
     --runs 20 \
     -L method $impls \
     --command-name "method:{method} size:$input" \
-    "./_build/default/bench/bench_lu/bench_lu.exe {method} $input"
+    "./_build/default/bench/iota/run.exe {method} $input"
 done
