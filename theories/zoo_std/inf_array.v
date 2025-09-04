@@ -493,18 +493,18 @@ Section inf_array_G.
     rewrite /atomic_acc /=. iFrameSteps.
   Qed.
 
-  Lemma inf_array_xchg_resolve_spec t i v pid v_resolve Φ :
+  Lemma inf_array_xchg_resolve_spec t i v pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array_inv t -∗
-    ( |={⊤,∅}=>
+    ( |={⊤,E}=>
       ∃ vs,
       inf_array_model t vs ∗
       ( ∀ e,
         ⌜PureExec True 1 e ()⌝ -∗
         ⌜to_val e = None⌝ -∗
         inf_array_model t (<[₊i := v]> vs) -∗
-        WP Resolve e #pid v_resolve @ ∅ {{ _,
-          |={∅,⊤}=>
+        WP Resolve e #pid v_resolve @ E {{ _,
+          |={E,⊤}=>
           Φ (vs ₊i)
         }}
       )
@@ -681,10 +681,10 @@ Section inf_array_G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array_cas_resolve_spec t i v1 v2 pid v_resolve Φ :
+  Lemma inf_array_cas_resolve_spec t i v1 v2 pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array_inv t -∗
-    ( |={⊤,∅}=>
+    ( |={⊤,E}=>
       ∃ vs,
       inf_array_model t vs ∗
       ( ∀ e b,
@@ -692,8 +692,8 @@ Section inf_array_G.
         ⌜to_val e = None⌝ -∗
         ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ -∗
         inf_array_model t (if b then <[₊i := v2]> vs else vs) -∗
-        WP Resolve e #pid v_resolve @ ∅ {{ _,
-          |={∅,⊤}=>
+        WP Resolve e #pid v_resolve @ E {{ _,
+          |={E,⊤}=>
           Φ #b
         }}
       )

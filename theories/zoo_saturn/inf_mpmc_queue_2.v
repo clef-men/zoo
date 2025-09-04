@@ -1135,7 +1135,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
         rewrite Nat2Z.id in Hslots2 |- *.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1152,7 +1151,6 @@ Section inf_mpmc_queue_2_G.
             iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
         }
         iMod (producers_at_discard with "Hproducers_at") as "#Hproducers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ (Something v)).
           iFrameSteps.
@@ -1183,7 +1181,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
         rewrite Nat2Z.id in Hslots2 |- *.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1199,7 +1196,6 @@ Section inf_mpmc_queue_2_G.
           - exfalso. done.
           - exfalso. done.
         }
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { iFrameSteps.
           rewrite function.fn_lookup_alter. case_decide; last done.
@@ -1248,7 +1244,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
         rewrite Nat2Z.id in Hslots2 |- *.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1268,7 +1263,6 @@ Section inf_mpmc_queue_2_G.
             iDestruct (producers_at_exclusive with "Hproducers_at Hproducers_at_") as %[].
         }
         iMod (producers_at_discard with "Hproducers_at") as "#Hproducers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ (Something v)).
           iFrameSteps.
@@ -1300,7 +1294,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
         rewrite Nat2Z.id in Hslots2 |- *.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1316,7 +1309,6 @@ Section inf_mpmc_queue_2_G.
           - exfalso. done.
           - exfalso. done.
         }
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { iFrameSteps.
           rewrite function.fn_lookup_alter. case_decide; last done.
@@ -1382,7 +1374,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
         rewrite Nat2Z.id.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1397,7 +1388,6 @@ Section inf_mpmc_queue_2_G.
           iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
         }
         iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ Anything).
           iFrameSteps.
@@ -1431,7 +1421,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
         rewrite Nat2Z.id.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1460,7 +1449,6 @@ Section inf_mpmc_queue_2_G.
         { iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[]. }
 
         iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ Anything).
           iFrameSteps.
@@ -1503,7 +1491,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
         rewrite Nat2Z.id.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1522,7 +1509,6 @@ Section inf_mpmc_queue_2_G.
         iDestruct "Hslot" as "(:inv_slot_something suff=)".
         iDestruct (history_at_agree with "Hhistory_at Hhistory_at_") as %[= <-].
         iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ Anything).
           iFrameSteps.
@@ -1544,7 +1530,6 @@ Section inf_mpmc_queue_2_G.
 
         wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
         iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
-        iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose2".
         iStep. iIntros "%e % % Hdata_model".
         rewrite Nat2Z.id.
         wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
@@ -1559,7 +1544,6 @@ Section inf_mpmc_queue_2_G.
           iDestruct (consumers_at_exclusive with "Hconsumers_at Hconsumers_at_") as %[].
         }
         iMod (consumers_at_discard with "Hconsumers_at") as "#Hconsumers_at".
-        iMod "Hclose2" as "_".
         iMod ("Hclose1" with "[- HΦ]") as "_".
         { rewrite -(fn_compose_insert _ _ _ Anything).
           iFrameSteps.
