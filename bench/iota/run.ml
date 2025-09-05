@@ -5,8 +5,10 @@ module Make
 = struct
   let main sz ctx =
     let arr = Array.make sz 0 in
-    Pool.for_ ctx ~beg:0 ~end_:sz @@ fun _ctx i ->
-      Array.unsafe_set arr i i
+    for _ = 1 to 100 do
+      Pool.for_ ctx ~beg:0 ~end_:sz @@ fun _ctx i ->
+        Array.unsafe_set arr i i
+    done
 end
 
 let pool =

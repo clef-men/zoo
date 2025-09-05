@@ -3,7 +3,7 @@
 set -eou pipefail
 
 impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
-inputs="1000000 2000000 3000000"
+inputs="1_000_000"
 
 for input in $inputs; do
   hyperfine \
