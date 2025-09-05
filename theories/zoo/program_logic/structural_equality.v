@@ -539,7 +539,7 @@ Section zoo_G.
     { iClear "IHstructeq".
       iIntros "%v1 %v2 %footprint !> %Φ (%Htraversable1 & %Htraversable2 & Hfootprint) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       all: destruct v1 as [[b1 | n1 | l1 | |] | | gen1 tag1 [| v1 vs1]].
       all: try done.
@@ -653,7 +653,7 @@ Section zoo_G.
     { iClear "IHstructeq_aux_loc_block IHstructeq_aux_block_loc IHstructeq_aux_block_block".
       iIntros "%l1 %blk1 %l2 %blk2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_1 & %Hfootprint_lookup_2 & % & % & Hfootprint & %Hstructeq) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
       case_bool_decide; wp_pures.
 
       - iSteps. iPureIntro.
@@ -691,7 +691,7 @@ Section zoo_G.
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_block_loc IHstructeq_aux_block_block".
       iIntros "%l1 %blk1 %gen2 %tag2 %vs2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_1 & % & % & % & %Htraversable2 & Hfootprint & %Hstructeq) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
       case_bool_decide; wp_pures.
 
       - iSteps. iPureIntro.
@@ -735,7 +735,7 @@ Section zoo_G.
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_loc_block IHstructeq_aux_block_block".
       iIntros "%gen1 %tag1 %vs1 %l2 %blk2 %footprint %i !> %Φ (%Hi & %Hfootprint_lookup_2 & % & % & % & %Htraversable1 & Hfootprint & %Hstructeq) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
       case_bool_decide; wp_pures.
 
       - iSteps. iPureIntro.
@@ -779,7 +779,7 @@ Section zoo_G.
     { iClear "IHstructeq_aux_loc_loc IHstructeq_aux_loc_block IHstructeq_aux_block_loc".
       iIntros "%gen1 %tag1 %vs1 %gen2 %tag2 %vs2 %footprint %i !> %Φ (%Hi & -> & % & % & %Htraversable1 & %Htraversable2 & Hfootprint & %Hstructeq) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
       case_bool_decide; wp_pures.
 
       - iSteps. iPureIntro.

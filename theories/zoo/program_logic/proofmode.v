@@ -543,37 +543,25 @@ Tactic Notation "wp_pures" "credit:" constr(Hcredit) :=
   wp_pure credit:Hcredit;
   wp_pures.
 
+#[local] Ltac wp_rec_aux tac :=
+  let H1 := fresh in
+  assert (H1 := ValRec_as_ValRec);
+  let H2 := fresh in
+  assert (H2 := as_ValRecs'_as_ValRecs);
+  tac ();
+  clear H1 H2.
 Tactic Notation "wp_rec" :=
-  let H := fresh in
-  assert (H := ValRec_as_ValRec);
-  wp_pure (App _ _);
-  clear H.
+  wp_rec_aux ltac:(fun _ =>
+    wp_pure (App _ _)
+  ).
 Tactic Notation "wp_rec" "credits:" constr(Hcredit) :=
-  let H := fresh in
-  assert (H := ValRec_as_ValRec);
-  wp_pure (App _ _) credits:Hcredit;
-  clear H.
+  wp_rec_aux ltac:(fun _ =>
+    wp_pure (App _ _) credits:Hcredit
+  ).
 Tactic Notation "wp_rec" "credit:" constr(Hcredit) :=
-  let H := fresh in
-  assert (H := ValRec_as_ValRec);
-  wp_pure (App _ _) credit:Hcredit;
-  clear H.
-
-Tactic Notation "wp_recs" :=
-  let H := fresh in
-  assert (H := as_ValRecs'_as_ValRecs);
-  wp_pure (App _ _);
-  clear H.
-Tactic Notation "wp_recs" "credits:" constr(Hcredit) :=
-  let H := fresh in
-  assert (H := as_ValRecs'_as_ValRecs);
-  wp_pure (App _ _) credits:Hcredit;
-  clear H.
-Tactic Notation "wp_recs" "credit:" constr(Hcredit) :=
-  let H := fresh in
-  assert (H := as_ValRecs'_as_ValRecs);
-  wp_pure (App _ _) credit:Hcredit;
-  clear H.
+  wp_rec_aux ltac:(fun _ =>
+    wp_pure (App _ _) credit:Hcredit
+  ).
 
 Tactic Notation "wp_for" :=
   let H := fresh in

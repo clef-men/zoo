@@ -1688,7 +1688,7 @@ Section kcas_1_G.
     { iIntros "%casn %η %𝑐𝑎𝑠𝑠 %i !> %Φ (-> & #Hcasn_meta & #Hcasn_inv' & #Hlstatus_lb) HΦ".
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
 
-      wp_recs credit:"H£".
+      wp_rec credit:"H£".
       wp_smart_apply (wp_id with "[//]") as (gid) "Hgid".
 
       destruct (η.(metadata_descrs) !! i) as [descr |] eqn:Hdescrs_lookup.
@@ -1814,7 +1814,7 @@ Section kcas_1_G.
       iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
       iDestruct (big_sepL_lookup with "Hlocs1") as "(_ & Hstate1_casn & _)"; first done.
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       iDestruct "H" as "[#Hlstatus_lb_finished | %Hfinal1]".
 
@@ -1980,7 +1980,7 @@ Section kcas_1_G.
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
       iDestruct (big_sepL_lookup with "Hlocs") as "(_ & #Hstate_casn & _)"; first done.
 
-      wp_recs credit:"H£". wp_load.
+      wp_rec credit:"H£". wp_load.
       wp_apply ("IHdetermine" with "[$Hcasn_meta $Hcasn_inv']") as "#Hlstatus_lb".
       destruct (metadata_success η) eqn:Hsuccess; wp_pures.
 
@@ -1994,7 +1994,7 @@ Section kcas_1_G.
     { iIntros "%casn %η !> %Φ (#Hcasn_meta & #Hcasn_inv') HΦ".
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
 
-      wp_recs.
+      wp_rec.
 
       wp_bind ((#casn).{status})%E.
       iInv "Hcasn_inv" as "(:casn_inv_inner)".

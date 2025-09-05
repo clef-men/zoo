@@ -990,7 +990,7 @@ Section vertex_G.
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %P %R %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
-      wp_recs.
+      wp_rec.
       iApply (wp_frame_wand with "HΦ").
       wp_pures.
 
@@ -1023,7 +1023,7 @@ Section vertex_G.
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
 
-      wp_recs.
+      wp_rec.
       iApply (wp_frame_wand with "HΦ").
       wp_pures.
 
@@ -1094,7 +1094,7 @@ Section vertex_G.
       setoid_rewrite vertex_inv_unfold.
       iIntros "%ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
-      wp_recs.
+      wp_rec.
       wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
       wp_pures.
 

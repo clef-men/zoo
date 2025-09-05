@@ -1263,7 +1263,7 @@ Section mpmc_queue_2_G.
     { iClear "IHpush_aux".
       iIntros "%back %i %ws %j %Φ (-> & #Hinv & #Hstate_at) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "Hinv_inner".
@@ -1298,7 +1298,7 @@ Section mpmc_queue_2_G.
 
     { iIntros "%Φ #Hinv HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       wp_bind (_.{back})%E.
       iInv "Hinv" as "(:inv_inner =1 >)".
@@ -1447,7 +1447,7 @@ Section mpmc_queue_2_G.
 
     { iIntros "%i_front %vs_front %Φ (#Hinv & #Hfront_lb) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
       destruct vs_front as [| v vs_front]; wp_pures.
 
       - wp_apply (typed_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
@@ -1568,7 +1568,7 @@ Section mpmc_queue_2_G.
     { iClear "IHpop_1 IHpop_2".
       iIntros "%backs %i %back_prev %back %move %Φ (%Hmove & #Hinv & #Hstate_lb & #Hback_prev_header) HΦ".
 
-      wp_recs.
+      wp_rec.
       wp_smart_apply (mpmc_queue_2_rev_spec with "[$]") as "_"; first lia.
       destruct move as [| v move _] using rev_ind; first naive_solver lia.
       rewrite reverse_snoc /=. wp_pures.
@@ -1610,7 +1610,7 @@ Section mpmc_queue_2_G.
     { iClear "IHpop_2 IHpop".
       iIntros "%Φ #Hinv HΦ".
 
-      wp_recs.
+      wp_rec.
       wp_apply (front_spec with "Hinv").
       iSteps.
     }

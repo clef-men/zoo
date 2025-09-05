@@ -1076,7 +1076,7 @@ Section mpmc_bqueue_G.
 
     { iIntros "%back %i_back %i_front %cap %Φ (#Hmeta & #Hl_capacity & #Hinv & (:node_model =back) & #Hfront_lb_front & % & % & #Hnew_back_header & Hnew_back_next & Hnew_back_data & (% & Hnew_back_index) & (% & Hnew_back_estimated_capacity)) HΦ".
 
-      wp_recs. do 2 wp_match. wp_pures.
+      wp_rec. do 2 wp_match. wp_pures.
       case_bool_decide; wp_pures.
 
       - wp_bind (_.{front})%E.
@@ -1186,7 +1186,7 @@ Section mpmc_bqueue_G.
 
       iIntros "%back %i_back %Φ (#Hmeta & #Hl_capacity & #Hinv & (:node_model =back) & #Hnew_back_header & Hnew_back_next & Hnext_back_data & Hnew_back_index & Hnew_back_estimated_capacity) HΦ".
 
-      wp_recs. wp_match. wp_pures.
+      wp_rec. wp_match. wp_pures.
 
       wp_bind (_.{estimated_capacity})%E.
       wp_apply (wp_frame_wand with "[- HΦ]"); first iAccu.

@@ -332,7 +332,7 @@ Section mpmc_bstack_G.
 
     - iIntros "%sz %front %ws %Φ (-> & -> & %Hws & (:inv)) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(:inv_inner)".
@@ -354,7 +354,7 @@ Section mpmc_bstack_G.
 
     - iIntros "%Φ (:inv) HΦ".
 
-      wp_recs. wp_pures.
+      wp_rec. wp_pures.
 
       wp_bind (_.{front})%E.
       iInv "Hinv" as "(:inv_inner)".
