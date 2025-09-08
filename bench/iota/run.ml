@@ -19,12 +19,9 @@ let size =
 
 let num_domains =
   let default = Domain.recommended_domain_count () - 1 in
-  Utils.get_int_param "EXTRA_DOMAINS" ~default
+  Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
-let cutoff =
-  match Utils.get_int_param "CUTOFF" ~default:0 with
-    | 0 -> None
-    | n -> assert (n > 0); Some n
+let cutoff = Utils.get_int_param "CUTOFF"
 
 let () =
   let (module Pool) = pool in
