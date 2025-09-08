@@ -21,15 +21,17 @@ end
 let pool =
   Pool.impl_of_string Sys.argv.(1)
 
-let cutoff =
-  int_of_string Sys.argv.(2)
-
-let input =
-  int_of_string Sys.argv.(3)
-
 let num_domains =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
+
+let cutoff =
+  match Utils.get_int_param "CUTOFF" with
+    | None -> invalid_arg "This program expects a CUTOFF environment variable"
+    | Some n -> n
+
+let input =
+  int_of_string Sys.argv.(2)
 
 let () =
   let (module Pool) = pool in

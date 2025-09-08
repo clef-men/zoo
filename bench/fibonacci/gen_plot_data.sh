@@ -26,7 +26,7 @@ do
     printf "%d " $cutoff >> $outfile
     for impl in $impls
     do
-        hyperfine --runs 10 "$prog $impl $cutoff $input" --export-json /tmp/out.json
+        hyperfine --runs 10 "CUTOFF=$cutoff $prog $impl $input" --export-json /tmp/out.json
         printf "%g " $(cat /tmp/out.json | jq .results[0].mean) >> $outfile
     done
     echo >> $outfile

@@ -11,7 +11,7 @@ for input in $inputs; do
     --warmup 10 \
     --runs 20 \
     -L method $impls \
-    -L cutoff 1,10,100,1000 \
+    -L cutoff 1,10,100,1000,default \
     --command-name "method:{method} cutoff:{cutoff} input:$input" \
-    "./_build/default/bench/for/run.exe {method} {cutoff} $input"
+    "CUTOFF={cutoff} ./_build/default/bench/for/run.exe {method} $input"
 done

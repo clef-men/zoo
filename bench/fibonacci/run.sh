@@ -13,5 +13,5 @@ for input in $inputs; do
     -L method $impls \
     -L cutoff 20,25,30 \
     --command-name "method:{method} cutoff:{cutoff} input:$input" \
-    "./_build/default/bench/fibonacci/run.exe {method} {cutoff} $input"
+    "CUTOFF={cutoff} ./_build/default/bench/fibonacci/run.exe {method} $input"
 done

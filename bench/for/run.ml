@@ -9,17 +9,17 @@ module Make
   (Pool : Pool.S)
 = struct
   let main ~cutoff n ctx =
-    Pool.for_ ctx work ~beg:0 ~end_:n ~chunk:cutoff
+    Pool.for_ ctx work ~beg:0 ~end_:n ?chunk:cutoff
 end
 
 let pool =
   Pool.impl_of_string Sys.argv.(1)
 
 let cutoff =
-  int_of_string Sys.argv.(2)
+  Utils.get_int_param "CUTOFF"
 
 let input =
-  int_of_string Sys.argv.(3)
+  int_of_string Sys.argv.(2)
 
 let num_domains =
   let default = Domain.recommended_domain_count () - 1 in
