@@ -11,40 +11,41 @@ From zoo Require Import
   options.
 
 Definition parray_1_make : val :=
-  fun: "sz" "v" =>
-    ref ‘Root( array_unsafe_make "sz" "v" ).
+  fun: "equal" "sz" "v" =>
+    let: "data" := array_unsafe_make "sz" "v" in
+    ref ‘Root( "equal", "data" ).
 
 Definition parray_1_reroot_0 : val :=
   rec: "reroot" "t" =>
     match: !"t" with
-    | Root "data" =>
-        "data"
+    | Root <> <> as "root_r" =>
+        ("root_r".<equal>, "root_r".<data>)
     | Diff "i" "v" "t'" =>
-        let: "data" := "reroot" "t'" in
+        let: "equal", "data" := "reroot" "t'" in
         "t'" <- ‘Diff( "i", array_unsafe_get "data" "i", "t" ) ;;
         array_unsafe_set "data" "i" "v" ;;
-        "data"
+        ("equal", "data")
     end.
 
 Definition parray_1_reroot : val :=
   fun: "t" =>
     match: !"t" with
-    | Root "data" =>
-        "data"
+    | Root <> <> as "root_r" =>
+        ("root_r".<equal>, "root_r".<data>)
     | Diff <> <> <> =>
-        let: "data" := parray_1_reroot_0 "t" in
-        "t" <- ‘Root( "data" ) ;;
-        "data"
+        let: "equal", "data" := parray_1_reroot_0 "t" in
+        "t" <- ‘Root( "equal", "data" ) ;;
+        ("equal", "data")
     end.
 
 Definition parray_1_get : val :=
   fun: "t" "i" =>
-    let: "data" := parray_1_reroot "t" in
+    let: <>, "data" := parray_1_reroot "t" in
     array_unsafe_get "data" "i".
 
 Definition parray_1_set : val :=
-  fun: "t" "equal" "i" "v" =>
-    let: "data" := parray_1_reroot "t" in
+  fun: "t" "i" "v" =>
+    let: "equal", "data" := parray_1_reroot "t" in
     let: "v'" := array_unsafe_get "data" "i" in
     if: "equal" "v" "v'" then (
       "t"

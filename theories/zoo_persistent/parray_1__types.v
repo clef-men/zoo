@@ -16,3 +16,12 @@ Notation "'Diff'" := (
   in_type "zoo_persistent.parray_1.descr" 1
 )(in custom zoo_tag
 ).
+
+Notation "'equal'" := (
+  in_type "zoo_persistent.parray_1.descr.Root" 0
+)(in custom zoo_proj
+).
+Notation "'data'" := (
+  in_type "zoo_persistent.parray_1.descr.Root" 1
+)(in custom zoo_proj
+).

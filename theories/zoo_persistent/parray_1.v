@@ -44,6 +44,7 @@ Section parray_1_G.
   Context τ `{!iType (iProp Σ) τ}.
 
   Record metadata := {
+    metadata_equal : val ;
     metadata_size : nat ;
     metadata_data : val ;
     metadata_nodes : gname ;
@@ -58,6 +59,16 @@ Section parray_1_G.
     @ghost_map_elem _ _ _ _ _ parray_1_G_nodes_G γ_nodes node DfracDiscarded.
   #[local] Definition nodes_elem γ :=
     nodes_elem' γ.(metadata_nodes).
+
+  Definition equal_model equal : iProp Σ :=
+    □ ∀ v1 v2,
+      τ v1 -∗
+      τ v2 -∗
+      WP equal v1 v2 {{ res,
+        ∃ b,
+        ⌜res = #b⌝ ∗
+        ⌜if b then v1 = v2 else True⌝
+      }}.
 
   #[local] Definition node_model γ node vs : iProp Σ :=
     ∃ (i : nat) v node' vs',
@@ -83,8 +94,9 @@ Section parray_1_G.
 
   #[local] Definition inv' γ nodes root : iProp Σ :=
     ∃ vs_root,
+    equal_model γ.(metadata_equal) ∗
     nodes_auth γ nodes ∗
-    root ↦ᵣ ‘Root( γ.(metadata_data) ) ∗
+    root ↦ᵣ ‘Root( γ.(metadata_equal), γ.(metadata_data) ) ∗
     array_model γ.(metadata_data) (DfracOwn 1) vs_root ∗
     nodes_elem γ root vs_root ∗
     ⌜length vs_root = γ.(metadata_size)⌝ ∗
@@ -94,6 +106,7 @@ Section parray_1_G.
   #[local] Instance : CustomIpatFormat "inv'" :=
     "(
       %vs_{root} &
+      #Hequal &
       Hnodes_auth &
       H{root} &
       Hdata &
@@ -123,17 +136,6 @@ Section parray_1_G.
       #Hnodes_elem_node
     )".
 
-  #[global] Instance parray_1_inv_timeless γ :
-    (∀ v, Timeless (τ v)) →
-    Timeless (parray_1_inv γ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance parray_1_model_timeless t γ vs :
-    Timeless (parray_1_model t γ vs).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance parray_1_model_persistent t γ vs :
     Persistent (parray_1_model t γ vs).
   Proof.
@@ -177,19 +179,20 @@ Section parray_1_G.
     iSteps.
   Qed.
 
-  Lemma parray_1_make_spec (sz : Z) v :
+  Lemma parray_1_make_spec equal (sz : Z) v :
     (0 ≤ sz)%Z →
     {{{
+      equal_model equal ∗
       τ v
     }}}
-      parray_1_make #sz v
+      parray_1_make equal #sz v
     {{{ t γ,
       RET t;
       parray_1_inv γ ∗
       parray_1_model t γ (replicate ₊sz v)
     }}}.
   Proof.
-    iIntros "%Hsz %Φ #Hv HΦ".
+    iIntros "%Hsz %Φ (#Hequal & #Hv) HΦ".
 
     wp_rec.
     wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
@@ -198,6 +201,7 @@ Section parray_1_G.
     iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
 
     pose γ := {|
+      metadata_equal := equal ;
       metadata_size := ₊sz ;
       metadata_data := data ;
       metadata_nodes := γ_nodes ;
@@ -207,7 +211,7 @@ Section parray_1_G.
     iModIntro. iFrame "#∗".
     rewrite length_replicate delete_singleton big_sepM_empty.
     rewrite big_op.big_sepL_replicate -big_sepL_intro.
-    auto 10.
+    iFrame "#∗" => //.
   Qed.
 
   #[local] Definition reroot_inv γ nodes root vs_root : iProp Σ :=
@@ -236,7 +240,7 @@ Section parray_1_G.
     }}}
       parray_1_reroot_0 #node
     {{{
-      RET γ.(metadata_data);
+      RET (γ.(metadata_equal), γ.(metadata_data));
       reroot_inv γ nodes node vs
     }}}.
   Proof.
@@ -255,7 +259,8 @@ Section parray_1_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_smart_apply ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:reroot_inv root=node1)"; first iFrameSteps.
+      wp_smart_apply ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:reroot_inv root=node1)".
+      { iFrame "∗#". iSteps. }
 
       destruct (lookup_lt_is_Some_2 vs_node1 i_node) as (v & Hvs_node1_lookup); first lia.
       wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
@@ -285,7 +290,7 @@ Section parray_1_G.
     }}}
       parray_1_reroot #node
     {{{ nodes,
-      RET γ.(metadata_data);
+      RET (γ.(metadata_equal),γ.(metadata_data));
       inv' γ nodes node
     }}}.
   Proof.
@@ -293,14 +298,18 @@ Section parray_1_G.
     iDestruct (nodes_elem_lookup with "Hnodes_auth Hnodes_elem_node") as %Hnodes_lookup_node.
 
     wp_rec.
-    destruct_decide (node = root) as -> | Hnode; first iSteps.
+    destruct_decide (node = root) as -> | Hnode.
 
-    iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model) & Hnodes)".
-    { rewrite lookup_delete_ne //. }
-    wp_load.
+    - iStep 16. iFrame "∗#" => //.
 
-    wp_smart_apply (parray_1_reroot_0_spec vs with "[- HΦ]") as "(:reroot_inv root=node)"; first iFrameSteps.
-    iSteps.
+    - iDestruct (big_sepM_lookup_acc with "Hnodes") as "((:node_model) & Hnodes)".
+      { rewrite lookup_delete_ne //. }
+      wp_load.
+
+      wp_smart_apply (parray_1_reroot_0_spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
+      { iFrame "∗#". iSteps. }
+
+      iStep 16. iFrame "∗#" => //.
   Qed.
 
   Lemma parray_1_get_spec {t γ vs} i v :
@@ -320,38 +329,30 @@ Section parray_1_G.
 
     wp_rec.
 
-    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node suff=)".
+    wp_smart_apply (parray_1_reroot_spec with "[$]") as (nodes) "(:inv' root=node suff=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
 
-    iSteps.
+    iApply "HΦ".
+    iFrame "#∗" => //.
   Qed.
 
-  Lemma parray_1_set_spec t γ vs equal i v :
+  Lemma parray_1_set_spec t γ vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
       parray_1_inv γ ∗
       parray_1_model t γ vs ∗
-      ( ∀ v1 v2,
-        τ v1 -∗
-        τ v2 -∗
-        WP equal v1 v2 {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          ⌜if b then v1 = v2 else True⌝
-        }}
-      ) ∗
       τ v
     }}}
-      parray_1_set t equal #i v
+      parray_1_set t #i v
     {{{ t',
       RET t';
       parray_1_inv γ ∗
       parray_1_model t' γ (<[₊i := v]> vs)
     }}}.
   Proof.
-    iIntros "% %Φ (Hinv & (:model) & Hequal & #Hv) HΦ".
+    iIntros "% %Φ (Hinv & (:model) & #Hv) HΦ".
 
     wp_rec.
 
@@ -365,7 +366,9 @@ Section parray_1_G.
     wp_smart_apply (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
     destruct b; first subst w; wp_pures.
 
-    - rewrite list_insert_id //. iSteps.
+    - rewrite list_insert_id //.
+      iApply "HΦ".
+      iFrame "∗#" => //.
 
     - wp_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first done.
       wp_load.
@@ -390,7 +393,9 @@ Section parray_1_G.
         - rewrite list_insert_insert list_insert_id //.
       }
       rewrite -{2}(delete_insert nodes root vs') //.
-      iSteps. iPureIntro.
+
+      iApply "HΦ".
+      iFrame "∗#". iSteps. iPureIntro.
       rewrite /vs'. simpl_length.
   Qed.
 End parray_1_G.

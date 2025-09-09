@@ -3,38 +3,42 @@
 *)
 
 type 'a descr =
-  | Root of 'a array
+  | Root of
+    { equal: 'a -> 'a -> bool;
+      data: 'a array;
+    }
   | Diff of int * 'a * 'a t
 and 'a t =
   'a descr ref
 
-let make sz v =
-  ref (Root (Array.unsafe_make sz v))
+let make equal sz v =
+  let data = Array.unsafe_make sz v in
+  ref (Root { equal; data })
 
 let rec reroot t =
   match !t with
-  | Root data ->
-      data
+  | Root root_r ->
+      root_r.equal, root_r.data
   | Diff (i, v, t') ->
-      let data = reroot t' in
+      let equal, data = reroot t' in
       t' := Diff (i, Array.unsafe_get data i, t) ;
       Array.unsafe_set data i v ;
-      data
+      equal, data
 let reroot t =
   match !t with
-  | Root data ->
-      data
+  | Root root_r ->
+      root_r.equal, root_r.data
   | Diff _ ->
-      let data = reroot t in
-      t := Root data ;
-      data
+      let equal, data = reroot t in
+      t := Root { equal; data } ;
+      equal, data
 
 let get t i =
-  let data = reroot t in
+  let _, data = reroot t in
   Array.unsafe_get data i
 
-let set t equal i v =
-  let data = reroot t in
+let set t i v =
+  let equal, data = reroot t in
   let v' = Array.unsafe_get data i in
   if equal v v' then (
     t
