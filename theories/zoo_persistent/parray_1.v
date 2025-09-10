@@ -84,7 +84,7 @@ Section parray_1_G.
       %v_{node} &
       %node{;'} &
       %vs_node{;'} &
-      H{node}{_{suff}} &
+      H{node}{_{!}} &
       #Hv_{node} &
       #Hnodes_elem_node{;'} &
       % &
@@ -105,24 +105,24 @@ Section parray_1_G.
       node_model γ node vs.
   #[local] Instance : CustomIpatFormat "inv'" :=
     "(
-      %vs_{root} &
-      #Hequal &
-      Hnodes_auth &
-      H{root} &
-      Hdata &
-      #Hnodes_elem_{root}{_{suff}} &
+      %vs_{root}{_{}} &
+      #Hequal{_{}} &
+      Hnodes_auth{_{}} &
+      H{root}{} &
+      Hdata{_{}} &
+      #Hnodes_elem_{root}{_{}}{_{!}} &
       % &
-      #Hvs_{root} &
-      Hnodes
+      #Hvs_{root}{_{}} &
+      Hnodes{_{}}
     )".
   Definition parray_1_inv γ : iProp Σ :=
     ∃ nodes root,
     inv' γ nodes root.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
-      %nodes &
-      %{root} &
-      (:inv')
+      %nodes{} &
+      %{root}{} &
+      (:inv' {//})
     )".
 
   Definition parray_1_model t γ vs : iProp Σ :=
@@ -153,6 +153,14 @@ Section parray_1_G.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
   Qed.
+  #[local] Lemma nodes_auth_exclusive γ nodes1 nodes2 :
+    nodes_auth γ nodes1 -∗
+    nodes_auth γ nodes2 -∗
+    False.
+  Proof.
+    iIntros "Hauth1 Hauth2".
+    iDestruct (ghost_map_auth_valid_2 with "Hauth1 Hauth2") as %(? & _). done.
+  Qed.
   #[local] Lemma nodes_elem_lookup γ nodes node vs :
     nodes_auth γ nodes -∗
     nodes_elem γ node vs -∗
@@ -177,6 +185,15 @@ Section parray_1_G.
     iMod (ghost_map_insert with "Hnodes_auth") as "(Hnodes_auth & Hnodes_elem)"; first done.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
+  Qed.
+
+  Lemma parray_1_inv_exclusive γ :
+    parray_1_inv γ -∗
+    parray_1_inv γ -∗
+    False.
+  Proof.
+    iIntros "(:inv =1) (:inv =2)". simplify.
+    iApply (nodes_auth_exclusive with "Hnodes_auth_1 Hnodes_auth_2").
   Qed.
 
   Lemma parray_1_make_spec equal (sz : Z) v :
@@ -329,7 +346,7 @@ Section parray_1_G.
 
     wp_rec.
 
-    wp_smart_apply (parray_1_reroot_spec with "[$]") as (nodes) "(:inv' root=node suff=)".
+    wp_smart_apply (parray_1_reroot_spec with "[$]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
@@ -356,7 +373,7 @@ Section parray_1_G.
 
     wp_rec.
 
-    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node suff=)".
+    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_node_lookup); first lia.
@@ -378,7 +395,7 @@ Section parray_1_G.
       iAssert ⌜nodes !! root = None⌝%I as %Hnodes_lookup_root.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root %Hnodes_lookup_root".
         iDestruct (pointsto_ne with "Hroot Hnode") as %?.
-        iDestruct (big_sepM_lookup _ _ root with "Hnodes") as "(:node_model node=root suff=)".
+        iDestruct (big_sepM_lookup _ _ root with "Hnodes") as "(:node_model node=root !=)".
         { rewrite lookup_delete_ne //. congruence. }
         iApply (pointsto_exclusive with "Hroot Hroot_").
       }
