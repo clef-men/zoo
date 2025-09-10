@@ -94,7 +94,7 @@ Section parray_2_G.
       %v_{node} &
       %node{;'} &
       %vs_node{;'} &
-      H{node}{_{suff}} &
+      H{node}{_{!}} &
       #Hv_{node} &
       #Hnodes_elem_node{;'} &
       % &
@@ -113,13 +113,13 @@ Section parray_2_G.
       node_model γ node vs.
   #[local] Instance : CustomIpatFormat "model'" :=
     "(
-      Hnodes_auth &
-      H{root} &
-      Hdata &
-      #Hnodes_elem_{root} &
+      Hnodes_auth{_{}} &
+      H{root}{} &
+      Hdata{_{}} &
+      #Hnodes_elem_{root}{_{}} &
       % &
-      #Hvs_{root} &
-      Hnodes
+      #Hvs_{root}{_{}} &
+      Hnodes{_{}}
     )".
   Definition parray_2_model t vs : iProp Σ :=
     ∃ l γ nodes root,
@@ -132,17 +132,17 @@ Section parray_2_G.
     model' γ nodes root vs.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l &
-      %γ &
-      %nodes &
-      %root &
-      -> &
-      #Hmeta &
-      #Hl_equal &
-      #Hl_data &
-      Hl_root &
-      #Hequal &
-      (:model')
+      %l{} &
+      %γ{} &
+      %nodes{} &
+      %root{} &
+      {%Heq{};->} &
+      #Hmeta{_{}} &
+      #Hl_equal{_{}} &
+      #Hl_data{_{}} &
+      Hl_root{_{}} &
+      #Hequal{_{}} &
+      (:model' {//})
     )".
 
   Definition parray_2_snapshot s t vs : iProp Σ :=
@@ -203,6 +203,15 @@ Section parray_2_G.
     iMod (ghost_map_insert with "Hnodes_auth") as "(Hnodes_auth & Hnodes_elem)"; first done.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
+  Qed.
+
+  Lemma parray_2_model_exclusive t vs1 vs2 :
+    parray_2_model t vs1 -∗
+    parray_2_model t vs2 -∗
+    False.
+  Proof.
+    iIntros "(:model =1) (:model =2)". simplify.
+    iApply (pointsto_exclusive with "Hl_root_1 Hl_root_2").
   Qed.
 
   Lemma parray_2_make_spec equal (sz : Z) v :
@@ -300,7 +309,7 @@ Section parray_2_G.
       iAssert ⌜nodes !! root' = None⌝%I as %Hnodes_lookup_root'.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root' %Hnodes_lookup_root'".
         iDestruct (pointsto_ne with "Hroot Hroot'") as %?.
-        iDestruct (big_sepM_lookup _ _ root' with "Hnodes") as "(:node_model node=root' suff=)".
+        iDestruct (big_sepM_lookup _ _ root' with "Hnodes") as "(:node_model node=root' !=)".
         { rewrite lookup_delete_ne //. congruence. }
         iApply (pointsto_exclusive with "Hroot' Hroot'_").
       }
