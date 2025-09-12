@@ -319,7 +319,7 @@ Section semaphore_G.
       else
         True
     )%I with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hinv_inner]") as "(Hmutex_locked & (%cnt & %Hcnt & Hl_count & H))".
-    { iIntros "{%} %Φ !> (Hmutex_locked & (:inv_inner) & _) HΦ".
+    { iIntros "!> Hmutex_locked (:inv_inner) _".
       wp_load. wp_pures.
       case_bool_decide; iStepFrameSteps.
     }

@@ -661,7 +661,7 @@ Section ivar_2_G.
           lstate_set γ v
       )%I).
       wp_smart_apply (condition_wait_while_spec Ψ_condition with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked]") as "(Hmutex_locked & _ & Hlstate_set)"; last iFrameSteps.
-      iStep. iIntros "{%} !> %Φ (Hmutex_locked & _ & _) HΦ".
+      iStep. iIntros "!> Hmutex_locked _ _".
       wp_pures.
 
       wp_bind (_.{result})%E.
@@ -670,10 +670,10 @@ Section ivar_2_G.
       destruct state as [v |].
 
       - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-        iSplitR "Hmutex_locked HΦ". { iFrameSteps 2. }
+        iSplitR "Hmutex_locked". { iFrameSteps 2. }
         iSteps.
 
-      - iSplitR "Hmutex_locked HΦ". { iFrameSteps 2. }
+      - iSplitR "Hmutex_locked". { iFrameSteps 2. }
         iSteps.
     }
     wp_pures.

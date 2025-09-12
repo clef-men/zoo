@@ -323,7 +323,7 @@ Section spsc_waiter_G.
     )%I).
     wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
 
-    clear. iIntros "!> %Φ (Hmutex_locked & _ & Hconsumer) HΦ".
+    iIntros "!> Hmutex_locked _ Hconsumer".
     wp_pures.
 
     iInv "Hinv" as "(%b & Hflag & Hb)".

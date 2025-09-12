@@ -144,18 +144,18 @@ Section mutex_G.
       mutex_locked mtx ∗
       P ∗
       Ψ false ∗
-      {{{
-        mutex_locked mtx ∗
-        P ∗
-        Ψ false
-      }}}
-        pred ()
-      {{{ b,
-        RET #b;
-        mutex_locked mtx ∗
-        (if b then True else P) ∗
-        Ψ b
-      }}}
+      □ (
+        mutex_locked mtx -∗
+        P -∗
+        Ψ false -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          mutex_locked mtx ∗
+          (if b then True else P) ∗
+          Ψ b
+        }}
+      )
     }}}
       condition_wait_until t mtx pred
     {{{
@@ -170,7 +170,8 @@ Section mutex_G.
     iLöb as "HLöb".
 
     wp_rec.
-    wp_smart_apply ("Hpred" with "[$]") as ([]) "(Hmutex_locked & HΨ)"; first iSteps.
+    wp_smart_apply (wp_wand with "(Hpred Hmutex_locked HP HΨ)") as (res) "(%b & -> & Hmutex_locked & HΨ)".
+    destruct b; first iSteps.
     iDestruct "HΨ" as "(HP & HΨ)".
     wp_smart_apply (condition_wait_spec _ _ P with "[$]") as "(Hmutex_locked & HP)".
     wp_smart_apply ("HLöb" with "Hmutex_locked HP HΨ HΦ").
@@ -182,18 +183,18 @@ Section mutex_G.
       mutex_locked mtx ∗
       P ∗
       Ψ false ∗
-      {{{
-        mutex_locked mtx ∗
-        P ∗
-        Ψ false
-      }}}
-        pred ()
-      {{{ b,
-        RET #b;
-        mutex_locked mtx ∗
-        P ∗
-        Ψ b
-      }}}
+      □ (
+        mutex_locked mtx -∗
+        P -∗
+        Ψ false -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          mutex_locked mtx ∗
+          P ∗
+          Ψ b
+        }}
+      )
     }}}
       condition_wait_until t mtx pred
     {{{
@@ -209,8 +210,7 @@ Section mutex_G.
       (if b then P else True) ∗
       Ψ b
     )%I with "[$Hinv $Hmutex_inv $Hmutex_locked $HP $HΨ] HΦ").
-    iIntros "{%} !> %Φ (Hmutex_locked & HP & (_ & HΨ)) HΦ".
-    wp_apply ("Hpred" with "[$Hmutex_locked $HP $HΨ]") as ([]) ""; iSteps.
+    iSteps. case_match; iSteps.
   Qed.
 
   Lemma condition_wait_while_spec' Ψ t mtx pred P :
@@ -220,18 +220,18 @@ Section mutex_G.
       mutex_locked mtx ∗
       P ∗
       Ψ true ∗
-      {{{
-        mutex_locked mtx ∗
-        P ∗
-        Ψ true
-      }}}
-        pred ()
-      {{{ b,
-        RET #b;
-        mutex_locked mtx ∗
-        (if b then P else True) ∗
-        Ψ b
-      }}}
+      □ (
+        mutex_locked mtx -∗
+        P -∗
+        Ψ true -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          mutex_locked mtx ∗
+          (if b then P else True) ∗
+          Ψ b
+        }}
+      )
     }}}
       condition_wait_while t mtx pred
     {{{
@@ -244,8 +244,7 @@ Section mutex_G.
 
     wp_rec.
     wp_smart_apply (condition_wait_until_spec' (λ b, Ψ (negb b)) _ _ _ P with "[$Hmutex_locked $HP $HΨ]"); last iSteps.
-    iFrame "#∗". iIntros "{%} %Φ !> (Hmutex_locked & HP & HΨ) HΦ".
-    wp_smart_apply ("Hpred" with "[$]") as ([]) ""; iSteps.
+    iSteps. case_match; iSteps.
   Qed.
   Lemma condition_wait_while_spec Ψ t mtx pred P :
     {{{
@@ -254,18 +253,18 @@ Section mutex_G.
       mutex_locked mtx ∗
       P ∗
       Ψ true ∗
-      {{{
-        mutex_locked mtx ∗
-        P ∗
-        Ψ true
-      }}}
-        pred ()
-      {{{ b,
-        RET #b;
-        mutex_locked mtx ∗
-        P ∗
-        Ψ b
-      }}}
+      □ (
+        mutex_locked mtx -∗
+        P -∗
+        Ψ true -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          mutex_locked mtx ∗
+          P ∗
+          Ψ b
+        }}
+      )
     }}}
       condition_wait_while t mtx pred
     {{{
@@ -281,8 +280,7 @@ Section mutex_G.
       (if b then True else P) ∗
       Ψ b
     )%I with "[$Hinv $Hmutex_inv $Hmutex_locked $HP $HΨ] HΦ").
-    iIntros "{%} !> %Φ (Hmutex_locked & HP & (_ & HΨ)) HΦ".
-    wp_apply ("Hpred" with "[$Hmutex_locked $HP $HΨ]") as ([]) ""; iSteps.
+    iSteps. case_match; iSteps.
   Qed.
 End mutex_G.
 
