@@ -1,3 +1,5 @@
+# input=35
+# domains=4
 # cutoff, sequential, parabs, domainslib, moonpool-fifo, moonpool-ws
 5 0.125026 0.254153 0.362195 16.8152 16.43 
 7 0.0932869 0.112665 0.157411 6.41021 6.65088 

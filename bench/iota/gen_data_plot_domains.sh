@@ -10,18 +10,20 @@ prog="./_build/default/bench/iota/run.exe"
 
 dune build bench/iota/run.exe
 
-outfile=bench/iota/data/plot.data
+outfile=bench/iota/data/plot_domains.data
 
 rm -f $outfile
 
-printf "# input=%s" $input >> $outfile
-printf "# cutoff=%s" $cutoff >> $outfile
-printf "# domains" >> outfile
+printf "# iota, with varying domains\n" >> $outfile
+printf "# input=%s\n" $input >> $outfile
+printf "# cutoff=%s\n" $cutoff >> $outfile
+
+printf "# columns: domains" >> outfile
 for impl in $impls
 do
     printf ", %s" $impl >> $outfile
 done
-echo >> $outfile
+printf "\n" >> $outfile
 
 for extra in $extra_domains
 do
@@ -31,7 +33,7 @@ do
         hyperfine --runs 10 "EXTRA_DOMAINS=$extra CUTOFF=$cutoff $prog $impl $input" --export-json /tmp/out.json
         printf "%g " $(cat /tmp/out.json | jq .results[0].mean) >> $outfile
     done
-    echo >> $outfile
+    printf "\n" >> $outfile
 done
 
 echo "Data written to: $outfile"

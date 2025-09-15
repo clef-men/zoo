@@ -10,16 +10,20 @@ prog="./_build/default/bench/fibonacci/run.exe"
 dune build bench/fibonacci/run.exe
 
 DOMAINS=$(($EXTRA_DOMAINS + 1))
-outfile=bench/fibonacci/data/plot_$DOMAINS.data
+outfile=bench/fibonacci/data/plot_cutoff.data
 
 rm -f $outfile
 
-printf "%s" "# cutoff" >> $outfile
+printf "# fibonacci, with varying cutoff\n" >> $outfile
+printf "# input=%s\n" $input >> $outfile
+printf "# domains=%s\n" $DOMAINS >> $outfile
+
+printf "# columns: cutoff" >> $outfile
 for impl in $impls
 do
     printf ", %s" $impl >> $outfile
 done
-echo >> $outfile
+printf "\n" >> $outfile
 
 for cutoff in $cutoffs
 do
@@ -29,7 +33,7 @@ do
         hyperfine --runs 10 "CUTOFF=$cutoff $prog $impl $input" --export-json /tmp/out.json
         printf "%g " $(cat /tmp/out.json | jq .results[0].mean) >> $outfile
     done
-    echo >> $outfile
+    printf "\n" >> $outfile
 done
 
 echo "Data written to: $outfile"

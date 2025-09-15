@@ -1,4 +1,7 @@
-# input=1_000_000# cutoff=10_000, sequential, parabs, domainslib, moonpool-fifo, moonpool-ws
+# iota, with varying domains
+# input=1_000_000
+# cutoff=10_000
+# domains, sequential, parabs, domainslib, moonpool-fifo, moonpool-ws
 1 0.419015 0.444237 0.497837 0.495769 0.45077 
 2 0.412625 0.236588 0.260936 0.516789 0.464958 
 3 0.395437 0.170517 0.184175 0.290312 0.258461 
