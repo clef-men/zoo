@@ -1,4 +1,0 @@
-(test
-  (name bench_fibonacci)
-  (libraries bench)
-)

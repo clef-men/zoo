@@ -1,4 +1,0 @@
-(test
-  (name bench_lu)
-  (libraries bench)
-)
