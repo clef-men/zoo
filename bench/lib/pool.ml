@@ -1,3 +1,52 @@
+module Moonpool_forkjoin = struct
+  open Moonpool
+
+  let for_ ?chunk_size n f =
+    if n > 0 then
+      let runner =
+        match Runner.get_current_runner () with
+        | None ->
+            failwith "forkjoin.for_: must be run inside a moonpool runner."
+        | Some r ->
+            r
+      in
+
+      let missing = Atomic.make n in
+
+      let chunk_size =
+        match chunk_size with
+        | Some cs -> max 1 (min n cs)
+        | None ->
+          (* guess: try to have roughly one task per core *)
+          max 1 (1 + (n / Private.num_domains ()))
+      in
+
+      let fut, promise = Fut.make () in
+
+      let task_for ~offset ~len_range =
+        match f offset (offset + len_range - 1) with
+        | () ->
+          if Atomic.fetch_and_add missing (-len_range) = len_range then
+            Fut.fulfill promise (Ok ())
+        | exception exn ->
+          let bt = Printexc.get_raw_backtrace () in
+          Fut.fulfill_idempotent promise (Error (Exn_bt.make exn bt))
+      in
+
+      let i = ref 0 in
+      while !i < n do
+        let offset = !i in
+
+        let len_range = min chunk_size (n - offset) in
+        assert (offset + len_range <= n);
+
+        Runner.run_async runner (fun () -> task_for ~offset ~len_range);
+        i := !i + len_range
+      done;
+
+      Fut.wait_block_exn fut
+end
+
 include Pool_intf
 
 module Make
