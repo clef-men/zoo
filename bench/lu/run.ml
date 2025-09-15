@@ -14,10 +14,10 @@ module Make
     Matrix_parallel.apply ctx mat fn ;
     mat
 
-  let lu ctx sz mat0 =
+  let lu ?cutoff ctx sz mat0 =
     let mat = Matrix_parallel.copy ctx mat0 in
     for k = 0 to sz - 2 do
-      Pool.for_ ctx ~beg:(k + 1) ~end_:sz @@ fun _ctx i ->
+      Pool.for_ ctx ?chunk:cutoff ~beg:(k + 1) ~end_:sz @@ fun _ctx i ->
         let factor = Matrix.get mat i k /. Matrix.get mat k k in
         for j = k + 1 to sz - 1 do
           (Matrix.get mat i j -. factor *. Matrix.get mat k j)
@@ -27,12 +27,12 @@ module Make
     done ;
     mat
 
-  let main sz ctx =
+  let main ?cutoff sz ctx =
     let mat =
       create ctx sz @@ fun _ _ ->
         (Random.State.float (Domain.DLS.get dls) 100.0) +. 1.0
     in
-    let lu = lu ctx sz mat in
+    let lu = lu ?cutoff ctx sz mat in
     let _ =
       create ctx sz @@ fun i j ->
         if j < i then
@@ -62,9 +62,11 @@ let num_domains =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
+let cutoff = Utils.get_int_param "CUTOFF"
+
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
   let pool = Pool.create ~num_domains () in
-  let _ = Pool.run pool (M.main size) in
+  let _ = Pool.run pool (M.main ?cutoff size) in
   Pool.kill pool
