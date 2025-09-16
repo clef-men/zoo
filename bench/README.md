@@ -18,5 +18,5 @@ main domain, so in practice this is a 4-domains configuration.
 EXTRA_DOMAINS=3 sh bench/fibonacci/gen_plot_data.sh
 
 # plot the data
-sh bench/fibonacci/plot.sh bench/fibonacci/data/plot_4.data
+sh bench/fibonacci/plot_cutoff.sh bench/fibonacci/data/plot_cutoff.data
 ```
