@@ -1,4 +1,5 @@
-module Moonpool_forkjoin = struct
+module _ (* Moonpool_forkjoin *) = struct
+  [@@@warning "-a"]
   open Moonpool
 
   let for_ ?chunk_size n f =
