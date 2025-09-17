@@ -14,9 +14,12 @@ main domain, so in practice this is a 4-domains configuration.
 ## Plotting data
 
 ```
-# generates data/fibonacci_plot_4.data, the 4-domains results
-EXTRA_DOMAINS=3 sh bench/fibonacci/gen_plot_data.sh
+# generates data/fibonacci/data/plot_cutoff.data, for 4 domains (1+3)
+EXTRA_DOMAINS=3 sh bench/fibonacci/gen_plot_data_cutoff.sh
 
 # plot the data
 sh bench/fibonacci/plot_cutoff.sh bench/fibonacci/data/plot_cutoff.data
+
+# produce SVG output
+SVG=1 sh bench/fibonacci/plot_cutoff.sh bench/fibonacci/data/plot_cutoff.data
 ```
