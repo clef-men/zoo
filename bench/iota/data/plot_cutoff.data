@@ -1,0 +1,8 @@
+# iota, with varying cutoff
+# prog: CUTOFF={cutoff} EXTRA_DOMAINS=6 ./_build/default/bench/iota/run.exe {impl} 400_000
+# columns: cutoff, sequential, parabs, domainslib, moonpool-fifo, moonpool-ws
+10 0.170828 1.52326 0.496318 3.72867 3.49333 
+100 0.168245 0.143261 0.0711713 0.411652 0.402773 
+1000 0.168879 0.0504884 0.048592 0.0662741 0.0654828 
+10000 0.165579 0.04375 0.0459581 0.0481292 0.0487001 
+100000 0.164037 0.0713998 0.0687011 0.069193 0.0690778 
