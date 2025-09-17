@@ -1,3 +1,4 @@
+load libdir.'/svg.plot'
 load libdir.'/axes_cutoff.plot'
 unset logscale y
 set xrange [0:36]
