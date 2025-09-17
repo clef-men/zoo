@@ -594,8 +594,8 @@ Section pool_G.
         pool_context_model ctx -∗
         WP task ctx {{ v,
           pool_context_model ctx ∗
-          Ψ v ∗
-          □ Ξ v
+          ▷ Ψ v ∗
+          ▷ □ Ξ v
         }}
       )
     }}}
@@ -629,8 +629,8 @@ Section pool_G.
         pool_context_model ctx -∗
         WP task ctx {{ v,
           pool_context_model ctx ∗
-          Ψ v ∗
-          □ Ξ v
+          ▷ Ψ v ∗
+          ▷ □ Ξ v
         }}
       )
     }}}
