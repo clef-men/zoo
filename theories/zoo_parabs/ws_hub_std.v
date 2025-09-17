@@ -833,7 +833,7 @@ Section ws_hub_std_G.
 
     - iRight. iExists (Something v). iFrameSteps.
   Qed.
-  Lemma ws_hub_std_steal_0_spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  #[local] Lemma ws_hub_std_steal_0_spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
