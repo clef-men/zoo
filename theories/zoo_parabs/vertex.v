@@ -448,7 +448,7 @@ Section vertex_G.
     apply _.
   Qed.
 
-  #[local] Instance vertex_inv_persistent t γ P R :
+  #[global] Instance vertex_inv_persistent t γ P R :
     Persistent (vertex_inv t γ P R).
   Proof.
     rewrite vertex_inv_unfold.
