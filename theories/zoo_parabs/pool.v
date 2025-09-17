@@ -251,12 +251,12 @@ Section pool_G.
   Definition pool_future_result :=
     ivar_3_result.
 
-  #[global] Instance pool_future_proper t :
+  #[global] Instance pool_future_proper fut :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
       (≡)
-    ) (pool_future_inv t).
+    ) (pool_future_inv fut).
   Proof.
     solve_proper.
   Qed.
@@ -291,61 +291,61 @@ Section pool_G.
     erewrite (t_to_val_inj' _ 𝑡1 𝑡2); done.
   Qed.
 
-  Lemma pool_future_consumer_divide {t Ψ Ξ Χ} Χs :
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_consumer t Χ -∗
+  Lemma pool_future_consumer_divide {fut Ψ Ξ Χ} Χs :
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_consumer fut Χ -∗
     (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, pool_future_consumer t Χ.
+    [∗ list] Χ ∈ Χs, pool_future_consumer fut Χ.
   Proof.
     apply ivar_3_consumer_divide.
   Qed.
-  Lemma pool_future_consumer_split {t Ψ Χ Ξ} Χ1 Χ2 :
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_consumer t Χ -∗
+  Lemma pool_future_consumer_split {fut Ψ Χ Ξ} Χ1 Χ2 :
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_consumer fut Χ -∗
     (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
-      pool_future_consumer t Χ1 ∗
-      pool_future_consumer t Χ2.
+      pool_future_consumer fut Χ1 ∗
+      pool_future_consumer fut Χ2.
   Proof.
     apply ivar_3_consumer_split.
   Qed.
 
-  Lemma pool_future_result_agree t v1 v2 :
-    pool_future_result t v1 -∗
-    pool_future_result t v2 -∗
+  Lemma pool_future_result_agree fut v1 v2 :
+    pool_future_result fut v1 -∗
+    pool_future_result fut v2 -∗
     ⌜v1 = v2⌝.
   Proof.
     apply ivar_3_result_agree.
   Qed.
 
-  Lemma pool_future_inv_result t Ψ Ξ v :
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_result t v ={⊤}=∗
+  Lemma pool_future_inv_result fut Ψ Ξ v :
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_result fut v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     apply ivar_3_inv_result.
   Qed.
-  Lemma pool_future_inv_result' t Ψ Ξ v :
+  Lemma pool_future_inv_result' fut Ψ Ξ v :
     £ 1 -∗
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_result t v ={⊤}=∗
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_result fut v ={⊤}=∗
     □ Ξ v.
   Proof.
     apply ivar_3_inv_result'.
   Qed.
-  Lemma pool_future_inv_result_consumer t Ψ Ξ v Χ :
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_result t v -∗
-    pool_future_consumer t Χ ={⊤}=∗
+  Lemma pool_future_inv_result_consumer fut Ψ Ξ v Χ :
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_result fut v -∗
+    pool_future_consumer fut Χ ={⊤}=∗
       ▷^2 Χ v ∗
       ▷ □ Ξ v.
   Proof.
     apply ivar_3_inv_result_consumer.
   Qed.
-  Lemma pool_future_inv_result_consumer' t Ψ Ξ v Χ :
+  Lemma pool_future_inv_result_consumer' fut Ψ Ξ v Χ :
     £ 2 -∗
-    pool_future_inv t Ψ Ξ -∗
-    pool_future_result t v -∗
-    pool_future_consumer t Χ ={⊤}=∗
+    pool_future_inv fut Ψ Ξ -∗
+    pool_future_result fut v -∗
+    pool_future_consumer fut Χ ={⊤}=∗
       Χ v ∗
       □ Ξ v.
   Proof.
