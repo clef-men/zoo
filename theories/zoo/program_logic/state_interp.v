@@ -208,13 +208,13 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance meta_timeless `{Countable A} l N (x : A) :
-    Timeless (meta l N x).
+  #[global] Instance meta_timeless `{Countable A} l ι (x : A) :
+    Timeless (meta l ι x).
   Proof.
     apply _.
   Qed.
-  #[global] Instance meta_persistent `{Countable A} l N (x : A) :
-    Persistent (meta l N x).
+  #[global] Instance meta_persistent `{Countable A} l ι (x : A) :
+    Persistent (meta l ι x).
   Proof.
     apply _.
   Qed.
@@ -228,16 +228,16 @@ Section zoo_G.
     apply meta_token_difference.
   Qed.
 
-  Lemma meta_set `{Countable A} {l E} (x : A) N :
-    ↑ N ⊆ E →
+  Lemma meta_set `{Countable A} {l E} (x : A) ι :
+    ↑ ι ⊆ E →
     meta_token l E ⊢ |==>
-    meta l N x.
+    meta l ι x.
   Proof.
     intros. apply bi.wand_entails', meta_set; done.
   Qed.
-  Lemma meta_agree `{Countable A} l i (x1 x2 : A) :
-    meta l i x1 -∗
-    meta l i x2 -∗
+  Lemma meta_agree `{Countable A} l ι (x1 x2 : A) :
+    meta l ι x1 -∗
+    meta l ι x2 -∗
     ⌜x1 = x2⌝.
   Proof.
     apply meta_agree.
