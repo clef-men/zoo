@@ -162,7 +162,7 @@ Section ws_queues_public_G.
 
     wp_rec.
 
-    pose (Ψ (_ : nat) queues := (
+    pose (Ψ t (_ : nat) queues := (
       ( [∗ list] queue ∈ queues,
         ws_queue_2_inv queue ι
       ) ∗
@@ -175,7 +175,7 @@ Section ws_queues_public_G.
     )%I).
     iApply wp_fupd.
     wp_smart_apply (array_unsafe_init_spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
-    { iSteps.
+    { iSplit; iSteps.
       wp_apply (ws_queue_2_create_spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }

@@ -19,7 +19,7 @@ From zoo Require Import
 Implicit Types i n cnt : nat.
 Implicit Types prevs nexts : list nat.
 Implicit Types l : location.
-Implicit Types t rand : val.
+Implicit Types t rand arr : val.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -63,11 +63,11 @@ Section zoo_G.
 
     wp_rec.
 
-    pose (Ψ := λ i vs, (
+    pose (Ψ := λ arr i vs, (
       ⌜vs = #@{nat} <$> seq 0 i⌝
     )%I : iProp Σ).
     wp_smart_apply (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
-    { iStep. iIntros "!> %i %vs _ _ ->".
+    { iStep 2. iIntros "%arr %i %vs _ _ ->".
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }

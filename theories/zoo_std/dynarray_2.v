@@ -24,7 +24,7 @@ Implicit Types b : bool.
 Implicit Types i : nat.
 Implicit Types l elem  : location.
 Implicit Types elems : list location.
-Implicit Types v t slot fn : val.
+Implicit Types v t data slot fn : val.
 Implicit Types vs slots : list val.
 
 Section zoo_G.
@@ -122,20 +122,22 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
+
     wp_rec.
-    pose (Ψ i slots := (
+    pose (Ψ data i slots := (
       ∃ elems,
       ⌜slots = #@{location} <$> elems⌝ ∗
       [∗ list] elem ∈ elems, element_model elem v
     )%I).
     wp_smart_apply (array_init_spec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
     { iSplit.
-      - iExists []. iSteps.
-      - iIntros "!> %i %slots %Hi1 %Hi2 (%elems & -> & Helems)".
+      - iSteps. iExists []. iSteps.
+      - iIntros "!> %data %i %slots %Hi1 %Hi2 (%elems & -> & Helems)".
         wp_smart_apply (dynarray_2_element_spec with "[//]") as (elem) "Helem".
         iExists (elems ++ [elem]).
         rewrite -fmap_snoc big_sepL_snoc. iSteps.
     }
+
     iSteps.
     - simpl_length. iSteps.
     - iExists elems, 0. rewrite right_id. iSteps.
@@ -165,7 +167,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    pose (Ψ' i slots := (
+    pose (Ψ' data i slots := (
       ∃ elems vs,
       ⌜slots = #@{location} <$> elems⌝ ∗
       Ψ i vs ∗
@@ -173,8 +175,8 @@ Section zoo_G.
     )%I).
     wp_smart_apply (array_initi_spec Ψ' with "[HΨ]") as "%data %elems (%Hsz & %Helems & Hmodel & (%slots & %vs & -> & HΨ & Helems))".
     { iSplit.
-      - iExists []. iSteps.
-      - iIntros "!> %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
+      - iSteps. iExists []. iSteps.
+      - iIntros "!> %t %i %slots %Hi1 %Hi2 (%elems & %vs & -> & HΨ & Helems)".
         simpl_length in Hi2.
         iDestruct (big_sepL2_length with "Helems") as %Helems.
         wp_smart_apply (wp_wand with "(Hfn [%] HΨ)") as "%v HΨ"; first lia.
@@ -182,9 +184,11 @@ Section zoo_G.
         iExists (elems ++ [elem]), (vs ++ [v]).
         rewrite -fmap_snoc big_sepL2_snoc. iSteps.
     }
+
     wp_block l as "(Hl_size & Hl_data & _)".
-    iDestruct (big_sepL2_length with "Helems") as %Helems'.
+
     iApply "HΦ".
+    iDestruct (big_sepL2_length with "Helems") as %Helems'.
     simpl_length in Helems.
     iFrameStep. iExists 0. rewrite right_id. iSteps.
   Qed.

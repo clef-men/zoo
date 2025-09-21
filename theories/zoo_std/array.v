@@ -4897,14 +4897,17 @@ Section zoo_G.
   Lemma array_unsafe_initi_spec Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       □ (
-        ∀ i vs,
+        ∀ t i vs,
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
-        WP fn #i {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+        Ψ t i vs -∗
+        WP fn #i {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -4913,36 +4916,43 @@ Section zoo_G.
       RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
-    wp_pures.
-    pose Ψ' i (_ : list val) vs := (
-      Ψ i vs
-    )%I.
-    wp_apply (array_applyi_spec Ψ' with "[$Hmodel $HΨ]").
+
+    iMod ("HΨ" $! t) as "HΨ".
+
+    pose Ψ' i (_ : list val) vs :=
+      Ψ t i vs.
+    wp_smart_apply (array_applyi_spec Ψ' with "[$Hmodel $HΨ]").
     { iSteps. iPureIntro.
       erewrite <- (length_replicate ₊sz). eapply lookup_lt_Some. done.
     }
     iIntros "%vs (%Hvs & Hmodel & HΨ)".
-    rewrite length_replicate in Hvs |- *.
+
     wp_pures.
+
     iApply ("HΦ" $! _ vs).
+    rewrite length_replicate in Hvs |- *.
     iSteps.
   Qed.
   Lemma array_unsafe_initi_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
-        ∀ vs,
+        ∀ t vs,
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
-        WP fn #i {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+        Ψ t i vs -∗
+        WP fn #i {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -4951,21 +4961,64 @@ Section zoo_G.
       RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & Hfn) HΦ".
+
     match goal with |- context [big_opL bi_sep (λ _, ?Ξ') _] => set Ξ := Ξ' end.
-    pose (Ψ' i vs := (
-      Ψ i vs ∗
+
+    pose (Ψ' t i vs := (
+      Ψ t i vs ∗
       [∗ list] j ∈ seq i (₊sz - i), Ξ j
     )%I).
-    wp_apply (array_unsafe_initi_spec Ψ' with "[$HΨ Hfn]"); [done | | iSteps].
-    rewrite Nat.sub_0_r. iFrame. iIntros "!> %i %vs %Hi1 %Hi2 (HΨ & HΞ)".
-    destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
-    rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
-    wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
-    rewrite Nat.sub_succ_r Hk //.
+    wp_apply (array_unsafe_initi_spec Ψ' with "[HΨ Hfn]"); [done | | iSteps].
+    iSplitL.
+    { iSteps. rewrite Nat.sub_0_r //. }
+    { iIntros "!> %t %i %vs % % (HΨ & HΞ)".
+      destruct (Nat.lt_exists_pred 0 (₊sz - i)) as (k & Hk & _); first lia. rewrite Hk.
+      rewrite -cons_seq. iDestruct "HΞ" as "(Hfn & HΞ)".
+      wp_apply (wp_wand with "(Hfn [//] HΨ)"). iSteps.
+      rewrite Nat.sub_succ_r Hk //.
+    }
+  Qed.
+  Lemma array_unsafe_initi_spec_disentangled_strong Χ Ψ sz fn :
+    (0 ≤ sz)%Z →
+    {{{
+      ▷ (
+        ∀ t,
+        |={⊤}=> Χ t
+      ) ∗
+      □ (
+        ∀ t i,
+        Χ t -∗
+        ⌜i < ₊sz⌝ -∗
+        WP fn #i {{ v,
+          ▷ Χ t ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_unsafe_initi #sz fn
+    {{{ t vs,
+      RET t;
+      ⌜length vs = ₊sz⌝ ∗
+      array_model t (DfracOwn 1) vs ∗
+      Χ t ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Hsz %Φ (HΧ & #Hfn) HΦ".
+
+    pose (Ψ' t i vs := (
+      Χ t ∗
+      [∗ list] j ↦ v ∈ vs, Ψ j v
+    )%I).
+    wp_apply (array_unsafe_initi_spec Ψ' with "[- HΦ]"); [done | | iSteps].
+    iSplitL "HΧ"; first iSteps.
+    iSteps. rewrite big_sepL_snoc. iSteps.
   Qed.
   Lemma array_unsafe_initi_spec_disentangled Ψ sz fn :
     (0 ≤ sz)%Z →
@@ -4973,8 +5026,8 @@ Section zoo_G.
       □ (
         ∀ i,
         ⌜i < ₊sz⌝ -∗
-        WP fn #i {{ v, ▷
-          Ψ i v
+        WP fn #i {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -4989,19 +5042,53 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hsz %Φ #Hfn HΦ".
-    pose (Ψ' i vs := (
+
+    wp_apply (array_unsafe_initi_spec_disentangled_strong (λ _, True)%I Ψ); [done | iSteps..].
+  Qed.
+  Lemma array_unsafe_initi_spec_disentangled_strong' Χ Ψ sz fn :
+    (0 ≤ sz)%Z →
+    {{{
+      ▷ (
+        ∀ t,
+        |={⊤}=> Χ t
+      ) ∗
+      ( [∗ list] i ∈ seq 0 ₊sz,
+        ∀ t,
+        Χ t -∗
+        WP fn #i {{ v,
+          ▷ Χ t ∗
+          ▷ Ψ i v
+        }}
+      )
+    }}}
+      array_unsafe_initi #sz fn
+    {{{ t vs,
+      RET t;
+      ⌜length vs = ₊sz⌝ ∗
+      array_model t (DfracOwn 1) vs ∗
+      Χ t ∗
+      ( [∗ list] i ↦ v ∈ vs,
+        Ψ i v
+      )
+    }}}.
+  Proof.
+    iIntros "%Hsz %Φ (HΧ & Hfn) HΦ".
+
+    pose (Ψ' t i vs := (
+      Χ t ∗
       [∗ list] j ↦ v ∈ vs, Ψ j v
     )%I).
-    wp_apply (array_unsafe_initi_spec Ψ'); [done | | iSteps].
-    rewrite /Ψ'. iSteps.
-    rewrite big_sepL_snoc. iSteps.
+    wp_apply (array_unsafe_initi_spec' Ψ' with "[- HΦ]"); [done | | iSteps].
+    iSplitL "HΧ"; first iSteps.
+    iApply (big_sepL_impl with "Hfn").
+    iSteps. rewrite big_sepL_snoc. iSteps.
   Qed.
   Lemma array_unsafe_initi_spec_disentangled' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
       ( [∗ list] i ∈ seq 0 ₊sz,
-        WP fn #i {{ v, ▷
-          Ψ i v
+        WP fn #i {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5016,25 +5103,25 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hsz %Φ Hfn HΦ".
-    pose (Ψ' i vs := (
-      [∗ list] j ↦ v ∈ vs, Ψ j v
-    )%I).
-    wp_apply (array_unsafe_initi_spec' Ψ' with "[Hfn]"); [done | | iSteps].
-    rewrite /Ψ'. iSteps.
+
+    wp_apply (array_unsafe_initi_spec_disentangled_strong' (λ _, True)%I Ψ with "[- HΦ]"); [done | iSteps..].
     iApply (big_sepL_impl with "Hfn").
-    iSteps. rewrite big_sepL_snoc. iSteps.
+    iSteps.
   Qed.
 
   Lemma array_initi_spec Ψ sz fn :
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       □ (
-        ∀ i vs,
+        ∀ t i vs,
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn #i {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5044,10 +5131,11 @@ Section zoo_G.
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ $Hfn]"); first done.
@@ -5055,13 +5143,16 @@ Section zoo_G.
   Qed.
   Lemma array_initi_spec' Ψ sz fn :
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
-        ∀ vs,
+        ∀ t vs,
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn #i {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5071,10 +5162,11 @@ Section zoo_G.
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_initi_spec' Ψ with "[$HΨ $Hfn]"); first done.
@@ -5102,6 +5194,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_initi_spec_disentangled Ψ with "Hfn"); first done.
@@ -5127,6 +5220,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Hfn HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_initi_spec_disentangled' Ψ with "Hfn"); first done.
@@ -5136,14 +5230,17 @@ Section zoo_G.
   Lemma array_unsafe_init_spec Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       □ (
-        ∀ i vs,
+        ∀ t i vs,
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn () {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5152,10 +5249,11 @@ Section zoo_G.
       RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
@@ -5163,13 +5261,16 @@ Section zoo_G.
   Lemma array_unsafe_init_spec' Ψ sz fn :
     (0 ≤ sz)%Z →
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
-        ∀ vs,
+        ∀ t vs,
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn () {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5178,10 +5279,11 @@ Section zoo_G.
       RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply (array_unsafe_initi_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
@@ -5209,6 +5311,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hsz %Φ #Hfn HΦ".
+
     wp_rec.
     wp_smart_apply (array_unsafe_initi_spec_disentangled Ψ with "[] HΦ"); first done.
     iSteps.
@@ -5233,6 +5336,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hsz %Φ Hfn HΦ".
+
     wp_rec.
     wp_smart_apply (array_unsafe_initi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
@@ -5241,14 +5345,17 @@ Section zoo_G.
 
   Lemma array_init_spec Ψ sz fn :
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       □ (
-        ∀ i vs,
+        ∀ t i vs,
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn () {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5258,10 +5365,11 @@ Section zoo_G.
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_init_spec Ψ with "[$HΨ $Hfn]"); first done.
@@ -5269,13 +5377,16 @@ Section zoo_G.
   Qed.
   Lemma array_init_spec' Ψ sz fn :
     {{{
-      ▷ Ψ 0 [] ∗
+      ▷ (
+        ∀ t,
+        |={⊤}=> Ψ t 0 []
+      ) ∗
       ( [∗ list] i ∈ seq 0 ₊sz,
-        ∀ vs,
+        ∀ t vs,
         ⌜i = length vs⌝ -∗
-        Ψ i vs -∗
+        Ψ t i vs -∗
         WP fn () {{ v, ▷
-          Ψ (S i) (vs ++ [v])
+          Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5285,10 +5396,11 @@ Section zoo_G.
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
-      Ψ ₊sz vs
+      Ψ t ₊sz vs
     }}}.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_init_spec' Ψ with "[$HΨ $Hfn]"); first done.
@@ -5316,6 +5428,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ #Hfn HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_init_spec_disentangled Ψ with "Hfn"); first done.
@@ -5341,6 +5454,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Hfn HΦ".
+
     wp_rec.
     wp_smart_apply assume_spec' as "%Hsz".
     wp_smart_apply (array_unsafe_init_spec_disentangled' Ψ with "Hfn"); first done.
@@ -5379,26 +5493,30 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
+
     wp_rec.
-    pose Ψ' i ws := (
+    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+
+    pose Ψ' t' i ws := (
       ∃ vs,
       ⌜length vs = length ws⌝ ∗
       Ψ i vs None ws
     )%I.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
     wp_apply (array_unsafe_initi_spec Ψ' with "[HΨ]") as "%t' %ws (%Hws & Hmodel & (%vs & %Hvs & HΨ))"; first lia.
-    { iSplit. { iExists []. iSteps. }
-      iIntros "!> %i %ws %Hi1 %Hi2 (%vs & %Hvs & HΨ)".
-      iDestruct ("H" with "[%] [%] [//] HΨ") as "H'"; [lia.. |].
-      awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
-      iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
-      rewrite /atomic_acc /= Nat2Z.id.
-      iStep 2; first iSteps. iIntros "$ !> HΨ !> H£".
-      iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      wp_apply (wp_wand with "(H [%] [%] [//] HΨ)") as (w) "HΨ"; [lia.. |].
-      iExists (vs ++ [v]). simpl_length. iSteps.
+    { iSplit.
+      - iSteps. iExists []. iSteps.
+      - iIntros "!> %t' %i %ws %Hi1 %Hi2 (%vs & %Hvs & HΨ)".
+        iDestruct ("H" with "[%] [%] [//] HΨ") as "H'"; [lia.. |].
+        awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
+        iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
+        rewrite /atomic_acc /= Nat2Z.id.
+        iStep 2; first iSteps. iIntros "$ !> HΨ !> H£".
+        iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
+        wp_apply (wp_wand with "(H [%] [%] [//] HΨ)") as (w) "HΨ"; [lia.. |].
+        iExists (vs ++ [v]). simpl_length. iSteps.
     }
     rewrite Nat2Z.id.
+
     iApply ("HΦ" with "[$Hmodel $HΨ]").
     iSteps.
   Qed.

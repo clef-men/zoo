@@ -24,7 +24,7 @@ From zoo Require Import
 Implicit Types front back : nat.
 Implicit Types l slot : location.
 Implicit Types slots : list location.
-Implicit Types v t : val.
+Implicit Types v t data : val.
 Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
 Implicit Types os : list (option val).
@@ -236,7 +236,7 @@ Section bag_1_G.
 
     wp_rec.
 
-    pose (Ψ := λ (_ : nat) (vs : list val), (
+    pose (Ψ := λ data (_ : nat) (vs : list val), (
       ∃ slots,
       ⌜vs = #@{location} <$> slots⌝ ∗
       [∗ list] slot ∈ slots,
@@ -244,8 +244,8 @@ Section bag_1_G.
     )%I).
     wp_smart_apply (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
-      - iExists []. iSteps.
-      - iIntros "!> %i %vs % % (%slots & %Hslots & Hslots)".
+      - iSteps. iExists []. iSteps.
+      - iIntros "!> %data %i %vs % % (%slots & %Hslots & Hslots)".
         wp_ref slot as "Hslot".
         iExists (slots ++ [slot]). iSteps.
         + list_simplifier. done.

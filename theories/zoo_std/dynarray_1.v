@@ -128,8 +128,9 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
+
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ]") as "%data %vs (%Hvs & Hmodel & HΨ)"; [done | iSteps |].
+    wp_smart_apply (array_unsafe_initi_spec (λ _, Ψ) with "[$HΨ]") as "%data %vs (%Hvs & Hmodel & HΨ)"; [done | iSteps |].
     wp_block l as "(Hl_size & Hl_data & _)".
     iStepFrameSteps. iExists 0. rewrite right_id. iSteps.
   Qed.
