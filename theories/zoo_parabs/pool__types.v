@@ -28,13 +28,17 @@ Notation "'context_id'" := (
 
 Notation "'size'" := (
   in_type "zoo_parabs.pool.t" 0
-)(in custom zoo_proj
+)(in custom zoo_field
 ).
 Notation "'hub'" := (
   in_type "zoo_parabs.pool.t" 1
-)(in custom zoo_proj
+)(in custom zoo_field
 ).
 Notation "'domains'" := (
   in_type "zoo_parabs.pool.t" 2
-)(in custom zoo_proj
+)(in custom zoo_field
+).
+Notation "'force_mutable'" := (
+  in_type "zoo_parabs.pool.t" 3
+)(in custom zoo_field
 ).

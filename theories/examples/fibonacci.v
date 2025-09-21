@@ -53,15 +53,15 @@ Qed.
 Section pool_G.
   Context `{pool_G : SchedulerG Σ}.
 
-  #[local] Lemma fibonacci_fibonacci_0_spec n ctx :
+  #[local] Lemma fibonacci_fibonacci_0_spec n t ctx :
     (0 ≤ n)%Z →
     {{{
-      pool_context_model ctx
+      pool_context t ctx
     }}}
       fibonacci_fibonacci_0 #n ctx
     {{{
       RET #(fib ₊n);
-      pool_context_model ctx
+      pool_context t ctx
     }}}.
   Proof.
     iLöb as "HLöb" forall (n ctx).
@@ -102,7 +102,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ Hpool HΦ".
     wp_rec.
-    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx _ Hctx".
+    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
     wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.

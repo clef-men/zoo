@@ -170,15 +170,15 @@ Section vertex_G.
     "#Hstate{which;}₁{_{}}".
 
   Definition vertex_wp_body t γ P R body task gen : iProp Σ :=
-    ∀ ctx gen',
-    pool_context_model ctx -∗
+    ∀ pool ctx gen',
+    pool_context pool ctx -∗
     vertex_running gen -∗
     vertex_model t γ task gen' -∗
     WP task ctx {{ res,
       ∃ b task,
       ⌜res = #b⌝ ∗
       ▷ (
-        pool_context_model ctx ∗
+        pool_context pool ctx ∗
         vertex_model t γ task gen' ∗
         if b then
           body task gen'
@@ -227,7 +227,7 @@ Section vertex_G.
     intros t t_ <- γ γ_ <-.
     induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
     rewrite !vertex_wp_unfold /vertex_wp_body.
-    do 14 f_equiv. f_contractive.
+    do 16 f_equiv. f_contractive.
     apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
     apply (dist_le _ m) in HR; last by apply SIdx.lt_le_incl.
     do 3 f_equiv; last solve_proper.
@@ -941,9 +941,9 @@ Section vertex_G.
 
   #[local] Lemma vertex_release_run_spec :
     ⊢ (
-      ∀ ctx t γ P R task gen,
+      ∀ pool ctx t γ P R task gen,
       {{{
-        pool_context_model ctx ∗
+        pool_context pool ctx ∗
         vertex_inv t γ P R ∗
         vertex_model t γ task gen ∗
         vertex_wp t γ P R task gen
@@ -951,12 +951,12 @@ Section vertex_G.
         vertex_release ctx #t
       {{{
         RET ();
-        pool_context_model ctx
+        pool_context pool ctx
       }}}
     ) ∧ (
-      ∀ ctx t γ P R π,
+      ∀ pool ctx t γ P R π,
       {{{
-        pool_context_model ctx ∗
+        pool_context pool ctx ∗
         vertex_inv t γ P R ∗
         predecessors_elem γ π ∗
         vertex_finished π
@@ -964,12 +964,12 @@ Section vertex_G.
         vertex_release ctx #t
       {{{
         RET ();
-        pool_context_model ctx
+        pool_context pool ctx
       }}}
     ) ∧ (
-      ∀ ctx t γ gen P R task,
+      ∀ pool ctx t γ gen P R task,
       {{{
-        pool_context_model ctx ∗
+        pool_context pool ctx ∗
         vertex_inv t γ P R ∗
         vertex_running gen ∗
         model' t γ task Running gen ∗
@@ -978,7 +978,7 @@ Section vertex_G.
         vertex_run ctx #t
       {{{
         RET ();
-        pool_context_model ctx
+        pool_context pool ctx
       }}}
     ).
   Proof.
@@ -988,7 +988,7 @@ Section vertex_G.
 
     { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %P %R %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
+      iIntros "%pool %ctx %t %γ %P %R %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
       wp_rec.
       iApply (wp_frame_wand with "HΦ").
@@ -1021,7 +1021,7 @@ Section vertex_G.
 
     { iClear "IHrelease IHrelease_successor".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
+      iIntros "%pool %ctx %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
 
       wp_rec.
       iApply (wp_frame_wand with "HΦ").
@@ -1092,7 +1092,7 @@ Section vertex_G.
 
     { iClear "IHrun".
       setoid_rewrite vertex_inv_unfold.
-      iIntros "%ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
+      iIntros "%pool %ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
       wp_rec.
       wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
@@ -1138,16 +1138,16 @@ Section vertex_G.
         iIntros "!> H£ Hctx {%}".
 
         iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-        wp_smart_apply (clst_iter_spec (λ _, pool_context_model ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+        wp_smart_apply (clst_iter_spec (λ _, pool_context pool ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
         rewrite big_sepL_fmap.
         iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
         wp_smart_apply ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
         iApply (vertex_inv_unfold with "Hinv_succ").
     }
   Qed.
-  Lemma vertex_release_spec ctx t γ P R task gen :
+  Lemma vertex_release_spec pool ctx t γ P R task gen :
     {{{
-      pool_context_model ctx ∗
+      pool_context pool ctx ∗
       vertex_inv t γ P R ∗
       vertex_model t γ task gen ∗
       vertex_wp t γ P R task gen
@@ -1155,23 +1155,23 @@ Section vertex_G.
       vertex_release ctx #t
     {{{
       RET ();
-      pool_context_model ctx
+      pool_context pool ctx
     }}}.
   Proof.
     iDestruct vertex_release_run_spec as "(H & _)".
     iApply "H".
   Qed.
-  Lemma vertex_release_spec' ctx t γ P R task gen :
+  Lemma vertex_release_spec' pool ctx t γ P R task gen :
     {{{
-      pool_context_model ctx ∗
+      pool_context pool ctx ∗
       vertex_inv t γ P R ∗
       vertex_model t γ task gen ∗
-      ( ∀ ctx,
-        pool_context_model ctx -∗
+      ( ∀ pool ctx,
+        pool_context pool ctx -∗
         vertex_running gen -∗
         WP task ctx {{ res,
           ⌜res = #false⌝ ∗
-          ▷ pool_context_model ctx ∗
+          ▷ pool_context pool ctx ∗
           ▷ P ∗
           ▷ □ R
         }}
@@ -1180,7 +1180,7 @@ Section vertex_G.
       vertex_release ctx #t
     {{{
       RET ();
-      pool_context_model ctx
+      pool_context pool ctx
     }}}.
   Proof.
     iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".

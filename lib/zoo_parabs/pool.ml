@@ -11,6 +11,7 @@ type t =
   { size: int;
     hub: job Ws_hub_std.t;
     domains: unit Domain.t array;
+    mutable force_mutable: unit; (* for verification *)
   }
 
 type 'a task =
@@ -49,7 +50,11 @@ let create sz =
       Domain.spawn (fun () -> worker @@ context sz hub (i + 1))
     )
   in
-  { size= sz; hub; domains }
+  { size= sz;
+    hub;
+    domains;
+    force_mutable= ();
+   }
 
 let run t job =
   Ws_hub_std.unblock t.hub 0 ;
