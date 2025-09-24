@@ -854,6 +854,14 @@ Section inf_mpmc_queue_2_G.
     iDestruct (mono_list_lb_valid with "Hauth1 Hlb2") as %?%prefix_length.
     iSteps.
   Qed.
+  #[local] Lemma consumers_lb_get γ i :
+    consumers_auth γ i ⊢
+    consumers_lb γ i.
+  Proof.
+    iIntros "(:consumers_auth)".
+    iDestruct (mono_list_lb_get with "Hauth") as "Hlb".
+    iSteps.
+  Qed.
   #[local] Lemma consumers_update γ i :
     consumers_auth γ i ⊢ |==>
       consumers_auth γ (S i) ∗
@@ -865,14 +873,6 @@ Section inf_mpmc_queue_2_G.
     iDestruct (mono_list_at_get with "Hauth") as "#Hat".
     { apply list_lookup_middle. done. }
     iSteps. simpl_length/=. iSteps.
-  Qed.
-  #[local] Lemma consumers_lb_get γ i :
-    consumers_auth γ i ⊢
-    consumers_lb γ i.
-  Proof.
-    iIntros "(:consumers_auth)".
-    iDestruct (mono_list_lb_get with "Hauth") as "Hlb".
-    iSteps.
   Qed.
 
   Opaque lstates_auth'.
