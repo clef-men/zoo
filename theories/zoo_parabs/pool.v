@@ -718,10 +718,10 @@ Section pool_G.
     iIntros "%Φ (Hctx & #Hivar_inv) HΦ".
 
     wp_rec.
-    wp_smart_apply (pool_wait_until_spec (ivar_3_result' fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
+    wp_smart_apply (pool_wait_until_spec (ivar_3_determined fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
     { iModIntro.
       wp_smart_apply (ivar_3_is_set_spec with "Hivar_inv") as (b) "Hivar_result".
-      rewrite /ivar_3_result'. destruct b; iSteps.
+      rewrite /ivar_3_determined. destruct b; iSteps.
     }
     wp_smart_apply (ivar_3_get_spec with "[$Hivar_inv $Hivar_result]") as "H£".
     iApply ("HΦ" with "[$]").

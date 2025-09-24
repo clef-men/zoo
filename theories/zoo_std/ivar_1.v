@@ -152,7 +152,7 @@ Section ivar_1_G.
       #Hmeta{;_} &
       #Hlstate{}_set
     )".
-  Definition ivar_1_result' t : iProp Σ :=
+  Definition ivar_1_determined t : iProp Σ :=
     ∃ v,
     ivar_1_result t v.
 
@@ -550,7 +550,7 @@ Section ivar_1_G.
       RET #b;
       if b then
         £ 2 ∗
-        ivar_1_result' t
+        ivar_1_determined t
       else
         True
     }}}.
