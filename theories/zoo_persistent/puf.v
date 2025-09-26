@@ -292,7 +292,7 @@ Section puf_G.
     iSteps.
   Qed.
 
-  #[local] Lemma puf_repr_spec {t reprs elt} repr :
+  Lemma puf_repr_spec {t reprs elt} repr :
     reprs !! elt = Some repr →
     {{{
       puf_model t reprs
