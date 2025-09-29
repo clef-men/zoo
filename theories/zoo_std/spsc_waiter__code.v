@@ -29,7 +29,6 @@ Definition spsc_waiter_wait : val :=
     if: ~ spsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect
-        "mtx"
+      mutex_protect "mtx"
         (fun: <> => condition_wait_until "cond" "mtx" (fun: <> => "t".{flag}))
     ).

@@ -15,14 +15,13 @@ let notify t =
     true
   else
     let res =
-      Mutex.protect t.mutex (fun () ->
+      Mutex.protect t.mutex @@ fun () ->
         if t.flag then (
           true
         ) else (
           t.flag <- true ;
           false
         )
-      )
     in
     Condition.notify t.condition ;
     res
@@ -34,6 +33,5 @@ let wait t =
   if not @@ try_wait t then
     let mtx = t.mutex in
     let cond = t.condition in
-    Mutex.protect mtx (fun () ->
+    Mutex.protect mtx @@ fun () ->
       Condition.wait_until cond mtx (fun () -> t.flag)
-    )

@@ -21,8 +21,7 @@ Definition mpsc_waiter_notify : val :=
       #true
     ) else (
       let: "res" :=
-        mutex_protect
-          "t".{mutex}
+        mutex_protect "t".{mutex}
           (fun: <> =>
              if: "t".{flag} then (
                #true
@@ -44,7 +43,6 @@ Definition mpsc_waiter_wait : val :=
     if: ~ mpsc_waiter_try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect
-        "mtx"
+      mutex_protect "mtx"
         (fun: <> => condition_wait_until "cond" "mtx" (fun: <> => "t".{flag}))
     ).
