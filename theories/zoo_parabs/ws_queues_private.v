@@ -476,6 +476,31 @@ Section ws_queues_private_G.
     iIntros "(:channels_sender =1) (:channels_sender =2)". simplify_eq.
     iDestruct (ghost_pred_dfrac_ne with "Hpred_1 Hpred_2") as %?; naive_solver.
   Qed.
+  #[local] Lemma channels_waiting_receiver γ i Ψ o :
+    ▷ channels_waiting γ i -∗
+    channels_receiver γ i Ψ (Some o) -∗
+    ◇ False.
+  Proof.
+    iIntros ">(:channels_waiting =1) (:channels_receiver =2 done=)". simplify_eq.
+    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
+    iApply (oneshot_pending_shot with "Hpending_1 Hshot_2").
+  Qed.
+  #[local] Lemma channels_sender_receiver_agree γ i Ψ1 o1 Ψ2 o2 E :
+    ▷ channels_sender γ i Ψ1 (Some o1) -∗
+    channels_receiver γ i Ψ2 (Some o2) ={E}=∗
+      ▷^2 (Ψ1 o1 ≡ Ψ2 o1) ∗
+      ⌜o1 = o2⌝ ∗
+      ▷ channels_sender γ i Ψ1 (Some o1) ∗
+      channels_receiver γ i Ψ2 (Some o1).
+  Proof.
+    iIntros "(:channels_sender =1 > done=) (:channels_receiver =2 done=)". simplify_eq.
+    iDestruct "Hgeneration_1" as ">Hgeneration_1".
+    iDestruct "Hshot_1" as ">Hshot_1".
+    iDestruct (ghost_pred_agree o1 with "Hpred_1 [$Hpred_2]") as "#Heq".
+    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
+    iDestruct (oneshot_shot_agree with "Hshot_1 Hshot_2") as %<-.
+    iFrame "#∗". iSteps.
+  Qed.
   #[local] Lemma channels_prepare {γ i Ψ1 Ψ2} Ψ :
     channels_sender γ i Ψ1 None -∗
     channels_receiver γ i Ψ2 None ==∗
@@ -525,31 +550,6 @@ Section ws_queues_private_G.
     iMod (ghost_var_update (ghost_var_G := ws_queues_private_G_channel_generation_G) gen with "Hgeneration") as "Hgeneration".
     iDestruct "Hgeneration" as "(Hgeneration_1 & Hgeneration_2)".
     iSteps.
-  Qed.
-  #[local] Lemma channels_waiting_receiver γ i Ψ o :
-    ▷ channels_waiting γ i -∗
-    channels_receiver γ i Ψ (Some o) -∗
-    ◇ False.
-  Proof.
-    iIntros ">(:channels_waiting =1) (:channels_receiver =2 done=)". simplify_eq.
-    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
-    iApply (oneshot_pending_shot with "Hpending_1 Hshot_2").
-  Qed.
-  #[local] Lemma channels_sender_receiver_agree γ i Ψ1 o1 Ψ2 o2 E :
-    ▷ channels_sender γ i Ψ1 (Some o1) -∗
-    channels_receiver γ i Ψ2 (Some o2) ={E}=∗
-      ▷^2 (Ψ1 o1 ≡ Ψ2 o1) ∗
-      ⌜o1 = o2⌝ ∗
-      ▷ channels_sender γ i Ψ1 (Some o1) ∗
-      channels_receiver γ i Ψ2 (Some o1).
-  Proof.
-    iIntros "(:channels_sender =1 > done=) (:channels_receiver =2 done=)". simplify_eq.
-    iDestruct "Hgeneration_1" as ">Hgeneration_1".
-    iDestruct "Hshot_1" as ">Hshot_1".
-    iDestruct (ghost_pred_agree o1 with "Hpred_1 [$Hpred_2]") as "#Heq".
-    iDestruct (ghost_var_agree_L with "Hgeneration_1 Hgeneration_2") as %<-.
-    iDestruct (oneshot_shot_agree with "Hshot_1 Hshot_2") as %<-.
-    iFrame "#∗". iSteps.
   Qed.
 
   Opaque channels_waiting'.
