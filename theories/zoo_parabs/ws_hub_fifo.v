@@ -249,6 +249,8 @@ Section ws_hub_fifo_G.
     iApply (excl_exclusive with "Howner1 Howner2").
   Qed.
 
+  Opaque owner'.
+
   #[local] Lemma emptiness_alloc sz :
     ⊢ |==>
       ∃ γ_emptiness,
@@ -307,7 +309,6 @@ Section ws_hub_fifo_G.
     iSteps. simpl_length.
   Qed.
 
-  Opaque owner'.
   Opaque emptiness_auth'.
 
   Lemma ws_hub_fifo_inv_agree t ι sz1 sz2 :
