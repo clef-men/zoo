@@ -1364,6 +1364,31 @@ Section zoo_G.
     rewrite /atomic_acc /=.
     iExists dq, vs, 0, v. rewrite Nat.sub_0_r. iSteps.
   Qed.
+  Lemma array_unsafe_get_spec_atomic_inv t (sz : nat) (i : Z) :
+    (0 ≤ i < sz)%Z →
+    <<<
+      array_inv t sz
+    | ∀∀ vs,
+      array_model t (DfracOwn 1) vs
+    >>>
+      array_unsafe_get t #i
+    <<<
+      ∃∃ v,
+      ⌜vs !! ₊i = Some v⌝ ∗
+      array_model t (DfracOwn 1) vs
+    | RET v;
+      £ 1
+    >>>.
+  Proof.
+    iIntros "%Hi %Φ #Hinv HΦ".
+
+    awp_apply (array_unsafe_get_spec_atomic with "[//]"); first lia.
+    iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
+    iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
+    destruct (lookup_lt_is_Some_2 vs ₊i) as (v & Hlookup); first lia.
+    rewrite /atomic_acc /=.
+    iFrameSteps.
+  Qed.
   Lemma array_unsafe_get_spec_slice k t i dq vs (j : Z) v :
     (i ≤ j)%Z →
     vs !! k = Some v →
@@ -1576,6 +1601,8 @@ Section zoo_G.
     >>>
       array_unsafe_set t #j v
     <<<
+      ∃∃ w,
+      ⌜vs !! (₊j - i) = Some w⌝ ∗
       array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     | RET ();
       £ 1
@@ -1585,8 +1612,9 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     wp_rec credit:"H£". wp_pures.
     iMod "HΦ" as "(%vs & %i & (%Hj & (%l & -> & Hmodel)) & _ & HΦ)".
+    destruct (lookup_lt_is_Some_2 vs (₊j - i)) as (w & Hlookup); first lia.
     iDestruct (chunk_model_update' j with "Hmodel") as "(H↦ & Hmodel)"; [lia | | done |].
-    { destruct (nth_lookup_or_length vs (₊j - ₊i) inhabitant); [done | lia]. }
+    { rewrite Nat2Z.id //. }
     wp_store.
     iApply ("HΦ" with "[H↦ Hmodel] H£").
     rewrite Nat2Z.id. iSteps.
@@ -1621,6 +1649,8 @@ Section zoo_G.
     >>>
       array_unsafe_set t #i v
     <<<
+      ∃∃ w,
+      ⌜vs !! ₊i = Some w⌝ ∗
       array_model t (DfracOwn 1) (<[₊i := v]> vs)
     | RET ();
       £ 1
@@ -1642,6 +1672,8 @@ Section zoo_G.
     >>>
       array_unsafe_set t #i v
     <<<
+      ∃∃ w,
+      ⌜vs !! ₊i = Some w⌝ ∗
       array_model t (DfracOwn 1) (<[₊i := v]> vs)
     | RET ();
       £ 1
@@ -1673,7 +1705,7 @@ Section zoo_G.
     iExists vs, i.
     iApply fupd_mask_intro; first done. iIntros "Hclose".
     iSplitL "Hslice"; first auto. iSplit; first iSteps.
-    iIntros "Hslice". iMod "Hclose" as "_". iIntros "!> H£ HΦ".
+    iIntros "%w (_ & Hslice)". iMod "Hclose" as "_". iIntros "!> H£ HΦ".
     iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.

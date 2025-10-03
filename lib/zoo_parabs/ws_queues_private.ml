@@ -50,7 +50,7 @@ let unblock t i =
   Array.unsafe_set t.statuses i Nonblocked
 
 let respond t i =
-  match Atomic_array.unsafe_xchg t.requests i RequestNone with
+  match Atomic_array.unsafe_get t.requests i with
   | RequestSome j ->
       let response =
         match Queue_3.pop_front (Array.unsafe_get t.queues i) with
@@ -59,7 +59,8 @@ let respond t i =
         | _ ->
             ResponseNone
       in
-      Array.unsafe_set t.responses j response
+      Array.unsafe_set t.responses j response ;
+      Atomic_array.unsafe_set t.requests i RequestNone
   | _ ->
       ()
 

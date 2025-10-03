@@ -45,7 +45,7 @@ Definition ws_queues_private_unblock : val :=
 
 Definition ws_queues_private_respond : val :=
   fun: "t" "i" =>
-    match: atomic_array_unsafe_xchg "t".{requests} "i" §RequestNone with
+    match: atomic_array_unsafe_get "t".{requests} "i" with
     | RequestSome "j" =>
         let: "response" :=
           match: queue_3_pop_front (array_unsafe_get "t".{queues} "i") with
@@ -55,7 +55,8 @@ Definition ws_queues_private_respond : val :=
               §ResponseNone
           end
         in
-        array_unsafe_set "t".{responses} "j" "response"
+        array_unsafe_set "t".{responses} "j" "response" ;;
+        atomic_array_unsafe_set "t".{requests} "i" §RequestNone
     |_ =>
         ()
     end.
