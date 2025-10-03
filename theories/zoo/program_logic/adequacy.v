@@ -15,21 +15,20 @@ Implicit Types e : expr.
 Implicit Types v : val.
 Implicit Types σ : state.
 
-Definition zoo_adequacy `{zoo_Gpre : !ZooGpre Σ} e σ v cnt :
-  σ.(state_locals) = [v] →
-  σ.(state_heap) !! zoo_counter = Some (ValNat cnt) →
+Definition zoo_adequacy `{zoo_Gpre : !ZooGpre Σ} {e σ} param :
+  state_wf σ param →
   ( ∀ `{zoo_G : !ZooG Σ},
-    ( [∗ map] l ↦ v ∈ delete zoo_counter σ.(state_heap),
+    ( [∗ map] l ↦ v ∈ state_heap_initial σ,
       l ↦ v
     ) -∗
-    0 ↦ₗ v -∗
-    WP e ∶ 0 {{ v, True }}
+    0 ↦ₗ param.(zoo_parameter_local) -∗
+    WP e ∶ 0 {{ _, True }}
   ) →
   safe ([e], σ).
 Proof.
-  intros Hlocals Hcounter Hwp.
+  intros Hwf Hwp.
   apply: wp_adequacy => // Hinv_G κs.
-  iMod (zoo_init' σ v cnt κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; [done.. |].
+  iMod (zoo_init σ param κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; first done.
   iExists zoo_state_interp, (λ _, True)%I, (λ _, True)%I. iFrame.
   iApply (Hwp with "Hheap Hlocals").
 Qed.

@@ -706,53 +706,52 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} nt σ cnt κ :
-  length σ.(state_locals) = nt →
-  σ.(state_heap) !! zoo_counter = Some #cnt →
-  ⊢ |={⊤}=>
-    ∃ zoo_G : ZooG Σ,
-    ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-    state_interp nt σ κ ∗
-    ( [∗ map] l ↦ v ∈ delete zoo_counter σ.(state_heap),
-      l ↦ v
-    ) ∗
-    ( [∗ list] tid ↦ v ∈ σ.(state_locals),
-      tid ↦ₗ v
-    ).
-Proof.
-  intros Hlocals Hcounter.
+Record zoo_parameter := {
+  zoo_parameter_local : val ;
+  zoo_parameter_counter : nat ;
+}.
 
-  iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders_interp & _)".
+Record state_wf σ param := {
+  state_wf_locals :
+    σ.(state_locals) = [param.(zoo_parameter_local)] ;
+  state_wf_counter :
+    σ.(state_heap) !! zoo_counter = Some (ValNat param.(zoo_parameter_counter)) ;
+}.
 
-  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hheap_interp & Hheap & _)".
-  iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)"; first done.
-  iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
+Definition state_heap_initial σ :=
+  delete zoo_counter σ.(state_heap).
 
-  iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & Hlocals_interp & Hlocals)".
-
-  iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hprophets_interp)".
-
-  iMod (mono_list_alloc (replicate cnt inhabitant)) as "(%γ_counter & Hcounter_auth)".
-
-  iExists (Build_ZooG Σ γ_locals γ_counter). iFrameSteps.
-  iApply inv_alloc. iSteps. simpl_length.
-Qed.
-Lemma zoo_init' `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ v cnt κ :
-  σ.(state_locals) = [v] →
-  σ.(state_heap) !! zoo_counter = Some #cnt →
+Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κ :
+  state_wf σ param →
   ⊢ |={⊤}=>
     ∃ zoo_G : ZooG Σ,
     ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
     state_interp 1 σ κ ∗
-    ( [∗ map] l ↦ v ∈ delete zoo_counter σ.(state_heap),
+    ( [∗ map] l ↦ v ∈ state_heap_initial σ,
       l ↦ v
     ) ∗
-    0 ↦ₗ v.
+    0 ↦ₗ param.(zoo_parameter_local).
 Proof.
-  intros Hlocals Hcounter.
-  iMod (zoo_init 1 σ cnt κ) as "(%zoo_G & $ & $ & Hlocals)".
-  all: rewrite ?Hlocals //.
-  iSteps.
+  intros Hwf.
+
+  iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders_interp & _)".
+
+  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hheap_interp & Hheap & _)".
+  iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)".
+  { apply Hwf. }
+  iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
+
+  iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & Hlocals_interp & Hlocals)".
+  iEval (erewrite state_wf_locals; last done) in "Hlocals".
+  iDestruct "Hlocals" as "(Hlocal & _)".
+
+  iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hprophets_interp)".
+
+  iMod (mono_list_alloc (replicate param.(zoo_parameter_counter) inhabitant)) as "(%γ_counter & Hcounter_auth)".
+
+  iExists (Build_ZooG Σ γ_locals γ_counter). iFrameSteps.
+  - erewrite state_wf_locals; done.
+  - iApply inv_alloc. iSteps. simpl_length.
 Qed.
 
 #[global] Opaque zoo_state_interp.
