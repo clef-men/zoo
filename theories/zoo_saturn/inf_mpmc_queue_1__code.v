@@ -23,9 +23,9 @@ Definition inf_mpmc_queue_1_size : val :=
     let: "proph" := Proph in
     let: "back" := "t".{back} in
     if:
-      (let: "__tmp__" := "t".{front} in
-       Resolve Skip "proph" "__tmp__" ;;
-       "__tmp__")
+      (let: "@tmp" := "t".{front} in
+       Resolve Skip "proph" "@tmp" ;;
+       "@tmp")
       ==
       "front"
     then (

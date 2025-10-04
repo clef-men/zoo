@@ -74,9 +74,9 @@ Definition kcas_2_finish : val :=
         if: "state" == "old_state" then (
           "determine_as" "casn" "continue"
         ) else if:
-           let: "__tmp__" := "state".{before} == "eval" "old_state" in
-           Resolve Skip "proph" "__tmp__" ;;
-           "__tmp__"
+           let: "@tmp" := "state".{before} == "eval" "old_state" in
+           Resolve Skip "proph" "@tmp" ;;
+           "@tmp"
          then (
           "lock" "casn" "loc" "old_state" "state" "retry" "continue"
         ) else (
