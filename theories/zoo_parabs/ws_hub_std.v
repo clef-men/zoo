@@ -253,6 +253,16 @@ Section ws_hub_std_G.
     iSteps.
   Qed.
 
+  Lemma ws_hub_std_owner_exclusive t i status1 empty1 status2 empty2 :
+    ws_hub_std_owner t i status1 empty1 -∗
+    ws_hub_std_owner t i status2 empty2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)". simplify.
+    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
+    iApply (ws_queues_public_owner_exclusive with "Hqueues_owner1 Hqueues_owner2").
+  Qed.
+
   Lemma ws_hub_std_model_empty t ι sz vs :
     ws_hub_std_inv t ι sz -∗
     ws_hub_std_model t vs -∗
@@ -273,16 +283,6 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iDestruct (ws_queues_public_model_owner with "Hqueues_model Hqueues_owner") as "(%us_ & %Hlookup_ & %Hws)". simplify.
     iPureIntro. apply suffix_nil_inv. naive_solver.
-  Qed.
-
-  Lemma ws_hub_std_owner_exclusive t i status1 empty1 status2 empty2 :
-    ws_hub_std_owner t i status1 empty1 -∗
-    ws_hub_std_owner t i status2 empty2 -∗
-    False.
-  Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
-    iApply (ws_queues_public_owner_exclusive with "Hqueues_owner1 Hqueues_owner2").
   Qed.
 
   Lemma ws_hub_std_create_spec ι sz :

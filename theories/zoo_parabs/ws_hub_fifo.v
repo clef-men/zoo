@@ -321,6 +321,16 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
+  Lemma ws_hub_fifo_owner_exclusive t i status1 empty1 status2 empty2 :
+    ws_hub_fifo_owner t i status1 empty1 -∗
+    ws_hub_fifo_owner t i status2 empty2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (owner_exclusive with "Howner_1 Howner_2").
+  Qed.
+
   Lemma ws_hub_fifo_model_empty t ι sz vs :
     ws_hub_fifo_inv t ι sz -∗
     ws_hub_fifo_model t vs -∗
@@ -336,16 +346,6 @@ Section ws_hub_fifo_G.
     iApply (big_sepL_impl with "Howners"). iIntros "!>" (i i_ (-> & Hi)%lookup_seq) "(%status & (:owner)) /=". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
-  Qed.
-
-  Lemma ws_hub_fifo_owner_exclusive t i status1 empty1 status2 empty2 :
-    ws_hub_fifo_owner t i status1 empty1 -∗
-    ws_hub_fifo_owner t i status2 empty2 -∗
-    False.
-  Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iApply (owner_exclusive with "Howner_1 Howner_2").
   Qed.
 
   Lemma ws_hub_fifo_create_spec ι sz :
