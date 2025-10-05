@@ -101,6 +101,17 @@ Section ws_queues_public_G.
     iSteps.
   Qed.
 
+  Lemma ws_queues_public_owner_exclusive t i status1 ws1 status2 ws2 :
+    ws_queues_public_owner t i status1 ws1 -∗
+    ws_queues_public_owner t i status2 ws2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)".
+    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
+    simplify.
+    iApply (ws_queue_2_owner_exclusive with "Hqueue1_owner Hqueue2_owner").
+  Qed.
+
   Lemma ws_queues_public_inv_model t ι sz vss :
     ws_queues_public_inv t ι sz -∗
     ws_queues_public_model t vss -∗
@@ -111,7 +122,6 @@ Section ws_queues_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-.
     iSteps.
   Qed.
-
   Lemma ws_queues_public_inv_owner t ι sz i status ws :
     ws_queues_public_inv t ι sz -∗
     ws_queues_public_owner t i status ws -∗
@@ -121,6 +131,7 @@ Section ws_queues_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iPureIntro. rewrite Hqueues_length. eapply lookup_lt_Some. done.
   Qed.
+
   Lemma ws_queues_public_model_owner t vss i status ws :
     ws_queues_public_model t vss -∗
     ws_queues_public_owner t i status ws -∗
@@ -132,16 +143,6 @@ Section ws_queues_public_G.
     iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
     iDestruct (big_sepL2_lookup_l with "Hqueues1_model") as "(%vs & $ & Hqueue2_model)"; first done.
     iApply (ws_queue_2_owner_model with "Hqueue2_owner Hqueue2_model").
-  Qed.
-  Lemma ws_queues_public_owner_exclusive t i status1 ws1 status2 ws2 :
-    ws_queues_public_owner t i status1 ws1 -∗
-    ws_queues_public_owner t i status2 ws2 -∗
-    False.
-  Proof.
-    iIntros "(:owner =1) (:owner =2)".
-    iDestruct (array_model_agree with "Hqueues1 Hqueues2") as %<-. iClear "Hqueues2".
-    simplify.
-    iApply (ws_queue_2_owner_exclusive with "Hqueue1_owner Hqueue2_owner").
   Qed.
 
   Lemma ws_queues_public_create_spec ι sz :
