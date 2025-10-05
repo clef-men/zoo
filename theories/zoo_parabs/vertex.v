@@ -696,16 +696,6 @@ Module raw.
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma vertex_inv_finished' t γ P R :
-      £ 1 -∗
-      vertex_inv t γ P R -∗
-      vertex_finished γ ={⊤}=∗
-      □ R.
-    Proof.
-      iIntros "H£ Hinv Hfinished".
-      iMod (vertex_inv_finished with "Hinv Hfinished") as "HR".
-      iApply (lc_fupd_elim_later with "H£ HR").
-    Qed.
     Lemma vertex_inv_finished_output t γ P R Q :
       vertex_inv t γ P R -∗
       vertex_finished γ -∗
@@ -719,18 +709,6 @@ Module raw.
       iMod (output_consume with "Houtput_auth Houtput_frag") as "(Houtput_auth & HP)".
       iSplitR "HP". { iFrameSteps. }
       iSteps.
-    Qed.
-    Lemma vertex_inv_finished_output' t γ P R Q :
-      £ 2 -∗
-      vertex_inv t γ P R -∗
-      vertex_finished γ -∗
-      vertex_output γ Q ={⊤}=∗
-      Q.
-    Proof.
-      iIntros "(H£1 & H£2) Hinv Hfinished Houtput".
-      iMod (vertex_inv_finished_output with "Hinv Hfinished Houtput") as "HP".
-      iMod (lc_fupd_elim_later with "H£1 HP") as "HP".
-      iApply (lc_fupd_elim_later with "H£2 HP").
     Qed.
 
     Lemma vertex_create_spec P R (task : option val) :
@@ -1163,33 +1141,6 @@ Module raw.
       iDestruct vertex_release_run_spec as "(H & _)".
       iApply "H".
     Qed.
-    Lemma vertex_release_spec' pool ctx t γ P R task gen :
-      {{{
-        pool_context pool ctx ∗
-        vertex_inv t γ P R ∗
-        vertex_model t γ task gen ∗
-        ( ∀ pool ctx,
-          pool_context pool ctx -∗
-          vertex_running gen -∗
-          WP task ctx {{ res,
-            ⌜res = #false⌝ ∗
-            ▷ pool_context pool ctx ∗
-            ▷ P ∗
-            ▷ □ R
-          }}
-        )
-      }}}
-        vertex_release ctx #t
-      {{{
-        RET ();
-        pool_context pool ctx
-      }}}.
-    Proof.
-      iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".
-
-      wp_apply (vertex_release_spec with "[- HΦ] HΦ").
-      rewrite vertex_wp_unfold. iFrameSteps.
-    Qed.
   End vertex_G.
 
   #[global] Opaque vertex_inv.
@@ -1505,9 +1456,9 @@ Section vertex_G.
     vertex_finished t ={⊤}=∗
     □ R.
   Proof.
-    iIntros "H£ (:inv =1) (:finished =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (raw.vertex_inv_finished' with "H£ Hinv_1 Hfinished_2").
+    iIntros "H£ Hinv Hfinished".
+    iMod (vertex_inv_finished with "Hinv Hfinished") as "HR".
+    iApply (lc_fupd_elim_later with "H£ HR").
   Qed.
   Lemma vertex_inv_finished_output t P R Q :
     vertex_inv t P R -∗
@@ -1527,10 +1478,10 @@ Section vertex_G.
     vertex_output t Q ={⊤}=∗
     Q.
   Proof.
-    iIntros "H£ (:inv =1) (:finished =2) (:output =3)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_3") as %<-.
-    iApply (raw.vertex_inv_finished_output' with "H£ Hinv_1 Hfinished_2 Houtput_3").
+    iIntros "(H£1 & H£2) Hinv Hfinished Houtput".
+    iMod (vertex_inv_finished_output with "Hinv Hfinished Houtput") as "HP".
+    iMod (lc_fupd_elim_later with "H£1 HP") as "HP".
+    iApply (lc_fupd_elim_later with "H£2 HP").
   Qed.
 
   Lemma vertex_create_spec P R (task : option val) :
