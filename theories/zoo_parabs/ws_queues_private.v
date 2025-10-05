@@ -144,8 +144,8 @@ Section ws_queues_private_G.
     models_auth' γ.(metadata_models) γ.(metadata_size).
   #[local] Instance : CustomIpatFormat "models_auth" :=
     "(
-      Hauth &
-      %Hvss
+      Hauth{_{}} &
+      %Hvss{}
     )".
   #[local] Definition models_at' γ_models i :=
     ghost_list_at γ_models i (DfracOwn 1).
@@ -386,7 +386,7 @@ Section ws_queues_private_G.
       %γ{;_} &
       %Heq{} &
       #Hmeta_{} &
-      Hmodels_auth
+      Hmodels_auth{_{}}
     )".
 
   Definition ws_queues_private_owner t i status ws : iProp Σ :=
@@ -768,6 +768,16 @@ Section ws_queues_private_G.
     iDestruct (pointsto_agree with "Hl1_size Hl2_size") as %?. naive_solver.
   Qed.
 
+  Lemma ws_queues_private_owner_exclusive t i status1 ws1 status2 ws2 :
+    ws_queues_private_owner t i status1 ws1 -∗
+    ws_queues_private_owner t i status2 ws2 -∗
+    False.
+  Proof.
+    iIntros "(:owner =1) (:owner =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. simplify.
+    iApply (queue_3_model_exclusive with "Hqueue_model_1 Hqueue_model_2").
+  Qed.
+
   Lemma ws_queues_private_inv_model t ι sz vss :
     ws_queues_private_inv t ι sz -∗
     ws_queues_private_model t vss -∗
@@ -777,7 +787,6 @@ Section ws_queues_private_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
     iApply (models_auth_length with "Hmodels_auth").
   Qed.
-
   Lemma ws_queues_private_inv_owner t ι sz i status ws :
     ws_queues_private_inv t ι sz -∗
     ws_queues_private_owner t i status ws -∗
@@ -788,6 +797,7 @@ Section ws_queues_private_G.
     apply lookup_lt_Some in Hqueues_lookup.
     iSteps.
   Qed.
+
   Lemma ws_queues_private_model_owner t vss i status ws :
     ws_queues_private_model t vss -∗
     ws_queues_private_owner t i status ws -∗
@@ -797,17 +807,8 @@ Section ws_queues_private_G.
   Proof.
     iIntros "(:model =1) (:owner =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. simplify.
-    iDestruct (models_lookup with "Hmodels_auth Hmodels_at_2") as %Hlookup.
+    iDestruct (models_lookup with "Hmodels_auth_1 Hmodels_at_2") as %Hlookup.
     iSteps.
-  Qed.
-  Lemma ws_queues_private_owner_exclusive t i status1 ws1 status2 ws2 :
-    ws_queues_private_owner t i status1 ws1 -∗
-    ws_queues_private_owner t i status2 ws2 -∗
-    False.
-  Proof.
-    iIntros "(:owner =1) (:owner =2)". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. simplify.
-    iApply (queue_3_model_exclusive with "Hqueue_model_1 Hqueue_model_2").
   Qed.
 
   Lemma ws_queues_private_create_spec ι sz :
