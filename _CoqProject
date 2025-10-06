@@ -113,7 +113,6 @@ theories/zoo/language/typeclasses.v
 
 theories/zoo/program_logic/state_interp.v
 theories/zoo/program_logic/wp.v
-theories/zoo/program_logic/proofmode.v
 theories/zoo/program_logic/adequacy.v
 theories/zoo/program_logic/itype.v
 theories/zoo/program_logic/typed_prophet.v
@@ -122,6 +121,8 @@ theories/zoo/program_logic/wise_prophets.v
 theories/zoo/program_logic/identifier.v
 theories/zoo/program_logic/structural_equality.v
 theories/zoo/program_logic/counter.v
+
+theories/zoo/proofmode.v
 
 theories/zoo/diaframe/hints.v
 theories/zoo/diaframe/specs.v

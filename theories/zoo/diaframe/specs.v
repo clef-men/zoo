@@ -6,7 +6,7 @@ From zoo.iris.diaframe Require Export
   symb_exec.wp.
 From zoo.language Require Import
   notations.
-From zoo.program_logic Require Import
+From zoo Require Import
   proofmode.
 From zoo Require Import
   options.
