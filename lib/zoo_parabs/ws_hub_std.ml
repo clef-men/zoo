@@ -86,14 +86,14 @@ let steal_until t i max_round_noyield pred =
   unblock t i ;
   res
 
-let steal_aux t i max_round_noyield max_round_yield until =
-  match try_steal t i false max_round_noyield until with
+let steal_aux t i max_round_noyield max_round_yield pred =
+  match try_steal t i false max_round_noyield pred with
   | Optional.Something _ as res ->
       res
   | Anything ->
       Anything
   | Nothing ->
-      try_steal t i true max_round_yield until
+      try_steal t i true max_round_yield pred
 let rec steal t i max_round_noyield max_round_yield =
   match steal_aux t i max_round_noyield max_round_yield (fun () -> killed t) with
   | Optional.Something v ->

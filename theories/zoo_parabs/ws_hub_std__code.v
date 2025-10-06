@@ -125,16 +125,16 @@ Definition ws_hub_std_steal_until : val :=
     "res".
 
 Definition ws_hub_std_steal_aux : val :=
-  fun: "t" "i" "max_round_noyield" "max_round_yield" "until" =>
+  fun: "t" "i" "max_round_noyield" "max_round_yield" "pred" =>
     match:
-      ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "until"
+      ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred"
     with
     | Something <> as "res" =>
         "res"
     | Anything =>
         §Anything
     | Nothing =>
-        ws_hub_std_try_steal "t" "i" #true "max_round_yield" "until"
+        ws_hub_std_try_steal "t" "i" #true "max_round_yield" "pred"
     end.
 
 Definition ws_hub_std_steal_0 : val :=
