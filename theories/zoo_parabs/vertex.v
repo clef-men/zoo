@@ -31,7 +31,7 @@ From zoo Require Import
 Inductive state :=
   | Init
   | Released
-  | Running
+  | Ready
   | Finished.
 Implicit Types state : state.
 
@@ -154,11 +154,11 @@ Module raw.
     #[local] Instance : CustomIpatFormat "model" :=
       "(:model' {//} {/which/})".
 
-    Definition vertex_running iter : iProp Σ :=
+    Definition vertex_ready iter : iProp Σ :=
       ∃ Δ,
       dependencies_auth iter Discard Δ ∗
       [∗ mset] δ ∈ Δ, state₁ δ Discard Finished.
-    #[local] Instance : CustomIpatFormat "running" :=
+    #[local] Instance : CustomIpatFormat "ready" :=
       "(
         %Δ{} &
         #Hdependencies{which;}_auth{_{}} &
@@ -173,7 +173,7 @@ Module raw.
     Definition vertex_wp_body t γ P R body task iter : iProp Σ :=
       ∀ pool ctx iter',
       pool_context pool ctx -∗
-      vertex_running iter -∗
+      vertex_ready iter -∗
       vertex_model t γ task iter' -∗
       WP task ctx {{ res,
         ∃ b task,
@@ -264,9 +264,9 @@ Module raw.
         {>;}HΔ &
         Htask
       )".
-    #[local] Definition inv_state_running Π : iProp Σ :=
+    #[local] Definition inv_state_ready Π : iProp Σ :=
       ⌜Π = ∅⌝.
-    #[local] Instance : CustomIpatFormat "inv_state_running" :=
+    #[local] Instance : CustomIpatFormat "inv_state_ready" :=
       "{>;}->".
     #[local] Definition inv_state_finished γ R preds Π : iProp Σ :=
       vertex_finished γ ∗
@@ -284,8 +284,8 @@ Module raw.
           inv_state_init preds iter Π
       | Released =>
           inv_state_released t γ P R preds iter Π
-      | Running =>
-          inv_state_running Π
+      | Ready =>
+          inv_state_ready Π
       | Finished =>
           inv_state_finished γ R preds Π
       end.
@@ -433,8 +433,8 @@ Module raw.
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex_running_timeless iter :
-      Timeless (vertex_running iter).
+    #[global] Instance vertex_ready_timeless iter :
+      Timeless (vertex_ready iter).
     Proof.
       apply _.
     Qed.
@@ -455,8 +455,8 @@ Module raw.
       rewrite vertex_inv_unfold.
       apply _.
     Qed.
-    #[global] Instance vertex_running_persistent iter :
-      Persistent (vertex_running iter).
+    #[global] Instance vertex_ready_persistent iter :
+      Persistent (vertex_ready iter).
     Proof.
       apply _.
     Qed.
@@ -674,10 +674,10 @@ Module raw.
 
     Lemma vertex_predecessor_finished γ iter :
       vertex_predecessor γ iter -∗
-      vertex_running iter -∗
+      vertex_ready iter -∗
       vertex_finished γ.
     Proof.
-      iIntros "(:predecessor) (:running)".
+      iIntros "(:predecessor) (:ready)".
       iDestruct (dependencies_elem_of with "Hdependencies_auth Hdependencies_elem") as %Hγ.
       iDestruct (big_sepMS_elem_of with "HΔ") as "#Hstate₁"; first done.
       iSteps.
@@ -951,8 +951,8 @@ Module raw.
         {{{
           pool_context pool ctx ∗
           vertex_inv t γ P R ∗
-          vertex_running iter ∗
-          model' t γ task Running iter ∗
+          vertex_ready iter ∗
+          model' t γ task Ready iter ∗
           vertex_wp t γ P R task iter
         }}}
           vertex_run ctx #t
@@ -984,7 +984,7 @@ Module raw.
         destruct_decide (size Π = 0) as ->%gmultiset_size_empty_inv | HΠ.
 
         - rewrite gmultiset_size_empty right_id.
-          iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+          iMod (state_update Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
           iMod (dependencies_discard with "Hdependencies_auth") as "#Hdependencies_auth".
           iDestruct "HΔ" as "#HΔ".
           iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
@@ -1039,7 +1039,7 @@ Module raw.
             }
             rewrite gmultiset_difference_diag.
 
-            iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
+            iMod (state_update Ready with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
             iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
             iIntros "{%} !>".
 
@@ -1056,7 +1056,7 @@ Module raw.
             }
             iSteps.
 
-        - iDestruct "Hinv_state" as "(:inv_state_running)".
+        - iDestruct "Hinv_state" as "(:inv_state_ready)".
           exfalso. set_solver.
 
         - iDestruct "Hinv_state" as "(:inv_state_finished)".
@@ -1072,7 +1072,7 @@ Module raw.
 
       { iClear "IHrun".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
+        iIntros "%pool %ctx %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
 
         wp_rec.
         wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
@@ -1083,7 +1083,7 @@ Module raw.
         wp_store.
         iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
         iMod (state_update Init with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-        iDestruct "Hinv_state" as "(:inv_state_running =1)".
+        iDestruct "Hinv_state" as "(:inv_state_ready =1)".
         iMod dependencies_alloc as "(%iter' & Hdependencies_auth)".
         iMod (iteration_update iter' with "Hiteration₁ Hiteration₂") as "(Hiteration₁ & Hiteration₂)".
         iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask".
@@ -1146,7 +1146,7 @@ Module raw.
   #[global] Opaque vertex_inv.
   #[global] Opaque vertex_model.
   #[global] Opaque vertex_output.
-  #[global] Opaque vertex_running.
+  #[global] Opaque vertex_ready.
   #[global] Opaque vertex_finished.
   #[global] Opaque vertex_predecessor.
   #[global] Opaque vertex_wp.
@@ -1223,8 +1223,8 @@ Section vertex_G.
       Houtput{_{}}
     )".
 
-  Definition vertex_running :=
-    raw.vertex_running.
+  Definition vertex_ready :=
+    raw.vertex_ready.
 
   Definition vertex_finished t : iProp Σ :=
     ∃ l γ,
@@ -1257,7 +1257,7 @@ Section vertex_G.
   Definition vertex_wp_body t P R body task iter : iProp Σ :=
     ∀ pool ctx iter',
     pool_context pool ctx -∗
-    vertex_running iter -∗
+    vertex_ready iter -∗
     vertex_model t task iter' -∗
     WP task ctx {{ res,
       ∃ b task,
@@ -1325,9 +1325,9 @@ Section vertex_G.
     iLöb as "HLöb" forall (task iter).
 
     iEval (rewrite vertex_wp_unfold raw.vertex_wp_unfold).
-    iIntros "#Hmeta Hwp %pool %ctx %iter' Hctx Hrunning Hmodel".
+    iIntros "#Hmeta Hwp %pool %ctx %iter' Hctx Hready Hmodel".
 
-    wp_apply (wp_wand with "(Hwp Hctx Hrunning [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
+    wp_apply (wp_wand with "(Hwp Hctx Hready [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
     iExists b, task. iStep. iModIntro.
     iDestruct "Hmodel" as "(:model =1)". simplify.
     iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
@@ -1350,8 +1350,8 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_running_timeless iter :
-    Timeless (vertex_running iter).
+  #[global] Instance vertex_ready_timeless iter :
+    Timeless (vertex_ready iter).
   Proof.
     apply _.
   Qed.
@@ -1371,8 +1371,8 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_running_persistent iter :
-    Persistent (vertex_running iter).
+  #[global] Instance vertex_ready_persistent iter :
+    Persistent (vertex_ready iter).
   Proof.
     apply _.
   Qed.
@@ -1433,11 +1433,11 @@ Section vertex_G.
 
   Lemma vertex_predecessor_finished t iter :
     vertex_predecessor t iter -∗
-    vertex_running iter -∗
+    vertex_ready iter -∗
     vertex_finished t.
   Proof.
-    iIntros "(:predecessor) Hrunning". simplify.
-    iDestruct (raw.vertex_predecessor_finished with "Hpredecessor Hrunning") as "Hfinished".
+    iIntros "(:predecessor) Hready". simplify.
+    iDestruct (raw.vertex_predecessor_finished with "Hpredecessor Hready") as "Hfinished".
     iSteps.
   Qed.
 
@@ -1600,7 +1600,7 @@ Section vertex_G.
       vertex_model t task iter ∗
       ( ∀ pool ctx,
         pool_context pool ctx -∗
-        vertex_running iter -∗
+        vertex_ready iter -∗
         WP task ctx {{ res,
           ⌜res = #false⌝ ∗
           ▷ pool_context pool ctx ∗
@@ -1625,7 +1625,7 @@ End vertex_G.
 #[global] Opaque vertex_inv.
 #[global] Opaque vertex_model.
 #[global] Opaque vertex_output.
-#[global] Opaque vertex_running.
+#[global] Opaque vertex_ready.
 #[global] Opaque vertex_finished.
 #[global] Opaque vertex_predecessor.
 #[global] Opaque vertex_wp.
