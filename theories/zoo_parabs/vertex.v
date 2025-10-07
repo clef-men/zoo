@@ -43,7 +43,7 @@ Implicit Types state : state.
 Record vertex_name:= {
   vertex_name_successors : val ;
   vertex_name_state : gname ;
-  vertex_name_generation : gname ;
+  vertex_name_iteration : gname ;
   vertex_name_predecessors : gname ;
   vertex_name_output : gname ;
 }.
@@ -58,15 +58,15 @@ Proof.
 Qed.
 Implicit Types Δ Π : gmultiset vertex_name.
 
-Definition vertex_generation :=
+Definition vertex_iteration :=
   gname.
-Implicit Types gen : vertex_generation.
+Implicit Types iter : vertex_iteration.
 
 Class VertexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
   #[local] vertex_G_pool_G :: SchedulerG Σ ;
   #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
-  #[local] vertex_G_generation_G :: TwinsG Σ (leibnizO vertex_generation) ;
+  #[local] vertex_G_iteration_G :: TwinsG Σ (leibnizO vertex_iteration) ;
   #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name ;
   #[local] vertex_G_predecessors_G :: AuthGmultisetG Σ vertex_name ;
   #[local] vertex_G_output_G :: SubpropsG Σ ;
@@ -76,7 +76,7 @@ Definition vertex_Σ := #[
   mpmc_stack_2_Σ ;
   pool_Σ ;
   twins_Σ (leibnizO state) ;
-  twins_Σ (leibnizO vertex_generation) ;
+  twins_Σ (leibnizO vertex_iteration) ;
   mono_gmultiset_Σ vertex_name ;
   auth_gmultiset_Σ vertex_name ;
   subprops_Σ
@@ -109,19 +109,19 @@ Module raw.
     #[local] Definition state₂ γ :=
       state₂' γ.(vertex_name_state).
 
-    #[local] Definition generation₁' γ_generation gen :=
-      twins_twin1 γ_generation (DfracOwn 1) gen.
-    #[local] Definition generation₁ γ :=
-      generation₁' γ.(vertex_name_generation).
-    #[local] Definition generation₂' γ_generation gen :=
-      twins_twin2 γ_generation gen.
-    #[local] Definition generation₂ γ :=
-      generation₂' γ.(vertex_name_generation).
+    #[local] Definition iteration₁' γ_iteration iter :=
+      twins_twin1 γ_iteration (DfracOwn 1) iter.
+    #[local] Definition iteration₁ γ :=
+      iteration₁' γ.(vertex_name_iteration).
+    #[local] Definition iteration₂' γ_iteration iter :=
+      twins_twin2 γ_iteration iter.
+    #[local] Definition iteration₂ γ :=
+      iteration₂' γ.(vertex_name_iteration).
 
-    #[local] Definition dependencies_auth gen own :=
-      mono_gmultiset_auth gen own.
-    #[local] Definition dependencies_elem gen :=
-      mono_gmultiset_elem gen.
+    #[local] Definition dependencies_auth iter own :=
+      mono_gmultiset_auth iter own.
+    #[local] Definition dependencies_elem iter :=
+      mono_gmultiset_elem iter.
 
     #[local] Definition predecessors_auth' γ_predecessors Π :=
       auth_gmultiset_auth γ_predecessors (DfracOwn 1) Π.
@@ -139,24 +139,24 @@ Module raw.
     #[local] Definition output_frag γ :=
       output_frag' γ.(vertex_name_output).
 
-    #[local] Definition model' t γ task state gen : iProp Σ :=
+    #[local] Definition model' t γ task state iter : iProp Σ :=
       t.[task] ↦ task ∗
       state₁ γ Own state ∗
-      generation₁ γ gen.
+      iteration₁ γ iter.
     #[local] Instance : CustomIpatFormat "model'" :=
       "(
         Ht{which;}_task{_{}} &
         Hstate{which;}₁{_{}} &
-        Hgeneration{which;}₁{_{}}
+        Hiteration{which;}₁{_{}}
       )".
-    Definition vertex_model t γ task gen : iProp Σ :=
-      model' t γ task Init gen.
+    Definition vertex_model t γ task iter : iProp Σ :=
+      model' t γ task Init iter.
     #[local] Instance : CustomIpatFormat "model" :=
       "(:model' {//} {/which/})".
 
-    Definition vertex_running gen : iProp Σ :=
+    Definition vertex_running iter : iProp Σ :=
       ∃ Δ,
-      dependencies_auth gen Discard Δ ∗
+      dependencies_auth iter Discard Δ ∗
       [∗ mset] δ ∈ Δ, state₁ δ Discard Finished.
     #[local] Instance : CustomIpatFormat "running" :=
       "(
@@ -170,19 +170,19 @@ Module raw.
     #[local] Instance : CustomIpatFormat "finished" :=
       "#Hstate{which;}₁{_{}}".
 
-    Definition vertex_wp_body t γ P R body task gen : iProp Σ :=
-      ∀ pool ctx gen',
+    Definition vertex_wp_body t γ P R body task iter : iProp Σ :=
+      ∀ pool ctx iter',
       pool_context pool ctx -∗
-      vertex_running gen -∗
-      vertex_model t γ task gen' -∗
+      vertex_running iter -∗
+      vertex_model t γ task iter' -∗
       WP task ctx {{ res,
         ∃ b task,
         ⌜res = #b⌝ ∗
         ▷ (
           pool_context pool ctx ∗
-          vertex_model t γ task gen' ∗
+          vertex_model t γ task iter' ∗
           if b then
-            body task gen'
+            body task iter'
           else
             P ∗
             □ R
@@ -190,8 +190,8 @@ Module raw.
       }}.
     #[local] Definition vertex_wp_pre
     : location → vertex_name → iProp Σ → iProp Σ →
-      (val -d> vertex_generation -d> iProp Σ) →
-      val -d> vertex_generation -d> iProp Σ
+      (val -d> vertex_iteration -d> iProp Σ) →
+      val -d> vertex_iteration -d> iProp Σ
     :=
       vertex_wp_body.
     #[local] Instance vertex_wp_pre_contractive t γ P R :
@@ -205,12 +205,12 @@ Module raw.
     Proof.
       apply _.
     Qed.
-    Definition vertex_wp t γ P R : val → vertex_generation → iProp Σ :=
+    Definition vertex_wp t γ P R : val → vertex_iteration → iProp Σ :=
       fixpoint (vertex_wp_pre t γ P R).
 
-    Lemma vertex_wp_unfold t γ P R task gen :
-      vertex_wp t γ P R task gen ⊣⊢
-      vertex_wp_body t γ P R (vertex_wp t γ P R) task gen.
+    Lemma vertex_wp_unfold t γ P R task iter :
+      vertex_wp t γ P R task iter ⊣⊢
+      vertex_wp_body t γ P R (vertex_wp t γ P R) task iter.
     Proof.
       apply (fixpoint_unfold (vertex_wp_pre t γ P R)).
     Qed.
@@ -226,7 +226,7 @@ Module raw.
       ) vertex_wp.
     Proof.
       intros t t_ <- γ γ_ <-.
-      induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
+      induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
       rewrite !vertex_wp_unfold /vertex_wp_body.
       do 16 f_equiv. f_contractive.
       apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
@@ -235,9 +235,9 @@ Module raw.
       apply IH; done.
     Qed.
 
-    #[local] Definition inv_state_init preds gen Π : iProp Σ :=
+    #[local] Definition inv_state_init preds iter Π : iProp Σ :=
       ∃ Δ,
-      dependencies_auth gen Own (Δ ⊎ Π) ∗
+      dependencies_auth iter Own (Δ ⊎ Π) ∗
       ⌜preds = S (size Π)⌝ ∗
       [∗ mset] δ ∈ Δ, vertex_finished δ.
     #[local] Instance : CustomIpatFormat "inv_state_init" :=
@@ -247,13 +247,13 @@ Module raw.
         {>;}-> &
         {>;}HΔ
       )".
-    #[local] Definition inv_state_released t γ P R preds gen Π : iProp Σ :=
+    #[local] Definition inv_state_released t γ P R preds iter Π : iProp Σ :=
       ∃ task Δ,
-      model' t γ task Released gen ∗
-      dependencies_auth gen Discard (Δ ⊎ Π) ∗
+      model' t γ task Released iter ∗
+      dependencies_auth iter Discard (Δ ⊎ Π) ∗
       ⌜preds = size Π⌝ ∗
       ([∗ mset] δ ∈ Δ, vertex_finished δ) ∗
-      vertex_wp t γ P R task gen.
+      vertex_wp t γ P R task iter.
     #[local] Instance : CustomIpatFormat "inv_state_released" :=
       "(
         %task &
@@ -278,12 +278,12 @@ Module raw.
         {>;}-> &
         #HR{which;}
       )".
-    #[local] Definition inv_state t γ P R state preds gen Π : iProp Σ :=
+    #[local] Definition inv_state t γ P R state preds iter Π : iProp Σ :=
       match state with
       | Init =>
-          inv_state_init preds gen Π
+          inv_state_init preds iter Π
       | Released =>
-          inv_state_released t γ P R preds gen Π
+          inv_state_released t γ P R preds iter Π
       | Running =>
           inv_state_running Π
       | Finished =>
@@ -320,23 +320,23 @@ Module raw.
       )".
 
     #[local] Definition inv_inner inv t γ P R : iProp Σ :=
-      ∃ preds state gen Π,
+      ∃ preds state iter Π,
       t.[preds] ↦ #preds ∗
       state₂ γ state ∗
-      generation₂ γ gen ∗
+      iteration₂ γ iter ∗
       predecessors_auth γ Π ∗
       output_auth γ P (bool_decide (state = Finished)) ∗
-      inv_state t γ P R state preds gen Π ∗
+      inv_state t γ P R state preds iter Π ∗
       inv_successors inv γ (bool_decide (state = Finished)).
     #[local] Instance : CustomIpatFormat "inv_inner" :=
       "(
         %preds{} &
         %state{} &
-        %gen{} &
+        %iter{} &
         %Π &
         Ht{which;}_preds &
         >Hstate{which;}₂ &
-        >Hgeneration{which;}₂ &
+        >Hiteration{which;}₂ &
         Hpredecessors{which;}_auth &
         Houtput{which;}_auth &
         Hinv_state{which;} &
@@ -423,18 +423,18 @@ Module raw.
       solve_proper.
     Qed.
 
-    Definition vertex_predecessor γ gen :=
-      dependencies_elem gen γ.
+    Definition vertex_predecessor γ iter :=
+      dependencies_elem iter γ.
     #[local] Instance : CustomIpatFormat "predecessor" :=
       "#Hdependencies{which;}_elem{_{}}".
 
-    #[global] Instance vertex_model_timeless t γ task gen :
-      Timeless (vertex_model t γ task gen).
+    #[global] Instance vertex_model_timeless t γ task iter :
+      Timeless (vertex_model t γ task iter).
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex_running_timeless gen :
-      Timeless (vertex_running gen).
+    #[global] Instance vertex_running_timeless iter :
+      Timeless (vertex_running iter).
     Proof.
       apply _.
     Qed.
@@ -443,8 +443,8 @@ Module raw.
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex_predecessor_timeless γ gen :
-      Timeless (vertex_predecessor γ gen).
+    #[global] Instance vertex_predecessor_timeless γ iter :
+      Timeless (vertex_predecessor γ iter).
     Proof.
       apply _.
     Qed.
@@ -455,8 +455,8 @@ Module raw.
       rewrite vertex_inv_unfold.
       apply _.
     Qed.
-    #[global] Instance vertex_running_persistent gen :
-      Persistent (vertex_running gen).
+    #[global] Instance vertex_running_persistent iter :
+      Persistent (vertex_running iter).
     Proof.
       apply _.
     Qed.
@@ -465,8 +465,8 @@ Module raw.
     Proof.
       apply _.
     Qed.
-    #[global] Instance vertex_predecessor_persistent γ gen :
-      Persistent (vertex_predecessor γ gen).
+    #[global] Instance vertex_predecessor_persistent γ iter :
+      Persistent (vertex_predecessor γ iter).
     Proof.
       apply _.
     Qed.
@@ -508,61 +508,61 @@ Module raw.
       apply twins_twin1_persist.
     Qed.
 
-    #[local] Lemma generation_alloc gen :
+    #[local] Lemma iteration_alloc iter :
       ⊢ |==>
-        ∃ γ_generation,
-        generation₁' γ_generation gen ∗
-        generation₂' γ_generation gen.
+        ∃ γ_iteration,
+        iteration₁' γ_iteration iter ∗
+        iteration₂' γ_iteration iter.
     Proof.
       apply twins_alloc'.
     Qed.
-    #[local] Lemma generation_agree γ generation1 generation2 :
-      generation₁ γ generation1 -∗
-      generation₂ γ generation2 -∗
-      ⌜generation1 = generation2⌝.
+    #[local] Lemma iteration_agree γ iteration1 iteration2 :
+      iteration₁ γ iteration1 -∗
+      iteration₂ γ iteration2 -∗
+      ⌜iteration1 = iteration2⌝.
     Proof.
       apply: twins_agree_L.
     Qed.
-    #[local] Lemma generation₁_exclusive γ generation1 generation2 :
-      generation₁ γ generation1 -∗
-      generation₁ γ generation2 -∗
+    #[local] Lemma iteration₁_exclusive γ iteration1 iteration2 :
+      iteration₁ γ iteration1 -∗
+      iteration₁ γ iteration2 -∗
       False.
     Proof.
       apply twins_twin1_exclusive.
     Qed.
-    #[local] Lemma generation_update {γ generation1 generation2} generation :
-      generation₁ γ generation1 -∗
-      generation₂ γ generation2 ==∗
-        generation₁ γ generation ∗
-        generation₂ γ generation.
+    #[local] Lemma iteration_update {γ iteration1 iteration2} iteration :
+      iteration₁ γ iteration1 -∗
+      iteration₂ γ iteration2 ==∗
+        iteration₁ γ iteration ∗
+        iteration₂ γ iteration.
     Proof.
       apply twins_update.
     Qed.
 
     #[local] Lemma dependencies_alloc :
       ⊢ |==>
-        ∃ gen,
-        dependencies_auth gen Own ∅.
+        ∃ iter,
+        dependencies_auth iter Own ∅.
     Proof.
       apply mono_gmultiset_alloc.
     Qed.
-    #[local] Lemma dependencies_add {gen Δ} δ :
-      dependencies_auth gen Own Δ ⊢ |==>
-        dependencies_auth gen Own ({[+δ+]} ⊎ Δ) ∗
-        dependencies_elem gen δ.
+    #[local] Lemma dependencies_add {iter Δ} δ :
+      dependencies_auth iter Own Δ ⊢ |==>
+        dependencies_auth iter Own ({[+δ+]} ⊎ Δ) ∗
+        dependencies_elem iter δ.
     Proof.
       apply mono_gmultiset_insert'.
     Qed.
-    #[local] Lemma dependencies_elem_of gen own Δ δ :
-      dependencies_auth gen own Δ -∗
-      dependencies_elem gen δ -∗
+    #[local] Lemma dependencies_elem_of iter own Δ δ :
+      dependencies_auth iter own Δ -∗
+      dependencies_elem iter δ -∗
       ⌜δ ∈ Δ⌝.
     Proof.
       apply mono_gmultiset_elem_valid.
     Qed.
-    #[local] Lemma dependencies_discard gen Δ :
-      dependencies_auth gen Own Δ ⊢ |==>
-      dependencies_auth gen Discard Δ.
+    #[local] Lemma dependencies_discard iter Δ :
+      dependencies_auth iter Own Δ ⊢ |==>
+      dependencies_auth iter Discard Δ.
     Proof.
       apply mono_gmultiset_auth_persist.
     Qed.
@@ -630,16 +630,16 @@ Module raw.
       apply subprops_consume.
     Qed.
 
-    Lemma vertex_model_exclusive t γ task1 gen1 task2 gen2 :
-      vertex_model t γ task1 gen1 -∗
-      vertex_model t γ task2 gen2 -∗
+    Lemma vertex_model_exclusive t γ task1 iter1 task2 iter2 :
+      vertex_model t γ task1 iter1 -∗
+      vertex_model t γ task2 iter2 -∗
       False.
     Proof.
       iIntros "(:model =1) (:model =2)".
-      iApply (generation₁_exclusive with "Hgeneration₁_1 Hgeneration₁_2").
+      iApply (iteration₁_exclusive with "Hiteration₁_1 Hiteration₁_2").
     Qed.
-    Lemma vertex_model_finished t γ task gen :
-      vertex_model t γ task gen -∗
+    Lemma vertex_model_finished t γ task iter :
+      vertex_model t γ task iter -∗
       vertex_finished γ -∗
       False.
     Proof.
@@ -672,9 +672,9 @@ Module raw.
       iMod (vertex_output_divide [Q1;Q2] with "Hinv Houtput [H]") as "($ & $ & _)"; iSteps.
     Qed.
 
-    Lemma vertex_predecessor_finished γ gen :
-      vertex_predecessor γ gen -∗
-      vertex_running gen -∗
+    Lemma vertex_predecessor_finished γ iter :
+      vertex_predecessor γ iter -∗
+      vertex_running iter -∗
       vertex_finished γ.
     Proof.
       iIntros "(:predecessor) (:running)".
@@ -716,11 +716,11 @@ Module raw.
         True
       }}}
         vertex_create task
-      {{{ t γ gen,
+      {{{ t γ iter,
         RET #t;
         meta_token t ⊤ ∗
         vertex_inv t γ P R ∗
-        vertex_model t γ (default (fun: <> => #false)%V task) gen ∗
+        vertex_model t γ (default (fun: <> => #false)%V task) iter ∗
         vertex_output γ P
       }}}.
     Proof.
@@ -739,15 +739,15 @@ Module raw.
       iMod (pointsto_persist with "Ht_succs") as "#Ht_succs".
 
       iMod state_alloc as "(%γ_state & Hstate₁ & Hstate₂)".
-      iMod dependencies_alloc as "(%gen & Hdependencies_auth)".
-      iMod (generation_alloc gen) as "(%γ_generation & Hgeneration₁ & Hgeneration₂)".
+      iMod dependencies_alloc as "(%iter & Hdependencies_auth)".
+      iMod (iteration_alloc iter) as "(%γ_iteration & Hiteration₁ & Hiteration₂)".
       iMod predecessors_alloc as "(%γ_predecessors & Hpredecessors_auth)".
       iMod (output_alloc P) as "(%γ_output & Houtput_auth & Houtput_frag)".
 
       pose γ := {|
         vertex_name_successors := succs ;
         vertex_name_state := γ_state ;
-        vertex_name_generation := γ_generation ;
+        vertex_name_iteration := γ_iteration ;
         vertex_name_predecessors := γ_predecessors ;
         vertex_name_output := γ_output ;
       |}.
@@ -756,46 +756,46 @@ Module raw.
       iFrame.
       rewrite vertex_inv_unfold. iStep 2.
       iApply inv_alloc.
-      iExists 1, Init, gen, ∅. iFrame. iSplitR "Hsuccessors_model".
+      iExists 1, Init, iter, ∅. iFrame. iSplitR "Hsuccessors_model".
       - rewrite /inv_state /inv_state_init.
         iExists ∅. rewrite big_sepMS_empty left_id. iSteps.
       - iExists []. iSteps.
     Qed.
 
-    Lemma vertex_task_spec t γ task gen :
+    Lemma vertex_task_spec t γ task iter :
       {{{
-        vertex_model t γ task gen
+        vertex_model t γ task iter
       }}}
         vertex_task #t
       {{{
         RET task;
-        vertex_model t γ task gen
+        vertex_model t γ task iter
       }}}.
     Proof.
       iSteps.
     Qed.
 
-    Lemma vertex_set_task_spec t γ task1 gen task2 :
+    Lemma vertex_set_task_spec t γ task1 iter task2 :
       {{{
-        vertex_model t γ task1 gen
+        vertex_model t γ task1 iter
       }}}
         vertex_set_task #t task2
       {{{
         RET ();
-        vertex_model t γ task2 gen
+        vertex_model t γ task2 iter
       }}}.
     Proof.
       iSteps.
     Qed.
 
-    Lemma vertex_set_task'_spec t γ task1 gen task2 :
+    Lemma vertex_set_task'_spec t γ task1 iter task2 :
       {{{
-        vertex_model t γ task1 gen
+        vertex_model t γ task1 iter
       }}}
         vertex_set_task' #t task2
       {{{
         RET ();
-        vertex_model t γ (fun: "ctx" => task2 "ctx" ;; #false) gen
+        vertex_model t γ (fun: "ctx" => task2 "ctx" ;; #false) iter
       }}}.
     Proof.
       iIntros "%Φ Hmodel HΦ".
@@ -804,17 +804,17 @@ Module raw.
       wp_smart_apply (vertex_set_task_spec with "Hmodel HΦ").
     Qed.
 
-    Lemma vertex_precede_spec t1 γ1 P1 R1 t2 γ2 P2 R2 task gen :
+    Lemma vertex_precede_spec t1 γ1 P1 R1 t2 γ2 P2 R2 task iter :
       {{{
         vertex_inv t1 γ1 P1 R1 ∗
         vertex_inv t2 γ2 P2 R2 ∗
-        vertex_model t2 γ2 task gen
+        vertex_model t2 γ2 task iter
       }}}
         vertex_precede #t1 #t2
       {{{
         RET ();
-        vertex_model t2 γ2 task gen ∗
-        vertex_predecessor γ1 gen
+        vertex_model t2 γ2 task iter ∗
+        vertex_predecessor γ1 iter
       }}}.
     Proof.
       setoid_rewrite vertex_inv_unfold.
@@ -824,7 +824,7 @@ Module raw.
       iApply (wp_frame_wand with "[Ht2_task HΦ]"); first iAccu.
       wp_load.
 
-      awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hgeneration2₁".
+      awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
       iInv "Hinv_1" as "(:inv_inner which=1 =1)".
       case_decide as Hstate1; first subst.
 
@@ -833,16 +833,16 @@ Module raw.
         iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs1_model !>".
         { iFrameSteps. }
         iSplitL. { iFrameSteps. }
-        iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
+        iIntros "{%} _ (Hstate2₁ & Hiteration2₁)".
 
         iApply fupd_wp.
         iInv "Hinv_2" as "(:inv_inner which=2 =1)".
         iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
-        iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+        iDestruct (iteration_agree with "Hiteration2₁ Hiteration2₂") as %<-.
         iDestruct "Hinv_state2" as "(:inv_state_init which=2 =1 >)".
         iMod (dependencies_add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
         iDestruct (big_sepMS_insert_2 γ1 with "HΔ Hstate1₁") as "HΔ".
-        iSplitR "Hstate2₁ Hgeneration2₁".
+        iSplitR "Hstate2₁ Hiteration2₁".
         { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = ({[+γ1+]} ⊎ Δ) ⊎ Π) as ->.
           { rewrite assoc //. }
           iFrame. rewrite /inv_state. iFrameSteps.
@@ -854,7 +854,7 @@ Module raw.
         { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps. }
         iSplitL.
         { iFrameSteps. rewrite bool_decide_eq_false_2 //. iSteps. }
-        iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
+        iIntros "{%} _ (Hstate2₁ & Hiteration2₁)".
 
         wp_pures.
 
@@ -862,11 +862,11 @@ Module raw.
         iInv "Hinv_2" as "(:inv_inner which=2 =1)".
         wp_faa.
         iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
-        iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+        iDestruct (iteration_agree with "Hiteration2₁ Hiteration2₂") as %<-.
         iDestruct "Hinv_state2" as "(:inv_state_init which=2 =1)".
         iMod (dependencies_add γ1 with "Hdependencies2_auth") as "(Hdependencies2_auth & #Hdependencies2_elem)".
         iMod (predecessors_add γ1 with "Hpredecessors2_auth") as "(Hpredecessors2_auth & Hpredecessors2_elem )".
-        iSplitR "Hstate2₁ Hgeneration2₁ Hpredecessors2_elem".
+        iSplitR "Hstate2₁ Hiteration2₁ Hpredecessors2_elem".
         { assert ({[+γ1+]} ⊎ (Δ ⊎ Π) = Δ ⊎ ({[+γ1+]} ⊎ Π)) as ->.
           { rewrite assoc (comm _ _ Δ) -assoc //. }
           iFrameSteps. iPureIntro.
@@ -876,7 +876,7 @@ Module raw.
 
         wp_pures. clear.
 
-        awp_apply (mpmc_stack_2_push_spec with "Hsuccessors1_inv") without "Hstate2₁ Hgeneration2₁".
+        awp_apply (mpmc_stack_2_push_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
         iInv "Hinv_1" as "(:inv_inner which=1 =2)".
         case_decide as Hstate2; first subst.
 
@@ -885,7 +885,7 @@ Module raw.
           iAaccIntro with "Hsuccessors1_model"; iIntros "Hsuccs1_model !>".
           { iFrameSteps. }
           iSplitR "Hpredecessors2_elem". { iFrameSteps. }
-          iIntros "{%} _ (Hstate2₁ & Hgeneration2₁)".
+          iIntros "{%} _ (Hstate2₁ & Hiteration2₁)".
 
           wp_pures.
 
@@ -893,12 +893,12 @@ Module raw.
           iInv "Hinv_2" as "(:inv_inner which=2 =2)".
           wp_faa.
           iDestruct (state_agree with "Hstate2₁ Hstate2₂") as %<-.
-          iDestruct (generation_agree with "Hgeneration2₁ Hgeneration2₂") as %<-.
+          iDestruct (iteration_agree with "Hiteration2₁ Hiteration2₂") as %<-.
           iDestruct "Hinv_state2" as "(:inv_state_init which=2 =2)".
           iDestruct (predecessors_elem_of with "Hpredecessors2_auth Hpredecessors2_elem") as %Hγ1.
           iMod (predecessors_remove with "Hpredecessors2_auth Hpredecessors2_elem") as "Hpredecessors2_auth".
           iDestruct (big_sepMS_insert_2 γ1 with "HΔ Hstate1₁") as "HΔ".
-          iSplitR "Hstate2₁ Hgeneration2₁".
+          iSplitR "Hstate2₁ Hiteration2₁".
           { replace (Δ ⊎ Π) with ({[+γ1+]} ⊎ Δ ⊎ Π ∖ {[+γ1+]}) by multiset_solver.
             iFrameSteps. iPureIntro.
             rewrite gmultiset_size_difference; first multiset_solver.
@@ -921,12 +921,12 @@ Module raw.
 
     #[local] Lemma vertex_release_run_spec :
       ⊢ (
-        ∀ pool ctx t γ P R task gen,
+        ∀ pool ctx t γ P R task iter,
         {{{
           pool_context pool ctx ∗
           vertex_inv t γ P R ∗
-          vertex_model t γ task gen ∗
-          vertex_wp t γ P R task gen
+          vertex_model t γ task iter ∗
+          vertex_wp t γ P R task iter
         }}}
           vertex_release ctx #t
         {{{
@@ -947,13 +947,13 @@ Module raw.
           pool_context pool ctx
         }}}
       ) ∧ (
-        ∀ pool ctx t γ gen P R task,
+        ∀ pool ctx t γ iter P R task,
         {{{
           pool_context pool ctx ∗
           vertex_inv t γ P R ∗
-          vertex_running gen ∗
-          model' t γ task Running gen ∗
-          vertex_wp t γ P R task gen
+          vertex_running iter ∗
+          model' t γ task Running iter ∗
+          vertex_wp t γ P R task iter
         }}}
           vertex_run ctx #t
         {{{
@@ -968,7 +968,7 @@ Module raw.
 
       { iClear "IHrelease IHrelease_successor".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %P %R %task %gen !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
+        iIntros "%pool %ctx %t %γ %P %R %task %iter !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
         wp_rec.
         iApply (wp_frame_wand with "HΦ").
@@ -978,7 +978,7 @@ Module raw.
         iInv "Hinv" as "(:inv_inner =1)".
         wp_faa.
         iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
-        iDestruct (generation_agree with "Hgeneration₁ Hgeneration₂") as %<-.
+        iDestruct (iteration_agree with "Hiteration₁ Hiteration₂") as %<-.
         iDestruct "Hinv_state" as "(:inv_state_init =1)".
 
         destruct_decide (size Π = 0) as ->%gmultiset_size_empty_inv | HΠ.
@@ -987,7 +987,7 @@ Module raw.
           iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
           iMod (dependencies_discard with "Hdependencies_auth") as "#Hdependencies_auth".
           iDestruct "HΔ" as "#HΔ".
-          iSplitR "Hctx Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
+          iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
           iIntros "{%} !>".
 
           wp_smart_apply ("IHrun" with "[$]").
@@ -1040,7 +1040,7 @@ Module raw.
             rewrite gmultiset_difference_diag.
 
             iMod (state_update Running with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
-            iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hgeneration₁ Htask". { iFrameSteps. }
+            iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
             iIntros "{%} !>".
 
             wp_smart_apply ("IHrun" with "[$]").
@@ -1072,7 +1072,7 @@ Module raw.
 
       { iClear "IHrun".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %gen %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
+        iIntros "%pool %ctx %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hrunning & (:model') & Htask) HΦ".
 
         wp_rec.
         wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
@@ -1084,9 +1084,9 @@ Module raw.
         iDestruct (state_agree with "Hstate₁ Hstate₂") as %<-.
         iMod (state_update Init with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
         iDestruct "Hinv_state" as "(:inv_state_running =1)".
-        iMod dependencies_alloc as "(%gen' & Hdependencies_auth)".
-        iMod (generation_update gen' with "Hgeneration₁ Hgeneration₂") as "(Hgeneration₁ & Hgeneration₂)".
-        iSplitR "Hctx Ht_task Hstate₁ Hgeneration₁ Htask".
+        iMod dependencies_alloc as "(%iter' & Hdependencies_auth)".
+        iMod (iteration_update iter' with "Hiteration₁ Hiteration₂") as "(Hiteration₁ & Hiteration₂)".
+        iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask".
         { iFrameSteps.
           iExists ∅. rewrite left_id big_sepMS_empty. iSteps.
         }
@@ -1125,12 +1125,12 @@ Module raw.
           iApply (vertex_inv_unfold with "Hinv_succ").
       }
     Qed.
-    Lemma vertex_release_spec pool ctx t γ P R task gen :
+    Lemma vertex_release_spec pool ctx t γ P R task iter :
       {{{
         pool_context pool ctx ∗
         vertex_inv t γ P R ∗
-        vertex_model t γ task gen ∗
-        vertex_wp t γ P R task gen
+        vertex_model t γ task iter ∗
+        vertex_wp t γ P R task iter
       }}}
         vertex_release ctx #t
       {{{
@@ -1195,11 +1195,11 @@ Section vertex_G.
     solve_proper.
   Qed.
 
-  Definition vertex_model t task gen : iProp Σ :=
+  Definition vertex_model t task iter : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    raw.vertex_model l γ task gen.
+    raw.vertex_model l γ task iter.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
       %l{}{_{!}} &
@@ -1240,11 +1240,11 @@ Section vertex_G.
       Hfinished{_{}}
     )".
 
-  Definition vertex_predecessor t gen : iProp Σ :=
+  Definition vertex_predecessor t iter : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    raw.vertex_predecessor γ gen.
+    raw.vertex_predecessor γ iter.
   #[local] Instance : CustomIpatFormat "predecessor" :=
     "(
       %l{}{_{!}} &
@@ -1254,19 +1254,19 @@ Section vertex_G.
       Hpredecessor{_{}}
     )".
 
-  Definition vertex_wp_body t P R body task gen : iProp Σ :=
-    ∀ pool ctx gen',
+  Definition vertex_wp_body t P R body task iter : iProp Σ :=
+    ∀ pool ctx iter',
     pool_context pool ctx -∗
-    vertex_running gen -∗
-    vertex_model t task gen' -∗
+    vertex_running iter -∗
+    vertex_model t task iter' -∗
     WP task ctx {{ res,
       ∃ b task,
       ⌜res = #b⌝ ∗
       ▷ (
         pool_context pool ctx ∗
-        vertex_model t task gen' ∗
+        vertex_model t task iter' ∗
         if b then
-          body task gen'
+          body task iter'
         else
           P ∗
           □ R
@@ -1274,8 +1274,8 @@ Section vertex_G.
     }}.
   #[local] Definition vertex_wp_pre
   : val → iProp Σ → iProp Σ →
-    (val -d> vertex_generation -d> iProp Σ) →
-    val -d> vertex_generation -d> iProp Σ
+    (val -d> vertex_iteration -d> iProp Σ) →
+    val -d> vertex_iteration -d> iProp Σ
   :=
     vertex_wp_body.
   #[local] Instance vertex_wp_pre_contractive t P R :
@@ -1289,12 +1289,12 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  Definition vertex_wp t P R : val → vertex_generation → iProp Σ :=
+  Definition vertex_wp t P R : val → vertex_iteration → iProp Σ :=
     fixpoint (vertex_wp_pre t P R).
 
-  Lemma vertex_wp_unfold t P R task gen :
-    vertex_wp t P R task gen ⊣⊢
-    vertex_wp_body t P R (vertex_wp t P R) task gen.
+  Lemma vertex_wp_unfold t P R task iter :
+    vertex_wp t P R task iter ⊣⊢
+    vertex_wp_body t P R (vertex_wp t P R) task iter.
   Proof.
     apply (fixpoint_unfold (vertex_wp_pre t P R)).
   Qed.
@@ -1309,7 +1309,7 @@ Section vertex_G.
     ) vertex_wp.
   Proof.
     intros t t_ <-.
-    induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- gen gen_ <-.
+    induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
     rewrite !vertex_wp_unfold /vertex_wp_body.
     do 16 f_equiv. f_contractive.
     apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
@@ -1317,15 +1317,15 @@ Section vertex_G.
     do 3 f_equiv; last solve_proper.
     apply IH; done.
   Qed.
-  #[local] Lemma vertex_wp_to_raw l γ P R task gen :
+  #[local] Lemma vertex_wp_to_raw l γ P R task iter :
     meta l nroot γ -∗
-    vertex_wp #l P R task gen -∗
-    raw.vertex_wp l γ P R task gen.
+    vertex_wp #l P R task iter -∗
+    raw.vertex_wp l γ P R task iter.
   Proof.
-    iLöb as "HLöb" forall (task gen).
+    iLöb as "HLöb" forall (task iter).
 
     iEval (rewrite vertex_wp_unfold raw.vertex_wp_unfold).
-    iIntros "#Hmeta Hwp %pool %ctx %gen' Hctx Hrunning Hmodel".
+    iIntros "#Hmeta Hwp %pool %ctx %iter' Hctx Hrunning Hmodel".
 
     wp_apply (wp_wand with "(Hwp Hctx Hrunning [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
     iExists b, task. iStep. iModIntro.
@@ -1345,13 +1345,13 @@ Section vertex_G.
     solve_proper.
   Qed.
 
-  #[global] Instance vertex_model_timeless t task gen :
-    Timeless (vertex_model t task gen).
+  #[global] Instance vertex_model_timeless t task iter :
+    Timeless (vertex_model t task iter).
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_running_timeless gen :
-    Timeless (vertex_running gen).
+  #[global] Instance vertex_running_timeless iter :
+    Timeless (vertex_running iter).
   Proof.
     apply _.
   Qed.
@@ -1360,8 +1360,8 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_predecessor_timeless t gen :
-    Timeless (vertex_predecessor t gen).
+  #[global] Instance vertex_predecessor_timeless t iter :
+    Timeless (vertex_predecessor t iter).
   Proof.
     apply _.
   Qed.
@@ -1371,8 +1371,8 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_running_persistent gen :
-    Persistent (vertex_running gen).
+  #[global] Instance vertex_running_persistent iter :
+    Persistent (vertex_running iter).
   Proof.
     apply _.
   Qed.
@@ -1381,23 +1381,23 @@ Section vertex_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance vertex_predecessor_persistent t gen :
-    Persistent (vertex_predecessor t gen).
+  #[global] Instance vertex_predecessor_persistent t iter :
+    Persistent (vertex_predecessor t iter).
   Proof.
     apply _.
   Qed.
 
-  Lemma vertex_model_exclusive t task1 gen1 task2 gen2 :
-    vertex_model t task1 gen1 -∗
-    vertex_model t task2 gen2 -∗
+  Lemma vertex_model_exclusive t task1 iter1 task2 iter2 :
+    vertex_model t task1 iter1 -∗
+    vertex_model t task2 iter2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
     iApply (raw.vertex_model_exclusive with "Hmodel_1 Hmodel_2").
   Qed.
-  Lemma vertex_model_finished t task gen :
-    vertex_model t task gen -∗
+  Lemma vertex_model_finished t task iter :
+    vertex_model t task iter -∗
     vertex_finished t -∗
     False.
   Proof.
@@ -1431,9 +1431,9 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_predecessor_finished t gen :
-    vertex_predecessor t gen -∗
-    vertex_running gen -∗
+  Lemma vertex_predecessor_finished t iter :
+    vertex_predecessor t iter -∗
+    vertex_running iter -∗
     vertex_finished t.
   Proof.
     iIntros "(:predecessor) Hrunning". simplify.
@@ -1489,29 +1489,29 @@ Section vertex_G.
       True
     }}}
       vertex_create task
-    {{{ t gen,
+    {{{ t iter,
       RET t;
       vertex_inv t P R ∗
-      vertex_model t (default (fun: <> => #false)%V task) gen ∗
+      vertex_model t (default (fun: <> => #false)%V task) iter ∗
       vertex_output t P
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (raw.vertex_create_spec with "[//]") as (l γ gen) "(Hmeta & #Hinv & Hmodel & Houtput)".
+    wp_apply (raw.vertex_create_spec with "[//]") as (l γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma vertex_task_spec t task gen :
+  Lemma vertex_task_spec t task iter :
     {{{
-      vertex_model t task gen
+      vertex_model t task iter
     }}}
       vertex_task t
     {{{
       RET task;
-      vertex_model t task gen
+      vertex_model t task iter
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
@@ -1520,14 +1520,14 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_set_task_spec t task1 gen task2 :
+  Lemma vertex_set_task_spec t task1 iter task2 :
     {{{
-      vertex_model t task1 gen
+      vertex_model t task1 iter
     }}}
       vertex_set_task t task2
     {{{
       RET ();
-      vertex_model t task2 gen
+      vertex_model t task2 iter
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
@@ -1536,14 +1536,14 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_set_task'_spec t task1 gen task2 :
+  Lemma vertex_set_task'_spec t task1 iter task2 :
     {{{
-      vertex_model t task1 gen
+      vertex_model t task1 iter
     }}}
       vertex_set_task' t task2
     {{{
       RET ();
-      vertex_model t (fun: "ctx" => task2 "ctx" ;; #false) gen
+      vertex_model t (fun: "ctx" => task2 "ctx" ;; #false) iter
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
@@ -1552,17 +1552,17 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_precede_spec t1 P1 R1 t2 P2 R2 task gen :
+  Lemma vertex_precede_spec t1 P1 R1 t2 P2 R2 task iter :
     {{{
       vertex_inv t1 P1 R1 ∗
       vertex_inv t2 P2 R2 ∗
-      vertex_model t2 task gen
+      vertex_model t2 task iter
     }}}
       vertex_precede t1 t2
     {{{
       RET ();
-      vertex_model t2 task gen ∗
-      vertex_predecessor t1 gen
+      vertex_model t2 task iter ∗
+      vertex_predecessor t1 iter
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:inv =2) & Hmodel_2) HΦ". simplify.
@@ -1574,12 +1574,12 @@ Section vertex_G.
     iSteps.
   Qed.
 
-  Lemma vertex_release_spec pool ctx t P R task gen :
+  Lemma vertex_release_spec pool ctx t P R task iter :
     {{{
       pool_context pool ctx ∗
       vertex_inv t P R ∗
-      vertex_model t task gen ∗
-      vertex_wp t P R task gen
+      vertex_model t task iter ∗
+      vertex_wp t P R task iter
     }}}
       vertex_release ctx t
     {{{
@@ -1593,14 +1593,14 @@ Section vertex_G.
 
     wp_apply (raw.vertex_release_spec with "[$] HΦ").
   Qed.
-  Lemma vertex_release_spec' pool ctx t P R task gen :
+  Lemma vertex_release_spec' pool ctx t P R task iter :
     {{{
       pool_context pool ctx ∗
       vertex_inv t P R ∗
-      vertex_model t task gen ∗
+      vertex_model t task iter ∗
       ( ∀ pool ctx,
         pool_context pool ctx -∗
-        vertex_running gen -∗
+        vertex_running iter -∗
         WP task ctx {{ res,
           ⌜res = #false⌝ ∗
           ▷ pool_context pool ctx ∗
