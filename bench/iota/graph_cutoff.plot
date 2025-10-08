@@ -1,4 +1,4 @@
-load libdir.'/svg.plot'
+load libdir.'/output.plot'
 load libdir.'/axes_cutoff.plot'
 set logscale x
 set xrange [5:200000]
