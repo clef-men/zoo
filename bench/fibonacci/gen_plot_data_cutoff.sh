@@ -4,8 +4,8 @@ set -eou pipefail
 
 EXTRA_DOMAINS=6
 benchname="fibonacci"
-input="35"
-cutoffs="5 7 10 12 15 17 20 22 25 27 30 32 35"
+input="40"
+cutoffs="8 10 12 15 17 20 22 25 27 30 32 35"
 impls="sequential parabs domainslib moonpool-fifo moonpool-ws"
 prog="EXTRA_DOMAINS=$EXTRA_DOMAINS ./_build/default/bench/$benchname/run.exe"
 
