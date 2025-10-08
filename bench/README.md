@@ -38,7 +38,7 @@ Each benchmark is evaluated across different schedulers.
 
 - `domainslib`: [domainslib](https://github.com/ocaml-multicore/domainslib/), the standard library for CPU-bound concurrent tasks in Multicore OCaml
 - `parabs`: the (verified) code from this repository
-- `moonpool-fifo`: the [moonpool](https://github.com/c-cube/moonpool/) scheduler, which started as a simpler-yet-efficient scheduler
+- `moonpool-fifo`: the [moonpool](https://github.com/c-cube/moonpool/) scheduler (version 0.8), which started as a simpler-yet-efficient scheduler
 - `moonpool-ws`: a variant of `moonpool` that uses a work-stealing structure in its scheduler,
   and is described as better at optimizing throughput
 - `sequential`: a default baseline where no parallelism actually happens, all tasks are run on the main domain
@@ -97,7 +97,6 @@ done
 
 In other words, this is a parallel-for loop with a very irregular workload: `fibo` has exponential runtime, `fibo(i+1)` is roughly 1.6x slower than `fibo(i)`, so the majority of compute time is concentrated for the indices 35 to 40. In particular, our parallel-for implementations try to amortize scheduling costs by having each task work on a chunk of CUTOFF consecutive indices, and shoudl behave badly for larger CUTOFF values.
 
-TODO: use a larger LIMIT value
 
 ### `lu`
 
