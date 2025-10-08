@@ -2,11 +2,12 @@
 
 set -eou pipefail
 
+EXTRA_DOMAINS=5
 benchname="for_irregular"
 input="100"
 cutoffs="1 2 3 4 6 8 12 16 24 32"
 impls="sequential parabs domainslib moonpool-fifo moonpool-ws"
-prog="LIMIT=36 ./_build/default/bench/$benchname/run.exe"
+prog="EXTRA_DOMAINS=$EXTRA_DOMAINS LIMIT=38 ./_build/default/bench/$benchname/run.exe"
 
 dune build bench/$benchname/run.exe
 
