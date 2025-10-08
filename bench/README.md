@@ -155,17 +155,16 @@ the benchmark has heterogeneous/irregular tasks.
 
 ## Overall results
 
-The benchmarks `fibonacci` and `iota` validate our pre-benchmarking
-expectations. In fact `parabs` seems to perform slightly better than
-`domainslib` (sometimes 10-20% better).
+The benchmarks `fibonacci`, `iota` and `for_irregular` validate our
+pre-benchmarking expectations. In fact `parabs` seems to perform
+slightly better than `domainslib` in some workflows
+(sometimes 10-20% better).
 
 On `matmul`, all schedulers perform similarly (once we control for the
 one-domain shift in `moonpool` that makes it look worse, see below).
 
 The benchmark `lu` shows surprisingly poor performance of `parabs` on
 larger CUTOFF value, whose cause is not yet understood.
-
-`for_irregular`: TODO
 
 The parallel-for implementation of `moonpool` uses one less domain
 than `domainslib` or `parabs` for compute -- the main domain simply
@@ -219,7 +218,11 @@ Summary
 
 ### `for_irregular`
 
-TODO: re-run the benchmarks with larger LIMIT values
+Per-cutoff results: `for_irregular` is designed to be a worst-case for large CUTOFF values. We indeed observe better noticeably performance with CUTOFF=1 than with larger values, across all schedulers -- for example `domainslib` is 52% slower with CUTOFF=8. The performance benefits of CUTOFF=1 is smaller for `moonpool` due to its higher scheduling overhead: it is only 22% slower with CUTOFF=8.
+
+We do observe that `parabs` and `domainslib` perform similarly, and better than `moonpool`.
+
+The per-domain results show that `parabs` and `domainslib` are similar and behave better than `moonpool`, especially due to the one-domain shift. For example `parabs` and `domainslib` are within noise with DOMAINS=4, and the DOMAINS=5 results for `moonpool` (controlling for the one-domain shift) are 23% slower than those.
 
 ### `iota`
 
