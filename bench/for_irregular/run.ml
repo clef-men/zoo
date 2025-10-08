@@ -41,7 +41,7 @@ let pool =
   Pool.impl_of_string Sys.argv.(1)
 
 let limit =
-  Option.value ~default:30
+  Option.value ~default:35
     (Utils.get_int_param "LIMIT")
 
 let cutoff =
