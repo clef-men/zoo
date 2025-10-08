@@ -22,4 +22,7 @@ sh bench/fibonacci/plot_cutoff.sh bench/fibonacci/data/plot_cutoff.data
 
 # produce SVG output
 SVG=1 sh bench/fibonacci/plot_cutoff.sh bench/fibonacci/data/plot_cutoff.data
+
+# convert SVG output to a PDF
+inkscape bench/fibonacci/data/plot_cutoff.data.svg -o bench/fibonacci/data/plot_cutoff.data.pdf
 ```
