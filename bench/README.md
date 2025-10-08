@@ -159,10 +159,13 @@ The benchmarks `fibonacci` and `iota` validate our pre-benchmarking
 expectations. In fact `parabs` seems to perform slightly better than
 `domainslib` (sometimes 10-20% better).
 
+On `matmul`, all schedulers perform similarly (once we control for the
+one-domain shift in `moonpool` that makes it look worse, see below).
+
 The benchmark `lu` shows surprisingly poor performance of `parabs` on
 larger CUTOFF value, whose cause is not yet understood.
 
-`for_irregular`, `matmul`: TODO
+`for_irregular`: TODO
 
 The parallel-for implementation of `moonpool` uses one less domain
 than `domainslib` or `parabs` for compute -- the main domain simply
@@ -247,4 +250,9 @@ Per-domain results (CUTOFF=10): `domainslib` does better than `moonpool`, `parab
 
 ## `matmul`
 
-TODO
+Per-cutoff results: the performance is stable across a wide range of CUTOFF value: almost constant between CUTOFF=1 and CUTOFF=10, decreases slightly until CUTOFF=100. The input uses N=500, so larger cutoff values prevent parallelization and bring performance closer to the sequential scheduler.
+
+Per-domain results: `domainslib` and `parabs` perform similarly. `moonpool` performs worse due to the one-domain shift. In CPU-contended settings (DOMAINS >= 12), `moonpool` performs noticeably better than the other schedulers.
+
+For example for DOMAINS=4, `domainslib` is 8% faster than `parabs`, and the performance of `moonpool` with DOMAINS=5 is identical to that of `parabs` with DOMAINS=4.
+
