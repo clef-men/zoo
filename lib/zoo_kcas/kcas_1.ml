@@ -102,11 +102,10 @@ let get loc =
 let cas cass =
   let casn = { status= After; proph= Zoo.proph () } in
   let cass =
-    Lst.map (fun cas ->
+    cass |> Lst.map @@ fun cas ->
       let loc, before, after = cas in
       let state = { casn; before; after } in
       { loc; state }
-    ) cass
   in
   casn.status <- Undetermined cass ;
   determine_as casn cass
