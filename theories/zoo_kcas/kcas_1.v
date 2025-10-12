@@ -606,9 +606,9 @@ Section kcas_1_G.
     model₁ γ v.
   #[local] Instance : CustomIpatFormat "loc_model" :=
     "(
-      %γ &
-      Hmeta &
-      Hmodel₁
+      %γ{} &
+      Hmeta{_{}} &
+      Hmodel₁{_{}}
     )".
 
   #[local] Lemma casn_inv''_unfold ι casn (i : option nat) η :
@@ -724,6 +724,29 @@ Section kcas_1_G.
     iMod twins_alloc' as "(%γ_model & Htwin1 & Htwin2)".
     iFrameSteps.
   Qed.
+  #[local] Lemma model₁_exclusive γ v1 v2 :
+    model₁ γ v1 -∗
+    model₁ γ v2 -∗
+    False.
+  Proof.
+    apply twins_twin1_exclusive.
+  Qed.
+  #[local] Lemma model₂_similar {γ v1} v2 :
+    v1 ≈ v2 →
+    model₂ γ v1 ⊢
+    model₂ γ v2.
+  Proof.
+    iIntros (?%symmetry) "(%v & % & Hmodel₂)".
+    iExists v. iSteps. iPureIntro. etrans; done.
+  Qed.
+  #[local] Lemma model₂_exclusive γ v1 v2 :
+    model₂ γ v1 -∗
+    model₂ γ v2 -∗
+    False.
+  Proof.
+    iIntros "(% & % & Hmodel₂1) (% & % & Hmodel₂2)".
+    iApply (twins_twin2_exclusive with "Hmodel₂1 Hmodel₂2").
+  Qed.
   #[local] Lemma model_agree γ v1 v2 :
     model₁ γ v1 -∗
     model₂ γ v2 -∗
@@ -742,22 +765,6 @@ Section kcas_1_G.
     iIntros "Hmodel₁ (% & % & Hmodel₂)".
     iMod (twins_update with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
     iFrameSteps.
-  Qed.
-  #[local] Lemma model₂_similar {γ v1} v2 :
-    v1 ≈ v2 →
-    model₂ γ v1 ⊢
-    model₂ γ v2.
-  Proof.
-    iIntros (?%symmetry) "(%v & % & Hmodel₂)".
-    iExists v. iSteps. iPureIntro. etrans; done.
-  Qed.
-  #[local] Lemma model₂_exclusive γ v1 v2 :
-    model₂ γ v1 -∗
-    model₂ γ v2 -∗
-    False.
-  Proof.
-    iIntros "(% & % & Hmodel₂1) (% & % & Hmodel₂2)".
-    iApply (twins_twin2_exclusive with "Hmodel₂1 Hmodel₂2").
   Qed.
 
   #[local] Lemma lstatus_alloc lstatus :
@@ -1027,6 +1034,16 @@ Section kcas_1_G.
   Opaque model₂'.
   Opaque history_auth'.
   Opaque history_lb.
+
+  Lemma kcas_1_loc_model_exclusive loc v1 v2 :
+    kcas_1_loc_model loc v1 -∗
+    kcas_1_loc_model loc v2 -∗
+    False.
+  Proof.
+    iIntros "(:loc_model =1) (:loc_model =2)".
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
+    iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
+  Qed.
 
   #[local] Lemma casn_help {casn η ι Ψ i} descr P :
     η.(metadata_descrs) !! i = Some descr →
