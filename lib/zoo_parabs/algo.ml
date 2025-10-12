@@ -28,11 +28,11 @@ let rec for_2 ctx beg end_ chunk fn =
     for i = beg to end_ - 1 do fn ctx i done
   else begin
     let mid = beg + (end_ - beg) / 2 in
-    let right = Pool.async ctx (fun ctx ->
-      for_2 ctx mid end_ chunk fn
+    let left = Pool.async ctx (fun ctx ->
+      for_2 ctx beg mid chunk fn
     ) in
-    for_2 ctx beg mid chunk fn;
-    Pool.wait ctx right
+    for_2 ctx mid end_ chunk fn;
+    Pool.wait ctx left
   end
 
 let divide ctx beg end_ fn =
