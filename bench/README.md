@@ -154,16 +154,10 @@ the benchmark has heterogeneous/irregular tasks.
 
 ## Overall results
 
-The benchmarks `fibonacci`, `iota` and `for_irregular` validate our
-pre-benchmarking expectations. In fact `parabs` seems to perform
-slightly better than `domainslib` in some workflows
+The benchmarks validate our pre-benchmarking expectations.  In fact
+`parabs` seems to perform slightly better than `domainslib` on
+benchmarks `fibonacci` and `for_irregular` with irregular tasks such
 (sometimes 10-20% better).
-
-On `matmul`, all schedulers perform similarly (once we control for the
-one-domain shift in `moonpool` that makes it look worse, see below).
-
-The benchmark `lu` shows surprisingly poor performance of `parabs` on
-larger CUTOFF value, whose cause is not yet understood.
 
 The parallel-for implementation of `moonpool` uses one less domain
 than `domainslib` or `parabs` for compute -- the main domain simply
@@ -173,7 +167,7 @@ moonpool will be comparable to the DOMAINS=2 performance of `parabs`
 or `domainslib`.
 
 We observe that `moonpool` works better than either `parabs` and
-`domainslib` under CPU contention -- starting around 10 domains. The
+`domainslib` under CPU contention -- starting around 11 domains. The
 cause for this difference is not yet understood. (One plausible
 explanation is that the centralized design means that domains wait
 more, and that having several domains waiting on a lock actually helps
@@ -217,11 +211,11 @@ Summary
 
 ### `for_irregular`
 
-Per-cutoff results: `for_irregular` is designed to be a worst-case for large CUTOFF values. We indeed observe better noticeably performance with CUTOFF=1 than with larger values, across all schedulers -- for example `domainslib` is 52% slower with CUTOFF=8. The performance benefits of CUTOFF=1 is smaller for `moonpool` due to its higher scheduling overhead: it is only 22% slower with CUTOFF=8.
+Per-cutoff results: `for_irregular` is designed to be a worst-case for large CUTOFF values. We indeed observe better noticeably performance with CUTOFF=1 than with larger values, across all schedulers -- for example `domainslib` is 50% slower with CUTOFF=8. The performance benefits of CUTOFF=1 is smaller for `moonpool` due to its higher scheduling overhead: it is only 18% slower with CUTOFF=8.
 
 We do observe that `parabs` and `domainslib` perform similarly, and better than `moonpool`.
 
-The per-domain results show that `parabs` and `domainslib` are similar and behave better than `moonpool`, especially due to the one-domain shift. For example `parabs` and `domainslib` are within noise with DOMAINS=4, and the DOMAINS=5 results for `moonpool` (controlling for the one-domain shift) are 23% slower than those.
+The per-domain results show that `parabs` and `domainslib` are similar and behave better than `moonpool`, especially due to the one-domain shift. For example `domainslib` is only 13% slower than `parabs` with DOMAINS=4, whereas the DOMAINS=5 result for `moonpool` (controlling for the one-domain shift) is 32% slower.
 
 ### `iota`
 
@@ -233,21 +227,15 @@ In the per-domain plot, we observe three performance regimes:
 
 - 5 <= DOMAINS <= 11: all schedulers perform similarly
 
-- 12 <= DOMAINS: moonpool is noticeably faster than other schedulers
+- 12 <= DOMAINS: moonpool is somewhat faster than other schedulers
   in CPU-contention scenarios, with a slower degradation of performance
   (even accounting for the one-domain shift)
 
 ### `lu`
 
-Per-cutoff results: most schedulers tend to behave relatively well for any cutoff value, except for `parabs` which only performs well with CUTOFF=1.
+Per-cutoff results: most schedulers tend to behave relatively well for any cutoff value.
 
-SURPRISE: `parabs` does very badly with larger cutoff values, this is not explained.
-
-I computed two set of per-domain results, one with CUTOFF=10 which seems to be around the sweet spot for `moonpool`, and one with CUTOFF=1 where `parabs` performs much better than for other CUTOFF values.
-
-Per-domain results (CUTOFF=1): `parabs` and `domainslib` perform similarly, `moonpool` is much worse (around 30% slower in the best cases). `moonpool` does better in CPU-contended scenarios (DOMAINS >= 12).
-
-Per-domain results (CUTOFF=10): `domainslib` does better than `moonpool`, `parabs` is much much worse. For example for DOMAINS=6, `moonpool` is 27% slower than `domainslib` and `parabs` is 290% slower than `domainslib`.
+Per-domain results (CUTOFF=10): `domainslib`, `parabs` and `moonpool` have similar performance if we control for the one-domain shift of `moonpool`. On (DOMAINS >= 12) `moonpool` behaves much better as it suffers much less from CPU contention.
 
 
 ## `matmul`
@@ -255,6 +243,4 @@ Per-domain results (CUTOFF=10): `domainslib` does better than `moonpool`, `parab
 Per-cutoff results: the performance is stable across a wide range of CUTOFF value: almost constant between CUTOFF=1 and CUTOFF=10, decreases slightly until CUTOFF=100. The input uses N=500, so larger cutoff values prevent parallelization and bring performance closer to the sequential scheduler.
 
 Per-domain results: `domainslib` and `parabs` perform similarly. `moonpool` performs worse due to the one-domain shift. In CPU-contended settings (DOMAINS >= 12), `moonpool` performs noticeably better than the other schedulers.
-
-For example for DOMAINS=4, `domainslib` is 8% faster than `parabs`, and the performance of `moonpool` with DOMAINS=5 is identical to that of `parabs` with DOMAINS=4.
 
