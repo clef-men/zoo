@@ -8,6 +8,14 @@ val for_ :
   (Pool.context -> int -> unit) ->
   unit
 
+val for_2 :
+  Pool.context ->
+  int ->
+  int ->
+  int ->
+  (Pool.context -> int -> unit) ->
+  unit
+
 val divide :
   Pool.context ->
   int ->

@@ -23,6 +23,18 @@ let for_ ctx beg end_ chunk fn =
     ) ;
   Pool.wait_until ctx (fun () -> Atomic.get num_pending == 0)
 
+let rec for_2 ctx beg end_ chunk fn =
+  if end_ - beg <= chunk then
+    for i = beg to end_ - 1 do fn ctx i done
+  else begin
+    let mid = beg + (end_ - beg) / 2 in
+    let right = Pool.async ctx (fun ctx ->
+      for_2 ctx mid end_ chunk fn
+    ) in
+    for_2 ctx beg mid chunk fn;
+    Pool.wait ctx right
+  end
+
 let divide ctx beg end_ fn =
   let num_dom = Pool.size ctx + 1 in
   let sz = end_ - beg in
