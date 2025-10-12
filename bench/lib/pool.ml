@@ -130,7 +130,7 @@ module Parabs = Make(struct
     Pool.wait
 
   let for_ ctx ~beg ~end_ ~chunk fn =
-    Algo.for_ ctx beg end_ chunk fn
+    Algo.for_2 ctx beg end_ chunk fn
 
   let divide ctx ~beg ~end_ fn =
     Algo.divide ctx beg end_ fn
