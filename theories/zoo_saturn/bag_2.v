@@ -454,9 +454,9 @@ Section bag_2_G.
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
-  Lemma bag_2_producer_exclusive t producer ws1 ws2 :
-    bag_2_producer t producer ws1 -∗
-    bag_2_producer t producer ws2 -∗
+  Lemma bag_2_producer_exclusive t1 t2 producer ws1 ws2 :
+    bag_2_producer t1 producer ws1 -∗
+    bag_2_producer t2 producer ws2 -∗
     False.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
