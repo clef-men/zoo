@@ -258,15 +258,15 @@ Section bag_2_G.
     queues_elem γ queue.
   #[local] Instance : CustomIpatFormat "consumer" :=
     "(
-      %l_ &
-      %γ_ &
-      %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 &
-      %queue &
-      %Heq &
-      Hmeta_ &
-      -> &
-      Hconsumer_queue &
-      #Hqueues_elem
+      %l{;_} &
+      %γ{;_} &
+      %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{} &
+      %queue{} &
+      %Heq{} &
+      Hmeta_{} &
+      {%Hconsumer_eq{};->} &
+      Hconsumer_queue{_{}} &
+      #Hqueues_elem{_{}}
     )".
 
   #[local] Instance queues_auth_timeless γ nodes descrs wss :
@@ -461,6 +461,15 @@ Section bag_2_G.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
     iApply (spmc_queue_producer_exclusive with "Hqueue_producer_1 Hqueue_producer_2").
+  Qed.
+
+  Lemma bag_2_consumer_exclusive t1 t2 consumer :
+    bag_2_consumer t1 consumer -∗
+    bag_2_consumer t2 consumer -∗
+    False.
+  Proof.
+    iIntros "(:consumer =1) (:consumer =2)". simplify.
+    iApply (pointsto_exclusive with "Hconsumer_queue_1 Hconsumer_queue_2").
   Qed.
 
   Lemma bag_2_create_spec ι :
