@@ -8,7 +8,6 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
-  lib.auth_nat_max
   lib.twins
   lib.auth_mono
   lib.mono_list
@@ -190,7 +189,6 @@ Qed.
 Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
   #[local] inf_mpmc_queue_2_G_prophets_G :: WiseProphetsG Σ global_prophet ;
-  #[local] inf_mpmc_queue_2_G_front_G :: AuthNatMaxG Σ ;
   #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val) ;
   #[local] inf_mpmc_queue_2_G_lstate_G :: AuthMonoG Σ lstep ;
@@ -205,7 +203,6 @@ Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
 Definition inf_mpmc_queue_2_Σ := #[
   inf_array_Σ ;
   wise_prophets_Σ global_prophet ;
-  auth_nat_max_Σ ;
   twins_Σ (leibnizO (list val)) ;
   mono_list_Σ (option val) ;
   mono_list_Σ gname ;
@@ -233,7 +230,6 @@ Section inf_mpmc_queue_2_G.
     metadata_inv : namespace ;
     metadata_prophet : prophet_id ;
     metadata_prophet_name : wise_prophets_name ;
-    metadata_front : gname ;
     metadata_model : gname ;
     metadata_history : gname ;
     metadata_lstates : gname ;
@@ -249,13 +245,6 @@ Section inf_mpmc_queue_2_G.
   Proof.
     solve_countable.
   Qed.
-
-  #[local] Definition front_auth' γ_front i :=
-    auth_nat_max_auth γ_front (DfracOwn 1) i.
-  #[local] Definition front_auth γ i :=
-    front_auth' γ.(metadata_front) i.
-  #[local] Definition front_lb γ i :=
-    auth_nat_max_lb γ.(metadata_front) i.
 
   #[local] Definition model₁' γ_model vs :=
     twins_twin1 γ_model (DfracOwn 1) vs.
@@ -409,14 +398,14 @@ Section inf_mpmc_queue_2_G.
         history_at γ i None
     | ConsumerProducer η =>
         ∃ Ψ v,
-        front_lb γ (S i) ∗
+        consumers_lb γ (S i) ∗
         saved_pred η Ψ ∗
         history_at γ i (Some v) ∗
         ( Ψ v
         ∨ consumers_at γ i Discard
         )
     | ConsumerConsumer =>
-        front_lb γ (S i)
+        consumers_lb γ (S i)
     | _ =>
         False
     end.
@@ -430,7 +419,7 @@ Section inf_mpmc_queue_2_G.
     "(
       %Ψ &
       %v_ &
-      #Hfront_lb &
+      #Hconsumers_lb &
       #Hη_ &
       #Hhistory_at_ &
       HΨ
@@ -491,7 +480,6 @@ Section inf_mpmc_queue_2_G.
     l.[front] ↦ #front ∗
     l.[back] ↦ #back ∗
     inf_array_model γ.(metadata_data) slots ∗
-    front_auth γ front ∗
     model₂ γ vs ∗
     ⌜vs = oflatten (drop front hist)⌝ ∗
     history_auth γ hist ∗
@@ -523,7 +511,6 @@ Section inf_mpmc_queue_2_G.
       Hl_front &
       Hl_back &
       >Hdata_model &
-      Hfront_auth &
       Hmodel₂ &
       >%Hvs{} &
       Hhistory_auth &
@@ -612,36 +599,6 @@ Section inf_mpmc_queue_2_G.
     Persistent (inf_mpmc_queue_2_inv t ι).
   Proof.
     apply _.
-  Qed.
-
-  #[local] Lemma front_alloc :
-    ⊢ |==>
-      ∃ γ_front,
-      front_auth' γ_front 0.
-  Proof.
-    apply auth_nat_max_alloc.
-  Qed.
-  #[local] Lemma front_lb_get {γ i1} i2 :
-    i2 ≤ i1 →
-    front_auth γ i1 ⊢
-    front_lb γ i2.
-  Proof.
-    iIntros "% Hauth".
-    iDestruct (auth_nat_max_lb_get with "Hauth") as "#Hlb".
-    iApply (auth_nat_max_lb_le with "Hlb"); first done.
-  Qed.
-  #[local] Lemma front_lb_valid γ i1 i2 :
-    front_auth γ i1 -∗
-    front_lb γ i2 -∗
-    ⌜i2 ≤ i1⌝.
-  Proof.
-    apply auth_nat_max_lb_valid.
-  Qed.
-  #[local] Lemma front_update γ i :
-    front_auth γ i ⊢ |==>
-    front_auth γ (S i).
-  Proof.
-    apply auth_nat_max_update. lia.
   Qed.
 
   #[local] Lemma model_alloc :
@@ -854,12 +811,32 @@ Section inf_mpmc_queue_2_G.
     iDestruct (mono_list_lb_valid with "Hauth1 Hlb2") as %?%prefix_length.
     iSteps.
   Qed.
+  #[local] Lemma consumers_lb_le {γ i1} i2 :
+    i2 ≤ i1 →
+    consumers_lb γ i1 ⊢
+    consumers_lb γ i2.
+  Proof.
+    iIntros "% (:consumers_lb)".
+    iDestruct (mono_list_lb_mono (take i2 ηs) with "Hlb") as "$".
+    { apply prefix_take. }
+    simpl_length. iSteps.
+  Qed.
   #[local] Lemma consumers_lb_get γ i :
     consumers_auth γ i ⊢
     consumers_lb γ i.
   Proof.
     iIntros "(:consumers_auth)".
     iDestruct (mono_list_lb_get with "Hauth") as "Hlb".
+    iSteps.
+  Qed.
+  #[local] Lemma consumers_lb_get' {γ i} i' :
+    i' ≤ i →
+    consumers_auth γ i ⊢
+    consumers_lb γ i'.
+  Proof.
+    iIntros "% Hauth".
+    iDestruct (consumers_lb_get with "Hauth") as "Hlb".
+    iDestruct (consumers_lb_le with "Hlb") as "Hlb"; first done.
     iSteps.
   Qed.
   #[local] Lemma consumers_update γ i :
@@ -932,7 +909,6 @@ Section inf_mpmc_queue_2_G.
     iMod (pointsto_persist with "Hl_data") as "#Hl_data".
     iMod (pointsto_persist with "Hl_proph") as "#Hl_proph".
 
-    iMod front_alloc as "(%γ_front & Hfront_auth)".
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod history_alloc as "(%γ_history & Hhistory_auth)".
     iMod lstates_alloc as "(%γ_lstates & Hlstates_auth)".
@@ -944,7 +920,6 @@ Section inf_mpmc_queue_2_G.
       metadata_inv := ι ;
       metadata_prophet := pid ;
       metadata_prophet_name := γ_prophet ;
-      metadata_front := γ_front ;
       metadata_model := γ_model ;
       metadata_history := γ_history ;
       metadata_lstates := γ_lstates ;
@@ -1206,7 +1181,7 @@ Section inf_mpmc_queue_2_G.
 
     - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
       rewrite Nat.max_l in Hlstates1; first lia.
-      iDestruct (front_lb_get (S back1) with "Hfront_auth") as "#Hfront_lb"; first lia.
+      iDestruct (consumers_lb_get' (S back1) with "Hconsumers_auth") as "#Hconsumers_lb"; first lia.
       destruct (lookup_lt_is_Some_2 lstates1 back1) as (lstate & Hlstates_lookup); first lia.
       iDestruct (lstates_lb_get with "Hlstates_auth") as "#Hlstates_lb"; first done.
       erewrite drop_S; last done.
@@ -1344,13 +1319,13 @@ Section inf_mpmc_queue_2_G.
     wp_bind (FAA _ _).
     iInv "Hinv" as "(:inv_inner =1)".
     wp_faa.
-    iMod (consumers_update with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
     iDestruct (wise_prophets_full_get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
     destruct_decide (back1 ≤ front1) as Hfirst | Hlast.
 
     - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
       rewrite Nat.max_l // in Hlstates1.
-      iMod (front_update with "Hfront_auth") as "Hfront_auth".
+
+      iMod (consumers_update with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
 
       destruct_decide (head prophs = Some id) as Hwinner | Hloser.
 
@@ -1467,9 +1442,9 @@ Section inf_mpmc_queue_2_G.
       { rewrite lookup_take_Some. naive_solver lia. }
       destruct lstate.
       all: try iDestruct "Hlstate" as %[].
+      1,2: iMod (consumers_update with "Hconsumers_auth") as "(Hconsumers_auth & Hconsumers_at)".
 
       + iDestruct "Hlstate" as "(:inv_lstate_left_producer)".
-        iMod (front_update with "Hfront_auth") as "Hfront_auth".
         iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at") as %Hhist1_lookup.
         erewrite drop_S, oflatten_cons_Some in Hvs1; last done.
 
@@ -1518,8 +1493,7 @@ Section inf_mpmc_queue_2_G.
         }
         iSteps.
 
-      + iMod (front_update with "Hfront_auth") as "Hfront_auth".
-        iDestruct (history_at_lookup with "Hhistory_auth Hlstate") as %Hhist1_lookup.
+      + iDestruct (history_at_lookup with "Hhistory_auth Hlstate") as %Hhist1_lookup.
         erewrite drop_S, oflatten_cons_None in Hvs1; last done.
         iDestruct (lstates_lb_get with "Hlstates_auth") as "#Hlstates_lb"; first done.
 
@@ -1554,9 +1528,9 @@ Section inf_mpmc_queue_2_G.
         iSteps.
 
       + iDestruct "Hlstate" as "(:inv_lstate_left_consumer)".
-        iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?. lia.
+        iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb") as %?. lia.
 
-      + iDestruct (front_lb_valid with "Hfront_auth Hlstate") as %?. lia.
+      + iDestruct (consumers_lb_valid with "Hconsumers_auth Hlstate") as %?. lia.
   Qed.
 End inf_mpmc_queue_2_G.
 
