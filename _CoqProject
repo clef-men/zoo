@@ -385,30 +385,30 @@ theories/zoo_saturn/bag_2__types.v
 theories/zoo_saturn/bag_2__code.v
 theories/zoo_saturn/bag_2__opaque.v
 theories/zoo_saturn/bag_2.v
-theories/zoo_saturn/inf_ws_queue_1__types.v
-theories/zoo_saturn/inf_ws_queue_1__code.v
-theories/zoo_saturn/inf_ws_queue_1__opaque.v
-theories/zoo_saturn/inf_ws_queue_1.v
-theories/zoo_saturn/inf_ws_queue_2__types.v
-theories/zoo_saturn/inf_ws_queue_2__code.v
-theories/zoo_saturn/inf_ws_queue_2__opaque.v
-theories/zoo_saturn/inf_ws_queue_2.v
-theories/zoo_saturn/ws_bqueue_1__types.v
-theories/zoo_saturn/ws_bqueue_1__code.v
-theories/zoo_saturn/ws_bqueue_1__opaque.v
-theories/zoo_saturn/ws_bqueue_1.v
-theories/zoo_saturn/ws_bqueue_2__types.v
-theories/zoo_saturn/ws_bqueue_2__code.v
-theories/zoo_saturn/ws_bqueue_2__opaque.v
-theories/zoo_saturn/ws_bqueue_2.v
-theories/zoo_saturn/ws_queue_1__types.v
-theories/zoo_saturn/ws_queue_1__code.v
-theories/zoo_saturn/ws_queue_1__opaque.v
-theories/zoo_saturn/ws_queue_1.v
-theories/zoo_saturn/ws_queue_2__types.v
-theories/zoo_saturn/ws_queue_2__code.v
-theories/zoo_saturn/ws_queue_2__opaque.v
-theories/zoo_saturn/ws_queue_2.v
+theories/zoo_saturn/inf_ws_deque_1__types.v
+theories/zoo_saturn/inf_ws_deque_1__code.v
+theories/zoo_saturn/inf_ws_deque_1__opaque.v
+theories/zoo_saturn/inf_ws_deque_1.v
+theories/zoo_saturn/inf_ws_deque_2__types.v
+theories/zoo_saturn/inf_ws_deque_2__code.v
+theories/zoo_saturn/inf_ws_deque_2__opaque.v
+theories/zoo_saturn/inf_ws_deque_2.v
+theories/zoo_saturn/ws_bdeque_1__types.v
+theories/zoo_saturn/ws_bdeque_1__code.v
+theories/zoo_saturn/ws_bdeque_1__opaque.v
+theories/zoo_saturn/ws_bdeque_1.v
+theories/zoo_saturn/ws_bdeque_2__types.v
+theories/zoo_saturn/ws_bdeque_2__code.v
+theories/zoo_saturn/ws_bdeque_2__opaque.v
+theories/zoo_saturn/ws_bdeque_2.v
+theories/zoo_saturn/ws_deque_1__types.v
+theories/zoo_saturn/ws_deque_1__code.v
+theories/zoo_saturn/ws_deque_1__opaque.v
+theories/zoo_saturn/ws_deque_1.v
+theories/zoo_saturn/ws_deque_2__types.v
+theories/zoo_saturn/ws_deque_2__code.v
+theories/zoo_saturn/ws_deque_2__opaque.v
+theories/zoo_saturn/ws_deque_2.v
 
 #END zoo-saturn
 
@@ -416,14 +416,14 @@ theories/zoo_saturn/ws_queue_2.v
 -Q theories/zoo_parabs zoo_parabs
 
 theories/zoo_parabs/base.v
-theories/zoo_parabs/ws_queues_public__types.v
-theories/zoo_parabs/ws_queues_public__code.v
-theories/zoo_parabs/ws_queues_public__opaque.v
-theories/zoo_parabs/ws_queues_public.v
-theories/zoo_parabs/ws_queues_private__types.v
-theories/zoo_parabs/ws_queues_private__code.v
-theories/zoo_parabs/ws_queues_private__opaque.v
-theories/zoo_parabs/ws_queues_private.v
+theories/zoo_parabs/ws_deques_public__types.v
+theories/zoo_parabs/ws_deques_public__code.v
+theories/zoo_parabs/ws_deques_public__opaque.v
+theories/zoo_parabs/ws_deques_public.v
+theories/zoo_parabs/ws_deques_private__types.v
+theories/zoo_parabs/ws_deques_private__code.v
+theories/zoo_parabs/ws_deques_private__opaque.v
+theories/zoo_parabs/ws_deques_private.v
 theories/zoo_parabs/waiters__types.v
 theories/zoo_parabs/waiters__code.v
 theories/zoo_parabs/waiters__opaque.v

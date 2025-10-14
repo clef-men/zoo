@@ -10,7 +10,7 @@ From zoo_std Require Import
   int
   domain.
 From zoo_parabs Require Import
-  ws_queues_public
+  ws_deques_public
   waiters.
 From zoo Require Import
   options.
