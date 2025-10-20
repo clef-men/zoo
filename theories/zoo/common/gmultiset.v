@@ -102,6 +102,11 @@ Section disj_union_list.
     setoid_rewrite elem_of_gmultiset_disj_union_list.
     naive_solver.
   Qed.
+  Lemma gmultiset_disj_union_list_replicate_empty n :
+    ⋃+ replicate n ∅ =@{gmultiset A} ∅.
+  Proof.
+    apply gmultiset_disj_union_list_empty. intros X (-> & _)%elem_of_replicate => //.
+  Qed.
 
   Lemma gmultiset_disj_union_list_delete Xs i X :
     Xs !! i = Some X →

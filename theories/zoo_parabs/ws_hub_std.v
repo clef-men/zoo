@@ -58,11 +58,7 @@ Qed.
 #[local] Lemma consistent_alloc sz :
   consistent ∅ (replicate sz []).
 Proof.
-  symmetry.
-  rewrite gmultiset_disj_union_list_empty => vs.
-  rewrite elem_of_list_fmap.
-  setoid_rewrite elem_of_replicate.
-  naive_solver.
+  rewrite /consistent fmap_replicate gmultiset_disj_union_list_replicate_empty //.
 Qed.
 #[local] Lemma consistent_empty vs vss :
   consistent vs vss →
