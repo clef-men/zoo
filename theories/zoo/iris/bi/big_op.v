@@ -1292,5 +1292,29 @@ Section bi.
       setoid_rewrite big_sepMS_delete at 2; last done.
       iSteps.
     Qed.
+
+    Lemma big_sepMS_disj_union_list {Φ} ss :
+      ([∗ mset] x ∈ ⋃+ ss, Φ x) ⊣⊢
+      [∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x.
+    Proof.
+      iInduction ss as [| s ss IH].
+      - rewrite big_sepMS_empty. iSteps.
+      - rewrite /= big_sepMS_disj_union.
+        iSplit.
+        all: iIntros "($ & H)".
+        all: iApply ("IH" with "H").
+    Qed.
+    Lemma big_sepMS_disj_union_list_1 {Φ} ss :
+      ([∗ mset] x ∈ ⋃+ ss, Φ x) ⊢
+      [∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x.
+    Proof.
+      rewrite big_sepMS_disj_union_list //.
+    Qed.
+    Lemma big_sepMS_disj_union_list_2 {Φ} ss :
+      ([∗ list] s ∈ ss, [∗ mset] x ∈ s, Φ x) ⊢
+      [∗ mset] x ∈ ⋃+ ss, Φ x.
+    Proof.
+      rewrite big_sepMS_disj_union_list //.
+    Qed.
   End big_sepMS.
 End bi.
