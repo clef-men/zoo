@@ -1061,31 +1061,60 @@ Section bi.
     Qed.
 
     Lemma big_sepL_seq_shift `{!BiAffine PROP} {Φ} j i n :
-      ([∗ list] k ∈ seq i n, Φ k) ⊣⊢
-      [∗ list] k ∈ seq (i + j) n, Φ (k - j).
+      ([∗ list] k ∈ seq (i + j) n, Φ k) ⊣⊢
+      [∗ list] k ∈ seq i n, Φ (k + j).
     Proof.
       iSplit.
       all: iIntros "H".
       all: iApply (big_sepL_impl_strong with "H"); first simpl_length.
       all: iIntros "!>" (k ? ? (-> & _)%lookup_seq (-> & _)%lookup_seq).
-      all: assert (i + j + k - j = i + k) as -> by lia.
+      all: rewrite Nat.add_shuffle0.
       all: iSteps.
     Qed.
+    Lemma big_sepL_seq_shift' `{!BiAffine PROP} {Φ} j i n :
+      ([∗ list] k ∈ seq (i + j) n, Φ (k - j)) ⊣⊢
+      [∗ list] k ∈ seq i n, Φ k.
+    Proof.
+      rewrite big_sepL_seq_shift.
+      setoid_rewrite Nat.add_sub => //.
+    Qed.
     Lemma big_sepL_seq_shift_1 `{!BiAffine PROP} {Φ} j i n :
-      ([∗ list] k ∈ seq i n, Φ k) ⊢
-      [∗ list] k ∈ seq (i + j) n, Φ (k - j).
+      ([∗ list] k ∈ seq (i + j) n, Φ k) ⊢
+      [∗ list] k ∈ seq i n, Φ (k + j).
     Proof.
       rewrite big_sepL_seq_shift //.
     Qed.
     Lemma big_sepL_seq_shift_2 `{!BiAffine PROP} {Φ} j i n :
-      ([∗ list] k ∈ seq (i + j) n, Φ k) ⊢
-      [∗ list] k ∈ seq i n, Φ (k + j).
+      ([∗ list] k ∈ seq i n, Φ (k + j)) ⊢
+      [∗ list] k ∈ seq (i + j) n, Φ k.
     Proof.
-      setoid_rewrite (big_sepL_seq_shift j) at 2.
-      iIntros "H".
-      iApply (big_sepL_impl with "H"). iIntros "!>" (? ? (-> & ?)%lookup_seq).
-      assert (i + j + k = i + j + k - j + j) as <- by lia.
-      iSteps.
+      rewrite big_sepL_seq_shift //.
+    Qed.
+    Lemma big_sepL_seq_shift_2' `{!BiAffine PROP} {Φ} j i n :
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+      [∗ list] k ∈ seq (i + j) n, Φ (k - j).
+    Proof.
+      rewrite big_sepL_seq_shift' //.
+    Qed.
+
+    Lemma big_sepL_seq_shift1 `{!BiAffine PROP} Φ i n :
+      ([∗ list] k ∈ seq (S i) n, Φ k) ⊣⊢
+      [∗ list] k ∈ seq i n, Φ (S k).
+    Proof.
+      setoid_rewrite <- Nat.add_1_r.
+      apply big_sepL_seq_shift.
+    Qed.
+    Lemma big_sepL_seq_shift1_1 `{!BiAffine PROP} Φ i n :
+      ([∗ list] k ∈ seq (S i) n, Φ k) ⊢
+      [∗ list] k ∈ seq i n, Φ (S k).
+    Proof.
+      rewrite big_sepL_seq_shift1 //.
+    Qed.
+    Lemma big_sepL_seq_shift1_2 `{!BiAffine PROP} Φ i n :
+      ([∗ list] k ∈ seq i n, Φ (S k)) ⊢
+      [∗ list] k ∈ seq (S i) n, Φ k.
+    Proof.
+      rewrite big_sepL_seq_shift1 //.
     Qed.
 
     Lemma big_sepL_seq_exists `{!BiAffine PROP} `(Φ : nat → A → PROP) i n :
