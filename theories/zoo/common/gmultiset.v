@@ -76,6 +76,99 @@ Section size.
   Qed.
 End size.
 
+Section map.
+  Context `{Countable A}.
+  Context `{Countable B}.
+  Context (f : A → B).
+
+  Implicit Types x y : A.
+  Implicit Types X Y : gmultiset A.
+  Implicit Types 𝑋 𝑌 : gmultiset B.
+
+  Lemma gmultiset_size_map X :
+    size (gmultiset_map f X) = size X.
+  Proof.
+    induction X as [| x X IH] using gmultiset_ind.
+    - done.
+    - rewrite gmultiset_map_disj_union gmultiset_map_singleton.
+      rewrite !gmultiset_size_disj_union !gmultiset_size_singleton.
+      auto.
+  Qed.
+
+  Lemma gmultiset_map_singleton_inv X 𝑥 :
+    gmultiset_map f X = {[+𝑥+]} →
+      ∃ x,
+      X = {[+x+]} ∧
+      𝑥 = f x.
+  Proof.
+    intros Heq.
+    destruct X as [| x X _] using gmultiset_ind.
+    - done.
+    - rewrite gmultiset_map_disj_union gmultiset_map_singleton in Heq.
+      assert (size X = 0) as ->%gmultiset_size_empty_inv.
+      { apply (f_equal size) in Heq.
+        rewrite gmultiset_size_disj_union gmultiset_size_map !gmultiset_size_singleton in Heq.
+        lia.
+      }
+      rewrite gmultiset_map_empty right_id in Heq.
+      set_solver.
+  Qed.
+
+  Lemma gmultiset_map_disj_union_inv X 𝑋1 𝑋2 :
+    gmultiset_map f X = 𝑋1 ⊎ 𝑋2 →
+      ∃ X1 X2,
+      X = X1 ⊎ X2 ∧
+      𝑋1 = gmultiset_map f X1 ∧
+      𝑋2 = gmultiset_map f X2.
+  Proof.
+    move: 𝑋1 𝑋2. induction X as [| x X IH] using gmultiset_ind => 𝑋1 𝑋2 Heq.
+    - exists ∅, ∅.
+      rewrite gmultiset_map_empty in Heq.
+      apply symmetry, gmultiset_disj_union_empty in Heq as (-> & ->).
+      done.
+    - rewrite gmultiset_map_disj_union gmultiset_map_singleton in Heq.
+      assert (f x ∈ 𝑋1 ⊎ 𝑋2) as Helem by multiset_solver.
+      rewrite (gmultiset_disj_union_difference' (f x) (𝑋1 ⊎ 𝑋2)) // in Heq.
+      apply (inj _) in Heq.
+      apply gmultiset_elem_of_disj_union in Helem as [Helem | Helem].
+      + replace ((𝑋1 ⊎ 𝑋2) ∖ {[+f x+]}) with ((𝑋1 ∖ {[+f x+]}) ⊎ 𝑋2) in Heq by multiset_solver.
+        apply IH in Heq as (X1 & X2 & -> & Heq1 & Heq2).
+        exists ({[+x+]} ⊎ X1), X2. split_and!.
+        * set_solver by lia.
+        * rewrite gmultiset_map_disj_union gmultiset_map_singleton.
+          multiset_solver.
+        * done.
+      + replace ((𝑋1 ⊎ 𝑋2) ∖ {[+f x+]}) with (𝑋1 ⊎ (𝑋2 ∖ {[+f x+]})) in Heq by multiset_solver.
+        apply IH in Heq as (X1 & X2 & -> & Heq1 & Heq2).
+        exists X1, ({[+x+]} ⊎ X2). split_and!.
+        * set_solver by lia.
+        * done.
+        * rewrite gmultiset_map_disj_union gmultiset_map_singleton.
+          multiset_solver.
+  Qed.
+  Lemma gmultiset_map_disj_union_singleton_l_inv X 𝑥 𝑋 :
+    gmultiset_map f X = {[+𝑥+]} ⊎ 𝑋 →
+      ∃ x X',
+      X = {[+x+]} ⊎ X' ∧
+      𝑥 = f x ∧
+      𝑋 = gmultiset_map f X'.
+  Proof.
+    intros (X1 & X2 & -> & (x & -> & ->)%symmetry%gmultiset_map_singleton_inv & Heq)%gmultiset_map_disj_union_inv.
+    eauto.
+  Qed.
+  Lemma gmultiset_map_disj_union_singleton_r_inv X 𝑥 𝑋 :
+    gmultiset_map f X = 𝑋 ⊎ {[+𝑥+]} →
+      ∃ X' x,
+      X = X' ⊎ {[+x+]} ∧
+      𝑋 = gmultiset_map f X' ∧
+      𝑥 = f x.
+  Proof.
+    setoid_rewrite (comm (⊎)) at 1 3.
+    intros (x & X' & -> & -> & ->)%gmultiset_map_disj_union_singleton_l_inv.
+    eauto.
+  Qed.
+End map.
+
 Section list_to_set_disj.
   Context `{Countable A}.
 
