@@ -5026,7 +5026,7 @@ Section zoo_G.
         Χ t -∗
         ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v,
-          ▷ Χ t ∗
+          Χ t ∗
           ▷ Ψ i v
         }}
       )
@@ -5088,7 +5088,7 @@ Section zoo_G.
         ∀ t,
         Χ t -∗
         WP fn #i {{ v,
-          ▷ Χ t ∗
+          Χ t ∗
           ▷ Ψ i v
         }}
       )
@@ -5152,8 +5152,8 @@ Section zoo_G.
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn #i {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn #i {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5183,8 +5183,8 @@ Section zoo_G.
         ∀ t vs,
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn #i {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn #i {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5209,8 +5209,8 @@ Section zoo_G.
       □ (
         ∀ i,
         ⌜i < ₊sz⌝ -∗
-        WP fn #i {{ v, ▷
-          Ψ i v
+        WP fn #i {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5235,8 +5235,8 @@ Section zoo_G.
   Lemma array_initi_spec_disentangled' Ψ sz fn :
     {{{
       ( [∗ list] i ∈ seq 0 ₊sz,
-        WP fn #i {{ v, ▷
-          Ψ i v
+        WP fn #i {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5271,8 +5271,8 @@ Section zoo_G.
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn () {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn () {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5301,8 +5301,8 @@ Section zoo_G.
         ∀ t vs,
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn () {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn () {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5327,8 +5327,8 @@ Section zoo_G.
       □ (
         ∀ i,
         ⌜i < ₊sz⌝ -∗
-        WP fn () {{ v, ▷
-          Ψ i v
+        WP fn () {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5352,8 +5352,8 @@ Section zoo_G.
     (0 ≤ sz)%Z →
     {{{
       ( [∗ list] i ∈ seq 0 ₊sz,
-        WP fn () {{ v, ▷
-          Ψ i v
+        WP fn () {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5386,8 +5386,8 @@ Section zoo_G.
         ⌜i < ₊sz⌝ -∗
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn () {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn () {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5417,8 +5417,8 @@ Section zoo_G.
         ∀ t vs,
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
-        WP fn () {{ v, ▷
-          Ψ t (S i) (vs ++ [v])
+        WP fn () {{ v,
+          ▷ Ψ t (S i) (vs ++ [v])
         }}
       )
     }}}
@@ -5443,8 +5443,8 @@ Section zoo_G.
       □ (
         ∀ i,
         ⌜i < ₊sz⌝ -∗
-        WP fn () {{ v, ▷
-          Ψ i v
+        WP fn () {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
@@ -5469,8 +5469,8 @@ Section zoo_G.
   Lemma array_init_spec_disentangled' Ψ sz fn :
     {{{
       ( [∗ list] i ∈ seq 0 ₊sz,
-        WP fn () {{ v, ▷
-          Ψ i v
+        WP fn () {{ v,
+          ▷ Ψ i v
         }}
       )
     }}}
