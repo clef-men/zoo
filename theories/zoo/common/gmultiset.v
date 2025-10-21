@@ -21,6 +21,21 @@ Section basic.
   Proof.
     multiset_solver.
   Qed.
+
+  Lemma gmultiset_disj_union_empty X1 X2 :
+    X1 ⊎ X2 = ∅ ↔
+      X1 = ∅ ∧
+      X2 = ∅.
+  Proof.
+    multiset_solver.
+  Qed.
+  Lemma gmultiset_disj_union_empty_inv X1 X2 :
+    X1 ⊎ X2 = ∅ →
+      X1 = ∅ ∧
+      X2 = ∅.
+  Proof.
+    rewrite gmultiset_disj_union_empty //.
+  Qed.
 End basic.
 
 Section size.
