@@ -95,6 +95,17 @@ Section map.
       auto.
   Qed.
 
+  Lemma gmultiset_map_empty_inv X :
+    gmultiset_map f X = ∅ →
+    X = ∅.
+  Proof.
+    destruct X as [| x X _] using gmultiset_ind.
+    - done.
+    - intros Hsize%(f_equal size).
+      rewrite gmultiset_map_disj_union gmultiset_map_singleton in Hsize.
+      rewrite gmultiset_size_disj_union gmultiset_size_singleton gmultiset_size_empty // in Hsize.
+  Qed.
+
   Lemma gmultiset_map_singleton_inv X 𝑥 :
     gmultiset_map f X = {[+𝑥+]} →
       ∃ x,
