@@ -5027,7 +5027,7 @@ Section zoo_G.
         ⌜i < ₊sz⌝ -∗
         WP fn #i {{ v,
           Χ t ∗
-          ▷ Ψ i v
+          ▷ Ψ t i v
         }}
       )
     }}}
@@ -5038,7 +5038,7 @@ Section zoo_G.
       array_model t (DfracOwn 1) vs ∗
       Χ t ∗
       ( [∗ list] i ↦ v ∈ vs,
-        Ψ i v
+        Ψ t i v
       )
     }}}.
   Proof.
@@ -5046,7 +5046,7 @@ Section zoo_G.
 
     pose (Ψ' t i vs := (
       Χ t ∗
-      [∗ list] j ↦ v ∈ vs, Ψ j v
+      [∗ list] j ↦ v ∈ vs, Ψ t j v
     )%I).
     wp_apply (array_unsafe_initi_spec Ψ' with "[- HΦ]"); [done | | iSteps].
     iSplitL "HΧ"; first iSteps.
@@ -5075,7 +5075,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Φ #Hfn HΦ".
 
-    wp_apply (array_unsafe_initi_spec_disentangled_strong (λ _, True)%I Ψ); [done | iSteps..].
+    wp_apply (array_unsafe_initi_spec_disentangled_strong (λ _, True)%I (λ _, Ψ)); [done | iSteps..].
   Qed.
   Lemma array_unsafe_initi_spec_disentangled_strong' Χ Ψ sz fn :
     (0 ≤ sz)%Z →
@@ -5089,7 +5089,7 @@ Section zoo_G.
         Χ t -∗
         WP fn #i {{ v,
           Χ t ∗
-          ▷ Ψ i v
+          ▷ Ψ t i v
         }}
       )
     }}}
@@ -5100,7 +5100,7 @@ Section zoo_G.
       array_model t (DfracOwn 1) vs ∗
       Χ t ∗
       ( [∗ list] i ↦ v ∈ vs,
-        Ψ i v
+        Ψ t i v
       )
     }}}.
   Proof.
@@ -5108,7 +5108,7 @@ Section zoo_G.
 
     pose (Ψ' t i vs := (
       Χ t ∗
-      [∗ list] j ↦ v ∈ vs, Ψ j v
+      [∗ list] j ↦ v ∈ vs, Ψ t j v
     )%I).
     wp_apply (array_unsafe_initi_spec' Ψ' with "[- HΦ]"); [done | | iSteps].
     iSplitL "HΧ"; first iSteps.
@@ -5136,7 +5136,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Φ Hfn HΦ".
 
-    wp_apply (array_unsafe_initi_spec_disentangled_strong' (λ _, True)%I Ψ with "[- HΦ]"); [done | iSteps..].
+    wp_apply (array_unsafe_initi_spec_disentangled_strong' (λ _, True)%I (λ _, Ψ) with "[- HΦ]"); [done | iSteps..].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
