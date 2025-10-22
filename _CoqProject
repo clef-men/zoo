@@ -109,7 +109,6 @@ theories/zoo/language/language.v
 theories/zoo/language/notations.v
 theories/zoo/language/tactics.v
 theories/zoo/language/typeclasses.v
-# theories/zoo/language/prophecy_erasure.v
 
 theories/zoo/program_logic/state_interp.v
 theories/zoo/program_logic/wp.v
