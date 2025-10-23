@@ -29,7 +29,7 @@ Implicit Types nodes : list location.
 Implicit Types v t s : val.
 Implicit Types σ σ₀ : gmap location val.
 
-Module raw.
+Module base.
   #[local] Definition generation :=
     nat.
   Implicit Types g : generation.
@@ -1502,18 +1502,18 @@ Module raw.
 
   #[global] Opaque pstore_2_model.
   #[global] Opaque pstore_2_snapshot.
-End raw.
+End base.
 
 From zoo_persistent Require
   pstore_2__opaque.
 
 Class Pstore2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pstore_2_G_raw_G :: raw.Pstore2G Σ ;
+  #[local] pstore_2_G_raw_G :: base.Pstore2G Σ ;
   #[local] pstore_2_G_support_G :: MonoGmapG Σ location val ;
 }.
 
 Definition pstore_2_Σ := #[
-  raw.pstore_2_Σ ;
+  base.pstore_2_Σ ;
   mono_gmap_Σ location val
 ].
 #[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -1536,7 +1536,7 @@ Section pstore_2_G.
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     meta l (nroot.@"user") γ ∗
     mono_gmap_auth γ (DfracOwn 1) σ₀ ∗
-    raw.pstore_2_model t σ₀ ς.
+    base.pstore_2_model t σ₀ ς.
 
   Definition pstore_2_snapshot s t σ : iProp Σ :=
     ∃ l γ σ₀ ς,
@@ -1544,7 +1544,7 @@ Section pstore_2_G.
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     meta l (nroot.@"user") γ ∗
     mono_gmap_lb γ σ₀ ∗
-    raw.pstore_2_snapshot s t ς.
+    base.pstore_2_snapshot s t ς.
 
   #[global] Instance pstore_2_model_timeless t σ :
     Timeless (pstore_2_model t σ).
@@ -1563,7 +1563,7 @@ Section pstore_2_G.
     False.
   Proof.
     iIntros "(%l1 & %γ1 & %σ₀1 & %ς1 & %Heq1 & _ & _ & _ & Hmodel1) (%l2 & %γ2 & %σ₀2 & %ς2 & %Heq2 & _ & _ & _ & Hmodel2)".
-    iApply (raw.pstore_2_model_exclusive with "Hmodel1 Hmodel2").
+    iApply (base.pstore_2_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
   Lemma pstore_2_create_spec :
@@ -1578,7 +1578,7 @@ Section pstore_2_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_fupd.
-    wp_apply (raw.pstore_2_create_spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
+    wp_apply (base.pstore_2_create_spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
     iMod mono_gmap_alloc as "(%γ & Hauth)".
     iMod (meta_set with "Hmeta") as "Hmeta"; first done.
     iSteps. iExists ∅, ∅. iSteps.
@@ -1596,9 +1596,9 @@ Section pstore_2_G.
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (raw.pstore_2_model_valid with "Ht") as %Hς_dom.
+    iDestruct (base.pstore_2_model_valid with "Ht") as %Hς_dom.
     iApply wp_fupd.
-    wp_apply (raw.pstore_2_ref_spec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
+    wp_apply (base.pstore_2_ref_spec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
     assert (ς !! r = None) as Hς_lookup.
     { rewrite -!not_elem_of_dom in Hσ₀_lookup |- *. set_solver. }
     assert (σ !! r = None) as Hσ_lookup.
@@ -1621,7 +1621,7 @@ Section pstore_2_G.
     }}}.
   Proof.
     iIntros "%Hσ_lookup %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    wp_apply (raw.pstore_2_get_spec with "Ht") as "Ht".
+    wp_apply (base.pstore_2_get_spec with "Ht") as "Ht".
     { eapply lookup_weaken; done. }
     iSteps.
   Qed.
@@ -1638,8 +1638,8 @@ Section pstore_2_G.
     }}}.
   Proof.
     iIntros "%Hr %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (raw.pstore_2_model_valid with "Ht") as %Hς_dom.
-    wp_apply (raw.pstore_2_set_spec with "Ht") as "Ht".
+    iDestruct (base.pstore_2_model_valid with "Ht") as %Hς_dom.
+    wp_apply (base.pstore_2_set_spec with "Ht") as "Ht".
     { apply subseteq_dom in Hσ. set_solver. }
     iApply "HΦ".
     iExists l, γ, σ₀, (<[r := v]> ς). iSteps. iPureIntro.
@@ -1659,7 +1659,7 @@ Section pstore_2_G.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
     iDestruct (mono_gmap_lb_get with "Hauth") as "#Hlb".
-    wp_apply (raw.pstore_2_capture_spec with "Ht") as (s) "(Ht & Hs)".
+    wp_apply (base.pstore_2_capture_spec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.
 
@@ -1676,7 +1676,7 @@ Section pstore_2_G.
   Proof.
     iIntros "%Φ ((%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) & (%_l & %_γ & %σ₀' & %ς' & %Heq & %Hσ' & _Hmeta & #Hlb & Hs)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    wp_apply (raw.pstore_2_restore_spec with "[$Ht $Hs]") as "Ht".
+    wp_apply (base.pstore_2_restore_spec with "[$Ht $Hs]") as "Ht".
     iDestruct (mono_gmap_lb_valid with "Hauth Hlb") as %Hσ₀'.
     iApply "HΦ".
     iExists l, γ, σ₀, ς'. iSteps. iPureIntro.
