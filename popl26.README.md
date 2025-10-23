@@ -180,7 +180,7 @@ Store: `{lib,theories}/zoo_persistent/pstore_{1,2}.{ml,mli,v}`
 Persistent union-find on top of Store references: `{lib,theories}/zoo_persistent/puf.{ml,mli,v}`
 This implementation does rank-based path compression, so it has the optimal inverse-Ackermann complexity. It is modeled in the correctness proof by a map from each element to its canonical representative.
 
-### Section 9: RCFD
+### Section 9: Rcfd
 
 The fragment of Eio.Rcfd that we verified can be found in `lib/zoo_eio/rcfd.ml`, with the proofs in `theories/zoo_eio/rcfd.v`. In particular the per-FD logical state is defined by the `lstate` datatype and the `lstep` predicates in `rcfd.v`.
 
