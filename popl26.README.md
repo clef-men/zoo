@@ -1,7 +1,3 @@
-This artifact is available online at:
-
-- TODO (github + Zenodo)
-
 ## Building and installation
 
 See [README.md](./README.md).
@@ -48,10 +44,6 @@ In addition, `theories/unix` provides an axiomatization of a couple file-descrip
 
 
 ## Paper coverage
-
-Our POPL'26 publication is available at TODO.
-
-(TODO: consider including the current version of the PDF within the artifact repository?)
 
 In this section we detail the mapping between the claims in the paper and our mechanized development.
 
