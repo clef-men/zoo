@@ -53,18 +53,18 @@ Qed.
 Section pool_G.
   Context `{pool_G : SchedulerG Σ}.
 
-  #[local] Lemma fibonacci_fibonacci_0_spec n t ctx :
+  #[local] Lemma fibonacci_fibonacci_0_spec n t ctx scope :
     (0 ≤ n)%Z →
     {{{
-      pool_context t ctx
+      pool_context t ctx scope
     }}}
       fibonacci_fibonacci_0 #n ctx
     {{{
       RET #(fib ₊n);
-      pool_context t ctx
+      pool_context t ctx scope
     }}}.
   Proof.
-    iLöb as "HLöb" forall (n ctx).
+    iLöb as "HLöb" forall (n ctx scope).
 
     iIntros "%Hn %Φ Hctx HΦ".
 
@@ -73,12 +73,12 @@ Section pool_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_apply (pool_async_spec (λ v1, ⌜v1 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
-      { clear ctx. iIntros "%ctx Hctx".
+    - wp_apply (pool_async_spec (λ v1, ⌜v1 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer & _)".
+      { clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (pool_async_spec (λ v2, ⌜v2 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
-      { clear ctx. iIntros "%ctx Hctx".
+      wp_smart_apply (pool_async_spec (λ v2, ⌜v2 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer & _)".
+      { clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
       wp_smart_apply (pool_wait_spec with "[$Hctx $Hfut2_inv]") as (?) "(H£ & Hctx & Hfut2_result)".
@@ -102,7 +102,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ Hpool HΦ".
     wp_rec.
-    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx Hctx".
+    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx %scope Hctx".
     wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
     rewrite Nat2Z.id. iSteps.
   Qed.

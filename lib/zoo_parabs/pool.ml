@@ -30,6 +30,8 @@ let context sz hub id =
     context_hub= hub;
     context_id= id;
   }
+let context_main t =
+  context t.size t.hub 0
 
 let execute ctx job =
   job ctx
@@ -41,6 +43,14 @@ let rec worker ctx =
   | Some job ->
       execute ctx job ;
       worker ctx
+
+let rec drain ctx =
+  match Ws_hub_std.pop ctx.context_hub ctx.context_id with
+  | None ->
+      Ws_hub_std.block ctx.context_hub ctx.context_id
+  | Some job ->
+      execute ctx job ;
+      drain ctx
 
 let create sz =
   let hub = Ws_hub_std.create (sz + 1) in
@@ -56,13 +66,15 @@ let create sz =
     force_mutable= ();
    }
 
-let run t job =
+let run t task =
   Ws_hub_std.unblock t.hub 0 ;
-  let res = execute (context t.size t.hub 0) job in
+  let res = execute (context_main t) task in
   Ws_hub_std.block t.hub 0 ;
   res
 
 let kill t =
+  Ws_hub_std.unblock t.hub 0 ;
+  drain (context_main t) ;
   Ws_hub_std.kill t.hub ;
   Array.iter Domain.join t.domains
 
@@ -71,14 +83,6 @@ let size ctx =
 
 let async_silent ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
-let async ctx task =
-  let fut = Ivar_3.create () in
-  async_silent ctx (fun ctx ->
-    let res = task ctx in
-    let waiters = Ivar_3.set fut res in
-    Lst.iter (fun waiter -> waiter ctx res) waiters
-  ) ;
-  fut
 
 let rec wait_until ctx pred =
   if not @@ pred () then
@@ -90,6 +94,15 @@ let rec wait_until ctx pred =
         wait_until ctx pred
 let wait_while ctx pred =
   wait_until ctx (fun () -> not @@ pred ())
+
+let async ctx task =
+  let fut = Ivar_3.create () in
+  async_silent ctx (fun ctx ->
+    let res = task ctx in
+    let waiters = Ivar_3.set fut res in
+    Lst.iter (fun waiter -> waiter ctx res) waiters
+  ) ;
+  fut
 
 let wait ctx fut =
   wait_until ctx (fun () -> Ivar_3.is_set fut) ;

@@ -28,6 +28,12 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
+Implicit Types b finished : bool.
+Implicit Types preds : nat.
+Implicit Types succ : location.
+Implicit Types task ctx : val.
+Implicit Types own : ownership.
+
 Inductive state :=
   | Init
   | Released
@@ -88,16 +94,11 @@ Proof.
   solve_inG.
 Qed.
 
-Module raw.
-  Implicit Types b finished : bool.
-  Implicit Types preds : nat.
-  Implicit Types t succ : location.
-  Implicit Types task ctx : val.
-  Implicit Types own : ownership.
-
+Module base.
   Section vertex_G.
     Context `{vertex_G : VertexG Σ}.
 
+    Implicit Types t : location.
     Implicit Types P Q R : iProp Σ.
 
     #[local] Definition state₁' γ_state own state :=
@@ -171,15 +172,15 @@ Module raw.
       "#Hstate{which;}₁{_{}}".
 
     Definition vertex_wp_body t γ P R body task iter : iProp Σ :=
-      ∀ pool ctx iter',
-      pool_context pool ctx -∗
+      ∀ pool ctx scope iter',
+      pool_context pool ctx scope -∗
       vertex_ready iter -∗
       vertex_model t γ task iter' -∗
       WP task ctx {{ res,
         ∃ b task,
         ⌜res = #b⌝ ∗
         ▷ (
-          pool_context pool ctx ∗
+          pool_context pool ctx scope ∗
           vertex_model t γ task iter' ∗
           if b then
             body task iter'
@@ -228,7 +229,7 @@ Module raw.
       intros t t_ <- γ γ_ <-.
       induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
       rewrite !vertex_wp_unfold /vertex_wp_body.
-      do 16 f_equiv. f_contractive.
+      do 18 f_equiv. f_contractive.
       apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
       apply (dist_le _ m) in HR; last by apply SIdx.lt_le_incl.
       do 3 f_equiv; last solve_proper.
@@ -921,9 +922,9 @@ Module raw.
 
     #[local] Lemma vertex_release_run_spec :
       ⊢ (
-        ∀ pool ctx t γ P R task iter,
+        ∀ pool ctx scope t γ P R task iter,
         {{{
-          pool_context pool ctx ∗
+          pool_context pool ctx scope ∗
           vertex_inv t γ P R ∗
           vertex_model t γ task iter ∗
           vertex_wp t γ P R task iter
@@ -931,12 +932,12 @@ Module raw.
           vertex_release ctx #t
         {{{
           RET ();
-          pool_context pool ctx
+          pool_context pool ctx scope
         }}}
       ) ∧ (
-        ∀ pool ctx t γ P R π,
+        ∀ pool ctx scope t γ P R π,
         {{{
-          pool_context pool ctx ∗
+          pool_context pool ctx scope ∗
           vertex_inv t γ P R ∗
           predecessors_elem γ π ∗
           vertex_finished π
@@ -944,12 +945,12 @@ Module raw.
           vertex_release ctx #t
         {{{
           RET ();
-          pool_context pool ctx
+          pool_context pool ctx scope
         }}}
       ) ∧ (
-        ∀ pool ctx t γ iter P R task,
+        ∀ pool ctx scope t γ iter P R task,
         {{{
-          pool_context pool ctx ∗
+          pool_context pool ctx scope ∗
           vertex_inv t γ P R ∗
           vertex_ready iter ∗
           model' t γ task Ready iter ∗
@@ -958,7 +959,7 @@ Module raw.
           vertex_run ctx #t
         {{{
           RET ();
-          pool_context pool ctx
+          pool_context pool ctx scope
         }}}
       ).
     Proof.
@@ -968,7 +969,7 @@ Module raw.
 
       { iClear "IHrelease IHrelease_successor".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %P %R %task %iter !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
+        iIntros "%pool %ctx %scope %t %γ %P %R %task %iter !> %Φ (Hctx & (:inv_pre) & (:model) & Htask) HΦ".
 
         wp_rec.
         iApply (wp_frame_wand with "HΦ").
@@ -1001,7 +1002,7 @@ Module raw.
 
       { iClear "IHrelease IHrelease_successor".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
+        iIntros "%pool %ctx %scope %t %γ %P %R %π !> %Φ (Hctx & (:inv_pre) & Hpredecessors_elem & #Hπ) HΦ".
 
         wp_rec.
         iApply (wp_frame_wand with "HΦ").
@@ -1072,10 +1073,10 @@ Module raw.
 
       { iClear "IHrun".
         setoid_rewrite vertex_inv_unfold.
-        iIntros "%pool %ctx %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
+        iIntros "%pool %ctx %scope %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
 
         wp_rec.
-        wp_smart_apply (pool_async_silent_spec with "[-HΦ $Hctx] HΦ"). iIntros "{%} %ctx Hctx".
+        wp_smart_apply (pool_async_silent_spec True with "[-HΦ $Hctx]"); last iSteps. clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_pures.
 
         wp_bind (_ <-{preds} _)%E.
@@ -1118,16 +1119,16 @@ Module raw.
           iIntros "!> H£ Hctx {%}".
 
           iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-          wp_smart_apply (clst_iter_spec (λ _, pool_context pool ctx) with "[$Hctx Hsuccs]"); [done | | iSteps].
+          wp_smart_apply (clst_iter_spec (λ _, pool_context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
           rewrite big_sepL_fmap.
           iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
           wp_smart_apply ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
           iApply (vertex_inv_unfold with "Hinv_succ").
       }
     Qed.
-    Lemma vertex_release_spec pool ctx t γ P R task iter :
+    Lemma vertex_release_spec pool ctx scope t γ P R task iter :
       {{{
-        pool_context pool ctx ∗
+        pool_context pool ctx scope ∗
         vertex_inv t γ P R ∗
         vertex_model t γ task iter ∗
         vertex_wp t γ P R task iter
@@ -1135,7 +1136,7 @@ Module raw.
         vertex_release ctx #t
       {{{
         RET ();
-        pool_context pool ctx
+        pool_context pool ctx scope
       }}}.
     Proof.
       iDestruct vertex_release_run_spec as "(H & _)".
@@ -1150,7 +1151,7 @@ Module raw.
   #[global] Opaque vertex_finished.
   #[global] Opaque vertex_predecessor.
   #[global] Opaque vertex_wp.
-End raw.
+End base.
 
 From zoo_parabs Require
   vertex__opaque.
@@ -1158,18 +1159,16 @@ From zoo_parabs Require
 Section vertex_G.
   Context `{vertex_G : VertexG Σ}.
 
-  Implicit Types b : bool.
-  Implicit Types l : location.
-  Implicit Types v t task ctx : val.
+  Implicit Types 𝑡 : location.
 
   Definition vertex_inv t P R : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    raw.vertex_inv l γ P R.
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.vertex_inv 𝑡 γ P R.
   #[local] Instance : CustomIpatFormat "inv" :=
     "(
-      %l{}{_{!}} &
+      %𝑡{}{_{!}} &
       %γ{}{_{!}} &
       {%Heq{};->} &
       #Hmeta{_{}}{_{!}} &
@@ -1196,13 +1195,13 @@ Section vertex_G.
   Qed.
 
   Definition vertex_model t task iter : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    raw.vertex_model l γ task iter.
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.vertex_model 𝑡 γ task iter.
   #[local] Instance : CustomIpatFormat "model" :=
     "(
-      %l{}{_{!}} &
+      %𝑡{}{_{!}} &
       %γ{}{_{!}} &
       {%Heq{};->} &
       #Hmeta{_{}}{_{!}} &
@@ -1210,13 +1209,13 @@ Section vertex_G.
     )".
 
   Definition vertex_output t Q : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    raw.vertex_output γ Q.
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.vertex_output γ Q.
   #[local] Instance : CustomIpatFormat "output" :=
     "(
-      %l{}{_{!}} &
+      %𝑡{}{_{!}} &
       %γ{}{_{!}} &
       {%Heq{};->} &
       #Hmeta{_{}}{_{!}} &
@@ -1224,16 +1223,16 @@ Section vertex_G.
     )".
 
   Definition vertex_ready :=
-    raw.vertex_ready.
+    base.vertex_ready.
 
   Definition vertex_finished t : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    raw.vertex_finished γ.
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.vertex_finished γ.
   #[local] Instance : CustomIpatFormat "finished" :=
     "(
-      %l{}{_{!}} &
+      %𝑡{}{_{!}} &
       %γ{}{_{!}} &
       {%Heq{};->} &
       #Hmeta{_{}}{_{!}} &
@@ -1241,13 +1240,13 @@ Section vertex_G.
     )".
 
   Definition vertex_predecessor t iter : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    raw.vertex_predecessor γ iter.
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.vertex_predecessor γ iter.
   #[local] Instance : CustomIpatFormat "predecessor" :=
     "(
-      %l{}{_{!}} &
+      %𝑡{}{_{!}} &
       %γ{}{_{!}} &
       {%Heq{};->} &
       #Hmeta{_{}}{_{!}} &
@@ -1255,15 +1254,15 @@ Section vertex_G.
     )".
 
   Definition vertex_wp_body t P R body task iter : iProp Σ :=
-    ∀ pool ctx iter',
-    pool_context pool ctx -∗
+    ∀ pool ctx scope iter',
+    pool_context pool ctx scope -∗
     vertex_ready iter -∗
     vertex_model t task iter' -∗
     WP task ctx {{ res,
       ∃ b task,
       ⌜res = #b⌝ ∗
       ▷ (
-        pool_context pool ctx ∗
+        pool_context pool ctx scope ∗
         vertex_model t task iter' ∗
         if b then
           body task iter'
@@ -1311,21 +1310,21 @@ Section vertex_G.
     intros t t_ <-.
     induction (lt_wf n) as [n _ IH] => P1 P2 HP R1 R2 HR task task_ <- iter iter_ <-.
     rewrite !vertex_wp_unfold /vertex_wp_body.
-    do 16 f_equiv. f_contractive.
+    do 18 f_equiv. f_contractive.
     apply (dist_le _ m) in HP; last by apply SIdx.lt_le_incl.
     apply (dist_le _ m) in HR; last by apply SIdx.lt_le_incl.
     do 3 f_equiv; last solve_proper.
     apply IH; done.
   Qed.
-  #[local] Lemma vertex_wp_to_raw l γ P R task iter :
-    meta l nroot γ -∗
-    vertex_wp #l P R task iter -∗
-    raw.vertex_wp l γ P R task iter.
+  #[local] Lemma vertex_wp_to_raw 𝑡 γ P R task iter :
+    meta 𝑡 nroot γ -∗
+    vertex_wp #𝑡 P R task iter -∗
+    base.vertex_wp 𝑡 γ P R task iter.
   Proof.
     iLöb as "HLöb" forall (task iter).
 
-    iEval (rewrite vertex_wp_unfold raw.vertex_wp_unfold).
-    iIntros "#Hmeta Hwp %pool %ctx %iter' Hctx Hready Hmodel".
+    iEval (rewrite vertex_wp_unfold base.vertex_wp_unfold).
+    iIntros "#Hmeta Hwp %pool %ctx %scope %iter' Hctx Hready Hmodel".
 
     wp_apply (wp_wand with "(Hwp Hctx Hready [$Hmodel])") as (res) "{%} (%b & %task & -> & ($ & Hmodel & Hwp))"; first iSteps.
     iExists b, task. iStep. iModIntro.
@@ -1394,7 +1393,7 @@ Section vertex_G.
   Proof.
     iIntros "(:model =1) (:model =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (raw.vertex_model_exclusive with "Hmodel_1 Hmodel_2").
+    iApply (base.vertex_model_exclusive with "Hmodel_1 Hmodel_2").
   Qed.
   Lemma vertex_model_finished t task iter :
     vertex_model t task iter -∗
@@ -1403,7 +1402,7 @@ Section vertex_G.
   Proof.
     iIntros "(:model =1) (:finished =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (raw.vertex_model_finished with "Hmodel_1 Hfinished_2").
+    iApply (base.vertex_model_finished with "Hmodel_1 Hfinished_2").
   Qed.
 
   Lemma vertex_output_divide {t P R Q} Qs :
@@ -1414,7 +1413,7 @@ Section vertex_G.
   Proof.
     iIntros "(:inv =1) (:output =2) H". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (raw.vertex_output_divide with "Hinv_1 Houtput_2 H") as "H".
+    iMod (base.vertex_output_divide with "Hinv_1 Houtput_2 H") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
@@ -1427,7 +1426,7 @@ Section vertex_G.
   Proof.
     iIntros "(:inv =1) (:output =2) H". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (raw.vertex_output_split with "Hinv_1 Houtput_2 H") as "H".
+    iMod (base.vertex_output_split with "Hinv_1 Houtput_2 H") as "H".
     iSteps.
   Qed.
 
@@ -1437,7 +1436,7 @@ Section vertex_G.
     vertex_finished t.
   Proof.
     iIntros "(:predecessor) Hready". simplify.
-    iDestruct (raw.vertex_predecessor_finished with "Hpredecessor Hready") as "Hfinished".
+    iDestruct (base.vertex_predecessor_finished with "Hpredecessor Hready") as "Hfinished".
     iSteps.
   Qed.
 
@@ -1448,7 +1447,7 @@ Section vertex_G.
   Proof.
     iIntros "(:inv =1) (:finished =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iApply (raw.vertex_inv_finished with "Hinv_1 Hfinished_2").
+    iApply (base.vertex_inv_finished with "Hinv_1 Hfinished_2").
   Qed.
   Lemma vertex_inv_finished' t P R :
     £ 1 -∗
@@ -1469,7 +1468,7 @@ Section vertex_G.
     iIntros "(:inv =1) (:finished =2) (:output =3)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_3") as %<-.
-    iApply (raw.vertex_inv_finished_output with "Hinv_1 Hfinished_2 Houtput_3").
+    iApply (base.vertex_inv_finished_output with "Hinv_1 Hfinished_2 Houtput_3").
   Qed.
   Lemma vertex_inv_finished_output' t P R Q :
     £ 2 -∗
@@ -1499,7 +1498,7 @@ Section vertex_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (raw.vertex_create_spec with "[//]") as (l γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
+    wp_apply (base.vertex_create_spec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
     iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
@@ -1516,7 +1515,7 @@ Section vertex_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (raw.vertex_task_spec with "[$]").
+    wp_apply (base.vertex_task_spec with "[$]").
     iSteps.
   Qed.
 
@@ -1532,7 +1531,7 @@ Section vertex_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (raw.vertex_set_task_spec with "[$]").
+    wp_apply (base.vertex_set_task_spec with "[$]").
     iSteps.
   Qed.
 
@@ -1548,7 +1547,7 @@ Section vertex_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (raw.vertex_set_task'_spec with "[$]").
+    wp_apply (base.vertex_set_task'_spec with "[$]").
     iSteps.
   Qed.
 
@@ -1569,14 +1568,14 @@ Section vertex_G.
     iDestruct "Hmodel_2" as "(:model =2 !=)". simplify.
     iDestruct (meta_agree with "Hmeta_2 Hmeta_2_") as %<-. iClear "Hmeta_2_".
 
-    wp_apply (raw.vertex_precede_spec with "[$Hmodel_2]").
+    wp_apply (base.vertex_precede_spec with "[$Hmodel_2]").
     { iFrame "#". }
     iSteps.
   Qed.
 
-  Lemma vertex_release_spec pool ctx t P R task iter :
+  Lemma vertex_release_spec pool ctx scope t P R task iter :
     {{{
-      pool_context pool ctx ∗
+      pool_context pool ctx scope ∗
       vertex_inv t P R ∗
       vertex_model t task iter ∗
       vertex_wp t P R task iter
@@ -1584,26 +1583,26 @@ Section vertex_G.
       vertex_release ctx t
     {{{
       RET ();
-      pool_context pool ctx
+      pool_context pool ctx scope
     }}}.
   Proof.
     iIntros "%Φ (Hctx & (:inv =1) & (:model =2) & Hwp) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
     iDestruct (vertex_wp_to_raw with "Hmeta_1 Hwp") as "Hwp".
 
-    wp_apply (raw.vertex_release_spec with "[$] HΦ").
+    wp_apply (base.vertex_release_spec with "[$] HΦ").
   Qed.
-  Lemma vertex_release_spec' pool ctx t P R task iter :
+  Lemma vertex_release_spec' pool ctx scope t P R task iter :
     {{{
-      pool_context pool ctx ∗
+      pool_context pool ctx scope ∗
       vertex_inv t P R ∗
       vertex_model t task iter ∗
-      ( ∀ pool ctx,
-        pool_context pool ctx -∗
+      ( ∀ pool ctx scope,
+        pool_context pool ctx scope -∗
         vertex_ready iter -∗
         WP task ctx {{ res,
           ⌜res = #false⌝ ∗
-          ▷ pool_context pool ctx ∗
+          ▷ pool_context pool ctx scope ∗
           ▷ P ∗
           ▷ □ R
         }}
@@ -1612,7 +1611,7 @@ Section vertex_G.
       vertex_release ctx t
     {{{
       RET ();
-      pool_context pool ctx
+      pool_context pool ctx scope
     }}}.
   Proof.
     iIntros "%Φ (Hctx & #Hinv & Hmodel & Htask) HΦ".
