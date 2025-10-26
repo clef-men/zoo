@@ -154,6 +154,7 @@ Section semaphore_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance tokens_auth_persistent γ cap :
     Persistent (tokens_auth γ cap).
   Proof.

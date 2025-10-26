@@ -203,6 +203,7 @@ Section ivar_1_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ivar_1_inv_persistent t Ψ Ξ :
     Persistent (ivar_1_inv t Ψ Ξ).
   Proof.

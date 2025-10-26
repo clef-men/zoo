@@ -42,13 +42,14 @@ Section auth_mono_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_mono_auth_persistent γ a :
-    Persistent (auth_mono_auth γ DfracDiscarded a).
+  #[global] Instance auth_mono_lb_timeless γ a :
+    Timeless (auth_mono_lb γ a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_mono_lb_timeless γ a :
-    Timeless (auth_mono_lb γ a).
+
+  #[global] Instance auth_mono_auth_persistent γ a :
+    Persistent (auth_mono_auth γ DfracDiscarded a).
   Proof.
     apply _.
   Qed.

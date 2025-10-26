@@ -565,6 +565,7 @@ Section inf_mpmc_queue_2_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance lstates_at_persistent γ i lstate :
     Persistent (lstates_at γ i lstate).
   Proof.

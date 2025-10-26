@@ -62,6 +62,7 @@ Section mono_gmap_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mono_gmap_auth_persistent γ m :
     Persistent (mono_gmap_auth γ DfracDiscarded m).
   Proof.

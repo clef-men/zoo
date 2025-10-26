@@ -52,13 +52,14 @@ Section auth_dgset_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_dgset_auth_persistent γ x :
-    Persistent (auth_dgset_auth γ DfracDiscarded x).
+  #[global] Instance auth_dgset_frag_timeless γ y :
+    Timeless (auth_dgset_frag γ y).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_dgset_frag_timeless γ y :
-    Timeless (auth_dgset_frag γ y).
+
+  #[global] Instance auth_dgset_auth_persistent γ x :
+    Persistent (auth_dgset_auth γ DfracDiscarded x).
   Proof.
     apply _.
   Qed.

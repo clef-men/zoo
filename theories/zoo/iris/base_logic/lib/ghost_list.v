@@ -49,6 +49,7 @@ Section ghost_list_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ghost_list_at_persistent γ i x :
     Persistent (ghost_list_at γ i DfracDiscarded x).
   Proof.

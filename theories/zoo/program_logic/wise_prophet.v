@@ -101,6 +101,7 @@ Section wise_prophet_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance wise_strong_prophet_full_persistent γ prophs :
     Persistent (wise_strong_prophet_full γ prophs).
   Proof.

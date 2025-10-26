@@ -88,6 +88,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mpmc_stack_1_inv_persistent t ι :
     Persistent (mpmc_stack_1_inv t ι).
   Proof.

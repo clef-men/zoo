@@ -44,6 +44,7 @@ Section oneshot_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance oneshot_shot_persistent γ b :
     Persistent (oneshot_shot γ b).
   Proof.

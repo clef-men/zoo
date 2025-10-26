@@ -47,6 +47,7 @@ Section ghost_var_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ghost_var_persistent γ a :
     Persistent (ghost_var γ DfracDiscarded a).
   Proof.

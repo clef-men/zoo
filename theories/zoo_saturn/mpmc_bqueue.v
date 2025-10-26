@@ -252,6 +252,7 @@ Section mpmc_bqueue_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mpmc_bqueue_inv_persistent t ι cap :
     Persistent (mpmc_bqueue_inv t ι cap).
   Proof.

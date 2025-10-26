@@ -492,6 +492,7 @@ Section inf_ws_deque_1_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance inf_ws_deque_1_inv_persistent t ι :
     Persistent (inf_ws_deque_1_inv t ι).
   Proof.

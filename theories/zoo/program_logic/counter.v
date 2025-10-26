@@ -31,6 +31,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance zoo_counter_at_persistent id v :
     Persistent (zoo_counter_at id v).
   Proof.

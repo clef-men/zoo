@@ -168,12 +168,13 @@ Section bag_1_G.
       Hmodel₁{_{}}
     )".
 
-  Instance bag_1_inv_timeless t vs :
+  #[global] Instance bag_1_inv_timeless t vs :
     Timeless (bag_1_model t vs).
   Proof.
     apply _.
   Qed.
-  Instance bag_1_inv_persistent t ι :
+
+  #[global] Instance bag_1_inv_persistent t ι :
     Persistent (bag_1_inv t ι).
   Proof.
     apply _.

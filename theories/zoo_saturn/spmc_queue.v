@@ -246,6 +246,7 @@ Section spmc_queue_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance spmc_queue_inv_persistent t ι :
     Persistent (spmc_queue_inv t ι).
   Proof.

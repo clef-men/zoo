@@ -28,6 +28,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance xtchain_persistent hdr nodes dst :
     Persistent (xtchain hdr DfracDiscarded nodes dst).
   Proof.

@@ -192,6 +192,7 @@ Module base.
       iExists l, γ, g.
       case_decide; iApply (timeless with "H").
     Qed.
+
     #[global] Instance pstore_2_snapshot_persistent s t σ :
       Persistent (pstore_2_snapshot s t σ).
     Proof.
@@ -1551,6 +1552,7 @@ Section pstore_2_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance pstore_2_snapshot_persistent s t σ :
     Persistent (pstore_2_snapshot s t σ).
   Proof.

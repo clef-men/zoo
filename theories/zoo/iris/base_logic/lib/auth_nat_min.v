@@ -41,13 +41,14 @@ Section auth_nat_min_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_min_auth_persistent γ n :
-    Persistent (auth_nat_min_auth γ DfracDiscarded n).
+  #[global] Instance auth_nat_min_ub_timeless γ n :
+    Timeless (auth_nat_min_ub γ n).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_min_ub_timeless γ n :
-    Timeless (auth_nat_min_ub γ n).
+
+  #[global] Instance auth_nat_min_auth_persistent γ n :
+    Persistent (auth_nat_min_auth γ DfracDiscarded n).
   Proof.
     apply _.
   Qed.

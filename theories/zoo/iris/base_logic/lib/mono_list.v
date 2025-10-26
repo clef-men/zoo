@@ -54,23 +54,24 @@ Section mono_list_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_lb_persistent γ l :
-    Persistent (mono_list_lb γ l).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance mono_list_at_timeless γ i a :
     Timeless (mono_list_at γ i a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_at_persistent γ i a :
-    Persistent (mono_list_at γ i a).
+  #[global] Instance mono_list_elem_timeless γ a :
+    Timeless (mono_list_elem γ a).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_list_elem_timeless γ a :
-    Timeless (mono_list_elem γ a).
+
+  #[global] Instance mono_list_lb_persistent γ l :
+    Persistent (mono_list_lb γ l).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mono_list_at_persistent γ i a :
+    Persistent (mono_list_at γ i a).
   Proof.
     apply _.
   Qed.

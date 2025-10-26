@@ -54,13 +54,14 @@ Section mono_gset_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gset_auth_persistent γ s :
-    Persistent (mono_gset_auth γ DfracDiscarded s).
+  #[global] Instance mono_gset_lb_timeless γ s :
+    Timeless (mono_gset_lb γ s).
   Proof.
     apply _.
   Qed.
-  #[global] Instance mono_gset_lb_timeless γ s :
-    Timeless (mono_gset_lb γ s).
+
+  #[global] Instance mono_gset_auth_persistent γ s :
+    Persistent (mono_gset_auth γ DfracDiscarded s).
   Proof.
     apply _.
   Qed.

@@ -54,6 +54,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance array_inv_persistent t sz :
       Persistent (array_inv t sz).
     Proof.
@@ -81,6 +82,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance array_slice_persistent t i vs :
       Persistent (array_slice t i DfracDiscarded vs).
     Proof.
@@ -388,6 +390,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance array_model_persistent t vs :
       Persistent (array_model t DfracDiscarded vs).
     Proof.
@@ -629,6 +632,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance array_cslice_persistent t sz i vs :
       Persistent (array_cslice t sz i DfracDiscarded vs).
     Proof.

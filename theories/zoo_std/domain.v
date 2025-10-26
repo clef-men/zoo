@@ -299,6 +299,7 @@ Section domain_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance key_id_persistent key id :
     Persistent (key_id key id).
   Proof.

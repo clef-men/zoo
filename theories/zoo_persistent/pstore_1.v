@@ -653,6 +653,7 @@ Section pstore_1_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance pstore_1_snapshot_persistent t s σ :
     Persistent (pstore_1_snapshot t s σ).
   Proof.

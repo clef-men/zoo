@@ -40,13 +40,14 @@ Section auth_nat_max_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_max_auth_persistent γ n :
-    Persistent (auth_nat_max_auth γ DfracDiscarded n).
+  #[global] Instance auth_nat_max_lb_timeless γ n :
+    Timeless (auth_nat_max_lb γ n).
   Proof.
     apply _.
   Qed.
-  #[global] Instance auth_nat_max_lb_timeless γ n :
-    Timeless (auth_nat_max_lb γ n).
+
+  #[global] Instance auth_nat_max_auth_persistent γ n :
+    Persistent (auth_nat_max_auth γ DfracDiscarded n).
   Proof.
     apply _.
   Qed.

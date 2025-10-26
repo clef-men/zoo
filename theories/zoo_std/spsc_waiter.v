@@ -110,16 +110,6 @@ Section spsc_waiter_G.
     apply _.
   Qed.
 
-  #[global] Instance spsc_waiter_inv_persistent t P :
-    Persistent (spsc_waiter_inv t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance spsc_waiter_notified_persistent t :
-    Persistent (spsc_waiter_notified t).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance spsc_waiter_producer_timeless t :
     Timeless (spsc_waiter_producer t).
   Proof.
@@ -132,6 +122,17 @@ Section spsc_waiter_G.
   Qed.
   #[global] Instance spsc_waiter_notified_timeless t :
     Timeless (spsc_waiter_notified t).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance spsc_waiter_inv_persistent t P :
+    Persistent (spsc_waiter_inv t P).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance spsc_waiter_notified_persistent t :
+    Persistent (spsc_waiter_notified t).
   Proof.
     apply _.
   Qed.

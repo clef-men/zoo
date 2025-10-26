@@ -41,6 +41,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance identifier_model_persistent id :
     Persistent (identifier_model id DfracDiscarded).
   Proof.

@@ -279,6 +279,7 @@ Section bag_2_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance bag_2_inv_persistent t ι :
     Persistent (bag_2_inv t ι).
   Proof.

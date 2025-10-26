@@ -189,6 +189,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance has_header_persistent l hdr :
     Persistent (l ↦ₕ hdr).
   Proof.
@@ -213,6 +214,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance meta_persistent `{Countable A} l ι (x : A) :
     Persistent (meta l ι x).
   Proof.
@@ -248,6 +250,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance pointsto_persistent l v :
     Persistent (l ↦□ v).
   Proof.
@@ -415,6 +418,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance thread_pointsto_persistent tid v :
     Persistent (tid ↦ₗ□ v).
   Proof.
@@ -437,6 +441,7 @@ Section zoo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance prophet_model_persistent pid prophs :
     Persistent (prophet_model pid DfracDiscarded prophs).
   Proof.

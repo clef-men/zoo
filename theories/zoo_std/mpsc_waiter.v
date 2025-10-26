@@ -104,16 +104,6 @@ Section mpsc_waiter_G.
     apply _.
   Qed.
 
-  #[global] Instance mpsc_waiter_inv_persistent t P :
-    Persistent (mpsc_waiter_inv t P).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance mpsc_waiter_notified_persistent t :
-    Persistent (mpsc_waiter_notified t).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance mpsc_waiter_consumer_timeless t :
     Timeless (mpsc_waiter_consumer t).
   Proof.
@@ -121,6 +111,17 @@ Section mpsc_waiter_G.
   Qed.
   #[global] Instance mpsc_waiter_notified_timeless t :
     Timeless (mpsc_waiter_notified t).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance mpsc_waiter_inv_persistent t P :
+    Persistent (mpsc_waiter_inv t P).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance mpsc_waiter_notified_persistent t :
+    Persistent (mpsc_waiter_notified t).
   Proof.
     apply _.
   Qed.

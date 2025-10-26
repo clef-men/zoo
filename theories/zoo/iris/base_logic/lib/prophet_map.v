@@ -82,6 +82,7 @@ Section prophet_map_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance prophet_model_persistent pid prophs :
     Persistent (prophet_model pid DfracDiscarded prophs).
   Proof.

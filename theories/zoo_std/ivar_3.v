@@ -240,6 +240,7 @@ Section ivar_3_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ivar_3_inv_persistent t Ψ Ξ Ω :
     Persistent (ivar_3_inv t Ψ Ξ Ω).
   Proof.

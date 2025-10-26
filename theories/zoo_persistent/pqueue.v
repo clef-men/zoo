@@ -27,13 +27,14 @@ Section zoo_G.
     ∃ front back,
     ⌜t = (lst_to_val front, lst_to_val back)%V ∧ vs = front ++ reverse back⌝.
 
-  #[global] Instance pqueue_model_persistent t vs :
-    Persistent (pqueue_model t vs).
+  #[global] Instance pqueue_model_timeless t vs :
+    Timeless (pqueue_model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pqueue_model_timeless t vs :
-    Timeless (pqueue_model t vs).
+
+  #[global] Instance pqueue_model_persistent t vs :
+    Persistent (pqueue_model t vs).
   Proof.
     apply _.
   Qed.

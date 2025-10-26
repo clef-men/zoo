@@ -233,6 +233,7 @@ Section ws_hub_std_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ws_hub_std_inv_persistent t ι sz :
     Persistent (ws_hub_std_inv t ι sz).
   Proof.

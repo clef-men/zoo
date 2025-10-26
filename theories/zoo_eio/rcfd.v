@@ -342,6 +342,7 @@ Section rcfd_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance rcfd_inv_persistent t owned fd Ψ :
     Persistent (rcfd_inv t owned fd Ψ).
   Proof.

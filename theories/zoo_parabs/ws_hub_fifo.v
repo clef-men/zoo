@@ -212,6 +212,7 @@ Section ws_hub_fifo_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ws_hub_fifo_inv_persistent t ι sz :
     Persistent (ws_hub_fifo_inv t ι sz).
   Proof.

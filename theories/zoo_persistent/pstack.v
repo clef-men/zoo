@@ -21,13 +21,14 @@ Section zoo_G.
   Definition pstack_model t vs : iProp Σ :=
     lst_model t vs.
 
-  #[global] Instance pstack_model_persistent t vs :
-    Persistent (pstack_model t vs).
+  #[global] Instance pstack_model_timeless t vs :
+    Timeless (pstack_model t vs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance pstack_model_timeless t vs :
-    Timeless (pstack_model t vs).
+
+  #[global] Instance pstack_model_persistent t vs :
+    Persistent (pstack_model t vs).
   Proof.
     apply _.
   Qed.

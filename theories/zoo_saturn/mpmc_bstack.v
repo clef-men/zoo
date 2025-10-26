@@ -143,6 +143,7 @@ Section mpmc_bstack_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mpmc_bstack_inv_persistent t ι cap :
     Persistent (mpmc_bstack_inv t ι cap).
   Proof.

@@ -207,6 +207,7 @@ Section mpmc_queue_1_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mpmc_queue_1_inv_persistent t ι :
     Persistent (mpmc_queue_1_inv t ι).
   Proof.

@@ -39,6 +39,7 @@ Section zoo_G.
   Proof.
     induction nodes as [| ? []]; apply _.
   Qed.
+
   #[global] Instance xchain_persistent nodes dst :
     Persistent (xchain DfracDiscarded nodes dst).
   Proof.

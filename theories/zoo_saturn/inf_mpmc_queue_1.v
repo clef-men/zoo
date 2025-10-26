@@ -313,6 +313,7 @@ Section inf_mpmc_queue_1_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance consumers_at_persistent γ i Ψ :
     Persistent (consumers_at γ i Ψ).
   Proof.

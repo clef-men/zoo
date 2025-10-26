@@ -233,6 +233,7 @@ Section puf_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance puf_snapshot_persistent s t reprs :
     Persistent (puf_snapshot s t reprs).
   Proof.

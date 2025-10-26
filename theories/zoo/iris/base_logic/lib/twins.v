@@ -50,14 +50,15 @@ Section twins_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance twins_twin1_persistent γ a :
-    Persistent (twins_twin1 γ DfracDiscarded a).
-  Proof.
-    apply _.
-  Qed.
   #[global] Instance twins_twin2_timeless γ a :
     Discrete a →
     Timeless (twins_twin2 γ a).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance twins_twin1_persistent γ a :
+    Persistent (twins_twin1 γ DfracDiscarded a).
   Proof.
     apply _.
   Qed.

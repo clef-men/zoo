@@ -27,6 +27,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance chunk_model_persistent l vs :
       Persistent (chunk_model l DfracDiscarded vs).
     Proof.
@@ -337,6 +338,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance chunk_span_persistent l n :
       Persistent (chunk_span l DfracDiscarded n).
     Proof.
@@ -646,6 +648,7 @@ Section zoo_G.
     Proof.
       apply _.
     Qed.
+
     #[global] Instance chunk_cslice_persistent l sz i vs :
       Persistent (chunk_cslice l sz i DfracDiscarded vs).
     Proof.

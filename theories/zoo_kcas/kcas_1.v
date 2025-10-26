@@ -686,6 +686,7 @@ Section kcas_1_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance history_lb_persistent γ casns :
     Persistent (history_lb γ casns).
   Proof.

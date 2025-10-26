@@ -434,6 +434,7 @@ Section ws_deques_private_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ws_deques_private_inv_persistent t ι sz :
     Persistent (ws_deques_private_inv t ι sz).
   Proof.

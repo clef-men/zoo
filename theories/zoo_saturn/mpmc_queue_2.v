@@ -508,6 +508,7 @@ Section mpmc_queue_2_G.
   Proof.
     apply _.
   Qed.
+
   #[local] Instance state_at_persistent γ back i_back :
     Persistent (state_at γ back i_back).
   Proof.

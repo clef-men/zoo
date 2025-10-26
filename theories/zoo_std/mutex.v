@@ -96,6 +96,7 @@ Section mutex_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance mutex_inv_persistent t P :
     Persistent (mutex_inv t P).
   Proof.

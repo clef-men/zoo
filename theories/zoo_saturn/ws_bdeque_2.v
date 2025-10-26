@@ -72,6 +72,7 @@ Section ws_bdeque_2_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance ws_bdeque_2_inv_persistent t ι cap :
     Persistent (ws_bdeque_2_inv t ι cap).
   Proof.

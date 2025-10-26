@@ -47,6 +47,7 @@ Section agree_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance agree_on_persistent γ a :
     Persistent (agree_on γ a).
   Proof.

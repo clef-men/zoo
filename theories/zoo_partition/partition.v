@@ -162,6 +162,7 @@ Section partition_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance partition_element_persistent γ elt v :
     Persistent (partition_element γ elt v).
   Proof.

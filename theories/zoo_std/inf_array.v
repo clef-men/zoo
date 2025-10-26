@@ -149,6 +149,7 @@ Section inf_array_G.
   Proof.
     intros vs1 vs2 Hvs. rewrite equiv_dist. solve_proper.
   Qed.
+
   #[global] Instance inf_array_model_timeless t vs :
     Timeless (inf_array_model t vs).
   Proof.
@@ -165,6 +166,7 @@ Section inf_array_G.
   Proof.
     solve_proper.
   Qed.
+
   #[global] Instance inf_array_model'_timeless t vsₗ vsᵣ :
     Timeless (inf_array_model' t vsₗ vsᵣ).
   Proof.
