@@ -164,7 +164,7 @@ Section ivar_2_G.
       #Hmeta{;_} &
       #Hlstate{}_set
     )".
-  Definition ivar_2_determined t : iProp Σ :=
+  Definition ivar_2_resolved t : iProp Σ :=
     ∃ v,
     ivar_2_result t v.
 
@@ -594,7 +594,7 @@ Section ivar_2_G.
       RET #b;
       if b then
         £ 2 ∗
-        ivar_2_determined t
+        ivar_2_resolved t
       else
         True
     }}}.

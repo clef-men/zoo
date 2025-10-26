@@ -1201,7 +1201,7 @@ Module base.
       wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
       wp_smart_apply (pool_async_silent_spec (
-        ivar_3_determined ivar
+        ivar_3_resolved ivar
       ) with "[$Hctx Htask Hivar_producer]") as "(Hctx & Hobligation)".
       { clear ctx scope. iIntros "%ctx %scope Hctx".
 
@@ -1211,7 +1211,7 @@ Module base.
 
         iApply (big_sepL_impl with "Hwaiters").
         iSteps.
-        rewrite /ivar_3_determined. iSteps.
+        rewrite /ivar_3_resolved. iSteps.
       }
 
       iSteps.
@@ -1234,10 +1234,10 @@ Module base.
 
       wp_rec.
 
-      wp_smart_apply (pool_wait_until_spec (ivar_3_determined fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
+      wp_smart_apply (pool_wait_until_spec (ivar_3_resolved fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
       { iModIntro.
         wp_smart_apply (ivar_3_is_set_spec with "Hivar_inv") as (b) "Hivar_result".
-        rewrite /ivar_3_determined. destruct b; iSteps.
+        rewrite /ivar_3_resolved. destruct b; iSteps.
       }
 
       wp_smart_apply (ivar_3_get_spec with "[$Hivar_inv $Hivar_result]") as "H£".
