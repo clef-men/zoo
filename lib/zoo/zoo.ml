@@ -9,18 +9,18 @@ type (_, _) proph =
 type 'a proph' =
   (unit, 'a) proph
 
-let proph () =
+let[@inline] proph () =
   dummy
-let resolve_with x _ _ =
+let[@inline] resolve_with x _ _ =
   x
-let resolve_silent proph v_proph =
+let[@inline] resolve_silent proph v_proph =
   resolve_with ((fun () -> ()) ()) proph v_proph
-let resolve proph v_proph =
+let[@inline] resolve proph v_proph =
   resolve_silent proph v_proph ;
   v_proph
 
 type id =
   dummy
 
-let id () =
+let[@inline] id () =
   dummy
