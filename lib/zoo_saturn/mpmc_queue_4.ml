@@ -70,17 +70,18 @@ let push t v =
 
 let rec pop_1 t (node : (_, [`Node]) node) =
   let Node node_r = node in
+  let proph = Zoo.proph () in
   if Mpmc_fqueue_2.is_empty node_r.queue then
-    pop_2 t node
+    pop_2 t node proph
   else
     match Mpmc_fqueue_2.pop node_r.queue with
     | Some _ as res ->
         res
     | None ->
-        pop_2 t node
-and pop_2 t (node : (_, [`Node]) node) =
+        pop_2 t node proph
+and pop_2 t (node : (_, [`Node]) node) proph =
   let Node node_r = node in
-  match node_r.next with
+  match Zoo.resolve_with node_r.next proph () with
   | Null ->
       None
   | Node _ as next ->
