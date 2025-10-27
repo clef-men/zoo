@@ -9,7 +9,7 @@ type ('a, _) node =
     ('a, [> `Null]) node
   | Node :
     { mutable next: ('a, [`Null | `Node]) node [@atomic];
-      mutable queue: 'a Mpmc_fqueue_2.t;
+      queue: 'a Mpmc_fqueue_2.t;
     } ->
     ('a, [> `Node]) node
 
