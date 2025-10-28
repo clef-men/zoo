@@ -46,22 +46,22 @@ Section subpreds_G.
         saved_pred η Χ ∗
         ▷ Χ x.
   #[local] Instance : CustomIpatFormat "auth" :=
-    "(
-      %ηs &
-      {>;}Hauth &
-      Hηs
-    )".
+    " ( %ηs &
+        {>;}Hauth &
+        Hηs
+      )
+    ".
 
   Definition subpreds_frag γ Χ : iProp Σ :=
     ∃ η,
     auth_dgset_frag γ {[η]} ∗
     saved_pred η Χ.
   #[local] Instance : CustomIpatFormat "frag" :=
-    "(
-      %η &
-      Hfrag &
-      #Hη
-    )".
+    " ( %η &
+        Hfrag &
+        #Hη
+      )
+    ".
 
   #[global] Instance subpreds_auth_ne γ n :
     Proper (

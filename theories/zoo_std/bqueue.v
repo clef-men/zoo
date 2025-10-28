@@ -35,22 +35,22 @@ Section zoo_G.
     ⌜back = (front + length vs)%nat⌝ ∗
     ⌜cap = (length vs + extra)%nat⌝.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l &
-      %data &
-      %front &
-      %back &
-      %extra &
-      -> &
-      Hl_capacity &
-      Hl_data &
-      Hl_front &
-      Hl_back &
-      Hvs &
-      Hextra &
-      % &
-      %
-    )".
+    " ( %l &
+        %data &
+        %front &
+        %back &
+        %extra &
+        -> &
+        Hl_capacity &
+        Hl_data &
+        Hl_front &
+        Hl_back &
+        Hvs &
+        Hextra &
+        % &
+        %
+      )
+    ".
 
   #[global] Instance bqueue_model_timeless t cap vs :
     Timeless (bqueue_model t cap vs).

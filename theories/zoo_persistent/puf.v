@@ -211,22 +211,22 @@ Section puf_G.
     pstore_2_model t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %descrs{} &
-      Hmodel{} &
-      %Hconsistent{}
-    )".
+    " ( %descrs{} &
+        Hmodel{} &
+        %Hconsistent{}
+      )
+    ".
 
   Definition puf_snapshot s t reprs : iProp Σ :=
     ∃ descrs,
     pstore_2_snapshot s t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpatFormat "snapshot" :=
-    "(
-      %descrs{} &
-      Hsnapshot{} &
-      %Hconsistent{}
-    )".
+    " ( %descrs{} &
+        Hsnapshot{} &
+        %Hconsistent{}
+      )
+    ".
 
   #[global] Instance puf_model_timeless t reprs :
     Timeless (puf_model t reprs).

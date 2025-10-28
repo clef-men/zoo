@@ -50,24 +50,24 @@ Section zoo_G.
     l ↦ᵣ glst_to_val vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %vs{} &
-      Hl &
-      Hmodel₂
-    )".
+    " ( %vs{} &
+        Hl &
+        Hmodel₂
+      )
+    ".
   Definition mpmc_stack_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition mpmc_stack_1_model t vs : iProp Σ :=
     ∃ l γ,
@@ -75,13 +75,13 @@ Section zoo_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[global] Instance mpmc_stack_1_model_timeless t vs :
     Timeless (mpmc_stack_1_model t vs).

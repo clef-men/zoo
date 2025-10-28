@@ -80,26 +80,26 @@ Section mpsc_queue_2_G.
     l.[back] ↦ glst_to_val back ∗
     model₂ γ (front ++ reverse back).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %front{} &
-      %back{} &
-      >Hfront₂ &
-      >Hl_back &
-      >Hmodel₂
-    )".
+    " ( %front{} &
+        %back{} &
+        >Hfront₂ &
+        >Hl_back &
+        >Hmodel₂
+      )
+    ".
   Definition mpsc_queue_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition mpsc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
@@ -107,13 +107,13 @@ Section mpsc_queue_2_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   Definition mpsc_queue_2_consumer t : iProp Σ :=
     ∃ l γ front,
@@ -122,15 +122,15 @@ Section mpsc_queue_2_G.
     l.[front] ↦ glst_to_val front ∗
     front₁ γ front.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l_ &
-      %γ_ &
-      %front &
-      %Heq &
-      Hmeta_ &
-      Hl_front &
-      Hfront₁
-    )".
+    " ( %l_ &
+        %γ_ &
+        %front &
+        %Heq &
+        Hmeta_ &
+        Hl_front &
+        Hfront₁
+      )
+    ".
 
   #[global] Instance mpsc_queue_2_model_timeless t vs :
     Timeless (mpsc_queue_2_model t vs).

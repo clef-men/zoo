@@ -129,31 +129,31 @@ Section inf_mpmc_queue_1_G.
   #[local] Definition consumers_auth γ i :=
     consumers_auth' γ.(metadata_consumers) i.
   #[local] Instance : CustomIpatFormat "consumers_auth" :=
-    "(
-      %ηs{} &
-      Hauth{} &
-      %Hηs{}
-    )".
+    " ( %ηs{} &
+        Hauth{} &
+        %Hηs{}
+      )
+    ".
   #[local] Definition consumers_at γ i Ψ : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_consumers) i η ∗
     saved_pred η Ψ.
   #[local] Instance : CustomIpatFormat "consumers_at" :=
-    "(
-      %η{} &
-      Hat{} &
-      HΨ{}
-    )".
+    " ( %η{} &
+        Hat{} &
+        HΨ{}
+      )
+    ".
   #[local] Definition consumers_lb γ i : iProp Σ :=
     ∃ ηs,
     ⌜length ηs = i⌝ ∗
     mono_list_lb γ.(metadata_consumers) ηs.
   #[local] Instance : CustomIpatFormat "consumers_lb" :=
-    "(
-      %ηs{} &
-      %Hηs{} &
-      Hlb{}
-    )".
+    " ( %ηs{} &
+        %Hηs{} &
+        Hlb{}
+      )
+    ".
 
   #[local] Definition tokens_auth' γ_tokens i : iProp Σ :=
     ∃ ηs,
@@ -162,31 +162,31 @@ Section inf_mpmc_queue_1_G.
   #[local] Definition tokens_auth γ i :=
     tokens_auth' γ.(metadata_tokens) i.
   #[local] Instance : CustomIpatFormat "tokens_auth" :=
-    "(
-      %ηs{} &
-      Hauth{} &
-      %Hηs{}
-    )".
+    " ( %ηs{} &
+        Hauth{} &
+        %Hηs{}
+      )
+    ".
   #[local] Definition tokens_pending γ i : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_tokens) i η ∗
     oneshot_pending η (DfracOwn 1) ().
   #[local] Instance : CustomIpatFormat "tokens_pending" :=
-    "(
-      %η{} &
-      Hat{} &
-      Hpending{}
-    )".
+    " ( %η{} &
+        Hat{} &
+        Hpending{}
+      )
+    ".
   #[local] Definition tokens_done γ i : iProp Σ :=
     ∃ η,
     mono_list_at γ.(metadata_tokens) i η ∗
     oneshot_shot η ().
   #[local] Instance : CustomIpatFormat "tokens_done" :=
-    "(
-      %η{} &
-      Hat{} &
-      Hshot{}
-    )".
+    " ( %η{} &
+        Hat{} &
+        Hshot{}
+      )
+    ".
 
   #[local] Definition consumer_au γ Ψ : iProp Σ :=
     AU <{
@@ -236,48 +236,48 @@ Section inf_mpmc_queue_1_G.
     ) ∗
     (∀ i, slot_model γ i (slots i)).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %front{} &
-      %back{} &
-      %hist{} &
-      %slots{} &
-      Hl_front &
-      Hl_back &
-      >Hdata_model &
-      >Hhistory_auth &
-      >%Hhist{} &
-      Hmodel₂ &
-      Hconsumers_auth &
-      Htokens_auth &
-      Hpast &
-      Hwaiters &
-      Hslots
-    )".
+    " ( %front{} &
+        %back{} &
+        %hist{} &
+        %slots{} &
+        Hl_front &
+        Hl_back &
+        >Hdata_model &
+        >Hhistory_auth &
+        >%Hhist{} &
+        Hmodel₂ &
+        Hconsumers_auth &
+        Htokens_auth &
+        Hpast &
+        Hwaiters &
+        Hslots
+      )
+    ".
   Definition inv' l γ : iProp Σ :=
     meta l nroot γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     inf_array_inv γ.(metadata_data) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv'" :=
-    "(
-      #Hmeta &
-      #Hl_data &
-      #Hdata_inv &
-      #Hinv
-    )".
+    " ( #Hmeta &
+        #Hl_data &
+        #Hdata_inv &
+        #Hinv
+      )
+    ".
   Definition inf_mpmc_queue_1_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      (:inv')
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        (:inv')
+      )
+    ".
 
   Definition inf_mpmc_queue_1_model t vs : iProp Σ :=
     ∃ l γ,
@@ -285,13 +285,13 @@ Section inf_mpmc_queue_1_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[local] Instance tokens_pending_timeless γ i :
     Timeless (tokens_pending γ i).

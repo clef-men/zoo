@@ -469,35 +469,35 @@ Section kcas_1_G.
         )
     end.
   #[local] Instance : CustomIpatFormat "casn_inv_inner" :=
-    "(
-      %status{} &
-      %lstatus{} &
-      %helpers{} &
-      %prophs{} &
-      >Hcasn{}_status &
-      >Hlstatus{}_auth &
-      >Hhelpers{}_auth &
-      >Hgproph{} &
-      Hlstatus{}
-    )".
+    " ( %status{} &
+        %lstatus{} &
+        %helpers{} &
+        %prophs{} &
+        >Hcasn{}_status &
+        >Hlstatus{}_auth &
+        >Hhelpers{}_auth &
+        >Hgproph{} &
+        Hlstatus{}
+      )
+    ".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_running" :=
-    "(
-      {>;}-> &
-      {>;}-> &
-      Hau{} &
-      Hhelpers{} &
-      {>;}Hdescrs{} &
-      {>;}Hmodels₂{} &
-      {>;}Hlocks{}
-    )".
+    " ( {>;}-> &
+        {>;}-> &
+        Hau{} &
+        Hhelpers{} &
+        {>;}Hdescrs{} &
+        {>;}Hmodels₂{} &
+        {>;}Hlocks{}
+      )
+    ".
   #[local] Instance : CustomIpatFormat "casn_inv_inner_finished" :=
-    "(
-      {>;}-> &
-      {>;}Hwinner{} &
-      HΨ{} &
-      Hhelpers{} &
-      {>;}Hdescrs{}
-    )".
+    " ( {>;}-> &
+        {>;}Hwinner{} &
+        HΨ{} &
+        Hhelpers{} &
+        {>;}Hdescrs{}
+      )
+    ".
   #[local] Definition casn_inv_pre ι
     (casn_inv' : location * metadata * option nat -d> iProp Σ)
     (loc_inv' : location * loc_metadata -d> iProp Σ)
@@ -524,14 +524,14 @@ Section kcas_1_G.
           loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
     )%I.
   #[local] Instance : CustomIpatFormat "casn_inv" :=
-    "(
-      %Ψ{} &
-      Hcasn{}_proph &
-      Hpost{} &
-      %Hlocs{} &
-      Hcasn{}_inv &
-      Hlocs{}
-    )".
+    " ( %Ψ{} &
+        Hcasn{}_proph &
+        Hpost{} &
+        %Hlocs{} &
+        Hcasn{}_inv &
+        Hlocs{}
+      )
+    ".
   #[local] Instance casn_inv_pre_contractive ι n :
     Proper (dist_later n ==> (≡{n}≡) ==> (≡{n}≡)) (casn_inv_pre ι).
   Proof.
@@ -551,21 +551,21 @@ Section kcas_1_G.
     history_auth γ (casns ++ [casn]) ∗
     casn_inv' (casn, η, if full then None else Some i).
   #[local] Instance : CustomIpatFormat "loc_inv_inner" :=
-    "(
-      %casns{} &
-      %casn{} &
-      %η{} &
-      %i{} &
-      %descr{} &
-      {>;}{#}Hcasn{}_meta &
-      {>;}%Hdescrs{}_lookup &
-      {>;}{%Hloc{};->} &
-      {>;}Hloc &
-      {>;}{#}Hlstatus{}_lb &
-      {>;}Hlock{} &
-      {>;}Hhistory_auth &
-      {#}Hcasn{}_inv'
-    )".
+    " ( %casns{} &
+        %casn{} &
+        %η{} &
+        %i{} &
+        %descr{} &
+        {>;}{#}Hcasn{}_meta &
+        {>;}%Hdescrs{}_lookup &
+        {>;}{%Hloc{};->} &
+        {>;}Hloc &
+        {>;}{#}Hlstatus{}_lb &
+        {>;}Hlock{} &
+        {>;}Hhistory_auth &
+        {#}Hcasn{}_inv'
+      )
+    ".
   #[local] Definition loc_inv_inner' :=
     loc_inv_inner'' false.
   #[local] Definition loc_inv_pre ι
@@ -605,11 +605,11 @@ Section kcas_1_G.
     meta loc nroot γ ∗
     model₁ γ v.
   #[local] Instance : CustomIpatFormat "loc_model" :=
-    "(
-      %γ{} &
-      Hmeta{_{}} &
-      Hmodel₁{_{}}
-    )".
+    " ( %γ{} &
+        Hmeta{_{}} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[local] Lemma casn_inv''_unfold ι casn (i : option nat) η :
     casn_inv'' ι (casn, η, i) ⊣⊢

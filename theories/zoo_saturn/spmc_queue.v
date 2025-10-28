@@ -88,11 +88,11 @@ Section spmc_queue_G.
     mono_list_auth γ_history (DfracOwn (1/2)) hist ∗
     ⌜last hist = Some node⌝.
   #[local] Instance : CustomIpatFormat "history_last" :=
-    "(
-      %hist{} &
-      Hauth{_{}} &
-      %Hlast
-    )".
+    " ( %hist{} &
+        Hauth{_{}} &
+        %Hlast
+      )
+    ".
   #[local] Definition history_last γ :=
     history_last' γ.(metadata_history).
   #[local] Definition history_at γ i node :=
@@ -131,11 +131,11 @@ Section spmc_queue_G.
     history_at γ i node ∗
     if b then front_lb γ i else True%I.
   #[local] Instance : CustomIpatFormat "node_model" :=
-    "(
-      #H{}_header &
-      #Hhistory_at_{} &
-      {{front}#Hfront_lb_{};_}
-    )".
+    " ( #H{}_header &
+        #Hhistory_at_{} &
+        {{front}#Hfront_lb_{};_}
+      )
+    ".
 
   #[local] Definition waiter_au γ (Ψ : bool → iProp Σ) : iProp Σ :=
     AU <{
@@ -166,23 +166,23 @@ Section spmc_queue_G.
     waiters_auth γ waiters ∗
     ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %hist{} &
-      %past{} &
-      %front{} &
-      %nodes{} &
-      %vs{} &
-      %waiters{} &
-      >%Hhist{} &
-      >Hl_front &
-      >Hhist &
-      >Hnodes &
-      >Hhistory_auth &
-      >Hfront_auth &
-      >Hmodel₂ &
-      >Hwaiters_auth &
-      Hwaiters
-    )".
+    " ( %hist{} &
+        %past{} &
+        %front{} &
+        %nodes{} &
+        %vs{} &
+        %waiters{} &
+        >%Hhist{} &
+        >Hl_front &
+        >Hhist &
+        >Hnodes &
+        >Hhistory_auth &
+        >Hfront_auth &
+        >Hmodel₂ &
+        >Hwaiters_auth &
+        Hwaiters
+      )
+    ".
   #[local] Definition inv' l γ :=
     inv γ.(metadata_inv) (inv_inner l γ).
   Definition spmc_queue_inv t ι : iProp Σ :=
@@ -192,14 +192,14 @@ Section spmc_queue_G.
     meta l nroot γ ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition spmc_queue_producer t ws : iProp Σ :=
     ∃ l γ back,
@@ -210,17 +210,17 @@ Section spmc_queue_G.
     history_last γ back ∗
     producer γ ws.
   #[local] Instance : CustomIpatFormat "producer" :=
-    "(
-      %l_{} &
-      %γ_{} &
-      %back{} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hl_back{_{}} &
-      #Hback{}_header &
-      Hhistory_last{_{}} &
-      Hproducer{_{}}
-    )".
+    " ( %l_{} &
+        %γ_{} &
+        %back{} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hl_back{_{}} &
+        #Hback{}_header &
+        Hhistory_last{_{}} &
+        Hproducer{_{}}
+      )
+    ".
 
   Definition spmc_queue_model t vs : iProp Σ :=
     ∃ l γ,
@@ -228,13 +228,13 @@ Section spmc_queue_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[global] Instance spmc_queue_model_timeless t vs :
     Timeless (spmc_queue_model t vs).

@@ -47,12 +47,12 @@ Section ws_deques_public_G.
     [∗ list] queue ∈ queues,
       ws_deque_2_inv queue ι.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %queues{} &
-      %Hqueues{}_length &
-      #Hqueues{} &
-      #Hqueues{}_inv
-    )".
+    " ( %queues{} &
+        %Hqueues{}_length &
+        #Hqueues{} &
+        #Hqueues{}_inv
+      )
+    ".
 
   Definition ws_deques_public_model t vss : iProp Σ :=
     ∃ queues,
@@ -60,11 +60,11 @@ Section ws_deques_public_G.
     [∗ list] i ↦ queue; vs ∈ queues; vss,
       ws_deque_2_model queue vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %queues{;_} &
-      Hqueues{;_} &
-      Hqueues{}_model
-    )".
+    " ( %queues{;_} &
+        Hqueues{;_} &
+        Hqueues{}_model
+      )
+    ".
 
   Definition ws_deques_public_owner t i status ws : iProp Σ :=
     ∃ queues queue,
@@ -72,13 +72,13 @@ Section ws_deques_public_G.
     array_model t DfracDiscarded queues ∗
     ws_deque_2_owner queue ws.
   #[local] Instance : CustomIpatFormat "owner" :=
-    "(
-      %queues{;_} &
-      %queue{} &
-      %Hqueues{}_lookup &
-      Hqueues{;_} &
-      Hqueue{}_owner
-    )".
+    " ( %queues{;_} &
+        %queue{} &
+        %Hqueues{}_lookup &
+        Hqueues{;_} &
+        Hqueue{}_owner
+      )
+    ".
 
   #[global] Instance ws_deques_public_model_timeless t vss :
     Timeless (ws_deques_public_model t vss).

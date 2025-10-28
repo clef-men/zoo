@@ -29,16 +29,16 @@ Section zoo_G.
     chain_model (Some §Node) front vs back ∗
     chain_model (Some §Node) back [()%V] ().
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l &
-      %front &
-      %back &
-      -> &
-      Hl_front &
-      Hl_back &
-      Hfront &
-      Hback
-    )".
+    " ( %l &
+        %front &
+        %back &
+        -> &
+        Hl_front &
+        Hl_back &
+        Hfront &
+        Hback
+      )
+    ".
 
   #[global] Instance queue_2_model_timeless t vs :
     Timeless (queue_2_model t vs).

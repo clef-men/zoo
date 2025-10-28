@@ -30,15 +30,15 @@ Section zoo_G.
     end.
   #[global] Arguments chain_model _ _ !_ _ / : assert.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{} &
-      %t{}' &
-      {%Heq{eq};->} &
-      Hl{}_header &
-      Hl{}_next &
-      Hl{}_data &
-      Hmodel{}'
-    )".
+    " ( %l{} &
+        %t{}' &
+        {%Heq{eq};->} &
+        Hl{}_header &
+        Hl{}_next &
+        Hl{}_data &
+        Hmodel{}'
+      )
+    ".
 
   #[global] Instance chain_model_timeless tag t vs dst :
     Timeless (chain_model tag t vs dst).

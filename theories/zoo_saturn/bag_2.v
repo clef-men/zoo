@@ -124,11 +124,11 @@ Section bag_2_G.
       ) descrs
     ⌝.
   #[local] Instance : CustomIpatFormat "queues_auth" :=
-    "(
-      Hauth &
-      %Hnodes &
-      %Hdescrs
-    )".
+    " ( Hauth &
+        %Hnodes &
+        %Hdescrs
+      )
+    ".
   #[local] Definition queues_auth γ :=
     queues_auth' γ.(metadata_queues).
   #[local] Definition queues_at' :=
@@ -145,11 +145,11 @@ Section bag_2_G.
         spmc_queue_inv queue (γ.(metadata_inv).@"producer")
     end.
   #[local] Instance : CustomIpatFormat "queues_elem" :=
-    "(
-      %node &
-      #Hqueues_at &
-      #Hqueue_inv
-    )".
+    " ( %node &
+        #Hqueues_at &
+        #Hqueue_inv
+      )
+    ".
 
   #[local] Definition model₁' γ_model vss :=
     twins_twin1 γ_model (DfracOwn 1) vss.
@@ -167,13 +167,13 @@ Section bag_2_G.
     spmc_queue_inv descr.(descriptor_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_model descr.(descriptor_queue) descr.(descriptor_vals).
   #[local] Instance : CustomIpatFormat "descriptor_model" :=
-    "(
-      %o{} &
-      Hnode{}_queue &
-      {>;}%Ho{} &
-      {{inv}#Hqueue{}_inv;{inv}#Hqueue_inv;_} &
-      {>;}Hqueue{}_model
-    )".
+    " ( %o{} &
+        Hnode{}_queue &
+        {>;}%Ho{} &
+        {{inv}#Hqueue{}_inv;{inv}#Hqueue_inv;_} &
+        {>;}Hqueue{}_model
+      )
+    ".
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ nodes descrs wss,
@@ -184,16 +184,16 @@ Section bag_2_G.
     [∗ map] node ↦ descr ∈ descrs,
       descriptor_model γ node descr.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %nodes{} &
-      %descrs{} &
-      %wss &
-      Hl_producers &
-      Hnodes{} &
-      >Hqueues_auth &
-      >Hmodel₂ &
-      Hdescrs
-    )".
+    " ( %nodes{} &
+        %descrs{} &
+        %wss &
+        Hl_producers &
+        Hnodes{} &
+        >Hqueues_auth &
+        >Hmodel₂ &
+        Hdescrs
+      )
+    ".
   #[local] Definition inv' l γ :=
     inv (γ.(metadata_inv).@"inv") (inv_inner l γ).
   Definition bag_2_inv t ι : iProp Σ :=
@@ -203,14 +203,14 @@ Section bag_2_G.
     meta l nroot γ ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition bag_2_model t vss : iProp Σ :=
     ∃ l γ,
@@ -218,13 +218,13 @@ Section bag_2_G.
     meta l nroot γ ∗
     model₁ γ vss.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   Definition bag_2_producer t producer ws : iProp Σ :=
     ∃ l γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟,
@@ -236,18 +236,18 @@ Section bag_2_G.
     spmc_queue_inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ws.
   #[local] Instance : CustomIpatFormat "producer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{} &
-      %Ht_eq{} &
-      {%Hproducer_eq{};->} &
-      #Hmeta{_{};_} &
-      #Hnode_header{_{}} &
-      #Hqueues_at{_{}} &
-      #Hqueue_inv{_{}} &
-      Hqueue_producer{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{} &
+        %Ht_eq{} &
+        {%Hproducer_eq{};->} &
+        #Hmeta{_{};_} &
+        #Hnode_header{_{}} &
+        #Hqueues_at{_{}} &
+        #Hqueue_inv{_{}} &
+        Hqueue_producer{_{}}
+      )
+    ".
 
   Definition bag_2_consumer t consumer : iProp Σ :=
     ∃ l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val),
@@ -257,17 +257,17 @@ Section bag_2_G.
     𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
     queues_elem γ queue.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{} &
-      %queue{} &
-      %Heq{} &
-      Hmeta_{} &
-      {%Hconsumer_eq{};->} &
-      Hconsumer_queue{_{}} &
-      #Hqueues_elem{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{} &
+        %queue{} &
+        %Heq{} &
+        Hmeta_{} &
+        {%Hconsumer_eq{};->} &
+        Hconsumer_queue{_{}} &
+        #Hqueues_elem{_{}}
+      )
+    ".
 
   #[local] Instance queues_auth_timeless γ nodes descrs wss :
     Timeless (queues_auth γ nodes descrs wss).

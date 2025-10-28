@@ -81,10 +81,10 @@ Section partition_G.
     elt.[class_] ↦ #class ∗
     elt.[seen] ↦ #false.
   #[local] Instance : CustomIpatFormat "element_model" :=
-    "(
-      Helt{}_class{_{suff}} &
-      Helt{}_seen{_{suff}}
-    )".
+    " ( Helt{}_class{_{suff}} &
+        Helt{}_seen{_{suff}}
+      )
+    ".
   #[local] Definition descriptor_model class descrs descr : iProp Σ :=
     ∃ first last prev_descr prev next_descr next,
     ⌜head descr.(descriptor_elts) = Some first⌝ ∗
@@ -102,55 +102,55 @@ Section partition_G.
     [∗ list] elt ∈ descr.(descriptor_elts),
       element_model class descr elt.
   #[local] Instance : CustomIpatFormat "descriptor_model" :=
-    "(
-      %first{} &
-      %last{} &
-      %prev{}_descr &
-      %prev{} &
-      %next{}_descr &
-      %next{} &
-      %Hfirst{} &
-      %Hlast{} &
-      %Hdescrs{}_elem_prev &
-      %Hprev{} &
-      %Hdescrs{}_elem_next &
-      %Hnext{} &
-      Hclass{}_first &
-      Hclass{}_last &
-      Hclass{}_len &
-      Hclass{}_split &
-      Hclass{}_split_len &
-      Hchain{} &
-      Helts{}
-    )".
+    " ( %first{} &
+        %last{} &
+        %prev{}_descr &
+        %prev{} &
+        %next{}_descr &
+        %next{} &
+        %Hfirst{} &
+        %Hlast{} &
+        %Hdescrs{}_elem_prev &
+        %Hprev{} &
+        %Hdescrs{}_elem_next &
+        %Hnext{} &
+        Hclass{}_first &
+        Hclass{}_last &
+        Hclass{}_len &
+        Hclass{}_split &
+        Hclass{}_split_len &
+        Hchain{} &
+        Helts{}
+      )
+    ".
   #[local] Definition model' γ descrs : iProp Σ :=
     elements_auth γ ([∪ map] descr ∈ descrs, list_to_set descr.(descriptor_elts)) ∗
     [∗ map] class ↦ descr ∈ descrs,
       descriptor_model class descrs descr.
   #[local] Instance : CustomIpatFormat "model'" :=
-    "(
-      Helts_auth &
-      Hdescrs
-    )".
+    " ( Helts_auth &
+        Hdescrs
+      )
+    ".
   Definition partition_model γ part : iProp Σ :=
     ∃ descrs,
     ⌜part = map_to_set (λ _, list_to_set ∘ descriptor_elts) descrs⌝ ∗
     model' γ descrs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %descrs &
-      -> &
-      Hmodel
-    )".
+    " ( %descrs &
+        -> &
+        Hmodel
+      )
+    ".
 
   Definition partition_element γ elt v : iProp Σ :=
     elements_elem γ elt ∗
     elt.[data] ↦□ v.
   #[local] Instance : CustomIpatFormat "element" :=
-    "(
-      Helts_elem{}{_{suff}} &
-      Helt{}_data{_{suff}}
-    )".
+    " ( Helts_elem{}{_{suff}} &
+        Helt{}_data{_{suff}}
+      )
+    ".
 
   #[global] Instance partition_model_timeless γ part :
     Timeless (partition_model γ part).

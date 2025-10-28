@@ -104,26 +104,26 @@ Section mpsc_queue_3_G.
       )
     ).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %front{} &
-      %v_back &
-      >Hfront₂ &
-      >Hl_back &
-      [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
-    )".
+    " ( %front{} &
+        %v_back &
+        >Hfront₂ &
+        >Hl_back &
+        [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
+      )
+    ".
   Definition mpsc_queue_3_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition mpsc_queue_3_model t vs : iProp Σ :=
     ∃ l γ,
@@ -131,13 +131,13 @@ Section mpsc_queue_3_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   Definition mpsc_queue_3_consumer t ws : iProp Σ :=
     ∃ l γ v_front front,
@@ -156,17 +156,17 @@ Section mpsc_queue_3_G.
         model₂ γ front
     end.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l_ &
-      %γ_ &
-      %v_front &
-      %front &
-      %Heq &
-      Hmeta_ &
-      Hl_front &
-      Hfront₁ &
-      {{open}(-> & Hopen₁);{closed}(-> & -> & Hclosed & Hmodel₂);Hlstate}
-    )".
+    " ( %l_ &
+        %γ_ &
+        %v_front &
+        %front &
+        %Heq &
+        Hmeta_ &
+        Hl_front &
+        Hfront₁ &
+        {{open}(-> & Hopen₁);{closed}(-> & -> & Hclosed & Hmodel₂);Hlstate}
+      )
+    ".
 
   Definition mpsc_queue_3_closed t : iProp Σ :=
     ∃ l γ,
@@ -174,13 +174,13 @@ Section mpsc_queue_3_G.
     meta l nroot γ ∗
     lstate_closed γ.
   #[local] Instance : CustomIpatFormat "closed" :=
-    "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      Hmeta_ &
-      Hclosed
-    )".
+    " ( %l_ &
+        %γ_ &
+        %Heq &
+        Hmeta_ &
+        Hclosed
+      )
+    ".
 
   #[global] Instance mpsc_queue_3_model_timeless t vs :
     Timeless (mpsc_queue_3_model t vs).

@@ -34,10 +34,10 @@ Section zoo_G.
     elem ↦ₕ Header 1 §Element ∗
     elem.[value] ↦ v.
   #[local] Instance : CustomIpatFormat "element_model" :=
-    "(
-      Helem_header &
-      Helem_value
-    )".
+    " ( Helem_header &
+        Helem_value
+      )
+    ".
   Definition dynarray_2_model t vs : iProp Σ :=
     ∃ l data elems extra,
     ⌜t = #l⌝ ∗
@@ -46,17 +46,17 @@ Section zoo_G.
     array_model data (DfracOwn 1) ((#@{location} <$> elems) ++ replicate extra §Empty%V) ∗
     [∗ list] elem; v ∈ elems; vs, element_model elem v.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l &
-      %data &
-      %elems &
-      %extra &
-      -> &
-      Hl_size &
-      Hl_data &
-      Hmodel &
-      Helems
-    )".
+    " ( %l &
+        %data &
+        %elems &
+        %extra &
+        -> &
+        Hl_size &
+        Hl_data &
+        Hmodel &
+        Helems
+      )
+    ".
 
   #[global] Instance dynarray_2_model_timeless t vs :
     Timeless (dynarray_2_model t vs).

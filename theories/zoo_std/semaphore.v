@@ -77,12 +77,12 @@ Section semaphore_G.
   #[local] Definition tokens_frag γ :=
     tokens_frag' γ.(metadata_tokens).
   #[local] Instance : CustomIpatFormat "tokens_frag" :=
-    "(
-      %i &
-      %η &
-      %Htokens_lookup &
-      Hexcl
-    )".
+    " ( %i &
+        %η &
+        %Htokens_lookup &
+        Hexcl
+      )
+    ".
 
   #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ cnt,
@@ -91,11 +91,11 @@ Section semaphore_G.
       tokens_frag γ ∗
       P.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %cnt &
-      Hl_count &
-      H
-    )".
+    " ( %cnt &
+        Hl_count &
+        H
+      )
+    ".
   Definition semaphore_inv t cap P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -106,17 +106,17 @@ Section semaphore_G.
     condition_inv γ.(metadata_condition) ∗
     tokens_auth γ cap.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hl_mutex &
-      #Hmutex_inv &
-      #Hl_condition &
-      #Hcondition_inv &
-      #Htokens_auth
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hl_mutex &
+        #Hmutex_inv &
+        #Hl_condition &
+        #Hcondition_inv &
+        #Htokens_auth
+      )
+    ".
 
   Definition semaphore_locked t : iProp Σ :=
     ∃ l γ,
@@ -124,13 +124,13 @@ Section semaphore_G.
     meta l nroot γ ∗
     tokens_frag γ.
   #[local] Instance : CustomIpatFormat "locked" :=
-    "(
-      %l_ &
-      %γ_ &
-      %Heq &
-      #Hmeta_ &
-      Htokens_frag
-    )".
+    " ( %l_ &
+        %γ_ &
+        %Heq &
+        #Hmeta_ &
+        Htokens_frag
+      )
+    ".
 
   #[global] Instance semaphore_inv_contractive t cap :
     Contractive (semaphore_inv t cap).

@@ -41,11 +41,11 @@ Section typed_strong_prophet.
     ⌜prophs = typed_strong_prophet_process uprophs⌝ ∗
     prophet_model' pid uprophs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %uprophs &
-      %Hprophs &
-      Hpid
-    )".
+    " ( %uprophs &
+        %Hprophs &
+        Hpid
+      )
+    ".
 
   #[global] Instance typed_strong_prophet_model_timeless pid prophs :
     Timeless (typed_strong_prophet_model pid prophs).
@@ -135,11 +135,11 @@ Section typed_strong_prophet1.
     typed_strong_prophet_model typed_strong_prophet1_to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %prophs{} &
-      Hmodel{} &
-      %
-    )".
+    " ( %prophs{} &
+        Hmodel{} &
+        %
+      )
+    ".
 
   #[global] Instance typed_strong_prophet1_model_timeless pid proph :
     Timeless (typed_strong_prophet1_model pid proph).
@@ -233,11 +233,11 @@ Section typed_prophet.
     ⌜prophs = sprophs.*2⌝ ∗
     typed_strong_prophet_model typed_prophet_to_strong pid sprophs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %sprophs{} &
-      -> &
-      Hmodel{}
-    )".
+    " ( %sprophs{} &
+        -> &
+        Hmodel{}
+      )
+    ".
 
   #[global] Instance typed_prophet_model_timeless pid prophs :
     Timeless (typed_prophet_model pid prophs).
@@ -328,11 +328,11 @@ Section typed_prophet1.
     typed_prophet_model typed_prophet1_to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %prophs{} &
-      Hmodel{} &
-      %
-    )".
+    " ( %prophs{} &
+        Hmodel{} &
+        %
+      )
+    ".
 
   #[global] Instance typed_prophet1_model_timeless pid proph :
     Timeless (typed_prophet1_model pid proph).

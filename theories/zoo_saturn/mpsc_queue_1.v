@@ -84,10 +84,10 @@ Section mpsc_queue_1_G.
     node ↦ₕ Header §Node 2 ∗
     history_at γ i node.
   #[local] Instance : CustomIpatFormat "node_model" :=
-    "(
-      #H{}_header &
-      #Hhistory_at_{}
-    )".
+    " ( #H{}_header &
+        #Hhistory_at_{}
+      )
+    ".
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ hist past front nodes back vs,
@@ -100,22 +100,22 @@ Section mpsc_queue_1_G.
     history_auth γ hist ∗
     model₂ γ vs.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %hist{} &
-      %past{} &
-      %front{} &
-      %nodes{} &
-      %back{} &
-      %vs{} &
-      >%Hhist{} &
-      >%Hback{} &
-      >Hl_front &
-      >Hl_back &
-      >Hhist &
-      >Hnodes &
-      >Hhistory_auth &
-      >Hmodel₂
-    )".
+    " ( %hist{} &
+        %past{} &
+        %front{} &
+        %nodes{} &
+        %back{} &
+        %vs{} &
+        >%Hhist{} &
+        >%Hback{} &
+        >Hl_front &
+        >Hl_back &
+        >Hhist &
+        >Hnodes &
+        >Hhistory_auth &
+        >Hmodel₂
+      )
+    ".
   #[local] Definition inv' l γ :=
     inv γ.(metadata_inv) (inv_inner l γ).
   Definition mpsc_queue_1_inv t ι : iProp Σ :=
@@ -125,14 +125,14 @@ Section mpsc_queue_1_G.
     meta l nroot γ ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition mpsc_queue_1_model t vs : iProp Σ :=
     ∃ l γ,
@@ -140,13 +140,13 @@ Section mpsc_queue_1_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[local] Definition consumer_1 l front : iProp Σ :=
     l.[front] ↦{#3/4} #front.
@@ -154,20 +154,20 @@ Section mpsc_queue_1_G.
     ∃ front,
     consumer_1 l front.
   #[local] Instance : CustomIpatFormat "consumer_2" :=
-    "(
-      %front{} &
-      Hconsumer{_{}}
-    )".
+    " ( %front{} &
+        Hconsumer{_{}}
+      )
+    ".
   Definition mpsc_queue_1_consumer t : iProp Σ :=
     ∃ l,
     ⌜t = #l⌝ ∗
     consumer_2 l.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l{;_} &
-      %Heq{} &
-      (:consumer_2 {//})
-    )".
+    " ( %l{;_} &
+        %Heq{} &
+        (:consumer_2 {//})
+      )
+    ".
 
   #[global] Instance mpsc_queue_1_model_timeless t vs :
     Timeless (mpsc_queue_1_model t vs).

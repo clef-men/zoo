@@ -169,30 +169,30 @@ Module base.
     #[local] Definition locals_auth γ :=
       locals_auth' γ.(metadata_size) γ.(metadata_locals).
     #[local] Instance : CustomIpatFormat "locals_auth" :=
-      "(
-        %localss{} &
-        %Hlocalss{} &
-        Hauth{_{}} &
-        ->
-      )".
+      " ( %localss{} &
+          %Hlocalss{} &
+          Hauth{_{}} &
+          ->
+        )
+      ".
     #[local] Definition locals_at_running γ_locals i scope : iProp Σ :=
       ∃ locals,
       ghost_list_at γ_locals i Own (scope ⊎ locals) ∗
       jobs_finished locals.
     #[local] Instance : CustomIpatFormat "locals_at_running" :=
-      "(
-        %locals{} &
-        Hat{_{}} &
-        Hjobs_finished_locals{}
-      )".
+      " ( %locals{} &
+          Hat{_{}} &
+          Hjobs_finished_locals{}
+        )
+      ".
     #[local] Definition locals_at_finished γ_locals i : iProp Σ :=
       ∃ locals,
       ghost_list_at γ_locals i Own locals.
     #[local] Instance : CustomIpatFormat "locals_at_finished" :=
-      "(
-        %locals{} &
-        Hat{_{}}
-      )".
+      " ( %locals{} &
+          Hat{_{}}
+        )
+      ".
     #[local] Definition locals_at' γ_locals i scope : iProp Σ :=
       match scope with
       | Some scope =>
@@ -209,13 +209,13 @@ Module base.
       jobs_auth γ Own jobs ∗
       locals_auth γ ulocals.
     #[local] Instance : CustomIpatFormat "globals_model_running" :=
-      "(
-        %jobs &
-        %ulocals &
-        -> &
-        Hjobs_auth &
-        Hlocals_auth
-      )".
+      " ( %jobs &
+          %ulocals &
+          -> &
+          Hjobs_auth &
+          Hlocals_auth
+        )
+      ".
     #[local] Definition globals_model_finished γ : iProp Σ :=
       [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
         locals_at γ i None.
@@ -235,11 +235,11 @@ Module base.
       ws_hub_std_owner γ.(metadata_hub) i Nonblocked empty ∗
       locals_at γ i (Some scope).
     #[local] Instance : CustomIpatFormat "context_1" :=
-      "(
-        %empty{} &
-        Hhub_owner{_{}} &
-        Hlocals_at{_{}}
-      )".
+      " ( %empty{} &
+          Hhub_owner{_{}} &
+          Hlocals_at{_{}}
+        )
+      ".
 
     #[local] Definition task_model γ task Ψ : iProp Σ :=
       ∀ i scope,
@@ -262,74 +262,74 @@ Module base.
           ▷ □ P
         ).
     #[local] Instance : CustomIpatFormat "inv_inner" :=
-      "(
-        %globals &
-        %𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
-        >%H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
-        >Hglobals_model &
-        >Hhub_model &
-        Hglobals
-      )".
+      " ( %globals &
+          %𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
+          >%H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
+          >Hglobals_model &
+          >Hhub_model &
+          Hglobals
+        )
+      ".
     #[local] Definition inv_1 γ : iProp Σ :=
       inv (nroot.@"inv") (inv_inner γ).
     #[local] Definition inv_2 γ : iProp Σ :=
       ws_hub_std_inv γ.(metadata_hub) (nroot.@"hub") (S γ.(metadata_size)) ∗
       inv_1 γ.
     #[local] Instance : CustomIpatFormat "inv_2" :=
-      "(
-        #Hhub_inv{_{}} &
-        #Hinv{_{}}
-      )".
+      " ( #Hhub_inv{_{}} &
+          #Hinv{_{}}
+        )
+      ".
     Definition pool_inv γ sz : iProp Σ :=
       ⌜sz = γ.(metadata_size)⌝ ∗
       inv_2 γ.
     #[local] Instance : CustomIpatFormat "inv" :=
-      "(
-        -> &
-        {#Hinv_{};(:inv_2)}
-      )".
+      " ( -> &
+          {#Hinv_{};(:inv_2)}
+        )
+      ".
 
     #[local] Definition context_finished γ i : iProp Σ :=
       ws_hub_std_owner γ.(metadata_hub) i Nonblocked Empty ∗
       locals_at γ i (Some ∅).
     #[local] Instance : CustomIpatFormat "context_finished" :=
-      "(
-        Hhub_owner{_{}} &
-        Hlocals_at{_{}}
-      )".
+      " ( Hhub_owner{_{}} &
+          Hlocals_at{_{}}
+        )
+      ".
     #[local] Definition context_2 γ i scope : iProp Σ :=
       ⌜i ≤ γ.(metadata_size)⌝ ∗
       inv_2 γ ∗
       context_1 γ i scope.
     #[local] Instance : CustomIpatFormat "context_2" :=
-      "(
-        %Hi{} &
-        {#Hinv_{};(:inv_2)} &
-        { {lazy} Hctx{}
-        ; {lazy} Hctx
-        ; (:context_1 ={})
-        ; (:context_1)
-        }
-      )".
+      " ( %Hi{} &
+          {#Hinv_{};(:inv_2)} &
+          { {lazy} Hctx{}
+          ; {lazy} Hctx
+          ; (:context_1 ={})
+          ; (:context_1)
+          }
+        )
+      ".
     Definition pool_context γ ctx scope : iProp Σ :=
       ∃ i,
       ⌜ctx = metadata_context γ i⌝ ∗
       context_2 γ i scope.
     #[local] Instance : CustomIpatFormat "context" :=
-      "(
-        %i{} &
-        {%Heq{};->} &
-        (:context_2 {//} {/lazy/})
-      )".
+      " ( %i{} &
+          {%Heq{};->} &
+          (:context_2 {//} {/lazy/})
+        )
+      ".
 
     #[local] Definition worker_post γ i res : iProp Σ :=
       ⌜res = ()%V⌝ ∗
       context_finished γ i.
     #[local] Instance : CustomIpatFormat "worker_post" :=
-      "(
-        -> &
-        (:context_finished)
-      )".
+      " ( -> &
+          (:context_finished)
+        )
+      ".
 
     Definition pool_model t γ : iProp Σ :=
       ∃ empty doms,
@@ -345,41 +345,41 @@ Module base.
       ws_hub_std_owner γ.(metadata_hub) 0 Blocked empty ∗
       locals_at γ 0 (Some ∅).
     #[local] Instance : CustomIpatFormat "model" :=
-      "(
-        %empty{} &
-        %doms{} &
-        %Hdoms{} &
-        #Hl{}_size &
-        #Hl{}_hub &
-        #Hl{}_domains &
-        {#Hinv{};(:inv_2)} &
-        Hdomains{} &
-        Hdoms{} &
-        Hhub{}_owner &
-        Hlocals_at{_{}}
-      )".
+      " ( %empty{} &
+          %doms{} &
+          %Hdoms{} &
+          #Hl{}_size &
+          #Hl{}_hub &
+          #Hl{}_domains &
+          {#Hinv{};(:inv_2)} &
+          Hdomains{} &
+          Hdoms{} &
+          Hhub{}_owner &
+          Hlocals_at{_{}}
+        )
+      ".
 
     Definition pool_obligation γ P : iProp Σ :=
       ∃ job,
       jobs_elem γ job ∗
       saved_prop job.(job_name) P.
     #[local] Instance : CustomIpatFormat "obligation" :=
-      "(
-        %job{} &
-        Hjobs_elem{_job{}} &
-        Hjob{}
-      )".
+      " ( %job{} &
+          Hjobs_elem{_job{}} &
+          Hjob{}
+        )
+      ".
 
     Definition pool_finished γ : iProp Σ :=
       ∃ jobs,
       jobs_auth γ Discard jobs ∗
       jobs_finished jobs.
     #[local] Instance : CustomIpatFormat "finished" :=
-      "(
-        %jobs{} &
-        Hjobs_auth{_{}} &
-        Hjobs_finished{_jobs{}}
-      )".
+      " ( %jobs{} &
+          Hjobs_auth{_{}} &
+          Hjobs_finished{_jobs{}}
+        )
+      ".
 
     #[local] Definition future_waiter γ fut waiter : iProp Σ :=
       ∀ ctx scope v,
@@ -1331,13 +1331,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_inv γ sz.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hinv{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hinv{_{}}
+      )
+    ".
 
   Definition pool_context t ctx scope : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1345,13 +1345,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_context γ ctx scope.
   #[local] Instance : CustomIpatFormat "context" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hctx{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hctx{_{}}
+      )
+    ".
 
   Definition pool_model t : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1359,13 +1359,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_model 𝑡 γ.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hmodel{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hmodel{_{}}
+      )
+    ".
 
   Definition pool_obligation t P : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1373,13 +1373,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_obligation γ P.
   #[local] Instance : CustomIpatFormat "obligation" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hobligation{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hobligation{_{}}
+      )
+    ".
 
   Definition pool_finished t : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1387,13 +1387,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_finished γ.
   #[local] Instance : CustomIpatFormat "finished" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hfinished{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hfinished{_{}}
+      )
+    ".
 
   Definition pool_future_inv t fut Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1401,13 +1401,13 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_future_inv γ fut Ψ Ξ.
   #[local] Instance : CustomIpatFormat "future_inv" :=
-    "(
-      %𝑡{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{_{}} &
-      Hfut_inv{_{}}
-    )".
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hfut_inv{_{}}
+      )
+    ".
 
   Definition pool_future_consumer :=
     base.pool_future_consumer.

@@ -95,12 +95,12 @@ Section ivar_2_G.
         □ Ξ v
     end.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %state &
-      Hl_result &
-      Hconsumer_auth &
-      Hstate
-    )".
+    " ( %state &
+        Hl_result &
+        Hconsumer_auth &
+        Hstate
+      )
+    ".
   Definition ivar_2_inv t Ψ Ξ : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -111,17 +111,17 @@ Section ivar_2_G.
     condition_inv γ.(metadata_condition) ∗
     inv nroot (inv_inner l γ Ψ Ξ).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hl_mutex &
-      #Hmutex_inv &
-      #Hl_condition &
-      #Hcondition_inv &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hl_mutex &
+        #Hmutex_inv &
+        #Hl_condition &
+        #Hcondition_inv &
+        #Hinv
+      )
+    ".
 
   Definition ivar_2_producer t : iProp Σ :=
     ∃ l γ,
@@ -129,13 +129,13 @@ Section ivar_2_G.
     meta l nroot γ ∗
     lstate_unset₂ γ.
   #[local] Instance : CustomIpatFormat "producer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      Hlstate{}_unset₂
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        Hlstate{}_unset₂
+      )
+    ".
 
   Definition ivar_2_consumer t Χ : iProp Σ :=
     ∃ l γ,
@@ -143,13 +143,13 @@ Section ivar_2_G.
     meta l nroot γ ∗
     consumer_frag γ Χ.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      Hconsumer{}_frag
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        Hconsumer{}_frag
+      )
+    ".
 
   Definition ivar_2_result t v : iProp Σ :=
     ∃ l γ,
@@ -157,13 +157,13 @@ Section ivar_2_G.
     meta l nroot γ ∗
     lstate_set γ v.
   #[local] Instance : CustomIpatFormat "result" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      #Hlstate{}_set
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        #Hlstate{}_set
+      )
+    ".
   Definition ivar_2_resolved t : iProp Σ :=
     ∃ v,
     ivar_2_result t v.

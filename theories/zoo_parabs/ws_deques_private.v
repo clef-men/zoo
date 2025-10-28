@@ -143,10 +143,10 @@ Section ws_deques_private_G.
   #[local] Definition models_auth γ :=
     models_auth' γ.(metadata_models) γ.(metadata_size).
   #[local] Instance : CustomIpatFormat "models_auth" :=
-    "(
-      Hauth{_{}} &
-      %Hvss{}
-    )".
+    " ( Hauth{_{}} &
+        %Hvss{}
+      )
+    ".
   #[local] Definition models_at' γ_models i :=
     ghost_list_at γ_models i (DfracOwn 1).
   #[local] Definition models_at γ :=
@@ -159,11 +159,11 @@ Section ws_deques_private_G.
   #[local] Definition owner₁ γ :=
     owner₁' γ.(metadata_owners).
   #[local] Instance : CustomIpatFormat "owner₁" :=
-    "(
-      %γ_owner{_{}} &
-      %Hlookup{_{}} &
-      Htwin₁
-    )".
+    " ( %γ_owner{_{}} &
+        %Hlookup{_{}} &
+        Htwin₁
+      )
+    ".
   #[local] Definition owner₂' γ_owners i status : iProp Σ :=
     ∃ γ_owner,
     ⌜γ_owners !! i = Some γ_owner⌝ ∗
@@ -171,11 +171,11 @@ Section ws_deques_private_G.
   #[local] Definition owner₂ γ :=
     owner₂' γ.(metadata_owners).
   #[local] Instance : CustomIpatFormat "owner₂" :=
-    "(
-      %γ_owner{_{}} &
-      %Hlookup{_{}} &
-      Htwin₂
-    )".
+    " ( %γ_owner{_{}} &
+        %Hlookup{_{}} &
+        Htwin₂
+      )
+    ".
 
   #[local] Definition channels_waiting' γ_channels i : iProp Σ :=
     ∃ γ_channel gen,
@@ -185,13 +185,13 @@ Section ws_deques_private_G.
   #[local] Definition channels_waiting γ :=
     channels_waiting' γ.(metadata_channels).
   #[local] Instance : CustomIpatFormat "channels_waiting" :=
-    "(
-      %γ_channel_{} &
-      %gen{} &
-      %Hlookup_{} &
-      Hgeneration_{} &
-      Hpending_{}
-    )".
+    " ( %γ_channel_{} &
+        %gen{} &
+        %Hlookup_{} &
+        Hgeneration_{} &
+        Hpending_{}
+      )
+    ".
   #[local] Definition channels_sender' γ_channels i Ψ state : iProp Σ :=
     ∃ γ_channel,
     ⌜γ_channels !! i = Some γ_channel⌝ ∗
@@ -207,18 +207,18 @@ Section ws_deques_private_G.
   #[local] Definition channels_sender γ :=
     channels_sender' γ.(metadata_channels).
   #[local] Instance : CustomIpatFormat "channels_sender" :=
-    "(
-      %γ_channel_{} &
-      {>;}%Hlookup_{} &
-      Hpred_{} &
-      { {done}
-        ( %gen{} &
-          Hgeneration_{} &
-          #Hshot_{}
-        )
-      ; _
-      }
-    )".
+    " ( %γ_channel_{} &
+        {>;}%Hlookup_{} &
+        Hpred_{} &
+        { {done}
+          ( %gen{} &
+            Hgeneration_{} &
+            #Hshot_{}
+          )
+        ; _
+        }
+      )
+    ".
   #[local] Definition channels_receiver' γ_channels i Ψ state : iProp Σ :=
     ∃ γ_channel gen,
     ⌜γ_channels !! i = Some γ_channel⌝ ∗
@@ -233,14 +233,14 @@ Section ws_deques_private_G.
   #[local] Definition channels_receiver γ :=
     channels_receiver' γ.(metadata_channels).
   #[local] Instance : CustomIpatFormat "channels_receiver" :=
-    "(
-      %γ_channel_{} &
-      %gen{} &
-      %Hlookup_{} &
-      Hpred_{} &
-      Hgeneration_{} &
-      {{done}#Hshot_{};_}
-    )".
+    " ( %γ_channel_{} &
+        %gen{} &
+        %Hlookup_{} &
+        Hpred_{} &
+        Hgeneration_{} &
+        {{done}#Hshot_{};_}
+      )
+    ".
 
   #[local] Definition request_au γ i Ψ : iProp Σ :=
     AU <{
@@ -270,20 +270,20 @@ Section ws_deques_private_G.
     channels_sender γ j Ψ None ∗
     request_au γ i Ψ.
   #[local] Instance : CustomIpatFormat "request_model_nonblocked'" :=
-    "(
-      %Χ &
-      {>;}% &
-      Hchannels_sender &
-      HΧ
-    )".
+    " ( %Χ &
+        {>;}% &
+        Hchannels_sender &
+        HΧ
+      )
+    ".
   #[local] Definition request_model_nonblocked γ i j : iProp Σ :=
     owner₂ γ i Nonblocked ∗
     request_model_nonblocked' γ i j.
   #[local] Instance : CustomIpatFormat "request_model_nonblocked" :=
-    "(
-      {>;}Howner₂ &
-      (:request_model_nonblocked' {/>/})
-    )".
+    " ( {>;}Howner₂ &
+        (:request_model_nonblocked' {/>/})
+      )
+    ".
   #[local] Definition request_model γ i request : iProp Σ :=
     match request with
     | RequestSome j =>
@@ -312,11 +312,11 @@ Section ws_deques_private_G.
         Ψ (Some v)
     end.
   #[local] Instance : CustomIpatFormat "response_model" :=
-    "(
-      %Ψ{} &
-      Hchannels_sender{_{}} &
-      HΨ{}
-    )".
+    " ( %Ψ{} &
+        Hchannels_sender{_{}} &
+        HΨ{}
+      )
+    ".
 
   #[local] Definition inv_inner γ : iProp Σ :=
     ∃ statuses requests responses,
@@ -327,16 +327,16 @@ Section ws_deques_private_G.
     ([∗ list] i ↦ response ∈ responses, response_model γ i response).
 
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %statuses{} &
-      %requests{} &
-      %responses{} &
-      >Hstatuses_model &
-      >Hrequests_model &
-      >Hresponses_model &
-      Hrequests &
-      Hresponses
-    )".
+    " ( %statuses{} &
+        %requests{} &
+        %responses{} &
+        >Hstatuses_model &
+        >Hrequests_model &
+        >Hresponses_model &
+        Hrequests &
+        Hresponses
+      )
+    ".
   Definition ws_deques_private_inv t ι (sz : nat) : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -355,25 +355,25 @@ Section ws_deques_private_G.
     array_inv γ.(metadata_responses_array) γ.(metadata_size) ∗
     inv ι (inv_inner γ).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l{} &
-      %γ{} &
-      {%Ht_eq{};->} &
-      {%Hι_eq{};->} &
-      {%Hsz_eq{};->} &
-      #Hmeta{_{}} &
-      #Hl{}_size &
-      #Hl{}_queues &
-      %Hqueues{}_length &
-      #Hqueues{}_model &
-      #Hl{}_statuses &
-      #Hstatuses{}_inv &
-      #Hl{}_requests &
-      #Hrequests{}_inv &
-      #Hl{}_responses &
-      #Hresponses{}_inv &
-      #Hinv{}
-    )".
+    " ( %l{} &
+        %γ{} &
+        {%Ht_eq{};->} &
+        {%Hι_eq{};->} &
+        {%Hsz_eq{};->} &
+        #Hmeta{_{}} &
+        #Hl{}_size &
+        #Hl{}_queues &
+        %Hqueues{}_length &
+        #Hqueues{}_model &
+        #Hl{}_statuses &
+        #Hstatuses{}_inv &
+        #Hl{}_requests &
+        #Hrequests{}_inv &
+        #Hl{}_responses &
+        #Hresponses{}_inv &
+        #Hinv{}
+      )
+    ".
 
   Definition ws_deques_private_model t vss : iProp Σ :=
     ∃ l γ,
@@ -381,13 +381,13 @@ Section ws_deques_private_G.
     meta l nroot γ ∗
     models_auth γ vss.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hmodels_auth{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hmodels_auth{_{}}
+      )
+    ".
 
   Definition ws_deques_private_owner t i status ws : iProp Σ :=
     ∃ l γ queue vs Ψ_sender Ψ_receiver,
@@ -401,23 +401,23 @@ Section ws_deques_private_G.
     channels_sender γ i Ψ_sender None ∗
     channels_receiver γ i Ψ_receiver None.
   #[local] Instance : CustomIpatFormat "owner" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %queue{} &
-      %vs{} &
-      %Ψ_sender{_{}} &
-      %Ψ_receiver{_{}} &
-      %Heq{} &
-      #Hmeta_{} &
-      %Hqueues_lookup{_{}} &
-      Hqueue_model{_{}} &
-      Hmodels_at{_{}} &
-      %Hws{} &
-      Howner₁{_{}} &
-      Hchannels_sender{_{}} &
-      Hchannels_receiver{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %queue{} &
+        %vs{} &
+        %Ψ_sender{_{}} &
+        %Ψ_receiver{_{}} &
+        %Heq{} &
+        #Hmeta_{} &
+        %Hqueues_lookup{_{}} &
+        Hqueue_model{_{}} &
+        Hmodels_at{_{}} &
+        %Hws{} &
+        Howner₁{_{}} &
+        Hchannels_sender{_{}} &
+        Hchannels_receiver{_{}}
+      )
+    ".
 
   #[local] Instance owner₂_timeless γ i status :
     Timeless (owner₂ γ i status).

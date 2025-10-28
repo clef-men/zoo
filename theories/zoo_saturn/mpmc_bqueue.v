@@ -137,12 +137,12 @@ Section mpmc_bqueue_G.
     history_at γ i node ∗
     if b then front_lb γ i else True%I.
   #[local] Instance : CustomIpatFormat "node_model" :=
-    "(
-      #H{}_header &
-      #H{}_index &
-      #Hhistory_at_{} &
-      {{front}#Hfront_lb_{};_}
-    )".
+    " ( #H{}_header &
+        #H{}_index &
+        #Hhistory_at_{} &
+        {{front}#Hfront_lb_{};_}
+      )
+    ".
 
   #[local] Definition waiter_au γ (Ψ : bool → iProp Σ) : iProp Σ :=
     AU <{
@@ -187,28 +187,28 @@ Section mpmc_bqueue_G.
       waiter_model γ past waiter i
     ).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %hist{} &
-      %past{} &
-      %front{} &
-      %nodes{} &
-      %back{} &
-      %vs{} &
-      %waiters{} &
-      >%Hhist{} &
-      >%Hback{} &
-      >Hl_front &
-      >Hl_back &
-      >Hhist &
-      >Hnodes &
-      >Hindices &
-      >Hcapacities &
-      >Hhistory_auth &
-      >Hfront_auth &
-      >Hmodel₂ &
-      >Hwaiters_auth &
-      Hwaiters
-    )".
+    " ( %hist{} &
+        %past{} &
+        %front{} &
+        %nodes{} &
+        %back{} &
+        %vs{} &
+        %waiters{} &
+        >%Hhist{} &
+        >%Hback{} &
+        >Hl_front &
+        >Hl_back &
+        >Hhist &
+        >Hnodes &
+        >Hindices &
+        >Hcapacities &
+        >Hhistory_auth &
+        >Hfront_auth &
+        >Hmodel₂ &
+        >Hwaiters_auth &
+        Hwaiters
+      )
+    ".
   #[local] Definition inv' l γ :=
     inv γ.(metadata_inv) (inv_inner l γ).
   Definition mpmc_bqueue_inv t ι cap : iProp Σ :=
@@ -220,16 +220,16 @@ Section mpmc_bqueue_G.
     l.[capacity] ↦□ #cap ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      -> &
-      #Hmeta &
-      #Hl_capacity &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        -> &
+        #Hmeta &
+        #Hl_capacity &
+        #Hinv
+      )
+    ".
 
   Definition mpmc_bqueue_model t vs : iProp Σ :=
     ∃ l γ,
@@ -238,14 +238,14 @@ Section mpmc_bqueue_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      % &
-      #Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        % &
+        #Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[global] Instance mpmc_bqueue_model_timeless t vs :
     Timeless (mpmc_bqueue_model t vs).

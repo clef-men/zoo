@@ -57,29 +57,29 @@ Section wise_prophet_G.
     mono_list_auth γ.(wise_strong_prophet_name_past) (DfracOwn 1) past ∗
     typed_strong_prophet_model prophet pid prophs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      #Hfull{} &
-      Hpast{}_auth &
-      Hmodel{}
-    )".
+    " ( #Hfull{} &
+        Hpast{}_auth &
+        Hmodel{}
+      )
+    ".
 
   Definition wise_strong_prophet_snapshot γ past prophs : iProp Σ :=
     wise_strong_prophet_full γ (past ++ prophs) ∗
     mono_list_lb γ.(wise_strong_prophet_name_past) past.
   #[local] Instance : CustomIpatFormat "snapshot" :=
-    "(
-      #Hfull{suff} &
-      #Hpast_lb
-    )".
+    " ( #Hfull{suff} &
+        #Hpast_lb
+      )
+    ".
 
   Definition wise_strong_prophet_lb γ lb : iProp Σ :=
     ∃ past,
     wise_strong_prophet_snapshot γ past lb.
   #[local] Instance : CustomIpatFormat "lb" :=
-    "(
-      %past{suff} &
-      Hsnapshot
-    )".
+    " ( %past{suff} &
+        Hsnapshot
+      )
+    ".
 
   #[global] Instance wise_strong_prophet_full_timeless γ prophs :
     Timeless (wise_strong_prophet_full γ prophs).
@@ -276,11 +276,11 @@ Section wise_prophet_G.
     ⌜prophs = sprophs.*2⌝ ∗
     wise_strong_prophet_full prophet γ sprophs.
   #[local] Instance : CustomIpatFormat "full" :=
-    "(
-      %sprophs{} &
-      -> &
-      Hfull{}
-    )".
+    " ( %sprophs{} &
+        -> &
+        Hfull{}
+      )
+    ".
 
   Definition wise_prophet_model pid γ past prophs : iProp Σ :=
     ∃ spast sprophs,
@@ -288,13 +288,13 @@ Section wise_prophet_G.
     ⌜prophs = sprophs.*2⌝ ∗
     wise_strong_prophet_model prophet pid γ spast sprophs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %spast{} &
-      %sprophs{} &
-      -> &
-      -> &
-      Hmodel{}
-    )".
+    " ( %spast{} &
+        %sprophs{} &
+        -> &
+        -> &
+        Hmodel{}
+      )
+    ".
 
   Definition wise_prophet_snapshot γ past prophs : iProp Σ :=
     ∃ spast sprophs,
@@ -302,24 +302,24 @@ Section wise_prophet_G.
     ⌜prophs = sprophs.*2⌝ ∗
     wise_strong_prophet_snapshot prophet γ spast sprophs.
   #[local] Instance : CustomIpatFormat "snapshot" :=
-    "(
-      %spast{} &
-      %sprophs{} &
-      -> &
-      -> &
-      Hsnapshot
-    )".
+    " ( %spast{} &
+        %sprophs{} &
+        -> &
+        -> &
+        Hsnapshot
+      )
+    ".
 
   Definition wise_prophet_lb γ lb : iProp Σ :=
     ∃ slb,
     ⌜lb = slb.*2⌝ ∗
     wise_strong_prophet_lb prophet γ slb.
   #[local] Instance : CustomIpatFormat "lb" :=
-    "(
-      %slb &
-      -> &
-      Hlb
-    )".
+    " ( %slb &
+        -> &
+        Hlb
+      )
+    ".
 
   #[global] Instance wise_prophet_full_timeless γ prophs :
     Timeless (wise_prophet_full γ prophs).

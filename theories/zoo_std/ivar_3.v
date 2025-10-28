@@ -125,25 +125,25 @@ Section ivar_3_G.
         □ Ξ v
     end.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %state &
-      Hl &
-      Hconsumer_auth &
-      Hstate
-    )".
+    " ( %state &
+        Hl &
+        Hconsumer_auth &
+        Hstate
+      )
+    ".
   Definition ivar_3_inv t Ψ Ξ Ω : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv nroot (inv_inner l γ Ψ Ξ Ω).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      #Hmeta &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        #Hmeta &
+        #Hinv
+      )
+    ".
 
   Definition ivar_3_producer t : iProp Σ :=
     ∃ l γ,
@@ -151,13 +151,13 @@ Section ivar_3_G.
     meta l nroot γ ∗
     lstate_unset₂ γ.
   #[local] Instance : CustomIpatFormat "producer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      Hlstate{}_unset₂
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        Hlstate{}_unset₂
+      )
+    ".
 
   Definition ivar_3_consumer t Χ : iProp Σ :=
     ∃ l γ,
@@ -165,13 +165,13 @@ Section ivar_3_G.
     meta l nroot γ ∗
     consumer_frag γ Χ.
   #[local] Instance : CustomIpatFormat "consumer" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      Hconsumer{}_frag
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        Hconsumer{}_frag
+      )
+    ".
 
   Definition ivar_3_result t v : iProp Σ :=
     ∃ l γ,
@@ -179,13 +179,13 @@ Section ivar_3_G.
     meta l nroot γ ∗
     lstate_set γ v.
   #[local] Instance : CustomIpatFormat "result" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta{;_} &
-      #Hlstate{}_set
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta{;_} &
+        #Hlstate{}_set
+      )
+    ".
   Definition ivar_3_resolved t : iProp Σ :=
     ∃ v,
     ivar_3_result t v.

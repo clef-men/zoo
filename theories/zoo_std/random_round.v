@@ -34,19 +34,19 @@ Section zoo_G.
     random_state_model rand ∗
     array_model arr (DfracOwn 1) (#@{nat} <$> nexts ++ reverse prevs).
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l &
-      %rand &
-      %arr &
-      %nexts &
-      -> &
-      %Hpermutation &
-      Hl_random &
-      Hl_array &
-      Hl_index &
-      Hrand &
-      Harr
-    )".
+    " ( %l &
+        %rand &
+        %arr &
+        %nexts &
+        -> &
+        %Hpermutation &
+        Hl_random &
+        Hl_array &
+        Hl_index &
+        Hrand &
+        Harr
+      )
+    ".
 
   Lemma random_round_create_spec sz :
     (0 ≤ sz)%Z →
@@ -188,11 +188,11 @@ Section zoo_G.
     ⌜(cnt + length prevs)%nat = sz⌝ ∗
     random_round_model t sz prevs.
   #[local] Instance : CustomIpatFormat "model'" :=
-    "(
-      %prevs &
-      %H &
-      Ht
-    )".
+    " ( %prevs &
+        %H &
+        Ht
+      )
+    ".
 
   Lemma random_round_create_spec' sz :
     (0 ≤ sz)%Z →

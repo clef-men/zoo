@@ -156,10 +156,10 @@ Section ws_hub_std_G.
     ∃ killed,
     l.[killed] ↦ #killed.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %killed &
-      Hl_killed
-    )".
+    " ( %killed &
+        Hl_killed
+      )
+    ".
   Definition ws_hub_std_inv t ι sz : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
@@ -173,20 +173,20 @@ Section ws_hub_std_G.
     waiters_inv γ.(metadata_waiters) ∗
     inv nroot (inv_inner l).
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l{} &
-      %γ{} &
-      {%Heq{};->} &
-      #Hmeta{} &
-      -> &
-      #Hl{}_queues &
-      #Hl{}_rounds &
-      #Hl{}_waiters &
-      #Hqueues{}_inv &
-      #Hrounds{}_inv &
-      #Hwaiters{}_inv &
-      #Hinv{}
-    )".
+    " ( %l{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{} &
+        -> &
+        #Hl{}_queues &
+        #Hl{}_rounds &
+        #Hl{}_waiters &
+        #Hqueues{}_inv &
+        #Hrounds{}_inv &
+        #Hwaiters{}_inv &
+        #Hinv{}
+      )
+    ".
 
   Definition ws_hub_std_model t vs : iProp Σ :=
     ∃ l γ vss,
@@ -195,15 +195,15 @@ Section ws_hub_std_G.
     ws_deques_public_model γ.(metadata_queues) vss ∗
     ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l_ &
-      %γ_ &
-      %vss &
-      %Heq &
-      Hmeta_ &
-      Hqueues_model &
-      %Hconsistent
-    )".
+    " ( %l_ &
+        %γ_ &
+        %vss &
+        %Heq &
+        Hmeta_ &
+        Hqueues_model &
+        %Hconsistent
+      )
+    ".
 
   Definition ws_hub_std_owner t i status empty : iProp Σ :=
     ∃ l γ ws round n,
@@ -214,19 +214,19 @@ Section ws_hub_std_G.
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpatFormat "owner" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %ws{} &
-      %round{} &
-      %n{} &
-      %Heq{} &
-      Hmeta{;_} &
-      Hqueues_owner{} &
-      %Hempty{} &
-      #Hrounds{} &
-      Hround{}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %ws{} &
+        %round{} &
+        %n{} &
+        %Heq{} &
+        Hmeta{;_} &
+        Hqueues_owner{} &
+        %Hempty{} &
+        #Hrounds{} &
+        Hround{}
+      )
+    ".
 
   #[global] Instance ws_hub_std_model_timeless t vs :
     Timeless (ws_hub_std_model t vs).

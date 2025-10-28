@@ -592,14 +592,14 @@ Section zoo_G.
   Qed.
 
   #[local] Instance : CustomIpatFormat "state_interp" :=
-    "(
-      Hheaders_interp &
-      Hheap_interp &
-      Hlocals_interp &
-      %Hlocals &
-      Hprophets_interp &
-      Hcounter_inv
-    )".
+    " ( Hheaders_interp &
+        Hheap_interp &
+        Hlocals_interp &
+        %Hlocals &
+        Hprophets_interp &
+        Hcounter_inv
+      )
+    ".
   Lemma state_interp_alloc {nt σ κ} l tag vs :
     σ.(state_headers) !! l = None →
     ( ∀ i,

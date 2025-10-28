@@ -119,17 +119,17 @@ Section bag_1_G.
     [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
-    "(
-      %front &
-      %back &
-      %vs &
-      %os &
-      Hfront &
-      Hback &
-      Hmodel₂ &
-      >%Hconsistent &
-      Hslots
-    )".
+    " ( %front &
+        %back &
+        %vs &
+        %os &
+        Hfront &
+        Hback &
+        Hmodel₂ &
+        >%Hconsistent &
+        Hslots
+      )
+    ".
   #[local] Definition inv' l γ :=
     inv γ.(metadata_inv) (inv_inner l γ).
   Definition bag_1_inv t ι : iProp Σ :=
@@ -142,17 +142,17 @@ Section bag_1_G.
     array_model γ.(metadata_data) DfracDiscarded (#@{location} <$> γ.(metadata_slots)) ∗
     inv' l γ.
   #[local] Instance : CustomIpatFormat "inv" :=
-    "(
-      %l &
-      %γ &
-      -> &
-      -> &
-      %Hsz &
-      #Hmeta &
-      #Hdata &
-      #Hdata_model &
-      #Hinv
-    )".
+    " ( %l &
+        %γ &
+        -> &
+        -> &
+        %Hsz &
+        #Hmeta &
+        #Hdata &
+        #Hdata_model &
+        #Hinv
+      )
+    ".
 
   Definition bag_1_model t vs : iProp Σ :=
     ∃ l γ,
@@ -160,13 +160,13 @@ Section bag_1_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %l{;_} &
-      %γ{;_} &
-      %Heq{} &
-      #Hmeta_{} &
-      Hmodel₁{_{}}
-    )".
+    " ( %l{;_} &
+        %γ{;_} &
+        %Heq{} &
+        #Hmeta_{} &
+        Hmodel₁{_{}}
+      )
+    ".
 
   #[global] Instance bag_1_inv_timeless t vs :
     Timeless (bag_1_model t vs).

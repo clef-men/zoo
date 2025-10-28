@@ -45,22 +45,22 @@ Section ws_bdeque_2_G.
     ws_bdeque_1_model t (#@{location} <$> slots) ∗
     [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ□ v.
   #[local] Instance : CustomIpatFormat "model" :=
-    "(
-      %slots_vs{} &
-      Hmodel{_{}} &
-      #Hslots_vs{}
-    )".
+    " ( %slots_vs{} &
+        Hmodel{_{}} &
+        #Hslots_vs{}
+      )
+    ".
 
   Definition ws_bdeque_2_owner t ws : iProp Σ :=
     ∃ slots,
     ws_bdeque_1_owner t (#@{location} <$> slots) ∗
     [∗ list] slot; v ∈ slots; ws, slot ↦ᵣ□ v.
   #[local] Instance : CustomIpatFormat "owner" :=
-    "(
-      %slots_ws{} &
-      Howner{_{}} &
-      #Hslots_ws{}
-    )".
+    " ( %slots_ws{} &
+        Howner{_{}} &
+        #Hslots_ws{}
+      )
+    ".
 
   #[global] Instance ws_bdeque_2_model_timeless t vs :
     Timeless (ws_bdeque_2_model t vs).
