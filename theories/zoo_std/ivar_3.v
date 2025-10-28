@@ -112,18 +112,35 @@ Section ivar_3_G.
   #[local] Definition consumer_frag γ :=
     consumer_frag' γ.(metadata_consumer).
 
+  #[local] Definition inv_state_unset l γ Ω waiters : iProp Σ :=
+    lstate_unset₁ γ ∗
+    [∗ list] waiter ∈ waiters, Ω #l waiter.
+  #[local] Instance : CustomIpatFormat "inv_state_unset" :=
+    " ( {>;}Hlstate_unset₁ &
+        Hwaiters
+      )
+    ".
+  #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
+    lstate_set γ v ∗
+    □ Ξ v.
+  #[local] Instance : CustomIpatFormat "inv_state_set" :=
+    " ( {>;}#Hlstate_set{_{}} &
+        #HΞ{_{}}
+      )
+    ".
+  #[local] Definition inv_state l γ Ξ Ω state :=
+    match state with
+    | Unset waiters =>
+        inv_state_unset l γ Ω waiters
+    | Set_ v =>
+        inv_state_set γ Ξ v
+    end.
+
   #[local] Definition inv_inner l γ Ψ Ξ Ω : iProp Σ :=
     ∃ state,
     l.[contents] ↦ state ∗
     consumer_auth γ Ψ (state_to_option state) ∗
-    match state with
-    | Unset waiters =>
-        lstate_unset₁ γ ∗
-        [∗ list] waiter ∈ waiters, Ω #l waiter
-    | Set_ v =>
-        lstate_set γ v ∗
-        □ Ξ v
-    end.
+    inv_state l γ Ξ Ω state.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     " ( %state &
         Hl &
@@ -155,7 +172,7 @@ Section ivar_3_G.
         %γ{;_} &
         %Heq{} &
         #Hmeta{;_} &
-        Hlstate{}_unset₂
+        Hlstate_unset₂{_{}}
       )
     ".
 
@@ -183,7 +200,7 @@ Section ivar_3_G.
         %γ{;_} &
         %Heq{} &
         #Hmeta{;_} &
-        #Hlstate{}_set
+        #Hlstate_set{_{}}
       )
     ".
   Definition ivar_3_resolved t : iProp Σ :=
@@ -198,7 +215,7 @@ Section ivar_3_G.
       (≡{n}≡)
     ) (ivar_3_inv t).
   Proof.
-    rewrite /ivar_3_inv /inv_inner.
+    rewrite /ivar_3_inv /inv_inner /inv_state /inv_state_unset /inv_state_set.
     intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
     repeat (apply HΩ || f_contractive || f_equiv). done.
   Qed.
@@ -210,7 +227,7 @@ Section ivar_3_G.
       (≡)
     ) (ivar_3_inv t).
   Proof.
-    rewrite /ivar_3_inv /inv_inner.
+    rewrite /ivar_3_inv /inv_inner /inv_state /inv_state_unset /inv_state_set.
     solve_proper.
   Qed.
   #[global] Instance ivar_3_consumer_contractive t n :
@@ -343,7 +360,7 @@ Section ivar_3_G.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_unset₂_exclusive with "Hlstate1_unset₂ Hlstate2_unset₂").
+    iApply (lstate_unset₂_exclusive with "Hlstate_unset₂_1 Hlstate_unset₂_2").
   Qed.
 
   Lemma ivar_3_consumer_divide {t Ψ Ξ Ω Χ} Χs :
@@ -378,7 +395,7 @@ Section ivar_3_G.
   Proof.
     iIntros "(:result =1) (:result =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_set_agree with "Hlstate1_set Hlstate2_set").
+    iApply (lstate_set_agree with "Hlstate_set_1 Hlstate_set_2").
   Qed.
 
   Lemma ivar_3_producer_result t v :
@@ -388,7 +405,7 @@ Section ivar_3_G.
   Proof.
     iIntros "(:producer =1) (:result =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_unset₂_set with "Hlstate1_unset₂ Hlstate2_set").
+    iApply (lstate_unset₂_set with "Hlstate_unset₂_1 Hlstate_set_2").
   Qed.
 
   Lemma ivar_3_inv_result t Ψ Ξ Ω v :
@@ -400,11 +417,11 @@ Section ivar_3_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iInv "Hinv" as "(:inv_inner)".
     destruct state as [waiters | v_].
-    { iDestruct "Hstate" as "(>Hlstate_unset₁ & _)".
+    { iDestruct "Hstate" as "(:inv_state_unset >)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
+    iDestruct "Hstate" as "(:inv_state_set =1 >)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-.
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
@@ -431,11 +448,11 @@ Section ivar_3_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iInv "Hinv" as "(:inv_inner)".
     destruct state as [v_ |].
-    { iDestruct "Hstate" as "(>Hlstate_unset₁ & _)".
+    { iDestruct "Hstate" as "(:inv_state_unset >)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
+    iDestruct "Hstate" as "(:inv_state_set =1 >)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-.
     iMod (consumer_consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
     iSplitR "HΧ". { iFrameSteps. }
     iSteps.
@@ -546,11 +563,11 @@ Section ivar_3_G.
     iSpecialize ("HΦ" $! (state_to_bool state)).
     destruct state as [waiters | v].
 
-    - iSplitR "HΦ". { iFrameSteps 2. }
+    - iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-      iSplitR "H£ HΦ". { iFrameSteps 2. }
+    - iDestruct "Hstate" as "(:inv_state_set)".
+      iSplitR "H£ HΦ". { iFrameSteps. }
       iStep 5. iExists v. iSteps.
   Qed.
   Lemma ivar_3_is_set_spec_result t Ψ Ξ Ω v :
@@ -574,12 +591,12 @@ Section ivar_3_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct state as [waiters | v_].
-    { iDestruct "Hstate" as "(Hlstate_unset₁ & _)".
+    { iDestruct "Hstate" as "(:inv_state_unset)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(#Hlstate_set_ & Hstate)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as %<-. iClear "Hlstate_set_".
-    iSplitR "H£ HΦ". { iFrameSteps 2. }
+    iDestruct "Hstate" as "(:inv_state_set =1)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+    iSplitR "H£ HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -608,11 +625,11 @@ Section ivar_3_G.
     iSpecialize ("HΦ" $! (state_to_option state)).
     destruct state as [waiters | v].
 
-    - iSplitR "HΦ". { iFrameSteps 2. }
+    - iSplitR "HΦ". { iFrameSteps. }
       iSteps.
 
-    - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-      iSplitR "H£ HΦ". { iFrameSteps 2. }
+    - iDestruct "Hstate" as "(:inv_state_set)".
+      iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma ivar_3_try_get_spec_result t Ψ Ξ Ω v :
@@ -636,12 +653,12 @@ Section ivar_3_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct state as [waiters | v_].
-    { iDestruct "Hstate" as "(Hlstate_unset₁ & _)".
+    { iDestruct "Hstate" as "(:inv_state_unset)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(#Hlstate_set_ & Hstate)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as %<-. iClear "Hlstate_set_".
-    iSplitR "H£ HΦ". { iFrameSteps 2. }
+    iDestruct "Hstate" as "(:inv_state_set =1)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+    iSplitR "H£ HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -666,12 +683,12 @@ Section ivar_3_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
     destruct state as [waiters | v_].
-    { iDestruct "Hstate" as "(Hlstate_unset₁ & _)".
+    { iDestruct "Hstate" as "(:inv_state_unset)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(#Hlstate_set_ & Hstate)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as %<-. iClear "Hlstate_set_".
-    iSplitR "H£ HΦ". { iFrameSteps 2. }
+    iDestruct "Hstate" as "(:inv_state_set =1)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+    iSplitR "H£ HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -702,7 +719,7 @@ Section ivar_3_G.
     wp_load.
     destruct state as [waiters | v].
 
-    - iSplitR "Hwaiter H£ HΦ". { iFrameSteps 2. }
+    - iSplitR "Hwaiter H£ HΦ". { iFrameSteps. }
       iModIntro.
 
       wp_pures.
@@ -711,20 +728,20 @@ Section ivar_3_G.
       iInv "Hinv" as "(:inv_inner)".
       wp_cas as Hcas.
 
-      + iSplitR "Hwaiter HΦ". { iFrameSteps 2. }
+      + iSplitR "Hwaiter HΦ". { iFrameSteps. }
         iModIntro.
 
         wp_smart_apply ("HLöb" with "Hwaiter HΦ").
 
       + destruct state as [waiters' | v]; zoo_simplify.
-        iDestruct "Hstate" as "(Hlstate_unset₁ & Hwaiters)".
+        iDestruct "Hstate" as "(:inv_state_unset)".
         iDestruct (big_sepL_cons_2' _ waiter with "[Hwaiter H£] Hwaiters") as "Hwaiters"; first iSteps.
         iSplitR "HΦ". { iExists (Unset (waiter :: waiters)). iFrameSteps. }
         iSpecialize ("HΦ" $! None).
         iSteps.
 
-    - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-      iSplitR "H£ Hwaiter HΦ". { iFrameSteps 2. }
+    - iDestruct "Hstate" as "(:inv_state_set)".
+      iSplitR "H£ Hwaiter HΦ". { iFrameSteps. }
       iSpecialize ("HΦ" $! (Some v)).
       iSteps.
   Qed.
@@ -752,10 +769,10 @@ Section ivar_3_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_xchg.
     destruct state; last first.
-    { iDestruct "Hstate" as "(#Hlstate_set & _)".
-      iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set") as %[].
+    { iDestruct "Hstate" as "(:inv_state_set =1)".
+      iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set_1") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_unset₁ & Hwaiters)".
+    iDestruct "Hstate" as "(:inv_state_unset)".
     iMod (lstate_update with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
     iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
     iSplitR "Hwaiters HΦ". { iExists (Set_ v). iSteps. }

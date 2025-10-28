@@ -79,17 +79,32 @@ Section ivar_1_G.
   #[local] Definition consumer_frag γ :=
     consumer_frag' γ.(metadata_consumer).
 
+  #[local] Definition inv_state_unset γ :=
+    lstate_unset₁ γ.
+  #[local] Instance : CustomIpatFormat "inv_state_unset" :=
+    " {>;}Hlstate_unset₁
+    ".
+  #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
+    lstate_set γ v ∗
+    □ Ξ v.
+  #[local] Instance : CustomIpatFormat "inv_state_set" :=
+    " ( {>;}#Hlstate_set{_{}} &
+        #HΞ{_{}}
+      )
+    ".
+  #[local] Definition inv_state γ Ξ state :=
+    match state with
+    | None =>
+        inv_state_unset γ
+    | Some v =>
+        inv_state_set γ Ξ v
+    end.
+
   #[local] Definition inv_inner l γ Ψ Ξ : iProp Σ :=
     ∃ state,
     l.[contents] ↦ state ∗
     consumer_auth γ Ψ state ∗
-    match state with
-    | None =>
-        lstate_unset₁ γ
-    | Some v =>
-        lstate_set γ v ∗
-        □ Ξ v
-    end.
+    inv_state γ Ξ state.
   #[local] Instance : CustomIpatFormat "inv_inner" :=
     " ( %state &
         Hl &
@@ -121,7 +136,7 @@ Section ivar_1_G.
         %γ{;_} &
         %Heq{} &
         #Hmeta{;_} &
-        Hlstate{}_unset₂
+        Hlstate_unset₂{_{}}
       )
     ".
 
@@ -149,7 +164,7 @@ Section ivar_1_G.
         %γ{;_} &
         %Heq{} &
         #Hmeta{;_} &
-        #Hlstate{}_set
+        #Hlstate_set{_{}}
       )
     ".
   Definition ivar_1_resolved t : iProp Σ :=
@@ -163,7 +178,7 @@ Section ivar_1_G.
       (≡{n}≡)
     ) (ivar_1_inv t).
   Proof.
-    rewrite /ivar_1_inv /inv_inner.
+    rewrite /ivar_1_inv /inv_inner /inv_state /inv_state_unset /inv_state_set.
     solve_contractive.
   Qed.
   #[global] Instance ivar_1_inv_proper t :
@@ -173,7 +188,7 @@ Section ivar_1_G.
       (≡)
     ) (ivar_1_inv t).
   Proof.
-    rewrite /ivar_1_inv /inv_inner.
+    rewrite /ivar_1_inv /inv_inner /inv_state /inv_state_unset /inv_state_set.
     solve_proper.
   Qed.
   #[global] Instance ivar_1_consumer_contractive t n :
@@ -306,7 +321,7 @@ Section ivar_1_G.
   Proof.
     iIntros "(:producer =1) (:producer =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_unset₂_exclusive with "Hlstate1_unset₂ Hlstate2_unset₂").
+    iApply (lstate_unset₂_exclusive with "Hlstate_unset₂_1 Hlstate_unset₂_2").
   Qed.
 
   Lemma ivar_1_consumer_divide {t Ψ Ξ Χ} Χs :
@@ -341,7 +356,7 @@ Section ivar_1_G.
   Proof.
     iIntros "(:result =1) (:result =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_set_agree with "Hlstate1_set Hlstate2_set").
+    iApply (lstate_set_agree with "Hlstate_set_1 Hlstate_set_2").
   Qed.
 
   Lemma ivar_1_producer_result t v :
@@ -351,7 +366,7 @@ Section ivar_1_G.
   Proof.
     iIntros "(:producer =1) (:result =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-.
-    iApply (lstate_unset₂_set with "Hlstate1_unset₂ Hlstate2_set").
+    iApply (lstate_unset₂_set with "Hlstate_unset₂_1 Hlstate_set_2").
   Qed.
 
   Lemma ivar_1_inv_result t Ψ Ξ v :
@@ -363,11 +378,11 @@ Section ivar_1_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iInv "Hinv" as "(:inv_inner)".
     destruct state as [v_ |]; last first.
-    { iDestruct "Hstate" as ">Hlstate_unset₁".
+    { iDestruct "Hstate" as "(:inv_state_unset >)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
+    iDestruct "Hstate" as "(:inv_state_set =1 >)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-.
     iSplitL. { iFrameSteps. }
     iSteps.
   Qed.
@@ -394,11 +409,11 @@ Section ivar_1_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iInv "Hinv" as "(:inv_inner)".
     destruct state as [v_ |]; last first.
-    { iDestruct "Hstate" as ">Hlstate_unset₁".
+    { iDestruct "Hstate" as "(:inv_state_unset >)".
       iDestruct (lstate_unset₁_set with "Hlstate_unset₁ Hlstate_set") as %[].
     }
-    iDestruct "Hstate" as "(Hlstate_set_ & #HΞ)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as "><-".
+    iDestruct "Hstate" as "(:inv_state_set =1 >)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-.
     iMod (consumer_consume with "Hconsumer_auth Hconsumer_frag") as "(Hconsumer_auth & HΧ)".
     iSplitR "HΧ". { iFrameSteps. }
     iSteps.
@@ -508,11 +523,11 @@ Section ivar_1_G.
     iSpecialize ("HΦ" $! state).
     destruct state as [v |].
 
-    - iDestruct "Hstate" as "(#Hlstate_set & Hstate)".
-      iSplitR "H£ HΦ". { iFrameSteps 2. }
+    - iDestruct "Hstate" as "(:inv_state_set)".
+      iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
 
-    - iSplitR "HΦ". { iFrameSteps 2. }
+    - iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
   Lemma ivar_1_try_get_spec_result t Ψ Ξ v :
@@ -536,9 +551,9 @@ Section ivar_1_G.
     wp_load.
     destruct state as [v_ |]; last first.
     { iDestruct (lstate_unset₁_set with "Hstate Hlstate_set") as %[]. }
-    iDestruct "Hstate" as "(#Hlstate_set_ & Hstate)".
-    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_") as %<-. iClear "Hlstate_set_".
-    iSplitR "H£ HΦ". { iFrameSteps 2. }
+    iDestruct "Hstate" as "(:inv_state_set =1)".
+    iDestruct (lstate_set_agree with "Hlstate_set Hlstate_set_1") as %<-. iClear "Hlstate_set_1".
+    iSplitR "H£ HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 
@@ -622,12 +637,12 @@ Section ivar_1_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_store.
     destruct state.
-    { iDestruct "Hstate" as "(#Hlstate_set & _)".
-      iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set") as %[].
+    { iDestruct "Hstate" as "(:inv_state_set =1)".
+      iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set_1") as %[].
     }
     iMod (lstate_update with "Hstate Hlstate_unset₂") as "#Hlstate_set".
     iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
-    iSplitR "HΦ". { iExists (Some v). iSteps. }
+    iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
 End ivar_1_G.
