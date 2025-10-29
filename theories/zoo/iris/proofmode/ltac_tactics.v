@@ -908,14 +908,16 @@ Ltac iSpecializePat_go H1 pats :=
        iPoseProofCoreHyp H2 as H2tmp;
        (* Revert [H1] and re-introduce it later so that it will not be consumsed
        by [pats1]. *)
-       iRevertHyp H1 with (fun p =>
-         iSpecializePat_go H2tmp pats1;
-           [.. (* side-conditions of [iSpecialize] *)
-           |_iIntroMaybePersistent H1 p]);
-         (* We put the stuff below outside of the closure to get less verbose
-         Ltac backtraces (which would otherwise include the whole closure). *)
+       let p :=
+         lazymatch iTypeOf H1 with
+         | Some (?p, _) => p
+         | None => let H1 := pretty_ident H1 in fail "iSpecialize:" H1 "not found"
+         end in
+       iRevertHyp H1;
+       iSpecializePat_go H2tmp pats1;
          [.. (* side-conditions of [iSpecialize] *)
-         |(* Use [remove_intuitionistic = true] to remove the copy [Htmp]. *)
+         |_iIntroMaybePersistent H1 p;
+          (* Use [remove_intuitionistic = true] to remove the copy [Htmp]. *)
           notypeclasses refine (tac_specialize true _ H2tmp _ H1 _ _ _ _ _ _ _ _ _);
             [pm_reflexivity ||
              let H2tmp := pretty_ident H2tmp in
