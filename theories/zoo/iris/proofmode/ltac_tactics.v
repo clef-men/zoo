@@ -125,7 +125,7 @@ Tactic Notation "iStartProof" :=
                                  "`intros x`, `iIntros (x)`, or `iIntros ""%x"""
   | |- envs_entails _ _ => idtac
   | |- ?φ => notypeclasses refine (as_emp_valid_2 φ _ _);
-               [tc_solve || fail "iStartProof: not a BI assertion:" φ
+               [tc_solve || fail "iStartProof: goal" φ "not a BI assertion"
                |notypeclasses refine (tac_start _ _)]
   end.
 
@@ -146,7 +146,7 @@ Tactic Notation "iStartProof" uconstr(PROP) :=
      [bi_car _], and hence trigger the canonical structures mechanism
      to find the corresponding bi. *)
   | |- ?φ => notypeclasses refine ((λ P : PROP, @as_emp_valid_2 φ _ P) _ _ _);
-               [tc_solve || fail "iStartProof: not a BI assertion"
+               [tc_solve || fail "iStartProof: goal" φ "not a" PROP "assertion"
                |apply tac_start]
   end.
 
@@ -826,8 +826,8 @@ Ltac iIntoEmpValid :=
   iIntoEmpValid_go;
     [.. (* goals for premises *)
     |tc_solve ||
-     let φ := lazymatch goal with |- AsEmpValid _ ?φ _ => φ end in
-     fail "iPoseProof:" φ "not a BI assertion"].
+     lazymatch goal with |- @AsEmpValid ?PROP _ ?φ _ =>
+        fail "iPoseProof:" φ "not a" PROP "assertion" end].
 
 Tactic Notation "iPoseProofCoreLem" open_constr(lem) "as" tactic3(tac) :=
   let Hnew := iFresh in
