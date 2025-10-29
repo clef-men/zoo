@@ -1343,6 +1343,23 @@ Ltac _iExists x :=
 Tactic Notation "iExists" ne_uconstr_list_sep(xs,",") :=
   ltac1_list_iter _iExists xs.
 
+Ltac _iExistDestructFail P := first
+  [ (* Give a special error message if one tries to destruct [▷ ∃ x : A. Q]
+    without [A] being inhabited, or some variation thereof (e.g., with other
+    modalities in between). *)
+    (* Search for [IntoExist] with the assumption that any type is inhabited.
+    Here, [T] contains the type class query, [t] will be the instance (failure
+    happens if no instance is found, in which case the default error is given by
+    backtracking to the second branch of [first].
+    We then match on the type of the instance [t] to extract the type for which
+    no [Inhabited] instance could be found. *)
+    let T := open_constr:((∀ B, Inhabited B) → IntoExist P _ _) in
+    let t := constr:(_ : T) in
+    lazymatch type of t with
+    | _ → IntoExist (A:=?A) _ _ _ => fail 1 "iExistDestruct: cannot destruct" P
+        "because no `Inhabited` instance for" A "could be found"
+    end
+  | fail 1 "iExistDestruct: cannot destruct" P ].
 Tactic Notation "_iExistDestruct" constr(H)
     "as" simple_intropattern(x) constr(Hx) :=
   eapply tac_exist_destruct with H _ Hx _ _ _; (* (i:=H) (j:=Hx) *)
@@ -1351,7 +1368,7 @@ Tactic Notation "_iExistDestruct" constr(H)
      fail "iExistDestruct:" H "not found"
     |tc_solve ||
      let P := match goal with |- IntoExist ?P _ _ => P end in
-     fail "iExistDestruct: cannot destruct" P|];
+     _iExistDestructFail P|];
     let name := lazymatch goal with
                 | |- let _ := (λ name, _) in _ => name
                 end in
