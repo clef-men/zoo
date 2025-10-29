@@ -119,31 +119,31 @@ Module base.
     Implicit Types P Q : iProp Σ.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-    Record metadata := {
-      metadata_size : nat ;
-      metadata_hub : val ;
-      metadata_domains : val ;
-      metadata_jobs : gname ;
-      metadata_locals : gname ;
+    Record pool_name := {
+      pool_name_size : nat ;
+      pool_name_hub : val ;
+      pool_name_domains : val ;
+      pool_name_jobs : gname ;
+      pool_name_locals : gname ;
     }.
-    Implicit Types γ : metadata.
+    Implicit Types γ : pool_name.
     Implicit Types γ_tokens : list gname.
 
-    #[global] Instance metadata_eq_dec : EqDecision metadata :=
+    #[global] Instance pool_name_eq_dec : EqDecision pool_name :=
       ltac:(solve_decision).
-    #[global] Instance metadata_countable :
-      Countable metadata.
+    #[global] Instance pool_name_countable :
+      Countable pool_name.
     Proof.
       solve_countable.
     Qed.
 
-    #[local] Definition metadata_context γ (i : nat) :=
-      ( #γ.(metadata_size),
-        γ.(metadata_hub),
+    #[local] Definition pool_name_context γ (i : nat) :=
+      ( #γ.(pool_name_size),
+        γ.(pool_name_hub),
         #i
       )%V.
-    #[local] Instance metadata_context_inj γ :
-      Inj (=) (=) (metadata_context γ).
+    #[local] Instance pool_name_context_inj γ :
+      Inj (=) (=) (pool_name_context γ).
     Proof.
       rewrite /Inj. naive_solver.
     Qed.
@@ -151,9 +151,9 @@ Module base.
     #[local] Definition jobs_auth' γ_jobs own :=
       mono_gmultiset_auth γ_jobs own.
     #[local] Definition jobs_auth γ :=
-      jobs_auth' γ.(metadata_jobs).
+      jobs_auth' γ.(pool_name_jobs).
     #[local] Definition jobs_elem γ :=
-      mono_gmultiset_elem γ.(metadata_jobs).
+      mono_gmultiset_elem γ.(pool_name_jobs).
 
     #[local] Definition jobs_finished jobs : iProp Σ :=
       [∗ mset] job ∈ jobs,
@@ -167,7 +167,7 @@ Module base.
       ghost_list_auth γ_locals localss ∗
       ⌜ulocals = ⋃+ localss⌝.
     #[local] Definition locals_auth γ :=
-      locals_auth' γ.(metadata_size) γ.(metadata_locals).
+      locals_auth' γ.(pool_name_size) γ.(pool_name_locals).
     #[local] Instance : CustomIpatFormat "locals_auth" :=
       " ( %localss{} &
           %Hlocalss{} &
@@ -201,7 +201,7 @@ Module base.
           locals_at_finished γ_locals i
       end.
     #[local] Definition locals_at γ :=
-      locals_at' γ.(metadata_locals).
+      locals_at' γ.(pool_name_locals).
 
     #[local] Definition globals_model_running γ globals : iProp Σ :=
       ∃ jobs ulocals,
@@ -217,7 +217,7 @@ Module base.
         )
       ".
     #[local] Definition globals_model_finished γ : iProp Σ :=
-      [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
+      [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i None.
     #[local] Instance : CustomIpatFormat "globals_model_finished" :=
       "Hlocals_ats".
@@ -232,7 +232,7 @@ Module base.
 
     #[local] Definition context_1 γ i (scope : pool_scope) : iProp Σ :=
       ∃ empty,
-      ws_hub_std_owner γ.(metadata_hub) i Nonblocked empty ∗
+      ws_hub_std_owner γ.(pool_name_hub) i Nonblocked empty ∗
       locals_at γ i (Some scope).
     #[local] Instance : CustomIpatFormat "context_1" :=
       " ( %empty{} &
@@ -243,9 +243,9 @@ Module base.
 
     #[local] Definition task_model γ task Ψ : iProp Σ :=
       ∀ i scope,
-      ⌜i ≤ γ.(metadata_size)⌝ -∗
+      ⌜i ≤ γ.(pool_name_size)⌝ -∗
       context_1 γ i scope -∗
-      WP task (metadata_context γ i) {{ v,
+      WP task (pool_name_context γ i) {{ v,
         context_1 γ i scope ∗
         Ψ v
       }}.
@@ -254,7 +254,7 @@ Module base.
       ∃ globals 𝑔𝑙𝑜𝑏𝑎𝑙𝑠,
       ⌜𝑔𝑙𝑜𝑏𝑎𝑙𝑠 = gmultiset_map job_val globals⌝ ∗
       globals_model γ globals ∗
-      ws_hub_std_model γ.(metadata_hub) 𝑔𝑙𝑜𝑏𝑎𝑙𝑠 ∗
+      ws_hub_std_model γ.(pool_name_hub) 𝑔𝑙𝑜𝑏𝑎𝑙𝑠 ∗
       [∗ mset] global ∈ globals,
         task_model γ global.(job_val) (λ _,
           ∃ P,
@@ -273,7 +273,7 @@ Module base.
     #[local] Definition inv_1 γ : iProp Σ :=
       inv (nroot.@"inv") (inv_inner γ).
     #[local] Definition inv_2 γ : iProp Σ :=
-      ws_hub_std_inv γ.(metadata_hub) (nroot.@"hub") (S γ.(metadata_size)) ∗
+      ws_hub_std_inv γ.(pool_name_hub) (nroot.@"hub") (S γ.(pool_name_size)) ∗
       inv_1 γ.
     #[local] Instance : CustomIpatFormat "inv_2" :=
       " ( #Hhub_inv{_{}} &
@@ -281,7 +281,7 @@ Module base.
         )
       ".
     Definition pool_inv γ sz : iProp Σ :=
-      ⌜sz = γ.(metadata_size)⌝ ∗
+      ⌜sz = γ.(pool_name_size)⌝ ∗
       inv_2 γ.
     #[local] Instance : CustomIpatFormat "inv" :=
       " ( -> &
@@ -290,7 +290,7 @@ Module base.
       ".
 
     #[local] Definition context_finished γ i : iProp Σ :=
-      ws_hub_std_owner γ.(metadata_hub) i Nonblocked Empty ∗
+      ws_hub_std_owner γ.(pool_name_hub) i Nonblocked Empty ∗
       locals_at γ i (Some ∅).
     #[local] Instance : CustomIpatFormat "context_finished" :=
       " ( Hhub_owner{_{}} &
@@ -298,7 +298,7 @@ Module base.
         )
       ".
     #[local] Definition context_2 γ i scope : iProp Σ :=
-      ⌜i ≤ γ.(metadata_size)⌝ ∗
+      ⌜i ≤ γ.(pool_name_size)⌝ ∗
       inv_2 γ ∗
       context_1 γ i scope.
     #[local] Instance : CustomIpatFormat "context_2" :=
@@ -313,7 +313,7 @@ Module base.
       ".
     Definition pool_context γ ctx scope : iProp Σ :=
       ∃ i,
-      ⌜ctx = metadata_context γ i⌝ ∗
+      ⌜ctx = pool_name_context γ i⌝ ∗
       context_2 γ i scope.
     #[local] Instance : CustomIpatFormat "context" :=
       " ( %i{} &
@@ -333,16 +333,16 @@ Module base.
 
     Definition pool_model t γ : iProp Σ :=
       ∃ empty doms,
-      ⌜length doms = γ.(metadata_size)⌝ ∗
-      t.[size] ↦□ #γ.(metadata_size) ∗
-      t.[hub] ↦□ γ.(metadata_hub) ∗
-      t.[domains] ↦□ γ.(metadata_domains) ∗
+      ⌜length doms = γ.(pool_name_size)⌝ ∗
+      t.[size] ↦□ #γ.(pool_name_size) ∗
+      t.[hub] ↦□ γ.(pool_name_hub) ∗
+      t.[domains] ↦□ γ.(pool_name_domains) ∗
       inv_2 γ ∗
-      array_model γ.(metadata_domains) DfracDiscarded doms ∗
+      array_model γ.(pool_name_domains) DfracDiscarded doms ∗
       ( [∗ list] i ↦ dom ∈ doms,
         domain_model dom (worker_post γ (S i))
       ) ∗
-      ws_hub_std_owner γ.(metadata_hub) 0 Blocked empty ∗
+      ws_hub_std_owner γ.(pool_name_hub) 0 Blocked empty ∗
       locals_at γ 0 (Some ∅).
     #[local] Instance : CustomIpatFormat "model" :=
       " ( %empty{} &
@@ -586,11 +586,11 @@ Module base.
     Qed.
     #[local] Lemma locals_kill γ ulocals :
       locals_auth γ ulocals -∗
-      ( [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
+      ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i (Some ∅)
       ) -∗
         locals_auth γ ulocals ∗
-        ( [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
+        ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
           locals_at γ i None
         ) ∗
         jobs_finished ulocals.
@@ -618,7 +618,7 @@ Module base.
       iLeft. iExists ∅, ∅. iFrameSteps.
     Qed.
     #[local] Lemma globals_model_locals_at γ globals i scope :
-      i ≤ γ.(metadata_size) →
+      i ≤ γ.(pool_name_size) →
       globals_model γ globals -∗
       locals_at γ i scope -∗
         globals_model_running γ globals ∗
@@ -630,7 +630,7 @@ Module base.
         iDestruct (locals_at_exclusive with "Hlocals_at Hlocals_at_") as %[].
     Qed.
     #[local] Lemma globals_model_push {γ globals} 𝑔𝑙𝑜𝑏𝑎𝑙 P i scope :
-      i ≤ γ.(metadata_size) →
+      i ≤ γ.(pool_name_size) →
       globals_model γ globals -∗
       locals_at γ i scope ==∗
         ∃ global,
@@ -647,7 +647,7 @@ Module base.
       set_solver by lia.
     Qed.
     #[local] Lemma globals_model_pop {γ globals} global globals' i scope :
-      i ≤ γ.(metadata_size) →
+      i ≤ γ.(pool_name_size) →
       globals = {[+global+]} ⊎ globals' →
       globals_model γ globals -∗
       locals_at γ i (Some scope) ==∗
@@ -662,7 +662,7 @@ Module base.
     Qed.
     #[local] Lemma globals_model_kill γ :
       globals_model γ ∅ -∗
-      ( [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
+      ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i (Some ∅)
       ) ==∗
         ∃ jobs,
@@ -674,7 +674,7 @@ Module base.
 
       iAssert (
         globals_model_running γ ∅ ∗
-        [∗ list] i ∈ seq 0 (S γ.(metadata_size)),
+        [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
           locals_at γ i (Some ∅)
       )%I with "[-]" as "((:globals_model_running) & Hlocals_ats)".
       { iDestruct (big_sepL_lookup_acc _ _ 0 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)"; first done.
@@ -753,15 +753,15 @@ Module base.
     Qed.
 
     #[local] Lemma pool_context_spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
-      sz = γ.(metadata_size) →
-      hub = γ.(metadata_hub) →
+      sz = γ.(pool_name_size) →
+      hub = γ.(pool_name_hub) →
       i = i_ →
       {{{
         True
       }}}
         pool__code.pool_context #sz hub #i
       {{{
-        RET metadata_context γ i_;
+        RET pool_name_context γ i_;
         True
       }}}.
     Proof.
@@ -770,12 +770,12 @@ Module base.
 
     #[local] Lemma pool_context_main_spec t γ :
       {{{
-        t.[size] ↦□ #γ.(metadata_size) ∗
-        t.[hub] ↦□ γ.(metadata_hub)
+        t.[size] ↦□ #γ.(pool_name_size) ∗
+        t.[hub] ↦□ γ.(pool_name_hub)
       }}}
         pool_context_main #t
       {{{
-        RET metadata_context γ 0;
+        RET pool_name_context γ 0;
         True
       }}}.
     Proof.
@@ -786,12 +786,12 @@ Module base.
     Qed.
 
     #[local] Lemma pool_execute_spec γ i scope task Ψ :
-      i ≤ γ.(metadata_size) →
+      i ≤ γ.(pool_name_size) →
       {{{
         context_1 γ i scope ∗
         task_model γ task Ψ
       }}}
-        pool_execute (metadata_context γ i) task
+        pool_execute (pool_name_context γ i) task
       {{{ v,
         RET v;
         context_1 γ i scope ∗
@@ -808,7 +808,7 @@ Module base.
       {{{
         context_2 γ i ∅
       }}}
-        pool_worker (metadata_context γ i)
+        pool_worker (pool_name_context γ i)
       {{{ res,
         RET res;
         worker_post γ i res
@@ -847,7 +847,7 @@ Module base.
       {{{
         context_2 γ i ∅
       }}}
-        pool_drain (metadata_context γ i)
+        pool_drain (pool_name_context γ i)
       {{{ res,
         RET res;
         worker_post γ i res
@@ -911,11 +911,11 @@ Module base.
       iDestruct (big_sepL_seq_cons_1 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)".
 
       pose γ 𝑑𝑜𝑚𝑠 := {|
-        metadata_size := ₊sz ;
-        metadata_hub := hub ;
-        metadata_domains := 𝑑𝑜𝑚𝑠 ;
-        metadata_jobs := γ_jobs ;
-        metadata_locals := γ_locals ;
+        pool_name_size := ₊sz ;
+        pool_name_hub := hub ;
+        pool_name_domains := 𝑑𝑜𝑚𝑠 ;
+        pool_name_jobs := γ_jobs ;
+        pool_name_locals := γ_locals ;
       |}.
 
       wp_smart_apply (array_unsafe_initi_spec_disentangled_strong'
@@ -1023,7 +1023,7 @@ Module base.
         iSteps.
       }
 
-      iDestruct (big_sepL_seq_index_2 γ.(metadata_size) with "Hdoms") as "Hdoms"; first lia.
+      iDestruct (big_sepL_seq_index_2 γ.(pool_name_size) with "Hdoms") as "Hdoms"; first lia.
       iDestruct (big_sepL_seq_shift1_2 with "Hdoms") as "Hdoms".
       iDestruct (big_sepL_seq_cons_2 with "Hdoms [$]") as "Hdoms".
       iDestruct (big_sepL_sep with "Hdoms") as "(Hhub_owners & Hlocals_ats)".
