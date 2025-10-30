@@ -90,7 +90,7 @@ Qed.
 Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pool_G_saved_prop_G :: SavedPropG Σ ;
   #[local] pool_G_domain_G :: DomainG Σ ;
-  #[local] pool_G_ivar_G :: Ivar3G Σ ;
+  #[local] pool_G_ivar_G :: Ivar3G Σ unit ;
   #[local] pool_G_ws_hub_G :: WsHubStdG Σ ;
   #[local] pool_G_jobs_G :: MonoGmultisetG Σ job ;
   #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job) ;
@@ -99,7 +99,7 @@ Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
 Definition pool_Σ := #[
   saved_prop_Σ ;
   domain_Σ ;
-  ivar_3_Σ ;
+  ivar_3_Σ unit ;
   ws_hub_std_Σ ;
   mono_gmultiset_Σ job ;
   ghost_list_Σ (gmultiset job)
@@ -116,6 +116,7 @@ Module base.
     Context `{pool_G : SchedulerG Σ}.
 
     Implicit Types t : location.
+    Implicit Types ω : unit.
     Implicit Types P Q : iProp Σ.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
@@ -381,7 +382,7 @@ Module base.
         )
       ".
 
-    #[local] Definition future_waiter γ fut waiter : iProp Σ :=
+    #[local] Definition future_waiter γ fut waiter ω : iProp Σ :=
       ∀ ctx scope v,
       pool_context γ ctx scope -∗
       ivar_3_result fut v -∗
@@ -1206,12 +1207,15 @@ Module base.
       { clear ctx scope. iIntros "%ctx %scope Hctx".
 
         wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & _ & Hwaiters)".
-        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; try done.
+        wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters ωs) "(#Hivar_result & _ & Hwaiters)".
 
-        iApply (big_sepL_impl with "Hwaiters").
-        iSteps.
-        rewrite /ivar_3_resolved. iSteps.
+        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; first done.
+        { iDestruct (big_sepL2_retract_r with "Hwaiters") as "(_ & Hwaiters)".
+          iApply (big_sepL_impl with "Hwaiters").
+          iSteps.
+        }
+
+        iFrame "#∗".
       }
 
       iSteps.
@@ -1266,7 +1270,7 @@ Module base.
       iIntros "%Φ (Hctx & #Hivar_inv & Hfn) HΦ".
 
       wp_rec.
-      wp_smart_apply (ivar_3_wait_spec with "[$Hivar_inv $Hfn]") as ([v |]) "H"; iSteps.
+      wp_smart_apply (ivar_3_wait_spec inhabitant with "[$Hivar_inv $Hfn]") as ([v |]) "H"; iSteps.
     Qed.
 
     Lemma pool_map_spec {γ ctx scope fut1 Ψ1 Ξ1} Ψ2 Ξ2 fn :
@@ -1300,10 +1304,14 @@ Module base.
       { clear ctx scope. iIntros "%ctx %scope %v1 Hctx #Hfut1_result".
 
         wp_smart_apply (wp_wand with "(Hfn Hctx Hfut1_result)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters) "(#Hivar2_result & _ & Hwaiters)".
-        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; try done.
+        wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters ωs) "(#Hivar2_result & _ & Hwaiters)".
 
-        iApply (big_sepL_impl with "Hwaiters").
+        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; first done.
+        { iDestruct (big_sepL2_retract_r with "Hwaiters") as "(_ & Hwaiters)".
+          iApply (big_sepL_impl with "Hwaiters").
+          iSteps.
+        }
+
         iSteps.
       }
 

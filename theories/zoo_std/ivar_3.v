@@ -25,23 +25,22 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types v waiter : val.
 Implicit Types waiters : list val.
-Implicit Types 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 : gmultiset val.
 Implicit Types own : ownership.
 
-Class Ivar3G Σ `{zoo_G : !ZooG Σ} := {
+Class Ivar3G Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} := {
   #[local] ivar_3_G_lstate_G :: OneshotG Σ unit val ;
   #[local] ivar_3_G_consumer_G :: SubpredsG Σ val ;
-  #[local] ivar_3_G_waiters_G :: MonoGmultisetG Σ val ;
+  #[local] ivar_3_G_waiters_G :: MonoGmultisetG Σ (val * waiter_name) ;
 }.
 
-Definition ivar_3_Σ := #[
+Definition ivar_3_Σ waiter_name `{Countable waiter_name} := #[
   oneshot_Σ unit val ;
   subpreds_Σ val ;
-  mono_gmultiset_Σ val
+  mono_gmultiset_Σ (val * waiter_name)
 ].
-#[global] Instance subG_ivar_3_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG ivar_3_Σ Σ →
-  Ivar3G Σ .
+#[global] Instance subG_ivar_3_Σ Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} :
+  subG (ivar_3_Σ waiter_name) Σ →
+  Ivar3G Σ waiter_name.
 Proof.
   solve_inG.
 Qed.
@@ -78,11 +77,13 @@ Module base.
     end%V.
 
   Section ivar_3_G.
-    Context `{ivar_3_G : Ivar3G Σ}.
+    Context `{ivar_3_G : Ivar3G Σ waiter_name}.
 
     Implicit Types t : location.
+    Implicit Types ω : waiter_name.
+    Implicit Types ωs : list waiter_name.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
-    Implicit Types Ω : val → val → iProp Σ.
+    Implicit Types Ω : val → val → waiter_name → iProp Σ.
 
     Record ivar_3_name := {
       ivar_3_name_lstate : gname ;
@@ -119,9 +120,9 @@ Module base.
     #[local] Definition consumer_frag γ :=
       consumer_frag' γ.(ivar_3_name_consumer).
 
-    #[local] Definition waiters_auth' γ_waiters own waiters : iProp Σ :=
+    #[local] Definition waiters_auth' γ_waiters own waiters ωs : iProp Σ :=
       ∃ 𝑤𝑎𝑖𝑡𝑒𝑟𝑠,
-      ⌜𝑤𝑎𝑖𝑡𝑒𝑟𝑠 = list_to_set_disj waiters⌝ ∗
+      ⌜𝑤𝑎𝑖𝑡𝑒𝑟𝑠 = list_to_set_disj (zip waiters ωs)⌝ ∗
       mono_gmultiset_auth γ_waiters own 𝑤𝑎𝑖𝑡𝑒𝑟𝑠.
     #[local] Definition waiters_auth γ :=
       waiters_auth' γ.(ivar_3_name_waiters).
@@ -131,15 +132,17 @@ Module base.
           Hauth
         )
       ".
-    #[local] Definition waiters_elem γ :=
-      mono_gmultiset_elem γ.(ivar_3_name_waiters).
+    #[local] Definition waiters_elem γ waiter ω :=
+      mono_gmultiset_elem γ.(ivar_3_name_waiters) (waiter, ω).
 
     #[local] Definition inv_state_unset t γ Ω waiters : iProp Σ :=
+      ∃ ωs,
       lstate_unset₁ γ ∗
-      waiters_auth γ Own waiters ∗
-      [∗ list] waiter ∈ waiters, Ω #t waiter.
+      waiters_auth γ Own waiters ωs ∗
+      [∗ list] waiter; ω ∈ waiters; ωs, Ω #t waiter ω.
     #[local] Instance : CustomIpatFormat "inv_state_unset" :=
-      " ( {>;}Hlstate_unset₁ &
+      " ( %ωs &
+          {>;}Hlstate_unset₁ &
           {>;}Hwaiters_auth &
           Hwaiters
         )
@@ -207,9 +210,9 @@ Module base.
 
     #[global] Instance ivar_3_inv_contractive t γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
-        (pointwise_relation _ (dist_later n)) ==>
-        (pointwise_relation _ (pointwise_relation _ (dist_later n))) ==>
+        (pointwise_relation _ $ dist_later n) ==>
+        (pointwise_relation _ $ dist_later n) ==>
+        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (ivar_3_inv t γ).
     Proof.
@@ -221,20 +224,27 @@ Module base.
       Proper (
         (pointwise_relation _ (≡)) ==>
         (pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ (pointwise_relation _ (≡))) ==>
+        (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
         (≡)
       ) (ivar_3_inv t γ).
     Proof.
-      rewrite /ivar_3_inv /inv_inner /inv_state /inv_state_unset /inv_state_set.
-      solve_proper.
+      intros Ψ1 Ψ2 HΨ Ξ1 Ξ2 HΞ Ω1 Ω2 HΩ.
+      apply equiv_dist => n.
+      apply ivar_3_inv_contractive.
+      - intros v.
+        apply dist_dist_later, equiv_dist, HΨ.
+      - intros v.
+        apply dist_dist_later, equiv_dist, HΞ.
+      - clear t. intros t waiter ω.
+        apply dist_dist_later, equiv_dist, HΩ.
     Qed.
     #[global] Instance ivar_3_consumer_contractive γ n :
       Proper (
-        (pointwise_relation _ (dist_later n)) ==>
+        (pointwise_relation _ $ dist_later n) ==>
         (≡{n}≡)
       ) (ivar_3_consumer γ).
     Proof.
-      solve_contractive.
+      apply _.
     Qed.
     #[global] Instance ivar_3_consumer_proper γ :
       Proper (
@@ -242,11 +252,11 @@ Module base.
         (≡)
       ) (ivar_3_consumer γ).
     Proof.
-      solve_proper.
+      apply _.
     Qed.
 
-    #[local] Instance waiters_auth_timeless γ own waiters :
-      Timeless (waiters_auth γ own waiters).
+    #[local] Instance waiters_auth_timeless γ own waiters ωs :
+      Timeless (waiters_auth γ own waiters ωs).
     Proof.
       apply _.
     Qed.
@@ -260,13 +270,13 @@ Module base.
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3_waiters_timeless γ waiters :
-      Timeless (ivar_3_waiters γ waiters).
+    #[global] Instance ivar_3_waiters_timeless γ waiters ωs :
+      Timeless (ivar_3_waiters γ waiters ωs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3_waiter_timeless γ waiter :
-      Timeless (ivar_3_waiter γ waiter).
+    #[global] Instance ivar_3_waiter_timeless γ waiter ω :
+      Timeless (ivar_3_waiter γ waiter ω).
     Proof.
       apply _.
     Qed.
@@ -281,13 +291,13 @@ Module base.
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3_waiters_persistent γ waiters :
-      Persistent (ivar_3_waiters γ waiters).
+    #[global] Instance ivar_3_waiters_persistent γ waiters ωs :
+      Persistent (ivar_3_waiters γ waiters ωs).
     Proof.
       apply _.
     Qed.
-    #[global] Instance ivar_3_waiter_persistent γ waiter :
-      Persistent (ivar_3_waiter γ waiter).
+    #[global] Instance ivar_3_waiter_persistent γ waiter ω :
+      Persistent (ivar_3_waiter γ waiter ω).
     Proof.
       apply _.
     Qed.
@@ -379,32 +389,34 @@ Module base.
     #[local] Lemma waiters_alloc :
       ⊢ |==>
         ∃ γ_waiters,
-        waiters_auth' γ_waiters Own [].
+        waiters_auth' γ_waiters Own [] [].
     Proof.
       iMod (mono_gmultiset_alloc ∅) as "(%γ_waiters & $)".
       iSteps.
     Qed.
-    #[local] Lemma waiters_elem_valid γ own waiters waiter :
-      waiters_auth γ own waiters -∗
-      waiters_elem γ waiter -∗
-      ⌜waiter ∈ waiters⌝.
+    #[local] Lemma waiters_elem_valid γ own waiters ωs waiter ω :
+      waiters_auth γ own waiters ωs -∗
+      waiters_elem γ waiter ω -∗
+        ∃ i,
+        ⌜waiters !! i = Some waiter⌝ ∗
+        ⌜ωs !! i = Some ω⌝.
     Proof.
       iIntros "(:waiters_auth) Helem".
-      iDestruct (mono_gmultiset_elem_valid with "Hauth Helem") as %Helem%elem_of_list_to_set_disj.
+      iDestruct (mono_gmultiset_elem_valid with "Hauth Helem") as %(i & (Hwaiters_lookup & Hωs_lookup)%lookup_zip_Some)%elem_of_list_to_set_disj%elem_of_list_lookup.
       iSteps.
     Qed.
-    #[local] Lemma waiters_insert {γ waiters} waiter :
-      waiters_auth γ Own waiters ⊢ |==>
-        waiters_auth γ Own (waiter :: waiters) ∗
-        waiters_elem γ waiter.
+    #[local] Lemma waiters_insert {γ waiters ωs} waiter ω :
+      waiters_auth γ Own waiters ωs ⊢ |==>
+        waiters_auth γ Own (waiter :: waiters) (ω :: ωs) ∗
+        waiters_elem γ waiter ω.
     Proof.
       iIntros "(:waiters_auth)".
-      iMod (mono_gmultiset_insert' waiter with "Hauth") as "($ & $)".
+      iMod (mono_gmultiset_insert' (waiter, ω) with "Hauth") as "($ & $)".
       iSteps.
     Qed.
-    #[local] Lemma waiters_auth_discard γ waiters :
-      waiters_auth γ Own waiters ⊢ |==>
-      waiters_auth γ Discard waiters.
+    #[local] Lemma waiters_auth_discard γ waiters ωs :
+      waiters_auth γ Own waiters ωs ⊢ |==>
+      waiters_auth γ Discard waiters ωs.
     Proof.
       iIntros "(:waiters_auth)".
       iMod (mono_gmultiset_auth_persist with "Hauth") as "$".
@@ -489,10 +501,12 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_waiter_valid γ waiters waiter :
-      ivar_3_waiters γ waiters -∗
-      ivar_3_waiter γ waiter -∗
-      ⌜waiter ∈ waiters⌝.
+    Lemma ivar_3_waiter_valid γ waiters ωs waiter ω :
+      ivar_3_waiters γ waiters ωs -∗
+      ivar_3_waiter γ waiter ω -∗
+        ∃ i,
+        ⌜waiters !! i = Some waiter⌝ ∗
+        ⌜ωs !! i = Some ω⌝.
     Proof.
       apply waiters_elem_valid.
     Qed.
@@ -526,7 +540,10 @@ Module base.
       |}.
 
       iApply ("HΦ" $! t γ).
-      iFrameSteps. iExists (Unset []). iSteps.
+      iFrame.
+      iApply inv_alloc.
+      iSteps. iExists (Unset []). iSteps.
+      iApply (big_sepL2_nil with "[//]").
     Qed.
 
     Lemma ivar_3_make_spec Ψ Ξ Ω v :
@@ -716,10 +733,10 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_wait_spec t γ Ψ Ξ Ω waiter :
+    Lemma ivar_3_wait_spec {t γ Ψ Ξ Ω waiter} ω :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
-        ▷ Ω #t waiter
+        ▷ Ω #t waiter ω
       }}}
         ivar_3_wait #t waiter
       {{{ o,
@@ -727,9 +744,9 @@ Module base.
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v ∗
-          Ω #t waiter
+          Ω #t waiter ω
         else
-          ivar_3_waiter γ waiter
+          ivar_3_waiter γ waiter ω
       }}}.
     Proof.
       iIntros "%Φ ((:inv) & Hwaiter) HΦ".
@@ -760,7 +777,7 @@ Module base.
         + destruct state as [waiters' | v]; zoo_simplify.
           iDestruct "Hstate" as "(:inv_state_unset)".
           iMod (waiters_insert waiter with "Hwaiters_auth") as "(Hwaiters_auth & #Hwaiters_elem)".
-          iDestruct (big_sepL_cons_2' _ waiter with "[Hwaiter H£] Hwaiters") as "Hwaiters"; first iSteps.
+          iDestruct (big_sepL2_cons_2' _ waiter ω with "[Hwaiter H£] Hwaiters") as "Hwaiters"; first iSteps.
           iSplitR "HΦ". { iExists (Unset (waiter :: waiters)). iFrameSteps. }
           iSpecialize ("HΦ" $! None).
           iSteps.
@@ -779,11 +796,11 @@ Module base.
         ▷ □ Ξ v
       }}}
         ivar_3_set #t v
-      {{{ waiters,
+      {{{ waiters ωs,
         RET lst_to_val waiters;
         ivar_3_result γ v ∗
-        ivar_3_waiters γ waiters ∗
-        [∗ list] waiter ∈ waiters, Ω #t waiter
+        ivar_3_waiters γ waiters ωs ∗
+        [∗ list] waiter; ω ∈ waiters; ωs, Ω #t waiter ω
       }}}.
     Proof.
       iIntros "%Φ ((:inv) & (:producer) & HΨ & #HΞ) HΦ".
@@ -818,12 +835,12 @@ From zoo_std Require
   ivar_3__opaque.
 
 Section ivar_3_G.
-  Context `{ivar_3_G : Ivar3G Σ}.
+  Context `{ivar_3_G : Ivar3G Σ waiter_name}.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
   Implicit Types Ψ Χ Ξ : val → iProp Σ.
-  Implicit Types Ω : val → val → iProp Σ.
+  Implicit Types Ω : val → val → waiter_name → iProp Σ.
 
   Definition ivar_3_inv t Ψ Ξ Ω : iProp Σ :=
     ∃ 𝑡 γ,
@@ -884,11 +901,11 @@ Section ivar_3_G.
     ∃ v,
     ivar_3_result t v.
 
-  Definition ivar_3_waiters t waiters : iProp Σ :=
+  Definition ivar_3_waiters t waiters ωs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
-    base.ivar_3_waiters γ waiters.
+    base.ivar_3_waiters γ waiters ωs.
   #[local] Instance : CustomIpatFormat "waiters" :=
     " ( %𝑡{} &
         %γ{} &
@@ -898,11 +915,11 @@ Section ivar_3_G.
       )
     ".
 
-  Definition ivar_3_waiter t waiter : iProp Σ :=
+  Definition ivar_3_waiter t waiter ω : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
-    base.ivar_3_waiter γ waiter.
+    base.ivar_3_waiter γ waiter ω.
   #[local] Instance : CustomIpatFormat "waiter" :=
     " ( %𝑡{} &
         %γ{} &
@@ -914,9 +931,9 @@ Section ivar_3_G.
 
   #[global] Instance ivar_3_inv_contractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
-      (pointwise_relation _ (dist_later n)) ==>
-      (pointwise_relation _ (pointwise_relation _ (dist_later n))) ==>
+      (pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ dist_later n) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (ivar_3_inv t).
   Proof.
@@ -926,7 +943,7 @@ Section ivar_3_G.
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (pointwise_relation _ (≡))) ==>
+      (pointwise_relation _ $ pointwise_relation _ $ pointwise_relation _ (≡)) ==>
       (≡)
     ) (ivar_3_inv t).
   Proof.
@@ -934,7 +951,7 @@ Section ivar_3_G.
   Qed.
   #[global] Instance ivar_3_consumer_contractive t n :
     Proper (
-      (pointwise_relation _ (dist_later n)) ==>
+      (pointwise_relation _ $ dist_later n) ==>
       (≡{n}≡)
     ) (ivar_3_consumer t).
   Proof.
@@ -959,13 +976,13 @@ Section ivar_3_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3_waiters_timeless t waiters :
-    Timeless (ivar_3_waiters t waiters).
+  #[global] Instance ivar_3_waiters_timeless t waiters ωs :
+    Timeless (ivar_3_waiters t waiters ωs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3_waiter_timeless t waiter :
-    Timeless (ivar_3_waiter t waiter).
+  #[global] Instance ivar_3_waiter_timeless t waiter ω :
+    Timeless (ivar_3_waiter t waiter ω).
   Proof.
     apply _.
   Qed.
@@ -980,13 +997,13 @@ Section ivar_3_G.
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3_waiters_persistent t waiters :
-    Persistent (ivar_3_waiters t waiters).
+  #[global] Instance ivar_3_waiters_persistent t waiters ωs :
+    Persistent (ivar_3_waiters t waiters ωs).
   Proof.
     apply _.
   Qed.
-  #[global] Instance ivar_3_waiter_persistent t waiter :
-    Persistent (ivar_3_waiter t waiter).
+  #[global] Instance ivar_3_waiter_persistent t waiter ω :
+    Persistent (ivar_3_waiter t waiter ω).
   Proof.
     apply _.
   Qed.
@@ -1090,10 +1107,12 @@ Section ivar_3_G.
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
-  Lemma ivar_3_waiter_valid t waiters waiter :
-    ivar_3_waiters t waiters -∗
-    ivar_3_waiter t waiter -∗
-    ⌜waiter ∈ waiters⌝.
+  Lemma ivar_3_waiter_valid t waiters ωs waiter ω :
+    ivar_3_waiters t waiters ωs -∗
+    ivar_3_waiter t waiter ω -∗
+      ∃ i,
+      ⌜waiters !! i = Some waiter⌝ ∗
+      ⌜ωs !! i = Some ω⌝.
   Proof.
     iIntros "(:waiters =1) (:waiter =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
@@ -1231,10 +1250,10 @@ Section ivar_3_G.
     wp_apply (base.ivar_3_get_spec with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_wait_spec t Ψ Ξ Ω waiter :
+  Lemma ivar_3_wait_spec {t Ψ Ξ Ω waiter} ω :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
-      ▷ Ω t waiter
+      ▷ Ω t waiter ω
     }}}
       ivar_3_wait t waiter
     {{{ o,
@@ -1242,9 +1261,9 @@ Section ivar_3_G.
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v ∗
-        Ω t waiter
+        Ω t waiter ω
       else
-        ivar_3_waiter t waiter
+        ivar_3_waiter t waiter ω
     }}}.
   Proof.
     iIntros "%Φ ((:inv) & Hwaiter) HΦ".
@@ -1262,11 +1281,11 @@ Section ivar_3_G.
       ▷ □ Ξ v
     }}}
       ivar_3_set t v
-    {{{ waiters,
+    {{{ waiters ωs,
       RET lst_to_val waiters;
       ivar_3_result t v ∗
-      ivar_3_waiters t waiters ∗
-      [∗ list] waiter ∈ waiters, Ω t waiter
+      ivar_3_waiters t waiters ωs ∗
+      [∗ list] waiter; ω ∈ waiters; ωs, Ω t waiter ω
     }}}.
   Proof.
     iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
