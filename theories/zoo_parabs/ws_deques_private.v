@@ -880,7 +880,7 @@ Section ws_deques_private_G.
       + iApply big_sepL_replicate_2.
         iApply (big_sepL_impl with "Howners₂").
         iSteps.
-      + rewrite big_op.big_sepL_replicate.
+      + rewrite big_sepL.big_sepL_replicate.
         iApply (big_sepL_impl with "Hchannels_1").
         iSteps.
 

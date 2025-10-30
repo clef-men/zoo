@@ -63,7 +63,14 @@ theories/zoo/iris/diaframe/diaframe.v
 theories/zoo/iris/diaframe/symb_exec/defs.v
 theories/zoo/iris/diaframe/symb_exec/wp.v
 
-theories/zoo/iris/bi/big_op.v
+theories/zoo/iris/bi/big_op/base.v
+theories/zoo/iris/bi/big_op/big_sepL.v
+theories/zoo/iris/bi/big_op/big_sepL2.v
+theories/zoo/iris/bi/big_op/big_sepL_seq.v
+theories/zoo/iris/bi/big_op/big_sepM.v
+theories/zoo/iris/bi/big_op/big_sepS.v
+theories/zoo/iris/bi/big_op/big_sepMS.v
+theories/zoo/iris/bi/big_op/big_op.v
 
 theories/zoo/iris/base_logic/algebra/twins.v
 theories/zoo/iris/base_logic/lib/base.v

@@ -248,7 +248,7 @@ Section parray_2_G.
     iApply "HΦ".
     iModIntro. iFrame "#∗".
     rewrite length_replicate delete_singleton big_sepM_empty.
-    rewrite big_op.big_sepL_replicate -big_sepL_intro.
+    rewrite big_sepL.big_sepL_replicate -big_sepL_intro.
     auto 10.
   Qed.
 
