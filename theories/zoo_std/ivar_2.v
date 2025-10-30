@@ -182,7 +182,7 @@ Module base.
         (≡{n}≡)
       ) (ivar_2_consumer γ).
     Proof.
-      solve_contractive.
+      apply _.
     Qed.
     #[global] Instance ivar_2_consumer_proper γ :
       Proper (
@@ -190,7 +190,7 @@ Module base.
         (≡)
       ) (ivar_2_consumer γ).
     Proof.
-      solve_proper.
+      apply _.
     Qed.
 
     #[global] Instance ivar_2_producer_timeless γ :
