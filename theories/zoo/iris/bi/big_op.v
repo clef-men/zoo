@@ -548,6 +548,28 @@ Section bi.
       iApply (big_sepL2_wand with "H1 H2").
     Qed.
 
+    Lemma big_sepL2_cons_1 Φ x1 x2 l1 l2 :
+      ([∗ list] k ↦ y1; y2 ∈ x1 :: l1; x2 :: l2, Φ k y1 y2) ⊢
+        Φ 0 x1 x2 ∗
+        [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ (S k) y1 y2.
+    Proof.
+      rewrite big_sepL2_cons //.
+    Qed.
+    Lemma big_sepL2_cons_2 Φ x1 x2 l1 l2 :
+      Φ 0 x1 x2 -∗
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ (S k) y1 y2) -∗
+      [∗ list] k ↦ y1; y2 ∈ x1 :: l1; x2 :: l2, Φ k y1 y2.
+    Proof.
+      rewrite big_sepL2_cons. iSteps.
+    Qed.
+    Lemma big_sepL2_cons_2' (Φ : A1 → A2 → PROP) x1 x2 l1 l2 :
+      Φ x1 x2 -∗
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ y1 y2) -∗
+      [∗ list] k ↦ y1; y2 ∈ x1 :: l1; x2 :: l2, Φ y1 y2.
+    Proof.
+      rewrite big_sepL2_cons. iSteps.
+    Qed.
+
     Lemma big_sepL2_snoc_2 {Φ l1 l2} x1 x2 :
       ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ k y1 y2) -∗
       Φ (length l1) x1 x2 -∗
