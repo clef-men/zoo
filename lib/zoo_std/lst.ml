@@ -9,6 +9,7 @@ let head = function
       assert false
   | v :: _ ->
       v
+
 let tail = function
   | [] ->
       assert false
@@ -22,43 +23,41 @@ let is_empty = function
       false
 
 let rec get t i =
-  if i <= 0 then (
+  if i <= 0 then
     head t
-  ) else (
+  else
     get (tail t) (i - 1)
-  )
 
-let rec initi_aux sz fn i =
-  if sz <= i then (
+let[@tail_mod_cons] rec initi sz fn i =
+  if sz <= i then
     []
-  ) else (
+  else
     let v = fn i in
-    v :: initi_aux sz fn (i + 1)
-  )
+    v :: initi sz fn (i + 1)
 let initi sz fn =
-  initi_aux sz fn 0
+  initi sz fn 0
 let init sz fn =
   initi sz (fun _i -> fn ())
 
-let rec foldli_aux fn i acc t =
+let rec foldli fn i acc t =
   match t with
   | [] ->
       acc
   | v :: t ->
-      foldli_aux fn (i + 1) (fn i acc v) t
+      foldli fn (i + 1) (fn i acc v) t
 let foldli fn =
-  foldli_aux fn 0
+  foldli fn 0
 let foldl fn =
   foldli (fun _i -> fn)
 
-let rec foldri_aux fn i t acc =
+let rec foldri fn i t acc =
   match t with
   | [] ->
       acc
   | v :: t ->
-      fn i v (foldri_aux fn (i + 1) t acc)
+      fn i v (foldri fn (i + 1) t acc)
 let foldri fn =
-  foldri_aux fn 0
+  foldri fn 0
 let foldr fn =
   foldri (fun _i -> fn)
 
@@ -80,16 +79,15 @@ let iteri fn =
 let iter fn =
   iteri (fun _i -> fn)
 
-let rec mapi_aux fn i t =
+let[@tail_mod_cons] rec mapi fn i t =
   match t with
   | [] ->
       []
   | v :: t ->
       let v = fn i v in
-      let t = mapi_aux fn (i + 1) t in
-      v :: t
+      v :: mapi fn (i + 1) t
 let mapi fn =
-  mapi_aux fn 0
+  mapi fn 0
 let map fn =
   mapi (fun _i -> fn)
 

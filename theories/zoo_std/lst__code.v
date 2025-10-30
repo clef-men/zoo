@@ -47,52 +47,52 @@ Definition lst_get : val :=
       "get" (lst_tail "t") ("i" - #1)
     ).
 
-Definition lst_initi_aux : val :=
-  rec: "initi_aux" "sz" "fn" "i" =>
+Definition lst_initi_0 : val :=
+  rec: "initi" "sz" "fn" "i" =>
     if: "sz" ≤ "i" then (
       []
     ) else (
       let: "v" := "fn" "i" in
-      "v" :: "initi_aux" "sz" "fn" ("i" + #1)
+      "v" :: "initi" "sz" "fn" ("i" + #1)
     ).
 
 Definition lst_initi : val :=
   fun: "sz" "fn" =>
-    lst_initi_aux "sz" "fn" #0.
+    lst_initi_0 "sz" "fn" #0.
 
 Definition lst_init : val :=
   fun: "sz" "fn" =>
     lst_initi "sz" (fun: "_i" => "fn" ()).
 
-Definition lst_foldli_aux : val :=
-  rec: "foldli_aux" "fn" "i" "acc" "t" =>
+Definition lst_foldli_0 : val :=
+  rec: "foldli" "fn" "i" "acc" "t" =>
     match: "t" with
     | [] =>
         "acc"
     | "v" :: "t" =>
-        "foldli_aux" "fn" ("i" + #1) ("fn" "i" "acc" "v") "t"
+        "foldli" "fn" ("i" + #1) ("fn" "i" "acc" "v") "t"
     end.
 
 Definition lst_foldli : val :=
   fun: "fn" =>
-    lst_foldli_aux "fn" #0.
+    lst_foldli_0 "fn" #0.
 
 Definition lst_foldl : val :=
   fun: "fn" =>
     lst_foldli (fun: "_i" => "fn").
 
-Definition lst_foldri_aux : val :=
-  rec: "foldri_aux" "fn" "i" "t" "acc" =>
+Definition lst_foldri_0 : val :=
+  rec: "foldri" "fn" "i" "t" "acc" =>
     match: "t" with
     | [] =>
         "acc"
     | "v" :: "t" =>
-        "fn" "i" "v" ("foldri_aux" "fn" ("i" + #1) "t" "acc")
+        "fn" "i" "v" ("foldri" "fn" ("i" + #1) "t" "acc")
     end.
 
 Definition lst_foldri : val :=
   fun: "fn" =>
-    lst_foldri_aux "fn" #0.
+    lst_foldri_0 "fn" #0.
 
 Definition lst_foldr : val :=
   fun: "fn" =>
@@ -126,20 +126,19 @@ Definition lst_iter : val :=
   fun: "fn" =>
     lst_iteri (fun: "_i" => "fn").
 
-Definition lst_mapi_aux : val :=
-  rec: "mapi_aux" "fn" "i" "t" =>
+Definition lst_mapi_0 : val :=
+  rec: "mapi" "fn" "i" "t" =>
     match: "t" with
     | [] =>
         []
     | "v" :: "t" =>
         let: "v" := "fn" "i" "v" in
-        let: "t" := "mapi_aux" "fn" ("i" + #1) "t" in
-        "v" :: "t"
+        "v" :: "mapi" "fn" ("i" + #1) "t"
     end.
 
 Definition lst_mapi : val :=
   fun: "fn" =>
-    lst_mapi_aux "fn" #0.
+    lst_mapi_0 "fn" #0.
 
 Definition lst_map : val :=
   fun: "fn" =>

@@ -197,7 +197,7 @@ Section zoo_G.
       wp_apply ("IH" with "[%] [//] [//] [//] HΦ"); first lia.
   Qed.
 
-  #[local] Lemma lst_initi_aux_spec vs_left Ψ sz fn i :
+  #[local] Lemma lst_initi_0_spec vs_left Ψ sz fn i :
     i ≤ ₊sz →
     i = length vs_left →
     {{{
@@ -211,7 +211,7 @@ Section zoo_G.
         }}
       )
     }}}
-      lst_initi_aux #sz fn #i
+      lst_initi_0 #sz fn #i
     {{{ t vs_right,
       RET t;
       ⌜(length vs_left + length vs_right)%nat = ₊sz⌝ ∗
@@ -258,7 +258,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_aux_spec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
+    wp_smart_apply (lst_initi_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
   Qed.
   Lemma lst_initi_spec' Ψ sz fn :
     {{{
@@ -448,7 +448,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma lst_foldli_aux_spec vs_left Ψ vs fn i acc t vs_right :
+  #[local] Lemma lst_foldli_0_spec vs_left Ψ vs fn i acc t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     lst_model' t vs_right →
@@ -463,7 +463,7 @@ Section zoo_G.
         }}
       )
     }}}
-      lst_foldli_aux fn #i acc t
+      lst_foldli_0 fn #i acc t
     {{{ acc,
       RET acc;
       Ψ (length vs) vs acc
@@ -507,7 +507,7 @@ Section zoo_G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     rewrite -Nat2Z.inj_0.
-    wp_smart_apply (lst_foldli_aux_spec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
+    wp_smart_apply (lst_foldli_0_spec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
   Qed.
   Lemma lst_foldli_spec' Ψ fn acc t vs :
     lst_model' t vs →
@@ -589,7 +589,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma lst_foldri_aux_spec vs_left Ψ vs fn i t vs_right acc :
+  #[local] Lemma lst_foldri_0_spec vs_left Ψ vs fn i t vs_right acc :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     lst_model' t vs_right →
@@ -604,7 +604,7 @@ Section zoo_G.
         }}
       )
     }}}
-      lst_foldri_aux fn #i t acc
+      lst_foldri_0 fn #i t acc
     {{{ acc,
       RET acc;
       Ψ i acc vs_right
@@ -649,7 +649,7 @@ Section zoo_G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     rewrite -Nat2Z.inj_0.
-    wp_smart_apply (lst_foldri_aux_spec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
+    wp_smart_apply (lst_foldri_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
   Qed.
   Lemma lst_foldri_spec' Ψ fn t vs acc :
     lst_model' t vs →
@@ -1042,7 +1042,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma lst_mapi_aux_spec vs_left ws_left Ψ vs fn i t vs_right :
+  #[local] Lemma lst_mapi_0_spec vs_left ws_left Ψ vs fn i t vs_right :
     vs = vs_left ++ vs_right →
     i = length vs_left →
     i = length ws_left →
@@ -1058,7 +1058,7 @@ Section zoo_G.
         }}
       )
     }}}
-      lst_mapi_aux fn #i t
+      lst_mapi_0 fn #i t
     {{{ t' ws_right,
       RET t';
       ⌜length vs = (length ws_left + length ws_right)%nat⌝ ∗
@@ -1108,7 +1108,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_aux_spec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    wp_smart_apply (lst_mapi_0_spec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma lst_mapi_spec' Ψ fn t vs :
