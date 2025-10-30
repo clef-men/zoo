@@ -237,27 +237,34 @@ Ltac iElaborateSelPat pat :=
 
 Ltac _iClearHyp H :=
   eapply tac_clear with H _ _; (* (i:=H) *)
-    [pm_reflexivity ||
-     let H := pretty_ident H in
-     fail "iClear:" H "not found"
-    |pm_reduce; tc_solve ||
-     let H := pretty_ident H in
-     let P := match goal with |- TCOr (Affine ?P) _ => P end in
-     fail "iClear:" H ":" P "not affine and the goal not absorbing"
-    |pm_reduce].
-
+  [ pm_reflexivity ||
+    let H := pretty_ident H in
+    fail "iClear:" H "not found"
+  | pm_reduce;
+    tc_solve ||
+    let H := pretty_ident H in
+    let P := match goal with |- TCOr (Affine ?P) _ => P end in
+    fail "iClear:" H ":" P "not affine and the goal not absorbing"
+  | pm_reduce
+  ].
 Local Ltac iClear_go Hs :=
   lazymatch Hs with
-  | [] => idtac
-  | ESelPure :: ?Hs => clear; iClear_go Hs
-  | ESelIdent _ ?H :: ?Hs => _iClearHyp H; iClear_go Hs
+  | [] =>
+      idtac
+  | ESelPure :: ?Hs =>
+      clear;
+      iClear_go Hs
+  | ESelIdent _ ?H :: ?Hs =>
+      _iClearHyp H;
+      iClear_go Hs
   end.
 Tactic Notation "iClear" constr(Hs) :=
-  iStartProof; let Hs := iElaborateSelPat Hs in iClear_go Hs.
-
+  iStartProof;
+  let Hs := iElaborateSelPat Hs in
+  iClear_go Hs.
 Tactic Notation "iClear" "(" ident_list(xs) ")" constr(Hs) :=
-  iClear Hs; clear xs.
-
+  iClear Hs;
+  clear xs.
 Tactic Notation "iClear" "select" open_constr(pat) :=
   iSelect pat ltac:(fun H => iClear H).
 
