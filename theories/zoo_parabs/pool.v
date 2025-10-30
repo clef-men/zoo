@@ -1206,7 +1206,7 @@ Module base.
       { clear ctx scope. iIntros "%ctx %scope Hctx".
 
         wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & Hwaiters)".
+        wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters) "(#Hivar_result & _ & Hwaiters)".
         wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; try done.
 
         iApply (big_sepL_impl with "Hwaiters").
@@ -1300,7 +1300,7 @@ Module base.
       { clear ctx scope. iIntros "%ctx %scope %v1 Hctx #Hfut1_result".
 
         wp_smart_apply (wp_wand with "(Hfn Hctx Hfut1_result)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters) "(#Hivar2_result & Hwaiters)".
+        wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters) "(#Hivar2_result & _ & Hwaiters)".
         wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; try done.
 
         iApply (big_sepL_impl with "Hwaiters").
