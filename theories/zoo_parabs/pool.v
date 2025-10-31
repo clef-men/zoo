@@ -2,8 +2,7 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   countable
-  gmultiset
-  list.
+  gmultiset.
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
@@ -16,10 +15,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   array
-  domain
-  ivar_3
-  lst
-  option.
+  domain.
 From zoo_parabs Require Export
   base
   pool__code.
@@ -30,7 +26,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v ctx hub task fut waiter pred fn : val.
+Implicit Types v ctx hub task pred : val.
 Implicit Types empty : emptiness.
 Implicit Types own : ownership.
 
@@ -87,38 +83,35 @@ Proof.
   apply _.
 Qed.
 
-Class SchedulerG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pool_G_saved_prop_G :: SavedPropG Σ ;
+Class PoolG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pool_G_domain_G :: DomainG Σ ;
-  #[local] pool_G_ivar_G :: Ivar3G Σ unit ;
   #[local] pool_G_ws_hub_G :: WsHubStdG Σ ;
+  #[local] pool_G_saved_prop_G :: SavedPropG Σ ;
   #[local] pool_G_jobs_G :: MonoGmultisetG Σ job ;
   #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job) ;
 }.
 
 Definition pool_Σ := #[
-  saved_prop_Σ ;
   domain_Σ ;
-  ivar_3_Σ unit ;
   ws_hub_std_Σ ;
+  saved_prop_Σ ;
   mono_gmultiset_Σ job ;
   ghost_list_Σ (gmultiset job)
 ].
 #[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pool_Σ Σ →
-  SchedulerG Σ.
+  PoolG Σ.
 Proof.
   solve_inG.
 Qed.
 
 Module base.
   Section pool_G.
-    Context `{pool_G : SchedulerG Σ}.
+    Context `{pool_G : PoolG Σ}.
 
     Implicit Types t : location.
-    Implicit Types ω : unit.
     Implicit Types P Q : iProp Σ.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
+    Implicit Types Ψ : val → iProp Σ.
 
     Record pool_name := {
       pool_name_size : nat ;
@@ -382,43 +375,8 @@ Module base.
         )
       ".
 
-    #[local] Definition future_waiter γ fut waiter ω : iProp Σ :=
-      ∀ ctx scope v,
-      pool_context γ ctx scope -∗
-      ivar_3_result fut v -∗
-      WP waiter ctx v {{ res,
-        ⌜res = ()%V⌝ ∗
-        pool_context γ ctx scope
-      }}.
-    Definition pool_future_inv γ fut Ψ Ξ :=
-      ivar_3_inv fut Ψ Ξ (future_waiter γ).
-
-    Definition pool_future_consumer :=
-      ivar_3_consumer.
-
-    Definition pool_future_result :=
-      ivar_3_result.
-    Definition pool_future_finished fut : iProp Σ :=
-      ∃ v,
-      pool_future_result fut v.
-
-    #[global] Instance pool_future_proper γ fut :
-      Proper (
-        (pointwise_relation _ (≡)) ==>
-        (pointwise_relation _ (≡)) ==>
-        (≡)
-      ) (pool_future_inv γ fut).
-    Proof.
-      solve_proper.
-    Qed.
-
     #[local] Instance globals_model_timeless γ globals :
       Timeless (globals_model γ globals).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool_future_result_timeless fut v :
-      Timeless (pool_future_result fut v).
     Proof.
       apply _.
     Qed.
@@ -440,16 +398,6 @@ Module base.
     Qed.
     #[global] Instance pool_finished_persistent γ :
       Persistent (pool_finished γ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool_future_inv_persistent γ fut Ψ Ξ :
-      Persistent (pool_future_inv γ fut Ψ Ξ).
-    Proof.
-      apply _.
-    Qed.
-    #[global] Instance pool_future_result_persistent fut v :
-      Persistent (pool_future_result fut v).
     Proof.
       apply _.
     Qed.
@@ -708,49 +656,6 @@ Module base.
       iDestruct (jobs_finished_elem_of with "Hjobs_finished") as "(%P_ & Hjob_ & HP)"; first done.
       iDestruct (saved_prop_agree with "Hjob Hjob_") as "Heq".
       iModIntro. iRewrite "Heq" => //.
-    Qed.
-
-    Lemma pool_future_consumer_divide {γ fut Ψ Ξ Χ} Χs :
-      pool_future_inv γ fut Ψ Ξ -∗
-      pool_future_consumer fut Χ -∗
-      (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
-      [∗ list] Χ ∈ Χs, pool_future_consumer fut Χ.
-    Proof.
-      apply ivar_3_consumer_divide.
-    Qed.
-    Lemma pool_future_consumer_split {γ fut Ψ Χ Ξ} Χ1 Χ2 :
-      pool_future_inv γ fut Ψ Ξ -∗
-      pool_future_consumer fut Χ -∗
-      (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
-        pool_future_consumer fut Χ1 ∗
-        pool_future_consumer fut Χ2.
-    Proof.
-      apply ivar_3_consumer_split.
-    Qed.
-
-    Lemma pool_future_result_agree fut v1 v2 :
-      pool_future_result fut v1 -∗
-      pool_future_result fut v2 -∗
-      ⌜v1 = v2⌝.
-    Proof.
-      apply ivar_3_result_agree.
-    Qed.
-
-    Lemma pool_future_inv_result γ fut Ψ Ξ v :
-      pool_future_inv γ fut Ψ Ξ -∗
-      pool_future_result fut v ={⊤}=∗
-      ▷ □ Ξ v.
-    Proof.
-      apply ivar_3_inv_result.
-    Qed.
-    Lemma pool_future_inv_result_consumer γ fut Ψ Ξ v Χ :
-      pool_future_inv γ fut Ψ Ξ -∗
-      pool_future_result fut v -∗
-      pool_future_consumer fut Χ ={⊤}=∗
-        ▷^2 Χ v ∗
-        ▷ □ Ξ v.
-    Proof.
-      apply ivar_3_inv_result_consumer.
     Qed.
 
     #[local] Lemma pool_context_spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
@@ -1056,7 +961,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_async_silent_spec P γ ctx scope task :
+    Lemma pool_async_spec P γ ctx scope task :
       {{{
         pool_context γ ctx scope ∗
         ( ∀ ctx scope,
@@ -1067,7 +972,7 @@ Module base.
           }}
         )
       }}}
-        pool_async_silent ctx task
+        pool_async ctx task
       {{{
         RET ();
         pool_context γ ctx scope ∗
@@ -1168,167 +1073,13 @@ Module base.
   #[global] Opaque pool_context.
   #[global] Opaque pool_obligation.
   #[global] Opaque pool_finished.
-
-  Section pool_G.
-    Context `{pool_G : SchedulerG Σ}.
-
-    Implicit Types P Q : iProp Σ.
-    Implicit Types Ψ Χ Ξ : val → iProp Σ.
-
-    Lemma pool_async_spec Ψ Ξ γ ctx scope task :
-      {{{
-        pool_context γ ctx scope ∗
-        ( ∀ ctx scope,
-          pool_context γ ctx scope -∗
-          WP task ctx {{ v,
-            pool_context γ ctx scope ∗
-            ▷ Ψ v ∗
-            ▷ □ Ξ v
-          }}
-        )
-      }}}
-        pool_async ctx task
-      {{{ fut,
-        RET fut;
-        pool_context γ ctx scope ∗
-        pool_future_inv γ fut Ψ Ξ ∗
-        pool_future_consumer fut Ψ ∗
-        pool_obligation γ (pool_future_finished fut)
-      }}}.
-    Proof.
-      iIntros "%Φ (Hctx & Htask) HΦ".
-
-      wp_rec.
-      wp_smart_apply (ivar_3_create_spec Ψ Ξ with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-
-      wp_smart_apply (pool_async_silent_spec (
-        ivar_3_resolved ivar
-      ) with "[$Hctx Htask Hivar_producer]") as "(Hctx & Hobligation)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
-
-        wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar_inv $Hivar_producer $HΨ $HΞ]") as (waiters ωs) "(#Hivar_result & _ & Hwaiters)".
-
-        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; first done.
-        { iDestruct (big_sepL2_retract_r with "Hwaiters") as "(_ & Hwaiters)".
-          iApply (big_sepL_impl with "Hwaiters").
-          iSteps.
-        }
-
-        iFrame "#∗".
-      }
-
-      iSteps.
-    Qed.
-
-    Lemma pool_wait_spec γ ctx scope fut Ψ Ξ :
-      {{{
-        pool_context γ ctx scope ∗
-        pool_future_inv γ fut Ψ Ξ
-      }}}
-        pool_wait ctx fut
-      {{{ v,
-        RET v;
-        £ 2 ∗
-        pool_context γ ctx scope ∗
-        pool_future_result fut v
-      }}}.
-    Proof.
-      iIntros "%Φ (Hctx & #Hivar_inv) HΦ".
-
-      wp_rec.
-
-      wp_smart_apply (pool_wait_until_spec (ivar_3_resolved fut)%I with "[$Hctx]") as "(Hctx & %v & #Hivar_result)".
-      { iModIntro.
-        wp_smart_apply (ivar_3_is_set_spec with "Hivar_inv") as (b) "Hivar_result".
-        rewrite /ivar_3_resolved. destruct b; iSteps.
-      }
-
-      wp_smart_apply (ivar_3_get_spec with "[$Hivar_inv $Hivar_result]") as "H£".
-      iSteps.
-    Qed.
-
-    Lemma pool_iter_spec γ ctx scope fut Ψ Ξ fn :
-      {{{
-        pool_context γ ctx scope ∗
-        pool_future_inv γ fut Ψ Ξ ∗
-        ( ∀ ctx scope v,
-          pool_context γ ctx scope -∗
-          pool_future_result fut v -∗
-          WP fn ctx v {{ res,
-            ⌜res = ()%V⌝ ∗
-            pool_context γ ctx scope
-          }}
-        )
-      }}}
-        pool_iter ctx fut fn
-      {{{
-        RET ();
-        pool_context γ ctx scope
-      }}}.
-    Proof.
-      iIntros "%Φ (Hctx & #Hivar_inv & Hfn) HΦ".
-
-      wp_rec.
-      wp_smart_apply (ivar_3_wait_spec inhabitant with "[$Hivar_inv $Hfn]") as ([v |]) "H"; iSteps.
-    Qed.
-
-    Lemma pool_map_spec {γ ctx scope fut1 Ψ1 Ξ1} Ψ2 Ξ2 fn :
-      {{{
-        pool_context γ ctx scope ∗
-        pool_future_inv γ fut1 Ψ1 Ξ1 ∗
-        ( ∀ ctx scope v1,
-          pool_context γ ctx scope -∗
-          pool_future_result fut1 v1 -∗
-          WP fn ctx v1 {{ v2,
-            pool_context γ ctx scope ∗
-            ▷ Ψ2 v2 ∗
-            ▷ □ Ξ2 v2
-          }}
-        )
-      }}}
-        pool_map ctx fut1 fn
-      {{{ fut2,
-        RET fut2;
-        pool_context γ ctx scope ∗
-        pool_future_inv γ fut2 Ψ2 Ξ2 ∗
-        pool_future_consumer fut2 Ψ2
-      }}}.
-    Proof.
-      iIntros "%Φ (Hctx & #Hfut1_inv & Hfn) HΦ".
-
-      wp_rec.
-      wp_smart_apply (ivar_3_create_spec Ψ2 Ξ2 with "[//]") as (fut2) "(#Hivar2_inv & Hivar2_producer & Hivar2_consumer)".
-
-      wp_smart_apply (pool_iter_spec with "[$Hctx $Hfut1_inv Hfn Hivar2_producer]") as "Hctx".
-      { clear ctx scope. iIntros "%ctx %scope %v1 Hctx #Hfut1_result".
-
-        wp_smart_apply (wp_wand with "(Hfn Hctx Hfut1_result)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_smart_apply (ivar_3_set_spec with "[$Hivar2_inv $Hivar2_producer $HΨ2 $HΞ2]") as (waiters ωs) "(#Hivar2_result & _ & Hwaiters)".
-
-        wp_smart_apply (lst_iter_spec' (λ _ _, pool_context γ ctx scope)%I with "[$Hctx Hwaiters]") as "$"; first done.
-        { iDestruct (big_sepL2_retract_r with "Hwaiters") as "(_ & Hwaiters)".
-          iApply (big_sepL_impl with "Hwaiters").
-          iSteps.
-        }
-
-        iSteps.
-      }
-
-      iSteps.
-    Qed.
-  End pool_G.
-
-  #[global] Opaque pool_future_inv.
-  #[global] Opaque pool_future_consumer.
-  #[global] Opaque pool_future_result.
 End base.
 
 From zoo_parabs Require
   pool__opaque.
 
 Section pool_G.
-  Context `{pool_G : SchedulerG Σ}.
+  Context `{pool_G : PoolG Σ}.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
@@ -1403,45 +1154,6 @@ Section pool_G.
       )
     ".
 
-  Definition pool_future_inv t fut Ψ Ξ : iProp Σ :=
-    ∃ 𝑡 γ,
-    ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
-    base.pool_future_inv γ fut Ψ Ξ.
-  #[local] Instance : CustomIpatFormat "future_inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hfut_inv{_{}}
-      )
-    ".
-
-  Definition pool_future_consumer :=
-    base.pool_future_consumer.
-
-  Definition pool_future_result :=
-    base.pool_future_result.
-  Definition pool_future_finished fut : iProp Σ :=
-    ∃ v,
-    pool_future_result fut v.
-
-  #[global] Instance pool_future_proper t fut :
-    Proper (
-      (pointwise_relation _ (≡)) ==>
-      (pointwise_relation _ (≡)) ==>
-      (≡)
-    ) (pool_future_inv t fut).
-  Proof.
-    solve_proper.
-  Qed.
-
-  #[global] Instance pool_future_result_timeless fut v :
-    Timeless (pool_future_result fut v).
-  Proof.
-    apply _.
-  Qed.
-
   #[global] Instance pool_obligation_persistent t P :
     Persistent (pool_obligation t P).
   Proof.
@@ -1449,16 +1161,6 @@ Section pool_G.
   Qed.
   #[global] Instance pool_finished_persistent t :
     Persistent (pool_finished t).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance pool_future_inv_persistent t fut Ψ Ξ :
-    Persistent (pool_future_inv t fut Ψ Ξ).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance pool_future_result_persistent fut v :
-    Persistent (pool_future_result fut v).
   Proof.
     apply _.
   Qed.
@@ -1481,77 +1183,6 @@ Section pool_G.
     iIntros "(:obligation =1) (:finished =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.pool_obligation_finished with "Hobligation_1 Hfinished_2").
-  Qed.
-
-  Lemma pool_future_consumer_divide {t fut Ψ Ξ Χ} Χs :
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_consumer fut Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, pool_future_consumer fut Χ.
-  Proof.
-    iIntros "(:future_inv) Hfut_consumer H".
-    iApply (base.pool_future_consumer_divide with "Hfut_inv Hfut_consumer H").
-  Qed.
-  Lemma pool_future_consumer_split {t fut Ψ Χ Ξ} Χ1 Χ2 :
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_consumer fut Χ -∗
-    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
-      pool_future_consumer fut Χ1 ∗
-      pool_future_consumer fut Χ2.
-  Proof.
-    iIntros "(:future_inv) Hfut_consumer H".
-    iApply (base.pool_future_consumer_split with "Hfut_inv Hfut_consumer H").
-  Qed.
-
-  Lemma pool_future_result_agree fut v1 v2 :
-    pool_future_result fut v1 -∗
-    pool_future_result fut v2 -∗
-    ⌜v1 = v2⌝.
-  Proof.
-    apply base.pool_future_result_agree.
-  Qed.
-
-  Lemma pool_future_inv_result t fut Ψ Ξ v :
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_result fut v ={⊤}=∗
-    ▷ □ Ξ v.
-  Proof.
-    iIntros "(:future_inv) Hfut_result".
-    iApply (base.pool_future_inv_result with "Hfut_inv Hfut_result").
-  Qed.
-  Lemma pool_future_inv_result' t fut Ψ Ξ v :
-    £ 1 -∗
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_result fut v ={⊤}=∗
-    □ Ξ v.
-  Proof.
-    iIntros "H£ Hfut_inv Hfut_result".
-    iMod (pool_future_inv_result with "Hfut_inv Hfut_result") as "HΞ".
-    iApply (lc_fupd_elim_later with "H£ HΞ").
-  Qed.
-  Lemma pool_future_inv_result_consumer t fut Ψ Ξ v Χ :
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_result fut v -∗
-    pool_future_consumer fut Χ ={⊤}=∗
-      ▷^2 Χ v ∗
-      ▷ □ Ξ v.
-  Proof.
-    iIntros "(:future_inv) Hfut_result Hfut_consumer".
-    iApply (base.pool_future_inv_result_consumer with "Hfut_inv Hfut_result Hfut_consumer").
-  Qed.
-  Lemma pool_future_inv_result_consumer' t fut Ψ Ξ v Χ :
-    £ 2 -∗
-    pool_future_inv t fut Ψ Ξ -∗
-    pool_future_result fut v -∗
-    pool_future_consumer fut Χ ={⊤}=∗
-      Χ v ∗
-      □ Ξ v.
-  Proof.
-    iIntros "(H£1 & H£2) Hfut_inv Hfut_result Hfut_consumer".
-    iMod (pool_future_inv_result_consumer with "Hfut_inv Hfut_result Hfut_consumer") as "H".
-    rewrite -bi.later_sep.
-    iMod (lc_fupd_elim_later with "H£1 H") as "(HΧ & $)".
-    iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
   Lemma pool_create_spec sz :
@@ -1638,7 +1269,7 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_async_silent_spec P t ctx scope task :
+  Lemma pool_async_spec P t ctx scope task :
     {{{
       pool_context t ctx scope ∗
       ( ∀ ctx scope,
@@ -1649,7 +1280,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_async_silent ctx task
+      pool_async ctx task
     {{{
       RET ();
       pool_context t ctx scope ∗
@@ -1658,7 +1289,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:context) & Htask) HΦ".
 
-    wp_apply (base.pool_async_silent_spec P with "[$Hctx Htask]").
+    wp_apply (base.pool_async_spec P with "[$Hctx Htask]").
     { iIntros "{%} %ctx %scope Hctx".
       wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
@@ -1711,126 +1342,6 @@ Section pool_G.
     wp_apply (base.pool_wait_while_spec with "[$]").
     iSteps.
   Qed.
-
-  Lemma pool_async_spec Ψ Ξ t ctx scope task :
-    {{{
-      pool_context t ctx scope ∗
-      ( ∀ ctx scope,
-        pool_context t ctx scope -∗
-        WP task ctx {{ v,
-          pool_context t ctx scope ∗
-          ▷ Ψ v ∗
-          ▷ □ Ξ v
-        }}
-      )
-    }}}
-      pool_async ctx task
-    {{{ fut,
-      RET fut;
-      pool_context t ctx scope ∗
-      pool_future_inv t fut Ψ Ξ ∗
-      pool_future_consumer fut Ψ ∗
-      pool_obligation t (pool_future_finished fut)
-    }}}.
-  Proof.
-    iIntros "%Φ ((:context) & Htask) HΦ".
-
-    wp_apply (base.pool_async_spec Ψ Ξ with "[$Hctx Htask]").
-    { iIntros "{%} %ctx %scope Hctx".
-      wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
-      simplify.
-      iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
-      iFrame.
-    }
-    iSteps.
-  Qed.
-
-  Lemma pool_wait_spec t ctx scope fut Ψ Ξ :
-    {{{
-      pool_context t ctx scope ∗
-      pool_future_inv t fut Ψ Ξ
-    }}}
-      pool_wait ctx fut
-    {{{ v,
-      RET v;
-      £ 2 ∗
-      pool_context t ctx scope ∗
-      pool_future_result fut v
-    }}}.
-  Proof.
-    iIntros "%Φ ((:context =1) & (:future_inv =2)) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    wp_apply (base.pool_wait_spec with "[$]").
-    iSteps.
-  Qed.
-
-  Lemma pool_iter_spec t ctx scope fut Ψ Ξ fn :
-    {{{
-      pool_context t ctx scope ∗
-      pool_future_inv t fut Ψ Ξ ∗
-      ( ∀ ctx scope v,
-        pool_context t ctx scope -∗
-        pool_future_result fut v -∗
-        WP fn ctx v {{ res,
-          ⌜res = ()%V⌝ ∗
-          pool_context t ctx scope
-        }}
-      )
-    }}}
-      pool_iter ctx fut fn
-    {{{
-      RET ();
-      pool_context t ctx scope
-    }}}.
-  Proof.
-    iIntros "%Φ ((:context =1) & (:future_inv =2) & Htask) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    wp_apply (base.pool_iter_spec with "[$Hctx_1 $Hfut_inv_2 Htask]").
-    { iIntros "{%} %ctx %scope %v Hctx Hfut_inv".
-      wp_apply (wp_wand with "(Htask [$Hctx] [$Hfut_inv])") as (res) "(-> & (:context =3))"; first iSteps.
-      simplify.
-      iDestruct (meta_agree with "Hmeta_2 Hmeta_3") as %->. iClear "Hmeta_2".
-      iFrameSteps.
-    }
-    iSteps.
-  Qed.
-
-  Lemma pool_map_spec {t ctx scope fut1 Ψ1 Ξ1} Ψ2 Ξ2 fn :
-    {{{
-      pool_context t ctx scope ∗
-      pool_future_inv t fut1 Ψ1 Ξ1 ∗
-      ( ∀ ctx scope v1,
-        pool_context t ctx scope -∗
-        pool_future_result fut1 v1 -∗
-        WP fn ctx v1 {{ v2,
-          pool_context t ctx scope ∗
-          ▷ Ψ2 v2 ∗
-          ▷ □ Ξ2 v2
-        }}
-      )
-    }}}
-      pool_map ctx fut1 fn
-    {{{ fut2,
-      RET fut2;
-      pool_context t ctx scope ∗
-      pool_future_inv t fut2 Ψ2 Ξ2 ∗
-      pool_future_consumer fut2 Ψ2
-    }}}.
-  Proof.
-    iIntros "%Φ ((:context =1) & (:future_inv =2) & Htask) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    wp_apply (base.pool_map_spec Ψ2 Ξ2 with "[$Hctx_1 $Hfut_inv_2 Htask]").
-    { clear ctx scope. iIntros "%ctx %scope %v1 Hctx Hfut1_inv".
-      wp_apply (wp_wand with "(Htask [$Hctx] [$Hfut1_inv])") as (res) "((:context =3) & $ & $)"; first iSteps.
-      simplify.
-      iDestruct (meta_agree with "Hmeta_2 Hmeta_3") as %->. iClear "Hmeta_2".
-      iFrame.
-    }
-    iSteps.
-  Qed.
 End pool_G.
 
 #[global] Opaque pool_scope.
@@ -1839,6 +1350,3 @@ End pool_G.
 #[global] Opaque pool_context.
 #[global] Opaque pool_obligation.
 #[global] Opaque pool_finished.
-#[global] Opaque pool_future_inv.
-#[global] Opaque pool_future_consumer.
-#[global] Opaque pool_future_result.

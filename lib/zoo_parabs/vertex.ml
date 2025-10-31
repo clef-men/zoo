@@ -42,7 +42,7 @@ let rec release ctx t =
   if Atomic.Loc.fetch_and_add [%atomic.loc t.preds] (-1) == 1 then
     run ctx t
 and run ctx t =
-  Pool.async_silent ctx @@ fun ctx ->
+  Pool.async ctx @@ fun ctx ->
     t.preds <- 1 ;
     if t.task ctx then
       release ctx t

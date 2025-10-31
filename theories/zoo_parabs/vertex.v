@@ -70,7 +70,7 @@ Implicit Types iter : vertex_iteration.
 
 Class VertexG Σ `{zoo_G : !ZooG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
-  #[local] vertex_G_pool_G :: SchedulerG Σ ;
+  #[local] vertex_G_pool_G :: PoolG Σ ;
   #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
   #[local] vertex_G_iteration_G :: TwinsG Σ (leibnizO vertex_iteration) ;
   #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name ;
@@ -1076,7 +1076,7 @@ Module base.
         iIntros "%pool %ctx %scope %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
 
         wp_rec.
-        wp_smart_apply (pool_async_silent_spec True with "[-HΦ $Hctx]"); last iSteps. clear ctx scope. iIntros "%ctx %scope Hctx".
+        wp_smart_apply (pool_async_spec True with "[-HΦ $Hctx]"); last iSteps. clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_pures.
 
         wp_bind (_ <-{preds} _)%E.

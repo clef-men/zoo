@@ -4,6 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_parabs Require Import
+  future
   pool.
 From examples Require Import
   fibonacci__types.
@@ -16,12 +17,12 @@ Definition fibonacci_fibonacci_0 : val :=
       "n"
     ) else (
       let: "fut1" :=
-        pool_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #1) "ctx")
+        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #1) "ctx")
       in
       let: "fut2" :=
-        pool_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #2) "ctx")
+        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #2) "ctx")
       in
-      pool_wait "ctx" "fut1" + pool_wait "ctx" "fut2"
+      future_wait "ctx" "fut1" + future_wait "ctx" "fut2"
     ).
 
 Definition fibonacci_fibonacci : val :=

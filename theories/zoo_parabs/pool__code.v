@@ -4,8 +4,6 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst
-  ivar_3
   array
   domain.
 From zoo_parabs Require Import
@@ -90,7 +88,7 @@ Definition pool_size : val :=
   fun: "ctx" =>
     "ctx".<context_size>.
 
-Definition pool_async_silent : val :=
+Definition pool_async : val :=
   fun: "ctx" "task" =>
     ws_hub_std_push "ctx".<context_hub> "ctx".<context_id> "task".
 
@@ -115,40 +113,3 @@ Definition pool_wait_until : val :=
 Definition pool_wait_while : val :=
   fun: "ctx" "pred" =>
     pool_wait_until "ctx" (fun: <> => ~ "pred" ()).
-
-Definition pool_async : val :=
-  fun: "ctx" "task" =>
-    let: "fut" := ivar_3_create () in
-    pool_async_silent
-      "ctx"
-      (fun: "ctx" =>
-         let: "res" := "task" "ctx" in
-         let: "waiters" := ivar_3_set "fut" "res" in
-         lst_iter (fun: "waiter" => "waiter" "ctx" "res") "waiters") ;;
-    "fut".
-
-Definition pool_wait : val :=
-  fun: "ctx" "fut" =>
-    pool_wait_until "ctx" (fun: <> => ivar_3_is_set "fut") ;;
-    ivar_3_get "fut".
-
-Definition pool_iter : val :=
-  fun: "ctx" "fut" "fn" =>
-    match: ivar_3_wait "fut" "fn" with
-    | None =>
-        ()
-    | Some "res" =>
-        "fn" "ctx" "res"
-    end.
-
-Definition pool_map : val :=
-  fun: "ctx" "fut1" "fn" =>
-    let: "fut2" := ivar_3_create () in
-    pool_iter
-      "ctx"
-      "fut1"
-      (fun: "ctx" "res1" =>
-         let: "res2" := "fn" "ctx" "res1" in
-         let: "waiters" := ivar_3_set "fut2" "res2" in
-         lst_iter (fun: "waiter" => "waiter" "ctx" "res2") "waiters") ;;
-    "fut2".

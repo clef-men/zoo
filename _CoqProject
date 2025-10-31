@@ -446,6 +446,10 @@ theories/zoo_parabs/pool__types.v
 theories/zoo_parabs/pool__code.v
 theories/zoo_parabs/pool__opaque.v
 theories/zoo_parabs/pool.v
+theories/zoo_parabs/future__types.v
+theories/zoo_parabs/future__code.v
+theories/zoo_parabs/future__opaque.v
+theories/zoo_parabs/future.v
 theories/zoo_parabs/vertex__types.v
 theories/zoo_parabs/vertex__code.v
 theories/zoo_parabs/vertex__opaque.v
