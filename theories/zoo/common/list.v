@@ -255,6 +255,18 @@ Section basic.
     intros Hlookup.
     apply drop_ge, lookup_ge_None_1. done.
   Qed.
+  Lemma drop_cons_inv i l x l' :
+    drop i l = x :: l' →
+      l !! i = Some x ∧
+      l' = drop (S i) l.
+  Proof.
+    intros Heq.
+    apply (f_equal head) in Heq as Hlookup.
+    rewrite head_drop /= in Hlookup.
+    split; first done.
+    apply drop_S in Hlookup.
+    congruence.
+  Qed.
 
   Lemma insert_app_r_0 i x l1 l2 :
     i = length l1 →
