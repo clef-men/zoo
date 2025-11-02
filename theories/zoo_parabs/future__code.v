@@ -13,15 +13,15 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
+Definition future_set : val :=
+  fun: "ctx" "t" "res" =>
+    let: "waiters" := ivar_3_set "t" "res" in
+    lst_iter (fun: "waiter" => "waiter" "ctx" "res") "waiters".
+
 Definition future_async : val :=
   fun: "ctx" "task" =>
     let: "t" := ivar_3_create () in
-    pool_async
-      "ctx"
-      (fun: "ctx" =>
-         let: "res" := "task" "ctx" in
-         let: "waiters" := ivar_3_set "t" "res" in
-         lst_iter (fun: "waiter" => "waiter" "ctx" "res") "waiters") ;;
+    pool_async "ctx" (fun: "ctx" => future_set "ctx" "t" ("task" "ctx")) ;;
     "t".
 
 Definition future_wait : val :=
@@ -30,22 +30,21 @@ Definition future_wait : val :=
     ivar_3_get "t".
 
 Definition future_iter : val :=
-  fun: "ctx" "t" "fn" =>
-    match: ivar_3_wait "t" "fn" with
+  fun: "ctx" "t" "task" =>
+    match: ivar_3_wait "t" "task" with
     | None =>
         ()
     | Some "res" =>
-        "fn" "ctx" "res"
+        "task" "ctx" "res"
     end.
 
 Definition future_map : val :=
-  fun: "ctx" "t1" "fn" =>
+  fun: "ctx" "t1" "task" =>
     let: "t2" := ivar_3_create () in
     future_iter
       "ctx"
       "t1"
       (fun: "ctx" "res1" =>
-         let: "res2" := "fn" "ctx" "res1" in
-         let: "waiters" := ivar_3_set "t2" "res2" in
-         lst_iter (fun: "waiter" => "waiter" "ctx" "res2") "waiters") ;;
+         pool_async "ctx"
+           (fun: "ctx" => future_set "ctx" "t2" ("task" "ctx" "res1"))) ;;
     "t2".

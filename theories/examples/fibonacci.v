@@ -74,19 +74,30 @@ Section future_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_apply (future_async_spec (λ v1, ⌜v1 = #_⌝)%I (λ _, True)%I pool _ scope with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer & _)".
+    - wp_apply (future_async_spec
+        (λ v1, ⌜v1 = #_⌝)%I
+        (λ _, True)%I
+      with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
       { clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (future_async_spec (λ v2, ⌜v2 = #_⌝)%I (λ _, True)%I with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer & _)".
+
+      wp_smart_apply (future_async_spec
+        (λ v2, ⌜v2 = #_⌝)%I
+        (λ _, True)%I
+      with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
       { clear ctx scope. iIntros "%ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
-      wp_smart_apply (future_wait_spec with "[$Hctx $Hfut2_inv]") as (?) "(H£ & Hctx & Hfut2_result)".
+
+      wp_smart_apply (future_wait_spec with "[$Hctx $Hfut2_inv]") as (res) "(H£ & Hctx & Hfut2_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
-      wp_smart_apply (future_wait_spec with "[$Hctx $Hfut1_inv]") as (?) "(H£ & Hctx & Hfut1_result)".
+
+      wp_smart_apply (future_wait_spec with "[$Hctx $Hfut1_inv]") as (res) "(H£ & Hctx & Hfut1_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
+
       wp_pures.
+
       rewrite (fib_spec_Z n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.
       iSteps.
@@ -102,10 +113,18 @@ Section future_G.
     }}}.
   Proof.
     iIntros "%Φ Hpool HΦ".
+
     wp_rec.
-    wp_smart_apply (pool_run_spec (λ v, ⌜v = #_⌝)%I with "[$Hpool]") as (?) "(Hctx & ->)"; last iSteps. iIntros "%ctx %scope Hctx".
-    wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
-    rewrite Nat2Z.id. iSteps.
+
+    wp_smart_apply (pool_run_spec (λ v,
+      ⌜v = #_⌝
+    )%I with "[$Hpool]") as (?) "(Hctx & ->)".
+    { iIntros "%ctx %scope Hctx".
+      wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
+      rewrite Nat2Z.id. iSteps.
+    }
+
+    iSteps.
   Qed.
 End future_G.
 
