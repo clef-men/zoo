@@ -13,6 +13,9 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
+Definition future_return : val :=
+  ivar_3_make.
+
 Definition future_set : val :=
   fun: "ctx" "t" "res" =>
     let: "waiters" := ivar_3_set "t" "res" in

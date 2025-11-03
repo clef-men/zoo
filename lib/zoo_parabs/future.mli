@@ -1,5 +1,8 @@
 type 'a t
 
+val return :
+  'a -> 'a t
+
 val async :
   Pool.context -> 'a Pool.task -> 'a t
 

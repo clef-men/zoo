@@ -81,49 +81,65 @@ Section future_G.
 
   #[local] Fixpoint future_inv pool t depth Ψ Ξ : iProp Σ :=
     ivar_3_inv t Ψ Ξ (waiter_model pool) ∗
-    match depth with
-    | 0 =>
-        receipt_2 pool t
-    | S depth =>
-          □ receipt_2 pool t
-        ∨ ∃ parent Ψ_parent Ξ_parent waiter ω,
+    ( receipt_1 t
+    ∨ receipt_2 pool t
+    ∨ match depth with
+      | 0 =>
+          False
+      | S depth =>
+          ∃ parent Ψ_parent Ξ_parent waiter ω,
           future_inv pool parent depth Ψ_parent Ξ_parent ∗
           ivar_3_waiter parent waiter ω ∗
           saved_prop ω (receipt_2 pool t)
-    end.
+      end
+    ).
   #[local] Instance : CustomIpatFormat "inv" :=
     " ( #H{{}_}inv &
         H{{}_}receipt
       )
     ".
 
+  Definition obligation' pool depth P : iProp Σ :=
+    ∃ t Ψ Ξ waiter ω,
+    future_inv pool t depth Ψ Ξ ∗
+    ivar_3_waiter t waiter ω ∗
+    saved_prop ω P.
+  #[local] Instance : CustomIpatFormat "obligation'" :=
+    " ( %{;t} &
+        %Ψ{_{}} &
+        %Ξ{_{}} &
+        %waiter &
+        %ω &
+        #H{{}_}inv &
+        #H{{}_}waiter &
+        #Hω
+      )
+    ".
   Definition future_obligation pool depth P : iProp Σ :=
       □ P
-    ∨ ∃ t Ψ Ξ waiter ω,
-      future_inv pool t depth Ψ Ξ ∗
-      ivar_3_waiter t waiter ω ∗
-      saved_prop ω P.
+    ∨ obligation' pool depth P.
   #[local] Instance : CustomIpatFormat "obligation" :=
     " [ #HP
-      | ( %{;t} &
-          %Ψ{_{}} &
-          %Ξ{_{}} &
-          %waiter &
-          %ω &
-          #H{{}_}inv &
-          #H{{}_}waiter &
-          #Hω
-        )
+      | Hobligation
       ]
     ".
 
-  #[local] Definition receipt_3 pool t depth :=
-    match depth with
-    | 0 =>
-        receipt_2 pool t
-    | S depth =>
-        future_obligation pool depth (receipt_2 pool t)
-    end.
+  #[local] Definition receipt_3 pool t depth : iProp Σ :=
+      receipt_1 t
+    ∨ receipt_2 pool t
+    ∨ match depth with
+      | 0 =>
+          False
+      | S depth =>
+          obligation' pool depth (receipt_2 pool t)
+      end.
+  #[local] Instance : CustomIpatFormat "receipt_3" :=
+    " [ H{{}_}receipt
+      | [ H{{}_}receipt
+        | H{{}_}receipt
+        ]
+      ]
+    ".
 
   Definition future_consumer :=
     ivar_3_consumer.
@@ -185,29 +201,30 @@ Section future_G.
     iInduction depth as [| depth] "IH" forall (t Ψ Ξ).
     all: rewrite future_inv_unfold.
     all: iIntros "(:inv =t) #Hpool_finished".
+    all: iDestruct "Ht_receipt" as "(:receipt_3 =t)"; try done.
 
     - iDestruct (pool_obligation_finished with "Ht_receipt Hpool_finished") as "Ht_receipt".
       iNext => //.
 
-    - iDestruct "Ht_receipt" as "(:obligation =parent)".
+    - iDestruct (pool_obligation_finished with "Ht_receipt Hpool_finished") as "Hreceipt".
+      iNext => //.
 
-      + iDestruct (pool_obligation_finished with "HP Hpool_finished") as "Hreceipt".
-        iNext => //.
+    - iDestruct "Ht_receipt" as "(:obligation' =parent)".
 
-      + iDestruct ("IH" with "Hparent_inv Hpool_finished") as "(:receipt_1 =parent)".
+      iDestruct ("IH" with "Hparent_inv Hpool_finished") as "(:receipt_1 =parent)".
 
-        iEval (replace (2 * S depth + 1) with (2 * depth + 1 + 2) by lia).
-        iEval (rewrite bi.laterN_add).
-        iNext.
+      iEval (replace (2 * S depth + 1) with (2 * depth + 1 + 2) by lia).
+      iEval (rewrite bi.laterN_add).
+      iNext.
 
-        iDestruct (ivar_3_waiter_valid with "Hparent_waiters Hparent_waiter") as %(i & _ & Hωs_lookup).
-        iDestruct (big_sepL_lookup with "Hωs") as "(%P & Hω_ & -#Hreceipt)"; first done.
-        iDestruct (saved_prop_agree with "Hω Hω_") as "Heq".
-        iNext.
-        iRewrite -"Heq" in "Hreceipt".
+      iDestruct (ivar_3_waiter_valid with "Hparent_waiters Hparent_waiter") as %(i & _ & Hωs_lookup).
+      iDestruct (big_sepL_lookup with "Hωs") as "(%P & Hω_ & -#Hreceipt)"; first done.
+      iDestruct (saved_prop_agree with "Hω Hω_") as "Heq".
+      iNext.
+      iRewrite -"Heq" in "Hreceipt".
 
-        iDestruct (pool_obligation_finished with "Hreceipt Hpool_finished") as "Hreceipt".
-        iNext => //.
+      iDestruct (pool_obligation_finished with "Hreceipt Hpool_finished") as "Hreceipt".
+      iNext => //.
   Qed.
   Lemma future_inv_finished pool t depth Ψ Ξ :
     future_inv pool t depth Ψ Ξ -∗
@@ -225,6 +242,7 @@ Section future_G.
     ▷^(2 * depth + 2) □ P.
   Proof.
     iIntros "(:obligation) Hpool_finished //".
+    iDestruct "Hobligation" as "(:obligation')".
 
     iDestruct (future_inv_finished_receipt with "Hinv Hpool_finished") as "(:receipt_1)".
 
@@ -314,6 +332,26 @@ Section future_G.
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
+  Lemma future_return_spec pool Ψ Ξ v :
+    {{{
+      Ψ v ∗
+      □ Ξ v
+    }}}
+      future_return v
+    {{{ t,
+      RET t;
+      future_inv pool t 0 Ψ Ξ ∗
+      future_consumer t Ψ ∗
+      future_result t v
+    }}}.
+  Proof.
+    iIntros "%Φ (HΨ & HΞ) HΦ".
+
+    wp_apply (ivar_3_make_spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & Hwaiters)".
+    iApply "HΦ".
+    iFrame "#∗". auto.
+  Qed.
+
   #[local] Lemma future_set_spec pool ctx scope t Ψ Ξ v :
     {{{
       pool_context pool ctx scope ∗
@@ -400,7 +438,7 @@ Section future_G.
       wp_apply (future_set_spec with "[$]") as "($ & #$)".
     }
 
-    iSteps.
+    iStepFrameSteps 6.
   Qed.
 
   Lemma future_wait_spec pool ctx scope t depth Ψ Ξ :
@@ -528,7 +566,10 @@ Section future_G.
 
     wp_pures.
 
-    iStepFrameSteps.
+    iApply "HΦ".
+    iEval (rewrite future_inv_unfold).
+    iFrame "∗ Ht2_inv". iRight.
+    iDestruct "Hobligation" as "(:obligation)"; auto.
   Qed.
 End future_G.
 

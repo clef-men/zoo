@@ -1,6 +1,9 @@
 type 'a t =
   ('a, ('a -> unit) Pool.task) Ivar_3.t
 
+let return =
+  Ivar_3.make
+
 let[@inline] set ctx t res =
   let waiters = Ivar_3.set t res in
   Lst.iter (fun waiter -> waiter ctx res) waiters
