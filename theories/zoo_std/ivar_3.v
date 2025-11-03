@@ -556,8 +556,9 @@ Module base.
         RET #t;
         meta_token t ⊤ ∗
         ivar_3_inv t γ Ψ Ξ Ω ∗
+        ivar_3_consumer γ Ψ ∗
         ivar_3_result γ v ∗
-        ivar_3_consumer γ Ψ
+        ivar_3_waiters γ [] []
       }}}.
     Proof.
       iIntros "%Φ (HΨ & #HΞ) HΦ".
@@ -577,6 +578,7 @@ Module base.
 
       iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
       iDestruct (consumer_produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".
+      iMod (waiters_auth_discard γ with "Hwaiters_auth") as "#Hwaiters_auth".
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (Set_ v). iSteps.
@@ -1148,8 +1150,9 @@ Section ivar_3_G.
     {{{ t,
       RET t;
       ivar_3_inv t Ψ Ξ Ω ∗
+      ivar_3_consumer t Ψ ∗
       ivar_3_result t v ∗
-      ivar_3_consumer t Ψ
+      ivar_3_waiters t [] []
     }}}.
   Proof.
     iIntros "%Φ (HΨ & #HΞ) HΦ".
