@@ -1,117 +1,85 @@
 [@@@zoo.ignore]
 
-let for_ ctx beg end_ chunk fn =
-  let sz = end_ - beg in
-  let num_chunk = sz / chunk in
-  let rest = sz mod chunk in
-  let num_task = num_chunk + Bool.to_int (rest != 0) in
-  let num_pending = Atomic.make num_task in
-  for i = 0 to num_chunk - 1 do
-    Pool.async ctx (fun ctx ->
-      for k = i * chunk to i * chunk + chunk - 1 do
-        fn ctx k
-      done ;
-      Atomic.decr num_pending
-    )
-  done ;
-  if rest != 0 then
-    Pool.async ctx (fun ctx ->
-      for k = num_chunk * chunk to end_ - 1 do
-        fn ctx k
-      done ;
-      Atomic.decr num_pending
-    ) ;
-  Pool.wait_until ctx (fun () -> Atomic.get num_pending == 0)
+let adjust_chunk ctx beg end_ chunk =
+  match chunk with
+  | Some chunk ->
+      chunk
+  | None ->
+      let num_dom = Pool.size ctx + 1 in
+      let num_task = end_ - beg in
+      if num_dom == 1 then
+        num_task
+      else
+        Int.max 1 (num_task / (8 * num_dom))
 
-let rec for_2 ctx beg end_ chunk fn =
-  if end_ - beg <= chunk then
-    for i = beg to end_ - 1 do
-      fn ctx i
-    done
+let rec for_ ctx beg end_ chunk task =
+  let num_task = end_ - beg in
+  if num_task <= chunk then
+    task ctx beg num_task
   else
-    let mid = beg + (end_ - beg) / 2 in
+    let mid = beg + num_task / 2 in
     let left =
       Future.async ctx @@ fun ctx ->
-        for_2 ctx beg mid chunk fn
+        for_ ctx beg mid chunk task
     in
-    for_2 ctx mid end_ chunk fn ;
+    for_ ctx mid end_ chunk task ;
     Future.wait ctx left
+let for_ ctx beg end_ chunk task =
+  let chunk = adjust_chunk ctx beg end_ chunk in
+  for_ ctx beg end_ chunk task
 
-let divide ctx beg end_ fn =
-  let num_dom = Pool.size ctx + 1 in
-  let sz = end_ - beg in
-  let chunk = sz / num_dom in
-  let rest = sz mod num_dom in
-  let num_task = num_dom + Bool.to_int (rest != 0) in
-  let num_pending = Atomic.make num_task in
-  for i = 0 to num_dom - 1 do
-    Pool.async ctx (fun ctx ->
-      fn ctx (i * chunk) chunk ;
-      Atomic.decr num_pending
-    )
-  done ;
-  if rest != 0 then
-    Pool.async ctx (fun ctx ->
-      fn ctx (num_dom * chunk) rest ;
-      Atomic.decr num_pending
-    ) ;
-  Pool.wait_until ctx (fun () -> Atomic.get num_pending == 0)
+let for_each ctx beg end_ chunk task =
+  for_ ctx beg end_ chunk @@ fun ctx beg sz ->
+    for i = beg to beg + sz - 1 do
+      task ctx i
+    done
 
-let rec fold ctx op body acc beg end_ =
+let rec fold_seq ctx beg end_ body op acc =
   if beg == end_ then
     acc
   else
     let acc = op acc (body ctx beg) in
     let beg = beg + 1 in
-    fold ctx op body acc beg end_
-let fold ctx beg end_ chunk op body zero =
-  let sz = end_ - beg in
-  let num_chunk = sz / chunk in
-  let rest = sz mod chunk in
-  let num_task = num_chunk + Bool.to_int (rest != 0) in
-  let num_pending = Atomic.make num_task in
-  let sums = Array.make num_task zero in
-  for i = 0 to num_chunk - 1 do
-    Pool.async ctx (fun ctx ->
-      let sum = fold ctx op body zero (i * chunk) ((i + 1) * chunk) in
-      Array.unsafe_set sums i sum ;
-      Atomic.decr num_pending
-    )
-  done ;
-  if rest != 0 then
-    Pool.async ctx (fun ctx ->
-      let sum = fold ctx op body zero (num_chunk * chunk) end_ in
-      Array.unsafe_set sums num_chunk sum ;
-      Atomic.decr num_pending
-    ) ;
-  Pool.wait_until ctx (fun () -> Atomic.get num_pending == 0) ;
-  Array.foldl op zero sums
+    fold_seq ctx beg end_ body op acc
+let rec fold ctx beg end_ chunk body op zero =
+  let num_task = end_ - beg in
+  if num_task <= chunk then
+    fold_seq ctx beg (beg + num_task) body op zero
+  else
+    let mid = beg + num_task / 2 in
+    let left =
+      Future.async ctx @@ fun ctx ->
+        fold ctx beg mid chunk body op zero
+    in
+    let right = fold ctx mid end_ chunk body op zero in
+    let left = Future.wait ctx left in
+    op left right
+let fold ctx beg end_ chunk body op zero =
+  let chunk = adjust_chunk ctx beg end_ chunk in
+  fold ctx beg end_ chunk body op zero
 
-let rec find ctx beg end_ pred found =
-  if beg != end_ && !found != None then (
+let rec find_seq ctx beg end_ pred found =
+  if beg != end_ && Atomic.get found == None then (
     if pred ctx beg then
-      found := Some beg
+      Atomic.set found (Some beg)
     else
       let beg = beg + 1 in
-      find ctx beg end_ pred found
+      find_seq ctx beg end_ pred found
   )
+let rec find ctx beg end_ chunk pred found =
+  let num_task = end_ - beg in
+  if num_task <= chunk then
+    find_seq ctx beg (beg + num_task) pred found
+  else if Atomic.get found == None then
+    let mid = beg + num_task / 2 in
+    let left =
+      Future.async ctx @@ fun ctx ->
+        find ctx beg mid chunk pred found
+    in
+    find ctx mid end_ chunk pred found ;
+    Future.wait ctx left
 let find ctx beg end_ chunk pred =
-  let sz = end_ - beg in
-  let num_chunk = sz / chunk in
-  let rest = sz mod chunk in
-  let num_task = num_chunk + Bool.to_int (rest != 0) in
-  let num_pending = Atomic.make num_task in
-  let found = ref None in
-  for i = 0 to num_chunk - 1 do
-    Pool.async ctx (fun ctx ->
-      find ctx (i * chunk) ((i + 1) * chunk) pred found ;
-      Atomic.decr num_pending
-    )
-  done ;
-  if rest != 0 then
-    Pool.async ctx (fun ctx ->
-      find ctx (num_chunk * chunk) end_ pred found ;
-      Atomic.decr num_pending
-    ) ;
-  Pool.wait_until ctx (fun () -> Atomic.get num_pending == 0) ;
-  !found
+  let chunk = adjust_chunk ctx beg end_ chunk in
+  let found = Atomic.make None in
+  find ctx beg end_ chunk pred found ;
+  Atomic.get found

@@ -4,32 +4,25 @@ val for_ :
   Pool.context ->
   int ->
   int ->
-  int ->
-  (Pool.context -> int -> unit) ->
+  int option ->
+  (int -> int -> unit) Pool.task ->
   unit
 
-val for_2 :
+val for_each :
   Pool.context ->
   int ->
   int ->
-  int ->
-  (Pool.context -> int -> unit) ->
-  unit
-
-val divide :
-  Pool.context ->
-  int ->
-  int ->
-  (Pool.context -> int -> int -> unit) ->
+  int option ->
+  (int -> unit) Pool.task ->
   unit
 
 val fold :
   Pool.context ->
   int ->
   int ->
-  int ->
+  int option ->
+  (int -> 'a) Pool.task ->
   ('a -> 'a -> 'a) ->
-  (Pool.context -> int -> 'a) ->
   'a ->
   'a
 
@@ -37,6 +30,6 @@ val find :
   Pool.context ->
   int ->
   int ->
-  int ->
-  (Pool.context -> int -> bool) ->
+  int option ->
+  (int -> bool) Pool.task ->
   int option
