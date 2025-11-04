@@ -31,10 +31,10 @@ let cycle_between ~base ~limit i =
 module Make
   (Pool : Pool.S)
 = struct
-  let main ~limit ~cutoff n ctx =
+  let main ~limit ?cutoff n ctx =
     let base = 10 in
     let data = Array.init n (cycle_between ~base ~limit) in
-    Pool.for_ ctx (work ~data) ~beg:0 ~end_:n ?chunk:cutoff
+    Pool.for_each ctx ~beg:0 ~end_:n ?chunk:cutoff (work ~data)
 end
 
 let pool =
@@ -50,13 +50,13 @@ let cutoff =
 let input =
   int_of_string Sys.argv.(2)
 
-let num_domains =
+let num_domain =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create ~num_domains () in
-  let _ = Pool.run pool (M.main ~cutoff ~limit input) in
+  let pool = Pool.create ~num_domain () in
+  let _ = Pool.run pool (M.main ~limit ?cutoff input) in
   Pool.kill pool

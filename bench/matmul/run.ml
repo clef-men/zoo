@@ -13,7 +13,7 @@ module Make
     Matrix_parallel.apply ctx mat1 (fun i j -> Float.of_int (i + j));
     Matrix_parallel.apply ctx mat2 (fun i j -> Float.of_int (i * j));
     Matrix_parallel.fill ctx mat3 0.0 ;
-    Pool.for_ ctx ~beg:0 ~end_:sz ?chunk:cutoff (fun _ctx i ->
+    Pool.for_each ctx ~beg:0 ~end_:sz ?chunk:cutoff (fun _ctx i ->
       for j = 0 to sz - 1 do
         for k = 0 to sz - 1 do
           let v = Matrix.get mat3 i j in
@@ -30,7 +30,7 @@ let pool =
 let size =
   int_of_string Sys.argv.(2)
 
-let num_domains =
+let num_domain =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
@@ -39,6 +39,6 @@ let cutoff = Utils.get_int_param "CUTOFF"
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create ~num_domains () in
+  let pool = Pool.create ~num_domain () in
   let _ = Pool.run pool (M.main ?cutoff size) in
   Pool.kill pool

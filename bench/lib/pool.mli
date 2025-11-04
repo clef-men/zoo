@@ -10,4 +10,5 @@ module Moonpool_fifo :
 module Moonpool_ws :
   S
 
-val impl_of_string : string -> (module S)
+val impl_of_string :
+  string -> (module S)
