@@ -192,7 +192,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; wp_apply int_max_spec; iSteps.
+    iSteps.
   Qed.
   #[local] Lemma queue_3_grow_spec t vs extra :
     {{{

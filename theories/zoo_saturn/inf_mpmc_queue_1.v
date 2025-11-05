@@ -625,7 +625,6 @@ Section inf_mpmc_queue_1_G.
 
         wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
-        wp_apply int_positive_part_spec.
         rewrite length_drop Hhist2 Z2Nat.inj_sub; first lia.
         rewrite !Nat2Z.id //.
 

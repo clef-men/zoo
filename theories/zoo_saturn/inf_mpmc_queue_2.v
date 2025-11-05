@@ -988,8 +988,6 @@ Section inf_mpmc_queue_2_G.
         iModIntro. clear -Hvs2 Hhist2.
 
         wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
-        iSteps.
-        wp_apply int_positive_part_spec.
         iSteps. iPureIntro.
         rewrite Hvs2. simpl_length. lia.
 

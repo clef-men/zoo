@@ -8,9 +8,9 @@ From zoo_std Require Export
   base
   dynarray_1__code.
 From zoo_std Require Import
-  int
   array
-  dynarray_1__types.
+  dynarray_1__types
+  int.
 From zoo Require Import
   options.
 
@@ -325,7 +325,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; wp_apply int_max_spec; iSteps.
+    iSteps.
   Qed.
   #[local] Lemma dynarray_1_reserve_spec' t vs n :
     (0 ≤ n)%Z →

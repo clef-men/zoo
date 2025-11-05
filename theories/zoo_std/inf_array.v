@@ -16,10 +16,10 @@ From zoo_std Require Export
   base
   inf_array__code.
 From zoo_std Require Import
-  int
   array
-  mutex
-  inf_array__types.
+  inf_array__types
+  int
+  mutex.
 From zoo Require Import
   options.
 
@@ -308,7 +308,7 @@ Section inf_array_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; wp_apply int_max_spec; iSteps.
+    iSteps.
   Qed.
   #[local] Lemma inf_array_reserve_spec l γ us n :
     (0 ≤ n)%Z →

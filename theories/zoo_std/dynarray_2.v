@@ -12,11 +12,11 @@ From zoo_std Require Export
   base
   dynarray_2__code.
 From zoo_std Require Import
-  diverge
-  assume
-  int
   array
-  dynarray_2__types.
+  assume
+  diverge
+  dynarray_2__types
+  int.
 From zoo Require Import
   options.
 
@@ -398,7 +398,7 @@ Section zoo_G.
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
-    iSteps; wp_apply int_max_spec; iSteps.
+    iSteps.
   Qed.
   Lemma dynarray_2_reserve_spec t vs (n : Z) :
     {{{
