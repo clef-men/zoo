@@ -391,6 +391,11 @@ Module base.
     Proof.
       apply _.
     Qed.
+    #[global] Instance pool_inv_persistent γ sz :
+      Persistent (pool_inv γ sz).
+    Proof.
+      apply _.
+    Qed.
     #[global] Instance pool_obligation_persistent γ P :
       Persistent (pool_obligation γ P).
     Proof.
@@ -1154,6 +1159,11 @@ Section pool_G.
       )
     ".
 
+  #[global] Instance pool_inv_persistent t sz :
+    Persistent (pool_inv t sz).
+  Proof.
+    apply _.
+  Qed.
   #[global] Instance pool_obligation_persistent t P :
     Persistent (pool_obligation t P).
   Proof.
