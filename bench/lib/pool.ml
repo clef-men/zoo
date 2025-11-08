@@ -153,7 +153,9 @@ module Moonpool_fifo = Make(struct
     context -> 'a
 
   let create ~num_domain () =
-    Fifo_pool.create ~num_threads:num_domain ()
+    (* ask for one more domain on Moonpool, see
+       https://github.com/c-cube/moonpool/issues/41 *)
+    Fifo_pool.create ~num_threads:(num_domain + 1) ()
 
   let size _t =
     Moonpool.Private.num_domains ()
@@ -187,7 +189,9 @@ module Moonpool_ws = Make(struct
     context -> 'a
 
   let create ~num_domain () =
-    Ws_pool.create ~num_threads:num_domain ()
+    (* ask for one more domain on Moonpool, see
+       https://github.com/c-cube/moonpool/issues/41 *)
+    Ws_pool.create ~num_threads:(num_domain + 1) ()
 
   let size _t =
     Moonpool.Private.num_domains ()
