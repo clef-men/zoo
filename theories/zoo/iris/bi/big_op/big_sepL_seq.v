@@ -18,6 +18,19 @@ Section bi.
     Implicit Types l : list A.
     Implicit Types Φ : nat → PROP.
 
+    Lemma big_sepL_seq_intro Φ i n :
+      □ (
+        ∀ k,
+        ⌜i ≤ k < i + n⌝ -∗
+        Φ k
+      ) ⊢
+      [∗ list] k ∈ seq i n, Φ k.
+    Proof.
+      iIntros "#H".
+      iApply big_sepL_intro. iIntros "!>" (k k_ (-> & Hk)%lookup_seq).
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seq_cons Φ i n :
       ([∗ list] k ∈ seq i (S n), Φ k) ⊣⊢
         Φ i ∗

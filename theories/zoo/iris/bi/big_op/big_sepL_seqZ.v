@@ -18,6 +18,19 @@ Section bi.
     Implicit Types l : list A.
     Implicit Types Φ : Z → PROP.
 
+    Lemma big_sepL_seqZ_intro Φ i n :
+      □ (
+        ∀ k,
+        ⌜i ≤ k < i + n⌝%Z -∗
+        Φ k
+      ) ⊢
+      [∗ list] k ∈ seqZ i n, Φ k.
+    Proof.
+      iIntros "#H".
+      iApply big_sepL_intro. iIntros "!>" (k k_ (-> & Hk)%lookup_seqZ).
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seqZ_to_seq `{!BiAffine PROP} Φ i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →
