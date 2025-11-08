@@ -13,6 +13,7 @@ main domain, so in practice this is a 4-domains configuration.
 
 ## Plotting data
 
+For a single benchmark:
 ```
 # generates data/fibonacci/data/plot_cutoff.data, for 4 domains (1+3)
 EXTRA_DOMAINS=3 sh bench/fibonacci/gen_plot_data_cutoff.sh
@@ -28,6 +29,16 @@ inkscape bench/fibonacci/data/plot_cutoff.data.svg -o bench/fibonacci/data/plot_
 ```
 
 
+For all benchmarks:
+
+```
+# run all benchmarks one after the other
+sh bench/gen_all_data.sh
+
+# render all plots into .svg and .pdf files
+sh bench/render_all_plots.sh
+```
+
 # Preliminary analysis of benchmark results
 
 The analysis is based on the benchmark output data currently stored in the repository.
@@ -38,9 +49,8 @@ Each benchmark is evaluated across different schedulers.
 
 - `domainslib`: [domainslib](https://github.com/ocaml-multicore/domainslib/), the standard library for CPU-bound concurrent tasks in Multicore OCaml
 - `parabs`: the (verified) code from this repository
-- `moonpool-fifo`: the [moonpool](https://github.com/c-cube/moonpool/) scheduler (version 0.8), which started as a simpler-yet-efficient scheduler
-- `moonpool-ws`: a variant of `moonpool` that uses a work-stealing structure in its scheduler,
-  and is described as better at optimizing throughput
+- `moonpool-fifo`: the [moonpool](https://github.com/c-cube/moonpool/) scheduler (version 0.9), which started as a simpler-yet-efficient scheduler
+- `moonpool-ws`: a variant of `moonpool` that uses a work-stealing structure in its scheduler, and is described as better at optimizing throughput
 - `sequential`: a default baseline where no parallelism actually happens, all tasks are run on the main domain
 
 ## Benchmark parameters
