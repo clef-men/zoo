@@ -19,6 +19,7 @@ Create HintDb simpl_length.
   @length_fmap
   @length_replicate
   @length_seq
+  @length_seqZ
   @length_zip_with
 : simpl_length.
 
