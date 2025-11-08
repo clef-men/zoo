@@ -1,5 +1,7 @@
 From zoo Require Import
   prelude.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -177,7 +179,8 @@ Section zoo_G.
       [∗ list] δ' ∈ seq 0 δ, Ψ (beg + δ')%Z δ'
     )%I).
     wp_apply (for_spec_strong Ψ'); last iSteps. iSplit; first iSteps. iIntros "!> %i %δ %Hi1 %Hi2 HΨ'".
-    wp_apply (wp_wand with "(Hbody [//] [//])") as "%res (-> & HΨ)". iStep.
+    wp_apply (wp_wand with "(Hbody [//] [//])") as "%res (-> & HΨ)".
+    iStep.
     rewrite /Ψ' seq_S big_sepL_snoc Hi1. iSteps.
   Qed.
   Lemma for_spec_disentangled' Ψ beg _end body :
@@ -204,8 +207,9 @@ Section zoo_G.
       [∗ list] δ' ∈ seq 0 δ, Ψ (beg + δ')%Z δ'
     )%I).
     wp_apply (for_spec_strong' Ψ' with "[Hbody]"); last iSteps. iSplit; first iSteps.
-    iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> HΨ' /=".
-    wp_apply (wp_wand with "(Hbody [//])") as "%res (-> & HΨ)". iStep.
+    iApply (big_sepL_seq_impl with "Hbody"). iIntros "!> %δ %Hδ Hbody %i -> HΨ' /=".
+    wp_apply (wp_wand with "(Hbody [//])") as "%res (-> & HΨ)".
+    iStep.
     rewrite /Ψ' seq_S big_sepL_snoc. iSteps.
   Qed.
 
@@ -286,7 +290,7 @@ Section zoo_G.
       Ψ ₊i δ.
     wp_apply (for_spec_strong' Ψ' with "[HΨ Hbody]").
     - rewrite /Ψ' !Nat2Z.id Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id. iFrame.
-      iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> HΨ /=".
+      iApply (big_sepL_seq_impl with "Hbody"). iIntros "!> %δ %Hδ Hbody %i -> HΨ /=".
       rewrite -Nat2Z.inj_add Nat2Z.id Z.add_1_r -Nat2Z.inj_succ Nat2Z.id. iSteps.
     - rewrite /Ψ' -Nat2Z.inj_max Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id //.
   Qed.
@@ -368,7 +372,7 @@ Section zoo_G.
       Ψ ₊i δ.
     wp_apply (for_spec_disentangled' Ψ' with "[Hbody]").
     - rewrite Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id.
-      iApply (big_sepL_impl with "Hbody"). iIntros "!>" (δ δ_ (-> & Hδ)%lookup_seq) "Hbody %i -> /=".
+      iApply (big_sepL_seq_impl with "Hbody"). iIntros "!> %δ %Hδ Hbody %i -> /=".
       rewrite -Nat2Z.inj_add /Ψ' Nat2Z.id. iSteps.
     - rewrite /Ψ' Z2Nat.inj_sub; first lia. rewrite !Nat2Z.id.
       setoid_rewrite <- Nat2Z.inj_add. setoid_rewrite Nat2Z.id.

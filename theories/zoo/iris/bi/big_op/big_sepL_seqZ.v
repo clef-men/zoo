@@ -31,6 +31,21 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_seqZ_impl Φ1 Φ2 i n :
+      ([∗ list] k ∈ seqZ i n, Φ1 k) -∗
+      □ (
+        ∀ k,
+        ⌜i ≤ k < i + n⌝%Z -∗
+        Φ1 k -∗
+        Φ2 k
+      ) -∗
+      [∗ list] k ∈ seqZ i n, Φ2 k.
+    Proof.
+      iIntros "HΦ1 #H".
+      iApply (big_sepL_impl with "HΦ1"). iIntros "!>" (k k_ (-> & Hk)%lookup_seqZ).
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seqZ_to_seq `{!BiAffine PROP} Φ i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →

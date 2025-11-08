@@ -31,6 +31,21 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_seq_impl Φ1 Φ2 i n :
+      ([∗ list] k ∈ seq i n, Φ1 k) -∗
+      □ (
+        ∀ k,
+        ⌜i ≤ k < i + n⌝ -∗
+        Φ1 k -∗
+        Φ2 k
+      ) -∗
+      [∗ list] k ∈ seq i n, Φ2 k.
+    Proof.
+      iIntros "HΦ1 #H".
+      iApply (big_sepL_impl with "HΦ1"). iIntros "!>" (k k_ (-> & Hk)%lookup_seq).
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seq_cons Φ i n :
       ([∗ list] k ∈ seq i (S n), Φ k) ⊣⊢
         Φ i ∗
@@ -220,28 +235,6 @@ Section bi.
       { simpl_length. lia. }
       iIntros "!>" (k k1 k2 (-> & _)%lookup_seq (-> & _)%lookup_seqZ) "HΦ".
       rewrite -Nat2Z.inj_add Nat2Z.id //.
-    Qed.
-    Lemma big_sepL_seqZ_to_seq `{!BiAffine PROP} (Φ : Z → PROP) i n :
-      (0 ≤ i)%Z →
-      (0 ≤ n)%Z →
-      ([∗ list] k ∈ seqZ i n, Φ k) ⊢
-      [∗ list] k ∈ seq ₊i ₊n, Φ ⁺k.
-    Proof.
-      iIntros "%Hi %Hn H".
-      iApply (big_sepL_impl_strong with "H").
-      { simpl_length. }
-      iIntros "!>" (k k1 k2 (-> & _)%lookup_seqZ (-> & _)%lookup_seq) "HΦ".
-      replace ⁺(₊i + k) with (i + k)%Z by lia. done.
-    Qed.
-    Lemma big_sepL_seqZ_to_seq' `{!BiAffine PROP} Φ i n :
-      (0 ≤ i)%Z →
-      (0 ≤ n)%Z →
-      ([∗ list] k ∈ seqZ i n, Φ ₊k) ⊢
-      [∗ list] k ∈ seq ₊i ₊n, Φ k.
-    Proof.
-      intros.
-      rewrite big_sepL_seqZ_to_seq //.
-      setoid_rewrite Nat2Z.id => //.
     Qed.
   End big_sepL_seq.
 End bi.

@@ -344,7 +344,7 @@ Section ws_hub_fifo_G.
     iIntros "(:inv) (:model) Howners". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iApply (emptiness_empty with "Hemptiness_auth").
-    iApply (big_sepL_impl with "Howners"). iIntros "!>" (i i_ (-> & Hi)%lookup_seq) "(%status & (:owner)) /=". injection Heq as <-.
+    iApply (big_sepL_seq_impl with "Howners"). iIntros "!> %i %Hi (%status & (:owner)) /=". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iSteps.
   Qed.
@@ -392,7 +392,7 @@ Section ws_hub_fifo_G.
     iSplitL "Hqueue_model Hemptiness_auth".
     { iSteps. }
     iDestruct (big_sepL_sep_2 with "Howners Hemptiness_ats") as "Howners".
-    iApply (big_sepL_impl with "Howners").
+    iApply (big_sepL_seq_impl with "Howners").
     iSteps.
   Qed.
 
