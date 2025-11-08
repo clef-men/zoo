@@ -67,6 +67,7 @@ theories/zoo/iris/bi/big_op/base.v
 theories/zoo/iris/bi/big_op/big_sepL.v
 theories/zoo/iris/bi/big_op/big_sepL2.v
 theories/zoo/iris/bi/big_op/big_sepL_seq.v
+theories/zoo/iris/bi/big_op/big_sepL_seqZ.v
 theories/zoo/iris/bi/big_op/big_sepM.v
 theories/zoo/iris/bi/big_op/big_sepS.v
 theories/zoo/iris/bi/big_op/big_sepMS.v
