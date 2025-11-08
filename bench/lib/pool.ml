@@ -51,7 +51,7 @@ module Sequential = Make(struct
     context -> 'a
 
   let size () =
-    1
+    0
 
   let create ~num_domain:_ () =
     ()
@@ -187,7 +187,7 @@ module Moonpool_ws = Make(struct
     context -> 'a
 
   let create ~num_domain () =
-    Fifo_pool.create ~num_threads:num_domain ()
+    Ws_pool.create ~num_threads:num_domain ()
 
   let size _t =
     Moonpool.Private.num_domains ()

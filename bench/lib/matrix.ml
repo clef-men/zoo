@@ -31,7 +31,7 @@ module Parallel
   let fill ctx t v =
     let sz = t.size in
     let data = t.data in
-    Pool.for_ ctx ~beg:0 ~end_:(sz * sz) ~chunk:0 (fun _ctx idx sz ->
+    Pool.for_ ctx ~beg:0 ~end_:(sz * sz) (fun _ctx idx sz ->
       Array.fill data idx sz v
     )
 
@@ -39,7 +39,7 @@ module Parallel
     let sz = t.size in
     let data = t.data in
     let data' = Array.create_float (sz * sz) in
-    Pool.for_ ctx ~beg:0 ~end_:(sz * sz) ~chunk:0 (fun _ctx idx n ->
+    Pool.for_ ctx ~beg:0 ~end_:(sz * sz) (fun _ctx idx n ->
       Array.blit data idx data' idx n
     ) ;
     { size= sz; data= data' }
@@ -47,7 +47,7 @@ module Parallel
   let apply ctx t fn =
     let sz = t.size in
     let data = t.data in
-    Pool.for_each ctx ~beg:0 ~end_:(sz * sz) ~chunk:0 (fun _ctx idx ->
+    Pool.for_each ctx ~beg:0 ~end_:(sz * sz) (fun _ctx idx ->
       fn (row sz idx) (col sz idx)
       |> Array.unsafe_set data idx
     )
