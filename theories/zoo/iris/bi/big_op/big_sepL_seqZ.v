@@ -46,6 +46,67 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_seqZ_cons Φ i n :
+      (0 < n)%Z →
+      ([∗ list] k ∈ seqZ i n, Φ k) ⊣⊢
+        Φ i ∗
+        ([∗ list] k ∈ seqZ (Z.succ i) (Z.pred n), Φ k).
+    Proof.
+      intros.
+      rewrite seqZ_cons; first lia.
+      rewrite big_sepL_cons //.
+    Qed.
+    Lemma big_sepL_seqZ_cons_1 Φ i n :
+      (0 < n)%Z →
+      ([∗ list] k ∈ seqZ i n, Φ k) ⊢
+        Φ i ∗
+        ([∗ list] k ∈ seqZ (Z.succ i) (Z.pred n), Φ k).
+    Proof.
+      intros.
+      rewrite big_sepL_seqZ_cons //.
+    Qed.
+    Lemma big_sepL_seqZ_cons_2 Φ i n :
+      (0 ≤ n)%Z →
+      ([∗ list] k ∈ seqZ i n, Φ k) -∗
+      Φ (Z.pred i) -∗
+      [∗ list] k ∈ seqZ (Z.pred i) (Z.succ n), Φ k.
+    Proof.
+      intros.
+      rewrite (big_sepL_seqZ_cons _ (Z.pred i)); first lia.
+      rewrite Z.succ_pred Z.pred_succ.
+      iSteps.
+    Qed.
+
+    Lemma big_sepL_seqZ_snoc Φ i n :
+      (0 ≤ n)%Z →
+      ([∗ list] k ∈ seqZ i (Z.succ n), Φ k) ⊣⊢
+        ([∗ list] k ∈ seqZ i n, Φ k) ∗
+        Φ (i + n)%Z.
+    Proof.
+      intros.
+      Z_to_nat n.
+      rewrite -Nat2Z.inj_succ seqZ_S big_sepL_snoc //.
+    Qed.
+    Lemma big_sepL_seqZ_snoc_1 Φ i n :
+      (0 ≤ n)%Z →
+      ([∗ list] k ∈ seqZ i (Z.succ n), Φ k) ⊢
+        ([∗ list] k ∈ seqZ i n, Φ k) ∗
+        Φ (i + n)%Z.
+    Proof.
+      intros.
+      rewrite big_sepL_seqZ_snoc //.
+    Qed.
+    Lemma big_sepL_seqZ_snoc_2 Φ i n :
+      (0 ≤ n)%Z →
+      ([∗ list] k ∈ seqZ i n, Φ k) -∗
+      Φ (i + n)%Z -∗
+      [∗ list] k ∈ seqZ i (Z.succ n), Φ k.
+    Proof.
+      intros.
+      rewrite big_sepL_seqZ_snoc //.
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seqZ_to_seq `{!BiAffine PROP} Φ i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →
