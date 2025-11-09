@@ -452,6 +452,10 @@ theories/zoo_parabs/future__types.v
 theories/zoo_parabs/future__code.v
 theories/zoo_parabs/future__opaque.v
 theories/zoo_parabs/future.v
+theories/zoo_parabs/algo__types.v
+theories/zoo_parabs/algo__code.v
+theories/zoo_parabs/algo__opaque.v
+theories/zoo_parabs/algo.v
 theories/zoo_parabs/vertex__types.v
 theories/zoo_parabs/vertex__code.v
 theories/zoo_parabs/vertex__opaque.v

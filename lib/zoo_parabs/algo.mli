@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 val for_ :
   Pool.context ->
   int ->

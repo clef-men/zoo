@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 let adjust_chunk ctx beg end_ chunk =
   match chunk with
   | Some chunk ->
