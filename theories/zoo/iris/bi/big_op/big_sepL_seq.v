@@ -65,7 +65,8 @@ Section bi.
       Φ i -∗
       [∗ list] k ∈ seq i (S n), Φ k.
     Proof.
-      rewrite big_sepL_seq_cons. iSteps.
+      rewrite big_sepL_seq_cons.
+      iSteps.
     Qed.
 
     Lemma big_sepL_seq_snoc Φ i n :
@@ -87,7 +88,34 @@ Section bi.
       Φ (i + n) -∗
       [∗ list] k ∈ seq i (S n), Φ k.
     Proof.
-      rewrite big_sepL_seq_snoc. iSteps.
+      rewrite big_sepL_seq_snoc.
+      iSteps.
+    Qed.
+
+    Lemma big_sepL_seq_app Φ i n1 n2 :
+      ([∗ list] k ∈ seq i (n1 + n2), Φ k) ⊣⊢
+        ([∗ list] k ∈ seq i n1, Φ k) ∗
+        ([∗ list] k ∈ seq (i + n1) n2, Φ k).
+    Proof.
+      rewrite seq_app big_sepL_app //.
+    Qed.
+    Lemma big_sepL_seq_app_1 {Φ i n} n1 n2 :
+      n = n1 + n2 →
+      ([∗ list] k ∈ seq i n, Φ k) ⊢
+        ([∗ list] k ∈ seq i n1, Φ k) ∗
+        ([∗ list] k ∈ seq (i + n1) n2, Φ k).
+    Proof.
+      intros ->.
+      rewrite big_sepL_seq_app //.
+    Qed.
+    Lemma big_sepL_seq_app_2 Φ i1 n1 i2 n2 :
+      i2 = i1 + n1 →
+      ([∗ list] k ∈ seq i1 n1, Φ k) -∗
+      ([∗ list] k ∈ seq i2 n2, Φ k) -∗
+      [∗ list] k ∈ seq i1 (n1 + n2), Φ k.
+    Proof.
+      rewrite big_sepL_seq_app.
+      iSteps.
     Qed.
 
     Lemma big_sepL_seq_lookup_acc {Φ i n} j :
@@ -119,7 +147,8 @@ Section bi.
       Φ (i + j).
     Proof.
       intros Hj.
-      rewrite big_sepL_seq_lookup_acc //. iSteps.
+      rewrite big_sepL_seq_lookup_acc //.
+      iSteps.
     Qed.
     Lemma big_sepL_seq_lookup' `{!BiAffine PROP} {Φ i n} j :
       i ≤ j < i + n →
@@ -127,7 +156,8 @@ Section bi.
       Φ j.
     Proof.
       intros Hj.
-      rewrite big_sepL_seq_lookup_acc' //. iSteps.
+      rewrite big_sepL_seq_lookup_acc' //.
+      iSteps.
     Qed.
 
     Lemma big_sepL_seq_index `{!BiAffine PROP} {Φ} l i n :

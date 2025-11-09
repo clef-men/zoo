@@ -107,6 +107,40 @@ Section bi.
       iSteps.
     Qed.
 
+    Lemma big_sepL_seqZ_app Φ i n1 n2 :
+      (0 ≤ n1)%Z →
+      (0 ≤ n2)%Z →
+      ([∗ list] k ∈ seqZ i (n1 + n2), Φ k) ⊣⊢
+        ([∗ list] k ∈ seqZ i n1, Φ k) ∗
+        ([∗ list] k ∈ seqZ (i + n1) n2, Φ k).
+    Proof.
+      intros.
+      rewrite seqZ_app // big_sepL_app //.
+    Qed.
+    Lemma big_sepL_seqZ_app_1 {Φ i n} n1 n2 :
+      n = (n1 + n2)%Z →
+      (0 ≤ n1)%Z →
+      (0 ≤ n2)%Z →
+      ([∗ list] k ∈ seqZ i n, Φ k) ⊢
+        ([∗ list] k ∈ seqZ i n1, Φ k) ∗
+        ([∗ list] k ∈ seqZ (i + n1) n2, Φ k).
+    Proof.
+      intros -> ? ?.
+      rewrite big_sepL_seqZ_app //.
+    Qed.
+    Lemma big_sepL_seqZ_app_2 Φ i1 n1 i2 n2 :
+      (0 ≤ n1)%Z →
+      (0 ≤ n2)%Z →
+      i2 = (i1 + n1)%Z →
+      ([∗ list] k ∈ seqZ i1 n1, Φ k) -∗
+      ([∗ list] k ∈ seqZ i2 n2, Φ k) -∗
+      [∗ list] k ∈ seqZ i1 (n1 + n2), Φ k.
+    Proof.
+      intros ? ? ->.
+      rewrite big_sepL_seqZ_app //.
+      iSteps.
+    Qed.
+
     Lemma big_sepL_seqZ_to_seq `{!BiAffine PROP} Φ i n :
       (0 ≤ i)%Z →
       (0 ≤ n)%Z →
