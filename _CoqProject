@@ -54,6 +54,7 @@ theories/zoo/iris/algebra/lib/auth_mono.v
 
 theories/zoo/iris/proofmode/tokens.v
 theories/zoo/iris/proofmode/intro_patterns.v
+theories/zoo/iris/proofmode/coq_tactics.v
 theories/zoo/iris/proofmode/ltac_tactics.v
 theories/zoo/iris/proofmode/proofmode.v
 

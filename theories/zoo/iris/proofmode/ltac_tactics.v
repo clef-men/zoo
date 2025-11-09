@@ -10,9 +10,10 @@ From iris.proofmode Require Import
   base
   spec_patterns
   sel_patterns
-  coq_tactics
   reduction
   string_ident.
+From zoo.iris.proofmode Require Import
+  coq_tactics.
 From iris.proofmode Require Export
   classes
   notation.
@@ -207,7 +208,7 @@ Inductive esel_pat :=
   | ESelPure
   | ESelIdent : (* whether the ident is intuitionistic *) bool → ident → esel_pat.
 
-Local Ltac iElaborateSelPat_go pat Δ Hs :=
+#[local] Ltac iElaborateSelPat_go pat Δ Hs :=
   lazymatch pat with
   | [] => eval cbv in Hs
   | SelPure :: ?pat =>  iElaborateSelPat_go pat Δ (ESelPure :: Hs)
@@ -247,7 +248,7 @@ Ltac _iClearHyp H :=
     fail "iClear:" H ":" P "not affine and the goal not absorbing"
   | pm_reduce
   ].
-Local Ltac iClear_go Hs :=
+#[local] Ltac iClear_go Hs :=
   lazymatch Hs with
   | [] =>
       idtac
@@ -268,35 +269,51 @@ Tactic Notation "iClear" "(" ident_list(xs) ")" constr(Hs) :=
 Tactic Notation "iClear" "select" open_constr(pat) :=
   iSelect pat ltac:(fun H => iClear H).
 
-(** ** Simplification *)
-Tactic Notation "iEval" tactic3(t) :=
+Tactic Notation "iEval" tactic3(tac) :=
   iStartProof;
   eapply tac_eval;
-    [let x := fresh in intros x; t; unfold x; reflexivity
-    |].
+  [ tac; reflexivity
+  | idtac
+  ].
 
-Local Ltac iEval_go t Hs :=
+#[local] Ltac iEval_go tac Hs :=
   lazymatch Hs with
-  | [] => idtac
-  | ESelPure :: ?Hs => fail "iEval: %: unsupported selection pattern"
+  | [] =>
+      idtac
+  | ESelPure :: ?Hs =>
+      fail "iEval: %: unsupported selection pattern"
   | ESelIdent _ ?H :: ?Hs =>
-    eapply tac_eval_in with H _ _ _;
-      [pm_reflexivity || let H := pretty_ident H in fail "iEval:" H "not found"
-      |let x := fresh in intros x; t; unfold x; reflexivity
-      |pm_reduce; iEval_go t Hs]
+      eapply tac_eval_in with H _ _ _;
+      [ pm_reflexivity ||
+        let H := pretty_ident H in
+        fail "iEval:" H "not found"
+      | let x := fresh in
+        tac; reflexivity
+      | pm_reduce;
+        iEval_go tac Hs
+      ]
   end.
+Tactic Notation "iEval" tactic3(tac) "in" constr(Hs) :=
+  iStartProof;
+  let Hs := iElaborateSelPat Hs in
+  iEval_go tac Hs.
 
-Tactic Notation "iEval" tactic3(t) "in" constr(Hs) :=
-  iStartProof; let Hs := iElaborateSelPat Hs in iEval_go t Hs.
+Tactic Notation "iEval" tactic3(tac) "in" constr(Hs) "|-" "*" :=
+  iEval tac in Hs;
+  iEval tac.
 
-Tactic Notation "iSimpl" := iEval (simpl).
-Tactic Notation "iSimpl" "in" constr(H) := iEval (simpl) in H.
+Tactic Notation "iSimpl" :=
+  iEval (simpl).
+Tactic Notation "iSimpl" "in" constr(H) :=
+  iEval (simpl) in H.
 
-Ltac _iUnfold r := iEval (unfold r).
+Ltac _iUnfold r :=
+  iEval (unfold r).
 Tactic Notation "iUnfold" ne_reference_list_sep(ids,",") :=
   ltac1_list_iter _iUnfold ids.
 
-Ltac _iUnfold_in r H := iEval (unfold r) in H.
+Ltac _iUnfold_in r H :=
+  iEval (unfold r) in H.
 Tactic Notation "iUnfold" ne_reference_list_sep(ids,",") "in" constr(H) :=
   ltac1_list_iter ltac:(fun r => _iUnfold_in r H) ids.
 
@@ -494,7 +511,7 @@ Ltac iFrameAnySpatial :=
      let Hs := eval lazy in (env_dom (env_spatial Δ)) in go Hs
   end.
 
-Local Ltac _iFrame_go Hs :=
+#[local] Ltac _iFrame_go Hs :=
   lazymatch Hs with
   | [] => idtac
   | SelPure :: ?Hs => iFrameAnyPure; _iFrame_go Hs
@@ -856,7 +873,7 @@ arbitrary moments. That is because tactics like [apply], [split] and [eexists]
 wrongly trigger type class search. To avoid TC being triggered too eagerly, the
 tactics below use [notypeclasses refine] instead of [apply], [split] and
 [eexists]. *)
-Local Ltac iSpecializeArgs_go H xs :=
+#[local] Ltac iSpecializeArgs_go H xs :=
   lazymatch xs with
   | hnil => idtac
   | hcons ?x ?xs =>
@@ -872,7 +889,7 @@ Local Ltac iSpecializeArgs_go H xs :=
           notypeclasses refine (@ex_intro A _ x _)
         end; [shelve..|pm_reduce; iSpecializeArgs_go H xs]]
   end.
-Local Tactic Notation "iSpecializeArgs" constr(H) open_constr(xs) :=
+#[local] Tactic Notation "iSpecializeArgs" constr(H) open_constr(xs) :=
   iSpecializeArgs_go H xs.
 
 Ltac iSpecializePat_go H1 pats :=
@@ -1015,7 +1032,7 @@ Ltac iSpecializePat_go H1 pats :=
          |exact eq_refl]; _iIntroSpatial H1; iSpecializePat_go H1 pats
     end.
 
-Local Tactic Notation "iSpecializePat" open_constr(H) constr(pat) :=
+#[local] Tactic Notation "iSpecializePat" open_constr(H) constr(pat) :=
   let pats := spec_pat.parse pat in iSpecializePat_go H pats.
 
 (** The tactics [iSpecialize trm as #] and [iSpecializeCore trm as true] allow
@@ -1195,14 +1212,14 @@ premises [n], the tactic will have the following behavior:
 (* The helper [iApplyHypExact] takes care of the [n=0] case. It fails with level
 0 if we should proceed to the [n > 0] case, and with level 1 if there is an
 actual error. *)
-Local Ltac iApplyHypExact H :=
+#[local] Ltac iApplyHypExact H :=
   eapply tac_assumption with H _ _; (* (i:=H) *)
     [pm_reflexivity
     |tc_solve
     |pm_reduce; tc_solve ||
      fail 1 "iApply: remaining hypotheses not affine and the goal not absorbing"].
 
-Local Ltac iApplyHypLoop H :=
+#[local] Ltac iApplyHypLoop H :=
   first
     [eapply tac_apply with H _ _ _;
       [pm_reflexivity
@@ -2063,14 +2080,14 @@ Tactic Notation "iAssert" open_constr(Q) "as" "%" simple_intropattern(pat) :=
   iAssert Q with "[-]" as %pat.
 
 (** * Rewrite *)
-Local Ltac iRewriteFindPred :=
+#[local] Ltac iRewriteFindPred :=
   match goal with
   | |- _ ⊣⊢ ?Φ ?x =>
      generalize x;
      match goal with |- (∀ y, @?Ψ y ⊣⊢ _) => unify Φ Ψ; reflexivity end
   end.
 
-Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) :=
+#[local] Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) :=
   iPoseProofCore lem as true (fun Heq =>
     eapply (tac_rewrite _ Heq _ _ lr);
       [pm_reflexivity ||
@@ -2085,7 +2102,7 @@ Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) :=
 Tactic Notation "iRewrite" open_constr(lem) := iRewriteCore Right lem.
 Tactic Notation "iRewrite" "-" open_constr(lem) := iRewriteCore Left lem.
 
-Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) "in" constr(H) :=
+#[local] Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) "in" constr(H) :=
   iPoseProofCore lem as true (fun Heq =>
     eapply (tac_rewrite_in _ Heq _ _ H _ _ lr);
       [pm_reflexivity ||
