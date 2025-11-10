@@ -14,8 +14,8 @@ module Make
       seq n
     else
       let fut1 = Pool.async ctx @@ main ~cutoff (n - 1) in
-      let fut2 = Pool.async ctx @@ main ~cutoff (n - 2) in
-      Pool.wait ctx fut1 + Pool.wait ctx fut2
+      let res2 = main ~cutoff (n - 2) ctx in
+      Pool.wait ctx fut1 + res2
 end
 
 let pool =
