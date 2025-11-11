@@ -103,7 +103,7 @@ Module base.
 
     #[local] Definition inv_inner t γ Ψ Ξ : iProp Σ :=
       ∃ state,
-      t.[contents] ↦ state ∗
+      t ↦ᵣ state ∗
       consumer_auth γ Ψ state ∗
       inv_state γ Ξ state.
     #[local] Instance : CustomIpatFormat "inv_inner" :=
@@ -481,6 +481,47 @@ Module base.
       iSteps.
     Qed.
 
+    Lemma ivar_1_is_unset_spec t γ Ψ Ξ :
+      {{{
+        ivar_1_inv t γ Ψ Ξ
+      }}}
+        ivar_1_is_unset #t
+      {{{ b,
+        RET #b;
+        if b then
+          True
+        else
+          £ 2 ∗
+          ivar_1_resolved γ
+      }}}.
+    Proof.
+      iIntros "%Φ #Hinv HΦ".
+
+      wp_rec.
+      wp_apply (ivar_1_try_get_spec with "Hinv") as ([v |]) "H".
+      all: wp_pures.
+      2: iSteps.
+      iDestruct "H" as "(H£ & Hresult)".
+      iStepFrameSteps.
+    Qed.
+    Lemma ivar_1_is_unset_spec_result t γ Ψ Ξ v :
+      {{{
+        ivar_1_inv t γ Ψ Ξ ∗
+        ivar_1_result γ v
+      }}}
+        ivar_1_is_unset #t
+      {{{
+        RET #false;
+        £ 2
+      }}}.
+    Proof.
+      iIntros "%Φ (#Hinv & #Hresult) HΦ".
+
+      wp_rec.
+      wp_apply (ivar_1_try_get_spec_result with "[$Hinv $Hresult]").
+      iSteps.
+    Qed.
+
     Lemma ivar_1_is_set_spec t γ Ψ Ξ :
       {{{
         ivar_1_inv t γ Ψ Ξ
@@ -498,11 +539,8 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec.
-      wp_apply (ivar_1_try_get_spec with "Hinv") as ([v |]) "H".
-      all: wp_pures.
-      2: iSteps.
-      iDestruct "H" as "(H£ & Hresult)".
-      iApply "HΦ". iStepFrameSteps.
+      wp_apply (ivar_1_is_unset_spec with "[$]") as (b) "Hb".
+      destruct b; iStepFrameSteps 5.
     Qed.
     Lemma ivar_1_is_set_spec_result t γ Ψ Ξ v :
       {{{
@@ -518,7 +556,7 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresult) HΦ".
 
       wp_rec.
-      wp_apply (ivar_1_try_get_spec_result with "[$Hinv $Hresult]").
+      wp_apply (ivar_1_is_unset_spec_result with "[$]").
       iSteps.
     Qed.
 
@@ -878,6 +916,42 @@ Section ivar_1_G.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp_apply (base.ivar_1_try_get_spec_result with "[$] HΦ").
+  Qed.
+
+  Lemma ivar_1_is_unset_spec t Ψ Ξ :
+    {{{
+      ivar_1_inv t Ψ Ξ
+    }}}
+      ivar_1_is_unset t
+    {{{ b,
+      RET #b;
+      if b then
+        True
+      else
+        £ 2 ∗
+        ivar_1_resolved t
+    }}}.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_apply (base.ivar_1_is_unset_spec with "[$]") as (b) "Hb".
+    rewrite /ivar_1_resolved. destruct b; iSteps.
+  Qed.
+  Lemma ivar_1_is_unset_spec_result t Ψ Ξ v :
+    {{{
+      ivar_1_inv t Ψ Ξ ∗
+      ivar_1_result t v
+    }}}
+      ivar_1_is_unset t
+    {{{
+      RET #false;
+      £ 2
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+
+    wp_apply (base.ivar_1_is_unset_spec_result with "[$] HΦ").
   Qed.
 
   Lemma ivar_1_is_set_spec t Ψ Ξ :

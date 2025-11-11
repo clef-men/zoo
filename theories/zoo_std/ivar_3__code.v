@@ -16,14 +16,18 @@ Definition ivar_3_make : val :=
   fun: "v" =>
     ref ‘Set( "v" ).
 
-Definition ivar_3_is_set : val :=
+Definition ivar_3_is_unset : val :=
   fun: "t" =>
     match: !"t" with
     | Unset <> =>
-        #false
-    | Set <> =>
         #true
+    | Set <> =>
+        #false
     end.
+
+Definition ivar_3_is_set : val :=
+  fun: "t" =>
+    ~ ivar_3_is_unset "t".
 
 Definition ivar_3_try_get : val :=
   fun: "t" =>

@@ -11,12 +11,14 @@ let create () =
 let make v =
   Atomic.make (Set v)
 
-let is_set t =
+let is_unset t =
   match Atomic.get t with
   | Unset _ ->
-      false
-  | Set _ ->
       true
+  | Set _ ->
+      false
+let is_set t =
+  not @@ is_unset t
 
 let try_get t =
   match Atomic.get t with

@@ -23,9 +23,13 @@ Definition ivar_2_try_get : val :=
   fun: "t" =>
     "t".{result}.
 
+Definition ivar_2_is_unset : val :=
+  fun: "t" =>
+    ivar_2_try_get "t" == §None.
+
 Definition ivar_2_is_set : val :=
   fun: "t" =>
-    ivar_2_try_get "t" != §None.
+    ~ ivar_2_is_unset "t".
 
 Definition ivar_2_get : val :=
   fun: "t" =>

@@ -6,6 +6,8 @@ val create :
 val make :
   'a -> 'a t
 
+val is_unset :
+  'a t -> bool
 val is_set :
   'a t -> bool
 
