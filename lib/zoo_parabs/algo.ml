@@ -57,9 +57,9 @@ let fold ctx beg end_ chunk body op zero =
   fold ctx beg end_ chunk body op zero
 
 let rec find_seq ctx beg end_ pred found =
-  if beg != end_ && Atomic.get found == None then (
+  if beg != end_ && Mvar.is_unset found then (
     if pred ctx beg then
-      Atomic.set found (Some beg)
+      Mvar.set found beg
     else
       let beg = beg + 1 in
       find_seq ctx beg end_ pred found
@@ -68,7 +68,7 @@ let rec find ctx beg end_ chunk pred found =
   let num_task = end_ - beg in
   if num_task <= chunk then
     find_seq ctx beg (beg + num_task) pred found
-  else if Atomic.get found == None then
+  else if Mvar.is_unset found then
     let mid = beg + num_task / 2 in
     let left =
       Future.async ctx @@ fun ctx ->
@@ -78,6 +78,6 @@ let rec find ctx beg end_ chunk pred found =
     Future.wait ctx left
 let find ctx beg end_ chunk pred =
   let chunk = adjust_chunk ctx beg end_ chunk in
-  let found = Atomic.make None in
+  let found = Mvar.create () in
   find ctx beg end_ chunk pred found ;
-  Atomic.get found
+  Mvar.try_get found

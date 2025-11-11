@@ -4,6 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
+  mvar
   int.
 From zoo_parabs Require Import
   future
@@ -89,9 +90,9 @@ Definition algo_fold : val :=
 
 Definition algo_find_seq : val :=
   rec: "find_seq" "ctx" "beg" "end_" "pred" "found" =>
-    if: "beg" != "end_" and !"found" == §None then (
+    if: "beg" != "end_" and mvar_is_unset "found" then (
       if: "pred" "ctx" "beg" then (
-        "found" <- ‘Some( "beg" )
+        mvar_set "found" "beg"
       ) else (
         let: "beg" := "beg" + #1 in
         "find_seq" "ctx" "beg" "end_" "pred" "found"
@@ -103,7 +104,7 @@ Definition algo_find_0 : val :=
     let: "num_task" := "end_" - "beg" in
     if: "num_task" ≤ "chunk" then (
       algo_find_seq "ctx" "beg" ("beg" + "num_task") "pred" "found"
-    ) else if: !"found" == §None then (
+    ) else if: mvar_is_unset "found" then (
       let: "mid" := "beg" + "num_task" `quot` #2 in
       let: "left" :=
         future_async "ctx"
@@ -116,6 +117,6 @@ Definition algo_find_0 : val :=
 Definition algo_find : val :=
   fun: "ctx" "beg" "end_" "chunk" "pred" =>
     let: "chunk" := algo_adjust_chunk "ctx" "beg" "end_" "chunk" in
-    let: "found" := ref §None in
+    let: "found" := mvar_create () in
     algo_find_0 "ctx" "beg" "end_" "chunk" "pred" "found" ;;
-    !"found".
+    mvar_try_get "found".
