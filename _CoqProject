@@ -279,6 +279,10 @@ theories/zoo_std/ivar_3__types.v
 theories/zoo_std/ivar_3__code.v
 theories/zoo_std/ivar_3__opaque.v
 theories/zoo_std/ivar_3.v
+theories/zoo_std/mvar__types.v
+theories/zoo_std/mvar__code.v
+theories/zoo_std/mvar__opaque.v
+theories/zoo_std/mvar.v
 theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random__opaque.v
