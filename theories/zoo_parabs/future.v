@@ -79,7 +79,7 @@ Section future_G.
   #[local] Definition receipt_2 pool t :=
     pool_obligation pool (receipt_1 t).
 
-  #[local] Fixpoint future_inv pool t depth Ψ Ξ : iProp Σ :=
+  Fixpoint future_inv pool t depth Ψ Ξ : iProp Σ :=
     ivar_3_inv t Ψ Ξ (waiter_model pool) ∗
     ( receipt_1 t
     ∨ receipt_2 pool t
@@ -150,7 +150,7 @@ Section future_G.
     ∃ v,
     future_result t v.
 
-  #[local] Instance future_inv_proper pool t depth :
+  #[global] Instance future_inv_proper pool t depth :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
