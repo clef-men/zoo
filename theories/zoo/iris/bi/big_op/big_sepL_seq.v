@@ -266,5 +266,15 @@ Section bi.
       iIntros "!>" (k k1 k2 (-> & _)%lookup_seq (-> & _)%lookup_seqZ) "HΦ".
       rewrite -Nat2Z.inj_add Nat2Z.id //.
     Qed.
+    Lemma big_sepL_seq_to_seqZ' `{!BiAffine PROP} Φ i n :
+      (0 ≤ i)%Z →
+      (0 ≤ n)%Z →
+      ([∗ list] k ∈ seq ₊i ₊n, Φ k) ⊢
+      [∗ list] k ∈ seqZ i n, Φ ₊k.
+    Proof.
+      intros.
+      rewrite big_sepL_seq_to_seqZ.
+      setoid_rewrite Z2Nat.id => //.
+    Qed.
   End big_sepL_seq.
 End bi.
