@@ -140,11 +140,13 @@ module Domainslib = Make(struct
     Task.await
 end)
 
-module Moonpool_fifo = Make(struct
+module Moonpool_fifo_base = struct
   open Moonpool
 
   type t =
-    Fifo_pool.t
+    { size: int;
+      pool: Fifo_pool.t;
+    }
 
   type context =
     t
@@ -155,32 +157,37 @@ module Moonpool_fifo = Make(struct
   let create ~num_domain () =
     (* ask for one more domain on Moonpool, see
        https://github.com/c-cube/moonpool/issues/41 *)
-    Fifo_pool.create ~num_threads:(num_domain + 1) ()
+    let pool = Fifo_pool.create ~num_threads:(num_domain + 1) () in
+    { size= num_domain; pool }
 
-  let size _t =
-    Moonpool.Private.num_domains ()
+  let size t =
+    t.size
 
   let run t task =
-    Fifo_pool.run_wait_block t (fun () -> task t)
+    Fifo_pool.run_wait_block t.pool (fun () -> task t)
 
-  let kill =
-    Fifo_pool.shutdown
+  let kill t =
+    Fifo_pool.shutdown t.pool
 
   type 'a future =
     'a Fut.t
 
   let async t task =
-    Fut.spawn ~on:t (fun () -> task t)
+    Fut.spawn ~on:t.pool (fun () -> task t)
 
   let wait _t fut =
     Fut.await fut
-end)
+end
+module Moonpool_fifo =
+  Make(Moonpool_fifo_base)
 
-module Moonpool_ws = Make(struct
+module Moonpool_ws_base = struct
   open Moonpool
 
   type t =
-    Ws_pool.t
+    { size: int;
+      pool: Ws_pool.t;
+    }
 
   type context =
     t
@@ -191,26 +198,29 @@ module Moonpool_ws = Make(struct
   let create ~num_domain () =
     (* ask for one more domain on Moonpool, see
        https://github.com/c-cube/moonpool/issues/41 *)
-    Ws_pool.create ~num_threads:(num_domain + 1) ()
+    let pool = Ws_pool.create ~num_threads:(num_domain + 1) () in
+    { size= num_domain; pool }
 
-  let size _t =
-    Moonpool.Private.num_domains ()
+  let size t =
+    t.size
 
   let run t task =
-    Ws_pool.run_wait_block t (fun () -> task t)
+    Ws_pool.run_wait_block t.pool (fun () -> task t)
 
-  let kill =
-    Ws_pool.shutdown
+  let kill t =
+    Ws_pool.shutdown t.pool
 
   type 'a future =
     'a Fut.t
 
   let async t task =
-    Fut.spawn ~on:t (fun () -> task t)
+    Fut.spawn ~on:t.pool (fun () -> task t)
 
   let wait _t fut =
     Fut.await fut
-end)
+end
+module Moonpool_ws =
+  Make(Moonpool_ws_base)
 
 let impl_of_string s : (module S) =
   match s with
