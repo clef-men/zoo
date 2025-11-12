@@ -24,7 +24,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v pool ctx task pred found : val.
+Implicit Types v pool ctx task pred found body op zero acc : val.
 Implicit Types o : option val.
 
 Class AlgoG Σ `{pool_G : PoolG Σ} := {
@@ -71,7 +71,7 @@ Section algo_G.
     - iSteps.
   Qed.
 
-  #[local] Lemma algo_for_0_spec (Ψ : Z → iProp Σ) (Χ : Z → nat → iProp Σ) pool ctx scope beg0 beg end_ end0 (chunk : Z) task :
+  #[local] Lemma algo_for_0_spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) task :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -141,10 +141,11 @@ Section algo_G.
 
       iApply wp_fupd.
       wp_smart_apply (future_wait_spec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
-
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & HΨ_1) & _)".
+
       iDestruct (big_sepL_seqZ_app_2 with "HΨ_1 HΨ_2") as "HΨ"; [naive_solver lia.. |].
       iEval (replace (mid - beg + (end_ - mid))%Z with (end_ - beg)%Z by lia) in "HΨ".
+
       iSteps.
   Qed.
   Lemma algo_for_spec (Ψ : Z → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
@@ -511,9 +512,384 @@ Section algo_G.
     }
   Qed.
 
+  #[local] Lemma algo_fold_seq_spec {Ψ Χ pool ctx scope beg0} beg1 (n : nat) beg end_ end0 body op acc :
+    beg = (beg1 + n)%Z →
+    (beg0 ≤ beg1 ≤ beg ≤ end_ ≤ end0)%Z →
+    {{{
+      pool_context pool ctx scope ∗
+      ( [∗ list] (i : Z) ∈ seqZ beg (end_ - beg),
+        ∀ ctx scope,
+        pool_context pool ctx scope -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i (n : nat) acc v,
+        ⌜beg0 ≤ i⌝%Z -∗
+        ⌜i + n ≤ end0⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n)%Z v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      Χ beg1 n acc
+    }}}
+      algo_fold_seq ctx #beg #end_ body op acc
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ beg1 ₊(n + end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Heq %Hrange %Φ (Hctx & Hbody & #Hop & HΧ) HΦ".
+
+    iLöb as "HLöb" forall (n beg acc Φ Heq Hrange).
+    subst beg.
+
+    wp_rec. wp_pures.
+    case_bool_decide; wp_pures.
+
+    - subst end_.
+      iEval (rewrite Z.add_simpl_r Nat2Z.id) in "HΦ".
+      iSteps.
+
+    - iDestruct (big_sepL_seqZ_cons_1 with "Hbody") as "(H & Hbody)"; first lia.
+      wp_apply (wp_wand with "(H Hctx)") as (v) "(Hctx & HΨ)".
+
+      wp_smart_apply (wp_wand with "(Hop [%] [%] HΧ HΨ)") as (acc1) "HΧ"; [lia.. |].
+
+      wp_smart_apply ("HLöb" $! (S n) with "[%] [%] [$] [Hbody] HΧ") as (acc2) "HΧ"; [lia.. | |].
+      { iEval (replace (beg1 + n + 1)%Z with (Z.succ (beg1 + n)) by lia).
+        iEval (replace (end_ - Z.succ (beg1 + n))%Z with (Z.pred (end_ - (beg1 + n))) by lia).
+        iFrame.
+      }
+
+      iEval (replace (S n + end_ - _)%Z with (n + end_ - (beg1 + n))%Z by lia) in "HΧ".
+      iSteps.
+  Qed.
+  #[local] Lemma algo_fold_0_spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) body op zero :
+    (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
+    {{{
+      pool_context pool ctx scope ∗
+      ( [∗ list] (i : Z) ∈ seqZ beg (end_ - beg),
+        ∀ ctx scope,
+        pool_context pool ctx scope -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i,
+        ⌜beg0 ≤ i ≤ end0⌝%Z -∗
+        Χ i 0 zero
+      ) ∗
+      □ (
+        ∀ i (n : nat) acc v,
+        ⌜beg0 ≤ i⌝%Z -∗
+        ⌜i + n ≤ end0⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n)%Z v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      □ (
+        ∀ i (n1 n2 : nat) acc1 acc2,
+        ⌜beg0 ≤ i⌝%Z -∗
+        ⌜i + n1 + n2 ≤ end0⌝%Z -∗
+        Χ i n1 acc1 -∗
+        Χ (i + n1)%Z n2 acc2 -∗
+        WP op acc1 acc2 {{ acc,
+          ▷ Χ i (n1 + n2) acc
+        }}
+      )
+    }}}
+      algo_fold_0 ctx #beg #end_ #chunk body op zero
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ beg ₊(end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Hrange %Φ (Hctx & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
+
+    iLöb as "HLöb" forall (ctx scope beg end_ Φ Hrange).
+
+    wp_rec credit: "H£_1". wp_pures.
+    case_bool_decide; wp_pures.
+
+    - iEval (replace (beg + (end_ - beg))%Z with end_ by lia).
+      wp_apply (algo_fold_seq_spec beg 0 with "[$Hctx $Hbody $Hop_succ]"); [lia.. | iSteps |].
+      iSteps.
+
+    - pose mid : Z := beg + (end_ - beg) `quot` 2.
+      iEval (replace (end_ - beg)%Z with ((mid - beg) + (end_ - mid))%Z by lia) in "Hbody".
+      iDestruct (big_sepL_seqZ_app with "Hbody") as "(Hbody_1 & Hbody_2)"; [naive_solver lia.. |].
+      iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hbody_2".
+
+      wp_smart_apply (future_async_spec
+        (Χ beg ₊(mid - beg))
+        (λ _, True)%I
+        with "[$Hctx Hbody_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
+      { clear ctx scope. iIntros "%ctx %scope Hctx".
+        wp_smart_apply ("HLöb" with "[%] [$] Hbody_1"); first naive_solver lia.
+        iSteps.
+      }
+
+      wp_smart_apply ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive_solver lia.
+
+      wp_smart_apply (future_wait_spec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
+      iMod (future_inv_result_consumer' with "H£_2 Hfut_inv Hfut_result Hfut_consumer") as "(HΧ_1 & _)".
+
+      iEval (replace mid with (beg + ₊(mid - beg))%Z by naive_solver lia) in "HΧ_2".
+      iApply wp_fupd.
+      wp_smart_apply (wp_wand with "(Hop_app [%] [%] HΧ_1 HΧ_2)") as (acc) "HΧ"; [naive_solver lia.. |].
+      iMod (lc_fupd_elim_later with "H£_1 HΧ") as "HΧ".
+      iEval (replace _ with ₊(end_ - beg) by naive_solver lia) in "HΧ".
+
+      iSteps.
+  Qed.
+  Lemma algo_fold_spec' (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+    (beg ≤ end_)%Z →
+    {{{
+      pool_inv pool sz ∗
+      pool_context pool ctx scope ∗
+      itype_option itype_int chunk ∗
+      ( [∗ list] (i : Z) ∈ seqZ beg (end_ - beg),
+        ∀ ctx scope,
+        pool_context pool ctx scope -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i,
+        ⌜beg ≤ i ≤ end_⌝%Z -∗
+        Χ i 0 zero
+      ) ∗
+      □ (
+        ∀ i (n : nat) acc v,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n ≤ end_⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n)%Z v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      □ (
+        ∀ i (n1 n2 : nat) acc1 acc2,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n1 + n2 ≤ end_⌝%Z -∗
+        Χ i n1 acc1 -∗
+        Χ (i + n1)%Z n2 acc2 -∗
+        WP op acc1 acc2 {{ acc,
+          ▷ Χ i (n1 + n2) acc
+        }}
+      )
+    }}}
+      algo_fold ctx #beg #end_ chunk body op zero
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ beg ₊(end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
+
+    wp_rec.
+    wp_smart_apply (algo_adjust_chunk_spec with "[$]"). clear chunk. iIntros "%chunk Hctx".
+    wp_smart_apply (algo_fold_0_spec Ψ Χ with "[$]"); first done.
+    iSteps.
+  Qed.
+  Lemma algo_fold_spec_nat' (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+    (0 ≤ beg ≤ end_)%Z →
+    {{{
+      pool_inv pool sz ∗
+      pool_context pool ctx scope ∗
+      itype_option itype_int chunk ∗
+      ( [∗ list] (i : nat) ∈ seq ₊beg ₊(end_ - beg),
+        ∀ ctx scope,
+        pool_context pool ctx scope -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i : nat,
+        ⌜beg ≤ i ≤ end_⌝%Z -∗
+        Χ i 0 zero
+      ) ∗
+      □ (
+        ∀ (i n : nat) acc v,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n ≤ end_⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n) v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      □ (
+        ∀ (i n1 n2 : nat) acc1 acc2,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n1 + n2 ≤ end_⌝%Z -∗
+        Χ i n1 acc1 -∗
+        Χ (i + n1) n2 acc2 -∗
+        WP op acc1 acc2 {{ acc,
+          ▷ Χ i (n1 + n2) acc
+        }}
+      )
+    }}}
+      algo_fold ctx #beg #end_ chunk body op zero
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ ₊beg ₊(end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
+
+    wp_apply (algo_fold_spec'
+      (λ i, Ψ ₊i)
+      (λ i, Χ ₊i)
+    with "[$Hpool_inv $Hctx $Hchunk Hbody] HΦ"); first lia.
+    { iSplitL "Hbody"; last repeat iSplit.
+      - iDestruct (big_sepL_seq_to_seqZ' with "Hbody") as "Hbody"; [lia.. |].
+        iApply (big_sepL_seqZ_impl with "Hbody"). iIntros "!> %k % Hbody".
+        iEval (rewrite Z2Nat.id; try lia) in "Hbody".
+        iSteps.
+      - iSteps.
+      - iIntros "!> %i %n %acc %v % % HΧ HΨ".
+        wp_apply ("Hop_succ" with "[%] [%] HΧ [HΨ]"); [lia.. |].
+        iEval (replace (₊i + n) with ₊(i + n) by lia).
+        iFrame.
+      - iIntros "!> %i %n1 %n2 %acc1 %acc2 % % HΧ_1 HΧ_2".
+        wp_apply ("Hop_app" with "[%] [%] HΧ_1 [HΧ_2]"); [lia.. |].
+        iEval (replace (₊i + n1) with ₊(i + n1) by lia).
+        iFrame.
+    }
+  Qed.
+  Lemma algo_fold_spec (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+    (beg ≤ end_)%Z →
+    {{{
+      pool_inv pool sz ∗
+      pool_context pool ctx scope ∗
+      itype_option itype_int chunk ∗
+      □ (
+        ∀ ctx scope i,
+        pool_context pool ctx scope -∗
+        ⌜beg ≤ i < end_⌝%Z -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i,
+        ⌜beg ≤ i ≤ end_⌝%Z -∗
+        Χ i 0 zero
+      ) ∗
+      □ (
+        ∀ i (n : nat) acc v,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n ≤ end_⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n)%Z v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      □ (
+        ∀ i (n1 n2 : nat) acc1 acc2,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n1 + n2 ≤ end_⌝%Z -∗
+        Χ i n1 acc1 -∗
+        Χ (i + n1)%Z n2 acc2 -∗
+        WP op acc1 acc2 {{ acc,
+          ▷ Χ i (n1 + n2) acc
+        }}
+      )
+    }}}
+      algo_fold ctx #beg #end_ chunk body op zero
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ beg ₊(end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & #Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
+
+    wp_apply (algo_fold_spec' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
+    { iApply big_sepL_seqZ_intro.
+      iSteps.
+    }
+  Qed.
+  Lemma algo_fold_spec_nat (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+    (0 ≤ beg ≤ end_)%Z →
+    {{{
+      pool_inv pool sz ∗
+      pool_context pool ctx scope ∗
+      itype_option itype_int chunk ∗
+      □ (
+        ∀ ctx scope (i : nat),
+        pool_context pool ctx scope -∗
+        ⌜beg ≤ i < end_⌝%Z -∗
+        WP body ctx #i {{ v,
+          pool_context pool ctx scope ∗
+          ▷ Ψ i v
+        }}
+      ) ∗
+      □ (
+        ∀ i : nat,
+        ⌜beg ≤ i ≤ end_⌝%Z -∗
+        Χ i 0 zero
+      ) ∗
+      □ (
+        ∀ (i n : nat) acc v,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n ≤ end_⌝%Z -∗
+        Χ i n acc -∗
+        Ψ (i + n) v -∗
+        WP op acc v {{ acc,
+          ▷ Χ i (S n) acc
+        }}
+      ) ∗
+      □ (
+        ∀ (i n1 n2 : nat) acc1 acc2,
+        ⌜beg ≤ i⌝%Z -∗
+        ⌜i + n1 + n2 ≤ end_⌝%Z -∗
+        Χ i n1 acc1 -∗
+        Χ (i + n1) n2 acc2 -∗
+        WP op acc1 acc2 {{ acc,
+          ▷ Χ i (n1 + n2) acc
+        }}
+      )
+    }}}
+      algo_fold ctx #beg #end_ chunk body op zero
+    {{{ acc,
+      RET acc;
+      pool_context pool ctx scope ∗
+      Χ ₊beg ₊(end_ - beg) acc
+    }}}.
+  Proof.
+    iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & #Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
+
+    wp_apply (algo_fold_spec_nat' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
+    { iApply big_sepL_seq_intro.
+      iSteps.
+    }
+  Qed.
+
   #[local] Definition find_token γ q :=
     ghost_var γ (DfracOwn q) ().
-  #[local] Definition find_inv γ (Ψ : Z → iProp Σ) beg end_ v : iProp Σ :=
+  #[local] Definition find_inv γ Ψ beg end_ v : iProp Σ :=
     ∃ (i : Z) q,
     ⌜v = #i⌝ ∗
     ⌜beg ≤ i < end_⌝%Z ∗
@@ -528,7 +904,7 @@ Section algo_G.
         HΨ
       )
     ".
-  #[local] Lemma algo_find_seq_spec pool ctx scope beg0 beg end_ end0 pred Ψ (Χ : Z → iProp Σ) found γ q :
+  #[local] Lemma algo_find_seq_spec pool ctx scope beg0 beg end_ end0 pred Ψ Χ found γ q :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -594,7 +970,7 @@ Section algo_G.
           iEval (replace (Z.succ (end_ - (beg + 1))) with (end_ - beg)%Z by lia) in "HΧ".
           iSteps.
   Qed.
-  #[local] Lemma algo_find_0_spec pool ctx scope beg0 beg end_ end0 (chunk : Z) pred Ψ (Χ : Z → iProp Σ) found γ q :
+  #[local] Lemma algo_find_0_spec pool ctx scope beg0 beg end_ end0 (chunk : Z) pred Ψ Χ found γ q :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -664,8 +1040,8 @@ Section algo_G.
 
       iApply wp_fupd.
       wp_smart_apply (future_wait_spec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
-
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & [#Hfound_resolved | (Htoken_1 & HΧ_1)]) & _)"; first iSteps.
+
       iDestruct "H" as "[#Hfound_resolved | (Htoken_2 & HΧ_2)]"; first iSteps.
 
       iCombine "Htoken_1 Htoken_2" as "Htoken".

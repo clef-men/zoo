@@ -62,7 +62,8 @@ Definition algo_fold_seq : val :=
     if: "beg" == "end_" then (
       "acc"
     ) else (
-      let: "acc" := "op" "acc" ("body" "ctx" "beg") in
+      let: "v" := "body" "ctx" "beg" in
+      let: "acc" := "op" "acc" "v" in
       let: "beg" := "beg" + #1 in
       "fold_seq" "ctx" "beg" "end_" "body" "op" "acc"
     ).
