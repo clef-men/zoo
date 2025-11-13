@@ -21,7 +21,7 @@ Definition vertex_create : val :=
       | Some "task" =>
           "task"
       | None =>
-          fun: <> => #false
+          fun: <> => ()
       end
     in
     { "task", #1, mpmc_stack_2_create () }.
@@ -33,11 +33,6 @@ Definition vertex_task : val :=
 Definition vertex_set_task : val :=
   fun: "t" "task" =>
     "t" <-{task} "task".
-
-Definition vertex_set_task' : val :=
-  fun: "t" "task" =>
-    vertex_set_task "t" (fun: "ctx" => "task" "ctx" ;;
-                                       #false).
 
 Definition vertex_precede : val :=
   fun: "t1" "t2" =>
@@ -59,12 +54,9 @@ Definition vertex_precede : val :=
     pool_async "ctx"
       (fun: "ctx" =>
          "t" <-{preds} #1 ;;
-         if: "t".{task} "ctx" then (
-           "release" "ctx" "t"
-         ) else (
-           let: "succs" := mpmc_stack_2_close "t".{succs} in
-           clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
-         ))
+         "t".{task} "ctx" ;;
+         let: "succs" := mpmc_stack_2_close "t".{succs} in
+         clst_iter (fun: "succ" => "release" "ctx" "succ") "succs")
 )%zoo_recs.
 Definition vertex_release :=
   ValRecs 0 __zoo_recs_0.
@@ -86,3 +78,8 @@ Qed.
 Proof.
   done.
 Qed.
+
+Definition vertex_yield : val :=
+  fun: "ctx" "t" "task" =>
+    vertex_set_task "t" "task" ;;
+    vertex_release "ctx" "t".

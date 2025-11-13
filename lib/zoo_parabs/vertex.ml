@@ -3,10 +3,13 @@
 *)
 
 type t =
-  { mutable task: bool Pool.task;
+  { mutable task: unit Pool.task;
     mutable preds: int [@atomic];
     succs: t Mpmc_stack_2.t;
   }
+
+type task =
+  unit Pool.task
 
 let create task =
   let task =
@@ -14,7 +17,7 @@ let create task =
     | Some task ->
         task
     | None ->
-        fun _ -> false
+        fun _ -> ()
   in
   { task;
     preds= 1;
@@ -23,12 +26,9 @@ let create task =
 
 let task t =
   t.task
+
 let set_task t task =
   t.task <- task
-let set_task' t task =
-  set_task t @@ fun ctx ->
-    task ctx ;
-    false
 
 let precede t1 t2 =
   let succs1 = t1.succs in
@@ -44,8 +44,10 @@ let rec release ctx t =
 and run ctx t =
   Pool.async ctx @@ fun ctx ->
     t.preds <- 1 ;
-    if t.task ctx then
-      release ctx t
-    else
-      let succs = Mpmc_stack_2.close t.succs in
-      Clst.iter (fun succ -> release ctx succ) succs
+    t.task ctx ;
+    let succs = Mpmc_stack_2.close t.succs in
+    Clst.iter (fun succ -> release ctx succ) succs
+
+let yield ctx t task =
+  set_task t task ;
+  release ctx t
