@@ -494,36 +494,3 @@ theories/zoo_eio/rcfd__opaque.v
 theories/zoo_eio/rcfd.v
 
 #END zoo-eio
-
-#BEGIN zoo-boxroot
--Q theories/zoo_boxroot zoo_boxroot
-
-theories/zoo_boxroot/base.v
-theories/zoo_boxroot/gc.v
-theories/zoo_boxroot/boxroot.v
-
-#END zoo-boxroot
-
-#BEGIN zoo-kcas
--Q theories/zoo_kcas zoo_kcas
-
-theories/zoo_kcas/kcas_1__types.v
-theories/zoo_kcas/kcas_1__code.v
-theories/zoo_kcas/kcas_1__opaque.v
-theories/zoo_kcas/kcas_1.v
-theories/zoo_kcas/kcas_2__types.v
-theories/zoo_kcas/kcas_2__code.v
-theories/zoo_kcas/kcas_2__opaque.v
-theories/zoo_kcas/kcas_2.v
-
-#END zoo-kcas
-
-#BEGIN zoo-partitition
--Q theories/zoo_partition zoo_partition
-
-theories/zoo_partition/partition__types.v
-theories/zoo_partition/partition__code.v
-theories/zoo_partition/partition__opaque.v
-theories/zoo_partition/partition.v
-
-#END zoo-partition

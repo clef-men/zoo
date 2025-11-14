@@ -66,23 +66,6 @@
 )
 
 (package
-  (name zoo_kcas)
-  (synopsis "Kcas")
-  (depends
-    zoo
-    zoo_std
-  )
-)
-
-(package
-  (name zoo_partition)
-  (synopsis "Partition")
-  (depends
-    zoo_std
-  )
-)
-
-(package
   (name coq-zoo)
   (synopsis "Zoo")
   (allow_empty)
