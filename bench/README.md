@@ -138,7 +138,7 @@ done
 
 ## Benchmark setting
 
-Those benchmark results were produced on Gabriel's 12-cores AMD Ryzen
+Those benchmark results were produced on a 12-cores AMD Ryzen
 5 7640U machine, set at a fixed frequency of 2GHz.
 
 The benchmarks were *not* run in an isolated environment, so at least
