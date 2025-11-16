@@ -52,16 +52,22 @@ Then, install dependencies including [`ocaml2zoo`](https://github.com/clef-men/o
 
 ```
 opam pin add ocaml2zoo git+https://github.com/clef-men/ocaml2zoo#main --yes
-opam install . --deps-only --yes
+opam install . --with-dev-setup --deps-only --yes
 ```
 
-To compile OCaml libraries (see `lib/`), run:
+To compile OCaml libraries (see [`lib/`](lib/)), run:
 
 ```
 make lib
 ```
 
-To translate OCaml libraries into [Zoo](https://github.com/clef-men/zoo) (Coq files are generated in `theories/`), run:
+To compile benchmarks, run:
+
+```
+make bench
+```
+
+To translate OCaml libraries into [Zoo](https://github.com/clef-men/zoo) (Coq files are generated in [`theories/`](theories/)), run:
 
 ```
 make ocaml2zoo
@@ -106,7 +112,7 @@ To compile benchmarks, you also need to install benchmark-only dependencies with
 opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') --with-dev-setup --deps-only --yes
 ```
 
-To compile OCaml libraries (see `lib/`), run:
+To compile OCaml libraries (see [`lib/`](lib/)), run:
 
 ```
 make lib
