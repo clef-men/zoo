@@ -133,9 +133,9 @@ Section relation.
     R a b.
   Proof.
     split.
-    - intros (c & ->%elem_of_list_singleton & ?). done.
+    - intros (c & ->%list_elem_of_singleton & ?). done.
     - intros Hab. exists b.
-      split; first apply elem_of_list_singleton; done.
+      split; first apply list_elem_of_singleton; done.
   Qed.
 
   Lemma mono_principal_R_opN_base `{!Transitive R} n x y :
@@ -154,7 +154,7 @@ Section relation.
   Proof.
     intros.
     apply mono_principal_R_opN_base => c.
-    setoid_rewrite elem_of_list_singleton. naive_solver.
+    setoid_rewrite list_elem_of_singleton. naive_solver.
   Qed.
   Lemma mono_principal_R_op `{!Transitive R} a b :
     R a b →
@@ -170,7 +170,7 @@ Section relation.
     R a b.
   Proof.
     intros Ha HR.
-    destruct (HR a) as [[z [HR1%elem_of_list_singleton HR2]] _].
+    destruct (HR a) as [[z [HR1%list_elem_of_singleton HR2]] _].
     - rewrite below_app below_principal. auto.
     - naive_solver.
   Qed.
@@ -215,12 +215,12 @@ Section relation.
     intros Hana Hanb.
     apply local_update_unital_discrete => z _ Habz.
     split; first done. intros w. split.
-    - intros (y & ->%elem_of_list_singleton & Hy2).
+    - intros (y & ->%list_elem_of_singleton & Hy2).
       exists b. split; [constructor | done].
     - intros (y & [-> | Hy1]%elem_of_cons & Hy2).
       + exists b. split; [constructor | done].
       + exists b. split; first constructor.
-        specialize (Habz w) as [_ [c [->%elem_of_list_singleton Hc2]]].
+        specialize (Habz w) as [_ [c [->%list_elem_of_singleton Hc2]]].
         { exists y. split; last done.
           apply elem_of_app. naive_solver.
         }
@@ -271,8 +271,8 @@ Section ofe_relation.
     R a b.
   Proof.
     intros Hab ?.
-    destruct (Hab a) as [[? [?%elem_of_list_singleton ?]] _].
-    - exists a. rewrite elem_of_list_singleton //.
+    destruct (Hab a) as [[? [?%list_elem_of_singleton ?]] _].
+    - exists a. rewrite list_elem_of_singleton //.
     - naive_solver.
   Qed.
   Lemma mono_principal_inj_general a b :

@@ -199,7 +199,7 @@ Section semaphore_G.
     iAssert ⌜ηs ⊆ γ.(metadata_tokens)⌝%I as %(i1 & i2 & η & ? & Htokens_lookup_1 & Htokens_lookup_2)%list_pigeonhole; last lia.
     { iIntros (η Hηs_elem).
       iDestruct (big_sepL2_elem_of_r' with "Htokens_frags") as "(%i & %His_elem & %Htokens_lookup & _)"; first done.
-      rewrite elem_of_list_lookup. iSteps.
+      rewrite list_elem_of_lookup. iSteps.
     }
     iDestruct (big_sepL2_delete'_r i1 with "Htokens_frags") as "(%j1 & _ & (_ & Hexcl_1) & Htokens_frags)"; first done.
     iDestruct (big_sepL2_delete'_r i2 with "Htokens_frags") as "(%j2 & _ & H & Htokens_frags)"; first done.

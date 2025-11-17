@@ -297,7 +297,7 @@ Section ws_hub_fifo_G.
     iMod (ghost_list_update_at Nonempty with "Hauth Hat") as "($ & $)".
     iPureIntro. split.
     - simpl_length.
-    - right. exists i. apply list_lookup_insert. done.
+    - right. exists i. apply list_lookup_insert_eq. done.
   Qed.
   #[local] Lemma emptiness_update_Empty γ i empty :
     emptiness_auth γ ∅ -∗

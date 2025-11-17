@@ -247,7 +247,7 @@ Section parray_2_G.
 
     iApply "HΦ".
     iModIntro. iFrame "#∗".
-    rewrite length_replicate delete_singleton big_sepM_empty.
+    rewrite length_replicate delete_singleton_eq big_sepM_empty.
     rewrite big_sepL.big_sepL_replicate -big_sepL_intro.
     auto 10.
   Qed.
@@ -322,9 +322,9 @@ Section parray_2_G.
       iDestruct (big_sepM_delete_2 with "Hnodes [Hroot]") as "Hnodes"; first done.
       { iExists ₊i, w, root', vs'. iSteps; iPureIntro.
         - rewrite Z2Nat.id //. lia.
-        - rewrite list_insert_insert list_insert_id //.
+        - rewrite list_insert_insert_eq list_insert_id //.
       }
-      rewrite -{2}(delete_insert nodes root' vs') //.
+      rewrite -{2}(delete_insert_id nodes root' vs') //.
       iFrame "#∗". iSteps. iPureIntro.
       rewrite /vs'. simpl_length.
   Qed.
@@ -408,7 +408,7 @@ Section parray_2_G.
       iDestruct (big_sepM_delete_2 with "Hnodes [$Hnode1]") as "Hnodes"; first done.
       { iDestruct (big_sepL_lookup with "Hvs_node1") as "$"; first done.
         iSteps. iPureIntro.
-        rewrite Hvs_node list_insert_insert list_insert_id //.
+        rewrite Hvs_node list_insert_insert_eq list_insert_id //.
       }
       iClear "Hv_node". clear dependent i_node v_node.
       iDestruct (big_sepM_delete_1 node with "Hnodes") as "((:node_model =2) & Hnodes)"; first done.

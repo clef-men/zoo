@@ -277,7 +277,7 @@ Section basic.
     rewrite insert_app_r_alt // Nat.sub_diag //.
   Qed.
 
-  Lemma list_delete_insert_delete l i x :
+  Lemma list_delete_insert_eq l i x :
     i < length l →
     delete i (<[i := x]> l) = delete i l.
   Proof.
@@ -863,8 +863,8 @@ Section Permutation.
     - exists (λ j, if decide (j = i1) then i2 else if decide (j = i2) then i1 else j). split.
       + intros j1 j2. repeat case_decide; naive_solver.
       + intros j. repeat case_decide; subst.
-        * rewrite list_lookup_insert // length_insert //.
-        * rewrite list_lookup_insert_ne // list_lookup_insert //.
+        * rewrite list_lookup_insert_eq // length_insert //.
+        * rewrite list_lookup_insert_ne // list_lookup_insert_eq //.
         * rewrite list_lookup_insert_ne // list_lookup_insert_ne //.
   Qed.
 End Permutation.
@@ -1271,7 +1271,7 @@ Section oflatten.
     x ∈ oflatten l ↔
     Some x ∈ l.
   Proof.
-    rewrite elem_of_list_omap. naive_solver.
+    rewrite list_elem_of_omap. naive_solver.
   Qed.
 
   Lemma oflatten_lookup_Some l i x :

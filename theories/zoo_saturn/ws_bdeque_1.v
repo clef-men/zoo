@@ -1707,7 +1707,7 @@ Section ws_bdeque_1_G.
         rewrite head_lookup -(lookup_app_l _ (take (length vs2) (vs2 ++ priv2))); first lia.
         iDestruct (array_cslice_agree with "Hdata_cslice₁ Hdata_cslice₂") as %->.
         { simpl_length. lia. }
-        rewrite list_lookup_insert //; first lia.
+        rewrite list_lookup_insert_eq //; first lia.
       }
       iEval (rewrite (assoc _ _ [_])) in "Hdata_cslice₁".
 

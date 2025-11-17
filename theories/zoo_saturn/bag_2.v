@@ -303,7 +303,7 @@ Section bag_2_G.
   Proof.
     iIntros "%Hnodes_lookup (:queues_auth)".
     destruct (elem_of_dom_1 descrs node) as (descr & Hdescrs_lookup).
-    { rewrite Hnodes elem_of_list_to_set elem_of_list_lookup. eauto. }
+    { rewrite Hnodes elem_of_list_to_set list_elem_of_lookup. eauto. }
     iDestruct (mono_gmap_at_get with "Hauth") as "#Hat".
     { rewrite lookup_fmap_Some. eauto. }
     iSteps.
@@ -348,7 +348,7 @@ Section bag_2_G.
     rewrite -fmap_insert. iSteps; iPureIntro.
     - set_solver.
     - apply map_Forall_insert_2.
-      + rewrite lookup_insert //.
+      + rewrite lookup_insert_eq //.
       + eapply map_Forall_impl'; first done. move=> /= node' descr' Hdescrs_lookup' Hwss_lookup.
         destruct_decide (node' = node) as -> | ?.
         * simplify.
@@ -369,7 +369,7 @@ Section bag_2_G.
     iFrame. iSplit; iPureIntro.
     - rewrite dom_insert_lookup_L //.
     - apply map_Forall_insert_2'.
-      + rewrite lookup_insert //.
+      + rewrite lookup_insert_eq //.
       + apply map_Forall_delete_lookup => node' descr' Hnode' Hdescrs_lookup'.
         rewrite lookup_insert_ne; first naive_solver.
         rewrite map_Forall_lookup in Hdescrs. auto.

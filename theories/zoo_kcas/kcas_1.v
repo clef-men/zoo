@@ -829,7 +829,7 @@ Section kcas_1_G.
   Proof.
     iMod (mono_list_alloc [casn]) as "(%γ_history & Hhistory_auth)".
     iDestruct (mono_list_elem_get with "Hhistory_auth") as "#Hhistory_elem".
-    { apply elem_of_list_singleton. done. }
+    { apply list_elem_of_singleton. done. }
     iSteps. iPureIntro.
     apply NoDup_singleton.
   Qed.
@@ -896,7 +896,7 @@ Section kcas_1_G.
     lstatus_auth η2 (Running i) -∗
     ⌜casn2 ∉ casns⌝.
   Proof.
-    iIntros "(Hhistory_auth & %Hcasns & Hcasns) Hcasn2_meta Hlstatus2_auth" ((j & Hcasns_lookup)%elem_of_list_lookup).
+    iIntros "(Hhistory_auth & %Hcasns & Hcasns) Hcasn2_meta Hlstatus2_auth" ((j & Hcasns_lookup)%list_elem_of_lookup).
     iDestruct (big_sepL_lookup with "Hcasns") as "(%_η2 & _Hcasn2_meta & Hlstatus2_lb)".
     { rewrite removelast_last //. }
     iDestruct (meta_agree with "Hcasn2_meta _Hcasn2_meta") as %<-. iClear "_Hcasn2_meta".
@@ -917,7 +917,7 @@ Section kcas_1_G.
     iDestruct (mono_list_elem_get with "Hhistory_auth") as "#$"; first set_solver.
     iSteps.
     - iPureIntro.
-      rewrite comm NoDup_cons not_elem_of_app elem_of_list_singleton //.
+      rewrite comm NoDup_cons not_elem_of_app list_elem_of_singleton //.
     - rewrite !removelast_last big_sepL_snoc. iSteps.
   Qed.
   #[local] Lemma history_update_running {γ casns casn1 η1} casn2 η2 i :
@@ -1305,7 +1305,7 @@ Section kcas_1_G.
     wp_rec. wp_pures.
     destruct (metadata_success η) eqn:Hsuccess.
     all: wp_smart_apply (lst_iter_spec_disentangled (λ _ _, True)%I); [done | | iSteps].
-    all: iIntros "!>" (i v (descr & Hdescrs_lookup & ->)%list_lookup_fmap_Some).
+    all: iIntros "!>" (i v (descr & -> & Hdescrs_lookup)%list_lookup_fmap_Some).
 
     - wp_smart_apply (after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
       wp_smart_apply (set_before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
@@ -1939,7 +1939,7 @@ Section kcas_1_G.
                   destruct (metadata_success η) eqn:Hsuccess.
 
                   ** iDestruct (big_sepL_lookup with "Hdescrs") as "(_ & Hhistory_elem & _)"; first done.
-                     iDestruct (history_elem_valid with "Hhistory_auth Hhistory_elem") as %[| ?%elem_of_list_singleton]%elem_of_app.
+                     iDestruct (history_elem_valid with "Hhistory_auth Hhistory_elem") as %[| ?%list_elem_of_singleton]%elem_of_app.
                      all: exfalso; done.
 
                   ** iDestruct (big_sepL_lookup_acc with "Hdescrs") as "(([Hmodel₂_ | Hlock] & Hdescr) & Hdescrs)"; first done.
@@ -2375,7 +2375,7 @@ Section kcas_1_G.
     iDestruct (casn_inv'_unfold with "[$Hcasn_inv]") as "#Hcasn_inv'".
     { iSteps.
       - iPureIntro.
-        apply NoDup_alt. intros i1 i2 loc (descr1 & Hdescrs_lookup_1 & ->)%list_lookup_fmap_Some (descr2 & Hdescrs_lookup_2 & Heq)%list_lookup_fmap_Some.
+        apply NoDup_alt. intros i1 i2 loc (descr1 & -> & Hdescrs_lookup_1)%list_lookup_fmap_Some (descr2 & Heq & Hdescrs_lookup_2)%list_lookup_fmap_Some.
         odestruct (Forall2i_lookup_r _ _ _ i1) as (γ1 & _ & H1); [done.. |].
         destruct H1 as (loc1 & before1 & after1 & Hlocs_lookup_1 & _ & _ & -> & _) in Heq.
         odestruct (Forall2i_lookup_r _ _ _ i2) as (γ2 & _ & H2); [done.. |].

@@ -637,7 +637,7 @@ Section domain_G.
     wp_smart_apply (dynarray_1_get_spec _ _ _ None with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
-      exists None. split; last done.
+      exists None. split; first done.
       eapply consistent_lookup_Some_None; last done.
       { simpl_length. lia. }
       apply consistent_app_None. done.
@@ -686,7 +686,7 @@ Section domain_G.
     wp_smart_apply (dynarray_1_get_spec _ _ _ (Some v) with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
-      exists (Some v). split; last done.
+      exists (Some v). split; first done.
       eapply consistent_lookup_Some_Some; last done.
       apply consistent_app_None. done.
     }

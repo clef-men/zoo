@@ -944,7 +944,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestBlocked).
     iIntros "%𝑟𝑒𝑞𝑢𝑒𝑠𝑡 (%Hrequests2_lookup & Hrequests_model)".
-    apply list_lookup_fmap_Some in Hrequests2_lookup as (request & Hrequests2_lookup & ->).
+    apply list_lookup_fmap_Some in Hrequests2_lookup as (request & -> & Hrequests2_lookup).
     iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iMod (request_model_update RequestBlocked with "Hrequest Howner₁") as "(Hrequest & Howner₁ & H)"; first auto.
     iDestruct ("Hrequests" $! RequestBlocked with "Hrequest") as "Hrequests".
@@ -966,7 +966,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseNone).
     iIntros "%𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 (%Hresponses3_lookup & Hresponses_model)".
-    apply list_lookup_fmap_inv in Hresponses3_lookup as (reponse & -> & Hresponses3_lookup).
+    apply list_lookup_fmap_Some_1 in Hresponses3_lookup as (reponse & -> & Hresponses3_lookup).
     iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
     iMod (response_model_sender with "Hresponse Hchannels_sender") as "(-> & Hchannels_waiting & Hchannels_sender)".
     iMod (channels_send with "Hchannels_waiting Hchannels_sender") as "Hchannels_sender".
@@ -999,7 +999,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestNone).
     iIntros "%𝑟𝑒𝑞𝑢𝑒𝑠𝑡 (%Hrequests1_lookup & Hrequests_model)".
-    apply list_lookup_fmap_inv in Hrequests1_lookup as (request & -> & Hrequests1_lookup).
+    apply list_lookup_fmap_Some_1 in Hrequests1_lookup as (request & -> & Hrequests1_lookup).
     iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iMod (request_model_update RequestNone with "Hrequest Howner₁") as "(Hrequest & Howner₁ & H)"; first auto.
     iDestruct ("Hrequests" $! RequestNone with "Hrequest") as "Hrequests".
@@ -1042,7 +1042,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id.
     iIntros "%𝑟𝑒𝑞𝑢𝑒𝑠𝑡 (%Hrequests1_lookup & Hrequests_model)".
-    apply list_lookup_fmap_Some in Hrequests1_lookup as (request & Hrequests1_lookup & ->).
+    apply list_lookup_fmap_Some in Hrequests1_lookup as (request & -> & Hrequests1_lookup).
     iDestruct (big_sepL_lookup_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iMod (request_model_respond with "Hrequest Howner₁") as ">(Hrequest & H)".
     iDestruct ("Hrequests" with "Hrequest") as "Hrequests".
@@ -1069,7 +1069,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id -list_fmap_insert.
     iIntros "%𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 (%Hresponses2_lookup & Hresponses_model)".
-    apply list_lookup_fmap_Some in Hresponses2_lookup as (response & Hresponses2_lookup & ->).
+    apply list_lookup_fmap_Some in Hresponses2_lookup as (response & -> & Hresponses2_lookup).
     iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
     iMod (response_model_sender with "Hresponse Hchannels_sender") as "(-> & Hchannels_waiting & Hchannels_sender)".
     iMod (channels_send (head vs) with "Hchannels_waiting Hchannels_sender") as "Hchannels_sender".
@@ -1097,7 +1097,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hrequests_model"; first iSteps.
     rewrite Nat2Z.id -(list_fmap_insert _ _ _ RequestNone).
     iIntros "%𝑟𝑒𝑞𝑢𝑒𝑠𝑡 (%Hrequests3_lookup & Hrequests_model)".
-    apply list_lookup_fmap_inv in Hrequests3_lookup as (request & -> & Hrequests3_lookup).
+    apply list_lookup_fmap_Some_1 in Hrequests3_lookup as (request & -> & Hrequests3_lookup).
     iDestruct (big_sepL_insert_acc with "Hrequests") as "(Hrequest & Hrequests)"; first done.
     iMod (request_model_unblock with "Hrequest Howner₁") as ">(Hrequest & Howner₁)".
     iDestruct ("Hrequests" $! RequestNone with "Hrequest") as "Hrequests".
@@ -1230,7 +1230,7 @@ Section ws_deques_private_G.
     iAaccIntro with "Hresponses_model"; first iSteps.
     rewrite Nat2Z.id.
     iIntros "%𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 (%Hresponses1_lookup & Hresponses_model)".
-    apply list_lookup_fmap_Some in Hresponses1_lookup as (response & Hresponses1_lookup & ->).
+    apply list_lookup_fmap_Some in Hresponses1_lookup as (response & -> & Hresponses1_lookup).
     destruct response as [| | v].
 
     - iSplitR "Hchannels_receiver". { iFrameSteps. }
@@ -1252,7 +1252,7 @@ Section ws_deques_private_G.
       iAaccIntro with "Hresponses_model"; first iSteps.
       rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseWaiting).
       iIntros "%𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 (%Hresponses2_lookup & Hresponses_model)".
-      apply list_lookup_fmap_Some in Hresponses2_lookup as (response & Hresponses2_lookup & ->).
+      apply list_lookup_fmap_Some in Hresponses2_lookup as (response & -> & Hresponses2_lookup).
       iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
       iMod (response_model_receiver with "Hresponse Hchannels_receiver") as "(%Ψ_ & Heq & -> & Hchannels_sender & Hchannels_receiver & HΨ)".
       iMod (channels_reset with "Hchannels_sender Hchannels_receiver") as "(Hchannels_waiting & Hchannels_sender & Hchannels_receiver)".
@@ -1279,7 +1279,7 @@ Section ws_deques_private_G.
       iAaccIntro with "Hresponses_model"; first iSteps.
       rewrite Nat2Z.id -(list_fmap_insert _ _ _ ResponseWaiting).
       iIntros "%𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 (%Hresponses2_lookup & Hresponses_model)".
-      apply list_lookup_fmap_Some in Hresponses2_lookup as (response & Hresponses2_lookup & ->).
+      apply list_lookup_fmap_Some in Hresponses2_lookup as (response & -> & Hresponses2_lookup).
       iDestruct (big_sepL_insert_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
       iMod (response_model_receiver with "Hresponse Hchannels_receiver") as "(%Ψ_ & Heq & -> & Hchannels_sender & Hchannels_receiver & HΨ)".
       iMod (channels_reset with "Hchannels_sender Hchannels_receiver") as "(Hchannels_waiting & Hchannels_sender & Hchannels_receiver)".
@@ -1329,7 +1329,7 @@ Section ws_deques_private_G.
     iInv "Hinv" as "(:inv_inner =1)".
     iAaccIntro with "Hstatuses_model"; first iSteps.
     iIntros "%𝑠𝑡𝑎𝑡𝑢𝑠 (%Hstatuses1_lookup & Hstatuses_model) !>".
-    apply list_lookup_fmap_Some in Hstatuses1_lookup as (status & Hstatuses1_lookup & ->).
+    apply list_lookup_fmap_Some in Hstatuses1_lookup as (status & -> & Hstatuses1_lookup).
     iSplitL. { iFrameSteps. }
     iIntros "_ (Hchannels_sender & Hchannels_receiver & HΦ)".
 
@@ -1348,7 +1348,7 @@ Section ws_deques_private_G.
       iAaccIntro with "Hrequests_model"; first iSteps.
       rewrite -(list_fmap_insert _ _ _ (RequestSome _)).
       iIntros "%b %𝑟𝑒𝑞𝑢𝑒𝑠𝑡 (%Hrequests2_lookup & %Hcas & Hrequests_model)".
-      apply list_lookup_fmap_Some in Hrequests2_lookup as (request & Hrequests2_lookup & ->).
+      apply list_lookup_fmap_Some in Hrequests2_lookup as (request & -> & Hrequests2_lookup).
       destruct b.
 
       + destruct request; zoo_simplify in Hcas; first done.

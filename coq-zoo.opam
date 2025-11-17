@@ -9,9 +9,9 @@ bug-reports: "https://github.com/clef-men/zoo/issues"
 dev-repo: "git+https://github.com/clef-men/zoo.git"
 depends: [
   "coq" {= "8.20.0"}
-  "coq-stdpp" {= "dev.2025-06-05.0.567f831e"}
-  "coq-iris" {= "dev.2025-07-02.1.019c1f06"}
-  "coq-diaframe" {= "dev.2025-07-09.0.8721cef5"}
+  "coq-stdpp" {= "dev.2025-07-17.0.62f52d4f"}
+  "coq-iris" {= "dev.2025-07-17.0.dbc3e879"}
+  "coq-diaframe" {= "dev.2025-11-12.0.0a1ecfe1"}
 ]
 
 build: [

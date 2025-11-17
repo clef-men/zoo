@@ -288,7 +288,7 @@ Section bi.
         ⌜x2 ∈ l2⌝ ∗
         Φ k x1 x2.
     Proof.
-      setoid_rewrite elem_of_list_lookup.
+      setoid_rewrite list_elem_of_lookup.
       iIntros ((i & Hl1_lookup)) "H".
       iDestruct (big_sepL2_lookup_l with "H") as "(%x2 & %Hl2_lookup & H)"; first done.
       iSteps.

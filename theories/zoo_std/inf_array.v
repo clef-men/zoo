@@ -468,7 +468,7 @@ Section inf_array_G.
     apply functional_extensionality => j.
     destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
-      rewrite list_lookup_total_insert //. lia.
+      rewrite list_lookup_total_insert_eq //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
       rewrite list_lookup_total_insert_ne //.
   Qed.
@@ -553,7 +553,7 @@ Section inf_array_G.
     apply functional_extensionality => j.
     destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
-      rewrite list_lookup_total_insert //. lia.
+      rewrite list_lookup_total_insert_eq //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
       rewrite list_lookup_total_insert_ne //.
   Qed.
@@ -605,7 +605,7 @@ Section inf_array_G.
     all: iApply (inf_array_model_proper with "Hmodel"); intros j.
     - simpl_length. case_decide.
       + destruct_decide (j = i) as -> | ?.
-        * rewrite list_lookup_total_insert // fn_lookup_insert //.
+        * rewrite list_lookup_total_insert_eq // fn_lookup_insert //.
         * rewrite list_lookup_total_insert_ne // fn_lookup_insert_ne // decide_True //.
       + rewrite fn_lookup_insert_ne; first lia.
         rewrite decide_False //.
@@ -678,7 +678,7 @@ Section inf_array_G.
     apply functional_extensionality => j.
     destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
-      rewrite list_lookup_total_insert //. lia.
+      rewrite list_lookup_total_insert_eq //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
       rewrite list_lookup_total_insert_ne //.
   Qed.
@@ -755,7 +755,7 @@ Section inf_array_G.
     apply functional_extensionality => j.
     destruct_decide (j = ₊i) as -> | ?.
     - rewrite fn_lookup_insert decide_True; first lia.
-      rewrite list_lookup_total_insert //. lia.
+      rewrite list_lookup_total_insert_eq //. lia.
     - rewrite fn_lookup_insert_ne //. case_decide; last done.
       rewrite list_lookup_total_insert_ne //.
   Qed.

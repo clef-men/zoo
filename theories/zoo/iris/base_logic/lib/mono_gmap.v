@@ -245,7 +245,7 @@ Section mono_gmap_G.
   Proof.
     iIntros "%Hlookup Hauth".
     iMod (mono_gmap_insert i v with "Hauth") as "Hauth"; first done.
-    iDestruct (mono_gmap_at_get i v with "Hauth") as "#Hat"; first rewrite lookup_insert //.
+    iDestruct (mono_gmap_at_get i v with "Hauth") as "#Hat"; first rewrite lookup_insert_eq //.
     iSteps.
   Qed.
 End mono_gmap_G.

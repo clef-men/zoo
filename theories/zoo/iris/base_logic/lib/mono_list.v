@@ -176,7 +176,7 @@ Section mono_list_G.
     mono_list_auth γ q l ⊢
     mono_list_elem γ a.
   Proof.
-    intros (i & Hlookup)%elem_of_list_lookup.
+    intros (i & Hlookup)%list_elem_of_lookup.
     rewrite mono_list_at_get //. iSteps.
   Qed.
 
@@ -236,7 +236,7 @@ Section mono_list_G.
   Proof.
     iIntros "Hauth (%i & Hat)".
     iDestruct (mono_list_at_valid with "Hauth Hat") as %Hlookup.
-    iPureIntro. apply elem_of_list_lookup. naive_solver.
+    iPureIntro. apply list_elem_of_lookup. naive_solver.
   Qed.
 
   Lemma mono_list_update {γ l} l' :

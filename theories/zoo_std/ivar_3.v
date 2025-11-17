@@ -402,7 +402,7 @@ Module base.
         ⌜ωs !! i = Some ω⌝.
     Proof.
       iIntros "(:waiters_auth) Helem".
-      iDestruct (mono_gmultiset_elem_valid with "Hauth Helem") as %(i & (Hwaiters_lookup & Hωs_lookup)%lookup_zip_Some)%elem_of_list_to_set_disj%elem_of_list_lookup.
+      iDestruct (mono_gmultiset_elem_valid with "Hauth Helem") as %(i & (Hwaiters_lookup & Hωs_lookup)%lookup_zip_Some)%elem_of_list_to_set_disj%list_elem_of_lookup.
       iSteps.
     Qed.
     #[local] Lemma waiters_insert {γ waiters ωs} waiter ω :

@@ -69,12 +69,12 @@ Qed.
 Proof.
   intros ->.
   rewrite gmultiset_disj_union_list_empty.
-  setoid_rewrite elem_of_list_fmap.
+  setoid_rewrite list_elem_of_fmap.
   split.
-  - intros H i us Hus%elem_of_list_lookup_2.
+  - intros H i us Hus%list_elem_of_lookup_2.
     rewrite -list_to_set_disj_empty.
     eauto.
-  - intros H ? (us & -> & Hus%elem_of_list_lookup).
+  - intros H ? (us & -> & Hus%list_elem_of_lookup).
     rewrite list_to_set_disj_empty.
     naive_solver.
 Qed.
@@ -101,7 +101,7 @@ Proof.
   split.
   - apply elem_of_gmultiset_disj_union_list.
     eexists. split.
-    + rewrite elem_of_list_lookup. eauto.
+    + rewrite list_elem_of_lookup. eauto.
     + rewrite list_to_set_disj_app. set_solver.
   - rewrite (gmultiset_disj_union_list_delete' _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
     rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.

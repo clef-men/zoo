@@ -611,7 +611,7 @@ Section mpmc_queue_2_G.
     - invert Hstep.
       assert (backs1 !! back = Some (i2 + length move)) as backs1_lookup.
       { eapply lookup_weaken; last done.
-        apply lookup_insert.
+        apply lookup_insert_eq.
       }
       iDestruct (state_at_get with "[$Hauth //]") as "Hstate_at"; first done.
       iRight. iSteps.
@@ -714,7 +714,7 @@ Section mpmc_queue_2_G.
 
     iDestruct (state_lb_get with "[$Hauth //]") as "#Hstate_lb".
     iDestruct (state_at_get back with "[$Hauth //]") as "#Hat".
-    { apply lookup_insert. }
+    { apply lookup_insert_eq. }
     iFrame "#∗". iSteps.
   Qed.
   #[local] Lemma state_empty γ backs i :
@@ -962,7 +962,7 @@ Section mpmc_queue_2_G.
     iMod (state_stabilize γ with "Hstate_auth") as "(Hstate_auth & _) /="; first done.
     iMod (state_empty γ with "Hstate_auth") as "Hstate_auth".
     iDestruct (state_at_get (γ := γ) back 0 with "Hstate_auth") as "#Hstate_at".
-    { apply lookup_insert. }
+    { apply lookup_insert_eq. }
 
     iApply "HΦ".
     iSplitR "Hmodel₁"; last iSteps.

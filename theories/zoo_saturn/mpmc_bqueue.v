@@ -293,7 +293,7 @@ Section mpmc_bqueue_G.
     ⌜node ∈ hist⌝.
   Proof.
     iIntros "Hauth Hat".
-    iDestruct (history_at_lookup with "Hauth Hat") as %?%elem_of_list_lookup_2.
+    iDestruct (history_at_lookup with "Hauth Hat") as %?%list_elem_of_lookup_2.
     iSteps.
   Qed.
   #[local] Lemma history_update {γ hist} node :
@@ -459,7 +459,7 @@ Section mpmc_bqueue_G.
     iExists l, γ. rewrite Z2Nat.id //. iStep 5.
     iApply inv_alloc.
     iExists [front], [], front, [], front, [], ∅. iFrameSteps.
-    - rewrite elem_of_list_singleton //.
+    - rewrite list_elem_of_singleton //.
     - rewrite xtchain_singleton big_sepM_empty. iSteps.
   Qed.
 
@@ -542,7 +542,7 @@ Section mpmc_bqueue_G.
 
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
-    pose proof Hback as (i & Hlookup)%elem_of_list_lookup.
+    pose proof Hback as (i & Hlookup)%list_elem_of_lookup.
     iDestruct (xtchain_lookup_header with "Hhist") as "#Hback_header"; first done.
     iDestruct (big_sepL_lookup with "Hindices") as "#Hback_index"; first done.
     iDestruct (history_at_get with "Hhistory_auth") as "#Hhistory_at_back"; first done.
@@ -1007,7 +1007,7 @@ Section mpmc_bqueue_G.
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(:inv_inner =1)".
       wp_cas as _ | [= ->]; first iSteps.
-      iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%elem_of_list_lookup_2.
+      iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_new_back") as %Hnew_back%list_elem_of_lookup_2.
       iSteps.
     }
 

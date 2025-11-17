@@ -721,7 +721,7 @@ Section zoo_G.
       iDestruct (big_sepL2_length with "Helems") as "%Helems".
       rewrite lookup_app_l in Hlookup.
       { simpl_length. lia. }
-      apply list_lookup_fmap_Some in Hlookup as (elem & Hlookup & ->).
+      apply list_lookup_fmap_Some in Hlookup as (elem & -> & Hlookup).
       iDestruct (big_sepL2_lookup_acc_l with "Helems") as "(%v & % & (:element_model) & Helems)"; first done.
       wp_match. wp_load.
       rewrite slice_0 take_app_le.

@@ -60,7 +60,7 @@ Section map_Forall.
     map_Forall P (delete k m) →
     map_Forall P (<[k := x]> m).
   Proof.
-    rewrite -insert_delete_insert.
+    rewrite -insert_delete_eq.
     apply map_Forall_insert_2.
   Qed.
 
@@ -335,7 +335,7 @@ Section map_oflatten.
     map_oflatten (<[k := None]> m) = map_oflatten m.
   Proof.
     intros Hlookup.
-    rewrite /map_oflatten omap_insert_None // delete_notin // lookup_omap Hlookup //.
+    rewrite /map_oflatten omap_insert_None // delete_id // lookup_omap Hlookup //.
   Qed.
   Lemma map_oflatten_update {m} k a :
     map_oflatten (<[k := Some a]> m) = <[k := a]> (map_oflatten m).

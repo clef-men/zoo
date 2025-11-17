@@ -33,7 +33,7 @@ Section bi.
     Proof.
       rewrite !big_sepS_elements.
       iIntros "Hs HP #HΦ".
-      iApply (big_sepL_impl_thread with "Hs HP"). iIntros "!>" (k x Hx%elem_of_list_lookup_2%elem_of_elements) "HΦ1 HP".
+      iApply (big_sepL_impl_thread with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
       iApply ("HΦ" with "[//] HΦ1 HP").
     Qed.
     Lemma big_sepS_impl_thread_fupd `{!BiFUpd PROP} {Φ1} P Φ2 s E :
@@ -54,7 +54,7 @@ Section bi.
     Proof.
       rewrite !big_sepS_elements.
       iIntros "Hs HP #HΦ".
-      iApply (big_sepL_impl_thread_fupd with "Hs HP"). iIntros "!>" (k x Hx%elem_of_list_lookup_2%elem_of_elements) "HΦ1 HP".
+      iApply (big_sepL_impl_thread_fupd with "Hs HP"). iIntros "!>" (k x Hx%list_elem_of_lookup_2%elem_of_elements) "HΦ1 HP".
       iApply ("HΦ" with "[//] HΦ1 HP").
     Qed.
   End big_sepS.

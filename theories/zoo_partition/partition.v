@@ -200,7 +200,7 @@ Section partition_G.
       ⌜class1 = class2⌝ ∗
       ⌜descr1 = descr2⌝.
   Proof.
-    iIntros (Hdescrs_lookup_1 (i1 & Helts1_lookup)%elem_of_list_lookup Hdescrs_lookup_2 (i2 & Helts2_lookup)%elem_of_list_lookup) "(:model')".
+    iIntros (Hdescrs_lookup_1 (i1 & Helts1_lookup)%list_elem_of_lookup Hdescrs_lookup_2 (i2 & Helts2_lookup)%list_elem_of_lookup) "(:model')".
     destruct_decide (class1 = class2) as <- | Hneq; first naive_solver.
     iDestruct (big_sepM_delete _ _ class1 with "Hdescrs") as "((:descriptor_model =1) & Hdescrs)"; first done.
     iDestruct (big_sepM_lookup _ _ class2 with "Hdescrs") as "(:descriptor_model =2)".
@@ -348,7 +348,7 @@ Section partition_G.
     iDestruct (partition_element_valid' with "Hmodel Helt") as "(%class & %descr & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor_model) & Hdescrs)"; first done.
-    odestruct elem_of_list_lookup_1 as (i & Helts_lookup); first done.
+    odestruct list_elem_of_lookup_1 as (i & Helts_lookup); first done.
     iDestruct (big_sepL_lookup_acc with "Helts") as "((:element_model) & Helts)"; first done.
     wp_load.
     iDestruct ("Helts" with "[$]") as "Helts".
@@ -400,7 +400,7 @@ Section partition_G.
     }
     iApply (big_sepM_insert_2 with "[- Hdescrs] [Hdescrs]").
     - iExists elt, elt, descr, elt, descr, elt.
-      rewrite xdlchain_singleton lookup_insert //. iSteps.
+      rewrite xdlchain_singleton lookup_insert_eq //. iSteps.
     - iApply (big_sepM_impl with "Hdescrs"). iIntros "!> %class' %descr' %Hdescrs_lookup' (:descriptor_model)".
       iExists first, last, prev_descr, prev, next_descr, next.
       rewrite !lookup_insert_ne //; [naive_solver.. |]. iSteps.

@@ -38,7 +38,7 @@ Section bi.
       - rewrite !big_sepM_empty. iSteps.
       - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
         iDestruct ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
-        { rewrite lookup_insert //. }
+        { rewrite lookup_insert_eq //. }
         iDestruct ("IH" with "[HΦ] Hm HP") as "(Hm & $)".
         { iIntros "!> %k' %a' %Hlookup' Hk' HP".
           iApply ("HΦ" with "[%] Hk' HP").
@@ -68,7 +68,7 @@ Section bi.
       - rewrite !big_sepM_empty. iSteps.
       - iDestruct (big_sepM_insert with "Hm") as "(Hk & Hm)"; first done.
         iMod ("HΦ" with "[%] Hk HP") as "(Hk & HP)".
-        { rewrite lookup_insert //. }
+        { rewrite lookup_insert_eq //. }
         iMod ("IH" with "[HΦ] Hm HP") as "(Hm & $)".
         { iIntros "!> %k' %a' %Hlookup' Hk' HP".
           iApply ("HΦ" with "[%] Hk' HP").

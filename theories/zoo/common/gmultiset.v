@@ -52,7 +52,7 @@ Section size.
   Proof.
     rewrite /size /gmultiset_size /= -!gmultiset_elem_of_elements.
     generalize (elements X). intros [| ? l] ?*; simplify.
-    rewrite (nil_length_inv l) // !elem_of_list_singleton. congruence.
+    rewrite (nil_length_inv l) // !list_elem_of_singleton. congruence.
   Qed.
   Lemma gmultiset_size_1_elem_of X :
     size X = 1 →
@@ -250,8 +250,8 @@ Section disj_union_list.
     intros (Y & Hlookup).
     opose proof* (lookup_lt_Some Xs i Y); first done.
     rewrite (gmultiset_disj_union_list_delete' (<[i := X]> Xs) i X).
-    { rewrite list_lookup_insert //. }
-    rewrite list_delete_insert_delete //.
+    { rewrite list_lookup_insert_eq //. }
+    rewrite list_delete_insert_eq //.
   Qed.
   Lemma gmultiset_disj_union_list_insert_id Xs i X :
     Xs !! i = Some X →

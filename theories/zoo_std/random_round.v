@@ -144,7 +144,7 @@ Section zoo_G.
     iSplitR.
     { iPureIntro.
       assert (prev ∈ seq 0 sz) as ?%elem_of_seq; last naive_solver.
-      rewrite -Hpermutation elem_of_app elem_of_list_lookup.
+      rewrite -Hpermutation elem_of_app list_elem_of_lookup.
       naive_solver.
     }
     iSplitR.
@@ -152,7 +152,7 @@ Section zoo_G.
       pose proof (NoDup_seq 0 sz) as Hnodup.
       rewrite -Hpermutation NoDup_app in Hnodup.
       setoid_rewrite elem_of_reverse in Hnodup.
-      setoid_rewrite elem_of_list_lookup at 1 in Hnodup.
+      setoid_rewrite list_elem_of_lookup at 1 in Hnodup.
       naive_solver.
     }
     rewrite Nat2Z.id -!list_fmap_insert.
@@ -160,9 +160,9 @@ Section zoo_G.
     assert (<[j := next]> (take i nexts) ++ [prev] = <[i := prev]> (<[j := next]> nexts)) as Heq.
     { destruct_decide (j = i) as -> | H.
       - rewrite list_insert_ge. { simpl_length. lia. }
-        rewrite list_insert_insert insert_take_drop; first lia.
+        rewrite list_insert_insert_eq insert_take_drop; first lia.
         rewrite skipn_all2 //; first lia.
-      - rewrite list_insert_commute // (insert_take_drop nexts); first lia.
+      - rewrite list_insert_insert_ne // (insert_take_drop nexts); first lia.
         rewrite skipn_all2; first lia.
         rewrite -insert_app_l // length_take; first lia.
     }

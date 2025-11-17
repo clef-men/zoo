@@ -164,7 +164,7 @@ Section treemap_rooted.
     - rewrite lookup_insert_ne //.
     - intros node (ϵ & Htree'_lookup_node).
       assert (tree' !! root = Some (root', edge)) as Htree'_lookup_root.
-      { rewrite lookup_insert //. }
+      { rewrite lookup_insert_eq //. }
       assert (treemap_path tree' root' root [edge]) as Hpath_root.
       { econstructor; done. }
       destruct_decide (node = root) as -> | Hnode; first eauto.
@@ -217,10 +217,10 @@ Section treemap_rooted.
     intros (Htree_lookup_root & Hrooted) Htree_lookup_root' [= ->].
     assert (root ≠ root') as Hroot' by congruence.
     split.
-    - rewrite lookup_insert_ne // lookup_delete //.
+    - rewrite lookup_insert_ne // lookup_delete_eq //.
     - intros node (ϵ & Htree'_lookup_node).
       assert (tree' !! root = Some (root', edge)) as Htree'_lookup_root.
-      { rewrite lookup_insert //. }
+      { rewrite lookup_insert_eq //. }
       assert (treemap_path tree' root' root [edge]) as Hpath_root.
       { econstructor; done. }
       destruct_decide (node = root) as -> | Hnode; first eauto.

@@ -2011,7 +2011,7 @@ Section ws_deque_1_G.
       - wp_apply (array_unsafe_cset_spec_owner with "[$Howner₁ $Hdata_cslice₂ $Hfront_lb]") as "(:owner' !=)"; [lia | iSteps |].
 
         iFrameSteps; iPureIntro.
-        { apply list_lookup_insert; first lia. }
+        { apply list_lookup_insert_eq; first lia. }
         { simpl_length. }
 
       - assert (length priv1 = 0) as ->%nil_length_inv by lia.
@@ -2032,7 +2032,7 @@ Section ws_deque_1_G.
         iFrameSteps; iPureIntro.
         { rewrite -insert_app_l.
           { simpl_length. lia. }
-          apply list_lookup_insert.
+          apply list_lookup_insert_eq.
           { simpl_length. lia. }
         } {
           simpl_length. lia.

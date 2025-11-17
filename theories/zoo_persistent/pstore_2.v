@@ -311,14 +311,14 @@ Module base.
       intros Hδs_nodup Hδ -> ->.
       apply lookup_union_Some_l, elem_of_list_to_map_1.
       - rewrite -list_fmap_compose //.
-      - rewrite elem_of_list_fmap. eauto.
+      - rewrite list_elem_of_fmap. eauto.
     Qed.
     #[local] Lemma deltas_apply_lookup' δs r data ς :
       NoDup (delta_ref <$> δs) →
       (r, data) ∈ delta_patch <$> δs →
       deltas_apply δs ς !! r = Some data.
     Proof.
-      intros Hδs_nodup ((_r, g, v, node) & [= ] & Hδ)%elem_of_list_fmap.
+      intros Hδs_nodup ((_r, g, v, node) & [= ] & Hδ)%list_elem_of_fmap.
       eapply deltas_apply_lookup; done.
     Qed.
     #[local] Lemma deltas_apply_lookup_ne r δs ς :
@@ -640,8 +640,8 @@ Module base.
             - rewrite deltas_apply_snoc /=.
               destruct_decide (r = r') as <- | Hr'.
               + rewrite deltas_apply_snoc /= in Hδs.
-                rewrite insert_insert //.
-              + rewrite insert_commute //.
+                rewrite insert_insert_eq //.
+              + rewrite insert_insert_ne //.
                 apply IH; simpl.
                 * rewrite fmap_app NoDup_app in Hδs_nodup. naive_solver.
                 * rewrite dom_insert union_subseteq singleton_subseteq_l.
@@ -670,7 +670,7 @@ Module base.
           } {
             eapply Forall_impl; first done. intros (r', g', v', node) H.
             destruct_decide (r = r') as <- | Hr'.
-            - rewrite lookup_insert. naive_solver.
+            - rewrite lookup_insert_eq. naive_solver.
             - rewrite lookup_insert_ne //.
           }
 
@@ -685,7 +685,7 @@ Module base.
           rewrite decide_False //.
           iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
           assert (r ∉ delta_ref <$> δs) as Hr_notin_δs.
-          { intros (i & ((?, ?, ?, ?) & -> & Hδs_lookup)%list_lookup_fmap_inv)%elem_of_list_lookup.
+          { intros (i & ((?, ?, ?, ?) & -> & Hδs_lookup)%list_lookup_fmap_Some_1)%list_elem_of_lookup.
             opose proof* Forall_lookup_1 as H; [done.. |].
             apply store_on_lookup in Hς_lookup. naive_solver.
           }
@@ -699,7 +699,7 @@ Module base.
             - set_solver.
             - apply NoDup_singleton.
           } {
-            rewrite deltas_apply_snoc insert_insert. cbn.
+            rewrite deltas_apply_snoc insert_insert_eq. cbn.
             erewrite <- deltas_apply_snoc'.
             rewrite (deltas_apply_permutation _ (Delta r g_r w root' :: δs)).
             { rewrite fmap_app NoDup_app. split_and!; first done.
@@ -714,9 +714,9 @@ Module base.
           } {
             rewrite Forall_app Forall_singleton. split.
             - rewrite Forall_forall => δ Hδ. rewrite lookup_insert_ne.
-              { rewrite elem_of_list_fmap in Hr_notin_δs. naive_solver. }
+              { rewrite list_elem_of_fmap in Hr_notin_δs. naive_solver. }
               rewrite Forall_forall in Hδs_gen. naive_solver.
-            - rewrite lookup_insert. naive_solver.
+            - rewrite lookup_insert_eq. naive_solver.
           }
     Qed.
 
@@ -747,10 +747,10 @@ Module base.
         }
         iExists ∅, []. iSteps; try iPureIntro.
         { apply treemap_rooted_empty. }
-        { rewrite lookup_insert //. }
+        { rewrite lookup_insert_eq //. }
         { rewrite NoDup_nil //. }
         { rewrite deltas_apply_nil //. }
-        rewrite delete_insert_delete.
+        rewrite delete_insert_eq.
         iApply (big_sepM2_empty with "[//]").
 
       - iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
@@ -768,7 +768,7 @@ Module base.
         + iAssert ⌜ϵs !! base = None⌝%I as %Hϵs_lookup_base.
           { rewrite -eq_None_ne_Some. iIntros "%ϵ %Hϵs_lookup".
             iDestruct (big_sepM2_lookup_r with "Hcnodes") as "(%descr' & %Hcnodes_lookup & _)"; first done.
-            rewrite lookup_delete // in Hcnodes_lookup.
+            rewrite lookup_delete_eq // in Hcnodes_lookup.
           }
           iAssert ⌜cnodes !! root = None⌝%I as %Hcnodes_lookup_root.
           { destruct_decide (root = base) as -> | Hcase.
@@ -797,16 +797,16 @@ Module base.
           set ϵ := (root, δ :: δs).
           iExists (<[base := ϵ]> ϵs), []. iSteps; try iPureIntro.
           { eapply treemap_rooted_lift; [done.. | congruence]. }
-          { rewrite lookup_insert //. }
+          { rewrite lookup_insert_eq //. }
           { rewrite NoDup_nil //. }
           { rewrite deltas_apply_nil //. }
-          rewrite delete_insert //.
+          rewrite delete_insert_id //.
           iApply big_sepM2_delete_l; first done.
           iExists ϵ. iSteps.
-          { rewrite lookup_insert //. }
+          { rewrite lookup_insert_eq //. }
           iExists descr_root. iSteps.
-          { iPureIntro. rewrite lookup_insert //. }
-          rewrite delete_insert //.
+          { iPureIntro. rewrite lookup_insert_eq //. }
+          rewrite delete_insert_id //.
           iClear "Helem_base". clear dependent descr δs.
           iApply (big_sepM2_impl with "Hcnodes"). iIntros "!>" (cnode descr (cnode' & δs)) "%Hcnodes_lookup %Hϵs_lookup_cnode (%descr' & %Hcnodes_lookup' & ((%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %Hδs_nodup & %Hδs' & Hδs'))".
           simpl in *.
@@ -1135,14 +1135,14 @@ Module base.
             { rewrite lookup_delete_ne //.
               eapply (treemap_rooted_acyclic (tree := ϵs)); done.
             }
-            rewrite -insert_delete_insert.
+            rewrite -insert_delete_eq.
             iApply (big_sepM2_insert_2 with "[- Hcnodes] Hcnodes").
             iSteps; try iPureIntro.
             { rewrite /δs_base' -Permutation_cons_append //. }
             { rewrite Hδs_base (store_on_deltas_apply _ _ descr_base'.(descriptor_store)) Hδs_cnode.
               rewrite (deltas_apply_permutation δs_base' (δs_base ++ [Delta r1 g1' v1' base'])) //.
               { rewrite /δs_base' -Permutation_cons_append //. }
-              rewrite deltas_apply_snoc insert_insert insert_id // store_on_deltas_apply //.
+              rewrite deltas_apply_snoc insert_insert_eq insert_id // store_on_deltas_apply //.
             } {
               iApply (deltas_chain_snoc with "Hδs_base Hnode").
             }
@@ -1191,8 +1191,8 @@ Module base.
           { apply NoDup_nil_2. }
           { rewrite deltas_apply_nil //. }
           { do 2 rewrite lookup_delete_ne // in Hcnodes_lookup_cnode'. }
-          { rewrite (delete_commute _ cnode' base) (delete_commute _ cnode cnode') delete_insert_ne //.
-            rewrite -{2}(insert_delete (delete cnode' $ delete cnode cnodes) base descr_base).
+          { rewrite (delete_delete _ cnode' base) (delete_delete _ cnode cnode') delete_insert_ne //.
+            rewrite -{2}(insert_delete_id (delete cnode' $ delete cnode cnodes) base descr_base).
             { rewrite lookup_delete_ne // lookup_delete_ne //.
               eapply (treemap_rooted_acyclic (tree := ϵs)); done.
             }
@@ -1202,7 +1202,7 @@ Module base.
             { rewrite Hδs_base (store_on_deltas_apply _ _ descr_cnode.(descriptor_store)) Hδs_cnode.
               rewrite (deltas_apply_permutation δs_base' (δs_base ++ [Delta r1 g1' v1' cnode])) //.
               { rewrite /δs_base' -Permutation_cons_append //. }
-              rewrite deltas_apply_snoc insert_insert insert_id // store_on_deltas_apply //.
+              rewrite deltas_apply_snoc insert_insert_eq insert_id // store_on_deltas_apply //.
             } {
               iApply (deltas_chain_snoc with "Hδs_base Hnode").
             }
@@ -1239,7 +1239,7 @@ Module base.
           apply NoDup_app in Hnodup as (_ & _ & Hnodup).
           rewrite /δs_base' Permutation_app_comm //.
         } {
-          rewrite deltas_apply_snoc insert_insert store_on_deltas_apply store_on_insert insert_id // -store_on_deltas_apply //.
+          rewrite deltas_apply_snoc insert_insert_eq store_on_deltas_apply store_on_insert insert_id // -store_on_deltas_apply //.
         } {
           rewrite -assoc fmap_app in Hnodup.
           apply NoDup_app in Hnodup as (Hnodup & _ & _).
@@ -1292,7 +1292,7 @@ Module base.
             iDestruct (deltas_chain_nil_inv with "Hδs_cnode") as %?. done.
           }
           rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
-          rewrite delete_commute.
+          rewrite delete_delete.
           wp_apply (pstore_2_revert_spec_aux (δs_base := []) (δs_cnode := δs_cnode) base' with "[- HΦ]"); try done.
           { rewrite right_id //. }
           { rewrite concat_app reverse_app fmap_app -assoc /= right_id //. }
@@ -1351,7 +1351,7 @@ Module base.
             iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
             rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
             rewrite deltas_apply_singleton store_on_insert in Hδs.
-            rewrite -Hδs delete_commute.
+            rewrite -Hδs delete_delete.
             wp_smart_apply (pstore_2_revert_spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
             { simpl_length/=. lia. }
             { rewrite right_id //. }

@@ -51,9 +51,9 @@ Qed.
   consistent vs os →
   v ∈ vs.
 Proof.
-  intros Hlookup%elem_of_list_lookup_2 ->.
+  intros Hlookup%list_elem_of_lookup_2 ->.
   setoid_rewrite elem_of_gmultiset_disj_union_list.
-  setoid_rewrite elem_of_list_fmap.
+  setoid_rewrite list_elem_of_fmap.
   setoid_rewrite elem_of_oflatten.
   eexists. split; naive_solver set_solver.
 Qed.
@@ -292,7 +292,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
     iLöb as "HLöb".
@@ -353,7 +353,7 @@ Section bag_1_G.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp_apply (bag_1_push_0_spec with "[$Hmeta $Hinv] HΦ").
-    apply elem_of_list_lookup_total_2. lia.
+    apply list_elem_of_lookup_total_2. lia.
   Qed.
 
   #[local] Lemma bag_1_pop_0_spec slot l γ :
@@ -373,7 +373,7 @@ Section bag_1_G.
       True
     >>>.
   Proof.
-    iIntros ((i & Hslots_lookup)%elem_of_list_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
+    iIntros ((i & Hslots_lookup)%list_elem_of_lookup) "%Φ (#Hmeta & #Hinv) HΦ".
     pose proof Hslots_lookup as Hi%lookup_lt_Some.
 
     iLöb as "HLöb".
@@ -451,7 +451,7 @@ Section bag_1_G.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp_apply (bag_1_pop_0_spec with "[$Hmeta $Hinv] HΦ").
-    apply elem_of_list_lookup_total_2. lia.
+    apply list_elem_of_lookup_total_2. lia.
   Qed.
 End bag_1_G.
 

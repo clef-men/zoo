@@ -247,7 +247,7 @@ Section boxroot_G.
     iApply wp_fupd.
     iDestruct (roots_lookup with "Hroots_auth Hroots_elem") as "%Hmap_lookup".
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
-    { rewrite -elem_of_list_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
+    { rewrite -list_elem_of_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
     iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
     wp_smart_apply (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
     iMod (roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".

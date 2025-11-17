@@ -33,7 +33,7 @@ Section map.
     <[l:=v]>σ1 ⊆ <[l:=v]>σ2.
   Proof.
     intros ? l'. destruct_decide (l = l').
-    { subst. rewrite !lookup_insert //. }
+    { subst. rewrite !lookup_insert_eq //. }
     { rewrite !lookup_insert_ne //. }
   Qed.
 
@@ -43,7 +43,7 @@ Section map.
     σ1 ⊆ <[l:=v]>σ2.
   Proof.
     intros ?? l'. destruct_decide (l = l').
-    { subst. rewrite lookup_insert // not_elem_of_dom_1 //. }
+    { subst. rewrite lookup_insert_eq // not_elem_of_dom_1 //. }
     { rewrite !lookup_insert_ne //. }
   Qed.
 
@@ -72,7 +72,7 @@ Section list.
     x ∈ xs →
     ∃ (l1 l2:list A), xs = l1 ++ x::l2.
   Proof.
-    intros Hx. apply elem_of_list_lookup_1 in Hx.
+    intros Hx. apply list_elem_of_lookup_1 in Hx.
     destruct Hx as (?&?).
     eexists _,_. symmetry. eapply take_drop_middle. done.
   Qed.
@@ -418,7 +418,7 @@ Section graph.
     (r,x,r') ∈ xs → ∃ x', (r',x',r) ∈ ys.
   Proof.
     induction 1. intros ?. set_solver.
-    rewrite elem_of_app elem_of_list_singleton.
+    rewrite elem_of_app list_elem_of_singleton.
     intros [X|X].
     { apply IHmirror in X. set_solver. }
     { set_solver. }
@@ -520,7 +520,7 @@ Section adiffl.
     induction ds as [|(?&?)].
     { intros ?. reflexivity. }
     { intros. simpl. rewrite IHds. set_solver.
-      rewrite insert_commute //. set_solver. }
+      rewrite insert_insert_ne //. set_solver. }
   Qed.
 
   Lemma apply_diffl_app ds ds' σ :
@@ -683,7 +683,7 @@ Section pstore_1_G.
     { constructor.
       { rewrite dom_singleton_L vertices_empty //. set_solver. }
       { set_solver. }
-      { rewrite lookup_insert //. }
+      { rewrite lookup_insert_eq //. }
       { intros ????? Hr.
         rewrite !lookup_singleton_Some.
         inversion Hr; set_solver. } }
@@ -837,28 +837,28 @@ Section pstore_1_G.
         constructor.
         { rewrite dom_insert_L vertices_union vertices_singleton //. set_solver. }
         { apply gmap_included_insert. done. }
-        { rewrite lookup_insert //. }
+        { rewrite lookup_insert_eq //. }
         { intros r1 ds r2 σ1 σ2 Hreach.
           destruct_decide (r' = r1).
-          { subst. rewrite lookup_insert. inversion_clear 1.
+          { subst. rewrite lookup_insert_eq. inversion_clear 1.
             inversion Hreach. subst.
             2:{ exfalso. subst. rewrite /edge elem_of_union in H0.
                 destruct H0. set_solver. apply Hr'. apply elem_of_vertices. set_solver. }
-            rewrite lookup_insert. inversion 1. done. }
+            rewrite lookup_insert_eq. inversion 1. done. }
           rewrite lookup_insert_ne //. intros E1.
           destruct_decide (r2 = r').
-          { subst. rewrite lookup_insert. inversion 1. subst.
+          { subst. rewrite lookup_insert_eq. inversion 1. subst.
             apply path_add_inv_r in Hreach; try done.
             destruct Hreach as [(->&->)|(ds'&->&Hreach)].
             { congruence. }
             specialize (X4 _ _ _ _ _ Hreach E1 X3).
-            rewrite fmap_app apply_diffl_snoc insert_insert insert_id //. }
+            rewrite fmap_app apply_diffl_snoc insert_insert_eq insert_id //. }
           { rewrite lookup_insert_ne //. intros. eapply X4; eauto.
             apply path_cycle_end_inv_aux in Hreach; eauto. } } }
       { destruct Hcoh as [X1 X2].
         constructor.
         { intros r0 ?. destruct_decide (r0 = r').
-          { subst. rewrite lookup_insert. inversion 1. done. }
+          { subst. rewrite lookup_insert_eq. inversion 1. done. }
           rewrite lookup_insert_ne //. intros HM.
           apply X1 in HM. rewrite dom_insert_lookup_L //. }
         { intros ?. set_solver. } }
@@ -986,7 +986,7 @@ Section pstore_1_G.
     { done. }
     rewrite !assoc_L fmap_app apply_diffl_snoc.
     rewrite -app_comm_cons fmap_cons apply_diffl_cons.
-    rewrite -IHundo insert_insert insert_id //.
+    rewrite -IHundo insert_insert_eq insert_id //.
   Qed.
 
   Lemma undo_mirror xs ys g :
