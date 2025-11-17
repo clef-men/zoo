@@ -663,7 +663,7 @@ Module base.
 
       wp_rec.
       wp_apply (ivar_3_is_unset_spec with "[$]") as (b) "Hb".
-      destruct b; iStepFrameSteps 5.
+      destruct b; iSteps.
     Qed.
     Lemma ivar_3_is_set_spec_result t γ Ψ Ξ Ω v :
       {{{

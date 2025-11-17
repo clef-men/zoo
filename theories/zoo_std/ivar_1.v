@@ -499,10 +499,7 @@ Module base.
 
       wp_rec.
       wp_apply (ivar_1_try_get_spec with "Hinv") as ([v |]) "H".
-      all: wp_pures.
-      2: iSteps.
-      iDestruct "H" as "(H£ & Hresult)".
-      iStepFrameSteps.
+      all: iSteps.
     Qed.
     Lemma ivar_1_is_unset_spec_result t γ Ψ Ξ v :
       {{{
@@ -540,7 +537,7 @@ Module base.
 
       wp_rec.
       wp_apply (ivar_1_is_unset_spec with "[$]") as (b) "Hb".
-      destruct b; iStepFrameSteps 5.
+      destruct b; iSteps.
     Qed.
     Lemma ivar_1_is_set_spec_result t γ Ψ Ξ v :
       {{{

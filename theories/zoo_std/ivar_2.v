@@ -545,7 +545,7 @@ Module base.
       all: wp_pures.
       2: iSteps.
       iDestruct "H" as "(H£ & Hresult & Hsynchronized)".
-      iStepFrameSteps.
+      iSteps.
     Qed.
     Lemma ivar_2_is_unset_spec_result t γ Ψ Ξ v :
       {{{
@@ -583,7 +583,7 @@ Module base.
 
       wp_rec.
       wp_apply (ivar_2_is_unset_spec with "[$]") as (b) "Hb".
-      destruct b; iStepFrameSteps 5.
+      destruct b; iSteps.
     Qed.
     Lemma ivar_2_is_set_spec_result t γ Ψ Ξ v :
       {{{
@@ -621,7 +621,7 @@ Module base.
       iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
       wp_apply (ivar_2_try_get_spec with "Hinv") as (state) "H".
       iDestruct "Hinv" as "(:inv)".
-      destruct state; first iStepFrameSteps 13.
+      destruct state; first iSteps.
       do 2 wp_load.
 
       pose Ψ_mutex (_ : val) := (

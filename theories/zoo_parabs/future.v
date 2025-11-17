@@ -438,7 +438,7 @@ Section future_G.
       wp_apply (future_set_spec with "[$]") as "($ & #$)".
     }
 
-    iStepFrameSteps 6.
+    iSteps.
   Qed.
 
   Lemma future_wait_spec pool ctx scope t depth Ψ Ξ :

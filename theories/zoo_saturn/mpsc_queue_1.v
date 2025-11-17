@@ -614,7 +614,7 @@ Section mpsc_queue_1_G.
 
     wp_rec. wp_load. wp_match.
     wp_smart_apply (next_spec_is_empty (λ b, _ -∗ Φ #b)%I with "[$]").
-    iStepFrameSteps 8.
+    iSteps.
   Qed.
 
   #[local] Lemma mpsc_queue_1_push_0_spec l γ i node new_back v :
@@ -762,7 +762,7 @@ Section mpsc_queue_1_G.
     iMod (inv_inner_history_at with "Hinv Hconsumer") as "(%i & Hconsumer & (:node_model =front))".
 
     wp_rec. wp_load. wp_match.
-    wp_smart_apply (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "(Hconsumer & [(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)])"; first iStepFrameSteps 5.
+    wp_smart_apply (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "(Hconsumer & [(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)])"; first iSteps.
     wp_match. wp_pures.
 
     wp_bind (_ <-{front} _)%E.
@@ -792,7 +792,7 @@ Section mpsc_queue_1_G.
     iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
     iSplitR "Hconsumer Hnew_front_data HΦ". { iFrameSteps. }
-    iStepFrameSteps 17.
+    iSteps.
   Qed.
   Lemma mpsc_queue_1_pop_spec t ι :
     <<<
@@ -814,8 +814,7 @@ Section mpsc_queue_1_G.
     iAuIntro.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
-    iAaccIntro with "Hmodel₁"; first iSteps.
-    iStepFrameSteps 5.
+    iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 End mpsc_queue_1_G.
 

@@ -553,10 +553,10 @@ Section zoo_G.
         try match goal with |- _ _ (WP _ == _ {{ _ }})%I =>
           wp_apply wp_equal_nobranch as (b) "%Hb"
         end.
-      all:
+      Time all:
         try match goal with |- _ _ ?P =>
           tryif eunify P (wp _ _ _ _) then idtac else
-            iStepFrameSteps
+            iSteps
         end.
       all:
         try (

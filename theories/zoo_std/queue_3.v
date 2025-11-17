@@ -103,7 +103,7 @@ Section zoo_G.
     iDestruct (array_cslice_to_inv with "Hextra") as "#Hdata_inv".
     iDestruct (array_cslice_nil with "Hdata_inv") as "Hvs".
     wp_block l as "(Hl_data & Hl_front & Hl_back & _)".
-    iStepFrameSteps.
+    iSteps.
   Qed.
 
   Lemma queue_3_size_spec t vs :
@@ -120,7 +120,7 @@ Section zoo_G.
 
     wp_rec. do 2 wp_load. wp_pures.
     assert (back - front = length vs)%Z as -> by lia.
-    iStepFrameSteps.
+    iSteps.
   Qed.
 
   Lemma queue_3_is_empty_spec t vs :
@@ -159,7 +159,7 @@ Section zoo_G.
 
     wp_rec. do 2 wp_load.
     wp_apply (array_unsafe_cget_spec with "Hvs"); [lia | done | lia |].
-    iStepFrameSteps 2.
+    iSteps.
   Qed.
 
   Lemma queue_3_unsafe_set_spec t vs i v :
@@ -178,7 +178,7 @@ Section zoo_G.
     wp_rec. do 2 wp_load.
     wp_apply (array_unsafe_cset_spec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
-    iStepFrameSteps 2; simpl_length.
+    iSteps; simpl_length.
   Qed.
 
   #[local] Lemma queue_3_next_capacity_spec n :
@@ -246,7 +246,7 @@ Section zoo_G.
     iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
     wp_store.
     replace (back + 1)%Z with ⁺(S back) by lia.
-    iStepFrameSteps; iPureIntro; simpl_length/=; lia.
+    iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
   #[local] Lemma queue_3_shrink_spec t vs :
@@ -264,7 +264,7 @@ Section zoo_G.
     wp_rec. rewrite queue_3_min_capacity. do 3 wp_load.
     wp_smart_apply (array_size_spec_cslice with "Hvs") as "Hvs".
     wp_pures.
-    case_bool_decide; last iStepFrameSteps 5.
+    case_bool_decide; last iSteps.
     iDestruct (array_cslice_app_1 with "Hvs Hextra") as "Hvs"; first done.
     wp_pures. rewrite -Z.div2_spec.
     wp_apply (array_unsafe_cshrink_slice_spec with "Hvs") as (data') "(_ & Hvs)"; [simpl_length; lia.. |].
@@ -291,7 +291,7 @@ Section zoo_G.
     case_bool_decide.
 
     - destruct vs; last naive_solver lia.
-      iStepFrameSteps 5.
+      iSteps.
 
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp_load.
@@ -334,7 +334,7 @@ Section zoo_G.
 
     - destruct vs; last naive_solver lia.
       iSpecialize ("HΦ" $! None).
-      iStepFrameSteps 5.
+      iSteps.
 
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp_load.
