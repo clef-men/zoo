@@ -273,8 +273,8 @@ Module base.
         )
       ".
 
-    Definition inf_mpmc_queue_1_model γ vs : iProp Σ :=
-      model₁ γ vs.
+    Definition inf_mpmc_queue_1_model :=
+      model₁.
     #[local] Instance : CustomIpatFormat "model" :=
       " Hmodel₁{_{}}
       ".
