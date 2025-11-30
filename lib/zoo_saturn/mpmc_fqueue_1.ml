@@ -57,8 +57,7 @@ let pop t =
     None
   else
     let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-    let data = t.data in
     if t.capacity <= i then
       None
     else
-      pop data i
+      pop t.data i

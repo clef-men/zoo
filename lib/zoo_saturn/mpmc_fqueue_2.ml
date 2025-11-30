@@ -31,10 +31,9 @@ let is_empty t =
 
 let rec push t v =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
-  let data = t.data in
   if t.capacity <= i then
     false
-  else if Atomic_array.unsafe_cas data i Nothing (Something v) then
+  else if Atomic_array.unsafe_cas t.data i Nothing (Something v) then
     true
   else
     push t v
@@ -46,11 +45,10 @@ let push t v =
 
 let rec pop t =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-  let data = t.data in
   if t.capacity <= i then
     None
   else
-    match Atomic_array.unsafe_xchg data i Anything with
+    match Atomic_array.unsafe_xchg t.data i Anything with
     | Nothing ->
         Domain.yield () ;
         pop t
