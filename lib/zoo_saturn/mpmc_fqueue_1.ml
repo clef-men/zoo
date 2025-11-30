@@ -25,7 +25,9 @@ let make cap v =
   }
 
 let is_empty t =
-  t.back <= t.front
+  let front = t.front in
+  let back = t.back in
+  back <= front
 
 let push t v =
   if t.capacity <= t.back then

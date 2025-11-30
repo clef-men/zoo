@@ -25,7 +25,9 @@ let make cap v =
   }
 
 let is_empty t =
-  t.back <= t.front
+  let front = t.front in
+  let back = t.back in
+  back <= front
 
 let rec push t v =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
