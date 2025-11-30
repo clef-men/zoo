@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 type 'a t =
   { capacity: int;
     data: 'a Optional.t Atomic_array.t;

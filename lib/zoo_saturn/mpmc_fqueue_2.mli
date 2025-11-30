@@ -1,5 +1,3 @@
-[@@@zoo.ignore]
-
 type 'a t
 
 val create :
