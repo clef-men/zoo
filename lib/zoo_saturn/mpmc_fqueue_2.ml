@@ -43,21 +43,12 @@ let push t v =
   else
     push t v
 
-let rec pop t =
-  let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
-  if t.capacity <= i then
-    None
-  else
-    match Atomic_array.unsafe_xchg t.data i Anything with
-    | Nothing ->
-        Domain.yield () ;
-        pop t
-    | Anything ->
-        assert false
-    | Something v ->
-        Some v
 let pop t =
   if t.capacity <= t.front then
-    None
+    Optional.Anything
   else
-    pop t
+    let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
+    if t.capacity <= i then
+      Anything
+    else
+      Atomic_array.unsafe_xchg t.data i Anything

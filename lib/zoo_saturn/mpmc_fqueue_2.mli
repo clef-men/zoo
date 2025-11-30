@@ -15,4 +15,4 @@ val push :
   'a t -> 'a -> bool
 
 val pop :
-  'a t -> 'a option
+  'a t -> 'a Optional.t

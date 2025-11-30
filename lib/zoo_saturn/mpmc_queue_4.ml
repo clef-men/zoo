@@ -69,28 +69,29 @@ let rec push t (node : (_, [`Node]) node) v =
 let push t v =
   push t t.back v
 
-let rec pop_1 t (node : (_, [`Node]) node) =
-  let Node node_r = node in
-  let proph = Zoo.proph () in
-  if Mpmc_fqueue_2.is_empty node_r.queue then
-    match Zoo.resolve_with node_r.next proph () with
-    | Null ->
-        None
-    | Node _ ->
-        pop_2 t node
-  else
-    pop_2 t node
-and pop_2 t (node : (_, [`Node]) node) =
-  let Node node_r = node in
-  match Mpmc_fqueue_2.pop node_r.queue with
-  | Some _ as res ->
-      res
-  | None ->
-      match node_r.next with
+let rec pop_aux t front =
+  let Node front_r = front in
+  match Mpmc_fqueue_2.pop front_r.queue with
+  | Something v ->
+      Some v
+  | Nothing ->
+      Domain.yield () ;
+      pop t
+  | Anything ->
+      match front_r.next with
       | Null ->
           None
       | Node _ as next ->
-          Atomic.Loc.compare_and_set [%atomic.loc t.front] node next |> ignore ;
-          pop_1 t next
-let pop t =
-  pop_1 t t.front
+          Atomic.Loc.compare_and_set [%atomic.loc t.front] front next |> ignore ;
+          pop t
+and pop t =
+  let Node front_r as front = t.front in
+  let proph = Zoo.proph () in
+  if Mpmc_fqueue_2.is_empty front_r.queue then
+    match Zoo.resolve_with front_r.next proph () with
+    | Null ->
+        None
+    | Node _ ->
+        pop_aux t front
+  else
+    pop_aux t front
