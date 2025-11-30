@@ -16,6 +16,15 @@ let lock =
       lock t
 ]
 
+let create_lock () =
+  let t = create () in
+  lock t ;
+  t
+[@@zoo.overwrite
+  fun () ->
+    Atomic.make true
+]
+
 let unlock =
   Stdlib.Mutex.unlock
 [@@zoo.overwrite

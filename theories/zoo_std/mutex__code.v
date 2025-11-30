@@ -18,6 +18,10 @@ Definition mutex_lock : val :=
       "lock" "t"
     ).
 
+Definition mutex_create_lock : val :=
+  fun: <> =>
+    ref #true.
+
 Definition mutex_unlock : val :=
   fun: "t" =>
     "t" <- #false.

@@ -132,10 +132,13 @@ Section mutex_G.
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
+
     wp_rec.
     wp_ref l as "Hmeta" "Hl".
+
     iMod excl_alloc as "(%γ & Hlocked)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+
     iSteps.
   Qed.
   Lemma mutex_create_spec P :
@@ -149,6 +152,7 @@ Section mutex_G.
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
+
     iApply wp_fupd.
     wp_apply (mutex_create_spec_init with "[//]") as (t) "Hinit".
     iMod (mutex_init_to_inv with "Hinit HP") as "Hinv".
@@ -168,14 +172,40 @@ Section mutex_G.
   Proof.
     iIntros "%Φ (%l & %γ & -> & #Hmeta & #Hinv) HΦ".
     iLöb as "HLöb".
+
     wp_rec. wp_pures.
+
     wp_bind (CAS _ _ _).
     iInv "Hinv" as "(%b & Hl & Hb)".
     destruct b; last iSteps.
     wp_cas as _ | [=].
-    iModIntro. iSplitR "HΦ"; first iSteps.
+    iSplitR "HΦ"; first iSteps.
+    iModIntro.
+
     wp_pures.
     iApply ("HLöb" with "HΦ").
+  Qed.
+
+  Lemma mutex_create_lock_spec P :
+    {{{
+      True
+    }}}
+      mutex_create_lock ()
+    {{{ t,
+      RET t;
+      mutex_inv t P ∗
+      mutex_locked t
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    wp_rec.
+    wp_ref l as "Hmeta" "Hl".
+
+    iMod excl_alloc as "(%γ & Hlocked)".
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+
+    iSteps.
   Qed.
 
   Lemma mutex_unlock_spec t P :
@@ -192,6 +222,7 @@ Section mutex_G.
   Proof.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
+
     iSteps.
   Qed.
 
@@ -206,6 +237,7 @@ Section mutex_G.
     }}}.
   Proof.
     iIntros "%Φ #Hinv HΦ".
+
     wp_rec.
     wp_apply (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
     wp_smart_apply (mutex_unlock_spec with "[$Hinv $Hlocked $HP] HΦ").
@@ -244,6 +276,7 @@ Section mutex_G.
     }}}.
   Proof.
     iIntros "%Φ (#Hinv & Hfn) HΦ".
+
     wp_rec.
     wp_smart_apply (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
     wp_smart_apply (wp_wand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
