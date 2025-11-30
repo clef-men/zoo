@@ -288,8 +288,7 @@ Module base.
       ivar_1_producer γ -∗
       False.
     Proof.
-      iIntros "(:producer =1) (:producer =2)".
-      iApply (lstate_unset₂_exclusive with "Hlstate_unset₂_1 Hlstate_unset₂_2").
+      apply lstate_unset₂_exclusive.
     Qed.
 
     Lemma ivar_1_consumer_divide {t γ Ψ Ξ Χ} Χs :
@@ -311,8 +310,7 @@ Module base.
       ivar_1_result γ v2 -∗
       ⌜v1 = v2⌝.
     Proof.
-      iIntros "(:result =1) (:result =2)".
-      iApply (lstate_set_agree with "Hlstate_set_1 Hlstate_set_2").
+      apply lstate_set_agree.
     Qed.
 
     Lemma ivar_1_producer_result γ v :
@@ -320,8 +318,7 @@ Module base.
       ivar_1_result γ v -∗
       False.
     Proof.
-      iIntros "(:producer =1) (:result =2)".
-      iApply (lstate_unset₂_set with "Hlstate_unset₂_1 Hlstate_set_2").
+      apply lstate_unset₂_set.
     Qed.
 
     Lemma ivar_1_inv_result t γ Ψ Ξ v :
