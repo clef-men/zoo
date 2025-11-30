@@ -73,20 +73,24 @@ let rec pop_1 t (node : (_, [`Node]) node) =
   let Node node_r = node in
   let proph = Zoo.proph () in
   if Mpmc_fqueue_2.is_empty node_r.queue then
-    pop_2 t node proph
+    match Zoo.resolve_with node_r.next proph () with
+    | Null ->
+        None
+    | Node _ ->
+        pop_2 t node
   else
-    match Mpmc_fqueue_2.pop node_r.queue with
-    | Some _ as res ->
-        res
-    | None ->
-        pop_2 t node proph
-and pop_2 t (node : (_, [`Node]) node) proph =
+    pop_2 t node
+and pop_2 t (node : (_, [`Node]) node) =
   let Node node_r = node in
-  match Zoo.resolve_with node_r.next proph () with
-  | Null ->
-      None
-  | Node _ as next ->
-      Atomic.Loc.compare_and_set [%atomic.loc t.front] node next |> ignore ;
-      pop_1 t next
+  match Mpmc_fqueue_2.pop node_r.queue with
+  | Some _ as res ->
+      res
+  | None ->
+      match node_r.next with
+      | Null ->
+          None
+      | Node _ as next ->
+          Atomic.Loc.compare_and_set [%atomic.loc t.front] node next |> ignore ;
+          pop_1 t next
 let pop t =
   pop_1 t t.front
