@@ -283,6 +283,10 @@ theories/zoo_std/mvar__types.v
 theories/zoo_std/mvar__code.v
 theories/zoo_std/mvar__opaque.v
 theories/zoo_std/mvar.v
+theories/zoo_std/lazy__types.v
+theories/zoo_std/lazy__code.v
+theories/zoo_std/lazy__opaque.v
+theories/zoo_std/lazy.v
 theories/zoo_std/random__types.v
 theories/zoo_std/random__code.v
 theories/zoo_std/random__opaque.v
