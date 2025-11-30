@@ -51,6 +51,7 @@ let rec push t (node : (_, [`Node]) node) v =
       if not @@ Mpmc_fqueue_2.push node_r.queue v then
         match node_r.next with
         | Node _ as next ->
+            Atomic.Loc.compare_and_set [%atomic.loc t.back] node next |> ignore ;
             push t next v
         | Null ->
             let (Node _ as new_back : (_, [`Node]) node) =
