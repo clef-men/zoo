@@ -40,12 +40,12 @@ Section mutex_G.
   #[local] Definition locked γ :=
     excl γ ().
 
-  Definition mutex_init t : iProp Σ :=
+  Definition mutex_init t b : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
-    l ↦ᵣ #false ∗
-    locked γ.
+    l ↦ᵣ #b ∗
+    if b then True else locked γ.
 
   #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ b,
@@ -86,8 +86,8 @@ Section mutex_G.
     apply _.
   Qed.
 
-  #[global] Instance mutex_init_timeless t :
-    Timeless (mutex_init t).
+  #[global] Instance mutex_init_timeless t b :
+    Timeless (mutex_init t b).
   Proof.
     apply _.
   Qed.
@@ -103,12 +103,19 @@ Section mutex_G.
     apply _.
   Qed.
 
-  Lemma mutex_init_to_inv {t} P :
-    mutex_init t -∗
-    ▷ P ={⊤}=∗
-    mutex_inv t P.
+  Lemma mutex_init_exclusive t b1 b2 :
+    mutex_init t b1 -∗
+    mutex_init t b2 -∗
+    False.
   Proof.
     iSteps.
+  Qed.
+  Lemma mutex_init_to_inv {t b} P E :
+    mutex_init t b -∗
+    (if b then True else ▷ P) ={E}=∗
+    mutex_inv t P.
+  Proof.
+    destruct b; iSteps.
   Qed.
 
   Lemma mutex_locked_exclusive t :
@@ -128,7 +135,7 @@ Section mutex_G.
       mutex_create ()
     {{{ t,
       RET t;
-      mutex_init t
+      mutex_init t false
     }}}.
   Proof.
     iIntros "%Φ HP HΦ".
@@ -159,6 +166,46 @@ Section mutex_G.
     iApply ("HΦ" with "Hinv").
   Qed.
 
+  Lemma mutex_create_lock_spec_init :
+    {{{
+      True
+    }}}
+      mutex_create_lock ()
+    {{{ t,
+      RET t;
+      mutex_init t true ∗
+      mutex_locked t
+    }}}.
+  Proof.
+    iIntros "%Φ _ HΦ".
+
+    wp_rec.
+    wp_ref l as "Hmeta" "Hl".
+
+    iMod excl_alloc as "(%γ & Hlocked)".
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+
+    iSteps.
+  Qed.
+  Lemma mutex_create_lock_spec P :
+    {{{
+      True
+    }}}
+      mutex_create_lock ()
+    {{{ t,
+      RET t;
+      mutex_inv t P ∗
+      mutex_locked t
+    }}}.
+  Proof.
+    iIntros "%Φ HP HΦ".
+
+    iApply wp_fupd.
+    wp_apply (mutex_create_lock_spec_init with "[//]") as (t) "(Hinit & Hlocked)".
+    iMod (mutex_init_to_inv P with "Hinit [//]") as "Hinv".
+    iApply ("HΦ" with "[$]").
+  Qed.
+
   Lemma mutex_lock_spec t P :
     {{{
       mutex_inv t P
@@ -185,27 +232,18 @@ Section mutex_G.
     wp_pures.
     iApply ("HLöb" with "HΦ").
   Qed.
-
-  Lemma mutex_create_lock_spec P :
+  Lemma mutex_lock_spec_init t :
     {{{
-      True
+      mutex_init t false
     }}}
-      mutex_create_lock ()
-    {{{ t,
-      RET t;
-      mutex_inv t P ∗
+      mutex_lock t
+    {{{
+      RET ();
+      mutex_init t true ∗
       mutex_locked t
     }}}.
   Proof.
-    iIntros "%Φ _ HΦ".
-
-    wp_rec.
-    wp_ref l as "Hmeta" "Hl".
-
-    iMod excl_alloc as "(%γ & Hlocked)".
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
-
-    iSteps.
+    rewrite /mutex_lock. iSteps.
   Qed.
 
   Lemma mutex_unlock_spec t P :
@@ -223,6 +261,19 @@ Section mutex_G.
     iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hinv) & (%_l & %_γ & %Heq & #_Hmeta & Hlocked) & HP) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
+    iSteps.
+  Qed.
+  Lemma mutex_unlock_spec_init t :
+    {{{
+      mutex_init t true ∗
+      mutex_locked t
+    }}}
+      mutex_unlock t
+    {{{
+      RET ();
+      mutex_init t false
+    }}}.
+  Proof.
     iSteps.
   Qed.
 
