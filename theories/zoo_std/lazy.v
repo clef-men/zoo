@@ -588,21 +588,23 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_smart_apply (mutex_create_lock_spec (lazy_resolved γ) with "[//]") as (mtx) "(#Hmtx_inv & Hmtx_locked)".
+        wp_smart_apply (mutex_create_lock_spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
         wp_pures.
 
         wp_bind (CAS _ _ _).
         iInv "Hinv" as "(:inv_inner)".
         wp_cas as Hcas.
 
-        + iSplitR "Hmtx_locked HΦ". { iFrameSteps. }
+        + iSplitR "Hmtx_init Hmtx_locked HΦ". { iFrameSteps. }
           iIntros "!> {%}".
 
+          wp_smart_apply (mutex_unlock_spec_init with "[$]") as "_".
           wp_smart_apply "HLöb".
           iSteps.
 
         + destruct state; zoo_simplify.
           iDestruct "Hstate" as "(:inv_state_unset)".
+          iMod (mutex_init_to_inv (lazy_resolved γ) with "Hmtx_init [//]") as "#Hmtx_inv".
           iSplitR "Hmtx_locked Hlstate_unset₂ Hthunk HΦ".
           { iExists (Setting mtx). iFrameSteps. }
           iIntros "!> {%}".

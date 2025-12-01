@@ -34,10 +34,12 @@ let rec get t =
       get t
   | Unset fn as state ->
       let mtx = Mutex.create_lock () in
-      if Atomic.compare_and_set t state (Setting mtx) then
+      if Atomic.compare_and_set t state (Setting mtx) then (
         let res = fn () in
         Atomic.set t (Set res) ;
         Mutex.unlock mtx ;
         res
-      else
+      ) else (
+        Mutex.unlock mtx ;
         get t
+      )

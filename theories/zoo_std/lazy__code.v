@@ -47,6 +47,7 @@ Definition lazy_get : val :=
           mutex_unlock "mtx" ;;
           "res"
         ) else (
+          mutex_unlock "mtx" ;;
           "get" "t"
         )
     end.
