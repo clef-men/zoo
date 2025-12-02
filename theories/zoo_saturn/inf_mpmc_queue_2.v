@@ -17,6 +17,7 @@ From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
   identifier
+  prophet_identifier
   prophet_multi
   prophet_nat.
 From zoo.diaframe Require Import
@@ -44,27 +45,8 @@ Implicit Types slot : optional val.
 Implicit Types slots : nat → optional val.
 Implicit Types η : gname.
 Implicit Types ηs : list gname.
-
-#[local] Program Definition global_prophet := {|
-  prophet_typed_type :=
-    identifier ;
-  prophet_typed_of_val v :=
-    match v with
-    | ValId id =>
-        Some id
-    | _ =>
-        None
-    end ;
-  prophet_typed_to_val id :=
-    #id ;
-|}.
-Solve Obligations of global_prophet with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
-Implicit Types past prophs : list global_prophet.(prophet_typed_type).
-Implicit Types pasts prophss : nat → list global_prophet.(prophet_typed_type).
+Implicit Types past prophs : list prophet_identifier.(prophet_typed_type).
+Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed_type).
 
 Inductive lstate :=
   | Producer
@@ -169,7 +151,7 @@ Qed.
 
 Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_mpmc_queue_2_G_prophet_G :: ProphetMultiG Σ global_prophet ;
+  #[local] inf_mpmc_queue_2_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
   #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val) ;
   #[local] inf_mpmc_queue_2_G_lstate_G :: AuthMonoG Σ lstep ;
@@ -183,7 +165,7 @@ Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
 
 Definition inf_mpmc_queue_2_Σ := #[
   inf_array_Σ ;
-  prophet_multi_Σ global_prophet ;
+  prophet_multi_Σ prophet_identifier ;
   twins_Σ (leibnizO (list val)) ;
   mono_list_Σ (option val) ;
   mono_list_Σ gname ;
@@ -347,7 +329,7 @@ Module base.
 
     #[local] Definition winner γ i : iProp Σ :=
       ∃ id prophs,
-      prophet_multi_full global_prophet γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
+      prophet_multi_full prophet_identifier γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
       identifier_model' id.
     #[local] Instance : CustomIpatFormat "winner" :=
@@ -469,7 +451,7 @@ Module base.
       ⌜length hist = back⌝ ∗
       lstates_auth γ lstates ∗
       ⌜length lstates = front `max` back⌝ ∗
-      prophet_multi_model global_prophet γ.(inf_mpmc_queue_2_name_prophet) γ.(inf_mpmc_queue_2_name_prophet_name) pasts prophss ∗
+      prophet_multi_model prophet_identifier γ.(inf_mpmc_queue_2_name_prophet) γ.(inf_mpmc_queue_2_name_prophet_name) pasts prophss ∗
       producers_auth γ back ∗
       consumers_auth γ front ∗
       ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -871,7 +853,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp_rec.
-      wp_apply (prophet_multi_wp_proph global_prophet with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
+      wp_apply (prophet_multi_wp_proph prophet_identifier with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
       wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       wp_block t as "Hmeta" "(Ht_data & Ht_front & Ht_back & Ht_proph & _)".
       iMod (pointsto_persist with "Ht_data") as "#Ht_data".

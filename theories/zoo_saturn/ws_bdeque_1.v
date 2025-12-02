@@ -14,6 +14,7 @@ From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
   identifier
+  prophet_identifier
   prophet_multi.
 From zoo.diaframe Require Import
   diaframe.
@@ -35,6 +36,8 @@ Implicit Types l : location.
 Implicit Types id : prophet_id.
 Implicit Types v t : val.
 Implicit Types us vs ws hist priv : list val.
+Implicit Types past prophs : list prophet_identifier.(prophet_typed_type).
+Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed_type).
 
 Inductive state :=
   | Empty
@@ -54,29 +57,8 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-#[local] Program Definition prophet := {|
-  prophet_typed_type :=
-    identifier ;
-  prophet_typed_of_val v :=
-    match v with
-    | ValId id =>
-        Some id
-    | _ =>
-        None
-    end ;
-  prophet_typed_to_val id :=
-    #id ;
-|}.
-Solve Obligations of prophet with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
-Implicit Types past prophs : list prophet.(prophet_typed_type).
-Implicit Types pasts prophss : nat → list prophet.(prophet_typed_type).
-
 Class WsBqueue1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_bdeque_1_G_prophet_G :: ProphetMultiG Σ prophet ;
+  #[local] ws_bdeque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
   #[local] ws_bdeque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
   #[local] ws_bdeque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat)) ;
   #[local] ws_bdeque_1_G_front_G :: AuthNatMaxG Σ ;
@@ -85,7 +67,7 @@ Class WsBqueue1G Σ `{zoo_G : !ZooG Σ} := {
 }.
 
 Definition ws_bdeque_1_Σ := #[
-  prophet_multi_Σ prophet ;
+  prophet_multi_Σ prophet_identifier ;
   auth_twins_Σ (leibnizO (list val)) suffix ;
   twins_Σ (leibnizO (stability * nat)) ;
   auth_nat_max_Σ ;
@@ -392,7 +374,7 @@ Section ws_bdeque_1_G.
     array_cslice γ.(metadata_data) γ.(metadata_capacity) front (DfracOwn (1/2)) (vs ++ priv) ∗
     ⌜(length vs + length priv)%nat = γ.(metadata_capacity)⌝ ∗
     history_auth γ hist ∗
-    prophet_multi_model prophet γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
+    prophet_multi_model prophet_identifier γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
     ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
     inv_state γ state stable front back hist vs priv (prophss front).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
@@ -1378,7 +1360,7 @@ Section ws_bdeque_1_G.
     {{{
       inv' l γ ∗
       front_lb γ front ∗
-      prophet_multi_full prophet γ.(metadata_prophet_name) front prophs0
+      prophet_multi_full prophet_identifier γ.(metadata_prophet_name) front prophs0
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
@@ -1878,7 +1860,7 @@ Section ws_bdeque_1_G.
       | PopEmptyishLoser =>
           ∃ id_winner prophs,
           ⌜stable = Unstable⌝ ∗
-          prophet_multi_full prophet γ.(metadata_prophet_name) back (id_winner :: prophs) ∗
+          prophet_multi_full prophet_identifier γ.(metadata_prophet_name) back (id_winner :: prophs) ∗
           ⌜head (id_winner :: prophs) ≠ Some id⌝
       | PopSuperempty =>
           ∃ front,
