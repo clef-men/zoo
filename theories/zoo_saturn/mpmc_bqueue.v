@@ -16,7 +16,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  typed_prophet.
+  prophet_typed.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -40,16 +40,16 @@ Implicit Types waiter : gname.
 Implicit Types waiters : gmap gname nat.
 
 #[local] Program Definition prophet := {|
-  typed_strong_prophet1_type :=
+  prophet_typed_strong_1_type :=
     location ;
-  typed_strong_prophet1_of_val v _ :=
+  prophet_typed_strong_1_of_val v _ :=
     match v with
     | ValLoc l =>
         Some l
     | _ =>
         None
     end ;
-  typed_strong_prophet1_to_val l :=
+  prophet_typed_strong_1_to_val l :=
     (#l, ()%V) ;
 |}.
 Solve Obligations of prophet with
@@ -898,7 +898,7 @@ Section mpmc_bqueue_G.
     wp_rec.
     wp_apply (front_spec with "Hinv") as (front1 i_front1) "(:node_model =front1 front=)".
     wp_match.
-    wp_smart_apply (typed_strong_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_smart_apply (prophet_typed_strong_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
     wp_smart_apply (back_spec with "Hinv") as (back2 i_back2) "(:node_model =back2)".
     wp_match. wp_pures.
     destruct_decide (proph = front1) as -> | Hproph.
@@ -909,7 +909,7 @@ Section mpmc_bqueue_G.
 
         wp_bind (Resolve _ _ _).
         iInv "Hinv" as "(:inv_inner =3)".
-        wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        wp_apply (prophet_typed_strong_1_wp_resolve with "Hproph"); first done.
         wp_load.
         iStep. iIntros "<-".
         iDestruct "HΦ" as "[HΦ | (%i_front2 & #Hfront_lb_front2 & % & HΦ)]"; last first.
@@ -939,7 +939,7 @@ Section mpmc_bqueue_G.
 
         wp_bind (Resolve _ _ _).
         iInv "Hinv" as "(:inv_inner =3)".
-        wp_apply (typed_strong_prophet1_wp_resolve with "Hproph"); first done.
+        wp_apply (prophet_typed_strong_1_wp_resolve with "Hproph"); first done.
         iSteps.
 
       + wp_match. wp_pures.

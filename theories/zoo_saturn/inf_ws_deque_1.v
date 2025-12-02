@@ -14,7 +14,7 @@ From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
   identifier
-  wise_prophets.
+  prophet_multi.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -55,16 +55,16 @@ Implicit Types stable : stability.
   populate Stable.
 
 #[local] Program Definition prophet := {|
-  typed_prophet_type :=
+  prophet_typed_type :=
     identifier ;
-  typed_prophet_of_val v :=
+  prophet_typed_of_val v :=
     match v with
     | ValId id =>
         Some id
     | _ =>
         None
     end ;
-  typed_prophet_to_val id :=
+  prophet_typed_to_val id :=
     #id ;
 |}.
 Solve Obligations of prophet with
@@ -72,12 +72,12 @@ Solve Obligations of prophet with
 Next Obligation.
   naive_solver.
 Qed.
-Implicit Types past prophs : list prophet.(typed_prophet_type).
-Implicit Types pasts prophss : nat → list prophet.(typed_prophet_type).
+Implicit Types past prophs : list prophet.(prophet_typed_type).
+Implicit Types pasts prophss : nat → list prophet.(prophet_typed_type).
 
 Class InfWsQueue1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_ws_deque_1_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_ws_deque_1_G_prophets_G :: WiseProphetsG Σ prophet ;
+  #[local] inf_ws_deque_1_G_prophet_G :: ProphetMultiG Σ prophet ;
   #[local] inf_ws_deque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
   #[local] inf_ws_deque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat * (nat → val))) ;
   #[local] inf_ws_deque_1_G_front_G :: AuthNatMaxG Σ ;
@@ -87,7 +87,7 @@ Class InfWsQueue1G Σ `{zoo_G : !ZooG Σ} := {
 
 Definition inf_ws_deque_1_Σ := #[
   inf_array_Σ ;
-  wise_prophets_Σ prophet ;
+  prophet_multi_Σ prophet ;
   auth_twins_Σ (leibnizO (list val)) suffix ;
   twins_Σ (leibnizO (stability * nat * (nat → val))) ;
   auth_nat_max_Σ ;
@@ -110,7 +110,7 @@ Section inf_ws_deque_1_G.
     metadata_data : val ;
     metadata_inv : namespace ;
     metadata_prophet : prophet_id ;
-    metadata_prophet_name : wise_prophets_name ;
+    metadata_prophet_name : prophet_multi_name ;
     metadata_model : auth_twins_name ;
     metadata_owner : gname ;
     metadata_front : gname ;
@@ -396,7 +396,7 @@ Section inf_ws_deque_1_G.
     ⌜length vs = back - front⌝ ∗
     inf_array_model' γ.(metadata_data) (hist ++ vs) priv ∗
     history_auth γ lhist ∗
-    wise_prophets_model prophet γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
+    prophet_multi_model prophet γ.(metadata_prophet) γ.(metadata_prophet_name) pasts prophss ∗
     ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
     inv_state γ state stable front back hist lhist vs (prophss front).
   #[local] Instance : CustomIpatFormat "inv_inner" :=
@@ -952,7 +952,7 @@ Section inf_ws_deque_1_G.
 
     wp_rec.
 
-    wp_apply (wise_prophets_wp_proph with "[//]") as (pid γ_prophet prophss) "Hprophet_model".
+    wp_apply (prophet_multi_wp_proph with "[//]") as (pid γ_prophet prophss) "Hprophet_model".
 
     wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
     iDestruct (inf_array_model_to_model'_constant 1 with "Hdata_model") as "Hdata_model".
@@ -1264,7 +1264,7 @@ Section inf_ws_deque_1_G.
 
     iInv "Hinv" as "(:inv_inner =3)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
-    wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+    wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_cas as Hcas; zoo_simplify in Hcas; last lia.
     iIntros "!> %prophs %Hprophss3 Hprophet_model".
     iSplitR "HΦ".
@@ -1281,7 +1281,7 @@ Section inf_ws_deque_1_G.
     {{{
       inv' l γ ∗
       front_lb γ front ∗
-      wise_prophets_full prophet γ.(metadata_prophet_name) front prophs0
+      prophet_multi_full prophet γ.(metadata_prophet_name) front prophs0
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
@@ -1293,12 +1293,12 @@ Section inf_ws_deque_1_G.
 
     iInv "Hinv" as "(:inv_inner =1)".
     iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
-    wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+    wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     destruct b; zoo_simplify in Hcas; first subst front1.
 
-    - iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %->.
+    - iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %->.
       rewrite fn_lookup_alter Hpasts1 // in Hloser.
 
     - iDestruct (front_lb_get with "Hfront_auth") as "#-#Hfront_lb_1".
@@ -1326,7 +1326,7 @@ Section inf_ws_deque_1_G.
     iIntros "%Φ ((:inv') & Hwinner_pop) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
-    wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+    wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_pop with "Hstate Hwinner_pop") as "(%P_ & -> & #Heq & Hstate & Hwinner_pop)".
@@ -1393,7 +1393,7 @@ Section inf_ws_deque_1_G.
     iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
-    wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+    wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (inv_state_winner_steal with "Hstate Hwinner_steal") as "(%P_ & -> & _ & (:inv_state_emptyish_pop =1) & Hwinner_steal)".
@@ -1425,7 +1425,7 @@ Section inf_ws_deque_1_G.
     iIntros "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
 
     iInv "Hinv" as "(:inv_inner =1)".
-    wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+    wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
     wp_apply (wp_cas_nobranch' with "Hl_front") as (b) "%Hcas Hl_front".
     iIntros "%prophs %Hprophss1 Hprophet_model".
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
@@ -1636,7 +1636,7 @@ Section inf_ws_deque_1_G.
       iSteps.
     }
 
-    iDestruct (wise_prophets_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
+    iDestruct (prophet_multi_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
     iEval (rewrite Hpasts2 //=) in "Hprophet_full".
 
     destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
@@ -1703,7 +1703,7 @@ Section inf_ws_deque_1_G.
       | PopEmptyishLoser =>
           ∃ id_winner prophs,
           ⌜stable = Unstable⌝ ∗
-          wise_prophets_full prophet γ.(metadata_prophet_name) back (id_winner :: prophs) ∗
+          prophet_multi_full prophet γ.(metadata_prophet_name) back (id_winner :: prophs) ∗
           ⌜head (id_winner :: prophs) ≠ Some id⌝
       | PopSuperempty =>
           ∃ front,
@@ -1914,7 +1914,7 @@ Section inf_ws_deque_1_G.
           iSteps.
         }
 
-        iDestruct (wise_prophets_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
+        iDestruct (prophet_multi_full_get _ front1 with "Hprophet_model") as "#Hprophet_full".
         iEval (rewrite Hpasts1 //=) in "Hprophet_full".
         destruct (prophss1 front1) as [| id_winner prophs]; first done.
         iDestruct "Hwinner" as "(:winner_pending_2 !=)".

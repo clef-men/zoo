@@ -17,7 +17,7 @@ From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
   identifier
-  wise_prophets.
+  prophet_multi.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -45,16 +45,16 @@ Implicit Types η : gname.
 Implicit Types ηs : list gname.
 
 #[local] Program Definition global_prophet := {|
-  typed_prophet_type :=
+  prophet_typed_type :=
     identifier ;
-  typed_prophet_of_val v :=
+  prophet_typed_of_val v :=
     match v with
     | ValId id =>
         Some id
     | _ =>
         None
     end ;
-  typed_prophet_to_val id :=
+  prophet_typed_to_val id :=
     #id ;
 |}.
 Solve Obligations of global_prophet with
@@ -62,20 +62,20 @@ Solve Obligations of global_prophet with
 Next Obligation.
   naive_solver.
 Qed.
-Implicit Types past prophs : list global_prophet.(typed_prophet_type).
-Implicit Types pasts prophss : nat → list global_prophet.(typed_prophet_type).
+Implicit Types past prophs : list global_prophet.(prophet_typed_type).
+Implicit Types pasts prophss : nat → list global_prophet.(prophet_typed_type).
 
 #[local] Program Definition local_prophet := {|
-  typed_prophet1_type :=
+  prophet_typed_1_type :=
     nat ;
-  typed_prophet1_of_val v :=
+  prophet_typed_1_of_val v :=
     match v with
     | ValInt i =>
         Some (Z.to_nat i)
     | _ =>
         None
     end ;
-  typed_prophet1_to_val i :=
+  prophet_typed_1_to_val i :=
     #i ;
 |}.
 Solve Obligations of local_prophet with
@@ -187,7 +187,7 @@ Qed.
 
 Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_mpmc_queue_2_G_prophets_G :: WiseProphetsG Σ global_prophet ;
+  #[local] inf_mpmc_queue_2_G_prophet_G :: ProphetMultiG Σ global_prophet ;
   #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
   #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val) ;
   #[local] inf_mpmc_queue_2_G_lstate_G :: AuthMonoG Σ lstep ;
@@ -201,7 +201,7 @@ Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
 
 Definition inf_mpmc_queue_2_Σ := #[
   inf_array_Σ ;
-  wise_prophets_Σ global_prophet ;
+  prophet_multi_Σ global_prophet ;
   twins_Σ (leibnizO (list val)) ;
   mono_list_Σ (option val) ;
   mono_list_Σ gname ;
@@ -230,7 +230,7 @@ Module base.
       inf_mpmc_queue_2_name_data : val ;
       inf_mpmc_queue_2_name_inv : namespace ;
       inf_mpmc_queue_2_name_prophet : prophet_id ;
-      inf_mpmc_queue_2_name_prophet_name : wise_prophets_name ;
+      inf_mpmc_queue_2_name_prophet_name : prophet_multi_name ;
       inf_mpmc_queue_2_name_model : gname ;
       inf_mpmc_queue_2_name_history : gname ;
       inf_mpmc_queue_2_name_lstates : gname ;
@@ -365,7 +365,7 @@ Module base.
 
     #[local] Definition winner γ i : iProp Σ :=
       ∃ id prophs,
-      wise_prophets_full global_prophet γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
+      prophet_multi_full global_prophet γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
       identifier_model' id.
     #[local] Instance : CustomIpatFormat "winner" :=
@@ -487,7 +487,7 @@ Module base.
       ⌜length hist = back⌝ ∗
       lstates_auth γ lstates ∗
       ⌜length lstates = front `max` back⌝ ∗
-      wise_prophets_model global_prophet γ.(inf_mpmc_queue_2_name_prophet) γ.(inf_mpmc_queue_2_name_prophet_name) pasts prophss ∗
+      prophet_multi_model global_prophet γ.(inf_mpmc_queue_2_name_prophet) γ.(inf_mpmc_queue_2_name_prophet_name) pasts prophss ∗
       producers_auth γ back ∗
       consumers_auth γ front ∗
       ( [∗ list] i ↦ lstate ∈ take back lstates,
@@ -853,7 +853,7 @@ Module base.
       False.
     Proof.
       iIntros "(:winner =1) (:winner =2)".
-      iDestruct (wise_prophets_full_agree with "Hprophet_full_1 Hprophet_full_2") as %->. simplify.
+      iDestruct (prophet_multi_full_agree with "Hprophet_full_1 Hprophet_full_2") as %->. simplify.
       iApply (identifier_model_exclusive with "Hid1 Hid2").
     Qed.
 
@@ -889,7 +889,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp_rec.
-      wp_apply (wise_prophets_wp_proph global_prophet with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
+      wp_apply (prophet_multi_wp_proph global_prophet with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
       wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       wp_block t as "Hmeta" "(Ht_data & Ht_front & Ht_back & Ht_proph & _)".
       iMod (pointsto_persist with "Ht_data") as "#Ht_data".
@@ -944,7 +944,7 @@ Module base.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (typed_prophet1_wp_proph local_prophet with "[//]") as (pid proph) "Hproph".
+      wp_smart_apply (prophet_typed_1_wp_proph local_prophet with "[//]") as (pid proph) "Hproph".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -969,7 +969,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro. clear -Hvs2 Hhist2.
 
-          wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps. iPureIntro.
           rewrite Hvs2. simpl_length. lia.
 
@@ -987,7 +987,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
@@ -1001,7 +1001,7 @@ Module base.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro. clear- Hproph.
 
-        wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+        wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
     Qed.
 
@@ -1055,7 +1055,7 @@ Module base.
       iInv "Hinv" as "(:inv_inner =1)".
       wp_faa.
       iMod (producers_update with "Hproducers_auth") as "(Hproducers_auth & Hproducers_at)".
-      iDestruct (wise_prophets_full_get' _ back1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
+      iDestruct (prophet_multi_full_get' _ back1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
       destruct_decide (front1 ≤ back1) as Hfirst | Hlast.
 
       - rewrite Nat.max_r // in Hlstates1.
@@ -1092,7 +1092,7 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           destruct b; last first.
@@ -1138,14 +1138,14 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           destruct b.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
             - iDestruct "Hslot" as "(:inv_slot_nothing)".
-              iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+              iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
               rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
             - exfalso. done.
@@ -1200,14 +1200,14 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           destruct b; last first.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
             - iDestruct "Hslot" as "(:inv_slot_nothing)".
-              iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+              iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
               rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
             - iDestruct "Hslot" as "(:inv_slot_anything)".
@@ -1250,14 +1250,14 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           destruct b.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
             - iDestruct "Hslot" as "(:inv_slot_nothing)".
-              iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+              iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
               exfalso.
               rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
             - exfalso. done.
@@ -1298,7 +1298,7 @@ Module base.
       wp_bind (FAA _ _).
       iInv "Hinv" as "(:inv_inner =1)".
       wp_faa.
-      iDestruct (wise_prophets_full_get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
+      iDestruct (prophet_multi_full_get' _ front1 with "Hprophet_model") as "(%prophs & #Hprophet_full)".
       destruct_decide (back1 ≤ front1) as Hfirst | Hlast.
 
       - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
@@ -1330,7 +1330,7 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
@@ -1376,13 +1376,13 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1) as [| | v].
           { iDestruct "Hslot" as "(:inv_slot_nothing)".
-            iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+            iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
             exfalso.
             rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
           } {
@@ -1445,13 +1445,13 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1) as [| | v_].
           { iDestruct "Hslot" as "(:inv_slot_nothing)".
-            iDestruct (wise_prophets_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
+            iDestruct (prophet_multi_full_valid with "Hprophet_model Hprophet_full") as %Hprophs.
             exfalso.
             rewrite fn_lookup_alter Hpast /= in Hprophs. naive_solver.
           } {
@@ -1483,7 +1483,7 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (wise_prophets_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
           wp_pures.
           iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".

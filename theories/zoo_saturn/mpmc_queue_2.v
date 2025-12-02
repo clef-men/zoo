@@ -10,7 +10,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  typed_prophet.
+  prophet_typed.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -32,16 +32,16 @@ Implicit Types o : option val.
 Implicit Types vs vs_front vs_back move : list val.
 
 #[local] Program Definition prophet := {|
-  typed_prophet1_type :=
+  prophet_typed_1_type :=
     bool ;
-  typed_prophet1_of_val v :=
+  prophet_typed_1_of_val v :=
     match v with
     | ValBool b =>
         Some b
     | _ =>
         None
     end ;
-  typed_prophet1_to_val b :=
+  prophet_typed_1_to_val b :=
     #b ;
 |}.
 Solve Obligations of prophet with
@@ -1123,7 +1123,7 @@ Section mpmc_queue_2_G.
     wp_rec.
     wp_apply (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb_1".
 
-    wp_smart_apply (typed_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_smart_apply (prophet_typed_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
     wp_pures.
 
     wp_bind (_.{back})%E.
@@ -1163,7 +1163,7 @@ Section mpmc_queue_2_G.
 
       wp_smart_apply (front_spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
       wp_equal as _ | (-> & ->)%(inj2 _).
-      all: wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+      all: wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
       all: iStep 11.
       wp_apply (mpmc_queue_2_suffix_index_spec with "[//]") as "_".
       wp_apply (mpmc_queue_2_prefix_index_spec with "[$]") as "_".
@@ -1177,7 +1177,7 @@ Section mpmc_queue_2_G.
 
       wp_smart_apply (front_spec with "Hinv") as (i_front3 vs_front3) "_".
       wp_equal.
-      all: wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+      all: wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
       all: iSteps.
   Qed.
 

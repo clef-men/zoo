@@ -18,7 +18,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  typed_prophet
+  prophet_typed
   identifier.
 From zoo.diaframe Require Import
   diaframe.
@@ -43,16 +43,16 @@ Implicit Types cass : list (location * (val * val)).
 Implicit Types helpers : gmap gname nat.
 
 #[local] Program Definition global_prophet := {|
-  typed_prophet_type :=
+  prophet_typed_type :=
     identifier * bool ;
-  typed_prophet_of_val v :=
+  prophet_typed_of_val v :=
     match v with
     | ValTuple [ValProph gid; ValBool b] =>
         Some (gid, b)
     | _ =>
         None
     end ;
-  typed_prophet_to_val '(gid, b) :=
+  prophet_typed_to_val '(gid, b) :=
     (#gid, #b)%V ;
 |}.
 Solve Obligations of global_prophet with
@@ -60,19 +60,19 @@ Solve Obligations of global_prophet with
 Next Obligation.
   intros (gid & b) v ->. done.
 Qed.
-Implicit Types prophs : list global_prophet.(typed_prophet_type).
+Implicit Types prophs : list global_prophet.(prophet_typed_type).
 
 #[local] Program Definition local_prophet := {|
-  typed_prophet1_type :=
+  prophet_typed_1_type :=
     bool ;
-  typed_prophet1_of_val v :=
+  prophet_typed_1_of_val v :=
     match v with
     | ValBool b =>
         Some b
     | _ =>
         None
     end ;
-  typed_prophet1_to_val b :=
+  prophet_typed_1_to_val b :=
     #b ;
 |}.
 Solve Obligations of local_prophet with
@@ -169,7 +169,7 @@ Qed.
 Record metadata := {
   metadata_descrs : list descriptor ;
   metadata_prophet : prophet_id ;
-  metadata_prophs : list global_prophet.(typed_prophet_type) ;
+  metadata_prophs : list global_prophet.(prophet_typed_type) ;
   metadata_undetermined : block_id ;
   metadata_post : gname ;
   metadata_lstatus : gname ;
@@ -420,7 +420,7 @@ Section kcas_1_G.
     casn.[status] ↦ 𝑠𝑡𝑎𝑡𝑢𝑠 ∗
     lstatus_auth η lstatus ∗
     helpers_auth η helpers ∗
-    typed_prophet_model global_prophet η.(metadata_prophet) prophs ∗
+    prophet_typed_model global_prophet η.(metadata_prophet) prophs ∗
     match lstatus with
     | Running i =>
         ⌜𝑠𝑡𝑎𝑡𝑢𝑠 = status_to_val η Undetermined⌝ ∗
@@ -1372,7 +1372,7 @@ Section kcas_1_G.
       )%I with "[- HΦ]") as (res) "(%b & -> & % & #Hlstatus_lb)".
 
       { iInv "Hcasn_inv" as "(:casn_inv_inner)".
-        wp_apply (typed_prophet_wp_resolve global_prophet (_, _) with "Hgproph"); [done.. |].
+        wp_apply (prophet_typed_wp_resolve global_prophet (_, _) with "Hgproph"); [done.. |].
         destruct lstatus as [i |].
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
@@ -1717,7 +1717,7 @@ Section kcas_1_G.
         iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
 
-        wp_smart_apply (typed_prophet1_wp_proph local_prophet with "[//]") as (pid b) "Hlproph".
+        wp_smart_apply (prophet_typed_1_wp_proph local_prophet with "[//]") as (pid b) "Hlproph".
         wp_pures.
 
         wp_bind (!_)%E.
@@ -1787,7 +1787,7 @@ Section kcas_1_G.
 
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (typed_prophet1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: wp_smart_apply (prophet_typed_1_wp_resolve local_prophet with "Hlproph"); [done.. |].
             all: iStep 11.
             wp_apply (kcas_1_finish_spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
@@ -1801,7 +1801,7 @@ Section kcas_1_G.
             wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (typed_prophet1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: wp_smart_apply (prophet_typed_1_wp_resolve local_prophet with "Hlproph"); [done.. |].
             all: iStep 11.
 
             -- iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
@@ -2100,7 +2100,7 @@ Section kcas_1_G.
 
     wp_rec.
     wp_apply (wp_id with "[//]") as (gid) "Hgid".
-    wp_smart_apply (typed_prophet_wp_proph global_prophet with "[//]") as (pid prophs) "Hgproph".
+    wp_smart_apply (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs) "Hgproph".
     wp_block casn as "Hcasn_meta" "(Hcasn_status & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
     wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
@@ -2236,7 +2236,7 @@ Section kcas_1_G.
     iDestruct (big_sepL_exists with "Hlocs_") as "(%γs & %Hγs & #Hlocs)". iClear "Hlocs_".
 
     wp_rec credit:"H£".
-    wp_smart_apply (typed_prophet_wp_proph global_prophet with "[//]") as (pid prophs0) "Hgproph".
+    wp_smart_apply (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs0) "Hgproph".
     wp_block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
 

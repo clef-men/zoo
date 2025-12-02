@@ -13,7 +13,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  typed_prophet.
+  prophet_typed.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -38,16 +38,16 @@ Implicit Types η : gname.
 Implicit Types ηs : list gname.
 
 #[local] Program Definition prophet := {|
-  typed_prophet1_type :=
+  prophet_typed_1_type :=
     nat ;
-  typed_prophet1_of_val v :=
+  prophet_typed_1_of_val v :=
     match v with
     | ValInt i =>
         Some (Z.to_nat i)
     | _ =>
         None
     end ;
-  typed_prophet1_to_val i :=
+  prophet_typed_1_to_val i :=
     #i ;
 |}.
 Solve Obligations of prophet with
@@ -580,7 +580,7 @@ Module base.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (typed_prophet1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+      wp_smart_apply (prophet_typed_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -605,7 +605,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro. clear- Hhist2.
 
-          wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
           rewrite length_drop Hhist2 Z2Nat.inj_sub; first lia.
           rewrite !Nat2Z.id //.
@@ -624,7 +624,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
@@ -638,7 +638,7 @@ Module base.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iModIntro. clear- Hproph.
 
-        wp_smart_apply (typed_prophet1_wp_resolve with "Hproph"); [done.. |].
+        wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
     Qed.
 
