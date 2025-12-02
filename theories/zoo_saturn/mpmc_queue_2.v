@@ -10,7 +10,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  prophet_typed.
+  prophet_bool.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -30,25 +30,6 @@ Implicit Types backs : gmap location nat.
 Implicit Types v w t pref suff 𝑚𝑜𝑣𝑒 : val.
 Implicit Types o : option val.
 Implicit Types vs vs_front vs_back move : list val.
-
-#[local] Program Definition prophet := {|
-  prophet_typed_1_type :=
-    bool ;
-  prophet_typed_1_of_val v :=
-    match v with
-    | ValBool b =>
-        Some b
-    | _ =>
-        None
-    end ;
-  prophet_typed_1_to_val b :=
-    #b ;
-|}.
-Solve Obligations of prophet with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
 
 Inductive emptiness :=
   | Empty
@@ -1123,7 +1104,7 @@ Section mpmc_queue_2_G.
     wp_rec.
     wp_apply (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb_1".
 
-    wp_smart_apply (prophet_typed_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+    wp_smart_apply (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid proph) "Hproph".
     wp_pures.
 
     wp_bind (_.{back})%E.

@@ -18,7 +18,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  prophet_typed
+  prophet_bool
   identifier.
 From zoo.diaframe Require Import
   diaframe.
@@ -61,25 +61,6 @@ Next Obligation.
   intros (gid & b) v ->. done.
 Qed.
 Implicit Types prophs : list global_prophet.(prophet_typed_type).
-
-#[local] Program Definition local_prophet := {|
-  prophet_typed_1_type :=
-    bool ;
-  prophet_typed_1_of_val v :=
-    match v with
-    | ValBool b =>
-        Some b
-    | _ =>
-        None
-    end ;
-  prophet_typed_1_to_val b :=
-    #b ;
-|}.
-Solve Obligations of local_prophet with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
 
 Record loc_metadata := {
   loc_metadata_model : gname ;
@@ -1717,7 +1698,7 @@ Section kcas_1_G.
         iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
 
-        wp_smart_apply (prophet_typed_1_wp_proph local_prophet with "[//]") as (pid b) "Hlproph".
+        wp_smart_apply (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid b) "Hlproph".
         wp_pures.
 
         wp_bind (!_)%E.
@@ -1787,7 +1768,7 @@ Section kcas_1_G.
 
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (prophet_typed_1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: wp_smart_apply (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
             all: iStep 11.
             wp_apply (kcas_1_finish_spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
@@ -1801,7 +1782,7 @@ Section kcas_1_G.
             wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (prophet_typed_1_wp_resolve local_prophet with "Hlproph"); [done.. |].
+            all: wp_smart_apply (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
             all: iStep 11.
 
             -- iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
