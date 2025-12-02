@@ -125,6 +125,7 @@ theories/zoo/program_logic/adequacy.v
 theories/zoo/program_logic/itype.v
 theories/zoo/program_logic/prophet_typed.v
 theories/zoo/program_logic/prophet_bool.v
+theories/zoo/program_logic/prophet_nat.v
 theories/zoo/program_logic/prophet_wise.v
 theories/zoo/program_logic/prophet_multi.v
 theories/zoo/program_logic/identifier.v

@@ -13,7 +13,7 @@ From zoo.iris.base_logic Require Import
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Import
-  prophet_typed.
+  prophet_nat.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -36,25 +36,6 @@ Implicit Types slot : optional val.
 Implicit Types slots : nat → optional val.
 Implicit Types η : gname.
 Implicit Types ηs : list gname.
-
-#[local] Program Definition prophet := {|
-  prophet_typed_1_type :=
-    nat ;
-  prophet_typed_1_of_val v :=
-    match v with
-    | ValInt i =>
-        Some (Z.to_nat i)
-    | _ =>
-        None
-    end ;
-  prophet_typed_1_to_val i :=
-    #i ;
-|}.
-Solve Obligations of prophet with
-  try done.
-Next Obligation.
-  intros i v ->. rewrite /= Nat2Z.id //.
-Qed.
 
 Class InfMpmcQueue1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] inf_mpmc_queue_1_G_inf_array_G :: InfArrayG Σ ;
@@ -580,7 +561,7 @@ Module base.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (prophet_typed_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+      wp_smart_apply (prophet_typed_1_wp_proph prophet_nat_1 with "[//]") as (pid proph) "Hproph".
       wp_pures.
 
       wp_bind (_.{back})%E.
