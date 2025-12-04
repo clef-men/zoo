@@ -1362,7 +1362,7 @@ Section mpmc_bqueue_G.
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
-        Hmeta{_{}} &
+        #Hmeta{_{}} &
         Hmodel{_{}}
       )
     ".
