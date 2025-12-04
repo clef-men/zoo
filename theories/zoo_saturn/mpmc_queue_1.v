@@ -937,7 +937,7 @@ Section mpmc_queue_1_G.
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
-        Hmeta{_{}} &
+        #Hmeta{_{}} &
         Hmodel{_{}}
       )
     ".
