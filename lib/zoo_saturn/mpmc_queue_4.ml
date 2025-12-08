@@ -32,7 +32,9 @@ let create () =
 
 let is_empty t =
   let Node front_r = t.front in
-  Mpmc_fqueue_2.is_empty front_r.queue && front_r.next == Null
+  let proph = Zoo.proph () in
+  Mpmc_fqueue_2.is_empty front_r.queue &&
+  Zoo.resolve proph (front_r.next == Null)
 
 let rec fix_back t back new_back =
   let Node new_back_r = new_back in
