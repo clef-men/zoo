@@ -69,7 +69,7 @@ Definition domain_local_get : val :=
   fun: "key" =>
     let: "local" := GetLocal in
     let: "id" := domain_key_id "key" in
-    dynarray_1_grow "local" ("id" + #1) §None ;;
+    dynarray_1_grow "local" ("id" + 1) §None ;;
     match: dynarray_1_get "local" "id" with
     | None =>
         let: "v" := domain_key_init "key" in
@@ -83,7 +83,7 @@ Definition domain_local_set : val :=
   fun: "key" "v" =>
     let: "local" := GetLocal in
     let: "id" := domain_key_id "key" in
-    dynarray_1_grow "local" ("id" + #1) §None ;;
+    dynarray_1_grow "local" ("id" + 1) §None ;;
     dynarray_1_set "local" "id" ‘Some( "v" ).
 
 Class DomainG Σ `{zoo_G : !ZooG Σ} := {

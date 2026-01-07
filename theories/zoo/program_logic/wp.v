@@ -47,10 +47,10 @@ Section zoo_G.
   Lemma wp_equal v1 v2 tid E Φ :
     ▷ (
       ( ⌜v1 ≉ v2⌝ -∗
-        Φ #false
+        Φ false%V
       ) ∧ (
         ⌜v1 ≈ v2⌝ -∗
-        Φ #true
+        Φ true%V
       )
     ) ⊢
     WP v1 == v2 ∷ tid @ E {{ Φ }}.
@@ -313,14 +313,14 @@ Section zoo_G.
     ▷ (
       ( ⌜v ≉ v1⌝ -∗
         (l +ₗ fld) ↦{dq} v -∗
-        Φ #false
+        Φ false%V
       ) ∧ (
         ⌜v ≈ v1⌝ -∗
         (l +ₗ fld) ↦{dq} v -∗
           ⌜dq = DfracOwn 1⌝ ∗
           (l +ₗ fld) ↦{dq} v ∗
           ( (l +ₗ fld) ↦ v2 -∗
-            Φ #true
+            Φ true%V
           )
       )
     ) -∗
@@ -337,11 +337,11 @@ Section zoo_G.
     ▷ (
       ( ⌜v ≉ v1⌝ -∗
         (l +ₗ fld) ↦ v -∗
-        Φ #false
+        Φ false%V
       ) ∧ (
         ⌜v ≈ v1⌝ -∗
         (l +ₗ fld) ↦ v2 -∗
-        Φ #true
+        Φ true%V
       )
     ) -∗
     WP CAS (#l, #fld)%V v1 v2 ∷ tid @ E {{ Φ }}.

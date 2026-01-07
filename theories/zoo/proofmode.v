@@ -140,10 +140,10 @@ Section zoo_G.
   Lemma tac_wp_equal Δ Δ' K v1 v2 tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( v1 ≉ v2 →
-      envs_entails Δ' (WP fill K #false ∷ tid @ E {{ Φ }})
+      envs_entails Δ' (WP fill K false%V ∷ tid @ E {{ Φ }})
     ) →
     ( v1 ≈ v2 →
-      envs_entails Δ' (WP fill K #true ∷ tid @ E {{ Φ }})
+      envs_entails Δ' (WP fill K true%V ∷ tid @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (v1 == v2) ∷ tid @ E {{ Φ }}).
   Proof.
@@ -367,7 +367,7 @@ Section zoo_G.
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup_delete true id Δ' = Some (p, (l +ₗ fld) ↦{dq} v, Δ'')%I →
     ( v ≉ v1 →
-      envs_entails Δ' (WP fill K #false ∷ tid @ E {{ Φ }})
+      envs_entails Δ' (WP fill K false%V ∷ tid @ E {{ Φ }})
     ) →
     ( v ≈ v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
@@ -379,7 +379,7 @@ Section zoo_G.
     with
     | Some Δ''' =>
         v ≈ v1 →
-        envs_entails Δ''' (WP fill K #true ∷ tid @ E {{ Φ }})
+        envs_entails Δ''' (WP fill K true%V ∷ tid @ E {{ Φ }})
     | None =>
         False
     end →

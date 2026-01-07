@@ -15,7 +15,7 @@ From zoo Require Import
 
 Definition inf_mpmc_queue_1_create : val :=
   fun: <> =>
-    { inf_array_create §Nothing, #0, #0 }.
+    { inf_array_create §Nothing, 0, 0 }.
 
 Definition inf_mpmc_queue_1_size : val :=
   rec: "size" "t" =>
@@ -36,11 +36,11 @@ Definition inf_mpmc_queue_1_size : val :=
 
 Definition inf_mpmc_queue_1_is_empty : val :=
   fun: "t" =>
-    inf_mpmc_queue_1_size "t" == #0.
+    inf_mpmc_queue_1_size "t" == 0.
 
 Definition inf_mpmc_queue_1_push : val :=
   fun: "t" "v" =>
-    let: "i" := FAA "t".[back] #1 in
+    let: "i" := FAA "t".[back] 1 in
     inf_array_set "t".{data} "i" ‘Something( "v" ).
 
 Definition inf_mpmc_queue_1_pop_0 : val :=
@@ -58,5 +58,5 @@ Definition inf_mpmc_queue_1_pop_0 : val :=
 
 Definition inf_mpmc_queue_1_pop : val :=
   fun: "t" =>
-    let: "i" := FAA "t".[front] #1 in
+    let: "i" := FAA "t".[front] 1 in
     inf_mpmc_queue_1_pop_0 "t" "i".

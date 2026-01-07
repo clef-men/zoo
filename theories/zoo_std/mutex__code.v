@@ -10,21 +10,21 @@ From zoo Require Import
 
 Definition mutex_create : val :=
   fun: <> =>
-    ref #false.
+    ref false.
 
 Definition mutex_lock : val :=
   rec: "lock" "t" =>
-    if: ~ CAS "t".[contents] #false #true then (
+    if: ~ CAS "t".[contents] false true then (
       "lock" "t"
     ).
 
 Definition mutex_create_lock : val :=
   fun: <> =>
-    ref #true.
+    ref true.
 
 Definition mutex_unlock : val :=
   fun: "t" =>
-    "t" <- #false.
+    "t" <- false.
 
 Definition mutex_synchronize : val :=
   fun: "t" =>

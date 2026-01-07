@@ -12,7 +12,7 @@ From zoo Require Import
 
 Definition mpmc_bqueue_create : val :=
   fun: "cap" =>
-    let: "front" := ‘Node{ §Null, (), #0, "cap" } in
+    let: "front" := ‘Node{ §Null, (), 0, "cap" } in
     { "cap", "front", "front" }.
 
 Definition mpmc_bqueue_capacity : val :=
@@ -70,25 +70,25 @@ Definition mpmc_bqueue_fix_back : val :=
         match: "new_back" with
         | Node <> <> <> <> as "new_back" =>
             let: "new_back_r" := "new_back" in
-            if: "cap" == #0 then (
+            if: "cap" == 0 then (
               match: "t".{front} with
               | Node <> <> <> <> as "front_r" =>
                   let: "cap" :=
                     "t".{capacity} - ("back_r".{index} - "front_r".{index})
                   in
-                  if: "cap" == #0 then (
-                    #false
+                  if: "cap" == 0 then (
+                    false
                   ) else (
                     "back_r" <-{estimated_capacity} "cap" ;;
                     "push_1" "t" "back" "cap" "new_back"
                   )
               end
             ) else (
-              "new_back_r" <-{index} "back_r".{index} + #1 ;;
-              "new_back_r" <-{estimated_capacity} "cap" - #1 ;;
+              "new_back_r" <-{index} "back_r".{index} + 1 ;;
+              "new_back_r" <-{estimated_capacity} "cap" - 1 ;;
               if: CAS "back_r".[next] §Null "new_back" then (
                 mpmc_bqueue_fix_back "t" "back" "new_back" ;;
-                #true
+                true
               ) else (
                 match: "back_r".{next} with
                 | Null =>
@@ -130,7 +130,7 @@ Qed.
 
 Definition mpmc_bqueue_push : val :=
   fun: "t" "v" =>
-    let: "new_back" := ‘Node{ §Null, "v", #0, #0 } in
+    let: "new_back" := ‘Node{ §Null, "v", 0, 0 } in
     mpmc_bqueue_push_2 "t" "t".{back} "new_back".
 
 Definition mpmc_bqueue_pop : val :=

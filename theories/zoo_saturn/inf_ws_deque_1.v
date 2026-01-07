@@ -1238,7 +1238,7 @@ Section inf_ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)%V
     {{{
-      RET #false;
+      RET false;
       True
     }}}.
   Proof.
@@ -1267,7 +1267,7 @@ Section inf_ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #false;
+      RET false;
       front_lb γ (S front)
     }}}.
   Proof.
@@ -1301,7 +1301,7 @@ Section inf_ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #true;
+      RET true;
       ▷ P
     }}}.
   Proof.
@@ -1368,7 +1368,7 @@ Section inf_ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #true;
+      RET true;
       front_lb γ (S front)
     }}}.
   Proof.
@@ -1398,7 +1398,7 @@ Section inf_ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #back #(back + 1)) #γ.(metadata_prophet) (#back, #id)%V
     {{{
-      RET #true;
+      RET true;
       owner₁ γ Unstable back (priv ∘ S) ws ∗
       front_lb γ (S back) ∗
       history_at γ back (priv 0)

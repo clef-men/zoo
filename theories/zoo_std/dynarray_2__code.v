@@ -19,7 +19,7 @@ Definition dynarray_2_element : val :=
 
 Definition dynarray_2_create : val :=
   fun: <> =>
-    { #0, array_create () }.
+    { 0, array_create () }.
 
 Definition dynarray_2_make : val :=
   fun: "sz" "v" =>
@@ -51,7 +51,7 @@ Definition dynarray_2_set_data : val :=
 
 Definition dynarray_2_is_empty : val :=
   fun: "t" =>
-    dynarray_2_size "t" == #0.
+    dynarray_2_size "t" == 0.
 
 Definition dynarray_2_get : val :=
   fun: "t" "i" =>
@@ -73,17 +73,15 @@ Definition dynarray_2_set : val :=
 
 Definition dynarray_2_next_capacity : val :=
   fun: "n" =>
-    int_max
-      #8
-      if: "n" ≤ #512 then (
-        #2 * "n"
-      ) else (
-        "n" + "n" `quot` #2
-      ).
+    int_max 8 if: "n" ≤ 512 then (
+                2 * "n"
+              ) else (
+                "n" + "n" `quot` 2
+              ).
 
 Definition dynarray_2_reserve : val :=
   fun: "t" "n" =>
-    assume (#0 ≤ "n") ;;
+    assume (0 ≤ "n") ;;
     let: "data" := dynarray_2_data "t" in
     let: "cap" := array_size "data" in
     if: "cap" < "n" then (
@@ -94,18 +92,18 @@ Definition dynarray_2_reserve : val :=
 
 Definition dynarray_2_reserve_extra : val :=
   fun: "t" "n" =>
-    assume (#0 ≤ "n") ;;
+    assume (0 ≤ "n") ;;
     dynarray_2_reserve "t" (dynarray_2_size "t" + "n").
 
 Definition dynarray_2_try_grow : val :=
   fun: "t" "sz" "v" =>
     let: "old_sz" := dynarray_2_size "t" in
     if: "sz" ≤ "old_sz" then (
-      #true
+      true
     ) else (
       let: "data" := dynarray_2_data "t" in
       if: array_size "data" < "sz" then (
-        #false
+        false
       ) else (
         dynarray_2_set_size "t" "sz" ;;
         array_unsafe_apply_slice
@@ -113,7 +111,7 @@ Definition dynarray_2_try_grow : val :=
           "data"
           "old_sz"
           ("sz" - "old_sz") ;;
-        #true
+        true
       )
     ).
 
@@ -135,16 +133,16 @@ Definition dynarray_2_try_push : val :=
     let: "sz" := dynarray_2_size "t" in
     let: "data" := dynarray_2_data "t" in
     if: array_size "data" ≤ "sz" then (
-      #false
+      false
     ) else (
-      dynarray_2_set_size "t" ("sz" + #1) ;;
+      dynarray_2_set_size "t" ("sz" + 1) ;;
       array_unsafe_set "data" "sz" "slot" ;;
-      #true
+      true
     ).
 
 Definition dynarray_2_push_0 : val :=
   rec: "push" "t" "slot" =>
-    dynarray_2_reserve_extra "t" #1 ;;
+    dynarray_2_reserve_extra "t" 1 ;;
     if: ~ dynarray_2_try_push "t" "slot" then (
       "push" "t" "slot"
     ).
@@ -161,8 +159,8 @@ Definition dynarray_2_pop : val :=
     let: "sz" := dynarray_2_size "t" in
     let: "data" := dynarray_2_data "t" in
     assume ("sz" ≤ array_size "data") ;;
-    assume (#0 < "sz") ;;
-    let: "sz" := "sz" - #1 in
+    assume (0 < "sz") ;;
+    let: "sz" := "sz" - 1 in
     match: array_unsafe_get "data" "sz" with
     | Empty =>
         diverge ()
@@ -182,7 +180,7 @@ Definition dynarray_2_fit_capacity : val :=
 
 Definition dynarray_2_reset : val :=
   fun: "t" =>
-    dynarray_2_set_size "t" #0 ;;
+    dynarray_2_set_size "t" 0 ;;
     dynarray_2_set_data "t" (array_create ()).
 
 Definition dynarray_2_iteri : val :=
@@ -199,7 +197,7 @@ Definition dynarray_2_iteri : val :=
              "fn" "i" "slot_r".{value}
          end)
       "data"
-      #0
+      0
       "sz".
 
 Definition dynarray_2_iter : val :=

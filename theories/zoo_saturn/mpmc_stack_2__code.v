@@ -20,11 +20,11 @@ Definition mpmc_stack_2_push : val :=
   rec: "push" "t" "v" =>
     match: !"t" with
     | ClstClosed =>
-        #true
+        true
     |_ as "old" =>
         let: "new_" := ‘ClstCons[ "v", "old" ] in
         if: CAS "t".[contents] "old" "new_" then (
-          #false
+          false
         ) else (
           domain_yield () ;;
           "push" "t" "v"

@@ -14,7 +14,7 @@ From zoo Require Import
 
 Definition bag_1_create : val :=
   fun: "sz" =>
-    { array_unsafe_init "sz" (fun: <> => ref §Gnone), #0, #0 }.
+    { array_unsafe_init "sz" (fun: <> => ref §Gnone), 0, 0 }.
 
 Definition bag_1_push_0 : val :=
   rec: "push" "slot" "o" =>
@@ -26,7 +26,7 @@ Definition bag_1_push_0 : val :=
 Definition bag_1_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
-    let: "i" := FAA "t".[back] #1 `rem` array_size "data" in
+    let: "i" := FAA "t".[back] 1 `rem` array_size "data" in
     bag_1_push_0 (array_unsafe_get "data" "i") ‘Gsome[ "v" ].
 
 Definition bag_1_pop_0 : val :=
@@ -46,5 +46,5 @@ Definition bag_1_pop_0 : val :=
 Definition bag_1_pop : val :=
   fun: "t" =>
     let: "data" := "t".{data} in
-    let: "i" := FAA "t".[front] #1 `rem` array_size "data" in
+    let: "i" := FAA "t".[front] 1 `rem` array_size "data" in
     bag_1_pop_0 (array_unsafe_get "data" "i").

@@ -620,7 +620,7 @@ Module base.
       }}}
         ivar_3_is_unset #t
       {{{
-        RET #false;
+        RET false;
         £ 2
       }}}.
     Proof.
@@ -669,7 +669,7 @@ Module base.
       }}}
         ivar_3_is_set #t
       {{{
-        RET #true;
+        RET true;
         £ 2
       }}}.
     Proof.
@@ -1224,7 +1224,7 @@ Section ivar_3_G.
     }}}
       ivar_3_is_unset t
     {{{
-      RET #false;
+      RET false;
       £ 2
     }}}.
   Proof.
@@ -1260,7 +1260,7 @@ Section ivar_3_G.
     }}}
       ivar_3_is_set t
     {{{
-      RET #true;
+      RET true;
       £ 2
     }}}.
   Proof.

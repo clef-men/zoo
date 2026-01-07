@@ -506,7 +506,7 @@ Module base.
       }}}
         lazy_is_set #t
       {{{
-        RET #true;
+        RET true;
         £ 2
       }}}.
     Proof.
@@ -550,7 +550,7 @@ Module base.
       }}}
         lazy_is_unset #t
       {{{
-        RET #false;
+        RET false;
         £ 2
       }}}.
     Proof.
@@ -929,7 +929,7 @@ Section lazy_G.
     }}}
       lazy_is_set t
     {{{
-      RET #true;
+      RET true;
       £ 2
     }}}.
   Proof.
@@ -965,7 +965,7 @@ Section lazy_G.
     }}}
       lazy_is_unset t
     {{{
-      RET #false;
+      RET false;
       £ 2
     }}}.
   Proof.

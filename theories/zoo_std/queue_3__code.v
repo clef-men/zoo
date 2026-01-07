@@ -12,11 +12,11 @@ From zoo Require Import
   options.
 
 Definition queue_3_min_capacity : val :=
-  #16.
+  16.
 
 Definition queue_3_create : val :=
   fun: <> =>
-    { array_unsafe_make queue_3_min_capacity (), #0, #0 }.
+    { array_unsafe_make queue_3_min_capacity (), 0, 0 }.
 
 Definition queue_3_size : val :=
   fun: "t" =>
@@ -24,7 +24,7 @@ Definition queue_3_size : val :=
 
 Definition queue_3_is_empty : val :=
   fun: "t" =>
-    queue_3_size "t" == #0.
+    queue_3_size "t" == 0.
 
 Definition queue_3_unsafe_get : val :=
   fun: "t" "i" =>
@@ -36,13 +36,11 @@ Definition queue_3_unsafe_set : val :=
 
 Definition queue_3_next_capacity : val :=
   fun: "n" =>
-    int_max
-      #8
-      if: "n" ≤ #512 then (
-        #2 * "n"
-      ) else (
-        "n" + "n" `quot` #2
-      ).
+    int_max 8 if: "n" ≤ 512 then (
+                2 * "n"
+              ) else (
+                "n" + "n" `quot` 2
+              ).
 
 Definition queue_3_grow : val :=
   fun: "t" =>
@@ -51,7 +49,7 @@ Definition queue_3_grow : val :=
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
     if: "front" + "cap" == "back" then (
-      let: "new_cap" := int_max ("cap" + #1) (queue_3_next_capacity "cap") in
+      let: "new_cap" := int_max ("cap" + 1) (queue_3_next_capacity "cap") in
       let: "new_data" := array_unsafe_cgrow "data" "front" "new_cap" () in
       "t" <-{data} "new_data"
     ).
@@ -61,7 +59,7 @@ Definition queue_3_push : val :=
     queue_3_grow "t" ;;
     let: "back" := "t".{back} in
     array_unsafe_cset "t".{data} "back" "v" ;;
-    "t" <-{back} "back" + #1.
+    "t" <-{back} "back" + 1.
 
 Definition queue_3_shrink : val :=
   fun: "t" =>
@@ -70,8 +68,8 @@ Definition queue_3_shrink : val :=
     let: "sz" := "back" - "front" in
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
-    if: queue_3_min_capacity + #3 * "sz" ≤ "cap" then (
-      let: "new_cap" := "cap" `lsr` #1 + #1 in
+    if: queue_3_min_capacity + 3 * "sz" ≤ "cap" then (
+      let: "new_cap" := "cap" `lsr` 1 + 1 in
       let: "new_data" :=
         array_unsafe_cshrink_slice "data" "front" "new_cap"
       in
@@ -88,7 +86,7 @@ Definition queue_3_pop_front : val :=
       let: "data" := "t".{data} in
       let: "v" := array_unsafe_cget "data" "front" in
       array_unsafe_cset "data" "front" () ;;
-      "t" <-{front} "front" + #1 ;;
+      "t" <-{front} "front" + 1 ;;
       queue_3_shrink "t" ;;
       ‘Some( "v" )
     ).
@@ -101,7 +99,7 @@ Definition queue_3_pop_back : val :=
       §None
     ) else (
       let: "data" := "t".{data} in
-      let: "back" := "back" - #1 in
+      let: "back" := "back" - 1 in
       let: "v" := array_unsafe_cget "data" "back" in
       array_unsafe_cset "data" "back" () ;;
       "t" <-{back} "back" ;;

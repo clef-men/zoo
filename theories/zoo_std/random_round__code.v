@@ -28,7 +28,7 @@ Definition random_round_next : val :=
     let: "i" := "t".{index} in
     let: "j" := random_state_int "t".{random} "i" in
     let: "res" := array_unsafe_get "arr" "j" in
-    let: "i" := "i" - #1 in
+    let: "i" := "i" - 1 in
     array_unsafe_set "arr" "j" (array_unsafe_get "arr" "i") ;;
     array_unsafe_set "arr" "i" "res" ;;
     "t" <-{index} "i" ;;

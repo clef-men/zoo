@@ -13,7 +13,7 @@ From zoo Require Import
 
 Definition dynarray_1_create : val :=
   fun: <> =>
-    { #0, array_create () }.
+    { 0, array_create () }.
 
 Definition dynarray_1_make : val :=
   fun: "sz" "v" =>
@@ -33,7 +33,7 @@ Definition dynarray_1_capacity : val :=
 
 Definition dynarray_1_is_empty : val :=
   fun: "t" =>
-    dynarray_1_size "t" == #0.
+    dynarray_1_size "t" == 0.
 
 Definition dynarray_1_get : val :=
   fun: "t" "i" =>
@@ -45,13 +45,11 @@ Definition dynarray_1_set : val :=
 
 Definition dynarray_1_next_capacity : val :=
   fun: "n" =>
-    int_max
-      #8
-      if: "n" ≤ #512 then (
-        #2 * "n"
-      ) else (
-        "n" + "n" `quot` #2
-      ).
+    int_max 8 if: "n" ≤ 512 then (
+                2 * "n"
+              ) else (
+                "n" + "n" `quot` 2
+              ).
 
 Definition dynarray_1_reserve : val :=
   fun: "t" "n" =>
@@ -60,7 +58,7 @@ Definition dynarray_1_reserve : val :=
     if: "cap" < "n" then (
       let: "new_cap" := int_max "n" (dynarray_1_next_capacity "cap") in
       let: "new_data" := array_unsafe_alloc "new_cap" in
-      array_unsafe_copy_slice "data" #0 "new_data" #0 "t".{size} ;;
+      array_unsafe_copy_slice "data" 0 "new_data" 0 "t".{size} ;;
       "t" <-{data} "new_data"
     ).
 
@@ -79,14 +77,14 @@ Definition dynarray_1_grow : val :=
 
 Definition dynarray_1_push : val :=
   fun: "t" "v" =>
-    dynarray_1_reserve_extra "t" #1 ;;
+    dynarray_1_reserve_extra "t" 1 ;;
     let: "sz" := "t".{size} in
-    "t" <-{size} "sz" + #1 ;;
+    "t" <-{size} "sz" + 1 ;;
     array_unsafe_set "t".{data} "sz" "v".
 
 Definition dynarray_1_pop : val :=
   fun: "t" =>
-    let: "sz" := "t".{size} - #1 in
+    let: "sz" := "t".{size} - 1 in
     "t" <-{size} "sz" ;;
     let: "data" := "t".{data} in
     let: "v" := array_unsafe_get "data" "sz" in
@@ -103,12 +101,12 @@ Definition dynarray_1_fit_capacity : val :=
 
 Definition dynarray_1_reset : val :=
   fun: "t" =>
-    "t" <-{size} #0 ;;
+    "t" <-{size} 0 ;;
     "t" <-{data} array_create ().
 
 Definition dynarray_1_iteri : val :=
   fun: "fn" "t" =>
-    array_unsafe_iteri_slice "fn" "t".{data} #0 "t".{size}.
+    array_unsafe_iteri_slice "fn" "t".{data} 0 "t".{size}.
 
 Definition dynarray_1_iter : val :=
   fun: "fn" =>

@@ -18,7 +18,7 @@ From zoo Require Import
 
 Definition zoo_counter_incr : val :=
   fun: <> =>
-    FAA (#zoo_counter).[contents] #1.
+    FAA (#zoo_counter).[contents] 1.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

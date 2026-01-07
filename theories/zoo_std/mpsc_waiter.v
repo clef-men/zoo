@@ -256,7 +256,7 @@ Section mpsc_waiter_G.
     }}}
       mpsc_waiter_try_wait t
     {{{
-      RET #true;
+      RET true;
       P
     }}}.
   Proof.

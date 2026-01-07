@@ -22,7 +22,7 @@ Implicit Types v t : val.
 Implicit Types o : option val.
 
 #[local] Definition min_capacity :=
-  val_to_nat queue_3_min_capacity.
+  val_to_nat' queue_3_min_capacity.
 #[local] Lemma queue_3_min_capacity :
   queue_3_min_capacity = #min_capacity.
 Proof.

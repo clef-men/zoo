@@ -19,12 +19,12 @@ Definition waiters_notify' : val :=
   rec: "notify'" "t" =>
     match: mpmc_queue_1_pop "t" with
     | None =>
-        #false
+        false
     | Some "waiter" =>
         if: mpsc_waiter_notify "waiter" then (
           "notify'" "t"
         ) else (
-          #true
+          true
         )
     end.
 
@@ -35,8 +35,8 @@ Definition waiters_notify : val :=
 
 Definition waiters_notify_many : val :=
   rec: "notify_many" "t" "n" =>
-    if: #0 < "n" and waiters_notify' "t" then (
-      "notify_many" "t" ("n" - #1)
+    if: 0 < "n" and waiters_notify' "t" then (
+      "notify_many" "t" ("n" - 1)
     ).
 
 Definition waiters_prepare_wait : val :=

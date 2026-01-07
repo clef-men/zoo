@@ -1236,7 +1236,7 @@ Section rcfd_G.
     }}}
       rcfd_close t
     {{{
-      RET #false;
+      RET false;
       True
     }}}.
   Proof.
@@ -1485,7 +1485,7 @@ Section rcfd_G.
     }}}
       rcfd_is_open t
     {{{
-      RET #true;
+      RET true;
       rcfd_owner t
     }}}.
   Proof.
@@ -1501,7 +1501,7 @@ Section rcfd_G.
     }}}
       rcfd_is_open t
     {{{
-      RET #false;
+      RET false;
       True
     }}}.
   Proof.

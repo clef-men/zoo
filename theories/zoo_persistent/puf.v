@@ -129,7 +129,7 @@ Qed.
   consistent reprs descrs →
   consistent
     (<[elt := elt]> reprs)
-    (<[elt := ‘Root( #0 )%V]> descrs).
+    (<[elt := ‘Root( 0 )%V]> descrs).
 Proof.
   rewrite /consistent /consistent_at.
   intros Hdescrs_lookup Hconsistent.

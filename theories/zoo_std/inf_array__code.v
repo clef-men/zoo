@@ -20,13 +20,11 @@ Definition inf_array_create : val :=
 
 Definition inf_array_next_capacity : val :=
   fun: "n" =>
-    int_max
-      #8
-      if: "n" ≤ #512 then (
-        #2 * "n"
-      ) else (
-        "n" + "n" `quot` #2
-      ).
+    int_max 8 if: "n" ≤ 512 then (
+                2 * "n"
+              ) else (
+                "n" + "n" `quot` 2
+              ).
 
 Definition inf_array_reserve : val :=
   fun: "t" "n" =>
@@ -53,7 +51,7 @@ Definition inf_array_update : val :=
   fun: "t" "i" "fn" =>
     mutex_protect "t".{mutex}
       (fun: <> =>
-         inf_array_reserve "t" ("i" + #1) ;;
+         inf_array_reserve "t" ("i" + 1) ;;
          let: "v" := array_unsafe_get "t".{data} "i" in
          array_unsafe_set "t".{data} "i" ("fn" "v") ;;
          "v").
@@ -66,7 +64,7 @@ Definition inf_array_xchg_resolve : val :=
   fun: "t" "i" "v" "proph" "v_resolve" =>
     mutex_protect "t".{mutex}
       (fun: <> =>
-         inf_array_reserve "t" ("i" + #1) ;;
+         inf_array_reserve "t" ("i" + 1) ;;
          let: "old_v" := array_unsafe_get "t".{data} "i" in
          array_unsafe_set "t".{data} "i" "v" ;;
          Resolve Skip "proph" "v_resolve" ;;
@@ -81,7 +79,7 @@ Definition inf_array_cas : val :=
   fun: "t" "i" "v1" "v2" =>
     mutex_protect "t".{mutex}
       (fun: <> =>
-         inf_array_reserve "t" ("i" + #1) ;;
+         inf_array_reserve "t" ("i" + 1) ;;
          let: "res" := array_unsafe_get "t".{data} "i" == "v1" in
          if: "res" then (
            array_unsafe_set "t".{data} "i" "v2"
@@ -94,7 +92,7 @@ Definition inf_array_cas_resolve : val :=
   fun: "t" "i" "v1" "v2" "proph" "v_resolve" =>
     mutex_protect "t".{mutex}
       (fun: <> =>
-         inf_array_reserve "t" ("i" + #1) ;;
+         inf_array_reserve "t" ("i" + 1) ;;
          let: "res" := array_unsafe_get "t".{data} "i" == "v1" in
          if: "res" then (
            array_unsafe_set "t".{data} "i" "v2"

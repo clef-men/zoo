@@ -12,7 +12,7 @@ From zoo Require Import
 
 Definition bqueue_create : val :=
   fun: "cap" =>
-    { "cap", array_unsafe_make "cap" (), #0, #0 }.
+    { "cap", array_unsafe_make "cap" (), 0, 0 }.
 
 Definition bqueue_size : val :=
   fun: "t" =>
@@ -20,7 +20,7 @@ Definition bqueue_size : val :=
 
 Definition bqueue_is_empty : val :=
   fun: "t" =>
-    bqueue_size "t" == #0.
+    bqueue_size "t" == 0.
 
 Definition bqueue_unsafe_get : val :=
   fun: "t" "i" =>
@@ -35,11 +35,11 @@ Definition bqueue_push : val :=
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     if: "front" + "t".{capacity} == "back" then (
-      #false
+      false
     ) else (
       array_unsafe_cset "t".{data} "back" "v" ;;
-      "t" <-{back} "back" + #1 ;;
-      #true
+      "t" <-{back} "back" + 1 ;;
+      true
     ).
 
 Definition bqueue_pop_front : val :=
@@ -52,7 +52,7 @@ Definition bqueue_pop_front : val :=
       let: "data" := "t".{data} in
       let: "v" := array_unsafe_cget "data" "front" in
       array_unsafe_cset "data" "front" () ;;
-      "t" <-{front} "front" + #1 ;;
+      "t" <-{front} "front" + 1 ;;
       ‘Some( "v" )
     ).
 
@@ -64,7 +64,7 @@ Definition bqueue_pop_back : val :=
       §None
     ) else (
       let: "data" := "t".{data} in
-      let: "back" := "back" - #1 in
+      let: "back" := "back" - 1 in
       let: "v" := array_unsafe_cget "data" "back" in
       array_unsafe_cset "data" "back" () ;;
       "t" <-{back} "back" ;;

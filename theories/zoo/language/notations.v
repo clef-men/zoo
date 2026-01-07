@@ -30,6 +30,37 @@ Declare Custom Entry zoo_tag.
 Declare Custom Entry zoo_proj.
 Declare Custom Entry zoo_branch.
 
+Number Notation
+  val
+  val_of_int
+  val_to_int
+: expr_scope.
+Number Notation
+  val
+  val_of_int
+  val_to_int
+: val_scope.
+
+Notation "'true'" := (
+  Coq.Init.Datatypes.true
+) : core_scope.
+Notation "'true'" := (
+  Val (ValLit (LitBool true))
+) : expr_scope.
+Notation "'true'" := (
+  ValLit (LitBool true)
+) : val_scope.
+
+Notation "'false'" := (
+  Coq.Init.Datatypes.false
+) : core_scope.
+Notation "'false'" := (
+  Val (ValLit (LitBool false))
+) : expr_scope.
+Notation "'false'" := (
+  ValLit (LitBool false)
+) : val_scope.
+
 Notation "0" :=
   0
 ( in custom zoo_field

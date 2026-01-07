@@ -20,12 +20,12 @@ Definition algo_adjust_chunk : val :=
     | Some "chunk" =>
         "chunk"
     | None =>
-        let: "num_dom" := pool_size "ctx" + #1 in
+        let: "num_dom" := pool_size "ctx" + 1 in
         let: "num_task" := "end_" - "beg" in
-        if: "num_dom" == #1 then (
+        if: "num_dom" == 1 then (
           "num_task"
         ) else (
-          int_max #1 ("num_task" `quot` (#8 * "num_dom"))
+          int_max 1 ("num_task" `quot` (8 * "num_dom"))
         )
     end.
 
@@ -35,7 +35,7 @@ Definition algo_for__0 : val :=
     if: "num_task" ≤ "chunk" then (
       "task" "ctx" "beg" "num_task"
     ) else (
-      let: "mid" := "beg" + "num_task" `quot` #2 in
+      let: "mid" := "beg" + "num_task" `quot` 2 in
       let: "left" :=
         future_async "ctx"
           (fun: "ctx" => "for_" "ctx" "beg" "mid" "chunk" "task")
@@ -64,7 +64,7 @@ Definition algo_fold_seq : val :=
     ) else (
       let: "v" := "body" "ctx" "beg" in
       let: "acc" := "op" "acc" "v" in
-      let: "beg" := "beg" + #1 in
+      let: "beg" := "beg" + 1 in
       "fold_seq" "ctx" "beg" "end_" "body" "op" "acc"
     ).
 
@@ -74,7 +74,7 @@ Definition algo_fold_0 : val :=
     if: "num_task" ≤ "chunk" then (
       algo_fold_seq "ctx" "beg" ("beg" + "num_task") "body" "op" "zero"
     ) else (
-      let: "mid" := "beg" + "num_task" `quot` #2 in
+      let: "mid" := "beg" + "num_task" `quot` 2 in
       let: "left" :=
         future_async "ctx"
           (fun: "ctx" => "fold" "ctx" "beg" "mid" "chunk" "body" "op" "zero")
@@ -95,7 +95,7 @@ Definition algo_find_seq : val :=
       if: "pred" "ctx" "beg" then (
         mvar_set "found" "beg"
       ) else (
-        let: "beg" := "beg" + #1 in
+        let: "beg" := "beg" + 1 in
         "find_seq" "ctx" "beg" "end_" "pred" "found"
       )
     ).
@@ -106,7 +106,7 @@ Definition algo_find_0 : val :=
     if: "num_task" ≤ "chunk" then (
       algo_find_seq "ctx" "beg" ("beg" + "num_task") "pred" "found"
     ) else if: mvar_is_unset "found" then (
-      let: "mid" := "beg" + "num_task" `quot` #2 in
+      let: "mid" := "beg" + "num_task" `quot` 2 in
       let: "left" :=
         future_async "ctx"
           (fun: "ctx" => "find" "ctx" "beg" "mid" "chunk" "pred" "found")

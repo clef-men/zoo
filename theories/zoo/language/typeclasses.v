@@ -6,8 +6,7 @@ From zoo.language Require Export
   language
   metatheory.
 From zoo.language Require Import
-  tactics
-  notations.
+  tactics.
 From zoo Require Import
   options.
 
@@ -28,7 +27,7 @@ Section atomic.
     ].
 
   #[global] Instance pure_atomic e v :
-    PureExec True 1 e v →
+    PureExec True 1 e (Val v) →
     Atomic e.
   Proof.
     intros Hpure%nsteps_once_inv tid σ κ e' σ' es Hstep; last done.
@@ -43,7 +42,7 @@ Section atomic.
   Qed.
 
   #[global] Instance app_atomic f x v1 v2 :
-    Atomic (App (ValRec f x (Val v1)) (Val v2)).
+    Atomic (App (Val $ ValRec f x (Val v1)) (Val v2)).
   Proof.
     destruct f, x; solve_atomic.
   Qed.
@@ -269,7 +268,7 @@ Section pure_exec.
     { lia. }
   Qed.
   #[global] Instance pure_app_rec f x v1 v2 :
-    PureExec True 1 (App (ValRec f x (Val v1)) (Val v2)) v1.
+    PureExec True 1 (App (Val $ ValRec f x (Val v1)) (Val v2)) (Val v1).
   Proof.
     pose proof (pure_app (ValRec f x (Val v1)) 0 [(f, x, Val v1)] (f, x, Val v1) [ValRec f x (Val v1)] v2) as H.
     rewrite /= !subst'_val in H.

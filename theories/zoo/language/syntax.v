@@ -845,15 +845,20 @@ Notation IsImmediate := (
   Unop UnopIsImmediate
 ).
 
+Definition val_of_int :=
+  ValLit ∘ LitInt.
+
 Definition val_to_int v :=
   match v with
   | ValInt n =>
-      n
+      Some n
   | _ =>
-      inhabitant
+      None
   end.
-Definition val_to_nat v :=
-  ₊(val_to_int v).
+Definition val_to_int' :=
+  default inhabitant ∘ val_to_int.
+Definition val_to_nat' :=
+  Z.to_nat ∘ val_to_int'.
 
 Notation of_val :=
   Val

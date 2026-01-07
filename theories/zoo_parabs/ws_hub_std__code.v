@@ -22,9 +22,9 @@ Definition ws_hub_std_create : val :=
     { ws_deques_public_create "sz",
       array_unsafe_init
         "sz"
-        (fun: <> => random_round_create (int_positive_part ("sz" - #1))),
+        (fun: <> => random_round_create (int_positive_part ("sz" - 1))),
       waiters_create (),
-      #false
+      false
     }.
 
 Definition ws_hub_std_size : val :=
@@ -68,7 +68,7 @@ Definition ws_hub_std_try_steal_once : val :=
 
 Definition ws_hub_std_try_steal : val :=
   rec: "try_steal" "t" "i" "yield" "max_round" "until" =>
-    if: "max_round" ≤ #0 then (
+    if: "max_round" ≤ 0 then (
       §Nothing
     ) else (
       match: ws_hub_std_try_steal_once "t" "i" with
@@ -83,7 +83,7 @@ Definition ws_hub_std_try_steal : val :=
             ) else (
               ()
             ) ;;
-            "try_steal" "t" "i" "yield" ("max_round" - #1) "until"
+            "try_steal" "t" "i" "yield" ("max_round" - 1) "until"
           )
       end
     ).
@@ -104,9 +104,7 @@ Definition ws_hub_std_steal_until_0 : val :=
 
 Definition ws_hub_std_steal_until_1 : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
-    match:
-      ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred"
-    with
+    match: ws_hub_std_try_steal "t" "i" false "max_round_noyield" "pred" with
     | Something "v" =>
         ‘Some( "v" )
     | Anything =>
@@ -126,15 +124,13 @@ Definition ws_hub_std_steal_until : val :=
 
 Definition ws_hub_std_steal_aux : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" "pred" =>
-    match:
-      ws_hub_std_try_steal "t" "i" #false "max_round_noyield" "pred"
-    with
+    match: ws_hub_std_try_steal "t" "i" false "max_round_noyield" "pred" with
     | Something <> as "res" =>
         "res"
     | Anything =>
         §Anything
     | Nothing =>
-        ws_hub_std_try_steal "t" "i" #true "max_round_yield" "pred"
+        ws_hub_std_try_steal "t" "i" true "max_round_yield" "pred"
     end.
 
 Definition ws_hub_std_steal_0 : val :=
@@ -178,7 +174,7 @@ Definition ws_hub_std_steal : val :=
 
 Definition ws_hub_std_kill : val :=
   fun: "t" =>
-    "t" <-{killed} #true ;;
+    "t" <-{killed} true ;;
     ws_hub_std_notify_all "t".
 
 Definition ws_hub_std_pop_steal_until : val :=

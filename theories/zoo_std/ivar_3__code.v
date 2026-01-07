@@ -20,9 +20,9 @@ Definition ivar_3_is_unset : val :=
   fun: "t" =>
     match: !"t" with
     | Unset <> =>
-        #true
+        true
     | Set <> =>
-        #false
+        false
     end.
 
 Definition ivar_3_is_set : val :=

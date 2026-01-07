@@ -19,15 +19,15 @@ Definition mpsc_queue_3_is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>
-        #true
+        true
     | ClstCons <> <> =>
-        #false
+        false
     | ClstOpen =>
         match: "t".{back} with
         | ClstCons <> <> =>
-            #false
+            false
         |_ =>
-            #true
+            true
         end
     end.
 
@@ -35,20 +35,20 @@ Definition mpsc_queue_3_push_front : val :=
   fun: "t" "v" =>
     match: "t".{front} with
     | ClstClosed =>
-        #true
+        true
     |_ as "front" =>
         "t" <-{front} ‘ClstCons[ "v", "front" ] ;;
-        #false
+        false
     end.
 
 Definition mpsc_queue_3_push_back : val :=
   rec: "push_back" "t" "v" =>
     match: "t".{back} with
     | ClstClosed =>
-        #true
+        true
     |_ as "back" =>
         if: CAS "t".[back] "back" ‘ClstCons[ "v", "back" ] then (
-          #false
+          false
         ) else (
           domain_yield () ;;
           "push_back" "t" "v"
@@ -82,8 +82,8 @@ Definition mpsc_queue_3_close : val :=
   fun: "t" =>
     match: Xchg "t".[back] §ClstClosed with
     | ClstClosed =>
-        #true
+        true
     |_ as "back" =>
         "t" <-{front} clst_app "t".{front} (clst_rev_app "back" §ClstClosed) ;;
-        #false
+        false
     end.

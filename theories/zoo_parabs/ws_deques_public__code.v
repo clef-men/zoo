@@ -45,13 +45,13 @@ Definition ws_deques_public_steal_to : val :=
 
 Definition ws_deques_public_steal_as_0 : val :=
   rec: "steal_as" "t" "sz" "i" "round" "n" =>
-    if: "n" ≤ #0 then (
+    if: "n" ≤ 0 then (
       §None
     ) else (
-      let: "j" := ("i" + #1 + random_round_next "round") `rem` "sz" in
+      let: "j" := ("i" + 1 + random_round_next "round") `rem` "sz" in
       match: ws_deques_public_steal_to "t" "i" "j" with
       | None =>
-          "steal_as" "t" "sz" "i" "round" ("n" - #1)
+          "steal_as" "t" "sz" "i" "round" ("n" - 1)
       |_ as "res" =>
           "res"
       end
@@ -60,4 +60,4 @@ Definition ws_deques_public_steal_as_0 : val :=
 Definition ws_deques_public_steal_as : val :=
   fun: "t" "i" "round" =>
     let: "sz" := ws_deques_public_size "t" in
-    ws_deques_public_steal_as_0 "t" "sz" "i" "round" ("sz" - #1).
+    ws_deques_public_steal_as_0 "t" "sz" "i" "round" ("sz" - 1).

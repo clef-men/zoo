@@ -73,8 +73,8 @@ Section zoo_G.
     chain_model tag2 t2 vs2 dst2 -∗
     ( chain_model tag1 t1 vs1 dst1 -∗
       chain_model tag2 t2 vs2 dst2 -∗
-        (⌜t1 ≠ t2⌝ -∗ Φ #false) ∧
-        (⌜t1 = t2⌝ -∗ Φ #true)
+        (⌜t1 ≠ t2⌝ -∗ Φ false%V) ∧
+        (⌜t1 = t2⌝ -∗ Φ true%V)
     ) -∗
     WP t1 == t2 {{ Φ }}.
   Proof.
@@ -193,7 +193,7 @@ Section zoo_G.
     {{{
       chain_model tag t vs dst
     }}}
-      Block Mutable (default 0 tag) [Val t; Val v]
+      Block Mutable (default 0%nat tag) [Val t; Val v]
     {{{ t',
       RET t';
       chain_model tag t' (v :: vs) dst

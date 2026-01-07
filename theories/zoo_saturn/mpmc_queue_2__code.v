@@ -44,12 +44,12 @@ Definition mpmc_queue_2_rev : val :=
   fun: "back" =>
     match: "back" with
     | Snoc "i" "v" "pref" =>
-        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front[ "i" + #1 ] ] "pref"
+        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front[ "i" + 1 ] ] "pref"
     end.
 
 Definition mpmc_queue_2_create : val :=
   fun: <> =>
-    { ‘Front[ #1 ], ‘Back{ #0, §Used } }.
+    { ‘Front[ 1 ], ‘Back{ 0, §Used } }.
 
 Definition mpmc_queue_2_size : val :=
   rec: "size" "t" =>
@@ -63,14 +63,14 @@ Definition mpmc_queue_2_size : val :=
     then (
       mpmc_queue_2_prefix_index "back" - mpmc_queue_2_suffix_index "front"
       +
-      #1
+      1
     ) else (
       "size" "t"
     ).
 
 Definition mpmc_queue_2_is_empty : val :=
   fun: "t" =>
-    mpmc_queue_2_size "t" == #0.
+    mpmc_queue_2_size "t" == 0.
 
 Definition mpmc_queue_2_finish : val :=
   fun: "back" =>
@@ -96,7 +96,7 @@ Definition mpmc_queue_2_help : val :=
 
 #[local] Definition __zoo_recs_0 := (
   recs: "push_aux" "t" "v" "i" "back" =>
-    let: "new_back" := ‘Snoc[ "i" + #1, "v", "back" ] in
+    let: "new_back" := ‘Snoc[ "i" + 1, "v", "back" ] in
     if: ~ CAS "t".[back] "back" "new_back" then (
       domain_yield () ;;
       "push" "t" "v"

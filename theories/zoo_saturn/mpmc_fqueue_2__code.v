@@ -14,13 +14,13 @@ From zoo Require Import
 Definition mpmc_fqueue_2_create : val :=
   fun: "cap" =>
     let: "data" := atomic_array_make "cap" §Nothing in
-    { "cap", "data", #0, #0 }.
+    { "cap", "data", 0, 0 }.
 
 Definition mpmc_fqueue_2_make : val :=
   fun: "cap" "v" =>
     let: "data" := atomic_array_make "cap" §Nothing in
-    atomic_array_unsafe_set "data" #0 ‘Something( "v" ) ;;
-    { "cap", "data", #0, #1 }.
+    atomic_array_unsafe_set "data" 0 ‘Something( "v" ) ;;
+    { "cap", "data", 0, 1 }.
 
 Definition mpmc_fqueue_2_is_empty : val :=
   fun: "t" =>
@@ -30,13 +30,13 @@ Definition mpmc_fqueue_2_is_empty : val :=
 
 Definition mpmc_fqueue_2_push_0 : val :=
   rec: "push" "t" "v" =>
-    let: "i" := FAA "t".[back] #1 in
+    let: "i" := FAA "t".[back] 1 in
     if: "t".{capacity} ≤ "i" then (
-      #false
+      false
     ) else if:
        atomic_array_unsafe_cas "t".{data} "i" §Nothing ‘Something( "v" )
      then (
-      #true
+      true
     ) else (
       "push" "t" "v"
     ).
@@ -44,7 +44,7 @@ Definition mpmc_fqueue_2_push_0 : val :=
 Definition mpmc_fqueue_2_push : val :=
   fun: "t" "v" =>
     if: "t".{capacity} ≤ "t".{back} then (
-      #false
+      false
     ) else (
       mpmc_fqueue_2_push_0 "t" "v"
     ).
@@ -54,7 +54,7 @@ Definition mpmc_fqueue_2_pop : val :=
     if: "t".{capacity} ≤ "t".{front} then (
       §Anything
     ) else (
-      let: "i" := FAA "t".[front] #1 in
+      let: "i" := FAA "t".[front] 1 in
       if: "t".{capacity} ≤ "i" then (
         §Anything
       ) else (

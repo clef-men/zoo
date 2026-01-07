@@ -248,7 +248,7 @@ Section zoo_G.
     }}}
       mpmc_stack_2_push t v
     {{{
-      RET #true;
+      RET true;
       True
     }}}.
   Proof.
@@ -388,7 +388,7 @@ Section zoo_G.
     }}}
       mpmc_stack_2_is_closed t
     {{{
-      RET #true;
+      RET true;
       True
     }}}.
   Proof.

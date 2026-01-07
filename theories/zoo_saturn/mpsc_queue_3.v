@@ -429,7 +429,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_push_front t v @ ↑ι
     <<<
       mpsc_queue_3_model t (v :: vs)
-    | RET #false;
+    | RET false;
       mpsc_queue_3_consumer t None
     >>>.
   Proof.
@@ -561,7 +561,7 @@ Section mpsc_queue_3_G.
     }}}
       mpsc_queue_3_push_back t v
     {{{
-      RET #true;
+      RET true;
       True
     }}}.
   Proof.
@@ -695,7 +695,7 @@ Section mpsc_queue_3_G.
       mpsc_queue_3_close t @ ↑ι
     <<<
       mpsc_queue_3_model t vs
-    | RET #false;
+    | RET false;
       mpsc_queue_3_consumer t (Some vs)
     >>>.
   Proof.
@@ -734,7 +734,7 @@ Section mpsc_queue_3_G.
     }}}
       mpsc_queue_3_close t
     {{{
-      RET #true;
+      RET true;
       mpsc_queue_3_consumer t (Some vs)
     }}}.
   Proof.

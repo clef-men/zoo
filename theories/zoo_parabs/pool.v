@@ -31,7 +31,7 @@ Implicit Types empty : emptiness.
 Implicit Types own : ownership.
 
 #[local] Definition max_round_noyield :=
-  val_to_nat pool_max_round_noyield.
+  val_to_nat' pool_max_round_noyield.
 #[local] Lemma pool_max_round_noyield :
   pool_max_round_noyield = #max_round_noyield.
 Proof.
@@ -41,7 +41,7 @@ Opaque pool__code.pool_max_round_noyield.
 Opaque max_round_noyield.
 
 #[local] Definition max_round_yield :=
-  val_to_nat pool_max_round_yield.
+  val_to_nat' pool_max_round_yield.
 #[local] Lemma pool_max_round_yield :
   pool_max_round_yield = #max_round_yield.
 Proof.

@@ -15,7 +15,7 @@ From zoo Require Import
 
 Definition inf_ws_deque_1_create : val :=
   fun: <> =>
-    { #1, #1, inf_array_create (), Proph }.
+    { 1, 1, inf_array_create (), Proph }.
 
 Definition inf_ws_deque_1_size : val :=
   fun: "t" =>
@@ -23,13 +23,13 @@ Definition inf_ws_deque_1_size : val :=
 
 Definition inf_ws_deque_1_is_empty : val :=
   fun: "t" =>
-    inf_ws_deque_1_size "t" == #0.
+    inf_ws_deque_1_size "t" == 0.
 
 Definition inf_ws_deque_1_push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in
     inf_array_set "t".{data} "back" "v" ;;
-    "t" <-{back} "back" + #1.
+    "t" <-{back} "back" + 1.
 
 Definition inf_ws_deque_1_steal : val :=
   rec: "steal" "t" =>
@@ -40,7 +40,7 @@ Definition inf_ws_deque_1_steal : val :=
       §None
     ) else if:
        Resolve
-         (CAS "t".[front] "front" ("front" + #1))
+         (CAS "t".[front] "front" ("front" + 1))
          "t".{proph}
          ("front", "id")
      then (
@@ -61,11 +61,11 @@ Definition inf_ws_deque_1_pop_0 : val :=
     ) else (
       let: "won" :=
         Resolve
-          (CAS "t".[front] "front" ("front" + #1))
+          (CAS "t".[front] "front" ("front" + 1))
           "t".{proph}
           ("front", "id")
       in
-      "t" <-{back} "front" + #1 ;;
+      "t" <-{back} "front" + 1 ;;
       if: "won" then (
         ‘Some( inf_array_get "t".{data} "front" )
       ) else (
@@ -76,6 +76,6 @@ Definition inf_ws_deque_1_pop_0 : val :=
 Definition inf_ws_deque_1_pop : val :=
   fun: "t" =>
     let: "id" := Id in
-    let: "back" := "t".{back} - #1 in
+    let: "back" := "t".{back} - 1 in
     "t" <-{back} "back" ;;
     inf_ws_deque_1_pop_0 "t" "id" "back".

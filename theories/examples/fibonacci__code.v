@@ -13,14 +13,14 @@ From zoo Require Import
 
 Definition fibonacci_fibonacci_0 : val :=
   rec: "fibonacci" "n" "ctx" =>
-    if: "n" ≤ #1 then (
+    if: "n" ≤ 1 then (
       "n"
     ) else (
       let: "fut1" :=
-        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #1) "ctx")
+        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - 1) "ctx")
       in
       let: "fut2" :=
-        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - #2) "ctx")
+        future_async "ctx" (fun: "ctx" => "fibonacci" ("n" - 2) "ctx")
       in
       future_wait "ctx" "fut1" + future_wait "ctx" "fut2"
     ).

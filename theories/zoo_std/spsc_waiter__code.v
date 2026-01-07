@@ -13,11 +13,11 @@ From zoo Require Import
 
 Definition spsc_waiter_create : val :=
   fun: <> =>
-    { #false, mutex_create (), condition_create () }.
+    { false, mutex_create (), condition_create () }.
 
 Definition spsc_waiter_notify : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} #true) ;;
+    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} true) ;;
     condition_notify "t".{condition}.
 
 Definition spsc_waiter_try_wait : val :=

@@ -332,7 +332,7 @@ Section zoo_G.
     }}}
       For #beg #_end body
     {{{
-      RET ()%V;
+      RET ();
       ( [∗ list] δ ∈ seq 0 (_end - beg),
         Ψ (beg + δ) δ
       )

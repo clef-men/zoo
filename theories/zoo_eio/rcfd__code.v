@@ -14,21 +14,21 @@ From zoo Require Import
 
 Definition rcfd_make : val :=
   fun: "fd" =>
-    { #0, ‘Open@[ "fd" ] }.
+    { 0, ‘Open@[ "fd" ] }.
 
 Definition rcfd_closed : val :=
   ‘Closing[ fun: <> => () ].
 
 Definition rcfd_finish : val :=
   fun: "t" "close" "state" =>
-    if: "t".{ops} == #0 and CAS "t".[state] "state" rcfd_closed then (
+    if: "t".{ops} == 0 and CAS "t".[state] "state" rcfd_closed then (
       "close" ()
     ).
 
 Definition rcfd_put : val :=
   fun: "t" =>
-    let: "old" := FAA "t".[ops] #(-1) in
-    if: "old" == #1 then (
+    let: "old" := FAA "t".[ops] (-1) in
+    if: "old" == 1 then (
       match: "t".{state} with
       | Open <> =>
           ()
@@ -39,7 +39,7 @@ Definition rcfd_put : val :=
 
 Definition rcfd_get : val :=
   fun: "t" =>
-    FAA "t".[ops] #1 ;;
+    FAA "t".[ops] 1 ;;
     match: "t".{state} with
     | Open "fd" =>
         ‘Some( "fd" )
@@ -63,15 +63,15 @@ Definition rcfd_close : val :=
   fun: "t" =>
     match: "t".{state} with
     | Closing <> =>
-        #false
+        false
     | Open "fd" as "state" =>
         let: "close" <> := unix_close "fd" in
         let: "new_state" := ‘Closing[ "close" ] in
         if: CAS "t".[state] "state" "new_state" then (
           rcfd_finish "t" "close" "new_state" ;;
-          #true
+          true
         ) else (
-          #false
+          false
         )
     end.
 
@@ -97,9 +97,9 @@ Definition rcfd_is_open : val :=
   fun: "t" =>
     match: "t".{state} with
     | Open <> =>
-        #true
+        true
     | Closing <> =>
-        #false
+        false
     end.
 
 Definition rcfd_peek : val :=

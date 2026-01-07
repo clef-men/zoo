@@ -15,7 +15,7 @@ Definition puf_create : val :=
 
 Definition puf_make : val :=
   fun: "t" =>
-    pstore_2_ref "t" ‘Root( #0 ).
+    pstore_2_ref "t" ‘Root( 0 ).
 
 Definition puf_repr : val :=
   rec: "repr" "t" "elt" =>
@@ -53,7 +53,7 @@ Definition puf_union : val :=
       ) else (
         pstore_2_set "t" "repr2" ‘Link( "repr1" ) ;;
         if: "rank1" == "rank2" then (
-          pstore_2_set "t" "repr1" ‘Root( "rank1" + #1 )
+          pstore_2_set "t" "repr1" ‘Root( "rank1" + 1 )
         )
       )
     ).

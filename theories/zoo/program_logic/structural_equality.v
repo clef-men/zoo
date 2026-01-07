@@ -26,9 +26,9 @@ Implicit Types lv : lowval.
       if: IsImmediate "v2" then
         "v1" == "v2"
       else
-        #false
+        false
     else if: IsImmediate "v2" then
-      #false
+      false
     else (
       GetTag "v1" == GetTag "v2" and
       let: "sz" := GetSize "v1" in
@@ -36,10 +36,10 @@ Implicit Types lv : lowval.
       "structeq_aux" "v1" "v2" "sz"
     )
   and: "structeq_aux" "v1" "v2" "i" =>
-    if: "i" == #0 then
-      #true
+    if: "i" == 0 then
+      true
     else
-      let: "i" := "i" - #1 in
+      let: "i" := "i" - 1 in
       "structeq" (Load "v1" "i") (Load "v2" "i") and
       "structeq_aux" "v1" "v2" "i"
 )%zoo_recs.

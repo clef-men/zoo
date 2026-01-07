@@ -269,7 +269,7 @@ Section spsc_waiter_G.
     }}}
       spsc_waiter_try_wait t
     {{{
-      RET #true;
+      RET true;
       P
     }}}.
   Proof.

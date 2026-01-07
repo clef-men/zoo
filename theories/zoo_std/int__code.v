@@ -26,4 +26,4 @@ Definition int_max : val :=
 
 Definition int_positive_part : val :=
   fun: "t" =>
-    int_max #0 "t".
+    int_max 0 "t".

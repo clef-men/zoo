@@ -79,7 +79,7 @@ Section partition_G.
 
   #[local] Definition element_model class descr elt : iProp Σ :=
     elt.[class_] ↦ #class ∗
-    elt.[seen] ↦ #false.
+    elt.[seen] ↦ false.
   #[local] Instance : CustomIpatFormat "element_model" :=
     " ( Helt{}_class{_{suff}} &
         Helt{}_seen{_{suff}}
@@ -97,7 +97,7 @@ Section partition_G.
     class.[last] ↦ #last ∗
     class.[len] ↦ #(length descr.(descriptor_elts)) ∗
     class.[split] ↦ #first ∗
-    class.[split_len] ↦ #0 ∗
+    class.[split_len] ↦ 0 ∗
     xdlchain #prev descr.(descriptor_elts) #next ∗
     [∗ list] elt ∈ descr.(descriptor_elts),
       element_model class descr elt.
@@ -319,7 +319,7 @@ Section partition_G.
       elt.[next] ↦ #elt ∗
       elt.[data] ↦□ v ∗
       elt.[class_] ↦ v_class ∗
-      elt.[seen] ↦ #false
+      elt.[seen] ↦ false
     }}}.
   Proof.
     iSteps.

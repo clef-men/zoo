@@ -24,7 +24,7 @@ Definition vertex_create : val :=
           fun: <> => ()
       end
     in
-    { "task", #1, mpmc_stack_2_create () }.
+    { "task", 1, mpmc_stack_2_create () }.
 
 Definition vertex_task : val :=
   fun: "t" =>
@@ -38,22 +38,22 @@ Definition vertex_precede : val :=
   fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in
     if: ~ mpmc_stack_2_is_closed "succs1" then (
-      FAA "t2".[preds] #1 ;;
+      FAA "t2".[preds] 1 ;;
       if: mpmc_stack_2_push "succs1" "t2" then (
-        FAA "t2".[preds] #(-1) ;;
+        FAA "t2".[preds] (-1) ;;
         ()
       )
     ).
 
 #[local] Definition __zoo_recs_0 := (
   recs: "release" "ctx" "t" =>
-    if: FAA "t".[preds] #(-1) == #1 then (
+    if: FAA "t".[preds] (-1) == 1 then (
       "run" "ctx" "t"
     )
   and: "run" "ctx" "t" =>
     pool_async "ctx"
       (fun: "ctx" =>
-         "t" <-{preds} #1 ;;
+         "t" <-{preds} 1 ;;
          "t".{task} "ctx" ;;
          let: "succs" := mpmc_stack_2_close "t".{succs} in
          clst_iter (fun: "succ" => "release" "ctx" "succ") "succs")

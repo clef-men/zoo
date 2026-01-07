@@ -10,7 +10,7 @@ From zoo Require Import
 
 Definition xdeque_create : val :=
   fun: <> =>
-    let: "t" := Alloc #0 #2 in
+    let: "t" := Alloc 0 2 in
     "t" <-{xdeque_prev} "t" ;;
     "t" <-{xdeque_next} "t" ;;
     "t".

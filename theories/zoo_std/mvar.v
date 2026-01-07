@@ -413,7 +413,7 @@ Module base.
       }}}
         mvar_is_unset #t
       {{{
-        RET #false;
+        RET false;
         True
       }}}.
     Proof.
@@ -450,7 +450,7 @@ Module base.
       }}}
         mvar_is_set #t
       {{{
-        RET #true;
+        RET true;
         True
       }}}.
     Proof.
@@ -751,7 +751,7 @@ Section mvar_G.
     }}}
       mvar_is_unset t
     {{{
-      RET #false;
+      RET false;
       True
     }}}.
   Proof.
@@ -786,7 +786,7 @@ Section mvar_G.
     }}}
       mvar_is_set t
     {{{
-      RET #true;
+      RET true;
       True
     }}}.
   Proof.

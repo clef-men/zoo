@@ -16,7 +16,7 @@ From zoo Require Import
 
 Definition ws_hub_fifo_create : val :=
   fun: "sz" =>
-    { "sz", mpmc_queue_1_create (), waiters_create (), #false }.
+    { "sz", mpmc_queue_1_create (), waiters_create (), false }.
 
 Definition ws_hub_fifo_size : val :=
   fun: "t" =>
@@ -100,7 +100,7 @@ Definition ws_hub_fifo_steal : val :=
 
 Definition ws_hub_fifo_kill : val :=
   fun: "t" =>
-    "t" <-{killed} #true ;;
+    "t" <-{killed} true ;;
     ws_hub_fifo_notify_all "t".
 
 Definition ws_hub_fifo_pop_steal_until : val :=

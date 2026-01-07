@@ -32,9 +32,9 @@ Definition kcas_1_finish : val :=
   fun: "gid" "casn" "status" =>
     match: "casn".{status} with
     | Before =>
-        #false
+        false
     | After =>
-        #true
+        true
     | Undetermined "cass" as "old_status" =>
         let: "is_after" := kcas_1_status_to_bool "status" in
         if:
@@ -75,9 +75,9 @@ Definition kcas_1_finish : val :=
   and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
     match: "casn".{status} with
     | Before =>
-        #false
+        false
     | After =>
-        #true
+        true
     | Undetermined <> =>
         if: CAS "loc".[contents] "old_state" "state" then (
           "determine_as" "casn" "continue"
@@ -94,9 +94,9 @@ Definition kcas_1_finish : val :=
   and: "determine" "casn" =>
     match: "casn".{status} with
     | Before =>
-        #false
+        false
     | After =>
-        #true
+        true
     | Undetermined "cass" =>
         "determine_as" "casn" "cass"
     end

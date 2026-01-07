@@ -12,11 +12,11 @@ From zoo Require Import
 
 Definition pstore_2_create : val :=
   fun: <> =>
-    { #0, ref §Root }.
+    { 0, ref §Root }.
 
 Definition pstore_2_ref : val :=
   fun: "_t" "v" =>
-    { #0, "v" }.
+    { 0, "v" }.
 
 Definition pstore_2_get : val :=
   fun: "_t" "r" =>
@@ -39,7 +39,7 @@ Definition pstore_2_set : val :=
 Definition pstore_2_capture : val :=
   fun: "t" =>
     let: "g" := "t".{gen} in
-    "t" <-{gen} "g" + #1 ;;
+    "t" <-{gen} "g" + 1 ;;
     ("t", "g", "t".{root}).
 
 Definition pstore_2_collect : val :=
@@ -85,7 +85,7 @@ Definition pstore_2_restore : val :=
           ()
       | Diff <> <> <> <> =>
           pstore_2_reroot "root" ;;
-          "t" <-{gen} "s".<snapshot_gen> + #1 ;;
+          "t" <-{gen} "s".<snapshot_gen> + 1 ;;
           "t" <-{root} "root"
       end
     ).

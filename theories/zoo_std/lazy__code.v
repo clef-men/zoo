@@ -22,9 +22,9 @@ Definition lazy_is_set : val :=
   fun: "t" =>
     match: !"t" with
     | Set <> =>
-        #true
+        true
     |_ =>
-        #false
+        false
     end.
 
 Definition lazy_is_unset : val :=

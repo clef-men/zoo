@@ -18,7 +18,7 @@ Definition mpmc_bstack_size : val :=
   fun: "t" =>
     match: "t".{front} with
     | Nil =>
-        #0
+        0
     | Cons "sz" <> <> =>
         "sz"
     end.
@@ -29,9 +29,9 @@ Definition mpmc_bstack_is_empty : val :=
 
 #[local] Definition __zoo_recs_0 := (
   recs: "push_aux" "t" "sz" "v" "front" =>
-    let: "new_front" := ‘Cons[ "sz" + #1, "v", "front" ] in
+    let: "new_front" := ‘Cons[ "sz" + 1, "v", "front" ] in
     if: CAS "t".[front] "front" "new_front" then (
-      #true
+      true
     ) else (
       domain_yield () ;;
       "push" "t" "v"
@@ -39,10 +39,10 @@ Definition mpmc_bstack_is_empty : val :=
   and: "push" "t" "v" =>
     match: "t".{front} with
     | Nil =>
-        "push_aux" "t" #0 "v" §Nil
+        "push_aux" "t" 0 "v" §Nil
     | Cons "sz" <> <> as "front" =>
         if: "t".{capacity} ≤ "sz" then (
-          #false
+          false
         ) else (
           "push_aux" "t" "sz" "v" "front"
         )

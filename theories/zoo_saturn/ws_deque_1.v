@@ -89,7 +89,7 @@ Proof.
 Qed.
 
 #[local] Definition min_capacity :=
-  val_to_nat ws_deque_1_min_capacity.
+  val_to_nat' ws_deque_1_min_capacity.
 #[local] Lemma min_capacity_nonzero :
   0 < min_capacity.
 Proof.
@@ -1648,7 +1648,7 @@ Section ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front1 #(front1 + 1)) #γ.(metadata_prophet) (#front1, #id)%V
     {{{
-      RET #false;
+      RET false;
       True
     }}}.
   Proof.
@@ -1677,7 +1677,7 @@ Section ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #false;
+      RET false;
       front_lb γ (S front)
     }}}.
   Proof.
@@ -1711,7 +1711,7 @@ Section ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #true;
+      RET true;
       ▷ P
     }}}.
   Proof.
@@ -1797,7 +1797,7 @@ Section ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #front #(front + 1)) #γ.(metadata_prophet) (#front, #id)%V
     {{{
-      RET #true;
+      RET true;
       front_lb γ (S front)
     }}}.
   Proof.
@@ -1834,7 +1834,7 @@ Section ws_deque_1_G.
     }}}
       Resolve (CAS (#l).[front]%V #back #(back + 1)) #γ.(metadata_prophet) (#back, #id)%V
     {{{
-      RET #true;
+      RET true;
       owner₁ γ Unstable back data cap ws ∗
       front_lb γ (S back)
     }}}.

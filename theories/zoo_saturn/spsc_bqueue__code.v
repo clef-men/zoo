@@ -12,7 +12,7 @@ From zoo Require Import
 
 Definition spsc_bqueue_create : val :=
   fun: "cap" =>
-    { array_unsafe_make "cap" §None, #0, #0, #0, #0 }.
+    { array_unsafe_make "cap" §None, 0, 0, 0, 0 }.
 
 Definition spsc_bqueue_capacity : val :=
   fun: "t" =>
@@ -26,13 +26,13 @@ Definition spsc_bqueue_size : val :=
 
 Definition spsc_bqueue_is_empty : val :=
   fun: "t" =>
-    spsc_bqueue_size "t" == #0.
+    spsc_bqueue_size "t" == 0.
 
 Definition spsc_bqueue_push_0 : val :=
   fun: "t" "data" "back" =>
     let: "cap" := array_size "data" in
     if: "back" < "t".{front_cache} + "cap" then (
-      #true
+      true
     ) else (
       let: "front" := "t".{front} in
       "t" <-{front_cache} "front" ;;
@@ -45,16 +45,16 @@ Definition spsc_bqueue_push : val :=
     let: "back" := "t".{back} in
     if: spsc_bqueue_push_0 "t" "data" "back" then (
       array_unsafe_cset "data" "back" ‘Some( "v" ) ;;
-      "t" <-{back} "back" + #1 ;;
-      #false
+      "t" <-{back} "back" + 1 ;;
+      false
     ) else (
-      #true
+      true
     ).
 
 Definition spsc_bqueue_pop_0 : val :=
   fun: "t" "front" =>
     if: "front" < "t".{back_cache} then (
-      #true
+      true
     ) else (
       let: "back" := "t".{back} in
       "t" <-{back_cache} "back" ;;
@@ -68,7 +68,7 @@ Definition spsc_bqueue_pop : val :=
       let: "data" := "t".{data} in
       let: "res" := array_unsafe_cget "data" "front" in
       array_unsafe_cset "data" "front" §None ;;
-      "t" <-{front} "front" + #1 ;;
+      "t" <-{front} "front" + 1 ;;
       "res"
     ) else (
       §None

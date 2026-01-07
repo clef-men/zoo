@@ -19,7 +19,7 @@ Definition mpsc_queue_2_is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | Gcons <> <> =>
-        #false
+        false
     | Gnil =>
         "t".{back} == §Gnil
     end.
