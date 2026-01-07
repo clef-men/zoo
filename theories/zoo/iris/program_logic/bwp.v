@@ -62,7 +62,9 @@ Section iris_G.
     repeat (apply Hbwp || f_contractive || f_equiv).
   Qed.
 
-  #[local] Definition bwp_def :=
+  #[local] Definition bwp_def
+  : expr Λ → thread_id → coPset → (val Λ → iProp Σ) → iProp Σ
+  :=
     fixpoint bwp_pre.
   #[global] Arguments bwp_def e%_E tid E Φ%_I : rename.
 End iris_G.
