@@ -281,7 +281,7 @@ Section zoo_G.
     }}}
       queue_3_pop_front t
     {{{
-      RET head vs : val;
+      RET head vs;
       queue_3_model t (tail vs)
     }}}.
   Proof.
@@ -315,7 +315,7 @@ Section zoo_G.
     }}}
       queue_3_pop_back t
     {{{ o,
-      RET o : val;
+      RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

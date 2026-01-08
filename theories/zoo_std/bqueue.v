@@ -200,7 +200,7 @@ Section zoo_G.
     }}}
       bqueue_pop_front t
     {{{
-      RET head vs : val;
+      RET head vs;
       bqueue_model t cap (tail vs)
     }}}.
   Proof.
@@ -233,7 +233,7 @@ Section zoo_G.
     }}}
       bqueue_pop_back t
     {{{ o,
-      RET o : val;
+      RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

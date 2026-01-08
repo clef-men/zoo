@@ -2199,7 +2199,7 @@ Section ws_deque_1_G.
     }}}
       ws_deque_1_pop_0 #l #id #back_
     {{{ o back data cap i us,
-      RET o : val;
+      RET o;
       owner' γ Stable back data cap ws i us ∗
       match state with
       | PopNonempty v =>

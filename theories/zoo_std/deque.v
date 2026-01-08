@@ -112,7 +112,7 @@ Section zoo_G.
     }}}
       deque_pop_front t
     {{{
-      RET head vs : val;
+      RET head vs;
       deque_model t (tail vs)
     }}}.
   Proof.
@@ -133,7 +133,7 @@ Section zoo_G.
     }}}
       deque_pop_back t
     {{{ o,
-      RET o : val;
+      RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

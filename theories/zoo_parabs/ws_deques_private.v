@@ -1213,7 +1213,7 @@ Section ws_deques_private_G.
     }}}
       ws_deques_private_steal_to_0 #l #i
     {{{ o Ψ_sender Ψ_receiver,
-      RET o : val;
+      RET o;
       channels_sender γ i_ Ψ_sender None ∗
       channels_receiver γ i_ Ψ_receiver None ∗
       Ψ o

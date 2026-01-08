@@ -468,7 +468,7 @@ Module base.
       }}}
         ivar_2_try_get #t
       {{{ o,
-        RET o : val;
+        RET o;
         if o is Some v then
           £ 2 ∗
           ivar_2_result γ v ∗
@@ -501,7 +501,7 @@ Module base.
       }}}
         ivar_2_try_get #t
       {{{
-        RET Some v : val;
+        RET Some v;
         £ 2 ∗
         ivar_2_synchronized γ
       }}}.
@@ -1027,7 +1027,7 @@ Section ivar_2_G.
     }}}
       ivar_2_try_get t
     {{{ o,
-      RET o : val;
+      RET o;
       if o is Some v then
         £ 2 ∗
         ivar_2_result t v ∗
@@ -1049,7 +1049,7 @@ Section ivar_2_G.
     }}}
       ivar_2_try_get t
     {{{
-      RET Some v : val;
+      RET Some v;
       £ 2 ∗
       ivar_2_synchronized t
     }}}.

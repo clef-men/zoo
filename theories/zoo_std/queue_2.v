@@ -116,7 +116,7 @@ Section zoo_G.
     }}}
       queue_2_pop t
     {{{
-      RET head vs : val;
+      RET head vs;
       queue_2_model t (tail vs)
     }}}.
   Proof.

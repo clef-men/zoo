@@ -139,7 +139,7 @@ Section zoo_G.
     }}}
       clst_app t1 t2
     {{{
-      RET clist_app vs1 cvs2 : val;
+      RET clist_app vs1 cvs2;
       True
     }}}.
   Proof.
@@ -158,7 +158,7 @@ Section zoo_G.
     }}}
       clst_rev_app t1 t2
     {{{
-      RET clist_app (reverse vs1) cvs2 : val;
+      RET clist_app (reverse vs1) cvs2;
       True
     }}}.
   Proof.

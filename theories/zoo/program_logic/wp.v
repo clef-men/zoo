@@ -12,6 +12,50 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
+Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" :=
+  ( □ ∀ Φ,
+      P -∗
+      ▷ (∀ x1, .. (∀ xn, Q -∗ Φ (v : val)) ..) -∗
+      wp e%E tid E Φ
+  )%I
+( at level 20,
+  P at level 200,
+  e at level 200,
+  tid custom wp_thread_id at level 200,
+  E custom wp_mask at level 200,
+  x1 closed binder,
+  xn closed binder,
+  Q at level 200,
+  format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  x1  ..  xn ,  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
+) : bi_scope.
+Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" :=
+  ( □ ∀ Φ,
+      P -∗
+      ▷ (Q -∗ Φ (v : val)) -∗
+      wp e%E tid E Φ
+  )%I
+( at level 20,
+  P at level 200,
+  e at level 200,
+  tid custom wp_thread_id at level 200,
+  E custom wp_mask at level 200,
+  Q at level 200,
+  format "'[hv' {{{  '/  ' '[' P ']'  '/' } } }  '/  ' '[' e ']'  tid E '/' {{{  '/  ' RET  v ;  '/  ' '[' Q ']'  '/' } } } ']'"
+) : bi_scope.
+
+Notation "'{{{' P } } } e tid E {{{ x1 .. xn , 'RET' v ; Q } } }" := (
+  ∀ Φ,
+  P%I -∗
+  ▷ (∀ x1, .. (∀ xn, Q%I -∗ Φ (v : val)) ..) -∗
+  wp e%E tid E Φ%I
+) : stdpp_scope.
+Notation "'{{{' P } } } e tid E {{{ 'RET' v ; Q } } }" := (
+  ∀ Φ,
+  P%I -∗
+  ▷ (Q%I -∗ Φ (v : val)) -∗
+  wp e%E tid E Φ%I
+) : stdpp_scope.
+
 Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types pid : prophet_id.

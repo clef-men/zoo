@@ -1871,7 +1871,7 @@ Section ws_bdeque_1_G.
     }}}
       ws_bdeque_1_pop_0 #l #id #back_
     {{{ o back i us,
-      RET o : val;
+      RET o;
       owner' γ Stable back ws i us ∗
       match state with
       | PopNonempty v =>

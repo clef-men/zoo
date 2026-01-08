@@ -830,7 +830,7 @@ Section rcfd_G.
     }}}
       rcfd_get #l
     {{{ o,
-      RET (o : val);
+      RET o;
       match spec with
       | SpecOwner =>
           ⌜o ≠ None⌝ ∗
@@ -926,7 +926,7 @@ Section rcfd_G.
     }}}
       rcfd_get #l
     {{{ o,
-      RET (o : val);
+      RET o;
       match o with
       | None =>
           True
@@ -950,7 +950,7 @@ Section rcfd_G.
     }}}
       rcfd_get #l
     {{{
-      RET Some γ.(metadata_fd) : val;
+      RET Some γ.(metadata_fd);
       ∃ q,
       owner γ ∗
       tokens_frag γ q ∗
@@ -969,7 +969,7 @@ Section rcfd_G.
     }}}
       rcfd_get #l
     {{{
-      RET None : val;
+      RET None;
       True
     }}}.
   Proof.
@@ -1262,7 +1262,7 @@ Section rcfd_G.
     }}}
       rcfd_remove t
     {{{ o,
-      RET (o : val);
+      RET o;
       rcfd_closing t ∗
       ( if owned then
           ⌜o = Some fd⌝ ∗
@@ -1369,7 +1369,7 @@ Section rcfd_G.
     }}}
       rcfd_remove t
     {{{ o,
-      RET (o : val);
+      RET o;
       rcfd_closing t ∗
       if owned then
         ⌜o = Some fd⌝ ∗
@@ -1518,7 +1518,7 @@ Section rcfd_G.
     }}}
       rcfd_peek t
     {{{ o,
-      RET (o : val);
+      RET o;
       match spec with
       | SpecOwner =>
           ⌜o = Some fd⌝ ∗
@@ -1575,7 +1575,7 @@ Section rcfd_G.
     }}}
       rcfd_peek t
     {{{ o,
-      RET (o : val);
+      RET o;
       match o with
       | None =>
           rcfd_closing t
@@ -1596,7 +1596,7 @@ Section rcfd_G.
     }}}
       rcfd_peek t
     {{{
-      RET Some fd : val;
+      RET Some fd;
       rcfd_owner t
     }}}.
   Proof.

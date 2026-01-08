@@ -168,7 +168,7 @@ Section zoo_G.
     }}}
       xdeque_pop_front t
     {{{
-      RET (#@{location} <$> head nodes : option val) : val;
+      RET #@{location} <$> head nodes : option val;
       xdeque_model t (tail nodes)
     }}}.
   Proof.
@@ -196,7 +196,7 @@ Section zoo_G.
     }}}
       xdeque_pop_back t
     {{{ o,
-      RET (#@{location} <$> o : option val) : val;
+      RET #@{location} <$> o : option val;
       match o with
       | None =>
           ⌜nodes = []⌝ ∗

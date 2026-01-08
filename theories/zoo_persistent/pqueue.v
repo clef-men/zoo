@@ -86,7 +86,7 @@ Section zoo_G.
     }}}
       pqueue_pop t
     {{{ o,
-      RET o : val;
+      RET o;
       match o with
       | None =>
           ⌜vs = []⌝

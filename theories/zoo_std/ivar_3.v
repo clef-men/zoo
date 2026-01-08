@@ -686,7 +686,7 @@ Module base.
       }}}
         ivar_3_try_get #t
       {{{ o,
-        RET o : val;
+        RET o;
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v
@@ -719,7 +719,7 @@ Module base.
       }}}
         ivar_3_try_get #t
       {{{
-        RET Some v : val;
+        RET Some v;
         £ 2
       }}}.
     Proof.
@@ -777,7 +777,7 @@ Module base.
       }}}
         ivar_3_wait #t waiter
       {{{ o,
-        RET o : val;
+        RET o;
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v ∗
@@ -1276,7 +1276,7 @@ Section ivar_3_G.
     }}}
       ivar_3_try_get t
     {{{ o,
-      RET o : val;
+      RET o;
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v
@@ -1297,7 +1297,7 @@ Section ivar_3_G.
     }}}
       ivar_3_try_get t
     {{{
-      RET Some v : val;
+      RET Some v;
       £ 2
     }}}.
   Proof.
@@ -1331,7 +1331,7 @@ Section ivar_3_G.
     }}}
       ivar_3_wait t waiter
     {{{ o,
-      RET o : val;
+      RET o;
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v ∗

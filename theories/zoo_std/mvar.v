@@ -276,7 +276,7 @@ Module base.
       }}}
         mvar_try_get #t
       {{{ o,
-        RET o : val;
+        RET o;
         if o then
           mvar_resolved γ
         else
@@ -306,7 +306,7 @@ Module base.
       }}}
         mvar_try_get #t
       {{{ v,
-        RET Some v : val;
+        RET Some v;
         True
       }}}.
     Proof.
@@ -331,7 +331,7 @@ Module base.
       }}}
         mvar_try_get #t
       {{{ o,
-        RET o : val;
+        RET o;
         if o is Some v then
           mvar_resolved γ ∗
           Ψ v
@@ -365,7 +365,7 @@ Module base.
       }}}
         mvar_try_get #t
       {{{ v,
-        RET Some v : val;
+        RET Some v;
         Ψ v
       }}}.
     Proof.
@@ -656,7 +656,7 @@ Section mvar_G.
     }}}
       mvar_try_get t
     {{{ o,
-      RET o : val;
+      RET o;
       if o is Some v then
         mvar_resolved t
       else
@@ -676,7 +676,7 @@ Section mvar_G.
     }}}
       mvar_try_get t
     {{{ v,
-      RET Some v : val;
+      RET Some v;
       True
     }}}.
   Proof.
@@ -692,7 +692,7 @@ Section mvar_G.
     }}}
       mvar_try_get t
     {{{ o,
-      RET o : val;
+      RET o;
       if o is Some v then
         mvar_resolved t ∗
         Ψ v
@@ -715,7 +715,7 @@ Section mvar_G.
     }}}
       mvar_try_get t
     {{{ v,
-      RET Some v : val;
+      RET Some v;
       Ψ v
     }}}.
   Proof.

@@ -73,7 +73,7 @@ Section zoo_G.
     }}}
       pstack_pop t
     {{{ o,
-      RET o : val;
+      RET o;
       match o with
       | None =>
           ⌜vs = []⌝

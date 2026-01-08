@@ -4,6 +4,7 @@
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 -arg -w -arg -notation-incompatible-prefix
+-arg -w -arg -notation-overridden
 
 #BEGIN zoo
 -Q theories/zoo zoo
@@ -122,6 +123,7 @@ theories/zoo/language/typeclasses.v
 theories/zoo/program_logic/state_interp.v
 theories/zoo/program_logic/wp.v
 theories/zoo/program_logic/adequacy.v
+theories/zoo/program_logic/atomic.v
 theories/zoo/program_logic/itype.v
 theories/zoo/program_logic/prophet_typed.v
 theories/zoo/program_logic/prophet_bool.v

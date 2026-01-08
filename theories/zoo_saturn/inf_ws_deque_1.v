@@ -1696,7 +1696,7 @@ Section inf_ws_deque_1_G.
     }}}
       inf_ws_deque_1_pop_0 #l #id #back_
     {{{ o back priv,
-      RET o : val;
+      RET o;
       owner₁ γ Stable back priv ws ∗
       match state with
       | PopNonempty v =>
