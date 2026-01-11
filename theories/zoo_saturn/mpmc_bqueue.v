@@ -1067,7 +1067,7 @@ Module base.
           + iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_front1".
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
             remember (length past1) as i_front1.
-            iModIntro. clear- Hnotfull.
+            iIntros "!> {%- Hnotfull}".
 
             wp_match. do 3 wp_load. wp_pures.
             rewrite bool_decide_eq_false_2; first lia.
@@ -1099,7 +1099,7 @@ Module base.
             iMod ("HΦ" $! false with "[$Hmodel₁ //] [//]") as "HΦ".
 
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
-            iModIntro. clear- Hif.
+            iIntros "!> {%- Hif}".
 
             wp_match. do 3 wp_load. wp_pures.
             iEval (rewrite bool_decide_eq_true_2 //).

@@ -741,14 +741,14 @@ Module base.
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
         iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        clear- Hi. iIntros "!> %empty (Hhub_owner & _) HΦ".
+        iIntros "!> {%- Hi} %empty (Hhub_owner & _) HΦ".
 
-        wp_smart_apply (pool_execute_spec with "[$]"); first done. clear- Hi. iIntros (res) "((:context_1) & (%P & Hglobal & HP))".
+        wp_smart_apply (pool_execute_spec with "[$]") as "{%- Hi} %res((:context_1) & (%P & Hglobal & HP))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
         wp_smart_apply ("HLöb" with "[$] HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
-        clear- Hi. iIntros "!> %empty (Hhub_owner & ->) HΦ".
+        iIntros "!> {%- Hi} %empty (Hhub_owner & ->) HΦ".
 
         wp_smart_apply (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]"); first done.
         iSteps.
@@ -780,14 +780,14 @@ Module base.
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
         iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        clear- Hi. iIntros "!> Hhub_owner HΦ".
+        iIntros "!> {%- Hi} Hhub_owner HΦ".
 
-        wp_smart_apply (pool_execute_spec with "[$]"); first done. clear- Hi. iIntros (res) "((:context_1) & (%P & Hglobal & HP))".
+        wp_smart_apply (pool_execute_spec with "[$]") as "{%- Hi} %res ((:context_1) & (%P & Hglobal & HP))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
         wp_smart_apply ("HLöb" with "[$] HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
-        clear- Hi. iIntros "!> Hhub_owner HΦ".
+        iIntros "!> {%- Hi} Hhub_owner HΦ".
 
         wp_smart_apply (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]"); first done.
         iSteps.
@@ -897,7 +897,7 @@ Module base.
         wp_apply (wp_wand with "(Htask [Hctx])") as (v) "((:context =1) & $)"; first iFrameSteps.
         apply (inj _) in Heq1 as <-. iFrame.
       }
-      clear- Hdoms. iIntros (v) "((:context_1) & HΨ)".
+      iIntros "{%- Hdoms} %v ((:context_1) & HΨ)".
 
       wp_load.
       wp_apply (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
@@ -921,7 +921,7 @@ Module base.
       wp_smart_apply (pool_context_main_spec with "[$]") as "_".
 
       wp_smart_apply (pool_drain_spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
-      clear- Hdoms. iIntros (res) "(:worker_post)".
+      iIntros "{%- Hdoms} %res (:worker_post)".
 
       wp_load.
       wp_smart_apply (ws_hub_std_kill_spec with "Hhub_inv") as "_".
@@ -1037,9 +1037,9 @@ Module base.
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
         iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        clear- Hi. iIntros "!> %empty (Hhub_owner & _) HΦ".
+        iIntros "!> {%- Hi} %empty (Hhub_owner & _) HΦ".
 
-        wp_smart_apply (pool_execute_spec with "[$]"); first done. clear- Hi. iIntros (res) "((:context_1) & (%Q & Hglobal & HQ))".
+        wp_smart_apply (pool_execute_spec with "[$]") as "{%- Hi} %res ((:context_1) & (%Q & Hglobal & HQ))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HQ") as "Hlocals_at".
         wp_smart_apply ("HLöb" with "[$] HΦ").
 

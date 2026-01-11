@@ -2435,7 +2435,7 @@ Section zoo_G.
       wp_pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); simpl_length; [naive_solver lia.. |].
-      clear acc. iIntros "!> %vs' %acc (<- & HΨ)".
+      iIntros "!> {% acc} %vs' %acc (<- & HΨ)".
       iApply ("HΦ" $! (v :: vs')).
       rewrite -(assoc (++)). iSteps.
   Qed.
@@ -2503,15 +2503,16 @@ Section zoo_G.
       ⌜from_option (λ v, v = vs !!! i) True o⌝%I
     )%I).
     wp_apply (array_foldli_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); last first.
-    { clear acc. iIntros "%vs_left %acc (%Hvs_left & (-> & Hmodel & HΨ & _))".
+    { iIntros "{% acc} %vs_left %acc (%Hvs_left & (-> & Hmodel & HΨ & _))".
       rewrite /Ψ' firstn_all2 //.
       iApply ("HΦ" with "[$Hmodel $HΨ]").
     }
-    iStep. clear acc. iIntros "!> %i %vs_left %o %acc %Hi1 %Hi2 (-> & Hmodel & HΨ & %Ho)".
+    iStep. iIntros "!> {% acc} %i %vs_left %o %acc %Hi1 %Hi2 (-> & Hmodel & HΨ & %Ho)".
     opose proof* (list_lookup_lookup_total_lt vs i); first lia.
     destruct o as [v |].
     - rewrite Ho.
-      wp_apply (wp_wand with "(Hfn [] HΨ)"); first iSteps. clear acc. iIntros "%acc HΨ". iFrame.
+      wp_apply (wp_wand with "(Hfn [] HΨ)") as "{% acc} %acc HΨ"; first iSteps.
+      iFrame.
       erewrite take_S_r => //.
     - iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
       iAuIntro. iAaccIntro with "H↦"; iSteps.
@@ -2542,7 +2543,7 @@ Section zoo_G.
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
     wp_apply (array_foldli_spec Ψ' with "[$HΨ $Hmodel $Hfn]"); last iSteps.
-    clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
+    iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
@@ -2578,7 +2579,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldli_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). clear acc. iIntros "!> %i %vs %o %acc %Hi1 %Hi2 HΨ".
+    wp_smart_apply (array_foldli_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). iIntros "!> {% acc} %i %vs %o %acc %Hi1 %Hi2 HΨ".
     case_match; try wp_pures; iApply ("H" with "[%] [%] HΨ"); lia.
   Qed.
   Lemma array_foldl_spec Ψ fn acc t dq vs :
@@ -2675,7 +2676,7 @@ Section zoo_G.
       repeat iExists _. iFrameStep 2; first iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] HΨ)") as "%acc' HΨ"; first lia.
-      wp_apply ("IH" with "[] [] HΨ [HΦ]"); simpl_length; [iSteps.. |]. clear acc. iIntros "!> %acc %vs' (<- & HΨ)".
+      wp_apply ("IH" with "[] [] HΨ [HΦ]") as "!> {% acc} %acc %vs' (<- & HΨ)"; simpl_length; [iSteps.. |].
       iApply ("HΦ" $! _ (vs' ++ [v])).
       rewrite length_app -(assoc (++)). iSteps.
   Qed.
@@ -2709,10 +2710,9 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
     wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_apply (array_foldri_aux_spec sz [] Ψ with "[HΨ $H]").
+    wp_apply (array_foldri_aux_spec sz [] Ψ with "[HΨ $H]") as "{% acc} %acc %vs".
     { rewrite right_id. lia. }
     { rewrite Nat2Z.id //. }
-    clear acc. iIntros "%acc %vs".
     rewrite !right_id. iSteps.
   Qed.
   Lemma array_foldri_spec Ψ fn t dq vs acc :
@@ -2746,14 +2746,13 @@ Section zoo_G.
     wp_apply (array_foldri_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); last iSteps.
     iSplitR.
     - rewrite drop_all. iSteps.
-    - clear acc. iIntros "!> %i %acc %o %vs_right %Hi (-> & Hmodel & HΨ & %Ho)".
+    - iIntros "!> {% acc} %i %acc %o %vs_right %Hi (-> & Hmodel & HΨ & %Ho)".
       opose proof* (list_lookup_lookup_total_lt vs i) as Hlookup; first lia.
       destruct o as [v |].
       + rewrite Ho.
-        wp_apply (wp_wand with "(Hfn [] HΨ)").
+        wp_apply (wp_wand with "(Hfn [] HΨ)") as "{% acc} %acc HΨ".
         { iPureIntro. rewrite Hlookup. repeat f_equal. lia. }
-        clear acc. iIntros "%acc HΨ". iFrame.
-        iPureIntro. rewrite -drop_S ?Hlookup; repeat f_equal; lia.
+        iFrame. iPureIntro. rewrite -drop_S ?Hlookup; repeat f_equal; lia.
       + iDestruct (array_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; first done.
         iAuIntro. iAaccIntro with "H↦"; first iSteps. iIntros "H↦ !>".
         iSteps; iPureIntro; simpl_length; f_equal; lia.
@@ -2785,7 +2784,7 @@ Section zoo_G.
     )%I).
     wp_apply (array_foldri_spec Ψ' with "[$Hmodel HΨ Hfn]"); last iSteps.
     iFrame. rewrite firstn_all2; first lia. iFrame.
-    clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
+    iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     pose proof Hlookup as Hi%lookup_lt_Some.
     erewrite take_S_r => //.
     iDestruct "HΞ" as "(HΞ & Hfn & _)".
@@ -2821,7 +2820,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). clear acc. iIntros "!> %i %acc %o %vs %Hi HΨ".
+    wp_smart_apply (array_foldri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> {% acc} %i %acc %o %vs %Hi HΨ".
     case_match; try wp_pures; iApply ("H" with "[//] HΨ").
   Qed.
   Lemma array_foldr_spec Ψ fn t dq vs acc :
@@ -7991,10 +7990,10 @@ Section zoo_G.
       υ acc
     )%I).
     wp_apply (array_foldli_spec_atomic Ψ with "[$Hinv $Hacc]"); last iSteps.
-    clear acc. iIntros "!> %i %vs_left %o %acc %Hi1 %Hi2 (Ho & Hacc)".
+    iIntros "!> {% acc} %i %vs_left %o %acc %Hi1 %Hi2 (Ho & Hacc)".
     destruct o as [v |].
-    - wp_apply (wp_wand with "(Hfn [])"); first iSteps. iClear (fn) "Hfn". iIntros "%fn Hfn".
-      wp_apply (wp_wand with "(Hfn Hacc)"). clear fn. iIntros "%fn Hfn".
+    - wp_apply (wp_wand with "(Hfn [])") as "{Hfn} {% fn} %fn Hfn"; first iSteps.
+      wp_apply (wp_wand with "(Hfn Hacc)") as "{% fn} %fn Hfn".
       wp_apply (wp_wand with "(Hfn Ho)").
       iSteps.
     - iAuIntro.
@@ -8045,10 +8044,10 @@ Section zoo_G.
       υ acc
     )%I).
     wp_apply (array_foldri_spec_atomic Ψ with "[$Hinv $Hacc]"); last iSteps.
-    clear acc. iIntros "!> %i %acc %o %vs_right %Hi (Ho & Hacc)".
+    iIntros "!> {% acc} %i %acc %o %vs_right %Hi (Ho & Hacc)".
     destruct o as [v |].
-    - wp_apply (wp_wand with "(Hfn [])"); first iSteps. iClear (fn) "Hfn". iIntros "%fn Hfn".
-      wp_apply (wp_wand with "(Hfn Ho)"). clear fn. iIntros "%fn Hfn".
+    - wp_apply (wp_wand with "(Hfn [])") as "{Hfn} {% fn} %fn Hfn"; first iSteps.
+      wp_apply (wp_wand with "(Hfn Ho)") as "{% fn} %fn Hfn".
       wp_apply (wp_wand with "(Hfn Hacc)").
       iSteps.
     - iAuIntro.
@@ -8217,7 +8216,7 @@ Section zoo_G.
     wp_rec.
     wp_smart_apply (array_unsafe_iteri_slice_type τ with "[$Htype] HΦ"); [done.. |].
     iIntros "!> % (%k & -> & %Hk)". wp_pures. iIntros "!> !> %v Hv".
-    wp_smart_apply (wp_wand with "(Hfn [])"); first iSteps. iClear "Hfn". clear fn. iIntros "%fn Hfn".
+    wp_smart_apply (wp_wand with "(Hfn [])") as "{Hfn} {% fn} %fn Hfn"; first iSteps.
     wp_apply (wp_wand with "(Hfn Hv)") as "%w Hw".
     wp_smart_apply (array_unsafe_set_type with "[$Htype $Hw]"); first lia.
     iSteps.

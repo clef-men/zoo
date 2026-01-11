@@ -78,7 +78,7 @@ Section future_G.
         (λ v1, ⌜v1 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
+      { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
 
@@ -86,7 +86,7 @@ Section future_G.
         (λ v2, ⌜v2 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
+      { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[] Hctx"); iSteps.
       }
 

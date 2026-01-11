@@ -576,7 +576,7 @@ Module base.
           iMod ("HΦ" with "Hmodel₁ [//]") as "HΦ".
 
           iSplitR "Hproph HΦ". { iFrameSteps. }
-          iModIntro. clear- Hhist2.
+          iIntros "!> {%- Hhist2}".
 
           wp_pures.
 
@@ -584,7 +584,7 @@ Module base.
           iInv "Hinv" as "(:inv_inner =3)".
           wp_load.
           iSplitR "Hproph HΦ". { iFrameSteps. }
-          iModIntro. clear- Hhist2.
+          iIntros "!> {%- Hhist2}".
 
           wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
@@ -609,7 +609,7 @@ Module base.
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
-        iModIntro. clear- Hproph.
+        iIntros "!> {%- Hproph}".
 
         wp_pures.
 
@@ -617,7 +617,7 @@ Module base.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
         iSplitR "Hproph HΦ". { iFrameSteps. }
-        iModIntro. clear- Hproph.
+        iIntros "!> {%- Hproph}".
 
         wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.

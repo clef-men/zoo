@@ -4,10 +4,10 @@ From stdpp Require Import
   pretty.
 
 From iris.proofmode Require Import
-  base
-  sel_patterns.
+  base.
 From zoo.iris.proofmode Require Import
-  tokens.
+  tokens
+  sel_patterns.
 From iris.prelude Require Import
   options.
 
@@ -169,21 +169,32 @@ Module intro_pat.
     | TFrame :: TName s :: ts =>
         parse_clear ts (StPat (IClearFrame (SelIdent s)) :: k)
     | TFrame :: TPure None :: ts =>
-        parse_clear ts (StPat (IClearFrame SelPure) :: k)
+        parse_clear ts (StPat (IClearFrame (SelPure [])) :: k)
     | TFrame :: TIntuitionistic :: ts =>
         parse_clear ts (StPat (IClearFrame SelIntuitionistic) :: k)
     | TFrame :: TSep :: ts =>
         parse_clear ts (StPat (IClearFrame SelSpatial) :: k)
     | TName s :: ts =>
         parse_clear ts (StPat (IClear (SelIdent s)) :: k)
+    | TPure None :: TMinus :: ts =>
+        parse_names ts k (λ xs, StPat (IClear (SelPureInv xs))) []
     | TPure None :: ts =>
-        parse_clear ts (StPat (IClear SelPure) :: k)
+        parse_names ts k (λ xs, StPat (IClear (SelPure xs))) []
     | TIntuitionistic :: ts =>
         parse_clear ts (StPat (IClear SelIntuitionistic) :: k)
     | TSep :: ts =>
         parse_clear ts (StPat (IClear SelSpatial) :: k)
     | TBraceR :: ts =>
         parse_go ts k
+    | _ =>
+        None
+    end
+  with parse_names ts k item acc :=
+    match ts with
+    | TName s :: ts =>
+        parse_names ts k item (s :: acc)
+    | TBraceR :: ts =>
+        parse_go ts (item (reverse acc) :: k)
     | _ =>
         None
     end.

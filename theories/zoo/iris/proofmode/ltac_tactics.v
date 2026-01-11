@@ -9,21 +9,23 @@ From iris.bi Require Export
 From iris.proofmode Require Import
   base
   spec_patterns
-  sel_patterns
   reduction
   string_ident.
-From zoo.iris.proofmode Require Import
-  coq_tactics.
 From iris.proofmode Require Export
   classes
   notation.
-From iris.prelude Require Import
-  options.
 
+From zoo.ltac2 Require Import
+  Ident.
 From zoo.common Require Import
   format.
 From zoo.iris.proofmode Require Import
-  intro_patterns.
+  coq_tactics
+  intro_patterns
+  sel_patterns.
+
+From iris.prelude Require Import
+  options.
 
 Export ident.
 
@@ -205,35 +207,42 @@ Tactic Notation "iRename" "select" open_constr(pat) "into" constr(n) :=
 only specific identifiers, and no wildcards like `#` (with the
 exception of the pure selection pattern `%`) *)
 Inductive esel_pat :=
-  | ESelPure
+  | ESelPure : list string → esel_pat
+  | ESelPureInv : list string → esel_pat
   | ESelIdent : (* whether the ident is intuitionistic *) bool → ident → esel_pat.
 
 #[local] Ltac iElaborateSelPat_go pat Δ Hs :=
   lazymatch pat with
-  | [] => eval cbv in Hs
-  | SelPure :: ?pat =>  iElaborateSelPat_go pat Δ (ESelPure :: Hs)
+  | [] =>
+      eval cbv in Hs
+  | SelPure ?xs :: ?pat =>
+      iElaborateSelPat_go pat Δ (ESelPure xs :: Hs)
+  | SelPureInv ?xs :: ?pat =>
+      iElaborateSelPat_go pat Δ (ESelPureInv xs :: Hs)
   | SelIntuitionistic :: ?pat =>
-    let Hs' := pm_eval (env_dom (env_intuitionistic Δ)) in
-    let Δ' := pm_eval (envs_clear_intuitionistic Δ) in
-    iElaborateSelPat_go pat Δ' ((ESelIdent true <$> Hs') ++ Hs)
+      let Hs' := pm_eval (env_dom (env_intuitionistic Δ)) in
+      let Δ' := pm_eval (envs_clear_intuitionistic Δ) in
+      iElaborateSelPat_go pat Δ' ((ESelIdent true <$> Hs') ++ Hs)
   | SelSpatial :: ?pat =>
-    let Hs' := pm_eval (env_dom (env_spatial Δ)) in
-    let Δ' := pm_eval (envs_clear_spatial Δ) in
-    iElaborateSelPat_go pat Δ' ((ESelIdent false <$> Hs') ++ Hs)
+      let Hs' := pm_eval (env_dom (env_spatial Δ)) in
+      let Δ' := pm_eval (envs_clear_spatial Δ) in
+      iElaborateSelPat_go pat Δ' ((ESelIdent false <$> Hs') ++ Hs)
   | SelIdent ?H :: ?pat =>
-    lazymatch pm_eval (envs_lookup_delete false H Δ) with
-    | Some (?p,_,?Δ') =>  iElaborateSelPat_go pat Δ' (ESelIdent p H :: Hs)
-    | None =>
-      let H := pretty_ident H in
-      fail "iElaborateSelPat:" H "not found"
-    end
+      lazymatch pm_eval (envs_lookup_delete false H Δ) with
+      | Some (?p,_,?Δ') =>
+          iElaborateSelPat_go pat Δ' (ESelIdent p H :: Hs)
+      | None =>
+          let H := pretty_ident H in
+          fail "iElaborateSelPat:" H "not found"
+      end
   end.
 (** Converts a selection pattern (given as a string) to a list of
 elaborated selection patterns. *)
 Ltac iElaborateSelPat pat :=
   lazymatch goal with
   | |- envs_entails ?Δ _ =>
-    let pat := sel_pat.parse pat in iElaborateSelPat_go pat Δ (@nil esel_pat)
+      let pat := sel_pat.parse pat in
+      iElaborateSelPat_go pat Δ (@nil esel_pat)
   end.
 
 Ltac _iClearHyp H :=
@@ -252,8 +261,22 @@ Ltac _iClearHyp H :=
   lazymatch Hs with
   | [] =>
       idtac
-  | ESelPure :: ?Hs =>
+  | ESelPure [] :: ?Hs =>
       clear;
+      iClear_go Hs
+  | ESelPure ?xs :: ?Hs =>
+      let go := ltac2:(xs |-
+        let xs := Option.get (Ltac1.to_constr xs) in
+        Std.clear (Ident.of_coq_strings xs)
+      ) in
+      go xs;
+      iClear_go Hs
+  | ESelPureInv ?xs :: ?Hs =>
+      let go := ltac2:(xs |-
+        let xs := Option.get (Ltac1.to_constr xs) in
+        Std.keep (Ident.of_coq_strings xs)
+      ) in
+      go xs;
       iClear_go Hs
   | ESelIdent _ ?H :: ?Hs =>
       _iClearHyp H;
@@ -280,8 +303,10 @@ Tactic Notation "iEval" tactic3(tac) :=
   lazymatch Hs with
   | [] =>
       idtac
-  | ESelPure :: ?Hs =>
-      fail "iEval: %: unsupported selection pattern"
+  | ESelPure _ :: ?Hs =>
+      fail "iEval: unsupported selection pattern: %"
+  | ESelPureInv _ :: ?Hs =>
+      fail "iEval: unsupported selection pattern: %-"
   | ESelIdent _ ?H :: ?Hs =>
       eapply tac_eval_in with H _ _ _;
       [ pm_reflexivity ||
@@ -513,11 +538,24 @@ Ltac iFrameAnySpatial :=
 
 #[local] Ltac _iFrame_go Hs :=
   lazymatch Hs with
-  | [] => idtac
-  | SelPure :: ?Hs => iFrameAnyPure; _iFrame_go Hs
-  | SelIntuitionistic :: ?Hs => iFrameAnyIntuitionistic; _iFrame_go Hs
-  | SelSpatial :: ?Hs => iFrameAnySpatial; _iFrame_go Hs
-  | SelIdent ?H :: ?Hs => iFrameHyp H; _iFrame_go Hs
+  | [] =>
+      idtac
+  | SelPure [] :: ?Hs =>
+      iFrameAnyPure;
+      _iFrame_go Hs
+  | SelPure _ :: _ =>
+      fail "iFrame: unsupported selection pattern: % _"
+  | SelPureInv _ :: _ =>
+      fail "iFrame: unsupported selection pattern: %-"
+  | SelIntuitionistic :: ?Hs =>
+      iFrameAnyIntuitionistic;
+      _iFrame_go Hs
+  | SelSpatial :: ?Hs =>
+      iFrameAnySpatial;
+      _iFrame_go Hs
+  | SelIdent ?H :: ?Hs =>
+      iFrameHyp H;
+      _iFrame_go Hs
   end.
 
 Ltac _iFrame0 Hs :=
@@ -734,11 +772,25 @@ Tactic Notation "iRevertHyp" constr(H) := iRevertHyp H with (fun _ => idtac).
 
 Ltac _iRevert_go Hs :=
   lazymatch Hs with
-  | [] => idtac
-  | ESelPure :: ?Hs =>
-     repeat match goal with x : _ |- _ => revert x end;
+  | [] =>
+      idtac
+  | ESelPure [] :: ?Hs =>
+      repeat match goal with x : _ |- _ =>
+        revert x
+      end;
      _iRevert_go Hs
-  | ESelIdent _ ?H :: ?Hs => iRevertHyp H; _iRevert_go Hs
+  | ESelPure ?xs :: ?Hs =>
+      let go := ltac2:(xs |-
+        let xs := Option.get (Ltac1.to_constr xs) in
+        Std.revert (Ident.of_coq_strings xs)
+      ) in
+      go xs;
+     _iRevert_go Hs
+  | ESelPureInv _ :: _ =>
+      fail "iRevert: unsupported selection pattern: %-"
+  | ESelIdent _ ?H :: ?Hs =>
+      iRevertHyp H;
+      _iRevert_go Hs
   end.
 
 Ltac _iRevert0 Hs :=
@@ -1772,10 +1824,16 @@ Tactic Notation "iIntros" constr(pat1)
 (* Used for generalization in [iInduction] and [iLöb] *)
 Ltac _iRevertIntros_go Hs tac :=
   lazymatch Hs with
-  | [] => tac ()
-  | ESelPure :: ?Hs => fail "iRevertIntros: % not supported"
+  | [] =>
+      tac ()
+  | ESelPure _ :: _ =>
+      fail "iRevertIntros: unsupported selection pattern: %"
+  | ESelPureInv _ :: _ =>
+      fail "iRevertIntros: unsupported selection pattern: %-"
   | ESelIdent ?p ?H :: ?Hs =>
-    iRevertHyp H; _iRevertIntros_go Hs tac; _iIntroMaybePersistent H p
+      iRevertHyp H;
+      _iRevertIntros_go Hs tac;
+      _iIntroMaybePersistent H p
   end.
 
 Ltac _iRevertIntros0 Hs tac :=

@@ -713,7 +713,7 @@ Section spsc_bqueue_G.
 
     iSplitR "Hl_front_cache Hproducer₁ HΦ". { iFrameSteps. }
     assert (⁺back - ⁺front2 = length vs)%Z as Hlen by lia.
-    iModIntro. clear- Hlen.
+    iIntros "!> {%- Hlen}".
 
     iSteps. rewrite Hlen. iSteps.
   Qed.
@@ -748,7 +748,7 @@ Section spsc_bqueue_G.
 
     iSplitR "Hl_back_cache Hconsumer₁ HΦ". { iFrameSteps. }
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
-    iModIntro. clear- Hlen.
+    iIntros "!> {%- Hlen}".
 
     wp_smart_apply (front_spec with "[$]") as "Hconsumer₁".
     iSteps. rewrite Hlen. iSteps.
@@ -859,7 +859,7 @@ Section spsc_bqueue_G.
       destruct_decide (back < front1 + γ.(metadata_capacity)) as Hbranch2.
 
       + iSplitR "Hl_front_cache Hproducer₁ HΨ HΦ". { iFrameSteps. }
-        iModIntro. clear- Hbranch2.
+        iIntros "!> {%- Hbranch2}".
 
         wp_store. wp_pures.
         iApply ("HΦ" $! _ front1).
@@ -874,7 +874,7 @@ Section spsc_bqueue_G.
         iMod ("HΨ" with "[Hmodel₁]") as "HΨ"; first iSteps.
 
         iSplitR "Hl_front_cache Hproducer₁ HΨ HΦ". { iFrameSteps. }
-        iModIntro. clear- Hbranch2 Hvs1_len.
+        iIntros "!> {%- Hbranch2 Hvs1_len}".
 
         wp_store. wp_pures.
         iApply ("HΦ" $! _ front1).
@@ -911,7 +911,7 @@ Section spsc_bqueue_G.
     rewrite decide_False; first lia.
     iMod (producer_update_stability Unstable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
     iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
-    iModIntro. clear- Hbranch. iModIntro.
+    iIntros "!> {%- Hbranch} !>".
 
     wp_smart_apply (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
     wp_pures.
@@ -1004,7 +1004,7 @@ Section spsc_bqueue_G.
       destruct_decide (front < back1) as Hbranch2.
 
       + iSplitR "Hl_back_cache Hconsumer₁ HΨ HΦ". { iFrameSteps. }
-        iModIntro. clear- Hbranch2.
+        iIntros "!> {%- Hbranch2}".
 
         wp_store. wp_pures.
         iApply ("HΦ" $! _ back1).
@@ -1019,7 +1019,7 @@ Section spsc_bqueue_G.
         iMod ("HΨ" with "[$Hmodel₁]") as "HΨ"; first iSteps.
 
         iSplitR "Hl_back_cache Hconsumer₁ HΨ HΦ". { iFrameSteps. }
-        iModIntro. clear- Hbranch2.
+        iIntros "!> {%- Hbranch2}".
 
         wp_store. wp_pures.
         iApply ("HΦ" $! _ front).
@@ -1059,7 +1059,7 @@ Section spsc_bqueue_G.
     }
     iMod (consumer_update_stability Unstable with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)".
     iSplitR "Hl_back_cache Hconsumer₁ Hfront HΦ". { iFrameSteps. }
-    iModIntro. clear- Hbranch. iModIntro.
+    iIntros "!> {%- Hbranch} !>".
 
     wp_load.
     wp_smart_apply (array_unsafe_cget_spec_cell with "Hfront") as "Hfront"; first done.

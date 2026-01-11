@@ -368,7 +368,7 @@ Section mpmc_bstack_G.
         rewrite bool_decide_eq_false_2; first lia.
         iMod ("HΦ" with "[Hmodel₁] [//]") as "HΦ"; first iSteps.
         iSplitR "HΦ". { iFrameSteps. }
-        iModIntro. clear- Hcapacity Hlen.
+        iIntros "!> {%- Hcapacity Hlen}".
 
         destruct vs as [| w vs]; first naive_solver lia.
         wp_load. wp_pures.
@@ -376,7 +376,7 @@ Section mpmc_bstack_G.
         iSteps.
 
       + iSplitR "HΦ". { iFrameSteps. }
-        iModIntro. clear- Hlen.
+        iIntros "!> {%- Hlen}".
 
         destruct vs as [| w vs]; wp_pures.
 

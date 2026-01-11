@@ -132,7 +132,7 @@ Section algo_G.
           True
         )%I
       with "[$Hctx HΧ_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
+      { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[%] Hctx HΧ_1"); first naive_solver lia.
         { iSteps. }
       }
@@ -188,7 +188,7 @@ Section algo_G.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & HΧ & #HΧ_split & #HΧ_elim) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]"). clear chunk. iIntros "%chunk Hctx".
+    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
     wp_smart_apply (algo_for_0_spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
@@ -239,7 +239,7 @@ Section algo_G.
       - iIntros "!> %i %n1 %n2 % % HΧ".
         iEval (replace ₊(i + n1) with (₊i + n1) by lia).
         iSteps.
-      - clear ctx scope. iIntros "!> %ctx %scope %i %n Hctx % % HΧ".
+      - iIntros "!> {% ctx scope} %ctx %scope %i %n Hctx % % HΧ".
         Z_to_nat i.
         iEval (rewrite Nat2Z.id) in "HΧ".
         wp_apply (wp_wand with "(HΧ_elim Hctx [%] [%] HΧ)"); [done.. |].
@@ -317,7 +317,7 @@ Section algo_G.
     wp_apply (algo_for_spec'
       (λ i, Ψ ₊i)
     with "[$Hpool_inv $Hchunk $Hctx]"); first lia.
-    { clear ctx scope. iIntros "!> %ctx %scope %i %n Hctx % %".
+    { iIntros "{% ctx scope} !> %ctx %scope %i %n Hctx % %".
       Z_to_nat i.
       wp_apply (wp_wand with "(Htask Hctx [%] [%])"); [done.. |].
       iSteps as "HΨ".
@@ -374,7 +374,7 @@ Section algo_G.
       - iIntros "!> %i %n1 %n2 % % Htask".
         iEval (rewrite Nat2Z.inj_add) in "Htask".
         iApply (big_sepL_seqZ_app with "Htask"); lia.
-      - clear ctx scope. iIntros "!> %ctx %scope %i %n Hctx % % Htask".
+      - iIntros "{% ctx scope} !> %ctx %scope %i %n Hctx % % Htask".
         wp_smart_apply (for_spec'
           ( λ j δ,
             pool_context pool ctx scope ∗
@@ -635,7 +635,7 @@ Section algo_G.
         (Χ beg ₊(mid - beg))
         (λ _, True)%I
         with "[$Hctx Hbody_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
+      { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[%] [$] Hbody_1"); first naive_solver lia.
         iSteps.
       }
@@ -703,7 +703,7 @@ Section algo_G.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]"). clear chunk. iIntros "%chunk Hctx".
+    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
     wp_smart_apply (algo_fold_0_spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
@@ -1031,7 +1031,7 @@ Section algo_G.
         )%I
         (λ _, True)%I
         with "[$Hctx Htoken_1 Hpred_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
-      { clear ctx scope. iIntros "%ctx %scope Hctx".
+      { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_smart_apply ("HLöb" with "[%] [$] [$] Hpred_1"); first naive_solver lia.
         iSteps.
       }
@@ -1085,7 +1085,7 @@ Section algo_G.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]"). clear chunk. iIntros "%chunk Hctx".
+    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
 
     iMod (ghost_var_alloc (ghost_var_G := algo_G_find_G) ()) as "(%γ & Htoken)".
     wp_smart_apply (mvar_create_spec (find_inv γ Ψ beg end_) with "[//]") as (found) "(#Hfound_inv & Hfound_consumer)".

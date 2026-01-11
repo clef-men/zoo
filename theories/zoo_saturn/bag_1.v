@@ -347,7 +347,7 @@ Section bag_1_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_faa.
     iSplitR "HΦ". { iFrameSteps. }
-    iModIntro. clear- Hsz.
+    iIntros "!> {%- Hsz}".
 
     simpl_length.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
@@ -387,7 +387,7 @@ Section bag_1_G.
     iDestruct (big_sepL2_lookup_acc with "Hslots") as "(Hslot & Hslots)"; [done.. |].
     wp_load.
     iSplitR "HΦ". { iFrameSteps. }
-    iModIntro. clear- Hslots_lookup Hi.
+    iIntros "!> {%- Hslots_lookup Hi}".
 
     destruct o as [v |]; last iSteps.
     wp_pures.
@@ -445,7 +445,7 @@ Section bag_1_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_faa.
     iSplitR "HΦ". { iFrameSteps. }
-    iModIntro. clear- Hsz.
+    iIntros "!> {%- Hsz}".
 
     simpl_length.
     wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].

@@ -899,7 +899,7 @@ Section rcfd_G.
       }
 
       iSplitR "Hspec Htokens_frag HΨ_ HΦ". { iFrameSteps 2. }
-      iModIntro. clear- Hspec.
+      iIntros "!> {%- Hspec}".
 
       wp_pures.
       iApply ("HΦ" $! (Some _)).
@@ -913,7 +913,7 @@ Section rcfd_G.
       }
 
       iSplitR "H HΦ". { iFrameSteps 2. }
-      iModIntro. clear- HΨ Hspec.
+      iIntros "!> {%- HΨ Hspec}".
 
       wp_smart_apply (rcfd_put_spec with "[$]") as "_".
       wp_pures.
@@ -1444,7 +1444,7 @@ Section rcfd_G.
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
-      iModIntro. clear- Hspec.
+      iIntros "!> {%- Hspec}".
 
       wp_pures.
       destruct spec; try congruence; iSteps.
@@ -1455,7 +1455,7 @@ Section rcfd_G.
       { iDestruct (owner_lstate_auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
-      iModIntro. clear- Hspec.
+      iIntros "!> {%- Hspec}".
 
       wp_pures.
       destruct spec; try congruence; iSteps.
@@ -1551,7 +1551,7 @@ Section rcfd_G.
       { iDestruct (lstate_valid_closing_users with "Hlstate_auth Hspec") as %?. congruence. }
 
       iSplitR "Hspec HΦ". { iFrameSteps 2. }
-      iModIntro. clear- Hspec.
+      iIntros "!> {%- Hspec}".
 
       wp_pures.
       iApply ("HΦ" $! (Some _)).
@@ -1563,7 +1563,7 @@ Section rcfd_G.
       { iDestruct (owner_lstate_auth with "Hspec Hlstate_auth") as %->. congruence. }
 
       iSplitR "HΦ". { iFrameSteps 2. }
-      iModIntro. clear- Hspec.
+      iIntros "!> {%- Hspec}".
 
       wp_pures.
       iApply ("HΦ" $! None).

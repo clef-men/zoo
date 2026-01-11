@@ -1,6 +1,6 @@
 From Ltac2 Require Export
-  Init
-  Constr.
+  Constr
+  Init.
 
 From zoo Require Import
   prelude.

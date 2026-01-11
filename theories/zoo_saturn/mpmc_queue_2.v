@@ -1140,7 +1140,7 @@ Section mpmc_queue_2_G.
       }
 
       iSplitR "Hproph HΦ". { iFrameSteps. }
-      iModIntro. clear- Hi_front2 Hsize.
+      iIntros "!> {%- Hi_front2 Hsize}".
 
       wp_smart_apply (front_spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
       wp_equal as _ | (-> & ->)%(inj2 _).
@@ -1244,7 +1244,7 @@ Section mpmc_queue_2_G.
       + iDestruct (state_lb_stabilized with "Hstate_auth Hstate_lb") as "#(_ & #Hstate_at)"; first lia.
 
         iSplitR "HΦ". { iFrameSteps. }
-        iModIntro. clear- Hif.
+        iIntros "!> {%- Hif}".
 
         wp_pures.
         rewrite bool_decide_eq_true_2; first lia.
@@ -1253,7 +1253,7 @@ Section mpmc_queue_2_G.
       + iDestruct (state_lb_unstabilized with "Hstate_auth Hstate_lb") as %(-> & -> & ->); first lia.
 
         iSplitR "HΦ". { iFrameSteps. }
-        iModIntro. clear- Hmove Hif.
+        iIntros "!> {%- Hmove Hif}".
 
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
@@ -1598,7 +1598,7 @@ Section mpmc_queue_2_G.
         + iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first naive_solver lia.
 
           iSplitR "HΦ". { iFrameSteps. }
-          iModIntro. clear- Hfront1 Hi_front1.
+          iIntros "!> {%- Hfront1 Hi_front1}".
 
           wp_pures.
           case_bool_decide as Hif; wp_pures.
@@ -1663,7 +1663,7 @@ Section mpmc_queue_2_G.
                iDestruct (state_lb_get with "Hstate_auth") as "#Hstate_lb_4".
                iSplitR "HΦ".
                { iFrameSteps. iExists _, _, []. iSteps. }
-               iModIntro. clear- Hvs_back1.
+               iIntros "!> {%- Hvs_back1}".
 
                wp_smart_apply ("IHpop_2" with "[> $Hinv $Hstate_lb_4] HΦ").
                { iSteps.

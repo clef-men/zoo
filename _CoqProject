@@ -18,14 +18,15 @@ theories/zoo/options.v
 theories/zoo/ltac2/Array.v
 theories/zoo/ltac2/Constr.v
 theories/zoo/ltac2/Control.v
+theories/zoo/ltac2/Debug.v
 theories/zoo/ltac2/Env.v
+theories/zoo/ltac2/Ident.v
 theories/zoo/ltac2/List.v
 theories/zoo/ltac2/Message.v
+theories/zoo/ltac2/Notations.v
 theories/zoo/ltac2/Option.v
 theories/zoo/ltac2/Std.v
 theories/zoo/ltac2/String.v
-theories/zoo/ltac2/Notations.v
-theories/zoo/ltac2/Debug.v
 
 theories/zoo/common/function.v
 theories/zoo/common/countable.v
@@ -54,6 +55,7 @@ theories/zoo/iris/algebra/lib/twins.v
 theories/zoo/iris/algebra/lib/auth_mono.v
 
 theories/zoo/iris/proofmode/tokens.v
+theories/zoo/iris/proofmode/sel_patterns.v
 theories/zoo/iris/proofmode/intro_patterns.v
 theories/zoo/iris/proofmode/coq_tactics.v
 theories/zoo/iris/proofmode/ltac_tactics.v

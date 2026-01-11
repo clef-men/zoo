@@ -923,7 +923,7 @@ Module base.
           iMod ("HΦ" with "Hmodel₁") as "HΦ".
 
           iSplitR "Hproph HΦ". { iFrameSteps. }
-          iModIntro. clear- Hvs2 Hhist2.
+          iIntros "!> {%- Hvs2 Hhist2}".
 
           wp_pures.
 
@@ -931,7 +931,7 @@ Module base.
           iInv "Hinv" as "(:inv_inner =3)".
           wp_load.
           iSplitR "Hproph HΦ". { iFrameSteps. }
-          iModIntro. clear -Hvs2 Hhist2.
+          iIntros "!> {% -Hvs2 Hhist2}".
 
           wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps. iPureIntro.
@@ -955,7 +955,7 @@ Module base.
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
-        iModIntro. clear- Hproph.
+        iIntros "!> {%- Hproph}".
 
         wp_pures.
 
@@ -963,7 +963,7 @@ Module base.
         iInv "Hinv" as "(:inv_inner =3)".
         wp_load.
         iSplitR "Hproph HΦ". { iFrameSteps. }
-        iModIntro. clear- Hproph.
+        iIntros "!> {%- Hproph}".
 
         wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
@@ -1048,7 +1048,7 @@ Module base.
             - simpl_length/=. lia.
             - simpl_length/=. lia.
           }
-          iModIntro. clear- Hwinner.
+          iIntros "!> {%- Hwinner}".
 
           do 2 wp_load.
 
@@ -1094,7 +1094,7 @@ Module base.
             - simpl_length/=. lia.
             - simpl_length/=. lia.
           }
-          iModIntro. clear- Hloser.
+          iIntros "!> {%- Hloser}".
 
           do 2 wp_load.
 
@@ -1206,7 +1206,7 @@ Module base.
             - rewrite drop_ge //. { simpl_length/=. lia. }
             - simpl_length/=. lia.
           }
-          iModIntro. clear- Hloser.
+          iIntros "!> {%- Hloser}".
 
           do 2 wp_load.
 
@@ -1286,7 +1286,7 @@ Module base.
             iFrameSteps. iPureIntro.
             simpl_length/=. lia.
           }
-          iModIntro. clear- Hwinner.
+          iIntros "!> {%- Hwinner}".
 
           do 2 wp_load.
 
@@ -1332,7 +1332,7 @@ Module base.
             iFrameSteps. iPureIntro.
             simpl_length/=. lia.
           }
-          iModIntro. clear- Hloser.
+          iIntros "!> {%- Hloser}".
 
           do 2 wp_load.
 
@@ -1401,7 +1401,7 @@ Module base.
           iMod ("HΦ" with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iSplitR "Hconsumers_at HΦ". { iFrameSteps. }
-          iModIntro. clear- Hloser.
+          iIntros "!> {%- Hloser}".
 
           do 2 wp_load.
 

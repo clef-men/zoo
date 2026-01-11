@@ -626,7 +626,7 @@ Section ws_hub_std_G.
       + iRight. iExists (Something v). iFrameSteps.
 
       + iLeft. iFrame.
-        iIntros "HΦ !> Howner". clear- Hmax_round Hcase.
+        iIntros "HΦ !> Howner {%- Hmax_round Hcase}".
 
         wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
         destruct b; wp_pures.
@@ -822,7 +822,7 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
-      iIntros "HΦ !> (Howner & _)". clear- Hmax_round_yield.
+      iIntros "HΦ !> (Howner & _) {%- Hmax_round_yield}".
 
       wp_smart_apply (ws_hub_std_try_steal_spec with "[$Hinv $Howner $Hpred] HΦ"); done.
 
@@ -1024,7 +1024,7 @@ Section ws_hub_std_G.
     - iRight. iExists (Some v). iFrameSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
+      iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
       wp_smart_apply (ws_hub_std_steal_until_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP)".
@@ -1074,7 +1074,7 @@ Section ws_hub_std_G.
       iRight. iExists (Some v). iSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear- Hmax_round_noyield Hmax_round_yield.
+      iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
       wp_smart_apply (ws_hub_std_steal_spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".

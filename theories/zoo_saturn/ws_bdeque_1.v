@@ -1596,7 +1596,7 @@ Section ws_bdeque_1_G.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
 
     iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
-    iModIntro. clear- Hcapacity Hus Hvs1 Hback.
+    iIntros "!> {%- Hcapacity Hus Hvs1 Hback}".
 
     wp_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
     wp_pures.
@@ -1665,7 +1665,7 @@ Section ws_bdeque_1_G.
 
     - iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
       iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
-      iModIntro. clear- Hcapacity Hus Hif.
+      iIntros "!> {%- Hcapacity Hus Hif}".
 
       wp_smart_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
       wp_load.
@@ -1719,7 +1719,7 @@ Section ws_bdeque_1_G.
           + simpl_length/=. lia.
           + rewrite hd_app //; first lia.
       }
-      iModIntro. clear- Hcapacity Hus.
+      iIntros "!> {%- Hcapacity Hus}".
 
       iSteps. iPureIntro. simpl_length.
 
@@ -1730,7 +1730,7 @@ Section ws_bdeque_1_G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iFrameSteps.
 
       iSplitR "Howner₁ Hdata_cslice₂ HΦ". { iFrameSteps. }
-      iModIntro. clear- Hcapacity Hus Hif.
+      iIntros "!> {%- Hcapacity Hus Hif}".
 
       wp_smart_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
       wp_load.
@@ -1781,7 +1781,7 @@ Section ws_bdeque_1_G.
     { assert (front1 < front2) as Hbranch2 by lia.
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_2".
       iSplitR "HΦ". { iFrameSteps. }
-      iModIntro. clear- Hcapacity Hbranch1 Hbranch2.
+      iIntros "!> {%- Hcapacity Hbranch1 Hbranch2}".
 
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
@@ -1798,7 +1798,7 @@ Section ws_bdeque_1_G.
     destruct_decide (head $ prophss2 front1 = Some id) as (prophs0 & Hbranch3)%head_Some | Hbranch3; last first.
     { iSplitR "HΦ". { iFrameSteps. }
       remember (prophss2 front1) as prophs0.
-      iModIntro. clear- Hcapacity Hbranch1 Hbranch3.
+      iIntros "!> {%- Hcapacity Hbranch1 Hbranch3}".
 
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
@@ -1828,7 +1828,7 @@ Section ws_bdeque_1_G.
       iDestruct (history_at_agree with "Hhistory_at Hhistory_at_front2") as %<-.
       simpl in Hvs. iSteps.
     }
-    iModIntro. clear- Hcapacity Hbranch1.
+    iIntros "!> {%- Hcapacity Hbranch1}".
 
     wp_pures.
     rewrite bool_decide_eq_false_2; first lia.
@@ -2012,7 +2012,7 @@ Section ws_bdeque_1_G.
 
       iSplitR "Howner₁ Hdata_cslice₂ HΦ".
       { iExists Superempty. iFrameSteps. }
-      iModIntro. clear- Hcapacity Hus Hback.
+      iIntros "!> {%- Hcapacity Hus Hback}".
 
       wp_smart_apply (ws_bdeque_1_pop_0_spec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
       iSteps.
@@ -2053,7 +2053,7 @@ Section ws_bdeque_1_G.
 
         iSplitR "Howner₁ Hdata_cslice₂ Hwinner_steal HΦ".
         { iExists Emptyish. iFrameSteps. }
-        iModIntro. clear- Hcapacity Hus Hback Hus_lookup.
+        iIntros "!> {%- Hcapacity Hus Hback Hus_lookup}".
 
         wp_smart_apply (ws_bdeque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
@@ -2070,7 +2070,7 @@ Section ws_bdeque_1_G.
 
           iSplitR "Howner₁ Hdata_cslice₂ Hwinner_steal HΦ".
           { iExists Emptyish. iFrameSteps. }
-          iModIntro. clear- Hcapacity Hus Hus_lookup.
+          iIntros "!> {%- Hcapacity Hus Hus_lookup}".
 
           wp_smart_apply (ws_bdeque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
@@ -2094,7 +2094,7 @@ Section ws_bdeque_1_G.
 
         iSplitR "Howner₁ Hdata_cslice₂ HΦ".
         { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
-        iModIntro. clear- Hcapacity Hus Hbranch2.
+        iIntros "!> {%- Hcapacity Hus Hbranch2}".
 
         wp_smart_apply (ws_bdeque_1_pop_0_spec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
@@ -2119,7 +2119,7 @@ Section ws_bdeque_1_G.
       { iExists Nonempty. iFrameSteps.
         rewrite hd_app //; first lia.
       }
-      iModIntro. clear- Hcapacity Hus Hback Hus_lookup.
+      iIntros "!> {%- Hcapacity Hus Hback Hus_lookup}".
 
       wp_smart_apply (ws_bdeque_1_pop_0_spec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
       iSteps.

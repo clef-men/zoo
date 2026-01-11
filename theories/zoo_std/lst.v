@@ -474,10 +474,9 @@ Section zoo_G.
     all: iIntros "%Hi %Ht %Φ (HΨ & #Hfn) HΦ"; invert Ht.
     all: wp_rec; wp_pures.
     - rewrite !right_id. iSteps.
-    - wp_apply (wp_wand with "(Hfn [] [HΨ])").
+    - wp_apply (wp_wand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
       { rewrite list_lookup_middle //. }
       { rewrite take_app_length //. }
-      clear acc. iIntros "%acc HΨ".
       wp_pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ take_app_length.
       wp_apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]").
@@ -534,7 +533,7 @@ Section zoo_G.
       [∗ list] j ↦ v ∈ drop i vs, Ξ (i + j) v
     )%I).
     wp_apply (lst_foldli_spec Ψ' with "[$HΨ $Hfn]"); [done | | iSteps].
-    clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
+    iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     erewrite drop_S => //.
     iDestruct "HΞ" as "(Hfn & HΞ)".
     rewrite Nat.add_0_r. setoid_rewrite Nat.add_succ_r. iSteps.
@@ -616,14 +615,12 @@ Section zoo_G.
     all: wp_rec; wp_pures credit:"H£".
     - rewrite Nat.add_0_r. iSteps.
     - rewrite Z.add_1_r -Nat2Z.inj_succ.
-      wp_apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]").
+      wp_apply ("IH" with "[%] [%] [//] [$HΨ $Hfn]") as "{% acc} %acc HΨ".
       { rewrite (assoc (++) _ [_]) //. }
       { simpl_length/=. lia. }
-      clear acc. iIntros "%acc HΨ".
-      iApply wp_fupd. wp_apply (wp_wand with "(Hfn [] [HΨ])").
+      iApply wp_fupd. wp_apply (wp_wand with "(Hfn [] [HΨ])") as "{% acc} %acc HΨ".
       { rewrite list_lookup_middle //. }
       all: rewrite (assoc (++) _ [_]) drop_app_length' //; first (simpl_length/=; lia).
-      clear acc. iIntros "%acc HΨ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       iSteps.
   Qed.
@@ -677,7 +674,7 @@ Section zoo_G.
     )%I).
     wp_apply (lst_foldri_spec Ψ' with "[HΨ Hfn]"); [done | | iSteps].
     iFrame. rewrite firstn_all2; first lia. iFrame.
-    clear acc. iIntros "!> %i %v %acc %Hlookup (HΨ & HΞ)".
+    iIntros "!> {% acc} %i %v %acc %Hlookup (HΨ & HΞ)".
     pose proof Hlookup as Hi%lookup_lt_Some.
     erewrite take_S_r => //.
     iDestruct "HΞ" as "(HΞ & Hfn & _)".

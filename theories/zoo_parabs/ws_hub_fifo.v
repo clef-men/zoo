@@ -922,7 +922,7 @@ Section ws_hub_fifo_G.
     - iRight. iExists (Some v). iFrameSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear- Hmax_round_noyield.
+      iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
       wp_smart_apply (ws_hub_fifo_steal_until_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP)".
@@ -972,7 +972,7 @@ Section ws_hub_fifo_G.
       iRight. iExists (Some v). iSteps.
 
     - iLeft. iFrame.
-      iIntros "HΦ !> Howner". clear- Hmax_round_noyield Hmax_round_yield.
+      iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
       wp_smart_apply (ws_hub_fifo_steal_spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".

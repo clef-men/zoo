@@ -1,6 +1,6 @@
 From Ltac2 Require Export
-  Init
-  Env.
+  Env
+  Init.
 
 From zoo Require Import
   prelude.
