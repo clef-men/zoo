@@ -79,7 +79,7 @@ Section mpsc_queue_2_G.
     front₂ γ front ∗
     l.[back] ↦ glst_to_val back ∗
     model₂ γ (front ++ reverse back).
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %front{} &
         %back{} &
         >Hfront₂ &
@@ -92,7 +92,7 @@ Section mpsc_queue_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -106,7 +106,7 @@ Section mpsc_queue_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &
@@ -121,7 +121,7 @@ Section mpsc_queue_2_G.
     meta l nroot γ ∗
     l.[front] ↦ glst_to_val front ∗
     front₁ γ front.
-  #[local] Instance : CustomIpatFormat "consumer" :=
+  #[local] Instance : CustomIpat "consumer" :=
     " ( %l_ &
         %γ_ &
         %front &

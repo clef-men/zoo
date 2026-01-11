@@ -127,7 +127,7 @@ Section prophet_multi_G.
     ∃ iprophs,
     ⌜prophs = untangle iprophs i⌝ ∗
     prophet_wise_strong_full prophetx γ iprophs.
-  #[local] Instance : CustomIpatFormat "full" :=
+  #[local] Instance : CustomIpat "full" :=
     " ( %iprophs{} &
         -> &
         Hfull{}
@@ -139,7 +139,7 @@ Section prophet_multi_G.
     ⌜pasts ≡ᶠ untangle ipast⌝ ∗
     ⌜prophss ≡ᶠ untangle iprophs⌝ ∗
     prophet_wise_strong_model prophetx pid γ ipast iprophs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %ipast{} &
         %iprophs{} &
         %Hpasts{} &
@@ -153,7 +153,7 @@ Section prophet_multi_G.
     ⌜past = untangle ipast i⌝ ∗
     ⌜prophs = untangle iprophs i⌝ ∗
     prophet_wise_strong_snapshot prophetx γ ipast iprophs.
-  #[local] Instance : CustomIpatFormat "snapshot" :=
+  #[local] Instance : CustomIpat "snapshot" :=
     " ( %ipast{_{suff}} &
         %iprophs{_{suff}} &
         -> &
@@ -165,7 +165,7 @@ Section prophet_multi_G.
   Definition prophet_multi_strong_lb γ i lb : iProp Σ :=
     ∃ past,
     prophet_multi_strong_snapshot γ i past lb.
-  #[local] Instance : CustomIpatFormat "lb" :=
+  #[local] Instance : CustomIpat "lb" :=
     " ( %past &
         Hsnapshot
       )
@@ -392,7 +392,7 @@ Section prophet_multi_G.
     ∃ sprophs,
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_multi_strong_full prophet γ i sprophs.
-  #[local] Instance : CustomIpatFormat "full" :=
+  #[local] Instance : CustomIpat "full" :=
     " ( %sprophs{} &
         -> &
         Hfull{}
@@ -404,7 +404,7 @@ Section prophet_multi_G.
     ⌜pasts ≡ᶠ fmap snd ∘ spasts⌝ ∗
     ⌜prophss ≡ᶠ fmap snd ∘ sprophss⌝ ∗
     prophet_multi_strong_model prophet pid γ spasts sprophss.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %spasts{} &
         %sprophss{} &
         %Hpasts{} &
@@ -418,7 +418,7 @@ Section prophet_multi_G.
     ⌜past = spast.*2⌝ ∗
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_multi_strong_snapshot prophet γ i spast sprophs.
-  #[local] Instance : CustomIpatFormat "snapshot" :=
+  #[local] Instance : CustomIpat "snapshot" :=
     " ( %spast{} &
         %sprophs{} &
         -> &
@@ -431,7 +431,7 @@ Section prophet_multi_G.
     ∃ slb,
     ⌜lb = slb.*2⌝ ∗
     prophet_multi_strong_lb prophet γ i slb.
-  #[local] Instance : CustomIpatFormat "lb" :=
+  #[local] Instance : CustomIpat "lb" :=
     " ( %slb &
         -> &
         Hlb

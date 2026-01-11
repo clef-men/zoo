@@ -256,7 +256,7 @@ Section mpmc_queue_2_G.
         state_status := status ;
       |} ∗
     ⌜state_wf backs i⌝.
-  #[local] Instance : CustomIpatFormat "state_auth" :=
+  #[local] Instance : CustomIpat "state_auth" :=
     " ( Hauth &
         %Hwf
       )
@@ -273,7 +273,7 @@ Section mpmc_queue_2_G.
     ∃ backs,
     state_lb γ backs i_prev (Unstable back move) ∗
     ⌜backs !! back_prev = Some i_prev⌝.
-  #[local] Instance : CustomIpatFormat "state_seen" :=
+  #[local] Instance : CustomIpat "state_seen" :=
     " ( %backs{} &
         #Hstate_lb &
         %Hbacks{}_lookup
@@ -284,7 +284,7 @@ Section mpmc_queue_2_G.
     state_lb γ backs i status ∗
     ⌜backs !! back = Some i_back⌝ ∗
     ⌜i_back ≤ i⌝.
-  #[local] Instance : CustomIpatFormat "state_at" :=
+  #[local] Instance : CustomIpat "state_at" :=
     " ( %backs{} &
         %i{} &
         %status{} &
@@ -306,7 +306,7 @@ Section mpmc_queue_2_G.
     ∨ ⌜𝑚𝑜𝑣𝑒 = prefix_to_val i_prev back_prev move⌝ ∗
       ⌜0 < length move⌝ ∗
       back_prev ↦ₕ Header §Back 2.
-  #[local] Instance : CustomIpatFormat "move_model_1" :=
+  #[local] Instance : CustomIpat "move_model_1" :=
     " [ ->
       | ( -> &
           % &
@@ -318,7 +318,7 @@ Section mpmc_queue_2_G.
     ∃ backs_prev i_prev back_prev move,
     state_lb γ backs_prev i_prev (Unstable back move) ∗
     move_model_1 𝑚𝑜𝑣𝑒 i_prev back_prev move.
-  #[local] Instance : CustomIpatFormat "move_model_2" :=
+  #[local] Instance : CustomIpat "move_model_2" :=
     " ( %backs{}_prev &
         %i{}_prev{_{!}} &
         %back{}_prev{_{!}} &
@@ -331,7 +331,7 @@ Section mpmc_queue_2_G.
   #[local] Definition back_model_1 back (i : nat) : iProp Σ :=
     back ↦ₕ Header §Back 2 ∗
     back.[index] ↦□ #i.
-  #[local] Instance : CustomIpatFormat "back_model_1" :=
+  #[local] Instance : CustomIpat "back_model_1" :=
     " ( { {!} _
         ; #Hback{}_header
         ; #Hback_header
@@ -342,7 +342,7 @@ Section mpmc_queue_2_G.
   #[local] Definition back_model_2 back (i : nat) 𝑚𝑜𝑣𝑒 : iProp Σ :=
     back_model_1 back i ∗
     back.[move] ↦ 𝑚𝑜𝑣𝑒.
-  #[local] Instance : CustomIpatFormat "back_model_2" :=
+  #[local] Instance : CustomIpat "back_model_2" :=
     " ( { {only_move} _
         ; (:back_model_1 // /!/)
         } &
@@ -353,9 +353,9 @@ Section mpmc_queue_2_G.
     ∃ 𝑚𝑜𝑣𝑒,
     back_model_2 back i 𝑚𝑜𝑣𝑒 ∗
     move_model_2 γ back 𝑚𝑜𝑣𝑒.
-  #[local] Instance : CustomIpatFormat "back_model_3" :=
+  #[local] Instance : CustomIpat "back_model_3" :=
     " ( %𝑚𝑜𝑣𝑒{} &
-        (:back_model_2 {//} {/only_move/} {/!/}) &
+        (:back_model_2) &
         H𝑚𝑜𝑣𝑒{}
       )
     ".
@@ -365,7 +365,7 @@ Section mpmc_queue_2_G.
     ⌜vs = vs_front ++ reverse vs_back⌝ ∗
     ⌜if empty then vs_front = [] else 0 < length vs_front⌝ ∗
     state_at γ back i_back.
-  #[local] Instance : CustomIpatFormat "inv_status_stable" :=
+  #[local] Instance : CustomIpat "inv_status_stable" :=
     " ( {>;}-> &
         {>;}%Hvs{} &
         {>;}{{empty}->;%Hempty{};%Hempty} &
@@ -387,7 +387,7 @@ Section mpmc_queue_2_G.
       back_prev ↦ₕ Header §Back 2
     else
       True.
-  #[local] Instance : CustomIpatFormat "inv_status_unstable" :=
+  #[local] Instance : CustomIpat "inv_status_unstable" :=
     " ( %back{}_prev &
         {>;}-> &
         {>;}-> &
@@ -422,7 +422,7 @@ Section mpmc_queue_2_G.
     state_auth γ backs i status ∗
     ⌜(i_front + length vs_front)%nat = S i⌝ ∗
     inv_status strong γ backs i status vs_front i_back back vs_back vs.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %backs{} &
         %i{} &
         %status{} &
@@ -450,7 +450,7 @@ Section mpmc_queue_2_G.
     ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
     inv' l γ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -465,7 +465,7 @@ Section mpmc_queue_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &

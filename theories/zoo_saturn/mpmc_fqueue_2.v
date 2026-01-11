@@ -230,7 +230,7 @@ Section mpmc_fqueue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_inv 𝑡 γ ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -244,7 +244,7 @@ Section mpmc_fqueue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -258,7 +258,7 @@ Section mpmc_fqueue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_full γ.
-  #[local] Instance : CustomIpatFormat "full" :=
+  #[local] Instance : CustomIpat "full" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -272,7 +272,7 @@ Section mpmc_fqueue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_nonfull γ.
-  #[local] Instance : CustomIpatFormat "nonfull" :=
+  #[local] Instance : CustomIpat "nonfull" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -286,7 +286,7 @@ Section mpmc_fqueue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_finished γ.
-  #[local] Instance : CustomIpatFormat "finished" :=
+  #[local] Instance : CustomIpat "finished" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &

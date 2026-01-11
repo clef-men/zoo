@@ -155,7 +155,7 @@ Section ws_hub_std_G.
   #[local] Definition inv_inner l : iProp Σ :=
     ∃ killed,
     l.[killed] ↦ #killed.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %killed &
         Hl_killed
       )
@@ -172,7 +172,7 @@ Section ws_hub_std_G.
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
     waiters_inv γ.(metadata_waiters) ∗
     inv nroot (inv_inner l).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l{} &
         %γ{} &
         {%Heq{};->} &
@@ -194,7 +194,7 @@ Section ws_hub_std_G.
     meta l nroot γ ∗
     ws_deques_public_model γ.(metadata_queues) vss ∗
     ⌜consistent vs vss⌝.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l_ &
         %γ_ &
         %vss &
@@ -213,7 +213,7 @@ Section ws_hub_std_G.
     ⌜empty = Empty → ws = []⌝ ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
-  #[local] Instance : CustomIpatFormat "owner" :=
+  #[local] Instance : CustomIpat "owner" :=
     " ( %l{;_} &
         %γ{;_} &
         %ws{} &

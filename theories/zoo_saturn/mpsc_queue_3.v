@@ -103,7 +103,7 @@ Section mpsc_queue_3_G.
         ⌜v_back = §ClstClosed%V⌝
       )
     ).
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %front{} &
         %v_back &
         >Hfront₂ &
@@ -116,7 +116,7 @@ Section mpsc_queue_3_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -130,7 +130,7 @@ Section mpsc_queue_3_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &
@@ -155,7 +155,7 @@ Section mpsc_queue_3_G.
         lstate_closed γ ∗
         model₂ γ front
     end.
-  #[local] Instance : CustomIpatFormat "consumer" :=
+  #[local] Instance : CustomIpat "consumer" :=
     " ( %l_ &
         %γ_ &
         %v_front &
@@ -173,7 +173,7 @@ Section mpsc_queue_3_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     lstate_closed γ.
-  #[local] Instance : CustomIpatFormat "closed" :=
+  #[local] Instance : CustomIpat "closed" :=
     " ( %l_ &
         %γ_ &
         %Heq &

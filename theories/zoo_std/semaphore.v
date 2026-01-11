@@ -68,7 +68,7 @@ Section semaphore_G.
     ⌜length γ_tokens = cap⌝.
   #[local] Definition tokens_auth γ :=
     tokens_auth' γ.(metadata_tokens).
-  #[local] Instance : CustomIpatFormat "tokens_auth" :=
+  #[local] Instance : CustomIpat "tokens_auth" :=
     "%Htokens".
   #[local] Definition tokens_frag' γ_tokens : iProp Σ :=
     ∃ i η,
@@ -76,7 +76,7 @@ Section semaphore_G.
     excl η ().
   #[local] Definition tokens_frag γ :=
     tokens_frag' γ.(metadata_tokens).
-  #[local] Instance : CustomIpatFormat "tokens_frag" :=
+  #[local] Instance : CustomIpat "tokens_frag" :=
     " ( %i &
         %η &
         %Htokens_lookup &
@@ -90,7 +90,7 @@ Section semaphore_G.
     [∗ list] _ ∈ seq 0 (S cnt),
       tokens_frag γ ∗
       P.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %cnt &
         Hl_count &
         H
@@ -105,7 +105,7 @@ Section semaphore_G.
     l.[condition] ↦□ γ.(metadata_condition) ∗
     condition_inv γ.(metadata_condition) ∗
     tokens_auth γ cap.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -123,7 +123,7 @@ Section semaphore_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     tokens_frag γ.
-  #[local] Instance : CustomIpatFormat "locked" :=
+  #[local] Instance : CustomIpat "locked" :=
     " ( %l_ &
         %γ_ &
         %Heq &

@@ -591,7 +591,7 @@ Section zoo_G.
     setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- location_add_assoc. iSteps.
   Qed.
 
-  #[local] Instance : CustomIpatFormat "state_interp" :=
+  #[local] Instance : CustomIpat "state_interp" :=
     " ( Hheaders_interp &
         Hheap_interp &
         Hlocals_interp &

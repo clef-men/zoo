@@ -110,7 +110,7 @@ Module base.
       ⌜length ηs = i⌝.
     #[local] Definition consumers_auth γ i :=
       consumers_auth' γ.(inf_mpmc_queue_1_name_consumers) i.
-    #[local] Instance : CustomIpatFormat "consumers_auth" :=
+    #[local] Instance : CustomIpat "consumers_auth" :=
       " ( %ηs{} &
           Hauth{} &
           %Hηs{}
@@ -120,7 +120,7 @@ Module base.
       ∃ η,
       mono_list_at γ.(inf_mpmc_queue_1_name_consumers) i η ∗
       saved_pred η Ψ.
-    #[local] Instance : CustomIpatFormat "consumers_at" :=
+    #[local] Instance : CustomIpat "consumers_at" :=
       " ( %η{} &
           Hat{} &
           HΨ{}
@@ -130,7 +130,7 @@ Module base.
       ∃ ηs,
       ⌜length ηs = i⌝ ∗
       mono_list_lb γ.(inf_mpmc_queue_1_name_consumers) ηs.
-    #[local] Instance : CustomIpatFormat "consumers_lb" :=
+    #[local] Instance : CustomIpat "consumers_lb" :=
       " ( %ηs{} &
           %Hηs{} &
           Hlb{}
@@ -143,7 +143,7 @@ Module base.
       ⌜length ηs = i⌝.
     #[local] Definition tokens_auth γ i :=
       tokens_auth' γ.(inf_mpmc_queue_1_name_tokens) i.
-    #[local] Instance : CustomIpatFormat "tokens_auth" :=
+    #[local] Instance : CustomIpat "tokens_auth" :=
       " ( %ηs{} &
           Hauth{} &
           %Hηs{}
@@ -153,7 +153,7 @@ Module base.
       ∃ η,
       mono_list_at γ.(inf_mpmc_queue_1_name_tokens) i η ∗
       oneshot_pending η (DfracOwn 1) ().
-    #[local] Instance : CustomIpatFormat "tokens_pending" :=
+    #[local] Instance : CustomIpat "tokens_pending" :=
       " ( %η{} &
           Hat{} &
           Hpending{}
@@ -163,7 +163,7 @@ Module base.
       ∃ η,
       mono_list_at γ.(inf_mpmc_queue_1_name_tokens) i η ∗
       oneshot_shot η ().
-    #[local] Instance : CustomIpatFormat "tokens_done" :=
+    #[local] Instance : CustomIpat "tokens_done" :=
       " ( %η{} &
           Hat{} &
           Hshot{}
@@ -217,7 +217,7 @@ Module base.
         consumer_au γ Ψ
       ) ∗
       (∀ i, slot_model γ i (slots i)).
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %front{} &
           %back{} &
           %hist{} &
@@ -239,7 +239,7 @@ Module base.
       t.[data] ↦□ γ.(inf_mpmc_queue_1_name_data) ∗
       inf_array_inv γ.(inf_mpmc_queue_1_name_data) ∗
       inv γ.(inf_mpmc_queue_1_name_inv) (inv_inner t γ).
-    #[local] Instance : CustomIpatFormat "inv'" :=
+    #[local] Instance : CustomIpat "inv'" :=
       " ( #Ht_data &
           #Hdata_inv &
           #Hinv
@@ -248,7 +248,7 @@ Module base.
     Definition inf_mpmc_queue_1_inv t γ ι : iProp Σ :=
       ⌜ι = γ.(inf_mpmc_queue_1_name_inv)⌝ ∗
       inv' t γ.
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " ( -> &
           (:inv')
         )
@@ -256,7 +256,7 @@ Module base.
 
     Definition inf_mpmc_queue_1_model :=
       model₁.
-    #[local] Instance : CustomIpatFormat "model" :=
+    #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
@@ -888,7 +888,7 @@ Section inf_mpmc_queue_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_1_inv 𝑡 γ ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -902,7 +902,7 @@ Section inf_mpmc_queue_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_1_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &

@@ -74,13 +74,13 @@ Module base.
 
     #[local] Definition inv_state_unset γ :=
       lstate_unset γ.
-    #[local] Instance : CustomIpatFormat "inv_state_unset" :=
+    #[local] Instance : CustomIpat "inv_state_unset" :=
       " {>;}Hlstate_unset
       ".
     #[local] Definition inv_state_set_1 γ Ψ v : iProp Σ :=
         Ψ v
       ∨ consumer γ.
-    #[local] Instance : CustomIpatFormat "inv_state_set_1" :=
+    #[local] Instance : CustomIpat "inv_state_set_1" :=
       " [ HΨ
         | Hconsumer{_{}}
         ]
@@ -88,7 +88,7 @@ Module base.
     #[local] Definition inv_state_set_2 γ Ψ v : iProp Σ :=
       lstate_set γ ∗
       inv_state_set_1 γ Ψ v.
-    #[local] Instance : CustomIpatFormat "inv_state_set_2" :=
+    #[local] Instance : CustomIpat "inv_state_set_2" :=
       " ( {>;}#Hlstate_set{_{}} &
           Hstate
         )
@@ -105,7 +105,7 @@ Module base.
       ∃ state,
       t ↦ᵣ state ∗
       inv_state γ Ψ state.
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %state &
           Ht &
           Hstate
@@ -113,19 +113,19 @@ Module base.
       ".
     Definition mvar_inv t γ Ψ : iProp Σ :=
       inv nroot (inv_inner t γ Ψ).
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
     Definition mvar_consumer :=
       consumer.
-    #[local] Instance : CustomIpatFormat "consumer" :=
+    #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{_{}}
       ".
 
     Definition mvar_resolved :=
       lstate_set.
-    #[local] Instance : CustomIpatFormat "resolved" :=
+    #[local] Instance : CustomIpat "resolved" :=
       " #Hlstate_set{_{}}
       ".
 
@@ -530,7 +530,7 @@ Section mvar_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mvar_inv 𝑡 γ Ψ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l{} &
         %γ{} &
         {%Heq{};->} &
@@ -544,7 +544,7 @@ Section mvar_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mvar_consumer γ.
-  #[local] Instance : CustomIpatFormat "consumer" :=
+  #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_} &
         %γ{;_} &
         {%Heq{};->} &
@@ -558,7 +558,7 @@ Section mvar_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mvar_resolved γ.
-  #[local] Instance : CustomIpatFormat "resolved" :=
+  #[local] Instance : CustomIpat "resolved" :=
     " ( %l{;_} &
         %γ{;_} &
         {%Heq{};->} &

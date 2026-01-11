@@ -88,7 +88,7 @@ Section parray_2_G.
     ⌜length vs = γ.(metadata_size)⌝ ∗
     ⌜i < γ.(metadata_size)⌝ ∗
     ⌜vs = <[i := v]> vs'⌝.
-  #[local] Instance : CustomIpatFormat "node_model" :=
+  #[local] Instance : CustomIpat "node_model" :=
     " ( %i_{node} &
         %v_{node} &
         %node{;'} &
@@ -111,7 +111,7 @@ Section parray_2_G.
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
-  #[local] Instance : CustomIpatFormat "model'" :=
+  #[local] Instance : CustomIpat "model'" :=
     " ( Hnodes_auth{_{}} &
         H{root}{} &
         Hdata{_{}} &
@@ -130,7 +130,7 @@ Section parray_2_G.
     l.[root] ↦ #root ∗
     equal_model γ.(metadata_equal) ∗
     model' γ nodes root vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{} &
         %γ{} &
         %nodes{} &
@@ -141,7 +141,7 @@ Section parray_2_G.
         #Hl_data{_{}} &
         Hl_root{_{}} &
         #Hequal{_{}} &
-        (:model' {//})
+        (:model')
       )
     ".
 
@@ -151,7 +151,7 @@ Section parray_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     nodes_elem γ node vs.
-  #[local] Instance : CustomIpatFormat "snapshot" :=
+  #[local] Instance : CustomIpat "snapshot" :=
     " ( %node &
         %l_ &
         %γ_ &
@@ -357,7 +357,7 @@ Section parray_2_G.
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
-  #[local] Instance : CustomIpatFormat "restore_inv" :=
+  #[local] Instance : CustomIpat "restore_inv" :=
     " ( %descr_{root} &
         Hnodes_auth &
         H{root} &

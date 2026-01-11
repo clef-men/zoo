@@ -139,7 +139,7 @@ Module base.
       node.[index] ↦□ #i ∗
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
-    #[local] Instance : CustomIpatFormat "node_model" :=
+    #[local] Instance : CustomIpat "node_model" :=
       " ( #H{}_header &
           #H{}_index &
           #Hhistory_at_{} &
@@ -189,7 +189,7 @@ Module base.
       ( [∗ map] waiter ↦ i ∈ waiters,
         waiter_model γ past waiter i
       ).
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %hist{} &
           %past{} &
           %front{} &
@@ -219,7 +219,7 @@ Module base.
       ⌜cap = γ.(mpmc_bqueue_name_capacity)⌝ ∗
       t.[capacity] ↦□ #cap ∗
       inv' t γ.
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " ( -> &
           -> &
           #Ht_capacity &
@@ -230,7 +230,7 @@ Module base.
     Definition mpmc_bqueue_model γ vs : iProp Σ :=
       ⌜length vs ≤ γ.(mpmc_bqueue_name_capacity)⌝ ∗
       model₁ γ vs.
-    #[local] Instance : CustomIpatFormat "model" :=
+    #[local] Instance : CustomIpat "model" :=
       " ( % &
           Hmodel₁{_{}}
         )
@@ -1344,7 +1344,7 @@ Section mpmc_bqueue_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_bqueue_inv 𝑡 γ ι cap.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -1358,7 +1358,7 @@ Section mpmc_bqueue_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_bqueue_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &

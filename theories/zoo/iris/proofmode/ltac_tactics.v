@@ -29,41 +29,10 @@ From iris.prelude Require Import
 
 Export ident.
 
-Section custom_ipat.
-  Implicit Types custom : string.
-
-  Class CustomIpat custom :=
-    custom_ipat : string → option string.
-  #[global] Arguments custom_ipat custom {CustomIpat} arg : rename.
-  #[global] Hint Mode CustomIpat + : typeclass_instances.
-
-  Class CustomIpat0 custom :=
-    custom_ipat_0 : string.
-  #[global] Arguments custom_ipat_0 custom {CustomIpat0} : rename.
-  #[global] Hint Mode CustomIpat0 + : typeclass_instances.
-
-  #[global] Instance custom_ipat_0_ipat `{!CustomIpat0 custom} : CustomIpat custom | 100 :=
-    λ _,
-      Some (custom_ipat_0 custom).
-
-  Class CustomIpat1 custom :=
-    custom_ipat_1 : string.
-  #[global] Arguments custom_ipat_1 custom {CustomIpat1} : rename.
-  #[global] Hint Mode CustomIpat1 + : typeclass_instances.
-
-  #[global] Instance custom_ipat_1_ipat `{!CustomIpat1 custom} : CustomIpat custom | 100 :=
-    λ arg,
-      format (custom_ipat_1 custom) {["" := arg]}.
-
-  Class CustomIpatFormat custom :=
-    custom_ipat_format : string.
-  #[global] Arguments custom_ipat_format custom {CustomIpatFormat} : rename.
-  #[global] Hint Mode CustomIpatFormat + : typeclass_instances.
-
-  #[global] Instance custom_ipat_format_ipat `{!CustomIpatFormat custom} : CustomIpat custom | 100 :=
-    λ arg,
-      format (custom_ipat_format custom) (format_env_of_string arg).
-End custom_ipat.
+Class CustomIpat (custom : string) :=
+  custom_ipat : string.
+#[global] Arguments custom_ipat custom {CustomIpat} : rename.
+#[global] Hint Mode CustomIpat + : typeclass_instances.
 
 (** Tactic used for solving side-conditions arising from TC resolution in [iMod]
 and [iInv]. *)
@@ -1536,118 +1505,160 @@ Ltac _ident_for_pat_default pat default :=
   end.
 
 (** [pat0] is the unparsed pattern, and is only used in error messages *)
-Ltac _iDestructHypGo Hz pat0 pat :=
+Ltac _iDestructHyp_go Hz pat0 pat env :=
   lazymatch pat with
   | IFresh =>
-     lazymatch Hz with
-     | IAnon _ => idtac
-     | INamed ?Hz => let Hz' := iFresh in iRename Hz into Hz'
-     end
-  | IDrop => _iClearHyp Hz
-  | IFrame => iFrameHyp Hz
-  | IIdent Hz => idtac
-  | IIdent ?y => iRename Hz into y
-  | IList [[]] => iExFalso; iExact Hz
+      lazymatch Hz with
+      | IAnon _ =>
+          idtac
+      | INamed ?Hz =>
+          let Hz' := iFresh in
+          iRename Hz into Hz'
+      end
+  | IDrop =>
+      _iClearHyp Hz
+  | IFrame =>
+      iFrameHyp Hz
+  | IIdent Hz =>
+      idtac
+  | IIdent ?y =>
+      iRename Hz into y
+  | IList [[]] =>
+      iExFalso;
+      iExact Hz
 
   (* conjunctive patterns like [H1 H2] *)
   | IList [[?pat1; IDrop]] =>
-     let x := _ident_for_pat_default pat1 Hz in
-     _iAndDestructChoice Hz Left x;
-     _iDestructHypGo x pat0 pat1
+      let x := _ident_for_pat_default pat1 Hz in
+      _iAndDestructChoice Hz Left x;
+      _iDestructHyp_go x pat0 pat1 env
   | IList [[IDrop; ?pat2]] =>
-     let x := _ident_for_pat_default pat2 Hz in
-     _iAndDestructChoice Hz Right x;
-     _iDestructHypGo x pat0 pat2
+      let x := _ident_for_pat_default pat2 Hz in
+      _iAndDestructChoice Hz Right x;
+      _iDestructHyp_go x pat0 pat2 env
   (* [% ...] is always interpreted as an existential; there are [IntoExist]
   instances in place to handle conjunctions with a pure left-hand side this way
   as well. *)
   | IList [[IPure IGallinaAnon; ?pat2]] =>
-     let x := _ident_for_pat_default pat2 Hz in
-     _iExistDestruct Hz as ? x; _iDestructHypGo x pat0 pat2
+      let x := _ident_for_pat_default pat2 Hz in
+      _iExistDestruct Hz as ? x;
+      _iDestructHyp_go x pat0 pat2 env
   | IList [[IPure (IGallinaNamed ?s); ?pat2]] =>
-     let x := fresh in
-     let y := _ident_for_pat_default pat2 Hz in
-     _iExistDestruct Hz as x y;
-     rename_by_string x s;
-     _iDestructHypGo y pat0 pat2
+      let x := fresh in
+      let y := _ident_for_pat_default pat2 Hz in
+      _iExistDestruct Hz as x y;
+      rename_by_string x s;
+      _iDestructHyp_go y pat0 pat2 env
   | IList [[?pat1; ?pat2]] =>
      (* We have to take care of not using the same name for the two hypotheses:
         [_ident_for_pat_default] will thus only reuse [Hz] (which could in principle
         clash with a name from [pat2]) if it is an anonymous name. *)
-     let x1 := _ident_for_pat_default pat1 Hz in
-     let x2 := _ident_for_pat pat2 in
-     _iAndDestruct Hz x1 x2;
-     _iDestructHypGo x1 pat0 pat1; _iDestructHypGo x2 pat0 pat2
-  | IList [_ :: _ :: _] => fail "iDestruct:" pat0 "has too many conjuncts"
-  | IList [[_]] => fail "iDestruct:" pat0 "has just a single conjunct"
+      let x1 := _ident_for_pat_default pat1 Hz in
+      let x2 := _ident_for_pat pat2 in
+      _iAndDestruct Hz x1 x2;
+      _iDestructHyp_go x1 pat0 pat1 env;
+      _iDestructHyp_go x2 pat0 pat2 env
+  | IList [_ :: _ :: _] =>
+      fail "iDestruct:" pat0 "has too many conjuncts"
+  | IList [[_]] =>
+      fail "iDestruct:" pat0 "has just a single conjunct"
 
   (* disjunctive patterns like [H1|H2] *)
   | IList [[?pat1];[?pat2]] =>
-     let x1 := _ident_for_pat_default pat1 Hz in
-     let x2 := _ident_for_pat_default pat2 Hz in
-     iOrDestruct Hz as x1 x2;
-     [_iDestructHypGo x1 pat0 pat1|_iDestructHypGo x2 pat0 pat2]
-  (* this matches a list of three or more disjunctions [H1|H2|H3] *)
-  | IList (_ :: _ :: _ :: _) => fail "iDestruct:" pat0 "has too many disjuncts"
-  (* the above patterns don't match [H1 H2|H3] *)
-  | IList [_;_] => fail "iDestruct: in" pat0 "a disjunct has multiple patterns"
-
-  | IPure IGallinaAnon => iPure Hz as ?
-  | IPure (IGallinaNamed ?s) =>
-     let x := fresh in
-     iPure Hz as x;
-     rename_by_string x s
-  | IRewrite Right => iPure Hz as ->
-  | IRewrite Left => iPure Hz as <-
-  | IIntuitionistic ?pat =>
-    let x := _ident_for_pat_default pat Hz in
-    _iIntuitionistic Hz x; _iDestructHypGo x pat0 pat
-  | ISpatial ?pat =>
-    let x := _ident_for_pat_default pat Hz in
-    _iSpatial Hz x; _iDestructHypGo x pat0 pat
-  | IModalElim ?pat =>
-    let x := _ident_for_pat_default pat Hz in
-    iModCore Hz as x; _iDestructHypGo x pat0 pat
-  | ICustom ?custom ?arg =>
-      first
-      [ lazymatch eval vm_compute in (custom_ipat custom arg) with
-        | None =>
-            fail 1 "iDestruct: invalid arguments for custom intro pattern:" custom
-        | Some ?pat =>
-            lazymatch eval cbv in (intro_pat.parse pat) with
-            | None =>
-                fail 1 "iDestruct: invalid intro pattern generated by custom intro pattern:" custom
-            | Some [?pat] =>
-                _iDestructHypGo Hz pat0 pat
-            | Some _ =>
-                fail 1 "iDestruct: custom intro pattern" custom "should generate exactly one intro pattern"
-            end
-        end
-      | fail 1 "iDestruct: unrecognized custom intro pattern:" custom
+      let x1 := _ident_for_pat_default pat1 Hz in
+      let x2 := _ident_for_pat_default pat2 Hz in
+      iOrDestruct Hz as x1 x2;
+      [ _iDestructHyp_go x1 pat0 pat1 env
+      | _iDestructHyp_go x2 pat0 pat2 env
       ]
-  | _ => fail "iDestruct:" pat0 "is not supported due to" pat
+  (* this matches a list of three or more disjunctions [H1|H2|H3] *)
+  | IList (_ :: _ :: _ :: _) =>
+      fail "iDestruct:" pat0 "has too many disjuncts"
+  (* the above patterns don't match [H1 H2|H3] *)
+  | IList [_;_] =>
+      fail "iDestruct: in" pat0 "a disjunct has multiple patterns"
+
+  | IPure IGallinaAnon =>
+      iPure Hz as ?
+  | IPure (IGallinaNamed ?s) =>
+      let x := fresh in
+      iPure Hz as x;
+      rename_by_string x s
+  | IRewrite Right =>
+      iPure Hz as ->
+  | IRewrite Left =>
+      iPure Hz as <-
+  | IIntuitionistic ?pat =>
+      let x := _ident_for_pat_default pat Hz in
+      _iIntuitionistic Hz x;
+      _iDestructHyp_go x pat0 pat env
+  | ISpatial ?pat =>
+      let x := _ident_for_pat_default pat Hz in
+      _iSpatial Hz x;
+      _iDestructHyp_go x pat0 pat env
+  | IModalElim ?pat =>
+      let x := _ident_for_pat_default pat Hz in
+      iModCore Hz as x;
+      _iDestructHyp_go x pat0 pat env
+  | ICustom ?custom ?arg =>
+      let pat := open_constr:(_ : string) in
+      first
+      [ let pat' := constr:(custom_ipat custom) in
+        eunify pat pat'
+      | fail 1 "iDestruct: unknown custom intro pattern:" custom
+      ];
+      let env := eval vm_compute in (format_env_of_string arg env) in
+      lazymatch eval vm_compute in (format pat env) with
+      | None =>
+          fail "iDestruct: invalid custom intro pattern:" custom
+      | Some ?pat =>
+          lazymatch eval cbv in (intro_pat.parse pat) with
+          | None =>
+              fail "iDestruct: invalid intro pattern generated by custom intro pattern:" custom
+          | Some [?pat] =>
+              _iDestructHyp_go Hz pat0 pat env
+          | Some _ =>
+              fail "iDestruct: custom intro pattern" custom "should generate exactly one intro pattern"
+          end
+      end
+  | _ =>
+      fail "iDestruct:" pat0 "is not supported due to" pat
   end.
-Ltac _iDestructHypFindPat Hgo pat found pats :=
+Ltac _iDestructHypFindPat Hgo pat found pats env :=
   lazymatch pats with
   | [] =>
-    lazymatch found with
-    | true => pm_prettify (* post-tactic prettification *)
-    | false => fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
-    end
-  | ISimpl :: ?pats => simpl; _iDestructHypFindPat Hgo pat found pats
-  | IClear ?H :: ?pats => iClear H; _iDestructHypFindPat Hgo pat found pats
-  | IClearFrame ?H :: ?pats => iFrame H; _iDestructHypFindPat Hgo pat found pats
+      lazymatch found with
+      | true =>
+          pm_prettify (* post-tactic prettification *)
+      | false =>
+          fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
+      end
+  | ISimpl :: ?pats =>
+      simpl;
+      _iDestructHypFindPat Hgo pat found pats env
+  | IClear ?H :: ?pats =>
+      iClear H;
+      _iDestructHypFindPat Hgo pat found pats env
+  | IClearFrame ?H :: ?pats =>
+      iFrame H;
+      _iDestructHypFindPat Hgo pat found pats env
   | ?pat1 :: ?pats =>
-     lazymatch found with
-     | false => _iDestructHypGo Hgo pat pat1; _iDestructHypFindPat Hgo pat true pats
-     | true => fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
-     end
+      lazymatch found with
+      | false =>
+          _iDestructHyp_go Hgo pat pat1 env;
+          _iDestructHypFindPat Hgo pat true pats env
+      | true =>
+          fail "iDestruct:" pat "should contain exactly one proper introduction pattern"
+      end
   end.
 
 (* This is the core implementation of [iDestruct]. *)
-Ltac _iDestructHyp0 H pat :=
+Ltac _iDestructHyp0' H pat env :=
   let pats := intro_pat.parse pat in
-  _iDestructHypFindPat H pat false pats.
+  _iDestructHypFindPat H pat false pats env.
+Ltac _iDestructHyp0 H pat :=
+  let env := constr:(∅ : format_env) in
+  _iDestructHyp0' H pat env.
 Ltac _iDestructHyp H xs pat :=
   ltac1_list_iter ltac:(fun x => _iExistDestruct H as x H) xs;
   _iDestructHyp0 H pat.
@@ -1747,54 +1758,90 @@ Tactic Notation "iCombine" constr(H1) constr(H2) "as" constr(pat1)
   iCombine [H1;H2] as pat1 gives %pat2.
 
 (** * Introduction tactic *)
-Ltac _iIntros_go pats startproof :=
+Ltac _iIntros_go pats startproof env :=
   lazymatch pats with
   | [] =>
-    lazymatch startproof with
-    | true => iStartProof
-    | false => idtac
-    end
+      lazymatch startproof with
+      | true =>
+          iStartProof
+      | false =>
+          idtac
+      end
   (* Optimizations to avoid generating fresh names *)
   | IPure (IGallinaNamed ?s) :: ?pats =>
-     let i := fresh in
-     _iIntro (i);
-     rename_by_string i s;
-     _iIntros_go pats startproof
-  | IPure IGallinaAnon :: ?pats => _iIntro (?); _iIntros_go pats startproof
-  | IIntuitionistic (IIdent ?H) :: ?pats => _iIntroPersistent H; _iIntros_go pats false
-  | IDrop :: ?pats => _iIntroDrop; _iIntros_go pats startproof
-  | IIdent ?H :: ?pats => _iIntroSpatial H; _iIntros_go pats startproof
+      let i := fresh in
+      _iIntro (i);
+      rename_by_string i s;
+      _iIntros_go pats startproof env
+  | IPure IGallinaAnon :: ?pats =>
+      _iIntro (?);
+      _iIntros_go pats startproof env
+  | IIntuitionistic (IIdent ?H) :: ?pats =>
+      _iIntroPersistent H;
+      _iIntros_go pats false env
+  | IDrop :: ?pats =>
+      _iIntroDrop;
+      _iIntros_go pats startproof env
+  | IIdent ?H :: ?pats =>
+      _iIntroSpatial H;
+      _iIntros_go pats startproof env
   (* Introduction patterns that can only occur at the top-level *)
-  | IPureIntro :: ?pats => iPureIntro; _iIntros_go pats false
-  | IModalIntro :: ?pats => iModIntro; _iIntros_go pats false
-  | IForall :: ?pats => repeat _iIntroForall; _iIntros_go pats startproof
-  | IAll :: ?pats => repeat (_iIntroForall || _iIntro); _iIntros_go pats startproof
+  | IPureIntro :: ?pats =>
+      iPureIntro;
+      _iIntros_go pats false env
+  | IModalIntro :: ?pats =>
+      iModIntro;
+      _iIntros_go pats false env
+  | IForall :: ?pats =>
+      repeat _iIntroForall;
+      _iIntros_go pats startproof env
+  | IAll :: ?pats =>
+      repeat (_iIntroForall || _iIntro);
+      _iIntros_go pats startproof env
   (* Clearing and simplifying introduction patterns *)
-  | ISimpl :: ?pats => simpl; _iIntros_go pats startproof
-  | IClear ?H :: ?pats => iClear H; _iIntros_go pats false
-  | IClearFrame ?H :: ?pats => iFrame H; _iIntros_go pats false
-  | IDone :: ?pats => try done; _iIntros_go pats startproof
+  | ISimpl :: ?pats =>
+      simpl;
+      _iIntros_go pats startproof env
+  | IClear ?H :: ?pats =>
+      iClear H;
+      _iIntros_go pats false env
+  | IClearFrame ?H :: ?pats =>
+      iFrame H;
+      _iIntros_go pats false env
+  | IDone :: ?pats =>
+      try done;
+      _iIntros_go pats startproof env
   (* Introduction + destruct *)
   | IIntuitionistic ?pat :: ?pats =>
-     let H := iFresh in _iIntroPersistent H; iDestructHyp H as pat; _iIntros_go pats false
+      let H := iFresh in
+      _iIntroPersistent H;
+      iDestructHyp H as pat;
+      _iIntros_go pats false env
   | ICustom ?custom ?arg :: ?pats =>
+      let pat := open_constr:(_ : string) in
       first
-      [ lazymatch eval vm_compute in (custom_ipat custom arg) with
-        | None =>
-            fail 1 "iIntros: invalid arguments for custom intro pattern:" custom
-        | Some ?pat =>
-            lazymatch eval cbv in (intro_pat.parse pat) with
-            | None =>
-                fail 1 "iIntros: invalid intro pattern generated by custom intro pattern:" custom
-            | Some ?pats' =>
-                let pats := eval cbv in (pats' ++ pats) in
-                _iIntros_go pats startproof
-            end
-        end
-      | fail 1 "iIntros: unrecognized custom intro pattern:" custom
-      ]
+      [ let pat' := constr:(custom_ipat custom) in
+        eunify pat pat'
+      | fail 1 "iIntros: unknown custom intro pattern:" custom
+      ];
+      let env' := eval vm_compute in (format_env_of_string arg env) in
+      lazymatch eval vm_compute in (format pat env') with
+      | None =>
+          fail "iIntros: invalid custom intro pattern:" custom
+      | Some ?pat =>
+          lazymatch eval cbv in (intro_pat.parse pat) with
+          | None =>
+              fail "iIntros: invalid intro pattern generated by custom intro pattern:" custom
+          | Some ?pats' =>
+              _iIntros_go pats' startproof env';
+              _iIntros_go pats startproof env
+          end
+      end
   | ?pat :: ?pats =>
-     let H := iFresh in _iIntroSpatial H; iDestructHyp H as pat; _iIntros_go pats false
+      let H := iFresh in
+      _iIntroSpatial H;
+      _iDestructHyp0' H pat env;
+      _iIntros_go pats false env
   end.
 
 (* This is the core implementation of [iIntros]. *)
@@ -1802,8 +1849,10 @@ Ltac _iIntros0 pat :=
   let pats := intro_pat.parse pat in
   (* HACK to avoid calling [iStartProof] on side-conditions opened by [iIntros (?%lemma)]. *)
   lazymatch pats with
-  | [] => idtac
-  | _ => _iIntros_go pats true
+  | [] =>
+      idtac
+  | _ =>
+      _iIntros_go pats true constr:(∅ : format_env)
   end.
 Ltac _iIntros xs pat :=
   ltac1_list_iter ltac:(fun x => _iIntro (x)) xs;

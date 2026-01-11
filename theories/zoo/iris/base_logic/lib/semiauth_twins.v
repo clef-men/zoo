@@ -58,7 +58,7 @@ Section semiauth_twins_G.
   Definition semiauth_twins_twin1 γ a 𝑎 : iProp Σ :=
     auth_twins_twin1 R γ.(semiauth_twins_name_left_twins) a ∗
     twins_twin1 γ.(semiauth_twins_name_right_twins) (DfracOwn 1) 𝑎.
-  #[local] Instance : CustomIpatFormat "twin1" :=
+  #[local] Instance : CustomIpat "twin1" :=
     " ( Hltwin1{_{}} &
         Hrtwin1{_{}}
       )
@@ -66,7 +66,7 @@ Section semiauth_twins_G.
   Definition semiauth_twins_twin2 γ a 𝑎 : iProp Σ :=
     auth_twins_twin2 R γ.(semiauth_twins_name_left_twins) a ∗
     twins_twin2 γ.(semiauth_twins_name_right_twins) 𝑎.
-  #[local] Instance : CustomIpatFormat "twin2" :=
+  #[local] Instance : CustomIpat "twin2" :=
     " ( Hltwin2{_{}} &
         Hrtwin2{_{}}
       )

@@ -44,7 +44,7 @@ Section inf_ws_deque_2_G.
     ∃ slots,
     inf_ws_deque_1_model t (#@{location} <$> slots) ∗
     [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ□ v.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %slots_vs{} &
         Hmodel{_{}} &
         #Hslots_vs{}
@@ -55,7 +55,7 @@ Section inf_ws_deque_2_G.
     ∃ slots,
     inf_ws_deque_1_owner t (#@{location} <$> slots) ∗
     [∗ list] slot; v ∈ slots; ws, slot ↦ᵣ□ v.
-  #[local] Instance : CustomIpatFormat "owner" :=
+  #[local] Instance : CustomIpat "owner" :=
     " ( %slots_ws{} &
         Howner{_{}} &
         #Hslots_ws{}

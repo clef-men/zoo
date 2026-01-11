@@ -115,7 +115,7 @@ Module base.
       node ↦ₕ Header §Node 2 ∗
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
-    #[local] Instance : CustomIpatFormat "node_model" :=
+    #[local] Instance : CustomIpat "node_model" :=
       " ( #H{}_header &
           #Hhistory_at_{} &
           {{front}#Hfront_lb_{};_}
@@ -152,7 +152,7 @@ Module base.
       model₂ γ vs ∗
       waiters_auth γ waiters ∗
       ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %hist{} &
           %past{} &
           %front{} &
@@ -178,7 +178,7 @@ Module base.
     Definition mpmc_queue_1_inv t γ ι : iProp Σ :=
       ⌜ι = γ.(mpmc_queue_1_name_inv)⌝ ∗
       inv' t γ.
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " ( -> &
           #Hinv
         )
@@ -186,7 +186,7 @@ Module base.
 
     Definition mpmc_queue_1_model :=
       model₁.
-    #[local] Instance : CustomIpatFormat "model" :=
+    #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
@@ -919,7 +919,7 @@ Section mpmc_queue_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_queue_1_inv 𝑡 γ ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -933,7 +933,7 @@ Section mpmc_queue_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.mpmc_queue_1_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -1075,7 +1075,7 @@ Section mpmc_queue_1_G.
     ∃ vs,
     mpmc_queue_1_model t vs ∗
     [∗ list] v ∈ vs, τ v.
-  #[local] Instance : CustomIpatFormat "itype_inner" :=
+  #[local] Instance : CustomIpat "itype_inner" :=
     " ( %vs &
         >Hmodel &
         #Hvs
@@ -1084,7 +1084,7 @@ Section mpmc_queue_1_G.
   Definition itype_mpmc_queue_1 t : iProp Σ :=
     mpmc_queue_1_inv t (nroot.@"1") ∗
     inv (nroot.@"2") (itype_inner t).
-  #[local] Instance : CustomIpatFormat "itype" :=
+  #[local] Instance : CustomIpat "itype" :=
     " ( #Hinv1 &
         #Hinv2
       )

@@ -78,7 +78,7 @@ Section parray_1_G.
     ⌜length vs = γ.(metadata_size)⌝ ∗
     ⌜i < γ.(metadata_size)⌝ ∗
     ⌜vs = <[i := v]> vs'⌝.
-  #[local] Instance : CustomIpatFormat "node_model" :=
+  #[local] Instance : CustomIpat "node_model" :=
     " ( %i_{node} &
         %v_{node} &
         %node{;'} &
@@ -103,7 +103,7 @@ Section parray_1_G.
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
-  #[local] Instance : CustomIpatFormat "inv'" :=
+  #[local] Instance : CustomIpat "inv'" :=
     " ( %vs_{root}{_{}} &
         #Hequal{_{}} &
         Hnodes_auth{_{}} &
@@ -118,10 +118,10 @@ Section parray_1_G.
   Definition parray_1_inv γ : iProp Σ :=
     ∃ nodes root,
     inv' γ nodes root.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %nodes{} &
         %{root}{} &
-        (:inv' {//})
+        (:inv')
       )
     ".
 
@@ -129,7 +129,7 @@ Section parray_1_G.
     ∃ node,
     ⌜t = #node⌝ ∗
     nodes_elem γ node vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %node &
         -> &
         #Hnodes_elem_node
@@ -240,7 +240,7 @@ Section parray_1_G.
     ([∗ list] v ∈ vs_root, τ v) ∗
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
-  #[local] Instance : CustomIpatFormat "reroot_inv" :=
+  #[local] Instance : CustomIpat "reroot_inv" :=
     " ( %descr_{root} &
         Hnodes_auth &
         H{root} &

@@ -29,7 +29,7 @@ Section zoo_G.
     l.[size] ↦ #(length vs) ∗
     l.[data] ↦ data ∗
     array_model data (DfracOwn 1) (vs ++ replicate extra ()%V).
-  #[local] Instance : CustomIpatFormat "model'" :=
+  #[local] Instance : CustomIpat "model'" :=
     " ( %l{} &
         %data{} &
         -> &
@@ -41,7 +41,7 @@ Section zoo_G.
   Definition dynarray_1_model t vs : iProp Σ :=
     ∃ extra,
     model' t vs extra.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %extra &
         {{lazy}Hmodel;(:model')}
       )

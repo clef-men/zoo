@@ -109,7 +109,7 @@ Section ws_hub_fifo_G.
     excl γ_owner ().
   #[local] Definition owner γ i :=
     owner' γ.(metadata_owners) i.
-  #[local] Instance : CustomIpatFormat "owner_" :=
+  #[local] Instance : CustomIpat "owner_" :=
     " ( %γ_owner{} &
         %Hlookup{} &
         Howner{}
@@ -126,7 +126,7 @@ Section ws_hub_fifo_G.
     ⌝.
   #[local] Definition emptiness_auth γ :=
     emptiness_auth' γ.(metadata_emptiness) γ.(metadata_size).
-  #[local] Instance : CustomIpatFormat "emptiness_auth" :=
+  #[local] Instance : CustomIpat "emptiness_auth" :=
     " ( %emptys &
         Hauth &
         %Hemptys &
@@ -141,7 +141,7 @@ Section ws_hub_fifo_G.
   #[local] Definition inv_inner l : iProp Σ :=
     ∃ killed,
     l.[killed] ↦ #killed.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %killed &
         Hl_killed
       )
@@ -157,7 +157,7 @@ Section ws_hub_fifo_G.
     mpmc_queue_1_inv γ.(metadata_queue) ι ∗
     waiters_inv γ.(metadata_waiters) ∗
     inv nroot (inv_inner l).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l{} &
         %γ{} &
         {%Heq{};->} &
@@ -179,7 +179,7 @@ Section ws_hub_fifo_G.
     mpmc_queue_1_model γ.(metadata_queue) ws ∗
     ⌜consistent vs ws⌝ ∗
     emptiness_auth γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l_ &
         %γ_ &
         %ws &
@@ -197,7 +197,7 @@ Section ws_hub_fifo_G.
     meta l nroot γ ∗
     owner γ i ∗
     emptiness_at γ i empty.
-  #[local] Instance : CustomIpatFormat "owner" :=
+  #[local] Instance : CustomIpat "owner" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &

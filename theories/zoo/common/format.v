@@ -26,10 +26,6 @@ Module parse.
     "{"%char.
   Notation hole_end :=
     "}"%char.
-  Notation forward_beg :=
-    "/"%char.
-  Notation forward_end :=
-    "/"%char.
 
   Definition binding str :=
     let '(var, val) := split_on assign str in
@@ -55,8 +51,6 @@ Module parse.
         None
     | String hole_beg str =>
         hole_variable env str res acc ""
-    | String forward_beg str =>
-        hole_forward env str res acc ""
     | String hole_end str =>
         match env !! String.rev acc with
         | None =>
@@ -80,8 +74,6 @@ Module parse.
         None
     | String hole_beg str =>
         hole_variable env str res acc ""
-    | String forward_beg str =>
-        hole_forward env str res acc ""
     | String hole_end str =>
         go env str (acc +:+ res)
     | String sep str =>
@@ -102,20 +94,6 @@ Module parse.
         end
     | String chr str =>
         hole_variable env str res acc (String chr var)
-    end
-  with hole_forward env str res acc var :=
-    match str with
-    | "" =>
-        None
-    | String forward_end str =>
-        match env !! String.rev var with
-        | None =>
-            hole' env str res acc
-        | Some val =>
-            hole' env str res (String.rev val +:+ String assign var +:+ acc)
-        end
-    | String chr str =>
-        hole_forward env str res acc (String chr var)
     end
   with hole_finish env str res state :=
     match str with
@@ -151,8 +129,8 @@ Module parse.
     go env str "".
 End parse.
 
-Definition format_env_of_bindings bdgs : format_env :=
-  list_to_map bdgs.
+Definition format_env_of_bindings bdgs env :=
+  foldr (λ p, <[p.1 := p.2]>) env bdgs.
 Definition format_env_of_strings strs :=
   format_env_of_bindings (parse.binding <$> strs).
 Definition format_env_of_string str :=
@@ -219,9 +197,4 @@ Proof. reflexivity. Qed.
 Goal format "{{1}-{2};∅}" {["2":="two"]} = Some "∅".
 Proof. reflexivity. Qed.
 Goal format "{{1}-{2};∅}" {["1":="one";"2":="two"]} = Some "one-two".
-Proof. reflexivity. Qed.
-
-Goal format "{/1/}" {["1":="one"]} = Some "1=one".
-Proof. reflexivity. Qed.
-Goal format "{/1/}" ∅ = Some "".
 Proof. reflexivity. Qed.

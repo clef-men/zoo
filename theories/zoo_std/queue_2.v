@@ -28,7 +28,7 @@ Section zoo_G.
     l.[back] ↦ back ∗
     chain_model (Some §Node) front vs back ∗
     chain_model (Some §Node) back [()%V] ().
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l &
         %front &
         %back &

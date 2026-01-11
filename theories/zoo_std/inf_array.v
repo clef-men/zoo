@@ -78,7 +78,7 @@ Section inf_array_G.
     array_model data (DfracOwn 1) us ∗
     model₂ γ vs ∗
     ⌜vs = λ i, if decide (i < length us) then us !!! i else γ.(metadata_default)⌝.
-  #[local] Instance : CustomIpatFormat "inv_2" :=
+  #[local] Instance : CustomIpat "inv_2" :=
     " ( %data &
         %vs &
         Hl_data &
@@ -90,7 +90,7 @@ Section inf_array_G.
   #[local] Definition inv_1 l γ : iProp Σ :=
     ∃ us,
     inv_2 l γ us.
-  #[local] Instance : CustomIpatFormat "inv_1" :=
+  #[local] Instance : CustomIpat "inv_1" :=
     " ( %us{} &
         {{lazy}Hinv;(:inv_2)}
       )
@@ -102,7 +102,7 @@ Section inf_array_G.
     l.[default] ↦□ γ.(metadata_default) ∗
     l.[mutex] ↦□ mtx ∗
     mutex_inv mtx (inv_1 l γ).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         %mtx &
@@ -119,7 +119,7 @@ Section inf_array_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l_ &
         %γ_ &
         %Heq &

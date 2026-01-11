@@ -29,7 +29,7 @@ Section zoo_G.
         chain_model tag t' vs dst
     end.
   #[global] Arguments chain_model _ _ !_ _ / : assert.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{} &
         %t{}' &
         {%Heq{eq};->} &

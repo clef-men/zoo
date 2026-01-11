@@ -234,7 +234,7 @@ Module base.
         auth_mono_auth _ η DfracDiscarded lstate.
     #[local] Definition lstates_auth γ :=
       lstates_auth' γ.(inf_mpmc_queue_2_name_lstates).
-    #[local] Instance : CustomIpatFormat "lstates_auth" :=
+    #[local] Instance : CustomIpat "lstates_auth" :=
       " ( %ηs &
           Hauth &
           Hηs
@@ -244,7 +244,7 @@ Module base.
       ∃ η,
       mono_list_at γ.(inf_mpmc_queue_2_name_lstates) i η ∗
       auth_mono_auth _ η DfracDiscarded lstate.
-    #[local] Instance : CustomIpatFormat "lstates_at" :=
+    #[local] Instance : CustomIpat "lstates_at" :=
       " ( %η{} &
           #Hat{_{}} &
           #Hη_auth{_{}}
@@ -254,7 +254,7 @@ Module base.
       ∃ η,
       mono_list_at γ.(inf_mpmc_queue_2_name_lstates) i η ∗
       auth_mono_lb _ η lstate.
-    #[local] Instance : CustomIpatFormat "lstates_lb" :=
+    #[local] Instance : CustomIpat "lstates_lb" :=
       " ( %η{} &
           #Hat{_{}} &
           #Hη_lb{_{}}
@@ -267,7 +267,7 @@ Module base.
       ⌜length ηs = i⌝.
     #[local] Definition producers_auth γ :=
       producers_auth' γ.(inf_mpmc_queue_2_name_producers).
-    #[local] Instance : CustomIpatFormat "producers_auth" :=
+    #[local] Instance : CustomIpat "producers_auth" :=
       " ( %ηs &
           Hauth &
           %Hηs
@@ -282,7 +282,7 @@ Module base.
       | Discard =>
           oneshot_shot η ()
       end.
-    #[local] Instance : CustomIpatFormat "producers_at" :=
+    #[local] Instance : CustomIpat "producers_at" :=
       " ( %η{} &
           Hat{_{}} &
           Hη{}
@@ -295,7 +295,7 @@ Module base.
       ⌜length ηs = i⌝.
     #[local] Definition consumers_auth γ :=
       consumers_auth' γ.(inf_mpmc_queue_2_name_consumers).
-    #[local] Instance : CustomIpatFormat "consumers_auth" :=
+    #[local] Instance : CustomIpat "consumers_auth" :=
       " ( %ηs{} &
           Hauth{} &
           %Hηs{}
@@ -310,7 +310,7 @@ Module base.
       | Discard =>
           oneshot_shot η ()
       end.
-    #[local] Instance : CustomIpatFormat "consumers_at" :=
+    #[local] Instance : CustomIpat "consumers_at" :=
       " ( %η{} &
           Hat{_{}} &
           Hη{}
@@ -320,7 +320,7 @@ Module base.
       ∃ ηs,
       mono_list_lb γ.(inf_mpmc_queue_2_name_consumers) ηs ∗
       ⌜length ηs = i⌝.
-    #[local] Instance : CustomIpatFormat "consumers_lb" :=
+    #[local] Instance : CustomIpat "consumers_lb" :=
       " ( %ηs{} &
           Hlb{} &
           %Hηs{}
@@ -332,7 +332,7 @@ Module base.
       prophet_multi_full prophet_identifier γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
       identifier_model' id.
-    #[local] Instance : CustomIpatFormat "winner" :=
+    #[local] Instance : CustomIpat "winner" :=
       " ( %id{} &
           %prophs{} &
           Hprophet_full{_{}} &
@@ -374,13 +374,13 @@ Module base.
       | _ =>
           False
       end.
-    #[local] Instance : CustomIpatFormat "inv_lstate_left_producer" :=
+    #[local] Instance : CustomIpat "inv_lstate_left_producer" :=
       " ( %v &
           #Hhistory_at &
           Hwinner
         )
       ".
-    #[local] Instance : CustomIpatFormat "inv_lstate_left_consumer" :=
+    #[local] Instance : CustomIpat "inv_lstate_left_consumer" :=
       " ( %Ψ &
           %v_ &
           #Hconsumers_lb &
@@ -401,7 +401,7 @@ Module base.
       | _ =>
           False
       end.
-    #[local] Instance : CustomIpatFormat "inv_lstate_right" :=
+    #[local] Instance : CustomIpat "inv_lstate_right" :=
       " ( %Ψ &
           #Hη &
           Hconsumer_au
@@ -422,15 +422,15 @@ Module base.
           ∨ producers_at γ i Discard
           )
       end.
-    #[local] Instance : CustomIpatFormat "inv_slot_nothing" :=
+    #[local] Instance : CustomIpat "inv_slot_nothing" :=
       "%Hpast".
-    #[local] Instance : CustomIpatFormat "inv_slot_something" :=
+    #[local] Instance : CustomIpat "inv_slot_something" :=
       " ( #Hhistory_at{_{suff}} &
           #Hproducers_at{_{suff}} &
           #Hlstates_lb_producer
         )
       ".
-    #[local] Instance : CustomIpatFormat "inv_slot_anything" :=
+    #[local] Instance : CustomIpat "inv_slot_anything" :=
       " ( #Hconsumers_at{_{suff}} &
           { _{suff}
           ; [ #Hlstates_lb_consumer
@@ -463,7 +463,7 @@ Module base.
       ( ∀ i,
         inv_slot γ i (slots i) (pasts i)
       ).
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %front{} &
           %back{} &
           %hist{} &
@@ -495,7 +495,7 @@ Module base.
       t.[proph] ↦□ #γ.(inf_mpmc_queue_2_name_prophet) ∗
       inf_array_inv γ.(inf_mpmc_queue_2_name_data) ∗
       inv γ.(inf_mpmc_queue_2_name_inv) (inv_inner t γ).
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " ( -> &
           #Ht_data &
           #Ht_proph &
@@ -506,7 +506,7 @@ Module base.
 
     Definition inf_mpmc_queue_2_model :=
       model₁.
-    #[local] Instance : CustomIpatFormat "model" :=
+    #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
@@ -1493,7 +1493,7 @@ Section inf_mpmc_queue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_2_inv 𝑡 γ ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -1507,7 +1507,7 @@ Section inf_mpmc_queue_2_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_2_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &

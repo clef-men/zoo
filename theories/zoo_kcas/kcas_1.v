@@ -449,7 +449,7 @@ Section kcas_1_G.
             descr.(descriptor_state).[after] ↦-
         )
     end.
-  #[local] Instance : CustomIpatFormat "casn_inv_inner" :=
+  #[local] Instance : CustomIpat "casn_inv_inner" :=
     " ( %status{} &
         %lstatus{} &
         %helpers{} &
@@ -461,7 +461,7 @@ Section kcas_1_G.
         Hlstatus{}
       )
     ".
-  #[local] Instance : CustomIpatFormat "casn_inv_inner_running" :=
+  #[local] Instance : CustomIpat "casn_inv_inner_running" :=
     " ( {>;}-> &
         {>;}-> &
         Hau{} &
@@ -471,7 +471,7 @@ Section kcas_1_G.
         {>;}Hlocks{}
       )
     ".
-  #[local] Instance : CustomIpatFormat "casn_inv_inner_finished" :=
+  #[local] Instance : CustomIpat "casn_inv_inner_finished" :=
     " ( {>;}-> &
         {>;}Hwinner{} &
         HΨ{} &
@@ -504,7 +504,7 @@ Section kcas_1_G.
           descr.(descriptor_state).[casn] ↦□ #casn ∗
           loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
     )%I.
-  #[local] Instance : CustomIpatFormat "casn_inv" :=
+  #[local] Instance : CustomIpat "casn_inv" :=
     " ( %Ψ{} &
         Hcasn{}_proph &
         Hpost{} &
@@ -531,7 +531,7 @@ Section kcas_1_G.
     lock η i ∗
     history_auth γ (casns ++ [casn]) ∗
     casn_inv' (casn, η, if full then None else Some i).
-  #[local] Instance : CustomIpatFormat "loc_inv_inner" :=
+  #[local] Instance : CustomIpat "loc_inv_inner" :=
     " ( %casns{} &
         %casn{} &
         %η{} &
@@ -585,7 +585,7 @@ Section kcas_1_G.
     ∃ γ,
     meta loc nroot γ ∗
     model₁ γ v.
-  #[local] Instance : CustomIpatFormat "loc_model" :=
+  #[local] Instance : CustomIpat "loc_model" :=
     " ( %γ{} &
         Hmeta{_{}} &
         Hmodel₁{_{}}

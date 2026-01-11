@@ -895,7 +895,7 @@ Section algo_G.
     ⌜beg ≤ i < end_⌝%Z ∗
     find_token γ q ∗
     Ψ i.
-  #[local] Instance : CustomIpatFormat "find_inv" :=
+  #[local] Instance : CustomIpat "find_inv" :=
     " ( %i &
         %q &
         -> &

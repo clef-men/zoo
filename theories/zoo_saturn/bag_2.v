@@ -123,7 +123,7 @@ Section bag_2_G.
         wss !! (descriptor_to_producer descr node : val) = Some descr.(descriptor_vals)
       ) descrs
     ⌝.
-  #[local] Instance : CustomIpatFormat "queues_auth" :=
+  #[local] Instance : CustomIpat "queues_auth" :=
     " ( Hauth &
         %Hnodes &
         %Hdescrs
@@ -144,7 +144,7 @@ Section bag_2_G.
         queues_at γ node queue ∗
         spmc_queue_inv queue (γ.(metadata_inv).@"producer")
     end.
-  #[local] Instance : CustomIpatFormat "queues_elem" :=
+  #[local] Instance : CustomIpat "queues_elem" :=
     " ( %node &
         #Hqueues_at &
         #Hqueue_inv
@@ -166,7 +166,7 @@ Section bag_2_G.
     ⌜from_option (.= descr.(descriptor_queue)) True o⌝ ∗
     spmc_queue_inv descr.(descriptor_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_model descr.(descriptor_queue) descr.(descriptor_vals).
-  #[local] Instance : CustomIpatFormat "descriptor_model" :=
+  #[local] Instance : CustomIpat "descriptor_model" :=
     " ( %o{} &
         Hnode{}_queue &
         {>;}%Ho{} &
@@ -183,7 +183,7 @@ Section bag_2_G.
     model₂ γ wss ∗
     [∗ map] node ↦ descr ∈ descrs,
       descriptor_model γ node descr.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %nodes{} &
         %descrs{} &
         %wss &
@@ -202,7 +202,7 @@ Section bag_2_G.
     ⌜ι = γ.(metadata_inv)⌝ ∗
     meta l nroot γ ∗
     inv' l γ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -217,7 +217,7 @@ Section bag_2_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vss.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &
@@ -235,7 +235,7 @@ Section bag_2_G.
     queues_at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ∗
     spmc_queue_inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ws.
-  #[local] Instance : CustomIpatFormat "producer" :=
+  #[local] Instance : CustomIpat "producer" :=
     " ( %l{;_} &
         %γ{;_} &
         %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{} &
@@ -256,7 +256,7 @@ Section bag_2_G.
     ⌜consumer = #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟⌝ ∗
     𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
     queues_elem γ queue.
-  #[local] Instance : CustomIpatFormat "consumer" :=
+  #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_} &
         %γ{;_} &
         %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{} &

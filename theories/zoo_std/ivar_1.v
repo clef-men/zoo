@@ -82,13 +82,13 @@ Module base.
 
     #[local] Definition inv_state_unset γ :=
       lstate_unset₁ γ.
-    #[local] Instance : CustomIpatFormat "inv_state_unset" :=
+    #[local] Instance : CustomIpat "inv_state_unset" :=
       " {>;}Hlstate_unset₁
       ".
     #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
       lstate_set γ v ∗
       □ Ξ v.
-    #[local] Instance : CustomIpatFormat "inv_state_set" :=
+    #[local] Instance : CustomIpat "inv_state_set" :=
       " ( {>;}#Hlstate_set{_{}} &
           #HΞ{_{}}
         )
@@ -106,7 +106,7 @@ Module base.
       t ↦ᵣ state ∗
       consumer_auth γ Ψ state ∗
       inv_state γ Ξ state.
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %state &
           Ht &
           Hconsumer_auth &
@@ -115,25 +115,25 @@ Module base.
       ".
     Definition ivar_1_inv t γ Ψ Ξ : iProp Σ :=
       inv nroot (inv_inner t γ Ψ Ξ).
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " #Hinv
       ".
 
     Definition ivar_1_producer :=
       lstate_unset₂.
-    #[local] Instance : CustomIpatFormat "producer" :=
+    #[local] Instance : CustomIpat "producer" :=
       " Hlstate_unset₂{_{}}
       ".
 
     Definition ivar_1_consumer :=
       consumer_frag.
-    #[local] Instance : CustomIpatFormat "consumer" :=
+    #[local] Instance : CustomIpat "consumer" :=
       " Hconsumer{}_frag
       ".
 
     Definition ivar_1_result :=
       lstate_set.
-    #[local] Instance : CustomIpatFormat "result" :=
+    #[local] Instance : CustomIpat "result" :=
       " #Hlstate_set{_{}}
       ".
     Definition ivar_1_resolved γ : iProp Σ :=
@@ -624,7 +624,7 @@ Section ivar_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.ivar_1_inv 𝑡 γ Ψ Ξ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l{} &
         %γ{} &
         {%Heq{};->} &
@@ -638,7 +638,7 @@ Section ivar_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.ivar_1_producer γ.
-  #[local] Instance : CustomIpatFormat "producer" :=
+  #[local] Instance : CustomIpat "producer" :=
     " ( %l{;_} &
         %γ{;_} &
         {%Heq{};->} &
@@ -652,7 +652,7 @@ Section ivar_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.ivar_1_consumer γ Χ.
-  #[local] Instance : CustomIpatFormat "consumer" :=
+  #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_} &
         %γ{;_} &
         {%Heq{};->} &
@@ -666,7 +666,7 @@ Section ivar_1_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.ivar_1_result γ v.
-  #[local] Instance : CustomIpatFormat "result" :=
+  #[local] Instance : CustomIpat "result" :=
     " ( %l{;_} &
         %γ{;_} &
         {%Heq{};->} &

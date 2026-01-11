@@ -46,7 +46,7 @@ Section ws_deques_public_G.
     array_model t DfracDiscarded queues ∗
     [∗ list] queue ∈ queues,
       ws_deque_2_inv queue ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %queues{} &
         %Hqueues{}_length &
         #Hqueues{} &
@@ -59,7 +59,7 @@ Section ws_deques_public_G.
     array_model t DfracDiscarded queues ∗
     [∗ list] i ↦ queue; vs ∈ queues; vss,
       ws_deque_2_model queue vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %queues{;_} &
         Hqueues{;_} &
         Hqueues{}_model
@@ -71,7 +71,7 @@ Section ws_deques_public_G.
     ⌜queues !! i = Some queue⌝ ∗
     array_model t DfracDiscarded queues ∗
     ws_deque_2_owner queue ws.
-  #[local] Instance : CustomIpatFormat "owner" :=
+  #[local] Instance : CustomIpat "owner" :=
     " ( %queues{;_} &
         %queue{} &
         %Hqueues{}_lookup &

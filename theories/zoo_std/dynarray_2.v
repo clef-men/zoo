@@ -33,7 +33,7 @@ Section zoo_G.
   #[local] Definition element_model elem v : iProp Σ :=
     elem ↦ₕ Header 1 §Element ∗
     elem.[value] ↦ v.
-  #[local] Instance : CustomIpatFormat "element_model" :=
+  #[local] Instance : CustomIpat "element_model" :=
     " ( Helem_header &
         Helem_value
       )
@@ -45,7 +45,7 @@ Section zoo_G.
     l.[data] ↦ data ∗
     array_model data (DfracOwn 1) ((#@{location} <$> elems) ++ replicate extra §Empty%V) ∗
     [∗ list] elem; v ∈ elems; vs, element_model elem v.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l &
         %data &
         %elems &

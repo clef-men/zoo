@@ -118,7 +118,7 @@ Section bag_1_G.
     ⌜consistent vs os⌝ ∗
     [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %front &
         %back &
         %vs &
@@ -141,7 +141,7 @@ Section bag_1_G.
     l.[data] ↦□ γ.(metadata_data) ∗
     array_model γ.(metadata_data) DfracDiscarded (#@{location} <$> γ.(metadata_slots)) ∗
     inv' l γ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -159,7 +159,7 @@ Section bag_1_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     model₁ γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &

@@ -68,7 +68,7 @@ Section future_G.
       ∃ P,
       saved_prop ω P ∗
       □ P.
-  #[local] Instance : CustomIpatFormat "receipt_1" :=
+  #[local] Instance : CustomIpat "receipt_1" :=
     " ( %waiters &
         %ωs &
         #H{{}_}resolved &
@@ -93,7 +93,7 @@ Section future_G.
           saved_prop ω (receipt_2 pool t)
       end
     ).
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( #H{{}_}inv &
         H{{}_}receipt
       )
@@ -104,7 +104,7 @@ Section future_G.
     future_inv pool t depth Ψ Ξ ∗
     ivar_3_waiter t waiter ω ∗
     saved_prop ω P.
-  #[local] Instance : CustomIpatFormat "obligation'" :=
+  #[local] Instance : CustomIpat "obligation'" :=
     " ( %{;t} &
         %Ψ{_{}} &
         %Ξ{_{}} &
@@ -118,7 +118,7 @@ Section future_G.
   Definition future_obligation pool depth P : iProp Σ :=
       □ P
     ∨ obligation' pool depth P.
-  #[local] Instance : CustomIpatFormat "obligation" :=
+  #[local] Instance : CustomIpat "obligation" :=
     " [ #HP
       | Hobligation
       ]
@@ -133,7 +133,7 @@ Section future_G.
       | S depth =>
           obligation' pool depth (receipt_2 pool t)
       end.
-  #[local] Instance : CustomIpatFormat "receipt_3" :=
+  #[local] Instance : CustomIpat "receipt_3" :=
     " [ H{{}_}receipt
       | [ H{{}_}receipt
         | H{{}_}receipt

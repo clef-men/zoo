@@ -181,7 +181,7 @@ Section domain_G.
   Definition domain_model t Ψ : iProp Σ :=
     ivar_2_inv t Ψ (λ _, True)%I ∗
     ivar_2_consumer t Ψ.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( #Hivar_inv &
         Hivar_consumer
       )
@@ -191,7 +191,7 @@ Section domain_G.
     ∃ fn,
     ⌜key = (#id, fn)%V⌝ ∗
     zoo_counter_at id fn.
-  #[local] Instance : CustomIpatFormat "key_id" :=
+  #[local] Instance : CustomIpat "key_id" :=
     " ( %fn{} &
         %Heq{} &
         #Hcounter_at{}
@@ -203,7 +203,7 @@ Section domain_G.
     ⌜key = (#id, fn)%V⌝ ∗
     zoo_counter_at id fn ∗
     □ WP fn () {{ Ψ }}.
-  #[local] Instance : CustomIpatFormat "key" :=
+  #[local] Instance : CustomIpat "key" :=
     " ( %id &
         %fn{} &
         -> &
@@ -225,7 +225,7 @@ Section domain_G.
     ⌜map_img ids = dom ws⌝ ∗
     ([∗ map] key ↦ id ∈ ids, key_id key id) ∗
     ⌜consistent vs ws⌝.
-  #[local] Instance : CustomIpatFormat "local" :=
+  #[local] Instance : CustomIpat "local" :=
     " ( %l &
         %γ &
         %vs &
@@ -248,7 +248,7 @@ Section domain_G.
     meta l (nroot.@"user") γ ∗
     key_id key id ∗
     local_at γ id (DfracOwn 1) None.
-  #[local] Instance : CustomIpatFormat "local_init" :=
+  #[local] Instance : CustomIpat "local_init" :=
     " ( %l{}{_{suff}} &
         %γ{}{_{suff}} &
         %id{} &
@@ -265,7 +265,7 @@ Section domain_G.
     meta l (nroot.@"user") γ ∗
     key_id key id ∗
     local_at γ id dq (Some v).
-  #[local] Instance : CustomIpatFormat "local_pointsto" :=
+  #[local] Instance : CustomIpat "local_pointsto" :=
     " ( %l{}{_{suff}} &
         %γ{}{_{suff}} &
         %id{} &
@@ -281,7 +281,7 @@ Section domain_G.
     ∨ ∃ v,
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v.
-  #[local] Instance : CustomIpatFormat "local_pointstopred" :=
+  #[local] Instance : CustomIpat "local_pointstopred" :=
     "[(Hinit & Hkey) | (% & Hlocal_pointsto & HΨ)]".
 
   #[global] Instance domain_local_timeless tid keys :

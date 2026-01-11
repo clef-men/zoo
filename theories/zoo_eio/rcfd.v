@@ -157,7 +157,7 @@ Section rcfd_G.
     Ψ stock.
   #[local] Definition tokens_auth γ :=
     tokens_auth' γ.(metadata_tokens).
-  #[local] Instance : CustomIpatFormat "tokens_auth" :=
+  #[local] Instance : CustomIpat "tokens_auth" :=
     " ( %stock &
         %qs &
         {{lazy}%Hops;->} &
@@ -191,7 +191,7 @@ Section rcfd_G.
   #[local] Definition inv_lstate_open γ Ψ state ops : iProp Σ :=
     tokens_auth γ Ψ ops ∗
     ⌜state = Open⌝.
-  #[local] Instance : CustomIpatFormat "inv_lstate_open" :=
+  #[local] Instance : CustomIpat "inv_lstate_open" :=
     " ( Htokens_auth &
         {%H{eq};->}
       )
@@ -202,7 +202,7 @@ Section rcfd_G.
     ⌜state = Closing fn⌝ ∗
     ⌜0 < ops⌝%Z ∗
     (Ψ 1%Qp -∗ WP fn () {{ itype_unit }}).
-  #[local] Instance : CustomIpatFormat "inv_lstate_closing_users" :=
+  #[local] Instance : CustomIpat "inv_lstate_closing_users" :=
     " ( %fn{} &
         Htokens_auth &
         {%H{eq};->} &
@@ -214,7 +214,7 @@ Section rcfd_G.
     ∃ fn,
     ⌜state = Closing fn⌝ ∗
     WP fn () {{ itype_unit }}.
-  #[local] Instance : CustomIpatFormat "inv_lstate_closing_no_users" :=
+  #[local] Instance : CustomIpat "inv_lstate_closing_no_users" :=
     " ( %fn{} &
         {%H{eq};->} &
         Hfn{}
@@ -236,7 +236,7 @@ Section rcfd_G.
     l.[state] ↦ state_to_val γ state ∗
     lstate_auth γ lstate ∗
     inv_lstate γ Ψ state lstate ops.
-  #[local] Instance : CustomIpatFormat "inv_inner" :=
+  #[local] Instance : CustomIpat "inv_inner" :=
     " ( %state{} &
         %lstate{} &
         %ops{} &
@@ -255,7 +255,7 @@ Section rcfd_G.
     ⌜fd = γ.(metadata_fd)⌝ ∗
     meta l nroot γ ∗
     inv' l γ Ψ.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %l &
         %γ &
         -> &
@@ -271,7 +271,7 @@ Section rcfd_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     owner γ.
-  #[local] Instance : CustomIpatFormat "owner" :=
+  #[local] Instance : CustomIpat "owner" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &
@@ -285,7 +285,7 @@ Section rcfd_G.
     ⌜t = #l⌝ ∗
     meta l nroot γ ∗
     lstate_lb γ LClosingUsers.
-  #[local] Instance : CustomIpatFormat "closing" :=
+  #[local] Instance : CustomIpat "closing" :=
     " ( %l{;_} &
         %γ{;_} &
         %Heq{} &

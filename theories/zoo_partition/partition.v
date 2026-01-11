@@ -80,7 +80,7 @@ Section partition_G.
   #[local] Definition element_model class descr elt : iProp Σ :=
     elt.[class_] ↦ #class ∗
     elt.[seen] ↦ false.
-  #[local] Instance : CustomIpatFormat "element_model" :=
+  #[local] Instance : CustomIpat "element_model" :=
     " ( Helt{}_class{_{suff}} &
         Helt{}_seen{_{suff}}
       )
@@ -101,7 +101,7 @@ Section partition_G.
     xdlchain #prev descr.(descriptor_elts) #next ∗
     [∗ list] elt ∈ descr.(descriptor_elts),
       element_model class descr elt.
-  #[local] Instance : CustomIpatFormat "descriptor_model" :=
+  #[local] Instance : CustomIpat "descriptor_model" :=
     " ( %first{} &
         %last{} &
         %prev{}_descr &
@@ -127,7 +127,7 @@ Section partition_G.
     elements_auth γ ([∪ map] descr ∈ descrs, list_to_set descr.(descriptor_elts)) ∗
     [∗ map] class ↦ descr ∈ descrs,
       descriptor_model class descrs descr.
-  #[local] Instance : CustomIpatFormat "model'" :=
+  #[local] Instance : CustomIpat "model'" :=
     " ( Helts_auth &
         Hdescrs
       )
@@ -136,7 +136,7 @@ Section partition_G.
     ∃ descrs,
     ⌜part = map_to_set (λ _, list_to_set ∘ descriptor_elts) descrs⌝ ∗
     model' γ descrs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %descrs &
         -> &
         Hmodel
@@ -146,7 +146,7 @@ Section partition_G.
   Definition partition_element γ elt v : iProp Σ :=
     elements_elem γ elt ∗
     elt.[data] ↦□ v.
-  #[local] Instance : CustomIpatFormat "element" :=
+  #[local] Instance : CustomIpat "element" :=
     " ( Helts_elem{}{_{suff}} &
         Helt{}_data{_{suff}}
       )

@@ -40,7 +40,7 @@ Section prophet_typed_strong.
     ∃ uprophs,
     ⌜prophs = prophet_typed_strong_process uprophs⌝ ∗
     prophet_model' pid uprophs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %uprophs &
         %Hprophs &
         Hpid
@@ -134,7 +134,7 @@ Section prophet_typed_strong_1.
     ∃ prophs,
     prophet_typed_strong_model prophet_typed_strong_1_to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %prophs{} &
         Hmodel{} &
         %
@@ -232,7 +232,7 @@ Section prophet_typed.
     ∃ sprophs,
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_typed_strong_model prophet_typed_to_strong pid sprophs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %sprophs{} &
         -> &
         Hmodel{}
@@ -327,7 +327,7 @@ Section prophet_typed_1.
     ∃ prophs,
     prophet_typed_model prophet_typed_1_to_prophet pid prophs ∗
     ⌜if prophs is proph' :: _ then proph' = proph else True⌝.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %prophs{} &
         Hmodel{} &
         %

@@ -90,7 +90,7 @@ Module base.
       ∃ hist,
       mono_list_auth γ_history (DfracOwn (1/2)) hist ∗
       ⌜last hist = Some node⌝.
-    #[local] Instance : CustomIpatFormat "history_last" :=
+    #[local] Instance : CustomIpat "history_last" :=
       " ( %hist{} &
           Hauth{_{}} &
           %Hlast
@@ -133,7 +133,7 @@ Module base.
       node ↦ₕ Header §Node 2 ∗
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
-    #[local] Instance : CustomIpatFormat "node_model" :=
+    #[local] Instance : CustomIpat "node_model" :=
       " ( #H{}_header &
           #Hhistory_at_{} &
           {{front}#Hfront_lb_{};_}
@@ -168,7 +168,7 @@ Module base.
       model₂ γ vs ∗
       waiters_auth γ waiters ∗
       ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
-    #[local] Instance : CustomIpatFormat "inv_inner" :=
+    #[local] Instance : CustomIpat "inv_inner" :=
       " ( %hist{} &
           %past{} &
           %front{} &
@@ -191,7 +191,7 @@ Module base.
     Definition spmc_queue_inv t γ ι : iProp Σ :=
       ⌜ι = γ.(metadata_inv)⌝ ∗
       inv' t γ.
-    #[local] Instance : CustomIpatFormat "inv" :=
+    #[local] Instance : CustomIpat "inv" :=
       " ( -> &
           #Hinv
         )
@@ -203,7 +203,7 @@ Module base.
       back ↦ₕ Header §Node 2 ∗
       history_last γ back ∗
       producer γ ws.
-    #[local] Instance : CustomIpatFormat "producer" :=
+    #[local] Instance : CustomIpat "producer" :=
       " ( %back{} &
           Ht_back{_{}} &
           #Hback{}_header &
@@ -214,7 +214,7 @@ Module base.
 
     Definition spmc_queue_model :=
       model₁.
-    #[local] Instance : CustomIpatFormat "model" :=
+    #[local] Instance : CustomIpat "model" :=
       " Hmodel₁{_{}}
       ".
 
@@ -907,7 +907,7 @@ Section spmc_queue_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.spmc_queue_inv 𝑡 γ ι.
-  #[local] Instance : CustomIpatFormat "inv" :=
+  #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -921,7 +921,7 @@ Section spmc_queue_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.spmc_queue_producer 𝑡 γ ws.
-  #[local] Instance : CustomIpatFormat "producer" :=
+  #[local] Instance : CustomIpat "producer" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
@@ -935,7 +935,7 @@ Section spmc_queue_G.
     ⌜t = #𝑡⌝ ∗
     meta 𝑡 nroot γ ∗
     base.spmc_queue_model γ vs.
-  #[local] Instance : CustomIpatFormat "model" :=
+  #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{} &
         %γ{} &
         {%Heq{};->} &
