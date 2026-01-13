@@ -438,7 +438,7 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       iInv "Hinv" as "(:inv_inner)".
       wp_load.
@@ -466,7 +466,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       iInv "Hinv" as "(:inv_inner)".
       wp_load.

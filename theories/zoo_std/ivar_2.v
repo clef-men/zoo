@@ -480,7 +480,7 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       iInv "Hinv" as "(:inv_inner)".
       wp_load.
@@ -509,7 +509,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       iInv "Hinv" as "(:inv_inner)".
       wp_load.
@@ -615,7 +615,7 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
       wp_apply (ivar_2_try_get_spec with "Hinv") as (state) "H".
       iDestruct "Hinv" as "(:inv)".
       destruct state; first iSteps.

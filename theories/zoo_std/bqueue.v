@@ -87,7 +87,7 @@ Section zoo_G.
 
     wp_rec.
     wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hextra"; first done.
-    iDestruct (array_model_to_cslice with "Hextra") as "Hextra". simpl_length.
+    iApply array_model_to_cslice in "Hextra". simpl_length.
     iDestruct (array_cslice_to_inv with "Hextra") as "#Hdata_inv".
     iDestruct (array_cslice_nil with "Hdata_inv") as "Hvs".
     wp_block l as "(Hl_capacity & Hl_data & Hl_front & Hl_back & _)".
@@ -218,7 +218,7 @@ Section zoo_G.
       wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
       wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
       wp_store. wp_pures.
-      iDestruct (array_cslice_shift_right with "Hcell") as "Hcell".
+      iApply array_cslice_shift_right in "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       iApply "HΦ".

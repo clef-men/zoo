@@ -1100,7 +1100,7 @@ Section spsc_bqueue_G.
         destruct vs2.
         2: rewrite Nat.add_1_r.
         all: destruct pstable2; iSteps.
-      - iDestruct (array_cslice_shift with "Hfront_") as "Hfront_".
+      - iApply array_cslice_shift in "Hfront_".
         case_decide as Hcase.
         + rewrite -Hcase decide_False; first lia.
           assert (γ.(metadata_capacity) - (back2 - S front) - 1 = 0) as -> by lia.

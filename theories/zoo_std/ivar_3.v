@@ -598,7 +598,7 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
@@ -627,7 +627,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
@@ -697,7 +697,7 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
@@ -726,7 +726,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
@@ -755,7 +755,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:result)) HΦ".
 
       wp_rec credits:"H£".
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
@@ -790,7 +790,7 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec credits:"H£". wp_pures.
-      iDestruct (lc_weaken 2 with "H£") as "H£"; first done.
+      iApply (lc_weaken 2) in "H£"; first done.
 
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".

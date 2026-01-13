@@ -1412,7 +1412,7 @@ Section kcas_1_G.
             { iApply big_sepL_take_drop. iSplitL "Hmodels₂".
               - iApply (big_sepL_impl with "Hmodels₂").
                 rewrite /descriptor_final Hsuccess /=. iSteps.
-              - iDestruct (big_sepL_seq_index_1 (drop i η.(metadata_descrs)) with "Hlocks") as "Hlocks".
+              - iApply (big_sepL_seq_index_1 (drop i η.(metadata_descrs))) in "Hlocks".
                 { simpl_length. }
                 iApply (big_sepL_impl with "Hlocks").
                 iSteps.
@@ -1462,7 +1462,7 @@ Section kcas_1_G.
             }
             iDestruct (big_sepL_sep with "Hmodels₂") as "(Hmodels₂ & Hhistory_elems)".
             iMod ("Hhelpers" with "Hmodels₂") as "(Hhelpers & Hmodels₂)".
-            iDestruct (big_sepL_or_r (λ i _, lock η i) with "Hmodels₂") as "Hmodels₂".
+            iApply (big_sepL_or_r (λ i _, lock η i)) in "Hmodels₂".
             iDestruct (big_sepL_sep_2 with "Hmodels₂ Hhistory_elems") as "Hmodels₂".
             iSplitL; last iSteps. do 2 iModIntro.
             rewrite /casn_inv_inner Hsuccess. iFrameSteps 2.
@@ -1894,7 +1894,7 @@ Section kcas_1_G.
                   iMod (history_update_running casn with "Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn_meta Hlstatus_auth") as "(Hhistory_auth & #Hhistory_elem & Hlstatus_auth)"; first done.
                   iMod (lstatus_update (Running (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
                   iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
-                  iDestruct (model₂_similar with "Hmodel₂") as "Hmodel₂"; first done.
+                  iApply model₂_similar in "Hmodel₂"; first done.
                   iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
                   iEval (rewrite -take_S_r //) in "Hmodels₂".
                   rewrite -(Nat.succ_pred_pos (metadata_size η - i)).
@@ -1925,7 +1925,7 @@ Section kcas_1_G.
 
                   ** iDestruct (big_sepL_lookup_acc with "Hdescrs") as "(([Hmodel₂_ | Hlock] & Hdescr) & Hdescrs)"; first done.
                      { iDestruct (model₂_exclusive with "Hmodel₂ Hmodel₂_") as %[]. }
-                       iDestruct (model₂_similar (descriptor_final descr η) with "Hmodel₂") as "Hmodel₂".
+                       iApply (model₂_similar (descriptor_final descr η)) in "Hmodel₂".
                        { rewrite {2}/descriptor_final Hsuccess //. }
                        iDestruct ("Hdescrs" with "[$Hmodel₂ $Hdescr]") as "Hdescrs".
                        iClear "Hlstatus_lb". iDestruct (lstatus_lb_get_finished (Running (S i)) with "Hlstatus_auth") as "#Hlstatus_lb".
@@ -2263,7 +2263,7 @@ Section kcas_1_G.
     simpl_length in Hvs_cass.
     iDestruct (big_sepL_sep with "Hdescrs") as "(#Hstates_casn & Hdescrs)".
     iDestruct (big_sepL_sep with "Hdescrs") as "(Hstates & Hdescrs)".
-    iDestruct (big_sepL_extract_r with "Hdescrs") as "Hdescrs"; first lia.
+    iApply big_sepL_extract_r in "Hdescrs"; first lia.
     iDestruct (big_sepL2_Forall2i with "Hdescrs") as %Hdescrs. iClear "Hdescrs".
 
     assert (Hafters : afters = descriptor_after <$> descrs).

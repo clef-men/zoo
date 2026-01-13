@@ -493,7 +493,7 @@ Module base.
       - iPureIntro. split.
         + simpl_length.
         + rewrite gmultiset_disj_union_list_replicate_empty //.
-      - iDestruct (big_sepL_replicate_1 with "Hats") as "Hats".
+      - iApply big_sepL_replicate_1 in "Hats".
         iApply (big_sepL_impl with "Hats"). iIntros "!> !> %i_ %i _ Hat".
         iExists ∅. rewrite right_id. iFrame.
         iApply jobs_finished_empty.
@@ -556,7 +556,7 @@ Module base.
       iDestruct (ghost_list_auth_ats with "Hauth Hats") as %<-; first lia.
       iSplitL "Hauth"; first iFrameSteps.
       iDestruct (jobs_finished_union with "Hjobs_finisheds") as "$".
-      iDestruct (big_sepL_to_seq0 with "Hats") as "Hats".
+      iApply big_sepL_to_seq0 in "Hats".
       iEval (rewrite Hlocalss) in "Hats".
       iApply (big_sepL_impl with "Hats"). iIntros "!> %i_ %i _ (%locals & _ & $)".
     Qed.
@@ -934,8 +934,8 @@ Module base.
         iSteps.
       }
 
-      iDestruct (big_sepL_seq_index_2 γ.(pool_name_size) with "Hdoms") as "Hdoms"; first lia.
-      iDestruct (big_sepL_seq_shift1_2 with "Hdoms") as "Hdoms".
+      iApply (big_sepL_seq_index_2 γ.(pool_name_size)) in "Hdoms"; first lia.
+      iApply big_sepL_seq_shift1_2 in "Hdoms".
       iDestruct (big_sepL_seq_cons_2 with "Hdoms [$]") as "Hdoms".
       iDestruct (big_sepL_sep with "Hdoms") as "(Hhub_owners & Hlocals_ats)".
 

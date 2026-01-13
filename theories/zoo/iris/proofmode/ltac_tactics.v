@@ -1967,6 +1967,9 @@ Tactic Notation "iDestruct" "select" open_constr(pat) "as" "("
 Tactic Notation "iDestruct" "select" open_constr(pat) "as" "%" simple_intropattern(ipat) :=
   iSelect pat ltac:(fun H => iDestruct H as % ipat).
 
+Tactic Notation "iApply" open_constr(lem) "in" constr(H) :=
+  iDestruct (lem with H) as H.
+
 Tactic Notation "iPoseProof" open_constr(lem) "as" constr(pat) :=
   iPoseProofCore lem as pat (fun H => iDestructHyp H as pat).
 Tactic Notation "iPoseProof" open_constr(lem) "as" "(" ne_simple_intropattern_list(xs) ")"
