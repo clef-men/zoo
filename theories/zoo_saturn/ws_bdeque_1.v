@@ -1204,16 +1204,13 @@ Section ws_bdeque_1_G.
     iApply wp_fupd.
     awp_apply (array_unsafe_cget_spec_atomic_weak with "[//]") without "HΦ"; first done.
     iInv "Hinv" as "(:inv_inner)".
-    rewrite /atomic_acc /=.
-    iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
-    unshelve iStep 3. { iPureIntro. simpl_length. }
-    all: iMod "Hclose" as "_".
-    all: iSplitL; first iFrameSteps.
-    all: iModIntro.
-    1: iSteps.
+    iAaccIntro _, _, _, _ with "[$Hdata_cslice₁]".
+    { iPureIntro. simpl_length. }
+    { iIntros "(Hdata_cslice₁ & _) !>". iFrameSteps. }
+    iIntros "Hdata_cslice₁ !>".
+    iSplitL. { iFrameSteps. }
     iIntros "%v H£ HΦ".
-    iMod (lc_fupd_elim_later with "H£ HΦ").
-    iSteps.
+    iApply (lc_fupd_elim_later with "H£ HΦ [//]").
   Qed.
   #[local] Lemma array_unsafe_cget_spec_winner_pop l γ front P v :
     {{{
@@ -1247,16 +1244,13 @@ Section ws_bdeque_1_G.
     apply hd_correct in Hlookup; last (simpl_length; lia).
     rewrite head_lookup in Hlookup.
 
-    rewrite /atomic_acc /=.
-    iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
-    iExists _, front, _, _, v. rewrite Nat2Z.id Nat.sub_diag. iStep 3.
-    all: iMod "Hclose" as "_".
-    all: iSplitR "Hwinner_pop"; first iFrameSteps.
-    all: iModIntro.
-    1: iSteps.
+    iAaccIntro _, _, _, _, _ with "[$Hdata_cslice₁]".
+    { rewrite Nat2Z.id Nat.sub_diag. iSteps. }
+    { iIntros "(_ & _ & Hdata_cslice₁) !>". iFrameSteps. }
+    iIntros "Hdata_cslice₁ !>".
+    iSplitR "Hwinner_pop". { iFrameSteps. }
     iIntros "H£ HΦ".
-    iMod (lc_fupd_elim_later with "H£ HΦ").
-    iSteps.
+    iApply (lc_fupd_elim_later with "H£ HΦ Hwinner_pop").
   Qed.
 
   #[local] Lemma array_unsafe_cset_spec_owner l γ back ws us front v :
@@ -1293,12 +1287,9 @@ Section ws_bdeque_1_G.
     iDestruct (array_cslice_combine with "Hdata_back₁ Hdata_back₂") as "(%Heq & Hdata_back)"; first done. injection Heq as <-.
     iEval (rewrite dfrac_op_own Qp.half_half) in "Hdata_back".
 
-    rewrite /atomic_acc /=.
-    iExists back, w.
-    iApply fupd_mask_intro; first solve_ndisj. iIntros "Hclose".
-    iSplitL "Hdata_back"; first iSteps. iSplit.
+    iAaccIntro _, _ with "[$Hdata_back]". 1: iSteps.
 
-    - iIntros "(_ & (Hdata_back₁ & Hdata_back₂))". iMod "Hclose" as "_".
+    - iIntros "(_ & (Hdata_back₁ & Hdata_back₂)) !>".
 
       iDestruct (array_cslice_app_1 with "Hdata_cslice₁_1 (Hdata_cslice₁_2 Hdata_back₁)") as "Hdata_cslice₁"; first done.
       iEval (rewrite list_insert_id //) in "Hdata_cslice₁".
@@ -1309,7 +1300,7 @@ Section ws_bdeque_1_G.
       iSplitR "Howner₁ Hdata_cslice₂". { iFrameSteps. }
       iSteps.
 
-    - iIntros "(Hdata_back₁ & Hdata_back₂)". iMod "Hclose" as "_".
+    - iIntros "(Hdata_back₁ & Hdata_back₂) !>".
 
       iDestruct (array_cslice_app_1 with "Hdata_cslice₁_1 (Hdata_cslice₁_2 Hdata_back₁)") as "Hdata_cslice₁"; first done.
 
@@ -1321,10 +1312,10 @@ Section ws_bdeque_1_G.
         - iExists state1.
           destruct Hstate1 as [-> | ->]; iFrameSteps.
       }
-      iIntros "!> H£ HΦ".
+      iIntros "H£ HΦ".
 
       iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
-      iSteps. simpl_length.
+      iSteps. iPureIntro. simpl_length.
   Qed.
 
   #[local] Lemma resolve_spec_loser_1 l γ front1 front2 id :

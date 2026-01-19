@@ -1,14 +1,9 @@
-From iris.bi Require Import
-  telescopes.
-From iris.bi Require Export
-  lib.atomic.
-From iris.base_logic Require Import
-  lib.invariants.
-
 From zoo Require Import
   prelude.
 From zoo.iris Require Import
   diaframe.
+From zoo.iris.bi Require Export
+  lib.atomic.
 From zoo.iris.program_logic Require Export
   wp.
 From zoo Require Import

@@ -77,6 +77,8 @@ theories/zoo/iris/bi/big_op/big_sepS.v
 theories/zoo/iris/bi/big_op/big_sepMS.v
 theories/zoo/iris/bi/big_op/big_op.v
 
+theories/zoo/iris/bi/lib/atomic.v
+
 theories/zoo/iris/base_logic/algebra/twins.v
 theories/zoo/iris/base_logic/lib/base.v
 theories/zoo/iris/base_logic/lib/agree.v

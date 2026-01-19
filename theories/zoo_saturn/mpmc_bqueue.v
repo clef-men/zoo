@@ -1223,8 +1223,8 @@ Module base.
 
       awp_apply (mpmc_bqueue_push_2_spec with "[$]").
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
-      rewrite /atomic_acc /=.
-      iStep. iSplitR; first iSteps. iIntros "!> %b (-> & $)". iSteps. iPureIntro.
+      iAaccIntro _ with "[$Hmodel₁]". 1,2: iSteps. iIntros "%b (-> & $) !>".
+      iSteps. iPureIntro.
       case_bool_decide; simpl_length/=; lia.
     Qed.
 
