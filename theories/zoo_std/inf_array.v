@@ -492,7 +492,7 @@ Section inf_array_G.
     wp_rec.
     awp_smart_apply (inf_array_update_spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro _ with "[$Hmodel]"; iSteps.
+    iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
 
   Lemma inf_array_xchg_resolve_spec t i v pid v_resolve Φ E :
@@ -780,7 +780,7 @@ Section inf_array_G.
     wp_rec.
     awp_smart_apply (inf_array_update_spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %n (%Hn & Hmodel)".
-    iAaccIntro _ with "[$Hmodel]". 1,2: iSteps. iSteps as (l γ n_ Hn_) / --silent.
+    iAaccIntro with "[$Hmodel]". 1,2: iSteps. iSteps as (l γ n_ Hn_) / --silent.
     rewrite Hn_ in Hn. injection Hn as ->. iSteps.
   Qed.
 End inf_array_G.

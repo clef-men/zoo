@@ -1496,7 +1496,7 @@ Section ws_deque_1_G.
       iInv "Hinv" as "(:inv_inner =1)".
       iDestruct (datas_elem_valid with "Hdatas_auth Hdatas_elem") as %[-> | Hdatas1_elem].
 
-      - iAaccIntro _, _, _, _ with "[$Hdata1_cslice₁]".
+      - iAaccIntro with "[$Hdata1_cslice₁]".
         { iPureIntro. simpl_length. }
         { iIntros "(Hdata1_cslice₁ & _ & _) !>". iFrameSteps. }
         iIntros "Hdata1_cslice₁ !>".
@@ -1504,7 +1504,7 @@ Section ws_deque_1_G.
         iSteps.
 
       - iDestruct (big_sepMS_elem_of_acc with "Hdatas") as "((:data_model) & Hdatas)"; first done.
-        iAaccIntro _, _, _, _ with "[$Hdata_cslice]".
+        iAaccIntro with "[$Hdata_cslice]".
         { iSteps. }
         { iIntros "(Hdata_cslice & _ & _) !>". iFrameSteps. }
         iIntros "Hdata_cslice !>".
@@ -1552,7 +1552,7 @@ Section ws_deque_1_G.
     - apply hd_correct in Hlookup; last (simpl_length; lia).
       rewrite head_lookup in Hlookup.
 
-      iAaccIntro _, _, _, _, _ with "[$Hdata1_cslice₁]".
+      iAaccIntro with "[$Hdata1_cslice₁]".
       { rewrite Nat2Z.id Nat.sub_diag. iSteps. }
       { iIntros "(_ & _ & Hdata1_cslice₁) !>". iFrameSteps. }
       iIntros "Hdata1_cslice₁ !>".
@@ -1562,7 +1562,7 @@ Section ws_deque_1_G.
 
     - iDestruct (history_at_agree with "Hhistory_at Hhistory_at_") as %<-.
 
-      iAaccIntro _, _, _, _, _ with "[$Hdata_cslice]".
+      iAaccIntro with "[$Hdata_cslice]".
       { rewrite Nat2Z.id Nat.sub_diag. iSteps. }
       { iIntros "_ !>". iFrameSteps. }
       iIntros "_ !>".
@@ -1605,7 +1605,7 @@ Section ws_deque_1_G.
     iDestruct (array_cslice_combine with "Hdata_back₁ Hdata_back₂") as "(%Heq & Hdata_back)"; first done. injection Heq as <-.
     iEval (rewrite dfrac_op_own Qp.half_half) in "Hdata_back".
 
-    iAaccIntro _, _ with "[$Hdata_back]". 1: iSteps.
+    iAaccIntro with "[$Hdata_back]". 1: iSteps.
 
     - iIntros "(_ & (Hdata_back₁ & Hdata_back₂)) !>".
 

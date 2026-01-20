@@ -1344,7 +1344,7 @@ Section zoo_G.
     awp_apply (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %dq %v (-> & Hslice)".
     rewrite Nat2Z.id.
-    iAaccIntro _, _, _, _ with "[$Hslice]".
+    iAaccIntro with "[$Hslice]".
     { rewrite Nat.sub_diag. iSteps. }
     all: iSteps.
   Qed.
@@ -1367,7 +1367,7 @@ Section zoo_G.
     awp_apply (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %v (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
-    iAaccIntro _, _, _, _ with "[$Hslice]".
+    iAaccIntro with "[$Hslice]".
     { rewrite Nat.sub_0_r. iSteps. }
     all: iSteps.
   Qed.
@@ -1393,7 +1393,7 @@ Section zoo_G.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
     destruct (lookup_lt_is_Some_2 vs ₊i) as (v & Hlookup); first lia.
-    iAaccIntro _, _, _ with "[$Hmodel]"; iSteps.
+    iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
   Lemma array_unsafe_get_spec_slice k t i dq vs (j : Z) v :
     (i ≤ j)%Z →
@@ -1411,7 +1411,7 @@ Section zoo_G.
     iIntros (Hj Hlookup ->) "%Φ Hslice HΦ".
     iApply wp_fupd.
     awp_apply (array_unsafe_get_spec_atomic_slice with "[//]") without "HΦ".
-    iAaccIntro _, _, _, _ with "[$Hslice]". 1,2: iSteps. iIntros "Hslice !> H£ HΦ".
+    iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "Hslice !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hslice").
   Qed.
   Lemma array_unsafe_get_spec_cell t (i : Z) i_ dq v :
@@ -1472,7 +1472,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %i %v H".
     iDestruct ("H" with "[//]") as "(%Hj3 & %Hlookup & Hslice)".
-    iAaccIntro _, _, _, _ with "[$Hslice]". 1,3: iSteps.
+    iAaccIntro with "[$Hslice]". 1,3: iSteps.
     iIntros "(_ & _ & $)". iSteps.
   Qed.
   Lemma array_get_spec_atomic_cell t sz (i : Z) i_ :
@@ -1494,7 +1494,7 @@ Section zoo_G.
     iIntros (->) "%Φ #Hinv HΦ".
     awp_apply (array_get_spec_atomic_slice with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %v Hslice".
-    iAaccIntro _, [v], ₊i, _ with "[Hslice]".
+    iAaccIntro _, [v], ₊i with "[Hslice]".
     { rewrite Nat.sub_diag. iSteps. }
     { iIntros "Hslice !>". iSplitL; iSteps. }
     iSteps.
@@ -1523,7 +1523,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_get_spec_atomic with "[//]"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %v H".
     iDestruct ("H" with "[//]") as "(%Hlookup & Hmodel)".
-    iAaccIntro _, _, _ with "[$Hmodel]". 1,3: iSteps.
+    iAaccIntro with "[$Hmodel]". 1,3: iSteps.
     iIntros "(_ & $)". iSteps.
   Qed.
   Lemma array_get_spec_slice k t sz i dq vs (j : Z) v :
@@ -1639,7 +1639,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     awp_apply (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %w (-> & Hslice)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat2Z.id Nat.sub_diag. iSteps.
   Qed.
   Lemma array_unsafe_set_spec_atomic t (i : Z) v :
@@ -1663,7 +1663,7 @@ Section zoo_G.
     awp_apply (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat.sub_0_r. iSteps. simpl_length.
   Qed.
   Lemma array_unsafe_set_spec_atomic_inv t (sz : nat) (i : Z) v :
@@ -1687,7 +1687,7 @@ Section zoo_G.
     awp_apply (array_unsafe_set_spec_atomic with "[//]"); first lia.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
-    iAaccIntro _ with "[$Hmodel]"; iSteps.
+    iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
   Lemma array_unsafe_set_spec_slice t i vs (j : Z) v :
     (i ≤ j < i + length vs)%Z →
@@ -1703,7 +1703,7 @@ Section zoo_G.
     iIntros "%Hj %Φ Hslice HΦ".
     iApply wp_fupd.
     awp_apply (array_unsafe_set_spec_atomic_slice with "[//]") without "HΦ".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps. iIntros "%w (_ & Hslice) !> H£ HΦ".
+    iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "%w (_ & Hslice) !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hslice").
   Qed.
   Lemma array_unsafe_set_spec_cell t (i : Z) i_ w v :
@@ -1765,7 +1765,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %i H".
     iDestruct ("H" with "[//]") as "(%Hj3 & Hslice)".
-    iAaccIntro _, _ with "[$Hslice]". 1,3: iSteps.
+    iAaccIntro with "[$Hslice]". 1,3: iSteps.
     iIntros "(_ & $)". iSteps.
   Qed.
   Lemma array_set_spec_atomic_cell t sz (i : Z) i_ v :
@@ -1816,7 +1816,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_set_spec_atomic with "[//]"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs H".
     iDestruct ("H" with "[//]") as "(%Hi3 & Hmodel)".
-    iAaccIntro _ with "[$Hmodel]". 1,3: iSteps.
+    iAaccIntro with "[$Hmodel]". 1,3: iSteps.
     iIntros "(_ & $)". iSteps.
   Qed.
   Lemma array_set_spec_slice t sz i vs (j : Z) v :
@@ -1924,7 +1924,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     awp_apply (array_unsafe_xchg_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %w (-> & Hslice)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat2Z.id Nat.sub_diag. iSteps.
   Qed.
   Lemma array_unsafe_xchg_spec_atomic t (i : Z) v :
@@ -1948,7 +1948,7 @@ Section zoo_G.
     awp_apply (array_unsafe_xchg_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat.sub_0_r. iSteps. simpl_length.
   Qed.
   Lemma array_unsafe_xchg_spec_atomic_inv t (sz : nat) (i : Z) v :
@@ -1972,7 +1972,7 @@ Section zoo_G.
     awp_apply (array_unsafe_xchg_spec_atomic with "[//]"); first lia.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
-    iAaccIntro _ with "[$Hmodel]"; iSteps.
+    iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
   Lemma array_unsafe_xchg_spec_slice t i vs (j : Z) v :
     (i ≤ j < i + length vs)%Z →
@@ -1989,7 +1989,7 @@ Section zoo_G.
     iIntros "%Hj %Φ Hslice HΦ".
     iApply wp_fupd.
     awp_apply (array_unsafe_xchg_spec_atomic_slice with "[//]") without "HΦ".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps. iIntros "%w (%Hlookup & Hslice) !> H£ HΦ".
+    iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "%w (%Hlookup & Hslice) !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ [$Hslice //]").
   Qed.
   Lemma array_unsafe_xchg_spec_cell t (i : Z) i_ w v :
@@ -2076,7 +2076,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
     awp_apply (array_unsafe_cas_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %v (-> & Hslice)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat2Z.id Nat.sub_diag.
     iSteps as (v b ?) "Hslice". destruct b; iSteps.
   Qed.
@@ -2102,7 +2102,7 @@ Section zoo_G.
     awp_apply (array_unsafe_cas_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (%Hlookup & Hmodel)".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hslice]". 1,2: iSteps.
     rewrite Nat.sub_0_r. iSteps as (b) / --silent.
     iPureIntro. destruct b; simpl_length.
   Qed.
@@ -2128,7 +2128,7 @@ Section zoo_G.
     awp_apply (array_unsafe_cas_spec_atomic with "[//]"); first lia.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iDestruct (array_inv_model_agree with "Hinv Hmodel") as %?.
-    iAaccIntro _ with "[$Hmodel]"; iSteps.
+    iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
   Lemma array_unsafe_cas_spec_slice t i vs (j : Z) v1 v2 :
     (i ≤ j < i + length vs)%Z →
@@ -2146,7 +2146,7 @@ Section zoo_G.
     iIntros "%Hj %Φ Hslice HΦ".
     iApply wp_fupd.
     awp_apply (array_unsafe_cas_spec_atomic_slice with "[//]") without "HΦ".
-    iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps. iIntros "%b %v (%Hlookup & % & Hslice) !> H£ HΦ".
+    iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "%b %v (%Hlookup & % & Hslice) !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ [$Hslice //]").
   Qed.
   Lemma array_unsafe_cas_spec_cell t (i : Z) i_ v v1 v2 :
@@ -2215,7 +2215,7 @@ Section zoo_G.
     iDestruct ("H" with "[%] HΨ") as "H'"; first lia.
     awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
     iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w H↦".
-    iAaccIntro _, _ with "[$H↦]"; iSteps.
+    iAaccIntro with "[$H↦]"; iSteps.
   Qed.
   Lemma array_unsafe_fill_slice_spec_slice_fit t vs (i : Z) i_ (n : Z) v :
     i = ⁺i_ →
@@ -2411,7 +2411,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite Nat2Z.id.
-      iAaccIntro _, _, _ with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> H£ HΦ".
+      iAaccIntro with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
       wp_pures.
@@ -2655,7 +2655,7 @@ Section zoo_G.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite Nat2Z.id.
-      iAaccIntro _, _, _ with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> _ HΦ".
+      iAaccIntro with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> _ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       wp_smart_apply (wp_wand with "(H [%] HΨ)") as "%acc' HΨ"; first lia.
       wp_apply ("IH" with "[] [] HΨ [HΦ]") as "!> {% acc} %acc %vs' (<- & HΨ)"; simpl_length; [iSteps.. |].
@@ -2901,7 +2901,7 @@ Section zoo_G.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
-      iAaccIntro _, _, _ with "[$H↦]". 1,2: iSteps.
+      iAaccIntro with "[$H↦]". 1,2: iSteps.
       rewrite Z2Nat.inj_add; [lia.. |]. rewrite Nat2Z.id.
       iIntros "$ !> HΨ !> H£".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
@@ -3903,7 +3903,7 @@ Section zoo_G.
       iDestruct ("H" with "[//] [//] [//] HΨ") as "H'".
       awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%v' Hslice".
-      iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
+      iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
       iFrameSteps.
       iPureIntro. simpl_length/=. lia.
     - iApply (atomic_update_wand with "(H [//] [//] [//] HΨ)").
@@ -5527,7 +5527,7 @@ Section zoo_G.
         awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
         iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
         rewrite Nat2Z.id.
-        iAaccIntro _, _, _ with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
+        iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
         iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
         wp_apply (wp_wand with "(H [%] [%] [//] HΨ)") as (w) "HΨ"; [lia.. |].
         iExists (vs ++ [v]). simpl_length. iSteps.
@@ -5868,14 +5868,14 @@ Section zoo_G.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
-      iAaccIntro _, _, _ with "[$Hslice]". 1,2: iSteps.
+      iAaccIntro with "[$Hslice]". 1,2: iSteps.
       rewrite Z.add_0_l Z2Nat.inj_add; [lia.. |].
       rewrite Nat2Z.id.
       iIntros "$ !> HΨ !> _".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
       awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w Hslice".
-      iAaccIntro _, _ with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> _".
+      iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> _".
       iFrameSteps.
       iPureIntro. simpl_length/=. lia.
     }
@@ -6643,7 +6643,7 @@ Section zoo_G.
     iDestruct (array_cslice_rebase ₊i with "Hcslice") as "(%ws & %n & %Hws & Hcslice & Hcslice_rebase)"; [done.. |].
     destruct (lookup_lt_is_Some_2 ws 0) as (v & Hlookup).
     { rewrite Hws. simpl_length. lia. }
-    iAaccIntro _, _, _, _, _ with "[$Hcslice]"; iSteps.
+    iAaccIntro with "[$Hcslice]"; iSteps.
     rewrite Nat.sub_diag //.
   Qed.
   Lemma array_unsafe_cget_spec_atomic_cell t sz (i : Z) :
@@ -6664,7 +6664,7 @@ Section zoo_G.
 
     awp_apply (array_unsafe_cget_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %dq %v (-> & Hcslice)".
-    iAaccIntro _, _, _, _, _ with "[$Hcslice]"; iSteps.
+    iAaccIntro with "[$Hcslice]"; iSteps.
     rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
   Lemma array_unsafe_cget_spec k v t sz i dq vs (j : Z) :
@@ -6684,7 +6684,7 @@ Section zoo_G.
 
     iApply wp_fupd.
     awp_apply (array_unsafe_cget_spec_atomic with "[//]") without "HΦ".
-    iAaccIntro _, _, _, _, _ with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
+    iAaccIntro with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hcslice").
   Qed.
   Lemma array_unsafe_cget_spec_cell t sz (i : Z) i_ dq v :
@@ -6702,7 +6702,7 @@ Section zoo_G.
 
     iApply wp_fupd.
     awp_apply (array_unsafe_cget_spec_atomic_cell with "[//]") without "HΦ".
-    iAaccIntro _, _, _ with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
+    iAaccIntro with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hcslice").
   Qed.
   Lemma array_unsafe_cget_spec_model v t dq vs (j : Z) :
@@ -6756,7 +6756,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_cget_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %i %v H".
     iDestruct ("H" with "[//] [//]") as "(% & %Hlookup & Hcslice)".
-    iAaccIntro _, _, _, _, _ with "[$Hcslice]". 1,3: iSteps.
+    iAaccIntro with "[$Hcslice]". 1,3: iSteps.
     iIntros "(_ & _ & $)". iSteps.
   Qed.
   Lemma array_cget_spec_atomic_weak t sz (i : Z) :
@@ -6783,7 +6783,7 @@ Section zoo_G.
 
     awp_smart_apply (array_unsafe_cget_spec_atomic_weak with "[//]"); [lia.. |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %)".
-    iAaccIntro _, _, _, _ with "[$Hcslice]"; iSteps.
+    iAaccIntro with "[$Hcslice]"; iSteps.
   Qed.
   Lemma array_cget_spec_atomic_cell t sz (i : Z) i_ :
     i_ = ₊i →
@@ -6807,7 +6807,7 @@ Section zoo_G.
 
     awp_apply (array_cget_spec_atomic with "Hinv").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %v H".
-    iAaccIntro _, [v], ₊i, _ with "[H]".
+    iAaccIntro _, [v], ₊i with "[H]".
     { rewrite Nat.sub_diag. iSteps. }
     { iIntros "H !>". iSplitL; iSteps. }
     iSteps.
@@ -6935,7 +6935,7 @@ Section zoo_G.
 
     awp_apply (array_unsafe_cset_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%i_ %w (-> & Hcslice)".
-    iAaccIntro _, _, _ with "[$Hcslice]". 1,2: iSteps.
+    iAaccIntro with "[$Hcslice]". 1,2: iSteps.
     rewrite Nat2Z.id Nat.sub_diag. iSteps.
   Qed.
   Lemma array_unsafe_cset_spec t sz i vs (j : Z) v :
@@ -6953,7 +6953,7 @@ Section zoo_G.
 
     iApply wp_fupd.
     awp_apply (array_unsafe_cset_spec_atomic with "[//]") without "HΦ".
-    iAaccIntro _, _, _ with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
+    iAaccIntro with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hcslice").
   Qed.
   Lemma array_unsafe_cset_spec_cell t sz (i : Z) i_ w v :
@@ -6971,7 +6971,7 @@ Section zoo_G.
 
     iApply wp_fupd.
     awp_apply (array_unsafe_cset_spec_atomic_cell with "[//]") without "HΦ".
-    iAaccIntro _, _ with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
+    iAaccIntro with "[$Hcslice]". 1,2: iSteps. iIntros "Hcslice !> H£ HΦ".
     iApply (lc_fupd_elim_later with "H£ HΦ Hcslice").
   Qed.
   Lemma array_unsafe_cset_spec_model t vs (j : Z) v :
@@ -7024,7 +7024,7 @@ Section zoo_G.
     awp_smart_apply (array_unsafe_cset_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %i H".
     iDestruct ("H" with "[%] [//]") as "(% & Hcslice)"; first lia.
-    iAaccIntro _, _, _ with "[$Hcslice]". 1,3: iSteps.
+    iAaccIntro with "[$Hcslice]". 1,3: iSteps.
     iIntros "(_ & $)". iSteps.
   Qed.
   Lemma array_cset_spec_atomic_cell t sz (i : Z) i_ v :
@@ -7967,7 +7967,7 @@ Section zoo_G.
       iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
       iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
       rewrite /array_slice chunk_model_singleton.
-      iAaccIntro _, _ with "[$H↦]"; iSteps.
+      iAaccIntro with "[$H↦]"; iSteps.
   Qed.
 
   Lemma array_foldl_type τ `{!iType _ τ} υ `{!iType _ υ} fn acc t sz :
@@ -8020,7 +8020,7 @@ Section zoo_G.
       iDestruct (chunk_model_lookup_acc i with "Hmodel") as "(H↦ & Hmodel)"; [lia | done | lia |].
       iDestruct (big_sepL_lookup with "Hvs") as "Hv"; first done.
       rewrite /array_slice chunk_model_singleton.
-      iAaccIntro _, _ with "[$H↦]"; iSteps.
+      iAaccIntro with "[$H↦]"; iSteps.
   Qed.
 
   Lemma array_foldr_type τ `{!iType _ τ} υ `{!iType _ υ} fn t sz acc :

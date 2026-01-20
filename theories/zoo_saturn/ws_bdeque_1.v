@@ -1204,7 +1204,7 @@ Section ws_bdeque_1_G.
     iApply wp_fupd.
     awp_apply (array_unsafe_cget_spec_atomic_weak with "[//]") without "HΦ"; first done.
     iInv "Hinv" as "(:inv_inner)".
-    iAaccIntro _, _, _, _ with "[$Hdata_cslice₁]".
+    iAaccIntro with "[$Hdata_cslice₁]".
     { iPureIntro. simpl_length. }
     { iIntros "(Hdata_cslice₁ & _) !>". iFrameSteps. }
     iIntros "Hdata_cslice₁ !>".
@@ -1244,7 +1244,7 @@ Section ws_bdeque_1_G.
     apply hd_correct in Hlookup; last (simpl_length; lia).
     rewrite head_lookup in Hlookup.
 
-    iAaccIntro _, _, _, _, _ with "[$Hdata_cslice₁]".
+    iAaccIntro with "[$Hdata_cslice₁]".
     { rewrite Nat2Z.id Nat.sub_diag. iSteps. }
     { iIntros "(_ & _ & Hdata_cslice₁) !>". iFrameSteps. }
     iIntros "Hdata_cslice₁ !>".
@@ -1287,7 +1287,7 @@ Section ws_bdeque_1_G.
     iDestruct (array_cslice_combine with "Hdata_back₁ Hdata_back₂") as "(%Heq & Hdata_back)"; first done. injection Heq as <-.
     iEval (rewrite dfrac_op_own Qp.half_half) in "Hdata_back".
 
-    iAaccIntro _, _ with "[$Hdata_back]". 1: iSteps.
+    iAaccIntro with "[$Hdata_back]". 1: iSteps.
 
     - iIntros "(_ & (Hdata_back₁ & Hdata_back₂)) !>".
 
