@@ -102,12 +102,12 @@ Section zoo_G.
   Definition zoo_counter_inv : iProp Σ :=
     @inv _ _ zoo_G_inv_G nroot zoo_counter_inv_inner.
 
-  Definition zoo_state_interp nt σ κ : iProp Σ :=
+  Definition zoo_state_interp nt σ κs : iProp Σ :=
     gen_heap_interp σ.(state_headers) ∗
     gen_heap_interp σ.(state_heap) ∗
     ghost_list_auth zoo_G_locals_name σ.(state_locals) ∗
     ⌜length σ.(state_locals) = nt⌝ ∗
-    prophet_map_interp κ σ.(state_prophets) ∗
+    prophet_map_interp κs σ.(state_prophets) ∗
     zoo_counter_inv.
 
   #[global] Instance zoo_G_iris_G : IrisG zoo Σ := {
@@ -600,15 +600,15 @@ Section zoo_G.
         Hcounter_inv
       )
     ".
-  Lemma state_interp_alloc {nt σ κ} l tag vs :
+  Lemma state_interp_alloc {nt σ κs} l tag vs :
     σ.(state_headers) !! l = None →
     ( ∀ i,
       i < length vs →
       σ.(state_heap) !! (l +ₗ i) = None
     ) →
-    state_interp nt σ κ ⊢ |==>
+    state_interp nt σ κs ⊢ |==>
       let hdr := Header tag (length vs) in
-      state_interp nt (state_alloc l hdr vs σ) κ ∗
+      state_interp nt (state_alloc l hdr vs σ) κs ∗
       l ↦ₕ hdr ∗
       meta_token l ⊤ ∗
       l ↦∗ vs.
@@ -620,24 +620,24 @@ Section zoo_G.
     { apply heap_array_map_disjoint. done. }
     rewrite big_sepM_heap_array. iSteps.
   Qed.
-  Lemma state_interp_has_header_valid nt σ κ l hdr :
-    state_interp nt σ κ -∗
+  Lemma state_interp_has_header_valid nt σ κs l hdr :
+    state_interp nt σ κs -∗
     l ↦ₕ hdr -∗
     ⌜σ.(state_headers) !! l = Some hdr⌝.
   Proof.
     iIntros "(:state_interp) Hl_header".
     iApply (gen_heap_valid with "Hheaders_interp Hl_header").
   Qed.
-  Lemma state_interp_pointsto_valid nt σ κ l dq v :
-    state_interp nt σ κ -∗
+  Lemma state_interp_pointsto_valid nt σ κs l dq v :
+    state_interp nt σ κs -∗
     l ↦{dq} v -∗
     ⌜σ.(state_heap) !! l = Some v⌝.
   Proof.
     iIntros "(:state_interp) Hl".
     iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
-  Lemma state_interp_pointstos_valid nt σ κ l dq vs :
-    state_interp nt σ κ -∗
+  Lemma state_interp_pointstos_valid nt σ κs l dq vs :
+    state_interp nt σ κs -∗
     l ↦∗{dq} vs -∗
     ⌜ ∀ (i : nat) v,
       vs !! i = Some v →
@@ -648,19 +648,19 @@ Section zoo_G.
     iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
     iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
-  Lemma state_interp_pointsto_update {nt σ κ l w} v :
-    state_interp nt σ κ -∗
+  Lemma state_interp_pointsto_update {nt σ κs l w} v :
+    state_interp nt σ κs -∗
     l ↦ w ==∗
-      state_interp nt (state_update_heap (insert l v) σ) κ ∗
+      state_interp nt (state_update_heap (insert l v) σ) κs ∗
       l ↦ v.
   Proof.
     iIntros "(:state_interp) Hl".
     iMod (gen_heap_update with "Hheap_interp Hl") as "(Hheap_interp & Hl)".
     iFrameSteps.
   Qed.
-  Lemma state_interp_fork {nt σ κ} v :
-    state_interp nt σ κ ⊢ |==>
-      state_interp (nt + 1) (state_update_locals (.++ [v]) σ) κ ∗
+  Lemma state_interp_fork {nt σ κs} v :
+    state_interp nt σ κs ⊢ |==>
+      state_interp (nt + 1) (state_update_locals (.++ [v]) σ) κs ∗
       nt ↦ₗ v.
   Proof.
     iIntros "(:state_interp)".
@@ -668,41 +668,41 @@ Section zoo_G.
     rewrite Hlocals. iFrameSteps. iPureIntro.
     simpl_length/=. lia.
   Qed.
-  Lemma state_interp_thread_pointsto_valid nt σ κ tid dq v :
-    state_interp nt σ κ -∗
+  Lemma state_interp_thread_pointsto_valid nt σ κs tid dq v :
+    state_interp nt σ κs -∗
     tid ↦ₗ{dq} v -∗
     ⌜σ.(state_locals) !! tid = Some v⌝.
   Proof.
     iIntros "(:state_interp) Htid".
     iApply (ghost_list_lookup with "Hlocals_interp Htid").
   Qed.
-  Lemma state_interp_thread_pointsto_update {nt σ κ tid w} v :
-    state_interp nt σ κ -∗
+  Lemma state_interp_thread_pointsto_update {nt σ κs tid w} v :
+    state_interp nt σ κs -∗
     tid ↦ₗ w ==∗
-      state_interp nt (state_update_locals (insert tid v) σ) κ ∗
+      state_interp nt (state_update_locals (insert tid v) σ) κs ∗
       tid ↦ₗ v.
   Proof.
     iIntros "(:state_interp) Htid".
     iMod (ghost_list_update_at with "Hlocals_interp Htid") as "(Hlocals_interp & Htid)".
     iFrameSteps. simpl_length.
   Qed.
-  Lemma state_interp_prophet_new {nt σ κ} pid :
+  Lemma state_interp_prophet_new {nt σ κs} pid :
     pid ∉ σ.(state_prophets) →
-    state_interp nt σ κ ⊢ |==>
+    state_interp nt σ κs ⊢ |==>
       ∃ prophs,
-      state_interp nt (state_update_prophets ({[pid]} ∪.) σ) κ ∗
+      state_interp nt (state_update_prophets ({[pid]} ∪.) σ) κs ∗
       prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
     iMod (prophet_map_new with "Hprophets_interp") as "(Hprophets_interp & Hpid)"; first done.
     iFrameSteps.
   Qed.
-  Lemma state_interp_prophet_resolve nt σ κ pid proph prophs :
-    state_interp nt σ ((pid, proph) :: κ) -∗
+  Lemma state_interp_prophet_resolve nt σ κs pid proph prophs :
+    state_interp nt σ ((pid, proph) :: κs) -∗
     prophet_model pid (DfracOwn 1) prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
-      state_interp nt σ κ ∗
+      state_interp nt σ κs ∗
       prophet_model pid (DfracOwn 1) prophs'.
   Proof.
     iIntros "(:state_interp) Hpid".
@@ -726,12 +726,12 @@ Record state_wf σ param := {
 Definition state_heap_initial σ :=
   delete zoo_counter σ.(state_heap).
 
-Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κ :
+Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κs :
   state_wf σ param →
   ⊢ |={⊤}=>
     ∃ zoo_G : ZooG Σ,
     ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-    state_interp 1 σ κ ∗
+    state_interp 1 σ κs ∗
     ( [∗ map] l ↦ v ∈ state_heap_initial σ,
       l ↦ v
     ) ∗
@@ -750,7 +750,7 @@ Proof.
   iEval (erewrite state_wf_locals; last done) in "Hlocals".
   iDestruct "Hlocals" as "(Hlocal & _)".
 
-  iMod (prophet_map_init κ σ.(state_prophets)) as "(% & Hprophets_interp)".
+  iMod (prophet_map_init κs σ.(state_prophets)) as "(% & Hprophets_interp)".
 
   iMod (mono_list_alloc (replicate param.(zoo_parameter_counter) inhabitant)) as "(%γ_counter & Hcounter_auth)".
 
