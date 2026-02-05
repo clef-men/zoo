@@ -110,8 +110,9 @@ theories/zoo/iris/program_logic/language.v
 theories/zoo/iris/program_logic/ectx_language.v
 theories/zoo/iris/program_logic/ectxi_language.v
 theories/zoo/iris/program_logic/bwp.v
+theories/zoo/iris/program_logic/bwp_adequacy.v
 theories/zoo/iris/program_logic/wp.v
-theories/zoo/iris/program_logic/adequacy.v
+theories/zoo/iris/program_logic/wp_adequacy.v
 theories/zoo/iris/program_logic/atomic.v
 
 theories/zoo/language/location.v

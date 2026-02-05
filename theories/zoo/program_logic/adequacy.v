@@ -1,7 +1,7 @@
 From zoo Require Import
   prelude.
 From zoo.iris.program_logic Require Export
-  adequacy.
+  wp_adequacy.
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
