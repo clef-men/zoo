@@ -12,8 +12,6 @@ From zoo.iris.base_logic Require Import
   lib.ghost_list
   lib.prophet_map
   lib.mono_list.
-From zoo.iris.program_logic Require Export
-  wp.
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
@@ -28,7 +26,7 @@ Implicit Types tid : thread_id.
 Implicit Types l : location.
 Implicit Types hdr : header.
 Implicit Types σ : state.
-Implicit Types κ : list observation.
+Implicit Types κ κs : list observation.
 
 Parameter zoo_counter : location.
 
@@ -57,7 +55,7 @@ Proof.
 Qed.
 
 Class ZooG Σ := {
-  zoo_G_inv_G : invGS Σ ;
+  #[global] zoo_G_inv_G :: invGS Σ ;
   #[local] zoo_G_headers_G :: gen_heapGS location header Σ ;
   #[local] zoo_G_heap_G :: gen_heapGS location val Σ ;
   #[local] zoo_G_locals_G :: GhostListG Σ val ;
@@ -66,7 +64,7 @@ Class ZooG Σ := {
   #[local] zoo_G_counter_G :: MonoListG Σ val ;
   zoo_G_counter_name : gname ;
 }.
-#[global] Arguments Build_ZooG _ {_ _ _ _} _ {_ _} _ : assert.
+#[global] Arguments Build_ZooG {_ _ _ _ _} _ {_ _} _ : assert.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -102,7 +100,7 @@ Section zoo_G.
   Definition zoo_counter_inv : iProp Σ :=
     @inv _ _ zoo_G_inv_G nroot zoo_counter_inv_inner.
 
-  Definition zoo_state_interp nt σ κs : iProp Σ :=
+  Definition state_interp nt σ κs : iProp Σ :=
     gen_heap_interp σ.(state_headers) ∗
     gen_heap_interp σ.(state_heap) ∗
     ghost_list_auth zoo_G_locals_name σ.(state_locals) ∗
@@ -110,21 +108,15 @@ Section zoo_G.
     prophet_map_interp κs σ.(state_prophets) ∗
     zoo_counter_inv.
 
-  #[global] Instance zoo_G_iris_G : IrisG zoo Σ := {
-    iris_G_inv_G :=
-      zoo_G_inv_G ;
-    state_interp :=
-      zoo_state_interp ;
-    fork_post _ :=
-      True%I ;
-  }.
-
   Lemma state_interp_counter_inv nt σ κs :
     state_interp nt σ κs ⊢
-    inv nroot zoo_counter_inv_inner.
+    zoo_counter_inv.
   Proof.
     iSteps.
   Qed.
+
+  Definition fork_post (_ : val) : iProp Σ :=
+    True.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
@@ -732,9 +724,7 @@ Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κs :
     ∃ zoo_G : ZooG Σ,
     ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
     state_interp 1 σ κs ∗
-    ( [∗ map] l ↦ v ∈ state_heap_initial σ,
-      l ↦ v
-    ) ∗
+    ([∗ map] l ↦ v ∈ state_heap_initial σ, l ↦ v) ∗
     0 ↦ₗ param.(zoo_parameter_local).
 Proof.
   intros Hwf.
@@ -754,12 +744,12 @@ Proof.
 
   iMod (mono_list_alloc (replicate param.(zoo_parameter_counter) inhabitant)) as "(%γ_counter & Hcounter_auth)".
 
-  iExists (Build_ZooG Σ γ_locals γ_counter). iFrameSteps.
+  iExists (Build_ZooG γ_locals γ_counter). iFrameSteps.
   - erewrite state_wf_locals; done.
   - iApply inv_alloc. iSteps. simpl_length.
 Qed.
 
-#[global] Opaque zoo_state_interp.
+#[global] Opaque state_interp.
 #[global] Opaque has_header.
 #[global] Opaque meta_token.
 #[global] Opaque meta.

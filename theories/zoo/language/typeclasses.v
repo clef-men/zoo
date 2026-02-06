@@ -21,9 +21,9 @@ Qed.
 
 Section atomic.
   #[local] Ltac solve_atomic :=
-    apply ectx_language_atomic;
+    apply base_atomic_atomic;
     [ inversion 1; naive_solver
-    | apply ectxi_language_sub_redexes_are_values; intros [] **; naive_solver
+    | apply sub_redexes_are_values_alt; intros [] **; naive_solver
     ].
 
   #[global] Instance pure_atomic e v :

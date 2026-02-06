@@ -6,8 +6,6 @@ From iris.algebra Require Import
 
 From zoo Require Import
   prelude.
-From zoo.iris.program_logic Require Import
-  language.
 From zoo.language Require Export
   physical_equality
   metatheory.
@@ -30,6 +28,9 @@ Implicit Types br : branch.
 Implicit Types brs : list branch.
 Implicit Types rec : recursive.
 Implicit Types recs : list recursive.
+
+Definition thread_id :=
+  nat.
 Implicit Types tid : thread_id.
 
 Parameter encode_tag : nat → nat.
@@ -672,13 +673,6 @@ Proof.
   constructor. apply is_fresh.
 Qed.
 
-Lemma val_base_stuck tid e1 σ1 κ e2 σ2 es :
-  base_step tid e1 σ1 κ e2 σ2 es →
-  to_val e1 = None.
-Proof.
-  destruct 1; naive_solver.
-Qed.
-
 Inductive ectxi :=
   | CtxApp1 v2
   | CtxApp2 e1
@@ -724,7 +718,7 @@ Notation CtxTuple := (
 )(only parsing
 ).
 
-Fixpoint ectxi_fill k e : expr :=
+Fixpoint filli k e : expr :=
   match k with
   | CtxApp1 v2 =>
       App e $ Val v2
@@ -787,60 +781,19 @@ Fixpoint ectxi_fill k e : expr :=
   | CtxSetLocal =>
       SetLocal e
   | CtxResolve0 k v1 v2 =>
-      Resolve (ectxi_fill k e) (Val v1) (Val v2)
+      Resolve (filli k e) (Val v1) (Val v2)
   | CtxResolve1 e0 v2 =>
       Resolve e0 e $ Val v2
   | CtxResolve2 e0 e1 =>
       Resolve e0 e1 e
   end.
-#[global] Arguments ectxi_fill !_ _ / : assert.
-
-#[global] Instance ectxi_fill_inj k :
-  Inj (=) (=) (ectxi_fill k).
-Proof.
-  induction k; intros ?*; naive_solver.
-Qed.
-Lemma ectxi_fill_val k e :
-  is_Some (to_val (ectxi_fill k e)) →
-  is_Some (to_val e).
-Proof.
-  intros (v & ?). destruct k; done.
-Qed.
-Lemma ectxi_fill_no_val_inj k1 e1 k2 e2 :
-  to_val e1 = None →
-  to_val e2 = None →
-  ectxi_fill k1 e1 = ectxi_fill k2 e2 →
-  k1 = k2.
-Proof.
-  move: k1.
-  induction k2; intros k1; destruct k1; try naive_solver.
-  intros H1 H2 [= -> -> H%app_inj_2]; first naive_solver.
-  simpl. do 3 f_equal.
-  apply (f_equal reverse) in H.
-  rewrite !reverse_app !reverse_cons -!fmap_reverse /= in H.
-  match goal with |- ?vs1 = ?vs2 =>
-    apply (inj reverse);
-    remember (reverse vs1) as vs1';
-    remember (reverse vs2) as vs2';
-    clear- H1 H2 H; move: vs2' H; induction vs1'; intros []; naive_solver
-  end.
-Qed.
-Lemma base_step_ectxi_fill_val tid k e σ1 κ e2 σ2 es :
-  base_step tid (ectxi_fill k e) σ1 κ e2 σ2 es →
-  is_Some (to_val e).
-Proof.
-  move: κ e2.
-  induction k; try (inversion_clear 1; eauto || done).
-  all: inversion_clear 1.
-  all:
-    match goal with H: _ ++ _ :: of_vals ?vs1 = of_vals ?vs2 |- _ =>
-      apply (f_equal reverse) in H;
-      rewrite reverse_app reverse_cons -!fmap_reverse /= in H;
-      remember (reverse vs1) as vs1';
-      remember (reverse vs2) as vs2';
-      clear- H; move: vs2' H; induction vs1'; intros []; naive_solver
-    end.
-Qed.
+#[global] Arguments filli !_ _ / : assert.
 
 Definition ectx :=
   list ectxi.
+
+Definition fill K e :=
+  foldl (flip filli) e K.
+
+Definition config : Type :=
+  list expr * state.

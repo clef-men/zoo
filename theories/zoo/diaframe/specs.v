@@ -2,12 +2,12 @@ From zoo Require Import
   prelude.
 From zoo.iris Require Import
   diaframe.
-From zoo.iris.diaframe Require Export
-  symb_exec.wp.
 From zoo.language Require Import
   notations.
 From zoo Require Import
   proofmode.
+From zoo.diaframe Require Export
+  symb_exec.wp.
 From zoo Require Import
   options.
 
@@ -33,7 +33,7 @@ Section zoo_G.
         (PureExecNorec ϕ n e1 e2)
         (SolveSepSideCondition ϕ)
     ) →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ▷^n (
         emp -∗
@@ -44,7 +44,7 @@ Section zoo_G.
   | 8.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_ctx.
+    pose proof @pure_exec_context.
     intros (-> & Hexec & Hϕ) HK.
     iSteps.
     iApply wp_pure_step_later; [done.. |].
@@ -60,7 +60,7 @@ Section zoo_G.
         )
         (SolveSepSideCondition ϕ)
     ) →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ▷^n (
         emp -∗
@@ -293,7 +293,7 @@ Section zoo_G.
 
   #[global] Instance match_diaspec e K l x_fb e_fb brs tid E Φ :
     ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ∃ hdr e,
       ▷ l ↦ₕ hdr ∗
@@ -307,13 +307,13 @@ Section zoo_G.
   Proof.
     intros (->, _) HK.
     iSteps as (hdr e He) "Hl_header H".
-    iApply (wp_match_ctx with "Hl_header"); first done.
+    iApply (wp_match_context with "Hl_header"); first done.
     iSteps.
   Qed.
 
   #[global] Instance if_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide P) then e1 else e2)%E TCTrue →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ∀ b,
       (⌜b = true⌝ ∗ ⌜P⌝ ∨ ⌜b = false⌝ ∗ ⌜¬ P⌝) -∗
@@ -326,7 +326,7 @@ Section zoo_G.
   | 50.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_ctx.
+    pose proof @pure_exec_context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
@@ -337,7 +337,7 @@ Section zoo_G.
   Qed.
   #[global] Instance if_bool_decide_neg_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide (¬ P)) then e1 else e2)%E TCTrue →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ∀ b,
       (⌜b = true⌝ ∗ ⌜¬ P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝) -∗
@@ -350,7 +350,7 @@ Section zoo_G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_ctx.
+    pose proof @pure_exec_context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
@@ -361,7 +361,7 @@ Section zoo_G.
   Qed.
   #[global] Instance if_negb_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(negb $ bool_decide P) then e1 else e2)%E TCTrue →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       ∀ b,
       (⌜b = true⌝ ∗ ⌜¬ P⌝ ∨ ⌜b = false⌝ ∗ ⌜P⌝) -∗
@@ -374,7 +374,7 @@ Section zoo_G.
   | 49.
   Proof.
     rewrite /PureExecNorec.
-    pose proof @pure_exec_ctx.
+    pose proof @pure_exec_context.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
@@ -409,9 +409,8 @@ Ltac find_reshape e K e' :=
   find_reshape e K e'
 : typeclass_instances.
 #[global] Hint Extern 4 (
-  ReshapeExprAnd (language.expr ?Λ) ?e ?K ?e' _
+  ReshapeExprAnd expr ?e ?K ?e' _
 ) =>
-  unify Λ zoo;
   find_reshape e K e'
 : typeclass_instances.
 

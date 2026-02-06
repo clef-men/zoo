@@ -18,9 +18,6 @@ Coercion Val : val >-> expr.
 Coercion Var : string >-> expr.
 Coercion App : expr >-> Funclass.
 
-Bind Scope expr_scope with expr.
-Bind Scope val_scope with val.
-
 Declare Custom Entry zoo_rec.
 Declare Scope zoo_recs_scope.
 Delimit Scope zoo_recs_scope with zoo_recs.

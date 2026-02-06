@@ -7,15 +7,15 @@ From diaframe Require Import
 
 From zoo Require Import
   prelude.
-From zoo.iris.program_logic Require Import
+From zoo.program_logic Require Import
   wp.
-From zoo.iris.diaframe Require Export
+From zoo.diaframe Require Export
   symb_exec.defs.
 From zoo Require Import
   options.
 
-Section iris_G.
-  Context `{iris_G : !IrisG Λ Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Implicit Types TT : tele.
 
@@ -43,7 +43,7 @@ Section iris_G.
 
   #[global] Instance dia_wp_mono e1 K e2 e2' tid E Φ1 Φ2 :
     ReshapeExprAnd _ e1 K e2' (TCEq e2' e2) →
-    LanguageCtx K →
+    Context K →
     HINT1
       WP e2 ∷ tid @ E {{ Φ2 }}
     ✱ [
@@ -100,7 +100,7 @@ Section iris_G.
           (DiaSpec TT1 TT2 P e' E1 ret Q)
       )
     ) →
-    LanguageCtx K →
+    Context K →
     HINT1 ε₀ ✱ [
       |={E1,E2}=>
       ∃.. tt1,
@@ -122,7 +122,7 @@ Section iris_G.
     all: iMod ("H" with "HQ") as "H".
     all: iApply "H".
   Qed.
-End iris_G.
+End zoo_G.
 
 Declare Custom Entry dia_spec_mask.
 Notation "" := (

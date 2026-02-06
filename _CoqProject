@@ -4,7 +4,6 @@
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 -arg -w -arg -notation-incompatible-prefix
--arg -w -arg -notation-overridden
 
 #BEGIN zoo
 -Q theories/zoo zoo
@@ -64,8 +63,6 @@ theories/zoo/iris/proofmode/proofmode.v
 theories/zoo/iris/diaframe/base.v
 theories/zoo/iris/diaframe/tactics.v
 theories/zoo/iris/diaframe/diaframe.v
-theories/zoo/iris/diaframe/symb_exec/defs.v
-theories/zoo/iris/diaframe/symb_exec/wp.v
 
 theories/zoo/iris/bi/big_op/base.v
 theories/zoo/iris/bi/big_op/big_sepL.v
@@ -106,15 +103,6 @@ theories/zoo/iris/base_logic/lib/prophet_map.v
 theories/zoo/iris/base_logic/lib/subpreds.v
 theories/zoo/iris/base_logic/lib/subprops.v
 
-theories/zoo/iris/program_logic/language.v
-theories/zoo/iris/program_logic/ectx_language.v
-theories/zoo/iris/program_logic/ectxi_language.v
-theories/zoo/iris/program_logic/bwp.v
-theories/zoo/iris/program_logic/bwp_adequacy.v
-theories/zoo/iris/program_logic/wp.v
-theories/zoo/iris/program_logic/wp_adequacy.v
-theories/zoo/iris/program_logic/atomic.v
-
 theories/zoo/language/location.v
 theories/zoo/language/syntax.v
 theories/zoo/language/metatheory.v
@@ -126,8 +114,10 @@ theories/zoo/language/tactics.v
 theories/zoo/language/typeclasses.v
 
 theories/zoo/program_logic/state_interp.v
+theories/zoo/program_logic/bwp.v
+theories/zoo/program_logic/bwp_adequacy.v
 theories/zoo/program_logic/wp.v
-theories/zoo/program_logic/adequacy.v
+theories/zoo/program_logic/wp_adequacy.v
 theories/zoo/program_logic/atomic.v
 theories/zoo/program_logic/itype.v
 theories/zoo/program_logic/prophet_typed.v
@@ -142,6 +132,8 @@ theories/zoo/program_logic/counter.v
 
 theories/zoo/proofmode.v
 
+theories/zoo/diaframe/symb_exec/defs.v
+theories/zoo/diaframe/symb_exec/wp.v
 theories/zoo/diaframe/hints.v
 theories/zoo/diaframe/specs.v
 theories/zoo/diaframe/diaframe.v

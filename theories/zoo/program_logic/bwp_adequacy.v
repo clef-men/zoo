@@ -5,19 +5,20 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris Require Import
-  diaframe.
-From zoo.iris.program_logic Require Export
+diaframe.
+From zoo.program_logic Require Export
   bwp.
 From zoo Require Import
   options.
 
-Section iris_G.
-  Context `{iris_G : !IrisG Λ Σ}.
+Implicit Types e : expr.
+Implicit Types es : list expr.
 
-  Implicit Types e : expr Λ.
-  Implicit Types es : list (expr Λ).
-  Implicit Types Φ : val Λ → iProp Σ.
-  Implicit Types Φs : list (val Λ → iProp Σ).
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Implicit Types Φ : val → iProp Σ.
+  Implicit Types Φs : list (val → iProp Σ).
 
   Definition bwps nt es Φs : iProp Σ :=
     [∗ list] i ↦ e; Φ ∈ es; Φs,
@@ -34,7 +35,7 @@ Section iris_G.
       bwps nt es (replicate (length es) fork_post).
   Proof.
     iIntros "%Hstep Hinterp H£ H".
-    rewrite {1}bwp_unfold /bwp_pre (val_stuck tid e1 σ1 κ e2 σ2 es) //.
+    rewrite {1}bwp_unfold /bwp_pre (prim_step_not_val tid e1 σ1 κ e2 σ2 es) //.
     iMod ("H" with "Hinterp") as "(_ & >H)".
     iMod ("H" with "[//] [//] H£") as "H".
     iModIntro.
@@ -125,13 +126,13 @@ Section iris_G.
     iDestruct (big_sepL2_lookup with "H") as "H"; [done.. |].
     iApply (bwp_not_stuck with "Hinterp H").
   Qed.
-End iris_G.
+End zoo_G.
 
-Lemma bwp_progress Λ `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
+Lemma bwp_progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
   ( ∀ `{inv_G : !invGS Σ},
     ⊢ |={⊤}=>
-      ∃ state_interp fork_post Φs,
-      let iris_G : IrisG Λ Σ := Build_IrisG state_interp fork_post in
+      ∃ (zoo_G : ZooG Σ) Φs,
+      ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
       state_interp (length es1) σ1 κs ∗
       bwps 0 es1 Φs
   ) →
@@ -142,19 +143,19 @@ Proof.
   apply Foralli_lookup => tid e2 Hlookup.
   eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n (n * num_later_per_step)).
   iIntros "%Hinv_G H£s".
-  iMod H as "(%state_interp & %fork_post & %Φs & Hinterp & H)".
-  iMod (bwps_progress (iris_G := Build_IrisG state_interp fork_post) with "[Hinterp] H£s H") as "H"; [done.. | |].
+  iMod H as "(%zoo_G & %Φs & <- & Hinterp & H)".
+  iMod (bwps_progress with "[Hinterp] H£s H") as "H". 1,2: done.
   { erewrite app_nil_r => //. }
   destruct n.
   - iMod "H". iSteps.
   - iApply step_fupdN_S_fupd. iSteps.
 Qed.
 
-Lemma bwp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
+Lemma bwp_adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
   ( ∀ `{inv_G : !invGS Σ} κs,
     ⊢ |={⊤}=>
-      ∃ state_interp fork_post Φ,
-      let iris_G : IrisG Λ Σ := Build_IrisG state_interp fork_post in
+      ∃ (zoo_G : ZooG Σ) Φ,
+      ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
       state_interp 1 σ κs ∗
       BWP e ∶ 0 {{ Φ }}
   ) →
@@ -162,7 +163,22 @@ Lemma bwp_adequacy Λ `{inv_Gpre : !invGpreS Σ} e σ :
 Proof.
   intros H (es, σ') (n & κs & Hsteps)%silent_steps_nsteps.
   move: Hsteps. apply: bwp_progress => inv_G.
-  iMod H as "(%state_interp & %fork_post & %Φ & Hinterp & H)".
-  iExists state_interp, fork_post, [Φ].
-  rewrite /bwps /=. iSteps.
+  iMod H as "(%zoo_G & %Φ & <- & Hinterp & H)".
+  iExists zoo_G, [Φ]. iFrameSteps.
+Qed.
+Lemma bwp_adequacy `{zoo_Gpre : !ZooGpre Σ} {e σ} param :
+  state_wf σ param →
+  ( ∀ `{zoo_G : !ZooG Σ},
+    ⊢ ∃ Φ,
+      ([∗ map] l ↦ v ∈ state_heap_initial σ, l ↦ v) -∗
+      0 ↦ₗ param.(zoo_parameter_local) -∗
+      BWP e ∶ 0 {{ Φ }}
+  ) →
+  safe ([e], σ).
+Proof.
+  intros Hwf Hwp.
+  apply: bwp_adequacy' => // Hinv_G κs.
+  iMod (zoo_init σ param κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; first done.
+  iDestruct (Hwp zoo_G) as "(%Φ & Hwp)".
+  iExists zoo_G, Φ. iFrameSteps.
 Qed.

@@ -5,32 +5,26 @@ From zoo Require Import
   prelude.
 From zoo.iris Require Import
   diaframe.
-From zoo.iris.program_logic Require Export
-  language.
+From zoo.language Require Import
+  tactics
+  notations.
+From zoo.program_logic Require Export
+  state_interp.
 From zoo Require Import
   options.
 
 Parameter num_later_per_step : nat.
-
 Axiom num_later_per_step_lb :
   2 ≤ num_later_per_step.
 #[global] Hint Resolve
   num_later_per_step_lb
 : core.
 
-Class IrisG Λ Σ := {
-  #[global] iris_G_inv_G :: invGS Σ ;
-  state_interp : nat → state Λ → list (observation Λ) → iProp Σ ;
-  fork_post : val Λ → iProp Σ ;
-}.
-#[global] Arguments Build_IrisG {_ _ _} _ _ : assert.
-#[global] Opaque iris_G_inv_G.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
-Section iris_G.
-  Context `{iris_G : !IrisG Λ Σ}.
-
-  Definition bwp_pre (bwp : expr Λ -d> thread_id -d> coPset -d> (val Λ -d> iPropO Σ) -d> iPropO Σ)
-  : expr Λ -d> thread_id -d> coPset -d> (val Λ -d> iPropO Σ) -d> iPropO Σ
+  Definition bwp_pre (bwp : expr -d> thread_id -d> coPset -d> (val -d> iPropO Σ) -d> iPropO Σ)
+  : expr -d> thread_id -d> coPset -d> (val -d> iPropO Σ) -d> iPropO Σ
   := (
     λ e tid E Φ,
       ∀ nt σ κs,
@@ -63,19 +57,19 @@ Section iris_G.
   Qed.
 
   #[local] Definition bwp_def
-  : expr Λ → thread_id → coPset → (val Λ → iProp Σ) → iProp Σ
+  : expr → thread_id → coPset → (val → iProp Σ) → iProp Σ
   :=
     fixpoint bwp_pre.
   #[global] Arguments bwp_def e%_E tid E Φ%_I : rename.
-End iris_G.
+End zoo_G.
 
 #[local] Definition bwp_aux : seal (@bwp_def).
   Proof. by eexists. Qed.
 Definition bwp :=
   bwp_aux.(unseal).
-#[global] Arguments bwp {_ _ _} e%_E tid E Φ%_I : rename.
-#[local] Lemma bwp_unseal `{iris_G : !IrisG Λ Σ} :
-  bwp = @bwp_def Λ Σ _.
+#[global] Arguments bwp {_ _} e%_E tid E Φ%_I : rename.
+#[local] Lemma bwp_unseal `{zoo_G : !ZooG Σ} :
+  bwp = @bwp_def Σ _.
 Proof.
   rewrite -bwp_aux.(seal_eq) //.
 Qed.
@@ -112,13 +106,20 @@ Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
   format "'[hv' BWP  '/  ' '[' e ']'  '/  ' ∶  tid  E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 
-Section iris_G.
-  Context `{iris_G : !IrisG Λ Σ}.
+Implicit Types l : location.
+Implicit Types pid : prophet_id.
+Implicit Types e : expr.
+Implicit Types es : list expr.
+Implicit Types v : val.
+Implicit Types tid : thread_id.
+Implicit Types σ : state.
+Implicit Types κ κs : list observation.
 
-  Implicit Types e : expr Λ.
-  Implicit Types v : val Λ.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
   Implicit Types P R : iProp Σ.
-  Implicit Types Φ : val Λ → iProp Σ.
+  Implicit Types Φ : val → iProp Σ.
 
   Lemma bwp_unfold e tid E Φ :
     BWP e ∶ tid @ E {{ Φ }} ⊣⊢
@@ -353,7 +354,7 @@ Section iris_G.
     iSteps.
   Qed.
 
-  Lemma bwp_bind K `{!LanguageCtx K} e tid E Φ :
+  Lemma bwp_bind K `{!Context K} e tid E Φ :
     BWP e ∶ tid @ E {{ v, BWP K (of_val v) ∶ tid @ E {{ Φ }} }} ⊢
     BWP K e ∶ tid @ E {{ Φ }}.
   Proof.
@@ -363,17 +364,17 @@ Section iris_G.
     destruct (to_val e) as [v |] eqn:He.
     - apply of_to_val in He as <-.
       iApply (bwp_state_interp with "H").
-    - rewrite bwp_unfold /bwp_pre fill_not_val //.
+    - rewrite bwp_unfold /bwp_pre context_fill_not_val //.
       iIntros "%nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible1 & H)".
-      iModIntro; iSplit; first eauto using reducible_fill.
+      iModIntro; iSplit; first eauto using reducible_context.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
-      destruct (fill_step_inv tid e σ1 κ e2 σ2 es1) as (e2' & -> & Hstep1'); [done.. |].
+      destruct (context_fill_step_inv tid e σ1 κ e2 σ2 es1) as (e2' & -> & Hstep1'); [done.. |].
       iMod ("H" with "[//] [//] H£") as "H".
       iModIntro. iSteps.
   Qed.
 
-  Lemma bwp_bind_inv K `{!LanguageCtx K} e tid E Φ :
+  Lemma bwp_bind_inv K `{!Context K} e tid E Φ :
     BWP K e ∶ tid @ E {{ Φ }} ⊢
     BWP e ∶ tid @ E {{ v, BWP K (of_val v) ∶ tid @ E {{ Φ }} }}.
   Proof.
@@ -383,13 +384,13 @@ Section iris_G.
     - apply of_to_val in He as <-.
       iApply bwp_value'.
       iApply "H".
-    - rewrite !bwp_unfold /bwp_pre fill_not_val He //.
+    - rewrite !bwp_unfold /bwp_pre context_fill_not_val He //.
       iIntros "%nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
-      iModIntro; iSplit; first eauto using reducible_fill_inv.
+      iModIntro; iSplit; first eauto using reducible_context_inv.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
       iMod ("H" with "[//] [] H£") as "H".
-      { eauto using fill_step. }
+      { eauto using context_fill_step. }
       iModIntro. iSteps.
   Qed.
 
@@ -525,13 +526,12 @@ Use [iMod (fupd_mask_subseteq E2)] to adjust the mask of your goal to [E2]")
     iApply (bwp_wand with "(Hinner Hα)"). iIntros "%v >(Hβ & HΦ)".
     iApply ("HΦ" with "(Hclose Hβ)").
   Qed.
-End iris_G.
+End zoo_G.
 
-Section iris_G.
-  Context `{iris_G : !IrisG Λ Σ}.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
-  Implicit Types e : expr Λ.
-  Implicit Types Φ : val Λ → iProp Σ.
+  Implicit Types Φ : val → iProp Σ.
 
   Lemma bwp_lift_step e tid E Φ :
     to_val e = None →
@@ -639,7 +639,7 @@ Section iris_G.
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
-  Lemma bwp_lift_pure_step_nofork `{!Inhabited (state Λ)} e tid E1 E2 Φ :
+  Lemma bwp_lift_pure_step_nofork e tid E1 E2 Φ :
     ( ∀ σ,
       reducible tid e σ
     ) →
@@ -668,7 +668,7 @@ Section iris_G.
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
-  Lemma bwp_lift_pure_det_step_nofork `{!Inhabited (state Λ)} e1 e2 tid E1 E2 Φ :
+  Lemma bwp_lift_pure_det_step_nofork e1 e2 tid E1 E2 Φ :
     ( ∀ σ1,
       reducible tid e1 σ1
     ) →
@@ -692,7 +692,7 @@ Section iris_G.
     iSteps.
   Qed.
 
-  Lemma bwp_pure_step `{!Inhabited (state Λ)} ϕ n e1 e2 tid E1 E2 Φ :
+  Lemma bwp_pure_step ϕ n e1 e2 tid E1 E2 Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
     ( |={E1}[E2]▷=>^n
@@ -714,7 +714,7 @@ Section iris_G.
         iApply (step_fupdN_wand with "H").
         rewrite lc_split. iSteps.
   Qed.
-  Lemma bwp_pure_step_later `{!Inhabited (state Λ)} ϕ n tid e1 e2 E Φ :
+  Lemma bwp_pure_step_later ϕ n tid e1 e2 E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
@@ -728,16 +728,12 @@ Section iris_G.
     enough (∀ P, ▷^n P ⊢ |={E}▷=>^n P) as H by apply H.
     intros P. induction n as [| n IH]; rewrite //= -step_fupd_intro // IH //.
   Qed.
-End iris_G.
+End zoo_G.
 
-From zoo.iris.program_logic Require Import
-  ectx_language.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
-Section iris_G.
-  Context {Λ : ectx_language} `{iris_G : !IrisG Λ Σ}.
-
-  Implicit Types e : expr Λ.
-  Implicit Types Φ : val Λ → iProp Σ.
+  Implicit Types Φ : val → iProp Σ.
 
   #[local] Hint Resolve
     base_reducible_reducible
@@ -846,7 +842,7 @@ Section iris_G.
     rewrite Nat.add_0_r. iSteps.
   Qed.
 
-  Lemma bwp_lift_pure_base_step_nofork `{!Inhabited (state Λ)} e tid E1 E2 Φ :
+  Lemma bwp_lift_pure_base_step_nofork e tid E1 E2 Φ :
     ( ∀ σ,
       base_reducible tid e σ
     ) →
@@ -873,7 +869,7 @@ Section iris_G.
     iApply ("H" with "[%] H£"); first eauto.
   Qed.
 
-  Lemma bwp_lift_pure_det_base_step_nofork `{!Inhabited (state Λ)} e1 e2 tid E1 E2 Φ :
+  Lemma bwp_lift_pure_det_base_step_nofork e1 e2 tid E1 E2 Φ :
     ( ∀ σ1,
       base_reducible tid e1 σ1
     ) →
@@ -894,4 +890,69 @@ Section iris_G.
     iApply bwp_lift_pure_det_step_nofork; [eauto.. |].
     iSteps.
   Qed.
-End iris_G.
+End zoo_G.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Lemma bwp_match l hdr x_fb e_fb brs e tid E Φ :
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    ▷ l ↦ₕ hdr -∗
+    ▷ BWP e ∶ tid @ E {{ Φ }} -∗
+    BWP Match #l x_fb e_fb brs ∶ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "%He >#Hl H".
+    iApply bwp_lift_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp".
+    iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
+    iDestruct (state_interp_has_header_valid with "Hinterp Hl") as %Hheaders_lookup.
+    iSplit; first eauto with zoo. iIntros "%κ %κs' %e_ %σ_ %es -> %Hstep _ !>".
+    invert_base_step.
+    iSteps.
+  Qed.
+  Lemma bwp_match_context K `{!Context K} l hdr x_fb e_fb brs e tid E Φ :
+    eval_match hdr.(header_tag) hdr.(header_size) (SubjectLoc l) x_fb e_fb brs = Some e →
+    ▷ l ↦ₕ hdr -∗
+    ▷ BWP K e ∶ tid @ E {{ Φ }} -∗
+    BWP K (Match #l x_fb e_fb brs) ∶ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "%He Hl H".
+    iApply bwp_bind.
+    iApply (bwp_match with "Hl"); first done.
+    iApply (bwp_bind_inv with "H").
+  Qed.
+
+  Lemma bwp_resolve e pid v prophs tid E Φ :
+    Atomic e →
+    to_val e = None →
+    prophet_model' pid prophs -∗
+    BWP e ∶ tid @ E {{ res,
+      ∀ prophs',
+      ⌜prophs = (res, v) :: prophs'⌝ -∗
+      prophet_model' pid prophs' -∗
+      Φ res
+    }} -∗
+    BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
+  Proof.
+    iIntros "%Hatomic %He Hpid H".
+    rewrite !bwp_unfold /bwp_pre /= He. simpl in *.
+    iIntros "%nt %σ1 %κs Hinterp !>".
+    iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
+    iSplitR. { iPureIntro. apply reducible_resolve; done. }
+    iIntros "!> %κ %κs' %e2 %σ2 %es -> %Hstep H£".
+    destruct κ as [| (pid' & (w' & v')) κ _] using rev_ind.
+    - exfalso. apply prim_step_resolve_inv in Hstep; last done.
+      invert_base_step.
+      destruct κ; done.
+    - rewrite -assoc.
+      apply prim_step_resolve_inv in Hstep; last done.
+      invert_base_step. simplify_list_eq.
+      iMod ("H" $! _ _ (Val w') σ2 es with "[%] [%] H£") as "H".
+      { done. }
+      { eexists [] _ _; done. }
+      do 2 iModIntro.
+      iMod "H" as "(Hinterp & H & $)".
+      iMod (state_interp_prophet_resolve with "Hinterp Hpid") as "(%prophs' & -> & $ & Hpid')".
+      iApply (bwp_value_mono with "H").
+      iSteps.
+  Qed.
+End zoo_G.
