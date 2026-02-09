@@ -9,9 +9,10 @@ From zoo Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
+  lib.auth_nat_max
   lib.ghost_list
-  lib.prophet_map
-  lib.mono_list.
+  lib.mono_list
+  lib.prophet_map.
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
@@ -21,7 +22,7 @@ From zoo.language Require Import
 From zoo Require Import
   options.
 
-Implicit Types cnt : nat.
+Implicit Types cnt ns nt : nat.
 Implicit Types tid : thread_id.
 Implicit Types l : location.
 Implicit Types hdr : header.
@@ -30,22 +31,50 @@ Implicit Types κ κs : list observation.
 
 Parameter zoo_counter : location.
 
+Record zoo_parameter := {
+  zoo_parameter_local : val ;
+  zoo_parameter_counter : nat ;
+}.
+
+Record state_wf σ param := {
+  state_wf_locals :
+    σ.(state_locals) = [param.(zoo_parameter_local)] ;
+  state_wf_counter :
+    σ.(state_heap) !! zoo_counter = Some (ValNat param.(zoo_parameter_counter)) ;
+}.
+
+Class ZooG₀ Σ := {
+  #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ ;
+  #[local] zoo_G₀_locals_G :: GhostListG Σ val ;
+  #[local] zoo_G₀_counter_G :: MonoListG Σ val ;
+}.
+
+#[local] Definition zoo_Σ₀ := #[
+  auth_nat_max_Σ ;
+  ghost_list_Σ val ;
+  mono_list_Σ val
+].
+#[local] Instance subG_zoo_Σ₀ Σ :
+  subG zoo_Σ₀ Σ →
+  ZooG₀ Σ.
+Proof.
+  solve_inG.
+Qed.
+
 Class ZooGpre Σ := {
   #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ ;
   #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ ;
   #[local] zoo_Gpre_heap_Gpre :: gen_heapGpreS location val Σ ;
-  #[local] zoo_Gpre_locals_G :: GhostListG Σ val ;
   #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val) ;
-  #[local] zoo_Gpre_counter_G :: MonoListG Σ val ;
+  #[local] zoo_Gpre_G₀ :: ZooG₀ Σ ;
 }.
 
 Definition zoo_Σ := #[
   invΣ ;
   gen_heapΣ location header ;
   gen_heapΣ location val ;
-  ghost_list_Σ val ;
   prophet_map_Σ prophet_id (val * val) ;
-  mono_list_Σ val
+  zoo_Σ₀
 ].
 #[global] Instance subG_zoo_Σ Σ :
   subG zoo_Σ Σ →
@@ -58,13 +87,13 @@ Class ZooG Σ := {
   #[global] zoo_G_inv_G :: invGS Σ ;
   #[local] zoo_G_headers_G :: gen_heapGS location header Σ ;
   #[local] zoo_G_heap_G :: gen_heapGS location val Σ ;
-  #[local] zoo_G_locals_G :: GhostListG Σ val ;
+  #[local] zoo_G_prophecy_G :: ProphetMapG Σ prophet_id (val * val) ;
+  #[local] zoo_G_G₀ :: ZooG₀ Σ ;
+  zoo_G_steps_name : gname ;
   zoo_G_locals_name : gname ;
-  #[local] zoo_G_prophecy_map_G :: ProphetMapG Σ prophet_id (val * val) ;
-  #[local] zoo_G_counter_G :: MonoListG Σ val ;
   zoo_G_counter_name : gname ;
 }.
-#[global] Arguments Build_ZooG {_ _ _ _ _} _ {_ _} _ : assert.
+#[global] Arguments Build_ZooG {_ _ _ _ _ _} _ _ _ : assert.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -74,103 +103,15 @@ Section zoo_G.
 
   Definition meta_token :=
     meta_token (V := header).
-
   Definition meta :=
     @meta location _ _ header _ _.
   #[global] Arguments meta {_ _ _} _ _ _ : assert.
-
-  Definition pointsto :=
-    pointsto (V := val).
-
-  Definition thread_pointsto tid :=
-    ghost_list_at zoo_G_locals_name tid.
-
-  Definition prophet_model :=
-    prophet_model.
-  Definition prophet_model' pid :=
-    prophet_model pid (DfracOwn 1).
-
-  Definition zoo_counter_name :=
-    zoo_G_counter_name.
-  Definition zoo_counter_inv_inner : iProp Σ :=
-    ∃ cnt vs,
-    pointsto zoo_counter.[contents] (DfracOwn 1) #cnt ∗
-    mono_list_auth zoo_counter_name (DfracOwn 1) vs ∗
-    ⌜length vs = cnt⌝.
-  Definition zoo_counter_inv : iProp Σ :=
-    @inv _ _ zoo_G_inv_G nroot zoo_counter_inv_inner.
-
-  Definition state_interp nt σ κs : iProp Σ :=
-    gen_heap_interp σ.(state_headers) ∗
-    gen_heap_interp σ.(state_heap) ∗
-    ghost_list_auth zoo_G_locals_name σ.(state_locals) ∗
-    ⌜length σ.(state_locals) = nt⌝ ∗
-    prophet_map_interp κs σ.(state_prophets) ∗
-    zoo_counter_inv.
-
-  Lemma state_interp_counter_inv nt σ κs :
-    state_interp nt σ κs ⊢
-    zoo_counter_inv.
-  Proof.
-    iSteps.
-  Qed.
-
-  Definition fork_post (_ : val) : iProp Σ :=
-    True.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
   has_header l hdr
 )(at level 20,
   format "l  ↦ₕ  hdr"
-) : bi_scope.
-
-Notation "l ↦ dq v" := (
-  pointsto l dq v%V
-)(at level 20,
-  dq custom dfrac at level 1,
-  format "l  ↦ dq  v"
-) : bi_scope.
-Notation "l ↦-" := (
-  (∃ v, l ↦ v)%I
-)(at level 20,
-  format "l  ↦-"
-) : bi_scope.
-
-Notation "l ↦∗ dq vs" :=
-  ([∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v)%I
-( at level 20,
-  dq custom dfrac at level 1,
-  format "l  ↦∗ dq  vs"
-) : bi_scope.
-Notation "l ↦∗-" :=
-  (∃ vs, l ↦∗ vs)%I
-( at level 20,
-  format "l  ↦∗-"
-) : bi_scope.
-
-Notation "l ↦ᵣ dq v" := (
-  pointsto (location_add l (Z.of_nat (in_type "__ref__" 0))) dq v%V
-)(at level 20,
-  dq custom dfrac at level 1,
-  format "l  ↦ᵣ dq  v"
-) : bi_scope.
-Notation "l ↦ᵣ-" := (
-  (∃ v, l ↦ᵣ v)%I
-)(at level 20,
-  format "l  ↦ᵣ-"
-) : bi_scope.
-
-Notation "tid ↦ₗ dq v" := (
-  thread_pointsto tid dq v%V
-)(at level 20,
-  dq custom dfrac at level 1,
-  format "tid  ↦ₗ dq  v"
-) : bi_scope.
-Notation "tid ↦ₗ-" := (
-  (∃ v, tid ↦ₗ v)%I
-)(at level 20,
-  format "tid  ↦ₗ-"
 ) : bi_scope.
 
 Section zoo_G.
@@ -195,6 +136,10 @@ Section zoo_G.
   Proof.
     apply pointsto_agree.
   Qed.
+End zoo_G.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[global] Instance meta_token_timeless l N :
     Timeless (meta_token l N).
@@ -236,6 +181,53 @@ Section zoo_G.
   Proof.
     apply meta_agree.
   Qed.
+End zoo_G.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Definition pointsto :=
+    pointsto (V := val).
+End zoo_G.
+
+Notation "l ↦ dq v" := (
+  pointsto l dq v%V
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "l  ↦ dq  v"
+) : bi_scope.
+Notation "l ↦-" := (
+  (∃ v, l ↦ v)%I
+)(at level 20,
+  format "l  ↦-"
+) : bi_scope.
+
+Notation "l ↦∗ dq vs" :=
+  ([∗ list] i ↦ v ∈ vs, (l +ₗ i) ↦{dq} v)%I
+( at level 20,
+  dq custom dfrac at level 1,
+  format "l  ↦∗ dq  vs"
+) : bi_scope.
+Notation "l ↦∗-" :=
+  (∃ vs, l ↦∗ vs)%I
+( at level 20,
+  format "l  ↦∗-"
+) : bi_scope.
+
+Notation "l ↦ᵣ dq v" := (
+  pointsto (location_add l (Z.of_nat (in_type "__ref__" 0))) dq v%V
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "l  ↦ᵣ dq  v"
+) : bi_scope.
+Notation "l ↦ᵣ-" := (
+  (∃ v, l ↦ᵣ v)%I
+)(at level 20,
+  format "l  ↦ᵣ-"
+) : bi_scope.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[global] Instance pointsto_timeless l dq v :
     Timeless (l ↦{dq} v).
@@ -404,29 +396,15 @@ Section zoo_G.
     setoid_rewrite location_add_0.
     apply big_sepL2_pointsto_suffix.
   Qed.
+End zoo_G.
 
-  #[global] Instance thread_pointsto_timeless tid dq v :
-    Timeless (tid ↦ₗ{dq} v).
-  Proof.
-    apply _.
-  Qed.
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance thread_pointsto_persistent tid v :
-    Persistent (tid ↦ₗ□ v).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance thread_pointsto_fractional tid v :
-    Fractional (λ q, tid ↦ₗ{#q} v)%I.
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance thread_pointsto_as_fractional tid q v :
-    AsFractional (tid ↦ₗ{#q} v) (λ q, tid ↦ₗ{#q} v)%I q.
-  Proof.
-    apply _.
-  Qed.
+  Definition prophet_model :=
+    prophet_model.
+  Definition prophet_model' pid :=
+    prophet_model pid (DfracOwn 1).
 
   #[global] Instance prophet_model_timeless pid dq prophs :
     Timeless (prophet_model pid dq prophs).
@@ -438,66 +416,6 @@ Section zoo_G.
     Persistent (prophet_model pid DfracDiscarded prophs).
   Proof.
     apply _.
-  Qed.
-
-  Lemma thread_pointsto_valid tid dq v :
-    tid ↦ₗ{dq} v ⊢
-    ⌜✓ dq⌝.
-  Proof.
-    apply ghost_list_at_valid.
-  Qed.
-  Lemma thread_pointsto_combine tid dq1 v1 dq2 v2 :
-    tid ↦ₗ{dq1} v1 -∗
-    tid ↦ₗ{dq2} v2 -∗
-      ⌜v1 = v2⌝ ∗
-      tid ↦ₗ{dq1 ⋅ dq2} v1.
-  Proof.
-    apply ghost_list_at_combine.
-  Qed.
-  Lemma thread_pointsto_valid_2 tid dq1 v1 dq2 v2 :
-    tid ↦ₗ{dq1} v1 -∗
-    tid ↦ₗ{dq2} v2 -∗
-      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
-      ⌜v1 = v2⌝.
-  Proof.
-    apply ghost_list_at_valid_2.
-  Qed.
-  Lemma thread_pointsto_agree tid dq2 v1 dq1 v2 :
-    tid ↦ₗ{dq1} v1 -∗
-    tid ↦ₗ{dq2} v2 -∗
-    ⌜v1 = v2⌝.
-  Proof.
-    apply ghost_list_at_agree.
-  Qed.
-  Lemma thread_pointsto_dfrac_ne tid1 dq1 v1 tid2 dq2 v2 :
-    ¬ ✓ (dq1 ⋅ dq2) →
-    tid1 ↦ₗ{dq1} v1 -∗
-    tid2 ↦ₗ{dq2} v2 -∗
-    ⌜tid1 ≠ tid2⌝.
-  Proof.
-    iIntros "% H1 H2".
-    iDestruct (ghost_list_at_dfrac_ne with "H1 H2") as %[]; done.
-  Qed.
-  Lemma thread_pointsto_ne tid1 v1 tid2 dq2 v2 :
-    tid1 ↦ₗ v1 -∗
-    tid2 ↦ₗ{dq2} v2 -∗
-    ⌜tid1 ≠ tid2⌝.
-  Proof.
-    iIntros "H1 H2".
-    iDestruct (ghost_list_at_ne with "H1 H2") as %[]; done.
-  Qed.
-  Lemma thread_pointsto_exclusive tid v1 dq2 v2 :
-    tid ↦ₗ v1 -∗
-    tid ↦ₗ{dq2} v2 -∗
-    False.
-  Proof.
-    apply ghost_list_at_exclusive.
-  Qed.
-  Lemma thread_pointsto_persist tid dq v :
-    tid ↦ₗ{dq} v ⊢ |==>
-    tid ↦ₗ□ v.
-  Proof.
-    apply ghost_list_at_persist.
   Qed.
 
   #[global] Instance prophet_model_fractional pid prophs :
@@ -568,6 +486,385 @@ Section zoo_G.
   Proof.
     apply prophet_model_persist.
   Qed.
+End zoo_G.
+
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition steps_auth' γ_steps :=
+    auth_nat_max_auth γ_steps (DfracOwn 1).
+  #[local] Definition steps_lb' :=
+    auth_nat_max_lb.
+
+  #[local] Lemma steps_alloc :
+    ⊢ |==>
+      ∃ γ_steps,
+      steps_auth' γ_steps 0.
+  Proof.
+    apply auth_nat_max_alloc.
+  Qed.
+End zoo_G₀.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[local] Definition steps_auth :=
+    steps_auth' zoo_G_steps_name.
+  Definition steps_lb :=
+    auth_nat_max_lb zoo_G_steps_name.
+End zoo_G.
+
+Notation "⧖ n" := (
+  steps_lb n
+)(at level 1,
+  format "⧖  n"
+) : bi_scope.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[local] Instance steps_auth_timeless ns :
+    Timeless (steps_auth ns).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance steps_lb_timeless ns :
+    Timeless (⧖ ns).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance steps_lb_persistent ns :
+    Persistent (⧖ ns).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma steps_lb_0 :
+    ⊢ |==>
+      steps_lb 0.
+  Proof.
+    apply auth_nat_max_lb_0.
+  Qed.
+  #[local] Lemma steps_lb_get ns :
+    steps_auth ns ⊢
+    ⧖ ns.
+  Proof.
+    apply auth_nat_max_lb_get.
+  Qed.
+  #[local] Lemma steps_lb_valid ns1 ns2 :
+    steps_auth ns1 -∗
+    ⧖ ns2 -∗
+    ⌜ns2 ≤ ns1⌝.
+  Proof.
+    apply auth_nat_max_lb_valid.
+  Qed.
+
+  #[local] Lemma steps_update ns :
+    steps_auth ns ⊢ |==>
+    steps_auth (S ns).
+  Proof.
+    apply auth_nat_max_update. lia.
+  Qed.
+End zoo_G.
+
+#[global] Opaque steps_auth'.
+#[global] Opaque steps_lb'.
+
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition locals_auth' :=
+    ghost_list_auth.
+  #[local] Definition local_pointsto' :=
+    ghost_list_at.
+
+  #[local] Lemma locals_alloc σ param :
+    state_wf σ param →
+    ⊢ |==>
+      ∃ γ_locals,
+      locals_auth' γ_locals σ.(state_locals) ∗
+      local_pointsto' γ_locals 0 (DfracOwn 1) param.(zoo_parameter_local).
+  Proof.
+    intros Hwf.
+    iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & $ & Hlocals)".
+    iEval (erewrite state_wf_locals; last done) in "Hlocals".
+    iDestruct "Hlocals" as "($ & _)" => //.
+  Qed.
+End zoo_G₀.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[local] Definition locals_auth locals :=
+    locals_auth' zoo_G_locals_name locals.
+  Definition local_pointsto tid dq local :=
+    local_pointsto' zoo_G_locals_name tid dq local.
+
+  #[local] Lemma locals_lookup locals tid dq local :
+    locals_auth locals -∗
+    local_pointsto tid dq local -∗
+    ⌜locals !! tid = Some local⌝.
+  Proof.
+    apply ghost_list_lookup.
+  Qed.
+
+  #[local] Lemma locals_update_push {locals} local :
+    locals_auth locals ⊢ |==>
+      locals_auth (locals ++ [local]) ∗
+      local_pointsto (length locals) (DfracOwn 1) local.
+  Proof.
+    apply ghost_list_update_push.
+  Qed.
+  #[local] Lemma locals_update_pointsto {locals tid local} local' :
+    locals_auth locals -∗
+    local_pointsto tid (DfracOwn 1) local ==∗
+      locals_auth (<[tid := local']> locals) ∗
+      local_pointsto tid (DfracOwn 1) local'.
+  Proof.
+    apply ghost_list_update_at.
+  Qed.
+End zoo_G.
+
+Notation "tid ↦ₗ dq v" := (
+  local_pointsto tid dq v%V
+)(at level 20,
+  dq custom dfrac at level 1,
+  format "tid  ↦ₗ dq  v"
+) : bi_scope.
+Notation "tid ↦ₗ-" := (
+  (∃ v, tid ↦ₗ v)%I
+)(at level 20,
+  format "tid  ↦ₗ-"
+) : bi_scope.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[global] Instance local_pointsto_timeless tid dq v :
+    Timeless (tid ↦ₗ{dq} v).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance local_pointsto_persistent tid v :
+    Persistent (tid ↦ₗ□ v).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance local_pointsto_fractional tid v :
+    Fractional (λ q, tid ↦ₗ{#q} v)%I.
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance local_pointsto_as_fractional tid q v :
+    AsFractional (tid ↦ₗ{#q} v) (λ q, tid ↦ₗ{#q} v)%I q.
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma local_pointsto_valid tid dq v :
+    tid ↦ₗ{dq} v ⊢
+    ⌜✓ dq⌝.
+  Proof.
+    apply ghost_list_at_valid.
+  Qed.
+  Lemma local_pointsto_combine tid dq1 v1 dq2 v2 :
+    tid ↦ₗ{dq1} v1 -∗
+    tid ↦ₗ{dq2} v2 -∗
+      ⌜v1 = v2⌝ ∗
+      tid ↦ₗ{dq1 ⋅ dq2} v1.
+  Proof.
+    apply ghost_list_at_combine.
+  Qed.
+  Lemma local_pointsto_valid_2 tid dq1 v1 dq2 v2 :
+    tid ↦ₗ{dq1} v1 -∗
+    tid ↦ₗ{dq2} v2 -∗
+      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
+      ⌜v1 = v2⌝.
+  Proof.
+    apply ghost_list_at_valid_2.
+  Qed.
+  Lemma local_pointsto_agree tid dq2 v1 dq1 v2 :
+    tid ↦ₗ{dq1} v1 -∗
+    tid ↦ₗ{dq2} v2 -∗
+    ⌜v1 = v2⌝.
+  Proof.
+    apply ghost_list_at_agree.
+  Qed.
+  Lemma local_pointsto_dfrac_ne tid1 dq1 v1 tid2 dq2 v2 :
+    ¬ ✓ (dq1 ⋅ dq2) →
+    tid1 ↦ₗ{dq1} v1 -∗
+    tid2 ↦ₗ{dq2} v2 -∗
+    ⌜tid1 ≠ tid2⌝.
+  Proof.
+    iIntros "% H1 H2".
+    iDestruct (ghost_list_at_dfrac_ne with "H1 H2") as %[]; done.
+  Qed.
+  Lemma local_pointsto_ne tid1 v1 tid2 dq2 v2 :
+    tid1 ↦ₗ v1 -∗
+    tid2 ↦ₗ{dq2} v2 -∗
+    ⌜tid1 ≠ tid2⌝.
+  Proof.
+    iIntros "H1 H2".
+    iDestruct (ghost_list_at_ne with "H1 H2") as %[]; done.
+  Qed.
+  Lemma local_pointsto_exclusive tid v1 dq2 v2 :
+    tid ↦ₗ v1 -∗
+    tid ↦ₗ{dq2} v2 -∗
+    False.
+  Proof.
+    apply ghost_list_at_exclusive.
+  Qed.
+  Lemma local_pointsto_persist tid dq v :
+    tid ↦ₗ{dq} v ⊢ |==>
+    tid ↦ₗ□ v.
+  Proof.
+    apply ghost_list_at_persist.
+  Qed.
+End zoo_G.
+
+#[global] Opaque locals_auth'.
+#[global] Opaque local_pointsto'.
+
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition zoo_counter_auth' γ_counter vs :=
+    mono_list_auth γ_counter (DfracOwn 1) vs.
+  #[local] Definition zoo_counter_at' γ_counter id v :=
+    mono_list_at γ_counter id v.
+
+  #[local] Lemma zoo_counter_alloc param :
+    ⊢ |==>
+      ∃ γ_counter,
+      zoo_counter_auth' γ_counter (replicate param.(zoo_parameter_counter) inhabitant).
+  Proof.
+    apply mono_list_alloc.
+  Qed.
+End zoo_G₀.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  #[local] Definition zoo_counter_auth :=
+    zoo_counter_auth' zoo_G_counter_name.
+  Definition zoo_counter_at :=
+    zoo_counter_at' zoo_G_counter_name.
+
+  #[global] Instance zoo_counter_auth_timeless vs :
+    Timeless (zoo_counter_auth vs).
+  Proof.
+    apply _.
+  Qed.
+  #[global] Instance zoo_counter_at_timeless id v :
+    Timeless (zoo_counter_at id v).
+  Proof.
+    apply _.
+  Qed.
+
+  #[global] Instance zoo_counter_at_persistent id v :
+    Persistent (zoo_counter_at id v).
+  Proof.
+    apply _.
+  Qed.
+
+  Lemma zoo_counter_at_get {vs} id v :
+    vs !! id = Some v →
+    zoo_counter_auth vs ⊢
+    zoo_counter_at id v.
+  Proof.
+    apply mono_list_at_get.
+  Qed.
+  Lemma zoo_counter_at_valid vs id v :
+    zoo_counter_auth vs -∗
+    zoo_counter_at id v -∗
+    ⌜vs !! id = Some v⌝.
+  Proof.
+    apply mono_list_at_valid.
+  Qed.
+  Lemma zoo_counter_at_agree id v1 v2 :
+    zoo_counter_at id v1 -∗
+    zoo_counter_at id v2 -∗
+    ⌜v1 = v2⌝.
+  Proof.
+    apply mono_list_at_agree.
+  Qed.
+  Lemma zoo_counter_update {vs} v :
+    zoo_counter_auth vs ⊢ |==>
+    zoo_counter_auth (vs ++ [v]).
+  Proof.
+    apply mono_list_update_snoc.
+  Qed.
+End zoo_G.
+
+#[global] Opaque zoo_counter_auth'.
+#[global] Opaque zoo_counter_at'.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Definition zoo_counter_name :=
+    zoo_G_counter_name.
+  Definition zoo_counter_inv_inner : iProp Σ :=
+    ∃ cnt vs,
+    zoo_counter ↦ᵣ #cnt ∗
+    zoo_counter_auth vs ∗
+    ⌜length vs = cnt⌝.
+  Definition zoo_counter_inv :=
+    inv nroot zoo_counter_inv_inner.
+End zoo_G.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Definition state_interp ns nt σ κs : iProp Σ :=
+    gen_heap_interp σ.(state_headers) ∗
+    gen_heap_interp σ.(state_heap) ∗
+    prophet_map_interp κs σ.(state_prophets) ∗
+    steps_auth ns ∗
+    locals_auth σ.(state_locals) ∗
+    ⌜length σ.(state_locals) = nt⌝ ∗
+    zoo_counter_inv.
+
+  Definition fork_post (_ : val) : iProp Σ :=
+    True.
+End zoo_G.
+
+#[local] Instance : CustomIpat "state_interp" :=
+  " ( Hheaders_interp &
+      Hheap_interp &
+      Hprophets_interp &
+      Hsteps_auth &
+      Hlocals_auth &
+      %Hlocals &
+      Hcounter_inv
+    )
+  ".
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
+
+  Lemma state_interp_mono ns nt σ κs :
+    state_interp ns nt σ κs ⊢ |==>
+    state_interp (S ns) nt σ κs.
+  Proof.
+    iIntros "(:state_interp)".
+    iMod (steps_update with "Hsteps_auth") as "Hsteps_auth".
+    iFrameSteps.
+  Qed.
+
+  Lemma state_interp_counter_inv ns nt σ κs :
+    state_interp ns nt σ κs ⊢
+    zoo_counter_inv.
+  Proof.
+    iSteps.
+  Qed.
+End zoo_G.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   #[local] Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
     ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
@@ -583,24 +880,15 @@ Section zoo_G.
     setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- location_add_assoc. iSteps.
   Qed.
 
-  #[local] Instance : CustomIpat "state_interp" :=
-    " ( Hheaders_interp &
-        Hheap_interp &
-        Hlocals_interp &
-        %Hlocals &
-        Hprophets_interp &
-        Hcounter_inv
-      )
-    ".
-  Lemma state_interp_alloc {nt σ κs} l tag vs :
+  Lemma state_interp_alloc {ns nt σ κs} l tag vs :
     σ.(state_headers) !! l = None →
     ( ∀ i,
       i < length vs →
       σ.(state_heap) !! (l +ₗ i) = None
     ) →
-    state_interp nt σ κs ⊢ |==>
+    state_interp ns nt σ κs ⊢ |==>
       let hdr := Header tag (length vs) in
-      state_interp nt (state_alloc l hdr vs σ) κs ∗
+      state_interp ns nt (state_alloc l hdr vs σ) κs ∗
       l ↦ₕ hdr ∗
       meta_token l ⊤ ∗
       l ↦∗ vs.
@@ -612,24 +900,26 @@ Section zoo_G.
     { apply heap_array_map_disjoint. done. }
     rewrite big_sepM_heap_array. iSteps.
   Qed.
-  Lemma state_interp_has_header_valid nt σ κs l hdr :
-    state_interp nt σ κs -∗
+
+  Lemma state_interp_has_header_valid ns nt σ κs l hdr :
+    state_interp ns nt σ κs -∗
     l ↦ₕ hdr -∗
     ⌜σ.(state_headers) !! l = Some hdr⌝.
   Proof.
     iIntros "(:state_interp) Hl_header".
     iApply (gen_heap_valid with "Hheaders_interp Hl_header").
   Qed.
-  Lemma state_interp_pointsto_valid nt σ κs l dq v :
-    state_interp nt σ κs -∗
+
+  Lemma state_interp_pointsto_valid ns nt σ κs l dq v :
+    state_interp ns nt σ κs -∗
     l ↦{dq} v -∗
     ⌜σ.(state_heap) !! l = Some v⌝.
   Proof.
     iIntros "(:state_interp) Hl".
     iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
-  Lemma state_interp_pointstos_valid nt σ κs l dq vs :
-    state_interp nt σ κs -∗
+  Lemma state_interp_pointstos_valid ns nt σ κs l dq vs :
+    state_interp ns nt σ κs -∗
     l ↦∗{dq} vs -∗
     ⌜ ∀ (i : nat) v,
       vs !! i = Some v →
@@ -640,61 +930,63 @@ Section zoo_G.
     iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
     iApply (gen_heap_valid with "Hheap_interp Hl").
   Qed.
-  Lemma state_interp_pointsto_update {nt σ κs l w} v :
-    state_interp nt σ κs -∗
+  Lemma state_interp_pointsto_update {ns nt σ κs l w} v :
+    state_interp ns nt σ κs -∗
     l ↦ w ==∗
-      state_interp nt (state_update_heap (insert l v) σ) κs ∗
+      state_interp ns nt (state_update_heap (insert l v) σ) κs ∗
       l ↦ v.
   Proof.
     iIntros "(:state_interp) Hl".
     iMod (gen_heap_update with "Hheap_interp Hl") as "(Hheap_interp & Hl)".
     iFrameSteps.
   Qed.
-  Lemma state_interp_fork {nt σ κs} v :
-    state_interp nt σ κs ⊢ |==>
-      state_interp (nt + 1) (state_update_locals (.++ [v]) σ) κs ∗
-      nt ↦ₗ v.
-  Proof.
-    iIntros "(:state_interp)".
-    iMod (ghost_list_update_push with "Hlocals_interp") as "(Hlocals_interp & Hlocals)".
-    rewrite Hlocals. iFrameSteps. iPureIntro.
-    simpl_length/=. lia.
-  Qed.
-  Lemma state_interp_thread_pointsto_valid nt σ κs tid dq v :
-    state_interp nt σ κs -∗
+
+  Lemma state_interp_local_pointsto_valid ns nt σ κs tid dq v :
+    state_interp ns nt σ κs -∗
     tid ↦ₗ{dq} v -∗
     ⌜σ.(state_locals) !! tid = Some v⌝.
   Proof.
     iIntros "(:state_interp) Htid".
-    iApply (ghost_list_lookup with "Hlocals_interp Htid").
+    iApply (locals_lookup with "Hlocals_auth Htid").
   Qed.
-  Lemma state_interp_thread_pointsto_update {nt σ κs tid w} v :
-    state_interp nt σ κs -∗
+  Lemma state_interp_fork {ns nt σ κs} v :
+    state_interp ns nt σ κs ⊢ |==>
+      state_interp ns (nt + 1) (state_update_locals (.++ [v]) σ) κs ∗
+      nt ↦ₗ v.
+  Proof.
+    iIntros "(:state_interp)".
+    iMod (locals_update_push with "Hlocals_auth") as "(Hlocals_auth & Hlocals)".
+    rewrite Hlocals. iFrameSteps. iPureIntro.
+    simpl_length/=. lia.
+  Qed.
+  Lemma state_interp_local_pointsto_update {ns nt σ κs tid w} v :
+    state_interp ns nt σ κs -∗
     tid ↦ₗ w ==∗
-      state_interp nt (state_update_locals (insert tid v) σ) κs ∗
+      state_interp ns nt (state_update_locals (insert tid v) σ) κs ∗
       tid ↦ₗ v.
   Proof.
     iIntros "(:state_interp) Htid".
-    iMod (ghost_list_update_at with "Hlocals_interp Htid") as "(Hlocals_interp & Htid)".
+    iMod (locals_update_pointsto with "Hlocals_auth Htid") as "(Hlocals_auth & Htid)".
     iFrameSteps. simpl_length.
   Qed.
-  Lemma state_interp_prophet_new {nt σ κs} pid :
+
+  Lemma state_interp_prophet_new {ns nt σ κs} pid :
     pid ∉ σ.(state_prophets) →
-    state_interp nt σ κs ⊢ |==>
+    state_interp ns nt σ κs ⊢ |==>
       ∃ prophs,
-      state_interp nt (state_update_prophets ({[pid]} ∪.) σ) κs ∗
+      state_interp ns nt (state_update_prophets ({[pid]} ∪.) σ) κs ∗
       prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
     iMod (prophet_map_new with "Hprophets_interp") as "(Hprophets_interp & Hpid)"; first done.
     iFrameSteps.
   Qed.
-  Lemma state_interp_prophet_resolve nt σ κs pid proph prophs :
-    state_interp nt σ ((pid, proph) :: κs) -∗
+  Lemma state_interp_prophet_resolve ns nt σ κs pid proph prophs :
+    state_interp ns nt σ ((pid, proph) :: κs) -∗
     prophet_model pid (DfracOwn 1) prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
-      state_interp nt σ κs ∗
+      state_interp ns nt σ κs ∗
       prophet_model pid (DfracOwn 1) prophs'.
   Proof.
     iIntros "(:state_interp) Hpid".
@@ -702,18 +994,6 @@ Section zoo_G.
     iFrameSteps.
   Qed.
 End zoo_G.
-
-Record zoo_parameter := {
-  zoo_parameter_local : val ;
-  zoo_parameter_counter : nat ;
-}.
-
-Record state_wf σ param := {
-  state_wf_locals :
-    σ.(state_locals) = [param.(zoo_parameter_local)] ;
-  state_wf_counter :
-    σ.(state_heap) !! zoo_counter = Some (ValNat param.(zoo_parameter_counter)) ;
-}.
 
 Definition state_heap_initial σ :=
   delete zoo_counter σ.(state_heap).
@@ -723,7 +1003,7 @@ Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κs :
   ⊢ |={⊤}=>
     ∃ zoo_G : ZooG Σ,
     ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-    state_interp 1 σ κs ∗
+    state_interp 0 1 σ κs ∗
     ([∗ map] l ↦ v ∈ state_heap_initial σ, l ↦ v) ∗
     0 ↦ₗ param.(zoo_parameter_local).
 Proof.
@@ -736,26 +1016,29 @@ Proof.
   { apply Hwf. }
   iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
 
-  iMod (ghost_list_alloc σ.(state_locals)) as "(%γ_locals & Hlocals_interp & Hlocals)".
-  iEval (erewrite state_wf_locals; last done) in "Hlocals".
-  iDestruct "Hlocals" as "(Hlocal & _)".
-
   iMod (prophet_map_init κs σ.(state_prophets)) as "(% & Hprophets_interp)".
 
-  iMod (mono_list_alloc (replicate param.(zoo_parameter_counter) inhabitant)) as "(%γ_counter & Hcounter_auth)".
+  iMod steps_alloc as "(%γ_steps & Hsteps_auth)".
 
-  iExists (Build_ZooG γ_locals γ_counter). iFrameSteps.
+  iMod locals_alloc as "(%γ_locals & Hlocals_auth & Hlocals)"; first done.
+
+  iMod (zoo_counter_alloc param) as "(%γ_counter & Hcounter_auth)".
+
+  iExists (Build_ZooG γ_steps γ_locals γ_counter). iFrameSteps.
   - erewrite state_wf_locals; done.
   - iApply inv_alloc. iSteps. simpl_length.
 Qed.
 
-#[global] Opaque state_interp.
 #[global] Opaque has_header.
 #[global] Opaque meta_token.
 #[global] Opaque meta.
 #[global] Opaque pointsto.
-#[global] Opaque thread_pointsto.
 #[global] Opaque prophet_model.
+#[global] Opaque steps_lb.
+#[global] Opaque local_pointsto.
+#[global] Opaque zoo_counter_auth.
+#[global] Opaque zoo_counter_at.
+#[global] Opaque state_interp.
 
 Inductive ownership :=
   | Own

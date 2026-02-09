@@ -17,7 +17,7 @@ Lemma wp_adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
     ⊢ |={⊤}=>
       ∃ (zoo_G : ZooG Σ) Φ,
       ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-      state_interp 1 σ κs ∗
+      state_interp 0 1 σ κs ∗
       WP e ∶ 0 {{ Φ }}
   ) →
   safe ([e], σ).

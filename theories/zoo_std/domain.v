@@ -435,7 +435,7 @@ Section domain_G.
       iDestruct "Hlocal_at" as "(Hlocal_at1 & Hlocal_at2)".
       iSplitL "Hlocal_at1"; iFrame "#∗".
     - iIntros "((:local_pointsto =1) & (:local_pointsto =2))".
-      iDestruct (thread_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+      iDestruct (local_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
       iDestruct (meta_agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
       iDestruct (key_id_agree with "Hid1 Hid2") as %<-. iClear "Hid2".
       iCombine "Hlocal_at1 Hlocal_at2" as "Hlocal_at".
@@ -461,7 +461,7 @@ Section domain_G.
       domain_local_pointsto tid key (dq1 ⋅ dq2) v1.
   Proof.
     iIntros "(:local_pointsto =1) (:local_pointsto =2)".
-    iDestruct (thread_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
+    iDestruct (local_pointsto_agree with "Hlocal1 Hlocal2") as %[= <-]. iClear "Hlocal2".
     iDestruct (meta_agree with "Hl1_meta Hl2_meta") as %<-. iClear "Hl2_meta".
     iDestruct (key_id_agree with "Hid1 Hid2") as %<-. iClear "Hid2".
     iDestruct (ghost_map_elem_combine with "Hlocal_at1 Hlocal_at2") as "(Hlocal_at & %)". simplify.
@@ -539,7 +539,7 @@ Section domain_G.
     wp_apply (dynarray_1_create_spec' with "[//]") as (l) "(Hl & Hl_meta)".
     wp_smart_apply (wp_set_local with "Hlocal") as "Hlocal".
 
-    iMod (thread_pointsto_persist with "Hlocal") as "#Hlocal".
+    iMod (local_pointsto_persist with "Hlocal") as "#Hlocal".
     iMod local_alloc as "(%γ & Hlocal_auth)".
     iMod (meta_set γ with "Hl_meta") as "#Hl_meta"; first done.
 
@@ -621,7 +621,7 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ ((:local) & #Hkey & (:local_init suff=)) HΦ".
-    iDestruct (thread_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
@@ -670,7 +670,7 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ ((:local) & (:local_pointsto suff=)) HΦ".
-    iDestruct (thread_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
@@ -729,7 +729,7 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ ((:local) & #Hkey & (:local_init suff=)) HΦ".
-    iDestruct (thread_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
@@ -768,7 +768,7 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ ((:local) & (:local_pointsto suff=)) HΦ".
-    iDestruct (thread_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
+    iDestruct (local_pointsto_agree with "Hlocal Hlocal_") as %[= <-]. iClear "Hlocal_".
     iDestruct (meta_agree with "Hl_meta Hl_meta_") as %<-. iClear "Hl_meta_".
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 

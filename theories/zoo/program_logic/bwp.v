@@ -13,11 +13,29 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Parameter num_later_per_step : nat.
-Axiom num_later_per_step_lb :
-  2 ≤ num_later_per_step.
+Parameter later_coefficient : nat.
+Axiom later_coefficient_lb :
+  2 ≤ later_coefficient.
 #[global] Hint Resolve
-  num_later_per_step_lb
+  later_coefficient_lb
+: core.
+
+Parameter later_constant : nat.
+Axiom later_constant_lb :
+  2 ≤ later_constant.
+#[global] Hint Resolve
+  later_constant_lb
+: core.
+
+Definition later_function ns :=
+  later_coefficient * ns + later_constant.
+Lemma later_function_lb ns :
+  later_constant ≤ later_function ns.
+Proof.
+  rewrite /later_function. lia.
+Qed.
+#[global] Hint Resolve
+  later_function_lb
 : core.
 
 Section zoo_G.
@@ -27,11 +45,11 @@ Section zoo_G.
   : expr -d> thread_id -d> coPset -d> (val -d> iPropO Σ) -d> iPropO Σ
   := (
     λ e tid E Φ,
-      ∀ nt σ κs,
-      state_interp nt σ κs ={E}=∗
+      ∀ ns nt σ κs,
+      state_interp ns nt σ κs ={E}=∗
       match to_val e with
       | Some v =>
-          state_interp nt σ κs ∗
+          state_interp ns nt σ κs ∗
           Φ v
       | None =>
           |={E,∅}=>
@@ -39,9 +57,9 @@ Section zoo_G.
             ∀ κ κs' e' σ' es,
             ⌜κs = κ ++ κs'⌝ -∗
             ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-            £ num_later_per_step ={∅}=∗
+            £ (later_function ns) ={∅}=∗
               ▷ |={∅,E}=>
-              state_interp (nt + length es) σ' κs' ∗
+              state_interp (S ns) (nt + length es) σ' κs' ∗
               bwp e' tid E Φ ∗
               [∗ list] i ↦ e ∈ es,
                 bwp e (nt + i) ⊤ fork_post
@@ -133,7 +151,7 @@ Section zoo_G.
   Proof.
     move: e. induction (lt_wf n) as [n _ IH] => e Φ1 Φ2 HΦ.
     rewrite !bwp_unfold /bwp_pre /=.
-    do 29 (f_contractive || f_equiv).
+    do 31 (f_contractive || f_equiv).
     apply IH; first done.
     f_equiv.
     eapply dist_le; last by apply SIdx.lt_le_incl.
@@ -155,16 +173,16 @@ Section zoo_G.
   Qed.
 
   Lemma bwp_state_interp e tid E Φ :
-    ( ∀ nt σ κs,
-      state_interp nt σ κs ={E}=∗
-        state_interp nt σ κs ∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs ={E}=∗
+        state_interp ns nt σ κs ∗
         BWP e ∶ tid @ E {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "H".
     iEval (rewrite bwp_unfold /bwp_pre).
-    iIntros "%nt %σ %κs Hinterp".
+    iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "(Hinterp & H)".
     iApply (bwp_unfold with "H Hinterp").
   Qed.
@@ -204,7 +222,7 @@ Section zoo_G.
     BWP of_val v ∶ tid @ E {{ Φ2 }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre to_of_val.
-    iIntros "H HΦ %nt %σ %κs Hinterp".
+    iIntros "H HΦ %ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iSteps.
   Qed.
@@ -218,7 +236,7 @@ Section zoo_G.
     iIntros "%HE H HΦ".
     iLöb as "HLöb" forall (e).
     rewrite !bwp_unfold /bwp_pre /=.
-    iIntros "%nt %σ1 %κs Hinterp".
+    iIntros "%ns %nt %σ1 %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
       iMod ("H" with "Hinterp") as "(Hinterp & HΦ1)".
@@ -259,12 +277,12 @@ Section zoo_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite bwp_unfold /bwp_pre.
-    iIntros "H %nt %σ %κs Hinterp".
+    iIntros "H %ns %nt %σ %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
     - iMod ("H" with "Hinterp") as "$".
     - iModIntro.
       iMod ("H" with "Hinterp") as ">>(%Hreducible & H)".
-      iSteps.
+      iFrameSteps.
   Qed.
   Lemma bwp_fupd e tid E Φ :
     BWP e ∶ tid @ E {{ v, |={E}=> Φ v }} ⊢
@@ -316,7 +334,7 @@ Section zoo_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre.
-    iIntros "H %nt %σ %κs Hinterp".
+    iIntros "H %ns %nt %σ %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
     - iMod ("H" with "Hinterp") as ">($ & $)".
     - iModIntro.
@@ -328,7 +346,7 @@ Section zoo_G.
       rewrite !bwp_unfold /bwp_pre.
       destruct (to_val e2) as [v2 |] eqn:He2.
       + iMod ("H" with "Hinterp") as "($ & >H)".
-        iSteps.
+        iFrameSteps.
       + iMod ("H" with "Hinterp") as ">(%Hreducible2 & _)".
         destruct Hreducible2 as (κ2 & e3 & σ3 & es2 & Hstep2).
         edestruct atomic; [done | congruence].
@@ -342,7 +360,7 @@ Section zoo_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     rewrite !bwp_unfold /bwp_pre /=.
-    iIntros (-> HE) "HP H %nt %σ1 %κs Hinterp !>".
+    iIntros (-> HE) "HP H %ns %nt %σ1 %κs Hinterp !>".
     iMod "HP".
     iMod ("H" with "Hinterp") as ">($ & H)".
     iIntros "!> %κ %κs' %e2 %σ2 %es1 -> %Hstep H£".
@@ -365,7 +383,7 @@ Section zoo_G.
     - apply of_to_val in He as <-.
       iApply (bwp_state_interp with "H").
     - rewrite bwp_unfold /bwp_pre context_fill_not_val //.
-      iIntros "%nt %σ1 %κs Hinterp !>".
+      iIntros "%ns %nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible1 & H)".
       iModIntro; iSplit; first eauto using reducible_context.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
@@ -385,7 +403,7 @@ Section zoo_G.
       iApply bwp_value'.
       iApply "H".
     - rewrite !bwp_unfold /bwp_pre context_fill_not_val He //.
-      iIntros "%nt %σ1 %κs Hinterp !>".
+      iIntros "%ns %nt %σ1 %κs Hinterp !>".
       iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
       iModIntro; iSplit; first eauto using reducible_context_inv.
       iIntros "%κ %κs' %e2 %σ2 %es1 -> %Hstep1 H£".
@@ -535,16 +553,16 @@ Section zoo_G.
 
   Lemma bwp_lift_step e tid E Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E, ∅}=>
         ⌜reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step ={∅}=∗
+          £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
-            state_interp (nt + length es) σ' κs' ∗
+            state_interp ns (nt + length es) σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }} ∗
             [∗ list] i ↦ e ∈ es,
               BWP e ∶ nt + i {{ fork_post }}
@@ -552,48 +570,52 @@ Section zoo_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     rewrite bwp_unfold /bwp_pre => ->.
-    iIntros "H %nt %σ %κs Hinterp !>".
+    iIntros "H %ns %nt %σ %κs Hinterp !>".
     iMod ("H" with "Hinterp") as "(%Hreducible & H)".
-    iSteps.
+    iStep 9 as (κ κs' e' σ' es Hstep) "H H£".
+    iMod ("H" with "[//] [//] H£") as "H".
+    do 2 iModIntro.
+    iMod "H" as "(Hinterp & $ & $)".
+    iApply (state_interp_mono with "Hinterp").
   Qed.
   Lemma bwp_lift_step_nofork e tid E Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E, ∅}=>
         ⌜reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step ={∅}=∗
+          £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
-            state_interp nt σ' κs' ∗
+            state_interp ns nt σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
     iMod "H" as "(-> & Hinterp & H)".
-    rewrite Nat.add_0_r. iSteps.
+    rewrite Nat.add_0_r. iFrameSteps.
   Qed.
 
   Lemma bwp_lift_atomic_step e tid E1 E2 Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs ={E1}=∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs ={E1}=∗
         ⌜reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step -∗
+          £ (later_function ns) -∗
             |={E1}[E2]▷=>
-            state_interp (nt + length es) σ' κs' ∗
+            state_interp ns (nt + length es) σ' κs' ∗
             from_option Φ False (to_val e') ∗
             [∗ list] i ↦ e ∈ es,
               BWP e ∶ nt + i {{ fork_post }}
@@ -601,7 +623,7 @@ Section zoo_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod "Hclose" as "_".
@@ -615,28 +637,28 @@ Section zoo_G.
   Qed.
   Lemma bwp_lift_atomic_step_nofork e tid E1 E2 Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs ={E1}=∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs ={E1}=∗
         ⌜reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜prim_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step -∗
+          £ (later_function ns) -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
-            state_interp nt σ' κs' ∗
+            state_interp ns nt σ' κs' ∗
             from_option Φ False (to_val e')
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_atomic_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
     iMod "H" as "(-> & Hinterp & H)".
-    rewrite Nat.add_0_r. iSteps.
+    rewrite Nat.add_0_r. iFrameSteps.
   Qed.
 
   Lemma bwp_lift_pure_step_nofork e tid E1 E2 Φ :
@@ -652,7 +674,7 @@ Section zoo_G.
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜prim_step tid e σ κ e' σ es⌝ -∗
-      £ num_later_per_step -∗
+      £ later_constant -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -660,12 +682,13 @@ Section zoo_G.
     iIntros "%Hsafe %Hpure H".
     iApply bwp_lift_step.
     { specialize (Hsafe inhabitant). eauto using reducible_not_val. }
-    iIntros "%nt %σ %κs Hinterp".
+    iIntros "%ns %nt %σ %κs Hinterp".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep H£ !> !>".
     edestruct Hpure as (? & ? & ?); first done. subst.
-    rewrite Nat.add_0_r. iSteps.
+    iDestruct (lc_weaken later_constant with "H£") as "H£"; first done.
+    rewrite Nat.add_0_r. iFrameSteps.
   Qed.
 
   Lemma bwp_lift_pure_det_step_nofork e1 e2 tid E1 E2 Φ :
@@ -680,7 +703,7 @@ Section zoo_G.
         es = []
     ) →
     ( |={E1}[E2]▷=>
-      £ num_later_per_step -∗
+      £ later_constant -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
@@ -696,7 +719,7 @@ Section zoo_G.
     PureExec ϕ n e1 e2 →
     ϕ →
     ( |={E1}[E2]▷=>^n
-      £ (n * num_later_per_step) -∗
+      £ (n * later_constant) -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
@@ -718,7 +741,7 @@ Section zoo_G.
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
-      £ (n * num_later_per_step) -∗
+      £ (n * later_constant) -∗
       BWP e2 ∶ tid @ E {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E {{ Φ }}.
@@ -742,16 +765,16 @@ Section zoo_G.
 
   Lemma bwp_lift_base_step e tid E Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E, ∅}=>
         ⌜base_reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step ={∅}=∗
+          £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
-            state_interp (nt + length es) σ' κs' ∗
+            state_interp ns (nt + length es) σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }} ∗
             [∗ list] i ↦ e ∈ es,
               BWP e ∶ nt + i {{ fork_post }}
@@ -759,30 +782,30 @@ Section zoo_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "(%Hreducible & H)".
     iModIntro. iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep".
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
   Lemma bwp_lift_base_step_nofork e tid E Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E, ∅}=>
         ⌜base_reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step ={∅}=∗
+          £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
-            state_interp nt σ' κs' ∗
+            state_interp ns nt σ' κs' ∗
             BWP e' ∶ tid @ E {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_base_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_base_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
@@ -793,16 +816,16 @@ Section zoo_G.
 
   Lemma bwp_lift_atomic_base_step e tid E1 E2 Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E1}=>
         ⌜base_reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step -∗
+          £ (later_function ns) -∗
             |={E1}[E2]▷=>
-            state_interp (nt + length es) σ' κs' ∗
+            state_interp ns (nt + length es) σ' κs' ∗
             from_option Φ False (to_val e') ∗
             [∗ list] i ↦ e ∈ es,
               BWP e ∶ nt + i {{ fork_post }}
@@ -810,30 +833,30 @@ Section zoo_G.
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_atomic_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "(%Hreducible & H)".
     iModIntro. iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep".
     iApply ("H" with "[//] [%]"); first auto.
   Qed.
   Lemma bwp_lift_atomic_base_step_nofork e tid E1 E2 Φ :
     to_val e = None →
-    ( ∀ nt σ κs,
-      state_interp nt σ κs -∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs -∗
         |={E1}=>
         ⌜base_reducible tid e σ⌝ ∗
           ∀ κ κs' e' σ' es,
           ⌜κs = κ ++ κs'⌝ -∗
           ⌜base_step tid e σ κ e' σ' es⌝ -∗
-          £ num_later_per_step -∗
+          £ (later_function ns) -∗
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
-            state_interp nt σ' κs' ∗
+            state_interp ns nt σ' κs' ∗
             from_option Φ False (to_val e')
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
     iIntros "%He H".
-    iApply bwp_lift_atomic_base_step; first done. iIntros "%nt %σ %κs Hinterp".
+    iApply bwp_lift_atomic_base_step; first done. iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iIntros "!> %κ %κs' %e' %σ' %es -> %Hstep H£".
     iMod ("H" with "[//] [//] H£") as "H".
@@ -855,7 +878,7 @@ Section zoo_G.
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜base_step tid e σ κ e' σ es⌝ -∗
-      £ num_later_per_step -∗
+      £ later_constant -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
@@ -881,7 +904,7 @@ Section zoo_G.
         es = []
     ) →
     ( |={E1}[E2]▷=>
-      £ num_later_per_step -∗
+      £ later_constant -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) ⊢
     BWP e1 ∶ tid @ E1 {{ Φ }}.
@@ -902,7 +925,7 @@ Section zoo_G.
     BWP Match #l x_fb e_fb brs ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%He >#Hl H".
-    iApply bwp_lift_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp".
+    iApply bwp_lift_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interp_has_header_valid with "Hinterp Hl") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e_ %σ_ %es -> %Hstep _ !>".
@@ -935,7 +958,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hatomic %He Hpid H".
     rewrite !bwp_unfold /bwp_pre /= He. simpl in *.
-    iIntros "%nt %σ1 %κs Hinterp !>".
+    iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
     iSplitR. { iPureIntro. apply reducible_resolve; done. }
     iIntros "!> %κ %κs' %e2 %σ2 %es -> %Hstep H£".

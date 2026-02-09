@@ -14,6 +14,14 @@ From zoo Require Import
 Implicit Types e : expr.
 Implicit Types es : list expr.
 
+#[local] Fixpoint later_sum ns n : nat :=
+  match n with
+  | 0 =>
+      0
+  | S n =>
+      later_function ns + later_sum (S ns) n
+  end.
+
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
@@ -24,13 +32,13 @@ Section zoo_G.
     [∗ list] i ↦ e; Φ ∈ es; Φs,
       BWP e ∶ nt + i {{ Φ }}.
 
-  #[local] Lemma bwp_step tid e1 σ1 e2 σ2 κ κs es nt Φ :
+  #[local] Lemma bwp_step tid e1 σ1 e2 σ2 κ κs es ns nt Φ :
     prim_step tid e1 σ1 κ e2 σ2 es →
-    state_interp nt σ1 (κ ++ κs) -∗
-    £ num_later_per_step -∗
+    state_interp ns nt σ1 (κ ++ κs) -∗
+    £ (later_function ns) -∗
     BWP e1 ∶ tid {{ Φ }} -∗
       |={⊤}[∅]▷=>
-      state_interp (nt + length es) σ2 κs ∗
+      state_interp (S ns) (nt + length es) σ2 κs ∗
       BWP e2 ∶ tid {{ Φ }} ∗
       bwps nt es (replicate (length es) fork_post).
   Proof.
@@ -41,13 +49,13 @@ Section zoo_G.
     iModIntro.
     iSteps. rewrite /bwps big_sepL2_replicate_r //.
   Qed.
-  #[local] Lemma bwps_step es1 σ1 es2 σ2 κ κs Φs :
+  #[local] Lemma bwps_step es1 σ1 es2 σ2 κ κs ns Φs :
     step (es1, σ1) κ (es2, σ2) →
-    state_interp (length es1) σ1 (κ ++ κs) -∗
-    £ num_later_per_step -∗
+    state_interp ns (length es1) σ1 (κ ++ κs) -∗
+    £ (later_function ns) -∗
     bwps 0 es1 Φs -∗
       |={⊤}[∅]▷=>
-      state_interp (length es2) σ2 κs ∗
+      state_interp (S ns) (length es2) σ2 κs ∗
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
     iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hinterp H£ H".
@@ -59,19 +67,20 @@ Section zoo_G.
     simpl_length. rewrite Nat.add_sub' (list_insert_id Φs) // big_sepL2_app. simpl_length.
     iSteps.
   Qed.
-  #[local] Lemma bwps_steps n es1 σ1 es2 σ2 κs1 κs2 Φs :
+  #[local] Lemma bwps_steps n es1 σ1 es2 σ2 κs1 κs2 ns Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
-    state_interp (length es1) σ1 (κs1 ++ κs2) -∗
-    £ (n * num_later_per_step) -∗
+    state_interp ns (length es1) σ1 (κs1 ++ κs2) -∗
+    £ (later_sum ns n) -∗
     bwps 0 es1 Φs -∗
       |={⊤,∅}=> |={∅}▷=>^n |={∅,⊤}=>
-      state_interp (length es2) σ2 κs2 ∗
+      state_interp (ns + n) (length es2) σ2 κs2 ∗
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
-    iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 Φs) => /=.
+    iInduction n as [| n] "IH" forall (es1 σ1 κs1 κs2 ns Φs) => /=.
     all: iIntros "%Hsteps Hinterp H£s H".
     - invert Hsteps.
-      rewrite Nat.sub_diag right_id. iSteps.
+      rewrite Nat.add_0_r Nat.sub_diag app_nil_r.
+      iFrameSteps.
     - invert Hsteps as [| ? ? (es1' & σ1') ? κ κs1' Hstep Hsteps'].
       rewrite -(assoc (++)).
       iDestruct "H£s" as "(H£ & H£s)".
@@ -84,17 +93,17 @@ Section zoo_G.
       iModIntro.
       iApply (step_fupdN_wand with "H"). iIntros ">H".
       iDestruct "H" as "(Hinterp & H)".
-      rewrite -assoc -replicate_add.
+      rewrite -assoc -replicate_add Nat.add_succ_comm.
       assert (length es1' - length es1 + (length es2 - length es1') = length es2 - length es1) as ->.
       { apply step_length in Hstep.
         apply nsteps_length in Hsteps'.
         naive_solver lia.
       }
-      iSteps.
+      iFrameSteps.
   Qed.
 
-  #[local] Lemma bwp_not_stuck e tid nt σ κs Φ :
-    state_interp nt σ κs -∗
+  #[local] Lemma bwp_not_stuck e tid ns nt σ κs Φ :
+    state_interp ns nt σ κs -∗
     BWP e ∶ tid {{ Φ }} -∗
       |={⊤, ∅}=>
       ⌜not_stuck tid e σ⌝.
@@ -108,11 +117,11 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  #[local] Lemma bwps_progress n es1 σ1 tid e2 es2 σ2 κs1 κs2 Φs :
+  #[local] Lemma bwps_progress n es1 σ1 tid e2 es2 σ2 κs1 κs2 ns Φs :
     nsteps n (es1, σ1) κs1 (es2, σ2) →
     es2 !! tid = Some e2 →
-    state_interp (length es1) σ1 (κs1 ++ κs2) -∗
-    £ (n * num_later_per_step) -∗
+    state_interp ns (length es1) σ1 (κs1 ++ κs2) -∗
+    £ (later_sum ns n) -∗
     bwps 0 es1 Φs -∗
       |={⊤, ∅}=> |={∅}▷=>^n |={∅}=>
       ⌜not_stuck tid e2 σ2⌝.
@@ -133,7 +142,7 @@ Lemma bwp_progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
     ⊢ |={⊤}=>
       ∃ (zoo_G : ZooG Σ) Φs,
       ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-      state_interp (length es1) σ1 κs ∗
+      state_interp 0 (length es1) σ1 κs ∗
       bwps 0 es1 Φs
   ) →
   nsteps n (es1, σ1) κs (es2, σ2) →
@@ -141,7 +150,7 @@ Lemma bwp_progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
 Proof.
   intros H Hsteps.
   apply Foralli_lookup => tid e2 Hlookup.
-  eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n (n * num_later_per_step)).
+  eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n (later_sum 0 n)).
   iIntros "%Hinv_G H£s".
   iMod H as "(%zoo_G & %Φs & <- & Hinterp & H)".
   iMod (bwps_progress with "[Hinterp] H£s H") as "H". 1,2: done.
@@ -156,7 +165,7 @@ Lemma bwp_adequacy' `{inv_Gpre : !invGpreS Σ} e σ :
     ⊢ |={⊤}=>
       ∃ (zoo_G : ZooG Σ) Φ,
       ⌜zoo_G.(zoo_G_inv_G) = inv_G⌝ ∗
-      state_interp 1 σ κs ∗
+      state_interp 0 1 σ κs ∗
       BWP e ∶ 0 {{ Φ }}
   ) →
   safe ([e], σ).

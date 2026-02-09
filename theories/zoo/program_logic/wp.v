@@ -187,9 +187,9 @@ Section zoo_G.
   Qed.
 
   Lemma wp_state_interp e tid E Φ :
-    ( ∀ nt σ κs,
-      state_interp nt σ κs ={E}=∗
-        state_interp nt σ κs ∗
+    ( ∀ ns nt σ κs,
+      state_interp ns nt σ κs ={E}=∗
+        state_interp ns nt σ κs ∗
         WP e ∷ tid @ E {{ Φ }}
     ) ⊢
     WP e ∷ tid @ E {{ Φ }}.
@@ -197,7 +197,7 @@ Section zoo_G.
     wp_unseal.
     - apply bwp_state_interp.
     - iIntros "H %tid".
-      iApply bwp_state_interp. iIntros "%nt %σ %κs Hinterp".
+      iApply bwp_state_interp. iIntros "%ns %nt %σ %κs Hinterp".
       iMod ("H" with "Hinterp") as "($ & H)".
       iSteps.
   Qed.
@@ -529,7 +529,7 @@ Section zoo_G.
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
-      £ (n * num_later_per_step) -∗
+      £ (n * later_constant) -∗
       WP e2 ∷ tid @ E {{ Φ }}
     ) ⊢
     WP e1 ∷ tid @ E {{ Φ }}.
@@ -555,7 +555,7 @@ Section zoo_G.
   Proof.
     iIntros "HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit. { iPureIntro. apply base_reducible_equal. }
     iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
     invert_base_step; iSteps.
@@ -595,7 +595,7 @@ Section zoo_G.
     iIntros "%Htag %Hn %Φ _ HΦ".
     Z_to_nat tag. rewrite Nat2Z.id.
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)".
@@ -619,7 +619,7 @@ Section zoo_G.
   Proof.
     iIntros (Hlen <-%of_to_vals) "%Φ _ HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_alloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)".
@@ -640,7 +640,7 @@ Section zoo_G.
   Proof.
     iIntros (<-%of_to_vals) "%Φ _ HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iSteps.
@@ -678,7 +678,7 @@ Section zoo_G.
   Proof.
     iIntros ">Hheader HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
@@ -693,7 +693,7 @@ Section zoo_G.
   Proof.
     iIntros ">Hheader HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
@@ -713,7 +713,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Hl HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
     invert_base_step.
@@ -732,7 +732,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Hl HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
@@ -752,7 +752,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Hl HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
@@ -776,7 +776,7 @@ Section zoo_G.
   Proof.
     iIntros ">Hl HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit. { iPureIntro. eapply base_reducible_cas. done. }
     iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
@@ -857,7 +857,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Hl HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
@@ -876,7 +876,7 @@ Section zoo_G.
   Proof.
     iIntros "H HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_fork with "Hinterp") as "(Hinterp & Htid)".
@@ -896,8 +896,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Htid HΦ".
     iApply bwp_wp.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
-    iDestruct (state_interp_thread_pointsto_valid with "Hinterp Htid") as %Hlookup.
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interp_local_pointsto_valid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iSteps.
@@ -915,11 +915,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ >Htid HΦ".
     iApply bwp_wp.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
-    iDestruct (state_interp_thread_pointsto_valid with "Hinterp Htid") as %Hlookup.
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iDestruct (state_interp_local_pointsto_valid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
-    iMod (state_interp_thread_pointsto_update with "Hinterp Htid") as "($ & Htid)".
+    iMod (state_interp_local_pointsto_update with "Hinterp Htid") as "($ & Htid)".
     iSteps.
   Qed.
 
@@ -935,7 +935,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply bwp_wp_weak. iIntros.
-    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%nt %σ1 %κs Hinterp !>".
+    iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_prophet_new with "Hinterp") as "(%prophs & Hinterp & Hpid)"; first done.

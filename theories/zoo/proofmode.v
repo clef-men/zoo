@@ -50,7 +50,7 @@ Section zoo_G.
     iSteps.
   Qed.
   #[local] Lemma tac_wp_pure_credits' n Δ Δ' id K e1 e2 ϕ tid E Φ :
-    n ≤ num_later_per_step →
+    n ≤ later_constant →
     PureExec ϕ 1 e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
@@ -79,7 +79,7 @@ Section zoo_G.
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     match
       envs_app false (Esnoc Enil
-        id (£ num_later_per_step))
+        id (£ later_constant))
         Δ'
     with
     | Some Δ'' =>
@@ -108,7 +108,7 @@ Section zoo_G.
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     apply tac_wp_pure_credits'.
-    pose proof num_later_per_step_lb. lia.
+    pose proof later_constant_lb. lia.
   Qed.
 
   Lemma tac_wp_value_nofupd Δ v tid E Φ :
