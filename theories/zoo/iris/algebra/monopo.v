@@ -135,13 +135,13 @@ Section relation.
 
   #[local] Instance monopo_unit : Unit (monopo R) :=
     nil.
-  #[local] Lemma auth_ucmra_mixin :
+  #[local] Lemma monopo_ucmra_mixin :
     UcmraMixin (monopo R).
   Proof.
     split; try done. intros ?*. done.
   Qed.
   Canonical monopo_UR :=
-    Ucmra (monopo R) auth_ucmra_mixin.
+    Ucmra (monopo R) monopo_ucmra_mixin.
 
   Lemma monopo_idemp x :
     x ⋅ x ≡ x.
@@ -172,7 +172,12 @@ Section relation.
   Qed.
 
   Lemma monopo_principal_R_opN_base n x y :
-    (∀ b, b ∈ y → ∃ c, c ∈ x ∧ R b c) →
+    ( ∀ b,
+      b ∈ y →
+        ∃ c,
+        c ∈ x ∧
+        R b c
+    ) →
     y ⋅ x ≡{n}≡ x.
   Proof.
     intros HR. split.
@@ -187,7 +192,8 @@ Section relation.
   Proof.
     intros.
     apply monopo_principal_R_opN_base => c.
-    setoid_rewrite list_elem_of_singleton. naive_solver.
+    setoid_rewrite list_elem_of_singleton.
+    naive_solver.
   Qed.
   Lemma monopo_principal_R_op a b :
     R a b →

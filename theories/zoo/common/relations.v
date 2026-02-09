@@ -43,3 +43,18 @@ Section relation.
     intros a1 a2 ? ?. rewrite (anti_symm _ a1 a2) //.
   Qed.
 End relation.
+
+Class Initial {A} (R : relation A) := {
+  initial : A ;
+  initial_lb a :
+    R initial a ;
+}.
+#[global] Arguments Build_Initial {_ _} _ _ : assert.
+#[global] Arguments initial {_ _ _} : assert.
+
+#[global] Program Instance rtc_initial `(R : relation A) `{!Initial R} : Initial (rtc R) :=
+  {| initial := initial |}.
+Next Obligation.
+  intros A R ? a.
+  apply rtc_once, initial_lb.
+Qed.

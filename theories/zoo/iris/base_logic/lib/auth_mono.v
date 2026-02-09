@@ -24,7 +24,8 @@ Proof.
 Qed.
 
 Section auth_mono_G.
-  Context {A : ofe} (R : relation A) `{auth_mono_G : !AuthMonoG Σ R}.
+  Context {A : ofe} (R : relation A).
+  Context `{auth_mono_G : !AuthMonoG Σ R}.
 
   Implicit Types a : A.
 
