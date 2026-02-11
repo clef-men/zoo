@@ -32,6 +32,20 @@ Proof.
   destruct p => /= HP; apply _.
 Qed.
 
+#[local] Notation "'let*' Δ2 := Δ1 'in' cont" := (
+  match Δ1 with
+  | Some Δ2 =>
+      cont
+  | None =>
+      False
+  end
+)(at level 200,
+  Δ1 at level 200,
+  Δ2 ident,
+  cont at level 200,
+  format "'[v' '[hv' 'let*'  Δ2  :=  '/  ' '[' Δ1 ']'  '/' 'in'  ']' '/' cont ']'"
+).
+
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
@@ -63,16 +77,13 @@ Section zoo_G.
     PureExec ϕ 1 e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    match
-      envs_app false (Esnoc Enil
-        id (£ n))
-        Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_app false (Esnoc Enil
+          id (£ n))
+          Δ'
+      in
+      envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hn Hexec Hϕ HΔ HΔ''.
@@ -87,16 +98,13 @@ Section zoo_G.
     PureExec ϕ 1 e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    match
-      envs_app false (Esnoc Enil
-        id (£ later_constant))
-        Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_app false (Esnoc Enil
+          id (£ later_constant))
+          Δ'
+      in
+      envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     apply tac_wp_pure_credits'. done.
@@ -105,16 +113,13 @@ Section zoo_G.
     PureExec ϕ 1 e1 e2 →
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
-    match
-      envs_app false (Esnoc Enil
-        id (£ 1))
-        Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_app false (Esnoc Enil
+          id (£ 1))
+          Δ'
+      in
+      envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     apply tac_wp_pure_credits'.
@@ -125,16 +130,13 @@ Section zoo_G.
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (p, ⧖ ns)%I →
-    match
-      envs_simple_replace id p (Esnoc Enil
-        id (⧖ (S ns))
-      ) Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_simple_replace id p (Esnoc Enil
+          id (⧖ (S ns))
+        ) Δ'
+      in
+      envs_entails Δ'' (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ Hlookup HΔ'.
@@ -152,25 +154,18 @@ Section zoo_G.
     ϕ →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id1 Δ' = Some (p, ⧖ ns)%I →
-    match
-      envs_simple_replace id1 p (Esnoc Enil
-        id1 (⧖ (S ns))
-      ) Δ'
-    with
-    | Some Δ'' =>
-        match
-          envs_app false (Esnoc Enil
-            id2 (£ (later_function ns)))
-            Δ''
-        with
-        | Some Δ''' =>
-            envs_entails Δ''' (WP fill K e2 ∷ tid @ E {{ Φ }})
-        | None =>
-            False
-        end
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_simple_replace id1 p (Esnoc Enil
+          id1 (⧖ (S ns))
+        ) Δ'
+      in
+      let* Δ''' :=
+        envs_app false (Esnoc Enil
+          id2 (£ (later_function ns)))
+          Δ''
+      in
+      envs_entails Δ''' (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => Hexec Hϕ HΔ Hlookup HΔ'.
@@ -232,18 +227,14 @@ Section zoo_G.
     (0 ≤ n)%Z →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
-      match
+      let* Δ'' :=
         envs_app false (Esnoc (Esnoc (Esnoc Enil
           id1 (l ↦ₕ Header ₊tag ₊n))
           id2 (meta_token l ⊤))
           id3 (l ↦∗ replicate ₊n ()%V))
           Δ'
-      with
-      | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
-      | None =>
-          False
-      end
+      in
+      envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (Alloc #tag #n) ∷ tid @ E {{ Φ }}).
   Proof.
@@ -261,18 +252,14 @@ Section zoo_G.
     to_vals es = Some vs →
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
-      match
+      let* Δ'' :=
         envs_app false (Esnoc (Esnoc (Esnoc Enil
           id1 (l ↦ₕ Header tag (length es)))
           id2 (meta_token l ⊤))
           id3 (l ↦∗ vs))
           Δ'
-      with
-      | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
-      | None =>
-          False
-      end
+      in
+      envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (Block Mutable tag es) ∷ tid @ E {{ Φ }}).
   Proof.
@@ -288,18 +275,14 @@ Section zoo_G.
   Lemma tac_wp_ref Δ Δ' id1 id2 id3 K v tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     ( ∀ l,
-      match
+      let* Δ'' :=
         envs_app false (Esnoc (Esnoc (Esnoc Enil
           id1 (l ↦ₕ Header 0 1))
           id2 (meta_token l ⊤))
           id3 (l ↦ᵣ v))
           Δ'
-      with
-      | Some Δ'' =>
-          envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
-      | None =>
-          False
-      end
+      in
+      envs_entails Δ'' (WP fill K #l ∷ tid @ E {{ Φ }})
     ) →
     envs_entails Δ (WP fill K (ref v) ∷ tid @ E {{ Φ }}).
   Proof.
@@ -393,16 +376,13 @@ Section zoo_G.
   Lemma tac_wp_store Δ Δ' id K l fld v w tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ w)%I →
-    match
-      envs_simple_replace id false (Esnoc Enil
-        id ((l +ₗ fld) ↦ v))
-        Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K () ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_simple_replace id false (Esnoc Enil
+          id ((l +ₗ fld) ↦ v))
+          Δ'
+      in
+      envs_entails Δ'' (WP fill K () ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP fill K (Store #l #fld v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
@@ -416,16 +396,13 @@ Section zoo_G.
   Lemma tac_wp_xchg Δ Δ' id K l fld v w tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ w)%I →
-    match
-      envs_simple_replace id false (Esnoc Enil
-        id ((l +ₗ fld) ↦ v)
-      ) Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K w ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_simple_replace id false (Esnoc Enil
+          id ((l +ₗ fld) ↦ v)
+        ) Δ'
+      in
+      envs_entails Δ'' (WP fill K w ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP fill K (Xchg (#l, #fld)%V v) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ'.
@@ -445,17 +422,14 @@ Section zoo_G.
     ( v ≈ v1 →
       envs_entails Δ' ⌜dq = DfracOwn 1⌝
     ) →
-    match
-      envs_app false (Esnoc Enil
-        id ((l +ₗ fld) ↦ v2))
-        Δ''
-    with
-    | Some Δ''' =>
-        v ≈ v1 →
-        envs_entails Δ''' (WP fill K true%V ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ''' :=
+        envs_app false (Esnoc Enil
+          id ((l +ₗ fld) ↦ v2))
+          Δ''
+      in
+      v ≈ v1 →
+      envs_entails Δ''' (WP fill K true%V ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP fill K (CAS (#l, #fld)%V v1 v2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal. intros HΔ (Hlookup & ->)%envs_lookup_delete_Some Hfail Hsuc1 Hsuc2.
@@ -484,16 +458,13 @@ Section zoo_G.
   Lemma tac_wp_faa Δ Δ' id K l fld (i1 i2 : Z) tid E Φ :
     MaybeIntoLaterNEnvs 1 Δ Δ' →
     envs_lookup id Δ' = Some (false, (l +ₗ fld) ↦ #i1)%I →
-    match
-      envs_simple_replace id false (Esnoc Enil
-        id ((l +ₗ fld) ↦ #(i1 + i2))
-      ) Δ'
-    with
-    | Some Δ'' =>
-        envs_entails Δ'' (WP fill K #i1 ∷ tid @ E {{ Φ }})
-    | None =>
-        False
-    end →
+    ( let* Δ'' :=
+        envs_simple_replace id false (Esnoc Enil
+          id ((l +ₗ fld) ↦ #(i1 + i2))
+        ) Δ'
+      in
+      envs_entails Δ'' (WP fill K #i1 ∷ tid @ E {{ Φ }})
+    ) →
     envs_entails Δ (WP fill K (FAA (#l, #fld)%V #i2) ∷ tid @ E {{ Φ }}).
   Proof.
     rewrite envs_entails_unseal => HΔ Hlookup HΔ''.
