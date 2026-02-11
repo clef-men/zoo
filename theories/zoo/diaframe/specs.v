@@ -47,7 +47,7 @@ Section zoo_G.
     pose proof @pure_exec_context.
     intros (-> & Hexec & Hϕ) HK.
     iSteps.
-    iApply wp_pure_step_later; [done.. |].
+    iApply wp_pure_step; [done.. |].
     iSteps.
   Qed.
   #[global] Instance pure_step_diaspec_2 e K ϕ n e1 e2 tid E Φ :
@@ -330,7 +330,7 @@ Section zoo_G.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step_later; first done.
+    all: iApply wp_pure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
@@ -354,7 +354,7 @@ Section zoo_G.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step_later; first done.
+    all: iApply wp_pure_step; first done.
     1: iSpecialize ("H" $! true with "[]"); first iSteps.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
@@ -378,7 +378,7 @@ Section zoo_G.
     intros (->, _) HK.
     iSteps as "H".
     case_bool_decide.
-    all: iApply wp_pure_step_later; first done.
+    all: iApply wp_pure_step; first done.
     1: iSpecialize ("H" $! false with "[]"); first iSteps.
     2: iSpecialize ("H" $! true with "[]"); first iSteps.
     all: iSteps.

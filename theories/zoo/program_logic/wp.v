@@ -525,7 +525,24 @@ Section zoo_G.
 
   Implicit Types Φ : val → iProp Σ.
 
-  Lemma wp_pure_step_later ϕ n e1 e2 tid E Φ :
+  Lemma wp_pure_step_strong ϕ n e1 e2 ns tid E Φ :
+    PureExec ϕ n e1 e2 →
+    ϕ →
+    ⧖ ns -∗
+    ▷^n (
+      ⧖ (ns + n) -∗
+      £ (later_sum ns n) -∗
+      WP e2 ∷ tid @ E {{ Φ }}
+    ) -∗
+    WP e1 ∷ tid @ E {{ Φ }}.
+  Proof.
+    wp_unseal.
+    - apply bwp_pure_step.
+    - iIntros "%Hexec %Hϕ H⧖ H %tid".
+      iApply (bwp_pure_step with "H⧖"); first done.
+      iSteps.
+  Qed.
+  Lemma wp_pure_step ϕ n e1 e2 tid E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
     ▷^n (
@@ -534,11 +551,12 @@ Section zoo_G.
     ) ⊢
     WP e1 ∷ tid @ E {{ Φ }}.
   Proof.
-    wp_unseal.
-    - apply bwp_pure_step_later.
-    - iIntros "%Hexec %Hϕ H %tid".
-      iApply bwp_pure_step_later; first done.
-      iSteps.
+    iIntros "%Hexec %Hϕ H".
+    iMod steps_lb_0 as "H⧖".
+    iApply (wp_pure_step_strong with "H⧖"); first done.
+    iSteps as "_ H£".
+    iApply (lc_weaken with "H£").
+    { apply later_sum_lb. }
   Qed.
 End zoo_G.
 
@@ -600,7 +618,7 @@ Section zoo_G.
     invert_base_step.
     iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)".
     all: simpl_length.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_block_mutable {es tag} vs tid E :
@@ -624,7 +642,7 @@ Section zoo_G.
     invert_base_step.
     iMod (state_interp_alloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)".
     all: simpl_length in *.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_block_generative {es tag} vs tid E :
@@ -643,7 +661,7 @@ Section zoo_G.
     iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_match l hdr x_fb e_fb brs e tid E Φ :
@@ -683,7 +701,7 @@ Section zoo_G.
     iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
     invert_base_step.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_size l hdr tid E Φ :
@@ -698,7 +716,7 @@ Section zoo_G.
     iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
     invert_base_step.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_load l fld dq v tid E :
@@ -717,7 +735,7 @@ Section zoo_G.
     iDestruct (state_interp_pointsto_valid with "Hinterp Hl") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !> !>".
     invert_base_step.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_store l fld w v tid E :
@@ -842,7 +860,7 @@ Section zoo_G.
     iSplit.
     1: iDestruct "HΦ" as "(HΦ & _)".
     2: iDestruct "HΦ" as "(_ & HΦ)".
-    all: iSteps.
+    all: iFrameSteps.
   Qed.
 
   Lemma wp_faa l fld (i1 i2 : Z) tid E :
@@ -862,7 +880,7 @@ Section zoo_G.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_pointsto_update with "Hinterp Hl") as "($ & Hl)";
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_fork e tid E Φ :
@@ -880,7 +898,8 @@ Section zoo_G.
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_fork with "Hinterp") as "(Hinterp & Htid)".
-    iStep 2. rewrite right_id Nat.add_0_r.
+    iFrameStep.
+    rewrite right_id Nat.add_0_r.
     iApply (wp_bwp with "(H Htid)").
   Qed.
 
@@ -900,7 +919,7 @@ Section zoo_G.
     iDestruct (state_interp_local_pointsto_valid with "Hinterp Htid") as %Hlookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_set_local tid w v E :
@@ -939,7 +958,7 @@ Section zoo_G.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
     iMod (state_interp_prophet_new with "Hinterp") as "(%prophs & Hinterp & Hpid)"; first done.
-    iSteps.
+    iFrameSteps.
   Qed.
 
   Lemma wp_resolve e pid v prophs tid E Φ :

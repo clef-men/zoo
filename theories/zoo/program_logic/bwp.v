@@ -34,9 +34,38 @@ Lemma later_function_lb ns :
 Proof.
   rewrite /later_function. lia.
 Qed.
+Lemma later_function_mono ns1 ns2 :
+  ns1 ≤ ns2 →
+  later_function ns1 ≤ later_function ns2.
+Proof.
+  intros.
+  apply Nat.add_le_mono_r, Nat.mul_le_mono_l => //.
+Qed.
+Lemma later_function_0 :
+  later_function 0 = later_constant.
+Proof.
+  rewrite /later_function. lia.
+Qed.
 #[global] Hint Resolve
   later_function_lb
+  later_function_mono
 : core.
+
+Fixpoint later_sum ns n : nat :=
+  match n with
+  | 0 =>
+      0
+  | S n =>
+      later_function ns + later_sum (S ns) n
+  end.
+
+Lemma later_sum_lb ns n :
+  n * later_constant ≤ later_sum ns n.
+Proof.
+  move: ns. induction n as [| n IH] => ns.
+  - lia.
+  - apply Nat.add_le_mono; done.
+Qed.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -124,6 +153,7 @@ Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
   format "'[hv' BWP  '/  ' '[' e ']'  '/  ' ∶  tid  E '/' {{  '[' v ,  '/' Q ']'  '/' } } ']'"
 ) : bi_scope.
 
+Implicit Types ns nt : nat.
 Implicit Types l : location.
 Implicit Types pid : prophet_id.
 Implicit Types e : expr.
@@ -563,9 +593,11 @@ Section zoo_G.
           £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             state_interp ns (nt + length es) σ' κs' ∗
-            BWP e' ∶ tid @ E {{ Φ }} ∗
-            [∗ list] i ↦ e ∈ es,
-              BWP e ∶ nt + i {{ fork_post }}
+            ( ⧖ (S ns) -∗
+                BWP e' ∶ tid @ E {{ Φ }} ∗
+                [∗ list] i ↦ e ∈ es,
+                  BWP e ∶ nt + i {{ fork_post }}
+            )
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
@@ -575,8 +607,10 @@ Section zoo_G.
     iStep 9 as (κ κs' e' σ' es Hstep) "H H£".
     iMod ("H" with "[//] [//] H£") as "H".
     do 2 iModIntro.
-    iMod "H" as "(Hinterp & $ & $)".
-    iApply (state_interp_mono with "Hinterp").
+    iMod "H" as "(Hinterp & H)".
+    iMod (state_interp_mono with "Hinterp") as "Hinterp".
+    iDestruct (state_interp_steps_lb_get with "Hinterp") as "#H⧖".
+    iFrameSteps.
   Qed.
   Lemma bwp_lift_step_nofork e tid E Φ :
     to_val e = None →
@@ -591,7 +625,9 @@ Section zoo_G.
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            BWP e' ∶ tid @ E {{ Φ }}
+            ( ⧖ (S ns) -∗
+              BWP e' ∶ tid @ E {{ Φ }}
+            )
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
@@ -616,9 +652,11 @@ Section zoo_G.
           £ (later_function ns) -∗
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
-            from_option Φ False (to_val e') ∗
-            [∗ list] i ↦ e ∈ es,
-              BWP e ∶ nt + i {{ fork_post }}
+            ( ⧖ (S ns) -∗
+                from_option Φ False (to_val e') ∗
+                [∗ list] i ↦ e ∈ es,
+                  BWP e ∶ nt + i {{ fork_post }}
+            )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
@@ -630,7 +668,8 @@ Section zoo_G.
     iMod ("H" with "[//] [//] H£") as "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose !>".
     iMod "Hclose" as "_".
-    iMod "H" as "($ & HΦ & $)".
+    iMod "H" as "($ & H)". iIntros "!> H⧖".
+    iDestruct ("H" with "H⧖") as "(HΦ & $)".
     destruct (to_val e') eqn:He'; last by iExFalso.
     iApply (bwp_value with "HΦ").
     apply of_to_val. done.
@@ -647,7 +686,9 @@ Section zoo_G.
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            from_option Φ False (to_val e')
+            ( ⧖ (S ns) -∗
+              from_option Φ False (to_val e')
+            )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
@@ -661,7 +702,7 @@ Section zoo_G.
     rewrite Nat.add_0_r. iFrameSteps.
   Qed.
 
-  Lemma bwp_lift_pure_step_nofork e tid E1 E2 Φ :
+  Lemma bwp_lift_pure_step_nofork e tid ns E1 E2 Φ :
     ( ∀ σ,
       reducible tid e σ
     ) →
@@ -671,27 +712,32 @@ Section zoo_G.
         σ' = σ ∧
         es = []
     ) →
+    ⧖ ns -∗
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜prim_step tid e σ κ e' σ es⌝ -∗
-      £ later_constant -∗
+      ⧖ (S ns) -∗
+      £ (later_function ns) -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
-    ) ⊢
+    ) -∗
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
-    iIntros "%Hsafe %Hpure H".
-    iApply bwp_lift_step.
+    iIntros "%Hsafe %Hpure H⧖ H".
+    iApply bwp_lift_step_nofork.
     { specialize (Hsafe inhabitant). eauto using reducible_not_val. }
-    iIntros "%ns %nt %σ %κs Hinterp".
+    iIntros "%ns' %nt %σ %κs Hinterp".
     iMod "H".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
     iSplit; first iSteps. iIntros "%κ %κs' %e' %σ' %es -> %Hstep H£ !> !>".
     edestruct Hpure as (? & ? & ?); first done. subst.
-    iDestruct (lc_weaken later_constant with "H£") as "H£"; first done.
-    rewrite Nat.add_0_r. iFrameSteps.
+    iDestruct (state_interp_steps_lb_valid with "Hinterp H⧖") as %?.
+    iDestruct (lc_weaken (later_function ns) with "H£") as "H£"; first auto.
+    iFrameStep 2.
+    iMod "H".
+    iSteps.
   Qed.
 
-  Lemma bwp_lift_pure_det_step_nofork e1 e2 tid E1 E2 Φ :
+  Lemma bwp_lift_pure_det_step_nofork e1 e2 tid ns E1 E2 Φ :
     ( ∀ σ1,
       reducible tid e1 σ1
     ) →
@@ -702,54 +748,42 @@ Section zoo_G.
         e2' = e2 ∧
         es = []
     ) →
+    ⧖ ns -∗
     ( |={E1}[E2]▷=>
-      £ later_constant -∗
+      ⧖ (S ns) -∗
+      £ (later_function ns) -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
-    ) ⊢
+    ) -∗
     BWP e1 ∶ tid @ E1 {{ Φ }}.
   Proof.
-    iIntros "%Hsafe %Hpure H".
-    iApply (bwp_lift_pure_step_nofork); [done | naive_solver |].
+    iIntros "%Hsafe %Hpure H⧖ H".
+    iApply (bwp_lift_pure_step_nofork with "H⧖"); [done | naive_solver |].
     iApply (step_fupd_wand with "H"). iIntros "H %σ1 %e2' %κ %es %Hstep H£".
     apply Hpure in Hstep as (-> & _ & -> & ->).
     iSteps.
   Qed.
 
-  Lemma bwp_pure_step ϕ n e1 e2 tid E1 E2 Φ :
+  Lemma bwp_pure_step ϕ n e1 e2 ns tid E Φ :
     PureExec ϕ n e1 e2 →
     ϕ →
-    ( |={E1}[E2]▷=>^n
-      £ (n * later_constant) -∗
-      BWP e2 ∶ tid @ E1 {{ Φ }}
-    ) ⊢
-    BWP e1 ∶ tid @ E1 {{ Φ }}.
-  Proof.
-    iIntros "%Hexec %Hϕ H".
-    specialize (Hexec Hϕ).
-    iInduction Hexec as [e | n e1 e2 e3 (Hsafe & Hpure)] "IH" => /=.
-    - iMod lc_zero as "H£".
-      iSteps.
-    - iApply bwp_lift_pure_det_step_nofork.
-      + eauto using reducible_no_obs_reducible.
-      + naive_solver.
-      + iApply (step_fupd_wand with "H"). iIntros "H H£".
-        iApply "IH".
-        iApply (step_fupdN_wand with "H").
-        rewrite lc_split. iSteps.
-  Qed.
-  Lemma bwp_pure_step_later ϕ n tid e1 e2 E Φ :
-    PureExec ϕ n e1 e2 →
-    ϕ →
+    ⧖ ns -∗
     ▷^n (
-      £ (n * later_constant) -∗
+      ⧖ (ns + n) -∗
+      £ (later_sum ns n) -∗
       BWP e2 ∶ tid @ E {{ Φ }}
-    ) ⊢
+    ) -∗
     BWP e1 ∶ tid @ E {{ Φ }}.
   Proof.
-    intros Hexec Hϕ.
-    rewrite -bwp_pure_step // {Hexec}.
-    enough (∀ P, ▷^n P ⊢ |={E}▷=>^n P) as H by apply H.
-    intros P. induction n as [| n IH]; rewrite //= -step_fupd_intro // IH //.
+    iIntros "%Hexec %Hϕ H⧖ H".
+    specialize (Hexec Hϕ).
+    iInduction Hexec as [e | n e1 e2 e3 (Hsafe & Hpure)] "IH" forall (ns) => /=.
+    - iMod lc_zero as "H£".
+      iSteps.
+    - iApply (bwp_lift_pure_det_step_nofork with "H⧖").
+      { eauto using reducible_no_obs_reducible. }
+      { eauto. }
+      do 3 iModIntro.
+      rewrite lc_split. iSteps.
   Qed.
 End zoo_G.
 
@@ -775,9 +809,11 @@ Section zoo_G.
           £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             state_interp ns (nt + length es) σ' κs' ∗
-            BWP e' ∶ tid @ E {{ Φ }} ∗
-            [∗ list] i ↦ e ∈ es,
-              BWP e ∶ nt + i {{ fork_post }}
+            ( ⧖ (S ns) -∗
+                BWP e' ∶ tid @ E {{ Φ }} ∗
+                [∗ list] i ↦ e ∈ es,
+                  BWP e ∶ nt + i {{ fork_post }}
+            )
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
@@ -800,7 +836,9 @@ Section zoo_G.
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            BWP e' ∶ tid @ E {{ Φ }}
+            ( ⧖ ns -∗
+              BWP e' ∶ tid @ E {{ Φ }}
+            )
     ) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
@@ -826,9 +864,11 @@ Section zoo_G.
           £ (later_function ns) -∗
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
-            from_option Φ False (to_val e') ∗
-            [∗ list] i ↦ e ∈ es,
-              BWP e ∶ nt + i {{ fork_post }}
+            ( ⧖ (S ns) -∗
+                from_option Φ False (to_val e') ∗
+                [∗ list] i ↦ e ∈ es,
+                  BWP e ∶ nt + i {{ fork_post }}
+            )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
@@ -851,7 +891,9 @@ Section zoo_G.
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            from_option Φ False (to_val e')
+            ( ⧖ (S ns) -∗
+              from_option Φ False (to_val e')
+            )
     ) ⊢
     BWP e ∶ tid @ E1 {{ Φ }}.
   Proof.
@@ -863,55 +905,6 @@ Section zoo_G.
     do 2 iModIntro.
     iMod "H" as "(-> & Hinterp & H)".
     rewrite Nat.add_0_r. iSteps.
-  Qed.
-
-  Lemma bwp_lift_pure_base_step_nofork e tid E1 E2 Φ :
-    ( ∀ σ,
-      base_reducible tid e σ
-    ) →
-    ( ∀ σ κ e' σ' es,
-      base_step tid e σ κ e' σ' es →
-        κ = [] ∧
-        σ' = σ ∧
-        es = []
-    ) →
-    ( |={E1}[E2]▷=>
-      ∀ σ e' κ es,
-      ⌜base_step tid e σ κ e' σ es⌝ -∗
-      £ later_constant -∗
-      BWP e' ∶ tid @ E1 {{ Φ }}
-    ) ⊢
-    BWP e ∶ tid @ E1 {{ Φ }}.
-  Proof.
-    iIntros "%Hsafe %Hpure H".
-    iApply bwp_lift_pure_step_nofork; [eauto.. |].
-    iMod "H" as "H".
-    iIntros "!> !>".
-    iMod "H".
-    iIntros "!> %σ %e' %κ %es %Hstep H£".
-    iApply ("H" with "[%] H£"); first eauto.
-  Qed.
-
-  Lemma bwp_lift_pure_det_base_step_nofork e1 e2 tid E1 E2 Φ :
-    ( ∀ σ1,
-      base_reducible tid e1 σ1
-    ) →
-    ( ∀ σ1 κ e2' σ2 es,
-      base_step tid e1 σ1 κ e2' σ2 es →
-        κ = [] ∧
-        σ2 = σ1 ∧
-        e2' = e2 ∧
-        es = []
-    ) →
-    ( |={E1}[E2]▷=>
-      £ later_constant -∗
-      BWP e2 ∶ tid @ E1 {{ Φ }}
-    ) ⊢
-    BWP e1 ∶ tid @ E1 {{ Φ }}.
-  Proof.
-    iIntros "%Hsafe %Hpure H".
-    iApply bwp_lift_pure_det_step_nofork; [eauto.. |].
-    iSteps.
   Qed.
 End zoo_G.
 

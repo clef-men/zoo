@@ -5,7 +5,7 @@ From zoo.common Require Import
 From zoo.iris.bi Require Import
   big_op.
 From zoo.iris Require Import
-diaframe.
+  diaframe.
 From zoo.program_logic Require Export
   bwp.
 From zoo Require Import
@@ -13,14 +13,6 @@ From zoo Require Import
 
 Implicit Types e : expr.
 Implicit Types es : list expr.
-
-#[local] Fixpoint later_sum ns n : nat :=
-  match n with
-  | 0 =>
-      0
-  | S n =>
-      later_function ns + later_sum (S ns) n
-  end.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

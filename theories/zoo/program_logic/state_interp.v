@@ -542,10 +542,18 @@ Section zoo_G.
 
   Lemma steps_lb_0 :
     ⊢ |==>
-      steps_lb 0.
+      ⧖ 0.
   Proof.
     apply auth_nat_max_lb_0.
   Qed.
+  Lemma steps_lb_le ns1 ns2 :
+    ns2 ≤ ns1 →
+    steps_lb ns1 ⊢
+    steps_lb ns2.
+  Proof.
+    apply auth_nat_max_lb_le.
+  Qed.
+
   #[local] Lemma steps_lb_get ns :
     steps_auth ns ⊢
     ⧖ ns.
@@ -565,6 +573,38 @@ Section zoo_G.
     steps_auth (S ns).
   Proof.
     apply auth_nat_max_update. lia.
+  Qed.
+
+  #[global] Instance hint_steps_lb_le ns1 ns2 :
+    SolveSepSideCondition (ns1 ≤ ns2) →
+    HINT
+      ⧖ ns2
+    ✱ [- ;
+      emp
+    ] ⊫ [id];
+      ⧖ ns1
+    ✱ [
+      emp
+    ]
+    | 60.
+  Proof.
+    intros.
+    iStep as "H⧖".
+    iDestruct (steps_lb_le with "H⧖") as "$"; first done.
+  Qed.
+  #[global] Instance merge_steps_lbs ns1 ns2 :
+    MergableConsume (⧖ ns1) true (λ p Pin Pout,
+      TCAnd (
+        TCEq Pin (⧖ ns2)%I
+      ) (
+        TCEq Pout (⧖ (ns1 `max` ns2))%I
+      )
+    ).
+  Proof.
+    move=> p Pin Pout [-> ->].
+    rewrite bi.intuitionistically_if_elim.
+    destruct (Nat.max_spec ns1 ns2) as [(_ & ->) | (_ & ->)].
+    all: iSteps.
   Qed.
 End zoo_G.
 
@@ -939,6 +979,22 @@ Section zoo_G.
     iIntros "(:state_interp) Hl".
     iMod (gen_heap_update with "Hheap_interp Hl") as "(Hheap_interp & Hl)".
     iFrameSteps.
+  Qed.
+
+  Lemma state_interp_steps_lb_get ns nt σ κs :
+    state_interp ns nt σ κs ⊢
+    ⧖ ns.
+  Proof.
+    iIntros "(:state_interp)".
+    iApply (steps_lb_get with "Hsteps_auth").
+  Qed.
+  Lemma state_interp_steps_lb_valid ns1 nt σ κs ns2 :
+    state_interp ns1 nt σ κs -∗
+    ⧖ ns2 -∗
+    ⌜ns2 ≤ ns1⌝.
+  Proof.
+    iIntros "(:state_interp) Hsteps_lb".
+    iApply (steps_lb_valid with "Hsteps_auth Hsteps_lb").
   Qed.
 
   Lemma state_interp_local_pointsto_valid ns nt σ κs tid dq v :
