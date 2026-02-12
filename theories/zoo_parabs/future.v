@@ -6,6 +6,8 @@ From zoo.iris.base_logic Require Import
   lib.saved_prop.
 From zoo.language Require Import
   notations.
+From zoo.program_logic Require Export
+  biglater.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
@@ -148,27 +150,35 @@ Section future_G.
     apply _.
   Qed.
 
+  #[local] Ltac solve_biglater :=
+    iFrame "#";
+    iApply bi.laterN_le;
+    last iFrame "#∗";
+    apply Nat.add_le_mono;
+    [ auto using Nat.mul_le_mono_r
+    | etrans;
+      last apply later_constant_lb;
+      lia
+    ].
+
   Lemma future_inv_finished pool t Ψ Ξ :
     future_inv pool t Ψ Ξ -∗
     pool_finished pool -∗
-      ∃ depth,
-      ⧖ depth ∗
-      ▷^(2 * depth + 1) future_resolved t.
+    ▶ future_resolved t.
   Proof.
     iIntros "(:inv) #Hpool_finished".
     iDestruct ("Htermination" with "Hpool_finished") as "(:finished)".
-    iFrame "#".
+    solve_biglater.
   Qed.
 
   Lemma future_obligation_finished pool P :
     future_obligation pool P -∗
     pool_finished pool -∗
-      ∃ depth,
-      ⧖ depth ∗
-      ▷^(2 * depth + 2) □ P.
+    ▶ □ P.
   Proof.
     iIntros "(:obligation) Hpool_finished".
-    iDestruct ("Htermination" with "Hpool_finished") as "$" => //.
+    iDestruct ("Htermination" with "Hpool_finished") as "HP".
+    solve_biglater.
   Qed.
 
   Lemma future_consumer_divide {pool t Ψ Ξ Χ} Χs :
