@@ -99,7 +99,7 @@ Section future_G.
       )
     ".
 
-  Definition obligation' pool depth P : iProp Σ :=
+  #[local] Definition obligation' pool depth P : iProp Σ :=
     ∃ t Ψ Ξ waiter ω,
     future_inv pool t depth Ψ Ξ ∗
     ivar_3_waiter t waiter ω ∗
