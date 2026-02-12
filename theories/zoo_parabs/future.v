@@ -77,23 +77,35 @@ Section future_G.
       )
     ".
 
-  Definition future_inv pool t depth Ψ Ξ : iProp Σ :=
+  Definition future_inv pool t Ψ Ξ : iProp Σ :=
+    ∃ depth,
     ivar_3_inv t Ψ Ξ (waiter_model pool) ∗
+    ⧖ depth ∗
     □ (
       pool_finished pool -∗
       ▷^(2 * depth + 1) finished t
     ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( #Hinv &
-        #Htermination
+    " ( %depth{} &
+        #Hinv{_{}} &
+        #H⧖{_{}} &
+        #Htermination{_{}}
       )
     ".
 
-  Definition future_obligation pool depth P : iProp Σ :=
+  Definition future_obligation pool P : iProp Σ :=
+    ∃ depth,
+    ⧖ depth ∗
     □ (
       pool_finished pool -∗
       ▷^(2 * depth + 2) □ P
     ).
+  #[local] Instance : CustomIpat "obligation" :=
+    " ( %depth &
+        #H⧖ &
+        #Htermination
+      )
+    ".
 
   Definition future_consumer :=
     ivar_3_consumer.
@@ -104,12 +116,12 @@ Section future_G.
     ∃ v,
     future_result t v.
 
-  #[global] Instance future_inv_proper pool t depth :
+  #[global] Instance future_inv_proper pool t :
     Proper (
       (pointwise_relation _ (≡)) ==>
       (pointwise_relation _ (≡)) ==>
       (≡)
-    ) (future_inv pool t depth).
+    ) (future_inv pool t).
   Proof.
     solve_proper.
   Qed.
@@ -120,13 +132,13 @@ Section future_G.
     apply _.
   Qed.
 
-  #[global] Instance future_inv_persistent pool t depth Ψ Ξ :
-    Persistent (future_inv pool t depth Ψ Ξ).
+  #[global] Instance future_inv_persistent pool t Ψ Ξ :
+    Persistent (future_inv pool t Ψ Ξ).
   Proof.
     apply _.
   Qed.
-  #[global] Instance future_obligation_persistent pool depth P :
-    Persistent (future_obligation pool depth P).
+  #[global] Instance future_obligation_persistent pool P :
+    Persistent (future_obligation pool P).
   Proof.
     apply _.
   Qed.
@@ -136,27 +148,31 @@ Section future_G.
     apply _.
   Qed.
 
-  Lemma future_inv_finished pool t depth Ψ Ξ :
-    future_inv pool t depth Ψ Ξ -∗
+  Lemma future_inv_finished pool t Ψ Ξ :
+    future_inv pool t Ψ Ξ -∗
     pool_finished pool -∗
-    ▷^(2 * depth + 1) future_resolved t.
+      ∃ depth,
+      ⧖ depth ∗
+      ▷^(2 * depth + 1) future_resolved t.
   Proof.
     iIntros "(:inv) #Hpool_finished".
     iDestruct ("Htermination" with "Hpool_finished") as "(:finished)".
     iFrame "#".
   Qed.
 
-  Lemma future_obligation_finished pool depth P :
-    future_obligation pool depth P -∗
+  Lemma future_obligation_finished pool P :
+    future_obligation pool P -∗
     pool_finished pool -∗
-    ▷^(2 * depth + 2) □ P.
+      ∃ depth,
+      ⧖ depth ∗
+      ▷^(2 * depth + 2) □ P.
   Proof.
-    iIntros "Hobligation Hpool_finished".
-    iApply ("Hobligation" with "Hpool_finished").
+    iIntros "(:obligation) Hpool_finished".
+    iDestruct ("Htermination" with "Hpool_finished") as "$" => //.
   Qed.
 
-  Lemma future_consumer_divide {pool t depth Ψ Ξ Χ} Χs :
-    future_inv pool t depth Ψ Ξ -∗
+  Lemma future_consumer_divide {pool t Ψ Ξ Χ} Χs :
+    future_inv pool t Ψ Ξ -∗
     future_consumer t Χ -∗
     (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
     [∗ list] Χ ∈ Χs, future_consumer t Χ.
@@ -164,8 +180,8 @@ Section future_G.
     iIntros "(:inv)".
     iApply (ivar_3_consumer_divide with "Hinv").
   Qed.
-  Lemma future_consumer_split {pool t depth Ψ Χ Ξ} Χ1 Χ2 :
-    future_inv pool t depth Ψ Ξ -∗
+  Lemma future_consumer_split {pool t Ψ Χ Ξ} Χ1 Χ2 :
+    future_inv pool t Ψ Ξ -∗
     future_consumer t Χ -∗
     (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
       future_consumer t Χ1 ∗
@@ -183,17 +199,17 @@ Section future_G.
     apply ivar_3_result_agree.
   Qed.
 
-  Lemma future_inv_result pool t depth Ψ Ξ v :
-    future_inv pool t depth Ψ Ξ -∗
+  Lemma future_inv_result pool t Ψ Ξ v :
+    future_inv pool t Ψ Ξ -∗
     future_result t v ={⊤}=∗
     ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) Hresult".
     iApply (ivar_3_inv_result with "Hinv Hresult").
   Qed.
-  Lemma future_inv_result' pool t depth Ψ Ξ v :
+  Lemma future_inv_result' pool t Ψ Ξ v :
     £ 1 -∗
-    future_inv pool t depth Ψ Ξ -∗
+    future_inv pool t Ψ Ξ -∗
     future_result t v ={⊤}=∗
     □ Ξ v.
   Proof.
@@ -201,8 +217,8 @@ Section future_G.
     iMod (future_inv_result with "Hfut_inv Hfut_result") as "HΞ".
     iApply (lc_fupd_elim_later with "H£ HΞ").
   Qed.
-  Lemma future_inv_result_consumer pool t depth Ψ Ξ v Χ :
-    future_inv pool t depth Ψ Ξ -∗
+  Lemma future_inv_result_consumer pool t Ψ Ξ v Χ :
+    future_inv pool t Ψ Ξ -∗
     future_result t v -∗
     future_consumer t Χ ={⊤}=∗
       ▷^2 Χ v ∗
@@ -211,9 +227,9 @@ Section future_G.
     iIntros "(:inv) Hresult Hconsumer".
     iApply (ivar_3_inv_result_consumer with "Hinv Hresult Hconsumer").
   Qed.
-  Lemma future_inv_result_consumer' pool t depth Ψ Ξ v Χ :
+  Lemma future_inv_result_consumer' pool t Ψ Ξ v Χ :
     £ 2 -∗
-    future_inv pool t depth Ψ Ξ -∗
+    future_inv pool t Ψ Ξ -∗
     future_result t v -∗
     future_consumer t Χ ={⊤}=∗
       Χ v ∗
@@ -234,12 +250,14 @@ Section future_G.
       future_return v
     {{{ t,
       RET t;
-      future_inv pool t 0 Ψ Ξ ∗
+      future_inv pool t Ψ Ξ ∗
       future_consumer t Ψ ∗
       future_result t v
     }}}.
   Proof.
     iIntros "%Φ (HΨ & HΞ) HΦ".
+
+    iMod steps_lb_0 as "#H⧖".
 
     wp_apply (ivar_3_make_spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
 
@@ -316,11 +334,13 @@ Section future_G.
     {{{ t,
       RET t;
       pool_context pool ctx scope ∗
-      future_inv pool t 0 Ψ Ξ ∗
+      future_inv pool t Ψ Ξ ∗
       future_consumer t Ψ
     }}}.
   Proof.
     iIntros "%Φ (Hctx & Htask) HΦ".
+
+    iMod steps_lb_0 as "#H⧖".
 
     wp_rec.
     wp_smart_apply (ivar_3_create_spec Ψ Ξ (waiter_model pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
@@ -338,10 +358,10 @@ Section future_G.
     iNext => //.
   Qed.
 
-  Lemma future_wait_spec pool ctx scope t depth Ψ Ξ :
+  Lemma future_wait_spec pool ctx scope t Ψ Ξ :
     {{{
       pool_context pool ctx scope ∗
-      future_inv pool t depth Ψ Ξ
+      future_inv pool t Ψ Ξ
     }}}
       future_wait ctx t
     {{{ v,
@@ -367,10 +387,10 @@ Section future_G.
     iSteps.
   Qed.
 
-  Lemma future_iter_spec P pool ctx scope t depth Ψ Ξ task :
+  Lemma future_iter_spec P pool ctx scope t Ψ Ξ task :
     {{{
       pool_context pool ctx scope ∗
-      future_inv pool t depth Ψ Ξ ∗
+      future_inv pool t Ψ Ξ ∗
       ( ∀ ctx scope v,
         pool_context pool ctx scope -∗
         future_result t v -∗
@@ -385,12 +405,12 @@ Section future_G.
     {{{
       RET ();
       pool_context pool ctx scope ∗
-      future_obligation pool depth P
+      future_obligation pool P
     }}}.
   Proof.
     iIntros "%Φ (Hctx & (:inv) & Htask) HΦ".
 
-    wp_rec credit:"H£".
+    wp_rec steps:"H⧖" credit:"H£".
 
     iMod (saved_prop_alloc P) as "(%ω & #Hω)".
     wp_smart_apply (ivar_3_wait_spec ω with "[$Hinv Htask]") as ([v |]) "H".
@@ -417,7 +437,7 @@ Section future_G.
       wp_pures.
 
       iApply "HΦ".
-      iFrame. iIntros "!> !> #Hpool_finished".
+      iFrame "#∗". iIntros "!> !> #Hpool_finished".
       iDestruct ("Htermination" with "Hpool_finished") as "Hfinished".
       iEval (replace (2 * depth + 2) with ((2 * depth + 1) + 1) by lia).
       iEval (rewrite bi.laterN_add).
@@ -430,10 +450,10 @@ Section future_G.
       iRewrite -"Heq" in "HP" => //.
   Qed.
 
-  Lemma future_map_spec {pool ctx scope t1 depth Ψ1 Ξ1} Ψ2 Ξ2 task :
+  Lemma future_map_spec {pool ctx scope t1 Ψ1 Ξ1} Ψ2 Ξ2 task :
     {{{
       pool_context pool ctx scope ∗
-      future_inv pool t1 depth Ψ1 Ξ1 ∗
+      future_inv pool t1 Ψ1 Ξ1 ∗
       ( ∀ ctx scope v1,
         pool_context pool ctx scope -∗
         future_result t1 v1 -∗
@@ -448,33 +468,33 @@ Section future_G.
     {{{ t2,
       RET t2;
       pool_context pool ctx scope ∗
-      future_inv pool t2 (S depth) Ψ2 Ξ2 ∗
+      future_inv pool t2 Ψ2 Ξ2 ∗
       future_consumer t2 Ψ2
     }}}.
   Proof.
-    iIntros "%Φ (Hctx & #Ht1_inv & Htask) HΦ".
+    iIntros "%Φ (Hctx & #Hinv_1 & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (ivar_3_create_spec Ψ2 Ξ2 (waiter_model pool) with "[//]") as (t2) "(#Ht2_inv & Ht2_producer & Ht2_consumer)".
+    wp_smart_apply (ivar_3_create_spec Ψ2 Ξ2 (waiter_model pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
 
     wp_smart_apply (future_iter_spec (
       pool_obligation pool (finished t2)
-    ) with "[$Hctx $Ht1_inv Htask Ht2_producer]") as "(Hctx & #Hobligation)".
-    { iIntros "{%} %ctx %scope %v1 Hctx #Ht1_result".
+    ) with "[$Hctx $Hinv_1 Htask Hproducer_2]") as "(Hctx & (:obligation))".
+    { iIntros "{%} %ctx %scope %v1 Hctx #Hresult_1".
       wp_smart_apply (pool_async_spec (
         finished t2
-      ) with "[$Hctx Htask Ht2_producer]") as "($ & #$) //".
+      ) with "[$Hctx Htask Hproducer_2]") as "($ & #$) //".
       { iIntros "{%} %ctx %scope Hctx".
-        wp_smart_apply (wp_wand with "(Htask Hctx Ht1_result)") as (v2) "(Hctx & HΨ2 & HΞ2)".
+        wp_smart_apply (wp_wand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
         wp_apply (future_set_spec with "[$]") as "($ & #$)".
       }
     }
 
-    wp_pures.
+    wp_pures steps:"H⧖".
 
     iApply "HΦ".
     iFrame "#∗". iIntros "!> !> #Hpool_finished".
-    iDestruct ("Hobligation" with "Hpool_finished") as "Hpool_obligation".
+    iDestruct ("Htermination" with "Hpool_finished") as "Hpool_obligation".
     iEval (replace (2 * S depth + 1) with ((2 * depth + 2) + 1) by lia).
     iEval (rewrite bi.laterN_add).
     iNext.
