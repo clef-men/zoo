@@ -133,6 +133,7 @@ theories/zoo/program_logic/prophet_multi.v
 theories/zoo/program_logic/identifier.v
 theories/zoo/program_logic/structural_equality.v
 theories/zoo/program_logic/counter.v
+theories/zoo/program_logic/biglater.v
 
 theories/zoo/proofmode.v
 
