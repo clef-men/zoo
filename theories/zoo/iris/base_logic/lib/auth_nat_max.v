@@ -153,6 +153,14 @@ Section auth_nat_max_G.
   Proof.
     apply auth_monoi_lb_mono'.
   Qed.
+  Lemma auth_nat_max_lb_max γ n1 n2 :
+    auth_nat_max_lb γ n1 -∗
+    auth_nat_max_lb γ n2 -∗
+    auth_nat_max_lb γ (n1 `max` n2).
+  Proof.
+    iIntros "Hlb_1 Hlb_2".
+    destruct (Nat.max_spec n1 n2) as [(_ & ->) | (_ & ->)] => //.
+  Qed.
 
   Lemma auth_nat_max_lb_valid γ dq n m :
     auth_nat_max_auth γ dq n -∗

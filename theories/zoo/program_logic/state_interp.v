@@ -548,10 +548,18 @@ Section zoo_G.
   Qed.
   Lemma steps_lb_le ns1 ns2 :
     ns2 ≤ ns1 →
-    steps_lb ns1 ⊢
-    steps_lb ns2.
+    ⧖ ns1 ⊢
+    ⧖ ns2.
   Proof.
     apply auth_nat_max_lb_le.
+  Qed.
+  Lemma steps_lb_max ns1 ns2 :
+    ⧖ ns1 -∗
+    ⧖ ns2 -∗
+    ⧖ (ns1 `max` ns2).
+  Proof.
+    iIntros "H⧖_1 H⧖_2".
+    destruct (Nat.max_spec ns1 ns2) as [(_ & ->) | (_ & ->)] => //.
   Qed.
 
   #[local] Lemma steps_lb_get ns :
@@ -603,8 +611,8 @@ Section zoo_G.
   Proof.
     move=> p Pin Pout [-> ->].
     rewrite bi.intuitionistically_if_elim.
-    destruct (Nat.max_spec ns1 ns2) as [(_ & ->) | (_ & ->)].
-    all: iSteps.
+    iIntros "(H⧖_1 & H⧖_2)".
+    iApply (steps_lb_max with "H⧖_1 H⧖_2").
   Qed.
 End zoo_G.
 
