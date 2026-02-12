@@ -149,6 +149,39 @@ Section zoo_G.
     rewrite Nat.add_1_r. iSteps.
     destruct p; iFrame "#∗".
   Qed.
+  #[local] Lemma tac_wp_pure_steps_lb_credits' n Δ1 Δ2 id1 p ns id2 K e1 e2 ϕ tid E Φ :
+    n ≤ later_function ns →
+    PureExec ϕ 1 e1 e2 →
+    ϕ →
+    MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
+    envs_lookup id1 Δ2 = Some (p, ⧖ ns)%I →
+    ( let* Δ3 :=
+        envs_simple_replace id1 p (Esnoc Enil
+          id1 (⧖ (S ns))
+        ) Δ2
+      in
+      let* Δ4 :=
+        envs_app false (Esnoc Enil
+          id2 (£ n))
+          Δ3
+      in
+      envs_entails Δ4 (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
+    envs_entails Δ1 (WP (fill K e1) ∷ tid @ E {{ Φ }}).
+  Proof.
+    rewrite envs_entails_unseal => Hn Hexec Hϕ HΔ1 Hlookup HΔ2.
+    destruct (envs_simple_replace _ _ _ _) as [Δ3 |] eqn:HΔ3; last done.
+    rewrite into_laterN_env_sound envs_simple_replace_sound //=.
+    destruct (envs_app _ _ _) as [Δ4 |] eqn:HΔ4; last done.
+    rewrite envs_app_sound //= HΔ2.
+    rewrite bi.intuitionistically_if_elim.
+    iIntros "(>H⧖ & H)".
+    pose proof pure_exec_fill.
+    iApply (wp_pure_step_strong with "H⧖"); first done.
+    rewrite /= Nat.add_1_r Nat.add_0_r. iStep 4 as "H⧖ H£".
+    iDestruct (lc_weaken with "H£") as "$"; first done.
+    destruct p; iFrame "#∗".
+  Qed.
   Lemma tac_wp_pure_steps_lb_credits Δ1 Δ2 id1 p ns id2 K e1 e2 ϕ tid E Φ :
     PureExec ϕ 1 e1 e2 →
     ϕ →
@@ -168,17 +201,31 @@ Section zoo_G.
     ) →
     envs_entails Δ1 (WP (fill K e1) ∷ tid @ E {{ Φ }}).
   Proof.
-    rewrite envs_entails_unseal => Hexec Hϕ HΔ1 Hlookup HΔ2.
-    destruct (envs_simple_replace _ _ _ _) as [Δ3 |] eqn:HΔ3; last done.
-    rewrite into_laterN_env_sound envs_simple_replace_sound //=.
-    destruct (envs_app _ _ _) as [Δ4 |] eqn:HΔ4; last done.
-    rewrite envs_app_sound //= HΔ2.
-    rewrite bi.intuitionistically_if_elim.
-    iIntros "(>H⧖ & H)".
-    pose proof pure_exec_fill.
-    iApply (wp_pure_step_strong with "H⧖"); first done.
-    rewrite /= Nat.add_1_r Nat.add_0_r. iStep 4.
-    destruct p; iFrame "#∗".
+    apply tac_wp_pure_steps_lb_credits'. done.
+  Qed.
+  Lemma tac_wp_pure_steps_lb_credit Δ1 Δ2 id1 p ns id2 K e1 e2 ϕ tid E Φ :
+    PureExec ϕ 1 e1 e2 →
+    ϕ →
+    MaybeIntoLaterNEnvs 1 Δ1 Δ2 →
+    envs_lookup id1 Δ2 = Some (p, ⧖ ns)%I →
+    ( let* Δ3 :=
+        envs_simple_replace id1 p (Esnoc Enil
+          id1 (⧖ (S ns))
+        ) Δ2
+      in
+      let* Δ4 :=
+        envs_app false (Esnoc Enil
+          id2 (£ 1))
+          Δ3
+      in
+      envs_entails Δ4 (WP fill K e2 ∷ tid @ E {{ Φ }})
+    ) →
+    envs_entails Δ1 (WP (fill K e1) ∷ tid @ E {{ Φ }}).
+  Proof.
+    apply tac_wp_pure_steps_lb_credits'.
+    pose proof (later_function_lb ns).
+    pose proof later_constant_lb.
+    lia.
   Qed.
 
   Lemma tac_wp_value_nofupd Δ v tid E Φ :
@@ -562,6 +609,7 @@ Tactic Notation "wp_pure" "credits:" constr(Hcredits) :=
 Tactic Notation "wp_pures" "credits:" constr(Hcredits) :=
   wp_pure credits:Hcredits;
   wp_pures.
+
 Tactic Notation "wp_pure" open_constr(e_foc) "credit:" constr(Hcredit) :=
   wp_start ltac:(fun e =>
     let Htmp := iFresh in
@@ -647,6 +695,38 @@ Tactic Notation "wp_pures" "steps:" constr(Hsteps_lb) "credits:" constr(Hcredits
   wp_pure steps:Hsteps_lb credits:Hcredits;
   wp_pures.
 
+Tactic Notation "wp_pure" open_constr(e_foc) "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :=
+  wp_start ltac:(fun e =>
+    let Htmp := iFresh in
+    let e := eval simpl in e in
+    first
+    [ reshape_expr e ltac:(fun K e' =>
+        unify e' e_foc;
+        eapply (tac_wp_pure_steps_lb_credit _ _ (INamed Hsteps_lb) _ _ Htmp K e');
+        [ tc_solve
+        | solve_pure_exec_obligation
+        | tc_solve
+        | first
+          [ iAssumptionCore
+          | fail 3 "wp_pure:" Hsteps_lb "must provide time receipts (⧖ _)"
+          ]
+        | pm_reduce;
+          first
+          [ iDestructHyp Htmp as Hcredit
+          | fail 3 "wp_pure:" Hcredit "is not fresh"
+          ];
+          wp_finish
+        ]
+      )
+    | fail 1 "wp_pure: cannot find" e_foc "in" e "or" e_foc "is not a redex"
+    ]
+  ).
+Tactic Notation "wp_pure" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :=
+  wp_pure _ steps:Hsteps_lb credit:Hcredit.
+Tactic Notation "wp_pures" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :=
+  wp_pure steps:Hsteps_lb credit:Hcredit;
+  wp_pures.
+
 #[local] Ltac wp_rec_aux tac :=
   let H1 := fresh in
   assert (H1 := ValRec_as_ValRec);
@@ -673,6 +753,10 @@ Tactic Notation "wp_rec" "steps:" constr(Hsteps_lb) :=
 Tactic Notation "wp_rec" "steps:" constr(Hsteps_lb) "credits:" constr(Hcredits) :=
   wp_rec_aux ltac:(fun _ =>
     wp_pure (App _ _) steps:Hsteps_lb credits:Hcredits
+  ).
+Tactic Notation "wp_rec" "steps:" constr(Hsteps_lb) "credit:" constr(Hcredit) :=
+  wp_rec_aux ltac:(fun _ =>
+    wp_pure (App _ _) steps:Hsteps_lb credit:Hcredit
   ).
 
 Tactic Notation "wp_for" :=
