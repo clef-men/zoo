@@ -556,7 +556,7 @@ Ltac wp_expr_simpl :=
       eapply tac_wp_value
   end.
 #[local] Ltac wp_finish :=
-  wp_expr_simpl;
+  try wp_expr_simpl;
   try wp_value_head;
   pm_prettify.
 
