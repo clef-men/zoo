@@ -510,6 +510,12 @@ Module iAaccIntro.
             | Constr.Unsafe.Lambda bdr tele =>
                 let ty := Constr.Binder.type bdr in
                 let ty := Constr.Unsafe.substnl xs1 0 ty in
+                let x :=
+                  Constr.Pretype.pretype
+                    Constr.Pretype.Flags.open_constr_flags_with_tc
+                    Constr.Pretype.expected_without_type_constraint
+                    preterm:($preterm:x : $ty)
+                in
                 let xs2 := witnesses' (x :: xs1) tele xs2 in
                 Constr.Unsafe.make (Constr.Unsafe.App '@TeleArgCons [|ty; '_; x; xs2|])
             | _ =>
@@ -523,14 +529,14 @@ Module iAaccIntro.
     witnesses' [] tele xs.
 End iAaccIntro.
 
-Tactic Notation "iAaccIntro" open_constr_list_sep(xs, ",") "with" constr(H) :=
+Tactic Notation "iAaccIntro" uconstr_list_sep(xs, ",") "with" constr(H) :=
   iStartProof;
   lazymatch goal with
   | |- envs_entails _ (@atomic_acc _ _ ?tele _ ?Eo ?Ei ?α ?P ?β ?Φ) =>
       let go := ltac2val:(tele xs |-
         let tele := Option.get (Ltac1.to_constr tele) in
         let xs := Option.get (Ltac1.to_list xs) in
-        let xs := List.map (fun x => Option.get (Ltac1.to_constr x)) xs in
+        let xs := List.map (fun x => Option.get (Ltac1.to_preterm x)) xs in
         let xs := iAaccIntro.witnesses tele xs in
         Ltac1.of_constr xs
       ) in
