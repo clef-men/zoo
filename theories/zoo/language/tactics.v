@@ -1,6 +1,3 @@
-From stdpp Require Import
-  fin_maps.
-
 From zoo Require Import
   prelude.
 From zoo.language Require Export
