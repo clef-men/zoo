@@ -15,7 +15,7 @@ From zoo Require Import
 
 Definition ws_bdeque_1_create : val :=
   fun: "cap" =>
-    { "cap", 1, 1, array_unsafe_make "cap" (), Proph }.
+    { "cap", 1, 1, 1, array_unsafe_make "cap" (), Proph }.
 
 Definition ws_bdeque_1_capacity : val :=
   fun: "t" =>
@@ -29,13 +29,21 @@ Definition ws_bdeque_1_is_empty : val :=
   fun: "t" =>
     ws_bdeque_1_size "t" == 0.
 
+Definition ws_bdeque_1_front_cached : val :=
+  fun: "t" =>
+    let: "front" := "t".{front} in
+    "t" <-{front_cache} "front" ;;
+    "front".
+
 Definition ws_bdeque_1_push : val :=
   fun: "t" "v" =>
-    let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     let: "data" := "t".{data} in
     let: "cap" := array_size "data" in
-    if: "back" < "front" + "cap" then (
+    let: "front" := "t".{front_cache} in
+    if:
+      "back" < "front" + "cap" or "front" < ws_bdeque_1_front_cached "t"
+    then (
       array_unsafe_cset "data" "back" "v" ;;
       "t" <-{back} "back" + 1 ;;
       true
@@ -75,6 +83,7 @@ Definition ws_bdeque_1_pop_0 : val :=
     ) else if: "front" < "back" then (
       ‘Some( array_unsafe_cget "t".{data} "back" )
     ) else (
+      "t" <-{front_cache} "front" + 1 ;;
       let: "won" :=
         Resolve
           (CAS "t".[front] "front" ("front" + 1))

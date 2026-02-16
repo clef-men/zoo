@@ -1600,7 +1600,7 @@ Section ws_deque_1_G.
 
     destruct (lookup_lt_is_Some_2 us 0) as (w_ & Hus_lookup); first lia.
     iDestruct (array_cslice_update with "Hdata_cslice₂") as "(Hdata_back₂ & Hdata_cslice₂)"; first done.
-    rewrite Nat.add_0_r.
+    iEval (rewrite Nat.add_0_r) in "Hdata_back₂ Hdata_cslice₂".
 
     iDestruct (array_cslice_combine with "Hdata_back₁ Hdata_back₂") as "(%Heq & Hdata_back)"; first done. injection Heq as <-.
     iEval (rewrite dfrac_op_own Qp.half_half) in "Hdata_back".
