@@ -35,7 +35,6 @@ theories/zoo/common/option.v
 theories/zoo/common/list.v
 theories/zoo/common/listne.v
 theories/zoo/common/binder.v
-theories/zoo/common/fin_map_dom.v
 theories/zoo/common/fin_maps.v
 theories/zoo/common/gset.v
 theories/zoo/common/gmultiset.v

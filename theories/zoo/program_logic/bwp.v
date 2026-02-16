@@ -99,7 +99,7 @@ Section zoo_G.
   #[local] Instance bwp_pre_contractive :
     Contractive bwp_pre.
   Proof.
-    rewrite /bwp_pre /= => n bwp1 bwp2 Hbwp e tid E Φ.
+    rewrite /bwp_pre => n bwp1 bwp2 Hbwp e tid E Φ.
     repeat (apply Hbwp || f_contractive || f_equiv).
   Qed.
 
@@ -116,7 +116,7 @@ Definition bwp :=
   bwp_aux.(unseal).
 #[global] Arguments bwp {_ _} e%_E tid E Φ%_I : rename.
 #[local] Lemma bwp_unseal `{zoo_G : !ZooG Σ} :
-  bwp = @bwp_def Σ _.
+  bwp = bwp_def.
 Proof.
   rewrite -bwp_aux.(seal_eq) //.
 Qed.
@@ -173,14 +173,15 @@ Section zoo_G.
     BWP e ∶ tid @ E {{ Φ }} ⊣⊢
     bwp_pre bwp e tid E Φ.
   Proof.
-    rewrite bwp_unseal. apply (fixpoint_unfold bwp_pre).
+    rewrite bwp_unseal.
+    apply: (fixpoint_unfold bwp_pre).
   Qed.
 
-  #[global] Instance bwp_ne n e tid E :
+  #[global] Instance bwp_ne e tid E n :
     Proper (pointwise_relation _ (≡{n}≡) ==> (≡{n}≡)) (bwp e tid E).
   Proof.
     move: e. induction (lt_wf n) as [n _ IH] => e Φ1 Φ2 HΦ.
-    rewrite !bwp_unfold /bwp_pre /=.
+    rewrite !bwp_unfold /bwp_pre.
     do 31 (f_contractive || f_equiv).
     apply IH; first done.
     f_equiv.
@@ -191,14 +192,16 @@ Section zoo_G.
     Proper (pointwise_relation _ (≡) ==> (≡)) (bwp e tid E).
   Proof.
     intros Φ1 Φ2 HΦ.
-    apply equiv_dist => n. apply bwp_ne => v. apply equiv_dist. done.
+    apply equiv_dist => n.
+    apply bwp_ne => v.
+    apply equiv_dist. done.
   Qed.
-  #[global] Instance bwp_contractive n e tid E :
+  #[global] Instance bwp_contractive e tid E n :
     TCEq (to_val e) None →
     Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (bwp e tid E).
   Proof.
     intros He Φ1 Φ2 HΦ.
-    rewrite !bwp_unfold /bwp_pre He /=.
+    rewrite !bwp_unfold /bwp_pre He.
     repeat (f_contractive || f_equiv).
   Qed.
 
@@ -211,7 +214,7 @@ Section zoo_G.
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "H".
-    iEval (rewrite bwp_unfold /bwp_pre).
+    iEval (rewrite bwp_unfold).
     iIntros "%ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "(Hinterp & H)".
     iApply (bwp_unfold with "H Hinterp").
@@ -221,7 +224,7 @@ Section zoo_G.
     (|={E}=> Φ v) ⊢
     BWP of_val v ∶ tid @ E {{ Φ }}.
   Proof.
-    rewrite bwp_unfold /bwp_pre to_of_val.
+    rewrite bwp_unfold.
     iSteps.
   Qed.
   Lemma bwp_value_fupd e v tid E Φ :
@@ -251,7 +254,7 @@ Section zoo_G.
     (Φ1 v ={E}=∗ Φ2 v) -∗
     BWP of_val v ∶ tid @ E {{ Φ2 }}.
   Proof.
-    rewrite !bwp_unfold /bwp_pre to_of_val.
+    rewrite !bwp_unfold.
     iIntros "H HΦ %ns %nt %σ %κs Hinterp".
     iMod ("H" with "Hinterp") as "($ & H)".
     iSteps.
@@ -265,7 +268,7 @@ Section zoo_G.
   Proof.
     iIntros "%HE H HΦ".
     iLöb as "HLöb" forall (e).
-    rewrite !bwp_unfold /bwp_pre /=.
+    rewrite !bwp_unfold /bwp_pre.
     iIntros "%ns %nt %σ1 %κs Hinterp".
     destruct (to_val e) as [v |] eqn:He.
     - iMod (fupd_mask_subseteq E1) as "Hclose"; first done.
@@ -306,13 +309,11 @@ Section zoo_G.
     (|={E}=> BWP e ∶ tid @ E {{ Φ }}) ⊢
     BWP e ∶ tid @ E {{ Φ }}.
   Proof.
-    rewrite bwp_unfold /bwp_pre.
+    rewrite {2}bwp_unfold.
     iIntros "H %ns %nt %σ %κs Hinterp".
-    destruct (to_val e) as [v |] eqn:He.
-    - iMod ("H" with "Hinterp") as "$".
-    - iModIntro.
-      iMod ("H" with "Hinterp") as ">>(%Hreducible & H)".
-      iFrameSteps.
+    iMod "H" as "H".
+    iRevert (ns nt σ κs) "Hinterp".
+    iApply (bwp_unfold with "H").
   Qed.
   Lemma bwp_fupd e tid E Φ :
     BWP e ∶ tid @ E {{ v, |={E}=> Φ v }} ⊢
@@ -380,26 +381,6 @@ Section zoo_G.
       + iMod ("H" with "Hinterp") as ">(%Hreducible2 & _)".
         destruct Hreducible2 as (κ2 & e3 & σ3 & es2 & Hstep2).
         edestruct atomic; [done | congruence].
-  Qed.
-
-  Lemma bwp_step_fupd e tid E1 E2 P Φ :
-    TCEq (to_val e) None →
-    E2 ⊆ E1 →
-    (|={E1}[E2]▷=> P) -∗
-    BWP e ∶ tid @ E2 {{ v, P ={E1}=∗ Φ v }} -∗
-    BWP e ∶ tid @ E1 {{ Φ }}.
-  Proof.
-    rewrite !bwp_unfold /bwp_pre /=.
-    iIntros (-> HE) "HP H %ns %nt %σ1 %κs Hinterp !>".
-    iMod "HP".
-    iMod ("H" with "Hinterp") as ">($ & H)".
-    iIntros "!> %κ %κs' %e2 %σ2 %es1 -> %Hstep H£".
-    iMod ("H" with "[//] [//] H£") as "H".
-    do 2 iModIntro.
-    iMod "H" as "($ & H & $)".
-    iMod "HP".
-    iApply (bwp_strong_mono with "H"); first done.
-    iSteps.
   Qed.
 
   Lemma bwp_bind K `{!Context K} e tid E Φ :
@@ -776,7 +757,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hexec %Hϕ H⧖ H".
     specialize (Hexec Hϕ).
-    iInduction Hexec as [e | n e1 e2 e3 (Hsafe & Hpure)] "IH" forall (ns) => /=.
+    iInduction Hexec as [e | n e1 e2 e3 (Hsafe & Hpure)] "IH" forall (ns).
     - iMod lc_zero as "H£".
       iSteps.
     - iApply (bwp_lift_pure_det_step_nofork with "H⧖").
@@ -950,7 +931,7 @@ Section zoo_G.
     BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
   Proof.
     iIntros "%Hatomic %He Hpid H".
-    rewrite !bwp_unfold /bwp_pre /= He. simpl in *.
+    rewrite !bwp_unfold /bwp_pre He.
     iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
     iSplitR. { iPureIntro. apply reducible_resolve; done. }

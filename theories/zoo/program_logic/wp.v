@@ -137,7 +137,7 @@ Section zoo_G.
   Implicit Types P R : iProp Σ.
   Implicit Types Φ : val → iProp Σ.
 
-  #[global] Instance wp_ne n e tid E :
+  #[global] Instance wp_ne e tid E n :
     Proper (pointwise_relation _ (≡{n}≡) ==> (≡{n}≡)) (wp e tid E).
   Proof.
     rewrite wp_unseal. solve_proper.
@@ -147,7 +147,7 @@ Section zoo_G.
   Proof.
     rewrite wp_unseal. solve_proper.
   Qed.
-  #[global] Instance wp_contractive n e tid E :
+  #[global] Instance wp_contractive e tid E n :
     TCEq (to_val e) None →
     Proper (pointwise_relation _ (dist_later n) ==> (≡{n}≡)) (wp e tid E).
   Proof.
@@ -340,19 +340,6 @@ Section zoo_G.
     - iIntros "H %tid".
       iSpecialize ("H" $! tid).
       iApply (bwp_atomic with "H").
-  Qed.
-
-  Lemma wp_step_fupd e tid E1 E2 P Φ :
-    TCEq (to_val e) None →
-    E2 ⊆ E1 →
-    (|={E1}[E2]▷=> P) -∗
-    WP e ∷ tid @ E2 {{ v, P ={E1}=∗ Φ v }} -∗
-    WP e ∷ tid @ E1 {{ Φ }}.
-  Proof.
-    wp_unseal.
-    - apply bwp_step_fupd.
-    - iIntros "%He %HE HP H %tid".
-      iApply (bwp_step_fupd with "HP H"); first done.
   Qed.
 
   Lemma wp_bind K `{!Context K} e tid1 tid2 E Φ :

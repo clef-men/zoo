@@ -2,7 +2,6 @@ From zoo Require Import
   prelude.
 From zoo.common Require Import
   countable
-  fin_map_dom
   fin_maps.
 From zoo.iris.bi Require Import
   big_op.
