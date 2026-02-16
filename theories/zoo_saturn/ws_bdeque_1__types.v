@@ -19,15 +19,19 @@ Notation "'front'" := (
   in_type "zoo_saturn.ws_bdeque_1.t" 1
 )(in custom zoo_field
 ).
-Notation "'back'" := (
+Notation "'front_cache'" := (
   in_type "zoo_saturn.ws_bdeque_1.t" 2
 )(in custom zoo_field
 ).
-Notation "'data'" := (
+Notation "'back'" := (
   in_type "zoo_saturn.ws_bdeque_1.t" 3
 )(in custom zoo_field
 ).
-Notation "'proph'" := (
+Notation "'data'" := (
   in_type "zoo_saturn.ws_bdeque_1.t" 4
+)(in custom zoo_field
+).
+Notation "'proph'" := (
+  in_type "zoo_saturn.ws_bdeque_1.t" 5
 )(in custom zoo_field
 ).

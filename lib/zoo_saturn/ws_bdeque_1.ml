@@ -1,6 +1,7 @@
 type 'a t =
   { capacity: int;
     mutable front: int [@atomic];
+    mutable front_cache: int;
     mutable back: int [@atomic];
     data: 'a Array.t;
     proph: (bool, int * Zoo.id) Zoo.proph;
@@ -9,6 +10,7 @@ type 'a t =
 let create cap =
   { capacity= cap;
     front= 1;
+    front_cache= 1;
     back= 1;
     data= Array.unsafe_make cap (Obj.magic ());
     proph= Zoo.proph ();
@@ -23,12 +25,17 @@ let size t =
 let is_empty t =
   size t == 0
 
-let push t v =
+let[@inline] front_cached t =
   let front = t.front in
+  t.front_cache <- front ;
+  front
+
+let push t v =
   let back = t.back in
   let data = t.data in
   let cap = Array.size data in
-  if back < front + cap then (
+  let front = t.front_cache in
+  if back < front + cap || front < front_cached t then (
     Array.unsafe_cset data back v ;
     t.back <- back + 1 ;
     true
@@ -64,6 +71,7 @@ let[@inline] pop t id back =
   ) else if front < back then (
     Some (Array.unsafe_cget t.data back)
   ) else (
+    t.front_cache <- front + 1 ;
     let won =
       Zoo.resolve_with (
         Atomic.Loc.compare_and_set [%atomic.loc t.front] front (front + 1)
