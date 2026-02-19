@@ -62,7 +62,7 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-Class WsQueue1G Σ `{zoo_G : !ZooG Σ} := {
+Class WsDeque1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_deque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
   #[local] ws_deque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
   #[local] ws_deque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat * val * nat)) ;
@@ -83,7 +83,7 @@ Definition ws_deque_1_Σ := #[
 ].
 #[global] Instance subG_ws_deque_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deque_1_Σ Σ →
-  WsQueue1G Σ .
+  WsDeque1G Σ .
 Proof.
   solve_inG.
 Qed.
@@ -107,7 +107,7 @@ Opaque ws_deque_1__code.ws_deque_1_min_capacity.
 Opaque min_capacity.
 
 Section ws_deque_1_G.
-  Context `{ws_deque_1_G : WsQueue1G Σ}.
+  Context `{ws_deque_1_G : WsDeque1G Σ}.
 
   Implicit Types P : iProp Σ.
 
