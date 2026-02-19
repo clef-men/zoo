@@ -23,7 +23,7 @@ Implicit Types vs ws queues : list val.
 Implicit Types vss : list (list val).
 Implicit Types status : status.
 
-Class WsQueuesPublicG Σ `{zoo_G : !ZooG Σ} := {
+Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_deques_public_G_ws_deque_G :: WsDeque2G Σ ;
 }.
 
@@ -32,13 +32,13 @@ Definition ws_deques_public_Σ := #[
 ].
 #[global] Instance subG_ws_deques_public_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_public_Σ Σ →
-  WsQueuesPublicG Σ.
+  WsDequesPublicG Σ.
 Proof.
   solve_inG.
 Qed.
 
 Section ws_deques_public_G.
-  Context `{ws_deques_public_G : WsQueuesPublicG Σ}.
+  Context `{ws_deques_public_G : WsDequesPublicG Σ}.
 
   Definition ws_deques_public_inv t ι sz : iProp Σ :=
     ∃ queues,
@@ -393,7 +393,7 @@ End ws_deques_public_G.
 #[global] Opaque ws_deques_public_owner.
 
 Section ws_deques_public_G.
-  Context `{ws_deques_public_G : WsQueuesPublicG Σ}.
+  Context `{ws_deques_public_G : WsDequesPublicG Σ}.
 
   #[local] Lemma ws_deques_public_steal_as_0_spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →

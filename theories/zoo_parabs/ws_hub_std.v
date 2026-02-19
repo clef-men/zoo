@@ -37,7 +37,7 @@ Implicit Types status : status.
 Implicit Types empty : emptiness.
 
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_hub_std_G_queues_G :: WsQueuesPublicG Σ ;
+  #[local] ws_hub_std_G_queues_G :: WsDequesPublicG Σ ;
   #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
 }.
 

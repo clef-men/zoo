@@ -37,7 +37,7 @@ Implicit Types vss wss : list (list val).
 Implicit Types status : status.
 Implicit Types statuses : list status.
 
-Class WsQueuesPrivateG Σ `{zoo_G : !ZooG Σ} := {
+Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_deques_private_G_models_G :: GhostListG Σ (list val) ;
   #[local] ws_deques_private_G_owner_G :: TwinsG Σ (leibnizO status) ;
   #[local] ws_deques_private_G_channel_pred_G :: GhostPredG Σ (option val) ;
@@ -54,7 +54,7 @@ Definition ws_deques_private_Σ := #[
 ].
 #[global] Instance subG_ws_deques_private_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_private_Σ Σ →
-  WsQueuesPrivateG Σ.
+  WsDequesPrivateG Σ.
 Proof.
   solve_inG.
 Qed.
@@ -109,7 +109,7 @@ Implicit Types responses : list response.
   end.
 
 Section ws_deques_private_G.
-  Context `{ws_deques_private_G : WsQueuesPrivateG Σ}.
+  Context `{ws_deques_private_G : WsDequesPrivateG Σ}.
 
   Implicit Types Ψ : option val → iProp Σ.
 
@@ -1385,7 +1385,7 @@ End ws_deques_private_G.
 #[global] Opaque ws_deques_private_owner.
 
 Section ws_deques_private_G.
-  Context `{ws_deques_private_G : WsQueuesPrivateG Σ}.
+  Context `{ws_deques_private_G : WsDequesPrivateG Σ}.
 
   #[local] Lemma ws_deques_private_steal_as_0_spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
