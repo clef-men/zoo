@@ -983,8 +983,7 @@ Section inf_ws_deque_1_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_1".
-    iSplitR "HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_owner_Stable l γ back priv ws :
     {{{
@@ -1006,8 +1005,7 @@ Section inf_ws_deque_1_G.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
     iDestruct (inv_state_Stable with "Hstate") as "#(_ & %)"; first done.
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_owner_Unstable l γ back priv ws :
     {{{
@@ -1029,8 +1027,7 @@ Section inf_ws_deque_1_G.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
     iDestruct (inv_state_Unstable with "Hstate") as "#(_ & %)".
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_Superempty l γ back priv ws front :
     back < front →
@@ -1076,8 +1073,7 @@ Section inf_ws_deque_1_G.
     iAssert ⌜front1 = front⌝%I as %->.
     { iDestruct (inv_state_winner_steal with "Hstate Hwinner_steal") as "(%P_ & $ & _)". }
 
-    iSplitR "Hwinner_steal HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
 
   #[local] Lemma back_spec l γ stable back priv ws :
@@ -1096,8 +1092,7 @@ Section inf_ws_deque_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
     iDestruct (owner_agree with "Howner₁ Howner₂") as "(<- & <- & <-)".
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
 
   #[local] Lemma set_back_spec_Superempty l γ back priv ws front (back' : Z) :
@@ -1601,8 +1596,7 @@ Section inf_ws_deque_1_G.
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁] [//]") as "HΦ"; first iSteps.
 
-      iSplitR "HΦ". { iFrameSteps. }
-      iSteps.
+      iFrameSteps.
     }
 
     destruct_decide (front1 = front2) as <- | ?; last first.
