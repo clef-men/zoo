@@ -159,14 +159,6 @@ Module base.
     Proof.
       apply auth_twins_twin1_exclusive.
     Qed.
-    #[local] Lemma model₂_valid γ ws vs :
-      owner γ ws -∗
-      model₂ γ vs -∗
-      ⌜vs `suffix_of` ws⌝.
-    Proof.
-      rewrite -preorder_rtc.
-      apply: auth_twins_valid_2.
-    Qed.
     #[local] Lemma model_agree γ vs1 vs2 :
       model₁ γ vs1 -∗
       model₂ γ vs2 -∗
@@ -185,16 +177,6 @@ Module base.
       iDestruct (model₁_valid with "Howner₁ Hmodel₁") as %Hsuffix.
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iSteps.
-    Qed.
-    #[local] Lemma model_empty {γ ws vs1 vs2} :
-      owner γ ws -∗
-      model₁ γ vs1 -∗
-      model₂ γ vs2 ==∗
-        owner γ [] ∗
-        model₁ γ [] ∗
-        model₂ γ [].
-    Proof.
-      apply auth_twins_update_auth.
     Qed.
     #[local] Lemma model_push {γ ws vs1 vs2} v :
       owner γ ws -∗

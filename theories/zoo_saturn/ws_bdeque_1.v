@@ -545,15 +545,6 @@ Section ws_bdeque_1_G.
   Proof.
     apply auth_twins_twin1_exclusive.
   Qed.
-  #[local] Lemma model₂_valid γ stable back ws vs :
-    owner₁ γ stable back ws -∗
-    model₂ γ vs -∗
-    ⌜vs `suffix_of` ws⌝.
-  Proof.
-    iIntros "(:owner₁) Hmodel₁".
-    iDestruct (auth_twins_valid_2 with "Hmodel_auth Hmodel₁") as %H.
-    rewrite preorder_rtc in H. iSteps.
-  Qed.
   #[local] Lemma model_agree γ vs1 vs2 :
     model₁ γ vs1 -∗
     model₂ γ vs2 -∗
