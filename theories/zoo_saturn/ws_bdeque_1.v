@@ -457,11 +457,7 @@ Section ws_bdeque_1_G.
     owner₁ γ stable back ws ∗
     l.[front_cache] ↦ #front_cache ∗
     front_lb γ front_cache ∗
-    ⌜ if flag is OwnerPop then
-        S back ≤ front_cache + γ.(metadata_capacity)
-      else
-        back ≤ front_cache + γ.(metadata_capacity)
-    ⌝ ∗
+    ⌜(if flag is OwnerPop then S back else back) ≤ front_cache + γ.(metadata_capacity)⌝ ∗
     array_cslice γ.(metadata_data) γ.(metadata_capacity) i (DfracOwn (1/2)) us ∗
     ⌜length us = γ.(metadata_capacity)⌝.
   #[local] Instance : CustomIpat "owner_1" :=
@@ -1070,8 +1066,7 @@ Section ws_bdeque_1_G.
     iInv "Hinv" as "(:inv_inner)".
     wp_load.
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_1".
-    iSplitR "HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_owner_Stable l γ back ws :
     {{{
@@ -1093,8 +1088,7 @@ Section ws_bdeque_1_G.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <-).
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
     iDestruct (inv_state_Stable with "Hstate") as "#(_ & %)"; first done.
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_owner_Unstable l γ back ws :
     {{{
@@ -1116,8 +1110,7 @@ Section ws_bdeque_1_G.
     iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <-).
     iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb".
     iDestruct (inv_state_Unstable with "Hstate") as "#(_ & %)".
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
   #[local] Lemma front_spec_Superempty l γ back ws front :
     back < front →
@@ -1163,8 +1156,7 @@ Section ws_bdeque_1_G.
     iAssert ⌜front1 = front⌝%I as %->.
     { iDestruct (inv_state_winner_steal with "Hstate Hwinner_steal") as "(%P_ & $ & _)". }
 
-    iSplitR "Hwinner_steal HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
 
   #[local] Lemma back_spec l γ stable back ws :
@@ -1183,8 +1175,7 @@ Section ws_bdeque_1_G.
     iInv "Hinv" as "(:inv_inner =1)".
     wp_load.
     iDestruct (owner_agree with "Howner₁ Howner₂") as "(<- & <-)".
-    iSplitR "Howner₁ HΦ". { iFrameSteps. }
-    iSteps.
+    iFrameSteps.
   Qed.
 
   #[local] Lemma set_back_spec_Superempty l γ back ws front (back' : Z) :
@@ -1323,8 +1314,7 @@ Section ws_bdeque_1_G.
       iDestruct ("Hdata_cslice₂" with "Hdata_back₂") as "Hdata_cslice₂".
       iEval (rewrite list_insert_id //) in "Hdata_cslice₂".
 
-      iSplitR "Howner₁ Hl_front_cache Hdata_cslice₂". { iFrameSteps. }
-      iSteps.
+      iFrameSteps.
 
     - iIntros "(Hdata_back₁ & Hdata_back₂) !>".
 
@@ -1703,7 +1693,7 @@ Section ws_bdeque_1_G.
       else
         ⌜back ≤ front_cache + γ.(metadata_capacity)⌝ ∗
         (ws_bdeque_1_owner #l ws -∗ Φ false%V)
-    )%I with "[Hl_front_cache Howner₁ HΦ]") as (res) "{Hfront_lb_cache} {% front_cache Hfront_cache} (%b & %front_cache & -> & Hl_front_cache & #Hfront_lb_cache & Howner₁ & HΦ)".
+    )%I with "[Howner₁ Hl_front_cache HΦ]") as (res) "{Hfront_lb_cache} {% front_cache Hfront_cache} (%b & %front_cache & -> & Hl_front_cache & #Hfront_lb_cache & Howner₁ & HΦ)".
     { case_bool_decide; wp_pures.
 
       - iStep. iFrame "#∗". iSteps.
@@ -1840,8 +1830,7 @@ Section ws_bdeque_1_G.
       iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
       iMod ("HΦ" with "[$Hmodel₁] [//]") as "HΦ"; first iSteps.
 
-      iSplitR "HΦ". { iFrameSteps. }
-      iSteps.
+      iFrameSteps.
     }
 
     destruct_decide (front1 = front2) as <- | ?; last first.
@@ -1952,7 +1941,7 @@ Section ws_bdeque_1_G.
       end
     }}}.
   Proof.
-    iIntros (->) "%Φ ((:inv') & (:owner_2) & H) HΦ".
+    iIntros (->) "%Φ ((:inv') & (:owner_1) & H) HΦ".
 
     wp_rec. wp_pures.
     destruct state.
