@@ -22,11 +22,15 @@ let steal t =
   | None ->
       None
   | Some slot ->
-      Some !slot
+      let v = !slot in
+      slot := Obj.magic () ;
+      Some v
 
 let pop t =
   match Inf_ws_deque_1.pop t with
   | None ->
       None
   | Some slot ->
-      Some !slot
+      let v = !slot in
+      slot := Obj.magic () ;
+      Some v

@@ -29,7 +29,9 @@ Definition inf_ws_deque_2_steal : val :=
     | None =>
         §None
     | Some "slot" =>
-        ‘Some( !"slot" )
+        let: "v" := !"slot" in
+        "slot" <- () ;;
+        ‘Some( "v" )
     end.
 
 Definition inf_ws_deque_2_pop : val :=
@@ -38,5 +40,7 @@ Definition inf_ws_deque_2_pop : val :=
     | None =>
         §None
     | Some "slot" =>
-        ‘Some( !"slot" )
+        let: "v" := !"slot" in
+        "slot" <- () ;;
+        ‘Some( "v" )
     end.
