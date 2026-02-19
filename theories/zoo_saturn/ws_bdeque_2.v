@@ -20,8 +20,8 @@ From zoo Require Import
 
 Implicit Types v t : val.
 
-Class WsBqueue2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_bdeque_2_G :: WsBqueue1G Σ ;
+Class WsBdeque2G Σ `{zoo_G : !ZooG Σ} := {
+  #[local] ws_bdeque_2_G :: WsBdeque1G Σ ;
 }.
 
 Definition ws_bdeque_2_Σ := #[
@@ -29,13 +29,13 @@ Definition ws_bdeque_2_Σ := #[
 ].
 #[global] Instance subG_ws_bdeque_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_bdeque_2_Σ Σ →
-  WsBqueue2G Σ .
+  WsBdeque2G Σ .
 Proof.
   solve_inG.
 Qed.
 
 Section ws_bdeque_2_G.
-  Context `{ws_bdeque_2_G : WsBqueue2G Σ}.
+  Context `{ws_bdeque_2_G : WsBdeque2G Σ}.
 
   Definition ws_bdeque_2_inv :=
     ws_bdeque_1_inv.

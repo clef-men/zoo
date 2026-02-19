@@ -57,7 +57,7 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-Class WsBqueue1G Σ `{zoo_G : !ZooG Σ} := {
+Class WsBdeque1G Σ `{zoo_G : !ZooG Σ} := {
   #[local] ws_bdeque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
   #[local] ws_bdeque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
   #[local] ws_bdeque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat)) ;
@@ -76,13 +76,13 @@ Definition ws_bdeque_1_Σ := #[
 ].
 #[global] Instance subG_ws_bdeque_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_bdeque_1_Σ Σ →
-  WsBqueue1G Σ .
+  WsBdeque1G Σ .
 Proof.
   solve_inG.
 Qed.
 
 Section ws_bdeque_1_G.
-  Context `{ws_bdeque_1_G : WsBqueue1G Σ}.
+  Context `{ws_bdeque_1_G : WsBdeque1G Σ}.
 
   Implicit Types P : iProp Σ.
 
