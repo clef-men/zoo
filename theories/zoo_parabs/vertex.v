@@ -1023,7 +1023,7 @@ Module base.
         iIntros "%pool %ctx %scope %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
 
         wp_rec.
-        wp_smart_apply (pool_async_spec True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
+        wp_smart_apply (pool_async_spec True True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_pures.
 
         wp_bind (_ <-{preds} _)%E.

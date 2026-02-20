@@ -355,12 +355,13 @@ Section future_G.
     wp_rec.
     wp_smart_apply (ivar_3_create_spec Ψ Ξ (waiter_model pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
 
-    wp_smart_apply (pool_async_spec (
-      finished t
-    ) with "[$Hctx Htask Hproducer]") as "(Hctx & #Hpool_obligation)".
+    wp_smart_apply (pool_async_spec
+      (finished t)
+      True
+    with "[$Hctx Htask Hproducer]") as "(Hctx & #Hpool_obligation & _)".
     { iIntros "{%} %ctx %scope Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-      wp_apply (future_set_spec with "[$]") as "($ & #$)".
+      wp_apply (future_set_spec with "[$]") as "($ & #$) //".
     }
 
     iStep 6. iFrame "#∗". iIntros "!> !> Hpool_finished".
@@ -491,12 +492,13 @@ Section future_G.
       pool_obligation pool (finished t2)
     ) with "[$Hctx $Hinv_1 Htask Hproducer_2]") as "(Hctx & (:obligation))".
     { iIntros "{%} %ctx %scope %v1 Hctx #Hresult_1".
-      wp_smart_apply (pool_async_spec (
-        finished t2
-      ) with "[$Hctx Htask Hproducer_2]") as "($ & #$) //".
+      wp_smart_apply (pool_async_spec
+        (finished t2)
+        True
+      with "[$Hctx Htask Hproducer_2]") as "($ & #$ & _) //".
       { iIntros "{%} %ctx %scope Hctx".
         wp_smart_apply (wp_wand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_apply (future_set_spec with "[$]") as "($ & #$)".
+        wp_apply (future_set_spec with "[$]") as "($ & #$) //".
       }
     }
 

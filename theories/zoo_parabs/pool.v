@@ -8,7 +8,8 @@ From zoo.iris.bi Require Import
 From zoo.iris.base_logic Require Import
   lib.ghost_list
   lib.mono_gmultiset
-  lib.saved_prop.
+  lib.saved_prop
+  lib.spsc_prop.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
@@ -29,6 +30,7 @@ Implicit Types b : bool.
 Implicit Types v ctx hub task pred : val.
 Implicit Types empty : emptiness.
 Implicit Types own : ownership.
+Implicit Types η : spsc_prop_name.
 
 #[local] Definition max_round_noyield :=
   val_to_nat' pool_max_round_noyield.
@@ -89,6 +91,7 @@ Class PoolG Σ `{zoo_G : !ZooG Σ} := {
   #[local] pool_G_saved_prop_G :: SavedPropG Σ ;
   #[local] pool_G_jobs_G :: MonoGmultisetG Σ job ;
   #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job) ;
+  #[local] pool_G_consumer_G :: SpscPropG Σ ;
 }.
 
 Definition pool_Σ := #[
@@ -96,7 +99,8 @@ Definition pool_Σ := #[
   ws_hub_std_Σ ;
   saved_prop_Σ ;
   mono_gmultiset_Σ job ;
-  ghost_list_Σ (gmultiset job)
+  ghost_list_Σ (gmultiset job) ;
+  spsc_prop_Σ
 ].
 #[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pool_Σ Σ →
@@ -353,17 +357,6 @@ Module base.
         )
       ".
 
-    Definition pool_obligation γ P : iProp Σ :=
-      ∃ job,
-      jobs_elem γ job ∗
-      saved_prop job.(job_name) P.
-    #[local] Instance : CustomIpat "obligation" :=
-      " ( %job{} &
-          Hjobs_elem{_job{}} &
-          Hjob{}
-        )
-      ".
-
     Definition pool_finished γ : iProp Σ :=
       ∃ jobs,
       jobs_auth γ Discard jobs ∗
@@ -374,6 +367,16 @@ Module base.
           Hjobs_finished{_jobs{}}
         )
       ".
+
+    Definition pool_obligation γ P : iProp Σ :=
+      □ (
+        pool_finished γ -∗
+        ▷ □ P
+      ).
+
+    Definition pool_consumer γ P : iProp Σ :=
+      pool_finished γ ={⊤}=∗
+      P.
 
     #[local] Instance globals_model_timeless γ globals :
       Timeless (globals_model γ globals).
@@ -651,16 +654,63 @@ Module base.
       iSteps.
     Qed.
 
+    Lemma pool_obligation_wand {γ P1} P2 :
+      pool_obligation γ P1 -∗
+      □ (P1 -∗ P2) -∗
+      pool_obligation γ P2.
+    Proof.
+      iIntros "#Hobligation #H !> #Hfinished".
+      iDestruct ("Hobligation" with "Hfinished") as "HP1".
+      iSteps.
+    Qed.
+    Lemma pool_obligation_split γ P1 P2 :
+      pool_obligation γ (P1 ∗ P2) ⊢
+        pool_obligation γ P1 ∗
+        pool_obligation γ P2.
+    Proof.
+      iIntros "#Hobligation".
+      iDestruct (pool_obligation_wand with "Hobligation []") as "$". 1: iSteps.
+      iDestruct (pool_obligation_wand with "Hobligation []") as "$". 1: iSteps.
+    Qed.
+    Lemma pool_obligation_combine γ P1 P2 :
+      pool_obligation γ P1 -∗
+      pool_obligation γ P2 -∗
+      pool_obligation γ (P1 ∗ P2).
+    Proof.
+      iIntros "#Hobligation_1 #Hobligation_2 !> #Hfinished".
+      iDestruct ("Hobligation_1" with "Hfinished") as "HP1".
+      iDestruct ("Hobligation_2" with "Hfinished") as "HP2".
+      iSteps.
+    Qed.
     Lemma pool_obligation_finished γ P :
       pool_obligation γ P -∗
       pool_finished γ -∗
       ▷ □ P.
     Proof.
-      iIntros "(:obligation) (:finished)".
-      iDestruct (jobs_elem_valid with "Hjobs_auth Hjobs_elem") as %Helem.
-      iDestruct (jobs_finished_elem_of with "Hjobs_finished") as "(%P_ & Hjob_ & HP)"; first done.
-      iDestruct (saved_prop_agree with "Hjob Hjob_") as "Heq".
-      iModIntro. iRewrite "Heq" => //.
+      iIntros "#Hobligation #Hfinished".
+      iApply ("Hobligation" with "Hfinished").
+    Qed.
+
+    Lemma pool_consumer_wand {γ P1} P2 :
+      pool_consumer γ P1 -∗
+      (P1 -∗ P2) -∗
+      pool_consumer γ P2.
+    Proof.
+      iSteps.
+    Qed.
+    Lemma pool_consumer_combine γ P1 P2 :
+      pool_consumer γ P1 -∗
+      pool_consumer γ P2 -∗
+      pool_consumer γ (P1 ∗ P2).
+    Proof.
+      iSteps.
+    Qed.
+    Lemma pool_consumer_finished γ P :
+      pool_consumer γ P -∗
+      pool_finished γ ={⊤}=∗
+      P.
+    Proof.
+      iSteps.
     Qed.
 
     #[local] Lemma pool_context_spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
@@ -966,14 +1016,15 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_async_spec P γ ctx scope task :
+    Lemma pool_async_spec P Q γ ctx scope task :
       {{{
         pool_context γ ctx scope ∗
         ( ∀ ctx scope,
           pool_context γ ctx scope -∗
           WP task ctx {{ res,
             pool_context γ ctx scope ∗
-            ▷ □ P
+            ▷ □ P ∗
+            ▷ Q
           }}
         )
       }}}
@@ -981,26 +1032,58 @@ Module base.
       {{{
         RET ();
         pool_context γ ctx scope ∗
-        pool_obligation γ P
+        pool_obligation γ P ∗
+        pool_consumer γ Q
       }}}.
     Proof.
       iIntros "%Φ ((:context) & Htask) HΦ".
 
-      wp_rec.
+      iMod (spsc_prop_alloc nroot Q) as "(%η & #Hη_inv & Hη_producer & Hη_consumer)".
+      set R := (
+        P ∗
+        spsc_prop_resolved η
+      )%I.
 
-      awp_smart_apply (ws_hub_std_push_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
+      wp_rec credits:"H£".
+
+      awp_smart_apply (ws_hub_std_push_spec with "[$Hhub_inv $Hhub_owner]") without "Hη_consumer H£ HΦ"; first done.
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
-      iMod (globals_model_push task P with "Hglobals_model Hlocals_at") as "(%global & %Hglobal & Hglobals_model & Hlocals_at & #Hjobs_elem & #Hglobal)"; first done.
+      iMod (globals_model_push task R with "Hglobals_model Hlocals_at") as "(%global & %Hglobal & Hglobals_model & Hlocals_at & #Hjobs_elem & #Hglobal)"; first done.
       iSplitR "Hlocals_at".
-      { iFrame. iSplitR "Htask".
+      { iFrame. iSplitR "Htask Hη_producer".
         - iPureIntro.
           rewrite gmultiset_map_disj_union gmultiset_map_singleton.
           congruence.
         - iApply big_sepMS_singleton.
-          rewrite Hglobal. iSteps.
+          rewrite Hglobal. iSteps --silent / as "_ _ HP HQ".
+          iMod (spsc_prop_produce with "Hη_inv Hη_producer HQ") as "#Hη_resolved". 1: done.
+          iFrame "#" => //.
       }
-      iSteps.
+      iIntros "!> Hhub_owner (Hη_consumer & H£ & HΦ)".
+
+      iAssert (pool_obligation γ R) with "[]" as "#Hobligation".
+      { iIntros "!> (:finished)".
+        iDestruct (jobs_elem_valid with "Hjobs_auth Hjobs_elem") as %Helem.
+        iDestruct (jobs_finished_elem_of with "Hjobs_finished") as "(%R_ & Hglobal_ & #HR)". 1: done.
+        iDestruct (saved_prop_agree with "Hglobal Hglobal_") as "Heq".
+        iModIntro.
+        iRewrite "Heq" => //.
+      }
+
+      iApply "HΦ".
+      iFrame "#∗". iStep. iSplitR.
+      { iApply (pool_obligation_wand with "Hobligation").
+        iSteps.
+      } {
+        iIntros "#Hfinished".
+        iDestruct (pool_obligation_finished with "Hobligation Hfinished") as "-#HR".
+        iDestruct (lc_weaken 2 with "H£") as "H£". 1: done.
+        iDestruct "H£" as "(H£_1 & H£_2)".
+        iMod (lc_fupd_elim_later with "H£_1 HR") as "(_ & #Hη_resolved)".
+        iMod (spsc_prop_consume with "Hη_inv Hη_consumer Hη_resolved") as "HQ". 1: done.
+        iApply (lc_fupd_elim_later with "H£_2 HQ").
+      }
     Qed.
 
     Lemma pool_wait_until_spec P γ ctx scope pred :
@@ -1077,6 +1160,7 @@ Module base.
   #[global] Opaque pool_model.
   #[global] Opaque pool_context.
   #[global] Opaque pool_obligation.
+  #[global] Opaque pool_consumer.
   #[global] Opaque pool_finished.
 End base.
 
@@ -1145,6 +1229,20 @@ Section pool_G.
       )
     ".
 
+  Definition pool_consumer t P : iProp Σ :=
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    base.pool_consumer γ P.
+  #[local] Instance : CustomIpat "consumer" :=
+    " ( %𝑡{} &
+        %γ{} &
+        {%Heq{};->} &
+        #Hmeta{_{}} &
+        Hconsumer{_{}}
+      )
+    ".
+
   Definition pool_finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
@@ -1185,6 +1283,34 @@ Section pool_G.
     iApply (base.pool_inv_agree with "Hinv_1 Hinv_2").
   Qed.
 
+  Lemma pool_obligation_wand {t P1} P2 :
+    pool_obligation t P1 -∗
+    □ (P1 -∗ P2) -∗
+    pool_obligation t P2.
+  Proof.
+    iIntros "(:obligation) H".
+    iDestruct (base.pool_obligation_wand with "Hobligation H") as "$".
+    iSteps.
+  Qed.
+  Lemma pool_obligation_split t P1 P2 :
+    pool_obligation t (P1 ∗ P2) ⊢
+      pool_obligation t P1 ∗
+      pool_obligation t P2.
+  Proof.
+    iIntros "(:obligation)".
+    iDestruct (base.pool_obligation_split with "Hobligation") as "($ & $)".
+    iSteps.
+  Qed.
+  Lemma pool_obligation_combine t P1 P2 :
+    pool_obligation t P1 -∗
+    pool_obligation t P2 -∗
+    pool_obligation t (P1 ∗ P2).
+  Proof.
+    iIntros "(:obligation =1) (:obligation =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.pool_obligation_combine with "Hobligation_1 Hobligation_2") as "$".
+    iSteps.
+  Qed.
   Lemma pool_obligation_finished t P :
     pool_obligation t P -∗
     pool_finished t -∗
@@ -1193,6 +1319,35 @@ Section pool_G.
     iIntros "(:obligation =1) (:finished =2)". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
     iApply (base.pool_obligation_finished with "Hobligation_1 Hfinished_2").
+  Qed.
+
+  Lemma pool_consumer_wand {t P1} P2 :
+    pool_consumer t P1 -∗
+    (P1 -∗ P2) -∗
+    pool_consumer t P2.
+  Proof.
+    iIntros "(:consumer) H".
+    iDestruct (base.pool_consumer_wand with "Hconsumer H") as "$".
+    iSteps.
+  Qed.
+  Lemma pool_consumer_combine t P1 P2 :
+    pool_consumer t P1 -∗
+    pool_consumer t P2 -∗
+    pool_consumer t (P1 ∗ P2).
+  Proof.
+    iIntros "(:consumer =1) (:consumer =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.pool_consumer_combine with "Hconsumer_1 Hconsumer_2") as "$".
+    iSteps.
+  Qed.
+  Lemma pool_consumer_finished t P :
+    pool_consumer t P -∗
+    pool_finished t ={⊤}=∗
+    P.
+  Proof.
+    iIntros "(:consumer =1) (:finished =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iApply (base.pool_consumer_finished with "Hconsumer_1 Hfinished_2").
   Qed.
 
   Lemma pool_create_spec sz :
@@ -1279,14 +1434,15 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_async_spec P t ctx scope task :
+  Lemma pool_async_spec P Q t ctx scope task :
     {{{
       pool_context t ctx scope ∗
       ( ∀ ctx scope,
         pool_context t ctx scope -∗
         WP task ctx {{ res,
           pool_context t ctx scope ∗
-          ▷ □ P
+          ▷ □ P ∗
+          ▷ Q
         }}
       )
     }}}
@@ -1294,12 +1450,13 @@ Section pool_G.
     {{{
       RET ();
       pool_context t ctx scope ∗
-      pool_obligation t P
+      pool_obligation t P ∗
+      pool_consumer t Q
     }}}.
   Proof.
     iIntros "%Φ ((:context) & Htask) HΦ".
 
-    wp_apply (base.pool_async_spec P with "[$Hctx Htask]").
+    wp_apply (base.pool_async_spec P Q with "[$Hctx Htask]").
     { iIntros "{%} %ctx %scope Hctx".
       wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
@@ -1359,4 +1516,5 @@ End pool_G.
 #[global] Opaque pool_model.
 #[global] Opaque pool_context.
 #[global] Opaque pool_obligation.
+#[global] Opaque pool_consumer.
 #[global] Opaque pool_finished.
