@@ -8,48 +8,10 @@ From zoo_parabs Require Import
   future
   pool.
 From examples Require Export
+  fibonacci
   future_fibonacci__code.
 From zoo Require Import
   options.
-
-Fixpoint fib n :=
-  match n with
-  | 0 =>
-      0
-  | S n =>
-      match n with
-      | 0 =>
-          1
-      | S m =>
-          fib n + fib m
-      end
-  end.
-#[global] Arguments fib !_ /.
-
-Lemma fib_spec n :
-  fib n =
-    if decide (n ≤ 1) then
-      n
-    else
-      fib (n - 1) + fib (n - 2).
-Proof.
-  destruct n as [| [| n]]; simpl; try done.
-  rewrite right_id //.
-Qed.
-Lemma fib_spec_Z n :
-  (0 ≤ n)%Z →
-  fib ₊n =
-    if decide (n ≤ 1)%Z then
-      ₊n
-    else
-      fib ₊(n - 1) + fib ₊(n - 2).
-Proof.
-  intros Hn.
-  rewrite fib_spec.
-  assert (₊(n - 1) = ₊n - 1) as -> by lia.
-  assert (₊(n - 2) = ₊n - 2) as -> by lia.
-  apply decide_ext. lia.
-Qed.
 
 Section future_G.
   Context `{future_G : FutureG Σ}.
@@ -61,7 +23,7 @@ Section future_G.
     }}}
       future_fibonacci_main_0 ctx #n
     {{{
-      RET #(fib ₊n);
+      RET #(fibonacci ₊n);
       pool_context pool ctx scope
     }}}.
   Proof.
@@ -98,7 +60,7 @@ Section future_G.
 
       wp_pures.
 
-      rewrite (fib_spec_Z n) // -Nat2Z.inj_add.
+      rewrite (fibonacci_spec_Z n) // -Nat2Z.inj_add.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
@@ -108,7 +70,7 @@ Section future_G.
     }}}
       future_fibonacci_main #num_dom #n
     {{{
-      RET #(fib n);
+      RET #(fibonacci n);
       True
     }}}.
   Proof.

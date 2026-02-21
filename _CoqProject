@@ -489,6 +489,7 @@ theories/zoo_parabs/vertex.v
 #BEGIN examples
 -Q theories/examples examples
 
+theories/examples/fibonacci.v
 theories/examples/future_fibonacci__types.v
 theories/examples/future_fibonacci__code.v
 theories/examples/future_fibonacci__opaque.v
