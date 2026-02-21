@@ -7,11 +7,11 @@ From zoo_parabs Require Import
   future
   pool.
 From examples Require Import
-  fibonacci__types.
+  future_fibonacci__types.
 From zoo Require Import
   options.
 
-Definition fibonacci_fibonacci_0 : val :=
+Definition future_fibonacci_fibonacci_0 : val :=
   rec: "fibonacci" "n" "ctx" =>
     if: "n" ≤ 1 then (
       "n"
@@ -25,6 +25,6 @@ Definition fibonacci_fibonacci_0 : val :=
       future_wait "ctx" "fut1" + future_wait "ctx" "fut2"
     ).
 
-Definition fibonacci_fibonacci : val :=
+Definition future_fibonacci_fibonacci : val :=
   fun: "n" "pool" =>
-    pool_run "pool" (fun: "ctx" => fibonacci_fibonacci_0 "n" "ctx").
+    pool_run "pool" (fun: "ctx" => future_fibonacci_fibonacci_0 "n" "ctx").

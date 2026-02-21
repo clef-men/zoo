@@ -8,7 +8,7 @@ From zoo_parabs Require Import
   future
   pool.
 From examples Require Export
-  fibonacci__code.
+  future_fibonacci__code.
 From zoo Require Import
   options.
 
@@ -54,12 +54,12 @@ Qed.
 Section future_G.
   Context `{future_G : FutureG Σ}.
 
-  #[local] Lemma fibonacci_fibonacci_0_spec n pool ctx scope :
+  #[local] Lemma future_fibonacci_fibonacci_0_spec n pool ctx scope :
     (0 ≤ n)%Z →
     {{{
       pool_context pool ctx scope
     }}}
-      fibonacci_fibonacci_0 #n ctx
+      future_fibonacci_fibonacci_0 #n ctx
     {{{
       RET #(fib ₊n);
       pool_context pool ctx scope
@@ -102,11 +102,11 @@ Section future_G.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma fibonacci_fibonacci_spec (n : nat) pool :
+  Lemma future_fibonacci_fibonacci_spec (n : nat) pool :
     {{{
       pool_model pool
     }}}
-      fibonacci_fibonacci #n pool
+      future_fibonacci_fibonacci #n pool
     {{{
       RET #(fib n);
       pool_model pool
@@ -120,7 +120,7 @@ Section future_G.
       ⌜v = #_⌝
     )%I with "[$Hpool]") as (?) "(Hctx & ->)".
     { iIntros "%ctx %scope Hctx".
-      wp_smart_apply (fibonacci_fibonacci_0_spec with "Hctx"); first lia.
+      wp_smart_apply (future_fibonacci_fibonacci_0_spec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 
@@ -129,4 +129,4 @@ Section future_G.
 End future_G.
 
 From examples Require
-  fibonacci__opaque.
+  future_fibonacci__opaque.
