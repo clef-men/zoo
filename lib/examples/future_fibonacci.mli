@@ -1,2 +1,2 @@
-val fibonacci :
-  int -> Zoo_parabs.Pool.t -> int
+val main :
+  int -> int -> int

@@ -1,9 +1,13 @@
-let rec fibonacci n ctx =
+let rec main ctx n =
   if n <= 1 then
     n
   else
-    let fut1 = Future.async ctx (fun ctx -> fibonacci (n - 1) ctx) in
-    let fut2 = Future.async ctx (fun ctx -> fibonacci (n - 2) ctx) in
+    let fut1 = Future.async ctx (fun ctx -> main ctx (n - 1)) in
+    let fut2 = Future.async ctx (fun ctx -> main ctx (n - 2)) in
     Future.wait ctx fut1 + Future.wait ctx fut2
-let fibonacci n pool =
-  Pool.run pool (fun ctx -> fibonacci n ctx)
+
+let main num_dom n =
+  let pool = Pool.create num_dom in
+  let res = Pool.run pool (fun ctx -> main ctx n) in
+  Pool.kill pool ;
+  res

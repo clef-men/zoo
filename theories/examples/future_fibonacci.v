@@ -54,12 +54,12 @@ Qed.
 Section future_G.
   Context `{future_G : FutureG Σ}.
 
-  #[local] Lemma future_fibonacci_fibonacci_0_spec n pool ctx scope :
+  #[local] Lemma future_fibonacci_main_0_spec n pool ctx scope :
     (0 ≤ n)%Z →
     {{{
       pool_context pool ctx scope
     }}}
-      future_fibonacci_fibonacci_0 #n ctx
+      future_fibonacci_main_0 ctx #n
     {{{
       RET #(fib ₊n);
       pool_context pool ctx scope
@@ -102,28 +102,30 @@ Section future_G.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma future_fibonacci_fibonacci_spec (n : nat) pool :
+  Lemma future_fibonacci_main_spec (num_dom n : nat) :
     {{{
-      pool_model pool
+      True
     }}}
-      future_fibonacci_fibonacci #n pool
+      future_fibonacci_main #num_dom #n
     {{{
       RET #(fib n);
-      pool_model pool
+      True
     }}}.
   Proof.
-    iIntros "%Φ Hpool HΦ".
+    iIntros "%Φ _ HΦ".
 
     wp_rec.
+    wp_smart_apply (pool_create_spec with "[//]") as (pool) "(_ & Hpool)". 1: lia.
 
     wp_smart_apply (pool_run_spec (λ v,
       ⌜v = #_⌝
-    )%I with "[$Hpool]") as (?) "(Hctx & ->)".
+    )%I with "[$Hpool]") as (?) "(Hpool& ->)".
     { iIntros "%ctx %scope Hctx".
-      wp_smart_apply (future_fibonacci_fibonacci_0_spec with "Hctx"); first lia.
+      wp_smart_apply (future_fibonacci_main_0_spec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 
+    wp_smart_apply (pool_kill_spec with "Hpool") as "_".
     iSteps.
   Qed.
 End future_G.
