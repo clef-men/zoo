@@ -566,10 +566,18 @@ Module base.
     Proof.
       apply subprops_alloc.
     Qed.
-    #[local] Lemma output_divide {γ P finished Q} Qs E :
+    #[local] Lemma output_wand {γ P finished Q1} Q2 E :
       ▷ output_auth γ P finished -∗
-      output_frag γ Q -∗
-      (Q -∗ [∗ list] Q ∈ Qs, Q) ={E}=∗
+      output_frag γ Q1 -∗
+      (Q1 -∗ Q2) ={E}=∗
+        ▷ output_auth γ P finished ∗
+        output_frag γ Q2.
+    Proof.
+      apply subprops_wand.
+    Qed.
+    #[local] Lemma output_divide {γ P finished} Qs E :
+      ▷ output_auth γ P finished -∗
+      output_frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
         ▷ output_auth γ P finished ∗
         [∗ list] Q ∈ Qs, output_frag γ Q.
     Proof.
@@ -609,29 +617,28 @@ Module base.
       iApply (state₁_exclusive with "Hstate₁_1 Hstate₁_2").
     Qed.
 
-    Lemma vertex_output_divide {t γ P R Q} Qs :
+    Lemma vertex_output_wand {t γ P R Q1} Q2 :
       vertex_inv t γ P R -∗
-      vertex_output γ Q -∗
-      (Q -∗ [∗ list] Q ∈ Qs, Q) ={⊤}=∗
-      [∗ list] Q ∈ Qs, vertex_output γ Q.
+      vertex_output γ Q1 -∗
+      (Q1 -∗ Q2) ={⊤}=∗
+      vertex_output γ Q2.
     Proof.
       rewrite vertex_inv_unfold.
       iIntros "(:inv_pre) (:output) H".
       iInv "Hinv" as "(:inv_inner)".
-      iMod (output_divide with "Houtput_auth Houtput_frag H") as "(Houtput_auth & H)".
-      iSplitR "H". { iFrameSteps. }
-      iApply (big_sepL_impl with "H").
-      iSteps.
+      iMod (output_wand with "Houtput_auth Houtput_frag H") as "($ & $)".
+      iFrameSteps.
     Qed.
-    Lemma vertex_output_split {t γ P R Q} Q1 Q2 :
+    Lemma vertex_output_divide {t γ P R} Qs :
       vertex_inv t γ P R -∗
-      vertex_output γ Q -∗
-      (Q -∗ Q1 ∗ Q2) ={⊤}=∗
-        vertex_output γ Q1 ∗
-        vertex_output γ Q2.
+      vertex_output γ ([∗ list] Q ∈ Qs, Q) ={⊤}=∗
+      [∗ list] Q ∈ Qs, vertex_output γ Q.
     Proof.
-      iIntros "#Hinv Houtput H".
-      iMod (vertex_output_divide [Q1;Q2] with "Hinv Houtput [H]") as "($ & $ & _)"; iSteps.
+      rewrite vertex_inv_unfold.
+      iIntros "(:inv_pre) (:output)".
+      iInv "Hinv" as "(:inv_inner)".
+      iMod (output_divide with "Houtput_auth Houtput_frag") as "($ & $)".
+      iFrameSteps.
     Qed.
 
     Lemma vertex_predecessor_finished γ iter :
@@ -1320,29 +1327,37 @@ Section vertex_G.
     iApply (base.vertex_model_finished with "Hmodel_1 Hfinished_2").
   Qed.
 
-  Lemma vertex_output_divide {t P R Q} Qs :
+  Lemma vertex_output_wand {t P R Q1} Q2 :
     vertex_inv t P R -∗
-    vertex_output t Q -∗
-    (Q -∗ [∗ list] Q ∈ Qs, Q) ={⊤}=∗
-    [∗ list] Q ∈ Qs, vertex_output t Q.
+    vertex_output t Q1 -∗
+    (Q1 -∗ Q2) ={⊤}=∗
+    vertex_output t Q2.
   Proof.
     iIntros "(:inv =1) (:output =2) H". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (base.vertex_output_divide with "Hinv_1 Houtput_2 H") as "H".
+    iMod (base.vertex_output_wand with "Hinv_1 Houtput_2 H") as "H".
+    iFrameSteps.
+  Qed.
+  Lemma vertex_output_divide {t P R} Qs :
+    vertex_inv t P R -∗
+    vertex_output t ([∗ list] Q ∈ Qs, Q) ={⊤}=∗
+    [∗ list] Q ∈ Qs, vertex_output t Q.
+  Proof.
+    iIntros "(:inv =1) (:output =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
+    iMod (base.vertex_output_divide with "Hinv_1 Houtput_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma vertex_output_split {t P R Q} Q1 Q2 :
+  Lemma vertex_output_split {t P R} Q1 Q2 :
     vertex_inv t P R -∗
-    vertex_output t Q -∗
-    (Q -∗ Q1 ∗ Q2) ={⊤}=∗
+    vertex_output t (Q1 ∗ Q2) ={⊤}=∗
       vertex_output t Q1 ∗
       vertex_output t Q2.
   Proof.
-    iIntros "(:inv =1) (:output =2) H". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-.
-    iMod (base.vertex_output_split with "Hinv_1 Houtput_2 H") as "H".
-    iSteps.
+    iIntros "Hinv Houtput".
+    iMod (vertex_output_divide [Q1;Q2] with "Hinv [Houtput]") as "($ & $ & _)" => //.
+    { rewrite /= bi.sep_emp //. }
   Qed.
 
   Lemma vertex_predecessor_finished t iter :
