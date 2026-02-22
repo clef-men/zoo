@@ -107,6 +107,7 @@ theories/zoo/iris/base_logic/lib/prophet_map.v
 theories/zoo/iris/base_logic/lib/spsc_prop.v
 theories/zoo/iris/base_logic/lib/subpreds.v
 theories/zoo/iris/base_logic/lib/subprops.v
+theories/zoo/iris/base_logic/lib/cinv.v
 
 theories/zoo/language/location.v
 theories/zoo/language/syntax.v
