@@ -69,27 +69,34 @@ Section subprops_G.
     apply subpreds_alloc.
   Qed.
 
-  Lemma subprops_split `{inv_G : !invGS Σ} {γ P state Q} Q1 Q2 E :
+  Lemma subprops_wand `{inv_G : !invGS Σ} {γ P state Q1} Q2 E :
     ▷ subprops_auth γ P state -∗
-    subprops_frag γ Q -∗
-    (Q -∗ Q1 ∗ Q2) ={E}=∗
+    subprops_frag γ Q1 -∗
+    (Q1 -∗ Q2) ={E}=∗
+      ▷ subprops_auth γ P state ∗
+      subprops_frag γ Q2.
+  Proof.
+    iIntros "Hauth Hfrag H".
+    iApply (subpreds_wand with "Hauth Hfrag [H]"). 1: iSteps.
+  Qed.
+  Lemma subprops_split `{inv_G : !invGS Σ} {γ P state} Q1 Q2 E :
+    ▷ subprops_auth γ P state -∗
+    subprops_frag γ (Q1 ∗ Q2) ={E}=∗
       ▷ subprops_auth γ P state ∗
       subprops_frag γ Q1 ∗
       subprops_frag γ Q2.
   Proof.
-    iIntros "Hauth Hfrag H".
-    iApply (subpreds_split with "Hauth Hfrag [H]").
-    iSteps.
+    iIntros "Hauth Hfrag".
+    iApply (subpreds_split with "Hauth Hfrag").
   Qed.
-  Lemma subprops_divide `{inv_G : !invGS Σ} {γ P state Q} Qs E :
+  Lemma subprops_divide `{inv_G : !invGS Σ} {γ P state} Qs E :
     ▷ subprops_auth γ P state -∗
-    subprops_frag γ Q -∗
-    (Q -∗ [∗ list] Q ∈ Qs, Q) ={E}=∗
+    subprops_frag γ ([∗ list] Q ∈ Qs, Q) ={E}=∗
       ▷ subprops_auth γ P state ∗
       [∗ list] Q ∈ Qs, subprops_frag γ Q.
   Proof.
-    iIntros "Hauth Hfrag H".
-    iMod (subpreds_divide ((λ Q _, Q) <$> Qs) with "Hauth Hfrag [H]") as "($ & Hfrags)".
+    iIntros "Hauth Hfrag".
+    iMod (subpreds_divide ((λ Q _, Q) <$> Qs) with "Hauth [Hfrag]") as "($ & Hfrags)".
     all: setoid_rewrite big_sepL_fmap.
     all: iSteps.
   Qed.
