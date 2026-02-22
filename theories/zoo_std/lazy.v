@@ -304,10 +304,18 @@ Module base.
     Proof.
       apply subpreds_alloc.
     Qed.
-    #[local] Lemma consumer_divide {γ Ψ} {state : option val} {Χ} Χs E :
+    #[local] Lemma consumer_wand {γ Ψ} {state : option val} {Χ1} Χ2 E :
       ▷ consumer_auth γ Ψ state -∗
-      consumer_frag γ Χ -∗
-      (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
+      consumer_frag γ Χ1 -∗
+      (∀ v, Χ1 v -∗ Χ2 v) ={E}=∗
+        ▷ consumer_auth γ Ψ state ∗
+        consumer_frag γ Χ2.
+    Proof.
+      apply subpreds_wand.
+    Qed.
+    #[local] Lemma consumer_divide {γ Ψ} {state : option val} Χs E :
+      ▷ consumer_auth γ Ψ state -∗
+      consumer_frag γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
         ▷ consumer_auth γ Ψ state ∗
         [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
     Proof.
@@ -348,18 +356,26 @@ Module base.
         iFrame "#∗" => //.
     Qed.
 
-    Lemma lazy_consumer_divide {t γ Ψ Ξ Χ} Χs :
+    Lemma lazy_consumer_wand {t γ Ψ Ξ Χ1} Χ2 :
       lazy_inv t γ Ψ Ξ -∗
-      lazy_consumer γ Χ -∗
-      (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-      [∗ list] Χ ∈ Χs, lazy_consumer γ Χ.
+      lazy_consumer γ Χ1 -∗
+      (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
+      lazy_consumer γ Χ2.
     Proof.
       iIntros "(:inv) (:consumer) H".
       iInv "Hinv" as "(:inv_inner)".
-      iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag H") as "(Hconsumer_auth & H)".
-      iSplitR "H". { iFrameSteps. }
-      iApply (big_sepL_impl with "H").
-      iSteps.
+      iMod (consumer_wand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
+      iFrameSteps.
+    Qed.
+    Lemma lazy_consumer_divide {t γ Ψ Ξ} Χs :
+      lazy_inv t γ Ψ Ξ -∗
+      lazy_consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+      [∗ list] Χ ∈ Χs, lazy_consumer γ Χ.
+    Proof.
+      iIntros "(:inv) (:consumer)".
+      iInv "Hinv" as "(:inv_inner)".
+      iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
+      iFrameSteps.
     Qed.
 
     Lemma lazy_result_agree γ v1 v2 :
@@ -781,27 +797,37 @@ Section lazy_G.
     apply _.
   Qed.
 
-  Lemma lazy_consumer_divide {t Ψ Ξ Χ} Χs :
+  Lemma lazy_consumer_wand {t Ψ Ξ Χ1} Χ2 :
     lazy_inv t Ψ Ξ -∗
-    lazy_consumer t Χ -∗
-    (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, lazy_consumer t Χ.
+    lazy_consumer t Χ1 -∗
+    (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
+    lazy_consumer t Χ2.
   Proof.
     iIntros "(:inv =1) (:consumer =2) H". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.lazy_consumer_divide with "Hinv_1 Hconsumer_2 H") as "H".
+    iDestruct (base.lazy_consumer_wand with "Hinv_1 Hconsumer_2 H") as "H".
+    iSteps.
+  Qed.
+  Lemma lazy_consumer_divide {t Ψ Ξ} Χs :
+    lazy_inv t Ψ Ξ -∗
+    lazy_consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, lazy_consumer t Χ.
+  Proof.
+    iIntros "(:inv =1) (:consumer =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.lazy_consumer_divide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma lazy_consumer_split {t Ψ Ξ Χ} Χ1 Χ2 :
+  Lemma lazy_consumer_split {t Ψ Ξ} Χ1 Χ2 :
     lazy_inv t Ψ Ξ -∗
-    lazy_consumer t Χ -∗
-    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
+    lazy_consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
       lazy_consumer t Χ1 ∗
       lazy_consumer t Χ2.
   Proof.
-    iIntros "Hinv Hconsumer H".
-    iMod (lazy_consumer_divide [Χ1;Χ2] with "Hinv Hconsumer [H]") as "($ & $ & _)"; iSteps.
+    iIntros "Hinv Hconsumer".
+    iMod (lazy_consumer_divide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
+    { simpl. setoid_rewrite bi.sep_emp => //. }
   Qed.
 
   Lemma lazy_result_agree t v1 v2 :
