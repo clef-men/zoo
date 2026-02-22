@@ -57,9 +57,9 @@ Section subpreds_G.
     auth_dgset_frag γ {[η]} ∗
     saved_pred η Χ.
   #[local] Instance : CustomIpat "frag" :=
-    " ( %η &
-        Hfrag &
-        #Hη
+    " ( %η{} &
+        Hfrag{_{}} &
+        #Hη{}
       )
     ".
 
@@ -110,7 +110,7 @@ Section subpreds_G.
     setoid_rewrite big_sepS_singleton. iSteps.
   Qed.
 
-  Lemma subpreds_split `{inv_G : !invGS Σ} {γ Ψ state Χ} Χ1 Χ2 E :
+  Lemma subpreds_split_wand `{inv_G : !invGS Σ} {γ Ψ state Χ} Χ1 Χ2 E :
     ▷ subpreds_auth γ Ψ state -∗
     subpreds_frag γ Χ -∗
     (∀ x, Χ x -∗ Χ1 x ∗ Χ2 x) ={E}=∗
@@ -137,18 +137,38 @@ Section subpreds_G.
     do 2 (rewrite big_sepS_union; first set_solver).
     rewrite !big_sepS_singleton. iFrame "#∗".
   Qed.
-  Lemma subpreds_divide `{inv_G : !invGS Σ} {γ Ψ state Χ} Χs E :
+  Lemma subpreds_wand `{inv_G : !invGS Σ} {γ Ψ state Χ1} Χ2 E :
     ▷ subpreds_auth γ Ψ state -∗
-    subpreds_frag γ Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
+    subpreds_frag γ Χ1 -∗
+    (∀ x, Χ1 x -∗ Χ2 x) ={E}=∗
+      ▷ subpreds_auth γ Ψ state ∗
+      subpreds_frag γ Χ2.
+  Proof.
+    iIntros "Hauth Hfrag H".
+    iDestruct (subpreds_frag_proper _ _ (λ x, Χ1 x ∗ True)%I with "Hfrag") as "Hfrag".
+    { rewrite /pointwise_relation. iSteps. }
+    iMod (subpreds_split_wand Χ2 (λ _, True)%I with "Hauth Hfrag [H]") as "($ & $ & _)" => //. 1: iSteps.
+  Qed.
+  Lemma subpreds_split `{inv_G : !invGS Σ} {γ Ψ state} Χ1 Χ2 E :
+    ▷ subpreds_auth γ Ψ state -∗
+    subpreds_frag γ (λ x, Χ1 x ∗ Χ2 x)%I ={E}=∗
+      ▷ subpreds_auth γ Ψ state ∗
+      subpreds_frag γ Χ1 ∗
+      subpreds_frag γ Χ2.
+  Proof.
+    iIntros "Hauth Hfrag".
+    iApply (subpreds_split_wand with "Hauth Hfrag"). 1: iSteps.
+  Qed.
+  Lemma subpreds_divide `{inv_G : !invGS Σ} {γ Ψ state} Χs E :
+    ▷ subpreds_auth γ Ψ state -∗
+    subpreds_frag γ (λ x, [∗ list] Χ ∈ Χs, Χ x) ={E}=∗
       ▷ subpreds_auth γ Ψ state ∗
       [∗ list] Χ ∈ Χs, subpreds_frag γ Χ.
   Proof.
-    iInduction Χs as [| Χ0 Χs] "IH" forall (Χ); first auto.
-    iIntros "Hauth Hfrag H".
-    iMod (subpreds_split Χ0 (λ x, [∗ list] Χ ∈ Χs, Χ x)%I with "Hauth Hfrag [H]") as "(Hauth & $ & Hfrag)"; first iSteps.
+    iInduction Χs as [| Χ0 Χs] "IH"; first auto.
+    iIntros "Hauth Hfrag".
+    iMod (subpreds_split Χ0 (λ x, [∗ list] Χ ∈ Χs, Χ x)%I with "Hauth Hfrag") as "(Hauth & $ & Hfrag)".
     iApply ("IH" with "Hauth Hfrag").
-    iSteps.
   Qed.
 
   Lemma subpreds_produce {γ Ψ} x :
