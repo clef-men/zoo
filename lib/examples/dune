@@ -1,7 +1,8 @@
 (library
   (name examples)
   (libraries
+    zoo_std
     zoo_parabs
   )
-  (flags (:standard -open Zoo_parabs))
+  (flags (:standard -open Zoo_std -open Zoo_parabs))
 )
