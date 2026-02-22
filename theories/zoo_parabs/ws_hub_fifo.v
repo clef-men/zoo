@@ -85,6 +85,8 @@ Opaque consistent.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
+  Implicit Types P Q : iProp Σ.
+
   Record metadata := {
     metadata_size : nat ;
     metadata_queue : val ;
@@ -669,14 +671,18 @@ Section ws_hub_fifo_G.
     wp_smart_apply (ws_hub_fifo_pop'_spec_owner with "[$Hinv $Howner] HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_until_0_spec P t ι sz pred :
+  #[local] Lemma ws_hub_fifo_steal_until_0_spec P Q t ι sz pred :
     <<<
       ws_hub_fifo_inv t ι sz ∗
-      □ WP pred () {{ res,
-        ∃ b,
-        ⌜res = #b⌝ ∗
-        if b then P else True
-      }}
+      P ∗
+      □ (
+        P -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q else P
+        }}
+      )
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -692,15 +698,15 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      if o then True else P
+      if o then P else Q
     >>>.
   Proof.
-    iIntros "%Φ ((:inv) & #Hpred) HΦ".
+    iIntros "%Φ ((:inv) & HP & #Hpred) HΦ".
 
     iLöb as "HLöb".
 
     wp_rec.
-    wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
+    wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
     destruct b.
 
     - iApply fupd_wp.
@@ -718,17 +724,21 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
+  Lemma ws_hub_fifo_steal_until_spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_fifo_inv t ι sz ∗
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      □ WP pred () {{ res,
-        ∃ b,
-        ⌜res = #b⌝ ∗
-        if b then P else True
-      }}
+      P ∗
+      □ (
+        P -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q else P
+        }}
+      )
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -745,15 +755,15 @@ Section ws_hub_fifo_G.
       end
     | RET o;
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      if o then True else P
+      if o then P else Q
     >>>.
   Proof.
-    iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & #Hpred) HΦ".
+    iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_fifo_steal_until_0_spec with "[$Hinv $Hpred]").
-    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
-    iApply ("HΦ" with "[$Howner $HP]").
+    wp_smart_apply (ws_hub_fifo_steal_until_0_spec P Q with "[$Hinv $HP $Hpred]").
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
+    iApply ("HΦ" with "[$Howner $H]").
   Qed.
 
   #[local] Lemma ws_hub_fifo_steal_0_spec t ι sz :
@@ -876,17 +886,23 @@ End ws_hub_fifo_G.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
-  Lemma ws_hub_fifo_pop_steal_until_spec P t ι sz i i_ empty max_round_noyield pred :
+  Implicit Types P Q : iProp Σ.
+
+  Lemma ws_hub_fifo_pop_steal_until_spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
       ws_hub_fifo_inv t ι sz ∗
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      □ WP pred () {{ res,
-        ∃ b,
-        ⌜res = #b⌝ ∗
-        if b then P else True
-      }}
+      P ∗
+      □ (
+        P -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q else P
+        }}
+      )
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
@@ -905,13 +921,13 @@ Section ws_hub_fifo_G.
       RET o;
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
       if o then
-        True
+        P
       else
         ⌜empty = Empty⌝ ∗
-        P
+        Q
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & #Hpred) HΦ".
+    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
 
@@ -924,8 +940,8 @@ Section ws_hub_fifo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
-      wp_smart_apply (ws_hub_fifo_steal_until_spec with "[$Hinv $Howner $Hpred]"); [done.. |].
-      iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & HP)".
+      wp_smart_apply (ws_hub_fifo_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+      iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & H)".
       iApply ("HΦ" with "[- $Howner]").
       destruct o; iFrameSteps.
   Qed.
