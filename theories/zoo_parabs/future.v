@@ -181,19 +181,26 @@ Section future_G.
     solve_biglater.
   Qed.
 
-  Lemma future_consumer_divide {pool t Ψ Ξ Χ} Χs :
+  Lemma future_consumer_wand {pool t Ψ Ξ Χ1} Χ2 :
     future_inv pool t Ψ Ξ -∗
-    future_consumer t Χ -∗
-    (∀ x, Χ x -∗ [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
+    future_consumer t Χ1 -∗
+    (∀ x, Χ1 x -∗ Χ2 x) ={⊤}=∗
+    future_consumer t Χ2.
+  Proof.
+    iIntros "(:inv)".
+    iApply (ivar_3_consumer_wand with "Hinv").
+  Qed.
+  Lemma future_consumer_divide {pool t Ψ Ξ} Χs :
+    future_inv pool t Ψ Ξ -∗
+    future_consumer t (λ x, [∗ list] Χ ∈ Χs, Χ x) ={⊤}=∗
     [∗ list] Χ ∈ Χs, future_consumer t Χ.
   Proof.
     iIntros "(:inv)".
     iApply (ivar_3_consumer_divide with "Hinv").
   Qed.
-  Lemma future_consumer_split {pool t Ψ Χ Ξ} Χ1 Χ2 :
+  Lemma future_consumer_split {pool t Ψ Ξ} Χ1 Χ2 :
     future_inv pool t Ψ Ξ -∗
-    future_consumer t Χ -∗
-    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
+    future_consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
       future_consumer t Χ1 ∗
       future_consumer t Χ2.
   Proof.
