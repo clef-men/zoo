@@ -1,6 +1,9 @@
 From Coq Require Export
   ZifyNat.
 
+From stdpp Require Export
+  numbers.
+
 From zoo Require Import
   prelude.
 From zoo Require Import
@@ -103,3 +106,25 @@ Section Z.
     - rewrite Z.rem_mod_nonneg //. lia.
   Qed.
 End Z.
+
+Section Qp_of_nat.
+  Implicit Types n : nat.
+
+  Definition Qp_of_nat :=
+    pos_to_Qp ∘ Pos.of_nat.
+
+  Lemma Qp_of_nat_1 :
+    Qp_of_nat 1 = 1%Qp.
+  Proof.
+    done.
+  Qed.
+  Lemma Qp_of_nat_S n :
+    n ≠ 0 →
+    Qp_of_nat (S n) = (1 + Qp_of_nat n)%Qp.
+  Proof.
+    intros Hn.
+    rewrite /Qp_of_nat /=.
+    rewrite Nat2Pos.inj_succ //.
+    rewrite pos_to_Qp_add Pos.add_1_l //.
+  Qed.
+End Qp_of_nat.

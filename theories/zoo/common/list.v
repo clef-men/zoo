@@ -1,4 +1,4 @@
-From stdpp Require Export
+From stdpp Require
   list.
 
 From zoo Require Import
@@ -7,6 +7,8 @@ From zoo.common Require Import
   math.
 From zoo Require Import
   options.
+
+Export stdpp.list.
 
 Create HintDb simpl_length.
 
