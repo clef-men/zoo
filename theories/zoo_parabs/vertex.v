@@ -68,9 +68,8 @@ Definition vertex_iteration :=
   gname.
 Implicit Types iter : vertex_iteration.
 
-Class VertexG Σ `{zoo_G : !ZooG Σ} := {
+Class VertexG Σ `{pool_G : PoolG Σ} := {
   #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
-  #[local] vertex_G_pool_G :: PoolG Σ ;
   #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
   #[local] vertex_G_iteration_G :: TwinsG Σ (leibnizO vertex_iteration) ;
   #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name ;
@@ -80,14 +79,13 @@ Class VertexG Σ `{zoo_G : !ZooG Σ} := {
 
 Definition vertex_Σ := #[
   mpmc_stack_2_Σ ;
-  pool_Σ ;
   twins_Σ (leibnizO state) ;
   twins_Σ (leibnizO vertex_iteration) ;
   mono_gmultiset_Σ vertex_name ;
   auth_gmultiset_Σ vertex_name ;
   subprops_Σ
 ].
-#[global] Instance subG_vertex_Σ Σ `{zoo_G : !ZooG Σ}:
+#[global] Instance subG_vertex_Σ Σ `{pool_G : PoolG Σ}:
   subG vertex_Σ Σ →
   VertexG Σ.
 Proof.
