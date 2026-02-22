@@ -393,10 +393,11 @@ Section future_G.
 
     wp_rec.
 
-    wp_smart_apply (pool_wait_until_spec (
-      ivar_3_resolved t
-    )%I with "[$Hctx]") as "(Hctx & %v & #Hresult)".
-    { iModIntro.
+    wp_smart_apply (pool_wait_until_spec
+      True
+      (ivar_3_resolved t)
+    with "[$Hctx]") as "(Hctx & %v & #Hresult)".
+    { iStep 3.
       wp_smart_apply (ivar_3_is_set_spec with "Hinv") as (b) "Hresult".
       rewrite /ivar_3_resolved. destruct b; iSteps.
     }

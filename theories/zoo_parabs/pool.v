@@ -1086,31 +1086,35 @@ Module base.
       }
     Qed.
 
-    Lemma pool_wait_until_spec P γ ctx scope pred :
+    Lemma pool_wait_until_spec P Q γ ctx scope pred :
       {{{
         pool_context γ ctx scope ∗
-        □ WP pred () {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          if b then P else True
-        }}
+        P ∗
+        □ (
+          P -∗
+          WP pred () {{ res,
+            ∃ b,
+            ⌜res = #b⌝ ∗
+            if b then Q else P
+          }}
+        )
       }}}
         pool_wait_until ctx pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
-        P
+        Q
       }}}.
     Proof.
-      iIntros "%Φ ((:context lazy=) & #Hpred) HΦ".
+      iIntros "%Φ ((:context lazy=) & HP & #Hpred) HΦ".
       iLöb as "HLöb".
       iDestruct "Hctx" as "(:context_1)".
 
       wp_rec. rewrite pool_max_round_noyield.
-      wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
+      wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
       destruct b; first iSteps.
 
-      awp_smart_apply (ws_hub_std_pop_steal_until_spec P with "[$Hhub_inv $Hhub_owner $Hpred]") without "HΦ"; [done.. |].
+      awp_smart_apply (ws_hub_std_pop_steal_until_spec P Q with "[$Hhub_inv $Hhub_owner $H $Hpred]") without "HΦ"; [done.. |].
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "Hhub_model"; first iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
@@ -1120,37 +1124,41 @@ Module base.
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
         iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        iIntros "!> {%- Hi} %empty (Hhub_owner & _) HΦ".
+        iIntros "!> {%- Hi} %empty (Hhub_owner & HP) HΦ".
 
-        wp_smart_apply (pool_execute_spec with "[$]") as "{%- Hi} %res ((:context_1) & (%Q & Hglobal & HQ))"; first done.
-        iDestruct (locals_at_finish with "Hlocals_at Hglobal HQ") as "Hlocals_at".
-        wp_smart_apply ("HLöb" with "[$] HΦ").
+        wp_smart_apply (pool_execute_spec with "[$]") as "{%- Hi} %res ((:context_1) & (%R & Hglobal & HR))"; first done.
+        iDestruct (locals_at_finish with "Hlocals_at Hglobal HR") as "Hlocals_at".
+        wp_smart_apply ("HLöb" with "[$] HP HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
         iSteps.
     Qed.
 
-    Lemma pool_wait_while_spec P γ ctx scope pred :
+    Lemma pool_wait_while_spec P Q γ ctx scope pred :
       {{{
         pool_context γ ctx scope ∗
-        □ WP pred () {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          if b then True else P
-        }}
+        P ∗
+        □ (
+          P -∗
+          WP pred () {{ res,
+            ∃ b,
+            ⌜res = #b⌝ ∗
+            if b then P else Q
+          }}
+        )
       }}}
         pool_wait_while ctx pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
-        P
+        Q
       }}}.
     Proof.
-      iIntros "%Φ (Hctx & #Hpred) HΦ".
+      iIntros "%Φ (Hctx & HP & #Hpred) HΦ".
 
       wp_rec.
-      wp_smart_apply (pool_wait_until_spec with "[$Hctx] HΦ"). iModIntro.
-      wp_smart_apply (wp_wand with "Hpred") as (res) "(%b & -> & HP)".
+      wp_smart_apply (pool_wait_until_spec P Q with "[$Hctx $HP] HΦ") as "!> HP".
+      wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
       destruct b; iSteps.
     Qed.
   End pool_G.
@@ -1466,45 +1474,53 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_wait_until_spec P t ctx scope pred :
+  Lemma pool_wait_until_spec P Q t ctx scope pred :
     {{{
       pool_context t ctx scope ∗
-      □ WP pred () {{ res,
-        ∃ b,
-        ⌜res = #b⌝ ∗
-        if b then P else True
-      }}
+      P ∗
+      □ (
+        P -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q else P
+        }}
+      )
     }}}
       pool_wait_until ctx pred
     {{{
       RET ();
       pool_context t ctx scope ∗
-      P
+      Q
     }}}.
   Proof.
-    iIntros "%Φ ((:context) & Hpred) HΦ".
+    iIntros "%Φ ((:context) & HP & Hpred) HΦ".
 
     wp_apply (base.pool_wait_until_spec with "[$]").
     iSteps.
   Qed.
 
-  Lemma pool_wait_while_spec P t ctx scope pred :
+  Lemma pool_wait_while_spec P Q t ctx scope pred :
     {{{
       pool_context t ctx scope ∗
-      □ WP pred () {{ res,
-        ∃ b,
-        ⌜res = #b⌝ ∗
-        if b then True else P
-      }}
+      P ∗
+      □ (
+        P -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then P else Q
+        }}
+      )
     }}}
       pool_wait_while ctx pred
     {{{
       RET ();
       pool_context t ctx scope ∗
-      P
+      Q
     }}}.
   Proof.
-    iIntros "%Φ ((:context) & Hpred) HΦ".
+    iIntros "%Φ ((:context) & HP & Hpred) HΦ".
 
     wp_apply (base.pool_wait_while_spec with "[$]").
     iSteps.
