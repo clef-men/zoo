@@ -361,10 +361,18 @@ Module base.
     Proof.
       apply subpreds_alloc.
     Qed.
-    #[local] Lemma consumer_divide {γ Ψ} {state : option val} {Χ} Χs E :
+    #[local] Lemma consumer_wand {γ Ψ} {state : option val} {Χ1} Χ2 E :
       ▷ consumer_auth γ Ψ state -∗
-      consumer_frag γ Χ -∗
-      (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
+      consumer_frag γ Χ1 -∗
+      (∀ v, Χ1 v -∗ Χ2 v) ={E}=∗
+        ▷ consumer_auth γ Ψ state ∗
+        consumer_frag γ Χ2.
+    Proof.
+      apply subpreds_wand.
+    Qed.
+    #[local] Lemma consumer_divide {γ Ψ} {state : option val} Χs E :
+      ▷ consumer_auth γ Ψ state -∗
+      consumer_frag γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={E}=∗
         ▷ consumer_auth γ Ψ state ∗
         [∗ list] Χ ∈ Χs, consumer_frag γ Χ.
     Proof.
@@ -432,18 +440,26 @@ Module base.
       apply lstate_unset₂_exclusive.
     Qed.
 
-    Lemma ivar_3_consumer_divide {t γ Ψ Ξ Ω Χ} Χs :
+    Lemma ivar_3_consumer_wand {t γ Ψ Ξ Ω Χ1} Χ2 :
       ivar_3_inv t γ Ψ Ξ Ω -∗
-      ivar_3_consumer γ Χ -∗
-      (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-      [∗ list] Χ ∈ Χs, ivar_3_consumer γ Χ.
+      ivar_3_consumer γ Χ1 -∗
+      (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
+      ivar_3_consumer γ Χ2.
     Proof.
       iIntros "(:inv) (:consumer) H".
       iInv "Hinv" as "(:inv_inner)".
-      iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag H") as "(Hconsumer_auth & H)".
-      iSplitR "H". { iFrameSteps. }
-      iApply (big_sepL_impl with "H").
-      iSteps.
+      iMod (consumer_wand with "Hconsumer_auth Hconsumer_frag H") as "($ & $)".
+      iFrameSteps.
+    Qed.
+    Lemma ivar_3_consumer_divide {t γ Ψ Ξ Ω} Χs :
+      ivar_3_inv t γ Ψ Ξ Ω -∗
+      ivar_3_consumer γ (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+      [∗ list] Χ ∈ Χs, ivar_3_consumer γ Χ.
+    Proof.
+      iIntros "(:inv) (:consumer)".
+      iInv "Hinv" as "(:inv_inner)".
+      iMod (consumer_divide with "Hconsumer_auth Hconsumer_frag") as "($ & $)".
+      iFrameSteps.
     Qed.
 
     Lemma ivar_3_result_agree γ v1 v2 :
@@ -1055,27 +1071,37 @@ Section ivar_3_G.
     iApply (base.ivar_3_producer_exclusive with "Hproducer_1 Hproducer_2").
   Qed.
 
-  Lemma ivar_3_consumer_divide {t Ψ Ξ Ω Χ} Χs :
+  Lemma ivar_3_consumer_wand {t Ψ Ξ Ω Χ1} Χ2 :
     ivar_3_inv t Ψ Ξ Ω -∗
-    ivar_3_consumer t Χ -∗
-    (∀ v, Χ v -∗ [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
-    [∗ list] Χ ∈ Χs, ivar_3_consumer t Χ.
+    ivar_3_consumer t Χ1 -∗
+    (∀ v, Χ1 v -∗ Χ2 v) ={⊤}=∗
+    ivar_3_consumer t Χ2.
   Proof.
     iIntros "(:inv =1) (:consumer =2) H". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
-    iDestruct (base.ivar_3_consumer_divide with "Hinv_1 Hconsumer_2 H") as "H".
+    iDestruct (base.ivar_3_consumer_wand with "Hinv_1 Hconsumer_2 H") as "H".
+    iSteps.
+  Qed.
+  Lemma ivar_3_consumer_divide {t Ψ Ξ Ω} Χs :
+    ivar_3_inv t Ψ Ξ Ω -∗
+    ivar_3_consumer t (λ v, [∗ list] Χ ∈ Χs, Χ v) ={⊤}=∗
+    [∗ list] Χ ∈ Χs, ivar_3_consumer t Χ.
+  Proof.
+    iIntros "(:inv =1) (:consumer =2)". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->.
+    iDestruct (base.ivar_3_consumer_divide with "Hinv_1 Hconsumer_2") as "H".
     iApply (big_sepL_impl with "H").
     iSteps.
   Qed.
-  Lemma ivar_3_consumer_split {t Ψ Ξ Ω Χ} Χ1 Χ2 :
+  Lemma ivar_3_consumer_split {t Ψ Ξ Ω} Χ1 Χ2 :
     ivar_3_inv t Ψ Ξ Ω -∗
-    ivar_3_consumer t Χ -∗
-    (∀ v, Χ v -∗ Χ1 v ∗ Χ2 v) ={⊤}=∗
+    ivar_3_consumer t (λ v, Χ1 v ∗ Χ2 v) ={⊤}=∗
       ivar_3_consumer t Χ1 ∗
       ivar_3_consumer t Χ2.
   Proof.
-    iIntros "#Hinv Hconsumer H".
-    iMod (ivar_3_consumer_divide [Χ1;Χ2] with "Hinv Hconsumer [H]") as "($ & $ & _)"; iSteps.
+    iIntros "#Hinv Hconsumer".
+    iMod (ivar_3_consumer_divide [Χ1;Χ2] with "Hinv [Hconsumer]") as "($ & $ & _)" => //.
+    { simpl. setoid_rewrite bi.sep_emp => //. }
   Qed.
 
   Lemma ivar_3_result_agree t v1 v2 :
