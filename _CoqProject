@@ -501,6 +501,10 @@ theories/examples/future_fibonacci__types.v
 theories/examples/future_fibonacci__code.v
 theories/examples/future_fibonacci__opaque.v
 theories/examples/future_fibonacci.v
+theories/examples/vertex_fibonacci__types.v
+theories/examples/vertex_fibonacci__code.v
+theories/examples/vertex_fibonacci__opaque.v
+theories/examples/vertex_fibonacci.v
 theories/examples/vertex_simple__types.v
 theories/examples/vertex_simple__code.v
 theories/examples/vertex_simple__opaque.v

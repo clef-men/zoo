@@ -41,3 +41,18 @@ Proof.
   assert (₊(n - 2) = ₊n - 2) as -> by lia.
   apply decide_ext. lia.
 Qed.
+
+Lemma fibonacci_base n :
+  n ≤ 1 →
+  fibonacci n = n.
+Proof.
+  intros Hn.
+  rewrite fibonacci_spec decide_True //.
+Qed.
+Lemma fibonacci_recursive n :
+  1 < n →
+  fibonacci n = fibonacci (n - 1) + fibonacci (n - 2).
+Proof.
+  intros Hn.
+  rewrite fibonacci_spec decide_False //. 1: lia.
+Qed.
