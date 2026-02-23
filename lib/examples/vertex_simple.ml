@@ -1,10 +1,10 @@
 let main num_dom a b c d =
   let flag = Mpsc_flag.create () in
 
-  let vtx_a = Vertex.create @@ Some (fun _ctx -> a ()) in
-  let vtx_b = Vertex.create @@ Some (fun _ctx -> b ()) in
-  let vtx_c = Vertex.create @@ Some (fun _ctx -> c ()) in
-  let vtx_d = Vertex.create @@ Some (fun _ctx -> d () ; Mpsc_flag.set flag) in
+  let vtx_a = Vertex.create' @@ fun _ctx -> a () in
+  let vtx_b = Vertex.create' @@ fun _ctx -> b () in
+  let vtx_c = Vertex.create' @@ fun _ctx -> c () in
+  let vtx_d = Vertex.create' @@ fun _ctx -> d () ; Mpsc_flag.set flag in
 
   Vertex.precede vtx_a vtx_b ;
   Vertex.precede vtx_a vtx_c ;

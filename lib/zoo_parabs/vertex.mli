@@ -1,10 +1,12 @@
 type t
 
 type task =
-  unit Pool.task
+  bool Pool.task
 
 val create :
   task option -> t
+val create' :
+  unit Pool.task -> t
 
 val task :
   t -> task
@@ -18,4 +20,4 @@ val release :
   Pool.context -> t -> unit
 
 val yield :
-  Pool.context -> t -> task -> unit
+  t -> task -> bool

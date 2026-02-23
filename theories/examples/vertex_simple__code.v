@@ -16,12 +16,12 @@ From zoo Require Import
 Definition vertex_simple_main : val :=
   fun: "num_dom" "a" "b" "c" "d" =>
     let: "flag" := mpsc_flag_create () in
-    let: "vtx_a" := vertex_create ‘Some( fun: "_ctx" => "a" () ) in
-    let: "vtx_b" := vertex_create ‘Some( fun: "_ctx" => "b" () ) in
-    let: "vtx_c" := vertex_create ‘Some( fun: "_ctx" => "c" () ) in
+    let: "vtx_a" := vertex_create' (fun: "_ctx" => "a" ()) in
+    let: "vtx_b" := vertex_create' (fun: "_ctx" => "b" ()) in
+    let: "vtx_c" := vertex_create' (fun: "_ctx" => "c" ()) in
     let: "vtx_d" :=
-      vertex_create ‘Some( fun: "_ctx" => "d" () ;;
-                                            mpsc_flag_set "flag" )
+      vertex_create' (fun: "_ctx" => "d" () ;;
+                                     mpsc_flag_set "flag")
     in
     vertex_precede "vtx_a" "vtx_b" ;;
     vertex_precede "vtx_a" "vtx_c" ;;

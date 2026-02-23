@@ -2,14 +2,14 @@
    https://inria.hal.science/hal-01409022v1
 *)
 
+type task =
+  bool Pool.task
+
 type t =
-  { mutable task: unit Pool.task;
+  { mutable task: task;
     mutable preds: int [@atomic];
     succs: t Mpmc_stack_2.t;
   }
-
-type task =
-  unit Pool.task
 
 let create task =
   let task =
@@ -17,12 +17,14 @@ let create task =
     | Some task ->
         task
     | None ->
-        fun _ -> ()
+        fun _ -> true
   in
   { task;
     preds= 1;
     succs= Mpmc_stack_2.create ();
   }
+let create' task =
+  create (Some (fun ctx -> task ctx ; true))
 
 let task t =
   t.task
@@ -44,10 +46,12 @@ let rec release ctx t =
 and run ctx t =
   Pool.async ctx @@ fun ctx ->
     t.preds <- 1 ;
-    t.task ctx ;
-    let succs = Mpmc_stack_2.close t.succs in
-    Clst.iter (fun succ -> release ctx succ) succs
+    if t.task ctx then
+      let succs = Mpmc_stack_2.close t.succs in
+      Clst.iter (fun succ -> release ctx succ) succs
+    else
+      release ctx t
 
-let yield ctx t task =
-  set_task t task ;
-  release ctx t
+let yield vtx task =
+  set_task vtx task ;
+  false
