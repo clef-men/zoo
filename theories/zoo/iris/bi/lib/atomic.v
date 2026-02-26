@@ -476,7 +476,7 @@ Module iAaccIntro.
   Ltac2 error err :=
     let err := error_to_string err in
     let err := String.app "iAaccIntro: " err in
-    Control.throw (Invalid_argument (Some (Message.of_string err))).
+    Control.throw_invalid_argument err.
 
   Ltac2 rec extra_witnesses xs tele :=
     lazy_match! tele with

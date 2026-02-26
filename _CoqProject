@@ -16,10 +16,12 @@ theories/zoo/options.v
 
 theories/zoo/ltac2/Array.v
 theories/zoo/ltac2/Constr.v
+theories/zoo/ltac2/Constructor.v
 theories/zoo/ltac2/Control.v
 theories/zoo/ltac2/Debug.v
 theories/zoo/ltac2/Env.v
 theories/zoo/ltac2/Ident.v
+theories/zoo/ltac2/Ind.v
 theories/zoo/ltac2/List.v
 theories/zoo/ltac2/Message.v
 theories/zoo/ltac2/Notations.v

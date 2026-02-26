@@ -42,29 +42,7 @@ Implicit Types mut : mutability.
 #[global] Instance mutability_countable :
   Countable mutability.
 Proof.
-  pose encode mut :=
-    match mut with
-    | Mutable =>
-        0
-    | ImmutableNongenerative =>
-        1
-    | ImmutableGenerativeWeak =>
-        2
-    | ImmutableGenerativeStrong =>
-        3
-    end.
-  pose decode _mut :=
-    match _mut with
-    | 0 =>
-        Mutable
-    | 1 =>
-        ImmutableNongenerative
-    | 2 =>
-        ImmutableGenerativeWeak
-    | _ =>
-        ImmutableGenerativeStrong
-    end.
-  refine (inj_countable' encode decode _); intros []; done.
+  solve_countable.
 Qed.
 
 Inductive generativity :=
@@ -77,21 +55,7 @@ Implicit Types gen : generativity.
 #[global] Instance generativity_countable :
   Countable generativity.
 Proof.
-  pose encode gen :=
-    match gen with
-    | Generative bid =>
-        inl bid
-    | Nongenerative =>
-        inr ()
-    end.
-  pose decode _gen :=
-    match _gen with
-    | inl bid =>
-        Generative bid
-    | inr () =>
-        Nongenerative
-    end.
-  refine (inj_countable' encode decode _); intros []; done.
+  solve_countable.
 Qed.
 
 Inductive literal :=
@@ -107,33 +71,7 @@ Implicit Types lit : literal.
 #[global] Instance literal_countable :
   Countable literal.
 Proof.
-  pose encode lit :=
-    match lit with
-    | LitBool b =>
-        inl $ inl $ inl $ inl b
-    | LitInt n =>
-        inl $ inl $ inl $ inr n
-    | LitLoc l =>
-        inl $ inl $ inr l
-    | LitProph pid =>
-        inl $ inr pid
-    | LitPoison =>
-        inr ()
-    end.
-  pose decode _lit :=
-    match _lit with
-    | inl (inl (inl (inl b))) =>
-        LitBool b
-    | inl (inl (inl (inr n))) =>
-        LitInt n
-    | inl (inl (inr l)) =>
-        LitLoc l
-    | inl (inr p) =>
-        LitProph p
-    | inr () =>
-        LitPoison
-    end.
-  refine (inj_countable' encode decode _); intros []; done.
+  solve_countable.
 Qed.
 
 Inductive unop :=
@@ -146,25 +84,7 @@ Inductive unop :=
 #[global] Instance unop_countable :
   Countable unop.
 Proof.
-  pose encode op :=
-    match op with
-    | UnopNeg =>
-        0
-    | UnopMinus =>
-        1
-    | UnopIsImmediate =>
-        2
-    end.
-  pose decode op :=
-    match op with
-    | 0 =>
-        UnopNeg
-    | 1 =>
-        UnopMinus
-    | _ =>
-        UnopIsImmediate
-    end.
-  refine (inj_countable' encode decode _); intros []; done.
+  solve_countable.
 Qed.
 
 Inductive binop :=
@@ -177,39 +97,7 @@ Inductive binop :=
 #[global] Instance binop_countable :
   Countable binop.
 Proof.
-  pose encode op :=
-    match op with
-    | BinopPlus => 0
-    | BinopMinus => 1
-    | BinopMult => 2
-    | BinopQuot => 3
-    | BinopRem => 4
-    | BinopLand => 5
-    | BinopLor => 6
-    | BinopLsl => 7
-    | BinopLsr => 8
-    | BinopLe => 9
-    | BinopLt => 10
-    | BinopGe => 11
-    | BinopGt => 12
-  end.
-  pose decode op :=
-    match op with
-    | 0 => BinopPlus
-    | 1 => BinopMinus
-    | 2 => BinopMult
-    | 3 => BinopQuot
-    | 4 => BinopRem
-    | 5 => BinopLand
-    | 6 => BinopLor
-    | 7 => BinopLsl
-    | 8 => BinopLsr
-    | 9 => BinopLe
-    | 10 => BinopLt
-    | 11 => BinopGe
-    | _ => BinopGt
-  end.
-  refine (inj_countable' encode decode _); intros []; done.
+  solve_countable.
 Qed.
 
 Record pattern := {
@@ -1186,45 +1074,7 @@ Variant encode_leaf :=
 #[local] Instance encode_leaf_countable :
   Countable encode_leaf.
 Proof.
-  pose encode leaf :=
-    match leaf with
-    | EncodeNat tag =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inl tag
-    | EncodeBinder bdr =>
-        inl $ inl $ inl $ inl $ inl $ inl $ inr bdr
-    | EncodeGenerativity gen =>
-        inl $ inl $ inl $ inl $ inl $ inr gen
-    | EncodeMutability mut =>
-        inl $ inl $ inl $ inl $ inr mut
-    | EncodeLit lit =>
-        inl $ inl $ inl $ inr lit
-    | EncodeUnop op =>
-        inl $ inl $ inr op
-    | EncodeBinop op =>
-        inl $ inr op
-    | EncodePattern pat =>
-        inr pat
-    end.
-  pose decode leaf :=
-    match leaf with
-    | inl (inl (inl (inl (inl (inl (inl tag)))))) =>
-        EncodeNat tag
-    | inl (inl (inl (inl (inl (inl (inr bdr)))))) =>
-        EncodeBinder bdr
-    | inl (inl (inl (inl (inl (inr gen))))) =>
-        EncodeGenerativity gen
-    | inl (inl (inl (inl (inr mut)))) =>
-        EncodeMutability mut
-    | inl (inl (inl (inr lit))) =>
-        EncodeLit lit
-    | inl (inl (inr op)) =>
-        EncodeUnop op
-    | inl (inr op) =>
-        EncodeBinop op
-    | inr pat =>
-        EncodePattern pat
-    end.
-  refine (inj_countable' encode decode _). intros []; done.
+  solve_countable.
 Qed.
 Notation EncodeString str := (
   EncodeBinder (BNamed str)
