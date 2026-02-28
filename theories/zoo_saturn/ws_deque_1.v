@@ -2549,7 +2549,7 @@ Section ws_deque_1_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ws_deque_1_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp_apply (base.ws_deque_1_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Howner)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
