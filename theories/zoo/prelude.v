@@ -6,6 +6,10 @@ From stdpp Require Export
 
 Open Scope general_if_scope.
 
+Notation "~ b" := (
+  negb b
+).
+
 Coercion Z.of_nat : nat >-> Z.
 
 Notation "₊ n" := (

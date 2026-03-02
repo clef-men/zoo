@@ -19,16 +19,16 @@ Fixpoint occurs x e :=
   | Var y =>
       x ≟ y
   | Rec f y e =>
-      negb (BNamed x ≟ f) &&
-      negb (BNamed x ≟ f) &&
-      negb (BNamed x ≟ y) &&
+      ~ BNamed x ≟ f &&
+      ~ BNamed x ≟ f &&
+      ~ BNamed x ≟ y &&
       occurs x e
   | App e1 e2 =>
       occurs x e1 ||
       occurs x e2
   | Let y e1 e2 =>
       occurs x e1 ||
-        negb (BNamed x ≟ y) &&
+        ~ BNamed x ≟ y &&
         occurs x e2
   | Unop _ e =>
       occurs x e
@@ -53,11 +53,11 @@ Fixpoint occurs x e :=
       existsb (occurs x) es
   | Match e0 y e1 brs =>
       occurs x e0 ||
-      negb (BNamed x ≟ y) && occurs x e1 ||
+      ~ BNamed x ≟ y && occurs x e1 ||
       existsb (λ br,
         let pat := br.1 in
-        forallb (λ y, negb (BNamed x ≟ y)) pat.(pattern_fields) &&
-        negb (BNamed x ≟ pat.(pattern_as)) &&
+        forallb (λ y, ~ BNamed x ≟ y) pat.(pattern_fields) &&
+        ~ BNamed x ≟ pat.(pattern_as) &&
         occurs x br.2
       ) brs
   | GetTag e =>
@@ -104,7 +104,7 @@ Definition val_recursive v :=
             false
         | BNamed f =>
             existsb (λ rec,
-              negb (BNamed f ≟ rec.1.2) &&
+              ~ BNamed f ≟ rec.1.2 &&
               occurs f rec.2
             ) recs
         end
