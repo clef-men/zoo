@@ -3,12 +3,12 @@ From zoo Require Import
 From zoo.common Require Import
   countable
   relations.
+From zoo.iris.bi Require Import
+  big_op.
 From zoo.iris.base_logic Require Import
   lib.auth_twins.
 From zoo.language Require Import
   notations.
-From zoo.iris.bi Require Import
-  big_op.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
