@@ -116,6 +116,7 @@ theories/zoo/language/location.v
 theories/zoo/language/syntax.v
 theories/zoo/language/metatheory.v
 theories/zoo/language/physical_equality.v
+theories/zoo/language/state.v
 theories/zoo/language/semantics.v
 theories/zoo/language/language.v
 theories/zoo/language/notations.v

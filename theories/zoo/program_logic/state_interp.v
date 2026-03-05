@@ -981,7 +981,7 @@ Section zoo_G.
   Lemma state_interp_pointsto_update {ns nt σ κs l w} v :
     state_interp ns nt σ κs -∗
     l ↦ w ==∗
-      state_interp ns nt (state_update_heap (insert l v) σ) κs ∗
+      state_interp ns nt (state_set_location l v σ) κs ∗
       l ↦ v.
   Proof.
     iIntros "(:state_interp) Hl".
@@ -1015,7 +1015,7 @@ Section zoo_G.
   Qed.
   Lemma state_interp_fork {ns nt σ κs} v :
     state_interp ns nt σ κs ⊢ |==>
-      state_interp ns (nt + 1) (state_update_locals (.++ [v]) σ) κs ∗
+      state_interp ns (nt + 1) (state_add_local v σ) κs ∗
       nt ↦ₗ v.
   Proof.
     iIntros "(:state_interp)".
@@ -1026,7 +1026,7 @@ Section zoo_G.
   Lemma state_interp_local_pointsto_update {ns nt σ κs tid w} v :
     state_interp ns nt σ κs -∗
     tid ↦ₗ w ==∗
-      state_interp ns nt (state_update_locals (insert tid v) σ) κs ∗
+      state_interp ns nt (state_set_local tid v σ) κs ∗
       tid ↦ₗ v.
   Proof.
     iIntros "(:state_interp) Htid".
@@ -1038,7 +1038,7 @@ Section zoo_G.
     pid ∉ σ.(state_prophets) →
     state_interp ns nt σ κs ⊢ |==>
       ∃ prophs,
-      state_interp ns nt (state_update_prophets ({[pid]} ∪.) σ) κs ∗
+      state_interp ns nt (state_add_prophet pid σ) κs ∗
       prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".

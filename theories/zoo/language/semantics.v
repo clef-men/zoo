@@ -1,14 +1,12 @@
 From stdpp Require Import
   gmap.
 
-From iris.algebra Require Import
-  ofe.
-
 From zoo Require Import
   prelude.
 From zoo.language Require Export
   physical_equality
-  metatheory.
+  metatheory
+  state.
 From zoo Require Import
   options.
 
@@ -151,112 +149,6 @@ Fixpoint eval_match tag sz subj x_fb e_fb brs :=
         eval_match tag sz subj x_fb e_fb brs
   end.
 #[global] Arguments eval_match _ _ !_ _ _ !_ / : assert.
-
-Record header := Header {
-  header_tag : nat ;
-  header_size : nat ;
-}.
-Add Printing Constructor header.
-
-Record state := {
-  state_headers : gmap location header ;
-  state_heap : gmap location val ;
-  state_locals : list val ;
-  state_prophets : gset prophet_id ;
-}.
-Implicit Types σ : state.
-
-Canonical state_O {SI : sidx} :=
-  leibnizO state.
-
-Definition state_update_heap f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := f σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
-  |}.
-Definition state_update_headers f σ :=
-  {|state_headers := f σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
-  |}.
-Definition state_update_locals f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := f σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
-  |}.
-Definition state_update_prophets f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := f σ.(state_prophets) ;
-  |}.
-
-#[global] Instance state_inhabited : Inhabited state :=
-  populate
-    {|state_headers := inhabitant ;
-      state_heap := inhabitant ;
-      state_locals := inhabitant ;
-      state_prophets := inhabitant ;
-    |}.
-
-Fixpoint heap_array l vs : gmap location val :=
-  match vs with
-  | [] =>
-      ∅
-  | v :: vs =>
-      <[l := v]> (heap_array (l +ₗ 1) vs)
-  end.
-#[global] Arguments heap_array _ !_ / : assert.
-
-Lemma heap_array_singleton l v :
-  heap_array l [v] = {[l := v]}.
-Proof.
-  rewrite /heap_array insert_empty //.
-Qed.
-Lemma heap_array_lookup l vs w k :
-  heap_array l vs !! k = Some w ↔
-    ∃ j,
-    (0 ≤ j)%Z ∧
-    k = l +ₗ j ∧
-    vs !! ₊j = Some w.
-Proof.
-  revert k l; induction vs as [|v' vs IH]=> l' l /=.
-  { rewrite lookup_empty. naive_solver lia. }
-  rewrite lookup_insert_Some IH. split.
-  - intros [[-> ?] | (Hl & j & ? & -> & ?)].
-    { eexists 0. rewrite location_add_0. naive_solver lia. }
-    eexists (1 + j)%Z. rewrite location_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
-  - intros (j & ? & -> & Hil). destruct_decide (j = 0); simplify_eq/=.
-    { rewrite location_add_0; eauto. }
-    right. split.
-    { rewrite -{1}(location_add_0 l). intros ?%(inj (location_add _)); lia. }
-    assert (₊j = S ₊(j - 1)) as Hj.
-    { rewrite -Z2Nat.inj_succ; last lia. f_equal; lia. }
-    rewrite Hj /= in Hil.
-    eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
-Qed.
-Lemma heap_array_map_disjoint heap l vs :
-  ( ∀ i,
-    i < length vs →
-    heap !! (l +ₗ i) = None
-  ) →
-  heap_array l vs ##ₘ heap.
-Proof.
-  intros Hdisj. apply map_disjoint_spec=> l' v1 v2.
-  intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_array_lookup ?.
-  ospecialize* (Hdisj ₊j); first lia.
-  rewrite Z2Nat.id // in Hdisj. naive_solver.
-Qed.
-
-Definition state_alloc l hdr vs σ :=
-  {|state_headers := <[l := hdr]> σ.(state_headers) ;
-    state_heap := heap_array l vs ∪ σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
-  |}.
 
 Definition observation : Set :=
   prophet_id * (val * val).
@@ -498,7 +390,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         Unit
-        (state_update_heap <[l +ₗ fld := v]> σ)
+        (state_set_location (l +ₗ fld) v σ)
         []
   | base_step_xchg l fld v w σ :
       σ.(state_heap) !! (l +ₗ fld) = Some w →
@@ -508,7 +400,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         (Val w)
-        (state_update_heap <[l +ₗ fld := v]> σ)
+        (state_set_location (l +ₗ fld) v σ)
         []
   | base_step_cas_fail l fld v1 v2 v σ :
       σ.(state_heap) !! (l +ₗ fld) = Some v →
@@ -530,7 +422,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         (Val $ ValBool true)
-        (state_update_heap <[l +ₗ fld := v2]> σ)
+        (state_set_location (l +ₗ fld) v2 σ)
         []
   | base_step_faa l fld n m σ :
       σ.(state_heap) !! (l +ₗ fld) = Some $ ValInt m →
@@ -540,7 +432,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         (Val $ ValInt m)
-        (state_update_heap <[l +ₗ fld := ValInt (m + n)]> σ)
+        (state_set_location (l +ₗ fld) (ValInt (m + n)) σ)
         []
   | base_step_fork e σ v :
       val_immediate v →
@@ -550,7 +442,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         Unit
-        (state_update_locals (.++ [v]) σ)
+        (state_add_local v σ)
         [e]
   | base_step_get_local v σ :
       σ.(state_locals) !! tid = Some v →
@@ -570,7 +462,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         Unit
-        (state_update_locals <[tid := v]> σ)
+        (state_set_local tid v σ)
         []
   | base_step_proph σ pid :
       pid ∉ σ.(state_prophets) →
@@ -580,7 +472,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         σ
         []
         (Val $ ValProph pid)
-        (state_update_prophets ({[pid]} ∪.) σ)
+        (state_add_prophet pid σ)
         []
   | base_step_resolve e pid v σ κ w σ' es :
       base_step tid e σ κ (Val w) σ' es →
@@ -654,7 +546,7 @@ Lemma base_step_fork' tid e σ :
     σ
     []
     Unit
-    (state_update_locals (.++ [inhabitant]) σ)
+    (state_add_local inhabitant σ)
     [e].
 Proof.
   apply base_step_fork. done.
@@ -667,7 +559,7 @@ Lemma base_step_proph' tid σ :
     σ
     []
     (Val $ ValProph pid)
-    (state_update_prophets ({[pid]} ∪.) σ)
+    (state_add_prophet pid σ)
     [].
 Proof.
   constructor. apply is_fresh.
