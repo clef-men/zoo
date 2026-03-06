@@ -15,7 +15,7 @@ From iris.proofmode Require Export
   classes
   notation.
 
-From zoo.ltac2 Require Import
+From zoo.ltac2 Require
   Ident.
 From zoo.common Require Import
   format.
