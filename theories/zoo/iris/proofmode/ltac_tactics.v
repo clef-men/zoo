@@ -377,7 +377,7 @@ Tactic Notation "iAssumptionCoq" :=
   let Hass := fresh in
   match goal with
   | H : ⊢ ?P |- envs_entails _ ?Q =>
-     pose proof (_ : FromAssumption false P Q) as Hass;
+     assert (FromAssumption false P Q) as Hass by tc_solve;
      notypeclasses refine (tac_assumption_coq _ P _ H _ _);
        [notypeclasses refine Hass
        |pm_reduce; tc_solve ||
@@ -389,7 +389,7 @@ Tactic Notation "iAssumption" :=
   let rec find p Γ Q :=
     lazymatch Γ with
     | Esnoc ?Γ ?j ?P => first
-       [pose proof (_ : FromAssumption p P Q) as Hass;
+       [assert (FromAssumption p P Q) as Hass by tc_solve;
         notypeclasses refine (tac_assumption _ j p P _ _ _ _);
           [pm_reflexivity
           |notypeclasses refine Hass
