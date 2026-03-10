@@ -843,41 +843,47 @@ code in the last "wildcard" case, but faster on larger goals, where running
 (possibly failing) [notypeclasses refine]s can take a significant amount of
 time.
 *)
-Ltac iIntoEmpValid_go :=
+Ltac _iIntoEmpValid_go :=
   lazymatch goal with
   | |- IntoEmpValid (let _ := _ in _) _ =>
     (* Normalize [let] so we don't need to rely on type class search to do so.
     Letting type class search do so is unreliable, see Iris issue #520, and test
     [test_apply_wand_below_let]. *)
-    lazy zeta; iIntoEmpValid_go
+    lazy zeta; _iIntoEmpValid_go
   | |- IntoEmpValid (?φ → ?ψ) _ =>
     (* Case [φ → ψ] *)
     (* note: the ltac pattern [_ → _] would not work as it would also match
        [∀ _, _] *)
     notypeclasses refine (into_emp_valid_impl _ _ _ _ _);
-      [(*goal for [φ] *)|iIntoEmpValid_go]
-  | |- IntoEmpValid (∀ _, _) _ =>
+      [(*goal for [φ] *)|_iIntoEmpValid_go]
+  | |- IntoEmpValid (∀ _ : _, _) _ =>
     (* Case [∀ x : A, φ] *)
-    notypeclasses refine (into_emp_valid_forall _ _ _ _); iIntoEmpValid_go
-  | |- IntoEmpValid (∀.. _, _) _ =>
-    (* Case [∀.. x : TT, φ] *)
-    notypeclasses refine (into_emp_valid_tforall _ _ _ _); iIntoEmpValid_go
+    let x := open_constr:(_) in
+    notypeclasses refine (into_emp_valid_forall _ _ x _);
+    try_resolve_ground_tc x;
+    _iIntoEmpValid_go
+  | |- IntoEmpValid (∀.. _ : _, _) _ =>
+    notypeclasses refine (into_emp_valid_tforall _ _ _ _);
+    _iIntoEmpValid_go
   | |- _ =>
     first
       [(* Case [φ → ψ] *)
        notypeclasses refine (into_emp_valid_impl _ _ _ _ _);
-         [(*goal for [φ] *)|iIntoEmpValid_go]
+         [(*goal for [φ] *)|_iIntoEmpValid_go]
       |(* Case [∀ x : A, φ] *)
-       notypeclasses refine (into_emp_valid_forall _ _ _ _); iIntoEmpValid_go
+       let x := open_constr:(_) in
+       notypeclasses refine (into_emp_valid_forall _ _ x _);
+       try_resolve_ground_tc x;
+       _iIntoEmpValid_go
       |(* Case [∀.. x : TT, φ] *)
-       notypeclasses refine (into_emp_valid_tforall _ _ _ _); iIntoEmpValid_go
+       notypeclasses refine (into_emp_valid_tforall _ _ _ _); _iIntoEmpValid_go
       |(* Case [P ⊢ Q], [P ⊣⊢ Q], [⊢ P] *)
        notypeclasses refine (into_emp_valid_here _ _ _) ]
   end.
 
 Ltac iIntoEmpValid :=
   (* Factor out the base case of the loop to avoid needless backtracking *)
-  iIntoEmpValid_go;
+  _iIntoEmpValid_go;
     [.. (* goals for premises *)
     |tc_solve ||
      lazymatch goal with |- @AsEmpValid ?PROP _ ?φ _ =>
@@ -886,7 +892,7 @@ Ltac iIntoEmpValid :=
 Tactic Notation "iPoseProofCoreLem" open_constr(lem) "as" tactic3(tac) :=
   let Hnew := iFresh in
   notypeclasses refine (tac_pose_proof _ Hnew _ _ (into_emp_valid_proj _ _ _ lem) _);
-    [iIntoEmpValid
+    [try_resolve_ground_tc lem; iIntoEmpValid
     |pm_reduce;
      lazymatch goal with
      | |- False =>
@@ -903,7 +909,7 @@ arbitrary moments. That is because tactics like [apply], [split] and [eexists]
 wrongly trigger type class search. To avoid TC being triggered too eagerly, the
 tactics below use [notypeclasses refine] instead of [apply], [split] and
 [eexists]. *)
-#[local] Ltac iSpecializeArgs_go H xs :=
+Ltac _iSpecializeArgs_go H xs :=
   lazymatch xs with
   | hnil => idtac
   | hcons ?x ?xs =>
@@ -914,13 +920,19 @@ tactics below use [notypeclasses refine] instead of [apply], [split] and
        |tc_solve ||
         let P := match goal with |- IntoForall ?P _ => P end in
         fail "iSpecialize: cannot instantiate" P "with" x
-       |lazymatch goal with (* Force [A] in [ex_intro] to deal with coercions. *)
+       |lazymatch goal with
         | |- ∃ _ : ?A, _ =>
-          notypeclasses refine (@ex_intro A _ x _)
-        end; resolve_tc x; pm_reduce; iSpecializeArgs_go H xs]
+          (* First coerce [x] into the expected type [A]. For instance, we might
+          have [x : nat] and [A := Z]. *)
+          let x := constr:(x:A) in
+          (* Then instantiate the quantifier with the coerced term *)
+          notypeclasses refine (ex_intro _ x _);
+          (* And resolve ground type classes in the coerced term *)
+          try_resolve_ground_tc x
+        end; pm_reduce; _iSpecializeArgs_go H xs]
   end.
-#[local] Tactic Notation "iSpecializeArgs" constr(H) open_constr(xs) :=
-  iSpecializeArgs_go H xs.
+Tactic Notation "_iSpecializeArgs" constr(H) open_constr(xs) :=
+  _iSpecializeArgs_go H xs.
 
 Ltac iSpecializePat_go H1 pats :=
   let solve_to_wand H1 :=
@@ -1134,7 +1146,7 @@ Tactic Notation "iSpecializeCore" open_constr(H)
     | string => constr:(INamed H)
     | _ => H
     end in
-  iSpecializeArgs H xs; [..|
+  _iSpecializeArgs H xs; [..|
     lazymatch type of H with
     | ident =>
        let pat := spec_pat.parse pat in
