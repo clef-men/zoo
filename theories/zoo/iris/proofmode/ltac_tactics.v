@@ -358,7 +358,7 @@ Tactic Notation "iAssumptionCoq" :=
   | H : ⊢ ?P |- envs_entails _ ?Q =>
      pose proof (_ : FromAssumption false P Q) as Hass;
      notypeclasses refine (tac_assumption_coq _ P _ H _ _);
-       [exact Hass
+       [notypeclasses refine Hass
        |pm_reduce; tc_solve ||
         fail 2 "iAssumption: remaining hypotheses not affine and the goal not absorbing"]
   end.
@@ -371,14 +371,14 @@ Tactic Notation "iAssumption" :=
        [pose proof (_ : FromAssumption p P Q) as Hass;
         notypeclasses refine (tac_assumption _ j p P _ _ _ _);
           [pm_reflexivity
-          |exact Hass
+          |notypeclasses refine Hass
           |pm_reduce; tc_solve ||
            fail 2 "iAssumption: remaining hypotheses not affine and the goal not absorbing"]
        |assert_fails (is_evar P);
         assert (P = False%I) as Hass by notypeclasses refine eq_refl;
         notypeclasses refine (tac_false_destruct _ j p P _ _ _);
           [pm_reflexivity
-          |exact Hass]
+          |notypeclasses refine Hass]
        |find p Γ Q]
     end in
   lazymatch goal with
@@ -1059,7 +1059,7 @@ Ltac iSpecializePat_go H1 pats :=
             |let P :=
                match goal with |- envs_entails _ (?P ∗ locked _)%I => P end in
              fail 1 "iSpecialize: premise" P "cannot be solved by framing"]
-         |exact eq_refl]; _iIntroSpatial H1; iSpecializePat_go H1 pats
+         |notypeclasses refine eq_refl]; _iIntroSpatial H1; iSpecializePat_go H1 pats
     end.
 
 #[local] Tactic Notation "iSpecializePat" open_constr(H) constr(pat) :=
