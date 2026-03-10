@@ -38,19 +38,23 @@ Class CustomIpat (custom : string) :=
 
 - The implementation of the proof mode only use evarconv ([refine]) and not
   legacy unification ([apply]) because the former is more reliable.
-- We carefully control type class inference. We only use [no typeclasses refine]
+  We carefully control type class inference. We only use [notypeclasses refine]
   and invoke type class inference manually when needed.
 
 To control type class search, we call [tc_solve] on side-conditions such as
 [IntoWand] (and generate an error if the search fails).
 
 More tricky is when to call type class search on input terms, for example, in
-[iDestruct foo], [iApply foo], [iSpecialize ("H" with foo)], the term [foo]
-might contain unresolved type class instances. The principle we use is as follows:
-We first solve all ground instances in [foo] (evars [?x : C] where [C] does not
+[iDestruct foo], [iApply foo], [iSpecialize ("H" with foo)]. Here, the term [foo]
+might contain unresolved type classes. The principle we use is as follows: We
+first solve all ground classes in [foo] (evars [?x : C] where [C] does not
 contain evars, e.g., [?x : Empty nat] is ground but [?x : BiAffine ?PROP] is
-not), then perform the work of the tactic (which might solve some instances by
-unification), and finally solve all remaining instances in [foo].
+not), then perform the work of the tactic (which might solve some classes through
+unification), and finally solve all remaining classes in [foo]. We solve
+ground classes first to avoid solving classes without [Hint Mode] too eagerly,
+and therefore accidentally selecting the wrong instance or diverging. In an ideal
+world this heuristic would not be needed, but in practice there are still too
+many classes without [Hint Mode] (especially downstream).
 
 We control this kind of type class search through the tactics [resolve_tc] and
 [try_resolve_ground_tc], see [base.v] for the documentation. *)
