@@ -5,15 +5,15 @@ set -eou pipefail
 package="$1"
 shift
 
-coqfile="_CoqProject.$package"
+rocqfile="_RocqProject.$package"
 makefile="Makefile.$package"
 
-rm -f "$coqfile"
-grep -E "^-arg" _CoqProject >> "$coqfile"
-awk "/^#END ${package}$/{b=0} b; /^#BEGIN ${package}$/{b=1}" _CoqProject >> "$coqfile"
+rm -f "$rocqfile"
+grep -E "^-arg" _RocqProject >> "$rocqfile"
+awk "/^#END ${package}$/{b=0} b; /^#BEGIN ${package}$/{b=1}" _RocqProject >> "$rocqfile"
 
-coq_makefile -f "$coqfile" -o "$makefile"
+coq_makefile -f "$rocqfile" -o "$makefile"
 
 make -f "$makefile" "$@"
 
-rm -f "$coqfile" ".$makefile.d" "$makefile"*
+rm -f "$rocqfile" ".$makefile.d" "$makefile"*
