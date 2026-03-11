@@ -645,7 +645,7 @@ Section mvar_G.
     iIntros "%Φ HΨ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mvar_make_spec with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    wp_apply (base.mvar_make_spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
@@ -826,7 +826,7 @@ Section mvar_G.
   Proof.
     iIntros "%Φ ((:inv) & HΨ) HΦ".
 
-    wp_apply (base.mvar_set_spec with "[$]").
+    wp_apply (base.mvar_set_spec _ _ Ψ with "[$]").
     iSteps.
   Qed.
 End mvar_G.

@@ -154,7 +154,7 @@ Section zoo_G.
 
     iMod model_alloc as "(%γ & Hmodel₁ & Hmodel₂)".
 
-    iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ". iSplitR "Hmodel₁"; last iSteps.
     iStep 2. iApply inv_alloc. iExists []. iSteps.

@@ -1528,7 +1528,7 @@ Section vertex_G.
 
     iApply wp_fupd.
     wp_apply (base.vertex_create_spec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
-    iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
@@ -1548,7 +1548,7 @@ Section vertex_G.
 
     iApply wp_fupd.
     wp_apply (base.vertex_create'_spec with "[//]") as (𝑡 γ iter) "(Hmeta & #Hinv & Hmodel & Houtput)".
-    iMod (meta_set with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 

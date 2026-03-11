@@ -62,7 +62,7 @@ Section zoo_G.
     { iApply chain_model_nil. iSteps. }
     wp_block l as "(Hfront & Hback & _)".
     iApply "HΦ". iExists l, back, back. iFrameSteps.
-    iApply chain_model_nil. iSteps.
+    iApply chain_model_nil_1.
   Qed.
 
   Lemma queue_2_is_empty_spec t vs :

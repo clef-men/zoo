@@ -401,7 +401,7 @@ Section rcfd_G.
     iIntros "(:tokens_auth) Hfrag HΨ".
     iDestruct (auth_gmultiset_elem_of with "Hauth Hfrag") as %Hq.
     iMod (auth_gmultiset_update_dealloc with "Hauth Hfrag") as "$".
-    iDestruct (fractional with "[$HΨ $HΨ_stock]") as "HΨ_stock".
+    iDestruct (fractional (Φ := Ψ) with "[$HΨ $HΨ_stock]") as "HΨ_stock".
     iFrameSteps; iPureIntro.
     - rewrite gmultiset_size_difference; first multiset_solver.
       rewrite gmultiset_size_singleton.

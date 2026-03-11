@@ -675,7 +675,7 @@ Section pstore_1_G.
     wp_ref r as "Hroot".
     wp_ref t0 as "Hmeta" "Ht0".
     iMod (mono_gset_alloc ∅) as "[%γ ?]".
-    iMod (meta_set _ nroot with "Hmeta") as "Hmeta". set_solver.
+    iMod (meta_set γ nroot with "Hmeta") as "Hmeta". set_solver.
     iApply "HΦ". iModIntro.
     iExists t0,r,∅,∅,{[r := ∅]}. iFrame.
     rewrite !big_sepM_empty big_sepS_empty !right_id.

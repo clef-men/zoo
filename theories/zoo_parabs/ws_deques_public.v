@@ -448,7 +448,7 @@ Section ws_deques_public_G.
         clear Hlookup. rewrite {}/k.
         destruct_decide (i_ + 1 + j < sz).
         * rewrite Nat.mod_small //. lia.
-        * assert (i_ + 1 + j < sz * 2) as ?%Nat.div_lt_upper_bound by lia; last lia.
+        * assert (i_ + 1 + j < sz * 2) as ?%Nat.Div0.div_lt_upper_bound by lia.
           assert ((i_ + 1 + j) `div` sz = 1) by lia.
           lia.
 

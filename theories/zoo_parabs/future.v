@@ -368,7 +368,7 @@ Section future_G.
     with "[$Hctx Htask Hproducer]") as "(Hctx & #Hpool_obligation & _)".
     { iIntros "{%} %ctx %scope Hctx".
       wp_smart_apply (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-      wp_apply (future_set_spec with "[$]") as "($ & #$) //".
+      wp_apply (future_set_spec _ _ _ _ Ψ with "[$]") as "($ & #$) //".
     }
 
     iStep 6. iFrame "#∗". iIntros "!> !> Hpool_finished".
@@ -506,7 +506,7 @@ Section future_G.
       with "[$Hctx Htask Hproducer_2]") as "($ & #$ & _) //".
       { iIntros "{%} %ctx %scope Hctx".
         wp_smart_apply (wp_wand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_apply (future_set_spec with "[$]") as "($ & #$) //".
+        wp_apply (future_set_spec _ _ _ _ Ψ2 with "[$]") as "($ & #$) //".
       }
     }
 

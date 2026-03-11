@@ -924,7 +924,7 @@ Section lazy_G.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.lazy_return_spec with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
+    wp_apply (base.lazy_return_spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.

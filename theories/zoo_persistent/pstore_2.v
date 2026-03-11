@@ -501,7 +501,7 @@ Module base.
 
       iDestruct (meta_token_difference (↑nroot.@"user") with "Hmeta") as "(Hmeta_user & Hmeta)"; first done.
       iDestruct (meta_token_difference (↑nroot.@"impl") with "Hmeta") as "(Hmeta & _)"; first solve_ndisj.
-      iMod (meta_set with "Hmeta") as "Hmeta"; first done.
+      iMod (meta_set γ with "Hmeta") as "Hmeta"; first done.
 
       iApply "HΦ".
       iStep. iExists l, γ, 0, root, ∅. iFrame. rewrite big_sepM_empty. iSteps.
@@ -1582,7 +1582,7 @@ Section pstore_2_G.
     iApply wp_fupd.
     wp_apply (base.pstore_2_create_spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
     iMod mono_gmap_alloc as "(%γ & Hauth)".
-    iMod (meta_set with "Hmeta") as "Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "Hmeta"; first done.
     iSteps. iExists ∅, ∅. iSteps.
   Qed.
 

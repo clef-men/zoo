@@ -1042,7 +1042,7 @@ Section ivar_2_G.
     iIntros "%Φ (HΨ & #HΞ) HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ivar_2_make_spec with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    wp_apply (base.ivar_2_make_spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
@@ -1193,7 +1193,7 @@ Section ivar_2_G.
     iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_2_set_spec with "[$]").
+    wp_apply (base.ivar_2_set_spec _ _ Ψ with "[$]").
     iSteps.
   Qed.
 End ivar_2_G.
