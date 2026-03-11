@@ -24,8 +24,8 @@ RUN chmod +x /usr/local/bin/build-package
 RUN opam init --disable-sandboxing --yes && \
     eval $(opam env --switch=. --set-switch) && \
     opam repo add coq-released https://coq.inria.fr/opam/released && \
-    opam repo add iris-dev git+https://gitlab.mpi-sws.org/iris/opam.git &&\
-    opam install ./coq-zoo.opam --deps-only --yes
+    opam repo add iris-dev git+https://gitlab.mpi-sws.org/iris/opam.git && \
+    opam install ./rocq-zoo.opam --deps-only --yes
 
 # Default command (can be overridden at runtime)
 CMD ["/usr/local/bin/build-package", "zoo"]
