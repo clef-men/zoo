@@ -485,21 +485,21 @@ Tactic Notation "iPureIntro" :=
 (** Framing *)
 (** Helper tactics are exposed for users that build their own custom framing
 logic *)
-Ltac iFrameFinish :=
+Ltac _iFrameFinish :=
   pm_prettify;
   try match goal with
   | |- envs_entails _ True => by iPureIntro
   | |- envs_entails _ emp => iEmpIntro
   end.
 
-Ltac iFramePure t :=
+Ltac _iFramePure t :=
   iStartProof;
   let φ := type of t in
   notypeclasses refine (tac_frame_pure _ _ _ _ t _ _);
     [tc_solve || fail "iFrame: cannot frame" φ
-    |iFrameFinish].
+    |].
 
-Ltac iFrameHyp H :=
+Ltac _iFrameHyp H :=
   iStartProof;
   notypeclasses refine (tac_frame _ H _ _ _ _ _ _ _);
     [pm_reflexivity ||
@@ -508,67 +508,75 @@ Ltac iFrameHyp H :=
     |tc_solve ||
      let R := match goal with |- Frame _ ?R _ _ => R end in
      fail "iFrame: cannot frame" R
-    |pm_reduce; iFrameFinish].
+    |pm_reduce].
 
-Ltac iFrameAnyPure :=
-  repeat match goal with H : _ |- _ => iFramePure H end.
+Ltac _iFrameAnyPure :=
+  repeat match goal with H : _ |- _ => _iFramePure H end.
 
-Ltac iFrameAnyIntuitionistic :=
+Ltac _iFrameAnyIntuitionistic :=
   iStartProof;
   let rec go Hs :=
-    match Hs with [] => idtac | ?H :: ?Hs => repeat iFrameHyp H; go Hs end in
+    match Hs with [] => idtac | ?H :: ?Hs => repeat _iFrameHyp H; go Hs end in
   match goal with
   | |- envs_entails ?Δ _ =>
      (* [lazy] because [Δ] involves user terms *)
      let Hs := eval lazy in (env_dom (env_intuitionistic Δ)) in go Hs
   end.
 
-Ltac iFrameAnySpatial :=
+Ltac _iFrameAnySpatial :=
   iStartProof;
   let rec go Hs :=
-    match Hs with [] => idtac | ?H :: ?Hs => try iFrameHyp H; go Hs end in
+    match Hs with [] => idtac | ?H :: ?Hs => try _iFrameHyp H; go Hs end in
   match goal with
   | |- envs_entails ?Δ _ =>
      (* [lazy] because [Δ] involves user terms *)
      let Hs := eval lazy in (env_dom (env_spatial Δ)) in go Hs
   end.
 
-#[local] Ltac _iFrame_go Hs :=
+Ltac _iFrame_go Hs :=
   lazymatch Hs with
   | [] =>
-      idtac
+      _iFrameFinish
   | SelPure [] :: ?Hs =>
-      iFrameAnyPure;
+      _iFrameAnyPure;
       _iFrame_go Hs
   | SelPure _ :: _ =>
       fail "iFrame: unsupported selection pattern: % _"
   | SelPureInv _ :: _ =>
       fail "iFrame: unsupported selection pattern: %-"
   | SelIntuitionistic :: ?Hs =>
-      iFrameAnyIntuitionistic;
+      _iFrameAnyIntuitionistic;
       _iFrame_go Hs
   | SelSpatial :: ?Hs =>
-      iFrameAnySpatial;
+      _iFrameAnySpatial;
       _iFrame_go Hs
   | SelIdent ?H :: ?Hs =>
-      iFrameHyp H;
+      _iFrameHyp H;
       _iFrame_go Hs
   end.
 
 Ltac _iFrame0 Hs :=
   let Hs := sel_pat.parse Hs in
-  _iFrame_go Hs.
+  lazymatch Hs with
+  | [] =>
+      idtac
+  | _ =>
+      _iFrame_go Hs;
+      _iFrameFinish
+  end.
 Ltac _iFrame ts Hs :=
-  ltac1_list_iter iFramePure ts;
+  ltac1_list_iter _iFramePure ts;
   _iFrame0 Hs.
 
-Tactic Notation "iFrame" := iFrameAnySpatial.
+Tactic Notation "iFrame" :=
+  _iFrameAnySpatial;
+  _iFrameFinish.
 Tactic Notation "iFrame" "(" ne_constr_list(ts) ")" := _iFrame ts "".
 Tactic Notation "iFrame" constr(Hs) := _iFrame0 Hs.
 Tactic Notation "iFrame" "(" ne_constr_list(ts) ")" constr(Hs) := _iFrame ts Hs.
 
 Tactic Notation "iFrame" "select" open_constr(pat) :=
-  iSelect pat ltac:(fun H => iFrameHyp H).
+  iSelect pat ltac:(fun H => iFrame H).
 
 (** * Basic introduction tactics *)
 Tactic Notation "_iIntro" "(" simple_intropattern(x) ")" :=
@@ -1575,7 +1583,7 @@ Ltac _iDestructHyp_go Hz pat0 pat env :=
   | IDrop =>
       _iClearHyp Hz
   | IFrame =>
-      iFrameHyp Hz
+      iFrame Hz
   | IIdent Hz =>
       idtac
   | IIdent ?y =>
