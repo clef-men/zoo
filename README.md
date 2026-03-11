@@ -3,7 +3,9 @@
 This project is part of the [Iris Masterplan](https://julesjacobs.com/slides/iris-masterplan.pdf).
 It aims at verifying OCaml 5 programs, including [lock-free data structures](lib/zoo_saturn) from [Saturn](https://github.com/ocaml-multicore/saturn), a [lock-free multi-word compare-and-set algorithm](lib/zoo_kcas) from [Kcas](https://github.com/ocaml-multicore/kcas) and a [work-stealing scheduler](lib/zoo_parabs) based on [Domainslib](https://github.com/ocaml-multicore/domainslib).
 
-## Building (Coq proofs only)
+## Building
+
+### Rocq proofs only
 
 First, you need to install [`opam`](https://opam.ocaml.org/) (>= 2.0).
 
@@ -17,17 +19,17 @@ Then, create a new local `opam` switch and install dependencies with:
 
 ```
 opam switch create . --empty --repos default,coq-released=https://coq.inria.fr/opam/released,iris-dev=git+https://gitlab.mpi-sws.org/iris/opam.git --yes
-opam install ./coq-*.opam --deps-only --yes
+opam install ./rocq-*.opam --deps-only --yes
 eval $(opam env --switch=. --set-switch)
 ```
 
-Finally, to compile Coq proofs, run:
+Finally, to compile Rocq proofs, run:
 
 ```
 make -j
 ```
 
-## Building (OCaml libraries and Coq proofs)
+### OCaml libraries and Rocq proofs
 
 First, you need to install [`opam`](https://opam.ocaml.org/) (>= 2.0).
 
@@ -67,19 +69,19 @@ To compile benchmarks, run:
 make bench
 ```
 
-To translate OCaml libraries into [Zoo](https://github.com/clef-men/zoo) (Coq files are generated in [`theories/`](theories/)), run:
+To translate OCaml libraries into [Zoo](https://github.com/clef-men/zoo) (Rocq files are generated in [`theories/`](theories/)), run:
 
 ```
 make ocaml2zoo
 ```
 
-Finally, to compile Coq proofs, run:
+Finally, to compile Rocq proofs, run:
 
 ```
 make -j
 ```
 
-## Building (OCaml libraries only)
+### OCaml libraries only
 
 First, you need to install [`opam`](https://opam.ocaml.org/) (>= 2.0).
 
@@ -103,13 +105,13 @@ opam pin add ocaml-variants git+https://github.com/clef-men/ocaml#generative_con
 Then, install dependencies with:
 
 ```
-opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') --deps-only --yes
+opam install $(find . -depth 1 -name '*.opam' ! -name 'rocq-*') --deps-only --yes
 ```
 
 To compile benchmarks, you also need to install benchmark-only dependencies with:
 
 ```
-opam install $(find . -depth 1 -name '*.opam' ! -name 'coq-*') --with-dev-setup --deps-only --yes
+opam install $(find . -depth 1 -name '*.opam' ! -name 'rocq-*') --with-dev-setup --deps-only --yes
 ```
 
 To compile OCaml libraries (see [`lib/`](lib/)), run:
@@ -126,14 +128,14 @@ make bench
 
 ## Installation
 
-Zoo is not available on `opam` yet, but you can already use it in your Coq developments by adding the following `opam` dependency:
+Zoo is not available on `opam` yet, but you can already use it in your Rocq developments by adding the following `opam` dependency:
 
 ```
 pin-depends: [
-  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
-  "coq-zoo"
+  "rocq-zoo"
 ]
 ```
 
@@ -141,11 +143,11 @@ To also install the standard library, add:
 
 ```
 pin-depends: [
-  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
-  ["coq-zoo-std.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo-std.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
-  "coq-zoo-std"
+  "rocq-zoo-std"
 ]
 ```
 

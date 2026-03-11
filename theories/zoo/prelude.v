@@ -1,4 +1,4 @@
-From Coq.ssr Require Export
+From Stdlib.ssr Require Export
   ssreflect.
 
 From stdpp Require Export

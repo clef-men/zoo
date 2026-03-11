@@ -8,10 +8,10 @@ homepage: "https://github.com/clef-men/zoo"
 bug-reports: "https://github.com/clef-men/zoo/issues"
 dev-repo: "git+https://github.com/clef-men/zoo.git"
 pin-depends: [
-  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
-  "coq-zoo"
+  "rocq-zoo"
 ]
 
 build: [

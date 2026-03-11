@@ -33,7 +33,7 @@ Section auth_frac_G.
   Implicit Types x y : A.
 
   Definition auth_frac_auth γ x :=
-    own γ (frac_auth_auth x).
+    own γ (frac_auth_auth (DfracOwn 1) x).
   Definition auth_frac_frag γ q y :=
     own γ (frac_auth_frag q y).
 

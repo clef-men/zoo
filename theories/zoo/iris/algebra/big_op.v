@@ -11,7 +11,7 @@ From zoo Require Import
 
 Section big_opS.
   Context {SI : sidx}.
-  Context `{!Monoid (M := M) o}.
+  Context `{!Monoid (M := M) o u}.
   Context `{Countable A}.
 
   Implicit Types f : A → M.

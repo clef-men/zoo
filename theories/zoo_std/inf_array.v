@@ -1,4 +1,4 @@
-From Coq.Logic Require Import
+From Stdlib.Logic Require Import
   FunctionalExtensionality.
 
 From zoo Require Import

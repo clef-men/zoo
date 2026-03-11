@@ -1,4 +1,4 @@
-From Coq Require Import
+From Stdlib Require Import
   ZifyNat.
 
 From zoo Require Import

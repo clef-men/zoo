@@ -142,7 +142,7 @@ Lemma bwp_progress `{inv_Gpre : !invGpreS Σ} n es1 σ1 es2 σ2 κs :
 Proof.
   intros H Hsteps.
   apply Foralli_lookup => tid e2 Hlookup.
-  eapply uPred.pure_soundness, (step_fupdN_soundness_lc _ n (later_sum 0 n)).
+  apply (pure_soundness (PROP := iPropI Σ)), (step_fupdN_soundness_lc _ n (later_sum 0 n)).
   iIntros "%Hinv_G H£s".
   iMod H as "(%zoo_G & %Φs & <- & Hinterp & H)".
   iMod (bwps_progress with "[Hinterp] H£s H") as "H". 1,2: done.

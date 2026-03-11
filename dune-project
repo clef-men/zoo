@@ -83,13 +83,13 @@
 )
 
 (package
-  (name coq-zoo)
+  (name rocq-zoo)
   (synopsis "Zoo")
   (allow_empty)
 )
 
 (package
-  (name coq-zoo-std)
+  (name rocq-zoo-std)
   (synopsis "Zoo standard library")
   (allow_empty)
 )

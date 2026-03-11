@@ -39,7 +39,7 @@ Number Notation
 : val_scope.
 
 Notation "'true'" := (
-  Coq.Init.Datatypes.true
+  Corelib.Init.Datatypes.true
 ) : core_scope.
 Notation "'true'" := (
   Val (ValLit (LitBool true))
@@ -49,7 +49,7 @@ Notation "'true'" := (
 ) : val_scope.
 
 Notation "'false'" := (
-  Coq.Init.Datatypes.false
+  Corelib.Init.Datatypes.false
 ) : core_scope.
 Notation "'false'" := (
   Val (ValLit (LitBool false))

@@ -1,8 +1,8 @@
 pin-depends: [
-  ["coq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
+  ["rocq-zoo.dev" "git+https://github.com/clef-men/zoo.git#main"]
 ]
 depends: [
-  "coq-zoo"
+  "rocq-zoo"
 ]
 
 build: [

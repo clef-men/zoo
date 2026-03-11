@@ -989,7 +989,7 @@ Proof.
 Qed.
 
 (** * Rewriting *)
-Lemma tac_rewrite `{!BiInternalEq PROP} Δ i p Pxy d Q :
+Lemma tac_rewrite `{!Sbi PROP} Δ i p Pxy d Q :
   envs_lookup i Δ = Some (p, Pxy) →
   ∀ {A : ofe} (x y : A) (Φ : A → PROP),
     IntoInternalEq Pxy x y →
@@ -1003,7 +1003,7 @@ Proof.
   destruct d; auto using internal_eq_sym.
 Qed.
 
-Lemma tac_rewrite_in `{!BiInternalEq PROP} Δ i p Pxy j q P d Q :
+Lemma tac_rewrite_in `{!Sbi PROP} Δ i p Pxy j q P d Q :
   envs_lookup i Δ = Some (p, Pxy) →
   envs_lookup j Δ = Some (q, P) →
   ∀ {A : ofe} (x y : A) (Φ : A → PROP),

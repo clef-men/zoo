@@ -32,8 +32,8 @@ Section upred.
       ✓ (twins_twin1 dq a) ⊣⊢
       ⌜✓ dq⌝.
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= twins_twin1_dfrac_validN //.
+      sbi_unfold => n.
+      apply twins_twin1_dfrac_validN.
     Qed.
     Lemma twins_twin1_validI a :
       ⊢ ✓ (twins_twin1 (DfracOwn 1) a).
@@ -46,30 +46,30 @@ Section upred.
         ⌜✓ (dq1 ⋅ dq2)⌝ ∧
         a1 ≡ a2.
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= twins_twin1_dfrac_op_validN //.
+      sbi_unfold => n.
+      apply twins_twin1_dfrac_op_validN.
     Qed.
     Lemma twins_twin1_op_validI a b :
       ✓ (twins_twin1 (DfracOwn 1) a ⋅ twins_twin1 (DfracOwn 1) b) ⊣⊢
       False.
     Proof.
-      rewrite twins_twin1_dfrac_op_validI bi.pure_False; first naive_solver.
+      rewrite twins_twin1_dfrac_op_validI bi.pure_False. 1: auto.
       rewrite left_absorb //.
     Qed.
 
     Lemma twins_twin2_validI a :
       ⊢ ✓ (twins_twin2 a).
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= => _. apply twins_twin2_validN.
+      sbi_unfold => n _.
+      apply twins_twin2_validN.
     Qed.
 
     Lemma twins_twin2_op_validI a b :
       ✓ (twins_twin2 a ⋅ twins_twin2 b) ⊣⊢
       False.
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= twins_twin2_op_validN //.
+      sbi_unfold => n.
+      apply twins_twin2_op_validN.
     Qed.
 
     Lemma twins_both_dfrac_validI dq a b :
@@ -77,15 +77,15 @@ Section upred.
         ⌜✓ dq⌝ ∧
         a ≡ b.
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= twins_both_dfrac_validN //.
+      sbi_unfold => n.
+      apply twins_both_dfrac_validN.
     Qed.
     Lemma twins_both_validI a b :
       ✓ (twins_twin1 (DfracOwn 1) a ⋅ twins_twin2 b) ⊣⊢
       a ≡ b.
     Proof.
-      uPred.unseal. split=> n x Hx.
-      rewrite /uPred_holds /= twins_both_validN //.
+      sbi_unfold => n.
+      apply twins_both_validN.
     Qed.
   End ofe.
 End upred.

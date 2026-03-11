@@ -1,4 +1,4 @@
-targets_nocoq :=
+targets_norocq :=
 
 .PHONY : all
 all :

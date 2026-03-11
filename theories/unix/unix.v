@@ -1,4 +1,4 @@
-From Coq.Strings Require Export
+From Stdlib.Strings Require Export
   Ascii.
 
 From zoo Require Import

@@ -1,4 +1,4 @@
-From Coq.Program Require Import
+From Stdlib.Program Require Import
   Tactics.
 
 From zoo Require Import

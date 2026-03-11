@@ -1,0 +1,14 @@
+depends: [
+  "coq-core" {= "9.1.1"}
+  "rocq-prover" {= "9.0.0"}
+  "rocq-stdpp" {= "dev.2026-01-28.0.6f3f2617"}
+  "rocq-iris" {= "dev.2026-02-05.0.9815f03b"}
+  "rocq-diaframe" {= "dev.2026-02-11.0.bb960675"}
+]
+
+build: [
+  make "-j%{jobs}%" "build-zoo"
+]
+install: [
+  make "install-zoo"
+]

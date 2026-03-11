@@ -1,4 +1,4 @@
-From Coq Require Export
+From Stdlib Require Export
   ZifyNat.
 
 From stdpp Require Export

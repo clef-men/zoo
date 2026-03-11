@@ -1,4 +1,4 @@
-From Coq.Strings Require Import
+From Stdlib.Strings Require Import
   Ascii.
 
 From stdpp Require Import

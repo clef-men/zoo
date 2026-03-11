@@ -1,4 +1,4 @@
-From Coq.ssr Require Import
+From Stdlib.ssr Require Import
   ssreflect.
 
 From zoo Require Export

@@ -1,5 +1,5 @@
-Makefile.coq
-Makefile.coq.conf
+Makefile.rocq
+Makefile.rocq.conf
 
 _opam
 _build/
@@ -11,7 +11,7 @@ _build/
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
-# Coq
+# Rocq
 .*.aux
 .*.d
 *.a
