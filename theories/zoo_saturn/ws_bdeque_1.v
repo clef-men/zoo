@@ -947,8 +947,9 @@ Module base.
         True
       }}}
         ws_bdeque_1_create #cap
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ws_bdeque_1_inv t γ ι ₊cap ∗
         ws_bdeque_1_model γ [] ∗
@@ -1024,8 +1025,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         front_lb γ front
       }}}.
     Proof.
@@ -1042,8 +1044,9 @@ Module base.
         owner₁ γ Stable back ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Stable back ws ∗
         front_lb γ front ∗
         ⌜front ≤ back⌝
@@ -1064,8 +1067,9 @@ Module base.
         owner₁ γ Unstable back ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Unstable back ws ∗
         front_lb γ front ∗
         ⌜front = back ∨ front = S back⌝
@@ -1179,8 +1183,9 @@ Module base.
         inv' t γ
       }}}
         array_unsafe_cget γ.(ws_bdeque_1_name_data) #i
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         True
       }}}.
     Proof.
@@ -1887,8 +1892,9 @@ Module base.
         end
       }}}
         ws_bdeque_1_pop_0 #t #id #back_
-      {{{ o back front_cache i us,
-        RET o;
+      {{{
+        o back front_cache i us
+      , RET o;
         owner_2 t γ Stable back ws front_cache i us ∗
         match state with
         | PopNonempty v =>
@@ -2263,8 +2269,9 @@ Section ws_bdeque_1_G.
       True
     }}}
       ws_bdeque_1_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_bdeque_1_inv t ι ₊cap ∗
       ws_bdeque_1_model t [] ∗
       ws_bdeque_1_owner t []

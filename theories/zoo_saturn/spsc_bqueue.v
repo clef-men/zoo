@@ -573,8 +573,9 @@ Section spsc_bqueue_G.
       True
     }}}
       spsc_bqueue_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       spsc_bqueue_inv t ι ₊cap ∗
       spsc_bqueue_model t [] ∗
       spsc_bqueue_producer t [] ∗
@@ -827,8 +828,9 @@ Section spsc_bqueue_G.
       au_push l γ v Ψ
     }}}
       spsc_bqueue_push_0 #l γ.(metadata_data) #back
-    {{{ b front_cache,
-      RET #b;
+    {{{
+      b front_cache
+    , RET #b;
       ⌜b = bool_decide (back < front_cache + γ.(metadata_capacity))⌝ ∗
       l.[front_cache] ↦ #front_cache ∗
       producer₁ γ stable back ws ∗
@@ -974,8 +976,9 @@ Section spsc_bqueue_G.
       au_pop l γ Ψ
     }}}
       spsc_bqueue_pop_0 #l #front
-    {{{ b back_cache,
-      RET #b;
+    {{{
+      b back_cache
+    , RET #b;
       ⌜b = bool_decide (front < back_cache)⌝ ∗
       l.[back_cache] ↦ #back_cache ∗
       consumer₁ γ stable front ∗

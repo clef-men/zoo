@@ -58,8 +58,9 @@ Section zoo_G.
       True
     }}}
       dynarray_1_create ()
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       dynarray_1_model #l [] ∗
       meta_token l (↑nroot.@"user")
     }}}.
@@ -76,8 +77,9 @@ Section zoo_G.
       True
     }}}
       dynarray_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       dynarray_1_model t []
     }}}.
   Proof.
@@ -92,8 +94,9 @@ Section zoo_G.
       True
     }}}
       dynarray_1_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       dynarray_1_model t (replicate ₊sz v)
     }}}.
   Proof.
@@ -120,8 +123,9 @@ Section zoo_G.
       )
     }}}
       dynarray_1_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       dynarray_1_model t vs ∗
       Ψ ₊sz vs
@@ -148,8 +152,9 @@ Section zoo_G.
       )
     }}}
       dynarray_1_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       dynarray_1_model t vs ∗
       Ψ ₊sz vs
@@ -182,8 +187,9 @@ Section zoo_G.
       )
     }}}
       dynarray_1_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       dynarray_1_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -209,8 +215,9 @@ Section zoo_G.
       )
     }}}
       dynarray_1_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       dynarray_1_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -246,8 +253,9 @@ Section zoo_G.
       dynarray_1_model t vs
     }}}
       dynarray_1_capacity t
-    {{{ cap,
-      RET #cap;
+    {{{
+      cap
+    , RET #cap;
       ⌜length vs ≤ cap⌝ ∗
       dynarray_1_model t vs
     }}}.
@@ -320,8 +328,9 @@ Section zoo_G.
       True
     }}}
       dynarray_1_next_capacity #n
-    {{{ m,
-      RET #m;
+    {{{
+      m
+    , RET #m;
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
@@ -333,8 +342,9 @@ Section zoo_G.
       dynarray_1_model t vs
     }}}
       dynarray_1_reserve t #n
-    {{{ extra,
-      RET ();
+    {{{
+      extra
+    , RET ();
       ⌜₊n ≤ length vs + extra⌝ ∗
       model' t vs extra
     }}}.
@@ -382,8 +392,9 @@ Section zoo_G.
       dynarray_1_model t vs
     }}}
       dynarray_1_reserve_extra t #n
-    {{{ extra,
-      RET ();
+    {{{
+      extra
+    , RET ();
       ⌜₊n ≤ extra⌝ ∗
       model' t vs extra
     }}}.

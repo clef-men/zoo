@@ -378,8 +378,9 @@ Module base.
         True
       }}}
         ivar_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_1_inv t γ Ψ Ξ ∗
         ivar_1_producer γ ∗
@@ -409,8 +410,9 @@ Module base.
         ▷ □ Ξ v
       }}}
         ivar_1_make v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_1_inv t γ Ψ Ξ ∗
         ivar_1_result γ v ∗
@@ -442,8 +444,9 @@ Module base.
         ivar_1_inv t γ Ψ Ξ
       }}}
         ivar_1_try_get #t
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o is Some v then
           £ 2 ∗
           ivar_1_result γ v
@@ -499,8 +502,9 @@ Module base.
         ivar_1_inv t γ Ψ Ξ
       }}}
         ivar_1_is_unset #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           True
         else
@@ -537,8 +541,9 @@ Module base.
         ivar_1_inv t γ Ψ Ξ
       }}}
         ivar_1_is_set #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           £ 2 ∗
           ivar_1_resolved γ
@@ -865,8 +870,9 @@ Section ivar_1_G.
       True
     }}}
       ivar_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_1_inv t Ψ Ξ ∗
       ivar_1_producer t ∗
       ivar_1_consumer t Ψ
@@ -886,8 +892,9 @@ Section ivar_1_G.
       ▷ □ Ξ v
     }}}
       ivar_1_make v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_1_inv t Ψ Ξ ∗
       ivar_1_result t v ∗
       ivar_1_consumer t Ψ
@@ -906,8 +913,9 @@ Section ivar_1_G.
       ivar_1_inv t Ψ Ξ
     }}}
       ivar_1_try_get t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         £ 2 ∗
         ivar_1_result t v
@@ -943,8 +951,9 @@ Section ivar_1_G.
       ivar_1_inv t Ψ Ξ
     }}}
       ivar_1_is_unset t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -979,8 +988,9 @@ Section ivar_1_G.
       ivar_1_inv t Ψ Ξ
     }}}
       ivar_1_is_set t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         £ 2 ∗
         ivar_1_resolved t

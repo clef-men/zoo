@@ -194,8 +194,9 @@ Section zoo_G.
       chain_model tag t vs dst
     }}}
       Block Mutable (default 0%nat tag) [Val t; Val v]
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       chain_model tag t' (v :: vs) dst
     }}}.
   Proof.
@@ -220,8 +221,9 @@ Section zoo_G.
       chain_model tag t (v :: vs) dst
     }}}
       t.{chain_next}
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       chain_model tag t [v] t' ∗
       chain_model tag t' vs dst
     }}}.
@@ -259,8 +261,9 @@ Section zoo_G.
       chain_model tag t (v :: vs) dst
     }}}
       t <-{chain_next} v'
-    {{{ t',
-      RET ();
+    {{{
+      t'
+    , RET ();
       chain_model tag t [v] v' ∗
       chain_model tag t' vs dst
     }}}.

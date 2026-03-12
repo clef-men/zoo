@@ -1118,8 +1118,9 @@ Section kcas_1_G.
       casn_inv' ι casn η
     }}}
       (#descr.(descriptor_state)).{before}
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
         ⌜v = descr.(descriptor_before)⌝
       ∨ lstatus_lb η Finished
     }}}.
@@ -2071,8 +2072,9 @@ Section kcas_1_G.
       True
     }}}
       kcas_1_make v
-    {{{ loc,
-      RET #loc;
+    {{{
+      loc
+    , RET #loc;
       kcas_1_loc_inv loc ι ∗
       kcas_1_loc_model loc v
     }}}.

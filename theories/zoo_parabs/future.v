@@ -265,8 +265,9 @@ Section future_G.
       □ Ξ v
     }}}
       future_return v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       future_inv pool t Ψ Ξ ∗
       future_consumer t Ψ ∗
       future_result t v
@@ -348,8 +349,9 @@ Section future_G.
       )
     }}}
       future_async ctx task
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       pool_context pool ctx scope ∗
       future_inv pool t Ψ Ξ ∗
       future_consumer t Ψ
@@ -382,8 +384,9 @@ Section future_G.
       future_inv pool t Ψ Ξ
     }}}
       future_wait ctx t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       £ 2 ∗
       pool_context pool ctx scope ∗
       future_result t v
@@ -484,8 +487,9 @@ Section future_G.
       )
     }}}
       future_map ctx t1 task
-    {{{ t2,
-      RET t2;
+    {{{
+      t2
+    , RET t2;
       pool_context pool ctx scope ∗
       future_inv pool t2 Ψ2 Ξ2 ∗
       future_consumer t2 Ψ2

@@ -503,8 +503,9 @@ Module base.
         True
       }}}
         inf_mpmc_queue_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         inf_mpmc_queue_1_inv t γ ι ∗
         inf_mpmc_queue_1_model γ []
@@ -743,8 +744,9 @@ Module base.
         tokens_pending γ front
       }}}
         inf_mpmc_queue_1_pop_0 #t #front
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         Ψ v
       }}}.
     Proof.
@@ -938,8 +940,9 @@ Section inf_mpmc_queue_1_G.
       True
     }}}
       inf_mpmc_queue_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       inf_mpmc_queue_1_inv t ι ∗
       inf_mpmc_queue_1_model t []
     }}}.

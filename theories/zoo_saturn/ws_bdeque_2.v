@@ -272,8 +272,9 @@ Module base.
         True
       }}}
         ws_bdeque_2_create #cap
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ws_bdeque_2_inv t γ ι ₊cap ∗
         ws_bdeque_2_model γ [] ∗
@@ -599,8 +600,9 @@ Section ws_bdeque_2_G.
       True
     }}}
       ws_bdeque_2_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_bdeque_2_inv t ι ₊cap ∗
       ws_bdeque_2_model t [] ∗
       ws_bdeque_2_owner t []

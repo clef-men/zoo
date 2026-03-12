@@ -59,8 +59,9 @@ Section zoo_G.
       True
     }}}
       xdeque_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       (∃ l, ⌜t = #l⌝ ∗ meta_token l ⊤) ∗
       xdeque_model t []
     }}}.
@@ -195,8 +196,9 @@ Section zoo_G.
       xdeque_model t nodes
     }}}
       xdeque_pop_back t
-    {{{ o,
-      RET #@{location} <$> o : option val;
+    {{{
+      o
+    , RET #@{location} <$> o : option val;
       match o with
       | None =>
           ⌜nodes = []⌝ ∗

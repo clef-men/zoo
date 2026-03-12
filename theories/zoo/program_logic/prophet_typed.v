@@ -66,8 +66,9 @@ Section prophet_typed_strong.
       True
     }}}
       Proph @ E
-    {{{ pid prophs,
-      RET #pid;
+    {{{
+      pid prophs
+    , RET #pid;
       prophet_typed_strong_model pid prophs
     }}}.
   Proof.
@@ -161,8 +162,9 @@ Section prophet_typed_strong_1.
       True
     }}}
       Proph @ E
-    {{{ pid proph,
-      RET #pid;
+    {{{
+      pid proph
+    , RET #pid;
       prophet_typed_strong_1_model pid proph
     }}}.
   Proof.
@@ -259,8 +261,9 @@ Section prophet_typed.
       True
     }}}
       Proph @ E
-    {{{ pid prophs,
-      RET #pid;
+    {{{
+      pid prophs
+    , RET #pid;
       prophet_typed_model pid prophs
     }}}.
   Proof.
@@ -354,8 +357,9 @@ Section prophet_typed_1.
       True
     }}}
       Proph @ E
-    {{{ pid proph,
-      RET #pid;
+    {{{
+      pid proph
+    , RET #pid;
       prophet_typed_1_model pid proph
     }}}.
   Proof.

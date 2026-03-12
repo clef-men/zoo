@@ -216,8 +216,9 @@ Section semaphore_G.
       [∗ list] _ ∈ seq 0 ₊cap, P
     }}}
       semaphore_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       semaphore_inv t ₊cap P
     }}}.
   Proof.
@@ -252,8 +253,9 @@ Section semaphore_G.
       semaphore_inv t cap P
     }}}
       semaphore_try_lock t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         semaphore_locked t ∗
         P

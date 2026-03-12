@@ -30,8 +30,9 @@ Section mutex_G.
       True
     }}}
       condition_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       condition_inv t
     }}}.
   Proof.

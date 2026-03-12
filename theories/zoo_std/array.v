@@ -1176,8 +1176,9 @@ Section zoo_G.
       True
     }}}
       array_unsafe_alloc #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       array_model t (DfracOwn 1) (replicate ₊sz ()%V)
     }}}.
   Proof.
@@ -1193,8 +1194,9 @@ Section zoo_G.
       True
     }}}
       array_alloc #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       array_model t (DfracOwn 1) (replicate ₊sz ()%V)
     }}}.
@@ -1211,8 +1213,9 @@ Section zoo_G.
       True
     }}}
       array_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       array_model t (DfracOwn 1) []
     }}}.
   Proof.
@@ -1980,8 +1983,9 @@ Section zoo_G.
       array_slice t i (DfracOwn 1) vs
     }}}
       array_unsafe_xchg t #j v
-    {{{ w,
-      RET w;
+    {{{
+      w
+    , RET w;
       ⌜vs !! (₊j - i) = Some w⌝ ∗
       array_slice t i (DfracOwn 1) (<[₊j - i := v]> vs)
     }}}.
@@ -2014,8 +2018,9 @@ Section zoo_G.
       array_model t (DfracOwn 1) vs
     }}}
       array_unsafe_xchg t #i v
-    {{{ w,
-      RET w;
+    {{{
+      w
+    , RET w;
       ⌜vs !! ₊i = Some w⌝ ∗
       array_model t (DfracOwn 1) (<[₊i := v]> vs)
     }}}.
@@ -2136,8 +2141,9 @@ Section zoo_G.
       array_slice t i (DfracOwn 1) vs
     }}}
       array_unsafe_cas t #j v1 v2
-    {{{ b v,
-      RET #b;
+    {{{
+      b v
+    , RET #b;
       ⌜vs !! (₊j - i) = Some v⌝ ∗
       ⌜(if b then (≈) else (≉)) v v1⌝ ∗
       array_slice t i (DfracOwn 1) (if b then <[₊j - i := v2]> vs else vs)
@@ -2155,8 +2161,9 @@ Section zoo_G.
       array_slice t i_ (DfracOwn 1) [v]
     }}}
       array_unsafe_cas t #i v1 v2
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       ⌜(if b then (≈) else (≉)) v v1⌝ ∗
       array_slice t i_ (DfracOwn 1) [if b then v2 else v]
     }}}.
@@ -2173,8 +2180,9 @@ Section zoo_G.
       array_model t (DfracOwn 1) vs
     }}}
       array_unsafe_cas t #i v1 v2
-    {{{ b v,
-      RET #b;
+    {{{
+      b v
+    , RET #b;
       ⌜vs !! ₊i = Some v⌝ ∗
       ⌜(if b then (≈) else (≉)) v v1⌝ ∗
       array_model t (DfracOwn 1) (if b then <[₊i := v2]> vs else vs)
@@ -2340,8 +2348,9 @@ Section zoo_G.
       True
     }}}
       array_unsafe_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       array_model t (DfracOwn 1) (replicate ₊sz v)
     }}}.
   Proof.
@@ -2357,8 +2366,9 @@ Section zoo_G.
       True
     }}}
       array_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       array_model t (DfracOwn 1) (replicate ₊sz v)
     }}}.
@@ -2393,8 +2403,9 @@ Section zoo_G.
       )
     }}}
       array_foldli_aux fn t #sz #i acc
-    {{{ vs' acc,
-      RET acc;
+    {{{
+      vs' acc
+    , RET acc;
       ⌜(length vs + length vs')%nat = sz⌝ ∗
       Ψ sz (vs ++ vs') None acc
     }}}.
@@ -2443,8 +2454,9 @@ Section zoo_G.
       )
     }}}
       array_foldli fn acc t
-    {{{ vs acc,
-      RET acc;
+    {{{
+      vs acc
+    , RET acc;
       ⌜length vs = sz⌝ ∗
       Ψ sz vs None acc
     }}}.
@@ -2470,8 +2482,9 @@ Section zoo_G.
       )
     }}}
       array_foldli fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       array_model t dq vs ∗
       Ψ (length vs) vs acc
     }}}.
@@ -2512,8 +2525,9 @@ Section zoo_G.
       )
     }}}
       array_foldli fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       array_model t dq vs ∗
       Ψ (length vs) vs acc
     }}}.
@@ -2553,8 +2567,9 @@ Section zoo_G.
       )
     }}}
       array_foldl fn acc t
-    {{{ vs acc,
-      RET acc;
+    {{{
+      vs acc
+    , RET acc;
       ⌜length vs = sz⌝ ∗
       Ψ sz vs None acc
     }}}.
@@ -2578,8 +2593,9 @@ Section zoo_G.
       )
     }}}
       array_foldl fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       array_model t dq vs ∗
       Ψ (length vs) vs acc
     }}}.
@@ -2602,8 +2618,9 @@ Section zoo_G.
       )
     }}}
       array_foldl fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       array_model t dq vs ∗
       Ψ (length vs) vs acc
     }}}.
@@ -2636,8 +2653,9 @@ Section zoo_G.
       )
     }}}
       array_foldri_aux fn t #i acc
-    {{{ acc vs',
-      RET acc;
+    {{{
+      acc vs'
+    , RET acc;
       ⌜(length vs' + length vs)%nat = sz⌝ ∗
       Ψ 0 acc None (vs' ++ vs)
     }}}.
@@ -2683,8 +2701,9 @@ Section zoo_G.
       )
     }}}
       array_foldri fn t acc
-    {{{ acc vs,
-      RET acc;
+    {{{
+      acc vs
+    , RET acc;
       ⌜length vs = sz⌝ ∗
       Ψ 0 acc None vs
     }}}.
@@ -2711,8 +2730,9 @@ Section zoo_G.
       )
     }}}
       array_foldri fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs ∗
       array_model t dq vs
     }}}.
@@ -2752,8 +2772,9 @@ Section zoo_G.
       )
     }}}
       array_foldri fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs ∗
       array_model t dq vs
     }}}.
@@ -2794,8 +2815,9 @@ Section zoo_G.
       )
     }}}
       array_foldr fn t acc
-    {{{ acc vs,
-      RET acc;
+    {{{
+      acc vs
+    , RET acc;
       ⌜length vs = sz⌝ ∗
       Ψ 0 acc None vs
     }}}.
@@ -2819,8 +2841,9 @@ Section zoo_G.
       )
     }}}
       array_foldr fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs ∗
       array_model t dq vs
     }}}.
@@ -2843,8 +2866,9 @@ Section zoo_G.
       )
     }}}
       array_foldr fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs ∗
       array_model t dq vs
     }}}.
@@ -2882,8 +2906,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_iteri_slice fn t #i #n
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = ₊n⌝ ∗
       Ψ ₊n vs None
     }}}.
@@ -3078,8 +3103,9 @@ Section zoo_G.
       )
     }}}
       array_iteri_slice fn t #i #n
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -3248,8 +3274,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_iter_slice fn t #i #n
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = ₊n⌝ ∗
       Ψ ₊n vs None
     }}}.
@@ -3401,8 +3428,9 @@ Section zoo_G.
       )
     }}}
       array_iter_slice fn t #i #n
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -3568,8 +3596,9 @@ Section zoo_G.
       )
     }}}
       array_iteri fn t
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = sz⌝ ∗
       Ψ sz vs None
     }}}.
@@ -3734,8 +3763,9 @@ Section zoo_G.
       )
     }}}
       array_iter fn t
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = sz⌝ ∗
       Ψ sz vs None
     }}}.
@@ -3878,8 +3908,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_applyi_slice fn t #i #n
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜length vs = ₊n⌝ ∗
       ⌜length vs = length ws⌝ ∗
       Ψ ₊n vs None ws
@@ -3928,8 +3959,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       Ψ ₊n (slice ₊i ₊n vs) ws
@@ -3992,8 +4024,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       Ψ ₊n (slice ₊i ₊n vs) ws
@@ -4032,8 +4065,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -4063,8 +4097,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -4109,8 +4144,9 @@ Section zoo_G.
       )
     }}}
       array_applyi_slice fn t #i #n
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -4144,8 +4180,9 @@ Section zoo_G.
       )
     }}}
       array_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4177,8 +4214,9 @@ Section zoo_G.
       )
     }}}
       array_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4209,8 +4247,9 @@ Section zoo_G.
       )
     }}}
       array_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4240,8 +4279,9 @@ Section zoo_G.
       )
     }}}
       array_applyi_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4291,8 +4331,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_apply_slice fn t #i #n
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜length vs = ₊n⌝ ∗
       ⌜length vs = length ws⌝ ∗
       Ψ ₊n vs None ws
@@ -4323,8 +4364,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       Ψ ₊n (slice ₊i ₊n vs) ws
@@ -4353,8 +4395,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       Ψ ₊n (slice ₊i ₊n vs) ws
@@ -4383,8 +4426,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = ₊n⌝ ∗
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -4411,8 +4455,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       array_model t (DfracOwn 1) (with_slice ₊i ₊n vs ws) ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -4454,8 +4499,9 @@ Section zoo_G.
       )
     }}}
       array_apply_slice fn t #i #n
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜0 ≤ i ≤ sz⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -4489,8 +4535,9 @@ Section zoo_G.
       )
     }}}
       array_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4522,8 +4569,9 @@ Section zoo_G.
       )
     }}}
       array_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4554,8 +4602,9 @@ Section zoo_G.
       )
     }}}
       array_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4585,8 +4634,9 @@ Section zoo_G.
       )
     }}}
       array_apply_slice fn t #i #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜0 ≤ i ≤ length vs⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -4633,8 +4683,9 @@ Section zoo_G.
       )
     }}}
       array_applyi fn t
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜length vs = sz⌝ ∗
       ⌜length vs = length ws⌝ ∗
       Ψ sz vs None ws
@@ -4662,8 +4713,9 @@ Section zoo_G.
       )
     }}}
       array_applyi fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       Ψ (length vs) vs ws
@@ -4691,8 +4743,9 @@ Section zoo_G.
       )
     }}}
       array_applyi fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       Ψ (length vs) vs ws
@@ -4722,8 +4775,9 @@ Section zoo_G.
       )
     }}}
       array_applyi fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -4749,8 +4803,9 @@ Section zoo_G.
       )
     }}}
       array_applyi fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       array_model t (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -4794,8 +4849,9 @@ Section zoo_G.
       )
     }}}
       array_apply fn t
-    {{{ vs ws,
-      RET ();
+    {{{
+      vs ws
+    , RET ();
       ⌜length vs = sz⌝ ∗
       ⌜length vs = length ws⌝ ∗
       Ψ sz vs None ws
@@ -4821,8 +4877,9 @@ Section zoo_G.
       )
     }}}
       array_apply fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       Ψ (length vs) vs ws
@@ -4847,8 +4904,9 @@ Section zoo_G.
       )
     }}}
       array_apply fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       Ψ (length vs) vs ws
@@ -4872,8 +4930,9 @@ Section zoo_G.
       )
     }}}
       array_apply fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length vs = length ws⌝ ∗
       array_model t (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
@@ -4896,8 +4955,9 @@ Section zoo_G.
       )
     }}}
       array_apply fn t
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       array_model t (DfracOwn 1) ws ∗
       ( [∗ list] i ↦ w ∈ ws,
         Ψ i w
@@ -4929,8 +4989,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Ψ t ₊sz vs
@@ -4974,8 +5035,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Ψ t ₊sz vs
@@ -5017,8 +5079,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Χ t ∗
@@ -5049,8 +5112,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -5079,8 +5143,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Χ t ∗
@@ -5110,8 +5175,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -5143,8 +5209,9 @@ Section zoo_G.
       )
     }}}
       array_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5174,8 +5241,9 @@ Section zoo_G.
       )
     }}}
       array_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5200,8 +5268,9 @@ Section zoo_G.
       )
     }}}
       array_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5226,8 +5295,9 @@ Section zoo_G.
       )
     }}}
       array_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5262,8 +5332,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Ψ t ₊sz vs
@@ -5292,8 +5363,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       Ψ t ₊sz vs
@@ -5318,8 +5390,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -5343,8 +5416,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -5377,8 +5451,9 @@ Section zoo_G.
       )
     }}}
       array_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5408,8 +5483,9 @@ Section zoo_G.
       )
     }}}
       array_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5434,8 +5510,9 @@ Section zoo_G.
       )
     }}}
       array_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5460,8 +5537,9 @@ Section zoo_G.
       )
     }}}
       array_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       ⌜length vs = ₊sz⌝ ∗
       array_model t (DfracOwn 1) vs ∗
@@ -5501,8 +5579,9 @@ Section zoo_G.
       )
     }}}
       array_mapi fn t
-    {{{ t' vs ws,
-      RET t';
+    {{{
+      t' vs ws
+    , RET t';
       ⌜length vs = sz⌝ ∗
       ⌜length vs = length ws⌝ ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5552,8 +5631,9 @@ Section zoo_G.
       )
     }}}
       array_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5597,8 +5677,9 @@ Section zoo_G.
       )
     }}}
       array_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5629,8 +5710,9 @@ Section zoo_G.
       )
     }}}
       array_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5658,8 +5740,9 @@ Section zoo_G.
       )
     }}}
       array_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5702,8 +5785,9 @@ Section zoo_G.
       )
     }}}
       array_map fn t
-    {{{ t' vs ws,
-      RET t';
+    {{{
+      t' vs ws
+    , RET t';
       ⌜length vs = sz⌝ ∗
       ⌜length vs = length ws⌝ ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5730,8 +5814,9 @@ Section zoo_G.
       )
     }}}
       array_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5757,8 +5842,9 @@ Section zoo_G.
       )
     }}}
       array_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5783,8 +5869,9 @@ Section zoo_G.
       )
     }}}
       array_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5808,8 +5895,9 @@ Section zoo_G.
       )
     }}}
       array_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length ws = length vs⌝ ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) ws ∗
@@ -5849,8 +5937,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_copy_slice t1 #i1 t2 #i2 #n
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = ₊n⌝ ∗
       Ψ ₊n vs None
     }}}.
@@ -6163,8 +6252,9 @@ Section zoo_G.
       )
     }}}
       array_unsafe_copy t1 t2 #i2
-    {{{ vs,
-      RET ();
+    {{{
+      vs
+    , RET ();
       ⌜length vs = sz1⌝ ∗
       Ψ sz1 vs None
     }}}.
@@ -6328,8 +6418,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_unsafe_grow t #sz' v'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) (vs ++ replicate (₊sz' - length vs) v')
     }}}.
@@ -6360,8 +6451,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_grow t #sz' v'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜length vs ≤ sz'⌝%Z ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) (vs ++ replicate (₊sz' - length vs) v')
@@ -6382,8 +6474,9 @@ Section zoo_G.
       array_slice t i_ dq vs
     }}}
       array_unsafe_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_slice t i_ dq vs ∗
       array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
@@ -6406,8 +6499,9 @@ Section zoo_G.
       array_slice t i dq vs
     }}}
       array_unsafe_sub t #j #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_slice t i dq vs ∗
       array_model t' (DfracOwn 1) (take ₊n (drop (₊j - ₊i) vs))
     }}}.
@@ -6432,8 +6526,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_unsafe_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) (take ₊n (drop ₊i vs))
     }}}.
@@ -6456,8 +6551,9 @@ Section zoo_G.
       )
     }}}
       array_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ i⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -6486,8 +6582,9 @@ Section zoo_G.
       )
     }}}
       array_sub t #j #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ j⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜j + n ≤ sz⌝%Z ∗
@@ -6509,8 +6606,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ i⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ length vs⌝%Z ∗
@@ -6533,8 +6631,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_unsafe_shrink t #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) (take ₊n vs)
     }}}.
@@ -6550,8 +6649,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_shrink t #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ n ≤ length vs⌝%Z ∗
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) (take ₊n vs)
@@ -6571,8 +6671,9 @@ Section zoo_G.
       array_model t dq vs
     }}}
       array_clone t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_model t dq vs ∗
       array_model t' (DfracOwn 1) vs
     }}}.
@@ -7523,8 +7624,9 @@ Section zoo_G.
       array_cslice t sz i_ dq vs
     }}}
       array_unsafe_cgrow_slice t #i #n #sz' v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_cslice t sz i_ dq vs ∗
       array_cslice t' ₊sz' i_ (DfracOwn 1) (vs ++ replicate (₊sz' - ₊n) v)
     }}}.
@@ -7551,8 +7653,9 @@ Section zoo_G.
       array_cslice t sz i_ dq vs
     }}}
       array_unsafe_cgrow t #i #sz' v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_cslice t sz i_ dq vs ∗
       array_cslice t' ₊sz' i_ (DfracOwn 1) (vs ++ replicate (₊sz' - sz) v)
     }}}.
@@ -7574,8 +7677,9 @@ Section zoo_G.
       array_cslice t sz i_ dq vs
     }}}
       array_unsafe_cshrink_slice t #i #sz'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_cslice t sz i_ dq vs ∗
       array_cslice t' ₊sz' i_ (DfracOwn 1) (take ₊sz' vs)
     }}}.
@@ -7601,8 +7705,9 @@ Section zoo_G.
       array_cslice t sz i dq vs
     }}}
       array_unsafe_cshrink_slice t #j #sz'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       array_cslice t sz i dq vs ∗
       array_cslice t' ₊sz' ₊j (DfracOwn 1) (slice (₊j - i) ₊sz' vs)
     }}}.
@@ -7676,8 +7781,9 @@ Section zoo_G.
       True
     }}}
       array_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_array τ 0 t
     }}}.
   Proof.
@@ -7708,8 +7814,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_unsafe_get t #i
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       τ v
     }}}.
   Proof.
@@ -7729,8 +7836,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_get t #i
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       ⌜0 ≤ i < sz⌝%Z ∗
       τ v
     }}}.
@@ -7795,8 +7903,9 @@ Section zoo_G.
       τ v
     }}}
       array_unsafe_xchg t #i v
-    {{{ w,
-      RET w;
+    {{{
+      w
+    , RET w;
       τ w
     }}}.
   Proof.
@@ -7820,8 +7929,9 @@ Section zoo_G.
       τ v2
     }}}
       array_unsafe_cas t #i v1 v2
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -7903,8 +8013,9 @@ Section zoo_G.
       τ v
     }}}
       array_unsafe_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_array τ ₊sz t
     }}}.
   Proof.
@@ -7922,8 +8033,9 @@ Section zoo_G.
       τ v
     }}}
       array_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       itype_array τ ₊sz t
     }}}.
@@ -7942,8 +8054,9 @@ Section zoo_G.
       (itype_nat_upto sz --> υ --> τ --> υ)%T fn
     }}}
       array_foldli fn acc t
-    {{{ acc',
-      RET acc';
+    {{{
+      acc'
+    , RET acc';
       υ acc'
     }}}.
   Proof.
@@ -7977,8 +8090,9 @@ Section zoo_G.
       (υ --> τ --> υ)%T fn
     }}}
       array_foldl fn acc t
-    {{{ acc',
-      RET acc';
+    {{{
+      acc'
+    , RET acc';
       υ acc'
     }}}.
   Proof.
@@ -7995,8 +8109,9 @@ Section zoo_G.
       υ acc
     }}}
       array_foldri fn t acc
-    {{{ acc',
-      RET acc';
+    {{{
+      acc'
+    , RET acc';
       υ acc'
     }}}.
   Proof.
@@ -8030,8 +8145,9 @@ Section zoo_G.
       υ acc
     }}}
       array_foldr fn t acc
-    {{{ acc',
-      RET acc';
+    {{{
+      acc'
+    , RET acc';
       υ acc'
     }}}.
   Proof.
@@ -8293,8 +8409,9 @@ Section zoo_G.
       (itype_nat_upto sz_ --> τ)%T fn
     }}}
       array_unsafe_initi #sz fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_array τ sz_ t
     }}}.
   Proof.
@@ -8316,8 +8433,9 @@ Section zoo_G.
       (itype_nat_upto ₊sz --> τ)%T fn
     }}}
       array_initi #sz fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       itype_array τ ₊sz t
     }}}.
@@ -8335,8 +8453,9 @@ Section zoo_G.
       (itype_unit --> τ)%T fn
     }}}
       array_unsafe_init #sz fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_array τ ₊sz t
     }}}.
   Proof.
@@ -8351,8 +8470,9 @@ Section zoo_G.
       (itype_unit --> τ)%T fn
     }}}
       array_init #sz fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       itype_array τ ₊sz t
     }}}.
@@ -8371,8 +8491,9 @@ Section zoo_G.
       (itype_nat_upto sz --> τ --> υ)%T fn
     }}}
       array_mapi fn t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array υ sz t'
     }}}.
   Proof.
@@ -8394,8 +8515,9 @@ Section zoo_G.
       (τ --> υ)%T fn
     }}}
       array_map fn t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array υ sz t'
     }}}.
   Proof.
@@ -8438,8 +8560,9 @@ Section zoo_G.
       array_slice t2 i2_ (DfracOwn 1) vs
     }}}
       array_unsafe_copy_slice t1 #i1 t2 #i2 #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = length vs⌝ ∗
       array_slice t2 i2_ (DfracOwn 1) ws ∗
       [∗ list] w ∈ ws, τ w
@@ -8523,8 +8646,9 @@ Section zoo_G.
       array_slice t2 i2_ (DfracOwn 1) vs
     }}}
       array_unsafe_copy t1 t2 #i2
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = length vs⌝ ∗
       array_slice t2 i2_ (DfracOwn 1) ws ∗
       [∗ list] w ∈ ws, τ w
@@ -8565,8 +8689,9 @@ Section zoo_G.
       τ v'
     }}}
       array_unsafe_grow t #sz' v'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊sz' t'
     }}}.
   Proof.
@@ -8598,8 +8723,9 @@ Section zoo_G.
       τ v'
     }}}
       array_grow t #sz' v'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜sz ≤ sz'⌝ ∗
       itype_array τ ₊sz' t'
     }}}.
@@ -8620,8 +8746,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_unsafe_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊n t'
     }}}.
   Proof.
@@ -8641,8 +8768,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_sub t #i #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ i⌝%Z ∗
       ⌜0 ≤ n⌝%Z ∗
       ⌜i + n ≤ sz⌝%Z ∗
@@ -8664,8 +8792,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_unsafe_shrink t #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊n t'
     }}}.
   Proof.
@@ -8680,8 +8809,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_shrink t #n
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       ⌜0 ≤ n ≤ sz⌝%Z ∗
       itype_array τ ₊n t'
     }}}.
@@ -8700,8 +8830,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_clone t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ sz t'
     }}}.
   Proof.
@@ -8719,8 +8850,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_unsafe_cget t #i
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       τ v
     }}}.
   Proof.
@@ -8736,8 +8868,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_cget t #i
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       ⌜0 < sz⌝ ∗
       ⌜0 ≤ i⌝%Z ∗
       τ v
@@ -8872,8 +9005,9 @@ Section zoo_G.
       array_cslice t2 sz2 i2_ (DfracOwn 1) vs
     }}}
       array_unsafe_ccopy_slice_0 t1 #i1 t2 #i2 #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = length vs⌝ ∗
       array_cslice t2 sz2 i2_ (DfracOwn 1) ws ∗
       [∗ list] w ∈ ws, τ w
@@ -8922,8 +9056,9 @@ Section zoo_G.
       array_cslice t2 sz2 i2_ (DfracOwn 1) vs
     }}}
       array_unsafe_ccopy_slice t1 #i1 t2 #i2 #n
-    {{{ ws,
-      RET ();
+    {{{
+      ws
+    , RET ();
       ⌜length ws = length vs⌝ ∗
       array_cslice t2 sz2 i2_ (DfracOwn 1) ws ∗
       [∗ list] w ∈ ws, τ w
@@ -9037,8 +9172,9 @@ Section zoo_G.
       τ v
     }}}
       array_unsafe_cgrow_slice t #i #n #sz' v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊sz' t'
     }}}.
   Proof.
@@ -9061,8 +9197,9 @@ Section zoo_G.
       τ v
     }}}
       array_unsafe_cgrow t #i #sz' v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊sz' t'
     }}}.
   Proof.
@@ -9083,8 +9220,9 @@ Section zoo_G.
       itype_array τ sz t
     }}}
       array_unsafe_cshrink_slice t #i #sz'
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       itype_array τ ₊sz' t'
     }}}.
   Proof.

@@ -273,8 +273,9 @@ Module base.
         True
       }}}
         mpsc_queue_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mpsc_queue_1_inv t γ ι ∗
         mpsc_queue_1_model γ [] ∗
@@ -311,8 +312,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front i,
-        RET #front;
+      {{{
+        front i
+      , RET #front;
         node_model γ front i
       }}}.
     Proof.
@@ -333,8 +335,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{back}
-      {{{ back i,
-        RET #back;
+      {{{
+        back i
+      , RET #back;
         node_model γ back i
       }}}.
     Proof.
@@ -404,8 +407,9 @@ Module base.
         end
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
         ( if decide (op = Other' :> operation') then True else
             consumer_1 t node
         ) ∗
@@ -508,8 +512,9 @@ Module base.
         history_at γ i node
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
@@ -528,8 +533,9 @@ Module base.
         is_empty_au γ Ψ
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
         consumer_1 t node ∗
         ( ⌜res = §Null%V⌝ ∗
           Ψ true
@@ -553,8 +559,9 @@ Module base.
         pop_au γ Ψ
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
         consumer_1 t node ∗
         ( ⌜res = §Null%V⌝ ∗
           Ψ None
@@ -884,8 +891,9 @@ Section mpsc_queue_1_G.
       True
     }}}
       mpsc_queue_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpsc_queue_1_inv t ι ∗
       mpsc_queue_1_model t [] ∗
       mpsc_queue_1_consumer t

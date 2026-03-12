@@ -141,8 +141,9 @@ Section zoo_G.
       True
     }}}
       mpmc_stack_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_stack_1_inv t ι ∗
       mpmc_stack_1_model t []
     }}}.

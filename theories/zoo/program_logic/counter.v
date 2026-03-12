@@ -28,8 +28,9 @@ Section zoo_G.
         zoo_counter_at id v
     }}}
       zoo_counter_incr ()
-    {{{ id,
-      RET #id;
+    {{{
+      id
+    , RET #id;
       zoo_counter_at id v ∗
       ⌜Forall (.≠ id) ids⌝
     }}}.

@@ -914,8 +914,9 @@ Section mpmc_queue_2_G.
       True
     }}}
       mpmc_queue_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_queue_2_inv t ι ∗
       mpmc_queue_2_model t []
     }}}.
@@ -971,8 +972,9 @@ Section mpmc_queue_2_G.
       end
     }}}
       (#l).{front}
-    {{{ i_front' vs_front',
-      RET suffix_to_val i_front' vs_front';
+    {{{
+      i_front' vs_front'
+    , RET suffix_to_val i_front' vs_front';
       front_lb γ i_front' ∗
       match i_front with
       | None =>
@@ -1033,8 +1035,9 @@ Section mpmc_queue_2_G.
       inv' l γ
     }}}
       (#l).{front}
-    {{{ i_front' vs_front',
-      RET suffix_to_val i_front' vs_front';
+    {{{
+      i_front' vs_front'
+    , RET suffix_to_val i_front' vs_front';
       front_lb γ i_front'
     }}}.
   Proof.
@@ -1050,8 +1053,9 @@ Section mpmc_queue_2_G.
       state_lb γ backs i (Unstable back move)
     }}}
       (#back).{move}
-    {{{ 𝑚𝑜𝑣𝑒,
-      RET 𝑚𝑜𝑣𝑒;
+    {{{
+      𝑚𝑜𝑣𝑒
+    , RET 𝑚𝑜𝑣𝑒;
         ⌜𝑚𝑜𝑣𝑒 = §Used%V⌝
       ∨ ∃ backs i back_prev move,
         ⌜𝑚𝑜𝑣𝑒 = prefix_to_val i back_prev move⌝ ∗

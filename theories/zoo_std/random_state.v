@@ -19,8 +19,9 @@ Axiom random_state_create_spec : ∀ `{zoo_G : !ZooG Σ},
     True
   }}}
     random_state_create ()
-  {{{ t,
-    RET t;
+  {{{
+    t
+  , RET t;
     random_state_model t
   }}}.
 
@@ -29,8 +30,9 @@ Axiom random_state_bits_spec : ∀ `{zoo_G : !ZooG Σ} t,
     random_state_model t
   }}}
     random_state_bits t
-  {{{ (n : Z),
-    RET #n;
+  {{{
+    (n : Z)
+  , RET #n;
     random_state_model t
   }}}.
 
@@ -40,8 +42,9 @@ Axiom random_state_int_spec : ∀ `{zoo_G : !ZooG Σ} t ub,
     random_state_model t
   }}}
     random_state_int t #ub
-  {{{ n,
-    RET #n;
+  {{{
+    n
+  , RET #n;
     ⌜0 ≤ n < ub⌝%Z ∗
     random_state_model t
   }}}.
@@ -55,8 +58,9 @@ Section zoo_G.
       random_state_model t
     }}}
       random_state_int t #ub
-    {{{ n,
-      RET #n;
+    {{{
+      n
+    , RET #n;
       ⌜n < ub⌝ ∗
       random_state_model t
     }}}.
@@ -72,8 +76,9 @@ Section zoo_G.
       random_state_model t
     }}}
       random_state_int_in_range t #lb #ub
-    {{{ n,
-      RET #n;
+    {{{
+      n
+    , RET #n;
       ⌜lb ≤ n < ub⌝%Z ∗
       random_state_model t
     }}}.
@@ -89,8 +94,9 @@ Section zoo_G.
       random_state_model t
     }}}
       random_state_int_in_range t #lb #ub
-    {{{ n,
-      RET #n;
+    {{{
+      n
+    , RET #n;
       ⌜lb ≤ n < ub⌝ ∗
       random_state_model t
     }}}.

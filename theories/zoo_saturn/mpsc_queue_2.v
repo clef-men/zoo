@@ -227,8 +227,9 @@ Section mpsc_queue_2_G.
       True
     }}}
       mpsc_queue_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpsc_queue_2_inv t ι ∗
       mpsc_queue_2_model t [] ∗
       mpsc_queue_2_consumer t

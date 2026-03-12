@@ -392,8 +392,9 @@ Section domain_G.
       domain_key key Ψ
     }}}
       domain_key_init key
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       Ψ v
     }}}.
   Proof.
@@ -526,8 +527,9 @@ Section domain_G.
       WP fn () ∶ tid {{ Ψ }}
     }}}
       domain_spawn fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       domain_model t Ψ
     }}}.
   Proof.
@@ -555,8 +557,9 @@ Section domain_G.
       domain_model t Ψ
     }}}
       domain_join t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       Ψ v
     }}}.
   Proof.
@@ -573,8 +576,9 @@ Section domain_G.
       [∗ list] key ∈ keys, domain_key' key
     }}}
       domain_local_new fn
-    {{{ key,
-      RET key;
+    {{{
+      key
+    , RET key;
       domain_key key Ψ ∗
       ⌜Forall (.≠ key) keys⌝
     }}}.
@@ -613,8 +617,9 @@ Section domain_G.
       domain_local_init tid key
     }}}
       domain_local_get key ∶ tid
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v
@@ -702,8 +707,9 @@ Section domain_G.
       domain_local_pointstopred tid key Ψ
     }}}
       domain_local_get key ∶ tid
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v

@@ -70,8 +70,9 @@ Section waiters_G.
       True
     }}}
       waiters_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       waiters_inv t
     }}}.
   Proof.
@@ -87,8 +88,9 @@ Section waiters_G.
       waiters_inv t
     }}}
       waiters_notify' t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -153,8 +155,9 @@ Section waiters_G.
       waiters_inv t
     }}}
       waiters_prepare_wait t
-    {{{ waiter,
-      RET waiter;
+    {{{
+      waiter
+    , RET waiter;
       waiters_waiter t waiter
     }}}.
   Proof.

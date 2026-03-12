@@ -297,8 +297,9 @@ Section prophet_multi_G.
       True
     }}}
       Proph @ E
-    {{{ pid γ prophss,
-      RET #pid;
+    {{{
+      pid γ prophss
+    , RET #pid;
       prophet_multi_strong_model pid γ (λ _, []) prophss
     }}}.
   Proof.
@@ -564,8 +565,9 @@ Section prophet_multi_G.
       True
     }}}
       Proph @ E
-    {{{ pid γ prophss,
-      RET #pid;
+    {{{
+      pid γ prophss
+    , RET #pid;
       prophet_multi_model pid γ (λ _, []) prophss
     }}}.
   Proof.

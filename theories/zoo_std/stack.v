@@ -31,8 +31,9 @@ Section zoo_G.
       True
     }}}
       stack_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       stack_model t []
     }}}.
   Proof.

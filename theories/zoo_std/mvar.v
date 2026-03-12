@@ -214,8 +214,9 @@ Module base.
         True
       }}}
         mvar_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mvar_inv t γ Ψ ∗
         mvar_consumer γ
@@ -243,8 +244,9 @@ Module base.
         ▷ Ψ v
       }}}
         mvar_make v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mvar_inv t γ Ψ ∗
         mvar_resolved γ ∗
@@ -275,8 +277,9 @@ Module base.
         mvar_inv t γ Ψ
       }}}
         mvar_try_get #t
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o then
           mvar_resolved γ
         else
@@ -305,8 +308,9 @@ Module base.
         mvar_resolved γ
       }}}
         mvar_try_get #t
-      {{{ v,
-        RET Some v;
+      {{{
+        v
+      , RET Some v;
         True
       }}}.
     Proof.
@@ -330,8 +334,9 @@ Module base.
         mvar_consumer γ
       }}}
         mvar_try_get #t
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o is Some v then
           mvar_resolved γ ∗
           Ψ v
@@ -364,8 +369,9 @@ Module base.
         mvar_consumer γ
       }}}
         mvar_try_get #t
-      {{{ v,
-        RET Some v;
+      {{{
+        v
+      , RET Some v;
         Ψ v
       }}}.
     Proof.
@@ -392,8 +398,9 @@ Module base.
         mvar_inv t γ Ψ
       }}}
         mvar_is_unset #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           True
         else
@@ -429,8 +436,9 @@ Module base.
         mvar_inv t γ Ψ
       }}}
         mvar_is_set #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           mvar_resolved γ
         else
@@ -467,8 +475,9 @@ Module base.
         mvar_resolved γ
       }}}
         mvar_get #t
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         True
       }}}.
     Proof.
@@ -616,8 +625,9 @@ Section mvar_G.
       True
     }}}
       mvar_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mvar_inv t Ψ ∗
       mvar_consumer t
     }}}.
@@ -635,8 +645,9 @@ Section mvar_G.
       ▷ Ψ v
     }}}
       mvar_make v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mvar_inv t Ψ ∗
       mvar_resolved t ∗
       mvar_consumer t
@@ -655,8 +666,9 @@ Section mvar_G.
       mvar_inv t Ψ
     }}}
       mvar_try_get t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         mvar_resolved t
       else
@@ -675,8 +687,9 @@ Section mvar_G.
       mvar_resolved t
     }}}
       mvar_try_get t
-    {{{ v,
-      RET Some v;
+    {{{
+      v
+    , RET Some v;
       True
     }}}.
   Proof.
@@ -691,8 +704,9 @@ Section mvar_G.
       mvar_consumer t
     }}}
       mvar_try_get t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         mvar_resolved t ∗
         Ψ v
@@ -714,8 +728,9 @@ Section mvar_G.
       mvar_consumer t
     }}}
       mvar_try_get t
-    {{{ v,
-      RET Some v;
+    {{{
+      v
+    , RET Some v;
       Ψ v
     }}}.
   Proof.
@@ -731,8 +746,9 @@ Section mvar_G.
       mvar_inv t Ψ
     }}}
       mvar_is_unset t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -766,8 +782,9 @@ Section mvar_G.
       mvar_inv t Ψ
     }}}
       mvar_is_set t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         mvar_resolved t
       else
@@ -802,8 +819,9 @@ Section mvar_G.
       mvar_resolved t
     }}}
       mvar_get t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       True
     }}}.
   Proof.

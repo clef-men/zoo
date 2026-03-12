@@ -78,8 +78,9 @@ Section zoo_G.
       True
     }}}
       bqueue_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       bqueue_model t ₊cap []
     }}}.
   Proof.
@@ -174,8 +175,9 @@ Section zoo_G.
       bqueue_model t cap vs
     }}}
       bqueue_push t v
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       ⌜if b then True else length vs = cap⌝ ∗
       bqueue_model t cap (if b then vs ++ [v] else vs)
     }}}.
@@ -232,8 +234,9 @@ Section zoo_G.
       bqueue_model t cap vs
     }}}
       bqueue_pop_back t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

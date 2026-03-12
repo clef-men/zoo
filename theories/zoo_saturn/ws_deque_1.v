@@ -1077,8 +1077,9 @@ Module base.
         True
       }}}
         ws_deque_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ws_deque_1_inv t γ ι ∗
         ws_deque_1_model γ [] ∗
@@ -1135,8 +1136,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         front_lb γ front
       }}}.
     Proof.
@@ -1154,8 +1156,9 @@ Module base.
         owner₁ γ Stable back data cap ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Stable back data cap ws ∗
         front_lb γ front ∗
         ⌜front ≤ back⌝
@@ -1177,8 +1180,9 @@ Module base.
         owner₁ γ Unstable back data cap ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Unstable back data cap ws ∗
         front_lb γ front ∗
         ⌜front = back ∨ front = S back⌝
@@ -1294,8 +1298,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{data}
-      {{{ data,
-        RET data;
+      {{{
+        data
+      , RET data;
         datas_elem γ data
       }}}.
     Proof.
@@ -1332,8 +1337,9 @@ Module base.
         winner_pop γ front (Some data) P
       }}}
         (#t).{data}
-      {{{ data,
-        RET data;
+      {{{
+        data
+      , RET data;
         winner_pop γ front (Some data) P
       }}}.
     Proof.
@@ -1450,8 +1456,9 @@ Module base.
         datas_elem γ data
       }}}
         array_unsafe_cget data #i
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         True
       }}}.
     Proof.
@@ -2155,8 +2162,9 @@ Module base.
         end
       }}}
         ws_deque_1_pop_0 #t #id #back_
-      {{{ o back data cap i us,
-        RET o;
+      {{{
+        o back data cap i us
+      , RET o;
         owner' γ Stable back data cap ws i us ∗
         match state with
         | PopNonempty v =>
@@ -2539,8 +2547,9 @@ Section ws_deque_1_G.
       True
     }}}
       ws_deque_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_deque_1_inv t ι ∗
       ws_deque_1_model t [] ∗
       ws_deque_1_owner t []

@@ -152,8 +152,9 @@ Section ws_deques_public_G.
       True
     }}}
       ws_deques_public_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_deques_public_inv t ι ₊sz ∗
       ws_deques_public_model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,

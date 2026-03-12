@@ -203,8 +203,9 @@ Section parray_1_G.
       τ v
     }}}
       parray_1_make equal #sz v
-    {{{ t γ,
-      RET t;
+    {{{
+      t γ
+    , RET t;
       parray_1_inv γ ∗
       parray_1_model t γ (replicate ₊sz v)
     }}}.
@@ -306,8 +307,9 @@ Section parray_1_G.
       nodes_elem γ node vs
     }}}
       parray_1_reroot #node
-    {{{ nodes,
-      RET (γ.(metadata_equal),γ.(metadata_data));
+    {{{
+      nodes
+    , RET (γ.(metadata_equal),γ.(metadata_data));
       inv' γ nodes node
     }}}.
   Proof.
@@ -363,8 +365,9 @@ Section parray_1_G.
       τ v
     }}}
       parray_1_set t #i v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       parray_1_inv γ ∗
       parray_1_model t' γ (<[₊i := v]> vs)
     }}}.

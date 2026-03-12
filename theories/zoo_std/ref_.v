@@ -34,8 +34,9 @@ Section zoo_G.
       τ v
     }}}
       ref v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_ref t
     }}}.
   Proof.
@@ -47,8 +48,9 @@ Section zoo_G.
       itype_ref t
     }}}
       !t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       τ v
     }}}.
   Proof.

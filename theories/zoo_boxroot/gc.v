@@ -97,8 +97,9 @@ Lemma wp_load_gc_root `{zoo_G : !ZooG Σ} gc root ω root_base root_ofs :
     root ↦root[gc] ω
   }}}
     Load #root_base #root_ofs
-  {{{ l,
-    RET #l;
+  {{{
+    l
+  , RET #l;
     ⌜ω ↦gc[gc] l⌝ ∗
     root ↦root[gc] ω
   }}}.
@@ -191,8 +192,9 @@ Axiom gc_alloc_spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
     Χ gc
   }}}
     gc_alloc #n
-  {{{ l gc ω,
-    RET #l;
+  {{{
+    l gc ω
+  , RET #l;
     ⌜ω ↦gc[gc] l⌝ ∗
     gc_model gc ∗
     gc_roots Χ ∗

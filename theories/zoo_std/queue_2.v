@@ -51,8 +51,9 @@ Section zoo_G.
       True
     }}}
       queue_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       queue_2_model t []
     }}}.
   Proof.

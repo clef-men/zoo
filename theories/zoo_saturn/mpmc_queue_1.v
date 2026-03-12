@@ -340,8 +340,9 @@ Module base.
         True
       }}}
         mpmc_queue_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mpmc_queue_1_inv t γ ι ∗
         mpmc_queue_1_model γ []
@@ -383,8 +384,9 @@ Module base.
           True
       }}}
         (#t).{front}
-      {{{ front i,
-        RET #front;
+      {{{
+        front i
+      , RET #front;
         node_model γ front i true ∗
         if Ψ is Some Ψ then
           ∃ waiter,
@@ -415,8 +417,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front i,
-        RET #front;
+      {{{
+        front i
+      , RET #front;
         node_model γ front i true
       }}}.
     Proof.
@@ -430,8 +433,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{back}
-      {{{ back i,
-        RET #back;
+      {{{
+        back i
+      , RET #back;
         node_model γ back i false
       }}}.
     Proof.
@@ -494,8 +498,9 @@ Module base.
         end
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           match op with
           | IsEmpty waiter Ψ =>
@@ -603,8 +608,9 @@ Module base.
         history_at γ i node
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
@@ -624,8 +630,9 @@ Module base.
         £ 1
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           Ψ true
         ∨ ∃ node',
@@ -646,8 +653,9 @@ Module base.
         pop_au γ Ψ
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           Ψ None
         ∨ ∃ node',
@@ -694,8 +702,9 @@ Module base.
         mpmc_queue_1_inv t γ ι
       }}}
         mpmc_queue_1_is_empty #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         True
       }}}.
     Proof.
@@ -969,8 +978,9 @@ Section mpmc_queue_1_G.
       True
     }}}
       mpmc_queue_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_queue_1_inv t ι ∗
       mpmc_queue_1_model t []
     }}}.
@@ -1009,8 +1019,9 @@ Section mpmc_queue_1_G.
       mpmc_queue_1_inv t ι
     }}}
       mpmc_queue_1_is_empty t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -1101,8 +1112,9 @@ Section mpmc_queue_1_G.
       True
     }}}
       mpmc_queue_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_mpmc_queue_1 t
     }}}.
   Proof.
@@ -1118,8 +1130,9 @@ Section mpmc_queue_1_G.
       itype_mpmc_queue_1 t
     }}}
       mpmc_queue_1_is_empty t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -1164,8 +1177,9 @@ Section mpmc_queue_1_G.
       itype_mpmc_queue_1 t
     }}}
       mpmc_queue_1_pop t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       itype_option τ o
     }}}.
   Proof.

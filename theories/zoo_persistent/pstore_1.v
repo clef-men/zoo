@@ -665,8 +665,9 @@ Section pstore_1_G.
       True
     }}}
       pstore_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
         pstore_1 t ∅
     }}}.
   Proof.
@@ -708,8 +709,9 @@ Section pstore_1_G.
       pstore_1 t σ
     }}}
       pstore_1_ref t v
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       ⌜l ∉ dom σ⌝ ∗
       pstore_1 t (<[l := v]> σ)
     }}}.
@@ -877,8 +879,9 @@ Section pstore_1_G.
       pstore_1 t σ
     }}}
       pstore_1_capture t
-    {{{ s,
-      RET s;
+    {{{
+      s
+    , RET s;
       pstore_1 t σ ∗
       pstore_1_snapshot t s σ
     }}}.
@@ -908,8 +911,9 @@ Section pstore_1_G.
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_1_collect #r t'
-    {{{ t,
-      RET (#r',t);
+    {{{
+      t
+    , RET (#r',t);
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev_append (fsts ys) xs)
@@ -935,8 +939,9 @@ Section pstore_1_G.
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) ))
     }}}
       pstore_1_collect #r []
-    {{{ t,
-      RET (#r',t);
+    {{{
+      t
+    , RET (#r',t);
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
       lst_model t (rev (fsts ys))

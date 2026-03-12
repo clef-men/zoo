@@ -125,8 +125,9 @@ Section zoo_G.
       True
     }}}
       Id @ E
-    {{{ id,
-      RET #id;
+    {{{
+      id
+    , RET #id;
       identifier_model' id
     }}}.
   Proof.

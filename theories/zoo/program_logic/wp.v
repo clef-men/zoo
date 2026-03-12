@@ -590,8 +590,9 @@ Section zoo_G.
       True
     }}}
       Alloc #tag #n ∷ tid @ E
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       l ↦ₕ Header ₊tag ₊n ∗
       meta_token l ⊤ ∗
       l ↦∗ replicate ₊n ()%V
@@ -615,8 +616,9 @@ Section zoo_G.
       True
     }}}
       Block Mutable tag es ∷ tid @ E
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       l ↦ₕ Header tag (length es) ∗
       meta_token l ⊤ ∗
       l ↦∗ vs
@@ -638,8 +640,9 @@ Section zoo_G.
       True
     }}}
       Block ImmutableGenerativeStrong tag es ∷ tid @ E
-    {{{ bid,
-      RET ValBlock (Generative (Some bid)) tag vs;
+    {{{
+      bid
+    , RET ValBlock (Generative (Some bid)) tag vs;
       True
     }}}.
   Proof.
@@ -934,8 +937,9 @@ Section zoo_G.
       True
     }}}
       Proph ∷ tid @ E
-    {{{ prophs pid,
-      RET #pid;
+    {{{
+      prophs pid
+    , RET #pid;
       prophet_model' pid prophs
     }}}.
   Proof.

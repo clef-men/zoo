@@ -221,8 +221,9 @@ Section parray_2_G.
       τ v
     }}}
       parray_2_make equal #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       parray_2_model t (replicate ₊sz v)
     }}}.
   Proof.
@@ -334,8 +335,9 @@ Section parray_2_G.
       parray_2_model t vs
     }}}
       parray_2_capture t
-    {{{ s,
-      RET s;
+    {{{
+      s
+    , RET s;
       parray_2_model t vs ∗
       parray_2_snapshot s t vs
     }}}.

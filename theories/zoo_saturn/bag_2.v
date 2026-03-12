@@ -477,8 +477,9 @@ Section bag_2_G.
       True
     }}}
       bag_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       bag_2_inv t ι ∗
       bag_2_model t ∅
     }}}.
@@ -656,8 +657,9 @@ Section bag_2_G.
       bag_2_inv t ι
     }}}
       bag_2_create_consumer t
-    {{{ consumer,
-      RET consumer;
+    {{{
+      consumer
+    , RET consumer;
       bag_2_consumer t consumer
     }}}.
   Proof.

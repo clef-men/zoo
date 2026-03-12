@@ -257,8 +257,9 @@ Module base.
         True
       }}}
         inf_ws_deque_2_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         inf_ws_deque_2_inv t γ ι ∗
         inf_ws_deque_2_model γ [] ∗
@@ -558,8 +559,9 @@ Section inf_ws_deque_2_G.
       True
     }}}
       inf_ws_deque_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       inf_ws_deque_2_inv t ι ∗
       inf_ws_deque_2_model t [] ∗
       inf_ws_deque_2_owner t []

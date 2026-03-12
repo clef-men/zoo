@@ -162,8 +162,9 @@ Section spsc_waiter_G.
       True
     }}}
       spsc_waiter_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       spsc_waiter_inv t P ∗
       spsc_waiter_producer t ∗
       spsc_waiter_consumer t
@@ -240,8 +241,9 @@ Section spsc_waiter_G.
       spsc_waiter_consumer t
     }}}
       spsc_waiter_try_wait t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         P
       else

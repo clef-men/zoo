@@ -270,8 +270,9 @@ Section inf_array_G.
       True
     }}}
       inf_array_create default
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       inf_array_inv t ∗
       inf_array_model t (λ _, default)
     }}}.
@@ -303,8 +304,9 @@ Section inf_array_G.
       True
     }}}
       inf_array_next_capacity #n
-    {{{ m,
-      RET #m;
+    {{{
+      m
+    , RET #m;
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
@@ -317,8 +319,9 @@ Section inf_array_G.
       inv_2 l γ us
     }}}
       inf_array_reserve #l #n
-    {{{ us,
-      RET ();
+    {{{
+      us
+    , RET ();
       inv_2 l γ us ∗
       ⌜₊n ≤ length us⌝
     }}}.

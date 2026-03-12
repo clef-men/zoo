@@ -141,8 +141,9 @@ Section mpsc_waiter_G.
       True
     }}}
       mpsc_waiter_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpsc_waiter_inv t P ∗
       mpsc_waiter_consumer t
     }}}.
@@ -177,8 +178,9 @@ Section mpsc_waiter_G.
       P
     }}}
       mpsc_waiter_notify t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       mpsc_waiter_notified t
     }}}.
   Proof.
@@ -227,8 +229,9 @@ Section mpsc_waiter_G.
       mpsc_waiter_consumer t
     }}}
       mpsc_waiter_try_wait t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         P
       else

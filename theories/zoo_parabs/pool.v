@@ -753,8 +753,9 @@ Module base.
         task_model γ task Ψ
       }}}
         pool_execute (pool_name_context γ i) task
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         context_1 γ i scope ∗
         Ψ v
       }}}.
@@ -770,8 +771,9 @@ Module base.
         context_2 γ i ∅
       }}}
         pool_worker (pool_name_context γ i)
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
         worker_post γ i res
       }}}.
     Proof.
@@ -809,8 +811,9 @@ Module base.
         context_2 γ i ∅
       }}}
         pool_drain (pool_name_context γ i)
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
         worker_post γ i res
       }}}.
     Proof.
@@ -849,8 +852,9 @@ Module base.
         True
       }}}
         pool_create #sz
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         pool_inv γ ₊sz ∗
         pool_model t γ ∗
         meta_token t ⊤
@@ -929,8 +933,9 @@ Module base.
         )
       }}}
         pool_run #t task
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         pool_model t γ ∗
         Ψ v
       }}}.
@@ -1364,8 +1369,9 @@ Section pool_G.
       True
     }}}
       pool_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       pool_inv t ₊sz ∗
       pool_model t
     }}}.
@@ -1390,8 +1396,9 @@ Section pool_G.
       )
     }}}
       pool_run t task
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       pool_model t ∗
       Ψ v
     }}}.

@@ -263,8 +263,9 @@ Section puf_G.
       True
     }}}
       puf_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       puf_model t ∅
     }}}.
   Proof.
@@ -279,8 +280,9 @@ Section puf_G.
       puf_model t reprs
     }}}
       puf_make t
-    {{{ elt,
-      RET #elt;
+    {{{
+      elt
+    , RET #elt;
       puf_model t (<[elt := elt]> reprs)
     }}}.
   Proof.
@@ -351,8 +353,9 @@ Section puf_G.
       puf_model t reprs
     }}}
       puf_rank t #elt
-    {{{ rank,
-      RET #rank;
+    {{{
+      rank
+    , RET #rank;
       puf_model t reprs
     }}}.
   Proof.
@@ -424,8 +427,9 @@ Section puf_G.
       puf_model t reprs
     }}}
       puf_union t #elt1 #elt2
-    {{{ reprs',
-      RET ();
+    {{{
+      reprs'
+    , RET ();
       puf_model t reprs' ∗
       ⌜puf_union_condition reprs repr1 repr2 reprs'⌝
     }}}.
@@ -482,8 +486,9 @@ Section puf_G.
       puf_model t reprs
     }}}
       puf_capture t
-    {{{ s,
-      RET s;
+    {{{
+      s
+    , RET s;
       puf_model t reprs ∗
       puf_snapshot s t reprs
     }}}.

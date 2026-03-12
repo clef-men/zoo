@@ -69,8 +69,9 @@ Section zoo_G.
       pqueue_model t vs
     }}}
       pqueue_push t v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       pqueue_model t' (vs ++ [v])
     }}}.
   Proof.
@@ -85,8 +86,9 @@ Section zoo_G.
       pqueue_model t vs
     }}}
       pqueue_pop t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           ⌜vs = []⌝

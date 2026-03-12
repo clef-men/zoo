@@ -406,8 +406,9 @@ Module base.
         True
       }}}
         ivar_2_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_2_inv t γ Ψ Ξ ∗
         ivar_2_producer γ ∗
@@ -443,8 +444,9 @@ Module base.
         ▷ □ Ξ v
       }}}
         ivar_2_make v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_2_inv t γ Ψ Ξ ∗
         ivar_2_result γ v ∗
@@ -483,8 +485,9 @@ Module base.
         ivar_2_inv t γ Ψ Ξ
       }}}
         ivar_2_try_get #t
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o is Some v then
           £ 2 ∗
           ivar_2_result γ v ∗
@@ -542,8 +545,9 @@ Module base.
         ivar_2_inv t γ Ψ Ξ
       }}}
         ivar_2_is_unset #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           True
         else
@@ -583,8 +587,9 @@ Module base.
         ivar_2_inv t γ Ψ Ξ
       }}}
         ivar_2_is_set #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           £ 2 ∗
           ivar_2_resolved γ
@@ -621,8 +626,9 @@ Module base.
         ivar_2_inv t γ Ψ Ξ
       }}}
         ivar_2_get #t
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         £ 2 ∗
         ivar_2_result γ v ∗
         ivar_2_synchronized γ
@@ -1011,8 +1017,9 @@ Section ivar_2_G.
       True
     }}}
       ivar_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_2_inv t Ψ Ξ ∗
       ivar_2_producer t ∗
       ivar_2_consumer t Ψ
@@ -1032,8 +1039,9 @@ Section ivar_2_G.
       ▷ □ Ξ v
     }}}
       ivar_2_make v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_2_inv t Ψ Ξ ∗
       ivar_2_result t v ∗
       ivar_2_consumer t Ψ
@@ -1052,8 +1060,9 @@ Section ivar_2_G.
       ivar_2_inv t Ψ Ξ
     }}}
       ivar_2_try_get t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         £ 2 ∗
         ivar_2_result t v ∗
@@ -1092,8 +1101,9 @@ Section ivar_2_G.
       ivar_2_inv t Ψ Ξ
     }}}
       ivar_2_is_unset t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -1128,8 +1138,9 @@ Section ivar_2_G.
       ivar_2_inv t Ψ Ξ
     }}}
       ivar_2_is_set t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         £ 2 ∗
         ivar_2_resolved t
@@ -1164,8 +1175,9 @@ Section ivar_2_G.
       ivar_2_inv t Ψ Ξ
     }}}
       ivar_2_get t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       £ 2 ∗
       ivar_2_result t v ∗
       ivar_2_synchronized t

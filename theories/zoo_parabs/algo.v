@@ -55,8 +55,9 @@ Section algo_G.
       itype_option itype_int chunk
     }}}
       algo_adjust_chunk ctx #beg #end_ chunk
-    {{{ (chunk : Z),
-      RET #chunk;
+    {{{
+      (chunk : Z)
+    , RET #chunk;
       pool_context pool ctx scope
     }}}.
   Proof.
@@ -538,8 +539,9 @@ Section algo_G.
       Χ beg1 n acc
     }}}
       algo_fold_seq ctx #beg #end_ body op acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ beg1 ₊(n + end_ - beg) acc
     }}}.
@@ -609,8 +611,9 @@ Section algo_G.
       )
     }}}
       algo_fold_0 ctx #beg #end_ #chunk body op zero
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ beg ₊(end_ - beg) acc
     }}}.
@@ -694,8 +697,9 @@ Section algo_G.
       )
     }}}
       algo_fold ctx #beg #end_ chunk body op zero
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ beg ₊(end_ - beg) acc
     }}}.
@@ -748,8 +752,9 @@ Section algo_G.
       )
     }}}
       algo_fold ctx #beg #end_ chunk body op zero
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ ₊beg ₊(end_ - beg) acc
     }}}.
@@ -818,8 +823,9 @@ Section algo_G.
       )
     }}}
       algo_fold ctx #beg #end_ chunk body op zero
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ beg ₊(end_ - beg) acc
     }}}.
@@ -873,8 +879,9 @@ Section algo_G.
       )
     }}}
       algo_fold ctx #beg #end_ chunk body op zero
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       pool_context pool ctx scope ∗
       Χ ₊beg ₊(end_ - beg) acc
     }}}.
@@ -1071,8 +1078,9 @@ Section algo_G.
         }}
     }}}
       algo_find ctx #beg #end_ chunk pred
-    {{{ (o : option Z),
-      RET (#@{Z}) <$> o : option val;
+    {{{
+      (o : option Z)
+    , RET (#@{Z}) <$> o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1125,8 +1133,9 @@ Section algo_G.
         }}
     }}}
       algo_find ctx #beg #end_ chunk pred
-    {{{ (o : option nat),
-      RET (#@{nat}) <$> o : option val;
+    {{{
+      (o : option nat)
+    , RET (#@{nat}) <$> o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1178,8 +1187,9 @@ Section algo_G.
       )
     }}}
       algo_find ctx #beg #end_ chunk pred
-    {{{ (o : option Z),
-      RET (#@{Z}) <$> o : option val;
+    {{{
+      (o : option Z)
+    , RET (#@{Z}) <$> o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1218,8 +1228,9 @@ Section algo_G.
       )
     }}}
       algo_find ctx #beg #end_ chunk pred
-    {{{ (o : option nat),
-      RET (#@{nat}) <$> o : option val;
+    {{{
+      (o : option nat)
+    , RET (#@{nat}) <$> o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗

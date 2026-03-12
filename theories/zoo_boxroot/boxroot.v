@@ -159,8 +159,9 @@ Section boxroot_G.
       gc_roots Χ
     }}}
       boxroot_init ()
-    {{{ global,
-      RET global;
+    {{{
+      global
+    , RET global;
       gc_model gc ∗
       gc_roots (boxroot_global global) ∗
       boxroot_global global gc
@@ -206,8 +207,9 @@ Section boxroot_G.
       boxroot_global global gc
     }}}
       boxroot_create global #l
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       boxroot_global global gc ∗
       boxroot_model t global ω
     }}}.
@@ -263,8 +265,9 @@ Section boxroot_G.
       boxroot_model t global ω
     }}}
       boxroot_get t
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       ⌜ω ↦gc[gc] l⌝ ∗
       boxroot_global global gc ∗
       boxroot_model t global ω

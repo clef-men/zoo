@@ -118,8 +118,9 @@ Section zoo_G.
       True
     }}}
       lst_singleton v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       lst_model t [v]
     }}}.
   Proof.
@@ -148,8 +149,9 @@ Section zoo_G.
       True
     }}}
       lst_tail t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       lst_model t' vs'
     }}}.
   Proof.
@@ -212,8 +214,9 @@ Section zoo_G.
       )
     }}}
       lst_initi_0 #sz fn #i
-    {{{ t vs_right,
-      RET t;
+    {{{
+      t vs_right
+    , RET t;
       ⌜(length vs_left + length vs_right)%nat = ₊sz⌝ ∗
       lst_model t vs_right ∗
       Ψ ₊sz (vs_left ++ vs_right)
@@ -249,8 +252,9 @@ Section zoo_G.
       )
     }}}
       lst_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       Ψ ₊sz vs
@@ -273,8 +277,9 @@ Section zoo_G.
       )
     }}}
       lst_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       Ψ ₊sz vs
@@ -304,8 +309,9 @@ Section zoo_G.
       )
     }}}
       lst_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -329,8 +335,9 @@ Section zoo_G.
         }}
     }}}
       lst_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -361,8 +368,9 @@ Section zoo_G.
       )
     }}}
       lst_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       Ψ ₊sz vs
@@ -386,8 +394,9 @@ Section zoo_G.
       )
     }}}
       lst_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       Ψ ₊sz vs
@@ -410,8 +419,9 @@ Section zoo_G.
       )
     }}}
       lst_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -432,8 +442,9 @@ Section zoo_G.
         }}
     }}}
       lst_init #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜length vs = ₊sz⌝ ∗
       lst_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -464,8 +475,9 @@ Section zoo_G.
       )
     }}}
       lst_foldli_0 fn #i acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ (length vs) vs acc
     }}}.
   Proof.
@@ -498,8 +510,9 @@ Section zoo_G.
       )
     }}}
       lst_foldli fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ (length vs) vs acc
     }}}.
   Proof.
@@ -521,8 +534,9 @@ Section zoo_G.
       )
     }}}
       lst_foldli fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ (length vs) vs acc
     }}}.
   Proof.
@@ -553,8 +567,9 @@ Section zoo_G.
       )
     }}}
       lst_foldl fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ (length vs) vs acc
     }}}.
   Proof.
@@ -576,8 +591,9 @@ Section zoo_G.
       )
     }}}
       lst_foldl fn acc t
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ (length vs) vs acc
     }}}.
   Proof.
@@ -604,8 +620,9 @@ Section zoo_G.
       )
     }}}
       lst_foldri_0 fn #i t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ i acc vs_right
     }}}.
   Proof.
@@ -638,8 +655,9 @@ Section zoo_G.
       )
     }}}
       lst_foldri fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs
     }}}.
   Proof.
@@ -661,8 +679,9 @@ Section zoo_G.
       )
     }}}
       lst_foldri fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs
     }}}.
   Proof.
@@ -695,8 +714,9 @@ Section zoo_G.
       )
     }}}
       lst_foldr fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs
     }}}.
   Proof.
@@ -718,8 +738,9 @@ Section zoo_G.
       )
     }}}
       lst_foldr fn t acc
-    {{{ acc,
-      RET acc;
+    {{{
+      acc
+    , RET acc;
       Ψ 0 acc vs
     }}}.
   Proof.
@@ -757,8 +778,9 @@ Section zoo_G.
       True
     }}}
       lst_rev_app t1 t2
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       lst_model t (reverse vs1 ++ vs2)
     }}}.
   Proof.
@@ -777,8 +799,9 @@ Section zoo_G.
       True
     }}}
       lst_rev t
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       lst_model t' (reverse vs)
     }}}.
   Proof.
@@ -795,8 +818,9 @@ Section zoo_G.
       True
     }}}
       lst_app t1 t2
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       lst_model t (vs1 ++ vs2)
     }}}.
   Proof.
@@ -815,8 +839,9 @@ Section zoo_G.
       True
     }}}
       lst_snoc t v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       lst_model t' (vs ++ [v])
     }}}.
   Proof.
@@ -1056,8 +1081,9 @@ Section zoo_G.
       )
     }}}
       lst_mapi_0 fn #i t
-    {{{ t' ws_right,
-      RET t';
+    {{{
+      t' ws_right
+    , RET t';
       ⌜length vs = (length ws_left + length ws_right)%nat⌝ ∗
       lst_model t' ws_right ∗
       Ψ (length vs) vs (ws_left ++ ws_right)
@@ -1096,8 +1122,9 @@ Section zoo_G.
       )
     }}}
       lst_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       Ψ (length vs) vs ws
@@ -1122,8 +1149,9 @@ Section zoo_G.
       )
     }}}
       lst_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       Ψ (length vs) vs ws
@@ -1153,8 +1181,9 @@ Section zoo_G.
       )
     }}}
       lst_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       ( [∗ list] i ↦ v; w ∈ vs; ws,
@@ -1181,8 +1210,9 @@ Section zoo_G.
       )
     }}}
       lst_mapi fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       ( [∗ list] i ↦ v; w ∈ vs; ws,
@@ -1215,8 +1245,9 @@ Section zoo_G.
       )
     }}}
       lst_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       Ψ (length vs) vs ws
@@ -1241,8 +1272,9 @@ Section zoo_G.
       )
     }}}
       lst_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       Ψ (length vs) vs ws
@@ -1266,8 +1298,9 @@ Section zoo_G.
       )
     }}}
       lst_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       ( [∗ list] i ↦ v; w ∈ vs; ws,
@@ -1290,8 +1323,9 @@ Section zoo_G.
       )
     }}}
       lst_map fn t
-    {{{ t' ws,
-      RET t';
+    {{{
+      t' ws
+    , RET t';
       ⌜length vs = length ws⌝ ∗
       lst_model t' ws ∗
       ( [∗ list] i ↦ v; w ∈ vs; ws,
@@ -1320,8 +1354,9 @@ Section zoo_G.
       )
     }}}
       lst_forall pred t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         [∗ list] i ↦ v ∈ vs, Ψ i v true
       else
@@ -1362,8 +1397,9 @@ Section zoo_G.
       )
     }}}
       lst_exists pred t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         ∃ i v,
         ⌜vs !! i = Some v⌝ ∗

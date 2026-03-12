@@ -313,8 +313,9 @@ Section partition_G.
       True
     }}}
       partition_dllist_create v v_class
-    {{{ elt,
-      RET #elt;
+    {{{
+      elt
+    , RET #elt;
       elt.[prev] ↦ #elt ∗
       elt.[next] ↦ #elt ∗
       elt.[data] ↦□ v ∗
@@ -331,8 +332,9 @@ Section partition_G.
       partition_element γ elt v
     }}}
       (#elt).{class_}
-    {{{ class descr,
-      RET #class;
+    {{{
+      class descr
+    , RET #class;
       model' γ descrs ∗
       ⌜descrs !! class = Some descr⌝ ∗
       ⌜elt ∈ descr.(descriptor_elts)⌝ ∗
@@ -361,8 +363,9 @@ Section partition_G.
       partition_model γ part
     }}}
       partition_make v
-    {{{ elt,
-      RET #elt;
+    {{{
+      elt
+    , RET #elt;
       partition_model γ (part ∪ {[{[elt]}]}) ∗
       partition_element γ elt v
     }}}.
@@ -412,8 +415,9 @@ Section partition_G.
       partition_element γ elt v
     }}}
       partition_make_same_class #elt v'
-    {{{ elt' part',
-      RET #elt';
+    {{{
+      elt' part'
+    , RET #elt';
       partition_model γ part' ∗
       partition_element γ elt' v' ∗
       ⌜ ∃ part'' cl,
@@ -463,8 +467,9 @@ Section partition_G.
       partition_element γ elt2 v2
     }}}
       partition_equiv #elt1 #elt2
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       partition_model γ part ∗
       ⌜ ∀ cl1 cl2,
         cl1 ∈ part →
@@ -499,8 +504,9 @@ Section partition_G.
       partition_element γ elt v
     }}}
       partition_repr #elt
-    {{{ elt',
-      RET #elt';
+    {{{
+      elt'
+    , RET #elt';
       partition_model γ part ∗
       ⌜ ∀ cl,
         cl ∈ part →
@@ -527,8 +533,9 @@ Section partition_G.
       partition_element γ elt v
     }}}
       partition_cardinal #elt
-    {{{ sz,
-      RET #sz;
+    {{{
+      sz
+    , RET #sz;
       partition_model γ part ∗
       ⌜ ∀ cl,
         cl ∈ part →
@@ -556,8 +563,9 @@ Section partition_G.
       partition_model γ part
     }}}
       partition_refine v_elts
-    {{{ part',
-      RET ();
+    {{{
+      part'
+    , RET ();
       partition_model γ part' ∗
       ⌜ ∀ cl',
         cl' ∈ part' ↔

@@ -646,8 +646,9 @@ Section rcfd_G.
       Ψ 1%Qp
     }}}
       rcfd_make fd
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       rcfd_inv t owned fd Ψ ∗
       if owned then
         rcfd_owner t
@@ -829,8 +830,9 @@ Section rcfd_G.
       specification_pre_2 γ spec
     }}}
       rcfd_get #l
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match spec with
       | SpecOwner =>
           ⌜o ≠ None⌝ ∗
@@ -925,8 +927,9 @@ Section rcfd_G.
       inv' l γ Ψ
     }}}
       rcfd_get #l
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           True
@@ -1000,8 +1003,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_use t closed open
-    {{{ b res,
-      RET res;
+    {{{
+      b res
+    , RET res;
       Χ b res ∗
       match spec with
       | SpecOwner =>
@@ -1051,8 +1055,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_use t closed open
-    {{{ b res,
-      RET res;
+    {{{
+      b res
+    , RET res;
       Χ b res
     }}}.
   Proof.
@@ -1074,8 +1079,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_use t closed open
-    {{{ res,
-      RET res;
+    {{{
+      res
+    , RET res;
       Χ res
     }}}.
   Proof.
@@ -1091,8 +1097,9 @@ Section rcfd_G.
       WP closed () {{ Χ }}
     }}}
       rcfd_use t closed open
-    {{{ res,
-      RET res;
+    {{{
+      res
+    , RET res;
       Χ res
     }}}.
   Proof.
@@ -1119,8 +1126,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_close t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       rcfd_closing t ∗
       ( if owned then
           ⌜b = true⌝
@@ -1215,8 +1223,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_close t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       rcfd_closing t ∗
       if owned then
         ⌜b = true⌝
@@ -1261,8 +1270,9 @@ Section rcfd_G.
       )
     }}}
       rcfd_remove t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       rcfd_closing t ∗
       ( if owned then
           ⌜o = Some fd⌝ ∗
@@ -1368,8 +1378,9 @@ Section rcfd_G.
         True
     }}}
       rcfd_remove t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       rcfd_closing t ∗
       if owned then
         ⌜o = Some fd⌝ ∗
@@ -1412,8 +1423,9 @@ Section rcfd_G.
       specification_pre_1 t spec
     }}}
       rcfd_is_open t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       match spec with
       | SpecOwner =>
           ⌜b = true⌝ ∗
@@ -1465,8 +1477,9 @@ Section rcfd_G.
       rcfd_inv t owned fd Ψ
     }}}
       rcfd_is_open t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -1517,8 +1530,9 @@ Section rcfd_G.
       specification_pre_1 t spec
     }}}
       rcfd_peek t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match spec with
       | SpecOwner =>
           ⌜o = Some fd⌝ ∗
@@ -1574,8 +1588,9 @@ Section rcfd_G.
       rcfd_inv t owned fd Ψ
     }}}
       rcfd_peek t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           rcfd_closing t

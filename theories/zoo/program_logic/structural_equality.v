@@ -232,8 +232,9 @@ Section zoo_G.
       structeq_footprint footprint
     }}}
       Load #l #i
-    {{{ fld,
-      RET fld.(structeq_field_val);
+    {{{
+      fld
+    , RET fld.(structeq_field_val);
       ⌜blk.(structeq_block_fields) !! i = Some fld⌝ ∗
       ⌜val_traversable footprint fld.(structeq_field_val)⌝ ∗
       structeq_footprint footprint
@@ -430,8 +431,9 @@ Section zoo_G.
         structeq_footprint footprint
       }}}
         v1 = v2
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         ⌜(if b then val_structeq else val_structneq) footprint v1 v2⌝ ∗
         structeq_footprint footprint
       }}}
@@ -452,8 +454,9 @@ Section zoo_G.
         ⌝
       }}}
         structeq_aux #l1 #l2 #i
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         ⌜(if b then val_structeq else val_structneq) footprint #l1 #l2⌝ ∗
         structeq_footprint footprint
       }}}
@@ -476,8 +479,9 @@ Section zoo_G.
         ⌝
       }}}
         structeq_aux #l1 v2 #i
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         ⌜(if b then val_structeq else val_structneq) footprint #l1 v2⌝ ∗
         structeq_footprint footprint
       }}}
@@ -500,8 +504,9 @@ Section zoo_G.
         ⌝
       }}}
         structeq_aux v1 #l2 #i
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         ⌜(if b then val_structeq else val_structneq) footprint v1 #l2⌝ ∗
         structeq_footprint footprint
       }}}
@@ -525,8 +530,9 @@ Section zoo_G.
         ⌝
       }}}
         structeq_aux v1 v2 #i
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         ⌜(if b then val_structeq else val_structneq) footprint v1 v2⌝ ∗
         structeq_footprint footprint
       }}}
@@ -826,8 +832,9 @@ Section zoo_G.
       structeq_footprint footprint
     }}}
       v1 = v2
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       ⌜(if b then val_structeq else val_structneq) footprint v1 v2⌝ ∗
       structeq_footprint footprint
     }}}.
@@ -963,8 +970,9 @@ Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} :
     True
   }}}
     v1 = v2
-  {{{ b,
-    RET #b;
+  {{{
+    b
+  , RET #b;
     ⌜(if b then (≈) else (≉)) v1 v2⌝
   }}}.
 Proof.

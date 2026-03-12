@@ -720,8 +720,9 @@ Module base.
         True
       }}}
         vertex_create task
-      {{{ t γ iter,
-        RET #t;
+      {{{
+        t γ iter
+      , RET #t;
         meta_token t ⊤ ∗
         vertex_inv t γ P R ∗
         vertex_model t γ (default (fun: <> => true)%V task) iter ∗
@@ -771,8 +772,9 @@ Module base.
         True
       }}}
         vertex_create' task
-      {{{ t γ iter,
-        RET #t;
+      {{{
+        t γ iter
+      , RET #t;
         meta_token t ⊤ ∗
         vertex_inv t γ P R ∗
         vertex_model t γ (fun: "ctx" => task "ctx" ;; true) iter ∗
@@ -1517,8 +1519,9 @@ Section vertex_G.
       True
     }}}
       vertex_create task
-    {{{ t iter,
-      RET t;
+    {{{
+      t iter
+    , RET t;
       vertex_inv t P R ∗
       vertex_model t (default (fun: <> => true)%V task) iter ∗
       vertex_output t P
@@ -1537,8 +1540,9 @@ Section vertex_G.
       True
     }}}
       vertex_create' task
-    {{{ t iter,
-      RET t;
+    {{{
+      t iter
+    , RET t;
       vertex_inv t P R ∗
       vertex_model t (fun: "ctx" => task "ctx" ;; true) iter ∗
       vertex_output t P

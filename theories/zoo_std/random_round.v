@@ -54,8 +54,9 @@ Section zoo_G.
       True
     }}}
       random_round_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       random_round_model t ₊sz []
     }}}.
   Proof.
@@ -105,8 +106,9 @@ Section zoo_G.
       random_round_model t sz prevs
     }}}
       random_round_next t
-    {{{ n,
-      RET #n;
+    {{{
+      n
+    , RET #n;
       ⌜n < sz⌝ ∗
       ⌜n ∉ prevs⌝ ∗
       random_round_model t sz (prevs ++ [n])
@@ -200,8 +202,9 @@ Section zoo_G.
       True
     }}}
       random_round_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       random_round_model' t ₊sz ₊sz
     }}}.
   Proof.
@@ -233,8 +236,9 @@ Section zoo_G.
       random_round_model' t sz cnt
     }}}
       random_round_next t
-    {{{ n,
-      RET #n;
+    {{{
+      n
+    , RET #n;
       ⌜n < sz⌝ ∗
       random_round_model' t sz (cnt - 1)
     }}}.

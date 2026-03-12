@@ -202,8 +202,9 @@ Module base.
         True
       }}}
         mpsc_flag_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mpsc_flag_inv t γ P ∗
         mpsc_flag_consumer γ
@@ -232,8 +233,9 @@ Module base.
         mpsc_flag_consumer γ
       }}}
         mpsc_flag_get #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           P
         else
@@ -389,8 +391,9 @@ Section mpsc_flag_G.
       True
     }}}
       mpsc_flag_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpsc_flag_inv t P ∗
       mpsc_flag_consumer t
     }}}.
@@ -409,8 +412,9 @@ Section mpsc_flag_G.
       mpsc_flag_consumer t
     }}}
       mpsc_flag_get t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         P
       else

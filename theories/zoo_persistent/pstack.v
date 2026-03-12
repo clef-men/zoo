@@ -58,8 +58,9 @@ Section zoo_G.
       pstack_model t vs
     }}}
       pstack_push t v
-    {{{ t',
-      RET t';
+    {{{
+      t'
+    , RET t';
       pstack_model t' (v :: vs)
     }}}.
   Proof.
@@ -72,8 +73,9 @@ Section zoo_G.
       pstack_model t vs
     }}}
       pstack_pop t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           ⌜vs = []⌝

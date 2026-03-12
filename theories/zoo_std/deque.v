@@ -45,8 +45,9 @@ Section zoo_G.
       True
     }}}
       deque_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       deque_model t []
     }}}.
   Proof.
@@ -132,8 +133,9 @@ Section zoo_G.
       deque_model t vs
     }}}
       deque_pop_back t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

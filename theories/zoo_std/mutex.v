@@ -133,8 +133,9 @@ Section mutex_G.
       True
     }}}
       mutex_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mutex_init t false
     }}}.
   Proof.
@@ -153,8 +154,9 @@ Section mutex_G.
       P
     }}}
       mutex_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mutex_inv t P
     }}}.
   Proof.
@@ -171,8 +173,9 @@ Section mutex_G.
       True
     }}}
       mutex_create_lock ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mutex_init t true ∗
       mutex_locked t
     }}}.
@@ -192,8 +195,9 @@ Section mutex_G.
       True
     }}}
       mutex_create_lock ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mutex_inv t P ∗
       mutex_locked t
     }}}.
@@ -321,8 +325,9 @@ Section mutex_G.
       )
     }}}
       mutex_protect t fn
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       Ψ v
     }}}.
   Proof.

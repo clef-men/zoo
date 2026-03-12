@@ -843,8 +843,9 @@ Module base.
         True
       }}}
         inf_mpmc_queue_2_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         inf_mpmc_queue_2_inv t γ ι ∗
         inf_mpmc_queue_2_model γ []
@@ -1543,8 +1544,9 @@ Section inf_mpmc_queue_2_G.
       True
     }}}
       inf_mpmc_queue_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       inf_mpmc_queue_2_inv t ι ∗
       inf_mpmc_queue_2_model t []
     }}}.

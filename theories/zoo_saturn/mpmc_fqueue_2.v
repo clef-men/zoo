@@ -113,8 +113,9 @@ Module base.
         True
       }}}
         mpmc_fqueue_2_create #cap
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mpmc_fqueue_2_inv t γ ι ∗
         mpmc_fqueue_2_model γ []
@@ -128,8 +129,9 @@ Module base.
         True
       }}}
         mpmc_fqueue_2_make #cap v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         mpmc_fqueue_2_inv t γ ι ∗
         mpmc_fqueue_2_model γ [v]
@@ -358,8 +360,9 @@ Section mpmc_fqueue_2_G.
       True
     }}}
       mpmc_fqueue_2_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_fqueue_2_inv t ι ∗
       mpmc_fqueue_2_model t []
     }}}.
@@ -378,8 +381,9 @@ Section mpmc_fqueue_2_G.
       True
     }}}
       mpmc_fqueue_2_make #cap v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_fqueue_2_inv t ι ∗
       mpmc_fqueue_2_model t [v]
     }}}.

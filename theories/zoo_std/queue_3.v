@@ -90,8 +90,9 @@ Section zoo_G.
       True
     }}}
       queue_3_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       queue_3_model t []
     }}}.
   Proof.
@@ -187,8 +188,9 @@ Section zoo_G.
       True
     }}}
       queue_3_next_capacity #n
-    {{{ m,
-      RET #m;
+    {{{
+      m
+    , RET #m;
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
@@ -199,8 +201,9 @@ Section zoo_G.
       model' t vs extra
     }}}
       queue_3_grow t
-    {{{ extra,
-      RET ();
+    {{{
+      extra
+    , RET ();
       ⌜0 < extra⌝ ∗
       model' t vs extra
     }}}.
@@ -314,8 +317,9 @@ Section zoo_G.
       queue_3_model t vs
     }}}
       queue_3_pop_back t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       match o with
       | None =>
           ⌜vs = []⌝ ∗

@@ -818,8 +818,9 @@ Section ws_deques_private_G.
       True
     }}}
       ws_deques_private_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_deques_private_inv t ι ₊sz ∗
       ws_deques_private_model t (replicate ₊sz []) ∗
       [∗ list] i ∈ seq 0 ₊sz,
@@ -1212,8 +1213,9 @@ Section ws_deques_private_G.
       channels_receiver γ i_ Ψ None
     }}}
       ws_deques_private_steal_to_0 #l #i
-    {{{ o Ψ_sender Ψ_receiver,
-      RET o;
+    {{{
+      o Ψ_sender Ψ_receiver
+    , RET o;
       channels_sender γ i_ Ψ_sender None ∗
       channels_receiver γ i_ Ψ_receiver None ∗
       Ψ o

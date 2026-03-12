@@ -202,8 +202,9 @@ Section prophet_wise_G.
       True
     }}}
       Proph @ E
-    {{{ pid γ prophs,
-      RET #pid;
+    {{{
+      pid γ prophs
+    , RET #pid;
       prophet_wise_strong_model pid γ [] prophs
     }}}.
   Proof.
@@ -445,8 +446,9 @@ Section prophet_wise_G.
       True
     }}}
       Proph @ E
-    {{{ pid γ prophs,
-      RET #pid;
+    {{{
+      pid γ prophs
+    , RET #pid;
       prophet_wise_model pid γ [] prophs
     }}}.
   Proof.

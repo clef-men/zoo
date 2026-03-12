@@ -69,8 +69,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_element v
-    {{{ elem,
-      RET #elem;
+    {{{
+      elem
+    , RET #elem;
       element_model elem v
     }}}.
   Proof.
@@ -82,8 +83,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_create ()
-    {{{ l,
-      RET #l;
+    {{{
+      l
+    , RET #l;
       dynarray_2_model #l [] ∗
       meta_token l (↑nroot.@"user")
     }}}.
@@ -100,8 +102,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       dynarray_2_model t []
     }}}.
   Proof.
@@ -115,8 +118,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       dynarray_2_model t (replicate ₊sz v)
     }}}.
@@ -158,8 +162,9 @@ Section zoo_G.
       )
     }}}
       dynarray_2_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
       Ψ ₊sz vs
@@ -205,8 +210,9 @@ Section zoo_G.
       )
     }}}
       dynarray_2_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
       Ψ ₊sz vs
@@ -236,8 +242,9 @@ Section zoo_G.
       )
     }}}
       dynarray_2_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -262,8 +269,9 @@ Section zoo_G.
       )
     }}}
       dynarray_2_initi #sz fn
-    {{{ t vs,
-      RET t;
+    {{{
+      t vs
+    , RET t;
       ⌜sz = length vs⌝ ∗
       dynarray_2_model t vs ∗
       ( [∗ list] i ↦ v ∈ vs,
@@ -299,8 +307,9 @@ Section zoo_G.
       dynarray_2_model t vs
     }}}
       dynarray_2_capacity t
-    {{{ cap,
-      RET #cap;
+    {{{
+      cap
+    , RET #cap;
       ⌜length vs ≤ cap⌝ ∗
       dynarray_2_model t vs
     }}}.
@@ -393,8 +402,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_next_capacity #n
-    {{{ m,
-      RET #m;
+    {{{
+      m
+    , RET #m;
       ⌜n ≤ m⌝%Z
     }}}.
   Proof.
@@ -449,8 +459,9 @@ Section zoo_G.
       dynarray_2_model t vs
     }}}
       dynarray_2_try_grow t #sz v
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         dynarray_2_model t (vs ++ replicate (₊sz - length vs) v)
       else
@@ -539,8 +550,9 @@ Section zoo_G.
       element_model elem v
     }}}
       dynarray_2_try_push t #elem
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         dynarray_2_model t (vs ++ [v])
       else
@@ -940,8 +952,9 @@ Section zoo_G.
       itype_element elem
     }}}
       (#elem).{value}
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       τ v
     }}}.
   Proof.
@@ -1005,8 +1018,9 @@ Section zoo_G.
       τ v
     }}}
       dynarray_2_element v
-    {{{ slot,
-      RET slot;
+    {{{
+      slot
+    , RET slot;
       itype_slot slot
     }}}.
   Proof.
@@ -1018,8 +1032,9 @@ Section zoo_G.
       True
     }}}
       dynarray_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_dynarray_2 t
     }}}.
   Proof.
@@ -1034,8 +1049,9 @@ Section zoo_G.
       τ v
     }}}
       dynarray_2_make #sz v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ⌜0 ≤ sz⌝%Z ∗
       itype_dynarray_2 t
     }}}.
@@ -1051,8 +1067,9 @@ Section zoo_G.
       (itype_nat_upto ₊sz --> τ)%T fn
     }}}
       dynarray_2_initi #sz fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       itype_dynarray_2 t
     }}}.
   Proof.
@@ -1069,8 +1086,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_size t
-    {{{ (sz : nat),
-      RET #sz;
+    {{{
+      (sz : nat)
+    , RET #sz;
       True
     }}}.
   Proof.
@@ -1082,8 +1100,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_size t
-    {{{ (cap : nat),
-      RET #cap;
+    {{{
+      (cap : nat)
+    , RET #cap;
       True
     }}}.
   Proof.
@@ -1095,8 +1114,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_data t
-    {{{ cap data,
-      RET data;
+    {{{
+      cap data
+    , RET data;
       itype_array itype_slot cap data
     }}}.
   Proof.
@@ -1136,8 +1156,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_is_empty t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -1149,8 +1170,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_get t #i
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       ⌜0 ≤ i⌝%Z ∗
       τ v
     }}}.
@@ -1229,8 +1251,9 @@ Section zoo_G.
       τ v
     }}}
       dynarray_2_try_grow t #sz' v
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -1292,8 +1315,9 @@ Section zoo_G.
       itype_slot slot
     }}}
       dynarray_2_try_push t slot
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       True
     }}}.
   Proof.
@@ -1350,8 +1374,9 @@ Section zoo_G.
       itype_dynarray_2 t
     }}}
       dynarray_2_pop t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       τ v
     }}}.
   Proof.

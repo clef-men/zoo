@@ -529,8 +529,9 @@ Module base.
         True
       }}}
         ivar_3_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_producer γ ∗
@@ -565,8 +566,9 @@ Module base.
         ▷ □ Ξ v
       }}}
         ivar_3_make v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_consumer γ Ψ ∗
@@ -602,8 +604,9 @@ Module base.
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
         ivar_3_is_unset #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           True
         else
@@ -663,8 +666,9 @@ Module base.
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
         ivar_3_is_set #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           £ 2 ∗
           ivar_3_resolved γ
@@ -701,8 +705,9 @@ Module base.
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
         ivar_3_try_get #t
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v
@@ -792,8 +797,9 @@ Module base.
         ▷ Ω #t waiter ω
       }}}
         ivar_3_wait #t waiter
-      {{{ o,
-        RET o;
+      {{{
+        o
+      , RET o;
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v ∗
@@ -849,8 +855,9 @@ Module base.
         ▷ □ Ξ v
       }}}
         ivar_3_set #t v
-      {{{ waiters ωs,
-        RET lst_to_val waiters;
+      {{{
+        waiters ωs
+      , RET lst_to_val waiters;
         ivar_3_result γ v ∗
         ivar_3_waiters γ waiters ωs ∗
         [∗ list] waiter; ω ∈ waiters; ωs, Ω #t waiter ω
@@ -1187,8 +1194,9 @@ Section ivar_3_G.
       True
     }}}
       ivar_3_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_producer t ∗
       ivar_3_consumer t Ψ
@@ -1208,8 +1216,9 @@ Section ivar_3_G.
       ▷ □ Ξ v
     }}}
       ivar_3_make v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_consumer t Ψ ∗
       ivar_3_result t v ∗
@@ -1229,8 +1238,9 @@ Section ivar_3_G.
       ivar_3_inv t Ψ Ξ Ω
     }}}
       ivar_3_is_unset t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -1265,8 +1275,9 @@ Section ivar_3_G.
       ivar_3_inv t Ψ Ξ Ω
     }}}
       ivar_3_is_set t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         £ 2 ∗
         ivar_3_resolved t
@@ -1301,8 +1312,9 @@ Section ivar_3_G.
       ivar_3_inv t Ψ Ξ Ω
     }}}
       ivar_3_try_get t
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v
@@ -1356,8 +1368,9 @@ Section ivar_3_G.
       ▷ Ω t waiter ω
     }}}
       ivar_3_wait t waiter
-    {{{ o,
-      RET o;
+    {{{
+      o
+    , RET o;
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v ∗
@@ -1381,8 +1394,9 @@ Section ivar_3_G.
       ▷ □ Ξ v
     }}}
       ivar_3_set t v
-    {{{ waiters ωs,
-      RET lst_to_val waiters;
+    {{{
+      waiters ωs
+    , RET lst_to_val waiters;
       ivar_3_result t v ∗
       ivar_3_waiters t waiters ωs ∗
       [∗ list] waiter; ω ∈ waiters; ωs, Ω t waiter ω

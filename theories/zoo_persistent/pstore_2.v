@@ -485,8 +485,9 @@ Module base.
         True
       }}}
         pstore_2_create ()
-      {{{ t,
-        RET t;
+      {{{
+        t
+      , RET t;
         (∃ l, ⌜t = #l⌝ ∗ meta_token l (↑nroot.@"user")) ∗
         pstore_2_model t ∅ ∅
       }}}.
@@ -512,8 +513,9 @@ Module base.
         pstore_2_model t σ₀ σ
       }}}
         pstore_2_ref t v
-      {{{ r,
-        RET #r;
+      {{{
+        r
+      , RET #r;
         ⌜σ₀ !! r = None⌝ ∗
         pstore_2_model t (<[r := v]> σ₀) σ
       }}}.
@@ -725,8 +727,9 @@ Module base.
         pstore_2_model t σ₀ σ
       }}}
         pstore_2_capture t
-      {{{ s,
-        RET s;
+      {{{
+        s
+      , RET s;
         pstore_2_model t σ₀ σ ∗
         pstore_2_snapshot s t σ
       }}}.
@@ -838,8 +841,9 @@ Module base.
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         pstore_2_collect #node acc
-      {{{ acc',
-        RET (#root, acc');
+      {{{
+        acc'
+      , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           (λ δ, #δ.(delta_node)) <$> reverse (drop i δs)
@@ -890,8 +894,9 @@ Module base.
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         pstore_2_collect #cnode acc
-      {{{ acc',
-        RET (#root, acc');
+      {{{
+        acc'
+      , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
@@ -908,8 +913,9 @@ Module base.
         collect_specification γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         pstore_2_collect #node acc
-      {{{ acc',
-        RET (#root, acc');
+      {{{
+        acc'
+      , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
@@ -968,8 +974,9 @@ Module base.
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         pstore_2_collect #cnode acc
-      {{{ acc',
-        RET (#root, acc');
+      {{{
+        acc'
+      , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
         plst_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
@@ -1091,8 +1098,9 @@ Module base.
         revert_pre_2 γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node
       }}}
         pstore_2_revert #node acc
-      {{{ ϵs,
-        RET ();
+      {{{
+        ϵs
+      , RET ();
         revert_post γ σ₀ cnodes ϵs base' descr_base'
       }}}.
     Proof.
@@ -1259,8 +1267,9 @@ Module base.
         revert_pre_1 γ σ₀ root ς cnodes ϵs base descr_base δs
       }}}
         pstore_2_revert #root acc
-      {{{ ϵs,
-        RET ();
+      {{{
+        ϵs
+      , RET ();
         revert_post γ σ₀ cnodes ϵs base' descr_base'
       }}}.
     Proof.
@@ -1395,8 +1404,9 @@ Module base.
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
         pstore_2_reroot #base'
-      {{{ ϵs,
-        RET ();
+      {{{
+        ϵs
+      , RET ();
         revert_post γ σ₀ cnodes ϵs base' descr'
       }}}.
     Proof.
@@ -1573,8 +1583,9 @@ Section pstore_2_G.
       True
     }}}
       pstore_2_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       pstore_2_model t ∅
     }}}.
   Proof.
@@ -1591,8 +1602,9 @@ Section pstore_2_G.
       pstore_2_model t σ
     }}}
       pstore_2_ref t v
-    {{{ r,
-      RET #r;
+    {{{
+      r
+    , RET #r;
       ⌜σ !! r = None⌝ ∗
       pstore_2_model t (<[r := v]> σ)
     }}}.
@@ -1653,8 +1665,9 @@ Section pstore_2_G.
       pstore_2_model t σ
     }}}
       pstore_2_capture t
-    {{{ s,
-      RET s;
+    {{{
+      s
+    , RET s;
       pstore_2_model t σ ∗
       pstore_2_snapshot s t σ
     }}}.

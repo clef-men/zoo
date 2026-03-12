@@ -227,8 +227,9 @@ Section bag_1_G.
       True
     }}}
       bag_1_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       bag_1_inv t ι ∗
       bag_1_model t ∅
     }}}.

@@ -890,8 +890,9 @@ Module base.
         True
       }}}
         inf_ws_deque_1_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         inf_ws_deque_1_inv t γ ι ∗
         inf_ws_deque_1_model γ [] ∗
@@ -939,8 +940,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         front_lb γ front
       }}}.
     Proof.
@@ -957,8 +959,9 @@ Module base.
         owner₁ γ Stable back priv ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Stable back priv ws ∗
         front_lb γ front ∗
         ⌜front ≤ back⌝
@@ -979,8 +982,9 @@ Module base.
         owner₁ γ Unstable back priv ws
       }}}
         (#t).{front}
-      {{{ front,
-        RET #front;
+      {{{
+        front
+      , RET #front;
         owner₁ γ Unstable back priv ws ∗
         front_lb γ front ∗
         ⌜front = back ∨ front = S back⌝
@@ -1649,8 +1653,9 @@ Module base.
         end
       }}}
         inf_ws_deque_1_pop_0 #t #id #back_
-      {{{ o back priv,
-        RET o;
+      {{{
+        o back priv
+      , RET o;
         owner₁ γ Stable back priv ws ∗
         match state with
         | PopNonempty v =>
@@ -2000,8 +2005,9 @@ Section inf_ws_deque_1_G.
       True
     }}}
       inf_ws_deque_1_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       inf_ws_deque_1_inv t ι ∗
       inf_ws_deque_1_model t [] ∗
       inf_ws_deque_1_owner t []

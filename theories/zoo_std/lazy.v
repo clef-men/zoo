@@ -420,8 +420,9 @@ Module base.
         }}
       }}}
         lazy_make fn
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         lazy_inv t γ Ψ Ξ ∗
         lazy_consumer γ Ψ
@@ -451,8 +452,9 @@ Module base.
         ▷ □ Ξ v
       }}}
         lazy_return v
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         lazy_inv t γ Ψ Ξ ∗
         lazy_result γ v ∗
@@ -485,8 +487,9 @@ Module base.
         lazy_inv t γ Ψ Ξ
       }}}
         lazy_is_set #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           £ 2 ∗
           lazy_resolved γ
@@ -544,8 +547,9 @@ Module base.
         lazy_inv t γ Ψ Ξ
       }}}
         lazy_is_unset #t
-      {{{ b,
-        RET #b;
+      {{{
+        b
+      , RET #b;
         if b then
           True
         else
@@ -582,8 +586,9 @@ Module base.
         lazy_inv t γ Ψ Ξ
       }}}
         lazy_get #t
-      {{{ v,
-        RET v;
+      {{{
+        v
+      , RET v;
         £ 2 ∗
         lazy_result γ v
       }}}.
@@ -894,8 +899,9 @@ Section lazy_G.
       }}
     }}}
       lazy_make fn
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       lazy_inv t Ψ Ξ ∗
       lazy_consumer t Ψ
     }}}.
@@ -914,8 +920,9 @@ Section lazy_G.
       ▷ □ Ξ v
     }}}
       lazy_return v
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       lazy_inv t Ψ Ξ ∗
       lazy_result t v ∗
       lazy_consumer t Ψ
@@ -934,8 +941,9 @@ Section lazy_G.
       lazy_inv t Ψ Ξ
     }}}
       lazy_is_set t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         £ 2 ∗
         lazy_resolved t
@@ -970,8 +978,9 @@ Section lazy_G.
       lazy_inv t Ψ Ξ
     }}}
       lazy_is_unset t
-    {{{ b,
-      RET #b;
+    {{{
+      b
+    , RET #b;
       if b then
         True
       else
@@ -1006,8 +1015,9 @@ Section lazy_G.
       lazy_inv t Ψ Ξ
     }}}
       lazy_get t
-    {{{ v,
-      RET v;
+    {{{
+      v
+    , RET v;
       £ 2 ∗
       lazy_result t v
     }}}.

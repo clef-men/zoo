@@ -357,8 +357,9 @@ Section ws_hub_fifo_G.
       True
     }}}
       ws_hub_fifo_create #sz
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       ws_hub_fifo_inv t ι ₊sz ∗
       ws_hub_fifo_model t ∅ ∗
       [∗ list] i ∈ seq 0 ₊sz,
@@ -446,8 +447,9 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_inv t ι sz
     }}}
       ws_hub_fifo_killed t
-    {{{ killed,
-      RET #killed;
+    {{{
+      killed
+    , RET #killed;
       True
     }}}.
   Proof.

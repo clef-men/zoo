@@ -206,8 +206,9 @@ Section mpmc_bstack_G.
       True
     }}}
       mpmc_bstack_create #cap
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       mpmc_bstack_inv t ι ₊cap ∗
       mpmc_bstack_model t []
     }}}.

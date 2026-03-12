@@ -430,8 +430,9 @@ Module base.
         True
       }}}
         spmc_queue_create ()
-      {{{ t γ,
-        RET #t;
+      {{{
+        t γ
+      , RET #t;
         meta_token t ⊤ ∗
         spmc_queue_inv t γ ι ∗
         spmc_queue_model γ [] ∗
@@ -473,8 +474,9 @@ Module base.
           True
       }}}
         (#t).{front}
-      {{{ front i,
-        RET #front;
+      {{{
+        front i
+      , RET #front;
         node_model γ front i true ∗
         if Ψ is Some Ψ then
           ∃ waiter,
@@ -505,8 +507,9 @@ Module base.
         inv' t γ
       }}}
         (#t).{front}
-      {{{ front i,
-        RET #front;
+      {{{
+        front i
+      , RET #front;
         node_model γ front i true
       }}}.
     Proof.
@@ -564,8 +567,9 @@ Module base.
         end
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           match op with
           | IsEmpty waiter Ψ =>
@@ -673,8 +677,9 @@ Module base.
         history_at γ i node
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
@@ -695,8 +700,9 @@ Module base.
         £ 1
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           Ψ true
         ∨ ∃ node',
@@ -718,8 +724,9 @@ Module base.
         pop_au γ Ψ
       }}}
         (#node).{next}
-      {{{ res,
-        RET res;
+      {{{
+        res
+      , RET res;
           ⌜res = §Null%V⌝ ∗
           Ψ None
         ∨ ∃ node',
@@ -995,8 +1002,9 @@ Section spmc_queue_G.
       True
     }}}
       spmc_queue_create ()
-    {{{ t,
-      RET t;
+    {{{
+      t
+    , RET t;
       spmc_queue_inv t ι ∗
       spmc_queue_model t [] ∗
       spmc_queue_producer t []
