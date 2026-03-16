@@ -836,7 +836,7 @@ Module base.
 
       awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
       iInv "Hinv_1" as "(:inv_inner which=1 =1)".
-      case_decide as Hstate1; first subst.
+      case_decide as [-> | Hstate1].
 
       - iDestruct "Hinv_state1" as "(:inv_state_finished which=1 =1 >) /=".
         iDestruct "Hinv_successors1" as "(:inv_successors_finished which=1 =1)".
@@ -888,7 +888,7 @@ Module base.
 
         awp_apply (mpmc_stack_2_push_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
         iInv "Hinv_1" as "(:inv_inner which=1 =2)".
-        case_decide as Hstate2; first subst.
+        case_decide as [-> | Hstate2].
 
         + iDestruct "Hinv_state1" as "(:inv_state_finished which=1 =2 >) /=".
           iDestruct "Hinv_successors1" as "(:inv_successors_finished which=1 =2)".

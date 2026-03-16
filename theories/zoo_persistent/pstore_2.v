@@ -537,7 +537,7 @@ Module base.
         iSteps.
       }
       iSplitR. { iPureIntro. split; [set_solver | done]. }
-      case_decide as Hg; first iSteps.
+      case_decide as [-> | Hg]. 1: iSteps.
       iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
       iSteps; try iPureIntro.
       { rewrite /descriptor_wf. set_solver. }
@@ -738,7 +738,7 @@ Module base.
 
       wp_rec. wp_load. wp_store. wp_load. wp_pures.
       iApply "HΦ".
-      case_decide as Hg; first subst.
+      case_decide as [-> | Hg].
 
       - pose descr := Descriptor 0 ς.
         iMod (cnodes_insert root descr with "Hmodel") as "(Hauth & #Helem)"; first done.
@@ -1435,7 +1435,7 @@ Module base.
       iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
 
       wp_rec. wp_pures. rewrite bool_decide_eq_true_2 //. wp_pures.
-      case_decide as Hg.
+      case_decide as [-> | Hg].
       { iDestruct (cnodes_lookup with "Hmodel Helem_base'") as %[]%lookup_empty_Some. }
       iDecompose "Hmodel" as (cnodes ϵs base descr δs Hϵs Hcnodes_lookup_base Hgen (Hstore_dom & Hstore_gen) Hδs_nodup Hδs Hδs_nil Hδs_gen) "Helem_base Hauth Hδs Hcnodes".
       iDestruct (cnodes_lookup with "Hauth Helem_base'") as %Hcnodes_lookup_base'.

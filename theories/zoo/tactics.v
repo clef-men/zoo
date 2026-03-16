@@ -91,3 +91,11 @@ Tactic Notation "destruct_decide" constr(P) "as" simple_intropattern(pat) :=
 Tactic Notation "destruct_decide" constr(P) :=
   let H := fresh "H" in
   destruct_decide P as H | H.
+
+Tactic Notation "case_decide" "as" "[" simple_intropattern(pat1) "|" simple_intropattern(pat2) "]" :=
+  let H := fresh in
+  case_decide as H;
+  move: H;
+  [ intros pat1
+  | intros pat2
+  ].
