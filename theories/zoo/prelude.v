@@ -6,8 +6,11 @@ From stdpp Require Export
 
 Open Scope general_if_scope.
 
-Notation "~ b" := (
+Notation "￢ b" := (
   negb b
+)(at level 30,
+  right associativity,
+  format "￢  b"
 ).
 
 Coercion Z.of_nat : nat >-> Z.

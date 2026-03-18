@@ -622,7 +622,7 @@ Module base.
       wp_bind (!_)%E.
       iInv "Hinv" as "(:inv_inner)".
       wp_load.
-      iSpecialize ("HΦ" $! (~ state_to_bool state)).
+      iSpecialize ("HΦ" $! (￢ state_to_bool state)).
       destruct state as [waiters | v].
 
       - iSplitR "HΦ". { iFrameSteps. }

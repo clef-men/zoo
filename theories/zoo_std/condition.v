@@ -244,7 +244,7 @@ Section mutex_G.
     iIntros "%Φ (#Hinv & #Hmutex_inv & Hmutex_locked & HP & HΨ & #Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (condition_wait_until_spec' (λ b, Ψ (~ b)) _ _ _ P with "[$Hmutex_locked $HP $HΨ]"); last iSteps.
+    wp_smart_apply (condition_wait_until_spec' (λ b, Ψ (￢ b)) _ _ _ P with "[$Hmutex_locked $HP $HΨ]"); last iSteps.
     iSteps. case_match; iSteps.
   Qed.
   Lemma condition_wait_while_spec Ψ t mtx pred P :

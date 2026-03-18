@@ -59,7 +59,7 @@ Definition val_immediate v :=
 Definition eval_unop op v :=
   match op, v with
   | UnopNeg, ValBool b =>
-      Some $ ValBool (~ b)
+      Some $ ValBool (￢ b)
   | UnopMinus, ValInt n =>
       Some $ ValInt (- n)
   | UnopIsImmediate, v =>
