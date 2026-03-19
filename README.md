@@ -147,3 +147,50 @@ depends: [
 ```
 
 See also [this example](https://github.com/clef-men/zoo-demo).
+
+## Architecture
+
+### OCaml libraries
+
+The [`lib/`](lib/) directory contains the OCaml libraries, some of which are inherited from Zoo.
+
+- [`lib/zoo/`](lib/zoo/) is inherited from Zoo.
+  It provides support for prophecy variables.
+
+- [`lib/zoo_std/`](lib/zoo_std/) is inherited from Zoo.
+  It provides standard sequential and concurrent data structures.
+
+- [`lib/zoo_saturn/`](lib/zoo_saturn/) is partly inherited from Zoo.
+  It provides lock-free data structures, including the Chase-Lev work-stealing deque presented in the paper.
+
+- [`lib/zoo_parabs/`](lib/zoo_parabs/) contains the source code of the `Parabs` library presented in the paper.
+
+- [`lib/examples/`](lib/examples/) contains examples for the `Parabs` library.
+
+### Rocq proofs
+
+The [`theories/`](theories/) directory contains the correctness proofs for the OCaml libraries, some of which are also inherited from Zoo.
+It mirrors the [`lib/`](lib/) directory.
+
+- [`theories/zoo/`](theories/zoo/) is largely inherited from Zoo.
+  It defines the ZooLang language (presented in the POPL 2026 paper) along with an Iris-based program logic.
+  The theories for reasoning about prophecy variables described in the paper are located in [`theories/zoo/program_logic/`](theories/zoo/program_logic/).
+
+- [`theories/zoo_std/`](theories/zoo_std/) is inherited from Zoo.
+  It contains the correctness proofs for the data structures of [`lib/zoo_std/`](lib/zoo_std).
+
+- [`theories/zoo_saturn/`](theories/zoo_saturn/) is partly inherited from Zoo.
+  It contains the correctness proofs for the data structures of [`lib/zoo_saturn/`](lib/zoo_saturn).
+
+- [`lib/zoo_parabs/`](lib/zoo_parabs/) contains the correctness proofs for the `Parabs` library.
+
+- [`theories/examples/`](theories/examples/) contains the correctness proofs for the examples.
+
+### Benchmarks
+
+The [`bench/`](bench/) directory contains the benchmarks mentioned in the paper and presented in the appendix.
+See [`bench/README.md`](bench/README.md).
+
+## Paper coverage
+
+The mapping between our claims and this development is provided in the paper.
