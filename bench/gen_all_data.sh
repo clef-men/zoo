@@ -1,7 +1,6 @@
-
 if [ ! -d bench ]
 then
-    echo "this program is meant to be run from the root directory of the zoo project"
+    echo "Error: This program must be run from the root directory of the zoo project."
     exit 2
 fi
 

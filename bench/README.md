@@ -1,9 +1,24 @@
 The commands in this file are meant to be run from the root directory
 of the 'zoo' repository.
 
-## Running benchmarks
+Software dependencies:
+- you need to build the `Parabs` library of the present directory
+  (so you need `opam`, OCaml, but not Rocq; see the root README)
+- the benchmarking tool [hyperfine](https://github.com/sharkdp/hyperfine)
+- to produce plots: [gnuplot](http://www.gnuplot.info/)
+- to convert SVG plots in PDF: [inkscape](https://en.wikipedia.org/wiki/Inkscape)
+  (this is optional, you can also look at the SVG results directly)
+
+Running the benchmarks should work on all operating systems.
+
+## How to run individual benchmarks
+
+The `run.sh` scripts only run the benchmark and print results in the
+terminal, they do not save any plotting data or any other output.
 
 ```
+# from the _root_ directory of the project, not from bench/
+
 EXTRA_DOMAINS=3 sh bench/fibonacci/run.sh
 ```
 
@@ -11,7 +26,14 @@ Note: the EXTRA_DOMAINS=3 variable is interpreted by the Pool
 implementation, and it creates 3 *extra* domains in addition to the
 main domain, so in practice this is a 4-domains configuration.
 
-## Plotting data
+## How to run a benchmark and plot the results
+
+The `gen_plot_data_*.sh` scripts run benchmarks _and_ write the
+benchmark data in files. (If you are in a git-versioned repository you
+will see which benchmark data has been updated with `git status`.)
+Then the `plot_*.sh` scripts will plot the data in a viewer or,
+depending on the options, write `.svg` and `.pdf` files.
+
 
 For a single benchmark:
 ```
@@ -37,11 +59,65 @@ sh bench/gen_all_data.sh
 
 # render all plots into .svg and .pdf files
 sh bench/render_all_plots.sh
+
+# find all the plots (you can also use the SVG format directly)
+find . -name '*.pdf'
 ```
+
+On one test machine, running all the benchmarks took 70 minutes.
+
+
+## [for artifact reviewers] how to review the results
+
+In our Parabs paper we have specific plots from a test machine, we try
+our best to interpret the quantitative results shown in the plot, and
+then we extract qualitative claims from these interpretations.
+
+If you have produced your own plots on a different benchmark machine,
+we would recommend reviewing them as follows:
+
+- for each benchmark, compare our plots and your plots;
+
+- if you notice any significant difference, read our interpretation of
+  our plots and see if your results agree with it, or if they suggest
+  other significant phenomenons which the interpretation should also
+  take into account;
+
+- if the quantitative results different significantly, check that the
+  qualitative claims we made are still valid.
+
+The rest of this document explains our benchmarks, and provides an
+analysis of the benchmark results that is up-to-date with the version
+of the benchmarks in this directory. It should be very close to the
+analysis of the benchmarks in the Parabs paper (which was extracted
+and summarized from an earlier version of the present README) --
+comparing your results to the discussion here or in the paper should
+be the same.
+
 
 # Preliminary analysis of benchmark results
 
 The analysis is based on the benchmark output data currently stored in the repository.
+
+## Benchmark setting
+
+Those benchmark results were produced on Gabriel's 12-cores AMD Ryzen
+5 7640U machine, set at a fixed frequency of 2GHz, running GNU/Linux.
+
+Note: the multicore OCaml runtime is known to behave badly under CPU
+contention, due to the stop-the-world design being sensitive to
+OS-imposed pauses. In particular, if you run the benchmarks on
+a machine that is already busy with other things (or in
+performance-saving mode, etc.), you are likely to observe sharp
+performance degradation above the number of mostly-free cores
+available -- on one busy test machine with 12 cores, asking for 12
+domains runs 3x slower than 8 domains. This issue affects all
+benchmarks, is mostly unrelated to the scheduler implementations under
+test (sometimes we observe that `moonpool` does a bit better than the
+others, possibly due to the use of native threads for tasks which
+might improve OS scheduling decisions), and will invalidate our
+qualitative analysis on higher domain counts on busy machines.
+
 
 ## Scheduler implementations
 
@@ -52,6 +128,10 @@ Each benchmark is evaluated across different schedulers.
 - `moonpool-fifo`: the [moonpool](https://github.com/c-cube/moonpool/) scheduler (version 0.9), which started as a simpler-yet-efficient scheduler
 - `moonpool-ws`: a variant of `moonpool` that uses a work-stealing structure in its scheduler, and is described as better at optimizing throughput
 - `sequential`: a default baseline where no parallelism actually happens, all tasks are run on the main domain
+
+Software versions: our results below use OCaml 5.4.0 (`ocamlc --version`),
+Domainslib 0.5.2 and Moonpool 0.11 (`opam show domainslib moonpool`).
+
 
 ## Benchmark parameters
 
@@ -136,19 +216,6 @@ parallel-for i = 0 to N-1 do
 done
 ```
 
-## Benchmark setting
-
-Those benchmark results were produced on Gabriel's 12-cores AMD Ryzen
-5 7640U machine, set at a fixed frequency of 2GHz.
-
-The benchmarks were *not* run in an isolated environment, so at least
-one or two cores were busy with other programs. It is fair to assume
-that workloads running with more than 10 domains suffered from CPU
-contention. (Note: the multicore OCaml runtime is known to behave
-badly under CPU contention, due to the stop-the-world design being
-sensitive to OS-imposed pauses.)
-
-
 ## Pre-benchmarking expectations
 
 Our expectation before running the benchmark is that `parabs` has the
@@ -169,13 +236,12 @@ The benchmarks validate our pre-benchmarking expectations.  In fact
 benchmarks `fibonacci` and `for_irregular` with irregular task
 (sometimes 10-20% better).
 
-We observe that `moonpool` works better than either `parabs` and
-`domainslib` under CPU contention -- starting around 11 domains. The
-cause for this difference is not yet fully understood. (One hypothesis
-is that some parts of the `moonpool` implementation clamp the number
-of requested threads/domains to be at most the number of CPU cores, so
-we are not in fact forcing CPU contentions as with the other
-implementations.)
+We observe that `moonpool` sometimes works better than either `parabs`
+and `domainslib` under CPU contention. The cause for this difference
+is not fully understood; it may come from the fact that `moonpool`
+creates native threads (`pthreads`) for each task, which may have
+a positive influence on how the OS schedules the program under
+contention.
 
 
 ## Per-benchmark results
@@ -266,4 +332,3 @@ Summary
 Per-cutoff results: the performance is stable across a wide range of CUTOFF value: almost constant between CUTOFF=1 and CUTOFF=10, decreases slightly until CUTOFF=100. The input uses N=500, so larger cutoff values prevent parallelization and bring performance closer to the sequential scheduler.
 
 Per-domain results: for DOMAINS<=12, all scheduler perform similarly. In CPU-contended settings (DOMAINS > 12), `moonpool` performs noticeably better than the other schedulers.
-
