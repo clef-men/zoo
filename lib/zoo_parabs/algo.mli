@@ -1,3 +1,5 @@
+(** The [Algo] module exposes high-level parallel iterators. *)
+
 val for_ :
   Pool.context ->
   int ->
