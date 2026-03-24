@@ -1,13 +1,7 @@
 (test
   (name run)
-  (libraries bench)
+  (libraries unix bench)
   (modules run)
-)
-
-(test
-  (name run_aps)
-  (libraries bench)
-  (modules run_aps)
 )
 
 (test
