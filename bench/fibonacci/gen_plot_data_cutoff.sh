@@ -5,9 +5,11 @@ set -eou pipefail
 EXTRA_DOMAINS=6
 benchname="fibonacci"
 input="42"
-cutoffs="6 8 10 12 15 17 20 22 25"
+cutoffs="27 30 32 35"
 impls="sequential parabs domainslib moonpool-ws moonpool-fifo"
-prog="EXTRA_DOMAINS=$EXTRA_DOMAINS timeout 10 ./_build/default/bench/$benchname/run.exe"
+hyperfine_args="--ignore-failure"
+
+prog="EXTRA_DOMAINS=$EXTRA_DOMAINS timeout 8 ./_build/default/bench/$benchname/run.exe"
 
 if [ -f /tmp/fibonacci-taskflow.exe ]
 then
