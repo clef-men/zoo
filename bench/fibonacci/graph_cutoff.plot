@@ -8,6 +8,5 @@ plot \
   datafile using 1:3 with linespoints title 'parabs', \
   datafile using 1:4 with linespoints title 'domainslib', \
   datafile using 1:5 with linespoints title 'moonpool-ws', \
-  datafile using 1:6 with linespoints title 'moonpool-fifo', \
-  datafile using 1:7 with linespoints title 'taskflow'
+  datafile using 1:7 with linespoints title 'taskflow' lt 6
 
