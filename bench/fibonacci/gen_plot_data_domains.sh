@@ -3,17 +3,17 @@
 set -eou pipefail
 
 benchname="fibonacci"
-input="40"
+input="42"
 cutoff="25"
 extra_domains="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14"
-impls="sequential parabs domainslib"
+impls="sequential parabs domainslib moonpool-ws"
 prog="CUTOFF=$cutoff ./_build/default/bench/$benchname/run.exe"
 
 dune build bench/$benchname/run.exe
 
-if [ -f bench/fibonacci/fibonacci-taskflow.exe ]
+if [ -f /tmp/fibonacci-taskflow.exe ]
 then
-  impls += taskflow
+  impls="$impls taskflow"
 fi
 
 outfile=bench/$benchname/data/plot_domains.data
