@@ -9,6 +9,11 @@ cutoffs="8 10 12 15 17 20 22 25 27 30 32 35"
 impls="sequential parabs domainslib moonpool-fifo moonpool-ws"
 prog="EXTRA_DOMAINS=$EXTRA_DOMAINS ./_build/default/bench/$benchname/run.exe"
 
+if [ -f bench/fibonacci/fibonacci-taskflow.exe ]
+then
+  impls += taskflow
+fi
+
 dune build bench/$benchname/run.exe
 
 DOMAINS=$(($EXTRA_DOMAINS + 1))

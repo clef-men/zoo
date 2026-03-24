@@ -18,8 +18,7 @@ module Make
       Pool.wait ctx fut1 + res2
 end
 
-let pool =
-  Pool.impl_of_string Sys.argv.(1)
+let impl = Sys.argv.(1)
 
 let num_domain =
   let default = Domain.recommended_domain_count () - 1 in
@@ -34,8 +33,20 @@ let input =
   int_of_string Sys.argv.(2)
 
 let () =
-  let (module Pool) = pool in
-  let module M = Make(Pool) in
-  let pool = Pool.create ~num_domain () in
-  let _ = Pool.run pool (M.main ~cutoff input) in
-  Pool.kill pool
+  match impl with
+  | "taskflow" ->
+     let ocamlrunparam = Option.value ~default:"" (Sys.getenv_opt "OCAMLRUNPARAM") in
+     UnixLabels.execve
+       ~prog:"/tmp/fibonacci-taskflow.exe"
+       ~args:[|Sys.argv.(0); string_of_int input|]
+       ~env:[|
+         Printf.sprintf "OCAMLRUNPARAM=%s" ocamlrunparam;
+         Printf.sprintf "CUTOFF=%d" cutoff;
+         Printf.sprintf "NUM_THREADS=%d" (num_domain + 1);
+       |]
+  | pool ->
+    let (module Pool) = Pool.impl_of_string pool in
+    let module M = Make(Pool) in
+    let pool = Pool.create ~num_domain () in
+    let _ = Pool.run pool (M.main ~cutoff input) in
+    Pool.kill pool

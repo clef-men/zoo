@@ -1,6 +1,6 @@
 (test
   (name run)
-  (libraries bench)
+  (libraries unix bench)
   (modules run)
 )
 
