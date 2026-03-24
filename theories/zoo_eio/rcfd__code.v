@@ -3,10 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  spsc_waiter.
 From unix Require Import
   unix.
+From zoo_std Require Import
+  spsc_waiter.
 From zoo_eio Require Import
   rcfd__types.
 From zoo Require Import

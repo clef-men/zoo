@@ -1,6 +1,5 @@
 From zoo_partition Require Import
   partition__code.
-
 #[global] Opaque partition_make.
 #[global] Opaque partition_make_same_class.
 #[global] Opaque partition_get.

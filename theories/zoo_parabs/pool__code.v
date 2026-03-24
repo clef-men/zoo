@@ -3,11 +3,11 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_parabs Require Import
+  ws_hub_std.
 From zoo_std Require Import
   array
   domain.
-From zoo_parabs Require Import
-  ws_hub_std.
 From zoo_parabs Require Import
   pool__types.
 From zoo Require Import

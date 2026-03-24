@@ -3,15 +3,15 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
+From zoo_parabs Require Import
+  ws_deques_public
+  waiters.
 From zoo_std Require Import
   array
   random_round
   optional
   int
   domain.
-From zoo_parabs Require Import
-  ws_deques_public
-  waiters.
 From zoo Require Import
   options.
 

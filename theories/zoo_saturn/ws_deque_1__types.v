@@ -3,11 +3,11 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  identifier.
 From zoo_std Require Import
   array
   domain.
+From zoo Require Import
+  identifier.
 From zoo Require Import
   options.
 

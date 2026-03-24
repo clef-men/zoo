@@ -3,10 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  domain.
 From zoo_saturn Require Import
   spmc_queue.
+From zoo_std Require Import
+  domain.
 From zoo_saturn Require Import
   bag_2__types.
 From zoo Require Import

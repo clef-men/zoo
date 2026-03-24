@@ -1,6 +1,5 @@
 From zoo_std Require Import
   condition__code.
-
 #[global] Opaque condition_create.
 #[global] Opaque condition_notify.
 #[global] Opaque condition_notify_all.

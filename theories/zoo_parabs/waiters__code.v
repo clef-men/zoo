@@ -3,10 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  mpsc_waiter.
 From zoo_saturn Require Import
   mpmc_queue_1.
+From zoo_std Require Import
+  mpsc_waiter.
 From zoo_parabs Require Import
   waiters__types.
 From zoo Require Import

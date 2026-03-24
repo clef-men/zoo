@@ -27,27 +27,27 @@ Definition mpmc_bstack_is_empty : val :=
   fun: "t" =>
     "t".{front} == §Nil.
 
-#[local] Definition __zoo_recs_0 := (
-  recs: "push_aux" "t" "sz" "v" "front" =>
-    let: "new_front" := ‘Cons[ "sz" + 1, "v", "front" ] in
-    if: CAS "t".[front] "front" "new_front" then (
-      true
-    ) else (
-      domain_yield () ;;
-      "push" "t" "v"
-    )
-  and: "push" "t" "v" =>
-    match: "t".{front} with
-    | Nil =>
-        "push_aux" "t" 0 "v" §Nil
-    | Cons "sz" <> <> as "front" =>
-        if: "t".{capacity} ≤ "sz" then (
-          false
-        ) else (
-          "push_aux" "t" "sz" "v" "front"
-        )
-    end
-)%zoo_recs.
+#[local] Definition __zoo_recs_0 :=
+  ( recs: "push_aux" "t" "sz" "v" "front" =>
+      let: "new_front" := ‘Cons[ "sz" + 1, "v", "front" ] in
+      if: CAS "t".[front] "front" "new_front" then (
+        true
+      ) else (
+        domain_yield () ;;
+        "push" "t" "v"
+      )
+    and: "push" "t" "v" =>
+      match: "t".{front} with
+      | Nil =>
+          "push_aux" "t" 0 "v" §Nil
+      | Cons "sz" <> <> as "front" =>
+          if: "t".{capacity} ≤ "sz" then (
+            false
+          ) else (
+            "push_aux" "t" "sz" "v" "front"
+          )
+      end
+  )%zoo_recs.
 Definition mpmc_bstack_push_aux :=
   ValRecs 0 __zoo_recs_0.
 Definition mpmc_bstack_push :=

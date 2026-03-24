@@ -3,13 +3,12 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  mvar
-  int.
 From zoo_parabs Require Import
   future
   pool.
+From zoo_std Require Import
+  mvar
+  int.
 From zoo Require Import
   options.
-
 

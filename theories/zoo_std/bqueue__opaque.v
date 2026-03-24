@@ -1,6 +1,5 @@
 From zoo_std Require Import
   bqueue__code.
-
 #[global] Opaque bqueue_create.
 #[global] Opaque bqueue_size.
 #[global] Opaque bqueue_is_empty.

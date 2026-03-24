@@ -63,50 +63,50 @@ Definition mpmc_bqueue_fix_back : val :=
         )
     end.
 
-#[local] Definition __zoo_recs_0 := (
-  recs: "push_1" "t" "back" "cap" "new_back" =>
-    match: "back" with
-    | Node <> <> <> <> as "back_r" =>
-        match: "new_back" with
-        | Node <> <> <> <> as "new_back" =>
-            let: "new_back_r" := "new_back" in
-            if: "cap" == 0 then (
-              match: "t".{front} with
-              | Node <> <> <> <> as "front_r" =>
-                  let: "cap" :=
-                    "t".{capacity} - ("back_r".{index} - "front_r".{index})
-                  in
-                  if: "cap" == 0 then (
-                    false
-                  ) else (
-                    "back_r" <-{estimated_capacity} "cap" ;;
-                    "push_1" "t" "back" "cap" "new_back"
-                  )
-              end
-            ) else (
-              "new_back_r" <-{index} "back_r".{index} + 1 ;;
-              "new_back_r" <-{estimated_capacity} "cap" - 1 ;;
-              if: CAS "back_r".[next] §Null "new_back" then (
-                mpmc_bqueue_fix_back "t" "back" "new_back" ;;
-                true
-              ) else (
-                match: "back_r".{next} with
-                | Null =>
-                    Fail
-                | Node <> <> <> <> as "back" =>
-                    "push_2" "t" "back" "new_back"
+#[local] Definition __zoo_recs_0 :=
+  ( recs: "push_1" "t" "back" "cap" "new_back" =>
+      match: "back" with
+      | Node <> <> <> <> as "back_r" =>
+          match: "new_back" with
+          | Node <> <> <> <> as "new_back" =>
+              let: "new_back_r" := "new_back" in
+              if: "cap" == 0 then (
+                match: "t".{front} with
+                | Node <> <> <> <> as "front_r" =>
+                    let: "cap" :=
+                      "t".{capacity} - ("back_r".{index} - "front_r".{index})
+                    in
+                    if: "cap" == 0 then (
+                      false
+                    ) else (
+                      "back_r" <-{estimated_capacity} "cap" ;;
+                      "push_1" "t" "back" "cap" "new_back"
+                    )
                 end
+              ) else (
+                "new_back_r" <-{index} "back_r".{index} + 1 ;;
+                "new_back_r" <-{estimated_capacity} "cap" - 1 ;;
+                if: CAS "back_r".[next] §Null "new_back" then (
+                  mpmc_bqueue_fix_back "t" "back" "new_back" ;;
+                  true
+                ) else (
+                  match: "back_r".{next} with
+                  | Null =>
+                      Fail
+                  | Node <> <> <> <> as "back" =>
+                      "push_2" "t" "back" "new_back"
+                  end
+                )
               )
-            )
-        end
-    end
-  and: "push_2" "t" "back" "new_back" =>
-    match: "back" with
-    | Node <> <> <> <> as "back" =>
-        let: "back_r" := "back" in
-        "push_1" "t" "back" "back_r".{estimated_capacity} "new_back"
-    end
-)%zoo_recs.
+          end
+      end
+    and: "push_2" "t" "back" "new_back" =>
+      match: "back" with
+      | Node <> <> <> <> as "back" =>
+          let: "back_r" := "back" in
+          "push_1" "t" "back" "back_r".{estimated_capacity} "new_back"
+      end
+  )%zoo_recs.
 Definition mpmc_bqueue_push_1 :=
   ValRecs 0 __zoo_recs_0.
 Definition mpmc_bqueue_push_2 :=

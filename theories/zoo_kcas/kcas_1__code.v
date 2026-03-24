@@ -3,10 +3,10 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  identifier.
 From zoo_std Require Import
   lst.
+From zoo Require Import
+  identifier.
 From zoo_kcas Require Import
   kcas_1__types.
 From zoo Require Import
@@ -50,57 +50,57 @@ Definition kcas_1_finish : val :=
         kcas_1_status_to_bool "casn".{status}
     end.
 
-#[local] Definition __zoo_recs_0 := (
-  recs: "determine_as" "casn" "cass" =>
-    let: "gid" := Id in
-    match: "cass" with
-    | [] =>
-        kcas_1_finish "gid" "casn" §After
-    | "cas" :: "continue" as "retry" =>
-        let: "loc", "state" := "cas" in
-        let: "proph" := Proph in
-        let: "old_state" := !"loc" in
-        if: "state" == "old_state" then (
-          "determine_as" "casn" "continue"
-        ) else if:
-           let: "@tmp" := "state".{before} == "eval" "old_state" in
-           Resolve Skip "proph" "@tmp" ;;
-           "@tmp"
-         then (
-          "lock" "casn" "loc" "old_state" "state" "retry" "continue"
-        ) else (
-          kcas_1_finish "gid" "casn" §Before
-        )
-    end
-  and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
-    match: "casn".{status} with
-    | Before =>
-        false
-    | After =>
-        true
-    | Undetermined <> =>
-        if: CAS "loc".[contents] "old_state" "state" then (
-          "determine_as" "casn" "continue"
-        ) else (
-          "determine_as" "casn" "retry"
-        )
-    end
-  and: "eval" "state" =>
-    if: "determine" "state".{casn} then (
-      "state".{after}
-    ) else (
-      "state".{before}
-    )
-  and: "determine" "casn" =>
-    match: "casn".{status} with
-    | Before =>
-        false
-    | After =>
-        true
-    | Undetermined "cass" =>
-        "determine_as" "casn" "cass"
-    end
-)%zoo_recs.
+#[local] Definition __zoo_recs_0 :=
+  ( recs: "determine_as" "casn" "cass" =>
+      let: "gid" := Id in
+      match: "cass" with
+      | [] =>
+          kcas_1_finish "gid" "casn" §After
+      | "cas" :: "continue" as "retry" =>
+          let: "loc", "state" := "cas" in
+          let: "proph" := Proph in
+          let: "old_state" := !"loc" in
+          if: "state" == "old_state" then (
+            "determine_as" "casn" "continue"
+          ) else if:
+             let: "@tmp" := "state".{before} == "eval" "old_state" in
+             Resolve Skip "proph" "@tmp" ;;
+             "@tmp"
+           then (
+            "lock" "casn" "loc" "old_state" "state" "retry" "continue"
+          ) else (
+            kcas_1_finish "gid" "casn" §Before
+          )
+      end
+    and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
+      match: "casn".{status} with
+      | Before =>
+          false
+      | After =>
+          true
+      | Undetermined <> =>
+          if: CAS "loc".[contents] "old_state" "state" then (
+            "determine_as" "casn" "continue"
+          ) else (
+            "determine_as" "casn" "retry"
+          )
+      end
+    and: "eval" "state" =>
+      if: "determine" "state".{casn} then (
+        "state".{after}
+      ) else (
+        "state".{before}
+      )
+    and: "determine" "casn" =>
+      match: "casn".{status} with
+      | Before =>
+          false
+      | After =>
+          true
+      | Undetermined "cass" =>
+          "determine_as" "casn" "cass"
+      end
+  )%zoo_recs.
 Definition kcas_1_determine_as :=
   ValRecs 0 __zoo_recs_0.
 Definition kcas_1_lock :=

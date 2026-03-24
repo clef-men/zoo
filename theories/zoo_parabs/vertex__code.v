@@ -3,12 +3,12 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  clst.
-From zoo_saturn Require Import
-  mpmc_stack_2.
 From zoo_parabs Require Import
   pool.
+From zoo_saturn Require Import
+  mpmc_stack_2.
+From zoo_std Require Import
+  clst.
 From zoo_parabs Require Import
   vertex__types.
 From zoo Require Import
@@ -50,22 +50,22 @@ Definition vertex_precede : val :=
       )
     ).
 
-#[local] Definition __zoo_recs_0 := (
-  recs: "release" "ctx" "t" =>
-    if: FAA "t".[preds] (-1) == 1 then (
-      "run" "ctx" "t"
-    )
-  and: "run" "ctx" "t" =>
-    pool_async "ctx"
-      (fun: "ctx" =>
-         "t" <-{preds} 1 ;;
-         if: "t".{task} "ctx" then (
-           let: "succs" := mpmc_stack_2_close "t".{succs} in
-           clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
-         ) else (
-           "release" "ctx" "t"
-         ))
-)%zoo_recs.
+#[local] Definition __zoo_recs_0 :=
+  ( recs: "release" "ctx" "t" =>
+      if: FAA "t".[preds] (-1) == 1 then (
+        "run" "ctx" "t"
+      )
+    and: "run" "ctx" "t" =>
+      pool_async "ctx"
+        (fun: "ctx" =>
+           "t" <-{preds} 1 ;;
+           if: "t".{task} "ctx" then (
+             let: "succs" := mpmc_stack_2_close "t".{succs} in
+             clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
+           ) else (
+             "release" "ctx" "t"
+           ))
+  )%zoo_recs.
 Definition vertex_release :=
   ValRecs 0 __zoo_recs_0.
 Definition vertex_run :=

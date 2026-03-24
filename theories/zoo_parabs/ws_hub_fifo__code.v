@@ -3,12 +3,12 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo_std Require Import
-  domain.
-From zoo_saturn Require Import
-  mpmc_queue_1.
 From zoo_parabs Require Import
   waiters.
+From zoo_saturn Require Import
+  mpmc_queue_1.
+From zoo_std Require Import
+  domain.
 From zoo_parabs Require Import
   ws_hub_fifo__types.
 From zoo Require Import

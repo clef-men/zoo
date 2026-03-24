@@ -3,11 +3,11 @@ From zoo Require Import
 From zoo.language Require Import
   typeclasses
   notations.
-From zoo Require Import
-  identifier.
 From zoo_std Require Import
   inf_array
   domain.
+From zoo Require Import
+  identifier.
 From zoo_saturn Require Import
   inf_ws_deque_1__types.
 From zoo Require Import
