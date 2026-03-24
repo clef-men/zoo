@@ -5,12 +5,6 @@
 )
 
 (test
-  (name run_aps)
-  (libraries bench)
-  (modules run_aps)
-)
-
-(test
   (name run_no_cutoff)
   (libraries bench)
   (modules run_no_cutoff)

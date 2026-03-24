@@ -1,17 +1,23 @@
 open Bench
 
-let rec seq n =
-  if n <= 1 then
-    n
+(* the C++ compiler (clang++) compiles fibonacci
+   in accumulator-passing style for performance,
+   so we use this style manually in the OCaml
+   version for fair comparison. *)
+let rec fib_aps acc n =
+  if n < 2 then (acc + n)
   else
-    seq (n - 1) + seq (n - 2)
+    let acc = fib_aps acc (n - 1) in
+    fib_aps acc (n - 2)
+
+let fib_seq n = fib_aps 0 n
 
 module Make
   (Pool : Pool.S)
 = struct
   let rec main ~cutoff n ctx =
     if n <= cutoff then
-      seq n
+      fib_seq n
     else
       let fut1 = Pool.async ctx @@ main ~cutoff (n - 1) in
       let res2 = main ~cutoff (n - 2) ctx in
