@@ -248,9 +248,11 @@ contention.
 
 ### `fibonacci`
 
-Per-cutoff results: All schedulers start behave badly when the CUTOFF becomes small enough, with exponentially-decreasing performance after a certain drop point. For `moonpool`, performance drops around CUTOFF=22. For `parabs` and `domainslib`, performance drops around CUTOFF=15. In fact, even for the sequential scheduler we observe a small performance drop: the task-using version creates closures and performs indirect calls, so it is noticeably slower (by a constant factor) than the version used below the sequential cutoff.
+Note: as a control we also measure a C++ version of this benchmark using the [TaskFlow](https://github.com/taskflow/taskflow/) library. We expect this version to be faster than the others by a constant factor.
 
-For any `cutoff` value it appears that `parabs` is slightly faster than `domainslib` on this benchmark, and `moonpool-ws` is slightly faster than `moonpool-fifo`.
+Per-cutoff results: All schedulers start behave badly when the CUTOFF becomes small enough, with exponentially-decreasing performance after a certain drop point. For `moonpool`, performance drops around CUTOFF=22. For `parabs`, `domainslib` and `taskflow`, performance drops around CUTOFF=15. In fact, even for the sequential scheduler we observe a small performance drop around CUTOFF=8: the task-using version creates closures and performs indirect calls, so it is noticeably slower (by a constant factor) than the version used below the sequential cutoff.
+
+For any `cutoff` value it appears that `parabs` is slightly faster than `domainslib` on this benchmark, and `moonpool-ws` is slightly faster than `moonpool-fifo`. The `moonpool` versions become *very* slow for smaller cutoff values, so we had to set a timeout at 8s and their results are clamped.
 
 Note: we observe very large memory usage with `moonpool-fifo` at smaller cutoff values -- for N=40, we had to stop computing from CUTOFF=5 due to benchmarks failing with out-of-memory errors on machine with 32Gio of RAM. This seems to come from the `fifo` architecture which runs the oldest and thus biggest task first, and thus stores an expontential number of smaller tasks in the queue.
 
@@ -260,22 +262,12 @@ Representative results for cutoff=30, DOMAINS=4.
 
 ```
 Summary
-  method:parabs cutoff:30 input:40 ran
-    1.13 ± 0.02 times faster than method:moonpool-ws cutoff:30 input:40
-    1.13 ± 0.02 times faster than method:moonpool-fifo cutoff:30 input:40
-    1.14 ± 0.02 times faster than method:domainslib cutoff:30 input:40
-    3.82 ± 0.06 times faster than method:sequential cutoff:30 input:40
-```
-
-Representative results for DOMAINS=10.
-
-```
-Summary
-  method:parabs cutoff:30 input:40 ran
-    1.01 ± 0.03 times faster than method:moonpool-ws cutoff:30 input:40
-    1.01 ± 0.02 times faster than method:moonpool-fifo cutoff:30 input:40
-    1.03 ± 0.02 times faster than method:domainslib cutoff:30 input:40
-    5.78 ± 0.10 times faster than method:sequential cutoff:30 input:40
+  method:taskflow cutoff:30 input:40 ran
+    1.32 ± 0.03 times faster than method:parabs cutoff:30 input:40
+    1.40 ± 0.03 times faster than method:domainslib cutoff:30 input:40
+    1.45 ± 0.04 times faster than method:moonpool-fifo cutoff:30 input:40
+    1.47 ± 0.04 times faster than method:moonpool-ws cutoff:30 input:40
+    5.43 ± 0.11 times faster than method:sequential cutoff:30 input:40
 ```
 
 ### `for_irregular`

@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-impls="sequential,parabs,domainslib,moonpool-fifo,moonpool-ws"
+impls="sequential,parabs,domainslib,taskflow,moonpool-fifo,moonpool-ws"
 
 #inputs="30 40 42"
 #cutoffs="20,25,30"
