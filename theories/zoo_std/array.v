@@ -231,7 +231,7 @@ Section zoo_G.
       intros ->. rewrite array_slice_app //.
     Qed.
 
-    Lemma array_slice_app3 t i dq vs1 vs2 vs3 :
+    Lemma array_slice_app3 {t i dq} vs1 vs2 vs3 :
       array_slice t i dq vs1 ∗
       array_slice t (i + length vs1) dq vs2 ∗
       array_slice t (i + length vs1 + length vs2) dq vs3 ⊣⊢
