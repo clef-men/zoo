@@ -281,7 +281,7 @@ Section inf_array_G.
 
     wp_rec.
     wp_apply (array_create_spec with "[//]") as "%data Hdata".
-    wp_smart_apply (mutex_create_spec_init with "[//]") as (mtx) "Hmtx_init".
+    wp_apply+ (mutex_create_spec_init with "[//]") as (mtx) "Hmtx_init".
     wp_block l as "Hmeta" "(Hl_data & Hl_default & Hl_mtx & _)".
     iMod (pointsto_persist with "Hl_default") as "#Hl_default".
 
@@ -329,12 +329,12 @@ Section inf_array_G.
     iIntros "%Hn %Φ (#Hl_default & (:inv_2)) HΦ".
 
     wp_rec. wp_load.
-    wp_smart_apply (array_size_spec with "Hdata") as "Hdata".
+    wp_apply+ (array_size_spec with "Hdata") as "Hdata".
     wp_pures. case_bool_decide; last iSteps.
-    wp_smart_apply (inf_array_next_capacity_spec with "[//]") as (?) "%"; first lia.
+    wp_apply+ (inf_array_next_capacity_spec with "[//]") as (?) "%"; first lia.
     wp_apply int_max_spec.
     wp_load.
-    wp_smart_apply (array_unsafe_grow_spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
+    wp_apply+ (array_unsafe_grow_spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
     wp_store.
 
     iSteps; iPureIntro; simpl_length; last lia.
@@ -366,12 +366,12 @@ Section inf_array_G.
     wp_rec credit:"H£". wp_load.
     wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1)".
     wp_load.
-    wp_smart_apply (array_size_spec with "Hdata") as "Hdata".
+    wp_apply+ (array_size_spec with "Hdata") as "Hdata".
     wp_pures. case_decide.
 
     - rewrite bool_decide_eq_true_2; first lia.
       iApply wp_fupd.
-      wp_smart_apply (array_unsafe_get_spec with "Hdata"); [done | | done |].
+      wp_apply+ (array_unsafe_get_spec with "Hdata"); [done | | done |].
       { rewrite list_lookup_lookup_total_lt //. lia. }
 
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -438,7 +438,7 @@ Section inf_array_G.
 
     wp_rec credit:"H£". wp_load.
     wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply+ (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -455,9 +455,9 @@ Section inf_array_G.
     iModIntro.
 
     wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
-    wp_smart_apply (wp_wand with "(Hfn Hv)") as (w) "Hw".
+    wp_apply+ (wp_wand with "(Hfn Hv)") as (w) "Hw".
     wp_load.
-    wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+    wp_apply+ (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
     wp_pures.
 
     iMod "HΦ" as "(%vs_ & ((:model) & _) & _ & HΦ)". injection Heq as <-.
@@ -493,7 +493,7 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    awp_smart_apply (inf_array_update_spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
+    awp_apply+ (inf_array_update_spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
@@ -520,7 +520,7 @@ Section inf_array_G.
 
     wp_rec. wp_load.
     wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply+ (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (w & Hlookup); first lia.
@@ -531,7 +531,7 @@ Section inf_array_G.
 
     wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_load.
-    wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+    wp_apply+ (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
     wp_pures.
 
     set vs' := <[₊i := v]> vs.
@@ -578,7 +578,7 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    wp_smart_apply (inf_array_xchg_spec with "Hinv"); first done.
+    wp_apply+ (inf_array_xchg_spec with "Hinv"); first done.
     iApply (atomic_update_wand with "HΦ").
     iSteps.
   Qed.
@@ -641,7 +641,7 @@ Section inf_array_G.
 
     wp_rec credit:"H£". wp_load.
     wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply+ (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -709,7 +709,7 @@ Section inf_array_G.
 
     wp_rec. wp_load.
     wp_apply (mutex_protect_spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_smart_apply (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply+ (inf_array_reserve_spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -781,7 +781,7 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    awp_smart_apply (inf_array_update_spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
+    awp_apply+ (inf_array_update_spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %n (%Hn & Hmodel)".
     iAaccIntro with "[$Hmodel]". 1,2: iSteps. iSteps as (l γ n_ Hn_) / --silent.
     rewrite Hn_ in Hn. injection Hn as ->. iSteps.

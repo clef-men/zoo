@@ -57,7 +57,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
-    wp_smart_apply (lst_is_empty_spec with "[//]") as "_"; first done.
+    wp_apply+ (lst_is_empty_spec with "[//]") as "_"; first done.
     destruct front as [| v front]; wp_pures.
     - wp_apply (lst_is_empty_spec with "[//]") as "_"; first done.
       erewrite bool_decide_ext by apply reverse_nil_iff. iSteps.

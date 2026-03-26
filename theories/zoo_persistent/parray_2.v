@@ -230,7 +230,7 @@ Section parray_2_G.
     iIntros "%Hsz %Φ (Hequal & #Hv) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
+    wp_apply+ (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
     wp_ref root as "Hroot".
     wp_block l as "Hmeta" "(Hl_equal & Hl_data & Hl_root & _)".
     iMod (pointsto_persist with "Hl_equal") as "#Hl_equal".
@@ -291,7 +291,7 @@ Section parray_2_G.
     wp_rec. wp_load.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_lookup); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
 
     wp_load.
 
@@ -395,12 +395,12 @@ Section parray_2_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_smart_apply ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:restore_inv root=node1)"; first iFrameSteps.
+      wp_apply+ ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:restore_inv root=node1)"; first iFrameSteps.
 
       destruct (lookup_lt_is_Some_2 vs_node1 i_node) as (v & Hvs_node1_lookup); first lia.
-      wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
+      wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
       wp_store.
-      wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+      wp_apply+ (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
       rewrite Nat2Z.id -Hvs_node.
 
       iDestruct (big_sepL_insert i_node with "Hvs_node1 Hv_node") as "Hvs"; first lia.
@@ -446,7 +446,7 @@ Section parray_2_G.
       wp_load.
 
       wp_load.
-      wp_smart_apply (parray_2_restore_0_spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
+      wp_apply+ (parray_2_restore_0_spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
       do 2 wp_store.
 
       iApply "HΦ".

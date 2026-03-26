@@ -305,9 +305,9 @@ Section ws_hub_std_G.
 
     wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
 
-    wp_smart_apply (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
+    wp_apply+ (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
-      wp_smart_apply int_positive_part_spec.
+      wp_apply+ int_positive_part_spec.
       wp_apply (random_round_create_spec' with "[//]"); first lia.
       rewrite Nat2Z.id. assert (₊(sz - 1) = ₊sz - 1) as -> by lia.
       iSteps.
@@ -315,7 +315,7 @@ Section ws_hub_std_G.
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
     rewrite Hrounds.
 
-    wp_smart_apply (ws_deques_public_create_spec with "[//]") as (queues) "(#Hqueues_inv & Hqueues_model & Hqueues_owner)"; first done.
+    wp_apply+ (ws_deques_public_create_spec with "[//]") as (queues) "(#Hqueues_inv & Hqueues_model & Hqueues_owner)"; first done.
 
     wp_block l as "Hmeta" "(Hl_queues & Hl_rounds & Hl_waiters & Hl_killed & _)".
     iMod (pointsto_persist with "Hl_queues") as "#Hl_queues".
@@ -476,7 +476,7 @@ Section ws_hub_std_G.
     { iFrameSteps. iPureIntro. apply consistent_push; done. }
     iIntros "!> HΦ !> Hqueues_owner Hround {%}".
 
-    wp_smart_apply ws_hub_std_notify_spec; iSteps.
+    wp_apply+ ws_hub_std_notify_spec; iSteps.
   Qed.
 
   Lemma ws_hub_std_pop_spec t ι sz i i_ empty :
@@ -507,7 +507,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_smart_apply (ws_deques_public_pop_spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
+    awp_apply+ (ws_deques_public_pop_spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |] us) "Ho".
@@ -557,7 +557,7 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
     wp_apply (array_unsafe_get_spec_cell with "Hrounds") as "_"; first lia.
-    wp_smart_apply (random_round_reset_spec' with "Hround") as "Hround".
+    wp_apply+ (random_round_reset_spec' with "Hround") as "Hround".
     wp_load.
 
     iDestruct (ws_deques_public_inv_owner with "Hqueues_inv Hqueues_owner") as %?.
@@ -627,7 +627,7 @@ Section ws_hub_std_G.
       iApply ("HΦ" $! Nothing with "Hmodel").
       iSteps.
 
-    - awp_smart_apply (ws_hub_std_try_steal_once_spec with "[Hqueues_owner Hround]"); [done | iSteps |].
+    - awp_apply+ (ws_hub_std_try_steal_once_spec with "[Hqueues_owner Hround]"); [done | iSteps |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -636,7 +636,7 @@ Section ws_hub_std_G.
       + iLeft. iFrame.
         iIntros "HΦ !> Howner {%- Hmax_round Hcase}".
 
-        wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
+        wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
         destruct b; wp_pures.
 
         * iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
@@ -645,7 +645,7 @@ Section ws_hub_std_G.
         * wp_bind (if: _ then _ else _)%E.
           wp_apply (wp_wand itype_unit) as (res) "->".
           { destruct yield; iSteps. }
-          wp_smart_apply ("HLöb" with "[] [$Howner $H] HΦ"); iSteps.
+          wp_apply+ ("HLöb" with "[] [$Howner $H] HΦ"); iSteps.
   Qed.
 
   #[local] Lemma ws_hub_std_steal_until_0_spec P Q t ι sz i i_ empty pred :
@@ -687,7 +687,7 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_once_spec with "[$Hinv $Howner]"); first done.
+    awp_apply+ (ws_hub_std_try_steal_once_spec with "[$Hinv $Howner]"); first done.
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -696,14 +696,14 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%}".
 
-      wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
+      wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
       destruct b; wp_pures.
 
       + iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
         iApply ("HΦ" $! None with "Hmodel [$Howner $H]").
 
       + wp_apply domain_yield_spec.
-        wp_smart_apply ("HLöb" with "Howner H HΦ").
+        wp_apply+ ("HLöb" with "Howner H HΦ").
   Qed.
   #[local] Lemma ws_hub_std_steal_until_1_spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
@@ -743,14 +743,14 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+    awp_apply+ (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
       iIntros "HΦ !> (Howner & HP) {%}".
 
-      wp_smart_apply (ws_hub_std_steal_until_0_spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); first done.
+      wp_apply+ (ws_hub_std_steal_until_0_spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); first done.
 
     - iRight. iExists None. iFrameSteps.
 
@@ -793,10 +793,10 @@ Section ws_hub_std_G.
     iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
-    wp_smart_apply (ws_hub_std_steal_until_1_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+    wp_apply+ (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_apply+ (ws_hub_std_steal_until_1_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
     iApply (atomic_update_wand with "HΦ"). iIntros "_ %o HΦ (Howner & H)".
-    wp_smart_apply (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_apply+ (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
     wp_pures.
     iApply ("HΦ" with "[$Howner $H]").
   Qed.
@@ -841,14 +841,14 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+    awp_apply+ (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
       iIntros "HΦ !> (Howner & HP) {%- Hmax_round_yield}".
 
-      wp_smart_apply (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); done.
+      wp_apply+ (ws_hub_std_try_steal_spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); done.
 
     - iRight. iExists Anything. iFrameSteps.
 
@@ -885,9 +885,9 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_steal_aux_spec True True with "[$Hinv $Howner]"); [done.. | |].
+    awp_apply+ (ws_hub_std_steal_aux_spec True True with "[$Hinv $Howner]"); [done.. | |].
     { iStep 3.
-      wp_smart_apply (ws_hub_std_killed_spec with "Hinv") as (killed) "_".
+      wp_apply+ (ws_hub_std_killed_spec with "Hinv") as (killed) "_".
       iSteps. destruct killed; iSteps.
     }
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
@@ -899,9 +899,9 @@ Section ws_hub_std_G.
       iDestruct "Hinv" as "(:inv)".
 
       wp_load.
-      wp_smart_apply (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
+      wp_apply+ (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
 
-      awp_smart_apply (ws_hub_std_try_steal_once_spec with "[$Howner]") without "Hwaiter"; [done.. | iSteps |].
+      awp_apply+ (ws_hub_std_try_steal_once_spec with "[$Howner]") without "Hwaiter"; [done.. | iSteps |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -910,22 +910,22 @@ Section ws_hub_std_G.
         iSplitL "Hmodel". { iFrameSteps. }
         iIntros "HΦ !> Howner Hwaiter {%}".
 
-        wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+        wp_apply+ (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
         wp_pures.
         iApply ("HΦ" with "Howner").
 
       + iLeft. iFrame.
         iIntros "HΦ !> Howner Hwaiter {%}".
 
-        wp_smart_apply ws_hub_std_killed_spec as ([]) "_"; first iSteps.
+        wp_apply+ ws_hub_std_killed_spec as ([]) "_"; first iSteps.
 
-        * wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+        * wp_apply+ (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
           wp_pures.
           iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
           iApply ("HΦ" $! None with "Hmodel Howner").
 
-        * wp_smart_apply (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
-          wp_smart_apply ("HLöb" with "Howner HΦ").
+        * wp_apply+ (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+          wp_apply+ ("HLöb" with "Howner HΦ").
 
     - iRight. iExists None. iFrameSteps.
 
@@ -962,10 +962,10 @@ Section ws_hub_std_G.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
-    wp_smart_apply (ws_hub_std_steal_0_spec with "[$Hinv $Howner]"); [done.. |].
+    wp_apply+ (ws_hub_std_block_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_apply+ (ws_hub_std_steal_0_spec with "[$Hinv $Howner]"); [done.. |].
     iApply (atomic_update_wand with "HΦ"). iIntros "_ %o HΦ Howner".
-    wp_smart_apply (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_apply+ (ws_hub_std_unblock_spec with "[$Hinv $Howner]") as "Howner"; first done.
     wp_pures.
     iApply ("HΦ" with "Howner").
   Qed.
@@ -990,7 +990,7 @@ Section ws_hub_std_G.
     iSplitR "HΦ". { iSteps. }
     iIntros "!> {%}".
 
-    wp_smart_apply ws_hub_std_notify_all_spec as "_"; first iSteps.
+    wp_apply+ ws_hub_std_notify_all_spec as "_"; first iSteps.
     iSteps.
   Qed.
 End ws_hub_std_G.
@@ -1047,7 +1047,7 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -1056,7 +1056,7 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
-      wp_smart_apply (ws_hub_std_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+      wp_apply+ (ws_hub_std_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & H)".
       iApply ("HΦ" with "[- $Howner]").
       destruct o; iFrameSteps.
@@ -1096,7 +1096,7 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_std_pop_spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -1106,7 +1106,7 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp_smart_apply (ws_hub_std_steal_spec with "[$Hinv $Howner]"); [done.. |].
+      wp_apply+ (ws_hub_std_steal_spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.

@@ -108,8 +108,8 @@ Section waiters_G.
     iSplitR "Hwaiter"; first iSteps.
     iIntros "_ HΦ".
 
-    wp_smart_apply (mpsc_waiter_notify_spec with "[$Hwaiter //]") as ([]) "_"; last iSteps.
-    wp_smart_apply ("HLöb" with "HΦ").
+    wp_apply+ (mpsc_waiter_notify_spec with "[$Hwaiter //]") as ([]) "_"; last iSteps.
+    wp_apply+ ("HLöb" with "HΦ").
   Qed.
 
   Lemma waiters_notify_spec t :
@@ -146,8 +146,8 @@ Section waiters_G.
 
     wp_rec. wp_pures.
     case_bool_decide; last iSteps.
-    wp_smart_apply (waiters_notify'_spec with "Hinv") as ([]) "_"; last iSteps.
-    wp_smart_apply ("HLöb" with "[] HΦ"); first iSteps.
+    wp_apply+ (waiters_notify'_spec with "Hinv") as ([]) "_"; last iSteps.
+    wp_apply+ ("HLöb" with "[] HΦ"); first iSteps.
   Qed.
 
   Lemma waiters_prepare_wait_spec t :
@@ -166,7 +166,7 @@ Section waiters_G.
     wp_rec.
     wp_apply (mpsc_waiter_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
 
-    awp_smart_apply (mpmc_queue_1_push_spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
+    awp_apply+ (mpmc_queue_1_push_spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
     iInv "Hinv" as "(%waiters & >Hmodel & Hwaiters)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     iSplitL. { iSteps. iApply big_sepL_snoc. iSteps. }
@@ -187,8 +187,8 @@ Section waiters_G.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
 
     wp_rec.
-    wp_smart_apply (mpsc_waiter_notify_spec with "[$Hwaiter_inv //]") as ([]) "_"; last iSteps.
-    wp_smart_apply (waiters_notify_spec with "Hinv HΦ").
+    wp_apply+ (mpsc_waiter_notify_spec with "[$Hwaiter_inv //]") as ([]) "_"; last iSteps.
+    wp_apply+ (waiters_notify_spec with "Hinv HΦ").
   Qed.
 
   Lemma waiters_commit_wait_spec t waiter :
@@ -205,7 +205,7 @@ Section waiters_G.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
 
     wp_rec.
-    wp_smart_apply (mpsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer] HΦ").
+    wp_apply+ (mpsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer] HΦ").
   Qed.
 End waiters_G.
 

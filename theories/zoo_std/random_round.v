@@ -67,7 +67,7 @@ Section zoo_G.
     pose (Ψ := λ arr i vs, (
       ⌜vs = #*@{nat} $ seq 0 i⌝
     )%I : iProp Σ).
-    wp_smart_apply (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
+    wp_apply+ (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
     { iStep 2. iIntros "%arr %i %vs _ _ ->".
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
@@ -119,26 +119,26 @@ Section zoo_G.
     simpl_length in Hlength.
 
     wp_rec. do 3 wp_load.
-    wp_smart_apply (random_state_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
+    wp_apply+ (random_state_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
 
     Z_to_nat j.
     set i := length nexts - 1.
 
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_get_spec with "Harr") as "Harr".
     { lia. }
     { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
 
     destruct (lookup_lt_is_Some_2 nexts i) as (next & Hnexts_lookup_i); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_get_spec with "Harr") as "Harr".
     { lia. }
     { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
 
-    wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_set_spec with "Harr") as "Harr".
     { simpl_length. lia. }
-    wp_smart_apply (array_unsafe_set_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_set_spec with "Harr") as "Harr".
     { simpl_length. lia. }
     wp_store. wp_pures.
 

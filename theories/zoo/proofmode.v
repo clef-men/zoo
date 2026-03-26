@@ -1260,7 +1260,7 @@ Tactic Notation "wp_apply" open_constr(lemma) "as"
 :=
   wp_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 ) pat.
 
-Tactic Notation "wp_smart_apply" open_constr(lemma) :=
+Tactic Notation "wp_apply+" open_constr(lemma) :=
   wp_apply_core lemma
     ltac:(fun H =>
       iApplyHyp H;
@@ -1271,32 +1271,32 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) :=
       wp_pure _; [];
       retry ()
     ).
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1304,8 +1304,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1314,8 +1314,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1325,8 +1325,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 x6 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1337,8 +1337,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1350,8 +1350,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1364,8 +1364,8 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 ) pat.
-Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 ) pat.
+Tactic Notation "wp_apply+" open_constr(lemma) "as"
   "(" simple_intropattern(x1)
       simple_intropattern(x2)
       simple_intropattern(x3)
@@ -1379,7 +1379,7 @@ Tactic Notation "wp_smart_apply" open_constr(lemma) "as"
   ")"
   constr(pat)
 :=
-  wp_smart_apply lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 ) pat.
+  wp_apply+ lemma; last iIntros ( x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 ) pat.
 
 Tactic Notation "awp_apply" open_constr(lemma) :=
   wp_apply_core lemma
@@ -1402,7 +1402,7 @@ Tactic Notation "awp_apply" open_constr(lemma) "without" constr(Hs) :=
     );
   last iAuIntro.
 
-Tactic Notation "awp_smart_apply" open_constr(lemma) :=
+Tactic Notation "awp_apply+" open_constr(lemma) :=
   wp_apply_core lemma
     ltac:(fun H =>
       iApplyHyp H
@@ -1412,7 +1412,7 @@ Tactic Notation "awp_smart_apply" open_constr(lemma) :=
       retry ()
     );
   last iAuIntro.
-Tactic Notation "awp_smart_apply" open_constr(lemma) "without" constr(Hs) :=
+Tactic Notation "awp_apply+" open_constr(lemma) "without" constr(Hs) :=
   let Hs := String.words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   wp_apply_core lemma

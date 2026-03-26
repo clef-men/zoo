@@ -1141,7 +1141,7 @@ Section ws_deques_private_G.
     iMod ("HΦ" with "[Hmodels_auth]") as "HΦ"; first iSteps.
     iModIntro.
 
-    wp_smart_apply (ws_deques_private_respond_spec with "[- HΦ] HΦ"); [done | iFrameSteps].
+    wp_apply+ (ws_deques_private_respond_spec with "[- HΦ] HΦ"); [done | iFrameSteps].
   Qed.
 
   Lemma ws_deques_private_pop_spec t ι sz i i_ ws :
@@ -1189,7 +1189,7 @@ Section ws_deques_private_G.
       iMod ("HΦ" $! (Some v) with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
 
-      wp_smart_apply (ws_deques_private_respond_spec with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
+      wp_apply+ (ws_deques_private_respond_spec with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
       wp_pures.
       iApply ("HΦ" with "Howner").
 
@@ -1197,7 +1197,7 @@ Section ws_deques_private_G.
       iMod ("HΦ" $! None with "[Hmodels_auth]") as "HΦ"; first iSteps.
       iModIntro.
 
-      wp_smart_apply (ws_deques_private_respond_spec [] with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
+      wp_apply+ (ws_deques_private_respond_spec [] with "[- HΦ]") as "Howner"; [done | iFrameSteps |].
       wp_pures.
       iApply ("HΦ" with "Howner").
   Qed.
@@ -1238,8 +1238,8 @@ Section ws_deques_private_G.
     - iSplitR "Hchannels_receiver". { iFrameSteps. }
       iIntros "!> _ HΦ".
 
-      wp_smart_apply domain_yield_spec.
-      wp_smart_apply ("HLöb" with "Hchannels_receiver HΦ").
+      wp_apply+ domain_yield_spec.
+      wp_apply+ ("HLöb" with "Hchannels_receiver HΦ").
 
     - iDestruct (big_sepL_lookup_acc with "Hresponses") as "(Hresponse & Hresponses)"; first done.
       iDestruct "Hresponse" as "(:response_model =1)".
@@ -1368,7 +1368,7 @@ Section ws_deques_private_G.
         iSplitR "Hchannels_receiver". { iFrameSteps. }
         iIntros "!> _".
 
-        wp_smart_apply (ws_deques_private_steal_to_0_spec with "[$Hmeta $Hl_responses $Hresponses_inv $Hinv $Hchannels_receiver]"); [lia.. |].
+        wp_apply+ (ws_deques_private_steal_to_0_spec with "[$Hmeta $Hl_responses $Hresponses_inv $Hinv $Hchannels_receiver]"); [lia.. |].
         iSteps.
 
       + iSplitR "Hchannels_sender Hchannels_receiver HΦ". { iFrameSteps. }
@@ -1433,7 +1433,7 @@ Section ws_deques_private_G.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_smart_apply (ws_deques_private_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      awp_apply+ (ws_deques_private_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
@@ -1481,7 +1481,7 @@ Section ws_deques_private_G.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_deques_private_size_spec with "Hinv") as "_".
+    wp_apply+ (ws_deques_private_size_spec with "Hinv") as "_".
     wp_pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
     wp_apply (ws_deques_private_steal_as_0_spec with "[$Hinv $Hround] HΦ"); first done.

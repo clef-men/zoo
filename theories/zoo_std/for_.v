@@ -48,7 +48,7 @@ Section zoo_G.
     - rewrite decide_False; first lia.
       wp_apply (wp_wand with "(Hbody [//] [%] HΨ)") as "%res (-> & HΨ)"; first lia.
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      wp_smart_apply ("IH" with "[] [] HΨ [HΦ]"); [iSteps.. |].
+      wp_apply+ ("IH" with "[] [] HΨ [HΦ]"); [iSteps.. |].
       assert ((i + 1) `max` _end = i `max` _end)%Z as -> by lia. rewrite -Nat.add_succ_comm //.
   Qed.
   Lemma for_spec_strong Ψ beg _end body :
@@ -391,6 +391,6 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hbody HΦ".
     wp_apply (for_spec_disentangled (λ _ _, True%I)); last iSteps. iIntros "!> %i %δ %Hi1 %Hi2".
-    wp_smart_apply (wp_wand with "(Hbody [])"); iSteps.
+    wp_apply+ (wp_wand with "(Hbody [])"); iSteps.
   Qed.
 End zoo_G.

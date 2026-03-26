@@ -63,34 +63,34 @@ Section vertex_fibonacci_G.
       rewrite fibonacci_base //. 1: lia.
 
     - wp_ref r1 as "Hr1".
-      wp_smart_apply (vertex_create_spec
+      wp_apply+ (vertex_create_spec
         (r1 ↦ᵣ #(fibonacci (n - 1)))
         True
         None
       with "[//]") as (vtx1 iter1) "(#Hvtx1_inv & Hvtx1_model & Hvtx1_output)".
-      wp_smart_apply (vertex_set_task_spec with "Hvtx1_model") as "Hvtx1_model".
-      wp_smart_apply (vertex_release_spec with "[$Hctx $Hvtx1_model Hr1]") as "Hctx".
+      wp_apply+ (vertex_set_task_spec with "Hvtx1_model") as "Hvtx1_model".
+      wp_apply+ (vertex_release_spec with "[$Hctx $Hvtx1_model Hr1]") as "Hctx".
       { iFrame "#".
         iEval (replace (n - 1)%Z with ⁺(n - 1) by lia).
         iApply ("HLöb" with "Hvtx1_inv Hr1").
       }
 
       wp_ref r2 as "Hr2".
-      wp_smart_apply (vertex_create_spec
+      wp_apply+ (vertex_create_spec
         (r2 ↦ᵣ #(fibonacci (n - 2)))
         True
         None
       with "[//]") as (vtx2 iter2) "(#Hvtx2_inv & Hvtx2_model & Hvtx2_output)".
-      wp_smart_apply (vertex_set_task_spec with "Hvtx2_model") as "Hvtx2_model".
-      wp_smart_apply (vertex_release_spec with "[$Hctx $Hvtx2_model Hr2]") as "Hctx".
+      wp_apply+ (vertex_set_task_spec with "Hvtx2_model") as "Hvtx2_model".
+      wp_apply+ (vertex_release_spec with "[$Hctx $Hvtx2_model Hr2]") as "Hctx".
       { iFrame "#".
         iEval (replace (n - 2)%Z with ⁺(n - 2) by lia).
         iApply ("HLöb" with "Hvtx2_inv Hr2").
       }
 
-      wp_smart_apply (vertex_precede_spec with "[$Hvtx_model]") as "(Hvtx_model & #Hvtx1_predecessor)". 1: iFrame "#".
-      wp_smart_apply (vertex_precede_spec with "[$Hvtx_model]") as "(Hvtx_model & #Hvtx2_predecessor)". 1: iFrame "#".
-      wp_smart_apply (vertex_yield_spec with "[$Hvtx_model]") as "Hvtx_model".
+      wp_apply+ (vertex_precede_spec with "[$Hvtx_model]") as "(Hvtx_model & #Hvtx1_predecessor)". 1: iFrame "#".
+      wp_apply+ (vertex_precede_spec with "[$Hvtx_model]") as "(Hvtx_model & #Hvtx2_predecessor)". 1: iFrame "#".
+      wp_apply+ (vertex_yield_spec with "[$Hvtx_model]") as "Hvtx_model".
       iStep 4.
 
       iEval (rewrite vertex_wp_unfold).
@@ -126,33 +126,33 @@ Section vertex_fibonacci_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_smart_apply (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
+    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
-    wp_smart_apply (pool_run_spec (λ v,
+    wp_apply+ (pool_run_spec (λ v,
       ⌜v = #_⌝
     )%I with "[$Hpool_model]") as (?) "(Hpool_model & ->)".
     { iIntros "%ctx %scope Hctx".
 
       wp_ref r as "Hr".
-      wp_smart_apply (vertex_create_spec
+      wp_apply+ (vertex_create_spec
         (r ↦ᵣ #(fibonacci n))
         True
         None
       with "[//]") as (vtx1 iter) "(#Hvtx1_inv & Hvtx1_model & Hvtx1_output)".
-      wp_smart_apply (vertex_set_task_spec with "Hvtx1_model") as "Hvtx1_model".
-      wp_smart_apply (vertex_release_spec with "[$Hctx $Hvtx1_inv $Hvtx1_model Hr]") as "Hctx".
+      wp_apply+ (vertex_set_task_spec with "Hvtx1_model") as "Hvtx1_model".
+      wp_apply+ (vertex_release_spec with "[$Hctx $Hvtx1_inv $Hvtx1_model Hr]") as "Hctx".
       { iApply (vertex_fibonacci_main_0_spec with "Hvtx1_inv Hr"). }
 
-      wp_smart_apply (mpsc_flag_create_spec
+      wp_apply+ (mpsc_flag_create_spec
         (r ↦ᵣ #(fibonacci n))
       with "[//]") as (flag) "(#Hflag_inv & Hflag_consumer)".
 
-      wp_smart_apply (vertex_create'_spec
+      wp_apply+ (vertex_create'_spec
         True
         True
       with "[//]") as (vtx2 iter2) "(#Hvtx2_inv & Hvtx2_model & _)".
-      wp_smart_apply (vertex_precede_spec with "[$Hvtx2_model]") as "(Hvtx2_model & #Hvtx1_predecessor)". 1: iFrame "#".
-      wp_smart_apply (vertex_release_spec' with "[$Hctx $Hvtx2_model Hvtx1_output]") as "Hctx".
+      wp_apply+ (vertex_precede_spec with "[$Hvtx2_model]") as "(Hvtx2_model & #Hvtx1_predecessor)". 1: iFrame "#".
+      wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx2_model Hvtx1_output]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx2_ready".
 
         wp_pures credits:"H£".
@@ -161,23 +161,23 @@ Section vertex_fibonacci_G.
         iDestruct (vertex_predecessor_finished with "Hvtx1_predecessor Hvtx2_ready") as "#Hvtx1_finished".
         iMod (vertex_inv_finished_output' with "H£ Hvtx1_inv Hvtx1_finished Hvtx1_output") as "Hr".
 
-        wp_smart_apply (mpsc_flag_set_spec with "[$Hflag_inv $Hr]").
+        wp_apply+ (mpsc_flag_set_spec with "[$Hflag_inv $Hr]").
         iSteps.
       }
 
-      wp_smart_apply (pool_wait_until_spec
+      wp_apply+ (pool_wait_until_spec
         (mpsc_flag_consumer flag)
         (r ↦ᵣ #(fibonacci n))
       with "[$Hctx Hflag_consumer]").
       { iStep 3 as "Hflag_consumer".
-        wp_smart_apply (mpsc_flag_get_spec with "[$Hflag_inv $Hflag_consumer]").
+        wp_apply+ (mpsc_flag_get_spec with "[$Hflag_inv $Hflag_consumer]").
         iSteps.
       }
 
       iSteps.
     }
 
-    wp_smart_apply (pool_kill_spec with "Hpool_model").
+    wp_apply+ (pool_kill_spec with "Hpool_model").
     iSteps.
   Qed.
 End vertex_fibonacci_G.

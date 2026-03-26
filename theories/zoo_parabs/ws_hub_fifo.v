@@ -521,7 +521,7 @@ Section ws_hub_fifo_G.
     { iFrameSteps. iPureIntro. apply consistent_push. done. }
     iIntros "!> HΦ !> _ {%}".
 
-    wp_smart_apply ws_hub_fifo_notify_spec as "_"; first iSteps.
+    wp_apply+ ws_hub_fifo_notify_spec as "_"; first iSteps.
     iSteps.
   Qed.
 
@@ -561,7 +561,7 @@ Section ws_hub_fifo_G.
 
     wp_rec. wp_load.
 
-    awp_smart_apply (mpmc_queue_1_pop_spec with "Hqueue_inv").
+    awp_apply+ (mpmc_queue_1_pop_spec with "Hqueue_inv").
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
@@ -670,7 +670,7 @@ Section ws_hub_fifo_G.
     iIntros (->) "%Φ (Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_fifo_pop'_spec_owner with "[$Hinv $Howner] HΦ").
+    wp_apply+ (ws_hub_fifo_pop'_spec_owner with "[$Hinv $Howner] HΦ").
   Qed.
 
   #[local] Lemma ws_hub_fifo_steal_until_0_spec P Q t ι sz pred :
@@ -708,7 +708,7 @@ Section ws_hub_fifo_G.
     iLöb as "HLöb".
 
     wp_rec.
-    wp_smart_apply (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
+    wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
     destruct b.
 
     - iApply fupd_wp.
@@ -716,9 +716,9 @@ Section ws_hub_fifo_G.
       iMod ("HΦ" $! None with "Hmodel") as "HΦ".
       iSteps.
 
-    - wp_smart_apply domain_yield_spec.
+    - wp_apply+ domain_yield_spec.
 
-      awp_smart_apply ws_hub_fifo_pop'_spec; first iSteps.
+      awp_apply+ ws_hub_fifo_pop'_spec; first iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
 
@@ -763,7 +763,7 @@ Section ws_hub_fifo_G.
     iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_fifo_steal_until_0_spec P Q with "[$Hinv $HP $Hpred]").
+    wp_apply+ (ws_hub_fifo_steal_until_0_spec P Q with "[$Hinv $HP $Hpred]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
     iApply ("HΦ" with "[$Howner $H]").
   Qed.
@@ -794,10 +794,10 @@ Section ws_hub_fifo_G.
     iLöb as "HLöb".
 
     wp_rec. wp_load.
-    wp_smart_apply (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
-    wp_smart_apply ws_hub_fifo_killed_spec as ([]) "_"; first iSteps.
+    wp_apply+ (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
+    wp_apply+ ws_hub_fifo_killed_spec as ([]) "_"; first iSteps.
 
-    - wp_smart_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+    - wp_apply+ (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
 
       iApply fupd_wp.
       iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
@@ -805,7 +805,7 @@ Section ws_hub_fifo_G.
       iSteps.
 
     - wp_load.
-      wp_smart_apply (mpmc_queue_1_is_empty_spec' with "Hqueue_inv") as (b) "_".
+      wp_apply+ (mpmc_queue_1_is_empty_spec' with "Hqueue_inv") as (b) "_".
 
       wp_bind (if: _ then _ else _)%E.
       wp_apply (wp_wand itype_unit with "[Hwaiter]") as (res) "->".
@@ -815,7 +815,7 @@ Section ws_hub_fifo_G.
         all: iSteps.
       }
 
-      awp_smart_apply ws_hub_fifo_pop'_spec; first iSteps.
+      awp_apply+ ws_hub_fifo_pop'_spec; first iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
 
@@ -851,7 +851,7 @@ Section ws_hub_fifo_G.
     iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_hub_fifo_steal_0_spec with "Hinv").
+    wp_apply+ (ws_hub_fifo_steal_0_spec with "Hinv").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
@@ -876,7 +876,7 @@ Section ws_hub_fifo_G.
     iSplitR "HΦ". { iSteps. }
     iIntros "!> {%}".
 
-    wp_smart_apply ws_hub_fifo_notify_all_spec as "_"; first iSteps.
+    wp_apply+ ws_hub_fifo_notify_all_spec as "_"; first iSteps.
     iSteps.
   Qed.
 End ws_hub_fifo_G.
@@ -933,7 +933,7 @@ Section ws_hub_fifo_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -942,7 +942,7 @@ Section ws_hub_fifo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
-      wp_smart_apply (ws_hub_fifo_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+      wp_apply+ (ws_hub_fifo_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & H)".
       iApply ("HΦ" with "[- $Howner]").
       destruct o; iFrameSteps.
@@ -982,7 +982,7 @@ Section ws_hub_fifo_G.
 
     wp_rec.
 
-    awp_smart_apply (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -992,7 +992,7 @@ Section ws_hub_fifo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp_smart_apply (ws_hub_fifo_steal_spec with "[$Hinv $Howner]"); [done.. |].
+      wp_apply+ (ws_hub_fifo_steal_spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.

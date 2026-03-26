@@ -213,7 +213,7 @@ Section parray_1_G.
     iIntros "%Hsz %Φ (#Hequal & #Hv) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
+    wp_apply+ (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
     wp_ref root as "Hroot".
 
     iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
@@ -277,13 +277,13 @@ Section parray_1_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_smart_apply ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:reroot_inv root=node1)".
+      wp_apply+ ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:reroot_inv root=node1)".
       { iFrame "∗#". iSteps. }
 
       destruct (lookup_lt_is_Some_2 vs_node1 i_node) as (v & Hvs_node1_lookup); first lia.
-      wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
+      wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
       wp_store.
-      wp_smart_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+      wp_apply+ (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
       rewrite Nat2Z.id -Hvs_node.
       wp_pures.
 
@@ -325,7 +325,7 @@ Section parray_1_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_smart_apply (parray_1_reroot_0_spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
+      wp_apply+ (parray_1_reroot_0_spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
       { iFrame "∗#". iSteps. }
 
       iStep 16. iFrame "∗#" => //.
@@ -348,10 +348,10 @@ Section parray_1_G.
 
     wp_rec.
 
-    wp_smart_apply (parray_1_reroot_spec with "[$]") as (nodes) "(:inv' root=node !=)".
+    wp_apply+ (parray_1_reroot_spec with "[$]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
-    wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
+    wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
 
     iApply "HΦ".
     iFrame "#∗" => //.
@@ -376,14 +376,14 @@ Section parray_1_G.
 
     wp_rec.
 
-    wp_smart_apply (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node !=)".
+    wp_apply+ (parray_1_reroot_spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_node_lookup); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hvs_node") as "#Hw"; first done.
-    wp_smart_apply (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
+    wp_apply+ (wp_wand with "(Hequal Hv Hw)") as (res) "(%b & -> & %Hb)".
     destruct b; first subst w; wp_pures.
 
     - rewrite list_insert_id //.

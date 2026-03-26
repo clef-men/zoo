@@ -173,8 +173,8 @@ Section spsc_waiter_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_smart_apply (condition_create_spec with "[//]") as "%cond #Hcondition_inv".
-    wp_smart_apply (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
+    wp_apply+ (condition_create_spec with "[//]") as "%cond #Hcondition_inv".
+    wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
     wp_block l as "Hmeta" "(Hl_flag & Hl_mutex & Hl_condition & _)".
     iMod (pointsto_persist with "Hl_mutex") as "Hl_mutex".
     iMod (pointsto_persist with "Hl_condition") as "Hl_condition".
@@ -316,7 +316,7 @@ Section spsc_waiter_G.
       ⌜res = ()%V⌝ ∗
       P
     )%I.
-    wp_smart_apply (mutex_protect_spec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
+    wp_apply+ (mutex_protect_spec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
     iIntros "Hmutex_locked _".
     pose (Ψ_cond b := (
       if b then
@@ -324,7 +324,7 @@ Section spsc_waiter_G.
       else
         excl γ.(metadata_consumer) ()
     )%I).
-    wp_smart_apply (condition_wait_until_spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
+    wp_apply+ (condition_wait_until_spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
 
     iIntros "!> Hmutex_locked _ Hconsumer".
     wp_pures.

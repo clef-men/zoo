@@ -177,7 +177,7 @@ Section ws_deques_public_G.
       )
     )%I).
     iApply wp_fupd.
-    wp_smart_apply (array_unsafe_init_spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
+    wp_apply+ (array_unsafe_init_spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
     { iSplit; iSteps.
       wp_apply (ws_deque_2_create_spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
@@ -258,10 +258,10 @@ Section ws_deques_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp_apply+ (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_smart_apply (ws_deque_2_push_spec with "[$Hqueue_inv $Hqueue_owner]").
+    awp_apply+ (ws_deque_2_push_spec with "[$Hqueue_inv $Hqueue_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -308,10 +308,10 @@ Section ws_deques_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp_apply+ (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_smart_apply (ws_deque_2_pop_spec with "[$Hqueue_inv $Hqueue_owner]").
+    awp_apply+ (ws_deque_2_pop_spec with "[$Hqueue_inv $Hqueue_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -363,10 +363,10 @@ Section ws_deques_public_G.
 
     wp_rec.
     destruct (lookup_lt_is_Some_2 queues ₊j) as (queue & Hqueue_lookup); first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done.. |].
+    wp_apply+ (array_unsafe_get_spec with "Hqueues") as "_"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "#Hqueue_inv"; first done.
-    awp_smart_apply (ws_deque_2_steal_spec with "Hqueue_inv") without "Howner".
+    awp_apply+ (ws_deque_2_steal_spec with "Hqueue_inv") without "Howner".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -440,7 +440,7 @@ Section ws_deques_public_G.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_smart_apply (ws_deques_public_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      awp_apply+ (ws_deques_public_steal_to_spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
@@ -488,7 +488,7 @@ Section ws_deques_public_G.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
     wp_rec.
-    wp_smart_apply (ws_deques_public_size_spec with "Hinv") as "_".
+    wp_apply+ (ws_deques_public_size_spec with "Hinv") as "_".
     wp_pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
     wp_apply (ws_deques_public_steal_as_0_spec with "[$Hinv $Hround] HΦ"); first done.

@@ -295,7 +295,7 @@ Section mutex_G.
 
     wp_rec.
     wp_apply (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
-    wp_smart_apply (mutex_unlock_spec with "[$Hinv $Hlocked $HP] HΦ").
+    wp_apply+ (mutex_unlock_spec with "[$Hinv $Hlocked $HP] HΦ").
   Qed.
   #[global] Instance mutex_synchronize_diaspec t P :
     DIASPEC
@@ -334,9 +334,9 @@ Section mutex_G.
     iIntros "%Φ (#Hinv & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
-    wp_smart_apply (wp_wand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
-    wp_smart_apply (mutex_unlock_spec with "[$Hinv $Hlocked $HP]").
+    wp_apply+ (mutex_lock_spec with "Hinv") as "(Hlocked & HP)".
+    wp_apply+ (wp_wand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
+    wp_apply+ (mutex_unlock_spec with "[$Hinv $Hlocked $HP]").
     iSteps.
   Qed.
 End mutex_G.

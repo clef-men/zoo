@@ -739,7 +739,7 @@ Module base.
       )%I) as (res) "->".
       { destruct task; iSteps. }
 
-      wp_smart_apply (mpmc_stack_2_create_spec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
+      wp_apply+ (mpmc_stack_2_create_spec with "[//]") as (succs) "(#Hsuccessors_inv & Hsuccessors_model)".
       wp_block t as "Hmeta" "(Ht_task & Ht_preds & Ht_succs & _)".
       iMod (pointsto_persist with "Ht_succs") as "#Ht_succs".
 
@@ -784,7 +784,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp_rec.
-      wp_smart_apply (vertex_create_spec P R (Some _) with "[//]").
+      wp_apply+ (vertex_create_spec P R (Some _) with "[//]").
       iSteps.
     Qed.
 
@@ -834,7 +834,7 @@ Module base.
       iApply (wp_frame_wand with "[Ht2_task HΦ]"); first iAccu.
       wp_load.
 
-      awp_smart_apply (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
+      awp_apply+ (mpmc_stack_2_is_closed_spec with "Hsuccessors1_inv") without "Hstate2₁ Hiteration2₁".
       iInv "Hinv_1" as "(:inv_inner which=1 =1)".
       case_decide as [-> | Hstate1].
 
@@ -1000,7 +1000,7 @@ Module base.
           iSplitR "Hctx Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
           iIntros "{%} !>".
 
-          wp_smart_apply ("IHrun" with "[$]").
+          wp_apply+ ("IHrun" with "[$]").
           iSteps.
 
         - iMod (state_update Released with "Hstate₁ Hstate₂") as "(Hstate₁ & Hstate₂)".
@@ -1053,7 +1053,7 @@ Module base.
             iSplitR "Hctx Hdependencies_auth Ht_task Hstate₁ Hiteration₁ Htask". { iFrameSteps. }
             iIntros "{%} !>".
 
-            wp_smart_apply ("IHrun" with "[$]").
+            wp_apply+ ("IHrun" with "[$]").
             iSteps.
 
           + apply gmultiset_elem_of_size_non_empty in Hπ as ?.
@@ -1085,7 +1085,7 @@ Module base.
         iIntros "%pool %ctx %scope %t %γ %iter %P %R %task !> %Φ (Hctx & (:inv_pre) & #Hready & (:model') & Htask) HΦ".
 
         wp_rec.
-        wp_smart_apply (pool_async_spec True True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
+        wp_apply+ (pool_async_spec True True with "[-HΦ $Hctx]"); last iSteps. iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_pures.
 
         wp_bind (_ <-{preds} _)%E.
@@ -1125,13 +1125,13 @@ Module base.
           iIntros "!> H£ Hctx {%}".
 
           iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-          wp_smart_apply (clst_iter_spec (λ _, pool_context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
+          wp_apply+ (clst_iter_spec (λ _, pool_context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
           rewrite big_sepL_fmap.
           iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
-          wp_smart_apply ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
+          wp_apply+ ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.
           iApply (vertex_inv_unfold with "Hinv_succ").
 
-        - wp_smart_apply ("IHrelease" with "[$]").
+        - wp_apply+ ("IHrelease" with "[$]").
           iSteps.
       }
     Qed.
@@ -1165,7 +1165,7 @@ Module base.
       iIntros "%Φ Hmodel HΦ".
 
       wp_rec.
-      wp_smart_apply (vertex_set_task_spec with "[$]") as "Hmodel".
+      wp_apply+ (vertex_set_task_spec with "[$]") as "Hmodel".
       iSteps.
     Qed.
   End vertex_G.

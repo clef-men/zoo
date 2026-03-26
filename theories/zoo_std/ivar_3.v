@@ -831,7 +831,7 @@ Module base.
         + iSplitR "Hwaiter HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_smart_apply ("HLöb" with "Hwaiter HΦ").
+          wp_apply+ ("HLöb" with "Hwaiter HΦ").
 
         + destruct state as [waiters' | v]; zoo_simplify.
           iDestruct "Hstate" as "(:inv_state_unset)".

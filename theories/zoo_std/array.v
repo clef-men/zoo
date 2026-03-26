@@ -1203,8 +1203,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_alloc_spec with "[//]"); first done.
     iSteps.
   Qed.
 
@@ -1469,10 +1469,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hj1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hj2".
-    awp_smart_apply (array_unsafe_get_spec_atomic_slice with "[//]").
+    wp_apply+ assume_spec' as "%Hj1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hj2".
+    awp_apply+ (array_unsafe_get_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %i %v H".
     iDestruct ("H" with "[//]") as "(%Hj3 & %Hlookup & Hslice)".
     iAaccIntro with "[$Hslice]". 1,3: iSteps.
@@ -1520,10 +1520,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hi2".
-    awp_smart_apply (array_unsafe_get_spec_atomic with "[//]"); first done.
+    wp_apply+ assume_spec' as "%Hi1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hi2".
+    awp_apply+ (array_unsafe_get_spec_atomic with "[//]"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %v H".
     iDestruct ("H" with "[//]") as "(%Hlookup & Hmodel)".
     iAaccIntro with "[$Hmodel]". 1,3: iSteps.
@@ -1548,11 +1548,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hj1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hj2".
+    wp_apply+ assume_spec' as "%Hj1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hj2".
     iDestruct ("H" with "[//]") as "(%Hj3 & %Hlookupk & -> & Hslice)".
-    wp_smart_apply (array_unsafe_get_spec_slice with "Hslice"); [lia | done.. |].
+    wp_apply+ (array_unsafe_get_spec_slice with "Hslice"); [lia | done.. |].
     iSteps.
   Qed.
   Lemma array_get_spec_cell t sz (i : Z) i_ dq v :
@@ -1590,11 +1590,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & H) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi1".
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%Hi2".
+    wp_apply+ assume_spec' as "%Hi1".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%Hi2".
     iDestruct ("H" with "[//]") as "%Hlookup".
-    wp_smart_apply (array_unsafe_get_spec with "Hmodel"); [done.. |].
+    wp_apply+ (array_unsafe_get_spec with "Hmodel"); [done.. |].
     iSteps.
   Qed.
 
@@ -1762,10 +1762,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hj1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hj2".
-    awp_smart_apply (array_unsafe_set_spec_atomic_slice with "[//]").
+    wp_apply+ assume_spec' as "%Hj1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hj2".
+    awp_apply+ (array_unsafe_set_spec_atomic_slice with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %i H".
     iDestruct ("H" with "[//]") as "(%Hj3 & Hslice)".
     iAaccIntro with "[$Hslice]". 1,3: iSteps.
@@ -1813,10 +1813,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hi2".
-    awp_smart_apply (array_unsafe_set_spec_atomic with "[//]"); first done.
+    wp_apply+ assume_spec' as "%Hi1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hi2".
+    awp_apply+ (array_unsafe_set_spec_atomic with "[//]"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs H".
     iDestruct ("H" with "[//]") as "(%Hi3 & Hmodel)".
     iAaccIntro with "[$Hmodel]". 1,3: iSteps.
@@ -1839,11 +1839,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hj1".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%Hj2".
+    wp_apply+ assume_spec' as "%Hj1".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%Hj2".
     iDestruct ("H" with "[//]") as "(%Hi3 & Hslice)".
-    wp_smart_apply (array_unsafe_set_spec_slice with "Hslice"); first lia.
+    wp_apply+ (array_unsafe_set_spec_slice with "Hslice"); first lia.
     iSteps.
   Qed.
   Lemma array_set_spec_cell t sz (i : Z) i_ w v :
@@ -1877,10 +1877,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi1".
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%Hi2".
-    wp_smart_apply (array_unsafe_set_spec with "Hmodel HΦ"); first done.
+    wp_apply+ assume_spec' as "%Hi1".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%Hi2".
+    wp_apply+ (array_unsafe_set_spec with "Hmodel HΦ"); first done.
   Qed.
 
   Lemma array_unsafe_xchg_spec_atomic_slice t (j : Z) v :
@@ -2214,11 +2214,11 @@ Section zoo_G.
     iIntros "%Hi1 %Hi2 %Hlookup_1 %Hk1 %Hlookup_2 %Hk2 %Φ Hslice HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_get_spec_slice k1 with "Hslice") as "Hslice". 1-3: done.
-    wp_smart_apply (array_unsafe_get_spec_slice k2 with "Hslice") as "Hslice". 1-3: done.
-    wp_smart_apply (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
+    wp_apply+ (array_unsafe_get_spec_slice k1 with "Hslice") as "Hslice". 1-3: done.
+    wp_apply+ (array_unsafe_get_spec_slice k2 with "Hslice") as "Hslice". 1-3: done.
+    wp_apply+ (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
     { apply lookup_lt_Some in Hlookup_1. lia. }
-    wp_smart_apply (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
+    wp_apply+ (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
     { apply lookup_lt_Some in Hlookup_2. simpl_length. lia. }
     rewrite Hk1 Hk2. iSteps.
   Qed.
@@ -2268,10 +2268,10 @@ Section zoo_G.
     wp_rec.
     pose Ψ' (_ : Z) i :=
       Ψ i.
-    wp_smart_apply (for_spec_strong Ψ' with "[$HΨ]"); last rewrite Z.sub_0_r //.
+    wp_apply+ (for_spec_strong Ψ' with "[$HΨ]"); last rewrite Z.sub_0_r //.
     iIntros "!> %j_ %j -> %Hj HΨ". rewrite Z.add_0_l in Hj |- *.
     iDestruct ("H" with "[%] HΨ") as "H'"; first lia.
-    awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
+    awp_apply+ (array_unsafe_set_spec_atomic_cell with "[//]").
     iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w H↦".
     iAaccIntro with "[$H↦]"; iSteps.
   Qed.
@@ -2366,9 +2366,9 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Hn %Φ (#Hinv & Hslice) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    repeat (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice"); [lia.. |].
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    repeat (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_fill_slice_spec_slice_fit with "Hslice"); [lia.. |].
     iSteps.
   Qed.
 
@@ -2384,7 +2384,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
     iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
     wp_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice") as "Hslice"; [lia.. |].
     iSteps.
@@ -2406,8 +2406,8 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ _ HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%t Hmodel"; first done.
-    wp_smart_apply (array_fill_spec with "Hmodel").
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as "%t Hmodel"; first done.
+    wp_apply+ (array_fill_spec with "Hmodel").
     simpl_length. iSteps.
   Qed.
 
@@ -2425,8 +2425,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_make_spec with "[//]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_make_spec with "[//]"); first done.
     iSteps.
   Qed.
 
@@ -2469,12 +2469,12 @@ Section zoo_G.
       rewrite !right_id. assert (sz = i) as -> by lia. iSteps.
     - rewrite bool_decide_eq_false_2; first naive_solver lia. wp_pures.
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
-      awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
+      awp_apply+ (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite Nat2Z.id.
       iAaccIntro with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> H£ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
+      wp_apply+ (wp_wand with "(H [%] [//] HΨ)") as "%acc' HΨ"; first lia.
       wp_pures.
       rewrite Z.add_1_r -Nat2Z.inj_succ.
       wp_apply ("IH" with "[%] [%] [%] HΨ [HΦ]"); simpl_length; [naive_solver lia.. |].
@@ -2513,7 +2513,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
     rewrite -Nat2Z.inj_0.
     wp_apply (array_foldli_aux_spec [] Ψ with "[$HΨ] HΦ"); [lia | done |].
     iSteps.
@@ -2626,7 +2626,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldli_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). iIntros "!> {% acc} %i %vs %o %acc %Hi1 %Hi2 HΨ".
+    wp_apply+ (array_foldli_spec_atomic Ψ with "[$Hinv $HΨ] HΦ"). iIntros "!> {% acc} %i %vs %o %acc %Hi1 %Hi2 HΨ".
     case_match; try wp_pures; iApply ("H" with "[%] [%] HΨ"); lia.
   Qed.
   Lemma array_foldl_spec Ψ fn acc t dq vs :
@@ -2652,7 +2652,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldli_spec Ψ with "[$HΨ $Hmodel] HΦ").
+    wp_apply+ (array_foldli_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_foldl_spec' Ψ fn acc t dq vs :
@@ -2677,7 +2677,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldli_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp_apply+ (array_foldli_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -2720,12 +2720,12 @@ Section zoo_G.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
       assert (i = S j) as -> by lia. rewrite Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
       iDestruct ("H" with "[%] HΨ") as "H'"; first done.
-      awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
+      awp_apply+ (array_unsafe_get_spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       rewrite Nat2Z.id.
       iAaccIntro with "[$H↦]". 1,2: iSteps. iIntros "$ !> HΨ !> _ HΦ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      wp_smart_apply (wp_wand with "(H [%] HΨ)") as "%acc' HΨ"; first lia.
+      wp_apply+ (wp_wand with "(H [%] HΨ)") as "%acc' HΨ"; first lia.
       wp_apply ("IH" with "[] [] HΨ [HΦ]") as "!> {% acc} %acc %vs' (<- & HΨ)"; simpl_length; [iSteps.. |].
       iApply ("HΦ" $! _ (vs' ++ [v])).
       rewrite length_app -(assoc (++)). iSteps.
@@ -2760,7 +2760,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
     wp_apply (array_foldri_aux_spec sz [] Ψ with "[HΨ $H]") as "{% acc} %acc %vs".
     { rewrite right_id. lia. }
     { rewrite Nat2Z.id //. }
@@ -2874,7 +2874,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> {% acc} %i %acc %o %vs %Hi HΨ".
+    wp_apply+ (array_foldri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> {% acc} %i %acc %o %vs %Hi HΨ".
     case_match; try wp_pures; iApply ("H" with "[//] HΨ").
   Qed.
   Lemma array_foldr_spec Ψ fn t dq vs acc :
@@ -2900,7 +2900,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldri_spec Ψ with "[$Hmodel $HΨ] HΦ").
+    wp_apply+ (array_foldri_spec Ψ with "[$Hmodel $HΨ] HΦ").
     iSteps.
   Qed.
   Lemma array_foldr_spec' Ψ fn t dq vs acc :
@@ -2925,7 +2925,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldri_spec' Ψ with "[$Hmodel $HΨ Hfn] HΦ").
+    wp_apply+ (array_foldri_spec' Ψ with "[$Hmodel $HΨ Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -2970,17 +2970,17 @@ Section zoo_G.
       ⌜length vs = k⌝ ∗
       Ψ k vs None
     )%I.
-    wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
+    wp_apply+ (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
       iIntros "!> %k_ %k -> %Hk (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
-      awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
+      awp_apply+ (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
       iAaccIntro with "[$H↦]". 1,2: iSteps.
       rewrite Z2Nat.inj_add; [lia.. |]. rewrite Nat2Z.id.
       iIntros "$ !> HΨ !> H£".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
-      wp_smart_apply (wp_wand with "(H [%] [//] HΨ)") as "%acc' (-> & HΨ)"; first lia.
+      wp_apply+ (wp_wand with "(H [%] [//] HΨ)") as "%acc' (-> & HΨ)"; first lia.
       iSteps. iExists (vs ++ [v]). simpl_length. iSteps.
     }
     rewrite right_id. iSteps.
@@ -3018,7 +3018,7 @@ Section zoo_G.
       Ψ k vs_left ∗
       ⌜from_option (λ v, vs !! (₊i + k)%nat = Some v) True o⌝%I
     )%I).
-    wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); [done.. | | iSteps].
     iStep. iIntros "!> %k %vs_left %o %Hk1 %Hk2 (-> & Hmodel & HΨ & %Ho)".
     destruct o as [v |].
     - wp_apply (wp_wand with "(Hfn [//] [//] HΨ)") as (res) "(-> & HΨ)".
@@ -3165,10 +3165,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iteri_slice_spec Ψ fn t dq vs (i n : Z) :
@@ -3198,10 +3198,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iteri_slice_spec' Ψ fn t dq vs (i n : Z) :
@@ -3228,10 +3228,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iteri_slice_spec_disentangled Ψ fn t dq vs (i n : Z) :
@@ -3261,10 +3261,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iteri_slice_spec_disentangled' Ψ fn t dq vs (i n : Z) :
@@ -3291,10 +3291,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -3333,7 +3333,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ with "[$Hinv $HΨ]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec_atomic Ψ with "[$Hinv $HΨ]"); [done.. | | iSteps].
     iSteps.
     select (option val) (fun o => iSpecialize ("H" $! _ _ o)).
     case_match; iSteps.
@@ -3365,7 +3365,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_spec Ψ with "[$HΨ $Hmodel]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec Ψ with "[$HΨ $Hmodel]"); [done.. | | iSteps].
     iSteps.
   Qed.
   Lemma array_unsafe_iter_slice_spec' Ψ fn t dq vs (i n : Z) :
@@ -3392,7 +3392,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. | | iSteps].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -3423,7 +3423,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_spec_disentangled Ψ with "[$Hmodel]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec_disentangled Ψ with "[$Hmodel]"); [done.. | | iSteps].
     iSteps.
   Qed.
   Lemma array_unsafe_iter_slice_spec_disentangled' Ψ fn t dq vs (i n : Z) :
@@ -3450,7 +3450,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_spec_disentangled' Ψ with "[$Hmodel Hfn]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec_disentangled' Ψ with "[$Hmodel Hfn]"); [done.. | | iSteps].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -3490,10 +3490,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iter_slice_spec Ψ fn t dq vs (i n : Z) :
@@ -3523,10 +3523,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iter_slice_spec' Ψ fn t dq vs (i n : Z) :
@@ -3553,10 +3553,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iter_slice_spec_disentangled Ψ fn t dq vs (i n : Z) :
@@ -3586,10 +3586,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_iter_slice_spec_disentangled' Ψ fn t dq vs (i n : Z) :
@@ -3616,10 +3616,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -3655,7 +3655,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
     wp_apply (array_unsafe_iteri_slice_spec_atomic Ψ with "[$Hinv $HΨ]"); [lia.. | iSteps |].
     rewrite Nat2Z.id. iSteps.
   Qed.
@@ -3688,7 +3688,7 @@ Section zoo_G.
       Ψ i vs_left ∗
       ⌜from_option (λ v, v = vs !!! i) True o⌝%I
     )%I).
-    wp_smart_apply (array_iteri_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); last first.
+    wp_apply+ (array_iteri_spec_atomic Ψ' with "[$Hinv $Hmodel $HΨ]"); last first.
     { iSteps. rewrite firstn_all //. }
     iStep. iIntros "!> %i %vs_left %o %Hi1 %Hi2 (-> & Hmodel & HΨ & %Ho)".
     opose proof* (list_lookup_lookup_total_lt vs i); first lia.
@@ -3822,7 +3822,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %i %vs %o % % HΨ".
+    wp_apply+ (array_iteri_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %i %vs %o % % HΨ".
     case_match; try wp_pures; iApply ("H" with "[//] [//] HΨ").
   Qed.
   Lemma array_iter_spec Ψ fn t dq vs :
@@ -3848,7 +3848,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_spec Ψ with "[$HΨ $Hmodel] HΦ").
+    wp_apply+ (array_iteri_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_iter_spec' Ψ fn t dq vs :
@@ -3872,7 +3872,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp_apply+ (array_iteri_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -3899,7 +3899,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_spec_disentangled Ψ with "[$Hmodel] HΦ").
+    wp_apply+ (array_iteri_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_iter_spec_disentangled' Ψ fn t dq vs :
@@ -3923,7 +3923,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
+    wp_apply+ (array_iteri_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -3976,13 +3976,13 @@ Section zoo_G.
       Ψ k vs (inl <$> o) ws ∗
       £ 1
     )%I).
-    wp_smart_apply (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $HΨ $H£]"); [done.. | | iSteps].
+    wp_apply+ (array_unsafe_iteri_slice_spec_atomic Ψ' with "[$Hinv $HΨ $H£]"); [done.. | | iSteps].
     iStep. iIntros "!> %k %vs %o % % (%ws & %Hws & HΨ & H£)".
     destruct o as [v |].
-    - wp_smart_apply (wp_wand with "(H [//] [//] [//] HΨ)") as "%w HΨ".
+    - wp_apply+ (wp_wand with "(H [//] [//] [//] HΨ)") as "%w HΨ".
       iMod (lc_fupd_elim_later with "H£ HΨ") as "HΨ".
       iDestruct ("H" with "[//] [//] [//] HΨ") as "H'".
-      awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
+      awp_apply+ (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%v' Hslice".
       iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
       iFrameSteps.
@@ -4208,10 +4208,10 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_applyi_slice_spec Ψ fn t vs (i n : Z) :
@@ -4244,10 +4244,10 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_applyi_slice_spec' Ψ fn t vs (i n : Z) :
@@ -4278,10 +4278,10 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_applyi_slice_spec_disentangled Ψ fn t vs (i n : Z) :
@@ -4313,10 +4313,10 @@ Section zoo_G.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_applyi_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
@@ -4344,10 +4344,10 @@ Section zoo_G.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -4392,7 +4392,7 @@ Section zoo_G.
     iIntros "% % % %Φ (#Hinv & HΨ & #H) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %k %vs %o %ws % % % HΨ"; [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ] HΦ") as "!> %k %vs %o %ws % % % HΨ"; [done.. |].
     repeat case_match; try wp_pures; iApply ("H" with "[//] [//] [//] HΨ").
   Qed.
   Lemma array_unsafe_apply_slice_spec Ψ fn t vs (i n : Z) :
@@ -4425,7 +4425,7 @@ Section zoo_G.
     iIntros "% % % %Φ (HΨ & Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel] HΦ"); [done.. |].
     iSteps.
   Qed.
   Lemma array_unsafe_apply_slice_spec' Ψ fn t vs (i n : Z) :
@@ -4456,7 +4456,7 @@ Section zoo_G.
     iIntros "% % % %Φ (HΨ & Hmodel & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ"); [done.. |].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -4489,7 +4489,7 @@ Section zoo_G.
     iIntros "% % % %Φ (Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_spec_disentangled Ψ with "[$Hmodel] HΦ"); [done.. |].
     iSteps.
   Qed.
   Lemma array_unsafe_apply_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
@@ -4517,7 +4517,7 @@ Section zoo_G.
     iIntros "% % % %Φ (Hmodel & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ"); [done.. |].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -4563,10 +4563,10 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_spec_atomic Ψ with "[$Hinv $HΨ $H]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_apply_slice_spec Ψ fn t vs (i n : Z) :
@@ -4599,10 +4599,10 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_spec Ψ with "[$HΨ $Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_apply_slice_spec' Ψ fn t vs (i n : Z) :
@@ -4633,10 +4633,10 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_spec' Ψ with "[$HΨ $Hmodel Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_apply_slice_spec_disentangled Ψ fn t vs (i n : Z) :
@@ -4668,10 +4668,10 @@ Section zoo_G.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_spec_disentangled Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma array_apply_slice_spec_disentangled' Ψ fn t vs (i n : Z) :
@@ -4699,10 +4699,10 @@ Section zoo_G.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_spec_disentangled' Ψ with "[$Hmodel $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -4744,7 +4744,7 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
     wp_apply (array_unsafe_applyi_slice_spec_atomic Ψ with "[$Hinv $HΨ]"); [lia.. | iSteps |].
     rewrite Nat2Z.id. iSteps.
   Qed.
@@ -4774,7 +4774,7 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hmodel & #H) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
     wp_apply (array_unsafe_applyi_slice_spec Ψ with "[$HΨ $Hmodel]"); [lia.. | iSteps |].
     iStep 3 as (ws) / --silent. iExists ws.
     rewrite Nat2Z.id with_slice_all // slice_0 firstn_all. iSteps.
@@ -4909,7 +4909,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
+    wp_apply+ (array_applyi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
     repeat case_match; try wp_pures; iApply ("H" with "[//] [//] [//] HΨ").
   Qed.
   Lemma array_apply_spec Ψ fn t vs :
@@ -4937,7 +4937,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec Ψ with "[$HΨ $Hmodel] HΦ") as "!> %i %v %ws %Hi %Hlookup HΨ".
+    wp_apply+ (array_applyi_spec Ψ with "[$HΨ $Hmodel] HΦ") as "!> %i %v %ws %Hi %Hlookup HΨ".
     iSteps.
   Qed.
   Lemma array_apply_spec' Ψ fn t vs :
@@ -4964,7 +4964,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp_apply+ (array_applyi_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -4992,7 +4992,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec_disentangled Ψ with "[$Hmodel] HΦ").
+    wp_apply+ (array_applyi_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_apply_spec_disentangled' Ψ fn t vs :
@@ -5016,7 +5016,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
+    wp_apply+ (array_applyi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -5050,13 +5050,13 @@ Section zoo_G.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
 
     iMod ("HΨ" $! t) as "HΨ".
 
     pose Ψ' i (_ : list val) vs :=
       Ψ t i vs.
-    wp_smart_apply (array_applyi_spec Ψ' with "[$Hmodel $HΨ]").
+    wp_apply+ (array_applyi_spec Ψ' with "[$Hmodel $HΨ]").
     { iSteps. iPureIntro.
       erewrite <- (length_replicate ₊sz). eapply lookup_lt_Some. done.
     }
@@ -5271,8 +5271,8 @@ Section zoo_G.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ $Hfn]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_initi_spec Ψ with "[$HΨ $Hfn]"); first done.
     iSteps.
   Qed.
   Lemma array_initi_spec' Ψ sz fn :
@@ -5303,8 +5303,8 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_initi_spec' Ψ with "[$HΨ $Hfn]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_initi_spec' Ψ with "[$HΨ $Hfn]"); first done.
     iSteps.
   Qed.
   Lemma array_initi_spec_disentangled Ψ sz fn :
@@ -5332,8 +5332,8 @@ Section zoo_G.
     iIntros "%Φ #Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_initi_spec_disentangled Ψ with "Hfn"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_initi_spec_disentangled Ψ with "Hfn"); first done.
     iSteps.
   Qed.
   Lemma array_initi_spec_disentangled' Ψ sz fn :
@@ -5359,8 +5359,8 @@ Section zoo_G.
     iIntros "%Φ Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_initi_spec_disentangled' Ψ with "Hfn"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_initi_spec_disentangled' Ψ with "Hfn"); first done.
     iSteps.
   Qed.
 
@@ -5393,7 +5393,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec Ψ with "[$HΨ] HΦ"); first done.
+    wp_apply+ (array_unsafe_initi_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
   Lemma array_unsafe_init_spec' Ψ sz fn :
@@ -5424,7 +5424,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ (HΨ & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp_apply+ (array_unsafe_initi_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -5453,7 +5453,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ #Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec_disentangled Ψ with "[] HΦ"); first done.
+    wp_apply+ (array_unsafe_initi_spec_disentangled Ψ with "[] HΦ"); first done.
     iSteps.
   Qed.
   Lemma array_unsafe_init_spec_disentangled' Ψ sz fn :
@@ -5479,7 +5479,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
+    wp_apply+ (array_unsafe_initi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -5513,8 +5513,8 @@ Section zoo_G.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_init_spec Ψ with "[$HΨ $Hfn]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_init_spec Ψ with "[$HΨ $Hfn]"); first done.
     iSteps.
   Qed.
   Lemma array_init_spec' Ψ sz fn :
@@ -5545,8 +5545,8 @@ Section zoo_G.
     iIntros "%Φ (HΨ & Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_init_spec' Ψ with "[$HΨ $Hfn]"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_init_spec' Ψ with "[$HΨ $Hfn]"); first done.
     iSteps.
   Qed.
   Lemma array_init_spec_disentangled Ψ sz fn :
@@ -5574,8 +5574,8 @@ Section zoo_G.
     iIntros "%Φ #Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_init_spec_disentangled Ψ with "Hfn"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_init_spec_disentangled Ψ with "Hfn"); first done.
     iSteps.
   Qed.
   Lemma array_init_spec_disentangled' Ψ sz fn :
@@ -5601,8 +5601,8 @@ Section zoo_G.
     iIntros "%Φ Hfn HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hsz".
-    wp_smart_apply (array_unsafe_init_spec_disentangled' Ψ with "Hfn"); first done.
+    wp_apply+ assume_spec' as "%Hsz".
+    wp_apply+ (array_unsafe_init_spec_disentangled' Ψ with "Hfn"); first done.
     iSteps.
   Qed.
 
@@ -5641,7 +5641,7 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
 
     pose Ψ' t' i ws := (
       ∃ vs,
@@ -5653,7 +5653,7 @@ Section zoo_G.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %t' %i %ws %Hi1 %Hi2 (%vs & %Hvs & HΨ)".
         iDestruct ("H" with "[%] [%] [//] HΨ") as "H'"; [lia.. |].
-        awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
+        awp_apply+ (array_unsafe_get_spec_atomic_cell with "[//]").
         iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
         rewrite Nat2Z.id.
         iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> H£".
@@ -5846,7 +5846,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
+    wp_apply+ (array_mapi_spec_atomic Ψ with "[$Hinv $HΨ H] HΦ") as "!> %i %vs %o %ws %Hi1 %Hi2 %Hws HΨ".
     case_match; try wp_pures; iApply ("H" with "[%] [%] [//] HΨ"); lia.
   Qed.
   Lemma array_map_spec Ψ fn t dq vs :
@@ -5875,7 +5875,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_spec Ψ with "[$HΨ $Hmodel] HΦ").
+    wp_apply+ (array_mapi_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_map_spec' Ψ fn t dq vs :
@@ -5903,7 +5903,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp_apply+ (array_mapi_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -5932,7 +5932,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_spec_disentangled Ψ with "[$Hmodel] HΦ").
+    wp_apply+ (array_mapi_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma array_map_spec_disentangled' Ψ fn t dq vs :
@@ -5958,7 +5958,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
+    wp_apply+ (array_mapi_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -6001,18 +6001,18 @@ Section zoo_G.
       ⌜length vs = k⌝ ∗
       Ψ k vs None
     )%I.
-    wp_smart_apply (for_spec_strong Ψ' with "[HΨ]").
+    wp_apply+ (for_spec_strong Ψ' with "[HΨ]").
     { iSplitL. { iExists []. iSteps. }
       iIntros "!> % %k -> %Hk (%vs & %Hvs & HΨ)".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
-      awp_smart_apply (array_unsafe_get_spec_atomic_cell with "[//]").
+      awp_apply+ (array_unsafe_get_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v Hslice".
       iAaccIntro with "[$Hslice]". 1,2: iSteps.
       rewrite Z.add_0_l Z2Nat.inj_add; [lia.. |].
       rewrite Nat2Z.id.
       iIntros "$ !> HΨ !> _".
       iDestruct ("H" with "[%] [//] HΨ") as "H'"; first lia.
-      awp_smart_apply (array_unsafe_set_spec_atomic_cell with "[//]").
+      awp_apply+ (array_unsafe_set_spec_atomic_cell with "[//]").
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%w Hslice".
       iAaccIntro with "[$Hslice]". 1,2: iSteps. iIntros "$ !> HΨ !> _".
       iFrameSteps.
@@ -6207,11 +6207,11 @@ Section zoo_G.
   Proof.
     iIntros (-> ->) "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    repeat (wp_smart_apply assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    repeat (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[//] [//] [//] [//] [//]") as "(% & % & Hslice1 & Hslice2)".
-    wp_smart_apply (array_unsafe_copy_slice_spec_slice_fit with "[$Hslice1 $Hslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_copy_slice_spec_slice_fit with "[$Hslice1 $Hslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_copy_slice_spec_slice t1 sz1 i1 (j1 : Z) dq1 vs1 t2 sz2 i2 (j2 : Z) vs2 (n : Z) :
@@ -6245,11 +6245,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    repeat (wp_smart_apply assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    repeat (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[//] [//] [//] [//] [//]") as "(% & % & % & % & Hslice1 & Hslice2)".
-    wp_smart_apply (array_unsafe_copy_slice_spec_slice with "[$Hslice1 $Hslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_copy_slice_spec_slice with "[$Hslice1 $Hslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_copy_slice_spec t1 (i1 : Z) dq1 vs1 t2 (i2 : Z) vs2 (n : Z) :
@@ -6271,10 +6271,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel1 & Hmodel2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
-    wp_smart_apply (array_size_spec with "Hmodel2") as "Hmodel2".
-    repeat (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hmodel1 $Hmodel2]"); [lia.. |].
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ (array_size_spec with "Hmodel2") as "Hmodel2".
+    repeat (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_copy_slice_spec with "[$Hmodel1 $Hmodel2]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -6311,7 +6311,7 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ (#Hinv1 & #Hinv2 & HΨ & #H) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
     wp_apply (array_unsafe_copy_slice_spec_atomic Ψ with "[$HΨ]"); [lia.. | iSteps |].
     rewrite Nat2Z.id. iSteps.
   Qed.
@@ -6331,7 +6331,7 @@ Section zoo_G.
   Proof.
     iIntros (-> ?) "%Φ (Hmodel1 & Hslice2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
     iDestruct (array_model_to_slice' with "Hmodel1") as "(Hslice1 & #?)".
     wp_apply (array_unsafe_copy_slice_spec_slice_fit with "[$Hslice1 $Hslice2]"); [done.. |].
     iSteps.
@@ -6352,7 +6352,7 @@ Section zoo_G.
   Proof.
     iIntros "% % %Φ (Hmodel1 & Hslice2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
     iDestruct (array_model_to_slice' with "Hmodel1") as "(Hslice1 & #?)".
     wp_apply (array_unsafe_copy_slice_spec_slice with "[$Hslice1 $Hslice2]"); [lia.. |].
     rewrite Nat2Z.id firstn_all /=. iSteps.
@@ -6373,7 +6373,7 @@ Section zoo_G.
   Proof.
     iIntros "% % %Φ (Hmodel1 & Hmodel2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
     wp_apply (array_unsafe_copy_slice_spec with "[$Hmodel1 $Hmodel2]"); [lia.. |].
     rewrite Nat2Z.id firstn_all /=. iSteps.
   Qed.
@@ -6400,12 +6400,12 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (Hmodel1 & #Hinv2 & H) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[//] [//]") as "(% & Hslice2)".
-    wp_smart_apply (array_unsafe_copy_spec_slice_fit with "[$Hmodel1 $Hslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_copy_spec_slice_fit with "[$Hmodel1 $Hslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_copy_spec_slice t1 dq1 vs1 t2 sz2 i2 (j2 : Z) vs2 :
@@ -6430,12 +6430,12 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel1 & #Hinv2 & H) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[//] [//]") as "(% & % & Hslice2)".
-    wp_smart_apply (array_unsafe_copy_spec_slice with "[$Hmodel1 $Hslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_copy_spec_slice with "[$Hmodel1 $Hslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_copy_spec t1 dq1 vs1 t2 (i2 : Z) vs2 :
@@ -6454,11 +6454,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel1 & Hmodel2) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec with "Hmodel2") as "Hmodel2".
-    wp_smart_apply (array_size_spec with "Hmodel1") as "Hmodel1".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_copy_spec with "[$Hmodel1 $Hmodel2]"); [lia.. |].
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec with "Hmodel2") as "Hmodel2".
+    wp_apply+ (array_size_spec with "Hmodel1") as "Hmodel1".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_copy_spec with "[$Hmodel1 $Hmodel2]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -6477,15 +6477,15 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz' %Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%t' Hmodel'"; first lia.
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as "%t' Hmodel'"; first lia.
     iDestruct (array_model_to_slice' with "Hmodel'") as "(Hslice' & #?)".
     assert (₊sz' = length vs + ₊(sz' - length vs)) as -> by lia.
     rewrite replicate_add.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
-    wp_smart_apply (array_unsafe_copy_spec_slice with "[$Hmodel $Hslice1']") as "(Hmodel & Hslice1')"; first done.
+    wp_apply+ (array_unsafe_copy_spec_slice with "[$Hmodel $Hslice1']") as "(Hmodel & Hslice1')"; first done.
     { simpl_length. }
-    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
+    wp_apply+ (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
     { simpl_length. }
     { simpl_length. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'".
@@ -6511,9 +6511,9 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_grow_spec with "Hmodel"); first done.
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_grow_spec with "Hmodel"); first done.
     iSteps.
   Qed.
 
@@ -6533,9 +6533,9 @@ Section zoo_G.
   Proof.
     iIntros (-> ->) "%Φ Hslice HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_slice' with "Hmodel'") as "(Hslice' & #?)".
-    wp_smart_apply (array_unsafe_copy_slice_spec_slice_fit with "[$Hslice $Hslice']"); [done.. | |].
+    wp_apply+ (array_unsafe_copy_slice_spec_slice_fit with "[$Hslice $Hslice']"); [done.. | |].
     { simpl_length. lia. }
     iSteps.
     - iPureIntro. simpl_length. lia.
@@ -6613,11 +6613,11 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (#Hinv & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[//] [//] [//]") as "(% & Hslice)".
-    wp_smart_apply (array_unsafe_sub_spec_slice_fit with "Hslice"); [lia.. |].
+    wp_apply+ (array_unsafe_sub_spec_slice_fit with "Hslice"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_sub_spec_slice t sz dq vs i (j n : Z) :
@@ -6644,11 +6644,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[//] [//] [//]") as "(% & % & Hslice)".
-    wp_smart_apply (array_unsafe_sub_spec_slice with "Hslice"); [lia.. |].
+    wp_apply+ (array_unsafe_sub_spec_slice with "Hslice"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_sub_spec t dq vs (i n : Z) :
@@ -6668,10 +6668,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_sub_spec with "Hmodel"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_sub_spec with "Hmodel"); [done.. |].
     iSteps.
   Qed.
 
@@ -6690,7 +6690,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hn %Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_sub_spec with "Hmodel"); [lia.. |].
+    wp_apply+ (array_unsafe_sub_spec with "Hmodel"); [lia.. |].
     iSteps.
   Qed.
 
@@ -6709,10 +6709,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_shrink_spec with "Hmodel"); first done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_shrink_spec with "Hmodel"); first done.
     iSteps.
   Qed.
 
@@ -6754,7 +6754,7 @@ Section zoo_G.
 
     wp_rec.
 
-    awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
+    awp_apply+ (array_size_spec_atomic_cslice with "[//]").
     iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i %dq %vs %v (% & % & Hcslice)".
     iAaccIntro with "Hcslice"; first iSteps. iIntros "$ !>". iStep. iIntros "HΦ !> (H£ & #Hinv) {%}".
 
@@ -6900,11 +6900,11 @@ Section zoo_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
 
-    awp_smart_apply (array_unsafe_cget_spec_atomic with "[//]").
+    awp_apply+ (array_unsafe_cget_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%dq %vs %i %v H".
     iDestruct ("H" with "[//] [//]") as "(% & %Hlookup & Hcslice)".
     iAaccIntro with "[$Hcslice]". 1,3: iSteps.
@@ -6928,11 +6928,11 @@ Section zoo_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
 
-    awp_smart_apply (array_unsafe_cget_spec_atomic_weak with "[//]"); [lia.. |].
+    awp_apply+ (array_unsafe_cget_spec_atomic_weak with "[//]"); [lia.. |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%j %dq %vs (Hcslice & %)".
     iAaccIntro with "[$Hcslice]"; iSteps.
   Qed.
@@ -6985,11 +6985,11 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & H) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[%] [//]") as "(% & %Hlookupk & -> & Hcslice)"; first lia.
-    wp_smart_apply (array_unsafe_cget_spec with "Hcslice"); [lia | done.. |].
+    wp_apply+ (array_unsafe_cget_spec with "Hcslice"); [lia | done.. |].
     iSteps.
   Qed.
   Lemma array_cget_spec_cell t sz (i : Z) i_ dq v :
@@ -7027,10 +7027,10 @@ Section zoo_G.
     iIntros "%Hlookup %Φ Hmodel HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "_".
-    wp_smart_apply (array_unsafe_cget_spec_model with "Hmodel HΦ"); done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "_".
+    wp_apply+ (array_unsafe_cget_spec_model with "Hmodel HΦ"); done.
   Qed.
 
   Lemma array_unsafe_cset_spec_atomic t (j : Z) v :
@@ -7051,7 +7051,7 @@ Section zoo_G.
 
     wp_rec.
 
-    awp_smart_apply (array_size_spec_atomic_cslice with "[//]").
+    awp_apply+ (array_size_spec_atomic_cslice with "[//]").
     iApply (aacc_aupd_abort with "HΦ"); first done. iIntros "%sz %i %vs (% & Hcslice)".
     iAaccIntro with "Hcslice"; first iSteps. iIntros "$ !>". iStep. iIntros "HΦ !> (H£ & #Hinv) {%}".
 
@@ -7168,11 +7168,11 @@ Section zoo_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
 
-    awp_smart_apply (array_unsafe_cset_spec_atomic with "[//]").
+    awp_apply+ (array_unsafe_cset_spec_atomic with "[//]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %i H".
     iDestruct ("H" with "[%] [//]") as "(% & Hcslice)"; first lia.
     iAaccIntro with "[$Hcslice]". 1,3: iSteps.
@@ -7225,11 +7225,11 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & H) HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv") as "_".
-    wp_smart_apply assume_spec' as "%".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv") as "_".
+    wp_apply+ assume_spec' as "%".
     iDestruct ("H" with "[%] [//]") as "(% & Hcslice)"; first lia.
-    wp_smart_apply (array_unsafe_cset_spec with "Hcslice"); first lia.
+    wp_apply+ (array_unsafe_cset_spec with "Hcslice"); first lia.
     iSteps.
   Qed.
   Lemma array_cset_spec_cell t sz (i : Z) i_ w v :
@@ -7267,10 +7267,10 @@ Section zoo_G.
     iIntros "%Φ Hmodel HΦ".
 
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_cset_spec_model with "Hmodel HΦ"); lia.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_cset_spec_model with "Hmodel HΦ"); lia.
   Qed.
 
   #[local] Lemma array_unsafe_ccopy_slice_0_spec t1 (i1 : Z) i1_ dq1 vs1 t2 sz2 (i2 : Z) i2_ vs2 (n : Z) :
@@ -7294,7 +7294,7 @@ Section zoo_G.
     iDestruct (array_cslice_length with "Hcslice2") as %Hvs2; first done.
 
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice2") as "Hcslice2".
+    wp_apply+ (array_size_spec_cslice with "Hcslice2") as "Hcslice2".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     rewrite !array_cslice_to_slice; [simpl_length; lia.. |].
@@ -7310,7 +7310,7 @@ Section zoo_G.
     - wp_apply (array_unsafe_copy_slice_spec_slice_fit_dst with "[$Hslice1 $Hslice21]") as "(Hslice1 & Hslice21)"; [simpl_length; lia.. |].
       iEval (rewrite Nat2Z.id Nat.sub_diag slice_0 -Nat2Z.inj_mod -Nat2Z.inj_sub; first lia) in "Hslice21".
       iEval (rewrite Nat2Z.id) in "Hslice21".
-      wp_smart_apply (array_unsafe_copy_slice_spec_slice_fit_dst with "[$Hslice1 $Hslice22]") as "(Hslice1 & Hslice22)"; [simpl_length; lia.. |].
+      wp_apply+ (array_unsafe_copy_slice_spec_slice_fit_dst with "[$Hslice1 $Hslice22]") as "(Hslice1 & Hslice22)"; [simpl_length; lia.. |].
       iEval (rewrite -Nat2Z.inj_mod -Nat2Z.inj_sub; first lia) in "Hslice22".
       iEval (rewrite -Nat2Z.inj_add Nat2Z.id Nat.add_sub') in "Hslice22".
       iEval (rewrite /slice firstn_all2; first (simpl_length; lia)) in "Hslice22".
@@ -7338,7 +7338,7 @@ Section zoo_G.
     iIntros (Hsz1 Hvs1 Hsz2 -> -> -> ?) "%Φ (Hcslice1 & Hcslice2) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
+    wp_apply+ (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     rewrite (array_cslice_to_slice t1) //.
@@ -7352,7 +7352,7 @@ Section zoo_G.
     - rewrite -(take_drop (sz1 - i1_ `mod` sz1) vs2).
       iDestruct (array_cslice_app_2 with "Hcslice2") as "(Hcslice21 & Hcslice22)"; first done.
       wp_apply (array_unsafe_ccopy_slice_0_spec with "[$Hslice11 $Hcslice21]") as "(Hslice11 & Hcslice21)"; [simpl_length; lia.. |].
-      wp_smart_apply (array_unsafe_ccopy_slice_0_spec with "[$Hslice12 $Hcslice22]") as "(Hslice12 & Hcslice22)"; [simpl_length; lia.. |].
+      wp_apply+ (array_unsafe_ccopy_slice_0_spec with "[$Hslice12 $Hcslice22]") as "(Hslice12 & Hcslice22)"; [simpl_length; lia.. |].
       iDestruct (array_cslice_app_1 with "Hcslice21 Hcslice22") as "Hcslice2".
       { simpl_length. lia. }
       iEval (rewrite take_drop) in "Hcslice2".
@@ -7487,12 +7487,12 @@ Section zoo_G.
   Proof.
     iIntros (-> ->) "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    do 3 wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    do 4 (wp_smart_apply assume_spec' as "%").
+    do 3 wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    do 4 (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[%] [%] [//] [//] [//] [//] [//]") as "(% & % & Hcslice1 & Hcslice2)"; [lia.. |].
-    wp_smart_apply (array_unsafe_ccopy_slice_spec_fit with "[$Hcslice1 $Hcslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_ccopy_slice_spec_fit with "[$Hcslice1 $Hcslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_ccopy_slice_spec t1 sz1 i1 (j1 : Z) dq1 vs1 t2 sz2 i2 (j2 : Z) vs2 (n : Z) :
@@ -7531,12 +7531,12 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    do 3 wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    do 4 (wp_smart_apply assume_spec' as "%").
+    do 3 wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    do 4 (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[%] [%] [//] [//] [//] [//] [//]") as "(% & % & % & % & % & Hslice1 & Hslice2)"; [lia.. |].
-    wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hslice1 $Hslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_ccopy_slice_spec with "[$Hslice1 $Hslice2]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -7560,7 +7560,7 @@ Section zoo_G.
   Proof.
     iIntros (Hsz1 Hsz2 -> -> ? ?) "%Φ (Hcslice1 & Hcslice2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
+    wp_apply+ (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
     wp_apply (array_unsafe_ccopy_slice_spec_fit with "[$Hcslice1 $Hcslice2]"); [lia.. |].
     iSteps.
   Qed.
@@ -7584,7 +7584,7 @@ Section zoo_G.
   Proof.
     iIntros (Hsz1 Hsz2 -> Hvs1 ? ?) "%Φ (Hcslice1 & Hcslice2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
+    wp_apply+ (array_size_spec_cslice with "Hcslice1") as "Hcslice1".
     wp_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice1 $Hcslice2]"); [lia.. |].
     rewrite !Nat2Z.id Nat.sub_diag -Hvs1 firstn_all //.
   Qed.
@@ -7618,12 +7618,12 @@ Section zoo_G.
   Proof.
     iIntros (-> ->) "% % %Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[%] [%] [//] [//]") as "(Hcslice1 & Hcslice2)"; [lia.. |].
-    wp_smart_apply (array_unsafe_ccopy_spec_fit with "[$Hcslice1 $Hcslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_ccopy_spec_fit with "[$Hcslice1 $Hcslice2]"); [lia.. |].
     iSteps.
   Qed.
   Lemma array_ccopy_spec t1 sz1 (i1 : Z) dq1 vs1 t2 sz2 i2 (j2 : Z) vs2 :
@@ -7654,12 +7654,12 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ (#Hinv1 & #Hinv2 & H) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_spec_inv with "Hinv1") as "_".
-    wp_smart_apply (array_size_spec_inv with "Hinv2") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_spec_inv with "Hinv1") as "_".
+    wp_apply+ (array_size_spec_inv with "Hinv2") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
     iDestruct ("H" with "[%] [%] [//] [//]") as "(% & % & Hcslice1 & Hcslice2)"; [lia.. |].
-    wp_smart_apply (array_unsafe_ccopy_spec with "[$Hcslice1 $Hcslice2]"); [lia.. |].
+    wp_apply+ (array_unsafe_ccopy_spec with "[$Hcslice1 $Hcslice2]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -7684,11 +7684,11 @@ Section zoo_G.
     iIntros (Hsz Hvs -> -> Hsz' ?) "%Φ Hcslice HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_make_spec with "[//]") as (t') "Hmodel'"; first lia.
+    wp_apply+ (array_unsafe_make_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
     iDestruct (array_cslice_rotation_right_0 i_ with "Hcslice'") as "Hcslice'"; [lia | simpl_length |].
     rewrite rotation_replicate.
-    wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
+    wp_apply+ (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite !Nat2Z.id Nat.sub_diag firstn_all with_slice_0 drop_replicate.
     iSteps.
   Qed.
@@ -7713,7 +7713,7 @@ Section zoo_G.
     iIntros (Hsz -> Hvs Hsz' ?) "%Φ Hcslice HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice") as "Hcslice".
+    wp_apply+ (array_size_spec_cslice with "Hcslice") as "Hcslice".
     wp_apply (array_unsafe_cgrow_slice_spec with "Hcslice") as (t') "(Hcslice & Hcslice')"; [lia.. |].
     rewrite Nat2Z.id. iSteps.
   Qed.
@@ -7737,11 +7737,11 @@ Section zoo_G.
     iIntros (Hsz Hvs -> ?) "%Φ Hcslice HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'". simpl_length.
     iDestruct (array_cslice_rotation_right_0 i_ with "Hcslice'") as "Hcslice'"; [lia | simpl_length |].
     rewrite rotation_replicate.
-    wp_smart_apply (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
+    wp_apply+ (array_unsafe_ccopy_slice_spec with "[$Hcslice $Hcslice']") as "(Hcslice & Hcslice')"; [simpl_length; lia.. |].
     rewrite Nat2Z.id Nat.sub_diag with_slice_0 drop_replicate Nat.sub_diag right_id.
     iSteps.
   Qed.
@@ -7895,10 +7895,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Ht HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi".
-    wp_smart_apply (array_size_type with "Ht") as "_".
-    wp_smart_apply assume_spec' as "%Hi'".
-    wp_smart_apply (array_unsafe_get_type with "Ht"); first lia.
+    wp_apply+ assume_spec' as "%Hi".
+    wp_apply+ (array_size_type with "Ht") as "_".
+    wp_apply+ assume_spec' as "%Hi'".
+    wp_apply+ (array_unsafe_get_type with "Ht"); first lia.
     iSteps.
   Qed.
 
@@ -7939,10 +7939,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%Hi".
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%Hi'".
-    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hv]"); first lia.
+    wp_apply+ assume_spec' as "%Hi".
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%Hi'".
+    wp_apply+ (array_unsafe_set_type with "[$Htype $Hv]"); first lia.
     iSteps.
   Qed.
 
@@ -8013,8 +8013,8 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply for_type; last iSteps. iIntros "!> % (%k & -> & %Hk)".
-    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hv]"); first lia.
+    wp_apply+ for_type; last iSteps. iIntros "!> % (%k & -> & %Hk)".
+    wp_apply+ (array_unsafe_set_type with "[$Htype $Hv]"); first lia.
     iSteps.
   Qed.
 
@@ -8033,10 +8033,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    repeat (wp_smart_apply assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    repeat (wp_apply+ assume_spec' as "%").
     wp_pures.
-    wp_smart_apply (array_unsafe_fill_slice_type with "[$Htype $Hv]"); [done.. |].
+    wp_apply+ (array_unsafe_fill_slice_type with "[$Htype $Hv]"); [done.. |].
     iSteps.
   Qed.
 
@@ -8053,7 +8053,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
+    wp_apply+ (array_size_type with "Htype") as "_".
     wp_apply (array_unsafe_fill_slice_type with "[$Htype $Hv] HΦ"); lia.
   Qed.
 
@@ -8071,8 +8071,8 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ #Hv HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
-    wp_smart_apply (array_fill_spec with "[Hmodel]") as "Hmodel"; first iSteps.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first done.
+    wp_apply+ (array_fill_spec with "[Hmodel]") as "Hmodel"; first iSteps.
     iStep 5.
     iMod (itype_array_intro with "Hmodel []") as "#Htype"; simpl_length.
     iApply big_sepL_intro. iIntros "%k %_v" ((-> & Hk)%lookup_replicate) "//".
@@ -8092,8 +8092,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hv HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_make_type with "[//]"); first done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_make_type with "[//]"); first done.
     iSteps.
   Qed.
 
@@ -8148,7 +8148,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hacc & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldli_type τ υ with "[$Htype $Hacc] HΦ").
+    wp_apply+ (array_foldli_type τ υ with "[$Htype $Hacc] HΦ").
     iSteps.
   Qed.
 
@@ -8203,7 +8203,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn & #Hacc) HΦ".
     wp_rec.
-    wp_smart_apply (array_foldri_type τ υ with "[$Htype $Hacc] HΦ").
+    wp_apply+ (array_foldri_type τ υ with "[$Htype $Hacc] HΦ").
     iSteps.
   Qed.
 
@@ -8223,8 +8223,8 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
-    wp_smart_apply (array_unsafe_get_type with "Htype"); first lia.
+    wp_apply+ (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
+    wp_apply+ (array_unsafe_get_type with "Htype"); first lia.
     iSteps.
   Qed.
 
@@ -8243,10 +8243,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Htype $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iteri_slice_type with "[$Htype $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -8266,7 +8266,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Htype] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_iteri_slice_type with "[$Htype] HΦ"); [done.. |].
     iSteps.
   Qed.
 
@@ -8285,10 +8285,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_iter_slice_type with "[$Htype $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_iter_slice_type with "[$Htype $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -8305,8 +8305,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (array_unsafe_iteri_slice_type with "[$Htype Hfn] HΦ"); [lia.. | iSteps].
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ (array_unsafe_iteri_slice_type with "[$Htype Hfn] HΦ"); [lia.. | iSteps].
   Qed.
 
   Lemma array_iter_type τ `{!iType _ τ} fn t sz :
@@ -8322,7 +8322,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_iteri_type τ with "[$Htype] HΦ").
+    wp_apply+ (array_iteri_type τ with "[$Htype] HΦ").
     iSteps.
   Qed.
 
@@ -8343,11 +8343,11 @@ Section zoo_G.
     iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_iteri_slice_type τ with "[$Htype] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_iteri_slice_type τ with "[$Htype] HΦ"); [done.. |].
     iIntros "!> % (%k & -> & %Hk)". wp_pures. iIntros "!> !> %v Hv".
-    wp_smart_apply (wp_wand with "(Hfn [])") as "{Hfn} {% fn} %fn Hfn"; first iSteps.
+    wp_apply+ (wp_wand with "(Hfn [])") as "{Hfn} {% fn} %fn Hfn"; first iSteps.
     wp_apply (wp_wand with "(Hfn Hv)") as "%w Hw".
-    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hw]"); first lia.
+    wp_apply+ (array_unsafe_set_type with "[$Htype $Hw]"); first lia.
     iSteps.
   Qed.
 
@@ -8367,10 +8367,10 @@ Section zoo_G.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_applyi_slice_type with "[$Htype $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_applyi_slice_type with "[$Htype $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -8391,7 +8391,7 @@ Section zoo_G.
     iIntros "% % % %Φ (#Htype & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_applyi_slice_type τ with "[$Htype] HΦ"); [done.. |].
+    wp_apply+ (array_unsafe_applyi_slice_type τ with "[$Htype] HΦ"); [done.. |].
     iSteps.
   Qed.
 
@@ -8411,10 +8411,10 @@ Section zoo_G.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
 
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_apply_slice_type with "[$Htype $Hfn]"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_apply_slice_type with "[$Htype $Hfn]"); [done.. |].
     iSteps.
   Qed.
 
@@ -8432,7 +8432,7 @@ Section zoo_G.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
+    wp_apply+ (array_size_type with "Htype") as "_".
     wp_apply (array_unsafe_applyi_slice_type τ with "[$Htype] HΦ"); [lia.. | iSteps].
   Qed.
 
@@ -8449,7 +8449,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_applyi_type τ with "[$Htype] HΦ").
+    wp_apply+ (array_applyi_type τ with "[$Htype] HΦ").
     iSteps.
   Qed.
 
@@ -8467,10 +8467,10 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first lia.
-    wp_smart_apply (array_applyi_spec_disentangled (λ _, τ) with "[$Hmodel]") as (vs) "(%Hvs & Hmodel & Hvs)".
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t) "Hmodel"; first lia.
+    wp_apply+ (array_applyi_spec_disentangled (λ _, τ) with "[$Hmodel]") as (vs) "(%Hvs & Hmodel & Hvs)".
     { iIntros "!> %i %v %Hlookup".
-      wp_smart_apply (wp_wand with "(Hfn [])"); last iSteps.
+      wp_apply+ (wp_wand with "(Hfn [])"); last iSteps.
       apply lookup_lt_Some in Hlookup. simpl_length in Hlookup. iSteps.
     }
     rewrite /array_model.
@@ -8492,8 +8492,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_initi_type with "Hfn"); first lia.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_initi_type with "Hfn"); first lia.
     iSteps.
   Qed.
 
@@ -8511,7 +8511,7 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_type with "[] HΦ"); first lia.
+    wp_apply+ (array_unsafe_initi_type with "[] HΦ"); first lia.
     iSteps.
   Qed.
 
@@ -8529,8 +8529,8 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_init_type with "Hfn"); first done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_init_type with "Hfn"); first done.
     iSteps.
   Qed.
 
@@ -8549,10 +8549,10 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
+    wp_apply+ (array_size_type with "Htype") as "_".
     wp_apply (array_unsafe_initi_type υ); first done.
     { iIntros "!> % (%i & -> & %Hi)".
-      wp_smart_apply (array_unsafe_get_type with "Htype"); first lia.
+      wp_apply+ (array_unsafe_get_type with "Htype"); first lia.
       iSteps.
     }
     iSteps.
@@ -8573,7 +8573,7 @@ Section zoo_G.
   Proof.
     iIntros (->) "%Φ (#Htype & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (array_mapi_type τ υ with "[] HΦ"); first done.
+    wp_apply+ (array_mapi_type τ υ with "[] HΦ"); first done.
     iFrame "#∗". iSteps.
   Qed.
 
@@ -8595,9 +8595,9 @@ Section zoo_G.
   Proof.
     iIntros "% % % % % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
-    wp_smart_apply (array_unsafe_get_type with "Htype1") as (v) "#Hv"; first lia.
-    wp_smart_apply (array_unsafe_set_type with "[$Htype2 $Hv]"); first lia.
+    wp_apply+ (for_type with "[] HΦ"). iIntros "!> % (%k & -> & %Hk)".
+    wp_apply+ (array_unsafe_get_type with "Htype1") as (v) "#Hv"; first lia.
+    wp_apply+ (array_unsafe_set_type with "[$Htype2 $Hv]"); first lia.
     iSteps.
   Qed.
   Lemma array_unsafe_copy_slice_type' τ `{!iType _ τ} t1 (sz : nat) (i1 : Z) t2 (i2 : Z) i2_ vs (n : Z) :
@@ -8626,12 +8626,12 @@ Section zoo_G.
       array_slice t2 i2_ (DfracOwn 1) (ws ++ drop k vs) ∗
       [∗ list] w ∈ ws, τ w
     )%I).
-    wp_smart_apply (for_spec_strong Ψ with "[Hslice2]").
+    wp_apply+ (for_spec_strong Ψ with "[Hslice2]").
     { iSplitL.
       - iExists []. iSteps.
       - iIntros "!> % %k -> %Hk (%ws & %Hws & Hslice2 & Hws)".
-        wp_smart_apply (array_unsafe_get_type with "Htype1") as (v) "Hv"; first lia.
-        wp_smart_apply (array_unsafe_set_spec_slice with "Hslice2") as "Hslice2".
+        wp_apply+ (array_unsafe_get_type with "Htype1") as (v) "Hv"; first lia.
+        wp_apply+ (array_unsafe_set_spec_slice with "Hslice2") as "Hslice2".
         { simpl_length. lia. }
         iStep 2. iExists (ws ++ [v]). iSplit; last iSplitL "Hslice2".
         + simpl_length. iSteps.
@@ -8662,10 +8662,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
-    wp_smart_apply (array_size_type with "Htype2") as "_".
-    repeat (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply array_unsafe_copy_slice_type; [done.. | iFrame "#" |].
+    wp_apply+ (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype2") as "_".
+    repeat (wp_apply+ assume_spec' as "%").
+    wp_apply+ array_unsafe_copy_slice_type; [done.. | iFrame "#" |].
     iSteps.
   Qed.
 
@@ -8684,7 +8684,7 @@ Section zoo_G.
   Proof.
     iIntros "% % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
     wp_apply (array_unsafe_copy_slice_type τ t1 with "[$]"); [lia.. |].
     iSteps.
   Qed.
@@ -8706,7 +8706,7 @@ Section zoo_G.
   Proof.
     iIntros (-> ->) "%Φ (#Htype1 & Hmodel2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
     wp_apply (array_unsafe_copy_slice_type' with "[$Htype1 $Hmodel2] HΦ"); done.
   Qed.
 
@@ -8724,11 +8724,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_type with "Htype2") as "_".
-    wp_smart_apply (array_size_type with "Htype1") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply array_unsafe_copy_type. 3: iFrame "#". all: try done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_type with "Htype2") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ array_unsafe_copy_type. 3: iFrame "#". all: try done.
     iSteps.
   Qed.
 
@@ -8747,15 +8747,15 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ (#Htype & #Hv') HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_slice with "Hmodel'") as "(Hinv' & Hslice')".
     replace ₊sz' with (sz + (₊sz' - sz)) at 2 by lia.
     rewrite replicate_add.
     iDestruct (array_slice_app with "Hslice'") as "(Hslice1' & Hslice2')".
-    wp_smart_apply (array_unsafe_copy_type' with "[$Htype $Hslice1']") as (vs) "(%Hvs & Hslice1' & #Hvs)"; first done.
+    wp_apply+ (array_unsafe_copy_type' with "[$Htype $Hslice1']") as (vs) "(%Hvs & Hslice1' & #Hvs)"; first done.
     { simpl_length. }
-    wp_smart_apply (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
+    wp_apply+ (array_unsafe_fill_slice_spec_slice_fit with "Hslice2'") as "Hslice2'".
     { simpl_length. }
     { simpl_length. lia. }
     iDestruct (array_slice_app_1' with "Hslice1' Hslice2'") as "Hslice'"; first done.
@@ -8782,9 +8782,9 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv') HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_grow_type with "[$Htype $Hv']"); first done.
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_grow_type with "[$Htype $Hv']"); first done.
     iSteps.
   Qed.
 
@@ -8804,9 +8804,9 @@ Section zoo_G.
   Proof.
     iIntros "% % % %Φ #Htype HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first done.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first done.
     iDestruct (array_model_to_slice with "Hmodel'") as "(#Hinv' & Hslice')".
-    wp_smart_apply (array_unsafe_copy_slice_type' with "[$Htype $Hslice']") as (vs) "(%Hvs & Hslice' & Hvs)"; try done.
+    wp_apply+ (array_unsafe_copy_slice_type' with "[$Htype $Hslice']") as (vs) "(%Hvs & Hslice' & Hvs)"; try done.
     { simpl_length. lia. }
     iStep 5. simpl_length.
     iApply (itype_array_intro_slice with "Hinv' Hslice' Hvs").
@@ -8829,10 +8829,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_sub_type with "Htype"); [done.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_sub_type with "Htype"); [done.. |].
     iSteps.
   Qed.
 
@@ -8850,7 +8850,7 @@ Section zoo_G.
   Proof.
     iIntros "% %Φ Htype HΦ".
     wp_rec.
-    wp_smart_apply (array_unsafe_sub_type with "Htype"); [lia.. |].
+    wp_apply+ (array_unsafe_sub_type with "Htype"); [lia.. |].
     iSteps.
   Qed.
 
@@ -8868,10 +8868,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_shrink_type with "Htype"); first done.
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_shrink_type with "Htype"); first done.
     iSteps.
   Qed.
 
@@ -8908,8 +8908,8 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Hi %Φ #Htype HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (array_unsafe_get_type with "Htype HΦ").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ (array_unsafe_get_type with "Htype HΦ").
     { rewrite Z_rem_mod; lia. }
   Qed.
 
@@ -8928,10 +8928,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Htype HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_cget_type with "Htype"); [lia.. |].
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_cget_type with "Htype"); [lia.. |].
     iSteps.
   Qed.
 
@@ -8950,8 +8950,8 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Hi %Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply (array_unsafe_set_type with "[$Htype $Hv] HΦ").
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ (array_unsafe_set_type with "[$Htype $Hv] HΦ").
     { rewrite Z_rem_mod; lia. }
   Qed.
 
@@ -8969,10 +8969,10 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype & #Hv) HΦ".
     wp_rec.
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_size_type with "Htype") as "_".
-    wp_smart_apply assume_spec' as "%".
-    wp_smart_apply (array_unsafe_cset_type with "[$Htype $Hv]"); [lia.. |].
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_size_type with "Htype") as "_".
+    wp_apply+ assume_spec' as "%".
+    wp_apply+ (array_unsafe_cset_type with "[$Htype $Hv]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -8997,7 +8997,7 @@ Section zoo_G.
     iIntros "% % % % % % % %Φ (#Htype1 & #Htype2) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype2") as "_".
+    wp_apply+ (array_size_type with "Htype2") as "_".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     case_bool_decide; wp_pures.
@@ -9006,7 +9006,7 @@ Section zoo_G.
       iSteps.
 
     - wp_apply (array_unsafe_copy_slice_type τ t1 with "[$]") as "_"; [lia.. |].
-      wp_smart_apply (array_unsafe_copy_slice_type τ t1 with "[$]") as "_"; [lia.. |].
+      wp_apply+ (array_unsafe_copy_slice_type τ t1 with "[$]") as "_"; [lia.. |].
       iSteps.
   Qed.
   Lemma array_unsafe_ccopy_slice_type τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 n : Z) :
@@ -9030,7 +9030,7 @@ Section zoo_G.
     iIntros "% % % % % % % %Φ (#Htype1 & #Htype2) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     case_bool_decide; wp_pures.
@@ -9039,7 +9039,7 @@ Section zoo_G.
       iSteps.
 
     - wp_apply (array_unsafe_ccopy_slice_0_type τ t1 with "[$]") as "_"; [lia.. |].
-      wp_smart_apply (array_unsafe_ccopy_slice_0_type τ t1 with "[$]") as "_"; [lia.. |].
+      wp_apply+ (array_unsafe_ccopy_slice_0_type τ t1 with "[$]") as "_"; [lia.. |].
       iSteps.
   Qed.
   #[local] Lemma array_unsafe_ccopy_slice_0_type' τ `{!iType _ τ} t1 sz1 (i1 : Z) t2 sz2 (i2 : Z) i2_ vs (n : Z) :
@@ -9066,7 +9066,7 @@ Section zoo_G.
     iIntros (Hsz1 Hsz2 ? ? ? -> ->) "%Φ (#Htype1 & Hcslice2) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_cslice with "Hcslice2") as "Hcslice2".
+    wp_apply+ (array_size_spec_cslice with "Hcslice2") as "Hcslice2".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     rewrite array_cslice_to_slice //.
@@ -9084,7 +9084,7 @@ Section zoo_G.
       iApply (array_slice_nil with "Hslice22").
 
     - wp_apply (array_unsafe_copy_slice_type' with "[$Htype1 $Hslice21]") as (ws1) "(%Hws1 & Hslice21 & #Hws1)"; [simpl_length; lia.. |].
-      wp_smart_apply (array_unsafe_copy_slice_type' with "[$Htype1 $Hslice22]") as (ws2) "(%Hws2 & Hslice22 & #Hws2)"; [simpl_length; lia.. |].
+      wp_apply+ (array_unsafe_copy_slice_type' with "[$Htype1 $Hslice22]") as (ws2) "(%Hws2 & Hslice22 & #Hws2)"; [simpl_length; lia.. |].
       iDestruct (big_sepL_app_2 with "Hws1 Hws2") as "Hws".
       iApply ("HΦ" with "[- $Hws]").
       simpl_length in *. iSteps.
@@ -9117,7 +9117,7 @@ Section zoo_G.
     iIntros (Hsz1 ? Hsz2 ? Hi1 -> ?) "%Φ (#Htype1 & Hcslice2) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
     wp_pures.
     rewrite Z.rem_mod_nonneg; [lia.. |].
     case_bool_decide as Hif; wp_pures.
@@ -9130,7 +9130,7 @@ Section zoo_G.
       assert (i1 `mod` sz1 = ⁺(₊i1 `mod` sz1))%Z.
       { rewrite Nat2Z.inj_mod Z2Nat.id //. }
       wp_apply (array_unsafe_ccopy_slice_0_type' with "[$Htype1 $Hcslice21]") as (ws1) "(%Hws1 & Hcslice21 & Hws1)"; [simpl_length; lia.. |].
-      wp_smart_apply (array_unsafe_ccopy_slice_0_type' with "[$Htype1 $Hcslice22]") as (ws2) "(%Hws2 & Hcslice22 & Hws2)"; [simpl_length; lia.. |].
+      wp_apply+ (array_unsafe_ccopy_slice_0_type' with "[$Htype1 $Hcslice22]") as (ws2) "(%Hws2 & Hcslice22 & Hws2)"; [simpl_length; lia.. |].
       iDestruct (big_sepL_app_2 with "Hws1 Hws2") as "Hws".
       iApply ("HΦ" with "[- $Hws]").
       simpl_length in *. iSteps.
@@ -9155,11 +9155,11 @@ Section zoo_G.
   Proof.
     iIntros "% % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    do 3 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype1") as "_".
-    wp_smart_apply (array_size_type with "Htype2") as "_".
-    do 4 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_ccopy_slice_type τ t1 with "[$]"); [lia.. |].
+    do 3 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype2") as "_".
+    do 4 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_ccopy_slice_type τ t1 with "[$]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -9181,7 +9181,7 @@ Section zoo_G.
   Proof.
     iIntros "% % % % % %Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype1") as "_".
     wp_apply (array_unsafe_ccopy_slice_type τ t1 with "[$]"); [lia.. |].
     iSteps.
   Qed.
@@ -9202,11 +9202,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (#Htype1 & #Htype2) HΦ".
     wp_rec.
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_size_type with "Htype1") as "_".
-    wp_smart_apply (array_size_type with "Htype2") as "_".
-    do 2 (wp_smart_apply assume_spec' as "%").
-    wp_smart_apply (array_unsafe_ccopy_type τ t1 with "[$]"); [lia.. |].
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_size_type with "Htype1") as "_".
+    wp_apply+ (array_size_type with "Htype2") as "_".
+    do 2 (wp_apply+ assume_spec' as "%").
+    wp_apply+ (array_unsafe_ccopy_type τ t1 with "[$]"); [lia.. |].
     iSteps.
   Qed.
 
@@ -9231,8 +9231,8 @@ Section zoo_G.
     iIntros "% % % % % % %Φ (#Htype & #Hv) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_make_type with "Hv") as (t') "#Htype'"; first lia.
-    wp_smart_apply (array_unsafe_ccopy_slice_type τ t with "[$]") as "_"; [lia.. |].
+    wp_apply+ (array_unsafe_make_type with "Hv") as (t') "#Htype'"; first lia.
+    wp_apply+ (array_unsafe_ccopy_slice_type τ t with "[$]") as "_"; [lia.. |].
     wp_pures.
     iApply ("HΦ" with "Htype'").
   Qed.
@@ -9256,7 +9256,7 @@ Section zoo_G.
     iIntros "% % % % %Φ (#Htype & #Hv) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_type with "Htype") as "_".
+    wp_apply+ (array_size_type with "Htype") as "_".
     wp_apply (array_unsafe_cgrow_slice_type with "[$Htype $Hv]"); [lia.. |].
     iSteps.
   Qed.
@@ -9279,11 +9279,11 @@ Section zoo_G.
     iIntros "% % % % %Φ #Htype HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
+    wp_apply+ (array_unsafe_alloc_spec with "[//]") as (t') "Hmodel'"; first lia.
     iDestruct (array_model_to_cslice with "Hmodel'") as "Hcslice'".
     iDestruct (array_cslice_rotation_right_0 ₊i with "Hcslice'") as "Hcslice'"; simpl_length; [lia.. |].
     rewrite rotation_replicate.
-    wp_smart_apply (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(%Hvs' & Hcslice' & Hvs')"; simpl_length; [lia.. |].
+    wp_apply+ (array_unsafe_ccopy_slice_type' with "[$Htype $Hcslice']") as (vs') "(%Hvs' & Hcslice' & Hvs')"; simpl_length; [lia.. |].
     simpl_length in Hvs'.
     iStep 5.
     iApply (itype_array_intro_cslice with "Hcslice' Hvs'"); lia.

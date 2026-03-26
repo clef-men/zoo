@@ -85,7 +85,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hlt %Φ Ht HΦ".
     wp_rec.
-    wp_smart_apply (random_state_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
+    wp_apply+ (random_state_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
     iSteps.
   Qed.
   Lemma random_state_int_in_range_spec_nat t lb ub :
@@ -103,7 +103,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hlt %Φ Ht HΦ".
     wp_rec.
-    wp_smart_apply (random_state_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
+    wp_apply+ (random_state_int_spec with "Ht") as "%n (%Hn & Ht)"; first lia.
     wp_pures.
     Z_to_nat n. rewrite -Nat2Z.inj_add. iSteps.
   Qed.

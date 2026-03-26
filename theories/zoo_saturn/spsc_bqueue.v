@@ -751,7 +751,7 @@ Section spsc_bqueue_G.
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
     iIntros "!> {%- Hlen}".
 
-    wp_smart_apply (front_spec with "[$]") as "Hconsumer₁".
+    wp_apply+ (front_spec with "[$]") as "Hconsumer₁".
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
@@ -846,7 +846,7 @@ Section spsc_bqueue_G.
     iIntros "%Φ ((:inv') & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΨ) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_size_spec_inv with "Hdata_inv") as "_".
+    wp_apply+ (array_size_spec_inv with "Hdata_inv") as "_".
     wp_load. wp_pures.
     case_bool_decide as Hbranch1; wp_pures.
 
@@ -902,8 +902,8 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_smart_apply (back_spec with "[$]") as "Hproducer₁".
-    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_smart_apply (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
+    wp_apply+ (back_spec with "[$]") as "Hproducer₁".
+    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_apply+ (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -915,7 +915,7 @@ Section spsc_bqueue_G.
     iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
     iIntros "!> {%- Hbranch} !>".
 
-    wp_smart_apply (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
+    wp_apply+ (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
     wp_pures.
 
     wp_bind (_ <-{back} _)%E.
@@ -1046,8 +1046,8 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
-    wp_smart_apply (front_spec with "[$]") as "Hconsumer₁".
-    iDestruct "Hback_lb" as "-#Hback_lb". wp_smart_apply (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
+    wp_apply+ (front_spec with "[$]") as "Hconsumer₁".
+    iDestruct "Hback_lb" as "-#Hback_lb". wp_apply+ (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -1065,8 +1065,8 @@ Section spsc_bqueue_G.
     iIntros "!> {%- Hbranch} !>".
 
     wp_load.
-    wp_smart_apply (array_unsafe_cget_spec_cell with "Hfront") as "Hfront"; first done.
-    wp_smart_apply (array_unsafe_cset_spec_cell with "Hfront") as "Hfront_"; first done.
+    wp_apply+ (array_unsafe_cget_spec_cell with "Hfront") as "Hfront"; first done.
+    wp_apply+ (array_unsafe_cset_spec_cell with "Hfront") as "Hfront_"; first done.
     wp_pures.
 
     wp_bind (_ <-{front} _)%E.

@@ -134,14 +134,14 @@ Section algo_G.
         )%I
       with "[$Hctx HΧ_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_smart_apply ("HLöb" with "[%] Hctx HΧ_1"); first naive_solver lia.
+        wp_apply+ ("HLöb" with "[%] Hctx HΧ_1"); first naive_solver lia.
         { iSteps. }
       }
 
-      wp_smart_apply ("HLöb" with "[%] Hctx HΧ_2") as "(Hctx & HΨ_2)"; first naive_solver lia.
+      wp_apply+ ("HLöb" with "[%] Hctx HΧ_2") as "(Hctx & HΨ_2)"; first naive_solver lia.
 
       iApply wp_fupd.
-      wp_smart_apply (future_wait_spec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
+      wp_apply+ (future_wait_spec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & HΨ_1) & _)".
 
       iDestruct (big_sepL_seqZ_app_2 with "HΨ_1 HΨ_2") as "HΨ"; [naive_solver lia.. |].
@@ -189,8 +189,8 @@ Section algo_G.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & HΧ & #HΧ_split & #HΧ_elim) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
-    wp_smart_apply (algo_for_0_spec Ψ Χ with "[$]"); first done.
+    wp_apply+ (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo_for_0_spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
   Lemma algo_for_spec_nat (Ψ : nat → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
@@ -356,7 +356,7 @@ Section algo_G.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & Htask) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_for_spec
+    wp_apply+ (algo_for_spec
       Ψ
       ( λ i n,
         [∗ list] i ∈ seqZ i n,
@@ -376,7 +376,7 @@ Section algo_G.
         iEval (rewrite Nat2Z.inj_add) in "Htask".
         iApply (big_sepL_seqZ_app with "Htask"); lia.
       - iIntros "{% ctx scope} !> %ctx %scope %i %n Hctx % % Htask".
-        wp_smart_apply (for_spec'
+        wp_apply+ (for_spec'
           ( λ j δ,
             pool_context pool ctx scope ∗
             ( [∗ list] k ∈ seqZ j (i + n - j),
@@ -400,7 +400,7 @@ Section algo_G.
           - iApply big_sepL_seq_intro. iIntros "!> %δ % % -> (Hctx & Htask & HΨ)".
             iEval (replace (i + n - (i + δ))%Z with (n - δ)%Z by lia) in "Htask".
             iDestruct (big_sepL_seqZ_cons with "Htask") as "(H & Htask)"; first lia.
-            wp_smart_apply (wp_wand with "(H Hctx [%])") as (res) "(-> & Hctx & H)"; first lia.
+            wp_apply+ (wp_wand with "(H Hctx [%])") as (res) "(-> & Hctx & H)"; first lia.
             iDestruct (big_sepL_seqZ_snoc_2 with "HΨ H") as "HΨ"; first lia.
             iEval (replace (i + δ + 1)%Z with (Z.succ (i + δ)%Z) by lia).
             iEval (replace (i + n - Z.succ (i + δ))%Z with (Z.pred (n - δ)) by lia).
@@ -561,9 +561,9 @@ Section algo_G.
     - iDestruct (big_sepL_seqZ_cons_1 with "Hbody") as "(H & Hbody)"; first lia.
       wp_apply (wp_wand with "(H Hctx)") as (v) "(Hctx & HΨ)".
 
-      wp_smart_apply (wp_wand with "(Hop [%] [%] HΧ HΨ)") as (acc1) "HΧ"; [lia.. |].
+      wp_apply+ (wp_wand with "(Hop [%] [%] HΧ HΨ)") as (acc1) "HΧ"; [lia.. |].
 
-      wp_smart_apply ("HLöb" $! (S n) with "[%] [%] [$] [Hbody] HΧ") as (acc2) "HΧ"; [lia.. | |].
+      wp_apply+ ("HLöb" $! (S n) with "[%] [%] [$] [Hbody] HΧ") as (acc2) "HΧ"; [lia.. | |].
       { iEval (replace (beg1 + n + 1)%Z with (Z.succ (beg1 + n)) by lia).
         iEval (replace (end_ - Z.succ (beg1 + n))%Z with (Z.pred (end_ - (beg1 + n))) by lia).
         iFrame.
@@ -634,23 +634,23 @@ Section algo_G.
       iDestruct (big_sepL_seqZ_app with "Hbody") as "(Hbody_1 & Hbody_2)"; [naive_solver lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hbody_2".
 
-      wp_smart_apply (future_async_spec
+      wp_apply+ (future_async_spec
         (Χ beg ₊(mid - beg))
         (λ _, True)%I
         with "[$Hctx Hbody_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_smart_apply ("HLöb" with "[%] [$] Hbody_1"); first naive_solver lia.
+        wp_apply+ ("HLöb" with "[%] [$] Hbody_1"); first naive_solver lia.
         iSteps.
       }
 
-      wp_smart_apply ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive_solver lia.
+      wp_apply+ ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive_solver lia.
 
-      wp_smart_apply (future_wait_spec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
+      wp_apply+ (future_wait_spec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
       iMod (future_inv_result_consumer' with "H£_2 Hfut_inv Hfut_result Hfut_consumer") as "(HΧ_1 & _)".
 
       iEval (replace mid with (beg + ₊(mid - beg))%Z by naive_solver lia) in "HΧ_2".
       iApply wp_fupd.
-      wp_smart_apply (wp_wand with "(Hop_app [%] [%] HΧ_1 HΧ_2)") as (acc) "HΧ"; [naive_solver lia.. |].
+      wp_apply+ (wp_wand with "(Hop_app [%] [%] HΧ_1 HΧ_2)") as (acc) "HΧ"; [naive_solver lia.. |].
       iMod (lc_fupd_elim_later with "H£_1 HΧ") as "HΧ".
       iEval (replace _ with ₊(end_ - beg) by naive_solver lia) in "HΧ".
 
@@ -707,8 +707,8 @@ Section algo_G.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
-    wp_smart_apply (algo_fold_0_spec Ψ Χ with "[$]"); first done.
+    wp_apply+ (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo_fold_0_spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
   Lemma algo_fold_spec_nat' (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
@@ -955,7 +955,7 @@ Section algo_G.
       iClear "H".
 
       iDestruct (big_sepL_seqZ_cons_1 with "Hpred") as "(H & Hpred)"; first lia.
-      wp_smart_apply (wp_wand with "(H Hctx)") as (res) "(%b & -> & Hctx & H)".
+      wp_apply+ (wp_wand with "(H Hctx)") as (res) "(%b & -> & Hctx & H)".
       destruct b; wp_pures.
 
       + wp_apply (mvar_set_spec with "[$Hfound_inv $Htoken $H]"); first iSteps.
@@ -1027,7 +1027,7 @@ Section algo_G.
       iDestruct (big_sepL_seqZ_app with "Hpred") as "(Hpred_1 & Hpred_2)"; [naive_solver lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hpred_2".
 
-      wp_smart_apply (future_async_spec
+      wp_apply+ (future_async_spec
         ( λ res,
           ⌜res = ()%V⌝ ∗
           ( mvar_resolved found
@@ -1039,14 +1039,14 @@ Section algo_G.
         (λ _, True)%I
         with "[$Hctx Htoken_1 Hpred_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_smart_apply ("HLöb" with "[%] [$] [$] Hpred_1"); first naive_solver lia.
+        wp_apply+ ("HLöb" with "[%] [$] [$] Hpred_1"); first naive_solver lia.
         iSteps.
       }
 
-      wp_smart_apply ("HLöb" with "[%] [$] [$] Hpred_2") as "(Hctx & H)"; first naive_solver lia.
+      wp_apply+ ("HLöb" with "[%] [$] [$] Hpred_2") as "(Hctx & H)"; first naive_solver lia.
 
       iApply wp_fupd.
-      wp_smart_apply (future_wait_spec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
+      wp_apply+ (future_wait_spec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & [#Hfound_resolved | (Htoken_1 & HΧ_1)]) & _)"; first iSteps.
 
       iDestruct "H" as "[#Hfound_resolved | (Htoken_2 & HΧ_2)]"; first iSteps.
@@ -1093,19 +1093,19 @@ Section algo_G.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo_adjust_chunk_spec with "[$]") as "{% chunk} %chunk Hctx".
 
     iMod (ghost_var_alloc (ghost_var_G := algo_G_find_G) ()) as "(%γ & Htoken)".
-    wp_smart_apply (mvar_create_spec (find_inv γ Ψ beg end_) with "[//]") as (found) "(#Hfound_inv & Hfound_consumer)".
+    wp_apply+ (mvar_create_spec (find_inv γ Ψ beg end_) with "[//]") as (found) "(#Hfound_inv & Hfound_consumer)".
 
-    wp_smart_apply (algo_find_0_spec with "[$]") as "(Hctx & [#Hfound_resolved | (Htoken & HΧ)])"; first done.
+    wp_apply+ (algo_find_0_spec with "[$]") as "(Hctx & [#Hfound_resolved | (Htoken & HΧ)])"; first done.
 
-    - wp_smart_apply (mvar_try_get_spec_resolved_consumer with "[$]") as (v) "(:find_inv)".
+    - wp_apply+ (mvar_try_get_spec_resolved_consumer with "[$]") as (v) "(:find_inv)".
 
       iSpecialize ("HΦ" $! (Some i)).
       iSteps.
 
-    - wp_smart_apply (mvar_try_get_spec_consumer with "[$]") as ([v |]) "H".
+    - wp_apply+ (mvar_try_get_spec_consumer with "[$]") as ([v |]) "H".
 
       + iDestruct "H" as "(_ & (:find_inv =1))".
         iDestruct (ghost_var_exclusive with "Htoken Htoken_1") as %[].

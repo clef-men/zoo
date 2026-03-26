@@ -1933,9 +1933,9 @@ Module base.
       rename us into us0. iDestruct (owner'_rebase with "Howner") as "(%us & (:owner'))".
 
       wp_rec.
-      wp_smart_apply (back_spec with "[$]") as "Howner₁".
-      wp_smart_apply (data_spec_owner with "[$]") as "Howner₁".
-      wp_smart_apply (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
+      wp_apply+ (back_spec with "[$]") as "Howner₁".
+      wp_apply+ (data_spec_owner with "[$]") as "Howner₁".
+      wp_apply+ (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
       wp_pures.
 
       wp_bind (_.{front})%E.
@@ -1969,11 +1969,11 @@ Module base.
           iDestruct (array_cslice_reshape front1 with "Hdata_cslice₂") as "(%vs & %priv & % & % & Hdata_cslice₂ & _)"; [lia.. |].
           wp_apply (array_unsafe_cgrow_spec with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [simpl_length; lia.. |].
 
-          wp_smart_apply (array_unsafe_cset_spec with "Hdata'_cslice") as "Hdata'_cslice".
+          wp_apply+ (array_unsafe_cset_spec with "Hdata'_cslice") as "Hdata'_cslice".
           { simpl_length. lia. }
           iEval (rewrite -assoc insert_app_r_0; first lia) in "Hdata'_cslice".
           iDestruct "Hdata'_cslice" as "(Hdata'_cslice₁ & Hdata'_cslice₂)".
-          wp_smart_apply (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & _)"; [simpl_length; lia.. | iSteps |].
+          wp_apply+ (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & _)"; [simpl_length; lia.. | iSteps |].
 
           iDestruct (array_cslice_rotation_right_small_1' back cap with "Hdata'_cslice₂") as "Hdata'_cslice₂"; [simpl_length; lia.. |].
           iEval (rewrite /rotation drop_app_length'; first lia) in "Hdata'_cslice₂".
@@ -2051,7 +2051,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_smart_apply (front_spec with "[$]") as (front1) "#Hfront_lb_1".
+      wp_apply+ (front_spec with "[$]") as (front1) "#Hfront_lb_1".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -2078,10 +2078,10 @@ Module base.
 
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
-        wp_smart_apply (data_spec with "[$]") as (data) "#Hdatas_elem".
-        wp_smart_apply (array_unsafe_cget_spec_loser with "[$]") as (v) "_"; first lia.
+        wp_apply+ (data_spec with "[$]") as (data) "#Hdatas_elem".
+        wp_apply+ (array_unsafe_cget_spec_loser with "[$]") as (v) "_"; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_loser_1 with "[$]"); first done.
+        wp_apply+ (resolve_spec_loser_1 with "[$]"); first done.
         iSteps.
       }
 
@@ -2095,10 +2095,10 @@ Module base.
 
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
-        wp_smart_apply (data_spec with "[$]") as (data) "#Hdatas_elem".
-        wp_smart_apply (array_unsafe_cget_spec_loser with "[$]") as (v) "_"; first lia.
+        wp_apply+ (data_spec with "[$]") as (data) "#Hdatas_elem".
+        wp_apply+ (array_unsafe_cget_spec_loser with "[$]") as (v) "_"; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_loser_2 with "[$]"); first done.
+        wp_apply+ (resolve_spec_loser_2 with "[$]"); first done.
         iSteps.
       }
       rewrite Hbranch3.
@@ -2124,10 +2124,10 @@ Module base.
 
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
-      wp_smart_apply (data_spec_winner_pop with "[$]") as (data) "Hwinner_pop".
-      wp_smart_apply (array_unsafe_cget_spec_winner_pop with "[$]") as "Hwinner_pop".
+      wp_apply+ (data_spec_winner_pop with "[$]") as (data) "Hwinner_pop".
+      wp_apply+ (array_unsafe_cget_spec_winner_pop with "[$]") as "Hwinner_pop".
       wp_load.
-      wp_smart_apply (resolve_spec_winner_pop with "[$]") as "HΦ".
+      wp_apply+ (resolve_spec_winner_pop with "[$]") as "HΦ".
       iSteps.
     Qed.
 
@@ -2193,7 +2193,7 @@ Module base.
         case_bool_decide as Hbranch; wp_pures.
 
         + wp_apply (data_spec_owner with "[$]") as "Howner₁".
-          wp_smart_apply (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
+          wp_apply+ (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
           rewrite ws_deque_1_min_capacity.
           wp_pures.
 
@@ -2212,7 +2212,7 @@ Module base.
             wp_apply (array_unsafe_cshrink_slice_spec_fit with "Hdata_cslice₂") as (data') "(Hdata_cslice₂ & Hdata'_cslice)"; [simpl_length; lia.. |].
             iEval (rewrite take_app_ge; first lia) in "Hdata'_cslice".
             iDestruct "Hdata'_cslice" as "(Hdata'_cslice₁ & Hdata'_cslice₂)".
-            wp_smart_apply (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & Hdata_cslice₂)"; [simpl_length; lia.. | iSteps |].
+            wp_apply+ (set_data_spec with "[$Howner₁ $Hdata_cslice₂ $Hdata'_cslice₁]") as "(Howner₁ & Hdata_cslice₂)"; [simpl_length; lia.. | iSteps |].
 
             iDestruct ("Hdata_cslice₂_rebase" with "Hdata_cslice₂") as "$".
             iIntros "_".
@@ -2220,15 +2220,15 @@ Module base.
             iFrameSteps. iPureIntro. simpl_length. lia.
           }
 
-          wp_smart_apply (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
+          wp_apply+ (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
           iSteps.
 
         + replace front2 with back by lia.
 
           wp_load.
-          wp_smart_apply (resolve_spec_Empty with "[$]") as "(Howner₁ & #Hfront_lb_2)".
-          wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
-          wp_smart_apply (data_spec_owner with "[$]") as "Howner₁".
+          wp_apply+ (resolve_spec_Empty with "[$]") as "(Howner₁ & #Hfront_lb_2)".
+          wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+          wp_apply+ (data_spec_owner with "[$]") as "Howner₁".
           wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
           iSteps.
 
@@ -2241,9 +2241,9 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_winner_steal with "[$]") as "#Hfront_lb".
-        wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
-        wp_smart_apply (data_spec_owner with "[$]") as "Howner₁".
+        wp_apply+ (resolve_spec_winner_steal with "[$]") as "#Hfront_lb".
+        wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+        wp_apply+ (data_spec_owner with "[$]") as "Howner₁".
         wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
         iSteps.
 
@@ -2258,12 +2258,12 @@ Module base.
           wp_pures.
           rewrite bool_decide_eq_false_2; first lia.
           wp_load.
-          wp_smart_apply (resolve_spec_loser_2 with "[$]") as "#Hfront_lb_2"; first done.
-          wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+          wp_apply+ (resolve_spec_loser_2 with "[$]") as "#Hfront_lb_2"; first done.
+          wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
           iSteps.
 
         + rewrite bool_decide_eq_true_2; first lia.
-          wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+          wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
           iSteps.
 
       - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
@@ -2272,7 +2272,7 @@ Module base.
         wp_apply (front_spec_Superempty with "[$]") as "Howner₁"; [lia |].
         wp_pures.
         rewrite bool_decide_eq_true_2; first lia.
-        wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+        wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
         iSteps.
     Qed.
     Lemma ws_deque_1_pop_spec t γ ι ws :
@@ -2306,7 +2306,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_smart_apply (back_spec with "[$]") as "Howner₁".
+      wp_apply+ (back_spec with "[$]") as "Howner₁".
       wp_pures.
 
       wp_bind (_ <-{back} _)%E.
@@ -2332,7 +2332,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hcap Hus Hback}".
 
-        wp_smart_apply (ws_deque_1_pop_0_spec PopSuperempty _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+        wp_apply+ (ws_deque_1_pop_0_spec PopSuperempty _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
         iSteps.
       }
 
@@ -2372,7 +2372,7 @@ Module base.
           { iExists Emptyish. iFrameSteps. }
           iIntros "!> {%- Hcap Hus Hback Hus_lookup}".
 
-          wp_smart_apply (ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
+          wp_apply+ (ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -2388,7 +2388,7 @@ Module base.
             { iExists Emptyish. iFrameSteps. }
             iIntros "!> {%- Hcap Hus Hus_lookup}".
 
-            wp_smart_apply (ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
+            wp_apply+ (ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
             iSteps.
           }
 
@@ -2411,7 +2411,7 @@ Module base.
           { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
           iIntros "!> {%- Hcap Hus Hbranch2}".
 
-          wp_smart_apply (ws_deque_1_pop_0_spec PopEmptyishLoser _ front1 with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+          wp_apply+ (ws_deque_1_pop_0_spec PopEmptyishLoser _ front1 with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
           iSteps.
 
       - iMod (owner_update Stable (back - 1) data cap with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -2435,7 +2435,7 @@ Module base.
         }
         iIntros "!> {%- Hcap Hus Hback Hus_lookup}".
 
-        wp_smart_apply (ws_deque_1_pop_0_spec (PopNonempty v) _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+        wp_apply+ (ws_deque_1_pop_0_spec (PopNonempty v) _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
         iSteps.
     Qed.
   End ws_deque_1_G.

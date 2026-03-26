@@ -244,7 +244,7 @@ Section bag_1_G.
       [∗ list] slot ∈ slots,
         slot ↦ᵣ None
     )%I).
-    wp_smart_apply (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
+    wp_apply+ (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %data %i %vs % % (%slots & %Hslots & Hslots)".
@@ -341,7 +341,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_smart_apply (array_size_spec with "Hdata_model") as "_".
+    wp_apply+ (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -351,7 +351,7 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp_apply (bag_1_push_0_spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
@@ -439,7 +439,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_smart_apply (array_size_spec with "Hdata_model") as "_".
+    wp_apply+ (array_size_spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -449,7 +449,7 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_smart_apply (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
     wp_apply (bag_1_pop_0_spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.

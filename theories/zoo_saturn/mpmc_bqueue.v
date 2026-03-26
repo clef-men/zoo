@@ -885,8 +885,8 @@ Module base.
       wp_rec.
       wp_apply (front_spec with "Hinv") as (front1 i_front1) "(:node_model =front1 front=)".
       wp_match.
-      wp_smart_apply (prophet_typed_strong_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
-      wp_smart_apply (back_spec with "Hinv") as (back2 i_back2) "(:node_model =back2)".
+      wp_apply+ (prophet_typed_strong_1_wp_proph prophet with "[//]") as (pid proph) "Hproph".
+      wp_apply+ (back_spec with "Hinv") as (back2 i_back2) "(:node_model =back2)".
       wp_match. wp_pures.
       destruct_decide (proph = front1) as -> | Hproph.
 
@@ -957,13 +957,13 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credit:"H£".
-      wp_smart_apply (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
+      wp_apply+ (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
       { rewrite /= /waiter_au. iAuIntro.
         iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
         iAaccIntro with "Hmodel₁"; iSteps.
       }
       wp_match.
-      wp_smart_apply (next_spec_is_empty with "[$]"); iSteps.
+      wp_apply+ (next_spec_is_empty with "[$]"); iSteps.
     Qed.
 
     #[local] Lemma mpmc_bqueue_fix_back_spec {t γ} i {back} j new_back :
@@ -986,7 +986,7 @@ Module base.
 
       wp_bind (_ and _)%E.
       wp_apply (wp_wand itype_bool) as (res) "(%b & ->)".
-      { wp_smart_apply (next_spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node_model =new_back'))]"; last iSteps.
+      { wp_apply+ (next_spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node_model =new_back'))]"; last iSteps.
         wp_pures.
 
         wp_bind (CAS _ _ _).
@@ -997,8 +997,8 @@ Module base.
       }
 
       destruct b; last iSteps.
-      wp_smart_apply domain_yield_spec.
-      wp_smart_apply (back_spec with "Hinv") as (back' i') "(:node_model =back')".
+      wp_apply+ domain_yield_spec.
+      wp_apply+ (back_spec with "Hinv") as (back' i') "(:node_model =back')".
       iApply ("HLöb" with "HΦ Hhistory_at_back'").
     Qed.
 
@@ -1129,7 +1129,7 @@ Module base.
             iIntros "!> {%}".
 
             iDestruct "Hhistory_at_next" as "-#Hhistory_at_next".
-            wp_smart_apply (next_spec' back next with "[$]") as "(:node_model =next)".
+            wp_apply+ (next_spec' back next with "[$]") as "(:node_model =next)".
             iSteps.
 
           + wp_cas as ? | _; first done.
@@ -1161,7 +1161,7 @@ Module base.
             }
             iIntros "!> {%}".
 
-            wp_smart_apply mpmc_bqueue_fix_back_spec.
+            wp_apply+ mpmc_bqueue_fix_back_spec.
             { iFrame "#". iSteps. }
             iSteps.
       }
@@ -1228,7 +1228,7 @@ Module base.
 
       wp_rec.
       wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & Hnew_back_index & Hnew_back_estimated_capacity & _)".
-      wp_smart_apply (back_spec with "Hinv") as (back i_back) "(:node_model =back)".
+      wp_apply+ (back_spec with "Hinv") as (back i_back) "(:node_model =back)".
 
       awp_apply (mpmc_bqueue_push_2_spec with "[$]").
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
@@ -1255,9 +1255,9 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec.
-      wp_smart_apply (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
+      wp_apply+ (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
       wp_match.
-      wp_smart_apply (next_spec_pop Φ with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
+      wp_apply+ (next_spec_pop Φ with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
       wp_match. wp_pures.
 
       wp_bind (CAS _ _ _).

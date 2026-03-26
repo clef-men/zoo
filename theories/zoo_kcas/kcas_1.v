@@ -1286,15 +1286,15 @@ Section kcas_1_G.
 
     wp_rec. wp_pures.
     destruct (metadata_success η) eqn:Hsuccess.
-    all: wp_smart_apply (lst_iter_spec_disentangled (λ _ _, True)%I); [done | | iSteps].
+    all: wp_apply+ (lst_iter_spec_disentangled (λ _ _, True)%I); [done | | iSteps].
     all: iIntros "!>" (i v (descr & -> & Hdescrs_lookup)%list_lookup_fmap_Some).
 
-    - wp_smart_apply (after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
-      wp_smart_apply (set_before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+    - wp_apply+ (after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
+      wp_apply+ (set_before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
       iSteps.
 
-    - wp_smart_apply (before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
-      wp_smart_apply (set_after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
+    - wp_apply+ (before_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
+      wp_apply+ (set_after_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]"); [done.. |].
       iSteps.
   Qed.
 
@@ -1342,7 +1342,7 @@ Section kcas_1_G.
       iSplitR "H HΦ". { iFrameSteps 2. }
       iModIntro. clear.
 
-      wp_smart_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
+      wp_apply+ (kcas_1_status_to_bool_spec with "[//]") as "_".
       wp_load. wp_pures.
 
       wp_bind (Resolve _ _ _).
@@ -1484,11 +1484,11 @@ Section kcas_1_G.
       wp_bind (if: _ then _ else _)%E.
       wp_apply (wp_wand itype_unit with "[- HΦ]") as (res) "->".
       { destruct b; last iSteps.
-        wp_smart_apply (kcas_1_clear_spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
+        wp_apply+ (kcas_1_clear_spec with "[$Hcasn_inv' $Hlstatus_lb]"); first auto.
         iSteps.
       }
 
-      wp_smart_apply (status_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_".
+      wp_apply+ (status_spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_".
       wp_apply (kcas_1_status_to_bool_spec with "[//]") as "_".
       rewrite final_status_to_of_bool. iSteps.
 
@@ -1689,7 +1689,7 @@ Section kcas_1_G.
       iDestruct (casn_inv'_unfold with "Hcasn_inv'") as "(:casn_inv)".
 
       wp_rec credit:"H£".
-      wp_smart_apply (wp_id with "[//]") as (gid) "Hgid".
+      wp_apply+ (wp_id with "[//]") as (gid) "Hgid".
 
       destruct (η.(metadata_descrs) !! i) as [descr |] eqn:Hdescrs_lookup.
 
@@ -1699,7 +1699,7 @@ Section kcas_1_G.
         iDestruct (big_sepL_lookup with "Hlocs") as "(Hloc_meta & Hstate_casn & Hloc_inv')"; first done.
         iDestruct (loc_inv'_elim with "Hloc_meta Hloc_inv'") as "Hloc_inv".
 
-        wp_smart_apply (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid b) "Hlproph".
+        wp_apply+ (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid b) "Hlproph".
         wp_pures.
 
         wp_bind (!_)%E.
@@ -1728,7 +1728,7 @@ Section kcas_1_G.
           iModIntro. clear.
 
           wp_pures. rewrite bool_decide_eq_true_2 //.
-          wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus1_lb //] HΦ").
+          wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus1_lb //] HΦ").
 
         + iMod (descriptor_state_inj with "Hcasn_inv' Hcasn1_inv'") as %?; [done.. |].
           destruct_decide (
@@ -1764,12 +1764,12 @@ Section kcas_1_G.
             wp_pures. rewrite bool_decide_eq_false_2 //.
 
             iClear "Hlstatus1_lb".
-            wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
+            wp_apply+ ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             iMod (casn_retrieve with "Hcasn1_inv Hlstatus1_lb Hhelper Hhelpers1_elem") as "HΨ".
 
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
+            all: wp_apply+ (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
             all: iStep 11.
             wp_apply (kcas_1_finish_spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
@@ -1780,10 +1780,10 @@ Section kcas_1_G.
             wp_pures. rewrite bool_decide_eq_false_2 //.
 
             iClear "Hlstatus1_lb".
-            wp_smart_apply ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
+            wp_apply+ ("IHeval" with "[$Hcasn1_meta $Hcasn1_inv']") as "(#Hlstatus1_lb & H£)"; first iSteps.
             wp_apply (before_spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
-            all: wp_smart_apply (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
+            all: wp_apply+ (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
             all: iStep 11.
 
             -- iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
@@ -1803,7 +1803,7 @@ Section kcas_1_G.
 
       - rewrite drop_lookup_None //.
         { rewrite list_lookup_fmap Hdescrs_lookup //. }
-        wp_smart_apply (kcas_1_finish_spec_after with "[$Hcasn_meta $Hcasn_inv' $Hgid $Hlstatus_lb] HΦ").
+        wp_apply+ (kcas_1_finish_spec_after with "[$Hcasn_meta $Hcasn_inv' $Hgid $Hlstatus_lb] HΦ").
         { rewrite lookup_ge_None // in Hdescrs_lookup. }
     }
 
@@ -1848,7 +1848,7 @@ Section kcas_1_G.
             -- iSplitR "HΦ". { iFrameSteps. }
                iModIntro.
 
-               wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
+               wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
                { iPureIntro.
                  erewrite (drop_S _ _ i); first done.
                  rewrite list_lookup_fmap Hdescrs_lookup //.
@@ -1914,7 +1914,7 @@ Section kcas_1_G.
                   iSplitR "HΦ". { iFrameSteps. }
                   iModIntro.
 
-                  wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
+                  wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //] HΦ").
 
                ++ iDestruct "Hlstatus" as "(:casn_inv_inner_finished >)".
                   iDestruct (history_lb_valid_eq with "Hhistory_auth Hhistory_lb2") as %(-> & _).
@@ -1937,7 +1937,7 @@ Section kcas_1_G.
                        iSplitR "HΦ". { iFrameSteps. }
                        iModIntro.
 
-                       wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
+                       wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
                        rewrite Hsuccess. iSteps.
 
           * iDestruct (history_lb_valid_ne with "Hhistory_auth Hhistory_lb1") as "(%casns & #Hhistory_lb2)"; first done.
@@ -1956,7 +1956,7 @@ Section kcas_1_G.
             -- iSplitR "HΦ". { iFrameSteps. }
                iModIntro.
 
-               wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
+               wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb] HΦ").
                { iPureIntro.
                  erewrite (drop_S _ _ i); first done.
                  rewrite list_lookup_fmap Hdescrs_lookup //.
@@ -2006,7 +2006,7 @@ Section kcas_1_G.
         iSplitR "HΦ". { iFrameSteps 2. }
         iModIntro. clear.
 
-        wp_smart_apply ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
+        wp_apply+ ("IHdetermine_as" with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb //]").
         iSteps.
 
       - iDestruct "Hlstatus" as "(:casn_inv_inner_finished)".
@@ -2083,7 +2083,7 @@ Section kcas_1_G.
 
     wp_rec.
     wp_apply (wp_id with "[//]") as (gid) "Hgid".
-    wp_smart_apply (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs) "Hgproph".
+    wp_apply+ (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs) "Hgproph".
     wp_block casn as "Hcasn_meta" "(Hcasn_status & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
     wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
@@ -2219,7 +2219,7 @@ Section kcas_1_G.
     iDestruct (big_sepL_exists with "Hlocs_") as "(%γs & %Hγs & #Hlocs)". iClear "Hlocs_".
 
     wp_rec credit:"H£".
-    wp_smart_apply (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs0) "Hgproph".
+    wp_apply+ (prophet_typed_wp_proph global_prophet with "[//]") as (pid prophs0) "Hgproph".
     wp_block casn as "Hcasn_meta" "(Hcasn_state & Hcasn_proph & _)".
     iMod (pointsto_persist with "Hcasn_proph") as "#Hcasn_proph".
 
@@ -2242,7 +2242,7 @@ Section kcas_1_G.
           descr.(descriptor_after) = after
         ⌝
     )%I : iProp Σ).
-    wp_smart_apply (lst_map_spec_disentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
+    wp_apply+ (lst_map_spec_disentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
     { iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
       wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
       iMod (pointsto_persist with "Hstate_casn") as "#Hstate_casn".
@@ -2371,7 +2371,7 @@ Section kcas_1_G.
     }
 
     iApply wp_fupd.
-    wp_smart_apply (kcas_1_determine_as_spec with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb]") as "#Hlstatus_lb_finished"; first done.
+    wp_apply+ (kcas_1_determine_as_spec with "[$Hcasn_meta $Hcasn_inv' $Hlstatus_lb]") as "#Hlstatus_lb_finished"; first done.
 
     iInv "Hcasn_inv" as "(:casn_inv_inner)".
     iDestruct (lstatus_finished with "Hlstatus_auth Hlstatus_lb_finished") as %->.

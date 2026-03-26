@@ -57,39 +57,39 @@ Section vertex_simple_G.
     iIntros "%Φ (Ha & Hb & Hc & Hd) HΦ".
 
     wp_rec.
-    wp_smart_apply (mpsc_flag_create_spec P_d with "[//]") as (flag) "(#Hflag_inv & Hflag_consumer)".
+    wp_apply+ (mpsc_flag_create_spec P_d with "[//]") as (flag) "(#Hflag_inv & Hflag_consumer)".
 
-    wp_smart_apply (vertex_create'_spec
+    wp_apply+ (vertex_create'_spec
       (P_ab ∗ P_ac)
       True
     with "[//]") as (vtx_a iter_a) "(#Hvtx_a_inv & Hvtx_a_model & Hvtx_a_output)".
     iMod (vertex_output_split with "Hvtx_a_inv Hvtx_a_output") as "(Hvtx_a_output_b & Hvtx_a_output_c)".
-    wp_smart_apply (vertex_create'_spec
+    wp_apply+ (vertex_create'_spec
       P_b
       True
     with "[//]") as (vtx_b iter_b) "(#Hvtx_b_inv & Hvtx_b_model & Hvtx_b_output)".
-    wp_smart_apply (vertex_create'_spec
+    wp_apply+ (vertex_create'_spec
       P_c
       True
     with "[//]") as (vtx_c iter_c) "(#Hvtx_c_inv & Hvtx_c_model & Hvtx_c_output)".
-    wp_smart_apply (vertex_create'_spec
+    wp_apply+ (vertex_create'_spec
       True
       True
     with "[//]") as (vtx_d iter_d) "(#Hvtx_d_inv & Hvtx_d_model & _)".
 
-    wp_smart_apply (vertex_precede_spec with "[$Hvtx_b_model]") as "(Hvtx_b_model & #Hvtx_a_predecessor_b)". 1: iFrame "#".
-    wp_smart_apply (vertex_precede_spec with "[$Hvtx_c_model]") as "(Hvtx_c_model & #Hvtx_a_predecessor_c)". 1: iFrame "#".
-    wp_smart_apply (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_b_predecessor)". 1: iFrame "#".
-    wp_smart_apply (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_c_predecessor)". 1: iFrame "#".
+    wp_apply+ (vertex_precede_spec with "[$Hvtx_b_model]") as "(Hvtx_b_model & #Hvtx_a_predecessor_b)". 1: iFrame "#".
+    wp_apply+ (vertex_precede_spec with "[$Hvtx_c_model]") as "(Hvtx_c_model & #Hvtx_a_predecessor_c)". 1: iFrame "#".
+    wp_apply+ (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_b_predecessor)". 1: iFrame "#".
+    wp_apply+ (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_c_predecessor)". 1: iFrame "#".
 
-    wp_smart_apply (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
+    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
-    wp_smart_apply (pool_run_spec (λ _,
+    wp_apply+ (pool_run_spec (λ _,
       P_d
     )%I with "[- HΦ $Hpool_model]") as (?) "(Hpool_model & HP_d)".
     { iIntros "%ctx %scope Hctx".
 
-      wp_smart_apply (vertex_release_spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd]") as "Hctx".
+      wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_d_ready".
 
         wp_pures credits:"H£".
@@ -104,11 +104,11 @@ Section vertex_simple_G.
         iMod (lc_fupd_elim_laterN _ (P_b ∗ P_c) with "H£ [$]") as "(HP_b & HP_c)".
         wp_apply (wp_wand with "(Hd HP_b HP_c)") as (res) "(-> & HP_d)".
 
-        wp_smart_apply (mpsc_flag_set_spec with "[$Hflag_inv $HP_d]").
+        wp_apply+ (mpsc_flag_set_spec with "[$Hflag_inv $HP_d]").
         iSteps => //.
       }
 
-      wp_smart_apply (vertex_release_spec' with "[$Hctx $Hvtx_c_model Hvtx_a_output_c Hc]") as "Hctx".
+      wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx_c_model Hvtx_a_output_c Hc]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_c_ready".
 
         wp_pures credits:"H£".
@@ -121,7 +121,7 @@ Section vertex_simple_G.
         iSteps => //.
       }
 
-      wp_smart_apply (vertex_release_spec' with "[$Hctx $Hvtx_b_model Hvtx_a_output_b Hb]") as "Hctx".
+      wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx_b_model Hvtx_a_output_b Hb]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_b_ready".
 
         wp_pures credits:"H£".
@@ -134,26 +134,26 @@ Section vertex_simple_G.
         iSteps => //.
       }
 
-      wp_smart_apply (vertex_release_spec' with "[$Hctx $Hvtx_a_model Ha]") as "Hctx".
+      wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx_a_model Ha]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx Hvtx_a_ready".
 
-        wp_smart_apply (wp_wand with "Ha") as (res) "(-> & $)".
+        wp_apply+ (wp_wand with "Ha") as (res) "(-> & $)".
         iSteps => //.
       }
 
-      wp_smart_apply (pool_wait_until_spec
+      wp_apply+ (pool_wait_until_spec
         (mpsc_flag_consumer flag)
         P_d
       with "[$Hctx Hflag_consumer]").
       { iStep 3 as "Hflag_consumer".
-        wp_smart_apply (mpsc_flag_get_spec with "[$Hflag_inv $Hflag_consumer]").
+        wp_apply+ (mpsc_flag_get_spec with "[$Hflag_inv $Hflag_consumer]").
         iSteps.
       }
 
       iSteps.
     }
 
-    wp_smart_apply (pool_kill_spec with "[$Hpool_model]").
+    wp_apply+ (pool_kill_spec with "[$Hpool_model]").
     iSteps.
   Qed.
 End vertex_simple_G.

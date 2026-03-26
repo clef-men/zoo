@@ -211,14 +211,14 @@ Section zoo_G.
     iIntros "%Φ (:model') HΦ".
 
     wp_rec. do 3 wp_load.
-    wp_smart_apply (array_size_spec_cslice with "Hvs") as "Hvs".
+    wp_apply+ (array_size_spec_cslice with "Hvs") as "Hvs".
     wp_pures.
     case_bool_decide.
 
     - iClear "Hextra".
-      wp_smart_apply (queue_3_next_capacity_spec with "[//]") as (cap') "%Hcap'"; first lia.
-      wp_smart_apply int_max_spec.
-      wp_smart_apply (array_unsafe_cgrow_spec with "Hvs") as (data') "(_ & Hvs)"; [lia.. |].
+      wp_apply+ (queue_3_next_capacity_spec with "[//]") as (cap') "%Hcap'"; first lia.
+      wp_apply+ int_max_spec.
+      wp_apply+ (array_unsafe_cgrow_spec with "Hvs") as (data') "(_ & Hvs)"; [lia.. |].
       wp_store.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hextra)".
       rewrite -Hback. iSteps.
@@ -241,7 +241,7 @@ Section zoo_G.
     iIntros "%Φ (:model lazy=) HΦ".
 
     wp_rec.
-    wp_smart_apply (queue_3_grow_spec with "Hmodel") as (extra') "(%Hextra' & (:model'))".
+    wp_apply+ (queue_3_grow_spec with "Hmodel") as (extra') "(%Hextra' & (:model'))".
     do 2 wp_load.
     destruct (Nat.lt_exists_pred 0 extra') as (extra'' & -> & _); first lia.
     iDestruct (array_cslice_cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
@@ -265,7 +265,7 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec. rewrite queue_3_min_capacity. do 3 wp_load.
-    wp_smart_apply (array_size_spec_cslice with "Hvs") as "Hvs".
+    wp_apply+ (array_size_spec_cslice with "Hvs") as "Hvs".
     wp_pures.
     case_bool_decide; last iSteps.
     iDestruct (array_cslice_app_1 with "Hvs Hextra") as "Hvs"; first done.
@@ -299,14 +299,14 @@ Section zoo_G.
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp_load.
       iDestruct (array_cslice_cons with "Hvs") as "(Hcell & Hvs)".
-      wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
-      wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
       wp_store.
       iApply array_cslice_shift_right in "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       rewrite -replicate_S_end.
-      wp_smart_apply (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
+      wp_apply+ (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
       { iExists (S extra). iFrameSteps. }
       wp_pures.
       iApply ("HΦ" with "Hmodel").
@@ -343,12 +343,12 @@ Section zoo_G.
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp_load.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hcell)".
-      wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
       wp_store.
       iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
       rewrite -replicate_S.
-      wp_smart_apply (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
+      wp_apply+ (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
       { iExists (S extra). iFrameSteps. }
       wp_pures.
       iApply ("HΦ" $! (Some v)).

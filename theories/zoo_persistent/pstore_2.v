@@ -875,7 +875,7 @@ Module base.
         }
         assert (drop (S (S i)) δs = δs') as Hdrop_δs'.
         { erewrite drop_S in Hdrop_δs => //. congruence. }
-        wp_smart_apply ("HLöb" $! (S i) δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
+        wp_apply+ ("HLöb" $! (S i) δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "Hδ' Hδs2") as "Hδs2".
           iDestruct (deltas_chain_app_2 with "Hδs1 Hδs2") as "Hδs".
           rewrite -Hdrop_δs take_drop. iSteps.
@@ -955,7 +955,7 @@ Module base.
         }
         assert (drop (S (S i)) 𝝳s = 𝝳s') as Hdrop_𝝳s'.
         { erewrite drop_S in Hdrop_𝝳s => //. congruence. }
-        wp_smart_apply ("HLöb" $! (S i) 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
+        wp_apply+ ("HLöb" $! (S i) 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "H𝝳' H𝝳s2") as "H𝝳s2".
           iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
           iFrame "Hspec".
@@ -1001,7 +1001,7 @@ Module base.
         + iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
           wp_load.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
-          wp_smart_apply (pstore_2_collect_spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
+          wp_apply+ (pstore_2_collect_spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
           rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
           rewrite -tail_app // reverse_cons fmap_app.
@@ -1019,7 +1019,7 @@ Module base.
         + iDestruct (deltas_chain_cons_inv with "H𝝳s") as "(H𝝳 & H𝝳s)".
           wp_load.
           iDestruct (deltas_chain_cons with "H𝝳 H𝝳s") as "H𝝳s".
-          wp_smart_apply (pstore_2_collect_spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
+          wp_apply+ (pstore_2_collect_spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
           { iSplitL; first iFrameSteps.
             iClear "Helem_cnode". clear.
             iIntros "%cnode %descr_cnode %path %acc !> %Φ (%Hcnodes_lookup & %Hpath & Hinv) HΦ".
@@ -1122,7 +1122,7 @@ Module base.
 
         + apply treemap_path_nil_inv in Hpath as <-.
           wp_load.
-          wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+          wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             apply (f_equal dom) in Hδs_cnode.
@@ -1175,7 +1175,7 @@ Module base.
           simpl in Hcnode. subst cnode_.
           wp_load.
           iDestruct (deltas_chain_snoc with "Hδs_cnode' Hδ'") as "Hδs_cnode'".
-          wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+          wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             apply (f_equal dom) in Hδs_cnode.
@@ -1189,7 +1189,7 @@ Module base.
           set δs_base' := δs_base ++ [Delta r1 g1' v1' cnode].
           set ϵs' := treemap_reroot ϵs base cnode δs_base'.
           opose proof* (treemap_reroot_rooted cnode _ δs_base') as Hϵs'; [done.. |].
-          wp_smart_apply ("HLöb" $! _ ϵs' cnode descr_cnode [] cnode' descr_cnode' (δs_cnode ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
+          wp_apply+ ("HLöb" $! _ ϵs' cnode descr_cnode [] cnode' descr_cnode' (δs_cnode ++ [_]) with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
           { eapply treemap_reroot_path; done. }
           { rewrite lookup_insert_ne // lookup_delete_ne //. }
           { simpl_length/=. lia. }
@@ -1220,7 +1220,7 @@ Module base.
         iDestruct (deltas_chain_snoc_inv with "Hδs_cnode") as "(_ & Hδs_cnode & Hδ')".
         rewrite !last_snoc. cbn.
         wp_load.
-        wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+        wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
         assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
         { apply elem_of_dom.
           rewrite deltas_apply_snoc in Hδs_cnode.
@@ -1236,7 +1236,7 @@ Module base.
         set ς' := <[r1 := (g1, v1)]> ς.
         set δs_base' := δs_base ++ [Delta r1 g1' v1' node'].
         set δs_cnode' := δs_cnode ++ [Delta r2 g2 v2 node'].
-        wp_smart_apply ("HLöb" $! ς' _ base descr_base δs_base' cnode descr_cnode δs_cnode' with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
+        wp_apply+ ("HLöb" $! ς' _ base descr_base δs_base' cnode descr_cnode δs_cnode' with "[] [] [] [] [] [] [- HΦ]"); try iPureIntro; try done.
         { rewrite /δs_cnode'. simpl_length/=. lia. }
         { rewrite -assoc (comm _ [_]) assoc fmap_app in Hnodup.
           rewrite /δs_cnode' /δs_base' assoc fmap_app //.
@@ -1318,7 +1318,7 @@ Module base.
           * apply treemap_path_nil_inv in Hpath as ->.
             assert (descr_base' = descr_base) as -> by congruence.
             wp_load.
-            wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+            wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
             assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
               rewrite deltas_apply_snoc in Hδs.
@@ -1348,7 +1348,7 @@ Module base.
             rewrite concat_app reverse_app fmap_app /= right_id reverse_app /=.
             wp_load.
             iDestruct (deltas_chain_snoc with "Hδs_cnode Hδ'") as "Hδs_cnode". cbn.
-            wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+            wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
             assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
             { apply elem_of_dom.
               rewrite deltas_apply_snoc in Hδs.
@@ -1361,7 +1361,7 @@ Module base.
             rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
             rewrite deltas_apply_singleton store_on_insert in Hδs.
             rewrite -Hδs delete_delete.
-            wp_smart_apply (pstore_2_revert_spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
+            wp_apply+ (pstore_2_revert_spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
             { simpl_length/=. lia. }
             { rewrite right_id //. }
             { rewrite reverse_app fmap_app -assoc //. }
@@ -1374,7 +1374,7 @@ Module base.
           iDestruct (deltas_chain_snoc_inv with "Hδs") as "(_ & Hδs & Hδ')".
           wp_load.
           iDestruct (deltas_chain_snoc with "Hδs Hδ'") as "Hδs". cbn.
-          wp_smart_apply assert_spec; first rewrite bool_decide_eq_true_2 //.
+          wp_apply+ assert_spec; first rewrite bool_decide_eq_true_2 //.
           assert (∃ data, store_on σ₀ ς !! r1 = Some data) as ((g1', v1') & Hς_lookup).
           { apply elem_of_dom.
             rewrite deltas_apply_snoc in Hδs.
@@ -1385,7 +1385,7 @@ Module base.
           do 2 wp_load. do 3 wp_store.
           iDestruct ("Hς" $! (g1, v1) with "[$Hr_gen $Hr_value]") as "Hς".
           rewrite -store_on_insert.
-          wp_smart_apply ("HLöb" $! node _ (δs ++ [Delta r2 g2 v2 node]) with "[%] [%] [%] [- HΦ]"); try done.
+          wp_apply+ ("HLöb" $! node _ (δs ++ [Delta r2 g2 v2 node]) with "[%] [%] [%] [- HΦ]"); try done.
           { rewrite reverse_app fmap_app -assoc //. }
           { iSteps; iPureIntro.
             { rewrite fmap_app in Hδs_nodup.
@@ -1414,7 +1414,7 @@ Module base.
 
       wp_rec.
       wp_apply (pstore_2_collect_spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
-      wp_smart_apply (pstore_2_revert_spec with "[Hinv] HΦ"); [done.. | |].
+      wp_apply+ (pstore_2_revert_spec with "[Hinv] HΦ"); [done.. | |].
       { rewrite lst_model'_plst_model' //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hcnodes)".
       iSteps.
@@ -1472,7 +1472,7 @@ Module base.
           iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
           wp_load.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
-          wp_smart_apply (pstore_2_reroot_spec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
+          wp_apply+ (pstore_2_reroot_spec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
           { apply treemap_path_nil. }
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
@@ -1499,7 +1499,7 @@ Module base.
           iDestruct (deltas_chain_cons with "Hδ Hδs'") as "Hδs'".
           rewrite <- Hδ in *. clear Hδ δ δs'.
           opose proof* treemap_rooted_path as (path & Hpath); [done.. |].
-          wp_smart_apply (pstore_2_reroot_spec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
+          wp_apply+ (pstore_2_reroot_spec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
           iApply "HΦ".

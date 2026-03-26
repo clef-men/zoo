@@ -430,8 +430,8 @@ Section partition_G.
     iIntros "%Φ ((:model) & #Helt) HΦ".
 
     wp_rec.
-    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
-    wp_smart_apply (partition_dllist_create_spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
+    wp_apply+ (partition_get_class_spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply+ (partition_dllist_create_spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
 
   Lemma partition_get_spec γ elt v :
@@ -482,7 +482,7 @@ Section partition_G.
   Proof.
     iIntros "%Φ ((:model) & #Helt1 & #Helt2) HΦ".
     wp_rec.
-    wp_smart_apply (partition_get_class_spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
+    wp_apply+ (partition_get_class_spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
     wp_apply (partition_get_class_spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
     wp_pures. case_bool_decide as Hcase.
     - subst class2.

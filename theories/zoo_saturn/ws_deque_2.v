@@ -431,7 +431,7 @@ Module base.
 
       wp_rec.
 
-      awp_smart_apply (ws_deque_1_pop_spec with "[$]").
+      awp_apply+ (ws_deque_1_pop_spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps. iIntros "%o %𝑠𝑙𝑜𝑡s_owner (_ & Ho)".

@@ -178,7 +178,7 @@ Section boxroot_G.
       roots_auth γ (list_to_map $ zip roots ωs) ∗
       xdeque_model #l_global roots
     )%I).
-    wp_smart_apply (gc_set_roots_spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
+    wp_apply+ (gc_set_roots_spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
     { clear gc Φ. iSplit; iModIntro.
       - iIntros "%gc". iSplit.
         + iIntros "(%_l_global & %_γ & %roots & %map & %Heq & #_Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap)". injection Heq as <-.
@@ -194,7 +194,7 @@ Section boxroot_G.
           * rewrite dom_list_to_map_L fst_zip //. lia.
           * rewrite big_sepM_list_to_map // fst_zip //. lia.
       - iIntros "%Ψ %roots %ωs %fn !> %Φ (HΨ & (Hroots_auth & Hroots) & #Hfn) HΦ".
-        wp_smart_apply (xdeque_iter_spec Ψ with "[$HΨ $Hroots]"); iSteps.
+        wp_apply+ (xdeque_iter_spec Ψ with "[$HΨ $Hroots]"); iSteps.
     }
     wp_pures.
     iApply "HΦ".
@@ -218,7 +218,7 @@ Section boxroot_G.
     wp_rec.
     wp_block root as "(Hroot_prev & Hroot_next & Hroot & _)".
     (* iApply wp_fupd. *)
-    wp_smart_apply (xdeque_push_back_spec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
+    wp_apply+ (xdeque_push_back_spec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
     iAssert ⌜map !! root = None⌝%I as %Hroot.
     { rewrite -eq_None_ne_Some. iIntros "%ω' %Hmap_lookup".
       iDestruct (big_sepM_lookup with "Hmap") as "(% & Hroot_ & _)"; first done.
@@ -251,7 +251,7 @@ Section boxroot_G.
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
     { rewrite -list_elem_of_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
     iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
-    wp_smart_apply (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
+    wp_apply+ (xdeque_remove_spec with "Hroots") as "Hroots"; first done.
     iMod (roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
     iDestruct (big_sepM_delete with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply "HΦ".
@@ -301,7 +301,7 @@ Section boxroot_G.
     iDestruct (roots_lookup with "Hroots_auth Hroots_elem") as %Hmap_lookup.
     iDestruct (big_sepM_insert_acc with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply wp_fupd.
-    wp_smart_apply (wp_store_gc_root with "Hroot") as "Hroot"; [done.. |].
+    wp_apply+ (wp_store_gc_root with "Hroot") as "Hroot"; [done.. |].
     iMod (roots_update ω with "Hroots_auth Hroots_elem") as "(Hroots_auth & Hroots_elem)".
     iApply "HΦ".
     iSplitR "Hroots_elem"; last iSteps.

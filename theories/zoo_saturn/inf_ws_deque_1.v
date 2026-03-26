@@ -1490,7 +1490,7 @@ Module base.
       iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
       wp_rec.
-      wp_smart_apply (back_spec with "[$]") as "Howner₁".
+      wp_apply+ (back_spec with "[$]") as "Howner₁".
       wp_load.
       wp_apply (inf_array_set_spec_owner with "[$]") as "Howner₁".
       wp_pures.
@@ -1546,7 +1546,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_smart_apply (front_spec with "[$]") as (front1) "#Hfront_lb_1".
+      wp_apply+ (front_spec with "[$]") as (front1) "#Hfront_lb_1".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -1573,7 +1573,7 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_loser_1 with "[$]") as "_"; first done.
+        wp_apply+ (resolve_spec_loser_1 with "[$]") as "_"; first done.
         iSteps.
       }
 
@@ -1588,7 +1588,7 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_loser_2 with "[$]") as "_"; first done.
+        wp_apply+ (resolve_spec_loser_2 with "[$]") as "_"; first done.
         iSteps.
       }
       rewrite Hbranch3.
@@ -1616,7 +1616,7 @@ Module base.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_load.
-      wp_smart_apply (resolve_spec_winner_pop with "[$]") as "HΦ".
+      wp_apply+ (resolve_spec_winner_pop with "[$]") as "HΦ".
       wp_load.
       wp_apply (inf_array_get_spec_history with "[$]") as "_"; first done.
       iSteps.
@@ -1690,10 +1690,10 @@ Module base.
         + replace front2 with back by lia.
 
           wp_load.
-          wp_smart_apply (resolve_spec_Empty with "[$]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
-          wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+          wp_apply+ (resolve_spec_Empty with "[$]") as "(Howner₁ & #Hfront_lb_2 & #Hhistory_at)".
+          wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
           wp_load.
-          wp_smart_apply (inf_array_get_spec_history with "[$]"); first lia.
+          wp_apply+ (inf_array_get_spec_history with "[$]"); first lia.
           rewrite Hpriv. iSteps.
 
       - iDestruct "H" as "(-> & #Hhistory_at & Hwinner_steal)".
@@ -1705,8 +1705,8 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_smart_apply (resolve_spec_winner_steal with "[$]") as "#Hfront_lb".
-        wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+        wp_apply+ (resolve_spec_winner_steal with "[$]") as "#Hfront_lb".
+        wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
         wp_load.
         wp_apply (inf_array_get_spec_history with "[$]"); first done.
         iSteps.
@@ -1722,12 +1722,12 @@ Module base.
           wp_pures.
           rewrite bool_decide_eq_false_2; first lia.
           wp_load.
-          wp_smart_apply (resolve_spec_loser_2 with "[$]") as "#Hfront_lb_2"; first done.
-          wp_smart_apply (set_back_spec_Superempty with "[$]"); [lia.. |].
+          wp_apply+ (resolve_spec_loser_2 with "[$]") as "#Hfront_lb_2"; first done.
+          wp_apply+ (set_back_spec_Superempty with "[$]"); [lia.. |].
           iSteps.
 
         + rewrite bool_decide_eq_true_2; first lia.
-          wp_smart_apply (set_back_spec_Superempty with "[$]"); [lia.. |].
+          wp_apply+ (set_back_spec_Superempty with "[$]"); [lia.. |].
           iSteps.
 
       - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
@@ -1736,7 +1736,7 @@ Module base.
         wp_apply (front_spec_Superempty with "[$]") as "Howner₁"; first lia.
         wp_pures.
         rewrite bool_decide_eq_true_2; first lia.
-        wp_smart_apply (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
+        wp_apply+ (set_back_spec_Superempty with "[$]") as "Howner₁"; [lia.. |].
         iSteps.
     Qed.
     Lemma inf_ws_deque_1_pop_spec t γ ι ws :
@@ -1769,7 +1769,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_smart_apply (back_spec with "[$]") as "Howner₁".
+      wp_apply+ (back_spec with "[$]") as "Howner₁".
       wp_pures.
 
       wp_bind (_ <-{back} _)%E.
@@ -1794,7 +1794,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hback}".
 
-        wp_smart_apply (inf_ws_deque_1_pop_0_spec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (inf_ws_deque_1_pop_0_spec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
       }
 
@@ -1829,7 +1829,7 @@ Module base.
           }
           iIntros "!> {%}".
 
-          wp_smart_apply (inf_ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (inf_ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -1847,7 +1847,7 @@ Module base.
             }
             iIntros "!> {%}".
 
-            wp_smart_apply (inf_ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+            wp_apply+ (inf_ws_deque_1_pop_0_spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
             iSteps.
           }
 
@@ -1872,7 +1872,7 @@ Module base.
           }
           iIntros "!> {%- Hbranch2}".
 
-          wp_smart_apply (inf_ws_deque_1_pop_0_spec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (inf_ws_deque_1_pop_0_spec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
       - iMod (owner_update Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -1893,7 +1893,7 @@ Module base.
         }
         iIntros "!> {%- Hback}".
 
-        wp_smart_apply (inf_ws_deque_1_pop_0_spec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (inf_ws_deque_1_pop_0_spec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
     Qed.
   End inf_ws_deque_1_G.

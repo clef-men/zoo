@@ -386,7 +386,7 @@ Section mpmc_bstack_G.
         * simpl in Hlen.
           wp_load. wp_pures.
           rewrite bool_decide_eq_false_2; first lia.
-          wp_smart_apply ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
+          wp_apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
   Qed.
   Lemma mpmc_bstack_push_spec t ι cap v :
     <<<

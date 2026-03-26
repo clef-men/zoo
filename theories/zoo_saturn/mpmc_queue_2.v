@@ -1108,7 +1108,7 @@ Section mpmc_queue_2_G.
     wp_rec.
     wp_apply (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb_1".
 
-    wp_smart_apply (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid proph) "Hproph".
+    wp_apply+ (prophet_typed_1_wp_proph prophet_bool_1 with "[//]") as (pid proph) "Hproph".
     wp_pures.
 
     wp_bind (_.{back})%E.
@@ -1146,9 +1146,9 @@ Section mpmc_queue_2_G.
       iSplitR "Hproph HΦ". { iFrameSteps. }
       iIntros "!> {%- Hi_front2 Hsize}".
 
-      wp_smart_apply (front_spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
+      wp_apply+ (front_spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
       wp_equal as _ | (-> & ->)%(inj2 _).
-      all: wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+      all: wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
       all: iStep 11.
       wp_apply (mpmc_queue_2_suffix_index_spec with "[//]") as "_".
       wp_apply (mpmc_queue_2_prefix_index_spec with "[$]") as "_".
@@ -1160,9 +1160,9 @@ Section mpmc_queue_2_G.
     - iSplitR "Hproph HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (front_spec with "Hinv") as (i_front3 vs_front3) "_".
+      wp_apply+ (front_spec with "Hinv") as (i_front3 vs_front3) "_".
       wp_equal.
-      all: wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+      all: wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
       all: iSteps.
   Qed.
 
@@ -1252,7 +1252,7 @@ Section mpmc_queue_2_G.
 
         wp_pures.
         rewrite bool_decide_eq_true_2; first lia.
-        wp_smart_apply (mpmc_queue_2_finish_spec with "[$] HΦ").
+        wp_apply+ (mpmc_queue_2_finish_spec with "[$] HΦ").
 
       + iDestruct (state_lb_unstabilized with "Hstate_auth Hstate_lb") as %(-> & -> & ->); first lia.
 
@@ -1261,7 +1261,7 @@ Section mpmc_queue_2_G.
 
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
-        wp_smart_apply (mpmc_queue_2_rev_spec with "Hback_prev_header") as "_"; first lia.
+        wp_apply+ (mpmc_queue_2_rev_spec with "Hback_prev_header") as "_"; first lia.
         wp_pures.
 
         wp_bind (CAS _ _ _).
@@ -1287,7 +1287,7 @@ Section mpmc_queue_2_G.
           }
           iIntros "!> {%}".
 
-          wp_smart_apply (mpmc_queue_2_finish_spec with "[$] HΦ").
+          wp_apply+ (mpmc_queue_2_finish_spec with "[$] HΦ").
 
     - iAssert ⌜status1 ≠ Unstable back move⌝%I as %Hstabilized.
       { iIntros (->).
@@ -1298,7 +1298,7 @@ Section mpmc_queue_2_G.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (mpmc_queue_2_finish_spec with "[$] HΦ").
+      wp_apply+ (mpmc_queue_2_finish_spec with "[$] HΦ").
   Qed.
 
   #[local] Lemma mpmc_queue_2_push_spec_aux l γ v :
@@ -1438,7 +1438,7 @@ Section mpmc_queue_2_G.
 
         + destruct move as [| w move]; first naive_solver lia.
 
-          wp_smart_apply (mpmc_queue_2_help_spec with "[$]"); first done.
+          wp_apply+ (mpmc_queue_2_help_spec with "[$]"); first done.
           iSteps.
 
       - iDestruct (inv_status_Stable with "Hstatus") as "(%empty1 & -> & (:inv_status_stable =1))"; first naive_solver lia.
@@ -1446,7 +1446,7 @@ Section mpmc_queue_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_smart_apply ("IHpush_aux" $! _ _ (v1 :: vs_back1) with "[$Hinv $Hstate_at_1] HΦ").
+        wp_apply+ ("IHpush_aux" $! _ _ (v1 :: vs_back1) with "[$Hinv $Hstate_at_1] HΦ").
         iSteps.
     }
   Qed.
@@ -1669,7 +1669,7 @@ Section mpmc_queue_2_G.
                { iFrameSteps. iExists _, _, []. iSteps. }
                iIntros "!> {%- Hvs_back1}".
 
-               wp_smart_apply ("IHpop_2" with "[> $Hinv $Hstate_lb_4] HΦ").
+               wp_apply+ ("IHpop_2" with "[> $Hinv $Hstate_lb_4] HΦ").
                { iSteps.
                  iMod (inv'_state_at with "Hinv Hstate_at_1") as "(:back_model_1 =1)".
                  iSteps.
@@ -1704,7 +1704,7 @@ Section mpmc_queue_2_G.
       iIntros "%i_front %backs %back %i %back_prev %move %Φ (%Hmove & %Hi_front & #Hinv & #Hstate_lb & #Hback_prev_header) HΦ".
 
       wp_rec.
-      wp_smart_apply (mpmc_queue_2_rev_spec with "[$]") as "_"; first lia.
+      wp_apply+ (mpmc_queue_2_rev_spec with "[$]") as "_"; first lia.
       destruct move as [| v move _] using rev_ind; first naive_solver lia.
       rewrite reverse_snoc /=. wp_pures.
 
@@ -1741,7 +1741,7 @@ Section mpmc_queue_2_G.
         }
         iIntros "!> {%}".
 
-        wp_smart_apply (mpmc_queue_2_finish_spec with "[$]").
+        wp_apply+ (mpmc_queue_2_finish_spec with "[$]").
         iSteps.
     }
 
@@ -1749,7 +1749,7 @@ Section mpmc_queue_2_G.
       iIntros "%i_front %Φ #Hinv HΦ".
 
       wp_rec.
-      wp_smart_apply (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb".
+      wp_apply+ (front_spec with "Hinv") as (i_front1 vs_front1) "#Hfront_lb".
       wp_equal as _; first iSteps.
       wp_pures.
 

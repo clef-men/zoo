@@ -171,11 +171,11 @@ Section mutex_G.
     iLöb as "HLöb".
 
     wp_rec.
-    wp_smart_apply (wp_wand with "(Hpred Hmutex_locked HP HΨ)") as (res) "(%b & -> & Hmutex_locked & HΨ)".
+    wp_apply+ (wp_wand with "(Hpred Hmutex_locked HP HΨ)") as (res) "(%b & -> & Hmutex_locked & HΨ)".
     destruct b; first iSteps.
     iDestruct "HΨ" as "(HP & HΨ)".
-    wp_smart_apply (condition_wait_spec _ _ P with "[$]") as "(Hmutex_locked & HP)".
-    wp_smart_apply ("HLöb" with "Hmutex_locked HP HΨ HΦ").
+    wp_apply+ (condition_wait_spec _ _ P with "[$]") as "(Hmutex_locked & HP)".
+    wp_apply+ ("HLöb" with "Hmutex_locked HP HΨ HΦ").
   Qed.
   Lemma condition_wait_until_spec Ψ t mtx pred P :
     {{{
@@ -244,7 +244,7 @@ Section mutex_G.
     iIntros "%Φ (#Hinv & #Hmutex_inv & Hmutex_locked & HP & HΨ & #Hpred) HΦ".
 
     wp_rec.
-    wp_smart_apply (condition_wait_until_spec' (λ b, Ψ (￢ b)) _ _ _ P with "[$Hmutex_locked $HP $HΨ]"); last iSteps.
+    wp_apply+ (condition_wait_until_spec' (λ b, Ψ (￢ b)) _ _ _ P with "[$Hmutex_locked $HP $HΨ]"); last iSteps.
     iSteps. case_match; iSteps.
   Qed.
   Lemma condition_wait_while_spec Ψ t mtx pred P :

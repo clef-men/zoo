@@ -626,7 +626,7 @@ Section mpsc_queue_3_G.
 
         remember (back ++ [v]) as back' eqn:Hback.
         destruct back' as [| v' back']; first by eelim app_cons_not_nil.
-        wp_smart_apply (clst_rev_app_spec (v' :: back') ClstOpen with "[//]") as "_"; [done.. |].
+        wp_apply+ (clst_rev_app_spec (v' :: back') ClstOpen with "[//]") as "_"; [done.. |].
         rewrite clist_app_ClstOpen {}Hback reverse_snoc.
         iSteps.
 

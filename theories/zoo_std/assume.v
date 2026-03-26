@@ -25,7 +25,7 @@ Section zoo_G.
   Proof.
     iIntros "HΦ".
     wp_rec. destruct b; first iSteps.
-    wp_smart_apply diverge_spec.
+    wp_apply+ diverge_spec.
   Qed.
   Lemma assume_spec' ϕ `{!Decision ϕ} Φ :
     ▷ (⌜ϕ⌝ → Φ ()%V) -∗

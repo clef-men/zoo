@@ -217,8 +217,8 @@ Section zoo_G.
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp_load.
       iDestruct (array_cslice_cons with "Hvs") as "(Hcell & Hvs)".
-      wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
-      wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
       wp_store. wp_pures.
       iApply array_cslice_shift_right in "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
@@ -260,8 +260,8 @@ Section zoo_G.
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp_load.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hcell)".
-      wp_smart_apply (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_smart_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
       wp_store. wp_pures.
       iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
       iApply ("HΦ" $! (Some v)).

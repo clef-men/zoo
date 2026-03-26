@@ -783,7 +783,7 @@ Section rcfd_G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp_smart_apply (rcfd_finish_spec with "[$] HΦ").
+      wp_apply+ (rcfd_finish_spec with "[$] HΦ").
   Qed.
 
   Inductive specification :=
@@ -917,7 +917,7 @@ Section rcfd_G.
       iSplitR "H HΦ". { iFrameSteps 2. }
       iIntros "!> {%- HΨ Hspec}".
 
-      wp_smart_apply (rcfd_put_spec with "[$]") as "_".
+      wp_apply+ (rcfd_put_spec with "[$]") as "_".
       wp_pures.
       iApply ("HΦ" $! None).
       destruct spec; try congruence; iSteps.
@@ -1022,7 +1022,7 @@ Section rcfd_G.
     iDestruct (specification_pre_1_2 with "Hmeta Hspec") as "Hspec".
 
     wp_rec.
-    wp_smart_apply (rcfd_get_spec_aux with "[$]") as ([v |]) "(Hspec & H)".
+    wp_apply+ (rcfd_get_spec_aux with "[$]") as ([v |]) "(Hspec & H)".
 
     - iDestruct "H" as "(%q & -> & Htoken & HΨ)".
 
@@ -1030,8 +1030,8 @@ Section rcfd_G.
       { iDestruct "Hspec" as %[=]. }
       iEval (rewrite decide_True //) in "Hopen".
 
-      wp_smart_apply (wp_wand with "(Hopen HΨ)") as "%res (HΨ & HΧ)".
-      wp_smart_apply (rcfd_put_spec with "[Htoken HΨ]") as "_"; first iSteps.
+      wp_apply+ (wp_wand with "(Hopen HΨ)") as "%res (HΨ & HΧ)".
+      wp_apply+ (rcfd_put_spec with "[Htoken HΨ]") as "_"; first iSteps.
       wp_pures.
       destruct spec; try congruence; iSteps.
 
@@ -1039,7 +1039,7 @@ Section rcfd_G.
       { iDestruct "Hspec" as "(% & _)". congruence. }
       iEval (rewrite decide_True //) in "Hclosed".
 
-      wp_smart_apply (wp_wand with "Hclosed") as "%res HΧ".
+      wp_apply+ (wp_wand with "Hclosed") as "%res HΧ".
       destruct spec; try congruence; iSteps.
   Qed.
   Lemma rcfd_use_spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
@@ -1195,7 +1195,7 @@ Section rcfd_G.
         }
         iIntros "!> {%}".
 
-        wp_smart_apply (rcfd_finish_spec with "[$]").
+        wp_apply+ (rcfd_finish_spec with "[$]").
         destruct γ.(metadata_owned); iSteps.
 
     - iDestruct (inv_lstate_LClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
@@ -1312,7 +1312,7 @@ Section rcfd_G.
       iSplitR "Howner HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp_smart_apply (spsc_waiter_create_spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
+      wp_apply+ (spsc_waiter_create_spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
       wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -1352,7 +1352,7 @@ Section rcfd_G.
         }
         iIntros "!> {%}".
 
-        wp_smart_apply (spsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
+        wp_apply+ (spsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
         wp_pures.
         iApply ("HΦ" $! (Some _)).
         destruct γ.(metadata_owned); iSteps.

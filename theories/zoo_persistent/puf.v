@@ -289,7 +289,7 @@ Section puf_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec.
-    wp_smart_apply (pstore_2_ref_spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
+    wp_apply+ (pstore_2_ref_spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
 
     eapply consistent_insert in Hconsistent; last done.
     iSteps.
@@ -312,14 +312,14 @@ Section puf_G.
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt repr); last done.
 
     wp_rec.
-    wp_smart_apply (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & -> & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; wp_pures; first iSteps.
 
     wp_apply ("HLöb" $! parent with "[//] [$Hmodel //]") as "(:model =')".
     pose proof Hconsistent' as (descr' & Hdescrs'_lookup & _)%(consistent_lookup_Some elt repr); last done.
 
-    wp_smart_apply (pstore_2_set_spec with "Hmodel'") as "Hmodel".
+    wp_apply+ (pstore_2_set_spec with "Hmodel'") as "Hmodel".
     { rewrite elem_of_dom //. }
     wp_pures.
 
@@ -342,8 +342,8 @@ Section puf_G.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
 
     wp_rec.
-    wp_smart_apply (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_smart_apply (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
     iSteps.
   Qed.
 
@@ -363,7 +363,7 @@ Section puf_G.
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt elt); last done.
 
     wp_rec.
-    wp_smart_apply (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & _ & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; last done.
     iSteps.
@@ -439,10 +439,10 @@ Section puf_G.
     iDestruct (puf_model_valid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
 
     wp_rec.
-    wp_smart_apply (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_smart_apply (puf_rank_spec with "Hmodel") as (rank1) "Hmodel"; first done.
-    wp_smart_apply (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_smart_apply (puf_rank_spec with "Hmodel") as (rank2) "(:model)"; first done.
+    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_rank_spec with "Hmodel") as (rank1) "Hmodel"; first done.
+    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_rank_spec with "Hmodel") as (rank2) "(:model)"; first done.
 
     pose proof Hconsistent as (descr1 & Hdescrs_lookup_1 & Hconsistent_at_1)%(consistent_lookup_Some repr1 repr1); last done.
     pose proof Hconsistent as (descr2 & Hdescrs_lookup_2 & Hconsistent_at_2)%(consistent_lookup_Some repr2 repr2); last done.

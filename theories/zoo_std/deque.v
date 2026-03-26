@@ -189,7 +189,7 @@ Section zoo_G.
       Ψ (take (length nodes_done) vs) ∗
       [∗ list] node; v ∈ nodes; vs, node.[xdeque_data] ↦ v
     )%I).
-    wp_smart_apply (xdeque_iter_spec Χ with "[$HΨ $Hnodes $Hmodel]").
+    wp_apply+ (xdeque_iter_spec Χ with "[$HΨ $Hnodes $Hmodel]").
     { iIntros "!> %nodes_done %node %nodes_todo -> (HΨ & Hnodes)".
       iDestruct (big_sepL2_lookup_acc_l (length nodes_done) with "Hnodes") as "(%v & %Hvs_lookup & Hnode & Hnodes)".
       { rewrite lookup_app_r // Nat.sub_diag //. }

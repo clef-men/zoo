@@ -418,8 +418,8 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       wp_rec.
-      wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
-      wp_smart_apply (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
+      wp_apply+ (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
+      wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
       wp_block t as "Hmeta" "(Ht_result & Ht_mutex & Ht_condition & _)".
       iMod (pointsto_persist with "Ht_mutex") as "Ht_mutex".
       iMod (pointsto_persist with "Ht_condition") as "Ht_condition".
@@ -457,8 +457,8 @@ Module base.
       iIntros "%Φ (HΨ & #HΞ) HΦ".
 
       wp_rec.
-      wp_smart_apply (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
-      wp_smart_apply (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
+      wp_apply+ (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
+      wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
       wp_block t as "Hmeta" "(Ht_result & Ht_mutex & Ht_condition & _)".
       iMod (pointsto_persist with "Ht_mutex") as "Ht_mutex".
       iMod (pointsto_persist with "Ht_condition") as "Ht_condition".
@@ -647,7 +647,7 @@ Module base.
         ∃ v,
         lstate_set γ v
       )%I.
-      wp_smart_apply (mutex_protect_spec Ψ_mutex with "[$Hmutex_inv]") as (res) "(%v & #Hlstate_set)".
+      wp_apply+ (mutex_protect_spec Ψ_mutex with "[$Hmutex_inv]") as (res) "(%v & #Hlstate_set)".
       { iIntros "Hmutex_locked _".
         pose (Ψ_condition b := (
           if b then
@@ -656,7 +656,7 @@ Module base.
             ∃ v,
             lstate_set γ v
         )%I).
-        wp_smart_apply (condition_wait_while_spec Ψ_condition with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked]") as "(Hmutex_locked & _ & Hlstate_set)"; last iFrameSteps.
+        wp_apply+ (condition_wait_while_spec Ψ_condition with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked]") as "(Hmutex_locked & _ & Hlstate_set)"; last iFrameSteps.
         iStep. iIntros "!> Hmutex_locked _ _".
         wp_pures.
 

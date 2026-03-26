@@ -536,16 +536,16 @@ Section domain_G.
     iIntros "%Φ Hfn HΦ".
     wp_rec.
     wp_apply (ivar_2_create_spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
-    wp_smart_apply (wp_fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
+    wp_apply+ (wp_fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
     wp_bind (dynarray_1_create ())%E. iApply wp_thread_id_mono.
     wp_apply (dynarray_1_create_spec' with "[//]") as (l) "(Hl & Hl_meta)".
-    wp_smart_apply (wp_set_local with "Hlocal") as "Hlocal".
+    wp_apply+ (wp_set_local with "Hlocal") as "Hlocal".
 
     iMod (local_pointsto_persist with "Hlocal") as "#Hlocal".
     iMod local_alloc as "(%γ & Hlocal_auth)".
     iMod (meta_set γ with "Hl_meta") as "#Hl_meta"; first done.
 
-    wp_smart_apply (wp_wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
+    wp_apply+ (wp_wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
     { iExists l, γ, [], ∅, ∅. rewrite big_sepM_empty. iSteps. }
     iApply wp_thread_id_mono.
     wp_apply (ivar_2_set_spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
@@ -633,13 +633,13 @@ Section domain_G.
     wp_rec.
     wp_apply (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_smart_apply (domain_key_id_spec with "Hid") as "_".
-    wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain_key_id_spec with "Hid") as "_".
+    wp_apply+ (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
-    wp_smart_apply (dynarray_1_get_spec _ _ _ None with "Hl") as "Hl".
+    wp_apply+ (dynarray_1_get_spec _ _ _ None with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists None. split; first done.
@@ -647,9 +647,9 @@ Section domain_G.
       { simpl_length. lia. }
       apply consistent_app_None. done.
     }
-    wp_smart_apply (domain_key_init_spec with "Hkey") as (v) "HΨ".
+    wp_apply+ (domain_key_init_spec with "Hkey") as (v) "HΨ".
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
     wp_pures.
 
@@ -682,13 +682,13 @@ Section domain_G.
     wp_rec.
     wp_apply (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_smart_apply (domain_key_id_spec with "Hid") as "_".
-    wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain_key_id_spec with "Hid") as "_".
+    wp_apply+ (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
-    wp_smart_apply (dynarray_1_get_spec _ _ _ (Some v) with "Hl") as "Hl".
+    wp_apply+ (dynarray_1_get_spec _ _ _ (Some v) with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists (Some v). split; first done.
@@ -740,16 +740,16 @@ Section domain_G.
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
     wp_rec.
-    wp_smart_apply (wp_get_local with "Hlocal") as "_".
+    wp_apply+ (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_smart_apply (domain_key_id_spec with "Hid") as "_".
-    wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain_key_id_spec with "Hid") as "_".
+    wp_apply+ (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".
@@ -779,16 +779,16 @@ Section domain_G.
     iDestruct (local_at_valid with "Hlocal_auth Hlocal_at") as %Hws_lookup.
 
     wp_rec.
-    wp_smart_apply (wp_get_local with "Hlocal") as "_".
+    wp_apply+ (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_smart_apply (domain_key_id_spec with "Hid") as "_".
-    wp_smart_apply (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain_key_id_spec with "Hid") as "_".
+    wp_apply+ (dynarray_1_grow_spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_smart_apply (dynarray_1_set_spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1_set_spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".

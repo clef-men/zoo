@@ -54,7 +54,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hlt HΦ".
     wp_rec.
-    wp_smart_apply random_int_spec as "%n %Hn"; first lia.
+    wp_apply+ random_int_spec as "%n %Hn"; first lia.
     iSteps.
   Qed.
   Lemma random_int_in_range_spec_nat lb ub Φ :
@@ -67,7 +67,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hlt HΦ".
     wp_rec.
-    wp_smart_apply random_int_spec as "%n %Hn"; first lia.
+    wp_apply+ random_int_spec as "%n %Hn"; first lia.
     wp_pures.
     Z_to_nat n. rewrite -Nat2Z.inj_add. iSteps.
   Qed.

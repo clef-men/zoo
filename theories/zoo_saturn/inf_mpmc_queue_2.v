@@ -909,7 +909,7 @@ Module base.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (prophet_typed_1_wp_proph prophet_nat_1 with "[//]") as (pid proph) "Hproph".
+      wp_apply+ (prophet_typed_1_wp_proph prophet_nat_1 with "[//]") as (pid proph) "Hproph".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -934,7 +934,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iIntros "!> {% -Hvs2 Hhist2}".
 
-          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+          wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps. iPureIntro.
           rewrite Hvs2. simpl_length. lia.
 
@@ -952,7 +952,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+          wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
@@ -966,7 +966,7 @@ Module base.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iIntros "!> {%- Hproph}".
 
-        wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+        wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
     Qed.
 
@@ -1013,7 +1013,7 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec.
-      wp_smart_apply (wp_id with "[//]") as (id) "Hid".
+      wp_apply+ (wp_id with "[//]") as (id) "Hid".
       wp_pures.
 
       wp_bind (FAA _ _).
@@ -1257,7 +1257,7 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec.
-      wp_smart_apply (wp_id with "[//]") as (id) "Hid".
+      wp_apply+ (wp_id with "[//]") as (id) "Hid".
       wp_pures.
 
       wp_bind (FAA _ _).

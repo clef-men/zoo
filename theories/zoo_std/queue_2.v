@@ -100,13 +100,13 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp_rec.
-    wp_smart_apply (chain_block_spec (Some _)) as (back') "Hback'".
+    wp_apply+ (chain_block_spec (Some _)) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
     iDestruct (chain_model_tag with "Hback'") as "#(%back'_ & -> & Hback'_header)"; first done. wp_match.
     wp_load.
     iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
-    wp_smart_apply (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
-    wp_smart_apply (chain_set_data_spec with "Hback") as "Hback".
+    wp_apply+ (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
+    wp_apply+ (chain_set_data_spec with "Hback") as "Hback".
     iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
@@ -144,11 +144,11 @@ Section zoo_G.
       + iDestruct (chain_model_nil with "Hfront'") as %->.
         iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
         wp_store.
-        wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
+        wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
         iSteps.
       + iDestruct (chain_model_tag with "Hfront'") as "#(%front'_ & -> & Hfront'_header)"; first done. wp_match.
         wp_store.
-        wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
+        wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
         iSteps.
   Qed.
 End zoo_G.

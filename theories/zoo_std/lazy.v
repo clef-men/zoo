@@ -609,7 +609,7 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_smart_apply (mutex_create_lock_spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
+        wp_apply+ (mutex_create_lock_spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
         wp_pures.
 
         wp_bind (CAS _ _ _).
@@ -619,8 +619,8 @@ Module base.
         + iSplitR "Hmtx_init Hmtx_locked HΦ". { iFrameSteps. }
           iIntros "!> {%}".
 
-          wp_smart_apply (mutex_unlock_spec_init with "[$]") as "_".
-          wp_smart_apply "HLöb".
+          wp_apply+ (mutex_unlock_spec_init with "[$]") as "_".
+          wp_apply+ "HLöb".
           iSteps.
 
         + destruct state; zoo_simplify.
@@ -630,7 +630,7 @@ Module base.
           { iExists (Setting mtx). iFrameSteps. }
           iIntros "!> {%}".
 
-          wp_smart_apply (wp_wand with "Hthunk") as (v) "(HΨ & #HΞ)".
+          wp_apply+ (wp_wand with "Hthunk") as (v) "(HΨ & #HΞ)".
           wp_pures.
 
           wp_bind (_ <- _)%E.
@@ -647,7 +647,7 @@ Module base.
             iSplitR "Hmtx_locked HΦ". { iExists (Set_ v). iFrameSteps. }
             iIntros "!> {%}".
 
-            wp_smart_apply (mutex_unlock_spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
+            wp_apply+ (mutex_unlock_spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
 
           * iDestruct "Hstate" as "(:inv_state_set =1)".
             iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set_1") as %[].
@@ -656,8 +656,8 @@ Module base.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_smart_apply (mutex_synchronize_spec with "[$]") as "_".
-        wp_smart_apply "HLöb".
+        wp_apply+ (mutex_synchronize_spec with "[$]") as "_".
+        wp_apply+ "HLöb".
         iSteps.
 
       - iDestruct "Hstate" as "(:inv_state_set)".

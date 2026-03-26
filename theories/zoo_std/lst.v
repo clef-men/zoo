@@ -262,7 +262,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
+    wp_apply+ (lst_initi_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); simpl; lia.
   Qed.
   Lemma lst_initi_spec' Ψ sz fn :
     {{{
@@ -378,7 +378,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_spec Ψ with "[$HΨ] HΦ").
+    wp_apply+ (lst_initi_spec Ψ with "[$HΨ] HΦ").
     iSteps.
   Qed.
   Lemma lst_init_spec' Ψ sz fn :
@@ -404,7 +404,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_spec' Ψ with "[$HΨ Hfn] HΦ").
+    wp_apply+ (lst_initi_spec' Ψ with "[$HΨ Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -431,7 +431,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_spec_disentangled Ψ with "[] HΦ").
+    wp_apply+ (lst_initi_spec_disentangled Ψ with "[] HΦ").
     iSteps.
   Qed.
   Lemma lst_init_spec_disentangled' Ψ sz fn :
@@ -454,7 +454,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_initi_spec_disentangled' Ψ with "[Hfn] HΦ").
+    wp_apply+ (lst_initi_spec_disentangled' Ψ with "[Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -519,7 +519,7 @@ Section zoo_G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     rewrite -Nat2Z.inj_0.
-    wp_smart_apply (lst_foldli_0_spec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
+    wp_apply+ (lst_foldli_0_spec [] Ψ with "[$HΨ $Hfn //] HΦ"); done.
   Qed.
   Lemma lst_foldli_spec' Ψ fn acc t vs :
     lst_model' t vs →
@@ -575,7 +575,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_foldli_spec Ψ with "[$HΨ] HΦ"); first done.
+    wp_apply+ (lst_foldli_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_foldl_spec' Ψ fn acc t vs :
@@ -599,7 +599,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_foldli_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp_apply+ (lst_foldli_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -664,7 +664,7 @@ Section zoo_G.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
     rewrite -Nat2Z.inj_0.
-    wp_smart_apply (lst_foldri_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
+    wp_apply+ (lst_foldri_0_spec [] Ψ with "[$HΨ $Hfn] HΦ"); done.
   Qed.
   Lemma lst_foldri_spec' Ψ fn t vs acc :
     lst_model' t vs →
@@ -722,7 +722,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_foldri_spec Ψ with "[$HΨ] HΦ"); first done.
+    wp_apply+ (lst_foldri_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_foldr_spec' Ψ fn t vs acc :
@@ -746,7 +746,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_foldri_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp_apply+ (lst_foldri_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -767,7 +767,7 @@ Section zoo_G.
     pose Ψ i vs_left acc : iProp Σ := (
       ⌜acc = #(length vs_left)⌝
     )%I.
-    wp_smart_apply (lst_foldl_spec Ψ); [done | | iSteps].
+    wp_apply+ (lst_foldl_spec Ψ); [done | | iSteps].
     iSteps. simpl_length. iSteps.
   Qed.
 
@@ -789,7 +789,7 @@ Section zoo_G.
     pose Ψ i vs acc : iProp Σ := (
       lst_model acc (reverse vs ++ vs2)
     )%I.
-    wp_smart_apply (lst_foldl_spec Ψ); [done | | iSteps].
+    wp_apply+ (lst_foldl_spec Ψ); [done | | iSteps].
     iSteps as (? ? ? ? [= ->]). rewrite reverse_app //.
   Qed.
 
@@ -829,7 +829,7 @@ Section zoo_G.
     pose Ψ i acc vs : iProp Σ := (
       lst_model acc (vs ++ vs2)
     )%I.
-    wp_smart_apply (lst_foldr_spec Ψ); [done | | iSteps].
+    wp_apply+ (lst_foldr_spec Ψ); [done | | iSteps].
     iSteps as (? ? ? ? [= ->]). iSteps.
   Qed.
 
@@ -847,7 +847,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ _ HΦ".
     wp_rec.
-    wp_smart_apply (lst_singleton_spec with "[//]") as "%t' %Ht'".
+    wp_apply+ (lst_singleton_spec with "[//]") as "%t' %Ht'".
     wp_apply (lst_app_spec _ _ t' with "[//] HΦ"); done.
   Qed.
 
@@ -877,7 +877,7 @@ Section zoo_G.
       ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
-    wp_smart_apply (lst_foldli_spec Ψ' with "[$HΨ]"); [done | iSteps..].
+    wp_apply+ (lst_foldli_spec Ψ' with "[$HΨ]"); [done | iSteps..].
   Qed.
   Lemma lst_iteri_spec' Ψ fn t vs :
     lst_model' t vs →
@@ -903,7 +903,7 @@ Section zoo_G.
       ⌜acc = ()%V⌝ ∗
       Ψ i vs
     )%I.
-    wp_smart_apply (lst_foldli_spec' Ψ' with "[$HΨ Hfn]"); [done | iSteps..].
+    wp_apply+ (lst_foldli_spec' Ψ' with "[$HΨ Hfn]"); [done | iSteps..].
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -987,7 +987,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_iteri_spec Ψ with "[$HΨ] HΦ"); first done.
+    wp_apply+ (lst_iteri_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_iter_spec' Ψ fn t vs :
@@ -1010,7 +1010,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_iteri_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp_apply+ (lst_iteri_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -1036,7 +1036,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_iteri_spec_disentangled Ψ with "[] HΦ"); first done.
+    wp_apply+ (lst_iteri_spec_disentangled Ψ with "[] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_iter_spec_disentangled' Ψ fn t vs :
@@ -1059,7 +1059,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_iteri_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
+    wp_apply+ (lst_iteri_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -1132,7 +1132,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_0_spec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    wp_apply+ (lst_mapi_0_spec [] [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
   Lemma lst_mapi_spec' Ψ fn t vs :
@@ -1255,7 +1255,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_spec Ψ with "[$HΨ] HΦ"); first done.
+    wp_apply+ (lst_mapi_spec Ψ with "[$HΨ] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_map_spec' Ψ fn t vs :
@@ -1282,7 +1282,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
+    wp_apply+ (lst_mapi_spec' Ψ with "[$HΨ Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -1310,7 +1310,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ #Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_spec_disentangled Ψ with "[] HΦ"); first done.
+    wp_apply+ (lst_mapi_spec_disentangled Ψ with "[] HΦ"); first done.
     iSteps.
   Qed.
   Lemma lst_map_spec_disentangled' Ψ fn t vs :
@@ -1335,7 +1335,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ Hfn HΦ".
     wp_rec.
-    wp_smart_apply (lst_mapi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
+    wp_apply+ (lst_mapi_spec_disentangled' Ψ with "[Hfn] HΦ"); first done.
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -1369,10 +1369,10 @@ Section zoo_G.
     all: iIntros (->) "%Φ #Hpred HΦ".
     all: wp_rec.
     - iSteps.
-    - wp_smart_apply (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+    - wp_apply+ (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
       { rewrite lookup_cons_Some. left. done. }
       destruct b.
-      + wp_smart_apply ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
+      + wp_apply+ ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
         { iIntros "!> %i %w %Hlookup".
           iSpecialize ("Hpred" $! (S i)).
           iSteps.
@@ -1412,11 +1412,11 @@ Section zoo_G.
     all: iIntros (->) "%Φ #Hpred HΦ".
     all: wp_rec.
     - iSteps.
-    - wp_smart_apply (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
+    - wp_apply+ (wp_wand with "(Hpred [%])") as (res) "(%b & -> & HΨ0)".
       { rewrite lookup_cons_Some. left. done. }
       destruct b.
       + iSteps. iExists 0. iSteps.
-      + wp_smart_apply ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
+      + wp_apply+ ("IH" $! (λ i, Ψ (S i)) with "[//]") as ([]) "HΨ".
         { iIntros "!> %i %w %Hlookup".
           iSpecialize ("Hpred" $! (S i)).
           iSteps.

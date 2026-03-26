@@ -101,10 +101,10 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec.
     wp_load.
-    wp_smart_apply (chain_block_spec None) as (back') "Hback'".
+    wp_apply+ (chain_block_spec None) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
-    wp_smart_apply (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
-    wp_smart_apply (chain_set_data_spec with "Hback") as "Hback".
+    wp_apply+ (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
+    wp_apply+ (chain_set_data_spec with "Hback") as "Hback".
     iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
@@ -124,9 +124,9 @@ Section zoo_G.
     wp_apply (queue_1_is_empty_spec with "Hmodel") as "(:model)".
     destruct vs as [| v vs]; first iSteps.
     wp_load.
-    wp_smart_apply (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
+    wp_apply+ (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
     wp_store.
-    wp_smart_apply (chain_data_spec with "Hfront") as "Hfront".
+    wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
     iSteps.
   Qed.
 End zoo_G.

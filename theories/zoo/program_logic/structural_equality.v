@@ -590,7 +590,7 @@ Section zoo_G.
         wp_pures.
         case_bool_decide; wp_pures.
         + wp_apply (structeq_footprint_wp_size with "Hfootprint") as "Hfootprint"; first done.
-          wp_smart_apply (structeq_footprint_wp_size with "Hfootprint") as "Hfootprint"; first done.
+          wp_apply+ (structeq_footprint_wp_size with "Hfootprint") as "Hfootprint"; first done.
           wp_pures.
           case_bool_decide; wp_pures.
           * wp_apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
@@ -679,7 +679,7 @@ Section zoo_G.
 
         wp_apply (structeq_footprint_wp_load' with "Hfootprint") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfootprint)"; [done | lia |].
         wp_apply (structeq_footprint_wp_load' with "Hfootprint") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfootprint)"; [done | lia |].
-        wp_smart_apply ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp_apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
         destruct b; wp_pures.
 
         + wp_apply ("IHstructeq_aux_loc_loc" with "[$Hfootprint] HΦ").
@@ -719,7 +719,7 @@ Section zoo_G.
 
         wp_pures.
         wp_apply (structeq_footprint_wp_load' with "Hfootprint") as (fld1) "(%Hfields1_lookup & %Htraversable1 & Hfootprint)"; [done | lia |].
-        wp_smart_apply ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp_apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
         { iPureIntro.
           rewrite /= Forall'_Forall Forall_lookup in Htraversable2.
           naive_solver.
@@ -763,7 +763,7 @@ Section zoo_G.
 
         wp_pures.
         wp_apply (structeq_footprint_wp_load' with "Hfootprint") as (fld2) "(%Hfields2_lookup & %Htraversable2 & Hfootprint)"; [done | lia |].
-        wp_smart_apply ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
+        wp_apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)"; first iSteps.
         { iPureIntro.
           rewrite /= Forall'_Forall Forall_lookup in Htraversable1.
           naive_solver.
@@ -806,7 +806,7 @@ Section zoo_G.
         destruct (lookup_lt_is_Some_2 vs2 (₊i - 1)) as (v2 & Hvs2_lookup); first lia.
 
         wp_pures.
-        wp_smart_apply ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)".
+        wp_apply+ ("IHstructeq" with "[$Hfootprint]") as (b) "(%Hb & Hfootprint)".
         { iPureIntro.
           rewrite /= !Forall'_Forall !Forall_lookup in Htraversable1 Htraversable2.
           naive_solver.

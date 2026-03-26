@@ -147,7 +147,7 @@ Section zoo_G.
     all: iIntros (-> ->) "%Φ _ HΦ".
     all: wp_rec.
     - iSteps.
-    - wp_smart_apply ("IH" with "[//]"); iSteps.
+    - wp_apply+ ("IH" with "[//]"); iSteps.
   Qed.
 
   Lemma clst_rev_app_spec {t1} vs1 {t2} cvs2 :
@@ -167,7 +167,7 @@ Section zoo_G.
     all: wp_rec.
     - iSteps.
     - wp_pures.
-      wp_smart_apply ("IH" $! _ _ (ClstCons v1 cvs2) with "[//]"); iSteps.
+      wp_apply+ ("IH" $! _ _ (ClstCons v1 cvs2) with "[//]"); iSteps.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
@@ -195,8 +195,8 @@ Section zoo_G.
     all: subst; simpl; rewrite right_id; wp_rec.
     1: iSteps.
     iDestruct "Hfn" as "(H & Hfn)".
-    wp_smart_apply (wp_wand with "(H HΨ)") as (res) "(-> & HΨ)".
-    wp_smart_apply ("IH" $! (vs_left ++ [v]) with "[] [//] HΨ [Hfn]").
+    wp_apply+ (wp_wand with "(H HΨ)") as (res) "(-> & HΨ)".
+    wp_apply+ ("IH" $! (vs_left ++ [v]) with "[] [//] HΨ [Hfn]").
     { rewrite -assoc //. }
     { iApply (big_sepL_impl with "Hfn"). iIntros "!> %i %w %Hlookup Hfn HΨ".
       rewrite -!assoc. iSteps.
@@ -246,8 +246,8 @@ Section zoo_G.
     all: subst; simpl; wp_rec.
     1: iSteps.
     iDestruct "Hfn" as "(H & Hfn)".
-    wp_smart_apply (wp_wand with "H") as (res) "(-> & HΨ)".
-    wp_smart_apply ("IH" with "[//] Hfn").
+    wp_apply+ (wp_wand with "H") as (res) "(-> & HΨ)".
+    wp_apply+ ("IH" with "[//] Hfn").
     iSteps.
   Qed.
 End zoo_G.

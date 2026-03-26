@@ -76,7 +76,7 @@ Section zoo_G.
     all: wp_rec.
     - iSteps.
     - wp_pures.
-      wp_smart_apply ("IH" $! _ _ (v1 :: vs2) with "[//]"); iSteps.
+      wp_apply+ ("IH" $! _ _ (v1 :: vs2) with "[//]"); iSteps.
       rewrite reverse_cons -assoc. iSteps.
   Qed.
 

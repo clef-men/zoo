@@ -209,7 +209,7 @@ Section zoo_G.
     - iSplitR "H£ HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply wp_match_clist_open.
+      wp_apply+ wp_match_clist_open.
       wp_pures.
 
       wp_bind (CAS _ _ _).

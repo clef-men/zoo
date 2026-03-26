@@ -103,7 +103,7 @@ Section zoo_G.
     iIntros "% %Φ _ HΦ".
     Z_to_nat sz. rewrite Nat2Z.id.
     wp_rec.
-    wp_smart_apply (array_unsafe_make_spec with "[//]") as "%data Hmodel"; first done.
+    wp_apply+ (array_unsafe_make_spec with "[//]") as "%data Hmodel"; first done.
     iSteps.
     - simpl_length.
     - iExists 0. rewrite right_id Nat2Z.id. iSteps.
@@ -134,7 +134,7 @@ Section zoo_G.
     iIntros "%Hsz %Φ (HΨ & #Hfn) HΦ".
 
     wp_rec.
-    wp_smart_apply (array_unsafe_initi_spec (λ _, Ψ) with "[$HΨ]") as "%data %vs (%Hvs & Hmodel & HΨ)"; [done | iSteps |].
+    wp_apply+ (array_unsafe_initi_spec (λ _, Ψ) with "[$HΨ]") as "%data %vs (%Hvs & Hmodel & HΨ)"; [done | iSteps |].
     wp_block l as "(Hl_size & Hl_data & _)".
     iSteps. iExists 0. rewrite right_id. iSteps.
   Qed.
@@ -278,7 +278,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (dynarray_1_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     destruct vs; iApply ("HΦ" with "Hmodel").
   Qed.
@@ -351,16 +351,16 @@ Section zoo_G.
   Proof.
     iIntros "%Hn %Φ (:model) HΦ".
     wp_rec. wp_load.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     case_bool_decide as Htest.
     all: wp_pures.
     all: simpl_length in Htest.
     - wp_apply (dynarray_1_next_capacity_spec with "[//]") as "%n' %Hn'"; first lia.
       wp_apply int_max_spec.
-      wp_smart_apply (array_unsafe_alloc_spec with "[//]") as "%data' Hmodel'"; first lia.
+      wp_apply+ (array_unsafe_alloc_spec with "[//]") as "%data' Hmodel'"; first lia.
       wp_load.
-      wp_smart_apply (array_unsafe_copy_slice_spec with "[$Hmodel $Hmodel']") as "(Hmodel & Hmodel')"; try lia.
+      wp_apply+ (array_unsafe_copy_slice_spec with "[$Hmodel $Hmodel']") as "(Hmodel & Hmodel')"; try lia.
       { simpl_length. lia. }
       { simpl_length. lia. }
       wp_store.
@@ -401,7 +401,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hn %Φ (:model) HΦ".
     wp_rec. wp_load.
-    wp_smart_apply (dynarray_1_reserve_spec' with "[Hl_size Hl_data Hmodel]") as "%extra' (%Hextra' & Hmodel)"; [lia | iFrameSteps |].
+    wp_apply+ (dynarray_1_reserve_spec' with "[Hl_size Hl_data Hmodel]") as "%extra' (%Hextra' & Hmodel)"; [lia | iFrameSteps |].
     iApply ("HΦ" $! extra').
     iFrameSteps.
   Qed.
@@ -435,9 +435,9 @@ Section zoo_G.
     iIntros "% %Φ (:model) HΦ".
     wp_rec. wp_load. wp_pures.
     case_bool_decide.
-    - wp_smart_apply (dynarray_1_reserve_spec' with "[$Hl_size $Hl_data $Hmodel //]") as "%extra' (%Hextra' & (:model' ='))"; first lia.
+    - wp_apply+ (dynarray_1_reserve_spec' with "[$Hl_size $Hl_data $Hmodel //]") as "%extra' (%Hextra' & (:model' ='))"; first lia.
       wp_load.
-      wp_smart_apply (array_unsafe_fill_slice_spec with "Hmodel") as "Hmodel".
+      wp_apply+ (array_unsafe_fill_slice_spec with "Hmodel") as "Hmodel".
       { lia. }
       { simpl_length. lia. }
       iSteps.
@@ -466,7 +466,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_reserve_extra_spec' with "Hmodel") as "%extra (%Hextra & (:model'))"; first lia.
+    wp_apply+ (dynarray_1_reserve_extra_spec' with "Hmodel") as "%extra (%Hextra & (:model'))"; first lia.
     wp_load. wp_store. wp_load.
     wp_apply (array_unsafe_set_spec with "Hmodel").
     { simpl_length. lia. }
@@ -488,12 +488,12 @@ Section zoo_G.
     iIntros (->) "%Φ (:model) HΦ".
     wp_rec. wp_load. wp_store. wp_load.
     simpl_length. rewrite Nat.add_1_r Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
-    wp_smart_apply (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
+    wp_apply+ (array_unsafe_get_spec with "Hmodel") as "Hmodel"; [lia | | done |].
     { rewrite lookup_app_l; first (simpl_length/=; lia).
       rewrite lookup_app_r; first lia.
       rewrite Nat2Z.id Nat.sub_diag //.
     }
-    wp_smart_apply (array_unsafe_set_spec with "Hmodel").
+    wp_apply+ (array_unsafe_set_spec with "Hmodel").
     { simpl_length/=. lia. }
     iSteps. iExists (S extra).
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
@@ -511,7 +511,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp_rec. do 2 wp_load.
-    wp_smart_apply (array_size_spec with "Hmodel") as "Hmodel".
+    wp_apply+ (array_size_spec with "Hmodel") as "Hmodel".
     wp_pures.
     case_bool_decide; wp_pures; first iSteps.
     wp_apply (array_unsafe_shrink_spec with "Hmodel") as "%data' (_ & Hmodel)".
@@ -532,7 +532,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp_rec. wp_store.
-    wp_smart_apply (array_create_spec with "[//]") as "%data' Hmodel'".
+    wp_apply+ (array_create_spec with "[//]") as "%data' Hmodel'".
     wp_store.
     iSteps. iExists 0. iSteps.
   Qed.
@@ -692,7 +692,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_iteri_spec Ψ with "[$HΨ $Hmodel] HΦ").
+    wp_apply+ (dynarray_1_iteri_spec Ψ with "[$HΨ $Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma dynarray_1_iter_spec' Ψ fn t vs :
@@ -716,7 +716,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (HΨ & Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_iteri_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
+    wp_apply+ (dynarray_1_iteri_spec' Ψ with "[$HΨ $Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.
@@ -743,7 +743,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & #Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_iteri_spec_disentangled Ψ with "[$Hmodel] HΦ").
+    wp_apply+ (dynarray_1_iteri_spec_disentangled Ψ with "[$Hmodel] HΦ").
     iSteps.
   Qed.
   Lemma dynarray_1_iter_spec_disentangled' Ψ fn t vs :
@@ -767,7 +767,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (Hmodel & Hfn) HΦ".
     wp_rec.
-    wp_smart_apply (dynarray_1_iteri_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
+    wp_apply+ (dynarray_1_iteri_spec_disentangled' Ψ with "[$Hmodel Hfn] HΦ").
     iApply (big_sepL_impl with "Hfn").
     iSteps.
   Qed.

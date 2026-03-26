@@ -225,7 +225,7 @@ Section semaphore_G.
     iIntros "%Hcap %Φ HPs HΦ".
 
     wp_rec.
-    wp_smart_apply (condition_create_spec with "[//]") as (cond) "#Hcondition_inv".
+    wp_apply+ (condition_create_spec with "[//]") as (cond) "#Hcondition_inv".
     wp_apply (mutex_create_spec_init with "[//]") as (mtx) "Hmutex_init".
     wp_block l as "Hmeta" "(Hl_mutex & Hl_condition & Hl_count & _)".
     iMod (pointsto_persist with "Hl_mutex") as "#Hl_mutex".

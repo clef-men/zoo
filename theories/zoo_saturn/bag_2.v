@@ -599,7 +599,7 @@ Section bag_2_G.
     iIntros "%Φ H HΦ".
 
     wp_rec.
-    wp_smart_apply (bag_2_add_producer_0_spec with "H HΦ").
+    wp_apply+ (bag_2_add_producer_0_spec with "H HΦ").
   Qed.
   Lemma bag_2_create_producer_spec t ι :
     <<<
@@ -620,7 +620,7 @@ Section bag_2_G.
     wp_rec.
     wp_apply (spmc_queue_create_spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
 
-    awp_smart_apply (bag_2_add_producer_spec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
+    awp_apply+ (bag_2_add_producer_spec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; iSteps.
@@ -691,7 +691,7 @@ Section bag_2_G.
 
     wp_rec.
 
-    awp_smart_apply (spmc_queue_push_spec with "[$Hqueue_inv $Hqueue_producer]").
+    awp_apply+ (spmc_queue_push_spec with "[$Hqueue_inv $Hqueue_producer]").
     iInv "Hinv" as "(:inv_inner)".
     iDestruct (queues_at_valid_producer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup). rewrite -Hdescr_queue.
     iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -776,7 +776,7 @@ Section bag_2_G.
 
       + rewrite Ho0 Hdescr_queue. clear.
 
-        awp_smart_apply (spmc_queue_pop_spec with "Hqueue0_inv") without "Hconsumer_queue".
+        awp_apply+ (spmc_queue_pop_spec with "Hqueue0_inv") without "Hconsumer_queue".
         iInv "Hinv" as "(:inv_inner =2)".
         iDestruct (queues_at_valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
         iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -859,7 +859,7 @@ Section bag_2_G.
     iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
     iIntros "{%} !>".
 
-    awp_smart_apply (bag_2_pop_0_spec with "[- HΦ]"); first iFrameSteps.
+    awp_apply+ (bag_2_pop_0_spec with "[- HΦ]"); first iFrameSteps.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".
@@ -896,7 +896,7 @@ Section bag_2_G.
     destruct queue as [queue |].
 
     - iDestruct "Hqueues_elem" as "(:queues_elem)".
-      awp_smart_apply (spmc_queue_pop_spec with "Hqueue_inv") without "Hconsumer_queue".
+      awp_apply+ (spmc_queue_pop_spec with "Hqueue_inv") without "Hconsumer_queue".
       iInv "Hinv" as "(:inv_inner)".
       iDestruct (queues_at_valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
       iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -913,7 +913,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "{%} !> _ Hconsumer_queue".
 
-        wp_smart_apply (bag_2_pop_1_spec with "[- HΦ] HΦ").
+        wp_apply+ (bag_2_pop_1_spec with "[- HΦ] HΦ").
         { iSplitR; iSteps. iExists (Some _). iSteps. }
 
       + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
@@ -932,7 +932,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps. iExists (Some _). iSteps.
 
-    - wp_smart_apply (bag_2_pop_1_spec with "[- HΦ] HΦ").
+    - wp_apply+ (bag_2_pop_1_spec with "[- HΦ] HΦ").
       { iSplitR; iSteps. iExists None. iSteps. }
   Qed.
 End bag_2_G.

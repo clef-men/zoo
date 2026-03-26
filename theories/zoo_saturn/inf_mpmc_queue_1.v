@@ -562,7 +562,7 @@ Module base.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_smart_apply (prophet_typed_1_wp_proph prophet_nat_1 with "[//]") as (pid proph) "Hproph".
+      wp_apply+ (prophet_typed_1_wp_proph prophet_nat_1 with "[//]") as (pid proph) "Hproph".
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -587,7 +587,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iIntros "!> {%- Hhist2}".
 
-          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+          wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
           rewrite length_drop Hhist2 Z2Nat.inj_sub; first lia.
           rewrite !Nat2Z.id //.
@@ -606,7 +606,7 @@ Module base.
           iSplitR "Hproph HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+          wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
           iSteps.
 
       - iSplitR "Hproph HΦ". { iFrameSteps. }
@@ -620,7 +620,7 @@ Module base.
         iSplitR "Hproph HΦ". { iFrameSteps. }
         iIntros "!> {%- Hproph}".
 
-        wp_smart_apply (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
+        wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
         iSteps.
     Qed.
 
@@ -868,7 +868,7 @@ Module base.
           iSteps.
       }
 
-      wp_smart_apply (inf_mpmc_queue_1_pop_0_spec with "[$Hconsumers_at $Htokens_pending]"); iSteps.
+      wp_apply+ (inf_mpmc_queue_1_pop_0_spec with "[$Hconsumers_at $Htokens_pending]"); iSteps.
     Qed.
   End inf_mpmc_queue_1_G.
 

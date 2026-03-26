@@ -1050,7 +1050,7 @@ Section pstore_1_G.
         rewrite elem_of_union elem_of_singleton. right. reflexivity. }
 
       apply path_snoc_inv in Hpath. destruct Hpath as (?&->&?).
-      wp_smart_apply assert_spec. rewrite bool_decide_eq_true_2 //.
+      wp_apply+ assert_spec. rewrite bool_decide_eq_true_2 //.
       iDestruct (big_sepM_insert_acc with "Hσ") as "(?&Hσ)". done.
       wp_load. do 2 wp_store. wp_pures.
 
@@ -1133,7 +1133,7 @@ Section pstore_1_G.
     iIntros (???? Φ) "(Hr'&Hσ&Hg) HΦ".
     wp_rec. wp_apply (pstore_1_collect_spec with "[$]"). done.
     iIntros (?) "(?&?&%Heq)". rewrite {}Heq.
-    wp_smart_apply (pstore_1_revert_spec with "[-HΦ]"); try done; first rewrite rev_fsts //.
+    wp_apply+ (pstore_1_revert_spec with "[-HΦ]"); try done; first rewrite rev_fsts //.
     iSteps.
   Qed.
 

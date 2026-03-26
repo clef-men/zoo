@@ -69,7 +69,7 @@ Section pool_G.
     - wp_apply (pool_quicksort_partition_spec with "Harr") as (ns1 p pivot ns2) "(%Hp & %Hns & %Hns1 & %Hns2 & Harr)". 1-4: done.
       iDestruct (array_slice_app3 _ [_] with "Harr") as "(Harr_1 & Harr_2 & Harr_3)".
 
-      wp_smart_apply (pool_async_spec
+      wp_apply+ (pool_async_spec
         True
         ( pool_consumer pool (
             ∃ ns1',
@@ -80,11 +80,11 @@ Section pool_G.
         )
       with "[$Hctx Harr_1]") as "(Hctx & _ & Hpool_consumer_1)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_smart_apply ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
+        wp_apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
       }
       iDestruct (pool_consumer_join with "Hpool_consumer_1") as "Hpool_consumer_1".
 
-      wp_smart_apply (pool_async_spec
+      wp_apply+ (pool_async_spec
         True
         ( pool_consumer pool (
             ∃ ns2',
@@ -95,7 +95,7 @@ Section pool_G.
         )
       with "[$Hctx Harr_3]") as "(Hctx & _ & Hpool_consumer_2)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
-        wp_smart_apply ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
+        wp_apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
         { lia. }
         { simpl_length/=. lia. }
         { apply Permutation_length in Hns. simpl_length/= in Hns. lia. }
@@ -148,11 +148,11 @@ Section pool_G.
 
     wp_rec.
 
-    wp_smart_apply (array_size_spec with "Harr_model") as "Harr_model".
+    wp_apply+ (array_size_spec with "Harr_model") as "Harr_model".
     iEval (simpl_length).
 
     iDestruct (array_model_to_slice' with "Harr_model") as "(Harr_slice & #Harr_model)".
-    wp_smart_apply (pool_quicksort_main_0_spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
+    wp_apply+ (pool_quicksort_main_0_spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
     iApply (pool_consumer_wand with "Hpool_consumer").
@@ -176,9 +176,9 @@ Section pool_G.
     iIntros "%Φ Harr HΦ".
 
     wp_rec.
-    wp_smart_apply (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
+    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
-    wp_smart_apply (pool_run_spec (λ _,
+    wp_apply+ (pool_run_spec (λ _,
       pool_consumer pool (
         ∃ ns',
         ⌜ns ≡ₚ ns'⌝ ∗
@@ -187,11 +187,11 @@ Section pool_G.
       )
     )%I with "[$Hpool_model Harr]") as (?) "(Hpool_model & Hpool_consumer)".
     { iIntros "%ctx %scope Hctx".
-      wp_smart_apply (pool_quicksort_main_1_spec with "[$]") as "$".
+      wp_apply+ (pool_quicksort_main_1_spec with "[$]") as "$".
     }
 
     iApply wp_fupd.
-    wp_smart_apply (pool_kill_spec with "[$Hpool_model]") as "#Hpool_finished".
+    wp_apply+ (pool_kill_spec with "[$Hpool_model]") as "#Hpool_finished".
     iMod (pool_consumer_finished with "Hpool_consumer Hpool_finished") as "(%ns' & % & % & Harr)".
     iSteps.
   Qed.

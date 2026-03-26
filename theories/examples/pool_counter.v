@@ -118,7 +118,7 @@ Section pool_counter_G.
     iIntros "%Hn %Φ _ HΦ".
 
     wp_rec.
-    wp_smart_apply (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
+    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
     wp_ref r as "Hr".
 
@@ -127,7 +127,7 @@ Section pool_counter_G.
     iDestruct (cinv_own_divide n with "Hinv_own") as "Hinv_owns". 1: lia.
     iDestruct (big_sepL_sep_2 with "Htokens_frags Hinv_owns") as "H".
 
-    wp_smart_apply (pool_run_spec (λ _,
+    wp_apply+ (pool_run_spec (λ _,
       [∗ list] _ ∈ seq 0 n,
         pool_consumer pool (
           tokens_frag γ n 1 ∗
@@ -135,7 +135,7 @@ Section pool_counter_G.
         )
     )%I with "[$Hpool_model H]") as (?) "(Hpool_model & H)".
     { iIntros "%ctx %scope Hctx".
-      wp_smart_apply (for_spec_nat'
+      wp_apply+ (for_spec_nat'
         (λ _ i,
           pool_context pool ctx scope ∗
           [∗ list] _ ∈ seq 0 i,
@@ -149,7 +149,7 @@ Section pool_counter_G.
       { iFrameStep.
         iEval (rewrite Nat.sub_0_r).
         iApply (big_sepL_seq_impl with "H"). iIntros "!> %k %Hk (Htokens_frag & Hinv_own) % -> (Hctx & H)".
-        wp_smart_apply (pool_async_spec
+        wp_apply+ (pool_async_spec
           True
           ( tokens_frag γ n 1 ∗
             cinv_own η (1 / Qp_of_nat n)
@@ -172,7 +172,7 @@ Section pool_counter_G.
       iFrame.
     }
 
-    wp_smart_apply (pool_kill_spec with "[$Hpool_model]") as "#Hpool_finished".
+    wp_apply+ (pool_kill_spec with "[$Hpool_model]") as "#Hpool_finished".
 
     iAssert (
       |={⊤}=>
