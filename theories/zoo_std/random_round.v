@@ -32,7 +32,7 @@ Section zoo_G.
     l.[array] ↦ arr ∗
     l.[index] ↦ #(length nexts) ∗
     random_state_model rand ∗
-    array_model arr (DfracOwn 1) (#@{nat} <$> nexts ++ reverse prevs).
+    array_model arr (DfracOwn 1) (#*@{nat} $ nexts ++ reverse prevs).
   #[local] Instance : CustomIpat "model" :=
     " ( %l &
         %rand &
@@ -65,7 +65,7 @@ Section zoo_G.
     wp_rec.
 
     pose (Ψ := λ arr i vs, (
-      ⌜vs = #@{nat} <$> seq 0 i⌝
+      ⌜vs = #*@{nat} $ seq 0 i⌝
     )%I : iProp Σ).
     wp_smart_apply (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
     { iStep 2. iIntros "%arr %i %vs _ _ ->".

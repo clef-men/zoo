@@ -43,7 +43,7 @@ Section zoo_G.
     ⌜t = #l⌝ ∗
     l.[size] ↦ #(length vs) ∗
     l.[data] ↦ data ∗
-    array_model data (DfracOwn 1) ((#@{location} <$> elems) ++ replicate extra §Empty%V) ∗
+    array_model data (DfracOwn 1) ((#*@{location} elems) ++ replicate extra §Empty%V) ∗
     [∗ list] elem; v ∈ elems; vs, element_model elem v.
   #[local] Instance : CustomIpat "model" :=
     " ( %l &
@@ -130,7 +130,7 @@ Section zoo_G.
     wp_rec.
     pose (Ψ data i slots := (
       ∃ elems,
-      ⌜slots = #@{location} <$> elems⌝ ∗
+      ⌜slots = #*@{location} elems⌝ ∗
       [∗ list] elem ∈ elems, element_model elem v
     )%I).
     wp_smart_apply (array_init_spec Ψ) as "%data %slots (%Hsz & %Helems & Hmodel & (%elems & -> & Helems))".
@@ -174,7 +174,7 @@ Section zoo_G.
     wp_rec.
     pose (Ψ' data i slots := (
       ∃ elems vs,
-      ⌜slots = #@{location} <$> elems⌝ ∗
+      ⌜slots = #*@{location} elems⌝ ∗
       Ψ i vs ∗
       [∗ list] elem; v ∈ elems; vs, element_model elem v
     )%I).

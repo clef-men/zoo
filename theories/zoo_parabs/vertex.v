@@ -304,7 +304,7 @@ Module base.
         mpmc_stack_2_model γ.(vertex_name_successors) None
       ) else (
         ∃ succs,
-        mpmc_stack_2_model γ.(vertex_name_successors) (Some $ #@{location} <$> succs) ∗
+        mpmc_stack_2_model γ.(vertex_name_successors) (Some $ #*@{location} succs) ∗
         [∗ list] succ ∈ succs, inv_successor inv γ succ
       )%I.
     #[local] Instance : CustomIpat "inv_successors_finished" :=

@@ -1080,7 +1080,7 @@ Section algo_G.
       algo_find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
-    , RET (#@{Z}) <$> o : option val;
+    , RET #*@{Z} o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1135,7 +1135,7 @@ Section algo_G.
       algo_find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
-    , RET (#@{nat}) <$> o : option val;
+    , RET #*@{nat} o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1189,7 +1189,7 @@ Section algo_G.
       algo_find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
-    , RET (#@{Z}) <$> o : option val;
+    , RET #*@{Z} o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗
@@ -1230,7 +1230,7 @@ Section algo_G.
       algo_find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
-    , RET (#@{nat}) <$> o : option val;
+    , RET #*@{nat} o : option val;
       pool_context pool ctx scope ∗
       if o is Some i then
         ⌜beg ≤ i < end_⌝%Z ∗

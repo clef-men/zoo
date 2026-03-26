@@ -80,7 +80,7 @@ Module base.
 
     #[local] Definition inv_inner γ : iProp Σ :=
       ∃ vs slots,
-      ws_deque_1_model γ.(ws_deque_2_name_base) (#@{location} <$> slots) ∗
+      ws_deque_1_model γ.(ws_deque_2_name_base) (#*@{location} slots) ∗
       model₂ γ vs ∗
       [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ v.
     #[local] Instance : CustomIpat "inv_inner" :=
@@ -108,7 +108,7 @@ Module base.
 
     Definition ws_deque_2_owner γ ws : iProp Σ :=
       ∃ slots_owner,
-      ws_deque_1_owner γ.(ws_deque_2_name_base) (#@{location} <$> slots_owner) ∗
+      ws_deque_1_owner γ.(ws_deque_2_name_base) (#*@{location} slots_owner) ∗
       owner γ ws.
     #[local] Instance : CustomIpat "owner" :=
       " ( %slots_owner{_{}} &

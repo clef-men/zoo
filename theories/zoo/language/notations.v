@@ -154,6 +154,10 @@ Notation "'#@{' X }" := (
   λ x : X, ValLit x
 )(only parsing
 ).
+Notation "'#*@{' X }" := (
+  @fmap _ _ X val (λ x : X, ValLit x)
+)(only parsing
+).
 
 Notation "f x => e" := (
   @pair (prod binder binder) expr
