@@ -1,5 +1,6 @@
 From stdpp Require
-  list.
+  list
+  sorting.
 
 From zoo Require Import
   prelude.
@@ -9,6 +10,7 @@ From zoo Require Import
   options.
 
 Export stdpp.list.
+Export stdpp.sorting.
 
 Create HintDb simpl_length.
 
@@ -1326,3 +1328,49 @@ End oflatten.
 #[global] Hint Rewrite
   @length_oflatten
 : simpl_length.
+
+Section Sorted.
+  Context `(R : A → A → Prop).
+
+  Implicit Types x : A.
+  Implicit Types l : list A.
+
+  Lemma StronglySorted_nil :
+    StronglySorted R [].
+  Proof.
+    apply SSorted_nil.
+  Qed.
+  Lemma StronglySorted_singleton x :
+    StronglySorted R [x].
+  Proof.
+    apply StronglySorted_cons.
+    split. 1: done.
+    apply StronglySorted_nil.
+  Qed.
+  Lemma StronglySorted_trivial l :
+    length l ≤ 1 →
+    StronglySorted R l.
+  Proof.
+    destruct l as [| x0 [| x1 l]] => /= Hl.
+    - apply StronglySorted_nil.
+    - apply StronglySorted_singleton.
+    - lia.
+  Qed.
+
+  Lemma StronglySorted_app_cons `{!Transitive R} l1 x l2 :
+    StronglySorted R l1 →
+    Forall (flip R x) l1 →
+    Forall (R x) l2 →
+    StronglySorted R l2 →
+    StronglySorted R (l1 ++ x :: l2).
+  Proof.
+    intros Hl1 H1 H2 Hl2.
+    rewrite StronglySorted_app StronglySorted_cons.
+    split_and!. 2-4: done.
+    intros x1 x2 Hx1 Hx2.
+    eapply Forall_elem_of in H1. 2: done.
+    apply elem_of_cons in Hx2 as [-> | Hx2] => //.
+    trans x. 1: done.
+    eapply Forall_elem_of; done.
+  Qed.
+End Sorted.
