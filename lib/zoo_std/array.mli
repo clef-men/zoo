@@ -22,6 +22,9 @@ val unsafe_set :
 val set :
   'a t -> int -> 'a -> unit
 
+val unsafe_swap :
+  'a t -> int -> int -> unit
+
 val unsafe_fill_slice :
   'a t -> int -> int -> 'a -> unit
 val fill_slice :

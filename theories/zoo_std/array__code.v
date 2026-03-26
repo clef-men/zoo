@@ -47,6 +47,13 @@ Definition array_set : val :=
     assume ("i" < array_size "t") ;;
     array_unsafe_set "t" "i" "v".
 
+Definition array_unsafe_swap : val :=
+  fun: "t" "i1" "i2" =>
+    let: "v1" := array_unsafe_get "t" "i1" in
+    let: "v2" := array_unsafe_get "t" "i2" in
+    array_unsafe_set "t" "i1" "v2" ;;
+    array_unsafe_set "t" "i2" "v1".
+
 Definition array_unsafe_fill_slice : val :=
   fun: "t" "i" "n" "v" =>
     for: "j" := 0 to "n" begin

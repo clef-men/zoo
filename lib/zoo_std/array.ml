@@ -56,6 +56,12 @@ let set =
     unsafe_set t i v
 ]
 
+let unsafe_swap t i1 i2 =
+  let v1 = unsafe_get t i1 in
+  let v2 = unsafe_get t i2 in
+  unsafe_set t i1 v2 ;
+  unsafe_set t i2 v1
+
 let unsafe_fill_slice t i n v =
   for j = 0 to n - 1 do
     unsafe_set t (i + j) v

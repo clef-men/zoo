@@ -2195,6 +2195,56 @@ Section zoo_G.
     destruct b; simpl_length.
   Qed.
 
+  Lemma array_unsafe_swap_spec_slice {t i vs} {i1 : Z} k1 {v1} {i2 : Z} k2 v2 :
+    (i ≤ i1)%Z →
+    (i ≤ i2)%Z →
+    vs !! k1 = Some v1 →
+    k1 = ₊i1 - i →
+    vs !! k2 = Some v2 →
+    k2 = ₊i2 - i →
+    {{{
+      array_slice t i (DfracOwn 1) vs
+    }}}
+      array_unsafe_swap t #i1 #i2
+    {{{
+      RET ();
+      array_slice t i (DfracOwn 1) (<[k2 := v1]> $ <[k1 := v2]> vs)
+    }}}.
+  Proof.
+    iIntros "%Hi1 %Hi2 %Hlookup_1 %Hk1 %Hlookup_2 %Hk2 %Φ Hslice HΦ".
+
+    wp_rec.
+    wp_smart_apply (array_unsafe_get_spec_slice k1 with "Hslice") as "Hslice". 1-3: done.
+    wp_smart_apply (array_unsafe_get_spec_slice k2 with "Hslice") as "Hslice". 1-3: done.
+    wp_smart_apply (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
+    { apply lookup_lt_Some in Hlookup_1. lia. }
+    wp_smart_apply (array_unsafe_set_spec_slice with "Hslice") as "Hslice".
+    { apply lookup_lt_Some in Hlookup_2. simpl_length. lia. }
+    rewrite Hk1 Hk2. iSteps.
+  Qed.
+  Lemma array_unsafe_swap_spec {t vs} {i1 : Z} i1_ {v1} {i2 : Z} i2_ v2 :
+    (0 ≤ i1)%Z →
+    (0 ≤ i2)%Z →
+    vs !! i1_ = Some v1 →
+    i1_ = ₊i1 →
+    vs !! i2_ = Some v2 →
+    i2_ = ₊i2 →
+    {{{
+      array_model t (DfracOwn 1) vs
+    }}}
+      array_unsafe_swap t #i1 #i2
+    {{{
+      RET ();
+      array_model t (DfracOwn 1) (<[i2_ := v1]> $ <[i1_ := v2]> vs)
+    }}}.
+  Proof.
+    iIntros "%Hi1 %Hi2 %Hlookup_1 %Hi1_ %Hlookup_2 %Hi2_ %Φ Hmodel HΦ".
+    iDestruct (array_model_to_slice' with "Hmodel") as "(Hslice & #?)".
+
+    wp_apply (array_unsafe_swap_spec_slice i1_ i2_ with "Hslice"). 1-6: done || lia.
+    iSteps. iPureIntro. simpl_length.
+  Qed.
+
   Lemma array_unsafe_fill_slice_spec_atomic Ψ t (i n : Z) v :
     (0 ≤ i)%Z →
     {{{

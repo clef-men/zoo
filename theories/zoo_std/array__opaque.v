@@ -8,6 +8,7 @@ From zoo_std Require Import
 #[global] Opaque array_get.
 #[global] Opaque array_unsafe_set.
 #[global] Opaque array_set.
+#[global] Opaque array_unsafe_swap.
 #[global] Opaque array_unsafe_fill_slice.
 #[global] Opaque array_fill_slice.
 #[global] Opaque array_fill.
