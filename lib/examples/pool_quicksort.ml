@@ -1,10 +1,11 @@
 let partition arr i sz =
   let pivot = Array.unsafe_get arr i in
   let i1 = ref (i + 1) in
-  for i2 = i + 1 to i + sz do
-    if Array.unsafe_get arr i2 < pivot then
+  for i2 = i + 1 to i + sz - 1 do
+    if Array.unsafe_get arr i2 < pivot then (
       Array.unsafe_swap arr !i1 i2 ;
       i1 := !i1 + 1
+    )
   done ;
   Array.unsafe_swap arr i (!i1 - 1) ;
   !i1 - 1

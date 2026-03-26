@@ -16,13 +16,11 @@ Definition pool_quicksort_partition : val :=
   fun: "arr" "i" "sz" =>
     let: "pivot" := array_unsafe_get "arr" "i" in
     let: "i1" := ref ("i" + 1) in
-    for: "i2" := "i" + 1 to "i" + "sz" + 1 begin
+    for: "i2" := "i" + 1 to "i" + "sz" begin
       if: array_unsafe_get "arr" "i2" < "pivot" then (
-        array_unsafe_swap "arr" !"i1" "i2"
-      ) else (
-        ()
-      ) ;;
-      "i1" <- !"i1" + 1
+        array_unsafe_swap "arr" !"i1" "i2" ;;
+        "i1" <- !"i1" + 1
+      )
     end ;;
     array_unsafe_swap "arr" "i" (!"i1" - 1) ;;
     !"i1" - 1.

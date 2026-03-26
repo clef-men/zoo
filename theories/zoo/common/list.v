@@ -76,13 +76,20 @@ Section basic.
     intros. apply app_not_nil. auto.
   Qed.
 
-  Lemma lookup_app_r_Some l1 l2 i x :
-    l2 !! i = Some x →
-    (l1 ++ l2) !! (length l1 + i) = Some x.
+  Lemma lookup_app_r_Some l1 l2 i y :
+    length l1 ≤ i →
+    l2 !! (i - length l1) = Some y →
+    (l1 ++ l2) !! i = Some y.
   Proof.
-    intros Hlookup.
-    rewrite lookup_app_r; first lia.
-    rewrite Nat.add_sub' //.
+    intros.
+    rewrite lookup_app_r //.
+  Qed.
+  Lemma lookup_cons_r_Some x l i y :
+    0 < i →
+    l !! (i - 1) = Some y →
+    (x :: l) !! i = Some y.
+  Proof.
+    apply (lookup_app_r_Some [_]).
   Qed.
 
   Lemma elem_of_app_l l1 l2 x :
@@ -271,6 +278,21 @@ Section basic.
     split; first done.
     apply drop_S in Hlookup.
     congruence.
+  Qed.
+
+  Lemma insert_cons_l i x y l :
+    i = 0 →
+    <[i := x]> (y :: l) = x :: l.
+  Proof.
+    intros ->.
+    rewrite (insert_app_l [_]) //=. lia.
+  Qed.
+  Lemma insert_cons_r i x y l :
+    0 < i →
+    <[i := x]> (y :: l) = y :: <[i - 1 := x]> l.
+  Proof.
+    intros.
+    rewrite (insert_app_r_alt [_]) //.
   Qed.
 
   Lemma insert_app_r_0 i x l1 l2 :
