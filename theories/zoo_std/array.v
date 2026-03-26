@@ -2222,6 +2222,25 @@ Section zoo_G.
     { apply lookup_lt_Some in Hlookup_2. simpl_length. lia. }
     rewrite Hk1 Hk2. iSteps.
   Qed.
+  Lemma array_unsafe_swap_spec_slice_id t i vs (i1 i2 : Z) :
+    i1 = i2 →
+    (i ≤ i1 < i + length vs)%Z →
+    {{{
+      array_slice t i (DfracOwn 1) vs
+    }}}
+      array_unsafe_swap t #i1 #i2
+    {{{
+      RET ();
+      array_slice t i (DfracOwn 1) vs
+    }}}.
+  Proof.
+    iIntros (<- Hi1) "%Φ Hslice HΦ".
+
+    destruct (lookup_lt_is_Some_2 vs ₊(i1 - i)) as (v & Hlookup). 1: lia.
+    wp_apply (array_unsafe_swap_spec_slice with "Hslice") as "Hslice". 1-6: done || lia.
+    iEval (rewrite list_insert_insert_eq list_insert_id //) in "Hslice".
+    iSteps.
+  Qed.
   Lemma array_unsafe_swap_spec {t vs} {i1 : Z} i1_ {v1} {i2 : Z} i2_ v2 :
     (0 ≤ i1)%Z →
     (0 ≤ i2)%Z →
