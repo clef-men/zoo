@@ -92,6 +92,11 @@ Section nat.
   Qed.
 End nat.
 
+Notation "(≥)" :=
+  Z.ge
+( only parsing
+) : Z_scope.
+
 Section Z.
   #[local] Open Scope Z_scope.
 
