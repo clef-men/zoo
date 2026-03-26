@@ -500,6 +500,10 @@ theories/examples/pool_counter__types.v
 theories/examples/pool_counter__code.v
 theories/examples/pool_counter__opaque.v
 theories/examples/pool_counter.v
+theories/examples/pool_quicksort__types.v
+theories/examples/pool_quicksort__code.v
+theories/examples/pool_quicksort__opaque.v
+theories/examples/pool_quicksort.v
 theories/examples/future_fibonacci__types.v
 theories/examples/future_fibonacci__code.v
 theories/examples/future_fibonacci__opaque.v
