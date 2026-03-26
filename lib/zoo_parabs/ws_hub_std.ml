@@ -45,7 +45,7 @@ let try_steal_once t i =
   Random_round.reset round ;
   Ws_deques_public.steal_as t.queues i round
 
-let rec try_steal t i yield max_round until =
+let rec try_steal t i yield max_round pred =
   if max_round <= 0 then
     Optional.Nothing
   else
@@ -53,12 +53,12 @@ let rec try_steal t i yield max_round until =
     | Some v ->
         Optional.Something v
     | None ->
-        if until () then
+        if pred () then
           Optional.Anything
         else (
           if yield then
             Domain.yield () ;
-          try_steal t i yield (max_round - 1) until
+          try_steal t i yield (max_round - 1) pred
         )
 
 let rec steal_until t i pred =

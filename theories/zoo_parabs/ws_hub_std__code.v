@@ -67,7 +67,7 @@ Definition ws_hub_std_try_steal_once : val :=
     ws_deques_public_steal_as "t".{queues} "i" "round".
 
 Definition ws_hub_std_try_steal : val :=
-  rec: "try_steal" "t" "i" "yield" "max_round" "until" =>
+  rec: "try_steal" "t" "i" "yield" "max_round" "pred" =>
     if: "max_round" ≤ 0 then (
       §Nothing
     ) else (
@@ -75,7 +75,7 @@ Definition ws_hub_std_try_steal : val :=
       | Some "v" =>
           ‘Something( "v" )
       | None =>
-          if: "until" () then (
+          if: "pred" () then (
             §Anything
           ) else (
             if: "yield" then (
@@ -83,7 +83,7 @@ Definition ws_hub_std_try_steal : val :=
             ) else (
               ()
             ) ;;
-            "try_steal" "t" "i" "yield" ("max_round" - 1) "until"
+            "try_steal" "t" "i" "yield" ("max_round" - 1) "pred"
           )
       end
     ).
