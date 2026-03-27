@@ -113,7 +113,6 @@ let rec steal t i max_round_noyield max_round_yield =
       | None ->
           if killed t then (
             notify_all t ;
-            Waiters.cancel_wait waiters waiter ;
             None
           ) else (
             Waiters.commit_wait waiters waiter ;
