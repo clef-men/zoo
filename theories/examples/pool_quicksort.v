@@ -215,7 +215,6 @@ Section pool_G.
       iDestruct (array_slice_app3 _ [_] with "Harr") as "(Harr_1 & Harr_2 & Harr_3)".
 
       wp_apply+ (pool_async_spec
-        True
         ( pool_consumer pool (
             ∃ xs1',
             ⌜xs1 ≡ₚ xs1'⌝ ∗
@@ -223,14 +222,14 @@ Section pool_G.
             array_slice arr i_ (DfracOwn 1) (#*@{Z} xs1')
           )
         )
-      with "[$Hctx Harr_1]") as "(Hctx & _ & Hpool_consumer_1)".
+        True
+      with "[$Hctx Harr_1]") as "(Hctx & Hpool_consumer_1 & _)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
       }
       iDestruct (pool_consumer_join with "Hpool_consumer_1") as "Hpool_consumer_1".
 
       wp_apply+ (pool_async_spec
-        True
         ( pool_consumer pool (
             ∃ xs2',
             ⌜xs2 ≡ₚ xs2'⌝ ∗
@@ -238,7 +237,8 @@ Section pool_G.
             array_slice arr (S p) (DfracOwn 1) (#*@{Z} xs2')
           )
         )
-      with "[$Hctx Harr_3]") as "(Hctx & _ & Hpool_consumer_2)".
+        True
+      with "[$Hctx Harr_3]") as "(Hctx & Hpool_consumer_2 & _)".
       { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_apply+ ("HLöb" with "[%] [%] [%] Hctx Harr_3") as "($ & Hpool_consumer)".
         { lia. }

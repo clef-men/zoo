@@ -365,9 +365,9 @@ Section future_G.
     wp_apply+ (ivar_3_create_spec Ψ Ξ (waiter_model pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
 
     wp_apply+ (pool_async_spec
-      (finished t)
       True
-    with "[$Hctx Htask Hproducer]") as "(Hctx & #Hpool_obligation & _)".
+      (finished t)
+    with "[$Hctx Htask Hproducer]") as "(Hctx & _ & #Hpool_obligation)".
     { iIntros "{%} %ctx %scope Hctx".
       wp_apply+ (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
       wp_apply (future_set_spec _ _ _ _ Ψ with "[$]") as "($ & #$) //".
@@ -505,9 +505,9 @@ Section future_G.
     ) with "[$Hctx $Hinv_1 Htask Hproducer_2]") as "(Hctx & (:obligation))".
     { iIntros "{%} %ctx %scope %v1 Hctx #Hresult_1".
       wp_apply+ (pool_async_spec
-        (finished t2)
         True
-      with "[$Hctx Htask Hproducer_2]") as "($ & #$ & _) //".
+        (finished t2)
+      with "[$Hctx Htask Hproducer_2]") as "($ & _ & #$) //".
       { iIntros "{%} %ctx %scope Hctx".
         wp_apply+ (wp_wand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
         wp_apply (future_set_spec _ _ _ _ Ψ2 with "[$]") as "($ & #$) //".

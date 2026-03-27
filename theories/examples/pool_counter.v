@@ -150,11 +150,11 @@ Section pool_counter_G.
         iEval (rewrite Nat.sub_0_r).
         iApply (big_sepL_seq_impl with "H"). iIntros "!> %k %Hk (Htokens_frag & Hinv_own) % -> (Hctx & H)".
         wp_apply+ (pool_async_spec
-          True
           ( tokens_frag γ n 1 ∗
             cinv_own η (1 / Qp_of_nat n)
           )
-        with "[- H $Hctx]") as "(Hctx & _ & Hpool_consumer)".
+          True
+        with "[- H $Hctx]") as "(Hctx & Hpool_consumer & _)".
         { iIntros "{% ctx scope} %ctx %scope Hctx".
           wp_pures.
           wp_bind (FAA _ _).
