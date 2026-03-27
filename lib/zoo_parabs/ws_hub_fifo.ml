@@ -57,7 +57,6 @@ let rec steal t =
   let waiter = Waiters.prepare_wait waiters in
   if killed t then (
     notify_all t ;
-    Waiters.cancel_wait waiters waiter ;
     None
   ) else (
     if Mpmc_queue_1.is_empty t.queue then (
