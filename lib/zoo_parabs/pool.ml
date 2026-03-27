@@ -41,14 +41,6 @@ let rec worker ctx =
       execute ctx job ;
       worker ctx
 
-let rec drain ctx =
-  match Ws_hub_std.pop ctx.context_hub ctx.context_id with
-  | None ->
-      Ws_hub_std.block ctx.context_hub ctx.context_id
-  | Some job ->
-      execute ctx job ;
-      drain ctx
-
 let create sz =
   let hub = Ws_hub_std.create (sz + 1) in
   Ws_hub_std.block hub 0 ;
@@ -70,9 +62,9 @@ let run t task =
   res
 
 let kill t =
-  Ws_hub_std.unblock t.hub 0 ;
-  drain (context_main t) ;
   Ws_hub_std.kill t.hub ;
+  Ws_hub_std.unblock t.hub 0 ;
+  worker (context_main t) ;
   Array.iter Domain.join t.domains
 
 let size ctx =

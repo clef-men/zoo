@@ -2,14 +2,14 @@ type 'a t =
   { size: int;
     queue: 'a Mpmc_queue_1.t;
     waiters: Waiters.t;
-    mutable killed: bool;
+    mutable num_active: int [@atomic];
   }
 
 let create sz =
   { size= sz;
     queue= Mpmc_queue_1.create ();
     waiters= Waiters.create ();
-    killed= false;
+    num_active= sz + 1;
   }
 
 let size t =
@@ -22,7 +22,7 @@ let unblock _t _i =
   ()
 
 let killed t =
-  t.killed
+  t.num_active == 0
 
 let notify t =
   Waiters.notify t.waiters
@@ -56,6 +56,7 @@ let rec steal t =
   let waiters = t.waiters in
   let waiter = Waiters.prepare_wait waiters in
   if killed t then (
+    notify_all t ;
     Waiters.cancel_wait waiters waiter ;
     None
   ) else (
@@ -74,8 +75,7 @@ let steal t _i _max_round_noyield _max_round_yield =
   steal t
 
 let kill t =
-  t.killed <- true ;
-  notify_all t
+  Atomic.Loc.decr [%atomic.loc t.num_active]
 
 let pop_steal_until t i max_round_noyield pred =
   match pop t i with
