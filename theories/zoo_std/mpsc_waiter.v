@@ -153,7 +153,7 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_apply+ (condition_create_spec with "[//]") as "%cond #Hcondition_inv".
     wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
-    wp_block l as "Hmeta" "(Hflag & Hl_mutex & Hl_condition & _)".
+    wp_block l as "Hmeta" "(Hl_mutex & Hl_condition & Hl_flag & _)".
     iMod (pointsto_persist with "Hl_mutex") as "Hl_mutex".
     iMod (pointsto_persist with "Hl_condition") as "Hl_condition".
 
@@ -189,8 +189,8 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_pures.
 
-    wp_bind (!_)%E.
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_bind (_.{flag})%E.
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_load.
     destruct b; first iSteps.
     iSplitR "HP HΦ"; first iSteps.
@@ -206,8 +206,8 @@ Section mpsc_waiter_G.
     iIntros "Hmutex_locked _".
     wp_pures.
 
-    wp_bind (!_)%E.
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_bind (_.{flag})%E.
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_load.
     destruct b; first iSteps.
     iSplitR "HP Hmutex_locked"; first iSteps.
@@ -215,8 +215,8 @@ Section mpsc_waiter_G.
 
     wp_pures.
 
-    wp_bind (_ <- _)%E.
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    wp_bind (_ <-{flag} _)%E.
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_store.
     destruct b; first iSteps.
     iMod (oneshot_update_shot with "Hb") as "#Hshot".
@@ -244,7 +244,7 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_pures.
 
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
@@ -270,7 +270,7 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_pures.
 
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_load.
     destruct b; last first.
     { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
@@ -317,7 +317,7 @@ Section mpsc_waiter_G.
     iIntros "!> Hmutex_locked _ Hconsumer".
     wp_pures.
 
-    iInv "Hinv" as "(%b & Hflag & Hb)".
+    iInv "Hinv" as "(%b & Hl_flag & Hb)".
     wp_load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.

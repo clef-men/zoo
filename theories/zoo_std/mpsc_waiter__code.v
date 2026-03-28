@@ -13,7 +13,7 @@ From zoo Require Import
 
 Definition mpsc_waiter_create : val :=
   fun: <> =>
-    { false, mutex_create (), condition_create () }.
+    { mutex_create (), condition_create (), false }.
 
 Definition mpsc_waiter_notify : val :=
   fun: "t" =>

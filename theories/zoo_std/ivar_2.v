@@ -420,7 +420,7 @@ Module base.
       wp_rec.
       wp_apply+ (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
       wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
-      wp_block t as "Hmeta" "(Ht_result & Ht_mutex & Ht_condition & _)".
+      wp_block t as "Hmeta" "(Ht_mutex & Ht_condition & Ht_result & _)".
       iMod (pointsto_persist with "Ht_mutex") as "Ht_mutex".
       iMod (pointsto_persist with "Ht_condition") as "Ht_condition".
 
@@ -459,7 +459,7 @@ Module base.
       wp_rec.
       wp_apply+ (condition_create_spec _ with "[//]") as "%cond #Hcondition_inv".
       wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
-      wp_block t as "Hmeta" "(Ht_result & Ht_mutex & Ht_condition & _)".
+      wp_block t as "Hmeta" "(Ht_mutex & Ht_condition & Ht_result & _)".
       iMod (pointsto_persist with "Ht_mutex") as "Ht_mutex".
       iMod (pointsto_persist with "Ht_condition") as "Ht_condition".
 
