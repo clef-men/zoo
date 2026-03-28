@@ -2,21 +2,21 @@ type 'a state =
   'a option
 
 type 'a t =
-  { mutable result: 'a state;
-    mutex: Mutex.t;
+  { mutex: Mutex.t;
     condition: Condition.t;
+    mutable result: 'a state;
   }
 
 let create () =
-  { result= None;
-    mutex= Mutex.create ();
+  { mutex= Mutex.create ();
     condition= Condition.create ();
+    result= None;
   }
 
 let make v =
-  { result= Some v;
-    mutex= Mutex.create ();
+  { mutex= Mutex.create ();
     condition= Condition.create ();
+    result= Some v;
   }
 
 let try_get t =

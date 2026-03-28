@@ -13,11 +13,11 @@ From zoo Require Import
 
 Definition ivar_2_create : val :=
   fun: <> =>
-    { §None, mutex_create (), condition_create () }.
+    { mutex_create (), condition_create (), §None }.
 
 Definition ivar_2_make : val :=
   fun: "v" =>
-    { ‘Some( "v" ), mutex_create (), condition_create () }.
+    { mutex_create (), condition_create (), ‘Some( "v" ) }.
 
 Definition ivar_2_try_get : val :=
   fun: "t" =>
