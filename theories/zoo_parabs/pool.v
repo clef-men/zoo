@@ -52,10 +52,10 @@ Qed.
 Opaque pool__code.pool_max_round_yield.
 Opaque max_round_yield.
 
-Record job := {
-  job_val : val ;
-  job_name : gname ;
-}.
+Record job :=
+  { job_val : val
+  ; job_name : gname
+  }.
 Implicit Types job local global : job.
 
 #[local] Instance job_inhabited : Inhabited job :=
@@ -85,14 +85,14 @@ Proof.
   apply _.
 Qed.
 
-Class PoolG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pool_G_domain_G :: DomainG Σ ;
-  #[local] pool_G_ws_hub_G :: WsHubStdG Σ ;
-  #[local] pool_G_saved_prop_G :: SavedPropG Σ ;
-  #[local] pool_G_jobs_G :: MonoGmultisetG Σ job ;
-  #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job) ;
-  #[local] pool_G_consumer_G :: SpscPropG Σ ;
-}.
+Class PoolG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] pool_G_domain_G :: DomainG Σ
+  ; #[local] pool_G_ws_hub_G :: WsHubStdG Σ
+  ; #[local] pool_G_saved_prop_G :: SavedPropG Σ
+  ; #[local] pool_G_jobs_G :: MonoGmultisetG Σ job
+  ; #[local] pool_G_locals_G :: GhostListG Σ (gmultiset job)
+  ; #[local] pool_G_consumer_G :: SpscPropG Σ
+  }.
 
 Definition pool_Σ := #[
   domain_Σ ;
@@ -117,13 +117,13 @@ Module base.
     Implicit Types P Q : iProp Σ.
     Implicit Types Ψ : val → iProp Σ.
 
-    Record pool_name := {
-      pool_name_size : nat ;
-      pool_name_hub : val ;
-      pool_name_domains : val ;
-      pool_name_jobs : gname ;
-      pool_name_locals : gname ;
-    }.
+    Record pool_name :=
+      { pool_name_size : nat
+      ; pool_name_hub : val
+      ; pool_name_domains : val
+      ; pool_name_jobs : gname
+      ; pool_name_locals : gname
+      }.
     Implicit Types γ : pool_name.
     Implicit Types γ_tokens : list gname.
 

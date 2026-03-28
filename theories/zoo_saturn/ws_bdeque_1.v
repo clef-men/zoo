@@ -56,14 +56,14 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-Class WsBdeque1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_bdeque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
-  #[local] ws_bdeque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
-  #[local] ws_bdeque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat)) ;
-  #[local] ws_bdeque_1_G_front_G :: AuthNatMaxG Σ ;
-  #[local] ws_bdeque_1_G_history_G :: MonoListG Σ val ;
-  #[local] ws_bdeque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙) ;
-}.
+Class WsBdeque1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ws_bdeque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier
+  ; #[local] ws_bdeque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] ws_bdeque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat))
+  ; #[local] ws_bdeque_1_G_front_G :: AuthNatMaxG Σ
+  ; #[local] ws_bdeque_1_G_history_G :: MonoListG Σ val
+  ; #[local] ws_bdeque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙)
+  }.
 
 Definition ws_bdeque_1_Σ := #[
   prophet_multi_Σ prophet_identifier ;
@@ -87,18 +87,18 @@ Module base.
     Implicit Types t : location.
     Implicit Types P : iProp Σ.
 
-    Record ws_bdeque_1_name := {
-      ws_bdeque_1_name_capacity : nat ;
-      ws_bdeque_1_name_data : val ;
-      ws_bdeque_1_name_inv : namespace ;
-      ws_bdeque_1_name_prophet : prophet_id ;
-      ws_bdeque_1_name_prophet_name : prophet_multi_name ;
-      ws_bdeque_1_name_model : auth_twins_name ;
-      ws_bdeque_1_name_owner : gname ;
-      ws_bdeque_1_name_front : gname ;
-      ws_bdeque_1_name_history : gname ;
-      ws_bdeque_1_name_winner : gname ;
-    }.
+    Record ws_bdeque_1_name :=
+      { ws_bdeque_1_name_capacity : nat
+      ; ws_bdeque_1_name_data : val
+      ; ws_bdeque_1_name_inv : namespace
+      ; ws_bdeque_1_name_prophet : prophet_id
+      ; ws_bdeque_1_name_prophet_name : prophet_multi_name
+      ; ws_bdeque_1_name_model : auth_twins_name
+      ; ws_bdeque_1_name_owner : gname
+      ; ws_bdeque_1_name_front : gname
+      ; ws_bdeque_1_name_history : gname
+      ; ws_bdeque_1_name_winner : gname
+      }.
     Implicit Types γ : ws_bdeque_1_name.
 
     #[global] Instance ws_bdeque_1_name_eq_dec : EqDecision ws_bdeque_1_name :=

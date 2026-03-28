@@ -37,8 +37,8 @@ Section nat.
   Qed.
 
   #[global] Instance le_initial : Initial (≤) :=
-    {|initial := 0 ;
-      initial_lb := Nat.le_0_l ;
+    {|initial := 0
+    ; initial_lb := Nat.le_0_l
     |}.
 
   Lemma minus_mod_1 a b n :

@@ -37,13 +37,13 @@ Implicit Types vs ws : list val.
 Implicit Types waiter : gname.
 Implicit Types waiters : gmap gname nat.
 
-Class SpmcQueueG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] spmc_queue_G_history_G :: MonoListG Σ location ;
-  #[local] spmc_queue_G_front_G :: AuthNatMaxG Σ ;
-  #[local] spmc_queue_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
-  #[local] spmc_queue_G_waiters_G :: ghost_mapG Σ gname nat ;
-  #[local] spmc_queue_G_saved_pred_G :: SavedPredG Σ bool ;
-}.
+Class SpmcQueueG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] spmc_queue_G_history_G :: MonoListG Σ location
+  ; #[local] spmc_queue_G_front_G :: AuthNatMaxG Σ
+  ; #[local] spmc_queue_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] spmc_queue_G_waiters_G :: ghost_mapG Σ gname nat
+  ; #[local] spmc_queue_G_saved_pred_G :: SavedPredG Σ bool
+  }.
 
 Definition spmc_queue_Σ := #[
   mono_list_Σ location ;
@@ -65,13 +65,13 @@ Module base.
 
     Implicit Types t : location.
 
-    Record metadata := {
-      metadata_inv : namespace ;
-      metadata_history : gname ;
-      metadata_front : gname ;
-      metadata_model : auth_twins_name ;
-      metadata_waiters : gname ;
-    }.
+    Record metadata :=
+      { metadata_inv : namespace
+      ; metadata_history : gname
+      ; metadata_front : gname
+      ; metadata_model : auth_twins_name
+      ; metadata_waiters : gname
+      }.
     Implicit Type γ : metadata.
 
     #[global] Instance metadata_eq_dec : EqDecision metadata :=

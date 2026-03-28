@@ -20,9 +20,9 @@ Implicit Types l : location.
 Implicit Types v t : val.
 Implicit Types ws : list val.
 
-Class MpmcStack2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpmc_stack_2_G_model_G :: TwinsG Σ (leibnizO (option $ list val)) ;
-}.
+Class MpmcStack2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpmc_stack_2_G_model_G :: TwinsG Σ (leibnizO (option $ list val))
+  }.
 
 Definition mpmc_stack_2_Σ := #[
   twins_Σ (leibnizO (option $ list val))

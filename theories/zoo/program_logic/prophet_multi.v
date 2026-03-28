@@ -36,9 +36,9 @@ Next Obligation.
   rewrite Nat2Z.id //.
 Qed.
 
-Class ProphetMultiStrongG Σ `{zoo_G : !ZooG Σ} prophet := {
-  #[local] prophet_multi_strong_G :: ProphetWiseStrongG Σ (prophetx prophet) ;
-}.
+Class ProphetMultiStrongG Σ `{zoo_G : !ZooG Σ} prophet :=
+  { #[local] prophet_multi_strong_G :: ProphetWiseStrongG Σ (prophetx prophet)
+  }.
 
 Definition prophet_multi_strong_Σ prophet := #[
   prophet_wise_strong_Σ (prophetx prophet)
@@ -365,9 +365,9 @@ End prophet_multi_G.
 #[global] Opaque prophet_multi_strong_snapshot.
 #[global] Opaque prophet_multi_strong_lb.
 
-Class ProphetMultiG Σ `{zoo_G : !ZooG Σ} prophet := {
-  #[local] prophet_multi_G :: ProphetMultiStrongG Σ prophet ;
-}.
+Class ProphetMultiG Σ `{zoo_G : !ZooG Σ} prophet :=
+  { #[local] prophet_multi_G :: ProphetMultiStrongG Σ prophet
+  }.
 
 Definition prophet_multi_Σ prophet := #[
   prophet_multi_strong_Σ prophet

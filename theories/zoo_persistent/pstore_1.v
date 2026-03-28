@@ -170,8 +170,8 @@ Section graph.
   Definition acyclic g := ∀ a xs, path g a xs a → xs = nil.
 
   Record rooted_dag g (r:A) :=
-    { ti1 : ∀ a, a ∈ vertices g → ∃ xs, path g a xs r;
-      ti2 : acyclic g
+    { ti1 : ∀ a, a ∈ vertices g → ∃ xs, path g a xs r
+    ; ti2 : acyclic g
     }.
 
   Definition unaliased (g:graph A B) :=
@@ -553,9 +553,9 @@ End adiffl.
 (* ------------------------------------------------------------------------ *)
 (* Proof. *)
 
-Class Pstore1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pstore_1_G_set_G :: MonoGsetG Σ (location * gmap location val)%type ;
-}.
+Class Pstore1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] pstore_1_G_set_G :: MonoGsetG Σ (location * gmap location val)%type
+  }.
 
 Definition pstore_1_Σ := #[
   mono_gset_Σ (location * gmap location val)%type
@@ -587,18 +587,18 @@ Section pstore_1_G.
       σ1 = (apply_diffl (proj2 <$> ds) σ2).
 
   Record store_inv (M:map_model) (g:graph_store) (r:location) (σ σ0:gmap location val) :=
-    { si1 : dom M = vertices g ∪ {[r]};
-      si2 : σ ⊆ σ0;
-      si3 : M !! r = Some σ0 ;
-      si4 : correct_path_diff M g
+    { si1 : dom M = vertices g ∪ {[r]}
+    ; si2 : σ ⊆ σ0
+    ; si3 : M !! r = Some σ0
+    ; si4 : correct_path_diff M g
     }.
 
   Definition locations_of_edges_in g (X:gset location) :=
     ∀ (r:location) l v r', edge g r (l,v) r' → l ∈ X.
 
   Record coherent (M:map_model) (σ0:gmap location val) (g:graph_store) :=
-    { coh1 : ∀ r σ, M !! r = Some σ → dom σ = dom σ0;
-      coh2 : locations_of_edges_in g (dom σ0);
+    { coh1 : ∀ r σ, M !! r = Some σ → dom σ = dom σ0
+    ; coh2 : locations_of_edges_in g (dom σ0)
     }.
 
   Definition snapshot_inv (M:map_model) (C:gset (location * gmap location val)) :=

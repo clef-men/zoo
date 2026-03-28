@@ -1,16 +1,16 @@
 type 'a t =
-  { mutable data: 'a array;
-    mutable front: int;
-    mutable back: int;
+  { mutable data: 'a array
+  ; mutable front: int
+  ; mutable back: int
   }
 
 let min_capacity =
   16
 
 let create () =
-  { data= Array.unsafe_make min_capacity (Obj.magic ());
-    front= 0;
-    back= 0;
+  { data= Array.unsafe_make min_capacity (Obj.magic ())
+  ; front= 0
+  ; back= 0
   }
 
 let size t =

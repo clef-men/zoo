@@ -8,14 +8,14 @@ type ('a, _) node =
   | Null :
     ('a, [> `Null]) node
   | Node :
-    { mutable next: ('a, [`Null | `Node]) node [@atomic];
-      queue: 'a Mpmc_fqueue_2.t;
+    { mutable next: ('a, [`Null | `Node]) node [@atomic]
+    ; queue: 'a Mpmc_fqueue_2.t
     } ->
     ('a, [> `Node]) node
 
 type 'a t =
-  { mutable front: ('a, [`Node]) node [@atomic];
-    mutable back: ('a, [`Node]) node [@atomic];
+  { mutable front: ('a, [`Node]) node [@atomic]
+  ; mutable back: ('a, [`Node]) node [@atomic]
   }
 
 let[@zoo.opaque] queues_size =

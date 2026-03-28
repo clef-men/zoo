@@ -14,9 +14,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class GhostListG Σ A := {
-  #[local] ghost_list_G_map_G :: ghost_mapG Σ nat A ;
-}.
+Class GhostListG Σ A :=
+  { #[local] ghost_list_G_map_G :: ghost_mapG Σ nat A
+  }.
 
 Definition ghost_list_Σ A := #[
   ghost_mapΣ nat A

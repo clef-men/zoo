@@ -3,19 +3,19 @@
 *)
 
 type 'a t =
-  { data: 'a option array;
-    mutable front: int [@atomic];
-    mutable front_cache: int;
-    mutable back: int [@atomic];
-    mutable back_cache: int;
+  { data: 'a option array
+  ; mutable front: int [@atomic]
+  ; mutable front_cache: int
+  ; mutable back: int [@atomic]
+  ; mutable back_cache: int
   }
 
 let create cap =
-  { data= Array.unsafe_make cap None;
-    front= 0;
-    front_cache= 0;
-    back= 0;
-    back_cache= 0;
+  { data= Array.unsafe_make cap None
+  ; front= 0
+  ; front_cache= 0
+  ; back= 0
+  ; back_cache= 0
   }
 
 let capacity t =

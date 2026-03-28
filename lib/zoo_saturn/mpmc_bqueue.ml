@@ -6,17 +6,17 @@ type ('a, _) node =
   | Null :
     ('a, [> `Null]) node
   | Node :
-    { mutable next: ('a, [`Null | `Node]) node [@atomic];
-      mutable data: 'a;
-      mutable index: int;
-      mutable estimated_capacity: int;
+    { mutable next: ('a, [`Null | `Node]) node [@atomic]
+    ; mutable data: 'a
+    ; mutable index: int
+    ; mutable estimated_capacity: int
     } ->
     ('a, [> `Node]) node
 
 type 'a t =
-  { capacity: int;
-    mutable front: ('a, [`Node]) node [@atomic];
-    mutable back: ('a, [`Node]) node [@atomic];
+  { capacity: int
+  ; mutable front: ('a, [`Node]) node [@atomic]
+  ; mutable back: ('a, [`Node]) node [@atomic]
   }
 
 let create cap =

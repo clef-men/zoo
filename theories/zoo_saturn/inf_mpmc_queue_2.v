@@ -149,19 +149,19 @@ Proof.
   apply lstep_winner.
 Qed.
 
-Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_mpmc_queue_2_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
-  #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val) ;
-  #[local] inf_mpmc_queue_2_G_lstate_G :: AuthMonoG Σ lstep ;
-  #[local] inf_mpmc_queue_2_G_lstates_G :: MonoListG Σ gname ;
-  #[local] inf_mpmc_queue_2_G_saved_pred_G :: SavedPredG Σ val ;
-  #[local] inf_mpmc_queue_2_G_producer_G :: OneshotG Σ () () ;
-  #[local] inf_mpmc_queue_2_G_producers_G :: MonoListG Σ gname ;
-  #[local] inf_mpmc_queue_2_G_consumer_G :: OneshotG Σ () () ;
-  #[local] inf_mpmc_queue_2_G_consumers_G :: MonoListG Σ gname ;
-}.
+Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] inf_mpmc_queue_2_G_inf_array_G :: InfArrayG Σ
+  ; #[local] inf_mpmc_queue_2_G_prophet_G :: ProphetMultiG Σ prophet_identifier
+  ; #[local] inf_mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] inf_mpmc_queue_2_G_history_G :: MonoListG Σ (option val)
+  ; #[local] inf_mpmc_queue_2_G_lstate_G :: AuthMonoG Σ lstep
+  ; #[local] inf_mpmc_queue_2_G_lstates_G :: MonoListG Σ gname
+  ; #[local] inf_mpmc_queue_2_G_saved_pred_G :: SavedPredG Σ val
+  ; #[local] inf_mpmc_queue_2_G_producer_G :: OneshotG Σ () ()
+  ; #[local] inf_mpmc_queue_2_G_producers_G :: MonoListG Σ gname
+  ; #[local] inf_mpmc_queue_2_G_consumer_G :: OneshotG Σ () ()
+  ; #[local] inf_mpmc_queue_2_G_consumers_G :: MonoListG Σ gname
+  }.
 
 Definition inf_mpmc_queue_2_Σ := #[
   inf_array_Σ ;
@@ -190,17 +190,17 @@ Module base.
     Implicit Types t : location.
     Implicit Types Ψ : val → iProp Σ.
 
-    Record inf_mpmc_queue_2_name := {
-      inf_mpmc_queue_2_name_data : val ;
-      inf_mpmc_queue_2_name_inv : namespace ;
-      inf_mpmc_queue_2_name_prophet : prophet_id ;
-      inf_mpmc_queue_2_name_prophet_name : prophet_multi_name ;
-      inf_mpmc_queue_2_name_model : gname ;
-      inf_mpmc_queue_2_name_history : gname ;
-      inf_mpmc_queue_2_name_lstates : gname ;
-      inf_mpmc_queue_2_name_producers : gname ;
-      inf_mpmc_queue_2_name_consumers : gname ;
-    }.
+    Record inf_mpmc_queue_2_name :=
+      { inf_mpmc_queue_2_name_data : val
+      ; inf_mpmc_queue_2_name_inv : namespace
+      ; inf_mpmc_queue_2_name_prophet : prophet_id
+      ; inf_mpmc_queue_2_name_prophet_name : prophet_multi_name
+      ; inf_mpmc_queue_2_name_model : gname
+      ; inf_mpmc_queue_2_name_history : gname
+      ; inf_mpmc_queue_2_name_lstates : gname
+      ; inf_mpmc_queue_2_name_producers : gname
+      ; inf_mpmc_queue_2_name_consumers : gname
+      }.
     Implicit Type γ : inf_mpmc_queue_2_name.
 
     #[global] Instance inf_mpmc_queue_2_name_eq_dec : EqDecision inf_mpmc_queue_2_name :=

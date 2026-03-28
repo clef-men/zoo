@@ -16,21 +16,21 @@ type ('k, 'v) buckets =
 type ('k, 'v) status =
   | Normal
   | Resizing of
-    { resizing_buckets: ('k, 'v) buckets;
-      resizing_mask: int;
+    { resizing_buckets: ('k, 'v) buckets
+    ; resizing_mask: int
     }
 
 type ('k, 'v) state =
-  { buckets: ('k, 'v) buckets;
-    mask: int;
-    status: ('k, 'v) status;
+  { buckets: ('k, 'v) buckets
+  ; mask: int
+  ; status: ('k, 'v) status
   }
 
 type ('k, 'v) t =
-  { hash: 'k -> int;
-    equal: 'k -> 'k -> bool;
-    sizes: int Atomic_array.t;
-    mutable state: ('k, 'v) state [@atomic];
+  { hash: 'k -> int
+  ; equal: 'k -> 'k -> bool
+  ; sizes: int Atomic_array.t
+  ; mutable state: ('k, 'v) state [@atomic]
   }
 
 let[@zoo.opaque] min_buckets =
@@ -86,9 +86,9 @@ let[@tail_mod_cons] rec bucket_merge bucket = function
 let create hash equal =
   let sizes = Atomic_array.make (Domain.recommended_domain_count ()) 0 in
   let state =
-    { buckets= Atomic_array.make min_buckets Nil;
-      mask= min_buckets - 1;
-      status= Normal;
+    { buckets= Atomic_array.make min_buckets Nil
+    ; mask= min_buckets - 1
+    ; status= Normal
     }
   in
   { hash; equal; sizes; state }

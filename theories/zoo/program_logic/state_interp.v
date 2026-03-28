@@ -31,23 +31,23 @@ Implicit Types κ κs : list observation.
 
 Parameter zoo_counter : location.
 
-Record zoo_parameter := {
-  zoo_parameter_local : val ;
-  zoo_parameter_counter : nat ;
-}.
+Record zoo_parameter :=
+  { zoo_parameter_local : val
+  ; zoo_parameter_counter : nat
+  }.
 
-Record state_wf σ param := {
-  state_wf_locals :
-    σ.(state_locals) = [param.(zoo_parameter_local)] ;
-  state_wf_counter :
-    σ.(state_heap) !! zoo_counter = Some (ValNat param.(zoo_parameter_counter)) ;
-}.
+Record state_wf σ param :=
+  { state_wf_locals :
+      σ.(state_locals) = [param.(zoo_parameter_local)]
+  ; state_wf_counter :
+      σ.(state_heap) !! zoo_counter = Some (ValNat param.(zoo_parameter_counter))
+  }.
 
-Class ZooG₀ Σ := {
-  #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ ;
-  #[local] zoo_G₀_locals_G :: GhostListG Σ val ;
-  #[local] zoo_G₀_counter_G :: MonoListG Σ val ;
-}.
+Class ZooG₀ Σ :=
+  { #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
+  ; #[local] zoo_G₀_locals_G :: GhostListG Σ val
+  ; #[local] zoo_G₀_counter_G :: MonoListG Σ val
+  }.
 
 #[local] Definition zoo_Σ₀ := #[
   auth_nat_max_Σ ;
@@ -61,13 +61,13 @@ Proof.
   solve_inG.
 Qed.
 
-Class ZooGpre Σ := {
-  #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ ;
-  #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ ;
-  #[local] zoo_Gpre_heap_Gpre :: gen_heapGpreS location val Σ ;
-  #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val) ;
-  #[local] zoo_Gpre_G₀ :: ZooG₀ Σ ;
-}.
+Class ZooGpre Σ :=
+  { #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ
+  ; #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ
+  ; #[local] zoo_Gpre_heap_Gpre :: gen_heapGpreS location val Σ
+  ; #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val)
+  ; #[local] zoo_Gpre_G₀ :: ZooG₀ Σ
+  }.
 
 Definition zoo_Σ := #[
   invΣ ;
@@ -83,16 +83,16 @@ Proof.
   solve_inG.
 Qed.
 
-Class ZooG Σ := {
-  #[global] zoo_G_inv_G :: invGS Σ ;
-  #[local] zoo_G_headers_G :: gen_heapGS location header Σ ;
-  #[local] zoo_G_heap_G :: gen_heapGS location val Σ ;
-  #[local] zoo_G_prophecy_G :: ProphetMapG Σ prophet_id (val * val) ;
-  #[local] zoo_G_G₀ :: ZooG₀ Σ ;
-  zoo_G_steps_name : gname ;
-  zoo_G_locals_name : gname ;
-  zoo_G_counter_name : gname ;
-}.
+Class ZooG Σ :=
+  { #[global] zoo_G_inv_G :: invGS Σ
+  ; #[local] zoo_G_headers_G :: gen_heapGS location header Σ
+  ; #[local] zoo_G_heap_G :: gen_heapGS location val Σ
+  ; #[local] zoo_G_prophecy_G :: ProphetMapG Σ prophet_id (val * val)
+  ; #[local] zoo_G_G₀ :: ZooG₀ Σ
+  ; zoo_G_steps_name : gname
+  ; zoo_G_locals_name : gname
+  ; zoo_G_counter_name : gname
+  }.
 #[global] Arguments Build_ZooG {_ _ _ _ _ _} _ _ _ : assert.
 
 Section zoo_G.

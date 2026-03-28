@@ -21,9 +21,9 @@ Implicit Types t s descr : val.
 Implicit Types reprs : gmap location location.
 Implicit Types descrs : gmap location val.
 
-Class PufG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] puf_G_pstore_G :: Pstore2G Σ ;
-}.
+Class PufG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] puf_G_pstore_G :: Pstore2G Σ
+  }.
 
 Definition puf_Σ := #[
   pstore_2_Σ

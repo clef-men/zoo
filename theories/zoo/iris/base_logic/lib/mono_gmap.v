@@ -11,9 +11,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class MonoGmapG Σ K V `{Countable K} := {
-  #[local] mono_gmap_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V)) ;
-}.
+Class MonoGmapG Σ K V `{Countable K} :=
+  { #[local] mono_gmap_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
+  }.
 
 Definition mono_gmap_Σ K V `{Countable K} := #[
   auth_mono_Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))

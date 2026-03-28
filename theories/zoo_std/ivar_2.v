@@ -23,11 +23,11 @@ Implicit Types b : bool.
 Implicit Types v : val.
 Implicit Types o state : option val.
 
-Class Ivar2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ivar_2_G_mutex_G :: MutexG Σ ;
-  #[local] ivar_2_G_lstate_G :: OneshotG Σ unit val ;
-  #[local] ivar_2_G_consumer_G :: SubpredsG Σ val ;
-}.
+Class Ivar2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ivar_2_G_mutex_G :: MutexG Σ
+  ; #[local] ivar_2_G_lstate_G :: OneshotG Σ unit val
+  ; #[local] ivar_2_G_consumer_G :: SubpredsG Σ val
+  }.
 
 Definition ivar_2_Σ := #[
   mutex_Σ ;
@@ -48,12 +48,12 @@ Module base.
     Implicit Types t : location.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-    Record ivar_2_name := {
-      ivar_2_name_mutex : val ;
-      ivar_2_name_condition : val ;
-      ivar_2_name_lstate : gname ;
-      ivar_2_name_consumer : gname ;
-    }.
+    Record ivar_2_name :=
+      { ivar_2_name_mutex : val
+      ; ivar_2_name_condition : val
+      ; ivar_2_name_lstate : gname
+      ; ivar_2_name_consumer : gname
+      }.
     Implicit Types γ : ivar_2_name.
 
     #[global] Instance ivar_2_name_eq_dec : EqDecision ivar_2_name :=

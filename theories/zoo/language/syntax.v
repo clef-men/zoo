@@ -100,11 +100,11 @@ Proof.
   solve_countable.
 Qed.
 
-Record pattern := {
-  pattern_tag : nat ;
-  pattern_fields : list binder ;
-  pattern_as : binder ;
-}.
+Record pattern :=
+  { pattern_tag : nat
+  ; pattern_fields : list binder
+  ; pattern_as : binder
+  }.
 
 #[global] Instance pattern_inhabited : Inhabited pattern :=
   populate {|

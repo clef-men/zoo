@@ -6,14 +6,14 @@ type ('a, _) node =
   | Null :
     ('a, [> `Null]) node
   | Node :
-    { mutable next: ('a, [`Null | `Node]) node [@atomic];
-      mutable data: 'a;
+    { mutable next: ('a, [`Null | `Node]) node [@atomic]
+    ; mutable data: 'a
     } ->
     ('a, [> `Node]) node
 
 type 'a t =
-  { mutable front: ('a, [`Node]) node [@atomic];
-    mutable back: ('a, [`Node]) node [@atomic];
+  { mutable front: ('a, [`Node]) node [@atomic]
+  ; mutable back: ('a, [`Node]) node [@atomic]
   }
 
 let create () =

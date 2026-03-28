@@ -37,13 +37,13 @@ Implicit Types vss wss : list (list val).
 Implicit Types status : status.
 Implicit Types statuses : list status.
 
-Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_deques_private_G_models_G :: GhostListG Σ (list val) ;
-  #[local] ws_deques_private_G_owner_G :: TwinsG Σ (leibnizO status) ;
-  #[local] ws_deques_private_G_channel_pred_G :: GhostPredG Σ (option val) ;
-  #[local] ws_deques_private_G_channel_generation_G :: GhostVarG Σ (leibnizO gname) ;
-  #[local] ws_deques_private_G_channel_state_G :: OneshotG Σ () (option val) ;
-}.
+Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ws_deques_private_G_models_G :: GhostListG Σ (list val)
+  ; #[local] ws_deques_private_G_owner_G :: TwinsG Σ (leibnizO status)
+  ; #[local] ws_deques_private_G_channel_pred_G :: GhostPredG Σ (option val)
+  ; #[local] ws_deques_private_G_channel_generation_G :: GhostVarG Σ (leibnizO gname)
+  ; #[local] ws_deques_private_G_channel_state_G :: OneshotG Σ () (option val)
+  }.
 
 Definition ws_deques_private_Σ := #[
   ghost_list_Σ (list val) ;
@@ -113,18 +113,18 @@ Section ws_deques_private_G.
 
   Implicit Types Ψ : option val → iProp Σ.
 
-  Record metadata := {
-    metadata_queues_array : val ;
-    metadata_queues : list val ;
-    metadata_statuses_array : val ;
-    metadata_requests_array : val ;
-    metadata_responses_array : val ;
-    metadata_inv : namespace ;
-    metadata_size : nat ;
-    metadata_models : gname ;
-    metadata_owners : list gname ;
-    metadata_channels : list (gname * gname) ;
-  }.
+  Record metadata :=
+    { metadata_queues_array : val
+    ; metadata_queues : list val
+    ; metadata_statuses_array : val
+    ; metadata_requests_array : val
+    ; metadata_responses_array : val
+    ; metadata_inv : namespace
+    ; metadata_size : nat
+    ; metadata_models : gname
+    ; metadata_owners : list gname
+    ; metadata_channels : list (gname * gname)
+    }.
   Implicit Types γ : metadata.
   Implicit Types γ_owners : list gname.
   Implicit Types γ_channels : list (gname * gname).

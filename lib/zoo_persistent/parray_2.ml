@@ -9,9 +9,9 @@ and 'a node =
   'a descr ref
 
 type 'a t =
-  { equal: 'a -> 'a -> bool;
-    data: 'a array;
-    mutable root: 'a node;
+  { equal: 'a -> 'a -> bool
+  ; data: 'a array
+  ; mutable root: 'a node
   }
 
 type 'a snapshot =

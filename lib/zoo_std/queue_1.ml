@@ -1,6 +1,6 @@
 type 'a t =
-  { mutable front: 'a Chain.t;
-    mutable back: 'a Chain.t;
+  { mutable front: 'a Chain.t
+  ; mutable back: 'a Chain.t
   }
 
 let create () =

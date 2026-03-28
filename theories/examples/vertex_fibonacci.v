@@ -20,11 +20,11 @@ From zoo Require Import
 Implicit Types r : location.
 Implicit Types ctx vtx : val.
 
-Class VertexFibonacciG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] vertex_fibonacci_G_pool_G :: PoolG Σ ;
-  #[local] vertex_fibonacci_G_vertex_G :: VertexG Σ ;
-  #[local] vertex_fibonacci_G_mpsc_flag_G :: MpscFlagG Σ ;
-}.
+Class VertexFibonacciG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] vertex_fibonacci_G_pool_G :: PoolG Σ
+  ; #[local] vertex_fibonacci_G_vertex_G :: VertexG Σ
+  ; #[local] vertex_fibonacci_G_mpsc_flag_G :: MpscFlagG Σ
+  }.
 
 Definition vertex_fibonacci_Σ := #[
   pool_Σ ;

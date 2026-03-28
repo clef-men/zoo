@@ -12,9 +12,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthGmultisetG Σ A `{Countable A} := {
-  #[local] auth_gmultiset_G_inG :: inG Σ (authR (gmultisetUR A)) ;
-}.
+Class AuthGmultisetG Σ A `{Countable A} :=
+  { #[local] auth_gmultiset_G_inG :: inG Σ (authR (gmultisetUR A))
+  }.
 
 Definition auth_gmultiset_Σ A `{Countable A} := #[
   GFunctor (authR (gmultisetUR  A))

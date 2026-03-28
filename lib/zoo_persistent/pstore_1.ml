@@ -15,8 +15,8 @@ type t =
   node Stdlib.ref
 
 type snapshot =
-  { snapshot_store: t;
-    snapshot_root: node;
+  { snapshot_store: t
+  ; snapshot_root: node
   }
 
 let create () =
@@ -35,8 +35,8 @@ let set t r v =
   t := root
 
 let capture t =
-  { snapshot_store= t;
-    snapshot_root= !t;
+  { snapshot_store= t
+  ; snapshot_root= !t
   }
 
 let rec collect node acc =

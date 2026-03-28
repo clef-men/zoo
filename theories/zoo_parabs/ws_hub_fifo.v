@@ -34,12 +34,12 @@ Implicit Types status : status.
 Implicit Types empty : emptiness.
 Implicit Types emptys : list emptiness.
 
-Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_hub_fifo_G_queue_G :: MpmcQueue1G Σ ;
-  #[local] ws_hub_fifo_G_waiters_G :: WaitersG Σ ;
-  #[local] ws_hub_fifo_G_owner_G :: ExclG Σ unitO ;
-  #[local] ws_hub_fifo_G_emptiness_G :: GhostListG Σ emptiness ;
-}.
+Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ws_hub_fifo_G_queue_G :: MpmcQueue1G Σ
+  ; #[local] ws_hub_fifo_G_waiters_G :: WaitersG Σ
+  ; #[local] ws_hub_fifo_G_owner_G :: ExclG Σ unitO
+  ; #[local] ws_hub_fifo_G_emptiness_G :: GhostListG Σ emptiness
+  }.
 
 Definition ws_hub_fifo_Σ := #[
   mpmc_queue_1_Σ ;
@@ -87,13 +87,13 @@ Section ws_hub_fifo_G.
 
   Implicit Types P Q : iProp Σ.
 
-  Record metadata := {
-    metadata_size : nat ;
-    metadata_queue : val ;
-    metadata_waiters : val ;
-    metadata_owners : list gname ;
-    metadata_emptiness : gname ;
-  }.
+  Record metadata :=
+    { metadata_size : nat
+    ; metadata_queue : val
+    ; metadata_waiters : val
+    ; metadata_owners : list gname
+    ; metadata_emptiness : gname
+    }.
   Implicit Types γ : metadata.
   Implicit Types γ_owners : list gname.
 

@@ -7,8 +7,8 @@ type 'a lst =
   | Cons of int * 'a * 'a lst [@generative]
 
 type 'a t =
-  { capacity: int;
-    mutable front: 'a lst [@atomic];
+  { capacity: int
+  ; mutable front: 'a lst [@atomic]
   }
 
 let create cap =

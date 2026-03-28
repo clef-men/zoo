@@ -15,18 +15,18 @@ Implicit Types l : location.
 Implicit Types v w : val.
 Implicit Types vs : list val.
 
-Record header := Header {
-  header_tag : nat ;
-  header_size : nat ;
-}.
+Record header := Header
+  { header_tag : nat
+  ; header_size : nat
+  }.
 Add Printing Constructor header.
 
-Record state := {
-  state_headers : gmap location header ;
-  state_heap : gmap location val ;
-  state_locals : list val ;
-  state_prophets : gset prophet_id ;
-}.
+Record state :=
+  { state_headers : gmap location header
+  ; state_heap : gmap location val
+  ; state_locals : list val
+  ; state_prophets : gset prophet_id
+  }.
 Implicit Types σ : state.
 
 Canonical state_O {SI : sidx} :=
@@ -34,35 +34,35 @@ Canonical state_O {SI : sidx} :=
 
 #[global] Instance state_inhabited : Inhabited state :=
   populate
-    {|state_headers := inhabitant ;
-      state_heap := inhabitant ;
-      state_locals := inhabitant ;
-      state_prophets := inhabitant ;
+    {|state_headers := inhabitant
+    ; state_heap := inhabitant
+    ; state_locals := inhabitant
+    ; state_prophets := inhabitant
     |}.
 
 Definition state_update_heap f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := f σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
+  {|state_headers := σ.(state_headers)
+  ; state_heap := f σ.(state_heap)
+  ; state_locals := σ.(state_locals)
+  ; state_prophets := σ.(state_prophets)
   |}.
 Definition state_update_headers f σ :=
-  {|state_headers := f σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
+  {|state_headers := f σ.(state_headers)
+  ; state_heap := σ.(state_heap)
+  ; state_locals := σ.(state_locals)
+  ; state_prophets := σ.(state_prophets)
   |}.
 Definition state_update_locals f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := f σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
+  {|state_headers := σ.(state_headers)
+  ; state_heap := σ.(state_heap)
+  ; state_locals := f σ.(state_locals)
+  ; state_prophets := σ.(state_prophets)
   |}.
 Definition state_update_prophets f σ :=
-  {|state_headers := σ.(state_headers) ;
-    state_heap := σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := f σ.(state_prophets) ;
+  {|state_headers := σ.(state_headers)
+  ; state_heap := σ.(state_heap)
+  ; state_locals := σ.(state_locals)
+  ; state_prophets := f σ.(state_prophets)
   |}.
 
 Definition state_set_location l v :=
@@ -126,8 +126,8 @@ Proof.
 Qed.
 
 Definition state_alloc l hdr vs σ :=
-  {|state_headers := <[l := hdr]> σ.(state_headers) ;
-    state_heap := heap_array l vs ∪ σ.(state_heap) ;
-    state_locals := σ.(state_locals) ;
-    state_prophets := σ.(state_prophets) ;
+  {|state_headers := <[l := hdr]> σ.(state_headers)
+  ; state_heap := heap_array l vs ∪ σ.(state_heap)
+  ; state_locals := σ.(state_locals)
+  ; state_prophets := σ.(state_prophets)
   |}.

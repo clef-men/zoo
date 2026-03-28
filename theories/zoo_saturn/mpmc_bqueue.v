@@ -58,13 +58,13 @@ Next Obligation.
   naive_solver.
 Qed.
 
-Class MpmcBqueueG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpmc_bqueue_G_history_G :: MonoListG Σ location ;
-  #[local] mpmc_bqueue_G_front_G :: AuthNatMaxG Σ ;
-  #[local] mpmc_bqueue_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] mpmc_bqueue_G_waiters_G :: ghost_mapG Σ gname nat ;
-  #[local] mpmc_bqueue_G_saved_pred_G :: SavedPredG Σ bool ;
-}.
+Class MpmcBqueueG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpmc_bqueue_G_history_G :: MonoListG Σ location
+  ; #[local] mpmc_bqueue_G_front_G :: AuthNatMaxG Σ
+  ; #[local] mpmc_bqueue_G_model_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] mpmc_bqueue_G_waiters_G :: ghost_mapG Σ gname nat
+  ; #[local] mpmc_bqueue_G_saved_pred_G :: SavedPredG Σ bool;
+  }.
 
 Definition mpmc_bqueue_Σ := #[
   mono_list_Σ location ;
@@ -86,14 +86,14 @@ Module base.
 
     Implicit Types t : location.
 
-    Record mpmc_bqueue_name := {
-      mpmc_bqueue_name_inv : namespace ;
-      mpmc_bqueue_name_capacity : nat ;
-      mpmc_bqueue_name_history : gname ;
-      mpmc_bqueue_name_front : gname ;
-      mpmc_bqueue_name_model : gname ;
-      mpmc_bqueue_name_waiters : gname ;
-    }.
+    Record mpmc_bqueue_name :=
+      { mpmc_bqueue_name_inv : namespace
+      ; mpmc_bqueue_name_capacity : nat
+      ; mpmc_bqueue_name_history : gname
+      ; mpmc_bqueue_name_front : gname
+      ; mpmc_bqueue_name_model : gname
+      ; mpmc_bqueue_name_waiters : gname
+      }.
     Implicit Types γ : mpmc_bqueue_name.
 
     #[global] Instance mpmc_bqueue_name_eq_dec : EqDecision mpmc_bqueue_name :=

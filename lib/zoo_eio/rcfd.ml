@@ -7,8 +7,8 @@ type state =
   | Closing of (unit -> unit) [@generative]
 
 type t =
-  { mutable ops: int [@atomic];
-    mutable state: state [@atomic];
+  { mutable ops: int [@atomic]
+  ; mutable state: state [@atomic]
   }
 
 let make fd =

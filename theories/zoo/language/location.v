@@ -13,9 +13,9 @@ From zoo Require Import
 
 #[local] Open Scope Z_scope.
 
-Record location := Loc {
-  location_car : Z ;
-}.
+Record location := Loc
+  { location_car : Z
+  }.
 Add Printing Constructor location.
 
 Canonical location_O {SI : sidx} :=

@@ -27,11 +27,11 @@ Implicit Types v waiter : val.
 Implicit Types waiters : list val.
 Implicit Types own : ownership.
 
-Class Ivar3G Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} := {
-  #[local] ivar_3_G_lstate_G :: OneshotG Σ unit val ;
-  #[local] ivar_3_G_consumer_G :: SubpredsG Σ val ;
-  #[local] ivar_3_G_waiters_G :: MonoGmultisetG Σ (val * waiter_name) ;
-}.
+Class Ivar3G Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} :=
+  { #[local] ivar_3_G_lstate_G :: OneshotG Σ unit val
+  ; #[local] ivar_3_G_consumer_G :: SubpredsG Σ val
+  ; #[local] ivar_3_G_waiters_G :: MonoGmultisetG Σ (val * waiter_name)
+  }.
 
 Definition ivar_3_Σ waiter_name `{Countable waiter_name} := #[
   oneshot_Σ unit val ;
@@ -85,11 +85,11 @@ Module base.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
     Implicit Types Ω : val → val → waiter_name → iProp Σ.
 
-    Record ivar_3_name := {
-      ivar_3_name_lstate : gname ;
-      ivar_3_name_consumer : gname ;
-      ivar_3_name_waiters : gname ;
-    }.
+    Record ivar_3_name :=
+      { ivar_3_name_lstate : gname
+      ; ivar_3_name_consumer : gname
+      ; ivar_3_name_waiters : gname
+      }.
     Implicit Types γ : ivar_3_name.
 
     #[global] Instance ivar_3_name_eq_dec : EqDecision ivar_3_name :=

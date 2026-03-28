@@ -12,9 +12,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthDgsetG Σ A `{Countable A} := {
-  #[local] auth_dgset_G_inG :: inG Σ (authR (gset_disjUR A)) ;
-}.
+Class AuthDgsetG Σ A `{Countable A} :=
+  { #[local] auth_dgset_G_inG :: inG Σ (authR (gset_disjUR A))
+  }.
 
 Definition auth_dgset_Σ A `{Countable A} := #[
   GFunctor (authR (gset_disjUR A))

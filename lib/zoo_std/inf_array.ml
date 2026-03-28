@@ -1,7 +1,7 @@
 type 'a t =
-  { mutable data: 'a array;
-    default: 'a;
-    mutex: Mutex.t;
+  { mutable data: 'a array
+  ; default: 'a
+  ; mutex: Mutex.t
   }
 
 let create default =

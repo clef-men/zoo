@@ -9,11 +9,11 @@ type ('k, 'v) bucket =
   | Cons of 'k * 'v * ('k, 'v) bucket
 
 type ('k, 'v) t =
-  { hash: 'k -> int;
-    equal: 'k -> 'k -> bool;
-    mutable buckets: ('k, 'v) bucket array;
-    mutable mask: int;
-    mutable size: int;
+  { hash: 'k -> int
+  ; equal: 'k -> 'k -> bool
+  ; mutable buckets: ('k, 'v) bucket array
+  ; mutable mask: int
+  ; mutable size: int
   }
 
 let[@zoo.opaque] min_buckets =

@@ -23,9 +23,9 @@ Implicit Types vs ws queues : list val.
 Implicit Types vss : list (list val).
 Implicit Types status : status.
 
-Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_deques_public_G_ws_deque_G :: WsDeque2G Σ ;
-}.
+Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ws_deques_public_G_ws_deque_G :: WsDeque2G Σ
+  }.
 
 Definition ws_deques_public_Σ := #[
   ws_deque_2_Σ

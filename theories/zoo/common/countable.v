@@ -42,16 +42,16 @@ Module solve_countable.
     Control.throw_invalid_argument err.
 
   Ltac2 Type info :=
-    { info_type : constr ;
-      info_inductive : inductive ;
-      info_data : Ind.data ;
-      info_instance : instance ;
-      info_indices : constr array ;
-      info_number_constructor : int ;
-      info_constructors : constructor array ;
-      info_fieldss : constr array array ;
-      info_sum_inductive : inductive ;
-      info_prod_inductive : inductive ;
+    { info_type : constr
+    ; info_inductive : inductive
+    ; info_data : Ind.data
+    ; info_instance : instance
+    ; info_indices : constr array
+    ; info_number_constructor : int
+    ; info_constructors : constructor array
+    ; info_fieldss : constr array array
+    ; info_sum_inductive : inductive
+    ; info_prod_inductive : inductive
     }.
 
   Ltac2 info_constructor info i :=
@@ -112,16 +112,16 @@ Module solve_countable.
             error Internal_error
         end
       in
-      { info_type := ty ;
-        info_inductive := ind ;
-        info_data := data ;
-        info_instance := inst ;
-        info_indices := indices ;
-        info_number_constructor := num_ctor ;
-        info_constructors := ctors ;
-        info_fieldss := fldss ;
-        info_sum_inductive := sum_ind ;
-        info_prod_inductive := prod_ind ;
+      { info_type := ty
+      ; info_inductive := ind
+      ; info_data := data
+      ; info_instance := inst
+      ; info_indices := indices
+      ; info_number_constructor := num_ctor
+      ; info_constructors := ctors
+      ; info_fieldss := fldss
+      ; info_sum_inductive := sum_ind
+      ; info_prod_inductive := prod_ind
       }.
 
   Ltac2 encode_branch info i :=
@@ -272,9 +272,9 @@ Ltac solve_countable :=
   ltac2:(solve_countable.main ()).
 
 Module tests.
-  Record test_1 := {
-    test_1_1 : nat ;
-  }.
+  Record test_1 :=
+    { test_1_1 : nat
+    }.
   #[local] Instance test_1_eq_dec : EqDecision test_1 :=
     ltac:(solve_decision).
   #[local] Instance test_1_countable :
@@ -283,11 +283,11 @@ Module tests.
     solve_countable.
   Qed.
 
-  Record test_2 A1 A2 A3 := {
-    test_2_1 : A1 ;
-    test_2_2 : A2 ;
-    test_2_3 : A3 ;
-  }.
+  Record test_2 A1 A2 A3 :=
+    { test_2_1 : A1
+    ; test_2_2 : A2
+    ; test_2_3 : A3
+    }.
   #[local] Instance test_2_eq_dec `{!EqDecision A1, !EqDecision A2, !EqDecision A3} : EqDecision (test_2 A1 A2 A3) :=
     ltac:(solve_decision).
   #[local] Instance test_2_countable `{Countable A1, Countable A2, Countable A3} :

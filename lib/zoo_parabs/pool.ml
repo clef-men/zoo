@@ -1,17 +1,17 @@
 type context =
-  { context_size: int;
-    context_hub: job Ws_hub_std.t;
-    context_id: int;
+  { context_size: int
+  ; context_hub: job Ws_hub_std.t
+  ; context_id: int
   }
 
 and job =
   context -> unit
 
 type t =
-  { size: int;
-    hub: job Ws_hub_std.t;
-    domains: unit Domain.t array;
-    mutable force_mutable: unit; (* for verification *)
+  { size: int
+  ; hub: job Ws_hub_std.t
+  ; domains: unit Domain.t array
+  ; mutable force_mutable: unit (* for verification *)
   }
 
 type 'a task =
@@ -23,9 +23,9 @@ let max_round_yield =
   32
 
 let context sz hub id =
-  { context_size= sz;
-    context_hub= hub;
-    context_id= id;
+  { context_size= sz
+  ; context_hub= hub
+  ; context_id= id
   }
 let context_main t =
   context t.size t.hub 0
@@ -57,11 +57,11 @@ let create sz =
       Domain.spawn (fun () -> worker @@ context sz hub (i + 1))
     )
   in
-  { size= sz;
-    hub;
-    domains;
-    force_mutable= ();
-   }
+  { size= sz
+  ; hub
+  ; domains
+  ; force_mutable= ()
+  }
 
 let run t task =
   Ws_hub_std.unblock t.hub 0 ;

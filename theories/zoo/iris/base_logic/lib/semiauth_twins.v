@@ -12,10 +12,10 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class SemiauthTwinsG Σ (A : ofe) (R : relation A) F := {
-  #[local] semiauth_twins_G_left_twins_G :: AuthTwinsG Σ A R ;
-  #[local] semiauth_twins_G_right_twins_G :: TwinsG Σ F ;
-}.
+Class SemiauthTwinsG Σ (A : ofe) (R : relation A) F :=
+  { #[local] semiauth_twins_G_left_twins_G :: AuthTwinsG Σ A R
+  ; #[local] semiauth_twins_G_right_twins_G :: TwinsG Σ F
+  }.
 
 Definition semiauth_twins_Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} := #[
   auth_twins_Σ A R ;
@@ -39,10 +39,10 @@ Section semiauth_twins_G.
   Implicit Types a b : A.
   Implicit Types 𝑎 𝑏 : oFunctor_apply F $ iProp Σ.
 
-  Record semiauth_twins_name := {
-    semiauth_twins_name_left_twins : auth_twins_name ;
-    semiauth_twins_name_right_twins : gname ;
-  }.
+  Record semiauth_twins_name :=
+    { semiauth_twins_name_left_twins : auth_twins_name
+    ; semiauth_twins_name_right_twins : gname
+    }.
   Implicit Types γ : semiauth_twins_name.
 
   #[global] Instance semiauth_twins_name_eq_dec : EqDecision semiauth_twins_name :=

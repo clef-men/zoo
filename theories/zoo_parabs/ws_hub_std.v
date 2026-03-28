@@ -36,10 +36,10 @@ Implicit Types vss : list $ list val.
 Implicit Types status : status.
 Implicit Types empty : emptiness.
 
-Class WsHubStdG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ws_hub_std_G_queues_G :: WsDequesPublicG Σ ;
-  #[local] ws_hub_std_G_waiters_G :: WaitersG Σ ;
-}.
+Class WsHubStdG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ws_hub_std_G_queues_G :: WsDequesPublicG Σ
+  ; #[local] ws_hub_std_G_waiters_G :: WaitersG Σ
+  }.
 
 Definition ws_hub_std_Σ := #[
   ws_deques_public_Σ ;
@@ -135,12 +135,12 @@ Section ws_hub_std_G.
 
   Implicit Types P Q : iProp Σ.
 
-  Record metadata := {
-    metadata_size : nat ;
-    metadata_queues : val ;
-    metadata_rounds : val ;
-    metadata_waiters : val ;
-  }.
+  Record metadata :=
+    { metadata_size : nat
+    ; metadata_queues : val
+    ; metadata_rounds : val
+    ; metadata_waiters : val
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec :

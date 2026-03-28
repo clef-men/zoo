@@ -12,9 +12,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthFracG Σ A := {
-  #[local] auth_frac_G_inG :: inG Σ (frac_authUR A) ;
-}.
+Class AuthFracG Σ A :=
+  { #[local] auth_frac_G_inG :: inG Σ (frac_authUR A)
+  }.
 
 Definition auth_frac_Σ A := #[
   GFunctor (frac_authUR A)

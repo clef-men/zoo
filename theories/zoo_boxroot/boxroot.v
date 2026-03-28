@@ -71,9 +71,9 @@ Definition boxroot_set : val :=
   fun: "t" "v" =>
     "t" <-{xdeque_data} "v".
 
-Class BoxrootG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] boxroot_G_roots_G :: ghost_mapG Σ location gc_location ;
-}.
+Class BoxrootG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] boxroot_G_roots_G :: ghost_mapG Σ location gc_location
+  }.
 
 Definition boxroot_Σ := #[
   ghost_mapΣ location gc_location

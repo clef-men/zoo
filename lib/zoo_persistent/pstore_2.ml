@@ -6,8 +6,8 @@ type gen =
   int
 
 type 'a ref =
-  { mutable ref_gen: gen;
-    mutable ref_value: 'a;
+  { mutable ref_gen: gen
+  ; mutable ref_value: 'a
   }
 
 type descr =
@@ -17,14 +17,14 @@ and node =
   descr Stdlib.ref
 
 type t =
-  { mutable gen: gen;
-    mutable root: node;
+  { mutable gen: gen
+  ; mutable root: node
   }
 
 type snapshot =
-  { snapshot_store: t;
-    snapshot_gen: gen;
-    snapshot_root: node;
+  { snapshot_store: t
+  ; snapshot_gen: gen
+  ; snapshot_root: node
   }
 
 let create () =
@@ -52,9 +52,9 @@ let set t r v =
 let capture t =
   let g = t.gen in
   t.gen <- g + 1 ;
-  { snapshot_store= t;
-    snapshot_gen= g;
-    snapshot_root= t.root;
+  { snapshot_store= t
+  ; snapshot_gen= g
+  ; snapshot_root= t.root
   }
 
 let rec collect node path =

@@ -6,9 +6,9 @@ type task =
   bool Pool.task
 
 type t =
-  { mutable task: task;
-    mutable preds: int [@atomic];
-    succs: t Mpmc_stack_2.t;
+  { mutable task: task
+  ; mutable preds: int [@atomic]
+  ; succs: t Mpmc_stack_2.t
   }
 
 let create task =
@@ -19,9 +19,9 @@ let create task =
     | None ->
         fun _ -> true
   in
-  { task;
-    preds= 1;
-    succs= Mpmc_stack_2.create ();
+  { task
+  ; preds= 1
+  ; succs= Mpmc_stack_2.create ()
   }
 let create' task =
   create (Some (fun ctx -> task ctx ; true))

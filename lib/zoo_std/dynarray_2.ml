@@ -7,8 +7,8 @@ type 'a slot =
   | Element of { mutable value: 'a }
 
 type 'a t =
-  { mutable size: int;
-    mutable data: 'a slot array;
+  { mutable size: int
+  ; mutable data: 'a slot array
   }
 
 let element v =

@@ -3,8 +3,8 @@
 *)
 
 type 'a t =
-  { mutable front: 'a Clst.t;
-    mutable back: 'a Clst.t [@atomic];
+  { mutable front: 'a Clst.t
+  ; mutable back: 'a Clst.t [@atomic]
   }
 
 let create () =

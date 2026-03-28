@@ -21,11 +21,11 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types v fn mtx : val.
 
-Class LazyG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] lazy_G_mutex_G :: MutexG Σ ;
-  #[local] lazy_G_lstate_G :: OneshotG Σ unit val ;
-  #[local] lazy_G_consumer_G :: SubpredsG Σ val ;
-}.
+Class LazyG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] lazy_G_mutex_G :: MutexG Σ
+  ; #[local] lazy_G_lstate_G :: OneshotG Σ unit val
+  ; #[local] lazy_G_consumer_G :: SubpredsG Σ val
+  }.
 
 Definition lazy_Σ := #[
   mutex_Σ ;
@@ -46,11 +46,11 @@ Module base.
     Implicit Types t : location.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-    Record lazy_name := {
-      metadata_thunk : val ;
-      metadata_lstate : gname ;
-      metadata_consumer : gname ;
-    }.
+    Record lazy_name :=
+      { lazy_name_thunk : val
+      ; lazy_name_lstate : gname
+      ; lazy_name_consumer : gname
+      }.
     Implicit Types γ : lazy_name.
 
     #[global] Instance lazy_name_eq_dec : EqDecision lazy_name :=
@@ -87,7 +87,7 @@ Module base.
     #[local] Definition state_to_val γ state :=
       match state with
       | Unset =>
-          ‘Unset( γ.(metadata_thunk) )
+          ‘Unset( γ.(lazy_name_thunk) )
       | Setting mtx =>
           ‘Setting( mtx )
       | Set_ v =>
@@ -97,24 +97,24 @@ Module base.
     #[local] Definition lstate_unset₁' γ_lstate :=
       oneshot_pending γ_lstate (DfracOwn (1/3)) ().
     #[local] Definition lstate_unset₁ γ :=
-      lstate_unset₁' γ.(metadata_lstate).
+      lstate_unset₁' γ.(lazy_name_lstate).
     #[local] Definition lstate_unset₂' γ_lstate :=
       oneshot_pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate_unset₂ γ :=
-      lstate_unset₂' γ.(metadata_lstate).
+      lstate_unset₂' γ.(lazy_name_lstate).
     #[local] Definition lstate_set' γ_lstate :=
       oneshot_shot γ_lstate.
     #[local] Definition lstate_set γ :=
-      lstate_set' γ.(metadata_lstate).
+      lstate_set' γ.(lazy_name_lstate).
 
     #[local] Definition consumer_auth' :=
       subpreds_auth.
     #[local] Definition consumer_auth γ :=
-      consumer_auth' γ.(metadata_consumer).
+      consumer_auth' γ.(lazy_name_consumer).
     #[local] Definition consumer_frag' :=
       subpreds_frag.
     #[local] Definition consumer_frag γ :=
-      consumer_frag' γ.(metadata_consumer).
+      consumer_frag' γ.(lazy_name_consumer).
 
     Definition lazy_result :=
       lstate_set.
@@ -128,7 +128,7 @@ Module base.
     #[local] Definition inv_state_unset γ Ψ Ξ : iProp Σ :=
       lstate_unset₁ γ ∗
       lstate_unset₂ γ ∗
-      WP γ.(metadata_thunk) () {{ v,
+      WP γ.(lazy_name_thunk) () {{ v,
         ▷ Ψ v ∗
         ▷ □ Ξ v
       }}.
@@ -437,9 +437,9 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ := {|
-        metadata_thunk := fn ;
-        metadata_lstate := γ_lstate ;
-        metadata_consumer := γ_consumer ;
+        lazy_name_thunk := fn ;
+        lazy_name_lstate := γ_lstate ;
+        lazy_name_consumer := γ_consumer ;
       |}.
 
       iApply ("HΦ" $! t γ).
@@ -470,9 +470,9 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ := {|
-        metadata_thunk := () ;
-        metadata_lstate := γ_lstate ;
-        metadata_consumer := γ_consumer ;
+        lazy_name_thunk := () ;
+        lazy_name_lstate := γ_lstate ;
+        lazy_name_consumer := γ_consumer ;
       |}.
 
       iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".

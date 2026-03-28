@@ -51,17 +51,17 @@ Implicit Types status : status.
 #[local] Instance status_eq_dec : EqDecision status :=
   ltac:(solve_decision).
 
-Record state := {
-  state_backs : gmap location nat ;
-  state_index : nat ;
-  state_status : status ;
-}.
+Record state :=
+  { state_backs : gmap location nat
+  ; state_index : nat
+  ; state_status : status
+  }.
 Implicit Types state : state.
 
 #[local] Definition state_with_status state status :=
-  {|state_backs := state.(state_backs) ;
-    state_index := state.(state_index) ;
-    state_status := status ;
+  {|state_backs := state.(state_backs)
+  ; state_index := state.(state_index)
+  ; state_status := status
   |}.
 
 Definition state_wf backs i :=
@@ -105,9 +105,9 @@ Inductive step : relation state :=
       state1.(state_status) = Unstable back move →
       state1.(state_backs) !! back = None →
       state2 =
-        {|state_backs := <[back := state1.(state_index) + length move]> state1.(state_backs) ;
-          state_index := state1.(state_index) + length move ;
-          state_status := Stable Nonempty ;
+        {|state_backs := <[back := state1.(state_index) + length move]> state1.(state_backs)
+        ; state_index := state1.(state_index) + length move
+        ; state_status := Stable Nonempty
         |} →
       step state1 state2.
 #[local] Hint Constructors step : core.
@@ -134,11 +134,11 @@ Proof.
   apply step_mono.
 Qed.
 
-Class MpmcQueue2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] mpmc_queue_2_G_state_G :: AuthMonoG (A := leibnizO state) Σ step ;
-  #[local] mpmc_queue_2_G_front_G :: AuthNatMaxG Σ ;
-}.
+Class MpmcQueue2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpmc_queue_2_G_model_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] mpmc_queue_2_G_state_G :: AuthMonoG (A := leibnizO state) Σ step
+  ; #[local] mpmc_queue_2_G_front_G :: AuthNatMaxG Σ
+  }.
 
 Definition mpmc_queue_2_Σ := #[
   twins_Σ (leibnizO (list val)) ;
@@ -224,12 +224,12 @@ Qed.
 Section mpmc_queue_2_G.
   Context `{mpmc_queue_2_G : MpmcQueue2G Σ}.
 
-  Record metadata := {
-    metadata_inv : namespace ;
-    metadata_model : gname ;
-    metadata_state : gname ;
-    metadata_front : gname ;
-  }.
+  Record metadata :=
+    { metadata_inv : namespace
+    ; metadata_model : gname
+    ; metadata_state : gname
+    ; metadata_front : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
@@ -251,9 +251,9 @@ Section mpmc_queue_2_G.
 
   #[local] Definition state_auth' γ_state backs i status : iProp Σ :=
     auth_mono_auth _ γ_state (DfracOwn 1)
-      {|state_backs := backs ;
-        state_index := i ;
-        state_status := status ;
+      {|state_backs := backs
+      ; state_index := i
+      ; state_status := status
       |} ∗
     ⌜state_wf backs i⌝.
   #[local] Instance : CustomIpat "state_auth" :=
@@ -265,9 +265,9 @@ Section mpmc_queue_2_G.
     state_auth' γ.(metadata_state) backs i status.
   #[local] Definition state_lb γ backs i status :=
     auth_mono_lb _ γ.(metadata_state)
-      {|state_backs := backs ;
-        state_index := i ;
-        state_status := status ;
+      {|state_backs := backs
+      ; state_index := i
+      ; state_status := status
       |}.
   #[local] Definition state_seen γ back i_prev back_prev move : iProp Σ :=
     ∃ backs,

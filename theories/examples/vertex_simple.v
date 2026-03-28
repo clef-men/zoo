@@ -18,11 +18,11 @@ From zoo Require Import
 
 Implicit Types a b c d : val.
 
-Class VertexSimpleG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] vertex_simple_G_pool_G :: PoolG Σ ;
-  #[local] vertex_simple_G_vertex_G :: VertexG Σ ;
-  #[local] vertex_simple_G_mpsc_flag_G :: MpscFlagG Σ ;
-}.
+Class VertexSimpleG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] vertex_simple_G_pool_G :: PoolG Σ
+  ; #[local] vertex_simple_G_vertex_G :: VertexG Σ
+  ; #[local] vertex_simple_G_mpsc_flag_G :: MpscFlagG Σ
+  }.
 
 Definition vertex_simple_Σ := #[
   pool_Σ ;

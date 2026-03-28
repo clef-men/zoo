@@ -3,17 +3,17 @@
 *)
 
 type 'a t =
-  { queues: 'a Ws_deques_public.t;
-    rounds: Random_round.t array;
-    waiters: Waiters.t;
-    mutable killed: bool;
+  { queues: 'a Ws_deques_public.t
+  ; rounds: Random_round.t array
+  ; waiters: Waiters.t
+  ; mutable killed: bool
   }
 
 let create sz =
-  { queues= Ws_deques_public.create sz;
-    rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1);
-    waiters= Waiters.create ();
-    killed= false;
+  { queues= Ws_deques_public.create sz
+  ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
+  ; waiters= Waiters.create ()
+  ; killed= false
   }
 
 let size t =

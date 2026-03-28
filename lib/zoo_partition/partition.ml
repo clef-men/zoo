@@ -3,28 +3,28 @@
 *)
 
 type 'a elt =
-  { mutable prev: 'a elt;
-    mutable next: 'a elt;
-    data: 'a;
-    mutable class_: 'a class_;
-    mutable seen: bool;
+  { mutable prev: 'a elt
+  ; mutable next: 'a elt
+  ; data: 'a
+  ; mutable class_: 'a class_
+  ; mutable seen: bool
   }
 
 and 'a class_ =
-  { mutable first: 'a elt;
-    mutable last: 'a elt;
-    mutable len: int;
-    mutable split: 'a elt;
-    mutable split_len: int;
+  { mutable first: 'a elt
+  ; mutable last: 'a elt
+  ; mutable len: int
+  ; mutable split: 'a elt
+  ; mutable split_len: int
   }
 
 let dllist_create v class_ =
   let elt =
-    { prev= Obj.magic ();
-      next= Obj.magic ();
-      data= v;
-      class_;
-      seen= false;
+    { prev= Obj.magic ()
+    ; next= Obj.magic ()
+    ; data= v
+    ; class_
+    ; seen= false
     }
   in
   elt.prev <- elt ;
@@ -90,11 +90,11 @@ let class_iter fn class_ =
 let make v =
   let elt = dllist_create v (Obj.magic ()) in
   let class_ =
-    { first= elt;
-      last= elt;
-      len= 1;
-      split= elt;
-      split_len= 0;
+    { first= elt
+    ; last= elt
+    ; len= 1
+    ; split= elt
+    ; split_len= 0
     }
   in
   elt.class_ <- class_ ;
@@ -158,11 +158,11 @@ let split class_ =
     class_.len <- class_.len - split_len ;
     let prev = split.prev in
     let class' =
-      { first;
-        last= prev;
-        len= split_len;
-        split= first;
-        split_len= 0;
+      { first
+      ; last= prev
+      ; len= split_len
+      ; split= first
+      ; split_len= 0
       }
     in
     dllist_iter (fun elt ->

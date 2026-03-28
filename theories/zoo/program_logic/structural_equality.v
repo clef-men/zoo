@@ -75,31 +75,31 @@ Notation "e1 ≠ e2" := (
   no associativity
 ) : expr_scope.
 
-Record structeq_field := StructeqField {
-  structeq_field_dfrac : dfrac ;
-  structeq_field_val : val ;
-}.
+Record structeq_field := StructeqField
+  { structeq_field_dfrac : dfrac
+  ; structeq_field_val : val
+  }.
 Add Printing Constructor structeq_field.
 Implicit Types fld : structeq_field.
 
 #[global] Instance structeq_field_inhabited : Inhabited structeq_field :=
   populate
-    {|structeq_field_dfrac := inhabitant ;
-      structeq_field_val := inhabitant ;
+    {|structeq_field_dfrac := inhabitant
+    ; structeq_field_val := inhabitant
     |}.
 
-Record structeq_block := StructeqBlock {
-  structeq_block_tag : nat ;
-  structeq_block_fields : list structeq_field ;
-}.
+Record structeq_block := StructeqBlock
+  { structeq_block_tag : nat
+  ; structeq_block_fields : list structeq_field
+  }.
 Add Printing Constructor structeq_block.
 Implicit Types blk : structeq_block.
 Implicit Types footprint : gmap location structeq_block.
 
 #[global] Instance structeq_block_inhabited : Inhabited structeq_block :=
   populate
-    {|structeq_block_tag := inhabitant ;
-      structeq_block_fields := inhabitant ;
+    {|structeq_block_tag := inhabitant
+    ; structeq_block_fields := inhabitant
     |}.
 
 Fixpoint val_traversable footprint v :=

@@ -56,15 +56,15 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-Class InfWsDeque1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_ws_deque_1_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_ws_deque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier ;
-  #[local] inf_ws_deque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
-  #[local] inf_ws_deque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat * (nat → val))) ;
-  #[local] inf_ws_deque_1_G_front_G :: AuthNatMaxG Σ ;
-  #[local] inf_ws_deque_1_G_history_G :: MonoListG Σ val ;
-  #[local] inf_ws_deque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙) ;
-}.
+Class InfWsDeque1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] inf_ws_deque_1_G_inf_array_G :: InfArrayG Σ
+  ; #[local] inf_ws_deque_1_G_prophet_G :: ProphetMultiG Σ prophet_identifier
+  ; #[local] inf_ws_deque_1_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] inf_ws_deque_1_G_owner_G :: TwinsG Σ (leibnizO (stability * nat * (nat → val)))
+  ; #[local] inf_ws_deque_1_G_front_G :: AuthNatMaxG Σ
+  ; #[local] inf_ws_deque_1_G_history_G :: MonoListG Σ val
+  ; #[local] inf_ws_deque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙)
+  }.
 
 Definition inf_ws_deque_1_Σ := #[
   inf_array_Σ ;
@@ -89,17 +89,17 @@ Module base.
     Implicit Types t : location.
     Implicit Types P : iProp Σ.
 
-    Record inf_ws_deque_1_name := {
-      inf_ws_deque_1_name_data : val ;
-      inf_ws_deque_1_name_inv : namespace ;
-      inf_ws_deque_1_name_prophet : prophet_id ;
-      inf_ws_deque_1_name_prophet_name : prophet_multi_name ;
-      inf_ws_deque_1_name_model : auth_twins_name ;
-      inf_ws_deque_1_name_owner : gname ;
-      inf_ws_deque_1_name_front : gname ;
-      inf_ws_deque_1_name_history : gname ;
-      inf_ws_deque_1_name_winner : gname ;
-    }.
+    Record inf_ws_deque_1_name :=
+      { inf_ws_deque_1_name_data : val
+      ; inf_ws_deque_1_name_inv : namespace
+      ; inf_ws_deque_1_name_prophet : prophet_id
+      ; inf_ws_deque_1_name_prophet_name : prophet_multi_name
+      ; inf_ws_deque_1_name_model : auth_twins_name
+      ; inf_ws_deque_1_name_owner : gname
+      ; inf_ws_deque_1_name_front : gname
+      ; inf_ws_deque_1_name_history : gname
+      ; inf_ws_deque_1_name_winner : gname
+      }.
     Implicit Types γ : inf_ws_deque_1_name.
 
     #[global] Instance inf_ws_deque_1_name_eq_dec : EqDecision inf_ws_deque_1_name :=

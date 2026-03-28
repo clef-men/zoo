@@ -37,15 +37,15 @@ Implicit Types slots : nat → optional val.
 Implicit Types η : gname.
 Implicit Types ηs : list gname.
 
-Class InfMpmcQueue1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_mpmc_queue_1_G_inf_array_G :: InfArrayG Σ ;
-  #[local] inf_mpmc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] inf_mpmc_queue_1_G_history_G :: MonoListG Σ val ;
-  #[local] inf_mpmc_queue_1_G_consumer_G :: SavedPredG Σ val ;
-  #[local] inf_mpmc_queue_1_G_consumers_G :: MonoListG Σ gname ;
-  #[local] inf_mpmc_queue_1_G_token_G :: OneshotG Σ () () ;
-  #[local] inf_mpmc_queue_1_G_tokens_G :: MonoListG Σ gname ;
-}.
+Class InfMpmcQueue1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] inf_mpmc_queue_1_G_inf_array_G :: InfArrayG Σ
+  ; #[local] inf_mpmc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] inf_mpmc_queue_1_G_history_G :: MonoListG Σ val
+  ; #[local] inf_mpmc_queue_1_G_consumer_G :: SavedPredG Σ val
+  ; #[local] inf_mpmc_queue_1_G_consumers_G :: MonoListG Σ gname
+  ; #[local] inf_mpmc_queue_1_G_token_G :: OneshotG Σ () ()
+  ; #[local] inf_mpmc_queue_1_G_tokens_G :: MonoListG Σ gname
+  }.
 
 Definition inf_mpmc_queue_1_Σ := #[
   inf_array_Σ ;
@@ -70,14 +70,14 @@ Module base.
     Implicit Types t : location.
     Implicit Types Ψ : val → iProp Σ.
 
-    Record inf_mpmc_queue_1_name := {
-      inf_mpmc_queue_1_name_data : val ;
-      inf_mpmc_queue_1_name_inv : namespace ;
-      inf_mpmc_queue_1_name_model : gname ;
-      inf_mpmc_queue_1_name_history : gname ;
-      inf_mpmc_queue_1_name_consumers : gname ;
-      inf_mpmc_queue_1_name_tokens : gname ;
-    }.
+    Record inf_mpmc_queue_1_name :=
+      { inf_mpmc_queue_1_name_data : val
+      ; inf_mpmc_queue_1_name_inv : namespace
+      ; inf_mpmc_queue_1_name_model : gname
+      ; inf_mpmc_queue_1_name_history : gname
+      ; inf_mpmc_queue_1_name_consumers : gname
+      ; inf_mpmc_queue_1_name_tokens : gname
+      }.
     Implicit Types γ : inf_mpmc_queue_1_name.
 
     #[global] Instance inf_mpmc_queue_1_name_eq_dec : EqDecision inf_mpmc_queue_1_name :=

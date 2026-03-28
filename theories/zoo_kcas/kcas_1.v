@@ -62,10 +62,10 @@ Next Obligation.
 Qed.
 Implicit Types prophs : list global_prophet.(prophet_typed_type).
 
-Record loc_metadata := {
-  loc_metadata_model : gname ;
-  loc_metadata_history : gname ;
-}.
+Record loc_metadata :=
+  { loc_metadata_model : gname
+  ; loc_metadata_history : gname
+  }.
 Implicit Types γ : loc_metadata.
 
 #[local] Instance loc_metadata_inhabited : Inhabited loc_metadata :=
@@ -81,13 +81,13 @@ Proof.
   solve_countable.
 Qed.
 
-Record descriptor := {
-  descriptor_loc : location ;
-  descriptor_meta : loc_metadata ;
-  descriptor_before : val ;
-  descriptor_after : val ;
-  descriptor_state : location ;
-}.
+Record descriptor :=
+  { descriptor_loc : location
+  ; descriptor_meta : loc_metadata
+  ; descriptor_before : val
+  ; descriptor_after : val
+  ; descriptor_state : location
+  }.
 Implicit Types descr : descriptor.
 Implicit Types descrs : list descriptor.
 
@@ -147,18 +147,18 @@ Proof.
   destruct fstatus; done.
 Qed.
 
-Record metadata := {
-  metadata_descrs : list descriptor ;
-  metadata_prophet : prophet_id ;
-  metadata_prophs : list global_prophet.(prophet_typed_type) ;
-  metadata_undetermined : block_id ;
-  metadata_post : gname ;
-  metadata_lstatus : gname ;
-  metadata_locks : list gname ;
-  metadata_helpers : gname ;
-  metadata_winning : gname ;
-  metadata_owner : gname ;
-}.
+Record metadata :=
+  { metadata_descrs : list descriptor
+  ; metadata_prophet : prophet_id
+  ; metadata_prophs : list global_prophet.(prophet_typed_type)
+  ; metadata_undetermined : block_id
+  ; metadata_post : gname
+  ; metadata_lstatus : gname
+  ; metadata_locks : list gname
+  ; metadata_helpers : gname
+  ; metadata_winning : gname
+  ; metadata_owner : gname
+  }.
 Implicit Types η : metadata.
 
 #[local] Instance metadata_inhabited : Inhabited metadata :=
@@ -263,17 +263,17 @@ Qed.
   else
     descr.(descriptor_before).
 
-Class Kcas1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] kcas_1_G_model_G :: TwinsG Σ val_O ;
-  #[local] kcas_1_G_helper_G :: SavedPropG Σ ;
-  #[local] kcas_1_G_post_G :: SavedPredG Σ bool ;
-  #[local] kcas_1_G_lstatus_G :: AuthMonoG (A := leibnizO lstatus) Σ lstep ;
-  #[local] kcas_1_G_history_G :: MonoListG Σ location ;
-  #[local] kcas_1_G_lock_G :: ExclG Σ unitO ;
-  #[local] kcas_1_G_helpers_G :: ghost_mapG Σ gname nat ;
-  #[local] kcas_1_G_winning_G :: ExclG Σ unitO ;
-  #[local] kcas_1_G_owner_G :: ExclG Σ unitO ;
-}.
+Class Kcas1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] kcas_1_G_model_G :: TwinsG Σ val_O
+  ; #[local] kcas_1_G_helper_G :: SavedPropG Σ
+  ; #[local] kcas_1_G_post_G :: SavedPredG Σ bool
+  ; #[local] kcas_1_G_lstatus_G :: AuthMonoG (A := leibnizO lstatus) Σ lstep
+  ; #[local] kcas_1_G_history_G :: MonoListG Σ location
+  ; #[local] kcas_1_G_lock_G :: ExclG Σ unitO
+  ; #[local] kcas_1_G_helpers_G :: ghost_mapG Σ gname nat
+  ; #[local] kcas_1_G_winning_G :: ExclG Σ unitO
+  ; #[local] kcas_1_G_owner_G :: ExclG Σ unitO
+  }.
 
 Definition kcas_1_Σ := #[
   twins_Σ val_O ;

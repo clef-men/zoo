@@ -68,12 +68,12 @@ Notation "(.≉ x2 )" := (
 )(only parsing
 ) : stdpp_scope.
 
-Class Beq {X} := {
-  beq : X → X → bool ;
-  beq_spec x1 x2 :
-    beq x1 x2 = true ↔
-    x1 = x2 ;
-}.
+Class Beq {X} :=
+  { beq : X → X → bool
+  ; beq_spec x1 x2 :
+      beq x1 x2 = true ↔
+      x1 = x2
+  }.
 #[global] Arguments Beq : clear implicits.
 #[global] Arguments beq {_ _} !_ !_ / : simpl nomatch, assert.
 

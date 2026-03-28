@@ -1,15 +1,15 @@
 type 'a t =
-  { capacity: int;
-    data: 'a array;
-    mutable front: int;
-    mutable back: int;
+  { capacity: int
+  ; data: 'a array
+  ; mutable front: int
+  ; mutable back: int
   }
 
 let create cap =
-  { capacity= cap;
-    data= Array.unsafe_make cap (Obj.magic ());
-    front= 0;
-    back= 0;
+  { capacity= cap
+  ; data= Array.unsafe_make cap (Obj.magic ())
+  ; front= 0
+  ; back= 0
   }
 
 let size t =

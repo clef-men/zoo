@@ -3,15 +3,15 @@
 *)
 
 type 'a t =
-  { data: 'a Goption.t Atomic.t array;
-    mutable front: int [@atomic];
-    mutable back: int [@atomic];
+  { data: 'a Goption.t Atomic.t array
+  ; mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
   }
 
 let create sz =
-  { data= Array.unsafe_init sz (fun () -> Atomic.make Goption.Gnone);
-    front= 0;
-    back= 0;
+  { data= Array.unsafe_init sz (fun () -> Atomic.make Goption.Gnone)
+  ; front= 0
+  ; back= 0
   }
 
 let rec push slot o =

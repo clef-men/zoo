@@ -28,11 +28,11 @@ Implicit Types v v_elts : val.
 Implicit Types cl : gset location.
 Implicit Types part : gset (gset location).
 
-Record descriptor := {
-  descriptor_elts : list location ;
-  descriptor_prev : location ;
-  descriptor_next : location ;
-}.
+Record descriptor :=
+  { descriptor_elts : list location
+  ; descriptor_prev : location
+  ; descriptor_next : location
+  }.
 
 #[local] Instance descriptor_inhabited : Inhabited descriptor :=
   populate {|
@@ -51,9 +51,9 @@ Qed.
 Implicit Types descr : descriptor.
 Implicit Types descrs : gmap location descriptor.
 
-Class PartitionG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] partition_G_elts_G :: MonoGsetG Σ location ;
-}.
+Class PartitionG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] partition_G_elts_G :: MonoGsetG Σ location
+  }.
 
 Definition partition_Σ := #[
   mono_gset_Σ location

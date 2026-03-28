@@ -38,12 +38,12 @@ Implicit Types stable : stability.
 #[local] Instance stability_inhabited : Inhabited stability :=
   populate Stable.
 
-Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] spsc_bqueue_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
-  #[local] spsc_bqueue_G_history_G :: MonoListG Σ val ;
-  #[local] spsc_bqueue_G_stability_G :: TwinsG Σ (leibnizO stability) ;
-  #[local] spsc_bqueue_G_mono_nat_G :: AuthNatMaxG Σ ;
-}.
+Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] spsc_bqueue_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  ; #[local] spsc_bqueue_G_history_G :: MonoListG Σ val
+  ; #[local] spsc_bqueue_G_stability_G :: TwinsG Σ (leibnizO stability)
+  ; #[local] spsc_bqueue_G_mono_nat_G :: AuthNatMaxG Σ
+  }.
 
 Definition spsc_bqueue_Σ := #[
   auth_twins_Σ (leibnizO (list val)) suffix ;
@@ -61,17 +61,17 @@ Qed.
 Section spsc_bqueue_G.
   Context `{spsc_bqueue_G : SpscBqueueG Σ}.
 
-  Record metadata := {
-    metadata_capacity : nat ;
-    metadata_data : val ;
-    metadata_inv : namespace ;
-    metadata_model : auth_twins_name ;
-    metadata_history : gname ;
-    metadata_producer : gname ;
-    metadata_back : gname ;
-    metadata_consumer : gname ;
-    metadata_front : gname ;
-  }.
+  Record metadata :=
+    { metadata_capacity : nat
+    ; metadata_data : val
+    ; metadata_inv : namespace
+    ; metadata_model : auth_twins_name
+    ; metadata_history : gname
+    ; metadata_producer : gname
+    ; metadata_back : gname
+    ; metadata_consumer : gname
+    ; metadata_front : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

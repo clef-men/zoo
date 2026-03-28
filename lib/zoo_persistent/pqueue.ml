@@ -1,6 +1,6 @@
 type 'a t =
-  { front: 'a list;
-    back: 'a list;
+  { front: 'a list
+  ; back: 'a list
   }
 
 let empty =

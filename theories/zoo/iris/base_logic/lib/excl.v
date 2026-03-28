@@ -10,9 +10,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class ExclG Σ F := {
-  #[local] excl_G_inG :: inG Σ (exclR $ oFunctor_apply F $ iPropO Σ) ;
-}.
+Class ExclG Σ F :=
+  { #[local] excl_G_inG :: inG Σ (exclR $ oFunctor_apply F $ iPropO Σ)
+  }.
 
 Definition excl_Σ F `{!oFunctorContractive F} := #[
   GFunctor (exclRF F)

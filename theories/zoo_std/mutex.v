@@ -16,9 +16,9 @@ Implicit Types b : bool.
 Implicit Types l : location.
 Implicit Types t fn : val.
 
-Class MutexG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mutex_G :: ExclG Σ unitO ;
-}.
+Class MutexG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mutex_G :: ExclG Σ unitO
+  }.
 
 Definition mutex_Σ := #[
   excl_Σ unitO

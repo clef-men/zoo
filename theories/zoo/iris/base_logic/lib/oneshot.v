@@ -9,9 +9,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class OneshotG Σ A B := {
-  #[local] oneshot_G_var_G :: GhostVarG Σ (leibnizO (A + B)) ;
-}.
+Class OneshotG Σ A B :=
+  { #[local] oneshot_G_var_G :: GhostVarG Σ (leibnizO (A + B))
+  }.
 
 Definition oneshot_Σ A B := #[
   ghost_var_Σ (leibnizO (A + B))

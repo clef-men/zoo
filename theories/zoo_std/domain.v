@@ -86,10 +86,10 @@ Definition domain_local_set : val :=
     dynarray_1_grow "local" ("id" + 1) §None ;;
     dynarray_1_set "local" "id" ‘Some( "v" ).
 
-Class DomainG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] domain_G_ivar_G :: Ivar2G Σ ;
-  #[local] domain_G_locals_G :: ghost_mapG Σ nat (option val) ;
-}.
+Class DomainG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] domain_G_ivar_G :: Ivar2G Σ
+  ; #[local] domain_G_locals_G :: ghost_mapG Σ nat (option val)
+  }.
 
 Definition domain_Σ := #[
   ivar_2_Σ ;

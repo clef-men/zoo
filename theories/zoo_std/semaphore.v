@@ -27,10 +27,10 @@ Implicit Types cnt : nat.
 Implicit Types l : location.
 Implicit Types t : val.
 
-Class SemaphoreG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] semaphore_G_mutex_G :: MutexG Σ ;
-  #[local] semaphore_G_tokens_G :: ExclG Σ unitO ;
-}.
+Class SemaphoreG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] semaphore_G_mutex_G :: MutexG Σ
+  ; #[local] semaphore_G_tokens_G :: ExclG Σ unitO
+  }.
 
 Definition semaphore_Σ := #[
   mutex_Σ ;
@@ -48,11 +48,11 @@ Section semaphore_G.
 
   Implicit Types P : iProp Σ.
 
-  Record metadata := {
-    metadata_mutex : val ;
-    metadata_condition : val ;
-    metadata_tokens : list gname ;
-  }.
+  Record metadata :=
+    { metadata_mutex : val
+    ; metadata_condition : val
+    ; metadata_tokens : list gname
+    }.
   Implicit Types γ : metadata.
   Implicit Types γ_tokens : list gname.
 

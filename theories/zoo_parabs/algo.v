@@ -27,11 +27,11 @@ Implicit Types b : bool.
 Implicit Types v pool ctx task pred found body op zero acc : val.
 Implicit Types o : option val.
 
-Class AlgoG Σ `{pool_G : PoolG Σ} := {
-  #[local] algo_G_future_G :: FutureG Σ ;
-  #[local] algo_G_mvar_G :: MvarG Σ ;
-  #[local] algo_G_find_G :: GhostVarG Σ unitO ;
-}.
+Class AlgoG Σ `{pool_G : PoolG Σ} :=
+  { #[local] algo_G_future_G :: FutureG Σ
+  ; #[local] algo_G_mvar_G :: MvarG Σ
+  ; #[local] algo_G_find_G :: GhostVarG Σ unitO
+  }.
 
 Definition algo_Σ := #[
   future_Σ ;

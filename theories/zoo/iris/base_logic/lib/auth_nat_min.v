@@ -12,9 +12,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthNatMinG Σ := {
-  #[local] auth_nat_min_G_mono_G :: AuthMonoG Σ ge ;
-}.
+Class AuthNatMinG Σ :=
+  { #[local] auth_nat_min_G_mono_G :: AuthMonoG Σ ge
+  }.
 
 Definition auth_nat_min_Σ := #[
   auth_mono_Σ ge

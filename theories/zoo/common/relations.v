@@ -44,11 +44,11 @@ Section relation.
   Qed.
 End relation.
 
-Class Initial {A} (R : relation A) := {
-  initial : A ;
-  initial_lb a :
-    R initial a ;
-}.
+Class Initial {A} (R : relation A) :=
+  { initial : A
+  ; initial_lb a :
+      R initial a
+  }.
 #[global] Arguments Build_Initial {_ _} _ _ : assert.
 #[global] Arguments initial {_ _ _} : assert.
 

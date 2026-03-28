@@ -9,9 +9,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthMonoG Σ {A : ofe} (R : relation A) := {
-  #[local] auth_mono_G_inG :: inG Σ (auth_mono_UR R) ;
-}.
+Class AuthMonoG Σ {A : ofe} (R : relation A) :=
+  { #[local] auth_mono_G_inG :: inG Σ (auth_mono_UR R)
+  }.
 
 Definition auth_mono_Σ {A : ofe} (R : relation A) := #[
   GFunctor (auth_mono_UR R)

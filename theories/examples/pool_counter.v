@@ -26,11 +26,11 @@ Implicit Types n cnt contrib : nat.
 Implicit Types r : location.
 Implicit Types γ η : gname.
 
-Class PoolCounterG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pool_counter_G_pool_G :: PoolG Σ ;
-  #[local] pool_counter_G_cinv_G :: cinvG Σ ;
-  #[local] pool_counter_G_tokens_G :: AuthFracG Σ natUR ;
-}.
+Class PoolCounterG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] pool_counter_G_pool_G :: PoolG Σ
+  ; #[local] pool_counter_G_cinv_G :: cinvG Σ
+  ; #[local] pool_counter_G_tokens_G :: AuthFracG Σ natUR
+  }.
 
 Definition pool_counter_Σ := #[
   pool_Σ ;

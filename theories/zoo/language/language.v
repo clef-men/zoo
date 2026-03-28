@@ -69,16 +69,16 @@ Definition base_atomic e :=
   base_step tid e σ κ e' σ' es →
   is_Some (to_val e').
 
-Record pure_base_step e1 e2 := {
-  pure_base_step_safe tid σ1 :
-    base_reducible_no_obs tid e1 σ1 ;
-  pure_base_step_det tid σ1 κ e2' σ2 es :
-    base_step tid e1 σ1 κ e2' σ2 es →
-      κ = [] ∧
-      σ2 = σ1 ∧
-      e2' = e2 ∧
-      es = [] ;
-}.
+Record pure_base_step e1 e2 :=
+  { pure_base_step_safe tid σ1 :
+      base_reducible_no_obs tid e1 σ1
+  ; pure_base_step_det tid σ1 κ e2' σ2 es :
+      base_step tid e1 σ1 κ e2' σ2 es →
+        κ = [] ∧
+        σ2 = σ1 ∧
+        e2' = e2 ∧
+        es = []
+  }.
 
 Definition reducible tid e σ :=
   ∃ κ e' σ' es,
@@ -104,31 +104,31 @@ Definition safe ρ :=
   rtc silent_step ρ ρ' →
   Foralli (λ tid e, not_stuck tid e ρ'.2) ρ'.1.
 
-Record pure_step e1 e2 := {
-  pure_step_safe tid σ1 :
-    reducible_no_obs tid e1 σ1 ;
-  pure_step_det tid σ1 κ e2' σ2 es :
-    prim_step tid e1 σ1 κ e2' σ2 es →
-      κ = [] ∧
-      σ2 = σ1 ∧
-      e2' = e2 ∧
-      es = [] ;
-}.
+Record pure_step e1 e2 :=
+  { pure_step_safe tid σ1 :
+      reducible_no_obs tid e1 σ1
+  ; pure_step_det tid σ1 κ e2' σ2 es :
+      prim_step tid e1 σ1 κ e2' σ2 es →
+        κ = [] ∧
+        σ2 = σ1 ∧
+        e2' = e2 ∧
+        es = []
+  }.
 
-Class Context (K : expr → expr) := {
-  context_fill_not_val e :
-    to_val e = None →
-    to_val (K e) = None ;
-  context_fill_step tid e1 σ1 κ e2 σ2 es :
-    prim_step tid e1 σ1 κ e2 σ2 es →
-    prim_step tid (K e1) σ1 κ (K e2) σ2 es ;
-  context_fill_step_inv tid e1' σ1 κ e2 σ2 es :
-    to_val e1' = None →
-    prim_step tid (K e1') σ1 κ e2 σ2 es →
-      ∃ e2',
-      e2 = K e2' ∧
-      prim_step tid e1' σ1 κ e2' σ2 es ;
-}.
+Class Context (K : expr → expr) :=
+  { context_fill_not_val e :
+      to_val e = None →
+      to_val (K e) = None
+  ; context_fill_step tid e1 σ1 κ e2 σ2 es :
+      prim_step tid e1 σ1 κ e2 σ2 es →
+      prim_step tid (K e1) σ1 κ (K e2) σ2 es
+  ; context_fill_step_inv tid e1' σ1 κ e2 σ2 es :
+      to_val e1' = None →
+      prim_step tid (K e1') σ1 κ e2 σ2 es →
+        ∃ e2',
+        e2 = K e2' ∧
+        prim_step tid e1' σ1 κ e2' σ2 es
+  }.
 
 Class PureExec (ϕ : Prop) n e1 e2 :=
   pure_exec :

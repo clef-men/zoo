@@ -10,9 +10,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AgreeG Σ F := {
-  #[local] agree_G_inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ) ;
-}.
+Class AgreeG Σ F :=
+  { #[local] agree_G_inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ)
+  }.
 
 Definition agree_Σ F `{!oFunctorContractive F} := #[
   GFunctor (agreeRF F)

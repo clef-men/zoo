@@ -24,9 +24,9 @@ Implicit Types l : location.
 Implicit Types v t front : val.
 Implicit Types vs : list val.
 
-Class MpmcBstackG Σ `{zoo_G : !ZooG Σ}:= {
-  #[local] mpmc_bstack_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-}.
+Class MpmcBstackG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpmc_bstack_G_model_G :: TwinsG Σ (leibnizO (list val))
+  }.
 
 Definition mpmc_bstack_Σ := #[
   twins_Σ (leibnizO (list val))
@@ -41,10 +41,10 @@ Qed.
 Section mpmc_bstack_G.
   Context `{mpmc_bstack_G : MpmcBstackG Σ}.
 
-  Record metadata := {
-    metadata_capacity : nat ;
-    metadata_model : gname ;
-  }.
+  Record metadata :=
+    { metadata_capacity : nat
+    ; metadata_model : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

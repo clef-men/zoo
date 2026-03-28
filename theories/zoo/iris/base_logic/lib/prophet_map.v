@@ -10,14 +10,14 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class ProphetMapGpre Σ P V `{Countable P} := {
-  #[local] prophet_map_Gpre_inG :: ghost_mapG Σ P (list V) ;
-}.
+Class ProphetMapGpre Σ P V `{Countable P} :=
+  { #[local] prophet_map_Gpre_inG :: ghost_mapG Σ P (list V)
+  }.
 
-Class ProphetMapG Σ P V `{Countable P} := {
-  #[local] prophet_map_inG :: ProphetMapGpre Σ P V ;
-  prophet_map_name : gname ;
-}.
+Class ProphetMapG Σ P V `{Countable P} :=
+  { #[local] prophet_map_inG :: ProphetMapGpre Σ P V
+  ; prophet_map_name : gname
+  }.
 #[global] Arguments prophet_map_name {_ _ _ _ _} _ : assert.
 
 Definition prophet_map_Σ P V `{Countable P} :=

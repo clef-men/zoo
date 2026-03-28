@@ -5,9 +5,9 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Class iType (PROP : bi) (τ : val → PROP) := {
-  #[global] itype_persistent v :: Persistent (τ v) ;
-}.
+Class iType (PROP : bi) (τ : val → PROP) :=
+  { #[global] itype_persistent v :: Persistent (τ v)
+  }.
 
 Section basic.
   Context {PROP : bi}.

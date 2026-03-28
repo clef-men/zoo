@@ -14,10 +14,10 @@ From zoo.diaframe Require Import
 From zoo Require Import
   options.
 
-Class ProphetWiseStrongG Σ `{zoo_G : !ZooG Σ} prophet := {
-  #[local] prophet_wise_strong_G_full_G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed_strong_type))) ;
-  #[local] prophet_wise_strong_G_past_G :: MonoListG Σ prophet.(prophet_typed_strong_type) ;
-}.
+Class ProphetWiseStrongG Σ `{zoo_G : !ZooG Σ} prophet :=
+  { #[local] prophet_wise_strong_G_full_G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed_strong_type)))
+  ; #[local] prophet_wise_strong_G_past_G :: MonoListG Σ prophet.(prophet_typed_strong_type)
+  }.
 
 Definition prophet_wise_strong_Σ prophet := #[
   agree_Σ (leibnizO (list prophet.(prophet_typed_strong_type))) ;
@@ -34,10 +34,10 @@ Section prophet_wise_G.
   Context (prophet : prophet_typed_strong).
   Context `{prophet_wise_G : ProphetWiseStrongG Σ prophet}.
 
-  Record prophet_wise_strong_name := {
-    prophet_wise_strong_name_full : gname ;
-    prophet_wise_strong_name_past : gname ;
-  }.
+  Record prophet_wise_strong_name :=
+    { prophet_wise_strong_name_full : gname
+    ; prophet_wise_strong_name_past : gname
+    }.
 
   #[global] Instance prophet_wise_strong_name_eq_dec : EqDecision prophet_wise_strong_name :=
     ltac:(solve_decision).
@@ -250,9 +250,9 @@ End prophet_wise_G.
 #[global] Opaque prophet_wise_strong_snapshot.
 #[global] Opaque prophet_wise_strong_lb.
 
-Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet := {
-  #[local] prophet_wise_G :: ProphetWiseStrongG Σ prophet ;
-}.
+Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet :=
+  { #[local] prophet_wise_G :: ProphetWiseStrongG Σ prophet
+  }.
 
 Definition prophet_wise_Σ prophet := #[
   prophet_wise_strong_Σ prophet

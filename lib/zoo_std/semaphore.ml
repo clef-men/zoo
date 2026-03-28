@@ -1,13 +1,13 @@
 type t =
-  { mutex: Mutex.t;
-    condition: Condition.t;
-    mutable count: int;
+  { mutex: Mutex.t
+  ; condition: Condition.t
+  ; mutable count: int
   }
 
 let create cap =
-  { mutex= Mutex.create ();
-    condition= Condition.create ();
-    count= cap - 1;
+  { mutex= Mutex.create ()
+  ; condition= Condition.create ()
+  ; count= cap - 1
   }
 
 let try_lock t =

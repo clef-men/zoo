@@ -4,8 +4,8 @@
 
 type 'a descr =
   | Root of
-    { equal: 'a -> 'a -> bool;
-      data: 'a array;
+    { equal: 'a -> 'a -> bool
+    ; data: 'a array
     }
   | Diff of int * 'a * 'a t
 and 'a t =

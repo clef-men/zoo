@@ -268,10 +268,10 @@ Section instances.
       rewrite /ComputeOffsetLoc -location_add_assoc => <- <- //.
     Qed.
 
-    Class SharedBaseLoc l1 l2 lb j1 j2 := {
-      shared_base_location_eq1 : BaseLoc l1 lb j1;
-      shared_base_location_eq2 : BaseLoc l2 lb j2
-    }.
+    Class SharedBaseLoc l1 l2 lb j1 j2 :=
+      { shared_base_location_eq1 : BaseLoc l1 lb j1
+      ; shared_base_location_eq2 : BaseLoc l2 lb j2
+      }.
     #[global] Hint Mode SharedBaseLoc + + - - - : typeclass_instances.
 
     #[global] Instance shared_base_location_gen l1 lb1 j1 l2 lb2 j2 :

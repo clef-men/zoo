@@ -13,11 +13,11 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthTwinsG Σ (A : ofe) (R : relation A) := {
-  #[local] auth_twins_G_var_G :: GhostVarG Σ (leibnizO gname) ;
-  #[local] auth_twins_G_mono_G :: AuthMonoG Σ R ;
-  #[local] auth_twins_G_twins_G :: TwinsG Σ A ;
-}.
+Class AuthTwinsG Σ (A : ofe) (R : relation A) :=
+  { #[local] auth_twins_G_var_G :: GhostVarG Σ (leibnizO gname)
+  ; #[local] auth_twins_G_mono_G :: AuthMonoG Σ R
+  ; #[local] auth_twins_G_twins_G :: TwinsG Σ A
+  }.
 
 Definition auth_twins_Σ (A : ofe) (R : relation A) := #[
   ghost_var_Σ (leibnizO gname) ;
@@ -41,10 +41,10 @@ Section auth_twins_G.
 
   Implicit Types a b : A.
 
-  Record auth_twins_name := {
-    auth_twins_name_var : gname ;
-    auth_twins_name_twins : gname ;
-  }.
+  Record auth_twins_name :=
+    { auth_twins_name_var : gname
+    ; auth_twins_name_twins : gname
+    }.
   Implicit Types γ : auth_twins_name.
 
   #[global] Instance auth_twins_name_eq_dec : EqDecision auth_twins_name :=

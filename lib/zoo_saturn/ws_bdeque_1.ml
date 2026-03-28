@@ -1,19 +1,19 @@
 type 'a t =
-  { capacity: int;
-    mutable front: int [@atomic];
-    mutable front_cache: int;
-    mutable back: int [@atomic];
-    data: 'a Array.t;
-    proph: (bool, int * Zoo.id) Zoo.proph;
+  { capacity: int
+  ; mutable front: int [@atomic]
+  ; mutable front_cache: int
+  ; mutable back: int [@atomic]
+  ; data: 'a Array.t
+  ; proph: (bool, int * Zoo.id) Zoo.proph
   }
 
 let create cap =
-  { capacity= cap;
-    front= 1;
-    front_cache= 1;
-    back= 1;
-    data= Array.unsafe_make cap (Obj.magic ());
-    proph= Zoo.proph ();
+  { capacity= cap
+  ; front= 1
+  ; front_cache= 1
+  ; back= 1
+  ; data= Array.unsafe_make cap (Obj.magic ())
+  ; proph= Zoo.proph ()
   }
 
 let capacity t =

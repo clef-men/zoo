@@ -1,13 +1,13 @@
 type 'a t =
-  { data: 'a Optional.t Inf_array.t;
-    mutable front: int [@atomic];
-    mutable back: int [@atomic];
+  { data: 'a Optional.t Inf_array.t
+  ; mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
   }
 
 let create () =
-  { data= Inf_array.create Optional.Nothing;
-    front= 0;
-    back= 0;
+  { data= Inf_array.create Optional.Nothing
+  ; front= 0
+  ; back= 0
   }
 
 let rec size t =

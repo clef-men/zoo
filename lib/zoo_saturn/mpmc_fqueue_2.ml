@@ -1,25 +1,25 @@
 type 'a t =
-  { capacity: int;
-    data: 'a Optional.t Atomic_array.t;
-    mutable front: int [@atomic];
-    mutable back: int [@atomic];
+  { capacity: int
+  ; data: 'a Optional.t Atomic_array.t
+  ; mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
   }
 
 let create cap =
   let data = Atomic_array.make cap Optional.Nothing in
-  { capacity= cap;
-    data;
-    front= 0;
-    back= 0;
+  { capacity= cap
+  ; data
+  ; front= 0
+  ; back= 0
   }
 
 let make cap v =
   let data = Atomic_array.make cap Optional.Nothing in
   Atomic_array.unsafe_set data 0 (Something v) ;
-  { capacity= cap;
-    data;
-    front= 0;
-    back= 1;
+  { capacity= cap
+  ; data
+  ; front= 0
+  ; back= 1
   }
 
 let is_empty t =

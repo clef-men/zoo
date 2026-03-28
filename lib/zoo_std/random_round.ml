@@ -1,13 +1,13 @@
 type t =
-  { random: Random_state.t;
-    array: int array;
-    mutable index: int;
+  { random: Random_state.t
+  ; array: int array
+  ; mutable index: int
   }
 
 let create sz =
-  { random= Random_state.create ();
-    array= Array.unsafe_initi sz (fun i -> i);
-    index= sz;
+  { random= Random_state.create ()
+  ; array= Array.unsafe_initi sz (fun i -> i)
+  ; index= sz
   }
 
 let reset t =

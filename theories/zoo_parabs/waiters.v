@@ -18,10 +18,10 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types v t : val.
 
-Class WaitersG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] waiters_G_queue_G :: MpmcQueue1G Σ ;
-  #[local] waiters_G_waiter_G :: MpscWaiterG Σ ;
-}.
+Class WaitersG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] waiters_G_queue_G :: MpmcQueue1G Σ
+  ; #[local] waiters_G_waiter_G :: MpscWaiterG Σ
+  }.
 
 Definition waiters_Σ := #[
   mpmc_queue_1_Σ ;

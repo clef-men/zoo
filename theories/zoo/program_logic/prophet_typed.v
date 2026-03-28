@@ -9,15 +9,15 @@ From zoo.diaframe Require Import
 From zoo Require Import
   options.
 
-Record prophet_typed_strong := {
-  prophet_typed_strong_type : Type ;
-  prophet_typed_strong_of_val : val → val → option prophet_typed_strong_type ;
-  prophet_typed_strong_to_val : prophet_typed_strong_type → val * val ;
+Record prophet_typed_strong :=
+  { prophet_typed_strong_type : Type
+  ; prophet_typed_strong_of_val : val → val → option prophet_typed_strong_type
+  ; prophet_typed_strong_to_val : prophet_typed_strong_type → val * val
 
-  prophet_typed_strong_of_to_val proph w v :
-    (w, v) = prophet_typed_strong_to_val proph →
-    prophet_typed_strong_of_val w v = Some proph ;
-}.
+  ; prophet_typed_strong_of_to_val proph w v :
+      (w, v) = prophet_typed_strong_to_val proph →
+      prophet_typed_strong_of_val w v = Some proph
+  }.
 #[global] Arguments Build_prophet_typed_strong {_ _ _} _ : assert.
 
 Section prophet_typed_strong.
@@ -101,18 +101,18 @@ End prophet_typed_strong.
 
 #[global] Opaque prophet_typed_strong_model.
 
-Record prophet_typed_strong_1 := {
-  prophet_typed_strong_1_type : Type ;
-  prophet_typed_strong_1_of_val : val → val → option prophet_typed_strong_1_type ;
-  prophet_typed_strong_1_to_val : prophet_typed_strong_1_type → val * val ;
+Record prophet_typed_strong_1 :=
+  { prophet_typed_strong_1_type : Type
+  ; prophet_typed_strong_1_of_val : val → val → option prophet_typed_strong_1_type
+  ; prophet_typed_strong_1_to_val : prophet_typed_strong_1_type → val * val
 
-  #[global] prophet_typed_strong_1_type_inhabited ::
-    Inhabited prophet_typed_strong_1_type ;
+  ; #[global] prophet_typed_strong_1_type_inhabited ::
+      Inhabited prophet_typed_strong_1_type
 
-  prophet_typed_strong_1_of_to_val proph w v :
-    (w, v) = prophet_typed_strong_1_to_val proph →
-    prophet_typed_strong_1_of_val w v = Some proph ;
-}.
+  ; prophet_typed_strong_1_of_to_val proph w v :
+      (w, v) = prophet_typed_strong_1_to_val proph →
+      prophet_typed_strong_1_of_val w v = Some proph
+  }.
 #[global] Arguments Build_prophet_typed_strong_1 {_ _ _ _} _ : assert.
 
 Section prophet_typed_strong_1.
@@ -197,15 +197,15 @@ End prophet_typed_strong_1.
 
 Coercion prophet_typed_strong_1_to_prophet : prophet_typed_strong_1 >-> prophet_typed_strong.
 
-Record prophet_typed := {
-  prophet_typed_type : Type ;
-  prophet_typed_of_val : val → option prophet_typed_type ;
-  prophet_typed_to_val : prophet_typed_type → val ;
+Record prophet_typed :=
+  { prophet_typed_type : Type
+  ; prophet_typed_of_val : val → option prophet_typed_type
+  ; prophet_typed_to_val : prophet_typed_type → val
 
-  prophet_typed_of_to_val proph v :
-    v = prophet_typed_to_val proph →
-    prophet_typed_of_val v = Some proph ;
-}.
+  ; prophet_typed_of_to_val proph v :
+      v = prophet_typed_to_val proph →
+      prophet_typed_of_val v = Some proph
+  }.
 #[global] Arguments Build_prophet_typed {_ _ _} _ : assert.
 
 Section prophet_typed.
@@ -296,18 +296,18 @@ End prophet_typed.
 
 Coercion prophet_typed_to_strong : prophet_typed >-> prophet_typed_strong.
 
-Record prophet_typed_1 := {
-  prophet_typed_1_type : Type ;
-  prophet_typed_1_of_val : val → option prophet_typed_1_type ;
-  prophet_typed_1_to_val : prophet_typed_1_type → val ;
+Record prophet_typed_1 :=
+  { prophet_typed_1_type : Type
+  ; prophet_typed_1_of_val : val → option prophet_typed_1_type
+  ; prophet_typed_1_to_val : prophet_typed_1_type → val
 
-  #[global] prophet_typed_1_type_inhabited ::
-    Inhabited prophet_typed_1_type ;
+  ; #[global] prophet_typed_1_type_inhabited ::
+      Inhabited prophet_typed_1_type
 
-  prophet_typed_1_of_to_val proph v :
-    v = prophet_typed_1_to_val proph →
-    prophet_typed_1_of_val v = Some proph ;
-}.
+  ; prophet_typed_1_of_to_val proph v :
+      v = prophet_typed_1_to_val proph →
+      prophet_typed_1_of_val v = Some proph
+  }.
 #[global] Arguments Build_prophet_typed_1 {_ _ _ _} _ : assert.
 
 Section prophet_typed_1.

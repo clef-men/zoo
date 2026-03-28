@@ -52,17 +52,17 @@ Module base.
   Implicit Types ς : store.
   Implicit Types data : generation * val.
 
-  Record descriptor := Descriptor {
-    descriptor_gen : generation ;
-    descriptor_store : store ;
-  }.
+  Record descriptor := Descriptor
+    { descriptor_gen : generation
+    ; descriptor_store : store
+    }.
   Add Printing Constructor descriptor.
   Implicit Types descr : descriptor.
   Implicit Types cnodes : gmap location descriptor.
 
-  Class Pstore2G Σ `{zoo_G : !ZooG Σ} := {
-    #[local] pstore_2_G_nodes_G :: ghost_mapG Σ location descriptor ;
-  }.
+  Class Pstore2G Σ `{zoo_G : !ZooG Σ} :=
+    { #[local] pstore_2_G_nodes_G :: ghost_mapG Σ location descriptor
+    }.
 
   Definition pstore_2_Σ := #[
     ghost_mapΣ location descriptor
@@ -90,12 +90,12 @@ Module base.
       dom descr.(descriptor_store) ⊆ dom σ₀ ∧
       store_generation descr.(descriptor_gen) descr.(descriptor_store).
 
-    Record delta := Delta {
-      delta_ref : location ;
-      delta_gen : generation ;
-      delta_val : val ;
-      delta_node : location ;
-    }.
+    Record delta := Delta
+      { delta_ref : location
+      ; delta_gen : generation
+      ; delta_val : val
+      ; delta_node : location
+      }.
     Add Printing Constructor delta.
     Implicit Types δ : delta.
     Implicit Types δs : list delta.
@@ -1518,10 +1518,10 @@ End base.
 From zoo_persistent Require
   pstore_2__opaque.
 
-Class Pstore2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] pstore_2_G_raw_G :: base.Pstore2G Σ ;
-  #[local] pstore_2_G_support_G :: MonoGmapG Σ location val ;
-}.
+Class Pstore2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] pstore_2_G_raw_G :: base.Pstore2G Σ
+  ; #[local] pstore_2_G_support_G :: MonoGmapG Σ location val
+  }.
 
 Definition pstore_2_Σ := #[
   base.pstore_2_Σ ;

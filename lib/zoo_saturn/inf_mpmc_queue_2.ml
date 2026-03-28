@@ -1,15 +1,15 @@
 type 'a t =
-  { data: 'a Optional.t Inf_array.t;
-    mutable front: int [@atomic];
-    mutable back: int [@atomic];
-    proph: (int * Zoo.id) Zoo.proph';
+  { data: 'a Optional.t Inf_array.t
+  ; mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
+  ; proph: (int * Zoo.id) Zoo.proph'
   }
 
 let create () =
-  { data= Inf_array.create Optional.Nothing;
-    front= 0;
-    back= 0;
-    proph= Zoo.proph ();
+  { data= Inf_array.create Optional.Nothing
+  ; front= 0
+  ; back= 0
+  ; proph= Zoo.proph ()
   }
 
 let rec size t =

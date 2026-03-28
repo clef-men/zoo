@@ -27,9 +27,9 @@ Implicit Types v t s equal : val.
 Implicit Types vs : list val.
 Implicit Types nodes : gmap location (list val).
 
-Class Parray2G Σ `{zoo_G : !ZooG Σ} := {
-  parray_2_G_nodes_G : ghost_mapG Σ location (list val) ;
-}.
+Class Parray2G Σ `{zoo_G : !ZooG Σ} :=
+  { parray_2_G_nodes_G : ghost_mapG Σ location (list val)
+  }.
 
 Definition parray_2_Σ := #[
   ghost_mapΣ location (list val)
@@ -45,12 +45,12 @@ Section parray_2_G.
   Context `{parray_2_G : Parray2G Σ}.
   Context τ `{!iType (iProp Σ) τ}.
 
-  Record metadata := {
-    metadata_equal : val;
-    metadata_size : nat ;
-    metadata_data : val ;
-    metadata_nodes : gname ;
-  }.
+  Record metadata :=
+    { metadata_equal : val
+    ; metadata_size : nat
+    ; metadata_data : val
+    ; metadata_nodes : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

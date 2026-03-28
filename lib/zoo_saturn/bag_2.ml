@@ -9,8 +9,8 @@ type ('a, _) producers_ =
   | Null :
     ('a, [> `Null]) producers_
   | Node :
-    { next: 'a producers;
-      mutable queue: 'a queue option;
+    { next: 'a producers
+    ; mutable queue: 'a queue option
     } ->
     ('a, [> `Node]) producers_
 and 'a producers =
@@ -19,16 +19,16 @@ type 'a producer_node =
   ('a, [`Node]) producers_
 
 type 'a producer =
-  { producer_queue: 'a queue;
-    producer_node: 'a producer_node;
+  { producer_queue: 'a queue
+  ; producer_node: 'a producer_node
   }
 
 type 'a consumer =
-  { mutable consumer_queue: 'a queue option;
+  { mutable consumer_queue: 'a queue option
   }
 
 type 'a t =
-  { mutable producers: 'a producers [@atomic];
+  { mutable producers: 'a producers [@atomic]
   }
 
 let create () =
@@ -48,8 +48,8 @@ let add_producer t queue =
 let create_producer t =
   let queue = Spmc_queue.create () in
   let node = add_producer t queue in
-  { producer_queue= queue;
-    producer_node= node;
+  { producer_queue= queue
+  ; producer_node= node
   }
 
 let close_producer producer =

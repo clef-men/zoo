@@ -17,21 +17,21 @@ type 'a response =
   | ResponseSome of 'a
 
 type 'a t =
-  { size: int;
-    queues: 'a Queue_3.t array;
-    statuses: status array;
-    requests: request Atomic_array.t;
-    responses: 'a response array;
-    mutable force_mutable: unit; (* for verification *)
+  { size: int
+  ; queues: 'a Queue_3.t array
+  ; statuses: status array
+  ; requests: request Atomic_array.t
+  ; responses: 'a response array
+  ; mutable force_mutable: unit (* for verification *)
   }
 
 let create sz =
-  { size= sz;
-    queues= Array.unsafe_init sz Queue_3.create;
-    statuses= Array.unsafe_make sz Nonblocked;
-    requests= Atomic_array.make sz RequestNone;
-    responses= Array.unsafe_make sz ResponseWaiting;
-    force_mutable= ();
+  { size= sz
+  ; queues= Array.unsafe_init sz Queue_3.create
+  ; statuses= Array.unsafe_make sz Nonblocked
+  ; requests= Atomic_array.make sz RequestNone
+  ; responses= Array.unsafe_make sz ResponseWaiting
+  ; force_mutable= ()
   }
 
 let size t =

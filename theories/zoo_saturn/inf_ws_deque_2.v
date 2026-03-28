@@ -28,10 +28,10 @@ Implicit Types slots : list location.
 Implicit Types v : val.
 Implicit Types vs ws : list val.
 
-Class InfWsDeque2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_ws_deque_2_G_base_G :: InfWsDeque1G Σ ;
-  #[local] inf_ws_deque_2_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix ;
-}.
+Class InfWsDeque2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] inf_ws_deque_2_G_base_G :: InfWsDeque1G Σ
+  ; #[local] inf_ws_deque_2_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
+  }.
 
 Definition inf_ws_deque_2_Σ := #[
   inf_ws_deque_1_Σ ;
@@ -50,10 +50,10 @@ Module base.
 
     Implicit Types t : location.
 
-    Record inf_ws_deque_2_name := {
-      inf_ws_deque_2_name_base : inf_ws_deque_1_name ;
-      inf_ws_deque_2_name_model : auth_twins_name ;
-    }.
+    Record inf_ws_deque_2_name :=
+      { inf_ws_deque_2_name_base : inf_ws_deque_1_name
+      ; inf_ws_deque_2_name_model : auth_twins_name
+      }.
     Implicit Type γ : inf_ws_deque_2_name.
 
     #[global] Instance inf_ws_deque_2_name_eq_dec : EqDecision inf_ws_deque_2_name :=

@@ -11,9 +11,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthMonoiG Σ {A : ofe} (R : relation A) `{!Initial R} := {
-  #[local] auth_monoi_G_inG :: inG Σ (auth_monoi_UR R) ;
-}.
+Class AuthMonoiG Σ {A : ofe} (R : relation A) `{!Initial R} :=
+  { #[local] auth_monoi_G_inG :: inG Σ (auth_monoi_UR R)
+  }.
 
 Definition auth_monoi_Σ {A : ofe} (R : relation A) `{!Initial R} := #[
   GFunctor (auth_monoi_UR R)

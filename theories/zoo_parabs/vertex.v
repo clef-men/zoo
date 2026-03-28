@@ -46,13 +46,13 @@ Implicit Types state : state.
 #[local] Instance state_eq_dec : EqDecision state :=
   ltac:(solve_decision).
 
-Record vertex_name:= {
-  vertex_name_successors : val ;
-  vertex_name_state : gname ;
-  vertex_name_iteration : gname ;
-  vertex_name_predecessors : gname ;
-  vertex_name_output : gname ;
-}.
+Record vertex_name :=
+  { vertex_name_successors : val
+  ; vertex_name_state : gname
+  ; vertex_name_iteration : gname
+  ; vertex_name_predecessors : gname
+  ; vertex_name_output : gname
+  }.
 Implicit Types γ δ π : vertex_name.
 
 #[local] Instance vertex_name_eq_dec : EqDecision vertex_name :=
@@ -68,14 +68,14 @@ Definition vertex_iteration :=
   gname.
 Implicit Types iter : vertex_iteration.
 
-Class VertexG Σ `{pool_G : PoolG Σ} := {
-  #[local] vertex_G_stack_G :: MpmcStack2G Σ ;
-  #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state) ;
-  #[local] vertex_G_iteration_G :: TwinsG Σ (leibnizO vertex_iteration) ;
-  #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name ;
-  #[local] vertex_G_predecessors_G :: AuthGmultisetG Σ vertex_name ;
-  #[local] vertex_G_output_G :: SubpropsG Σ ;
-}.
+Class VertexG Σ `{pool_G : PoolG Σ} :=
+  { #[local] vertex_G_stack_G :: MpmcStack2G Σ
+  ; #[local] vertex_G_state_G :: TwinsG Σ (leibnizO state)
+  ; #[local] vertex_G_iteration_G :: TwinsG Σ (leibnizO vertex_iteration)
+  ; #[local] vertex_G_dependencies_G :: MonoGmultisetG Σ vertex_name
+  ; #[local] vertex_G_predecessors_G :: AuthGmultisetG Σ vertex_name
+  ; #[local] vertex_G_output_G :: SubpropsG Σ
+  }.
 
 Definition vertex_Σ := #[
   mpmc_stack_2_Σ ;

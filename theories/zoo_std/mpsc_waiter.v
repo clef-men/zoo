@@ -21,11 +21,11 @@ From zoo Require Import
 Implicit Types b : bool.
 Implicit Types l : location.
 
-Class MpscWaiterG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpsc_waiter_G_mutex_G :: MutexG Σ ;
-  #[local] mpsc_waiter_G_lstate_G :: OneshotG Σ unit unit ;
-  #[local] mpsc_waiter_G_consumer_G :: ExclG Σ unitO ;
-}.
+Class MpscWaiterG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpsc_waiter_G_mutex_G :: MutexG Σ
+  ; #[local] mpsc_waiter_G_lstate_G :: OneshotG Σ unit unit
+  ; #[local] mpsc_waiter_G_consumer_G :: ExclG Σ unitO
+  }.
 
 Definition mpsc_waiter_Σ := #[
   mutex_Σ ;
@@ -42,12 +42,12 @@ Qed.
 Section mpsc_waiter_G.
   Context `{mpsc_waiter_G : MpscWaiterG Σ}.
 
-  Record metadata := {
-    metadata_mutex : val ;
-    metadata_condition : val ;
-    metadata_lstate : gname ;
-    metadata_consumer : gname ;
-  }.
+  Record metadata :=
+    { metadata_mutex : val
+    ; metadata_condition : val
+    ; metadata_lstate : gname
+    ; metadata_consumer : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

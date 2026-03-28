@@ -15,10 +15,10 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class SpscPropG Σ `{inv_G : !invGS Σ} := {
-  #[local] spsc_prop_G_state_G :: OneshotG Σ () () ;
-  #[local] spsc_prop_G_consumer_G :: ExclG Σ unitO ;
-}.
+Class SpscPropG Σ `{inv_G : !invGS Σ} :=
+  { #[local] spsc_prop_G_state_G :: OneshotG Σ () ()
+  ; #[local] spsc_prop_G_consumer_G :: ExclG Σ unitO
+  }.
 
 Definition spsc_prop_Σ := #[
   oneshot_Σ () () ;
@@ -36,10 +36,10 @@ Section spsc_prop_G.
 
   Implicit Types P : iProp Σ.
 
-  Record spsc_prop_name := {
-    spsc_prop_name_state : gname ;
-    spsc_prop_name_consumer : gname ;
-  }.
+  Record spsc_prop_name :=
+    { spsc_prop_name_state : gname
+    ; spsc_prop_name_consumer : gname
+    }.
   Implicit Types γ : spsc_prop_name.
 
   #[global] Instance spsc_prop_name_eq_dec : EqDecision spsc_prop_name :=

@@ -11,9 +11,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class MonoGmultisetG Σ A `{Countable A} := {
-  #[local] mono_gmultiset_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmultiset A)) subseteq ;
-}.
+Class MonoGmultisetG Σ A `{Countable A} :=
+  { #[local] mono_gmultiset_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmultiset A)) subseteq
+  }.
 
 Definition mono_gmultiset_Σ A `{Countable A} := #[
   auth_mono_Σ (A := leibnizO (gmultiset A)) subseteq

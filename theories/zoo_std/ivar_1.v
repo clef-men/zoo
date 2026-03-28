@@ -21,10 +21,10 @@ Implicit Types b : bool.
 Implicit Types v : val.
 Implicit Types o state : option val.
 
-Class Ivar1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] ivar_1_G_lstate_G :: OneshotG Σ unit val ;
-  #[local] ivar_1_G_consumer_G :: SubpredsG Σ val ;
-}.
+Class Ivar1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] ivar_1_G_lstate_G :: OneshotG Σ unit val
+  ; #[local] ivar_1_G_consumer_G :: SubpredsG Σ val
+  }.
 
 Definition ivar_1_Σ := #[
   oneshot_Σ unit val ;
@@ -44,10 +44,10 @@ Module base.
     Implicit Types t : location.
     Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-    Record ivar_1_name := {
-      metadata_lstate : gname ;
-      metadata_consumer : gname ;
-    }.
+    Record ivar_1_name :=
+      { ivar_1_name_lstate : gname
+      ; ivar_1_name_consumer : gname
+      }.
     Implicit Types γ : ivar_1_name.
 
     #[global] Instance ivar_1_name_eq_dec : EqDecision ivar_1_name :=
@@ -61,24 +61,24 @@ Module base.
     #[local] Definition lstate_unset₁' γ_lstate :=
       oneshot_pending γ_lstate (DfracOwn (1/3)) ().
     #[local] Definition lstate_unset₁ γ :=
-      lstate_unset₁' γ.(metadata_lstate).
+      lstate_unset₁' γ.(ivar_1_name_lstate).
     #[local] Definition lstate_unset₂' γ_lstate :=
       oneshot_pending γ_lstate (DfracOwn (2/3)) ().
     #[local] Definition lstate_unset₂ γ :=
-      lstate_unset₂' γ.(metadata_lstate).
+      lstate_unset₂' γ.(ivar_1_name_lstate).
     #[local] Definition lstate_set' γ_lstate :=
       oneshot_shot γ_lstate.
     #[local] Definition lstate_set γ :=
-      lstate_set' γ.(metadata_lstate).
+      lstate_set' γ.(ivar_1_name_lstate).
 
     #[local] Definition consumer_auth' :=
       subpreds_auth.
     #[local] Definition consumer_auth γ :=
-      consumer_auth' γ.(metadata_consumer).
+      consumer_auth' γ.(ivar_1_name_consumer).
     #[local] Definition consumer_frag' :=
       subpreds_frag.
     #[local] Definition consumer_frag γ :=
-      consumer_frag' γ.(metadata_consumer).
+      consumer_frag' γ.(ivar_1_name_consumer).
 
     #[local] Definition inv_state_unset γ :=
       lstate_unset₁ γ.
@@ -396,8 +396,8 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ := {|
-        metadata_lstate := γ_lstate ;
-        metadata_consumer := γ_consumer ;
+        ivar_1_name_lstate := γ_lstate ;
+        ivar_1_name_consumer := γ_consumer ;
       |}.
 
       iApply ("HΦ" $! t γ).
@@ -428,8 +428,8 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
       pose γ := {|
-        metadata_lstate := γ_lstate ;
-        metadata_consumer := γ_consumer ;
+        ivar_1_name_lstate := γ_lstate ;
+        ivar_1_name_consumer := γ_consumer ;
       |}.
 
       iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".

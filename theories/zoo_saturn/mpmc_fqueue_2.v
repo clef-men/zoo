@@ -20,8 +20,9 @@ Implicit Types b : bool.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Class MpmcFqueue2G Σ `{zoo_G : !ZooG Σ} := {
-}.
+Class MpmcFqueue2G Σ `{zoo_G : !ZooG Σ} :=
+  {
+  }.
 
 Definition mpmc_fqueue_2_Σ := #[
 ].
@@ -38,8 +39,9 @@ Module base.
 
     Implicit Types t : location.
 
-    Record mpmc_fqueue_2_name := {
-    }.
+    Record mpmc_fqueue_2_name :=
+      {
+      }.
     Implicit Type γ : mpmc_fqueue_2_name.
 
     #[global] Instance mpmc_fqueue_2_name_eq_dec : EqDecision mpmc_fqueue_2_name :=

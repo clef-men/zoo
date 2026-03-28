@@ -27,10 +27,10 @@ Implicit Types v t : val.
 Implicit Types vs front back : list val.
 Implicit Types ws : option (list val).
 
-Class MpscQueue3G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpsc_queue_3_G_twins_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] mpsc_queue_3_G_lstate_G :: OneshotG Σ () () ;
-}.
+Class MpscQueue3G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpsc_queue_3_G_twins_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] mpsc_queue_3_G_lstate_G :: OneshotG Σ () ()
+  }.
 
 Definition mpsc_queue_3_Σ := #[
   twins_Σ (leibnizO (list val)) ;
@@ -46,11 +46,11 @@ Qed.
 Section mpsc_queue_3_G.
   Context `{mpsc_queue_3_G : MpscQueue3G Σ}.
 
-  Record metadata := {
-    metadata_model : gname ;
-    metadata_front : gname ;
-    metadata_lstate : gname ;
-  }.
+  Record metadata :=
+    { metadata_model : gname
+    ; metadata_front : gname
+    ; metadata_lstate : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

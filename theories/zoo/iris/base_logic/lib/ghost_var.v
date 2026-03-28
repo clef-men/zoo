@@ -10,9 +10,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class GhostVarG Σ F := {
-  #[local] ghost_var_G_inG :: inG Σ (dfrac_agreeR $ oFunctor_apply F $ iPropO Σ) ;
-}.
+Class GhostVarG Σ F :=
+  { #[local] ghost_var_G_inG :: inG Σ (dfrac_agreeR $ oFunctor_apply F $ iPropO Σ)
+  }.
 
 Definition ghost_var_Σ F `{!oFunctorContractive F} := #[
   GFunctor (dfrac_agreeRF F)

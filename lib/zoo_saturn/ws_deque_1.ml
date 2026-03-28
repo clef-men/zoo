@@ -3,20 +3,20 @@
 *)
 
 type 'a t =
-  { mutable front: int [@atomic];
-    mutable back: int [@atomic];
-    mutable data: 'a array [@atomic];
-    proph: (bool, int * Zoo.id) Zoo.proph;
+  { mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
+  ; mutable data: 'a array [@atomic]
+  ; proph: (bool, int * Zoo.id) Zoo.proph
   }
 
 let min_capacity =
   16
 
 let create () =
-  { front= 1;
-    back= 1;
-    data= Array.unsafe_make min_capacity (Obj.magic ());
-    proph= Zoo.proph ();
+  { front= 1
+  ; back= 1
+  ; data= Array.unsafe_make min_capacity (Obj.magic ())
+  ; proph= Zoo.proph ()
   }
 
 let size t =

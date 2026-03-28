@@ -14,9 +14,9 @@ From zoo Require Import
 
 Implicit Types state : bool.
 
-Class SubpropsG Σ := {
-  #[local] subprops_G_subpreds_G :: SubpredsG Σ () ;
-}.
+Class SubpropsG Σ :=
+  { #[local] subprops_G_subpreds_G :: SubpredsG Σ ()
+  }.
 
 Definition subprops_Σ := #[
   subpreds_Σ ()

@@ -6,19 +6,19 @@ type 'a loc =
   'a state Atomic.t
 
 and 'a state =
-  { casn: 'a casn;
-    mutable before: 'a;
-    mutable after: 'a;
+  { casn: 'a casn
+  ; mutable before: 'a
+  ; mutable after: 'a
   }
 
 and 'a cas =
-  { loc: 'a loc;
-    state: 'a state;
+  { loc: 'a loc
+  ; state: 'a state
   }
 
 and 'a casn =
-  { mutable status: 'a status [@atomic];
-    proph: (bool, Zoo.id * bool) Zoo.proph;
+  { mutable status: 'a status [@atomic]
+  ; proph: (bool, Zoo.id * bool) Zoo.proph
   }
 
 and 'a status =

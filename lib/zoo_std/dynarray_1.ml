@@ -1,6 +1,6 @@
 type 'a t =
-  { mutable size: int;
-    mutable data: 'a array;
+  { mutable size: int
+  ; mutable data: 'a array
   }
 
 let create () =

@@ -30,10 +30,10 @@ Implicit Types v : val.
 Implicit Types o : option val.
 Implicit Types vs : list val.
 
-Class MpscQueue1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpsc_queue_1_G_history_G :: MonoListG Σ location ;
-  #[local] mpsc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-}.
+Class MpscQueue1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpsc_queue_1_G_history_G :: MonoListG Σ location
+  ; #[local] mpsc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val))
+  }.
 
 Definition mpsc_queue_1_Σ := #[
   mono_list_Σ location ;
@@ -52,11 +52,11 @@ Module base.
 
     Implicit Types t : location.
 
-    Record mpsc_queue_1_name := {
-      mpsc_queue_1_name_inv : namespace ;
-      mpsc_queue_1_name_history : gname ;
-      mpsc_queue_1_name_model : gname ;
-    }.
+    Record mpsc_queue_1_name :=
+      { mpsc_queue_1_name_inv : namespace
+      ; mpsc_queue_1_name_history : gname
+      ; mpsc_queue_1_name_model : gname
+      }.
     Implicit Type γ : mpsc_queue_1_name.
 
     #[global] Instance mpsc_queue_1_name_eq_dec : EqDecision mpsc_queue_1_name :=

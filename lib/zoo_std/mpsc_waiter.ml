@@ -1,13 +1,13 @@
 type t =
-  { mutex: Mutex.t;
-    condition: Condition.t;
-    mutable flag: bool;
+  { mutex: Mutex.t
+  ; condition: Condition.t
+  ; mutable flag: bool
   }
 
 let create () =
-  { mutex= Mutex.create ();
-    condition= Condition.create ();
-    flag= false;
+  { mutex= Mutex.create ()
+  ; condition= Condition.create ()
+  ; flag= false
   }
 
 let notify t =

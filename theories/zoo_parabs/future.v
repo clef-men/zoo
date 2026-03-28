@@ -28,10 +28,10 @@ Implicit Types scope : pool_scope.
 Implicit Types ω : gname.
 Implicit Types ωs : list gname.
 
-Class FutureG Σ `{pool_G : PoolG Σ} := {
-  #[local] future_G_ivar_G :: Ivar3G Σ gname ;
-  #[local] future_G_saved_prop_G :: SavedPropG Σ ;
-}.
+Class FutureG Σ `{pool_G : PoolG Σ} :=
+  { #[local] future_G_ivar_G :: Ivar3G Σ gname
+  ; #[local] future_G_saved_prop_G :: SavedPropG Σ
+  }.
 
 Definition future_Σ := #[
   ivar_3_Σ gname ;

@@ -31,11 +31,11 @@ Implicit Types o : option val.
 Implicit Types vs ws : list val.
 Implicit Types vss wss : gmap val (list val).
 
-Class Bag2G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] bag_2_G_spmc_queue_G :: SpmcQueueG Σ ;
-  #[local] bag_2_G_queues_G :: MonoGmapG Σ location val ;
-  #[local] bag_2_G_model_G :: TwinsG Σ (leibnizO (gmap val (list val))) ;
-}.
+Class Bag2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] bag_2_G_spmc_queue_G :: SpmcQueueG Σ
+  ; #[local] bag_2_G_queues_G :: MonoGmapG Σ location val
+  ; #[local] bag_2_G_model_G :: TwinsG Σ (leibnizO (gmap val (list val)))
+  }.
 
 Definition bag_2_Σ := #[
   spmc_queue_Σ ;
@@ -49,10 +49,10 @@ Proof.
   solve_inG.
 Qed.
 
-Record producer := {
-  producer_queue : val ;
-  producer_node : location ;
-}.
+Record producer :=
+  { producer_queue : val
+  ; producer_node : location
+  }.
 Implicit Types 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : producer.
 
 #[local] Coercion producer_to_val 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val :=
@@ -73,21 +73,21 @@ Proof.
   intros [] []; naive_solver.
 Qed.
 
-Record descriptor := {
-  descriptor_queue : val ;
-  descriptor_vals : list val ;
-}.
+Record descriptor :=
+  { descriptor_queue : val
+  ; descriptor_vals : list val
+  }.
 Implicit Types descr : descriptor.
 Implicit Types descrs : gmap location descriptor.
 
 #[local] Definition descriptor_update_vals descr f :=
-  {|descriptor_queue := descr.(descriptor_queue) ;
-    descriptor_vals := f descr.(descriptor_vals) ;
+  {|descriptor_queue := descr.(descriptor_queue)
+  ; descriptor_vals := f descr.(descriptor_vals)
   |}.
 
 #[local] Definition descriptor_to_producer descr node :=
-  {|producer_queue := descr.(descriptor_queue) ;
-    producer_node := node ;
+  {|producer_queue := descr.(descriptor_queue)
+  ; producer_node := node
   |}.
 
 #[local] Lemma descriptor_to_producer_inj descr1 node1 descr2 node2 :
@@ -100,11 +100,11 @@ Qed.
 Section bag_2_G.
   Context `{bag_2_G : Bag2G Σ}.
 
-  Record metadata := {
-    metadata_inv : namespace ;
-    metadata_model : gname ;
-    metadata_queues : gname ;
-  }.
+  Record metadata :=
+    { metadata_inv : namespace
+    ; metadata_model : gname
+    ; metadata_queues : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

@@ -32,13 +32,13 @@ Implicit Types l open : location.
 Implicit Types t v v_state fd fn : val.
 Implicit Types o : option val.
 
-Record metadata := {
-  metadata_fd : val ;
-  metadata_open : block_id ;
-  metadata_owned : bool ;
-  metadata_tokens : gname ;
-  metadata_lstate : gname ;
-}.
+Record metadata :=
+  { metadata_fd : val
+  ; metadata_open : block_id
+  ; metadata_owned : bool
+  ; metadata_tokens : gname
+  ; metadata_lstate : gname
+  }.
 Implicit Types γ : metadata.
 
 #[local] Instance metadata_eq_dec : EqDecision metadata :=
@@ -126,11 +126,11 @@ Proof.
   lia.
 Qed.
 
-Class RcfdG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] rcfd_G_spsc_waiter_G :: SpscWaiterG Σ ;
-  #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp ;
-  #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO lstate) lstep ;
-}.
+Class RcfdG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] rcfd_G_spsc_waiter_G :: SpscWaiterG Σ
+  ; #[local] rcfd_G_tokens_G :: AuthGmultisetG Σ Qp
+  ; #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO lstate) lstep
+  }.
 
 Definition rcfd_Σ := #[
   spsc_waiter_Σ ;

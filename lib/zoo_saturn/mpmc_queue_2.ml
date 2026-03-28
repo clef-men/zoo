@@ -14,8 +14,8 @@ type ('a, _) suffix =
 
 type ('a, _) prefix =
   | Back :
-    { index: int;
-      mutable move: ('a, [`Snoc | `Used]) prefix;
+    { index: int
+    ; mutable move: ('a, [`Snoc | `Used]) prefix
     } ->
     ('a, [> `Back]) prefix
   | Snoc :
@@ -26,8 +26,8 @@ type ('a, _) prefix =
     ('a, [> `Used]) prefix
 
 type 'a t =
-  { mutable front: ('a, [`Front | `Cons]) suffix [@atomic];
-    mutable back: ('a, [`Back | `Snoc]) prefix [@atomic];
+  { mutable front: ('a, [`Front | `Cons]) suffix [@atomic]
+  ; mutable back: ('a, [`Back | `Snoc]) prefix [@atomic]
   }
 
 let suffix_index suff =
@@ -56,8 +56,8 @@ let rev (back : (_, [< `Snoc]) prefix) =
   rev (Cons (i, v, Front (i + 1))) pref
 
 let create () =
-  { front= Front 1;
-    back= Back { index= 0; move= Used };
+  { front= Front 1
+  ; back= Back { index= 0; move= Used }
   }
 
 let rec size t =

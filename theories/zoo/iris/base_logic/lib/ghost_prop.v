@@ -9,9 +9,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class GhostPropG Σ := {
-  #[local] ghost_prop_G_ghost_var_G :: GhostVarG Σ (▶ ∙) ;
-}.
+Class GhostPropG Σ :=
+  { #[local] ghost_prop_G_ghost_var_G :: GhostVarG Σ (▶ ∙)
+  }.
 
 Definition ghost_prop_Σ := #[
   ghost_var_Σ (▶ ∙)

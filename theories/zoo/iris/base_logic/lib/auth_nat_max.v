@@ -11,9 +11,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class AuthNatMaxG Σ := {
-  #[local] auth_nat_max_G_mono_G :: AuthMonoiG Σ (≤) ;
-}.
+Class AuthNatMaxG Σ :=
+  { #[local] auth_nat_max_G_mono_G :: AuthMonoiG Σ (≤)
+  }.
 
 Definition auth_nat_max_Σ := #[
   auth_monoi_Σ (≤)

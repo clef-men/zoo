@@ -17,10 +17,10 @@ From zoo Require Import
 
 Implicit Types b : bool.
 
-Class MpscFlagG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpsc_flag_G_state_G :: OneshotG Σ () () ;
-  #[local] mpsc_flag_G_consumer_G :: ExclG Σ unitO ;
-}.
+Class MpscFlagG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpsc_flag_G_state_G :: OneshotG Σ () ()
+  ; #[local] mpsc_flag_G_consumer_G :: ExclG Σ unitO
+  }.
 
 Definition mpsc_flag_Σ := #[
   oneshot_Σ () () ;
@@ -40,10 +40,10 @@ Module base.
     Implicit Types t : location.
     Implicit Types P : iProp Σ.
 
-    Record mpsc_flag_name := {
-      mpsc_flag_name_state : gname ;
-      mpsc_flag_name_consumer : gname ;
-    }.
+    Record mpsc_flag_name :=
+      { mpsc_flag_name_state : gname
+      ; mpsc_flag_name_consumer : gname
+      }.
     Implicit Types γ : mpsc_flag_name.
 
     #[global] Instance mpsc_flag_name_eq_dec : EqDecision mpsc_flag_name :=

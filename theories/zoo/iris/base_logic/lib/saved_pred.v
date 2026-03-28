@@ -9,9 +9,9 @@ From zoo.iris Require Import
 From zoo Require Import
   options.
 
-Class SavedPredG Σ A := {
-  #[local] saved_pred_G :: AgreeG Σ (A -d> ▶ ∙) ;
-}.
+Class SavedPredG Σ A :=
+  { #[local] saved_pred_G :: AgreeG Σ (A -d> ▶ ∙)
+  }.
 
 Definition saved_pred_Σ A := #[
   agree_Σ (A -d> ▶ ∙)

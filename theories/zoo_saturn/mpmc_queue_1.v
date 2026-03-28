@@ -36,13 +36,13 @@ Implicit Types vs : list val.
 Implicit Types waiter : gname.
 Implicit Types waiters : gmap gname nat.
 
-Class MpmcQueue1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] mpmc_queue_1_G_history_G :: MonoListG Σ location ;
-  #[local] mpmc_queue_1_G_front_G :: AuthNatMaxG Σ ;
-  #[local] mpmc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val)) ;
-  #[local] mpmc_queue_1_G_waiters_G :: ghost_mapG Σ gname nat ;
-  #[local] mpmc_queue_1_G_saved_pred_G :: SavedPredG Σ bool ;
-}.
+Class MpmcQueue1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] mpmc_queue_1_G_history_G :: MonoListG Σ location
+  ; #[local] mpmc_queue_1_G_front_G :: AuthNatMaxG Σ
+  ; #[local] mpmc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val))
+  ; #[local] mpmc_queue_1_G_waiters_G :: ghost_mapG Σ gname nat
+  ; #[local] mpmc_queue_1_G_saved_pred_G :: SavedPredG Σ bool
+  }.
 
 Definition mpmc_queue_1_Σ := #[
   mono_list_Σ location ;
@@ -64,12 +64,12 @@ Module base.
 
     Implicit Types t : location.
 
-    Record mpmc_queue_1_name := {
-      mpmc_queue_1_name_inv : namespace ;
-      mpmc_queue_1_name_history : gname ;
-      mpmc_queue_1_name_front : gname ;
-      mpmc_queue_1_name_model : gname ;
-      mpmc_queue_1_name_waiters : gname ;
+    Record mpmc_queue_1_name :=
+    { mpmc_queue_1_name_inv : namespace
+    ; mpmc_queue_1_name_history : gname
+    ; mpmc_queue_1_name_front : gname
+    ; mpmc_queue_1_name_model : gname
+    ; mpmc_queue_1_name_waiters : gname
     }.
     Implicit Type γ : mpmc_queue_1_name.
 

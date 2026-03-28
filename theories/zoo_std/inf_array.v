@@ -30,10 +30,10 @@ Implicit Types v v_resolve t fn : val.
 Implicit Types us : list val.
 Implicit Types vs : nat → val.
 
-Class InfArrayG Σ `{zoo_G : !ZooG Σ} := {
-  #[local] inf_array_G_mutex_G :: MutexG Σ ;
-  #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> val_O) ;
-}.
+Class InfArrayG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] inf_array_G_mutex_G :: MutexG Σ
+  ; #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> val_O)
+  }.
 
 Definition inf_array_Σ := #[
   mutex_Σ ;
@@ -49,10 +49,10 @@ Qed.
 Section inf_array_G.
   Context `{inf_array_G : InfArrayG Σ}.
 
-  Record metadata := {
-    metadata_default : val ;
-    metadata_model : gname ;
-  }.
+  Record metadata :=
+    { metadata_default : val
+    ; metadata_model : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=

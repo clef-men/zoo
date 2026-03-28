@@ -3,17 +3,17 @@
 *)
 
 type 'a t =
-  { mutable front: int [@atomic];
-    mutable back: int [@atomic];
-    data: 'a Inf_array.t;
-    proph: (bool, int * Zoo.id) Zoo.proph;
+  { mutable front: int [@atomic]
+  ; mutable back: int [@atomic]
+  ; data: 'a Inf_array.t
+  ; proph: (bool, int * Zoo.id) Zoo.proph
   }
 
 let create () =
-  { front= 1;
-    back= 1;
-    data= Inf_array.create (Obj.magic ());
-    proph= Zoo.proph ();
+  { front= 1
+  ; back= 1
+  ; data= Inf_array.create (Obj.magic ())
+  ; proph= Zoo.proph ()
   }
 
 let size t =

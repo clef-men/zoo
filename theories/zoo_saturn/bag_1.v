@@ -29,9 +29,9 @@ Implicit Types vs : gmultiset val.
 Implicit Types o : option val.
 Implicit Types os : list (option val).
 
-Class Bag1G Σ `{zoo_G : !ZooG Σ} := {
-  #[local] bag_1_G_model_G :: TwinsG Σ (leibnizO (gmultiset val)) ;
-}.
+Class Bag1G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] bag_1_G_model_G :: TwinsG Σ (leibnizO (gmultiset val))
+  }.
 
 Definition bag_1_Σ := #[
   twins_Σ (leibnizO (gmultiset val))
@@ -85,12 +85,12 @@ Opaque consistent.
 Section bag_1_G.
   Context `{bag_1_G : Bag1G Σ}.
 
-  Record metadata := {
-    metadata_data : val ;
-    metadata_slots : list location ;
-    metadata_inv : namespace ;
-    metadata_model : gname ;
-  }.
+  Record metadata :=
+    { metadata_data : val
+    ; metadata_slots : list location
+    ; metadata_inv : namespace
+    ; metadata_model : gname
+    }.
   Implicit Types γ : metadata.
 
   #[local] Instance metadata_eq_dec : EqDecision metadata :=
