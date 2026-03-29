@@ -1,18 +1,19 @@
 type t
 
-type waiter
-
 val create :
   unit -> t
 
 val notify :
-  t -> unit
-val notify_many :
   t -> int -> unit
+val notify_all :
+  t -> unit
+
+val push :
+  t -> Trigger.t -> unit
 
 val prepare_wait :
-  t -> waiter
+  t -> Trigger.t
 val cancel_wait :
-  t -> waiter -> unit
+  t -> Trigger.t -> int -> unit
 val commit_wait :
-  t -> waiter -> unit
+  t -> Trigger.t -> unit

@@ -32,11 +32,12 @@ let main num_dom n =
       Vertex.release ctx vtx1 ;
 
       let flag = Mpsc_flag.create () in
-      let vtx2 = Vertex.create' (fun _ctx -> Mpsc_flag.set flag) in
+      let trigger = Trigger.create (fun () -> Mpsc_flag.get flag) in
+      let vtx2 = Vertex.create' (fun _ctx -> Mpsc_flag.set flag ; Trigger.notify trigger) in
       Vertex.precede vtx1 vtx2 ;
       Vertex.release ctx vtx2 ;
 
-      Pool.wait_until ctx (fun () -> Mpsc_flag.get flag) ;
+      Pool.wait ctx trigger ;
       !r
   in
   Pool.kill pool ;

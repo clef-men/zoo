@@ -1,35 +1,48 @@
-type waiter =
-  Mpsc_waiter.t
-
 type t =
-  waiter Mpmc_queue_1.t
+  Trigger.t Mpmc_queue_1.t
 
 let create =
   Mpmc_queue_1.create
 
-let rec notify' t =
+let rec notify t max_attempt =
+  if 0 < max_attempt then
+    match Mpmc_queue_1.pop t with
+    | None ->
+        ()
+    | Some trigger ->
+        if Trigger.notify_weak trigger then
+          ()
+        else
+          notify t (max_attempt - 1)
+
+let rec notify_all t =
   match Mpmc_queue_1.pop t with
   | None ->
-      false
-  | Some waiter ->
-      if Mpsc_waiter.notify waiter then
-        notify' t
-      else
-        true
-let notify t =
-  notify' t |> ignore
-let rec notify_many t n =
-  if 0 < n && notify' t then
-    notify_many t (n - 1)
+      ()
+  | Some trigger ->
+      Trigger.notify trigger ;
+      notify_all t
+
+let push =
+  Mpmc_queue_1.push
 
 let prepare_wait t =
-  let waiter = Mpsc_waiter.create () in
-  Mpmc_queue_1.push t waiter ;
-  waiter
+  let trigger =
+    let flag = ref false in
+    Trigger.create @@ fun () ->
+      if !flag then (
+        true
+      ) else (
+        flag := true ;
+        false
+      )
+  in
+  push t trigger ;
+  trigger
 
-let cancel_wait t waiter =
-  if Mpsc_waiter.notify waiter then
-    notify t
+let cancel_wait t trigger max_notify_attempt =
+  if Trigger.probe trigger then
+    notify t max_notify_attempt
 
-let commit_wait _t waiter =
-  Mpsc_waiter.wait waiter
+let commit_wait _t trigger =
+  Trigger.wait trigger |> ignore

@@ -20,7 +20,7 @@ module type S = sig
     'a t -> int -> 'a option
 
   val steal_until :
-    'a t -> int -> int -> (unit -> bool) -> 'a option
+    'a t -> int -> int -> int -> Trigger.t -> 'a option
   val steal :
     'a t -> int -> int -> int -> 'a option
 
@@ -30,7 +30,7 @@ module type S = sig
     'a t -> unit
 
   val pop_steal_until :
-    'a t -> int -> int -> (unit -> bool) -> 'a option
+    'a t -> int -> int -> int -> Trigger.t -> 'a option
   val pop_steal :
     'a t -> int -> int -> int -> 'a option
 end
