@@ -19,12 +19,16 @@ let create sz =
 let size t =
   Array.size t.rounds
 
+let block_active t i =
+  Ws_deques_public.block t.queues i
 let block t i =
   Atomic.Loc.decr [%atomic.loc t.num_active] ;
-  Ws_deques_public.block t.queues i
+  block_active t i
 
+let unblock_active t i =
+  Ws_deques_public.unblock t.queues i
 let unblock t i =
-  Ws_deques_public.unblock t.queues i ;
+  unblock_active t i ;
   Atomic.Loc.incr [%atomic.loc t.num_active]
 
 let killed t =
@@ -83,9 +87,9 @@ let steal_until t i max_round_noyield pred =
   | Nothing ->
       steal_until t i pred
 let steal_until t i max_round_noyield pred =
-  block t i ;
+  block_active t i ;
   let res = steal_until t i max_round_noyield pred in
-  unblock t i ;
+  unblock_active t i ;
   res
 
 let steal_aux t i max_round_noyield max_round_yield pred =
