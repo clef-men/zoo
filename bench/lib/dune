@@ -2,6 +2,7 @@
   (name bench)
   (libraries
     zoo_parabs
+    zoo_parabs_main
     domainslib
     moonpool
     moonpool.forkjoin

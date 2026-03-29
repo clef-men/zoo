@@ -106,6 +106,40 @@ module Parabs = Make(struct
     Future.wait
 end)
 
+module Parabs_main = Make(struct
+  open Zoo_parabs_main
+
+  type t =
+    Pool.t
+
+  type context =
+    Pool.context
+
+  type 'a task =
+    context -> 'a
+
+  let create ~num_domain () =
+    Pool.create num_domain
+
+  let size =
+    Pool.size
+
+  let run =
+    Pool.run
+
+  let kill =
+    Pool.kill
+
+  type 'a future =
+    'a Future.t
+
+  let async =
+    Future.async
+
+  let wait =
+    Future.wait
+end)
+
 module Domainslib = Make(struct
   open Domainslib
 
@@ -226,6 +260,8 @@ let impl_of_string s : (module S) =
   match s with
   | "parabs" ->
       (module Parabs)
+  | "parabs-main" ->
+      (module Parabs_main)
   | "domainslib" ->
       (module Domainslib)
   | "moonpool-fifo" ->
