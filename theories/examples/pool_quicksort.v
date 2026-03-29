@@ -227,7 +227,6 @@ Section pool_G.
       { iIntros "{% ctx scope} %ctx %scope Hctx".
         wp_apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
       }
-      iDestruct (pool_consumer_join with "Hpool_consumer_1") as "Hpool_consumer_1".
 
       wp_apply+ (pool_async_spec
         ( pool_consumer pool (
@@ -248,13 +247,12 @@ Section pool_G.
         iEval (rewrite -Hp Nat.add_1_r) in "Hpool_consumer".
         iFrameSteps.
       }
-      iDestruct (pool_consumer_join with "Hpool_consumer_2") as "Hpool_consumer_2".
 
       iApply "HΦ".
       iFrame.
-      iApply pool_consumer_intro. iIntros "#Hpool_finished".
-      iMod (pool_consumer_finished with "Hpool_consumer_1 Hpool_finished") as "(%xs1' & %Hxs1'_permutation & %Hxs1'_sorted & Harr_1)".
-      iMod (pool_consumer_finished with "Hpool_consumer_2 Hpool_finished") as "(%xs2' & %Hxs2'_permutation & %Hxs2'_sorted & Harr_3)".
+      iMod "Hpool_consumer_1" as ">(%xs1' & %Hxs1'_permutation & %Hxs1'_sorted & Harr_1)".
+      iMod "Hpool_consumer_2" as ">(%xs2' & %Hxs2'_permutation & %Hxs2'_sorted & Harr_3)".
+      iModIntro.
       iDestruct (array_slice_app3_1 with "Harr_1 Harr_2 Harr_3") as "Harr".
       { simpl_length. apply Permutation_length in Hxs1'_permutation. lia. }
       { simpl_length/=. apply Permutation_length in Hxs1'_permutation. lia. }
@@ -267,8 +265,7 @@ Section pool_G.
         - rewrite -Hxs2'_permutation //.
       }
 
-    - iDestruct (pool_consumer_intro with "[Harr]") as "Hpool_consumer". 2: iSteps.
-      iIntros "_ !>".
+    - iSteps. do 2 iModIntro.
       iExists xs. iSteps. iPureIntro.
       apply StronglySorted_trivial. lia.
   Qed.
@@ -300,8 +297,8 @@ Section pool_G.
     wp_apply+ (pool_quicksort_main_0_spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
-    iApply (pool_consumer_wand with "Hpool_consumer").
-    iSteps. iPureIntro.
+    iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
+    iModIntro. iSteps. iPureIntro.
     simpl_length. apply Permutation_length. done.
   Qed.
 
