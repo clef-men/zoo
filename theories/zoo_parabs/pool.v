@@ -378,6 +378,17 @@ Module base.
         ▷ □ P
       ).
 
+    #[global] Instance pool_obligation_proper γ :
+      Proper ((≡) ==> (≡)) (pool_obligation γ).
+    Proof.
+      solve_proper.
+    Qed.
+    #[global] Instance pool_consumer_proper γ :
+      Proper ((≡) ==> (≡)) (pool_consumer γ).
+    Proof.
+      solve_proper.
+    Qed.
+
     #[local] Instance globals_model_timeless γ globals :
       Timeless (globals_model γ globals).
     Proof.
@@ -1271,6 +1282,17 @@ Section pool_G.
         Hobligation{_{}}
       )
     ".
+
+  #[global] Instance pool_obligation_proper t :
+    Proper ((≡) ==> (≡)) (pool_obligation t).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance pool_consumer_proper t :
+    Proper ((≡) ==> (≡)) (pool_consumer t).
+  Proof.
+    solve_proper.
+  Qed.
 
   #[global] Instance pool_inv_persistent t sz :
     Persistent (pool_inv t sz).

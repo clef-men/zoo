@@ -127,6 +127,22 @@ Section future_G.
   Proof.
     solve_proper.
   Qed.
+  #[global] Instance future_obligation_proper pool :
+    Proper (
+      (≡) ==>
+      (≡)
+    ) (future_obligation pool).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance future_consumer_proper t :
+    Proper (
+      (pointwise_relation _ (≡)) ==>
+      (≡)
+    ) (future_consumer t).
+  Proof.
+    apply _.
+  Qed.
 
   #[global] Instance future_result_timeless t v :
     Timeless (future_result t v).
