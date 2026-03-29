@@ -81,13 +81,16 @@ let size ctx =
 let async ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 
-let rec wait_until ctx pred =
-  if not @@ pred () then
-    match Ws_hub_std.pop_steal_until ctx.context_hub ctx.context_id max_round_noyield pred with
-    | None ->
-        ()
-    | Some job ->
-        execute ctx job ;
-        wait_until ctx pred
-let wait_while ctx pred =
-  wait_until ctx (fun () -> not @@ pred ())
+let rec wait ctx trigger =
+  match
+    Ws_hub_std.pop_steal_until
+      ctx.context_hub
+      ctx.context_id
+      max_round_noyield
+      max_round_yield trigger
+  with
+  | None ->
+      ()
+  | Some job ->
+      execute ctx job ;
+      wait ctx trigger

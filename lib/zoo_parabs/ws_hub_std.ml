@@ -29,9 +29,9 @@ let killed t =
   t.killed
 
 let notify t =
-  Waiters.notify t.waiters
+  Waiters.notify t.waiters (size t)
 let notify_all t =
-  Waiters.notify_many t.waiters (size t)
+  Waiters.notify_all t.waiters
 
 let push t i v =
   Ws_deques_public.push t.queues i v ;
@@ -60,33 +60,7 @@ let rec try_steal t i yield max_round pred =
             Domain.yield () ;
           try_steal t i yield (max_round - 1) pred
         )
-
-let rec steal_until t i pred =
-  match try_steal_once t i with
-  | Some _ as res ->
-      res
-  | None ->
-      if pred () then (
-        None
-      ) else (
-        Domain.yield () ;
-        steal_until t i pred
-      )
-let steal_until t i max_round_noyield pred =
-  match try_steal t i false max_round_noyield pred with
-  | Optional.Something v ->
-      Some v
-  | Anything ->
-      None
-  | Nothing ->
-      steal_until t i pred
-let steal_until t i max_round_noyield pred =
-  block t i ;
-  let res = steal_until t i max_round_noyield pred in
-  unblock t i ;
-  res
-
-let steal_aux t i max_round_noyield max_round_yield pred =
+let try_steal t i max_round_noyield max_round_yield pred =
   match try_steal t i false max_round_noyield pred with
   | Optional.Something _ as res ->
       res
@@ -94,25 +68,44 @@ let steal_aux t i max_round_noyield max_round_yield pred =
       Anything
   | Nothing ->
       try_steal t i true max_round_yield pred
+
+let rec steal_until t i max_round_noyield max_round_yield trigger =
+  match try_steal t i max_round_noyield max_round_yield (fun () -> Trigger.probe trigger) with
+  | Optional.Something v ->
+      Some v
+  | Anything ->
+      None
+  | Nothing ->
+      Waiters.push t.waiters trigger ;
+      if Trigger.wait trigger then
+        None
+      else
+        steal_until t i max_round_noyield max_round_yield trigger
+let steal_until t i max_round_noyield max_round_yield trigger =
+  block t i ;
+  let res = steal_until t i max_round_noyield max_round_yield trigger in
+  unblock t i ;
+  res
+
 let rec steal t i max_round_noyield max_round_yield =
-  match steal_aux t i max_round_noyield max_round_yield (fun () -> killed t) with
+  match try_steal t i max_round_noyield max_round_yield (fun () -> killed t) with
   | Optional.Something v ->
       Some v
   | Anything ->
       None
   | Nothing ->
       let waiters = t.waiters in
-      let waiter = Waiters.prepare_wait waiters in
+      let trigger = Waiters.prepare_wait waiters in
       match try_steal_once t i with
       | Some _ as res ->
-          Waiters.cancel_wait waiters waiter ;
+          Waiters.cancel_wait waiters trigger (size t) ;
           res
       | None ->
           if killed t then (
-            Waiters.cancel_wait waiters waiter ;
+            Waiters.cancel_wait waiters trigger (size t) ;
             None
           ) else (
-            Waiters.commit_wait waiters waiter ;
+            Waiters.commit_wait waiters trigger ;
             steal t i max_round_noyield max_round_yield
           )
 let steal t i max_round_noyield pred =
@@ -125,12 +118,15 @@ let kill t =
   t.killed <- true ;
   notify_all t
 
-let pop_steal_until t i max_round_noyield pred =
-  match pop t i with
-  | Some _ as res ->
-      res
-  | None ->
-      steal_until t i max_round_noyield pred
+let pop_steal_until t i max_round_noyield max_round_yield trigger =
+  if Trigger.probe trigger then
+    None
+  else
+    match pop t i with
+    | Some _ as res ->
+        res
+    | None ->
+        steal_until t i max_round_noyield max_round_yield trigger
 
 let pop_steal t i max_round_noyield max_round_yield =
   match pop t i with

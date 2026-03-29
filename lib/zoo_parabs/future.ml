@@ -14,7 +14,16 @@ let async ctx task =
   t
 
 let wait ctx t =
-  Pool.wait_until ctx (fun () -> Ivar_3.is_set t) ;
+  if Ivar_3.is_set t then (
+    ()
+  ) else (
+    let trigger = Trigger.create (fun () -> Ivar_3.is_set t) in
+    match Ivar_3.wait t (fun _ctx _ -> Trigger.notify trigger) with
+    | Some _ ->
+        ()
+    | None ->
+        Pool.wait ctx trigger
+  ) ;
   Ivar_3.get t
 
 let iter ctx t task =

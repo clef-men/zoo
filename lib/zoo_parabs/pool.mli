@@ -62,11 +62,7 @@ val async :
 (** [async ctx task] schedules the [task] to be executed asynchronously
     by the scheduler. *)
 
-val wait_until :
-  context -> (unit -> bool) -> unit
-(** [wait_until ctx pred] waits until [pred ()] returns [true],
+val wait :
+  context -> Trigger.t -> unit
+(** [wait ctx trigger] waits until [trigger] is notified,
     working on other tasks in the meantime. *)
-
-val wait_while :
-  context -> (unit -> bool) -> unit
-(** [wait_while ctx pred] is [wait_until ctx (fun () -> not (pred ()))]. *)
