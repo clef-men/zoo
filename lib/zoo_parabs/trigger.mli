@@ -1,15 +1,7 @@
-type t
+type t = (unit, (unit -> unit) Pool.task) Ivar_3.t
 
 val create :
-  (unit -> bool) -> t
+  unit -> t
 
-val probe :
-  t -> bool
-
-val notify_weak :
-  t -> bool
 val notify :
-  t -> unit
-
-val wait :
-  t -> bool
+  Pool.context -> t -> unit
