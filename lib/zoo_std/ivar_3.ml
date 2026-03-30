@@ -36,8 +36,8 @@ let get t =
 
 let rec wait t waiter =
   match Atomic.get t with
-  | Unset waiters ->
-      if Atomic.compare_and_set t (Unset waiters) (Unset (waiter :: waiters)) then
+  | Unset waiters as state ->
+      if Atomic.compare_and_set t state (Unset (waiter :: waiters)) then
         None
       else
         wait t waiter
