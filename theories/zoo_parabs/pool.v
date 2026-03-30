@@ -1294,12 +1294,6 @@ Section pool_G.
   Proof.
     done.
   Qed.
-  Lemma pool_consumer_join t P :
-    pool_consumer t (pool_consumer t P) ⊢
-    pool_consumer t P.
-  Proof.
-    iSteps.
-  Qed.
   Lemma pool_consumer_wand {t P1} P2 :
     pool_consumer t P1 -∗
     (P1 -∗ P2) -∗
