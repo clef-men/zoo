@@ -108,6 +108,7 @@ let steal_aux t i max_round_noyield max_round_yield pred =
 let rec steal t i max_round_noyield max_round_yield =
   match steal_aux t i max_round_noyield max_round_yield (fun () -> killed t) with
   | Optional.Something v ->
+      unblock t i ;
       Some v
   | Anything ->
       notify_all t ;
@@ -118,6 +119,7 @@ let rec steal t i max_round_noyield max_round_yield =
       match try_steal_once t i with
       | Some _ as res ->
           Waiters.cancel_wait waiters waiter ;
+          unblock t i ;
           res
       | None ->
           if killed t then (
@@ -129,9 +131,7 @@ let rec steal t i max_round_noyield max_round_yield =
           )
 let steal t i max_round_noyield pred =
   block t i ;
-  let res = steal t i max_round_noyield pred in
-  unblock t i ;
-  res
+  steal t i max_round_noyield pred
 
 let kill =
   begin_inactive

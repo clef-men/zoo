@@ -70,15 +70,14 @@ let rec steal t =
     ) ;
     match pop' t with
     | Some _ as res ->
+        end_inactive t ;
         res
     | None ->
         steal t
   )
 let steal t _i _max_round_noyield _max_round_yield =
   begin_inactive t ;
-  let res = steal t in
-  end_inactive t ;
-  res
+  steal t
 
 let kill =
   begin_inactive
