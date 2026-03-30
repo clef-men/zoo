@@ -50,12 +50,9 @@ Definition ivar_3_get : val :=
 Definition ivar_3_wait : val :=
   rec: "wait" "t" "waiter" =>
     match: !"t" with
-    | Unset "waiters" =>
+    | Unset "waiters" as "state" =>
         if:
-          CAS
-            "t".[contents]
-            ‘Unset[ "waiters" ]
-            ‘Unset[ "waiter" :: "waiters" ]
+          CAS "t".[contents] "state" ‘Unset[ "waiter" :: "waiters" ]
         then (
           §None
         ) else (
