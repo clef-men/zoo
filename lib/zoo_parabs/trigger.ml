@@ -14,12 +14,8 @@ let[@inline] probe t =
   t.predicate ()
 
 let notify_weak t =
-  if probe t then (
-    false
-  ) else (
-    Condition.notify t.condition ;
-    true
-  )
+  Condition.notify t.condition ;
+  true
 
 let notify t =
   Mutex.protect t.mutex @@ fun () ->
