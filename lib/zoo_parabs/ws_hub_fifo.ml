@@ -15,15 +15,15 @@ let create sz =
 let size t =
   t.size
 
-let block' t =
+let begin_inactive t =
   Atomic.Loc.decr [%atomic.loc t.num_active]
-let block t _i =
-  block' t
-
-let unblock' t =
+let end_inactive t =
   Atomic.Loc.incr [%atomic.loc t.num_active]
+
+let block t _i =
+  begin_inactive t
 let unblock t _i =
-  unblock' t
+  end_inactive t
 
 let killed t =
   t.num_active == 0
@@ -75,13 +75,13 @@ let rec steal t =
         steal t
   )
 let steal t _i _max_round_noyield _max_round_yield =
-  block' t ;
+  begin_inactive t ;
   let res = steal t in
-  unblock' t ;
+  end_inactive t ;
   res
 
-let kill t =
-  Atomic.Loc.decr [%atomic.loc t.num_active]
+let kill =
+  begin_inactive
 
 let pop_steal_until t i max_round_noyield pred =
   match pop t i with
