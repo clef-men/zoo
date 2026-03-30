@@ -61,8 +61,8 @@ let run t task =
   Ws_hub_std.block t.hub 0 ;
   res
 
-let kill t =
-  Ws_hub_std.kill t.hub ;
+let close t =
+  Ws_hub_std.close t.hub ;
   Ws_hub_std.unblock t.hub 0 ;
   worker (context_main t) ;
   Array.iter Domain.join t.domains

@@ -15,7 +15,7 @@ module type BASE = sig
   val run :
     t -> 'a task -> 'a
 
-  val kill :
+  val close :
     t -> unit
 
   type 'a future

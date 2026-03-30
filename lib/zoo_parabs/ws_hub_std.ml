@@ -36,7 +36,7 @@ let unblock t i =
   unblock_active t i ;
   end_inactive t
 
-let killed t =
+let closed t =
   t.num_active == 0
 
 let notify t =
@@ -106,7 +106,7 @@ let steal_aux t i max_round_noyield max_round_yield pred =
   | Nothing ->
       try_steal t i true max_round_yield pred
 let rec steal t i max_round_noyield max_round_yield =
-  match steal_aux t i max_round_noyield max_round_yield (fun () -> killed t) with
+  match steal_aux t i max_round_noyield max_round_yield (fun () -> closed t) with
   | Optional.Something v ->
       unblock t i ;
       Some v
@@ -122,7 +122,7 @@ let rec steal t i max_round_noyield max_round_yield =
           unblock t i ;
           res
       | None ->
-          if killed t then (
+          if closed t then (
             notify_all t ;
             None
           ) else (
@@ -133,7 +133,7 @@ let steal t i max_round_noyield pred =
   block t i ;
   steal t i max_round_noyield pred
 
-let kill =
+let close =
   begin_inactive
 
 let pop_steal_until t i max_round_noyield pred =

@@ -9,5 +9,5 @@ let rec main ctx n =
 let main num_dom n =
   let pool = Pool.create num_dom in
   let res = Pool.run pool (fun ctx -> main ctx n) in
-  Pool.kill pool ;
+  Pool.close pool ;
   res

@@ -24,9 +24,9 @@ module type S = sig
   val steal :
     'a t -> int -> int -> int -> 'a option
 
-  val killed :
+  val closed :
     'a t -> bool
-  val kill :
+  val close :
     'a t -> unit
 
   val pop_steal_until :

@@ -19,4 +19,4 @@ let main num_dom a b c d =
     Vertex.release ctx vtx_a ;
     Pool.wait_until ctx (fun () -> Mpsc_flag.get flag)
   ) ;
-  Pool.kill pool
+  Pool.close pool

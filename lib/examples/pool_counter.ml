@@ -6,5 +6,5 @@ let main num_dom n =
       Pool.async ctx (fun _ctx -> Atomic.incr cnt)
     done
   ) ;
-  Pool.kill pool ;
+  Pool.close pool ;
   Atomic.get cnt

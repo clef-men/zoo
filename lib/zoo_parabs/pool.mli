@@ -2,7 +2,7 @@
     worker domains on which asynchronous tasks can be scheduled.
 
     You need to use {!create} and {!run} to start asynchronous
-    computations, and {!kill} to release the worker domains at the
+    computations, and {!close} to release the worker domains at the
     end.
 
     The other functions of the module are basic building blocks on
@@ -17,7 +17,7 @@
     let () =
       let pool = Pool.create (Domain.recommended_domain_count () - 1) in
       let fib40 = Pool.run pool (fun ctx -> fibo ctx 40) in
-      Pool.kill pool;
+      Pool.close pool;
       fib40
     ]}
  *)
@@ -44,9 +44,9 @@ val run :
     will run on this (caller) domain or on the worker domains. It
     returns when the toplevel task is finished. *)
 
-val kill :
+val close :
   t -> unit
-(** [kill t] stops a scheduler: it terminates the worker domains when
+(** [close t] stops a scheduler: it terminates the worker domains when
     they run out of tasks, and returns when all workers are done. It
     should be called once you know that the topevel task you care
     about is finished. *)

@@ -59,7 +59,7 @@ module Sequential = Make(struct
   let run () task =
     task ()
 
-  let kill () =
+  let close () =
     ()
 
   type 'a future =
@@ -93,8 +93,8 @@ module Parabs = Make(struct
   let run =
     Pool.run
 
-  let kill =
-    Pool.kill
+  let close =
+    Pool.close
 
   type 'a future =
     'a Future.t
@@ -127,7 +127,7 @@ module Domainslib = Make(struct
   let run t task =
     Task.run t (fun () -> task t)
 
-  let kill =
+  let close =
     Task.teardown_pool
 
   type 'a future =
@@ -166,7 +166,7 @@ module Moonpool_fifo_base = struct
   let run t task =
     Fifo_pool.run_wait_block t.pool (fun () -> task t)
 
-  let kill t =
+  let close t =
     Fifo_pool.shutdown t.pool
 
   type 'a future =
@@ -207,7 +207,7 @@ module Moonpool_ws_base = struct
   let run t task =
     Ws_pool.run_wait_block t.pool (fun () -> task t)
 
-  let kill t =
+  let close t =
     Ws_pool.shutdown t.pool
 
   type 'a future =

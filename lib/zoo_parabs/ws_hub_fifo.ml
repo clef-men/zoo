@@ -25,7 +25,7 @@ let block t _i =
 let unblock t _i =
   end_inactive t
 
-let killed t =
+let closed t =
   t.num_active == 0
 
 let notify t =
@@ -59,7 +59,7 @@ let steal_until t _i _max_round_noyield pred =
 let rec steal t =
   let waiters = t.waiters in
   let waiter = Waiters.prepare_wait waiters in
-  if killed t then (
+  if closed t then (
     notify_all t ;
     None
   ) else (
@@ -79,7 +79,7 @@ let steal t _i _max_round_noyield _max_round_yield =
   begin_inactive t ;
   steal t
 
-let kill =
+let close =
   begin_inactive
 
 let pop_steal_until t i max_round_noyield pred =

@@ -55,4 +55,4 @@ let () =
     let module M = Make(Pool) in
     let pool = Pool.create ~num_domain () in
     let _ = Pool.run pool (M.main ~cutoff input) in
-    Pool.kill pool
+    Pool.close pool

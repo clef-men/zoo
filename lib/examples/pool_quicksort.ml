@@ -21,4 +21,4 @@ let main ctx arr =
 let main num_dom arr =
   let pool = Pool.create num_dom in
   Pool.run pool (fun ctx -> main ctx arr) ;
-  Pool.kill pool
+  Pool.close pool

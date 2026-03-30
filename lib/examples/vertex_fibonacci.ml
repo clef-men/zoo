@@ -39,5 +39,5 @@ let main num_dom n =
       Pool.wait_until ctx (fun () -> Mpsc_flag.get flag) ;
       !r
   in
-  Pool.kill pool ;
+  Pool.close pool ;
   res
