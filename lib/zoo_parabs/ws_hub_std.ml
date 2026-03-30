@@ -5,14 +5,16 @@
 type 'a t =
   { queues: 'a Ws_deques_public.t
   ; rounds: Random_round.t array
-  ; waiters: Waiters.t
-  ; mutable killed: bool
+  ; sleepers: Sleeper.t array
+  ; dormitory: Dormitory.t
+  ; mutable killed: bool [@atomic]
   }
 
 let create sz =
   { queues= Ws_deques_public.create sz
   ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
-  ; waiters= Waiters.create ()
+  ; sleepers= Array.unsafe_initi sz Sleeper.create
+  ; dormitory= Dormitory.create ()
   ; killed= false
   }
 
@@ -28,14 +30,9 @@ let unblock t i =
 let killed t =
   t.killed
 
-let notify t =
-  Waiters.notify t.waiters (size t)
-let notify_all t =
-  Waiters.notify_all t.waiters
-
 let push t i v =
   Ws_deques_public.push t.queues i v ;
-  notify t
+  Dormitory.wakeup_one t.dormitory
 
 let pop t i =
   Ws_deques_public.pop t.queues i
@@ -69,64 +66,63 @@ let try_steal t i max_round_noyield max_round_yield pred =
   | Nothing ->
       try_steal t i true max_round_yield pred
 
-let rec steal_until t i max_round_noyield max_round_yield trigger =
-  match try_steal t i max_round_noyield max_round_yield (fun () -> Trigger.probe trigger) with
+let rec steal_aux t i max_round_noyield max_round_yield ~finished ~prepare_sleep =
+  match try_steal t i max_round_noyield max_round_yield finished with
   | Optional.Something v ->
       Some v
   | Anything ->
       None
   | Nothing ->
-      Waiters.push t.waiters trigger ;
-      if Trigger.wait trigger then
-        None
-      else
-        steal_until t i max_round_noyield max_round_yield trigger
-let steal_until t i max_round_noyield max_round_yield trigger =
+      let sleeper = t.sleepers.(i) in
+      Sleeper.prepare_sleep sleeper;
+      Dormitory.push t.dormitory sleeper;
+      match try_steal_once t i with
+      | Some _ as res ->
+        (* We are stealing a task that woke someone up,
+           so they will have a spurious wakeup. *)
+        ignore (Sleeper.cancel_sleep sleeper);
+        res
+      | None ->
+        if not (prepare_sleep (fun () -> ignore (Sleeper.wakeup sleeper))) then (
+          if not (Sleeper.cancel_sleep sleeper) then
+            Dormitory.wakeup_one t.dormitory;
+          None
+        ) else (
+          Sleeper.commit_sleep sleeper;
+          steal_aux t i max_round_noyield max_round_yield ~finished ~prepare_sleep
+        )
+
+let steal_until t i max_round_noyield max_round_yield ~finished ~prepare_sleep =
   block t i ;
-  let res = steal_until t i max_round_noyield max_round_yield trigger in
+  let res =
+    steal_aux t i max_round_noyield max_round_yield
+      ~finished ~prepare_sleep
+  in
   unblock t i ;
   res
 
-let rec steal t i max_round_noyield max_round_yield =
-  match try_steal t i max_round_noyield max_round_yield (fun () -> killed t) with
-  | Optional.Something v ->
-      Some v
-  | Anything ->
-      None
-  | Nothing ->
-      let waiters = t.waiters in
-      let trigger = Waiters.prepare_wait waiters in
-      match try_steal_once t i with
-      | Some _ as res ->
-          Waiters.cancel_wait waiters trigger (size t) ;
-          res
-      | None ->
-          if killed t then (
-            Waiters.cancel_wait waiters trigger (size t) ;
-            None
-          ) else (
-            Waiters.commit_wait waiters trigger ;
-            steal t i max_round_noyield max_round_yield
-          )
-let steal t i max_round_noyield pred =
+let steal t i max_round_noyield max_round_yield =
   block t i ;
-  let res = steal t i max_round_noyield pred in
+  let res =
+    steal_aux t i max_round_noyield max_round_yield
+      ~finished:(fun () -> killed t) ~prepare_sleep:(fun _ -> not (killed t))
+  in
   unblock t i ;
   res
 
 let kill t =
   t.killed <- true ;
-  notify_all t
+  Dormitory.wakeup_all t.dormitory
 
-let pop_steal_until t i max_round_noyield max_round_yield trigger =
-  if Trigger.probe trigger then
+let pop_steal_until t i max_round_noyield max_round_yield ~finished ~prepare_sleep =
+  if finished () then
     None
   else
     match pop t i with
     | Some _ as res ->
         res
     | None ->
-        steal_until t i max_round_noyield max_round_yield trigger
+        steal_until t i max_round_noyield max_round_yield ~finished ~prepare_sleep
 
 let pop_steal t i max_round_noyield max_round_yield =
   match pop t i with

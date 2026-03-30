@@ -63,6 +63,15 @@ val async :
     by the scheduler. *)
 
 val wait :
-  context -> Trigger.t -> unit
-(** [wait ctx trigger] waits until [trigger] is notified,
-    working on other tasks in the meantime. *)
+  context ->
+  finished:(unit -> bool) ->
+  prepare_sleep:((unit -> unit) -> bool) -> unit
+(** [wait ctx ~finished ~prepare_sleep] waits until [finished] hold,
+    working on other tasks in the meantime. Whenever the worker is put
+    to sleep because no other task is available, [prepare_sleep] will
+    be called with a wakeup callback. It should return [false] if it
+    finds that [finished] holds, so that sleeping can be cancelled. *)
+
+val wait_on_ivar : context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
+(** [wait ctx ivar] waits until [ivar] is set,
+    working on other tasks in the meantime.  *)

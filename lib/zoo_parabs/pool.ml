@@ -81,16 +81,33 @@ let size ctx =
 let async ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 
-let rec wait ctx trigger =
+let rec wait ctx ~finished ~prepare_sleep =
   match
     Ws_hub_std.pop_steal_until
       ctx.context_hub
       ctx.context_id
       max_round_noyield
-      max_round_yield trigger
+      max_round_yield
+      ~finished
+      ~prepare_sleep
   with
   | None ->
       ()
   | Some job ->
       execute ctx job ;
-      wait ctx trigger
+      wait ctx ~finished ~prepare_sleep
+
+let wait_on_ivar ctx ivar =
+  let already_pushed = Atomic.make false in
+  wait ctx
+    ~finished:(fun () -> Ivar_3.is_set ivar)
+    ~prepare_sleep:(fun wakeup ->
+      if Atomic.exchange already_pushed true then (
+        if Ivar_3.is_set ivar then false
+        else true
+      ) else (
+        match Ivar_3.wait ivar (fun _ctx _v -> wakeup ()) with
+          | None -> true
+          | Some _v -> false
+      )
+    )
