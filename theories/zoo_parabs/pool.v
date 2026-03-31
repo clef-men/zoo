@@ -378,6 +378,17 @@ Module base.
         ▷ □ P
       ).
 
+    #[global] Instance pool_obligation_proper γ :
+      Proper ((≡) ==> (≡)) (pool_obligation γ).
+    Proof.
+      solve_proper.
+    Qed.
+    #[global] Instance pool_consumer_proper γ :
+      Proper ((≡) ==> (≡)) (pool_consumer γ).
+    Proof.
+      solve_proper.
+    Qed.
+
     #[local] Instance globals_model_timeless γ globals :
       Timeless (globals_model γ globals).
     Proof.
@@ -650,40 +661,6 @@ Module base.
       pool_inv γ sz1 -∗
       pool_inv γ sz2 -∗
       ⌜sz1 = sz2⌝.
-    Proof.
-      iSteps.
-    Qed.
-
-    Lemma pool_consumer_intro {γ} P :
-      (pool_finished γ ={⊤}=∗ P) ⊢
-      pool_consumer γ P.
-    Proof.
-      done.
-    Qed.
-    Lemma pool_consumer_wand {γ P1} P2 :
-      pool_consumer γ P1 -∗
-      (P1 -∗ P2) -∗
-      pool_consumer γ P2.
-    Proof.
-      iSteps.
-    Qed.
-    Lemma pool_consumer_combine γ P1 P2 :
-      pool_consumer γ P1 -∗
-      pool_consumer γ P2 -∗
-      pool_consumer γ (P1 ∗ P2).
-    Proof.
-      iSteps.
-    Qed.
-    Lemma pool_consumer_join γ P :
-      pool_consumer γ (pool_consumer γ P) ⊢
-      pool_consumer γ P.
-    Proof.
-      iSteps.
-    Qed.
-    Lemma pool_consumer_finished γ P :
-      pool_consumer γ P -∗
-      pool_finished γ ={⊤}=∗
-      P.
     Proof.
       iSteps.
     Qed.
@@ -1197,6 +1174,8 @@ Section pool_G.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
+  Implicit Types P Q : iProp Σ.
+  Implicit Types Ψ : val → iProp Σ.
 
   Definition pool_inv t sz : iProp Σ :=
     ∃ 𝑡 γ,
@@ -1272,6 +1251,17 @@ Section pool_G.
       )
     ".
 
+  #[global] Instance pool_obligation_proper t :
+    Proper ((≡) ==> (≡)) (pool_obligation t).
+  Proof.
+    solve_proper.
+  Qed.
+  #[global] Instance pool_consumer_proper t :
+    Proper ((≡) ==> (≡)) (pool_consumer t).
+  Proof.
+    solve_proper.
+  Qed.
+
   #[global] Instance pool_inv_persistent t sz :
     Persistent (pool_inv t sz).
   Proof.
@@ -1304,6 +1294,12 @@ Section pool_G.
   Proof.
     done.
   Qed.
+  Lemma pool_consumer_join t P :
+    pool_consumer t (pool_consumer t P) ⊢
+    pool_consumer t P.
+  Proof.
+    iSteps.
+  Qed.
   Lemma pool_consumer_wand {t P1} P2 :
     pool_consumer t P1 -∗
     (P1 -∗ P2) -∗
@@ -1318,9 +1314,23 @@ Section pool_G.
   Proof.
     iSteps.
   Qed.
-  Lemma pool_consumer_join t P :
-    pool_consumer t (pool_consumer t P) ⊢
-    pool_consumer t P.
+  Lemma pool_consumer_or t P1 P2 :
+    ( pool_consumer t P1
+    ∨ pool_consumer t P2
+    ) ⊢
+    pool_consumer t (P1 ∨ P2).
+  Proof.
+    iSteps.
+  Qed.
+  Lemma pool_consumer_exist {A} {t} (Φ : A → iProp Σ) x :
+    pool_consumer t (Φ x) ⊢
+    pool_consumer t (∃ x, Φ x).
+  Proof.
+    iSteps.
+  Qed.
+  Lemma pool_consumer_forall {A} {t} (Φ : A → iProp Σ) x :
+    pool_consumer t (∀ x, Φ x) ⊢
+    pool_consumer t (Φ x).
   Proof.
     iSteps.
   Qed.
@@ -1330,6 +1340,16 @@ Section pool_G.
     P.
   Proof.
     iSteps.
+  Qed.
+  #[global] Instance pool_consumer_mono t :
+    Proper ((⊢) ==> (⊢)) (pool_consumer t).
+  Proof.
+    rewrite /pool_consumer => P1 P2 -> //.
+  Qed.
+  #[global] Instance pool_consumer_flip_mono t :
+    Proper (flip (⊢) ==> flip (⊢)) (pool_consumer t).
+  Proof.
+    rewrite /pool_consumer => P1 P2 -> //.
   Qed.
 
   Lemma pool_obligation_wand {t P1} P2 :
@@ -1552,3 +1572,134 @@ End pool_G.
 #[global] Opaque pool_obligation.
 #[global] Opaque pool_consumer.
 #[global] Opaque pool_finished.
+
+Section pool_G.
+  Context `{pool_G : PoolG Σ}.
+
+  Implicit Types P Q R : iProp Σ.
+
+  #[global] Instance from_assumption_pool_consumer t p P Q :
+    FromAssumption p P Q →
+    KnownRFromAssumption p P (pool_consumer t Q).
+  Proof.
+    rewrite /KnownRFromAssumption /FromAssumption => ->.
+    rewrite -pool_consumer_intro.
+    iSteps.
+  Qed.
+
+  #[global] Instance from_pure_pool_consumer t a P ϕ :
+    FromPure a P ϕ →
+    FromPure a (pool_consumer t P) ϕ.
+  Proof.
+    rewrite /FromPure => ->.
+    rewrite -pool_consumer_intro.
+    iSteps.
+  Qed.
+
+  #[global] Instance into_wand_pool_consumer t p q R P Q :
+    IntoWand false false R P Q →
+    IntoWand p q (pool_consumer t R) (pool_consumer t P) (pool_consumer t Q).
+  Proof.
+    rewrite /IntoWand /= => ->.
+    rewrite !bi.intuitionistically_if_elim.
+    iIntros "HQ HP".
+    iApply pool_consumer_intro. iIntros "#Hfinished".
+    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
+    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iSteps.
+  Qed.
+  #[global] Instance into_wand_pool_consumer_persistent t p q R P Q :
+    IntoWand false q R P Q →
+    IntoWand p q (pool_consumer t R) P (pool_consumer t Q).
+  Proof.
+    rewrite /IntoWand /= => ->.
+    rewrite bi.intuitionistically_if_elim.
+    iIntros "HQ HP".
+    iApply pool_consumer_intro. iIntros "#Hfinished".
+    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iSteps.
+  Qed.
+  #[global] Instance into_wand_pool_consumer_args t p q R P Q :
+    IntoWand p false R P Q →
+    IntoWand' p q R (pool_consumer t P) (pool_consumer t Q).
+  Proof.
+    rewrite /IntoWand' /IntoWand /= => ->.
+    rewrite bi.intuitionistically_if_elim.
+    iIntros "HQ HP".
+    iApply (pool_consumer_wand with "HP HQ").
+  Qed.
+
+  #[global] Instance from_sep_pool_consumer t P Q1 Q2 :
+    FromSep P Q1 Q2 →
+    FromSep (pool_consumer t P) (pool_consumer t Q1) (pool_consumer t Q2).
+  Proof.
+    rewrite /FromSep => <-.
+    iIntros "(HQ1 & HQ2)".
+    iApply (pool_consumer_combine with "HQ1 HQ2").
+  Qed.
+
+  #[global] Instance from_or_pool_consumer t P Q1 Q2 :
+    FromOr P Q1 Q2 →
+    FromOr (pool_consumer t P) (pool_consumer t Q1) (pool_consumer t Q2).
+  Proof.
+    rewrite /FromOr => <-.
+    apply pool_consumer_or.
+  Qed.
+
+  #[global] Instance from_exist_pool_consumer t {A} P (Φ : A → iProp Σ) :
+    FromExist P Φ →
+    FromExist (pool_consumer t P) (λ a, pool_consumer t (Φ a)).
+  Proof.
+    rewrite /FromExist => <-.
+    iIntros "(%x & H)".
+    iApply (pool_consumer_exist with "H").
+  Qed.
+
+  #[global] Instance into_forall_pool_consumer t {A} P (Φ : A → iProp Σ) :
+    IntoForall P Φ →
+    IntoForall (pool_consumer t P) (λ a, pool_consumer t (Φ a)).
+  Proof.
+    rewrite /IntoForall => ->.
+    iIntros "H %x".
+    iApply (pool_consumer_forall with "H").
+  Qed.
+
+  #[global] Instance from_modal_pool_consumer t P :
+    FromModal True modality_id (pool_consumer t P) (pool_consumer t P) P.
+  Proof.
+    rewrite /FromModal -pool_consumer_intro.
+    iSteps.
+  Qed.
+
+  #[global] Instance elim_modal_pool_consumer t p P Q :
+    ElimModal True p false (pool_consumer t P) P (pool_consumer t Q) (pool_consumer t Q).
+  Proof.
+    rewrite /ElimModal bi.intuitionistically_if_elim /=.
+    iIntros "_ (HP & HQ)".
+    iApply pool_consumer_intro. iIntros "#Hfinished".
+    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
+    iApply (pool_consumer_finished with "(HQ HP) Hfinished").
+  Qed.
+
+  #[global] Instance add_modal_pool_consumer t P Q :
+    AddModal (pool_consumer t P) P (pool_consumer t Q).
+  Proof.
+    rewrite /AddModal.
+    iIntros "(HP & HQ)".
+    iApply pool_consumer_intro. iIntros "#Hfinished".
+    iMod (pool_consumer_finished with "HP Hfinished") as "HP".
+    iApply (pool_consumer_finished with "(HQ HP) Hfinished").
+  Qed.
+
+  #[global] Instance frame_pool_consumer t p R P Q :
+    Frame p R P Q →
+    Frame p R (pool_consumer t P) (pool_consumer t Q)
+  | 2.
+  Proof.
+    rewrite /Frame => <-.
+    iIntros "(HR & HQ)".
+    iApply pool_consumer_intro. iIntros "#Hfinished".
+    iMod (pool_consumer_finished with "HQ Hfinished") as "HQ".
+    iSteps.
+  Qed.
+End pool_G.
