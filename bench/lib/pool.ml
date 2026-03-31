@@ -174,6 +174,7 @@ module Domainslib = Make(struct
     Task.await
 end)
 
+(*
 module Moonpool_fifo_base = struct
   open Moonpool
 
@@ -255,6 +256,7 @@ module Moonpool_ws_base = struct
 end
 module Moonpool_ws =
   Make(Moonpool_ws_base)
+*)
 
 let impl_of_string s : (module S) =
   match s with
@@ -264,10 +266,12 @@ let impl_of_string s : (module S) =
       (module Parabs_main)
   | "domainslib" ->
       (module Domainslib)
+(*
   | "moonpool-fifo" ->
       (module Moonpool_fifo)
   | "moonpool-ws" ->
       (module Moonpool_ws)
+*)
   | "sequential" ->
       (module Sequential)
   | _ ->
