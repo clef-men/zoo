@@ -22,7 +22,7 @@ module type S = sig
   val steal_until :
     'a t -> int -> int -> int ->
     finished:(unit -> bool) ->
-    prepare_sleep:((unit -> unit) -> bool) ->
+    prepare_sleep:((unit -> unit) -> unit) ->
     'a option
   val steal :
     'a t -> int -> int -> int -> 'a option
@@ -35,7 +35,7 @@ module type S = sig
   val pop_steal_until :
     'a t -> int -> int -> int ->
     finished:(unit -> bool) ->
-    prepare_sleep:((unit -> unit) -> bool) ->
+    prepare_sleep:((unit -> unit) -> unit) ->
     'a option
   val pop_steal :
     'a t -> int -> int -> int -> 'a option
