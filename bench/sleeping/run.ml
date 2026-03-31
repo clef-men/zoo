@@ -3,12 +3,20 @@ open Bench
 module Make
   (Pool : Pool.S)
 = struct
+  let miniwork _ctx _i =
+    for _ = 1 to 1024 do
+      Sys.opaque_identity ()
+    done
+
   let main n ctx =
-    let fut = Pool.async ctx (fun _ctx -> Unix.sleepf 1.) in
     for _i = 1 to n do
-      Pool.async ctx (fun ctx -> Pool.wait ctx fut) |> ignore;
+      (* wake many workers up *)
+      Pool.for_each ctx ~beg:0 ~end_:42 ~chunk:1 miniwork;
+      (* then they can go back to sleep *)
+      for _ = 1 to 10 do
+        miniwork ctx ()
+      done
     done;
-    Pool.wait ctx fut
 end
 
 let pool =
