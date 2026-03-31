@@ -6,7 +6,7 @@ dune build bench/waiting/run.exe
 
 echo "This benchmark measures busy-waiting behavior on futures. Compare the 'user' (or CPU) time between implementations, which all take about the same 'real' time."
 
-for impl in sequential moonpool-ws domainslib parabs
+for impl in sequential domainslib parabs
 do
     echo
     echo -n "implementation $impl:"

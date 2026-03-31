@@ -36,7 +36,7 @@ let execute ctx job =
 let rec worker ctx =
   match Ws_hub_std.pop_steal ctx.context_hub ctx.context_id max_round_noyield max_round_yield with
   | None ->
-      Ws_hub_std.block ctx.context_hub ctx.context_id
+      Ws_hub_std.block ctx.context_hub ctx.context_id;
   | Some job ->
       execute ctx job ;
       worker ctx
