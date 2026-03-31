@@ -38,11 +38,15 @@ let prepare_sleep t =
 
 let cancel_sleep t =
   Mutex.protect t.mutex @@ fun () ->
-  let no_wakeup_received = t.last_wakeup < t.sleep_round in
-  (* pretend we receive a wakeup so that a future wakeup
-     on this round is not counted as 'useful' *)
-  t.last_wakeup <- t.sleep_round;
-  no_wakeup_received
+  if t.last_wakeup = t.sleep_round then (
+    (* we received a notification between [prepare] and [cancel] *)
+    true
+  ) else (
+    (* pretend we received a wakeup, so that a future wakeup
+       on this round is not counted as 'useful' *)
+    t.last_wakeup <- t.sleep_round;
+    false
+  )
 
 let commit_sleep t =
   Mutex.protect t.mutex @@ fun () ->
