@@ -103,5 +103,5 @@ let wait_on_ivar ctx ivar =
     ~prepare_sleep:(fun wakeup ->
       match Ivar_3.wait ivar (fun _ctx _v -> wakeup ()) with
         | None -> true
-        | Some _v -> (wakeup (); false)
+        | Some _v -> false
       )
