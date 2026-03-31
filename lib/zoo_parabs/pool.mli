@@ -65,12 +65,11 @@ val async :
 val wait :
   context ->
   finished:(unit -> bool) ->
-  prepare_sleep:((unit -> unit) -> bool) -> unit
+  prepare_sleep:((unit -> unit) -> unit) -> unit
 (** [wait ctx ~finished ~prepare_sleep] waits until [finished] hold,
     working on other tasks in the meantime. Whenever the worker is put
     to sleep because no other task is available, [prepare_sleep] will
-    be called with a wakeup callback. It should return [false] if it
-    finds that [finished] holds, so that sleeping can be cancelled. *)
+    be called with a wakeup callback. *)
 
 val wait_on_ivar : context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
 (** [wait ctx ivar] waits until [ivar] is set,

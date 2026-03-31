@@ -103,16 +103,11 @@ let rec wait ctx ~finished ~prepare_sleep =
       wait ctx ~finished ~prepare_sleep
 
 let wait_on_ivar ctx ivar =
-  let already_pushed = Atomic.make false in
+  let first_sleep = Atomic.make true in
   wait ctx
     ~finished:(fun () -> Ivar_3.is_set ivar)
     ~prepare_sleep:(fun wakeup ->
-      if Atomic.exchange already_pushed true then (
-        if Ivar_3.is_set ivar then false
-        else true
-      ) else (
-        match Ivar_3.wait ivar (fun _ctx _v -> wakeup ()) with
-          | None -> true
-          | Some _v -> false
+      if Atomic.exchange first_sleep false then (
+        ignore (Ivar_3.wait ivar (fun _ctx _v -> wakeup ()))
       )
     )

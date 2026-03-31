@@ -83,7 +83,8 @@ let rec steal_aux t i max_round_noyield max_round_yield ~finished ~prepare_sleep
         ignore (Sleeper.cancel_sleep sleeper);
         res
       | None ->
-        if not (prepare_sleep (fun () -> ignore (Sleeper.wakeup sleeper))) then (
+        prepare_sleep (fun () -> ignore (Sleeper.wakeup sleeper));
+        if finished () then (
           if not (Sleeper.cancel_sleep sleeper) then
             Dormitory.wakeup_one t.dormitory;
           None
@@ -105,7 +106,7 @@ let steal t i max_round_noyield max_round_yield =
   block t i ;
   let res =
     steal_aux t i max_round_noyield max_round_yield
-      ~finished:(fun () -> killed t) ~prepare_sleep:(fun _ -> not (killed t))
+      ~finished:(fun () -> killed t) ~prepare_sleep:ignore
   in
   unblock t i ;
   res
