@@ -18,9 +18,14 @@ type 'a task =
   context -> 'a
 
 let max_round_noyield =
-  1024
+  match Sys.getenv_opt "MAX_ROUND_NOYIELD" with
+  | Some n -> int_of_string n
+  | None -> 1024
+
 let max_round_yield =
-  32
+  match Sys.getenv_opt "MAX_ROUND_YIELD" with
+  | Some n -> int_of_string n
+  | None -> 32
 
 let context sz hub id =
   { context_size= sz
