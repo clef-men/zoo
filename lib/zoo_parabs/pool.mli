@@ -69,7 +69,17 @@ val wait :
 (** [wait ctx ~finished ~prepare_sleep] waits until [finished] hold,
     working on other tasks in the meantime. Whenever the worker is put
     to sleep because no other task is available, [prepare_sleep] will
-    be called with a wakeup callback. *)
+    be called with a wakeup callback.
+
+    We assume that [finished ()] is a cheap and monotonic function:
+    once it returns [true] it will return [true] forever.
+
+    We assume that [prepare_sleep] will eventually call the wakeup
+    callback if/when [finished ()] changes from [false] to [true]. In
+    particular, [prepare_sleep] is allowed to drop the callback if it
+    observes that [finished ()] already holds. You may want to check
+    [finished ()] after calling [prepare_sleep]: if it holds, the
+    wakeup may never be called. *)
 
 val wait_on_ivar : context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
 (** [wait ctx ivar] waits until [ivar] is set,
