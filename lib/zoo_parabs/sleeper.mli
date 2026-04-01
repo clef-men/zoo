@@ -10,10 +10,9 @@ val wakeup :
 val prepare_sleep :
   t -> unit
 
-(* [true] if cancel was succesful,
-   [false] if a notification received in the meantime. *)
+type status = Wakeup_received | No_wakeup
 val cancel_sleep :
-  t -> bool
+  t -> status
 
 val commit_sleep :
   t -> unit

@@ -41,8 +41,10 @@ let rec steal_aux t i ~finished ~prepare_sleep =
   Dormitory.push t.dormitory sleeper;
   prepare_sleep (fun () -> ignore (Sleeper.wakeup sleeper));
   if finished () then (
-    if not (Sleeper.cancel_sleep sleeper) then
-      Dormitory.wakeup_one t.dormitory;
+    begin match Sleeper.cancel_sleep sleeper with
+      | Wakeup_received -> Dormitory.wakeup_one t.dormitory
+      | No_wakeup -> ()
+    end;
     None
   ) else (
     match pop t i with
