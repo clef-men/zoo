@@ -21,15 +21,28 @@ let create id =
   }
 
 let wakeup t =
-  Mutex.protect t.mutex @@ fun () ->
-  if t.last_wakeup = t.sleep_round then
-    (* we already received a wakeup *)
-    false
-  else (
-    t.last_wakeup <- t.sleep_round;
-    Condition.notify t.condition;
-    true
-  )
+  let wakeup =
+    Mutex.protect t.mutex @@ fun () ->
+    if t.last_wakeup = t.sleep_round then (
+      false
+    ) else (
+      t.last_wakeup <- t.sleep_round;
+      true
+    )
+  in
+  (* We intentionally call Condition.notify after releasing the mutex
+     so that the caller of Condition.wait can take it immediately; see
+     https://en.cppreference.com/w/cpp/thread/condition_variable/notify_one.html
+     https://stackoverflow.com/questions/17101922/do-i-have-to-acquire-lock-before-calling-condition-variable-notify-one/17102100#17102100
+
+     This implies that the notification can race with
+     a mutex-protected critical section in [cancel_sleep] or
+     [commit_sleep] below. This is fine as they check the
+     mutex-protected [last_wakeup] to tell if [wakeup] was called, and
+     do the right thing in that case whether or not the notification
+     is received. *)
+  if wakeup then Condition.notify t.condition;
+  wakeup
 
 let prepare_sleep t =
   Mutex.protect t.mutex @@ fun () ->
