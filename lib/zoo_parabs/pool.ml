@@ -98,11 +98,15 @@ let rec wait ctx ~finished ~prepare_sleep =
       wait ctx ~finished ~prepare_sleep
 
 let wait_on_ivar ctx ivar =
-  let first_sleep = Atomic.make true in
+  let first_sleep = ref true in
   wait ctx
     ~finished:(fun () -> Ivar_3.is_set ivar)
     ~prepare_sleep:(fun wakeup ->
-      if Atomic.exchange first_sleep false then (
+      if !first_sleep then (
+        first_sleep := false;
+        (* Note: [Ivar_3.wait] drops the wakeup callback if the ivar is set.
+           This is okay as Pool.wait will check [finished ()] after calling
+           [prepare_sleep]. *)
         ignore (Ivar_3.wait ivar (fun _ctx _v -> wakeup ()))
       )
     )
