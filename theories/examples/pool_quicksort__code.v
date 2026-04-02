@@ -44,4 +44,4 @@ Definition pool_quicksort_main : val :=
   fun: "num_dom" "arr" =>
     let: "pool" := pool_create "num_dom" in
     pool_run "pool" (fun: "ctx" => pool_quicksort_main_1 "ctx" "arr") ;;
-    pool_kill "pool".
+    pool_close "pool".

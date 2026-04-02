@@ -16,23 +16,33 @@ From zoo Require Import
 
 Definition ws_hub_fifo_create : val :=
   fun: "sz" =>
-    { "sz", mpmc_queue_1_create (), waiters_create (), false }.
+    { "sz", mpmc_queue_1_create (), waiters_create (), "sz" + 1 }.
 
 Definition ws_hub_fifo_size : val :=
   fun: "t" =>
     "t".{size}.
 
-Definition ws_hub_fifo_block : val :=
-  fun: "_t" "_i" =>
+Definition ws_hub_fifo_begin_inactive : val :=
+  fun: "t" =>
+    FAA "t".[num_active] (-1) ;;
     ().
+
+Definition ws_hub_fifo_end_inactive : val :=
+  fun: "t" =>
+    FAA "t".[num_active] 1 ;;
+    ().
+
+Definition ws_hub_fifo_block : val :=
+  fun: "t" "_i" =>
+    ws_hub_fifo_begin_inactive "t".
 
 Definition ws_hub_fifo_unblock : val :=
-  fun: "_t" "_i" =>
-    ().
+  fun: "t" "_i" =>
+    ws_hub_fifo_end_inactive "t".
 
-Definition ws_hub_fifo_killed : val :=
+Definition ws_hub_fifo_closed : val :=
   fun: "t" =>
-    "t".{killed}.
+    "t".{num_active} == 0.
 
 Definition ws_hub_fifo_notify : val :=
   fun: "t" =>
@@ -77,8 +87,8 @@ Definition ws_hub_fifo_steal_0 : val :=
   rec: "steal" "t" =>
     let: "waiters" := "t".{waiters} in
     let: "waiter" := waiters_prepare_wait "waiters" in
-    if: ws_hub_fifo_killed "t" then (
-      waiters_cancel_wait "waiters" "waiter" ;;
+    if: ws_hub_fifo_closed "t" then (
+      ws_hub_fifo_notify_all "t" ;;
       §None
     ) else (
       if: mpmc_queue_1_is_empty "t".{queue} then (
@@ -88,6 +98,7 @@ Definition ws_hub_fifo_steal_0 : val :=
       ) ;;
       match: ws_hub_fifo_pop' "t" with
       | Some <> as "res" =>
+          ws_hub_fifo_end_inactive "t" ;;
           "res"
       | None =>
           "steal" "t"
@@ -96,12 +107,11 @@ Definition ws_hub_fifo_steal_0 : val :=
 
 Definition ws_hub_fifo_steal : val :=
   fun: "t" "_i" "_max_round_noyield" "_max_round_yield" =>
+    ws_hub_fifo_begin_inactive "t" ;;
     ws_hub_fifo_steal_0 "t".
 
-Definition ws_hub_fifo_kill : val :=
-  fun: "t" =>
-    "t" <-{killed} true ;;
-    ws_hub_fifo_notify_all "t".
+Definition ws_hub_fifo_close : val :=
+  ws_hub_fifo_begin_inactive.
 
 Definition ws_hub_fifo_pop_steal_until : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>

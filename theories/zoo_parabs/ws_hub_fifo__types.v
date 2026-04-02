@@ -24,7 +24,7 @@ Notation "'waiters'" := (
   in_type "zoo_parabs.ws_hub_fifo.t" 2
 )(in custom zoo_field
 ).
-Notation "'killed'" := (
+Notation "'num_active'" := (
   in_type "zoo_parabs.ws_hub_fifo.t" 3
 )(in custom zoo_field
 ).

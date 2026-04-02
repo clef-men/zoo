@@ -552,7 +552,7 @@ Module base.
       iDestruct (jobs_finished_insert with "Hjobs_finished_locals Hlocal HP") as "$".
       rewrite (comm (⊎) {[+_+]} scope) assoc //.
     Qed.
-    #[local] Lemma locals_kill γ ulocals :
+    #[local] Lemma locals_close γ ulocals :
       locals_auth γ ulocals -∗
       ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i (Some ∅)
@@ -628,7 +628,7 @@ Module base.
       iLeft. iFrameSteps. iPureIntro.
       set_solver by lia.
     Qed.
-    #[local] Lemma globals_model_kill γ :
+    #[local] Lemma globals_model_close γ :
       globals_model γ ∅ -∗
       ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i (Some ∅)
@@ -652,7 +652,7 @@ Module base.
 
       rewrite (left_id ∅ (⊎)).
 
-      iDestruct (locals_kill with "Hlocals_auth Hlocals_ats") as "(_ & $ & $)".
+      iDestruct (locals_close with "Hlocals_auth Hlocals_ats") as "(_ & $ & $)".
       iApply (jobs_auth_discard with "Hjobs_auth").
     Qed.
     Opaque globals_model.
@@ -789,49 +789,6 @@ Module base.
         wp_apply+ ("HLöb" with "[$] HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
-        iIntros "!> {%- Hi} %empty (Hhub_owner & ->) HΦ".
-
-        wp_apply+ (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]"); first done.
-        iSteps.
-    Qed.
-
-    #[local] Lemma pool_drain_spec γ i :
-      {{{
-        context_2 γ i ∅
-      }}}
-        pool_drain (pool_name_context γ i)
-      {{{
-        res
-      , RET res;
-        worker_post γ i res
-      }}}.
-    Proof.
-      iIntros "%Φ (:context_2 lazy=) HΦ".
-      iLöb as "HLöb".
-      iDestruct "Hctx" as "(:context_1)".
-
-      wp_rec.
-
-      awp_apply+ (ws_hub_std_pop_spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; first done.
-      iInv "Hinv" as "(:inv_inner)".
-      iAaccIntro with "Hhub_model"; first iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
-
-      - iDestruct "Hhub_model" as "(%𝑔𝑙𝑜𝑏𝑎𝑙𝑠' & -> & Hhub_model)".
-        apply symmetry, gmultiset_map_disj_union_singleton_l_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
-        iDestruct (big_sepMS_disj_union with "Hglobals") as "(Hglobal & Hglobals')".
-        iEval (rewrite big_sepMS_singleton) in "Hglobal".
-        iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
-        iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        iIntros "!> {%- Hi} Hhub_owner HΦ".
-
-        wp_apply+ (pool_execute_spec with "[$]") as "{%- Hi} %res ((:context_1) & (%P & Hglobal & HP))"; first done.
-        iDestruct (locals_at_finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
-        wp_apply+ ("HLöb" with "[$] HΦ").
-
-      - iSplitR "Hlocals_at". { iFrameSteps. }
-        iIntros "!> {%- Hi} Hhub_owner HΦ".
-
-        wp_apply+ (ws_hub_std_block_spec with "[$Hhub_inv $Hhub_owner]"); first done.
         iSteps.
     Qed.
 
@@ -948,11 +905,11 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_kill_spec t γ :
+    Lemma pool_close_spec t γ :
       {{{
         pool_model t γ
       }}}
-        pool_kill #t
+        pool_close #t
       {{{
         RET ();
         pool_finished γ
@@ -961,14 +918,14 @@ Module base.
       iIntros "%Φ (:model) HΦ".
 
       wp_rec. wp_load.
+      wp_apply (ws_hub_std_close_spec with "Hhub_inv") as "_".
+      wp_load.
       wp_apply (ws_hub_std_unblock_spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
       wp_apply+ (pool_context_main_spec with "[$]") as "_".
 
-      wp_apply+ (pool_drain_spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
+      wp_apply+ (pool_worker_spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
       iIntros "{%- Hdoms} %res (:worker_post)".
 
-      wp_load.
-      wp_apply+ (ws_hub_std_kill_spec with "Hhub_inv") as "_".
       wp_load.
 
       iApply wp_fupd.
@@ -991,7 +948,7 @@ Module base.
         iSteps.
       }
       apply symmetry, gmultiset_map_empty_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as ->.
-      iMod (globals_model_kill _ with "Hglobals_model Hlocals_ats") as "(%jobs & Hglobals_model & #Hjobs_auth & #Hjobs_finished)".
+      iMod (globals_model_close _ with "Hglobals_model Hlocals_ats") as "(%jobs & Hglobals_model & #Hjobs_auth & #Hjobs_finished)".
       iSplitL. { iFrameSteps. }
       iSteps.
     Qed.
@@ -1436,11 +1393,11 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_kill_spec t :
+  Lemma pool_close_spec t :
     {{{
       pool_model t
     }}}
-      pool_kill t
+      pool_close t
     {{{
       RET ();
       pool_finished t
@@ -1448,7 +1405,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (base.pool_kill_spec with "Hmodel").
+    wp_apply (base.pool_close_spec with "Hmodel").
     iSteps.
   Qed.
 

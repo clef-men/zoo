@@ -21,5 +21,5 @@ Definition pool_counter_main : val :=
            pool_async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;
                                             ())
          end) ;;
-    pool_kill "pool" ;;
+    pool_close "pool" ;;
     !"cnt".

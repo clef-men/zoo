@@ -153,7 +153,7 @@ Section vertex_simple_G.
       iSteps.
     }
 
-    wp_apply+ (pool_kill_spec with "[$Hpool_model]").
+    wp_apply+ (pool_close_spec with "[$Hpool_model]").
     iSteps.
   Qed.
 End vertex_simple_G.

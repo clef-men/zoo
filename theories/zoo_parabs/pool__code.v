@@ -41,20 +41,10 @@ Definition pool_worker : val :=
         pool_max_round_yield
     with
     | None =>
-        ws_hub_std_block "ctx".<context_hub> "ctx".<context_id>
+        ()
     | Some "job" =>
         pool_execute "ctx" "job" ;;
         "worker" "ctx"
-    end.
-
-Definition pool_drain : val :=
-  rec: "drain" "ctx" =>
-    match: ws_hub_std_pop "ctx".<context_hub> "ctx".<context_id> with
-    | None =>
-        ws_hub_std_block "ctx".<context_hub> "ctx".<context_id>
-    | Some "job" =>
-        pool_execute "ctx" "job" ;;
-        "drain" "ctx"
     end.
 
 Definition pool_create : val :=
@@ -77,11 +67,11 @@ Definition pool_run : val :=
     ws_hub_std_block "t".{hub} 0 ;;
     "res".
 
-Definition pool_kill : val :=
+Definition pool_close : val :=
   fun: "t" =>
+    ws_hub_std_close "t".{hub} ;;
     ws_hub_std_unblock "t".{hub} 0 ;;
-    pool_drain (pool_context_main "t") ;;
-    ws_hub_std_kill "t".{hub} ;;
+    pool_worker (pool_context_main "t") ;;
     array_iter domain_join "t".{domains}.
 
 Definition pool_size : val :=

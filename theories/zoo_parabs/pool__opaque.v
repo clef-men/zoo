@@ -2,7 +2,7 @@ From zoo_parabs Require Import
   pool__code.
 #[global] Opaque pool_create.
 #[global] Opaque pool_run.
-#[global] Opaque pool_kill.
+#[global] Opaque pool_close.
 #[global] Opaque pool_size.
 #[global] Opaque pool_async.
 #[global] Opaque pool_wait_until.

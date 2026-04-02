@@ -172,7 +172,7 @@ Section pool_counter_G.
       iFrame.
     }
 
-    wp_apply+ (pool_kill_spec with "[$Hpool_model]") as "#Hpool_finished".
+    wp_apply+ (pool_close_spec with "[$Hpool_model]") as "#Hpool_finished".
 
     iAssert (
       |={⊤}=>

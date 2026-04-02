@@ -36,4 +36,4 @@ Definition vertex_simple_main : val :=
          vertex_release "ctx" "vtx_b" ;;
          vertex_release "ctx" "vtx_a" ;;
          pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag")) ;;
-    pool_kill "pool".
+    pool_close "pool".

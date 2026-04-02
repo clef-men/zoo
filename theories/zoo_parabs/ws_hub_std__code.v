@@ -24,24 +24,44 @@ Definition ws_hub_std_create : val :=
         "sz"
         (fun: <> => random_round_create (int_positive_part ("sz" - 1))),
       waiters_create (),
-      false
+      "sz" + 1
     }.
 
 Definition ws_hub_std_size : val :=
   fun: "t" =>
     array_size "t".{rounds}.
 
-Definition ws_hub_std_block : val :=
+Definition ws_hub_std_begin_inactive : val :=
+  fun: "t" =>
+    FAA "t".[num_active] (-1) ;;
+    ().
+
+Definition ws_hub_std_end_inactive : val :=
+  fun: "t" =>
+    FAA "t".[num_active] 1 ;;
+    ().
+
+Definition ws_hub_std_block_active : val :=
   fun: "t" "i" =>
     ws_deques_public_block "t".{queues} "i".
 
-Definition ws_hub_std_unblock : val :=
+Definition ws_hub_std_unblock_active : val :=
   fun: "t" "i" =>
     ws_deques_public_unblock "t".{queues} "i".
 
-Definition ws_hub_std_killed : val :=
+Definition ws_hub_std_block : val :=
+  fun: "t" "i" =>
+    ws_hub_std_begin_inactive "t" ;;
+    ws_hub_std_block_active "t" "i".
+
+Definition ws_hub_std_unblock : val :=
+  fun: "t" "i" =>
+    ws_hub_std_unblock_active "t" "i" ;;
+    ws_hub_std_end_inactive "t".
+
+Definition ws_hub_std_closed : val :=
   fun: "t" =>
-    "t".{killed}.
+    "t".{num_active} == 0.
 
 Definition ws_hub_std_notify : val :=
   fun: "t" =>
@@ -115,11 +135,11 @@ Definition ws_hub_std_steal_until_1 : val :=
 
 Definition ws_hub_std_steal_until : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
-    ws_hub_std_block "t" "i" ;;
+    ws_hub_std_block_active "t" "i" ;;
     let: "res" :=
       ws_hub_std_steal_until_1 "t" "i" "max_round_noyield" "pred"
     in
-    ws_hub_std_unblock "t" "i" ;;
+    ws_hub_std_unblock_active "t" "i" ;;
     "res".
 
 Definition ws_hub_std_steal_aux : val :=
@@ -141,11 +161,13 @@ Definition ws_hub_std_steal_0 : val :=
         "i"
         "max_round_noyield"
         "max_round_yield"
-        (fun: <> => ws_hub_std_killed "t")
+        (fun: <> => ws_hub_std_closed "t")
     with
     | Something "v" =>
+        ws_hub_std_unblock "t" "i" ;;
         ‘Some( "v" )
     | Anything =>
+        ws_hub_std_notify_all "t" ;;
         §None
     | Nothing =>
         let: "waiters" := "t".{waiters} in
@@ -153,10 +175,11 @@ Definition ws_hub_std_steal_0 : val :=
         match: ws_hub_std_try_steal_once "t" "i" with
         | Some <> as "res" =>
             waiters_cancel_wait "waiters" "waiter" ;;
+            ws_hub_std_unblock "t" "i" ;;
             "res"
         | None =>
-            if: ws_hub_std_killed "t" then (
-              waiters_cancel_wait "waiters" "waiter" ;;
+            if: ws_hub_std_closed "t" then (
+              ws_hub_std_notify_all "t" ;;
               §None
             ) else (
               waiters_commit_wait "waiters" "waiter" ;;
@@ -168,14 +191,10 @@ Definition ws_hub_std_steal_0 : val :=
 Definition ws_hub_std_steal : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
     ws_hub_std_block "t" "i" ;;
-    let: "res" := ws_hub_std_steal_0 "t" "i" "max_round_noyield" "pred" in
-    ws_hub_std_unblock "t" "i" ;;
-    "res".
+    ws_hub_std_steal_0 "t" "i" "max_round_noyield" "pred".
 
-Definition ws_hub_std_kill : val :=
-  fun: "t" =>
-    "t" <-{killed} true ;;
-    ws_hub_std_notify_all "t".
+Definition ws_hub_std_close : val :=
+  ws_hub_std_begin_inactive.
 
 Definition ws_hub_std_pop_steal_until : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>

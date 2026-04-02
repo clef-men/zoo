@@ -25,7 +25,8 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Implicit Types b killed : bool.
+Implicit Types b closed : bool.
+Implicit Types num_active : Z.
 Implicit Types l : location.
 Implicit Types v t until pred : val.
 Implicit Types ws : list val.
@@ -141,11 +142,11 @@ Section ws_hub_fifo_G.
     emptiness_at' γ.(metadata_emptiness).
 
   #[local] Definition inv_inner l : iProp Σ :=
-    ∃ killed,
-    l.[killed] ↦ #killed.
+    ∃ num_active,
+    l.[num_active] ↦ #num_active.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %killed &
-        Hl_killed
+    " ( %num_active &
+        Hl_num_active
       )
     ".
   Definition ws_hub_fifo_inv t ι (sz : nat) : iProp Σ :=
@@ -369,9 +370,9 @@ Section ws_hub_fifo_G.
     iIntros "%Hsz %Φ _ HΦ".
 
     wp_rec.
-    wp_apply (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
+    wp_apply+ (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
     wp_apply (mpmc_queue_1_create_spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
-    wp_block l as "Hmeta" "(Hl_size & Hl_queue & Hl_waiters & Hl_killed & _)".
+    wp_block l as "Hmeta" "(Hl_size & Hl_queue & Hl_waiters & Hl_num_active & _)".
     iMod (pointsto_persist with "Hl_size") as "#Hl_size".
     iMod (pointsto_persist with "Hl_queue") as "#Hl_queue".
     iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".
@@ -390,7 +391,7 @@ Section ws_hub_fifo_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitL "Hl_killed".
+    iSplitL "Hl_num_active".
     { iExists l, γ. iSteps. }
     iSplitL "Hqueue_model Hemptiness_auth".
     { iSteps. }
@@ -412,6 +413,32 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
+  #[local] Lemma ws_hub_fifo_begin_inactive_spec t ι sz :
+    {{{
+      ws_hub_fifo_inv t ι sz
+    }}}
+      ws_hub_fifo_begin_inactive t
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
+  #[local] Lemma ws_hub_fifo_end_inactive_spec t ι sz :
+    {{{
+      ws_hub_fifo_inv t ι sz
+    }}}
+      ws_hub_fifo_end_inactive t
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iSteps.
+  Qed.
+
   Lemma ws_hub_fifo_block_spec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
@@ -424,7 +451,11 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_owner t i_ Blocked empty
     }}}.
   Proof.
-    iSteps.
+    iIntros (->) "%Φ (#Hinv & Howner) HΦ".
+
+    wp_rec.
+    wp_apply+ (ws_hub_fifo_begin_inactive_spec with "Hinv") as "_".
+    iApply ("HΦ" with "Howner").
   Qed.
 
   Lemma ws_hub_fifo_unblock_spec t ι sz i i_ empty :
@@ -439,17 +470,21 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_owner t i_ Nonblocked empty
     }}}.
   Proof.
-    iSteps.
+    iIntros (->) "%Φ (#Hinv & Howner) HΦ".
+
+    wp_rec.
+    wp_apply+ (ws_hub_fifo_end_inactive_spec with "Hinv") as "_".
+    iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo_killed_spec t ι sz :
+  Lemma ws_hub_fifo_closed_spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
-      ws_hub_fifo_killed t
+      ws_hub_fifo_closed t
     {{{
-      killed
-    , RET #killed;
+      closed
+    , RET #closed;
       True
     }}}.
   Proof.
@@ -639,7 +674,7 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_owner t i Nonblocked (if o then empty else Empty)
     >>>.
   Proof.
-    iIntros "%Φ (Hinv & Howner) HΦ".
+    iIntros "%Φ (#Hinv & Howner) HΦ".
 
     wp_apply (ws_hub_fifo_pop'_spec_aux (Some (i, empty)) with "[$Hinv $Howner] HΦ").
   Qed.
@@ -667,7 +702,7 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_owner t i_ Nonblocked (if o then empty else Empty)
     >>>.
   Proof.
-    iIntros (->) "%Φ (Hinv & Howner) HΦ".
+    iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
     wp_apply+ (ws_hub_fifo_pop'_spec_owner with "[$Hinv $Howner] HΦ").
@@ -795,11 +830,11 @@ Section ws_hub_fifo_G.
 
     wp_rec. wp_load.
     wp_apply+ (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
-    wp_apply+ ws_hub_fifo_killed_spec as ([]) "_"; first iSteps.
+    wp_apply+ ws_hub_fifo_closed_spec as ([]) "_"; first iSteps.
 
-    - wp_apply+ (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+    - wp_apply+ ws_hub_fifo_notify_all_spec as "_"; first iSteps.
+      wp_pures.
 
-      iApply fupd_wp.
       iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
       iMod ("HΦ" $! None with "Hmodel") as "HΦ".
       iSteps.
@@ -819,7 +854,10 @@ Section ws_hub_fifo_G.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
 
-      + iRight. iExists (Some v). iFrameSteps.
+      + iRight. iExists (Some v). iFrameStep 5.
+
+        wp_apply ws_hub_fifo_end_inactive_spec. 1: iSteps.
+        iSteps.
 
       + iLeft. iFrameSteps.
   Qed.
@@ -845,39 +883,29 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      ws_hub_fifo_owner t i_ Nonblocked empty
+      ws_hub_fifo_owner t i_ (if o then Nonblocked else Blocked) empty
     >>>.
   Proof.
     iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
+    wp_apply+ (ws_hub_fifo_begin_inactive_spec with "Hinv") as "_".
     wp_apply+ (ws_hub_fifo_steal_0_spec with "Hinv").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  Lemma ws_hub_fifo_kill_spec t ι sz :
+  Lemma ws_hub_fifo_close_spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
-      ws_hub_fifo_kill t
+      ws_hub_fifo_close t
     {{{
       RET ();
       True
     }}}.
   Proof.
-    iIntros "%Φ (:inv) HΦ".
-
-    wp_rec.
-
-    wp_bind (_ <-{killed} _)%E.
-    iInv "Hinv" as "(:inv_inner)".
-    wp_store.
-    iSplitR "HΦ". { iSteps. }
-    iIntros "!> {%}".
-
-    wp_apply+ ws_hub_fifo_notify_all_spec as "_"; first iSteps.
-    iSteps.
+    apply ws_hub_fifo_begin_inactive_spec.
   Qed.
 End ws_hub_fifo_G.
 
@@ -971,7 +999,7 @@ Section ws_hub_fifo_G.
       end
     | empty,
       RET o;
-      ws_hub_fifo_owner t i_ Nonblocked empty ∗
+      ws_hub_fifo_owner t i_ (if o then Nonblocked else Blocked) empty ∗
       if o then
         True
       else

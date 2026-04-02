@@ -56,5 +56,5 @@ Definition vertex_fibonacci_main : val :=
            pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag") ;;
            !"r")
     in
-    pool_kill "pool" ;;
+    pool_close "pool" ;;
     "res".

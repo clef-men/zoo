@@ -31,5 +31,5 @@ Definition future_fibonacci_main : val :=
     let: "res" :=
       pool_run "pool" (fun: "ctx" => future_fibonacci_main_0 "ctx" "n")
     in
-    pool_kill "pool" ;;
+    pool_close "pool" ;;
     "res".
