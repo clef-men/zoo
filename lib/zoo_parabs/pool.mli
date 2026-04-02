@@ -62,11 +62,25 @@ val async :
 (** [async ctx task] schedules the [task] to be executed asynchronously
     by the scheduler. *)
 
-val wait_until :
-  context -> (unit -> bool) -> unit
-(** [wait_until ctx pred] waits until [pred ()] returns [true],
-    working on other tasks in the meantime. *)
+val wait :
+  context ->
+  finished:(unit -> bool) ->
+  prepare_sleep:((unit -> unit) -> unit) -> unit
+(** [wait ctx ~finished ~prepare_sleep] waits until [finished] hold,
+    working on other tasks in the meantime. Whenever the worker is put
+    to sleep because no other task is available, [prepare_sleep] will
+    be called with a wakeup callback.
 
-val wait_while :
-  context -> (unit -> bool) -> unit
-(** [wait_while ctx pred] is [wait_until ctx (fun () -> not (pred ()))]. *)
+    We assume that [finished ()] is a cheap and monotonic function:
+    once it returns [true] it will return [true] forever.
+
+    We assume that [prepare_sleep] will eventually call the wakeup
+    callback if/when [finished ()] changes from [false] to [true]. In
+    particular, [prepare_sleep] is allowed to drop the callback if it
+    observes that [finished ()] already holds. You may want to check
+    [finished ()] after calling [prepare_sleep]: if it holds, the
+    wakeup may never be called. *)
+
+val wait_on_ivar : context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
+(** [wait ctx ivar] waits until [ivar] is set,
+    working on other tasks in the meantime.  *)

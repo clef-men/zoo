@@ -81,13 +81,32 @@ let size ctx =
 let async ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 
-let rec wait_until ctx pred =
-  if not @@ pred () then
-    match Ws_hub_std.pop_steal_until ctx.context_hub ctx.context_id max_round_noyield pred with
-    | None ->
-        ()
-    | Some job ->
-        execute ctx job ;
-        wait_until ctx pred
-let wait_while ctx pred =
-  wait_until ctx (fun () -> not @@ pred ())
+let rec wait ctx ~finished ~prepare_sleep =
+  match
+    Ws_hub_std.pop_steal_until
+      ctx.context_hub
+      ctx.context_id
+      max_round_noyield
+      max_round_yield
+      ~finished
+      ~prepare_sleep
+  with
+  | None ->
+      ()
+  | Some job ->
+      execute ctx job ;
+      wait ctx ~finished ~prepare_sleep
+
+let wait_on_ivar ctx ivar =
+  let first_sleep = ref true in
+  wait ctx
+    ~finished:(fun () -> Ivar_3.is_set ivar)
+    ~prepare_sleep:(fun wakeup ->
+      if !first_sleep then (
+        first_sleep := false;
+        (* Note: [Ivar_3.wait] drops the wakeup callback if the ivar is set.
+           This is okay as Pool.wait will check [finished ()] after calling
+           [prepare_sleep]. *)
+        ignore (Ivar_3.wait ivar (fun _ctx _v -> wakeup ()))
+      )
+    )

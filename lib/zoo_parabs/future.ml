@@ -14,7 +14,7 @@ let async ctx task =
   t
 
 let wait ctx t =
-  Pool.wait_until ctx (fun () -> Ivar_3.is_set t) ;
+  Pool.wait_on_ivar ctx t;
   Ivar_3.get t
 
 let iter ctx t task =
