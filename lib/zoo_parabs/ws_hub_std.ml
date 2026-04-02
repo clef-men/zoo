@@ -6,27 +6,29 @@ type 'a t =
   { queues: 'a Ws_deques_public.t
   ; rounds: Random_round.t array
   ; waiters: Waiters.t
-  ; mutable killed: bool
+  ; mutable num_active: int [@atomic]
   }
 
 let create sz =
   { queues= Ws_deques_public.create sz
   ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
   ; waiters= Waiters.create ()
-  ; killed= false
+  ; num_active= sz + 1
   }
 
 let size t =
   Array.size t.rounds
 
 let block t i =
+  Atomic.Loc.decr [%atomic.loc t.num_active] ;
   Ws_deques_public.block t.queues i
 
 let unblock t i =
-  Ws_deques_public.unblock t.queues i
+  Ws_deques_public.unblock t.queues i ;
+  Atomic.Loc.incr [%atomic.loc t.num_active]
 
 let killed t =
-  t.killed
+  t.num_active == 0
 
 let notify t =
   Waiters.notify t.waiters
@@ -99,6 +101,7 @@ let rec steal t i max_round_noyield max_round_yield =
   | Optional.Something v ->
       Some v
   | Anything ->
+      notify_all t ;
       None
   | Nothing ->
       let waiters = t.waiters in
@@ -109,6 +112,7 @@ let rec steal t i max_round_noyield max_round_yield =
           res
       | None ->
           if killed t then (
+            notify_all t ;
             Waiters.cancel_wait waiters waiter ;
             None
           ) else (
@@ -122,8 +126,7 @@ let steal t i max_round_noyield pred =
   res
 
 let kill t =
-  t.killed <- true ;
-  notify_all t
+  Atomic.Loc.decr [%atomic.loc t.num_active]
 
 let pop_steal_until t i max_round_noyield pred =
   match pop t i with
