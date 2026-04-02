@@ -80,7 +80,7 @@ Definition ws_hub_fifo_steal_until_0 : val :=
     ).
 
 Definition ws_hub_fifo_steal_until : val :=
-  fun: "t" "_i" "_max_round_noyield" "pred" =>
+  fun: "t" "_i" <> "pred" =>
     ws_hub_fifo_steal_until_0 "t" "pred".
 
 Definition ws_hub_fifo_steal_0 : val :=
@@ -106,7 +106,7 @@ Definition ws_hub_fifo_steal_0 : val :=
     ).
 
 Definition ws_hub_fifo_steal : val :=
-  fun: "t" "_i" "_max_round_noyield" "_max_round_yield" =>
+  fun: "t" "_i" <> <> =>
     ws_hub_fifo_begin_inactive "t" ;;
     ws_hub_fifo_steal_0 "t".
 

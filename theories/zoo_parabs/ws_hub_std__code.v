@@ -189,9 +189,9 @@ Definition ws_hub_std_steal_0 : val :=
     end.
 
 Definition ws_hub_std_steal : val :=
-  fun: "t" "i" "max_round_noyield" "pred" =>
+  fun: "t" "i" "max_round_noyield" "max_round_yield" =>
     ws_hub_std_block "t" "i" ;;
-    ws_hub_std_steal_0 "t" "i" "max_round_noyield" "pred".
+    ws_hub_std_steal_0 "t" "i" "max_round_noyield" "max_round_yield".
 
 Definition ws_hub_std_close : val :=
   ws_hub_std_begin_inactive.

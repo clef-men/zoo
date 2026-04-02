@@ -53,7 +53,7 @@ let rec steal_until t pred =
     | None ->
         steal_until t pred
   )
-let steal_until t _i _max_round_noyield pred =
+let steal_until t _i ~max_round_noyield:_ pred =
   steal_until t pred
 
 let rec steal t =
@@ -75,23 +75,23 @@ let rec steal t =
     | None ->
         steal t
   )
-let steal t _i _max_round_noyield _max_round_yield =
+let steal t _i ~max_round_noyield:_ ~max_round_yield:_ =
   begin_inactive t ;
   steal t
 
 let close =
   begin_inactive
 
-let pop_steal_until t i max_round_noyield pred =
+let pop_steal_until t i ~max_round_noyield pred =
   match pop t i with
   | Some _ as res ->
       res
   | None ->
-      steal_until t i max_round_noyield pred
+      steal_until t i ~max_round_noyield pred
 
-let pop_steal t i max_round_noyield max_round_yield =
+let pop_steal t i ~max_round_noyield ~max_round_yield =
   match pop t i with
   | Some _ as res ->
       res
   | None ->
-      steal t i max_round_noyield max_round_yield
+      steal t i ~max_round_noyield ~max_round_yield

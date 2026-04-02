@@ -34,7 +34,7 @@ let execute ctx job =
   job ctx
 
 let rec worker ctx =
-  match Ws_hub_std.pop_steal ctx.context_hub ctx.context_id max_round_noyield max_round_yield with
+  match Ws_hub_std.pop_steal ctx.context_hub ctx.context_id ~max_round_noyield ~max_round_yield with
   | None ->
       ()
   | Some job ->
@@ -75,7 +75,7 @@ let async ctx task =
 
 let rec wait_until ctx pred =
   if not @@ pred () then
-    match Ws_hub_std.pop_steal_until ctx.context_hub ctx.context_id max_round_noyield pred with
+    match Ws_hub_std.pop_steal_until ctx.context_hub ctx.context_id ~max_round_noyield pred with
     | None ->
         ()
     | Some job ->

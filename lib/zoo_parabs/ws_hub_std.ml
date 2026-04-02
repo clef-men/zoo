@@ -56,7 +56,7 @@ let try_steal_once t i =
   Random_round.reset round ;
   Ws_deques_public.steal_as t.queues i round
 
-let rec try_steal t i yield max_round pred =
+let rec try_steal t i ~yield ~max_round pred =
   if max_round <= 0 then
     Optional.Nothing
   else
@@ -69,7 +69,7 @@ let rec try_steal t i yield max_round pred =
         else (
           if yield then
             Domain.yield () ;
-          try_steal t i yield (max_round - 1) pred
+          try_steal t i ~yield ~max_round:(max_round - 1) pred
         )
 
 let rec steal_until t i pred =
@@ -83,30 +83,30 @@ let rec steal_until t i pred =
         Domain.yield () ;
         steal_until t i pred
       )
-let steal_until t i max_round_noyield pred =
-  match try_steal t i false max_round_noyield pred with
+let steal_until t i ~max_round_noyield pred =
+  match try_steal t i ~yield:false ~max_round:max_round_noyield pred with
   | Optional.Something v ->
       Some v
   | Anything ->
       None
   | Nothing ->
       steal_until t i pred
-let steal_until t i max_round_noyield pred =
+let steal_until t i ~max_round_noyield pred =
   block_active t i ;
-  let res = steal_until t i max_round_noyield pred in
+  let res = steal_until t i ~max_round_noyield pred in
   unblock_active t i ;
   res
 
-let steal_aux t i max_round_noyield max_round_yield pred =
-  match try_steal t i false max_round_noyield pred with
+let steal_aux t i ~max_round_noyield ~max_round_yield pred =
+  match try_steal t i ~yield:false ~max_round:max_round_noyield pred with
   | Optional.Something _ as res ->
       res
   | Anything ->
       Anything
   | Nothing ->
-      try_steal t i true max_round_yield pred
-let rec steal t i max_round_noyield max_round_yield =
-  match steal_aux t i max_round_noyield max_round_yield (fun () -> closed t) with
+      try_steal t i ~yield:true ~max_round:max_round_yield pred
+let rec steal t i ~max_round_noyield ~max_round_yield =
+  match steal_aux t i ~max_round_noyield ~max_round_yield (fun () -> closed t) with
   | Optional.Something v ->
       unblock t i ;
       Some v
@@ -127,25 +127,25 @@ let rec steal t i max_round_noyield max_round_yield =
             None
           ) else (
             Waiters.commit_wait waiters waiter ;
-            steal t i max_round_noyield max_round_yield
+            steal t i ~max_round_noyield ~max_round_yield
           )
-let steal t i max_round_noyield pred =
+let steal t i ~max_round_noyield ~max_round_yield =
   block t i ;
-  steal t i max_round_noyield pred
+  steal t i ~max_round_noyield ~max_round_yield
 
 let close =
   begin_inactive
 
-let pop_steal_until t i max_round_noyield pred =
+let pop_steal_until t i ~max_round_noyield pred =
   match pop t i with
   | Some _ as res ->
       res
   | None ->
-      steal_until t i max_round_noyield pred
+      steal_until t i ~max_round_noyield pred
 
-let pop_steal t i max_round_noyield max_round_yield =
+let pop_steal t i ~max_round_noyield ~max_round_yield =
   match pop t i with
   | Some _ as res ->
       res
   | None ->
-      steal t i max_round_noyield max_round_yield
+      steal t i ~max_round_noyield ~max_round_yield
