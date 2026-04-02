@@ -133,25 +133,25 @@ Module base.
         ▷ □ Ξ v
       }}.
     #[local] Instance : CustomIpat "inv_state_unset" :=
-      " ( {>;}Hlstate_unset₁{_{}} &
-          {>;}Hlstate_unset₂{_{}} &
-          Hthunk
+      " ( {>;}Hlstate_unset₁{_{}}
+        & {>;}Hlstate_unset₂{_{}}
+        & Hthunk
         )
       ".
     #[local] Definition inv_state_setting γ mtx : iProp Σ :=
       lstate_unset₁ γ ∗
       mutex_inv mtx (lazy_resolved γ).
     #[local] Instance : CustomIpat "inv_state_setting" :=
-      " ( {>;}Hlstate_unset₁{_{}} &
-          #Hmtx_inv{_{}}
+      " ( {>;}Hlstate_unset₁{_{}}
+        & #Hmtx_inv{_{}}
         )
       ".
     #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
       lstate_set γ v ∗
       □ Ξ v.
     #[local] Instance : CustomIpat "inv_state_set" :=
-      " ( {>;}#Hlstate_set{_{}} &
-          #HΞ{_{}}
+      " ( {>;}#Hlstate_set{_{}}
+        & #HΞ{_{}}
         )
       ".
     #[local] Definition inv_state γ Ψ Ξ state :=
@@ -170,10 +170,10 @@ Module base.
       consumer_auth γ Ψ (state_to_option state) ∗
       inv_state γ Ψ Ξ state.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state &
-          Ht &
-          Hconsumer_auth &
-          Hstate
+      " ( %state
+        & Ht
+        & Hconsumer_auth
+        & Hstate
         )
       ".
     Definition lazy_inv t γ Ψ Ξ : iProp Σ :=
@@ -711,11 +711,11 @@ Section lazy_G.
     meta 𝑡 nroot γ ∗
     base.lazy_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -725,11 +725,11 @@ Section lazy_G.
     meta 𝑡 nroot γ ∗
     base.lazy_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -739,11 +739,11 @@ Section lazy_G.
     meta 𝑡 nroot γ ∗
     base.lazy_result γ v.
   #[local] Instance : CustomIpat "result" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresult{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresult{_{}}
       )
     ".
   Definition lazy_resolved t : iProp Σ :=

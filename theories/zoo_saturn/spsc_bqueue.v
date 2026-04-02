@@ -105,9 +105,9 @@ Section spsc_bqueue_G.
   #[local] Definition producer₁ γ :=
     producer₁' γ.(metadata_producer) γ.(metadata_back) γ.(metadata_model).
   #[local] Instance : CustomIpat "producer₁" :=
-    " ( Hproducer₁ &
-        Hback_auth₁ &
-        Hmodel_auth
+    " ( Hproducer₁
+      & Hback_auth₁
+      & Hmodel_auth
       )
     ".
   #[local] Definition producer₂' γ_producer γ_back stable back : iProp Σ :=
@@ -116,8 +116,8 @@ Section spsc_bqueue_G.
   #[local] Definition producer₂ γ :=
     producer₂' γ.(metadata_producer) γ.(metadata_back).
   #[local] Instance : CustomIpat "producer₂" :=
-    " ( Hproducer₂ &
-        Hback_auth₂
+    " ( Hproducer₂
+      & Hback_auth₂
       )
     ".
   #[local] Definition back_lb γ :=
@@ -129,8 +129,8 @@ Section spsc_bqueue_G.
   #[local] Definition consumer₁ γ :=
     consumer₁' γ.(metadata_consumer) γ.(metadata_front).
   #[local] Instance : CustomIpat "consumer₁" :=
-    " ( Hconsumer₁ &
-        Hfront_auth₁
+    " ( Hconsumer₁
+      & Hfront_auth₁
       )
     ".
   #[local] Definition consumer₂' γ_consumer γ_front stable front : iProp Σ :=
@@ -139,8 +139,8 @@ Section spsc_bqueue_G.
   #[local] Definition consumer₂ γ :=
     consumer₂' γ.(metadata_consumer) γ.(metadata_front).
   #[local] Instance : CustomIpat "consumer₂" :=
-    " ( Hconsumer₂ &
-        Hfront_auth₂
+    " ( Hconsumer₂
+      & Hfront_auth₂
       )
     ".
   #[local] Definition front_lb γ :=
@@ -171,26 +171,26 @@ Section spsc_bqueue_G.
     ) ∗
     array_cslice γ.(metadata_data) γ.(metadata_capacity) (S back) (DfracOwn 1) (replicate (γ.(metadata_capacity) - (back - front) - 1) §None%V).
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %cstable{} &
-        %front{} &
-        %pstable{} &
-        %back{} &
-        %vs{} &
-        %hist{} &
-        >%Hback{} &
-        >%Hback{}_le &
-        >%Hhist{}_len &
-        >%Hvs{} &
-        >Hl_front &
-        >Hconsumer₂ &
-        >Hl_back &
-        >Hproducer₂ &
-        >Hmodel₂ &
-        >Hhistory_auth &
-        >Hfront &
-        >Hvs &
-        >Hback &
-        >Hextra
+    " ( %cstable{}
+      & %front{}
+      & %pstable{}
+      & %back{}
+      & %vs{}
+      & %hist{}
+      & >%Hback{}
+      & >%Hback{}_le
+      & >%Hhist{}_len
+      & >%Hvs{}
+      & >Hl_front
+      & >Hconsumer₂
+      & >Hl_back
+      & >Hproducer₂
+      & >Hmodel₂
+      & >Hhistory_auth
+      & >Hfront
+      & >Hvs
+      & >Hback
+      & >Hextra
       )
     ".
   #[local] Definition inv' l γ : iProp Σ :=
@@ -199,10 +199,10 @@ Section spsc_bqueue_G.
     array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
   #[local] Instance : CustomIpat "inv'" :=
-    " ( #Hmeta{_{}} &
-        #Hl_data &
-        #Hdata_inv &
-        #Hinv
+    " ( #Hmeta{_{}}
+      & #Hl_data
+      & #Hdata_inv
+      & #Hinv
       )
     ".
   Definition spsc_bqueue_inv t ι cap : iProp Σ :=
@@ -212,12 +212,12 @@ Section spsc_bqueue_G.
     ⌜cap = γ.(metadata_capacity)⌝ ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        -> &
-        -> &
-        (:inv')
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & ->
+      & ->
+      & (:inv')
       )
     ".
 
@@ -228,12 +228,12 @@ Section spsc_bqueue_G.
     model₁ γ vs ∗
     ⌜length vs ≤ γ.(metadata_capacity)⌝.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Hmodel₁{_{}} &
-        %Hvs{}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Hmodel₁{_{}}
+      & %Hvs{}
       )
     ".
 
@@ -245,15 +245,15 @@ Section spsc_bqueue_G.
     producer₁ γ Stable back ws ∗
     front_lb γ front_cache.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %front_cache &
-        %back &
-        %Heq{} &
-        #Hmeta_{} &
-        Hl_front_cache &
-        Hproducer₁ &
-        #Hfront_lb
+    " ( %l{;_}
+      & %γ{;_}
+      & %front_cache
+      & %back
+      & %Heq{}
+      & #Hmeta_{}
+      & Hl_front_cache
+      & Hproducer₁
+      & #Hfront_lb
       )
     ".
 
@@ -265,15 +265,15 @@ Section spsc_bqueue_G.
     consumer₁ γ Stable front ∗
     back_lb γ back_cache.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %front &
-        %back_cache &
-        %Heq{} &
-        #Hmeta_{} &
-        Hl_back_cache &
-        Hconsumer₁ &
-        #Hback_lb
+    " ( %l{;_}
+      & %γ{;_}
+      & %front
+      & %back_cache
+      & %Heq{}
+      & #Hmeta_{}
+      & Hl_back_cache
+      & Hconsumer₁
+      & #Hback_lb
       )
     ".
 

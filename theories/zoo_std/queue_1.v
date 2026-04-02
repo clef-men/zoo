@@ -29,14 +29,14 @@ Section zoo_G.
     chain_model None front vs back ∗
     chain_model None back [()%V] ().
   #[local] Instance : CustomIpat "model" :=
-    " ( %l &
-        %front &
-        %back &
-        -> &
-        Hl_front &
-        Hl_back &
-        Hfront &
-        Hback
+    " ( %l
+      & %front
+      & %back
+      & ->
+      & Hl_front
+      & Hl_back
+      & Hfront
+      & Hback
       )
     ".
 

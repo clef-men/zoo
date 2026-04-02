@@ -57,9 +57,9 @@ Section pool_counter_G.
     r ↦ᵣ #cnt ∗
     tokens_auth γ cnt.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %cnt &
-        >Hr &
-        >Htokens_auth
+    " ( %cnt
+      & >Hr
+      & >Htokens_auth
       )
     ".
   #[local] Definition inv r γ η :=

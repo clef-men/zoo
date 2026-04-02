@@ -124,8 +124,8 @@ Module base.
     #[local] Definition owner₁ γ :=
       owner₁' γ.(ws_bdeque_1_name_owner) γ.(ws_bdeque_1_name_model).
     #[local] Instance : CustomIpat "owner₁" :=
-      " ( Howner₁{_{}} &
-          Hmodel_auth{_{}}
+      " ( Howner₁{_{}}
+        & Hmodel_auth{_{}}
         )
       ".
     #[local] Definition owner₂' γ_owner stable back :=
@@ -160,11 +160,11 @@ Module base.
       winner_pop γ front P1 ∗
       winner_steal γ front P2.
     #[local] Instance : CustomIpat "winner" :=
-      " ( %front_winner &
-          %P_winner_1 &
-          %P_winner_2 &
-          Hwinner_pop{_{}} &
-          Hwinner_steal{_{}}
+      " ( %front_winner
+        & %P_winner_1
+        & %P_winner_2
+        & Hwinner_pop{_{}}
+        & Hwinner_steal{_{}}
         )
       ".
 
@@ -185,25 +185,25 @@ Module base.
       identifier_model' id ∗
       winner_au γ front P.
     #[local] Instance : CustomIpat "winner_pending_1" :=
-      " ( Hwinner_steal{_{!}} &
-          Hid{_{!}} &
-          HP
+      " ( Hwinner_steal{_{!}}
+        & Hid{_{!}}
+        & HP
         )
       ".
     #[local] Definition winner_pending_2 γ front id : iProp Σ :=
       ∃ P,
       winner_pending_1 γ front P id.
     #[local] Instance : CustomIpat "winner_pending_2" :=
-      " ( %P{} &
-          (:winner_pending_1)
+      " ( %P{}
+        & (:winner_pending_1)
         )
       ".
     #[local] Definition winner_linearized γ front P : iProp Σ :=
       winner_steal γ front P ∗
       P.
     #[local] Instance : CustomIpat "winner_linearized" :=
-      " ( Hwinner_steal{_{!}} &
-          HP
+      " ( Hwinner_steal{_{!}}
+        & HP
         )
       ".
 
@@ -217,10 +217,10 @@ Module base.
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}-> &
-          {>;}%Hhist{} &
-          Hwinner
+          }
+        & {>;}->
+        & {>;}%Hhist{}
+        & Hwinner
         )
       ".
     #[local] Definition inv_state_nonempty γ stable front back hist vs prophs : iProp Σ :=
@@ -241,11 +241,11 @@ Module base.
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}% &
-          {>;}%Hhist{} &
-          #Hhistory_at_front{} &
-          Hwinner
+          }
+        & {>;}%
+        & {>;}%Hhist{}
+        & #Hhistory_at_front{}
+        & Hwinner
         )
       ".
     #[local] Definition inv_state_nonempty_steal γ state stable front back hist vs prophs P : iProp Σ :=
@@ -261,16 +261,16 @@ Module base.
           winner_pending_1 γ front P id
       end.
     #[local] Instance : CustomIpat "inv_state_nonempty_steal" :=
-      " ( {>;}-> &
-          { {lazy}{>}%
+      " ( {>;}->
+        & { {lazy}{>}%
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}% &
-          {>;}%Hhist{} &
-          #Hhistory_at_front{} &
-          Hwinner
+          }
+        & {>;}%
+        & {>;}%Hhist{}
+        & #Hhistory_at_front{}
+        & Hwinner
         )
       ".
     #[local] Definition inv_state_emptyish γ stable front back hist priv : iProp Σ :=
@@ -283,16 +283,16 @@ Module base.
       ∨ winner_linearized γ front P
       ).
     #[local] Instance : CustomIpat "inv_state_emptyish" :=
-      " ( %P_ &
-          { {lazy}{>}%
+      " ( %P_
+        & { {lazy}{>}%
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}-> &
-          {>;}%Hhist{} &
-          #Hhistory_at_front{} &
-          Hwinner
+          }
+        & {>;}->
+        & {>;}%Hhist{}
+        & #Hhistory_at_front{}
+        & Hwinner
         )
       ".
     #[local] Definition inv_state_emptyish_pop γ state stable front back hist priv P : iProp Σ :=
@@ -303,16 +303,16 @@ Module base.
       history_at γ front (hd inhabitant priv) ∗
       winner_pop γ front P.
     #[local] Instance : CustomIpat "inv_state_emptyish_pop" :=
-      " ( {>;}-> &
-          { {lazy}{>}%
+      " ( {>;}->
+        & { {lazy}{>}%
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}-> &
-          {>;}%Hhist{} &
-          #Hhistory_at_front{} &
-          Hwinner_pop
+          }
+        & {>;}->
+        & {>;}%Hhist{}
+        & #Hhistory_at_front{}
+        & Hwinner_pop
         )
       ".
     #[local] Definition inv_state_emptyish_steal γ state stable front back hist priv P : iProp Σ :=
@@ -323,16 +323,16 @@ Module base.
       history_at γ front (hd inhabitant priv) ∗
       winner_linearized γ front P.
     #[local] Instance : CustomIpat "inv_state_emptyish_steal" :=
-      " ( {>;}-> &
-          { {lazy}{>}%
+      " ( {>;}->
+        & { {lazy}{>}%
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}-> &
-          {>;}%Hhist{} &
-          #Hhistory_at_front{} &
-          (:winner_linearized)
+          }
+        & {>;}->
+        & {>;}%Hhist{}
+        & #Hhistory_at_front{}
+        & (:winner_linearized)
         )
       ".
     #[local] Definition inv_state_superempty γ stable front back hist : iProp Σ :=
@@ -345,10 +345,10 @@ Module base.
           ; {lazy}%
           ; {>}->
           ; ->
-          } &
-          {>;}-> &
-          {>;}%Hhist{} &
-          Hwinner
+          }
+        & {>;}->
+        & {>;}%Hhist{}
+        & Hwinner
         )
       ".
     #[local] Definition inv_state γ state stable front back hist vs priv prophs : iProp Σ :=
@@ -379,28 +379,28 @@ Module base.
       ⌜∀ i, front ≤ i → pasts i = []⌝ ∗
       inv_state γ state stable front back hist vs priv (prophss front).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state{} &
-          %stable{} &
-          %front{} &
-          %back{} &
-          %hist{} &
-          %vs{} &
-          %priv{} &
-          %pasts{} &
-          %prophss{} &
-          >Ht_front &
-          >Ht_back &
-          >Howner₂ &
-          >Hfront_auth &
-          >%Hfront{} &
-          >Hmodel₂ &
-          >%Hvs{} &
-          >Hdata_cslice₁ &
-          >%Hdata{} &
-          >Hhistory_auth &
-          >Hprophet_model &
-          >%Hpasts{} &
-          Hstate
+      " ( %state{}
+        & %stable{}
+        & %front{}
+        & %back{}
+        & %hist{}
+        & %vs{}
+        & %priv{}
+        & %pasts{}
+        & %prophss{}
+        & >Ht_front
+        & >Ht_back
+        & >Howner₂
+        & >Hfront_auth
+        & >%Hfront{}
+        & >Hmodel₂
+        & >%Hvs{}
+        & >Hdata_cslice₁
+        & >%Hdata{}
+        & >Hhistory_auth
+        & >Hprophet_model
+        & >%Hpasts{}
+        & Hstate
         )
       ".
     #[local] Definition inv' t γ : iProp Σ :=
@@ -410,11 +410,11 @@ Module base.
       t.[proph] ↦□ #γ.(ws_bdeque_1_name_prophet) ∗
       inv γ.(ws_bdeque_1_name_inv) (inv_inner t γ).
     #[local] Instance : CustomIpat "inv'" :=
-      " ( %Hcapacity &
-          #Ht_capacity &
-          #Ht_data &
-          #Ht_proph &
-          #Hinv
+      " ( %Hcapacity
+        & #Ht_capacity
+        & #Ht_data
+        & #Ht_proph
+        & #Hinv
         )
       ".
     Definition ws_bdeque_1_inv t γ ι cap : iProp Σ :=
@@ -422,9 +422,9 @@ Module base.
       ⌜cap = γ.(ws_bdeque_1_name_capacity)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          -> &
-          (:inv')
+      " ( ->
+        & ->
+        & (:inv')
         )
       ".
 
@@ -432,8 +432,8 @@ Module base.
       model₁ γ vs ∗
       ⌜length vs ≤ γ.(ws_bdeque_1_name_capacity)⌝.
     #[local] Instance : CustomIpat "model" :=
-      " ( Hmodel₁{_{}} &
-          %Hvs{}
+      " ( Hmodel₁{_{}}
+        & %Hvs{}
         )
       ".
 
@@ -448,18 +448,18 @@ Module base.
       array_cslice γ.(ws_bdeque_1_name_data) γ.(ws_bdeque_1_name_capacity) i (DfracOwn (1/2)) us ∗
       ⌜length us = γ.(ws_bdeque_1_name_capacity)⌝.
     #[local] Instance : CustomIpat "owner_1" :=
-      " ( Howner₁{_{}} &
-          Ht_front_cache{_{}} &
-          { {!} _
+      " ( Howner₁{_{}}
+        & Ht_front_cache{_{}}
+        & { {!} _
           ; #Hfront_lb_cache_{}
           ; #Hfront_lb_cache
           } &
           { {!} _
           ; %Hfront_cache_{}
           ; %Hfront_cache
-          } &
-          Hdata_cslice₂{_{}} &
-          { {!} _
+          }
+        & Hdata_cslice₂{_{}}
+        & { {!} _
           ; %Hus{}
           ; %Hus
           }
@@ -468,16 +468,17 @@ Module base.
     #[local] Definition owner_2 :=
       owner_1 OwnerNormal.
     #[local] Instance : CustomIpat "owner_2" :=
-      "(:owner_1)".
+      " (:owner_1)
+      ".
     Definition ws_bdeque_1_owner t γ ws : iProp Σ :=
       ∃ back front_cache i us,
       owner_2 t γ Stable back ws front_cache i us.
     #[local] Instance : CustomIpat "owner" :=
-      " ( %back{} &
-          %front_cache{_{}} &
-          %i{} &
-          %us{} &
-          Howner{_{}}
+      " ( %back{}
+        & %front_cache{_{}}
+        & %i{}
+        & %us{}
+        & Howner{_{}}
         )
       ".
 
@@ -2172,11 +2173,11 @@ Section ws_bdeque_1_G.
     meta 𝑡 nroot γ ∗
     base.ws_bdeque_1_inv 𝑡 γ ι cap.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -2186,11 +2187,11 @@ Section ws_bdeque_1_G.
     meta 𝑡 nroot γ ∗
     base.ws_bdeque_1_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -2200,11 +2201,11 @@ Section ws_bdeque_1_G.
     meta 𝑡 nroot γ ∗
     base.ws_bdeque_1_owner 𝑡 γ ws.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Howner{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Howner{_{}}
       )
     ".
 

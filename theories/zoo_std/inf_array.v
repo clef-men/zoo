@@ -79,20 +79,20 @@ Section inf_array_G.
     model₂ γ vs ∗
     ⌜vs = λ i, if decide (i < length us) then us !!! i else γ.(metadata_default)⌝.
   #[local] Instance : CustomIpat "inv_2" :=
-    " ( %data &
-        %vs &
-        Hl_data &
-        Hdata &
-        Hmodel₂ &
-        %Hvs
+    " ( %data
+      & %vs
+      & Hl_data
+      & Hdata
+      & Hmodel₂
+      & %Hvs
       )
     ".
   #[local] Definition inv_1 l γ : iProp Σ :=
     ∃ us,
     inv_2 l γ us.
   #[local] Instance : CustomIpat "inv_1" :=
-    " ( %us{} &
-        {{lazy}Hinv;(:inv_2)}
+    " ( %us{}
+      & {{lazy}Hinv;(:inv_2)}
       )
     ".
   Definition inf_array_inv t : iProp Σ :=
@@ -103,14 +103,14 @@ Section inf_array_G.
     l.[mutex] ↦□ mtx ∗
     mutex_inv mtx (inv_1 l γ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        %mtx &
-        -> &
-        #Hmeta &
-        #Hl_mtx &
-        #Hl_default &
-        #Hmtx_inv
+    " ( %l
+      & %γ
+      & %mtx
+      & ->
+      & #Hmeta
+      & #Hl_mtx
+      & #Hl_default
+      & #Hmtx_inv
       )
     ".
 
@@ -120,11 +120,11 @@ Section inf_array_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l_ &
-        %γ_ &
-        %Heq &
-        #Hmeta_ &
-        Hmodel₁
+    " ( %l_
+      & %γ_
+      & %Heq
+      & #Hmeta_
+      & Hmodel₁
       )
     ".
   Definition inf_array_model' t vsₗ vsᵣ :=

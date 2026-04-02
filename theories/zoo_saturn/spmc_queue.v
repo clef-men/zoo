@@ -91,9 +91,9 @@ Module base.
       mono_list_auth γ_history (DfracOwn (1/2)) hist ∗
       ⌜last hist = Some node⌝.
     #[local] Instance : CustomIpat "history_last" :=
-      " ( %hist{} &
-          Hauth{_{}} &
-          %Hlast
+      " ( %hist{}
+        & Hauth{_{}}
+        & %Hlast
         )
       ".
     #[local] Definition history_last γ :=
@@ -134,9 +134,9 @@ Module base.
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
     #[local] Instance : CustomIpat "node_model" :=
-      " ( #H{}_header &
-          #Hhistory_at_{} &
-          {{front}#Hfront_lb_{};_}
+      " ( #H{}_header
+        & #Hhistory_at_{}
+        & {{front}#Hfront_lb_{};_}
         )
       ".
 
@@ -169,21 +169,21 @@ Module base.
       waiters_auth γ waiters ∗
       ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %hist{} &
-          %past{} &
-          %front{} &
-          %nodes{} &
-          %vs{} &
-          %waiters{} &
-          >%Hhist{} &
-          >Ht_front &
-          >Hhist &
-          >Hnodes &
-          >Hhistory_auth &
-          >Hfront_auth &
-          >Hmodel₂ &
-          >Hwaiters_auth &
-          Hwaiters
+      " ( %hist{}
+        & %past{}
+        & %front{}
+        & %nodes{}
+        & %vs{}
+        & %waiters{}
+        & >%Hhist{}
+        & >Ht_front
+        & >Hhist
+        & >Hnodes
+        & >Hhistory_auth
+        & >Hfront_auth
+        & >Hmodel₂
+        & >Hwaiters_auth
+        & Hwaiters
         )
       ".
     #[local] Definition inv' t γ :=
@@ -192,8 +192,8 @@ Module base.
       ⌜ι = γ.(metadata_inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          #Hinv
+      " ( ->
+        & #Hinv
         )
       ".
 
@@ -204,11 +204,11 @@ Module base.
       history_last γ back ∗
       producer γ ws.
     #[local] Instance : CustomIpat "producer" :=
-      " ( %back{} &
-          Ht_back{_{}} &
-          #Hback{}_header &
-          Hhistory_last{_{}} &
-          Hproducer{_{}}
+      " ( %back{}
+        & Ht_back{_{}}
+        & #Hback{}_header
+        & Hhistory_last{_{}}
+        & Hproducer{_{}}
         )
       ".
 
@@ -915,11 +915,11 @@ Section spmc_queue_G.
     meta 𝑡 nroot γ ∗
     base.spmc_queue_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -929,11 +929,11 @@ Section spmc_queue_G.
     meta 𝑡 nroot γ ∗
     base.spmc_queue_producer 𝑡 γ ws.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hproducer{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hproducer{_{}}
       )
     ".
 
@@ -943,11 +943,11 @@ Section spmc_queue_G.
     meta 𝑡 nroot γ ∗
     base.spmc_queue_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 

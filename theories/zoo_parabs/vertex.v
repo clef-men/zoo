@@ -143,31 +143,33 @@ Module base.
       state₁ γ Own state ∗
       iteration₁ γ iter.
     #[local] Instance : CustomIpat "model'" :=
-      " ( Ht{which;}_task{_{}} &
-          Hstate{which;}₁{_{}} &
-          Hiteration{which;}₁{_{}}
+      " ( Ht{which;}_task{_{}}
+        & Hstate{which;}₁{_{}}
+        & Hiteration{which;}₁{_{}}
         )
       ".
     Definition vertex_model t γ task iter : iProp Σ :=
       model' t γ task Init iter.
     #[local] Instance : CustomIpat "model" :=
-      "(:model')".
+      " (:model')
+      ".
 
     Definition vertex_ready iter : iProp Σ :=
       ∃ Δ,
       dependencies_auth iter Discard Δ ∗
       [∗ mset] δ ∈ Δ, state₁ δ Discard Finished.
     #[local] Instance : CustomIpat "ready" :=
-      " ( %Δ{} &
-          #Hdependencies{which;}_auth{_{}} &
-          #HΔ{}
+      " ( %Δ{}
+        & #Hdependencies{which;}_auth{_{}}
+        & #HΔ{}
         )
       ".
 
     Definition vertex_finished γ :=
       state₁ γ Discard Finished.
     #[local] Instance : CustomIpat "finished" :=
-      "#Hstate{which;}₁{_{}}".
+      " #Hstate{which;}₁{_{}}
+      ".
 
     Definition vertex_wp_body t γ P R wp task iter : iProp Σ :=
       ∀ pool ctx scope iter',
@@ -238,10 +240,10 @@ Module base.
       ⌜preds = S (size Π)⌝ ∗
       [∗ mset] δ ∈ Δ, vertex_finished δ.
     #[local] Instance : CustomIpat "inv_state_init" :=
-      " ( %Δ &
-          {>;}Hdependencies{which;}_auth &
-          {>;}-> &
-          {>;}HΔ
+      " ( %Δ
+        & {>;}Hdependencies{which;}_auth
+        & {>;}->
+        & {>;}HΔ
         )
       ".
     #[local] Definition inv_state_released t γ P R preds iter Π : iProp Σ :=
@@ -252,27 +254,28 @@ Module base.
       ([∗ mset] δ ∈ Δ, vertex_finished δ) ∗
       vertex_wp t γ P R task iter.
     #[local] Instance : CustomIpat "inv_state_released" :=
-      " ( %task &
-          %Δ &
-          (:model') &
-          {>;}Hdependencies{which;}_auth &
-          {>;}-> &
-          {>;}HΔ &
-          Htask
+      " ( %task
+        & %Δ
+        & (:model')
+        & {>;}Hdependencies{which;}_auth
+        & {>;}->
+        & {>;}HΔ
+        & Htask
         )
       ".
     #[local] Definition inv_state_ready Π : iProp Σ :=
       ⌜Π = ∅⌝.
     #[local] Instance : CustomIpat "inv_state_ready" :=
-      "{>;}->".
+      " {>;}->
+      ".
     #[local] Definition inv_state_finished γ R preds Π : iProp Σ :=
       vertex_finished γ ∗
       ⌜preds = S (size Π)⌝ ∗
       □ R.
     #[local] Instance : CustomIpat "inv_state_finished" :=
-      " ( {>;}#Hstate{which;}₁ &
-          {>;}-> &
-          #HR{which;}
+      " ( {>;}#Hstate{which;}₁
+        & {>;}->
+        & #HR{which;}
         )
       ".
     #[local] Definition inv_state t γ P R state preds iter Π : iProp Σ :=
@@ -292,11 +295,11 @@ Module base.
       inv succ γ_succ P_succ R_succ ∗
       predecessors_elem γ_succ γ.
     #[local] Instance : CustomIpat "inv_successor" :=
-      " ( %γ_succ &
-          %P_succ &
-          %R_succ &
-          #Hinv_succ &
-          Hpredecessors_elem
+      " ( %γ_succ
+        & %P_succ
+        & %R_succ
+        & #Hinv_succ
+        & Hpredecessors_elem
         )
       ".
     #[local] Definition inv_successors inv γ finished :=
@@ -308,11 +311,12 @@ Module base.
         [∗ list] succ ∈ succs, inv_successor inv γ succ
       )%I.
     #[local] Instance : CustomIpat "inv_successors_finished" :=
-      ">Hsuccessors{which;}_model".
+      " >Hsuccessors{which;}_model
+      ".
     #[local] Instance : CustomIpat "inv_successors" :=
-      " ( %succs &
-          >Hsuccessors{which;}_model &
-          Hsuccs
+      " ( %succs
+        & >Hsuccessors{which;}_model
+        & Hsuccs
         )
       ".
 
@@ -326,17 +330,17 @@ Module base.
       inv_state t γ P R state preds iter Π ∗
       inv_successors inv γ (bool_decide (state = Finished)).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %preds{} &
-          %state{} &
-          %iter{} &
-          %Π &
-          Ht{which;}_preds &
-          >Hstate{which;}₂ &
-          >Hiteration{which;}₂ &
-          Hpredecessors{which;}_auth &
-          Houtput{which;}_auth &
-          Hinv_state{which;} &
-          Hinv_successors{which;}
+      " ( %preds{}
+        & %state{}
+        & %iter{}
+        & %Π
+        & Ht{which;}_preds
+        & >Hstate{which;}₂
+        & >Hiteration{which;}₂
+        & Hpredecessors{which;}_auth
+        & Houtput{which;}_auth
+        & Hinv_state{which;}
+        & Hinv_successors{which;}
         )
       ".
     #[local] Definition inv_pre
@@ -349,9 +353,9 @@ Module base.
         invariants.inv (nroot.@"inv") (inv_inner inv t γ P R)
       )%I.
     #[local] Instance : CustomIpat "inv_pre" :=
-      " ( #Ht{}_succs &
-          #Hsuccessors{}_inv &
-          #Hinv{_{}}
+      " ( #Ht{}_succs
+        & #Hsuccessors{}_inv
+        & #Hinv{_{}}
         )
       ".
     #[local] Instance inv_pre_contractive_2 :
@@ -407,7 +411,8 @@ Module base.
     Definition vertex_output γ Q :=
       output_frag γ Q.
     #[local] Instance : CustomIpat "output" :=
-      "Houtput{which;}_frag{_{}}".
+      " Houtput{which;}_frag{_{}}
+      ".
 
     #[global] Instance vertex_output_contractive γ :
       Contractive (vertex_output γ).
@@ -423,7 +428,8 @@ Module base.
     Definition vertex_predecessor γ iter :=
       dependencies_elem iter γ.
     #[local] Instance : CustomIpat "predecessor" :=
-      "#Hdependencies{which;}_elem{_{}}".
+      " #Hdependencies{which;}_elem{_{}}
+      ".
 
     #[global] Instance vertex_model_timeless t γ task iter :
       Timeless (vertex_model t γ task iter).
@@ -1192,11 +1198,11 @@ Section vertex_G.
     meta 𝑡 nroot γ ∗
     base.vertex_inv 𝑡 γ P R.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{}{_{!}} &
-        %γ{}{_{!}} &
-        {%Heq{};->} &
-        #Hmeta{_{}}{_{!}} &
-        #Hinv{_{}}
+    " ( %𝑡{}{_{!}}
+      & %γ{}{_{!}}
+      & {%Heq{};->}
+      & #Hmeta{_{}}{_{!}}
+      & #Hinv{_{}}
       )
     ".
 
@@ -1225,11 +1231,11 @@ Section vertex_G.
     meta 𝑡 nroot γ ∗
     base.vertex_model 𝑡 γ task iter.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{}{_{!}} &
-        %γ{}{_{!}} &
-        {%Heq{};->} &
-        #Hmeta{_{}}{_{!}} &
-        Hmodel{_{}}
+    " ( %𝑡{}{_{!}}
+      & %γ{}{_{!}}
+      & {%Heq{};->}
+      & #Hmeta{_{}}{_{!}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -1239,11 +1245,11 @@ Section vertex_G.
     meta 𝑡 nroot γ ∗
     base.vertex_output γ Q.
   #[local] Instance : CustomIpat "output" :=
-    " ( %𝑡{}{_{!}} &
-        %γ{}{_{!}} &
-        {%Heq{};->} &
-        #Hmeta{_{}}{_{!}} &
-        Houtput{_{}}
+    " ( %𝑡{}{_{!}}
+      & %γ{}{_{!}}
+      & {%Heq{};->}
+      & #Hmeta{_{}}{_{!}}
+      & Houtput{_{}}
       )
     ".
 
@@ -1256,11 +1262,11 @@ Section vertex_G.
     meta 𝑡 nroot γ ∗
     base.vertex_finished γ.
   #[local] Instance : CustomIpat "finished" :=
-    " ( %𝑡{}{_{!}} &
-        %γ{}{_{!}} &
-        {%Heq{};->} &
-        #Hmeta{_{}}{_{!}} &
-        Hfinished{_{}}
+    " ( %𝑡{}{_{!}}
+      & %γ{}{_{!}}
+      & {%Heq{};->}
+      & #Hmeta{_{}}{_{!}}
+      & Hfinished{_{}}
       )
     ".
 
@@ -1270,11 +1276,11 @@ Section vertex_G.
     meta 𝑡 nroot γ ∗
     base.vertex_predecessor γ iter.
   #[local] Instance : CustomIpat "predecessor" :=
-    " ( %𝑡{}{_{!}} &
-        %γ{}{_{!}} &
-        {%Heq{};->} &
-        #Hmeta{_{}}{_{!}} &
-        Hpredecessor{_{}}
+    " ( %𝑡{}{_{!}}
+      & %γ{}{_{!}}
+      & {%Heq{};->}
+      & #Hmeta{_{}}{_{!}}
+      & Hpredecessor{_{}}
       )
     ".
 

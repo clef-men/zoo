@@ -140,10 +140,10 @@ Module base.
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
     #[local] Instance : CustomIpat "node_model" :=
-      " ( #H{}_header &
-          #H{}_index &
-          #Hhistory_at_{} &
-          {{front}#Hfront_lb_{};_}
+      " ( #H{}_header
+        & #H{}_index
+        & #Hhistory_at_{}
+        & {{front}#Hfront_lb_{};_}
         )
       ".
 
@@ -190,26 +190,26 @@ Module base.
         waiter_model γ past waiter i
       ).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %hist{} &
-          %past{} &
-          %front{} &
-          %nodes{} &
-          %back{} &
-          %vs{} &
-          %waiters{} &
-          >%Hhist{} &
-          >%Hback{} &
-          >Ht_front &
-          >Ht_back &
-          >Hhist &
-          >Hnodes &
-          >Hindices &
-          >Hcapacities &
-          >Hhistory_auth &
-          >Hfront_auth &
-          >Hmodel₂ &
-          >Hwaiters_auth &
-          Hwaiters
+      " ( %hist{}
+        & %past{}
+        & %front{}
+        & %nodes{}
+        & %back{}
+        & %vs{}
+        & %waiters{}
+        & >%Hhist{}
+        & >%Hback{}
+        & >Ht_front
+        & >Ht_back
+        & >Hhist
+        & >Hnodes
+        & >Hindices
+        & >Hcapacities
+        & >Hhistory_auth
+        & >Hfront_auth
+        & >Hmodel₂
+        & >Hwaiters_auth
+        & Hwaiters
         )
       ".
     #[local] Definition inv' t γ :=
@@ -220,10 +220,10 @@ Module base.
       t.[capacity] ↦□ #cap ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          -> &
-          #Ht_capacity &
-          #Hinv
+      " ( ->
+        & ->
+        & #Ht_capacity
+        & #Hinv
         )
       ".
 
@@ -231,8 +231,8 @@ Module base.
       ⌜length vs ≤ γ.(mpmc_bqueue_name_capacity)⌝ ∗
       model₁ γ vs.
     #[local] Instance : CustomIpat "model" :=
-      " ( % &
-          Hmodel₁{_{}}
+      " ( %
+        & Hmodel₁{_{}}
         )
       ".
 
@@ -1354,11 +1354,11 @@ Section mpmc_bqueue_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_bqueue_inv 𝑡 γ ι cap.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -1368,11 +1368,11 @@ Section mpmc_bqueue_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_bqueue_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 

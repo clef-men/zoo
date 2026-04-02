@@ -89,8 +89,8 @@ Module base.
       lstate_set γ ∗
       inv_state_set_1 γ Ψ v.
     #[local] Instance : CustomIpat "inv_state_set_2" :=
-      " ( {>;}#Hlstate_set{_{}} &
-          Hstate
+      " ( {>;}#Hlstate_set{_{}}
+        & Hstate
         )
       ".
     #[local] Definition inv_state γ Ψ state :=
@@ -106,9 +106,9 @@ Module base.
       t ↦ᵣ state ∗
       inv_state γ Ψ state.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state &
-          Ht &
-          Hstate
+      " ( %state
+        & Ht
+        & Hstate
         )
       ".
     Definition mvar_inv t γ Ψ : iProp Σ :=
@@ -540,11 +540,11 @@ Section mvar_G.
     meta 𝑡 nroot γ ∗
     base.mvar_inv 𝑡 γ Ψ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -554,11 +554,11 @@ Section mvar_G.
     meta 𝑡 nroot γ ∗
     base.mvar_consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -568,11 +568,11 @@ Section mvar_G.
     meta 𝑡 nroot γ ∗
     base.mvar_resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresolved{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresolved{_{}}
       )
     ".
 

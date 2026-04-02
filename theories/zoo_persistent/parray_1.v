@@ -79,16 +79,16 @@ Section parray_1_G.
     ⌜i < γ.(metadata_size)⌝ ∗
     ⌜vs = <[i := v]> vs'⌝.
   #[local] Instance : CustomIpat "node_model" :=
-    " ( %i_{node} &
-        %v_{node} &
-        %node{;'} &
-        %vs_node{;'} &
-        H{node}{_{!}} &
-        #Hv_{node} &
-        #Hnodes_elem_node{;'} &
-        % &
-        % &
-        %Hvs_{node}
+    " ( %i_{node}
+      & %v_{node}
+      & %node{;'}
+      & %vs_node{;'}
+      & H{node}{_{!}}
+      & #Hv_{node}
+      & #Hnodes_elem_node{;'}
+      & %
+      & %
+      & %Hvs_{node}
       )
     ".
 
@@ -104,24 +104,24 @@ Section parray_1_G.
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
   #[local] Instance : CustomIpat "inv'" :=
-    " ( %vs_{root}{_{}} &
-        #Hequal{_{}} &
-        Hnodes_auth{_{}} &
-        H{root}{} &
-        Hdata{_{}} &
-        #Hnodes_elem_{root}{_{}}{_{!}} &
-        % &
-        #Hvs_{root}{_{}} &
-        Hnodes{_{}}
+    " ( %vs_{root}{_{}}
+      & #Hequal{_{}}
+      & Hnodes_auth{_{}}
+      & H{root}{}
+      & Hdata{_{}}
+      & #Hnodes_elem_{root}{_{}}{_{!}}
+      & %
+      & #Hvs_{root}{_{}}
+      & Hnodes{_{}}
       )
     ".
   Definition parray_1_inv γ : iProp Σ :=
     ∃ nodes root,
     inv' γ nodes root.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %nodes{} &
-        %{root}{} &
-        (:inv')
+    " ( %nodes{}
+      & %{root}{}
+      & (:inv')
       )
     ".
 
@@ -130,9 +130,9 @@ Section parray_1_G.
     ⌜t = #node⌝ ∗
     nodes_elem γ node vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %node &
-        -> &
-        #Hnodes_elem_node
+    " ( %node
+      & ->
+      & #Hnodes_elem_node
       )
     ".
 
@@ -242,13 +242,13 @@ Section parray_1_G.
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
   #[local] Instance : CustomIpat "reroot_inv" :=
-    " ( %descr_{root} &
-        Hnodes_auth &
-        H{root} &
-        Hdata &
-        % &
-        #Hvs_{root} &
-        Hnodes
+    " ( %descr_{root}
+      & Hnodes_auth
+      & H{root}
+      & Hdata
+      & %
+      & #Hvs_{root}
+      & Hnodes
       )
     ".
   #[local] Lemma parray_1_reroot_0_spec {γ nodes root node} vs :

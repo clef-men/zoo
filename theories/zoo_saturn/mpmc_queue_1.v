@@ -116,9 +116,9 @@ Module base.
       history_at γ i node ∗
       if b then front_lb γ i else True%I.
     #[local] Instance : CustomIpat "node_model" :=
-      " ( #H{}_header &
-          #Hhistory_at_{} &
-          {{front}#Hfront_lb_{};_}
+      " ( #H{}_header
+        & #Hhistory_at_{}
+        & {{front}#Hfront_lb_{};_}
         )
       ".
 
@@ -153,24 +153,24 @@ Module base.
       waiters_auth γ waiters ∗
       ([∗ map] waiter ↦ i ∈ waiters, waiter_model γ past waiter i).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %hist{} &
-          %past{} &
-          %front{} &
-          %nodes{} &
-          %back{} &
-          %vs{} &
-          %waiters{} &
-          >%Hhist{} &
-          >%Hback{} &
-          >Ht_front &
-          >Ht_back &
-          >Hhist &
-          >Hnodes &
-          >Hhistory_auth &
-          >Hfront_auth &
-          >Hmodel₂ &
-          >Hwaiters_auth &
-          Hwaiters
+      " ( %hist{}
+        & %past{}
+        & %front{}
+        & %nodes{}
+        & %back{}
+        & %vs{}
+        & %waiters{}
+        & >%Hhist{}
+        & >%Hback{}
+        & >Ht_front
+        & >Ht_back
+        & >Hhist
+        & >Hnodes
+        & >Hhistory_auth
+        & >Hfront_auth
+        & >Hmodel₂
+        & >Hwaiters_auth
+        & Hwaiters
         )
       ".
     #[local] Definition inv' t γ :=
@@ -179,8 +179,8 @@ Module base.
       ⌜ι = γ.(mpmc_queue_1_name_inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          #Hinv
+      " ( ->
+        & #Hinv
         )
       ".
 
@@ -929,11 +929,11 @@ Section mpmc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_queue_1_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -943,11 +943,11 @@ Section mpmc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_queue_1_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -1087,17 +1087,17 @@ Section mpmc_queue_1_G.
     mpmc_queue_1_model t vs ∗
     [∗ list] v ∈ vs, τ v.
   #[local] Instance : CustomIpat "itype_inner" :=
-    " ( %vs &
-        >Hmodel &
-        #Hvs
+    " ( %vs
+      & >Hmodel
+      & #Hvs
       )
     ".
   Definition itype_mpmc_queue_1 t : iProp Σ :=
     mpmc_queue_1_inv t (nroot.@"1") ∗
     inv (nroot.@"2") (itype_inner t).
   #[local] Instance : CustomIpat "itype" :=
-    " ( #Hinv1 &
-        #Hinv2
+    " ( #Hinv1
+      & #Hinv2
       )
     ".
 

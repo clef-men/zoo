@@ -450,33 +450,33 @@ Section kcas_1_G.
         )
     end.
   #[local] Instance : CustomIpat "casn_inv_inner" :=
-    " ( %status{} &
-        %lstatus{} &
-        %helpers{} &
-        %prophs{} &
-        >Hcasn{}_status &
-        >Hlstatus{}_auth &
-        >Hhelpers{}_auth &
-        >Hgproph{} &
-        Hlstatus{}
+    " ( %status{}
+      & %lstatus{}
+      & %helpers{}
+      & %prophs{}
+      & >Hcasn{}_status
+      & >Hlstatus{}_auth
+      & >Hhelpers{}_auth
+      & >Hgproph{}
+      & Hlstatus{}
       )
     ".
   #[local] Instance : CustomIpat "casn_inv_inner_running" :=
-    " ( {>;}-> &
-        {>;}-> &
-        Hau{} &
-        Hhelpers{} &
-        {>;}Hdescrs{} &
-        {>;}Hmodels₂{} &
-        {>;}Hlocks{}
+    " ( {>;}->
+      & {>;}->
+      & Hau{}
+      & Hhelpers{}
+      & {>;}Hdescrs{}
+      & {>;}Hmodels₂{}
+      & {>;}Hlocks{}
       )
     ".
   #[local] Instance : CustomIpat "casn_inv_inner_finished" :=
-    " ( {>;}-> &
-        {>;}Hwinner{} &
-        HΨ{} &
-        Hhelpers{} &
-        {>;}Hdescrs{}
+    " ( {>;}->
+      & {>;}Hwinner{}
+      & HΨ{}
+      & Hhelpers{}
+      & {>;}Hdescrs{}
       )
     ".
   #[local] Definition casn_inv_pre ι
@@ -505,12 +505,12 @@ Section kcas_1_G.
           loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
     )%I.
   #[local] Instance : CustomIpat "casn_inv" :=
-    " ( %Ψ{} &
-        Hcasn{}_proph &
-        Hpost{} &
-        %Hlocs{} &
-        Hcasn{}_inv &
-        Hlocs{}
+    " ( %Ψ{}
+      & Hcasn{}_proph
+      & Hpost{}
+      & %Hlocs{}
+      & Hcasn{}_inv
+      & Hlocs{}
       )
     ".
   #[local] Instance casn_inv_pre_contractive ι n :
@@ -532,19 +532,19 @@ Section kcas_1_G.
     history_auth γ (casns ++ [casn]) ∗
     casn_inv' (casn, η, if full then None else Some i).
   #[local] Instance : CustomIpat "loc_inv_inner" :=
-    " ( %casns{} &
-        %casn{} &
-        %η{} &
-        %i{} &
-        %descr{} &
-        {>;}{#}Hcasn{}_meta &
-        {>;}%Hdescrs{}_lookup &
-        {>;}{%Hloc{};->} &
-        {>;}Hloc &
-        {>;}{#}Hlstatus{}_lb &
-        {>;}Hlock{} &
-        {>;}Hhistory_auth &
-        {#}Hcasn{}_inv'
+    " ( %casns{}
+      & %casn{}
+      & %η{}
+      & %i{}
+      & %descr{}
+      & {>;}{#}Hcasn{}_meta
+      & {>;}%Hdescrs{}_lookup
+      & {>;}{%Hloc{};->}
+      & {>;}Hloc
+      & {>;}{#}Hlstatus{}_lb
+      & {>;}Hlock{}
+      & {>;}Hhistory_auth
+      & {#}Hcasn{}_inv'
       )
     ".
   #[local] Definition loc_inv_inner' :=
@@ -586,9 +586,9 @@ Section kcas_1_G.
     meta loc nroot γ ∗
     model₁ γ v.
   #[local] Instance : CustomIpat "loc_model" :=
-    " ( %γ{} &
-        Hmeta{_{}} &
-        Hmodel₁{_{}}
+    " ( %γ{}
+      & Hmeta{_{}}
+      & Hmodel₁{_{}}
       )
     ".
 

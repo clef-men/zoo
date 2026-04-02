@@ -211,9 +211,9 @@ Section puf_G.
     pstore_2_model t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpat "model" :=
-    " ( %descrs{} &
-        Hmodel{} &
-        %Hconsistent{}
+    " ( %descrs{}
+      & Hmodel{}
+      & %Hconsistent{}
       )
     ".
 
@@ -222,9 +222,9 @@ Section puf_G.
     pstore_2_snapshot s t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpat "snapshot" :=
-    " ( %descrs{} &
-        Hsnapshot{} &
-        %Hconsistent{}
+    " ( %descrs{}
+      & Hsnapshot{}
+      & %Hconsistent{}
       )
     ".
 

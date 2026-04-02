@@ -83,8 +83,8 @@ Section spsc_prop_G.
     ).
   #[local] Instance : CustomIpat "inv_inner" :=
     " [ >Hstate_unset₂
-      | ( >Hstate_set{_{!}} &
-          Hinv_consumer
+      | ( >Hstate_set{_{!}}
+        & Hinv_consumer
         )
       ]
     ".

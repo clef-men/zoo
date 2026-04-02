@@ -30,13 +30,13 @@ Section zoo_G.
     end.
   #[global] Arguments chain_model _ _ !_ _ / : assert.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{} &
-        %t{}' &
-        {%Heq{eq};->} &
-        Hl{}_header &
-        Hl{}_next &
-        Hl{}_data &
-        Hmodel{}'
+    " ( %l{}
+      & %t{}'
+      & {%Heq{eq};->}
+      & Hl{}_header
+      & Hl{}_next
+      & Hl{}_data
+      & Hmodel{}'
       )
     ".
 

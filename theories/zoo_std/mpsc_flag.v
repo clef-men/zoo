@@ -79,8 +79,8 @@ Module base.
       state_set γ ∗
       inv_consumer γ P.
     #[local] Instance : CustomIpat "inv_set" :=
-      " ( #Hstate_set &
-          Hinv_consumer
+      " ( #Hstate_set
+        & Hinv_consumer
         )
       ".
     #[local] Definition inv_inner t γ P : iProp Σ :=
@@ -91,9 +91,9 @@ Module base.
       else
         state_unset γ.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %b &
-          >Ht &
-          Hb
+      " ( %b
+        & >Ht
+        & Hb
         )
       ".
     Definition mpsc_flag_inv t γ P :=
@@ -302,11 +302,11 @@ Section mpsc_flag_G.
     meta 𝑡 nroot γ ∗
     base.mpsc_flag_inv 𝑡 γ P.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -316,11 +316,11 @@ Section mpsc_flag_G.
     meta 𝑡 nroot γ ∗
     base.mpsc_flag_consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -330,11 +330,11 @@ Section mpsc_flag_G.
     meta 𝑡 nroot γ ∗
     base.mpsc_flag_resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresolved{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresolved{_{}}
       )
     ".
 

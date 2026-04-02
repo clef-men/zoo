@@ -235,9 +235,9 @@ Module base.
     #[local] Definition lstates_auth γ :=
       lstates_auth' γ.(inf_mpmc_queue_2_name_lstates).
     #[local] Instance : CustomIpat "lstates_auth" :=
-      " ( %ηs &
-          Hauth &
-          Hηs
+      " ( %ηs
+        & Hauth
+        & Hηs
         )
       ".
     #[local] Definition lstates_at γ i lstate : iProp Σ :=
@@ -245,9 +245,9 @@ Module base.
       mono_list_at γ.(inf_mpmc_queue_2_name_lstates) i η ∗
       auth_mono_auth _ η DfracDiscarded lstate.
     #[local] Instance : CustomIpat "lstates_at" :=
-      " ( %η{} &
-          #Hat{_{}} &
-          #Hη_auth{_{}}
+      " ( %η{}
+        & #Hat{_{}}
+        & #Hη_auth{_{}}
         )
       ".
     #[local] Definition lstates_lb γ i lstate : iProp Σ :=
@@ -255,9 +255,9 @@ Module base.
       mono_list_at γ.(inf_mpmc_queue_2_name_lstates) i η ∗
       auth_mono_lb _ η lstate.
     #[local] Instance : CustomIpat "lstates_lb" :=
-      " ( %η{} &
-          #Hat{_{}} &
-          #Hη_lb{_{}}
+      " ( %η{}
+        & #Hat{_{}}
+        & #Hη_lb{_{}}
         )
       ".
 
@@ -268,9 +268,9 @@ Module base.
     #[local] Definition producers_auth γ :=
       producers_auth' γ.(inf_mpmc_queue_2_name_producers).
     #[local] Instance : CustomIpat "producers_auth" :=
-      " ( %ηs &
-          Hauth &
-          %Hηs
+      " ( %ηs
+        & Hauth
+        & %Hηs
         )
       ".
     #[local] Definition producers_at γ i own : iProp Σ :=
@@ -283,9 +283,9 @@ Module base.
           oneshot_shot η ()
       end.
     #[local] Instance : CustomIpat "producers_at" :=
-      " ( %η{} &
-          Hat{_{}} &
-          Hη{}
+      " ( %η{}
+        & Hat{_{}}
+        & Hη{}
         )
       ".
 
@@ -296,9 +296,9 @@ Module base.
     #[local] Definition consumers_auth γ :=
       consumers_auth' γ.(inf_mpmc_queue_2_name_consumers).
     #[local] Instance : CustomIpat "consumers_auth" :=
-      " ( %ηs{} &
-          Hauth{} &
-          %Hηs{}
+      " ( %ηs{}
+        & Hauth{}
+        & %Hηs{}
         )
       ".
     #[local] Definition consumers_at γ i own : iProp Σ :=
@@ -311,9 +311,9 @@ Module base.
           oneshot_shot η ()
       end.
     #[local] Instance : CustomIpat "consumers_at" :=
-      " ( %η{} &
-          Hat{_{}} &
-          Hη{}
+      " ( %η{}
+        & Hat{_{}}
+        & Hη{}
         )
       ".
     #[local] Definition consumers_lb γ i : iProp Σ :=
@@ -321,9 +321,9 @@ Module base.
       mono_list_lb γ.(inf_mpmc_queue_2_name_consumers) ηs ∗
       ⌜length ηs = i⌝.
     #[local] Instance : CustomIpat "consumers_lb" :=
-      " ( %ηs{} &
-          Hlb{} &
-          %Hηs{}
+      " ( %ηs{}
+        & Hlb{}
+        & %Hηs{}
         )
       ".
 
@@ -333,11 +333,11 @@ Module base.
       ⌜head prophs = Some id⌝ ∗
       identifier_model' id.
     #[local] Instance : CustomIpat "winner" :=
-      " ( %id{} &
-          %prophs{} &
-          Hprophet_full{_{}} &
-          %Hprophs{} &
-          Hid{}
+      " ( %id{}
+        & %prophs{}
+        & Hprophet_full{_{}}
+        & %Hprophs{}
+        & Hid{}
         )
       ".
 
@@ -375,18 +375,18 @@ Module base.
           False
       end.
     #[local] Instance : CustomIpat "inv_lstate_left_producer" :=
-      " ( %v &
-          #Hhistory_at &
-          Hwinner
+      " ( %v
+        & #Hhistory_at
+        & Hwinner
         )
       ".
     #[local] Instance : CustomIpat "inv_lstate_left_consumer" :=
-      " ( %Ψ &
-          %v_ &
-          #Hconsumers_lb &
-          #Hη_ &
-          #Hhistory_at_ &
-          HΨ
+      " ( %Ψ
+        & %v_
+        & #Hconsumers_lb
+        & #Hη_
+        & #Hhistory_at_
+        & HΨ
         )
       ".
 
@@ -402,9 +402,9 @@ Module base.
           False
       end.
     #[local] Instance : CustomIpat "inv_lstate_right" :=
-      " ( %Ψ &
-          #Hη &
-          Hconsumer_au
+      " ( %Ψ
+        & #Hη
+        & Hconsumer_au
         )
       ".
 
@@ -423,16 +423,17 @@ Module base.
           )
       end.
     #[local] Instance : CustomIpat "inv_slot_nothing" :=
-      "%Hpast".
+      " %Hpast
+      ".
     #[local] Instance : CustomIpat "inv_slot_something" :=
-      " ( #Hhistory_at{_{suff}} &
-          #Hproducers_at{_{suff}} &
-          #Hlstates_lb_producer
+      " ( #Hhistory_at{_{suff}}
+        & #Hproducers_at{_{suff}}
+        & #Hlstates_lb_producer
         )
       ".
     #[local] Instance : CustomIpat "inv_slot_anything" :=
-      " ( #Hconsumers_at{_{suff}} &
-          { _{suff}
+      " ( #Hconsumers_at{_{suff}}
+        & { _{suff}
           ; [ #Hlstates_lb_consumer
             | #Hproducers_at_
             ]
@@ -464,29 +465,29 @@ Module base.
         inv_slot γ i (slots i) (pasts i)
       ).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %front{} &
-          %back{} &
-          %hist{} &
-          %slots{} &
-          %vs{} &
-          %lstates{} &
-          %pasts{} &
-          %prophss{} &
-          Ht_front &
-          Ht_back &
-          >Hdata_model &
-          Hmodel₂ &
-          >%Hvs{} &
-          Hhistory_auth &
-          >%Hhist{} &
-          Hlstates_auth &
-          >%Hlstates{} &
-          >Hprophet_model &
-          Hproducers_auth &
-          Hconsumers_auth &
-          Hlstates_left &
-          Hlstates_right &
-          Hslots
+      " ( %front{}
+        & %back{}
+        & %hist{}
+        & %slots{}
+        & %vs{}
+        & %lstates{}
+        & %pasts{}
+        & %prophss{}
+        & Ht_front
+        & Ht_back
+        & >Hdata_model
+        & Hmodel₂
+        & >%Hvs{}
+        & Hhistory_auth
+        & >%Hhist{}
+        & Hlstates_auth
+        & >%Hlstates{}
+        & >Hprophet_model
+        & Hproducers_auth
+        & Hconsumers_auth
+        & Hlstates_left
+        & Hlstates_right
+        & Hslots
         )
       ".
     Definition inf_mpmc_queue_2_inv t γ ι : iProp Σ :=
@@ -496,11 +497,11 @@ Module base.
       inf_array_inv γ.(inf_mpmc_queue_2_name_data) ∗
       inv γ.(inf_mpmc_queue_2_name_inv) (inv_inner t γ).
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          #Ht_data &
-          #Ht_proph &
-          #Hdata_inv &
-          #Hinv
+      " ( ->
+        & #Ht_data
+        & #Ht_proph
+        & #Hdata_inv
+        & #Hinv
         )
       ".
 
@@ -1495,11 +1496,11 @@ Section inf_mpmc_queue_2_G.
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_2_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -1509,11 +1510,11 @@ Section inf_mpmc_queue_2_G.
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_2_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 

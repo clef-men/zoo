@@ -167,10 +167,10 @@ Module base.
     #[local] Definition locals_auth γ :=
       locals_auth' γ.(pool_name_size) γ.(pool_name_locals).
     #[local] Instance : CustomIpat "locals_auth" :=
-      " ( %localss{} &
-          %Hlocalss{} &
-          Hauth{_{}} &
-          ->
+      " ( %localss{}
+        & %Hlocalss{}
+        & Hauth{_{}}
+        & ->
         )
       ".
     #[local] Definition locals_at_running γ_locals i scope : iProp Σ :=
@@ -178,17 +178,17 @@ Module base.
       ghost_list_at γ_locals i Own (scope ⊎ locals) ∗
       jobs_finished locals.
     #[local] Instance : CustomIpat "locals_at_running" :=
-      " ( %locals{} &
-          Hat{_{}} &
-          Hjobs_finished_locals{}
+      " ( %locals{}
+        & Hat{_{}}
+        & Hjobs_finished_locals{}
         )
       ".
     #[local] Definition locals_at_finished γ_locals i : iProp Σ :=
       ∃ locals,
       ghost_list_at γ_locals i Own locals.
     #[local] Instance : CustomIpat "locals_at_finished" :=
-      " ( %locals{} &
-          Hat{_{}}
+      " ( %locals{}
+        & Hat{_{}}
         )
       ".
     #[local] Definition locals_at' γ_locals i scope : iProp Σ :=
@@ -207,18 +207,19 @@ Module base.
       jobs_auth γ Own jobs ∗
       locals_auth γ ulocals.
     #[local] Instance : CustomIpat "globals_model_running" :=
-      " ( %jobs &
-          %ulocals &
-          -> &
-          Hjobs_auth &
-          Hlocals_auth
+      " ( %jobs
+        & %ulocals
+        & ->
+        & Hjobs_auth
+        & Hlocals_auth
         )
       ".
     #[local] Definition globals_model_finished γ : iProp Σ :=
       [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
         locals_at γ i None.
     #[local] Instance : CustomIpat "globals_model_finished" :=
-      "Hlocals_ats".
+      " Hlocals_ats
+      ".
     #[local] Definition globals_model γ globals : iProp Σ :=
         globals_model_running γ globals
       ∨ globals_model_finished γ.
@@ -233,9 +234,9 @@ Module base.
       ws_hub_std_owner γ.(pool_name_hub) i Nonblocked empty ∗
       locals_at γ i (Some scope).
     #[local] Instance : CustomIpat "context_1" :=
-      " ( %empty{} &
-          Hhub_owner{_{}} &
-          Hlocals_at{_{}}
+      " ( %empty{}
+        & Hhub_owner{_{}}
+        & Hlocals_at{_{}}
         )
       ".
 
@@ -260,12 +261,12 @@ Module base.
           ▷ □ P
         ).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %globals &
-          %𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
-          >%H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 &
-          >Hglobals_model &
-          >Hhub_model &
-          Hglobals
+      " ( %globals
+        & %𝑔𝑙𝑜𝑏𝑎𝑙𝑠
+        & >%H𝑔𝑙𝑜𝑏𝑎𝑙𝑠
+        & >Hglobals_model
+        & >Hhub_model
+        & Hglobals
         )
       ".
     #[local] Definition inv_1 γ : iProp Σ :=
@@ -274,16 +275,16 @@ Module base.
       ws_hub_std_inv γ.(pool_name_hub) (nroot.@"hub") (S γ.(pool_name_size)) ∗
       inv_1 γ.
     #[local] Instance : CustomIpat "inv_2" :=
-      " ( #Hhub_inv{_{}} &
-          #Hinv{_{}}
+      " ( #Hhub_inv{_{}}
+        & #Hinv{_{}}
         )
       ".
     Definition pool_inv γ sz : iProp Σ :=
       ⌜sz = γ.(pool_name_size)⌝ ∗
       inv_2 γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          {#Hinv_{};(:inv_2)}
+      " ( ->
+        & {#Hinv_{};(:inv_2)}
         )
       ".
 
@@ -291,8 +292,8 @@ Module base.
       ws_hub_std_owner γ.(pool_name_hub) i Nonblocked Empty ∗
       locals_at γ i (Some ∅).
     #[local] Instance : CustomIpat "context_finished" :=
-      " ( Hhub_owner{_{}} &
-          Hlocals_at{_{}}
+      " ( Hhub_owner{_{}}
+        & Hlocals_at{_{}}
         )
       ".
     #[local] Definition context_2 γ i scope : iProp Σ :=
@@ -300,9 +301,9 @@ Module base.
       inv_2 γ ∗
       context_1 γ i scope.
     #[local] Instance : CustomIpat "context_2" :=
-      " ( %Hi{} &
-          {#Hinv_{};(:inv_2)} &
-          { {lazy} Hctx{}
+      " ( %Hi{}
+        & {#Hinv_{};(:inv_2)}
+        & { {lazy} Hctx{}
           ; {lazy} Hctx
           ; (:context_1 ={})
           ; (:context_1)
@@ -314,9 +315,9 @@ Module base.
       ⌜ctx = pool_name_context γ i⌝ ∗
       context_2 γ i scope.
     #[local] Instance : CustomIpat "context" :=
-      " ( %i{} &
-          {%Heq{};->} &
-          (:context_2)
+      " ( %i{}
+        & {%Heq{};->}
+        & (:context_2)
         )
       ".
 
@@ -324,8 +325,8 @@ Module base.
       ⌜res = ()%V⌝ ∗
       context_finished γ i.
     #[local] Instance : CustomIpat "worker_post" :=
-      " ( -> &
-          (:context_finished)
+      " ( ->
+        & (:context_finished)
         )
       ".
 
@@ -343,17 +344,17 @@ Module base.
       ws_hub_std_owner γ.(pool_name_hub) 0 Blocked empty ∗
       locals_at γ 0 (Some ∅).
     #[local] Instance : CustomIpat "model" :=
-      " ( %empty{} &
-          %doms{} &
-          %Hdoms{} &
-          #Hl{}_size &
-          #Hl{}_hub &
-          #Hl{}_domains &
-          {#Hinv{};(:inv_2)} &
-          Hdomains{} &
-          Hdoms{} &
-          Hhub{}_owner &
-          Hlocals_at{_{}}
+      " ( %empty{}
+        & %doms{}
+        & %Hdoms{}
+        & #Hl{}_size
+        & #Hl{}_hub
+        & #Hl{}_domains
+        & {#Hinv{};(:inv_2)}
+        & Hdomains{}
+        & Hdoms{}
+        & Hhub{}_owner
+        & Hlocals_at{_{}}
         )
       ".
 
@@ -362,9 +363,9 @@ Module base.
       jobs_auth γ Discard jobs ∗
       jobs_finished jobs.
     #[local] Instance : CustomIpat "finished" :=
-      " ( %jobs{} &
-          Hjobs_auth{_{}} &
-          Hjobs_finished{_jobs{}}
+      " ( %jobs{}
+        & Hjobs_auth{_{}}
+        & Hjobs_finished{_jobs{}}
         )
       ".
 
@@ -1140,11 +1141,11 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_inv γ sz.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -1154,11 +1155,11 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_context γ ctx scope.
   #[local] Instance : CustomIpat "context" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hctx{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hctx{_{}}
       )
     ".
 
@@ -1168,11 +1169,11 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_model 𝑡 γ.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -1182,11 +1183,11 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_finished γ.
   #[local] Instance : CustomIpat "finished" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hfinished{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hfinished{_{}}
       )
     ".
 
@@ -1200,11 +1201,11 @@ Section pool_G.
     meta 𝑡 nroot γ ∗
     base.pool_obligation γ P.
   #[local] Instance : CustomIpat "obligation" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hobligation{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hobligation{_{}}
       )
     ".
 

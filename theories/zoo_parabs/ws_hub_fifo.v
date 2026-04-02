@@ -113,9 +113,9 @@ Section ws_hub_fifo_G.
   #[local] Definition owner γ i :=
     owner' γ.(metadata_owners) i.
   #[local] Instance : CustomIpat "owner_" :=
-    " ( %γ_owner{} &
-        %Hlookup{} &
-        Howner{}
+    " ( %γ_owner{}
+      & %Hlookup{}
+      & Howner{}
       )
     ".
 
@@ -130,10 +130,10 @@ Section ws_hub_fifo_G.
   #[local] Definition emptiness_auth γ :=
     emptiness_auth' γ.(metadata_emptiness) γ.(metadata_size).
   #[local] Instance : CustomIpat "emptiness_auth" :=
-    " ( %emptys &
-        Hauth &
-        %Hemptys &
-        %Hemptiness
+    " ( %emptys
+      & Hauth
+      & %Hemptys
+      & %Hemptiness
       )
     ".
   #[local] Definition emptiness_at' γ_emptiness i :=
@@ -145,8 +145,8 @@ Section ws_hub_fifo_G.
     ∃ num_active,
     l.[num_active] ↦ #num_active.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %num_active &
-        Hl_num_active
+    " ( %num_active
+      & Hl_num_active
       )
     ".
   Definition ws_hub_fifo_inv t ι (sz : nat) : iProp Σ :=
@@ -161,17 +161,17 @@ Section ws_hub_fifo_G.
     waiters_inv γ.(metadata_waiters) ∗
     inv nroot (inv_inner l).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        -> &
-        #Hmeta{} &
-        #Hl{}_size &
-        #Hl{}_queue &
-        #Hl{}_waiters &
-        #Hqueue{}_inv &
-        #Hwaiters{}_inv &
-        #Hinv{}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & ->
+      & #Hmeta{}
+      & #Hl{}_size
+      & #Hl{}_queue
+      & #Hl{}_waiters
+      & #Hqueue{}_inv
+      & #Hwaiters{}_inv
+      & #Hinv{}
       )
     ".
 
@@ -183,14 +183,14 @@ Section ws_hub_fifo_G.
     ⌜consistent vs ws⌝ ∗
     emptiness_auth γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l_ &
-        %γ_ &
-        %ws &
-        %Heq &
-        Hmeta_ &
-        Hqueue_model &
-        %Hconsistent &
-        Hemptiness_auth
+    " ( %l_
+      & %γ_
+      & %ws
+      & %Heq
+      & Hmeta_
+      & Hqueue_model
+      & %Hconsistent
+      & Hemptiness_auth
       )
     ".
 
@@ -201,12 +201,12 @@ Section ws_hub_fifo_G.
     owner γ i ∗
     emptiness_at γ i empty.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Howner{_{}} &
-        Hemptiness_at{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Howner{_{}}
+      & Hemptiness_at{_{}}
       )
     ".
 

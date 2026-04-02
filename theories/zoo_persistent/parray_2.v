@@ -89,16 +89,16 @@ Section parray_2_G.
     ⌜i < γ.(metadata_size)⌝ ∗
     ⌜vs = <[i := v]> vs'⌝.
   #[local] Instance : CustomIpat "node_model" :=
-    " ( %i_{node} &
-        %v_{node} &
-        %node{;'} &
-        %vs_node{;'} &
-        H{node}{_{!}} &
-        #Hv_{node} &
-        #Hnodes_elem_node{;'} &
-        % &
-        % &
-        %Hvs_{node}
+    " ( %i_{node}
+      & %v_{node}
+      & %node{;'}
+      & %vs_node{;'}
+      & H{node}{_{!}}
+      & #Hv_{node}
+      & #Hnodes_elem_node{;'}
+      & %
+      & %
+      & %Hvs_{node}
       )
     ".
 
@@ -112,13 +112,13 @@ Section parray_2_G.
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
   #[local] Instance : CustomIpat "model'" :=
-    " ( Hnodes_auth{_{}} &
-        H{root}{} &
-        Hdata{_{}} &
-        #Hnodes_elem_{root}{_{}} &
-        % &
-        #Hvs_{root}{_{}} &
-        Hnodes{_{}}
+    " ( Hnodes_auth{_{}}
+      & H{root}{}
+      & Hdata{_{}}
+      & #Hnodes_elem_{root}{_{}}
+      & %
+      & #Hvs_{root}{_{}}
+      & Hnodes{_{}}
       )
     ".
   Definition parray_2_model t vs : iProp Σ :=
@@ -131,17 +131,17 @@ Section parray_2_G.
     equal_model γ.(metadata_equal) ∗
     model' γ nodes root vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{} &
-        %γ{} &
-        %nodes{} &
-        %root{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        #Hl_equal{_{}} &
-        #Hl_data{_{}} &
-        Hl_root{_{}} &
-        #Hequal{_{}} &
-        (:model')
+    " ( %l{}
+      & %γ{}
+      & %nodes{}
+      & %root{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & #Hl_equal{_{}}
+      & #Hl_data{_{}}
+      & Hl_root{_{}}
+      & #Hequal{_{}}
+      & (:model')
       )
     ".
 
@@ -152,13 +152,13 @@ Section parray_2_G.
     meta l nroot γ ∗
     nodes_elem γ node vs.
   #[local] Instance : CustomIpat "snapshot" :=
-    " ( %node &
-        %l_ &
-        %γ_ &
-        -> &
-        %Heq &
-        #Hmeta_ &
-        #Hnodes_elem_node
+    " ( %node
+      & %l_
+      & %γ_
+      & ->
+      & %Heq
+      & #Hmeta_
+      & #Hnodes_elem_node
       )
     ".
 
@@ -360,13 +360,13 @@ Section parray_2_G.
     [∗ map] node ↦ vs ∈ delete root nodes,
       node_model γ node vs.
   #[local] Instance : CustomIpat "restore_inv" :=
-    " ( %descr_{root} &
-        Hnodes_auth &
-        H{root} &
-        Hdata &
-        % &
-        #Hvs_{root} &
-        Hnodes
+    " ( %descr_{root}
+      & Hnodes_auth
+      & H{root}
+      & Hdata
+      & %
+      & #Hvs_{root}
+      & Hnodes
       )
     ".
   #[local] Lemma parray_2_restore_0_spec {γ nodes root vs_root node} vs :

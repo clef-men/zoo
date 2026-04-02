@@ -25,9 +25,9 @@ Notation "▶ P" := (
 ) : bi_scope.
 
 #[local] Instance : CustomIpat "biglater" :=
-  " ( %ns{} &
-      #H⧖{_{}} &
-      HP{}
+  " ( %ns{}
+    & #H⧖{_{}}
+    & HP{}
     )
   ".
 

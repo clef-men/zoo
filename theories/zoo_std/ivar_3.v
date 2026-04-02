@@ -127,9 +127,9 @@ Module base.
     #[local] Definition waiters_auth γ :=
       waiters_auth' γ.(ivar_3_name_waiters).
     #[local] Instance : CustomIpat "waiters_auth" :=
-      " ( %𝑤𝑎𝑖𝑡𝑒𝑟𝑠 &
-          -> &
-          Hauth
+      " ( %𝑤𝑎𝑖𝑡𝑒𝑟𝑠
+        & ->
+        & Hauth
         )
       ".
     #[local] Definition waiters_elem γ waiter ω :=
@@ -141,18 +141,18 @@ Module base.
       waiters_auth γ Own waiters ωs ∗
       [∗ list] waiter; ω ∈ waiters; ωs, Ω #t waiter ω.
     #[local] Instance : CustomIpat "inv_state_unset" :=
-      " ( %ωs &
-          {>;}Hlstate_unset₁ &
-          {>;}Hwaiters_auth &
-          Hwaiters
+      " ( %ωs
+        & {>;}Hlstate_unset₁
+        & {>;}Hwaiters_auth
+        & Hwaiters
         )
       ".
     #[local] Definition inv_state_set γ Ξ v : iProp Σ :=
       lstate_set γ v ∗
       □ Ξ v.
     #[local] Instance : CustomIpat "inv_state_set" :=
-      " ( {>;}#Hlstate_set{_{}} &
-          #HΞ{_{}}
+      " ( {>;}#Hlstate_set{_{}}
+        & #HΞ{_{}}
         )
       ".
     #[local] Definition inv_state t γ Ξ Ω state :=
@@ -169,10 +169,10 @@ Module base.
       consumer_auth γ Ψ (state_to_option state) ∗
       inv_state t γ Ξ Ω state.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state &
-          Ht &
-          Hconsumer_auth &
-          Hstate
+      " ( %state
+        & Ht
+        & Hconsumer_auth
+        & Hstate
         )
       ".
     Definition ivar_3_inv t γ Ψ Ξ Ω : iProp Σ :=
@@ -908,11 +908,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_inv 𝑡 γ Ψ Ξ Ω.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -922,11 +922,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_producer γ.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hproducer{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hproducer{_{}}
       )
     ".
 
@@ -936,11 +936,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -950,11 +950,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_result γ v.
   #[local] Instance : CustomIpat "result" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresult{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresult{_{}}
       )
     ".
   Definition ivar_3_resolved t : iProp Σ :=
@@ -967,11 +967,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_waiters γ waiters ωs.
   #[local] Instance : CustomIpat "waiters" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hwaiters{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hwaiters{_{}}
       )
     ".
 
@@ -981,11 +981,11 @@ Section ivar_3_G.
     meta 𝑡 nroot γ ∗
     base.ivar_3_waiter γ waiter ω.
   #[local] Instance : CustomIpat "waiter" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hwaiter{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hwaiter{_{}}
       )
     ".
 

@@ -84,19 +84,19 @@ Module base.
       model₂ γ vs ∗
       [∗ list] slot; v ∈ slots; vs, slot ↦ᵣ v.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %vs{} &
-          %slots{} &
-          >Hbase_model &
-          >Hmodel₂ &
-          >Hslots
+      " ( %vs{}
+        & %slots{}
+        & >Hbase_model
+        & >Hmodel₂
+        & >Hslots
         )
       ".
     Definition inf_ws_deque_2_inv t γ ι : iProp Σ :=
       inf_ws_deque_1_inv t γ.(inf_ws_deque_2_name_base) (ι.@"base") ∗
       inv (ι.@"inv") (inv_inner γ).
     #[local] Instance : CustomIpat "inv" :=
-      " ( #Hbase_inv &
-          #Hinv
+      " ( #Hbase_inv
+        & #Hinv
         )
       ".
 
@@ -111,9 +111,9 @@ Module base.
       inf_ws_deque_1_owner γ.(inf_ws_deque_2_name_base) (#*@{location} slots_owner) ∗
       owner γ ws.
     #[local] Instance : CustomIpat "owner" :=
-      " ( %slots_owner{_{}} &
-          Hbase_owner{_{}} &
-          Howner{_{}}
+      " ( %slots_owner{_{}}
+        & Hbase_owner{_{}}
+        & Howner{_{}}
         )
       ".
 
@@ -472,11 +472,11 @@ Section inf_ws_deque_2_G.
     meta 𝑡 nroot γ ∗
     base.inf_ws_deque_2_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -486,11 +486,11 @@ Section inf_ws_deque_2_G.
     meta 𝑡 nroot γ ∗
     base.inf_ws_deque_2_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -500,11 +500,11 @@ Section inf_ws_deque_2_G.
     meta 𝑡 nroot γ ∗
     base.inf_ws_deque_2_owner γ ws.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Howner{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Howner{_{}}
       )
     ".
 

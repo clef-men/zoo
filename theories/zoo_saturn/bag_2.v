@@ -123,9 +123,9 @@ Section bag_2_G.
       ) descrs
     ⌝.
   #[local] Instance : CustomIpat "queues_auth" :=
-    " ( Hauth &
-        %Hnodes &
-        %Hdescrs
+    " ( Hauth
+      & %Hnodes
+      & %Hdescrs
       )
     ".
   #[local] Definition queues_auth γ :=
@@ -144,9 +144,9 @@ Section bag_2_G.
         spmc_queue_inv queue (γ.(metadata_inv).@"producer")
     end.
   #[local] Instance : CustomIpat "queues_elem" :=
-    " ( %node &
-        #Hqueues_at &
-        #Hqueue_inv
+    " ( %node
+      & #Hqueues_at
+      & #Hqueue_inv
       )
     ".
 
@@ -166,11 +166,11 @@ Section bag_2_G.
     spmc_queue_inv descr.(descriptor_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_model descr.(descriptor_queue) descr.(descriptor_vals).
   #[local] Instance : CustomIpat "descriptor_model" :=
-    " ( %o{} &
-        Hnode{}_queue &
-        {>;}%Ho{} &
-        {{inv}#Hqueue{}_inv;{inv}#Hqueue_inv;_} &
-        {>;}Hqueue{}_model
+    " ( %o{}
+      & Hnode{}_queue
+      & {>;}%Ho{}
+      & {{inv}#Hqueue{}_inv;{inv}#Hqueue_inv;_}
+      & {>;}Hqueue{}_model
       )
     ".
 
@@ -183,14 +183,14 @@ Section bag_2_G.
     [∗ map] node ↦ descr ∈ descrs,
       descriptor_model γ node descr.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %nodes{} &
-        %descrs{} &
-        %wss &
-        Hl_producers &
-        Hnodes{} &
-        >Hqueues_auth &
-        >Hmodel₂ &
-        Hdescrs
+    " ( %nodes{}
+      & %descrs{}
+      & %wss
+      & Hl_producers
+      & Hnodes{}
+      & >Hqueues_auth
+      & >Hmodel₂
+      & Hdescrs
       )
     ".
   #[local] Definition inv' l γ :=
@@ -202,12 +202,12 @@ Section bag_2_G.
     meta l nroot γ ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        -> &
-        #Hmeta &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & ->
+      & #Hmeta
+      & #Hinv
       )
     ".
 
@@ -217,11 +217,11 @@ Section bag_2_G.
     meta l nroot γ ∗
     model₁ γ vss.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Hmodel₁{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Hmodel₁{_{}}
       )
     ".
 
@@ -235,16 +235,16 @@ Section bag_2_G.
     spmc_queue_inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) (γ.(metadata_inv).@"producer") ∗
     spmc_queue_producer 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ws.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{} &
-        %Ht_eq{} &
-        {%Hproducer_eq{};->} &
-        #Hmeta{_{};_} &
-        #Hnode_header{_{}} &
-        #Hqueues_at{_{}} &
-        #Hqueue_inv{_{}} &
-        Hqueue_producer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟{}
+      & %Ht_eq{}
+      & {%Hproducer_eq{};->}
+      & #Hmeta{_{};_}
+      & #Hnode_header{_{}}
+      & #Hqueues_at{_{}}
+      & #Hqueue_inv{_{}}
+      & Hqueue_producer{_{}}
       )
     ".
 
@@ -256,15 +256,15 @@ Section bag_2_G.
     𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
     queues_elem γ queue.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{} &
-        %queue{} &
-        %Heq{} &
-        Hmeta_{} &
-        {%Hconsumer_eq{};->} &
-        Hconsumer_queue{_{}} &
-        #Hqueues_elem{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟{}
+      & %queue{}
+      & %Heq{}
+      & Hmeta_{}
+      & {%Hconsumer_eq{};->}
+      & Hconsumer_queue{_{}}
+      & #Hqueues_elem{_{}}
       )
     ".
 

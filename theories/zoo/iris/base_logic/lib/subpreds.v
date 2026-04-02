@@ -46,9 +46,9 @@ Section subpreds_G.
         saved_pred η Χ ∗
         ▷ Χ x.
   #[local] Instance : CustomIpat "auth" :=
-    " ( %ηs &
-        {>;}Hauth &
-        Hηs
+    " ( %ηs
+      & {>;}Hauth
+      & Hηs
       )
     ".
 
@@ -57,9 +57,9 @@ Section subpreds_G.
     auth_dgset_frag γ {[η]} ∗
     saved_pred η Χ.
   #[local] Instance : CustomIpat "frag" :=
-    " ( %η{} &
-        Hfrag{_{}} &
-        #Hη{}
+    " ( %η{}
+      & Hfrag{_{}}
+      & #Hη{}
       )
     ".
 

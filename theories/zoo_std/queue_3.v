@@ -46,28 +46,28 @@ Section zoo_G.
     ⌜cap = (length vs + extra)%nat⌝ ∗
     ⌜cap ≠ 0⌝.
   #[local] Instance : CustomIpat "model'" :=
-    " ( %l &
-        %data &
-        %cap &
-        %front &
-        %back &
-        -> &
-        Hl_data &
-        Hl_front &
-        Hl_back &
-        Hvs &
-        Hextra &
-        %Hback &
-        %Hcap &
-        %
+    " ( %l
+      & %data
+      & %cap
+      & %front
+      & %back
+      & ->
+      & Hl_data
+      & Hl_front
+      & Hl_back
+      & Hvs
+      & Hextra
+      & %Hback
+      & %Hcap
+      & %
       )
     ".
   Definition queue_3_model t vs : iProp Σ :=
     ∃ extra,
     model' t vs extra.
   #[local] Instance : CustomIpat "model" :=
-    " ( %extra &
-        {{lazy}Hmodel;(:model')}
+    " ( %extra
+      & {{lazy}Hmodel;(:model')}
       )
     ".
 

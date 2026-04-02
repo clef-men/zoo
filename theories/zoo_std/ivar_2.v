@@ -93,8 +93,8 @@ Module base.
       lstate_set γ v ∗
       □ Ξ v.
     #[local] Instance : CustomIpat "inv_state_set" :=
-      " ( {>;}#Hlstate_set{_{}} &
-          #HΞ{_{}}
+      " ( {>;}#Hlstate_set{_{}}
+        & #HΞ{_{}}
         )
       ".
     #[local] Definition inv_state γ Ξ state :=
@@ -111,10 +111,10 @@ Module base.
       consumer_auth γ Ψ state ∗
       inv_state γ Ξ state.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state &
-          H𝑡_result &
-          Hconsumer_auth &
-          Hstate
+      " ( %state
+        & H𝑡_result
+        & Hconsumer_auth
+        & Hstate
         )
       ".
     Definition ivar_2_inv t γ Ψ Ξ : iProp Σ :=
@@ -124,11 +124,11 @@ Module base.
       condition_inv γ.(ivar_2_name_condition) ∗
       inv nroot (inv_inner t γ Ψ Ξ).
     #[local] Instance : CustomIpat "inv" :=
-      " ( #Ht_mutex &
-          #Hmutex_inv &
-          #Ht_condition &
-          #Hcondition_inv &
-          #Hinv
+      " ( #Ht_mutex
+        & #Hmutex_inv
+        & #Ht_condition
+        & #Hcondition_inv
+        & #Hinv
         )
       ".
 
@@ -763,11 +763,11 @@ Section ivar_2_G.
     meta 𝑡 nroot γ ∗
     base.ivar_2_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -777,11 +777,11 @@ Section ivar_2_G.
     meta 𝑡 nroot γ ∗
     base.ivar_2_producer γ.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hproducer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hproducer{_{}}
       )
     ".
 
@@ -791,11 +791,11 @@ Section ivar_2_G.
     meta 𝑡 nroot γ ∗
     base.ivar_2_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -805,11 +805,11 @@ Section ivar_2_G.
     meta 𝑡 nroot γ ∗
     base.ivar_2_result γ v.
   #[local] Instance : CustomIpat "result" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresult{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresult{_{}}
       )
     ".
   Definition ivar_2_resolved t : iProp Σ :=
@@ -822,11 +822,11 @@ Section ivar_2_G.
     meta 𝑡 nroot γ ∗
     base.ivar_2_synchronized γ.
   #[local] Instance : CustomIpat "synchronized" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hsynchronized{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hsynchronized{_{}}
       )
     ".
 

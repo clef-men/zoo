@@ -881,13 +881,13 @@ Section zoo_G.
 End zoo_G.
 
 #[local] Instance : CustomIpat "state_interp" :=
-  " ( Hheaders_interp &
-      Hheap_interp &
-      Hprophets_interp &
-      Hsteps_auth &
-      Hlocals_auth &
-      %Hlocals &
-      Hcounter_inv
+  " ( Hheaders_interp
+    & Hheap_interp
+    & Hprophets_interp
+    & Hsteps_auth
+    & Hlocals_auth
+    & %Hlocals
+    & Hcounter_inv
     )
   ".
 

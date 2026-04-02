@@ -235,11 +235,11 @@ Section mpmc_fqueue_2_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -249,11 +249,11 @@ Section mpmc_fqueue_2_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -263,11 +263,11 @@ Section mpmc_fqueue_2_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_full γ.
   #[local] Instance : CustomIpat "full" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hfull{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hfull{_{}}
       )
     ".
 
@@ -277,11 +277,11 @@ Section mpmc_fqueue_2_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_nonfull γ.
   #[local] Instance : CustomIpat "nonfull" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hnonfull{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hnonfull{_{}}
       )
     ".
 
@@ -291,11 +291,11 @@ Section mpmc_fqueue_2_G.
     meta 𝑡 nroot γ ∗
     base.mpmc_fqueue_2_finished γ.
   #[local] Instance : CustomIpat "finished" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hfinished{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hfinished{_{}}
       )
     ".
 

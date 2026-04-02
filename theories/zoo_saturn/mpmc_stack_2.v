@@ -51,9 +51,9 @@ Section zoo_G.
     l ↦ᵣ from_option (clist_to_val ∘ list_to_clist_open) §ClstClosed vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %vs &
-        Hl &
-        Hmodel₂
+    " ( %vs
+      & Hl
+      & Hmodel₂
       )
     ".
   Definition mpmc_stack_2_inv t ι : iProp Σ :=
@@ -62,11 +62,11 @@ Section zoo_G.
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        #Hmeta &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & #Hmeta
+      & #Hinv
       )
     ".
 
@@ -76,11 +76,11 @@ Section zoo_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        Hmeta_{} &
-        Hmodel₁{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & Hmeta_{}
+      & Hmodel₁{_{}}
       )
     ".
 

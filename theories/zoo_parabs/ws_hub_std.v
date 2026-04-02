@@ -159,8 +159,8 @@ Section ws_hub_std_G.
     ∃ num_active,
     l.[num_active] ↦ #num_active.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %num_active &
-        Hl_num_active
+    " ( %num_active
+      & Hl_num_active
       )
     ".
   Definition ws_hub_std_inv t ι sz : iProp Σ :=
@@ -176,18 +176,18 @@ Section ws_hub_std_G.
     waiters_inv γ.(metadata_waiters) ∗
     inv nroot (inv_inner l).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{} &
-        -> &
-        #Hl{}_queues &
-        #Hl{}_rounds &
-        #Hl{}_waiters &
-        #Hqueues{}_inv &
-        #Hrounds{}_inv &
-        #Hwaiters{}_inv &
-        #Hinv{}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{}
+      & ->
+      & #Hl{}_queues
+      & #Hl{}_rounds
+      & #Hl{}_waiters
+      & #Hqueues{}_inv
+      & #Hrounds{}_inv
+      & #Hwaiters{}_inv
+      & #Hinv{}
       )
     ".
 
@@ -198,13 +198,13 @@ Section ws_hub_std_G.
     ws_deques_public_model γ.(metadata_queues) vss ∗
     ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l_ &
-        %γ_ &
-        %vss &
-        %Heq &
-        Hmeta_ &
-        Hqueues_model &
-        %Hconsistent
+    " ( %l_
+      & %γ_
+      & %vss
+      & %Heq
+      & Hmeta_
+      & Hqueues_model
+      & %Hconsistent
       )
     ".
 
@@ -217,17 +217,17 @@ Section ws_hub_std_G.
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %ws{} &
-        %round{} &
-        %n{} &
-        %Heq{} &
-        Hmeta{;_} &
-        Hqueues_owner{} &
-        %Hempty{} &
-        #Hrounds{} &
-        Hround{}
+    " ( %l{;_}
+      & %γ{;_}
+      & %ws{}
+      & %round{}
+      & %n{}
+      & %Heq{}
+      & Hmeta{;_}
+      & Hqueues_owner{}
+      & %Hempty{}
+      & #Hrounds{}
+      & Hround{}
       )
     ".
 

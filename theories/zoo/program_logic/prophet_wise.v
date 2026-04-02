@@ -50,16 +50,17 @@ Section prophet_wise_G.
   Definition prophet_wise_strong_full γ prophs : iProp Σ :=
     agree_on γ.(prophet_wise_strong_name_full) prophs.
   #[local] Instance : CustomIpat "full" :=
-    "#Hfull{}".
+    " #Hfull{}
+    ".
 
   Definition prophet_wise_strong_model pid γ past prophs : iProp Σ :=
     prophet_wise_strong_full γ (past ++ prophs) ∗
     mono_list_auth γ.(prophet_wise_strong_name_past) (DfracOwn 1) past ∗
     prophet_typed_strong_model prophet pid prophs.
   #[local] Instance : CustomIpat "model" :=
-    " ( #Hfull{} &
-        Hpast{}_auth &
-        Hmodel{}
+    " ( #Hfull{}
+      & Hpast{}_auth
+      & Hmodel{}
       )
     ".
 
@@ -67,8 +68,8 @@ Section prophet_wise_G.
     prophet_wise_strong_full γ (past ++ prophs) ∗
     mono_list_lb γ.(prophet_wise_strong_name_past) past.
   #[local] Instance : CustomIpat "snapshot" :=
-    " ( #Hfull{suff} &
-        #Hpast_lb
+    " ( #Hfull{suff}
+      & #Hpast_lb
       )
     ".
 
@@ -76,8 +77,8 @@ Section prophet_wise_G.
     ∃ past,
     prophet_wise_strong_snapshot γ past lb.
   #[local] Instance : CustomIpat "lb" :=
-    " ( %past{suff} &
-        Hsnapshot
+    " ( %past{suff}
+      & Hsnapshot
       )
     ".
 
@@ -277,9 +278,9 @@ Section prophet_wise_G.
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_wise_strong_full prophet γ sprophs.
   #[local] Instance : CustomIpat "full" :=
-    " ( %sprophs{} &
-        -> &
-        Hfull{}
+    " ( %sprophs{}
+      & ->
+      & Hfull{}
       )
     ".
 
@@ -289,11 +290,11 @@ Section prophet_wise_G.
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_wise_strong_model prophet pid γ spast sprophs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %spast{} &
-        %sprophs{} &
-        -> &
-        -> &
-        Hmodel{}
+    " ( %spast{}
+      & %sprophs{}
+      & ->
+      & ->
+      & Hmodel{}
       )
     ".
 
@@ -303,11 +304,11 @@ Section prophet_wise_G.
     ⌜prophs = sprophs.*2⌝ ∗
     prophet_wise_strong_snapshot prophet γ spast sprophs.
   #[local] Instance : CustomIpat "snapshot" :=
-    " ( %spast{} &
-        %sprophs{} &
-        -> &
-        -> &
-        Hsnapshot
+    " ( %spast{}
+      & %sprophs{}
+      & ->
+      & ->
+      & Hsnapshot
       )
     ".
 
@@ -316,9 +317,9 @@ Section prophet_wise_G.
     ⌜lb = slb.*2⌝ ∗
     prophet_wise_strong_lb prophet γ slb.
   #[local] Instance : CustomIpat "lb" :=
-    " ( %slb &
-        -> &
-        Hlb
+    " ( %slb
+      & ->
+      & Hlb
       )
     ".
 

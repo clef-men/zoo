@@ -35,20 +35,20 @@ Section zoo_G.
     ⌜back = (front + length vs)%nat⌝ ∗
     ⌜cap = (length vs + extra)%nat⌝.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l &
-        %data &
-        %front &
-        %back &
-        %extra &
-        -> &
-        Hl_capacity &
-        Hl_data &
-        Hl_front &
-        Hl_back &
-        Hvs &
-        Hextra &
-        % &
-        %
+    " ( %l
+      & %data
+      & %front
+      & %back
+      & %extra
+      & ->
+      & Hl_capacity
+      & Hl_data
+      & Hl_front
+      & Hl_back
+      & Hvs
+      & Hextra
+      & %
+      & %
       )
     ".
 

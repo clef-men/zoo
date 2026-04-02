@@ -104,11 +104,11 @@ Section mpsc_queue_3_G.
       )
     ).
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %front{} &
-        %v_back &
-        >Hfront₂ &
-        >Hl_back &
-        [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
+    " ( %front{}
+      & %v_back
+      & >Hfront₂
+      & >Hl_back
+      & [(>Hopen₂ & %back{} & >-> & >Hmodel₂{_{suff}}) | (>Hclosed{_{suff}} & >->)]
       )
     ".
   Definition mpsc_queue_3_inv t ι : iProp Σ :=
@@ -117,11 +117,11 @@ Section mpsc_queue_3_G.
     meta l nroot γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        #Hmeta &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & #Hmeta
+      & #Hinv
       )
     ".
 
@@ -131,11 +131,11 @@ Section mpsc_queue_3_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        Hmeta_{} &
-        Hmodel₁{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & Hmeta_{}
+      & Hmodel₁{_{}}
       )
     ".
 
@@ -156,15 +156,15 @@ Section mpsc_queue_3_G.
         model₂ γ front
     end.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l_ &
-        %γ_ &
-        %v_front &
-        %front &
-        %Heq &
-        Hmeta_ &
-        Hl_front &
-        Hfront₁ &
-        {{open}(-> & Hopen₁);{closed}(-> & -> & Hclosed & Hmodel₂);Hlstate}
+    " ( %l_
+      & %γ_
+      & %v_front
+      & %front
+      & %Heq
+      & Hmeta_
+      & Hl_front
+      & Hfront₁
+      & {{open}(-> & Hopen₁);{closed}(-> & -> & Hclosed & Hmodel₂);Hlstate}
       )
     ".
 
@@ -174,11 +174,11 @@ Section mpsc_queue_3_G.
     meta l nroot γ ∗
     lstate_closed γ.
   #[local] Instance : CustomIpat "closed" :=
-    " ( %l_ &
-        %γ_ &
-        %Heq &
-        Hmeta_ &
-        Hclosed
+    " ( %l_
+      & %γ_
+      & %Heq
+      & Hmeta_
+      & Hclosed
       )
     ".
 

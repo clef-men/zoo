@@ -60,9 +60,9 @@ Section auth_twins_G.
     ghost_var γ.(auth_twins_name_var) (DfracOwn (1/3)) η ∗
     auth_mono_auth R η (DfracOwn 1) a.
   #[local] Instance : CustomIpat "auth" :=
-    " ( %{{pref}_}η &
-        Hvar{} &
-        {{pref}_}Hauth
+    " ( %{{pref}_}η
+      & Hvar{}
+      & {{pref}_}Hauth
       )
     ".
   Definition auth_twins_twin1 γ a : iProp Σ :=
@@ -71,10 +71,10 @@ Section auth_twins_G.
     auth_mono_lb R η a ∗
     twins_twin1 γ.(auth_twins_name_twins) (DfracOwn 1) a.
   #[local] Instance : CustomIpat "twin1" :=
-    " ( %{{pref}_}η &
-        Hvar{} &
-        #Hlb{} &
-        Htwin1{_{suff}}
+    " ( %{{pref}_}η
+      & Hvar{}
+      & #Hlb{}
+      & Htwin1{_{suff}}
       )
     ".
   Definition auth_twins_twin2 γ a : iProp Σ :=
@@ -83,10 +83,10 @@ Section auth_twins_G.
     auth_mono_lb R η a ∗
     twins_twin2 γ.(auth_twins_name_twins) a.
   #[local] Instance : CustomIpat "twin2" :=
-    " ( %{{pref}_}η &
-        Hvar{} &
-        #Hlb{} &
-        Htwin2{_{suff}}
+    " ( %{{pref}_}η
+      & Hvar{}
+      & #Hlb{}
+      & Htwin2{_{suff}}
       )
     ".
 

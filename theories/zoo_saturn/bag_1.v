@@ -119,15 +119,15 @@ Section bag_1_G.
     [∗ list] slot; o ∈ γ.(metadata_slots); os,
       slot ↦ᵣ (o : val).
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %front &
-        %back &
-        %vs &
-        %os &
-        Hfront &
-        Hback &
-        Hmodel₂ &
-        >%Hconsistent &
-        Hslots
+    " ( %front
+      & %back
+      & %vs
+      & %os
+      & Hfront
+      & Hback
+      & Hmodel₂
+      & >%Hconsistent
+      & Hslots
       )
     ".
   #[local] Definition inv' l γ :=
@@ -142,15 +142,15 @@ Section bag_1_G.
     array_model γ.(metadata_data) DfracDiscarded (#*@{location} γ.(metadata_slots)) ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        -> &
-        %Hsz &
-        #Hmeta &
-        #Hdata &
-        #Hdata_model &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & ->
+      & %Hsz
+      & #Hmeta
+      & #Hdata
+      & #Hdata_model
+      & #Hinv
       )
     ".
 
@@ -160,11 +160,11 @@ Section bag_1_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Hmodel₁{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Hmodel₁{_{}}
       )
     ".
 

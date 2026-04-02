@@ -34,17 +34,17 @@ Section zoo_G.
     random_state_model rand ∗
     array_model arr (DfracOwn 1) (#*@{nat} $ nexts ++ reverse prevs).
   #[local] Instance : CustomIpat "model" :=
-    " ( %l &
-        %rand &
-        %arr &
-        %nexts &
-        -> &
-        %Hpermutation &
-        Hl_random &
-        Hl_array &
-        Hl_index &
-        Hrand &
-        Harr
+    " ( %l
+      & %rand
+      & %arr
+      & %nexts
+      & ->
+      & %Hpermutation
+      & Hl_random
+      & Hl_array
+      & Hl_index
+      & Hrand
+      & Harr
       )
     ".
 
@@ -190,9 +190,9 @@ Section zoo_G.
     ⌜(cnt + length prevs)%nat = sz⌝ ∗
     random_round_model t sz prevs.
   #[local] Instance : CustomIpat "model'" :=
-    " ( %prevs &
-        %H &
-        Ht
+    " ( %prevs
+      & %H
+      & Ht
       )
     ".
 

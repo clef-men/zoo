@@ -87,8 +87,8 @@ Module base.
       node ↦ₕ Header §Node 2 ∗
       history_at γ i node.
     #[local] Instance : CustomIpat "node_model" :=
-      " ( #H{}_header &
-          #Hhistory_at_{}
+      " ( #H{}_header
+        & #Hhistory_at_{}
         )
       ".
 
@@ -103,20 +103,20 @@ Module base.
       history_auth γ hist ∗
       model₂ γ vs.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %hist{} &
-          %past{} &
-          %front{} &
-          %nodes{} &
-          %back{} &
-          %vs{} &
-          >%Hhist{} &
-          >%Hback{} &
-          >Ht_front &
-          >Ht_back &
-          >Hhist &
-          >Hnodes &
-          >Hhistory_auth &
-          >Hmodel₂
+      " ( %hist{}
+        & %past{}
+        & %front{}
+        & %nodes{}
+        & %back{}
+        & %vs{}
+        & >%Hhist{}
+        & >%Hback{}
+        & >Ht_front
+        & >Ht_back
+        & >Hhist
+        & >Hnodes
+        & >Hhistory_auth
+        & >Hmodel₂
         )
       ".
     #[local] Definition inv' t γ :=
@@ -125,8 +125,8 @@ Module base.
       ⌜ι = γ.(mpsc_queue_1_name_inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          #Hinv
+      " ( ->
+        & #Hinv
         )
       ".
 
@@ -142,8 +142,8 @@ Module base.
       ∃ front,
       consumer_1 t front.
     #[local] Instance : CustomIpat "consumer_2" :=
-      " ( %front{} &
-          Hconsumer{_{}}
+      " ( %front{}
+        & Hconsumer{_{}}
         )
       ".
     Definition mpsc_queue_1_consumer :=
@@ -817,11 +817,11 @@ Section mpsc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.mpsc_queue_1_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -831,11 +831,11 @@ Section mpsc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.mpsc_queue_1_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 
@@ -844,9 +844,9 @@ Section mpsc_queue_1_G.
     ⌜t = #𝑡⌝ ∗
     base.mpsc_queue_1_consumer 𝑡.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %𝑡{} &
-        {%Heq{};->} &
-        Hconsumer{_{}}
+    " ( %𝑡{}
+      & {%Heq{};->}
+      & Hconsumer{_{}}
       )
     ".
 

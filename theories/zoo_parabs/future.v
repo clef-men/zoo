@@ -71,11 +71,11 @@ Section future_G.
       saved_prop ω P ∗
       □ P.
   #[local] Instance : CustomIpat "finished" :=
-    " ( %waiters &
-        %ωs &
-        #Hresolved &
-        #Hwaiters &
-        #Hωs
+    " ( %waiters
+      & %ωs
+      & #Hresolved
+      & #Hwaiters
+      & #Hωs
       )
     ".
 
@@ -88,10 +88,10 @@ Section future_G.
       ▷^(2 * depth + 1) finished t
     ).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %depth{} &
-        #Hinv{_{}} &
-        #H⧖{_{}} &
-        #Htermination{_{}}
+    " ( %depth{}
+      & #Hinv{_{}}
+      & #H⧖{_{}}
+      & #Htermination{_{}}
       )
     ".
 
@@ -103,9 +103,9 @@ Section future_G.
       ▷^(2 * depth + 2) □ P
     ).
   #[local] Instance : CustomIpat "obligation" :=
-    " ( %depth &
-        #H⧖ &
-        #Htermination
+    " ( %depth
+      & #H⧖
+      & #Htermination
       )
     ".
 

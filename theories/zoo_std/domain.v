@@ -182,8 +182,8 @@ Section domain_G.
     ivar_2_inv t Ψ (λ _, True)%I ∗
     ivar_2_consumer t Ψ.
   #[local] Instance : CustomIpat "model" :=
-    " ( #Hivar_inv &
-        Hivar_consumer
+    " ( #Hivar_inv
+      & Hivar_consumer
       )
     ".
 
@@ -192,9 +192,9 @@ Section domain_G.
     ⌜key = (#id, fn)%V⌝ ∗
     zoo_counter_at id fn.
   #[local] Instance : CustomIpat "key_id" :=
-    " ( %fn{} &
-        %Heq{} &
-        #Hcounter_at{}
+    " ( %fn{}
+      & %Heq{}
+      & #Hcounter_at{}
       )
     ".
 
@@ -204,11 +204,11 @@ Section domain_G.
     zoo_counter_at id fn ∗
     □ WP fn () {{ Ψ }}.
   #[local] Instance : CustomIpat "key" :=
-    " ( %id &
-        %fn{} &
-        -> &
-        Hcounter_at &
-        #Hfn{}
+    " ( %id
+      & %fn{}
+      & ->
+      & Hcounter_at
+      & #Hfn{}
       )
     ".
   Definition domain_key' key : iProp Σ :=
@@ -226,19 +226,19 @@ Section domain_G.
     ([∗ map] key ↦ id ∈ ids, key_id key id) ∗
     ⌜consistent vs ws⌝.
   #[local] Instance : CustomIpat "local" :=
-    " ( %l &
-        %γ &
-        %vs &
-        %ws &
-        %ids &
-        #Hlocal &
-        #Hl_meta &
-        Hl &
-        Hlocal_auth &
-        %Hids_dom &
-        %Hids_img &
-        Hids &
-        %Hconsistent
+    " ( %l
+      & %γ
+      & %vs
+      & %ws
+      & %ids
+      & #Hlocal
+      & #Hl_meta
+      & Hl
+      & Hlocal_auth
+      & %Hids_dom
+      & %Hids_img
+      & Hids
+      & %Hconsistent
       )
     ".
 
@@ -249,13 +249,13 @@ Section domain_G.
     key_id key id ∗
     local_at γ id (DfracOwn 1) None.
   #[local] Instance : CustomIpat "local_init" :=
-    " ( %l{}{_{suff}} &
-        %γ{}{_{suff}} &
-        %id{} &
-        #Hlocal{}{_{suff}} &
-        #Hl{}_meta{_{suff}} &
-        #Hid{} &
-        Hlocal_at{}
+    " ( %l{}{_{suff}}
+      & %γ{}{_{suff}}
+      & %id{}
+      & #Hlocal{}{_{suff}}
+      & #Hl{}_meta{_{suff}}
+      & #Hid{}
+      & Hlocal_at{}
       )
     ".
 
@@ -266,13 +266,13 @@ Section domain_G.
     key_id key id ∗
     local_at γ id dq (Some v).
   #[local] Instance : CustomIpat "local_pointsto" :=
-    " ( %l{}{_{suff}} &
-        %γ{}{_{suff}} &
-        %id{} &
-        #Hlocal{}{_{suff}} &
-        #Hl{}_meta{_{suff}} &
-        #Hid{} &
-        Hlocal_at{}
+    " ( %l{}{_{suff}}
+      & %γ{}{_{suff}}
+      & %id{}
+      & #Hlocal{}{_{suff}}
+      & #Hl{}_meta{_{suff}}
+      & #Hid{}
+      & Hlocal_at{}
       )
     ".
   Definition domain_local_pointstopred tid key Ψ : iProp Σ :=
@@ -282,7 +282,15 @@ Section domain_G.
       domain_local_pointsto tid key (DfracOwn 1) v ∗
       Ψ v.
   #[local] Instance : CustomIpat "local_pointstopred" :=
-    "[(Hinit & Hkey) | (% & Hlocal_pointsto & HΨ)]".
+    " [ ( Hinit
+        & Hkey
+        )
+      | ( %
+        & Hlocal_pointsto
+        & HΨ
+        )
+      ]
+    ".
 
   #[global] Instance domain_local_timeless tid keys :
     Timeless (domain_local tid keys).

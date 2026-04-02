@@ -111,9 +111,9 @@ Module base.
     #[local] Definition consumers_auth γ i :=
       consumers_auth' γ.(inf_mpmc_queue_1_name_consumers) i.
     #[local] Instance : CustomIpat "consumers_auth" :=
-      " ( %ηs{} &
-          Hauth{} &
-          %Hηs{}
+      " ( %ηs{}
+        & Hauth{}
+        & %Hηs{}
         )
       ".
     #[local] Definition consumers_at γ i Ψ : iProp Σ :=
@@ -121,9 +121,9 @@ Module base.
       mono_list_at γ.(inf_mpmc_queue_1_name_consumers) i η ∗
       saved_pred η Ψ.
     #[local] Instance : CustomIpat "consumers_at" :=
-      " ( %η{} &
-          Hat{} &
-          HΨ{}
+      " ( %η{}
+        & Hat{}
+        & HΨ{}
         )
       ".
     #[local] Definition consumers_lb γ i : iProp Σ :=
@@ -131,9 +131,9 @@ Module base.
       ⌜length ηs = i⌝ ∗
       mono_list_lb γ.(inf_mpmc_queue_1_name_consumers) ηs.
     #[local] Instance : CustomIpat "consumers_lb" :=
-      " ( %ηs{} &
-          %Hηs{} &
-          Hlb{}
+      " ( %ηs{}
+        & %Hηs{}
+        & Hlb{}
         )
       ".
 
@@ -144,9 +144,9 @@ Module base.
     #[local] Definition tokens_auth γ i :=
       tokens_auth' γ.(inf_mpmc_queue_1_name_tokens) i.
     #[local] Instance : CustomIpat "tokens_auth" :=
-      " ( %ηs{} &
-          Hauth{} &
-          %Hηs{}
+      " ( %ηs{}
+        & Hauth{}
+        & %Hηs{}
         )
       ".
     #[local] Definition tokens_pending γ i : iProp Σ :=
@@ -154,9 +154,9 @@ Module base.
       mono_list_at γ.(inf_mpmc_queue_1_name_tokens) i η ∗
       oneshot_pending η (DfracOwn 1) ().
     #[local] Instance : CustomIpat "tokens_pending" :=
-      " ( %η{} &
-          Hat{} &
-          Hpending{}
+      " ( %η{}
+        & Hat{}
+        & Hpending{}
         )
       ".
     #[local] Definition tokens_done γ i : iProp Σ :=
@@ -164,9 +164,9 @@ Module base.
       mono_list_at γ.(inf_mpmc_queue_1_name_tokens) i η ∗
       oneshot_shot η ().
     #[local] Instance : CustomIpat "tokens_done" :=
-      " ( %η{} &
-          Hat{} &
-          Hshot{}
+      " ( %η{}
+        & Hat{}
+        & Hshot{}
         )
       ".
 
@@ -218,21 +218,21 @@ Module base.
       ) ∗
       (∀ i, slot_model γ i (slots i)).
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %front{} &
-          %back{} &
-          %hist{} &
-          %slots{} &
-          Ht_front &
-          Ht_back &
-          >Hdata_model &
-          >Hhistory_auth &
-          >%Hhist{} &
-          Hmodel₂ &
-          Hconsumers_auth &
-          Htokens_auth &
-          Hpast &
-          Hwaiters &
-          Hslots
+      " ( %front{}
+        & %back{}
+        & %hist{}
+        & %slots{}
+        & Ht_front
+        & Ht_back
+        & >Hdata_model
+        & >Hhistory_auth
+        & >%Hhist{}
+        & Hmodel₂
+        & Hconsumers_auth
+        & Htokens_auth
+        & Hpast
+        & Hwaiters
+        & Hslots
         )
       ".
     Definition inv' t γ : iProp Σ :=
@@ -240,17 +240,17 @@ Module base.
       inf_array_inv γ.(inf_mpmc_queue_1_name_data) ∗
       inv γ.(inf_mpmc_queue_1_name_inv) (inv_inner t γ).
     #[local] Instance : CustomIpat "inv'" :=
-      " ( #Ht_data &
-          #Hdata_inv &
-          #Hinv
+      " ( #Ht_data
+        & #Hdata_inv
+        & #Hinv
         )
       ".
     Definition inf_mpmc_queue_1_inv t γ ι : iProp Σ :=
       ⌜ι = γ.(inf_mpmc_queue_1_name_inv)⌝ ∗
       inv' t γ.
     #[local] Instance : CustomIpat "inv" :=
-      " ( -> &
-          (:inv')
+      " ( ->
+        & (:inv')
         )
       ".
 
@@ -891,11 +891,11 @@ Section inf_mpmc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_1_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -905,11 +905,11 @@ Section inf_mpmc_queue_1_G.
     meta 𝑡 nroot γ ∗
     base.inf_mpmc_queue_1_model γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %𝑡{} &
-        %γ{} &
-        {%Heq{};->} &
-        Hmeta{_{}} &
-        Hmodel{_{}}
+    " ( %𝑡{}
+      & %γ{}
+      & {%Heq{};->}
+      & Hmeta{_{}}
+      & Hmodel{_{}}
       )
     ".
 

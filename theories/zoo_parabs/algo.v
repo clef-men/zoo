@@ -903,12 +903,12 @@ Section algo_G.
     find_token γ q ∗
     Ψ i.
   #[local] Instance : CustomIpat "find_inv" :=
-    " ( %i &
-        %q &
-        -> &
-        % &
-        Htoken{_{}} &
-        HΨ
+    " ( %i
+      & %q
+      & ->
+      & %
+      & Htoken{_{}}
+      & HΨ
       )
     ".
   #[local] Lemma algo_find_seq_spec pool ctx scope beg0 beg end_ end0 pred Ψ Χ found γ q :

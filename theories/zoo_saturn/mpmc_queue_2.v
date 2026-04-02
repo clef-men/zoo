@@ -257,8 +257,8 @@ Section mpmc_queue_2_G.
       |} ∗
     ⌜state_wf backs i⌝.
   #[local] Instance : CustomIpat "state_auth" :=
-    " ( Hauth &
-        %Hwf
+    " ( Hauth
+      & %Hwf
       )
     ".
   #[local] Definition state_auth γ backs i status :=
@@ -274,9 +274,9 @@ Section mpmc_queue_2_G.
     state_lb γ backs i_prev (Unstable back move) ∗
     ⌜backs !! back_prev = Some i_prev⌝.
   #[local] Instance : CustomIpat "state_seen" :=
-    " ( %backs{} &
-        #Hstate_lb &
-        %Hbacks{}_lookup
+    " ( %backs{}
+      & #Hstate_lb
+      & %Hbacks{}_lookup
       )
     ".
   #[local] Definition state_at γ back i_back : iProp Σ :=
@@ -285,12 +285,12 @@ Section mpmc_queue_2_G.
     ⌜backs !! back = Some i_back⌝ ∗
     ⌜i_back ≤ i⌝.
   #[local] Instance : CustomIpat "state_at" :=
-    " ( %backs{} &
-        %i{} &
-        %status{} &
-        #Hstate_lb{_{}} &
-        %Hbacks{}_lookup &
-        %Hi{}
+    " ( %backs{}
+      & %i{}
+      & %status{}
+      & #Hstate_lb{_{}}
+      & %Hbacks{}_lookup
+      & %Hi{}
       )
     ".
 
@@ -308,9 +308,9 @@ Section mpmc_queue_2_G.
       back_prev ↦ₕ Header §Back 2.
   #[local] Instance : CustomIpat "move_model_1" :=
     " [ ->
-      | ( -> &
-          % &
-          #Hback{}_prev_header
+      | ( ->
+        & %
+        & #Hback{}_prev_header
         )
       ]
     ".
@@ -319,12 +319,12 @@ Section mpmc_queue_2_G.
     state_lb γ backs_prev i_prev (Unstable back move) ∗
     move_model_1 𝑚𝑜𝑣𝑒 i_prev back_prev move.
   #[local] Instance : CustomIpat "move_model_2" :=
-    " ( %backs{}_prev &
-        %i{}_prev{_{!}} &
-        %back{}_prev{_{!}} &
-        %move{}{_{!}} &
-        #Hstate_lb_unstable{_{}} &
-        H𝑚𝑜𝑣𝑒{}
+    " ( %backs{}_prev
+      & %i{}_prev{_{!}}
+      & %back{}_prev{_{!}}
+      & %move{}{_{!}}
+      & #Hstate_lb_unstable{_{}}
+      & H𝑚𝑜𝑣𝑒{}
       )
     ".
 
@@ -335,8 +335,8 @@ Section mpmc_queue_2_G.
     " ( { {!} _
         ; #Hback{}_header
         ; #Hback_header
-        } &
-        #Hback{}_index{_{!}}
+        }
+      & #Hback{}_index{_{!}}
       )
     ".
   #[local] Definition back_model_2 back (i : nat) 𝑚𝑜𝑣𝑒 : iProp Σ :=
@@ -345,8 +345,8 @@ Section mpmc_queue_2_G.
   #[local] Instance : CustomIpat "back_model_2" :=
     " ( { {only_move} _
         ; (:back_model_1 // /!/)
-        } &
-        Hback{}_move{_{suff}}
+        }
+      & Hback{}_move{_{suff}}
       )
     ".
   #[local] Definition back_model_3 γ back i : iProp Σ :=
@@ -354,9 +354,9 @@ Section mpmc_queue_2_G.
     back_model_2 back i 𝑚𝑜𝑣𝑒 ∗
     move_model_2 γ back 𝑚𝑜𝑣𝑒.
   #[local] Instance : CustomIpat "back_model_3" :=
-    " ( %𝑚𝑜𝑣𝑒{} &
-        (:back_model_2) &
-        H𝑚𝑜𝑣𝑒{}
+    " ( %𝑚𝑜𝑣𝑒{}
+      & (:back_model_2)
+      & H𝑚𝑜𝑣𝑒{}
       )
     ".
 
@@ -366,10 +366,10 @@ Section mpmc_queue_2_G.
     ⌜if empty then vs_front = [] else 0 < length vs_front⌝ ∗
     state_at γ back i_back.
   #[local] Instance : CustomIpat "inv_status_stable" :=
-    " ( {>;}-> &
-        {>;}%Hvs{} &
-        {>;}{{empty}->;%Hempty{};%Hempty} &
-        {>;}#Hstate_at{_{}}
+    " ( {>;}->
+      & {>;}%Hvs{}
+      & {>;}{{empty}->;%Hempty{};%Hempty}
+      & {>;}#Hstate_at{_{}}
       )
     ".
   #[local] Definition inv_status_unstable strong γ backs i vs_front i_back back vs_back vs back_ move : iProp Σ :=
@@ -388,18 +388,18 @@ Section mpmc_queue_2_G.
     else
       True.
   #[local] Instance : CustomIpat "inv_status_unstable" :=
-    " ( %back{}_prev &
-        {>;}-> &
-        {>;}-> &
-        {>;}{{lazy}%Hvs_front{};->} &
-        {>;}{{lazy}%Hvs_back{};->} &
-        {>;}-> &
-        {>;}% &
-        {>;}#Hstate_at_back{}_prev &
-        Hback{} &
-        { {strong}
-          %Hbacks{}_lookup &
-          #Hback{}_prev_header
+    " ( %back{}_prev
+      & {>;}->
+      & {>;}->
+      & {>;}{{lazy}%Hvs_front{};->}
+      & {>;}{{lazy}%Hvs_back{};->}
+      & {>;}->
+      & {>;}%
+      & {>;}#Hstate_at_back{}_prev
+      & Hback{}
+      & { {strong}
+            %Hbacks{}_lookup
+          & #Hback{}_prev_header
         ; _
         }
       )
@@ -423,23 +423,23 @@ Section mpmc_queue_2_G.
     ⌜(i_front + length vs_front)%nat = S i⌝ ∗
     inv_status strong γ backs i status vs_front i_back back vs_back vs.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %backs{} &
-        %i{} &
-        %status{} &
-        %i_front{} &
-        %vs_front{} &
-        %i_back{} &
-        %back{} &
-        %vs_back{} &
-        %vs{} &
-        Hl_front &
-        {>;}Hfront_auth &
-        Hl_back &
-        Hbacks &
-        Hmodel₂ &
-        {>;}Hstate_auth &
-        {>;}%Hfront{} &
-        Hstatus
+    " ( %backs{}
+      & %i{}
+      & %status{}
+      & %i_front{}
+      & %vs_front{}
+      & %i_back{}
+      & %back{}
+      & %vs_back{}
+      & %vs{}
+      & Hl_front
+      & {>;}Hfront_auth
+      & Hl_back
+      & Hbacks
+      & Hmodel₂
+      & {>;}Hstate_auth
+      & {>;}%Hfront{}
+      & Hstatus
       )
     ".
   #[local] Definition inv' l γ : iProp Σ :=
@@ -451,12 +451,12 @@ Section mpmc_queue_2_G.
     meta l nroot γ ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        -> &
-        #Hmeta &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & ->
+      & #Hmeta
+      & #Hinv
       )
     ".
 
@@ -466,11 +466,11 @@ Section mpmc_queue_2_G.
     meta l nroot γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Hmodel₁{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Hmodel₁{_{}}
       )
     ".
 

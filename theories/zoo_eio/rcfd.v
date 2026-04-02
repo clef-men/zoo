@@ -158,12 +158,12 @@ Section rcfd_G.
   #[local] Definition tokens_auth γ :=
     tokens_auth' γ.(metadata_tokens).
   #[local] Instance : CustomIpat "tokens_auth" :=
-    " ( %stock &
-        %qs &
-        {{lazy}%Hops;->} &
-        %Hqs &
-        Hauth &
-        HΨ_stock
+    " ( %stock
+      & %qs
+      & {{lazy}%Hops;->}
+      & %Hqs
+      & Hauth
+      & HΨ_stock
       )
     ".
   #[local] Definition tokens_frag γ q :=
@@ -192,8 +192,8 @@ Section rcfd_G.
     tokens_auth γ Ψ ops ∗
     ⌜state = Open⌝.
   #[local] Instance : CustomIpat "inv_lstate_open" :=
-    " ( Htokens_auth &
-        {%H{eq};->}
+    " ( Htokens_auth
+      & {%H{eq};->}
       )
     ".
   #[local] Definition inv_lstate_closing_users γ Ψ state ops : iProp Σ :=
@@ -203,11 +203,11 @@ Section rcfd_G.
     ⌜0 < ops⌝%Z ∗
     (Ψ 1%Qp -∗ WP fn () {{ itype_unit }}).
   #[local] Instance : CustomIpat "inv_lstate_closing_users" :=
-    " ( %fn{} &
-        Htokens_auth &
-        {%H{eq};->} &
-        %Hops{} &
-        Hfn{}
+    " ( %fn{}
+      & Htokens_auth
+      & {%H{eq};->}
+      & %Hops{}
+      & Hfn{}
       )
     ".
   #[local] Definition inv_lstate_closing_no_users state : iProp Σ :=
@@ -215,9 +215,9 @@ Section rcfd_G.
     ⌜state = Closing fn⌝ ∗
     WP fn () {{ itype_unit }}.
   #[local] Instance : CustomIpat "inv_lstate_closing_no_users" :=
-    " ( %fn{} &
-        {%H{eq};->} &
-        Hfn{}
+    " ( %fn{}
+      & {%H{eq};->}
+      & Hfn{}
       )
     ".
   #[local] Definition inv_lstate γ Ψ state lstate ops :=
@@ -237,13 +237,13 @@ Section rcfd_G.
     lstate_auth γ lstate ∗
     inv_lstate γ Ψ state lstate ops.
   #[local] Instance : CustomIpat "inv_inner" :=
-    " ( %state{} &
-        %lstate{} &
-        %ops{} &
-        Hl_ops &
-        Hl_state &
-        Hlstate_auth &
-        Hlstate
+    " ( %state{}
+      & %lstate{}
+      & %ops{}
+      & Hl_ops
+      & Hl_state
+      & Hlstate_auth
+      & Hlstate
       )
     ".
   #[local] Definition inv' l γ Ψ :=
@@ -256,13 +256,13 @@ Section rcfd_G.
     meta l nroot γ ∗
     inv' l γ Ψ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l &
-        %γ &
-        -> &
-        -> &
-        -> &
-        #Hmeta &
-        #Hinv
+    " ( %l
+      & %γ
+      & ->
+      & ->
+      & ->
+      & #Hmeta
+      & #Hinv
       )
     ".
 
@@ -272,11 +272,11 @@ Section rcfd_G.
     meta l nroot γ ∗
     owner γ.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        Howner{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & Howner{_{}}
       )
     ".
 
@@ -286,11 +286,11 @@ Section rcfd_G.
     meta l nroot γ ∗
     lstate_lb γ LClosingUsers.
   #[local] Instance : CustomIpat "closing" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        %Heq{} &
-        #Hmeta_{} &
-        #Hlstate_lb{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & %Heq{}
+      & #Hmeta_{}
+      & #Hlstate_lb{_{}}
       )
     ".
 

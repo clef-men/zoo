@@ -81,8 +81,8 @@ Section partition_G.
     elt.[class_] ↦ #class ∗
     elt.[seen] ↦ false.
   #[local] Instance : CustomIpat "element_model" :=
-    " ( Helt{}_class{_{suff}} &
-        Helt{}_seen{_{suff}}
+    " ( Helt{}_class{_{suff}}
+      & Helt{}_seen{_{suff}}
       )
     ".
   #[local] Definition descriptor_model class descrs descr : iProp Σ :=
@@ -102,25 +102,25 @@ Section partition_G.
     [∗ list] elt ∈ descr.(descriptor_elts),
       element_model class descr elt.
   #[local] Instance : CustomIpat "descriptor_model" :=
-    " ( %first{} &
-        %last{} &
-        %prev{}_descr &
-        %prev{} &
-        %next{}_descr &
-        %next{} &
-        %Hfirst{} &
-        %Hlast{} &
-        %Hdescrs{}_elem_prev &
-        %Hprev{} &
-        %Hdescrs{}_elem_next &
-        %Hnext{} &
-        Hclass{}_first &
-        Hclass{}_last &
-        Hclass{}_len &
-        Hclass{}_split &
-        Hclass{}_split_len &
-        Hchain{} &
-        Helts{}
+    " ( %first{}
+      & %last{}
+      & %prev{}_descr
+      & %prev{}
+      & %next{}_descr
+      & %next{}
+      & %Hfirst{}
+      & %Hlast{}
+      & %Hdescrs{}_elem_prev
+      & %Hprev{}
+      & %Hdescrs{}_elem_next
+      & %Hnext{}
+      & Hclass{}_first
+      & Hclass{}_last
+      & Hclass{}_len
+      & Hclass{}_split
+      & Hclass{}_split_len
+      & Hchain{}
+      & Helts{}
       )
     ".
   #[local] Definition model' γ descrs : iProp Σ :=
@@ -128,8 +128,8 @@ Section partition_G.
     [∗ map] class ↦ descr ∈ descrs,
       descriptor_model class descrs descr.
   #[local] Instance : CustomIpat "model'" :=
-    " ( Helts_auth &
-        Hdescrs
+    " ( Helts_auth
+      & Hdescrs
       )
     ".
   Definition partition_model γ part : iProp Σ :=
@@ -137,9 +137,9 @@ Section partition_G.
     ⌜part = map_to_set (λ _, list_to_set ∘ descriptor_elts) descrs⌝ ∗
     model' γ descrs.
   #[local] Instance : CustomIpat "model" :=
-    " ( %descrs &
-        -> &
-        Hmodel
+    " ( %descrs
+      & ->
+      & Hmodel
       )
     ".
 
@@ -147,8 +147,8 @@ Section partition_G.
     elements_elem γ elt ∗
     elt.[data] ↦□ v.
   #[local] Instance : CustomIpat "element" :=
-    " ( Helts_elem{}{_{suff}} &
-        Helt{}_data{_{suff}}
+    " ( Helts_elem{}{_{suff}}
+      & Helt{}_data{_{suff}}
       )
     ".
 

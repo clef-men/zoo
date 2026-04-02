@@ -89,8 +89,8 @@ Module base.
       lstate_set γ v ∗
       □ Ξ v.
     #[local] Instance : CustomIpat "inv_state_set" :=
-      " ( {>;}#Hlstate_set{_{}} &
-          #HΞ{_{}}
+      " ( {>;}#Hlstate_set{_{}}
+        & #HΞ{_{}}
         )
       ".
     #[local] Definition inv_state γ Ξ state :=
@@ -107,10 +107,10 @@ Module base.
       consumer_auth γ Ψ state ∗
       inv_state γ Ξ state.
     #[local] Instance : CustomIpat "inv_inner" :=
-      " ( %state &
-          Ht &
-          Hconsumer_auth &
-          Hstate
+      " ( %state
+        & Ht
+        & Hconsumer_auth
+        & Hstate
         )
       ".
     Definition ivar_1_inv t γ Ψ Ξ : iProp Σ :=
@@ -646,11 +646,11 @@ Section ivar_1_G.
     meta 𝑡 nroot γ ∗
     base.ivar_1_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{} &
-        %γ{} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hinv{_{}}
+    " ( %l{}
+      & %γ{}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hinv{_{}}
       )
     ".
 
@@ -660,11 +660,11 @@ Section ivar_1_G.
     meta 𝑡 nroot γ ∗
     base.ivar_1_producer γ.
   #[local] Instance : CustomIpat "producer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hproducer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hproducer{_{}}
       )
     ".
 
@@ -674,11 +674,11 @@ Section ivar_1_G.
     meta 𝑡 nroot γ ∗
     base.ivar_1_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hconsumer{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hconsumer{_{}}
       )
     ".
 
@@ -688,11 +688,11 @@ Section ivar_1_G.
     meta 𝑡 nroot γ ∗
     base.ivar_1_result γ v.
   #[local] Instance : CustomIpat "result" :=
-    " ( %l{;_} &
-        %γ{;_} &
-        {%Heq{};->} &
-        #Hmeta{_{}} &
-        Hresult{_{}}
+    " ( %l{;_}
+      & %γ{;_}
+      & {%Heq{};->}
+      & #Hmeta{_{}}
+      & Hresult{_{}}
       )
     ".
   Definition ivar_1_resolved t : iProp Σ :=
