@@ -1,21 +1,19 @@
 type t =
-  { id : int
-  ; mutex : Mutex.t
+  { mutex : Mutex.t
   ; condition : Condition.t
   ; mutable cancelled : bool;
   }
-(* [id] is useful to write debugging prints.
+(* [cancelled] is protected by the mutex. *)
 
-   [cancelled] is protected by the mutex. *)
-
-let create id =
-  { id
-  ; mutex = Mutex.create ()
+let create () =
+  { mutex = Mutex.create ()
   ; condition = Condition.create ()
-  ; cancelled = false
+  ; cancelled = false;
   }
 
-let wakeup t =
+type status = First | Already_notified
+
+let notify t =
   let first =
     Mutex.protect t.mutex @@ fun () ->
     if t.cancelled then (
@@ -24,6 +22,16 @@ let wakeup t =
       t.cancelled <- true;
       true
     )
+    (* We also take the mutex to synchronize with [commit].
+
+       After taking the mutex we know that either [commit] saw that
+       the [cancelled] flag was already set, or it finished its own
+       critical section so [Condition.wait] has been called.
+
+       Otherwise we would risk losing the notification by calling
+       [Condition.notify] below before [commit] calls
+       [Condition.wait].
+    *)
   in
   (* We intentionally call Condition.notify after releasing the mutex
      so that the caller of Condition.wait can take it immediately; see
@@ -36,27 +44,30 @@ let wakeup t =
      mutex-protected [last_wakeup] to tell if [wakeup] was called, and
      do the right thing in that case whether or not the notification
      is received. *)
-  if first then Condition.notify t.condition;
-  first
+  if first then (
+    Condition.notify t.condition;
+    First
+  ) else (
+    Already_notified 
+  )
 
-let prepare_sleep t =
+let prepare t =
   Mutex.protect t.mutex @@ fun () ->
   t.cancelled <- false
 
-type status = Wakeup_received | No_wakeup
-let cancel_sleep t =
+let cancel t =
   Mutex.protect t.mutex @@ fun () ->
   if t.cancelled then (
     (* We received a notification between [prepare] and [cancel]. *)
-    Wakeup_received
+    Already_notified
   ) else (
-    (* Update [last_wakeup] so that a future wakeup
-       on this round is not counted as 'useful'. *)
+    (* Update [last_wakeup] so that a future notification is not
+       counted as 'useful'. *)
     t.cancelled <- true;
-    No_wakeup
+    First
   )
 
-let commit_sleep t =
+let commit t =
   Mutex.protect t.mutex @@ fun () ->
   if t.cancelled then (
     (* we received a notification between [prepare] and [commit] *)

@@ -4,10 +4,10 @@ val create :
   unit -> t
 
 val push :
-  t -> Sleeper.t -> unit
+  t -> Waiter.t -> unit
 
-val wakeup_one :
+val notify_one :
   t -> unit
 
-val wakeup_all :
+val notify_all :
   t -> unit
