@@ -2,31 +2,26 @@ type t =
   { id : int
   ; mutex : Mutex.t
   ; condition : Condition.t
-  ; mutable sleep_round : int
-  ; mutable last_wakeup : int
+  ; mutable cancelled : bool;
   }
 (* [id] is useful to write debugging prints.
 
-   [sleep_round] and [last_wakeup] are protected by the mutex.
-   [last_wakeup] is the round at which the last wakeup occurred:
-   when [sleep_round = last_wakeup], the sleeper has been awoken
-   after the last [prepare_sleep] call. *)
+   [cancelled] is protected by the mutex. *)
 
 let create id =
   { id
   ; mutex = Mutex.create ()
   ; condition = Condition.create ()
-  ; sleep_round = 0
-  ; last_wakeup = 0
+  ; cancelled = false
   }
 
 let wakeup t =
-  let wakeup =
+  let first =
     Mutex.protect t.mutex @@ fun () ->
-    if t.last_wakeup = t.sleep_round then (
+    if t.cancelled then (
       false
     ) else (
-      t.last_wakeup <- t.sleep_round;
+      t.cancelled <- true;
       true
     )
   in
@@ -41,31 +36,32 @@ let wakeup t =
      mutex-protected [last_wakeup] to tell if [wakeup] was called, and
      do the right thing in that case whether or not the notification
      is received. *)
-  if wakeup then Condition.notify t.condition;
-  wakeup
+  if first then Condition.notify t.condition;
+  first
 
 let prepare_sleep t =
   Mutex.protect t.mutex @@ fun () ->
-  t.sleep_round <- t.sleep_round + 1
+  t.cancelled <- false
 
 type status = Wakeup_received | No_wakeup
 let cancel_sleep t =
   Mutex.protect t.mutex @@ fun () ->
-  if t.last_wakeup = t.sleep_round then (
+  if t.cancelled then (
     (* We received a notification between [prepare] and [cancel]. *)
     Wakeup_received
   ) else (
     (* Update [last_wakeup] so that a future wakeup
        on this round is not counted as 'useful'. *)
-    t.last_wakeup <- t.sleep_round;
+    t.cancelled <- true;
     No_wakeup
   )
 
 let commit_sleep t =
   Mutex.protect t.mutex @@ fun () ->
-  if t.sleep_round = t.last_wakeup then (
+  if t.cancelled then (
     (* we received a notification between [prepare] and [commit] *)
     ()
   ) else (
     Condition.wait t.condition t.mutex;
+    t.cancelled <- true
   )
