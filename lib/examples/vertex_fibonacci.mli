@@ -1,2 +1,2 @@
 val main :
-  int -> int -> int
+  num_domain:int -> int -> int

@@ -11,8 +11,8 @@ From zoo Require Import
   options.
 
 Definition pool_counter_main : val :=
-  fun: "num_dom" "n" =>
-    let: "pool" := pool_create "num_dom" in
+  fun: "num_domain" "n" =>
+    let: "pool" := pool_create "num_domain" in
     let: "cnt" := ref 0 in
     pool_run
       "pool"

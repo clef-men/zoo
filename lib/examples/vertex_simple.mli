@@ -1,5 +1,5 @@
 val main :
-  int ->
+  num_domain:int ->
   (unit -> unit) ->
   (unit -> unit) ->
   (unit -> unit) ->

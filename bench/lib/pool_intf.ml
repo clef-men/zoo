@@ -7,7 +7,7 @@ module type BASE = sig
     context -> 'a
 
   val create :
-    num_domain:int -> unit -> t
+    num_domain:int -> t
 
   val size :
     context -> int

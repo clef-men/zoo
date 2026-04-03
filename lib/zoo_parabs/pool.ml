@@ -41,7 +41,7 @@ let rec worker ctx =
       execute ctx job ;
       worker ctx
 
-let create sz =
+let create ~num_domain:sz =
   let hub = Ws_hub_std.create (sz + 1) in
   Ws_hub_std.block hub 0 ;
   let domains =

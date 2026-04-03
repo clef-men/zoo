@@ -1,4 +1,4 @@
-let main num_dom a b c d =
+let main ~num_domain a b c d =
   let flag = Mpsc_flag.create () in
 
   let vtx_a = Vertex.create' @@ fun _ctx -> a () in
@@ -11,7 +11,7 @@ let main num_dom a b c d =
   Vertex.precede vtx_b vtx_d ;
   Vertex.precede vtx_c vtx_d ;
 
-  let pool = Pool.create num_dom in
+  let pool = Pool.create ~num_domain in
   Pool.run pool (fun ctx ->
     Vertex.release ctx vtx_d ;
     Vertex.release ctx vtx_c ;

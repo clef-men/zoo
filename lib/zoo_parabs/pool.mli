@@ -15,7 +15,7 @@
     using the [fibo] example from the {!Future} module:
     {[
     let () =
-      let pool = Pool.create (Domain.recommended_domain_count () - 1) in
+      let pool = Pool.create ~num_domain:(Domain.recommended_domain_count () - 1) in
       let fib40 = Pool.run pool (fun ctx -> fibo ctx 40) in
       Pool.close pool;
       fib40
@@ -35,8 +35,8 @@ type 'a task =
   context -> 'a
 
 val create :
-  int -> t
-(** [create n] creates a new scheduler with [n] extra worker domains. *)
+  num_domain:int -> t
+(** [create ~num_domain] creates a new scheduler with [num_domain] extra worker domains. *)
 
 val run :
   t -> 'a task -> 'a

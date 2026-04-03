@@ -53,7 +53,7 @@ module Sequential = Make(struct
   let size () =
     0
 
-  let create ~num_domain:_ () =
+  let create ~num_domain:_ =
     ()
 
   let run () task =
@@ -84,8 +84,8 @@ module Parabs = Make(struct
   type 'a task =
     context -> 'a
 
-  let create ~num_domain () =
-    Pool.create num_domain
+  let create =
+    Pool.create
 
   let size =
     Pool.size
@@ -118,7 +118,7 @@ module Domainslib = Make(struct
   type 'a task =
     context -> 'a
 
-  let create ~num_domain () =
+  let create ~num_domain =
     Task.setup_pool ~num_domains:num_domain ()
 
   let size t =
@@ -154,7 +154,7 @@ module Moonpool_fifo_base = struct
   type 'a task =
     context -> 'a
 
-  let create ~num_domain () =
+  let create ~num_domain =
     (* ask for one more domain on Moonpool, see
        https://github.com/c-cube/moonpool/issues/41 *)
     let pool = Fifo_pool.create ~num_threads:(num_domain + 1) () in
@@ -195,7 +195,7 @@ module Moonpool_ws_base = struct
   type 'a task =
     context -> 'a
 
-  let create ~num_domain () =
+  let create ~num_domain =
     (* ask for one more domain on Moonpool, see
        https://github.com/c-cube/moonpool/issues/41 *)
     let pool = Ws_pool.create ~num_threads:(num_domain + 1) () in

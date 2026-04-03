@@ -57,6 +57,6 @@ let num_domain =
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create ~num_domain () in
+  let pool = Pool.create ~num_domain in
   let _ = Pool.run pool (M.main ~limit ?cutoff input) in
   Pool.close pool

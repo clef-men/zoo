@@ -22,8 +22,8 @@ let rec main ctx vtx r n =
     true
   )
 
-let main num_dom n =
-  let pool = Pool.create num_dom in
+let main ~num_domain n =
+  let pool = Pool.create ~num_domain in
   let res =
     Pool.run pool @@ fun ctx ->
       let r = ref 0 in

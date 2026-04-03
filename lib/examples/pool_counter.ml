@@ -1,5 +1,5 @@
-let main num_dom n =
-  let pool = Pool.create num_dom in
+let main ~num_domain n =
+  let pool = Pool.create ~num_domain in
   let cnt = Atomic.make 0 in
   Pool.run pool (fun ctx ->
     for _ = 0 to n - 1 do

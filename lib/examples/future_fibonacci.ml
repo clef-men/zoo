@@ -6,8 +6,8 @@ let rec main ctx n =
     let fut2 = Future.async ctx (fun ctx -> main ctx (n - 2)) in
     Future.wait ctx fut1 + Future.wait ctx fut2
 
-let main num_dom n =
-  let pool = Pool.create num_dom in
+let main ~num_domain n =
+  let pool = Pool.create ~num_domain in
   let res = Pool.run pool (fun ctx -> main ctx n) in
   Pool.close pool ;
   res
