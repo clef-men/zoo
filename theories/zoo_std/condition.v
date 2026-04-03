@@ -167,11 +167,11 @@ Section mutex_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hmutex_inv & Hmutex_locked & HP & HΨ & #Hpred) HΦ".
 
-    wp_rec. wp_pures.
     iLöb as "HLöb".
 
-    wp_rec.
-    wp_apply+ (wp_wand with "(Hpred Hmutex_locked HP HΨ)") as (res) "(%b & -> & Hmutex_locked & HΨ)".
+    wp_rec. wp_pures.
+
+    wp_apply (wp_wand with "(Hpred Hmutex_locked HP HΨ)") as (res) "(%b & -> & Hmutex_locked & HΨ)".
     destruct b; first iSteps.
     iDestruct "HΨ" as "(HP & HΨ)".
     wp_apply+ (condition_wait_spec _ _ P with "[$]") as "(Hmutex_locked & HP)".

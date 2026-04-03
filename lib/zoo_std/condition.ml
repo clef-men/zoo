@@ -29,13 +29,11 @@ let wait =
     ()
 ]
 
-let rec wait_until_aux t mtx pred =
+let rec wait_until t mtx pred =
   if not @@ pred () then (
     wait t mtx ;
-    wait_until_aux t mtx pred
+    wait_until t mtx pred
   )
-let wait_until t mtx pred =
-  wait_until_aux t mtx pred
 
 let wait_while t mtx pred =
   wait_until t mtx (fun _ -> not @@ pred ())

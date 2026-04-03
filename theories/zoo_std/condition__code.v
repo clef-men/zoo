@@ -24,16 +24,12 @@ Definition condition_wait : val :=
   fun: "_t" "_mtx" =>
     ().
 
-Definition condition_wait_until_aux : val :=
-  rec: "wait_until_aux" "t" "mtx" "pred" =>
+Definition condition_wait_until : val :=
+  rec: "wait_until" "t" "mtx" "pred" =>
     if: ~ "pred" () then (
       condition_wait "t" "mtx" ;;
-      "wait_until_aux" "t" "mtx" "pred"
+      "wait_until" "t" "mtx" "pred"
     ).
-
-Definition condition_wait_until : val :=
-  fun: "t" "mtx" "pred" =>
-    condition_wait_until_aux "t" "mtx" "pred".
 
 Definition condition_wait_while : val :=
   fun: "t" "mtx" "pred" =>
