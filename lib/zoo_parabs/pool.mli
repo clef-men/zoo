@@ -23,44 +23,43 @@
  *)
 
 type t
-(** A scheduler has a queue of tasks to run, and owns a pool of [n]
-    worker domains to run them. One domain owns the scheduler and
-    sends a toplevel task using the {!run} function, so in total [n+1]
+(** A pool of [n] worker domains. One domain owns the pool and sends
+    toplevels tasks using the {!run} function, so in total [n+1]
     domains participate to the computation. *)
 
 type context
-(** A [context] carries the execution state of a running scheduler. *)
+(** A [context] carries the execution state of a running pool. *)
 
 type 'a task =
   context -> 'a
 
 val create :
   num_domain:int -> t
-(** [create ~num_domain] creates a new scheduler with [num_domain] extra worker domains. *)
+(** [create ~num_domain] creates a new pool with [num_domain] extra worker domains. *)
 
 val run :
   t -> 'a task -> 'a
-(** [run t task] runs a toplevel task on a given scheduler; subtasks
+  (** [run t task] runs a toplevel task on pool [t]; subtasks
     will run on this (caller) domain or on the worker domains. It
     returns when the toplevel task is finished. *)
 
 val close :
   t -> unit
-(** [close t] stops a scheduler: it terminates the worker domains when
+(** [close t] stops pool [t]: it terminates the worker domains when
     they run out of tasks, and returns when all workers are done. It
     should be called once you know that the topevel task you care
     about is finished. *)
 
 val size :
   context -> int
-(** [size ctx] returns the number of worker domains of the scheduler
+(** [size ctx] returns the number of worker domains of the pool
     of this context. This can be useful for coarse-grained splitting
     of sequences of inputs, to schedule one task per domain. *)
 
 val async :
   context -> unit task -> unit
 (** [async ctx task] schedules the [task] to be executed asynchronously
-    by the scheduler. *)
+    by the pool. *)
 
 val wait_until :
   context -> (unit -> bool) -> unit
