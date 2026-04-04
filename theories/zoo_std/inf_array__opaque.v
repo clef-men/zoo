@@ -1,5 +1,6 @@
 From zoo_std Require Import
   inf_array__code.
+
 #[global] Opaque inf_array_create.
 #[global] Opaque inf_array_get.
 #[global] Opaque inf_array_update.

@@ -1,5 +1,6 @@
 From zoo_saturn Require Import
   bag_2__code.
+
 #[global] Opaque bag_2_create.
 #[global] Opaque bag_2_create_producer.
 #[global] Opaque bag_2_close_producer.

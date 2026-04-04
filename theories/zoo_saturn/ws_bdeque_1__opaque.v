@@ -1,5 +1,6 @@
 From zoo_saturn Require Import
   ws_bdeque_1__code.
+
 #[global] Opaque ws_bdeque_1_create.
 #[global] Opaque ws_bdeque_1_capacity.
 #[global] Opaque ws_bdeque_1_size.

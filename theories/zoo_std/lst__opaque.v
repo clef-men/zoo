@@ -1,5 +1,6 @@
 From zoo_std Require Import
   lst__code.
+
 #[global] Opaque lst_singleton.
 #[global] Opaque lst_head.
 #[global] Opaque lst_tail.

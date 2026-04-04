@@ -1,5 +1,6 @@
 From zoo_std Require Import
   ivar_1__code.
+
 #[global] Opaque ivar_1_create.
 #[global] Opaque ivar_1_make.
 #[global] Opaque ivar_1_is_unset.
