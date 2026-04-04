@@ -1,7 +1,7 @@
 (** The [Pool] module exposes a low-level interface of a pool of
     worker domains on which asynchronous tasks can be scheduled.
 
-    You need to use {!create} and {!run} to start asynchronous
+    You need to use {!create} and {!run_on} to start asynchronous
     computations, and {!close} to release the worker domains at the
     end.
 
@@ -16,7 +16,7 @@
     {[
     let () =
       let pool = Pool.create ~num_domain:(Domain.recommended_domain_count () - 1) in
-      let fib40 = Pool.run pool (fun ctx -> fibo ctx 40) in
+      let fib40 = Pool.run_on pool (fun ctx -> fibo ctx 40) in
       Pool.close pool;
       fib40
     ]}
@@ -24,7 +24,7 @@
 
 type t
 (** A pool of [n] worker domains. One domain owns the pool and sends
-    toplevels tasks using the {!run} function, so in total [n+1]
+    toplevels tasks using the {!run_on} function, so in total [n+1]
     domains participate to the computation. *)
 
 type context
@@ -37,11 +37,11 @@ val create :
   num_domain:int -> t
 (** [create ~num_domain] creates a new pool with [num_domain] extra worker domains. *)
 
-val run :
+val run_on :
   t -> 'a task -> 'a
-  (** [run t task] runs a toplevel task on pool [t]; subtasks
-    will run on this (caller) domain or on the worker domains. It
-    returns when the toplevel task is finished. *)
+(** [run_on t task] runs [task] on pool [t]; subtasks will run on this
+    (caller) domain or on the worker domains. It returns when [task] is
+    finished. *)
 
 val close :
   t -> unit
@@ -49,6 +49,11 @@ val close :
     they run out of tasks, and returns when all workers are done. It
     should be called once you know that the topevel task you care
     about is finished. *)
+
+val run :
+  num_domain:int -> 'a task -> 'a
+(** [run task] creates a pool with [num_domain] extra worker domains,
+    runs [task] on it and closes the pool. *)
 
 val size :
   context -> int

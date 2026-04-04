@@ -19,6 +19,4 @@ let main ctx arr =
   main ctx arr 0 (Array.size arr)
 
 let main ~num_domain arr =
-  let pool = Pool.create ~num_domain in
-  Pool.run pool (fun ctx -> main ctx arr) ;
-  Pool.close pool
+  Pool.run ~num_domain (fun ctx -> main ctx arr)

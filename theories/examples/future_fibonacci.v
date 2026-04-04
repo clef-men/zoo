@@ -77,17 +77,15 @@ Section future_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
-    wp_apply+ (pool_run_spec (λ v,
+    wp_apply+ (pool_run_spec (λ pool v,
       ⌜v = #_⌝
-    )%I with "[$Hpool_model]") as (?) "(Hpool_model & ->)".
-    { iIntros "%ctx %scope Hctx".
+    )%I) as (pool ?) "(_ & ->)". 1: lia.
+    { iIntros "%pool %ctx %scope _ Hctx".
       wp_apply+ (future_fibonacci_main_0_spec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 
-    wp_apply+ (pool_close_spec with "Hpool_model").
     iSteps.
   Qed.
 End future_G.

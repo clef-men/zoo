@@ -55,7 +55,7 @@ let create ~num_domain:sz =
   ; force_mutable= ()
   }
 
-let run t task =
+let run_on t task =
   Ws_hub_std.unblock t.hub 0 ;
   let res = execute (context_main t) task in
   Ws_hub_std.block t.hub 0 ;
@@ -66,6 +66,12 @@ let close t =
   Ws_hub_std.unblock t.hub 0 ;
   worker (context_main t) ;
   Array.iter Domain.join t.domains
+
+let run ~num_domain task =
+  let t = create ~num_domain in
+  let res = run_on t task in
+  close t ;
+  res
 
 let size ctx =
   ctx.context_size

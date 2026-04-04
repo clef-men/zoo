@@ -11,12 +11,10 @@ let main ~num_domain a b c d =
   Vertex.precede vtx_b vtx_d ;
   Vertex.precede vtx_c vtx_d ;
 
-  let pool = Pool.create ~num_domain in
-  Pool.run pool (fun ctx ->
+  Pool.run ~num_domain (fun ctx ->
     Vertex.release ctx vtx_d ;
     Vertex.release ctx vtx_c ;
     Vertex.release ctx vtx_b ;
     Vertex.release ctx vtx_a ;
     Pool.wait_until ctx (fun () -> Mpsc_flag.get flag)
-  ) ;
-  Pool.close pool
+  )

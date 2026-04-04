@@ -39,6 +39,4 @@ let cutoff = Utils.get_int_param "CUTOFF"
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create ~num_domain in
-  let _ = Pool.run pool (M.main ?cutoff size) in
-  Pool.close pool
+  Pool.run ~num_domain (M.main ?cutoff size)

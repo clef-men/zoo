@@ -23,21 +23,17 @@ let rec main ctx vtx r n =
   )
 
 let main ~num_domain n =
-  let pool = Pool.create ~num_domain in
-  let res =
-    Pool.run pool @@ fun ctx ->
-      let r = ref 0 in
-      let vtx1 = Vertex.create None in
-      Vertex.set_task vtx1 (fun ctx -> main ctx vtx1 r n) ;
-      Vertex.release ctx vtx1 ;
+  Pool.run ~num_domain (fun ctx ->
+    let r = ref 0 in
+    let vtx1 = Vertex.create None in
+    Vertex.set_task vtx1 (fun ctx -> main ctx vtx1 r n) ;
+    Vertex.release ctx vtx1 ;
 
-      let flag = Mpsc_flag.create () in
-      let vtx2 = Vertex.create' (fun _ctx -> Mpsc_flag.set flag) in
-      Vertex.precede vtx1 vtx2 ;
-      Vertex.release ctx vtx2 ;
+    let flag = Mpsc_flag.create () in
+    let vtx2 = Vertex.create' (fun _ctx -> Mpsc_flag.set flag) in
+    Vertex.precede vtx1 vtx2 ;
+    Vertex.release ctx vtx2 ;
 
-      Pool.wait_until ctx (fun () -> Mpsc_flag.get flag) ;
-      !r
-  in
-  Pool.close pool ;
-  res
+    Pool.wait_until ctx (fun () -> Mpsc_flag.get flag) ;
+    !r
+  )

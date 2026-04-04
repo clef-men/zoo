@@ -868,7 +868,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    Lemma pool_run_spec Ψ t γ task :
+    Lemma pool_run_on_spec Ψ t γ task :
       {{{
         pool_model t γ ∗
         ( ∀ ctx scope,
@@ -879,7 +879,7 @@ Module base.
           }}
         )
       }}}
-        pool_run #t task
+        pool_run_on #t task
       {{{
         v
       , RET v;
@@ -952,6 +952,39 @@ Module base.
       iMod (globals_model_close _ with "Hglobals_model Hlocals_ats") as "(%jobs & Hglobals_model & #Hjobs_auth & #Hjobs_finished)".
       iSplitL. { iFrameSteps. }
       iSteps.
+    Qed.
+
+    Lemma pool_run_spec (Ψ : location → pool_name → val → iProp Σ) sz task :
+      (0 ≤ sz)%Z →
+      {{{
+        ∀ t γ ctx scope,
+        pool_inv γ ₊sz -∗
+        meta_token t ⊤ -∗
+        pool_context γ ctx scope -∗
+        WP task ctx {{ v,
+          pool_context γ ctx scope ∗
+          Ψ t γ v
+        }}
+      }}}
+        pool_run #sz task
+      {{{
+        t γ v
+      , RET v;
+        pool_finished γ ∗
+        Ψ t γ v
+      }}}.
+    Proof.
+      iIntros "%Hsz %Φ Htask HΦ".
+
+      wp_rec.
+      wp_apply+ (pool_create_spec with "[//]") as (t γ) "(#Hinv & Hmodel & Hmeta)". 1: done.
+      wp_apply+ (pool_run_on_spec (Ψ t γ) with "[$Hmodel Hmeta Htask]") as (v) "(Hmodel & HΨ)".
+      { iIntros "%ctx %scope Hctx".
+        iApply ("Htask" with "Hinv Hmeta Hctx").
+      }
+      wp_apply+ (pool_close_spec with "Hmodel") as "#Hfinished".
+      wp_pures.
+      iApply ("HΦ" with "[$Hfinished $HΨ]").
     Qed.
 
     Lemma pool_size_spec γ sz ctx scope :
@@ -1132,6 +1165,7 @@ Section pool_G.
 
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
+  Implicit Types γ : base.pool_name.
   Implicit Types P Q : iProp Σ.
   Implicit Types Ψ : val → iProp Σ.
 
@@ -1363,7 +1397,7 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_run_spec Ψ t task :
+  Lemma pool_run_on_spec Ψ t task :
     {{{
       pool_model t ∗
       ( ∀ ctx scope,
@@ -1374,7 +1408,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_run t task
+      pool_run_on t task
     {{{
       v
     , RET v;
@@ -1384,7 +1418,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:model) & Htask) HΦ".
 
-    wp_apply (base.pool_run_spec Ψ with "[$Hmodel Htask]").
+    wp_apply (base.pool_run_on_spec Ψ with "[$Hmodel Htask]").
     { iIntros "%ctx %scope Hctx".
       wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
@@ -1407,6 +1441,42 @@ Section pool_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_apply (base.pool_close_spec with "Hmodel").
+    iSteps.
+  Qed.
+
+  Lemma pool_run_spec (Ψ : val → val → iProp Σ) sz task :
+    (0 ≤ sz)%Z →
+    {{{
+      ∀ t ctx scope,
+      pool_inv t ₊sz -∗
+      pool_context t ctx scope -∗
+      WP task ctx {{ v,
+        pool_context t ctx scope ∗
+        Ψ t v
+      }}
+    }}}
+      pool_run #sz task
+    {{{
+      t v
+    , RET v;
+      pool_finished t ∗
+      Ψ t v
+    }}}.
+  Proof.
+    iIntros "%Hsz %Φ Htask HΦ".
+
+    set (Ψ' 𝑡 γ v := (
+      meta 𝑡 nroot γ ∗
+      Ψ #𝑡 v
+    )%I).
+    wp_apply (base.pool_run_spec Ψ' with "[Htask]"). 1: done.
+    { iIntros "%𝑡 %γ %ctx %scope #Hinv Hmeta Hctx".
+      iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+      wp_apply (wp_wand with "(Htask [] [$Hctx])") as (v) "((:context =1) & HΨ)". 1-2: iSteps.
+      simplify.
+      iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
+      iFrameSteps.
+    }
     iSteps.
   Qed.
 

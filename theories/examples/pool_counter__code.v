@@ -12,14 +12,12 @@ From zoo Require Import
 
 Definition pool_counter_main : val :=
   fun: "num_domain" "n" =>
-    let: "pool" := pool_create "num_domain" in
     let: "cnt" := ref 0 in
     pool_run
-      "pool"
+      "num_domain"
       (fun: "ctx" =>
          for: <> := 0 to "n" begin
            pool_async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;
                                             ())
          end) ;;
-    pool_close "pool" ;;
     !"cnt".

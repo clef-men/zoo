@@ -27,13 +27,11 @@ Definition vertex_simple_main : val :=
     vertex_precede "vtx_a" "vtx_c" ;;
     vertex_precede "vtx_b" "vtx_d" ;;
     vertex_precede "vtx_c" "vtx_d" ;;
-    let: "pool" := pool_create "num_domain" in
     pool_run
-      "pool"
+      "num_domain"
       (fun: "ctx" =>
          vertex_release "ctx" "vtx_d" ;;
          vertex_release "ctx" "vtx_c" ;;
          vertex_release "ctx" "vtx_b" ;;
          vertex_release "ctx" "vtx_a" ;;
-         pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag")) ;;
-    pool_close "pool".
+         pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag")).
