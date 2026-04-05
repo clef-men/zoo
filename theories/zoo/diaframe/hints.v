@@ -32,7 +32,7 @@ Section pointsto.
         )%I
     | 40.
     Proof.
-      rewrite /MergableConsume => p Pin Pout [-> ->].
+      intros p Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       iStep as "Hl1 Hl2".
       iCombine "Hl1 Hl2" gives %[_ ->].
@@ -50,8 +50,8 @@ Section pointsto.
         )%I
     | 30.
     Proof.
-      rewrite /MergableConsume => p Pin Pout [-> [+ ->]].
-      rewrite bi.intuitionistically_if_elim => Hq.
+      intros p Pin Pout (-> & Hq & ->).
+      rewrite bi.intuitionistically_if_elim.
       iStep as "Hl1 Hl2".
       iCombine "Hl1 Hl2" as "H" gives %[Hl ->].
       rewrite dfrac_op_own Hq.
@@ -68,7 +68,7 @@ Section pointsto.
         )%I
     | 50.
     Proof.
-      rewrite /MergableConsume => p Pin Pout [-> ->].
+      intros p Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       iStep as "Hl1 Hl2".
       iCombine "Hl1 Hl2" gives %[?%dfrac_valid_own_l ->].
@@ -84,7 +84,7 @@ Section pointsto.
         )%I
     | 50.
     Proof.
-      rewrite /MergableConsume => p Pin Pout [-> ->].
+      intros p Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       iSteps.
     Qed.
@@ -98,7 +98,7 @@ Section pointsto.
         )%I
     | 99.
     Proof.
-      rewrite /MergableConsume => p Pin Pout [-> ->].
+      intros p Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       iStep as "Hl1 Hl2".
       iCombine "Hl1 Hl2" gives %[_ ->].
@@ -114,7 +114,7 @@ Section pointsto.
           TCEq Pout (False%I)
         ).
     Proof.
-      move => b Pin Pout [-> ->].
+      intros b Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       iIntros "[Hp1 Hp2]". by iApply (prophet_model_exclusive with "[$]").
     Qed.
@@ -127,7 +127,7 @@ Section pointsto.
         TCEq Pout ⌜pid ≠ pid'⌝
       )%I.
     Proof.
-      move => b Pin Pout [-> ->].
+      intros b Pin Pout (-> & ->).
       rewrite bi.intuitionistically_if_elim.
       destruct_decide (pid = pid') as -> | Hneq; iSteps.
     Qed.
@@ -172,7 +172,7 @@ Section pointsto.
       ]
     | 54.
     Proof.
-      rewrite /= /FracSub => <-.
+      rewrite /FracSub => <-.
       destruct mq; iSteps as "Hl".
       iDestruct "Hl" as "[Hl Hl']".
       iSteps.
@@ -205,7 +205,7 @@ Section pointsto.
     | 100.
     Proof.
       iIntros "Hl" => /=.
-      rewrite /= right_id bi.intuitionistically_if_elim.
+      rewrite right_id bi.intuitionistically_if_elim.
       iMod (pointsto_persist with "Hl") as "#Hl".
       iSteps.
     Qed.
