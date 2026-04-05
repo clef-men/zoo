@@ -9,7 +9,7 @@ From diaframe Require Import
 
 From zoo Require Import
   prelude.
-From zoo.iris Require Import
+From zoo.iris Require Export
   diaframe.
 From zoo.language Require Import
   notations.
