@@ -82,12 +82,11 @@ Section vertex_simple_G.
     wp_apply+ (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_b_predecessor)". 1: iFrame "#".
     wp_apply+ (vertex_precede_spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_c_predecessor)". 1: iFrame "#".
 
-    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
-
-    wp_apply+ (pool_run_spec (λ _,
+    wp_apply+ (pool_run_spec (λ pool res,
+      ⌜res = ()%V⌝ ∗
       P_d
-    )%I with "[- HΦ $Hpool_model]") as (?) "(Hpool_model & HP_d)".
-    { iIntros "%ctx %scope Hctx".
+    )%I with "[- HΦ]") as (pool ?) "(_ & -> & HP_d)". 1: lia.
+    { iIntros "%pool %ctx %scope _ Hctx".
 
       wp_apply+ (vertex_release_spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_d_ready".
@@ -153,7 +152,6 @@ Section vertex_simple_G.
       iSteps.
     }
 
-    wp_apply+ (pool_close_spec with "[$Hpool_model]").
     iSteps.
   Qed.
 End vertex_simple_G.

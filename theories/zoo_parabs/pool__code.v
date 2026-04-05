@@ -60,7 +60,7 @@ Definition pool_create : val :=
     in
     { "sz", "hub", "domains", () }.
 
-Definition pool_run : val :=
+Definition pool_run_on : val :=
   fun: "t" "task" =>
     ws_hub_std_unblock "t".{hub} 0 ;;
     let: "res" := pool_execute (pool_context_main "t") "task" in
@@ -73,6 +73,13 @@ Definition pool_close : val :=
     ws_hub_std_unblock "t".{hub} 0 ;;
     pool_worker (pool_context_main "t") ;;
     array_iter domain_join "t".{domains}.
+
+Definition pool_run : val :=
+  fun: "num_domain" "task" =>
+    let: "t" := pool_create "num_domain" in
+    let: "res" := pool_run_on "t" "task" in
+    pool_close "t" ;;
+    "res".
 
 Definition pool_size : val :=
   fun: "ctx" =>

@@ -12,7 +12,7 @@ module type BASE = sig
   val size :
     context -> int
 
-  val run :
+  val run_on :
     t -> 'a task -> 'a
 
   val close :
@@ -29,6 +29,9 @@ end
 
 module type S = sig
   include BASE
+
+  val run :
+    num_domain:int -> 'a task -> 'a
 
   val for_ :
     beg:int -> end_:int -> ?chunk:int -> context -> (int -> int -> unit) task -> unit

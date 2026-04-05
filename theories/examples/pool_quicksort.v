@@ -318,22 +318,22 @@ Section pool_G.
     iIntros "%Φ Harr HΦ".
 
     wp_rec.
-    wp_apply+ (pool_create_spec with "[//]") as (pool) "(_ & Hpool_model)". 1: lia.
 
-    wp_apply+ (pool_run_spec (λ _,
+    iApply wp_fupd.
+    wp_apply+ (pool_run_spec (λ pool res,
+      ⌜res = ()%V⌝ ∗
       pool_consumer pool (
         ∃ xs',
         ⌜xs ≡ₚ xs'⌝ ∗
         ⌜StronglySorted (≤)%Z xs'⌝ ∗
         array_model arr (DfracOwn 1) (#*@{Z} xs')
       )
-    )%I with "[$Hpool_model Harr]") as (?) "(Hpool_model & Hpool_consumer)".
-    { iIntros "%ctx %scope Hctx".
-      wp_apply+ (pool_quicksort_main_1_spec with "[$]") as "$".
+    )%I with "[Harr]") as (pool ?) "(#Hpool_finished & -> & Hpool_consumer)". 1: lia.
+    { iIntros "%pool %ctx %scope _ Hctx".
+      wp_apply+ (pool_quicksort_main_1_spec with "[$]").
+      iSteps.
     }
 
-    iApply wp_fupd.
-    wp_apply+ (pool_close_spec with "[$Hpool_model]") as "#Hpool_finished".
     iMod (pool_consumer_finished with "Hpool_consumer Hpool_finished") as "(%xs' & % & % & Harr)".
     iSteps.
   Qed.

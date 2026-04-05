@@ -37,24 +37,20 @@ Definition vertex_fibonacci_main_0 : val :=
 
 Definition vertex_fibonacci_main : val :=
   fun: "num_domain" "n" =>
-    let: "pool" := pool_create "num_domain" in
-    let: "res" :=
-      pool_run "pool"
-        (fun: "ctx" =>
-           let: "r" := ref 0 in
-           let: "vtx1" := vertex_create §None in
-           vertex_set_task
-             "vtx1"
-             (fun: "ctx" => vertex_fibonacci_main_0 "ctx" "vtx1" "r" "n") ;;
-           vertex_release "ctx" "vtx1" ;;
-           let: "flag" := mpsc_flag_create () in
-           let: "vtx2" :=
-             vertex_create' (fun: "_ctx" => mpsc_flag_set "flag")
-           in
-           vertex_precede "vtx1" "vtx2" ;;
-           vertex_release "ctx" "vtx2" ;;
-           pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag") ;;
-           !"r")
-    in
-    pool_close "pool" ;;
-    "res".
+    pool_run
+      "num_domain"
+      (fun: "ctx" =>
+         let: "r" := ref 0 in
+         let: "vtx1" := vertex_create §None in
+         vertex_set_task
+           "vtx1"
+           (fun: "ctx" => vertex_fibonacci_main_0 "ctx" "vtx1" "r" "n") ;;
+         vertex_release "ctx" "vtx1" ;;
+         let: "flag" := mpsc_flag_create () in
+         let: "vtx2" :=
+           vertex_create' (fun: "_ctx" => mpsc_flag_set "flag")
+         in
+         vertex_precede "vtx1" "vtx2" ;;
+         vertex_release "ctx" "vtx2" ;;
+         pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag") ;;
+         !"r").

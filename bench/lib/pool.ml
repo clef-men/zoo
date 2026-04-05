@@ -5,6 +5,12 @@ module Make
 = struct
   include Base
 
+  let run ~num_domain task =
+    let t = create ~num_domain in
+    let res = run_on t task in
+    close t ;
+    res
+
   let adjust_chunk ~beg ~end_ ~chunk ctx =
     match chunk with
     | Some chunk ->
@@ -56,7 +62,7 @@ module Sequential = Make(struct
   let create ~num_domain:_ =
     ()
 
-  let run () task =
+  let run_on () task =
     task ()
 
   let close () =
@@ -90,8 +96,8 @@ module Parabs = Make(struct
   let size =
     Pool.size
 
-  let run =
-    Pool.run
+  let run_on =
+    Pool.run_on
 
   let close =
     Pool.close
@@ -124,7 +130,7 @@ module Domainslib = Make(struct
   let size t =
     Task.get_num_domains t - 1
 
-  let run t task =
+  let run_on t task =
     Task.run t (fun () -> task t)
 
   let close =
@@ -163,7 +169,7 @@ module Moonpool_fifo_base = struct
   let size t =
     t.size
 
-  let run t task =
+  let run_on t task =
     Fifo_pool.run_wait_block t.pool (fun () -> task t)
 
   let close t =
@@ -204,7 +210,7 @@ module Moonpool_ws_base = struct
   let size t =
     t.size
 
-  let run t task =
+  let run_on t task =
     Ws_pool.run_wait_block t.pool (fun () -> task t)
 
   let close t =

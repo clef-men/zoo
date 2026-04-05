@@ -6,8 +6,8 @@ module Make
   let main n ctx =
     let fut = Pool.async ctx (fun _ctx -> Unix.sleepf 1.) in
     for _i = 1 to n do
-      Pool.async ctx (fun ctx -> Pool.wait ctx fut) |> ignore;
-    done;
+      Pool.async ctx (fun ctx -> Pool.wait ctx fut) |> ignore
+    done ;
     Pool.wait ctx fut
 end
 
@@ -24,6 +24,4 @@ let num_domain =
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  let pool = Pool.create ~num_domain in
-  let _ = Pool.run pool (M.main input) in
-  Pool.close pool
+  Pool.run ~num_domain (M.main input)
