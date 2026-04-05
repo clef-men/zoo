@@ -1,3 +1,6 @@
+From iris.base_logic Require Export
+  lib.fancy_updates.
+
 From diaframe Require Import
   steps.pure_solver
   lib.persistently
@@ -10,12 +13,12 @@ From zoo.iris Require Import
   diaframe.
 From zoo.language Require Import
   notations.
-From zoo.program_logic Require Import
-  wp.
+From zoo.program_logic Require Export
+  state_interp.
 From zoo Require Import
   options.
 
-Section instances.
+Section pointsto.
   Context `{zoo_G : !ZooG Σ}.
 
   Section mergable.
@@ -130,8 +133,8 @@ Section instances.
     Qed.
   End mergable.
 
-  Section biabds_pointsto.
-    #[global] Instance pointsto_val_may_need_more (l : location) (v1 v2 : val) (q1 q2 : Qp) mq q :
+  Section biabd.
+    #[global] Instance diahint_pointsto_may_need_more l v1 v2 q1 q2 mq q :
       FracSub q2 q1 mq →
       TCEq mq (Some q) →
       HINT
@@ -150,7 +153,7 @@ Section instances.
       rewrite /FracSub => <- -> v' /=.
       iSteps.
     Qed.
-    #[global] Instance pointsto_val_have_enough (l : location) (v1 v2 : val) (q1 q2 : Qp) mq :
+    #[global] Instance diahint_pointsto_have_enough l v1 v2 q1 q2 mq :
       FracSub q1 q2 mq →
       HINT
         l ↦{#q1} v1
@@ -174,7 +177,7 @@ Section instances.
       iDestruct "Hl" as "[Hl Hl']".
       iSteps.
     Qed.
-    #[global] Instance pointsto_val_discarded (l : location) (v1 v2 : val) :
+    #[global] Instance diahint_pointsto_discarded l v1 v2 :
       HINT
         l ↦□ v1
       ✱ [- ;
@@ -189,7 +192,7 @@ Section instances.
       iSteps.
     Qed.
 
-    #[global] Instance as_persistent_pointsto p l q v :
+    #[global] Instance diahint_pointsto_persist p l q v :
       HINT
         □⟨p⟩ l ↦{q} v
       ✱ [- ;
@@ -206,84 +209,8 @@ Section instances.
       iMod (pointsto_persist with "Hl") as "#Hl".
       iSteps.
     Qed.
-  End biabds_pointsto.
-
-  Section biabds_pointsto_array.
-    Class BaseLoc li lb i :=
-      offset_location_eq : li = lb +ₗ i.
-    #[global] Hint Mode BaseLoc + - - : typeclass_instances.
-
-    #[global] Instance base_location_default l :
-      BaseLoc l l 0 | 50.
-    Proof.
-      unfold BaseLoc. by rewrite location_add_0.
-    Qed.
-
-    #[global] Instance base_location_add li j1 lb j2 :
-      BaseLoc li lb j2 →
-      BaseLoc (li +ₗ j1) lb (j2 + j1)
-    | 30.
-    Proof.
-      unfold BaseLoc => ->. by rewrite location_add_assoc.
-    Qed.
-
-    Class ComputeOffsetLoc lb j lo :=
-      compute_offset_location_eq : lb +ₗ j = lo.
-    #[global] Hint Mode ComputeOffsetLoc + + - : typeclass_instances.
-
-    Lemma compute_offset_from_base_location li ji lb i :
-      BaseLoc li lb i →
-      ComputeOffsetLoc li ji (lb +ₗ (i + ji)).
-    Proof.
-      rewrite /BaseLoc /ComputeOffsetLoc -location_add_assoc => -> //.
-    Qed.
-
-    #[global] Instance compute_offset_location_default0 l :
-      ComputeOffsetLoc l 0 l
-    | 10.
-    Proof.
-      rewrite /ComputeOffsetLoc location_add_0 //.
-    Qed.
-
-    #[global] Instance compute_offset_location_default1 l i :
-      ComputeOffsetLoc l i (l +ₗ i)
-    | 100.
-    Proof.
-      done.
-    Qed.
-
-    #[global] Instance compute_offset_location_default2 l j i :
-      ComputeOffsetLoc (l +ₗ j) i (l +ₗ (j + i))
-    | 50.
-    Proof.
-      rewrite /ComputeOffsetLoc -location_add_assoc //.
-    Qed.
-
-    #[global] Instance compute_offset_location_offset_add l i j lo1 lo2 :
-      ComputeOffsetLoc l i lo1 →
-      ComputeOffsetLoc lo1 j lo2 →
-      ComputeOffsetLoc l (i + j) lo2
-    | 30.
-    Proof.
-      rewrite /ComputeOffsetLoc -location_add_assoc => <- <- //.
-    Qed.
-
-    Class SharedBaseLoc l1 l2 lb j1 j2 :=
-      { shared_base_location_eq1 : BaseLoc l1 lb j1
-      ; shared_base_location_eq2 : BaseLoc l2 lb j2
-      }.
-    #[global] Hint Mode SharedBaseLoc + + - - - : typeclass_instances.
-
-    #[global] Instance shared_base_location_gen l1 lb1 j1 l2 lb2 j2 :
-      TCNoBackTrack (BaseLoc l1 lb1 j1) →
-      TCNoBackTrack (BaseLoc l2 lb2 j2) →
-      TCEq lb1 lb2 →
-      SharedBaseLoc l1 l2 lb1 j1 j2.
-    Proof.
-      move => ? ? /TCEq_eq; split; subst; eapply tc_no_backtrack.
-    Qed.
-  End biabds_pointsto_array.
-End instances.
+  End biabd.
+End pointsto.
 
 Section side_condition_lemmas.
   Lemma val_nonsimilar_lit_neq lit1 lit2 :
@@ -352,15 +279,16 @@ Section side_condition_lemmas.
 End side_condition_lemmas.
 
 Ltac solveValEq :=
-  (progress f_equal); trySolvePureEq.
+  progress f_equal;
+  trySolvePureEq.
 
 Ltac trySolvePureEqAdd1 :=
   lazymatch goal with
-  | |- @eq ?T ?l ?r =>
-      match constr:((T, l)) with
-      | (val, _) =>
+  | |- @eq ?ty _ _ =>
+      match ty with
+      | val =>
           solveValEq
-      | (literal, _) =>
+      | literal =>
           solveValEq
       end
   end.
@@ -376,15 +304,18 @@ Ltac trySolvePureAdd1 :=
   | |- ValLit ?lit1 ≠ ValLit ?lit2 =>
       assert_fails (has_evar lit1);
       assert_fails (has_evar lit2);
-      eapply val_nonsimilar_lit_neq; solve [pure_solver.trySolvePure]
+      eapply val_nonsimilar_lit_neq;
+      solve [pure_solver.trySolvePure]
   | |- LitInt ?n1 ≠ LitInt ?n2 =>
       assert_fails (has_evar n1);
       assert_fails (has_evar n2);
-      eapply lit_neq_Z_neq; solve [pure_solver.trySolvePure]
+      eapply lit_neq_Z_neq;
+      solve [pure_solver.trySolvePure]
   | |- LitBool ?b1 ≠ LitBool ?b2 =>
       assert_fails (has_evar b1);
       assert_fails (has_evar b2);
-      eapply lit_neq_bool_neq; solve [pure_solver.trySolvePure]
+      eapply lit_neq_bool_neq;
+      solve [pure_solver.trySolvePure]
   | |- ValBlock ?bid1 ?tag1 ?vs1 ≠ ValBlock ?bid2 ?tag2 ?vs2 =>
       assert_fails (has_evar bid1);
       assert_fails (has_evar bid2);
@@ -392,7 +323,8 @@ Ltac trySolvePureAdd1 :=
       assert_fails (has_evar tag2);
       assert_fails (has_evar vs1);
       assert_fails (has_evar vs2);
-      eapply val_block_neq; solve [pure_solver.trySolvePure]
+      eapply val_block_neq;
+      solve [pure_solver.trySolvePure]
   end.
 
 #[global] Hint Extern 4 =>
