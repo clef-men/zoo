@@ -15,7 +15,7 @@ end
 let pool =
   Pool.impl_of_string Sys.argv.(1)
 
-let num_domain =
+let num_worker =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
@@ -25,4 +25,4 @@ let input =
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  Pool.run ~num_domain (M.main input) |> ignore
+  Pool.run ~num_worker (M.main input) |> ignore

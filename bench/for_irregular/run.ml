@@ -50,11 +50,11 @@ let cutoff =
 let input =
   int_of_string Sys.argv.(2)
 
-let num_domain =
+let num_worker =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
 let () =
   let (module Pool) = pool in
   let module M = Make(Pool) in
-  Pool.run ~num_domain (M.main ~limit ?cutoff input)
+  Pool.run ~num_worker (M.main ~limit ?cutoff input)

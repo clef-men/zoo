@@ -1,2 +1,2 @@
 val main :
-  num_domain:int -> 'a array -> unit
+  num_worker:int -> 'a array -> unit

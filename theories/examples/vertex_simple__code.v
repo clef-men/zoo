@@ -14,7 +14,7 @@ From zoo Require Import
   options.
 
 Definition vertex_simple_main : val :=
-  fun: "num_domain" "a" "b" "c" "d" =>
+  fun: "num_worker" "a" "b" "c" "d" =>
     let: "flag" := mpsc_flag_create () in
     let: "vtx_a" := vertex_create' (fun: "_ctx" => "a" ()) in
     let: "vtx_b" := vertex_create' (fun: "_ctx" => "b" ()) in
@@ -28,7 +28,7 @@ Definition vertex_simple_main : val :=
     vertex_precede "vtx_b" "vtx_d" ;;
     vertex_precede "vtx_c" "vtx_d" ;;
     pool_run
-      "num_domain"
+      "num_worker"
       (fun: "ctx" =>
          vertex_release "ctx" "vtx_d" ;;
          vertex_release "ctx" "vtx_c" ;;

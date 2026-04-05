@@ -26,7 +26,7 @@ end
 
 let impl = Sys.argv.(1)
 
-let num_domain =
+let num_worker =
   let default = Domain.recommended_domain_count () - 1 in
   Option.value ~default (Utils.get_int_param "EXTRA_DOMAINS")
 
@@ -48,9 +48,9 @@ let () =
        ~env:[|
          Printf.sprintf "OCAMLRUNPARAM=%s" ocamlrunparam;
          Printf.sprintf "CUTOFF=%d" cutoff;
-         Printf.sprintf "NUM_THREADS=%d" (num_domain + 1);
+         Printf.sprintf "NUM_THREADS=%d" (num_worker + 1);
        |]
   | pool ->
     let (module Pool) = Pool.impl_of_string pool in
     let module M = Make(Pool) in
-    Pool.run ~num_domain (M.main ~cutoff input) |> ignore
+    Pool.run ~num_worker (M.main ~cutoff input) |> ignore

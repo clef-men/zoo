@@ -7,7 +7,7 @@ module type BASE = sig
     context -> 'a
 
   val create :
-    num_domain:int -> t
+    num_worker:int -> t
 
   val size :
     context -> int
@@ -31,7 +31,7 @@ module type S = sig
   include BASE
 
   val run :
-    num_domain:int -> 'a task -> 'a
+    num_worker:int -> 'a task -> 'a
 
   val for_ :
     beg:int -> end_:int -> ?chunk:int -> context -> (int -> int -> unit) task -> unit

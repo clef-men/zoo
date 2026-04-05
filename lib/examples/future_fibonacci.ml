@@ -6,5 +6,5 @@ let rec main ctx n =
     let fut2 = Future.async ctx (fun ctx -> main ctx (n - 2)) in
     Future.wait ctx fut1 + Future.wait ctx fut2
 
-let main ~num_domain n =
-  Pool.run ~num_domain (fun ctx -> main ctx n)
+let main ~num_worker n =
+  Pool.run ~num_worker (fun ctx -> main ctx n)

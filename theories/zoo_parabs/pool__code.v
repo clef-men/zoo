@@ -75,8 +75,8 @@ Definition pool_close : val :=
     array_iter domain_join "t".{domains}.
 
 Definition pool_run : val :=
-  fun: "num_domain" "task" =>
-    let: "t" := pool_create "num_domain" in
+  fun: "num_worker" "task" =>
+    let: "t" := pool_create "num_worker" in
     let: "res" := pool_run_on "t" "task" in
     pool_close "t" ;;
     "res".

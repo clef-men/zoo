@@ -1,5 +1,5 @@
 val main :
-  num_domain:int ->
+  num_worker:int ->
   (unit -> unit) ->
   (unit -> unit) ->
   (unit -> unit) ->

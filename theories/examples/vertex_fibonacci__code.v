@@ -36,9 +36,9 @@ Definition vertex_fibonacci_main_0 : val :=
     ).
 
 Definition vertex_fibonacci_main : val :=
-  fun: "num_domain" "n" =>
+  fun: "num_worker" "n" =>
     pool_run
-      "num_domain"
+      "num_worker"
       (fun: "ctx" =>
          let: "r" := ref 0 in
          let: "vtx1" := vertex_create §None in

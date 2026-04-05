@@ -22,8 +22,8 @@ let rec main ctx vtx r n =
     true
   )
 
-let main ~num_domain n =
-  Pool.run ~num_domain (fun ctx ->
+let main ~num_worker n =
+  Pool.run ~num_worker (fun ctx ->
     let r = ref 0 in
     let vtx1 = Vertex.create None in
     Vertex.set_task vtx1 (fun ctx -> main ctx vtx1 r n) ;

@@ -41,7 +41,7 @@ let rec worker ctx =
       execute ctx job ;
       worker ctx
 
-let create ~num_domain:sz =
+let create ~num_worker:sz =
   let hub = Ws_hub_std.create (sz + 1) in
   Ws_hub_std.block hub 0 ;
   let domains =
@@ -67,8 +67,8 @@ let close t =
   worker (context_main t) ;
   Array.iter Domain.join t.domains
 
-let run ~num_domain task =
-  let t = create ~num_domain in
+let run ~num_worker task =
+  let t = create ~num_worker in
   let res = run_on t task in
   close t ;
   res

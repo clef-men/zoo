@@ -26,5 +26,5 @@ Definition future_fibonacci_main_0 : val :=
     ).
 
 Definition future_fibonacci_main : val :=
-  fun: "num_domain" "n" =>
-    pool_run "num_domain" (fun: "ctx" => future_fibonacci_main_0 "ctx" "n").
+  fun: "num_worker" "n" =>
+    pool_run "num_worker" (fun: "ctx" => future_fibonacci_main_0 "ctx" "n").

@@ -18,5 +18,5 @@ let rec main ctx arr i sz =
 let main ctx arr =
   main ctx arr 0 (Array.size arr)
 
-let main ~num_domain arr =
-  Pool.run ~num_domain (fun ctx -> main ctx arr)
+let main ~num_worker arr =
+  Pool.run ~num_worker (fun ctx -> main ctx arr)

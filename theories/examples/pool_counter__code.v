@@ -11,10 +11,10 @@ From zoo Require Import
   options.
 
 Definition pool_counter_main : val :=
-  fun: "num_domain" "n" =>
+  fun: "num_worker" "n" =>
     let: "cnt" := ref 0 in
     pool_run
-      "num_domain"
+      "num_worker"
       (fun: "ctx" =>
          for: <> := 0 to "n" begin
            pool_async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;

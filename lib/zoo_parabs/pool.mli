@@ -15,7 +15,7 @@
     using the [fibo] example from the {!Future} module:
     {[
     let () =
-      let pool = Pool.create ~num_domain:(Domain.recommended_domain_count () - 1) in
+      let pool = Pool.create ~num_worker:(Domain.recommended_domain_count () - 1) in
       let fib40 = Pool.run_on pool (fun ctx -> fibo ctx 40) in
       Pool.close pool;
       fib40
@@ -34,8 +34,8 @@ type 'a task =
   context -> 'a
 
 val create :
-  num_domain:int -> t
-(** [create ~num_domain] creates a new pool with [num_domain] extra worker domains. *)
+  num_worker:int -> t
+(** [create ~num_worker] creates a new pool with [num_worker] extra worker domains. *)
 
 val run_on :
   t -> 'a task -> 'a
@@ -51,8 +51,8 @@ val close :
     about is finished. *)
 
 val run :
-  num_domain:int -> 'a task -> 'a
-(** [run task] creates a pool with [num_domain] extra worker domains,
+  num_worker:int -> 'a task -> 'a
+(** [run task] creates a pool with [num_worker] extra worker domains,
     runs [task] on it and closes the pool. *)
 
 val size :
