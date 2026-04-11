@@ -12,7 +12,7 @@ type 'a t =
 let create sz =
   { queues= Ws_deques_public.create sz
   ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
-  ; waiters= Waiters.create ()
+  ; waiters= Waiters.create sz
   ; num_active= sz + 1
   }
 
@@ -42,7 +42,7 @@ let closed t =
 let notify t =
   Waiters.notify t.waiters
 let notify_all t =
-  Waiters.notify_many t.waiters (size t)
+  Waiters.notify_all t.waiters
 
 let push t i v =
   Ws_deques_public.push t.queues i v ;
@@ -114,11 +114,10 @@ let rec steal t i ~max_round_noyield ~max_round_yield =
       notify_all t ;
       None
   | Nothing ->
-      let waiters = t.waiters in
-      let waiter = Waiters.prepare_wait waiters in
+      Waiters.prepare_wait t.waiters i ;
       match try_steal_once t i with
       | Some _ as res ->
-          Waiters.cancel_wait waiters waiter ;
+          Waiters.cancel_wait t.waiters i ;
           unblock t i ;
           res
       | None ->
@@ -126,7 +125,7 @@ let rec steal t i ~max_round_noyield ~max_round_yield =
             notify_all t ;
             None
           ) else (
-            Waiters.commit_wait waiters waiter ;
+            Waiters.commit_wait t.waiters i ;
             steal t i ~max_round_noyield ~max_round_yield
           )
 let steal t i ~max_round_noyield ~max_round_yield =
