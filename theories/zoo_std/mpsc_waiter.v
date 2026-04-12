@@ -19,7 +19,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types l : location.
+Implicit Types 𝑡 : location.
 
 Class MpscWaiterG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] mpsc_waiter_G_mutex_G :: MutexG Σ
@@ -58,34 +58,34 @@ Section mpsc_waiter_G.
     solve_countable.
   Qed.
 
-  #[local] Definition inv_inner l γ P : iProp Σ :=
+  #[local] Definition inv_inner 𝑡 γ P : iProp Σ :=
     ∃ b,
-    l.[flag] ↦ #b ∗
+    𝑡.[flag] ↦ #b ∗
     if b then
       oneshot_shot γ.(metadata_lstate) () ∗
       (P ∨ excl γ.(metadata_consumer) ())
     else
       oneshot_pending γ.(metadata_lstate) (DfracOwn 1) ().
   Definition mpsc_waiter_inv t P : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
-    l.[mutex] ↦□ γ.(metadata_mutex) ∗
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
+    𝑡.[mutex] ↦□ γ.(metadata_mutex) ∗
     mutex_inv γ.(metadata_mutex) True ∗
-    l.[condition] ↦□ γ.(metadata_condition) ∗
+    𝑡.[condition] ↦□ γ.(metadata_condition) ∗
     condition_inv γ.(metadata_condition) ∗
-    inv nroot (inv_inner l γ P).
+    inv nroot (inv_inner 𝑡 γ P).
 
   Definition mpsc_waiter_consumer t : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
     excl γ.(metadata_consumer) ().
 
   Definition mpsc_waiter_notified t : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
     oneshot_shot γ.(metadata_lstate) ().
 
   #[global] Instance mpsc_waiter_inv_contractive t :
@@ -131,7 +131,7 @@ Section mpsc_waiter_G.
     mpsc_waiter_consumer t -∗
     False.
   Proof.
-    iIntros "(%l & %γ & -> & #Hmeta & Hconsumer1) (%l_ & %γ_ & %Heq & Hmeta_ & Hconsumer2)". injection Heq as <-.
+    iIntros "(%𝑡 & %γ & -> & #Hmeta & Hconsumer1) (%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer2)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iApply (excl_exclusive with "Hconsumer1 Hconsumer2").
   Qed.
@@ -153,9 +153,9 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_apply+ (condition_create_spec with "[//]") as "%cond #Hcondition_inv".
     wp_apply+ (mutex_create_spec True with "[//]") as "%mtx #Hmutex_inv".
-    wp_block l as "Hmeta" "(Hl_mutex & Hl_condition & Hl_flag & _)".
-    iMod (pointsto_persist with "Hl_mutex") as "Hl_mutex".
-    iMod (pointsto_persist with "Hl_condition") as "Hl_condition".
+    wp_block 𝑡 as "Hmeta" "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
+    iMod (pointsto_persist with "H𝑡_mutex") as "H𝑡_mutex".
+    iMod (pointsto_persist with "H𝑡_condition") as "H𝑡_condition".
 
     iMod (oneshot_alloc ()) as "(%γ_lstate & Hpending)".
 
@@ -184,16 +184,15 @@ Section mpsc_waiter_G.
       mpsc_waiter_notified t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hl_mutex & #Hmutex_inv & #Hl_condition & #Hcondition_inv & #Hinv) & HP) HΦ".
+    iIntros "%Φ ((%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv) & HP) HΦ".
 
-    wp_rec.
-    wp_pures.
+    wp_rec. wp_pures.
 
     wp_bind (_.{flag})%E.
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_load.
     destruct b; first iSteps.
-    iSplitR "HP HΦ"; first iSteps.
+    iSplitR "HP HΦ". { iFrameSteps. }
     iModIntro.
 
     wp_load.
@@ -207,16 +206,16 @@ Section mpsc_waiter_G.
     wp_pures.
 
     wp_bind (_.{flag})%E.
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_load.
     destruct b; first iSteps.
-    iSplitR "HP Hmutex_locked"; first iSteps.
+    iSplitR "HP Hmutex_locked". { iFrameSteps. }
     iModIntro.
 
     wp_pures.
 
     wp_bind (_ <-{flag} _)%E.
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_store.
     destruct b; first iSteps.
     iMod (oneshot_update_shot with "Hb") as "#Hshot".
@@ -238,13 +237,12 @@ Section mpsc_waiter_G.
         mpsc_waiter_consumer t
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hl_mutex & #Hmutex_inv & #Hl_condition & #Hcondition_inv & #Hinv) & (%l_ & %γ_ & %Heq & Hmeta_ & Hconsumer)) HΦ". injection Heq as <-.
+    iIntros "%Φ ((%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv) & (%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
-    wp_rec.
-    wp_pures.
+    wp_rec. wp_pures.
 
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
@@ -263,14 +261,13 @@ Section mpsc_waiter_G.
       P
     }}}.
   Proof.
-    iIntros "%Φ ((%l & %γ & -> & #Hmeta & #Hl_mutex & #Hmutex_inv & #Hl_condition & #Hcondition_inv & #Hinv) & (%l_1 & %γ_1 & %Heq1 & Hmeta_1 & Hconsumer) & (%l_2 & %γ_2 & %Heq2 & Hmeta_2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
+    iIntros "%Φ ((%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv) & (%𝑡1 & %γ1 & %Heq1 & Hmeta_1 & Hconsumer) & (%𝑡2 & %γ2 & %Heq2 & Hmeta_2 & #Hshot)) HΦ". injection Heq1 as <-. injection Heq2 as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
     iDestruct (meta_agree with "Hmeta Hmeta_2") as %<-. iClear "Hmeta_2".
 
-    wp_rec.
-    wp_pures.
+    wp_rec. wp_pures.
 
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_load.
     destruct b; last first.
     { iDestruct (oneshot_pending_shot with "Hb Hshot") as %[]. }
@@ -295,8 +292,8 @@ Section mpsc_waiter_G.
     wp_rec.
     wp_apply (mpsc_waiter_try_wait_spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
 
-    iDestruct "Hinv" as "(%l & %γ & -> & #Hmeta & #Hl_mutex & #Hmutex_inv & #Hl_condition & #Hcondition_inv & #Hinv)".
-    iDestruct "Hconsumer" as "(%l_ & %γ_ & %Heq & Hmeta_ & Hconsumer)". injection Heq as <-.
+    iDestruct "Hinv" as "(%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv)".
+    iDestruct "Hconsumer" as "(%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     do 2 wp_load.
@@ -317,7 +314,7 @@ Section mpsc_waiter_G.
     iIntros "!> Hmutex_locked _ Hconsumer".
     wp_pures.
 
-    iInv "Hinv" as "(%b & Hl_flag & Hb)".
+    iInv "Hinv" as "(%b & H𝑡_flag & Hb)".
     wp_load.
     destruct b; last iSteps.
     iDestruct "Hb" as "(Hshot & [HP | Hconsumer'])"; last first.
