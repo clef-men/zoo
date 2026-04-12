@@ -29,7 +29,7 @@ From zoo Require Import
 
 Implicit Types b yield closed : bool.
 Implicit Types num_active : Z.
-Implicit Types l : location.
+Implicit Types 𝑡 : location.
 Implicit Types v t pred : val.
 Implicit Types vs : gmultiset val.
 Implicit Types ws us : list val.
@@ -155,35 +155,35 @@ Section ws_hub_std_G.
     solve_countable.
   Qed.
 
-  #[local] Definition inv_inner l : iProp Σ :=
+  #[local] Definition inv_inner 𝑡 : iProp Σ :=
     ∃ num_active,
-    l.[num_active] ↦ #num_active.
+    𝑡.[num_active] ↦ #num_active.
   #[local] Instance : CustomIpat "inv_inner" :=
     " ( %num_active
-      & Hl_num_active
+      & H𝑡_num_active
       )
     ".
   Definition ws_hub_std_inv t ι sz : iProp Σ :=
-    ∃ l γ,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    ∃ 𝑡 γ,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
     ⌜sz = γ.(metadata_size)⌝ ∗
-    l.[queues] ↦□ γ.(metadata_queues) ∗
-    l.[rounds] ↦□ γ.(metadata_rounds) ∗
-    l.[waiters] ↦□ γ.(metadata_waiters) ∗
+    𝑡.[queues] ↦□ γ.(metadata_queues) ∗
+    𝑡.[rounds] ↦□ γ.(metadata_rounds) ∗
+    𝑡.[waiters] ↦□ γ.(metadata_waiters) ∗
     ws_deques_public_inv γ.(metadata_queues) ι γ.(metadata_size) ∗
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
-    waiters_inv γ.(metadata_waiters) ∗
-    inv nroot (inv_inner l).
+    waiters_inv γ.(metadata_waiters) sz ∗
+    inv nroot (inv_inner 𝑡).
   #[local] Instance : CustomIpat "inv" :=
-    " ( %l{}
+    " ( %𝑡{}
       & %γ{}
       & {%Heq{};->}
       & #Hmeta{}
       & ->
-      & #Hl{}_queues
-      & #Hl{}_rounds
-      & #Hl{}_waiters
+      & #H𝑡{}_queues
+      & #H𝑡{}_rounds
+      & #H𝑡{}_waiters
       & #Hqueues{}_inv
       & #Hrounds{}_inv
       & #Hwaiters{}_inv
@@ -192,13 +192,13 @@ Section ws_hub_std_G.
     ".
 
   Definition ws_hub_std_model t vs : iProp Σ :=
-    ∃ l γ vss,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    ∃ 𝑡 γ vss,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
     ws_deques_public_model γ.(metadata_queues) vss ∗
     ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpat "model" :=
-    " ( %l_
+    " ( %𝑡_
       & %γ_
       & %vss
       & %Heq
@@ -209,15 +209,15 @@ Section ws_hub_std_G.
     ".
 
   Definition ws_hub_std_owner t i status empty : iProp Σ :=
-    ∃ l γ ws round n,
-    ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    ∃ 𝑡 γ ws round n,
+    ⌜t = #𝑡⌝ ∗
+    meta 𝑡 nroot γ ∗
     ws_deques_public_owner γ.(metadata_queues) i status ws ∗
     ⌜empty = Empty → ws = []⌝ ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
   #[local] Instance : CustomIpat "owner" :=
-    " ( %l{;_}
+    " ( %𝑡{;_}
       & %γ{;_}
       & %ws{}
       & %round{}
@@ -263,6 +263,16 @@ Section ws_hub_std_G.
     iApply (ws_deques_public_owner_exclusive with "Hqueues_owner1 Hqueues_owner2").
   Qed.
 
+  Lemma ws_hub_std_inv_owner t ι sz i status empty :
+    ws_hub_std_inv t ι sz -∗
+    ws_hub_std_owner t i status empty -∗
+    ⌜i < sz⌝.
+  Proof.
+    iIntros "(:inv) (:owner)". simplify.
+    iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
+    iApply (ws_deques_public_inv_owner with "Hqueues_inv Hqueues_owner").
+  Qed.
+
   Lemma ws_hub_std_model_empty t ι sz vs :
     ws_hub_std_inv t ι sz -∗
     ws_hub_std_model t vs -∗
@@ -304,7 +314,7 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    wp_apply+ (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
+    wp_apply+ (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
 
     wp_apply+ (array_unsafe_init_spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
     { iIntros "!> %i %Hi".
@@ -318,10 +328,10 @@ Section ws_hub_std_G.
 
     wp_apply+ (ws_deques_public_create_spec with "[//]") as (queues) "(#Hqueues_inv & Hqueues_model & Hqueues_owner)"; first done.
 
-    wp_block l as "Hmeta" "(Hl_queues & Hl_rounds & Hl_waiters & Hl_num_active & _)".
-    iMod (pointsto_persist with "Hl_queues") as "#Hl_queues".
-    iMod (pointsto_persist with "Hl_rounds") as "#Hl_rounds".
-    iMod (pointsto_persist with "Hl_waiters") as "#Hl_waiters".
+    wp_block 𝑡 as "Hmeta" "(H𝑡_queues & H𝑡_rounds & H𝑡_waiters & H𝑡_num_active & _)".
+    iMod (pointsto_persist with "H𝑡_queues") as "#H𝑡_queues".
+    iMod (pointsto_persist with "H𝑡_rounds") as "#H𝑡_rounds".
+    iMod (pointsto_persist with "H𝑡_waiters") as "#H𝑡_waiters".
 
     pose γ := {|
       metadata_size := ₊sz ;
@@ -333,7 +343,7 @@ Section ws_hub_std_G.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
-    iSplitL "Hl_num_active"; iSteps.
+    iSplitL "H𝑡_num_active"; iSteps.
     - iPureIntro. apply consistent_alloc.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
       iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
@@ -508,10 +518,8 @@ Section ws_hub_std_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec.
-    wp_apply (ws_hub_std_size_spec) as "_"; first iSteps.
-    wp_load.
-    wp_apply (waiters_notify_many_spec with "Hwaiters_inv HΦ"); first lia.
+    wp_rec. wp_load.
+    wp_apply (waiters_notify_all_spec with "Hwaiters_inv HΦ").
   Qed.
 
   Lemma ws_hub_std_push_spec t ι sz i i_ empty v :
@@ -946,6 +954,7 @@ Section ws_hub_std_G.
     >>>.
   Proof.
     iIntros (->) "%Hmax_round_noyield %Hmax_round_yield %Φ (#Hinv & Howner) HΦ".
+    iDestruct (ws_hub_std_inv_owner with "Hinv Howner") as %Hi.
 
     iLöb as "HLöb".
 
@@ -960,38 +969,40 @@ Section ws_hub_std_G.
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([| | v]) "Hmodel !>".
 
     - iLeft. iFrame.
-      iIntros "HΦ !> (Howner & _) {%}".
+      iIntros "HΦ !> (Howner & _) {%- Hi}".
 
       iDestruct "Hinv" as "(:inv)".
 
       wp_load.
-      wp_apply+ (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
+      wp_apply (waiters_prepare_wait_spec with "Hwaiters_inv") as "_". 1: lia.
 
-      awp_apply+ (ws_hub_std_try_steal_once_spec with "[$Howner]") without "Hwaiter"; [done.. | iSteps |].
+      awp_apply+ (ws_hub_std_try_steal_once_spec with "[$Howner]"). 1: done. 1: iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
       + iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
         iRight. iExists (Some v).
         iSplitL "Hmodel". { iFrameSteps. }
-        iIntros "HΦ !> Howner Hwaiter {%}".
+        iIntros "HΦ !> Howner {%- Hi}".
 
-        wp_apply+ (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+        wp_load.
+        wp_apply (waiters_cancel_wait_spec with "Hwaiters_inv") as "_". 1: lia.
         wp_apply+ (ws_hub_std_unblock_spec with "[$Howner]") as "Howner". 1: done. 1: iSteps.
         wp_pures.
         iApply ("HΦ" with "Howner").
 
       + iLeft. iFrame.
-        iIntros "HΦ !> Howner Hwaiter {%}".
+        iIntros "HΦ !> Howner {%- Hi}".
 
-        wp_apply+ ws_hub_std_closed_spec as ([]) "_"; first iSteps.
+        wp_apply+ ws_hub_std_closed_spec as ([]) "_". 1: iSteps.
 
         * wp_apply+ ws_hub_std_notify_all_spec as "_". 1: iSteps.
           wp_pures.
           iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
           iApply ("HΦ" $! None with "Hmodel Howner").
 
-        * wp_apply+ (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]") as "_".
+        * wp_load.
+          wp_apply (waiters_commit_wait_spec with "Hwaiters_inv") as "_". 1: lia.
           wp_apply+ ("HLöb" with "Howner HΦ").
 
     - iRight. iExists None. iFrame. iIntros "HΦ !> (Howner & _)".

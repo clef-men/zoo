@@ -8,7 +8,7 @@ type 'a t =
 let create sz =
   { size= sz
   ; queue= Mpmc_queue_1.create ()
-  ; waiters= Waiters.create ()
+  ; waiters= Waiters.create sz
   ; num_active= sz + 1
   }
 
@@ -31,7 +31,7 @@ let closed t =
 let notify t =
   Waiters.notify t.waiters
 let notify_all t =
-  Waiters.notify_many t.waiters (size t)
+  Waiters.notify_all t.waiters
 
 let push t _i v =
   Mpmc_queue_1.push t.queue v ;
@@ -56,28 +56,27 @@ let rec steal_until t pred =
 let steal_until t _i ~max_round_noyield:_ pred =
   steal_until t pred
 
-let rec steal t =
-  let waiters = t.waiters in
-  let waiter = Waiters.prepare_wait waiters in
+let rec steal t i =
+  Waiters.prepare_wait t.waiters i ;
   if closed t then (
     notify_all t ;
     None
   ) else (
     if Mpmc_queue_1.is_empty t.queue then (
-      Waiters.commit_wait waiters waiter
+      Waiters.commit_wait t.waiters i
     ) else (
-      Waiters.cancel_wait waiters waiter
+      Waiters.cancel_wait t.waiters i
     ) ;
     match pop' t with
     | Some _ as res ->
         end_inactive t ;
         res
     | None ->
-        steal t
+        steal t i
   )
-let steal t _i ~max_round_noyield:_ ~max_round_yield:_ =
+let steal t i ~max_round_noyield:_ ~max_round_yield:_ =
   begin_inactive t ;
-  steal t
+  steal t i
 
 let close =
   begin_inactive
