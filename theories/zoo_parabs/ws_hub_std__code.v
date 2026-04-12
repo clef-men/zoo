@@ -23,7 +23,7 @@ Definition ws_hub_std_create : val :=
       array_unsafe_init
         "sz"
         (fun: <> => random_round_create (int_positive_part ("sz" - 1))),
-      waiters_create (),
+      waiters_create "sz",
       "sz" + 1
     }.
 
@@ -69,7 +69,7 @@ Definition ws_hub_std_notify : val :=
 
 Definition ws_hub_std_notify_all : val :=
   fun: "t" =>
-    waiters_notify_many "t".{waiters} (ws_hub_std_size "t").
+    waiters_notify_all "t".{waiters}.
 
 Definition ws_hub_std_push : val :=
   fun: "t" "i" "v" =>
@@ -170,11 +170,10 @@ Definition ws_hub_std_steal_0 : val :=
         ws_hub_std_notify_all "t" ;;
         §None
     | Nothing =>
-        let: "waiters" := "t".{waiters} in
-        let: "waiter" := waiters_prepare_wait "waiters" in
+        waiters_prepare_wait "t".{waiters} "i" ;;
         match: ws_hub_std_try_steal_once "t" "i" with
         | Some <> as "res" =>
-            waiters_cancel_wait "waiters" "waiter" ;;
+            waiters_cancel_wait "t".{waiters} "i" ;;
             ws_hub_std_unblock "t" "i" ;;
             "res"
         | None =>
@@ -182,7 +181,7 @@ Definition ws_hub_std_steal_0 : val :=
               ws_hub_std_notify_all "t" ;;
               §None
             ) else (
-              waiters_commit_wait "waiters" "waiter" ;;
+              waiters_commit_wait "t".{waiters} "i" ;;
               "steal" "t" "i" "max_round_noyield" "max_round_yield"
             )
         end

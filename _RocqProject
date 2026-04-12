@@ -461,6 +461,10 @@ theories/zoo_parabs/ws_deques_private__types.v
 theories/zoo_parabs/ws_deques_private__code.v
 theories/zoo_parabs/ws_deques_private__opaque.v
 theories/zoo_parabs/ws_deques_private.v
+theories/zoo_parabs/waiter__types.v
+theories/zoo_parabs/waiter__code.v
+theories/zoo_parabs/waiter__opaque.v
+theories/zoo_parabs/waiter.v
 theories/zoo_parabs/waiters__types.v
 theories/zoo_parabs/waiters__code.v
 theories/zoo_parabs/waiters__opaque.v
