@@ -136,7 +136,7 @@ Section zoo_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_stack_1_create_spec ι :
+  Lemma mpmc_stack_1_create𑁒spec ι :
     {{{
       True
     }}}
@@ -161,7 +161,7 @@ Section zoo_G.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_push_spec t ι v :
+  Lemma mpmc_stack_1_push𑁒spec t ι v :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,
@@ -200,7 +200,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_pop_spec t ι :
+  Lemma mpmc_stack_1_pop𑁒spec t ι :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,
@@ -249,7 +249,7 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_snapshot_spec t ι :
+  Lemma mpmc_stack_1_snapshot𑁒spec t ι :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,

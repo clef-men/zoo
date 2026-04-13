@@ -46,7 +46,7 @@ Section zoo_G.
     apply _.
   Qed.
 
-  Lemma queue_1_create_spec :
+  Lemma queue_1_create𑁒spec :
     {{{
       True
     }}}
@@ -59,14 +59,14 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_apply (chain_block_spec None) as (back) "Hback_model".
+    wp_apply (chain_block𑁒spec None) as (back) "Hback_model".
     { iApply chain_model_nil. iSteps. }
     wp_block l as "(Hfront & Hback & _)".
     iApply "HΦ". iExists l, back, back. iFrameSteps.
     iApply chain_model_nil_1.
   Qed.
 
-  Lemma queue_1_is_empty_spec t vs :
+  Lemma queue_1_is_empty𑁒spec t vs :
     {{{
       queue_1_model t vs
     }}}
@@ -88,7 +88,7 @@ Section zoo_G.
       iDestruct (chain_model_exclusive with "Hback Hfront") as %[]; naive_solver lia.
   Qed.
 
-  Lemma queue_1_push_spec t vs v :
+  Lemma queue_1_push𑁒spec t vs v :
     {{{
       queue_1_model t vs
     }}}
@@ -101,15 +101,15 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
     wp_rec.
     wp_load.
-    wp_apply+ (chain_block_spec None) as (back') "Hback'".
+    wp_apply+ (chain_block𑁒spec None) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
-    wp_apply+ (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
-    wp_apply+ (chain_set_data_spec with "Hback") as "Hback".
+    wp_apply+ (chain_set_next𑁒spec with "Hback") as (?) "(Hback & _)".
+    wp_apply+ (chain_set_data𑁒spec with "Hback") as "Hback".
     iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
 
-  Lemma queue_1_pop_spec t vs :
+  Lemma queue_1_pop𑁒spec t vs :
     {{{
       queue_1_model t vs
     }}}
@@ -121,12 +121,12 @@ Section zoo_G.
   Proof.
     iIntros "%Φ Hmodel HΦ".
     wp_rec.
-    wp_apply (queue_1_is_empty_spec with "Hmodel") as "(:model)".
+    wp_apply (queue_1_is_empty𑁒spec with "Hmodel") as "(:model)".
     destruct vs as [| v vs]; first iSteps.
     wp_load.
-    wp_apply+ (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
+    wp_apply+ (chain_next𑁒spec with "Hfront") as (front') "(Hfront & Hfront')".
     wp_store.
-    wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
+    wp_apply+ (chain_data𑁒spec with "Hfront") as "Hfront".
     iSteps.
   Qed.
 End zoo_G.

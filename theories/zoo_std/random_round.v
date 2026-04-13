@@ -48,7 +48,7 @@ Section zoo_G.
       )
     ".
 
-  Lemma random_round_create_spec sz :
+  Lemma random_round_create𑁒spec sz :
     (0 ≤ sz)%Z →
     {{{
       True
@@ -67,13 +67,13 @@ Section zoo_G.
     pose (Ψ := λ arr i vs, (
       ⌜vs = #*@{nat} $ seq 0 i⌝
     )%I : iProp Σ).
-    wp_apply+ (array_unsafe_initi_spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
+    wp_apply+ (array_unsafe_initi𑁒spec Ψ) as (arr vs) "(_ & Harr & ->)"; first done.
     { iStep 2. iIntros "%arr %i %vs _ _ ->".
       wp_pures.
       iPureIntro. rewrite seq_S fmap_snoc //.
     }
 
-    wp_apply (random_state_create_spec with "[//]") as (rand) "Hrand".
+    wp_apply (random_state_create𑁒spec with "[//]") as (rand) "Hrand".
     wp_block l as "(Hl_random & Hl_array & Hl_index & _)".
 
     iApply "HΦ".
@@ -81,7 +81,7 @@ Section zoo_G.
     rewrite app_nil_r length_seq. iSteps.
   Qed.
 
-  Lemma random_round_reset_spec t sz prevs :
+  Lemma random_round_reset𑁒spec t sz prevs :
     {{{
       random_round_model t sz prevs
     }}}
@@ -94,13 +94,13 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (array_size_spec with "Harr") as "Harr".
+    wp_apply (array_size𑁒spec with "Harr") as "Harr".
 
     iSteps. iExists (nexts ++ reverse prevs).
     rewrite app_nil_r. iSteps. simpl_length.
   Qed.
 
-  Lemma random_round_next_spec t sz prevs :
+  Lemma random_round_next𑁒spec t sz prevs :
     length prevs ≠ sz →
     {{{
       random_round_model t sz prevs
@@ -119,26 +119,26 @@ Section zoo_G.
     simpl_length in Hlength.
 
     wp_rec. do 3 wp_load.
-    wp_apply+ (random_state_int_spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
+    wp_apply+ (random_state_int𑁒spec with "Hrand") as (j) "(%Hj & Hrand)"; first lia.
 
     Z_to_nat j.
     set i := length nexts - 1.
 
     destruct (lookup_lt_is_Some_2 nexts j) as (prev & Hnexts_lookup_j); first lia.
-    wp_apply+ (array_unsafe_get_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_get𑁒spec with "Harr") as "Harr".
     { lia. }
     { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
 
     destruct (lookup_lt_is_Some_2 nexts i) as (next & Hnexts_lookup_i); first lia.
-    wp_apply+ (array_unsafe_get_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_get𑁒spec with "Harr") as "Harr".
     { lia. }
     { rewrite list_lookup_fmap. erewrite lookup_app_l_Some => //. }
     { lia. }
 
-    wp_apply+ (array_unsafe_set_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_set𑁒spec with "Harr") as "Harr".
     { simpl_length. lia. }
-    wp_apply+ (array_unsafe_set_spec with "Harr") as "Harr".
+    wp_apply+ (array_unsafe_set𑁒spec with "Harr") as "Harr".
     { simpl_length. lia. }
     wp_store. wp_pures.
 
@@ -196,7 +196,7 @@ Section zoo_G.
       )
     ".
 
-  Lemma random_round_create_spec' sz :
+  Lemma random_round_create𑁒spec' sz :
     (0 ≤ sz)%Z →
     {{{
       True
@@ -210,11 +210,11 @@ Section zoo_G.
   Proof.
     iIntros "%Hsz %Φ _ HΦ".
 
-    wp_apply (random_round_create_spec with "[//]") as (t) "Ht"; first done.
+    wp_apply (random_round_create𑁒spec with "[//]") as (t) "Ht"; first done.
     iStepFrameSteps.
   Qed.
 
-  Lemma random_round_reset_spec' t sz cnt :
+  Lemma random_round_reset𑁒spec' t sz cnt :
     {{{
       random_round_model' t sz cnt
     }}}
@@ -226,11 +226,11 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model') HΦ".
 
-    wp_apply (random_round_reset_spec with "Ht") as "Ht".
+    wp_apply (random_round_reset𑁒spec with "Ht") as "Ht".
     iStepFrameSteps.
   Qed.
 
-  Lemma random_round_next_spec' t sz cnt :
+  Lemma random_round_next𑁒spec' t sz cnt :
     0 < cnt →
     {{{
       random_round_model' t sz cnt
@@ -245,7 +245,7 @@ Section zoo_G.
   Proof.
     iIntros "%Hcnt %Φ (:model') HΦ".
 
-    wp_apply (random_round_next_spec with "Ht") as (i) "(%Hi & Ht)"; first lia.
+    wp_apply (random_round_next𑁒spec with "Ht") as (i) "(%Hi & Ht)"; first lia.
     iSteps. iExists (prevs ++ [i]). simpl_length. iSteps.
   Qed.
 End zoo_G.

@@ -335,7 +335,7 @@ Module base.
       iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
     Qed.
 
-    Lemma mpmc_queue_1_create_spec ι :
+    Lemma mpmc_queue_1_create𑁒spec ι :
       {{{
         True
       }}}
@@ -375,7 +375,7 @@ Module base.
       - rewrite xtchain_singleton big_sepM_empty. iSteps.
     Qed.
 
-    #[local] Lemma front_spec_strong Ψ t γ :
+    #[local] Lemma front𑁒spec_strong Ψ t γ :
       {{{
         inv' t γ ∗
         if Ψ is Some Ψ then
@@ -412,7 +412,7 @@ Module base.
       iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    #[local] Lemma front_spec t γ :
+    #[local] Lemma front𑁒spec t γ :
       {{{
         inv' t γ
       }}}
@@ -424,11 +424,11 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ #Hinv HΦ".
-      wp_apply (front_spec_strong None with "[$Hinv]").
+      wp_apply (front𑁒spec_strong None with "[$Hinv]").
       iSteps.
     Qed.
 
-    #[local] Lemma back_spec t γ :
+    #[local] Lemma back𑁒spec t γ :
       {{{
         inv' t γ
       }}}
@@ -479,7 +479,7 @@ Module base.
       , COMM
         Ψ (head vs)
       }>.
-    #[local] Lemma next_spec_aux op t γ i node :
+    #[local] Lemma next𑁒spec_aux op t γ i node :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -602,7 +602,7 @@ Module base.
           iSplitR "HΨ HΦ". { iFrameSteps. }
           iSteps.
     Qed.
-    #[local] Lemma next_spec {t γ i} node :
+    #[local] Lemma next𑁒spec {t γ i} node :
       {{{
         inv' t γ ∗
         history_at γ i node
@@ -618,9 +618,9 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
-      wp_apply (next_spec_aux Other); iSteps.
+      wp_apply (next𑁒spec_aux Other); iSteps.
     Qed.
-    #[local] Lemma next_spec_is_empty {t γ i node} waiter Ψ :
+    #[local] Lemma next𑁒spec_is_empty {t γ i node} waiter Ψ :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -642,10 +642,10 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
-      wp_apply (next_spec_aux (IsEmpty _ _) with "[$]").
+      wp_apply (next𑁒spec_aux (IsEmpty _ _) with "[$]").
       iSteps.
     Qed.
-    #[local] Lemma next_spec_pop {t γ i node} Ψ :
+    #[local] Lemma next𑁒spec_pop {t γ i node} Ψ :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -665,11 +665,11 @@ Module base.
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
-      wp_apply (next_spec_aux (Pop _) with "[$]").
+      wp_apply (next𑁒spec_aux (Pop _) with "[$]").
       iSteps.
     Qed.
 
-    Lemma mpmc_queue_1_is_empty_spec t γ ι :
+    Lemma mpmc_queue_1_is_empty𑁒spec t γ ι :
       <<<
         mpmc_queue_1_inv t γ ι
       | ∀∀ vs,
@@ -688,16 +688,16 @@ Module base.
       iDestruct (lc_weaken 2 with "H£") as "(H£1 & H£2)"; first done.
       iDestruct (atomic_update_frame_l with "[H£1 $HΦ]") as "HΦ"; first iAccu.
 
-      wp_apply+ (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
+      wp_apply+ (front𑁒spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]")
       as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
       { rewrite /= /waiter_au. iAuIntro.
         iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
         iAaccIntro with "Hmodel₁"; iSteps.
       }
       wp_match.
-      wp_apply+ (next_spec_is_empty with "[$]"); iSteps.
+      wp_apply+ (next𑁒spec_is_empty with "[$]"); iSteps.
     Qed.
-    Lemma mpmc_queue_1_is_empty_spec' t γ ι :
+    Lemma mpmc_queue_1_is_empty𑁒spec' t γ ι :
       {{{
         mpmc_queue_1_inv t γ ι
       }}}
@@ -711,12 +711,12 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec.
-      wp_apply (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
+      wp_apply (front𑁒spec with "Hinv") as (front i) "(:node_model =front front=)".
       wp_match.
-      wp_apply (next_spec with "[$]") as (res) "[-> | (%node & -> & _)]"; iSteps.
+      wp_apply (next𑁒spec with "[$]") as (res) "[-> | (%node & -> & _)]"; iSteps.
     Qed.
 
-    #[local] Lemma mpmc_queue_1_push_0_spec t γ i node new_back v :
+    #[local] Lemma mpmc_queue_1_push_0𑁒spec t γ i node new_back v :
       <<<
         inv' t γ ∗
         node_model γ node i false ∗
@@ -739,7 +739,7 @@ Module base.
       iLöb as "HLöb" forall (i node) "Hnode_header Hhistory_at_node".
 
       wp_rec. wp_match.
-      wp_apply+ (next_spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]"; last iSteps.
+      wp_apply+ (next𑁒spec with "[$]") as (res) "[-> | (%node' & -> & (:node_model =node'))]"; last iSteps.
       wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -776,7 +776,7 @@ Module base.
         iSteps.
     Qed.
 
-    #[local] Lemma mpmc_queue_1_fix_back_spec t γ i back j new_back :
+    #[local] Lemma mpmc_queue_1_fix_back𑁒spec t γ i back j new_back :
       {{{
         inv' t γ ∗
         history_at γ i back ∗
@@ -796,7 +796,7 @@ Module base.
 
       wp_bind (_ and _)%E.
       wp_apply (wp_wand itype_bool) as (res) "(%b & ->)".
-      { wp_apply+ (next_spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node_model =new_back'))]"; last iSteps.
+      { wp_apply+ (next𑁒spec new_back with "[$]") as (res) "[-> | (%new_back' & -> & (:node_model =new_back'))]"; last iSteps.
         wp_pures.
 
         wp_bind (CAS _ _ _).
@@ -807,12 +807,12 @@ Module base.
       }
 
       destruct b; last iSteps.
-      wp_apply+ domain_yield_spec.
-      wp_apply+ (back_spec with "Hinv") as (back' i') "(:node_model =back')".
+      wp_apply+ domain_yield𑁒spec.
+      wp_apply+ (back𑁒spec with "Hinv") as (back' i') "(:node_model =back')".
       iApply ("HLöb" with "HΦ Hhistory_at_back'").
     Qed.
 
-    Lemma mpmc_queue_1_push_spec t γ ι v :
+    Lemma mpmc_queue_1_push𑁒spec t γ ι v :
       <<<
         mpmc_queue_1_inv t γ ι
       | ∀∀ vs,
@@ -831,14 +831,14 @@ Module base.
       iDestruct (atomic_update_frame_l with "[H£ $HΦ]") as "HΦ"; first iAccu.
       wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
       wp_match.
-      wp_apply+ (back_spec with "Hinv") as (back i) "(:node_model =back)".
-      wp_apply+ (mpmc_queue_1_push_0_spec with "[$]").
+      wp_apply+ (back𑁒spec with "Hinv") as (back i) "(:node_model =back)".
+      wp_apply+ (mpmc_queue_1_push_0𑁒spec with "[$]").
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
-      wp_apply+ (mpmc_queue_1_fix_back_spec with "[]"); first iSteps.
+      wp_apply+ (mpmc_queue_1_fix_back𑁒spec with "[]"); first iSteps.
       iSteps.
     Qed.
 
-    Lemma mpmc_queue_1_pop_spec t γ ι :
+    Lemma mpmc_queue_1_pop𑁒spec t γ ι :
       <<<
         mpmc_queue_1_inv t γ ι
       | ∀∀ vs,
@@ -856,9 +856,9 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec credit:"H£".
-      wp_apply+ (front_spec with "Hinv") as (front i) "(:node_model =front front=)".
+      wp_apply+ (front𑁒spec with "Hinv") as (front i) "(:node_model =front front=)".
       wp_match.
-      wp_apply+ (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
+      wp_apply+ (next𑁒spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
       wp_match. wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -973,7 +973,7 @@ Section mpmc_queue_1_G.
     iApply (base.mpmc_queue_1_model_exclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma mpmc_queue_1_create_spec ι :
+  Lemma mpmc_queue_1_create𑁒spec ι :
     {{{
       True
     }}}
@@ -988,12 +988,12 @@ Section mpmc_queue_1_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mpmc_queue_1_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp_apply (base.mpmc_queue_1_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_queue_1_is_empty_spec t ι :
+  Lemma mpmc_queue_1_is_empty𑁒spec t ι :
     <<<
       mpmc_queue_1_inv t ι
     | ∀∀ vs,
@@ -1008,13 +1008,13 @@ Section mpmc_queue_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpmc_queue_1_is_empty_spec with "[$]").
+    awp_apply (base.mpmc_queue_1_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
-  Lemma mpmc_queue_1_is_empty_spec' t ι :
+  Lemma mpmc_queue_1_is_empty𑁒spec' t ι :
     {{{
       mpmc_queue_1_inv t ι
     }}}
@@ -1027,10 +1027,10 @@ Section mpmc_queue_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.mpmc_queue_1_is_empty_spec' with "[$] HΦ").
+    wp_apply (base.mpmc_queue_1_is_empty𑁒spec' with "[$] HΦ").
   Qed.
 
-  Lemma mpmc_queue_1_push_spec t ι v :
+  Lemma mpmc_queue_1_push𑁒spec t ι v :
     <<<
       mpmc_queue_1_inv t ι
     | ∀∀ vs,
@@ -1045,14 +1045,14 @@ Section mpmc_queue_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpmc_queue_1_push_spec with "[$]").
+    awp_apply (base.mpmc_queue_1_push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_queue_1_pop_spec t ι :
+  Lemma mpmc_queue_1_pop𑁒spec t ι :
     <<<
       mpmc_queue_1_inv t ι
     | ∀∀ vs,
@@ -1067,7 +1067,7 @@ Section mpmc_queue_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpmc_queue_1_pop_spec with "[$]").
+    awp_apply (base.mpmc_queue_1_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
@@ -1107,7 +1107,7 @@ Section mpmc_queue_1_G.
     split. apply _.
   Qed.
 
-  Lemma mpmc_queue_1_create_type :
+  Lemma mpmc_queue_1_create𑁒type :
     {{{
       True
     }}}
@@ -1121,11 +1121,11 @@ Section mpmc_queue_1_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (mpmc_queue_1_create_spec with "[//]") as (t) "(#Hinv & Hmodel)".
+    wp_apply (mpmc_queue_1_create𑁒spec with "[//]") as (t) "(#Hinv & Hmodel)".
     rewrite /itype_mpmc_queue_1 /itype_inner. iSteps.
   Qed.
 
-  Lemma mpmc_queue_1_is_empty_type t :
+  Lemma mpmc_queue_1_is_empty𑁒type t :
     {{{
       itype_mpmc_queue_1 t
     }}}
@@ -1139,14 +1139,14 @@ Section mpmc_queue_1_G.
     iIntros "%Φ (:itype) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_queue_1_is_empty_spec with "Hinv1").
+    awp_apply (mpmc_queue_1_is_empty𑁒spec with "Hinv1").
     iInv "Hinv2" as "(:itype_inner)".
     iAaccIntro with "Hmodel"; first iSteps. iSteps as "_ H£".
     iMod (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_queue_1_push_type t v :
+  Lemma mpmc_queue_1_push𑁒type t v :
     {{{
       itype_mpmc_queue_1 t ∗
       τ v
@@ -1160,7 +1160,7 @@ Section mpmc_queue_1_G.
     iIntros "%Φ ((:itype) & #Hv) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_queue_1_push_spec with "Hinv1").
+    awp_apply (mpmc_queue_1_push𑁒spec with "Hinv1").
     iInv "Hinv2" as "(:itype_inner)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "$ !>".
     iSplitR.
@@ -1172,7 +1172,7 @@ Section mpmc_queue_1_G.
     iSteps.
   Qed.
 
-  Lemma mpmc_queue_1_pop_type t :
+  Lemma mpmc_queue_1_pop𑁒type t :
     {{{
       itype_mpmc_queue_1 t
     }}}
@@ -1186,7 +1186,7 @@ Section mpmc_queue_1_G.
     iIntros "%Φ (:itype) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_queue_1_pop_spec with "Hinv1").
+    awp_apply (mpmc_queue_1_pop𑁒spec with "Hinv1").
     iInv "Hinv2" as "(:itype_inner)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "$ !>".
     iSplitR.

@@ -942,7 +942,7 @@ Module base.
         iDestruct (winner_steal_exclusive with "Hwinner_steal Hwinner_steal_3") as %[].
     Qed.
 
-    Lemma ws_bdeque_1_create_spec ι (cap : Z) :
+    Lemma ws_bdeque_1_create𑁒spec ι (cap : Z) :
       (0 < cap)%Z →
       {{{
         True
@@ -963,7 +963,7 @@ Module base.
 
       wp_apply (prophet_multi_wp_proph with "[//]") as (pid γ_prophet prophss) "Hprophet_model".
 
-      wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hdata_model"; first lia.
+      wp_apply (array_unsafe_make𑁒spec with "[//]") as (data) "Hdata_model"; first lia.
       iDestruct (array_model_to_cslice with "Hdata_model") as "Hdata_cslice".
       iEval (simpl_length) in "Hdata_cslice".
       iDestruct (array_cslice_rotation_right_0 1 with "Hdata_cslice") as "Hdata_cslice"; [simpl_length; lia.. |].
@@ -1005,7 +1005,7 @@ Module base.
         iPureIntro. simpl_length.
     Qed.
 
-    Lemma ws_bdeque_1_capacity_spec t γ ι cap :
+    Lemma ws_bdeque_1_capacity𑁒spec t γ ι cap :
       {{{
         ws_bdeque_1_inv t γ ι cap
       }}}
@@ -1021,7 +1021,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma front_spec t γ :
+    #[local] Lemma front𑁒spec t γ :
       {{{
         inv' t γ
       }}}
@@ -1039,7 +1039,7 @@ Module base.
       iDestruct (front_lb_get with "Hfront_auth") as "#Hfront_lb_1".
       iFrameSteps.
     Qed.
-    #[local] Lemma front_spec_owner_Stable t γ back ws :
+    #[local] Lemma front𑁒spec_owner_Stable t γ back ws :
       {{{
         inv' t γ ∗
         owner₁ γ Stable back ws
@@ -1062,7 +1062,7 @@ Module base.
       iDestruct (inv_state_Stable with "Hstate") as "#(_ & %)"; first done.
       iFrameSteps.
     Qed.
-    #[local] Lemma front_spec_owner_Unstable t γ back ws :
+    #[local] Lemma front𑁒spec_owner_Unstable t γ back ws :
       {{{
         inv' t γ ∗
         owner₁ γ Unstable back ws
@@ -1085,7 +1085,7 @@ Module base.
       iDestruct (inv_state_Unstable with "Hstate") as "#(_ & %)".
       iFrameSteps.
     Qed.
-    #[local] Lemma front_spec_Superempty t γ back ws front :
+    #[local] Lemma front𑁒spec_Superempty t γ back ws front :
       back < front →
       {{{
         inv' t γ ∗
@@ -1110,7 +1110,7 @@ Module base.
       replace (S back) with front by lia.
       iSteps.
     Qed.
-    #[local] Lemma front_spec_winner_steal t γ front P :
+    #[local] Lemma front𑁒spec_winner_steal t γ front P :
       {{{
         inv' t γ ∗
         winner_steal γ front P
@@ -1132,7 +1132,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    #[local] Lemma back_spec t γ stable back ws :
+    #[local] Lemma back𑁒spec t γ stable back ws :
       {{{
         inv' t γ ∗
         owner₁ γ stable back ws
@@ -1151,7 +1151,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    #[local] Lemma set_back_spec_Superempty t γ back ws front (back' : Z) :
+    #[local] Lemma set_back𑁒spec_Superempty t γ back ws front (back' : Z) :
       back < front →
       back' = S back →
       {{{
@@ -1178,7 +1178,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma array_unsafe_cget_spec_loser t γ i :
+    #[local] Lemma array_unsafe_cget𑁒spec_loser t γ i :
       (0 ≤ i)%Z →
       {{{
         inv' t γ
@@ -1193,7 +1193,7 @@ Module base.
       iIntros "%Hi %Φ (:inv') HΦ".
 
       iApply wp_fupd.
-      awp_apply (array_unsafe_cget_spec_atomic_weak with "[//]") without "HΦ"; first done.
+      awp_apply (array_unsafe_cget𑁒spec_atomic_weak with "[//]") without "HΦ"; first done.
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "[$Hdata_cslice₁]".
       { iPureIntro. simpl_length. }
@@ -1203,7 +1203,7 @@ Module base.
       iIntros "%v H£ HΦ".
       iApply (lc_fupd_elim_later with "H£ HΦ [//]").
     Qed.
-    #[local] Lemma array_unsafe_cget_spec_winner_pop t γ front P v :
+    #[local] Lemma array_unsafe_cget𑁒spec_winner_pop t γ front P v :
       {{{
         inv' t γ ∗
         winner_pop γ front P ∗
@@ -1218,7 +1218,7 @@ Module base.
       iIntros "%Φ ((:inv') & Hwinner_pop & #Hhistory_at) HΦ".
 
       iApply wp_fupd.
-      awp_apply (array_unsafe_cget_spec_atomic with "[//]") without "HΦ".
+      awp_apply (array_unsafe_cget𑁒spec_atomic with "[//]") without "HΦ".
       iInv "Hinv" as "(:inv_inner =1)".
 
       iAssert (◇ (
@@ -1244,7 +1244,7 @@ Module base.
       iApply (lc_fupd_elim_later with "H£ HΦ Hwinner_pop").
     Qed.
 
-    #[local] Lemma array_unsafe_cset_spec_owner t γ back ws front_cache us front v :
+    #[local] Lemma array_unsafe_cset𑁒spec_owner t γ back ws front_cache us front v :
       back < front + γ.(ws_bdeque_1_name_capacity) →
       {{{
         inv' t γ ∗
@@ -1260,7 +1260,7 @@ Module base.
       iIntros "% %Φ ((:inv') & (:owner_2) & #Hfront_lb) HΦ".
 
       iApply wp_fupd.
-      awp_apply (array_unsafe_cset_spec_atomic_cell with "[//]") without "HΦ".
+      awp_apply (array_unsafe_cset𑁒spec_atomic_cell with "[//]") without "HΦ".
       iInv "Hinv" as "(:inv_inner =1)".
       iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <-).
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
@@ -1308,7 +1308,7 @@ Module base.
         iSteps. iPureIntro. simpl_length.
     Qed.
 
-    #[local] Lemma resolve_spec_loser_1 t γ front1 front2 id :
+    #[local] Lemma resolve𑁒spec_loser_1 t γ front1 front2 id :
       front1 < front2 →
       {{{
         inv' t γ ∗
@@ -1336,7 +1336,7 @@ Module base.
       }
       iSteps.
     Qed.
-    #[local] Lemma resolve_spec_loser_2 t γ front id prophs0 :
+    #[local] Lemma resolve𑁒spec_loser_2 t γ front id prophs0 :
       head prophs0 ≠ Some id →
       {{{
         inv' t γ ∗
@@ -1372,7 +1372,7 @@ Module base.
         }
         iSteps.
     Qed.
-    #[local] Lemma resolve_spec_winner_pop t γ front P id :
+    #[local] Lemma resolve𑁒spec_winner_pop t γ front P id :
       {{{
         inv' t γ ∗
         winner_pop γ front P
@@ -1458,7 +1458,7 @@ Module base.
         iApply "HΦ". iModIntro.
         iRewrite "Heq" => //.
     Qed.
-    #[local] Lemma resolve_spec_winner_steal t γ front P id :
+    #[local] Lemma resolve𑁒spec_winner_steal t γ front P id :
       {{{
         inv' t γ ∗
         winner_steal γ front P
@@ -1494,7 +1494,7 @@ Module base.
       }
       iSteps.
     Qed.
-    #[local] Lemma resolve_spec_Empty t γ back ws id :
+    #[local] Lemma resolve𑁒spec_Empty t γ back ws id :
       {{{
         inv' t γ ∗
         owner₁ γ Stable back ws ∗
@@ -1543,7 +1543,7 @@ Module base.
         exfalso. lia.
     Qed.
 
-    Lemma ws_bdeque_1_size_spec t γ ι cap ws :
+    Lemma ws_bdeque_1_size𑁒spec t γ ι cap ws :
       <<<
         ws_bdeque_1_inv t γ ι cap ∗
         ws_bdeque_1_owner t γ ws
@@ -1577,14 +1577,14 @@ Module base.
       iSplitR "Howner₁ Ht_front_cache Hdata_cslice₂ HΦ". { iFrameSteps. }
       iIntros "!> {%- Hcapacity Hfront_cache Hus Hvs1 Hback}".
 
-      wp_apply (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
+      wp_apply (back𑁒spec with "[$Howner₁]") as "Howner₁"; first iSteps.
       wp_pures.
 
       replace (⁺back - ⁺front1)%Z with ⁺(length vs) by lia.
       iSteps.
     Qed.
 
-    Lemma ws_bdeque_1_is_empty_spec t γ ι cap ws :
+    Lemma ws_bdeque_1_is_empty𑁒spec t γ ι cap ws :
       <<<
         ws_bdeque_1_inv t γ ι cap ∗
         ws_bdeque_1_owner t γ ws
@@ -1602,7 +1602,7 @@ Module base.
       iIntros "%Φ (#Hinv & Howner) HΦ".
 
       wp_rec.
-      wp_apply (ws_bdeque_1_size_spec with "[$]").
+      wp_apply (ws_bdeque_1_size𑁒spec with "[$]").
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%Hvs & Howner)".
       wp_pures.
 
@@ -1625,7 +1625,7 @@ Module base.
         ws_bdeque_1_owner t γ (if b then vs ++ [v] else ws) -∗
         Φ #b
       }>.
-    Lemma ws_bdeque_1_push_spec t γ ι cap ws v :
+    Lemma ws_bdeque_1_push𑁒spec t γ ι cap ws v :
       <<<
         ws_bdeque_1_inv t γ ι cap ∗
         ws_bdeque_1_owner t γ ws
@@ -1646,9 +1646,9 @@ Module base.
       rename us into us0. iDestruct (owner_2_rebase back with "Howner") as "(%us & (:owner_2))"; first done.
 
       wp_rec.
-      wp_apply+ (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
+      wp_apply+ (back𑁒spec with "[$Howner₁]") as "Howner₁"; first iSteps.
       wp_load.
-      wp_apply+ (array_size_spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
+      wp_apply+ (array_size𑁒spec_cslice with "Hdata_cslice₂") as "Hdata_cslice₂".
       wp_load. wp_pures.
 
       wp_bind (_ or _)%E.
@@ -1708,7 +1708,7 @@ Module base.
 
       - iDestruct "HΦ" as "(%Hfront_cache & HΦ)".
 
-        wp_apply (array_unsafe_cset_spec_owner with "[$Howner₁ $Ht_front_cache $Hdata_cslice₂]") as "(:owner_2 !=)"; [done | iSteps |].
+        wp_apply (array_unsafe_cset𑁒spec_owner with "[$Howner₁ $Ht_front_cache $Hdata_cslice₂]") as "(:owner_2 !=)"; [done | iSteps |].
         wp_pures.
 
         wp_bind (_ <-{back} _)%E.
@@ -1764,7 +1764,7 @@ Module base.
         iFrameSteps.
     Qed.
 
-    Lemma ws_bdeque_1_steal_spec t γ ι cap :
+    Lemma ws_bdeque_1_steal𑁒spec t γ ι cap :
       <<<
         ws_bdeque_1_inv t γ ι cap
       | ∀∀ vs,
@@ -1783,7 +1783,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_apply+ front_spec as (front1) "#Hfront_lb_1"; first iSteps.
+      wp_apply+ front𑁒spec as (front1) "#Hfront_lb_1"; first iSteps.
       wp_pures.
 
       wp_bind (_.{back})%E.
@@ -1810,9 +1810,9 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_apply+ array_unsafe_cget_spec_loser as (v) "_"; [lia | iSteps |].
+        wp_apply+ array_unsafe_cget𑁒spec_loser as (v) "_"; [lia | iSteps |].
         wp_load.
-        wp_apply+ resolve_spec_loser_1; [done | iSteps |].
+        wp_apply+ resolve𑁒spec_loser_1; [done | iSteps |].
         iSteps.
       }
 
@@ -1827,9 +1827,9 @@ Module base.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_load.
-        wp_apply+ array_unsafe_cget_spec_loser as (v) "_"; [lia | iSteps |].
+        wp_apply+ array_unsafe_cget𑁒spec_loser as (v) "_"; [lia | iSteps |].
         wp_load.
-        wp_apply+ resolve_spec_loser_2; [done | iSteps |].
+        wp_apply+ resolve𑁒spec_loser_2; [done | iSteps |].
         iSteps.
       }
       rewrite Hbranch3.
@@ -1856,9 +1856,9 @@ Module base.
       wp_pures.
       rewrite bool_decide_eq_false_2; first lia.
       wp_load.
-      wp_apply+ (array_unsafe_cget_spec_winner_pop with "[$Hwinner_pop]") as "Hwinner_pop"; first iSteps.
+      wp_apply+ (array_unsafe_cget𑁒spec_winner_pop with "[$Hwinner_pop]") as "Hwinner_pop"; first iSteps.
       wp_load.
-      wp_apply+ (resolve_spec_winner_pop with "[$Hwinner_pop]") as "HΦ"; first iSteps.
+      wp_apply+ (resolve𑁒spec_winner_pop with "[$Hwinner_pop]") as "HΦ"; first iSteps.
       iSteps.
     Qed.
 
@@ -1867,7 +1867,7 @@ Module base.
       | PopEmptyishWinner v
       | PopEmptyishLoser
       | PopSuperempty.
-    #[local] Lemma ws_bdeque_1_pop_0_spec {t γ} (state : pop_state) {stable} back ws front_cache us id (back_ : Z) :
+    #[local] Lemma ws_bdeque_1_pop_0𑁒spec {t γ} (state : pop_state) {stable} back ws front_cache us id (back_ : Z) :
       back_ = back →
       {{{
         inv' t γ ∗
@@ -1917,23 +1917,23 @@ Module base.
       - iDestruct "H" as "(-> & %Hus_lookup)".
         iSpecialize ("HΦ" $! (Some v)).
 
-        wp_apply (front_spec_owner_Stable with "[$Howner₁]") as (front2) "(Howner₁ & #Hfront_lb & %Hfront2)"; first iSteps.
+        wp_apply (front𑁒spec_owner_Stable with "[$Howner₁]") as (front2) "(Howner₁ & #Hfront_lb & %Hfront2)"; first iSteps.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_pures.
         case_bool_decide as Hbranch; wp_pures.
 
         + wp_load.
-          wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂"); [done.. | lia |].
+          wp_apply (array_unsafe_cget𑁒spec with "Hdata_cslice₂"); [done.. | lia |].
           iSteps.
 
         + replace front2 with back by lia.
 
           wp_store. wp_load.
-          wp_apply+ (resolve_spec_Empty with "[$Howner₁]") as "{Hfront_lb} (Howner₁ & #Hfront_lb)"; first iSteps.
-          wp_apply+ (set_back_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
+          wp_apply+ (resolve𑁒spec_Empty with "[$Howner₁]") as "{Hfront_lb} (Howner₁ & #Hfront_lb)"; first iSteps.
+          wp_apply+ (set_back𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
           wp_load.
-          wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
+          wp_apply (array_unsafe_cget𑁒spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
           wp_pures.
 
           iApply "HΦ".
@@ -1942,16 +1942,16 @@ Module base.
       - iDestruct "H" as "(-> & %Hus_lookup & Hwinner_steal)".
         iSpecialize ("HΦ" $! (Some v)).
 
-        wp_apply (front_spec_winner_steal with "[$Hwinner_steal]") as "Hwinner_steal"; first iSteps.
+        wp_apply (front𑁒spec_winner_steal with "[$Hwinner_steal]") as "Hwinner_steal"; first iSteps.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_pures.
         rewrite bool_decide_eq_false_2; first lia.
         wp_store. wp_load.
-        wp_apply+ (resolve_spec_winner_steal with "[$Hwinner_steal]") as "#Hfront_lb"; first iSteps.
-        wp_apply+ (set_back_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
+        wp_apply+ (resolve𑁒spec_winner_steal with "[$Hwinner_steal]") as "#Hfront_lb"; first iSteps.
+        wp_apply+ (set_back𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
         wp_load.
-        wp_apply (array_unsafe_cget_spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
+        wp_apply (array_unsafe_cget𑁒spec with "Hdata_cslice₂") as "Hdata_cslice₂"; [done.. | lia |].
         wp_pures.
 
         iApply "HΦ".
@@ -1960,7 +1960,7 @@ Module base.
       - iDestruct "H" as "(%id_winner & %prophs & -> & #Hprophet_full & %Hloser)".
         iSpecialize ("HΦ" $! None).
 
-        wp_apply (front_spec_owner_Unstable with "[$Howner₁]") as (front2) "(Howner₁ & #Hfront_lb & %Hbranch)"; first iSteps.
+        wp_apply (front𑁒spec_owner_Unstable with "[$Howner₁]") as (front2) "(Howner₁ & #Hfront_lb & %Hbranch)"; first iSteps.
         wp_pures.
         destruct Hbranch as [-> | ->].
 
@@ -1968,27 +1968,27 @@ Module base.
           wp_pures.
           rewrite bool_decide_eq_false_2; first lia.
           wp_store. wp_load.
-          wp_apply+ (resolve_spec_loser_2 with "[$Hfront_lb $Hprophet_full]") as "{Hfront_lb} #Hfront_lb"; [done | iSteps |].
-          wp_apply+ (set_back_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
+          wp_apply+ (resolve𑁒spec_loser_2 with "[$Hfront_lb $Hprophet_full]") as "{Hfront_lb} #Hfront_lb"; [done | iSteps |].
+          wp_apply+ (set_back𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
           wp_pures.
 
           iApply "HΦ".
           iFrame "#∗". iSteps.
 
         + rewrite bool_decide_eq_true_2; first lia.
-          wp_apply+ (set_back_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
+          wp_apply+ (set_back𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
           iSteps.
 
       - iDestruct "H" as "(%front & -> & #Hfront_lb & ->)".
         iSpecialize ("HΦ" $! None).
 
-        wp_apply (front_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia | iSteps |].
+        wp_apply (front𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia | iSteps |].
         wp_pures.
         rewrite bool_decide_eq_true_2; first lia.
-        wp_apply+ (set_back_spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
+        wp_apply+ (set_back𑁒spec_Superempty with "[$Howner₁ $Hfront_lb]") as "Howner₁"; [lia.. | iSteps |].
         iSteps.
     Qed.
-    Lemma ws_bdeque_1_pop_spec t γ ι cap ws :
+    Lemma ws_bdeque_1_pop𑁒spec t γ ι cap ws :
       <<<
         ws_bdeque_1_inv t γ ι cap ∗
         ws_bdeque_1_owner t γ ws
@@ -2019,7 +2019,7 @@ Module base.
 
       wp_rec.
       wp_apply (wp_id with "[//]") as (id) "Hid".
-      wp_apply+ (back_spec with "[$Howner₁]") as "Howner₁"; first iSteps.
+      wp_apply+ (back𑁒spec with "[$Howner₁]") as "Howner₁"; first iSteps.
       wp_pures.
 
       wp_bind (_ <-{back} _)%E.
@@ -2045,7 +2045,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hcapacity Hfront_cache Hus Hback}".
 
-        wp_apply+ (ws_bdeque_1_pop_0_spec PopSuperempty (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (ws_bdeque_1_pop_0𑁒spec PopSuperempty (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
       }
 
@@ -2085,7 +2085,7 @@ Module base.
           { iExists Emptyish. iFrameSteps. }
           iIntros "!> {%- Hcapacity Hfront_cache Hus Hback Hus_lookup}".
 
-          wp_apply+ (ws_bdeque_1_pop_0_spec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (ws_bdeque_1_pop_0𑁒spec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -2101,7 +2101,7 @@ Module base.
             { iExists Emptyish. iFrameSteps. }
             iIntros "!> {%- Hcapacity Hfront_cache Hus Hus_lookup}".
 
-            wp_apply+ (ws_bdeque_1_pop_0_spec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
+            wp_apply+ (ws_bdeque_1_pop_0𑁒spec (PopEmptyishWinner v) front1 with "[- HΦ]"); [lia | iFrameSteps |].
             iSteps.
           }
 
@@ -2124,7 +2124,7 @@ Module base.
           { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
           iIntros "!> {%- Hcapacity Hfront_cache Hus Hbranch2}".
 
-          wp_apply+ (ws_bdeque_1_pop_0_spec PopEmptyishLoser front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (ws_bdeque_1_pop_0𑁒spec PopEmptyishLoser front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
       - iMod (owner_update Stable (back - 1) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -2148,7 +2148,7 @@ Module base.
         }
         iIntros "!> {%- Hcapacity Hfront_cache Hus Hback Hus_lookup}".
 
-        wp_apply+ (ws_bdeque_1_pop_0_spec (PopNonempty v) (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (ws_bdeque_1_pop_0𑁒spec (PopNonempty v) (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
     Qed.
   End ws_bdeque_1_G.
@@ -2264,7 +2264,7 @@ Section ws_bdeque_1_G.
     iApply (base.ws_bdeque_1_owner_model with "Howner_1 Hmodel_2").
   Qed.
 
-  Lemma ws_bdeque_1_create_spec ι (cap : Z) :
+  Lemma ws_bdeque_1_create𑁒spec ι (cap : Z) :
     (0 < cap)%Z →
     {{{
       True
@@ -2281,12 +2281,12 @@ Section ws_bdeque_1_G.
     iIntros "%Hcap %Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ws_bdeque_1_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Howner)"; first done.
+    wp_apply (base.ws_bdeque_1_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Howner)"; first done.
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma ws_bdeque_1_capacity_spec t ι cap :
+  Lemma ws_bdeque_1_capacity𑁒spec t ι cap :
     {{{
       ws_bdeque_1_inv t ι cap
     }}}
@@ -2298,10 +2298,10 @@ Section ws_bdeque_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.ws_bdeque_1_capacity_spec with "[$] HΦ").
+    wp_apply (base.ws_bdeque_1_capacity𑁒spec with "[$] HΦ").
   Qed.
 
-  Lemma ws_bdeque_1_size_spec t ι cap ws :
+  Lemma ws_bdeque_1_size𑁒spec t ι cap ws :
     <<<
       ws_bdeque_1_inv t ι cap ∗
       ws_bdeque_1_owner t ws
@@ -2319,14 +2319,14 @@ Section ws_bdeque_1_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_bdeque_1_size_spec with "[$]").
+    awp_apply (base.ws_bdeque_1_size𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_bdeque_1_is_empty_spec t ι cap ws :
+  Lemma ws_bdeque_1_is_empty𑁒spec t ι cap ws :
     <<<
       ws_bdeque_1_inv t ι cap ∗
       ws_bdeque_1_owner t ws
@@ -2344,14 +2344,14 @@ Section ws_bdeque_1_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_bdeque_1_is_empty_spec with "[$]").
+    awp_apply (base.ws_bdeque_1_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_bdeque_1_push_spec t ι cap ws v :
+  Lemma ws_bdeque_1_push𑁒spec t ι cap ws v :
     <<<
       ws_bdeque_1_inv t ι cap ∗
       ws_bdeque_1_owner t ws
@@ -2371,14 +2371,14 @@ Section ws_bdeque_1_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_bdeque_1_push_spec with "[$]").
+    awp_apply (base.ws_bdeque_1_push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_bdeque_1_steal_spec t ι cap :
+  Lemma ws_bdeque_1_steal𑁒spec t ι cap :
     <<<
       ws_bdeque_1_inv t ι cap
     | ∀∀ vs,
@@ -2393,14 +2393,14 @@ Section ws_bdeque_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.ws_bdeque_1_steal_spec with "[$]").
+    awp_apply (base.ws_bdeque_1_steal𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_bdeque_1_pop_spec t ι cap ws :
+  Lemma ws_bdeque_1_pop𑁒spec t ι cap ws :
     <<<
       ws_bdeque_1_inv t ι cap ∗
       ws_bdeque_1_owner t ws
@@ -2429,7 +2429,7 @@ Section ws_bdeque_1_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_bdeque_1_pop_spec with "[$]").
+    awp_apply (base.ws_bdeque_1_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".

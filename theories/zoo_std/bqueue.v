@@ -72,7 +72,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma bqueue_create_spec cap :
+  Lemma bqueue_create𑁒spec cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -87,7 +87,7 @@ Section zoo_G.
     iIntros "% %Φ _ HΦ".
 
     wp_rec.
-    wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hextra"; first done.
+    wp_apply (array_unsafe_make𑁒spec with "[//]") as (data) "Hextra"; first done.
     iApply array_model_to_cslice in "Hextra". simpl_length.
     iDestruct (array_cslice_to_inv with "Hextra") as "#Hdata_inv".
     iDestruct (array_cslice_nil with "Hdata_inv") as "Hvs".
@@ -95,7 +95,7 @@ Section zoo_G.
     iFrameSteps. rewrite Z2Nat.id //. iSteps.
   Qed.
 
-  Lemma bqueue_size_spec t cap vs :
+  Lemma bqueue_size𑁒spec t cap vs :
     {{{
       bqueue_model t cap vs
     }}}
@@ -112,7 +112,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma bqueue_is_empty_spec t cap vs :
+  Lemma bqueue_is_empty𑁒spec t cap vs :
     {{{
       bqueue_model t cap vs
     }}}
@@ -125,14 +125,14 @@ Section zoo_G.
     iIntros "%Φ Hmodel HΦ".
 
     wp_rec.
-    wp_apply (bqueue_size_spec with "Hmodel") as "Hmodel".
+    wp_apply (bqueue_size𑁒spec with "Hmodel") as "Hmodel".
     wp_pures.
     rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma bqueue_unsafe_get_spec {t cap vs i} v :
+  Lemma bqueue_unsafe_get𑁒spec {t cap vs i} v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
@@ -147,11 +147,11 @@ Section zoo_G.
     iIntros "%Hi %Hlookup %Φ (:model) HΦ".
 
     wp_rec. do 2 wp_load.
-    wp_apply (array_unsafe_cget_spec with "Hvs"); [lia | done | lia |].
+    wp_apply (array_unsafe_cget𑁒spec with "Hvs"); [lia | done | lia |].
     iSteps.
   Qed.
 
-  Lemma bqueue_unsafe_set_spec t cap vs i v :
+  Lemma bqueue_unsafe_set𑁒spec t cap vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
       bqueue_model t cap vs
@@ -165,12 +165,12 @@ Section zoo_G.
     iIntros "%Hi %Φ (:model) HΦ".
 
     wp_rec. do 2 wp_load.
-    wp_apply (array_unsafe_cset_spec with "Hvs"); first lia.
+    wp_apply (array_unsafe_cset𑁒spec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
     iSteps; simpl_length.
   Qed.
 
-  Lemma bqueue_push_spec t cap vs v :
+  Lemma bqueue_push𑁒spec t cap vs v :
     {{{
       bqueue_model t cap vs
     }}}
@@ -189,14 +189,14 @@ Section zoo_G.
     wp_load.
     destruct (Nat.lt_exists_pred 0 extra) as (extra' & -> & _); first lia.
     iDestruct (array_cslice_cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
-    wp_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+    wp_apply (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
     iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
     wp_store. wp_pures.
     replace (back + 1)%Z with ⁺(S back) by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
-  Lemma bqueue_pop_front_spec t cap vs :
+  Lemma bqueue_pop_front𑁒spec t cap vs :
     {{{
       bqueue_model t cap vs
     }}}
@@ -217,8 +217,8 @@ Section zoo_G.
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp_load.
       iDestruct (array_cslice_cons with "Hvs") as "(Hcell & Hvs)".
-      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
-      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
       wp_store. wp_pures.
       iApply array_cslice_shift_right in "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
@@ -229,7 +229,7 @@ Section zoo_G.
       iFrameSteps.
   Qed.
 
-  Lemma bqueue_pop_back_spec t cap vs :
+  Lemma bqueue_pop_back𑁒spec t cap vs :
     {{{
       bqueue_model t cap vs
     }}}
@@ -260,8 +260,8 @@ Section zoo_G.
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp_load.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hcell)".
-      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first lia.
       wp_store. wp_pures.
       iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
       iApply ("HΦ" $! (Some v)).

@@ -359,7 +359,7 @@ Section zoo_G.
     iApply (xchain_NoDup with "H").
   Qed.
 
-  Lemma xtchain_next_spec {hdr dq nodes dst node} nodes' E :
+  Lemma xtchain_next𑁒spec {hdr dq nodes dst node} nodes' E :
     nodes = node :: nodes' →
     {{{
       xtchain dq hdr nodes dst
@@ -371,10 +371,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xchain_next_spec with "H"); first done.
+    wp_apply (xchain_next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtchain_next_spec_lookup {hdr dq nodes dst} i node E :
+  Lemma xtchain_next𑁒spec_lookup {hdr dq nodes dst} i node E :
     nodes !! i = Some node →
     {{{
       xtchain hdr dq nodes dst
@@ -386,10 +386,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xchain_next_spec_lookup with "H"); first done.
+    wp_apply (xchain_next𑁒spec_lookup with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtchain_next_spec_last hdr dq nodes dst node E :
+  Lemma xtchain_next𑁒spec_last hdr dq nodes dst node E :
     last nodes = Some node →
     {{{
       xtchain hdr dq nodes dst
@@ -405,7 +405,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma xtchain_set_next_spec {hdr nodes dst node} nodes' v E :
+  Lemma xtchain_set_next𑁒spec {hdr nodes dst node} nodes' v E :
     nodes = node :: nodes' →
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
@@ -418,10 +418,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xchain_set_next_spec with "H"); first done.
+    wp_apply (xchain_set_next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtchain_set_next_spec_lookup {hdr nodes dst} i node v E :
+  Lemma xtchain_set_next𑁒spec_lookup {hdr nodes dst} i node v E :
     nodes !! i = Some node →
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
@@ -440,7 +440,7 @@ Section zoo_G.
     iDestruct (xtchain_snoc_2 with "H1 Hheader Hnode") as "H1".
     rewrite -take_S_r //. iSteps.
   Qed.
-  Lemma xtchain_set_next_spec_last hdr nodes dst node v E :
+  Lemma xtchain_set_next𑁒spec_last hdr nodes dst node v E :
     last nodes = Some node →
     {{{
       xtchain hdr (DfracOwn 1) nodes dst
@@ -455,7 +455,7 @@ Section zoo_G.
     setoid_rewrite xtchain_last_acc at 1; last done.
     iSteps.
   Qed.
-  Lemma xtchain_set_next_spec_last' {hdr nodes dst node} node' dst' E :
+  Lemma xtchain_set_next𑁒spec_last' {hdr nodes dst node} node' dst' E :
     last nodes = Some node →
     {{{
       xtchain hdr (DfracOwn 1) nodes dst ∗

@@ -567,7 +567,7 @@ Section spsc_bqueue_G.
     iSteps. rewrite array_cslice_nil. iSteps.
   Qed.
 
-  Lemma spsc_bqueue_create_spec ι cap :
+  Lemma spsc_bqueue_create𑁒spec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -586,7 +586,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
     iApply wp_fupd.
-    wp_apply (array_unsafe_make_spec with "[//]") as "%data Hdata_model"; first done.
+    wp_apply (array_unsafe_make𑁒spec with "[//]") as "%data Hdata_model"; first done.
     iDestruct (array_model_to_inv with "Hdata_model") as "#Hdata_inv". simpl_length.
     wp_block l as "Hmeta" "(Hl_data & Hl_front & Hl_front_cache & Hl_back & Hl_back_cache & _)".
     iMod (pointsto_persist with "Hl_data") as "#Hl_data".
@@ -623,7 +623,7 @@ Section spsc_bqueue_G.
     rewrite Nat.sub_0_r. iSteps.
   Qed.
 
-  Lemma spsc_bqueue_capacity_spec t ι cap :
+  Lemma spsc_bqueue_capacity𑁒spec t ι cap :
     {{{
       spsc_bqueue_inv t ι cap
     }}}
@@ -636,11 +636,11 @@ Section spsc_bqueue_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (array_size_spec_inv with "Hdata_inv").
+    wp_apply (array_size𑁒spec_inv with "Hdata_inv").
     iSteps.
   Qed.
 
-  #[local] Lemma front_spec l γ stable front :
+  #[local] Lemma front𑁒spec l γ stable front :
     {{{
       inv' l γ ∗
       consumer₁ γ stable front
@@ -660,7 +660,7 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  #[local] Lemma back_spec l γ stable back ws :
+  #[local] Lemma back𑁒spec l γ stable back ws :
     {{{
       inv' l γ ∗
       producer₁ γ stable back ws
@@ -680,7 +680,7 @@ Section spsc_bqueue_G.
     iSteps.
   Qed.
 
-  Lemma spsc_bqueue_size_spec_producer t ι cap ws :
+  Lemma spsc_bqueue_size𑁒spec_producer t ι cap ws :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_producer t ws
@@ -699,7 +699,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_apply (back_spec with "[$]") as "Hproducer₁".
+    wp_apply (back𑁒spec with "[$]") as "Hproducer₁".
     wp_pures.
 
     wp_bind (_.{front})%E.
@@ -718,7 +718,7 @@ Section spsc_bqueue_G.
 
     iSteps. rewrite Hlen. iSteps.
   Qed.
-  Lemma spsc_bqueue_size_spec_consumer t ι cap :
+  Lemma spsc_bqueue_size𑁒spec_consumer t ι cap :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_consumer t
@@ -751,11 +751,11 @@ Section spsc_bqueue_G.
     assert (⁺back1 - ⁺front = length vs)%Z as Hlen by lia.
     iIntros "!> {%- Hlen}".
 
-    wp_apply+ (front_spec with "[$]") as "Hconsumer₁".
+    wp_apply+ (front𑁒spec with "[$]") as "Hconsumer₁".
     iSteps. rewrite Hlen. iSteps.
   Qed.
 
-  Lemma spsc_bqueue_is_empty_spec_producer t ι cap ws :
+  Lemma spsc_bqueue_is_empty𑁒spec_producer t ι cap ws :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_producer t ws
@@ -773,7 +773,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_apply (spsc_bqueue_size_spec_producer with "[$Hinv $Hproducer]").
+    wp_apply (spsc_bqueue_size𑁒spec_producer with "[$Hinv $Hproducer]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ Hproducer".
 
     wp_pures.
@@ -781,7 +781,7 @@ Section spsc_bqueue_G.
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hproducer").
   Qed.
-  Lemma spsc_bqueue_is_empty_spec_consumer t ι cap :
+  Lemma spsc_bqueue_is_empty𑁒spec_consumer t ι cap :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_consumer t
@@ -799,7 +799,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
 
-    wp_apply (spsc_bqueue_size_spec_consumer with "[$Hinv $Hconsumer]").
+    wp_apply (spsc_bqueue_size𑁒spec_consumer with "[$Hinv $Hconsumer]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ Hconsumer".
 
     wp_pures.
@@ -819,7 +819,7 @@ Section spsc_bqueue_G.
     COMM
       Ψ vs b
     }>.
-  #[local] Lemma spsc_bqueue_push_0_spec l γ front_cache stable back ws v Ψ :
+  #[local] Lemma spsc_bqueue_push_0𑁒spec l γ front_cache stable back ws v Ψ :
     {{{
       inv' l γ ∗
       l.[front_cache] ↦ #front_cache ∗
@@ -846,7 +846,7 @@ Section spsc_bqueue_G.
     iIntros "%Φ ((:inv') & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΨ) HΦ".
 
     wp_rec.
-    wp_apply+ (array_size_spec_inv with "Hdata_inv") as "_".
+    wp_apply+ (array_size𑁒spec_inv with "Hdata_inv") as "_".
     wp_load. wp_pures.
     case_bool_decide as Hbranch1; wp_pures.
 
@@ -882,7 +882,7 @@ Section spsc_bqueue_G.
         iApply ("HΦ" $! _ front1).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue_push_spec t ι cap ws v :
+  Lemma spsc_bqueue_push𑁒spec t ι cap ws v :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_producer t ws
@@ -902,8 +902,8 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply+ (back_spec with "[$]") as "Hproducer₁".
-    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_apply+ (spsc_bqueue_push_0_spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
+    wp_apply+ (back𑁒spec with "[$]") as "Hproducer₁".
+    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_apply+ (spsc_bqueue_push_0𑁒spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -915,7 +915,7 @@ Section spsc_bqueue_G.
     iSplitR "Hl_front_cache Hproducer₁ Hback HΦ". { iFrameSteps. }
     iIntros "!> {%- Hbranch} !>".
 
-    wp_apply+ (array_unsafe_cset_spec_cell with "Hback") as "Hback_"; first done.
+    wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hback") as "Hback_"; first done.
     wp_pures.
 
     wp_bind (_ <-{back} _)%E.
@@ -967,7 +967,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Ψ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_0_spec l γ back_cache stable front Ψ :
+  #[local] Lemma spsc_bqueue_pop_0𑁒spec l γ back_cache stable front Ψ :
     {{{
       inv' l γ ∗
       l.[back_cache] ↦ #back_cache ∗
@@ -1028,7 +1028,7 @@ Section spsc_bqueue_G.
         iApply ("HΦ" $! _ front).
         rewrite !bool_decide_eq_false_2; [lia.. |]. iSteps.
   Qed.
-  Lemma spsc_bqueue_pop_spec t ι cap :
+  Lemma spsc_bqueue_pop𑁒spec t ι cap :
     <<<
       spsc_bqueue_inv t ι cap ∗
       spsc_bqueue_consumer t
@@ -1046,8 +1046,8 @@ Section spsc_bqueue_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec.
-    wp_apply+ (front_spec with "[$]") as "Hconsumer₁".
-    iDestruct "Hback_lb" as "-#Hback_lb". wp_apply+ (spsc_bqueue_pop_0_spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
+    wp_apply+ (front𑁒spec with "[$]") as "Hconsumer₁".
+    iDestruct "Hback_lb" as "-#Hback_lb". wp_apply+ (spsc_bqueue_pop_0𑁒spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -1065,8 +1065,8 @@ Section spsc_bqueue_G.
     iIntros "!> {%- Hbranch} !>".
 
     wp_load.
-    wp_apply+ (array_unsafe_cget_spec_cell with "Hfront") as "Hfront"; first done.
-    wp_apply+ (array_unsafe_cset_spec_cell with "Hfront") as "Hfront_"; first done.
+    wp_apply+ (array_unsafe_cget𑁒spec_cell with "Hfront") as "Hfront"; first done.
+    wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hfront") as "Hfront_"; first done.
     wp_pures.
 
     wp_bind (_ <-{front} _)%E.

@@ -21,7 +21,7 @@ Add Printing Constructor location.
 Canonical location_O {SI : sidx} :=
   leibnizO location.
 
-Lemma location_eq_spec l1 l2 :
+Lemma location_eq𑁒spec l1 l2 :
   l1 = l2 ↔
   location_car l1 = location_car l2.
 Proof.
@@ -56,22 +56,22 @@ Notation "l +ₗ i" := (
 #[global] Instance location_add_inj_1 l :
   Inj (=) (=) (location_add l).
 Proof.
-  intros ?*. rewrite location_eq_spec /=. lia.
+  intros ?*. rewrite location_eq𑁒spec /=. lia.
 Qed.
 #[global] Instance location_add_inj_2 i :
   Inj (=) (=) (λ l, location_add l i).
 Proof.
-  intros ?*. rewrite location_eq_spec Z.add_cancel_r location_eq_spec //.
+  intros ?*. rewrite location_eq𑁒spec Z.add_cancel_r location_eq𑁒spec //.
 Qed.
 Lemma location_add_assoc l i j :
   l +ₗ i +ₗ j = l +ₗ (i + j).
 Proof.
-  rewrite location_eq_spec /=. lia.
+  rewrite location_eq𑁒spec /=. lia.
 Qed.
 Lemma location_add_0 l :
   l +ₗ 0 = l.
 Proof.
-  rewrite location_eq_spec /=; lia.
+  rewrite location_eq𑁒spec /=; lia.
 Qed.
 
 Definition location_fresh (ls : gset location) :=

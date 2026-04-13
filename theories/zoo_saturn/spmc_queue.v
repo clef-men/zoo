@@ -425,7 +425,7 @@ Module base.
       iApply (producer_exclusive with "Hproducer_1 Hproducer_2").
     Qed.
 
-    Lemma spmc_queue_create_spec ι :
+    Lemma spmc_queue_create𑁒spec ι :
       {{{
         True
       }}}
@@ -465,7 +465,7 @@ Module base.
       rewrite xtchain_singleton big_sepM_empty. iSteps.
     Qed.
 
-    #[local] Lemma front_spec_strong Ψ t γ :
+    #[local] Lemma front𑁒spec_strong Ψ t γ :
       {{{
         inv' t γ ∗
         if Ψ is Some Ψ then
@@ -502,7 +502,7 @@ Module base.
       iSplitR "Hwaiters_at HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    #[local] Lemma front_spec t γ :
+    #[local] Lemma front𑁒spec t γ :
       {{{
         inv' t γ
       }}}
@@ -515,7 +515,7 @@ Module base.
     Proof.
       iIntros "%Φ #Hinv HΦ".
 
-      wp_apply (front_spec_strong None with "[$Hinv]").
+      wp_apply (front𑁒spec_strong None with "[$Hinv]").
       iSteps.
     Qed.
 
@@ -548,7 +548,7 @@ Module base.
       , COMM
         Ψ (head vs)
       }>.
-    #[local] Lemma next_spec_aux op t γ i node :
+    #[local] Lemma next𑁒spec_aux op t γ i node :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -671,7 +671,7 @@ Module base.
           iSplitR "HΨ HΦ". { iFrameSteps. }
           iSteps.
     Qed.
-    #[local] Lemma next_spec t γ i node :
+    #[local] Lemma next𑁒spec t γ i node :
       {{{
         inv' t γ ∗
         history_at γ i node
@@ -688,9 +688,9 @@ Module base.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
 
-      wp_apply (next_spec_aux Other); iSteps.
+      wp_apply (next𑁒spec_aux Other); iSteps.
     Qed.
-    #[local] Lemma next_spec_is_empty {t γ i node} waiter Ψ :
+    #[local] Lemma next𑁒spec_is_empty {t γ i node} waiter Ψ :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -713,10 +713,10 @@ Module base.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & #Hwaiter & Hwaiters_at & H£) HΦ".
 
-      wp_apply (next_spec_aux (IsEmpty _ _) with "[$]").
+      wp_apply (next𑁒spec_aux (IsEmpty _ _) with "[$]").
       iSteps.
     Qed.
-    #[local] Lemma next_spec_pop {t γ i node} Ψ :
+    #[local] Lemma next𑁒spec_pop {t γ i node} Ψ :
       {{{
         inv' t γ ∗
         history_at γ i node ∗
@@ -737,11 +737,11 @@ Module base.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hfront_lb_node & Hau) HΦ".
 
-      wp_apply (next_spec_aux (Pop _) with "[$]").
+      wp_apply (next𑁒spec_aux (Pop _) with "[$]").
       iSteps.
     Qed.
 
-    Lemma spmc_queue_is_empty_spec t γ ι :
+    Lemma spmc_queue_is_empty𑁒spec t γ ι :
       <<<
         spmc_queue_inv t γ ι
       | ∀∀ vs,
@@ -757,16 +757,16 @@ Module base.
       iIntros "%Φ (:inv) HΦ".
 
       wp_rec credit:"H£".
-      wp_apply+ (front_spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
+      wp_apply+ (front𑁒spec_strong (Some $ λ b, Φ #b) with "[$Hinv HΦ]") as (node i) "((:node_model =node front=) & %waiter & #Hwaiter & Hwaiters_at)".
       { rewrite /= /waiter_au. iAuIntro.
         iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
         iAaccIntro with "Hmodel₁"; iSteps.
       }
       wp_match.
-      wp_apply+ (next_spec_is_empty with "[$]"); iSteps.
+      wp_apply+ (next𑁒spec_is_empty with "[$]"); iSteps.
     Qed.
 
-    Lemma spmc_queue_push_spec t γ ι ws v :
+    Lemma spmc_queue_push𑁒spec t γ ι ws v :
       <<<
         spmc_queue_inv t γ ι ∗
         spmc_queue_producer t γ ws
@@ -789,7 +789,7 @@ Module base.
       wp_bind (_ <-{next} _)%E.
       iInv "Hinv" as "(:inv_inner)".
       iDestruct (history_auth_last with "Hhistory_auth Hhistory_last") as %?.
-      wp_apply (xtchain_set_next_spec_last' new_back with "[$]") as "Hhist"; first done.
+      wp_apply (xtchain_set_next𑁒spec_last' new_back with "[$]") as "Hhist"; first done.
       iMod (history_update new_back with "Hhistory_auth Hhistory_last") as "(Hhistory_auth & Hhistory_last)".
       iDestruct (big_sepL2_snoc_2 with "Hnodes Hnew_back_data") as "Hnodes".
 
@@ -803,7 +803,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma spmc_queue_pop_spec_aux t γ :
+    #[local] Lemma spmc_queue_pop𑁒spec_aux t γ :
       <<<
         inv' t γ
       | ∀∀ vs,
@@ -821,9 +821,9 @@ Module base.
       iLöb as "HLöb".
 
       wp_rec credit:"H£".
-      wp_apply+ (front_spec with "Hinv") as (front i) "(#Hfront_header & #Hhistory_at_front & #Hfront_lb_front)".
+      wp_apply+ (front𑁒spec with "Hinv") as (front i) "(#Hfront_header & #Hhistory_at_front & #Hfront_lb_front)".
       wp_match.
-      wp_apply+ (next_spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
+      wp_apply+ (next𑁒spec_pop (λ o, _ -∗ Φ o)%I with "[$]") as (res) "[(-> & HΦ) | (%new_front & -> & (:node_model =new_front) & HΦ)]"; first iSteps.
       wp_match. wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -873,7 +873,7 @@ Module base.
       iSplitR "Hfront_data H£ HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma spmc_queue_pop_spec t γ ι :
+    Lemma spmc_queue_pop𑁒spec t γ ι :
       <<<
         spmc_queue_inv t γ ι
       | ∀∀ vs,
@@ -888,7 +888,7 @@ Module base.
     Proof.
       iIntros "%Φ (:inv) HΦ".
 
-      wp_apply (spmc_queue_pop_spec_aux with "Hinv").
+      wp_apply (spmc_queue_pop𑁒spec_aux with "Hinv").
       iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; iSteps.
@@ -997,7 +997,7 @@ Section spmc_queue_G.
     iApply (base.spmc_queue_producer_exclusive with "Hproducer_1 Hproducer_2").
   Qed.
 
-  Lemma spmc_queue_create_spec ι :
+  Lemma spmc_queue_create𑁒spec ι :
     {{{
       True
     }}}
@@ -1013,12 +1013,12 @@ Section spmc_queue_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.spmc_queue_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp_apply (base.spmc_queue_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma spmc_queue_is_empty_spec t ι :
+  Lemma spmc_queue_is_empty𑁒spec t ι :
     <<<
       spmc_queue_inv t ι
     | ∀∀ vs,
@@ -1033,14 +1033,14 @@ Section spmc_queue_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.spmc_queue_is_empty_spec with "[$]").
+    awp_apply (base.spmc_queue_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma spmc_queue_push_spec t ι ws v :
+  Lemma spmc_queue_push𑁒spec t ι ws v :
     <<<
       spmc_queue_inv t ι ∗
       spmc_queue_producer t ws
@@ -1057,14 +1057,14 @@ Section spmc_queue_G.
     iIntros "%Φ ((:inv =1) & (:producer =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.spmc_queue_push_spec with "[$]").
+    awp_apply (base.spmc_queue_push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma spmc_queue_pop_spec t ι :
+  Lemma spmc_queue_pop𑁒spec t ι :
     <<<
       spmc_queue_inv t ι
     | ∀∀ vs,
@@ -1079,7 +1079,7 @@ Section spmc_queue_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.spmc_queue_pop_spec with "[$]").
+    awp_apply (base.spmc_queue_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.

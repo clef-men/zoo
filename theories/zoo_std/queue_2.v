@@ -46,7 +46,7 @@ Section zoo_G.
     apply _.
   Qed.
 
-  Lemma queue_2_create_spec :
+  Lemma queue_2_create𑁒spec :
     {{{
       True
     }}}
@@ -59,14 +59,14 @@ Section zoo_G.
   Proof.
     iIntros "%Φ _ HΦ".
     wp_rec.
-    wp_apply (chain_block_spec (Some _)) as (back) "Hback_model".
+    wp_apply (chain_block𑁒spec (Some _)) as (back) "Hback_model".
     { iApply chain_model_nil. iSteps. }
     wp_block l as "(Hfront & Hback & _)".
     iApply "HΦ". iExists l, back, back. iFrameSteps.
     iApply chain_model_nil_1.
   Qed.
 
-  Lemma queue_2_is_empty_spec t vs :
+  Lemma queue_2_is_empty𑁒spec t vs :
     {{{
       queue_2_model t vs
     }}}
@@ -88,7 +88,7 @@ Section zoo_G.
       iDestruct (chain_model_exclusive with "Hback Hfront") as %[]; naive_solver lia.
   Qed.
 
-  Lemma queue_2_push_spec t vs v :
+  Lemma queue_2_push𑁒spec t vs v :
     {{{
       queue_2_model t vs
     }}}
@@ -100,18 +100,18 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     wp_rec.
-    wp_apply+ (chain_block_spec (Some _)) as (back') "Hback'".
+    wp_apply+ (chain_block𑁒spec (Some _)) as (back') "Hback'".
     { iApply chain_model_nil. iSteps. }
     iDestruct (chain_model_tag with "Hback'") as "#(%back'_ & -> & Hback'_header)"; first done. wp_match.
     wp_load.
     iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
-    wp_apply+ (chain_set_next_spec with "Hback") as (?) "(Hback & _)".
-    wp_apply+ (chain_set_data_spec with "Hback") as "Hback".
+    wp_apply+ (chain_set_next𑁒spec with "Hback") as (?) "(Hback & _)".
+    wp_apply+ (chain_set_data𑁒spec with "Hback") as "Hback".
     iDestruct (chain_model_app_2 with "Hfront Hback") as "Hfront".
     iSteps.
   Qed.
 
-  Lemma queue_2_pop_spec t vs :
+  Lemma queue_2_pop𑁒spec t vs :
     {{{
       queue_2_model t vs
     }}}
@@ -137,18 +137,18 @@ Section zoo_G.
     wp_match.
     destruct vs as [| v1 vs].
     - iDestruct (chain_model_nil with "Hfront") as %->.
-      wp_apply (chain_next_spec_singleton with "Hback") as "Hback".
+      wp_apply (chain_next𑁒spec_singleton with "Hback") as "Hback".
       iSteps.
-    - wp_apply (chain_next_spec with "Hfront") as (front') "(Hfront & Hfront')".
+    - wp_apply (chain_next𑁒spec with "Hfront") as (front') "(Hfront & Hfront')".
       destruct vs as [| v2 vs].
       + iDestruct (chain_model_nil with "Hfront'") as %->.
         iDestruct (chain_model_tag with "Hback") as "#(%back_ & -> & Hback_header)"; first done. wp_match.
         wp_store.
-        wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
+        wp_apply+ (chain_data𑁒spec with "Hfront") as "Hfront".
         iSteps.
       + iDestruct (chain_model_tag with "Hfront'") as "#(%front'_ & -> & Hfront'_header)"; first done. wp_match.
         wp_store.
-        wp_apply+ (chain_data_spec with "Hfront") as "Hfront".
+        wp_apply+ (chain_data𑁒spec with "Hfront") as "Hfront".
         iSteps.
   Qed.
 End zoo_G.

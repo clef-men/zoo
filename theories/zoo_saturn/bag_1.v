@@ -221,7 +221,7 @@ Section bag_1_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma bag_1_create_spec ι (sz : Z) :
+  Lemma bag_1_create𑁒spec ι (sz : Z) :
     (0 < sz)%Z →
     {{{
       True
@@ -244,7 +244,7 @@ Section bag_1_G.
       [∗ list] slot ∈ slots,
         slot ↦ᵣ None
     )%I).
-    wp_apply+ (array_unsafe_init_spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
+    wp_apply+ (array_unsafe_init𑁒spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %data %i %vs % % (%slots & %Hslots & Hslots)".
@@ -278,7 +278,7 @@ Section bag_1_G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_1_push_0_spec slot v l γ :
+  #[local] Lemma bag_1_push_0𑁒spec slot v l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
@@ -325,7 +325,7 @@ Section bag_1_G.
       }
       iSteps.
   Qed.
-  Lemma bag_1_push_spec t ι v :
+  Lemma bag_1_push𑁒spec t ι v :
     <<<
       bag_1_inv t ι
     | ∀∀ vs,
@@ -341,7 +341,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply+ (array_size_spec with "Hdata_model") as "_".
+    wp_apply+ (array_size𑁒spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -351,13 +351,13 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_apply+ (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array_unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_1_push_0_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1_push_0𑁒spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_1_pop_0_spec slot l γ :
+  #[local] Lemma bag_1_pop_0𑁒spec slot l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
@@ -421,7 +421,7 @@ Section bag_1_G.
       }
       iSteps.
   Qed.
-  Lemma bag_1_pop_spec t ι :
+  Lemma bag_1_pop𑁒spec t ι :
     <<<
       bag_1_inv t ι
     | ∀∀ vs,
@@ -439,7 +439,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply+ (array_size_spec with "Hdata_model") as "_".
+    wp_apply+ (array_size𑁒spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -449,9 +449,9 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_apply+ (array_unsafe_get_spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array_unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_1_pop_0_spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1_pop_0𑁒spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 End bag_1_G.

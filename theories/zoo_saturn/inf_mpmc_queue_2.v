@@ -839,7 +839,7 @@ Module base.
       iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
     Qed.
 
-    Lemma inf_mpmc_queue_2_create_spec ι :
+    Lemma inf_mpmc_queue_2_create𑁒spec ι :
       {{{
         True
       }}}
@@ -856,7 +856,7 @@ Module base.
 
       wp_rec.
       wp_apply (prophet_multi_wp_proph prophet_identifier with "[//]") as "%pid %γ_prophet %prophss Hprophet_model".
-      wp_apply (inf_array_create_spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
+      wp_apply (inf_array_create𑁒spec with "[//]") as (data) "(#Hdata_inv & Hdata_model)".
       wp_block t as "Hmeta" "(Ht_data & Ht_front & Ht_back & Ht_proph & _)".
       iMod (pointsto_persist with "Ht_data") as "#Ht_data".
       iMod (pointsto_persist with "Ht_proph") as "#Ht_proph".
@@ -883,7 +883,7 @@ Module base.
       iFrameSteps. iExists (λ _, Nothing). iSteps. iExists []. iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2_size_spec t γ ι :
+    Lemma inf_mpmc_queue_2_size𑁒spec t γ ι :
       <<<
         inf_mpmc_queue_2_inv t γ ι
       | ∀∀ vs,
@@ -971,7 +971,7 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2_is_empty_spec t γ ι :
+    Lemma inf_mpmc_queue_2_is_empty𑁒spec t γ ι :
       <<<
         inf_mpmc_queue_2_inv t γ ι
       | ∀∀ vs,
@@ -989,14 +989,14 @@ Module base.
 
       wp_rec.
 
-      awp_apply (inf_mpmc_queue_2_size_spec with "Hinv").
+      awp_apply (inf_mpmc_queue_2_size𑁒spec with "Hinv").
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; iSteps. iPureIntro.
       case_bool_decide as Hlength; last done.
       apply nil_length_inv. lia.
     Qed.
 
-    Lemma inf_mpmc_queue_2_push_spec t γ ι v :
+    Lemma inf_mpmc_queue_2_push𑁒spec t γ ι v :
       <<<
         inf_mpmc_queue_2_inv t γ ι
       | ∀∀ vs,
@@ -1054,7 +1054,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_cas_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
@@ -1100,7 +1100,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_cas_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
@@ -1162,7 +1162,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_cas_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
@@ -1212,7 +1212,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_cas_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_cas_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
@@ -1238,7 +1238,7 @@ Module base.
           iSteps.
     Qed.
 
-    Lemma inf_mpmc_queue_2_pop_spec t γ ι :
+    Lemma inf_mpmc_queue_2_pop𑁒spec t γ ι :
       <<<
         inf_mpmc_queue_2_inv t γ ι
       | ∀∀ vs,
@@ -1292,7 +1292,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_xchg_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
@@ -1338,7 +1338,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_xchg_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
@@ -1407,7 +1407,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_xchg_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
@@ -1445,7 +1445,7 @@ Module base.
 
           do 2 wp_load.
 
-          wp_apply (inf_array_xchg_resolve_spec with "Hdata_inv"); first lia.
+          wp_apply (inf_array_xchg_resolve𑁒spec with "Hdata_inv"); first lia.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
@@ -1540,7 +1540,7 @@ Section inf_mpmc_queue_2_G.
     iApply (base.inf_mpmc_queue_2_model_exclusive with "Hmodel_1 Hmodel_2").
   Qed.
 
-  Lemma inf_mpmc_queue_2_create_spec ι :
+  Lemma inf_mpmc_queue_2_create𑁒spec ι :
     {{{
       True
     }}}
@@ -1555,12 +1555,12 @@ Section inf_mpmc_queue_2_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.inf_mpmc_queue_2_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp_apply (base.inf_mpmc_queue_2_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma inf_mpmc_queue_2_size_spec t ι :
+  Lemma inf_mpmc_queue_2_size𑁒spec t ι :
     <<<
       inf_mpmc_queue_2_inv t ι
     | ∀∀ vs,
@@ -1576,14 +1576,14 @@ Section inf_mpmc_queue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.inf_mpmc_queue_2_size_spec with "[$]").
+    awp_apply (base.inf_mpmc_queue_2_size𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2_is_empty_spec t ι :
+  Lemma inf_mpmc_queue_2_is_empty𑁒spec t ι :
     <<<
       inf_mpmc_queue_2_inv t ι
     | ∀∀ vs,
@@ -1599,14 +1599,14 @@ Section inf_mpmc_queue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.inf_mpmc_queue_2_is_empty_spec with "[$]").
+    awp_apply (base.inf_mpmc_queue_2_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2_push_spec t ι v :
+  Lemma inf_mpmc_queue_2_push𑁒spec t ι v :
     <<<
       inf_mpmc_queue_2_inv t ι
     | ∀∀ vs,
@@ -1621,14 +1621,14 @@ Section inf_mpmc_queue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.inf_mpmc_queue_2_push_spec with "[$]").
+    awp_apply (base.inf_mpmc_queue_2_push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma inf_mpmc_queue_2_pop_spec t ι :
+  Lemma inf_mpmc_queue_2_pop𑁒spec t ι :
     <<<
       inf_mpmc_queue_2_inv t ι
     | ∀∀ vs,
@@ -1645,7 +1645,7 @@ Section inf_mpmc_queue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.inf_mpmc_queue_2_pop_spec with "[$]").
+    awp_apply (base.inf_mpmc_queue_2_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.

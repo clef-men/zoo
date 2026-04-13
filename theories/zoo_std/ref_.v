@@ -29,7 +29,7 @@ Section zoo_G.
     split. apply _.
   Qed.
 
-  Lemma ref_make_type v :
+  Lemma ref_make𑁒type v :
     {{{
       τ v
     }}}
@@ -43,7 +43,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma ref_get_type t :
+  Lemma ref_get𑁒type t :
     {{{
       itype_ref t
     }}}
@@ -57,7 +57,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma ref_set_type t v :
+  Lemma ref_set𑁒type t v :
     {{{
       itype_ref t ∗
       τ v

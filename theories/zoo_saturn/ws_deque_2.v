@@ -252,7 +252,7 @@ Module base.
       iApply (model₁_valid with "Howner_1 Hmodel₁_2").
     Qed.
 
-    Lemma ws_deque_2_create_spec ι :
+    Lemma ws_deque_2_create𑁒spec ι :
       {{{
         True
       }}}
@@ -269,7 +269,7 @@ Module base.
       iIntros "%Φ _ HΦ".
 
       iApply wp_fupd.
-      wp_apply (ws_deque_1_create_spec with "[//]") as (t γ_base) "(Hmeta & #Hbase_inv & Hbase_model & Hbase_owner)".
+      wp_apply (ws_deque_1_create𑁒spec with "[//]") as (t γ_base) "(Hmeta & #Hbase_inv & Hbase_model & Hbase_owner)".
 
       iMod model_owner_alloc as "(%γ_model & Hmodel₁ & Hmodel₂ & Howner)".
 
@@ -285,7 +285,7 @@ Module base.
       - iExists []. iFrameSteps.
     Qed.
 
-    Lemma ws_deque_2_size_spec t γ ι ws :
+    Lemma ws_deque_2_size𑁒spec t γ ι ws :
       <<<
         ws_deque_2_inv t γ ι ∗
         ws_deque_2_owner γ ws
@@ -302,7 +302,7 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-      awp_apply (ws_deque_1_size_spec with "[$]").
+      awp_apply (ws_deque_1_size𑁒spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps.
@@ -313,7 +313,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ws_deque_2_is_empty_spec t γ ι ws :
+    Lemma ws_deque_2_is_empty𑁒spec t γ ι ws :
       <<<
         ws_deque_2_inv t γ ι ∗
         ws_deque_2_owner γ ws
@@ -330,7 +330,7 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:owner)) HΦ".
 
-      awp_apply (ws_deque_1_is_empty_spec with "[$]").
+      awp_apply (ws_deque_1_is_empty𑁒spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps.
@@ -343,7 +343,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ws_deque_2_push_spec t γ ι ws v :
+    Lemma ws_deque_2_push𑁒spec t γ ι ws v :
       <<<
         ws_deque_2_inv t γ ι ∗
         ws_deque_2_owner γ ws
@@ -363,7 +363,7 @@ Module base.
       wp_rec.
       wp_ref slot as "Hslot".
 
-      awp_apply (ws_deque_1_push_spec with "[$]").
+      awp_apply (ws_deque_1_push𑁒spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps.
@@ -373,7 +373,7 @@ Module base.
       rewrite -fmap_snoc. iSteps.
     Qed.
 
-    Lemma ws_deque_2_steal_spec t γ ι :
+    Lemma ws_deque_2_steal𑁒spec t γ ι :
       <<<
         ws_deque_2_inv t γ ι
       | ∀∀ vs,
@@ -390,7 +390,7 @@ Module base.
 
       wp_rec.
 
-      awp_apply (ws_deque_1_steal_spec with "[$]").
+      awp_apply (ws_deque_1_steal𑁒spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps. iIntros "Hbase_model".
@@ -401,7 +401,7 @@ Module base.
       all: iFrameSteps.
     Qed.
 
-    Lemma ws_deque_2_pop_spec t γ ι ws :
+    Lemma ws_deque_2_pop𑁒spec t γ ι ws :
       <<<
         ws_deque_2_inv t γ ι ∗
         ws_deque_2_owner γ ws
@@ -431,7 +431,7 @@ Module base.
 
       wp_rec.
 
-      awp_apply+ (ws_deque_1_pop_spec with "[$]").
+      awp_apply+ (ws_deque_1_pop𑁒spec with "[$]").
       iInv "Hinv" as "(:inv_inner)".
       iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs_ (:model)".
       iAaccIntro with "Hbase_model". 1: iSteps. iIntros "%o %𝑠𝑙𝑜𝑡s_owner (_ & Ho)".
@@ -554,7 +554,7 @@ Section ws_deque_2_G.
     iApply (base.ws_deque_2_owner_model with "Howner_1 Hmodel_2").
   Qed.
 
-  Lemma ws_deque_2_create_spec ι :
+  Lemma ws_deque_2_create𑁒spec ι :
     {{{
       True
     }}}
@@ -570,12 +570,12 @@ Section ws_deque_2_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ws_deque_2_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
+    wp_apply (base.ws_deque_2_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma ws_deque_2_size_spec t ι ws :
+  Lemma ws_deque_2_size𑁒spec t ι ws :
     <<<
       ws_deque_2_inv t ι ∗
       ws_deque_2_owner t ws
@@ -593,14 +593,14 @@ Section ws_deque_2_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_deque_2_size_spec with "[$]").
+    awp_apply (base.ws_deque_2_size𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_deque_2_is_empty_spec t ι ws :
+  Lemma ws_deque_2_is_empty𑁒spec t ι ws :
     <<<
       ws_deque_2_inv t ι ∗
       ws_deque_2_owner t ws
@@ -618,14 +618,14 @@ Section ws_deque_2_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_deque_2_is_empty_spec with "[$]").
+    awp_apply (base.ws_deque_2_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_deque_2_push_spec t ι ws v :
+  Lemma ws_deque_2_push𑁒spec t ι ws v :
     <<<
       ws_deque_2_inv t ι ∗
       ws_deque_2_owner t ws
@@ -643,14 +643,14 @@ Section ws_deque_2_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_deque_2_push_spec with "[$]").
+    awp_apply (base.ws_deque_2_push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_deque_2_steal_spec t ι :
+  Lemma ws_deque_2_steal𑁒spec t ι :
     <<<
       ws_deque_2_inv t ι
     | ∀∀ vs,
@@ -665,14 +665,14 @@ Section ws_deque_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.ws_deque_2_steal_spec with "[$]").
+    awp_apply (base.ws_deque_2_steal𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %->. iClear "Hmeta".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma ws_deque_2_pop_spec t ι ws :
+  Lemma ws_deque_2_pop𑁒spec t ι ws :
     <<<
       ws_deque_2_inv t ι ∗
       ws_deque_2_owner t ws
@@ -701,7 +701,7 @@ Section ws_deque_2_G.
     iIntros "%Φ ((:inv =1) & (:owner =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    awp_apply (base.ws_deque_2_pop_spec with "[$]").
+    awp_apply (base.ws_deque_2_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %<-. iClear "Hmeta_2".
       iAaccIntro with "Hmodel_1". 1: iSteps. iIntros "%o %ws' ($ & Ho)".

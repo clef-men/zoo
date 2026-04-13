@@ -265,7 +265,7 @@ Section zoo_G.
     iApply (pointsto_exclusive with "Hnext_1 Hnext_2").
   Qed.
 
-  Lemma xdlchain_prev_spec {src nodes node} nodes' dst E :
+  Lemma xdlchain_prev𑁒spec {src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -278,7 +278,7 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain_prev_spec_lookup {src nodes} i node dst E :
+  Lemma xdlchain_prev𑁒spec_lookup {src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -293,7 +293,7 @@ Section zoo_G.
     setoid_rewrite xdlchain_lookup_acc at 1; last done.
     iSteps.
   Qed.
-  Lemma xdlchain_prev_spec_head {src nodes} node dst E :
+  Lemma xdlchain_prev𑁒spec_head {src nodes} node dst E :
     head nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -305,10 +305,10 @@ Section zoo_G.
     }}}.
   Proof.
     intros (nodes' & ->)%head_Some.
-    eapply xdlchain_prev_spec. done.
+    eapply xdlchain_prev𑁒spec. done.
   Qed.
 
-  Lemma xdlchain_next_spec {src nodes node} nodes' dst E :
+  Lemma xdlchain_next𑁒spec {src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -322,7 +322,7 @@ Section zoo_G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain_next_spec_lookup {src nodes} i node dst E :
+  Lemma xdlchain_next𑁒spec_lookup {src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -337,7 +337,7 @@ Section zoo_G.
     setoid_rewrite xdlchain_lookup_acc at 1; last done.
     iSteps.
   Qed.
-  Lemma xdlchain_next_spec_last {src nodes} node dst E :
+  Lemma xdlchain_next𑁒spec_last {src nodes} node dst E :
     last nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -349,13 +349,13 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (Hnode) "%Φ H HΦ".
-    wp_apply (xdlchain_next_spec_lookup (pred (length nodes)) with "H").
+    wp_apply (xdlchain_next𑁒spec_lookup (pred (length nodes)) with "H").
     { rewrite -last_lookup //. }
     rewrite skipn_all2; first lia.
     iSteps.
   Qed.
 
-  Lemma xdlchain_set_prev_spec {src nodes node} nodes' dst v E :
+  Lemma xdlchain_set_prev𑁒spec {src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -368,7 +368,7 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-  Lemma xdlchain_set_prev_spec_lookup {src nodes} i node dst v E :
+  Lemma xdlchain_set_prev𑁒spec_lookup {src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -387,7 +387,7 @@ Section zoo_G.
     iDestruct (xdlchain_cons_2 with "Hprev Hnext H2") as "H2".
     rewrite -drop_S //. iSteps.
   Qed.
-  Lemma xdlchain_set_prev_spec_head {src nodes} node dst v E :
+  Lemma xdlchain_set_prev𑁒spec_head {src nodes} node dst v E :
     head nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -399,10 +399,10 @@ Section zoo_G.
     }}}.
   Proof.
     intros (nodes' & ->)%head_Some.
-    eapply xdlchain_set_prev_spec. done.
+    eapply xdlchain_set_prev𑁒spec. done.
   Qed.
 
-  Lemma xdlchain_set_next_spec {src nodes node} nodes' dst v E :
+  Lemma xdlchain_set_next𑁒spec {src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xdlchain src nodes dst
@@ -417,7 +417,7 @@ Section zoo_G.
     iIntros (->) "%Φ H HΦ".
     destruct nodes'; iSteps.
   Qed.
-  Lemma xdlchain_set_next_spec_lookup {src nodes} i node dst v E :
+  Lemma xdlchain_set_next𑁒spec_lookup {src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xdlchain src nodes dst
@@ -436,7 +436,7 @@ Section zoo_G.
     iDestruct (xdlchain_snoc_2 with "H1 Hprev Hnext") as "H1".
     rewrite -take_S_r //. iSteps.
   Qed.
-  Lemma xdlchain_set_next_spec_last {src nodes} node dst v E :
+  Lemma xdlchain_set_next𑁒spec_last {src nodes} node dst v E :
     last nodes = Some node →
     {{{
       xdlchain src nodes dst
@@ -448,7 +448,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (Hnode) "%Φ H HΦ".
-    wp_apply (xdlchain_set_next_spec_lookup (pred (length nodes)) with "H").
+    wp_apply (xdlchain_set_next𑁒spec_lookup (pred (length nodes)) with "H").
     { rewrite -last_lookup //. }
     rewrite firstn_all2; first lia.
     iSteps.

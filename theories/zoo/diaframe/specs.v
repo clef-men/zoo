@@ -27,7 +27,7 @@ Section zoo_G.
 
   Implicit Types Φ : val → iProp Σ.
 
-  #[global] Instance pure_step_diaspec_1 e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_step𑁒diaspec_1 e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         (PureExecNorec ϕ n e1 e2)
@@ -50,7 +50,7 @@ Section zoo_G.
     iApply wp_pure_step; [done.. |].
     iSteps.
   Qed.
-  #[global] Instance pure_step_diaspec_2 e K ϕ n e1 e2 tid E Φ :
+  #[global] Instance pure_step𑁒diaspec_2 e K ϕ n e1 e2 tid E Φ :
     ReshapeExprAnd _ e K e1 (
       TCAnd
         ( ( ∀ x e v,
@@ -70,7 +70,7 @@ Section zoo_G.
       WP e ∷ tid @ E {{ Φ }}.
   Proof.
     intros (-> & Hexec & Hϕ) HK.
-    eapply pure_step_diaspec_1; try done.
+    eapply pure_step𑁒diaspec_1; try done.
     split; first done. split.
     - rewrite /PureExecNorec.
       apply Hexec => * _.
@@ -81,7 +81,7 @@ Section zoo_G.
     - done.
   Qed.
 
-  #[global] Instance alloc_diaspec tag n E :
+  #[global] Instance alloc𑁒diaspec tag n E :
     DIASPEC
     {{
       ⌜0 ≤ tag⌝%Z ∗
@@ -100,7 +100,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance block_diaspec tag es E :
+  #[global] Instance block𑁒diaspec tag es E :
     DIASPEC vs
     {{
       ⌜0 < length es⌝%nat ∗
@@ -120,7 +120,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance ref_diaspec e v E :
+  #[global] Instance ref𑁒diaspec e v E :
     AsVal e v →
     DIASPEC
     {{
@@ -141,7 +141,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance block_generative_diaspec tag es E :
+  #[global] Instance block_generative𑁒diaspec tag es E :
     DIASPEC vs
     {{
       ⌜to_vals es = Some vs⌝
@@ -157,7 +157,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance get_tag_diaspec l E :
+  #[global] Instance get_tag𑁒diaspec l E :
     DIASPEC hdr
     {{
       l ↦ₕ hdr
@@ -173,7 +173,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance get_size_diaspec l E :
+  #[global] Instance get_size𑁒diaspec l E :
     DIASPEC hdr
     {{
       l ↦ₕ hdr
@@ -189,7 +189,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance load_diaspec l fld E :
+  #[global] Instance load𑁒diaspec l fld E :
     DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v
@@ -205,7 +205,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance store_diaspec l fld v E :
+  #[global] Instance store𑁒diaspec l fld v E :
     DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
@@ -221,7 +221,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance xchg_diaspec l fld v E :
+  #[global] Instance xchg𑁒diaspec l fld v E :
     DIASPEC w
     {{
       ▷ (l +ₗ fld) ↦ w
@@ -237,7 +237,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance cas_diaspec l fld v1 v2 E :
+  #[global] Instance cas𑁒diaspec l fld v1 v2 E :
     DIASPEC v dq
     {{
       ▷ (l +ₗ fld) ↦{dq} v ∗
@@ -259,7 +259,7 @@ Section zoo_G.
     all: iSteps.
   Qed.
 
-  #[global] Instance faa_diaspec l fld (n : Z) E :
+  #[global] Instance faa𑁒diaspec l fld (n : Z) E :
     DIASPEC (z : Z)
     {{
       ▷ (l +ₗ fld) ↦ #z
@@ -275,7 +275,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance proph_diaspec E :
+  #[global] Instance proph𑁒diaspec E :
     DIASPEC
     {{
       True
@@ -291,7 +291,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance match_diaspec e K l x_fb e_fb brs tid E Φ :
+  #[global] Instance match𑁒diaspec e K l x_fb e_fb brs tid E Φ :
     ReshapeExprAnd _ e K (Match #l x_fb e_fb brs) TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -311,7 +311,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  #[global] Instance if_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if_bool_decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide P) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -335,7 +335,7 @@ Section zoo_G.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if_bool_decide_neg_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if_bool_decide_neg𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(bool_decide (¬ P)) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [
@@ -359,7 +359,7 @@ Section zoo_G.
     2: iSpecialize ("H" $! false with "[]"); first iSteps.
     all: iSteps.
   Qed.
-  #[global] Instance if_negb_bool_decide_diaspec e K P `{!Decision P} e1 e2 tid E Φ :
+  #[global] Instance if_negb_bool_decide𑁒diaspec e K P `{!Decision P} e1 e2 tid E Φ :
     ReshapeExprAnd _ e K (if: #(negb $ bool_decide P) then e1 else e2)%E TCTrue →
     Context K →
     HINT1 ε₀ ✱ [

@@ -21,7 +21,7 @@ Definition zoo_counter_incr : val :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Lemma zoo_counter_incr_spec ids v :
+  Lemma zoo_counter_incr𑁒spec ids v :
     {{{
       [∗ list] id ∈ ids,
         ∃ v,
