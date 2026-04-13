@@ -17,36 +17,30 @@ Definition waiter_create : val :=
 
 Definition waiter_notify : val :=
   fun: "t" =>
+    mutex_lock "t".{mutex} ;;
     if: "t".{flag} then (
+      mutex_unlock "t".{mutex} ;;
       false
     ) else (
-      mutex_lock "t".{mutex} ;;
-      if: "t".{flag} then (
-        mutex_unlock "t".{mutex} ;;
-        false
-      ) else (
-        "t" <-{flag} true ;;
-        mutex_unlock "t".{mutex} ;;
-        condition_notify "t".{condition} ;;
-        true
-      )
+      "t" <-{flag} true ;;
+      mutex_unlock "t".{mutex} ;;
+      condition_notify "t".{condition} ;;
+      true
     ).
 
 Definition waiter_prepare_wait : val :=
   fun: "t" =>
-    "t" <-{flag} false.
+    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} false).
 
 Definition waiter_cancel_wait : val :=
   fun: "t" =>
-    "t" <-{flag} true.
+    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} true).
 
 Definition waiter_commit_wait : val :=
   fun: "t" =>
-    if: ~ "t".{flag} then (
-      mutex_protect "t".{mutex}
-        (fun: <> =>
-           condition_wait_until
-             "t".{condition}
-             "t".{mutex}
-             (fun: <> => "t".{flag}))
-    ).
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         condition_wait_until
+           "t".{condition}
+           "t".{mutex}
+           (fun: <> => "t".{flag})).
