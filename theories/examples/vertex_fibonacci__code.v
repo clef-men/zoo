@@ -13,7 +13,7 @@ From examples Require Import
 From zoo Require Import
   options.
 
-Definition vertex_fibonacci_main_0 : val :=
+Definition vertex_fibonacci_main₀ : val :=
   rec: "main" "ctx" "vtx" "r" "n" =>
     if: "n" ≤ 1 then (
       "r" <- "n" ;;
@@ -44,7 +44,7 @@ Definition vertex_fibonacci_main : val :=
          let: "vtx1" := vertex_create §None in
          vertex_set_task
            "vtx1"
-           (fun: "ctx" => vertex_fibonacci_main_0 "ctx" "vtx1" "r" "n") ;;
+           (fun: "ctx" => vertex_fibonacci_main₀ "ctx" "vtx1" "r" "n") ;;
          vertex_release "ctx" "vtx1" ;;
          let: "flag" := mpsc_flag_create () in
          let: "vtx2" :=

@@ -65,7 +65,7 @@ Definition ws_hub_fifo_pop : val :=
   fun: "t" "_i" =>
     ws_hub_fifo_pop' "t".
 
-Definition ws_hub_fifo_steal_until_0 : val :=
+Definition ws_hub_fifo_steal_until₀ : val :=
   rec: "steal_until" "t" "pred" =>
     if: "pred" () then (
       §None
@@ -81,9 +81,9 @@ Definition ws_hub_fifo_steal_until_0 : val :=
 
 Definition ws_hub_fifo_steal_until : val :=
   fun: "t" "_i" <> "pred" =>
-    ws_hub_fifo_steal_until_0 "t" "pred".
+    ws_hub_fifo_steal_until₀ "t" "pred".
 
-Definition ws_hub_fifo_steal_0 : val :=
+Definition ws_hub_fifo_steal₀ : val :=
   rec: "steal" "t" =>
     let: "waiters" := "t".{waiters} in
     let: "waiter" := waiters_prepare_wait "waiters" in
@@ -108,7 +108,7 @@ Definition ws_hub_fifo_steal_0 : val :=
 Definition ws_hub_fifo_steal : val :=
   fun: "t" "_i" <> <> =>
     ws_hub_fifo_begin_inactive "t" ;;
-    ws_hub_fifo_steal_0 "t".
+    ws_hub_fifo_steal₀ "t".
 
 Definition ws_hub_fifo_close : val :=
   ws_hub_fifo_begin_inactive.

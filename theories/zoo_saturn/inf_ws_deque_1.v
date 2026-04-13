@@ -1627,7 +1627,7 @@ Module base.
       | PopEmptyishWinner v
       | PopEmptyishLoser
       | PopSuperempty.
-    #[local] Lemma inf_ws_deque_1_pop_0𑁒spec {t γ} (state : pop_state) stable back (back_ : Z) priv ws id :
+    #[local] Lemma inf_ws_deque_1_pop₀𑁒spec {t γ} (state : pop_state) stable back (back_ : Z) priv ws id :
       back_ = back →
       {{{
         inv' t γ ∗
@@ -1652,7 +1652,7 @@ Module base.
             ⌜front = S back⌝
         end
       }}}
-        inf_ws_deque_1_pop_0 #t #id #back_
+        inf_ws_deque_1_pop₀ #t #id #back_
       {{{
         o back priv
       , RET o;
@@ -1794,7 +1794,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hback}".
 
-        wp_apply+ (inf_ws_deque_1_pop_0𑁒spec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (inf_ws_deque_1_pop₀𑁒spec PopSuperempty _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
       }
 
@@ -1829,7 +1829,7 @@ Module base.
           }
           iIntros "!> {%}".
 
-          wp_apply+ (inf_ws_deque_1_pop_0𑁒spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (inf_ws_deque_1_pop₀𑁒spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -1847,7 +1847,7 @@ Module base.
             }
             iIntros "!> {%}".
 
-            wp_apply+ (inf_ws_deque_1_pop_0𑁒spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+            wp_apply+ (inf_ws_deque_1_pop₀𑁒spec (PopEmptyishWinner v) _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
             iSteps.
           }
 
@@ -1872,7 +1872,7 @@ Module base.
           }
           iIntros "!> {%- Hbranch2}".
 
-          wp_apply+ (inf_ws_deque_1_pop_0𑁒spec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
+          wp_apply+ (inf_ws_deque_1_pop₀𑁒spec PopEmptyishLoser _ front1 with "[- HΦ]"); [lia | iFrameSteps |].
           iSteps.
 
       - iMod (owner_update Stable (back - 1) (v .: priv) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -1893,7 +1893,7 @@ Module base.
         }
         iIntros "!> {%- Hback}".
 
-        wp_apply+ (inf_ws_deque_1_pop_0𑁒spec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
+        wp_apply+ (inf_ws_deque_1_pop₀𑁒spec (PopNonempty v) _ (back - 1) with "[- HΦ]"); [lia | iFrameSteps |].
         iSteps.
     Qed.
   End inf_ws_deque_1_G.

@@ -28,7 +28,7 @@ Definition mpmc_queue_2_prefix_index : val :=
         "i"
     end.
 
-Definition mpmc_queue_2_rev_0 : val :=
+Definition mpmc_queue_2_rev₀ : val :=
   rec: "rev" "suff" "pref" =>
     match: "suff" with
     | Cons <> <> <> as "suff" =>
@@ -44,7 +44,7 @@ Definition mpmc_queue_2_rev : val :=
   fun: "back" =>
     match: "back" with
     | Snoc "i" "v" "pref" =>
-        mpmc_queue_2_rev_0 ‘Cons[ "i", "v", ‘Front[ "i" + 1 ] ] "pref"
+        mpmc_queue_2_rev₀ ‘Cons[ "i", "v", ‘Front[ "i" + 1 ] ] "pref"
     end.
 
 Definition mpmc_queue_2_create : val :=

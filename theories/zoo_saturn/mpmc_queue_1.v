@@ -716,7 +716,7 @@ Module base.
       wp_apply (next𑁒spec with "[$]") as (res) "[-> | (%node & -> & _)]"; iSteps.
     Qed.
 
-    #[local] Lemma mpmc_queue_1_push_0𑁒spec t γ i node new_back v :
+    #[local] Lemma mpmc_queue_1_push₀𑁒spec t γ i node new_back v :
       <<<
         inv' t γ ∗
         node_model γ node i false ∗
@@ -726,7 +726,7 @@ Module base.
       | ∀∀ vs,
         mpmc_queue_1_model γ vs
       >>>
-        mpmc_queue_1_push_0 #node #new_back @ ↑γ.(mpmc_queue_1_name_inv)
+        mpmc_queue_1_push₀ #node #new_back @ ↑γ.(mpmc_queue_1_name_inv)
       <<<
         mpmc_queue_1_model γ (vs ++ [v])
       | RET ();
@@ -832,7 +832,7 @@ Module base.
       wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
       wp_match.
       wp_apply+ (back𑁒spec with "Hinv") as (back i) "(:node_model =back)".
-      wp_apply+ (mpmc_queue_1_push_0𑁒spec with "[$]").
+      wp_apply+ (mpmc_queue_1_push₀𑁒spec with "[$]").
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
       wp_apply+ (mpmc_queue_1_fix_back𑁒spec with "[]"); first iSteps.
       iSteps.

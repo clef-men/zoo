@@ -28,7 +28,7 @@ Definition mpmc_fqueue_2_is_empty : val :=
     let: "back" := "t".{back} in
     "back" ≤ "front".
 
-Definition mpmc_fqueue_2_push_0 : val :=
+Definition mpmc_fqueue_2_push₀ : val :=
   rec: "push" "t" "v" =>
     let: "i" := FAA "t".[back] 1 in
     if: "t".{capacity} ≤ "i" then (
@@ -46,7 +46,7 @@ Definition mpmc_fqueue_2_push : val :=
     if: "t".{capacity} ≤ "t".{back} then (
       false
     ) else (
-      mpmc_fqueue_2_push_0 "t" "v"
+      mpmc_fqueue_2_push₀ "t" "v"
     ).
 
 Definition mpmc_fqueue_2_pop : val :=

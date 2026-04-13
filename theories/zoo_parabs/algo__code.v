@@ -29,7 +29,7 @@ Definition algo_adjust_chunk : val :=
         )
     end.
 
-Definition algo_for__0 : val :=
+Definition algo_for_₀ : val :=
   rec: "for_" "ctx" "beg" "end_" "chunk" "task" =>
     let: "num_task" := "end_" - "beg" in
     if: "num_task" ≤ "chunk" then (
@@ -47,7 +47,7 @@ Definition algo_for__0 : val :=
 Definition algo_for_ : val :=
   fun: "ctx" "beg" "end_" "chunk" "task" =>
     let: "chunk" := algo_adjust_chunk "ctx" "beg" "end_" "chunk" in
-    algo_for__0 "ctx" "beg" "end_" "chunk" "task".
+    algo_for_₀ "ctx" "beg" "end_" "chunk" "task".
 
 Definition algo_for_each : val :=
   fun: "ctx" "beg" "end_" "chunk" "task" =>
@@ -68,7 +68,7 @@ Definition algo_fold_seq : val :=
       "fold_seq" "ctx" "beg" "end_" "body" "op" "acc"
     ).
 
-Definition algo_fold_0 : val :=
+Definition algo_fold₀ : val :=
   rec: "fold" "ctx" "beg" "end_" "chunk" "body" "op" "zero" =>
     let: "num_task" := "end_" - "beg" in
     if: "num_task" ≤ "chunk" then (
@@ -87,7 +87,7 @@ Definition algo_fold_0 : val :=
 Definition algo_fold : val :=
   fun: "ctx" "beg" "end_" "chunk" "body" "op" "zero" =>
     let: "chunk" := algo_adjust_chunk "ctx" "beg" "end_" "chunk" in
-    algo_fold_0 "ctx" "beg" "end_" "chunk" "body" "op" "zero".
+    algo_fold₀ "ctx" "beg" "end_" "chunk" "body" "op" "zero".
 
 Definition algo_find_seq : val :=
   rec: "find_seq" "ctx" "beg" "end_" "pred" "found" =>
@@ -100,7 +100,7 @@ Definition algo_find_seq : val :=
       )
     ).
 
-Definition algo_find_0 : val :=
+Definition algo_find₀ : val :=
   rec: "find" "ctx" "beg" "end_" "chunk" "pred" "found" =>
     let: "num_task" := "end_" - "beg" in
     if: "num_task" ≤ "chunk" then (
@@ -119,5 +119,5 @@ Definition algo_find : val :=
   fun: "ctx" "beg" "end_" "chunk" "pred" =>
     let: "chunk" := algo_adjust_chunk "ctx" "beg" "end_" "chunk" in
     let: "found" := mvar_create () in
-    algo_find_0 "ctx" "beg" "end_" "chunk" "pred" "found" ;;
+    algo_find₀ "ctx" "beg" "end_" "chunk" "pred" "found" ;;
     mvar_try_get "found".

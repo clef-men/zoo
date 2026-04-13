@@ -16,12 +16,12 @@ From zoo Require Import
 Section future_G.
   Context `{future_G : FutureG Σ}.
 
-  #[local] Lemma future_fibonacci_main_0𑁒spec n pool ctx scope :
+  #[local] Lemma future_fibonacci_main₀𑁒spec n pool ctx scope :
     (0 ≤ n)%Z →
     {{{
       pool_context pool ctx scope
     }}}
-      future_fibonacci_main_0 ctx #n
+      future_fibonacci_main₀ ctx #n
     {{{
       RET #(fibonacci ₊n);
       pool_context pool ctx scope
@@ -82,7 +82,7 @@ Section future_G.
       ⌜v = #_⌝
     )%I) as (pool ?) "(_ & ->)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (future_fibonacci_main_0𑁒spec with "Hctx"); first lia.
+      wp_apply+ (future_fibonacci_main₀𑁒spec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 

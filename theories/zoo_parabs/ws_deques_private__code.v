@@ -72,7 +72,7 @@ Definition ws_deques_private_pop : val :=
     ws_deques_private_respond "t" "i" ;;
     "res".
 
-Definition ws_deques_private_steal_to_0 : val :=
+Definition ws_deques_private_steal_to₀ : val :=
   rec: "steal_to" "t" "i" =>
     match: array_unsafe_get "t".{responses} "i" with
     | ResponseWaiting =>
@@ -97,12 +97,12 @@ Definition ws_deques_private_steal_to : val :=
         §RequestNone
         ‘RequestSome( "i" )
     then (
-      ws_deques_private_steal_to_0 "t" "i"
+      ws_deques_private_steal_to₀ "t" "i"
     ) else (
       §None
     ).
 
-Definition ws_deques_private_steal_as_0 : val :=
+Definition ws_deques_private_steal_as₀ : val :=
   rec: "steal_as" "t" "sz" "i" "round" "n" =>
     if: "n" ≤ 0 then (
       §None
@@ -119,4 +119,4 @@ Definition ws_deques_private_steal_as_0 : val :=
 Definition ws_deques_private_steal_as : val :=
   fun: "t" "i" "round" =>
     let: "sz" := ws_deques_private_size "t" in
-    ws_deques_private_steal_as_0 "t" "sz" "i" "round" ("sz" - 1).
+    ws_deques_private_steal_as₀ "t" "sz" "i" "round" ("sz" - 1).

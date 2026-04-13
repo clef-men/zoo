@@ -714,7 +714,7 @@ Section ws_hub_std_G.
           wp_apply+ ("HLöb" with "[] [$Howner $H] HΦ"); iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_std_steal_until_0𑁒spec P Q t ι sz i i_ empty pred :
+  #[local] Lemma ws_hub_std_steal_until₀𑁒spec P Q t ι sz i i_ empty pred :
     i = ⁺i_ →
     <<<
       ws_hub_std_inv t ι sz ∗
@@ -731,7 +731,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until_0 t #i pred @ ↑ι
+      ws_hub_std_steal_until₀ t #i pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -771,7 +771,7 @@ Section ws_hub_std_G.
       + wp_apply domain_yield𑁒spec.
         wp_apply+ ("HLöb" with "Howner H HΦ").
   Qed.
-  #[local] Lemma ws_hub_std_steal_until_1𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
+  #[local] Lemma ws_hub_std_steal_until₁𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
@@ -789,7 +789,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_until_1 t #i #max_round_noyield pred @ ↑ι
+      ws_hub_std_steal_until₁ t #i #max_round_noyield pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -816,7 +816,7 @@ Section ws_hub_std_G.
     - iLeft. iFrame.
       iIntros "HΦ !> (Howner & HP) {%}".
 
-      wp_apply+ (ws_hub_std_steal_until_0𑁒spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); first done.
+      wp_apply+ (ws_hub_std_steal_until₀𑁒spec P Q with "[$Hinv $Howner $HP $Hpred] HΦ"); first done.
 
     - iRight. iExists None. iFrameSteps.
 
@@ -860,7 +860,7 @@ Section ws_hub_std_G.
 
     wp_rec.
     wp_apply+ (ws_hub_std_block_active𑁒spec with "[$Hinv $Howner]") as "Howner"; first done.
-    wp_apply+ (ws_hub_std_steal_until_1𑁒spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+    wp_apply+ (ws_hub_std_steal_until₁𑁒spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
     iApply (atomic_update_wand with "HΦ"). iIntros "_ %o HΦ (Howner & H)".
     wp_apply+ (ws_hub_std_unblock_active𑁒spec with "[$Hinv $Howner]") as "Howner"; first done.
     wp_pures.
@@ -920,7 +920,7 @@ Section ws_hub_std_G.
 
     - iRight. iExists (Something v). iFrameSteps.
   Qed.
-  #[local] Lemma ws_hub_std_steal_0𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  #[local] Lemma ws_hub_std_steal₀𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -930,7 +930,7 @@ Section ws_hub_std_G.
     | ∀∀ vs,
       ws_hub_std_model t vs
     >>>
-      ws_hub_std_steal_0 t #i #max_round_noyield #max_round_yield @ ↑ι
+      ws_hub_std_steal₀ t #i #max_round_noyield #max_round_yield @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -1038,7 +1038,7 @@ Section ws_hub_std_G.
 
     wp_rec.
     wp_apply+ (ws_hub_std_block𑁒spec with "[$Hinv $Howner]") as "Howner"; first done.
-    wp_apply+ (ws_hub_std_steal_0𑁒spec with "[$Hinv $Howner] HΦ"). all: done.
+    wp_apply+ (ws_hub_std_steal₀𑁒spec with "[$Hinv $Howner] HΦ"). all: done.
   Qed.
 
   Lemma ws_hub_std_close𑁒spec t ι sz :

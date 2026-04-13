@@ -2136,7 +2136,7 @@ Module base.
       | PopEmptyishWinner v
       | PopEmptyishLoser
       | PopSuperempty.
-    #[local] Lemma ws_deque_1_pop_0𑁒spec {t γ} (state : pop_state) stable back (back_ : Z) data cap ws us id :
+    #[local] Lemma ws_deque_1_pop₀𑁒spec {t γ} (state : pop_state) stable back (back_ : Z) data cap ws us id :
       back_ = back →
       {{{
         inv' t γ ∗
@@ -2161,7 +2161,7 @@ Module base.
             ⌜front = S back⌝
         end
       }}}
-        ws_deque_1_pop_0 #t #id #back_
+        ws_deque_1_pop₀ #t #id #back_
       {{{
         o back data cap i us
       , RET o;
@@ -2332,7 +2332,7 @@ Module base.
         { iExists Superempty. iFrameSteps. }
         iIntros "!> {%- Hcap Hus Hback}".
 
-        wp_apply+ (ws_deque_1_pop_0𑁒spec PopSuperempty _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+        wp_apply+ (ws_deque_1_pop₀𑁒spec PopSuperempty _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
         iSteps.
       }
 
@@ -2372,7 +2372,7 @@ Module base.
           { iExists Emptyish. iFrameSteps. }
           iIntros "!> {%- Hcap Hus Hback Hus_lookup}".
 
-          wp_apply+ (ws_deque_1_pop_0𑁒spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
+          wp_apply+ (ws_deque_1_pop₀𑁒spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
           iSteps.
 
         + iDestruct "Hwinner" as "[(:winner) | Hwinner]".
@@ -2388,7 +2388,7 @@ Module base.
             { iExists Emptyish. iFrameSteps. }
             iIntros "!> {%- Hcap Hus Hus_lookup}".
 
-            wp_apply+ (ws_deque_1_pop_0𑁒spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
+            wp_apply+ (ws_deque_1_pop₀𑁒spec (PopEmptyishWinner v) _ front1 with "[$Howner₁ $Hdata_cslice₂ $Hwinner_steal]"); [lia.. | iFrameSteps |].
             iSteps.
           }
 
@@ -2411,7 +2411,7 @@ Module base.
           { iExists Emptyish. iFrameStep 7. iExists P. iSteps. }
           iIntros "!> {%- Hcap Hus Hbranch2}".
 
-          wp_apply+ (ws_deque_1_pop_0𑁒spec PopEmptyishLoser _ front1 with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+          wp_apply+ (ws_deque_1_pop₀𑁒spec PopEmptyishLoser _ front1 with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
           iSteps.
 
       - iMod (owner_update Stable (back - 1) data cap with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
@@ -2435,7 +2435,7 @@ Module base.
         }
         iIntros "!> {%- Hcap Hus Hback Hus_lookup}".
 
-        wp_apply+ (ws_deque_1_pop_0𑁒spec (PopNonempty v) _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
+        wp_apply+ (ws_deque_1_pop₀𑁒spec (PopNonempty v) _ (back - 1) with "[$Howner₁ $Hdata_cslice₂]"); [lia.. | iFrameSteps |].
         iSteps.
     Qed.
   End ws_deque_1_G.

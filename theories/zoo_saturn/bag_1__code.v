@@ -16,7 +16,7 @@ Definition bag_1_create : val :=
   fun: "sz" =>
     { array_unsafe_init "sz" (fun: <> => ref §Gnone), 0, 0 }.
 
-Definition bag_1_push_0 : val :=
+Definition bag_1_push₀ : val :=
   rec: "push" "slot" "o" =>
     if: ~ CAS "slot".[contents] §Gnone "o" then (
       domain_yield () ;;
@@ -27,9 +27,9 @@ Definition bag_1_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[back] 1 `rem` array_size "data" in
-    bag_1_push_0 (array_unsafe_get "data" "i") ‘Gsome[ "v" ].
+    bag_1_push₀ (array_unsafe_get "data" "i") ‘Gsome[ "v" ].
 
-Definition bag_1_pop_0 : val :=
+Definition bag_1_pop₀ : val :=
   rec: "pop" "slot" =>
     match: !"slot" with
     | Gnone =>
@@ -47,4 +47,4 @@ Definition bag_1_pop : val :=
   fun: "t" =>
     let: "data" := "t".{data} in
     let: "i" := FAA "t".[front] 1 `rem` array_size "data" in
-    bag_1_pop_0 (array_unsafe_get "data" "i").
+    bag_1_pop₀ (array_unsafe_get "data" "i").

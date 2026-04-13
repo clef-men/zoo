@@ -11,7 +11,7 @@ From examples Require Import
 From zoo Require Import
   options.
 
-Definition future_fibonacci_main_0 : val :=
+Definition future_fibonacci_main₀ : val :=
   rec: "main" "ctx" "n" =>
     if: "n" ≤ 1 then (
       "n"
@@ -27,4 +27,4 @@ Definition future_fibonacci_main_0 : val :=
 
 Definition future_fibonacci_main : val :=
   fun: "num_worker" "n" =>
-    pool_run "num_worker" (fun: "ctx" => future_fibonacci_main_0 "ctx" "n").
+    pool_run "num_worker" (fun: "ctx" => future_fibonacci_main₀ "ctx" "n").

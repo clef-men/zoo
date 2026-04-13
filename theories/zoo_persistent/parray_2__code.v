@@ -34,7 +34,7 @@ Definition parray_2_capture : val :=
   fun: "t" =>
     "t".{root}.
 
-Definition parray_2_restore_0 : val :=
+Definition parray_2_restore₀ : val :=
   rec: "restore" "data" "node" =>
     match: !"node" with
     | Root =>
@@ -51,7 +51,7 @@ Definition parray_2_restore : val :=
     | Root =>
         ()
     | Diff <> <> <> =>
-        parray_2_restore_0 "t".{data} "s" ;;
+        parray_2_restore₀ "t".{data} "s" ;;
         "s" <- §Root ;;
         "t" <-{root} "s"
     end.

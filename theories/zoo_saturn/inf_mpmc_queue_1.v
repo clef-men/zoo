@@ -737,13 +737,13 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma inf_mpmc_queue_1_pop_0𑁒spec t γ front Ψ :
+    #[local] Lemma inf_mpmc_queue_1_pop₀𑁒spec t γ front Ψ :
       {{{
         inv' t γ ∗
         consumers_at γ front Ψ ∗
         tokens_pending γ front
       }}}
-        inf_mpmc_queue_1_pop_0 #t #front
+        inf_mpmc_queue_1_pop₀ #t #front
       {{{
         v
       , RET v;
@@ -868,7 +868,7 @@ Module base.
           iSteps.
       }
 
-      wp_apply+ (inf_mpmc_queue_1_pop_0𑁒spec with "[$Hconsumers_at $Htokens_pending]"); iSteps.
+      wp_apply+ (inf_mpmc_queue_1_pop₀𑁒spec with "[$Hconsumers_at $Htokens_pending]"); iSteps.
     Qed.
   End inf_mpmc_queue_1_G.
 

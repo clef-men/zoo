@@ -506,7 +506,7 @@ Section bag_2_G.
     rewrite big_sepM_empty. iSteps.
   Qed.
 
-  #[local] Lemma bag_2_add_producer_0𑁒spec l γ (queue : val) :
+  #[local] Lemma bag_2_add_producer₀𑁒spec l γ (queue : val) :
     <<<
       meta l nroot γ ∗
       inv' l γ ∗
@@ -515,7 +515,7 @@ Section bag_2_G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2_add_producer_0 #l (Some queue) @ ↑γ.(metadata_inv)
+      bag_2_add_producer₀ #l (Some queue) @ ↑γ.(metadata_inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 := {|
@@ -599,7 +599,7 @@ Section bag_2_G.
     iIntros "%Φ H HΦ".
 
     wp_rec.
-    wp_apply+ (bag_2_add_producer_0𑁒spec with "H HΦ").
+    wp_apply+ (bag_2_add_producer₀𑁒spec with "H HΦ").
   Qed.
   Lemma bag_2_create_producer𑁒spec t ι :
     <<<
@@ -716,7 +716,7 @@ Section bag_2_G.
     rewrite Hdescr_queue. iSteps.
   Qed.
 
-  #[local] Lemma bag_2_pop_0𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
+  #[local] Lemma bag_2_pop₀𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
     <<<
       meta l nroot γ ∗
       inv' l γ ∗
@@ -729,7 +729,7 @@ Section bag_2_G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2_pop_0 #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata_inv)
+      bag_2_pop₀ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata_inv)
     <<<
       ∃∃ o,
       match o with
@@ -814,14 +814,14 @@ Section bag_2_G.
       + wp_load.
         wp_apply ("HLöb" $! nodes with "Hconsumer_queue Hnodes [$] HΦ").
   Qed.
-  #[local] Lemma bag_2_pop_1𑁒spec t ι consumer :
+  #[local] Lemma bag_2_pop₁𑁒spec t ι consumer :
     <<<
       bag_2_inv t ι ∗
       bag_2_consumer t consumer
     | ∀∀ vss,
       bag_2_model t vss
     >>>
-      bag_2_pop_1 t consumer @ ↑ι
+      bag_2_pop₁ t consumer @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -859,7 +859,7 @@ Section bag_2_G.
     iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
     iIntros "{%} !>".
 
-    awp_apply+ (bag_2_pop_0𑁒spec with "[- HΦ]"); first iFrameSteps.
+    awp_apply+ (bag_2_pop₀𑁒spec with "[- HΦ]"); first iFrameSteps.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".
@@ -913,7 +913,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "{%} !> _ Hconsumer_queue".
 
-        wp_apply+ (bag_2_pop_1𑁒spec with "[- HΦ] HΦ").
+        wp_apply+ (bag_2_pop₁𑁒spec with "[- HΦ] HΦ").
         { iSplitR; iSteps. iExists (Some _). iSteps. }
 
       + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
@@ -932,7 +932,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps. iExists (Some _). iSteps.
 
-    - wp_apply+ (bag_2_pop_1𑁒spec with "[- HΦ] HΦ").
+    - wp_apply+ (bag_2_pop₁𑁒spec with "[- HΦ] HΦ").
       { iSplitR; iSteps. iExists None. iSteps. }
   Qed.
 End bag_2_G.

@@ -314,7 +314,7 @@ Definition array_cset : val :=
     assume (0 < array_size "t") ;;
     array_unsafe_cset "t" "i" "v".
 
-Definition array_unsafe_ccopy_slice_0 : val :=
+Definition array_unsafe_ccopy_slice₀ : val :=
   fun: "t1" "i1" "t2" "i2" "n" =>
     let: "sz2" := array_size "t2" in
     let: "i2" := "i2" `rem` "sz2" in
@@ -332,12 +332,12 @@ Definition array_unsafe_ccopy_slice : val :=
     let: "sz1" := array_size "t1" in
     let: "i1" := "i1" `rem` "sz1" in
     if: "i1" + "n" ≤ "sz1" then (
-      array_unsafe_ccopy_slice_0 "t1" "i1" "t2" "i2" "n"
+      array_unsafe_ccopy_slice₀ "t1" "i1" "t2" "i2" "n"
     ) else (
       let: "n1" := "sz1" - "i1" in
       let: "n2" := "n" - "n1" in
-      array_unsafe_ccopy_slice_0 "t1" "i1" "t2" "i2" "n1" ;;
-      array_unsafe_ccopy_slice_0 "t1" 0 "t2" ("i2" + "n1") "n2"
+      array_unsafe_ccopy_slice₀ "t1" "i1" "t2" "i2" "n1" ;;
+      array_unsafe_ccopy_slice₀ "t1" 0 "t2" ("i2" + "n1") "n2"
     ).
 
 Definition array_ccopy_slice : val :=

@@ -819,7 +819,7 @@ Section spsc_bqueue_G.
     COMM
       Ψ vs b
     }>.
-  #[local] Lemma spsc_bqueue_push_0𑁒spec l γ front_cache stable back ws v Ψ :
+  #[local] Lemma spsc_bqueue_push₀𑁒spec l γ front_cache stable back ws v Ψ :
     {{{
       inv' l γ ∗
       l.[front_cache] ↦ #front_cache ∗
@@ -827,7 +827,7 @@ Section spsc_bqueue_G.
       front_lb γ front_cache ∗
       au_push l γ v Ψ
     }}}
-      spsc_bqueue_push_0 #l γ.(metadata_data) #back
+      spsc_bqueue_push₀ #l γ.(metadata_data) #back
     {{{
       b front_cache
     , RET #b;
@@ -903,7 +903,7 @@ Section spsc_bqueue_G.
 
     wp_rec. wp_load.
     wp_apply+ (back𑁒spec with "[$]") as "Hproducer₁".
-    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_apply+ (spsc_bqueue_push_0𑁒spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
+    iDestruct "Hfront_lb" as "-#Hfront_lb". wp_apply+ (spsc_bqueue_push₀𑁒spec with "[$]") as (? front_cache') "(-> & Hl_front_cache & Hproducer₁ & #Hfront_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
@@ -967,7 +967,7 @@ Section spsc_bqueue_G.
       spsc_bqueue_consumer #l -∗
       Ψ (head vs : val)
     }>.
-  #[local] Lemma spsc_bqueue_pop_0𑁒spec l γ back_cache stable front Ψ :
+  #[local] Lemma spsc_bqueue_pop₀𑁒spec l γ back_cache stable front Ψ :
     {{{
       inv' l γ ∗
       l.[back_cache] ↦ #back_cache ∗
@@ -975,7 +975,7 @@ Section spsc_bqueue_G.
       back_lb γ back_cache ∗
       au_pop l γ Ψ
     }}}
-      spsc_bqueue_pop_0 #l #front
+      spsc_bqueue_pop₀ #l #front
     {{{
       b back_cache
     , RET #b;
@@ -1047,7 +1047,7 @@ Section spsc_bqueue_G.
 
     wp_rec.
     wp_apply+ (front𑁒spec with "[$]") as "Hconsumer₁".
-    iDestruct "Hback_lb" as "-#Hback_lb". wp_apply+ (spsc_bqueue_pop_0𑁒spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
+    iDestruct "Hback_lb" as "-#Hback_lb". wp_apply+ (spsc_bqueue_pop₀𑁒spec with "[$]") as (? back_cache') "(-> & Hl_back_cache & Hconsumer₁ & #Hback_lb & HΦ)".
     case_bool_decide as Hbranch; last iSteps.
 
     iApply fupd_wp.
