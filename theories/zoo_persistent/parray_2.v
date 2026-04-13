@@ -369,12 +369,12 @@ Section parray_2_G.
       & Hnodes
       )
     ".
-  #[local] Lemma parray_2_restore_0𑁒spec {γ nodes root vs_root node} vs :
+  #[local] Lemma parray_2_restore₀𑁒spec {γ nodes root vs_root node} vs :
     {{{
       model' γ nodes root vs_root ∗
       nodes_elem γ node vs
     }}}
-      parray_2_restore_0 γ.(metadata_data) #node
+      parray_2_restore₀ γ.(metadata_data) #node
     {{{
       RET ();
       restore_inv γ nodes node vs
@@ -446,7 +446,7 @@ Section parray_2_G.
       wp_load.
 
       wp_load.
-      wp_apply+ (parray_2_restore_0𑁒spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
+      wp_apply+ (parray_2_restore₀𑁒spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
       do 2 wp_store.
 
       iApply "HΦ".

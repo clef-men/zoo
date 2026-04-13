@@ -47,7 +47,7 @@ Definition lst_get : val :=
       "get" (lst_tail "t") ("i" - 1)
     ).
 
-Definition lst_initi_0 : val :=
+Definition lst_initi₀ : val :=
   rec: "initi" "sz" "fn" "i" =>
     if: "sz" ≤ "i" then (
       []
@@ -58,13 +58,13 @@ Definition lst_initi_0 : val :=
 
 Definition lst_initi : val :=
   fun: "sz" "fn" =>
-    lst_initi_0 "sz" "fn" 0.
+    lst_initi₀ "sz" "fn" 0.
 
 Definition lst_init : val :=
   fun: "sz" "fn" =>
     lst_initi "sz" (fun: "_i" => "fn" ()).
 
-Definition lst_foldli_0 : val :=
+Definition lst_foldli₀ : val :=
   rec: "foldli" "fn" "i" "acc" "t" =>
     match: "t" with
     | [] =>
@@ -75,13 +75,13 @@ Definition lst_foldli_0 : val :=
 
 Definition lst_foldli : val :=
   fun: "fn" =>
-    lst_foldli_0 "fn" 0.
+    lst_foldli₀ "fn" 0.
 
 Definition lst_foldl : val :=
   fun: "fn" =>
     lst_foldli (fun: "_i" => "fn").
 
-Definition lst_foldri_0 : val :=
+Definition lst_foldri₀ : val :=
   rec: "foldri" "fn" "i" "t" "acc" =>
     match: "t" with
     | [] =>
@@ -92,7 +92,7 @@ Definition lst_foldri_0 : val :=
 
 Definition lst_foldri : val :=
   fun: "fn" =>
-    lst_foldri_0 "fn" 0.
+    lst_foldri₀ "fn" 0.
 
 Definition lst_foldr : val :=
   fun: "fn" =>
@@ -126,7 +126,7 @@ Definition lst_iter : val :=
   fun: "fn" =>
     lst_iteri (fun: "_i" => "fn").
 
-Definition lst_mapi_0 : val :=
+Definition lst_mapi₀ : val :=
   rec: "mapi" "fn" "i" "t" =>
     match: "t" with
     | [] =>
@@ -138,7 +138,7 @@ Definition lst_mapi_0 : val :=
 
 Definition lst_mapi : val :=
   fun: "fn" =>
-    lst_mapi_0 "fn" 0.
+    lst_mapi₀ "fn" 0.
 
 Definition lst_map : val :=
   fun: "fn" =>

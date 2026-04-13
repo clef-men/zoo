@@ -184,7 +184,7 @@ Section pool_G.
       { rewrite Permutation_cons_append //. }
   Qed.
 
-  #[local] Lemma pool_quicksort_main_0𑁒spec pool ctx scope arr i i_ xs sz :
+  #[local] Lemma pool_quicksort_main₀𑁒spec pool ctx scope arr i i_ xs sz :
     (0 ≤ i)%Z →
     i_ = ₊i →
     length xs = ₊sz →
@@ -192,7 +192,7 @@ Section pool_G.
       pool_context pool ctx scope ∗
       array_slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_main_0 ctx arr #i #sz
+      pool_quicksort_main₀ ctx arr #i #sz
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -269,12 +269,12 @@ Section pool_G.
       iExists xs. iSteps. iPureIntro.
       apply StronglySorted_trivial. lia.
   Qed.
-  #[local] Lemma pool_quicksort_main_1𑁒spec pool ctx scope arr xs :
+  #[local] Lemma pool_quicksort_main₁𑁒spec pool ctx scope arr xs :
     {{{
       pool_context pool ctx scope ∗
       array_model arr (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_main_1 ctx arr
+      pool_quicksort_main₁ ctx arr
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -294,7 +294,7 @@ Section pool_G.
     iEval (simpl_length).
 
     iDestruct (array_model_to_slice' with "Harr_model") as "(Harr_slice & #Harr_model)".
-    wp_apply+ (pool_quicksort_main_0𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
+    wp_apply+ (pool_quicksort_main₀𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
@@ -330,7 +330,7 @@ Section pool_G.
       )
     )%I with "[Harr]") as (pool ?) "(#Hpool_finished & -> & Hpool_consumer)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (pool_quicksort_main_1𑁒spec with "[$]").
+      wp_apply+ (pool_quicksort_main₁𑁒spec with "[$]").
       iSteps.
     }
 

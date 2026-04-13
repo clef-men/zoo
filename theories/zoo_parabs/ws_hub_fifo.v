@@ -708,7 +708,7 @@ Section ws_hub_fifo_G.
     wp_apply+ (ws_hub_fifo_pop'𑁒spec_owner with "[$Hinv $Howner] HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_until_0𑁒spec P Q t ι sz pred :
+  #[local] Lemma ws_hub_fifo_steal_until₀𑁒spec P Q t ι sz pred :
     <<<
       ws_hub_fifo_inv t ι sz ∗
       P ∗
@@ -723,7 +723,7 @@ Section ws_hub_fifo_G.
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
-      ws_hub_fifo_steal_until_0 t pred @ ↑ι
+      ws_hub_fifo_steal_until₀ t pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -798,18 +798,18 @@ Section ws_hub_fifo_G.
     iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_steal_until_0𑁒spec P Q with "[$Hinv $HP $Hpred]").
+    wp_apply+ (ws_hub_fifo_steal_until₀𑁒spec P Q with "[$Hinv $HP $Hpred]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
     iApply ("HΦ" with "[$Howner $H]").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_0𑁒spec t ι sz :
+  #[local] Lemma ws_hub_fifo_steal₀𑁒spec t ι sz :
     <<<
       ws_hub_fifo_inv t ι sz
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
-      ws_hub_fifo_steal_0 t @ ↑ι
+      ws_hub_fifo_steal₀ t @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -890,7 +890,7 @@ Section ws_hub_fifo_G.
 
     wp_rec.
     wp_apply+ (ws_hub_fifo_begin_inactive𑁒spec with "Hinv") as "_".
-    wp_apply+ (ws_hub_fifo_steal_0𑁒spec with "Hinv").
+    wp_apply+ (ws_hub_fifo_steal₀𑁒spec with "Hinv").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.

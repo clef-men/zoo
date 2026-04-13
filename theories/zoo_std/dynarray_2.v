@@ -500,11 +500,11 @@ Section zoo_G.
       rewrite assoc -fmap_app drop_replicate.
       iSteps. simpl_length. iSteps.
   Qed.
-  #[local] Lemma dynarray_2_grow_0𑁒spec t vs sz v :
+  #[local] Lemma dynarray_2_grow₀𑁒spec t vs sz v :
     {{{
       dynarray_2_model t vs
     }}}
-      dynarray_2_grow_0 t #sz v
+      dynarray_2_grow₀ t #sz v
     {{{
       RET ();
       dynarray_2_model t (vs ++ replicate (₊sz - length vs) v)
@@ -541,7 +541,7 @@ Section zoo_G.
     - wp_pures.
       iApply ("HΦ" with "Hmodel").
 
-    - wp_apply+ (dynarray_2_grow_0𑁒spec with "Hmodel HΦ").
+    - wp_apply+ (dynarray_2_grow₀𑁒spec with "Hmodel HΦ").
   Qed.
 
   #[local] Lemma dynarray_2_try_push𑁒spec t vs elem v :
@@ -581,12 +581,12 @@ Section zoo_G.
       rewrite fmap_snoc -assoc /= Nat.sub_0_r.
       iSteps.
   Qed.
-  #[local] Lemma dynarray_2_push_0𑁒spec t vs elem v :
+  #[local] Lemma dynarray_2_push₀𑁒spec t vs elem v :
     {{{
       dynarray_2_model t vs ∗
       element_model elem v
     }}}
-      dynarray_2_push_0 t #elem
+      dynarray_2_push₀ t #elem
     {{{
       RET ();
       dynarray_2_model t (vs ++ [v])
@@ -613,7 +613,7 @@ Section zoo_G.
     wp_rec.
     wp_apply+ (dynarray_2_element𑁒spec with "[//]") as (elem) "Helem".
     wp_apply+ (dynarray_2_try_push𑁒spec with "[$Hmodel $Helem]") as ([]) ""; first iSteps. iIntros "(Hmodel & Helem)".
-    wp_apply+ (dynarray_2_push_0𑁒spec with "[$Hmodel $Helem]").
+    wp_apply+ (dynarray_2_push₀𑁒spec with "[$Hmodel $Helem]").
     iSteps.
   Qed.
 
@@ -1271,12 +1271,12 @@ Section zoo_G.
     wp_apply+ (array_unsafe_apply_slice𑁒type with "[$Hdata_type]"); [lia.. | iSteps |].
     iSteps.
   Qed.
-  #[local] Lemma dynarray_2_grow_0𑁒type t (sz' : Z) v :
+  #[local] Lemma dynarray_2_grow₀𑁒type t (sz' : Z) v :
     {{{
       itype_dynarray_2 t ∗
       τ v
     }}}
-      dynarray_2_grow_0 t #sz' v
+      dynarray_2_grow₀ t #sz' v
     {{{
       RET ();
       True
@@ -1306,7 +1306,7 @@ Section zoo_G.
 
     wp_rec.
     wp_apply+ (dynarray_2_try_grow𑁒type with "[$Htype $Hv]") as ([]) "_"; first iSteps.
-    wp_apply+ (dynarray_2_grow_0𑁒type with "[$Htype $Hv] HΦ").
+    wp_apply+ (dynarray_2_grow₀𑁒type with "[$Htype $Hv] HΦ").
   Qed.
 
   #[local] Lemma dynarray_2_try_push𑁒type t slot :
@@ -1332,12 +1332,12 @@ Section zoo_G.
     wp_apply+ (array_unsafe_set𑁒type with "[$Hdata_type $Hslot]") as "_"; first lia.
     iSteps.
   Qed.
-  #[local] Lemma dynarray_2_push_0𑁒type t slot :
+  #[local] Lemma dynarray_2_push₀𑁒type t slot :
     {{{
       itype_dynarray_2 t ∗
       itype_slot slot
     }}}
-      dynarray_2_push_0 t slot
+      dynarray_2_push₀ t slot
     {{{
       RET ();
       True
@@ -1365,7 +1365,7 @@ Section zoo_G.
     wp_rec.
     wp_apply+ (dynarray_2_element𑁒type with "[//]") as (slot) "#Hslot".
     wp_apply+ (dynarray_2_try_push𑁒type with "[$Htype $Hslot]") as ([]) "_"; first iSteps.
-    wp_apply+ (dynarray_2_push_0𑁒type with "[$Htype $Hslot]").
+    wp_apply+ (dynarray_2_push₀𑁒type with "[$Htype $Hslot]").
     iSteps.
   Qed.
 

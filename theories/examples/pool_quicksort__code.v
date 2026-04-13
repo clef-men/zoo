@@ -25,7 +25,7 @@ Definition pool_quicksort_partition : val :=
     array_unsafe_swap "arr" "i" (!"i1" - 1) ;;
     !"i1" - 1.
 
-Definition pool_quicksort_main_0 : val :=
+Definition pool_quicksort_main₀ : val :=
   rec: "main" "ctx" "arr" "i" "sz" =>
     if: 1 < "sz" then (
       let: "pivot" := pool_quicksort_partition "arr" "i" "sz" in
@@ -36,10 +36,10 @@ Definition pool_quicksort_main_0 : val :=
            "main" "ctx" "arr" ("pivot" + 1) ("sz" - ("pivot" - "i") - 1))
     ).
 
-Definition pool_quicksort_main_1 : val :=
+Definition pool_quicksort_main₁ : val :=
   fun: "ctx" "arr" =>
-    pool_quicksort_main_0 "ctx" "arr" 0 (array_size "arr").
+    pool_quicksort_main₀ "ctx" "arr" 0 (array_size "arr").
 
 Definition pool_quicksort_main : val :=
   fun: "num_worker" "arr" =>
-    pool_run "num_worker" (fun: "ctx" => pool_quicksort_main_1 "ctx" "arr").
+    pool_run "num_worker" (fun: "ctx" => pool_quicksort_main₁ "ctx" "arr").

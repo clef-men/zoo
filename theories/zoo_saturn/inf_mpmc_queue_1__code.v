@@ -43,7 +43,7 @@ Definition inf_mpmc_queue_1_push : val :=
     let: "i" := FAA "t".[back] 1 in
     inf_array_set "t".{data} "i" ‘Something( "v" ).
 
-Definition inf_mpmc_queue_1_pop_0 : val :=
+Definition inf_mpmc_queue_1_pop₀ : val :=
   rec: "pop" "t" "i" =>
     match: inf_array_get "t".{data} "i" with
     | Nothing =>
@@ -59,4 +59,4 @@ Definition inf_mpmc_queue_1_pop_0 : val :=
 Definition inf_mpmc_queue_1_pop : val :=
   fun: "t" =>
     let: "i" := FAA "t".[front] 1 in
-    inf_mpmc_queue_1_pop_0 "t" "i".
+    inf_mpmc_queue_1_pop₀ "t" "i".

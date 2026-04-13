@@ -251,12 +251,12 @@ Section parray_1_G.
       & Hnodes
       )
     ".
-  #[local] Lemma parray_1_reroot_0𑁒spec {γ nodes root node} vs :
+  #[local] Lemma parray_1_reroot₀𑁒spec {γ nodes root node} vs :
     {{{
       inv' γ nodes root ∗
       nodes_elem γ node vs
     }}}
-      parray_1_reroot_0 #node
+      parray_1_reroot₀ #node
     {{{
       RET (γ.(metadata_equal), γ.(metadata_data));
       reroot_inv γ nodes node vs
@@ -325,7 +325,7 @@ Section parray_1_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_apply+ (parray_1_reroot_0𑁒spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
+      wp_apply+ (parray_1_reroot₀𑁒spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
       { iFrame "∗#". iSteps. }
 
       iStep 16. iFrame "∗#" => //.

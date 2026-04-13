@@ -108,7 +108,7 @@ Definition ws_hub_std_try_steal : val :=
       end
     ).
 
-Definition ws_hub_std_steal_until_0 : val :=
+Definition ws_hub_std_steal_until₀ : val :=
   rec: "steal_until" "t" "i" "pred" =>
     match: ws_hub_std_try_steal_once "t" "i" with
     | Some <> as "res" =>
@@ -122,7 +122,7 @@ Definition ws_hub_std_steal_until_0 : val :=
         )
     end.
 
-Definition ws_hub_std_steal_until_1 : val :=
+Definition ws_hub_std_steal_until₁ : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
     match: ws_hub_std_try_steal "t" "i" false "max_round_noyield" "pred" with
     | Something "v" =>
@@ -130,14 +130,14 @@ Definition ws_hub_std_steal_until_1 : val :=
     | Anything =>
         §None
     | Nothing =>
-        ws_hub_std_steal_until_0 "t" "i" "pred"
+        ws_hub_std_steal_until₀ "t" "i" "pred"
     end.
 
 Definition ws_hub_std_steal_until : val :=
   fun: "t" "i" "max_round_noyield" "pred" =>
     ws_hub_std_block_active "t" "i" ;;
     let: "res" :=
-      ws_hub_std_steal_until_1 "t" "i" "max_round_noyield" "pred"
+      ws_hub_std_steal_until₁ "t" "i" "max_round_noyield" "pred"
     in
     ws_hub_std_unblock_active "t" "i" ;;
     "res".
@@ -153,7 +153,7 @@ Definition ws_hub_std_steal_aux : val :=
         ws_hub_std_try_steal "t" "i" true "max_round_yield" "pred"
     end.
 
-Definition ws_hub_std_steal_0 : val :=
+Definition ws_hub_std_steal₀ : val :=
   rec: "steal" "t" "i" "max_round_noyield" "max_round_yield" =>
     match:
       ws_hub_std_steal_aux
@@ -191,7 +191,7 @@ Definition ws_hub_std_steal_0 : val :=
 Definition ws_hub_std_steal : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" =>
     ws_hub_std_block "t" "i" ;;
-    ws_hub_std_steal_0 "t" "i" "max_round_noyield" "max_round_yield".
+    ws_hub_std_steal₀ "t" "i" "max_round_noyield" "max_round_yield".
 
 Definition ws_hub_std_close : val :=
   ws_hub_std_begin_inactive.

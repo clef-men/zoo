@@ -15,7 +15,7 @@ Definition parray_1_make : val :=
     let: "data" := array_unsafe_make "sz" "v" in
     ref ‘Root( "equal", "data" ).
 
-Definition parray_1_reroot_0 : val :=
+Definition parray_1_reroot₀ : val :=
   rec: "reroot" "t" =>
     match: !"t" with
     | Root <> <> as "root_r" =>
@@ -33,7 +33,7 @@ Definition parray_1_reroot : val :=
     | Root <> <> as "root_r" =>
         ("root_r".<equal>, "root_r".<data>)
     | Diff <> <> <> =>
-        let: "equal", "data" := parray_1_reroot_0 "t" in
+        let: "equal", "data" := parray_1_reroot₀ "t" in
         "t" <- ‘Root( "equal", "data" ) ;;
         ("equal", "data")
     end.

@@ -28,7 +28,7 @@ Definition spsc_bqueue_is_empty : val :=
   fun: "t" =>
     spsc_bqueue_size "t" == 0.
 
-Definition spsc_bqueue_push_0 : val :=
+Definition spsc_bqueue_push₀ : val :=
   fun: "t" "data" "back" =>
     let: "cap" := array_size "data" in
     if: "back" < "t".{front_cache} + "cap" then (
@@ -43,7 +43,7 @@ Definition spsc_bqueue_push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
     let: "back" := "t".{back} in
-    if: spsc_bqueue_push_0 "t" "data" "back" then (
+    if: spsc_bqueue_push₀ "t" "data" "back" then (
       array_unsafe_cset "data" "back" ‘Some( "v" ) ;;
       "t" <-{back} "back" + 1 ;;
       false
@@ -51,7 +51,7 @@ Definition spsc_bqueue_push : val :=
       true
     ).
 
-Definition spsc_bqueue_pop_0 : val :=
+Definition spsc_bqueue_pop₀ : val :=
   fun: "t" "front" =>
     if: "front" < "t".{back_cache} then (
       true
@@ -64,7 +64,7 @@ Definition spsc_bqueue_pop_0 : val :=
 Definition spsc_bqueue_pop : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
-    if: spsc_bqueue_pop_0 "t" "front" then (
+    if: spsc_bqueue_pop₀ "t" "front" then (
       let: "data" := "t".{data} in
       let: "res" := array_unsafe_cget "data" "front" in
       array_unsafe_cset "data" "front" §None ;;

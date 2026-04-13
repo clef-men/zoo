@@ -67,7 +67,7 @@ Definition ws_deque_1_steal : val :=
       )
     ).
 
-Definition ws_deque_1_pop_0 : val :=
+Definition ws_deque_1_pop₀ : val :=
   fun: "t" "id" "back" =>
     let: "front" := "t".{front} in
     if: "back" < "front" then (
@@ -106,4 +106,4 @@ Definition ws_deque_1_pop : val :=
     let: "id" := Id in
     let: "back" := "t".{back} - 1 in
     "t" <-{back} "back" ;;
-    ws_deque_1_pop_0 "t" "id" "back".
+    ws_deque_1_pop₀ "t" "id" "back".
