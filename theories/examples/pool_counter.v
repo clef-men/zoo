@@ -104,7 +104,7 @@ Section pool_counter_G.
     rewrite replicate_S /=. auto.
   Qed.
 
-  Lemma pool_counter_main_spec (num_dom n : nat) :
+  Lemma pool_counter_main𑁒spec (num_dom n : nat) :
     0 < n →
     {{{
       True
@@ -125,7 +125,7 @@ Section pool_counter_G.
     iDestruct (cinv_own_divide n with "Hinv_own") as "Hinv_owns". 1: lia.
     iDestruct (big_sepL_sep_2 with "Htokens_frags Hinv_owns") as "H".
 
-    wp_apply+ (pool_run_spec (λ pool _,
+    wp_apply+ (pool_run𑁒spec (λ pool _,
       [∗ list] _ ∈ seq 0 n,
         pool_consumer pool (
           tokens_frag γ n 1 ∗
@@ -133,7 +133,7 @@ Section pool_counter_G.
         )
     )%I with "[H]") as (pool ?) "(#Hpool_finished & H)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (for_spec_nat'
+      wp_apply+ (for𑁒spec_nat'
         (λ _ i,
           pool_context pool ctx scope ∗
           [∗ list] _ ∈ seq 0 i,
@@ -147,7 +147,7 @@ Section pool_counter_G.
       { iFrameStep.
         iEval (rewrite Nat.sub_0_r).
         iApply (big_sepL_seq_impl with "H"). iIntros "!> %k %Hk (Htokens_frag & Hinv_own) % -> (Hctx & H)".
-        wp_apply+ (pool_async_spec
+        wp_apply+ (pool_async𑁒spec
           ( tokens_frag γ n 1 ∗
             cinv_own η (1 / Qp_of_nat n)
           )

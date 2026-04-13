@@ -156,7 +156,7 @@ Section zoo_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_stack_2_create_spec ι :
+  Lemma mpmc_stack_2_create𑁒spec ι :
     {{{
       True
     }}}
@@ -182,7 +182,7 @@ Section zoo_G.
     iStep 2. iApply inv_alloc. iExists (Some []). iSteps.
   Qed.
 
-  Lemma mpmc_stack_2_push_spec t ι v :
+  Lemma mpmc_stack_2_push𑁒spec t ι v :
     <<<
       mpmc_stack_2_inv t ι
     | ∀∀ vs,
@@ -242,7 +242,7 @@ Section zoo_G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2_push_spec_closed t ι v :
+  Lemma mpmc_stack_2_push𑁒spec_closed t ι v :
     {{{
       mpmc_stack_2_inv t ι ∗
       mpmc_stack_2_closed t
@@ -256,13 +256,13 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_stack_2_push_spec with "Hinv").
+    awp_apply (mpmc_stack_2_push𑁒spec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2_pop_spec t ι :
+  Lemma mpmc_stack_2_pop𑁒spec t ι :
     <<<
       mpmc_stack_2_inv t ι
     | ∀∀ vs,
@@ -326,7 +326,7 @@ Section zoo_G.
       iSplitR "H£ HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2_pop_spec_closed t ι v :
+  Lemma mpmc_stack_2_pop𑁒spec_closed t ι v :
     {{{
       mpmc_stack_2_inv t ι ∗
       mpmc_stack_2_closed t
@@ -340,13 +340,13 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_stack_2_pop_spec with "Hinv").
+    awp_apply (mpmc_stack_2_pop𑁒spec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2_is_closed_spec t ι :
+  Lemma mpmc_stack_2_is_closed𑁒spec t ι :
     <<<
       mpmc_stack_2_inv t ι
     | ∀∀ vs,
@@ -382,7 +382,7 @@ Section zoo_G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2_is_closed_spec_closed t ι :
+  Lemma mpmc_stack_2_is_closed𑁒spec_closed t ι :
     {{{
       mpmc_stack_2_inv t ι ∗
       mpmc_stack_2_closed t
@@ -396,13 +396,13 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_stack_2_is_closed_spec with "Hinv").
+    awp_apply (mpmc_stack_2_is_closed𑁒spec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_2_close_spec t ι :
+  Lemma mpmc_stack_2_close𑁒spec t ι :
     <<<
       mpmc_stack_2_inv t ι
     | ∀∀ vs,
@@ -435,7 +435,7 @@ Section zoo_G.
       iSplitR "HΦ". { iFrameSteps. }
       iSteps.
   Qed.
-  Lemma mpmc_stack_2_closed_spec_closed t ι v :
+  Lemma mpmc_stack_2_closed𑁒spec_closed t ι v :
     {{{
       mpmc_stack_2_inv t ι ∗
       mpmc_stack_2_closed t
@@ -449,7 +449,7 @@ Section zoo_G.
     iIntros "%Φ (#Hinv & #Hclosed) HΦ".
 
     iApply wp_fupd.
-    awp_apply (mpmc_stack_2_close_spec with "Hinv").
+    awp_apply (mpmc_stack_2_close𑁒spec with "Hinv").
     iAaccIntro with "Hclosed"; first iSteps. iIntros "_ !> H£".
     iDestruct (lc_fupd_elim_later with "H£ HΦ") as "HΦ".
     iSteps.

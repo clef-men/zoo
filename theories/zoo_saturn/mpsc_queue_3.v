@@ -316,7 +316,7 @@ Section mpsc_queue_3_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_create_spec ι :
+  Lemma mpsc_queue_3_create𑁒spec ι :
     {{{
       True
     }}}
@@ -350,7 +350,7 @@ Section mpsc_queue_3_G.
     iSteps. iExists []. iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_is_empty_spec_open t ι :
+  Lemma mpsc_queue_3_is_empty𑁒spec_open t ι :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t None
@@ -401,7 +401,7 @@ Section mpsc_queue_3_G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-  Lemma mpsc_queue_3_is_empty_spec_closed t ι vs :
+  Lemma mpsc_queue_3_is_empty𑁒spec_closed t ι vs :
     {{{
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t (Some vs)
@@ -420,7 +420,7 @@ Section mpsc_queue_3_G.
     destruct front as [| v front]; iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_push_front_spec_open t ι v :
+  Lemma mpsc_queue_3_push_front𑁒spec_open t ι v :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t None
@@ -453,7 +453,7 @@ Section mpsc_queue_3_G.
     iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
     iSteps.
   Qed.
-  Lemma mpsc_queue_3_push_front_spec_closed t ι vs v :
+  Lemma mpsc_queue_3_push_front𑁒spec_closed t ι vs v :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t (Some vs)
@@ -498,7 +498,7 @@ Section mpsc_queue_3_G.
       iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_push_back_spec_open closed t ι v :
+  Lemma mpsc_queue_3_push_back𑁒spec_open closed t ι v :
     <<<
       mpsc_queue_3_inv t ι
     | ∀∀ vs,
@@ -555,7 +555,7 @@ Section mpsc_queue_3_G.
       iMod ("HΦ" $! true with "Hmodel") as "HΦ".
       iSteps.
   Qed.
-  Lemma mpsc_queue_3_push_back_spec_closed closed t ι v :
+  Lemma mpsc_queue_3_push_back𑁒spec_closed closed t ι v :
     {{{
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_closed t
@@ -579,7 +579,7 @@ Section mpsc_queue_3_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_pop_spec_open t ι :
+  Lemma mpsc_queue_3_pop𑁒spec_open t ι :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t None
@@ -626,7 +626,7 @@ Section mpsc_queue_3_G.
 
         remember (back ++ [v]) as back' eqn:Hback.
         destruct back' as [| v' back']; first by eelim app_cons_not_nil.
-        wp_apply+ (clst_rev_app_spec (v' :: back') ClstOpen with "[//]") as "_"; [done.. |].
+        wp_apply+ (clst_rev_app𑁒spec (v' :: back') ClstOpen with "[//]") as "_"; [done.. |].
         rewrite clist_app_ClstOpen {}Hback reverse_snoc.
         iSteps.
 
@@ -644,7 +644,7 @@ Section mpsc_queue_3_G.
       iMod ("HΦ" with "[Hmodel₁]") as "HΦ"; first iSteps.
       iSteps.
   Qed.
-  Lemma mpsc_queue_3_pop_spec_closed t ι vs :
+  Lemma mpsc_queue_3_pop𑁒spec_closed t ι vs :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t (Some vs)
@@ -686,7 +686,7 @@ Section mpsc_queue_3_G.
       iSteps.
   Qed.
 
-  Lemma mpsc_queue_3_close_spec_open t ι :
+  Lemma mpsc_queue_3_close𑁒spec_open t ι :
     <<<
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t None
@@ -721,14 +721,14 @@ Section mpsc_queue_3_G.
     iModIntro. clear.
 
     iApply wp_match_clist_open. simpl.
-    wp_apply (clst_rev_app_spec _ ClstClosed with "[//]") as "_"; [done.. |].
+    wp_apply (clst_rev_app𑁒spec _ ClstClosed with "[//]") as "_"; [done.. |].
     wp_load.
-    wp_apply (clst_app_spec with "[//]") as "_"; [done.. |].
+    wp_apply (clst_app𑁒spec with "[//]") as "_"; [done.. |].
     wp_store.
 
     iSteps. rewrite clist_app_ClstClosed. erewrite clist_app_closed => //.
   Qed.
-  Lemma mpsc_queue_3_close_spec_closed t ι vs :
+  Lemma mpsc_queue_3_close𑁒spec_closed t ι vs :
     {{{
       mpsc_queue_3_inv t ι ∗
       mpsc_queue_3_consumer t (Some vs)

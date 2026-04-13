@@ -27,7 +27,7 @@ Section zoo_G.
   Section Z.
     Implicit Types n : Z.
 
-    Lemma int_min_spec n1 n2 E Φ :
+    Lemma int_min𑁒spec n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2) -∗
       WP #n1 `min` #n2 @ E {{ Φ }}.
     Proof.
@@ -48,10 +48,10 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_min_spec with "(HΦ [//])").
+      wp_apply (int_min𑁒spec with "(HΦ [//])").
     Qed.
 
-    Lemma int_max_spec n1 n2 E Φ :
+    Lemma int_max𑁒spec n1 n2 E Φ :
       ▷ Φ #(n1 `max` n2) -∗
       WP #n1 `max` #n2 @ E {{ Φ }}.
     Proof.
@@ -72,17 +72,17 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_max_spec with "(HΦ [//])").
+      wp_apply (int_max𑁒spec with "(HΦ [//])").
     Qed.
 
-    Lemma int_positive_part_spec n E Φ :
+    Lemma int_positive_part𑁒spec n E Φ :
       ▷ Φ #₊n -∗
       WP int_positive_part #n @ E {{ Φ }}.
     Proof.
       iIntros "HΦ".
 
       wp_rec.
-      iApply int_max_spec.
+      iApply int_max𑁒spec.
       assert (0 `max` n = ₊n)%Z as -> by lia. iSteps.
     Qed.
     #[global] Instance int_positive_part_diaspec n E :
@@ -98,19 +98,19 @@ Section zoo_G.
     | 30.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_positive_part_spec with "(HΦ [//])").
+      wp_apply (int_positive_part𑁒spec with "(HΦ [//])").
     Qed.
   End Z.
 
   Section nat.
     Implicit Types n : nat.
 
-    Lemma int_min_spec_nat n1 n2 E Φ :
+    Lemma int_min𑁒spec_nat n1 n2 E Φ :
       ▷ Φ #(n1 `min` n2)%nat -∗
       WP #n1 `min` #n2 @ E {{ Φ }}.
     Proof.
       iIntros "HΦ".
-      iApply int_min_spec.
+      iApply int_min𑁒spec.
       rewrite Nat2Z.inj_min //.
     Qed.
     #[global] Instance int_min_diaspec_nat n1 n2 E :
@@ -126,15 +126,15 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_min_spec_nat with "(HΦ [//])").
+      wp_apply (int_min𑁒spec_nat with "(HΦ [//])").
     Qed.
 
-    Lemma int_max_spec_nat n1 n2 E Φ :
+    Lemma int_max𑁒spec_nat n1 n2 E Φ :
       ▷ Φ #(n1 `max` n2)%nat -∗
       WP #n1 `max` #n2 @ E {{ Φ }}.
     Proof.
       iIntros "HΦ".
-      iApply int_max_spec.
+      iApply int_max𑁒spec.
       rewrite Nat2Z.inj_max //.
     Qed.
     #[global] Instance int_max_diaspec_nat n1 n2 E :
@@ -150,15 +150,15 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_max_spec_nat with "(HΦ [//])").
+      wp_apply (int_max𑁒spec_nat with "(HΦ [//])").
     Qed.
 
-    Lemma int_positive_part_spec_nat n E Φ :
+    Lemma int_positive_part𑁒spec_nat n E Φ :
       ▷ Φ #n -∗
       WP int_positive_part #n @ E {{ Φ }}.
     Proof.
       rewrite -{1}(Nat2Z.id n).
-      apply int_positive_part_spec.
+      apply int_positive_part𑁒spec.
     Qed.
     #[global] Instance int_positive_part_diaspec_nat n E :
       DIASPEC
@@ -173,7 +173,7 @@ Section zoo_G.
     | 20.
     Proof.
       iStep 3 as (Φ) "HΦ".
-      wp_apply (int_positive_part_spec_nat with "(HΦ [//])").
+      wp_apply (int_positive_part𑁒spec_nat with "(HΦ [//])").
     Qed.
   End nat.
 End zoo_G.

@@ -422,7 +422,7 @@ Qed.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Lemma structeq_spec_aux :
+  #[local] Lemma structeq𑁒spec_aux :
     ⊢ (
       ∀ v1 v2 footprint,
       {{{
@@ -825,7 +825,7 @@ Section zoo_G.
           * rewrite /= Hvs2_lookup //.
     }
   Qed.
-  Lemma structeq_spec {v1 v2} footprint :
+  Lemma structeq𑁒spec {v1 v2} footprint :
     val_traversable footprint v1 →
     val_traversable footprint v2 →
     {{{
@@ -840,7 +840,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Htraversable1 %Htraversable2 %Φ Hfootprint HΦ".
-    iDestruct structeq_spec_aux as "(H & _)".
+    iDestruct structeq𑁒spec_aux as "(H & _)".
     iApply ("H" with "[$Hfootprint]"); iSteps.
   Qed.
 End zoo_G.
@@ -963,7 +963,7 @@ Proof.
   all: cbn; naive_solver.
 Qed.
 
-Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} :
+Lemma structeq𑁒spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} :
   val_abstract v1 →
   val_abstract v2 →
   {{{
@@ -977,7 +977,7 @@ Lemma structeq_spec_abstract `{zoo_G : !ZooG Σ} {v1 v2} :
   }}}.
 Proof.
   iIntros "%Habstract1 %Habstract2 %Φ _ HΦ".
-  wp_apply (structeq_spec ∅) as ([]) "(%H & _)".
+  wp_apply (structeq𑁒spec ∅) as ([]) "(%H & _)".
   { apply val_abstract_traversable => //. }
   { apply val_abstract_traversable => //. }
   { iApply structeq_footprint_empty. }

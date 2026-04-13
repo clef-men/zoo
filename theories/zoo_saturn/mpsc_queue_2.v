@@ -222,7 +222,7 @@ Section mpsc_queue_2_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2_create_spec ι :
+  Lemma mpsc_queue_2_create𑁒spec ι :
     {{{
       True
     }}}
@@ -256,7 +256,7 @@ Section mpsc_queue_2_G.
     - iSplitL "Hmodel₁"; first iSteps. iExists l, γ, []. iSteps.
   Qed.
 
-  Lemma mpsc_queue_2_is_empty_spec t ι :
+  Lemma mpsc_queue_2_is_empty𑁒spec t ι :
     <<<
       mpsc_queue_2_inv t ι ∗
       mpsc_queue_2_consumer t
@@ -304,7 +304,7 @@ Section mpsc_queue_2_G.
       iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2_push_front_spec t ι v :
+  Lemma mpsc_queue_2_push_front𑁒spec t ι v :
     <<<
       mpsc_queue_2_inv t ι ∗
       mpsc_queue_2_consumer t
@@ -336,7 +336,7 @@ Section mpsc_queue_2_G.
     iSteps. iExists (v :: front). iSteps.
   Qed.
 
-  Lemma mpsc_queue_2_push_back_spec t ι v :
+  Lemma mpsc_queue_2_push_back𑁒spec t ι v :
     <<<
       mpsc_queue_2_inv t ι
     | ∀∀ vs,
@@ -378,7 +378,7 @@ Section mpsc_queue_2_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_2_pop_spec t ι :
+  Lemma mpsc_queue_2_pop𑁒spec t ι :
     <<<
       mpsc_queue_2_inv t ι ∗
       mpsc_queue_2_consumer t
@@ -411,7 +411,7 @@ Section mpsc_queue_2_G.
         iSplitR "Hl_front Hfront₁ HΦ". { iFrameSteps. }
         iModIntro. clear.
 
-        wp_apply (glst_rev_spec with "[//]") as "_"; first done.
+        wp_apply (glst_rev𑁒spec with "[//]") as "_"; first done.
         wp_pures.
 
         iApply "HΦ".
@@ -426,7 +426,7 @@ Section mpsc_queue_2_G.
         { iExists front, []. iSteps. rewrite right_id //. }
         iModIntro. clear.
 
-        wp_apply (glst_rev_spec with "[//]") as "_"; first done.
+        wp_apply (glst_rev𑁒spec with "[//]") as "_"; first done.
         rewrite reverse_snoc. iSteps.
 
     - wp_store.

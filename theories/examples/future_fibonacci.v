@@ -16,7 +16,7 @@ From zoo Require Import
 Section future_G.
   Context `{future_G : FutureG Σ}.
 
-  #[local] Lemma future_fibonacci_main_0_spec n pool ctx scope :
+  #[local] Lemma future_fibonacci_main_0𑁒spec n pool ctx scope :
     (0 ≤ n)%Z →
     {{{
       pool_context pool ctx scope
@@ -36,7 +36,7 @@ Section future_G.
 
     - assert (n = 0 ∨ n = 1) as [-> | ->] by lia; iSteps.
 
-    - wp_apply (future_async_spec
+    - wp_apply (future_async𑁒spec
         (λ v1, ⌜v1 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut1) "(Hctx & #Hfut1_inv & Hfut1_consumer)".
@@ -44,7 +44,7 @@ Section future_G.
         wp_apply+ ("HLöb" with "[] Hctx"); iSteps.
       }
 
-      wp_apply+ (future_async_spec
+      wp_apply+ (future_async𑁒spec
         (λ v2, ⌜v2 = #_⌝)%I
         (λ _, True)%I
       with "[$Hctx]") as (fut2) "(Hctx & #Hfut2_inv & Hfut2_consumer)".
@@ -52,10 +52,10 @@ Section future_G.
         wp_apply+ ("HLöb" with "[] Hctx"); iSteps.
       }
 
-      wp_apply+ (future_wait_spec with "[$Hctx $Hfut2_inv]") as (res) "(H£ & Hctx & Hfut2_result)".
+      wp_apply+ (future_wait𑁒spec with "[$Hctx $Hfut2_inv]") as (res) "(H£ & Hctx & Hfut2_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut2_inv Hfut2_result Hfut2_consumer") as "(-> & _)".
 
-      wp_apply+ (future_wait_spec with "[$Hctx $Hfut1_inv]") as (res) "(H£ & Hctx & Hfut1_result)".
+      wp_apply+ (future_wait𑁒spec with "[$Hctx $Hfut1_inv]") as (res) "(H£ & Hctx & Hfut1_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut1_inv Hfut1_result Hfut1_consumer") as "(-> & _)".
 
       wp_pures.
@@ -64,7 +64,7 @@ Section future_G.
       rewrite decide_False; first lia.
       iSteps.
   Qed.
-  Lemma future_fibonacci_main_spec (num_dom n : nat) :
+  Lemma future_fibonacci_main𑁒spec (num_dom n : nat) :
     {{{
       True
     }}}
@@ -78,11 +78,11 @@ Section future_G.
 
     wp_rec.
 
-    wp_apply+ (pool_run_spec (λ pool v,
+    wp_apply+ (pool_run𑁒spec (λ pool v,
       ⌜v = #_⌝
     )%I) as (pool ?) "(_ & ->)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (future_fibonacci_main_0_spec with "Hctx"); first lia.
+      wp_apply+ (future_fibonacci_main_0𑁒spec with "Hctx"); first lia.
       rewrite Nat2Z.id. iSteps.
     }
 

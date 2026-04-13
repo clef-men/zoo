@@ -18,7 +18,7 @@ Section zoo_G.
 
   Implicit Types Φ : val → iProp Σ.
 
-  Lemma diverge_spec E Φ :
+  Lemma diverge𑁒spec E Φ :
     ⊢ WP diverge () @ E {{ Φ }}.
   Proof.
     iLöb as "IH". wp_rec. iSteps.
@@ -36,7 +36,7 @@ Section zoo_G.
     }}.
   Proof.
     iSteps.
-    wp_apply diverge_spec.
+    wp_apply diverge𑁒spec.
   Qed.
 End zoo_G.
 

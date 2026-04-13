@@ -25,7 +25,7 @@ Proof.
   split; [done | apply _].
 Qed.
 
-Axiom unix_close_spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
+Axiom unix_close𑁒spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
   {{{
     unix_fd_model fd (DfracOwn 1) chars
   }}}
@@ -46,5 +46,5 @@ Axiom unix_close_spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
   }}.
 Proof.
   iSteps as (Φ) "Hfd HΦ".
-  wp_apply (unix_close_spec with "Hfd HΦ").
+  wp_apply (unix_close𑁒spec with "Hfd HΦ").
 Qed.

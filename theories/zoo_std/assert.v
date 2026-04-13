@@ -17,7 +17,7 @@ Definition assert : val :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Lemma assert_spec (b : bool) Φ :
+  Lemma assert𑁒spec (b : bool) Φ :
     b = true →
     ▷ Φ ()%V -∗
     WP assert #b {{ Φ }}.

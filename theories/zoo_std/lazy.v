@@ -412,7 +412,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma lazy_make_spec Ψ Ξ fn :
+    Lemma lazy_make𑁒spec Ψ Ξ fn :
       {{{
         WP fn () {{ v,
           ▷ Ψ v ∗
@@ -446,7 +446,7 @@ Module base.
       iFrameSteps. iExists Unset. iSteps.
     Qed.
 
-    Lemma lazy_return_spec Ψ Ξ v :
+    Lemma lazy_return𑁒spec Ψ Ξ v :
       {{{
         ▷ Ψ v ∗
         ▷ □ Ξ v
@@ -482,7 +482,7 @@ Module base.
       iFrameSteps. iExists (Set_ v). iSteps.
     Qed.
 
-    Lemma lazy_is_set_spec t γ Ψ Ξ :
+    Lemma lazy_is_set𑁒spec t γ Ψ Ξ :
       {{{
         lazy_inv t γ Ψ Ξ
       }}}
@@ -518,7 +518,7 @@ Module base.
         iSplitR "H£ HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma lazy_is_set_spec_result t γ Ψ Ξ v :
+    Lemma lazy_is_set𑁒spec_result t γ Ψ Ξ v :
       {{{
         lazy_inv t γ Ψ Ξ ∗
         lazy_result γ v
@@ -542,7 +542,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma lazy_is_unset_spec t γ Ψ Ξ :
+    Lemma lazy_is_unset𑁒spec t γ Ψ Ξ :
       {{{
         lazy_inv t γ Ψ Ξ
       }}}
@@ -560,10 +560,10 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec.
-      wp_apply (lazy_is_set_spec with "[$]") as (b) "Hb".
+      wp_apply (lazy_is_set𑁒spec with "[$]") as (b) "Hb".
       destruct b; iSteps.
     Qed.
-    Lemma lazy_is_unset_spec_result t γ Ψ Ξ v :
+    Lemma lazy_is_unset𑁒spec_result t γ Ψ Ξ v :
       {{{
         lazy_inv t γ Ψ Ξ ∗
         lazy_result γ v
@@ -577,11 +577,11 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresult) HΦ".
 
       wp_rec.
-      wp_apply (lazy_is_set_spec_result with "[$]").
+      wp_apply (lazy_is_set𑁒spec_result with "[$]").
       iSteps.
     Qed.
 
-    Lemma lazy_get_spec t γ Ψ Ξ :
+    Lemma lazy_get𑁒spec t γ Ψ Ξ :
       {{{
         lazy_inv t γ Ψ Ξ
       }}}
@@ -609,7 +609,7 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_apply+ (mutex_create_lock_spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
+        wp_apply+ (mutex_create_lock𑁒spec_init with "[//]") as (mtx) "(Hmtx_init & Hmtx_locked)".
         wp_pures.
 
         wp_bind (CAS _ _ _).
@@ -619,7 +619,7 @@ Module base.
         + iSplitR "Hmtx_init Hmtx_locked HΦ". { iFrameSteps. }
           iIntros "!> {%}".
 
-          wp_apply+ (mutex_unlock_spec_init with "[$]") as "_".
+          wp_apply+ (mutex_unlock𑁒spec_init with "[$]") as "_".
           wp_apply+ "HLöb".
           iSteps.
 
@@ -647,7 +647,7 @@ Module base.
             iSplitR "Hmtx_locked HΦ". { iExists (Set_ v). iFrameSteps. }
             iIntros "!> {%}".
 
-            wp_apply+ (mutex_unlock_spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
+            wp_apply+ (mutex_unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked]"); iSteps.
 
           * iDestruct "Hstate" as "(:inv_state_set =1)".
             iDestruct (lstate_unset₂_set with "Hlstate_unset₂ Hlstate_set_1") as %[].
@@ -656,7 +656,7 @@ Module base.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "!> {%}".
 
-        wp_apply+ (mutex_synchronize_spec with "[$]") as "_".
+        wp_apply+ (mutex_synchronize𑁒spec with "[$]") as "_".
         wp_apply+ "HLöb".
         iSteps.
 
@@ -664,7 +664,7 @@ Module base.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma lazy_get_spec_result t γ Ψ Ξ v :
+    Lemma lazy_get𑁒spec_result t γ Ψ Ξ v :
       {{{
         lazy_inv t γ Ψ Ξ ∗
         lazy_result γ v
@@ -891,7 +891,7 @@ Section lazy_G.
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
-  Lemma lazy_make_spec Ψ Ξ fn :
+  Lemma lazy_make𑁒spec Ψ Ξ fn :
     {{{
       WP fn () {{ v,
         ▷ Ψ v ∗
@@ -909,12 +909,12 @@ Section lazy_G.
     iIntros "%Φ Hfn HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.lazy_make_spec with "Hfn") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
+    wp_apply (base.lazy_make𑁒spec with "Hfn") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma lazy_return_spec Ψ Ξ v :
+  Lemma lazy_return𑁒spec Ψ Ξ v :
     {{{
       ▷ Ψ v ∗
       ▷ □ Ξ v
@@ -931,12 +931,12 @@ Section lazy_G.
     iIntros "%Φ (HΨ & HΞ) HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.lazy_return_spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
+    wp_apply (base.lazy_return𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hresult & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma lazy_is_set_spec t Ψ Ξ :
+  Lemma lazy_is_set𑁒spec t Ψ Ξ :
     {{{
       lazy_inv t Ψ Ξ
     }}}
@@ -953,10 +953,10 @@ Section lazy_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy_is_set_spec with "[$]") as (b) "Hb".
+    wp_apply (base.lazy_is_set𑁒spec with "[$]") as (b) "Hb".
     rewrite /lazy_resolved. destruct b; iSteps.
   Qed.
-  Lemma lazy_is_set_spec_result t Ψ Ξ v :
+  Lemma lazy_is_set𑁒spec_result t Ψ Ξ v :
     {{{
       lazy_inv t Ψ Ξ ∗
       lazy_result t v
@@ -970,10 +970,10 @@ Section lazy_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy_is_set_spec_result with "[$] HΦ").
+    wp_apply (base.lazy_is_set𑁒spec_result with "[$] HΦ").
   Qed.
 
-  Lemma lazy_is_unset_spec t Ψ Ξ :
+  Lemma lazy_is_unset𑁒spec t Ψ Ξ :
     {{{
       lazy_inv t Ψ Ξ
     }}}
@@ -990,10 +990,10 @@ Section lazy_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy_is_unset_spec with "[$]") as (b) "Hb".
+    wp_apply (base.lazy_is_unset𑁒spec with "[$]") as (b) "Hb".
     rewrite /lazy_resolved. destruct b; iSteps.
   Qed.
-  Lemma lazy_is_unset_spec_result t Ψ Ξ v :
+  Lemma lazy_is_unset𑁒spec_result t Ψ Ξ v :
     {{{
       lazy_inv t Ψ Ξ ∗
       lazy_result t v
@@ -1007,10 +1007,10 @@ Section lazy_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy_is_unset_spec_result with "[$] HΦ").
+    wp_apply (base.lazy_is_unset𑁒spec_result with "[$] HΦ").
   Qed.
 
-  Lemma lazy_get_spec t Ψ Ξ :
+  Lemma lazy_get𑁒spec t Ψ Ξ :
     {{{
       lazy_inv t Ψ Ξ
     }}}
@@ -1024,10 +1024,10 @@ Section lazy_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.lazy_get_spec with "[$]").
+    wp_apply (base.lazy_get𑁒spec with "[$]").
     iSteps.
   Qed.
-  Lemma lazy_get_spec_result t Ψ Ξ v :
+  Lemma lazy_get𑁒spec_result t Ψ Ξ v :
     {{{
       lazy_inv t Ψ Ξ ∗
       lazy_result t v
@@ -1041,7 +1041,7 @@ Section lazy_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.lazy_get_spec_result with "[$] HΦ").
+    wp_apply (base.lazy_get𑁒spec_result with "[$] HΦ").
   Qed.
 End lazy_G.
 

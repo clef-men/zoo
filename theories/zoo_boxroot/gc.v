@@ -140,7 +140,7 @@ Qed.
 
 Parameter gc_roots : ∀ `{zoo_G : !ZooG Σ}, (gc_state → iProp Σ) → iProp Σ.
 Parameter gc_set_roots : val.
-Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
+Axiom gc_set_roots𑁒spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   {{{
     gc_model gc ∗
     gc_roots Χ' ∗
@@ -184,7 +184,7 @@ Axiom gc_set_roots_spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   }}}.
 
 Parameter gc_alloc : val.
-Axiom gc_alloc_spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
+Axiom gc_alloc𑁒spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
   (0 < n)%Z →
   {{{
     gc_model gc ∗

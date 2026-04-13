@@ -26,7 +26,7 @@ Section zoo_G.
     apply _.
   Qed.
 
-  Lemma stack_make_spec :
+  Lemma stack_make𑁒spec :
     {{{
       True
     }}}
@@ -37,10 +37,10 @@ Section zoo_G.
       stack_model t []
     }}}.
   Proof.
-    apply dynarray_1_create_spec.
+    apply dynarray_1_create𑁒spec.
   Qed.
 
-  Lemma stack_is_empty_spec t vs :
+  Lemma stack_is_empty𑁒spec t vs :
     {{{
       stack_model t vs
     }}}
@@ -51,11 +51,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_1_is_empty_spec with "Ht").
+    wp_apply (dynarray_1_is_empty𑁒spec with "Ht").
     rewrite (bool_decide_ext (reverse vs = []) (vs = [])) // -{1}reverse_nil. naive_solver.
   Qed.
 
-  Lemma stack_push_spec t vs v :
+  Lemma stack_push𑁒spec t vs v :
     {{{
       stack_model t vs
     }}}
@@ -66,11 +66,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ Ht HΦ".
-    wp_apply (dynarray_1_push_spec with "Ht").
+    wp_apply (dynarray_1_push𑁒spec with "Ht").
     rewrite -reverse_cons //.
   Qed.
 
-  Lemma stack_pop_spec {t vs} v vs' :
+  Lemma stack_pop𑁒spec {t vs} v vs' :
     vs = v :: vs' →
     {{{
       stack_model t vs
@@ -82,7 +82,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ Ht HΦ".
-    wp_apply (dynarray_1_pop_spec with "Ht"); last iSteps.
+    wp_apply (dynarray_1_pop𑁒spec with "Ht"); last iSteps.
     rewrite reverse_cons //.
   Qed.
 End zoo_G.

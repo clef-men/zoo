@@ -352,7 +352,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo_create_spec ι sz :
+  Lemma ws_hub_fifo_create𑁒spec ι sz :
     (0 ≤ sz)%Z →
     {{{
       True
@@ -370,8 +370,8 @@ Section ws_hub_fifo_G.
     iIntros "%Hsz %Φ _ HΦ".
 
     wp_rec.
-    wp_apply+ (waiters_create_spec with "[//]") as (waiters) "#Hwaiters_inv".
-    wp_apply (mpmc_queue_1_create_spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
+    wp_apply+ (waiters_create𑁒spec with "[//]") as (waiters) "#Hwaiters_inv".
+    wp_apply (mpmc_queue_1_create𑁒spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model)".
     wp_block l as "Hmeta" "(Hl_size & Hl_queue & Hl_waiters & Hl_num_active & _)".
     iMod (pointsto_persist with "Hl_size") as "#Hl_size".
     iMod (pointsto_persist with "Hl_queue") as "#Hl_queue".
@@ -400,7 +400,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo_size_spec t ι sz :
+  Lemma ws_hub_fifo_size𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -413,7 +413,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_begin_inactive_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_begin_inactive𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -426,7 +426,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_end_inactive_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_end_inactive𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -439,7 +439,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  Lemma ws_hub_fifo_block_spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo_block𑁒spec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_fifo_inv t ι sz ∗
@@ -454,11 +454,11 @@ Section ws_hub_fifo_G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_begin_inactive_spec with "Hinv") as "_".
+    wp_apply+ (ws_hub_fifo_begin_inactive𑁒spec with "Hinv") as "_".
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo_unblock_spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo_unblock𑁒spec t ι sz i i_ empty :
     i = ⁺i_ →
     {{{
       ws_hub_fifo_inv t ι sz ∗
@@ -473,11 +473,11 @@ Section ws_hub_fifo_G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_end_inactive_spec with "Hinv") as "_".
+    wp_apply+ (ws_hub_fifo_end_inactive𑁒spec with "Hinv") as "_".
     iApply ("HΦ" with "Howner").
   Qed.
 
-  Lemma ws_hub_fifo_closed_spec t ι sz :
+  Lemma ws_hub_fifo_closed𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -491,7 +491,7 @@ Section ws_hub_fifo_G.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_notify_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_notify𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -504,10 +504,10 @@ Section ws_hub_fifo_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (waiters_notify_spec with "Hwaiters_inv HΦ").
+    wp_apply (waiters_notify𑁒spec with "Hwaiters_inv HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_notify_all_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_notify_all𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -520,12 +520,12 @@ Section ws_hub_fifo_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
-    wp_apply (ws_hub_fifo_size_spec) as "_"; first iSteps.
+    wp_apply (ws_hub_fifo_size𑁒spec) as "_"; first iSteps.
     wp_load.
-    wp_apply (waiters_notify_many_spec with "Hwaiters_inv HΦ"); first lia.
+    wp_apply (waiters_notify_many𑁒spec with "Hwaiters_inv HΦ"); first lia.
   Qed.
 
-  Lemma ws_hub_fifo_push_spec t ι sz i i_ empty v :
+  Lemma ws_hub_fifo_push𑁒spec t ι sz i i_ empty v :
     i = ⁺i_ →
     <<<
       ws_hub_fifo_inv t ι sz ∗
@@ -547,7 +547,7 @@ Section ws_hub_fifo_G.
 
     wp_rec. wp_load.
 
-    awp_apply (mpmc_queue_1_push_spec with "Hqueue_inv").
+    awp_apply (mpmc_queue_1_push𑁒spec with "Hqueue_inv").
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
@@ -556,11 +556,11 @@ Section ws_hub_fifo_G.
     { iFrameSteps. iPureIntro. apply consistent_push. done. }
     iIntros "!> HΦ !> _ {%}".
 
-    wp_apply+ ws_hub_fifo_notify_spec as "_"; first iSteps.
+    wp_apply+ ws_hub_fifo_notify𑁒spec as "_"; first iSteps.
     iSteps.
   Qed.
 
-  #[local] Lemma ws_hub_fifo_pop'_spec_aux (owner : option (nat * emptiness)) t ι sz :
+  #[local] Lemma ws_hub_fifo_pop'𑁒spec_aux (owner : option (nat * emptiness)) t ι sz :
     <<<
       ws_hub_fifo_inv t ι sz ∗
       match owner with
@@ -596,7 +596,7 @@ Section ws_hub_fifo_G.
 
     wp_rec. wp_load.
 
-    awp_apply+ (mpmc_queue_1_pop_spec with "Hqueue_inv").
+    awp_apply+ (mpmc_queue_1_pop𑁒spec with "Hqueue_inv").
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
@@ -627,7 +627,7 @@ Section ws_hub_fifo_G.
       iDestruct (emptiness_update_auth with "Hemptiness_auth") as "Hemptiness_auth".
       iSteps.
   Qed.
-  #[local] Lemma ws_hub_fifo_pop'_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_pop'𑁒spec t ι sz :
     <<<
       ws_hub_fifo_inv t ι sz
     | ∀∀ vs,
@@ -650,9 +650,9 @@ Section ws_hub_fifo_G.
   Proof.
     iIntros "%Φ Hinv HΦ".
 
-    wp_apply (ws_hub_fifo_pop'_spec_aux None with "[$Hinv] HΦ").
+    wp_apply (ws_hub_fifo_pop'𑁒spec_aux None with "[$Hinv] HΦ").
   Qed.
-  #[local] Lemma ws_hub_fifo_pop'_spec_owner t ι sz i empty :
+  #[local] Lemma ws_hub_fifo_pop'𑁒spec_owner t ι sz i empty :
     <<<
       ws_hub_fifo_inv t ι sz ∗
       ws_hub_fifo_owner t i Nonblocked empty
@@ -676,10 +676,10 @@ Section ws_hub_fifo_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp_apply (ws_hub_fifo_pop'_spec_aux (Some (i, empty)) with "[$Hinv $Howner] HΦ").
+    wp_apply (ws_hub_fifo_pop'𑁒spec_aux (Some (i, empty)) with "[$Hinv $Howner] HΦ").
   Qed.
 
-  Lemma ws_hub_fifo_pop_spec t ι sz i i_ empty :
+  Lemma ws_hub_fifo_pop𑁒spec t ι sz i i_ empty :
     i = ⁺i_ →
     <<<
       ws_hub_fifo_inv t ι sz ∗
@@ -705,10 +705,10 @@ Section ws_hub_fifo_G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_pop'_spec_owner with "[$Hinv $Howner] HΦ").
+    wp_apply+ (ws_hub_fifo_pop'𑁒spec_owner with "[$Hinv $Howner] HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_until_0_spec P Q t ι sz pred :
+  #[local] Lemma ws_hub_fifo_steal_until_0𑁒spec P Q t ι sz pred :
     <<<
       ws_hub_fifo_inv t ι sz ∗
       P ∗
@@ -751,9 +751,9 @@ Section ws_hub_fifo_G.
       iMod ("HΦ" $! None with "Hmodel") as "HΦ".
       iSteps.
 
-    - wp_apply+ domain_yield_spec.
+    - wp_apply+ domain_yield𑁒spec.
 
-      awp_apply+ ws_hub_fifo_pop'_spec; first iSteps.
+      awp_apply+ ws_hub_fifo_pop'𑁒spec; first iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
 
@@ -761,7 +761,7 @@ Section ws_hub_fifo_G.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_until_spec P Q t ι sz i i_ empty max_round_noyield pred :
+  Lemma ws_hub_fifo_steal_until𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
@@ -798,12 +798,12 @@ Section ws_hub_fifo_G.
     iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & HP & #Hpred) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_steal_until_0_spec P Q with "[$Hinv $HP $Hpred]").
+    wp_apply+ (ws_hub_fifo_steal_until_0𑁒spec P Q with "[$Hinv $HP $Hpred]").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
     iApply ("HΦ" with "[$Howner $H]").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_0_spec t ι sz :
+  #[local] Lemma ws_hub_fifo_steal_0𑁒spec t ι sz :
     <<<
       ws_hub_fifo_inv t ι sz
     | ∀∀ vs,
@@ -829,10 +829,10 @@ Section ws_hub_fifo_G.
     iLöb as "HLöb".
 
     wp_rec. wp_load.
-    wp_apply+ (waiters_prepare_wait_spec with "Hwaiters_inv") as (waiter) "Hwaiter".
-    wp_apply+ ws_hub_fifo_closed_spec as ([]) "_"; first iSteps.
+    wp_apply+ (waiters_prepare_wait𑁒spec with "Hwaiters_inv") as (waiter) "Hwaiter".
+    wp_apply+ ws_hub_fifo_closed𑁒spec as ([]) "_"; first iSteps.
 
-    - wp_apply+ ws_hub_fifo_notify_all_spec as "_"; first iSteps.
+    - wp_apply+ ws_hub_fifo_notify_all𑁒spec as "_"; first iSteps.
       wp_pures.
 
       iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
@@ -840,28 +840,28 @@ Section ws_hub_fifo_G.
       iSteps.
 
     - wp_load.
-      wp_apply+ (mpmc_queue_1_is_empty_spec' with "Hqueue_inv") as (b) "_".
+      wp_apply+ (mpmc_queue_1_is_empty𑁒spec' with "Hqueue_inv") as (b) "_".
 
       wp_bind (if: _ then _ else _)%E.
       wp_apply (wp_wand itype_unit with "[Hwaiter]") as (res) "->".
       { destruct b; wp_pures.
-        1: wp_apply (waiters_commit_wait_spec with "[$Hwaiters_inv $Hwaiter]").
-        2: wp_apply (waiters_cancel_wait_spec with "[$Hwaiters_inv $Hwaiter]").
+        1: wp_apply (waiters_commit_wait𑁒spec with "[$Hwaiters_inv $Hwaiter]").
+        2: wp_apply (waiters_cancel_wait𑁒spec with "[$Hwaiters_inv $Hwaiter]").
         all: iSteps.
       }
 
-      awp_apply+ ws_hub_fifo_pop'_spec; first iSteps.
+      awp_apply+ ws_hub_fifo_pop'𑁒spec; first iSteps.
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
 
       + iRight. iExists (Some v). iFrameStep 5.
 
-        wp_apply ws_hub_fifo_end_inactive_spec. 1: iSteps.
+        wp_apply ws_hub_fifo_end_inactive𑁒spec. 1: iSteps.
         iSteps.
 
       + iLeft. iFrameSteps.
   Qed.
-  Lemma ws_hub_fifo_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -889,13 +889,13 @@ Section ws_hub_fifo_G.
     iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_fifo_begin_inactive_spec with "Hinv") as "_".
-    wp_apply+ (ws_hub_fifo_steal_0_spec with "Hinv").
+    wp_apply+ (ws_hub_fifo_begin_inactive𑁒spec with "Hinv") as "_".
+    wp_apply+ (ws_hub_fifo_steal_0𑁒spec with "Hinv").
     iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
     iApply ("HΦ" with "[$Howner $HP]").
   Qed.
 
-  Lemma ws_hub_fifo_close_spec t ι sz :
+  Lemma ws_hub_fifo_close𑁒spec t ι sz :
     {{{
       ws_hub_fifo_inv t ι sz
     }}}
@@ -905,7 +905,7 @@ Section ws_hub_fifo_G.
       True
     }}}.
   Proof.
-    apply ws_hub_fifo_begin_inactive_spec.
+    apply ws_hub_fifo_begin_inactive𑁒spec.
   Qed.
 End ws_hub_fifo_G.
 
@@ -918,7 +918,7 @@ Section ws_hub_fifo_G.
 
   Implicit Types P Q : iProp Σ.
 
-  Lemma ws_hub_fifo_pop_steal_until_spec P Q t ι sz i i_ empty max_round_noyield pred :
+  Lemma ws_hub_fifo_pop_steal_until𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     <<<
@@ -961,7 +961,7 @@ Section ws_hub_fifo_G.
 
     wp_rec.
 
-    awp_apply+ (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_fifo_pop𑁒spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -970,13 +970,13 @@ Section ws_hub_fifo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
 
-      wp_apply+ (ws_hub_fifo_steal_until_spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
+      wp_apply+ (ws_hub_fifo_steal_until𑁒spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & H)".
       iApply ("HΦ" with "[- $Howner]").
       destruct o; iFrameSteps.
   Qed.
 
-  Lemma ws_hub_fifo_pop_steal_spec t ι sz i i_ empty max_round_noyield max_round_yield :
+  Lemma ws_hub_fifo_pop_steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
     (0 ≤ max_round_yield)%Z →
@@ -1010,7 +1010,7 @@ Section ws_hub_fifo_G.
 
     wp_rec.
 
-    awp_apply+ (ws_hub_fifo_pop_spec with "[$Hinv $Howner]"); [done.. |].
+    awp_apply+ (ws_hub_fifo_pop𑁒spec with "[$Hinv $Howner]"); [done.. |].
     iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
 
@@ -1020,7 +1020,7 @@ Section ws_hub_fifo_G.
     - iLeft. iFrame.
       iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp_apply+ (ws_hub_fifo_steal_spec with "[$Hinv $Howner]"); [done.. |].
+      wp_apply+ (ws_hub_fifo_steal𑁒spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.

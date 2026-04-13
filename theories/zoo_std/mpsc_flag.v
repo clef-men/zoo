@@ -197,7 +197,7 @@ Module base.
       apply consumer_exclusive.
     Qed.
 
-    Lemma mpsc_flag_create_spec P :
+    Lemma mpsc_flag_create𑁒spec P :
       {{{
         True
       }}}
@@ -227,7 +227,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    Lemma mpsc_flag_get_spec t γ P :
+    Lemma mpsc_flag_get𑁒spec t γ P :
       {{{
         mpsc_flag_inv t γ P ∗
         mpsc_flag_consumer γ
@@ -258,7 +258,7 @@ Module base.
       - iFrameSteps.
     Qed.
 
-    Lemma mpsc_flag_set_spec t γ P :
+    Lemma mpsc_flag_set𑁒spec t γ P :
       {{{
         mpsc_flag_inv t γ P ∗
         ▷ P
@@ -386,7 +386,7 @@ Section mpsc_flag_G.
     iApply (base.mpsc_flag_consumer_exclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
 
-  Lemma mpsc_flag_create_spec P :
+  Lemma mpsc_flag_create𑁒spec P :
     {{{
       True
     }}}
@@ -401,12 +401,12 @@ Section mpsc_flag_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mpsc_flag_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
+    wp_apply (base.mpsc_flag_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma mpsc_flag_get_spec t P :
+  Lemma mpsc_flag_get𑁒spec t P :
     {{{
       mpsc_flag_inv t P ∗
       mpsc_flag_consumer t
@@ -424,11 +424,11 @@ Section mpsc_flag_G.
     iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mpsc_flag_get_spec with "[$]") as (b) "Hb".
+    wp_apply (base.mpsc_flag_get𑁒spec with "[$]") as (b) "Hb".
     destruct b; iSteps.
   Qed.
 
-  Lemma mpsc_flag_set_spec t P :
+  Lemma mpsc_flag_set𑁒spec t P :
     {{{
       mpsc_flag_inv t P ∗
       ▷ P
@@ -441,7 +441,7 @@ Section mpsc_flag_G.
   Proof.
     iIntros "%Φ ((:inv) & HP) HΦ".
 
-    wp_apply (base.mpsc_flag_set_spec _ _ P with "[$]").
+    wp_apply (base.mpsc_flag_set𑁒spec _ _ P with "[$]").
     iSteps.
   Qed.
 End mpsc_flag_G.

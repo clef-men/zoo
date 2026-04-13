@@ -131,7 +131,7 @@ Section zoo_G.
     destruct vs; iSteps.
   Qed.
 
-  Lemma clst_app_spec {t1} vs1 {t2} cvs2 :
+  Lemma clst_app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
@@ -150,7 +150,7 @@ Section zoo_G.
     - wp_apply+ ("IH" with "[//]"); iSteps.
   Qed.
 
-  Lemma clst_rev_app_spec {t1} vs1 {t2} cvs2 :
+  Lemma clst_rev_app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
@@ -171,7 +171,7 @@ Section zoo_G.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
-  #[local] Lemma clst_iter_spec_aux vs_left Ψ vs fn t vs_right :
+  #[local] Lemma clst_iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
     vs = vs_left ++ vs_right →
     t = list_to_clist_open vs_right →
     {{{
@@ -203,7 +203,7 @@ Section zoo_G.
     }
     iSteps.
   Qed.
-  Lemma clst_iter_spec Ψ t vs fn :
+  Lemma clst_iter𑁒spec Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       ▷ Ψ [] ∗
@@ -222,10 +222,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
-    iApply (clst_iter_spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    iApply (clst_iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
-  Lemma clst_iter_spec_disentangled Ψ t vs fn :
+  Lemma clst_iter𑁒spec_disentangled Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       [∗ list] v ∈ vs,

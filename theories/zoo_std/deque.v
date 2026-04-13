@@ -40,7 +40,7 @@ Section zoo_G.
     iApply (xdeque_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma deque_create_spec :
+  Lemma deque_create𑁒spec :
     {{{
       True
     }}}
@@ -52,11 +52,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (xdeque_create_spec with "[//]").
+    wp_apply (xdeque_create𑁒spec with "[//]").
     iSteps.
   Qed.
 
-  Lemma deque_is_empty_spec t vs :
+  Lemma deque_is_empty𑁒spec t vs :
     {{{
       deque_model t vs
     }}}
@@ -67,13 +67,13 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
-    wp_apply (xdeque_is_empty_spec with "Hmodel").
+    wp_apply (xdeque_is_empty𑁒spec with "Hmodel").
     iDestruct (big_sepL2_length with "Hnodes") as %Hlength.
     rewrite -!(bool_decide_ext _ _ (length_zero_iff_nil _)) Hlength.
     iSteps.
   Qed.
 
-  Lemma deque_push_front_spec t vs v :
+  Lemma deque_push_front𑁒spec t vs v :
     {{{
       deque_model t vs
     }}}
@@ -86,11 +86,11 @@ Section zoo_G.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp_rec.
     wp_block node as "(Hnode_prev & Hnode_next & Hnode_data & _)".
-    wp_apply (xdeque_push_front_spec with "[$Hmodel $Hnode_prev $Hnode_next]").
+    wp_apply (xdeque_push_front𑁒spec with "[$Hmodel $Hnode_prev $Hnode_next]").
     iSteps.
   Qed.
 
-  Lemma deque_push_back_spec t vs v :
+  Lemma deque_push_back𑁒spec t vs v :
     {{{
       deque_model t vs
     }}}
@@ -103,11 +103,11 @@ Section zoo_G.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp_rec.
     wp_block node as "(Hnode_prev & Hnode_next & Hnode_data & _)".
-    wp_apply (xdeque_push_back_spec with "[$Hmodel $Hnode_prev $Hnode_next]").
+    wp_apply (xdeque_push_back𑁒spec with "[$Hmodel $Hnode_prev $Hnode_next]").
     iSteps. iApply big_sepL2_snoc. iSteps.
   Qed.
 
-  Lemma deque_pop_front_spec t vs :
+  Lemma deque_pop_front𑁒spec t vs :
     {{{
       deque_model t vs
     }}}
@@ -119,7 +119,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp_rec.
-    wp_apply (xdeque_pop_front_spec with "Hmodel") as "Hmodel".
+    wp_apply (xdeque_pop_front𑁒spec with "Hmodel") as "Hmodel".
     destruct nodes as [| node nodes].
     - iDestruct (big_sepL2_nil_inv_l with "Hnodes") as %->.
       iSteps.
@@ -128,7 +128,7 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma deque_pop_back_spec t vs :
+  Lemma deque_pop_back𑁒spec t vs :
     {{{
       deque_model t vs
     }}}
@@ -149,7 +149,7 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (%nodes & Hmodel & Hnodes) HΦ".
     wp_rec.
-    wp_apply (xdeque_pop_back_spec with "Hmodel") as ([node |]) "Hmodel".
+    wp_apply (xdeque_pop_back𑁒spec with "Hmodel") as ([node |]) "Hmodel".
     - iDestruct "Hmodel" as "(%nodes' & -> & Hmodel)".
       iDestruct (big_sepL2_snoc_inv_l with "Hnodes") as "(%vs' & %v & -> & Hnodes & Hnode)".
       wp_load. wp_pures.
@@ -162,7 +162,7 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma deque_iter_spec Ψ fn t vs :
+  Lemma deque_iter𑁒spec Ψ fn t vs :
     {{{
       ▷ Ψ [] ∗
       deque_model t vs ∗
@@ -189,7 +189,7 @@ Section zoo_G.
       Ψ (take (length nodes_done) vs) ∗
       [∗ list] node; v ∈ nodes; vs, node.[xdeque_data] ↦ v
     )%I).
-    wp_apply+ (xdeque_iter_spec Χ with "[$HΨ $Hnodes $Hmodel]").
+    wp_apply+ (xdeque_iter𑁒spec Χ with "[$HΨ $Hnodes $Hmodel]").
     { iIntros "!> %nodes_done %node %nodes_todo -> (HΨ & Hnodes)".
       iDestruct (big_sepL2_lookup_acc_l (length nodes_done) with "Hnodes") as "(%v & %Hvs_lookup & Hnode & Hnodes)".
       { rewrite lookup_app_r // Nat.sub_diag //. }

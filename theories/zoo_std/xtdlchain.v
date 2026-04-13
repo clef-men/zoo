@@ -242,7 +242,7 @@ Section zoo_G.
     iApply (xdlchain_NoDup with "H").
   Qed.
 
-  Lemma xtdlchain_prev_spec {hdr src nodes node} nodes' dst E :
+  Lemma xtdlchain_prev𑁒spec {hdr src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xtdlchain hdr src nodes dst
@@ -254,10 +254,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_prev_spec with "H"); first done.
+    wp_apply (xdlchain_prev𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_prev_spec_lookup {hdr src nodes} i node dst E :
+  Lemma xtdlchain_prev𑁒spec_lookup {hdr src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -269,10 +269,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_prev_spec_lookup with "H"); first done.
+    wp_apply (xdlchain_prev𑁒spec_lookup with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_prev_spec_head {hdr src nodes} node dst E :
+  Lemma xtdlchain_prev𑁒spec_head {hdr src nodes} node dst E :
     head nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -284,11 +284,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hnode %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_prev_spec_head with "H"); first done.
+    wp_apply (xdlchain_prev𑁒spec_head with "H"); first done.
     iSteps.
   Qed.
 
-  Lemma xtdlchain_next_spec {hdr src nodes node} nodes' dst E :
+  Lemma xtdlchain_next𑁒spec {hdr src nodes node} nodes' dst E :
     nodes = node :: nodes' →
     {{{
       xtdlchain hdr src nodes dst
@@ -300,10 +300,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_next_spec with "H"); first done.
+    wp_apply (xdlchain_next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_next_spec_lookup {hdr src nodes} i node dst E :
+  Lemma xtdlchain_next𑁒spec_lookup {hdr src nodes} i node dst E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -315,10 +315,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_next_spec_lookup with "H"); first done.
+    wp_apply (xdlchain_next𑁒spec_lookup with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_next_spec_last {hdr src nodes} node dst E :
+  Lemma xtdlchain_next𑁒spec_last {hdr src nodes} node dst E :
     last nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -330,11 +330,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hnode %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_next_spec_last with "H"); first done.
+    wp_apply (xdlchain_next𑁒spec_last with "H"); first done.
     iSteps.
   Qed.
 
-  Lemma xtdlchain_set_prev_spec {hdr src nodes node} nodes' dst v E :
+  Lemma xtdlchain_set_prev𑁒spec {hdr src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xtdlchain hdr src nodes dst
@@ -346,10 +346,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_set_prev_spec with "H"); first done.
+    wp_apply (xdlchain_set_prev𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_set_prev_spec_lookup {hdr src nodes} i node dst v E :
+  Lemma xtdlchain_set_prev𑁒spec_lookup {hdr src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -369,7 +369,7 @@ Section zoo_G.
     rewrite (xtdlchain_cons (node :: drop _ nodes)) //.
     iSteps.
   Qed.
-  Lemma xtdlchain_set_prev_spec_head {hdr src nodes} node dst v E :
+  Lemma xtdlchain_set_prev𑁒spec_head {hdr src nodes} node dst v E :
     head nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -381,11 +381,11 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_set_prev_spec_head with "H"); first done.
+    wp_apply (xdlchain_set_prev𑁒spec_head with "H"); first done.
     iSteps.
   Qed.
 
-  Lemma xtdlchain_set_next_spec {hdr src nodes node} nodes' dst v E :
+  Lemma xtdlchain_set_next𑁒spec {hdr src nodes node} nodes' dst v E :
     nodes = node :: nodes' →
     {{{
       xtdlchain hdr src nodes dst
@@ -398,10 +398,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros (->) "%Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_set_next_spec with "H"); first done.
+    wp_apply (xdlchain_set_next𑁒spec with "H"); first done.
     iSteps.
   Qed.
-  Lemma xtdlchain_set_next_spec_lookup {hdr src nodes} i node dst v E :
+  Lemma xtdlchain_set_next𑁒spec_lookup {hdr src nodes} i node dst v E :
     nodes !! i = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -421,7 +421,7 @@ Section zoo_G.
     rewrite (xtdlchain_snoc (take _ nodes ++ [node])) //.
     iSteps.
   Qed.
-  Lemma xtdlchain_set_next_spec_last {hdr src nodes} node dst v E :
+  Lemma xtdlchain_set_next𑁒spec_last {hdr src nodes} node dst v E :
     last nodes = Some node →
     {{{
       xtdlchain hdr src nodes dst
@@ -433,7 +433,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Hlookup %Φ (H & Hheaders) HΦ".
-    wp_apply (xdlchain_set_next_spec_last with "H"); first done.
+    wp_apply (xdlchain_set_next𑁒spec_last with "H"); first done.
     iSteps.
   Qed.
 End zoo_G.

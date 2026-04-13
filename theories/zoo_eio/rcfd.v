@@ -641,7 +641,7 @@ Section rcfd_G.
       iSteps.
   Qed.
 
-  Lemma rcfd_make_spec owned Ψ fd :
+  Lemma rcfd_make𑁒spec owned Ψ fd :
     {{{
       Ψ 1%Qp
     }}}
@@ -680,7 +680,7 @@ Section rcfd_G.
     - destruct owned; iSteps.
   Qed.
 
-  #[local] Lemma rcfd_finish_spec l γ Ψ (close : val) :
+  #[local] Lemma rcfd_finish𑁒spec l γ Ψ (close : val) :
     {{{
       inv' l γ Ψ ∗
       lstate_lb γ LClosingUsers
@@ -724,7 +724,7 @@ Section rcfd_G.
       iSteps.
   Qed.
 
-  #[local] Lemma rcfd_put_spec l γ Ψ `{!Fractional Ψ} :
+  #[local] Lemma rcfd_put𑁒spec l γ Ψ `{!Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       ( lstate_lb γ LClosingNoUsers
@@ -783,7 +783,7 @@ Section rcfd_G.
       iSplitR "HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp_apply+ (rcfd_finish_spec with "[$] HΦ").
+      wp_apply+ (rcfd_finish𑁒spec with "[$] HΦ").
   Qed.
 
   Inductive specification :=
@@ -824,7 +824,7 @@ Section rcfd_G.
     - iApply (rcfd_closing_elim with "Hmeta Hspec").
   Qed.
 
-  #[local] Lemma rcfd_get_spec_aux spec l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd_get𑁒spec_aux spec l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       specification_pre_2 γ spec
@@ -917,12 +917,12 @@ Section rcfd_G.
       iSplitR "H HΦ". { iFrameSteps 2. }
       iIntros "!> {%- HΨ Hspec}".
 
-      wp_apply+ (rcfd_put_spec with "[$]") as "_".
+      wp_apply+ (rcfd_put𑁒spec with "[$]") as "_".
       wp_pures.
       iApply ("HΦ" $! None).
       destruct spec; try congruence; iSteps.
   Qed.
-  #[local] Lemma rcfd_get_spec l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd_get𑁒spec l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ
     }}}
@@ -943,10 +943,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp_apply (rcfd_get_spec_aux SpecNormal with "[$]").
+    wp_apply (rcfd_get𑁒spec_aux SpecNormal with "[$]").
     iSteps.
   Qed.
-  #[local] Lemma rcfd_get_spec_owner l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd_get𑁒spec_owner l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       owner γ
@@ -962,10 +962,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp_apply (rcfd_get_spec_aux SpecOwner with "[$]") as ([v |]) ""; last iSteps.
+    wp_apply (rcfd_get𑁒spec_aux SpecOwner with "[$]") as ([v |]) ""; last iSteps.
     iSteps.
   Qed.
-  #[local] Lemma rcfd_get_spec_closing l γ Ψ `{HΨ : !Fractional Ψ} :
+  #[local] Lemma rcfd_get𑁒spec_closing l γ Ψ `{HΨ : !Fractional Ψ} :
     {{{
       inv' l γ Ψ ∗
       lstate_lb γ LClosingUsers
@@ -978,11 +978,11 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hlstate_lb) HΦ".
 
-    wp_apply (rcfd_get_spec_aux SpecClosing with "[$]").
+    wp_apply (rcfd_get𑁒spec_aux SpecClosing with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd_use_spec_aux spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  #[local] Lemma rcfd_use𑁒spec_aux spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd_inv t owned fd Ψ ∗
       specification_pre_1 t spec ∗
@@ -1022,7 +1022,7 @@ Section rcfd_G.
     iDestruct (specification_pre_1_2 with "Hmeta Hspec") as "Hspec".
 
     wp_rec.
-    wp_apply+ (rcfd_get_spec_aux with "[$]") as ([v |]) "(Hspec & H)".
+    wp_apply+ (rcfd_get𑁒spec_aux with "[$]") as ([v |]) "(Hspec & H)".
 
     - iDestruct "H" as "(%q & -> & Htoken & HΨ)".
 
@@ -1031,7 +1031,7 @@ Section rcfd_G.
       iEval (rewrite decide_True //) in "Hopen".
 
       wp_apply+ (wp_wand with "(Hopen HΨ)") as "%res (HΨ & HΧ)".
-      wp_apply+ (rcfd_put_spec with "[Htoken HΨ]") as "_"; first iSteps.
+      wp_apply+ (rcfd_put𑁒spec with "[Htoken HΨ]") as "_"; first iSteps.
       wp_pures.
       destruct spec; try congruence; iSteps.
 
@@ -1042,7 +1042,7 @@ Section rcfd_G.
       wp_apply+ (wp_wand with "Hclosed") as "%res HΧ".
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd_use_spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd_use𑁒spec Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd_inv t owned fd Ψ ∗
       WP closed () {{ Χ false }} ∗
@@ -1063,10 +1063,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Hclosed & Hopen) HΦ".
 
-    wp_apply (rcfd_use_spec_aux SpecNormal with "[$]").
+    wp_apply (rcfd_use𑁒spec_aux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_use_spec_owner Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd_use𑁒spec_owner Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd_inv t owned fd Ψ ∗
       rcfd_owner t ∗
@@ -1087,10 +1087,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & Hopen) HΦ".
 
-    wp_apply (rcfd_use_spec_aux SpecOwner (const Χ) with "[$]").
+    wp_apply (rcfd_use𑁒spec_aux SpecOwner (const Χ) with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_use_spec_closing Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
+  Lemma rcfd_use𑁒spec_closing Χ t owned fd Ψ `{!Fractional Ψ} (closed open : val) :
     {{{
       rcfd_inv t owned fd Ψ ∗
       rcfd_closing t ∗
@@ -1105,11 +1105,11 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & Hclosed) HΦ".
 
-    wp_apply (rcfd_use_spec_aux SpecClosing (const Χ) with "[$]").
+    wp_apply (rcfd_use𑁒spec_aux SpecClosing (const Χ) with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd_close_spec_aux closing t owned fd Ψ :
+  #[local] Lemma rcfd_close𑁒spec_aux closing t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       ( if owned then
@@ -1195,7 +1195,7 @@ Section rcfd_G.
         }
         iIntros "!> {%}".
 
-        wp_apply+ (rcfd_finish_spec with "[$]").
+        wp_apply+ (rcfd_finish𑁒spec with "[$]").
         destruct γ.(metadata_owned); iSteps.
 
     - iDestruct (inv_lstate_LClosing with "Hlstate Hlstate_auth") as "(%fn1 & -> & #Hlstate_lb)"; first done.
@@ -1209,7 +1209,7 @@ Section rcfd_G.
       wp_pures.
       destruct closing; iSteps.
   Qed.
-  Lemma rcfd_close_spec t owned fd Ψ :
+  Lemma rcfd_close𑁒spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       ( if owned then
@@ -1235,10 +1235,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner & H) HΦ".
 
-    wp_apply (rcfd_close_spec_aux false with "[$]").
+    wp_apply (rcfd_close𑁒spec_aux false with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_close_spec_closing t fd Ψ :
+  Lemma rcfd_close𑁒spec_closing t fd Ψ :
     {{{
       rcfd_inv t false fd Ψ ∗
       rcfd_closing t
@@ -1251,11 +1251,11 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp_apply (rcfd_close_spec_aux true with "[$]").
+    wp_apply (rcfd_close𑁒spec_aux true with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd_remove_spec_aux closing t owned fd Ψ :
+  #[local] Lemma rcfd_remove𑁒spec_aux closing t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       ( if owned then
@@ -1312,7 +1312,7 @@ Section rcfd_G.
       iSplitR "Howner HΦ". { iFrameSteps 2. }
       iIntros "!> {%}".
 
-      wp_apply+ (spsc_waiter_create_spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
+      wp_apply+ (spsc_waiter_create𑁒spec (Ψ 1%Qp) with "[//]") as "%waiter (#Hwaiter_inv & Hwaiter_producer & Hwaiter_consumer)".
       wp_pures.
 
       wp_bind (CAS _ _ _).
@@ -1343,16 +1343,16 @@ Section rcfd_G.
           - iDestruct (tokens_auth_consume with "Htokens_auth") as "HΨ".
             iMod (lstate_update_close_no_users with "Hlstate_auth") as "Hlstate_auth".
             iExists (Closing _). iFrameStep 8.
-            wp_apply (spsc_waiter_notify_spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp_apply (spsc_waiter_notify𑁒spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
           - iDestruct (tokens_auth_valid with "Htokens_auth") as %?.
             iExists (Closing _). iFrame. iSteps as "HΨ".
-            wp_apply (spsc_waiter_notify_spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
+            wp_apply (spsc_waiter_notify𑁒spec with "[$Hwaiter_inv $Hwaiter_producer $HΨ]").
             iSteps.
         }
         iIntros "!> {%}".
 
-        wp_apply+ (spsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
+        wp_apply+ (spsc_waiter_wait𑁒spec with "[$Hwaiter_inv $Hwaiter_consumer]") as "HΨ".
         wp_pures.
         iApply ("HΦ" $! (Some _)).
         destruct γ.(metadata_owned); iSteps.
@@ -1369,7 +1369,7 @@ Section rcfd_G.
       iApply ("HΦ" $! None).
       destruct closing; iSteps.
   Qed.
-  Lemma rcfd_remove_spec t owned fd Ψ :
+  Lemma rcfd_remove𑁒spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       if owned then
@@ -1397,10 +1397,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp_apply (rcfd_remove_spec_aux false with "[$]").
+    wp_apply (rcfd_remove𑁒spec_aux false with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_remove_spec_closing t fd Ψ :
+  Lemma rcfd_remove𑁒spec_closing t fd Ψ :
     {{{
       rcfd_inv t false fd Ψ ∗
       rcfd_closing t
@@ -1413,11 +1413,11 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp_apply (rcfd_remove_spec_aux true with "[$]").
+    wp_apply (rcfd_remove𑁒spec_aux true with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd_is_open_spec_aux spec t owned fd Ψ :
+  #[local] Lemma rcfd_is_open𑁒spec_aux spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       specification_pre_1 t spec
@@ -1472,7 +1472,7 @@ Section rcfd_G.
       wp_pures.
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd_is_open_spec t owned fd Ψ :
+  Lemma rcfd_is_open𑁒spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ
     }}}
@@ -1488,10 +1488,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp_apply (rcfd_is_open_spec_aux SpecNormal with "[$]").
+    wp_apply (rcfd_is_open𑁒spec_aux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_is_open_spec_owner t owned fd Ψ :
+  Lemma rcfd_is_open𑁒spec_owner t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       rcfd_owner t
@@ -1504,10 +1504,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp_apply (rcfd_is_open_spec_aux SpecOwner with "[$]").
+    wp_apply (rcfd_is_open𑁒spec_aux SpecOwner with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_is_open_spec_closing t owned fd Ψ :
+  Lemma rcfd_is_open𑁒spec_closing t owned fd Ψ :
     {{{
       rcfd_inv t false fd Ψ ∗
       rcfd_closing t
@@ -1520,11 +1520,11 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp_apply (rcfd_is_open_spec_aux SpecClosing with "[$]").
+    wp_apply (rcfd_is_open𑁒spec_aux SpecClosing with "[$]").
     iSteps.
   Qed.
 
-  #[local] Lemma rcfd_peek_spec_aux spec t owned fd Ψ :
+  #[local] Lemma rcfd_peek𑁒spec_aux spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       specification_pre_1 t spec
@@ -1583,7 +1583,7 @@ Section rcfd_G.
       iApply ("HΦ" $! None).
       destruct spec; try congruence; iSteps.
   Qed.
-  Lemma rcfd_peek_spec t owned fd Ψ :
+  Lemma rcfd_peek𑁒spec t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ
     }}}
@@ -1601,10 +1601,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ #Hinv HΦ".
 
-    wp_apply (rcfd_peek_spec_aux SpecNormal with "[$]").
+    wp_apply (rcfd_peek𑁒spec_aux SpecNormal with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_peek_spec_owner t owned fd Ψ :
+  Lemma rcfd_peek𑁒spec_owner t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       rcfd_owner t
@@ -1617,10 +1617,10 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & Howner) HΦ".
 
-    wp_apply (rcfd_peek_spec_aux SpecOwner with "[$]").
+    wp_apply (rcfd_peek𑁒spec_aux SpecOwner with "[$]").
     iSteps.
   Qed.
-  Lemma rcfd_peek_spec_closing t owned fd Ψ :
+  Lemma rcfd_peek𑁒spec_closing t owned fd Ψ :
     {{{
       rcfd_inv t owned fd Ψ ∗
       rcfd_closing t
@@ -1633,7 +1633,7 @@ Section rcfd_G.
   Proof.
     iIntros "%Φ (#Hinv & #Hclosing) HΦ".
 
-    wp_apply (rcfd_peek_spec_aux SpecClosing with "[$]").
+    wp_apply (rcfd_peek𑁒spec_aux SpecClosing with "[$]").
     iSteps.
   Qed.
 End rcfd_G.

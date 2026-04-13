@@ -39,7 +39,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma pstack_is_empty_spec t vs :
+  Lemma pstack_is_empty𑁒spec t vs :
     {{{
       pstack_model t vs
     }}}
@@ -50,10 +50,10 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ -> HΦ".
-    wp_apply (lst_is_empty_spec with "[//] HΦ"); first done.
+    wp_apply (lst_is_empty𑁒spec with "[//] HΦ"); first done.
   Qed.
 
-  Lemma pstack_push_spec t vs v :
+  Lemma pstack_push𑁒spec t vs v :
     {{{
       pstack_model t vs
     }}}
@@ -68,7 +68,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma pstack_pop_spec t vs :
+  Lemma pstack_pop𑁒spec t vs :
     {{{
       pstack_model t vs
     }}}

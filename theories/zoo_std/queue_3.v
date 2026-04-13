@@ -85,7 +85,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma queue_3_create_spec :
+  Lemma queue_3_create𑁒spec :
     {{{
       True
     }}}
@@ -99,7 +99,7 @@ Section zoo_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec. rewrite queue_3_min_capacity.
-    wp_apply (array_unsafe_make_spec with "[//]") as (data) "Hextra"; first done.
+    wp_apply (array_unsafe_make𑁒spec with "[//]") as (data) "Hextra"; first done.
     iApply array_model_to_cslice in "Hextra". simpl_length.
     iDestruct (array_cslice_to_inv with "Hextra") as "#Hdata_inv".
     iDestruct (array_cslice_nil with "Hdata_inv") as "Hvs".
@@ -107,7 +107,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma queue_3_size_spec t vs :
+  Lemma queue_3_size𑁒spec t vs :
     {{{
       queue_3_model t vs
     }}}
@@ -124,7 +124,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma queue_3_is_empty_spec t vs :
+  Lemma queue_3_is_empty𑁒spec t vs :
     {{{
       queue_3_model t vs
     }}}
@@ -137,14 +137,14 @@ Section zoo_G.
     iIntros "%Φ Hmodel HΦ".
 
     wp_rec.
-    wp_apply (queue_3_size_spec with "Hmodel") as "Hmodel".
+    wp_apply (queue_3_size𑁒spec with "Hmodel") as "Hmodel".
     wp_pures.
     rewrite (bool_decide_ext (⁺(length vs) = 0) (vs = [])).
     { rewrite -length_zero_iff_nil. lia. }
     iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma queue_3_unsafe_get_spec {t vs i} v :
+  Lemma queue_3_unsafe_get𑁒spec {t vs i} v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
@@ -159,11 +159,11 @@ Section zoo_G.
     iIntros "%Hi %Hlookup %Φ (:model) HΦ".
 
     wp_rec. do 2 wp_load.
-    wp_apply (array_unsafe_cget_spec with "Hvs"); [lia | done | lia |].
+    wp_apply (array_unsafe_cget𑁒spec with "Hvs"); [lia | done | lia |].
     iSteps.
   Qed.
 
-  Lemma queue_3_unsafe_set_spec t vs i v :
+  Lemma queue_3_unsafe_set𑁒spec t vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
       queue_3_model t vs
@@ -177,12 +177,12 @@ Section zoo_G.
     iIntros "%Hi %Φ (:model) HΦ".
 
     wp_rec. do 2 wp_load.
-    wp_apply (array_unsafe_cset_spec with "Hvs"); first lia.
+    wp_apply (array_unsafe_cset𑁒spec with "Hvs"); first lia.
     replace (₊(front + i) - front) with ₊i by lia.
     iSteps; simpl_length.
   Qed.
 
-  #[local] Lemma queue_3_next_capacity_spec n :
+  #[local] Lemma queue_3_next_capacity𑁒spec n :
     (0 ≤ n)%Z →
     {{{
       True
@@ -196,7 +196,7 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-  #[local] Lemma queue_3_grow_spec t vs extra :
+  #[local] Lemma queue_3_grow𑁒spec t vs extra :
     {{{
       model' t vs extra
     }}}
@@ -211,14 +211,14 @@ Section zoo_G.
     iIntros "%Φ (:model') HΦ".
 
     wp_rec. do 3 wp_load.
-    wp_apply+ (array_size_spec_cslice with "Hvs") as "Hvs".
+    wp_apply+ (array_size𑁒spec_cslice with "Hvs") as "Hvs".
     wp_pures.
     case_bool_decide.
 
     - iClear "Hextra".
-      wp_apply+ (queue_3_next_capacity_spec with "[//]") as (cap') "%Hcap'"; first lia.
-      wp_apply+ int_max_spec.
-      wp_apply+ (array_unsafe_cgrow_spec with "Hvs") as (data') "(_ & Hvs)"; [lia.. |].
+      wp_apply+ (queue_3_next_capacity𑁒spec with "[//]") as (cap') "%Hcap'"; first lia.
+      wp_apply+ int_max𑁒spec.
+      wp_apply+ (array_unsafe_cgrow𑁒spec with "Hvs") as (data') "(_ & Hvs)"; [lia.. |].
       wp_store.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hextra)".
       rewrite -Hback. iSteps.
@@ -228,7 +228,7 @@ Section zoo_G.
     - iSteps. iExists extra. iSteps.
   Qed.
 
-  Lemma queue_3_push_spec t vs v :
+  Lemma queue_3_push𑁒spec t vs v :
     {{{
       queue_3_model t vs
     }}}
@@ -241,18 +241,18 @@ Section zoo_G.
     iIntros "%Φ (:model lazy=) HΦ".
 
     wp_rec.
-    wp_apply+ (queue_3_grow_spec with "Hmodel") as (extra') "(%Hextra' & (:model'))".
+    wp_apply+ (queue_3_grow𑁒spec with "Hmodel") as (extra') "(%Hextra' & (:model'))".
     do 2 wp_load.
     destruct (Nat.lt_exists_pred 0 extra') as (extra'' & -> & _); first lia.
     iDestruct (array_cslice_cons with "Hextra") as "(Hcell & Hextra)". rewrite -/replicate.
-    wp_apply (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+    wp_apply (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
     iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
     wp_store.
     replace (back + 1)%Z with ⁺(S back) by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
-  #[local] Lemma queue_3_shrink_spec t vs :
+  #[local] Lemma queue_3_shrink𑁒spec t vs :
     {{{
       queue_3_model t vs
     }}}
@@ -265,12 +265,12 @@ Section zoo_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec. rewrite queue_3_min_capacity. do 3 wp_load.
-    wp_apply+ (array_size_spec_cslice with "Hvs") as "Hvs".
+    wp_apply+ (array_size𑁒spec_cslice with "Hvs") as "Hvs".
     wp_pures.
     case_bool_decide; last iSteps.
     iDestruct (array_cslice_app_1 with "Hvs Hextra") as "Hvs"; first done.
     wp_pures. rewrite -Z.div2_spec.
-    wp_apply (array_unsafe_cshrink_slice_spec with "Hvs") as (data') "(_ & Hvs)"; [simpl_length; lia.. |].
+    wp_apply (array_unsafe_cshrink_slice𑁒spec with "Hvs") as (data') "(_ & Hvs)"; [simpl_length; lia.. |].
     wp_store.
     rewrite Nat2Z.id Nat.sub_diag slice_0 take_app_ge; first lia.
     rewrite take_replicate.
@@ -278,7 +278,7 @@ Section zoo_G.
     iStepFrameSteps.
   Qed.
 
-  Lemma queue_3_pop_front_spec t vs :
+  Lemma queue_3_pop_front𑁒spec t vs :
     {{{
       queue_3_model t vs
     }}}
@@ -299,20 +299,20 @@ Section zoo_G.
     - destruct vs as [| v vs]; first naive_solver. simpl in *.
       wp_load.
       iDestruct (array_cslice_cons with "Hvs") as "(Hcell & Hvs)".
-      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first done.
-      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first done.
+      wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
       wp_store.
       iApply array_cslice_shift_right in "Hcell".
       iDestruct (array_cslice_app_1 with "Hextra Hcell") as "Hextra".
       { simpl_length. lia. }
       rewrite -replicate_S_end.
-      wp_apply+ (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
+      wp_apply+ (queue_3_shrink𑁒spec _ vs with "[-HΦ]") as "Hmodel".
       { iExists (S extra). iFrameSteps. }
       wp_pures.
       iApply ("HΦ" with "Hmodel").
   Qed.
 
-  Lemma queue_3_pop_back_spec t vs :
+  Lemma queue_3_pop_back𑁒spec t vs :
     {{{
       queue_3_model t vs
     }}}
@@ -343,12 +343,12 @@ Section zoo_G.
     - destruct vs as [| v vs _] using rev_ind; first naive_solver. simpl_length/= in *.
       wp_load.
       iDestruct (array_cslice_app with "Hvs") as "(Hvs & Hcell)".
-      wp_apply+ (array_unsafe_cget_spec_cell with "Hcell") as "Hcell"; first lia.
-      wp_apply+ (array_unsafe_cset_spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cget𑁒spec_cell with "Hcell") as "Hcell"; first lia.
+      wp_apply+ (array_unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first lia.
       wp_store.
       iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
       rewrite -replicate_S.
-      wp_apply+ (queue_3_shrink_spec _ vs with "[-HΦ]") as "Hmodel".
+      wp_apply+ (queue_3_shrink𑁒spec _ vs with "[-HΦ]") as "Hmodel".
       { iExists (S extra). iFrameSteps. }
       wp_pures.
       iApply ("HΦ" $! (Some v)).

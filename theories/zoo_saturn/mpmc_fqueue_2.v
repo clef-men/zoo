@@ -109,7 +109,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_fqueue_2_create_spec ι cap :
+    Lemma mpmc_fqueue_2_create𑁒spec ι cap :
       (0 ≤ cap)%Z →
       {{{
         True
@@ -125,7 +125,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_fqueue_2_make_spec ι cap v :
+    Lemma mpmc_fqueue_2_make𑁒spec ι cap v :
       (0 ≤ cap)%Z →
       {{{
         True
@@ -141,7 +141,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_fqueue_2_is_empty_spec t γ ι :
+    Lemma mpmc_fqueue_2_is_empty𑁒spec t γ ι :
       <<<
         mpmc_fqueue_2_inv t γ ι
       | ∀∀ vs,
@@ -157,7 +157,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_fqueue_2_push_spec t γ ι v E Φ :
+    Lemma mpmc_fqueue_2_push𑁒spec t γ ι v E Φ :
       mpmc_fqueue_2_inv t γ ι -∗
       ▷ (
         |={⊤ ∖ ↑ι, E}=>
@@ -183,7 +183,7 @@ Module base.
     Proof.
     Admitted.
 
-    Lemma mpmc_fqueue_2_pop_spec t γ ι :
+    Lemma mpmc_fqueue_2_pop𑁒spec t γ ι :
       <<<
         mpmc_fqueue_2_inv t γ ι
       | ∀∀ vs,
@@ -356,7 +356,7 @@ Section mpmc_fqueue_2_G.
     iFrameSteps.
   Qed.
 
-  Lemma mpmc_fqueue_2_create_spec ι cap :
+  Lemma mpmc_fqueue_2_create𑁒spec ι cap :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -372,12 +372,12 @@ Section mpmc_fqueue_2_G.
     iIntros "%Hcap %Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mpmc_fqueue_2_create_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
+    wp_apply (base.mpmc_fqueue_2_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_fqueue_2_make_spec ι cap v :
+  Lemma mpmc_fqueue_2_make𑁒spec ι cap v :
     (0 ≤ cap)%Z →
     {{{
       True
@@ -393,12 +393,12 @@ Section mpmc_fqueue_2_G.
     iIntros "%Hcap %Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mpmc_fqueue_2_make_spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
+    wp_apply (base.mpmc_fqueue_2_make𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel)"; first done.
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpmc_fqueue_2_is_empty_spec t ι :
+  Lemma mpmc_fqueue_2_is_empty𑁒spec t ι :
     <<<
       mpmc_fqueue_2_inv t ι
     | ∀∀ vs,
@@ -414,14 +414,14 @@ Section mpmc_fqueue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpmc_fqueue_2_is_empty_spec with "[$]").
+    awp_apply (base.mpmc_fqueue_2_is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpmc_fqueue_2_push_spec t ι v E Φ :
+  Lemma mpmc_fqueue_2_push𑁒spec t ι v E Φ :
     mpmc_fqueue_2_inv t ι -∗
     ▷ (
       |={⊤ ∖ ↑ι, E}=>
@@ -447,7 +447,7 @@ Section mpmc_fqueue_2_G.
   Proof.
     iIntros "(:inv) HΦ".
 
-    wp_apply (base.mpmc_fqueue_2_push_spec _ _ _ _ E with "[$]").
+    wp_apply (base.mpmc_fqueue_2_push𑁒spec _ _ _ _ E with "[$]").
     { iMod "HΦ" as (vs) "((:model =1) & HΦ)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iFrame. iIntros "!> %b Hb".
@@ -460,7 +460,7 @@ Section mpmc_fqueue_2_G.
     }
   Qed.
 
-  Lemma mpmc_fqueue_2_pop_spec t ι :
+  Lemma mpmc_fqueue_2_pop𑁒spec t ι :
     <<<
       mpmc_fqueue_2_inv t ι
     | ∀∀ vs,
@@ -489,7 +489,7 @@ Section mpmc_fqueue_2_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpmc_fqueue_2_pop_spec with "[$]").
+    awp_apply (base.mpmc_fqueue_2_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; first iSteps. iIntros "%o %vs' (Hmodel & $)".

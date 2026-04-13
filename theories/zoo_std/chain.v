@@ -189,7 +189,7 @@ Section zoo_G.
     iCombine "Hl1_next Hl2_next" gives %(? & _). done.
   Qed.
 
-  Lemma chain_block_spec tag t vs dst v :
+  Lemma chain_block𑁒spec tag t vs dst v :
     {{{
       chain_model tag t vs dst
     }}}
@@ -203,7 +203,7 @@ Section zoo_G.
     destruct tag; iSteps.
   Qed.
 
-  Lemma chain_data_spec tag t v vs dst :
+  Lemma chain_data𑁒spec tag t v vs dst :
     {{{
       chain_model tag t (v :: vs) dst
     }}}
@@ -216,7 +216,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma chain_next_spec tag t v vs dst :
+  Lemma chain_next𑁒spec tag t v vs dst :
     {{{
       chain_model tag t (v :: vs) dst
     }}}
@@ -230,7 +230,7 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-  Lemma chain_next_spec_singleton tag t v dst :
+  Lemma chain_next𑁒spec_singleton tag t v dst :
     {{{
       chain_model tag t [v] dst
     }}}
@@ -243,7 +243,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma chain_set_data_spec tag t v vs dst w :
+  Lemma chain_set_data𑁒spec tag t v vs dst w :
     {{{
       chain_model tag t (v :: vs) dst
     }}}
@@ -256,7 +256,7 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma chain_set_next_spec tag t v vs dst v' :
+  Lemma chain_set_next𑁒spec tag t v vs dst v' :
     {{{
       chain_model tag t (v :: vs) dst
     }}}
@@ -270,7 +270,7 @@ Section zoo_G.
   Proof.
     iSteps.
   Qed.
-  Lemma chain_set_next_spec_singleton tag t v dst dst' :
+  Lemma chain_set_next𑁒spec_singleton tag t v dst dst' :
     {{{
       chain_model tag t [v] dst
     }}}

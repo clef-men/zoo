@@ -258,7 +258,7 @@ Section puf_G.
     iApply (pstore_2_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma puf_create_spec :
+  Lemma puf_create𑁒spec :
     {{{
       True
     }}}
@@ -271,11 +271,11 @@ Section puf_G.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    wp_apply (pstore_2_create_spec with "[//]").
+    wp_apply (pstore_2_create𑁒spec with "[//]").
     iSteps. iPureIntro. apply consistent_empty.
   Qed.
 
-  Lemma puf_make_spec t reprs :
+  Lemma puf_make𑁒spec t reprs :
     {{{
       puf_model t reprs
     }}}
@@ -289,13 +289,13 @@ Section puf_G.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec.
-    wp_apply+ (pstore_2_ref_spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
+    wp_apply+ (pstore_2_ref𑁒spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
 
     eapply consistent_insert in Hconsistent; last done.
     iSteps.
   Qed.
 
-  Lemma puf_repr_spec {t reprs elt} repr :
+  Lemma puf_repr𑁒spec {t reprs elt} repr :
     reprs !! elt = Some repr →
     {{{
       puf_model t reprs
@@ -312,14 +312,14 @@ Section puf_G.
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt repr); last done.
 
     wp_rec.
-    wp_apply+ (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (pstore_2_get𑁒spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & -> & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; wp_pures; first iSteps.
 
     wp_apply ("HLöb" $! parent with "[//] [$Hmodel //]") as "(:model =')".
     pose proof Hconsistent' as (descr' & Hdescrs'_lookup & _)%(consistent_lookup_Some elt repr); last done.
 
-    wp_apply+ (pstore_2_set_spec with "Hmodel'") as "Hmodel".
+    wp_apply+ (pstore_2_set𑁒spec with "Hmodel'") as "Hmodel".
     { rewrite elem_of_dom //. }
     wp_pures.
 
@@ -327,7 +327,7 @@ Section puf_G.
     iSteps.
   Qed.
 
-  Lemma puf_equiv_spec {t reprs elt1} repr1 {elt2} repr2 :
+  Lemma puf_equiv𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
@@ -342,12 +342,12 @@ Section puf_G.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
 
     wp_rec.
-    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_repr𑁒spec with "Hmodel") as "Hmodel"; first done.
     iSteps.
   Qed.
 
-  #[local] Lemma puf_rank_spec t reprs elt :
+  #[local] Lemma puf_rank𑁒spec t reprs elt :
     reprs !! elt = Some elt →
     {{{
       puf_model t reprs
@@ -363,7 +363,7 @@ Section puf_G.
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt elt); last done.
 
     wp_rec.
-    wp_apply+ (pstore_2_get_spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (pstore_2_get𑁒spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & _ & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; last done.
     iSteps.
@@ -420,7 +420,7 @@ Section puf_G.
     apply puf_union_condition_sym, unify_union_condition_1; done.
   Qed.
   #[local] Opaque puf_union_condition.
-  Lemma puf_union_spec {t reprs elt1} repr1 {elt2} repr2 :
+  Lemma puf_union𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
@@ -439,10 +439,10 @@ Section puf_G.
     iDestruct (puf_model_valid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
 
     wp_rec.
-    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf_rank_spec with "Hmodel") as (rank1) "Hmodel"; first done.
-    wp_apply+ (puf_repr_spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf_rank_spec with "Hmodel") as (rank2) "(:model)"; first done.
+    wp_apply+ (puf_repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_rank𑁒spec with "Hmodel") as (rank1) "Hmodel"; first done.
+    wp_apply+ (puf_repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (puf_rank𑁒spec with "Hmodel") as (rank2) "(:model)"; first done.
 
     pose proof Hconsistent as (descr1 & Hdescrs_lookup_1 & Hconsistent_at_1)%(consistent_lookup_Some repr1 repr1); last done.
     pose proof Hconsistent as (descr2 & Hdescrs_lookup_2 & Hconsistent_at_2)%(consistent_lookup_Some repr2 repr2); last done.
@@ -455,21 +455,21 @@ Section puf_G.
     - wp_pures.
       case_bool_decide; wp_pures.
 
-      + wp_apply (pstore_2_set_spec with "Hmodel") as "Hmodel".
+      + wp_apply (pstore_2_set𑁒spec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
         apply (consistent_link_union repr1 repr2) in Hconsistent; [| done..].
 
         iApply ("HΦ" $! (unify repr1 repr2 reprs)).
         iSteps. iPureIntro. apply unify_union_condition_1. done.
 
-      + wp_apply (pstore_2_set_spec with "Hmodel") as "Hmodel".
+      + wp_apply (pstore_2_set𑁒spec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
         apply (consistent_link_union repr2 repr1) in Hconsistent; [| done..].
 
         wp_pures.
         case_bool_decide; wp_pures.
 
-        * wp_apply (pstore_2_set_spec with "Hmodel") as "Hmodel".
+        * wp_apply (pstore_2_set𑁒spec with "Hmodel") as "Hmodel".
           { apply dom_insert, elem_of_union_r, elem_of_dom. done. }
           eapply (consistent_update_rank repr1) in Hconsistent; last first.
           { rewrite unify_lookup_2' //. }
@@ -481,7 +481,7 @@ Section puf_G.
           iSteps. iPureIntro. apply unify_union_condition_2. done.
   Qed.
 
-  Lemma puf_capture_spec t reprs :
+  Lemma puf_capture𑁒spec t reprs :
     {{{
       puf_model t reprs
     }}}
@@ -495,11 +495,11 @@ Section puf_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (pstore_2_capture_spec with "Hmodel").
+    wp_apply (pstore_2_capture𑁒spec with "Hmodel").
     iSteps.
   Qed.
 
-  Lemma puf_restore_spec t reprs s reprs' :
+  Lemma puf_restore𑁒spec t reprs s reprs' :
     {{{
       puf_model t reprs ∗
       puf_snapshot s t reprs'
@@ -512,7 +512,7 @@ Section puf_G.
   Proof.
     iIntros "%Φ ((:model) & (:snapshot =')) HΦ".
 
-    wp_apply (pstore_2_restore_spec with "[$Hmodel $Hsnapshot']").
+    wp_apply (pstore_2_restore𑁒spec with "[$Hmodel $Hsnapshot']").
     iSteps.
   Qed.
 End puf_G.

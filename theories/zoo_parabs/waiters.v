@@ -65,7 +65,7 @@ Section waiters_G.
     iApply (mpsc_waiter_consumer_exclusive with "Hwaiter_consumer1 Hwaiter_consumer2").
   Qed.
 
-  Lemma waiters_create_spec :
+  Lemma waiters_create𑁒spec :
     {{{
       True
     }}}
@@ -79,11 +79,11 @@ Section waiters_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (mpmc_queue_1_create_spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
+    wp_apply (mpmc_queue_1_create𑁒spec with "[//]") as (t) "(#Hqueue_inv & Hmodel)".
     iSteps.
   Qed.
 
-  #[local] Lemma waiters_notify'_spec t :
+  #[local] Lemma waiters_notify'𑁒spec t :
     {{{
       waiters_inv t
     }}}
@@ -100,7 +100,7 @@ Section waiters_G.
 
     wp_rec.
 
-    awp_apply (mpmc_queue_1_pop_spec with "Hqueue_inv") without "HΦ".
+    awp_apply (mpmc_queue_1_pop𑁒spec with "Hqueue_inv") without "HΦ".
     iInv "Hinv" as "(%waiters & >Hmodel & Hwaiters)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     destruct waiters as [| waiter waiters]; first iSteps.
@@ -108,11 +108,11 @@ Section waiters_G.
     iSplitR "Hwaiter"; first iSteps.
     iIntros "_ HΦ".
 
-    wp_apply+ (mpsc_waiter_notify_spec with "[$Hwaiter //]") as ([]) "_"; last iSteps.
+    wp_apply+ (mpsc_waiter_notify𑁒spec with "[$Hwaiter //]") as ([]) "_"; last iSteps.
     wp_apply+ ("HLöb" with "HΦ").
   Qed.
 
-  Lemma waiters_notify_spec t :
+  Lemma waiters_notify𑁒spec t :
     {{{
       waiters_inv t
     }}}
@@ -125,11 +125,11 @@ Section waiters_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_apply (waiters_notify'_spec with "Hinv").
+    wp_apply (waiters_notify'𑁒spec with "Hinv").
     iSteps.
   Qed.
 
-  Lemma waiters_notify_many_spec t n :
+  Lemma waiters_notify_many𑁒spec t n :
     (0 ≤ n)%Z →
     {{{
       waiters_inv t
@@ -146,11 +146,11 @@ Section waiters_G.
 
     wp_rec. wp_pures.
     case_bool_decide; last iSteps.
-    wp_apply+ (waiters_notify'_spec with "Hinv") as ([]) "_"; last iSteps.
+    wp_apply+ (waiters_notify'𑁒spec with "Hinv") as ([]) "_"; last iSteps.
     wp_apply+ ("HLöb" with "[] HΦ"); first iSteps.
   Qed.
 
-  Lemma waiters_prepare_wait_spec t :
+  Lemma waiters_prepare_wait𑁒spec t :
     {{{
       waiters_inv t
     }}}
@@ -164,16 +164,16 @@ Section waiters_G.
     iIntros "%Φ (#Hqueue_inv & #Hinv) HΦ".
 
     wp_rec.
-    wp_apply (mpsc_waiter_create_spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
+    wp_apply (mpsc_waiter_create𑁒spec with "[//]") as (waiter) "(#Hwaiter_inv & Hwaiter_consumer)".
 
-    awp_apply+ (mpmc_queue_1_push_spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
+    awp_apply+ (mpmc_queue_1_push𑁒spec with "Hqueue_inv") without "Hwaiter_consumer HΦ".
     iInv "Hinv" as "(%waiters & >Hmodel & Hwaiters)".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     iSplitL. { iSteps. iApply big_sepL_snoc. iSteps. }
     iSteps.
   Qed.
 
-  Lemma waiters_cancel_wait_spec t waiter :
+  Lemma waiters_cancel_wait𑁒spec t waiter :
     {{{
       waiters_inv t ∗
       waiters_waiter t waiter
@@ -187,11 +187,11 @@ Section waiters_G.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
 
     wp_rec.
-    wp_apply+ (mpsc_waiter_notify_spec with "[$Hwaiter_inv //]") as ([]) "_"; last iSteps.
-    wp_apply+ (waiters_notify_spec with "Hinv HΦ").
+    wp_apply+ (mpsc_waiter_notify𑁒spec with "[$Hwaiter_inv //]") as ([]) "_"; last iSteps.
+    wp_apply+ (waiters_notify𑁒spec with "Hinv HΦ").
   Qed.
 
-  Lemma waiters_commit_wait_spec t waiter :
+  Lemma waiters_commit_wait𑁒spec t waiter :
     {{{
       waiters_inv t ∗
       waiters_waiter t waiter
@@ -205,7 +205,7 @@ Section waiters_G.
     iIntros "%Φ (#Hinv & (#Hwaiter_inv & Hwaiter_consumer)) HΦ".
 
     wp_rec.
-    wp_apply+ (mpsc_waiter_wait_spec with "[$Hwaiter_inv $Hwaiter_consumer] HΦ").
+    wp_apply+ (mpsc_waiter_wait𑁒spec with "[$Hwaiter_inv $Hwaiter_consumer] HΦ").
   Qed.
 End waiters_G.
 

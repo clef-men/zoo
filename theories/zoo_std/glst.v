@@ -59,7 +59,7 @@ Section zoo_G.
   Definition glst_model t vs : iProp Σ :=
     ⌜glst_model' t vs⌝.
 
-  Lemma glst_rev_app_spec {t1} vs1 {t2} vs2 :
+  Lemma glst_rev_app𑁒spec {t1} vs1 {t2} vs2 :
     glst_model' t1 vs1 →
     glst_model' t2 vs2 →
     {{{
@@ -80,7 +80,7 @@ Section zoo_G.
       rewrite reverse_cons -assoc. iSteps.
   Qed.
 
-  Lemma glst_rev_spec {t} vs :
+  Lemma glst_rev𑁒spec {t} vs :
     glst_model' t vs →
     {{{
       True
@@ -93,7 +93,7 @@ Section zoo_G.
   Proof.
     iIntros "%Ht %Φ _ HΦ".
     wp_rec.
-    wp_apply (glst_rev_app_spec _ [] with "[//]"); [done.. |].
+    wp_apply (glst_rev_app𑁒spec _ [] with "[//]"); [done.. |].
     rewrite right_id //.
   Qed.
 End zoo_G.

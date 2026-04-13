@@ -214,7 +214,7 @@ Section parray_2_G.
     iApply (pointsto_exclusive with "Hl_root_1 Hl_root_2").
   Qed.
 
-  Lemma parray_2_make_spec equal (sz : Z) v :
+  Lemma parray_2_make𑁒spec equal (sz : Z) v :
     (0 ≤ sz)%Z →
     {{{
       equal_model equal ∗
@@ -230,7 +230,7 @@ Section parray_2_G.
     iIntros "%Hsz %Φ (Hequal & #Hv) HΦ".
 
     wp_rec.
-    wp_apply+ (array_unsafe_make_spec with "[//]") as "%data Hdata"; first done.
+    wp_apply+ (array_unsafe_make𑁒spec with "[//]") as "%data Hdata"; first done.
     wp_ref root as "Hroot".
     wp_block l as "Hmeta" "(Hl_equal & Hl_data & Hl_root & _)".
     iMod (pointsto_persist with "Hl_equal") as "#Hl_equal".
@@ -253,7 +253,7 @@ Section parray_2_G.
     auto 10.
   Qed.
 
-  Lemma parray_2_get_spec {t vs} i v :
+  Lemma parray_2_get𑁒spec {t vs} i v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
@@ -268,13 +268,13 @@ Section parray_2_G.
     iIntros "% %Hvs_lookup %Φ (:model) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (array_unsafe_get_spec with "Hdata") as "Hdata"; [done.. |].
+    wp_apply (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [done.. |].
 
     iApply "HΦ".
     iFrame "#∗". iSteps.
   Qed.
 
-  Lemma parray_2_set_spec t vs i v :
+  Lemma parray_2_set𑁒spec t vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
       parray_2_model t vs ∗
@@ -291,7 +291,7 @@ Section parray_2_G.
     wp_rec. wp_load.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_lookup); first lia.
-    wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply+ (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
 
     wp_load.
 
@@ -305,7 +305,7 @@ Section parray_2_G.
     - wp_ref root' as "Hroot'".
       wp_load. do 2 wp_store. wp_load.
       iApply wp_fupd.
-      wp_apply (array_unsafe_set_spec with "Hdata") as "Hdata"; first done.
+      wp_apply (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first done.
 
       iAssert ⌜nodes !! root' = None⌝%I as %Hnodes_lookup_root'.
       { rewrite -eq_None_ne_Some. iIntros "%vs_root' %Hnodes_lookup_root'".
@@ -330,7 +330,7 @@ Section parray_2_G.
       rewrite /vs'. simpl_length.
   Qed.
 
-  Lemma parray_2_capture_spec t vs :
+  Lemma parray_2_capture𑁒spec t vs :
     {{{
       parray_2_model t vs
     }}}
@@ -369,7 +369,7 @@ Section parray_2_G.
       & Hnodes
       )
     ".
-  #[local] Lemma parray_2_restore_0_spec {γ nodes root vs_root node} vs :
+  #[local] Lemma parray_2_restore_0𑁒spec {γ nodes root vs_root node} vs :
     {{{
       model' γ nodes root vs_root ∗
       nodes_elem γ node vs
@@ -398,9 +398,9 @@ Section parray_2_G.
       wp_apply+ ("HLöb" $! node1 vs_node1 with "[- HΦ]") as "(:restore_inv root=node1)"; first iFrameSteps.
 
       destruct (lookup_lt_is_Some_2 vs_node1 i_node) as (v & Hvs_node1_lookup); first lia.
-      wp_apply+ (array_unsafe_get_spec with "Hdata") as "Hdata"; [lia | done | lia |].
+      wp_apply+ (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done | lia |].
       wp_store.
-      wp_apply+ (array_unsafe_set_spec with "Hdata") as "Hdata"; first lia.
+      wp_apply+ (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
       rewrite Nat2Z.id -Hvs_node.
 
       iDestruct (big_sepL_insert i_node with "Hvs_node1 Hv_node") as "Hvs"; first lia.
@@ -417,7 +417,7 @@ Section parray_2_G.
 
       iSteps.
   Qed.
-  Lemma parray_2_restore_spec t vs s vs' :
+  Lemma parray_2_restore𑁒spec t vs s vs' :
     {{{
       parray_2_model t vs ∗
       parray_2_snapshot s t vs'
@@ -446,7 +446,7 @@ Section parray_2_G.
       wp_load.
 
       wp_load.
-      wp_apply+ (parray_2_restore_0_spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
+      wp_apply+ (parray_2_restore_0𑁒spec vs' with "[- Hl_root HΦ]") as "(:restore_inv root=node)"; first iFrameSteps.
       do 2 wp_store.
 
       iApply "HΦ".
