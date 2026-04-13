@@ -4,6 +4,7 @@
 -arg -w -arg -redundant-canonical-projection
 -arg -w -arg -masking-absolute-name
 -arg -w -arg -notation-incompatible-prefix
+-arg -w -arg -notation-overridden
 
 #BEGIN zoo
 -Q theories/zoo zoo
