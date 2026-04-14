@@ -106,6 +106,27 @@ Section waiters_G.
     iSteps.
   Qed.
 
+  Lemma waiters_notify𑁒spec t (sz : nat) i :
+    (0 ≤ i < sz)%Z →
+    {{{
+      waiters_inv t sz
+    }}}
+      waiters_notify t #i
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Hi %Φ (:inv) HΦ".
+
+    destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
+    iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
+
+    wp_rec.
+    wp_apply+ (array_unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp_apply+ (waiter_notify_strong𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
+  Qed.
+
   Lemma waiters_notify_one𑁒spec t sz :
     {{{
       waiters_inv t sz

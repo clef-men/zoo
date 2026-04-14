@@ -8,6 +8,10 @@ let create sz =
   ; queue= Mpmc_queue_1.create ()
   }
 
+let notify t i =
+  let waiter = Array.unsafe_get t.waiters i in
+  Waiter.notify_strong waiter
+
 let rec notify_one t =
   match Mpmc_queue_1.pop t.queue with
   | None ->

@@ -3,6 +3,8 @@ type t
 val create :
   int -> t
 
+val notify :
+  t -> int -> unit
 val notify_one :
   t -> unit
 val notify_all :
