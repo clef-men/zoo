@@ -17,6 +17,7 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types v t waiters queue : val.
 Implicit Types 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
@@ -124,7 +125,8 @@ Section waiters_G.
 
     wp_rec.
     wp_apply+ (array_unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
-    wp_apply+ (waiter_notify_strong𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟 HΦ").
+    wp_apply+ (waiter_notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟").
+    iSteps.
   Qed.
 
   Lemma waiters_notify_one𑁒spec t sz :
@@ -217,7 +219,8 @@ Section waiters_G.
     }}}
       waiters_cancel_wait t #i
     {{{
-      RET ();
+      b
+    , RET #b;
       True
     }}}.
   Proof.

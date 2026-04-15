@@ -34,7 +34,14 @@ Definition waiter_prepare_wait : val :=
 
 Definition waiter_cancel_wait : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} true).
+    mutex_protect "t".{mutex}
+      (fun: <> =>
+         if: "t".{flag} then (
+           false
+         ) else (
+           "t" <-{flag} true ;;
+           true
+         )).
 
 Definition waiter_commit_wait : val :=
   fun: "t" =>

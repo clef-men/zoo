@@ -12,8 +12,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  option
-  domain.
+  option.
 From zoo_saturn Require Import
   mpmc_queue_1.
 From zoo_parabs Require Export
@@ -28,7 +27,7 @@ From zoo Require Import
 Implicit Types b closed : bool.
 Implicit Types num_active : Z.
 Implicit Types 𝑡 : location.
-Implicit Types v t until pred : val.
+Implicit Types v t notification notify pred : val.
 Implicit Types ws : list val.
 Implicit Types vs : gmultiset val.
 Implicit Types status : status.
@@ -86,7 +85,7 @@ Opaque consistent.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
-  Implicit Types P Q : iProp Σ.
+  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
 
   Record metadata :=
     { metadata_size : nat
@@ -737,109 +736,32 @@ Section ws_hub_fifo_G.
     wp_apply+ (ws_hub_fifo_pop'𑁒spec_owner with "[$Hinv $Howner] HΦ").
   Qed.
 
-  #[local] Lemma ws_hub_fifo_steal_until₀𑁒spec P Q t ι sz pred :
-    <<<
-      ws_hub_fifo_inv t ι sz ∗
-      P ∗
-      □ (
-        P -∗
-        WP pred () {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          if b then Q else P
-        }}
-      )
-    | ∀∀ vs,
-      ws_hub_fifo_model t vs
-    >>>
-      ws_hub_fifo_steal_until₀ t pred @ ↑ι
-    <<<
-      ∃∃ o,
-      match o with
-      | None =>
-          ws_hub_fifo_model t vs
-      | Some v =>
-          ∃ vs',
-          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
-          ws_hub_fifo_model t vs'
-      end
-    | RET o;
-      if o then P else Q
-    >>>.
-  Proof.
-    iIntros "%Φ ((:inv) & HP & #Hpred) HΦ".
-
-    iLöb as "HLöb".
-
-    wp_rec.
-    wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
-    destruct b.
-
-    - iApply fupd_wp.
-      iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
-      iMod ("HΦ" $! None with "Hmodel") as "HΦ".
-      iSteps.
-
-    - wp_apply+ domain_yield𑁒spec.
-
-      awp_apply+ ws_hub_fifo_pop'𑁒spec; first iSteps.
-      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-      iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
-
-      + iRight. iExists (Some v). iFrameSteps.
-
-      + iLeft. iFrameSteps.
-  Qed.
-  Lemma ws_hub_fifo_steal_until𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
-    i = ⁺i_ →
-    (0 ≤ max_round_noyield)%Z →
-    <<<
-      ws_hub_fifo_inv t ι sz ∗
-      ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      P ∗
-      □ (
-        P -∗
-        WP pred () {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          if b then Q else P
-        }}
-      )
-    | ∀∀ vs,
-      ws_hub_fifo_model t vs
-    >>>
-      ws_hub_fifo_steal_until t #i #max_round_noyield pred @ ↑ι
-    <<<
-      ∃∃ o,
-      match o with
-      | None =>
-          ws_hub_fifo_model t vs
-      | Some v =>
-          ∃ vs',
-          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
-          ws_hub_fifo_model t vs'
-      end
-    | RET o;
-      ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      if o then P else Q
-    >>>.
-  Proof.
-    iIntros (-> Hmax_round_noyield) "%Φ (#Hinv & Howner & HP & #Hpred) HΦ".
-
-    wp_rec.
-    wp_apply+ (ws_hub_fifo_steal_until₀𑁒spec P Q with "[$Hinv $HP $Hpred]").
-    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
-    iApply ("HΦ" with "[$Howner $H]").
-  Qed.
-
-  #[local] Lemma ws_hub_fifo_steal₀𑁒spec t ι (sz : nat) i :
+  #[local] Lemma ws_hub_fifo_steal_aux𑁒spec P_notification P_pred Q_pred t ι (sz : nat) i notification pred :
     (0 ≤ i < sz)%Z →
     <<<
-      ws_hub_fifo_inv t ι sz
+      ws_hub_fifo_inv t ι sz ∗
+      P_notification ∗
+      ( ∀ notify,
+        P_notification -∗
+        WP notify () {{ itype_unit }} -∗
+        WP notification notify {{ res,
+          ⌜res = ()%V⌝ ∗
+          P_notification
+        }}
+      ) ∗
+      P_pred ∗
+      □ (
+        P_pred -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q_pred else P_pred
+        }}
+      )
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
-      ws_hub_fifo_steal₀ t #i @ ↑ι
+      ws_hub_fifo_steal_aux t #i notification pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -851,47 +773,109 @@ Section ws_hub_fifo_G.
           ws_hub_fifo_model t vs'
       end
     | RET o;
-      True
+      P_notification ∗
+      if o then P_pred else Q_pred
     >>>.
   Proof.
-    iIntros "%Hi %Φ (:inv) HΦ".
+    iIntros "%Hi %Φ ((:inv) & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
 
-    iLöb as "HLöb".
+    iLöb as "HLöb" forall (notification).
 
     wp_rec. wp_load.
-    wp_apply+ (waiters_prepare_wait𑁒spec with "Hwaiters_inv") as "_". 1: done.
-    wp_apply+ ws_hub_fifo_closed𑁒spec as ([]) "_". 1: iSteps.
-
-    - wp_apply+ ws_hub_fifo_notify_all𑁒spec as "_"; first iSteps.
-      wp_pures.
-
-      iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
-      iMod ("HΦ" $! None with "Hmodel") as "HΦ".
-      iSteps.
+    wp_apply (waiters_prepare_wait𑁒spec with "Hwaiters_inv") as "_". 1: done.
+    wp_apply+ (wp_wand with "(Hnotification HP_notification [])") as (res) "(-> & HP_notification)".
+    { wp_load.
+      wp_apply (waiters_notify𑁒spec with "Hwaiters_inv") => //.
+    }
+    wp_apply+ (wp_wand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
+    destruct b; wp_pures.
 
     - wp_load.
-      wp_apply+ (mpmc_queue_1_is_empty𑁒spec' with "Hqueue_inv") as (b) "_".
+      wp_apply (waiters_cancel_wait𑁒spec with "Hwaiters_inv") as (b) "_". 1: done.
 
       wp_bind (if: _ then _ else _)%E.
       wp_apply (wp_wand itype_unit) as (res) "->".
-      { destruct b; wp_pures.
-        all: wp_load.
-        1: wp_apply (waiters_commit_wait𑁒spec with "Hwaiters_inv"); first done.
-        2: wp_apply (waiters_cancel_wait𑁒spec with "Hwaiters_inv"); first done.
-        all: iSteps.
+      { destruct b; wp_pures. 1: iSteps.
+        wp_load.
+        wp_apply (waiters_notify_one𑁒spec with "Hwaiters_inv") => //.
       }
 
-      awp_apply+ ws_hub_fifo_pop'𑁒spec; first iSteps.
-      iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-      iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel".
+      iApply fupd_wp.
+      iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+      iMod ("HΦ" $! None with "Hmodel") as "HΦ".
+      iSteps.
 
-      + iRight. iExists (Some v). iFrameStep 5.
+    - awp_apply+ ws_hub_fifo_pop'𑁒spec. 1: iSteps.
+      iApply (aacc_aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel".
 
-        wp_apply ws_hub_fifo_end_inactive𑁒spec. 1: iSteps.
+      + iRight. iExists (Some v). iFrame. iIntros "!> HΦ !> _".
+        wp_load.
+        wp_apply (waiters_cancel_wait𑁒spec with "Hwaiters_inv"). 1: done.
         iSteps.
 
-      + iLeft. iFrameSteps.
+      + iLeft. iFrame. iIntros "!> HΦ !> _".
+        wp_load.
+        wp_apply (waiters_commit_wait𑁒spec with "Hwaiters_inv") as "_". 1: done.
+        wp_apply+ ("HLöb" with "HP_notification [] Hb HΦ"). 1: iSteps.
   Qed.
+
+  Lemma ws_hub_fifo_steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
+    i = ⁺i_ →
+    (0 ≤ max_round_noyield)%Z →
+    (0 ≤ max_round_yield)%Z →
+    <<<
+      ws_hub_fifo_inv t ι sz ∗
+      ws_hub_fifo_owner t i_ Nonblocked empty ∗
+      P_notification ∗
+      ( ∀ notify,
+        P_notification -∗
+        WP notify () {{ itype_unit }} -∗
+        WP notification notify {{ res,
+          ⌜res = ()%V⌝ ∗
+          P_notification
+        }}
+      ) ∗
+      P_pred ∗
+      □ (
+        P_pred -∗
+        WP pred () {{ res,
+          ∃ b,
+          ⌜res = #b⌝ ∗
+          if b then Q_pred else P_pred
+        }}
+      )
+    | ∀∀ vs,
+      ws_hub_fifo_model t vs
+    >>>
+      ws_hub_fifo_steal_until t #i #max_round_noyield #max_round_yield notification pred @ ↑ι
+    <<<
+      ∃∃ o,
+      match o with
+      | None =>
+          ws_hub_fifo_model t vs
+      | Some v =>
+          ∃ vs',
+          ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
+          ws_hub_fifo_model t vs'
+      end
+    | RET o;
+      ws_hub_fifo_owner t i_ Nonblocked empty ∗
+      P_notification ∗
+      if o then P_pred else Q_pred
+    >>>.
+  Proof.
+    iIntros (-> _ _) "%Φ (#Hinv & Howner & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
+    iDestruct (ws_hub_fifo_inv_owner with "Hinv Howner") as %Hi.
+
+    wp_rec.
+
+    wp_apply+ (ws_hub_fifo_steal_aux𑁒spec P_notification P_pred Q_pred with "[$Hinv $HP_notification $Hnotification $HP_pred $Hpred]"). 1: lia.
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ H".
+
+    iApply ("HΦ" with "[$Howner $H]").
+  Qed.
+
   Lemma ws_hub_fifo_steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
@@ -917,14 +901,31 @@ Section ws_hub_fifo_G.
       ws_hub_fifo_owner t i_ (if o then Nonblocked else Blocked) empty
     >>>.
   Proof.
-    iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner) HΦ".
+    iIntros (-> _ _) "%Φ (#Hinv & Howner) HΦ".
     iDestruct (ws_hub_fifo_inv_owner with "Hinv Howner") as %Hi.
 
     wp_rec.
     wp_apply+ (ws_hub_fifo_begin_inactive𑁒spec with "Hinv") as "_".
-    wp_apply+ (ws_hub_fifo_steal₀𑁒spec with "Hinv"). 1: lia.
-    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ HP".
-    iApply ("HΦ" with "[$Howner $HP]").
+
+    wp_apply+ (ws_hub_fifo_steal_aux𑁒spec True True True with "[$Hinv]"). 1: lia.
+    { iStep. iSplit. 1: iSteps. iStep 3.
+      wp_apply+ (ws_hub_fifo_closed𑁒spec with "Hinv") as ([]) "_".
+      all: iSteps.
+    }
+    iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ _".
+
+    wp_pures.
+
+    wp_bind (Match _ _ _ _).
+    wp_apply (wp_wand itype_unit) as (res) "->".
+    { destruct o as [v |]; wp_pures.
+      - wp_apply (ws_hub_fifo_end_inactive𑁒spec with "Hinv") => //.
+      - wp_apply (ws_hub_fifo_notify_all𑁒spec with "Hinv") => //.
+    }
+
+    wp_pures.
+
+    iApply ("HΦ" with "Howner").
   Qed.
 
   Lemma ws_hub_fifo_close𑁒spec t ι sz :
@@ -948,27 +949,37 @@ End ws_hub_fifo_G.
 Section ws_hub_fifo_G.
   Context `{ws_hub_fifo_G : WsHubFifoG Σ}.
 
-  Implicit Types P Q : iProp Σ.
+  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
 
-  Lemma ws_hub_fifo_pop_steal_until𑁒spec P Q t ι sz i i_ empty max_round_noyield pred :
+  Lemma ws_hub_fifo_pop_steal_until𑁒spec P_notification P_pred Q_pred t ι sz i i_ empty max_round_noyield max_round_yield notification pred :
     i = ⁺i_ →
     (0 ≤ max_round_noyield)%Z →
+    (0 ≤ max_round_yield)%Z →
     <<<
       ws_hub_fifo_inv t ι sz ∗
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      P ∗
+      P_notification ∗
+      ( ∀ notify,
+        P_notification -∗
+        WP notify () {{ itype_unit }} -∗
+        WP notification notify {{ res,
+          ⌜res = ()%V⌝ ∗
+          P_notification
+        }}
+      ) ∗
+      P_pred ∗
       □ (
-        P -∗
+        P_pred -∗
         WP pred () {{ res,
           ∃ b,
           ⌜res = #b⌝ ∗
-          if b then Q else P
+          if b then Q_pred else P_pred
         }}
       )
     | ∀∀ vs,
       ws_hub_fifo_model t vs
     >>>
-      ws_hub_fifo_pop_steal_until t #i #max_round_noyield pred @ ↑ι
+      ws_hub_fifo_pop_steal_until t #i #max_round_noyield #max_round_yield notification pred @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -982,30 +993,31 @@ Section ws_hub_fifo_G.
     | empty,
       RET o;
       ws_hub_fifo_owner t i_ Nonblocked empty ∗
-      if o then
-        P
-      else
-        ⌜empty = Empty⌝ ∗
-        Q
+      P_notification ∗
+      if o then P_pred else Q_pred
     >>>.
   Proof.
-    iIntros (->) "%Hmax_round_noyield %Φ (#Hinv & Howner & HP & #Hpred) HΦ".
+    iIntros (-> Hmax_round_noyield Hmax_round_yield) "%Φ (#Hinv & Howner & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
 
     wp_rec.
+    wp_apply+ (wp_wand with "(Hpred HP_pred)") as (res) "(%b & -> & Hb)".
+    destruct b; wp_pures.
 
-    awp_apply+ (ws_hub_fifo_pop𑁒spec with "[$Hinv $Howner]"); [done.. |].
-    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
+    - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
+      iMod ("HΦ" $! None with "Hmodel") as "HΦ".
+      iSteps.
 
-    - iRight. iExists (Some v). iFrameSteps.
+    - awp_apply+ (ws_hub_fifo_pop𑁒spec with "[$Hinv $Howner]"). 1: done.
+      iApply (aacc_aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel". 1: iFrameSteps. iIntros ([v |]) "Hmodel !>".
 
-    - iLeft. iFrame.
-      iIntros "HΦ !> Howner {%- Hmax_round_noyield}".
+      + iRight. iExists (Some v). iFrameSteps.
 
-      wp_apply+ (ws_hub_fifo_steal_until𑁒spec P Q with "[$Hinv $Howner $HP $Hpred]"); [done.. |].
-      iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ (Howner & H)".
-      iApply ("HΦ" with "[- $Howner]").
-      destruct o; iFrameSteps.
+      + iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
+
+        wp_apply+ (ws_hub_fifo_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hinv $Howner $HP_notification $Hnotification $Hb $Hpred]"). 1-3: done.
+        iApply (atomic_update_wand with "HΦ").
+        iSteps.
   Qed.
 
   Lemma ws_hub_fifo_pop_steal𑁒spec t ι sz i i_ empty max_round_noyield max_round_yield :
@@ -1049,8 +1061,7 @@ Section ws_hub_fifo_G.
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v). iSteps.
 
-    - iLeft. iFrame.
-      iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
+    - iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
       wp_apply+ (ws_hub_fifo_steal𑁒spec with "[$Hinv $Howner]"); [done.. |].
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".

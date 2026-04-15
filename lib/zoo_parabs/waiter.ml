@@ -28,7 +28,12 @@ let prepare_wait t =
 
 let cancel_wait t =
   Mutex.protect t.mutex @@ fun () ->
-    t.flag <- true
+    if t.flag then (
+      false
+    ) else (
+      t.flag <- true ;
+      true
+    )
 
 let commit_wait t =
   Mutex.protect t.mutex @@ fun () ->

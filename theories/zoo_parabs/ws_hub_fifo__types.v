@@ -7,8 +7,6 @@ From zoo_parabs Require Import
   waiters.
 From zoo_saturn Require Import
   mpmc_queue_1.
-From zoo_std Require Import
-  domain.
 From zoo Require Import
   options.
 

@@ -7,8 +7,6 @@ From zoo_parabs Require Import
   waiters.
 From zoo_saturn Require Import
   mpmc_queue_1.
-From zoo_std Require Import
-  domain.
 From zoo_parabs Require Import
   ws_hub_fifo__types.
 From zoo Require Import
@@ -65,61 +63,71 @@ Definition ws_hub_fifo_pop : val :=
   fun: "t" "_i" =>
     ws_hub_fifo_pop' "t".
 
-Definition ws_hub_fifo_steal_until₀ : val :=
-  rec: "steal_until" "t" "pred" =>
+Definition ws_hub_fifo_steal_aux : val :=
+  rec: "steal_aux" "t" "i" "notification" "pred" =>
+    waiters_prepare_wait "t".{waiters} "i" ;;
+    "notification" (fun: <> => waiters_notify "t".{waiters} "i") ;;
     if: "pred" () then (
+      if: ~ waiters_cancel_wait "t".{waiters} "i" then (
+        waiters_notify_one "t".{waiters}
+      ) else (
+        ()
+      ) ;;
       §None
     ) else (
-      domain_yield () ;;
       match: ws_hub_fifo_pop' "t" with
       | Some <> as "res" =>
+          waiters_cancel_wait "t".{waiters} "i" ;;
           "res"
       | None =>
-          "steal_until" "t" "pred"
+          waiters_commit_wait "t".{waiters} "i" ;;
+          "steal_aux" "t" "i" (fun: <> => ()) "pred"
       end
     ).
 
 Definition ws_hub_fifo_steal_until : val :=
-  fun: "t" "_i" <> "pred" =>
-    ws_hub_fifo_steal_until₀ "t" "pred".
-
-Definition ws_hub_fifo_steal₀ : val :=
-  rec: "steal" "t" "i" =>
-    waiters_prepare_wait "t".{waiters} "i" ;;
-    if: ws_hub_fifo_closed "t" then (
-      ws_hub_fifo_notify_all "t" ;;
-      §None
-    ) else (
-      if: mpmc_queue_1_is_empty "t".{queue} then (
-        waiters_commit_wait "t".{waiters} "i"
-      ) else (
-        waiters_cancel_wait "t".{waiters} "i"
-      ) ;;
-      match: ws_hub_fifo_pop' "t" with
-      | Some <> as "res" =>
-          ws_hub_fifo_end_inactive "t" ;;
-          "res"
-      | None =>
-          "steal" "t" "i"
-      end
-    ).
+  fun: "t" "i" <> <> "notification" "pred" =>
+    ws_hub_fifo_steal_aux "t" "i" "notification" "pred".
 
 Definition ws_hub_fifo_steal : val :=
   fun: "t" "i" <> <> =>
     ws_hub_fifo_begin_inactive "t" ;;
-    ws_hub_fifo_steal₀ "t" "i".
+    let: "res" :=
+      ws_hub_fifo_steal_aux
+        "t"
+        "i"
+        (fun: <> => ())
+        (fun: <> => ws_hub_fifo_closed "t")
+    in
+    match: "res" with
+    | None =>
+        ws_hub_fifo_notify_all "t"
+    | Some <> =>
+        ws_hub_fifo_end_inactive "t"
+    end ;;
+    "res".
 
 Definition ws_hub_fifo_close : val :=
   ws_hub_fifo_begin_inactive.
 
 Definition ws_hub_fifo_pop_steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "pred" =>
-    match: ws_hub_fifo_pop "t" "i" with
-    | Some <> as "res" =>
-        "res"
-    | None =>
-        ws_hub_fifo_steal_until "t" "i" "max_round_noyield" "pred"
-    end.
+  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
+    if: "pred" () then (
+      §None
+    ) else (
+      match: ws_hub_fifo_pop "t" "i" with
+      | Some <> as "res" =>
+          "res"
+      | None =>
+          ws_hub_fifo_steal_until
+            "t"
+            "i"
+            "max_round_noyield"
+            "max_round_yield"
+            "notification"
+            "pred"
+      end
+    ).
 
 Definition ws_hub_fifo_pop_steal : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" =>

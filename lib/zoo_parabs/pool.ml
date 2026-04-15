@@ -34,7 +34,13 @@ let execute ctx job =
   job ctx
 
 let rec worker ctx =
-  match Ws_hub_std.pop_steal ctx.context_hub ctx.context_id ~max_round_noyield ~max_round_yield with
+  match
+    Ws_hub_std.pop_steal
+      ctx.context_hub
+      ctx.context_id
+      ~max_round_noyield
+      ~max_round_yield
+  with
   | None ->
       ()
   | Some job ->
@@ -79,13 +85,37 @@ let size ctx =
 let async ctx task =
   Ws_hub_std.push ctx.context_hub ctx.context_id task
 
-let rec wait_until ctx pred =
-  if not @@ pred () then
-    match Ws_hub_std.pop_steal_until ctx.context_hub ctx.context_id ~max_round_noyield pred with
-    | None ->
-        ()
-    | Some job ->
-        execute ctx job ;
-        wait_until ctx pred
-let wait_while ctx pred =
-  wait_until ctx (fun () -> not @@ pred ())
+let rec wait ctx ~notification ~pred =
+  match
+    Ws_hub_std.pop_steal_until
+      ctx.context_hub
+      ctx.context_id
+      ~max_round_noyield
+      ~max_round_yield
+      ~notification
+      ~pred
+  with
+  | None ->
+      ()
+  | Some job ->
+      execute ctx job ;
+      wait ctx ~notification ~pred
+let wait ctx ~notification ~pred =
+  let notification_registered = ref false in
+  let notification notify =
+    if not !notification_registered then (
+      notification_registered := true ;
+      notification notify
+    )
+  in
+  wait ctx ~notification ~pred
+
+let wait_ivar ctx ivar =
+  wait
+    ctx
+    ~notification:(fun notify ->
+      Ivar_3.wait ivar (fun _ctx _v -> notify ()) |> ignore
+    )
+    ~pred:(fun () ->
+      Ivar_3.is_set ivar
+    )

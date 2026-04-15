@@ -21,7 +21,8 @@ Definition waiters_create : val :=
 Definition waiters_notify : val :=
   fun: "t" "i" =>
     let: "waiter" := array_unsafe_get "t".<waiters> "i" in
-    waiter_notify_strong "waiter".
+    waiter_notify "waiter" ;;
+    ().
 
 Definition waiters_notify_one : val :=
   rec: "notify_one" "t" =>

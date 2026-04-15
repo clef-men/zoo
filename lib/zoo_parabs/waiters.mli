@@ -13,6 +13,6 @@ val notify_all :
 val prepare_wait :
   t -> int -> unit
 val cancel_wait :
-  t -> int -> unit
+  t -> int -> bool
 val commit_wait :
   t -> int -> unit

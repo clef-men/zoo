@@ -86,7 +86,7 @@ Definition ws_hub_std_try_steal_once : val :=
     random_round_reset "round" ;;
     ws_deques_public_steal_as "t".{queues} "i" "round".
 
-Definition ws_hub_std_try_steal : val :=
+Definition ws_hub_std_try_steal₀ : val :=
   rec: "try_steal" "t" "i" "yield" "max_round" "pred" =>
     if: "max_round" ≤ 0 then (
       §Nothing
@@ -108,101 +108,117 @@ Definition ws_hub_std_try_steal : val :=
       end
     ).
 
-Definition ws_hub_std_steal_until₀ : val :=
-  rec: "steal_until" "t" "i" "pred" =>
-    match: ws_hub_std_try_steal_once "t" "i" with
-    | Some <> as "res" =>
-        "res"
-    | None =>
-        if: "pred" () then (
-          §None
-        ) else (
-          domain_yield () ;;
-          "steal_until" "t" "i" "pred"
-        )
-    end.
-
-Definition ws_hub_std_steal_until₁ : val :=
-  fun: "t" "i" "max_round_noyield" "pred" =>
-    match: ws_hub_std_try_steal "t" "i" false "max_round_noyield" "pred" with
-    | Something "v" =>
-        ‘Some( "v" )
-    | Anything =>
-        §None
-    | Nothing =>
-        ws_hub_std_steal_until₀ "t" "i" "pred"
-    end.
-
-Definition ws_hub_std_steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "pred" =>
-    ws_hub_std_block_active "t" "i" ;;
-    let: "res" :=
-      ws_hub_std_steal_until₁ "t" "i" "max_round_noyield" "pred"
-    in
-    ws_hub_std_unblock_active "t" "i" ;;
-    "res".
-
-Definition ws_hub_std_steal_aux : val :=
+Definition ws_hub_std_try_steal : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" "pred" =>
-    match: ws_hub_std_try_steal "t" "i" false "max_round_noyield" "pred" with
+    match:
+      ws_hub_std_try_steal₀ "t" "i" false "max_round_noyield" "pred"
+    with
     | Something <> as "res" =>
         "res"
     | Anything =>
         §Anything
     | Nothing =>
-        ws_hub_std_try_steal "t" "i" true "max_round_yield" "pred"
+        ws_hub_std_try_steal₀ "t" "i" true "max_round_yield" "pred"
     end.
 
-Definition ws_hub_std_steal₀ : val :=
-  rec: "steal" "t" "i" "max_round_noyield" "max_round_yield" =>
+Definition ws_hub_std_steal_aux : val :=
+  rec: "steal_aux" "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
     match:
-      ws_hub_std_steal_aux
+      ws_hub_std_try_steal
         "t"
         "i"
         "max_round_noyield"
         "max_round_yield"
-        (fun: <> => ws_hub_std_closed "t")
+        "pred"
     with
     | Something "v" =>
-        ws_hub_std_unblock "t" "i" ;;
         ‘Some( "v" )
     | Anything =>
-        ws_hub_std_notify_all "t" ;;
         §None
     | Nothing =>
         waiters_prepare_wait "t".{waiters} "i" ;;
         match: ws_hub_std_try_steal_once "t" "i" with
         | Some <> as "res" =>
             waiters_cancel_wait "t".{waiters} "i" ;;
-            ws_hub_std_unblock "t" "i" ;;
             "res"
         | None =>
-            if: ws_hub_std_closed "t" then (
-              ws_hub_std_notify_all "t" ;;
+            "notification" (fun: <> => waiters_notify "t".{waiters} "i") ;;
+            if: "pred" () then (
+              if: ~ waiters_cancel_wait "t".{waiters} "i" then (
+                waiters_notify_one "t".{waiters}
+              ) else (
+                ()
+              ) ;;
               §None
             ) else (
               waiters_commit_wait "t".{waiters} "i" ;;
-              "steal" "t" "i" "max_round_noyield" "max_round_yield"
+              "steal_aux"
+                "t"
+                "i"
+                "max_round_noyield"
+                "max_round_yield"
+                (fun: <> => ())
+                "pred"
             )
         end
     end.
 
+Definition ws_hub_std_steal_until : val :=
+  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
+    ws_hub_std_block_active "t" "i" ;;
+    let: "res" :=
+      ws_hub_std_steal_aux
+        "t"
+        "i"
+        "max_round_noyield"
+        "max_round_yield"
+        "notification"
+        "pred"
+    in
+    ws_hub_std_unblock_active "t" "i" ;;
+    "res".
+
 Definition ws_hub_std_steal : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" =>
     ws_hub_std_block "t" "i" ;;
-    ws_hub_std_steal₀ "t" "i" "max_round_noyield" "max_round_yield".
+    let: "res" :=
+      ws_hub_std_steal_aux
+        "t"
+        "i"
+        "max_round_noyield"
+        "max_round_yield"
+        (fun: <> => ())
+        (fun: <> => ws_hub_std_closed "t")
+    in
+    match: "res" with
+    | None =>
+        ws_hub_std_notify_all "t"
+    | Some <> =>
+        ws_hub_std_unblock "t" "i"
+    end ;;
+    "res".
 
 Definition ws_hub_std_close : val :=
   ws_hub_std_begin_inactive.
 
 Definition ws_hub_std_pop_steal_until : val :=
-  fun: "t" "i" "max_round_noyield" "pred" =>
-    match: ws_hub_std_pop "t" "i" with
-    | Some <> as "res" =>
-        "res"
-    | None =>
-        ws_hub_std_steal_until "t" "i" "max_round_noyield" "pred"
-    end.
+  fun: "t" "i" "max_round_noyield" "max_round_yield" "notification" "pred" =>
+    if: "pred" () then (
+      §None
+    ) else (
+      match: ws_hub_std_pop "t" "i" with
+      | Some <> as "res" =>
+          "res"
+      | None =>
+          ws_hub_std_steal_until
+            "t"
+            "i"
+            "max_round_noyield"
+            "max_round_yield"
+            "notification"
+            "pred"
+      end
+    ).
 
 Definition ws_hub_std_pop_steal : val :=
   fun: "t" "i" "max_round_noyield" "max_round_yield" =>

@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  mpsc_flag.
+  ivar_3.
 From zoo Require Import
   options.
 

@@ -1,13 +1,14 @@
 From zoo Require Import
   prelude.
 From zoo.iris.base_logic Require Import
-  lib.fupd.
+  lib.fupd
+  lib.saved_prop.
 From zoo.language Require Import
   notations.
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  mpsc_flag.
+  ivar_3.
 From zoo_parabs Require Import
   pool
   vertex.
@@ -16,18 +17,20 @@ From examples Require Export
 From zoo Require Import
   options.
 
-Implicit Types a b c d : val.
+Implicit Types v ctx a b c d : val.
 
 Class VertexSimpleG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] vertex_simple_G_pool_G :: PoolG Σ
   ; #[local] vertex_simple_G_vertex_G :: VertexG Σ
-  ; #[local] vertex_simple_G_mpsc_flag_G :: MpscFlagG Σ
+  ; #[local] vertex_simple_G_ivar_G :: Ivar3G Σ gname
+  ; #[local] vertex_simple_G_saved_prop_G :: SavedPropG Σ
   }.
 
 Definition vertex_simple_Σ := #[
   pool_Σ ;
   vertex_Σ ;
-  mpsc_flag_Σ
+  ivar_3_Σ gname ;
+  saved_prop_Σ
 ].
 #[global] Instance subG_vertex_simple_Σ Σ `{zoo_G : !ZooG Σ} :
   subG vertex_simple_Σ Σ →
@@ -57,7 +60,15 @@ Section vertex_simple_G.
     iIntros "%Φ (Ha & Hb & Hc & Hd) HΦ".
 
     wp_rec.
-    wp_apply+ (mpsc_flag_create𑁒spec P_d with "[//]") as (flag) "(#Hflag_inv & Hflag_consumer)".
+
+    wp_apply+ (ivar_3_create𑁒spec
+      (λ _, P_d)
+      (λ _, True)%I
+      ( λ _ waiter _,
+        ∀ ctx v,
+        WP waiter ctx v {{ itype_unit }}
+      )%I
+    with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
     wp_apply+ (vertex_create'𑁒spec
       (P_ab ∗ P_ac)
@@ -88,7 +99,7 @@ Section vertex_simple_G.
     )%I with "[- HΦ]") as (pool ?) "(_ & -> & HP_d)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
 
-      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd]") as "Hctx".
+      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd Hivar_producer]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_d_ready".
 
         wp_pures credits:"H£".
@@ -103,8 +114,8 @@ Section vertex_simple_G.
         iMod (lc_fupd_elim_laterN _ (P_b ∗ P_c) with "H£ [$]") as "(HP_b & HP_c)".
         wp_apply (wp_wand with "(Hd HP_b HP_c)") as (res) "(-> & HP_d)".
 
-        wp_apply+ (mpsc_flag_set𑁒spec with "[$Hflag_inv $HP_d]").
-        iSteps => //.
+        wp_apply+ (ivar_3_notify𑁒spec True with "[$Hivar_inv $Hivar_producer $HP_d]"). 1: iSteps.
+        iSteps.
       }
 
       wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_c_model Hvtx_a_output_c Hc]") as "Hctx".
@@ -140,16 +151,9 @@ Section vertex_simple_G.
         iSteps => //.
       }
 
-      wp_apply+ (pool_wait_until𑁒spec
-        (mpsc_flag_consumer flag)
-        P_d
-      with "[$Hctx Hflag_consumer]").
-      { iStep 3 as "Hflag_consumer".
-        wp_apply+ (mpsc_flag_get𑁒spec with "[$Hflag_inv $Hflag_consumer]").
-        iSteps.
-      }
-
-      iSteps.
+      iApply wp_fupd.
+      wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hivar_inv]") as "(H£ & $ & (%v & #Hivar_result))". 1: iSteps.
+      iMod (ivar_3_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "($ & _)" => //.
     }
 
     iSteps.

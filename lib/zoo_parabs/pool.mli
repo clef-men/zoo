@@ -66,11 +66,25 @@ val async :
 (** [async ctx task] schedules the [task] to be executed asynchronously
     by the pool. *)
 
-val wait_until :
-  context -> (unit -> bool) -> unit
-(** [wait_until ctx pred] waits until [pred ()] returns [true],
-    working on other tasks in the meantime. *)
+val wait :
+  context ->
+  notification:((unit -> unit) -> unit) ->
+  pred:(unit -> bool) ->
+  unit
+(** [wait ctx ~notification ~pred] waits until [pred ()] returns [true],
+    working on other tasks in the meantime. If the worker is put
+    to sleep because no other task is available, [notification] will
+    be called with a wakeup callback.
 
-val wait_while :
-  context -> (unit -> bool) -> unit
-(** [wait_while ctx pred] is [wait_until ctx (fun () -> not (pred ()))]. *)
+    We assume that [pred ()] is a cheap and monotonic function:
+    once it returns [true], it will return [true] forever.
+
+    We assume that [notification] will eventually call the wakeup
+    callback if/when [pred ()] changes from [false] to [true]. In
+    particular, [notification] is allowed to drop the callback if it
+    observes that [pred ()] already holds. *)
+
+val wait_ivar :
+  context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
+(** [wait_ivar ctx ivar] waits until [ivar] is set,
+    working on other tasks in the meantime.  *)

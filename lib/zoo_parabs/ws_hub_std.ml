@@ -56,7 +56,7 @@ let try_steal_once t i =
   Random_round.reset round ;
   Ws_deques_public.steal_as t.queues i round
 
-let rec try_steal t i ~yield ~max_round pred =
+let rec try_steal t i ~yield ~max_round ~pred =
   if max_round <= 0 then
     Optional.Nothing
   else
@@ -69,78 +69,85 @@ let rec try_steal t i ~yield ~max_round pred =
         else (
           if yield then
             Domain.yield () ;
-          try_steal t i ~yield ~max_round:(max_round - 1) pred
+          try_steal t i ~yield ~max_round:(max_round - 1) ~pred
         )
-
-let rec steal_until t i pred =
-  match try_steal_once t i with
-  | Some _ as res ->
-      res
-  | None ->
-      if pred () then (
-        None
-      ) else (
-        Domain.yield () ;
-        steal_until t i pred
-      )
-let steal_until t i ~max_round_noyield pred =
-  match try_steal t i ~yield:false ~max_round:max_round_noyield pred with
-  | Optional.Something v ->
-      Some v
-  | Anything ->
-      None
-  | Nothing ->
-      steal_until t i pred
-let steal_until t i ~max_round_noyield pred =
-  block_active t i ;
-  let res = steal_until t i ~max_round_noyield pred in
-  unblock_active t i ;
-  res
-
-let steal_aux t i ~max_round_noyield ~max_round_yield pred =
-  match try_steal t i ~yield:false ~max_round:max_round_noyield pred with
+let try_steal t i ~max_round_noyield ~max_round_yield ~pred =
+  match try_steal t i ~yield:false ~max_round:max_round_noyield ~pred with
   | Optional.Something _ as res ->
       res
   | Anything ->
       Anything
   | Nothing ->
-      try_steal t i ~yield:true ~max_round:max_round_yield pred
-let rec steal t i ~max_round_noyield ~max_round_yield =
-  match steal_aux t i ~max_round_noyield ~max_round_yield (fun () -> closed t) with
+      try_steal t i ~yield:true ~max_round:max_round_yield ~pred
+
+let rec steal_aux t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  match try_steal t i ~max_round_noyield ~max_round_yield ~pred with
   | Optional.Something v ->
-      unblock t i ;
       Some v
   | Anything ->
-      notify_all t ;
       None
   | Nothing ->
       Waiters.prepare_wait t.waiters i ;
       match try_steal_once t i with
       | Some _ as res ->
-          Waiters.cancel_wait t.waiters i ;
-          unblock t i ;
+          Waiters.cancel_wait t.waiters i |> ignore ;
           res
       | None ->
-          if closed t then (
-            notify_all t ;
+          notification (fun () -> Waiters.notify t.waiters i) ;
+          if pred () then (
+            if not @@ Waiters.cancel_wait t.waiters i then
+              Waiters.notify_one t.waiters ;
             None
           ) else (
             Waiters.commit_wait t.waiters i ;
-            steal t i ~max_round_noyield ~max_round_yield
+            steal_aux t i ~max_round_noyield ~max_round_yield ~notification:ignore ~pred
           )
+
+let steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  block_active t i ;
+  let res =
+    steal_aux
+      t
+      i
+      ~max_round_noyield
+      ~max_round_yield
+      ~notification
+      ~pred
+  in
+  unblock_active t i ;
+  res
+
 let steal t i ~max_round_noyield ~max_round_yield =
   block t i ;
-  steal t i ~max_round_noyield ~max_round_yield
+  let res =
+    steal_aux
+      t
+      i
+      ~max_round_noyield
+      ~max_round_yield
+      ~notification:ignore
+      ~pred:(fun () -> closed t)
+  in
+  begin match res with
+  | None ->
+      notify_all t
+  | Some _ ->
+      unblock t i
+  end ;
+  res
 
 let close =
   begin_inactive
 
-let pop_steal_until t i ~max_round_noyield pred =
-  match pop t i with
-  | Some _ as res ->
-      res
-  | None ->
-      steal_until t i ~max_round_noyield pred
+let pop_steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  if pred () then
+    None
+  else
+    match pop t i with
+    | Some _ as res ->
+        res
+    | None ->
+        steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred
 
 let pop_steal t i ~max_round_noyield ~max_round_yield =
   match pop t i with

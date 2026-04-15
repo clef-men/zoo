@@ -29,7 +29,7 @@ Definition future_async : val :=
 
 Definition future_wait : val :=
   fun: "ctx" "t" =>
-    pool_wait_until "ctx" (fun: <> => ivar_3_is_set "t") ;;
+    pool_wait_ivar "ctx" "t" ;;
     ivar_3_get "t".
 
 Definition future_iter : val :=

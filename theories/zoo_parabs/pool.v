@@ -16,7 +16,8 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   array
-  domain.
+  domain
+  ivar_3.
 From zoo_parabs Require Export
   base
   pool__code.
@@ -27,10 +28,11 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v ctx hub task pred : val.
+Implicit Types v ctx hub task notification notify pred ivar waiter : val.
 Implicit Types empty : emptiness.
 Implicit Types own : ownership.
 Implicit Types η : spsc_prop_name.
+Implicit Types ω : gname.
 
 #[local] Definition max_round_noyield :=
   val_to_nat' pool_max_round_noyield.
@@ -114,7 +116,7 @@ Module base.
     Context `{pool_G : PoolG Σ}.
 
     Implicit Types t : location.
-    Implicit Types P Q : iProp Σ.
+    Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
     Implicit Types Ψ : val → iProp Σ.
 
     Record pool_name :=
@@ -1071,37 +1073,47 @@ Module base.
       }
     Qed.
 
-    Lemma pool_wait_until𑁒spec P Q γ ctx scope pred :
+    #[local] Lemma pool_wait₀𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
         pool_context γ ctx scope ∗
-        P ∗
+        P_notification ∗
         □ (
-          P -∗
+          ∀ notify,
+          P_notification -∗
+          WP notify () {{ itype_unit }} -∗
+          WP notification notify {{ res,
+            ⌜res = ()%V⌝ ∗
+            P_notification
+          }}
+        ) ∗
+        P_pred ∗
+        □ (
+          P_pred -∗
           WP pred () {{ res,
             ∃ b,
             ⌜res = #b⌝ ∗
-            if b then Q else P
+            if b then Q_pred else P_pred
           }}
         )
       }}}
-        pool_wait_until ctx pred
+        pool_wait₀ ctx notification pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
-        Q
+        Q_pred
       }}}.
     Proof.
-      iIntros "%Φ ((:context lazy=) & HP & #Hpred) HΦ".
+      iIntros "%Φ ((:context lazy=) & HP_notification & #Hnotification & HP_pred & #Hpred) HΦ".
+
       iLöb as "HLöb".
+
       iDestruct "Hctx" as "(:context_1)".
 
-      wp_rec. rewrite pool_max_round_noyield.
-      wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
-      destruct b; first iSteps.
+      wp_rec. rewrite pool_max_round_noyield pool_max_round_yield.
 
-      awp_apply+ (ws_hub_std_pop_steal_until𑁒spec P Q with "[$Hhub_inv $Hhub_owner $H $Hpred]") without "HΦ"; [done.. |].
+      awp_apply+ (ws_hub_std_pop_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hhub_inv $Hhub_owner $HP_notification $Hnotification $HP_pred $Hpred]") without "HΦ". 1-3: done.
       iInv "Hinv" as "(:inv_inner)".
-      iAaccIntro with "Hhub_model"; first iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
+      iAaccIntro with "Hhub_model". 1: iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
       - iDestruct "Hhub_model" as "(%𝑔𝑙𝑜𝑏𝑎𝑙𝑠' & -> & Hhub_model)".
         apply symmetry, gmultiset_map_disj_union_singleton_l_inv in H𝑔𝑙𝑜𝑏𝑎𝑙𝑠 as (global & globals' & -> & -> & ->).
@@ -1109,42 +1121,119 @@ Module base.
         iEval (rewrite big_sepMS_singleton) in "Hglobal".
         iMod (globals_model_pop global with "Hglobals_model Hlocals_at") as "(Hglobals_model & Hlocals_at)"; [done.. |].
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
-        iIntros "!> {%- Hi} %empty (Hhub_owner & HP) HΦ".
+        iIntros "!> {%- Hi} %empty (Hhub_owner & HP_notification & HP_pred) HΦ".
 
         wp_apply+ (pool_execute𑁒spec with "[$]") as "{%- Hi} %res ((:context_1) & (%R & Hglobal & HR))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HR") as "Hlocals_at".
-        wp_apply+ ("HLöb" with "[$] HP HΦ").
+        wp_apply+ ("HLöb" with "[$] HP_notification HP_pred HΦ").
 
       - iSplitR "Hlocals_at". { iFrameSteps. }
         iSteps.
     Qed.
 
-    Lemma pool_wait_while𑁒spec P Q γ ctx scope pred :
+    Lemma pool_wait𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
         pool_context γ ctx scope ∗
-        P ∗
+        P_notification ∗
+        ( ∀ notify,
+          P_notification -∗
+          WP notify () {{ itype_unit }} -∗
+          WP notification notify {{ res,
+            ⌜res = ()%V⌝ ∗
+            P_notification
+          }}
+        ) ∗
+        P_pred ∗
         □ (
-          P -∗
+          P_pred -∗
           WP pred () {{ res,
             ∃ b,
             ⌜res = #b⌝ ∗
-            if b then P else Q
+            if b then Q_pred else P_pred
           }}
         )
       }}}
-        pool_wait_while ctx pred
+        pool_wait ctx notification pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
-        Q
+        Q_pred
       }}}.
     Proof.
-      iIntros "%Φ (Hctx & HP & #Hpred) HΦ".
+      iIntros "%Φ (Hctx & HP_notification & Hnotification & HP_pred & #Hpred) HΦ".
+
+      lazymatch iTypeOf "Hnotification" with
+      | Some (_, ?P) =>
+          pose Q_notification := P
+      end.
 
       wp_rec.
-      wp_apply+ (pool_wait_until𑁒spec P Q with "[$Hctx $HP] HΦ") as "!> HP".
-      wp_apply+ (wp_wand with "(Hpred HP)") as (res) "(%b & -> & H)".
-      destruct b; iSteps.
+      wp_ref notification_registered as "Hnotification_registered".
+
+      wp_apply+ (pool_wait₀𑁒spec
+        ( ∃ b,
+          notification_registered ↦ᵣ #b ∗
+          P_notification ∗
+          if b then True else Q_notification
+        )
+        P_pred
+        Q_pred
+      with "[$Hctx $Hnotification_registered $HP_notification $Hnotification $HP_pred $Hpred]").
+      { iIntros "!> %notify (%b & Hnotification & HP_notification & HQ_notification) Hnotify".
+        wp_load.
+        destruct b; iSteps.
+      }
+
+      iSteps.
+    Qed.
+
+    Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar3G Σ gname} `{saved_prop_G : !SavedPropG Σ} γ ctx scope ivar Ψ Ξ Ω :
+      {{{
+        pool_context γ ctx scope ∗
+        ivar_3_inv ivar Ψ Ξ Ω ∗
+        ( ∀ waiter ω,
+          ( ∀ ctx v,
+            WP waiter ctx v {{ res,
+              ∃ P,
+              ⌜res = ()%V⌝ ∗
+              saved_prop ω P ∗
+              ▷ □ P
+            }}
+          ) -∗
+          Ω ivar waiter ω
+        )
+      }}}
+        pool_wait_ivar ctx ivar
+      {{{
+        RET ();
+        £ 2 ∗
+        pool_context γ ctx scope ∗
+        ivar_3_resolved ivar
+      }}}.
+    Proof.
+      iIntros "%Φ (Hctx & #Hivar_inv & HΩ) HΦ".
+
+      wp_rec credits:"H£".
+      iApply (lc_weaken 2) in "H£"; first done.
+
+      wp_apply+ (pool_wait𑁒spec
+        True
+        True
+        (ivar_3_resolved ivar)
+      with "[$Hctx HΩ]").
+      { repeat iSplit. 1,3: done.
+
+        - iIntros "%notify _ Hnotify".
+          iMod (saved_prop_alloc True) as "(%ω & #Hω)".
+          wp_apply+ (ivar_3_wait𑁒spec with "[$Hivar_inv HΩ Hnotify]") as ([waiter |]) "".
+          all: iSteps.
+
+        - iIntros "!> _".
+          wp_apply+ (ivar_3_is_set𑁒spec with "Hivar_inv") as "%b".
+          destruct b; iSteps.
+      }
+
+      iSteps.
     Qed.
   End pool_G.
 
@@ -1166,7 +1255,7 @@ Section pool_G.
   Implicit Types 𝑡 : location.
   Implicit Types t : val.
   Implicit Types γ : base.pool_name.
-  Implicit Types P Q : iProp Σ.
+  Implicit Types P P_notification P_pred Q Q_pred : iProp Σ.
   Implicit Types Ψ : val → iProp Σ.
 
   Definition pool_inv t sz : iProp Σ :=
@@ -1534,55 +1623,68 @@ Section pool_G.
     iApply ("Hconsumer" with "Hfinished_1").
   Qed.
 
-  Lemma pool_wait_until𑁒spec P Q t ctx scope pred :
+  Lemma pool_wait𑁒spec P_notification P_pred Q_pred t ctx scope notification pred :
     {{{
       pool_context t ctx scope ∗
-      P ∗
+      P_notification ∗
+      ( ∀ notify,
+        P_notification -∗
+        WP notify () {{ itype_unit }} -∗
+        WP notification notify {{ res,
+          ⌜res = ()%V⌝ ∗
+          P_notification
+        }}
+      ) ∗
+      P_pred ∗
       □ (
-        P -∗
+        P_pred -∗
         WP pred () {{ res,
           ∃ b,
           ⌜res = #b⌝ ∗
-          if b then Q else P
+          if b then Q_pred else P_pred
         }}
       )
     }}}
-      pool_wait_until ctx pred
+      pool_wait ctx notification pred
     {{{
       RET ();
       pool_context t ctx scope ∗
-      Q
+      Q_pred
     }}}.
   Proof.
     iIntros "%Φ ((:context) & HP & Hpred) HΦ".
 
-    wp_apply (base.pool_wait_until𑁒spec with "[$]").
+    wp_apply (base.pool_wait𑁒spec with "[$]").
     iSteps.
   Qed.
 
-  Lemma pool_wait_while𑁒spec P Q t ctx scope pred :
+  Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar3G Σ gname} `{saved_prop_G : !SavedPropG Σ} t ctx scope ivar Ψ Ξ Ω :
     {{{
       pool_context t ctx scope ∗
-      P ∗
-      □ (
-        P -∗
-        WP pred () {{ res,
-          ∃ b,
-          ⌜res = #b⌝ ∗
-          if b then P else Q
-        }}
+      ivar_3_inv ivar Ψ Ξ Ω ∗
+      ( ∀ waiter ω,
+        ( ∀ ctx v,
+          WP waiter ctx v {{ res,
+            ∃ P,
+            ⌜res = ()%V⌝ ∗
+            saved_prop ω P ∗
+            ▷ □ P
+          }}
+        ) -∗
+        Ω ivar waiter ω
       )
     }}}
-      pool_wait_while ctx pred
+      pool_wait_ivar ctx ivar
     {{{
       RET ();
+      £ 2 ∗
       pool_context t ctx scope ∗
-      Q
+      ivar_3_resolved ivar
     }}}.
   Proof.
-    iIntros "%Φ ((:context) & HP & Hpred) HΦ".
+    iIntros "%Φ ((:context) & Hivar_inv & HΩ) HΦ".
 
-    wp_apply (base.pool_wait_while𑁒spec with "[$]").
+    wp_apply (base.pool_wait_ivar𑁒spec with "[$]").
     iSteps.
   Qed.
 End pool_G.

@@ -412,15 +412,7 @@ Section future_G.
 
     wp_rec.
 
-    wp_apply+ (pool_wait_until𑁒spec
-      True
-      (ivar_3_resolved t)
-    with "[$Hctx]") as "(Hctx & %v & #Hresult)".
-    { iStep 3.
-      wp_apply+ (ivar_3_is_set𑁒spec with "Hinv") as (b) "Hresult".
-      rewrite /ivar_3_resolved. destruct b; iSteps.
-    }
-
+    wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hinv]") as "(_ & Hctx & %v & #Hresult)". 1: iSteps.
     wp_apply+ (ivar_3_get𑁒spec with "[$Hinv $Hresult]") as "H£".
     iSteps.
   Qed.

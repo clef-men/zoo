@@ -145,15 +145,19 @@ Section waiter_G.
     }}}
       waiter_cancel_wait t
     {{{
-      RET ();
+      b
+    , RET #b;
       True
     }}}.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect𑁒spec itype_unit with "[$Hmtx_inv]"). 1: iSteps.
-    iSteps.
+    wp_apply (mutex_protect𑁒spec itype_bool with "[$Hmtx_inv]"). 2: iSteps.
+    { iIntros "Hmtx_locked (:inv_inner)".
+      wp_load.
+      destruct b; iSteps.
+    }
   Qed.
 
   Lemma waiter_commit_wait𑁒spec t :
