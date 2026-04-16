@@ -390,6 +390,41 @@ End zip3_with.
   @length_zip3_with
 : simpl_length.
 
+Section zip3.
+  Context {A1 A2 A3 : Type}.
+
+  Definition zip3 :=
+    zip3_with (B := A1 * A2 * A3) $ λ x1 x2 x3,
+      (x1, x2, x3).
+
+  Lemma zip3_cons x1 l1 x2 l2 x3 l3 :
+    zip3 (x1 :: l1) (x2 :: l2) (x3 :: l3) = (x1, x2, x3) :: zip3 l1 l2 l3.
+  Proof.
+    done.
+  Qed.
+
+  Lemma length_zip3 l1 l2 l3 :
+    length l1 = length l2 →
+    length l1 = length l3 →
+    length (zip3 l1 l2 l3) = length l1.
+  Proof.
+    apply length_zip3_with.
+  Qed.
+
+  Lemma zip_zip l1 l2 l3 :
+    zip (zip l1 l2) l3 = zip3 l1 l2 l3.
+  Proof.
+    move: l2 l3. induction l1 as [| x1 l1 IH] => l2 l3 //.
+    destruct l2 as [| x2 l2] => //.
+    destruct l3 as [| x3 l3] => //.
+    rewrite /= IH //.
+  Qed.
+End zip3.
+
+#[global] Hint Rewrite
+  @length_zip3
+: simpl_length.
+
 Section foldri.
   Implicit Types i : nat.
 
