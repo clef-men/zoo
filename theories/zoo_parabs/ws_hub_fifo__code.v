@@ -16,7 +16,7 @@ From zoo Require Import
 
 Definition ws_hub_fifo_create : val :=
   fun: "sz" =>
-    { "sz", mpmc_queue_1_create (), waiters_create (), "sz" + 1 }.
+    { "sz", mpmc_queue_1_create (), waiters_create "sz", "sz" + 1 }.
 
 Definition ws_hub_fifo_size : val :=
   fun: "t" =>
@@ -46,11 +46,11 @@ Definition ws_hub_fifo_closed : val :=
 
 Definition ws_hub_fifo_notify : val :=
   fun: "t" =>
-    waiters_notify "t".{waiters}.
+    waiters_notify_one "t".{waiters}.
 
 Definition ws_hub_fifo_notify_all : val :=
   fun: "t" =>
-    waiters_notify_many "t".{waiters} (ws_hub_fifo_size "t").
+    waiters_notify_all "t".{waiters}.
 
 Definition ws_hub_fifo_push : val :=
   fun: "t" "_i" "v" =>
@@ -84,31 +84,30 @@ Definition ws_hub_fifo_steal_until : val :=
     ws_hub_fifo_steal_until₀ "t" "pred".
 
 Definition ws_hub_fifo_steal₀ : val :=
-  rec: "steal" "t" =>
-    let: "waiters" := "t".{waiters} in
-    let: "waiter" := waiters_prepare_wait "waiters" in
+  rec: "steal" "t" "i" =>
+    waiters_prepare_wait "t".{waiters} "i" ;;
     if: ws_hub_fifo_closed "t" then (
       ws_hub_fifo_notify_all "t" ;;
       §None
     ) else (
       if: mpmc_queue_1_is_empty "t".{queue} then (
-        waiters_commit_wait "waiters" "waiter"
+        waiters_commit_wait "t".{waiters} "i"
       ) else (
-        waiters_cancel_wait "waiters" "waiter"
+        waiters_cancel_wait "t".{waiters} "i"
       ) ;;
       match: ws_hub_fifo_pop' "t" with
       | Some <> as "res" =>
           ws_hub_fifo_end_inactive "t" ;;
           "res"
       | None =>
-          "steal" "t"
+          "steal" "t" "i"
       end
     ).
 
 Definition ws_hub_fifo_steal : val :=
-  fun: "t" "_i" <> <> =>
+  fun: "t" "i" <> <> =>
     ws_hub_fifo_begin_inactive "t" ;;
-    ws_hub_fifo_steal₀ "t".
+    ws_hub_fifo_steal₀ "t" "i".
 
 Definition ws_hub_fifo_close : val :=
   ws_hub_fifo_begin_inactive.
