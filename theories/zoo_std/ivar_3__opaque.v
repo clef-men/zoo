@@ -9,3 +9,4 @@ From zoo_std Require Import
 #[global] Opaque ivar_3_get.
 #[global] Opaque ivar_3_wait.
 #[global] Opaque ivar_3_set.
+#[global] Opaque ivar_3_notify.

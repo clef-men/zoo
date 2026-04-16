@@ -18,6 +18,12 @@ Definition waiters_create : val :=
   fun: "sz" =>
     (array_unsafe_init "sz" waiter_create, mpmc_queue_1_create ()).
 
+Definition waiters_notify : val :=
+  fun: "t" "i" =>
+    let: "waiter" := array_unsafe_get "t".<waiters> "i" in
+    waiter_notify "waiter" ;;
+    ().
+
 Definition waiters_notify_one : val :=
   rec: "notify_one" "t" =>
     match: mpmc_queue_1_pop "t".<queue> with

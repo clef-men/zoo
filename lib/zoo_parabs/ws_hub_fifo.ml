@@ -42,51 +42,55 @@ let pop' t =
 let pop t _i =
   pop' t
 
-let rec steal_until t pred =
-  if pred () then (
-    None
-  ) else (
-    Domain.yield () ;
-    match pop' t with
-    | Some _ as res ->
-        res
-    | None ->
-        steal_until t pred
-  )
-let steal_until t _i ~max_round_noyield:_ pred =
-  steal_until t pred
-
-let rec steal t i =
+let rec steal_aux t i ~notification ~pred =
   Waiters.prepare_wait t.waiters i ;
-  if closed t then (
-    notify_all t ;
+  notification (fun () -> Waiters.notify t.waiters i) ;
+  if pred () then (
+    if not @@ Waiters.cancel_wait t.waiters i then
+      Waiters.notify_one t.waiters ;
     None
   ) else (
-    if Mpmc_queue_1.is_empty t.queue then (
-      Waiters.commit_wait t.waiters i
-    ) else (
-      Waiters.cancel_wait t.waiters i
-    ) ;
     match pop' t with
     | Some _ as res ->
-        end_inactive t ;
+        Waiters.cancel_wait t.waiters i |> ignore ;
         res
     | None ->
-        steal t i
+        Waiters.commit_wait t.waiters i ;
+        steal_aux t i ~notification:ignore ~pred
   )
+
+let steal_until t i ~max_round_noyield:_ ~max_round_yield:_ ~notification ~pred =
+  steal_aux t i ~notification ~pred
+
 let steal t i ~max_round_noyield:_ ~max_round_yield:_ =
   begin_inactive t ;
-  steal t i
+  let res =
+    steal_aux
+      t
+      i
+      ~notification:ignore
+      ~pred:(fun () -> closed t)
+  in
+  begin match res with
+  | None ->
+      notify_all t
+  | Some _ ->
+      end_inactive t
+  end ;
+  res
 
 let close =
   begin_inactive
 
-let pop_steal_until t i ~max_round_noyield pred =
-  match pop t i with
-  | Some _ as res ->
-      res
-  | None ->
-      steal_until t i ~max_round_noyield pred
+let pop_steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  if pred () then
+    None
+  else
+    match pop t i with
+    | Some _ as res ->
+        res
+    | None ->
+        steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred
 
 let pop_steal t i ~max_round_noyield ~max_round_yield =
   match pop t i with

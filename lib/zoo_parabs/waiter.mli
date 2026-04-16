@@ -9,6 +9,6 @@ val notify :
 val prepare_wait :
   t -> unit
 val cancel_wait :
-  t -> unit
+  t -> bool
 val commit_wait :
   t -> unit

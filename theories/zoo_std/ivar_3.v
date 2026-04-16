@@ -23,7 +23,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types v waiter : val.
+Implicit Types v waiter ctx : val.
 Implicit Types waiters : list val.
 Implicit Types own : ownership.
 
@@ -881,6 +881,43 @@ Module base.
       iSplitR "Hwaiters HΦ". { iExists (Set_ v). iSteps. }
       iSteps.
     Qed.
+
+    Lemma ivar_3_notify𑁒spec P t γ Ψ Ξ Ω ctx :
+      {{{
+        ivar_3_inv t γ Ψ Ξ Ω ∗
+        ivar_3_producer γ ∗
+        ▷ Ψ ()%V ∗
+        ▷ □ Ξ ()%V ∗
+        P ∗
+        □ (
+          ∀ waiter ω,
+          P -∗
+          Ω #t waiter ω -∗
+          WP waiter ctx () {{ res,
+            ⌜res = ()%V⌝ ∗
+            P
+          }}
+        )
+      }}}
+        ivar_3_notify #t ctx
+      {{{
+        RET ();
+        ivar_3_result γ () ∗
+        P
+      }}}.
+    Proof.
+      iIntros "%Φ (#Hinv & Hproducer & HΨ & HΞ & HP & #H) HΦ".
+
+      wp_rec.
+      wp_apply+ (ivar_3_set𑁒spec with "[$Hinv $Hproducer $HΨ $HΞ]") as (waiters ωs) "(#Hresult & #Hwaiters & HΩs)".
+
+      wp_apply+ (lst_iter𑁒spec' (λ _ _, P) with "[$HP HΩs]"). 1: done.
+      { iDestruct (big_sepL2_retract_r with "HΩs") as "(_ & HΩs)".
+        iApply (big_sepL_impl with "HΩs").
+        iSteps.
+      }
+      iSteps.
+    Qed.
   End ivar_3_G.
 
   #[global] Opaque ivar_3_inv.
@@ -1406,6 +1443,37 @@ Section ivar_3_G.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp_apply (base.ivar_3_set𑁒spec _ _ Ψ with "[$]").
+    iSteps.
+  Qed.
+
+  Lemma ivar_3_notify𑁒spec P t Ψ Ξ Ω ctx :
+    {{{
+      ivar_3_inv t Ψ Ξ Ω ∗
+      ivar_3_producer t ∗
+      ▷ Ψ ()%V ∗
+      ▷ □ Ξ ()%V ∗
+      P ∗
+      □ (
+        ∀ waiter ω,
+        P -∗
+        Ω t waiter ω -∗
+        WP waiter ctx () {{ res,
+          ⌜res = ()%V⌝ ∗
+          P
+        }}
+      )
+    }}}
+      ivar_3_notify t ctx
+    {{{
+      RET ();
+      ivar_3_result t () ∗
+      P
+    }}}.
+  Proof.
+    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ & HP & H) HΦ". simplify.
+    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
+
+    wp_apply (base.ivar_3_notify𑁒spec P with "[$Hinv_1 $Hproducer_2 $HΨ $HΞ $HP $H]").
     iSteps.
   Qed.
 End ivar_3_G.

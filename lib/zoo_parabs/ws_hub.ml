@@ -20,9 +20,19 @@ module type S = sig
     'a t -> int -> 'a option
 
   val steal_until :
-    'a t -> int -> max_round_noyield:int -> (unit -> bool) -> 'a option
+    'a t ->
+    int ->
+    max_round_noyield:int ->
+    max_round_yield:int ->
+    notification:((unit -> unit) -> unit) ->
+    pred:(unit -> bool) ->
+    'a option
   val steal :
-    'a t -> int -> max_round_noyield:int -> max_round_yield:int -> 'a option
+    'a t ->
+    int ->
+    max_round_noyield:int ->
+    max_round_yield:int ->
+    'a option
 
   val closed :
     'a t -> bool
@@ -30,7 +40,17 @@ module type S = sig
     'a t -> unit
 
   val pop_steal_until :
-    'a t -> int -> max_round_noyield:int -> (unit -> bool) -> 'a option
+    'a t ->
+    int ->
+    max_round_noyield:int ->
+    max_round_yield:int ->
+    notification:((unit -> unit) -> unit) ->
+    pred:(unit -> bool) ->
+    'a option
   val pop_steal :
-    'a t -> int -> max_round_noyield:int -> max_round_yield:int -> 'a option
+    'a t ->
+    int ->
+    max_round_noyield:int ->
+    max_round_yield:int ->
+    'a option
 end

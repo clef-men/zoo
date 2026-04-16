@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  mpsc_flag.
+  ivar_3.
 From examples Require Import
   vertex_fibonacci__types.
 From zoo Require Import
@@ -46,11 +46,11 @@ Definition vertex_fibonacci_main : val :=
            "vtx1"
            (fun: "ctx" => vertex_fibonacci_main₀ "ctx" "vtx1" "r" "n") ;;
          vertex_release "ctx" "vtx1" ;;
-         let: "flag" := mpsc_flag_create () in
+         let: "ivar" := ivar_3_create () in
          let: "vtx2" :=
-           vertex_create' (fun: "_ctx" => mpsc_flag_set "flag")
+           vertex_create' (fun: "ctx" => ivar_3_notify "ivar" "ctx")
          in
          vertex_precede "vtx1" "vtx2" ;;
          vertex_release "ctx" "vtx2" ;;
-         pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag") ;;
+         pool_wait_ivar "ctx" "ivar" ;;
          !"r").

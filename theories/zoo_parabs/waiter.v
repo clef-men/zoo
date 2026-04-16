@@ -39,7 +39,7 @@ Qed.
 Section waiter_G.
   Context `{waiter_G : WaiterG Σ}.
 
-  #[local] Definition waiter_inv_inner 𝑡 : iProp Σ :=
+  #[local] Definition inv_inner 𝑡 : iProp Σ :=
     ∃ b,
     𝑡.[flag] ↦ #b.
   #[local] Instance : CustomIpat "inv_inner" :=
@@ -51,20 +51,18 @@ Section waiter_G.
     ∃ 𝑡 mtx cond,
     ⌜t = #𝑡⌝ ∗
     𝑡.[mutex] ↦□ mtx ∗
-    mutex_inv mtx True ∗
+    mutex_inv mtx (inv_inner 𝑡) ∗
     𝑡.[condition] ↦□ cond ∗
-    condition_inv cond ∗
-    inv nroot (waiter_inv_inner 𝑡).
+    condition_inv cond.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡
       & %mtx
       & %cond
       & ->
       & #H𝑡_mutex
-      & #Hmutex_inv
+      & #Hmtx_inv
       & #H𝑡_condition
-      & #Hcondition_inv
-      & #Hinv
+      & #Hcond_inv
       )
     ".
 
@@ -88,9 +86,11 @@ Section waiter_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply+ (condition_create𑁒spec with "[//]") as "%cond #Hcondition_inv".
-    wp_apply+ (mutex_create𑁒spec True with "[//]") as "%mtx #Hmutex_inv".
+    wp_apply (condition_create𑁒spec with "[//]") as "%cond #Hcond_inv".
+    wp_apply (mutex_create𑁒spec_init with "[//]") as "%mtx Hmtx_init".
+    wp_block 𝑡 as "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
 
+    iMod (mutex_init_to_inv (inv_inner 𝑡) with "Hmtx_init [$H𝑡_flag]").
     iSteps.
   Qed.
 
@@ -107,41 +107,18 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec.
-
-    wp_bind (_.{flag})%E.
-    iInv "Hinv" as "(:inv_inner)".
+    wp_rec. wp_load.
+    wp_apply (mutex_lock𑁒spec with "Hmtx_inv") as "(Hmtx_locked & (:inv_inner))".
     wp_load.
-    destruct b. 1: iSteps.
-    iSplitR "HΦ". { iFrameSteps. }
-    iModIntro.
-
-    wp_load.
-    wp_apply (mutex_lock𑁒spec with "Hmutex_inv") as "(Hmutex_locked & _)".
-    wp_pures.
-
-    wp_bind (_.{flag})%E.
-    iInv "Hinv" as "(:inv_inner)".
-    wp_load.
-    iSplitR "Hmutex_locked HΦ". { iFrameSteps. }
-    iModIntro.
-
     destruct b; wp_pures.
 
     - wp_load.
-      wp_apply (mutex_unlock𑁒spec with "[$Hmutex_inv $Hmutex_locked //]") as "_".
+      wp_apply (mutex_unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
 
     - wp_bind (_ <-{flag} _)%E.
-      iInv "Hinv" as "(:inv_inner)".
-      wp_store.
-      iSplitR "Hmutex_locked HΦ". { iFrameSteps. }
-      iModIntro.
-
-      wp_load.
-      wp_apply (mutex_unlock𑁒spec with "[$Hmutex_inv $Hmutex_locked //]") as "_".
-      wp_load.
-      wp_apply (condition_notify𑁒spec with "Hcondition_inv").
+      wp_store. wp_load.
+      wp_apply (mutex_unlock𑁒spec with "[$Hmtx_inv $Hmtx_locked $H𝑡_flag]").
       iSteps.
   Qed.
 
@@ -155,6 +132,10 @@ Section waiter_G.
       True
     }}}.
   Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_rec. wp_load.
+    wp_apply (mutex_protect𑁒spec itype_unit with "[$Hmtx_inv]"). 1: iSteps.
     iSteps.
   Qed.
 
@@ -164,11 +145,19 @@ Section waiter_G.
     }}}
       waiter_cancel_wait t
     {{{
-      RET ();
+      b
+    , RET #b;
       True
     }}}.
   Proof.
-    iSteps.
+    iIntros "%Φ (:inv) HΦ".
+
+    wp_rec. wp_load.
+    wp_apply (mutex_protect𑁒spec itype_bool with "[$Hmtx_inv]"). 2: iSteps.
+    { iIntros "Hmtx_locked (:inv_inner)".
+      wp_load.
+      destruct b; iSteps.
+    }
   Qed.
 
   Lemma waiter_commit_wait𑁒spec t :
@@ -183,24 +172,11 @@ Section waiter_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_rec.
-
-    wp_bind (_.{flag})%E.
-    iInv "Hinv" as "(:inv_inner)".
-    wp_load.
-    destruct b. 1: iSteps.
-    iSplitR "HΦ". { iFrameSteps. }
-    iModIntro.
-
-    wp_load.
-    wp_apply+ (mutex_protect𑁒spec (λ res,
-      ⌜res = ()%V⌝
-    )%I with "[$Hmutex_inv]").
-    { iIntros "Hmutex_locked _".
-      do 2 wp_load.
-      wp_apply (condition_wait_until𑁒spec (λ _, True)%I with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked]").
-      all: iSteps.
-    }
+    wp_rec. wp_load.
+    wp_apply (mutex_protect𑁒spec itype_unit with "[$Hmtx_inv]"). 2: iSteps.
+    iIntros "Hmtx_locked (:inv_inner)".
+    do 2 wp_load.
+    wp_apply (condition_wait_until𑁒spec (λ _, True)%I with "[$Hcond_inv $Hmtx_inv $Hmtx_locked $H𝑡_flag]"). 1: iSteps.
     iSteps.
   Qed.
 End waiter_G.

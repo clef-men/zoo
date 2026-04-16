@@ -2,6 +2,7 @@ From zoo_parabs Require Import
   waiters__code.
 
 #[global] Opaque waiters_create.
+#[global] Opaque waiters_notify.
 #[global] Opaque waiters_notify_one.
 #[global] Opaque waiters_notify_all.
 #[global] Opaque waiters_prepare_wait.

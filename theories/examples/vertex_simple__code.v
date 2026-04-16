@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  mpsc_flag.
+  ivar_3.
 From examples Require Import
   vertex_simple__types.
 From zoo Require Import
@@ -15,13 +15,13 @@ From zoo Require Import
 
 Definition vertex_simple_main : val :=
   fun: "num_worker" "a" "b" "c" "d" =>
-    let: "flag" := mpsc_flag_create () in
+    let: "ivar" := ivar_3_create () in
     let: "vtx_a" := vertex_create' (fun: "_ctx" => "a" ()) in
     let: "vtx_b" := vertex_create' (fun: "_ctx" => "b" ()) in
     let: "vtx_c" := vertex_create' (fun: "_ctx" => "c" ()) in
     let: "vtx_d" :=
-      vertex_create' (fun: "_ctx" => "d" () ;;
-                                     mpsc_flag_set "flag")
+      vertex_create' (fun: "ctx" => "d" () ;;
+                                    ivar_3_notify "ivar" "ctx")
     in
     vertex_precede "vtx_a" "vtx_b" ;;
     vertex_precede "vtx_a" "vtx_c" ;;
@@ -34,4 +34,4 @@ Definition vertex_simple_main : val :=
          vertex_release "ctx" "vtx_c" ;;
          vertex_release "ctx" "vtx_b" ;;
          vertex_release "ctx" "vtx_a" ;;
-         pool_wait_until "ctx" (fun: <> => mpsc_flag_get "flag")).
+         pool_wait_ivar "ctx" "ivar").

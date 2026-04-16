@@ -3,6 +3,8 @@ type t
 val create :
   int -> t
 
+val notify :
+  t -> int -> unit
 val notify_one :
   t -> unit
 val notify_all :
@@ -11,6 +13,6 @@ val notify_all :
 val prepare_wait :
   t -> int -> unit
 val cancel_wait :
-  t -> int -> unit
+  t -> int -> bool
 val commit_wait :
   t -> int -> unit

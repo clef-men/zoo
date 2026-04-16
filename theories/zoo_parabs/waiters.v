@@ -17,6 +17,7 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types v t waiters queue : val.
 Implicit Types 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 𝑞𝑢𝑒𝑢𝑒 : list val.
 
@@ -103,6 +104,28 @@ Section waiters_G.
     }
     iMod (array_model_persist with "Hwaiters") as "#Hwaiters".
 
+    iSteps.
+  Qed.
+
+  Lemma waiters_notify𑁒spec t (sz : nat) i :
+    (0 ≤ i < sz)%Z →
+    {{{
+      waiters_inv t sz
+    }}}
+      waiters_notify t #i
+    {{{
+      RET ();
+      True
+    }}}.
+  Proof.
+    iIntros "%Hi %Φ (:inv) HΦ".
+
+    destruct (lookup_lt_is_Some_2 𝑤𝑎𝑖𝑡𝑒𝑟𝑠 ₊i) as (𝑤𝑎𝑖𝑡𝑒𝑟 & H𝑤𝑎𝑖𝑡𝑒𝑟𝑠_lookup). 1: lia.
+    iDestruct (big_sepL_lookup with "H𝑤𝑎𝑖𝑡𝑒𝑟𝑠") as "H𝑤𝑎𝑖𝑡𝑒𝑟". 1: done.
+
+    wp_rec.
+    wp_apply+ (array_unsafe_get𑁒spec with "Hwaiters") as "_". 1-3: done || lia.
+    wp_apply+ (waiter_notify𑁒spec with "H𝑤𝑎𝑖𝑡𝑒𝑟").
     iSteps.
   Qed.
 
@@ -196,7 +219,8 @@ Section waiters_G.
     }}}
       waiters_cancel_wait t #i
     {{{
-      RET ();
+      b
+    , RET #b;
       True
     }}}.
   Proof.

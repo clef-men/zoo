@@ -6,6 +6,7 @@ From zoo.language Require Import
 From zoo_parabs Require Import
   ws_hub_std.
 From zoo_std Require Import
+  ivar_3
   array
   domain.
 From zoo_parabs Require Import
@@ -89,24 +90,40 @@ Definition pool_async : val :=
   fun: "ctx" "task" =>
     ws_hub_std_push "ctx".<context_hub> "ctx".<context_id> "task".
 
-Definition pool_wait_until : val :=
-  rec: "wait_until" "ctx" "pred" =>
-    if: ~ "pred" () then (
-      match:
-        ws_hub_std_pop_steal_until
-          "ctx".<context_hub>
-          "ctx".<context_id>
-          pool_max_round_noyield
-          "pred"
-      with
-      | None =>
-          ()
-      | Some "job" =>
-          pool_execute "ctx" "job" ;;
-          "wait_until" "ctx" "pred"
-      end
-    ).
+Definition pool_wait₀ : val :=
+  rec: "wait" "ctx" "notification" "pred" =>
+    match:
+      ws_hub_std_pop_steal_until
+        "ctx".<context_hub>
+        "ctx".<context_id>
+        pool_max_round_noyield
+        pool_max_round_yield
+        "notification"
+        "pred"
+    with
+    | None =>
+        ()
+    | Some "job" =>
+        pool_execute "ctx" "job" ;;
+        "wait" "ctx" "notification" "pred"
+    end.
 
-Definition pool_wait_while : val :=
-  fun: "ctx" "pred" =>
-    pool_wait_until "ctx" (fun: <> => ~ "pred" ()).
+Definition pool_wait : val :=
+  fun: "ctx" "notification" "pred" =>
+    let: "notification_registered" := ref false in
+    let: "notification" "notify" :=
+      if: ~ !"notification_registered" then (
+        "notification_registered" <- true ;;
+        "notification" "notify"
+      )
+    in
+    pool_wait₀ "ctx" "notification" "pred".
+
+Definition pool_wait_ivar : val :=
+  fun: "ctx" "ivar" =>
+    pool_wait
+      "ctx"
+      (fun: "notify" =>
+         ivar_3_wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
+         ())
+      (fun: <> => ivar_3_is_set "ivar").
