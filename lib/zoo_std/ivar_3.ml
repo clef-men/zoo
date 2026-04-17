@@ -50,7 +50,3 @@ let set t v =
       assert false
   | Unset waiters ->
       waiters
-
-let notify t ctx =
-  let waiters = set t () in
-  Lst.iter (fun waiter -> waiter ctx ()) waiters

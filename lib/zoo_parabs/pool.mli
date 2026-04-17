@@ -85,6 +85,6 @@ val wait :
     observes that [pred ()] already holds. *)
 
 val wait_ivar :
-  context -> ('a, ('a -> unit) task) Ivar_3.t -> unit
+  context -> (context, 'a) Ivar_4.t -> unit
 (** [wait_ivar ctx ivar] waits until [ivar] is set,
     working on other tasks in the meantime.  *)

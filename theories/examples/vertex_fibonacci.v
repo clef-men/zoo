@@ -8,7 +8,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  ivar_3.
+  ivar_4.
 From zoo_parabs Require Import
   pool
   vertex.
@@ -24,14 +24,14 @@ Implicit Types v ctx vtx : val.
 Class VertexFibonacciG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] vertex_fibonacci_G_pool_G :: PoolG Σ
   ; #[local] vertex_fibonacci_G_vertex_G :: VertexG Σ
-  ; #[local] vertex_fibonacci_G_ivar_G :: Ivar3G Σ gname
+  ; #[local] vertex_fibonacci_G_ivar_G :: Ivar4G Σ
   ; #[local] vertex_fibonacci_G_saved_prop_G :: SavedPropG Σ
   }.
 
 Definition vertex_fibonacci_Σ := #[
   pool_Σ ;
   vertex_Σ ;
-  ivar_3_Σ gname ;
+  ivar_4_Σ ;
   saved_prop_Σ
 ].
 #[global] Instance subG_vertex_fibonacci_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -145,13 +145,10 @@ Section vertex_fibonacci_G.
       wp_apply+ (vertex_release𑁒spec with "[$Hctx $Hvtx1_inv $Hvtx1_model Hr]") as "Hctx".
       { iApply (vertex_fibonacci_main₀𑁒spec with "Hvtx1_inv Hr"). }
 
-      wp_apply+ (ivar_3_create𑁒spec
+      wp_apply+ (ivar_4_create𑁒spec
         (λ _, r ↦ᵣ #(fibonacci n))%I
         (λ _, True)%I
-        ( λ _ waiter _,
-          ∀ ctx v,
-          WP waiter ctx v {{ itype_unit }}
-        )%I
+        (λ _ (_ : unit), True)%I
       with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
       wp_apply+ (vertex_create'𑁒spec
@@ -168,12 +165,12 @@ Section vertex_fibonacci_G.
         iDestruct (vertex_predecessor_finished with "Hvtx1_predecessor Hvtx2_ready") as "#Hvtx1_finished".
         iMod (vertex_inv_finished_output' with "H£ Hvtx1_inv Hvtx1_finished Hvtx1_output") as "Hr".
 
-        wp_apply+ (ivar_3_notify𑁒spec True with "[$Hivar_inv $Hivar_producer $Hr]"). 1: iSteps.
+        wp_apply+ (ivar_4_notify𑁒spec () with "[$Hivar_inv $Hivar_producer $Hr]"). 1: iSteps.
         iSteps.
       }
 
       wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hivar_inv]") as "(H£ & $ & (%v & #Hivar_result))". 1: iSteps.
-      iMod (ivar_3_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "(Hr & _)".
+      iMod (ivar_4_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "(Hr & _)".
       iSteps.
     }
 

@@ -29,8 +29,8 @@ let main ~num_worker n =
     Vertex.set_task vtx1 (fun ctx -> main ctx vtx1 r n) ;
     Vertex.release ctx vtx1 ;
 
-    let ivar = Ivar_3.create () in
-    let vtx2 = Vertex.create' (fun ctx -> Ivar_3.notify ivar ctx) in
+    let ivar = Ivar_4.create () in
+    let vtx2 = Vertex.create' (fun ctx -> Ivar_4.notify ivar ctx ()) in
     Vertex.precede vtx1 vtx2 ;
     Vertex.release ctx vtx2 ;
 

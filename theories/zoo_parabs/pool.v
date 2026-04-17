@@ -17,7 +17,7 @@ From zoo.diaframe Require Import
 From zoo_std Require Import
   array
   domain
-  ivar_3.
+  ivar_4.
 From zoo_parabs Require Export
   base
   pool__code.
@@ -1187,31 +1187,20 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar3G Σ gname} `{saved_prop_G : !SavedPropG Σ} γ ctx scope ivar Ψ Ξ Ω :
+    Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} γ ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
       {{{
         pool_context γ ctx scope ∗
-        ivar_3_inv ivar Ψ Ξ Ω ∗
-        ( ∀ waiter ω,
-          ( ∀ ctx v,
-            WP waiter ctx v {{ res,
-              ∃ P,
-              ⌜res = ()%V⌝ ∗
-              saved_prop ω P ∗
-              ▷ □ P
-            }}
-          ) -∗
-          Ω ivar waiter ω
-        )
+        ivar_4_inv ivar Ψ Ξ Γ
       }}}
         pool_wait_ivar ctx ivar
       {{{
         RET ();
         £ 2 ∗
         pool_context γ ctx scope ∗
-        ivar_3_resolved ivar
+        ivar_4_resolved ivar
       }}}.
     Proof.
-      iIntros "%Φ (Hctx & #Hivar_inv & HΩ) HΦ".
+      iIntros "%Φ (Hctx & #Hivar_inv) HΦ".
 
       wp_rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
@@ -1219,17 +1208,16 @@ Module base.
       wp_apply+ (pool_wait𑁒spec
         True
         True
-        (ivar_3_resolved ivar)
-      with "[$Hctx HΩ]").
+        (ivar_4_resolved ivar)
+      with "[$Hctx]").
       { repeat iSplit. 1,3: done.
 
         - iIntros "%notify _ Hnotify".
-          iMod (saved_prop_alloc True) as "(%ω & #Hω)".
-          wp_apply+ (ivar_3_wait𑁒spec with "[$Hivar_inv HΩ Hnotify]") as ([waiter |]) "".
+          wp_apply+ (ivar_4_wait𑁒spec True True with "[$Hivar_inv Hnotify]") as ([waiter |]) "".
           all: iSteps.
 
         - iIntros "!> _".
-          wp_apply+ (ivar_3_is_set𑁒spec with "Hivar_inv") as "%b".
+          wp_apply+ (ivar_4_is_set𑁒spec with "Hivar_inv") as "%b".
           destruct b; iSteps.
       }
 
@@ -1658,31 +1646,20 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar3G Σ gname} `{saved_prop_G : !SavedPropG Σ} t ctx scope ivar Ψ Ξ Ω :
+  Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} t ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
     {{{
       pool_context t ctx scope ∗
-      ivar_3_inv ivar Ψ Ξ Ω ∗
-      ( ∀ waiter ω,
-        ( ∀ ctx v,
-          WP waiter ctx v {{ res,
-            ∃ P,
-            ⌜res = ()%V⌝ ∗
-            saved_prop ω P ∗
-            ▷ □ P
-          }}
-        ) -∗
-        Ω ivar waiter ω
-      )
+      ivar_4_inv ivar Ψ Ξ Γ
     }}}
       pool_wait_ivar ctx ivar
     {{{
       RET ();
       £ 2 ∗
       pool_context t ctx scope ∗
-      ivar_3_resolved ivar
+      ivar_4_resolved ivar
     }}}.
   Proof.
-    iIntros "%Φ ((:context) & Hivar_inv & HΩ) HΦ".
+    iIntros "%Φ ((:context) & Hivar_inv) HΦ".
 
     wp_apply (base.pool_wait_ivar𑁒spec with "[$]").
     iSteps.

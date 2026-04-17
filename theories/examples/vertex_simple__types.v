@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  ivar_3.
+  ivar_4.
 From zoo Require Import
   options.
 

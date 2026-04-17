@@ -22,6 +22,3 @@ val wait :
 
 val set :
   ('a, 'waiter) t -> 'a -> 'waiter list
-
-val notify :
-  (unit, 'context -> unit -> unit) t -> 'context -> unit

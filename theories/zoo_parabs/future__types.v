@@ -6,8 +6,7 @@ From zoo.language Require Import
 From zoo_parabs Require Import
   pool.
 From zoo_std Require Import
-  lst
-  ivar_3.
+  ivar_4.
 From zoo Require Import
   options.
 

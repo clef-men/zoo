@@ -8,7 +8,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  ivar_3.
+  ivar_4.
 From zoo_parabs Require Import
   pool
   vertex.
@@ -22,14 +22,14 @@ Implicit Types v ctx a b c d : val.
 Class VertexSimpleG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] vertex_simple_G_pool_G :: PoolG Σ
   ; #[local] vertex_simple_G_vertex_G :: VertexG Σ
-  ; #[local] vertex_simple_G_ivar_G :: Ivar3G Σ gname
+  ; #[local] vertex_simple_G_ivar_G :: Ivar4G Σ
   ; #[local] vertex_simple_G_saved_prop_G :: SavedPropG Σ
   }.
 
 Definition vertex_simple_Σ := #[
   pool_Σ ;
   vertex_Σ ;
-  ivar_3_Σ gname ;
+  ivar_4_Σ ;
   saved_prop_Σ
 ].
 #[global] Instance subG_vertex_simple_Σ Σ `{zoo_G : !ZooG Σ} :
@@ -61,13 +61,10 @@ Section vertex_simple_G.
 
     wp_rec.
 
-    wp_apply+ (ivar_3_create𑁒spec
+    wp_apply+ (ivar_4_create𑁒spec
       (λ _, P_d)
       (λ _, True)%I
-      ( λ _ waiter _,
-        ∀ ctx v,
-        WP waiter ctx v {{ itype_unit }}
-      )%I
+      (λ _ (_ : unit), True)%I
     with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
     wp_apply+ (vertex_create'𑁒spec
@@ -114,7 +111,7 @@ Section vertex_simple_G.
         iMod (lc_fupd_elim_laterN _ (P_b ∗ P_c) with "H£ [$]") as "(HP_b & HP_c)".
         wp_apply (wp_wand with "(Hd HP_b HP_c)") as (res) "(-> & HP_d)".
 
-        wp_apply+ (ivar_3_notify𑁒spec True with "[$Hivar_inv $Hivar_producer $HP_d]"). 1: iSteps.
+        wp_apply+ (ivar_4_notify𑁒spec () with "[$Hivar_inv $Hivar_producer $HP_d]"). 1: iSteps.
         iSteps.
       }
 
@@ -153,7 +150,7 @@ Section vertex_simple_G.
 
       iApply wp_fupd.
       wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hivar_inv]") as "(H£ & $ & (%v & #Hivar_result))". 1: iSteps.
-      iMod (ivar_3_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "($ & _)" => //.
+      iMod (ivar_4_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "($ & _)" => //.
     }
 
     iSteps.

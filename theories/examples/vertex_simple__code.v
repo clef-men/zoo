@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  ivar_3.
+  ivar_4.
 From examples Require Import
   vertex_simple__types.
 From zoo Require Import
@@ -15,13 +15,13 @@ From zoo Require Import
 
 Definition vertex_simple_main : val :=
   fun: "num_worker" "a" "b" "c" "d" =>
-    let: "ivar" := ivar_3_create () in
+    let: "ivar" := ivar_4_create () in
     let: "vtx_a" := vertex_create' (fun: "_ctx" => "a" ()) in
     let: "vtx_b" := vertex_create' (fun: "_ctx" => "b" ()) in
     let: "vtx_c" := vertex_create' (fun: "_ctx" => "c" ()) in
     let: "vtx_d" :=
       vertex_create' (fun: "ctx" => "d" () ;;
-                                    ivar_3_notify "ivar" "ctx")
+                                    ivar_4_notify "ivar" "ctx" ())
     in
     vertex_precede "vtx_a" "vtx_b" ;;
     vertex_precede "vtx_a" "vtx_c" ;;

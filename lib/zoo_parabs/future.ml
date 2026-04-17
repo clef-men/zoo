@@ -1,31 +1,30 @@
 type 'a t =
-  ('a, ('a -> unit) Pool.task) Ivar_3.t
+  (Pool.context, 'a) Ivar_4.t
 
 let return =
-  Ivar_3.make
+  Ivar_4.make
 
 let[@inline] set ctx t res =
-  let waiters = Ivar_3.set t res in
-  Lst.iter (fun waiter -> waiter ctx res) waiters
+  Ivar_4.notify t ctx res
 
 let async ctx task =
-  let t = Ivar_3.create () in
+  let t = Ivar_4.create () in
   Pool.async ctx (fun ctx -> set ctx t (task ctx)) ;
   t
 
 let wait ctx t =
   Pool.wait_ivar ctx t ;
-  Ivar_3.get t
+  Ivar_4.get t
 
 let iter ctx t task =
-  match Ivar_3.wait t task with
+  match Ivar_4.wait t task with
   | None ->
       ()
   | Some res ->
       task ctx res
 
 let map ctx t1 task =
-  let t2 = Ivar_3.create () in
+  let t2 = Ivar_4.create () in
   iter ctx t1 (fun ctx res1 ->
     Pool.async ctx @@ fun ctx ->
       set ctx t2 (task ctx res1)

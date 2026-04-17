@@ -6,7 +6,7 @@ From zoo.language Require Import
 From zoo_parabs Require Import
   ws_hub_std.
 From zoo_std Require Import
-  ivar_3
+  ivar_4
   array
   domain.
 From zoo Require Import

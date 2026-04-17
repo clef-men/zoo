@@ -17,8 +17,8 @@ From zoo_std Require Export
   ivar_3__code.
 From zoo_std Require Import
   ivar_3__types
-  option
-  lst.
+  lst
+  option.
 From zoo Require Import
   options.
 
@@ -791,10 +791,11 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_wait𑁒spec {t γ Ψ Ξ Ω waiter} ω :
+    Lemma ivar_3_wait𑁒spec ω P t γ Ψ Ξ Ω waiter :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
-        ▷ Ω #t waiter ω
+        P ∗
+        (P -∗ Ω #t waiter ω)
       }}}
         ivar_3_wait #t waiter
       {{{
@@ -803,12 +804,12 @@ Module base.
         if o is Some v then
           £ 2 ∗
           ivar_3_result γ v ∗
-          Ω #t waiter ω
+          P
         else
           ivar_3_waiter γ waiter ω
       }}}.
     Proof.
-      iIntros "%Φ ((:inv) & Hwaiter) HΦ".
+      iIntros "%Φ ((:inv) & HP & HΩ) HΦ".
       iLöb as "HLöb".
 
       wp_rec credits:"H£". wp_pures.
@@ -819,7 +820,7 @@ Module base.
       wp_load.
       destruct state as [waiters | v].
 
-      - iSplitR "Hwaiter H£ HΦ". { iFrameSteps. }
+      - iSplitR "HP HΩ H£ HΦ". { iFrameSteps. }
         iModIntro.
 
         wp_pures.
@@ -828,21 +829,21 @@ Module base.
         iInv "Hinv" as "(:inv_inner)".
         wp_cas as Hcas.
 
-        + iSplitR "Hwaiter HΦ". { iFrameSteps. }
+        + iSplitR "HP HΩ HΦ". { iFrameSteps. }
           iModIntro.
 
-          wp_apply+ ("HLöb" with "Hwaiter HΦ").
+          wp_apply+ ("HLöb" with "HP HΩ HΦ").
 
         + destruct state as [waiters' | v]; zoo_simplify.
           iDestruct "Hstate" as "(:inv_state_unset)".
           iMod (waiters_insert waiter with "Hwaiters_auth") as "(Hwaiters_auth & #Hwaiters_elem)".
-          iDestruct (big_sepL2_cons_2' _ waiter ω with "[Hwaiter H£] Hwaiters") as "Hwaiters"; first iSteps.
+          iDestruct (big_sepL2_cons_2' _ waiter ω with "[HP HΩ H£] Hwaiters") as "Hwaiters". 1: iSteps.
           iSplitR "HΦ". { iExists (Unset (waiter :: waiters)). iFrameSteps. }
           iSpecialize ("HΦ" $! None).
           iSteps.
 
       - iDestruct "Hstate" as "(:inv_state_set)".
-        iSplitR "H£ Hwaiter HΦ". { iFrameSteps. }
+        iSplitR "HP HΩ H£ HΦ". { iFrameSteps. }
         iSpecialize ("HΦ" $! (Some v)).
         iSteps.
     Qed.
@@ -879,43 +880,6 @@ Module base.
       iDestruct (consumer_produce with "Hconsumer_auth HΨ") as "Hconsumer_auth".
       iMod (waiters_auth_discard with "Hwaiters_auth") as "#Hwaiters_auth".
       iSplitR "Hwaiters HΦ". { iExists (Set_ v). iSteps. }
-      iSteps.
-    Qed.
-
-    Lemma ivar_3_notify𑁒spec P t γ Ψ Ξ Ω ctx :
-      {{{
-        ivar_3_inv t γ Ψ Ξ Ω ∗
-        ivar_3_producer γ ∗
-        ▷ Ψ ()%V ∗
-        ▷ □ Ξ ()%V ∗
-        P ∗
-        □ (
-          ∀ waiter ω,
-          P -∗
-          Ω #t waiter ω -∗
-          WP waiter ctx () {{ res,
-            ⌜res = ()%V⌝ ∗
-            P
-          }}
-        )
-      }}}
-        ivar_3_notify #t ctx
-      {{{
-        RET ();
-        ivar_3_result γ () ∗
-        P
-      }}}.
-    Proof.
-      iIntros "%Φ (#Hinv & Hproducer & HΨ & HΞ & HP & #H) HΦ".
-
-      wp_rec.
-      wp_apply+ (ivar_3_set𑁒spec with "[$Hinv $Hproducer $HΨ $HΞ]") as (waiters ωs) "(#Hresult & #Hwaiters & HΩs)".
-
-      wp_apply+ (lst_iter𑁒spec' (λ _ _, P) with "[$HP HΩs]"). 1: done.
-      { iDestruct (big_sepL2_retract_r with "HΩs") as "(_ & HΩs)".
-        iApply (big_sepL_impl with "HΩs").
-        iSteps.
-      }
       iSteps.
     Qed.
   End ivar_3_G.
@@ -1399,10 +1363,11 @@ Section ivar_3_G.
     wp_apply (base.ivar_3_get𑁒spec with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_wait𑁒spec {t Ψ Ξ Ω waiter} ω :
+  Lemma ivar_3_wait𑁒spec ω P t Ψ Ξ Ω waiter :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
-      ▷ Ω t waiter ω
+      P ∗
+      (P -∗ Ω t waiter ω)
     }}}
       ivar_3_wait t waiter
     {{{
@@ -1411,14 +1376,14 @@ Section ivar_3_G.
       if o is Some v then
         £ 2 ∗
         ivar_3_result t v ∗
-        Ω t waiter ω
+        P
       else
         ivar_3_waiter t waiter ω
     }}}.
   Proof.
-    iIntros "%Φ ((:inv) & Hwaiter) HΦ".
+    iIntros "%Φ ((:inv) & HP & HΩ) HΦ".
 
-    wp_apply (base.ivar_3_wait𑁒spec (Ω := Ω) with "[$]") as (o) "Ho".
+    wp_apply (base.ivar_3_wait𑁒spec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
@@ -1443,37 +1408,6 @@ Section ivar_3_G.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
     wp_apply (base.ivar_3_set𑁒spec _ _ Ψ with "[$]").
-    iSteps.
-  Qed.
-
-  Lemma ivar_3_notify𑁒spec P t Ψ Ξ Ω ctx :
-    {{{
-      ivar_3_inv t Ψ Ξ Ω ∗
-      ivar_3_producer t ∗
-      ▷ Ψ ()%V ∗
-      ▷ □ Ξ ()%V ∗
-      P ∗
-      □ (
-        ∀ waiter ω,
-        P -∗
-        Ω t waiter ω -∗
-        WP waiter ctx () {{ res,
-          ⌜res = ()%V⌝ ∗
-          P
-        }}
-      )
-    }}}
-      ivar_3_notify t ctx
-    {{{
-      RET ();
-      ivar_3_result t () ∗
-      P
-    }}}.
-  Proof.
-    iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ & HP & H) HΦ". simplify.
-    iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
-
-    wp_apply (base.ivar_3_notify𑁒spec P with "[$Hinv_1 $Hproducer_2 $HΨ $HΞ $HP $H]").
     iSteps.
   Qed.
 End ivar_3_G.

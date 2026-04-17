@@ -6,7 +6,7 @@ From zoo.language Require Import
 From zoo_parabs Require Import
   ws_hub_std.
 From zoo_std Require Import
-  ivar_3
+  ivar_4
   array
   domain.
 From zoo_parabs Require Import
@@ -124,6 +124,6 @@ Definition pool_wait_ivar : val :=
     pool_wait
       "ctx"
       (fun: "notify" =>
-         ivar_3_wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
+         ivar_4_wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
          ())
-      (fun: <> => ivar_3_is_set "ivar").
+      (fun: <> => ivar_4_is_set "ivar").

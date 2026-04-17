@@ -2,8 +2,6 @@ From zoo Require Import
   prelude.
 From zoo.iris.bi Require Import
   big_op.
-From zoo.iris.base_logic Require Import
-  lib.saved_prop.
 From zoo.language Require Import
   notations.
 From zoo.program_logic Require Export
@@ -11,7 +9,7 @@ From zoo.program_logic Require Export
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  ivar_3
+  ivar_4
   lst.
 From zoo_parabs Require Export
   base
@@ -29,13 +27,11 @@ Implicit Types ω : gname.
 Implicit Types ωs : list gname.
 
 Class FutureG Σ `{pool_G : PoolG Σ} :=
-  { #[local] future_G_ivar_G :: Ivar3G Σ gname
-  ; #[local] future_G_saved_prop_G :: SavedPropG Σ
+  { #[local] future_G_ivar_G :: Ivar4G Σ
   }.
 
 Definition future_Σ := #[
-  ivar_3_Σ gname ;
-  saved_prop_Σ
+  ivar_4_Σ
 ].
 #[global] Instance subG_future_Σ Σ `{pool_G : PoolG Σ} :
   subG future_Σ Σ →
@@ -50,38 +46,23 @@ Section future_G.
   Implicit Types P : iProp Σ.
   Implicit Types Ψ Χ Ξ : val → iProp Σ.
 
-  #[local] Definition waiter_model pool t waiter ω : iProp Σ :=
-    ∀ ctx scope v,
-    pool_context pool ctx scope -∗
-    ivar_3_result t v -∗
-    WP waiter ctx v {{ res,
-      ∃ P,
-      ⌜res = ()%V⌝ ∗
-      pool_context pool ctx scope ∗
-      saved_prop ω P ∗
-      ▷ □ P
-    }}.
-
   #[local] Definition finished t : iProp Σ :=
-    ∃ waiters ωs,
-    ivar_3_resolved t ∗
-    ivar_3_waiters t waiters ωs ∗
-    [∗ list] ω ∈ ωs,
-      ∃ P,
-      saved_prop ω P ∗
-      □ P.
+    ∃ waiters Ps,
+    ivar_4_resolved t ∗
+    ivar_4_waiters t waiters Ps ∗
+    [∗ list] P ∈ Ps, □ P.
   #[local] Instance : CustomIpat "finished" :=
     " ( %waiters
-      & %ωs
+      & %Ps
       & #Hresolved
       & #Hwaiters
-      & #Hωs
+      & #HPs
       )
     ".
 
   Definition future_inv pool t Ψ Ξ : iProp Σ :=
     ∃ depth,
-    ivar_3_inv t Ψ Ξ (waiter_model pool) ∗
+    ivar_4_inv t Ψ Ξ (pool_context pool) ∗
     ⧖ depth ∗
     □ (
       pool_finished pool -∗
@@ -110,10 +91,10 @@ Section future_G.
     ".
 
   Definition future_consumer :=
-    ivar_3_consumer.
+    ivar_4_consumer.
 
   Definition future_result :=
-    ivar_3_result.
+    ivar_4_result.
   Definition future_resolved t : iProp Σ :=
     ∃ v,
     future_result t v.
@@ -204,7 +185,7 @@ Section future_G.
     future_consumer t Χ2.
   Proof.
     iIntros "(:inv)".
-    iApply (ivar_3_consumer_wand with "Hinv").
+    iApply (ivar_4_consumer_wand with "Hinv").
   Qed.
   Lemma future_consumer_divide {pool t Ψ Ξ} Χs :
     future_inv pool t Ψ Ξ -∗
@@ -212,7 +193,7 @@ Section future_G.
     [∗ list] Χ ∈ Χs, future_consumer t Χ.
   Proof.
     iIntros "(:inv)".
-    iApply (ivar_3_consumer_divide with "Hinv").
+    iApply (ivar_4_consumer_divide with "Hinv").
   Qed.
   Lemma future_consumer_split {pool t Ψ Ξ} Χ1 Χ2 :
     future_inv pool t Ψ Ξ -∗
@@ -221,7 +202,7 @@ Section future_G.
       future_consumer t Χ2.
   Proof.
     iIntros "(:inv)".
-    iApply (ivar_3_consumer_split with "Hinv").
+    iApply (ivar_4_consumer_split with "Hinv").
   Qed.
 
   Lemma future_result_agree t v1 v2 :
@@ -229,7 +210,7 @@ Section future_G.
     future_result t v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    apply ivar_3_result_agree.
+    apply ivar_4_result_agree.
   Qed.
 
   Lemma future_inv_result pool t Ψ Ξ v :
@@ -238,7 +219,7 @@ Section future_G.
     ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) Hresult".
-    iApply (ivar_3_inv_result with "Hinv Hresult").
+    iApply (ivar_4_inv_result with "Hinv Hresult").
   Qed.
   Lemma future_inv_result' pool t Ψ Ξ v :
     £ 1 -∗
@@ -258,7 +239,7 @@ Section future_G.
       ▷ □ Ξ v.
   Proof.
     iIntros "(:inv) Hresult Hconsumer".
-    iApply (ivar_3_inv_result_consumer with "Hinv Hresult Hconsumer").
+    iApply (ivar_4_inv_result_consumer with "Hinv Hresult Hconsumer").
   Qed.
   Lemma future_inv_result_consumer' pool t Ψ Ξ v Χ :
     £ 2 -∗
@@ -293,7 +274,7 @@ Section future_G.
 
     iMod steps_lb_0 as "#H⧖".
 
-    wp_apply (ivar_3_make𑁒spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
+    wp_apply (ivar_4_make𑁒spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
 
     iApply "HΦ".
     iFrame "#∗". iSteps.
@@ -302,8 +283,8 @@ Section future_G.
   #[local] Lemma future_set𑁒spec pool ctx scope t Ψ Ξ v :
     {{{
       pool_context pool ctx scope ∗
-      ivar_3_inv t Ψ Ξ (waiter_model pool) ∗
-      ivar_3_producer t ∗
+      ivar_4_inv t Ψ Ξ (pool_context pool) ∗
+      ivar_4_producer t ∗
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
@@ -317,39 +298,8 @@ Section future_G.
     iIntros "%Φ (Hctx & #Hinv & Hproducer & HΨ & HΞ) HΦ".
 
     wp_rec.
-    wp_apply+ (ivar_3_set𑁒spec with "[$Hinv $Hproducer $HΨ $HΞ]") as (waiters ωs) "(#Hresult & #Hwaiters & Hwaiter_models)".
-
-    iDestruct (big_sepL2_length with "Hwaiter_models") as %Hlength.
-
-    wp_apply+ (lst_iter𑁒spec (λ i _,
-      pool_context pool ctx scope ∗
-      ( [∗ list] ω ∈ take i ωs,
-        ∃ P,
-        saved_prop ω P ∗
-        □ P
-      ) ∗
-      ( [∗ list] waiter; ω ∈ drop i waiters; drop i ωs,
-        waiter_model pool t waiter ω
-      )
-    )%I with "[$Hctx Hwaiter_models]") as "(Hctx & #Hωs & _)"; first done.
-    { iStep.
-      iIntros "!> %i %waiter %Hwaiters_lookup (Hctx & Hωs & Hwaiter_models)".
-
-      iEval (rewrite (drop_S waiters waiter) //) in "Hwaiter_models".
-      iDestruct (big_sepL2_cons_inv_l with "Hwaiter_models") as "(%ω & %ωs' & %Heq & Hwaiter_model & Hwaiter_models)".
-      apply drop_cons_inv in Heq as (Hωs_lookup & ->).
-
-      wp_apply+ (wp_wand with "(Hwaiter_model Hctx Hresult)") as (res) "(%P & -> & $ & Hω & HP)".
-
-      iFrameStep.
-      iEval (rewrite (take_S_r _ _ ω) //).
-      iApply big_sepL_snoc.
-      iFrame.
-    }
-    iEval (rewrite Hlength firstn_all) in "Hωs".
-
-    iApply "HΦ".
-    iFrame "#∗".
+    wp_apply+ (ivar_4_notify𑁒spec with "[$Hinv $Hproducer $Hctx $HΨ $HΞ]").
+    iSteps.
   Qed.
 
   Lemma future_async𑁒spec Ψ Ξ pool ctx scope task :
@@ -378,7 +328,7 @@ Section future_G.
     iMod steps_lb_0 as "#H⧖".
 
     wp_rec.
-    wp_apply+ (ivar_3_create𑁒spec Ψ Ξ (waiter_model pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
+    wp_apply+ (ivar_4_create𑁒spec Ψ Ξ (pool_context pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
 
     wp_apply+ (pool_async𑁒spec
       True
@@ -413,7 +363,7 @@ Section future_G.
     wp_rec.
 
     wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hinv]") as "(_ & Hctx & %v & #Hresult)". 1: iSteps.
-    wp_apply+ (ivar_3_get𑁒spec with "[$Hinv $Hresult]") as "H£".
+    wp_apply+ (ivar_4_get𑁒spec with "[$Hinv $Hresult]") as "H£".
     iSteps.
   Qed.
 
@@ -442,24 +392,23 @@ Section future_G.
 
     wp_rec steps:"H⧖" credit:"H£".
 
-    iMod (saved_prop_alloc P) as "(%ω & #Hω)".
-    wp_apply+ (ivar_3_wait𑁒spec ω with "[$Hinv Htask]") as ([v |]) "H".
-    { iIntros "{%} !> %ctx %scope %v Hctx #Hresult".
+    lazymatch iTypeOf "Htask" with
+    | Some (_, ?P) =>
+        pose P_task := P
+    end.
+    wp_apply+ (ivar_4_wait𑁒spec P P_task with "[$Hinv $Htask]") as ([v |]) "H".
+    { iIntros "{%} %ctx %scope %v Htask Hctx #Hresult".
       wp_apply (wp_wand with "(Htask Hctx Hresult)").
       iSteps.
     }
 
-    - iDestruct "H" as "(_ & #Hresult & Hwaiter_model)".
+    - iDestruct "H" as "(_ & #Hresult & Htask)".
 
       iApply wp_fupd.
-      wp_apply+ (wp_wand with "(Hwaiter_model Hctx Hresult)") as (res) "(%P_ & -> & Hctx & Hω_ & HP)".
+      wp_apply+ (wp_wand with "(Htask Hctx Hresult)") as (res) "(-> & Hctx & HP)".
 
       iApply "HΦ".
-      iDestruct (saved_prop_agree with "Hω Hω_") as "Heq".
-      iMod (lc_fupd_elim_later with "H£ [HP Heq]") as "H".
-      { iNext. iAccu. }
-      iDestruct "H" as "(#HP & Heq)".
-      iRewrite -"Heq" in "HP".
+      iMod (lc_fupd_elim_later with "H£ HP") as "#HP".
       iFrameSteps.
 
     - iDestruct "H" as "#Hwaiter".
@@ -473,9 +422,8 @@ Section future_G.
       iEval (rewrite bi.laterN_add).
       iNext.
       iDestruct "Hfinished" as "(:finished)".
-      iDestruct (ivar_3_waiter_valid with "Hwaiters Hwaiter") as %(i & _ & Hωs_lookup).
-      iDestruct (big_sepL_lookup with "Hωs") as "(%P_ & Hω_ & HP)"; first done.
-      iDestruct (saved_prop_agree with "Hω Hω_") as "Heq".
+      iDestruct (ivar_4_waiter_valid with "Hwaiters Hwaiter") as "(%i & %P_ & _ & %HPs_lookup & Heq)".
+      iDestruct (big_sepL_lookup with "HPs") as "HP". 1: done.
       iNext.
       iRewrite -"Heq" in "HP" => //.
   Qed.
@@ -506,7 +454,7 @@ Section future_G.
     iIntros "%Φ (Hctx & #Hinv_1 & Htask) HΦ".
 
     wp_rec.
-    wp_apply+ (ivar_3_create𑁒spec Ψ2 Ξ2 (waiter_model pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
+    wp_apply+ (ivar_4_create𑁒spec Ψ2 Ξ2 (pool_context pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
 
     wp_apply+ (future_iter𑁒spec (
       pool_obligation pool (finished t2)

@@ -7,7 +7,7 @@ From zoo_parabs Require Import
   pool
   vertex.
 From zoo_std Require Import
-  ivar_3.
+  ivar_4.
 From examples Require Import
   vertex_fibonacci__types.
 From zoo Require Import
@@ -46,9 +46,9 @@ Definition vertex_fibonacci_main : val :=
            "vtx1"
            (fun: "ctx" => vertex_fibonacci_main₀ "ctx" "vtx1" "r" "n") ;;
          vertex_release "ctx" "vtx1" ;;
-         let: "ivar" := ivar_3_create () in
+         let: "ivar" := ivar_4_create () in
          let: "vtx2" :=
-           vertex_create' (fun: "ctx" => ivar_3_notify "ivar" "ctx")
+           vertex_create' (fun: "ctx" => ivar_4_notify "ivar" "ctx" ())
          in
          vertex_precede "vtx1" "vtx2" ;;
          vertex_release "ctx" "vtx2" ;;

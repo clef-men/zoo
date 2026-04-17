@@ -114,8 +114,8 @@ let wait_ivar ctx ivar =
   wait
     ctx
     ~notification:(fun notify ->
-      Ivar_3.wait ivar (fun _ctx _v -> notify ()) |> ignore
+      Ivar_4.wait ivar (fun _ctx _v -> notify ()) |> ignore
     )
     ~pred:(fun () ->
-      Ivar_3.is_set ivar
+      Ivar_4.is_set ivar
     )
