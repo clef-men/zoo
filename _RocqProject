@@ -325,41 +325,6 @@ theories/zoo_std/random_round.v
 
 #END zoo-std
 
-#BEGIN zoo-persistent
--Q theories/zoo_persistent zoo_persistent
-
-theories/zoo_persistent/base.v
-theories/zoo_persistent/pstack__types.v
-theories/zoo_persistent/pstack__code.v
-theories/zoo_persistent/pstack__opaque.v
-theories/zoo_persistent/pstack.v
-theories/zoo_persistent/pqueue__types.v
-theories/zoo_persistent/pqueue__code.v
-theories/zoo_persistent/pqueue__opaque.v
-theories/zoo_persistent/pqueue.v
-theories/zoo_persistent/parray_1__types.v
-theories/zoo_persistent/parray_1__code.v
-theories/zoo_persistent/parray_1__opaque.v
-theories/zoo_persistent/parray_1.v
-theories/zoo_persistent/parray_2__types.v
-theories/zoo_persistent/parray_2__code.v
-theories/zoo_persistent/parray_2__opaque.v
-theories/zoo_persistent/parray_2.v
-theories/zoo_persistent/pstore_1__types.v
-theories/zoo_persistent/pstore_1__code.v
-theories/zoo_persistent/pstore_1__opaque.v
-theories/zoo_persistent/pstore_1.v
-theories/zoo_persistent/pstore_2__types.v
-theories/zoo_persistent/pstore_2__code.v
-theories/zoo_persistent/pstore_2__opaque.v
-theories/zoo_persistent/pstore_2.v
-theories/zoo_persistent/puf__types.v
-theories/zoo_persistent/puf__code.v
-theories/zoo_persistent/puf__opaque.v
-theories/zoo_persistent/puf.v
-
-#END zoo-persistent
-
 #BEGIN zoo-saturn
 -Q theories/zoo_saturn zoo_saturn
 
@@ -528,54 +493,3 @@ theories/examples/vertex_simple__opaque.v
 theories/examples/vertex_simple.v
 
 #END examples
-
-#BEGIN unix
--Q theories/unix unix
-
-theories/unix/unix.v
-
-#END unix
-
-#BEGIN zoo-eio
--Q theories/zoo_eio zoo_eio
-
-theories/zoo_eio/base.v
-theories/zoo_eio/rcfd__types.v
-theories/zoo_eio/rcfd__code.v
-theories/zoo_eio/rcfd__opaque.v
-theories/zoo_eio/rcfd.v
-
-#END zoo-eio
-
-#BEGIN zoo-boxroot
--Q theories/zoo_boxroot zoo_boxroot
-
-theories/zoo_boxroot/base.v
-theories/zoo_boxroot/gc.v
-theories/zoo_boxroot/boxroot.v
-
-#END zoo-boxroot
-
-#BEGIN zoo-kcas
--Q theories/zoo_kcas zoo_kcas
-
-theories/zoo_kcas/kcas_1__types.v
-theories/zoo_kcas/kcas_1__code.v
-theories/zoo_kcas/kcas_1__opaque.v
-theories/zoo_kcas/kcas_1.v
-theories/zoo_kcas/kcas_2__types.v
-theories/zoo_kcas/kcas_2__code.v
-theories/zoo_kcas/kcas_2__opaque.v
-theories/zoo_kcas/kcas_2.v
-
-#END zoo-kcas
-
-#BEGIN zoo-partitition
--Q theories/zoo_partition zoo_partition
-
-theories/zoo_partition/partition__types.v
-theories/zoo_partition/partition__code.v
-theories/zoo_partition/partition__opaque.v
-theories/zoo_partition/partition.v
-
-#END zoo-partition
