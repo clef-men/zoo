@@ -30,7 +30,7 @@ Implicit Types l : location.
 Implicit Types v w t : val.
 Implicit Types vs ws hist : list val.
 
-Inductive stability :=
+Variant stability :=
   | Stable
   | Unstable.
 Implicit Types stable : stability.

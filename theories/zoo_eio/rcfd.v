@@ -49,7 +49,7 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive state :=
+Variant state :=
   | Open
   | Closing fn.
 Implicit Types state : state.
@@ -68,7 +68,7 @@ Implicit Types state : state.
   end%V.
 #[local] Arguments state_to_val _ !_ / : assert.
 
-Inductive lstate :=
+Variant lstate :=
   | LOpen
   | LClosingUsers
   | LClosingNoUsers.
@@ -89,7 +89,7 @@ Implicit Types lstate : lstate.
 #[global] Instance lstate_eq_dec : EqDecision lstate :=
   ltac:(solve_decision).
 
-Inductive lstep : relation lstate :=
+Variant lstep : relation lstate :=
   | lstep_close_users :
       lstep LOpen LClosingUsers
   | lstep_close_no_users :
@@ -786,7 +786,7 @@ Section rcfd_G.
       wp_apply+ (rcfd_finish𑁒spec with "[$] HΦ").
   Qed.
 
-  Inductive specification :=
+  Variant specification :=
     | SpecOwner
     | SpecClosing
     | SpecNormal.

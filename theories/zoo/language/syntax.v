@@ -30,7 +30,7 @@ Definition prophet_id :=
   positive.
 Implicit Types pid : prophet_id.
 
-Inductive mutability :=
+Variant mutability :=
   | Mutable
   | ImmutableNongenerative
   | ImmutableGenerativeWeak
@@ -45,7 +45,7 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive generativity :=
+Variant generativity :=
   | Generative bid
   | Nongenerative.
 Implicit Types gen : generativity.
@@ -58,7 +58,7 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive literal :=
+Variant literal :=
   | LitBool b
   | LitInt n
   | LitLoc l
@@ -74,7 +74,7 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive unop :=
+Variant unop :=
   | UnopNeg
   | UnopMinus
   | UnopIsImmediate.
@@ -87,7 +87,7 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive binop :=
+Variant binop :=
   | BinopPlus | BinopMinus | BinopMult | BinopQuot | BinopRem
   | BinopLand | BinopLor | BinopLsl | BinopLsr
   | BinopLe | BinopLt | BinopGe | BinopGt.

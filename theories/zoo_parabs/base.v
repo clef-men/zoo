@@ -8,10 +8,10 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Inductive status :=
+Variant status :=
   | Blocked
   | Nonblocked.
 
-Inductive emptiness :=
+Variant emptiness :=
   | Empty
   | Nonempty.

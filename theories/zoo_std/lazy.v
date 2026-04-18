@@ -61,7 +61,7 @@ Module base.
       solve_countable.
     Qed.
 
-    Inductive state :=
+    Variant state :=
       | Unset
       | Setting mtx
       | Set_ v.

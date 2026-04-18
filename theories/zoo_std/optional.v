@@ -12,7 +12,7 @@ From zoo Require Import
 
 Implicit Types v : val.
 
-Inductive optional {A} :=
+Variant optional {A} :=
   | Nothing
   | Anything
   | Something (a : A).

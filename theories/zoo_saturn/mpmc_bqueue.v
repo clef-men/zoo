@@ -539,13 +539,13 @@ Module base.
       iSteps.
     Qed.
 
-    Inductive operation :=
+    Variant operation :=
       | Size (i_front : nat) (Ψ : val → iProp Σ)
       | IsEmpty waiter (Ψ : bool → iProp Σ)
       | Pop (Ψ : option val → iProp Σ)
       | Other.
     Implicit Types op : operation.
-    Inductive operation' :=
+    Variant operation' :=
       | Size'
       | IsEmpty'
       | Pop'

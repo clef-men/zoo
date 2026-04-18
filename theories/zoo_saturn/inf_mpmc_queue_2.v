@@ -48,7 +48,7 @@ Implicit Types ηs : list gname.
 Implicit Types past prophs : list prophet_identifier.(prophet_typed_type).
 Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed_type).
 
-Inductive lstate :=
+Variant lstate :=
   | Producer
   | ProducerProducer
   | ProducerConsumer
@@ -88,7 +88,7 @@ Implicit Types lstates : list lstate.
       1
   end.
 
-Inductive lstep : lstate → lstate → Prop :=
+Variant lstep : lstate → lstate → Prop :=
   | lstep_producer_producer :
       lstep Producer ProducerProducer
   | lstep_producer_consumer :

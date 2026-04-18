@@ -67,7 +67,7 @@ Qed.
       §Nonblocked
   end.
 
-Inductive request :=
+Variant request :=
   | RequestBlocked
   | RequestNone
   | RequestSome (i : nat).
@@ -84,7 +84,7 @@ Implicit Types requests : list request.
       ‘RequestSome( #i )
   end.
 
-Inductive response :=
+Variant response :=
   | ResponseWaiting
   | ResponseNone
   | ResponseSome v.

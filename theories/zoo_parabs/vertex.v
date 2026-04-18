@@ -34,7 +34,7 @@ Implicit Types succ : location.
 Implicit Types task ctx : val.
 Implicit Types own : ownership.
 
-Inductive state :=
+Variant state :=
   | Init
   | Released
   | Ready

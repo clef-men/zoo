@@ -110,13 +110,13 @@ Proof.
   solve_countable.
 Qed.
 
-Inductive status :=
+Variant status :=
   | Undetermined
   | After
   | Before.
 Implicit Types status : status.
 
-Inductive final_status :=
+Variant final_status :=
   | FinalAfter
   | FinalBefore.
 Implicit Types fstatus : final_status.
@@ -210,7 +210,7 @@ Qed.
       §Before
   end.
 
-Inductive lstatus :=
+Variant lstatus :=
   | Running i
   | Finished.
 Implicit Types lstatus : lstatus.
@@ -218,7 +218,7 @@ Implicit Types lstatus : lstatus.
 #[local] Instance lstatus_inhabited : Inhabited lstatus :=
   populate Finished.
 
-Inductive lstep : lstatus → lstatus → Prop :=
+Variant lstep : lstatus → lstatus → Prop :=
   | lstep_incr i :
       lstep (Running i) (Running (S i))
   | lstep_finish i :

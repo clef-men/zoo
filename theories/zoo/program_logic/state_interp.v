@@ -1104,7 +1104,7 @@ Qed.
 #[global] Opaque zoo_counter_at.
 #[global] Opaque state_interp.
 
-Inductive ownership :=
+Variant ownership :=
   | Own
   | Discard.
 

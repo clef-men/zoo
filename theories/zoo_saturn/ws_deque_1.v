@@ -43,7 +43,7 @@ Implicit Types datas : gmultiset val.
 Implicit Types past prophs : list prophet_identifier.(prophet_typed_type).
 Implicit Types pasts prophss : nat → list prophet_identifier.(prophet_typed_type).
 
-Inductive state :=
+Variant state :=
   | Empty
   | Nonempty
   | Emptyish
@@ -53,7 +53,7 @@ Implicit Types state : state.
 #[local] Instance state_inhabited : Inhabited state :=
   populate Empty.
 
-Inductive stability :=
+Variant stability :=
   | Stable
   | Unstable.
 Implicit Types stable : stability.
@@ -2131,7 +2131,7 @@ Module base.
       iSteps.
     Qed.
 
-    Inductive pop_state :=
+    Variant pop_state :=
       | PopNonempty v
       | PopEmptyishWinner v
       | PopEmptyishLoser

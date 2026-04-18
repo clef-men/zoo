@@ -32,7 +32,7 @@ Module parse.
     let val := default var val in
     (var, val).
 
-  Inductive insideness :=
+  Variant insideness :=
     | Inside
     | Outside.
 

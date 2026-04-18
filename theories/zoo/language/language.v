@@ -25,7 +25,7 @@ Bind Scope val_scope with val.
 Class AsVal e v :=
   as_val : of_val v = e.
 
-Inductive prim_step tid e1 σ1 κ e2 σ2 es : Prop :=
+Variant prim_step tid e1 σ1 κ e2 σ2 es : Prop :=
   | base_step_fill_prim_step' K e1' e2' :
       e1 = fill K e1' →
       e2 = fill K e2' →

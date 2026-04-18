@@ -115,7 +115,7 @@ Definition eval_app' {A} foldri recs x v e : A :=
 Definition eval_app recs x v e :=
   eval_app' foldri recs x v e recs.
 
-Inductive subject :=
+Variant subject :=
   | SubjectLoc l
   | SubjectBlock gen vs.
 Implicit Types subj : subject.

@@ -17,7 +17,7 @@ Implicit Types lit : literal.
 Implicit Types v : val.
 Implicit Types vs : list val.
 
-Inductive lowliteral :=
+Variant lowliteral :=
   | LowlitInt n
   | LowlitLoc l
   | LowlitProph

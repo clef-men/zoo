@@ -46,7 +46,7 @@ Proof.
 Qed.
 
 Module base.
-  Inductive state :=
+  Variant state :=
     | Unset waiters
     | Set_ v.
   Implicit Types state : state.

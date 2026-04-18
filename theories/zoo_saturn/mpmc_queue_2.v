@@ -31,7 +31,7 @@ Implicit Types v w t pref suff 𝑚𝑜𝑣𝑒 : val.
 Implicit Types o : option val.
 Implicit Types vs vs_front vs_back move : list val.
 
-Inductive emptiness :=
+Variant emptiness :=
   | Empty
   | Nonempty.
 Implicit Types empty : emptiness.
@@ -41,7 +41,7 @@ Implicit Types empty : emptiness.
 #[local] Instance emptiness_eq_dec : EqDecision emptiness :=
   ltac:(solve_decision).
 
-Inductive status :=
+Variant status :=
   | Stable empty
   | Unstable back move.
 Implicit Types status : status.
@@ -92,7 +92,7 @@ Proof.
   - lia.
 Qed.
 
-Inductive step : relation state :=
+Variant step : relation state :=
   | step_empty state1 state2 :
       state1.(state_status) = Stable Nonempty →
       state2 = state_with_status state1 (Stable Empty) →

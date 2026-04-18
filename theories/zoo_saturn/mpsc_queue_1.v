@@ -352,12 +352,12 @@ Module base.
       iSteps.
     Qed.
 
-    Inductive operation :=
+    Variant operation :=
       | IsEmpty (Ψ : bool → iProp Σ)
       | Pop (Ψ : option val → iProp Σ)
       | Other.
     Implicit Types op : operation.
-    Inductive operation' :=
+    Variant operation' :=
       | IsEmpty'
       | Pop'
       | Other'.

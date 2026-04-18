@@ -296,7 +296,7 @@ Module tests.
     solve_countable.
   Qed.
 
-  Inductive test_3 :=
+  Variant test_3 :=
     | Test31 : test_3
     | Test32 : nat → test_3
     | Test33 : nat → bool → test_3.
@@ -308,7 +308,7 @@ Module tests.
     solve_countable.
   Qed.
 
-  Inductive test_4 A1 A2 A3 :=
+  Variant test_4 A1 A2 A3 :=
     | Test41 : test_4 A1 A2 A3
     | Test42 : nat → test_4 A1 A2 A3
     | Test43 : nat → bool → test_4 A1 A2 A3

@@ -12,7 +12,7 @@ From zoo Require Import
 
 Implicit Types v : val.
 
-Inductive goptional {A} :=
+Variant goptional {A} :=
   | Gnothing
   | Ganything
   | Gsomething (a : A).
