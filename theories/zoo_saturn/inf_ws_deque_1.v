@@ -917,17 +917,17 @@ Module base.
       iMod history_alloc as "(%γ_history & Hhist_auth)".
       iMod winner_alloc as "(%γ_winner & Hwinner_pop & Hwinner_steal)".
 
-      set γ := {|
-        inf_ws_deque_1_name_data := data ;
-        inf_ws_deque_1_name_inv := ι ;
-        inf_ws_deque_1_name_prophet := pid ;
-        inf_ws_deque_1_name_prophet_name := γ_prophet ;
-        inf_ws_deque_1_name_model := γ_model ;
-        inf_ws_deque_1_name_owner := γ_owner ;
-        inf_ws_deque_1_name_front := γ_front ;
-        inf_ws_deque_1_name_history := γ_history ;
-        inf_ws_deque_1_name_winner := γ_winner ;
-      |}.
+      set γ :=
+        {|inf_ws_deque_1_name_data := data
+        ; inf_ws_deque_1_name_inv := ι
+        ; inf_ws_deque_1_name_prophet := pid
+        ; inf_ws_deque_1_name_prophet_name := γ_prophet
+        ; inf_ws_deque_1_name_model := γ_model
+        ; inf_ws_deque_1_name_owner := γ_owner
+        ; inf_ws_deque_1_name_front := γ_front
+        ; inf_ws_deque_1_name_history := γ_history
+        ; inf_ws_deque_1_name_winner := γ_winner
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame "#∗". iStep.

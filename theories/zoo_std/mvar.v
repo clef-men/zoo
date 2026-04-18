@@ -230,10 +230,10 @@ Module base.
       iMod lstate_alloc as "(%γ_lstate & Hlstate_unset)".
       iMod consumer_alloc as "(%γ_consumer & Hconsumer)".
 
-      pose γ := {|
-        mvar_name_lstate := γ_lstate ;
-        mvar_name_consumer := γ_consumer ;
-      |}.
+      pose γ :=
+        {|mvar_name_lstate := γ_lstate
+        ; mvar_name_consumer := γ_consumer
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists None. iSteps.
@@ -261,10 +261,10 @@ Module base.
       iMod lstate_alloc as "(%γ_lstate & Hlstate_unset)".
       iMod consumer_alloc as "(%γ_consumer & Hconsumer)".
 
-      pose γ := {|
-        mvar_name_lstate := γ_lstate ;
-        mvar_name_consumer := γ_consumer ;
-      |}.
+      pose γ :=
+        {|mvar_name_lstate := γ_lstate
+        ; mvar_name_consumer := γ_consumer
+        |}.
 
       iMod (lstate_update γ with "Hlstate_unset") as "#Hlstate_set".
 

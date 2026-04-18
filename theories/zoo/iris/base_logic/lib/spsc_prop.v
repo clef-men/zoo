@@ -223,10 +223,10 @@ Section spsc_prop_G.
   Proof.
     iMod state_alloc as "(%γ_state & Hstate_unset₁ & Hstate_unset₂)".
     iMod consumer_alloc as "(%γ_consumer & Hconsumer)".
-    pose γ := {|
-      spsc_prop_name_state := γ_state ;
-      spsc_prop_name_consumer := γ_consumer ;
-    |}.
+    pose γ :=
+      {|spsc_prop_name_state := γ_state
+      ; spsc_prop_name_consumer := γ_consumer
+      |}.
     iExists γ. iFrame.
     iApply inv_alloc.
     iFrame.

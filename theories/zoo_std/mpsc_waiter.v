@@ -161,12 +161,12 @@ Section mpsc_waiter_G.
 
     iMod (excl_alloc (excl_G := mpsc_waiter_G_consumer_G) ()) as "(%γ_consumer & Hconsumer)".
 
-    pose γ := {|
-      metadata_mutex := mtx ;
-      metadata_condition := cond ;
-      metadata_lstate := γ_lstate ;
-      metadata_consumer := γ_consumer ;
-    |}.
+    pose γ :=
+      {|metadata_mutex := mtx
+      ; metadata_condition := cond
+      ; metadata_lstate := γ_lstate
+      ; metadata_consumer := γ_consumer
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iSteps.

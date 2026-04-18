@@ -333,12 +333,12 @@ Section ws_hub_std_G.
     iMod (pointsto_persist with "H𝑡_rounds") as "#H𝑡_rounds".
     iMod (pointsto_persist with "H𝑡_waiters") as "#H𝑡_waiters".
 
-    pose γ := {|
-      metadata_size := ₊sz ;
-      metadata_queues := queues ;
-      metadata_rounds := v_rounds ;
-      metadata_waiters := waiters ;
-    |}.
+    pose γ :=
+      {|metadata_size := ₊sz
+      ; metadata_queues := queues
+      ; metadata_rounds := v_rounds
+      ; metadata_waiters := waiters
+      |}.
 
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 

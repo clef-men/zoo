@@ -61,9 +61,9 @@ Record job :=
 Implicit Types job local global : job.
 
 #[local] Instance job_inhabited : Inhabited job :=
-  populate {|
-    job_val := inhabitant ;
-    job_name := inhabitant ;
+  populate
+  {|job_val := inhabitant
+  ; job_name := inhabitant
   |}.
 #[local] Instance job_eq_dec : EqDecision job :=
   ltac:(solve_decision).
@@ -454,9 +454,9 @@ Module base.
     Proof.
       iIntros "Hauth".
       iMod (saved_prop_alloc P) as "(%η & #Hη)".
-      pose job := {|
-        job_val := 𝑗𝑜𝑏 ;
-        job_name := η ;
+      pose job :=
+      {|job_val := 𝑗𝑜𝑏
+      ; job_name := η
       |}.
       iMod (mono_gmultiset_insert job with "Hauth") as "Hauth".
       iDestruct (mono_gmultiset_elem_get job with "Hauth") as "#Helem"; first set_solver.
@@ -824,13 +824,13 @@ Module base.
       iMod (locals_alloc ₊sz) as "(%γ_locals & Hlocals_auth & Hlocals_ats)".
       iDestruct (big_sepL_seq_cons_1 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)".
 
-      pose γ 𝑑𝑜𝑚𝑠 := {|
-        pool_name_size := ₊sz ;
-        pool_name_hub := hub ;
-        pool_name_domains := 𝑑𝑜𝑚𝑠 ;
-        pool_name_jobs := γ_jobs ;
-        pool_name_locals := γ_locals ;
-      |}.
+      pose γ 𝑑𝑜𝑚𝑠 :=
+        {|pool_name_size := ₊sz
+        ; pool_name_hub := hub
+        ; pool_name_domains := 𝑑𝑜𝑚𝑠
+        ; pool_name_jobs := γ_jobs
+        ; pool_name_locals := γ_locals
+        |}.
 
       wp_apply+ (array_unsafe_initi𑁒spec_disentangled_strong'
         ( λ 𝑑𝑜𝑚𝑠,

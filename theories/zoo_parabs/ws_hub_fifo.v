@@ -410,13 +410,13 @@ Section ws_hub_fifo_G.
     iMod owner_alloc as "(%γ_owners & Howners)".
     iMod (emptiness_alloc ₊sz) as "(%γ_emptiness & Hemptiness_auth & Hemptiness_ats)".
 
-    pose γ := {|
-      metadata_size := ₊sz ;
-      metadata_queue := queue ;
-      metadata_waiters := waiters ;
-      metadata_owners := γ_owners ;
-      metadata_emptiness := γ_emptiness ;
-    |}.
+    pose γ :=
+      {|metadata_size := ₊sz
+      ; metadata_queue := queue
+      ; metadata_waiters := waiters
+      ; metadata_owners := γ_owners
+      ; metadata_emptiness := γ_emptiness
+      |}.
 
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 

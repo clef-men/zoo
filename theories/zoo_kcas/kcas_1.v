@@ -42,19 +42,19 @@ Implicit Types cas : location * (val * val).
 Implicit Types cass : list (location * (val * val)).
 Implicit Types helpers : gmap gname nat.
 
-#[local] Program Definition global_prophet := {|
-  prophet_typed_type :=
-    identifier * bool ;
-  prophet_typed_of_val v :=
-    match v with
-    | ValTuple [ValProph gid; ValBool b] =>
-        Some (gid, b)
-    | _ =>
-        None
-    end ;
-  prophet_typed_to_val '(gid, b) :=
-    (#gid, #b)%V ;
-|}.
+#[local] Program Definition global_prophet :=
+  {|prophet_typed_type :=
+      identifier * bool
+  ; prophet_typed_of_val v :=
+      match v with
+      | ValTuple [ValProph gid; ValBool b] =>
+          Some (gid, b)
+      | _ =>
+          None
+      end
+  ; prophet_typed_to_val '(gid, b) :=
+      (#gid, #b)%V
+  |}.
 Solve Obligations of global_prophet with
   try done.
 Next Obligation.
@@ -69,10 +69,10 @@ Record loc_metadata :=
 Implicit Types γ : loc_metadata.
 
 #[local] Instance loc_metadata_inhabited : Inhabited loc_metadata :=
-  populate {|
-    loc_metadata_model := inhabitant ;
-    loc_metadata_history := inhabitant ;
-  |}.
+  populate
+    {|loc_metadata_model := inhabitant
+    ; loc_metadata_history := inhabitant
+    |}.
 #[local] Instance loc_metadata_eq_dec : EqDecision loc_metadata :=
   ltac:(solve_decision).
 #[local] Instance loc_metadata_countable :
@@ -95,13 +95,13 @@ Implicit Types descrs : list descriptor.
   (#descr.(descriptor_loc), #descr.(descriptor_state)).
 
 #[local] Instance descriptor_inhabited : Inhabited descriptor :=
-  populate {|
-    descriptor_loc := inhabitant ;
-    descriptor_meta := inhabitant ;
-    descriptor_before := inhabitant ;
-    descriptor_after := inhabitant ;
-    descriptor_state := inhabitant ;
-  |}.
+  populate
+    {|descriptor_loc := inhabitant
+    ; descriptor_meta := inhabitant
+    ; descriptor_before := inhabitant
+    ; descriptor_after := inhabitant
+    ; descriptor_state := inhabitant
+    |}.
 #[local] Instance descriptor_eq_dec : EqDecision descriptor :=
   ltac:(solve_decision).
 #[local] Instance descriptor_countable :
@@ -162,18 +162,18 @@ Record metadata :=
 Implicit Types η : metadata.
 
 #[local] Instance metadata_inhabited : Inhabited metadata :=
-  populate {|
-    metadata_descrs := inhabitant ;
-    metadata_prophet := inhabitant ;
-    metadata_prophs := inhabitant ;
-    metadata_undetermined := inhabitant ;
-    metadata_post := inhabitant ;
-    metadata_lstatus := inhabitant ;
-    metadata_locks := inhabitant ;
-    metadata_helpers := inhabitant ;
-    metadata_winning := inhabitant ;
-    metadata_owner := inhabitant ;
-  |}.
+  populate
+    {|metadata_descrs := inhabitant
+    ; metadata_prophet := inhabitant
+    ; metadata_prophs := inhabitant
+    ; metadata_undetermined := inhabitant
+    ; metadata_post := inhabitant
+    ; metadata_lstatus := inhabitant
+    ; metadata_locks := inhabitant
+    ; metadata_helpers := inhabitant
+    ; metadata_winning := inhabitant
+    ; metadata_owner := inhabitant
+    |}.
 #[local] Instance metadata_eq_dec : EqDecision metadata :=
   ltac:(solve_decision).
 #[local] Instance metadata_countable :
@@ -2093,10 +2093,10 @@ Section kcas_1_G.
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod history_alloc as "(%γ_history & Hhistory_auth & #Hhistory_elem)".
 
-    pose γ := {|
-      loc_metadata_model := γ_model ;
-      loc_metadata_history := γ_history ;
-    |}.
+    pose γ :=
+      {|loc_metadata_model := γ_model
+      ; loc_metadata_history := γ_history
+      |}.
     iMod (meta_set γ with "Hloc_meta") as "#Hloc_meta"; first done.
 
     iMod (saved_pred_alloc (λ _, True)%I) as "(%η_post & #Hpost)".
@@ -2105,25 +2105,25 @@ Section kcas_1_G.
     iMod helpers_alloc as "(%η_helpers & Hhelpers_auth)".
     iMod owner_alloc as "(%η_owner & Howner)".
 
-    pose descr := {|
-      descriptor_loc := loc ;
-      descriptor_meta := γ ;
-      descriptor_before := v ;
-      descriptor_after := v ;
-      descriptor_state := state ;
-    |}.
-    set η := {|
-      metadata_descrs := [descr] ;
-      metadata_prophet := pid ;
-      metadata_prophs := ((gid, true) :: prophs) ;
-      metadata_undetermined := inhabitant ;
-      metadata_post := η_post ;
-      metadata_lstatus := η_lstatus ;
-      metadata_locks := [η_lock] ;
-      metadata_helpers := η_helpers ;
-      metadata_winning := inhabitant ;
-      metadata_owner := η_owner ;
-    |}.
+    pose descr :=
+      {|descriptor_loc := loc
+      ; descriptor_meta := γ
+      ; descriptor_before := v
+      ; descriptor_after := v
+      ; descriptor_state := state
+      |}.
+    set η :=
+      {|metadata_descrs := [descr]
+      ; metadata_prophet := pid
+      ; metadata_prophs := ((gid, true) :: prophs)
+      ; metadata_undetermined := inhabitant
+      ; metadata_post := η_post
+      ; metadata_lstatus := η_lstatus
+      ; metadata_locks := [η_lock]
+      ; metadata_helpers := η_helpers
+      ; metadata_winning := inhabitant
+      ; metadata_owner := η_owner
+      |}.
     iMod (meta_set η with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
     iDestruct (lstatus_lb_get_finished (η := η) (Running 1) with "Hlstatus_auth") as "#Hlstatus_lb".
@@ -2249,13 +2249,13 @@ Section kcas_1_G.
       wp_pures.
       destruct (lookup_lt_is_Some_2 γs i) as (γ & Hγs_lookup).
       { rewrite Hγs. eapply lookup_lt_Some. done. }
-      pose descr := {|
-        descriptor_loc := loc ;
-        descriptor_meta := γ ;
-        descriptor_before := before ;
-        descriptor_after := after ;
-        descriptor_state := state ;
-      |}.
+      pose descr :=
+        {|descriptor_loc := loc
+        ; descriptor_meta := γ
+        ; descriptor_before := before
+        ; descriptor_after := after
+        ; descriptor_state := state
+        |}.
       iExists descr. iSteps.
     }
     iDestruct (big_sepL2_const_sepL_r with "Hdescrs") as "(_ & Hdescrs)".
@@ -2291,18 +2291,18 @@ Section kcas_1_G.
     iMod winning_alloc as "(%η_winning & Hwinning)".
     iMod owner_alloc as "(%η_owner & Howner)".
 
-    pose η := {|
-      metadata_descrs := descrs ;
-      metadata_prophet := pid ;
-      metadata_prophs := prophs0 ;
-      metadata_undetermined := undetermined ;
-      metadata_post := η_post ;
-      metadata_lstatus := η_lstatus ;
-      metadata_locks := ηs_lock ;
-      metadata_helpers := η_helpers ;
-      metadata_winning := η_winning ;
-      metadata_owner := η_owner ;
-    |}.
+    pose η :=
+      {|metadata_descrs := descrs
+      ; metadata_prophet := pid
+      ; metadata_prophs := prophs0
+      ; metadata_undetermined := undetermined
+      ; metadata_post := η_post
+      ; metadata_lstatus := η_lstatus
+      ; metadata_locks := ηs_lock
+      ; metadata_helpers := η_helpers
+      ; metadata_winning := η_winning
+      ; metadata_owner := η_owner
+      |}.
     iMod (meta_set η with "Hcasn_meta") as "#Hcasn_meta"; first done.
 
     iDestruct (lstatus_lb_get η with "Hlstatus_auth") as "#Hlstatus_lb".

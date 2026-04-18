@@ -101,10 +101,10 @@ Section semiauth_twins_G.
   Proof.
     iMod auth_twins_alloc as "(%γ_left_twins & Hauth & Hltwin1 & Hltwin2)".
     iMod twins_alloc' as "(%γ_right_twins & Hrtwin1 & Hrtwin2)".
-    pose γ := {|
-      semiauth_twins_name_left_twins := γ_left_twins ;
-      semiauth_twins_name_right_twins := γ_right_twins ;
-    |}.
+    pose γ :=
+      {|semiauth_twins_name_left_twins := γ_left_twins
+      ; semiauth_twins_name_right_twins := γ_right_twins
+      |}.
     iExists γ. iSteps.
   Qed.
 

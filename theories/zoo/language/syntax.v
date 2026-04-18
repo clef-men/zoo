@@ -107,11 +107,11 @@ Record pattern :=
   }.
 
 #[global] Instance pattern_inhabited : Inhabited pattern :=
-  populate {|
-    pattern_tag := inhabitant ;
-    pattern_fields := inhabitant ;
-    pattern_as := inhabitant ;
-  |}.
+  populate
+    {|pattern_tag := inhabitant
+    ; pattern_fields := inhabitant
+    ; pattern_as := inhabitant
+    |}.
 #[global] Instance pattern_eq_dec : EqDecision pattern :=
   ltac:(solve_decision).
 #[global] Instance pattern_countable :

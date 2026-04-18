@@ -980,18 +980,18 @@ Module base.
       iMod history_alloc as "(%γ_history & Hhist_auth)".
       iMod winner_alloc as "(%γ_winner & Hwinner_pop & Hwinner_steal)".
 
-      set γ := {|
-        ws_bdeque_1_name_capacity := ₊cap ;
-        ws_bdeque_1_name_data := data ;
-        ws_bdeque_1_name_inv := ι ;
-        ws_bdeque_1_name_prophet := pid ;
-        ws_bdeque_1_name_prophet_name := γ_prophet ;
-        ws_bdeque_1_name_model := γ_model ;
-        ws_bdeque_1_name_owner := γ_owner ;
-        ws_bdeque_1_name_front := γ_front ;
-        ws_bdeque_1_name_history := γ_history ;
-        ws_bdeque_1_name_winner := γ_winner ;
-      |}.
+      set γ :=
+        {|ws_bdeque_1_name_capacity := ₊cap
+        ; ws_bdeque_1_name_data := data
+        ; ws_bdeque_1_name_inv := ι
+        ; ws_bdeque_1_name_prophet := pid
+        ; ws_bdeque_1_name_prophet_name := γ_prophet
+        ; ws_bdeque_1_name_model := γ_model
+        ; ws_bdeque_1_name_owner := γ_owner
+        ; ws_bdeque_1_name_front := γ_front
+        ; ws_bdeque_1_name_history := γ_history
+        ; ws_bdeque_1_name_winner := γ_winner
+        |}.
 
       iDestruct (front_lb_get γ with "Hfront_auth") as "#Hfront_lb".
 

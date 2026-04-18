@@ -492,11 +492,11 @@ Section bag_2_G.
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod queues_alloc as "(%γ_queues & Hqueues_auth)".
 
-    pose γ := {|
-      metadata_inv := ι ;
-      metadata_model := γ_model ;
-      metadata_queues := γ_queues ;
-    |}.
+    pose γ :=
+      {|metadata_inv := ι
+      ; metadata_model := γ_model
+      ; metadata_queues := γ_queues
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".
@@ -518,10 +518,11 @@ Section bag_2_G.
       bag_2_add_producer₀ #l (Some queue) @ ↑γ.(metadata_inv)
     <<<
       ∃∃ node,
-      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 := {|
-        producer_queue := queue ;
-        producer_node := node ;
-      |} in
+      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
+        {|producer_queue := queue
+        ; producer_node := node
+        |}
+      in
       model₁ γ (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := []]> vss)
     | RET #node;
       node ↦ₕ Header §Node 2 ∗
@@ -556,10 +557,10 @@ Section bag_2_G.
       iApply (pointsto_exclusive with "Hnode_queue Hnode'_queue").
     }
 
-    pose descr := {|
-      descriptor_queue := queue ;
-      descriptor_vals := [] ;
-    |}.
+    pose descr :=
+      {|descriptor_queue := queue
+      ; descriptor_vals := []
+      |}.
     iMod (queues_insert node descr with "Hqueues_auth") as "(Hqueues_auth & #Hqueues_at)"; first done.
     iDestruct (big_sepM_insert_2 _ _ node descr with "[Hnode_queue Hqueue_model] Hdescrs") as "Hdescrs".
     { iExists (Some queue). iSteps. }
@@ -586,10 +587,11 @@ Section bag_2_G.
       bag_2_add_producer #l queue @ ↑γ.(metadata_inv)
     <<<
       ∃∃ node,
-      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 := {|
-        producer_queue := queue ;
-        producer_node := node ;
-      |} in
+      let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
+        {|producer_queue := queue
+        ; producer_node := node
+        |}
+      in
       model₁ γ (<[𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 : val := []]> vss)
     | RET #node;
       node ↦ₕ Header §Node 2 ∗

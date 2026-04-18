@@ -273,10 +273,10 @@ Module base.
 
       iMod model_owner_alloc as "(%γ_model & Hmodel₁ & Hmodel₂ & Howner)".
 
-      pose γ := {|
-        inf_ws_deque_2_name_base := γ_base ;
-        inf_ws_deque_2_name_model := γ_model ;
-      |}.
+      pose γ :=
+        {|inf_ws_deque_2_name_base := γ_base
+        ; inf_ws_deque_2_name_model := γ_model
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame "#∗". iSplitR "Hbase_owner".

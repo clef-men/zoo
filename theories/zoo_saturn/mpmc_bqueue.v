@@ -39,19 +39,19 @@ Implicit Types vs : list val.
 Implicit Types waiter : gname.
 Implicit Types waiters : gmap gname nat.
 
-#[local] Program Definition prophet := {|
-  prophet_typed_strong_1_type :=
-    location ;
-  prophet_typed_strong_1_of_val v _ :=
-    match v with
-    | ValLoc l =>
-        Some l
-    | _ =>
-        None
-    end ;
-  prophet_typed_strong_1_to_val l :=
-    (#l, ()%V) ;
-|}.
+#[local] Program Definition prophet :=
+  {|prophet_typed_strong_1_type :=
+      location
+  ; prophet_typed_strong_1_of_val v _ :=
+      match v with
+      | ValLoc l =>
+          Some l
+      | _ =>
+          None
+      end
+  ; prophet_typed_strong_1_to_val l :=
+      (#l, ()%V)
+  |}.
 Solve Obligations of prophet with
   try done.
 Next Obligation.
@@ -431,14 +431,14 @@ Module base.
       iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
       iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
-      pose γ := {|
-        mpmc_bqueue_name_inv := ι ;
-        mpmc_bqueue_name_capacity := ₊cap ;
-        mpmc_bqueue_name_history := γ_history ;
-        mpmc_bqueue_name_front := γ_front ;
-        mpmc_bqueue_name_model := γ_model ;
-        mpmc_bqueue_name_waiters := γ_waiters ;
-      |}.
+      pose γ :=
+        {|mpmc_bqueue_name_inv := ι
+        ; mpmc_bqueue_name_capacity := ₊cap
+        ; mpmc_bqueue_name_history := γ_history
+        ; mpmc_bqueue_name_front := γ_front
+        ; mpmc_bqueue_name_model := γ_model
+        ; mpmc_bqueue_name_waiters := γ_waiters
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame. iSplitL; last iSteps.

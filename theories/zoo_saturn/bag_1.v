@@ -259,12 +259,12 @@ Section bag_1_G.
 
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
-    pose γ := {|
-      metadata_data := data ;
-      metadata_slots := slots ;
-      metadata_inv := ι ;
-      metadata_model := γ_model ;
-    |}.
+    pose γ :=
+      {|metadata_data := data
+      ; metadata_slots := slots
+      ; metadata_inv := ι
+      ; metadata_model := γ_model
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".

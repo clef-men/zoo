@@ -234,11 +234,11 @@ Section semaphore_G.
 
     iMod tokens_alloc as "(%γ_tokens & Htokens_auth & Htokens_frags)".
 
-    pose γ := {|
-      metadata_mutex := mtx ;
-      metadata_condition := cond ;
-      metadata_tokens := γ_tokens ;
-    |}.
+    pose γ :=
+      {|metadata_mutex := mtx
+      ; metadata_condition := cond
+      ; metadata_tokens := γ_tokens
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     replace ₊cap with (S ₊(cap - 1)) by lia.

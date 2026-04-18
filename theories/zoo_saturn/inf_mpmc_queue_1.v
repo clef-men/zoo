@@ -523,14 +523,14 @@ Module base.
       iMod consumers_alloc as "(%γ_consumers & Hconsumers_auth)".
       iMod tokens_alloc as "(%γ_tokens & Htokens_auth)".
 
-      pose γ := {|
-        inf_mpmc_queue_1_name_data := data ;
-        inf_mpmc_queue_1_name_inv := ι ;
-        inf_mpmc_queue_1_name_model := γ_model ;
-        inf_mpmc_queue_1_name_history := γ_history ;
-        inf_mpmc_queue_1_name_consumers := γ_consumers ;
-        inf_mpmc_queue_1_name_tokens := γ_tokens ;
-      |}.
+      pose γ :=
+        {|inf_mpmc_queue_1_name_data := data
+        ; inf_mpmc_queue_1_name_inv := ι
+        ; inf_mpmc_queue_1_name_model := γ_model
+        ; inf_mpmc_queue_1_name_history := γ_history
+        ; inf_mpmc_queue_1_name_consumers := γ_consumers
+        ; inf_mpmc_queue_1_name_tokens := γ_tokens
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (λ _, Nothing). iSteps.

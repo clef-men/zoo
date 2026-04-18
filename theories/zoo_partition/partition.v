@@ -35,11 +35,11 @@ Record descriptor :=
   }.
 
 #[local] Instance descriptor_inhabited : Inhabited descriptor :=
-  populate {|
-    descriptor_elts := inhabitant ;
-    descriptor_prev := inhabitant ;
-    descriptor_next := inhabitant ;
-  |}.
+  populate
+    {|descriptor_elts := inhabitant
+    ; descriptor_prev := inhabitant
+    ; descriptor_next := inhabitant
+    |}.
 #[local] Instance descriptor_eq_dec : EqDecision descriptor :=
   ltac:(solve_decision).
 #[local] Instance descriptor_countable :
@@ -384,11 +384,11 @@ Section partition_G.
       iApply (pointsto_exclusive with "Hclass_first Hclass'_first").
     }
 
-    pose descr := {|
-      descriptor_elts := [elt] ;
-      descriptor_prev := class ;
-      descriptor_next := class ;
-    |}.
+    pose descr :=
+      {|descriptor_elts := [elt]
+      ; descriptor_prev := class
+      ; descriptor_next := class
+      |}.
     iMod (elements_insert elt with "Helts_auth") as "(Helts_auth & #Helts_elem)".
 
     iApply "HΦ".

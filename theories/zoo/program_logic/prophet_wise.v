@@ -213,10 +213,10 @@ Section prophet_wise_G.
     iApply wp_fupd. wp_apply (prophet_typed_strong_wp_proph with "[//]") as "%pid %prophs Hpid".
     iMod (agree_alloc (agree_G := prophet_wise_strong_G_full_G) prophs) as "(%γ_full & #Hfull)".
     iMod (mono_list_alloc []) as "(%γ_past & Hpast_auth)".
-    set γ := {|
-      prophet_wise_strong_name_full := γ_full ;
-      prophet_wise_strong_name_past := γ_past ;
-    |}.
+    set γ :=
+      {|prophet_wise_strong_name_full := γ_full
+      ; prophet_wise_strong_name_past := γ_past
+      |}.
     iApply ("HΦ" $! pid γ).
     iSteps.
   Qed.

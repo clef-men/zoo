@@ -855,18 +855,18 @@ Section ws_deques_private_G.
     iMod owner_alloc as "(%γ_owners & Howners₁ & Howners₂)".
     iMod channels_alloc as "(%γ_channels & Hchannels_1 & Hchannels_2)".
 
-    pose γ := {|
-      metadata_queues_array := queues_array ;
-      metadata_queues := queues ;
-      metadata_statuses_array := statuses_array ;
-      metadata_requests_array := requests_array ;
-      metadata_responses_array := responses_array ;
-      metadata_size := ₊sz ;
-      metadata_inv := ι ;
-      metadata_models := γ_models ;
-      metadata_owners := γ_owners ;
-      metadata_channels := γ_channels ;
-    |}.
+    pose γ :=
+      {|metadata_queues_array := queues_array
+      ; metadata_queues := queues
+      ; metadata_statuses_array := statuses_array
+      ; metadata_requests_array := requests_array
+      ; metadata_responses_array := responses_array
+      ; metadata_size := ₊sz
+      ; metadata_inv := ι
+      ; metadata_models := γ_models
+      ; metadata_owners := γ_owners
+      ; metadata_channels := γ_channels
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".

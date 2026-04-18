@@ -11,21 +11,21 @@ From zoo.diaframe Require Import
 From zoo Require Import
   options.
 
-#[local] Program Definition prophetx prophet := {|
-  prophet_typed_strong_type :=
-    nat * prophet.(prophet_typed_strong_type) ;
-  prophet_typed_strong_of_val v1 v2 :=
-    match v2 with
-    | ValBlock _ _ [ValInt i; v2] =>
-        proph ← prophet.(prophet_typed_strong_of_val) v1 v2 ;
-        Some (₊i, proph)
-    | _ =>
-        None
-    end ;
-  prophet_typed_strong_to_val '(i, proph) :=
-    let '(v1, v2) := prophet.(prophet_typed_strong_to_val) proph in
-    (v1, (ValNat i, v2)%V)
-|}.
+#[local] Program Definition prophetx prophet :=
+  {|prophet_typed_strong_type :=
+      nat * prophet.(prophet_typed_strong_type)
+  ; prophet_typed_strong_of_val v1 v2 :=
+      match v2 with
+      | ValBlock _ _ [ValInt i; v2] =>
+          proph ← prophet.(prophet_typed_strong_of_val) v1 v2 ;
+          Some (₊i, proph)
+      | _ =>
+          None
+      end
+  ; prophet_typed_strong_to_val '(i, proph) :=
+      let '(v1, v2) := prophet.(prophet_typed_strong_to_val) proph in
+      (v1, (ValNat i, v2)%V)
+  |}.
 Solve Obligations of prophetx with
   try done.
 Next Obligation.

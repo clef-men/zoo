@@ -436,11 +436,11 @@ Module base.
       iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
-      pose γ := {|
-        lazy_name_thunk := fn ;
-        lazy_name_lstate := γ_lstate ;
-        lazy_name_consumer := γ_consumer ;
-      |}.
+      pose γ :=
+        {|lazy_name_thunk := fn
+        ; lazy_name_lstate := γ_lstate
+        ; lazy_name_consumer := γ_consumer
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists Unset. iSteps.
@@ -469,11 +469,11 @@ Module base.
       iMod lstate_alloc as "(%γ_lstate & Hlstate_unset₁ & Hlstate_unset₂)".
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
 
-      pose γ := {|
-        lazy_name_thunk := () ;
-        lazy_name_lstate := γ_lstate ;
-        lazy_name_consumer := γ_consumer ;
-      |}.
+      pose γ :=
+        {|lazy_name_thunk := ()
+        ; lazy_name_lstate := γ_lstate
+        ; lazy_name_consumer := γ_consumer
+        |}.
 
       iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
       iDestruct (consumer_produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".

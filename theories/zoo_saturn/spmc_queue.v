@@ -450,13 +450,13 @@ Module base.
       iMod model_producer_alloc as "(%γ_model & Hproducer & Hmodel₁ & Hmodel₂)".
       iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
-      pose γ := {|
-        metadata_inv := ι ;
-        metadata_history := γ_history ;
-        metadata_front := γ_front ;
-        metadata_model := γ_model ;
-        metadata_waiters := γ_waiters ;
-      |}.
+      pose γ :=
+        {|metadata_inv := ι
+        ; metadata_history := γ_history
+        ; metadata_front := γ_front
+        ; metadata_model := γ_model
+        ; metadata_waiters := γ_waiters
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame "#∗". iStep.

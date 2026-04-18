@@ -121,10 +121,10 @@ Section auth_twins_G.
     iMod (ghost_var_alloc (ghost_var_G := auth_twins_G_var_G ) η) as "(%γ_var & Hvar)".
     iEval (assert (1 = 1/3 + (1/3 + 1/3))%Qp as -> by compute_done) in "Hvar".
     iDestruct "Hvar" as "(Hvar1 & (Hvar2 & Hvar3))".
-    iExists {|
-      auth_twins_name_var := γ_var ;
-      auth_twins_name_twins := γ_twins ;
-    |}.
+    iExists
+      {|auth_twins_name_var := γ_var
+      ; auth_twins_name_twins := γ_twins
+      |}.
     iSteps.
   Qed.
 

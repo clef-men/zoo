@@ -21,9 +21,9 @@ From zoo Require Import
 Definition split_on chr str :=
   split_on_go chr str "".
 
-#[global] Program Instance string_beq : Beq string := {|
-  beq := String.eqb ;
-|}.
+#[global] Program Instance string_beq : Beq string :=
+  {|beq := String.eqb
+  |}.
 Next Obligation.
   apply String.eqb_eq.
 Qed.

@@ -755,13 +755,13 @@ Module base.
       iMod predecessors_alloc as "(%γ_predecessors & Hpredecessors_auth)".
       iMod (output_alloc P) as "(%γ_output & Houtput_auth & Houtput_frag)".
 
-      pose γ := {|
-        vertex_name_successors := succs ;
-        vertex_name_state := γ_state ;
-        vertex_name_iteration := γ_iteration ;
-        vertex_name_predecessors := γ_predecessors ;
-        vertex_name_output := γ_output ;
-      |}.
+      pose γ :=
+        {|vertex_name_successors := succs
+        ; vertex_name_state := γ_state
+        ; vertex_name_iteration := γ_iteration
+        ; vertex_name_predecessors := γ_predecessors
+        ; vertex_name_output := γ_output
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame.

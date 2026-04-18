@@ -147,23 +147,23 @@ Section beq.
   Qed.
 End beq.
 
-#[global] Program Instance bool_beq : Beq bool := {|
-  beq := Bool.eqb ;
-|}.
+#[global] Program Instance bool_beq : Beq bool :=
+  {|beq := Bool.eqb
+  |}.
 Next Obligation.
   apply Bool.eqb_true_iff.
 Qed.
 
-#[global] Program Instance nat_beq : Beq nat := {|
-  beq := Nat.eqb ;
-|}.
+#[global] Program Instance nat_beq : Beq nat :=
+  {|beq := Nat.eqb
+  |}.
 Next Obligation.
   apply Nat.eqb_eq.
 Qed.
 
-#[global] Program Instance Z_beq : Beq Z := {|
-  beq := Z.eqb ;
-|}.
+#[global] Program Instance Z_beq : Beq Z :=
+  {|beq := Z.eqb
+  |}.
 Next Obligation.
   apply Z.eqb_eq.
 Qed.

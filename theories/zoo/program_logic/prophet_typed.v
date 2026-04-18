@@ -119,14 +119,14 @@ Section prophet_typed_strong_1.
   Context (prophet : prophet_typed_strong_1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_strong_1_to_prophet := {|
-    prophet_typed_strong_type :=
-      prophet.(prophet_typed_strong_1_type) ;
-    prophet_typed_strong_of_val :=
-      prophet.(prophet_typed_strong_1_of_val) ;
-    prophet_typed_strong_to_val :=
-      prophet.(prophet_typed_strong_1_to_val) ;
-  |}.
+  Program Definition prophet_typed_strong_1_to_prophet :=
+    {|prophet_typed_strong_type :=
+        prophet.(prophet_typed_strong_1_type)
+    ; prophet_typed_strong_of_val :=
+        prophet.(prophet_typed_strong_1_of_val)
+    ; prophet_typed_strong_to_val :=
+        prophet.(prophet_typed_strong_1_to_val)
+    |}.
   Next Obligation.
     apply prophet_typed_strong_1_of_to_val.
   Qed.
@@ -212,19 +212,19 @@ Section prophet_typed.
   Context (prophet : prophet_typed).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_to_strong := {|
-    prophet_typed_strong_type :=
-      val * prophet.(prophet_typed_type) ;
-    prophet_typed_strong_of_val w v :=
-      match prophet.(prophet_typed_of_val) v with
-      | None =>
-          None
-      | Some proph =>
-          Some (w, proph)
-      end ;
-    prophet_typed_strong_to_val '(w, proph) :=
-      (w, prophet.(prophet_typed_to_val) proph) ;
-  |}.
+  Program Definition prophet_typed_to_strong :=
+    {|prophet_typed_strong_type :=
+        val * prophet.(prophet_typed_type)
+    ; prophet_typed_strong_of_val w v :=
+        match prophet.(prophet_typed_of_val) v with
+        | None =>
+            None
+        | Some proph =>
+            Some (w, proph)
+        end
+    ; prophet_typed_strong_to_val '(w, proph) :=
+        (w, prophet.(prophet_typed_to_val) proph)
+    |}.
   Next Obligation.
     intros (w & proph) _w v [= -> ->].
     erewrite prophet_typed_of_to_val => //.
@@ -314,14 +314,14 @@ Section prophet_typed_1.
   Context (prophet : prophet_typed_1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_1_to_prophet := {|
-    prophet_typed_type :=
-      prophet.(prophet_typed_1_type) ;
-    prophet_typed_of_val :=
-      prophet.(prophet_typed_1_of_val) ;
-    prophet_typed_to_val :=
-      prophet.(prophet_typed_1_to_val) ;
-  |}.
+  Program Definition prophet_typed_1_to_prophet :=
+    {|prophet_typed_type :=
+        prophet.(prophet_typed_1_type)
+    ; prophet_typed_of_val :=
+        prophet.(prophet_typed_1_of_val)
+    ; prophet_typed_to_val :=
+        prophet.(prophet_typed_1_to_val)
+    |}.
   Next Obligation.
     apply prophet_typed_1_of_to_val.
   Qed.

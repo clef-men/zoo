@@ -238,12 +238,12 @@ Section parray_2_G.
 
     iMod (nodes_alloc root (replicate ₊sz v)) as "(%γ_nodes & Hnodes_auth & #Hnodes_elem)".
 
-    pose γ := {|
-      metadata_equal := equal ;
-      metadata_size := ₊sz ;
-      metadata_data := data ;
-      metadata_nodes := γ_nodes ;
-    |}.
+    pose γ :=
+      {|metadata_equal := equal
+      ; metadata_size := ₊sz
+      ; metadata_data := data
+      ; metadata_nodes := γ_nodes
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".

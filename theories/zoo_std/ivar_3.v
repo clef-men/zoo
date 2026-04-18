@@ -547,11 +547,11 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
       iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
-      pose γ := {|
-        ivar_3_name_lstate := γ_lstate ;
-        ivar_3_name_consumer := γ_consumer ;
-        ivar_3_name_waiters := γ_waiters ;
-      |}.
+      pose γ :=
+        {|ivar_3_name_lstate := γ_lstate
+        ; ivar_3_name_consumer := γ_consumer
+        ; ivar_3_name_waiters := γ_waiters
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrame.
@@ -585,11 +585,11 @@ Module base.
       iMod consumer_alloc as "(%γ_consumer & Hconsumer_auth & Hconsumer_frag)".
       iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
-      pose γ := {|
-        ivar_3_name_lstate := γ_lstate ;
-        ivar_3_name_consumer := γ_consumer ;
-        ivar_3_name_waiters := γ_waiters ;
-      |}.
+      pose γ :=
+        {|ivar_3_name_lstate := γ_lstate
+        ; ivar_3_name_consumer := γ_consumer
+        ; ivar_3_name_waiters := γ_waiters
+        |}.
 
       iMod (lstate_update (γ := γ) v with "Hlstate_unset₁ Hlstate_unset₂") as "#Hlstate_set".
       iDestruct (consumer_produce (γ := γ) v with "Hconsumer_auth HΨ") as "Hconsumer_auth".

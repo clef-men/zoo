@@ -293,11 +293,11 @@ Module base.
       iMod history_alloc as "(%γ_history & Hhistory_auth)".
       iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
 
-      pose γ := {|
-        mpsc_queue_1_name_inv := ι ;
-        mpsc_queue_1_name_history := γ_history ;
-        mpsc_queue_1_name_model := γ_model ;
-      |}.
+      pose γ :=
+        {|mpsc_queue_1_name_inv := ι
+        ; mpsc_queue_1_name_history := γ_history
+        ; mpsc_queue_1_name_model := γ_model
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameStep.

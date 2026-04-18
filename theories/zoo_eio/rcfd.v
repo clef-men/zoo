@@ -665,13 +665,13 @@ Section rcfd_G.
     iMod (tokens_alloc with "HΨ") as "(%γ_tokens & Htokens_auth)".
     iMod (lstate_owner_alloc owned) as "(%γ_lstate & Hlstate_auth & Howner)".
 
-    pose γ := {|
-      metadata_fd := fd ;
-      metadata_open := open ;
-      metadata_owned := owned ;
-      metadata_tokens := γ_tokens ;
-      metadata_lstate := γ_lstate ;
-    |}.
+    pose γ :=
+      {|metadata_fd := fd
+      ; metadata_open := open
+      ; metadata_owned := owned
+      ; metadata_tokens := γ_tokens
+      ; metadata_lstate := γ_lstate
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".

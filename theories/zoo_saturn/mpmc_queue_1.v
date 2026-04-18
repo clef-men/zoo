@@ -359,13 +359,13 @@ Module base.
       iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
       iMod waiters_alloc as "(%γ_waiters & Hwaiters_auth)".
 
-      pose γ := {|
-        mpmc_queue_1_name_inv := ι ;
-        mpmc_queue_1_name_history := γ_history ;
-        mpmc_queue_1_name_front := γ_front ;
-        mpmc_queue_1_name_model := γ_model ;
-        mpmc_queue_1_name_waiters := γ_waiters ;
-      |}.
+      pose γ :=
+        {|mpmc_queue_1_name_inv := ι
+        ; mpmc_queue_1_name_history := γ_history
+        ; mpmc_queue_1_name_front := γ_front
+        ; mpmc_queue_1_name_model := γ_model
+        ; mpmc_queue_1_name_waiters := γ_waiters
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameStep.

@@ -867,17 +867,17 @@ Module base.
       iMod producers_alloc as "(%γ_producers & Hproducers_auth)".
       iMod consumers_alloc as "(%γ_consumers & Hconsumers_auth)".
 
-      pose γ := {|
-        inf_mpmc_queue_2_name_data := data ;
-        inf_mpmc_queue_2_name_inv := ι ;
-        inf_mpmc_queue_2_name_prophet := pid ;
-        inf_mpmc_queue_2_name_prophet_name := γ_prophet ;
-        inf_mpmc_queue_2_name_model := γ_model ;
-        inf_mpmc_queue_2_name_history := γ_history ;
-        inf_mpmc_queue_2_name_lstates := γ_lstates ;
-        inf_mpmc_queue_2_name_producers := γ_producers ;
-        inf_mpmc_queue_2_name_consumers := γ_consumers ;
-      |}.
+      pose γ :=
+        {|inf_mpmc_queue_2_name_data := data
+        ; inf_mpmc_queue_2_name_inv := ι
+        ; inf_mpmc_queue_2_name_prophet := pid
+        ; inf_mpmc_queue_2_name_prophet_name := γ_prophet
+        ; inf_mpmc_queue_2_name_model := γ_model
+        ; inf_mpmc_queue_2_name_history := γ_history
+        ; inf_mpmc_queue_2_name_lstates := γ_lstates
+        ; inf_mpmc_queue_2_name_producers := γ_producers
+        ; inf_mpmc_queue_2_name_consumers := γ_consumers
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps. iExists (λ _, Nothing). iSteps. iExists []. iSteps.

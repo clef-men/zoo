@@ -595,17 +595,17 @@ Section spsc_bqueue_G.
     iMod history_alloc as "(%γ_history & Hhistory_auth)".
     iMod consumer_alloc as "(%γ_consumer & %γ_front & Hconsumer₁ & Hconsumer₂)".
 
-    pose γ := {|
-      metadata_capacity := ₊cap ;
-      metadata_data := data ;
-      metadata_inv := ι ;
-      metadata_model := γ_model ;
-      metadata_history := γ_history ;
-      metadata_producer := γ_producer ;
-      metadata_back := γ_back ;
-      metadata_consumer := γ_consumer ;
-      metadata_front := γ_front ;
-    |}.
+    pose γ :=
+      {|metadata_capacity := ₊cap
+      ; metadata_data := data
+      ; metadata_inv := ι
+      ; metadata_model := γ_model
+      ; metadata_history := γ_history
+      ; metadata_producer := γ_producer
+      ; metadata_back := γ_back
+      ; metadata_consumer := γ_consumer
+      ; metadata_front := γ_front
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iDestruct (back_lb_get γ with "Hproducer₂") as "#Hback_lb".

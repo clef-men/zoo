@@ -218,10 +218,10 @@ Module base.
       iMod state_alloc as "(%γ_state & Hstate_unset)".
       iMod consumer_alloc as "(%γ_consumer & Hconsumer)".
 
-      pose γ := {|
-        mpsc_flag_name_state := γ_state ;
-        mpsc_flag_name_consumer := γ_consumer ;
-      |}.
+      pose γ :=
+        {|mpsc_flag_name_state := γ_state
+        ; mpsc_flag_name_consumer := γ_consumer
+        |}.
 
       iApply ("HΦ" $! t γ).
       iFrameSteps.

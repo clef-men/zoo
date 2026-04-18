@@ -244,10 +244,10 @@ Section mpsc_queue_2_G.
     iMod model_alloc as "(%γ_model & Hmodel₁ & Hmodel₂)".
     iMod front_alloc as "(%γ_front & Hfront₁ & Hfront₂)".
 
-    pose γ := {|
-      metadata_model := γ_model ;
-      metadata_front := γ_front ;
-    |}.
+    pose γ :=
+      {|metadata_model := γ_model
+      ; metadata_front := γ_front
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iApply "HΦ".

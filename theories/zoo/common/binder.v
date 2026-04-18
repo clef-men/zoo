@@ -8,17 +8,17 @@ From zoo.common Require Export
 From zoo Require Import
   options.
 
-#[global] Program Instance binder_beq : Beq binder := {|
-  beq bdr1 bdr2 :=
-    match bdr1, bdr2 with
-    | BAnon, BAnon =>
-        true
-    | BNamed str1, BNamed str2 =>
-        str1 ≟ str2
-    | _, _ =>
-        false
-    end ;
-|}.
+#[global] Program Instance binder_beq : Beq binder :=
+  {|beq bdr1 bdr2 :=
+      match bdr1, bdr2 with
+      | BAnon, BAnon =>
+          true
+      | BNamed str1, BNamed str2 =>
+          str1 ≟ str2
+      | _, _ =>
+          false
+      end
+  |}.
 Next Obligation.
   naive_solver.
 Qed.

@@ -72,11 +72,11 @@ Definition state_wf backs i :=
   state1.(state_index) ≤ state2.(state_index).
 
 #[local] Instance state_inhabited : Inhabited state :=
-  populate {|
-    state_backs := inhabitant ;
-    state_index := inhabitant ;
-    state_status := inhabitant ;
-  |}.
+  populate
+    {|state_backs := inhabitant
+    ; state_index := inhabitant
+    ; state_status := inhabitant
+    |}.
 
 #[local] Instance state_le_reflexive :
   Reflexive state_le.
@@ -537,11 +537,11 @@ Section mpmc_queue_2_G.
       ∃ γ_state,
       state_auth' γ_state ∅ 0 (Unstable back []).
   Proof.
-    set state := {|
-      state_backs := ∅ ;
-      state_index := 0 ;
-      state_status := Unstable back [] ;
-    |}.
+    set state :=
+      {|state_backs := ∅
+      ; state_index := 0
+      ; state_status := Unstable back []
+      |}.
     iMod (auth_mono_alloc _ (auth_mono_G := mpmc_queue_2_G_state_G) state) as "(%γ_state & $)".
     iSteps.
   Qed.
@@ -932,12 +932,12 @@ Section mpmc_queue_2_G.
     iMod (state_alloc back) as "(%γ_state & Hstate_auth)".
     iMod front_alloc as "(%γ_front & Hfront_auth)".
 
-    pose γ := {|
-      metadata_inv := ι ;
-      metadata_model := γ_model ;
-      metadata_state := γ_state ;
-      metadata_front := γ_front ;
-    |}.
+    pose γ :=
+      {|metadata_inv := ι
+      ; metadata_model := γ_model
+      ; metadata_state := γ_state
+      ; metadata_front := γ_front
+      |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
     iDestruct (state_lb_get γ with "Hstate_auth") as "#Hstate_lb".
