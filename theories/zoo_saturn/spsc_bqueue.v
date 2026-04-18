@@ -45,12 +45,12 @@ Class SpscBqueueG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] spsc_bqueue_G_mono_nat_G :: AuthNatMaxG Σ
   }.
 
-Definition spsc_bqueue_Σ := #[
-  auth_twins_Σ (leibnizO (list val)) suffix ;
-  mono_list_Σ val ;
-  twins_Σ (leibnizO stability) ;
-  auth_nat_max_Σ
-].
+Definition spsc_bqueue_Σ :=
+  #[auth_twins_Σ (leibnizO (list val)) suffix
+  ; mono_list_Σ val
+  ; twins_Σ (leibnizO stability)
+  ; auth_nat_max_Σ
+  ].
 Lemma subG_spsc_bqueue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG spsc_bqueue_Σ Σ →
   SpscBqueueG Σ.

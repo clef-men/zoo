@@ -14,9 +14,9 @@ Class AgreeG Σ F :=
   { #[local] agree_G_inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition agree_Σ F `{!oFunctorContractive F} := #[
-  GFunctor (agreeRF F)
-].
+Definition agree_Σ F `{!oFunctorContractive F} :=
+  #[GFunctor (agreeRF F)
+  ].
 #[global] Instance subG_agree_Σ Σ F `{!oFunctorContractive F} :
   subG (agree_Σ F) Σ →
   AgreeG Σ F.

@@ -27,11 +27,11 @@ Class LazyG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] lazy_G_consumer_G :: SubpredsG Σ val
   }.
 
-Definition lazy_Σ := #[
-  mutex_Σ ;
-  oneshot_Σ unit val ;
-  subpreds_Σ val
-].
+Definition lazy_Σ :=
+  #[mutex_Σ
+  ; oneshot_Σ unit val
+  ; subpreds_Σ val
+  ].
 #[global] Instance subG_lazy_Σ Σ `{zoo_G : !ZooG Σ} :
   subG lazy_Σ Σ →
   LazyG Σ .

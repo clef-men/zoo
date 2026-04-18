@@ -13,9 +13,9 @@ Class GhostPredG Σ A :=
   { #[local] ghost_pred_G_ghost_var_G :: GhostVarG Σ (A -d> ▶ ∙)
   }.
 
-Definition ghost_pred_Σ A := #[
-  ghost_var_Σ (A -d> ▶ ∙)
-].
+Definition ghost_pred_Σ A :=
+  #[ghost_var_Σ (A -d> ▶ ∙)
+  ].
 #[global] Instance subG_ghost_pred_Σ Σ A :
   subG (ghost_pred_Σ A) Σ →
   GhostPredG Σ A.

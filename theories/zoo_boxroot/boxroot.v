@@ -75,9 +75,9 @@ Class BoxrootG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] boxroot_G_roots_G :: ghost_mapG Σ location gc_location
   }.
 
-Definition boxroot_Σ := #[
-  ghost_mapΣ location gc_location
-].
+Definition boxroot_Σ :=
+  #[ghost_mapΣ location gc_location
+  ].
 #[global] Instance subG_boxroot_Σ Σ `{zoo_G : !ZooG Σ} :
   subG boxroot_Σ Σ →
   BoxrootG Σ.

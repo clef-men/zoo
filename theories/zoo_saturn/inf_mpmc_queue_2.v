@@ -163,19 +163,19 @@ Class InfMpmcQueue2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] inf_mpmc_queue_2_G_consumers_G :: MonoListG Σ gname
   }.
 
-Definition inf_mpmc_queue_2_Σ := #[
-  inf_array_Σ ;
-  prophet_multi_Σ prophet_identifier ;
-  twins_Σ (leibnizO (list val)) ;
-  mono_list_Σ (option val) ;
-  mono_list_Σ gname ;
-  auth_mono_Σ lstep ;
-  saved_pred_Σ val ;
-  oneshot_Σ () () ;
-  mono_list_Σ gname ;
-  oneshot_Σ () () ;
-  mono_list_Σ gname
-].
+Definition inf_mpmc_queue_2_Σ :=
+  #[inf_array_Σ
+  ; prophet_multi_Σ prophet_identifier
+  ; twins_Σ (leibnizO (list val))
+  ; mono_list_Σ (option val)
+  ; mono_list_Σ gname
+  ; auth_mono_Σ lstep
+  ; saved_pred_Σ val
+  ; oneshot_Σ () ()
+  ; mono_list_Σ gname
+  ; oneshot_Σ () ()
+  ; mono_list_Σ gname
+  ].
 #[global] Instance subG_inf_mpmc_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_mpmc_queue_2_Σ Σ →
   InfMpmcQueue2G Σ.

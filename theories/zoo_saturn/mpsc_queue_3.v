@@ -32,10 +32,10 @@ Class MpscQueue3G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpsc_queue_3_G_lstate_G :: OneshotG Σ () ()
   }.
 
-Definition mpsc_queue_3_Σ := #[
-  twins_Σ (leibnizO (list val)) ;
-  oneshot_Σ () ()
-].
+Definition mpsc_queue_3_Σ :=
+  #[twins_Σ (leibnizO (list val))
+  ; oneshot_Σ () ()
+  ].
 #[global] Instance subG_mpsc_queue_3_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_3_Σ Σ →
   MpscQueue3G Σ.

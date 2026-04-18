@@ -15,9 +15,9 @@ Class AuthMonoiG Σ {A : ofe} (R : relation A) `{!Initial R} :=
   { #[local] auth_monoi_G_inG :: inG Σ (auth_monoi_UR R)
   }.
 
-Definition auth_monoi_Σ {A : ofe} (R : relation A) `{!Initial R} := #[
-  GFunctor (auth_monoi_UR R)
-].
+Definition auth_monoi_Σ {A : ofe} (R : relation A) `{!Initial R} :=
+  #[GFunctor (auth_monoi_UR R)
+  ].
 #[global] Instance subG_auth_monoi_Σ Σ {A : ofe} (R : relation A) `{!Initial R} :
   subG (auth_monoi_Σ R) Σ →
   AuthMonoiG Σ R.

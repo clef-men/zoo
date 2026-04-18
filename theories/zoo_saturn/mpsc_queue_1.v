@@ -35,10 +35,10 @@ Class MpscQueue1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpsc_queue_1_G_model_G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpsc_queue_1_Σ := #[
-  mono_list_Σ location ;
-  twins_Σ (leibnizO (list val))
-].
+Definition mpsc_queue_1_Σ :=
+  #[mono_list_Σ location
+  ; twins_Σ (leibnizO (list val))
+  ].
 #[global] Instance subG_mpsc_queue_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_1_Σ Σ →
   MpscQueue1G Σ.

@@ -13,9 +13,9 @@ Class OneshotG Σ A B :=
   { #[local] oneshot_G_var_G :: GhostVarG Σ (leibnizO (A + B))
   }.
 
-Definition oneshot_Σ A B := #[
-  ghost_var_Σ (leibnizO (A + B))
-].
+Definition oneshot_Σ A B :=
+  #[ghost_var_Σ (leibnizO (A + B))
+  ].
 #[global] Instance subG_oneshot_Σ Σ A B :
   subG (oneshot_Σ A B) Σ →
   OneshotG Σ A B.

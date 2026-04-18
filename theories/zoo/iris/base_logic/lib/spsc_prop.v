@@ -20,10 +20,10 @@ Class SpscPropG Σ `{inv_G : !invGS Σ} :=
   ; #[local] spsc_prop_G_consumer_G :: ExclG Σ unitO
   }.
 
-Definition spsc_prop_Σ := #[
-  oneshot_Σ () () ;
-  excl_Σ unitO
-].
+Definition spsc_prop_Σ :=
+  #[oneshot_Σ () ()
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_spsc_prop_Σ Σ `{inv_G : !invGS Σ} :
   subG spsc_prop_Σ Σ →
   SpscPropG Σ.

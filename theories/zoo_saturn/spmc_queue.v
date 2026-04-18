@@ -45,13 +45,13 @@ Class SpmcQueueG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] spmc_queue_G_saved_pred_G :: SavedPredG Σ bool
   }.
 
-Definition spmc_queue_Σ := #[
-  mono_list_Σ location ;
-  auth_nat_max_Σ ;
-  auth_twins_Σ (leibnizO (list val)) suffix ;
-  ghost_mapΣ gname nat ;
-  saved_pred_Σ bool
-].
+Definition spmc_queue_Σ :=
+  #[mono_list_Σ location
+  ; auth_nat_max_Σ
+  ; auth_twins_Σ (leibnizO (list val)) suffix
+  ; ghost_mapΣ gname nat
+  ; saved_pred_Σ bool
+  ].
 #[global] Instance subG_spmc_queue_Σ Σ `{zoo_G : !ZooG Σ} :
   subG spmc_queue_Σ Σ →
   SpmcQueueG Σ.

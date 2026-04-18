@@ -132,11 +132,11 @@ Class RcfdG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] rcfd_G_lstate_G :: AuthMonoG Σ (A := leibnizO lstate) lstep
   }.
 
-Definition rcfd_Σ := #[
-  spsc_waiter_Σ ;
-  auth_gmultiset_Σ Qp ;
-  auth_mono_Σ (A := leibnizO lstate) lstep
-].
+Definition rcfd_Σ :=
+  #[spsc_waiter_Σ
+  ; auth_gmultiset_Σ Qp
+  ; auth_mono_Σ (A := leibnizO lstate) lstep
+  ].
 #[global] Instance subG_rcfd_Σ `{zoo_G : !ZooG Σ} :
   subG rcfd_Σ Σ →
   RcfdG Σ.

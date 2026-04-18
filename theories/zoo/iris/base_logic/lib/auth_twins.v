@@ -19,11 +19,11 @@ Class AuthTwinsG Σ (A : ofe) (R : relation A) :=
   ; #[local] auth_twins_G_twins_G :: TwinsG Σ A
   }.
 
-Definition auth_twins_Σ (A : ofe) (R : relation A) := #[
-  ghost_var_Σ (leibnizO gname) ;
-  auth_mono_Σ R ;
-  twins_Σ A
-].
+Definition auth_twins_Σ (A : ofe) (R : relation A) :=
+  #[ghost_var_Σ (leibnizO gname)
+  ; auth_mono_Σ R
+  ; twins_Σ A
+  ].
 #[global] Instance subG_auth_twins_Σ Σ (A : ofe) (R : relation A) :
   subG (auth_twins_Σ A R) Σ →
   AuthTwinsG Σ A R.

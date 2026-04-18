@@ -16,9 +16,9 @@ Class AuthFracG Σ A :=
   { #[local] auth_frac_G_inG :: inG Σ (frac_authUR A)
   }.
 
-Definition auth_frac_Σ A := #[
-  GFunctor (frac_authUR A)
-].
+Definition auth_frac_Σ A :=
+  #[GFunctor (frac_authUR A)
+  ].
 #[global] Instance subG_auth_frac_Σ Σ A :
   subG (auth_frac_Σ A) Σ →
   AuthFracG Σ A.

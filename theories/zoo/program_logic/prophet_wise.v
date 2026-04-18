@@ -19,10 +19,10 @@ Class ProphetWiseStrongG Σ `{zoo_G : !ZooG Σ} prophet :=
   ; #[local] prophet_wise_strong_G_past_G :: MonoListG Σ prophet.(prophet_typed_strong_type)
   }.
 
-Definition prophet_wise_strong_Σ prophet := #[
-  agree_Σ (leibnizO (list prophet.(prophet_typed_strong_type))) ;
-  mono_list_Σ prophet.(prophet_typed_strong_type)
-].
+Definition prophet_wise_strong_Σ prophet :=
+  #[agree_Σ (leibnizO (list prophet.(prophet_typed_strong_type)))
+  ; mono_list_Σ prophet.(prophet_typed_strong_type)
+  ].
 #[global] Instance subG_prophet_wise_strong_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (prophet_wise_strong_Σ prophet) Σ →
   ProphetWiseStrongG Σ prophet.
@@ -255,9 +255,9 @@ Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet :=
   { #[local] prophet_wise_G :: ProphetWiseStrongG Σ prophet
   }.
 
-Definition prophet_wise_Σ prophet := #[
-  prophet_wise_strong_Σ prophet
-].
+Definition prophet_wise_Σ prophet :=
+  #[prophet_wise_strong_Σ prophet
+  ].
 #[global] Instance subG_prophet_wise_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (prophet_wise_Σ prophet) Σ →
   ProphetWiseG Σ prophet.

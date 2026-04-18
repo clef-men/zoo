@@ -64,9 +64,9 @@ Module base.
     { #[local] pstore_2_G_nodes_G :: ghost_mapG Σ location descriptor
     }.
 
-  Definition pstore_2_Σ := #[
-    ghost_mapΣ location descriptor
-  ].
+  Definition pstore_2_Σ :=
+    #[ghost_mapΣ location descriptor
+    ].
   #[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
     subG pstore_2_Σ Σ →
     Pstore2G Σ.
@@ -1523,10 +1523,10 @@ Class Pstore2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] pstore_2_G_support_G :: MonoGmapG Σ location val
   }.
 
-Definition pstore_2_Σ := #[
-  base.pstore_2_Σ ;
-  mono_gmap_Σ location val
-].
+Definition pstore_2_Σ :=
+  #[base.pstore_2_Σ
+  ; mono_gmap_Σ location val
+  ].
 #[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_2_Σ Σ →
   Pstore2G Σ.

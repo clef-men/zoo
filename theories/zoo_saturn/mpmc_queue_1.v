@@ -44,13 +44,13 @@ Class MpmcQueue1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpmc_queue_1_G_saved_pred_G :: SavedPredG Σ bool
   }.
 
-Definition mpmc_queue_1_Σ := #[
-  mono_list_Σ location ;
-  auth_nat_max_Σ ;
-  twins_Σ (leibnizO (list val)) ;
-  ghost_mapΣ gname nat ;
-  saved_pred_Σ bool
-].
+Definition mpmc_queue_1_Σ :=
+  #[mono_list_Σ location
+  ; auth_nat_max_Σ
+  ; twins_Σ (leibnizO (list val))
+  ; ghost_mapΣ gname nat
+  ; saved_pred_Σ bool
+  ].
 #[global] Instance subG_mpmc_queue_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_queue_1_Σ Σ →
   MpmcQueue1G Σ.

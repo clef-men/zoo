@@ -24,8 +24,9 @@ Class MpmcFqueue2G Σ `{zoo_G : !ZooG Σ} :=
   {
   }.
 
-Definition mpmc_fqueue_2_Σ := #[
-].
+Definition mpmc_fqueue_2_Σ :=
+  #[
+  ].
 #[global] Instance subG_mpmc_fqueue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_fqueue_2_Σ Σ →
   MpmcFqueue2G Σ.

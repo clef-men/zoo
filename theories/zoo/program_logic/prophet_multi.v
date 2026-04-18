@@ -40,9 +40,9 @@ Class ProphetMultiStrongG Σ `{zoo_G : !ZooG Σ} prophet :=
   { #[local] prophet_multi_strong_G :: ProphetWiseStrongG Σ (prophetx prophet)
   }.
 
-Definition prophet_multi_strong_Σ prophet := #[
-  prophet_wise_strong_Σ (prophetx prophet)
-].
+Definition prophet_multi_strong_Σ prophet :=
+  #[prophet_wise_strong_Σ (prophetx prophet)
+  ].
 #[global] Instance subG_prophet_multi_strong_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (prophet_multi_strong_Σ prophet) Σ →
   ProphetMultiStrongG Σ prophet.
@@ -369,9 +369,9 @@ Class ProphetMultiG Σ `{zoo_G : !ZooG Σ} prophet :=
   { #[local] prophet_multi_G :: ProphetMultiStrongG Σ prophet
   }.
 
-Definition prophet_multi_Σ prophet := #[
-  prophet_multi_strong_Σ prophet
-].
+Definition prophet_multi_Σ prophet :=
+  #[prophet_multi_strong_Σ prophet
+  ].
 #[global] Instance subG_prophet_multi_Σ Σ `{zoo_G : !ZooG Σ} prophet :
   subG (prophet_multi_Σ prophet) Σ →
   ProphetMultiG Σ prophet.

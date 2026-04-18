@@ -26,10 +26,10 @@ Class MvarG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mvar_G_consumer_G :: ExclG Σ unitO
   }.
 
-Definition mvar_Σ := #[
-  oneshot_Σ unit unit ;
-  excl_Σ unitO
-].
+Definition mvar_Σ :=
+  #[oneshot_Σ unit unit
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_mvar_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mvar_Σ Σ →
   MvarG Σ .

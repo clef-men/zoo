@@ -30,10 +30,10 @@ Class Ivar4G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ivar_4_G_saved_prop_G :: SavedPropG Σ
   }.
 
-Definition ivar_4_Σ := #[
-  ivar_3_Σ gname ;
-  saved_prop_Σ
-].
+Definition ivar_4_Σ :=
+  #[ivar_3_Σ gname
+  ; saved_prop_Σ
+  ].
 #[global] Instance subG_ivar_4_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ivar_4_Σ Σ →
   Ivar4G Σ.

@@ -29,11 +29,11 @@ Class Ivar2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ivar_2_G_consumer_G :: SubpredsG Σ val
   }.
 
-Definition ivar_2_Σ := #[
-  mutex_Σ ;
-  oneshot_Σ unit val ;
-  subpreds_Σ val
-].
+Definition ivar_2_Σ :=
+  #[mutex_Σ
+  ; oneshot_Σ unit val
+  ; subpreds_Σ val
+  ].
 #[global] Instance subG_ivar_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ivar_2_Σ Σ →
   Ivar2G Σ .

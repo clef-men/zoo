@@ -77,14 +77,14 @@ Class VertexG Σ `{pool_G : PoolG Σ} :=
   ; #[local] vertex_G_output_G :: SubpropsG Σ
   }.
 
-Definition vertex_Σ := #[
-  mpmc_stack_2_Σ ;
-  twins_Σ (leibnizO state) ;
-  twins_Σ (leibnizO vertex_iteration) ;
-  mono_gmultiset_Σ vertex_name ;
-  auth_gmultiset_Σ vertex_name ;
-  subprops_Σ
-].
+Definition vertex_Σ :=
+  #[mpmc_stack_2_Σ
+  ; twins_Σ (leibnizO state)
+  ; twins_Σ (leibnizO vertex_iteration)
+  ; mono_gmultiset_Σ vertex_name
+  ; auth_gmultiset_Σ vertex_name
+  ; subprops_Σ
+  ].
 #[global] Instance subG_vertex_Σ Σ `{pool_G : PoolG Σ}:
   subG vertex_Σ Σ →
   VertexG Σ.

@@ -13,9 +13,9 @@ Class SavedPredG Σ A :=
   { #[local] saved_pred_G :: AgreeG Σ (A -d> ▶ ∙)
   }.
 
-Definition saved_pred_Σ A := #[
-  agree_Σ (A -d> ▶ ∙)
-].
+Definition saved_pred_Σ A :=
+  #[agree_Σ (A -d> ▶ ∙)
+  ].
 #[global] Instance subG_saved_pred_Σ Σ A :
   subG (saved_pred_Σ A) Σ →
   SavedPredG Σ A.

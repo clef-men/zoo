@@ -33,9 +33,9 @@ Class Bag1G Σ `{zoo_G : !ZooG Σ} :=
   { #[local] bag_1_G_model_G :: TwinsG Σ (leibnizO (gmultiset val))
   }.
 
-Definition bag_1_Σ := #[
-  twins_Σ (leibnizO (gmultiset val))
-].
+Definition bag_1_Σ :=
+  #[twins_Σ (leibnizO (gmultiset val))
+  ].
 #[global] Instance subG_bag_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG bag_1_Σ Σ →
   Bag1G Σ.

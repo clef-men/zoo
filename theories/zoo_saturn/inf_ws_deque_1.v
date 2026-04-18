@@ -66,15 +66,15 @@ Class InfWsDeque1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] inf_ws_deque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙)
   }.
 
-Definition inf_ws_deque_1_Σ := #[
-  inf_array_Σ ;
-  prophet_multi_Σ prophet_identifier ;
-  auth_twins_Σ (leibnizO (list val)) suffix ;
-  twins_Σ (leibnizO (stability * nat * (nat → val))) ;
-  auth_nat_max_Σ ;
-  mono_list_Σ val ;
-  twins_Σ (natO * ▶ ∙)
-].
+Definition inf_ws_deque_1_Σ :=
+  #[inf_array_Σ
+  ; prophet_multi_Σ prophet_identifier
+  ; auth_twins_Σ (leibnizO (list val)) suffix
+  ; twins_Σ (leibnizO (stability * nat * (nat → val)))
+  ; auth_nat_max_Σ
+  ; mono_list_Σ val
+  ; twins_Σ (natO * ▶ ∙)
+  ].
 #[global] Instance subG_inf_ws_deque_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_ws_deque_1_Σ Σ →
   InfWsDeque1G Σ .

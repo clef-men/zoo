@@ -37,11 +37,11 @@ Class Bag2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] bag_2_G_model_G :: TwinsG Σ (leibnizO (gmap val (list val)))
   }.
 
-Definition bag_2_Σ := #[
-  spmc_queue_Σ ;
-  mono_gmap_Σ location val ;
-  twins_Σ (leibnizO (gmap val (list val)))
-].
+Definition bag_2_Σ :=
+  #[spmc_queue_Σ
+  ; mono_gmap_Σ location val
+  ; twins_Σ (leibnizO (gmap val (list val)))
+  ].
 #[global] Instance subG_bag_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG bag_2_Σ Σ →
   Bag2G Σ.

@@ -20,9 +20,9 @@ Class MutexG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] mutex_G :: ExclG Σ unitO
   }.
 
-Definition mutex_Σ := #[
-  excl_Σ unitO
-].
+Definition mutex_Σ :=
+  #[excl_Σ unitO
+  ].
 #[global] Instance subG_mutex_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mutex_Σ Σ →
   MutexG Σ.

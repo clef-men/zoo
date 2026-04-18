@@ -18,10 +18,10 @@ Class SubpredsG Σ A :=
   ; #[local] subpreds_G_saved_pred_G :: SavedPredG Σ A
   }.
 
-Definition subpreds_Σ A := #[
-  auth_dgset_Σ gname ;
-  saved_pred_Σ A
-].
+Definition subpreds_Σ A :=
+  #[auth_dgset_Σ gname
+  ; saved_pred_Σ A
+  ].
 #[global] Instance subG_subpreds_Σ Σ A :
   subG (subpreds_Σ A) Σ →
   SubpredsG Σ A.

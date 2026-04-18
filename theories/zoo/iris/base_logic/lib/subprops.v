@@ -18,9 +18,9 @@ Class SubpropsG Σ :=
   { #[local] subprops_G_subpreds_G :: SubpredsG Σ ()
   }.
 
-Definition subprops_Σ := #[
-  subpreds_Σ ()
-].
+Definition subprops_Σ :=
+  #[subpreds_Σ ()
+  ].
 #[global] Instance subG_subprops_Σ Σ :
   subG subprops_Σ Σ →
   SubpropsG Σ.

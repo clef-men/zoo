@@ -15,9 +15,9 @@ Class MonoGmapG Σ K V `{Countable K} :=
   { #[local] mono_gmap_G_mono_G :: AuthMonoG Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
   }.
 
-Definition mono_gmap_Σ K V `{Countable K} := #[
-  auth_mono_Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
-].
+Definition mono_gmap_Σ K V `{Countable K} :=
+  #[auth_mono_Σ (A := leibnizO (gmap K V)) (subseteq (A := gmap K V))
+  ].
 #[global] Instance subG_mono_gmap_Σ Σ K V `{Countable K} :
   subG (mono_gmap_Σ K V) Σ →
   MonoGmapG Σ K V.

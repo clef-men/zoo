@@ -26,9 +26,9 @@ Class WaiterG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] waiter_G_mutex_G :: MutexG Σ
   }.
 
-Definition waiter_Σ := #[
-  mutex_Σ
-].
+Definition waiter_Σ :=
+  #[mutex_Σ
+  ].
 #[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
   subG waiter_Σ Σ →
   WaiterG Σ.

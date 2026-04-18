@@ -22,10 +22,10 @@ Class MpscFlagG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpsc_flag_G_consumer_G :: ExclG Σ unitO
   }.
 
-Definition mpsc_flag_Σ := #[
-  oneshot_Σ () () ;
-  excl_Σ unitO
-].
+Definition mpsc_flag_Σ :=
+  #[oneshot_Σ () ()
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_mpsc_flag_Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_flag_Σ Σ →
   MpscFlagG Σ.

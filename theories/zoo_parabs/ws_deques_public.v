@@ -27,9 +27,9 @@ Class WsDequesPublicG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] ws_deques_public_G_ws_deque_G :: WsDeque2G Σ
   }.
 
-Definition ws_deques_public_Σ := #[
-  ws_deque_2_Σ
-].
+Definition ws_deques_public_Σ :=
+  #[ws_deque_2_Σ
+  ].
 #[global] Instance subG_ws_deques_public_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_public_Σ Σ →
   WsDequesPublicG Σ.

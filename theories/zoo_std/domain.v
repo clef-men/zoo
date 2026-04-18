@@ -91,10 +91,10 @@ Class DomainG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] domain_G_locals_G :: ghost_mapG Σ nat (option val)
   }.
 
-Definition domain_Σ := #[
-  ivar_2_Σ ;
-  ghost_mapΣ nat (option val)
-].
+Definition domain_Σ :=
+  #[ivar_2_Σ
+  ; ghost_mapΣ nat (option val)
+  ].
 #[global] Instance subG_domain_Σ Σ `{zoo_G : !ZooG Σ} :
   subG domain_Σ Σ →
   DomainG Σ.

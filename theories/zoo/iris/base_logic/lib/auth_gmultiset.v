@@ -16,9 +16,9 @@ Class AuthGmultisetG Σ A `{Countable A} :=
   { #[local] auth_gmultiset_G_inG :: inG Σ (authR (gmultisetUR A))
   }.
 
-Definition auth_gmultiset_Σ A `{Countable A} := #[
-  GFunctor (authR (gmultisetUR  A))
-].
+Definition auth_gmultiset_Σ A `{Countable A} :=
+  #[GFunctor (authR (gmultisetUR  A))
+  ].
 #[global] Instance subG_auth_gmultiset_Σ Σ A `{Countable A} :
   subG (auth_gmultiset_Σ A) Σ →
   AuthGmultisetG Σ A.

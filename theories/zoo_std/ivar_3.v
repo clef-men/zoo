@@ -33,11 +33,11 @@ Class Ivar3G Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} :=
   ; #[local] ivar_3_G_waiters_G :: MonoGmultisetG Σ (val * waiter_name)
   }.
 
-Definition ivar_3_Σ waiter_name `{Countable waiter_name} := #[
-  oneshot_Σ unit val ;
-  subpreds_Σ val ;
-  mono_gmultiset_Σ (val * waiter_name)
-].
+Definition ivar_3_Σ waiter_name `{Countable waiter_name} :=
+  #[oneshot_Σ unit val
+  ; subpreds_Σ val
+  ; mono_gmultiset_Σ (val * waiter_name)
+  ].
 #[global] Instance subG_ivar_3_Σ Σ `{zoo_G : !ZooG Σ} waiter_name `{Countable waiter_name} :
   subG (ivar_3_Σ waiter_name) Σ →
   Ivar3G Σ waiter_name.

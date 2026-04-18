@@ -15,9 +15,9 @@ Class AuthNatMaxG Σ :=
   { #[local] auth_nat_max_G_mono_G :: AuthMonoiG Σ (≤)
   }.
 
-Definition auth_nat_max_Σ := #[
-  auth_monoi_Σ (≤)
-].
+Definition auth_nat_max_Σ :=
+  #[auth_monoi_Σ (≤)
+  ].
 #[global] Instance subG_auth_nat_max_Σ Σ :
   subG auth_nat_max_Σ Σ →
   AuthNatMaxG Σ.

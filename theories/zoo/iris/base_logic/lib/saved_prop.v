@@ -13,9 +13,9 @@ Class SavedPropG Σ :=
   { #[local] saved_prop_G :: AgreeG Σ (▶ ∙)
   }.
 
-Definition saved_prop_Σ := #[
-  agree_Σ (▶ ∙)
-].
+Definition saved_prop_Σ :=
+  #[agree_Σ (▶ ∙)
+  ].
 #[global] Instance subG_saved_prop_Σ Σ :
   subG saved_prop_Σ Σ →
   SavedPropG Σ.

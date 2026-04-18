@@ -49,11 +49,11 @@ Class ZooG₀ Σ :=
   ; #[local] zoo_G₀_counter_G :: MonoListG Σ val
   }.
 
-#[local] Definition zoo_Σ₀ := #[
-  auth_nat_max_Σ ;
-  ghost_list_Σ val ;
-  mono_list_Σ val
-].
+#[local] Definition zoo_Σ₀ :=
+  #[auth_nat_max_Σ
+  ; ghost_list_Σ val
+  ; mono_list_Σ val
+  ].
 #[local] Instance subG_zoo_Σ₀ Σ :
   subG zoo_Σ₀ Σ →
   ZooG₀ Σ.
@@ -69,13 +69,13 @@ Class ZooGpre Σ :=
   ; #[local] zoo_Gpre_G₀ :: ZooG₀ Σ
   }.
 
-Definition zoo_Σ := #[
-  invΣ ;
-  gen_heapΣ location header ;
-  gen_heapΣ location val ;
-  prophet_map_Σ prophet_id (val * val) ;
-  zoo_Σ₀
-].
+Definition zoo_Σ :=
+  #[invΣ
+  ; gen_heapΣ location header
+  ; gen_heapΣ location val
+  ; prophet_map_Σ prophet_id (val * val)
+  ; zoo_Σ₀
+  ].
 #[global] Instance subG_zoo_Σ Σ :
   subG zoo_Σ Σ →
   ZooGpre Σ.

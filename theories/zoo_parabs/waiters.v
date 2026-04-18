@@ -26,10 +26,10 @@ Class WaitersG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] waiters_G_waiter_G :: WaiterG Σ
   }.
 
-Definition waiters_Σ := #[
-  mpmc_queue_1_Σ ;
-  waiter_Σ
-].
+Definition waiters_Σ :=
+  #[mpmc_queue_1_Σ
+  ; waiter_Σ
+  ].
 #[global] Instance subG_ws_hub_Σ Σ `{zoo_G : !ZooG Σ} :
   subG waiters_Σ Σ →
   WaitersG Σ.

@@ -24,9 +24,9 @@ Class MpmcStack2G Σ `{zoo_G : !ZooG Σ} :=
   { #[local] mpmc_stack_2_G_model_G :: TwinsG Σ (leibnizO (option $ list val))
   }.
 
-Definition mpmc_stack_2_Σ := #[
-  twins_Σ (leibnizO (option $ list val))
-].
+Definition mpmc_stack_2_Σ :=
+  #[twins_Σ (leibnizO (option $ list val))
+  ].
 #[global] Instance subG_mpmc_stack_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_stack_2_Σ Σ →
   MpmcStack2G Σ.

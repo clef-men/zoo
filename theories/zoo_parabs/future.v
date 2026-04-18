@@ -30,9 +30,9 @@ Class FutureG Σ `{pool_G : PoolG Σ} :=
   { #[local] future_G_ivar_G :: Ivar4G Σ
   }.
 
-Definition future_Σ := #[
-  ivar_4_Σ
-].
+Definition future_Σ :=
+  #[ivar_4_Σ
+  ].
 #[global] Instance subG_future_Σ Σ `{pool_G : PoolG Σ} :
   subG future_Σ Σ →
   FutureG Σ.

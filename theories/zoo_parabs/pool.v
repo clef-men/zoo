@@ -96,14 +96,14 @@ Class PoolG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] pool_G_consumer_G :: SpscPropG Σ
   }.
 
-Definition pool_Σ := #[
-  domain_Σ ;
-  ws_hub_std_Σ ;
-  saved_prop_Σ ;
-  mono_gmultiset_Σ job ;
-  ghost_list_Σ (gmultiset job) ;
-  spsc_prop_Σ
-].
+Definition pool_Σ :=
+  #[domain_Σ
+  ; ws_hub_std_Σ
+  ; saved_prop_Σ
+  ; mono_gmultiset_Σ job
+  ; ghost_list_Σ (gmultiset job)
+  ; spsc_prop_Σ
+  ].
 #[global] Instance subG_pool_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pool_Σ Σ →
   PoolG Σ.

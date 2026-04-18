@@ -15,9 +15,9 @@ Class TwinsG Σ F :=
   { #[local] twins_G_inG :: inG Σ (twins_R $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition twins_Σ F `{!oFunctorContractive F} := #[
-  GFunctor (twins_RF F)
-].
+Definition twins_Σ F `{!oFunctorContractive F} :=
+  #[GFunctor (twins_RF F)
+  ].
 #[global] Instance subG_twins_Σ Σ F `{!oFunctorContractive F} :
   subG (twins_Σ F) Σ →
   TwinsG Σ F.

@@ -27,11 +27,11 @@ Class MpscWaiterG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpsc_waiter_G_consumer_G :: ExclG Σ unitO
   }.
 
-Definition mpsc_waiter_Σ := #[
-  mutex_Σ ;
-  oneshot_Σ unit unit ;
-  excl_Σ unitO
-].
+Definition mpsc_waiter_Σ :=
+  #[mutex_Σ
+  ; oneshot_Σ unit unit
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_mpsc_waiter_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_waiter_Σ Σ →
   MpscWaiterG Σ .

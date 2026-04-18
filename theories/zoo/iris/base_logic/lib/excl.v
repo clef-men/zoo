@@ -14,9 +14,9 @@ Class ExclG Σ F :=
   { #[local] excl_G_inG :: inG Σ (exclR $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition excl_Σ F `{!oFunctorContractive F} := #[
-  GFunctor (exclRF F)
-].
+Definition excl_Σ F `{!oFunctorContractive F} :=
+  #[GFunctor (exclRF F)
+  ].
 #[global] Instance subG_excl_Σ Σ F `{!oFunctorContractive F} :
   subG (excl_Σ F) Σ →
   ExclG Σ F.

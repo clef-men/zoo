@@ -14,9 +14,9 @@ Class GhostVarG Σ F :=
   { #[local] ghost_var_G_inG :: inG Σ (dfrac_agreeR $ oFunctor_apply F $ iPropO Σ)
   }.
 
-Definition ghost_var_Σ F `{!oFunctorContractive F} := #[
-  GFunctor (dfrac_agreeRF F)
-].
+Definition ghost_var_Σ F `{!oFunctorContractive F} :=
+  #[GFunctor (dfrac_agreeRF F)
+  ].
 #[global] Instance subG_ghost_var_Σ Σ F `{!oFunctorContractive F} :
   subG (ghost_var_Σ F) Σ →
   GhostVarG Σ F.

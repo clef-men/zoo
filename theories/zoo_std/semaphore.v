@@ -32,10 +32,10 @@ Class SemaphoreG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] semaphore_G_tokens_G :: ExclG Σ unitO
   }.
 
-Definition semaphore_Σ := #[
-  mutex_Σ ;
-  excl_Σ unitO
-].
+Definition semaphore_Σ :=
+  #[mutex_Σ
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_semaphore_Σ Σ `{zoo_G : !ZooG Σ} :
   subG semaphore_Σ Σ →
   SemaphoreG Σ.

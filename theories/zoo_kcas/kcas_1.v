@@ -275,17 +275,17 @@ Class Kcas1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] kcas_1_G_owner_G :: ExclG Σ unitO
   }.
 
-Definition kcas_1_Σ := #[
-  twins_Σ val_O ;
-  saved_prop_Σ ;
-  saved_pred_Σ bool ;
-  auth_mono_Σ (A := leibnizO lstatus) lstep ;
-  mono_list_Σ location ;
-  excl_Σ unitO ;
-  ghost_mapΣ gname nat ;
-  excl_Σ unitO ;
-  excl_Σ unitO
-].
+Definition kcas_1_Σ :=
+  #[twins_Σ val_O
+  ; saved_prop_Σ
+  ; saved_pred_Σ bool
+  ; auth_mono_Σ (A := leibnizO lstatus) lstep
+  ; mono_list_Σ location
+  ; excl_Σ unitO
+  ; ghost_mapΣ gname nat
+  ; excl_Σ unitO
+  ; excl_Σ unitO
+  ].
 #[global] Instance subG_kcas_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG kcas_1_Σ Σ →
   Kcas1G Σ.

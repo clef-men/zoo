@@ -32,11 +32,11 @@ Class PoolCounterG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] pool_counter_G_tokens_G :: AuthFracG Σ natUR
   }.
 
-Definition pool_counter_Σ := #[
-  pool_Σ ;
-  cinvΣ ;
-  auth_frac_Σ natUR
-].
+Definition pool_counter_Σ :=
+  #[pool_Σ
+  ; cinvΣ
+  ; auth_frac_Σ natUR
+  ].
 #[global] Instance subG_pool_counter_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pool_counter_Σ Σ →
   PoolCounterG Σ.

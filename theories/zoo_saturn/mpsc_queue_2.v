@@ -29,9 +29,9 @@ Class MpscQueue2G Σ `{zoo_G : !ZooG Σ} :=
   { #[local] mpsc_queue_2_G_twins_G :: TwinsG Σ (leibnizO (list val))
   }.
 
-Definition mpsc_queue_2_Σ := #[
-  twins_Σ (leibnizO (list val))
-].
+Definition mpsc_queue_2_Σ :=
+  #[twins_Σ (leibnizO (list val))
+  ].
 #[global] Instance subG_mpsc_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpsc_queue_2_Σ Σ →
   MpscQueue2G Σ.

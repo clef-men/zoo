@@ -33,10 +33,10 @@ Class WsDeque2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_deque_2_G_model_G :: AuthTwinsG Σ (leibnizO (list val)) suffix
   }.
 
-Definition ws_deque_2_Σ := #[
-  ws_deque_1_Σ ;
-  auth_twins_Σ (leibnizO (list val)) suffix
-].
+Definition ws_deque_2_Σ :=
+  #[ws_deque_1_Σ
+  ; auth_twins_Σ (leibnizO (list val)) suffix
+  ].
 #[global] Instance subG_ws_deque_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deque_2_Σ Σ →
   WsDeque2G Σ .

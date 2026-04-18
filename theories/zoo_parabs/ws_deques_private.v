@@ -45,13 +45,13 @@ Class WsDequesPrivateG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_deques_private_G_channel_state_G :: OneshotG Σ () (option val)
   }.
 
-Definition ws_deques_private_Σ := #[
-  ghost_list_Σ (list val) ;
-  twins_Σ (leibnizO status) ;
-  ghost_pred_Σ (option val) ;
-  ghost_var_Σ (leibnizO gname) ;
-  oneshot_Σ () (option val)
-].
+Definition ws_deques_private_Σ :=
+  #[ghost_list_Σ (list val)
+  ; twins_Σ (leibnizO status)
+  ; ghost_pred_Σ (option val)
+  ; ghost_var_Σ (leibnizO gname)
+  ; oneshot_Σ () (option val)
+  ].
 #[global] Instance subG_ws_deques_private_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deques_private_Σ Σ →
   WsDequesPrivateG Σ.

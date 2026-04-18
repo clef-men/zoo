@@ -33,11 +33,11 @@ Class AlgoG Σ `{pool_G : PoolG Σ} :=
   ; #[local] algo_G_find_G :: GhostVarG Σ unitO
   }.
 
-Definition algo_Σ := #[
-  future_Σ ;
-  mvar_Σ ;
-  ghost_var_Σ unitO
-].
+Definition algo_Σ :=
+  #[future_Σ
+  ; mvar_Σ
+  ; ghost_var_Σ unitO
+  ].
 #[global] Instance subG_algo_Σ Σ `{pool_G : PoolG Σ} :
   subG algo_Σ Σ →
   AlgoG Σ.

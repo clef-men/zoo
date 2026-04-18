@@ -41,12 +41,12 @@ Class WsHubFifoG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_hub_fifo_G_emptiness_G :: GhostListG Σ emptiness
   }.
 
-Definition ws_hub_fifo_Σ := #[
-  mpmc_queue_1_Σ ;
-  waiters_Σ ;
-  excl_Σ unitO ;
-  ghost_list_Σ emptiness
-].
+Definition ws_hub_fifo_Σ :=
+  #[mpmc_queue_1_Σ
+  ; waiters_Σ
+  ; excl_Σ unitO
+  ; ghost_list_Σ emptiness
+  ].
 #[global] Instance subG_ws_hub_fifo_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_fifo_Σ Σ →
   WsHubFifoG Σ.

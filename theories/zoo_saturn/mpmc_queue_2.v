@@ -140,11 +140,11 @@ Class MpmcQueue2G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] mpmc_queue_2_G_front_G :: AuthNatMaxG Σ
   }.
 
-Definition mpmc_queue_2_Σ := #[
-  twins_Σ (leibnizO (list val)) ;
-  auth_mono_Σ (A := leibnizO state) step ;
-  auth_nat_max_Σ
-].
+Definition mpmc_queue_2_Σ :=
+  #[twins_Σ (leibnizO (list val))
+  ; auth_mono_Σ (A := leibnizO state) step
+  ; auth_nat_max_Σ
+  ].
 #[global] Instance subG_mpmc_queue_2_Σ Σ `{zoo_G : !ZooG Σ} :
   subG mpmc_queue_2_Σ Σ →
   MpmcQueue2G Σ.

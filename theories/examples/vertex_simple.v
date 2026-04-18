@@ -26,12 +26,12 @@ Class VertexSimpleG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] vertex_simple_G_saved_prop_G :: SavedPropG Σ
   }.
 
-Definition vertex_simple_Σ := #[
-  pool_Σ ;
-  vertex_Σ ;
-  ivar_4_Σ ;
-  saved_prop_Σ
-].
+Definition vertex_simple_Σ :=
+  #[pool_Σ
+  ; vertex_Σ
+  ; ivar_4_Σ
+  ; saved_prop_Σ
+  ].
 #[global] Instance subG_vertex_simple_Σ Σ `{zoo_G : !ZooG Σ} :
   subG vertex_simple_Σ Σ →
   VertexSimpleG Σ.

@@ -42,10 +42,10 @@ Class WsHubStdG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_hub_std_G_waiters_G :: WaitersG Σ
   }.
 
-Definition ws_hub_std_Σ := #[
-  ws_deques_public_Σ ;
-  waiters_Σ
-].
+Definition ws_hub_std_Σ :=
+  #[ws_deques_public_Σ
+  ; waiters_Σ
+  ].
 #[global] Instance subG_ws_hub_std_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_hub_std_Σ Σ →
   WsHubStdG Σ.

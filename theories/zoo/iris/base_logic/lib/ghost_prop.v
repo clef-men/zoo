@@ -13,9 +13,9 @@ Class GhostPropG Σ :=
   { #[local] ghost_prop_G_ghost_var_G :: GhostVarG Σ (▶ ∙)
   }.
 
-Definition ghost_prop_Σ := #[
-  ghost_var_Σ (▶ ∙)
-].
+Definition ghost_prop_Σ :=
+  #[ghost_var_Σ (▶ ∙)
+  ].
 #[global] Instance subG_ghost_prop_Σ Σ :
   subG ghost_prop_Σ Σ →
   GhostPropG Σ.

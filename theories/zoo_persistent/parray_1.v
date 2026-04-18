@@ -29,9 +29,9 @@ Class Parray1G Σ `{zoo_G : !ZooG Σ} :=
   { parray_1_G_nodes_G : ghost_mapG Σ location (list val)
   }.
 
-Definition parray_1_Σ := #[
-  ghost_mapΣ location (list val)
-].
+Definition parray_1_Σ :=
+  #[ghost_mapΣ location (list val)
+  ].
 #[global] Instance subG_parray_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG parray_1_Σ Σ →
   Parray1G Σ.

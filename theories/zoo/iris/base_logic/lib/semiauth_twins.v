@@ -17,10 +17,10 @@ Class SemiauthTwinsG Σ (A : ofe) (R : relation A) F :=
   ; #[local] semiauth_twins_G_right_twins_G :: TwinsG Σ F
   }.
 
-Definition semiauth_twins_Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} := #[
-  auth_twins_Σ A R ;
-  twins_Σ F
-].
+Definition semiauth_twins_Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} :=
+  #[auth_twins_Σ A R
+  ; twins_Σ F
+  ].
 #[global] Instance subG_semiauth_twins_Σ Σ (A : ofe) (R : relation A) F `{!oFunctorContractive F} :
   subG (semiauth_twins_Σ A R F) Σ →
   SemiauthTwinsG Σ A R F.

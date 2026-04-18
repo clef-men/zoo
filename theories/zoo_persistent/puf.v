@@ -25,9 +25,9 @@ Class PufG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] puf_G_pstore_G :: Pstore2G Σ
   }.
 
-Definition puf_Σ := #[
-  pstore_2_Σ
-].
+Definition puf_Σ :=
+  #[pstore_2_Σ
+  ].
 #[global] Instance subG_puf_Σ Σ `{zoo_G : !ZooG Σ} :
   subG puf_Σ Σ →
   PufG Σ.

@@ -15,9 +15,9 @@ Class MonoGsetG Σ A `{Countable A} :=
   { #[local] mono_gset_G_mono_G :: AuthMonoG Σ (A := leibnizO (gset A)) subseteq
   }.
 
-Definition mono_gset_Σ A `{Countable A} := #[
-  auth_mono_Σ (A := leibnizO (gset A)) subseteq
-].
+Definition mono_gset_Σ A `{Countable A} :=
+  #[auth_mono_Σ (A := leibnizO (gset A)) subseteq
+  ].
 #[global] Instance subG_mono_gset_Σ Σ V `{Countable V} :
   subG (mono_gset_Σ V) Σ →
   MonoGsetG Σ V.

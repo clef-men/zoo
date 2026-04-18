@@ -16,9 +16,9 @@ Class AuthNatMinG Σ :=
   { #[local] auth_nat_min_G_mono_G :: AuthMonoG Σ ge
   }.
 
-Definition auth_nat_min_Σ := #[
-  auth_mono_Σ ge
-].
+Definition auth_nat_min_Σ :=
+  #[auth_mono_Σ ge
+  ].
 #[global] Instance subG_auth_nat_min_Σ Σ :
   subG auth_nat_min_Σ Σ →
   AuthNatMinG Σ.

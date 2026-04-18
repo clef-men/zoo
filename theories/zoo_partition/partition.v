@@ -55,9 +55,9 @@ Class PartitionG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] partition_G_elts_G :: MonoGsetG Σ location
   }.
 
-Definition partition_Σ := #[
-  mono_gset_Σ location
-].
+Definition partition_Σ :=
+  #[mono_gset_Σ location
+  ].
 #[global] Instance subG_partition_Σ Σ `{zoo_G : !ZooG Σ} :
   subG partition_Σ Σ →
   PartitionG Σ.

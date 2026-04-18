@@ -35,10 +35,10 @@ Class InfArrayG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] inf_array_G_model_G :: TwinsG Σ (nat -d> val_O)
   }.
 
-Definition inf_array_Σ := #[
-  mutex_Σ ;
-  twins_Σ (nat -d> val_O)
-].
+Definition inf_array_Σ :=
+  #[mutex_Σ
+  ; twins_Σ (nat -d> val_O)
+  ].
 #[global] Instance subG_inf_array_Σ Σ `{zoo_G : !ZooG Σ} :
   subG inf_array_Σ Σ →
   InfArrayG Σ .

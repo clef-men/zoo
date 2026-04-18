@@ -28,12 +28,12 @@ Class VertexFibonacciG Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] vertex_fibonacci_G_saved_prop_G :: SavedPropG Σ
   }.
 
-Definition vertex_fibonacci_Σ := #[
-  pool_Σ ;
-  vertex_Σ ;
-  ivar_4_Σ ;
-  saved_prop_Σ
-].
+Definition vertex_fibonacci_Σ :=
+  #[pool_Σ
+  ; vertex_Σ
+  ; ivar_4_Σ
+  ; saved_prop_Σ
+  ].
 #[global] Instance subG_vertex_fibonacci_Σ Σ `{zoo_G : !ZooG Σ} :
   subG vertex_fibonacci_Σ Σ →
   VertexFibonacciG Σ.

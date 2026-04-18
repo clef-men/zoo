@@ -65,14 +65,14 @@ Class WsBdeque1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_bdeque_1_G_winner_G :: TwinsG Σ (natO * ▶ ∙)
   }.
 
-Definition ws_bdeque_1_Σ := #[
-  prophet_multi_Σ prophet_identifier ;
-  auth_twins_Σ (leibnizO (list val)) suffix ;
-  twins_Σ (leibnizO (stability * nat)) ;
-  auth_nat_max_Σ ;
-  mono_list_Σ val ;
-  twins_Σ (natO * ▶ ∙)
-].
+Definition ws_bdeque_1_Σ :=
+  #[prophet_multi_Σ prophet_identifier
+  ; auth_twins_Σ (leibnizO (list val)) suffix
+  ; twins_Σ (leibnizO (stability * nat))
+  ; auth_nat_max_Σ
+  ; mono_list_Σ val
+  ; twins_Σ (natO * ▶ ∙)
+  ].
 #[global] Instance subG_ws_bdeque_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_bdeque_1_Σ Σ →
   WsBdeque1G Σ .

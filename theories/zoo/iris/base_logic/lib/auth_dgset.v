@@ -16,9 +16,9 @@ Class AuthDgsetG Σ A `{Countable A} :=
   { #[local] auth_dgset_G_inG :: inG Σ (authR (gset_disjUR A))
   }.
 
-Definition auth_dgset_Σ A `{Countable A} := #[
-  GFunctor (authR (gset_disjUR A))
-].
+Definition auth_dgset_Σ A `{Countable A} :=
+  #[GFunctor (authR (gset_disjUR A))
+  ].
 #[global] Instance subG_auth_dgset_Σ Σ A `{Countable A} :
   subG (auth_dgset_Σ A) Σ →
   AuthDgsetG Σ A.

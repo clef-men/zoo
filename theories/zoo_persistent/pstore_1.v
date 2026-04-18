@@ -557,9 +557,9 @@ Class Pstore1G Σ `{zoo_G : !ZooG Σ} :=
   { #[local] pstore_1_G_set_G :: MonoGsetG Σ (location * gmap location val)%type
   }.
 
-Definition pstore_1_Σ := #[
-  mono_gset_Σ (location * gmap location val)%type
-].
+Definition pstore_1_Σ :=
+  #[mono_gset_Σ (location * gmap location val)%type
+  ].
 #[global] Instance subG_pstore_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG pstore_1_Σ Σ →
   Pstore1G Σ.

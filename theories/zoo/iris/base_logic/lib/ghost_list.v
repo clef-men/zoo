@@ -18,9 +18,9 @@ Class GhostListG Σ A :=
   { #[local] ghost_list_G_map_G :: ghost_mapG Σ nat A
   }.
 
-Definition ghost_list_Σ A := #[
-  ghost_mapΣ nat A
-].
+Definition ghost_list_Σ A :=
+  #[ghost_mapΣ nat A
+  ].
 #[global] Instance subG_ghost_list_Σ Σ A :
   subG (ghost_list_Σ A) Σ →
   GhostListG Σ A.

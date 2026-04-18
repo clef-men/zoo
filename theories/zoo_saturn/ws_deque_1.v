@@ -71,15 +71,15 @@ Class WsDeque1G Σ `{zoo_G : !ZooG Σ} :=
   ; #[local] ws_deque_1_G_datas_G :: MonoGmultisetG Σ val
   }.
 
-Definition ws_deque_1_Σ := #[
-  prophet_multi_Σ prophet_identifier ;
-  auth_twins_Σ (leibnizO (list val)) suffix ;
-  twins_Σ (leibnizO (stability * nat * val * nat)) ;
-  auth_nat_max_Σ ;
-  mono_list_Σ val ;
-  twins_Σ (natO * leibnizO (option val) * ▶ ∙) ;
-  mono_gmultiset_Σ val
-].
+Definition ws_deque_1_Σ :=
+  #[prophet_multi_Σ prophet_identifier
+  ; auth_twins_Σ (leibnizO (list val)) suffix
+  ; twins_Σ (leibnizO (stability * nat * val * nat))
+  ; auth_nat_max_Σ
+  ; mono_list_Σ val
+  ; twins_Σ (natO * leibnizO (option val) * ▶ ∙)
+  ; mono_gmultiset_Σ val
+  ].
 #[global] Instance subG_ws_deque_1_Σ Σ `{zoo_G : !ZooG Σ} :
   subG ws_deque_1_Σ Σ →
   WsDeque1G Σ .
