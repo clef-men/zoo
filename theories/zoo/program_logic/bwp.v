@@ -135,7 +135,7 @@ Notation "@ E" :=
 
 Notation "'BWP' e ∶ tid E {{ Φ } }" := (
   bwp e%E tid E Φ%I
-)(at level 20,
+)(at level 0,
   e at level 200,
   tid at level 200,
   E custom wp_mask at level 200,
@@ -144,7 +144,7 @@ Notation "'BWP' e ∶ tid E {{ Φ } }" := (
 ) : bi_scope.
 Notation "'BWP' e ∶ tid E {{ v , Q } }" := (
   bwp e%E tid E (λ v, Q%I)
-)(at level 20,
+)(at level 0,
   e at level 200,
   tid at level 200,
   E custom wp_mask at level 200,
