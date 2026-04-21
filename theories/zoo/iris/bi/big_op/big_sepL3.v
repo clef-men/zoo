@@ -27,7 +27,7 @@ Fixpoint big_sepL3 {PROP : bi} `(Φ : nat → A1 → A2 → A3 → PROP) l1 l2 l
 Notation "'[∗' 'list]' k ↦ x1 ; x2 ; x3 ∈ l1 ; l2 ; l3 , P" := (
   big_sepL3 (λ k x1 x2 x3, P%I) l1 l2 l3
 )(at level 200,
-  l1, l2, l3 at level 10,
+  l1, l2, l3 at level 200,
   k binder,
   x1 binder,
   x2 binder,
@@ -38,7 +38,7 @@ Notation "'[∗' 'list]' k ↦ x1 ; x2 ; x3 ∈ l1 ; l2 ; l3 , P" := (
 Notation "'[∗' 'list]' x1 ; x2 ; x3 ∈ l1 ; l2 ; l3 , P" := (
   big_sepL3 (λ _ x1 x2 x3, P%I) l1 l2 l3
 )(at level 200,
-  l1, l2, l3 at level 10,
+  l1, l2, l3 at level 200,
   x1 binder,
   x2 binder,
   x3 binder,
