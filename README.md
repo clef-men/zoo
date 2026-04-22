@@ -1,3 +1,5 @@
+# Zoo [[rocqdoc](https://clef-men.github.io/doc/zoo/toc.html)]
+
 ## Synopsis
 
 This project is part of the [Iris Masterplan](https://julesjacobs.com/slides/iris-masterplan.pdf).
