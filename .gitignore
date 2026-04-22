@@ -4,6 +4,8 @@ Makefile.rocq.conf
 _opam
 _build/
 
+html/
+
 # Vim
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
