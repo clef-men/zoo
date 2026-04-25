@@ -540,7 +540,7 @@ Notation "()" :=
 Notation "[ ] => e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "__list__" 0)
+        (in_type "@list" 0)
         (@nil binder)
         BAnon
     )
@@ -552,7 +552,7 @@ Notation "[ ] => e" := (
 Notation "[ ] 'as' x => e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "__list__" 0)
+        (in_type "@list" 0)
         (@nil binder)
         (BNamed x%string)
     )
@@ -565,7 +565,7 @@ Notation "[ ] 'as' x => e" := (
 Notation "x1 :: x2 => e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "__list__" 1)
+        (in_type "@list" 1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         BAnon
     )
@@ -579,7 +579,7 @@ Notation "x1 :: x2 => e" := (
 Notation "x1 :: x2 'as' y => e" := (
   @pair pattern expr
     ( Build_pattern
-        (in_type "__list__" 1)
+        (in_type "@list" 1)
         (@cons binder x1%binder (@cons binder x2%binder (@nil binder)))
         (BNamed y%string)
     )
@@ -848,7 +848,7 @@ Notation "l .[ fld ]" := (
 ) : stdpp_scope.
 Notation "v .[ fld ]" := (
   Val
-    ( ValBlock Nongenerative (in_type "__atomic_loc__" 0)
+    ( ValBlock Nongenerative (in_type "@atomic_loc" 0)
         ( @cons val v%V
             ( @cons val (ValInt (Z.of_nat fld))
                 (@nil val)
@@ -864,7 +864,7 @@ Notation "v .[ fld ]" := (
 Notation "e .[ fld ]" := (
   Block
     ImmutableNongenerative
-    (in_type "__atomic_loc__" 0)
+    (in_type "@atomic_loc" 0)
     ( @cons expr e%E
         ( @cons expr (Val (ValInt (Z.of_nat fld)))
             (@nil expr)
@@ -876,7 +876,7 @@ Notation "e .[ fld ]" := (
   format "e .[ fld ]"
 ) : expr_scope.
 Notation "v .[ fld ]" := (
-  ValBlock Nongenerative (in_type "__atomic_loc__" 0)
+  ValBlock Nongenerative (in_type "@atomic_loc" 0)
     ( @cons val v%V
         ( @cons val (ValInt (Z.of_nat fld))
             (@nil val)
@@ -889,21 +889,21 @@ Notation "v .[ fld ]" := (
 ) : val_scope.
 
 Notation "'contents'" := (
-  in_type "__ref__" 0
+  in_type "@ref" 0
 )(in custom zoo_field
 ).
 Notation "'ref' e" := (
-  Block Mutable (in_type "__ref__" 0) (@cons expr e%E (@nil expr))
+  Block Mutable (in_type "@ref" 0) (@cons expr e%E (@nil expr))
 )(at level 10
 ) : expr_scope.
 Notation "! e" := (
-  Load e%E (Val (ValInt (Z.of_nat (in_type "__ref__" 0))))
+  Load e%E (Val (ValInt (Z.of_nat (in_type "@ref" 0))))
 )(at level 9,
   right associativity,
   format "! e"
 ) : expr_scope.
 Notation "e1 <- e2" := (
-  Store e1%E (Val (ValInt (Z.of_nat (in_type "__ref__" 0)))) e2%E
+  Store e1%E (Val (ValInt (Z.of_nat (in_type "@ref" 0)))) e2%E
 )(at level 80,
   format "'[hv' '[hv' '[' e1 ']'  '/  ' <-  ']' '/  ' '[' e2 ']' ']'"
 ) : expr_scope.
@@ -918,15 +918,15 @@ Notation "'Some'" := (
 ).
 
 Notation "[ ]" := (
-  Val (ValBlock Nongenerative (in_type "__list__" 0) (@nil val))
+  Val (ValBlock Nongenerative (in_type "@list" 0) (@nil val))
 )(format "[ ]"
 ) : expr_scope.
 Notation "[ ]" := (
-  ValBlock Nongenerative (in_type "__list__" 0) (@nil val)
+  ValBlock Nongenerative (in_type "@list" 0) (@nil val)
 )(format "[ ]"
 ) : val_scope.
 Notation "e1 :: e2" := (
-  Block ImmutableNongenerative (in_type "__list__" 1)
+  Block ImmutableNongenerative (in_type "@list" 1)
     ( @cons expr e1%E
         ( @cons expr e2%E
             (@nil expr)
@@ -937,7 +937,7 @@ Notation "e1 :: e2" := (
   format "e1  ::  e2"
 ) : expr_scope.
 Notation "v1 :: v2" := (
-  ValBlock Nongenerative (in_type "__list__" 1)
+  ValBlock Nongenerative (in_type "@list" 1)
     ( @cons val v1%V
         ( @cons val v2%V
             (@nil val)

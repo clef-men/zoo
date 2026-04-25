@@ -215,7 +215,7 @@ Notation "l ↦∗-" :=
 ) : bi_scope.
 
 Notation "l ↦ᵣ dq v" := (
-  pointsto (location_add l (Z.of_nat (in_type "__ref__" 0))) dq v%V
+  pointsto (location_add l (Z.of_nat (in_type "@ref" 0))) dq v%V
 )(at level 20,
   dq custom dfrac at level 1,
   format "l  ↦ᵣ dq  v"
