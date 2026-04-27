@@ -14,101 +14,101 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition pool_max_round_noyield : val :=
+Definition pool٠max_round_noyield : val :=
   1024.
 
-Definition pool_max_round_yield : val :=
+Definition pool٠max_round_yield : val :=
   32.
 
-Definition pool_context : val :=
+Definition pool٠context : val :=
   fun: "sz" "hub" "id" =>
     ("sz", "hub", "id").
 
-Definition pool_context_main : val :=
+Definition pool٠context_main : val :=
   fun: "t" =>
-    pool_context "t".{size} "t".{hub} 0.
+    pool٠context "t".{size} "t".{hub} 0.
 
-Definition pool_execute : val :=
+Definition pool٠execute : val :=
   fun: "ctx" "job" =>
     "job" "ctx".
 
-Definition pool_worker : val :=
+Definition pool٠worker : val :=
   rec: "worker" "ctx" =>
     match:
-      ws_hub_std_pop_steal
+      ws_hub_std٠pop_steal
         "ctx".<context_hub>
         "ctx".<context_id>
-        pool_max_round_noyield
-        pool_max_round_yield
+        pool٠max_round_noyield
+        pool٠max_round_yield
     with
     | None =>
         ()
     | Some "job" =>
-        pool_execute "ctx" "job" ;;
+        pool٠execute "ctx" "job" ;;
         "worker" "ctx"
     end.
 
-Definition pool_create : val :=
+Definition pool٠create : val :=
   fun: "sz" =>
-    let: "hub" := ws_hub_std_create ("sz" + 1) in
-    ws_hub_std_block "hub" 0 ;;
+    let: "hub" := ws_hub_std٠create ("sz" + 1) in
+    ws_hub_std٠block "hub" 0 ;;
     let: "domains" :=
-      array_unsafe_initi
+      array٠unsafe_initi
         "sz"
         (fun: "i" =>
-           domain_spawn
-             (fun: <> => pool_worker (pool_context "sz" "hub" ("i" + 1))))
+           domain٠spawn
+             (fun: <> => pool٠worker (pool٠context "sz" "hub" ("i" + 1))))
     in
     { "sz", "hub", "domains", () }.
 
-Definition pool_run_on : val :=
+Definition pool٠run_on : val :=
   fun: "t" "task" =>
-    ws_hub_std_unblock "t".{hub} 0 ;;
-    let: "res" := pool_execute (pool_context_main "t") "task" in
-    ws_hub_std_block "t".{hub} 0 ;;
+    ws_hub_std٠unblock "t".{hub} 0 ;;
+    let: "res" := pool٠execute (pool٠context_main "t") "task" in
+    ws_hub_std٠block "t".{hub} 0 ;;
     "res".
 
-Definition pool_close : val :=
+Definition pool٠close : val :=
   fun: "t" =>
-    ws_hub_std_close "t".{hub} ;;
-    ws_hub_std_unblock "t".{hub} 0 ;;
-    pool_worker (pool_context_main "t") ;;
-    array_iter domain_join "t".{domains}.
+    ws_hub_std٠close "t".{hub} ;;
+    ws_hub_std٠unblock "t".{hub} 0 ;;
+    pool٠worker (pool٠context_main "t") ;;
+    array٠iter domain٠join "t".{domains}.
 
-Definition pool_run : val :=
+Definition pool٠run : val :=
   fun: "num_worker" "task" =>
-    let: "t" := pool_create "num_worker" in
-    let: "res" := pool_run_on "t" "task" in
-    pool_close "t" ;;
+    let: "t" := pool٠create "num_worker" in
+    let: "res" := pool٠run_on "t" "task" in
+    pool٠close "t" ;;
     "res".
 
-Definition pool_size : val :=
+Definition pool٠size : val :=
   fun: "ctx" =>
     "ctx".<context_size>.
 
-Definition pool_async : val :=
+Definition pool٠async : val :=
   fun: "ctx" "task" =>
-    ws_hub_std_push "ctx".<context_hub> "ctx".<context_id> "task".
+    ws_hub_std٠push "ctx".<context_hub> "ctx".<context_id> "task".
 
-Definition pool_wait₀ : val :=
+Definition pool٠wait₀ : val :=
   rec: "wait" "ctx" "notification" "pred" =>
     match:
-      ws_hub_std_pop_steal_until
+      ws_hub_std٠pop_steal_until
         "ctx".<context_hub>
         "ctx".<context_id>
-        pool_max_round_noyield
-        pool_max_round_yield
+        pool٠max_round_noyield
+        pool٠max_round_yield
         "notification"
         "pred"
     with
     | None =>
         ()
     | Some "job" =>
-        pool_execute "ctx" "job" ;;
+        pool٠execute "ctx" "job" ;;
         "wait" "ctx" "notification" "pred"
     end.
 
-Definition pool_wait : val :=
+Definition pool٠wait : val :=
   fun: "ctx" "notification" "pred" =>
     let: "notification_registered" := ref false in
     let: "notification" "notify" :=
@@ -117,13 +117,13 @@ Definition pool_wait : val :=
         "notification" "notify"
       )
     in
-    pool_wait₀ "ctx" "notification" "pred".
+    pool٠wait₀ "ctx" "notification" "pred".
 
-Definition pool_wait_ivar : val :=
+Definition pool٠wait_ivar : val :=
   fun: "ctx" "ivar" =>
-    pool_wait
+    pool٠wait
       "ctx"
       (fun: "notify" =>
-         ivar_4_wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
+         ivar_4٠wait "ivar" (fun: "_ctx" "_v" => "notify" ()) ;;
          ())
-      (fun: <> => ivar_4_is_set "ivar").
+      (fun: <> => ivar_4٠is_set "ivar").

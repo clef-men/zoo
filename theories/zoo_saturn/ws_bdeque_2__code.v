@@ -10,25 +10,25 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition ws_bdeque_2_create : val :=
-  ws_bdeque_1_create.
+Definition ws_bdeque_2٠create : val :=
+  ws_bdeque_1٠create.
 
-Definition ws_bdeque_2_capacity : val :=
-  ws_bdeque_1_capacity.
+Definition ws_bdeque_2٠capacity : val :=
+  ws_bdeque_1٠capacity.
 
-Definition ws_bdeque_2_size : val :=
-  ws_bdeque_1_size.
+Definition ws_bdeque_2٠size : val :=
+  ws_bdeque_1٠size.
 
-Definition ws_bdeque_2_is_empty : val :=
-  ws_bdeque_1_is_empty.
+Definition ws_bdeque_2٠is_empty : val :=
+  ws_bdeque_1٠is_empty.
 
-Definition ws_bdeque_2_push : val :=
+Definition ws_bdeque_2٠push : val :=
   fun: "t" "v" =>
-    ws_bdeque_1_push "t" (ref "v").
+    ws_bdeque_1٠push "t" (ref "v").
 
-Definition ws_bdeque_2_steal : val :=
+Definition ws_bdeque_2٠steal : val :=
   fun: "t" =>
-    match: ws_bdeque_1_steal "t" with
+    match: ws_bdeque_1٠steal "t" with
     | None =>
         §None
     | Some "slot" =>
@@ -37,9 +37,9 @@ Definition ws_bdeque_2_steal : val :=
         ‘Some( "v" )
     end.
 
-Definition ws_bdeque_2_pop : val :=
+Definition ws_bdeque_2٠pop : val :=
   fun: "t" =>
-    match: ws_bdeque_1_pop "t" with
+    match: ws_bdeque_1٠pop "t" with
     | None =>
         §None
     | Some "slot" =>

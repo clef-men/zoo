@@ -146,12 +146,12 @@ Section ws_deques_public_G.
     iApply (ws_deque_2_owner_model with "Hqueue2_owner Hqueue2_model").
   Qed.
 
-  Lemma ws_deques_public_create𑁒spec ι sz :
+  Lemma ws_deques_public٠create𑁒spec ι sz :
     (0 ≤ sz)%Z →
     {{{
       True
     }}}
-      ws_deques_public_create #sz
+      ws_deques_public٠create #sz
     {{{
       t
     , RET t;
@@ -177,9 +177,9 @@ Section ws_deques_public_G.
       )
     )%I).
     iApply wp_fupd.
-    wp_apply+ (array_unsafe_init𑁒spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
+    wp_apply+ (array٠unsafe_init𑁒spec Ψ) as (t queues) "(%Hqueues_length & Hqueues & (Hinv & Hmodel & Howner))"; first done.
     { iSplit; iSteps.
-      wp_apply (ws_deque_2_create𑁒spec with "[//]").
+      wp_apply (ws_deque_2٠create𑁒spec with "[//]").
       rewrite /Ψ. setoid_rewrite big_sepL_snoc. iSteps.
     }
     iMod (array_model_persist with "Hqueues") as "#Hqueues".
@@ -192,27 +192,27 @@ Section ws_deques_public_G.
       iSteps.
   Qed.
 
-  Lemma ws_deques_public_size𑁒spec t ι sz :
+  Lemma ws_deques_public٠size𑁒spec t ι sz :
     {{{
       ws_deques_public_inv t ι sz
     }}}
-      ws_deques_public_size t
+      ws_deques_public٠size t
     {{{
       RET #sz;
       True
     }}}.
   Proof.
     iSteps.
-    wp_apply array_size𑁒spec; iSteps.
+    wp_apply array٠size𑁒spec; iSteps.
   Qed.
 
-  Lemma ws_deques_public_block𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠block𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_deques_public_inv t ι sz ∗
       ws_deques_public_owner t i_ Nonblocked ws
     }}}
-      ws_deques_public_block t #i
+      ws_deques_public٠block t #i
     {{{
       RET ();
       ws_deques_public_owner t i_ Blocked ws
@@ -221,13 +221,13 @@ Section ws_deques_public_G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public_unblock𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠unblock𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     {{{
       ws_deques_public_inv t ι sz ∗
       ws_deques_public_owner t i_ Blocked ws
     }}}
-      ws_deques_public_unblock t #i
+      ws_deques_public٠unblock t #i
     {{{
       RET ();
       ws_deques_public_owner t i_ Nonblocked ws
@@ -236,7 +236,7 @@ Section ws_deques_public_G.
     iSteps.
   Qed.
 
-  Lemma ws_deques_public_push𑁒spec t ι sz i i_ ws v :
+  Lemma ws_deques_public٠push𑁒spec t ι sz i i_ ws v :
     i = ⁺i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
@@ -244,7 +244,7 @@ Section ws_deques_public_G.
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_push t #i v @ ↑ι
+      ws_deques_public٠push t #i v @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! i_ = Some vs⌝ ∗
@@ -258,10 +258,10 @@ Section ws_deques_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp_rec.
-    wp_apply+ (array_unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2_push𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
+    awp_apply+ (ws_deque_2٠push𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -277,7 +277,7 @@ Section ws_deques_public_G.
       rewrite list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public_pop𑁒spec t ι sz i i_ ws :
+  Lemma ws_deques_public٠pop𑁒spec t ι sz i i_ ws :
     i = ⁺i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
@@ -285,7 +285,7 @@ Section ws_deques_public_G.
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_pop t #i @ ↑ι
+      ws_deques_public٠pop t #i @ ↑ι
     <<<
       ∃∃ o ws',
       match o with
@@ -308,10 +308,10 @@ Section ws_deques_public_G.
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
 
     wp_rec.
-    wp_apply+ (array_unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
+    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done | lia |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2_pop𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
+    awp_apply+ (ws_deque_2٠pop𑁒spec with "[$Hqueue_inv $Hqueue_owner]").
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -335,7 +335,7 @@ Section ws_deques_public_G.
         rewrite !list_insert_id //. iSteps.
   Qed.
 
-  Lemma ws_deques_public_steal_to𑁒spec t ι (sz : nat) i i_ ws j :
+  Lemma ws_deques_public٠steal_to𑁒spec t ι (sz : nat) i i_ ws j :
     i = ⁺i_ →
     (0 ≤ j < sz)%Z →
     <<<
@@ -344,7 +344,7 @@ Section ws_deques_public_G.
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_steal_to t #i #j @ ↑ι
+      ws_deques_public٠steal_to t #i #j @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -363,10 +363,10 @@ Section ws_deques_public_G.
 
     wp_rec.
     destruct (lookup_lt_is_Some_2 queues ₊j) as (queue & Hqueue_lookup); first lia.
-    wp_apply+ (array_unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done.. |].
+    wp_apply+ (array٠unsafe_get𑁒spec with "Hqueues") as "_"; [lia | done.. |].
 
     iDestruct (big_sepL_lookup with "Hqueues_inv") as "#Hqueue_inv"; first done.
-    awp_apply+ (ws_deque_2_steal𑁒spec with "Hqueue_inv") without "Howner".
+    awp_apply+ (ws_deque_2٠steal𑁒spec with "Hqueue_inv") without "Howner".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)".
     iDestruct (array_model_agree with "Hqueues Hqueues_") as %<-. iClear "Hqueues_".
     iDestruct (big_sepL2_lookup_Some_l with "Hqueues_model") as %(vs & Hvss_lookup); first done.
@@ -396,7 +396,7 @@ End ws_deques_public_G.
 Section ws_deques_public_G.
   Context `{ws_deques_public_G : WsDequesPublicG Σ}.
 
-  #[local] Lemma ws_deques_public_steal_as₀𑁒spec t ι (sz : nat) i i_ ws round (n : nat) :
+  #[local] Lemma ws_deques_public٠steal_as₀𑁒spec t ι (sz : nat) i i_ ws round (n : nat) :
     i = ⁺i_ →
     <<<
       ws_deques_public_inv t ι sz ∗
@@ -405,7 +405,7 @@ Section ws_deques_public_G.
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_steal_as₀ t #sz #i round #n @ ↑ι
+      ws_deques_public٠steal_as₀ t #sz #i round #n @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -434,13 +434,13 @@ Section ws_deques_public_G.
     - iMod "HΦ" as "(%vss & Hmodel & _ & HΦ)".
       iApply ("HΦ" $! None with "Hmodel [$Howner Hround]"); first iSteps.
 
-    - wp_apply (random_round_next𑁒spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
+    - wp_apply (random_round٠next𑁒spec' with "Hround") as (j) "(%Hj & Hround)"; first lia.
       wp_pures.
       rewrite Nat2Z.id.
       pose k := (i_ + 1 + j) `mod` sz.
       assert ((i_ + 1 + j) `rem` sz = k)%Z as ->.
       { rewrite Z.rem_mod_nonneg; lia. }
-      awp_apply+ (ws_deques_public_steal_to𑁒spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
+      awp_apply+ (ws_deques_public٠steal_to𑁒spec with "[$Hinv $Howner]") without "Hround"; [done | lia |].
       iApply (aacc_aupd with "HΦ"); first done. iIntros "%vss Hmodel".
       iAaccIntro with "Hmodel"; first iSteps. iIntros ([ v |]).
 
@@ -457,7 +457,7 @@ Section ws_deques_public_G.
         assert (n - 1 = (n - 1)%nat)%Z as -> by lia.
         iSteps.
   Qed.
-  Lemma ws_deques_public_steal_as𑁒spec t ι sz i i_ ws round :
+  Lemma ws_deques_public٠steal_as𑁒spec t ι sz i i_ ws round :
     i = ⁺i_ →
     0 < sz →
     <<<
@@ -467,7 +467,7 @@ Section ws_deques_public_G.
     | ∀∀ vss,
       ws_deques_public_model t vss
     >>>
-      ws_deques_public_steal_as t #i round @ ↑ι
+      ws_deques_public٠steal_as t #i round @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -488,10 +488,10 @@ Section ws_deques_public_G.
     iIntros (->) "%Hsz %Φ (#Hinv & Hround) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_deques_public_size𑁒spec with "Hinv") as "_".
+    wp_apply+ (ws_deques_public٠size𑁒spec with "Hinv") as "_".
     wp_pures.
     assert (sz - 1 = (sz - 1)%nat)%Z as -> by lia.
-    wp_apply (ws_deques_public_steal_as₀𑁒spec with "[$Hinv $Hround] HΦ"); first done.
+    wp_apply (ws_deques_public٠steal_as₀𑁒spec with "[$Hinv $Hround] HΦ"); first done.
   Qed.
 End ws_deques_public_G.
 

@@ -13,25 +13,25 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition inf_ws_deque_1_create : val :=
+Definition inf_ws_deque_1٠create : val :=
   fun: <> =>
-    { 1, 1, inf_array_create (), Proph }.
+    { 1, 1, inf_array٠create (), Proph }.
 
-Definition inf_ws_deque_1_size : val :=
+Definition inf_ws_deque_1٠size : val :=
   fun: "t" =>
     "t".{back} - "t".{front}.
 
-Definition inf_ws_deque_1_is_empty : val :=
+Definition inf_ws_deque_1٠is_empty : val :=
   fun: "t" =>
-    inf_ws_deque_1_size "t" == 0.
+    inf_ws_deque_1٠size "t" == 0.
 
-Definition inf_ws_deque_1_push : val :=
+Definition inf_ws_deque_1٠push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in
-    inf_array_set "t".{data} "back" "v" ;;
+    inf_array٠set "t".{data} "back" "v" ;;
     "t" <-{back} "back" + 1.
 
-Definition inf_ws_deque_1_steal : val :=
+Definition inf_ws_deque_1٠steal : val :=
   rec: "steal" "t" =>
     let: "id" := Id in
     let: "front" := "t".{front} in
@@ -44,20 +44,20 @@ Definition inf_ws_deque_1_steal : val :=
          "t".{proph}
          ("front", "id")
      then (
-      ‘Some( inf_array_get "t".{data} "front" )
+      ‘Some( inf_array٠get "t".{data} "front" )
     ) else (
-      domain_yield () ;;
+      domain٠yield () ;;
       "steal" "t"
     ).
 
-Definition inf_ws_deque_1_pop₀ : val :=
+Definition inf_ws_deque_1٠pop₀ : val :=
   fun: "t" "id" "back" =>
     let: "front" := "t".{front} in
     if: "back" < "front" then (
       "t" <-{back} "front" ;;
       §None
     ) else if: "front" < "back" then (
-      ‘Some( inf_array_get "t".{data} "back" )
+      ‘Some( inf_array٠get "t".{data} "back" )
     ) else (
       let: "won" :=
         Resolve
@@ -67,15 +67,15 @@ Definition inf_ws_deque_1_pop₀ : val :=
       in
       "t" <-{back} "front" + 1 ;;
       if: "won" then (
-        ‘Some( inf_array_get "t".{data} "front" )
+        ‘Some( inf_array٠get "t".{data} "front" )
       ) else (
         §None
       )
     ).
 
-Definition inf_ws_deque_1_pop : val :=
+Definition inf_ws_deque_1٠pop : val :=
   fun: "t" =>
     let: "id" := Id in
     let: "back" := "t".{back} - 1 in
     "t" <-{back} "back" ;;
-    inf_ws_deque_1_pop₀ "t" "id" "back".
+    inf_ws_deque_1٠pop₀ "t" "id" "back".

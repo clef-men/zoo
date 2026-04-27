@@ -1,11 +1,11 @@
 From zoo_std Require Import
   xdeque__code.
 
-#[global] Opaque xdeque_create.
-#[global] Opaque xdeque_is_empty.
-#[global] Opaque xdeque_push_front.
-#[global] Opaque xdeque_push_back.
-#[global] Opaque xdeque_pop_front.
-#[global] Opaque xdeque_pop_back.
-#[global] Opaque xdeque_remove.
-#[global] Opaque xdeque_iter.
+#[global] Opaque xdeque٠create.
+#[global] Opaque xdeque٠is_empty.
+#[global] Opaque xdeque٠push_front.
+#[global] Opaque xdeque٠push_back.
+#[global] Opaque xdeque٠pop_front.
+#[global] Opaque xdeque٠pop_back.
+#[global] Opaque xdeque٠remove.
+#[global] Opaque xdeque٠iter.

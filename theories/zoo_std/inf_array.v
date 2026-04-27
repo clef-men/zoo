@@ -265,11 +265,11 @@ Section inf_array_G.
     intros []; done.
   Qed.
 
-  Lemma inf_array_create𑁒spec default :
+  Lemma inf_array٠create𑁒spec default :
     {{{
       True
     }}}
-      inf_array_create default
+      inf_array٠create default
     {{{
       t
     , RET t;
@@ -280,8 +280,8 @@ Section inf_array_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply (array_create𑁒spec with "[//]") as "%data Hdata".
-    wp_apply+ (mutex_create𑁒spec_init with "[//]") as (mtx) "Hmtx_init".
+    wp_apply (array٠create𑁒spec with "[//]") as "%data Hdata".
+    wp_apply+ (mutex٠create𑁒spec_init with "[//]") as (mtx) "Hmtx_init".
     wp_block l as "Hmeta" "(Hl_data & Hl_default & Hl_mtx & _)".
     iMod (pointsto_persist with "Hl_default") as "#Hl_default".
 
@@ -298,12 +298,12 @@ Section inf_array_G.
     iSteps.
   Qed.
 
-  #[local] Lemma inf_array_next_capacity𑁒spec n :
+  #[local] Lemma inf_array٠next_capacity𑁒spec n :
     (0 ≤ n)%Z →
     {{{
       True
     }}}
-      inf_array_next_capacity #n
+      inf_array٠next_capacity #n
     {{{
       m
     , RET #m;
@@ -312,13 +312,13 @@ Section inf_array_G.
   Proof.
     iSteps.
   Qed.
-  #[local] Lemma inf_array_reserve𑁒spec l γ us n :
+  #[local] Lemma inf_array٠reserve𑁒spec l γ us n :
     (0 ≤ n)%Z →
     {{{
       l.[default] ↦□ γ.(metadata_default) ∗
       inv_2 l γ us
     }}}
-      inf_array_reserve #l #n
+      inf_array٠reserve #l #n
     {{{
       us
     , RET ();
@@ -329,12 +329,12 @@ Section inf_array_G.
     iIntros "%Hn %Φ (#Hl_default & (:inv_2)) HΦ".
 
     wp_rec. wp_load.
-    wp_apply+ (array_size𑁒spec with "Hdata") as "Hdata".
+    wp_apply+ (array٠size𑁒spec with "Hdata") as "Hdata".
     wp_pures. case_bool_decide; last iSteps.
-    wp_apply+ (inf_array_next_capacity𑁒spec with "[//]") as (?) "%"; first lia.
-    wp_apply int_max𑁒spec.
+    wp_apply+ (inf_array٠next_capacity𑁒spec with "[//]") as (?) "%"; first lia.
+    wp_apply int٠max𑁒spec.
     wp_load.
-    wp_apply+ (array_unsafe_grow𑁒spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
+    wp_apply+ (array٠unsafe_grow𑁒spec with "Hdata") as (data') "(Hdata & Hdata')"; first lia.
     wp_store.
 
     iSteps; iPureIntro; simpl_length; last lia.
@@ -347,14 +347,14 @@ Section inf_array_G.
     - done.
   Qed.
 
-  Lemma inf_array_get𑁒spec t i :
+  Lemma inf_array٠get𑁒spec t i :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vs,
       inf_array_model t vs
     >>>
-      inf_array_get t #i
+      inf_array٠get t #i
     <<<
       inf_array_model t vs
     | RET vs ₊i;
@@ -364,14 +364,14 @@ Section inf_array_G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp_rec credit:"H£". wp_load.
-    wp_apply (mutex_protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1)".
+    wp_apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1)".
     wp_load.
-    wp_apply+ (array_size𑁒spec with "Hdata") as "Hdata".
+    wp_apply+ (array٠size𑁒spec with "Hdata") as "Hdata".
     wp_pures. case_decide.
 
     - rewrite bool_decide_eq_true_2; first lia.
       iApply wp_fupd.
-      wp_apply+ (array_unsafe_get𑁒spec with "Hdata"); [done | | done |].
+      wp_apply+ (array٠unsafe_get𑁒spec with "Hdata"); [done | | done |].
       { rewrite list_lookup_lookup_total_lt //. lia. }
 
       iMod "HΦ" as "(%vs_ & (:model) & _ & HΦ)". injection Heq as <-.
@@ -392,14 +392,14 @@ Section inf_array_G.
       rewrite /inv_1. iSteps.
       rewrite Hvs decide_False; first lia. iSteps.
   Qed.
-  Lemma inf_array_get𑁒spec' t i :
+  Lemma inf_array٠get𑁒spec' t i :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vsₗ vsᵣ,
       inf_array_model' t vsₗ vsᵣ
     >>>
-      inf_array_get t #i
+      inf_array٠get t #i
     <<<
       inf_array_model' t vsₗ vsᵣ
     | RET
@@ -411,12 +411,12 @@ Section inf_array_G.
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
-    awp_apply (inf_array_get𑁒spec with "Hinv"); first done.
+    awp_apply (inf_array٠get𑁒spec with "Hinv"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; iSteps.
   Qed.
 
-  Lemma inf_array_update𑁒spec Ψ1 Ψ2 t i fn :
+  Lemma inf_array٠update𑁒spec Ψ1 Ψ2 t i fn :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t ∗
@@ -425,7 +425,7 @@ Section inf_array_G.
       inf_array_model t vs ∗
       □ Ψ1 (vs ₊i)
     >>>
-      inf_array_update t #i fn
+      inf_array٠update t #i fn
     <<<
       ∃∃ v,
       inf_array_model t (<[₊i := v]> vs) ∗
@@ -437,8 +437,8 @@ Section inf_array_G.
     iIntros "% %Φ ((:inv) & Hfn) HΦ".
 
     wp_rec credit:"H£". wp_load.
-    wp_apply (mutex_protect𑁒spec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_apply+ (inf_array_reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv Hfn H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -454,10 +454,10 @@ Section inf_array_G.
     iMod ("HΦ" with "[$Hmodel₁]") as "HΦ"; first iSteps.
     iModIntro.
 
-    wp_apply (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_apply+ (wp_wand with "(Hfn Hv)") as (w) "Hw".
     wp_load.
-    wp_apply+ (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+    wp_apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
     wp_pures.
 
     iMod "HΦ" as "(%vs_ & ((:model) & _) & _ & HΦ)". injection Heq as <-.
@@ -476,14 +476,14 @@ Section inf_array_G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array_xchg𑁒spec t i v :
+  Lemma inf_array٠xchg𑁒spec t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vs,
       inf_array_model t vs
     >>>
-      inf_array_xchg t #i v
+      inf_array٠xchg t #i v
     <<<
       inf_array_model t (<[₊i := v]> vs)
     | RET vs ₊i;
@@ -493,12 +493,12 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    awp_apply+ (inf_array_update𑁒spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
+    awp_apply+ (inf_array٠update𑁒spec (λ _, True)%I (λ _ w, ⌜w = v⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs Hmodel".
     iAaccIntro with "[$Hmodel]"; iSteps.
   Qed.
 
-  Lemma inf_array_xchg_resolve𑁒spec t i v pid v_resolve Φ E :
+  Lemma inf_array٠xchg_resolve𑁒spec t i v pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array_inv t -∗
     ( |={⊤,E}=>
@@ -514,13 +514,13 @@ Section inf_array_G.
         }}
       )
     ) -∗
-    WP inf_array_xchg_resolve t #i v #pid v_resolve {{ Φ }}.
+    WP inf_array٠xchg_resolve t #i v #pid v_resolve {{ Φ }}.
   Proof.
     iIntros "% (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_apply+ (inf_array_reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (w & Hlookup); first lia.
@@ -529,9 +529,9 @@ Section inf_array_G.
       apply list_lookup_total_correct. done.
     }
 
-    wp_apply (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_load.
-    wp_apply+ (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+    wp_apply+ (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
     wp_pures.
 
     set vs' := <[₊i := v]> vs.
@@ -561,14 +561,14 @@ Section inf_array_G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array_set𑁒spec t i v :
+  Lemma inf_array٠set𑁒spec t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vs,
       inf_array_model t vs
     >>>
-      inf_array_set t #i v
+      inf_array٠set t #i v
     <<<
       inf_array_model t (<[₊i := v]> vs)
     | RET ();
@@ -578,18 +578,18 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    wp_apply+ (inf_array_xchg𑁒spec with "Hinv"); first done.
+    wp_apply+ (inf_array٠xchg𑁒spec with "Hinv"); first done.
     iApply (atomic_update_wand with "HΦ").
     iSteps.
   Qed.
-  Lemma inf_array_set𑁒spec' t i v :
+  Lemma inf_array٠set𑁒spec' t i v :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vsₗ vsᵣ,
       inf_array_model' t vsₗ vsᵣ
     >>>
-      inf_array_set t #i v
+      inf_array٠set t #i v
     <<<
       if decide (₊i < length vsₗ) then
         inf_array_model' t (<[₊i := v]> vsₗ) vsᵣ
@@ -600,7 +600,7 @@ Section inf_array_G.
     >>>.
   Proof.
     iIntros "% %Φ Hinv HΦ".
-    awp_apply (inf_array_set𑁒spec with "Hinv"); first done.
+    awp_apply (inf_array٠set𑁒spec with "Hinv"); first done.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vsₗ %vsᵣ Hmodel".
     iAaccIntro with "Hmodel"; first iSteps. iIntros "Hmodel !>".
     iSplitL "Hmodel"; last iSteps.
@@ -621,14 +621,14 @@ Section inf_array_G.
           rewrite decide_False //.
   Qed.
 
-  Lemma inf_array_cas𑁒spec t i v1 v2 :
+  Lemma inf_array٠cas𑁒spec t i v1 v2 :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
     | ∀∀ vs,
       inf_array_model t vs
     >>>
-      inf_array_cas t #i v1 v2
+      inf_array٠cas t #i v1 v2
     <<<
       ∃∃ b,
       ⌜(if b then (≈) else (≉)) (vs ₊i) v1⌝ ∗
@@ -640,8 +640,8 @@ Section inf_array_G.
     iIntros "% %Φ (:inv) HΦ".
 
     wp_rec credit:"H£". wp_load.
-    wp_apply (mutex_protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_apply+ (inf_array_reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv H£ HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -650,7 +650,7 @@ Section inf_array_G.
       apply list_lookup_total_correct. done.
     }
 
-    wp_apply (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_apply wp_equal_nobranch as (b) "%".
     wp_pures.
 
@@ -661,7 +661,7 @@ Section inf_array_G.
     )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
     { destruct b; last iSteps.
       wp_load.
-      wp_apply (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+      wp_apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
       iSteps.
     }
 
@@ -686,7 +686,7 @@ Section inf_array_G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array_cas_resolve𑁒spec t i v1 v2 pid v_resolve Φ E :
+  Lemma inf_array٠cas_resolve𑁒spec t i v1 v2 pid v_resolve Φ E :
     (0 ≤ i)%Z →
     inf_array_inv t -∗
     ( |={⊤,E}=>
@@ -703,13 +703,13 @@ Section inf_array_G.
         }}
       )
     ) -∗
-    WP inf_array_cas_resolve t #i v1 v2 #pid v_resolve {{ Φ }}.
+    WP inf_array٠cas_resolve t #i v1 v2 #pid v_resolve {{ Φ }}.
   Proof.
     iIntros "% (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply (mutex_protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
-    wp_apply+ (inf_array_reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
+    wp_apply (mutex٠protect𑁒spec Φ with "[$Hmtx_inv HΦ]"); last iSteps. iIntros "$ (:inv_1 =1 lazy=)".
+    wp_apply+ (inf_array٠reserve𑁒spec with "[$]") as "%us2 ((:inv_2) & %)"; first lia.
     wp_load.
 
     destruct (lookup_lt_is_Some_2 us2 ₊i) as (v & Hlookup); first lia.
@@ -718,7 +718,7 @@ Section inf_array_G.
       apply list_lookup_total_correct. done.
     }
 
-    wp_apply (array_unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
+    wp_apply (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [lia | done.. |].
     wp_apply wp_equal_nobranch as (b) "%".
     wp_pures.
 
@@ -729,7 +729,7 @@ Section inf_array_G.
     )%I with "[Hl_data Hdata]") as (res) "(Hl_data & Hdata)".
     { destruct b; last iSteps.
       wp_load.
-      wp_apply (array_unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
+      wp_apply (array٠unsafe_set𑁒spec with "Hdata") as "Hdata"; first lia.
       iSteps.
     }
 
@@ -763,7 +763,7 @@ Section inf_array_G.
       rewrite list_lookup_total_insert_ne //.
   Qed.
 
-  Lemma inf_array_faa𑁒spec t i (incr : Z) :
+  Lemma inf_array٠faa𑁒spec t i (incr : Z) :
     (0 ≤ i)%Z →
     <<<
       inf_array_inv t
@@ -771,7 +771,7 @@ Section inf_array_G.
       ⌜vs ₊i = #n⌝ ∗
       inf_array_model t vs
     >>>
-      inf_array_faa t #i #incr
+      inf_array٠faa t #i #incr
     <<<
       inf_array_model t (<[₊i := #(n + incr)]> vs)
     | RET vs ₊i;
@@ -781,7 +781,7 @@ Section inf_array_G.
     iIntros "% %Φ Hinv HΦ".
 
     wp_rec.
-    awp_apply+ (inf_array_update𑁒spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
+    awp_apply+ (inf_array٠update𑁒spec (λ v, ∃ n : Z, ⌜v = #n⌝)%I (λ v w, ∃ n : Z, ⌜v = #n ∧ w = #(n + incr)⌝)%I with "[$Hinv]"); [done | iSteps |].
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs %n (%Hn & Hmodel)".
     iAaccIntro with "[$Hmodel]". 1,2: iSteps. iSteps as (l γ n_ Hn_) / --silent.
     rewrite Hn_ in Hn. injection Hn as ->. iSteps.

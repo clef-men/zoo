@@ -10,17 +10,17 @@ From zoo_persistent Require Import
 From zoo Require Import
   options.
 
-Definition pstack_empty : val :=
+Definition pstack٠empty : val :=
   [].
 
-Definition pstack_is_empty : val :=
-  lst_is_empty.
+Definition pstack٠is_empty : val :=
+  lst٠is_empty.
 
-Definition pstack_push : val :=
+Definition pstack٠push : val :=
   fun: "t" "v" =>
     "v" :: "t".
 
-Definition pstack_pop : val :=
+Definition pstack٠pop : val :=
   fun: "param" =>
     match: "param" with
     | [] =>

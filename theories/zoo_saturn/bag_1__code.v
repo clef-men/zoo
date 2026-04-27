@@ -12,24 +12,24 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition bag_1_create : val :=
+Definition bag_1٠create : val :=
   fun: "sz" =>
-    { array_unsafe_init "sz" (fun: <> => ref §Gnone), 0, 0 }.
+    { array٠unsafe_init "sz" (fun: <> => ref §Gnone), 0, 0 }.
 
-Definition bag_1_push₀ : val :=
+Definition bag_1٠push₀ : val :=
   rec: "push" "slot" "o" =>
     if: ~ CAS "slot".[contents] §Gnone "o" then (
-      domain_yield () ;;
+      domain٠yield () ;;
       "push" "slot" "o"
     ).
 
-Definition bag_1_push : val :=
+Definition bag_1٠push : val :=
   fun: "t" "v" =>
     let: "data" := "t".{data} in
-    let: "i" := FAA "t".[back] 1 `rem` array_size "data" in
-    bag_1_push₀ (array_unsafe_get "data" "i") ‘Gsome[ "v" ].
+    let: "i" := FAA "t".[back] 1 `rem` array٠size "data" in
+    bag_1٠push₀ (array٠unsafe_get "data" "i") ‘Gsome[ "v" ].
 
-Definition bag_1_pop₀ : val :=
+Definition bag_1٠pop₀ : val :=
   rec: "pop" "slot" =>
     match: !"slot" with
     | Gnone =>
@@ -38,13 +38,13 @@ Definition bag_1_pop₀ : val :=
         if: CAS "slot".[contents] "o" §Gnone then (
           "v"
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "pop" "slot"
         )
     end.
 
-Definition bag_1_pop : val :=
+Definition bag_1٠pop : val :=
   fun: "t" =>
     let: "data" := "t".{data} in
-    let: "i" := FAA "t".[front] 1 `rem` array_size "data" in
-    bag_1_pop₀ (array_unsafe_get "data" "i").
+    let: "i" := FAA "t".[front] 1 `rem` array٠size "data" in
+    bag_1٠pop₀ (array٠unsafe_get "data" "i").

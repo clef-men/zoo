@@ -10,14 +10,14 @@ From examples Require Import
 From zoo Require Import
   options.
 
-Definition pool_counter_main : val :=
+Definition pool_counter٠main : val :=
   fun: "num_worker" "n" =>
     let: "cnt" := ref 0 in
-    pool_run
+    pool٠run
       "num_worker"
       (fun: "ctx" =>
          for: <> := 0 to "n" begin
-           pool_async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;
-                                            ())
+           pool٠async "ctx" (fun: "_ctx" => FAA "cnt".[contents] 1 ;;
+                                             ())
          end) ;;
     !"cnt".

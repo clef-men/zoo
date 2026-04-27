@@ -136,11 +136,11 @@ Section zoo_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_stack_1_create𑁒spec ι :
+  Lemma mpmc_stack_1٠create𑁒spec ι :
     {{{
       True
     }}}
-      mpmc_stack_1_create ()
+      mpmc_stack_1٠create ()
     {{{
       t
     , RET t;
@@ -161,13 +161,13 @@ Section zoo_G.
     iStep 2. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_push𑁒spec t ι v :
+  Lemma mpmc_stack_1٠push𑁒spec t ι v :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,
       mpmc_stack_1_model t vs
     >>>
-      mpmc_stack_1_push t v @ ↑ι
+      mpmc_stack_1٠push t v @ ↑ι
     <<<
       mpmc_stack_1_model t (v :: vs)
     | RET ();
@@ -200,13 +200,13 @@ Section zoo_G.
     iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_pop𑁒spec t ι :
+  Lemma mpmc_stack_1٠pop𑁒spec t ι :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,
       mpmc_stack_1_model t vs
     >>>
-      mpmc_stack_1_pop t @ ↑ι
+      mpmc_stack_1٠pop t @ ↑ι
     <<<
       mpmc_stack_1_model t (tail vs)
     | RET head vs;
@@ -249,13 +249,13 @@ Section zoo_G.
       iSteps.
   Qed.
 
-  Lemma mpmc_stack_1_snapshot𑁒spec t ι :
+  Lemma mpmc_stack_1٠snapshot𑁒spec t ι :
     <<<
       mpmc_stack_1_inv t ι
     | ∀∀ vs,
       mpmc_stack_1_model t vs
     >>>
-      mpmc_stack_1_snapshot t @ ↑ι
+      mpmc_stack_1٠snapshot t @ ↑ι
     <<<
       mpmc_stack_1_model t vs
     | RET glst_to_val vs;

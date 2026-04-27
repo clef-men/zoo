@@ -12,40 +12,40 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition future_return : val :=
-  ivar_4_make.
+Definition future٠return : val :=
+  ivar_4٠make.
 
-Definition future_set : val :=
+Definition future٠set : val :=
   fun: "ctx" "t" "res" =>
-    ivar_4_notify "t" "ctx" "res".
+    ivar_4٠notify "t" "ctx" "res".
 
-Definition future_async : val :=
+Definition future٠async : val :=
   fun: "ctx" "task" =>
-    let: "t" := ivar_4_create () in
-    pool_async "ctx" (fun: "ctx" => future_set "ctx" "t" ("task" "ctx")) ;;
+    let: "t" := ivar_4٠create () in
+    pool٠async "ctx" (fun: "ctx" => future٠set "ctx" "t" ("task" "ctx")) ;;
     "t".
 
-Definition future_wait : val :=
+Definition future٠wait : val :=
   fun: "ctx" "t" =>
-    pool_wait_ivar "ctx" "t" ;;
-    ivar_4_get "t".
+    pool٠wait_ivar "ctx" "t" ;;
+    ivar_4٠get "t".
 
-Definition future_iter : val :=
+Definition future٠iter : val :=
   fun: "ctx" "t" "task" =>
-    match: ivar_4_wait "t" "task" with
+    match: ivar_4٠wait "t" "task" with
     | None =>
         ()
     | Some "res" =>
         "task" "ctx" "res"
     end.
 
-Definition future_map : val :=
+Definition future٠map : val :=
   fun: "ctx" "t1" "task" =>
-    let: "t2" := ivar_4_create () in
-    future_iter
+    let: "t2" := ivar_4٠create () in
+    future٠iter
       "ctx"
       "t1"
       (fun: "ctx" "res1" =>
-         pool_async "ctx"
-           (fun: "ctx" => future_set "ctx" "t2" ("task" "ctx" "res1"))) ;;
+         pool٠async "ctx"
+           (fun: "ctx" => future٠set "ctx" "t2" ("task" "ctx" "res1"))) ;;
     "t2".

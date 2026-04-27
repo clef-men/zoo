@@ -8,7 +8,7 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition glst_rev_app : val :=
+Definition glst٠rev_app : val :=
   rec: "rev_app" "t1" "t2" =>
     match: "t1" with
     | Gnil =>
@@ -17,6 +17,6 @@ Definition glst_rev_app : val :=
         "rev_app" "t1" ‘Gcons[ "v", "t2" ]
     end.
 
-Definition glst_rev : val :=
+Definition glst٠rev : val :=
   fun: "t" =>
-    glst_rev_app "t" §Gnil.
+    glst٠rev_app "t" §Gnil.

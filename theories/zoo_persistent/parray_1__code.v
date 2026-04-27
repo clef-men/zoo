@@ -10,47 +10,47 @@ From zoo_persistent Require Import
 From zoo Require Import
   options.
 
-Definition parray_1_make : val :=
+Definition parray_1٠make : val :=
   fun: "equal" "sz" "v" =>
-    let: "data" := array_unsafe_make "sz" "v" in
+    let: "data" := array٠unsafe_make "sz" "v" in
     ref ‘Root( "equal", "data" ).
 
-Definition parray_1_reroot₀ : val :=
+Definition parray_1٠reroot₀ : val :=
   rec: "reroot" "t" =>
     match: !"t" with
     | Root <> <> as "root_r" =>
         ("root_r".<equal>, "root_r".<data>)
     | Diff "i" "v" "t'" =>
         let: "equal", "data" := "reroot" "t'" in
-        "t'" <- ‘Diff( "i", array_unsafe_get "data" "i", "t" ) ;;
-        array_unsafe_set "data" "i" "v" ;;
+        "t'" <- ‘Diff( "i", array٠unsafe_get "data" "i", "t" ) ;;
+        array٠unsafe_set "data" "i" "v" ;;
         ("equal", "data")
     end.
 
-Definition parray_1_reroot : val :=
+Definition parray_1٠reroot : val :=
   fun: "t" =>
     match: !"t" with
     | Root <> <> as "root_r" =>
         ("root_r".<equal>, "root_r".<data>)
     | Diff <> <> <> =>
-        let: "equal", "data" := parray_1_reroot₀ "t" in
+        let: "equal", "data" := parray_1٠reroot₀ "t" in
         "t" <- ‘Root( "equal", "data" ) ;;
         ("equal", "data")
     end.
 
-Definition parray_1_get : val :=
+Definition parray_1٠get : val :=
   fun: "t" "i" =>
-    let: <>, "data" := parray_1_reroot "t" in
-    array_unsafe_get "data" "i".
+    let: <>, "data" := parray_1٠reroot "t" in
+    array٠unsafe_get "data" "i".
 
-Definition parray_1_set : val :=
+Definition parray_1٠set : val :=
   fun: "t" "i" "v" =>
-    let: "equal", "data" := parray_1_reroot "t" in
-    let: "v'" := array_unsafe_get "data" "i" in
+    let: "equal", "data" := parray_1٠reroot "t" in
+    let: "v'" := array٠unsafe_get "data" "i" in
     if: "equal" "v" "v'" then (
       "t"
     ) else (
-      array_unsafe_set "data" "i" "v" ;;
+      array٠unsafe_set "data" "i" "v" ;;
       let: "t'" := ref !"t" in
       "t" <- ‘Diff( "i", "v'", "t'" ) ;;
       "t'"

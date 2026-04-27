@@ -10,16 +10,16 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpmc_bqueue_create : val :=
+Definition mpmc_bqueue٠create : val :=
   fun: "cap" =>
     let: "front" := ‘Node{ §Null, (), 0, "cap" } in
     { "cap", "front", "front" }.
 
-Definition mpmc_bqueue_capacity : val :=
+Definition mpmc_bqueue٠capacity : val :=
   fun: "t" =>
     "t".{capacity}.
 
-Definition mpmc_bqueue_size : val :=
+Definition mpmc_bqueue٠size : val :=
   rec: "size" "t" =>
     match: "t".{front} with
     | Node <> <> <> <> as "front" =>
@@ -42,14 +42,14 @@ Definition mpmc_bqueue_size : val :=
         end
     end.
 
-Definition mpmc_bqueue_is_empty : val :=
+Definition mpmc_bqueue٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> <> <> as "front_r" =>
         "front_r".{next} == §Null
     end.
 
-Definition mpmc_bqueue_fix_back : val :=
+Definition mpmc_bqueue٠fix_back : val :=
   rec: "fix_back" "t" "back" "new_back" =>
     match: "new_back" with
     | Node <> <> <> <> as "new_back_r" =>
@@ -58,7 +58,7 @@ Definition mpmc_bqueue_fix_back : val :=
           and
           ~ CAS "t".[back] "back" "new_back"
         then (
-          domain_yield () ;;
+          domain٠yield () ;;
           "fix_back" "t" "t".{back} "new_back"
         )
     end.
@@ -87,7 +87,7 @@ Definition mpmc_bqueue_fix_back : val :=
                 "new_back_r" <-{index} "back_r".{index} + 1 ;;
                 "new_back_r" <-{estimated_capacity} "cap" - 1 ;;
                 if: CAS "back_r".[next] §Null "new_back" then (
-                  mpmc_bqueue_fix_back "t" "back" "new_back" ;;
+                  mpmc_bqueue٠fix_back "t" "back" "new_back" ;;
                   true
                 ) else (
                   match: "back_r".{next} with
@@ -107,33 +107,33 @@ Definition mpmc_bqueue_fix_back : val :=
           "push_1" "t" "back" "back_r".{estimated_capacity} "new_back"
       end
   )%zoo_recs.
-Definition mpmc_bqueue_push_1 :=
+Definition mpmc_bqueue٠push_1 :=
   ValRecs 0 __zoo_recs_0.
-Definition mpmc_bqueue_push_2 :=
+Definition mpmc_bqueue٠push_2 :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' mpmc_bqueue_push_1 0 __zoo_recs_0 [
-    mpmc_bqueue_push_1 ;
-    mpmc_bqueue_push_2
+  AsValRecs' mpmc_bqueue٠push_1 0 __zoo_recs_0 [
+    mpmc_bqueue٠push_1 ;
+    mpmc_bqueue٠push_2
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' mpmc_bqueue_push_2 1 __zoo_recs_0 [
-    mpmc_bqueue_push_1 ;
-    mpmc_bqueue_push_2
+  AsValRecs' mpmc_bqueue٠push_2 1 __zoo_recs_0 [
+    mpmc_bqueue٠push_1 ;
+    mpmc_bqueue٠push_2
   ].
 Proof.
   done.
 Qed.
 
-Definition mpmc_bqueue_push : val :=
+Definition mpmc_bqueue٠push : val :=
   fun: "t" "v" =>
     let: "new_back" := ‘Node{ §Null, "v", 0, 0 } in
-    mpmc_bqueue_push_2 "t" "t".{back} "new_back".
+    mpmc_bqueue٠push_2 "t" "t".{back} "new_back".
 
-Definition mpmc_bqueue_pop : val :=
+Definition mpmc_bqueue٠pop : val :=
   rec: "pop" "t" =>
     match: "t".{front} with
     | Node <> <> <> <> as "front" =>
@@ -148,7 +148,7 @@ Definition mpmc_bqueue_pop : val :=
               "new_front_r" <-{data} () ;;
               ‘Some( "v" )
             ) else (
-              domain_yield () ;;
+              domain٠yield () ;;
               "pop" "t"
             )
         end

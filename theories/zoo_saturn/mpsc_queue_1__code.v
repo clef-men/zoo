@@ -10,19 +10,19 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpsc_queue_1_create : val :=
+Definition mpsc_queue_1٠create : val :=
   fun: <> =>
     let: "front" := ‘Node{ §Null, () } in
     { "front", "front" }.
 
-Definition mpsc_queue_1_is_empty : val :=
+Definition mpsc_queue_1٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> as "front_r" =>
         "front_r".{next} == §Null
     end.
 
-Definition mpsc_queue_1_push₀ : val :=
+Definition mpsc_queue_1٠push₀ : val :=
   rec: "push" "node" "new_back" =>
     match: "node" with
     | Node <> <> as "node_r" =>
@@ -31,13 +31,13 @@ Definition mpsc_queue_1_push₀ : val :=
             "push" "next" "new_back"
         | Null =>
             if: ~ CAS "node_r".[next] §Null "new_back" then (
-              domain_yield () ;;
+              domain٠yield () ;;
               "push" "node" "new_back"
             )
         end
     end.
 
-Definition mpsc_queue_1_fix_back : val :=
+Definition mpsc_queue_1٠fix_back : val :=
   rec: "fix_back" "t" "back" "new_back" =>
     match: "new_back" with
     | Node <> <> as "new_back_r" =>
@@ -46,21 +46,21 @@ Definition mpsc_queue_1_fix_back : val :=
           and
           ~ CAS "t".[back] "back" "new_back"
         then (
-          domain_yield () ;;
+          domain٠yield () ;;
           "fix_back" "t" "t".{back} "new_back"
         )
     end.
 
-Definition mpsc_queue_1_push : val :=
+Definition mpsc_queue_1٠push : val :=
   fun: "t" "v" =>
     match: ‘Node{ §Null, "v" } with
     | Node <> <> as "new_back" =>
         let: "back" := "t".{back} in
-        mpsc_queue_1_push₀ "back" "new_back" ;;
-        mpsc_queue_1_fix_back "t" "back" "new_back"
+        mpsc_queue_1٠push₀ "back" "new_back" ;;
+        mpsc_queue_1٠fix_back "t" "back" "new_back"
     end.
 
-Definition mpsc_queue_1_pop : val :=
+Definition mpsc_queue_1٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> as "front_r" =>

@@ -524,11 +524,11 @@ Module base.
       apply waiters_elem_valid.
     Qed.
 
-    Lemma ivar_3_create𑁒spec Ψ Ξ Ω :
+    Lemma ivar_3٠create𑁒spec Ψ Ξ Ω :
       {{{
         True
       }}}
-        ivar_3_create ()
+        ivar_3٠create ()
       {{{
         t γ
       , RET #t;
@@ -560,12 +560,12 @@ Module base.
       iApply (big_sepL2_nil with "[//]").
     Qed.
 
-    Lemma ivar_3_make𑁒spec Ψ Ξ Ω v :
+    Lemma ivar_3٠make𑁒spec Ψ Ξ Ω v :
       {{{
         ▷ Ψ v ∗
         ▷ □ Ξ v
       }}}
-        ivar_3_make v
+        ivar_3٠make v
       {{{
         t γ
       , RET #t;
@@ -599,11 +599,11 @@ Module base.
       iFrameSteps. iExists (Set_ v). iSteps.
     Qed.
 
-    Lemma ivar_3_is_unset𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠is_unset𑁒spec t γ Ψ Ξ Ω :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
-        ivar_3_is_unset #t
+        ivar_3٠is_unset #t
       {{{
         b
       , RET #b;
@@ -632,12 +632,12 @@ Module base.
         iSplitR "H£ HΦ". { iFrameSteps. }
         iStep 5. iExists v. iSteps.
     Qed.
-    Lemma ivar_3_is_unset𑁒spec_result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠is_unset𑁒spec_result t γ Ψ Ξ Ω v :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_result γ v
       }}}
-        ivar_3_is_unset #t
+        ivar_3٠is_unset #t
       {{{
         RET false;
         £ 2
@@ -661,11 +661,11 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_is_set𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠is_set𑁒spec t γ Ψ Ξ Ω :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
-        ivar_3_is_set #t
+        ivar_3٠is_set #t
       {{{
         b
       , RET #b;
@@ -679,15 +679,15 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec.
-      wp_apply (ivar_3_is_unset𑁒spec with "[$]") as (b) "Hb".
+      wp_apply (ivar_3٠is_unset𑁒spec with "[$]") as (b) "Hb".
       destruct b; iSteps.
     Qed.
-    Lemma ivar_3_is_set𑁒spec_result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠is_set𑁒spec_result t γ Ψ Ξ Ω v :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_result γ v
       }}}
-        ivar_3_is_set #t
+        ivar_3٠is_set #t
       {{{
         RET true;
         £ 2
@@ -696,15 +696,15 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresult) HΦ".
 
       wp_rec.
-      wp_apply (ivar_3_is_unset𑁒spec_result with "[$]").
+      wp_apply (ivar_3٠is_unset𑁒spec_result with "[$]").
       iSteps.
     Qed.
 
-    Lemma ivar_3_try_get𑁒spec t γ Ψ Ξ Ω :
+    Lemma ivar_3٠try_get𑁒spec t γ Ψ Ξ Ω :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω
       }}}
-        ivar_3_try_get #t
+        ivar_3٠try_get #t
       {{{
         o
       , RET o;
@@ -733,12 +733,12 @@ Module base.
         iSplitR "H£ HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma ivar_3_try_get𑁒spec_result t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠try_get𑁒spec_result t γ Ψ Ξ Ω v :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_result γ v
       }}}
-        ivar_3_try_get #t
+        ivar_3٠try_get #t
       {{{
         RET Some v;
         £ 2
@@ -762,12 +762,12 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_get𑁒spec t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠get𑁒spec t γ Ψ Ξ Ω v :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_result γ v
       }}}
-        ivar_3_get #t
+        ivar_3٠get #t
       {{{
         RET v;
         £ 2
@@ -791,13 +791,13 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma ivar_3_wait𑁒spec ω P t γ Ψ Ξ Ω waiter :
+    Lemma ivar_3٠wait𑁒spec ω P t γ Ψ Ξ Ω waiter :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         P ∗
         (P -∗ Ω #t waiter ω)
       }}}
-        ivar_3_wait #t waiter
+        ivar_3٠wait #t waiter
       {{{
         o
       , RET o;
@@ -848,14 +848,14 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma ivar_3_set𑁒spec t γ Ψ Ξ Ω v :
+    Lemma ivar_3٠set𑁒spec t γ Ψ Ξ Ω v :
       {{{
         ivar_3_inv t γ Ψ Ξ Ω ∗
         ivar_3_producer γ ∗
         ▷ Ψ v ∗
         ▷ □ Ξ v
       }}}
-        ivar_3_set #t v
+        ivar_3٠set #t v
       {{{
         waiters ωs
       , RET lst_to_val waiters;
@@ -1190,11 +1190,11 @@ Section ivar_3_G.
     iApply (base.ivar_3_waiter_valid with "Hwaiters_1 Hwaiter_2").
   Qed.
 
-  Lemma ivar_3_create𑁒spec Ψ Ξ Ω :
+  Lemma ivar_3٠create𑁒spec Ψ Ξ Ω :
     {{{
       True
     }}}
-      ivar_3_create ()
+      ivar_3٠create ()
     {{{
       t
     , RET t;
@@ -1206,17 +1206,17 @@ Section ivar_3_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ivar_3_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    wp_apply (base.ivar_3٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma ivar_3_make𑁒spec Ψ Ξ Ω v :
+  Lemma ivar_3٠make𑁒spec Ψ Ξ Ω v :
     {{{
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      ivar_3_make v
+      ivar_3٠make v
     {{{
       t
     , RET t;
@@ -1229,16 +1229,16 @@ Section ivar_3_G.
     iIntros "%Φ (HΨ & #HΞ) HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.ivar_3_make𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    wp_apply (base.ivar_3٠make𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma ivar_3_is_unset𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠is_unset𑁒spec t Ψ Ξ Ω :
     {{{
       ivar_3_inv t Ψ Ξ Ω
     }}}
-      ivar_3_is_unset t
+      ivar_3٠is_unset t
     {{{
       b
     , RET #b;
@@ -1251,15 +1251,15 @@ Section ivar_3_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.ivar_3_is_unset𑁒spec with "[$]") as (b) "Hb".
+    wp_apply (base.ivar_3٠is_unset𑁒spec with "[$]") as (b) "Hb".
     rewrite /ivar_3_resolved. destruct b; iSteps.
   Qed.
-  Lemma ivar_3_is_unset𑁒spec_result t Ψ Ξ Ω v :
+  Lemma ivar_3٠is_unset𑁒spec_result t Ψ Ξ Ω v :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
-      ivar_3_is_unset t
+      ivar_3٠is_unset t
     {{{
       RET false;
       £ 2
@@ -1268,14 +1268,14 @@ Section ivar_3_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_3_is_unset𑁒spec_result with "[$] HΦ").
+    wp_apply (base.ivar_3٠is_unset𑁒spec_result with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_is_set𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠is_set𑁒spec t Ψ Ξ Ω :
     {{{
       ivar_3_inv t Ψ Ξ Ω
     }}}
-      ivar_3_is_set t
+      ivar_3٠is_set t
     {{{
       b
     , RET #b;
@@ -1288,15 +1288,15 @@ Section ivar_3_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.ivar_3_is_set𑁒spec with "[$]") as (b) "Hb".
+    wp_apply (base.ivar_3٠is_set𑁒spec with "[$]") as (b) "Hb".
     rewrite /ivar_3_resolved. destruct b; iSteps.
   Qed.
-  Lemma ivar_3_is_set𑁒spec_result t Ψ Ξ Ω v :
+  Lemma ivar_3٠is_set𑁒spec_result t Ψ Ξ Ω v :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
-      ivar_3_is_set t
+      ivar_3٠is_set t
     {{{
       RET true;
       £ 2
@@ -1305,14 +1305,14 @@ Section ivar_3_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_3_is_set𑁒spec_result with "[$] HΦ").
+    wp_apply (base.ivar_3٠is_set𑁒spec_result with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_try_get𑁒spec t Ψ Ξ Ω :
+  Lemma ivar_3٠try_get𑁒spec t Ψ Ξ Ω :
     {{{
       ivar_3_inv t Ψ Ξ Ω
     }}}
-      ivar_3_try_get t
+      ivar_3٠try_get t
     {{{
       o
     , RET o;
@@ -1325,16 +1325,16 @@ Section ivar_3_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.ivar_3_try_get𑁒spec with "[$]") as (o) "Ho".
+    wp_apply (base.ivar_3٠try_get𑁒spec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
-  Lemma ivar_3_try_get𑁒spec_result t Ψ Ξ Ω v :
+  Lemma ivar_3٠try_get𑁒spec_result t Ψ Ξ Ω v :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
-      ivar_3_try_get t
+      ivar_3٠try_get t
     {{{
       RET Some v;
       £ 2
@@ -1343,15 +1343,15 @@ Section ivar_3_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_3_try_get𑁒spec_result with "[$] HΦ").
+    wp_apply (base.ivar_3٠try_get𑁒spec_result with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_get𑁒spec t Ψ Ξ Ω v :
+  Lemma ivar_3٠get𑁒spec t Ψ Ξ Ω v :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_result t v
     }}}
-      ivar_3_get t
+      ivar_3٠get t
     {{{
       RET v;
       £ 2
@@ -1360,16 +1360,16 @@ Section ivar_3_G.
     iIntros "%Φ ((:inv =1) & (:result =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_3_get𑁒spec with "[$] HΦ").
+    wp_apply (base.ivar_3٠get𑁒spec with "[$] HΦ").
   Qed.
 
-  Lemma ivar_3_wait𑁒spec ω P t Ψ Ξ Ω waiter :
+  Lemma ivar_3٠wait𑁒spec ω P t Ψ Ξ Ω waiter :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       P ∗
       (P -∗ Ω t waiter ω)
     }}}
-      ivar_3_wait t waiter
+      ivar_3٠wait t waiter
     {{{
       o
     , RET o;
@@ -1383,19 +1383,19 @@ Section ivar_3_G.
   Proof.
     iIntros "%Φ ((:inv) & HP & HΩ) HΦ".
 
-    wp_apply (base.ivar_3_wait𑁒spec with "[$]") as (o) "Ho".
+    wp_apply (base.ivar_3٠wait𑁒spec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
 
-  Lemma ivar_3_set𑁒spec t Ψ Ξ Ω v :
+  Lemma ivar_3٠set𑁒spec t Ψ Ξ Ω v :
     {{{
       ivar_3_inv t Ψ Ξ Ω ∗
       ivar_3_producer t ∗
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      ivar_3_set t v
+      ivar_3٠set t v
     {{{
       waiters ωs
     , RET lst_to_val waiters;
@@ -1407,7 +1407,7 @@ Section ivar_3_G.
     iIntros "%Φ ((:inv =1) & (:producer =2) & HΨ & HΞ) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.ivar_3_set𑁒spec _ _ Ψ with "[$]").
+    wp_apply (base.ivar_3٠set𑁒spec _ _ Ψ with "[$]").
     iSteps.
   Qed.
 End ivar_3_G.

@@ -13,11 +13,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition inf_mpmc_queue_1_create : val :=
+Definition inf_mpmc_queue_1٠create : val :=
   fun: <> =>
-    { inf_array_create §Nothing, 0, 0 }.
+    { inf_array٠create §Nothing, 0, 0 }.
 
-Definition inf_mpmc_queue_1_size : val :=
+Definition inf_mpmc_queue_1٠size : val :=
   rec: "size" "t" =>
     let: "front" := "t".{front} in
     let: "proph" := Proph in
@@ -29,34 +29,34 @@ Definition inf_mpmc_queue_1_size : val :=
       ==
       "front"
     then (
-      int_positive_part ("back" - "front")
+      int٠positive_part ("back" - "front")
     ) else (
       "size" "t"
     ).
 
-Definition inf_mpmc_queue_1_is_empty : val :=
+Definition inf_mpmc_queue_1٠is_empty : val :=
   fun: "t" =>
-    inf_mpmc_queue_1_size "t" == 0.
+    inf_mpmc_queue_1٠size "t" == 0.
 
-Definition inf_mpmc_queue_1_push : val :=
+Definition inf_mpmc_queue_1٠push : val :=
   fun: "t" "v" =>
     let: "i" := FAA "t".[back] 1 in
-    inf_array_set "t".{data} "i" ‘Something( "v" ).
+    inf_array٠set "t".{data} "i" ‘Something( "v" ).
 
-Definition inf_mpmc_queue_1_pop₀ : val :=
+Definition inf_mpmc_queue_1٠pop₀ : val :=
   rec: "pop" "t" "i" =>
-    match: inf_array_get "t".{data} "i" with
+    match: inf_array٠get "t".{data} "i" with
     | Nothing =>
-        domain_yield () ;;
+        domain٠yield () ;;
         "pop" "t" "i"
     | Anything =>
         Fail
     | Something "v" =>
-        inf_array_set "t".{data} "i" §Anything ;;
+        inf_array٠set "t".{data} "i" §Anything ;;
         "v"
     end.
 
-Definition inf_mpmc_queue_1_pop : val :=
+Definition inf_mpmc_queue_1٠pop : val :=
   fun: "t" =>
     let: "i" := FAA "t".[front] 1 in
-    inf_mpmc_queue_1_pop₀ "t" "i".
+    inf_mpmc_queue_1٠pop₀ "t" "i".

@@ -1,7 +1,7 @@
 From zoo_persistent Require Import
   pqueue__code.
 
-#[global] Opaque pqueue_empty.
-#[global] Opaque pqueue_is_empty.
-#[global] Opaque pqueue_push.
-#[global] Opaque pqueue_pop.
+#[global] Opaque pqueue٠empty.
+#[global] Opaque pqueue٠is_empty.
+#[global] Opaque pqueue٠push.
+#[global] Opaque pqueue٠pop.

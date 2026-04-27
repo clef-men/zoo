@@ -11,39 +11,39 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition ivar_2_create : val :=
+Definition ivar_2٠create : val :=
   fun: <> =>
-    { mutex_create (), condition_create (), §None }.
+    { mutex٠create (), condition٠create (), §None }.
 
-Definition ivar_2_make : val :=
+Definition ivar_2٠make : val :=
   fun: "v" =>
-    { mutex_create (), condition_create (), ‘Some( "v" ) }.
+    { mutex٠create (), condition٠create (), ‘Some( "v" ) }.
 
-Definition ivar_2_try_get : val :=
+Definition ivar_2٠try_get : val :=
   fun: "t" =>
     "t".{result}.
 
-Definition ivar_2_is_unset : val :=
+Definition ivar_2٠is_unset : val :=
   fun: "t" =>
-    ivar_2_try_get "t" == §None.
+    ivar_2٠try_get "t" == §None.
 
-Definition ivar_2_is_set : val :=
+Definition ivar_2٠is_set : val :=
   fun: "t" =>
-    ~ ivar_2_is_unset "t".
+    ~ ivar_2٠is_unset "t".
 
-Definition ivar_2_get : val :=
+Definition ivar_2٠get : val :=
   fun: "t" =>
-    match: ivar_2_try_get "t" with
+    match: ivar_2٠try_get "t" with
     | Some "v" =>
-        mutex_synchronize "t".{mutex} ;;
+        mutex٠synchronize "t".{mutex} ;;
         "v"
     | None =>
         let: "mtx" := "t".{mutex} in
         let: "cond" := "t".{condition} in
-        mutex_protect
+        mutex٠protect
           "mtx"
           (fun: <> =>
-             condition_wait_while
+             condition٠wait_while
                "cond"
                "mtx"
                (fun: <> => "t".{result} == §None)) ;;
@@ -55,7 +55,7 @@ Definition ivar_2_get : val :=
         end
     end.
 
-Definition ivar_2_set : val :=
+Definition ivar_2٠set : val :=
   fun: "t" "v" =>
-    mutex_protect "t".{mutex} (fun: <> => "t" <-{result} ‘Some( "v" )) ;;
-    condition_notify_all "t".{condition}.
+    mutex٠protect "t".{mutex} (fun: <> => "t" <-{result} ‘Some( "v" )) ;;
+    condition٠notify_all "t".{condition}.

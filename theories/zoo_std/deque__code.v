@@ -10,38 +10,38 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition deque_create : val :=
-  xdeque_create.
+Definition deque٠create : val :=
+  xdeque٠create.
 
-Definition deque_is_empty : val :=
-  xdeque_is_empty.
+Definition deque٠is_empty : val :=
+  xdeque٠is_empty.
 
-Definition deque_push_front : val :=
+Definition deque٠push_front : val :=
   fun: "t" "v" =>
-    xdeque_push_front "t" { "t", "t", "v" }.
+    xdeque٠push_front "t" { "t", "t", "v" }.
 
-Definition deque_push_back : val :=
+Definition deque٠push_back : val :=
   fun: "t" "v" =>
-    xdeque_push_back "t" { "t", "t", "v" }.
+    xdeque٠push_back "t" { "t", "t", "v" }.
 
-Definition deque_pop_front : val :=
+Definition deque٠pop_front : val :=
   fun: "t" =>
-    match: xdeque_pop_front "t" with
+    match: xdeque٠pop_front "t" with
     | None =>
         §None
     | Some "node" =>
         ‘Some( "node".{xdeque_data} )
     end.
 
-Definition deque_pop_back : val :=
+Definition deque٠pop_back : val :=
   fun: "t" =>
-    match: xdeque_pop_back "t" with
+    match: xdeque٠pop_back "t" with
     | None =>
         §None
     | Some "node" =>
         ‘Some( "node".{xdeque_data} )
     end.
 
-Definition deque_iter : val :=
+Definition deque٠iter : val :=
   fun: "fn" =>
-    xdeque_iter (fun: "node" => "fn" "node".{xdeque_data}).
+    xdeque٠iter (fun: "node" => "fn" "node".{xdeque_data}).

@@ -10,22 +10,22 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition ws_deque_2_create : val :=
-  ws_deque_1_create.
+Definition ws_deque_2٠create : val :=
+  ws_deque_1٠create.
 
-Definition ws_deque_2_size : val :=
-  ws_deque_1_size.
+Definition ws_deque_2٠size : val :=
+  ws_deque_1٠size.
 
-Definition ws_deque_2_is_empty : val :=
-  ws_deque_1_is_empty.
+Definition ws_deque_2٠is_empty : val :=
+  ws_deque_1٠is_empty.
 
-Definition ws_deque_2_push : val :=
+Definition ws_deque_2٠push : val :=
   fun: "t" "v" =>
-    ws_deque_1_push "t" (ref "v").
+    ws_deque_1٠push "t" (ref "v").
 
-Definition ws_deque_2_steal : val :=
+Definition ws_deque_2٠steal : val :=
   fun: "t" =>
-    match: ws_deque_1_steal "t" with
+    match: ws_deque_1٠steal "t" with
     | None =>
         §None
     | Some "slot" =>
@@ -34,9 +34,9 @@ Definition ws_deque_2_steal : val :=
         ‘Some( "v" )
     end.
 
-Definition ws_deque_2_pop : val :=
+Definition ws_deque_2٠pop : val :=
   fun: "t" =>
-    match: ws_deque_1_pop "t" with
+    match: ws_deque_1٠pop "t" with
     | None =>
         §None
     | Some "slot" =>

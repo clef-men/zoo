@@ -11,24 +11,25 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition spsc_waiter_create : val :=
+Definition spsc_waiter٠create : val :=
   fun: <> =>
-    { mutex_create (), condition_create (), false }.
+    { mutex٠create (), condition٠create (), false }.
 
-Definition spsc_waiter_notify : val :=
+Definition spsc_waiter٠notify : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} true) ;;
-    condition_notify "t".{condition}.
+    mutex٠protect "t".{mutex} (fun: <> => "t" <-{flag} true) ;;
+    condition٠notify "t".{condition}.
 
-Definition spsc_waiter_try_wait : val :=
+Definition spsc_waiter٠try_wait : val :=
   fun: "t" =>
     "t".{flag}.
 
-Definition spsc_waiter_wait : val :=
+Definition spsc_waiter٠wait : val :=
   fun: "t" =>
-    if: ~ spsc_waiter_try_wait "t" then (
+    if: ~ spsc_waiter٠try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect "mtx"
-        (fun: <> => condition_wait_until "cond" "mtx" (fun: <> => "t".{flag}))
+      mutex٠protect "mtx"
+        (fun: <> =>
+           condition٠wait_until "cond" "mtx" (fun: <> => "t".{flag}))
     ).

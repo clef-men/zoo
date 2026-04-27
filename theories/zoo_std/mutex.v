@@ -128,11 +128,11 @@ Section mutex_G.
     iDestruct (excl_exclusive with "Hlocked1 Hlocked2") as %[].
   Qed.
 
-  Lemma mutex_create𑁒spec_init :
+  Lemma mutex٠create𑁒spec_init :
     {{{
       True
     }}}
-      mutex_create ()
+      mutex٠create ()
     {{{
       t
     , RET t;
@@ -149,11 +149,11 @@ Section mutex_G.
 
     iSteps.
   Qed.
-  Lemma mutex_create𑁒spec P :
+  Lemma mutex٠create𑁒spec P :
     {{{
       P
     }}}
-      mutex_create ()
+      mutex٠create ()
     {{{
       t
     , RET t;
@@ -163,16 +163,16 @@ Section mutex_G.
     iIntros "%Φ HP HΦ".
 
     iApply wp_fupd.
-    wp_apply (mutex_create𑁒spec_init with "[//]") as (t) "Hinit".
+    wp_apply (mutex٠create𑁒spec_init with "[//]") as (t) "Hinit".
     iMod (mutex_init_to_inv with "Hinit HP") as "Hinv".
     iApply ("HΦ" with "Hinv").
   Qed.
 
-  Lemma mutex_create_lock𑁒spec_init :
+  Lemma mutex٠create_lock𑁒spec_init :
     {{{
       True
     }}}
-      mutex_create_lock ()
+      mutex٠create_lock ()
     {{{
       t
     , RET t;
@@ -190,11 +190,11 @@ Section mutex_G.
 
     iSteps.
   Qed.
-  Lemma mutex_create_lock𑁒spec P :
+  Lemma mutex٠create_lock𑁒spec P :
     {{{
       True
     }}}
-      mutex_create_lock ()
+      mutex٠create_lock ()
     {{{
       t
     , RET t;
@@ -205,16 +205,16 @@ Section mutex_G.
     iIntros "%Φ HP HΦ".
 
     iApply wp_fupd.
-    wp_apply (mutex_create_lock𑁒spec_init with "[//]") as (t) "(Hinit & Hlocked)".
+    wp_apply (mutex٠create_lock𑁒spec_init with "[//]") as (t) "(Hinit & Hlocked)".
     iMod (mutex_init_to_inv P with "Hinit [//]") as "Hinv".
     iApply ("HΦ" with "[$]").
   Qed.
 
-  Lemma mutex_lock𑁒spec t P :
+  Lemma mutex٠lock𑁒spec t P :
     {{{
       mutex_inv t P
     }}}
-      mutex_lock t
+      mutex٠lock t
     {{{
       RET ();
       mutex_locked t ∗
@@ -236,27 +236,27 @@ Section mutex_G.
     wp_pures.
     iApply ("HLöb" with "HΦ").
   Qed.
-  Lemma mutex_lock𑁒spec_init t :
+  Lemma mutex٠lock𑁒spec_init t :
     {{{
       mutex_init t false
     }}}
-      mutex_lock t
+      mutex٠lock t
     {{{
       RET ();
       mutex_init t true ∗
       mutex_locked t
     }}}.
   Proof.
-    rewrite /mutex_lock. iSteps.
+    rewrite /mutex٠lock. iSteps.
   Qed.
 
-  Lemma mutex_unlock𑁒spec t P :
+  Lemma mutex٠unlock𑁒spec t P :
     {{{
       mutex_inv t P ∗
       mutex_locked t ∗
       P
     }}}
-      mutex_unlock t
+      mutex٠unlock t
     {{{
       RET ();
       True
@@ -267,12 +267,12 @@ Section mutex_G.
 
     iSteps.
   Qed.
-  Lemma mutex_unlock𑁒spec_init t :
+  Lemma mutex٠unlock𑁒spec_init t :
     {{{
       mutex_init t true ∗
       mutex_locked t
     }}}
-      mutex_unlock t
+      mutex٠unlock t
     {{{
       RET ();
       mutex_init t false
@@ -281,11 +281,11 @@ Section mutex_G.
     iSteps.
   Qed.
 
-  Lemma mutex_synchronize𑁒spec t P :
+  Lemma mutex٠synchronize𑁒spec t P :
     {{{
       mutex_inv t P
     }}}
-      mutex_synchronize t
+      mutex٠synchronize t
     {{{
       RET ();
       True
@@ -294,25 +294,25 @@ Section mutex_G.
     iIntros "%Φ #Hinv HΦ".
 
     wp_rec.
-    wp_apply (mutex_lock𑁒spec with "Hinv") as "(Hlocked & HP)".
-    wp_apply+ (mutex_unlock𑁒spec with "[$Hinv $Hlocked $HP] HΦ").
+    wp_apply (mutex٠lock𑁒spec with "Hinv") as "(Hlocked & HP)".
+    wp_apply+ (mutex٠unlock𑁒spec with "[$Hinv $Hlocked $HP] HΦ").
   Qed.
-  #[global] Instance mutex_synchronize𑁒diaspec t P :
+  #[global] Instance mutex٠synchronize𑁒diaspec t P :
     DIASPEC
     {{
       mutex_inv t P
     }}
-      mutex_synchronize t
+      mutex٠synchronize t
     {{
       RET ();
       True
     }}.
   Proof.
     iStep.
-    iApply mutex_synchronize𑁒spec.
+    iApply mutex٠synchronize𑁒spec.
   Qed.
 
-  Lemma mutex_protect𑁒spec Ψ t P fn :
+  Lemma mutex٠protect𑁒spec Ψ t P fn :
     {{{
       mutex_inv t P ∗
       ( mutex_locked t -∗
@@ -324,7 +324,7 @@ Section mutex_G.
         }}
       )
     }}}
-      mutex_protect t fn
+      mutex٠protect t fn
     {{{
       v
     , RET v;
@@ -334,9 +334,9 @@ Section mutex_G.
     iIntros "%Φ (#Hinv & Hfn) HΦ".
 
     wp_rec.
-    wp_apply+ (mutex_lock𑁒spec with "Hinv") as "(Hlocked & HP)".
+    wp_apply+ (mutex٠lock𑁒spec with "Hinv") as "(Hlocked & HP)".
     wp_apply+ (wp_wand with "(Hfn Hlocked HP)") as "%v (Hlocked & HP & HΨ)".
-    wp_apply+ (mutex_unlock𑁒spec with "[$Hinv $Hlocked $HP]").
+    wp_apply+ (mutex٠unlock𑁒spec with "[$Hinv $Hlocked $HP]").
     iSteps.
   Qed.
 End mutex_G.

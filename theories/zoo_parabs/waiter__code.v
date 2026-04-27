@@ -11,30 +11,30 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition waiter_create : val :=
+Definition waiter٠create : val :=
   fun: <> =>
-    { mutex_create (), condition_create (), false }.
+    { mutex٠create (), condition٠create (), false }.
 
-Definition waiter_notify : val :=
+Definition waiter٠notify : val :=
   fun: "t" =>
-    mutex_lock "t".{mutex} ;;
+    mutex٠lock "t".{mutex} ;;
     if: "t".{flag} then (
-      mutex_unlock "t".{mutex} ;;
+      mutex٠unlock "t".{mutex} ;;
       false
     ) else (
       "t" <-{flag} true ;;
-      mutex_unlock "t".{mutex} ;;
-      condition_notify "t".{condition} ;;
+      mutex٠unlock "t".{mutex} ;;
+      condition٠notify "t".{condition} ;;
       true
     ).
 
-Definition waiter_prepare_wait : val :=
+Definition waiter٠prepare_wait : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex} (fun: <> => "t" <-{flag} false).
+    mutex٠protect "t".{mutex} (fun: <> => "t" <-{flag} false).
 
-Definition waiter_cancel_wait : val :=
+Definition waiter٠cancel_wait : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex}
+    mutex٠protect "t".{mutex}
       (fun: <> =>
          if: "t".{flag} then (
            false
@@ -43,11 +43,11 @@ Definition waiter_cancel_wait : val :=
            true
          )).
 
-Definition waiter_commit_wait : val :=
+Definition waiter٠commit_wait : val :=
   fun: "t" =>
-    mutex_protect "t".{mutex}
+    mutex٠protect "t".{mutex}
       (fun: <> =>
-         condition_wait_until
+         condition٠wait_until
            "t".{condition}
            "t".{mutex}
            (fun: <> => "t".{flag})).

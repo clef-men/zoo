@@ -8,14 +8,14 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition mpsc_flag_create : val :=
+Definition mpsc_flag٠create : val :=
   fun: <> =>
     ref false.
 
-Definition mpsc_flag_get : val :=
+Definition mpsc_flag٠get : val :=
   fun: "1" =>
     !"1".
 
-Definition mpsc_flag_set : val :=
+Definition mpsc_flag٠set : val :=
   fun: "t" =>
     "t" <- true.

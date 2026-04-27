@@ -12,7 +12,7 @@ From zoo.diaframe Require Import
 From zoo Require Import
   options.
 
-Parameter unix_close : val.
+Parameter unix٠close : val.
 
 Parameter unix_fd_model : ∀ `{zoo_G : !ZooG Σ}, val → dfrac → list ascii → iProp Σ.
 
@@ -25,26 +25,26 @@ Proof.
   split; [done | apply _].
 Qed.
 
-Axiom unix_close𑁒spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
+Axiom unix٠close𑁒spec : ∀ `{zoo_G : !ZooG Σ} fd chars,
   {{{
     unix_fd_model fd (DfracOwn 1) chars
   }}}
-    unix_close fd
+    unix٠close fd
   {{{
     RET ();
     True
   }}}.
-#[global] Instance unix_close𑁒diaspec `{zoo_G : !ZooG Σ} fd chars :
+#[global] Instance unix٠close𑁒diaspec `{zoo_G : !ZooG Σ} fd chars :
   DIASPEC
   {{
     unix_fd_model fd (DfracOwn 1) chars
   }}
-    unix_close fd
+    unix٠close fd
   {{
     RET ();
     True
   }}.
 Proof.
   iSteps as (Φ) "Hfd HΦ".
-  wp_apply (unix_close𑁒spec with "Hfd HΦ").
+  wp_apply (unix٠close𑁒spec with "Hfd HΦ").
 Qed.

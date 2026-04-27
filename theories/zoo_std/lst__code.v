@@ -8,11 +8,11 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition lst_singleton : val :=
+Definition lst٠singleton : val :=
   fun: "v" =>
     "v" :: [].
 
-Definition lst_head : val :=
+Definition lst٠head : val :=
   fun: "param" =>
     match: "param" with
     | [] =>
@@ -21,7 +21,7 @@ Definition lst_head : val :=
         "v"
     end.
 
-Definition lst_tail : val :=
+Definition lst٠tail : val :=
   fun: "param" =>
     match: "param" with
     | [] =>
@@ -30,7 +30,7 @@ Definition lst_tail : val :=
         "t"
     end.
 
-Definition lst_is_empty : val :=
+Definition lst٠is_empty : val :=
   fun: "param" =>
     match: "param" with
     | [] =>
@@ -39,15 +39,15 @@ Definition lst_is_empty : val :=
         false
     end.
 
-Definition lst_get : val :=
+Definition lst٠get : val :=
   rec: "get" "t" "i" =>
     if: "i" ≤ 0 then (
-      lst_head "t"
+      lst٠head "t"
     ) else (
-      "get" (lst_tail "t") ("i" - 1)
+      "get" (lst٠tail "t") ("i" - 1)
     ).
 
-Definition lst_initi₀ : val :=
+Definition lst٠initi₀ : val :=
   rec: "initi" "sz" "fn" "i" =>
     if: "sz" ≤ "i" then (
       []
@@ -56,15 +56,15 @@ Definition lst_initi₀ : val :=
       "v" :: "initi" "sz" "fn" ("i" + 1)
     ).
 
-Definition lst_initi : val :=
+Definition lst٠initi : val :=
   fun: "sz" "fn" =>
-    lst_initi₀ "sz" "fn" 0.
+    lst٠initi₀ "sz" "fn" 0.
 
-Definition lst_init : val :=
+Definition lst٠init : val :=
   fun: "sz" "fn" =>
-    lst_initi "sz" (fun: "_i" => "fn" ()).
+    lst٠initi "sz" (fun: "_i" => "fn" ()).
 
-Definition lst_foldli₀ : val :=
+Definition lst٠foldli₀ : val :=
   rec: "foldli" "fn" "i" "acc" "t" =>
     match: "t" with
     | [] =>
@@ -73,15 +73,15 @@ Definition lst_foldli₀ : val :=
         "foldli" "fn" ("i" + 1) ("fn" "i" "acc" "v") "t"
     end.
 
-Definition lst_foldli : val :=
+Definition lst٠foldli : val :=
   fun: "fn" =>
-    lst_foldli₀ "fn" 0.
+    lst٠foldli₀ "fn" 0.
 
-Definition lst_foldl : val :=
+Definition lst٠foldl : val :=
   fun: "fn" =>
-    lst_foldli (fun: "_i" => "fn").
+    lst٠foldli (fun: "_i" => "fn").
 
-Definition lst_foldri₀ : val :=
+Definition lst٠foldri₀ : val :=
   rec: "foldri" "fn" "i" "t" "acc" =>
     match: "t" with
     | [] =>
@@ -90,43 +90,43 @@ Definition lst_foldri₀ : val :=
         "fn" "i" "v" ("foldri" "fn" ("i" + 1) "t" "acc")
     end.
 
-Definition lst_foldri : val :=
+Definition lst٠foldri : val :=
   fun: "fn" =>
-    lst_foldri₀ "fn" 0.
+    lst٠foldri₀ "fn" 0.
 
-Definition lst_foldr : val :=
+Definition lst٠foldr : val :=
   fun: "fn" =>
-    lst_foldri (fun: "_i" => "fn").
+    lst٠foldri (fun: "_i" => "fn").
 
-Definition lst_size : val :=
+Definition lst٠size : val :=
   fun: "t" =>
-    lst_foldl (fun: "acc" <> => "acc" + 1) 0 "t".
+    lst٠foldl (fun: "acc" <> => "acc" + 1) 0 "t".
 
-Definition lst_rev_app : val :=
+Definition lst٠rev_app : val :=
   fun: "t1" "t2" =>
-    lst_foldl (fun: "acc" "v" => "v" :: "acc") "t2" "t1".
+    lst٠foldl (fun: "acc" "v" => "v" :: "acc") "t2" "t1".
 
-Definition lst_rev : val :=
+Definition lst٠rev : val :=
   fun: "t" =>
-    lst_rev_app "t" [].
+    lst٠rev_app "t" [].
 
-Definition lst_app : val :=
+Definition lst٠app : val :=
   fun: "t1" "t2" =>
-    lst_foldr (fun: "v" "acc" => "v" :: "acc") "t1" "t2".
+    lst٠foldr (fun: "v" "acc" => "v" :: "acc") "t1" "t2".
 
-Definition lst_snoc : val :=
+Definition lst٠snoc : val :=
   fun: "t" "v" =>
-    lst_app "t" (lst_singleton "v").
+    lst٠app "t" (lst٠singleton "v").
 
-Definition lst_iteri : val :=
+Definition lst٠iteri : val :=
   fun: "fn" =>
-    lst_foldli (fun: "i" <> => "fn" "i") ().
+    lst٠foldli (fun: "i" <> => "fn" "i") ().
 
-Definition lst_iter : val :=
+Definition lst٠iter : val :=
   fun: "fn" =>
-    lst_iteri (fun: "_i" => "fn").
+    lst٠iteri (fun: "_i" => "fn").
 
-Definition lst_mapi₀ : val :=
+Definition lst٠mapi₀ : val :=
   rec: "mapi" "fn" "i" "t" =>
     match: "t" with
     | [] =>
@@ -136,15 +136,15 @@ Definition lst_mapi₀ : val :=
         "v" :: "mapi" "fn" ("i" + 1) "t"
     end.
 
-Definition lst_mapi : val :=
+Definition lst٠mapi : val :=
   fun: "fn" =>
-    lst_mapi₀ "fn" 0.
+    lst٠mapi₀ "fn" 0.
 
-Definition lst_map : val :=
+Definition lst٠map : val :=
   fun: "fn" =>
-    lst_mapi (fun: "_i" => "fn").
+    lst٠mapi (fun: "_i" => "fn").
 
-Definition lst_forall : val :=
+Definition lst٠forall : val :=
   rec: "forall" "pred" "param" =>
     match: "param" with
     | [] =>
@@ -153,7 +153,7 @@ Definition lst_forall : val :=
         "pred" "v" and "forall" "pred" "t"
     end.
 
-Definition lst_exists : val :=
+Definition lst٠exists : val :=
   rec: "exists" "pred" "param" =>
     match: "param" with
     | [] =>

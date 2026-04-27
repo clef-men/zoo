@@ -8,7 +8,7 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition clst_app : val :=
+Definition clst٠app : val :=
   rec: "app" "t1" "t2" =>
     match: "t1" with
     | ClstClosed =>
@@ -19,7 +19,7 @@ Definition clst_app : val :=
         ‘ClstCons[ "v", "app" "t1" "t2" ]
     end.
 
-Definition clst_rev_app : val :=
+Definition clst٠rev_app : val :=
   rec: "rev_app" "t1" "t2" =>
     match: "t1" with
     | ClstClosed =>
@@ -30,7 +30,7 @@ Definition clst_rev_app : val :=
         "rev_app" "t1" ‘ClstCons[ "v", "t2" ]
     end.
 
-Definition clst_iter : val :=
+Definition clst٠iter : val :=
   rec: "iter" "fn" "param" =>
     match: "param" with
     | ClstClosed =>

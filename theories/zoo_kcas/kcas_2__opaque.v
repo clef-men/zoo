@@ -1,6 +1,6 @@
 From zoo_kcas Require Import
   kcas_2__code.
 
-#[global] Opaque kcas_2_make.
-#[global] Opaque kcas_2_get.
-#[global] Opaque kcas_2_cas.
+#[global] Opaque kcas_2٠make.
+#[global] Opaque kcas_2٠get.
+#[global] Opaque kcas_2٠cas.

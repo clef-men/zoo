@@ -10,24 +10,24 @@ From zoo_partition Require Import
 From zoo Require Import
   options.
 
-Definition partition_dllist_create : val :=
+Definition partition٠dllist_create : val :=
   fun: "v" "class_" =>
     let: "elt" := { (), (), "v", "class_", false } in
     "elt" <-{prev} "elt" ;;
     "elt" <-{next} "elt" ;;
     "elt".
 
-Definition partition_dllist_link : val :=
+Definition partition٠dllist_link : val :=
   fun: "elt1" "elt2" =>
     "elt1" <-{next} "elt2" ;;
     "elt2" <-{prev} "elt1".
 
-Definition partition_dllist_insert_right : val :=
+Definition partition٠dllist_insert_right : val :=
   fun: "dst" "elt" =>
-    partition_dllist_link "elt" "dst".{next} ;;
-    partition_dllist_link "dst" "elt".
+    partition٠dllist_link "elt" "dst".{next} ;;
+    partition٠dllist_link "dst" "elt".
 
-Definition partition_dllist_swap : val :=
+Definition partition٠dllist_swap : val :=
   fun: "elt1" "elt2" =>
     if: "elt1" != "elt2" then (
       let: "prev1" := "elt1".{prev} in
@@ -36,40 +36,40 @@ Definition partition_dllist_swap : val :=
       let: "next2" := "elt2".{next} in
       if: "next1" == "elt2" then (
         if: "next2" != "elt1" then (
-          partition_dllist_link "elt1" "next2" ;;
-          partition_dllist_link "elt2" "elt1" ;;
-          partition_dllist_link "prev1" "elt2"
+          partition٠dllist_link "elt1" "next2" ;;
+          partition٠dllist_link "elt2" "elt1" ;;
+          partition٠dllist_link "prev1" "elt2"
         )
       ) else if: "prev1" == "elt2" then (
-        partition_dllist_link "prev2" "elt1" ;;
-        partition_dllist_link "elt1" "elt2" ;;
-        partition_dllist_link "elt2" "next1"
+        partition٠dllist_link "prev2" "elt1" ;;
+        partition٠dllist_link "elt1" "elt2" ;;
+        partition٠dllist_link "elt2" "next1"
       ) else (
-        partition_dllist_link "prev2" "elt1" ;;
-        partition_dllist_link "elt1" "next2" ;;
-        partition_dllist_link "elt2" "next1" ;;
-        partition_dllist_link "prev1" "elt2"
+        partition٠dllist_link "prev2" "elt1" ;;
+        partition٠dllist_link "elt1" "next2" ;;
+        partition٠dllist_link "elt2" "next1" ;;
+        partition٠dllist_link "prev1" "elt2"
       )
     ).
 
-Definition partition_dllist_iter : val :=
+Definition partition٠dllist_iter : val :=
   rec: "dllist_iter" "fn" "from" "to_" =>
     "fn" "from" ;;
     if: "from" != "to_" then (
       "dllist_iter" "fn" "from".{next} "to_"
     ).
 
-Definition partition_class_is_singleton : val :=
+Definition partition٠class_is_singleton : val :=
   fun: "class_" =>
     "class_".{len} == 1.
 
-Definition partition_class_add : val :=
+Definition partition٠class_add : val :=
   fun: "class_" "elt" =>
-    partition_dllist_insert_right "class_".{last} "elt" ;;
+    partition٠dllist_insert_right "class_".{last} "elt" ;;
     "class_" <-{last} "elt" ;;
     "class_" <-{len} "class_".{len} + 1.
 
-Definition partition_class_swap : val :=
+Definition partition٠class_swap : val :=
   fun: "class_" "elt1" "elt2" =>
     if: "elt1" != "elt2" then (
       let: "first" := "class_".{first} in
@@ -84,51 +84,51 @@ Definition partition_class_swap : val :=
       ) else if: "last" == "elt1" then (
         "class_" <-{last} "elt2"
       ) ;;
-      partition_dllist_swap "elt1" "elt2"
+      partition٠dllist_swap "elt1" "elt2"
     ).
 
-Definition partition_class_iter : val :=
+Definition partition٠class_iter : val :=
   fun: "fn" "class_" =>
-    partition_dllist_iter "fn" "class_".{first} "class_".{last}.
+    partition٠dllist_iter "fn" "class_".{first} "class_".{last}.
 
-Definition partition_make : val :=
+Definition partition٠make : val :=
   fun: "v" =>
-    let: "elt" := partition_dllist_create "v" () in
+    let: "elt" := partition٠dllist_create "v" () in
     let: "class_" := { "elt", "elt", 1, "elt", 0 } in
     "elt" <-{class_} "class_" ;;
     "elt".
 
-Definition partition_make_same_class : val :=
+Definition partition٠make_same_class : val :=
   fun: "elt" "v" =>
     let: "class_" := "elt".{class_} in
-    let: "elt" := partition_dllist_create "v" "class_" in
-    partition_class_add "class_" "elt" ;;
+    let: "elt" := partition٠dllist_create "v" "class_" in
+    partition٠class_add "class_" "elt" ;;
     "elt".
 
-Definition partition_get : val :=
+Definition partition٠get : val :=
   fun: "elt" =>
     "elt".{data}.
 
-Definition partition_equal : val :=
+Definition partition٠equal : val :=
   fun: "1" "2" =>
     "1" == "2".
 
-Definition partition_equiv : val :=
+Definition partition٠equiv : val :=
   fun: "elt1" "elt2" =>
     "elt1".{class_} == "elt2".{class_}.
 
-Definition partition_repr : val :=
+Definition partition٠repr : val :=
   fun: "elt" =>
     "elt".{class_}.{first}.
 
-Definition partition_cardinal : val :=
+Definition partition٠cardinal : val :=
   fun: "elt" =>
     "elt".{class_}.{len}.
 
-Definition partition_record₀ : val :=
+Definition partition٠record₀ : val :=
   fun: "split_list" "elt" =>
     let: "class_" := "elt".{class_} in
-    if: partition_class_is_singleton "class_" or "elt".{seen} then (
+    if: partition٠class_is_singleton "class_" or "elt".{seen} then (
       "split_list"
     ) else (
       "elt" <-{seen} true ;;
@@ -139,7 +139,7 @@ Definition partition_record₀ : val :=
         "split_list"
       ) else (
         let: "record_class" := "split" == "class_".{first} in
-        partition_class_swap "class_" "split" "elt" ;;
+        partition٠class_swap "class_" "split" "elt" ;;
         "class_" <-{split} "elt".{next} ;;
         "class_" <-{split_len} "class_".{split_len} + 1 ;;
         if: "record_class" then (
@@ -150,16 +150,16 @@ Definition partition_record₀ : val :=
       )
     ).
 
-Definition partition_record : val :=
+Definition partition٠record : val :=
   fun: "elts" =>
-    lst_foldl partition_record₀ [] "elts".
+    lst٠foldl partition٠record₀ [] "elts".
 
-Definition partition_split₀ : val :=
+Definition partition٠split₀ : val :=
   fun: "class_" =>
     let: "first" := "class_".{first} in
     let: "split" := "class_".{split} in
     if: "split" == "first" then (
-      partition_class_iter (fun: "elt" => "elt" <-{seen} false) "class_"
+      partition٠class_iter (fun: "elt" => "elt" <-{seen} false) "class_"
     ) else (
       "class_" <-{first} "split" ;;
       "class_" <-{split} "split" ;;
@@ -168,17 +168,17 @@ Definition partition_split₀ : val :=
       "class_" <-{len} "class_".{len} - "split_len" ;;
       let: "prev" := "split".{prev} in
       let: "class'" := { "first", "prev", "split_len", "first", 0 } in
-      partition_dllist_iter
+      partition٠dllist_iter
         (fun: "elt" => "elt" <-{class_} "class'" ;;
                        "elt" <-{seen} false)
         "first"
         "prev"
     ).
 
-Definition partition_split : val :=
+Definition partition٠split : val :=
   fun: "split_list" =>
-    lst_iter partition_split₀ "split_list".
+    lst٠iter partition٠split₀ "split_list".
 
-Definition partition_refine : val :=
+Definition partition٠refine : val :=
   fun: "elts" =>
-    partition_split (partition_record "elts").
+    partition٠split (partition٠record "elts").

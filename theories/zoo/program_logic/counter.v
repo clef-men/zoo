@@ -14,20 +14,20 @@ From zoo.diaframe Require Import
 From zoo Require Import
   options.
 
-Definition zoo_counter_incr : val :=
+Definition zoo_counter٠incr : val :=
   fun: <> =>
     FAA (#zoo_counter).[contents] 1.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Lemma zoo_counter_incr𑁒spec ids v :
+  Lemma zoo_counter٠incr𑁒spec ids v :
     {{{
       [∗ list] id ∈ ids,
         ∃ v,
         zoo_counter_at id v
     }}}
-      zoo_counter_incr ()
+      zoo_counter٠incr ()
     {{{
       id
     , RET #id;

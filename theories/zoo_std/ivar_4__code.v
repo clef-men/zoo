@@ -11,31 +11,31 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition ivar_4_create : val :=
-  ivar_3_create.
+Definition ivar_4٠create : val :=
+  ivar_3٠create.
 
-Definition ivar_4_make : val :=
-  ivar_3_make.
+Definition ivar_4٠make : val :=
+  ivar_3٠make.
 
-Definition ivar_4_is_unset : val :=
-  ivar_3_is_unset.
+Definition ivar_4٠is_unset : val :=
+  ivar_3٠is_unset.
 
-Definition ivar_4_is_set : val :=
-  ivar_3_is_set.
+Definition ivar_4٠is_set : val :=
+  ivar_3٠is_set.
 
-Definition ivar_4_try_get : val :=
-  ivar_3_try_get.
+Definition ivar_4٠try_get : val :=
+  ivar_3٠try_get.
 
-Definition ivar_4_get : val :=
-  ivar_3_get.
+Definition ivar_4٠get : val :=
+  ivar_3٠get.
 
-Definition ivar_4_wait : val :=
-  ivar_3_wait.
+Definition ivar_4٠wait : val :=
+  ivar_3٠wait.
 
-Definition ivar_4_set : val :=
-  ivar_3_set.
+Definition ivar_4٠set : val :=
+  ivar_3٠set.
 
-Definition ivar_4_notify : val :=
+Definition ivar_4٠notify : val :=
   fun: "t" "ctx" "v" =>
-    let: "waiters" := ivar_4_set "t" "v" in
-    lst_iter (fun: "waiter" => "waiter" "ctx" "v") "waiters".
+    let: "waiters" := ivar_4٠set "t" "v" in
+    lst٠iter (fun: "waiter" => "waiter" "ctx" "v") "waiters".

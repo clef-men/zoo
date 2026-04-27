@@ -139,8 +139,8 @@ Proof.
 Qed.
 
 Parameter gc_roots : ∀ `{zoo_G : !ZooG Σ}, (gc_state → iProp Σ) → iProp Σ.
-Parameter gc_set_roots : val.
-Axiom gc_set_roots𑁒spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
+Parameter gc٠set_roots : val.
+Axiom gc٠set_roots𑁒spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
   {{{
     gc_model gc ∗
     gc_roots Χ' ∗
@@ -176,22 +176,22 @@ Axiom gc_set_roots𑁒spec : ∀ `{zoo_G : !ZooG Σ} {gc Χ' iter} Χ Ξ ofs,
       }}}
     )
   }}}
-    gc_set_roots iter #ofs
+    gc٠set_roots iter #ofs
   {{{
     RET ();
     gc_model gc ∗
     gc_roots Χ
   }}}.
 
-Parameter gc_alloc : val.
-Axiom gc_alloc𑁒spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
+Parameter gc٠alloc : val.
+Axiom gc٠alloc𑁒spec : ∀ `{zoo_G : !ZooG Σ} gc Χ n,
   (0 < n)%Z →
   {{{
     gc_model gc ∗
     gc_roots Χ ∗
     Χ gc
   }}}
-    gc_alloc #n
+    gc٠alloc #n
   {{{
     l gc ω
   , RET #l;

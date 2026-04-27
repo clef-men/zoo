@@ -8,7 +8,7 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition int_min : val :=
+Definition int٠min : val :=
   fun: "n1" "n2" =>
     if: "n1" < "n2" then (
       "n1"
@@ -16,7 +16,7 @@ Definition int_min : val :=
       "n2"
     ).
 
-Definition int_max : val :=
+Definition int٠max : val :=
   fun: "n1" "n2" =>
     if: "n1" < "n2" then (
       "n2"
@@ -24,6 +24,6 @@ Definition int_max : val :=
       "n1"
     ).
 
-Definition int_positive_part : val :=
+Definition int٠positive_part : val :=
   fun: "t" =>
-    int_max 0 "t".
+    int٠max 0 "t".

@@ -1,6 +1,6 @@
 From zoo_std Require Import
   clst__code.
 
-#[global] Opaque clst_app.
-#[global] Opaque clst_rev_app.
-#[global] Opaque clst_iter.
+#[global] Opaque clst٠app.
+#[global] Opaque clst٠rev_app.
+#[global] Opaque clst٠iter.

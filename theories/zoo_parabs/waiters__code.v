@@ -14,49 +14,49 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition waiters_create : val :=
+Definition waiters٠create : val :=
   fun: "sz" =>
-    (array_unsafe_init "sz" waiter_create, mpmc_queue_1_create ()).
+    (array٠unsafe_init "sz" waiter٠create, mpmc_queue_1٠create ()).
 
-Definition waiters_notify : val :=
+Definition waiters٠notify : val :=
   fun: "t" "i" =>
-    let: "waiter" := array_unsafe_get "t".<waiters> "i" in
-    waiter_notify "waiter" ;;
+    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+    waiter٠notify "waiter" ;;
     ().
 
-Definition waiters_notify_one : val :=
+Definition waiters٠notify_one : val :=
   rec: "notify_one" "t" =>
-    match: mpmc_queue_1_pop "t".<queue> with
+    match: mpmc_queue_1٠pop "t".<queue> with
     | None =>
         ()
     | Some "waiter" =>
-        if: ~ waiter_notify "waiter" then (
+        if: ~ waiter٠notify "waiter" then (
           "notify_one" "t"
         )
     end.
 
-Definition waiters_notify_all : val :=
+Definition waiters٠notify_all : val :=
   rec: "notify_all" "t" =>
-    match: mpmc_queue_1_pop "t".<queue> with
+    match: mpmc_queue_1٠pop "t".<queue> with
     | None =>
         ()
     | Some "waiter" =>
-        waiter_notify "waiter" ;;
+        waiter٠notify "waiter" ;;
         "notify_all" "t"
     end.
 
-Definition waiters_prepare_wait : val :=
+Definition waiters٠prepare_wait : val :=
   fun: "t" "i" =>
-    let: "waiter" := array_unsafe_get "t".<waiters> "i" in
-    waiter_prepare_wait "waiter" ;;
-    mpmc_queue_1_push "t".<queue> "waiter".
+    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+    waiter٠prepare_wait "waiter" ;;
+    mpmc_queue_1٠push "t".<queue> "waiter".
 
-Definition waiters_cancel_wait : val :=
+Definition waiters٠cancel_wait : val :=
   fun: "t" "i" =>
-    let: "waiter" := array_unsafe_get "t".<waiters> "i" in
-    waiter_cancel_wait "waiter".
+    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+    waiter٠cancel_wait "waiter".
 
-Definition waiters_commit_wait : val :=
+Definition waiters٠commit_wait : val :=
   fun: "t" "i" =>
-    let: "waiter" := array_unsafe_get "t".<waiters> "i" in
-    waiter_commit_wait "waiter".
+    let: "waiter" := array٠unsafe_get "t".<waiters> "i" in
+    waiter٠commit_wait "waiter".

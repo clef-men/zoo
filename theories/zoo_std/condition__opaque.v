@@ -1,9 +1,9 @@
 From zoo_std Require Import
   condition__code.
 
-#[global] Opaque condition_create.
-#[global] Opaque condition_notify.
-#[global] Opaque condition_notify_all.
-#[global] Opaque condition_wait.
-#[global] Opaque condition_wait_until.
-#[global] Opaque condition_wait_while.
+#[global] Opaque condition٠create.
+#[global] Opaque condition٠notify.
+#[global] Opaque condition٠notify_all.
+#[global] Opaque condition٠wait.
+#[global] Opaque condition٠wait_until.
+#[global] Opaque condition٠wait_while.

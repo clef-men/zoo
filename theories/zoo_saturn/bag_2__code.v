@@ -12,11 +12,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition bag_2_create : val :=
+Definition bag_2٠create : val :=
   fun: <> =>
     { §Null }.
 
-Definition bag_2_add_producer₀ : val :=
+Definition bag_2٠add_producer₀ : val :=
   rec: "add_producer" "t" "queue" =>
     let: "producers" := "t".{producers} in
     match: ‘Node{ "producers", "queue" } with
@@ -24,37 +24,37 @@ Definition bag_2_add_producer₀ : val :=
         if: CAS "t".[producers] "producers" "new_producers" then (
           "new_producers"
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "add_producer" "t" "queue"
         )
     end.
 
-Definition bag_2_add_producer : val :=
+Definition bag_2٠add_producer : val :=
   fun: "t" "queue" =>
-    bag_2_add_producer₀ "t" ‘Some( "queue" ).
+    bag_2٠add_producer₀ "t" ‘Some( "queue" ).
 
-Definition bag_2_create_producer : val :=
+Definition bag_2٠create_producer : val :=
   fun: "t" =>
-    let: "queue" := spmc_queue_create () in
-    let: "node" := bag_2_add_producer "t" "queue" in
+    let: "queue" := spmc_queue٠create () in
+    let: "node" := bag_2٠add_producer "t" "queue" in
     ("queue", "node").
 
-Definition bag_2_close_producer : val :=
+Definition bag_2٠close_producer : val :=
   fun: "producer" =>
     match: "producer".<producer_node> with
     | Node <> <> as "node_r" =>
         "node_r" <-{queue} §None
     end.
 
-Definition bag_2_create_consumer : val :=
+Definition bag_2٠create_consumer : val :=
   fun: "_t" =>
     { §None }.
 
-Definition bag_2_push : val :=
+Definition bag_2٠push : val :=
   fun: "producer" "v" =>
-    spmc_queue_push "producer".<producer_queue> "v".
+    spmc_queue٠push "producer".<producer_queue> "v".
 
-Definition bag_2_pop₀ : val :=
+Definition bag_2٠pop₀ : val :=
   rec: "pop" "consumer" "param" =>
     match: "param" with
     | Null =>
@@ -64,7 +64,7 @@ Definition bag_2_pop₀ : val :=
         | None =>
             "pop" "consumer" "node_r".{next}
         | Some "queue" =>
-            match: spmc_queue_pop "queue" with
+            match: spmc_queue٠pop "queue" with
             | None =>
                 "pop" "consumer" "node_r".{next}
             | Some <> as "res" =>
@@ -74,19 +74,19 @@ Definition bag_2_pop₀ : val :=
         end
     end.
 
-Definition bag_2_pop₁ : val :=
+Definition bag_2٠pop₁ : val :=
   fun: "t" "consumer" =>
-    bag_2_pop₀ "consumer" "t".{producers}.
+    bag_2٠pop₀ "consumer" "t".{producers}.
 
-Definition bag_2_pop : val :=
+Definition bag_2٠pop : val :=
   fun: "t" "consumer" =>
     match: "consumer".{consumer_queue} with
     | None =>
-        bag_2_pop₁ "t" "consumer"
+        bag_2٠pop₁ "t" "consumer"
     | Some "queue" =>
-        match: spmc_queue_pop "queue" with
+        match: spmc_queue٠pop "queue" with
         | None =>
-            bag_2_pop₁ "t" "consumer"
+            bag_2٠pop₁ "t" "consumer"
         | Some <> as "res" =>
             "res"
         end

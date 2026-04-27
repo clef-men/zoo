@@ -11,20 +11,20 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpmc_stack_1_create : val :=
+Definition mpmc_stack_1٠create : val :=
   fun: <> =>
     ref §Gnil.
 
-Definition mpmc_stack_1_push : val :=
+Definition mpmc_stack_1٠push : val :=
   rec: "push" "t" "v" =>
     let: "old" := !"t" in
     let: "new_" := ‘Gcons[ "v", "old" ] in
     if: ~ CAS "t".[contents] "old" "new_" then (
-      domain_yield () ;;
+      domain٠yield () ;;
       "push" "t" "v"
     ).
 
-Definition mpmc_stack_1_pop : val :=
+Definition mpmc_stack_1٠pop : val :=
   rec: "pop" "t" =>
     match: !"t" with
     | Gnil =>
@@ -33,11 +33,11 @@ Definition mpmc_stack_1_pop : val :=
         if: CAS "t".[contents] "old" "new_" then (
           ‘Some( "v" )
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "pop" "t"
         )
     end.
 
-Definition mpmc_stack_1_snapshot : val :=
+Definition mpmc_stack_1٠snapshot : val :=
   fun: "t" =>
     !"t".

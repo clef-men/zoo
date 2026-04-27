@@ -200,12 +200,12 @@ Section mpmc_bstack_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma mpmc_bstack_create𑁒spec ι (cap : Z) :
+  Lemma mpmc_bstack٠create𑁒spec ι (cap : Z) :
     (0 < cap)%Z →
     {{{
       True
     }}}
-      mpmc_bstack_create #cap
+      mpmc_bstack٠create #cap
     {{{
       t
     , RET t;
@@ -233,13 +233,13 @@ Section mpmc_bstack_G.
     iStep 5. iApply inv_alloc. iExists []. iSteps.
   Qed.
 
-  Lemma mpmc_bstack_size𑁒spec t ι cap :
+  Lemma mpmc_bstack٠size𑁒spec t ι cap :
     <<<
       mpmc_bstack_inv t ι cap
     | ∀∀ vs,
       mpmc_bstack_model t vs
     >>>
-      mpmc_bstack_size t @ ↑ι
+      mpmc_bstack٠size t @ ↑ι
     <<<
       mpmc_bstack_model t vs
     | RET #(length vs);
@@ -263,13 +263,13 @@ Section mpmc_bstack_G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  Lemma mpmc_bstack_is_empty𑁒spec t ι cap :
+  Lemma mpmc_bstack٠is_empty𑁒spec t ι cap :
     <<<
       mpmc_bstack_inv t ι cap
     | ∀∀ vs,
       mpmc_bstack_model t vs
     >>>
-      mpmc_bstack_is_empty t @ ↑ι
+      mpmc_bstack٠is_empty t @ ↑ι
     <<<
       mpmc_bstack_model t vs
     | RET #(bool_decide (vs = []%list));
@@ -293,7 +293,7 @@ Section mpmc_bstack_G.
     destruct vs as [| v vs]; iSteps.
   Qed.
 
-  #[local] Lemma mpmc_bstack_push_aux_push𑁒spec t ι cap v :
+  #[local] Lemma mpmc_bstack٠push_aux_push𑁒spec t ι cap v :
     ⊢ (
       ∀ (sz : Z) front ws,
       <<<
@@ -304,7 +304,7 @@ Section mpmc_bstack_G.
       | ∀∀ vs,
         mpmc_bstack_model t vs
       >>>
-        mpmc_bstack_push_aux t #sz v front @ ↑ι
+        mpmc_bstack٠push_aux t #sz v front @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -318,7 +318,7 @@ Section mpmc_bstack_G.
       | ∀∀ vs,
         mpmc_bstack_model t vs
       >>>
-        mpmc_bstack_push t v @ ↑ι
+        mpmc_bstack٠push t v @ ↑ι
       <<<
         ∃∃ b,
         ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -388,13 +388,13 @@ Section mpmc_bstack_G.
           rewrite bool_decide_eq_false_2; first lia.
           wp_apply+ ("IHpush_aux" $! _ _ (w :: vs) with "[] HΦ"); first iSteps.
   Qed.
-  Lemma mpmc_bstack_push𑁒spec t ι cap v :
+  Lemma mpmc_bstack٠push𑁒spec t ι cap v :
     <<<
       mpmc_bstack_inv t ι cap
     | ∀∀ vs,
       mpmc_bstack_model t vs
     >>>
-      mpmc_bstack_push t v @ ↑ι
+      mpmc_bstack٠push t v @ ↑ι
     <<<
       ∃∃ b,
       ⌜b = bool_decide (length vs < cap)⌝ ∗
@@ -403,17 +403,17 @@ Section mpmc_bstack_G.
       True
     >>>.
   Proof.
-    iPoseProof mpmc_bstack_push_aux_push𑁒spec as "(_ & H)".
+    iPoseProof mpmc_bstack٠push_aux_push𑁒spec as "(_ & H)".
     iApply "H".
   Qed.
 
-  Lemma mpmc_bstack_pop𑁒spec t ι cap :
+  Lemma mpmc_bstack٠pop𑁒spec t ι cap :
     <<<
       mpmc_bstack_inv t ι cap
     | ∀∀ vs,
       mpmc_bstack_model t vs
     >>>
-      mpmc_bstack_pop t @ ↑ι
+      mpmc_bstack٠pop t @ ↑ι
     <<<
       mpmc_bstack_model t (tail vs)
     | RET head vs;

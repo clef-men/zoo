@@ -472,11 +472,11 @@ Section bag_2_G.
     iApply (pointsto_exclusive with "Hconsumer_queue_1 Hconsumer_queue_2").
   Qed.
 
-  Lemma bag_2_create𑁒spec ι :
+  Lemma bag_2٠create𑁒spec ι :
     {{{
       True
     }}}
-      bag_2_create ()
+      bag_2٠create ()
     {{{
       t
     , RET t;
@@ -506,7 +506,7 @@ Section bag_2_G.
     rewrite big_sepM_empty. iSteps.
   Qed.
 
-  #[local] Lemma bag_2_add_producer₀𑁒spec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producer₀𑁒spec l γ (queue : val) :
     <<<
       meta l nroot γ ∗
       inv' l γ ∗
@@ -515,7 +515,7 @@ Section bag_2_G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2_add_producer₀ #l (Some queue) @ ↑γ.(metadata_inv)
+      bag_2٠add_producer₀ #l (Some queue) @ ↑γ.(metadata_inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -575,7 +575,7 @@ Section bag_2_G.
     iSplitR "HΦ". { iFrameSteps. }
     iSteps.
   Qed.
-  #[local] Lemma bag_2_add_producer𑁒spec l γ (queue : val) :
+  #[local] Lemma bag_2٠add_producer𑁒spec l γ (queue : val) :
     <<<
       meta l nroot γ ∗
       inv' l γ ∗
@@ -584,7 +584,7 @@ Section bag_2_G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2_add_producer #l queue @ ↑γ.(metadata_inv)
+      bag_2٠add_producer #l queue @ ↑γ.(metadata_inv)
     <<<
       ∃∃ node,
       let 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟 :=
@@ -601,15 +601,15 @@ Section bag_2_G.
     iIntros "%Φ H HΦ".
 
     wp_rec.
-    wp_apply+ (bag_2_add_producer₀𑁒spec with "H HΦ").
+    wp_apply+ (bag_2٠add_producer₀𑁒spec with "H HΦ").
   Qed.
-  Lemma bag_2_create_producer𑁒spec t ι :
+  Lemma bag_2٠create_producer𑁒spec t ι :
     <<<
       bag_2_inv t ι
     | ∀∀ vss,
       bag_2_model t vss
     >>>
-      bag_2_create_producer t @ ↑ι
+      bag_2٠create_producer t @ ↑ι
     <<<
       ∃∃ producer,
       bag_2_model t (<[producer := []]> vss)
@@ -620,20 +620,20 @@ Section bag_2_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec.
-    wp_apply (spmc_queue_create𑁒spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
+    wp_apply (spmc_queue٠create𑁒spec with "[//]") as (queue) "(#Hqueue_inv & Hqueue_model & Hqueue_producer)".
 
-    awp_apply+ (bag_2_add_producer𑁒spec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
+    awp_apply+ (bag_2٠add_producer𑁒spec with "[$Hmeta $Hinv $Hqueue_inv $Hqueue_model]") without "Hqueue_producer".
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; iSteps.
   Qed.
 
-  Lemma bag_2_close_producer𑁒spec t ι producer ws :
+  Lemma bag_2٠close_producer𑁒spec t ι producer ws :
     {{{
       bag_2_inv t ι ∗
       bag_2_producer t producer ws
     }}}
-      bag_2_close_producer producer
+      bag_2٠close_producer producer
     {{{
       RET ();
       bag_2_producer t producer ws
@@ -654,11 +654,11 @@ Section bag_2_G.
     iSteps.
   Qed.
 
-  Lemma bag_2_create_consumer𑁒spec t ι :
+  Lemma bag_2٠create_consumer𑁒spec t ι :
     {{{
       bag_2_inv t ι
     }}}
-      bag_2_create_consumer t
+      bag_2٠create_consumer t
     {{{
       consumer
     , RET consumer;
@@ -672,14 +672,14 @@ Section bag_2_G.
     iSteps. iExists None. iSteps.
   Qed.
 
-  Lemma bag_2_push𑁒spec t ι producer ws v :
+  Lemma bag_2٠push𑁒spec t ι producer ws v :
     <<<
       bag_2_inv t ι ∗
       bag_2_producer t producer ws
     | ∀∀ vss,
       bag_2_model t vss
     >>>
-      bag_2_push producer v @ ↑ι
+      bag_2٠push producer v @ ↑ι
     <<<
       ∃∃ vs,
       ⌜vss !! producer = Some vs⌝ ∗
@@ -693,7 +693,7 @@ Section bag_2_G.
 
     wp_rec.
 
-    awp_apply+ (spmc_queue_push𑁒spec with "[$Hqueue_inv $Hqueue_producer]").
+    awp_apply+ (spmc_queue٠push𑁒spec with "[$Hqueue_inv $Hqueue_producer]").
     iInv "Hinv" as "(:inv_inner)".
     iDestruct (queues_at_valid_producer with "Hqueues_auth Hqueues_at") as %(descr & Hdescrs_lookup & Hdescr_queue & Hwss_lookup). rewrite -Hdescr_queue.
     iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -718,7 +718,7 @@ Section bag_2_G.
     rewrite Hdescr_queue. iSteps.
   Qed.
 
-  #[local] Lemma bag_2_pop₀𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
+  #[local] Lemma bag_2٠pop₀𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
     <<<
       meta l nroot γ ∗
       inv' l γ ∗
@@ -731,7 +731,7 @@ Section bag_2_G.
     | ∀∀ vss,
       model₁ γ vss
     >>>
-      bag_2_pop₀ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata_inv)
+      bag_2٠pop₀ #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (from_option #@{location} §Null%V $ head nodes) @ ↑γ.(metadata_inv)
     <<<
       ∃∃ o,
       match o with
@@ -778,7 +778,7 @@ Section bag_2_G.
 
       + rewrite Ho0 Hdescr_queue. clear.
 
-        awp_apply+ (spmc_queue_pop𑁒spec with "Hqueue0_inv") without "Hconsumer_queue".
+        awp_apply+ (spmc_queue٠pop𑁒spec with "Hqueue0_inv") without "Hconsumer_queue".
         iInv "Hinv" as "(:inv_inner =2)".
         iDestruct (queues_at_valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
         iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -816,14 +816,14 @@ Section bag_2_G.
       + wp_load.
         wp_apply ("HLöb" $! nodes with "Hconsumer_queue Hnodes [$] HΦ").
   Qed.
-  #[local] Lemma bag_2_pop₁𑁒spec t ι consumer :
+  #[local] Lemma bag_2٠pop₁𑁒spec t ι consumer :
     <<<
       bag_2_inv t ι ∗
       bag_2_consumer t consumer
     | ∀∀ vss,
       bag_2_model t vss
     >>>
-      bag_2_pop₁ t consumer @ ↑ι
+      bag_2٠pop₁ t consumer @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -861,7 +861,7 @@ Section bag_2_G.
     iSplitR "Hconsumer_queue HΦ". { iFrameSteps. }
     iIntros "{%} !>".
 
-    awp_apply+ (bag_2_pop₀𑁒spec with "[- HΦ]"); first iFrameSteps.
+    awp_apply+ (bag_2٠pop₀𑁒spec with "[- HΦ]"); first iFrameSteps.
     iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vss (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iAaccIntro with "Hmodel₁"; first iSteps. iIntros "%o Hmodel₁ !>".
@@ -869,14 +869,14 @@ Section bag_2_G.
     iDestruct "Hmodel₁" as "(%producer & %vs & %Hvss_lookup & Hmodel₁)".
     iSteps.
   Qed.
-  Lemma bag_2_pop𑁒spec t ι consumer :
+  Lemma bag_2٠pop𑁒spec t ι consumer :
     <<<
       bag_2_inv t ι ∗
       bag_2_consumer t consumer
     | ∀∀ vss,
       bag_2_model t vss
     >>>
-      bag_2_pop t consumer @ ↑ι
+      bag_2٠pop t consumer @ ↑ι
     <<<
       ∃∃ o,
       match o with
@@ -898,7 +898,7 @@ Section bag_2_G.
     destruct queue as [queue |].
 
     - iDestruct "Hqueues_elem" as "(:queues_elem)".
-      awp_apply+ (spmc_queue_pop𑁒spec with "Hqueue_inv") without "Hconsumer_queue".
+      awp_apply+ (spmc_queue٠pop𑁒spec with "Hqueue_inv") without "Hconsumer_queue".
       iInv "Hinv" as "(:inv_inner)".
       iDestruct (queues_at_valid with "Hqueues_auth Hqueues_at") as "(%descr & %Hdescrs_lookup & %Hdescr_queue & %Hwss_lookup)".
       iDestruct (big_sepM_insert_acc with "Hdescrs") as "((:descriptor_model >) & Hdescrs)"; first done.
@@ -915,7 +915,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iIntros "{%} !> _ Hconsumer_queue".
 
-        wp_apply+ (bag_2_pop₁𑁒spec with "[- HΦ] HΦ").
+        wp_apply+ (bag_2٠pop₁𑁒spec with "[- HΦ] HΦ").
         { iSplitR; iSteps. iExists (Some _). iSteps. }
 
       + iMod "HΦ" as "(%vss & (:model) & _ & HΦ)". injection Heq as <-.
@@ -934,7 +934,7 @@ Section bag_2_G.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps. iExists (Some _). iSteps.
 
-    - wp_apply+ (bag_2_pop₁𑁒spec with "[- HΦ] HΦ").
+    - wp_apply+ (bag_2٠pop₁𑁒spec with "[- HΦ] HΦ").
       { iSplitR; iSteps. iExists None. iSteps. }
   Qed.
 End bag_2_G.

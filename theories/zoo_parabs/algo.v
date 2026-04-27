@@ -48,13 +48,13 @@ Qed.
 Section algo_G.
   Context `{algo_G : AlgoG Σ}.
 
-  #[local] Lemma algo_adjust_chunk𑁒spec pool sz ctx scope (beg end_ : Z) chunk :
+  #[local] Lemma algo٠adjust_chunk𑁒spec pool sz ctx scope (beg end_ : Z) chunk :
     {{{
       pool_inv pool sz ∗
       pool_context pool ctx scope ∗
       itype_option itype_int chunk
     }}}
-      algo_adjust_chunk ctx #beg #end_ chunk
+      algo٠adjust_chunk ctx #beg #end_ chunk
     {{{
       (chunk : Z)
     , RET #chunk;
@@ -66,13 +66,13 @@ Section algo_G.
     all: wp_rec.
     all: wp_pures.
 
-    - wp_apply (pool_size𑁒spec with "[$]").
+    - wp_apply (pool٠size𑁒spec with "[$]").
       iSteps.
 
     - iSteps.
   Qed.
 
-  #[local] Lemma algo_for_₀𑁒spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) task :
+  #[local] Lemma algo٠for_₀𑁒spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) task :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -99,7 +99,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_₀ ctx #beg #end_ #chunk task
+      algo٠for_₀ ctx #beg #end_ #chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -123,7 +123,7 @@ Section algo_G.
       iDestruct ("HΧ_split" with "[%] [%] HΧ") as "(HΧ_1 & HΧ_2)"; [naive_solver lia.. |].
       iEval (replace (beg + ₊(mid - beg))%Z with mid by naive_solver lia) in "HΧ_2".
 
-      wp_apply (future_async𑁒spec
+      wp_apply (future٠async𑁒spec
         ( λ res,
           ⌜res = ()%V⌝ ∗
           [∗ list] i ∈ seqZ beg (mid - beg),
@@ -141,7 +141,7 @@ Section algo_G.
       wp_apply+ ("HLöb" with "[%] Hctx HΧ_2") as "(Hctx & HΨ_2)"; first naive_solver lia.
 
       iApply wp_fupd.
-      wp_apply+ (future_wait𑁒spec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
+      wp_apply+ (future٠wait𑁒spec with "[$]") as (res) "(H£ & Hctx & Hfut_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & HΨ_1) & _)".
 
       iDestruct (big_sepL_seqZ_app_2 with "HΨ_1 HΨ_2") as "HΨ"; [naive_solver lia.. |].
@@ -149,7 +149,7 @@ Section algo_G.
 
       iSteps.
   Qed.
-  Lemma algo_for_𑁒spec (Ψ : Z → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_𑁒spec (Ψ : Z → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -178,7 +178,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_ ctx #beg #end_ chunk task
+      algo٠for_ ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -189,11 +189,11 @@ Section algo_G.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & HΧ & #HΧ_split & #HΧ_elim) HΦ".
 
     wp_rec.
-    wp_apply+ (algo_adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
-    wp_apply+ (algo_for_₀𑁒spec Ψ Χ with "[$]"); first done.
+    wp_apply+ (algo٠adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo٠for_₀𑁒spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
-  Lemma algo_for_𑁒spec_nat (Ψ : nat → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_𑁒spec_nat (Ψ : nat → iProp Σ) (Χ : Z → nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -222,7 +222,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_ ctx #beg #end_ chunk task
+      algo٠for_ ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -232,7 +232,7 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & HΧ & #HΧ_split & #HΧ_elim) HΦ".
 
-    wp_apply (algo_for_𑁒spec
+    wp_apply (algo٠for_𑁒spec
       (λ i, Ψ ₊i)
       (λ i n, Χ ₊i n)
     with "[$Hpool_inv $Hctx $Hchunk $HΧ]"); first lia.
@@ -251,7 +251,7 @@ Section algo_G.
     iSteps as "HΨ".
     iApply (big_sepL_seqZ_to_seq' with "HΨ"); lia.
   Qed.
-  Lemma algo_for_𑁒spec' (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_𑁒spec' (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -270,7 +270,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_ ctx #beg #end_ chunk task
+      algo٠for_ ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -280,13 +280,13 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & #Htask) HΦ".
 
-    wp_apply (algo_for_𑁒spec
+    wp_apply (algo٠for_𑁒spec
       Ψ
       (λ _ _, True)%I
     with "[$Hpool_inv $Hchunk $Hctx] HΦ"); first done.
     { iSteps. }
   Qed.
-  Lemma algo_for_𑁒spec_nat' (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_𑁒spec_nat' (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -305,7 +305,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_ ctx #beg #end_ chunk task
+      algo٠for_ ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -315,7 +315,7 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & #Htask) HΦ".
 
-    wp_apply (algo_for_𑁒spec'
+    wp_apply (algo٠for_𑁒spec'
       (λ i, Ψ ₊i)
     with "[$Hpool_inv $Hchunk $Hctx]"); first lia.
     { iIntros "{% ctx scope} !> %ctx %scope %i %n Hctx % %".
@@ -329,7 +329,7 @@ Section algo_G.
     iApply (big_sepL_seqZ_to_seq' with "HΨ"); lia.
   Qed.
 
-  Lemma algo_for_each𑁒spec' (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_each𑁒spec' (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -345,7 +345,7 @@ Section algo_G.
           Ψ i
         }}
     }}}
-      algo_for_each ctx #beg #end_ chunk task
+      algo٠for_each ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -356,7 +356,7 @@ Section algo_G.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & Htask) HΦ".
 
     wp_rec.
-    wp_apply+ (algo_for_𑁒spec
+    wp_apply+ (algo٠for_𑁒spec
       Ψ
       ( λ i n,
         [∗ list] i ∈ seqZ i n,
@@ -410,7 +410,7 @@ Section algo_G.
         rewrite Z.add_simpl_l Nat2Z.id. iSteps.
     }
   Qed.
-  Lemma algo_for_each𑁒spec_nat' (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_each𑁒spec_nat' (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -426,7 +426,7 @@ Section algo_G.
           Ψ i
         }}
     }}}
-      algo_for_each ctx #beg #end_ chunk task
+      algo٠for_each ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -436,7 +436,7 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & Htask) HΦ".
 
-    wp_apply (algo_for_each𑁒spec'
+    wp_apply (algo٠for_each𑁒spec'
       (λ i, Ψ ₊i)
     with "[$Hpool_inv $Hchunk $Hctx Htask]"); first lia.
     { iDestruct (big_sepL_seq_to_seqZ' with "Htask") as "Htask"; [lia.. |].
@@ -448,7 +448,7 @@ Section algo_G.
     iSteps as "HΨ".
     iApply (big_sepL_seqZ_to_seq' with "HΨ"); lia.
   Qed.
-  Lemma algo_for_each𑁒spec (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_each𑁒spec (Ψ : Z → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -465,7 +465,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_each ctx #beg #end_ chunk task
+      algo٠for_each ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -475,12 +475,12 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & #Htask) HΦ".
 
-    wp_apply (algo_for_each𑁒spec' Ψ with "[$Hpool_inv $Hchunk $Hctx] HΦ"); first done.
+    wp_apply (algo٠for_each𑁒spec' Ψ with "[$Hpool_inv $Hchunk $Hctx] HΦ"); first done.
     { iApply big_sepL_seqZ_intro.
       iSteps.
     }
   Qed.
-  Lemma algo_for_each𑁒spec_nat (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
+  Lemma algo٠for_each𑁒spec_nat (Ψ : nat → iProp Σ) pool sz ctx scope beg end_ chunk task :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -497,7 +497,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_for_each ctx #beg #end_ chunk task
+      algo٠for_each ctx #beg #end_ chunk task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -507,13 +507,13 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (Hpool_inv & Hctx & Hchunk & #Htask) HΦ".
 
-    wp_apply (algo_for_each𑁒spec_nat' Ψ with "[$Hpool_inv $Hchunk $Hctx] HΦ"); first done.
+    wp_apply (algo٠for_each𑁒spec_nat' Ψ with "[$Hpool_inv $Hchunk $Hctx] HΦ"); first done.
     { iApply big_sepL_seq_intro.
       iSteps.
     }
   Qed.
 
-  #[local] Lemma algo_fold_seq𑁒spec {Ψ Χ pool ctx scope beg0} beg1 (n : nat) beg end_ end0 body op acc :
+  #[local] Lemma algo٠fold_seq𑁒spec {Ψ Χ pool ctx scope beg0} beg1 (n : nat) beg end_ end0 body op acc :
     beg = (beg1 + n)%Z →
     (beg0 ≤ beg1 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
@@ -538,7 +538,7 @@ Section algo_G.
       ) ∗
       Χ beg1 n acc
     }}}
-      algo_fold_seq ctx #beg #end_ body op acc
+      algo٠fold_seq ctx #beg #end_ body op acc
     {{{
       acc
     , RET acc;
@@ -572,7 +572,7 @@ Section algo_G.
       iEval (replace (S n + end_ - _)%Z with (n + end_ - (beg1 + n))%Z by lia) in "HΧ".
       iSteps.
   Qed.
-  #[local] Lemma algo_fold₀𑁒spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) body op zero :
+  #[local] Lemma algo٠fold₀𑁒spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) body op zero :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -610,7 +610,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_fold₀ ctx #beg #end_ #chunk body op zero
+      algo٠fold₀ ctx #beg #end_ #chunk body op zero
     {{{
       acc
     , RET acc;
@@ -626,7 +626,7 @@ Section algo_G.
     case_bool_decide; wp_pures.
 
     - iEval (replace (beg + (end_ - beg))%Z with end_ by lia).
-      wp_apply (algo_fold_seq𑁒spec beg 0 with "[$Hctx $Hbody $Hop_succ]"); [lia.. | iSteps |].
+      wp_apply (algo٠fold_seq𑁒spec beg 0 with "[$Hctx $Hbody $Hop_succ]"); [lia.. | iSteps |].
       iSteps.
 
     - pose mid : Z := beg + (end_ - beg) `quot` 2.
@@ -634,7 +634,7 @@ Section algo_G.
       iDestruct (big_sepL_seqZ_app with "Hbody") as "(Hbody_1 & Hbody_2)"; [naive_solver lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hbody_2".
 
-      wp_apply+ (future_async𑁒spec
+      wp_apply+ (future٠async𑁒spec
         (Χ beg ₊(mid - beg))
         (λ _, True)%I
         with "[$Hctx Hbody_1]") as (fut) "(Hctx & #Hfut_inv & Hfut_consumer)".
@@ -645,7 +645,7 @@ Section algo_G.
 
       wp_apply+ ("HLöb" with "[%] [$] Hbody_2") as (acc2) "(Hctx & HΧ_2)"; first naive_solver lia.
 
-      wp_apply+ (future_wait𑁒spec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
+      wp_apply+ (future٠wait𑁒spec with "[$]") as (acc1) "(H£_2 & Hctx & #Hfut_result)".
       iMod (future_inv_result_consumer' with "H£_2 Hfut_inv Hfut_result Hfut_consumer") as "(HΧ_1 & _)".
 
       iEval (replace mid with (beg + ₊(mid - beg))%Z by naive_solver lia) in "HΧ_2".
@@ -656,7 +656,7 @@ Section algo_G.
 
       iSteps.
   Qed.
-  Lemma algo_fold𑁒spec' (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+  Lemma algo٠fold𑁒spec' (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -696,7 +696,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_fold ctx #beg #end_ chunk body op zero
+      algo٠fold ctx #beg #end_ chunk body op zero
     {{{
       acc
     , RET acc;
@@ -707,11 +707,11 @@ Section algo_G.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
     wp_rec.
-    wp_apply+ (algo_adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
-    wp_apply+ (algo_fold₀𑁒spec Ψ Χ with "[$]"); first done.
+    wp_apply+ (algo٠adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo٠fold₀𑁒spec Ψ Χ with "[$]"); first done.
     iSteps.
   Qed.
-  Lemma algo_fold𑁒spec_nat' (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+  Lemma algo٠fold𑁒spec_nat' (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -751,7 +751,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_fold ctx #beg #end_ chunk body op zero
+      algo٠fold ctx #beg #end_ chunk body op zero
     {{{
       acc
     , RET acc;
@@ -761,7 +761,7 @@ Section algo_G.
   Proof.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
-    wp_apply (algo_fold𑁒spec'
+    wp_apply (algo٠fold𑁒spec'
       (λ i, Ψ ₊i)
       (λ i, Χ ₊i)
     with "[$Hpool_inv $Hctx $Hchunk Hbody] HΦ"); first lia.
@@ -781,7 +781,7 @@ Section algo_G.
         iFrame.
     }
   Qed.
-  Lemma algo_fold𑁒spec (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+  Lemma algo٠fold𑁒spec (Ψ : Z → val → iProp Σ) (Χ : Z → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -822,7 +822,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_fold ctx #beg #end_ chunk body op zero
+      algo٠fold ctx #beg #end_ chunk body op zero
     {{{
       acc
     , RET acc;
@@ -832,12 +832,12 @@ Section algo_G.
   Proof.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & #Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
-    wp_apply (algo_fold𑁒spec' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
+    wp_apply (algo٠fold𑁒spec' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
     { iApply big_sepL_seqZ_intro.
       iSteps.
     }
   Qed.
-  Lemma algo_fold𑁒spec_nat (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
+  Lemma algo٠fold𑁒spec_nat (Ψ : nat → val → iProp Σ) (Χ : nat → nat → val → iProp Σ) pool sz ctx scope beg end_ chunk body op zero :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -878,7 +878,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_fold ctx #beg #end_ chunk body op zero
+      algo٠fold ctx #beg #end_ chunk body op zero
     {{{
       acc
     , RET acc;
@@ -888,7 +888,7 @@ Section algo_G.
   Proof.
     iIntros "%Hrange %Φ (#Hpool_inv & Hctx & Hchunk & #Hbody & #Hzero & #Hop_succ & #Hop_app) HΦ".
 
-    wp_apply (algo_fold𑁒spec_nat' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
+    wp_apply (algo٠fold𑁒spec_nat' with "[$Hpool_inv $Hctx $Hchunk $Hzero $Hop_succ $Hop_app] HΦ"); first done.
     { iApply big_sepL_seq_intro.
       iSteps.
     }
@@ -911,7 +911,7 @@ Section algo_G.
       & HΨ
       )
     ".
-  #[local] Lemma algo_find_seq𑁒spec pool ctx scope beg0 beg end_ end0 pred Ψ Χ found γ q :
+  #[local] Lemma algo٠find_seq𑁒spec pool ctx scope beg0 beg end_ end0 pred Ψ Χ found γ q :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -930,7 +930,7 @@ Section algo_G.
             Χ i
         }}
     }}}
-      algo_find_seq ctx #beg #end_ pred found
+      algo٠find_seq ctx #beg #end_ pred found
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -951,14 +951,14 @@ Section algo_G.
     - iEval (rewrite seqZ_nil; first lia) in "HΦ".
       iSteps.
 
-    - wp_apply (mvar_is_unset𑁒spec with "[$]") as ([]) "H"; last iSteps.
+    - wp_apply (mvar٠is_unset𑁒spec with "[$]") as ([]) "H"; last iSteps.
       iClear "H".
 
       iDestruct (big_sepL_seqZ_cons_1 with "Hpred") as "(H & Hpred)"; first lia.
       wp_apply+ (wp_wand with "(H Hctx)") as (res) "(%b & -> & Hctx & H)".
       destruct b; wp_pures.
 
-      + wp_apply (mvar_set𑁒spec with "[$Hfound_inv $Htoken $H]"); first iSteps.
+      + wp_apply (mvar٠set𑁒spec with "[$Hfound_inv $Htoken $H]"); first iSteps.
         iSteps.
 
       + wp_apply ("HLöb" with "[%] [$] [$] [Hpred]") as "(Hctx & [#Hfound_resolved | (Htoken & HΧ)])"; first lia.
@@ -977,7 +977,7 @@ Section algo_G.
           iEval (replace (Z.succ (end_ - (beg + 1))) with (end_ - beg)%Z by lia) in "HΧ".
           iSteps.
   Qed.
-  #[local] Lemma algo_find₀𑁒spec pool ctx scope beg0 beg end_ end0 (chunk : Z) pred Ψ Χ found γ q :
+  #[local] Lemma algo٠find₀𑁒spec pool ctx scope beg0 beg end_ end0 (chunk : Z) pred Ψ Χ found γ q :
     (beg0 ≤ beg ≤ end_ ≤ end0)%Z →
     {{{
       pool_context pool ctx scope ∗
@@ -996,7 +996,7 @@ Section algo_G.
             Χ i
         }}
     }}}
-      algo_find₀ ctx #beg #end_ #chunk pred found
+      algo٠find₀ ctx #beg #end_ #chunk pred found
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -1015,9 +1015,9 @@ Section algo_G.
     case_bool_decide; wp_pures.
 
     - iEval (replace (beg + (end_ - beg))%Z with end_ by lia).
-      wp_apply (algo_find_seq𑁒spec with "[$Hctx $Hfound_inv $Htoken $Hpred] HΦ"); first done.
+      wp_apply (algo٠find_seq𑁒spec with "[$Hctx $Hfound_inv $Htoken $Hpred] HΦ"); first done.
 
-    - wp_apply (mvar_is_unset𑁒spec with "[$]") as ([]) "H"; last iSteps.
+    - wp_apply (mvar٠is_unset𑁒spec with "[$]") as ([]) "H"; last iSteps.
       iClear "H".
 
       iDestruct "Htoken" as "(Htoken_1 & Htoken_2)".
@@ -1027,7 +1027,7 @@ Section algo_G.
       iDestruct (big_sepL_seqZ_app with "Hpred") as "(Hpred_1 & Hpred_2)"; [naive_solver lia.. |].
       iEval (replace (beg + (mid - beg))%Z with mid by lia) in "Hpred_2".
 
-      wp_apply+ (future_async𑁒spec
+      wp_apply+ (future٠async𑁒spec
         ( λ res,
           ⌜res = ()%V⌝ ∗
           ( mvar_resolved found
@@ -1046,7 +1046,7 @@ Section algo_G.
       wp_apply+ ("HLöb" with "[%] [$] [$] Hpred_2") as "(Hctx & H)"; first naive_solver lia.
 
       iApply wp_fupd.
-      wp_apply+ (future_wait𑁒spec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
+      wp_apply+ (future٠wait𑁒spec with "[$]") as (res) "(H£ & Hctx & #Hfut_result)".
       iMod (future_inv_result_consumer' with "H£ Hfut_inv Hfut_result Hfut_consumer") as "((-> & [#Hfound_resolved | (Htoken_1 & HΧ_1)]) & _)"; first iSteps.
 
       iDestruct "H" as "[#Hfound_resolved | (Htoken_2 & HΧ_2)]"; first iSteps.
@@ -1058,7 +1058,7 @@ Section algo_G.
 
       iSteps.
   Qed.
-  Lemma algo_find𑁒spec' (Ψ Χ : Z → iProp Σ) pool sz ctx scope beg end_ chunk pred :
+  Lemma algo٠find𑁒spec' (Ψ Χ : Z → iProp Σ) pool sz ctx scope beg end_ chunk pred :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -1077,7 +1077,7 @@ Section algo_G.
             Χ i
         }}
     }}}
-      algo_find ctx #beg #end_ chunk pred
+      algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
     , RET #*@{Z} o : option val;
@@ -1093,19 +1093,19 @@ Section algo_G.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & Hpred) HΦ".
 
     wp_rec.
-    wp_apply+ (algo_adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
+    wp_apply+ (algo٠adjust_chunk𑁒spec with "[$]") as "{% chunk} %chunk Hctx".
 
     iMod (ghost_var_alloc (ghost_var_G := algo_G_find_G) ()) as "(%γ & Htoken)".
-    wp_apply+ (mvar_create𑁒spec (find_inv γ Ψ beg end_) with "[//]") as (found) "(#Hfound_inv & Hfound_consumer)".
+    wp_apply+ (mvar٠create𑁒spec (find_inv γ Ψ beg end_) with "[//]") as (found) "(#Hfound_inv & Hfound_consumer)".
 
-    wp_apply+ (algo_find₀𑁒spec with "[$]") as "(Hctx & [#Hfound_resolved | (Htoken & HΧ)])"; first done.
+    wp_apply+ (algo٠find₀𑁒spec with "[$]") as "(Hctx & [#Hfound_resolved | (Htoken & HΧ)])"; first done.
 
-    - wp_apply+ (mvar_try_get𑁒spec_resolved_consumer with "[$]") as (v) "(:find_inv)".
+    - wp_apply+ (mvar٠try_get𑁒spec_resolved_consumer with "[$]") as (v) "(:find_inv)".
 
       iSpecialize ("HΦ" $! (Some i)).
       iSteps.
 
-    - wp_apply+ (mvar_try_get𑁒spec_consumer with "[$]") as ([v |]) "H".
+    - wp_apply+ (mvar٠try_get𑁒spec_consumer with "[$]") as ([v |]) "H".
 
       + iDestruct "H" as "(_ & (:find_inv =1))".
         iDestruct (ghost_var_exclusive with "Htoken Htoken_1") as %[].
@@ -1113,7 +1113,7 @@ Section algo_G.
       + iSpecialize ("HΦ" $! None).
         iSteps.
   Qed.
-  Lemma algo_find𑁒spec_nat' (Ψ Χ : nat → iProp Σ) pool sz ctx scope beg end_ chunk pred :
+  Lemma algo٠find𑁒spec_nat' (Ψ Χ : nat → iProp Σ) pool sz ctx scope beg end_ chunk pred :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -1132,7 +1132,7 @@ Section algo_G.
             Χ i
         }}
     }}}
-      algo_find ctx #beg #end_ chunk pred
+      algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
     , RET #*@{nat} o : option val;
@@ -1147,7 +1147,7 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & Hpred) HΦ".
 
-    wp_apply (algo_find𑁒spec'
+    wp_apply (algo٠find𑁒spec'
       (λ i, Ψ ₊i)
       (λ i, Χ ₊i)
     with "[$Hpool_inv $Hctx $Hchunk Hpred]") as (o) "(Hctx & H)"; first lia.
@@ -1165,7 +1165,7 @@ Section algo_G.
     - iSteps.
       iApply (big_sepL_seqZ_to_seq' with "H"); lia.
   Qed.
-  Lemma algo_find𑁒spec (Ψ Χ : Z → iProp Σ) pool sz ctx scope beg end_ chunk pred :
+  Lemma algo٠find𑁒spec (Ψ Χ : Z → iProp Σ) pool sz ctx scope beg end_ chunk pred :
     (beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -1186,7 +1186,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_find ctx #beg #end_ chunk pred
+      algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option Z)
     , RET #*@{Z} o : option val;
@@ -1201,12 +1201,12 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & #Hpred) HΦ".
 
-    wp_apply (algo_find𑁒spec' with "[$Hpool_inv $Hctx $Hchunk] HΦ"); first done.
+    wp_apply (algo٠find𑁒spec' with "[$Hpool_inv $Hctx $Hchunk] HΦ"); first done.
     { iApply big_sepL_seqZ_intro.
       iSteps.
     }
   Qed.
-  Lemma algo_find𑁒spec_nat (Ψ Χ : nat → iProp Σ) pool sz ctx scope beg end_ chunk pred :
+  Lemma algo٠find𑁒spec_nat (Ψ Χ : nat → iProp Σ) pool sz ctx scope beg end_ chunk pred :
     (0 ≤ beg ≤ end_)%Z →
     {{{
       pool_inv pool sz ∗
@@ -1227,7 +1227,7 @@ Section algo_G.
         }}
       )
     }}}
-      algo_find ctx #beg #end_ chunk pred
+      algo٠find ctx #beg #end_ chunk pred
     {{{
       (o : option nat)
     , RET #*@{nat} o : option val;
@@ -1242,7 +1242,7 @@ Section algo_G.
   Proof.
     iIntros "% %Φ (#Hpool_inv & Hctx & Hchunk & #Hpred) HΦ".
 
-    wp_apply (algo_find𑁒spec_nat' with "[$Hpool_inv $Hctx $Hchunk] HΦ"); first done.
+    wp_apply (algo٠find𑁒spec_nat' with "[$Hpool_inv $Hctx $Hchunk] HΦ"); first done.
     { iApply big_sepL_seq_intro.
       iSteps.
     }

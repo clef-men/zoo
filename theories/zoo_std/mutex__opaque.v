@@ -1,9 +1,9 @@
 From zoo_std Require Import
   mutex__code.
 
-#[global] Opaque mutex_create.
-#[global] Opaque mutex_create_lock.
-#[global] Opaque mutex_lock.
-#[global] Opaque mutex_unlock.
-#[global] Opaque mutex_synchronize.
-#[global] Opaque mutex_protect.
+#[global] Opaque mutex٠create.
+#[global] Opaque mutex٠create_lock.
+#[global] Opaque mutex٠lock.
+#[global] Opaque mutex٠unlock.
+#[global] Opaque mutex٠synchronize.
+#[global] Opaque mutex٠protect.

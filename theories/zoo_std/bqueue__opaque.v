@@ -1,11 +1,11 @@
 From zoo_std Require Import
   bqueue__code.
 
-#[global] Opaque bqueue_create.
-#[global] Opaque bqueue_size.
-#[global] Opaque bqueue_is_empty.
-#[global] Opaque bqueue_unsafe_get.
-#[global] Opaque bqueue_unsafe_set.
-#[global] Opaque bqueue_push.
-#[global] Opaque bqueue_pop_front.
-#[global] Opaque bqueue_pop_back.
+#[global] Opaque bqueue٠create.
+#[global] Opaque bqueue٠size.
+#[global] Opaque bqueue٠is_empty.
+#[global] Opaque bqueue٠unsafe_get.
+#[global] Opaque bqueue٠unsafe_set.
+#[global] Opaque bqueue٠push.
+#[global] Opaque bqueue٠pop_front.
+#[global] Opaque bqueue٠pop_back.

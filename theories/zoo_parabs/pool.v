@@ -35,23 +35,23 @@ Implicit Types η : spsc_prop_name.
 Implicit Types ω : gname.
 
 #[local] Definition max_round_noyield :=
-  val_to_nat' pool_max_round_noyield.
-#[local] Lemma pool_max_round_noyield :
-  pool_max_round_noyield = #max_round_noyield.
+  val_to_nat' pool٠max_round_noyield.
+#[local] Lemma pool٠max_round_noyield :
+  pool٠max_round_noyield = #max_round_noyield.
 Proof.
   done.
 Qed.
-Opaque pool__code.pool_max_round_noyield.
+Opaque pool__code.pool٠max_round_noyield.
 Opaque max_round_noyield.
 
 #[local] Definition max_round_yield :=
-  val_to_nat' pool_max_round_yield.
-#[local] Lemma pool_max_round_yield :
-  pool_max_round_yield = #max_round_yield.
+  val_to_nat' pool٠max_round_yield.
+#[local] Lemma pool٠max_round_yield :
+  pool٠max_round_yield = #max_round_yield.
 Proof.
   done.
 Qed.
-Opaque pool__code.pool_max_round_yield.
+Opaque pool__code.pool٠max_round_yield.
 Opaque max_round_yield.
 
 Record job :=
@@ -705,14 +705,14 @@ Module base.
       iApply ("Hobligation" with "Hfinished").
     Qed.
 
-    #[local] Lemma pool_context𑁒spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
+    #[local] Lemma pool٠context𑁒spec {sz : Z} {hub} {i : Z} γ (i_ : nat) :
       sz = γ.(pool_name_size) →
       hub = γ.(pool_name_hub) →
       i = i_ →
       {{{
         True
       }}}
-        pool__code.pool_context #sz hub #i
+        pool__code.pool٠context #sz hub #i
       {{{
         RET pool_name_context γ i_;
         True
@@ -721,12 +721,12 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma pool_context_main𑁒spec t γ :
+    #[local] Lemma pool٠context_main𑁒spec t γ :
       {{{
         t.[size] ↦□ #γ.(pool_name_size) ∗
         t.[hub] ↦□ γ.(pool_name_hub)
       }}}
-        pool_context_main #t
+        pool٠context_main #t
       {{{
         RET pool_name_context γ 0;
         True
@@ -735,16 +735,16 @@ Module base.
       iIntros "%Φ (Ht_size & Ht_hub) HΦ".
 
       wp_rec. do 2 wp_load.
-      wp_apply (pool_context𑁒spec with "[//] HΦ"); done.
+      wp_apply (pool٠context𑁒spec with "[//] HΦ"); done.
     Qed.
 
-    #[local] Lemma pool_execute𑁒spec γ i scope task Ψ :
+    #[local] Lemma pool٠execute𑁒spec γ i scope task Ψ :
       i ≤ γ.(pool_name_size) →
       {{{
         context_1 γ i scope ∗
         task_model γ task Ψ
       }}}
-        pool_execute (pool_name_context γ i) task
+        pool٠execute (pool_name_context γ i) task
       {{{
         v
       , RET v;
@@ -758,11 +758,11 @@ Module base.
       wp_apply+ (wp_wand with "(Htask [//] Hctx) HΦ").
     Qed.
 
-    #[local] Lemma pool_worker𑁒spec γ i :
+    #[local] Lemma pool٠worker𑁒spec γ i :
       {{{
         context_2 γ i ∅
       }}}
-        pool_worker (pool_name_context γ i)
+        pool٠worker (pool_name_context γ i)
       {{{
         res
       , RET res;
@@ -773,9 +773,9 @@ Module base.
       iLöb as "HLöb".
       iDestruct "Hctx" as "(:context_1)".
 
-      wp_rec. rewrite pool_max_round_noyield pool_max_round_yield.
+      wp_rec. rewrite pool٠max_round_noyield pool٠max_round_yield.
 
-      awp_apply+ (ws_hub_std_pop_steal𑁒spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
+      awp_apply+ (ws_hub_std٠pop_steal𑁒spec with "[$Hhub_inv $Hhub_owner]") without "HΦ"; [done | lia.. |].
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "Hhub_model"; first iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
@@ -787,7 +787,7 @@ Module base.
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
         iIntros "!> {%- Hi} %empty (Hhub_owner & _) HΦ".
 
-        wp_apply+ (pool_execute𑁒spec with "[$]") as "{%- Hi} %res((:context_1) & (%P & Hglobal & HP))"; first done.
+        wp_apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res((:context_1) & (%P & Hglobal & HP))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HP") as "Hlocals_at".
         wp_apply+ ("HLöb" with "[$] HΦ").
 
@@ -795,12 +795,12 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma pool_create𑁒spec sz :
+    Lemma pool٠create𑁒spec sz :
       (0 ≤ sz)%Z →
       {{{
         True
       }}}
-        pool_create #sz
+        pool٠create #sz
       {{{
         t γ
       , RET #t;
@@ -813,11 +813,11 @@ Module base.
 
       wp_rec.
 
-      wp_apply+ (ws_hub_std_create𑁒spec with "[//]") as (hub) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
+      wp_apply+ (ws_hub_std٠create𑁒spec with "[//]") as (hub) "(#Hhub_inv & Hhub_model & Hhub_owners)"; first lia.
       rewrite Z2Nat.inj_add // Nat.add_1_r.
       iDestruct (big_sepL_seq_cons_1 with "Hhub_owners") as "(Hhub_owner & Hhub_owners)".
 
-      wp_apply+ (ws_hub_std_block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp_apply+ (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
 
       iMod jobs_alloc as "(%γ_jobs & Hjobs_auth)".
 
@@ -832,7 +832,7 @@ Module base.
         ; pool_name_locals := γ_locals
         |}.
 
-      wp_apply+ (array_unsafe_initi𑁒spec_disentangled_strong'
+      wp_apply+ (array٠unsafe_initi𑁒spec_disentangled_strong'
         ( λ 𝑑𝑜𝑚𝑠,
           inv_1 (γ 𝑑𝑜𝑚𝑠)
         )
@@ -852,11 +852,11 @@ Module base.
           { simpl_length. }
           iIntros "!>" (k i1 i2 (-> & Hi1)%lookup_seq (-> & Hi2)%lookup_seq) "(Hhub_owner & Hlocals_at) %𝑑𝑜𝑚𝑠 #Hinv".
 
-          wp_apply+ (domain_spawn𑁒spec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
+          wp_apply+ (domain٠spawn𑁒spec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
           iApply wp_thread_id_mono.
 
-          wp_apply+ (pool_context𑁒spec (γ 𝑑𝑜𝑚𝑠) (S k) with "[//]") as "_"; [naive_solver lia.. |].
-          wp_apply (pool_worker𑁒spec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
+          wp_apply+ (pool٠context𑁒spec (γ 𝑑𝑜𝑚𝑠) (S k) with "[//]") as "_"; [naive_solver lia.. |].
+          wp_apply (pool٠worker𑁒spec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
           iSteps.
       }
       iMod (array_model_persist with "Hdomains") as "#Hdomains".
@@ -870,7 +870,7 @@ Module base.
       iFrameSteps.
     Qed.
 
-    Lemma pool_run_on𑁒spec Ψ t γ task :
+    Lemma pool٠run_on𑁒spec Ψ t γ task :
       {{{
         pool_model t γ ∗
         ( ∀ ctx scope,
@@ -881,7 +881,7 @@ Module base.
           }}
         )
       }}}
-        pool_run_on #t task
+        pool٠run_on #t task
       {{{
         v
       , RET v;
@@ -892,10 +892,10 @@ Module base.
       iIntros "%Φ ((:model) & Htask) HΦ".
 
       wp_rec. wp_load.
-      wp_apply (ws_hub_std_unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
-      wp_apply+ (pool_context_main𑁒spec with "[$]") as "_".
+      wp_apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp_apply+ (pool٠context_main𑁒spec with "[$]") as "_".
 
-      wp_apply+ (pool_execute𑁒spec _ _ _ _ Ψ with "[$Hhub_owner $Hlocals_at Htask]").
+      wp_apply+ (pool٠execute𑁒spec _ _ _ _ Ψ with "[$Hhub_owner $Hlocals_at Htask]").
       { lia. }
       { iIntros "{%} %i %scope %Hi Hctx".
         wp_apply (wp_wand with "(Htask [Hctx])") as (v) "((:context =1) & $)"; first iFrameSteps.
@@ -904,15 +904,15 @@ Module base.
       iIntros "{%- Hdoms} %v ((:context_1) & HΨ)".
 
       wp_load.
-      wp_apply (ws_hub_std_block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp_apply (ws_hub_std٠block𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
       iSteps.
     Qed.
 
-    Lemma pool_close𑁒spec t γ :
+    Lemma pool٠close𑁒spec t γ :
       {{{
         pool_model t γ
       }}}
-        pool_close #t
+        pool٠close #t
       {{{
         RET ();
         pool_finished γ
@@ -921,20 +921,20 @@ Module base.
       iIntros "%Φ (:model) HΦ".
 
       wp_rec. wp_load.
-      wp_apply (ws_hub_std_close𑁒spec with "Hhub_inv") as "_".
+      wp_apply (ws_hub_std٠close𑁒spec with "Hhub_inv") as "_".
       wp_load.
-      wp_apply (ws_hub_std_unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
-      wp_apply+ (pool_context_main𑁒spec with "[$]") as "_".
+      wp_apply (ws_hub_std٠unblock𑁒spec with "[$Hhub_inv $Hhub_owner]") as "Hhub_owner"; first done.
+      wp_apply+ (pool٠context_main𑁒spec with "[$]") as "_".
 
-      wp_apply+ (pool_worker𑁒spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
+      wp_apply+ (pool٠worker𑁒spec with "[$Hhub_owner $Hlocals_at]"); first iSteps.
       iIntros "{%- Hdoms} %res (:worker_post)".
 
       wp_load.
 
       iApply wp_fupd.
-      wp_apply+ (array_iter𑁒spec_disentangled' (λ i _, context_finished γ (S i))%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
+      wp_apply+ (array٠iter𑁒spec_disentangled' (λ i _, context_finished γ (S i))%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
       { iApply (big_sepL_impl with "Hdoms"). iIntros "!> %i %dom _ Hdom".
-        wp_apply (domain_join𑁒spec with "Hdom").
+        wp_apply (domain٠join𑁒spec with "Hdom").
         iSteps.
       }
 
@@ -956,7 +956,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_run𑁒spec (Ψ : location → pool_name → val → iProp Σ) sz task :
+    Lemma pool٠run𑁒spec (Ψ : location → pool_name → val → iProp Σ) sz task :
       (0 ≤ sz)%Z →
       {{{
         ∀ t γ ctx scope,
@@ -968,7 +968,7 @@ Module base.
           Ψ t γ v
         }}
       }}}
-        pool_run #sz task
+        pool٠run #sz task
       {{{
         t γ v
       , RET v;
@@ -979,22 +979,22 @@ Module base.
       iIntros "%Hsz %Φ Htask HΦ".
 
       wp_rec.
-      wp_apply+ (pool_create𑁒spec with "[//]") as (t γ) "(#Hinv & Hmodel & Hmeta)". 1: done.
-      wp_apply+ (pool_run_on𑁒spec (Ψ t γ) with "[$Hmodel Hmeta Htask]") as (v) "(Hmodel & HΨ)".
+      wp_apply+ (pool٠create𑁒spec with "[//]") as (t γ) "(#Hinv & Hmodel & Hmeta)". 1: done.
+      wp_apply+ (pool٠run_on𑁒spec (Ψ t γ) with "[$Hmodel Hmeta Htask]") as (v) "(Hmodel & HΨ)".
       { iIntros "%ctx %scope Hctx".
         iApply ("Htask" with "Hinv Hmeta Hctx").
       }
-      wp_apply+ (pool_close𑁒spec with "Hmodel") as "#Hfinished".
+      wp_apply+ (pool٠close𑁒spec with "Hmodel") as "#Hfinished".
       wp_pures.
       iApply ("HΦ" with "[$Hfinished $HΨ]").
     Qed.
 
-    Lemma pool_size𑁒spec γ sz ctx scope :
+    Lemma pool٠size𑁒spec γ sz ctx scope :
       {{{
         pool_inv γ sz ∗
         pool_context γ ctx scope
       }}}
-        pool_size ctx
+        pool٠size ctx
       {{{
         RET #sz;
         pool_context γ ctx scope
@@ -1003,7 +1003,7 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_async𑁒spec P Q γ ctx scope task :
+    Lemma pool٠async𑁒spec P Q γ ctx scope task :
       {{{
         pool_context γ ctx scope ∗
         ( ∀ ctx scope,
@@ -1015,7 +1015,7 @@ Module base.
           }}
         )
       }}}
-        pool_async ctx task
+        pool٠async ctx task
       {{{
         RET ();
         pool_context γ ctx scope ∗
@@ -1033,7 +1033,7 @@ Module base.
 
       wp_rec credits:"H£".
 
-      awp_apply+ (ws_hub_std_push𑁒spec with "[$Hhub_inv $Hhub_owner]") without "Hη_consumer H£ HΦ"; first done.
+      awp_apply+ (ws_hub_std٠push𑁒spec with "[$Hhub_inv $Hhub_owner]") without "Hη_consumer H£ HΦ"; first done.
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "Hhub_model"; first iFrameSteps. iIntros "Hhub_model".
       iMod (globals_model_push task R with "Hglobals_model Hlocals_at") as "(%global & %Hglobal & Hglobals_model & Hlocals_at & #Hjobs_elem & #Hglobal)"; first done.
@@ -1073,7 +1073,7 @@ Module base.
       }
     Qed.
 
-    #[local] Lemma pool_wait₀𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
+    #[local] Lemma pool٠wait₀𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
         pool_context γ ctx scope ∗
         P_notification ∗
@@ -1096,7 +1096,7 @@ Module base.
           }}
         )
       }}}
-        pool_wait₀ ctx notification pred
+        pool٠wait₀ ctx notification pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
@@ -1109,9 +1109,9 @@ Module base.
 
       iDestruct "Hctx" as "(:context_1)".
 
-      wp_rec. rewrite pool_max_round_noyield pool_max_round_yield.
+      wp_rec. rewrite pool٠max_round_noyield pool٠max_round_yield.
 
-      awp_apply+ (ws_hub_std_pop_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hhub_inv $Hhub_owner $HP_notification $Hnotification $HP_pred $Hpred]") without "HΦ". 1-3: done.
+      awp_apply+ (ws_hub_std٠pop_steal_until𑁒spec P_notification P_pred Q_pred with "[$Hhub_inv $Hhub_owner $HP_notification $Hnotification $HP_pred $Hpred]") without "HΦ". 1-3: done.
       iInv "Hinv" as "(:inv_inner)".
       iAaccIntro with "Hhub_model". 1: iSteps. iIntros ([𝑔𝑙𝑜𝑏𝑎𝑙 |]) "Hhub_model".
 
@@ -1123,7 +1123,7 @@ Module base.
         iSplitR "Hglobal Hlocals_at". { iFrameSteps. }
         iIntros "!> {%- Hi} %empty (Hhub_owner & HP_notification & HP_pred) HΦ".
 
-        wp_apply+ (pool_execute𑁒spec with "[$]") as "{%- Hi} %res ((:context_1) & (%R & Hglobal & HR))"; first done.
+        wp_apply+ (pool٠execute𑁒spec with "[$]") as "{%- Hi} %res ((:context_1) & (%R & Hglobal & HR))"; first done.
         iDestruct (locals_at_finish with "Hlocals_at Hglobal HR") as "Hlocals_at".
         wp_apply+ ("HLöb" with "[$] HP_notification HP_pred HΦ").
 
@@ -1131,7 +1131,7 @@ Module base.
         iSteps.
     Qed.
 
-    Lemma pool_wait𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
+    Lemma pool٠wait𑁒spec P_notification P_pred Q_pred γ ctx scope notification pred :
       {{{
         pool_context γ ctx scope ∗
         P_notification ∗
@@ -1153,7 +1153,7 @@ Module base.
           }}
         )
       }}}
-        pool_wait ctx notification pred
+        pool٠wait ctx notification pred
       {{{
         RET ();
         pool_context γ ctx scope ∗
@@ -1170,7 +1170,7 @@ Module base.
       wp_rec.
       wp_ref notification_registered as "Hnotification_registered".
 
-      wp_apply+ (pool_wait₀𑁒spec
+      wp_apply+ (pool٠wait₀𑁒spec
         ( ∃ b,
           notification_registered ↦ᵣ #b ∗
           P_notification ∗
@@ -1187,12 +1187,12 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} γ ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
+    Lemma pool٠wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} γ ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
       {{{
         pool_context γ ctx scope ∗
         ivar_4_inv ivar Ψ Ξ Γ
       }}}
-        pool_wait_ivar ctx ivar
+        pool٠wait_ivar ctx ivar
       {{{
         RET ();
         £ 2 ∗
@@ -1205,7 +1205,7 @@ Module base.
       wp_rec credits:"H£".
       iApply (lc_weaken 2) in "H£"; first done.
 
-      wp_apply+ (pool_wait𑁒spec
+      wp_apply+ (pool٠wait𑁒spec
         True
         True
         (ivar_4_resolved ivar)
@@ -1213,11 +1213,11 @@ Module base.
       { repeat iSplit. 1,3: done.
 
         - iIntros "%notify _ Hnotify".
-          wp_apply+ (ivar_4_wait𑁒spec True True with "[$Hivar_inv Hnotify]") as ([waiter |]) "".
+          wp_apply+ (ivar_4٠wait𑁒spec True True with "[$Hivar_inv Hnotify]") as ([waiter |]) "".
           all: iSteps.
 
         - iIntros "!> _".
-          wp_apply+ (ivar_4_is_set𑁒spec with "Hivar_inv") as "%b".
+          wp_apply+ (ivar_4٠is_set𑁒spec with "Hivar_inv") as "%b".
           destruct b; iSteps.
       }
 
@@ -1453,12 +1453,12 @@ Section pool_G.
     iApply (base.pool_obligation_finished with "Hobligation_1 Hfinished_2").
   Qed.
 
-  Lemma pool_create𑁒spec sz :
+  Lemma pool٠create𑁒spec sz :
     (0 ≤ sz)%Z →
     {{{
       True
     }}}
-      pool_create #sz
+      pool٠create #sz
     {{{
       t
     , RET t;
@@ -1469,12 +1469,12 @@ Section pool_G.
     iIntros "% %Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.pool_create𑁒spec with "[//]") as (𝑡 γ) "(Hinv & Hmodel & Hmeta)"; first done.
+    wp_apply (base.pool٠create𑁒spec with "[//]") as (𝑡 γ) "(Hinv & Hmodel & Hmeta)"; first done.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma pool_run_on𑁒spec Ψ t task :
+  Lemma pool٠run_on𑁒spec Ψ t task :
     {{{
       pool_model t ∗
       ( ∀ ctx scope,
@@ -1485,7 +1485,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_run_on t task
+      pool٠run_on t task
     {{{
       v
     , RET v;
@@ -1495,7 +1495,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:model) & Htask) HΦ".
 
-    wp_apply (base.pool_run_on𑁒spec Ψ with "[$Hmodel Htask]").
+    wp_apply (base.pool٠run_on𑁒spec Ψ with "[$Hmodel Htask]").
     { iIntros "%ctx %scope Hctx".
       wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
@@ -1505,11 +1505,11 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_close𑁒spec t :
+  Lemma pool٠close𑁒spec t :
     {{{
       pool_model t
     }}}
-      pool_close t
+      pool٠close t
     {{{
       RET ();
       pool_finished t
@@ -1517,11 +1517,11 @@ Section pool_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (base.pool_close𑁒spec with "Hmodel").
+    wp_apply (base.pool٠close𑁒spec with "Hmodel").
     iSteps.
   Qed.
 
-  Lemma pool_run𑁒spec (Ψ : val → val → iProp Σ) sz task :
+  Lemma pool٠run𑁒spec (Ψ : val → val → iProp Σ) sz task :
     (0 ≤ sz)%Z →
     {{{
       ∀ t ctx scope,
@@ -1532,7 +1532,7 @@ Section pool_G.
         Ψ t v
       }}
     }}}
-      pool_run #sz task
+      pool٠run #sz task
     {{{
       t v
     , RET v;
@@ -1546,7 +1546,7 @@ Section pool_G.
       meta 𝑡 nroot γ ∗
       Ψ #𝑡 v
     )%I).
-    wp_apply (base.pool_run𑁒spec Ψ' with "[Htask]"). 1: done.
+    wp_apply (base.pool٠run𑁒spec Ψ' with "[Htask]"). 1: done.
     { iIntros "%𝑡 %γ %ctx %scope #Hinv Hmeta Hctx".
       iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
       wp_apply (wp_wand with "(Htask [] [$Hctx])") as (v) "((:context =1) & HΨ)". 1-2: iSteps.
@@ -1557,12 +1557,12 @@ Section pool_G.
     iSteps.
   Qed.
 
-  Lemma pool_size𑁒spec t sz ctx scope :
+  Lemma pool٠size𑁒spec t sz ctx scope :
     {{{
       pool_inv t sz ∗
       pool_context t ctx scope
     }}}
-      pool_size ctx
+      pool٠size ctx
     {{{
       RET #sz;
       pool_context t ctx scope
@@ -1571,11 +1571,11 @@ Section pool_G.
     iIntros "%Φ ((:model =1) & (:context =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.pool_size𑁒spec with "[$]").
+    wp_apply (base.pool٠size𑁒spec with "[$]").
     iSteps.
   Qed.
 
-  Lemma pool_async𑁒spec P Q t ctx scope task :
+  Lemma pool٠async𑁒spec P Q t ctx scope task :
     {{{
       pool_context t ctx scope ∗
       ( ∀ ctx scope,
@@ -1587,7 +1587,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_async ctx task
+      pool٠async ctx task
     {{{
       RET ();
       pool_context t ctx scope ∗
@@ -1597,7 +1597,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:context) & Htask) HΦ".
 
-    wp_apply (base.pool_async𑁒spec P Q with "[$Hctx Htask]") as "(Hctx & Hconsumer & Hobligation)".
+    wp_apply (base.pool٠async𑁒spec P Q with "[$Hctx Htask]") as "(Hctx & Hconsumer & Hobligation)".
     { iIntros "{%} %ctx %scope Hctx".
       wp_apply (wp_wand with "(Htask [$Hctx])") as (v) "((:context =1) & $)"; first iSteps.
       simplify.
@@ -1611,7 +1611,7 @@ Section pool_G.
     iApply ("Hconsumer" with "Hfinished_1").
   Qed.
 
-  Lemma pool_wait𑁒spec P_notification P_pred Q_pred t ctx scope notification pred :
+  Lemma pool٠wait𑁒spec P_notification P_pred Q_pred t ctx scope notification pred :
     {{{
       pool_context t ctx scope ∗
       P_notification ∗
@@ -1633,7 +1633,7 @@ Section pool_G.
         }}
       )
     }}}
-      pool_wait ctx notification pred
+      pool٠wait ctx notification pred
     {{{
       RET ();
       pool_context t ctx scope ∗
@@ -1642,16 +1642,16 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:context) & HP & Hpred) HΦ".
 
-    wp_apply (base.pool_wait𑁒spec with "[$]").
+    wp_apply (base.pool٠wait𑁒spec with "[$]").
     iSteps.
   Qed.
 
-  Lemma pool_wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} t ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
+  Lemma pool٠wait_ivar𑁒spec `{ivar_G : !Ivar4G Σ} {context_name} t ctx scope ivar Ψ Ξ (Γ : _ → context_name → _) :
     {{{
       pool_context t ctx scope ∗
       ivar_4_inv ivar Ψ Ξ Γ
     }}}
-      pool_wait_ivar ctx ivar
+      pool٠wait_ivar ctx ivar
     {{{
       RET ();
       £ 2 ∗
@@ -1661,7 +1661,7 @@ Section pool_G.
   Proof.
     iIntros "%Φ ((:context) & Hivar_inv) HΦ".
 
-    wp_apply (base.pool_wait_ivar𑁒spec with "[$]").
+    wp_apply (base.pool٠wait_ivar𑁒spec with "[$]").
     iSteps.
   Qed.
 End pool_G.

@@ -8,15 +8,15 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition ivar_3_create : val :=
+Definition ivar_3٠create : val :=
   fun: <> =>
     ref ‘Unset[ [] ].
 
-Definition ivar_3_make : val :=
+Definition ivar_3٠make : val :=
   fun: "v" =>
     ref ‘Set( "v" ).
 
-Definition ivar_3_is_unset : val :=
+Definition ivar_3٠is_unset : val :=
   fun: "t" =>
     match: !"t" with
     | Unset <> =>
@@ -25,11 +25,11 @@ Definition ivar_3_is_unset : val :=
         false
     end.
 
-Definition ivar_3_is_set : val :=
+Definition ivar_3٠is_set : val :=
   fun: "t" =>
-    ~ ivar_3_is_unset "t".
+    ~ ivar_3٠is_unset "t".
 
-Definition ivar_3_try_get : val :=
+Definition ivar_3٠try_get : val :=
   fun: "t" =>
     match: !"t" with
     | Unset <> =>
@@ -38,7 +38,7 @@ Definition ivar_3_try_get : val :=
         ‘Some( "v" )
     end.
 
-Definition ivar_3_get : val :=
+Definition ivar_3٠get : val :=
   fun: "t" =>
     match: !"t" with
     | Unset <> =>
@@ -47,7 +47,7 @@ Definition ivar_3_get : val :=
         "v"
     end.
 
-Definition ivar_3_wait : val :=
+Definition ivar_3٠wait : val :=
   rec: "wait" "t" "waiter" =>
     match: !"t" with
     | Unset "waiters" as "state" =>
@@ -62,7 +62,7 @@ Definition ivar_3_wait : val :=
         ‘Some( "v" )
     end.
 
-Definition ivar_3_set : val :=
+Definition ivar_3٠set : val :=
   fun: "t" "v" =>
     match: Xchg "t".[contents] ‘Set( "v" ) with
     | Set <> =>

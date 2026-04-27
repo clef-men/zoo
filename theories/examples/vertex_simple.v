@@ -44,14 +44,14 @@ Section vertex_simple_G.
 
   Implicit Types P_ab P_ac P_b P_c P_d : iProp Σ.
 
-  Lemma vertex_simple_main𑁒spec P_ab P_ac P_b P_c P_d (num_dom : nat) a b c d :
+  Lemma vertex_simple٠main𑁒spec P_ab P_ac P_b P_c P_d (num_dom : nat) a b c d :
     {{{
       WP a () {{ res, ⌜res = ()%V⌝ ∗ P_ab ∗ P_ac }} ∗
       (P_ab -∗ WP b () {{ res, ⌜res = ()%V⌝ ∗ P_b }}) ∗
       (P_ac -∗ WP c () {{ res, ⌜res = ()%V⌝ ∗ P_c }}) ∗
       (P_b -∗ P_c -∗ WP d () {{ res, ⌜res = ()%V⌝ ∗ P_d }})
     }}}
-      vertex_simple_main #num_dom a b c d
+      vertex_simple٠main #num_dom a b c d
     {{{
       RET ();
       P_d
@@ -61,42 +61,42 @@ Section vertex_simple_G.
 
     wp_rec.
 
-    wp_apply+ (ivar_4_create𑁒spec
+    wp_apply+ (ivar_4٠create𑁒spec
       (λ _, P_d)
       (λ _, True)%I
       (λ _ (_ : unit), True)%I
     with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
 
-    wp_apply+ (vertex_create'𑁒spec
+    wp_apply+ (vertex٠create'𑁒spec
       (P_ab ∗ P_ac)
       True
     with "[//]") as (vtx_a iter_a) "(#Hvtx_a_inv & Hvtx_a_model & Hvtx_a_output)".
     iMod (vertex_output_split with "Hvtx_a_inv Hvtx_a_output") as "(Hvtx_a_output_b & Hvtx_a_output_c)".
-    wp_apply+ (vertex_create'𑁒spec
+    wp_apply+ (vertex٠create'𑁒spec
       P_b
       True
     with "[//]") as (vtx_b iter_b) "(#Hvtx_b_inv & Hvtx_b_model & Hvtx_b_output)".
-    wp_apply+ (vertex_create'𑁒spec
+    wp_apply+ (vertex٠create'𑁒spec
       P_c
       True
     with "[//]") as (vtx_c iter_c) "(#Hvtx_c_inv & Hvtx_c_model & Hvtx_c_output)".
-    wp_apply+ (vertex_create'𑁒spec
+    wp_apply+ (vertex٠create'𑁒spec
       True
       True
     with "[//]") as (vtx_d iter_d) "(#Hvtx_d_inv & Hvtx_d_model & _)".
 
-    wp_apply+ (vertex_precede𑁒spec with "[$Hvtx_b_model]") as "(Hvtx_b_model & #Hvtx_a_predecessor_b)". 1: iFrame "#".
-    wp_apply+ (vertex_precede𑁒spec with "[$Hvtx_c_model]") as "(Hvtx_c_model & #Hvtx_a_predecessor_c)". 1: iFrame "#".
-    wp_apply+ (vertex_precede𑁒spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_b_predecessor)". 1: iFrame "#".
-    wp_apply+ (vertex_precede𑁒spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_c_predecessor)". 1: iFrame "#".
+    wp_apply+ (vertex٠precede𑁒spec with "[$Hvtx_b_model]") as "(Hvtx_b_model & #Hvtx_a_predecessor_b)". 1: iFrame "#".
+    wp_apply+ (vertex٠precede𑁒spec with "[$Hvtx_c_model]") as "(Hvtx_c_model & #Hvtx_a_predecessor_c)". 1: iFrame "#".
+    wp_apply+ (vertex٠precede𑁒spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_b_predecessor)". 1: iFrame "#".
+    wp_apply+ (vertex٠precede𑁒spec with "[$Hvtx_d_model]") as "(Hvtx_d_model & #Hvtx_c_predecessor)". 1: iFrame "#".
 
-    wp_apply+ (pool_run𑁒spec (λ pool res,
+    wp_apply+ (pool٠run𑁒spec (λ pool res,
       ⌜res = ()%V⌝ ∗
       P_d
     )%I with "[- HΦ]") as (pool ?) "(_ & -> & HP_d)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
 
-      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd Hivar_producer]") as "Hctx".
+      wp_apply+ (vertex٠release𑁒spec' with "[$Hctx $Hvtx_d_model Hvtx_b_output Hvtx_c_output Hd Hivar_producer]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_d_ready".
 
         wp_pures credits:"H£".
@@ -111,11 +111,11 @@ Section vertex_simple_G.
         iMod (lc_fupd_elim_laterN _ (P_b ∗ P_c) with "H£ [$]") as "(HP_b & HP_c)".
         wp_apply (wp_wand with "(Hd HP_b HP_c)") as (res) "(-> & HP_d)".
 
-        wp_apply+ (ivar_4_notify𑁒spec () with "[$Hivar_inv $Hivar_producer $HP_d]"). 1: iSteps.
+        wp_apply+ (ivar_4٠notify𑁒spec () with "[$Hivar_inv $Hivar_producer $HP_d]"). 1: iSteps.
         iSteps.
       }
 
-      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_c_model Hvtx_a_output_c Hc]") as "Hctx".
+      wp_apply+ (vertex٠release𑁒spec' with "[$Hctx $Hvtx_c_model Hvtx_a_output_c Hc]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_c_ready".
 
         wp_pures credits:"H£".
@@ -128,7 +128,7 @@ Section vertex_simple_G.
         iSteps => //.
       }
 
-      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_b_model Hvtx_a_output_b Hb]") as "Hctx".
+      wp_apply+ (vertex٠release𑁒spec' with "[$Hctx $Hvtx_b_model Hvtx_a_output_b Hb]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx #Hvtx_b_ready".
 
         wp_pures credits:"H£".
@@ -141,7 +141,7 @@ Section vertex_simple_G.
         iSteps => //.
       }
 
-      wp_apply+ (vertex_release𑁒spec' with "[$Hctx $Hvtx_a_model Ha]") as "Hctx".
+      wp_apply+ (vertex٠release𑁒spec' with "[$Hctx $Hvtx_a_model Ha]") as "Hctx".
       { iFrame "#". iIntros "{%} %pool %ctx %scope Hctx Hvtx_a_ready".
 
         wp_apply+ (wp_wand with "Ha") as (res) "(-> & $)".
@@ -149,7 +149,7 @@ Section vertex_simple_G.
       }
 
       iApply wp_fupd.
-      wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hivar_inv]") as "(H£ & $ & (%v & #Hivar_result))". 1: iSteps.
+      wp_apply+ (pool٠wait_ivar𑁒spec with "[$Hctx $Hivar_inv]") as "(H£ & $ & (%v & #Hivar_result))". 1: iSteps.
       iMod (ivar_4_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_consumer") as "($ & _)" => //.
     }
 

@@ -14,7 +14,7 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition vertex_create : val :=
+Definition vertex٠create : val :=
   fun: "task" =>
     let: "task" :=
       match: "task" with
@@ -24,27 +24,27 @@ Definition vertex_create : val :=
           fun: <> => true
       end
     in
-    { "task", 1, mpmc_stack_2_create () }.
+    { "task", 1, mpmc_stack_2٠create () }.
 
-Definition vertex_create' : val :=
+Definition vertex٠create' : val :=
   fun: "task" =>
-    vertex_create ‘Some( fun: "ctx" => "task" "ctx" ;;
-                                         true ).
+    vertex٠create ‘Some( fun: "ctx" => "task" "ctx" ;;
+                                          true ).
 
-Definition vertex_task : val :=
+Definition vertex٠task : val :=
   fun: "t" =>
     "t".{task}.
 
-Definition vertex_set_task : val :=
+Definition vertex٠set_task : val :=
   fun: "t" "task" =>
     "t" <-{task} "task".
 
-Definition vertex_precede : val :=
+Definition vertex٠precede : val :=
   fun: "t1" "t2" =>
     let: "succs1" := "t1".{succs} in
-    if: ~ mpmc_stack_2_is_closed "succs1" then (
+    if: ~ mpmc_stack_2٠is_closed "succs1" then (
       FAA "t2".[preds] 1 ;;
-      if: mpmc_stack_2_push "succs1" "t2" then (
+      if: mpmc_stack_2٠push "succs1" "t2" then (
         FAA "t2".[preds] (-1) ;;
         ()
       )
@@ -56,38 +56,38 @@ Definition vertex_precede : val :=
         "run" "ctx" "t"
       )
     and: "run" "ctx" "t" =>
-      pool_async "ctx"
+      pool٠async "ctx"
         (fun: "ctx" =>
            "t" <-{preds} 1 ;;
            if: "t".{task} "ctx" then (
-             let: "succs" := mpmc_stack_2_close "t".{succs} in
-             clst_iter (fun: "succ" => "release" "ctx" "succ") "succs"
+             let: "succs" := mpmc_stack_2٠close "t".{succs} in
+             clst٠iter (fun: "succ" => "release" "ctx" "succ") "succs"
            ) else (
              "release" "ctx" "t"
            ))
   )%zoo_recs.
-Definition vertex_release :=
+Definition vertex٠release :=
   ValRecs 0 __zoo_recs_0.
-Definition vertex_run :=
+Definition vertex٠run :=
   ValRecs 1 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' vertex_release 0 __zoo_recs_0 [
-    vertex_release ;
-    vertex_run
+  AsValRecs' vertex٠release 0 __zoo_recs_0 [
+    vertex٠release ;
+    vertex٠run
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' vertex_run 1 __zoo_recs_0 [
-    vertex_release ;
-    vertex_run
+  AsValRecs' vertex٠run 1 __zoo_recs_0 [
+    vertex٠release ;
+    vertex٠run
   ].
 Proof.
   done.
 Qed.
 
-Definition vertex_yield : val :=
+Definition vertex٠yield : val :=
   fun: "vtx" "task" =>
-    vertex_set_task "vtx" "task" ;;
+    vertex٠set_task "vtx" "task" ;;
     false.

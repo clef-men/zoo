@@ -11,11 +11,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpsc_queue_3_create : val :=
+Definition mpsc_queue_3٠create : val :=
   fun: <> =>
     { §ClstOpen, §ClstOpen }.
 
-Definition mpsc_queue_3_is_empty : val :=
+Definition mpsc_queue_3٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>
@@ -31,7 +31,7 @@ Definition mpsc_queue_3_is_empty : val :=
         end
     end.
 
-Definition mpsc_queue_3_push_front : val :=
+Definition mpsc_queue_3٠push_front : val :=
   fun: "t" "v" =>
     match: "t".{front} with
     | ClstClosed =>
@@ -41,7 +41,7 @@ Definition mpsc_queue_3_push_front : val :=
         false
     end.
 
-Definition mpsc_queue_3_push_back : val :=
+Definition mpsc_queue_3٠push_back : val :=
   rec: "push_back" "t" "v" =>
     match: "t".{back} with
     | ClstClosed =>
@@ -50,12 +50,12 @@ Definition mpsc_queue_3_push_back : val :=
         if: CAS "t".[back] "back" ‘ClstCons[ "v", "back" ] then (
           false
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "push_back" "t" "v"
         )
     end.
 
-Definition mpsc_queue_3_pop : val :=
+Definition mpsc_queue_3٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | ClstClosed =>
@@ -68,7 +68,7 @@ Definition mpsc_queue_3_pop : val :=
         | ClstOpen =>
             §None
         |_ as "back" =>
-            match: clst_rev_app "back" §ClstOpen with
+            match: clst٠rev_app "back" §ClstOpen with
             | ClstCons "v" "front" =>
                 "t" <-{front} "front" ;;
                 ‘Some( "v" )
@@ -78,12 +78,13 @@ Definition mpsc_queue_3_pop : val :=
         end
     end.
 
-Definition mpsc_queue_3_close : val :=
+Definition mpsc_queue_3٠close : val :=
   fun: "t" =>
     match: Xchg "t".[back] §ClstClosed with
     | ClstClosed =>
         true
     |_ as "back" =>
-        "t" <-{front} clst_app "t".{front} (clst_rev_app "back" §ClstClosed) ;;
+        "t" <-{front}
+          clst٠app "t".{front} (clst٠rev_app "back" §ClstClosed) ;;
         false
     end.

@@ -11,17 +11,17 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition mpsc_waiter_create : val :=
+Definition mpsc_waiter٠create : val :=
   fun: <> =>
-    { mutex_create (), condition_create (), false }.
+    { mutex٠create (), condition٠create (), false }.
 
-Definition mpsc_waiter_notify : val :=
+Definition mpsc_waiter٠notify : val :=
   fun: "t" =>
     if: "t".{flag} then (
       true
     ) else (
       let: "res" :=
-        mutex_protect "t".{mutex}
+        mutex٠protect "t".{mutex}
           (fun: <> =>
              if: "t".{flag} then (
                true
@@ -30,19 +30,20 @@ Definition mpsc_waiter_notify : val :=
                false
              ))
       in
-      condition_notify "t".{condition} ;;
+      condition٠notify "t".{condition} ;;
       "res"
     ).
 
-Definition mpsc_waiter_try_wait : val :=
+Definition mpsc_waiter٠try_wait : val :=
   fun: "t" =>
     "t".{flag}.
 
-Definition mpsc_waiter_wait : val :=
+Definition mpsc_waiter٠wait : val :=
   fun: "t" =>
-    if: ~ mpsc_waiter_try_wait "t" then (
+    if: ~ mpsc_waiter٠try_wait "t" then (
       let: "mtx" := "t".{mutex} in
       let: "cond" := "t".{condition} in
-      mutex_protect "mtx"
-        (fun: <> => condition_wait_until "cond" "mtx" (fun: <> => "t".{flag}))
+      mutex٠protect "mtx"
+        (fun: <> =>
+           condition٠wait_until "cond" "mtx" (fun: <> => "t".{flag}))
     ).

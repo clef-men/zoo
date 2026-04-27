@@ -268,11 +268,11 @@ Module base.
       iDestruct (pointsto_dfrac_ne with "Hconsumer_1 Hconsumer_2") as %?; naive_solver.
     Qed.
 
-    Lemma mpsc_queue_1_create𑁒spec ι :
+    Lemma mpsc_queue_1٠create𑁒spec ι :
       {{{
         True
       }}}
-        mpsc_queue_1_create ()
+        mpsc_queue_1٠create ()
       {{{
         t γ
       , RET #t;
@@ -307,7 +307,7 @@ Module base.
       - rewrite xtchain_singleton. iSteps.
     Qed.
 
-    #[local] Lemma mpsc_queue_1_front𑁒spec t γ :
+    #[local] Lemma mpsc_queue_1٠front𑁒spec t γ :
       {{{
         inv' t γ
       }}}
@@ -578,14 +578,14 @@ Module base.
       iFrameSteps.
     Qed.
 
-    Lemma mpsc_queue_1_is_empty𑁒spec t γ ι :
+    Lemma mpsc_queue_1٠is_empty𑁒spec t γ ι :
       <<<
         mpsc_queue_1_inv t γ ι ∗
         mpsc_queue_1_consumer t
       | ∀∀ vs,
         mpsc_queue_1_model γ vs
       >>>
-        mpsc_queue_1_is_empty #t @ ↑ι
+        mpsc_queue_1٠is_empty #t @ ↑ι
       <<<
         mpsc_queue_1_model γ vs
       | RET #(bool_decide (vs = []%list));
@@ -601,7 +601,7 @@ Module base.
       iSteps.
     Qed.
 
-    #[local] Lemma mpsc_queue_1_push₀𑁒spec t γ i node new_back v :
+    #[local] Lemma mpsc_queue_1٠push₀𑁒spec t γ i node new_back v :
       <<<
         inv' t γ ∗
         node_model γ node i ∗
@@ -611,7 +611,7 @@ Module base.
       | ∀∀ vs,
         mpsc_queue_1_model γ vs
       >>>
-        mpsc_queue_1_push₀ #node #new_back @ ↑γ.(mpsc_queue_1_name_inv)
+        mpsc_queue_1٠push₀ #node #new_back @ ↑γ.(mpsc_queue_1_name_inv)
       <<<
         mpsc_queue_1_model γ (vs ++ [v])
       | RET ();
@@ -661,13 +661,13 @@ Module base.
         iSteps.
     Qed.
 
-    #[local] Lemma mpsc_queue_1_fix_back𑁒spec t γ i back j new_back :
+    #[local] Lemma mpsc_queue_1٠fix_back𑁒spec t γ i back j new_back :
       {{{
         inv' t γ ∗
         history_at γ i back ∗
         node_model γ new_back j
       }}}
-        mpsc_queue_1_fix_back #t #back #new_back
+        mpsc_queue_1٠fix_back #t #back #new_back
       {{{
         RET ();
         True
@@ -692,18 +692,18 @@ Module base.
       }
 
       destruct b; last iSteps.
-      wp_apply+ domain_yield𑁒spec.
+      wp_apply+ domain٠yield𑁒spec.
       wp_apply+ (back𑁒spec with "Hinv") as (back' i') "(:node_model =back')".
       iApply ("HLöb" with "HΦ Hhistory_at_back'").
     Qed.
 
-    Lemma mpsc_queue_1_push𑁒spec t γ ι v :
+    Lemma mpsc_queue_1٠push𑁒spec t γ ι v :
       <<<
         mpsc_queue_1_inv t γ ι
       | ∀∀ vs,
         mpsc_queue_1_model γ vs
       >>>
-        mpsc_queue_1_push #t v @ ↑ι
+        mpsc_queue_1٠push #t v @ ↑ι
       <<<
         mpsc_queue_1_model γ (vs ++ [v])
       | RET ();
@@ -716,19 +716,19 @@ Module base.
       wp_block new_back as "#Hnew_back_header" "_" "(Hnew_back_next & Hnew_back_data & _)".
       wp_match.
       wp_apply+ (back𑁒spec with "Hinv") as (back i) "(:node_model =back)".
-      wp_apply+ (mpsc_queue_1_push₀𑁒spec with "[$]").
+      wp_apply+ (mpsc_queue_1٠push₀𑁒spec with "[$]").
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs HΦ (%j & #Hhistory_at_new_back)".
-      wp_apply+ (mpsc_queue_1_fix_back𑁒spec with "[] HΦ"); first iSteps.
+      wp_apply+ (mpsc_queue_1٠fix_back𑁒spec with "[] HΦ"); first iSteps.
     Qed.
 
-    #[local] Lemma mpsc_queue_1_pop𑁒spec_aux t γ :
+    #[local] Lemma mpsc_queue_1٠pop𑁒spec_aux t γ :
       <<<
         inv' t γ ∗
         consumer_2 t
       | ∀∀ vs,
         model₁ γ vs
       >>>
-        mpsc_queue_1_pop #t @ ↑γ.(mpsc_queue_1_name_inv)
+        mpsc_queue_1٠pop #t @ ↑γ.(mpsc_queue_1_name_inv)
       <<<
         model₁ γ (tail vs)
       | RET head vs;
@@ -774,14 +774,14 @@ Module base.
       iSplitR "Hconsumer Hnew_front_data HΦ". { iFrameSteps. }
       iSteps.
     Qed.
-    Lemma mpsc_queue_1_pop𑁒spec t γ ι :
+    Lemma mpsc_queue_1٠pop𑁒spec t γ ι :
       <<<
         mpsc_queue_1_inv t γ ι ∗
         mpsc_queue_1_consumer t
       | ∀∀ vs,
         mpsc_queue_1_model γ vs
       >>>
-        mpsc_queue_1_pop #t @ ↑ι
+        mpsc_queue_1٠pop #t @ ↑ι
       <<<
         mpsc_queue_1_model γ (tail vs)
       | RET head vs;
@@ -790,7 +790,7 @@ Module base.
     Proof.
       iIntros "%Φ ((:inv) & (:consumer)) HΦ".
 
-      wp_apply (mpsc_queue_1_pop𑁒spec_aux with "[$]").
+      wp_apply (mpsc_queue_1٠pop𑁒spec_aux with "[$]").
       iAuIntro.
       iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model)".
       iAaccIntro with "Hmodel₁"; iSteps.
@@ -886,11 +886,11 @@ Section mpsc_queue_1_G.
     iApply (base.mpsc_queue_1_consumer_exclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
 
-  Lemma mpsc_queue_1_create𑁒spec ι :
+  Lemma mpsc_queue_1٠create𑁒spec ι :
     {{{
       True
     }}}
-      mpsc_queue_1_create ()
+      mpsc_queue_1٠create ()
     {{{
       t
     , RET t;
@@ -902,19 +902,19 @@ Section mpsc_queue_1_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mpsc_queue_1_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Hconsumer)".
+    wp_apply (base.mpsc_queue_1٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hmodel & Hconsumer)".
     iMod (meta_set γ with "Hmeta"); first done.
     iSteps.
   Qed.
 
-  Lemma mpsc_queue_1_is_empty𑁒spec t ι :
+  Lemma mpsc_queue_1٠is_empty𑁒spec t ι :
     <<<
       mpsc_queue_1_inv t ι ∗
       mpsc_queue_1_consumer t
     | ∀∀ vs,
       mpsc_queue_1_model t vs
     >>>
-      mpsc_queue_1_is_empty t @ ↑ι
+      mpsc_queue_1٠is_empty t @ ↑ι
     <<<
       mpsc_queue_1_model t vs
     | RET #(bool_decide (vs = []%list));
@@ -923,20 +923,20 @@ Section mpsc_queue_1_G.
   Proof.
     iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
 
-    awp_apply (base.mpsc_queue_1_is_empty𑁒spec with "[$]").
+    awp_apply (base.mpsc_queue_1٠is_empty𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =3)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_3") as %->. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_3"; iSteps.
     }
   Qed.
 
-  Lemma mpsc_queue_1_push𑁒spec t ι v :
+  Lemma mpsc_queue_1٠push𑁒spec t ι v :
     <<<
       mpsc_queue_1_inv t ι
     | ∀∀ vs,
       mpsc_queue_1_model t vs
     >>>
-      mpsc_queue_1_push t v @ ↑ι
+      mpsc_queue_1٠push t v @ ↑ι
     <<<
       mpsc_queue_1_model t (vs ++ [v])
     | RET ();
@@ -945,21 +945,21 @@ Section mpsc_queue_1_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    awp_apply (base.mpsc_queue_1_push𑁒spec with "[$]").
+    awp_apply (base.mpsc_queue_1٠push𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.
     }
   Qed.
 
-  Lemma mpsc_queue_1_pop𑁒spec t ι :
+  Lemma mpsc_queue_1٠pop𑁒spec t ι :
     <<<
       mpsc_queue_1_inv t ι ∗
       mpsc_queue_1_consumer t
     | ∀∀ vs,
       mpsc_queue_1_model t vs
     >>>
-      mpsc_queue_1_pop t @ ↑ι
+      mpsc_queue_1٠pop t @ ↑ι
     <<<
       mpsc_queue_1_model t (tail vs)
     | RET head vs;
@@ -968,7 +968,7 @@ Section mpsc_queue_1_G.
   Proof.
     iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
 
-    awp_apply (base.mpsc_queue_1_pop𑁒spec with "[$]").
+    awp_apply (base.mpsc_queue_1٠pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =3)". simplify.
       iDestruct (meta_agree with "Hmeta_1 Hmeta_3") as %->. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_3"; iSteps.

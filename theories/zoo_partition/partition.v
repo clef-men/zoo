@@ -308,11 +308,11 @@ Section partition_G.
     iApply (pointsto_agree with "Helt_data_1 Helt_data_2").
   Qed.
 
-  #[local] Lemma partition_dllist_create𑁒spec v v_class :
+  #[local] Lemma partition٠dllist_create𑁒spec v v_class :
     {{{
       True
     }}}
-      partition_dllist_create v v_class
+      partition٠dllist_create v v_class
     {{{
       elt
     , RET #elt;
@@ -326,7 +326,7 @@ Section partition_G.
     iSteps.
   Qed.
 
-  #[local] Lemma partition_get_class𑁒spec γ descrs elt v :
+  #[local] Lemma partition٠get_class𑁒spec γ descrs elt v :
     {{{
       model' γ descrs ∗
       partition_element γ elt v
@@ -358,11 +358,11 @@ Section partition_G.
     iSteps; naive_solver.
   Qed.
 
-  Lemma partition_make𑁒spec γ part v :
+  Lemma partition٠make𑁒spec γ part v :
     {{{
       partition_model γ part
     }}}
-      partition_make v
+      partition٠make v
     {{{
       elt
     , RET #elt;
@@ -374,7 +374,7 @@ Section partition_G.
     iDestruct "Hmodel" as "(:model')".
 
     wp_rec.
-    wp_apply (partition_dllist_create𑁒spec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
+    wp_apply (partition٠dllist_create𑁒spec with "[//]") as (elt) "(Helt_prev & Helt_next & #Helt_data & Helt_class & Helt_seen)".
     wp_block class as "(Hclass_first & Hclass_last & Hclass_len & Hclass_split & Hclass_split_len & _)".
     wp_store. wp_pures.
 
@@ -409,12 +409,12 @@ Section partition_G.
       rewrite !lookup_insert_ne //; [naive_solver.. |]. iSteps.
   Qed.
 
-  Lemma partition_make_same_class𑁒spec γ part elt v v' :
+  Lemma partition٠make_same_class𑁒spec γ part elt v v' :
     {{{
       partition_model γ part ∗
       partition_element γ elt v
     }}}
-      partition_make_same_class #elt v'
+      partition٠make_same_class #elt v'
     {{{
       elt' part'
     , RET #elt';
@@ -430,15 +430,15 @@ Section partition_G.
     iIntros "%Φ ((:model) & #Helt) HΦ".
 
     wp_rec.
-    wp_apply+ (partition_get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
-    wp_apply+ (partition_dllist_create𑁒spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
+    wp_apply+ (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply+ (partition٠dllist_create𑁒spec with "[//]") as (elt') "(Helt'_prev & Helt'_next & #Helt'_data & Helt'_class & Helt'_seen)".
   Admitted.
 
-  Lemma partition_get𑁒spec γ elt v :
+  Lemma partition٠get𑁒spec γ elt v :
     {{{
       partition_element γ elt v
     }}}
-      partition_get #elt
+      partition٠get #elt
     {{{
       RET v;
       True
@@ -447,11 +447,11 @@ Section partition_G.
     iSteps.
   Qed.
 
-  Lemma partition_equal𑁒spec γ elt1 v1 elt2 v2 :
+  Lemma partition٠equal𑁒spec γ elt1 v1 elt2 v2 :
     {{{
       True
     }}}
-      partition_equal #elt1 #elt2
+      partition٠equal #elt1 #elt2
     {{{
       RET #(bool_decide (elt1 = elt2));
       True
@@ -460,13 +460,13 @@ Section partition_G.
     iSteps.
   Qed.
 
-  Lemma partition_equiv𑁒spec γ part elt1 v1 elt2 v2 :
+  Lemma partition٠equiv𑁒spec γ part elt1 v1 elt2 v2 :
     {{{
       partition_model γ part ∗
       partition_element γ elt1 v1 ∗
       partition_element γ elt2 v2
     }}}
-      partition_equiv #elt1 #elt2
+      partition٠equiv #elt1 #elt2
     {{{
       b
     , RET #b;
@@ -482,8 +482,8 @@ Section partition_G.
   Proof.
     iIntros "%Φ ((:model) & #Helt1 & #Helt2) HΦ".
     wp_rec.
-    wp_apply+ (partition_get_class𑁒spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
-    wp_apply (partition_get_class𑁒spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
+    wp_apply+ (partition٠get_class𑁒spec with "[$Hmodel $Helt2]") as (class2 descr2) "(Hmodel & %Hdescrs_lookup_2 & %Helts2_elem & %Helt2)".
+    wp_apply (partition٠get_class𑁒spec with "[$Hmodel $Helt1]") as (class1 descr1) "(Hmodel & %Hdescrs_lookup_1 & %Helts1_elem & %Helt1)".
     wp_pures. case_bool_decide as Hcase.
     - subst class2.
       iSteps as (cl1 cl2 (class1' & descr1' & Hdescrs_lookup_1' & <-)%elem_of_map_to_set Helts1'_elem (class2' & descr2' & Hdescrs_lookup_2' & <-)%elem_of_map_to_set Helts2'_elem) / --silent. iPureIntro.
@@ -498,12 +498,12 @@ Section partition_G.
       congruence.
   Qed.
 
-  Lemma partition_repr𑁒spec γ part elt v :
+  Lemma partition٠repr𑁒spec γ part elt v :
     {{{
       partition_model γ part ∗
       partition_element γ elt v
     }}}
-      partition_repr #elt
+      partition٠repr #elt
     {{{
       elt'
     , RET #elt';
@@ -516,7 +516,7 @@ Section partition_G.
   Proof.
     iIntros "%Φ ((:model) & #Helt) HΦ".
     wp_rec.
-    wp_apply (partition_get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor_model) & Hdescrs)"; first done.
     wp_load.
@@ -527,12 +527,12 @@ Section partition_G.
     rewrite !elem_of_list_to_set. naive_solver.
   Qed.
 
-  Lemma partition_cardinal𑁒spec γ part elt v :
+  Lemma partition٠cardinal𑁒spec γ part elt v :
     {{{
       partition_model γ part ∗
       partition_element γ elt v
     }}}
-      partition_cardinal #elt
+      partition٠cardinal #elt
     {{{
       sz
     , RET #sz;
@@ -546,7 +546,7 @@ Section partition_G.
   Proof.
     iIntros "%Φ ((:model) & #Helt) HΦ".
     wp_rec.
-    wp_apply (partition_get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
+    wp_apply (partition٠get_class𑁒spec with "[$Hmodel $Helt]") as (class descr) "(Hmodel & %Hdescrs_lookup & %Helts_elem & %Helt)".
     iDestruct (model_NoDup with "Hmodel") as %?; first done.
     iDestruct "Hmodel" as "(:model')".
     iDestruct (big_sepM_lookup_acc with "Hdescrs") as "((:descriptor_model) & Hdescrs)"; first done.
@@ -557,12 +557,12 @@ Section partition_G.
     rewrite size_list_to_set //.
   Qed.
 
-  Lemma partition_refine𑁒spec {γ part v_elts} elts :
+  Lemma partition٠refine𑁒spec {γ part v_elts} elts :
     lst_model' v_elts (#*@{location} elts) →
     {{{
       partition_model γ part
     }}}
-      partition_refine v_elts
+      partition٠refine v_elts
     {{{
       part'
     , RET ();

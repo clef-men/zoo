@@ -10,44 +10,44 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition atomic_array_make : val :=
-  array_make.
+Definition atomic_array٠make : val :=
+  array٠make.
 
-Definition atomic_array_init : val :=
-  array_init.
+Definition atomic_array٠init : val :=
+  array٠init.
 
-Definition atomic_array_initi : val :=
-  array_initi.
+Definition atomic_array٠initi : val :=
+  array٠initi.
 
-Definition atomic_array_size : val :=
-  array_size.
+Definition atomic_array٠size : val :=
+  array٠size.
 
-Definition atomic_array_unsafe_get : val :=
-  array_unsafe_get.
+Definition atomic_array٠unsafe_get : val :=
+  array٠unsafe_get.
 
-Definition atomic_array_get : val :=
-  array_get.
+Definition atomic_array٠get : val :=
+  array٠get.
 
-Definition atomic_array_unsafe_set : val :=
-  array_unsafe_set.
+Definition atomic_array٠unsafe_set : val :=
+  array٠unsafe_set.
 
-Definition atomic_array_set : val :=
-  array_set.
+Definition atomic_array٠set : val :=
+  array٠set.
 
-Definition atomic_array_unsafe_xchg : val :=
-  array_unsafe_xchg.
+Definition atomic_array٠unsafe_xchg : val :=
+  array٠unsafe_xchg.
 
-Definition atomic_array_unsafe_cas : val :=
-  array_unsafe_cas.
+Definition atomic_array٠unsafe_cas : val :=
+  array٠unsafe_cas.
 
-Definition atomic_array_unsafe_faa : val :=
-  array_unsafe_faa.
+Definition atomic_array٠unsafe_faa : val :=
+  array٠unsafe_faa.
 
-Definition atomic_array_foldli : val :=
-  array_foldli.
+Definition atomic_array٠foldli : val :=
+  array٠foldli.
 
-Definition atomic_array_foldl : val :=
-  array_foldl.
+Definition atomic_array٠foldl : val :=
+  array٠foldl.
 
-Definition atomic_array_sum : val :=
-  array_sum.
+Definition atomic_array٠sum : val :=
+  array٠sum.

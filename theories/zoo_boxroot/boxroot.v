@@ -47,27 +47,27 @@ Implicit Types v t global : val.
 Implicit Types ω : gc_location.
 Implicit Types map : gmap location gc_location.
 
-Definition boxroot_init : val :=
+Definition boxroot٠init : val :=
   fun: <> =>
-    let: "global" := xdeque_create () in
-    gc_set_roots (fun: "fn" => xdeque_iter "fn" "global") #2%nat ;;
+    let: "global" := xdeque٠create () in
+    gc٠set_roots (fun: "fn" => xdeque٠iter "fn" "global") #2%nat ;;
     "global".
 
-Definition boxroot_create : val :=
+Definition boxroot٠create : val :=
   fun: "global" "v" =>
     let: "t" := { (), (), "v" } in
-    xdeque_push_back "global" "t" ;;
+    xdeque٠push_back "global" "t" ;;
     "t".
 
-Definition boxroot_remove : val :=
+Definition boxroot٠remove : val :=
   fun: "global" "t" =>
-    xdeque_remove "t".
+    xdeque٠remove "t".
 
-Definition boxroot_get : val :=
+Definition boxroot٠get : val :=
   fun: "t" =>
     "t".{xdeque_data}.
 
-Definition boxroot_set : val :=
+Definition boxroot٠set : val :=
   fun: "t" "v" =>
     "t" <-{xdeque_data} "v".
 
@@ -153,12 +153,12 @@ Section boxroot_G.
     apply ghost_map_update.
   Qed.
 
-  Lemma boxroot_init𑁒spec gc Χ :
+  Lemma boxroot٠init𑁒spec gc Χ :
     {{{
       gc_model gc ∗
       gc_roots Χ
     }}}
-      boxroot_init ()
+      boxroot٠init ()
     {{{
       global
     , RET global;
@@ -169,7 +169,7 @@ Section boxroot_G.
   Proof.
     iIntros "%Φ (Hgc & Hgc_roots) HΦ".
     wp_rec.
-    wp_apply (xdeque_create𑁒spec with "[//]") as (?) "((%l_global & -> & Hmeta) & Hroots)".
+    wp_apply (xdeque٠create𑁒spec with "[//]") as (?) "((%l_global & -> & Hmeta) & Hroots)".
     iMod roots_alloc as "(%γ & Hroots_auth)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     pose Χ' :=
@@ -178,7 +178,7 @@ Section boxroot_G.
       roots_auth γ (list_to_map $ zip roots ωs) ∗
       xdeque_model #l_global roots
     )%I).
-    wp_apply+ (gc_set_roots𑁒spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
+    wp_apply+ (gc٠set_roots𑁒spec Χ' Ξ' with "[$Hgc $Hgc_roots]") as "(Hgc & Hgc_roots)".
     { clear gc Φ. iSplit; iModIntro.
       - iIntros "%gc". iSplit.
         + iIntros "(%_l_global & %_γ & %roots & %map & %Heq & #_Hmeta & %Hmap_dom & Hroots_auth & Hroots & Hmap)". injection Heq as <-.
@@ -194,19 +194,19 @@ Section boxroot_G.
           * rewrite dom_list_to_map_L fst_zip //. lia.
           * rewrite big_sepM_list_to_map // fst_zip //. lia.
       - iIntros "%Ψ %roots %ωs %fn !> %Φ (HΨ & (Hroots_auth & Hroots) & #Hfn) HΦ".
-        wp_apply+ (xdeque_iter𑁒spec Ψ with "[$HΨ $Hroots]"); iSteps.
+        wp_apply+ (xdeque٠iter𑁒spec Ψ with "[$HΨ $Hroots]"); iSteps.
     }
     wp_pures.
     iApply "HΦ".
     iFrame. iExists l_global. rewrite big_sepM_empty. iSteps.
   Admitted.
 
-  Lemma boxroot_create𑁒spec {gc global l} ω :
+  Lemma boxroot٠create𑁒spec {gc global l} ω :
     ω ↦gc[gc] l →
     {{{
       boxroot_global global gc
     }}}
-      boxroot_create global #l
+      boxroot٠create global #l
     {{{
       t
     , RET t;
@@ -218,7 +218,7 @@ Section boxroot_G.
     wp_rec.
     wp_block root as "(Hroot_prev & Hroot_next & Hroot & _)".
     (* iApply wp_fupd. *)
-    wp_apply+ (xdeque_push_back𑁒spec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
+    wp_apply+ (xdeque٠push_back𑁒spec with "[$Hroots $Hroot_prev $Hroot_next]") as "Hroots".
     iAssert ⌜map !! root = None⌝%I as %Hroot.
     { rewrite -eq_None_ne_Some. iIntros "%ω' %Hmap_lookup".
       iDestruct (big_sepM_lookup with "Hmap") as "(% & Hroot_ & _)"; first done.
@@ -232,12 +232,12 @@ Section boxroot_G.
     - rewrite big_sepM_insert //. iSteps.
   Qed.
 
-  Lemma boxroot_remove𑁒spec gc global t ω :
+  Lemma boxroot٠remove𑁒spec gc global t ω :
     {{{
       boxroot_global global gc ∗
       boxroot_model t global ω
     }}}
-      boxroot_remove global t
+      boxroot٠remove global t
     {{{
       RET ();
       boxroot_global global gc
@@ -251,7 +251,7 @@ Section boxroot_G.
     assert (∃ i, roots !! i = Some root) as (i & Hroots_lookup).
     { rewrite -list_elem_of_lookup -(elem_of_list_to_set (C := gset location)) -Hmap_dom elem_of_dom //. }
     iDestruct (xdeque_model_NoDup with "Hroots") as %Hnodup.
-    wp_apply+ (xdeque_remove𑁒spec with "Hroots") as "Hroots"; first done.
+    wp_apply+ (xdeque٠remove𑁒spec with "Hroots") as "Hroots"; first done.
     iMod (roots_delete with "Hroots_auth Hroots_elem") as "Hroots_auth".
     iDestruct (big_sepM_delete with "Hmap") as "(Hroot & Hmap)"; first done.
     iApply "HΦ".
@@ -259,12 +259,12 @@ Section boxroot_G.
     iPureIntro. rewrite dom_delete_L list_to_set_delete //. set_solver.
   Qed.
 
-  Lemma boxroot_get𑁒spec gc global t ω :
+  Lemma boxroot٠get𑁒spec gc global t ω :
     {{{
       boxroot_global global gc ∗
       boxroot_model t global ω
     }}}
-      boxroot_get t
+      boxroot٠get t
     {{{
       l
     , RET #l;
@@ -282,13 +282,13 @@ Section boxroot_G.
     iSteps.
   Qed.
 
-  Lemma boxroot_set𑁒spec {gc global t ω'} ω l :
+  Lemma boxroot٠set𑁒spec {gc global t ω'} ω l :
     ω ↦gc[gc] l →
     {{{
       boxroot_global global gc ∗
       boxroot_model t global ω'
     }}}
-      boxroot_set t #l
+      boxroot٠set t #l
     {{{
       RET ();
       boxroot_global global gc ∗
@@ -310,10 +310,10 @@ Section boxroot_G.
   Qed.
 End boxroot_G.
 
-#[global] Opaque boxroot_create.
-#[global] Opaque boxroot_remove.
-#[global] Opaque boxroot_get.
-#[global] Opaque boxroot_set.
+#[global] Opaque boxroot٠create.
+#[global] Opaque boxroot٠remove.
+#[global] Opaque boxroot٠get.
+#[global] Opaque boxroot٠set.
 
 #[global] Opaque boxroot_global.
 #[global] Opaque boxroot_model.

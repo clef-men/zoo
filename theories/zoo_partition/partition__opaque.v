@@ -1,11 +1,11 @@
 From zoo_partition Require Import
   partition__code.
 
-#[global] Opaque partition_make.
-#[global] Opaque partition_make_same_class.
-#[global] Opaque partition_get.
-#[global] Opaque partition_equal.
-#[global] Opaque partition_equiv.
-#[global] Opaque partition_repr.
-#[global] Opaque partition_cardinal.
-#[global] Opaque partition_refine.
+#[global] Opaque partition٠make.
+#[global] Opaque partition٠make_same_class.
+#[global] Opaque partition٠get.
+#[global] Opaque partition٠equal.
+#[global] Opaque partition٠equiv.
+#[global] Opaque partition٠repr.
+#[global] Opaque partition٠cardinal.
+#[global] Opaque partition٠refine.

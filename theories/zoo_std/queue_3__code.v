@@ -11,72 +11,74 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition queue_3_min_capacity : val :=
+Definition queue_3٠min_capacity : val :=
   16.
 
-Definition queue_3_create : val :=
+Definition queue_3٠create : val :=
   fun: <> =>
-    { array_unsafe_make queue_3_min_capacity (), 0, 0 }.
+    { array٠unsafe_make queue_3٠min_capacity (), 0, 0 }.
 
-Definition queue_3_size : val :=
+Definition queue_3٠size : val :=
   fun: "t" =>
     "t".{back} - "t".{front}.
 
-Definition queue_3_is_empty : val :=
+Definition queue_3٠is_empty : val :=
   fun: "t" =>
-    queue_3_size "t" == 0.
+    queue_3٠size "t" == 0.
 
-Definition queue_3_unsafe_get : val :=
+Definition queue_3٠unsafe_get : val :=
   fun: "t" "i" =>
-    array_unsafe_cget "t".{data} ("t".{front} + "i").
+    array٠unsafe_cget "t".{data} ("t".{front} + "i").
 
-Definition queue_3_unsafe_set : val :=
+Definition queue_3٠unsafe_set : val :=
   fun: "t" "i" "v" =>
-    array_unsafe_cset "t".{data} ("t".{front} + "i") "v".
+    array٠unsafe_cset "t".{data} ("t".{front} + "i") "v".
 
-Definition queue_3_next_capacity : val :=
+Definition queue_3٠next_capacity : val :=
   fun: "n" =>
-    int_max 8 if: "n" ≤ 512 then (
-                2 * "n"
-              ) else (
-                "n" + "n" `quot` 2
-              ).
+    int٠max 8 if: "n" ≤ 512 then (
+                 2 * "n"
+               ) else (
+                 "n" + "n" `quot` 2
+               ).
 
-Definition queue_3_grow : val :=
+Definition queue_3٠grow : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     let: "data" := "t".{data} in
-    let: "cap" := array_size "data" in
+    let: "cap" := array٠size "data" in
     if: "front" + "cap" == "back" then (
-      let: "new_cap" := int_max ("cap" + 1) (queue_3_next_capacity "cap") in
-      let: "new_data" := array_unsafe_cgrow "data" "front" "new_cap" () in
+      let: "new_cap" :=
+        int٠max ("cap" + 1) (queue_3٠next_capacity "cap")
+      in
+      let: "new_data" := array٠unsafe_cgrow "data" "front" "new_cap" () in
       "t" <-{data} "new_data"
     ).
 
-Definition queue_3_push : val :=
+Definition queue_3٠push : val :=
   fun: "t" "v" =>
-    queue_3_grow "t" ;;
+    queue_3٠grow "t" ;;
     let: "back" := "t".{back} in
-    array_unsafe_cset "t".{data} "back" "v" ;;
+    array٠unsafe_cset "t".{data} "back" "v" ;;
     "t" <-{back} "back" + 1.
 
-Definition queue_3_shrink : val :=
+Definition queue_3٠shrink : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     let: "sz" := "back" - "front" in
     let: "data" := "t".{data} in
-    let: "cap" := array_size "data" in
-    if: queue_3_min_capacity + 3 * "sz" ≤ "cap" then (
+    let: "cap" := array٠size "data" in
+    if: queue_3٠min_capacity + 3 * "sz" ≤ "cap" then (
       let: "new_cap" := "cap" `lsr` 1 + 1 in
       let: "new_data" :=
-        array_unsafe_cshrink_slice "data" "front" "new_cap"
+        array٠unsafe_cshrink_slice "data" "front" "new_cap"
       in
       "t" <-{data} "new_data"
     ).
 
-Definition queue_3_pop_front : val :=
+Definition queue_3٠pop_front : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
@@ -84,14 +86,14 @@ Definition queue_3_pop_front : val :=
       §None
     ) else (
       let: "data" := "t".{data} in
-      let: "v" := array_unsafe_cget "data" "front" in
-      array_unsafe_cset "data" "front" () ;;
+      let: "v" := array٠unsafe_cget "data" "front" in
+      array٠unsafe_cset "data" "front" () ;;
       "t" <-{front} "front" + 1 ;;
-      queue_3_shrink "t" ;;
+      queue_3٠shrink "t" ;;
       ‘Some( "v" )
     ).
 
-Definition queue_3_pop_back : val :=
+Definition queue_3٠pop_back : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
@@ -100,9 +102,9 @@ Definition queue_3_pop_back : val :=
     ) else (
       let: "data" := "t".{data} in
       let: "back" := "back" - 1 in
-      let: "v" := array_unsafe_cget "data" "back" in
-      array_unsafe_cset "data" "back" () ;;
+      let: "v" := array٠unsafe_cget "data" "back" in
+      array٠unsafe_cset "data" "back" () ;;
       "t" <-{back} "back" ;;
-      queue_3_shrink "t" ;;
+      queue_3٠shrink "t" ;;
       ‘Some( "v" )
     ).

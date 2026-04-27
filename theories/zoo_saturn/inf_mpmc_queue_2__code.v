@@ -15,11 +15,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition inf_mpmc_queue_2_create : val :=
+Definition inf_mpmc_queue_2٠create : val :=
   fun: <> =>
-    { inf_array_create §Nothing, 0, 0, Proph }.
+    { inf_array٠create §Nothing, 0, 0, Proph }.
 
-Definition inf_mpmc_queue_2_size : val :=
+Definition inf_mpmc_queue_2٠size : val :=
   rec: "size" "t" =>
     let: "front" := "t".{front} in
     let: "proph" := Proph in
@@ -31,22 +31,22 @@ Definition inf_mpmc_queue_2_size : val :=
       ==
       "front"
     then (
-      int_positive_part ("back" - "front")
+      int٠positive_part ("back" - "front")
     ) else (
       "size" "t"
     ).
 
-Definition inf_mpmc_queue_2_is_empty : val :=
+Definition inf_mpmc_queue_2٠is_empty : val :=
   fun: "t" =>
-    inf_mpmc_queue_2_size "t" == 0.
+    inf_mpmc_queue_2٠size "t" == 0.
 
-Definition inf_mpmc_queue_2_push : val :=
+Definition inf_mpmc_queue_2٠push : val :=
   rec: "push" "t" "v" =>
     let: "id" := Id in
     let: "i" := FAA "t".[back] 1 in
     if:
       ~
-      inf_array_cas_resolve
+      inf_array٠cas_resolve
         "t".{data}
         "i"
         §Nothing
@@ -57,12 +57,12 @@ Definition inf_mpmc_queue_2_push : val :=
       "push" "t" "v"
     ).
 
-Definition inf_mpmc_queue_2_pop : val :=
+Definition inf_mpmc_queue_2٠pop : val :=
   rec: "pop" "t" =>
     let: "id" := Id in
     let: "i" := FAA "t".[front] 1 in
     match:
-      inf_array_xchg_resolve
+      inf_array٠xchg_resolve
         "t".{data}
         "i"
         §Anything
@@ -70,7 +70,7 @@ Definition inf_mpmc_queue_2_pop : val :=
         ("i", "id")
     with
     | Nothing =>
-        domain_yield () ;;
+        domain٠yield () ;;
         "pop" "t"
     | Anything =>
         Fail

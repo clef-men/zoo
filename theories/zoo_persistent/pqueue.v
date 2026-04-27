@@ -40,16 +40,16 @@ Section zoo_G.
   Qed.
 
   Lemma pqueue_model_nil :
-    ⊢ pqueue_model pqueue_empty [].
+    ⊢ pqueue_model pqueue٠empty [].
   Proof.
     iExists [], []. iSteps.
   Qed.
 
-  Lemma pqueue_is_empty𑁒spec t vs :
+  Lemma pqueue٠is_empty𑁒spec t vs :
     {{{
       pqueue_model t vs
     }}}
-      pqueue_is_empty t
+      pqueue٠is_empty t
     {{{
       RET #(bool_decide (vs = []%list));
       True
@@ -57,18 +57,18 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
-    wp_apply+ (lst_is_empty𑁒spec with "[//]") as "_"; first done.
+    wp_apply+ (lst٠is_empty𑁒spec with "[//]") as "_"; first done.
     destruct front as [| v front]; wp_pures.
-    - wp_apply (lst_is_empty𑁒spec with "[//]") as "_"; first done.
+    - wp_apply (lst٠is_empty𑁒spec with "[//]") as "_"; first done.
       erewrite bool_decide_ext by apply reverse_nil_iff. iSteps.
     - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
 
-  Lemma pqueue_push𑁒spec t vs v :
+  Lemma pqueue٠push𑁒spec t vs v :
     {{{
       pqueue_model t vs
     }}}
-      pqueue_push t v
+      pqueue٠push t v
     {{{
       t'
     , RET t';
@@ -81,11 +81,11 @@ Section zoo_G.
     iExists front, (v :: back). iSteps. rewrite reverse_cons assoc //.
   Qed.
 
-  Lemma pqueue_pop𑁒spec t vs :
+  Lemma pqueue٠pop𑁒spec t vs :
     {{{
       pqueue_model t vs
     }}}
-      pqueue_pop t
+      pqueue٠pop t
     {{{
       o
     , RET o;
@@ -103,7 +103,7 @@ Section zoo_G.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
     destruct front as [| v front]; wp_pures.
-    - wp_apply (lst_rev𑁒spec with "[//]") as "%front ->"; first done.
+    - wp_apply (lst٠rev𑁒spec with "[//]") as "%front ->"; first done.
       destruct back as [| v back _] using rev_ind.
       + wp_pures.
         iApply ("HΦ" $! None with "[//]").

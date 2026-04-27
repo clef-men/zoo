@@ -221,12 +221,12 @@ Section bag_1_G.
     iApply (model₁_exclusive with "Hmodel₁_1 Hmodel₁_2").
   Qed.
 
-  Lemma bag_1_create𑁒spec ι (sz : Z) :
+  Lemma bag_1٠create𑁒spec ι (sz : Z) :
     (0 < sz)%Z →
     {{{
       True
     }}}
-      bag_1_create #sz
+      bag_1٠create #sz
     {{{
       t
     , RET t;
@@ -244,7 +244,7 @@ Section bag_1_G.
       [∗ list] slot ∈ slots,
         slot ↦ᵣ None
     )%I).
-    wp_apply+ (array_unsafe_init𑁒spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
+    wp_apply+ (array٠unsafe_init𑁒spec Ψ) as "%data % (%Hslots & Hdata_model & (%slots & -> & Hslots))"; first lia.
     { iSplitL.
       - iSteps. iExists []. iSteps.
       - iIntros "!> %data %i %vs % % (%slots & %Hslots & Hslots)".
@@ -278,7 +278,7 @@ Section bag_1_G.
       iSteps.
   Qed.
 
-  #[local] Lemma bag_1_push₀𑁒spec slot v l γ :
+  #[local] Lemma bag_1٠push₀𑁒spec slot v l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
@@ -286,7 +286,7 @@ Section bag_1_G.
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
-      bag_1_push₀ #slot ’Some[ v ] @ ↑γ.(metadata_inv)
+      bag_1٠push₀ #slot ’Some[ v ] @ ↑γ.(metadata_inv)
     <<<
       bag_1_model #l ({[+v+]} ⊎ vs)
     | RET ();
@@ -325,13 +325,13 @@ Section bag_1_G.
       }
       iSteps.
   Qed.
-  Lemma bag_1_push𑁒spec t ι v :
+  Lemma bag_1٠push𑁒spec t ι v :
     <<<
       bag_1_inv t ι
     | ∀∀ vs,
       bag_1_model t vs
     >>>
-      bag_1_push t v @ ↑ι
+      bag_1٠push t v @ ↑ι
     <<<
       bag_1_model t ({[+v+]} ⊎ vs)
     | RET ();
@@ -341,7 +341,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply+ (array_size𑁒spec with "Hdata_model") as "_".
+    wp_apply+ (array٠size𑁒spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -351,13 +351,13 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_apply+ (array_unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array٠unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_1_push₀𑁒spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1٠push₀𑁒spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 
-  #[local] Lemma bag_1_pop₀𑁒spec slot l γ :
+  #[local] Lemma bag_1٠pop₀𑁒spec slot l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
       meta l nroot γ ∗
@@ -365,7 +365,7 @@ Section bag_1_G.
     | ∀∀ vs,
       bag_1_model #l vs
     >>>
-      bag_1_pop₀ #slot @ ↑γ.(metadata_inv)
+      bag_1٠pop₀ #slot @ ↑γ.(metadata_inv)
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -421,13 +421,13 @@ Section bag_1_G.
       }
       iSteps.
   Qed.
-  Lemma bag_1_pop𑁒spec t ι :
+  Lemma bag_1٠pop𑁒spec t ι :
     <<<
       bag_1_inv t ι
     | ∀∀ vs,
       bag_1_model t vs
     >>>
-      bag_1_pop t @ ↑ι
+      bag_1٠pop t @ ↑ι
     <<<
       ∃∃ v vs',
       ⌜vs = {[+v+]} ⊎ vs'⌝ ∗
@@ -439,7 +439,7 @@ Section bag_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     wp_rec. wp_load.
-    wp_apply+ (array_size𑁒spec with "Hdata_model") as "_".
+    wp_apply+ (array٠size𑁒spec with "Hdata_model") as "_".
     wp_pures.
 
     wp_bind (FAA _ _).
@@ -449,9 +449,9 @@ Section bag_1_G.
     iIntros "!> {%- Hsz}".
 
     simpl_length.
-    wp_apply+ (array_unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
+    wp_apply+ (array٠unsafe_get𑁒spec with "Hdata_model") as "_"; [lia | | done |].
     { rewrite list_lookup_fmap list_lookup_lookup_total_lt //. lia. }
-    wp_apply (bag_1_pop₀𑁒spec with "[$Hmeta $Hinv] HΦ").
+    wp_apply (bag_1٠pop₀𑁒spec with "[$Hmeta $Hinv] HΦ").
     apply list_elem_of_lookup_total_2. lia.
   Qed.
 End bag_1_G.

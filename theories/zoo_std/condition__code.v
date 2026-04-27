@@ -8,29 +8,29 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition condition_create : val :=
+Definition condition٠create : val :=
   fun: <> =>
     ().
 
-Definition condition_notify : val :=
+Definition condition٠notify : val :=
   fun: "_t" =>
     ().
 
-Definition condition_notify_all : val :=
+Definition condition٠notify_all : val :=
   fun: "_t" =>
     ().
 
-Definition condition_wait : val :=
+Definition condition٠wait : val :=
   fun: "_t" "_mtx" =>
     ().
 
-Definition condition_wait_until : val :=
+Definition condition٠wait_until : val :=
   rec: "wait_until" "t" "mtx" "pred" =>
     if: ~ "pred" () then (
-      condition_wait "t" "mtx" ;;
+      condition٠wait "t" "mtx" ;;
       "wait_until" "t" "mtx" "pred"
     ).
 
-Definition condition_wait_while : val :=
+Definition condition٠wait_while : val :=
   fun: "t" "mtx" "pred" =>
-    condition_wait_until "t" "mtx" (fun: <> => ~ "pred" ()).
+    condition٠wait_until "t" "mtx" (fun: <> => ~ "pred" ()).

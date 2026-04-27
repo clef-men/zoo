@@ -8,16 +8,16 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition queue_2_create : val :=
+Definition queue_2٠create : val :=
   fun: <> =>
     let: "front" := ‘Node{ §Null, () } in
     { "front", "front" }.
 
-Definition queue_2_is_empty : val :=
+Definition queue_2٠is_empty : val :=
   fun: "t" =>
     "t".{front} == "t".{back}.
 
-Definition queue_2_push : val :=
+Definition queue_2٠push : val :=
   fun: "t" "v" =>
     match: ‘Node{ §Null, () } with
     | Node <> <> as "new_back" =>
@@ -29,7 +29,7 @@ Definition queue_2_push : val :=
         end
     end.
 
-Definition queue_2_pop : val :=
+Definition queue_2٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> as "front_r" =>

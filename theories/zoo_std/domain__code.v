@@ -8,8 +8,8 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Parameter domain_yield : val.
+Parameter domain٠yield : val.
 
-Parameter domain_self_index : val.
+Parameter domain٠self_index : val.
 
-Parameter domain_recommended_domain_count : val.
+Parameter domain٠recommended_domain_count : val.

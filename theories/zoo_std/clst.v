@@ -131,13 +131,13 @@ Section zoo_G.
     destruct vs; iSteps.
   Qed.
 
-  Lemma clst_app𑁒spec {t1} vs1 {t2} cvs2 :
+  Lemma clst٠app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
-      clst_app t1 t2
+      clst٠app t1 t2
     {{{
       RET clist_app vs1 cvs2;
       True
@@ -150,13 +150,13 @@ Section zoo_G.
     - wp_apply+ ("IH" with "[//]"); iSteps.
   Qed.
 
-  Lemma clst_rev_app𑁒spec {t1} vs1 {t2} cvs2 :
+  Lemma clst٠rev_app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
-      clst_rev_app t1 t2
+      clst٠rev_app t1 t2
     {{{
       RET clist_app (reverse vs1) cvs2;
       True
@@ -171,7 +171,7 @@ Section zoo_G.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
-  #[local] Lemma clst_iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
+  #[local] Lemma clst٠iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
     vs = vs_left ++ vs_right →
     t = list_to_clist_open vs_right →
     {{{
@@ -184,7 +184,7 @@ Section zoo_G.
         }}
       )
     }}}
-      clst_iter fn t
+      clst٠iter fn t
     {{{
       RET ();
       Ψ vs
@@ -203,7 +203,7 @@ Section zoo_G.
     }
     iSteps.
   Qed.
-  Lemma clst_iter𑁒spec Ψ t vs fn :
+  Lemma clst٠iter𑁒spec Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       ▷ Ψ [] ∗
@@ -215,17 +215,17 @@ Section zoo_G.
         }}
       )
     }}}
-      clst_iter fn t
+      clst٠iter fn t
     {{{
       RET ();
       Ψ vs
     }}}.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
-    iApply (clst_iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    iApply (clst٠iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
-  Lemma clst_iter𑁒spec_disentangled Ψ t vs fn :
+  Lemma clst٠iter𑁒spec_disentangled Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       [∗ list] v ∈ vs,
@@ -234,7 +234,7 @@ Section zoo_G.
           ▷ Ψ v
         }}
     }}}
-      clst_iter fn t
+      clst٠iter fn t
     {{{
       RET ();
       [∗ list] v ∈ vs,

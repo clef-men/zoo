@@ -11,25 +11,25 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition random_round_create : val :=
+Definition random_round٠create : val :=
   fun: "sz" =>
-    { random_state_create (),
-      array_unsafe_initi "sz" (fun: "i" => "i"),
+    { random_state٠create (),
+      array٠unsafe_initi "sz" (fun: "i" => "i"),
       "sz"
     }.
 
-Definition random_round_reset : val :=
+Definition random_round٠reset : val :=
   fun: "t" =>
-    "t" <-{index} array_size "t".{array}.
+    "t" <-{index} array٠size "t".{array}.
 
-Definition random_round_next : val :=
+Definition random_round٠next : val :=
   fun: "t" =>
     let: "arr" := "t".{array} in
     let: "i" := "t".{index} in
-    let: "j" := random_state_int "t".{random} "i" in
-    let: "res" := array_unsafe_get "arr" "j" in
+    let: "j" := random_state٠int "t".{random} "i" in
+    let: "res" := array٠unsafe_get "arr" "j" in
     let: "i" := "i" - 1 in
-    array_unsafe_set "arr" "j" (array_unsafe_get "arr" "i") ;;
-    array_unsafe_set "arr" "i" "res" ;;
+    array٠unsafe_set "arr" "j" (array٠unsafe_get "arr" "i") ;;
+    array٠unsafe_set "arr" "i" "res" ;;
     "t" <-{index} "i" ;;
     "res".

@@ -8,32 +8,32 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition mutex_create : val :=
+Definition mutex٠create : val :=
   fun: <> =>
     ref false.
 
-Definition mutex_lock : val :=
+Definition mutex٠lock : val :=
   rec: "lock" "t" =>
     if: ~ CAS "t".[contents] false true then (
       "lock" "t"
     ).
 
-Definition mutex_create_lock : val :=
+Definition mutex٠create_lock : val :=
   fun: <> =>
     ref true.
 
-Definition mutex_unlock : val :=
+Definition mutex٠unlock : val :=
   fun: "t" =>
     "t" <- false.
 
-Definition mutex_synchronize : val :=
+Definition mutex٠synchronize : val :=
   fun: "t" =>
-    mutex_lock "t" ;;
-    mutex_unlock "t".
+    mutex٠lock "t" ;;
+    mutex٠unlock "t".
 
-Definition mutex_protect : val :=
+Definition mutex٠protect : val :=
   fun: "t" "fn" =>
-    mutex_lock "t" ;;
+    mutex٠lock "t" ;;
     let: "res" := "fn" () in
-    mutex_unlock "t" ;;
+    mutex٠unlock "t" ;;
     "res".

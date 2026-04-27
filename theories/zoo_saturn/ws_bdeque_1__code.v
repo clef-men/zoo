@@ -13,45 +13,45 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition ws_bdeque_1_create : val :=
+Definition ws_bdeque_1٠create : val :=
   fun: "cap" =>
-    { "cap", 1, 1, 1, array_unsafe_make "cap" (), Proph }.
+    { "cap", 1, 1, 1, array٠unsafe_make "cap" (), Proph }.
 
-Definition ws_bdeque_1_capacity : val :=
+Definition ws_bdeque_1٠capacity : val :=
   fun: "t" =>
     "t".{capacity}.
 
-Definition ws_bdeque_1_size : val :=
+Definition ws_bdeque_1٠size : val :=
   fun: "t" =>
     "t".{back} - "t".{front}.
 
-Definition ws_bdeque_1_is_empty : val :=
+Definition ws_bdeque_1٠is_empty : val :=
   fun: "t" =>
-    ws_bdeque_1_size "t" == 0.
+    ws_bdeque_1٠size "t" == 0.
 
-Definition ws_bdeque_1_front_cached : val :=
+Definition ws_bdeque_1٠front_cached : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     "t" <-{front_cache} "front" ;;
     "front".
 
-Definition ws_bdeque_1_push : val :=
+Definition ws_bdeque_1٠push : val :=
   fun: "t" "v" =>
     let: "back" := "t".{back} in
     let: "data" := "t".{data} in
-    let: "cap" := array_size "data" in
+    let: "cap" := array٠size "data" in
     let: "front" := "t".{front_cache} in
     if:
-      "back" < "front" + "cap" or "front" < ws_bdeque_1_front_cached "t"
+      "back" < "front" + "cap" or "front" < ws_bdeque_1٠front_cached "t"
     then (
-      array_unsafe_cset "data" "back" "v" ;;
+      array٠unsafe_cset "data" "back" "v" ;;
       "t" <-{back} "back" + 1 ;;
       true
     ) else (
       false
     ).
 
-Definition ws_bdeque_1_steal : val :=
+Definition ws_bdeque_1٠steal : val :=
   rec: "steal" "t" =>
     let: "id" := Id in
     let: "front" := "t".{front} in
@@ -60,7 +60,7 @@ Definition ws_bdeque_1_steal : val :=
       §None
     ) else (
       let: "data" := "t".{data} in
-      let: "v" := array_unsafe_cget "data" "front" in
+      let: "v" := array٠unsafe_cget "data" "front" in
       if:
         Resolve
           (CAS "t".[front] "front" ("front" + 1))
@@ -69,19 +69,19 @@ Definition ws_bdeque_1_steal : val :=
       then (
         ‘Some( "v" )
       ) else (
-        domain_yield () ;;
+        domain٠yield () ;;
         "steal" "t"
       )
     ).
 
-Definition ws_bdeque_1_pop₀ : val :=
+Definition ws_bdeque_1٠pop₀ : val :=
   fun: "t" "id" "back" =>
     let: "front" := "t".{front} in
     if: "back" < "front" then (
       "t" <-{back} "front" ;;
       §None
     ) else if: "front" < "back" then (
-      ‘Some( array_unsafe_cget "t".{data} "back" )
+      ‘Some( array٠unsafe_cget "t".{data} "back" )
     ) else (
       "t" <-{front_cache} "front" + 1 ;;
       let: "won" :=
@@ -92,15 +92,15 @@ Definition ws_bdeque_1_pop₀ : val :=
       in
       "t" <-{back} "front" + 1 ;;
       if: "won" then (
-        ‘Some( array_unsafe_cget "t".{data} "front" )
+        ‘Some( array٠unsafe_cget "t".{data} "front" )
       ) else (
         §None
       )
     ).
 
-Definition ws_bdeque_1_pop : val :=
+Definition ws_bdeque_1٠pop : val :=
   fun: "t" =>
     let: "id" := Id in
     let: "back" := "t".{back} - 1 in
     "t" <-{back} "back" ;;
-    ws_bdeque_1_pop₀ "t" "id" "back".
+    ws_bdeque_1٠pop₀ "t" "id" "back".

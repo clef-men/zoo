@@ -211,12 +211,12 @@ Section semaphore_G.
   Opaque tokens_auth.
   Opaque tokens_frag.
 
-  Lemma semaphore_create𑁒spec {cap} P :
+  Lemma semaphore٠create𑁒spec {cap} P :
     (0 < cap)%Z →
     {{{
       [∗ list] _ ∈ seq 0 ₊cap, P
     }}}
-      semaphore_create #cap
+      semaphore٠create #cap
     {{{
       t
     , RET t;
@@ -226,8 +226,8 @@ Section semaphore_G.
     iIntros "%Hcap %Φ HPs HΦ".
 
     wp_rec.
-    wp_apply+ (condition_create𑁒spec with "[//]") as (cond) "#Hcondition_inv".
-    wp_apply (mutex_create𑁒spec_init with "[//]") as (mtx) "Hmutex_init".
+    wp_apply+ (condition٠create𑁒spec with "[//]") as (cond) "#Hcondition_inv".
+    wp_apply (mutex٠create𑁒spec_init with "[//]") as (mtx) "Hmutex_init".
     wp_block l as "Hmeta" "(Hl_mutex & Hl_condition & Hl_count & _)".
     iMod (pointsto_persist with "Hl_mutex") as "#Hl_mutex".
     iMod (pointsto_persist with "Hl_condition") as "#Hl_condition".
@@ -249,11 +249,11 @@ Section semaphore_G.
     iSteps.
   Qed.
 
-  Lemma semaphore_try_lock𑁒spec t cap P :
+  Lemma semaphore٠try_lock𑁒spec t cap P :
     {{{
       semaphore_inv t cap P
     }}}
-      semaphore_try_lock t
+      semaphore٠try_lock t
     {{{
       b
     , RET #b;
@@ -268,7 +268,7 @@ Section semaphore_G.
 
     wp_rec. wp_load.
 
-    wp_apply (mutex_protect𑁒spec (λ v,
+    wp_apply (mutex٠protect𑁒spec (λ v,
       ∃ b,
       ⌜v = #b⌝ ∗
       if b then
@@ -290,11 +290,11 @@ Section semaphore_G.
     destruct b; iSteps.
   Qed.
 
-  Lemma semaphore_lock𑁒spec t cap P :
+  Lemma semaphore٠lock𑁒spec t cap P :
     {{{
       semaphore_inv t cap P
     }}}
-      semaphore_lock t
+      semaphore٠lock t
     {{{
       RET ();
       semaphore_locked t ∗
@@ -305,14 +305,14 @@ Section semaphore_G.
 
     wp_rec. wp_load.
 
-    wp_apply (mutex_protect𑁒spec (λ v,
+    wp_apply (mutex٠protect𑁒spec (λ v,
       ⌜v = ()%V⌝ ∗
       tokens_frag γ ∗
       P
     )%I with "[$Hmutex_inv]"); last iSteps.
     iIntros "Hmutex_locked Hinv_inner".
     do 2 wp_load.
-    wp_apply (condition_wait_until𑁒spec' (λ b,
+    wp_apply (condition٠wait_until𑁒spec' (λ b,
       if b then
         ∃ cnt,
         ⌜0 < cnt⌝ ∗
@@ -335,13 +335,13 @@ Section semaphore_G.
     iSteps.
   Qed.
 
-  Lemma semaphore_unlock𑁒spec t cap P :
+  Lemma semaphore٠unlock𑁒spec t cap P :
     {{{
       semaphore_inv t cap P ∗
       semaphore_locked t ∗
       P
     }}}
-      semaphore_unlock t
+      semaphore٠unlock t
     {{{
       RET ();
       True
@@ -352,7 +352,7 @@ Section semaphore_G.
 
     wp_rec. wp_load.
 
-    wp_apply (mutex_protect𑁒spec (λ v,
+    wp_apply (mutex٠protect𑁒spec (λ v,
       ⌜v = ()%V⌝
     )%I with "[$Hmutex_inv Htokens_frag HP]"); last iSteps.
     iIntros "Hmutex_locked (:inv_inner)".

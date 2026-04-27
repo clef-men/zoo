@@ -209,11 +209,11 @@ Module base.
       apply consumer_exclusive.
     Qed.
 
-    Lemma mvar_create𑁒spec Ψ :
+    Lemma mvar٠create𑁒spec Ψ :
       {{{
         True
       }}}
-        mvar_create ()
+        mvar٠create ()
       {{{
         t γ
       , RET #t;
@@ -239,11 +239,11 @@ Module base.
       iFrameSteps. iExists None. iSteps.
     Qed.
 
-    Lemma mvar_make𑁒spec Ψ v :
+    Lemma mvar٠make𑁒spec Ψ v :
       {{{
         ▷ Ψ v
       }}}
-        mvar_make v
+        mvar٠make v
       {{{
         t γ
       , RET #t;
@@ -272,11 +272,11 @@ Module base.
       iFrameSteps. iExists (Some v). iSteps.
     Qed.
 
-    Lemma mvar_try_get𑁒spec t γ Ψ :
+    Lemma mvar٠try_get𑁒spec t γ Ψ :
       {{{
         mvar_inv t γ Ψ
       }}}
-        mvar_try_get #t
+        mvar٠try_get #t
       {{{
         o
       , RET o;
@@ -302,12 +302,12 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma mvar_try_get𑁒spec_resolved t γ Ψ :
+    Lemma mvar٠try_get𑁒spec_resolved t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_resolved γ
       }}}
-        mvar_try_get #t
+        mvar٠try_get #t
       {{{
         v
       , RET Some v;
@@ -328,12 +328,12 @@ Module base.
       - iDestruct "Hstate" as "(:inv_state_unset)".
         iDestruct (lstate_unset_set with "Hlstate_unset Hlstate_set") as %[].
     Qed.
-    Lemma mvar_try_get𑁒spec_consumer t γ Ψ :
+    Lemma mvar٠try_get𑁒spec_consumer t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_consumer γ
       }}}
-        mvar_try_get #t
+        mvar٠try_get #t
       {{{
         o
       , RET o;
@@ -362,13 +362,13 @@ Module base.
       - iSplitR "HΦ". { iFrameSteps. }
         iSteps.
     Qed.
-    Lemma mvar_try_get𑁒spec_resolved_consumer t γ Ψ :
+    Lemma mvar٠try_get𑁒spec_resolved_consumer t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_resolved γ ∗
         mvar_consumer γ
       }}}
-        mvar_try_get #t
+        mvar٠try_get #t
       {{{
         v
       , RET Some v;
@@ -393,11 +393,11 @@ Module base.
         iDestruct (lstate_unset_set with "Hlstate_unset Hlstate_set") as %[].
     Qed.
 
-    Lemma mvar_is_unset𑁒spec t γ Ψ :
+    Lemma mvar٠is_unset𑁒spec t γ Ψ :
       {{{
         mvar_inv t γ Ψ
       }}}
-        mvar_is_unset #t
+        mvar٠is_unset #t
       {{{
         b
       , RET #b;
@@ -410,15 +410,15 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec.
-      wp_apply (mvar_try_get𑁒spec with "Hinv") as ([v |]) "H".
+      wp_apply (mvar٠try_get𑁒spec with "Hinv") as ([v |]) "H".
       all: iSteps.
     Qed.
-    Lemma mvar_is_unset𑁒spec_resolved t γ Ψ :
+    Lemma mvar٠is_unset𑁒spec_resolved t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_resolved γ
       }}}
-        mvar_is_unset #t
+        mvar٠is_unset #t
       {{{
         RET false;
         True
@@ -427,15 +427,15 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresolved) HΦ".
 
       wp_rec.
-      wp_apply (mvar_try_get𑁒spec_resolved with "[$Hinv $Hresolved]").
+      wp_apply (mvar٠try_get𑁒spec_resolved with "[$Hinv $Hresolved]").
       iSteps.
     Qed.
 
-    Lemma mvar_is_set𑁒spec t γ Ψ :
+    Lemma mvar٠is_set𑁒spec t γ Ψ :
       {{{
         mvar_inv t γ Ψ
       }}}
-        mvar_is_set #t
+        mvar٠is_set #t
       {{{
         b
       , RET #b;
@@ -448,15 +448,15 @@ Module base.
       iIntros "%Φ #Hinv HΦ".
 
       wp_rec.
-      wp_apply (mvar_is_unset𑁒spec with "[$]") as (b) "Hb".
+      wp_apply (mvar٠is_unset𑁒spec with "[$]") as (b) "Hb".
       destruct b; iSteps.
     Qed.
-    Lemma mvar_is_set𑁒spec_resolved t γ Ψ :
+    Lemma mvar٠is_set𑁒spec_resolved t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_resolved γ
       }}}
-        mvar_is_set #t
+        mvar٠is_set #t
       {{{
         RET true;
         True
@@ -465,16 +465,16 @@ Module base.
       iIntros "%Φ (#Hinv & #Hresolved) HΦ".
 
       wp_rec.
-      wp_apply (mvar_is_unset𑁒spec_resolved with "[$]").
+      wp_apply (mvar٠is_unset𑁒spec_resolved with "[$]").
       iSteps.
     Qed.
 
-    Lemma mvar_get𑁒spec t γ Ψ :
+    Lemma mvar٠get𑁒spec t γ Ψ :
       {{{
         mvar_inv t γ Ψ ∗
         mvar_resolved γ
       }}}
-        mvar_get #t
+        mvar٠get #t
       {{{
         v
       , RET v;
@@ -484,16 +484,16 @@ Module base.
       iIntros "%Φ (#Hinv & Hresolved) HΦ".
 
       wp_rec.
-      wp_apply (mvar_try_get𑁒spec_resolved with "[$Hinv $Hresolved]").
+      wp_apply (mvar٠try_get𑁒spec_resolved with "[$Hinv $Hresolved]").
       iSteps.
     Qed.
 
-    Lemma mvar_set𑁒spec t γ Ψ v :
+    Lemma mvar٠set𑁒spec t γ Ψ v :
       {{{
         mvar_inv t γ Ψ ∗
         ▷ Ψ v
       }}}
-        mvar_set #t v
+        mvar٠set #t v
       {{{
         RET ();
         mvar_resolved γ
@@ -620,11 +620,11 @@ Section mvar_G.
     iApply (base.mvar_consumer_exclusive with "Hconsumer_1 Hconsumer_2").
   Qed.
 
-  Lemma mvar_create𑁒spec Ψ :
+  Lemma mvar٠create𑁒spec Ψ :
     {{{
       True
     }}}
-      mvar_create ()
+      mvar٠create ()
     {{{
       t
     , RET t;
@@ -635,16 +635,16 @@ Section mvar_G.
     iIntros "%Φ _ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mvar_create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
+    wp_apply (base.mvar٠create𑁒spec with "[//]") as (𝑡 γ) "(Hmeta & Hinv & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma mvar_make𑁒spec Ψ v :
+  Lemma mvar٠make𑁒spec Ψ v :
     {{{
       ▷ Ψ v
     }}}
-      mvar_make v
+      mvar٠make v
     {{{
       t
     , RET t;
@@ -656,16 +656,16 @@ Section mvar_G.
     iIntros "%Φ HΨ HΦ".
 
     iApply wp_fupd.
-    wp_apply (base.mvar_make𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
+    wp_apply (base.mvar٠make𑁒spec Ψ with "[$]") as (𝑡 γ) "(Hmeta & Hinv & Hproducer & Hconsumer)".
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
     iSteps.
   Qed.
 
-  Lemma mvar_try_get𑁒spec t Ψ :
+  Lemma mvar٠try_get𑁒spec t Ψ :
     {{{
       mvar_inv t Ψ
     }}}
-      mvar_try_get t
+      mvar٠try_get t
     {{{
       o
     , RET o;
@@ -677,16 +677,16 @@ Section mvar_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.mvar_try_get𑁒spec with "[$]") as (o) "Ho".
+    wp_apply (base.mvar٠try_get𑁒spec with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
-  Lemma mvar_try_get𑁒spec_resolved t Ψ :
+  Lemma mvar٠try_get𑁒spec_resolved t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_resolved t
     }}}
-      mvar_try_get t
+      mvar٠try_get t
     {{{
       v
     , RET Some v;
@@ -696,14 +696,14 @@ Section mvar_G.
     iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mvar_try_get𑁒spec_resolved with "[$] HΦ").
+    wp_apply (base.mvar٠try_get𑁒spec_resolved with "[$] HΦ").
   Qed.
-  Lemma mvar_try_get𑁒spec_consumer t Ψ :
+  Lemma mvar٠try_get𑁒spec_consumer t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_consumer t
     }}}
-      mvar_try_get t
+      mvar٠try_get t
     {{{
       o
     , RET o;
@@ -717,17 +717,17 @@ Section mvar_G.
     iIntros "%Φ ((:inv =1) & (:consumer =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mvar_try_get𑁒spec_consumer with "[$]") as (o) "Ho".
+    wp_apply (base.mvar٠try_get𑁒spec_consumer with "[$]") as (o) "Ho".
     iSpecialize ("HΦ" $! o).
     destruct o; iSteps.
   Qed.
-  Lemma mvar_try_get𑁒spec_resolved_consumer t Ψ :
+  Lemma mvar٠try_get𑁒spec_resolved_consumer t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_resolved t ∗
       mvar_consumer t
     }}}
-      mvar_try_get t
+      mvar٠try_get t
     {{{
       v
     , RET Some v;
@@ -738,14 +738,14 @@ Section mvar_G.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
     iDestruct (meta_agree with "Hmeta_2 Hmeta_3") as %<-. iClear "Hmeta_3".
 
-    wp_apply (base.mvar_try_get𑁒spec_resolved_consumer with "[$] HΦ").
+    wp_apply (base.mvar٠try_get𑁒spec_resolved_consumer with "[$] HΦ").
   Qed.
 
-  Lemma mvar_is_unset𑁒spec t Ψ :
+  Lemma mvar٠is_unset𑁒spec t Ψ :
     {{{
       mvar_inv t Ψ
     }}}
-      mvar_is_unset t
+      mvar٠is_unset t
     {{{
       b
     , RET #b;
@@ -757,15 +757,15 @@ Section mvar_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.mvar_is_unset𑁒spec with "[$]") as (b) "Hb".
+    wp_apply (base.mvar٠is_unset𑁒spec with "[$]") as (b) "Hb".
     rewrite /mvar_resolved. destruct b; iSteps.
   Qed.
-  Lemma mvar_is_unset𑁒spec_resolved t Ψ :
+  Lemma mvar٠is_unset𑁒spec_resolved t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_resolved t
     }}}
-      mvar_is_unset t
+      mvar٠is_unset t
     {{{
       RET false;
       True
@@ -774,14 +774,14 @@ Section mvar_G.
     iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mvar_is_unset𑁒spec_resolved with "[$] HΦ").
+    wp_apply (base.mvar٠is_unset𑁒spec_resolved with "[$] HΦ").
   Qed.
 
-  Lemma mvar_is_set𑁒spec t Ψ :
+  Lemma mvar٠is_set𑁒spec t Ψ :
     {{{
       mvar_inv t Ψ
     }}}
-      mvar_is_set t
+      mvar٠is_set t
     {{{
       b
     , RET #b;
@@ -793,15 +793,15 @@ Section mvar_G.
   Proof.
     iIntros "%Φ (:inv) HΦ".
 
-    wp_apply (base.mvar_is_set𑁒spec with "[$]") as (b) "Hb".
+    wp_apply (base.mvar٠is_set𑁒spec with "[$]") as (b) "Hb".
     rewrite /mvar_resolved. destruct b; iSteps.
   Qed.
-  Lemma mvar_is_set𑁒spec_resolved t Ψ :
+  Lemma mvar٠is_set𑁒spec_resolved t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_resolved t
     }}}
-      mvar_is_set t
+      mvar٠is_set t
     {{{
       RET true;
       True
@@ -810,15 +810,15 @@ Section mvar_G.
     iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mvar_is_set𑁒spec_resolved with "[$] HΦ").
+    wp_apply (base.mvar٠is_set𑁒spec_resolved with "[$] HΦ").
   Qed.
 
-  Lemma mvar_get𑁒spec t Ψ :
+  Lemma mvar٠get𑁒spec t Ψ :
     {{{
       mvar_inv t Ψ ∗
       mvar_resolved t
     }}}
-      mvar_get t
+      mvar٠get t
     {{{
       v
     , RET v;
@@ -828,15 +828,15 @@ Section mvar_G.
     iIntros "%Φ ((:inv =1) & (:resolved =2)) HΦ". simplify.
     iDestruct (meta_agree with "Hmeta_1 Hmeta_2") as %->. iClear "Hmeta_1".
 
-    wp_apply (base.mvar_get𑁒spec with "[$] HΦ").
+    wp_apply (base.mvar٠get𑁒spec with "[$] HΦ").
   Qed.
 
-  Lemma mvar_set𑁒spec t Ψ v :
+  Lemma mvar٠set𑁒spec t Ψ v :
     {{{
       mvar_inv t Ψ ∗
       ▷ Ψ v
     }}}
-      mvar_set t v
+      mvar٠set t v
     {{{
       RET ();
       mvar_resolved t
@@ -844,7 +844,7 @@ Section mvar_G.
   Proof.
     iIntros "%Φ ((:inv) & HΨ) HΦ".
 
-    wp_apply (base.mvar_set𑁒spec _ _ Ψ with "[$]").
+    wp_apply (base.mvar٠set𑁒spec _ _ Ψ with "[$]").
     iSteps.
   Qed.
 End mvar_G.

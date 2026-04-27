@@ -1,12 +1,12 @@
 From zoo_std Require Import
   inf_array__code.
 
-#[global] Opaque inf_array_create.
-#[global] Opaque inf_array_get.
-#[global] Opaque inf_array_update.
-#[global] Opaque inf_array_set.
-#[global] Opaque inf_array_xchg.
-#[global] Opaque inf_array_xchg_resolve.
-#[global] Opaque inf_array_cas.
-#[global] Opaque inf_array_cas_resolve.
-#[global] Opaque inf_array_faa.
+#[global] Opaque inf_array٠create.
+#[global] Opaque inf_array٠get.
+#[global] Opaque inf_array٠update.
+#[global] Opaque inf_array٠set.
+#[global] Opaque inf_array٠xchg.
+#[global] Opaque inf_array٠xchg_resolve.
+#[global] Opaque inf_array٠cas.
+#[global] Opaque inf_array٠cas_resolve.
+#[global] Opaque inf_array٠faa.

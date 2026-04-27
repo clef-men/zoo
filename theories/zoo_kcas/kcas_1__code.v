@@ -12,23 +12,23 @@ From zoo_kcas Require Import
 From zoo Require Import
   options.
 
-Definition kcas_1_clear : val :=
+Definition kcas_1٠clear : val :=
   fun: "cass" "is_after" =>
     if: "is_after" then (
-      lst_iter
+      lst٠iter
         (fun: "cas" => "cas".<state> <-{before} "cas".<state>.{after})
         "cass"
     ) else (
-      lst_iter
+      lst٠iter
         (fun: "cas" => "cas".<state> <-{after} "cas".<state>.{before})
         "cass"
     ).
 
-Definition kcas_1_status_to_bool : val :=
+Definition kcas_1٠status_to_bool : val :=
   fun: "status" =>
     "status" == §After.
 
-Definition kcas_1_finish : val :=
+Definition kcas_1٠finish : val :=
   fun: "gid" "casn" "status" =>
     match: "casn".{status} with
     | Before =>
@@ -36,18 +36,18 @@ Definition kcas_1_finish : val :=
     | After =>
         true
     | Undetermined "cass" as "old_status" =>
-        let: "is_after" := kcas_1_status_to_bool "status" in
+        let: "is_after" := kcas_1٠status_to_bool "status" in
         if:
           Resolve
             (CAS "casn".[status] "old_status" "status")
             "casn".{proph}
             ("gid", "is_after")
         then (
-          kcas_1_clear "cass" "is_after"
+          kcas_1٠clear "cass" "is_after"
         ) else (
           ()
         ) ;;
-        kcas_1_status_to_bool "casn".{status}
+        kcas_1٠status_to_bool "casn".{status}
     end.
 
 #[local] Definition __zoo_recs_0 :=
@@ -55,7 +55,7 @@ Definition kcas_1_finish : val :=
       let: "gid" := Id in
       match: "cass" with
       | [] =>
-          kcas_1_finish "gid" "casn" §After
+          kcas_1٠finish "gid" "casn" §After
       | "cas" :: "continue" as "retry" =>
           let: "loc", "state" := "cas" in
           let: "proph" := Proph in
@@ -69,7 +69,7 @@ Definition kcas_1_finish : val :=
            then (
             "lock" "casn" "loc" "old_state" "state" "retry" "continue"
           ) else (
-            kcas_1_finish "gid" "casn" §Before
+            kcas_1٠finish "gid" "casn" §Before
           )
       end
     and: "lock" "casn" "loc" "old_state" "state" "retry" "continue" =>
@@ -101,71 +101,71 @@ Definition kcas_1_finish : val :=
           "determine_as" "casn" "cass"
       end
   )%zoo_recs.
-Definition kcas_1_determine_as :=
+Definition kcas_1٠determine_as :=
   ValRecs 0 __zoo_recs_0.
-Definition kcas_1_lock :=
+Definition kcas_1٠lock :=
   ValRecs 1 __zoo_recs_0.
-Definition kcas_1_eval :=
+Definition kcas_1٠eval :=
   ValRecs 2 __zoo_recs_0.
-Definition kcas_1_determine :=
+Definition kcas_1٠determine :=
   ValRecs 3 __zoo_recs_0.
 #[global] Instance :
-  AsValRecs' kcas_1_determine_as 0 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_lock ;
-    kcas_1_eval ;
-    kcas_1_determine
+  AsValRecs' kcas_1٠determine_as 0 __zoo_recs_0 [
+    kcas_1٠determine_as ;
+    kcas_1٠lock ;
+    kcas_1٠eval ;
+    kcas_1٠determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_lock 1 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_lock ;
-    kcas_1_eval ;
-    kcas_1_determine
+  AsValRecs' kcas_1٠lock 1 __zoo_recs_0 [
+    kcas_1٠determine_as ;
+    kcas_1٠lock ;
+    kcas_1٠eval ;
+    kcas_1٠determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_eval 2 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_lock ;
-    kcas_1_eval ;
-    kcas_1_determine
+  AsValRecs' kcas_1٠eval 2 __zoo_recs_0 [
+    kcas_1٠determine_as ;
+    kcas_1٠lock ;
+    kcas_1٠eval ;
+    kcas_1٠determine
   ].
 Proof.
   done.
 Qed.
 #[global] Instance :
-  AsValRecs' kcas_1_determine 3 __zoo_recs_0 [
-    kcas_1_determine_as ;
-    kcas_1_lock ;
-    kcas_1_eval ;
-    kcas_1_determine
+  AsValRecs' kcas_1٠determine 3 __zoo_recs_0 [
+    kcas_1٠determine_as ;
+    kcas_1٠lock ;
+    kcas_1٠eval ;
+    kcas_1٠determine
   ].
 Proof.
   done.
 Qed.
 
-Definition kcas_1_make : val :=
+Definition kcas_1٠make : val :=
   fun: "v" =>
     let: "_gid" := Id in
     let: "casn" := { §After, Proph } in
     let: "state" := { "casn", "v", "v" } in
     ref "state".
 
-Definition kcas_1_get : val :=
+Definition kcas_1٠get : val :=
   fun: "loc" =>
-    kcas_1_eval !"loc".
+    kcas_1٠eval !"loc".
 
-Definition kcas_1_cas : val :=
+Definition kcas_1٠cas : val :=
   fun: "cass" =>
     let: "casn" := { §After, Proph } in
     let: "cass" :=
-      lst_map
+      lst٠map
         (fun: "cas" =>
            let: "loc", "before", "after" := "cas" in
            let: "state" := { "casn", "before", "after" } in
@@ -173,4 +173,4 @@ Definition kcas_1_cas : val :=
         "cass"
     in
     "casn" <-{status} ‘Undetermined@[ "cass" ] ;;
-    kcas_1_determine_as "casn" "cass".
+    kcas_1٠determine_as "casn" "cass".

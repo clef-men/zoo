@@ -10,30 +10,30 @@ From zoo_persistent Require Import
 From zoo Require Import
   options.
 
-Definition pstore_1_create : val :=
+Definition pstore_1٠create : val :=
   fun: <> =>
     ref (ref §Root).
 
-Definition pstore_1_ref : val :=
+Definition pstore_1٠ref : val :=
   fun: "_t" "v" =>
     ref "v".
 
-Definition pstore_1_get : val :=
+Definition pstore_1٠get : val :=
   fun: "_t" "r" =>
     !"r".
 
-Definition pstore_1_set : val :=
+Definition pstore_1٠set : val :=
   fun: "t" "r" "v" =>
     let: "root" := ref §Root in
     !"t" <- ‘Diff( "r", !"r", "root" ) ;;
     "r" <- "v" ;;
     "t" <- "root".
 
-Definition pstore_1_capture : val :=
+Definition pstore_1٠capture : val :=
   fun: "t" =>
     ("t", !"t").
 
-Definition pstore_1_collect : val :=
+Definition pstore_1٠collect : val :=
   rec: "collect" "node" "acc" =>
     match: !"node" with
     | Root =>
@@ -42,7 +42,7 @@ Definition pstore_1_collect : val :=
         "collect" "node'" ("node" :: "acc")
     end.
 
-Definition pstore_1_revert : val :=
+Definition pstore_1٠revert : val :=
   rec: "revert" "node" "param" =>
     match: "param" with
     | [] =>
@@ -59,12 +59,12 @@ Definition pstore_1_revert : val :=
         end
     end.
 
-Definition pstore_1_reroot : val :=
+Definition pstore_1٠reroot : val :=
   fun: "node" =>
-    let: "root", "nodes" := pstore_1_collect "node" [] in
-    pstore_1_revert "root" "nodes".
+    let: "root", "nodes" := pstore_1٠collect "node" [] in
+    pstore_1٠revert "root" "nodes".
 
-Definition pstore_1_restore : val :=
+Definition pstore_1٠restore : val :=
   fun: "t" "s" =>
     if: "t" != "s".<snapshot_store> then (
       Fail
@@ -74,7 +74,7 @@ Definition pstore_1_restore : val :=
       | Root =>
           ()
       | Diff <> <> <> =>
-          pstore_1_reroot "root" ;;
+          pstore_1٠reroot "root" ;;
           "t" <- "root"
       end
     ).

@@ -10,14 +10,14 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Definition stack_create : val :=
-  dynarray_1_create.
+Definition stack٠create : val :=
+  dynarray_1٠create.
 
-Definition stack_is_empty : val :=
-  dynarray_1_is_empty.
+Definition stack٠is_empty : val :=
+  dynarray_1٠is_empty.
 
-Definition stack_push : val :=
-  dynarray_1_push.
+Definition stack٠push : val :=
+  dynarray_1٠push.
 
-Definition stack_pop : val :=
-  dynarray_1_pop.
+Definition stack٠pop : val :=
+  dynarray_1٠pop.

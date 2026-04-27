@@ -11,11 +11,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpsc_queue_2_create : val :=
+Definition mpsc_queue_2٠create : val :=
   fun: <> =>
     { §Gnil, §Gnil }.
 
-Definition mpsc_queue_2_is_empty : val :=
+Definition mpsc_queue_2٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | Gcons <> <> =>
@@ -24,23 +24,23 @@ Definition mpsc_queue_2_is_empty : val :=
         "t".{back} == §Gnil
     end.
 
-Definition mpsc_queue_2_push_front : val :=
+Definition mpsc_queue_2٠push_front : val :=
   fun: "t" "v" =>
     "t" <-{front} ‘Gcons[ "v", "t".{front} ].
 
-Definition mpsc_queue_2_push_back : val :=
+Definition mpsc_queue_2٠push_back : val :=
   rec: "push_back" "t" "v" =>
     let: "back" := "t".{back} in
     if: ~ CAS "t".[back] "back" ‘Gcons[ "v", "back" ] then (
-      domain_yield () ;;
+      domain٠yield () ;;
       "push_back" "t" "v"
     ).
 
-Definition mpsc_queue_2_pop : val :=
+Definition mpsc_queue_2٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | Gnil =>
-        match: glst_rev (Xchg "t".[back] §Gnil) with
+        match: glst٠rev (Xchg "t".[back] §Gnil) with
         | Gnil =>
             §None
         | Gcons "v" "front" =>

@@ -1,25 +1,25 @@
 From zoo_std Require Import
   lst__code.
 
-#[global] Opaque lst_singleton.
-#[global] Opaque lst_head.
-#[global] Opaque lst_tail.
-#[global] Opaque lst_is_empty.
-#[global] Opaque lst_get.
-#[global] Opaque lst_initi.
-#[global] Opaque lst_init.
-#[global] Opaque lst_foldli.
-#[global] Opaque lst_foldl.
-#[global] Opaque lst_foldri.
-#[global] Opaque lst_foldr.
-#[global] Opaque lst_size.
-#[global] Opaque lst_rev_app.
-#[global] Opaque lst_rev.
-#[global] Opaque lst_app.
-#[global] Opaque lst_snoc.
-#[global] Opaque lst_iteri.
-#[global] Opaque lst_iter.
-#[global] Opaque lst_mapi.
-#[global] Opaque lst_map.
-#[global] Opaque lst_forall.
-#[global] Opaque lst_exists.
+#[global] Opaque lst٠singleton.
+#[global] Opaque lst٠head.
+#[global] Opaque lst٠tail.
+#[global] Opaque lst٠is_empty.
+#[global] Opaque lst٠get.
+#[global] Opaque lst٠initi.
+#[global] Opaque lst٠init.
+#[global] Opaque lst٠foldli.
+#[global] Opaque lst٠foldl.
+#[global] Opaque lst٠foldri.
+#[global] Opaque lst٠foldr.
+#[global] Opaque lst٠size.
+#[global] Opaque lst٠rev_app.
+#[global] Opaque lst٠rev.
+#[global] Opaque lst٠app.
+#[global] Opaque lst٠snoc.
+#[global] Opaque lst٠iteri.
+#[global] Opaque lst٠iter.
+#[global] Opaque lst٠mapi.
+#[global] Opaque lst٠map.
+#[global] Opaque lst٠forall.
+#[global] Opaque lst٠exists.

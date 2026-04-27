@@ -12,20 +12,20 @@ From zoo_eio Require Import
 From zoo Require Import
   options.
 
-Definition rcfd_make : val :=
+Definition rcfd٠make : val :=
   fun: "fd" =>
     { 0, ‘Open@[ "fd" ] }.
 
-Definition rcfd_closed : val :=
+Definition rcfd٠closed : val :=
   ‘Closing[ fun: <> => () ].
 
-Definition rcfd_finish : val :=
+Definition rcfd٠finish : val :=
   fun: "t" "close" "state" =>
-    if: "t".{ops} == 0 and CAS "t".[state] "state" rcfd_closed then (
+    if: "t".{ops} == 0 and CAS "t".[state] "state" rcfd٠closed then (
       "close" ()
     ).
 
-Definition rcfd_put : val :=
+Definition rcfd٠put : val :=
   fun: "t" =>
     let: "old" := FAA "t".[ops] (-1) in
     if: "old" == 1 then (
@@ -33,67 +33,67 @@ Definition rcfd_put : val :=
       | Open <> =>
           ()
       | Closing "close" as "state" =>
-          rcfd_finish "t" "close" "state"
+          rcfd٠finish "t" "close" "state"
       end
     ).
 
-Definition rcfd_get : val :=
+Definition rcfd٠get : val :=
   fun: "t" =>
     FAA "t".[ops] 1 ;;
     match: "t".{state} with
     | Open "fd" =>
         ‘Some( "fd" )
     | Closing <> =>
-        rcfd_put "t" ;;
+        rcfd٠put "t" ;;
         §None
     end.
 
-Definition rcfd_use : val :=
+Definition rcfd٠use : val :=
   fun: "t" "closed" "open_" =>
-    match: rcfd_get "t" with
+    match: rcfd٠get "t" with
     | None =>
         "closed" ()
     | Some "fd" =>
         let: "res" := "open_" "fd" in
-        rcfd_put "t" ;;
+        rcfd٠put "t" ;;
         "res"
     end.
 
-Definition rcfd_close : val :=
+Definition rcfd٠close : val :=
   fun: "t" =>
     match: "t".{state} with
     | Closing <> =>
         false
     | Open "fd" as "state" =>
-        let: "close" <> := unix_close "fd" in
+        let: "close" <> := unix٠close "fd" in
         let: "new_state" := ‘Closing[ "close" ] in
         if: CAS "t".[state] "state" "new_state" then (
-          rcfd_finish "t" "close" "new_state" ;;
+          rcfd٠finish "t" "close" "new_state" ;;
           true
         ) else (
           false
         )
     end.
 
-Definition rcfd_remove : val :=
+Definition rcfd٠remove : val :=
   fun: "t" =>
     match: "t".{state} with
     | Closing <> =>
         §None
     | Open "fd" as "state" =>
-        let: "waiter" := spsc_waiter_create () in
+        let: "waiter" := spsc_waiter٠create () in
         let: "new_state" :=
-          ‘Closing[ fun: <> => spsc_waiter_notify "waiter" ]
+          ‘Closing[ fun: <> => spsc_waiter٠notify "waiter" ]
         in
         if: CAS "t".[state] "state" "new_state" then (
-          spsc_waiter_wait "waiter" ;;
+          spsc_waiter٠wait "waiter" ;;
           ‘Some( "fd" )
         ) else (
           §None
         )
     end.
 
-Definition rcfd_is_open : val :=
+Definition rcfd٠is_open : val :=
   fun: "t" =>
     match: "t".{state} with
     | Open <> =>
@@ -102,7 +102,7 @@ Definition rcfd_is_open : val :=
         false
     end.
 
-Definition rcfd_peek : val :=
+Definition rcfd٠peek : val :=
   fun: "t" =>
     match: "t".{state} with
     | Open "fd" =>

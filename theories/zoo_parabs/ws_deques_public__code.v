@@ -13,43 +13,43 @@ From zoo_parabs Require Import
 From zoo Require Import
   options.
 
-Definition ws_deques_public_create : val :=
+Definition ws_deques_public٠create : val :=
   fun: "sz" =>
-    array_unsafe_init "sz" ws_deque_2_create.
+    array٠unsafe_init "sz" ws_deque_2٠create.
 
-Definition ws_deques_public_size : val :=
-  array_size.
+Definition ws_deques_public٠size : val :=
+  array٠size.
 
-Definition ws_deques_public_block : val :=
+Definition ws_deques_public٠block : val :=
   fun: "_t" "_i" =>
     ().
 
-Definition ws_deques_public_unblock : val :=
+Definition ws_deques_public٠unblock : val :=
   fun: "_t" "_i" =>
     ().
 
-Definition ws_deques_public_push : val :=
+Definition ws_deques_public٠push : val :=
   fun: "t" "i" "v" =>
-    let: "queue" := array_unsafe_get "t" "i" in
-    ws_deque_2_push "queue" "v".
+    let: "queue" := array٠unsafe_get "t" "i" in
+    ws_deque_2٠push "queue" "v".
 
-Definition ws_deques_public_pop : val :=
+Definition ws_deques_public٠pop : val :=
   fun: "t" "i" =>
-    let: "queue" := array_unsafe_get "t" "i" in
-    ws_deque_2_pop "queue".
+    let: "queue" := array٠unsafe_get "t" "i" in
+    ws_deque_2٠pop "queue".
 
-Definition ws_deques_public_steal_to : val :=
+Definition ws_deques_public٠steal_to : val :=
   fun: "t" "_i" "j" =>
-    let: "queue" := array_unsafe_get "t" "j" in
-    ws_deque_2_steal "queue".
+    let: "queue" := array٠unsafe_get "t" "j" in
+    ws_deque_2٠steal "queue".
 
-Definition ws_deques_public_steal_as₀ : val :=
+Definition ws_deques_public٠steal_as₀ : val :=
   rec: "steal_as" "t" "sz" "i" "round" "n" =>
     if: "n" ≤ 0 then (
       §None
     ) else (
-      let: "j" := ("i" + 1 + random_round_next "round") `rem` "sz" in
-      match: ws_deques_public_steal_to "t" "i" "j" with
+      let: "j" := ("i" + 1 + random_round٠next "round") `rem` "sz" in
+      match: ws_deques_public٠steal_to "t" "i" "j" with
       | None =>
           "steal_as" "t" "sz" "i" "round" ("n" - 1)
       |_ as "res" =>
@@ -57,7 +57,7 @@ Definition ws_deques_public_steal_as₀ : val :=
       end
     ).
 
-Definition ws_deques_public_steal_as : val :=
+Definition ws_deques_public٠steal_as : val :=
   fun: "t" "i" "round" =>
-    let: "sz" := ws_deques_public_size "t" in
-    ws_deques_public_steal_as₀ "t" "sz" "i" "round" ("sz" - 1).
+    let: "sz" := ws_deques_public٠size "t" in
+    ws_deques_public٠steal_as₀ "t" "sz" "i" "round" ("sz" - 1).

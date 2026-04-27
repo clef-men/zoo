@@ -13,44 +13,44 @@ From examples Require Import
 From zoo Require Import
   options.
 
-Definition vertex_fibonacci_main₀ : val :=
+Definition vertex_fibonacci٠main₀ : val :=
   rec: "main" "ctx" "vtx" "r" "n" =>
     if: "n" ≤ 1 then (
       "r" <- "n" ;;
       true
     ) else (
       let: "r1" := ref 0 in
-      let: "vtx1" := vertex_create §None in
+      let: "vtx1" := vertex٠create §None in
       let: "n1" := "n" - 1 in
-      vertex_set_task "vtx1" (fun: "ctx" => "main" "ctx" "vtx1" "r1" "n1") ;;
-      vertex_release "ctx" "vtx1" ;;
+      vertex٠set_task "vtx1" (fun: "ctx" => "main" "ctx" "vtx1" "r1" "n1") ;;
+      vertex٠release "ctx" "vtx1" ;;
       let: "r2" := ref 0 in
-      let: "vtx2" := vertex_create §None in
+      let: "vtx2" := vertex٠create §None in
       let: "n2" := "n" - 2 in
-      vertex_set_task "vtx2" (fun: "ctx" => "main" "ctx" "vtx2" "r2" "n2") ;;
-      vertex_release "ctx" "vtx2" ;;
-      vertex_precede "vtx1" "vtx" ;;
-      vertex_precede "vtx2" "vtx" ;;
-      vertex_yield "vtx" (fun: "_ctx" => "r" <- !"r1" + !"r2" ;;
-                                         true)
+      vertex٠set_task "vtx2" (fun: "ctx" => "main" "ctx" "vtx2" "r2" "n2") ;;
+      vertex٠release "ctx" "vtx2" ;;
+      vertex٠precede "vtx1" "vtx" ;;
+      vertex٠precede "vtx2" "vtx" ;;
+      vertex٠yield "vtx" (fun: "_ctx" => "r" <- !"r1" + !"r2" ;;
+                                          true)
     ).
 
-Definition vertex_fibonacci_main : val :=
+Definition vertex_fibonacci٠main : val :=
   fun: "num_worker" "n" =>
-    pool_run
+    pool٠run
       "num_worker"
       (fun: "ctx" =>
          let: "r" := ref 0 in
-         let: "vtx1" := vertex_create §None in
-         vertex_set_task
+         let: "vtx1" := vertex٠create §None in
+         vertex٠set_task
            "vtx1"
-           (fun: "ctx" => vertex_fibonacci_main₀ "ctx" "vtx1" "r" "n") ;;
-         vertex_release "ctx" "vtx1" ;;
-         let: "ivar" := ivar_4_create () in
+           (fun: "ctx" => vertex_fibonacci٠main₀ "ctx" "vtx1" "r" "n") ;;
+         vertex٠release "ctx" "vtx1" ;;
+         let: "ivar" := ivar_4٠create () in
          let: "vtx2" :=
-           vertex_create' (fun: "ctx" => ivar_4_notify "ivar" "ctx" ())
+           vertex٠create' (fun: "ctx" => ivar_4٠notify "ivar" "ctx" ())
          in
-         vertex_precede "vtx1" "vtx2" ;;
-         vertex_release "ctx" "vtx2" ;;
-         pool_wait_ivar "ctx" "ivar" ;;
+         vertex٠precede "vtx1" "vtx2" ;;
+         vertex٠release "ctx" "vtx2" ;;
+         pool٠wait_ivar "ctx" "ivar" ;;
          !"r").

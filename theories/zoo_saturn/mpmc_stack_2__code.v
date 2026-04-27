@@ -12,11 +12,11 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpmc_stack_2_create : val :=
+Definition mpmc_stack_2٠create : val :=
   fun: <> =>
     ref §ClstOpen.
 
-Definition mpmc_stack_2_push : val :=
+Definition mpmc_stack_2٠push : val :=
   rec: "push" "t" "v" =>
     match: !"t" with
     | ClstClosed =>
@@ -26,12 +26,12 @@ Definition mpmc_stack_2_push : val :=
         if: CAS "t".[contents] "old" "new_" then (
           false
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "push" "t" "v"
         )
     end.
 
-Definition mpmc_stack_2_pop : val :=
+Definition mpmc_stack_2٠pop : val :=
   rec: "pop" "t" =>
     match: !"t" with
     | ClstClosed =>
@@ -42,15 +42,15 @@ Definition mpmc_stack_2_pop : val :=
         if: CAS "t".[contents] "old" "new_" then (
           ‘Something( "v" )
         ) else (
-          domain_yield () ;;
+          domain٠yield () ;;
           "pop" "t"
         )
     end.
 
-Definition mpmc_stack_2_is_closed : val :=
+Definition mpmc_stack_2٠is_closed : val :=
   fun: "t" =>
     !"t" == §ClstClosed.
 
-Definition mpmc_stack_2_close : val :=
+Definition mpmc_stack_2٠close : val :=
   fun: "t" =>
     Xchg "t".[contents] §ClstClosed.

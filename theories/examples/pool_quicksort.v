@@ -20,7 +20,7 @@ From zoo Require Import
 Section pool_G.
   Context `{pool_G : PoolG}.
 
-  #[local] Lemma pool_quicksort_partition𑁒spec arr i i_ xs sz :
+  #[local] Lemma pool_quicksort٠partition𑁒spec arr i i_ xs sz :
     (0 ≤ i)%Z →
     i_ = ₊i →
     (1 < sz)%Z →
@@ -28,7 +28,7 @@ Section pool_G.
     {{{
       array_slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_partition arr #i #sz
+      pool_quicksort٠partition arr #i #sz
     {{{
       xs1 p pivot xs2
     , RET #p;
@@ -46,7 +46,7 @@ Section pool_G.
     iDestruct (array_slice_cons_1 with "Harr") as "(Harr_1 & Harr_2)".
 
     wp_rec.
-    wp_apply+ (array_unsafe_get𑁒spec_cell with "Harr_1") as "Harr_1". 1: lia.
+    wp_apply+ (array٠unsafe_get𑁒spec_cell with "Harr_1") as "Harr_1". 1: lia.
     wp_ref r as "Hr".
 
     wp_apply+ (for𑁒spec_strong (λ j _,
@@ -75,7 +75,7 @@ Section pool_G.
       destruct (lookup_lt_is_Some_2 xs' 𝑖2) as (x2 & Hlookup_2).
       { rewrite -Hxs'. lia. }
 
-      wp_apply+ (array_unsafe_get𑁒spec_slice with "Harr") as "Harr".
+      wp_apply+ (array٠unsafe_get𑁒spec_slice with "Harr") as "Harr".
       { lia. }
       { apply list_lookup_fmap_Some_2 => //. }
       { lia. }
@@ -85,7 +85,7 @@ Section pool_G.
 
       - wp_load.
 
-        wp_apply (array_unsafe_swap𑁒spec_slice ₊(i1 - i - 1) with "Harr") as "Harr".
+        wp_apply (array٠unsafe_swap𑁒spec_slice ₊(i1 - i - 1) with "Harr") as "Harr".
         1,2,4: lia.
         1,2: apply list_lookup_fmap_Some_2 => //.
         1: lia.
@@ -125,7 +125,7 @@ Section pool_G.
 
     destruct_decide (i1 = i + 1)%Z as -> | Hcase.
 
-    - wp_apply+ (array_unsafe_swap𑁒spec_slice_id with "Harr") as "Harr". 1,2: simpl; lia.
+    - wp_apply+ (array٠unsafe_swap𑁒spec_slice_id with "Harr") as "Harr". 1,2: simpl; lia.
       iSteps as "_".
 
       iEval (replace _ with ⁺₊i by lia).
@@ -163,7 +163,7 @@ Section pool_G.
       iEval (rewrite fmap_app /=) in "Harr".
 
       iDestruct (array_slice_app_2 (_ :: _) with "Harr") as "(Harr_1 & Harr_2)". 1: done.
-      wp_apply+ (array_unsafe_swap𑁒spec_slice 0 ₊(i1 - i - 1) with "Harr_1") as "Harr_1". 1-4,6: auto with lia.
+      wp_apply+ (array٠unsafe_swap𑁒spec_slice 0 ₊(i1 - i - 1) with "Harr_1") as "Harr_1". 1-4,6: auto with lia.
       { apply lookup_cons_r_Some. 1: lia.
         apply lookup_app_r_Some; simpl_length. 1: lia.
         replace _ with 0 by lia. done.
@@ -184,7 +184,7 @@ Section pool_G.
       { rewrite Permutation_cons_append //. }
   Qed.
 
-  #[local] Lemma pool_quicksort_main₀𑁒spec pool ctx scope arr i i_ xs sz :
+  #[local] Lemma pool_quicksort٠main₀𑁒spec pool ctx scope arr i i_ xs sz :
     (0 ≤ i)%Z →
     i_ = ₊i →
     length xs = ₊sz →
@@ -192,7 +192,7 @@ Section pool_G.
       pool_context pool ctx scope ∗
       array_slice arr i_ (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_main₀ ctx arr #i #sz
+      pool_quicksort٠main₀ ctx arr #i #sz
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -211,10 +211,10 @@ Section pool_G.
     wp_rec. wp_pures.
     case_bool_decide; wp_pures.
 
-    - wp_apply (pool_quicksort_partition𑁒spec with "Harr") as (xs1 p pivot xs2) "(%Hp & %Hxs & %Hxs1 & %Hxs2 & Harr)". 1-4: done.
+    - wp_apply (pool_quicksort٠partition𑁒spec with "Harr") as (xs1 p pivot xs2) "(%Hp & %Hxs & %Hxs1 & %Hxs2 & Harr)". 1-4: done.
       iDestruct (array_slice_app3 _ [_] with "Harr") as "(Harr_1 & Harr_2 & Harr_3)".
 
-      wp_apply+ (pool_async𑁒spec
+      wp_apply+ (pool٠async𑁒spec
         ( pool_consumer pool (
             ∃ xs1',
             ⌜xs1 ≡ₚ xs1'⌝ ∗
@@ -228,7 +228,7 @@ Section pool_G.
         wp_apply+ ("HLöb" with "[//] [//] [%] Hctx Harr_1") as "($ & $) //". 1: lia.
       }
 
-      wp_apply+ (pool_async𑁒spec
+      wp_apply+ (pool٠async𑁒spec
         ( pool_consumer pool (
             ∃ xs2',
             ⌜xs2 ≡ₚ xs2'⌝ ∗
@@ -269,12 +269,12 @@ Section pool_G.
       iExists xs. iSteps. iPureIntro.
       apply StronglySorted_trivial. lia.
   Qed.
-  #[local] Lemma pool_quicksort_main₁𑁒spec pool ctx scope arr xs :
+  #[local] Lemma pool_quicksort٠main₁𑁒spec pool ctx scope arr xs :
     {{{
       pool_context pool ctx scope ∗
       array_model arr (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_main₁ ctx arr
+      pool_quicksort٠main₁ ctx arr
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -290,11 +290,11 @@ Section pool_G.
 
     wp_rec.
 
-    wp_apply+ (array_size𑁒spec with "Harr_model") as "Harr_model".
+    wp_apply+ (array٠size𑁒spec with "Harr_model") as "Harr_model".
     iEval (simpl_length).
 
     iDestruct (array_model_to_slice' with "Harr_model") as "(Harr_slice & #Harr_model)".
-    wp_apply+ (pool_quicksort_main₀𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
+    wp_apply+ (pool_quicksort٠main₀𑁒spec with "[$]") as "(Hctx & Hpool_consumer)". 1-3: lia.
 
     iSteps.
     iMod "Hpool_consumer" as "(%xs' & %Hxs' & %Hxs'_sorted & Harr_slice)".
@@ -302,11 +302,11 @@ Section pool_G.
     simpl_length. apply Permutation_length. done.
   Qed.
 
-  Lemma pool_quicksort_main𑁒spec (num_dom : nat) arr xs :
+  Lemma pool_quicksort٠main𑁒spec (num_dom : nat) arr xs :
     {{{
       array_model arr (DfracOwn 1) (#*@{Z} xs)
     }}}
-      pool_quicksort_main #num_dom arr
+      pool_quicksort٠main #num_dom arr
     {{{
       xs'
     , RET ();
@@ -320,7 +320,7 @@ Section pool_G.
     wp_rec.
 
     iApply wp_fupd.
-    wp_apply+ (pool_run𑁒spec (λ pool res,
+    wp_apply+ (pool٠run𑁒spec (λ pool res,
       ⌜res = ()%V⌝ ∗
       pool_consumer pool (
         ∃ xs',
@@ -330,7 +330,7 @@ Section pool_G.
       )
     )%I with "[Harr]") as (pool ?) "(#Hpool_finished & -> & Hpool_consumer)". 1: lia.
     { iIntros "%pool %ctx %scope _ Hctx".
-      wp_apply+ (pool_quicksort_main₁𑁒spec with "[$]").
+      wp_apply+ (pool_quicksort٠main₁𑁒spec with "[$]").
       iSteps.
     }
 

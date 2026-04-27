@@ -256,12 +256,12 @@ Section future_G.
     iApply (lc_fupd_elim_later with "H£2 HΧ").
   Qed.
 
-  Lemma future_return𑁒spec pool Ψ Ξ v :
+  Lemma future٠return𑁒spec pool Ψ Ξ v :
     {{{
       Ψ v ∗
       □ Ξ v
     }}}
-      future_return v
+      future٠return v
     {{{
       t
     , RET t;
@@ -274,13 +274,13 @@ Section future_G.
 
     iMod steps_lb_0 as "#H⧖".
 
-    wp_apply (ivar_4_make𑁒spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
+    wp_apply (ivar_4٠make𑁒spec Ψ Ξ with "[$]") as (t) "(#Hinv & Hconsumer & #Hresult & #Hwaiters)".
 
     iApply "HΦ".
     iFrame "#∗". iSteps.
   Qed.
 
-  #[local] Lemma future_set𑁒spec pool ctx scope t Ψ Ξ v :
+  #[local] Lemma future٠set𑁒spec pool ctx scope t Ψ Ξ v :
     {{{
       pool_context pool ctx scope ∗
       ivar_4_inv t Ψ Ξ (pool_context pool) ∗
@@ -288,7 +288,7 @@ Section future_G.
       ▷ Ψ v ∗
       ▷ □ Ξ v
     }}}
-      future_set ctx t v
+      future٠set ctx t v
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -298,11 +298,11 @@ Section future_G.
     iIntros "%Φ (Hctx & #Hinv & Hproducer & HΨ & HΞ) HΦ".
 
     wp_rec.
-    wp_apply+ (ivar_4_notify𑁒spec with "[$Hinv $Hproducer $Hctx $HΨ $HΞ]").
+    wp_apply+ (ivar_4٠notify𑁒spec with "[$Hinv $Hproducer $Hctx $HΨ $HΞ]").
     iSteps.
   Qed.
 
-  Lemma future_async𑁒spec Ψ Ξ pool ctx scope task :
+  Lemma future٠async𑁒spec Ψ Ξ pool ctx scope task :
     {{{
       pool_context pool ctx scope ∗
       ( ∀ ctx scope,
@@ -314,7 +314,7 @@ Section future_G.
         }}
       )
     }}}
-      future_async ctx task
+      future٠async ctx task
     {{{
       t
     , RET t;
@@ -328,15 +328,15 @@ Section future_G.
     iMod steps_lb_0 as "#H⧖".
 
     wp_rec.
-    wp_apply+ (ivar_4_create𑁒spec Ψ Ξ (pool_context pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
+    wp_apply+ (ivar_4٠create𑁒spec Ψ Ξ (pool_context pool) with "[//]") as (t) "(#Hinv & Hproducer & Hconsumer)".
 
-    wp_apply+ (pool_async𑁒spec
+    wp_apply+ (pool٠async𑁒spec
       True
       (finished t)
     with "[$Hctx Htask Hproducer]") as "(Hctx & _ & #Hpool_obligation)".
     { iIntros "{%} %ctx %scope Hctx".
       wp_apply+ (wp_wand with "(Htask Hctx)") as (v) "(Hctx & HΨ & HΞ)".
-      wp_apply (future_set𑁒spec _ _ _ _ Ψ with "[$]") as "($ & #$) //".
+      wp_apply (future٠set𑁒spec _ _ _ _ Ψ with "[$]") as "($ & #$) //".
     }
 
     iStep 6. iFrame "#∗". iIntros "!> !> Hpool_finished".
@@ -344,12 +344,12 @@ Section future_G.
     iNext => //.
   Qed.
 
-  Lemma future_wait𑁒spec pool ctx scope t Ψ Ξ :
+  Lemma future٠wait𑁒spec pool ctx scope t Ψ Ξ :
     {{{
       pool_context pool ctx scope ∗
       future_inv pool t Ψ Ξ
     }}}
-      future_wait ctx t
+      future٠wait ctx t
     {{{
       v
     , RET v;
@@ -362,12 +362,12 @@ Section future_G.
 
     wp_rec.
 
-    wp_apply+ (pool_wait_ivar𑁒spec with "[$Hctx $Hinv]") as "(_ & Hctx & %v & #Hresult)". 1: iSteps.
-    wp_apply+ (ivar_4_get𑁒spec with "[$Hinv $Hresult]") as "H£".
+    wp_apply+ (pool٠wait_ivar𑁒spec with "[$Hctx $Hinv]") as "(_ & Hctx & %v & #Hresult)". 1: iSteps.
+    wp_apply+ (ivar_4٠get𑁒spec with "[$Hinv $Hresult]") as "H£".
     iSteps.
   Qed.
 
-  Lemma future_iter𑁒spec P pool ctx scope t Ψ Ξ task :
+  Lemma future٠iter𑁒spec P pool ctx scope t Ψ Ξ task :
     {{{
       pool_context pool ctx scope ∗
       future_inv pool t Ψ Ξ ∗
@@ -381,7 +381,7 @@ Section future_G.
         }}
       )
     }}}
-      future_iter ctx t task
+      future٠iter ctx t task
     {{{
       RET ();
       pool_context pool ctx scope ∗
@@ -396,7 +396,7 @@ Section future_G.
     | Some (_, ?P) =>
         pose P_task := P
     end.
-    wp_apply+ (ivar_4_wait𑁒spec P P_task with "[$Hinv $Htask]") as ([v |]) "H".
+    wp_apply+ (ivar_4٠wait𑁒spec P P_task with "[$Hinv $Htask]") as ([v |]) "H".
     { iIntros "{%} %ctx %scope %v Htask Hctx #Hresult".
       wp_apply (wp_wand with "(Htask Hctx Hresult)").
       iSteps.
@@ -428,7 +428,7 @@ Section future_G.
       iRewrite -"Heq" in "HP" => //.
   Qed.
 
-  Lemma future_map𑁒spec {pool ctx scope t1 Ψ1 Ξ1} Ψ2 Ξ2 task :
+  Lemma future٠map𑁒spec {pool ctx scope t1 Ψ1 Ξ1} Ψ2 Ξ2 task :
     {{{
       pool_context pool ctx scope ∗
       future_inv pool t1 Ψ1 Ξ1 ∗
@@ -442,7 +442,7 @@ Section future_G.
         }}
       )
     }}}
-      future_map ctx t1 task
+      future٠map ctx t1 task
     {{{
       t2
     , RET t2;
@@ -454,19 +454,19 @@ Section future_G.
     iIntros "%Φ (Hctx & #Hinv_1 & Htask) HΦ".
 
     wp_rec.
-    wp_apply+ (ivar_4_create𑁒spec Ψ2 Ξ2 (pool_context pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
+    wp_apply+ (ivar_4٠create𑁒spec Ψ2 Ξ2 (pool_context pool) with "[//]") as (t2) "(#Hinv_2 & Hproducer_2 & Hconsumer_2)".
 
-    wp_apply+ (future_iter𑁒spec (
+    wp_apply+ (future٠iter𑁒spec (
       pool_obligation pool (finished t2)
     ) with "[$Hctx $Hinv_1 Htask Hproducer_2]") as "(Hctx & (:obligation))".
     { iIntros "{%} %ctx %scope %v1 Hctx #Hresult_1".
-      wp_apply+ (pool_async𑁒spec
+      wp_apply+ (pool٠async𑁒spec
         True
         (finished t2)
       with "[$Hctx Htask Hproducer_2]") as "($ & _ & #$) //".
       { iIntros "{%} %ctx %scope Hctx".
         wp_apply+ (wp_wand with "(Htask Hctx Hresult_1)") as (v2) "(Hctx & HΨ2 & HΞ2)".
-        wp_apply (future_set𑁒spec _ _ _ _ Ψ2 with "[$]") as "($ & #$) //".
+        wp_apply (future٠set𑁒spec _ _ _ _ Ψ2 with "[$]") as "($ & #$) //".
       }
     }
 

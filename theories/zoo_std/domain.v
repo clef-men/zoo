@@ -40,51 +40,51 @@ Implicit Types ids : gmap val nat.
 )(in custom zoo_proj
 ).
 
-Definition domain_spawn : val :=
+Definition domain٠spawn : val :=
   fun: "fn" =>
-    let: "t" := ivar_2_create () in
+    let: "t" := ivar_2٠create () in
     Fork (
-      let: "local" := dynarray_1_create () in
+      let: "local" := dynarray_1٠create () in
       SetLocal "local" ;;
-      ivar_2_set "t" ("fn" ())
+      ivar_2٠set "t" ("fn" ())
     ) ;;
     "t".
 
-Definition domain_join : val :=
-  ivar_2_get.
+Definition domain٠join : val :=
+  ivar_2٠get.
 
-Definition domain_local_new : val :=
+Definition domain٠local_new : val :=
   fun: "fn" =>
-    let: "id" := zoo_counter_incr () in
+    let: "id" := zoo_counter٠incr () in
     ("id", "fn").
 
-Definition domain_key_id : val :=
+Definition domain٠key_id : val :=
   fun: "key" =>
     "key".<id>.
-Definition domain_key_init : val :=
+Definition domain٠key_init : val :=
   fun: "key" =>
     "key".<init> ().
 
-Definition domain_local_get : val :=
+Definition domain٠local_get : val :=
   fun: "key" =>
     let: "local" := GetLocal in
-    let: "id" := domain_key_id "key" in
-    dynarray_1_grow "local" ("id" + 1) §None ;;
-    match: dynarray_1_get "local" "id" with
+    let: "id" := domain٠key_id "key" in
+    dynarray_1٠grow "local" ("id" + 1) §None ;;
+    match: dynarray_1٠get "local" "id" with
     | None =>
-        let: "v" := domain_key_init "key" in
-        dynarray_1_set "local" "id" ‘Some( "v" ) ;;
+        let: "v" := domain٠key_init "key" in
+        dynarray_1٠set "local" "id" ‘Some( "v" ) ;;
         "v"
     | Some "v" =>
         "v"
     end.
 
-Definition domain_local_set : val :=
+Definition domain٠local_set : val :=
   fun: "key" "v" =>
     let: "local" := GetLocal in
-    let: "id" := domain_key_id "key" in
-    dynarray_1_grow "local" ("id" + 1) §None ;;
-    dynarray_1_set "local" "id" ‘Some( "v" ).
+    let: "id" := domain٠key_id "key" in
+    dynarray_1٠grow "local" ("id" + 1) §None ;;
+    dynarray_1٠set "local" "id" ‘Some( "v" ).
 
 Class DomainG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] domain_G_ivar_G :: Ivar2G Σ
@@ -382,11 +382,11 @@ Section domain_G.
     iSteps.
   Qed.
 
-  #[local] Lemma domain_key_id𑁒spec key id :
+  #[local] Lemma domain٠key_id𑁒spec key id :
     {{{
       key_id key id
     }}}
-      domain_key_id key
+      domain٠key_id key
     {{{
       RET #id;
       True
@@ -395,11 +395,11 @@ Section domain_G.
     iSteps.
   Qed.
 
-  #[local] Lemma domain_key_init𑁒spec key Ψ :
+  #[local] Lemma domain٠key_init𑁒spec key Ψ :
     {{{
       domain_key key Ψ
     }}}
-      domain_key_init key
+      domain٠key_init key
     {{{
       v
     , RET v;
@@ -528,13 +528,13 @@ Section domain_G.
     iModIntro. iFrame "#∗".
   Qed.
 
-  Lemma domain_spawn𑁒spec Ψ fn :
+  Lemma domain٠spawn𑁒spec Ψ fn :
     {{{
       ∀ tid,
       domain_local tid ∅ -∗
       WP fn () ∶ tid {{ Ψ }}
     }}}
-      domain_spawn fn
+      domain٠spawn fn
     {{{
       t
     , RET t;
@@ -543,10 +543,10 @@ Section domain_G.
   Proof.
     iIntros "%Φ Hfn HΦ".
     wp_rec.
-    wp_apply (ivar_2_create𑁒spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
+    wp_apply (ivar_2٠create𑁒spec with "[//]") as (ivar) "(#Hivar_inv & Hivar_producer & Hivar_consumer)".
     wp_apply+ (wp_fork with "[Hfn Hivar_producer]"); last iSteps. iIntros "!> %tid %local Hlocal".
-    wp_bind (dynarray_1_create ())%E. iApply wp_thread_id_mono.
-    wp_apply (dynarray_1_create𑁒spec' with "[//]") as (l) "(Hl & Hl_meta)".
+    wp_bind (dynarray_1٠create ())%E. iApply wp_thread_id_mono.
+    wp_apply (dynarray_1٠create𑁒spec' with "[//]") as (l) "(Hl & Hl_meta)".
     wp_apply+ (wp_set_local with "Hlocal") as "Hlocal".
 
     iMod (local_pointsto_persist with "Hlocal") as "#Hlocal".
@@ -556,15 +556,15 @@ Section domain_G.
     wp_apply+ (wp_wand with "(Hfn [Hl Hlocal_auth])") as (res) "HΨ".
     { iExists l, γ, [], ∅, ∅. rewrite big_sepM_empty. iSteps. }
     iApply wp_thread_id_mono.
-    wp_apply (ivar_2_set𑁒spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
+    wp_apply (ivar_2٠set𑁒spec with "[$Hivar_inv $Hivar_producer $HΨ //]").
     iSteps.
   Qed.
 
-  Lemma domain_join𑁒spec t Ψ :
+  Lemma domain٠join𑁒spec t Ψ :
     {{{
       domain_model t Ψ
     }}}
-      domain_join t
+      domain٠join t
     {{{
       v
     , RET v;
@@ -573,17 +573,17 @@ Section domain_G.
   Proof.
     iIntros "%Φ (:model) HΦ".
     iApply wp_fupd.
-    wp_apply (ivar_2_get𑁒spec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
+    wp_apply (ivar_2٠get𑁒spec with "Hivar_inv") as (v) "(H£ & Hivar_result & Hivar_synchronized)".
     iMod (ivar_2_inv_result_consumer' with "H£ Hivar_inv Hivar_result Hivar_synchronized Hivar_consumer") as "(HΨ & _)".
     iSteps.
   Qed.
 
-  Lemma domain_local_new𑁒spec {fn} Ψ keys :
+  Lemma domain٠local_new𑁒spec {fn} Ψ keys :
     {{{
       □ WP fn () {{ Ψ }} ∗
       [∗ list] key ∈ keys, domain_key' key
     }}}
-      domain_local_new fn
+      domain٠local_new fn
     {{{
       key
     , RET key;
@@ -611,20 +611,20 @@ Section domain_G.
     iDestruct (big_sepL2_const_sepL_r with "Hids") as "(_ & Hids)".
 
     wp_rec.
-    wp_apply (zoo_counter_incr𑁒spec ids fn with "Hids") as (id) "(Hid & %Hids)".
+    wp_apply (zoo_counter٠incr𑁒spec ids fn with "Hids") as (id) "(Hid & %Hids)".
     iSteps.
     rewrite Forall_lookup. iIntros "%i %key %Hkeys_lookup ->".
     iDestruct (big_sepL2_lookup_l with "Hkeys") as "(%id' & %Hids_lookup & %fn' & %)"; first done. simplify.
     eapply Forall_lookup_1 in Hids; done.
   Qed.
 
-  Lemma domain_local_get𑁒spec_init keys key Ψ tid :
+  Lemma domain٠local_get𑁒spec_init keys key Ψ tid :
     {{{
       domain_local tid keys ∗
       domain_key key Ψ ∗
       domain_local_init tid key
     }}}
-      domain_local_get key ∶ tid
+      domain٠local_get key ∶ tid
     {{{
       v
     , RET v;
@@ -641,13 +641,13 @@ Section domain_G.
     wp_rec.
     wp_apply (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_apply+ (domain_key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1_grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
+    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
-    wp_apply+ (dynarray_1_get𑁒spec _ _ _ None with "Hl") as "Hl".
+    wp_apply+ (dynarray_1٠get𑁒spec _ _ _ None with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists None. split; first done.
@@ -655,9 +655,9 @@ Section domain_G.
       { simpl_length. lia. }
       apply consistent_app_None. done.
     }
-    wp_apply+ (domain_key_init𑁒spec with "Hkey") as (v) "HΨ".
+    wp_apply+ (domain٠key_init𑁒spec with "Hkey") as (v) "HΨ".
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1_set𑁒spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
     wp_pures.
 
@@ -670,12 +670,12 @@ Section domain_G.
       { apply consistent_app_None. done. }
     }
   Qed.
-  Lemma domain_local_get𑁒spec_pointsto keys key dq v tid :
+  Lemma domain٠local_get𑁒spec_pointsto keys key dq v tid :
     {{{
       domain_local tid keys ∗
       domain_local_pointsto tid key dq v
     }}}
-      domain_local_get key ∶ tid
+      domain٠local_get key ∶ tid
     {{{
       RET v;
       domain_local tid keys ∗
@@ -690,13 +690,13 @@ Section domain_G.
     wp_rec.
     wp_apply (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_apply+ (domain_key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1_grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
+    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
-    wp_apply+ (dynarray_1_get𑁒spec _ _ _ (Some v) with "Hl") as "Hl".
+    wp_apply+ (dynarray_1٠get𑁒spec _ _ _ (Some v) with "Hl") as "Hl".
     { lia. }
     { rewrite Nat2Z.id list_lookup_fmap_Some.
       exists (Some v). split; first done.
@@ -709,12 +709,12 @@ Section domain_G.
     iFrameSteps. iPureIntro.
     apply consistent_app_None. done.
   Qed.
-  Lemma domain_local_get𑁒spec_pointstopred keys key Ψ tid :
+  Lemma domain٠local_get𑁒spec_pointstopred keys key Ψ tid :
     {{{
       domain_local tid keys ∗
       domain_local_pointstopred tid key Ψ
     }}}
-      domain_local_get key ∶ tid
+      domain٠local_get key ∶ tid
     {{{
       v
     , RET v;
@@ -724,18 +724,18 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ (Hlocal & (:local_pointstopred)) HΦ".
-    - wp_apply (domain_local_get𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
-    - wp_apply (domain_local_get𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto]") as "(Hlocal & Hlocal_pointsto)".
+    - wp_apply (domain٠local_get𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
+    - wp_apply (domain٠local_get𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto]") as "(Hlocal & Hlocal_pointsto)".
       iApply ("HΦ" with "[$]").
   Qed.
 
-  Lemma domain_local_set𑁒spec_init keys key Ψ v tid :
+  Lemma domain٠local_set𑁒spec_init keys key Ψ v tid :
     {{{
       domain_local tid keys ∗
       domain_key key Ψ ∗
       domain_local_init tid key
     }}}
-      domain_local_set key v ∶ tid
+      domain٠local_set key v ∶ tid
     {{{
       RET ();
       domain_local tid keys ∗
@@ -750,14 +750,14 @@ Section domain_G.
     wp_rec.
     wp_apply+ (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_apply+ (domain_key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1_grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
+    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1_set𑁒spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".
@@ -769,12 +769,12 @@ Section domain_G.
       { apply consistent_app_None. done. }
     }
   Qed.
-  Lemma domain_local_set𑁒spec_pointsto keys key w v tid :
+  Lemma domain٠local_set𑁒spec_pointsto keys key w v tid :
     {{{
       domain_local tid keys ∗
       domain_local_pointsto tid key (DfracOwn 1) w
     }}}
-      domain_local_set key v ∶ tid
+      domain٠local_set key v ∶ tid
     {{{
       RET ();
       domain_local tid keys ∗
@@ -789,14 +789,14 @@ Section domain_G.
     wp_rec.
     wp_apply+ (wp_get_local with "Hlocal") as "_".
     iApply wp_thread_id_mono.
-    wp_apply+ (domain_key_id𑁒spec with "Hid") as "_".
-    wp_apply+ (dynarray_1_grow𑁒spec with "Hl") as "Hl"; first lia.
+    wp_apply+ (domain٠key_id𑁒spec with "Hid") as "_".
+    wp_apply+ (dynarray_1٠grow𑁒spec with "Hl") as "Hl"; first lia.
 
     iEval (simpl_length) in "Hl".
     iEval (rewrite -(fmap_replicate option_to_val _ None) -fmap_app) in "Hl".
 
     iMod (local_update (Some v) with "Hlocal_auth Hlocal_at") as "(Hlocal_auth & Hlocal_at)".
-    wp_apply+ (dynarray_1_set𑁒spec with "Hl") as "Hl".
+    wp_apply+ (dynarray_1٠set𑁒spec with "Hl") as "Hl".
     { simpl_length. lia. }
 
     iApply "HΦ".
@@ -808,12 +808,12 @@ Section domain_G.
       { apply consistent_app_None. done. }
     }
   Qed.
-  Lemma domain_local_set𑁒spec_pointstopred keys key Ψ v tid :
+  Lemma domain٠local_set𑁒spec_pointstopred keys key Ψ v tid :
     {{{
       domain_local tid keys ∗
       domain_local_pointstopred tid key Ψ
     }}}
-      domain_local_set key v ∶ tid
+      domain٠local_set key v ∶ tid
     {{{
       RET ();
       domain_local tid keys ∗
@@ -821,83 +821,83 @@ Section domain_G.
     }}}.
   Proof.
     iIntros "%Φ (Hlocal & (:local_pointstopred)) HΦ".
-    - wp_apply (domain_local_set𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
-    - wp_apply (domain_local_set𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto] HΦ").
+    - wp_apply (domain٠local_set𑁒spec_init with "[$Hlocal $Hkey $Hinit] HΦ").
+    - wp_apply (domain٠local_set𑁒spec_pointsto with "[$Hlocal $Hlocal_pointsto] HΦ").
   Qed.
 End domain_G.
 
-Axiom domain_yield𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠yield𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
   ▷ Φ ()%V ⊢
-  WP domain_yield () {{ Φ }}.
+  WP domain٠yield () {{ Φ }}.
 
-Axiom domain_self_index𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠self_index𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
   (∀ (i : nat), ▷ Φ #i) ⊢
-  WP domain_self_index () {{ Φ }}.
+  WP domain٠self_index () {{ Φ }}.
 
-Axiom domain_recommended_domain_count𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
+Axiom domain٠recommended_domain_count𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
   (∀ (i : nat), ▷ Φ #i) ⊢
-  WP domain_recommended_domain_count () {{ Φ }}.
+  WP domain٠recommended_domain_count () {{ Φ }}.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance domain_yield𑁒diaspec :
+  #[global] Instance domain٠yield𑁒diaspec :
     DIASPEC
     {{
       True
     }}
-      domain_yield ()%V
+      domain٠yield ()%V
     {{
       RET ();
       True
     }}.
   Proof.
     iSteps.
-    wp_apply domain_yield𑁒spec.
+    wp_apply domain٠yield𑁒spec.
     iSteps.
   Qed.
 
-  #[global] Instance domain_self_index𑁒diaspec :
+  #[global] Instance domain٠self_index𑁒diaspec :
     DIASPEC
     {{
       True
     }}
-      domain_self_index ()%V
+      domain٠self_index ()%V
     {{ (i : nat),
       RET #i;
       True
     }}.
   Proof.
     iSteps.
-    wp_apply domain_self_index𑁒spec.
+    wp_apply domain٠self_index𑁒spec.
     iSteps.
   Qed.
 
-  #[global] Instance domain_recommended_domain_count𑁒diaspec :
+  #[global] Instance domain٠recommended_domain_count𑁒diaspec :
     DIASPEC
     {{
       True
     }}
-      domain_recommended_domain_count ()%V
+      domain٠recommended_domain_count ()%V
     {{ (i : nat),
       RET #i;
       True
     }}.
   Proof.
     iSteps.
-    wp_apply domain_recommended_domain_count𑁒spec.
+    wp_apply domain٠recommended_domain_count𑁒spec.
     iSteps.
   Qed.
 End zoo_G.
 
-#[global] Opaque domain_spawn.
-#[global] Opaque domain_join.
-#[global] Opaque domain_local_new.
-#[global] Opaque domain_local_get.
-#[global] Opaque domain_local_set.
-#[global] Opaque domain_yield.
-#[global] Opaque domain_self_index.
-#[global] Opaque domain_recommended_domain_count.
+#[global] Opaque domain٠spawn.
+#[global] Opaque domain٠join.
+#[global] Opaque domain٠local_new.
+#[global] Opaque domain٠local_get.
+#[global] Opaque domain٠local_set.
+#[global] Opaque domain٠yield.
+#[global] Opaque domain٠self_index.
+#[global] Opaque domain٠recommended_domain_count.
 
 #[global] Opaque domain_model.
 #[global] Opaque domain_key.

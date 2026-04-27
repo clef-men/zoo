@@ -11,20 +11,22 @@ From examples Require Import
 From zoo Require Import
   options.
 
-Definition future_fibonacci_main₀ : val :=
+Definition future_fibonacci٠main₀ : val :=
   rec: "main" "ctx" "n" =>
     if: "n" ≤ 1 then (
       "n"
     ) else (
       let: "fut1" :=
-        future_async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 1))
+        future٠async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 1))
       in
       let: "fut2" :=
-        future_async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 2))
+        future٠async "ctx" (fun: "ctx" => "main" "ctx" ("n" - 2))
       in
-      future_wait "ctx" "fut1" + future_wait "ctx" "fut2"
+      future٠wait "ctx" "fut1" + future٠wait "ctx" "fut2"
     ).
 
-Definition future_fibonacci_main : val :=
+Definition future_fibonacci٠main : val :=
   fun: "num_worker" "n" =>
-    pool_run "num_worker" (fun: "ctx" => future_fibonacci_main₀ "ctx" "n").
+    pool٠run
+      "num_worker"
+      (fun: "ctx" => future_fibonacci٠main₀ "ctx" "n").

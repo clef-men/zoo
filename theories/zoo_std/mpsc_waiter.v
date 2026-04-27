@@ -136,11 +136,11 @@ Section mpsc_waiter_G.
     iApply (excl_exclusive with "Hconsumer1 Hconsumer2").
   Qed.
 
-  Lemma mpsc_waiter_create𑁒spec P :
+  Lemma mpsc_waiter٠create𑁒spec P :
     {{{
       True
     }}}
-      mpsc_waiter_create ()
+      mpsc_waiter٠create ()
     {{{
       t
     , RET t;
@@ -151,8 +151,8 @@ Section mpsc_waiter_G.
     iIntros "%Φ _ HΦ".
 
     wp_rec.
-    wp_apply+ (condition_create𑁒spec with "[//]") as "%cond #Hcondition_inv".
-    wp_apply+ (mutex_create𑁒spec True with "[//]") as "%mtx #Hmutex_inv".
+    wp_apply+ (condition٠create𑁒spec with "[//]") as "%cond #Hcondition_inv".
+    wp_apply+ (mutex٠create𑁒spec True with "[//]") as "%mtx #Hmutex_inv".
     wp_block 𝑡 as "Hmeta" "(H𝑡_mutex & H𝑡_condition & H𝑡_flag & _)".
     iMod (pointsto_persist with "H𝑡_mutex") as "H𝑡_mutex".
     iMod (pointsto_persist with "H𝑡_condition") as "H𝑡_condition".
@@ -172,12 +172,12 @@ Section mpsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter_notify𑁒spec t P :
+  Lemma mpsc_waiter٠notify𑁒spec t P :
     {{{
       mpsc_waiter_inv t P ∗
       P
     }}}
-      mpsc_waiter_notify t
+      mpsc_waiter٠notify t
     {{{
       b
     , RET #b;
@@ -201,7 +201,7 @@ Section mpsc_waiter_G.
       ⌜res = #b⌝ ∗
       oneshot_shot γ.(metadata_lstate)  ()
     )%I).
-    wp_apply+ (mutex_protect𑁒spec Ψ_mtx with "[$Hmutex_inv HP]"); last iSteps.
+    wp_apply+ (mutex٠protect𑁒spec Ψ_mtx with "[$Hmutex_inv HP]"); last iSteps.
     iIntros "Hmutex_locked _".
     wp_pures.
 
@@ -222,12 +222,12 @@ Section mpsc_waiter_G.
     iSteps.
   Qed.
 
-  Lemma mpsc_waiter_try_wait𑁒spec t P :
+  Lemma mpsc_waiter٠try_wait𑁒spec t P :
     {{{
       mpsc_waiter_inv t P ∗
       mpsc_waiter_consumer t
     }}}
-      mpsc_waiter_try_wait t
+      mpsc_waiter٠try_wait t
     {{{
       b
     , RET #b;
@@ -249,13 +249,13 @@ Section mpsc_waiter_G.
     { iDestruct (excl_exclusive with "Hconsumer Hconsumer'") as %[]. }
     iSmash.
   Qed.
-  Lemma mpsc_waiter_try_wait𑁒spec_notified t P :
+  Lemma mpsc_waiter٠try_wait𑁒spec_notified t P :
     {{{
       mpsc_waiter_inv t P ∗
       mpsc_waiter_consumer t ∗
       mpsc_waiter_notified t
     }}}
-      mpsc_waiter_try_wait t
+      mpsc_waiter٠try_wait t
     {{{
       RET true;
       P
@@ -276,12 +276,12 @@ Section mpsc_waiter_G.
     iSmash.
   Qed.
 
-  Lemma mpsc_waiter_wait𑁒spec t P :
+  Lemma mpsc_waiter٠wait𑁒spec t P :
     {{{
       mpsc_waiter_inv t P ∗
       mpsc_waiter_consumer t
     }}}
-      mpsc_waiter_wait t
+      mpsc_waiter٠wait t
     {{{
       RET ();
       P
@@ -290,7 +290,7 @@ Section mpsc_waiter_G.
     iIntros "%Φ (#Hinv & Hconsumer) HΦ".
 
     wp_rec.
-    wp_apply (mpsc_waiter_try_wait𑁒spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
+    wp_apply (mpsc_waiter٠try_wait𑁒spec with "[$Hinv $Hconsumer]") as ([]) "Hconsumer"; first iSteps.
 
     iDestruct "Hinv" as "(%𝑡 & %γ & -> & #Hmeta & #H𝑡_mutex & #Hmutex_inv & #H𝑡_condition & #Hcondition_inv & #Hinv)".
     iDestruct "Hconsumer" as "(%𝑡_ & %γ_ & %Heq & Hmeta_ & Hconsumer)". injection Heq as <-.
@@ -301,7 +301,7 @@ Section mpsc_waiter_G.
       ⌜res = ()%V⌝ ∗
       P
     )%I.
-    wp_apply+ (mutex_protect𑁒spec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
+    wp_apply+ (mutex٠protect𑁒spec Ψ_mtx with "[$Hmutex_inv Hconsumer]"); last iSteps.
     iIntros "Hmutex_locked _".
     pose (Ψ_cond b := (
       if b then
@@ -309,7 +309,7 @@ Section mpsc_waiter_G.
       else
         excl γ.(metadata_consumer) ()
     )%I).
-    wp_apply+ (condition_wait_until𑁒spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
+    wp_apply+ (condition٠wait_until𑁒spec Ψ_cond with "[$Hcondition_inv $Hmutex_inv $Hmutex_locked $Hconsumer]"); last iSteps.
 
     iIntros "!> Hmutex_locked _ Hconsumer".
     wp_pures.

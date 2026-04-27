@@ -10,19 +10,19 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition spmc_queue_create : val :=
+Definition spmc_queue٠create : val :=
   fun: <> =>
     let: "front" := ‘Node{ §Null, () } in
     { "front", "front" }.
 
-Definition spmc_queue_is_empty : val :=
+Definition spmc_queue٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
     | Node <> <> as "front_r" =>
         "front_r".{next} == §Null
     end.
 
-Definition spmc_queue_push : val :=
+Definition spmc_queue٠push : val :=
   fun: "t" "v" =>
     match: ‘Node{ §Null, "v" } with
     | Node <> <> as "new_back" =>
@@ -33,7 +33,7 @@ Definition spmc_queue_push : val :=
         end
     end.
 
-Definition spmc_queue_pop : val :=
+Definition spmc_queue٠pop : val :=
   rec: "pop" "t" =>
     match: "t".{front} with
     | Node <> <> as "front" =>
@@ -48,7 +48,7 @@ Definition spmc_queue_pop : val :=
               "new_front_r" <-{data} () ;;
               ‘Some( "v" )
             ) else (
-              domain_yield () ;;
+              domain٠yield () ;;
               "pop" "t"
             )
         end

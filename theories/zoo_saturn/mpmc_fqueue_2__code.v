@@ -11,45 +11,45 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
-Definition mpmc_fqueue_2_create : val :=
+Definition mpmc_fqueue_2٠create : val :=
   fun: "cap" =>
-    let: "data" := atomic_array_make "cap" §Nothing in
+    let: "data" := atomic_array٠make "cap" §Nothing in
     { "cap", "data", 0, 0 }.
 
-Definition mpmc_fqueue_2_make : val :=
+Definition mpmc_fqueue_2٠make : val :=
   fun: "cap" "v" =>
-    let: "data" := atomic_array_make "cap" §Nothing in
-    atomic_array_unsafe_set "data" 0 ‘Something( "v" ) ;;
+    let: "data" := atomic_array٠make "cap" §Nothing in
+    atomic_array٠unsafe_set "data" 0 ‘Something( "v" ) ;;
     { "cap", "data", 0, 1 }.
 
-Definition mpmc_fqueue_2_is_empty : val :=
+Definition mpmc_fqueue_2٠is_empty : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     "back" ≤ "front".
 
-Definition mpmc_fqueue_2_push₀ : val :=
+Definition mpmc_fqueue_2٠push₀ : val :=
   rec: "push" "t" "v" =>
     let: "i" := FAA "t".[back] 1 in
     if: "t".{capacity} ≤ "i" then (
       false
     ) else if:
-       atomic_array_unsafe_cas "t".{data} "i" §Nothing ‘Something( "v" )
+       atomic_array٠unsafe_cas "t".{data} "i" §Nothing ‘Something( "v" )
      then (
       true
     ) else (
       "push" "t" "v"
     ).
 
-Definition mpmc_fqueue_2_push : val :=
+Definition mpmc_fqueue_2٠push : val :=
   fun: "t" "v" =>
     if: "t".{capacity} ≤ "t".{back} then (
       false
     ) else (
-      mpmc_fqueue_2_push₀ "t" "v"
+      mpmc_fqueue_2٠push₀ "t" "v"
     ).
 
-Definition mpmc_fqueue_2_pop : val :=
+Definition mpmc_fqueue_2٠pop : val :=
   fun: "t" =>
     if: "t".{capacity} ≤ "t".{front} then (
       §Anything
@@ -58,6 +58,6 @@ Definition mpmc_fqueue_2_pop : val :=
       if: "t".{capacity} ≤ "i" then (
         §Anything
       ) else (
-        atomic_array_unsafe_xchg "t".{data} "i" §Anything
+        atomic_array٠unsafe_xchg "t".{data} "i" §Anything
       )
     ).
