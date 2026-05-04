@@ -107,6 +107,24 @@ Section bi.
       rewrite big_sepL_snoc. iSteps.
     Qed.
 
+    Lemma big_sepL_prefix `{!BiAffine PROP} {Φ l1} l2 :
+      l2 `prefix_of` l1 →
+      ([∗ list] k ↦ x ∈ l1, Φ k x) ⊢
+      ([∗ list] k ↦ x ∈ l2, Φ k x).
+    Proof.
+      intros (l3 & ->).
+      rewrite big_sepL_app. iSteps.
+    Qed.
+
+    Lemma big_sepL_suffix `{!BiAffine PROP} {Φ : A → PROP} {l1} l2 :
+      l2 `suffix_of` l1 →
+      ([∗ list] x ∈ l1, Φ x) ⊢
+      ([∗ list] x ∈ l2, Φ x).
+    Proof.
+      intros (l3 & ->).
+      rewrite big_sepL_app. iSteps.
+    Qed.
+
     Lemma big_sepL_impl_stronger `{!BiAffine PROP} {A1 A2} (Φ1 : nat → A1 → PROP) l1 (Φ2 : nat → A2 → PROP) l2 :
       length l1 = length l2 →
       ([∗ list] k ↦ x ∈ l1, Φ1 k x) -∗
