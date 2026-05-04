@@ -163,5 +163,15 @@ Section bi.
       rewrite big_sepL_seqZ_to_seq //.
       setoid_rewrite Nat2Z.id => //.
     Qed.
+
+    Lemma big_sepL_seqZ_lookup `{!BiAffine PROP} {Φ i1 n} i2 :
+      (i1 ≤ i2 < i1 + n)%Z →
+      ([∗ list] k ∈ seqZ i1 n, Φ k) ⊢
+      Φ i2.
+    Proof.
+      iIntros "%Hj H".
+      iApply (big_sepL_lookup _ _ ₊(i2 - i1)%Z with "H").
+      { rewrite lookup_seqZ. lia. }
+    Qed.
   End big_sepL_seqZ.
 End bi.
