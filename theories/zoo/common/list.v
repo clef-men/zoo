@@ -337,6 +337,30 @@ Section suffix.
   Qed.
 End suffix.
 
+Section seqZ.
+  Lemma seqZ_prefix {i n1} n2 :
+    (0 ≤ n2 ≤ n1)%Z →
+    seqZ i n2 `prefix_of` seqZ i n1.
+  Proof.
+    intros.
+    replace n1 with (n2 + (n1 - n2))%Z by lia.
+    rewrite seqZ_app. 1,2: lia.
+    eexists => //.
+  Qed.
+
+  Lemma seqZ_suffix {i1 n1} i2 n2 :
+    (i1 ≤ i2 ≤ i1 + n1)%Z →
+    (i2 - i1 = n1 - n2)%Z →
+    seqZ i2 n2 `suffix_of` seqZ i1 n1.
+  Proof.
+    intros.
+    replace n1 with ((i2 - i1) + n2)%Z by lia.
+    rewrite seqZ_app. 1,2: lia.
+    replace (i1 + (i2 - i1))%Z with i2 by lia.
+    eexists => //.
+  Qed.
+End seqZ.
+
 Section zip.
   Context {A1 A2 : Type}.
 
