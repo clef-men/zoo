@@ -7,28 +7,28 @@ From zoo_std Require Import
   atomic_array
   optional.
 From zoo_saturn Require Import
-  mpmc_fqueue_2__types.
+  mpmc_tqueue_2__types.
 From zoo Require Import
   options.
 
-Definition mpmc_fqueue_2٠create : val :=
+Definition mpmc_tqueue_2٠create : val :=
   fun: "cap" =>
     let: "data" := atomic_array٠make "cap" §Nothing in
     { "cap", "data", 0, 0 }.
 
-Definition mpmc_fqueue_2٠make : val :=
+Definition mpmc_tqueue_2٠make : val :=
   fun: "cap" "v" =>
     let: "data" := atomic_array٠make "cap" §Nothing in
     atomic_array٠unsafe_set "data" 0 ‘Something( "v" ) ;;
     { "cap", "data", 0, 1 }.
 
-Definition mpmc_fqueue_2٠is_empty : val :=
+Definition mpmc_tqueue_2٠is_empty : val :=
   fun: "t" =>
     let: "front" := "t".{front} in
     let: "back" := "t".{back} in
     "back" ≤ "front".
 
-Definition mpmc_fqueue_2٠push₀ : val :=
+Definition mpmc_tqueue_2٠push₀ : val :=
   rec: "push" "t" "v" =>
     let: "i" := FAA "t".[back] 1 in
     if: "t".{capacity} ≤ "i" then (
@@ -41,15 +41,15 @@ Definition mpmc_fqueue_2٠push₀ : val :=
       "push" "t" "v"
     ).
 
-Definition mpmc_fqueue_2٠push : val :=
+Definition mpmc_tqueue_2٠push : val :=
   fun: "t" "v" =>
     if: "t".{capacity} ≤ "t".{back} then (
       false
     ) else (
-      mpmc_fqueue_2٠push₀ "t" "v"
+      mpmc_tqueue_2٠push₀ "t" "v"
     ).
 
-Definition mpmc_fqueue_2٠pop : val :=
+Definition mpmc_tqueue_2٠pop : val :=
   fun: "t" =>
     if: "t".{capacity} ≤ "t".{front} then (
       §Anything
