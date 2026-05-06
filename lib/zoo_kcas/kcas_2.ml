@@ -26,7 +26,7 @@ and 'a status =
     { cmps: 'a cas list
     ; cass: 'a cas list
     }
-    [@generative] [@zoo.reveal]
+    [@generative] [@zoo.generative_strong]
   | Before
   | After
 

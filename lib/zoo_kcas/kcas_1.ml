@@ -22,7 +22,7 @@ and 'a casn =
   }
 
 and 'a status =
-  | Undetermined of 'a cas list [@generative] [@zoo.reveal]
+  | Undetermined of 'a cas list [@generative] [@zoo.generative_strong]
   | Before
   | After
 

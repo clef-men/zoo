@@ -3,7 +3,7 @@
 *)
 
 type state =
-  | Open of Unix.file_descr [@generative] [@zoo.reveal]
+  | Open of Unix.file_descr [@generative] [@zoo.generative_strong]
   | Closing of (unit -> unit) [@generative]
 
 type t =
