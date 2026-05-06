@@ -55,6 +55,24 @@ val is_empty :
     ?vs = []
 |}]
 
+val is_empty_weak :
+  'a t -> bool
+[@@zoo{|
+  arguments
+    t
+  atomically
+    ι
+  requires
+    inv t ι
+  arequires
+    model t ?vs
+  aensures
+    if ?b then ?vs = []
+  , model t ?vs
+  returns
+    ?b
+|}]
+
 val push :
   'a t -> 'a -> unit
 [@@zoo{|
@@ -87,4 +105,21 @@ val pop :
   , model t ?vs'
   returns
     ?v
+|}]
+
+val try_pop :
+  'a t -> 'a option
+[@@zoo{|
+  arguments
+    t
+  atomically
+    ι
+  requires
+    inv t ι
+  arequires
+    model t ?vs
+  aensures
+    model t (tail ?vs)
+  returns
+    head ?vs
 |}]

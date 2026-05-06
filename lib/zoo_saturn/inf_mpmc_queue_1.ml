@@ -22,6 +22,11 @@ let rec size t =
 let is_empty t =
   size t == 0
 
+let is_empty_weak t =
+  let front = t.front in
+  let back = t.back in
+  back <= front
+
 let push t v =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.back] 1 in
   Inf_array.set t.data i (Something v)
@@ -39,3 +44,9 @@ let rec pop t i =
 let pop t =
   let i = Atomic.Loc.fetch_and_add [%atomic.loc t.front] 1 in
   pop t i
+
+let try_pop t =
+  if is_empty_weak t then
+    None
+  else
+    Some (pop t)

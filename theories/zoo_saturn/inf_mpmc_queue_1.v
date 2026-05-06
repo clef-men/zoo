@@ -29,6 +29,7 @@ From zoo_saturn Require Import
 From zoo Require Import
   options.
 
+Implicit Types b : bool.
 Implicit Types front back : nat.
 Implicit Types v : val.
 Implicit Types vs hist : list val.
@@ -647,6 +648,64 @@ Module base.
       destruct vs; iSteps.
     Qed.
 
+    Lemma inf_mpmc_queue_1٠is_empty_weak𑁒spec t γ ι :
+      <<<
+        inf_mpmc_queue_1_inv t γ ι
+      | ∀∀ vs,
+        inf_mpmc_queue_1_model γ vs
+      >>>
+        inf_mpmc_queue_1٠is_empty_weak #t @ ↑ι
+      <<<
+        ∃∃ b,
+        ⌜if b then vs = [] else True⌝ ∗
+        inf_mpmc_queue_1_model γ vs
+      | RET #b;
+        True
+      >>>.
+    Proof.
+      iIntros "%Φ (:inv) HΦ".
+
+      wp_rec.
+
+      wp_bind (_.{front})%E.
+      iInv "Hinv" as "(:inv_inner =1)".
+      wp_load.
+      iDestruct (consumers_lb_get with "Hconsumers_auth") as "#Hconsumers_lb".
+      iSplitR "HΦ". { iFrameSteps. }
+      iIntros "!> {%}".
+
+      wp_pures.
+
+      wp_bind (_.{back})%E.
+      iInv "Hinv" as "(:inv_inner =2)".
+      wp_load.
+
+      iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
+      iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
+
+      destruct_decide (back2 ≤ front1) as Hif.
+
+      - iDestruct (consumers_lb_valid with "Hconsumers_auth Hconsumers_lb") as %?.
+        iMod ("HΦ" $! true with "[$Hmodel₁]") as "HΦ".
+        { iPureIntro. rewrite skipn_all2 //. 1: lia. }
+
+        iSplitR "HΦ". { iFrameSteps. }
+        iIntros "!> {%- Hif}".
+
+        wp_pures.
+        rewrite bool_decide_eq_true_2. 1: lia.
+        iSteps.
+
+      - iMod ("HΦ" $! false with "[$Hmodel₁]") as "HΦ".
+
+        iSplitR "HΦ". { iFrameSteps. }
+        iIntros "!> {%- Hif}".
+
+        wp_pures.
+        rewrite bool_decide_eq_false_2. 1: lia.
+        iSteps.
+    Qed.
+
     Lemma inf_mpmc_queue_1٠push𑁒spec t γ ι v :
       <<<
         inf_mpmc_queue_1_inv t γ ι
@@ -870,6 +929,37 @@ Module base.
 
       wp_apply+ (inf_mpmc_queue_1٠pop₀𑁒spec with "[$Hconsumers_at $Htokens_pending]"); iSteps.
     Qed.
+
+    Lemma inf_mpmc_queue_1٠try_pop𑁒spec t γ ι :
+      <<<
+        inf_mpmc_queue_1_inv t γ ι
+      | ∀∀ vs,
+        inf_mpmc_queue_1_model γ vs
+      >>>
+        inf_mpmc_queue_1٠try_pop #t @ ↑ι
+      <<<
+        inf_mpmc_queue_1_model γ (tail vs)
+      | RET head vs;
+        True
+      >>>.
+    Proof.
+      iIntros "%Φ #Hinv HΦ".
+
+      wp_rec. wp_pures.
+      awp_apply (inf_mpmc_queue_1٠is_empty_weak𑁒spec with "Hinv").
+      iApply (aacc_aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+      iAaccIntro with "Hmodel". 1: iSteps. iIntros "%b (%Hb & Hmodel)".
+      destruct b.
+
+      - rewrite {}Hb.
+        iRight. iFrameSteps.
+
+      - iLeft. iFrame. iIntros "!> HΦ !> _".
+
+        awp_apply+ (inf_mpmc_queue_1٠pop𑁒spec with "Hinv").
+        iApply (aacc_aupd_commit with "HΦ"). 1: done. iIntros "%vs' Hmodel".
+        iAaccIntro with "Hmodel"; iSteps.
+    Qed.
   End inf_mpmc_queue_1_G.
 
   #[global] Opaque inf_mpmc_queue_1_inv.
@@ -999,6 +1089,30 @@ Section inf_mpmc_queue_1_G.
     }
   Qed.
 
+  Lemma inf_mpmc_queue_1٠is_empty_weak𑁒spec t ι :
+    <<<
+      inf_mpmc_queue_1_inv t ι
+    | ∀∀ vs,
+      inf_mpmc_queue_1_model t vs
+    >>>
+      inf_mpmc_queue_1٠is_empty_weak t @ ↑ι
+    <<<
+      ∃∃ b,
+      ⌜if b then vs = [] else True⌝ ∗
+      inf_mpmc_queue_1_model t vs
+    | RET #b;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    awp_apply (base.inf_mpmc_queue_1٠is_empty_weak𑁒spec with "[$]").
+    { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+      iAaccIntro with "Hmodel_1"; iSteps.
+    }
+  Qed.
+
   Lemma inf_mpmc_queue_1٠push𑁒spec t ι v :
     <<<
       inf_mpmc_queue_1_inv t ι
@@ -1039,6 +1153,28 @@ Section inf_mpmc_queue_1_G.
     iIntros "%Φ (:inv) HΦ".
 
     awp_apply (base.inf_mpmc_queue_1٠pop𑁒spec with "[$]").
+    { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
+      iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
+      iAaccIntro with "Hmodel_1"; iSteps.
+    }
+  Qed.
+
+  Lemma inf_mpmc_queue_1٠try_pop𑁒spec t ι :
+    <<<
+      inf_mpmc_queue_1_inv t ι
+    | ∀∀ vs,
+      inf_mpmc_queue_1_model t vs
+    >>>
+      inf_mpmc_queue_1٠try_pop t @ ↑ι
+    <<<
+      inf_mpmc_queue_1_model t (tail vs)
+    | RET head vs;
+      True
+    >>>.
+  Proof.
+    iIntros "%Φ (:inv) HΦ".
+
+    awp_apply (base.inf_mpmc_queue_1٠try_pop𑁒spec with "[$]").
     { iApply (aacc_aupd_commit with "HΦ"); first done. iIntros "%vs (:model =1)". simplify.
       iDestruct (meta_agree with "Hmeta Hmeta_1") as %<-. iClear "Hmeta_1".
       iAaccIntro with "Hmodel_1"; iSteps.

@@ -38,6 +38,12 @@ Definition inf_mpmc_queue_1٠is_empty : val :=
   fun: "t" =>
     inf_mpmc_queue_1٠size "t" == 0.
 
+Definition inf_mpmc_queue_1٠is_empty_weak : val :=
+  fun: "t" =>
+    let: "front" := "t".{front} in
+    let: "back" := "t".{back} in
+    "back" ≤ "front".
+
 Definition inf_mpmc_queue_1٠push : val :=
   fun: "t" "v" =>
     let: "i" := FAA "t".[back] 1 in
@@ -60,3 +66,11 @@ Definition inf_mpmc_queue_1٠pop : val :=
   fun: "t" =>
     let: "i" := FAA "t".[front] 1 in
     inf_mpmc_queue_1٠pop₀ "t" "i".
+
+Definition inf_mpmc_queue_1٠try_pop : val :=
+  fun: "t" =>
+    if: inf_mpmc_queue_1٠is_empty_weak "t" then (
+      §None
+    ) else (
+      ‘Some( inf_mpmc_queue_1٠pop "t" )
+    ).
