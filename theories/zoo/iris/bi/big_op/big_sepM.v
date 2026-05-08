@@ -19,6 +19,19 @@ Section bi.
     Implicit Types P : PROP.
     Implicit Types Φ : K → A → PROP.
 
+    Lemma big_sepM_singleton_1 Φ k v :
+      ([∗ map] k ↦ v ∈ {[k := v]}, Φ k v) ⊢
+      Φ k v.
+    Proof.
+      rewrite big_sepM_singleton //.
+    Qed.
+    Lemma big_sepM_singleton_2 Φ k v :
+      Φ k v ⊢
+      [∗ map] k ↦ v ∈ {[k := v]}, Φ k v.
+    Proof.
+      rewrite big_sepM_singleton //.
+    Qed.
+
     Lemma big_sepM_impl_thread {Φ1} P Φ2 m :
       ([∗ map] k ↦ x ∈ m, Φ1 k x) -∗
       P -∗
