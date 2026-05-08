@@ -25,6 +25,8 @@ From zoo Require Import
 Implicit Types cnt ns nt : nat.
 Implicit Types tid : thread_id.
 Implicit Types l : location.
+Implicit Types v : val.
+Implicit Types vs : list val.
 Implicit Types hdr : header.
 Implicit Types σ : state.
 Implicit Types κ κs : list observation.
@@ -622,10 +624,10 @@ End zoo_G.
 Section zoo_G₀.
   Context `{zoo_G₀ : !ZooG₀ Σ}.
 
-  #[local] Definition locals_auth' :=
-    ghost_list_auth.
-  #[local] Definition local_pointsto' :=
-    ghost_list_at.
+  #[local] Definition locals_auth' γ_locals vs :=
+    ghost_list_auth γ_locals vs.
+  #[local] Definition local_pointsto' γ_locals tid dq v :=
+    ghost_list_at γ_locals tid dq v.
 
   #[local] Lemma locals_alloc σ param :
     state_wf σ param →
@@ -644,31 +646,31 @@ End zoo_G₀.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition locals_auth locals :=
-    locals_auth' zoo_G_locals_name locals.
-  Definition local_pointsto tid dq local :=
-    local_pointsto' zoo_G_locals_name tid dq local.
+  #[local] Definition locals_auth :=
+    locals_auth' zoo_G_locals_name.
+  Definition local_pointsto :=
+    local_pointsto' zoo_G_locals_name.
 
-  #[local] Lemma locals_lookup locals tid dq local :
-    locals_auth locals -∗
-    local_pointsto tid dq local -∗
-    ⌜locals !! tid = Some local⌝.
+  #[local] Lemma locals_lookup vs tid dq v :
+    locals_auth vs -∗
+    local_pointsto tid dq v -∗
+    ⌜vs !! tid = Some v⌝.
   Proof.
     apply ghost_list_lookup.
   Qed.
 
-  #[local] Lemma locals_update_push {locals} local :
-    locals_auth locals ⊢ |==>
-      locals_auth (locals ++ [local]) ∗
-      local_pointsto (length locals) (DfracOwn 1) local.
+  #[local] Lemma locals_update_push {vs} v :
+    locals_auth vs ⊢ |==>
+      locals_auth (vs ++ [v]) ∗
+      local_pointsto (length vs) (DfracOwn 1) v.
   Proof.
     apply ghost_list_update_push.
   Qed.
-  #[local] Lemma locals_update_pointsto {locals tid local} local' :
-    locals_auth locals -∗
-    local_pointsto tid (DfracOwn 1) local ==∗
-      locals_auth (<[tid := local']> locals) ∗
-      local_pointsto tid (DfracOwn 1) local'.
+  #[local] Lemma locals_update_pointsto {vs tid v} v' :
+    locals_auth vs -∗
+    local_pointsto tid (DfracOwn 1) v ==∗
+      locals_auth (<[tid := v']> vs) ∗
+      local_pointsto tid (DfracOwn 1) v'.
   Proof.
     apply ghost_list_update_at.
   Qed.
