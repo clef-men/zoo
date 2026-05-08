@@ -12,7 +12,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  lst
+  list
   xdlchain.
 From zoo_partition Require Import
   partition__types.
@@ -558,7 +558,7 @@ Section partition_G.
   Qed.
 
   Lemma partition٠refine𑁒spec {γ part v_elts} elts :
-    lst_model' v_elts (#*@{location} elts) →
+    list_model' v_elts (#*@{location} elts) →
     {{{
       partition_model γ part
     }}}

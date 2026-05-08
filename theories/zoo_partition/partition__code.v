@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst.
+  list.
 From zoo_partition Require Import
   partition__types.
 From zoo Require Import
@@ -152,7 +152,7 @@ Definition partition٠record₀ : val :=
 
 Definition partition٠record : val :=
   fun: "elts" =>
-    lst٠foldl partition٠record₀ [] "elts".
+    list٠foldl partition٠record₀ [] "elts".
 
 Definition partition٠split₀ : val :=
   fun: "class_" =>
@@ -177,7 +177,7 @@ Definition partition٠split₀ : val :=
 
 Definition partition٠split : val :=
   fun: "split_list" =>
-    lst٠iter partition٠split₀ "split_list".
+    list٠iter partition٠split₀ "split_list".
 
 Definition partition٠refine : val :=
   fun: "elts" =>

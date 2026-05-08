@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  clst
+  clist
   optional
   domain.
 From zoo_saturn Require Import
@@ -14,15 +14,15 @@ From zoo Require Import
 
 Definition mpmc_stack_2٠create : val :=
   fun: <> =>
-    ref §ClstOpen.
+    ref §ClistOpen.
 
 Definition mpmc_stack_2٠push : val :=
   rec: "push" "t" "v" =>
     match: !"t" with
-    | ClstClosed =>
+    | ClistClosed =>
         true
     |_ as "old" =>
-        let: "new_" := ‘ClstCons[ "v", "old" ] in
+        let: "new_" := ‘ClistCons[ "v", "old" ] in
         if: CAS "t".[contents] "old" "new_" then (
           false
         ) else (
@@ -34,11 +34,11 @@ Definition mpmc_stack_2٠push : val :=
 Definition mpmc_stack_2٠pop : val :=
   rec: "pop" "t" =>
     match: !"t" with
-    | ClstClosed =>
+    | ClistClosed =>
         §Anything
-    | ClstOpen =>
+    | ClistOpen =>
         §Nothing
-    | ClstCons "v" "new_" as "old" =>
+    | ClistCons "v" "new_" as "old" =>
         if: CAS "t".[contents] "old" "new_" then (
           ‘Something( "v" )
         ) else (
@@ -49,8 +49,8 @@ Definition mpmc_stack_2٠pop : val :=
 
 Definition mpmc_stack_2٠is_closed : val :=
   fun: "t" =>
-    !"t" == §ClstClosed.
+    !"t" == §ClistClosed.
 
 Definition mpmc_stack_2٠close : val :=
   fun: "t" =>
-    Xchg "t".[contents] §ClstClosed.
+    Xchg "t".[contents] §ClistClosed.

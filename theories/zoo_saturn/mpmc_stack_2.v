@@ -9,7 +9,7 @@ From zoo.diaframe Require Import
 From zoo_std Require Import
   option
   optional
-  clst.
+  clist.
 From zoo_saturn Require Export
   base
   mpmc_stack_2__code.
@@ -48,7 +48,7 @@ Section zoo_G.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l ↦ᵣ from_option (clist_to_val ∘ list_to_clist_open) §ClstClosed vs ∗
+    l ↦ᵣ from_option (clist_to_val ∘ list_to_clist_open) §ClistClosed vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv_inner" :=
     " ( %vs
@@ -231,7 +231,7 @@ Section zoo_G.
           iSplitR "HΦ". { iFrameSteps. }
           iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClstClosed)%list_to_clist_open_not_closed'.
+      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed'.
         iSplitR "HΦ". { iFrameSteps. }
         iSteps.
 
@@ -302,7 +302,7 @@ Section zoo_G.
       iInv "Hinv" as "(:inv_inner)".
       destruct vs as [vs |].
 
-      + wp_cas as _ | ->%(inj clist_to_val _ (ClstCons _ _))%(inj list_to_clist_open _ (_ :: _)).
+      + wp_cas as _ | ->%(inj clist_to_val _ (ClistCons _ _))%(inj list_to_clist_open _ (_ :: _)).
 
         * iSplitR "HΦ". { iFrameSteps. }
           iSteps.
@@ -375,7 +375,7 @@ Section zoo_G.
       iSplitR "HΦ". { iFrameSteps. }
       iIntros "!> {%}".
 
-      wp_equal as _ | []%(inj clist_to_val _ ClstClosed)%list_to_clist_open_not_closed.
+      wp_equal as _ | []%(inj clist_to_val _ ClistClosed)%list_to_clist_open_not_closed.
       iSteps.
 
     - iMod ("HΦ" with "[$Hmodel₁] H£") as "HΦ"; first iSteps.
@@ -411,7 +411,7 @@ Section zoo_G.
       mpmc_stack_2٠close t @ ↑ι
     <<<
       mpmc_stack_2_model t None
-    | RET from_option list_to_clist_open ClstClosed vs;
+    | RET from_option list_to_clist_open ClistClosed vs;
       £ 1
     >>>.
   Proof.
@@ -442,7 +442,7 @@ Section zoo_G.
     }}}
       mpmc_stack_2٠close t
     {{{
-      RET §ClstClosed;
+      RET §ClistClosed;
       True
     }}}.
   Proof.

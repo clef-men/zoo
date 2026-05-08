@@ -8,7 +8,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  lst.
+  list.
 From zoo_persistent Require Export
   base
   pqueue__code.
@@ -25,7 +25,7 @@ Section zoo_G.
 
   Definition pqueue_model t vs : iProp Σ :=
     ∃ front back,
-    ⌜t = (lst_to_val front, lst_to_val back)%V ∧ vs = front ++ reverse back⌝.
+    ⌜t = (list_to_val front, list_to_val back)%V ∧ vs = front ++ reverse back⌝.
 
   #[global] Instance pqueue_model_timeless t vs :
     Timeless (pqueue_model t vs).
@@ -57,9 +57,9 @@ Section zoo_G.
   Proof.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
-    wp_apply+ (lst٠is_empty𑁒spec with "[//]") as "_"; first done.
+    wp_apply+ (list٠is_empty𑁒spec with "[//]") as "_"; first done.
     destruct front as [| v front]; wp_pures.
-    - wp_apply (lst٠is_empty𑁒spec with "[//]") as "_"; first done.
+    - wp_apply (list٠is_empty𑁒spec with "[//]") as "_"; first done.
       erewrite bool_decide_ext by apply reverse_nil_iff. iSteps.
     - rewrite bool_decide_eq_false_2 //. iSteps.
   Qed.
@@ -103,7 +103,7 @@ Section zoo_G.
     iIntros "%Φ (%front & %back & (-> & ->)) HΦ".
     wp_rec.
     destruct front as [| v front]; wp_pures.
-    - wp_apply (lst٠rev𑁒spec with "[//]") as "%front ->"; first done.
+    - wp_apply (list٠rev𑁒spec with "[//]") as "%front ->"; first done.
       destruct back as [| v back _] using rev_ind.
       + wp_pures.
         iApply ("HΦ" $! None with "[//]").

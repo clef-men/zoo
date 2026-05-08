@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  clst
+  clist
   domain.
 From zoo_saturn Require Import
   mpsc_queue_3__types.
@@ -13,18 +13,18 @@ From zoo Require Import
 
 Definition mpsc_queue_3٠create : val :=
   fun: <> =>
-    { §ClstOpen, §ClstOpen }.
+    { §ClistOpen, §ClistOpen }.
 
 Definition mpsc_queue_3٠is_empty : val :=
   fun: "t" =>
     match: "t".{front} with
-    | ClstClosed =>
+    | ClistClosed =>
         true
-    | ClstCons <> <> =>
+    | ClistCons <> <> =>
         false
-    | ClstOpen =>
+    | ClistOpen =>
         match: "t".{back} with
-        | ClstCons <> <> =>
+        | ClistCons <> <> =>
             false
         |_ =>
             true
@@ -34,20 +34,20 @@ Definition mpsc_queue_3٠is_empty : val :=
 Definition mpsc_queue_3٠push_front : val :=
   fun: "t" "v" =>
     match: "t".{front} with
-    | ClstClosed =>
+    | ClistClosed =>
         true
     |_ as "front" =>
-        "t" <-{front} ‘ClstCons[ "v", "front" ] ;;
+        "t" <-{front} ‘ClistCons[ "v", "front" ] ;;
         false
     end.
 
 Definition mpsc_queue_3٠push_back : val :=
   rec: "push_back" "t" "v" =>
     match: "t".{back} with
-    | ClstClosed =>
+    | ClistClosed =>
         true
     |_ as "back" =>
-        if: CAS "t".[back] "back" ‘ClstCons[ "v", "back" ] then (
+        if: CAS "t".[back] "back" ‘ClistCons[ "v", "back" ] then (
           false
         ) else (
           domain٠yield () ;;
@@ -58,18 +58,18 @@ Definition mpsc_queue_3٠push_back : val :=
 Definition mpsc_queue_3٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
-    | ClstClosed =>
+    | ClistClosed =>
         §None
-    | ClstCons "v" "front" =>
+    | ClistCons "v" "front" =>
         "t" <-{front} "front" ;;
         ‘Some( "v" )
-    | ClstOpen =>
-        match: Xchg "t".[back] §ClstOpen with
-        | ClstOpen =>
+    | ClistOpen =>
+        match: Xchg "t".[back] §ClistOpen with
+        | ClistOpen =>
             §None
         |_ as "back" =>
-            match: clst٠rev_app "back" §ClstOpen with
-            | ClstCons "v" "front" =>
+            match: clist٠rev_app "back" §ClistOpen with
+            | ClistCons "v" "front" =>
                 "t" <-{front} "front" ;;
                 ‘Some( "v" )
             |_ =>
@@ -80,11 +80,11 @@ Definition mpsc_queue_3٠pop : val :=
 
 Definition mpsc_queue_3٠close : val :=
   fun: "t" =>
-    match: Xchg "t".[back] §ClstClosed with
-    | ClstClosed =>
+    match: Xchg "t".[back] §ClistClosed with
+    | ClistClosed =>
         true
     |_ as "back" =>
         "t" <-{front}
-          clst٠app "t".{front} (clst٠rev_app "back" §ClstClosed) ;;
+          clist٠app "t".{front} (clist٠rev_app "back" §ClistClosed) ;;
         false
     end.

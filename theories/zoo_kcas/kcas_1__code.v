@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst.
+  list.
 From zoo Require Import
   identifier.
 From zoo_kcas Require Import
@@ -15,11 +15,11 @@ From zoo Require Import
 Definition kcas_1٠clear : val :=
   fun: "cass" "is_after" =>
     if: "is_after" then (
-      lst٠iter
+      list٠iter
         (fun: "cas" => "cas".<state> <-{before} "cas".<state>.{after})
         "cass"
     ) else (
-      lst٠iter
+      list٠iter
         (fun: "cas" => "cas".<state> <-{after} "cas".<state>.{before})
         "cass"
     ).
@@ -165,7 +165,7 @@ Definition kcas_1٠cas : val :=
   fun: "cass" =>
     let: "casn" := { §After, Proph } in
     let: "cass" :=
-      lst٠map
+      list٠map
         (fun: "cas" =>
            let: "loc", "before", "after" := "cas" in
            let: "state" := { "casn", "before", "after" } in

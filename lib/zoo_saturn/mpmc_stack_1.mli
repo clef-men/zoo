@@ -55,7 +55,7 @@ val pop :
 |}]
 
 val snapshot :
-  'a t -> 'a Glst.t
+  'a t -> 'a Glist.t
 [@@zoo{|
   arguments
     t
@@ -70,5 +70,5 @@ val snapshot :
   returns
     ?l
   ensures
-    Glst.model ?l ?vs
+    Glist.model ?l ?vs
 |}]

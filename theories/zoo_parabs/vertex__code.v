@@ -8,7 +8,7 @@ From zoo_parabs Require Import
 From zoo_saturn Require Import
   mpmc_stack_2.
 From zoo_std Require Import
-  clst.
+  clist.
 From zoo_parabs Require Import
   vertex__types.
 From zoo Require Import
@@ -61,7 +61,7 @@ Definition vertex٠precede : val :=
            "t" <-{preds} 1 ;;
            if: "t".{task} "ctx" then (
              let: "succs" := mpmc_stack_2٠close "t".{succs} in
-             clst٠iter (fun: "succ" => "release" "ctx" "succ") "succs"
+             clist٠iter (fun: "succ" => "release" "ctx" "succ") "succs"
            ) else (
              "release" "ctx" "t"
            ))

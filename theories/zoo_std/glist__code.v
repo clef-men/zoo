@@ -4,11 +4,11 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  glst__types.
+  glist__types.
 From zoo Require Import
   options.
 
-Definition glst٠rev_app : val :=
+Definition glist٠rev_app : val :=
   rec: "rev_app" "t1" "t2" =>
     match: "t1" with
     | Gnil =>
@@ -17,6 +17,6 @@ Definition glst٠rev_app : val :=
         "rev_app" "t1" ‘Gcons[ "v", "t2" ]
     end.
 
-Definition glst٠rev : val :=
+Definition glist٠rev : val :=
   fun: "t" =>
-    glst٠rev_app "t" §Gnil.
+    glist٠rev_app "t" §Gnil.

@@ -14,7 +14,7 @@ From zoo_std Require Export
 From zoo_std Require Import
   ivar_3
   ivar_4__types
-  lst
+  list
   option.
 From zoo Require Import
   options.
@@ -465,7 +465,7 @@ Section ivar_4_G.
       ivar_4٠set t v
     {{{
       waiters Ps
-    , RET lst_to_val waiters;
+    , RET list_to_val waiters;
       ivar_4_result t v ∗
       ivar_4_waiters t waiters Ps ∗
       [∗ list] waiter; P ∈ waiters; Ps,
@@ -515,7 +515,7 @@ Section ivar_4_G.
 
     iDestruct (big_sepL2_length with "HPs") as %Hlength.
 
-    wp_apply+ (lst٠iter𑁒spec (λ i _,
+    wp_apply+ (list٠iter𑁒spec (λ i _,
       Γ ctx 𝑐𝑡𝑥 ∗
       ([∗ list] P ∈ take i Ps, □ P) ∗
       ( [∗ list] waiter; P ∈ drop i waiters; drop i Ps,

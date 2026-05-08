@@ -17,7 +17,7 @@ From zoo_std Require Export
   ivar_3__code.
 From zoo_std Require Import
   ivar_3__types
-  lst
+  list
   option.
 From zoo Require Import
   options.
@@ -71,7 +71,7 @@ Module base.
   #[local] Coercion state_to_val state :=
     match state with
     | Unset waiters =>
-        ‘Unset[ lst_to_val waiters ]
+        ‘Unset[ list_to_val waiters ]
     | Set_ v =>
         ‘Set( v )
     end%V.
@@ -858,7 +858,7 @@ Module base.
         ivar_3٠set #t v
       {{{
         waiters ωs
-      , RET lst_to_val waiters;
+      , RET list_to_val waiters;
         ivar_3_result γ v ∗
         ivar_3_waiters γ waiters ωs ∗
         [∗ list] waiter; ω ∈ waiters; ωs, Ω #t waiter ω
@@ -1398,7 +1398,7 @@ Section ivar_3_G.
       ivar_3٠set t v
     {{{
       waiters ωs
-    , RET lst_to_val waiters;
+    , RET list_to_val waiters;
       ivar_3_result t v ∗
       ivar_3_waiters t waiters ωs ∗
       [∗ list] waiter; ω ∈ waiters; ωs, Ω t waiter ω

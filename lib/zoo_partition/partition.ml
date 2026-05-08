@@ -143,7 +143,7 @@ let record split_list elt =
     )
   )
 let record elts =
-  Lst.foldl record [] elts
+  List.foldl record [] elts
 
 let split class_ =
   let first = class_.first in
@@ -171,7 +171,7 @@ let split class_ =
     ) first prev
   )
 let split split_list =
-  Lst.iter split split_list
+  List.iter split split_list
 
 let refine elts =
   elts |> record |> split

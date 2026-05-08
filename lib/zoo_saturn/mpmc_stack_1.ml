@@ -3,14 +3,14 @@
 *)
 
 type 'a t =
-  'a Glst.t Atomic.t
+  'a Glist.t Atomic.t
 
 let create () =
-  Atomic.make Glst.Gnil
+  Atomic.make Glist.Gnil
 
 let rec push t v =
   let old = Atomic.get t in
-  let new_ = Glst.Gcons (v, old) in
+  let new_ = Glist.Gcons (v, old) in
   if not @@ Atomic.compare_and_set t old new_ then (
     Domain.yield () ;
     push t v
@@ -18,7 +18,7 @@ let rec push t v =
 
 let rec pop t =
   match Atomic.get t with
-  | Glst.Gnil ->
+  | Glist.Gnil ->
       None
   | Gcons (v, new_) as old ->
       if Atomic.compare_and_set t old new_ then (

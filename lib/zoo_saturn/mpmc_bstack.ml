@@ -2,13 +2,13 @@
    https://github.com/ocaml-multicore/saturn/blob/306bea620cc0cfcc33639c45a56da59add9bdd92/src/bounded_stack.ml
 *)
 
-type 'a lst =
+type 'a list =
   | Nil
-  | Cons of int * 'a * 'a lst [@generative]
+  | Cons of int * 'a * 'a list [@generative]
 
 type 'a t =
   { capacity: int
-  ; mutable front: 'a lst [@atomic]
+  ; mutable front: 'a list [@atomic]
   }
 
 let create cap =

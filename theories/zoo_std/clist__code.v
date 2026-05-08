@@ -4,40 +4,40 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  clst__types.
+  clist__types.
 From zoo Require Import
   options.
 
-Definition clst٠app : val :=
+Definition clist٠app : val :=
   rec: "app" "t1" "t2" =>
     match: "t1" with
-    | ClstClosed =>
+    | ClistClosed =>
         Fail
-    | ClstOpen =>
+    | ClistOpen =>
         "t2"
-    | ClstCons "v" "t1" =>
-        ‘ClstCons[ "v", "app" "t1" "t2" ]
+    | ClistCons "v" "t1" =>
+        ‘ClistCons[ "v", "app" "t1" "t2" ]
     end.
 
-Definition clst٠rev_app : val :=
+Definition clist٠rev_app : val :=
   rec: "rev_app" "t1" "t2" =>
     match: "t1" with
-    | ClstClosed =>
+    | ClistClosed =>
         Fail
-    | ClstOpen =>
+    | ClistOpen =>
         "t2"
-    | ClstCons "v" "t1" =>
-        "rev_app" "t1" ‘ClstCons[ "v", "t2" ]
+    | ClistCons "v" "t1" =>
+        "rev_app" "t1" ‘ClistCons[ "v", "t2" ]
     end.
 
-Definition clst٠iter : val :=
+Definition clist٠iter : val :=
   rec: "iter" "fn" "param" =>
     match: "param" with
-    | ClstClosed =>
+    | ClistClosed =>
         Fail
-    | ClstOpen =>
+    | ClistOpen =>
         ()
-    | ClstCons "v" "t" =>
+    | ClistCons "v" "t" =>
         "fn" "v" ;;
         "iter" "fn" "t"
     end.

@@ -108,7 +108,7 @@ val is_closed :
 |}]
 
 val close :
-  'a t -> 'a Clst.t
+  'a t -> 'a Clist.t
 [@@zoo{|
   arguments
     t
@@ -121,7 +121,7 @@ val close :
   aensures
     model t None
   returns
-    Option.fold Clst.Closed Clst.of_lst_open ?vs
+    Option.fold Clist.Closed Clist.of_list_open ?vs
 |}]
 [@@zoo{|
   specification
@@ -132,5 +132,5 @@ val close :
     inv t ι
   , closed t
   returns
-    Clst.Closed
+    Clist.Closed
 |}]

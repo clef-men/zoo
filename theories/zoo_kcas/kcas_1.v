@@ -23,7 +23,7 @@ From zoo.program_logic Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  lst.
+  list.
 From zoo_kcas Require Import
   kcas_1__types.
 From zoo_kcas Require Export
@@ -187,7 +187,7 @@ Qed.
 #[local] Definition metadata_cass η :=
   descriptor_cas <$> η.(metadata_descrs).
 #[local] Definition metadata_cass_val η :=
-  lst_to_val $ metadata_cass η.
+  list_to_val $ metadata_cass η.
 #[local] Definition metadata_outcome η :=
   hd inhabitant η.(metadata_prophs).
 #[local] Definition metadata_winner η :=
@@ -1286,7 +1286,7 @@ Section kcas_1_G.
 
     wp_rec. wp_pures.
     destruct (metadata_success η) eqn:Hsuccess.
-    all: wp_apply+ (lst٠iter𑁒spec_disentangled (λ _ _, True)%I); [done | | iSteps].
+    all: wp_apply+ (list٠iter𑁒spec_disentangled (λ _ _, True)%I); [done | | iSteps].
     all: iIntros "!>" (i v (descr & -> & Hdescrs_lookup)%list_lookup_fmap_Some).
 
     - wp_apply+ (after𑁒spec_finished with "[$Hcasn_inv' $Hlstatus_lb]") as "_"; [done.. |].
@@ -1619,7 +1619,7 @@ Section kcas_1_G.
     ⊢ (
       ∀ casn η 𝑐𝑎𝑠𝑠 i,
       {{{
-        ⌜𝑐𝑎𝑠𝑠 = lst_to_val (drop i (metadata_cass η))⌝ ∗
+        ⌜𝑐𝑎𝑠𝑠 = list_to_val (drop i (metadata_cass η))⌝ ∗
         meta casn nroot η ∗
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i)
@@ -1632,8 +1632,8 @@ Section kcas_1_G.
     ) ∧ (
       ∀ casn η i descr casn1 η1 i1 descr1 casns1 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒,
       {{{
-        ⌜𝑟𝑒𝑡𝑟𝑦 = lst_to_val (drop i (metadata_cass η))⌝ ∗
-        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = lst_to_val (drop (S i) (metadata_cass η))⌝ ∗
+        ⌜𝑟𝑒𝑡𝑟𝑦 = list_to_val (drop i (metadata_cass η))⌝ ∗
+        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = list_to_val (drop (S i) (metadata_cass η))⌝ ∗
         ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
         ⌜η1.(metadata_descrs) !! i1 = Some descr1⌝ ∗
         ⌜descr1.(descriptor_loc) = descr.(descriptor_loc)⌝ ∗
@@ -2018,7 +2018,7 @@ Section kcas_1_G.
     }
   Qed.
   #[local] Lemma kcas_1٠determine_as𑁒spec casn η ι 𝑐𝑎𝑠𝑠 i :
-    𝑐𝑎𝑠𝑠 = lst_to_val (drop i (metadata_cass η)) →
+    𝑐𝑎𝑠𝑠 = list_to_val (drop i (metadata_cass η)) →
     {{{
       meta casn nroot η ∗
       casn_inv' ι casn η ∗
@@ -2193,7 +2193,7 @@ Section kcas_1_G.
     length locs = length befores →
     length locs = length afters →
     NoDup locs →
-    lst_model' 𝑠𝑝𝑒𝑐 $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
+    list_model' 𝑠𝑝𝑒𝑐 $ zip3_with (λ loc before after, (#loc, before, after)%V) locs befores afters →
     <<<
       [∗ list] loc ∈ locs, kcas_1_loc_inv loc ι
     | ∀∀ vs,
@@ -2242,7 +2242,7 @@ Section kcas_1_G.
           descr.(descriptor_after) = after
         ⌝
     )%I : iProp Σ).
-    wp_apply+ (lst٠map𑁒spec_disentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
+    wp_apply+ (list٠map𑁒spec_disentangled Ψ with "[]") as (𝑐𝑎𝑠𝑠 𝑐𝑎𝑠s) "(%Hvs_cass & -> & Hdescrs)"; first done.
     { iIntros "!>" (i ? (loc & before & after & Hlocs_lookup & Hbefores_lookup & Hafters_lookup & ->)%lookup_zip3_with_Some).
       wp_block state as "(Hstate_casn & Hstate_before & Hstate_after & _)".
       iMod (pointsto_persist with "Hstate_casn") as "#Hstate_casn".

@@ -28,9 +28,9 @@ and 'a status =
 
 let clear cass is_after =
   if is_after then
-    Lst.iter (fun cas -> cas.state.before <- cas.state.after) cass
+    List.iter (fun cas -> cas.state.before <- cas.state.after) cass
   else
-    Lst.iter (fun cas -> cas.state.after <- cas.state.before) cass
+    List.iter (fun cas -> cas.state.after <- cas.state.before) cass
 
 let[@inline] status_to_bool status =
   status == After
@@ -102,7 +102,7 @@ let get loc =
 let cas cass =
   let casn = { status= After; proph= Zoo.proph () } in
   let cass =
-    cass |> Lst.map @@ fun cas ->
+    cass |> List.map @@ fun cas ->
       let loc, before, after = cas in
       let state = { casn; before; after } in
       { loc; state }

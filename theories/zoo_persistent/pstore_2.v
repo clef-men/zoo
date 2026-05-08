@@ -15,7 +15,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   assert
-  lst.
+  list.
 From zoo_persistent Require Export
   base
   pstore_2__code.
@@ -845,7 +845,7 @@ Module base.
         acc'
       , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
-        plst_model acc' acc $ tail $
+        plist_model acc' acc $ tail $
           (λ δ, #δ.(delta_node)) <$> reverse (drop i δs)
       }}}.
     Proof.
@@ -881,7 +881,7 @@ Module base.
           rewrite -Hdrop_δs take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+        rewrite /plist_model' Hacc' -plist_to_val_singleton plist_to_val_app. f_equal.
         rewrite (drop_S δs δ i) // reverse_cons fmap_app /= Hnode tail_app //.
         rewrite Hdrop_δs reverse_cons fmap_app /=.
         symmetry. apply app_cons_not_nil.
@@ -898,7 +898,7 @@ Module base.
         acc'
       , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
-        plst_model acc' acc $ tail $
+        plist_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
           [ #cnode]
@@ -917,7 +917,7 @@ Module base.
         acc'
       , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
-        plst_model acc' acc $ tail $
+        plist_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (drop i ϵ.2))
@@ -962,7 +962,7 @@ Module base.
           rewrite -Hdrop_𝝳s take_drop. iSteps.
         }
         iSteps. iPureIntro.
-        rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+        rewrite /plist_model' Hacc' -plist_to_val_singleton plist_to_val_app. f_equal.
         rewrite (drop_S 𝝳s 𝝳 i) // reverse_cons fmap_app /= Hnode 2!(assoc _ _ _ [_]) -tail_app //.
         rewrite Hdrop_𝝳s reverse_cons fmap_app /= 2!assoc.
         symmetry. apply app_cons_not_nil.
@@ -978,7 +978,7 @@ Module base.
         acc'
       , RET (#root, acc');
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
-        plst_model acc' acc $ tail $
+        plist_model acc' acc $ tail $
           ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
           [ #cnode]
@@ -1003,7 +1003,7 @@ Module base.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
           wp_apply+ (pstore_2٠collect𑁒spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
-          rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+          rewrite /plist_model' Hacc' -plist_to_val_singleton plist_to_val_app. f_equal.
           rewrite -tail_app // reverse_cons fmap_app.
           symmetry. apply app_cons_not_nil.
 
@@ -1026,7 +1026,7 @@ Module base.
             wp_apply ("HLöb" with "[//] [//] Hinv HΦ").
           }
           iSteps. iPureIntro.
-          rewrite /plst_model' Hacc' -plst_to_val_singleton plst_to_val_app. f_equal.
+          rewrite /plist_model' Hacc' -plist_to_val_singleton plist_to_val_app. f_equal.
           rewrite !reverse_cons reverse_app !fmap_app !assoc -tail_app //.
           symmetry. apply app_cons_not_nil.
     Qed.
@@ -1090,7 +1090,7 @@ Module base.
       ϵs !! cnode = Some (base, δs) →
       0 < length δs_cnode →
       NoDup (delta_ref <$> δs_cnode ++ δs_base) →
-      lst_model' acc $ tail $
+      list_model' acc $ tail $
         ((λ δ, #δ.(delta_node)) <$> reverse δs_cnode) ++
         ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
         [ #base'] →
@@ -1259,7 +1259,7 @@ Module base.
     #[local] Lemma pstore_2٠revert𑁒spec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
       cnodes !! base' = Some descr_base' →
       treemap_path ϵs base base' path →
-      lst_model' acc $ tail $
+      list_model' acc $ tail $
         ((λ δ, #δ.(delta_node)) <$> reverse δs) ++
         ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
         [ #base'] →
@@ -1415,7 +1415,7 @@ Module base.
       wp_rec.
       wp_apply (pstore_2٠collect𑁒spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
       wp_apply+ (pstore_2٠revert𑁒spec with "[Hinv] HΦ"); [done.. | |].
-      { rewrite lst_model'_plst_model' //. }
+      { rewrite list_model'_plist_model' //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hcnodes)".
       iSteps.
     Qed.

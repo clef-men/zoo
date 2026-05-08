@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  glst
+  glist
   domain.
 From zoo_saturn Require Import
   mpsc_queue_2__types.
@@ -40,7 +40,7 @@ Definition mpsc_queue_2٠pop : val :=
   fun: "t" =>
     match: "t".{front} with
     | Gnil =>
-        match: glst٠rev (Xchg "t".[back] §Gnil) with
+        match: glist٠rev (Xchg "t".[back] §Gnil) with
         | Gnil =>
             §None
         | Gcons "v" "front" =>

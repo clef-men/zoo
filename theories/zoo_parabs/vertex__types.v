@@ -8,7 +8,7 @@ From zoo_parabs Require Import
 From zoo_saturn Require Import
   mpmc_stack_2.
 From zoo_std Require Import
-  clst.
+  clist.
 From zoo Require Import
   options.
 

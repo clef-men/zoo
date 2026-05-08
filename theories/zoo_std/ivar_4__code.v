@@ -4,8 +4,8 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst
-  ivar_3.
+  ivar_3
+  list.
 From zoo_std Require Import
   ivar_4__types.
 From zoo Require Import
@@ -38,4 +38,4 @@ Definition ivar_4٠set : val :=
 Definition ivar_4٠notify : val :=
   fun: "t" "ctx" "v" =>
     let: "waiters" := ivar_4٠set "t" "v" in
-    lst٠iter (fun: "waiter" => "waiter" "ctx" "v") "waiters".
+    list٠iter (fun: "waiter" => "waiter" "ctx" "v") "waiters".

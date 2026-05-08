@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst.
+  list.
 From zoo_persistent Require Import
   pstack__types.
 From zoo Require Import
@@ -14,7 +14,7 @@ Definition pstack٠empty : val :=
   [].
 
 Definition pstack٠is_empty : val :=
-  lst٠is_empty.
+  list٠is_empty.
 
 Definition pstack٠push : val :=
   fun: "t" "v" =>

@@ -10,7 +10,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   ivar_4
-  lst.
+  list.
 From zoo_parabs Require Export
   base
   future__code.

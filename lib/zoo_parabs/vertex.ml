@@ -48,7 +48,7 @@ and run ctx t =
     t.preds <- 1 ;
     if t.task ctx then
       let succs = Mpmc_stack_2.close t.succs in
-      Clst.iter (fun succ -> release ctx succ) succs
+      Clist.iter (fun succ -> release ctx succ) succs
     else
       release ctx t
 

@@ -6,27 +6,27 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Export
   base
-  clst__types
-  clst__code.
+  clist__types
+  clist__code.
 From zoo Require Import
   options.
 
 Implicit Types v t fn : val.
 
 Inductive clist :=
-  | ClstClosed
-  | ClstOpen
-  | ClstCons v (cvs : clist).
+  | ClistClosed
+  | ClistOpen
+  | ClistCons v (cvs : clist).
 Implicit Types cvs : clist.
 
 Fixpoint clist_to_val cvs :=
   match cvs with
-  | ClstClosed =>
-      §ClstClosed
-  | ClstOpen =>
-      §ClstOpen
-  | ClstCons v cvs =>
-      ‘ClstCons[ v, clist_to_val cvs ]
+  | ClistClosed =>
+      §ClistClosed
+  | ClistOpen =>
+      §ClistOpen
+  | ClistCons v cvs =>
+      ‘ClistCons[ v, clist_to_val cvs ]
   end%V.
 Coercion clist_to_val : clist >-> val.
 
@@ -45,16 +45,16 @@ Qed.
 Fixpoint list_to_clist_open vs :=
   match vs with
   | [] =>
-      ClstOpen
+      ClistOpen
   | v :: vs =>
-      ClstCons v (list_to_clist_open vs)
+      ClistCons v (list_to_clist_open vs)
   end.
 Fixpoint list_to_clist_closed vs :=
   match vs with
   | [] =>
-      ClstClosed
+      ClistClosed
   | v :: vs =>
-      ClstCons v (list_to_clist_closed vs)
+      ClistCons v (list_to_clist_closed vs)
   end.
 
 #[global] Instance list_to_clist_open_inj :
@@ -73,12 +73,12 @@ Proof.
   move: vs2. induction vs1; destruct vs2; naive_solver.
 Qed.
 Lemma list_to_clist_open_not_closed vs :
-  list_to_clist_open vs ≠ ClstClosed.
+  list_to_clist_open vs ≠ ClistClosed.
 Proof.
   apply (list_to_clist_open_closed vs []).
 Qed.
 Lemma list_to_clist_open_not_closed' vs :
-  ClstClosed ≠ list_to_clist_open vs.
+  ClistClosed ≠ list_to_clist_open vs.
 Proof.
   symmetry. apply list_to_clist_open_not_closed.
 Qed.
@@ -88,7 +88,7 @@ Fixpoint clist_app vs1 cvs2 :=
   | [] =>
       cvs2
   | v :: vs1 =>
-      ClstCons v (clist_app vs1 cvs2)
+      ClistCons v (clist_app vs1 cvs2)
   end.
 
 Lemma clist_app_open {vs1 cvs2} vs2 :
@@ -98,8 +98,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClstOpen vs :
-  clist_app vs ClstOpen = list_to_clist_open vs.
+Lemma clist_app_ClistOpen vs :
+  clist_app vs ClistOpen = list_to_clist_open vs.
 Proof.
   rewrite (clist_app_open []) // right_id //.
 Qed.
@@ -110,8 +110,8 @@ Proof.
   move: cvs2 vs2. induction vs1; first done.
   intros * ->. f_equal/=. naive_solver.
 Qed.
-Lemma clist_app_ClstClosed vs :
-  clist_app vs ClstClosed = list_to_clist_closed vs.
+Lemma clist_app_ClistClosed vs :
+  clist_app vs ClistClosed = list_to_clist_closed vs.
 Proof.
   rewrite (clist_app_closed []) // right_id //.
 Qed.
@@ -126,18 +126,18 @@ Section zoo_G.
 
   Lemma wp_match_clist_open vs e1 x2 e2 Φ :
     WP subst' x2 (list_to_clist_open vs) e2 {{ Φ }} ⊢
-    WP match: list_to_clist_open vs with ClstClosed => e1 |_ as: x2 => e2 end {{ Φ }}.
+    WP match: list_to_clist_open vs with ClistClosed => e1 |_ as: x2 => e2 end {{ Φ }}.
   Proof.
     destruct vs; iSteps.
   Qed.
 
-  Lemma clst٠app𑁒spec {t1} vs1 {t2} cvs2 :
+  Lemma clist٠app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
-      clst٠app t1 t2
+      clist٠app t1 t2
     {{{
       RET clist_app vs1 cvs2;
       True
@@ -150,13 +150,13 @@ Section zoo_G.
     - wp_apply+ ("IH" with "[//]"); iSteps.
   Qed.
 
-  Lemma clst٠rev_app𑁒spec {t1} vs1 {t2} cvs2 :
+  Lemma clist٠rev_app𑁒spec {t1} vs1 {t2} cvs2 :
     t1 = list_to_clist_open vs1 →
     t2 = cvs2 →
     {{{
       True
     }}}
-      clst٠rev_app t1 t2
+      clist٠rev_app t1 t2
     {{{
       RET clist_app (reverse vs1) cvs2;
       True
@@ -167,11 +167,11 @@ Section zoo_G.
     all: wp_rec.
     - iSteps.
     - wp_pures.
-      wp_apply+ ("IH" $! _ _ (ClstCons v1 cvs2) with "[//]"); iSteps.
+      wp_apply+ ("IH" $! _ _ (ClistCons v1 cvs2) with "[//]"); iSteps.
       rewrite reverse_cons clist_app_assoc. iSteps.
   Qed.
 
-  #[local] Lemma clst٠iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
+  #[local] Lemma clist٠iter𑁒spec_aux vs_left Ψ vs fn t vs_right :
     vs = vs_left ++ vs_right →
     t = list_to_clist_open vs_right →
     {{{
@@ -184,7 +184,7 @@ Section zoo_G.
         }}
       )
     }}}
-      clst٠iter fn t
+      clist٠iter fn t
     {{{
       RET ();
       Ψ vs
@@ -203,7 +203,7 @@ Section zoo_G.
     }
     iSteps.
   Qed.
-  Lemma clst٠iter𑁒spec Ψ t vs fn :
+  Lemma clist٠iter𑁒spec Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       ▷ Ψ [] ∗
@@ -215,17 +215,17 @@ Section zoo_G.
         }}
       )
     }}}
-      clst٠iter fn t
+      clist٠iter fn t
     {{{
       RET ();
       Ψ vs
     }}}.
   Proof.
     iIntros "%Ht %Φ (HΨ & Hfn) HΦ".
-    iApply (clst٠iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
+    iApply (clist٠iter𑁒spec_aux [] Ψ with "[$HΨ $Hfn]"); [done.. |].
     iSteps.
   Qed.
-  Lemma clst٠iter𑁒spec_disentangled Ψ t vs fn :
+  Lemma clist٠iter𑁒spec_disentangled Ψ t vs fn :
     t = list_to_clist_open vs →
     {{{
       [∗ list] v ∈ vs,
@@ -234,7 +234,7 @@ Section zoo_G.
           ▷ Ψ v
         }}
     }}}
-      clst٠iter fn t
+      clist٠iter fn t
     {{{
       RET ();
       [∗ list] v ∈ vs,
@@ -253,4 +253,4 @@ Section zoo_G.
 End zoo_G.
 
 From zoo_std Require
-  clst__opaque.
+  clist__opaque.

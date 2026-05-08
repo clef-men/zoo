@@ -12,7 +12,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  clst.
+  clist.
 From zoo_saturn Require Export
   base
   mpsc_queue_3__code.
@@ -100,7 +100,7 @@ Section mpsc_queue_3_G.
           model₂ γ (front ++ reverse back)
       ) ∨ (
         lstate_closed γ ∗
-        ⌜v_back = §ClstClosed%V⌝
+        ⌜v_back = §ClistClosed%V⌝
       )
     ).
   #[local] Instance : CustomIpat "inv_inner" :=
@@ -548,7 +548,7 @@ Section mpsc_queue_3_G.
         iSplitR "HΦ". { iSteps. iExists back. iSteps. }
         iSteps.
 
-      + wp_cas as _ | []%(inj clist_to_val ClstClosed)%list_to_clist_open_not_closed'.
+      + wp_cas as _ | []%(inj clist_to_val ClistClosed)%list_to_clist_open_not_closed'.
         iSteps.
 
     - iMod "HΦ" as "(%vs & Hmodel & _ & HΦ)".
@@ -626,8 +626,8 @@ Section mpsc_queue_3_G.
 
         remember (back ++ [v]) as back' eqn:Hback.
         destruct back' as [| v' back']; first by eelim app_cons_not_nil.
-        wp_apply+ (clst٠rev_app𑁒spec (v' :: back') ClstOpen with "[//]") as "_"; [done.. |].
-        rewrite clist_app_ClstOpen {}Hback reverse_snoc.
+        wp_apply+ (clist٠rev_app𑁒spec (v' :: back') ClistOpen with "[//]") as "_"; [done.. |].
+        rewrite clist_app_ClistOpen {}Hback reverse_snoc.
         iSteps.
 
     - wp_store. wp_pures.
@@ -721,12 +721,12 @@ Section mpsc_queue_3_G.
     iModIntro. clear.
 
     iApply wp_match_clist_open. simpl.
-    wp_apply (clst٠rev_app𑁒spec _ ClstClosed with "[//]") as "_"; [done.. |].
+    wp_apply (clist٠rev_app𑁒spec _ ClistClosed with "[//]") as "_"; [done.. |].
     wp_load.
-    wp_apply (clst٠app𑁒spec with "[//]") as "_"; [done.. |].
+    wp_apply (clist٠app𑁒spec with "[//]") as "_"; [done.. |].
     wp_store.
 
-    iSteps. rewrite clist_app_ClstClosed. erewrite clist_app_closed => //.
+    iSteps. rewrite clist_app_ClistClosed. erewrite clist_app_closed => //.
   Qed.
   Lemma mpsc_queue_3٠close𑁒spec_closed t ι vs :
     {{{

@@ -8,7 +8,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   assert
-  lst.
+  list.
 From zoo_persistent Require Export
   base
   pstore_1__code.
@@ -904,7 +904,7 @@ Section pstore_1_G.
     (fun '(x,_,_) => ValLoc x) <$> ys.
 
   Lemma pstore_1٠collect𑁒spec_aux (r r':location) t' (xs:list val) (ys:list (location*(location*val)*location)) (g:graph_store) :
-    lst_model' t' xs →
+    list_model' t' xs →
     path g r ys r' →
     {{{
       r' ↦ᵣ §Root ∗
@@ -916,7 +916,7 @@ Section pstore_1_G.
     , RET (#r',t);
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
-      lst_model t (rev_append (fsts ys) xs)
+      list_model t (rev_append (fsts ys) xs)
     }}}.
   Proof.
     iIntros (-> Hpath Φ) "(Hr'&Hg) HΦ".
@@ -944,12 +944,12 @@ Section pstore_1_G.
     , RET (#r',t);
       r' ↦ᵣ §Root ∗
       ([∗ set] '(r, (l, v), r') ∈ g, r ↦ᵣ ‘Diff( #(l : location), v, #(r' : location) )) ∗
-      lst_model t (rev (fsts ys))
+      list_model t (rev (fsts ys))
     }}}.
   Proof.
     iIntros (? Φ) "(?&?) HΦ".
     iDestruct (pstore_1٠collect𑁒spec_aux with "[$]") as "Go"; [done.. |].
-    rewrite -lst_to_val_nil.
+    rewrite -list_to_val_nil.
     iApply "Go". rewrite -rev_alt //.
   Qed.
 
@@ -1002,7 +1002,7 @@ Section pstore_1_G.
   Qed.
 
   Lemma pstore_1٠revert𑁒spec_aux g g1 r t g2 xs r' w σ σ0 :
-    lst_model' t (fsts (rev xs)) →
+    list_model' t (fsts (rev xs)) →
     locations_of_edges_in g2 (dom σ) →
     g2 = list_to_set xs →
     acyclic g →
@@ -1077,7 +1077,7 @@ Section pstore_1_G.
   Qed.
 
   Lemma pstore_1٠revert𑁒spec r t g xs r' w σ σ0 :
-    lst_model' t (fsts (rev xs)) →
+    list_model' t (fsts (rev xs)) →
     locations_of_edges_in g (dom σ) →
     g = list_to_set xs →
     acyclic g →

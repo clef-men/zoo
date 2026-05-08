@@ -5,7 +5,7 @@ let empty =
   []
 
 let is_empty =
-  Lst.is_empty
+  List.is_empty
 
 let push t v =
   v :: t

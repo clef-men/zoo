@@ -6,7 +6,7 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
   option
-  lst.
+  list.
 From zoo_persistent Require Export
   base
   pstack__code.
@@ -19,7 +19,7 @@ Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   Definition pstack_model t vs : iProp Σ :=
-    lst_model t vs.
+    list_model t vs.
 
   #[global] Instance pstack_model_timeless t vs :
     Timeless (pstack_model t vs).
@@ -50,7 +50,7 @@ Section zoo_G.
     }}}.
   Proof.
     iIntros "%Φ -> HΦ".
-    wp_apply (lst٠is_empty𑁒spec with "[//] HΦ"); first done.
+    wp_apply (list٠is_empty𑁒spec with "[//] HΦ"); first done.
   Qed.
 
   Lemma pstack٠push𑁒spec t vs v :

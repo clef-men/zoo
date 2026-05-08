@@ -15,7 +15,7 @@ From zoo.language Require Import
 From zoo.diaframe Require Import
   diaframe.
 From zoo_std Require Import
-  clst
+  clist
   option.
 From zoo_saturn Require Import
   mpmc_stack_2.
@@ -1131,7 +1131,7 @@ Module base.
           iIntros "!> H£ Hctx {%}".
 
           iMod (lc_fupd_elim_later with "H£ Hsuccs") as "Hsuccs".
-          wp_apply+ (clst٠iter𑁒spec (λ _, pool_context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
+          wp_apply+ (clist٠iter𑁒spec (λ _, pool_context pool ctx scope) with "[$Hctx Hsuccs]"); [done | | iSteps].
           rewrite big_sepL_fmap.
           iApply (big_sepL_impl with "Hsuccs"). iIntros "!> %i %succ _ (:inv_successor) Hctx".
           wp_apply+ ("IHrelease_successor" with "[$Hctx $Hpredecessors_elem $Hstate₁]"); last iSteps.

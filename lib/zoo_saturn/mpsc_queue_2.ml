@@ -3,8 +3,8 @@
 *)
 
 type 'a t =
-  { mutable front: 'a Glst.t
-  ; mutable back: 'a Glst.t [@atomic]
+  { mutable front: 'a Glist.t
+  ; mutable back: 'a Glist.t [@atomic]
   }
 
 let create () =
@@ -30,7 +30,7 @@ let rec push_back t v =
 let pop t =
   match t.front with
   | Gnil ->
-      begin match Glst.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] Gnil with
+      begin match Glist.rev @@ Atomic.Loc.exchange [%atomic.loc t.back] Gnil with
       | Gnil ->
           None
       | Gcons (v, front) ->

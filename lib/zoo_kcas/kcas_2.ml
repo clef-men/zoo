@@ -32,9 +32,9 @@ and 'a status =
 
 let clear cass is_after =
   if is_after then
-    Lst.iter (fun cas -> cas.state.before <- cas.state.after) cass
+    List.iter (fun cas -> cas.state.before <- cas.state.after) cass
   else
-    Lst.iter (fun cas -> cas.state.after <- cas.state.before) cass
+    List.iter (fun cas -> cas.state.after <- cas.state.before) cass
 
 let[@inline] status_to_bool status =
   status == After
@@ -48,7 +48,7 @@ let finish gid casn status =
       let status =
         if status == Before then
           Before
-        else if Lst.forall (fun cmp -> Atomic.get cmp.loc == cmp.state) cmps then
+        else if List.forall (fun cmp -> Atomic.get cmp.loc == cmp.state) cmps then
           After
         else
           Before
@@ -114,7 +114,7 @@ let get loc =
 let cas_2 cmps cass =
   let casn = { status= After; proph= Zoo.proph () } in
   let cass =
-    cass |> Lst.map @@ fun cas ->
+    cass |> List.map @@ fun cas ->
       let loc, before, after = cas in
       let state = { casn; before; after } in
       { loc; state }
@@ -124,7 +124,7 @@ let cas_2 cmps cass =
 let rec cas_1 acc cmps cass =
   match cmps with
   | [] ->
-      cas_2 (Lst.rev acc) cass
+      cas_2 (List.rev acc) cass
   | cmp :: cmps ->
       let loc, expected = cmp in
       let state = Atomic.get loc in

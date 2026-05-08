@@ -3,40 +3,40 @@
 *)
 
 type 'a t =
-  { mutable front: 'a Clst.t
-  ; mutable back: 'a Clst.t [@atomic]
+  { mutable front: 'a Clist.t
+  ; mutable back: 'a Clist.t [@atomic]
   }
 
 let create () =
-  { front= ClstOpen; back= ClstOpen }
+  { front= ClistOpen; back= ClistOpen }
 
 let is_empty t =
   match t.front with
-  | ClstClosed ->
+  | ClistClosed ->
       true
-  | ClstCons _ ->
+  | ClistCons _ ->
       false
-  | ClstOpen ->
+  | ClistOpen ->
       match t.back with
-      | ClstCons _ ->
+      | ClistCons _ ->
           false
       | _ ->
           true
 
 let push_front t v =
   match t.front with
-  | ClstClosed ->
+  | ClistClosed ->
       true
   | _ as front ->
-      t.front <- ClstCons (v, front) ;
+      t.front <- ClistCons (v, front) ;
       false
 
 let rec push_back t v =
   match t.back with
-  | ClstClosed ->
+  | ClistClosed ->
       true
   | _ as back ->
-      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (ClstCons (v, back)) then (
+      if Atomic.Loc.compare_and_set [%atomic.loc t.back] back (ClistCons (v, back)) then (
         false
       ) else (
         Domain.yield () ;
@@ -45,27 +45,27 @@ let rec push_back t v =
 
 let pop t =
   match t.front with
-  | ClstClosed ->
+  | ClistClosed ->
       None
-  | ClstCons (v, front) ->
+  | ClistCons (v, front) ->
       t.front <- front ;
       Some v
-  | ClstOpen ->
-      match Atomic.Loc.exchange [%atomic.loc t.back] ClstOpen with
-      | ClstOpen ->
+  | ClistOpen ->
+      match Atomic.Loc.exchange [%atomic.loc t.back] ClistOpen with
+      | ClistOpen ->
           None
       | _ as back ->
-          match Clst.rev_app back ClstOpen with
-          | ClstCons (v, front) ->
+          match Clist.rev_app back ClistOpen with
+          | ClistCons (v, front) ->
               t.front <- front ;
               Some v
           | _ ->
               assert false
 
 let close t =
-  match Atomic.Loc.exchange [%atomic.loc t.back] ClstClosed with
-  | ClstClosed ->
+  match Atomic.Loc.exchange [%atomic.loc t.back] ClistClosed with
+  | ClistClosed ->
       true
   | _ as back ->
-      t.front <- Clst.app t.front (Clst.rev_app back ClstClosed) ;
+      t.front <- Clist.app t.front (Clist.rev_app back ClistClosed) ;
       false

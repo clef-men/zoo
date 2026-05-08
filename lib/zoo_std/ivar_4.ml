@@ -28,4 +28,4 @@ let set =
 
 let notify t ctx v =
   let waiters = set t v in
-  Lst.iter (fun waiter -> waiter ctx v) waiters
+  List.iter (fun waiter -> waiter ctx v) waiters

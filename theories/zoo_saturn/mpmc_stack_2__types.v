@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  clst
+  clist
   optional
   domain.
 From zoo Require Import

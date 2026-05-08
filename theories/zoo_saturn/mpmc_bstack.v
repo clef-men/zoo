@@ -55,28 +55,28 @@ Section mpmc_bstack_G.
     solve_countable.
   Qed.
 
-  #[local] Fixpoint lst_to_val sz vs :=
+  #[local] Fixpoint list_to_val sz vs :=
     match vs with
     | [] =>
         §Nil%V
     | v :: vs =>
-        ‘Cons[ #sz, v, lst_to_val (sz - 1) vs ]%V
+        ‘Cons[ #sz, v, list_to_val (sz - 1) vs ]%V
     end.
 
-  #[local] Instance lst_to_val_inj_similar sz :
-    Inj (=) (≈@{val}) (lst_to_val sz).
+  #[local] Instance list_to_val_inj_similar sz :
+    Inj (=) (≈@{val}) (list_to_val sz).
   Proof.
     intros vs1. move: sz. induction vs1 as [| v1 vs1 IH]; intros sz [| v2 vs2]; [done.. |].
     intros (_ & _ & [= <- <-%val_similar_refl%IH]). done.
   Qed.
-  #[local] Instance lst_to_val_inj sz :
-    Inj (=) (=) (lst_to_val sz).
+  #[local] Instance list_to_val_inj sz :
+    Inj (=) (=) (list_to_val sz).
   Proof.
     intros ?* ->%val_similar_refl%(inj _). done.
   Qed.
 
-  Lemma lst_to_val_inj' vs1 vs2 :
-    lst_to_val (length vs1) vs1 ≈ lst_to_val (length vs2) vs2 →
+  Lemma list_to_val_inj' vs1 vs2 :
+    list_to_val (length vs1) vs1 ≈ list_to_val (length vs2) vs2 →
     vs1 = vs2.
   Proof.
     destruct vs1, vs2; try done.
@@ -94,7 +94,7 @@ Section mpmc_bstack_G.
 
   #[local] Definition inv_inner l γ : iProp Σ :=
     ∃ vs,
-    l.[front] ↦ lst_to_val (length vs) vs ∗
+    l.[front] ↦ list_to_val (length vs) vs ∗
     model₂ γ vs.
   #[local] Instance : CustomIpat "inv_inner" :=
     " ( %vs{}
@@ -298,7 +298,7 @@ Section mpmc_bstack_G.
       ∀ (sz : Z) front ws,
       <<<
         ⌜sz = length ws⌝ ∗
-        ⌜front = lst_to_val (length ws) ws⌝ ∗
+        ⌜front = list_to_val (length ws) ws⌝ ∗
         ⌜length ws < cap⌝ ∗
         mpmc_bstack_inv t ι cap
       | ∀∀ vs,
@@ -338,7 +338,7 @@ Section mpmc_bstack_G.
 
       wp_bind (CAS _ _ _).
       iInv "Hinv" as "(:inv_inner)".
-      wp_cas as _ | <-%lst_to_val_inj'.
+      wp_cas as _ | <-%list_to_val_inj'.
 
       + iSplitR "HΦ". { iFrameSteps. }
         iSteps.

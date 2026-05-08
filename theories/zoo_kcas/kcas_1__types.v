@@ -4,7 +4,7 @@ From zoo.language Require Import
   typeclasses
   notations.
 From zoo_std Require Import
-  lst.
+  list.
 From zoo Require Import
   identifier.
 From zoo Require Import
