@@ -245,7 +245,8 @@ Inductive base_step tid : expr → state → list observation → expr → state
       σ.(state_headers) !! l = None →
       ( ∀ i,
         i < ₊n →
-        σ.(state_heap) !! (l +ₗ i) = None
+          σ.(state_headers) !! (l +ₗ i) = None ∧
+          σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
         tid
@@ -261,7 +262,8 @@ Inductive base_step tid : expr → state → list observation → expr → state
       σ.(state_headers) !! l = None →
       ( ∀ i,
         i < length es →
-        σ.(state_heap) !! (l +ₗ i) = None
+          σ.(state_headers) !! (l +ₗ i) = None ∧
+          σ.(state_heap) !! (l +ₗ i) = None
       ) →
       base_step
         tid
@@ -500,10 +502,13 @@ Proof.
   intros l Hn.
   pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
   setoid_rewrite not_elem_of_union in Hfresh.
-  apply base_step_alloc; first done.
-  all: intros; apply not_elem_of_dom.
-  1: rewrite -(location_add_0 l).
-  all: apply Hfresh; lia.
+  apply base_step_alloc. 1: done.
+  { rewrite -(location_add_0 l) //.
+    apply not_elem_of_dom, Hfresh. 1: lia.
+  } {
+    intros i Hi. split.
+    all: apply not_elem_of_dom, Hfresh; lia.
+  }
 Qed.
 Lemma base_step_block_mutable' tid tag es vs σ :
   let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
@@ -521,10 +526,13 @@ Proof.
   intros l Hn ->.
   pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
   setoid_rewrite not_elem_of_union in Hfresh.
-  apply base_step_block_mutable; [done.. | |].
-  all: intros; apply not_elem_of_dom.
-  - rewrite -(location_add_0 l). naive_solver.
-  - apply Hfresh. lia.
+  apply base_step_block_mutable. 1,2: done.
+  { rewrite -(location_add_0 l) //.
+    apply not_elem_of_dom, Hfresh. 1: lia.
+  } {
+    intros i Hi. split.
+    all: apply not_elem_of_dom, Hfresh; lia.
+  }
 Qed.
 Lemma base_step_block_immutable_generative_strong' tid tag es vs σ :
   es = of_vals vs →
