@@ -67,7 +67,7 @@ Section zoo_G.
       ⌜sz1 = sz2⌝.
     Proof.
       iIntros "(%l & -> & #Hheader1) (%_l & %Heq & #Hheader2)". injection Heq as <-.
-      iDestruct (has_header_agree with "Hheader1 Hheader2") as %[= ->]. done.
+      iDestruct (headers_at_agree with "Hheader1 Hheader2") as %[= ->]. done.
     Qed.
   End array_inv.
 
@@ -437,7 +437,7 @@ Section zoo_G.
         array_model t (dq1 ⋅ dq2) vs1.
     Proof.
       iIntros "(%l & -> & #Hheader1 & Hmodel1) (%_l & %Heq & #Hheader2 & Hmodel2)". injection Heq as <-.
-      iDestruct (has_header_agree with "Hheader1 Hheader2") as %[= Hlength].
+      iDestruct (headers_at_agree with "Hheader1 Hheader2") as %[= Hlength].
       iDestruct (chunk_model_combine with "Hmodel1 Hmodel2") as "(<- & Hmodel)"; first done.
       iSteps.
     Qed.

@@ -100,7 +100,9 @@ Class ZooG Σ :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Definition has_header l hdr :=
+  Definition headers_auth :=
+    gen_heap_interp (V := header).
+  Definition headers_at l hdr :=
     pointsto l DfracDiscarded hdr.
 
   Definition meta_token :=
@@ -111,7 +113,7 @@ Section zoo_G.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
-  has_header l hdr
+  headers_at l hdr
 )(at level 20,
   format "l  ↦ₕ  hdr"
 ) : bi_scope.
@@ -119,19 +121,19 @@ Notation "l ↦ₕ hdr" := (
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[global] Instance has_header_timeless l hdr :
+  #[global] Instance headers_at_timeless l hdr :
     Timeless (l ↦ₕ hdr).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance has_header_persistent l hdr :
+  #[global] Instance headers_at_persistent l hdr :
     Persistent (l ↦ₕ hdr).
   Proof.
     apply _.
   Qed.
 
-  Lemma has_header_agree l hdr1 hdr2 :
+  Lemma headers_at_agree l hdr1 hdr2 :
     l ↦ₕ hdr1 -∗
     l ↦ₕ hdr2 -∗
     ⌜hdr1 = hdr2⌝.
@@ -188,6 +190,8 @@ End zoo_G.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
+  Definition heap_auth :=
+    gen_heap_interp (V := val).
   Definition pointsto :=
     pointsto (V := val).
 End zoo_G.
@@ -870,8 +874,8 @@ Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   Definition state_interp ns nt σ κs : iProp Σ :=
-    gen_heap_interp σ.(state_headers) ∗
-    gen_heap_interp σ.(state_heap) ∗
+    headers_auth σ.(state_headers) ∗
+    heap_auth σ.(state_heap) ∗
     prophet_map_interp κs σ.(state_prophets) ∗
     steps_auth ns ∗
     locals_auth σ.(state_locals) ∗
@@ -951,7 +955,7 @@ Section zoo_G.
     rewrite big_sepM_heap_array. iSteps.
   Qed.
 
-  Lemma state_interp_has_header_valid ns nt σ κs l hdr :
+  Lemma state_interp_headers_at_valid ns nt σ κs l hdr :
     state_interp ns nt σ κs -∗
     l ↦ₕ hdr -∗
     ⌜σ.(state_headers) !! l = Some hdr⌝.
@@ -1095,7 +1099,7 @@ Proof.
   - iApply inv_alloc. iSteps. simpl_length.
 Qed.
 
-#[global] Opaque has_header.
+#[global] Opaque headers_at.
 #[global] Opaque meta_token.
 #[global] Opaque meta.
 #[global] Opaque pointsto.

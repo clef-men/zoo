@@ -686,7 +686,7 @@ Section zoo_G.
     iApply bwp_wp_weak. iIntros.
     iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
+    iDestruct (state_interp_headers_at_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
     invert_base_step.
     iFrameSteps.
@@ -701,7 +701,7 @@ Section zoo_G.
     iApply bwp_wp_weak. iIntros.
     iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp".
     iApply fupd_mask_intro; first set_solver. iIntros "Hclose".
-    iDestruct (state_interp_has_header_valid with "Hinterp Hheader") as %Hheaders_lookup.
+    iDestruct (state_interp_headers_at_valid with "Hinterp Hheader") as %Hheaders_lookup.
     iSplit; first eauto with zoo. iIntros "%κ %κs' %e %σ2 %es -> %Hstep _ !>".
     invert_base_step.
     iFrameSteps.

@@ -973,7 +973,7 @@ Tactic Notation "wp_match" :=
     | fail 1 "wp_match: cannot find 'Match' on location in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+    | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_match: cannot find" l "↦ₕ ?"
@@ -993,7 +993,7 @@ Ltac wp_tag :=
     | fail 1 "wp_tag: cannot find 'GetTag' in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+    | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_tag: cannot find" l "↦ₕ ?"
@@ -1012,7 +1012,7 @@ Ltac wp_size :=
     | fail 1 "wp_size: cannot find 'GetSize' in" e
     ];
     [ tc_solve
-    | let l := match goal with |- _ = Some (_, (has_header ?l _)) => l end in
+    | let l := match goal with |- _ = Some (_, ?l ↦ₕ _)%I => l end in
       first
       [ iAssumptionCore
       | fail 1 "wp_size: cannot find" l "↦ₕ ?"

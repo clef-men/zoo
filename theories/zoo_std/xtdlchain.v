@@ -21,7 +21,7 @@ Section zoo_G.
 
   Definition xtdlchain hdr src nodes dst : iProp Σ :=
     xdlchain src nodes dst ∗
-    [∗ list] node ∈ nodes, has_header node hdr.
+    [∗ list] node ∈ nodes, headers_at node hdr.
 
   #[global] Instance xtdlchain_timeless hdr src nodes dst :
     Timeless (xtdlchain hdr src nodes dst).
