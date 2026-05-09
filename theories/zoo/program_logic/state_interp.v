@@ -48,6 +48,7 @@ Record state_wf σ param :=
 
 Class ZooG₀ Σ :=
   { #[local] zoo_G₀_heap_G :: ghost_mapG Σ location val
+  ; #[local] zoo_G_prophets_G :: ProphetMapG Σ prophet_id (val * val)
   ; #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
   ; #[local] zoo_G₀_locals_G :: GhostListG Σ val
   ; #[local] zoo_G₀_counter_G :: MonoListG Σ val
@@ -55,6 +56,7 @@ Class ZooG₀ Σ :=
 
 #[local] Definition zoo_Σ₀ :=
   #[ghost_mapΣ location val
+  ; prophet_map_Σ prophet_id (val * val)
   ; auth_nat_max_Σ
   ; ghost_list_Σ val
   ; mono_list_Σ val
@@ -69,14 +71,12 @@ Qed.
 Class ZooGpre Σ :=
   { #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ
   ; #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ
-  ; #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val)
   ; #[local] zoo_Gpre_G₀ :: ZooG₀ Σ
   }.
 
 Definition zoo_Σ :=
   #[invΣ
   ; gen_heapΣ location header
-  ; prophet_map_Σ prophet_id (val * val)
   ; zoo_Σ₀
   ].
 #[global] Instance subG_zoo_Σ Σ :
@@ -89,14 +89,14 @@ Qed.
 Class ZooG Σ :=
   { #[global] zoo_G_inv_G :: invGS Σ
   ; #[local] zoo_G_headers_G :: gen_heapGS location header Σ
-  ; #[local] zoo_G_prophecy_G :: ProphetMapG Σ prophet_id (val * val)
   ; #[local] zoo_G_G₀ :: ZooG₀ Σ
   ; zoo_G_heap_name : gname
+  ; zoo_G_prophets_name : gname
   ; zoo_G_steps_name : gname
   ; zoo_G_locals_name : gname
   ; zoo_G_counter_name : gname
   }.
-#[global] Arguments Build_ZooG {_ _ _ _ _} _ _ _ _ : assert.
+#[global] Arguments Build_ZooG {_ _ _ _} _ _ _ _ _ : assert.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -466,13 +466,30 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition prophet_map_interp' γ_prophets κs pids :=
+    prophet_map_interp γ_prophets κs pids.
+  #[local] Definition prophet_model' γ_prophets pid dq prophs :=
+    prophet_model γ_prophets pid dq prophs.
+
+  #[local] Lemma prophet_map_alloc κs pids :
+    ⊢ |==>
+      ∃ γ_prophets,
+      prophet_map_interp' γ_prophets κs pids.
+  Proof.
+    apply prophet_map_alloc.
+  Qed.
+End zoo_G₀.
+
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
+  #[local] Definition prophet_map_interp :=
+    prophet_map_interp zoo_G_prophets_name.
   Definition prophet_model :=
-    prophet_model.
-  Definition prophet_model' pid :=
-    prophet_model pid (DfracOwn 1).
+    prophet_model zoo_G_prophets_name.
 
   #[global] Instance prophet_model_timeless pid dq prophs :
     Timeless (prophet_model pid dq prophs).
@@ -554,7 +571,31 @@ Section zoo_G.
   Proof.
     apply prophet_model_persist.
   Qed.
+
+  Lemma prophet_map_new {κs pids} pid :
+    pid ∉ pids →
+    prophet_map_interp κs pids ⊢ |==>
+      ∃ prophs,
+      prophet_map_interp κs ({[pid]} ∪ pids) ∗
+      prophet_model pid (DfracOwn 1) prophs.
+  Proof.
+    apply prophet_map_new.
+  Qed.
+
+  Lemma prophet_map_resolve pid proph xprophs pids prophs :
+    prophet_map_interp ((pid, proph) :: xprophs) pids -∗
+    prophet_model pid (DfracOwn 1) prophs ==∗
+      ∃ prophs',
+      ⌜prophs = proph :: prophs'⌝ ∗
+      prophet_map_interp xprophs pids ∗
+      prophet_model pid (DfracOwn 1) prophs'.
+  Proof.
+    apply prophet_map_resolve.
+  Qed.
 End zoo_G.
+
+#[global] Opaque prophet_map_interp'.
+#[global] Opaque prophet_model'.
 
 Section zoo_G₀.
   Context `{zoo_G₀ : !ZooG₀ Σ}.
@@ -1116,7 +1157,7 @@ Section zoo_G.
       prophet_model pid (DfracOwn 1) prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
-    iMod (prophet_map_new with "Hprophets_interp") as "(Hprophets_interp & Hpid)"; first done.
+    iMod (prophet_map_new with "Hprophets_interp") as "(%prophs & Hprophets_interp & Hpid)". 1: done.
     iFrameSteps.
   Qed.
   Lemma state_interp_prophet_resolve ns nt σ κs pid proph prophs :
@@ -1154,7 +1195,7 @@ Proof.
   { apply Hwf. }
   iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
 
-  iMod (prophet_map_init κs σ.(state_prophets)) as "(% & Hprophets_interp)".
+  iMod (prophet_map_alloc κs σ.(state_prophets)) as "(%γ_prophets & Hprophets_interp)".
 
   iMod steps_alloc as "(%γ_steps & Hsteps_auth)".
 
@@ -1162,8 +1203,15 @@ Proof.
 
   iMod (zoo_counter_alloc param) as "(%γ_counter & Hcounter_auth)".
 
-  iExists (Build_ZooG γ_heap γ_steps γ_locals γ_counter). iFrameSteps.
-  - erewrite state_wf_locals; done.
+  set zoo_G :=
+    {|zoo_G_heap_name := γ_heap
+    ; zoo_G_prophets_name := γ_prophets
+    ; zoo_G_steps_name := γ_steps
+    ; zoo_G_locals_name := γ_locals
+    ; zoo_G_counter_name := γ_counter
+    |}.
+  iExists zoo_G. iFrameSteps.
+  - erewrite state_wf_locals => //.
   - iApply inv_alloc. iSteps. simpl_length.
 Qed.
 

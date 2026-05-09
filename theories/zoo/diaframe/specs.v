@@ -283,7 +283,7 @@ Section zoo_G.
       Proph @ E
     {{ prophs pid,
       RET #pid;
-      prophet_model' pid prophs
+      prophet_model pid (DfracOwn 1) prophs
     }}.
   Proof.
     iSteps.

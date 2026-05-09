@@ -183,7 +183,7 @@ Module base.
       }>.
     #[local] Definition winner_pending_1 γ front P id : iProp Σ :=
       winner_steal γ front P ∗
-      identifier_model' id ∗
+      identifier_model id (DfracOwn 1) ∗
       winner_au γ front P.
     #[local] Instance : CustomIpat "winner_pending_1" :=
       " ( Hwinner_steal{_{!}}

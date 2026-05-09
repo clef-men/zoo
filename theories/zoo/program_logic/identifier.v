@@ -33,8 +33,6 @@ Section zoo_G.
   Definition identifier_model id dq : iProp Σ :=
     ∃ prophs,
     prophet_model id dq prophs.
-  Definition identifier_model' id :=
-    identifier_model id (DfracOwn 1).
 
   #[global] Instance identifier_model_timeless id dq :
     Timeless (identifier_model id dq).
@@ -128,7 +126,7 @@ Section zoo_G.
     {{{
       id
     , RET #id;
-      identifier_model' id
+      identifier_model id (DfracOwn 1)
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
