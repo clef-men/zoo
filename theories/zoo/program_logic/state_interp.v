@@ -2,6 +2,7 @@ From iris.bi Require Export
   lib.fractional.
 From iris.base_logic Require Import
   lib.gen_heap
+  lib.ghost_map
   lib.invariants.
 
 From zoo Require Import
@@ -46,13 +47,15 @@ Record state_wf σ param :=
   }.
 
 Class ZooG₀ Σ :=
-  { #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
+  { #[local] zoo_G₀_heap_G :: ghost_mapG Σ location val
+  ; #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
   ; #[local] zoo_G₀_locals_G :: GhostListG Σ val
   ; #[local] zoo_G₀_counter_G :: MonoListG Σ val
   }.
 
 #[local] Definition zoo_Σ₀ :=
-  #[auth_nat_max_Σ
+  #[ghost_mapΣ location val
+  ; auth_nat_max_Σ
   ; ghost_list_Σ val
   ; mono_list_Σ val
   ].
@@ -66,7 +69,6 @@ Qed.
 Class ZooGpre Σ :=
   { #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ
   ; #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ
-  ; #[local] zoo_Gpre_heap_Gpre :: gen_heapGpreS location val Σ
   ; #[local] zoo_Gpre_prophecy_Gpre :: ProphetMapGpre Σ prophet_id (val * val)
   ; #[local] zoo_Gpre_G₀ :: ZooG₀ Σ
   }.
@@ -74,7 +76,6 @@ Class ZooGpre Σ :=
 Definition zoo_Σ :=
   #[invΣ
   ; gen_heapΣ location header
-  ; gen_heapΣ location val
   ; prophet_map_Σ prophet_id (val * val)
   ; zoo_Σ₀
   ].
@@ -88,14 +89,14 @@ Qed.
 Class ZooG Σ :=
   { #[global] zoo_G_inv_G :: invGS Σ
   ; #[local] zoo_G_headers_G :: gen_heapGS location header Σ
-  ; #[local] zoo_G_heap_G :: gen_heapGS location val Σ
   ; #[local] zoo_G_prophecy_G :: ProphetMapG Σ prophet_id (val * val)
   ; #[local] zoo_G_G₀ :: ZooG₀ Σ
+  ; zoo_G_heap_name : gname
   ; zoo_G_steps_name : gname
   ; zoo_G_locals_name : gname
   ; zoo_G_counter_name : gname
   }.
-#[global] Arguments Build_ZooG {_ _ _ _ _ _} _ _ _ : assert.
+#[global] Arguments Build_ZooG {_ _ _ _ _} _ _ _ _ : assert.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -198,14 +199,32 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-Section zoo_G.
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition heap_auth' γ_heap h :=
+    ghost_map_auth γ_heap 1 h.
+  #[local] Definition pointsto' γ_heap l dq v :=
+    ghost_map_elem γ_heap l dq v.
+
+  #[local] Lemma heap_alloc h :
+    ⊢ |==>
+      ∃ γ_heap,
+      heap_auth' γ_heap h ∗
+      [∗ map] l ↦ v ∈ h, pointsto' γ_heap l (DfracOwn 1) v.
+  Proof.
+    apply ghost_map_alloc.
+  Qed.
+End zoo_G₀.
+
+Section cheriot_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition heap_auth :=
-    gen_heap_interp (V := val).
+  Definition heap_auth :=
+    heap_auth' zoo_G_heap_name.
   Definition pointsto :=
-    pointsto (V := val).
-End zoo_G.
+    pointsto' zoo_G_heap_name.
+End cheriot_G.
 
 Notation "l ↦ dq v" := (
   pointsto l dq v%V
@@ -273,7 +292,7 @@ Section zoo_G.
     l ↦{dq} v ⊢
     ⌜✓ dq⌝.
   Proof.
-    apply bi.wand_entails', pointsto_valid.
+    apply bi.wand_entails', ghost_map_elem_valid.
   Qed.
   Lemma pointsto_combine l dq1 v1 dq2 v2 :
     l ↦{dq1} v1 -∗
@@ -281,7 +300,7 @@ Section zoo_G.
       ⌜v1 = v2⌝ ∗
       l ↦{dq1 ⋅ dq2} v1.
   Proof.
-    rewrite comm. apply pointsto_combine.
+    rewrite comm. apply ghost_map_elem_combine.
   Qed.
   Lemma pointsto_valid_2 l dq1 v1 dq2 v2 :
     l ↦{dq1} v1 -∗
@@ -290,14 +309,14 @@ Section zoo_G.
       ⌜v1 = v2⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (pointsto_valid_2 with "H1 H2") as "$".
+    iDestruct (ghost_map_elem_valid_2 with "H1 H2") as "$".
   Qed.
   Lemma pointsto_agree l dq2 v1 dq1 v2 :
     l ↦{dq1} v1 -∗
     l ↦{dq2} v2 -∗
     ⌜v1 = v2⌝.
   Proof.
-    apply pointsto_agree.
+    apply ghost_map_elem_agree.
   Qed.
   Lemma pointsto_dfrac_ne l1 dq1 v1 l2 dq2 v2 :
     ¬ ✓ (dq1 ⋅ dq2) →
@@ -305,14 +324,14 @@ Section zoo_G.
     l2 ↦{dq2} v2 -∗
     ⌜l1 ≠ l2⌝.
   Proof.
-    apply pointsto_frac_ne.
+    apply ghost_map_elem_frac_ne.
   Qed.
   Lemma pointsto_ne l1 v1 l2 dq2 v2 :
     l1 ↦ v1 -∗
     l2 ↦{dq2} v2 -∗
     ⌜l1 ≠ l2⌝.
   Proof.
-    apply pointsto_ne.
+    apply ghost_map_elem_ne.
   Qed.
   Lemma pointsto_exclusive l v1 dq2 v2 :
     l ↦ v1 -∗
@@ -320,13 +339,13 @@ Section zoo_G.
     False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (pointsto_ne with "H1 H2") as %?. done.
+    iDestruct (ghost_map_elem_ne with "H1 H2") as %?. done.
   Qed.
   Lemma pointsto_persist l dq v :
     l ↦{dq} v ⊢ |==>
     l ↦□ v.
   Proof.
-    apply bi.wand_entails', pointsto_persist.
+    apply bi.wand_entails', ghost_map_elem_persist.
   Qed.
 
   #[global] Instance pointsto_combine_sep_gives l dq1 v1 dq2 v2 :
@@ -346,8 +365,40 @@ Section zoo_G.
     Frame p (l ↦{#q1} v) (l ↦{#q2} v) (l ↦{#q} v)
   | 5.
   Proof.
-    apply _.
+    apply: frame_fractional.
   Qed.
+
+  Lemma heap_lookup h a dq c :
+    heap_auth h -∗
+    a ↦{dq} c -∗
+    ⌜h !! a = Some c⌝.
+  Proof.
+    apply ghost_map_lookup.
+  Qed.
+  Lemma heap_insert {h1} h2 :
+    h2 ##ₘ h1 →
+    heap_auth h1 ⊢ |==>
+      heap_auth (h2 ∪ h1) ∗
+      [∗ map] l ↦ v ∈ h2, l ↦ v.
+  Proof.
+    intros.
+    apply bi.wand_entails', ghost_map_insert_big => //.
+  Qed.
+  Lemma heap_update {h a c1} c2 :
+    heap_auth h -∗
+    a ↦ c1 ==∗
+      heap_auth (<[a := c2]> h) ∗
+      a ↦ c2.
+  Proof.
+    apply ghost_map_update.
+  Qed.
+End zoo_G.
+
+#[global] Opaque heap_auth'.
+#[global] Opaque pointsto'.
+
+Section zoo_G.
+  Context `{zoo_G : !ZooG Σ}.
 
   Lemma big_sepL2_pointsto_agree ls dq1 vs1 dq2 vs2 :
     ([∗ list] l; v ∈ ls; vs1, l ↦{dq1} v) -∗
@@ -899,7 +950,7 @@ End zoo_G.
 
 #[local] Instance : CustomIpat "state_interp" :=
   " ( Hheaders_interp
-    & Hheap_interp
+    & Hheap_auth
     & Hprophets_interp
     & Hsteps_auth
     & Hlocals_auth
@@ -967,8 +1018,8 @@ Section zoo_G.
     iIntros "%Hheaders_lookup %Hheap_lookup (:state_interp)".
     iMod (gen_heap_alloc with "Hheaders_interp") as "($ & Hl_header & $)"; first done.
     iMod (gen_heap.pointsto_persist with "Hl_header") as "$".
-    iMod (gen_heap_alloc_big _ (heap_chunk _ _) with "Hheap_interp") as "($ & Hl & _)".
-    { apply heap_chunk_map_disjoint. done. }
+    iMod (heap_insert (heap_chunk _ _) with "Hheap_auth") as "($ & Hl)".
+    { apply heap_chunk_map_disjoint => //. }
     rewrite big_sepM_heap_chunk. iSteps.
   Qed.
 
@@ -987,7 +1038,7 @@ Section zoo_G.
     ⌜σ.(state_heap) !! l = Some v⌝.
   Proof.
     iIntros "(:state_interp) Hl".
-    iApply (gen_heap_valid with "Hheap_interp Hl").
+    iApply (heap_lookup with "Hheap_auth Hl").
   Qed.
   Lemma state_interp_pointstos_valid ns nt σ κs l dq vs :
     state_interp ns nt σ κs -∗
@@ -999,7 +1050,7 @@ Section zoo_G.
   Proof.
     iIntros "(:state_interp) Hl %i %v %Hvs_lookup".
     iDestruct (big_sepL_lookup with "Hl") as "Hl"; first done.
-    iApply (gen_heap_valid with "Hheap_interp Hl").
+    iApply (heap_lookup with "Hheap_auth Hl").
   Qed.
   Lemma state_interp_pointsto_update {ns nt σ κs l w} v :
     state_interp ns nt σ κs -∗
@@ -1008,7 +1059,7 @@ Section zoo_G.
       l ↦ v.
   Proof.
     iIntros "(:state_interp) Hl".
-    iMod (gen_heap_update with "Hheap_interp Hl") as "(Hheap_interp & Hl)".
+    iMod (heap_update with "Hheap_auth Hl") as "(Hheap_auth & Hl)".
     iFrameSteps.
   Qed.
 
@@ -1096,9 +1147,9 @@ Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κs :
 Proof.
   intros Hwf.
 
-  iMod (gen_heap_init σ.(state_headers)) as (?) "(Hheaders_interp & _)".
+  iMod (gen_heap_init σ.(state_headers)) as "(%γ_headers & Hheaders_interp & _)".
 
-  iMod (gen_heap_init σ.(state_heap)) as (?) "(Hheap_interp & Hheap & _)".
+  iMod (heap_alloc σ.(state_heap)) as "(%γ_heap & Hheap_auth & Hheap)".
   iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)".
   { apply Hwf. }
   iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
@@ -1111,7 +1162,7 @@ Proof.
 
   iMod (zoo_counter_alloc param) as "(%γ_counter & Hcounter_auth)".
 
-  iExists (Build_ZooG γ_steps γ_locals γ_counter). iFrameSteps.
+  iExists (Build_ZooG γ_heap γ_steps γ_locals γ_counter). iFrameSteps.
   - erewrite state_wf_locals; done.
   - iApply inv_alloc. iSteps. simpl_length.
 Qed.
