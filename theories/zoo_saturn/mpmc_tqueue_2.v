@@ -233,7 +233,7 @@ Section mpmc_tqueue_2_G.
   Definition mpmc_tqueue_2_inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_tqueue_2_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -247,7 +247,7 @@ Section mpmc_tqueue_2_G.
   Definition mpmc_tqueue_2_model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_tqueue_2_model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
@@ -261,7 +261,7 @@ Section mpmc_tqueue_2_G.
   Definition mpmc_tqueue_2_full t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_tqueue_2_full γ.
   #[local] Instance : CustomIpat "full" :=
     " ( %𝑡{}
@@ -275,7 +275,7 @@ Section mpmc_tqueue_2_G.
   Definition mpmc_tqueue_2_nonfull t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_tqueue_2_nonfull γ.
   #[local] Instance : CustomIpat "nonfull" :=
     " ( %𝑡{}
@@ -289,7 +289,7 @@ Section mpmc_tqueue_2_G.
   Definition mpmc_tqueue_2_finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_tqueue_2_finished γ.
   #[local] Instance : CustomIpat "finished" :=
     " ( %𝑡{}

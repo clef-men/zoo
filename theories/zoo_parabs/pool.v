@@ -1249,7 +1249,7 @@ Section pool_G.
   Definition pool_inv t sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.pool_inv γ sz.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -1263,7 +1263,7 @@ Section pool_G.
   Definition pool_context t ctx scope : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.pool_context γ ctx scope.
   #[local] Instance : CustomIpat "context" :=
     " ( %𝑡{}
@@ -1277,7 +1277,7 @@ Section pool_G.
   Definition pool_model t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.pool_model 𝑡 γ.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
@@ -1291,7 +1291,7 @@ Section pool_G.
   Definition pool_finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.pool_finished γ.
   #[local] Instance : CustomIpat "finished" :=
     " ( %𝑡{}
@@ -1309,7 +1309,7 @@ Section pool_G.
   Definition pool_obligation t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.pool_obligation γ P.
   #[local] Instance : CustomIpat "obligation" :=
     " ( %𝑡{}
@@ -1543,7 +1543,7 @@ Section pool_G.
     iIntros "%Hsz %Φ Htask HΦ".
 
     set (Ψ' 𝑡 γ v := (
-      meta 𝑡 nroot γ ∗
+      𝑡 ↪ γ ∗
       Ψ #𝑡 v
     )%I).
     wp_apply (base.pool٠run𑁒spec Ψ' with "[Htask]"). 1: done.

@@ -90,7 +90,7 @@ Section mpsc_queue_2_G.
   Definition mpsc_queue_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -104,7 +104,7 @@ Section mpsc_queue_2_G.
   Definition mpsc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}
@@ -118,7 +118,7 @@ Section mpsc_queue_2_G.
   Definition mpsc_queue_2_consumer t : iProp Σ :=
     ∃ l γ front,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[front] ↦ glist_to_val front ∗
     front₁ γ front.
   #[local] Instance : CustomIpat "consumer" :=

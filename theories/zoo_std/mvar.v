@@ -537,7 +537,7 @@ Section mvar_G.
   Definition mvar_inv t Ψ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mvar_inv 𝑡 γ Ψ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
@@ -551,7 +551,7 @@ Section mvar_G.
   Definition mvar_consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mvar_consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
@@ -565,7 +565,7 @@ Section mvar_G.
   Definition mvar_resolved t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mvar_resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
     " ( %l{;_}

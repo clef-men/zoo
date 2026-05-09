@@ -218,7 +218,7 @@ Section domain_G.
   Definition domain_local tid keys : iProp Σ :=
     ∃ l γ vs ws ids,
     tid ↦ₗ□ #l ∗
-    meta l (nroot.@"user") γ ∗
+    l ↪[nroot.@"user"] γ ∗
     dynarray_1_model #l (option_to_val <$> vs) ∗
     local_auth γ ws ∗
     ⌜dom ids = keys⌝ ∗
@@ -245,7 +245,7 @@ Section domain_G.
   Definition domain_local_init tid key : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
-    meta l (nroot.@"user") γ ∗
+    l ↪[nroot.@"user"] γ ∗
     key_id key id ∗
     local_at γ id (DfracOwn 1) None.
   #[local] Instance : CustomIpat "local_init" :=
@@ -262,7 +262,7 @@ Section domain_G.
   Definition domain_local_pointsto tid key dq v : iProp Σ :=
     ∃ l γ id,
     tid ↦ₗ□ #l ∗
-    meta l (nroot.@"user") γ ∗
+    l ↪[nroot.@"user"] γ ∗
     key_id key id ∗
     local_at γ id dq (Some v).
   #[local] Instance : CustomIpat "local_pointsto" :=

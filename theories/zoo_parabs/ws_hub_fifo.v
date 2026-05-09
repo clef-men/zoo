@@ -154,7 +154,7 @@ Section ws_hub_fifo_G.
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
     ⌜sz = γ.(metadata_size)⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     𝑡.[size] ↦□ #γ.(metadata_size) ∗
     𝑡.[queue] ↦□ γ.(metadata_queue) ∗
     𝑡.[waiters] ↦□ γ.(metadata_waiters) ∗
@@ -179,7 +179,7 @@ Section ws_hub_fifo_G.
   Definition ws_hub_fifo_model t vs : iProp Σ :=
     ∃ 𝑡 γ ws,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     mpmc_queue_1_model γ.(metadata_queue) ws ∗
     ⌜consistent vs ws⌝ ∗
     emptiness_auth γ vs.
@@ -198,7 +198,7 @@ Section ws_hub_fifo_G.
   Definition ws_hub_fifo_owner t i status empty : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     owner γ i ∗
     emptiness_at γ i empty.
   #[local] Instance : CustomIpat "owner" :=

@@ -144,7 +144,7 @@ Module base.
       ∃ l γ g root ς,
       ⌜t = #l⌝ ∗
       ⌜σ = snd <$> ς⌝ ∗
-      meta l (nroot.@"impl") γ ∗
+      l ↪[nroot.@"impl"] γ ∗
       l.[gen] ↦ #g ∗
       l.[root] ↦ #root ∗
       root ↦ᵣ §Root ∗
@@ -177,7 +177,7 @@ Module base.
       ⌜s = (t, #g, #cnode)%V⌝ ∗
       ⌜σ = snd <$> descr.(descriptor_store)⌝ ∗
       ⌜descr.(descriptor_gen) ≤ g⌝ ∗
-      meta l (nroot.@"impl") γ ∗
+      l ↪[nroot.@"impl"] γ ∗
       cnodes_elem γ cnode descr.
 
     #[local] Instance deltas_chain_timeless node δs dst :
@@ -1545,7 +1545,7 @@ Section pstore_2_G.
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
-    meta l (nroot.@"user") γ ∗
+    l ↪[nroot.@"user"] γ ∗
     mono_gmap_auth γ (DfracOwn 1) σ₀ ∗
     base.pstore_2_model t σ₀ ς.
 
@@ -1553,7 +1553,7 @@ Section pstore_2_G.
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
-    meta l (nroot.@"user") γ ∗
+    l ↪[nroot.@"user"] γ ∗
     mono_gmap_lb γ σ₀ ∗
     base.pstore_2_snapshot s t ς.
 

@@ -628,7 +628,7 @@ Section pstore_1_G.
 
   #[local] Definition snapshosts_model (t0:location) (M:map_model) : iProp Σ :=
     ∃ (γ:gname) (C:gset (location * gmap location val)), (* the model of snapshots *)
-      ⌜snapshot_inv M C⌝ ∗ meta t0 nroot γ ∗ pstore_1_map_auth γ C.
+      ⌜snapshot_inv M C⌝ ∗ t0 ↪ γ ∗ pstore_1_map_auth γ C.
 
   #[local] Definition pstore_1 (t:val) (σ:gmap location val) : iProp Σ :=
     ∃ (t0 r:location)
@@ -646,7 +646,7 @@ Section pstore_1_G.
     "[%t0 [%r [%σ0 [%g [%M ((->&%Hinv&%Hcoh&%Hgraph)&Ht0&Hr&HC&Hσ0&Hg)]]]]]".
 
   Definition pstore_1_snapshot t s σ : iProp Σ :=
-    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ meta t0 nroot γ ∗ pstore_1_map_elem γ l σ.
+    ∃ γ (t0:location) l, ⌜t=#t0 ∧ s=ValTuple [t;#l]⌝ ∗ t0 ↪ γ ∗ pstore_1_map_elem γ l σ.
 
   #[global] Instance pstore_1_snapshot_timeless t s σ :
     Timeless (pstore_1_snapshot t s σ).
@@ -1527,7 +1527,7 @@ Section pstore_1_G.
   Qed.
 
   Lemma use_snapshots_model γ (t0:location) M r σ :
-    meta t0 nroot γ -∗
+    t0 ↪ γ -∗
     snapshosts_model t0 M -∗
     pstore_1_map_elem γ r σ -∗
     ⌜exists σ1, M !! r = Some σ1 ∧ σ ⊆ σ1⌝.

@@ -105,7 +105,7 @@ Section mpmc_bstack_G.
   Definition mpmc_bstack_inv t ι cap : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     ⌜cap = γ.(metadata_capacity)⌝ ∗
     ⌜0 < γ.(metadata_capacity)⌝ ∗
     l.[capacity] ↦□ #γ.(metadata_capacity) ∗
@@ -125,7 +125,7 @@ Section mpmc_bstack_G.
   Definition mpmc_bstack_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     ⌜length vs ≤ γ.(metadata_capacity)⌝ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=

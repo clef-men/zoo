@@ -100,7 +100,7 @@ Section boxroot_G.
   Definition boxroot_global global gc : iProp Σ :=
     ∃ l_global γ roots map,
     ⌜global = #l_global⌝ ∗
-    meta l_global nroot γ ∗
+    l_global ↪ γ ∗
     ⌜dom map ≡ list_to_set roots⌝ ∗
     roots_auth γ map ∗
     xdeque_model global roots ∗
@@ -111,7 +111,7 @@ Section boxroot_G.
     ∃ root l_global γ,
     ⌜t = #root⌝ ∗
     ⌜global = #l_global⌝ ∗
-    meta l_global nroot γ ∗
+    l_global ↪ γ ∗
     roots_elem γ root ω.
 
   #[local] Lemma roots_alloc :

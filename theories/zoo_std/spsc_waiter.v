@@ -69,7 +69,7 @@ Section spsc_waiter_G.
   Definition spsc_waiter_inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     𝑡.[mutex] ↦□ γ.(metadata_mutex) ∗
     mutex_inv γ.(metadata_mutex) True ∗
     𝑡.[condition] ↦□ γ.(metadata_condition) ∗
@@ -79,19 +79,19 @@ Section spsc_waiter_G.
   Definition spsc_waiter_producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     oneshot_pending γ.(metadata_lstate) (DfracOwn (2/3)) ().
 
   Definition spsc_waiter_consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     excl γ.(metadata_consumer) ().
 
   Definition spsc_waiter_notified t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     oneshot_shot γ.(metadata_lstate) ().
 
   #[global] Instance spsc_waiter_inv_contractive t :

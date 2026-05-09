@@ -321,7 +321,7 @@ Section kcas_1_G.
     ⌜NoDup casns⌝ ∗
     [∗ list] casn ∈ removelast casns,
       ∃ η,
-      meta casn nroot η ∗
+      casn ↪ η ∗
       lstatus_lb η Finished.
   #[local] Definition history_auth γ casns :=
     history_auth' γ.(loc_metadata_history) casns.
@@ -493,14 +493,14 @@ Section kcas_1_G.
       [∗ list] j ↦ descr ∈ η.(metadata_descrs),
         if i is Some i then
           if decide (j = i) then
-            meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+            descr.(descriptor_loc) ↪ descr.(descriptor_meta) ∗
             descr.(descriptor_state).[casn] ↦□ #casn
           else
-            meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+            descr.(descriptor_loc) ↪ descr.(descriptor_meta) ∗
             descr.(descriptor_state).[casn] ↦□ #casn ∗
             loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
         else
-          meta descr.(descriptor_loc) nroot descr.(descriptor_meta) ∗
+          descr.(descriptor_loc) ↪ descr.(descriptor_meta) ∗
           descr.(descriptor_state).[casn] ↦□ #casn ∗
           loc_inv' (descr.(descriptor_loc), descr.(descriptor_meta))
     )%I.
@@ -523,7 +523,7 @@ Section kcas_1_G.
     ι.@"loc".
   #[local] Definition loc_inv_inner'' full casn_inv' loc γ : iProp Σ :=
     ∃ casns casn η i descr,
-    meta casn nroot η ∗
+    casn ↪ η ∗
     ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
     ⌜loc = descr.(descriptor_loc)⌝ ∗
     loc ↦ᵣ #descr.(descriptor_state) ∗
@@ -569,7 +569,7 @@ Section kcas_1_G.
     casn_inv'' ι (casn, η, None).
   #[local] Definition casn_inv casn ι : iProp Σ :=
     ∃ η,
-    meta casn nroot η ∗
+    casn ↪ η ∗
     casn_inv' ι casn η.
 
   #[local] Definition loc_inv' ι :=
@@ -578,12 +578,12 @@ Section kcas_1_G.
     loc_inv_inner'' true (casn_inv'' ι) loc γ.
   Definition kcas_1_loc_inv loc ι : iProp Σ :=
     ∃ γ,
-    meta loc nroot γ ∗
+    loc ↪ γ ∗
     loc_inv' ι (loc, γ).
 
   Definition kcas_1_loc_model loc v : iProp Σ :=
     ∃ γ,
-    meta loc nroot γ ∗
+    loc ↪ γ ∗
     model₁ γ v.
   #[local] Instance : CustomIpat "loc_model" :=
     " ( %γ{}
@@ -621,7 +621,7 @@ Section kcas_1_G.
     iFrameSteps.
   Qed.
   #[local] Lemma loc_inv'_elim loc γ ι :
-    meta loc nroot γ -∗
+    loc ↪ γ -∗
     loc_inv' ι (loc, γ) -∗
     inv (loc_inv_name ι) (loc_inv_inner loc γ ι).
   Proof.
@@ -873,7 +873,7 @@ Section kcas_1_G.
   Qed.
   #[local] Lemma history_running γ casns casn1 casn2 η2 i :
     history_auth γ (casns ++ [casn1]) -∗
-    meta casn2 nroot η2 -∗
+    casn2 ↪ η2 -∗
     lstatus_auth η2 (Running i) -∗
     ⌜casn2 ∉ casns⌝.
   Proof.
@@ -887,7 +887,7 @@ Section kcas_1_G.
     casn2 ∉ casns →
     casn2 ≠ casn1 →
     history_auth γ (casns ++ [casn1]) -∗
-    meta casn1 nroot η1 -∗
+    casn1 ↪ η1 -∗
     lstatus_lb η1 Finished ==∗
       history_auth γ ((casns ++ [casn1]) ++ [casn2]) ∗
       history_elem γ casn2.
@@ -904,9 +904,9 @@ Section kcas_1_G.
   #[local] Lemma history_update_running {γ casns casn1 η1} casn2 η2 i :
     casn1 ≠ casn2 →
     history_auth γ (casns ++ [casn1]) -∗
-    meta casn1 nroot η1 -∗
+    casn1 ↪ η1 -∗
     lstatus_lb η1 Finished -∗
-    meta casn2 nroot η2 -∗
+    casn2 ↪ η2 -∗
     lstatus_auth η2 (Running i) ==∗
       history_auth γ ((casns ++ [casn1]) ++ [casn2]) ∗
       history_elem γ casn2 ∗
@@ -1300,7 +1300,7 @@ Section kcas_1_G.
 
   #[local] Lemma kcas_1٠finish𑁒spec {gid casn η ι} fstatus :
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       ( ( ⌜gid ≠ metadata_winner η⌝ ∗
           identifier_model' gid
@@ -1502,7 +1502,7 @@ Section kcas_1_G.
   #[local] Lemma kcas_1٠finish𑁒spec_loser {gid casn η ι} fstatus :
     gid ≠ metadata_winner η →
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       identifier_model' gid
     }}}
@@ -1519,7 +1519,7 @@ Section kcas_1_G.
   #[local] Lemma kcas_1٠finish𑁒spec_winner_before gid casn η ι Ψ :
     gid = metadata_winner η →
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       winning η ∗
       saved_pred η.(metadata_post) Ψ ∗
@@ -1538,7 +1538,7 @@ Section kcas_1_G.
   #[local] Lemma kcas_1٠finish𑁒spec_after {gid casn η ι} i :
     metadata_size η ≤ i →
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       identifier_model' gid ∗
       lstatus_lb η (Running i)
@@ -1555,7 +1555,7 @@ Section kcas_1_G.
   Qed.
   #[local] Lemma kcas_1٠finish𑁒spec_finished gid casn η ι :
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       lstatus_lb η Finished
     }}}
@@ -1620,7 +1620,7 @@ Section kcas_1_G.
       ∀ casn η 𝑐𝑎𝑠𝑠 i,
       {{{
         ⌜𝑐𝑎𝑠𝑠 = list_to_val (drop i (metadata_cass η))⌝ ∗
-        meta casn nroot η ∗
+        casn ↪ η ∗
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i)
       }}}
@@ -1639,10 +1639,10 @@ Section kcas_1_G.
         ⌜descr1.(descriptor_loc) = descr.(descriptor_loc)⌝ ∗
         ⌜descr1.(descriptor_meta) = descr.(descriptor_meta)⌝ ∗
         ⌜casn1 ≠ casn⌝ ∗
-        meta casn nroot η ∗
+        casn ↪ η ∗
         casn_inv' ι casn η ∗
         lstatus_lb η (Running i) ∗
-        meta casn1 nroot η1 ∗
+        casn1 ↪ η1 ∗
         casn_inv' ι casn1 η1 ∗
         lstatus_lb η1 Finished ∗
         history_lb descr.(descriptor_meta) (casns1 ++ [casn1]) ∗
@@ -1659,7 +1659,7 @@ Section kcas_1_G.
       ∀ casn η i descr,
       {{{
         ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
-        meta casn nroot η ∗
+        casn ↪ η ∗
         casn_inv' ι casn η
       }}}
         kcas_1٠eval #descr.(descriptor_state)
@@ -1671,7 +1671,7 @@ Section kcas_1_G.
     ) ∧ (
       ∀ casn η,
       {{{
-        meta casn nroot η ∗
+        casn ↪ η ∗
         casn_inv' ι casn η
       }}}
         kcas_1٠determine #casn
@@ -2020,7 +2020,7 @@ Section kcas_1_G.
   #[local] Lemma kcas_1٠determine_as𑁒spec casn η ι 𝑐𝑎𝑠𝑠 i :
     𝑐𝑎𝑠𝑠 = list_to_val (drop i (metadata_cass η)) →
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η ∗
       lstatus_lb η (Running i)
     }}}
@@ -2037,7 +2037,7 @@ Section kcas_1_G.
   #[local] Lemma kcas_1٠eval𑁒spec {casn η ι} i descr :
     η.(metadata_descrs) !! i = Some descr →
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η
     }}}
       kcas_1٠eval #descr.(descriptor_state)
@@ -2053,7 +2053,7 @@ Section kcas_1_G.
   Qed.
   #[local] Lemma kcas_1٠determine𑁒spec casn η ι :
     {{{
-      meta casn nroot η ∗
+      casn ↪ η ∗
       casn_inv' ι casn η
     }}}
       kcas_1٠determine #casn

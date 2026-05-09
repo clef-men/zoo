@@ -448,7 +448,7 @@ Section mpmc_queue_2_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -463,7 +463,7 @@ Section mpmc_queue_2_G.
   Definition mpmc_queue_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}

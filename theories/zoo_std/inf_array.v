@@ -98,7 +98,7 @@ Section inf_array_G.
   Definition inf_array_inv t : iProp Σ :=
     ∃ l γ mtx,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[default] ↦□ γ.(metadata_default) ∗
     l.[mutex] ↦□ mtx ∗
     mutex_inv mtx (inv_1 l γ).
@@ -117,7 +117,7 @@ Section inf_array_G.
   Definition inf_array_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l_

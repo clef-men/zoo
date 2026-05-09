@@ -114,7 +114,7 @@ Section mpsc_queue_3_G.
   Definition mpsc_queue_3_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -128,7 +128,7 @@ Section mpsc_queue_3_G.
   Definition mpsc_queue_3_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}
@@ -142,7 +142,7 @@ Section mpsc_queue_3_G.
   Definition mpsc_queue_3_consumer t ws : iProp Σ :=
     ∃ l γ v_front front,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[front] ↦ v_front ∗
     front₁ γ front ∗
     match ws with
@@ -171,7 +171,7 @@ Section mpsc_queue_3_G.
   Definition mpsc_queue_3_closed t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     lstate_closed γ.
   #[local] Instance : CustomIpat "closed" :=
     " ( %l_

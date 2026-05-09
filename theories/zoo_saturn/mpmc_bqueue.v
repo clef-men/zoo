@@ -1351,7 +1351,7 @@ Section mpmc_bqueue_G.
   Definition mpmc_bqueue_inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_bqueue_inv 𝑡 γ ι cap.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -1365,7 +1365,7 @@ Section mpmc_bqueue_G.
   Definition mpmc_bqueue_model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpmc_bqueue_model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}

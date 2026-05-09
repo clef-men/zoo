@@ -59,7 +59,7 @@ Section zoo_G.
   Definition mpmc_stack_2_inv t ι : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv ι (inv_inner l γ).
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -73,7 +73,7 @@ Section zoo_G.
   Definition mpmc_stack_2_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}

@@ -500,7 +500,7 @@ Section ws_bdeque_2_G.
   Definition ws_bdeque_2_inv t ι cap : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ws_bdeque_2_inv 𝑡 γ ι cap.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -514,7 +514,7 @@ Section ws_bdeque_2_G.
   Definition ws_bdeque_2_model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ws_bdeque_2_model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
@@ -528,7 +528,7 @@ Section ws_bdeque_2_G.
   Definition ws_bdeque_2_owner t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ws_bdeque_2_owner 𝑡 γ ws.
   #[local] Instance : CustomIpat "owner" :=
     " ( %𝑡{}

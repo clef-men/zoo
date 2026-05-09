@@ -109,13 +109,24 @@ Section zoo_G.
     meta_token (V := header).
   Definition meta :=
     @meta location _ _ header _ _.
-  #[global] Arguments meta {_ _ _} _ _ _ : assert.
+  #[global] Arguments meta {_ _ _} l ι x : rename.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
   headers_at l hdr
 )(at level 20,
   format "l  ↦ₕ  hdr"
+) : bi_scope.
+
+Notation "l ↪[ ι ] x" := (
+  meta l ι x
+)(at level 20,
+  format "l  ↪[ ι ]  x"
+) : bi_scope.
+Notation "l ↪ x" := (
+  meta l nroot x
+)(at level 20,
+  format "l  ↪  x"
 ) : bi_scope.
 
 Section zoo_G.
@@ -151,13 +162,13 @@ Section zoo_G.
     apply _.
   Qed.
   #[global] Instance meta_timeless `{Countable A} l ι (x : A) :
-    Timeless (meta l ι x).
+    Timeless (l ↪[ι] x).
   Proof.
     apply _.
   Qed.
 
   #[global] Instance meta_persistent `{Countable A} l ι (x : A) :
-    Persistent (meta l ι x).
+    Persistent (l ↪[ι] x).
   Proof.
     apply _.
   Qed.
@@ -174,13 +185,13 @@ Section zoo_G.
   Lemma meta_set `{Countable A} {l E} (x : A) ι :
     ↑ ι ⊆ E →
     meta_token l E ⊢ |==>
-    meta l ι x.
+    l ↪[ι] x.
   Proof.
     intros. apply bi.wand_entails', meta_set; done.
   Qed.
   Lemma meta_agree `{Countable A} l ι (x1 x2 : A) :
-    meta l ι x1 -∗
-    meta l ι x2 -∗
+    l ↪[ι] x1 -∗
+    l ↪[ι] x2 -∗
     ⌜x1 = x2⌝.
   Proof.
     apply meta_agree.

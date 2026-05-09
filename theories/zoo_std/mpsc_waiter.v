@@ -69,7 +69,7 @@ Section mpsc_waiter_G.
   Definition mpsc_waiter_inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     𝑡.[mutex] ↦□ γ.(metadata_mutex) ∗
     mutex_inv γ.(metadata_mutex) True ∗
     𝑡.[condition] ↦□ γ.(metadata_condition) ∗
@@ -79,13 +79,13 @@ Section mpsc_waiter_G.
   Definition mpsc_waiter_consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     excl γ.(metadata_consumer) ().
 
   Definition mpsc_waiter_notified t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     oneshot_shot γ.(metadata_lstate) ().
 
   #[global] Instance mpsc_waiter_inv_contractive t :

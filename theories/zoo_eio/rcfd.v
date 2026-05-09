@@ -253,7 +253,7 @@ Section rcfd_G.
     ⌜t = #l⌝ ∗
     ⌜owned = γ.(metadata_owned)⌝ ∗
     ⌜fd = γ.(metadata_fd)⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv' l γ Ψ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -269,7 +269,7 @@ Section rcfd_G.
   Definition rcfd_owner t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     owner γ.
   #[local] Instance : CustomIpat "owner" :=
     " ( %l{;_}
@@ -283,7 +283,7 @@ Section rcfd_G.
   Definition rcfd_closing t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     lstate_lb γ LClosingUsers.
   #[local] Instance : CustomIpat "closing" :=
     " ( %l{;_}
@@ -528,7 +528,7 @@ Section rcfd_G.
   Opaque tokens_auth'.
 
   #[local] Lemma rcfd_owner_elim l γ :
-    meta l nroot γ -∗
+    l ↪ γ -∗
     rcfd_owner #l -∗
     owner γ.
   Proof.
@@ -537,7 +537,7 @@ Section rcfd_G.
     iSteps.
   Qed.
   #[local] Lemma rcfd_owner_elim' l γ b :
-    meta l nroot γ -∗
+    l ↪ γ -∗
     ( if b then
         rcfd_owner #l
       else
@@ -572,7 +572,7 @@ Section rcfd_G.
   Qed.
 
   #[local] Lemma rcfd_closing_elim l γ :
-    meta l nroot γ -∗
+    l ↪ γ -∗
     rcfd_closing #l -∗
     lstate_lb γ LClosingUsers.
   Proof.
@@ -581,7 +581,7 @@ Section rcfd_G.
     iSteps.
   Qed.
   #[local] Lemma rcfd_closing_elim' l γ b P :
-    meta l nroot γ -∗
+    l ↪ γ -∗
     ( if b then
         rcfd_closing #l
       else
@@ -814,7 +814,7 @@ Section rcfd_G.
         True
     end.
   #[local] Lemma specification_pre_1_2 l γ spec :
-    meta l nroot γ -∗
+    l ↪ γ -∗
     specification_pre_1 #l spec -∗
     specification_pre_2 γ spec.
   Proof.

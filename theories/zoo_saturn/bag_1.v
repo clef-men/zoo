@@ -137,7 +137,7 @@ Section bag_1_G.
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     ⌜0 < length γ.(metadata_slots)⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     array_model γ.(metadata_data) DfracDiscarded (#*@{location} γ.(metadata_slots)) ∗
     inv' l γ.
@@ -157,7 +157,7 @@ Section bag_1_G.
   Definition bag_1_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}
@@ -281,7 +281,7 @@ Section bag_1_G.
   #[local] Lemma bag_1٠push₀𑁒spec slot v l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
-      meta l nroot γ ∗
+      l ↪ γ ∗
       inv' l γ
     | ∀∀ vs,
       bag_1_model #l vs
@@ -360,7 +360,7 @@ Section bag_1_G.
   #[local] Lemma bag_1٠pop₀𑁒spec slot l γ :
     slot ∈ γ.(metadata_slots) →
     <<<
-      meta l nroot γ ∗
+      l ↪ γ ∗
       inv' l γ
     | ∀∀ vs,
       bag_1_model #l vs

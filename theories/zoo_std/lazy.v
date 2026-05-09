@@ -708,7 +708,7 @@ Section lazy_G.
   Definition lazy_inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.lazy_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
@@ -722,7 +722,7 @@ Section lazy_G.
   Definition lazy_consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.lazy_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
@@ -736,7 +736,7 @@ Section lazy_G.
   Definition lazy_result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.lazy_result γ v.
   #[local] Instance : CustomIpat "result" :=
     " ( %l{;_}

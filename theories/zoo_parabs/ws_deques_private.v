@@ -343,7 +343,7 @@ Section ws_deques_private_G.
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
     ⌜sz = γ.(metadata_size)⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[size] ↦□ #γ.(metadata_size) ∗
     l.[queues] ↦□ γ.(metadata_queues_array) ∗
     ⌜length γ.(metadata_queues) = γ.(metadata_size)⌝ ∗
@@ -379,7 +379,7 @@ Section ws_deques_private_G.
   Definition ws_deques_private_model t vss : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     models_auth γ vss.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}
@@ -393,7 +393,7 @@ Section ws_deques_private_G.
   Definition ws_deques_private_owner t i status ws : iProp Σ :=
     ∃ l γ queue vs Ψ_sender Ψ_receiver,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     ⌜γ.(metadata_queues) !! i = Some queue⌝ ∗
     queue_3_model queue vs ∗
     models_at γ i vs ∗
@@ -1207,7 +1207,7 @@ Section ws_deques_private_G.
     i = ⁺i_ →
     i_ < γ.(metadata_size) →
     {{{
-      meta l nroot γ ∗
+      l ↪ γ ∗
       l.[responses] ↦□ γ.(metadata_responses_array) ∗
       array_inv γ.(metadata_responses_array) γ.(metadata_size) ∗
       inv γ.(metadata_inv) (inv_inner γ) ∗

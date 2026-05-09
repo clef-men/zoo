@@ -1195,7 +1195,7 @@ Section vertex_G.
   Definition vertex_inv t P R : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.vertex_inv 𝑡 γ P R.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}{_{!}}
@@ -1228,7 +1228,7 @@ Section vertex_G.
   Definition vertex_model t task iter : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.vertex_model 𝑡 γ task iter.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}{_{!}}
@@ -1242,7 +1242,7 @@ Section vertex_G.
   Definition vertex_output t Q : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.vertex_output γ Q.
   #[local] Instance : CustomIpat "output" :=
     " ( %𝑡{}{_{!}}
@@ -1259,7 +1259,7 @@ Section vertex_G.
   Definition vertex_finished t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.vertex_finished γ.
   #[local] Instance : CustomIpat "finished" :=
     " ( %𝑡{}{_{!}}
@@ -1273,7 +1273,7 @@ Section vertex_G.
   Definition vertex_predecessor t iter : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.vertex_predecessor γ iter.
   #[local] Instance : CustomIpat "predecessor" :=
     " ( %𝑡{}{_{!}}
@@ -1346,7 +1346,7 @@ Section vertex_G.
     apply IH; done.
   Qed.
   #[local] Lemma vertex_wp_to_base 𝑡 γ P R task iter :
-    meta 𝑡 nroot γ -∗
+    𝑡 ↪ γ -∗
     vertex_wp #𝑡 P R task iter -∗
     base.vertex_wp 𝑡 γ P R task iter.
   Proof.

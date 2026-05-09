@@ -906,7 +906,7 @@ Section ivar_3_G.
   Definition ivar_3_inv t Ψ Ξ Ω : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_inv 𝑡 γ Ψ Ξ Ω.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -920,7 +920,7 @@ Section ivar_3_G.
   Definition ivar_3_producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_producer γ.
   #[local] Instance : CustomIpat "producer" :=
     " ( %𝑡{}
@@ -934,7 +934,7 @@ Section ivar_3_G.
   Definition ivar_3_consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %𝑡{}
@@ -948,7 +948,7 @@ Section ivar_3_G.
   Definition ivar_3_result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_result γ v.
   #[local] Instance : CustomIpat "result" :=
     " ( %𝑡{}
@@ -965,7 +965,7 @@ Section ivar_3_G.
   Definition ivar_3_waiters t waiters ωs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_waiters γ waiters ωs.
   #[local] Instance : CustomIpat "waiters" :=
     " ( %𝑡{}
@@ -979,7 +979,7 @@ Section ivar_3_G.
   Definition ivar_3_waiter t waiter ω : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_3_waiter γ waiter ω.
   #[local] Instance : CustomIpat "waiter" :=
     " ( %𝑡{}

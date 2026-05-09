@@ -814,7 +814,7 @@ Section mpsc_queue_1_G.
   Definition mpsc_queue_1_inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpsc_queue_1_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -828,7 +828,7 @@ Section mpsc_queue_1_G.
   Definition mpsc_queue_1_model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpsc_queue_1_model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}

@@ -194,7 +194,7 @@ Section spsc_bqueue_G.
       )
     ".
   #[local] Definition inv' l γ : iProp Σ :=
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     array_inv γ.(metadata_data) γ.(metadata_capacity) ∗
     inv γ.(metadata_inv) (inv_inner l γ).
@@ -224,7 +224,7 @@ Section spsc_bqueue_G.
   Definition spsc_bqueue_model t vs : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vs ∗
     ⌜length vs ≤ γ.(metadata_capacity)⌝.
   #[local] Instance : CustomIpat "model" :=
@@ -240,7 +240,7 @@ Section spsc_bqueue_G.
   Definition spsc_bqueue_producer t ws : iProp Σ :=
     ∃ l γ front_cache back,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[front_cache] ↦ #front_cache ∗
     producer₁ γ Stable back ws ∗
     front_lb γ front_cache.
@@ -260,7 +260,7 @@ Section spsc_bqueue_G.
   Definition spsc_bqueue_consumer t : iProp Σ :=
     ∃ l γ front back_cache,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[back_cache] ↦ #back_cache ∗
     consumer₁ γ Stable front ∗
     back_lb γ back_cache.

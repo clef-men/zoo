@@ -760,7 +760,7 @@ Section ivar_2_G.
   Definition ivar_2_inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_2_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
@@ -774,7 +774,7 @@ Section ivar_2_G.
   Definition ivar_2_producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_2_producer γ.
   #[local] Instance : CustomIpat "producer" :=
     " ( %l{;_}
@@ -788,7 +788,7 @@ Section ivar_2_G.
   Definition ivar_2_consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_2_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
@@ -802,7 +802,7 @@ Section ivar_2_G.
   Definition ivar_2_result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_2_result γ v.
   #[local] Instance : CustomIpat "result" :=
     " ( %l{;_}
@@ -819,7 +819,7 @@ Section ivar_2_G.
   Definition ivar_2_synchronized t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_2_synchronized γ.
   #[local] Instance : CustomIpat "synchronized" :=
     " ( %l{;_}

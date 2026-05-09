@@ -124,7 +124,7 @@ Section parray_2_G.
   Definition parray_2_model t vs : iProp Σ :=
     ∃ l γ nodes root,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[equal] ↦□ γ.(metadata_equal) ∗
     l.[data] ↦□ γ.(metadata_data) ∗
     l.[root] ↦ #root ∗
@@ -149,7 +149,7 @@ Section parray_2_G.
     ∃ node l γ,
     ⌜s = #node⌝ ∗
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     nodes_elem γ node vs.
   #[local] Instance : CustomIpat "snapshot" :=
     " ( %node

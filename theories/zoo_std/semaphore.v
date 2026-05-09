@@ -100,7 +100,7 @@ Section semaphore_G.
   Definition semaphore_inv t cap P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l.[mutex] ↦□ γ.(metadata_mutex) ∗
     mutex_inv γ.(metadata_mutex) (inv_inner l γ P) ∗
     l.[condition] ↦□ γ.(metadata_condition) ∗
@@ -122,7 +122,7 @@ Section semaphore_G.
   Definition semaphore_locked t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     tokens_frag γ.
   #[local] Instance : CustomIpat "locked" :=
     " ( %l_

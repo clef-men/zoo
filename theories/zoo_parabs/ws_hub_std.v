@@ -166,7 +166,7 @@ Section ws_hub_std_G.
   Definition ws_hub_std_inv t ι sz : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     ⌜sz = γ.(metadata_size)⌝ ∗
     𝑡.[queues] ↦□ γ.(metadata_queues) ∗
     𝑡.[rounds] ↦□ γ.(metadata_rounds) ∗
@@ -194,7 +194,7 @@ Section ws_hub_std_G.
   Definition ws_hub_std_model t vs : iProp Σ :=
     ∃ 𝑡 γ vss,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     ws_deques_public_model γ.(metadata_queues) vss ∗
     ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpat "model" :=
@@ -211,7 +211,7 @@ Section ws_hub_std_G.
   Definition ws_hub_std_owner t i status empty : iProp Σ :=
     ∃ 𝑡 γ ws round n,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     ws_deques_public_owner γ.(metadata_queues) i status ws ∗
     ⌜empty = Empty → ws = []⌝ ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗

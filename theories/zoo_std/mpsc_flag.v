@@ -299,7 +299,7 @@ Section mpsc_flag_G.
   Definition mpsc_flag_inv t P : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpsc_flag_inv 𝑡 γ P.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
@@ -313,7 +313,7 @@ Section mpsc_flag_G.
   Definition mpsc_flag_consumer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpsc_flag_consumer γ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
@@ -327,7 +327,7 @@ Section mpsc_flag_G.
   Definition mpsc_flag_resolved t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.mpsc_flag_resolved γ.
   #[local] Instance : CustomIpat "resolved" :=
     " ( %l{;_}

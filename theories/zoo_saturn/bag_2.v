@@ -199,7 +199,7 @@ Section bag_2_G.
     ∃ l γ,
     ⌜t = #l⌝ ∗
     ⌜ι = γ.(metadata_inv)⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv' l γ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l
@@ -214,7 +214,7 @@ Section bag_2_G.
   Definition bag_2_model t vss : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     model₁ γ vss.
   #[local] Instance : CustomIpat "model" :=
     " ( %l{;_}
@@ -229,7 +229,7 @@ Section bag_2_G.
     ∃ l γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟,
     ⌜t = #l⌝ ∗
     ⌜producer = 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_node) ↦ₕ Header §Node 2 ∗
     queues_at γ 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_node) 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) ∗
     spmc_queue_inv 𝑝𝑟𝑜𝑑𝑢𝑐𝑒𝑟.(producer_queue) (γ.(metadata_inv).@"producer") ∗
@@ -251,7 +251,7 @@ Section bag_2_G.
   Definition bag_2_consumer t consumer : iProp Σ :=
     ∃ l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val),
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     ⌜consumer = #𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟⌝ ∗
     𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
     queues_elem γ queue.
@@ -508,7 +508,7 @@ Section bag_2_G.
 
   #[local] Lemma bag_2٠add_producer₀𑁒spec l γ (queue : val) :
     <<<
-      meta l nroot γ ∗
+      l ↪ γ ∗
       inv' l γ ∗
       spmc_queue_inv queue (γ.(metadata_inv).@"producer") ∗
       spmc_queue_model queue []
@@ -577,7 +577,7 @@ Section bag_2_G.
   Qed.
   #[local] Lemma bag_2٠add_producer𑁒spec l γ (queue : val) :
     <<<
-      meta l nroot γ ∗
+      l ↪ γ ∗
       inv' l γ ∗
       spmc_queue_inv queue (γ.(metadata_inv).@"producer") ∗
       spmc_queue_model queue []
@@ -720,7 +720,7 @@ Section bag_2_G.
 
   #[local] Lemma bag_2٠pop₀𑁒spec l γ 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 (queue : option val) nodes :
     <<<
-      meta l nroot γ ∗
+      l ↪ γ ∗
       inv' l γ ∗
       𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟.[consumer_queue] ↦ queue ∗
       queues_elem γ queue ∗

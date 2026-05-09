@@ -43,7 +43,7 @@ Section mutex_G.
   Definition mutex_init t b : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     l ↦ᵣ #b ∗
     if b then True else locked γ.
 
@@ -60,13 +60,13 @@ Section mutex_G.
   Definition mutex_inv t P : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     inv nroot (inv_inner l γ P).
 
   Definition mutex_locked t : iProp Σ :=
     ∃ l γ,
     ⌜t = #l⌝ ∗
-    meta l nroot γ ∗
+    l ↪ γ ∗
     locked γ.
 
   #[global] Instance mutex_inv_contractive t :

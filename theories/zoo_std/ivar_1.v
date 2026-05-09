@@ -643,7 +643,7 @@ Section ivar_1_G.
   Definition ivar_1_inv t Ψ Ξ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_1_inv 𝑡 γ Ψ Ξ.
   #[local] Instance : CustomIpat "inv" :=
     " ( %l{}
@@ -657,7 +657,7 @@ Section ivar_1_G.
   Definition ivar_1_producer t : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_1_producer γ.
   #[local] Instance : CustomIpat "producer" :=
     " ( %l{;_}
@@ -671,7 +671,7 @@ Section ivar_1_G.
   Definition ivar_1_consumer t Χ : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_1_consumer γ Χ.
   #[local] Instance : CustomIpat "consumer" :=
     " ( %l{;_}
@@ -685,7 +685,7 @@ Section ivar_1_G.
   Definition ivar_1_result t v : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.ivar_1_result γ v.
   #[local] Instance : CustomIpat "result" :=
     " ( %l{;_}

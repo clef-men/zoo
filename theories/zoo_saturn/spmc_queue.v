@@ -912,7 +912,7 @@ Section spmc_queue_G.
   Definition spmc_queue_inv t ι : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.spmc_queue_inv 𝑡 γ ι.
   #[local] Instance : CustomIpat "inv" :=
     " ( %𝑡{}
@@ -926,7 +926,7 @@ Section spmc_queue_G.
   Definition spmc_queue_producer t ws : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.spmc_queue_producer 𝑡 γ ws.
   #[local] Instance : CustomIpat "producer" :=
     " ( %𝑡{}
@@ -940,7 +940,7 @@ Section spmc_queue_G.
   Definition spmc_queue_model t vs : iProp Σ :=
     ∃ 𝑡 γ,
     ⌜t = #𝑡⌝ ∗
-    meta 𝑡 nroot γ ∗
+    𝑡 ↪ γ ∗
     base.spmc_queue_model γ vs.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡{}
