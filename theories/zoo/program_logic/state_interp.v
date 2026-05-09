@@ -100,7 +100,7 @@ Class ZooG Σ :=
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Definition headers_auth :=
+  #[local] Definition headers_auth :=
     gen_heap_interp (V := header).
   Definition headers_at l hdr :=
     pointsto l DfracDiscarded hdr.
@@ -201,7 +201,7 @@ End zoo_G.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  Definition heap_auth :=
+  #[local] Definition heap_auth :=
     gen_heap_interp (V := val).
   Definition pointsto :=
     pointsto (V := val).
