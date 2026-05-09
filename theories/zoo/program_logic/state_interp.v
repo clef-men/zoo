@@ -931,18 +931,24 @@ End zoo_G.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Lemma big_sepM_heap_array (Φ : location → val → iProp Σ) l vs :
-    ([∗ map] l' ↦ v ∈ heap_array l vs, Φ l' v) ⊢
+  #[local] Lemma big_sepM_heap_chunk (Φ : location → val → iProp Σ) l vs :
+    ([∗ map] l ↦ v ∈ heap_chunk l vs, Φ l v) ⊢
     [∗ list] i ↦ v ∈ vs, Φ (l +ₗ i) v.
   Proof.
-    iInduction vs as [| v vs] "IH" forall (l) => /=; first iSteps.
+    iInduction vs as [| v vs] "IH" forall (l) => /=. 1: iSteps.
     iIntros "H".
     rewrite big_sepM_insert.
-    { clear. apply eq_None_ne_Some. intros v (k & Hk & Hl & _)%heap_array_lookup.
-      rewrite -{1}(location_add_0 l) in Hl. naive_solver lia.
+    { clear.
+      apply eq_None_ne_Some. intros v (k & Hk & Hl & _)%heap_chunk_lookup.
+      rewrite -{1}(location_add_0 l) in Hl.
+      naive_solver lia.
     }
-    rewrite location_add_0. iSteps.
-    setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <- Z.add_1_l. setoid_rewrite <- location_add_assoc. iSteps.
+    iEval (rewrite location_add_0).
+    iSteps.
+    iEval (setoid_rewrite Nat2Z.inj_succ).
+    iEval (setoid_rewrite <- Z.add_1_l).
+    iEval (setoid_rewrite <- location_add_assoc).
+    iSteps.
   Qed.
 
   Lemma state_interp_alloc {ns nt σ κs} l tag vs :
@@ -961,9 +967,9 @@ Section zoo_G.
     iIntros "%Hheaders_lookup %Hheap_lookup (:state_interp)".
     iMod (gen_heap_alloc with "Hheaders_interp") as "($ & Hl_header & $)"; first done.
     iMod (gen_heap.pointsto_persist with "Hl_header") as "$".
-    iMod (gen_heap_alloc_big _ (heap_array _ _) with "Hheap_interp") as "($ & Hl & _)".
-    { apply heap_array_map_disjoint. done. }
-    rewrite big_sepM_heap_array. iSteps.
+    iMod (gen_heap_alloc_big _ (heap_chunk _ _) with "Hheap_interp") as "($ & Hl & _)".
+    { apply heap_chunk_map_disjoint. done. }
+    rewrite big_sepM_heap_chunk. iSteps.
   Qed.
 
   Lemma state_interp_headers_at_valid ns nt σ κs l hdr :

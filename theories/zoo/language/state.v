@@ -14,6 +14,7 @@ From zoo Require Import
 Implicit Types l : location.
 Implicit Types v w : val.
 Implicit Types vs : list val.
+Implicit Types h : gmap location val.
 
 Record header := Header
   { header_tag : nat
@@ -76,22 +77,22 @@ Definition state_add_local v :=
 Definition state_add_prophet pid :=
   state_update_prophets $ ({[pid]} ∪.).
 
-Fixpoint heap_array l vs : gmap location val :=
+Fixpoint heap_chunk l vs : gmap location val :=
   match vs with
   | [] =>
       ∅
   | v :: vs =>
-      <[l := v]> (heap_array (l +ₗ 1) vs)
+      <[l := v]> (heap_chunk (l +ₗ 1) vs)
   end.
-#[global] Arguments heap_array _ !_ / : assert.
+#[global] Arguments heap_chunk _ !_ / : assert.
 
-Lemma heap_array_singleton l v :
-  heap_array l [v] = {[l := v]}.
+Lemma heap_chunk_singleton l v :
+  heap_chunk l [v] = {[l := v]}.
 Proof.
-  rewrite /heap_array insert_empty //.
+  rewrite /heap_chunk insert_empty //.
 Qed.
-Lemma heap_array_lookup l vs w k :
-  heap_array l vs !! k = Some w ↔
+Lemma heap_chunk_lookup l vs w k :
+  heap_chunk l vs !! k = Some w ↔
     ∃ j,
     (0 ≤ j)%Z ∧
     k = l +ₗ j ∧
@@ -112,22 +113,22 @@ Proof.
     rewrite Hj /= in Hil.
     eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
 Qed.
-Lemma heap_array_map_disjoint heap l vs :
+Lemma heap_chunk_map_disjoint h l vs :
   ( ∀ i,
     i < length vs →
-    heap !! (l +ₗ i) = None
+    h !! (l +ₗ i) = None
   ) →
-  heap_array l vs ##ₘ heap.
+  heap_chunk l vs ##ₘ h.
 Proof.
   intros Hdisj. apply map_disjoint_spec=> l' v1 v2.
-  intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_array_lookup ?.
+  intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_chunk_lookup ?.
   ospecialize* (Hdisj ₊j); first lia.
   rewrite Z2Nat.id // in Hdisj. naive_solver.
 Qed.
 
 Definition state_alloc l hdr vs σ :=
   {|state_headers := <[l := hdr]> σ.(state_headers)
-  ; state_heap := heap_array l vs ∪ σ.(state_heap)
+  ; state_heap := heap_chunk l vs ∪ σ.(state_heap)
   ; state_locals := σ.(state_locals)
   ; state_prophets := σ.(state_prophets)
   |}.
