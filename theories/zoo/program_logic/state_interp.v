@@ -350,8 +350,8 @@ Section zoo_G.
   Qed.
 
   Lemma big_sepL2_pointsto_agree ls dq1 vs1 dq2 vs2 :
-    ([∗ list] k ↦ l; v ∈ ls; vs1, l ↦{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls; vs2, l ↦{dq2} v) -∗
+    ([∗ list] l; v ∈ ls; vs1, l ↦{dq1} v) -∗
+    ([∗ list] l; v ∈ ls; vs2, l ↦{dq2} v) -∗
     ⌜vs1 = vs2⌝.
   Proof.
     iIntros "H1 H2".
@@ -364,8 +364,8 @@ Section zoo_G.
     iApply (pointsto_agree with "Hl1 Hl2").
   Qed.
   Lemma big_sepL2_ref_pointsto_agree ls dq1 vs1 dq2 vs2 :
-    ([∗ list] k ↦ l; v ∈ ls; vs1, l ↦ᵣ{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls; vs2, l ↦ᵣ{dq2} v) -∗
+    ([∗ list] l; v ∈ ls; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] l; v ∈ ls; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 = vs2⌝.
   Proof.
     setoid_rewrite location_add_0.
@@ -374,8 +374,8 @@ Section zoo_G.
 
   Lemma big_sepL2_pointsto_prefix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `prefix_of` ls2 →
-    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
+    ([∗ list] l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
+    ([∗ list] l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
     ⌜vs1 `prefix_of` vs2⌝.
   Proof.
     iIntros ((ls & ->)) "H1 H2".
@@ -385,8 +385,8 @@ Section zoo_G.
   Qed.
   Lemma big_sepL2_ref_pointsto_prefix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `prefix_of` ls2 →
-    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
+    ([∗ list] l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 `prefix_of` vs2⌝.
   Proof.
     setoid_rewrite location_add_0.
@@ -395,8 +395,8 @@ Section zoo_G.
 
   Lemma big_sepL2_pointsto_suffix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `suffix_of` ls2 →
-    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
+    ([∗ list] l; v ∈ ls1; vs1, l ↦{dq1} v) -∗
+    ([∗ list] l; v ∈ ls2; vs2, l ↦{dq2} v) -∗
     ⌜vs1 `suffix_of` vs2⌝.
   Proof.
     iIntros ((ls & ->)) "H1 H2".
@@ -406,8 +406,8 @@ Section zoo_G.
   Qed.
   Lemma big_sepL2_ref_pointsto_suffix ls1 dq1 vs1 ls2 dq2 vs2 :
     ls1 `suffix_of` ls2 →
-    ([∗ list] k ↦ l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
-    ([∗ list] k ↦ l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
+    ([∗ list] l; v ∈ ls1; vs1, l ↦ᵣ{dq1} v) -∗
+    ([∗ list] l; v ∈ ls2; vs2, l ↦ᵣ{dq2} v) -∗
     ⌜vs1 `suffix_of` vs2⌝.
   Proof.
     setoid_rewrite location_add_0.
