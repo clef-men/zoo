@@ -471,8 +471,8 @@ Section zoo_G₀.
 
   #[local] Definition prophet_map_interp' γ_prophets κs pids :=
     prophet_map_interp γ_prophets κs pids.
-  #[local] Definition prophet_model' γ_prophets pid dq prophs :=
-    prophet_model γ_prophets pid dq prophs.
+  #[local] Definition prophet_model' γ_prophets pid prophs :=
+    prophet_model γ_prophets pid prophs.
 
   #[local] Lemma prophet_map_alloc κs pids :
     ⊢ |==>
@@ -491,85 +491,18 @@ Section zoo_G.
   Definition prophet_model :=
     prophet_model zoo_G_prophets_name.
 
-  #[global] Instance prophet_model_timeless pid dq prophs :
-    Timeless (prophet_model pid dq prophs).
+  #[global] Instance prophet_model_timeless pid prophs :
+    Timeless (prophet_model pid prophs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance prophet_model_persistent pid prophs :
-    Persistent (prophet_model pid DfracDiscarded prophs).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance prophet_model_fractional pid prophs :
-    Fractional (λ q, prophet_model pid (DfracOwn q) prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_model_as_fractional pid q prophs :
-    AsFractional (prophet_model pid (DfracOwn q) prophs) (λ q, prophet_model pid (DfracOwn q) prophs) q.
-  Proof.
-    apply _.
-  Qed.
-
-  Lemma prophet_model_valid pid dq prophs :
-    prophet_model pid dq prophs ⊢
-    ⌜✓ dq⌝.
-  Proof.
-    apply prophet_model_valid.
-  Qed.
-  Lemma prophet_model_combine pid dq1 prophs1 dq2 prophs2 :
-    prophet_model pid dq1 prophs1 -∗
-    prophet_model pid dq2 prophs2 -∗
-      ⌜prophs1 = prophs2⌝ ∗
-      prophet_model pid (dq1 ⋅ dq2) prophs1.
-  Proof.
-    apply prophet_model_combine.
-  Qed.
-  Lemma prophet_model_valid_2 pid dq1 prophs1 dq2 prophs2 :
-    prophet_model pid dq1 prophs1 -∗
-    prophet_model pid dq2 prophs2 -∗
-      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
-      ⌜prophs1 = prophs2⌝.
-  Proof.
-    apply prophet_model_valid_2.
-  Qed.
-  Lemma prophet_model_agree pid dq1 prophs1 dq2 prophs2 :
-    prophet_model pid dq1 prophs1 -∗
-    prophet_model pid dq2 prophs2 -∗
-    ⌜prophs1 = prophs2⌝.
-  Proof.
-    apply prophet_model_agree.
-  Qed.
-  Lemma prophet_model_dfrac_ne pid1 dq1 prophs1 pid2 dq2 prophs2 :
-    ¬ ✓ (dq1 ⋅ dq2) →
-    prophet_model pid1 dq1 prophs1 -∗
-    prophet_model pid2 dq2 prophs2 -∗
-    ⌜pid1 ≠ pid2⌝.
-  Proof.
-    apply prophet_model_dfrac_ne.
-  Qed.
-  Lemma prophet_model_ne pid1 prophs1 pid2 dq2 prophs2 :
-    prophet_model pid1 (DfracOwn 1) prophs1 -∗
-    prophet_model pid2 dq2 prophs2 -∗
-    ⌜pid1 ≠ pid2⌝.
-  Proof.
-    apply prophet_model_ne.
-  Qed.
-  Lemma prophet_model_exclusive pid prophs1 dq2 prophs2 :
-    prophet_model pid (DfracOwn 1) prophs1 -∗
-    prophet_model pid dq2 prophs2 -∗
+  Lemma prophet_model_exclusive pid prophs1 prophs2 :
+    prophet_model pid prophs1 -∗
+    prophet_model pid prophs2 -∗
     False.
   Proof.
     apply prophet_model_exclusive.
-  Qed.
-  Lemma prophet_model_persist pid dq prophs :
-    prophet_model pid dq prophs ⊢ |==>
-    prophet_model pid DfracDiscarded prophs.
-  Proof.
-    apply prophet_model_persist.
   Qed.
 
   Lemma prophet_map_new {κs pids} pid :
@@ -577,18 +510,18 @@ Section zoo_G.
     prophet_map_interp κs pids ⊢ |==>
       ∃ prophs,
       prophet_map_interp κs ({[pid]} ∪ pids) ∗
-      prophet_model pid (DfracOwn 1) prophs.
+      prophet_model pid prophs.
   Proof.
     apply prophet_map_new.
   Qed.
 
   Lemma prophet_map_resolve pid proph xprophs pids prophs :
     prophet_map_interp ((pid, proph) :: xprophs) pids -∗
-    prophet_model pid (DfracOwn 1) prophs ==∗
+    prophet_model pid prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
       prophet_map_interp xprophs pids ∗
-      prophet_model pid (DfracOwn 1) prophs'.
+      prophet_model pid prophs'.
   Proof.
     apply prophet_map_resolve.
   Qed.
@@ -1154,7 +1087,7 @@ Section zoo_G.
     state_interp ns nt σ κs ⊢ |==>
       ∃ prophs,
       state_interp ns nt (state_add_prophet pid σ) κs ∗
-      prophet_model pid (DfracOwn 1) prophs.
+      prophet_model pid prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
     iMod (prophet_map_new with "Hprophets_interp") as "(%prophs & Hprophets_interp & Hpid)". 1: done.
@@ -1162,11 +1095,11 @@ Section zoo_G.
   Qed.
   Lemma state_interp_prophet_resolve ns nt σ κs pid proph prophs :
     state_interp ns nt σ ((pid, proph) :: κs) -∗
-    prophet_model pid (DfracOwn 1) prophs ==∗
+    prophet_model pid prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
       state_interp ns nt σ κs ∗
-      prophet_model pid (DfracOwn 1) prophs'.
+      prophet_model pid prophs'.
   Proof.
     iIntros "(:state_interp) Hpid".
     iMod (prophet_map_resolve with "Hprophets_interp Hpid") as "(%prophs' & -> & Hprophets_interp & Hpid)".

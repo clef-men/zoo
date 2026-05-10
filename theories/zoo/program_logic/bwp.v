@@ -921,11 +921,11 @@ Section zoo_G.
   Lemma bwp_resolve e pid v prophs tid E Φ :
     Atomic e →
     to_val e = None →
-    prophet_model pid (DfracOwn 1) prophs -∗
+    prophet_model pid prophs -∗
     BWP e ∶ tid @ E {{ res,
       ∀ prophs',
       ⌜prophs = (res, v) :: prophs'⌝ -∗
-      prophet_model pid (DfracOwn 1) prophs' -∗
+      prophet_model pid prophs' -∗
       Φ res
     }} -∗
     BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.

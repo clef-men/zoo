@@ -67,8 +67,8 @@ Section prophet_map_G.
     ⌜dom prophets ⊆ pids⌝ ∗
     ghost_map_auth γ 1 prophets.
 
-  Definition prophet_model γ pid dq prophs : iProp Σ :=
-    ghost_map_elem γ pid dq prophs.
+  Definition prophet_model γ pid prophs : iProp Σ :=
+    ghost_map_elem γ pid (DfracOwn 1) prophs.
 
   Lemma prophet_map_alloc xprophs pids :
     ⊢ |==>
@@ -78,93 +78,19 @@ Section prophet_map_G.
     iMod ghost_map_alloc_empty as "(%γ & $)" => //.
   Qed.
 
-  #[global] Instance prophet_model_timeless γ pid dq prophs :
-    Timeless (prophet_model γ pid dq prophs).
+  #[global] Instance prophet_model_timeless γ pid prophs :
+    Timeless (prophet_model γ pid prophs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance prophet_model_persistent γ pid prophs :
-    Persistent (prophet_model γ pid DfracDiscarded prophs).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance prophet_model_fractional γ pid prophs :
-    Fractional (λ q, prophet_model γ pid (DfracOwn q) prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_model_as_fractional γ pid q prophs :
-    AsFractional (prophet_model γ pid (DfracOwn q) prophs) (λ q, prophet_model γ pid (DfracOwn q) prophs) q.
-  Proof.
-    apply _.
-  Qed.
-
-  Lemma prophet_model_valid γ pid dq prophs :
-    prophet_model γ pid dq prophs ⊢
-    ⌜✓ dq⌝.
-  Proof.
-    iApply ghost_map_elem_valid.
-  Qed.
-  Lemma prophet_model_combine γ pid dq1 prophs1 dq2 prophs2 :
-    prophet_model γ pid dq1 prophs1 -∗
-    prophet_model γ pid dq2 prophs2 -∗
-      ⌜prophs1 = prophs2⌝ ∗
-      prophet_model γ pid (dq1 ⋅ dq2) prophs1.
-  Proof.
-    iIntros "Hmodel1 Hmodel2".
-    iDestruct (ghost_map_elem_combine with "Hmodel1 Hmodel2") as "($ & <-)".
-    iSteps.
-  Qed.
-  Lemma prophet_model_valid_2 γ pid dq1 prophs1 dq2 prophs2 :
-    prophet_model γ pid dq1 prophs1 -∗
-    prophet_model γ pid dq2 prophs2 -∗
-      ⌜✓ (dq1 ⋅ dq2)⌝ ∗
-      ⌜prophs1 = prophs2⌝.
-  Proof.
-    iIntros "Hmodel1 Hmodel2".
-    iDestruct (prophet_model_combine with "Hmodel1 Hmodel2") as "(<- & Hmodel)".
-    iDestruct (prophet_model_valid with "Hmodel") as "$".
-    iSteps.
-  Qed.
-  Lemma prophet_model_agree γ pid dq1 prophs1 dq2 prophs2 :
-    prophet_model γ pid dq1 prophs1 -∗
-    prophet_model γ pid dq2 prophs2 -∗
-    ⌜prophs1 = prophs2⌝.
-  Proof.
-    iIntros "Hmodel1 Hmodel2".
-    iDestruct (prophet_model_combine with "Hmodel1 Hmodel2") as "($ & _)".
-  Qed.
-  Lemma prophet_model_dfrac_ne γ pid1 dq1 prophs1 pid2 dq2 prophs2 :
-    ¬ ✓ (dq1 ⋅ dq2) →
-    prophet_model γ pid1 dq1 prophs1 -∗
-    prophet_model γ pid2 dq2 prophs2 -∗
-    ⌜pid1 ≠ pid2⌝.
-  Proof.
-    iIntros "% Hmodel1 Hmodel2 ->".
-    iDestruct (prophet_model_valid_2 with "Hmodel1 Hmodel2") as "(% & _)". done.
-  Qed.
-  Lemma prophet_model_ne γ pid1 prophs1 pid2 dq2 prophs2 :
-    prophet_model γ pid1 (DfracOwn 1) prophs1 -∗
-    prophet_model γ pid2 dq2 prophs2 -∗
-    ⌜pid1 ≠ pid2⌝.
-  Proof.
-    iApply prophet_model_dfrac_ne; [done.. | intros []%(exclusive_l _)].
-  Qed.
-  Lemma prophet_model_exclusive γ pid prophs1 dq2 prophs2 :
-    prophet_model γ pid (DfracOwn 1) prophs1 -∗
-    prophet_model γ pid dq2 prophs2 -∗
+  Lemma prophet_model_exclusive γ pid prophs1 prophs2 :
+    prophet_model γ pid prophs1 -∗
+    prophet_model γ pid prophs2 -∗
     False.
   Proof.
-    iIntros "Hmodel1 Hmodel2".
-    iDestruct (prophet_model_ne with "Hmodel1 Hmodel2") as %?. done.
-  Qed.
-  Lemma prophet_model_persist γ pid dq prophs :
-    prophet_model γ pid dq prophs ⊢ |==>
-    prophet_model γ pid DfracDiscarded prophs.
-  Proof.
-    iApply ghost_map_elem_persist.
+    iIntros "Hmodel_1 Hmodel_2".
+    iDestruct (ghost_map_elem_ne with "Hmodel_1 Hmodel_2") as %[] => //.
   Qed.
 
   Lemma prophet_map_new {γ xprophs pids} pid :
@@ -172,7 +98,7 @@ Section prophet_map_G.
     prophet_map_interp γ xprophs pids ⊢ |==>
       ∃ prophs,
       prophet_map_interp γ xprophs ({[pid]} ∪ pids) ∗
-      prophet_model γ pid (DfracOwn 1) prophs.
+      prophet_model γ pid prophs.
   Proof.
     iIntros "%Hpid (%prophets & %Hprophets & %Hpids & Hauth)".
     iMod (ghost_map_insert pid (prophecies_resolve xprophs pid) with "Hauth") as "(Hauth & Helem)".
@@ -184,11 +110,11 @@ Section prophet_map_G.
 
   Lemma prophet_map_resolve γ pid proph xprophs pids prophs :
     prophet_map_interp γ ((pid, proph) :: xprophs) pids -∗
-    prophet_model γ pid (DfracOwn 1) prophs ==∗
+    prophet_model γ pid prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
       prophet_map_interp γ xprophs pids ∗
-      prophet_model γ pid (DfracOwn 1) prophs'.
+      prophet_model γ pid prophs'.
   Proof.
     iIntros "(%prophets & %Hprophets & %Hpids & Hauth) Hp".
     iCombine "Hauth Hp" gives %Hlookup.

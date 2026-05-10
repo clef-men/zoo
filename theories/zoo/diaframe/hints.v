@@ -107,10 +107,10 @@ Section pointsto.
 
     #[global] Instance proph_exclusive pid prophs prophs' :
       MergableConsume
-        (prophet_model pid (DfracOwn 1) prophs)
+        (prophet_model pid prophs)
         true
         (λ b Pin Pout,
-          TCAnd (TCEq Pin (prophet_model pid (DfracOwn 1) prophs')) $
+          TCAnd (TCEq Pin (prophet_model pid prophs')) $
           TCEq Pout (False%I)
         ).
     Proof.
@@ -121,9 +121,9 @@ Section pointsto.
 
     #[global] Instance prophs_are_ne pid prophs pid' prophs' :
       MergablePersist
-      (prophet_model pid (DfracOwn 1) prophs)
+      (prophet_model pid prophs)
       (λ b Pin Pout,
-        TCAnd (TCEq Pin (prophet_model pid' (DfracOwn 1) prophs')) $
+        TCAnd (TCEq Pin (prophet_model pid' prophs')) $
         TCEq Pout ⌜pid ≠ pid'⌝
       )%I.
     Proof.

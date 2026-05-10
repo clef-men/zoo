@@ -331,7 +331,7 @@ Module base.
       ∃ id prophs,
       prophet_multi_full prophet_identifier γ.(inf_mpmc_queue_2_name_prophet_name) i prophs ∗
       ⌜head prophs = Some id⌝ ∗
-      identifier_model id (DfracOwn 1).
+      identifier_model id.
     #[local] Instance : CustomIpat "winner" :=
       " ( %id{}
         & %prophs{}
