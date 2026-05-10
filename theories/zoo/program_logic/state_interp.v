@@ -12,8 +12,7 @@ From zoo.iris.bi Require Import
 From zoo.iris.base_logic Require Import
   lib.auth_nat_max
   lib.ghost_list
-  lib.mono_list
-  lib.prophet_map.
+  lib.mono_list.
 From zoo.iris Require Import
   diaframe.
 From zoo.language Require Export
@@ -24,12 +23,16 @@ From zoo Require Import
   options.
 
 Implicit Types cnt ns nt : nat.
+Implicit Type pid : prophet_id.
 Implicit Types tid : thread_id.
 Implicit Types l : location.
 Implicit Types v : val.
 Implicit Types vs : list val.
 Implicit Types hdr : header.
 Implicit Types σ : state.
+Implicit Type proph : val * val.
+Implicit Type prophs : list (val * val).
+Implicit Type prophets : gmap prophet_id (list (val * val)).
 Implicit Types κ κs : list observation.
 
 Parameter zoo_counter : location.
@@ -48,7 +51,7 @@ Record state_wf σ param :=
 
 Class ZooG₀ Σ :=
   { #[local] zoo_G₀_heap_G :: ghost_mapG Σ location val
-  ; #[local] zoo_G_prophets_G :: ProphetMapG Σ prophet_id (val * val)
+  ; #[local] zoo_G_prophets_G :: ghost_mapG Σ prophet_id (list (val * val))
   ; #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
   ; #[local] zoo_G₀_locals_G :: GhostListG Σ val
   ; #[local] zoo_G₀_counter_G :: MonoListG Σ val
@@ -56,7 +59,7 @@ Class ZooG₀ Σ :=
 
 #[local] Definition zoo_Σ₀ :=
   #[ghost_mapΣ location val
-  ; prophet_map_Σ prophet_id (val * val)
+  ; ghost_mapΣ prophet_id (list (val * val))
   ; auth_nat_max_Σ
   ; ghost_list_Σ val
   ; mono_list_Σ val
@@ -203,9 +206,9 @@ Section zoo_G₀.
   Context `{zoo_G₀ : !ZooG₀ Σ}.
 
   #[local] Definition heap_auth' γ_heap h :=
-    ghost_map_auth γ_heap 1 h.
+    ghost_map_auth (V := val) γ_heap 1 h.
   #[local] Definition pointsto' γ_heap l dq v :=
-    ghost_map_elem γ_heap l dq v.
+    ghost_map_elem (V := val) γ_heap l dq v.
 
   #[local] Lemma heap_alloc h :
     ⊢ |==>
@@ -466,30 +469,62 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
+Section resolve_prophecies.
+  #[local] Fixpoint resolve_prophecies κs pid :=
+    match κs with
+    | [] =>
+        []
+    | κ :: κs =>
+        if decide (pid = κ.1) then
+          κ.2 :: resolve_prophecies κs pid
+        else
+          resolve_prophecies κs pid
+    end.
+
+  #[local] Definition resolve_prophets prophets κs :=
+    map_Forall (λ pid prophs, prophs = resolve_prophecies κs pid) prophets.
+
+  #[local] Lemma resolve_prophets_insert κs pid prophets :
+    resolve_prophets prophets κs →
+    pid ∉ dom prophets →
+    resolve_prophets (<[pid := resolve_prophecies κs pid]> prophets) κs.
+  Proof.
+    intros Hprophets Hpid pid' prophs Hlookup.
+    destruct_decide (pid = pid') as -> | Hne.
+    - rewrite lookup_insert_eq in Hlookup.
+      inversion Hlookup. done.
+    - rewrite lookup_insert_ne // in Hlookup.
+      apply Hprophets. done.
+  Qed.
+End resolve_prophecies.
+
 Section zoo_G₀.
   Context `{zoo_G₀ : !ZooG₀ Σ}.
 
-  #[local] Definition prophet_map_interp' γ_prophets κs pids :=
-    prophet_map_interp γ_prophets κs pids.
+  #[local] Definition prophets_auth' γ_prophets κs pids : iProp Σ :=
+    ∃ prophets,
+    ⌜resolve_prophets prophets κs⌝ ∗
+    ⌜dom prophets ⊆ pids⌝ ∗
+    ghost_map_auth γ_prophets 1 prophets.
   #[local] Definition prophet_model' γ_prophets pid prophs :=
-    prophet_model γ_prophets pid prophs.
+    ghost_map_elem γ_prophets pid (DfracOwn 1) prophs.
 
-  #[local] Lemma prophet_map_alloc κs pids :
+  #[local] Lemma prophets_alloc κs pids :
     ⊢ |==>
       ∃ γ_prophets,
-      prophet_map_interp' γ_prophets κs pids.
+      prophets_auth' γ_prophets κs pids.
   Proof.
-    apply prophet_map_alloc.
+    iMod ghost_map_alloc_empty as "(%γ & $)" => //.
   Qed.
 End zoo_G₀.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Definition prophet_map_interp :=
-    prophet_map_interp zoo_G_prophets_name.
+  #[local] Definition prophets_auth :=
+    prophets_auth' zoo_G_prophets_name.
   Definition prophet_model :=
-    prophet_model zoo_G_prophets_name.
+    prophet_model' zoo_G_prophets_name.
 
   #[global] Instance prophet_model_timeless pid prophs :
     Timeless (prophet_model pid prophs).
@@ -502,32 +537,50 @@ Section zoo_G.
     prophet_model pid prophs2 -∗
     False.
   Proof.
-    apply prophet_model_exclusive.
+    iIntros "H1 H2".
+    iDestruct (ghost_map_elem_ne with "H1 H2") as %[] => //.
   Qed.
 
-  Lemma prophet_map_new {κs pids} pid :
+  #[local] Lemma prophets_new {κs pids} pid :
     pid ∉ pids →
-    prophet_map_interp κs pids ⊢ |==>
+    prophets_auth κs pids ⊢ |==>
       ∃ prophs,
-      prophet_map_interp κs ({[pid]} ∪ pids) ∗
+      prophets_auth κs ({[pid]} ∪ pids) ∗
       prophet_model pid prophs.
   Proof.
-    apply prophet_map_new.
+    iIntros "%Hpid (%prophets & %Hprophets & %Hpids & Hauth)".
+    iMod (ghost_map_insert pid (resolve_prophecies κs pid) with "Hauth") as "(Hauth & Helem)".
+    { apply not_elem_of_dom. set_solver. }
+    iFrame. iPureIntro. split.
+    - apply resolve_prophets_insert; first done. set_solver.
+    - rewrite dom_insert. set_solver.
   Qed.
 
-  Lemma prophet_map_resolve pid proph xprophs pids prophs :
-    prophet_map_interp ((pid, proph) :: xprophs) pids -∗
+  #[local] Lemma prophets_resolve pid proph κs pids prophs :
+    prophets_auth ((pid, proph) :: κs) pids -∗
     prophet_model pid prophs ==∗
       ∃ prophs',
       ⌜prophs = proph :: prophs'⌝ ∗
-      prophet_map_interp xprophs pids ∗
+      prophets_auth κs pids ∗
       prophet_model pid prophs'.
   Proof.
-    apply prophet_map_resolve.
+    iIntros "(%prophets & %Hprophets & %Hpids & Hauth) Hp".
+    iCombine "Hauth Hp" gives %Hlookup.
+    assert (prophs = proph :: resolve_prophecies κs pid) as ->.
+    { rewrite (Hprophets pid prophs Hlookup) /= decide_True //. }
+    iMod (ghost_map_update (resolve_prophecies κs pid) with "Hauth Hp") as "(Hauth & Helem)".
+    iExists (resolve_prophecies κs pid). iFrameSteps; iPureIntro.
+    - intros pid' prophs' Hlookup'. destruct_decide (pid = pid') as <- | Hne.
+      + rewrite lookup_insert_eq in Hlookup'.
+        inversion Hlookup'. done.
+      + rewrite lookup_insert_ne // in Hlookup'.
+        rewrite (Hprophets pid' prophs' Hlookup') /= decide_False //.
+    - assert (pid ∈ dom prophets) by exact: elem_of_dom_2.
+      set_solver.
   Qed.
 End zoo_G.
 
-#[global] Opaque prophet_map_interp'.
+#[global] Opaque prophets_auth'.
 #[global] Opaque prophet_model'.
 
 Section zoo_G₀.
@@ -912,7 +965,7 @@ Section zoo_G.
   Definition state_interp ns nt σ κs : iProp Σ :=
     headers_auth σ.(state_headers) ∗
     heap_auth σ.(state_heap) ∗
-    prophet_map_interp κs σ.(state_prophets) ∗
+    prophets_auth κs σ.(state_prophets) ∗
     steps_auth ns ∗
     locals_auth σ.(state_locals) ∗
     ⌜length σ.(state_locals) = nt⌝ ∗
@@ -925,7 +978,7 @@ End zoo_G.
 #[local] Instance : CustomIpat "state_interp" :=
   " ( Hheaders_interp
     & Hheap_auth
-    & Hprophets_interp
+    & Hprophets_auth
     & Hsteps_auth
     & Hlocals_auth
     & %Hlocals
@@ -1090,7 +1143,7 @@ Section zoo_G.
       prophet_model pid prophs.
   Proof.
     iIntros "%Hpid (:state_interp)".
-    iMod (prophet_map_new with "Hprophets_interp") as "(%prophs & Hprophets_interp & Hpid)". 1: done.
+    iMod (prophets_new with "Hprophets_auth") as "(%prophs & Hprophets_auth & Hpid)". 1: done.
     iFrameSteps.
   Qed.
   Lemma state_interp_prophet_resolve ns nt σ κs pid proph prophs :
@@ -1102,7 +1155,7 @@ Section zoo_G.
       prophet_model pid prophs'.
   Proof.
     iIntros "(:state_interp) Hpid".
-    iMod (prophet_map_resolve with "Hprophets_interp Hpid") as "(%prophs' & -> & Hprophets_interp & Hpid)".
+    iMod (prophets_resolve with "Hprophets_auth Hpid") as "(%prophs' & -> & Hprophets_auth & Hpid)".
     iFrameSteps.
   Qed.
 End zoo_G.
@@ -1128,7 +1181,7 @@ Proof.
   { apply Hwf. }
   iEval (rewrite -(location_add_0 zoo_counter)) in "Hcounter".
 
-  iMod (prophet_map_alloc κs σ.(state_prophets)) as "(%γ_prophets & Hprophets_interp)".
+  iMod (prophets_alloc κs σ.(state_prophets)) as "(%γ_prophets & Hprophets_interp)".
 
   iMod steps_alloc as "(%γ_steps & Hsteps_auth)".
 
