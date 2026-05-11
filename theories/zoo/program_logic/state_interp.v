@@ -1,7 +1,6 @@
 From iris.bi Require Export
   lib.fractional.
 From iris.base_logic Require Import
-  lib.gen_heap
   lib.ghost_map
   lib.invariants.
 
@@ -11,6 +10,7 @@ From zoo.iris.bi Require Import
   big_op.
 From zoo.iris.base_logic Require Import
   lib.auth_nat_max
+  lib.ghost_heap
   lib.ghost_list
   lib.mono_list.
 From zoo.iris Require Import
@@ -29,6 +29,7 @@ Implicit Types l : location.
 Implicit Types v : val.
 Implicit Types vs : list val.
 Implicit Types hdr : header.
+Implicit Types hdrs : gmap location header.
 Implicit Types σ : state.
 Implicit Type proph : val * val.
 Implicit Type prophs : list (val * val).
@@ -50,7 +51,8 @@ Record state_wf σ param :=
   }.
 
 Class ZooG₀ Σ :=
-  { #[local] zoo_G₀_heap_G :: ghost_mapG Σ location val
+  { #[local] zoo_G₀_headers_G :: GhostHeapG Σ location header
+  ; #[local] zoo_G₀_heap_G :: ghost_mapG Σ location val
   ; #[local] zoo_G_prophets_G :: ghost_mapG Σ prophet_id (list (val * val))
   ; #[local] zoo_G₀_steps_G :: AuthNatMaxG Σ
   ; #[local] zoo_G₀_locals_G :: GhostListG Σ val
@@ -58,7 +60,8 @@ Class ZooG₀ Σ :=
   }.
 
 #[local] Definition zoo_Σ₀ :=
-  #[ghost_mapΣ location val
+  #[ghost_heap_Σ location header
+  ; ghost_mapΣ location val
   ; ghost_mapΣ prophet_id (list (val * val))
   ; auth_nat_max_Σ
   ; ghost_list_Σ val
@@ -73,13 +76,11 @@ Qed.
 
 Class ZooGpre Σ :=
   { #[global] zoo_Gpre_inv_Gpre :: invGpreS Σ
-  ; #[local] zoo_Gpre_headers_G :: gen_heapGpreS location header Σ
   ; #[local] zoo_Gpre_G₀ :: ZooG₀ Σ
   }.
 
 Definition zoo_Σ :=
   #[invΣ
-  ; gen_heapΣ location header
   ; zoo_Σ₀
   ].
 #[global] Instance subG_zoo_Σ Σ :
@@ -91,29 +92,50 @@ Qed.
 
 Class ZooG Σ :=
   { #[global] zoo_G_inv_G :: invGS Σ
-  ; #[local] zoo_G_headers_G :: gen_heapGS location header Σ
   ; #[local] zoo_G_G₀ :: ZooG₀ Σ
+  ; zoo_G_headers_name : ghost_heap_name
   ; zoo_G_heap_name : gname
   ; zoo_G_prophets_name : gname
   ; zoo_G_steps_name : gname
   ; zoo_G_locals_name : gname
   ; zoo_G_counter_name : gname
   }.
-#[global] Arguments Build_ZooG {_ _ _ _} _ _ _ _ _ : assert.
+#[global] Arguments Build_ZooG {_ _ _} _ _ _ _ _ _ : assert.
+
+Section zoo_G₀.
+  Context `{zoo_G₀ : !ZooG₀ Σ}.
+
+  #[local] Definition headers_auth' γ_headers hdrs :=
+    ghost_heap_auth γ_headers hdrs.
+  #[local] Definition headers_at' γ_headers l hdr :=
+    ghost_heap_at γ_headers l DfracDiscarded hdr.
+
+  #[local] Definition meta_token' γ_headers l E :=
+    ghost_heap_meta_token γ_headers l E.
+  #[local] Definition meta' `{Countable A} γ_headers l ι (x : A) :=
+    ghost_heap_meta γ_headers l ι x.
+
+  #[local] Lemma headers_alloc hdrs :
+    ⊢ |==>
+      ∃ γ_headers,
+      headers_auth' γ_headers hdrs.
+  Proof.
+    iMod (ghost_heap_alloc hdrs) as "(%γ_headers & $ & _)" => //.
+  Qed.
+End zoo_G₀.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
   #[local] Definition headers_auth :=
-    gen_heap_interp (V := header).
-  Definition headers_at l hdr :=
-    pointsto l DfracDiscarded hdr.
+    headers_auth' zoo_G_headers_name.
+  Definition headers_at :=
+    headers_at' zoo_G_headers_name.
 
   Definition meta_token :=
-    meta_token (V := header).
-  Definition meta :=
-    @meta location _ _ header _ _.
-  #[global] Arguments meta {_ _ _} l ι x : rename.
+    meta_token' zoo_G_headers_name.
+  Definition meta `{Countable A} :=
+    meta' (A := A) zoo_G_headers_name.
 End zoo_G.
 
 Notation "l ↦ₕ hdr" := (
@@ -153,7 +175,7 @@ Section zoo_G.
     l ↦ₕ hdr2 -∗
     ⌜hdr1 = hdr2⌝.
   Proof.
-    apply pointsto_agree.
+    apply ghost_heap_at_agree.
   Qed.
 End zoo_G.
 
@@ -183,7 +205,7 @@ Section zoo_G.
       meta_token l E1 ∗
       meta_token l (E2 ∖ E1).
   Proof.
-    apply meta_token_difference.
+    apply ghost_heap_meta_token_difference.
   Qed.
 
   Lemma meta_set `{Countable A} {l E} (x : A) ι :
@@ -191,16 +213,41 @@ Section zoo_G.
     meta_token l E ⊢ |==>
     l ↪[ι] x.
   Proof.
-    intros. apply bi.wand_entails', meta_set; done.
+    apply ghost_heap_meta_set.
   Qed.
   Lemma meta_agree `{Countable A} l ι (x1 x2 : A) :
     l ↪[ι] x1 -∗
     l ↪[ι] x2 -∗
     ⌜x1 = x2⌝.
   Proof.
-    apply meta_agree.
+    apply ghost_heap_meta_agree.
+  Qed.
+
+  #[local] Lemma headers_lookup hdrs l hdr :
+    headers_auth hdrs -∗
+    l ↦ₕ hdr -∗
+    ⌜hdrs !! l = Some hdr⌝.
+  Proof.
+    apply ghost_heap_lookup.
+  Qed.
+
+  #[local] Lemma headers_insert {hdrs} l hdr :
+    hdrs !! l = None →
+    headers_auth hdrs ⊢ |==>
+      headers_auth (<[l := hdr]> hdrs) ∗
+      l ↦ₕ hdr ∗
+      meta_token l ⊤.
+  Proof.
+    iIntros "% Hauth".
+    iMod (ghost_heap_insert with "Hauth") as "($ & Hat & $)". 1: done.
+    iApply (ghost_heap_at_persist with "Hat").
   Qed.
 End zoo_G.
+
+#[global] Opaque headers_auth'.
+#[global] Opaque headers_at'.
+#[global] Opaque meta_token'.
+#[global] Opaque meta'.
 
 Section zoo_G₀.
   Context `{zoo_G₀ : !ZooG₀ Σ}.
@@ -976,7 +1023,7 @@ Section zoo_G.
 End zoo_G.
 
 #[local] Instance : CustomIpat "state_interp" :=
-  " ( Hheaders_interp
+  " ( Hheaders_auth
     & Hheap_auth
     & Hprophets_auth
     & Hsteps_auth
@@ -1043,8 +1090,7 @@ Section zoo_G.
       l ↦∗ vs.
   Proof.
     iIntros "%Hheaders_lookup %Hheap_lookup (:state_interp)".
-    iMod (gen_heap_alloc with "Hheaders_interp") as "($ & Hl_header & $)"; first done.
-    iMod (gen_heap.pointsto_persist with "Hl_header") as "$".
+    iMod (headers_insert with "Hheaders_auth") as "($ & Hl_header & $)". 1: done.
     iMod (heap_insert (heap_chunk _ _) with "Hheap_auth") as "($ & Hl)".
     { apply heap_chunk_map_disjoint => //. }
     rewrite big_sepM_heap_chunk. iSteps.
@@ -1056,7 +1102,7 @@ Section zoo_G.
     ⌜σ.(state_headers) !! l = Some hdr⌝.
   Proof.
     iIntros "(:state_interp) Hl_header".
-    iApply (gen_heap_valid with "Hheaders_interp Hl_header").
+    iApply (headers_lookup with "Hheaders_auth Hl_header").
   Qed.
 
   Lemma state_interp_pointsto_valid ns nt σ κs l dq v :
@@ -1174,7 +1220,7 @@ Lemma zoo_init `{zoo_Gpre : !ZooGpre Σ} `{inv_G : !invGS Σ} σ param κs :
 Proof.
   intros Hwf.
 
-  iMod (gen_heap_init σ.(state_headers)) as "(%γ_headers & Hheaders_interp & _)".
+  iMod (headers_alloc σ.(state_headers)) as "(%γ_headers & Hheaders_auth)".
 
   iMod (heap_alloc σ.(state_heap)) as "(%γ_heap & Hheap_auth & Hheap)".
   iDestruct (big_sepM_delete with "Hheap") as "(Hcounter & Hheap)".
@@ -1190,7 +1236,8 @@ Proof.
   iMod (zoo_counter_alloc param) as "(%γ_counter & Hcounter_auth)".
 
   set zoo_G :=
-    {|zoo_G_heap_name := γ_heap
+    {|zoo_G_headers_name := γ_headers
+    ; zoo_G_heap_name := γ_heap
     ; zoo_G_prophets_name := γ_prophets
     ; zoo_G_steps_name := γ_steps
     ; zoo_G_locals_name := γ_locals
