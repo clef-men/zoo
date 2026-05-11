@@ -167,19 +167,19 @@ Proof.
   iMod H as "(%zoo_G & %Φ & <- & Hinterp & H)".
   iExists zoo_G, [Φ]. iFrameSteps.
 Qed.
-Lemma bwp_adequacy `{zoo_Gpre : !ZooGpre Σ} {e σ} param :
-  state_wf σ param →
+Lemma bwp_adequacy `{zoo_Gpre : !ZooGpre Σ} {e σ} v :
+  state_wf σ v →
   ( ∀ `{zoo_G : !ZooG Σ},
     ⊢ ∃ Φ,
       ([∗ map] l ↦ v ∈ state_heap_initial σ, l ↦ v) -∗
-      0 ↦ₗ param.(zoo_parameter_local) -∗
+      0 ↦ₗ v -∗
       BWP e ∶ 0 {{ Φ }}
   ) →
   safe ([e], σ).
 Proof.
   intros Hwf Hwp.
   apply: bwp_adequacy' => // Hinv_G κs.
-  iMod (zoo_init σ param κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; first done.
+  iMod (state_interp_init σ v κs) as "(%zoo_G & <- & Hinterp & Hheap & Hlocals)"; first done.
   iDestruct (Hwp zoo_G) as "(%Φ & Hwp)".
   iExists zoo_G, Φ. iFrameSteps.
 Qed.
