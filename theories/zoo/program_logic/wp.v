@@ -604,6 +604,9 @@ Section zoo_G.
     iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
+    select (state_alloc_condition _ _ _) ltac:(fun H =>
+      destruct H
+    ).
     iMod (state_interp_alloc _ _ (replicate ₊n ()%V) with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simpl_length. 1: naive_solver.
     iFrameSteps.
   Qed.
@@ -628,6 +631,9 @@ Section zoo_G.
     iApply bwp_lift_atomic_base_step_nofork; first done. iIntros "%ns %nt %σ1 %κs Hinterp !>".
     iSplit; first auto with zoo. iIntros "%κ %κs' %e2 %σ2 %es -> %Hstep _ !> !>".
     invert_base_step.
+    select (state_alloc_condition _ _ _) ltac:(fun H =>
+      destruct H
+    ).
     iMod (state_interp_alloc with "Hinterp") as "(Hinterp & Hheader & Hmeta & Hl)". all: simpl_length in *. 1: naive_solver.
     iFrameSteps.
   Qed.

@@ -11,7 +11,7 @@ From zoo Require Import
   options.
 
 Implicit Types b : bool.
-Implicit Types tag : nat.
+Implicit Types tag sz : nat.
 Implicit Types n m : Z.
 Implicit Types l : location.
 Implicit Types gen : generativity.
@@ -242,12 +242,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         []
   | base_step_alloc tag n σ l :
       (0 ≤ n)%Z →
-      σ.(state_headers) !! l = None →
-      ( ∀ i,
-        i < ₊n →
-          σ.(state_headers) !! (l +ₗ i) = None ∧
-          σ.(state_heap) !! (l +ₗ i) = None
-      ) →
+      state_alloc_condition l ₊n σ →
       base_step
         tid
         (Alloc (Val $ ValNat tag) (Val $ ValInt n))
@@ -259,12 +254,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
   | base_step_block_mutable tag es vs σ l :
       0 < length es →
       es = of_vals vs →
-      σ.(state_headers) !! l = None →
-      ( ∀ i,
-        i < length es →
-          σ.(state_headers) !! (l +ₗ i) = None ∧
-          σ.(state_heap) !! (l +ₗ i) = None
-      ) →
+      state_alloc_condition l (length es) σ →
       base_step
         tid
         (Block Mutable tag es)
@@ -488,7 +478,7 @@ Inductive base_step tid : expr → state → list observation → expr → state
         es.
 
 Lemma base_step_alloc' tid tag n σ :
-  let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
+  let l := state_fresh σ in
   (0 ≤ n)%Z →
   base_step
     tid
@@ -500,18 +490,11 @@ Lemma base_step_alloc' tid tag n σ :
     [].
 Proof.
   intros l Hn.
-  pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
-  setoid_rewrite not_elem_of_union in Hfresh.
   apply base_step_alloc. 1: done.
-  { rewrite -(location_add_0 l) //.
-    apply not_elem_of_dom, Hfresh. 1: lia.
-  } {
-    intros i Hi. split.
-    all: apply not_elem_of_dom, Hfresh; lia.
-  }
+  apply state_alloc_condition_fresh.
 Qed.
 Lemma base_step_block_mutable' tid tag es vs σ :
-  let l := location_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap)) in
+  let l := state_fresh σ in
   0 < length es →
   es = of_vals vs →
   base_step
@@ -524,15 +507,8 @@ Lemma base_step_block_mutable' tid tag es vs σ :
     [].
 Proof.
   intros l Hn ->.
-  pose proof (location_fresh_fresh (dom σ.(state_headers) ∪ dom σ.(state_heap))) as Hfresh.
-  setoid_rewrite not_elem_of_union in Hfresh.
   apply base_step_block_mutable. 1,2: done.
-  { rewrite -(location_add_0 l) //.
-    apply not_elem_of_dom, Hfresh. 1: lia.
-  } {
-    intros i Hi. split.
-    all: apply not_elem_of_dom, Hfresh; lia.
-  }
+  apply state_alloc_condition_fresh.
 Qed.
 Lemma base_step_block_immutable_generative_strong' tid tag es vs σ :
   es = of_vals vs →

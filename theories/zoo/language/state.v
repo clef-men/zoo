@@ -150,3 +150,29 @@ Definition state_alloc l hdr vs σ :=
   ; state_locals := σ.(state_locals)
   ; state_prophets := σ.(state_prophets)
   |}.
+
+Definition state_alloc_condition l sz σ :=
+  σ.(state_headers) !! l = None ∧
+    ∀ i,
+    i < sz →
+      σ.(state_headers) !! (l +ₗ i) = None ∧
+      σ.(state_heap) !! (l +ₗ i) = None.
+
+Definition state_fresh_dom σ :=
+  dom σ.(state_headers) ∪
+  dom σ.(state_heap).
+Definition state_fresh σ :=
+  location_fresh $ state_fresh_dom σ.
+
+Lemma state_alloc_condition_fresh sz σ :
+  state_alloc_condition (state_fresh σ) sz σ.
+Proof.
+  pose proof (location_fresh_fresh $ state_fresh_dom σ) as Hfresh.
+  repeat setoid_rewrite not_elem_of_union in Hfresh.
+  split.
+  - rewrite /state_fresh -(location_add_0 (location_fresh _)) //.
+    apply not_elem_of_dom, Hfresh => //.
+  - intros i Hi.
+    split_and!.
+    all: apply not_elem_of_dom, Hfresh; lia.
+Qed.
