@@ -774,30 +774,6 @@ Section zoo_G.
     locals_auth' zoo_G_locals_name.
   Definition local_pointsto :=
     local_pointsto' zoo_G_locals_name.
-
-  Lemma locals_lookup vs tid dq v :
-    locals_auth vs -∗
-    local_pointsto tid dq v -∗
-    ⌜vs !! tid = Some v⌝.
-  Proof.
-    apply ghost_list_lookup.
-  Qed.
-
-  Lemma locals_update_push {vs} v :
-    locals_auth vs ⊢ |==>
-      locals_auth (vs ++ [v]) ∗
-      local_pointsto (length vs) (DfracOwn 1) v.
-  Proof.
-    apply ghost_list_update_push.
-  Qed.
-  Lemma locals_update_pointsto {vs tid v} v' :
-    locals_auth vs -∗
-    local_pointsto tid (DfracOwn 1) v ==∗
-      locals_auth (<[tid := v']> vs) ∗
-      local_pointsto tid (DfracOwn 1) v'.
-  Proof.
-    apply ghost_list_update_at.
-  Qed.
 End zoo_G.
 
 Notation "tid ↦ₗ dq v" := (
@@ -897,6 +873,30 @@ Section zoo_G.
   Proof.
     apply ghost_list_at_persist.
   Qed.
+
+  Lemma locals_lookup vs tid dq v :
+    locals_auth vs -∗
+    tid ↦ₗ{dq} v -∗
+    ⌜vs !! tid = Some v⌝.
+  Proof.
+    apply ghost_list_lookup.
+  Qed.
+
+  Lemma locals_update_push {vs} v :
+    locals_auth vs ⊢ |==>
+      locals_auth (vs ++ [v]) ∗
+      length vs ↦ₗ v.
+  Proof.
+    apply ghost_list_update_push.
+  Qed.
+  Lemma locals_update_pointsto {vs tid v} v' :
+    locals_auth vs -∗
+    tid ↦ₗ v ==∗
+      locals_auth (<[tid := v']> vs) ∗
+      tid ↦ₗ v'.
+  Proof.
+    apply ghost_list_update_at.
+  Qed.
 End zoo_G.
 
 #[global] Opaque locals_auth'.
@@ -965,6 +965,7 @@ Section zoo_G.
   Proof.
     apply mono_list_at_agree.
   Qed.
+
   Lemma zoo_counter_update {vs} v :
     zoo_counter_auth vs ⊢ |==>
     zoo_counter_auth (vs ++ [v]).
