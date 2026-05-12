@@ -83,15 +83,15 @@ End zoo_G.
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Lemma big_sepM_heap_chunk (Φ : location → val → iProp Σ) l vs :
-    ([∗ map] l ↦ v ∈ heap_chunk l vs, Φ l v) ⊢
-    [∗ list] i ↦ v ∈ vs, Φ (l +ₗ i) v.
+  #[local] Lemma big_sepM_chunk {A} (Φ : location → A → iProp Σ) l xs :
+    ([∗ map] l ↦ x ∈ chunk l xs, Φ l x) ⊢
+    [∗ list] i ↦ x ∈ xs, Φ (l +ₗ i) x.
   Proof.
-    iInduction vs as [| v vs] "IH" forall (l) => /=. 1: iSteps.
+    iInduction xs as [| x xs] "IH" forall (l) => /=. 1: iSteps.
     iIntros "H".
     rewrite big_sepM_insert.
     { clear.
-      apply eq_None_ne_Some. intros v (k & Hk & Hl & _)%heap_chunk_lookup.
+      apply eq_None_ne_Some. intros x (k & Hk & Hl & _)%chunk_lookup.
       rewrite -{1}(location_add_0 l) in Hl.
       naive_solver lia.
     }
@@ -118,9 +118,9 @@ Section zoo_G.
   Proof.
     iIntros "%Hheaders_lookup %Hheap_lookup (:state_interp)".
     iMod (headers_insert with "Hheaders_auth") as "($ & Hl_header & $)". 1: done.
-    iMod (heap_insert (heap_chunk _ _) with "Hheap_auth") as "($ & Hl)".
-    { apply heap_chunk_map_disjoint => //. }
-    rewrite big_sepM_heap_chunk. iSteps.
+    iMod (heap_insert (chunk _ _) with "Hheap_auth") as "($ & Hl)".
+    { apply chunk_map_disjoint => //. }
+    rewrite big_sepM_chunk. iSteps.
   Qed.
 
   Lemma state_interp_headers_at_valid ns nt σ κs l hdr :

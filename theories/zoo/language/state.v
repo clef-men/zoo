@@ -77,58 +77,76 @@ Definition state_add_local v :=
 Definition state_add_prophet pid :=
   state_update_prophets $ ({[pid]} ∪.).
 
-Fixpoint heap_chunk l vs : gmap location val :=
-  match vs with
-  | [] =>
-      ∅
-  | v :: vs =>
-      <[l := v]> (heap_chunk (l +ₗ 1) vs)
-  end.
-#[global] Arguments heap_chunk _ !_ / : assert.
+Section chunk.
+  Context {A : Type}.
 
-Lemma heap_chunk_singleton l v :
-  heap_chunk l [v] = {[l := v]}.
-Proof.
-  rewrite /heap_chunk insert_empty //.
-Qed.
-Lemma heap_chunk_lookup l vs w k :
-  heap_chunk l vs !! k = Some w ↔
-    ∃ j,
-    (0 ≤ j)%Z ∧
-    k = l +ₗ j ∧
-    vs !! ₊j = Some w.
-Proof.
-  revert k l; induction vs as [|v' vs IH]=> l' l /=.
-  { rewrite lookup_empty. naive_solver lia. }
-  rewrite lookup_insert_Some IH. split.
-  - intros [[-> ?] | (Hl & j & ? & -> & ?)].
-    { eexists 0. rewrite location_add_0. naive_solver lia. }
-    eexists (1 + j)%Z. rewrite location_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
-  - intros (j & ? & -> & Hil). destruct_decide (j = 0); simplify_eq/=.
-    { rewrite location_add_0; eauto. }
-    right. split.
-    { rewrite -{1}(location_add_0 l). intros ?%(inj (location_add _)); lia. }
-    assert (₊j = S ₊(j - 1)) as Hj.
-    { rewrite -Z2Nat.inj_succ; last lia. f_equal; lia. }
-    rewrite Hj /= in Hil.
-    eexists (j - 1)%Z. rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l. auto with lia.
-Qed.
-Lemma heap_chunk_map_disjoint h l vs :
-  ( ∀ i,
-    i < length vs →
-    h !! (l +ₗ i) = None
-  ) →
-  heap_chunk l vs ##ₘ h.
-Proof.
-  intros Hdisj. apply map_disjoint_spec=> l' v1 v2.
-  intros (j & ? & -> & ?%lookup_lt_Some%inj_lt)%heap_chunk_lookup ?.
-  ospecialize* (Hdisj ₊j); first lia.
-  rewrite Z2Nat.id // in Hdisj. naive_solver.
-Qed.
+  Implicit Types x y : A.
+  Implicit Types xs : list A.
+  Implicit Types m : gmap location A.
+
+  Fixpoint chunk l xs : gmap location A :=
+    match xs with
+    | [] =>
+        ∅
+    | x :: xs =>
+        <[l := x]> (chunk (l +ₗ 1) xs)
+    end.
+  #[global] Arguments chunk _ !_ / : assert.
+
+  Lemma chunk_singleton l x :
+    chunk l [x] = {[l := x]}.
+  Proof.
+    rewrite /chunk insert_empty //.
+  Qed.
+  Lemma chunk_lookup l xs 𝑙 y :
+    chunk l xs !! 𝑙 = Some y ↔
+      ∃ i,
+      (0 ≤ i)%Z ∧
+      𝑙 = l +ₗ i ∧
+      xs !! ₊i = Some y.
+  Proof.
+    move: l 𝑙. induction xs as [| x xs IH] => l 𝑙 /=.
+    - naive_solver.
+    - rewrite lookup_insert_Some IH.
+      split.
+      + intros [(<- & <-) | (Hl & i & Hi & -> & Hlookup)].
+        * exists 0.
+          rewrite location_add_0.
+          naive_solver.
+        * exists (1 + i)%Z.
+          rewrite location_add_assoc Z.add_1_l Z2Nat.inj_succ //.
+          auto with lia.
+      + intros (i & ? & -> & Hlookup).
+        destruct_decide (i = 0); simplify.
+        { rewrite location_add_0. auto. }
+        right. split.
+        * rewrite -{1}(location_add_0 l).
+          naive_solver.
+        * assert (₊i = S ₊(i - 1)) as Hi.
+          { rewrite -Z2Nat.inj_succ; lia. }
+          rewrite Hi /= in Hlookup.
+          exists (i - 1)%Z.
+          rewrite location_add_assoc Z.add_sub_assoc Z.add_simpl_l.
+          auto with lia.
+  Qed.
+  Lemma chunk_map_disjoint m l xs :
+    ( ∀ i,
+      i < length xs →
+      m !! (l +ₗ i) = None
+    ) →
+    chunk l xs ##ₘ m.
+  Proof.
+    intros Hm.
+    apply map_disjoint_spec. intros 𝑙 x1 x2 (i & ? & -> & ?%lookup_lt_Some%inj_lt)%chunk_lookup Hlookup.
+    ospecialize* (Hm ₊i). 1: lia.
+    rewrite Z2Nat.id // in Hm.
+    naive_solver.
+  Qed.
+End chunk.
 
 Definition state_alloc l hdr vs σ :=
   {|state_headers := <[l := hdr]> σ.(state_headers)
-  ; state_heap := heap_chunk l vs ∪ σ.(state_heap)
+  ; state_heap := chunk l vs ∪ σ.(state_heap)
   ; state_locals := σ.(state_locals)
   ; state_prophets := σ.(state_prophets)
   |}.
