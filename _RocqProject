@@ -557,19 +557,19 @@ theories/zoo_boxroot/boxroot.v
 
 #END zoo-boxroot
 
-#BEGIN zoo-kcas
--Q theories/zoo_kcas zoo_kcas
+#BEGIN zoo-mcas
+-Q theories/zoo_mcas zoo_mcas
 
-theories/zoo_kcas/kcas_1__types.v
-theories/zoo_kcas/kcas_1__code.v
-theories/zoo_kcas/kcas_1__opaque.v
-theories/zoo_kcas/kcas_1.v
-theories/zoo_kcas/kcas_2__types.v
-theories/zoo_kcas/kcas_2__code.v
-theories/zoo_kcas/kcas_2__opaque.v
-theories/zoo_kcas/kcas_2.v
+theories/zoo_mcas/mcas_1__types.v
+theories/zoo_mcas/mcas_1__code.v
+theories/zoo_mcas/mcas_1__opaque.v
+theories/zoo_mcas/mcas_1.v
+theories/zoo_mcas/mcas_2__types.v
+theories/zoo_mcas/mcas_2__code.v
+theories/zoo_mcas/mcas_2__opaque.v
+theories/zoo_mcas/mcas_2.v
 
-#END zoo-kcas
+#END zoo-mcas
 
 #BEGIN zoo-partitition
 -Q theories/zoo_partition zoo_partition

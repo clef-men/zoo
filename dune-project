@@ -66,8 +66,8 @@
 )
 
 (package
-  (name zoo_kcas)
-  (synopsis "Kcas")
+  (name zoo_mcas)
+  (synopsis "Multi-word compare-and-set")
   (depends
     zoo
     zoo_std

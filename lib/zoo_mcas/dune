@@ -1,6 +1,6 @@
 (library
-  (name zoo_kcas)
-  (public_name zoo_kcas)
+  (name zoo_mcas)
+  (public_name zoo_mcas)
   (libraries
     zoo
     zoo_std
