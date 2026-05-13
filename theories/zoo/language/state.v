@@ -153,6 +153,7 @@ Definition state_alloc l hdr vs σ :=
 
 Definition state_alloc_condition l sz σ :=
   σ.(state_headers) !! l = None ∧
+  σ.(state_heap) !! l = None ∧
     ∀ i,
     i < sz →
       σ.(state_headers) !! (l +ₗ i) = None ∧
@@ -169,7 +170,9 @@ Lemma state_alloc_condition_fresh sz σ :
 Proof.
   pose proof (location_fresh_fresh $ state_fresh_dom σ) as Hfresh.
   repeat setoid_rewrite not_elem_of_union in Hfresh.
-  split.
+  split_and!.
+  - rewrite /state_fresh -(location_add_0 (location_fresh _)) //.
+    apply not_elem_of_dom, Hfresh => //.
   - rewrite /state_fresh -(location_add_0 (location_fresh _)) //.
     apply not_elem_of_dom, Hfresh => //.
   - intros i Hi.
