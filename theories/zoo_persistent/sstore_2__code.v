@@ -6,23 +6,23 @@ From zoo.language Require Import
 From zoo_std Require Import
   assert.
 From zoo_persistent Require Import
-  pstore_2__types.
+  sstore_2__types.
 From zoo Require Import
   options.
 
-Definition pstore_2٠create : val :=
+Definition sstore_2٠create : val :=
   fun: <> =>
     { 0, ref §Root }.
 
-Definition pstore_2٠ref : val :=
+Definition sstore_2٠ref : val :=
   fun: "_t" "v" =>
     { 0, "v" }.
 
-Definition pstore_2٠get : val :=
+Definition sstore_2٠get : val :=
   fun: "_t" "r" =>
     "r".{ref_value}.
 
-Definition pstore_2٠set : val :=
+Definition sstore_2٠set : val :=
   fun: "t" "r" "v" =>
     let: "g_t" := "t".{gen} in
     let: "g_r" := "r".{ref_gen} in
@@ -36,13 +36,13 @@ Definition pstore_2٠set : val :=
       "t" <-{root} "root"
     ).
 
-Definition pstore_2٠capture : val :=
+Definition sstore_2٠capture : val :=
   fun: "t" =>
     let: "g" := "t".{gen} in
     "t" <-{gen} "g" + 1 ;;
     ("t", "g", "t".{root}).
 
-Definition pstore_2٠collect : val :=
+Definition sstore_2٠collect : val :=
   rec: "collect" "node" "path" =>
     match: !"node" with
     | Root =>
@@ -51,7 +51,7 @@ Definition pstore_2٠collect : val :=
         "collect" "node'" ("node" :: "path")
     end.
 
-Definition pstore_2٠revert : val :=
+Definition sstore_2٠revert : val :=
   rec: "revert" "node" "param" =>
     match: "param" with
     | [] =>
@@ -69,12 +69,12 @@ Definition pstore_2٠revert : val :=
         end
     end.
 
-Definition pstore_2٠reroot : val :=
+Definition sstore_2٠reroot : val :=
   fun: "node" =>
-    let: "root", "path" := pstore_2٠collect "node" [] in
-    pstore_2٠revert "root" "path".
+    let: "root", "path" := sstore_2٠collect "node" [] in
+    sstore_2٠revert "root" "path".
 
-Definition pstore_2٠restore : val :=
+Definition sstore_2٠restore : val :=
   fun: "t" "s" =>
     if: "t" != "s".<snapshot_store> then (
       Fail
@@ -84,7 +84,7 @@ Definition pstore_2٠restore : val :=
       | Root =>
           ()
       | Diff <> <> <> <> =>
-          pstore_2٠reroot "root" ;;
+          sstore_2٠reroot "root" ;;
           "t" <-{gen} "s".<snapshot_gen> + 1 ;;
           "t" <-{root} "root"
       end

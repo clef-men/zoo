@@ -8,10 +8,10 @@ From zoo.diaframe Require Import
   diaframe.
 From zoo_persistent Require Export
   base
-  puf__code.
+  suf__code.
 From zoo_persistent Require Import
-  puf__types
-  pstore_2.
+  suf__types
+  sstore_2.
 From zoo Require Import
   options.
 
@@ -21,16 +21,16 @@ Implicit Types t s descr : val.
 Implicit Types reprs : gmap location location.
 Implicit Types descrs : gmap location val.
 
-Class PufG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] puf_G_pstore_G :: Pstore2G Σ
+Class SufG Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] suf_G_sstore_G :: Sstore2G Σ
   }.
 
-Definition puf_Σ :=
-  #[pstore_2_Σ
+Definition suf_Σ :=
+  #[sstore_2_Σ
   ].
-#[global] Instance subG_puf_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG puf_Σ Σ →
-  PufG Σ.
+#[global] Instance subG_suf_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG suf_Σ Σ →
+  SufG Σ.
 Proof.
   solve_inG.
 Qed.
@@ -203,12 +203,12 @@ Qed.
 Opaque consistent_at.
 Opaque consistent.
 
-Section puf_G.
-  Context `{puf_G : PufG Σ}.
+Section suf_G.
+  Context `{suf_G : SufG Σ}.
 
-  Definition puf_model t reprs : iProp Σ :=
+  Definition suf_model t reprs : iProp Σ :=
     ∃ descrs,
-    pstore_2_model t descrs ∗
+    sstore_2_model t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpat "model" :=
     " ( %descrs{}
@@ -217,9 +217,9 @@ Section puf_G.
       )
     ".
 
-  Definition puf_snapshot s t reprs : iProp Σ :=
+  Definition suf_snapshot s t reprs : iProp Σ :=
     ∃ descrs,
-    pstore_2_snapshot s t descrs ∗
+    sstore_2_snapshot s t descrs ∗
     ⌜consistent reprs descrs⌝.
   #[local] Instance : CustomIpat "snapshot" :=
     " ( %descrs{}
@@ -228,82 +228,82 @@ Section puf_G.
       )
     ".
 
-  #[global] Instance puf_model_timeless t reprs :
-    Timeless (puf_model t reprs).
+  #[global] Instance suf_model_timeless t reprs :
+    Timeless (suf_model t reprs).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance puf_snapshot_persistent s t reprs :
-    Persistent (puf_snapshot s t reprs).
+  #[global] Instance suf_snapshot_persistent s t reprs :
+    Persistent (suf_snapshot s t reprs).
   Proof.
     apply _.
   Qed.
 
-  Lemma puf_model_valid {t reprs} elt repr :
+  Lemma suf_model_valid {t reprs} elt repr :
     reprs !! elt = Some repr →
-    puf_model t reprs ⊢
+    suf_model t reprs ⊢
     ⌜reprs !! repr = Some repr⌝.
   Proof.
     iIntros "%Hreprs_lookup (:model)". iPureIntro.
     eapply consistent_lookup_Some in Hconsistent as (descr & Hdescrs_lookup & []); last done.
     all: naive_solver.
   Qed.
-  Lemma puf_model_exclusive t reprs1 reprs2 :
-    puf_model t reprs1 -∗
-    puf_model t reprs2 -∗
+  Lemma suf_model_exclusive t reprs1 reprs2 :
+    suf_model t reprs1 -∗
+    suf_model t reprs2 -∗
     False.
   Proof.
     iIntros "(:model =1) (:model =2)".
-    iApply (pstore_2_model_exclusive with "Hmodel1 Hmodel2").
+    iApply (sstore_2_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma puf٠create𑁒spec :
+  Lemma suf٠create𑁒spec :
     {{{
       True
     }}}
-      puf٠create ()
+      suf٠create ()
     {{{
       t
     , RET t;
-      puf_model t ∅
+      suf_model t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
 
-    wp_apply (pstore_2٠create𑁒spec with "[//]").
+    wp_apply (sstore_2٠create𑁒spec with "[//]").
     iSteps. iPureIntro. apply consistent_empty.
   Qed.
 
-  Lemma puf٠make𑁒spec t reprs :
+  Lemma suf٠make𑁒spec t reprs :
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠make t
+      suf٠make t
     {{{
       elt
     , RET #elt;
-      puf_model t (<[elt := elt]> reprs)
+      suf_model t (<[elt := elt]> reprs)
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
     wp_rec.
-    wp_apply+ (pstore_2٠ref𑁒spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
+    wp_apply+ (sstore_2٠ref𑁒spec with "Hmodel") as (elt) "(%Hdescrs_lookup & Hmodel)".
 
     eapply consistent_insert in Hconsistent; last done.
     iSteps.
   Qed.
 
-  Lemma puf٠repr𑁒spec {t reprs elt} repr :
+  Lemma suf٠repr𑁒spec {t reprs elt} repr :
     reprs !! elt = Some repr →
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠repr t #elt
+      suf٠repr t #elt
     {{{
       RET #repr;
-      puf_model t reprs
+      suf_model t reprs
     }}}.
   Proof.
     iLöb as "HLöb" forall (elt repr).
@@ -312,14 +312,14 @@ Section puf_G.
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt repr); last done.
 
     wp_rec.
-    wp_apply+ (pstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (sstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & -> & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; wp_pures; first iSteps.
 
     wp_apply ("HLöb" $! parent with "[//] [$Hmodel //]") as "(:model =')".
     pose proof Hconsistent' as (descr' & Hdescrs'_lookup & _)%(consistent_lookup_Some elt repr); last done.
 
-    wp_apply+ (pstore_2٠set𑁒spec with "Hmodel'") as "Hmodel".
+    wp_apply+ (sstore_2٠set𑁒spec with "Hmodel'") as "Hmodel".
     { rewrite elem_of_dom //. }
     wp_pures.
 
@@ -327,48 +327,48 @@ Section puf_G.
     iSteps.
   Qed.
 
-  Lemma puf٠equiv𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
+  Lemma suf٠equiv𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠equiv t #elt1 #elt2
+      suf٠equiv t #elt1 #elt2
     {{{
       RET #(bool_decide (repr1 = repr2));
-      puf_model t reprs
+      suf_model t reprs
     }}}.
   Proof.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
 
     wp_rec.
-    wp_apply+ (puf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
     iSteps.
   Qed.
 
-  #[local] Lemma puf٠rank𑁒spec t reprs elt :
+  #[local] Lemma suf٠rank𑁒spec t reprs elt :
     reprs !! elt = Some elt →
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠rank t #elt
+      suf٠rank t #elt
     {{{
       rank
     , RET #rank;
-      puf_model t reprs
+      suf_model t reprs
     }}}.
   Proof.
     iIntros "%Hreprs_lookup_elt %Φ (:model) HΦ".
     pose proof Hconsistent as (descr & Hdescrs_lookup & Hconsistent_at)%(consistent_lookup_Some elt elt); last done.
 
     wp_rec.
-    wp_apply+ (pstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (sstore_2٠get𑁒spec with "Hmodel") as "Hmodel"; first done.
 
     destruct Hconsistent_at as [(rank & _ & ->) | (parent & ? & -> & Hreprs_lookup_parent & Hreprs_lookup_repr)]; last done.
     iSteps.
   Qed.
-  Definition puf_union_condition reprs repr1 repr2 reprs' :=
+  Definition suf_union_condition reprs repr1 repr2 reprs' :=
     dom reprs = dom reprs' ∧
     ( ∀ elt repr,
       reprs !! elt = Some repr →
@@ -383,24 +383,24 @@ Section puf_G.
         repr = repr1 ∨ repr = repr2 →
         reprs' !! elt = Some repr12
     ).
-  #[local] Lemma puf_union_condition_refl reprs repr :
-    puf_union_condition reprs repr repr reprs.
+  #[local] Lemma suf_union_condition_refl reprs repr :
+    suf_union_condition reprs repr repr reprs.
   Proof.
     split_and!; [done.. |].
     naive_solver.
   Qed.
-  #[local] Lemma puf_union_condition_sym reprs repr1 repr2 reprs' :
-    puf_union_condition reprs repr1 repr2 reprs' →
-    puf_union_condition reprs repr2 repr1 reprs'.
+  #[local] Lemma suf_union_condition_sym reprs repr1 repr2 reprs' :
+    suf_union_condition reprs repr1 repr2 reprs' →
+    suf_union_condition reprs repr2 repr1 reprs'.
   Proof.
-    rewrite /puf_union_condition.
+    rewrite /suf_union_condition.
     intros (Hdom & Hunchanged & (repr12 & Hchanged)).
     split_and!; auto.
     exists repr12. naive_solver.
   Qed.
   #[local] Lemma unify_union_condition_1 reprs repr1 repr2 :
     repr1 ≠ repr2 →
-    puf_union_condition reprs repr1 repr2 (unify repr1 repr2 reprs).
+    suf_union_condition reprs repr1 repr2 (unify repr1 repr2 reprs).
   Proof.
     intros.
     split_and!.
@@ -414,35 +414,35 @@ Section puf_G.
   Qed.
   #[local] Lemma unify_union_condition_2 reprs repr1 repr2 :
     repr1 ≠ repr2 →
-    puf_union_condition reprs repr2 repr1 (unify repr1 repr2 reprs).
+    suf_union_condition reprs repr2 repr1 (unify repr1 repr2 reprs).
   Proof.
     intros.
-    apply puf_union_condition_sym, unify_union_condition_1; done.
+    apply suf_union_condition_sym, unify_union_condition_1; done.
   Qed.
-  #[local] Opaque puf_union_condition.
-  Lemma puf٠union𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
+  #[local] Opaque suf_union_condition.
+  Lemma suf٠union𑁒spec {t reprs elt1} repr1 {elt2} repr2 :
     reprs !! elt1 = Some repr1 →
     reprs !! elt2 = Some repr2 →
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠union t #elt1 #elt2
+      suf٠union t #elt1 #elt2
     {{{
       reprs'
     , RET ();
-      puf_model t reprs' ∗
-      ⌜puf_union_condition reprs repr1 repr2 reprs'⌝
+      suf_model t reprs' ∗
+      ⌜suf_union_condition reprs repr1 repr2 reprs'⌝
     }}}.
   Proof.
     iIntros "%Hreprs_lookup_elt1 %Hreprs_lookup_elt2 %Φ Hmodel HΦ".
-    iDestruct (puf_model_valid elt1 with "Hmodel") as %Hreprs_lookup_repr1; first done.
-    iDestruct (puf_model_valid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
+    iDestruct (suf_model_valid elt1 with "Hmodel") as %Hreprs_lookup_repr1; first done.
+    iDestruct (suf_model_valid elt2 with "Hmodel") as %Hreprs_lookup_repr2; first done.
 
     wp_rec.
-    wp_apply+ (puf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf٠rank𑁒spec with "Hmodel") as (rank1) "Hmodel"; first done.
-    wp_apply+ (puf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
-    wp_apply+ (puf٠rank𑁒spec with "Hmodel") as (rank2) "(:model)"; first done.
+    wp_apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (suf٠rank𑁒spec with "Hmodel") as (rank1) "Hmodel"; first done.
+    wp_apply+ (suf٠repr𑁒spec with "Hmodel") as "Hmodel"; first done.
+    wp_apply+ (suf٠rank𑁒spec with "Hmodel") as (rank2) "(:model)"; first done.
 
     pose proof Hconsistent as (descr1 & Hdescrs_lookup_1 & Hconsistent_at_1)%(consistent_lookup_Some repr1 repr1); last done.
     pose proof Hconsistent as (descr2 & Hdescrs_lookup_2 & Hconsistent_at_2)%(consistent_lookup_Some repr2 repr2); last done.
@@ -450,26 +450,26 @@ Section puf_G.
     wp_pures.
     case_bool_decide; first subst repr2.
 
-    - iSteps. iPureIntro. apply puf_union_condition_refl.
+    - iSteps. iPureIntro. apply suf_union_condition_refl.
 
     - wp_pures.
       case_bool_decide; wp_pures.
 
-      + wp_apply (pstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+      + wp_apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
         apply (consistent_link_union repr1 repr2) in Hconsistent; [| done..].
 
         iApply ("HΦ" $! (unify repr1 repr2 reprs)).
         iSteps. iPureIntro. apply unify_union_condition_1. done.
 
-      + wp_apply (pstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+      + wp_apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
         { rewrite elem_of_dom //. }
         apply (consistent_link_union repr2 repr1) in Hconsistent; [| done..].
 
         wp_pures.
         case_bool_decide; wp_pures.
 
-        * wp_apply (pstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
+        * wp_apply (sstore_2٠set𑁒spec with "Hmodel") as "Hmodel".
           { apply dom_insert, elem_of_union_r, elem_of_dom. done. }
           eapply (consistent_update_rank repr1) in Hconsistent; last first.
           { rewrite unify_lookup_2' //. }
@@ -481,44 +481,44 @@ Section puf_G.
           iSteps. iPureIntro. apply unify_union_condition_2. done.
   Qed.
 
-  Lemma puf٠capture𑁒spec t reprs :
+  Lemma suf٠capture𑁒spec t reprs :
     {{{
-      puf_model t reprs
+      suf_model t reprs
     }}}
-      puf٠capture t
+      suf٠capture t
     {{{
       s
     , RET s;
-      puf_model t reprs ∗
-      puf_snapshot s t reprs
+      suf_model t reprs ∗
+      suf_snapshot s t reprs
     }}}.
   Proof.
     iIntros "%Φ (:model) HΦ".
 
-    wp_apply (pstore_2٠capture𑁒spec with "Hmodel").
+    wp_apply (sstore_2٠capture𑁒spec with "Hmodel").
     iSteps.
   Qed.
 
-  Lemma puf٠restore𑁒spec t reprs s reprs' :
+  Lemma suf٠restore𑁒spec t reprs s reprs' :
     {{{
-      puf_model t reprs ∗
-      puf_snapshot s t reprs'
+      suf_model t reprs ∗
+      suf_snapshot s t reprs'
     }}}
-      puf٠restore t s
+      suf٠restore t s
     {{{
       RET ();
-      puf_model t reprs'
+      suf_model t reprs'
     }}}.
   Proof.
     iIntros "%Φ ((:model) & (:snapshot =')) HΦ".
 
-    wp_apply (pstore_2٠restore𑁒spec with "[$Hmodel $Hsnapshot']").
+    wp_apply (sstore_2٠restore𑁒spec with "[$Hmodel $Hsnapshot']").
     iSteps.
   Qed.
-End puf_G.
+End suf_G.
 
 From zoo_persistent Require
-  puf__opaque.
+  suf__opaque.
 
-#[global] Opaque puf_model.
-#[global] Opaque puf_snapshot.
+#[global] Opaque suf_model.
+#[global] Opaque suf_snapshot.

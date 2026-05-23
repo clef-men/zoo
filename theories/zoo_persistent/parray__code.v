@@ -6,16 +6,16 @@ From zoo.language Require Import
 From zoo_std Require Import
   array.
 From zoo_persistent Require Import
-  parray_1__types.
+  parray__types.
 From zoo Require Import
   options.
 
-Definition parray_1٠make : val :=
+Definition parray٠make : val :=
   fun: "equal" "sz" "v" =>
     let: "data" := array٠unsafe_make "sz" "v" in
     ref ‘Root( "equal", "data" ).
 
-Definition parray_1٠reroot₀ : val :=
+Definition parray٠reroot₀ : val :=
   rec: "reroot" "t" =>
     match: !"t" with
     | Root <> <> as "root_r" =>
@@ -27,25 +27,25 @@ Definition parray_1٠reroot₀ : val :=
         ("equal", "data")
     end.
 
-Definition parray_1٠reroot : val :=
+Definition parray٠reroot : val :=
   fun: "t" =>
     match: !"t" with
     | Root <> <> as "root_r" =>
         ("root_r".<equal>, "root_r".<data>)
     | Diff <> <> <> =>
-        let: "equal", "data" := parray_1٠reroot₀ "t" in
+        let: "equal", "data" := parray٠reroot₀ "t" in
         "t" <- ‘Root( "equal", "data" ) ;;
         ("equal", "data")
     end.
 
-Definition parray_1٠get : val :=
+Definition parray٠get : val :=
   fun: "t" "i" =>
-    let: <>, "data" := parray_1٠reroot "t" in
+    let: <>, "data" := parray٠reroot "t" in
     array٠unsafe_get "data" "i".
 
-Definition parray_1٠set : val :=
+Definition parray٠set : val :=
   fun: "t" "i" "v" =>
-    let: "equal", "data" := parray_1٠reroot "t" in
+    let: "equal", "data" := parray٠reroot "t" in
     let: "v'" := array٠unsafe_get "data" "i" in
     if: "equal" "v" "v'" then (
       "t"

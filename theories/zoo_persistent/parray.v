@@ -13,9 +13,9 @@ From zoo_std Require Import
   array.
 From zoo_persistent Require Export
   base
-  parray_1__code.
+  parray__code.
 From zoo_persistent Require Import
-  parray_1__types.
+  parray__types.
 From zoo Require Import
   options.
 
@@ -25,22 +25,22 @@ Implicit Types v t equal : val.
 Implicit Types vs : list val.
 Implicit Types nodes : gmap location (list val).
 
-Class Parray1G Σ `{zoo_G : !ZooG Σ} :=
-  { parray_1_G_nodes_G : ghost_mapG Σ location (list val)
+Class ParrayG Σ `{zoo_G : !ZooG Σ} :=
+  { parray_G_nodes_G : ghost_mapG Σ location (list val)
   }.
 
-Definition parray_1_Σ :=
+Definition parray_Σ :=
   #[ghost_mapΣ location (list val)
   ].
-#[global] Instance subG_parray_1_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG parray_1_Σ Σ →
-  Parray1G Σ.
+#[global] Instance subG_parray_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG parray_Σ Σ →
+  ParrayG Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section parray_1_G.
-  Context `{parray_1_G : Parray1G Σ}.
+Section parray_G.
+  Context `{parray_G : ParrayG Σ}.
   Context τ `{!iType (iProp Σ) τ}.
 
   Record metadata :=
@@ -52,11 +52,11 @@ Section parray_1_G.
   Implicit Types γ : metadata.
 
   #[local] Definition nodes_auth' γ_nodes :=
-    @ghost_map_auth _ _ _ _ _ parray_1_G_nodes_G γ_nodes 1.
+    @ghost_map_auth _ _ _ _ _ parray_G_nodes_G γ_nodes 1.
   #[local] Definition nodes_auth γ :=
     nodes_auth' γ.(metadata_nodes).
   #[local] Definition nodes_elem' γ_nodes node :=
-    @ghost_map_elem _ _ _ _ _ parray_1_G_nodes_G γ_nodes node DfracDiscarded.
+    @ghost_map_elem _ _ _ _ _ parray_G_nodes_G γ_nodes node DfracDiscarded.
   #[local] Definition nodes_elem γ :=
     nodes_elem' γ.(metadata_nodes).
 
@@ -115,7 +115,7 @@ Section parray_1_G.
       & Hnodes{_{}}
       )
     ".
-  Definition parray_1_inv γ : iProp Σ :=
+  Definition parray_inv γ : iProp Σ :=
     ∃ nodes root,
     inv' γ nodes root.
   #[local] Instance : CustomIpat "inv" :=
@@ -125,7 +125,7 @@ Section parray_1_G.
       )
     ".
 
-  Definition parray_1_model t γ vs : iProp Σ :=
+  Definition parray_model t γ vs : iProp Σ :=
     ∃ node,
     ⌜t = #node⌝ ∗
     nodes_elem γ node vs.
@@ -136,8 +136,8 @@ Section parray_1_G.
       )
     ".
 
-  #[global] Instance parray_1_model_persistent t γ vs :
-    Persistent (parray_1_model t γ vs).
+  #[global] Instance parray_model_persistent t γ vs :
+    Persistent (parray_model t γ vs).
   Proof.
     apply _.
   Qed.
@@ -148,7 +148,7 @@ Section parray_1_G.
       nodes_auth' γ_nodes {[root := vs]} ∗
       nodes_elem' γ_nodes root vs.
   Proof.
-    iMod (@ghost_map_alloc _ _ _ _ _ parray_1_G_nodes_G {[root := vs]}) as "(%γ_nodes & Hnodes_auth & Hnodes_elem)".
+    iMod (@ghost_map_alloc _ _ _ _ _ parray_G_nodes_G {[root := vs]}) as "(%γ_nodes & Hnodes_auth & Hnodes_elem)".
     rewrite big_sepM_singleton.
     iMod (ghost_map_elem_persist with "Hnodes_elem") as "Hnodes_elem".
     iSteps.
@@ -187,27 +187,27 @@ Section parray_1_G.
     iSteps.
   Qed.
 
-  Lemma parray_1_inv_exclusive γ :
-    parray_1_inv γ -∗
-    parray_1_inv γ -∗
+  Lemma parray_inv_exclusive γ :
+    parray_inv γ -∗
+    parray_inv γ -∗
     False.
   Proof.
     iIntros "(:inv =1) (:inv =2)". simplify.
     iApply (nodes_auth_exclusive with "Hnodes_auth_1 Hnodes_auth_2").
   Qed.
 
-  Lemma parray_1٠make𑁒spec equal (sz : Z) v :
+  Lemma parray٠make𑁒spec equal (sz : Z) v :
     (0 ≤ sz)%Z →
     {{{
       equal_model equal ∗
       τ v
     }}}
-      parray_1٠make equal #sz v
+      parray٠make equal #sz v
     {{{
       t γ
     , RET t;
-      parray_1_inv γ ∗
-      parray_1_model t γ (replicate ₊sz v)
+      parray_inv γ ∗
+      parray_model t γ (replicate ₊sz v)
     }}}.
   Proof.
     iIntros "%Hsz %Φ (#Hequal & #Hv) HΦ".
@@ -251,12 +251,12 @@ Section parray_1_G.
       & Hnodes
       )
     ".
-  #[local] Lemma parray_1٠reroot₀𑁒spec {γ nodes root node} vs :
+  #[local] Lemma parray٠reroot₀𑁒spec {γ nodes root node} vs :
     {{{
       inv' γ nodes root ∗
       nodes_elem γ node vs
     }}}
-      parray_1٠reroot₀ #node
+      parray٠reroot₀ #node
     {{{
       RET (γ.(metadata_equal), γ.(metadata_data));
       reroot_inv γ nodes node vs
@@ -301,12 +301,12 @@ Section parray_1_G.
 
       iSteps.
   Qed.
-  #[local] Lemma parray_1٠reroot𑁒spec γ node vs :
+  #[local] Lemma parray٠reroot𑁒spec γ node vs :
     {{{
-      parray_1_inv γ ∗
+      parray_inv γ ∗
       nodes_elem γ node vs
     }}}
-      parray_1٠reroot #node
+      parray٠reroot #node
     {{{
       nodes
     , RET (γ.(metadata_equal),γ.(metadata_data));
@@ -325,30 +325,30 @@ Section parray_1_G.
       { rewrite lookup_delete_ne //. }
       wp_load.
 
-      wp_apply+ (parray_1٠reroot₀𑁒spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
+      wp_apply+ (parray٠reroot₀𑁒spec vs with "[- HΦ]") as "(:reroot_inv root=node)".
       { iFrame "∗#". iSteps. }
 
       iStep 16. iFrame "∗#" => //.
   Qed.
 
-  Lemma parray_1٠get𑁒spec {t γ vs} i v :
+  Lemma parray٠get𑁒spec {t γ vs} i v :
     (0 ≤ i)%Z →
     vs !! ₊i = Some v →
     {{{
-      parray_1_inv γ ∗
-      parray_1_model t γ vs
+      parray_inv γ ∗
+      parray_model t γ vs
     }}}
-      parray_1٠get t #i
+      parray٠get t #i
     {{{
       RET v;
-      parray_1_inv γ
+      parray_inv γ
     }}}.
   Proof.
     iIntros "% %Hvs_lookup %Φ (Hinv & (:model)) HΦ".
 
     wp_rec.
 
-    wp_apply+ (parray_1٠reroot𑁒spec with "[$]") as (nodes) "(:inv' root=node !=)".
+    wp_apply+ (parray٠reroot𑁒spec with "[$]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     wp_apply+ (array٠unsafe_get𑁒spec with "Hdata") as "Hdata"; [done.. |].
@@ -357,26 +357,26 @@ Section parray_1_G.
     iFrame "#∗" => //.
   Qed.
 
-  Lemma parray_1٠set𑁒spec t γ vs i v :
+  Lemma parray٠set𑁒spec t γ vs i v :
     (0 ≤ i < length vs)%Z →
     {{{
-      parray_1_inv γ ∗
-      parray_1_model t γ vs ∗
+      parray_inv γ ∗
+      parray_model t γ vs ∗
       τ v
     }}}
-      parray_1٠set t #i v
+      parray٠set t #i v
     {{{
       t'
     , RET t';
-      parray_1_inv γ ∗
-      parray_1_model t' γ (<[₊i := v]> vs)
+      parray_inv γ ∗
+      parray_model t' γ (<[₊i := v]> vs)
     }}}.
   Proof.
     iIntros "% %Φ (Hinv & (:model) & #Hv) HΦ".
 
     wp_rec.
 
-    wp_apply+ (parray_1٠reroot𑁒spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node !=)".
+    wp_apply+ (parray٠reroot𑁒spec with "[$Hinv $Hnodes_elem_node]") as (nodes) "(:inv' root=node !=)".
     iDestruct (nodes_elem_agree with "Hnodes_elem_node Hnodes_elem_node_") as %<-.
 
     destruct (lookup_lt_is_Some_2 vs ₊i) as (w & Hvs_node_lookup); first lia.
@@ -418,10 +418,10 @@ Section parray_1_G.
       iFrame "∗#". iSteps. iPureIntro.
       rewrite /vs'. simpl_length.
   Qed.
-End parray_1_G.
+End parray_G.
 
 From zoo_persistent Require
-  parray_1__opaque.
+  parray__opaque.
 
-#[global] Opaque parray_1_inv.
-#[global] Opaque parray_1_model.
+#[global] Opaque parray_inv.
+#[global] Opaque parray_model.

@@ -3,31 +3,31 @@ type descr =
   | Link of element
 
 and element =
-  descr Pstore_2.ref
+  descr Sstore_2.ref
 
 type t =
-  Pstore_2.t
+  Sstore_2.t
 
 let create =
-  Pstore_2.create
+  Sstore_2.create
 
 let make t =
-  Pstore_2.ref t (Root 0)
+  Sstore_2.ref t (Root 0)
 
 let rec repr t elt =
-  match Pstore_2.get t elt with
+  match Sstore_2.get t elt with
   | Root _ ->
       elt
   | Link parent ->
       let repr = repr t parent in
-      Pstore_2.set t elt (Link repr) ;
+      Sstore_2.set t elt (Link repr) ;
       repr
 
 let equiv t elt1 elt2 =
   repr t elt1 == repr t elt2
 
 let[@inline] rank t elt =
-  match Pstore_2.get t elt with
+  match Sstore_2.get t elt with
   | Root rank ->
       rank
   | Link _ ->
@@ -39,18 +39,18 @@ let union t elt1 elt2 =
   let rank2 = rank t repr2 in
   if repr1 != repr2 then
     if rank1 < rank2 then (
-      Pstore_2.set t repr1 (Link repr2)
+      Sstore_2.set t repr1 (Link repr2)
     ) else (
-      Pstore_2.set t repr2 (Link repr1) ;
+      Sstore_2.set t repr2 (Link repr1) ;
       if rank1 == rank2 then
-        Pstore_2.set t repr1 (Root (rank1 + 1))
+        Sstore_2.set t repr1 (Root (rank1 + 1))
     )
 
 type snapshot =
-  Pstore_2.snapshot
+  Sstore_2.snapshot
 
 let capture =
-  Pstore_2.capture
+  Sstore_2.capture
 
 let restore =
-  Pstore_2.restore
+  Sstore_2.restore

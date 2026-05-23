@@ -18,9 +18,9 @@ From zoo_std Require Import
   list.
 From zoo_persistent Require Export
   base
-  pstore_2__code.
+  sstore_2__code.
 From zoo_persistent Require Import
-  pstore_2__types.
+  sstore_2__types.
 From zoo Require Import
   options.
 
@@ -60,22 +60,22 @@ Module base.
   Implicit Types descr : descriptor.
   Implicit Types cnodes : gmap location descriptor.
 
-  Class Pstore2G Σ `{zoo_G : !ZooG Σ} :=
-    { #[local] pstore_2_G_nodes_G :: ghost_mapG Σ location descriptor
+  Class Sstore2G Σ `{zoo_G : !ZooG Σ} :=
+    { #[local] sstore_2_G_nodes_G :: ghost_mapG Σ location descriptor
     }.
 
-  Definition pstore_2_Σ :=
+  Definition sstore_2_Σ :=
     #[ghost_mapΣ location descriptor
     ].
-  #[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
-    subG pstore_2_Σ Σ →
-    Pstore2G Σ.
+  #[global] Instance subG_sstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
+    subG sstore_2_Σ Σ →
+    Sstore2G Σ.
   Proof.
     solve_inG.
   Qed.
 
-  Section pstore_2_G.
-    Context `{pstore_2_G : Pstore2G Σ}.
+  Section sstore_2_G.
+    Context `{sstore_2_G : Sstore2G Σ}.
 
     #[local] Definition metadata :=
       gname.
@@ -140,7 +140,7 @@ Module base.
       ⌜NoDup $ delta_ref <$> δs⌝ ∗
       ⌜store_on σ₀ descr.(descriptor_store) = store_on σ₀ $ deltas_apply δs ς⌝ ∗
       deltas_chain cnode δs cnode'.
-    Definition pstore_2_model t σ₀ σ : iProp Σ :=
+    Definition sstore_2_model t σ₀ σ : iProp Σ :=
       ∃ l γ g root ς,
       ⌜t = #l⌝ ∗
       ⌜σ = snd <$> ς⌝ ∗
@@ -171,7 +171,7 @@ Module base.
           ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
           cnode_model γ σ₀ cnode descr ϵ descr'.(descriptor_store).
 
-    Definition pstore_2_snapshot s t σ : iProp Σ :=
+    Definition sstore_2_snapshot s t σ : iProp Σ :=
       ∃ l γ g cnode descr,
       ⌜t = #l⌝ ∗
       ⌜s = (t, #g, #cnode)%V⌝ ∗
@@ -185,16 +185,16 @@ Module base.
     Proof.
       move: node. induction δs; apply _.
     Qed.
-    #[global] Instance pstore_2_model_timeless t σ₀ σ :
-      Timeless (pstore_2_model t σ₀ σ).
+    #[global] Instance sstore_2_model_timeless t σ₀ σ :
+      Timeless (sstore_2_model t σ₀ σ).
     Proof.
       rewrite /Timeless. iIntros "(%l & %γ & %g & H)".
       iExists l, γ, g.
       case_decide; iApply (timeless with "H").
     Qed.
 
-    #[global] Instance pstore_2_snapshot_persistent s t σ :
-      Persistent (pstore_2_snapshot s t σ).
+    #[global] Instance sstore_2_snapshot_persistent s t σ :
+      Persistent (sstore_2_snapshot s t σ).
     Proof.
       apply _.
     Qed.
@@ -464,32 +464,32 @@ Module base.
       iApply (ghost_map_elem_persist with "Helem").
     Qed.
 
-    Lemma pstore_2_model_valid t σ₀ σ :
-      pstore_2_model t σ₀ σ ⊢
+    Lemma sstore_2_model_valid t σ₀ σ :
+      sstore_2_model t σ₀ σ ⊢
       ⌜dom σ ⊆ dom σ₀⌝.
     Proof.
       iIntros "(%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & _)".
       rewrite dom_fmap //.
     Qed.
-    Lemma pstore_2_model_exclusive t σ₀1 σ1 σ₀2 σ2 :
-      pstore_2_model t σ₀1 σ1 -∗
-      pstore_2_model t σ₀2 σ2 -∗
+    Lemma sstore_2_model_exclusive t σ₀1 σ1 σ₀2 σ2 :
+      sstore_2_model t σ₀1 σ1 -∗
+      sstore_2_model t σ₀2 σ2 -∗
       False.
     Proof.
       iIntros "(%l1 & %γ1 & %g1 & %root1 & %ς1 & %Heq1 & -> & _ & Hl_gen_1 & _) (%l2 & %γ2 & %g2 & %root2 & %ς2 & %Heq2 & -> & _ & Hl_gen_2 & _)". simplify.
       iApply (pointsto_exclusive with "Hl_gen_1 Hl_gen_2").
     Qed.
 
-    Lemma pstore_2٠create𑁒spec :
+    Lemma sstore_2٠create𑁒spec :
       {{{
         True
       }}}
-        pstore_2٠create ()
+        sstore_2٠create ()
       {{{
         t
       , RET t;
         (∃ l, ⌜t = #l⌝ ∗ meta_token l (↑nroot.@"user")) ∗
-        pstore_2_model t ∅ ∅
+        sstore_2_model t ∅ ∅
       }}}.
     Proof.
       iIntros "%Φ _ HΦ".
@@ -508,16 +508,16 @@ Module base.
       iStep. iExists l, γ, 0, root, ∅. iFrame. rewrite big_sepM_empty. iSteps.
     Qed.
 
-    Lemma pstore_2٠ref𑁒spec t σ₀ σ v :
+    Lemma sstore_2٠ref𑁒spec t σ₀ σ v :
       {{{
-        pstore_2_model t σ₀ σ
+        sstore_2_model t σ₀ σ
       }}}
-        pstore_2٠ref t v
+        sstore_2٠ref t v
       {{{
         r
       , RET #r;
         ⌜σ₀ !! r = None⌝ ∗
-        pstore_2_model t (<[r := v]> σ₀) σ
+        sstore_2_model t (<[r := v]> σ₀) σ
       }}}.
     Proof.
       iIntros "%Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
@@ -554,15 +554,15 @@ Module base.
       }
     Qed.
 
-    Lemma pstore_2٠get𑁒spec {t σ₀ σ r} v :
+    Lemma sstore_2٠get𑁒spec {t σ₀ σ r} v :
       (σ ∪ σ₀) !! r = Some v →
       {{{
-        pstore_2_model t σ₀ σ
+        sstore_2_model t σ₀ σ
       }}}
-        pstore_2٠get t #r
+        sstore_2٠get t #r
       {{{
         RET v;
-        pstore_2_model t σ₀ σ
+        sstore_2_model t σ₀ σ
       }}}.
     Proof.
       iIntros "%Hσ_lookup %Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
@@ -581,15 +581,15 @@ Module base.
       iSteps.
     Qed.
 
-    Lemma pstore_2٠set𑁒spec t σ₀ σ r v :
+    Lemma sstore_2٠set𑁒spec t σ₀ σ r v :
       r ∈ dom σ₀ →
       {{{
-        pstore_2_model t σ₀ σ
+        sstore_2_model t σ₀ σ
       }}}
-        pstore_2٠set t #r v
+        sstore_2٠set t #r v
       {{{
         RET ();
-        pstore_2_model t σ₀ (<[r := v]> σ)
+        sstore_2_model t σ₀ (<[r := v]> σ)
       }}}.
     Proof.
       iIntros "%Hr %Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
@@ -722,16 +722,16 @@ Module base.
           }
     Qed.
 
-    Lemma pstore_2٠capture𑁒spec t σ₀ σ :
+    Lemma sstore_2٠capture𑁒spec t σ₀ σ :
       {{{
-        pstore_2_model t σ₀ σ
+        sstore_2_model t σ₀ σ
       }}}
-        pstore_2٠capture t
+        sstore_2٠capture t
       {{{
         s
       , RET s;
-        pstore_2_model t σ₀ σ ∗
-        pstore_2_snapshot s t σ
+        sstore_2_model t σ₀ σ ∗
+        sstore_2_snapshot s t σ
       }}}.
     Proof.
       iIntros "%Φ (%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) HΦ".
@@ -834,13 +834,13 @@ Module base.
         ∃ descr',
         ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
         cnode_model γ σ₀ cnode descr ϵ descr'.(descriptor_store).
-    #[local] Lemma pstore_2٠collect𑁒spec_base_chain {γ σ₀ root ς cnodes ϵs base descr δs} i δ node acc :
+    #[local] Lemma sstore_2٠collect𑁒spec_base_chain {γ σ₀ root ς cnodes ϵs base descr δs} i δ node acc :
       δs !! i = Some δ →
       δ.(delta_node) = node →
       {{{
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
-        pstore_2٠collect #node acc
+        sstore_2٠collect #node acc
       {{{
         acc'
       , RET (#root, acc');
@@ -893,7 +893,7 @@ Module base.
         ⌜treemap_path ϵs base cnode path⌝ ∗
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
-        pstore_2٠collect #cnode acc
+        sstore_2٠collect #cnode acc
       {{{
         acc'
       , RET (#root, acc');
@@ -903,7 +903,7 @@ Module base.
           ((λ δ, #δ.(delta_node)) <$> reverse (concat path)) ++
           [ #cnode]
       }}}.
-    #[local] Lemma pstore_2٠collect𑁒spec_chain {γ σ₀ root ς cnodes ϵs base descr δs} cnode ϵ i 𝝳 node path acc :
+    #[local] Lemma sstore_2٠collect𑁒spec_chain {γ σ₀ root ς cnodes ϵs base descr δs} cnode ϵ i 𝝳 node path acc :
       ϵs !! cnode = Some ϵ →
       ϵ.2 !! i = Some 𝝳 →
       𝝳.(delta_node) = node →
@@ -912,7 +912,7 @@ Module base.
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs ∗
         collect𑁒specification γ σ₀ root ς cnodes ϵs base descr δs
       }}}
-        pstore_2٠collect #node acc
+        sstore_2٠collect #node acc
       {{{
         acc'
       , RET (#root, acc');
@@ -967,13 +967,13 @@ Module base.
         rewrite Hdrop_𝝳s reverse_cons fmap_app /= 2!assoc.
         symmetry. apply app_cons_not_nil.
     Qed.
-    #[local] Lemma pstore_2٠collect𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} cnode descr_cnode path acc :
+    #[local] Lemma sstore_2٠collect𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} cnode descr_cnode path acc :
       cnodes !! cnode = Some descr_cnode →
       treemap_path ϵs base cnode path →
       {{{
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
-        pstore_2٠collect #cnode acc
+        sstore_2٠collect #cnode acc
       {{{
         acc'
       , RET (#root, acc');
@@ -1001,7 +1001,7 @@ Module base.
         + iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
           wp_load.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
-          wp_apply+ (pstore_2٠collect𑁒spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
+          wp_apply+ (sstore_2٠collect𑁒spec_base_chain (δs := δ :: δs) 0 δ with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | iFrameSteps |].
           iSteps. iPureIntro.
           rewrite /plist_model' Hacc' -plist_to_val_singleton plist_to_val_app. f_equal.
           rewrite -tail_app // reverse_cons fmap_app.
@@ -1019,7 +1019,7 @@ Module base.
         + iDestruct (deltas_chain_cons_inv with "H𝝳s") as "(H𝝳 & H𝝳s)".
           wp_load.
           iDestruct (deltas_chain_cons with "H𝝳 H𝝳s") as "H𝝳s".
-          wp_apply+ (pstore_2٠collect𑁒spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
+          wp_apply+ (sstore_2٠collect𑁒spec_chain cnode _ 0 𝝳 with "[- HΦ]") as (acc') "(Hinv & %Hacc')"; [done.. | |].
           { iSplitL; first iFrameSteps.
             iClear "Helem_cnode". clear.
             iIntros "%cnode %descr_cnode %path %acc !> %Φ (%Hcnodes_lookup & %Hpath & Hinv) HΦ".
@@ -1084,7 +1084,7 @@ Module base.
         ∃ descr',
         ⌜cnodes !! ϵ.1 = Some descr'⌝ ∗
         cnode_model γ σ₀ cnode descr ϵ descr'.(descriptor_store).
-    #[local] Lemma pstore_2٠revert𑁒spec_aux {γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node} base' descr_base' path δs acc :
+    #[local] Lemma sstore_2٠revert𑁒spec_aux {γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node} base' descr_base' path δs acc :
       cnodes !! base' = Some descr_base' →
       treemap_path ϵs cnode base' path →
       ϵs !! cnode = Some (base, δs) →
@@ -1097,7 +1097,7 @@ Module base.
       {{{
         revert_pre_2 γ σ₀ ς cnodes ϵs base descr_base δs_base cnode descr_cnode δs_cnode node
       }}}
-        pstore_2٠revert #node acc
+        sstore_2٠revert #node acc
       {{{
         ϵs
       , RET ();
@@ -1256,7 +1256,7 @@ Module base.
           rewrite /ς' -(deltas_apply_snoc' _ _ _ _ node) //.
         }
     Qed.
-    #[local] Lemma pstore_2٠revert𑁒spec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
+    #[local] Lemma sstore_2٠revert𑁒spec {γ σ₀ root ς cnodes ϵs base descr_base δs} base' descr_base' path acc :
       cnodes !! base' = Some descr_base' →
       treemap_path ϵs base base' path →
       list_model' acc $ tail $
@@ -1266,7 +1266,7 @@ Module base.
       {{{
         revert_pre_1 γ σ₀ root ς cnodes ϵs base descr_base δs
       }}}
-        pstore_2٠revert #root acc
+        sstore_2٠revert #root acc
       {{{
         ϵs
       , RET ();
@@ -1302,7 +1302,7 @@ Module base.
           }
           rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
           rewrite delete_delete.
-          wp_apply (pstore_2٠revert𑁒spec_aux (δs_base := []) (δs_cnode := δs_cnode) base' with "[- HΦ]"); try done.
+          wp_apply (sstore_2٠revert𑁒spec_aux (δs_base := []) (δs_cnode := δs_cnode) base' with "[- HΦ]"); try done.
           { rewrite right_id //. }
           { rewrite concat_app reverse_app fmap_app -assoc /= right_id //. }
           { iSteps. }
@@ -1361,7 +1361,7 @@ Module base.
             rewrite lookup_delete_ne // in Hcnodes_lookup_cnode.
             rewrite deltas_apply_singleton store_on_insert in Hδs.
             rewrite -Hδs delete_delete.
-            wp_apply+ (pstore_2٠revert𑁒spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
+            wp_apply+ (sstore_2٠revert𑁒spec_aux (δs_base := []) (δs_cnode := δs_cnode' ++ [_]) base' with "[- HΦ]"); try done.
             { simpl_length/=. lia. }
             { rewrite right_id //. }
             { rewrite reverse_app fmap_app -assoc //. }
@@ -1397,13 +1397,13 @@ Module base.
           }
     Qed.
 
-    #[local] Lemma pstore_2٠reroot𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} base' descr' path :
+    #[local] Lemma sstore_2٠reroot𑁒spec {γ σ₀ root ς cnodes ϵs base descr δs} base' descr' path :
       cnodes !! base' = Some descr' →
       treemap_path ϵs base base' path →
       {{{
         collect_inv γ σ₀ root ς cnodes ϵs base descr δs
       }}}
-        pstore_2٠reroot #base'
+        sstore_2٠reroot #base'
       {{{
         ϵs
       , RET ();
@@ -1413,22 +1413,22 @@ Module base.
       iIntros "%Hcnodes_lookup_base' %Hpath %Φ Hinv HΦ".
 
       wp_rec.
-      wp_apply (pstore_2٠collect𑁒spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
-      wp_apply+ (pstore_2٠revert𑁒spec with "[Hinv] HΦ"); [done.. | |].
+      wp_apply (sstore_2٠collect𑁒spec with "Hinv") as (acc) "(Hinv & %Hacc)"; [done.. |].
+      wp_apply+ (sstore_2٠revert𑁒spec with "[Hinv] HΦ"); [done.. | |].
       { rewrite list_model'_plist_model' //. }
       iDestruct "Hinv" as "(Hroot & Hς & %Hϵs & Hauth & %Hcnodes_lookup_base & ((%Hstore_dom & %Hstore_gen) & #Helem_base & %Hδs_nodup & %Hδs & Hδs) & %Hδs_nil & Hcnodes)".
       iSteps.
     Qed.
 
-    Lemma pstore_2٠restore𑁒spec t σ₀ σ s σ' :
+    Lemma sstore_2٠restore𑁒spec t σ₀ σ s σ' :
       {{{
-        pstore_2_model t σ₀ σ ∗
-        pstore_2_snapshot s t σ'
+        sstore_2_model t σ₀ σ ∗
+        sstore_2_snapshot s t σ'
       }}}
-        pstore_2٠restore t s
+        sstore_2٠restore t s
       {{{
         RET ();
-        pstore_2_model t σ₀ σ'
+        sstore_2_model t σ₀ σ'
       }}}.
     Proof.
       iIntros "%Φ ((%l & %γ & %g & %root & %ς & -> & -> & #Hmeta & Hl_gen & Hl_root & Hroot & Hς & (%Hς_dom & %Hς_gen) & Hmodel) & (%_l & %_γ & %g' & %base' & %descr' & %Heq & -> & -> & %Hg' & #_Hmeta & #Helem_base')) HΦ". injection Heq as <-.
@@ -1472,7 +1472,7 @@ Module base.
           iDestruct (deltas_chain_cons_inv with "Hδs") as "(Hδ & Hδs)".
           wp_load.
           iDestruct (deltas_chain_cons with "Hδ Hδs") as "Hδs".
-          wp_apply+ (pstore_2٠reroot𑁒spec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
+          wp_apply+ (sstore_2٠reroot𑁒spec with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase & Hstore & %Hϵs' & Hauth & Hdescr & Hcnodes)"; first done.
           { apply treemap_path_nil. }
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
@@ -1499,7 +1499,7 @@ Module base.
           iDestruct (deltas_chain_cons with "Hδ Hδs'") as "Hδs'".
           rewrite <- Hδ in *. clear Hδ δ δs'.
           opose proof* treemap_rooted_path as (path & Hpath); [done.. |].
-          wp_apply+ (pstore_2٠reroot𑁒spec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
+          wp_apply+ (sstore_2٠reroot𑁒spec (cnodes := cnodes) with "[- Hl_gen Hl_root HΦ]") as (ϵs') "(Hbase' & Hstore' & %Hϵs' & Hauth & Hdescr' & Hcnodes)"; [done.. | |].
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
           iApply "HΦ".
@@ -1509,110 +1509,110 @@ Module base.
           }
           iExists cnodes, ϵs', base', descr', []. iSteps.
     Qed.
-  End pstore_2_G.
+  End sstore_2_G.
 
-  #[global] Opaque pstore_2_model.
-  #[global] Opaque pstore_2_snapshot.
+  #[global] Opaque sstore_2_model.
+  #[global] Opaque sstore_2_snapshot.
 End base.
 
 From zoo_persistent Require
-  pstore_2__opaque.
+  sstore_2__opaque.
 
-Class Pstore2G Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] pstore_2_G_raw_G :: base.Pstore2G Σ
-  ; #[local] pstore_2_G_support_G :: MonoGmapG Σ location val
+Class Sstore2G Σ `{zoo_G : !ZooG Σ} :=
+  { #[local] sstore_2_G_raw_G :: base.Sstore2G Σ
+  ; #[local] sstore_2_G_support_G :: MonoGmapG Σ location val
   }.
 
-Definition pstore_2_Σ :=
-  #[base.pstore_2_Σ
+Definition sstore_2_Σ :=
+  #[base.sstore_2_Σ
   ; mono_gmap_Σ location val
   ].
-#[global] Instance subG_pstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
-  subG pstore_2_Σ Σ →
-  Pstore2G Σ.
+#[global] Instance subG_sstore_2_Σ Σ `{zoo_G : !ZooG Σ} :
+  subG sstore_2_Σ Σ →
+  Sstore2G Σ.
 Proof.
   solve_inG.
 Qed.
 
-Section pstore_2_G.
-  Context `{pstore_2_G : Pstore2G Σ}.
+Section sstore_2_G.
+  Context `{sstore_2_G : Sstore2G Σ}.
 
   #[local] Definition metadata :=
     gname.
   Implicit Types γ : metadata.
 
-  Definition pstore_2_model t σ : iProp Σ :=
+  Definition sstore_2_model t σ : iProp Σ :=
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     l ↪[nroot.@"user"] γ ∗
     mono_gmap_auth γ (DfracOwn 1) σ₀ ∗
-    base.pstore_2_model t σ₀ ς.
+    base.sstore_2_model t σ₀ ς.
 
-  Definition pstore_2_snapshot s t σ : iProp Σ :=
+  Definition sstore_2_snapshot s t σ : iProp Σ :=
     ∃ l γ σ₀ ς,
     ⌜t = #l⌝ ∗
     ⌜σ ⊆ ς ∪ σ₀⌝ ∗
     l ↪[nroot.@"user"] γ ∗
     mono_gmap_lb γ σ₀ ∗
-    base.pstore_2_snapshot s t ς.
+    base.sstore_2_snapshot s t ς.
 
-  #[global] Instance pstore_2_model_timeless t σ :
-    Timeless (pstore_2_model t σ).
+  #[global] Instance sstore_2_model_timeless t σ :
+    Timeless (sstore_2_model t σ).
   Proof.
     apply _.
   Qed.
 
-  #[global] Instance pstore_2_snapshot_persistent s t σ :
-    Persistent (pstore_2_snapshot s t σ).
+  #[global] Instance sstore_2_snapshot_persistent s t σ :
+    Persistent (sstore_2_snapshot s t σ).
   Proof.
     apply _.
   Qed.
 
-  Lemma pstore_2_model_exclusive t σ1 σ2 :
-    pstore_2_model t σ1 -∗
-    pstore_2_model t σ2 -∗
+  Lemma sstore_2_model_exclusive t σ1 σ2 :
+    sstore_2_model t σ1 -∗
+    sstore_2_model t σ2 -∗
     False.
   Proof.
     iIntros "(%l1 & %γ1 & %σ₀1 & %ς1 & %Heq1 & _ & _ & _ & Hmodel1) (%l2 & %γ2 & %σ₀2 & %ς2 & %Heq2 & _ & _ & _ & Hmodel2)".
-    iApply (base.pstore_2_model_exclusive with "Hmodel1 Hmodel2").
+    iApply (base.sstore_2_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
-  Lemma pstore_2٠create𑁒spec :
+  Lemma sstore_2٠create𑁒spec :
     {{{
       True
     }}}
-      pstore_2٠create ()
+      sstore_2٠create ()
     {{{
       t
     , RET t;
-      pstore_2_model t ∅
+      sstore_2_model t ∅
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
     iApply wp_fupd.
-    wp_apply (base.pstore_2٠create𑁒spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
+    wp_apply (base.sstore_2٠create𑁒spec with "[//]") as (t) "((%l & -> & Hmeta) & Ht)".
     iMod mono_gmap_alloc as "(%γ & Hauth)".
     iMod (meta_set γ with "Hmeta") as "Hmeta"; first done.
     iSteps. iExists ∅, ∅. iSteps.
   Qed.
 
-  Lemma pstore_2٠ref𑁒spec t σ v :
+  Lemma sstore_2٠ref𑁒spec t σ v :
     {{{
-      pstore_2_model t σ
+      sstore_2_model t σ
     }}}
-      pstore_2٠ref t v
+      sstore_2٠ref t v
     {{{
       r
     , RET #r;
       ⌜σ !! r = None⌝ ∗
-      pstore_2_model t (<[r := v]> σ)
+      sstore_2_model t (<[r := v]> σ)
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (base.pstore_2_model_valid with "Ht") as %Hς_dom.
+    iDestruct (base.sstore_2_model_valid with "Ht") as %Hς_dom.
     iApply wp_fupd.
-    wp_apply (base.pstore_2٠ref𑁒spec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
+    wp_apply (base.sstore_2٠ref𑁒spec with "Ht") as (r) "(%Hσ₀_lookup & Ht)".
     assert (ς !! r = None) as Hς_lookup.
     { rewrite -!not_elem_of_dom in Hσ₀_lookup |- *. set_solver. }
     assert (σ !! r = None) as Hσ_lookup.
@@ -1623,81 +1623,81 @@ Section pstore_2_G.
     rewrite -insert_union_r //. apply insert_mono. done.
   Qed.
 
-  Lemma pstore_2٠get𑁒spec {t σ r} v :
+  Lemma sstore_2٠get𑁒spec {t σ r} v :
     σ !! r = Some v →
     {{{
-      pstore_2_model t σ
+      sstore_2_model t σ
     }}}
-      pstore_2٠get t #r
+      sstore_2٠get t #r
     {{{
       RET v;
-      pstore_2_model t σ
+      sstore_2_model t σ
     }}}.
   Proof.
     iIntros "%Hσ_lookup %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    wp_apply (base.pstore_2٠get𑁒spec with "Ht") as "Ht".
+    wp_apply (base.sstore_2٠get𑁒spec with "Ht") as "Ht".
     { eapply lookup_weaken; done. }
     iSteps.
   Qed.
 
-  Lemma pstore_2٠set𑁒spec t σ r v :
+  Lemma sstore_2٠set𑁒spec t σ r v :
     r ∈ dom σ →
     {{{
-      pstore_2_model t σ
+      sstore_2_model t σ
     }}}
-      pstore_2٠set t #r v
+      sstore_2٠set t #r v
     {{{
       RET ();
-      pstore_2_model t (<[r := v]> σ)
+      sstore_2_model t (<[r := v]> σ)
     }}}.
   Proof.
     iIntros "%Hr %Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
-    iDestruct (base.pstore_2_model_valid with "Ht") as %Hς_dom.
-    wp_apply (base.pstore_2٠set𑁒spec with "Ht") as "Ht".
+    iDestruct (base.sstore_2_model_valid with "Ht") as %Hς_dom.
+    wp_apply (base.sstore_2٠set𑁒spec with "Ht") as "Ht".
     { apply subseteq_dom in Hσ. set_solver. }
     iApply "HΦ".
     iExists l, γ, σ₀, (<[r := v]> ς). iSteps. iPureIntro.
     rewrite -insert_union_l. apply insert_mono. done.
   Qed.
 
-  Lemma pstore_2٠capture𑁒spec t σ :
+  Lemma sstore_2٠capture𑁒spec t σ :
     {{{
-      pstore_2_model t σ
+      sstore_2_model t σ
     }}}
-      pstore_2٠capture t
+      sstore_2٠capture t
     {{{
       s
     , RET s;
-      pstore_2_model t σ ∗
-      pstore_2_snapshot s t σ
+      sstore_2_model t σ ∗
+      sstore_2_snapshot s t σ
     }}}.
   Proof.
     iIntros "%Φ (%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) HΦ".
     iDestruct (mono_gmap_lb_get with "Hauth") as "#Hlb".
-    wp_apply (base.pstore_2٠capture𑁒spec with "Ht") as (s) "(Ht & Hs)".
+    wp_apply (base.sstore_2٠capture𑁒spec with "Ht") as (s) "(Ht & Hs)".
     iSteps.
   Qed.
 
-  Lemma pstore_2٠restore𑁒spec t σ s σ' :
+  Lemma sstore_2٠restore𑁒spec t σ s σ' :
     {{{
-      pstore_2_model t σ ∗
-      pstore_2_snapshot s t σ'
+      sstore_2_model t σ ∗
+      sstore_2_snapshot s t σ'
     }}}
-      pstore_2٠restore t s
+      sstore_2٠restore t s
     {{{
       RET ();
-      pstore_2_model t σ'
+      sstore_2_model t σ'
     }}}.
   Proof.
     iIntros "%Φ ((%l & %γ & %σ₀ & %ς & -> & %Hσ & #Hmeta & Hauth & Ht) & (%_l & %_γ & %σ₀' & %ς' & %Heq & %Hσ' & _Hmeta & #Hlb & Hs)) HΦ". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta _Hmeta") as %<-. iClear "_Hmeta".
-    wp_apply (base.pstore_2٠restore𑁒spec with "[$Ht $Hs]") as "Ht".
+    wp_apply (base.sstore_2٠restore𑁒spec with "[$Ht $Hs]") as "Ht".
     iDestruct (mono_gmap_lb_valid with "Hauth Hlb") as %Hσ₀'.
     iApply "HΦ".
     iExists l, γ, σ₀, ς'. iSteps. iPureIntro.
     trans (ς' ∪ σ₀'); first done. apply map_union_mono_l. done.
   Qed.
-End pstore_2_G.
+End sstore_2_G.
 
-#[global] Opaque pstore_2_model.
-#[global] Opaque pstore_2_snapshot.
+#[global] Opaque sstore_2_model.
+#[global] Opaque sstore_2_snapshot.

@@ -6,21 +6,21 @@ From zoo.language Require Import
 From zoo_std Require Import
   array.
 From zoo_persistent Require Import
-  parray_2__types.
+  sarray__types.
 From zoo Require Import
   options.
 
-Definition parray_2٠make : val :=
+Definition sarray٠make : val :=
   fun: "equal" "sz" "v" =>
     let: "data" := array٠unsafe_make "sz" "v" in
     let: "root" := ref §Root in
     { "equal", "data", "root" }.
 
-Definition parray_2٠get : val :=
+Definition sarray٠get : val :=
   fun: "t" "i" =>
     array٠unsafe_get "t".{data} "i".
 
-Definition parray_2٠set : val :=
+Definition sarray٠set : val :=
   fun: "t" "i" "v" =>
     let: "v'" := array٠unsafe_get "t".{data} "i" in
     if: ~ "t".{equal} "v" "v'" then (
@@ -30,11 +30,11 @@ Definition parray_2٠set : val :=
       array٠unsafe_set "t".{data} "i" "v"
     ).
 
-Definition parray_2٠capture : val :=
+Definition sarray٠capture : val :=
   fun: "t" =>
     "t".{root}.
 
-Definition parray_2٠restore₀ : val :=
+Definition sarray٠restore₀ : val :=
   rec: "restore" "data" "node" =>
     match: !"node" with
     | Root =>
@@ -45,13 +45,13 @@ Definition parray_2٠restore₀ : val :=
         array٠unsafe_set "data" "i" "v"
     end.
 
-Definition parray_2٠restore : val :=
+Definition sarray٠restore : val :=
   fun: "t" "s" =>
     match: !"s" with
     | Root =>
         ()
     | Diff <> <> <> =>
-        parray_2٠restore₀ "t".{data} "s" ;;
+        sarray٠restore₀ "t".{data} "s" ;;
         "s" <- §Root ;;
         "t" <-{root} "s"
     end.
