@@ -38,7 +38,7 @@ Implicit Types status : status.
 Implicit Types empty : emptiness.
 
 Class WsHubStdG Σ `{zoo_G : !ZooG Σ} :=
-  { #[local] ws_hub_std_G_queues_G :: WsDequesPublicG Σ
+  { #[local] ws_hub_std_G_deques_G :: WsDequesPublicG Σ
   ; #[local] ws_hub_std_G_waiters_G :: WaitersG Σ
   }.
 
@@ -138,7 +138,7 @@ Section ws_hub_std_G.
 
   Record metadata :=
     { metadata_size : nat
-    ; metadata_queues : val
+    ; metadata_deques : val
     ; metadata_rounds : val
     ; metadata_waiters : val
     }.
@@ -168,10 +168,10 @@ Section ws_hub_std_G.
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
     ⌜sz = γ.(metadata_size)⌝ ∗
-    𝑡.[queues] ↦□ γ.(metadata_queues) ∗
+    𝑡.[deques] ↦□ γ.(metadata_deques) ∗
     𝑡.[rounds] ↦□ γ.(metadata_rounds) ∗
     𝑡.[waiters] ↦□ γ.(metadata_waiters) ∗
-    ws_deques_public_inv γ.(metadata_queues) ι γ.(metadata_size) ∗
+    ws_deques_public_inv γ.(metadata_deques) ι γ.(metadata_size) ∗
     array_inv γ.(metadata_rounds) γ.(metadata_size) ∗
     waiters_inv γ.(metadata_waiters) sz ∗
     inv nroot (inv_inner 𝑡).
@@ -181,10 +181,10 @@ Section ws_hub_std_G.
       & {%Heq{};->}
       & #Hmeta{}
       & ->
-      & #H𝑡{}_queues
+      & #H𝑡{}_deques
       & #H𝑡{}_rounds
       & #H𝑡{}_waiters
-      & #Hqueues{}_inv
+      & #Hdeques{}_inv
       & #Hrounds{}_inv
       & #Hwaiters{}_inv
       & #Hinv{}
@@ -195,7 +195,7 @@ Section ws_hub_std_G.
     ∃ 𝑡 γ vss,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    ws_deques_public_model γ.(metadata_queues) vss ∗
+    ws_deques_public_model γ.(metadata_deques) vss ∗
     ⌜consistent vs vss⌝.
   #[local] Instance : CustomIpat "model" :=
     " ( %𝑡_
@@ -203,7 +203,7 @@ Section ws_hub_std_G.
       & %vss
       & %Heq
       & Hmeta_
-      & Hqueues_model
+      & Hdeques_model
       & %Hconsistent
       )
     ".
@@ -212,7 +212,7 @@ Section ws_hub_std_G.
     ∃ 𝑡 γ ws round n,
     ⌜t = #𝑡⌝ ∗
     𝑡 ↪ γ ∗
-    ws_deques_public_owner γ.(metadata_queues) i status ws ∗
+    ws_deques_public_owner γ.(metadata_deques) i status ws ∗
     ⌜empty = Empty → ws = []⌝ ∗
     array_slice γ.(metadata_rounds) i DfracDiscarded [round] ∗
     random_round_model' round (γ.(metadata_size) - 1) n.
@@ -224,7 +224,7 @@ Section ws_hub_std_G.
       & %n{}
       & %Heq{}
       & Hmeta{;_}
-      & Hqueues_owner{}
+      & Hdeques_owner{}
       & %Hempty{}
       & #Hrounds{}
       & Hround{}
@@ -260,7 +260,7 @@ Section ws_hub_std_G.
   Proof.
     iIntros "(:owner =1) (:owner =2)". simplify.
     iDestruct (meta_agree with "Hmeta1 Hmeta2") as %<-. iClear "Hmeta2".
-    iApply (ws_deques_public_owner_exclusive with "Hqueues_owner1 Hqueues_owner2").
+    iApply (ws_deques_public_owner_exclusive with "Hdeques_owner1 Hdeques_owner2").
   Qed.
 
   Lemma ws_hub_std_inv_owner t ι sz i status empty :
@@ -270,7 +270,7 @@ Section ws_hub_std_G.
   Proof.
     iIntros "(:inv) (:owner)". simplify.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
-    iApply (ws_deques_public_inv_owner with "Hqueues_inv Hqueues_owner").
+    iApply (ws_deques_public_inv_owner with "Hdeques_inv Hdeques_owner").
   Qed.
 
   Lemma ws_hub_std_model_empty t ι sz vs :
@@ -285,13 +285,13 @@ Section ws_hub_std_G.
     iIntros "(:inv) (:model) Howners". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iEval (rewrite consistent_empty //). iIntros "%i %us %Hlookup".
-    iDestruct (ws_deques_public_inv_model with "Hqueues_inv Hqueues_model") as %Hvss.
+    iDestruct (ws_deques_public_inv_model with "Hdeques_inv Hdeques_model") as %Hvss.
     opose proof* (lookup_lt_Some vss i us) as Hi; first done.
     iDestruct (big_sepL_lookup _ _ i with "Howners") as "(%status & Howner)".
     { rewrite lookup_seq. auto with lia. }
     iDestruct "Howner" as "(:owner)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iDestruct (ws_deques_public_model_owner with "Hqueues_model Hqueues_owner") as "(%us_ & %Hlookup_ & %Hws)". simplify.
+    iDestruct (ws_deques_public_model_owner with "Hdeques_model Hdeques_owner") as "(%us_ & %Hlookup_ & %Hws)". simplify.
     iPureIntro. apply suffix_nil_inv. naive_solver.
   Qed.
 
@@ -326,16 +326,16 @@ Section ws_hub_std_G.
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
     rewrite Hrounds.
 
-    wp_apply+ (ws_deques_public٠create𑁒spec with "[//]") as (queues) "(#Hqueues_inv & Hqueues_model & Hqueues_owner)"; first done.
+    wp_apply+ (ws_deques_public٠create𑁒spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
 
-    wp_block 𝑡 as "Hmeta" "(H𝑡_queues & H𝑡_rounds & H𝑡_waiters & H𝑡_num_active & _)".
-    iMod (pointsto_persist with "H𝑡_queues") as "#H𝑡_queues".
+    wp_block 𝑡 as "Hmeta" "(H𝑡_deques & H𝑡_rounds & H𝑡_waiters & H𝑡_num_active & _)".
+    iMod (pointsto_persist with "H𝑡_deques") as "#H𝑡_deques".
     iMod (pointsto_persist with "H𝑡_rounds") as "#H𝑡_rounds".
     iMod (pointsto_persist with "H𝑡_waiters") as "#H𝑡_waiters".
 
     pose γ :=
       {|metadata_size := ₊sz
-      ; metadata_queues := queues
+      ; metadata_deques := deques
       ; metadata_rounds := v_rounds
       ; metadata_waiters := waiters
       |}.
@@ -348,8 +348,8 @@ Section ws_hub_std_G.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
       iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
-      iDestruct (big_sepL_seq_index_1 with "Hqueues_owner") as "Hqueues_owner"; first done.
-      iDestruct (big_sepL_sep_2 with "Hqueues_owner Hrounds") as "H".
+      iDestruct (big_sepL_seq_index_1 with "Hdeques_owner") as "Hdeques_owner"; first done.
+      iDestruct (big_sepL_sep_2 with "Hdeques_owner Hrounds") as "H".
       iApply big_sepL_seq_index; first done.
       iApply (big_sepL_impl with "H").
       iSteps.
@@ -413,7 +413,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (ws_deques_public٠block𑁒spec with "[$Hqueues_inv $Hqueues_owner]"); first done.
+    wp_apply (ws_deques_public٠block𑁒spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
     iSteps.
   Qed.
 
@@ -433,7 +433,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (ws_deques_public٠unblock𑁒spec with "[$Hqueues_inv $Hqueues_owner]"); first done.
+    wp_apply (ws_deques_public٠unblock𑁒spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
     iSteps.
   Qed.
 
@@ -542,13 +542,13 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_apply (ws_deques_public٠push𑁒spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
+    awp_apply (ws_deques_public٠push𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hqueues_model"; first iSteps. iIntros "%us (%Hlookup & Hqueues_model)".
+    iAaccIntro with "Hdeques_model"; first iSteps. iIntros "%us (%Hlookup & Hdeques_model)".
     iSplitL.
     { iFrameSteps. iPureIntro. apply consistent_push; done. }
-    iIntros "!> HΦ !> Hqueues_owner Hround {%}".
+    iIntros "!> HΦ !> Hdeques_owner Hround {%}".
 
     wp_apply+ ws_hub_std٠notify𑁒spec; iSteps.
   Qed.
@@ -581,12 +581,12 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_apply+ (ws_deques_public٠pop𑁒spec with "[$Hqueues_inv $Hqueues_owner]") without "Hround"; first done.
+    awp_apply+ (ws_deques_public٠pop𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |] us) "Ho".
+    iAaccIntro with "Hdeques_model"; first iSteps. iIntros ([v |] us) "Ho".
 
-    - iDestruct "Ho" as "(% & %Hlookup & %Hws & <- & Hqueues_model)".
+    - iDestruct "Ho" as "(% & %Hlookup & %Hws & <- & Hdeques_model)".
       iExists (Some v).
       iSplitL.
       { eapply consistent_pop in Hconsistent; last done.
@@ -599,7 +599,7 @@ Section ws_hub_std_G.
       opose proof* Hempty as ->; first done.
       eapply suffix_cons_nil_inv, suffix_app_l. done.
 
-    - iDestruct "Ho" as "(%Hlookup & -> & Hqueues_model)".
+    - iDestruct "Ho" as "(%Hlookup & -> & Hdeques_model)".
       iExists None. iFrameSteps.
   Qed.
 
@@ -634,13 +634,13 @@ Section ws_hub_std_G.
     wp_apply+ (random_round٠reset𑁒spec' with "Hround") as "Hround".
     wp_load.
 
-    iDestruct (ws_deques_public_inv_owner with "Hqueues_inv Hqueues_owner") as %?.
-    awp_apply (ws_deques_public٠steal_as𑁒spec with "[$Hqueues_inv $Hqueues_owner $Hround]"); [lia.. |].
+    iDestruct (ws_deques_public_inv_owner with "Hdeques_inv Hdeques_owner") as %?.
+    awp_apply (ws_deques_public٠steal_as𑁒spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
     iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hqueues_model"; first iSteps. iIntros ([v |]) "Ho".
+    iAaccIntro with "Hdeques_model"; first iSteps. iIntros ([v |]) "Ho".
 
-    - iDestruct "Ho" as "(%j & %ws' & %Hj & %Hlookup & Hqueues_model)".
+    - iDestruct "Ho" as "(%j & %ws' & %Hj & %Hlookup & Hdeques_model)".
       iExists (Some v).
       iSplitL.
       { eapply consistent_steal in Hconsistent; last done.

@@ -15,7 +15,7 @@ From zoo_std Require Import
 From zoo Require Import
   options.
 
-Notation "'queues'" := (
+Notation "'deques'" := (
   in_type "zoo_parabs.ws_hub_std.t" 0
 )(in custom zoo_field
 ).

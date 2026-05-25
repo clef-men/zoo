@@ -3,14 +3,14 @@
 *)
 
 type 'a t =
-  { queues: 'a Ws_deques_public.t
+  { deques: 'a Ws_deques_public.t
   ; rounds: Random_round.t array
   ; waiters: Waiters.t
   ; mutable num_active: int [@atomic]
   }
 
 let create sz =
-  { queues= Ws_deques_public.create sz
+  { deques= Ws_deques_public.create sz
   ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
   ; waiters= Waiters.create sz
   ; num_active= sz + 1
@@ -25,9 +25,9 @@ let end_inactive t =
   Atomic.Loc.incr [%atomic.loc t.num_active]
 
 let block_active t i =
-  Ws_deques_public.block t.queues i
+  Ws_deques_public.block t.deques i
 let unblock_active t i =
-  Ws_deques_public.unblock t.queues i
+  Ws_deques_public.unblock t.deques i
 
 let block t i =
   begin_inactive t ;
@@ -45,16 +45,16 @@ let notify_all t =
   Waiters.notify_all t.waiters
 
 let push t i v =
-  Ws_deques_public.push t.queues i v ;
+  Ws_deques_public.push t.deques i v ;
   notify t
 
 let pop t i =
-  Ws_deques_public.pop t.queues i
+  Ws_deques_public.pop t.deques i
 
 let try_steal_once t i =
   let round = Array.unsafe_get t.rounds i in
   Random_round.reset round ;
-  Ws_deques_public.steal_as t.queues i round
+  Ws_deques_public.steal_as t.deques i round
 
 let rec try_steal t i ~yield ~max_round ~pred =
   if max_round <= 0 then

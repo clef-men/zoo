@@ -43,11 +43,11 @@ Definition ws_hub_std٠end_inactive : val :=
 
 Definition ws_hub_std٠block_active : val :=
   fun: "t" "i" =>
-    ws_deques_public٠block "t".{queues} "i".
+    ws_deques_public٠block "t".{deques} "i".
 
 Definition ws_hub_std٠unblock_active : val :=
   fun: "t" "i" =>
-    ws_deques_public٠unblock "t".{queues} "i".
+    ws_deques_public٠unblock "t".{deques} "i".
 
 Definition ws_hub_std٠block : val :=
   fun: "t" "i" =>
@@ -73,18 +73,18 @@ Definition ws_hub_std٠notify_all : val :=
 
 Definition ws_hub_std٠push : val :=
   fun: "t" "i" "v" =>
-    ws_deques_public٠push "t".{queues} "i" "v" ;;
+    ws_deques_public٠push "t".{deques} "i" "v" ;;
     ws_hub_std٠notify "t".
 
 Definition ws_hub_std٠pop : val :=
   fun: "t" "i" =>
-    ws_deques_public٠pop "t".{queues} "i".
+    ws_deques_public٠pop "t".{deques} "i".
 
 Definition ws_hub_std٠try_steal_once : val :=
   fun: "t" "i" =>
     let: "round" := array٠unsafe_get "t".{rounds} "i" in
     random_round٠reset "round" ;;
-    ws_deques_public٠steal_as "t".{queues} "i" "round".
+    ws_deques_public٠steal_as "t".{deques} "i" "round".
 
 Definition ws_hub_std٠try_steal₀ : val :=
   rec: "try_steal" "t" "i" "yield" "max_round" "pred" =>
