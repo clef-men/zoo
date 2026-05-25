@@ -53,81 +53,85 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition consistent vs vss :=
-  vs = ⋃+ (list_to_set_disj <$> vss).
+Section consistent.
+  #[local] Definition consistent vs vss :=
+    vs = ⋃+ (list_to_set_disj <$> vss).
 
-#[local] Lemma consistent_alloc sz :
-  consistent ∅ (replicate sz []).
-Proof.
-  rewrite /consistent fmap_replicate gmultiset_disj_union_list_replicate_empty //.
-Qed.
-#[local] Lemma consistent_empty vs vss :
-  consistent vs vss →
-  vs = ∅ ↔
-    ∀ i us,
+  #[local] Lemma consistent_alloc sz :
+    consistent ∅ (replicate sz []).
+  Proof.
+    rewrite /consistent fmap_replicate gmultiset_disj_union_list_replicate_empty //.
+  Qed.
+
+  #[local] Lemma consistent_empty vs vss :
+    consistent vs vss →
+    vs = ∅ ↔
+      ∀ i us,
+      vss !! i = Some us →
+      us = [].
+  Proof.
+    intros ->.
+    rewrite gmultiset_disj_union_list_empty.
+    setoid_rewrite list_elem_of_fmap.
+    split.
+    - intros H i us Hus%list_elem_of_lookup_2.
+      rewrite -list_to_set_disj_empty.
+      eauto.
+    - intros H ? (us & -> & Hus%list_elem_of_lookup).
+      rewrite list_to_set_disj_empty.
+      naive_solver.
+  Qed.
+
+  #[local] Lemma consistent_push {vs vss i us} v :
     vss !! i = Some us →
-    us = [].
-Proof.
-  intros ->.
-  rewrite gmultiset_disj_union_list_empty.
-  setoid_rewrite list_elem_of_fmap.
-  split.
-  - intros H i us Hus%list_elem_of_lookup_2.
-    rewrite -list_to_set_disj_empty.
-    eauto.
-  - intros H ? (us & -> & Hus%list_elem_of_lookup).
-    rewrite list_to_set_disj_empty.
-    naive_solver.
-Qed.
-#[local] Lemma consistent_push {vs vss i us} v :
-  vss !! i = Some us →
-  consistent vs vss →
-  consistent ({[+v+]} ⊎ vs) (<[i := us ++ [v]]> vss).
-Proof.
-  intros Hlookup ->.
-  rewrite /consistent.
-  rewrite list_fmap_insert list_to_set_disj_snoc gmultiset_disj_union_list_insert_disj_union_l //.
-  rewrite list_lookup_fmap Hlookup //.
-Qed.
-#[local] Lemma consistent_remove {vs vss i us} us1 v us2 :
-  vss !! i = Some us →
-  us = us1 ++ v :: us2 →
-  consistent vs vss →
-    v ∈ vs ∧
-    consistent (vs ∖ {[+v+]}) (<[i := us1 ++ us2]> vss).
-Proof.
-  intros Hlookup -> ->.
-  assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
-  { rewrite list_lookup_fmap Hlookup //. }
-  split.
-  - apply elem_of_gmultiset_disj_union_list.
-    eexists. split.
-    + rewrite list_elem_of_lookup. eauto.
-    + rewrite list_to_set_disj_app. set_solver.
-  - rewrite (gmultiset_disj_union_list_delete' _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
-    rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.
-    rewrite !list_to_set_disj_app.
-    multiset_solver.
-Qed.
-#[local] Lemma consistent_pop vs vss i us v :
-  vss !! i = Some (us ++ [v]) →
-  consistent vs vss →
-    v ∈ vs ∧
-    consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
-Proof.
-  intros Hlookup Hconsistent.
-  eapply (consistent_remove us v []) in Hconsistent; [| done..].
-  rewrite app_nil_r // in Hconsistent.
-Qed.
-#[local] Lemma consistent_steal vs vss i v us :
-  vss !! i = Some (v :: us) →
-  consistent vs vss →
-    v ∈ vs ∧
-    consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
-Proof.
-  intros Hlookup.
-  eapply (consistent_remove [] v us); done.
-Qed.
+    consistent vs vss →
+    consistent ({[+v+]} ⊎ vs) (<[i := us ++ [v]]> vss).
+  Proof.
+    intros Hlookup ->.
+    rewrite /consistent.
+    rewrite list_fmap_insert list_to_set_disj_snoc gmultiset_disj_union_list_insert_disj_union_l //.
+    rewrite list_lookup_fmap Hlookup //.
+  Qed.
+  #[local] Lemma consistent_remove {vs vss i us} us1 v us2 :
+    vss !! i = Some us →
+    us = us1 ++ v :: us2 →
+    consistent vs vss →
+      v ∈ vs ∧
+      consistent (vs ∖ {[+v+]}) (<[i := us1 ++ us2]> vss).
+  Proof.
+    intros Hlookup -> ->.
+    assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
+    { rewrite list_lookup_fmap Hlookup //. }
+    split.
+    - apply elem_of_gmultiset_disj_union_list.
+      eexists. split.
+      + rewrite list_elem_of_lookup. eauto.
+      + rewrite list_to_set_disj_app. set_solver.
+    - rewrite (gmultiset_disj_union_list_delete' _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
+      rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.
+      rewrite !list_to_set_disj_app.
+      multiset_solver.
+  Qed.
+  #[local] Lemma consistent_pop vs vss i us v :
+    vss !! i = Some (us ++ [v]) →
+    consistent vs vss →
+      v ∈ vs ∧
+      consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+  Proof.
+    intros Hlookup Hconsistent.
+    eapply (consistent_remove us v []) in Hconsistent; [| done..].
+    rewrite app_nil_r // in Hconsistent.
+  Qed.
+  #[local] Lemma consistent_steal vs vss i v us :
+    vss !! i = Some (v :: us) →
+    consistent vs vss →
+      v ∈ vs ∧
+      consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+  Proof.
+    intros Hlookup.
+    eapply (consistent_remove [] v us); done.
+  Qed.
+End consistent.
 
 Opaque consistent.
 

@@ -54,31 +54,34 @@ Proof.
   solve_inG.
 Qed.
 
-#[local] Definition consistent vs ws :=
-  vs = list_to_set_disj ws.
+Section consistent.
+  #[local] Definition consistent vs ws :=
+    vs = list_to_set_disj ws.
 
-#[local] Lemma consistent_nil_inv vs :
-  consistent vs [] →
-  vs = ∅.
-Proof.
-  done.
-Qed.
-#[local] Lemma consistent_push {vs ws} v :
-  consistent vs ws →
-  consistent ({[+v+]} ⊎ vs) (ws ++ [v]).
-Proof.
-  intros ->.
-  rewrite /consistent.
-  rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //.
-Qed.
-#[local] Lemma consistent_pop vs v ws :
-  consistent vs (v :: ws) →
-    ∃ vs',
-    vs = {[+v+]} ⊎ vs' ∧
-    consistent vs' ws.
-Proof.
-  naive_solver.
-Qed.
+  #[local] Lemma consistent_nil_inv vs :
+    consistent vs [] →
+    vs = ∅.
+  Proof.
+    done.
+  Qed.
+
+  #[local] Lemma consistent_push {vs ws} v :
+    consistent vs ws →
+    consistent ({[+v+]} ⊎ vs) (ws ++ [v]).
+  Proof.
+    intros ->.
+    rewrite /consistent.
+    rewrite list_to_set_disj_app list_to_set_disj_cons right_id (comm (⊎)) //.
+  Qed.
+  #[local] Lemma consistent_pop vs v ws :
+    consistent vs (v :: ws) →
+      ∃ vs',
+      vs = {[+v+]} ⊎ vs' ∧
+      consistent vs' ws.
+  Proof.
+    naive_solver.
+  Qed.
+End consistent.
 
 Opaque consistent.
 
