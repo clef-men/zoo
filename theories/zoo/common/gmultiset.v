@@ -36,6 +36,19 @@ Section basic.
   Proof.
     rewrite gmultiset_disj_union_empty //.
   Qed.
+
+  Lemma elem_of_gmultiset_disj_union_l x X1 X2 :
+    x ∈ X1 →
+    x ∈ X1 ⊎ X2.
+  Proof.
+    multiset_solver.
+  Qed.
+  Lemma elem_of_gmultiset_disj_union_r x X1 X2 :
+    x ∈ X2 →
+    x ∈ X1 ⊎ X2.
+  Proof.
+    multiset_solver.
+  Qed.
 End basic.
 
 Section size.
