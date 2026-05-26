@@ -1,0 +1,160 @@
+type 'a t =
+  { deques: 'a Ws_bdeques_public.t
+  ; rounds: Random_round.t array
+  ; queue : 'a Mpmc_queue_1.t
+  ; waiters: Waiters.t
+  ; mutable num_active: int [@atomic]
+  }
+
+let create sz =
+  { deques= Ws_bdeques_public.create sz
+  ; rounds= Array.unsafe_init sz (fun _ -> Random_round.create @@ Int.positive_part @@ sz - 1)
+  ; queue= Mpmc_queue_1.create ()
+  ; waiters= Waiters.create sz
+  ; num_active= sz + 1
+  }
+
+let size t =
+  Array.size t.rounds
+
+let begin_inactive t =
+  Atomic.Loc.decr [%atomic.loc t.num_active]
+let end_inactive t =
+  Atomic.Loc.incr [%atomic.loc t.num_active]
+
+let block_active t i =
+  Ws_bdeques_public.block t.deques i
+let unblock_active t i =
+  Ws_bdeques_public.unblock t.deques i
+
+let block t i =
+  begin_inactive t ;
+  block_active t i
+let unblock t i =
+  unblock_active t i ;
+  end_inactive t
+
+let closed t =
+  t.num_active == 0
+
+let notify t =
+  Waiters.notify_one t.waiters
+let notify_all t =
+  Waiters.notify_all t.waiters
+
+let push t i v =
+  if not @@ Ws_bdeques_public.push t.deques i v then
+    Mpmc_queue_1.push t.queue v ;
+  notify t
+
+let pop t i =
+  match Ws_bdeques_public.pop t.deques i with
+  | Some _ as res ->
+      res
+  | None ->
+      Mpmc_queue_1.pop t.queue
+
+let try_steal_once t i =
+  let round = Array.unsafe_get t.rounds i in
+  Random_round.reset round ;
+  Ws_bdeques_public.steal_as t.deques i round
+
+let rec try_steal t i ~yield ~max_round ~pred =
+  if max_round <= 0 then
+    Optional.Nothing
+  else
+    match try_steal_once t i with
+    | Some v ->
+        Optional.Something v
+    | None ->
+        if pred () then
+          Optional.Anything
+        else (
+          if yield then
+            Domain.yield () ;
+          try_steal t i ~yield ~max_round:(max_round - 1) ~pred
+        )
+let try_steal t i ~max_round_noyield ~max_round_yield ~pred =
+  match try_steal t i ~yield:false ~max_round:max_round_noyield ~pred with
+  | Optional.Something _ as res ->
+      res
+  | Anything ->
+      Anything
+  | Nothing ->
+      try_steal t i ~yield:true ~max_round:max_round_yield ~pred
+
+let rec steal_aux t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  match try_steal t i ~max_round_noyield ~max_round_yield ~pred with
+  | Optional.Something v ->
+      Some v
+  | Anything ->
+      None
+  | Nothing ->
+      Waiters.prepare_wait t.waiters i ;
+      match try_steal_once t i with
+      | Some _ as res ->
+          Waiters.cancel_wait t.waiters i |> ignore ;
+          res
+      | None ->
+          notification (fun () -> Waiters.notify t.waiters i) ;
+          if pred () then (
+            if not @@ Waiters.cancel_wait t.waiters i then
+              Waiters.notify_one t.waiters ;
+            None
+          ) else (
+            Waiters.commit_wait t.waiters i ;
+            steal_aux t i ~max_round_noyield ~max_round_yield ~notification:ignore ~pred
+          )
+
+let steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  block_active t i ;
+  let res =
+    steal_aux
+      t
+      i
+      ~max_round_noyield
+      ~max_round_yield
+      ~notification
+      ~pred
+  in
+  unblock_active t i ;
+  res
+
+let steal t i ~max_round_noyield ~max_round_yield =
+  block t i ;
+  let res =
+    steal_aux
+      t
+      i
+      ~max_round_noyield
+      ~max_round_yield
+      ~notification:ignore
+      ~pred:(fun () -> closed t)
+  in
+  begin match res with
+  | None ->
+      notify_all t
+  | Some _ ->
+      unblock t i
+  end ;
+  res
+
+let close =
+  begin_inactive
+
+let pop_steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred =
+  if pred () then
+    None
+  else
+    match pop t i with
+    | Some _ as res ->
+        res
+    | None ->
+        steal_until t i ~max_round_noyield ~max_round_yield ~notification ~pred
+
+let pop_steal t i ~max_round_noyield ~max_round_yield =
+  match pop t i with
+  | Some _ as res ->
+      res
+  | None ->
+      steal t i ~max_round_noyield ~max_round_yield

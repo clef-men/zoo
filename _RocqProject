@@ -488,6 +488,10 @@ theories/zoo_parabs/ws_hub_std__types.v
 theories/zoo_parabs/ws_hub_std__code.v
 theories/zoo_parabs/ws_hub_std__opaque.v
 theories/zoo_parabs/ws_hub_std.v
+theories/zoo_parabs/ws_hub_hybrid__types.v
+theories/zoo_parabs/ws_hub_hybrid__code.v
+theories/zoo_parabs/ws_hub_hybrid__opaque.v
+theories/zoo_parabs/ws_hub_hybrid.v
 theories/zoo_parabs/pool__types.v
 theories/zoo_parabs/pool__code.v
 theories/zoo_parabs/pool__opaque.v
