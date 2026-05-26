@@ -297,7 +297,7 @@ Section ws_hub_fifo_G.
     ⌜vs = ∅⌝.
   Proof.
     iIntros "(:emptiness_auth) Hats".
-    destruct Hemptiness as [-> | (i & Hlookup)]; first iSteps.
+    destruct Hemptiness as [-> | (i & Hlookup)]. 1: iSteps.
     iDestruct (big_sepL_lookup with "Hats") as "Hat".
     { apply lookup_lt_Some in Hlookup.
       rewrite lookup_seq -Hemptys /=. eauto.
@@ -309,7 +309,7 @@ Section ws_hub_fifo_G.
     emptiness_auth γ vs.
   Proof.
     iIntros "(:emptiness_auth)".
-    destruct Hemptiness as [? | (i & Hlookup)]; last iSteps.
+    destruct Hemptiness as [? | (i & Hlookup)]. 2: iSteps.
     exfalso. multiset_solver.
   Qed.
   #[local] Lemma emptiness_update_Nonempty {γ vs i empty} vs' :
@@ -323,7 +323,7 @@ Section ws_hub_fifo_G.
     iMod (ghost_list_update_at Nonempty with "Hauth Hat") as "($ & $)".
     iPureIntro. split.
     - simpl_length.
-    - right. exists i. apply list_lookup_insert_eq. done.
+    - right. exists i. apply list_lookup_insert_eq => //.
   Qed.
   #[local] Lemma emptiness_update_Empty γ i empty :
     emptiness_auth γ ∅ -∗
@@ -421,7 +421,7 @@ Section ws_hub_fifo_G.
       ; metadata_emptiness := γ_emptiness
       |}.
 
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta". 1: done.
 
     iApply "HΦ".
     iSplitL "H𝑡_num_active".
@@ -579,15 +579,15 @@ Section ws_hub_fifo_G.
     wp_rec. wp_load.
 
     awp_apply (mpmc_queue_1٠push𑁒spec with "Hqueue_inv").
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
+    iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
     iMod (emptiness_update_Nonempty ({[+v+]} ⊎ vs) with "Hemptiness_auth Hemptiness_at") as "(Hemptiness_auth & Hemptiness_at)".
-    iSplitL "Hqueue_model Hemptiness_auth".
-    { iFrameSteps. iPureIntro. apply consistent_push. done. }
+    iSplitR "Hemptiness_at".
+    { iFrameSteps. iPureIntro. apply consistent_push => //. }
     iIntros "!> HΦ !> _ {%}".
 
-    wp_apply+ ws_hub_fifo٠notify𑁒spec as "_"; first iSteps.
+    wp_apply+ ws_hub_fifo٠notify𑁒spec as "_". 1: iSteps.
     iSteps.
   Qed.
 
@@ -628,11 +628,11 @@ Section ws_hub_fifo_G.
     wp_rec. wp_load.
 
     awp_apply+ (mpmc_queue_1٠pop𑁒spec with "Hqueue_inv").
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hqueue_model"; first iSteps. iIntros "Hqueue_model".
+    iAaccIntro with "Hqueue_model". 1: iSteps. iIntros "Hqueue_model".
     iExists (head ws).
-    destruct ws as [| w ws].
+    destruct ws as [| v ws] => /=.
 
     - apply consistent_nil_inv in Hconsistent as ->.
 
@@ -645,7 +645,7 @@ Section ws_hub_fifo_G.
             ws_hub_fifo_owner #𝑡 i Nonblocked Empty
         end
       )%I with "[> Hemptiness_auth Howner]" as "(Hemptiness_auth & Howner)".
-      { destruct owner as [(i, empty) |]; last iSteps.
+      { destruct owner as [(i, empty) |]. 2: iSteps.
         iDestruct "Howner" as "(:owner)". injection Heq as <-.
         iDestruct (meta_agree with "Hmeta Hmeta_") as %<-.
         iMod (emptiness_update_Empty with "Hemptiness_auth Hemptiness_at") as "($ & $)".
@@ -1057,16 +1057,16 @@ Section ws_hub_fifo_G.
 
     wp_rec.
 
-    awp_apply+ (ws_hub_fifo٠pop𑁒spec with "[$Hinv $Howner]"); [done.. |].
-    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
+    awp_apply+ (ws_hub_fifo٠pop𑁒spec with "[$Hinv $Howner]"). 1: done.
+    iApply (aacc_aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v). iSteps.
 
     - iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp_apply+ (ws_hub_fifo٠steal𑁒spec with "[$Hinv $Howner]"); [done.. |].
+      wp_apply+ (ws_hub_fifo٠steal𑁒spec with "[$Hinv $Howner]"). 1-3: done.
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.

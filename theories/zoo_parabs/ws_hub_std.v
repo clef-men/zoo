@@ -96,17 +96,22 @@ Section consistent.
     vss !! i = Some us →
     us = us1 ++ v :: us2 →
     consistent vs vss →
-      v ∈ vs ∧
-      consistent (vs ∖ {[+v+]}) (<[i := us1 ++ us2]> vss).
+      ∃ vs',
+      vs = {[+v+]} ⊎ vs' ∧
+      consistent vs' (<[i := us1 ++ us2]> vss).
   Proof.
-    intros Hlookup -> ->.
+    intros Hlookup -> Hconsistent.
+    exists (vs ∖ {[+v+]}).
+    rewrite {}Hconsistent.
     assert ((list_to_set_disj <$> vss : list $ gmultiset _) !! i = Some $ (list_to_set_disj $ us1 ++ v :: us2)).
     { rewrite list_lookup_fmap Hlookup //. }
     split.
-    - apply elem_of_gmultiset_disj_union_list.
-      eexists. split.
-      + rewrite list_elem_of_lookup. eauto.
-      + rewrite list_to_set_disj_app. set_solver.
+    - apply gmultiset_disj_union_difference'.
+      { apply elem_of_gmultiset_disj_union_list.
+        eexists. split.
+        - rewrite list_elem_of_lookup. eauto.
+        - rewrite list_to_set_disj_app. set_solver.
+      }
     - rewrite (gmultiset_disj_union_list_delete' _ i (list_to_set_disj $ us1 ++ v :: us2)) //.
       rewrite /consistent list_fmap_insert gmultiset_disj_union_list_insert //.
       rewrite !list_to_set_disj_app.
@@ -115,21 +120,24 @@ Section consistent.
   #[local] Lemma consistent_pop vs vss i us v :
     vss !! i = Some (us ++ [v]) →
     consistent vs vss →
-      v ∈ vs ∧
-      consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+      ∃ vs',
+      vs = {[+v+]} ⊎ vs' ∧
+      consistent vs' (<[i := us]> vss).
   Proof.
     intros Hlookup Hconsistent.
-    eapply (consistent_remove us v []) in Hconsistent; [| done..].
-    rewrite app_nil_r // in Hconsistent.
+    eapply (consistent_remove us v []) in Hconsistent as (vs' & -> & Hconsistent). 2-3: done.
+    rewrite app_nil_r in Hconsistent.
+    eauto.
   Qed.
   #[local] Lemma consistent_steal vs vss i v us :
     vss !! i = Some (v :: us) →
     consistent vs vss →
-      v ∈ vs ∧
-      consistent (vs ∖ {[+v+]}) (<[i := us]> vss).
+      ∃ vs',
+      vs = {[+v+]} ⊎ vs' ∧
+      consistent vs' (<[i := us]> vss).
   Proof.
     intros Hlookup.
-    eapply (consistent_remove [] v us); done.
+    eapply (consistent_remove [] v us) => //.
   Qed.
 End consistent.
 
@@ -290,7 +298,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
     iEval (rewrite consistent_empty //). iIntros "%i %us %Hlookup".
     iDestruct (ws_deques_public_inv_model with "Hdeques_inv Hdeques_model") as %Hvss.
-    opose proof* (lookup_lt_Some vss i us) as Hi; first done.
+    opose proof* (lookup_lt_Some vss i us) as Hi. 1: done.
     iDestruct (big_sepL_lookup _ _ i with "Howners") as "(%status & Howner)".
     { rewrite lookup_seq. auto with lia. }
     iDestruct "Howner" as "(:owner)". injection Heq as <-.
@@ -320,17 +328,17 @@ Section ws_hub_std_G.
 
     wp_apply+ (waiters٠create𑁒spec with "[//]") as (waiters) "#Hwaiters_inv". 1: done.
 
-    wp_apply+ (array٠unsafe_init𑁒spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)"; first done.
+    wp_apply+ (array٠unsafe_init𑁒spec_disentangled (λ _ round, random_round_model' round (₊sz - 1) (₊sz - 1))) as (v_rounds rounds) "(%Hrounds & Hrounds_model & Hrounds)". 1: done.
     { iIntros "!> %i %Hi".
       wp_apply+ int٠positive_part𑁒spec.
-      wp_apply (random_round٠create𑁒spec' with "[//]"); first lia.
+      wp_apply (random_round٠create𑁒spec' with "[//]"). 1: lia.
       rewrite Nat2Z.id. assert (₊(sz - 1) = ₊sz - 1) as -> by lia.
       iSteps.
     }
     iDestruct (array_model_to_inv with "Hrounds_model") as "#Hrounds_inv".
     rewrite Hrounds.
 
-    wp_apply+ (ws_deques_public٠create𑁒spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)"; first done.
+    wp_apply+ (ws_deques_public٠create𑁒spec with "[//]") as (deques) "(#Hdeques_inv & Hdeques_model & Hdeques_owner)". 1: done.
 
     wp_block 𝑡 as "Hmeta" "(H𝑡_deques & H𝑡_rounds & H𝑡_waiters & H𝑡_num_active & _)".
     iMod (pointsto_persist with "H𝑡_deques") as "#H𝑡_deques".
@@ -344,7 +352,7 @@ Section ws_hub_std_G.
       ; metadata_waiters := waiters
       |}.
 
-    iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
+    iMod (meta_set γ with "Hmeta") as "#Hmeta". 1: done.
 
     iApply "HΦ".
     iSplitL "H𝑡_num_active"; iSteps.
@@ -352,9 +360,9 @@ Section ws_hub_std_G.
     - iMod (array_model_persist with "Hrounds_model") as "Hrounds_model".
       iDestruct (array_model_atomize with "Hrounds_model") as "(_ & Hrounds_model)".
       iDestruct (big_sepL_sep_2 with "Hrounds_model Hrounds") as "Hrounds".
-      iDestruct (big_sepL_seq_index_1 with "Hdeques_owner") as "Hdeques_owner"; first done.
+      iDestruct (big_sepL_seq_index_1 with "Hdeques_owner") as "Hdeques_owner". 1: done.
       iDestruct (big_sepL_sep_2 with "Hdeques_owner Hrounds") as "H".
-      iApply big_sepL_seq_index; first done.
+      iApply big_sepL_seq_index. 1: done.
       iApply (big_sepL_impl with "H").
       iSteps.
   Qed.
@@ -417,7 +425,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (ws_deques_public٠block𑁒spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
+    wp_apply (ws_deques_public٠block𑁒spec with "[$Hdeques_inv $Hdeques_owner]"). 1: done.
     iSteps.
   Qed.
 
@@ -437,7 +445,7 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (ws_deques_public٠unblock𑁒spec with "[$Hdeques_inv $Hdeques_owner]"); first done.
+    wp_apply (ws_deques_public٠unblock𑁒spec with "[$Hdeques_inv $Hdeques_owner]"). 1: done.
     iSteps.
   Qed.
 
@@ -457,7 +465,7 @@ Section ws_hub_std_G.
 
     wp_rec.
     wp_apply+ (ws_hub_std٠begin_inactive𑁒spec with "Hinv") as "_".
-    wp_apply+ (ws_hub_std٠block_active𑁒spec with "[$Hinv $Howner] HΦ"); first done.
+    wp_apply+ (ws_hub_std٠block_active𑁒spec with "[$Hinv $Howner] HΦ"). 1: done.
   Qed.
 
   Lemma ws_hub_std٠unblock𑁒spec t ι sz i i_ empty :
@@ -475,7 +483,7 @@ Section ws_hub_std_G.
     iIntros (->) "%Φ (#Hinv & Howner) HΦ".
 
     wp_rec.
-    wp_apply+ (ws_hub_std٠unblock_active𑁒spec with "[$Hinv $Howner]") as "Howner"; first done.
+    wp_apply+ (ws_hub_std٠unblock_active𑁒spec with "[$Hinv $Howner]") as "Howner". 1: done.
     wp_apply+ (ws_hub_std٠end_inactive𑁒spec with "Hinv") as "_".
     iApply ("HΦ" with "Howner").
   Qed.
@@ -546,15 +554,16 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_apply (ws_deques_public٠push𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    awp_apply (ws_deques_public٠push𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround". 1: done.
+    iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hdeques_model"; first iSteps. iIntros "%us (%Hlookup & Hdeques_model)".
+    iAaccIntro with "Hdeques_model". 1: iSteps. iIntros "%us (%Hlookup & Hdeques_model) !>".
     iSplitL.
-    { iFrameSteps. iPureIntro. apply consistent_push; done. }
-    iIntros "!> HΦ !> Hdeques_owner Hround {%}".
+    { iFrameSteps. iPureIntro. apply consistent_push => //. }
+    iIntros "HΦ !> Hdeques_owner Hround {%}".
 
-    wp_apply+ ws_hub_std٠notify𑁒spec; iSteps.
+    wp_apply+ ws_hub_std٠notify𑁒spec. 1: iSteps.
+    iSteps.
   Qed.
 
   Lemma ws_hub_std٠pop𑁒spec t ι sz i i_ empty :
@@ -585,23 +594,21 @@ Section ws_hub_std_G.
 
     wp_rec. wp_load.
 
-    awp_apply+ (ws_deques_public٠pop𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround"; first done.
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    awp_apply+ (ws_deques_public٠pop𑁒spec with "[$Hdeques_inv $Hdeques_owner]") without "Hround". 1: done.
+    iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hdeques_model"; first iSteps. iIntros ([v |] us) "Ho".
+    iAaccIntro with "Hdeques_model". 1: iSteps. iIntros ([v |] us) "Ho".
 
     - iDestruct "Ho" as "(% & %Hlookup & %Hws & <- & Hdeques_model)".
       iExists (Some v).
       iSplitL.
-      { eapply consistent_pop in Hconsistent; last done.
-        iExists (vs ∖ {[+v+]}). iFrameSteps; iPureIntro.
-        - multiset_solver.
-        - naive_solver.
+      { eapply consistent_pop in Hconsistent as (vs' & -> & Hconsistent). 2: done.
+        iFrameSteps.
       }
       iSteps. iPureIntro.
       intros ->. exfalso.
-      opose proof* Hempty as ->; first done.
-      eapply suffix_cons_nil_inv, suffix_app_l. done.
+      opose proof* Hempty as ->. 1: done.
+      eapply suffix_cons_nil_inv, suffix_app_l => //.
 
     - iDestruct "Ho" as "(%Hlookup & -> & Hdeques_model)".
       iExists None. iFrameSteps.
@@ -634,23 +641,21 @@ Section ws_hub_std_G.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
 
     wp_rec. wp_load.
-    wp_apply (array٠unsafe_get𑁒spec_cell with "Hrounds") as "_"; first lia.
+    wp_apply (array٠unsafe_get𑁒spec_cell with "Hrounds") as "_". 1: lia.
     wp_apply+ (random_round٠reset𑁒spec' with "Hround") as "Hround".
     wp_load.
 
     iDestruct (ws_deques_public_inv_owner with "Hdeques_inv Hdeques_owner") as %?.
-    awp_apply (ws_deques_public٠steal_as𑁒spec with "[$Hdeques_inv $Hdeques_owner $Hround]"); [lia.. |].
-    iApply (aacc_aupd_commit with "HΦ"); first solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
+    awp_apply (ws_deques_public٠steal_as𑁒spec with "[$Hdeques_inv $Hdeques_owner $Hround]"). 1-2: lia.
+    iApply (aacc_aupd_commit with "HΦ"). 1: solve_ndisj. iIntros "%vs (:model)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
-    iAaccIntro with "Hdeques_model"; first iSteps. iIntros ([v |]) "Ho".
+    iAaccIntro with "Hdeques_model". 1: iSteps. iIntros ([v |]) "Ho".
 
     - iDestruct "Ho" as "(%j & %ws' & %Hj & %Hlookup & Hdeques_model)".
       iExists (Some v).
       iSplitL.
-      { eapply consistent_steal in Hconsistent; last done.
-        iExists (vs ∖ {[+v+]}). iFrameSteps; iPureIntro.
-        - multiset_solver.
-        - naive_solver.
+      { eapply consistent_steal in Hconsistent as (vs' & -> & Hconsistent). 2: done.
+        iFrameSteps.
       }
       iSteps.
 
@@ -1141,16 +1146,16 @@ Section ws_hub_std_G.
 
     wp_rec.
 
-    awp_apply+ (ws_hub_std٠pop𑁒spec with "[$Hinv $Howner]"); [done.. |].
-    iApply (aacc_aupd with "HΦ"); first done. iIntros "%vs Hmodel".
-    iAaccIntro with "Hmodel"; first iSteps. iIntros ([v |]) "Hmodel !>".
+    awp_apply+ (ws_hub_std٠pop𑁒spec with "[$Hinv $Howner]"). 1: done.
+    iApply (aacc_aupd with "HΦ"). 1: done. iIntros "%vs Hmodel".
+    iAaccIntro with "Hmodel". 1: iSteps. iIntros ([v |]) "Hmodel !>".
 
     - iDestruct "Hmodel" as "(%vs' & -> & Hmodel)".
       iRight. iExists (Some v). iSteps.
 
     - iLeft. iFrame. iIntros "HΦ !> Howner {%- Hmax_round_noyield Hmax_round_yield}".
 
-      wp_apply+ (ws_hub_std٠steal𑁒spec with "[$Hinv $Howner]"); [done.. |].
+      wp_apply+ (ws_hub_std٠steal𑁒spec with "[$Hinv $Howner]"). 1-3: done.
       iApply (atomic_update_wand with "HΦ"). iIntros "%vs %o HΦ Howner".
       iApply ("HΦ" with "[$Howner]").
       destruct o; iFrameSteps.
