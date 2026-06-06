@@ -35,59 +35,6 @@ Section atomic.
     naive_solver.
   Qed.
 
-  #[global] Instance rec_atomic f x e :
-    Atomic (Rec f x e).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance app_atomic f x v1 v2 :
-    Atomic (App (Val $ ValRec f x (Val v1)) (Val v2)).
-  Proof.
-    destruct f, x; solve_atomic.
-  Qed.
-
-  #[global] Instance unop_atomic op v :
-    Atomic (Unop op $ Val v).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance binop_atomic op v1 v2 :
-    Atomic (Binop op (Val v1) (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance equal_atomic v1 v2 :
-    Atomic (Equal (Val v1) (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance if_true_atomic v1 e2 :
-    Atomic (If (Val $ ValBool true) (Val v1) e2).
-  Proof.
-    solve_atomic.
-  Qed.
-  #[global] Instance if_false_atomic e1 v2 :
-    Atomic (If (Val $ ValBool false) e1 (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance alloc_atomic v1 v2 :
-    Atomic (Alloc (Val v1) (Val v2)).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance get_tag_atomic v :
-    Atomic (GetTag (Val v)).
-  Proof.
-    solve_atomic.
-  Qed.
-
   #[global] Instance get_size_atomic v :
     Atomic (GetSize (Val v)).
   Proof.
@@ -124,17 +71,6 @@ Section atomic.
     solve_atomic.
   Qed.
 
-  #[global] Instance fork_atomic e :
-    Atomic (Fork e).
-  Proof.
-    solve_atomic.
-  Qed.
-
-  #[global] Instance proph_atomic :
-    Atomic Proph.
-  Proof.
-    solve_atomic.
-  Qed.
   #[global] Instance resolve_atomic e v1 v2 :
     Atomic e →
     Atomic (Resolve e (Val v1) (Val v2)).
