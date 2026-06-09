@@ -151,6 +151,11 @@ Lemma filli_val k e :
 Proof.
   intros (v & ?). destruct k; done.
 Qed.
+Lemma filli_not_val k e :
+  to_val (filli k e) = None.
+Proof.
+  destruct k => //.
+Qed.
 Lemma filli_no_val_inj k1 e1 k2 e2 :
   to_val e1 = None →
   to_val e2 = None →
@@ -301,6 +306,13 @@ Proof.
   apply base_step_prim_step. done.
 Qed.
 
+Lemma atomic_base_atomic e :
+  Atomic e →
+  base_atomic e.
+Proof.
+  intros He tid σ κ e' σ' es Hstep.
+  eapply He, base_step_prim_step => //.
+Qed.
 Lemma base_atomic_atomic e :
   base_atomic e →
   sub_redexes_are_values e →
@@ -522,42 +534,70 @@ Proof.
 Qed.
 
 Lemma reducible_resolve tid e σ pid v :
-  Atomic e →
   reducible tid e σ →
-  reducible tid (Resolve e (Val $ ValProph pid) (Val v)) σ.
+  reducible tid (Resolve e (Val (ValLit (LitProph pid))) (Val v)) σ.
 Proof.
-  intros Hatomic (κ & e' & σ' & es & H).
-  exists (κ ++ [(pid, (default v (to_val e'), v))]), e', σ', es.
-  eapply (base_step_fill_prim_step' []); try done.
-  assert (∃ w, Val w = e') as (w & <-).
-  { apply (Hatomic tid σ e' κ σ' es) in H as (w & H).
-    exists w. apply (of_to_val _ _ H).
-  }
-  econstructor.
-  apply prim_step_to_val_is_base_step. done.
+  intros (κ & e' & σ' & es & [K e1' e2' -> -> Hstep]).
+  destruct K as [| k K _] using rev_ind.
+  - destruct (to_val e2') as [v2 |] eqn:He2'.
+    + apply of_to_val in He2' as <-.
+      exists (κ ++ [(pid, (v2, v))]), (Val v2), σ', es.
+      eapply (base_step_fill_prim_step' []). 1-2: done.
+      apply base_step_resolve_final => //.
+    + exists κ, (Resolve e2' (Val (ValLit (LitProph pid))) (Val v)), σ', es.
+      eapply (base_step_fill_prim_step' []). 1-2: done.
+      constructor => //.
+  - rewrite fill_app /=.
+    exists κ, (Resolve (filli k (fill K e2')) (Val (ValLit (LitProph pid))) (Val v)), σ', es.
+    eapply (base_step_fill_prim_step' (K ++ [CtxResolve0 k (ValLit (LitProph pid)) v])).
+    + rewrite fill_app //.
+    + rewrite fill_app //.
+    + done.
 Qed.
-Lemma prim_step_resolve_inv tid e v1 v2 σ1 κ e2 σ2 es :
-  Atomic e →
+Lemma prim_step_resolve_inv_val tid e v1 v2 σ1 κ e2 σ2 es :
+  is_Some (to_val e2) →
   prim_step tid (Resolve e (Val v1) (Val v2)) σ1 κ e2 σ2 es →
   base_step tid (Resolve e (Val v1) (Val v2)) σ1 κ e2 σ2 es.
 Proof.
-  intros Hatomic [K e1' e2' Hfill -> Hstep]. simpl in *.
-  induction K as [| k K _] using rev_ind.
-  - invert Hstep.
-    constructor. done.
-  - rewrite fill_app /= in Hfill. destruct k; inversion Hfill; subst; clear Hfill.
-    + assert (filli k (fill K e1') = fill (K ++ [k]) e1') as Heq1; first by rewrite fill_app.
-      assert (filli k (fill K e2') = fill (K ++ [k]) e2') as Heq2; first by rewrite fill_app.
-      rewrite fill_app /=. rewrite Heq1 in Hatomic.
-      assert (is_Some (to_val (fill (K ++ [k]) e2'))) as H.
-      { eapply (Hatomic tid σ1 _ κ σ2 es), (base_step_fill_prim_step' (K ++ [k])); done. }
-      destruct H as [v H]. apply to_val_fill_some in H. destruct H, K; done.
-    + rename select (of_val v1 = _) into Hv1.
-      assert (to_val (fill K e1') = Some v1) as Hfill_v1 by rewrite -Hv1 //.
-      apply to_val_fill_some in Hfill_v1 as (-> & ->).
-      invert Hstep.
-    + rename select (of_val v2 = _) into Hv2.
-      assert (to_val (fill K e1') = Some v2) as Hfill_v2 by rewrite -Hv2 //.
-      apply to_val_fill_some in Hfill_v2 as (-> & ->).
-      invert Hstep.
+  intros He2 [K e1' e2' Hfill -> Hstep]. simpl in *.
+  destruct K as [| k K _] using rev_ind.
+  - simplify.
+    invert Hstep.
+    + done.
+    + constructor => //.
+  - rewrite !fill_app /= in He2 Hfill.
+    destruct k.
+    all: invert Hfill.
+    all: invert He2.
+Qed.
+Lemma prim_step_resolve_inv_non_val tid e v1 v2 σ1 κ e2 σ2 es :
+  to_val e2 = None →
+  prim_step tid (Resolve e (Val v1) (Val v2)) σ1 κ e2 σ2 es →
+    ∃ e',
+    e2 = Resolve e' (Val v1) (Val v2) ∧
+    to_val e' = None ∧
+    prim_step tid e σ1 κ e' σ2 es.
+Proof.
+  intros He2 Hstep.
+  invert Hstep.
+  destruct K as [| k K _] using rev_ind.
+  - simplify. invert H1.
+    exists e'. split_and! => //.
+    apply base_step_prim_step => //.
+  - rewrite /= fill_app in H.
+    destruct k; try discriminate; simplify.
+    + exists (filli k (fill K e2')).
+      split_and!.
+      * rewrite fill_app //.
+      * apply filli_not_val.
+      * eapply (base_step_fill_prim_step' (K ++ [k])).
+        -- rewrite fill_app //.
+        -- rewrite fill_app //.
+        -- done.
+    + assert (to_val (fill K e1') = Some v1) as (-> & ->)%to_val_fill_some.
+      { rewrite -H0 //. }
+      apply base_step_not_val in H1 => //.
+    + assert (to_val (fill K e1') = Some v2) as (-> & ->)%to_val_fill_some.
+      { rewrite -H2 //. }
+      apply base_step_not_val in H1 => //.
 Qed.

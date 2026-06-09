@@ -957,7 +957,6 @@ Section zoo_G.
   Qed.
 
   Lemma wp_resolve e pid v prophs tid E Φ :
-    Atomic e →
     to_val e = None →
     prophet_model pid prophs -∗
     WP e ∷ tid @ E {{ res,
@@ -970,7 +969,7 @@ Section zoo_G.
   Proof.
     wp_unseal.
     - apply bwp_resolve.
-    - iIntros "%Hatomic %He Hpid H %tid".
+    - iIntros "%He Hpid H %tid".
       iSpecialize ("H" $! tid).
       iApply (bwp_resolve with "Hpid H"); first done.
   Qed.

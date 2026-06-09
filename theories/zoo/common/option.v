@@ -8,6 +8,14 @@ From zoo Require Import
 
 #[global] Hint Constructors option_Forall2 : core.
 
+Lemma is_Some_None' {A} (o : option A) :
+  o = None →
+  ¬ is_Some o.
+Proof.
+  intros ->.
+  apply is_Some_None.
+Qed.
+
 Lemma from_option_default {A B} (f : A → B) x o :
   from_option f (f x) o = f (default x o).
 Proof.

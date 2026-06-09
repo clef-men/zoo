@@ -466,7 +466,18 @@ Inductive base_step tid : expr → state → list observation → expr → state
         (Val $ ValProph pid)
         (state_add_prophet pid σ)
         []
-  | base_step_resolve e pid v σ κ w σ' es :
+  | base_step_resolve_step e v1 v2 σ κs e' σ' es :
+      to_val e' = None →
+      base_step tid e σ κs e' σ' es →
+      base_step
+        tid
+        (Resolve e (Val v1) (Val v2))
+        σ
+        κs
+        (Resolve e' (Val v1) (Val v2))
+        σ'
+        es
+  | base_step_resolve_final e pid v σ κ w σ' es :
       base_step tid e σ κ (Val w) σ' es →
       base_step
         tid

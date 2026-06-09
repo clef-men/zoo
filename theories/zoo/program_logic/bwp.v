@@ -162,6 +162,7 @@ Implicit Types v : val.
 Implicit Types tid : thread_id.
 Implicit Types σ : state.
 Implicit Types κ κs : list observation.
+Implicit Types prophs : list (val * val).
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.
@@ -918,8 +919,49 @@ Section zoo_G.
     iApply (bwp_bind_inv with "H").
   Qed.
 
+  Lemma bwp_resolve_strong e pid v tid E Φ :
+    to_val e = None →
+    ( BWP e ∶ tid @ E {{ res,
+        ∃ prophs,
+        prophet_model pid prophs ∗
+          ∀ prophs',
+          ⌜prophs = (res, v) :: prophs'⌝ -∗
+          prophet_model pid prophs' -∗
+          Φ res
+      }}
+    ) ⊢
+    BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
+  Proof.
+    iLöb as "IH" forall (e).
+    iIntros "%He H".
+    rewrite !bwp_unfold /bwp_pre He.
+    iIntros "%ns %nt %σ1 %κs Hinterp !>".
+    iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
+    iSplitR. { iPureIntro. apply reducible_resolve => //. }
+    iIntros "!> %κ %κs' %e2 %σ2 %es -> %Hstep H£".
+    destruct (to_val e2) as [v2 |] eqn:Heq.
+    - destruct κ as [| (pid' & (w' & v')) κ _] using rev_ind.
+      + exfalso. apply prim_step_resolve_inv_val in Hstep. 2: done.
+        invert_base_step.
+        destruct κ => //.
+      + apply prim_step_resolve_inv_val in Hstep. 2: done.
+        invert_base_step. simplify_list_eq.
+        apply base_step_prim_step in H as Hstep.
+        iMod ("H" with "[%] [%] H£") as "H". 1-2: done.
+        do 2 iModIntro.
+        iMod "H" as "(Hinterp & H & $)".
+        iDestruct (bwp_unfold with "H") as "H".
+        iMod ("H" with "Hinterp") as "(Hinterp & %prophs & Hpid' & H)".
+        iMod (state_interp_prophet_resolve with "Hinterp Hpid'") as "(%prophs' & -> & $ & Hpid')".
+        iApply bwp_unfold.
+        iSteps.
+    - apply prim_step_resolve_inv_non_val in Hstep as (e' & -> & He' & Hstep). 2: done.
+      iMod ("H" with "[%] [%] H£") as "H". 1-2: done.
+      do 2 iModIntro.
+      iMod "H" as "($ & H & $)".
+      iSteps.
+  Qed.
   Lemma bwp_resolve e pid v prophs tid E Φ :
-    Atomic e →
     to_val e = None →
     prophet_model pid prophs -∗
     BWP e ∶ tid @ E {{ res,
@@ -930,26 +972,9 @@ Section zoo_G.
     }} -∗
     BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
   Proof.
-    iIntros "%Hatomic %He Hpid H".
-    rewrite !bwp_unfold /bwp_pre He.
-    iIntros "%ns %nt %σ1 %κs Hinterp !>".
-    iMod ("H" with "Hinterp") as ">(%Hreducible & H)".
-    iSplitR. { iPureIntro. apply reducible_resolve; done. }
-    iIntros "!> %κ %κs' %e2 %σ2 %es -> %Hstep H£".
-    destruct κ as [| (pid' & (w' & v')) κ _] using rev_ind.
-    - exfalso. apply prim_step_resolve_inv in Hstep; last done.
-      invert_base_step.
-      destruct κ; done.
-    - rewrite -assoc.
-      apply prim_step_resolve_inv in Hstep; last done.
-      invert_base_step. simplify_list_eq.
-      iMod ("H" $! _ _ (Val w') σ2 es with "[%] [%] H£") as "H".
-      { done. }
-      { eexists [] _ _; done. }
-      do 2 iModIntro.
-      iMod "H" as "(Hinterp & H & $)".
-      iMod (state_interp_prophet_resolve with "Hinterp Hpid") as "(%prophs' & -> & $ & Hpid')".
-      iApply (bwp_value_mono with "H").
-      iSteps.
+    iIntros "%He Hpid H".
+    iApply bwp_resolve_strong. 1: done.
+    iApply (bwp_wand with "H").
+    iSteps.
   Qed.
 End zoo_G.

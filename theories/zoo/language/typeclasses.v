@@ -2,6 +2,8 @@ From zoo Require Import
   prelude.
 From zoo.common Require Export
   list.
+From zoo.common Require Import
+  option.
 From zoo.language Require Export
   language
   metatheory.
@@ -76,12 +78,15 @@ Section atomic.
     Atomic (Resolve e (Val v1) (Val v2)).
   Proof.
     rename e into e1.
-    intros H tid σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
-    simpl in *. induction K as [| k K _] using rev_ind; simpl in Hfill.
+    intros He tid σ1 e2 κ σ2 es [K e1' e2' Hfill -> Hstep].
+    induction K as [| k K _] using rev_ind.
+    all: simpl in Hfill.
     - subst. inversion_clear Hstep.
-      eapply (H tid σ1 (Val _) _ σ2 es), base_step_prim_step. done.
-    - rewrite fill_app. rewrite fill_app in Hfill.
-      assert (∀ v, Val v = fill K e1' → False) as Hfill_absurd.
+      + eelim (is_Some_None' (to_val e')). 1: done.
+        apply atomic_base_atomic in He. eauto.
+      + done.
+    - rewrite !fill_app /= in Hfill |- *.
+      assert (∀ v, Val v ≠ fill K e1') as Hfill_absurd.
       { intros v Hv.
         assert (to_val (fill K e1') = Some v) as Htv by by rewrite -Hv.
         apply to_val_fill_some in Htv. destruct Htv as [-> ->]. inversion Hstep.
@@ -92,10 +97,13 @@ Section atomic.
           apply Hfill_absurd in H; done
         end
       ).
-      refine (_ (H tid σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
-      + intro Hs. simpl in *.
-        destruct Hs as [v Hs]. apply to_val_fill_some in Hs. destruct Hs, K; done.
-      + econstructor; try done. simpl. by rewrite fill_app.
+      refine (_ (He tid σ1 (fill (K ++ [_]) e2') _ σ2 es _)).
+      + intro Hs => /=.
+        destruct Hs as (v & Hs).
+        apply to_val_fill_some in Hs.
+        destruct Hs, K => //.
+      + econstructor => //.
+        rewrite fill_app //.
   Qed.
 End atomic.
 

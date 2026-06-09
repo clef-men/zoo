@@ -222,7 +222,6 @@ Section prophet_wise_G.
   Qed.
 
   Lemma prophet_wise_strong_wp_resolve e pid v γ past prophs E Φ :
-    Atomic e →
     to_val e = None →
     prophet_wise_strong_model pid γ past prophs -∗
     WP e @ E {{ w,
@@ -235,7 +234,7 @@ Section prophet_wise_G.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "% % (:model) HΦ".
+    iIntros "% (:model) HΦ".
     wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
     iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ)".
     iExists proph. iSplitR; first done.
@@ -460,7 +459,6 @@ Section prophet_wise_G.
   Qed.
 
   Lemma prophet_wise_wp_resolve proph e pid v γ past prophs E Φ :
-    Atomic e →
     to_val e = None →
     v = prophet.(prophet_typed_to_val) proph →
     prophet_wise_model pid γ past prophs -∗
@@ -472,7 +470,7 @@ Section prophet_wise_G.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(:model) HΦ".
+    iIntros (? ->) "(:model) HΦ".
     wp_apply (prophet_wise_strong_wp_resolve with "Hmodel"); first done.
     wp_apply (wp_wand with "HΦ") as "%w HΦ".
     iExists (w, proph). iStep. iIntros "%sprophs' -> Hmodel".

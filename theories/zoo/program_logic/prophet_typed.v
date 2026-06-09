@@ -78,7 +78,6 @@ Section prophet_typed_strong.
   Qed.
 
   Lemma prophet_typed_strong_wp_resolve e pid v prophs E Φ :
-    Atomic e →
     to_val e = None →
     prophet_typed_strong_model pid prophs -∗
     WP e @ E {{ w,
@@ -91,7 +90,7 @@ Section prophet_typed_strong.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "% % (:model) HΦ".
+    iIntros "% (:model) HΦ".
     wp_apply (wp_resolve with "Hpid"); first done.
     wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %prophs' -> Hpid".
     rewrite /= (prophet_typed_strong_of_to_val _ proph) // in Hprophs.
@@ -177,7 +176,6 @@ Section prophet_typed_strong_1.
   Qed.
 
   Lemma prophet_typed_strong_1_wp_resolve e pid v proph E Φ :
-    Atomic e →
     to_val e = None →
     prophet_typed_strong_1_model pid proph -∗
     WP e @ E {{ w,
@@ -187,7 +185,7 @@ Section prophet_typed_strong_1.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ?) "(:model) HΦ".
+    iIntros (?) "(:model) HΦ".
     wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
     iSteps.
   Qed.
@@ -273,7 +271,6 @@ Section prophet_typed.
   Qed.
 
   Lemma prophet_typed_wp_resolve proph e pid v prophs E Φ :
-    Atomic e →
     to_val e = None →
     v = prophet.(prophet_typed_to_val) proph →
     prophet_typed_model pid prophs -∗
@@ -285,7 +282,7 @@ Section prophet_typed.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(:model) HΦ".
+    iIntros (? ->) "(:model) HΦ".
     wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
     wp_apply (wp_wand with "HΦ") as "%w HΦ".
     iExists (w, proph). iSteps.
@@ -372,14 +369,13 @@ Section prophet_typed_1.
   Qed.
 
   Lemma prophet_typed_1_wp_resolve proph e pid v proph' E Φ :
-    Atomic e →
     to_val e = None →
     v = prophet.(prophet_typed_1_to_val) proph →
     prophet_typed_1_model pid proph' -∗
     WP e @ E {{ w, ⌜proph' = proph⌝ -∗ Φ w }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(:model) HΦ".
+    iIntros (? ->) "(:model) HΦ".
     wp_apply (prophet_typed_wp_resolve with "Hmodel"); [done.. |].
     iSteps.
   Qed.

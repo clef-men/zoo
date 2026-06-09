@@ -310,7 +310,6 @@ Section prophet_multi_G.
   Qed.
 
   Lemma prophet_multi_strong_wp_resolve e pid i v γ pasts prophss E Φ :
-    Atomic e →
     to_val e = None →
     (0 ≤ i)%Z →
     prophet_multi_strong_model pid γ pasts prophss -∗
@@ -324,7 +323,7 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% % %Hi (:model) HΦ".
+    iIntros "% %Hi (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
     wp_apply (prophet_wise_strong_wp_resolve with "Hmodel"); first done.
     wp_apply (wp_wand with "HΦ") as (w) "(%proph & %Hproph & HΦ)".
@@ -340,7 +339,6 @@ Section prophet_multi_G.
           case_decide; subst; done.
   Qed.
   Lemma prophet_multi_strong_wp_resolve' e pid i v γ pasts prophss E Φ :
-    Atomic e →
     to_val e = None →
     prophet_multi_strong_model pid γ pasts prophss -∗
     WP e @ E {{ w,
@@ -353,7 +351,7 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% % Hmodel HΦ".
+    iIntros "% Hmodel HΦ".
     iApply (prophet_multi_strong_wp_resolve with "Hmodel"); [done | lia |].
     rewrite Nat2Z.id. iSteps.
   Qed.
@@ -578,7 +576,6 @@ Section prophet_multi_G.
   Qed.
 
   Lemma prophet_multi_wp_resolve proph e pid i v γ pasts prophss E Φ :
-    Atomic e →
     to_val e = None →
     (0 ≤ i)%Z →
     v = prophet.(prophet_typed_to_val) proph →
@@ -591,7 +588,7 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros (? ? Hi ->) "(:model) HΦ".
+    iIntros (? Hi ->) "(:model) HΦ".
     wp_apply (prophet_multi_strong_wp_resolve with "Hmodel"); [done.. |].
     wp_apply (wp_wand with "HΦ") as "%w HΦ".
     iExists (w, proph). iStep. iIntros "%sprophs %Heq Hmodel".
@@ -604,7 +601,6 @@ Section prophet_multi_G.
       case_decide; done.
   Qed.
   Lemma prophet_multi_wp_resolve' proph e pid i v γ pasts prophss E Φ :
-    Atomic e →
     to_val e = None →
     v = prophet.(prophet_typed_to_val) proph →
     prophet_multi_model pid γ pasts prophss -∗
@@ -616,7 +612,7 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% % % Hmodel HΦ".
+    iIntros "% % Hmodel HΦ".
     iApply (prophet_multi_wp_resolve with "Hmodel"); [done | lia | done |].
     rewrite Nat2Z.id. iSteps.
   Qed.
