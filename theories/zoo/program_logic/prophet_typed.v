@@ -77,6 +77,26 @@ Section prophet_typed_strong.
     iSteps.
   Qed.
 
+  Lemma prophet_typed_strong_wp_resolve_strong e pid v E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph prophs,
+      ⌜(w, v) = prophet.(prophet_typed_strong_to_val) proph⌝ ∗
+      prophet_typed_strong_model pid prophs ∗
+        ∀ prophs',
+        ⌜prophs = proph :: prophs'⌝ -∗
+        prophet_typed_strong_model pid prophs' -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid v @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    wp_apply wp_resolve_strong. 1: done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph & %prophs & % & (:model) & HΦ)".
+    iFrame. iIntros "%prophs' -> Hpid".
+    rewrite /= (prophet_typed_strong_of_to_val _ proph) // in Hprophs.
+    iSteps.
+  Qed.
   Lemma prophet_typed_strong_wp_resolve e pid v prophs E Φ :
     to_val e = None →
     prophet_typed_strong_model pid prophs -∗
@@ -90,11 +110,9 @@ Section prophet_typed_strong.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros "% (:model) HΦ".
-    wp_apply (wp_resolve with "Hpid"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %prophs' -> Hpid".
-    rewrite /= (prophet_typed_strong_of_to_val _ proph) // in Hprophs.
-    iSteps.
+    iIntros "%He Hpid HΦ".
+    iApply prophet_typed_strong_wp_resolve_strong. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_typed_strong.
 
@@ -175,6 +193,21 @@ Section prophet_typed_strong_1.
     all: iSteps.
   Qed.
 
+  Lemma prophet_typed_strong_1_wp_resolve_strong e pid v E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph1 proph2,
+      ⌜(w, v) = prophet.(prophet_typed_strong_1_to_val) proph1⌝ ∗
+      prophet_typed_strong_1_model pid proph2 ∗
+      (⌜proph1 = proph2⌝ -∗ Φ w)
+    }} -∗
+    WP Resolve e #pid v @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    wp_apply prophet_typed_strong_wp_resolve_strong. 1: done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph1 & %proph2 & % & (:model) & HΦ)".
+    iFrameSteps.
+  Qed.
   Lemma prophet_typed_strong_1_wp_resolve e pid v proph E Φ :
     to_val e = None →
     prophet_typed_strong_1_model pid proph -∗
@@ -185,9 +218,9 @@ Section prophet_typed_strong_1.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (?) "(:model) HΦ".
-    wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
-    iSteps.
+    iIntros "%He Hpid HΦ".
+    iApply prophet_typed_strong_1_wp_resolve_strong. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_typed_strong_1.
 
@@ -270,6 +303,24 @@ Section prophet_typed.
     iSteps. done.
   Qed.
 
+  Lemma prophet_typed_wp_resolve_strong e pid v E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph prophs,
+      ⌜v = prophet.(prophet_typed_to_val) proph⌝ ∗
+      prophet_typed_model pid prophs ∗
+        ∀ prophs',
+        ⌜prophs = proph :: prophs'⌝ -∗
+        prophet_typed_model pid prophs' -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid v @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    wp_apply prophet_typed_strong_wp_resolve_strong. 1: done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph & %prophs & % & (:model) & HΦ)".
+    iFrame. iExists (w, proph). iSteps.
+  Qed.
   Lemma prophet_typed_wp_resolve proph e pid v prophs E Φ :
     to_val e = None →
     v = prophet.(prophet_typed_to_val) proph →
@@ -282,10 +333,9 @@ Section prophet_typed.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ->) "(:model) HΦ".
-    wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w HΦ".
-    iExists (w, proph). iSteps.
+    iIntros "%He % Hpid HΦ".
+    iApply prophet_typed_wp_resolve_strong. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_typed.
 
@@ -368,6 +418,21 @@ Section prophet_typed_1.
     all: iSteps.
   Qed.
 
+  Lemma prophet_typed_1_wp_resolve_strong e pid v E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph1 proph2,
+      ⌜v = prophet.(prophet_typed_1_to_val) proph1⌝ ∗
+      prophet_typed_1_model pid proph2 ∗
+      (⌜proph1 = proph2⌝ -∗ Φ w)
+    }} -∗
+    WP Resolve e #pid v @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    wp_apply prophet_typed_wp_resolve_strong. 1: done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph1 & %proph2 & % & (:model) & HΦ)".
+    iFrameSteps.
+  Qed.
   Lemma prophet_typed_1_wp_resolve proph e pid v proph' E Φ :
     to_val e = None →
     v = prophet.(prophet_typed_1_to_val) proph →
@@ -375,9 +440,9 @@ Section prophet_typed_1.
     WP e @ E {{ w, ⌜proph' = proph⌝ -∗ Φ w }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ->) "(:model) HΦ".
-    wp_apply (prophet_typed_wp_resolve with "Hmodel"); [done.. |].
-    iSteps.
+    iIntros "%He % Hpid HΦ".
+    iApply prophet_typed_1_wp_resolve_strong. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_typed_1.
 

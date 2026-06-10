@@ -972,9 +972,9 @@ Section zoo_G.
     }} -∗
     BWP Resolve e #pid v ∶ tid @ E {{ Φ }}.
   Proof.
-    iIntros "%He Hpid H".
+    iIntros "%He Hpid HΦ".
     iApply bwp_resolve_strong. 1: done.
-    iApply (bwp_wand with "H").
+    iApply (bwp_wand with "HΦ").
     iSteps.
   Qed.
 End zoo_G.

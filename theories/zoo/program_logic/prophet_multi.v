@@ -309,6 +309,52 @@ Section prophet_multi_G.
     iExists [], iprophs. rewrite /funeq. iSteps.
   Qed.
 
+  Lemma prophet_multi_strong_wp_resolve_strong e pid i v γ E Φ :
+    to_val e = None →
+    (0 ≤ i)%Z →
+    WP e @ E {{ w,
+      ∃ proph pasts prophss,
+      ⌜(w, v) = prophet.(prophet_typed_strong_to_val) proph⌝ ∗
+      prophet_multi_strong_model pid γ pasts prophss ∗
+        ∀ prophs,
+        ⌜prophss ₊i = proph :: prophs⌝ -∗
+        prophet_multi_strong_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% %Hi HΦ".
+    Z_to_nat i. rewrite Nat2Z.id.
+    wp_apply prophet_wise_strong_wp_resolve_strong. 1: done.
+    wp_apply (wp_wand with "HΦ") as (w) "(%proph & %pasts & %prophss & %Hproph & (:model) & HΦ)".
+    iFrame. iExists (i, proph). iSplit.
+    - iPureIntro. rewrite /= -Hproph //.
+    - iIntros "%iprophs' -> Hmodel".
+      iApply ("HΦ" $! (untangle iprophs' i)).
+      + iPureIntro. rewrite Hprophss untangle_cons_True //.
+      + iExists _, _. iFrame. iSplit; iPureIntro; intros j.
+        * rewrite function.fn_lookup_alter untangle_snoc Hpasts /=.
+          case_decide; subst; done.
+        * rewrite function.fn_lookup_insert Hprophss untangle_cons /=.
+          case_decide; subst; done.
+  Qed.
+  Lemma prophet_multi_strong_wp_resolve_strong' e pid i v γ E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph pasts prophss,
+      ⌜(w, v) = prophet.(prophet_typed_strong_to_val) proph⌝ ∗
+      prophet_multi_strong_model pid γ pasts prophss ∗
+        ∀ prophs,
+        ⌜prophss i = proph :: prophs⌝ -∗
+        prophet_multi_strong_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    iApply prophet_multi_strong_wp_resolve_strong; [done | lia |].
+    rewrite Nat2Z.id //.
+  Qed.
   Lemma prophet_multi_strong_wp_resolve e pid i v γ pasts prophss E Φ :
     to_val e = None →
     (0 ≤ i)%Z →
@@ -323,20 +369,9 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% %Hi (:model) HΦ".
-    Z_to_nat i. rewrite Nat2Z.id.
-    wp_apply (prophet_wise_strong_wp_resolve with "Hmodel"); first done.
-    wp_apply (wp_wand with "HΦ") as (w) "(%proph & %Hproph & HΦ)".
-    iExists (i, proph). iSplit.
-    - iPureIntro. rewrite /= -Hproph //.
-    - iIntros "%iprophs' -> Hmodel".
-      iApply ("HΦ" $! (untangle iprophs' i)).
-      + iPureIntro. rewrite Hprophss untangle_cons_True //.
-      + iExists _, _. iFrame. iSplit; iPureIntro; intros j.
-        * rewrite function.fn_lookup_alter untangle_snoc Hpasts /=.
-          case_decide; subst; done.
-        * rewrite function.fn_lookup_insert Hprophss untangle_cons /=.
-          case_decide; subst; done.
+    iIntros "%He % Hpid HΦ".
+    iApply prophet_multi_strong_wp_resolve_strong. 1-2: done.
+    iFrameSteps.
   Qed.
   Lemma prophet_multi_strong_wp_resolve' e pid i v γ pasts prophss E Φ :
     to_val e = None →
@@ -351,9 +386,9 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% Hmodel HΦ".
-    iApply (prophet_multi_strong_wp_resolve with "Hmodel"); [done | lia |].
-    rewrite Nat2Z.id. iSteps.
+    iIntros "%He Hpid HΦ".
+    iApply prophet_multi_strong_wp_resolve_strong'. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_multi_G.
 
@@ -575,6 +610,49 @@ Section prophet_multi_G.
     iExists (λ _, []), sprophss. rewrite /funeq. iSteps.
   Qed.
 
+  Lemma prophet_multi_wp_resolve_strong e pid i v γ E Φ :
+    to_val e = None →
+    (0 ≤ i)%Z →
+    WP e @ E {{ w,
+      ∃ proph pasts prophss,
+      ⌜v = prophet.(prophet_typed_to_val) proph⌝ ∗
+      prophet_multi_model pid γ pasts prophss ∗
+        ∀ prophs,
+        ⌜prophss ₊i = proph :: prophs⌝ -∗
+        prophet_multi_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% %Hi HΦ".
+    wp_apply prophet_multi_strong_wp_resolve_strong. 1-2: done.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph & %pasts & %prophss & % & (:model) & HΦ)".
+    iFrame. iExists (w, proph). iStep. iIntros "%sprophs %Heq Hmodel".
+    iApply ("HΦ" with "[%]").
+    { rewrite Hprophss /= Heq //. }
+    iExists _, _. iFrame. iSplit; iPureIntro; intros j.
+    - rewrite /= !function.fn_lookup_alter /=.
+      case_decide; last done. rewrite fmap_app Hpasts //.
+    - rewrite /= !function.fn_lookup_insert /=.
+      case_decide; done.
+  Qed.
+  Lemma prophet_multi_wp_resolve_strong' e pid i v γ E Φ :
+    to_val e = None →
+    WP e @ E {{ w,
+      ∃ proph pasts prophss,
+      ⌜v = prophet.(prophet_typed_to_val) proph⌝ ∗
+      prophet_multi_model pid γ pasts prophss ∗
+        ∀ prophs,
+        ⌜prophss i = proph :: prophs⌝ -∗
+        prophet_multi_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+        Φ w
+    }} -∗
+    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
+  Proof.
+    iIntros "% HΦ".
+    wp_apply prophet_multi_wp_resolve_strong; [done | lia |].
+    rewrite Nat2Z.id //.
+  Qed.
   Lemma prophet_multi_wp_resolve proph e pid i v γ pasts prophss E Φ :
     to_val e = None →
     (0 ≤ i)%Z →
@@ -588,17 +666,9 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros (? Hi ->) "(:model) HΦ".
-    wp_apply (prophet_multi_strong_wp_resolve with "Hmodel"); [done.. |].
-    wp_apply (wp_wand with "HΦ") as "%w HΦ".
-    iExists (w, proph). iStep. iIntros "%sprophs %Heq Hmodel".
-    iApply ("HΦ" with "[%]").
-    { rewrite Hprophss /= Heq //. }
-    iExists _, _. iFrame. iSplit; iPureIntro; intros j.
-    - rewrite /= !function.fn_lookup_alter /=.
-      case_decide; last done. rewrite fmap_app Hpasts //.
-    - rewrite /= !function.fn_lookup_insert /=.
-      case_decide; done.
+    iIntros "%He % % Hpid HΦ".
+    iApply prophet_multi_wp_resolve_strong. 1-2: done.
+    iFrameSteps.
   Qed.
   Lemma prophet_multi_wp_resolve' proph e pid i v γ pasts prophss E Φ :
     to_val e = None →
@@ -612,9 +682,9 @@ Section prophet_multi_G.
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% % Hmodel HΦ".
-    iApply (prophet_multi_wp_resolve with "Hmodel"); [done | lia | done |].
-    rewrite Nat2Z.id. iSteps.
+    iIntros "%He % Hpid HΦ".
+    iApply prophet_multi_wp_resolve_strong'. 1: done.
+    iFrameSteps.
   Qed.
 End prophet_multi_G.
 

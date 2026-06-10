@@ -956,6 +956,25 @@ Section zoo_G.
     iFrameSteps.
   Qed.
 
+  Lemma wp_resolve_strong e pid v tid E Φ :
+    to_val e = None →
+    ( WP e ∷ tid @ E {{ res,
+        ∃ prophs,
+        prophet_model pid prophs ∗
+          ∀ prophs',
+          ⌜prophs = (res, v) :: prophs'⌝ -∗
+          prophet_model pid prophs' -∗
+          Φ res
+      }}
+    ) ⊢
+    WP Resolve e #pid v ∷ tid @ E {{ Φ }}.
+  Proof.
+    wp_unseal.
+    - apply bwp_resolve_strong.
+    - iIntros "%He HΦ %tid".
+      iSpecialize ("HΦ" $! tid).
+      iApply (bwp_resolve_strong with "HΦ"). 1: done.
+  Qed.
   Lemma wp_resolve e pid v prophs tid E Φ :
     to_val e = None →
     prophet_model pid prophs -∗
@@ -967,10 +986,9 @@ Section zoo_G.
     }} -∗
     WP Resolve e #pid v ∷ tid @ E {{ Φ }}.
   Proof.
-    wp_unseal.
-    - apply bwp_resolve.
-    - iIntros "%He Hpid H %tid".
-      iSpecialize ("H" $! tid).
-      iApply (bwp_resolve with "Hpid H"); first done.
+    iIntros "%He Hpid HΦ".
+    iApply wp_resolve_strong. 1: done.
+    iApply (wp_wand with "HΦ").
+    iSteps.
   Qed.
 End zoo_G.
