@@ -18,7 +18,7 @@ and 'a cas =
 
 and 'a casn =
   { mutable status: 'a status [@atomic]
-  ; proph: (bool, Zoo.id * bool) Zoo.proph
+  ; proph: (Zoo.id * bool) Zoo.proph
   }
 
 and 'a status =

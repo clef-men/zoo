@@ -2,7 +2,7 @@ type 'a t =
   { data: 'a Optional.t Inf_array.t
   ; mutable front: int [@atomic]
   ; mutable back: int [@atomic]
-  ; proph: (int * Zoo.id) Zoo.proph'
+  ; proph: (int * Zoo.id) Zoo.proph
   }
 
 let create () =

@@ -4,10 +4,8 @@ type dummy =
 let dummy =
   Obj.repr (ref ())
 
-type (_, _) proph =
+type _ proph =
   dummy
-type 'a proph' =
-  (unit, 'a) proph
 
 let[@inline] proph () =
   dummy

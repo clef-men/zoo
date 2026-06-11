@@ -6,7 +6,7 @@ type 'a t =
   { mutable front: int [@atomic]
   ; mutable back: int [@atomic]
   ; data: 'a Inf_array.t
-  ; proph: (bool, int * Zoo.id) Zoo.proph
+  ; proph: (int * Zoo.id) Zoo.proph
   }
 
 let create () =

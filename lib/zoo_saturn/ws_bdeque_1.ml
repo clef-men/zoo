@@ -4,7 +4,7 @@ type 'a t =
   ; mutable front_cache: int
   ; mutable back: int [@atomic]
   ; data: 'a Array.t
-  ; proph: (bool, int * Zoo.id) Zoo.proph
+  ; proph: (int * Zoo.id) Zoo.proph
   }
 
 let create cap =

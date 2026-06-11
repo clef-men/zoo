@@ -6,7 +6,7 @@ type 'a t =
   { mutable front: int [@atomic]
   ; mutable back: int [@atomic]
   ; mutable data: 'a array [@atomic]
-  ; proph: (bool, int * Zoo.id) Zoo.proph
+  ; proph: (int * Zoo.id) Zoo.proph
   }
 
 let min_capacity =
