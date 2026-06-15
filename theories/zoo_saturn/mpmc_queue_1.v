@@ -65,12 +65,12 @@ Module base.
     Implicit Types t : location.
 
     Record mpmc_queue_1_name :=
-    { mpmc_queue_1_name_inv : namespace
-    ; mpmc_queue_1_name_history : gname
-    ; mpmc_queue_1_name_front : gname
-    ; mpmc_queue_1_name_model : gname
-    ; mpmc_queue_1_name_waiters : gname
-    }.
+      { mpmc_queue_1_name_inv : namespace
+      ; mpmc_queue_1_name_history : gname
+      ; mpmc_queue_1_name_front : gname
+      ; mpmc_queue_1_name_model : gname
+      ; mpmc_queue_1_name_waiters : gname
+      }.
     Implicit Type γ : mpmc_queue_1_name.
 
     #[global] Instance mpmc_queue_1_name_eq_dec : EqDecision mpmc_queue_1_name :=
