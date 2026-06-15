@@ -452,6 +452,10 @@ theories/zoo_saturn/ws_deque_2__types.v
 theories/zoo_saturn/ws_deque_2__code.v
 theories/zoo_saturn/ws_deque_2__opaque.v
 theories/zoo_saturn/ws_deque_2.v
+theories/zoo_saturn/svar__types.v
+theories/zoo_saturn/svar__code.v
+theories/zoo_saturn/svar__opaque.v
+theories/zoo_saturn/svar.v
 
 #END zoo-saturn
 
