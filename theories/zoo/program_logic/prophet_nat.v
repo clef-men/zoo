@@ -7,7 +7,7 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Program Definition prophet_nat :=
+Definition prophet_nat :=
   {|prophet_typed_type :=
       nat
   ; prophet_typed_of_val v :=
@@ -17,16 +17,9 @@ Program Definition prophet_nat :=
       | _ =>
           None
       end
-  ; prophet_typed_to_val i :=
-      #i
   |}.
-Solve Obligations of prophet_nat with
-  try done.
-Next Obligation.
-  intros i v ->. rewrite /= Nat2Z.id //.
-Qed.
 
-Program Definition prophet_nat_1 :=
+Definition prophet_nat_1 :=
   {|prophet_typed_1_type :=
       nat
   ; prophet_typed_1_of_val v :=
@@ -36,11 +29,4 @@ Program Definition prophet_nat_1 :=
       | _ =>
           None
       end
-  ; prophet_typed_1_to_val i :=
-      #i
   |}.
-Solve Obligations of prophet_nat_1 with
-  try done.
-Next Obligation.
-  intros i v ->. rewrite /= Nat2Z.id //.
-Qed.

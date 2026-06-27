@@ -12,30 +12,30 @@ From zoo Require Import
 Record prophet_typed_strong :=
   { prophet_typed_strong_type : Type
   ; prophet_typed_strong_of_val : val → val → option prophet_typed_strong_type
-  ; prophet_typed_strong_to_val : prophet_typed_strong_type → val * val
-
-  ; prophet_typed_strong_of_to_val proph w v :
-      (w, v) = prophet_typed_strong_to_val proph →
-      prophet_typed_strong_of_val w v = Some proph
   }.
-#[global] Arguments Build_prophet_typed_strong {_ _ _} _ : assert.
 
 Section prophet_typed_strong.
   Context (prophet : prophet_typed_strong).
   Context `{zoo_G : !ZooG Σ}.
 
-  #[local] Fixpoint prophet_typed_strong_process prophs :=
-    match prophs with
+  Implicit Types uproph : val * val.
+  Implicit Types uprophs : list (val * val).
+  Implicit Types proph : prophet.(prophet_typed_strong_type).
+  Implicit Types prophs : list prophet.(prophet_typed_strong_type).
+
+  #[local] Fixpoint prophet_typed_strong_process uprophs :=
+    match uprophs with
     | [] =>
         []
-    | (w, v) :: prophs =>
+    | (w, v) :: uprophs =>
         match prophet.(prophet_typed_strong_of_val) w v with
         | None =>
             []
         | Some proph =>
-            proph :: prophet_typed_strong_process prophs
+            proph :: prophet_typed_strong_process uprophs
         end
     end.
+
   Definition prophet_typed_strong_model pid prophs : iProp Σ :=
     ∃ uprophs,
     ⌜prophs = prophet_typed_strong_process uprophs⌝ ∗
@@ -83,7 +83,7 @@ Section prophet_typed_strong.
     prophet_typed_strong_model pid prophs -∗
     WP e @ E {{ w,
       ∃ proph,
-      ⌜(w, v) = prophet.(prophet_typed_strong_to_val) proph⌝ ∗
+      ⌜prophet.(prophet_typed_strong_of_val) w v = Some proph⌝ ∗
         ∀ prophs',
         ⌜prophs = proph :: prophs'⌝ -∗
         prophet_typed_strong_model pid prophs' -∗
@@ -93,8 +93,8 @@ Section prophet_typed_strong.
   Proof.
     iIntros "% % (:model) HΦ".
     wp_apply (wp_resolve with "Hpid"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ) %prophs' -> Hpid".
-    rewrite /= (prophet_typed_strong_of_to_val _ proph) // in Hprophs.
+    wp_apply (wp_wand with "HΦ") as "%w (%proph & %Hproph & HΦ) %prophs' -> Hpid".
+    rewrite /= Hproph in Hprophs.
     iSteps.
   Qed.
 End prophet_typed_strong.
@@ -104,32 +104,24 @@ End prophet_typed_strong.
 Record prophet_typed_strong_1 :=
   { prophet_typed_strong_1_type : Type
   ; prophet_typed_strong_1_of_val : val → val → option prophet_typed_strong_1_type
-  ; prophet_typed_strong_1_to_val : prophet_typed_strong_1_type → val * val
 
   ; #[global] prophet_typed_strong_1_type_inhabited ::
       Inhabited prophet_typed_strong_1_type
-
-  ; prophet_typed_strong_1_of_to_val proph w v :
-      (w, v) = prophet_typed_strong_1_to_val proph →
-      prophet_typed_strong_1_of_val w v = Some proph
   }.
-#[global] Arguments Build_prophet_typed_strong_1 {_ _ _ _} _ : assert.
 
 Section prophet_typed_strong_1.
   Context (prophet : prophet_typed_strong_1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_strong_1_to_prophet :=
+  Implicit Types proph : prophet.(prophet_typed_strong_1_type).
+  Implicit Types prophs : list prophet.(prophet_typed_strong_1_type).
+
+  Definition prophet_typed_strong_1_to_prophet :=
     {|prophet_typed_strong_type :=
         prophet.(prophet_typed_strong_1_type)
     ; prophet_typed_strong_of_val :=
         prophet.(prophet_typed_strong_1_of_val)
-    ; prophet_typed_strong_to_val :=
-        prophet.(prophet_typed_strong_1_to_val)
     |}.
-  Next Obligation.
-    apply prophet_typed_strong_1_of_to_val.
-  Qed.
 
   Definition prophet_typed_strong_1_model pid proph : iProp Σ :=
     ∃ prophs,
@@ -169,7 +161,7 @@ Section prophet_typed_strong_1.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (prophet_typed_strong_wp_proph with "[//]") as "%pid %prophs Hmodel".
+    wp_apply (prophet_typed_strong_wp_proph prophet_typed_strong_1_to_prophet with "[//]") as "%pid %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
     1: iApply ("HΦ" $! pid inhabitant).
     2: iApply ("HΦ" $! pid proph).
@@ -182,7 +174,7 @@ Section prophet_typed_strong_1.
     prophet_typed_strong_1_model pid proph -∗
     WP e @ E {{ w,
       ∃ proph',
-      ⌜(w, v) = prophet.(prophet_typed_strong_1_to_val) proph'⌝ ∗
+      ⌜prophet.(prophet_typed_strong_1_of_val) w v = Some proph'⌝ ∗
       (⌜proph = proph'⌝ -∗ Φ w)
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
@@ -200,46 +192,24 @@ Coercion prophet_typed_strong_1_to_prophet : prophet_typed_strong_1 >-> prophet_
 Record prophet_typed :=
   { prophet_typed_type : Type
   ; prophet_typed_of_val : val → option prophet_typed_type
-  ; prophet_typed_to_val : prophet_typed_type → val
-
-  ; prophet_typed_of_to_val proph v :
-      v = prophet_typed_to_val proph →
-      prophet_typed_of_val v = Some proph
   }.
-#[global] Arguments Build_prophet_typed {_ _ _} _ : assert.
 
 Section prophet_typed.
   Context (prophet : prophet_typed).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_to_strong :=
-    {|prophet_typed_strong_type :=
-        val * prophet.(prophet_typed_type)
-    ; prophet_typed_strong_of_val w v :=
-        match prophet.(prophet_typed_of_val) v with
-        | None =>
-            None
-        | Some proph =>
-            Some (w, proph)
-        end
-    ; prophet_typed_strong_to_val '(w, proph) :=
-        (w, prophet.(prophet_typed_to_val) proph)
-    |}.
-  Next Obligation.
-    intros (w & proph) _w v [= -> ->].
-    erewrite prophet_typed_of_to_val => //.
-  Qed.
+  Implicit Types proph : prophet.(prophet_typed_type).
+  Implicit Types prophs : list prophet.(prophet_typed_type).
 
-  Definition prophet_typed_model pid prophs : iProp Σ :=
-    ∃ sprophs,
-    ⌜prophs = sprophs.*2⌝ ∗
-    prophet_typed_strong_model prophet_typed_to_strong pid sprophs.
-  #[local] Instance : CustomIpat "model" :=
-    " ( %sprophs{}
-      & ->
-      & Hmodel{}
-      )
-    ".
+  Definition prophet_typed_to_strong :=
+    {|prophet_typed_strong_type :=
+        prophet.(prophet_typed_type)
+    ; prophet_typed_strong_of_val _w :=
+        prophet.(prophet_typed_of_val)
+    |}.
+
+  Definition prophet_typed_model pid prophs :=
+    prophet_typed_strong_model prophet_typed_to_strong pid prophs.
 
   #[global] Instance prophet_typed_model_timeless pid prophs :
     Timeless (prophet_typed_model pid prophs).
@@ -252,8 +222,7 @@ Section prophet_typed.
     prophet_typed_model pid prophs2 -∗
     False.
   Proof.
-    iIntros "(:model =1) (:model =2)".
-    iApply (prophet_typed_strong_model_exclusive with "Hmodel1 Hmodel2").
+    apply prophet_typed_strong_model_exclusive.
   Qed.
 
   Lemma prophet_typed_wp_proph E :
@@ -267,15 +236,13 @@ Section prophet_typed.
       prophet_typed_model pid prophs
     }}}.
   Proof.
-    iIntros "%Φ _ HΦ".
-    wp_apply (prophet_typed_strong_wp_proph with "[//]").
-    iSteps. done.
+    apply (prophet_typed_strong_wp_proph prophet_typed_to_strong).
   Qed.
 
   Lemma prophet_typed_wp_resolve proph e pid v prophs E Φ :
     Atomic e →
     to_val e = None →
-    v = prophet.(prophet_typed_to_val) proph →
+    prophet.(prophet_typed_of_val) v = Some proph →
     prophet_typed_model pid prophs -∗
     WP e @ E {{ w,
       ∀ prophs',
@@ -285,10 +252,10 @@ Section prophet_typed.
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(:model) HΦ".
+    iIntros (? ? Hproph) "Hmodel HΦ".
     wp_apply (prophet_typed_strong_wp_resolve with "Hmodel"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w HΦ".
-    iExists (w, proph). iSteps.
+    iEval (rewrite /= Hproph).
+    iFrameSteps.
   Qed.
 End prophet_typed.
 
@@ -299,32 +266,24 @@ Coercion prophet_typed_to_strong : prophet_typed >-> prophet_typed_strong.
 Record prophet_typed_1 :=
   { prophet_typed_1_type : Type
   ; prophet_typed_1_of_val : val → option prophet_typed_1_type
-  ; prophet_typed_1_to_val : prophet_typed_1_type → val
 
   ; #[global] prophet_typed_1_type_inhabited ::
       Inhabited prophet_typed_1_type
-
-  ; prophet_typed_1_of_to_val proph v :
-      v = prophet_typed_1_to_val proph →
-      prophet_typed_1_of_val v = Some proph
   }.
-#[global] Arguments Build_prophet_typed_1 {_ _ _ _} _ : assert.
 
 Section prophet_typed_1.
   Context (prophet : prophet_typed_1).
   Context `{zoo_G : !ZooG Σ}.
 
-  Program Definition prophet_typed_1_to_prophet :=
+  Implicit Types proph : prophet.(prophet_typed_1_type).
+  Implicit Types prophs : list prophet.(prophet_typed_1_type).
+
+  Definition prophet_typed_1_to_prophet :=
     {|prophet_typed_type :=
         prophet.(prophet_typed_1_type)
     ; prophet_typed_of_val :=
         prophet.(prophet_typed_1_of_val)
-    ; prophet_typed_to_val :=
-        prophet.(prophet_typed_1_to_val)
     |}.
-  Next Obligation.
-    apply prophet_typed_1_of_to_val.
-  Qed.
 
   Definition prophet_typed_1_model pid proph : iProp Σ :=
     ∃ prophs,
@@ -364,7 +323,7 @@ Section prophet_typed_1.
     }}}.
   Proof.
     iIntros "%Φ _ HΦ".
-    wp_apply (prophet_typed_wp_proph with "[//]") as "%pid %prophs Hmodel".
+    wp_apply (prophet_typed_wp_proph prophet_typed_1_to_prophet with "[//]") as "%pid %prophs Hmodel".
     destruct prophs as [| proph prophs'] eqn:Heq.
     1: iApply ("HΦ" $! pid inhabitant).
     2: iApply ("HΦ" $! pid proph).
@@ -374,12 +333,12 @@ Section prophet_typed_1.
   Lemma prophet_typed_1_wp_resolve proph e pid v proph' E Φ :
     Atomic e →
     to_val e = None →
-    v = prophet.(prophet_typed_1_to_val) proph →
+    prophet.(prophet_typed_1_of_val) v = Some proph →
     prophet_typed_1_model pid proph' -∗
     WP e @ E {{ w, ⌜proph' = proph⌝ -∗ Φ w }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
-    iIntros (? ? ->) "(:model) HΦ".
+    iIntros (? ? Hproph) "(:model) HΦ".
     wp_apply (prophet_typed_wp_resolve with "Hmodel"); [done.. |].
     iSteps.
   Qed.

@@ -7,7 +7,7 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Program Definition prophet_bool :=
+Definition prophet_bool :=
   {|prophet_typed_type :=
       bool
   ; prophet_typed_of_val v :=
@@ -17,16 +17,9 @@ Program Definition prophet_bool :=
       | _ =>
           None
       end
-  ; prophet_typed_to_val b :=
-      #b
   |}.
-Solve Obligations of prophet_bool with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
 
-Program Definition prophet_bool_1 :=
+Definition prophet_bool_1 :=
   {|prophet_typed_1_type :=
       bool
   ; prophet_typed_1_of_val v :=
@@ -36,11 +29,4 @@ Program Definition prophet_bool_1 :=
       | _ =>
           None
       end
-  ; prophet_typed_1_to_val b :=
-      #b
   |}.
-Solve Obligations of prophet_bool_1 with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.

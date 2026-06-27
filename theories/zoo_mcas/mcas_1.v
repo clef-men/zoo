@@ -42,7 +42,7 @@ Implicit Types cas : location * (val * val).
 Implicit Types cass : list (location * (val * val)).
 Implicit Types helpers : gmap gname nat.
 
-#[local] Program Definition global_prophet :=
+#[local] Definition global_prophet :=
   {|prophet_typed_type :=
       identifier * bool
   ; prophet_typed_of_val v :=
@@ -52,14 +52,7 @@ Implicit Types helpers : gmap gname nat.
       | _ =>
           None
       end
-  ; prophet_typed_to_val '(gid, b) :=
-      (#gid, #b)%V
   |}.
-Solve Obligations of global_prophet with
-  try done.
-Next Obligation.
-  intros (gid & b) v ->. done.
-Qed.
 Implicit Types prophs : list global_prophet.(prophet_typed_type).
 
 Record loc_metadata :=

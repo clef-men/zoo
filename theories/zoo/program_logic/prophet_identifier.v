@@ -8,7 +8,7 @@ From zoo.program_logic Require Export
 From zoo Require Import
   options.
 
-Program Definition prophet_identifier :=
+Definition prophet_identifier :=
   {|prophet_typed_type :=
       identifier
   ; prophet_typed_of_val v :=
@@ -18,16 +18,9 @@ Program Definition prophet_identifier :=
       | _ =>
           None
       end
-  ; prophet_typed_to_val id :=
-      #id
   |}.
-Solve Obligations of prophet_identifier with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
 
-Program Definition prophet_identifier_1 :=
+Definition prophet_identifier_1 :=
   {|prophet_typed_1_type :=
       identifier
   ; prophet_typed_1_of_val v :=
@@ -37,11 +30,4 @@ Program Definition prophet_identifier_1 :=
       | _ =>
           None
       end
-  ; prophet_typed_1_to_val id :=
-      #id
   |}.
-Solve Obligations of prophet_identifier_1 with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.

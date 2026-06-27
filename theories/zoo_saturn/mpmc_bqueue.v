@@ -39,7 +39,7 @@ Implicit Types vs : list val.
 Implicit Types waiter : gname.
 Implicit Types waiters : gmap gname nat.
 
-#[local] Program Definition prophet :=
+#[local] Definition prophet :=
   {|prophet_typed_strong_1_type :=
       location
   ; prophet_typed_strong_1_of_val v _ :=
@@ -49,14 +49,7 @@ Implicit Types waiters : gmap gname nat.
       | _ =>
           None
       end
-  ; prophet_typed_strong_1_to_val l :=
-      (#l, ()%V)
   |}.
-Solve Obligations of prophet with
-  try done.
-Next Obligation.
-  naive_solver.
-Qed.
 
 Class MpmcBqueueG Σ `{zoo_G : !ZooG Σ} :=
   { #[local] mpmc_bqueue_G_history_G :: MonoListG Σ location
