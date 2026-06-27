@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  svar__code.
+Require Import zoo_saturn.svar__code.
 
 #[global] Opaque svar٠make.
 #[global] Opaque svar٠get.
