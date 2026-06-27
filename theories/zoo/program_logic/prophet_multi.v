@@ -12,54 +12,54 @@ From zoo Require Import
   options.
 
 #[local] Definition prophetx prophet :=
-  {|prophet_typed_strong_type :=
-      nat * prophet.(prophet_typed_strong_type)
-  ; prophet_typed_strong_of_val v1 v2 :=
+  {|prophet_typed_type :=
+      nat * prophet.(prophet_typed_type)
+  ; prophet_typed_of_val v1 v2 :=
       match v2 with
       | ValBlock _ _ [ValInt i; v2] =>
-          proph ← prophet.(prophet_typed_strong_of_val) v1 v2 ;
+          proph ← prophet.(prophet_typed_of_val) v1 v2 ;
           Some (₊i, proph)
       | _ =>
           None
       end
   |}.
 
-Class ProphetMultiStrongG Σ `{zoo_G : !ZooG Σ} prophet :=
-  { #[local] prophet_multi_strong_G :: ProphetWiseStrongG Σ (prophetx prophet)
+Class ProphetMultiG Σ `{zoo_G : !ZooG Σ} prophet :=
+  { #[local] prophet_multi_G :: ProphetWiseG Σ (prophetx prophet)
   }.
 
-Definition prophet_multi_strong_Σ prophet :=
-  #[prophet_wise_strong_Σ (prophetx prophet)
+Definition prophet_multi_Σ prophet :=
+  #[prophet_wise_Σ (prophetx prophet)
   ].
-#[global] Instance subG_prophet_multi_strong_Σ Σ `{zoo_G : !ZooG Σ} prophet :
-  subG (prophet_multi_strong_Σ prophet) Σ →
-  ProphetMultiStrongG Σ prophet.
+#[global] Instance subG_prophet_multi_Σ Σ `{zoo_G : !ZooG Σ} prophet :
+  subG (prophet_multi_Σ prophet) Σ →
+  ProphetMultiG Σ prophet.
 Proof.
   solve_inG.
 Qed.
 
 Section prophet_multi_G.
-  Context (prophet : prophet_typed_strong).
-  Context `{prophet_multi_G : ProphetMultiStrongG Σ prophet}.
+  Context (prophet : prophet_typed).
+  Context `{prophet_multi_G : ProphetMultiG Σ prophet}.
 
   Notation prophetx := (
     prophetx prophet
   ).
 
-  Implicit Types proph : prophet.(prophet_typed_strong_type).
-  Implicit Types past prophs lb : list prophet.(prophet_typed_strong_type).
-  Implicit Types pasts prophss : nat → list prophet.(prophet_typed_strong_type).
-  Implicit Types iproph : nat * prophet.(prophet_typed_strong_type).
-  Implicit Types ipast iprophs : list (nat * prophet.(prophet_typed_strong_type)).
+  Implicit Types proph : prophet.(prophet_typed_type).
+  Implicit Types past prophs lb : list prophet.(prophet_typed_type).
+  Implicit Types pasts prophss : nat → list prophet.(prophet_typed_type).
+  Implicit Types iproph : nat * prophet.(prophet_typed_type).
+  Implicit Types ipast iprophs : list (nat * prophet.(prophet_typed_type)).
 
-  Definition prophet_multi_strong_name :=
-    prophet_wise_strong_name.
-  Implicit Types γ : prophet_multi_strong_name.
+  Definition prophet_multi_name :=
+    prophet_wise_name.
+  Implicit Types γ : prophet_multi_name.
 
-  #[global] Instance prophet_multi_strong_name_eq_dec : EqDecision prophet_wise_strong_name :=
+  #[global] Instance prophet_multi_name_eq_dec : EqDecision prophet_wise_name :=
     ltac:(apply _).
-  #[global] Instance prophet_multi_strong_name_countable :
-    Countable prophet_wise_strong_name.
+  #[global] Instance prophet_multi_name_countable :
+    Countable prophet_wise_name.
   Proof.
     apply _.
   Qed.
@@ -113,10 +113,10 @@ Section prophet_multi_G.
     rewrite untangle_snoc decide_False //.
   Qed.
 
-  Definition prophet_multi_strong_full γ i prophs : iProp Σ :=
+  Definition prophet_multi_full γ i prophs : iProp Σ :=
     ∃ iprophs,
     ⌜prophs = untangle iprophs i⌝ ∗
-    prophet_wise_strong_full prophetx γ iprophs.
+    prophet_wise_full prophetx γ iprophs.
   #[local] Instance : CustomIpat "full" :=
     " ( %iprophs{}
       & ->
@@ -124,11 +124,11 @@ Section prophet_multi_G.
       )
     ".
 
-  Definition prophet_multi_strong_model pid γ pasts prophss : iProp Σ :=
+  Definition prophet_multi_model pid γ pasts prophss : iProp Σ :=
     ∃ ipast iprophs,
     ⌜pasts ≡ᶠ untangle ipast⌝ ∗
     ⌜prophss ≡ᶠ untangle iprophs⌝ ∗
-    prophet_wise_strong_model prophetx pid γ ipast iprophs.
+    prophet_wise_model prophetx pid γ ipast iprophs.
   #[local] Instance : CustomIpat "model" :=
     " ( %ipast{}
       & %iprophs{}
@@ -138,11 +138,11 @@ Section prophet_multi_G.
       )
     ".
 
-  Definition prophet_multi_strong_snapshot γ i past prophs : iProp Σ :=
+  Definition prophet_multi_snapshot γ i past prophs : iProp Σ :=
     ∃ ipast iprophs,
     ⌜past = untangle ipast i⌝ ∗
     ⌜prophs = untangle iprophs i⌝ ∗
-    prophet_wise_strong_snapshot prophetx γ ipast iprophs.
+    prophet_wise_snapshot prophetx γ ipast iprophs.
   #[local] Instance : CustomIpat "snapshot" :=
     " ( %ipast{_{suff}}
       & %iprophs{_{suff}}
@@ -152,246 +152,14 @@ Section prophet_multi_G.
       )
     ".
 
-  Definition prophet_multi_strong_lb γ i lb : iProp Σ :=
+  Definition prophet_multi_lb γ i lb : iProp Σ :=
     ∃ past,
-    prophet_multi_strong_snapshot γ i past lb.
+    prophet_multi_snapshot γ i past lb.
   #[local] Instance : CustomIpat "lb" :=
     " ( %past
       & Hsnapshot
       )
     ".
-
-  #[global] Instance prophet_multi_strong_full_timeless γ i prophs :
-    Timeless (prophet_multi_strong_full γ i prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_multi_strong_model_timeless pid γ pasts prophss :
-    Timeless (prophet_multi_strong_model pid γ pasts prophss).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_multi_strong_snapshot_timeless γ i past prophs :
-    Timeless (prophet_multi_strong_snapshot γ i past prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_multi_strong_lb_timeless γ i lb :
-    Timeless (prophet_multi_strong_lb γ i lb).
-  Proof.
-    apply _.
-  Qed.
-
-  #[global] Instance prophet_multi_strong_full_persistent γ i prophs :
-    Persistent (prophet_multi_strong_full γ i prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_multi_strong_snapshot_persistent γ i past prophs :
-    Persistent (prophet_multi_strong_snapshot γ i past prophs).
-  Proof.
-    apply _.
-  Qed.
-  #[global] Instance prophet_multi_strong_lb_persistent γ i lb :
-    Persistent (prophet_multi_strong_lb γ i lb).
-  Proof.
-    apply _.
-  Qed.
-
-  Lemma prophet_multi_strong_model_exclusive pid γ1 pasts1 prophss1 γ2 pasts2 prophss2 :
-    prophet_multi_strong_model pid γ1 pasts1 prophss1 -∗
-    prophet_multi_strong_model pid γ2 pasts2 prophss2 -∗
-    False.
-  Proof.
-    iIntros "(:model =1) (:model =2)".
-    iApply (prophet_wise_strong_model_exclusive with "Hmodel1 Hmodel2").
-  Qed.
-
-  Lemma prophet_multi_strong_full_get {pid γ pasts prophss} i :
-    prophet_multi_strong_model pid γ pasts prophss ⊢
-    prophet_multi_strong_full γ i (pasts i ++ prophss i).
-  Proof.
-    iIntros "(:model)".
-    iDestruct (prophet_wise_strong_full_get with "Hmodel") as "$".
-    rewrite Hpasts Hprophss untangle_app //.
-  Qed.
-  Lemma prophet_multi_strong_full_get' {pid γ pasts prophss} i :
-    prophet_multi_strong_model pid γ pasts prophss ⊢
-      ∃ prophs,
-      prophet_multi_strong_full γ i prophs.
-  Proof.
-    rewrite prophet_multi_strong_full_get. iSteps.
-  Qed.
-  Lemma prophet_multi_strong_full_valid pid γ pasts prophss i prophs :
-    prophet_multi_strong_model pid γ pasts prophss -∗
-    prophet_multi_strong_full γ i prophs -∗
-    ⌜prophs = pasts i ++ prophss i⌝.
-  Proof.
-    iIntros "(:model =1) (:full =2)". simplify.
-    iDestruct (prophet_wise_strong_full_valid with "Hmodel1 Hfull2") as %->.
-    rewrite Hpasts1 Hprophss1 untangle_app //.
-  Qed.
-  Lemma prophet_multi_strong_full_agree γ i prophs1 prophs2 :
-    prophet_multi_strong_full γ i prophs1 -∗
-    prophet_multi_strong_full γ i prophs2 -∗
-    ⌜prophs1 = prophs2⌝.
-  Proof.
-    iIntros "(:full =1) (:full =2)". simplify.
-    iDestruct (prophet_wise_strong_full_agree with "Hfull1 Hfull2") as %->.
-    iSteps.
-  Qed.
-
-  Lemma prophet_multi_strong_snapshot_get {pid γ pasts prophss} i :
-    prophet_multi_strong_model pid γ pasts prophss ⊢
-    prophet_multi_strong_snapshot γ i (pasts i) (prophss i).
-  Proof.
-    iIntros "(:model)".
-    iDestruct (prophet_wise_strong_snapshot_get with "Hmodel") as "$".
-    iSteps.
-  Qed.
-  Lemma prophet_multi_strong_snapshot_valid pid γ pasts prophss i past prophs :
-    prophet_multi_strong_model pid γ pasts prophss -∗
-    prophet_multi_strong_snapshot γ i past prophs -∗
-      ∃ past',
-      ⌜pasts i = past ++ past'⌝ ∗
-      ⌜prophs = past' ++ prophss i⌝.
-  Proof.
-    iIntros "(:model) (:snapshot suff=)".
-    iDestruct (prophet_wise_strong_snapshot_valid with "Hmodel Hsnapshot") as "(%ipast' & -> & ->)".
-    iExists (untangle ipast' i). iSplit; iPureIntro.
-    all: rewrite ?Hpasts ?Hprophss untangle_app //.
-  Qed.
-
-  Lemma prophet_multi_strong_lb_get {pid γ pasts prophss} i :
-    prophet_multi_strong_model pid γ pasts prophss ⊢
-    prophet_multi_strong_lb γ i (prophss i).
-  Proof.
-    rewrite (prophet_multi_strong_snapshot_get i).
-    iIntros "Hsnapshot".
-    iExists _. iFrame.
-  Qed.
-  Lemma prophet_multi_strong_lb_valid pid γ pasts prophss i lb :
-    prophet_multi_strong_model pid γ pasts prophss -∗
-    prophet_multi_strong_lb γ i lb -∗
-      ∃ past1 past2,
-      ⌜pasts i = past1 ++ past2⌝ ∗
-      ⌜lb = past2 ++ prophss i⌝.
-  Proof.
-    iIntros "Hmodel (:lb)".
-    iExists past.
-    iApply (prophet_multi_strong_snapshot_valid with "Hmodel Hsnapshot").
-  Qed.
-
-  Lemma prophet_multi_strong_wp_proph E :
-    {{{
-      True
-    }}}
-      Proph @ E
-    {{{
-      pid γ prophss
-    , RET #pid;
-      prophet_multi_strong_model pid γ (λ _, []) prophss
-    }}}.
-  Proof.
-    iIntros "%Φ _ HΦ".
-    wp_apply (prophet_wise_strong_wp_proph prophetx with "[//]") as (pid γ iprophs) "Hmodel".
-    iApply "HΦ".
-    iExists [], iprophs. rewrite /funeq. iSteps.
-  Qed.
-
-  Lemma prophet_multi_strong_wp_resolve e pid i v γ pasts prophss E Φ :
-    Atomic e →
-    to_val e = None →
-    (0 ≤ i)%Z →
-    prophet_multi_strong_model pid γ pasts prophss -∗
-    WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_strong_of_val) w v = Some proph⌝ ∗
-        ∀ prophs,
-        ⌜prophss ₊i = proph :: prophs⌝ -∗
-        prophet_multi_strong_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
-        Φ w
-    }} -∗
-    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
-  Proof.
-    iIntros "% % %Hi (:model) HΦ".
-    Z_to_nat i. rewrite Nat2Z.id.
-    wp_apply (prophet_wise_strong_wp_resolve with "Hmodel"); first done.
-    wp_apply (wp_wand with "HΦ") as (w) "(%proph & %Hproph & HΦ)".
-    iExists (i, proph). iSplit.
-    - iPureIntro. rewrite /= Hproph Nat2Z.id //.
-    - iIntros "%iprophs' -> Hmodel".
-      iApply ("HΦ" $! (untangle iprophs' i)).
-      + iPureIntro. rewrite Hprophss untangle_cons_True //.
-      + iExists _, _. iFrame. iSplit; iPureIntro; intros j.
-        * rewrite function.fn_lookup_alter untangle_snoc Hpasts /=.
-          case_decide; subst; done.
-        * rewrite function.fn_lookup_insert Hprophss untangle_cons /=.
-          case_decide; subst; done.
-  Qed.
-  Lemma prophet_multi_strong_wp_resolve' e pid i v γ pasts prophss E Φ :
-    Atomic e →
-    to_val e = None →
-    prophet_multi_strong_model pid γ pasts prophss -∗
-    WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_strong_of_val) w v = Some proph⌝ ∗
-        ∀ prophs,
-        ⌜prophss i = proph :: prophs⌝ -∗
-        prophet_multi_strong_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
-        Φ w
-    }} -∗
-    WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
-  Proof.
-    iIntros "% % Hmodel HΦ".
-    iApply (prophet_multi_strong_wp_resolve with "Hmodel"); [done | lia |].
-    rewrite Nat2Z.id. iSteps.
-  Qed.
-End prophet_multi_G.
-
-#[global] Opaque prophet_multi_strong_name.
-#[global] Opaque prophet_multi_strong_full.
-#[global] Opaque prophet_multi_strong_model.
-#[global] Opaque prophet_multi_strong_snapshot.
-#[global] Opaque prophet_multi_strong_lb.
-
-Class ProphetMultiG Σ `{zoo_G : !ZooG Σ} prophet :=
-  { #[local] prophet_multi_G :: ProphetMultiStrongG Σ prophet
-  }.
-
-Definition prophet_multi_Σ prophet :=
-  #[prophet_multi_strong_Σ prophet
-  ].
-#[global] Instance subG_prophet_multi_Σ Σ `{zoo_G : !ZooG Σ} prophet :
-  subG (prophet_multi_Σ prophet) Σ →
-  ProphetMultiG Σ prophet.
-Proof.
-  solve_inG.
-Qed.
-
-Section prophet_multi_G.
-  Context (prophet : prophet_typed).
-  Context `{prophet_multi_G : ProphetMultiG Σ prophet}.
-
-  Implicit Types proph : prophet.(prophet_typed_type).
-  Implicit Types past prophs lb : list prophet.(prophet_typed_type).
-  Implicit Types pasts prophss : nat → list prophet.(prophet_typed_type).
-
-  Definition prophet_multi_name :=
-    prophet_multi_strong_name.
-  Implicit Types γ : prophet_multi_name.
-
-  Definition prophet_multi_full γ i prophs :=
-    prophet_multi_strong_full prophet γ i prophs.
-
-  Definition prophet_multi_model pid γ pasts prophss :=
-    prophet_multi_strong_model prophet pid γ pasts prophss.
-
-  Definition prophet_multi_snapshot γ i past prophs :=
-    prophet_multi_strong_snapshot prophet γ i past prophs.
-
-  Definition prophet_multi_lb γ i lb :=
-    prophet_multi_strong_lb prophet γ i lb.
 
   #[global] Instance prophet_multi_full_timeless γ i prophs :
     Timeless (prophet_multi_full γ i prophs).
@@ -413,6 +181,7 @@ Section prophet_multi_G.
   Proof.
     apply _.
   Qed.
+
   #[global] Instance prophet_multi_full_persistent γ i prophs :
     Persistent (prophet_multi_full γ i prophs).
   Proof.
@@ -434,14 +203,17 @@ Section prophet_multi_G.
     prophet_multi_model pid γ2 pasts2 prophss2 -∗
     False.
   Proof.
-    apply prophet_multi_strong_model_exclusive.
+    iIntros "(:model =1) (:model =2)".
+    iApply (prophet_wise_model_exclusive with "Hmodel1 Hmodel2").
   Qed.
 
   Lemma prophet_multi_full_get {pid γ pasts prophss} i :
     prophet_multi_model pid γ pasts prophss ⊢
     prophet_multi_full γ i (pasts i ++ prophss i).
   Proof.
-    apply prophet_multi_strong_full_get.
+    iIntros "(:model)".
+    iDestruct (prophet_wise_full_get with "Hmodel") as "$".
+    rewrite Hpasts Hprophss untangle_app //.
   Qed.
   Lemma prophet_multi_full_get' {pid γ pasts prophss} i :
     prophet_multi_model pid γ pasts prophss ⊢
@@ -455,21 +227,27 @@ Section prophet_multi_G.
     prophet_multi_full γ i prophs -∗
     ⌜prophs = pasts i ++ prophss i⌝.
   Proof.
-    apply prophet_multi_strong_full_valid.
+    iIntros "(:model =1) (:full =2)". simplify.
+    iDestruct (prophet_wise_full_valid with "Hmodel1 Hfull2") as %->.
+    rewrite Hpasts1 Hprophss1 untangle_app //.
   Qed.
   Lemma prophet_multi_full_agree γ i prophs1 prophs2 :
     prophet_multi_full γ i prophs1 -∗
     prophet_multi_full γ i prophs2 -∗
     ⌜prophs1 = prophs2⌝.
   Proof.
-    apply prophet_multi_strong_full_agree.
+    iIntros "(:full =1) (:full =2)". simplify.
+    iDestruct (prophet_wise_full_agree with "Hfull1 Hfull2") as %->.
+    iSteps.
   Qed.
 
   Lemma prophet_multi_snapshot_get {pid γ pasts prophss} i :
     prophet_multi_model pid γ pasts prophss ⊢
     prophet_multi_snapshot γ i (pasts i) (prophss i).
   Proof.
-    apply prophet_multi_strong_snapshot_get.
+    iIntros "(:model)".
+    iDestruct (prophet_wise_snapshot_get with "Hmodel") as "$".
+    iSteps.
   Qed.
   Lemma prophet_multi_snapshot_valid pid γ pasts prophss i past prophs :
     prophet_multi_model pid γ pasts prophss -∗
@@ -478,14 +256,19 @@ Section prophet_multi_G.
       ⌜pasts i = past ++ past'⌝ ∗
       ⌜prophs = past' ++ prophss i⌝.
   Proof.
-    apply prophet_multi_strong_snapshot_valid.
+    iIntros "(:model) (:snapshot suff=)".
+    iDestruct (prophet_wise_snapshot_valid with "Hmodel Hsnapshot") as "(%ipast' & -> & ->)".
+    iExists (untangle ipast' i). iSplit; iPureIntro.
+    all: rewrite ?Hpasts ?Hprophss untangle_app //.
   Qed.
 
   Lemma prophet_multi_lb_get {pid γ pasts prophss} i :
-    prophet_multi_model pid γ pasts prophss -∗
+    prophet_multi_model pid γ pasts prophss ⊢
     prophet_multi_lb γ i (prophss i).
   Proof.
-    iApply prophet_multi_strong_lb_get.
+    rewrite (prophet_multi_snapshot_get i).
+    iIntros "Hsnapshot".
+    iExists _. iFrame.
   Qed.
   Lemma prophet_multi_lb_valid pid γ pasts prophss i lb :
     prophet_multi_model pid γ pasts prophss -∗
@@ -494,7 +277,9 @@ Section prophet_multi_G.
       ⌜pasts i = past1 ++ past2⌝ ∗
       ⌜lb = past2 ++ prophss i⌝.
   Proof.
-    apply prophet_multi_strong_lb_valid.
+    iIntros "Hmodel (:lb)".
+    iExists past.
+    iApply (prophet_multi_snapshot_valid with "Hmodel Hsnapshot").
   Qed.
 
   Lemma prophet_multi_wp_proph E :
@@ -508,42 +293,58 @@ Section prophet_multi_G.
       prophet_multi_model pid γ (λ _, []) prophss
     }}}.
   Proof.
-    apply: prophet_multi_strong_wp_proph.
+    iIntros "%Φ _ HΦ".
+    wp_apply (prophet_wise_wp_proph prophetx with "[//]") as (pid γ iprophs) "Hmodel".
+    iApply "HΦ".
+    iExists [], iprophs. rewrite /funeq. iSteps.
   Qed.
 
-  Lemma prophet_multi_wp_resolve proph e pid i v γ pasts prophss E Φ :
+  Lemma prophet_multi_wp_resolve e pid i v γ pasts prophss E Φ :
     Atomic e →
     to_val e = None →
     (0 ≤ i)%Z →
-    prophet.(prophet_typed_of_val) v = Some proph →
     prophet_multi_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      ∀ prophs,
-      ⌜prophss ₊i = proph :: prophs⌝ -∗
-      prophet_multi_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
-      Φ w
+      ∃ proph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
+        ∀ prophs,
+        ⌜prophss ₊i = proph :: prophs⌝ -∗
+        prophet_multi_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
+        Φ w
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros (? ? Hi Hproph) "Hmodel HΦ".
-    wp_apply (prophet_multi_strong_wp_resolve with "Hmodel"); [done.. |].
-    iSteps.
+    iIntros "% % %Hi (:model) HΦ".
+    Z_to_nat i. rewrite Nat2Z.id.
+    wp_apply (prophet_wise_wp_resolve with "Hmodel"); first done.
+    wp_apply (wp_wand with "HΦ") as (w) "(%proph & %Hproph & HΦ)".
+    iExists (i, proph). iSplit.
+    - iPureIntro. rewrite /= Hproph Nat2Z.id //.
+    - iIntros "%iprophs' -> Hmodel".
+      iApply ("HΦ" $! (untangle iprophs' i)).
+      + iPureIntro. rewrite Hprophss untangle_cons_True //.
+      + iExists _, _. iFrame. iSplit; iPureIntro; intros j.
+        * rewrite function.fn_lookup_alter untangle_snoc Hpasts /=.
+          case_decide; subst; done.
+        * rewrite function.fn_lookup_insert Hprophss untangle_cons /=.
+          case_decide; subst; done.
   Qed.
-  Lemma prophet_multi_wp_resolve' proph e pid i v γ pasts prophss E Φ :
+  Lemma prophet_multi_wp_resolve' e pid i v γ pasts prophss E Φ :
     Atomic e →
     to_val e = None →
-    prophet.(prophet_typed_of_val) v = Some proph →
     prophet_multi_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      ∀ prophs,
-      ⌜prophss i = proph :: prophs⌝ -∗
-      prophet_multi_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
-      Φ w
+      ∃ proph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
+        ∀ prophs,
+        ⌜prophss i = proph :: prophs⌝ -∗
+        prophet_multi_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+        Φ w
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
-    iIntros "% % % Hmodel HΦ".
-    iApply (prophet_multi_wp_resolve with "Hmodel"); [done | lia | done |].
+    iIntros "% % Hmodel HΦ".
+    iApply (prophet_multi_wp_resolve with "Hmodel"); [done | lia |].
     rewrite Nat2Z.id. iSteps.
   Qed.
 End prophet_multi_G.

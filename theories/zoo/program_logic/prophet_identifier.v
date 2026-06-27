@@ -11,7 +11,7 @@ From zoo Require Import
 Definition prophet_identifier :=
   {|prophet_typed_type :=
       identifier
-  ; prophet_typed_of_val v :=
+  ; prophet_typed_of_val _ v :=
       match v with
       | ValId id =>
           Some id
@@ -23,7 +23,7 @@ Definition prophet_identifier :=
 Definition prophet_identifier_1 :=
   {|prophet_typed_1_type :=
       identifier
-  ; prophet_typed_1_of_val v :=
+  ; prophet_typed_1_of_val _ v :=
       match v with
       | ValId id =>
           Some id

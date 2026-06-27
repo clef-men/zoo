@@ -10,7 +10,7 @@ From zoo Require Import
 Definition prophet_nat :=
   {|prophet_typed_type :=
       nat
-  ; prophet_typed_of_val v :=
+  ; prophet_typed_of_val _ v :=
       match v with
       | ValInt i =>
           Some (Z.to_nat i)
@@ -22,7 +22,7 @@ Definition prophet_nat :=
 Definition prophet_nat_1 :=
   {|prophet_typed_1_type :=
       nat
-  ; prophet_typed_1_of_val v :=
+  ; prophet_typed_1_of_val _ v :=
       match v with
       | ValInt i =>
           Some (Z.to_nat i)

@@ -1058,9 +1058,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           destruct b; last first.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
@@ -1104,9 +1104,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           destruct b.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
@@ -1166,9 +1166,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           destruct b; last first.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
@@ -1216,9 +1216,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e %b % % %Hslots2 Hdata_model".
           rewrite Nat2Z.id in Hslots2 |- *.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           destruct b.
           { iDestruct ("Hslots" $! back1) as "Hslot".
             destruct (slots2 back1).
@@ -1296,9 +1296,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1); first last.
           { iDestruct "Hslot" as "(:inv_slot_something)".
@@ -1342,9 +1342,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1) as [| | v].
           { iDestruct "Hslot" as "(:inv_slot_nothing)".
@@ -1411,9 +1411,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1) as [| | v_].
           { iDestruct "Hslot" as "(:inv_slot_nothing)".
@@ -1449,9 +1449,9 @@ Module base.
           iMod (inv_acc with "Hinv") as "((:inv_inner =2) & Hclose1)"; first done.
           iStep. iIntros "%e % % Hdata_model".
           rewrite Nat2Z.id.
-          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"); [done.. |].
+          wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
           wp_pures.
-          iIntros "!> %prophs2 %Hprophss2 Hprophet_model".
+          iStep. iIntros "%prophs2 %Hprophss2 Hprophet_model".
           iDestruct (bi.forall_elim front1 with "Hslots") as "#-#Hslot".
           destruct (slots2 front1) as [| | v]; first last.
           { iDestruct "Hslot" as "(:inv_slot_something)".

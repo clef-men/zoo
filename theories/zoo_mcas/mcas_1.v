@@ -45,7 +45,7 @@ Implicit Types helpers : gmap gname nat.
 #[local] Definition global_prophet :=
   {|prophet_typed_type :=
       identifier * bool
-  ; prophet_typed_of_val v :=
+  ; prophet_typed_of_val _ v :=
       match v with
       | ValTuple [ValProph gid; ValBool b] =>
           Some (gid, b)
@@ -1347,13 +1347,13 @@ Section mcas_1_G.
       )%I with "[- HΦ]") as (res) "(%b & -> & % & #Hlstatus_lb)".
 
       { iInv "Hcasn_inv" as "(:casn_inv_inner)".
-        wp_apply (prophet_typed_wp_resolve global_prophet (_, _) with "Hgproph"); [done.. |].
+        wp_apply (prophet_typed_wp_resolve global_prophet with "Hgproph"). 1: done.
         destruct lstatus as [i |].
 
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
           wp_cas as Hcas | _.
           { exfalso. zoo_simplify in Hcas. naive_solver. }
-          iIntros "!> %prophs %Hprophs Hgproph".
+          iStep. iIntros "%prophs %Hprophs Hgproph".
 
           assert (metadata_success η = final_status_to_bool fstatus) as Hsuccess.
           { rewrite /metadata_success /metadata_outcome Hprophs //. }
@@ -1763,7 +1763,7 @@ Section mcas_1_G.
             wp_apply (before𑁒spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
             all: wp_apply+ (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
-            all: iStep 11.
+            all: iStep 12.
             wp_apply (mcas_1٠finish𑁒spec_winner_before with "[- HΦ] HΦ"); first done.
             iSteps.
 
@@ -1777,7 +1777,7 @@ Section mcas_1_G.
             wp_apply (before𑁒spec with "Hcasn_inv'") as (v) "Hbefore"; first done.
             wp_equal.
             all: wp_apply+ (prophet_typed_1_wp_resolve prophet_bool_1 with "Hlproph"); [done.. |].
-            all: iStep 11.
+            all: iStep 12.
 
             -- iDestruct "Hbefore" as "[-> | #Hlstatus_lb_finished]".
 

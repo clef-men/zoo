@@ -1149,7 +1149,7 @@ Section mpmc_queue_2_G.
       wp_apply+ (front𑁒spec_strong (Some i_front2) None with "[$Hinv $Hfront_lb_2]") as (i_front3 vs_front3) "(_ & %Hi_front3 & _)".
       wp_equal as _ | (-> & ->)%(inj2 _).
       all: wp_apply+ (prophet_typed_1_wp_resolve with "Hproph"); [done.. |].
-      all: iStep 11.
+      all: iStep 12.
       wp_apply (mpmc_queue_2٠suffix_index𑁒spec with "[//]") as "_".
       wp_apply (mpmc_queue_2٠prefix_index𑁒spec with "[$]") as "_".
       wp_pures.
