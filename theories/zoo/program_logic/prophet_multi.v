@@ -17,8 +17,13 @@ From zoo Require Import
   ; prophet_typed_of_val v1 v2 :=
       match v2 with
       | ValBlock _ _ [ValInt i; v2] =>
-          proph ← prophet.(prophet_typed_of_val) v1 v2 ;
-          Some (₊i, proph)
+          oproph ← prophet.(prophet_typed_of_val) v1 v2 ;
+          match oproph with
+          | None =>
+              Some None
+          | Some proph =>
+              Some $ Some (₊i, proph)
+          end
       | _ =>
           None
       end
@@ -46,6 +51,7 @@ Section prophet_multi_G.
     prophetx prophet
   ).
 
+  Implicit Types oproph : option prophet.(prophet_typed_type).
   Implicit Types proph : prophet.(prophet_typed_type).
   Implicit Types past prophs lb : list prophet.(prophet_typed_type).
   Implicit Types pasts prophss : nat → list prophet.(prophet_typed_type).
@@ -305,21 +311,29 @@ Section prophet_multi_G.
     (0 ≤ i)%Z →
     prophet_multi_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
-        ∀ prophs,
-        ⌜prophss ₊i = proph :: prophs⌝ -∗
-        prophet_multi_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
-        Φ w
+      ∃ oproph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some oproph⌝ ∗
+      match oproph with
+      | None =>
+          prophet_multi_model pid γ pasts prophss -∗
+          Φ w
+      | Some proph =>
+          ∀ prophs,
+          ⌜prophss ₊i = proph :: prophs⌝ -∗
+          prophet_multi_model pid γ (alter (.++ [proph]) ₊i pasts) (<[₊i := prophs]> prophss) -∗
+          Φ w
+      end
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.
     iIntros "% % %Hi (:model) HΦ".
     Z_to_nat i. rewrite Nat2Z.id.
     wp_apply (prophet_wise_wp_resolve with "Hmodel"); first done.
-    wp_apply (wp_wand with "HΦ") as (w) "(%proph & %Hproph & HΦ)".
-    iExists (i, proph). iSplit.
-    - iPureIntro. rewrite /= Hproph Nat2Z.id //.
+    wp_apply (wp_wand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
+    iEval (rewrite /= Hoproph /=).
+    destruct oproph as [proph |]. 2: iSteps.
+    iExists (Some (i, proph)). iSplit.
+    - iPureIntro. rewrite Nat2Z.id //.
     - iIntros "%iprophs' -> Hmodel".
       iApply ("HΦ" $! (untangle iprophs' i)).
       + iPureIntro. rewrite Hprophss untangle_cons_True //.
@@ -334,12 +348,18 @@ Section prophet_multi_G.
     to_val e = None →
     prophet_multi_model pid γ pasts prophss -∗
     WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
-        ∀ prophs,
-        ⌜prophss i = proph :: prophs⌝ -∗
-        prophet_multi_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
-        Φ w
+      ∃ oproph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some oproph⌝ ∗
+      match oproph with
+      | None =>
+          prophet_multi_model pid γ pasts prophss -∗
+          Φ w
+      | Some proph =>
+          ∀ prophs,
+          ⌜prophss i = proph :: prophs⌝ -∗
+          prophet_multi_model pid γ (alter (.++ [proph]) i pasts) (<[i := prophs]> prophss) -∗
+          Φ w
+      end
     }} -∗
     WP Resolve e #pid (#i, v)%V @ E {{ Φ }}.
   Proof.

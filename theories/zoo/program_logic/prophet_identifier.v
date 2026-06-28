@@ -14,7 +14,7 @@ Definition prophet_identifier :=
   ; prophet_typed_of_val _ v :=
       match v with
       | ValId id =>
-          Some id
+          Some $ Some id
       | _ =>
           None
       end
@@ -26,7 +26,7 @@ Definition prophet_identifier_1 :=
   ; prophet_typed_1_of_val _ v :=
       match v with
       | ValId id =>
-          Some id
+          Some $ Some id
       | _ =>
           None
       end

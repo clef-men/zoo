@@ -48,7 +48,7 @@ Implicit Types helpers : gmap gname nat.
   ; prophet_typed_of_val _ v :=
       match v with
       | ValTuple [ValProph gid; ValBool b] =>
-          Some (gid, b)
+          Some $ Some (gid, b)
       | _ =>
           None
       end
@@ -1353,7 +1353,7 @@ Section mcas_1_G.
         - iDestruct "Hlstatus" as "(:casn_inv_inner_running >)".
           wp_cas as Hcas | _.
           { exfalso. zoo_simplify in Hcas. naive_solver. }
-          iStep. iIntros "%prophs %Hprophs Hgproph".
+          iStep. iIntros "!> %prophs %Hprophs Hgproph".
 
           assert (metadata_success η = final_status_to_bool fstatus) as Hsuccess.
           { rewrite /metadata_success /metadata_outcome Hprophs //. }

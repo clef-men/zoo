@@ -34,6 +34,7 @@ Section prophet_wise_G.
   Context (prophet : prophet_typed).
   Context `{prophet_wise_G : ProphetWiseG Σ prophet}.
 
+  Implicit Types oproph : option prophet.(prophet_typed_type).
   Implicit Types proph : prophet.(prophet_typed_type).
   Implicit Types prophs : list prophet.(prophet_typed_type).
 
@@ -229,19 +230,26 @@ Section prophet_wise_G.
     to_val e = None →
     prophet_wise_model pid γ past prophs -∗
     WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
-        ∀ prophs',
-        ⌜prophs = proph :: prophs'⌝ -∗
-        prophet_wise_model pid γ (past ++ [proph]) prophs' -∗
-        Φ w
+      ∃ oproph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some oproph⌝ ∗
+      match oproph with
+      | None =>
+          prophet_wise_model pid γ past prophs -∗
+          Φ w
+      | Some proph =>
+          ∀ prophs',
+          ⌜prophs = proph :: prophs'⌝ -∗
+          prophet_wise_model pid γ (past ++ [proph]) prophs' -∗
+          Φ w
+      end
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
     wp_apply (prophet_typed_wp_resolve with "Hmodel"); first done.
-    iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w (%proph & % & HΦ)".
-    iExists proph. iSplitR; first done.
+    iApply wp_fupd. wp_apply (wp_wand with "HΦ") as "%w (%oproph & %Hoproph & HΦ)".
+    iExists oproph. iSplitR. 1: done.
+    destruct oproph as [proph |]. 2: iSteps.
     iMod (mono_list_update_snoc proph with "Hpast_auth") as "Hpast_auth".
     iIntros "!> %prophs' -> Hpid".
     iApply ("HΦ" with "[//]").

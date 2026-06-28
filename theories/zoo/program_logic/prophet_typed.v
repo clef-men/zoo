@@ -11,7 +11,7 @@ From zoo Require Import
 
 Record prophet_typed :=
   { prophet_typed_type : Type
-  ; prophet_typed_of_val : val → val → option prophet_typed_type
+  ; prophet_typed_of_val : val → val → option $ option prophet_typed_type
   }.
 
 Section prophet_typed.
@@ -20,6 +20,7 @@ Section prophet_typed.
 
   Implicit Types uproph : val * val.
   Implicit Types uprophs : list (val * val).
+  Implicit Types oproph : option prophet.(prophet_typed_type).
   Implicit Types proph : prophet.(prophet_typed_type).
   Implicit Types prophs : list prophet.(prophet_typed_type).
 
@@ -31,7 +32,9 @@ Section prophet_typed.
         match prophet.(prophet_typed_of_val) w v with
         | None =>
             []
-        | Some proph =>
+        | Some None =>
+            prophet_typed_process uprophs
+        | Some (Some proph) =>
             proph :: prophet_typed_process uprophs
         end
     end.
@@ -82,20 +85,26 @@ Section prophet_typed.
     to_val e = None →
     prophet_typed_model pid prophs -∗
     WP e @ E {{ w,
-      ∃ proph,
-      ⌜prophet.(prophet_typed_of_val) w v = Some proph⌝ ∗
-        ∀ prophs',
-        ⌜prophs = proph :: prophs'⌝ -∗
-        prophet_typed_model pid prophs' -∗
-        Φ w
+      ∃ oproph,
+      ⌜prophet.(prophet_typed_of_val) w v = Some oproph⌝ ∗
+      match oproph with
+      | None =>
+          prophet_typed_model pid prophs -∗
+          Φ w
+      | Some proph =>
+          ∀ prophs',
+          ⌜prophs = proph :: prophs'⌝ -∗
+          prophet_typed_model pid prophs' -∗
+          Φ w
+      end
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros "% % (:model) HΦ".
     wp_apply (wp_resolve with "Hpid"); first done.
-    wp_apply (wp_wand with "HΦ") as "%w (%proph & %Hproph & HΦ) %prophs' -> Hpid".
-    rewrite /= Hproph in Hprophs.
-    iSteps.
+    wp_apply (wp_wand with "HΦ") as "%w (%oproph & %Hoproph & HΦ) %prophs' -> Hpid".
+    rewrite /= Hoproph in Hprophs.
+    destruct oproph; iSteps.
   Qed.
 End prophet_typed.
 
@@ -103,7 +112,7 @@ End prophet_typed.
 
 Record prophet_typed_1 :=
   { prophet_typed_1_type : Type
-  ; prophet_typed_1_of_val : val → val → option prophet_typed_1_type
+  ; prophet_typed_1_of_val : val → val → option $ option prophet_typed_1_type
 
   ; #[global] prophet_typed_1_type_inhabited ::
       Inhabited prophet_typed_1_type
@@ -113,6 +122,7 @@ Section prophet_typed_1.
   Context (prophet : prophet_typed_1).
   Context `{zoo_G : !ZooG Σ}.
 
+  Implicit Types oproph : option prophet.(prophet_typed_1_type).
   Implicit Types proph : prophet.(prophet_typed_1_type).
   Implicit Types prophs : list prophet.(prophet_typed_1_type).
 
@@ -173,15 +183,22 @@ Section prophet_typed_1.
     to_val e = None →
     prophet_typed_1_model pid proph -∗
     WP e @ E {{ w,
-      ∃ proph',
-      ⌜prophet.(prophet_typed_1_of_val) w v = Some proph'⌝ ∗
-      (⌜proph = proph'⌝ -∗ Φ w)
+      ∃ oproph,
+      ⌜prophet.(prophet_typed_1_of_val) w v = Some oproph⌝ ∗
+      match oproph with
+      | None =>
+          Φ w
+      | Some proph' =>
+          ⌜proph = proph'⌝ -∗
+          Φ w
+      end
     }} -∗
     WP Resolve e #pid v @ E {{ Φ }}.
   Proof.
     iIntros (? ?) "(:model) HΦ".
     wp_apply (prophet_typed_wp_resolve with "Hmodel"); first done.
-    iSteps.
+    wp_apply (wp_wand with "HΦ") as (w) "(%oproph & %Hoproph & HΦ)".
+    destruct oproph; iSteps.
   Qed.
 End prophet_typed_1.
 

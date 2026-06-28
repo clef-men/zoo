@@ -13,7 +13,7 @@ Definition prophet_nat :=
   ; prophet_typed_of_val _ v :=
       match v with
       | ValInt i =>
-          Some (Z.to_nat i)
+          Some $ Some $ Z.to_nat i
       | _ =>
           None
       end
@@ -25,7 +25,7 @@ Definition prophet_nat_1 :=
   ; prophet_typed_1_of_val _ v :=
       match v with
       | ValInt i =>
-          Some (Z.to_nat i)
+          Some $ Some $ Z.to_nat i
       | _ =>
           None
       end

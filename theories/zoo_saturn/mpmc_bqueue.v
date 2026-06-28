@@ -45,7 +45,7 @@ Implicit Types waiters : gmap gname nat.
   ; prophet_typed_1_of_val v _ :=
       match v with
       | ValLoc l =>
-          Some l
+          Some $ Some l
       | _ =>
           None
       end
@@ -891,7 +891,7 @@ Module base.
           iInv "Hinv" as "(:inv_inner =3)".
           wp_apply (prophet_typed_1_wp_resolve with "Hproph"); first done.
           wp_load.
-          iStep. iIntros "<-".
+          iStep. iIntros "!> <-".
           iDestruct "HΦ" as "[HΦ | (%i_front2 & #Hfront_lb_front2 & % & HΦ)]"; last first.
           { assert (hist3 !! (length past3) = Some front1) as Hlookup.
             { rewrite Hhist3 list_lookup_middle //. }

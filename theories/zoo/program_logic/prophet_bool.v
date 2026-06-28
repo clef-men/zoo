@@ -13,7 +13,7 @@ Definition prophet_bool :=
   ; prophet_typed_of_val _ v :=
       match v with
       | ValBool b =>
-          Some b
+          Some $ Some b
       | _ =>
           None
       end
@@ -25,7 +25,7 @@ Definition prophet_bool_1 :=
   ; prophet_typed_1_of_val _ v :=
       match v with
       | ValBool b =>
-          Some b
+          Some $ Some b
       | _ =>
           None
       end

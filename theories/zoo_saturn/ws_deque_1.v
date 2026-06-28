@@ -1628,7 +1628,7 @@ Module base.
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
       wp_apply (prophet_multi_wp_resolve' with "Hprophet_model"). 1: done.
       wp_cas as Hcas; zoo_simplify in Hcas; last lia.
-      iStep. iIntros "%prophs %Hprophss3 Hprophet_model".
+      iStep. iIntros "!> %prophs %Hprophss3 Hprophet_model".
       iSplitR "HΦ".
       { iFrameSteps.
         - iPureIntro => *.
