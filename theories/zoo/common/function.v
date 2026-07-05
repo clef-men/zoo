@@ -27,7 +27,7 @@ Definition scons `(x : X) f i :=
   match i with
   | 0 =>
       x
-  | S i =>
+  | ˖i =>
       f i
   end.
 

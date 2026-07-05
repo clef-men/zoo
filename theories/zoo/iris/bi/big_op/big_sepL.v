@@ -29,13 +29,13 @@ Section bi.
       - rewrite Nat.sub_diag. iSteps as "H".
         iApply (big_sepL_impl with "(IH H)"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "/=".
         replace (i + k - i) with k by lia.
-        replace (S (i + k) - i) with (S k) by lia.
+        replace (˖(i + k) - i) with ˖k by lia.
         iSteps.
       - rewrite Nat.sub_diag. iSteps as (y) "H".
         iApply "IH".
         iApply (big_sepL_impl with "H"). iIntros "!>" (k ? (-> & Hk)%lookup_seq) "/=".
         replace (i + k - i) with k by lia.
-        replace (S (i + k) - i) with (S k) by lia.
+        replace (˖(i + k) - i) with ˖k by lia.
         iSteps.
     Qed.
     Lemma big_sepL_to_seq0 `{!BiAffine PROP} Φ l :
@@ -58,13 +58,13 @@ Section bi.
     Lemma big_sepL_cons_1 Φ x l :
       ([∗ list] k ↦ y ∈ (x :: l), Φ k y) ⊢
         Φ 0 x ∗
-        [∗ list] k ↦ y ∈ l, Φ (S k) y.
+        [∗ list] k ↦ y ∈ l, Φ ˖k y.
     Proof.
       rewrite big_sepL_cons //.
     Qed.
     Lemma big_sepL_cons_2 Φ x l :
       Φ 0 x -∗
-      ([∗ list] k ↦ y ∈ l, Φ (S k) y) -∗
+      ([∗ list] k ↦ y ∈ l, Φ ˖k y) -∗
       [∗ list] k ↦ y ∈ (x :: l), Φ k y.
     Proof.
       rewrite big_sepL_cons. iSteps.
@@ -326,7 +326,7 @@ Section bi.
       iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
       iDestruct ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
       setoid_rewrite Nat.add_succ_r.
-      iApply ("IH" $! (S n) with "[] Hl HP").
+      iApply ("IH" $! ˖n with "[] Hl HP").
       { iIntros "!> %k' %x' %Hlookup' Hx' HP".
         rewrite Nat.add_succ_comm.
         iApply ("HΦ" with "[%] Hx' HP"); first done.
@@ -370,7 +370,7 @@ Section bi.
       iDestruct (big_sepL_cons_1 with "Hl") as "(Hx & Hl)".
       iMod ("HΦ" with "[%] Hx HP") as "($ & HP)"; first done.
       setoid_rewrite Nat.add_succ_r.
-      iApply ("IH" $! (S n) with "[] Hl HP").
+      iApply ("IH" $! ˖n with "[] Hl HP").
       { iIntros "!> %k' %x' %Hlookup' Hx' HP".
         rewrite Nat.add_succ_comm.
         iApply ("HΦ" with "[%] Hx' HP"); first done.

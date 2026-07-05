@@ -708,7 +708,7 @@ Section zoo_G.
 
   Lemma steps_update ns :
     steps_auth ns ⊢ |==>
-    steps_auth (S ns).
+    steps_auth ˖ns.
   Proof.
     apply auth_nat_max_update. lia.
   Qed.

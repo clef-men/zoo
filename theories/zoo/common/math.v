@@ -22,7 +22,7 @@ Section nat.
     match n with
     | 0 =>
         x
-    | S n =>
+    | ˖n =>
         f n
     end.
   #[global] Arguments nat_elim _ _ _ !_ / : assert.
@@ -125,7 +125,7 @@ Section Qp_of_nat.
   Qed.
   Lemma Qp_of_nat_S n :
     n ≠ 0 →
-    Qp_of_nat (S n) = (1 + Qp_of_nat n)%Qp.
+    Qp_of_nat ˖n = (1 + Qp_of_nat n)%Qp.
   Proof.
     intros Hn.
     rewrite /Qp_of_nat /=.

@@ -122,7 +122,7 @@ Section chunk.
         right. split.
         * rewrite -{1}(location_add_0 l).
           naive_solver.
-        * assert (₊i = S ₊(i - 1)) as Hi.
+        * assert (₊i = ˖₊(i - 1)) as Hi.
           { rewrite -Z2Nat.inj_succ; lia. }
           rewrite Hi /= in Hlookup.
           exists (i - 1)%Z.

@@ -163,7 +163,7 @@ Module base.
 
     #[local] Definition locals_auth' sz γ_locals ulocals : iProp Σ :=
       ∃ localss,
-      ⌜length localss = S sz⌝ ∗
+      ⌜length localss = ˖sz⌝ ∗
       ghost_list_auth γ_locals localss ∗
       ⌜ulocals = ⋃+ localss⌝.
     #[local] Definition locals_auth γ :=
@@ -217,7 +217,7 @@ Module base.
         )
       ".
     #[local] Definition globals_model_finished γ : iProp Σ :=
-      [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
+      [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
         locals_at γ i None.
     #[local] Instance : CustomIpat "globals_model_finished" :=
       " Hlocals_ats
@@ -274,7 +274,7 @@ Module base.
     #[local] Definition inv_1 γ : iProp Σ :=
       inv (nroot.@"inv") (inv_inner γ).
     #[local] Definition inv_2 γ : iProp Σ :=
-      ws_hub_std_inv γ.(pool_name_hub) (nroot.@"hub") (S γ.(pool_name_size)) ∗
+      ws_hub_std_inv γ.(pool_name_hub) (nroot.@"hub") ˖(γ.(pool_name_size)) ∗
       inv_1 γ.
     #[local] Instance : CustomIpat "inv_2" :=
       " ( #Hhub_inv{_{}}
@@ -341,7 +341,7 @@ Module base.
       inv_2 γ ∗
       array_model γ.(pool_name_domains) DfracDiscarded doms ∗
       ( [∗ list] i ↦ dom ∈ doms,
-        domain_model dom (worker_post γ (S i))
+        domain_model dom (worker_post γ ˖i)
       ) ∗
       ws_hub_std_owner γ.(pool_name_hub) 0 Blocked empty ∗
       locals_at γ 0 (Some ∅).
@@ -502,10 +502,10 @@ Module base.
       ⊢ |==>
         ∃ γ_locals,
         locals_auth' sz γ_locals ∅ ∗
-        [∗ list] i ∈ seq 0 (S sz),
+        [∗ list] i ∈ seq 0 ˖sz,
           locals_at' γ_locals i (Some ∅).
     Proof.
-      iMod (ghost_list_alloc (replicate (S sz) ∅)) as "(%γ_locals & $ & Hats)".
+      iMod (ghost_list_alloc (replicate ˖sz ∅)) as "(%γ_locals & $ & Hats)".
       iSplitR.
       - iPureIntro. split.
         + simpl_length.
@@ -557,11 +557,11 @@ Module base.
     Qed.
     #[local] Lemma locals_close γ ulocals :
       locals_auth γ ulocals -∗
-      ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
+      ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
         locals_at γ i (Some ∅)
       ) -∗
         locals_auth γ ulocals ∗
-        ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
+        ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
           locals_at γ i None
         ) ∗
         jobs_finished ulocals.
@@ -633,7 +633,7 @@ Module base.
     Qed.
     #[local] Lemma globals_model_close γ :
       globals_model γ ∅ -∗
-      ( [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
+      ( [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
         locals_at γ i (Some ∅)
       ) ==∗
         ∃ jobs,
@@ -645,7 +645,7 @@ Module base.
 
       iAssert (
         globals_model_running γ ∅ ∗
-        [∗ list] i ∈ seq 0 (S γ.(pool_name_size)),
+        [∗ list] i ∈ seq 0 ˖(γ.(pool_name_size)),
           locals_at γ i (Some ∅)
       )%I with "[-]" as "((:globals_model_running) & Hlocals_ats)".
       { iDestruct (big_sepL_lookup_acc _ _ 0 with "Hlocals_ats") as "(Hlocals_at & Hlocals_ats)"; first done.
@@ -837,7 +837,7 @@ Module base.
           inv_1 (γ 𝑑𝑜𝑚𝑠)
         )
         ( λ 𝑑𝑜𝑚𝑠 i dom,
-          domain_model dom (worker_post (γ 𝑑𝑜𝑚𝑠) (S i))
+          domain_model dom (worker_post (γ 𝑑𝑜𝑚𝑠) ˖i)
         )
       with "[Hhub_model Hhub_owners Hjobs_auth Hlocals_auth Hlocals_ats]") as (𝑑𝑜𝑚𝑠 doms) "(%Hdoms & Hdomains & #Hinv & Hdoms)"; first done.
       { iSplitR "Hhub_owners Hlocals_ats".
@@ -855,7 +855,7 @@ Module base.
           wp_apply+ (domain٠spawn𑁒spec with "[Hhub_owner Hlocals_at]"); last iSteps. iIntros "%tid _".
           iApply wp_thread_id_mono.
 
-          wp_apply+ (pool٠context𑁒spec (γ 𝑑𝑜𝑚𝑠) (S k) with "[//]") as "_"; [naive_solver lia.. |].
+          wp_apply+ (pool٠context𑁒spec (γ 𝑑𝑜𝑚𝑠) ˖k with "[//]") as "_"; [naive_solver lia.. |].
           wp_apply (pool٠worker𑁒spec with "[Hhub_owner Hlocals_at]"); first iFrameSteps.
           iSteps.
       }
@@ -932,7 +932,7 @@ Module base.
       wp_load.
 
       iApply wp_fupd.
-      wp_apply+ (array٠iter𑁒spec_disentangled' (λ i _, context_finished γ (S i))%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
+      wp_apply+ (array٠iter𑁒spec_disentangled' (λ i _, context_finished γ ˖i)%I with "[$Hdomains Hdoms]") as "(_ & Hdoms)".
       { iApply (big_sepL_impl with "Hdoms"). iIntros "!> %i %dom _ Hdom".
         wp_apply (domain٠join𑁒spec with "Hdom").
         iSteps.

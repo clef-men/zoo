@@ -15,7 +15,7 @@ Fixpoint big_sepL3 {PROP : bi} `(Φ : nat → A1 → A2 → A3 → PROP) l1 l2 l
       emp
   | x1 :: l1, x2 :: l2, x3 :: l3 =>
       Φ 0 x1 x2 x3 ∗
-      big_sepL3 (λ n, Φ (S n)) l1 l2 l3
+      big_sepL3 (λ n, Φ ˖n) l1 l2 l3
   | _, _, _ =>
       False
   end%I.
@@ -57,20 +57,20 @@ Section bi.
     Lemma big_sepL3_cons Φ y1 l1 y2 l2 y3 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3) ⊣⊢
         Φ 0 y1 y2 y3 ∗
-        [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ (S k) x1 x2 x3.
+        [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3.
     Proof.
       done.
     Qed.
     Lemma big_sepL3_cons_1 Φ y1 l1 y2 l2 y3 l3 :
       ([∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3) ⊢
         Φ 0 y1 y2 y3 ∗
-        [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ (S k) x1 x2 x3.
+        [∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3.
     Proof.
       rewrite big_sepL3_cons //.
     Qed.
     Lemma big_sepL3_cons_2 Φ y1 l1 y2 l2 y3 l3 :
       Φ 0 y1 y2 y3 -∗
-      ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ (S k) x1 x2 x3) -∗
+      ([∗ list] k ↦ x1; x2; x3 ∈ l1; l2; l3, Φ ˖k x1 x2 x3) -∗
       [∗ list] k ↦ x1; x2; x3 ∈ y1 :: l1; y2 :: l2; y3 :: l3, Φ k x1 x2 x3.
     Proof.
       rewrite big_sepL3_cons.

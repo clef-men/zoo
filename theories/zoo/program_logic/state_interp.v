@@ -65,7 +65,7 @@ Section zoo_G.
 
   Lemma state_interp_mono ns nt σ κs :
     state_interp ns nt σ κs ⊢ |==>
-    state_interp (S ns) nt σ κs.
+    state_interp ˖ns nt σ κs.
   Proof.
     iIntros "(:state_interp)".
     iMod (steps_update with "Hsteps_auth") as "Hsteps_auth".

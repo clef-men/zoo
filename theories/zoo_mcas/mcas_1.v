@@ -213,7 +213,7 @@ Implicit Types lstatus : lstatus.
 
 Variant lstep : lstatus → lstatus → Prop :=
   | lstep_incr i :
-      lstep (Running i) (Running (S i))
+      lstep (Running i) (Running ˖i)
   | lstep_finish i :
       lstep (Running i) Finished.
 #[local] Hint Constructors lstep : core.
@@ -246,7 +246,7 @@ Proof.
   intros Hlsteps. move: i1. induction Hlsteps as [lstatus | lstatus1 ? lstatus2 Hlstep Hlsteps IH] => i1.
   - naive_solver.
   - intros -> ->. invert Hlstep.
-    + specialize (IH (S i1)). lia.
+    + specialize (IH ˖i1). lia.
     + apply lsteps_finished in Hlsteps as [=].
 Qed.
 
@@ -520,7 +520,7 @@ Section mcas_1_G.
     ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
     ⌜loc = descr.(descriptor_loc)⌝ ∗
     loc ↦ᵣ #descr.(descriptor_state) ∗
-    lstatus_lb η (Running (S i)) ∗
+    lstatus_lb η (Running ˖i) ∗
     lock η i ∗
     history_auth γ (casns ++ [casn]) ∗
     casn_inv' (casn, η, if full then None else Some i).
@@ -1626,7 +1626,7 @@ Section mcas_1_G.
       ∀ casn η i descr casn1 η1 i1 descr1 casns1 𝑟𝑒𝑡𝑟𝑦 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒,
       {{{
         ⌜𝑟𝑒𝑡𝑟𝑦 = list_to_val (drop i (metadata_cass η))⌝ ∗
-        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = list_to_val (drop (S i) (metadata_cass η))⌝ ∗
+        ⌜𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 = list_to_val (drop ˖i (metadata_cass η))⌝ ∗
         ⌜η.(metadata_descrs) !! i = Some descr⌝ ∗
         ⌜η1.(metadata_descrs) !! i1 = Some descr1⌝ ∗
         ⌜descr1.(descriptor_loc) = descr.(descriptor_loc)⌝ ∗
@@ -1886,7 +1886,7 @@ Section mcas_1_G.
                   }
 
                   iMod (history_update_running casn with "Hhistory_auth Hcasn1_meta Hlstatus1_lb Hcasn_meta Hlstatus_auth") as "(Hhistory_auth & #Hhistory_elem & Hlstatus_auth)"; first done.
-                  iMod (lstatus_update (Running (S i)) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
+                  iMod (lstatus_update (Running ˖i) with "Hlstatus_auth") as "Hlstatus_auth"; first done.
                   iClear "Hlstatus_lb". iDestruct (lstatus_lb_get with "Hlstatus_auth") as "#Hlstatus_lb".
                   iApply model₂_similar in "Hmodel₂"; first done.
                   iDestruct (big_sepL_snoc_2 with "Hmodels₂ [$Hmodel₂ $Hhistory_elem]") as "Hmodels₂".
@@ -1896,7 +1896,7 @@ Section mcas_1_G.
                     rewrite /metadata_size. lia.
                   }
                   iDestruct (big_sepL_seq_cons_1 with "Hlocks") as "(Hlock & Hlocks)".
-                  assert (Nat.pred (metadata_size η - i) = metadata_size η - S i) as -> by lia.
+                  assert (Nat.pred (metadata_size η - i) = metadata_size η - ˖i) as -> by lia.
                   iSplitR "Hloc Hhistory_auth Hlock HΦ".
                   { iFrameSteps 2. do 2 iModIntro.
                     iApply (big_sepM_impl with "Hhelpers").
@@ -1922,7 +1922,7 @@ Section mcas_1_G.
                        iApply (model₂_similar (descriptor_final descr η)) in "Hmodel₂".
                        { rewrite {2}/descriptor_final Hsuccess //. }
                        iDestruct ("Hdescrs" with "[$Hmodel₂ $Hdescr]") as "Hdescrs".
-                       iClear "Hlstatus_lb". iDestruct (lstatus_lb_get_finished (Running (S i)) with "Hlstatus_auth") as "#Hlstatus_lb".
+                       iClear "Hlstatus_lb". iDestruct (lstatus_lb_get_finished (Running ˖i) with "Hlstatus_auth") as "#Hlstatus_lb".
                        iSplitR "Hloc Hhistory_auth Hlock HΦ". { rewrite /casn_inv_inner Hsuccess. iFrameSteps 2. }
                        iModIntro. clear helpers prophs.
 

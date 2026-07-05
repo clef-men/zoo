@@ -88,7 +88,7 @@ Section semaphore_G.
   #[local] Definition inv_inner l γ P : iProp Σ :=
     ∃ cnt,
     l.[count] ↦ #cnt ∗
-    [∗ list] _ ∈ seq 0 (S cnt),
+    [∗ list] _ ∈ seq 0 ˖cnt,
       tokens_frag γ ∗
       P.
   #[local] Instance : CustomIpat "inv_inner" :=
@@ -241,7 +241,7 @@ Section semaphore_G.
       |}.
     iMod (meta_set γ with "Hmeta") as "#Hmeta"; first done.
 
-    replace ₊cap with (S ₊(cap - 1)) by lia.
+    replace ₊cap with ˖₊(cap - 1) by lia.
     iMod (mutex_init_to_inv (inv_inner l γ P) with "Hmutex_init [Hl_count Htokens_frags HPs]") as "#Hmutex_inv".
     { iDestruct (big_sepL_sep_2 with "Htokens_frags HPs") as "H".
       iFrameSteps.
@@ -283,7 +283,7 @@ Section semaphore_G.
       wp_store.
       rewrite seq_S. iDestruct (big_sepL_snoc with "H") as "(H & Htokens_frag & HP)".
       iStep 5. iSplitR "Htokens_frag HP"; last iSteps.
-      replace cnt with (S ₊(⁺cnt - 1)) by lia.
+      replace cnt with ˖₊(⁺cnt - 1) by lia.
       iFrameSteps.
     }
 
@@ -317,7 +317,7 @@ Section semaphore_G.
         ∃ cnt,
         ⌜0 < cnt⌝ ∗
         l.[count] ↦ #cnt ∗
-        [∗ list] _ ∈ seq 0 (S cnt),
+        [∗ list] _ ∈ seq 0 ˖cnt,
           tokens_frag γ ∗
           P
       else
@@ -331,7 +331,7 @@ Section semaphore_G.
     rewrite seq_S. iDestruct (big_sepL_snoc with "H") as "(H & Htokens_frag & HP)".
     iFrame "Hmutex_locked". iSplitR "Htokens_frag HP"; last iSteps.
     replace (⁺cnt - 1)%Z with ⁺(cnt - 1) by lia.
-    replace cnt with (S (cnt - 1)) at 2 by lia.
+    replace cnt with ˖(cnt - 1) at 2 by lia.
     iSteps.
   Qed.
 
@@ -357,7 +357,7 @@ Section semaphore_G.
     )%I with "[$Hmutex_inv Htokens_frag HP]"); last iSteps.
     iIntros "Hmutex_locked (:inv_inner)".
     wp_load. wp_store.
-    iDestruct (big_sepL_snoc_2 (S cnt) with "H [$]") as "H".
+    iDestruct (big_sepL_snoc_2 ˖cnt with "H [$]") as "H".
     rewrite -seq_S. iFrameSteps.
   Qed.
 End semaphore_G.

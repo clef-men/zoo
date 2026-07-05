@@ -363,14 +363,14 @@ Module base.
           history_at γ i None
       | ConsumerProducer η =>
           ∃ Ψ v,
-          consumers_lb γ (S i) ∗
+          consumers_lb γ ˖i ∗
           saved_pred η Ψ ∗
           history_at γ i (Some v) ∗
           ( Ψ v
           ∨ consumers_at γ i Discard
           )
       | ConsumerConsumer =>
-          consumers_lb γ (S i)
+          consumers_lb γ ˖i
       | _ =>
           False
       end.
@@ -719,7 +719,7 @@ Module base.
     Qed.
     #[local] Lemma producers_update γ i :
       producers_auth γ i ⊢ |==>
-        producers_auth γ (S i) ∗
+        producers_auth γ ˖i ∗
         producers_at γ i Own.
     Proof.
       iIntros "(:producers_auth)".
@@ -798,7 +798,7 @@ Module base.
     Qed.
     #[local] Lemma consumers_update γ i :
       consumers_auth γ i ⊢ |==>
-        consumers_auth γ (S i) ∗
+        consumers_auth γ ˖i ∗
         consumers_at γ i Own.
     Proof.
       iIntros "(:consumers_auth)".
@@ -1042,7 +1042,7 @@ Module base.
           iSplitR "Hproducers_at HΦ".
           { iFrame.
             rewrite firstn_all2. { simpl_length/=. lia. }
-            rewrite (skipn_all2 (n := S back1)).
+            rewrite (skipn_all2 (n := ˖back1)).
             { simpl_length/=. lia. }
             iFrameSteps; iPureIntro.
             - rewrite drop_app_le; first lia.
@@ -1088,7 +1088,7 @@ Module base.
           iSplitR "HΦ".
           { iFrame.
             rewrite firstn_all2. { simpl_length/=. lia. }
-            rewrite (skipn_all2 (n := S back1)).
+            rewrite (skipn_all2 (n := ˖back1)).
             { simpl_length/=. lia. }
             iFrameSteps; iPureIntro.
             - rewrite drop_app_le; first lia.
@@ -1127,7 +1127,7 @@ Module base.
 
       - rewrite drop_ge /= in Hvs1; first lia. subst vs1.
         rewrite Nat.max_l in Hlstates1; first lia.
-        iDestruct (consumers_lb_get' (S back1) with "Hconsumers_auth") as "#Hconsumers_lb"; first lia.
+        iDestruct (consumers_lb_get' ˖back1 with "Hconsumers_auth") as "#Hconsumers_lb"; first lia.
         destruct (lookup_lt_is_Some_2 lstates1 back1) as (lstate & Hlstates_lookup); first lia.
         iDestruct (lstates_lb_get with "Hlstates_auth") as "#Hlstates_lb"; first done.
         erewrite drop_S; last done.

@@ -158,13 +158,13 @@ Section bi.
     Lemma big_sepL2_cons_1 Φ x1 x2 l1 l2 :
       ([∗ list] k ↦ y1; y2 ∈ x1 :: l1; x2 :: l2, Φ k y1 y2) ⊢
         Φ 0 x1 x2 ∗
-        [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ (S k) y1 y2.
+        [∗ list] k ↦ y1; y2 ∈ l1; l2, Φ ˖k y1 y2.
     Proof.
       rewrite big_sepL2_cons //.
     Qed.
     Lemma big_sepL2_cons_2 Φ x1 x2 l1 l2 :
       Φ 0 x1 x2 -∗
-      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ (S k) y1 y2) -∗
+      ([∗ list] k ↦ y1; y2 ∈ l1; l2, Φ ˖k y1 y2) -∗
       [∗ list] k ↦ y1; y2 ∈ x1 :: l1; x2 :: l2, Φ k y1 y2.
     Proof.
       rewrite big_sepL2_cons. iSteps.

@@ -426,7 +426,7 @@ Module base.
     Qed.
     #[local] Lemma consumers_update {γ i} Ψ :
       consumers_auth γ i ⊢ |==>
-        consumers_auth γ (S i) ∗
+        consumers_auth γ ˖i ∗
         consumers_at γ i Ψ.
     Proof.
       iIntros "(:consumers_auth)".
@@ -468,7 +468,7 @@ Module base.
     Qed.
     #[local] Lemma tokens_update {γ} i :
       tokens_auth γ i ⊢ |==>
-        tokens_auth γ (S i) ∗
+        tokens_auth γ ˖i ∗
         tokens_pending γ i.
     Proof.
       iIntros "(:tokens_auth)".
@@ -749,11 +749,11 @@ Module base.
           iDestruct (big_sepL_seq_snoc_2 with "Hpast [$Htokens_at]") as "Hpast".
 
           iSplitL.
-          { iExists front1, (S back1). iFrame.
+          { iExists front1, ˖back1. iFrame.
             simpl_length.
             rewrite Hvs drop_app_le; first lia.
             rewrite Nat.max_r; first lia.
-            assert (front1 - S back1 = 0) as -> by lia.
+            assert (front1 - ˖back1 = 0) as -> by lia.
             iSteps.
           }
           iSteps.
@@ -761,7 +761,7 @@ Module base.
         - rewrite Nat.max_l; first lia.
           rewrite (nil_length_inv vs).
           { rewrite Hvs length_drop. lia. }
-          assert (front1 - back1 = S (front1 - S back1)) as ->; first lia.
+          assert (front1 - back1 = ˖(front1 - ˖back1)) as ->; first lia.
           destruct (Nat.lt_exists_pred 0 (front1 - back1)) as (δ & ? & _); first lia.
           iDestruct (big_sepL_seq_cons_1 with "Hwaiters") as "((%Ψ & #Hconsumers_at & HΨ) & Hwaiters)".
 
@@ -895,13 +895,13 @@ Module base.
 
           iMod "HΦ" as "(%vs & (:model) & _ & HΦ)".
           iDestruct (model_agree with "Hmodel₁ Hmodel₂") as %->.
-          iMod (model_update (drop (S front) hist) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
+          iMod (model_update (drop ˖front hist) with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂)".
           iMod ("HΦ" with "[$Hmodel₁ //] [//]") as "HΦ".
 
           iSplitL.
           { iFrameSteps.
             rewrite Nat.max_r //.
-            assert (S front - back = 0) as -> by lia.
+            assert (˖front - back = 0) as -> by lia.
             iSteps.
           }
           iSteps.

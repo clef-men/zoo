@@ -163,13 +163,13 @@ Section spsc_bqueue_G.
       else
         True
     ) ∗
-    array_cslice γ.(metadata_data) γ.(metadata_capacity) (S front) (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
+    array_cslice γ.(metadata_data) γ.(metadata_capacity) ˖front (DfracOwn 1) ((λ v, ‘Some( v )%V) <$> drop 1 vs) ∗
     ( if pstable then
         array_cslice γ.(metadata_data) γ.(metadata_capacity) back (DfracOwn 1) (if decide (back = front + γ.(metadata_capacity)) then [] else [§None%V])
       else
         True
     ) ∗
-    array_cslice γ.(metadata_data) γ.(metadata_capacity) (S back) (DfracOwn 1) (replicate (γ.(metadata_capacity) - (back - front) - 1) §None%V).
+    array_cslice γ.(metadata_data) γ.(metadata_capacity) ˖back (DfracOwn 1) (replicate (γ.(metadata_capacity) - (back - front) - 1) §None%V).
   #[local] Instance : CustomIpat "inv_inner" :=
     " ( %cstable{}
       & %front{}
@@ -924,7 +924,7 @@ Section spsc_bqueue_G.
     iDestruct (producer_agree with "Hproducer₁ Hproducer₂") as %(<- & <-).
     iDestruct (front_lb_valid with "Hconsumer₂ Hfront_lb") as %Hfront3_ge.
     iMod (producer_update_stability Stable with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)".
-    iMod (producer_update_back (S back) with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)"; first lia.
+    iMod (producer_update_back ˖back with "Hproducer₁ Hproducer₂") as "(Hproducer₁ & Hproducer₂)"; first lia.
     iMod (history_update v with "Hhistory_auth") as "Hhistory_auth".
 
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
@@ -936,7 +936,7 @@ Section spsc_bqueue_G.
     { iSteps. iPureIntro. simpl_length/=. lia. }
 
     iSplitR "Hl_front_cache Hproducer₁ HΦ".
-    { do 2 iModIntro. iExists _, front3, _, (S back), (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
+    { do 2 iModIntro. iExists _, front3, _, ˖back, (vs3 ++ [v]), (hist3 ++ [v]). iFrame.
       simpl_length. iStep 3.
       iSplit. { rewrite Hvs3 drop_app_le //; first lia. }
       iStep.
@@ -948,9 +948,9 @@ Section spsc_bqueue_G.
           iApply (array_cslice_app_1 with "Hvs Hback_").
           simpl_length. naive_solver lia.
       - case_decide.
-        + assert (γ.(metadata_capacity) - (S back - front3) - 1 = 0) as -> by lia.
+        + assert (γ.(metadata_capacity) - (˖back - front3) - 1 = 0) as -> by lia.
           iSteps.
-        + iDestruct (array_cslice_app_2 [§None%V] (replicate (γ.(metadata_capacity) - (S back - front3) - 1) §None%V) with "Hextra") as "($ & Hextra)".
+        + iDestruct (array_cslice_app_2 [§None%V] (replicate (γ.(metadata_capacity) - (˖back - front3) - 1) §None%V) with "Hextra") as "($ & Hextra)".
           { rewrite /= -replicate_S. f_equal. lia. }
           rewrite Nat.add_1_r //.
     }
@@ -1084,7 +1084,7 @@ Section spsc_bqueue_G.
     }
     rewrite /= drop_0.
     iMod (consumer_update_stability Stable with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)".
-    iMod (consumer_update_front (S front) with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)"; first lia.
+    iMod (consumer_update_front ˖front with "Hconsumer₁ Hconsumer₂") as "(Hconsumer₁ & Hconsumer₂)"; first lia.
 
     iMod "HΦ" as "(%vs & (:model) & _ & HΦ)". injection Heq as <-.
     iDestruct (meta_agree with "Hmeta Hmeta_") as %<-. iClear "Hmeta_".
@@ -1094,7 +1094,7 @@ Section spsc_bqueue_G.
     { simpl in Hvs. iSteps. }
 
     iSplitR "Hl_back_cache Hconsumer₁ HΦ".
-    { do 2 iModIntro. iExists _, (S front), _, back2, vs2, hist2. iFrame. simpl in *.
+    { do 2 iModIntro. iExists _, ˖front, _, back2, vs2, hist2. iFrame. simpl in *.
       iStep 3.
       iSplit. { erewrite drop_S in Hvs2 => //. naive_solver. }
       iStep.
@@ -1106,13 +1106,13 @@ Section spsc_bqueue_G.
       - iApply array_cslice_shift in "Hfront_".
         case_decide as Hcase.
         + rewrite -Hcase decide_False; first lia.
-          assert (γ.(metadata_capacity) - (back2 - S front) - 1 = 0) as -> by lia.
+          assert (γ.(metadata_capacity) - (back2 - ˖front) - 1 = 0) as -> by lia.
           destruct pstable2; iSteps.
         + rewrite decide_False; first lia. iFrame.
           iDestruct (array_cslice_app_1 with "Hextra Hfront_") as "Hextra".
           { simpl_length. lia. }
           rewrite -replicate_S_end.
-          assert (S (γ.(metadata_capacity) - (back2 - front) - 1) = γ.(metadata_capacity) - (back2 - S front) - 1) as -> by lia.
+          assert (˖(γ.(metadata_capacity) - (back2 - front) - 1) = γ.(metadata_capacity) - (back2 - ˖front) - 1) as -> by lia.
           iSteps.
     }
     iSteps.

@@ -475,7 +475,7 @@ Section future_G.
     iApply "HΦ".
     iFrame "#∗". iIntros "!> !> #Hpool_finished".
     iDestruct ("Htermination" with "Hpool_finished") as "Hpool_obligation".
-    iEval (replace (2 * S depth + 1) with ((2 * depth + 2) + 1) by lia).
+    iEval (replace (2 * ˖depth + 1) with ((2 * depth + 2) + 1) by lia).
     iEval (rewrite bi.laterN_add).
     iNext.
     iDestruct (pool_obligation_finished with "Hpool_obligation Hpool_finished") as "Hfinished".

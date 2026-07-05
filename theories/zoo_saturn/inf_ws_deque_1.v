@@ -281,7 +281,7 @@ Module base.
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
       ⌜lhist = hist⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       ( winner_pop γ front P
       ∨ winner_linearized γ front P
       ).
@@ -303,7 +303,7 @@ Module base.
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
       ⌜lhist = hist⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       winner_pop γ front P.
     #[local] Instance : CustomIpat "inv_state_emptyish_pop" :=
       " ( {>;}->
@@ -323,7 +323,7 @@ Module base.
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
       ⌜lhist = hist⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       winner_linearized γ front P.
     #[local] Instance : CustomIpat "inv_state_emptyish_steal" :=
       " ( {>;}->
@@ -340,7 +340,7 @@ Module base.
       ".
     #[local] Definition inv_state_superempty γ stable front back hist lhist : iProp Σ :=
       ⌜stable = Unstable⌝ ∗
-      ⌜front = S back⌝ ∗
+      ⌜front = ˖back⌝ ∗
       ⌜lhist = hist⌝ ∗
       ⌜length hist = front⌝ ∗
       winner γ.
@@ -636,7 +636,7 @@ Module base.
     Qed.
     #[local] Lemma front_update γ front :
       front_auth γ front ⊢ |==>
-      front_auth γ (S front).
+      front_auth γ ˖front.
     Proof.
       apply auth_nat_max_update; first lia.
     Qed.
@@ -787,7 +787,7 @@ Module base.
     #[local] Lemma inv_state_Unstable γ state front back hist lhist vs prophs :
       inv_state γ state Unstable front back hist lhist vs prophs ⊢
         ⌜state = Emptyish ∨ state = Superempty⌝ ∗
-        ⌜front = back ∨ front = S back⌝.
+        ⌜front = back ∨ front = ˖back⌝.
     Proof.
       iIntros "Hstate".
       destruct state.
@@ -987,7 +987,7 @@ Module base.
       , RET #front;
         owner₁ γ Unstable back priv ws ∗
         front_lb γ front ∗
-        ⌜front = back ∨ front = S back⌝
+        ⌜front = back ∨ front = ˖back⌝
       }}}.
     Proof.
       iIntros "%Φ ((:inv') & Howner₁) HΦ".
@@ -1021,7 +1021,7 @@ Module base.
       iDestruct (inv_state_Superempty with "Hstate") as %->; first lia.
       iDestruct "Hstate" as "(:inv_state_superempty =1 lazy=)".
       iSplitR "Howner₁ HΦ". { iExists Superempty. iFrameSteps. }
-      replace (S back) with front by lia.
+      replace ˖back with front by lia.
       iSteps.
     Qed.
     #[local] Lemma front𑁒spec_winner_steal t γ front P :
@@ -1067,7 +1067,7 @@ Module base.
 
     #[local] Lemma set_back𑁒spec_Superempty t γ back priv ws front (back' : Z) :
       back < front →
-      back' = S back →
+      back' = ˖back →
       {{{
         inv' t γ ∗
         owner₁ γ Unstable back priv ws ∗
@@ -1076,7 +1076,7 @@ Module base.
         #t <-{back} #back'
       {{{
         RET ();
-        owner₁ γ Stable (S back) priv ws
+        owner₁ γ Stable ˖back priv ws
       }}}.
     Proof.
       iIntros (? ->) "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
@@ -1084,7 +1084,7 @@ Module base.
       iInv "Hinv" as "(:inv_inner =1)".
       wp_store.
       iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
-      iMod (owner_update Stable (S back) priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+      iMod (owner_update Stable ˖back priv with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
       iDestruct (inv_state_Superempty with "Hstate") as %->; first lia.
       iDestruct "Hstate" as "(:inv_state_superempty =1 lazy=)".
@@ -1233,7 +1233,7 @@ Module base.
         Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(inf_ws_deque_1_name_prophet) (#front, #id)%V
       {{{
         RET false;
-        front_lb γ (S front)
+        front_lb γ ˖front
       }}}.
     Proof.
       iIntros "%Hloser %Φ ((:inv') & #Hfront_lb & #Hprophet_full) HΦ".
@@ -1249,7 +1249,7 @@ Module base.
         rewrite fn_lookup_alter Hpasts1 // in Hloser.
 
       - iDestruct (front_lb_get with "Hfront_auth") as "#-#Hfront_lb_1".
-        iDestruct (front_lb_le (S front) with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
+        iDestruct (front_lb_le ˖front with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
         iSplitR "HΦ".
         { iFrameSteps.
           - iPureIntro => *.
@@ -1292,7 +1292,7 @@ Module base.
 
         iSplitR "HP HΦ".
         { rewrite (assoc _ _ [_]).
-          destruct_decide (S front = back1) as <- | ?.
+          destruct_decide (˖front = back1) as <- | ?.
 
           - simpl in Hvs1.
             iExists Empty. iFrameSteps; iPureIntro.
@@ -1334,7 +1334,7 @@ Module base.
         Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(inf_ws_deque_1_name_prophet) (#front, #id)%V
       {{{
         RET true;
-        front_lb γ (S front)
+        front_lb γ ˖front
       }}}.
     Proof.
       iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
@@ -1365,7 +1365,7 @@ Module base.
       {{{
         RET true;
         owner₁ γ Unstable back (priv ∘ S) ws ∗
-        front_lb γ (S back) ∗
+        front_lb γ ˖back ∗
         history_at γ back (priv 0)
       }}}.
     Proof.
@@ -1499,7 +1499,7 @@ Module base.
       wp_store.
       iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <-).
       set priv1 := priv ∘ S.
-      iMod (owner_update Stable (S back) priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+      iMod (owner_update Stable ˖back priv1 with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
       iDestruct (inf_array_model'_shift_l with "Hdata_model") as "Hdata_model"; first by intros [].
       iEval (rewrite -assoc) in "Hdata_model".
@@ -1649,7 +1649,7 @@ Module base.
             ∃ front,
             ⌜stable = Unstable⌝ ∗
             front_lb γ front ∗
-            ⌜front = S back⌝
+            ⌜front = ˖back⌝
         end
       }}}
         inf_ws_deque_1٠pop₀ #t #id #back_
@@ -1802,7 +1802,7 @@ Module base.
       assert (0 < back) as Hback by lia.
       destruct vs1 as [| v vs1 _] using rev_ind; first naive_solver lia.
 
-      destruct_decide (S front1 = back) as <- | Hbranch1.
+      destruct_decide (˖front1 = back) as <- | Hbranch1.
 
       - assert (length vs1 = 0) as ->%nil_length_inv.
         { simpl_length/= in Hvs1. lia. }

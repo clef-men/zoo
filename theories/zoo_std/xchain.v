@@ -201,8 +201,8 @@ Section zoo_G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊣⊢
       xchain dq (take i nodes) #node ∗
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      xchain dq (drop (S i) nodes) dst.
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      xchain dq (drop ˖i nodes) dst.
   Proof.
     intros Hlookup.
     pose proof Hlookup as Hnodes%take_drop_middle.
@@ -212,18 +212,18 @@ Section zoo_G.
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
       xchain dq (take i nodes) #node ∗
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      xchain dq (drop (S i) nodes) dst.
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      xchain dq (drop ˖i nodes) dst.
   Proof.
     intros.
     rewrite xchain_lookup //.
   Qed.
   Lemma xchain_lookup_2 {dq nodes} i node next dst :
     nodes !! i = Some node →
-    next = from_option #@{location} dst (nodes !! S i) →
+    next = from_option #@{location} dst (nodes !! ˖i) →
     xchain dq (take i nodes) #node -∗
     node.[xchain_next] ↦{dq} next -∗
-    xchain dq (drop (S i) nodes) dst -∗
+    xchain dq (drop ˖i nodes) dst -∗
     xchain dq nodes dst.
   Proof.
     intros. subst.
@@ -232,8 +232,8 @@ Section zoo_G.
   Lemma xchain_lookup_acc {dq nodes} i node dst :
     nodes !! i = Some node →
     xchain dq nodes dst ⊢
-      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      ( node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) -∗
+      node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      ( node.[xchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) -∗
         xchain dq nodes dst
       ).
   Proof.
@@ -392,7 +392,7 @@ Section zoo_G.
     }}}
       (#node).{xchain_next} @ E
     {{{
-      RET from_option #@{location} dst (nodes !! S i);
+      RET from_option #@{location} dst (nodes !! ˖i);
       xchain dq nodes dst
     }}}.
   Proof.
@@ -439,8 +439,8 @@ Section zoo_G.
       #node <-{xchain_next} v @ E
     {{{
       RET ();
-      xchain (DfracOwn 1) (take (S i) nodes) v ∗
-      xchain (DfracOwn 1) (drop (S i) nodes) dst
+      xchain (DfracOwn 1) (take ˖i nodes) v ∗
+      xchain (DfracOwn 1) (drop ˖i nodes) dst
     }}}.
   Proof.
     intros Hlookup.

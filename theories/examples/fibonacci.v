@@ -7,11 +7,11 @@ Fixpoint fibonacci n :=
   match n with
   | 0 =>
       0
-  | S n =>
+  | ˖n =>
       match n with
       | 0 =>
           1
-      | S m =>
+      | ˖m =>
           fibonacci n + fibonacci m
       end
   end.

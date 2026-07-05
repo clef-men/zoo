@@ -157,7 +157,7 @@ Qed.
   | [] =>
       ‘Front[ #i ]
   | v :: vs =>
-      ‘Cons[ #i, v, suffix_to_val (S i) vs ]
+      ‘Cons[ #i, v, suffix_to_val ˖i vs ]
   end.
 
 #[local] Lemma suffix_to_val_generative i1 vs1 i2 vs2 :
@@ -187,7 +187,7 @@ Qed.
   | [] =>
       #back
   | v :: vs =>
-      ‘Snoc[ #⁺(i + S (length vs)), v, prefix_to_val i back vs ]
+      ‘Snoc[ #⁺(i + ˖(length vs)), v, prefix_to_val i back vs ]
   end.
 
 #[local] Lemma prefix_to_val_generative i1 back1 vs1 i2 back2 vs2 :
@@ -420,7 +420,7 @@ Section mpmc_queue_2_G.
     ([∗ map] back ↦ i ∈ backs, back_model_3 γ back i) ∗
     model₂ γ vs ∗
     state_auth γ backs i status ∗
-    ⌜(i_front + length vs_front)%nat = S i⌝ ∗
+    ⌜(i_front + length vs_front)%nat = ˖i⌝ ∗
     inv_status strong γ backs i status vs_front i_back back vs_back vs.
   #[local] Instance : CustomIpat "inv_inner" :=
     " ( %backs{}
@@ -737,7 +737,7 @@ Section mpmc_queue_2_G.
   Qed.
   #[local] Lemma front_update γ i :
     front_auth γ i ⊢ |==>
-    front_auth γ (S i).
+    front_auth γ ˖i.
   Proof.
     apply auth_nat_max_update. lia.
   Qed.
@@ -868,9 +868,9 @@ Section mpmc_queue_2_G.
     {{{
       back ↦ₕ Header §Back 2
     }}}
-      mpmc_queue_2٠rev₀ (suffix_to_val (i + S (length vs2)) vs1) (prefix_to_val i back vs2)
+      mpmc_queue_2٠rev₀ (suffix_to_val (i + ˖(length vs2)) vs1) (prefix_to_val i back vs2)
     {{{
-      RET suffix_to_val (S i) (reverse vs2 ++ vs1);
+      RET suffix_to_val ˖i (reverse vs2 ++ vs1);
       True
     }}}.
   Proof.
@@ -895,7 +895,7 @@ Section mpmc_queue_2_G.
     }}}
       mpmc_queue_2٠rev (prefix_to_val i back vs)
     {{{
-      RET suffix_to_val (S i) (reverse vs);
+      RET suffix_to_val ˖i (reverse vs);
       True
     }}}.
   Proof.
@@ -988,7 +988,7 @@ Section mpmc_queue_2_G.
       | Some i_back =>
           ∃ i',
           ⌜i_back ≤ i'⌝ ∗
-          ⌜(i_front' + length vs_front')%nat = S i'⌝
+          ⌜(i_front' + length vs_front')%nat = ˖i'⌝
       end
     }}}.
   Proof.
@@ -1018,7 +1018,7 @@ Section mpmc_queue_2_G.
       | Some i_back =>
           ∃ i1,
           ⌜i_back ≤ i1⌝ ∗
-          ⌜(i_front1 + length vs_front1)%nat = S i1⌝
+          ⌜(i_front1 + length vs_front1)%nat = ˖i1⌝
       end%I
     as "#?".
     { destruct i_back as [i_back |]; last iSteps.
@@ -1243,7 +1243,7 @@ Section mpmc_queue_2_G.
 
     - rewrite Nat.add_0_r in Hfront1. subst i_front1.
 
-      destruct_decide (i + length move < S i1) as Hif.
+      destruct_decide (i + length move < ˖i1) as Hif.
 
       + iDestruct (state_lb_stabilized with "Hstate_auth Hstate_lb") as "#(_ & #Hstate_at)"; first lia.
 
@@ -1497,7 +1497,7 @@ Section mpmc_queue_2_G.
     ) ∧ (
       ∀ (i_front : nat) backs back i back_prev move,
       <<<
-        ⌜i_front ≤ S i⌝ ∗
+        ⌜i_front ≤ ˖i⌝ ∗
         ⌜1 < length move⌝ ∗
         inv' l γ ∗
         state_lb γ backs i (Unstable back move) ∗
@@ -1609,8 +1609,8 @@ Section mpmc_queue_2_G.
 
           * assert (length vs_front1 = 0) as ->%nil_length_inv by lia.
             assert (length vs_back1 = 0) as ->%nil_length_inv by lia.
-            replace i_front with (S i1) by lia.
-            replace i_front1 with (S i1) by lia.
+            replace i_front with ˖i1 by lia.
+            replace i_front1 with ˖i1 by lia.
             simpl. clear.
 
             wp_bind (CAS _ _ _).
@@ -1624,7 +1624,7 @@ Section mpmc_queue_2_G.
                iDestruct (inv_status_Stable with "Hstatus") as "(%empty2 & -> & (:inv_status_stable =2))"; first naive_solver lia.
                iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
                assert (length vs_front2 = 0) as ->%nil_length_inv by lia.
-               replace i_front2 with (S i2) by lia.
+               replace i_front2 with ˖i2 by lia.
                rewrite reverse_singleton /= in Hvs2. subst vs2.
 
                iMod "HΦ" as "(%vs & Hmodel₁ & _ & HΦ)".
@@ -1643,8 +1643,8 @@ Section mpmc_queue_2_G.
             1: iSteps.
 
             simpl in Hfront3.
-            replace i_front with (S i1) in * by lia.
-            replace i_front1 with (S i1) in * by lia.
+            replace i_front with ˖i1 in * by lia.
+            replace i_front1 with ˖i1 in * by lia.
             replace i3 with i1 in * by lia.
             assert (length vs_front1 = 0) as ->%nil_length_inv by lia.
             assert (0 < length vs_back1) as Hvs_back1 by lia.
@@ -1660,7 +1660,7 @@ Section mpmc_queue_2_G.
             -- ospecialize* Hcas; first done. subst i_back4.
                iDestruct (inv_status_Stable with "Hstatus") as "(%empty4 & -> & (:inv_status_stable =4))"; first naive_solver lia.
                iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %Hi_front4.
-               replace i_front4 with (S i4) in * by lia.
+               replace i_front4 with ˖i4 in * by lia.
                destruct empty4; last lia. subst vs_front4.
 
                iMod (state_destabilize with "Hstate_auth") as "Hstate_auth".

@@ -132,7 +132,7 @@ Section zoo_G.
     envs_lookup id Δ2 = Some (p, ⧖ ns)%I →
     ( let* Δ3 :=
         envs_simple_replace id p (Esnoc Enil
-          id (⧖ (S ns))
+          id (⧖ ˖ns)
         ) Δ2
       in
       envs_entails Δ3 (WP fill K e2 ∷ tid @ E {{ Φ }})
@@ -157,7 +157,7 @@ Section zoo_G.
     envs_lookup id1 Δ2 = Some (p, ⧖ ns)%I →
     ( let* Δ3 :=
         envs_simple_replace id1 p (Esnoc Enil
-          id1 (⧖ (S ns))
+          id1 (⧖ ˖ns)
         ) Δ2
       in
       let* Δ4 :=
@@ -189,7 +189,7 @@ Section zoo_G.
     envs_lookup id1 Δ2 = Some (p, ⧖ ns)%I →
     ( let* Δ3 :=
         envs_simple_replace id1 p (Esnoc Enil
-          id1 (⧖ (S ns))
+          id1 (⧖ ˖ns)
         ) Δ2
       in
       let* Δ4 :=
@@ -210,7 +210,7 @@ Section zoo_G.
     envs_lookup id1 Δ2 = Some (p, ⧖ ns)%I →
     ( let* Δ3 :=
         envs_simple_replace id1 p (Esnoc Enil
-          id1 (⧖ (S ns))
+          id1 (⧖ ˖ns)
         ) Δ2
       in
       let* Δ4 :=

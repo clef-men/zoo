@@ -118,7 +118,7 @@ Section zoo_G.
         ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ (S i) (vs ++ [v])
+          ▷ Ψ ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -147,7 +147,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ (S i) (vs ++ [v])
+          ▷ Ψ ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -495,7 +495,7 @@ Section zoo_G.
     }
     wp_apply+ (array٠unsafe_set𑁒spec with "Hmodel").
     { simpl_length/=. lia. }
-    iSteps. iExists (S extra).
+    iSteps. iExists ˖extra.
     rewrite -assoc insert_app_r_alt; first lia. rewrite Nat2Z.id Nat.sub_diag //.
   Qed.
 
@@ -547,7 +547,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -580,7 +580,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -679,7 +679,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -703,7 +703,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}

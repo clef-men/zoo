@@ -404,7 +404,7 @@ Section algo_G.
             iDestruct (big_sepL_seqZ_snoc_2 with "HΨ H") as "HΨ"; first lia.
             iEval (replace (i + δ + 1)%Z with (Z.succ (i + δ)%Z) by lia).
             iEval (replace (i + n - Z.succ (i + δ))%Z with (Z.pred (n - δ)) by lia).
-            iEval (replace ⁺(S δ) with (Z.succ δ) by lia).
+            iEval (replace ⁺˖δ with (Z.succ δ) by lia).
             iFrameSteps.
         }
         rewrite Z.add_simpl_l Nat2Z.id. iSteps.
@@ -533,7 +533,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n)%Z v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       Χ beg1 n acc
@@ -563,13 +563,13 @@ Section algo_G.
 
       wp_apply+ (wp_wand with "(Hop [%] [%] HΧ HΨ)") as (acc1) "HΧ"; [lia.. |].
 
-      wp_apply+ ("HLöb" $! (S n) with "[%] [%] [$] [Hbody] HΧ") as (acc2) "HΧ"; [lia.. | |].
+      wp_apply+ ("HLöb" $! ˖n with "[%] [%] [$] [Hbody] HΧ") as (acc2) "HΧ"; [lia.. | |].
       { iEval (replace (beg1 + n + 1)%Z with (Z.succ (beg1 + n)) by lia).
         iEval (replace (end_ - Z.succ (beg1 + n))%Z with (Z.pred (end_ - (beg1 + n))) by lia).
         iFrame.
       }
 
-      iEval (replace (S n + end_ - _)%Z with (n + end_ - (beg1 + n))%Z by lia) in "HΧ".
+      iEval (replace (˖n + end_ - _)%Z with (n + end_ - (beg1 + n))%Z by lia) in "HΧ".
       iSteps.
   Qed.
   #[local] Lemma algo٠fold₀𑁒spec Ψ Χ pool ctx scope beg0 beg end_ end0 (chunk : Z) body op zero :
@@ -596,7 +596,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n)%Z v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       □ (
@@ -682,7 +682,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n)%Z v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       □ (
@@ -737,7 +737,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n) v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       □ (
@@ -808,7 +808,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n)%Z v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       □ (
@@ -864,7 +864,7 @@ Section algo_G.
         Χ i n acc -∗
         Ψ (i + n) v -∗
         WP op acc v {{ acc,
-          ▷ Χ i (S n) acc
+          ▷ Χ i ˖n acc
         }}
       ) ∗
       □ (

@@ -306,7 +306,7 @@ Module base.
     #[local] Definition inv_state_nonempty γ stable front back data hist vs prophs : iProp Σ :=
       ⌜stable = Stable⌝ ∗
       ⌜front < back⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       history_at γ front (hd inhabitant vs) ∗
       ( winner γ
       ∨ match prophs with
@@ -332,7 +332,7 @@ Module base.
       ⌜state = Nonempty⌝ ∗
       ⌜stable = Stable⌝ ∗
       ⌜front < back⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       history_at γ front (hd inhabitant vs) ∗
       match prophs with
       | [] =>
@@ -357,7 +357,7 @@ Module base.
       ∃ P,
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       history_at γ front (hd inhabitant priv) ∗
       ( winner_pop γ front None P
       ∨ winner_linearized_2 γ front data P
@@ -379,7 +379,7 @@ Module base.
       ⌜state = Emptyish⌝ ∗
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       history_at γ front (hd inhabitant priv) ∗
       winner_pop γ front None P.
     #[local] Instance : CustomIpat "inv_state_emptyish_pop" :=
@@ -399,7 +399,7 @@ Module base.
       ⌜state = Emptyish⌝ ∗
       ⌜stable = Unstable⌝ ∗
       ⌜front = back⌝ ∗
-      ⌜length hist = S front⌝ ∗
+      ⌜length hist = ˖front⌝ ∗
       history_at γ front (hd inhabitant priv) ∗
       winner_linearized_1 γ front data data_winner P.
     #[local] Instance : CustomIpat "inv_state_emptyish_steal" :=
@@ -417,7 +417,7 @@ Module base.
       ".
     #[local] Definition inv_state_superempty γ stable front back hist : iProp Σ :=
       ⌜stable = Unstable⌝ ∗
-      ⌜front = S back⌝ ∗
+      ⌜front = ˖back⌝ ∗
       ⌜length hist = front⌝ ∗
       winner γ.
     #[local] Instance : CustomIpat "inv_state_superempty" :=
@@ -741,7 +741,7 @@ Module base.
     Qed.
     #[local] Lemma front_update γ front :
       front_auth γ front ⊢ |==>
-      front_auth γ (S front).
+      front_auth γ ˖front.
     Proof.
       apply auth_nat_max_update; first lia.
     Qed.
@@ -973,7 +973,7 @@ Module base.
     #[local] Lemma inv_state_Unstable γ state front back data hist vs priv prophs :
       inv_state γ state Unstable front back data hist vs priv prophs ⊢
         ⌜state = Emptyish ∨ state = Superempty⌝ ∗
-        ⌜front = back ∨ front = S back⌝.
+        ⌜front = back ∨ front = ˖back⌝.
     Proof.
       iIntros "Hstate".
       destruct state.
@@ -1185,7 +1185,7 @@ Module base.
       , RET #front;
         owner₁ γ Unstable back data cap ws ∗
         front_lb γ front ∗
-        ⌜front = back ∨ front = S back⌝
+        ⌜front = back ∨ front = ˖back⌝
       }}}.
     Proof.
       iIntros "%Φ ((:inv') & Howner₁) HΦ".
@@ -1220,7 +1220,7 @@ Module base.
       iDestruct (inv_state_Superempty with "Hstate") as %->; first lia.
       iDestruct "Hstate" as "(:inv_state_superempty =1 lazy=)".
       iSplitR "Howner₁ HΦ". { iExists Superempty. iFrameSteps. }
-      replace (S back) with front by lia.
+      replace ˖back with front by lia.
       iSteps.
     Qed.
     #[local] Lemma front𑁒spec_winner_steal t γ front data P :
@@ -1268,7 +1268,7 @@ Module base.
 
     #[local] Lemma set_back𑁒spec_Superempty t γ back data cap ws front (back' : Z) :
       back < front →
-      back' = S back →
+      back' = ˖back →
       {{{
         inv' t γ ∗
         owner₁ γ Unstable back data cap ws ∗
@@ -1277,7 +1277,7 @@ Module base.
         #t <-{back} #back'
       {{{
         RET ();
-        owner₁ γ Stable (S back) data cap ws
+        owner₁ γ Stable ˖back data cap ws
       }}}.
     Proof.
       iIntros (? ->) "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
@@ -1285,7 +1285,7 @@ Module base.
       iInv "Hinv" as "(:inv_inner =1)".
       wp_store.
       iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <- & <-).
-      iMod (owner_update Stable (S back) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+      iMod (owner_update Stable ˖back with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
       iDestruct (inv_state_Superempty with "Hstate") as %->; first lia.
       iDestruct "Hstate" as "(:inv_state_superempty =1 lazy=)".
@@ -1648,7 +1648,7 @@ Module base.
         Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(ws_deque_1_name_prophet) (#front, #id)%V
       {{{
         RET false;
-        front_lb γ (S front)
+        front_lb γ ˖front
       }}}.
     Proof.
       iIntros "%Hloser %Φ ((:inv') & #Hfront_lb & #Hprophet_full) HΦ".
@@ -1664,7 +1664,7 @@ Module base.
         rewrite fn_lookup_alter Hpasts1 // in Hloser.
 
       - iDestruct (front_lb_get with "Hfront_auth") as "#-#Hfront_lb_1".
-        iDestruct (front_lb_le (S front) with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
+        iDestruct (front_lb_le ˖front with "Hfront_lb_1") as "-##Hfront_lb_1"; first lia.
         iSplitR "HΦ".
         { iFrameSteps.
           - iPureIntro => *.
@@ -1705,7 +1705,7 @@ Module base.
         iMod (model_steal with "Hmodel₁ Hmodel₂") as "(Hmodel₁ & Hmodel₂) /=".
         iMod ("HP" with "[$Hmodel₁ $Hhistory_at_front1 //]") as "HP".
 
-        iDestruct (array_cslice_rotation_right_1' (S front) 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length/=; lia.. |].
+        iDestruct (array_cslice_rotation_right_1' ˖front 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length/=; lia.. |].
         eassert (rotation _ _ = vs1 ++ priv1 ++ [v1]) as ->.
         { destruct_decide (cap1 = 1) as Heq | ?.
           - rewrite -> Heq in *.
@@ -1719,7 +1719,7 @@ Module base.
         }
 
         iSplitR "HP HΦ".
-        { destruct_decide (S front = back1) as <- | ?.
+        { destruct_decide (˖front = back1) as <- | ?.
 
           - simpl in Hvs1.
             iExists Empty. iFrameSteps; iPureIntro.
@@ -1745,7 +1745,7 @@ Module base.
 
       - assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-        iDestruct (array_cslice_rotation_right_1' (S back1) 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length/=; lia.. |].
+        iDestruct (array_cslice_rotation_right_1' ˖back1 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length/=; lia.. |].
         iEval (rewrite /= -(app_nil_l (rotation _ _))) in "Hdata1_cslice₁".
 
         iSplitR "HP HΦ".
@@ -1768,7 +1768,7 @@ Module base.
         Resolve (CAS (#t).[front]%V #front #(front + 1)) #γ.(ws_deque_1_name_prophet) (#front, #id)%V
       {{{
         RET true;
-        front_lb γ (S front)
+        front_lb γ ˖front
       }}}.
     Proof.
       iIntros "%Φ ((:inv') & Hwinner_steal) HΦ".
@@ -1784,7 +1784,7 @@ Module base.
 
       assert (length vs1 = 0) as ->%nil_length_inv by lia.
 
-      iDestruct (array_cslice_rotation_right_1' (S back1) 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length; lia.. |].
+      iDestruct (array_cslice_rotation_right_1' ˖back1 1 with "Hdata1_cslice₁") as "Hdata1_cslice₁"; [simpl_length; lia.. |].
       iEval (rewrite /= -(app_nil_l (rotation _ _))) in "Hdata1_cslice₁".
 
       iSplitR "HΦ".
@@ -1806,7 +1806,7 @@ Module base.
       {{{
         RET true;
         owner₁ γ Unstable back data cap ws ∗
-        front_lb γ (S back)
+        front_lb γ ˖back
       }}}.
     Proof.
       iIntros "%Φ ((:inv') & Howner₁ & #Hfront_lb) HΦ".
@@ -1828,7 +1828,7 @@ Module base.
         iMod (history_update _ inhabitant with "Hhistory_auth") as "(Hhistory_auth & _)"; first done.
         iMod (owner_update Unstable (length hist1) with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
 
-        iDestruct (array_cslice_rotation_right_1' (S (length hist1)) 1 with "Hdata1_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
+        iDestruct (array_cslice_rotation_right_1' ˖(length hist1) 1 with "Hdata1_cslice₁") as "Hdata_cslice₁"; [simpl_length; lia.. |].
         iEval (rewrite -(app_nil_l (rotation _ _ ))) in "Hdata_cslice₁".
 
         iSplitR "Howner₁ HΦ".
@@ -1994,7 +1994,7 @@ Module base.
       iInv "Hinv" as "(:inv_inner =2)".
       wp_store.
       iDestruct (owner_agree with "Howner₁ Howner₂") as %(<- & <- & <- & <-).
-      iMod (owner_update Stable (S back) data cap with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
+      iMod (owner_update Stable ˖back data cap with "Howner₁ Howner₂") as "(Howner₁ & Howner₂)".
       iDestruct (inv_state_Stable with "Hstate") as "(%Hstate2 & %)"; first done.
       iDestruct (front_lb_valid with "Hfront_auth Hfront_lb") as %?.
 
@@ -2158,7 +2158,7 @@ Module base.
             ∃ front,
             ⌜stable = Unstable⌝ ∗
             front_lb γ front ∗
-            ⌜front = S back⌝
+            ⌜front = ˖back⌝
         end
       }}}
         ws_deque_1٠pop₀ #t #id #back_
@@ -2342,7 +2342,7 @@ Module base.
       simpl_length/= in Hvs1.
       simpl_length/= in Hdata1.
 
-      destruct_decide (S front1 = back) as <- | Hbranch1.
+      destruct_decide (˖front1 = back) as <- | Hbranch1.
 
       - assert (length vs1 = 0) as ->%nil_length_inv.
         { simpl_length/= in Hvs1. lia. }

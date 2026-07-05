@@ -424,7 +424,7 @@ Module base.
           end
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) ∗
+          node_model γ node' ˖i ∗
           match op with
           | IsEmpty Ψ =>
               Ψ false
@@ -443,10 +443,10 @@ Module base.
       iDestruct (xtchain_lookup_acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
       wp_load.
       iDestruct ("Hhist" with "Hnode") as "Hhist".
-      destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
+      destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
 
       - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
-        iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
+        iDestruct (history_at_get ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
         destruct op; [| iFrameSteps..].
         iDestruct "Hop" as "(Hconsumer & HΨ)".
         iDestruct (pointsto_agree with "Ht_front Hconsumer") as %[= <-].
@@ -518,7 +518,7 @@ Module base.
           ⌜res = §Null%V⌝
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i)
+          node_model γ node' ˖i
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
@@ -541,7 +541,7 @@ Module base.
           Ψ true
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) ∗
+          node_model γ node' ˖i ∗
           Ψ false
         )
       }}}.
@@ -567,7 +567,7 @@ Module base.
           Ψ None
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) ∗
+          node_model γ node' ˖i ∗
           pop_au γ Ψ
         )
       }}}.
@@ -631,7 +631,7 @@ Module base.
       iInv "Hinv" as "(:inv_inner)".
       iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_node") as %Hlookup.
       iDestruct (xtchain_lookup with "Hhist") as "(Hhist1 & _ & Hnode & Hhist2)"; first done.
-      destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
+      destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
 
       - wp_cas as _ | [=].
         iDestruct (xtchain_lookup_2 with "Hhist1 Hnode_header Hnode Hhist2") as "Hhist"; [done | rewrite Hlookup' // |].

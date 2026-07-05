@@ -28,7 +28,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (i + 1)%Z (S δ)
+          ▷ Ψ (i + 1)%Z ˖δ
         }}
       )
     }}}
@@ -61,7 +61,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (i + 1)%Z (S δ)
+          ▷ Ψ (i + 1)%Z ˖δ
         }}
       )
     }}}
@@ -86,7 +86,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (i + 1)%Z (S δ)
+          ▷ Ψ (i + 1)%Z ˖δ
         }}
       )
     }}}
@@ -109,7 +109,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (i + 1)%Z (S δ)
+          ▷ Ψ (i + 1)%Z ˖δ
         }}
       )
     }}}
@@ -127,7 +127,7 @@ Section zoo_G.
     )%I).
     wp_apply (for𑁒spec_strong Ψ' with "[HΨ Hbody]"); last iSteps.
     rewrite /Ψ' Nat.sub_0_r. iFrame. iIntros "!> %i %δ %Hi1 %Hi2 (HΨ & HΞ)".
-    assert (₊(_end - beg) - δ = S $ ₊(_end - beg) - S δ) as -> by lia.
+    assert (₊(_end - beg) - δ = ˖(₊(_end - beg) - ˖δ)) as -> by lia.
     iSteps.
   Qed.
   Lemma for𑁒spec' Ψ beg _end body :
@@ -140,7 +140,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (i + 1)%Z (S δ)
+          ▷ Ψ (i + 1)%Z ˖δ
         }}
       )
     }}}
@@ -223,7 +223,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (S δ)
+          ▷ Ψ ˖i ˖δ
         }}
       )
     }}}
@@ -252,7 +252,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (S δ)
+          ▷ Ψ ˖i ˖δ
         }}
       )
     }}}
@@ -275,7 +275,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (S δ)
+          ▷ Ψ ˖i ˖δ
         }}
       )
     }}}
@@ -304,7 +304,7 @@ Section zoo_G.
         Ψ i δ -∗
         WP body #i {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (S δ)
+          ▷ Ψ ˖i ˖δ
         }}
       )
     }}}

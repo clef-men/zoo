@@ -192,7 +192,7 @@ Section zoo_G.
     wp_apply (array٠unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
     iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
     wp_store. wp_pures.
-    replace (back + 1)%Z with ⁺(S back) by lia.
+    replace (back + 1)%Z with ⁺˖back by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
@@ -225,7 +225,7 @@ Section zoo_G.
       { simpl_length. lia. }
       iApply "HΦ".
       rewrite -replicate_S_end.
-      replace (front + 1)%Z with ⁺(S front) by lia.
+      replace (front + 1)%Z with ⁺˖front by lia.
       iFrameSteps.
   Qed.
 

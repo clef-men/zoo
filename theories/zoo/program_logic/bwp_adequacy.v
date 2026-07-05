@@ -30,7 +30,7 @@ Section zoo_G.
     £ (later_function ns) -∗
     BWP e1 ∶ tid {{ Φ }} -∗
       |={⊤}[∅]▷=>
-      state_interp (S ns) (nt + length es) σ2 κs ∗
+      state_interp ˖ns (nt + length es) σ2 κs ∗
       BWP e2 ∶ tid {{ Φ }} ∗
       bwps nt es (replicate (length es) fork_post).
   Proof.
@@ -47,7 +47,7 @@ Section zoo_G.
     £ (later_function ns) -∗
     bwps 0 es1 Φs -∗
       |={⊤}[∅]▷=>
-      state_interp (S ns) (length es2) σ2 κs ∗
+      state_interp ˖ns (length es2) σ2 κs ∗
       bwps 0 es2 (Φs ++ replicate (length es2 - length es1) fork_post).
   Proof.
     iIntros ((i & e1 & e2 & σ2' & es & Hstep & Hes1_lookup & [= -> <-])) "Hinterp H£ H".

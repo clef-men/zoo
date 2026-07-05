@@ -51,7 +51,7 @@ Section pool_G.
 
     wp_apply+ (for𑁒spec_strong (λ j _,
       ∃ xs' (i1 : Z),
-      array_slice arr (S ₊i) (DfracOwn 1) (#*@{Z} xs') ∗
+      array_slice arr ˖(₊i) (DfracOwn 1) (#*@{Z} xs') ∗
       r ↦ᵣ #i1 ∗
       ⌜xs ≡ₚ xs'⌝ ∗
       ⌜i < i1 ≤ j⌝%Z ∗
@@ -233,7 +233,7 @@ Section pool_G.
             ∃ xs2',
             ⌜xs2 ≡ₚ xs2'⌝ ∗
             ⌜StronglySorted (≤)%Z xs2'⌝ ∗
-            array_slice arr (S p) (DfracOwn 1) (#*@{Z} xs2')
+            array_slice arr ˖p (DfracOwn 1) (#*@{Z} xs2')
           )
         )
         True

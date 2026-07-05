@@ -190,8 +190,8 @@ Section zoo_G.
     xdlchain src nodes dst ⊣⊢
       xdlchain src (take i nodes) #node ∗
       node.[xdlchain_prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop (S i) nodes) ∗
-      xdlchain #node (drop (S i) nodes) dst.
+      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
+      xdlchain #node (drop ˖i nodes) dst.
   Proof.
     intros Hlookup.
     pose proof Hlookup as Hnodes%take_drop_middle.
@@ -202,19 +202,19 @@ Section zoo_G.
     xdlchain src nodes dst ⊢
       xdlchain src (take i nodes) #node ∗
       node.[xdlchain_prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop (S i) nodes) ∗
-      xdlchain #node (drop (S i) nodes) dst.
+      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
+      xdlchain #node (drop ˖i nodes) dst.
   Proof.
     intros. rewrite xdlchain_lookup //.
   Qed.
   Lemma xdlchain_lookup_2 {src nodes} i node prev next dst :
     nodes !! i = Some node →
     prev = from_option #@{location} src (last $ take i nodes) →
-    next = from_option #@{location} dst (head $ drop (S i) nodes) →
+    next = from_option #@{location} dst (head $ drop ˖i nodes) →
     xdlchain src (take i nodes) #node -∗
     node.[xdlchain_prev] ↦ prev -∗
     node.[xdlchain_next] ↦ next -∗
-    xdlchain #node (drop (S i) nodes) dst -∗
+    xdlchain #node (drop ˖i nodes) dst -∗
     xdlchain src nodes dst.
   Proof.
     intros. rewrite (@xdlchain_lookup _ nodes) //. iSteps.
@@ -224,9 +224,9 @@ Section zoo_G.
     nodes !! i = Some node →
     xdlchain src nodes dst ⊢
       node.[xdlchain_prev] ↦ from_option #@{location} src (last $ take i nodes) ∗
-      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop (S i) nodes) ∗
+      node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) ∗
       ( node.[xdlchain_prev] ↦ from_option #@{location} src (last $ take i nodes) -∗
-        node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop (S i) nodes) -∗
+        node.[xdlchain_next] ↦ from_option #@{location} dst (head $ drop ˖i nodes) -∗
         xdlchain src nodes dst
       ).
   Proof.
@@ -329,7 +329,7 @@ Section zoo_G.
     }}}
       (#node).{xdlchain_next} @ E
     {{{
-      RET from_option #@{location} dst (head $ drop (S i) nodes);
+      RET from_option #@{location} dst (head $ drop ˖i nodes);
       xdlchain src nodes dst
     }}}.
   Proof.
@@ -425,8 +425,8 @@ Section zoo_G.
       #node <-{xdlchain_next} v @ E
     {{{
       RET ();
-      xdlchain src (take (S i) nodes) v ∗
-      xdlchain #node (drop (S i) nodes) dst
+      xdlchain src (take ˖i nodes) v ∗
+      xdlchain #node (drop ˖i nodes) dst
     }}}.
   Proof.
     intros Hlookup.

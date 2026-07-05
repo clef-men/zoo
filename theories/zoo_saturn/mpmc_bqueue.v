@@ -578,7 +578,7 @@ Module base.
       {{{
         inv' t γ ∗
         history_at γ i node ∗
-        from_option (history_at γ (S i)) True next ∗
+        from_option (history_at γ ˖i) True next ∗
         match op with
         | Size i_front Ψ =>
             front_lb γ i_front ∗
@@ -617,7 +617,7 @@ Module base.
           end
        ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) false ∗
+          node_model γ node' ˖i false ∗
           ⌜from_option (node' =.) True next⌝ ∗
           match op with
           | Size _ Ψ =>
@@ -638,11 +638,11 @@ Module base.
       iDestruct (xtchain_lookup_acc with "Hhist") as "(_ & Hnode & Hhist)"; first done.
       wp_load.
       iDestruct ("Hhist" with "Hnode") as "Hhist".
-      destruct (hist !! S i) as [node' |] eqn:Hlookup'; simpl.
+      destruct (hist !! ˖i) as [node' |] eqn:Hlookup'; simpl.
 
       - iDestruct (xtchain_lookup_header with "Hhist") as "#Hnode'_header"; first done.
         iDestruct (big_sepL_lookup with "Hindices") as "#Hnode'_index"; first done.
-        iDestruct (history_at_get (S i) with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
+        iDestruct (history_at_get ˖i with "Hhistory_auth") as "#Hhistory_at_node'"; first done.
 
         iAssert ⌜from_option (node' =.) True next⌝%I as %?.
         { destruct next as [next |]; last done.
@@ -760,7 +760,7 @@ Module base.
           ⌜res = §Null%V⌝
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) false
+          node_model γ node' ˖i false
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node) HΦ".
@@ -770,12 +770,12 @@ Module base.
       {{{
         inv' t γ ∗
         history_at γ i node ∗
-        history_at γ (S i) next
+        history_at γ ˖i next
       }}}
         (#node).{next}
       {{{
         RET #next;
-        node_model γ next (S i) false
+        node_model γ next ˖i false
       }}}.
     Proof.
       iIntros "%Φ (#Hinv & #Hhistory_at_node & #Hhistory_at_next) HΦ".
@@ -801,7 +801,7 @@ Module base.
           )
        ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) false ∗
+          node_model γ node' ˖i false ∗
           size_au γ Ψ
       }}}.
     Proof.
@@ -826,7 +826,7 @@ Module base.
           Ψ true
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) false ∗
+          node_model γ node' ˖i false ∗
           Ψ false
       }}}.
     Proof.
@@ -849,7 +849,7 @@ Module base.
           Ψ None
         ∨ ∃ node',
           ⌜res = #node'⌝ ∗
-          node_model γ node' (S i) false ∗
+          node_model γ node' ˖i false ∗
           pop_au γ Ψ
       }}}.
     Proof.
@@ -1113,10 +1113,10 @@ Module base.
           iInv "Hinv" as "(:inv_inner =1)".
           iDestruct (history_at_lookup with "Hhistory_auth Hhistory_at_back") as %Hlookup_back.
           iDestruct (xtchain_lookup with "Hhist") as "(Hhist1 & _ & Hback & Hhist2)"; first done.
-          destruct (hist1 !! (S i_back)) as [next |] eqn:Hlookup_next; simpl.
+          destruct (hist1 !! ˖i_back) as [next |] eqn:Hlookup_next; simpl.
 
           + wp_cas as _ | [=].
-            iDestruct (history_at_get (S i_back) with "Hhistory_auth") as "#Hhistory_at_next"; first done.
+            iDestruct (history_at_get ˖i_back with "Hhistory_auth") as "#Hhistory_at_next"; first done.
             iDestruct (xtchain_lookup_2 with "Hhist1 Hback_header Hback Hhist2") as "Hhist"; [done | rewrite Hlookup_next // |].
             iSplitR "Hnew_back_next Hnew_back_data Hnew_back_index Hnew_back_estimated_capacity HΦ". { iFrameSteps. }
             iIntros "!> {%}".

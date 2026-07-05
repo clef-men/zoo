@@ -55,8 +55,8 @@ Fixpoint later_sum ns n : nat :=
   match n with
   | 0 =>
       0
-  | S n =>
-      later_function ns + later_sum (S ns) n
+  | ˖n =>
+      later_function ns + later_sum ˖ns n
   end.
 
 Lemma later_sum_lb ns n :
@@ -88,7 +88,7 @@ Section zoo_G.
             ⌜prim_step tid e σ κ e' σ' es⌝ -∗
             £ (later_function ns) ={∅}=∗
               ▷ |={∅,E}=>
-              state_interp (S ns) (nt + length es) σ' κs' ∗
+              state_interp ˖ns (nt + length es) σ' κs' ∗
               bwp e' tid E Φ ∗
               [∗ list] i ↦ e ∈ es,
                 bwp e (nt + i) ⊤ fork_post
@@ -574,7 +574,7 @@ Section zoo_G.
           £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             state_interp ns (nt + length es) σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
                 BWP e' ∶ tid @ E {{ Φ }} ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
@@ -606,7 +606,7 @@ Section zoo_G.
             ▷ |={∅, E}=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
               BWP e' ∶ tid @ E {{ Φ }}
             )
     ) ⊢
@@ -633,7 +633,7 @@ Section zoo_G.
           £ (later_function ns) -∗
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
                 from_option Φ False (to_val e') ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
@@ -667,7 +667,7 @@ Section zoo_G.
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
               from_option Φ False (to_val e')
             )
     ) ⊢
@@ -697,7 +697,7 @@ Section zoo_G.
     ( |={E1}[E2]▷=>
       ∀ σ e' κ es,
       ⌜prim_step tid e σ κ e' σ es⌝ -∗
-      ⧖ (S ns) -∗
+      ⧖ (˖ns) -∗
       £ (later_function ns) -∗
       BWP e' ∶ tid @ E1 {{ Φ }}
     ) -∗
@@ -731,7 +731,7 @@ Section zoo_G.
     ) →
     ⧖ ns -∗
     ( |={E1}[E2]▷=>
-      ⧖ (S ns) -∗
+      ⧖ (˖ns) -∗
       £ (later_function ns) -∗
       BWP e2 ∶ tid @ E1 {{ Φ }}
     ) -∗
@@ -790,7 +790,7 @@ Section zoo_G.
           £ (later_function ns) ={∅}=∗
             ▷ |={∅, E}=>
             state_interp ns (nt + length es) σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
                 BWP e' ∶ tid @ E {{ Φ }} ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
@@ -845,7 +845,7 @@ Section zoo_G.
           £ (later_function ns) -∗
             |={E1}[E2]▷=>
             state_interp ns (nt + length es) σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
                 from_option Φ False (to_val e') ∗
                 [∗ list] i ↦ e ∈ es,
                   BWP e ∶ nt + i {{ fork_post }}
@@ -872,7 +872,7 @@ Section zoo_G.
             |={E1}[E2]▷=>
             ⌜es = []⌝ ∗
             state_interp ns nt σ' κs' ∗
-            ( ⧖ (S ns) -∗
+            ( ⧖ (˖ns) -∗
               from_option Φ False (to_val e')
             )
     ) ⊢

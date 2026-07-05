@@ -262,26 +262,26 @@ Section zoo_G.
     Lemma array_slice_cons t i dq v vs :
       array_slice t i dq (v :: vs) ⊣⊢
         array_slice t i dq [v] ∗
-        array_slice t (S i) dq vs.
+        array_slice t ˖i dq vs.
     Proof.
       rewrite -Nat.add_1_r array_slice_app //.
     Qed.
     Lemma array_slice_cons_1 t i dq v vs :
       array_slice t i dq (v :: vs) ⊢
         array_slice t i dq [v] ∗
-        array_slice t (S i) dq vs.
+        array_slice t ˖i dq vs.
     Proof.
       rewrite array_slice_cons //.
     Qed.
     Lemma array_slice_cons_2 t i dq v vs :
       array_slice t i dq [v] -∗
-      array_slice t (S i) dq vs -∗
+      array_slice t ˖i dq vs -∗
       array_slice t i dq (v :: vs).
     Proof.
       setoid_rewrite array_slice_cons at 2. iSteps.
     Qed.
     Lemma array_slice_cons_2' t i1 dq v i2 vs :
-      i2 = S i1 →
+      i2 = ˖i1 →
       array_slice t i1 dq [v] -∗
       array_slice t i2 dq vs -∗
       array_slice t i1 dq (v :: vs).
@@ -728,26 +728,26 @@ Section zoo_G.
     Lemma array_cslice_cons t sz i dq v vs :
       array_cslice t sz i dq (v :: vs) ⊣⊢
         array_cslice t sz i dq [v] ∗
-        array_cslice t sz (S i) dq vs.
+        array_cslice t sz ˖i dq vs.
     Proof.
       rewrite -Nat.add_1_r array_cslice_app //.
     Qed.
     Lemma array_cslice_cons_1 t sz i dq v vs :
       array_cslice t sz i dq (v :: vs) ⊢
         array_cslice t sz i dq [v] ∗
-        array_cslice t sz (S i) dq vs.
+        array_cslice t sz ˖i dq vs.
     Proof.
       rewrite array_cslice_cons //.
     Qed.
     Lemma array_cslice_cons_2 t sz i dq v vs :
       array_cslice t sz i dq [v] -∗
-      array_cslice t sz (S i) dq vs -∗
+      array_cslice t sz ˖i dq vs -∗
       array_cslice t sz i dq (v :: vs).
     Proof.
       setoid_rewrite array_cslice_cons at 2. iSteps.
     Qed.
     Lemma array_cslice_cons_2' t sz i1 dq v i2 vs :
-      i2 = S i1 →
+      i2 = ˖i1 →
       array_cslice t sz i1 dq [v] -∗
       array_cslice t sz i2 dq vs -∗
       array_cslice t sz i1 dq (v :: vs).
@@ -2273,7 +2273,7 @@ Section zoo_G.
         ⌜j < ₊n⌝ -∗
         Ψ j -∗
         au_store t (₊i + j) v (
-          ▷ Ψ (S j)
+          ▷ Ψ ˖j
         )
       )
     }}}
@@ -2466,7 +2466,7 @@ Section zoo_G.
             )
         | Some v =>
             WP fn #i acc v {{ acc,
-              ▷ Ψ (S i) (vs ++ [v]) None acc
+              ▷ Ψ ˖i (vs ++ [v]) None acc
             }}
         end
       )
@@ -2517,7 +2517,7 @@ Section zoo_G.
             )
         | Some v =>
             WP fn #i acc v {{ acc,
-              ▷ Ψ (S i) (vs ++ [v]) None acc
+              ▷ Ψ ˖i (vs ++ [v]) None acc
             }}
         end
       )
@@ -2546,7 +2546,7 @@ Section zoo_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) acc -∗
         WP fn #i acc v {{ acc,
-          ▷ Ψ (S i) (take i vs ++ [v]) acc
+          ▷ Ψ ˖i (take i vs ++ [v]) acc
         }}
       )
     }}}
@@ -2589,7 +2589,7 @@ Section zoo_G.
         ∀ acc,
         Ψ i (take i vs) acc -∗
         WP fn #i acc v {{ acc,
-          ▷ Ψ (S i) (take i vs ++ [v]) acc
+          ▷ Ψ ˖i (take i vs ++ [v]) acc
         }}
       )
     }}}
@@ -2630,7 +2630,7 @@ Section zoo_G.
             )
         | Some v =>
             WP fn acc v {{ acc,
-              ▷ Ψ (S i) (vs ++ [v]) None acc
+              ▷ Ψ ˖i (vs ++ [v]) None acc
             }}
         end
       )
@@ -2657,7 +2657,7 @@ Section zoo_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) acc -∗
         WP fn acc v {{ acc,
-          ▷ Ψ (S i) (take i vs ++ [v]) acc
+          ▷ Ψ ˖i (take i vs ++ [v]) acc
         }}
       )
     }}}
@@ -2682,7 +2682,7 @@ Section zoo_G.
         ∀ acc,
         Ψ i (take i vs) acc -∗
         WP fn acc v {{ acc,
-          ▷ Ψ (S i) (take i vs ++ [v]) acc
+          ▷ Ψ ˖i (take i vs ++ [v]) acc
         }}
       )
     }}}
@@ -2707,12 +2707,12 @@ Section zoo_G.
       ▷ Ψ ₊i acc None vs ∗
       □ (
         ∀ i acc (o : option val) vs,
-        ⌜(S i + length vs)%nat = sz⌝ -∗
-        Ψ (S i) acc o vs -∗
+        ⌜(˖i + length vs)%nat = sz⌝ -∗
+        Ψ ˖i acc o vs -∗
         match o with
         | None =>
             au_load t i (λ v,
-              ▷ Ψ (S i) acc (Some v) vs
+              ▷ Ψ ˖i acc (Some v) vs
             )
         | Some v =>
             WP fn #i v acc {{ acc,
@@ -2737,7 +2737,7 @@ Section zoo_G.
       iApply ("HΦ" $! _ []).
       iSteps.
     - rewrite bool_decide_eq_false_2; first lia. wp_pures.
-      assert (i = S j) as -> by lia. rewrite Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
+      assert (i = ˖j) as -> by lia. rewrite Z.sub_1_r -Nat2Z.inj_pred /=; first lia.
       iDestruct ("H" with "[%] HΨ") as "H'"; first done.
       awp_apply+ (array٠unsafe_get𑁒spec_atomic_cell with "[//]") without "HΦ".
       iApply (aacc_aupd_commit with "H'"); first done. iIntros "%dq %v H↦".
@@ -2755,12 +2755,12 @@ Section zoo_G.
       ▷ Ψ sz acc None [] ∗
       □ (
         ∀ i acc (o : option val) vs,
-        ⌜(S i + length vs)%nat = sz⌝ -∗
-        Ψ (S i) acc o vs -∗
+        ⌜(˖i + length vs)%nat = sz⌝ -∗
+        Ψ ˖i acc o vs -∗
         match o with
         | None =>
             au_load t i (λ v,
-              ▷ Ψ (S i) acc (Some v) vs
+              ▷ Ψ ˖i acc (Some v) vs
             )
         | Some v =>
             WP fn #i v acc {{ acc,
@@ -2792,9 +2792,9 @@ Section zoo_G.
       □ (
         ∀ i v acc,
         ⌜vs !! i = Some v⌝ -∗
-        Ψ (S i) acc (drop (S i) vs) -∗
+        Ψ ˖i acc (drop ˖i vs) -∗
         WP fn #i v acc {{ acc,
-          ▷ Ψ i acc (v :: drop (S i) vs)
+          ▷ Ψ i acc (v :: drop ˖i vs)
         }}
       )
     }}}
@@ -2834,9 +2834,9 @@ Section zoo_G.
       ▷ Ψ (length vs) acc [] ∗
       ( [∗ list] i ↦ v ∈ vs,
         ∀ acc,
-        Ψ (S i) acc (drop (S i) vs) -∗
+        Ψ ˖i acc (drop ˖i vs) -∗
         WP fn #i v acc {{ acc,
-          ▷ Ψ i acc (v :: drop (S i) vs)
+          ▷ Ψ i acc (v :: drop ˖i vs)
         }}
       )
     }}}
@@ -2869,12 +2869,12 @@ Section zoo_G.
       ▷ Ψ sz acc None [] ∗
       □ (
         ∀ i acc (o : option val) vs,
-        ⌜(S i + length vs)%nat = sz⌝ -∗
-        Ψ (S i) acc o vs -∗
+        ⌜(˖i + length vs)%nat = sz⌝ -∗
+        Ψ ˖i acc o vs -∗
         match o with
         | None =>
             au_load t i (λ v,
-              ▷ Ψ (S i) acc (Some v) vs
+              ▷ Ψ ˖i acc (Some v) vs
             )
         | Some v =>
             WP fn v acc {{ acc,
@@ -2903,9 +2903,9 @@ Section zoo_G.
       □ (
         ∀ i v acc,
         ⌜vs !! i = Some v⌝ -∗
-        Ψ (S i) acc (drop (S i) vs) -∗
+        Ψ ˖i acc (drop ˖i vs) -∗
         WP fn v acc {{ acc,
-          ▷ Ψ i acc (v :: drop (S i) vs)
+          ▷ Ψ i acc (v :: drop ˖i vs)
         }}
       )
     }}}
@@ -2928,9 +2928,9 @@ Section zoo_G.
       ▷ Ψ (length vs) acc [] ∗
       ( [∗ list] i ↦ v ∈ vs,
         ∀ acc,
-        Ψ (S i) acc (drop (S i) vs) -∗
+        Ψ ˖i acc (drop ˖i vs) -∗
         WP fn v acc {{ acc,
-          ▷ Ψ i acc (v :: drop (S i) vs)
+          ▷ Ψ i acc (v :: drop ˖i vs)
         }}
       )
     }}}
@@ -2969,7 +2969,7 @@ Section zoo_G.
         | Some v =>
             WP fn #k v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             }}
         end
       )
@@ -3018,7 +3018,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3057,7 +3057,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3166,7 +3166,7 @@ Section zoo_G.
         | Some v =>
             WP fn #k v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             }}
         end
       )
@@ -3201,7 +3201,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3231,7 +3231,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn #k v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3337,7 +3337,7 @@ Section zoo_G.
         | Some v =>
             WP fn v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             }}
         end
       )
@@ -3371,7 +3371,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3398,7 +3398,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3491,7 +3491,7 @@ Section zoo_G.
         | Some v =>
             WP fn v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             }}
         end
       )
@@ -3526,7 +3526,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3556,7 +3556,7 @@ Section zoo_G.
         Ψ k (slice ₊i k vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v])
         }}
       )
     }}}
@@ -3659,7 +3659,7 @@ Section zoo_G.
         | Some v =>
             WP fn #i v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S i) (vs ++ [v]) None
+              ▷ Ψ ˖i (vs ++ [v]) None
             }}
         end
       )
@@ -3688,7 +3688,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -3726,7 +3726,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -3826,7 +3826,7 @@ Section zoo_G.
         | Some v =>
             WP fn v {{ res,
               ⌜res = ()%V⌝ ∗
-              ▷ Ψ (S i) (vs ++ [v]) None
+              ▷ Ψ ˖i (vs ++ [v]) None
             }}
         end
       )
@@ -3854,7 +3854,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -3878,7 +3878,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -3971,7 +3971,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t (₊i + k) w (
-              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖k (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4023,7 +4023,7 @@ Section zoo_G.
         ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn #k v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4050,7 +4050,7 @@ Section zoo_G.
           Ψ k vs_left ws
       | Some (inr (v, w)) =>
           ⌜vs !! (₊i + k)%nat = Some v⌝ ∗
-          Ψ (S k) (vs_left ++ [v]) (ws ++ [w])
+          Ψ ˖k (vs_left ++ [v]) (ws ++ [w])
       end
     )%I).
     wp_apply (array٠unsafe_applyi_slice𑁒spec_atomic Ψ' with "[$Hinv Hmodel $HΨ]"); [done.. | |].
@@ -4088,7 +4088,7 @@ Section zoo_G.
         ⌜k = length ws⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn #k v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4207,7 +4207,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t (₊i + k) w (
-              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖k (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4244,7 +4244,7 @@ Section zoo_G.
         ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn #k v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4278,7 +4278,7 @@ Section zoo_G.
         ⌜k = length ws⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn #k v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4394,7 +4394,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t (₊i + k) w (
-              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖k (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4428,7 +4428,7 @@ Section zoo_G.
         ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4459,7 +4459,7 @@ Section zoo_G.
         ⌜k = length ws⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4562,7 +4562,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t (₊i + k) w (
-              ▷ Ψ (S k) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖k (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4599,7 +4599,7 @@ Section zoo_G.
         ⌜vs !! (₊i + k)%nat = Some v⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4633,7 +4633,7 @@ Section zoo_G.
         ⌜k = length ws⌝ -∗
         Ψ k (slice ₊i k vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S k) (slice ₊i k vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖k (slice ₊i k vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4746,7 +4746,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t i w (
-              ▷ Ψ (S i) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖i (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4777,7 +4777,7 @@ Section zoo_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn #i v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4807,7 +4807,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn #i v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4912,7 +4912,7 @@ Section zoo_G.
             }}
         | Some (inr (v, w)) =>
             au_store t i w (
-              ▷ Ψ (S i) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖i (vs ++ [v]) None (ws ++ [w])
             )
         end
       )
@@ -4941,7 +4941,7 @@ Section zoo_G.
         ⌜vs !! i = Some v⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -4968,7 +4968,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -5053,7 +5053,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5099,7 +5099,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5273,7 +5273,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5305,7 +5305,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5396,7 +5396,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn () {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5427,7 +5427,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn () {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5515,7 +5515,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn () {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5547,7 +5547,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ t i vs -∗
         WP fn () {{ v,
-          ▷ Ψ t (S i) (vs ++ [v])
+          ▷ Ψ t ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -5642,7 +5642,7 @@ Section zoo_G.
             )
         | Some v =>
             WP fn #i v {{ w,
-              ▷ Ψ (S i) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖i (vs ++ [v]) None (ws ++ [w])
             }}
         end
       )
@@ -5695,7 +5695,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn #i v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -5741,7 +5741,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn #i v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -5848,7 +5848,7 @@ Section zoo_G.
             )
         | Some v =>
             WP fn v {{ w,
-              ▷ Ψ (S i) (vs ++ [v]) None (ws ++ [w])
+              ▷ Ψ ˖i (vs ++ [v]) None (ws ++ [w])
             }}
         end
       )
@@ -5878,7 +5878,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -5906,7 +5906,7 @@ Section zoo_G.
         ⌜i = length ws⌝ -∗
         Ψ i (take i vs) ws -∗
         WP fn v {{ w,
-          ▷ Ψ (S i) (take i vs ++ [v]) (ws ++ [w])
+          ▷ Ψ ˖i (take i vs ++ [v]) (ws ++ [w])
         }}
       )
     }}}
@@ -6000,7 +6000,7 @@ Section zoo_G.
             )
         | Some v =>
             au_store t2 (₊i2 + k) v (
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             )
         end
       )
@@ -6315,7 +6315,7 @@ Section zoo_G.
             )
         | Some v =>
             au_store t2 (₊i2 + k) v (
-              ▷ Ψ (S k) (vs ++ [v]) None
+              ▷ Ψ ˖k (vs ++ [v]) None
             )
         end
       )

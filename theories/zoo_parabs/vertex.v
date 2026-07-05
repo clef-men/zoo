@@ -237,7 +237,7 @@ Module base.
     #[local] Definition inv_state_init preds iter Π : iProp Σ :=
       ∃ Δ,
       dependencies_auth iter Own (Δ ⊎ Π) ∗
-      ⌜preds = S (size Π)⌝ ∗
+      ⌜preds = ˖(size Π)⌝ ∗
       [∗ mset] δ ∈ Δ, vertex_finished δ.
     #[local] Instance : CustomIpat "inv_state_init" :=
       " ( %Δ
@@ -270,7 +270,7 @@ Module base.
       ".
     #[local] Definition inv_state_finished γ R preds Π : iProp Σ :=
       vertex_finished γ ∗
-      ⌜preds = S (size Π)⌝ ∗
+      ⌜preds = ˖(size Π)⌝ ∗
       □ R.
     #[local] Instance : CustomIpat "inv_state_finished" :=
       " ( {>;}#Hstate{which;}₁

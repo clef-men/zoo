@@ -149,8 +149,8 @@ Section basic.
 
   Lemma length_lookup_last l i :
     is_Some (l !! i) →
-    l !! S i = None →
-    length l = S i.
+    l !! ˖i = None →
+    length l = ˖i.
   Proof.
     intros ?%lookup_lt_is_Some ?%lookup_ge_None. lia.
   Qed.
@@ -234,7 +234,7 @@ Section basic.
   Qed.
   Lemma last_take l i x :
     l !! i = Some x →
-    last (take (S i) l) = Some x.
+    last (take ˖i l) = Some x.
   Proof.
     intros Hlookup.
     assert (length (take i l) = i) as Hlength_take.
@@ -270,7 +270,7 @@ Section basic.
   Lemma drop_cons_inv i l x l' :
     drop i l = x :: l' →
       l !! i = Some x ∧
-      l' = drop (S i) l.
+      l' = drop ˖i l.
   Proof.
     intros Heq.
     apply (f_equal head) in Heq as Hlookup.
@@ -457,7 +457,7 @@ Section foldri.
     | [] =>
         acc
     | x :: l =>
-        f i x (foldri' f acc l (S i))
+        f i x (foldri' f acc l ˖i)
     end.
   #[global] Arguments foldri' _ _ _ _ !_ _ / : assert.
   Definition foldri `(f : nat → A → B → B) acc l :=
@@ -579,7 +579,7 @@ Section Foralli.
     | [] =>
         True
     | x :: l =>
-        P i x ∧ Foralli' l (S i)
+        P i x ∧ Foralli' l ˖i
     end.
   #[global] Arguments Foralli' !_ _ / : assert.
   Definition Foralli l :=
@@ -758,7 +758,7 @@ Section Forall2i.
     | [], [] =>
         True
     | x1 :: l1, x2 :: l2 =>
-        P i x1 x2 ∧ Forall2i' l1 l2 (S i)
+        P i x1 x2 ∧ Forall2i' l1 l2 ˖i
     | _, _ =>
         False
     end.
@@ -843,7 +843,7 @@ Section Forall2i.
     intros [= Hlen] H. split.
     - specialize (H 0). rewrite right_id in H. naive_solver.
     - apply IH; first done. intros j.
-      specialize (H (S j)). rewrite -Nat.add_succ_comm // in H.
+      specialize (H ˖j). rewrite -Nat.add_succ_comm // in H.
   Qed.
   Lemma Forall2i_same_length_lookup_2 l1 l2 :
     length l1 = length l2 →
@@ -965,7 +965,7 @@ Section slice.
 
   Lemma slice_cons i n x l :
     l !! i = Some x →
-    x :: slice (S i) n l = slice i (S n) l.
+    x :: slice ˖i n l = slice i ˖n l.
   Proof.
     intros Hlookup.
     rewrite -firstn_cons -drop_S //.
@@ -973,7 +973,7 @@ Section slice.
   Lemma slice_cons' i n x l :
     l !! i = Some x →
     n ≠ 0 →
-    x :: slice (S i) (n - 1) l = slice i n l.
+    x :: slice ˖i (n - 1) l = slice i n l.
   Proof.
     intros Hlookup (n' & ->)%Nat.neq_0_r.
     rewrite Nat.sub_succ right_id.
@@ -981,7 +981,7 @@ Section slice.
   Qed.
   Lemma slice_snoc i n l x :
     l !! (i + n) = Some x →
-    slice i n l ++ [x] = slice i (S n) l.
+    slice i n l ++ [x] = slice i ˖n l.
   Proof.
     intros Hlookup.
     rewrite -take_S_r // lookup_drop //.
@@ -1091,7 +1091,7 @@ Section with_slice.
   Lemma with_slice_slice_snoc i n l s x :
     i + n < length l →
     length s = n →
-    with_slice i (S n) l (s ++ [x]) = <[i + n := x]> (with_slice i n l s).
+    with_slice i ˖n l (s ++ [x]) = <[i + n := x]> (with_slice i n l s).
   Proof.
     intros.
     destruct (lookup_lt_is_Some_2 l (i + n)) as (y & Hlookup); first done.
@@ -1171,7 +1171,7 @@ Section rotation.
   Qed.
   Lemma rotation_S n x l :
     n ≤ length l →
-    rotation (S n) (x :: l) = rotation n (l ++ [x]).
+    rotation ˖n (x :: l) = rotation n (l ++ [x]).
   Proof.
     intros Hn.
     rewrite /rotation.

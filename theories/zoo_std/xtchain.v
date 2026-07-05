@@ -198,8 +198,8 @@ Section zoo_G.
     xtchain hdr dq nodes dst ⊣⊢
       xtchain hdr dq (take i nodes) #node ∗
       node ↦ₕ hdr ∗
-      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      xtchain hdr dq (drop (S i) nodes) dst.
+      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      xtchain hdr dq (drop ˖i nodes) dst.
   Proof.
     intros.
     rewrite /xtchain xchain_lookup //.
@@ -211,19 +211,19 @@ Section zoo_G.
     xtchain hdr dq nodes dst ⊢
       xtchain hdr dq (take i nodes) #node ∗
       node ↦ₕ hdr ∗
-      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      xtchain hdr dq (drop (S i) nodes) dst.
+      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      xtchain hdr dq (drop ˖i nodes) dst.
   Proof.
     intros.
     rewrite xtchain_lookup //.
   Qed.
   Lemma xtchain_lookup_2 {hdr dq nodes} i node next dst :
     nodes !! i = Some node →
-    next = from_option #@{location} dst (nodes !! S i) →
+    next = from_option #@{location} dst (nodes !! ˖i) →
     xtchain hdr dq (take i nodes) #node -∗
     node ↦ₕ hdr -∗
     node.[xtchain_next] ↦{dq} next -∗
-    xtchain hdr dq (drop (S i) nodes) dst -∗
+    xtchain hdr dq (drop ˖i nodes) dst -∗
     xtchain hdr dq nodes dst.
   Proof.
     intros. subst.
@@ -233,8 +233,8 @@ Section zoo_G.
     nodes !! i = Some node →
     xtchain hdr dq nodes dst ⊢
       node ↦ₕ hdr ∗
-      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) ∗
-      ( node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! S i) -∗
+      node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) ∗
+      ( node.[xtchain_next] ↦{dq} from_option #@{location} dst (nodes !! ˖i) -∗
         xtchain hdr dq nodes dst
       ).
   Proof.
@@ -381,7 +381,7 @@ Section zoo_G.
     }}}
       (#node).{xtchain_next} @ E
     {{{
-      RET from_option #@{location} dst (nodes !! S i);
+      RET from_option #@{location} dst (nodes !! ˖i);
       xtchain hdr dq nodes dst
     }}}.
   Proof.
@@ -429,8 +429,8 @@ Section zoo_G.
       #node <-{xtchain_next} v @ E
     {{{
       RET ();
-      xtchain hdr (DfracOwn 1) (take (S i) nodes) v ∗
-      xtchain hdr (DfracOwn 1) (drop (S i) nodes) dst
+      xtchain hdr (DfracOwn 1) (take ˖i nodes) v ∗
+      xtchain hdr (DfracOwn 1) (drop ˖i nodes) dst
     }}}.
   Proof.
     intros Hlookup.

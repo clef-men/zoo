@@ -390,7 +390,7 @@ Section zoo_G.
         l ↦{dq} v ∗
         chunk_span (l +ₗ 1) dq n
       ) ⊣⊢
-      chunk_span l dq (S n).
+      chunk_span l dq ˖n.
     Proof.
       iSplit.
       - iIntros "(%v & H↦ & (%vs & % & Hmodel))".
@@ -404,12 +404,12 @@ Section zoo_G.
     Lemma chunk_span_cons_1 l dq v n :
       l ↦{dq} v -∗
       chunk_span (l +ₗ 1) dq n -∗
-      chunk_span l dq (S n).
+      chunk_span l dq ˖n.
     Proof.
       rewrite -chunk_span_cons. iSteps.
     Qed.
     Lemma chunk_span_cons_2 l dq n :
-      chunk_span l dq (S n) ⊢
+      chunk_span l dq ˖n ⊢
         ∃ v,
         l ↦{dq} v ∗
         chunk_span (l +ₗ 1) dq n.
@@ -418,7 +418,7 @@ Section zoo_G.
     Qed.
     #[global] Instance chunk_span_cons_frame l dq v n R Q :
       Frame false R (l ↦{dq} v ∗ chunk_span (l +ₗ 1) dq n) Q →
-      Frame false R (chunk_span l dq (S n)) Q
+      Frame false R (chunk_span l dq ˖n) Q
     | 2.
     Proof.
       rewrite /Frame. setoid_rewrite <- chunk_span_cons. intros H.
@@ -753,7 +753,7 @@ Section zoo_G.
 
     Lemma chunk_cslice_cons l sz i dq v vs :
       (l +ₗ i `mod` sz) ↦{dq} v ∗
-      chunk_cslice l sz (S i) dq vs ⊣⊢
+      chunk_cslice l sz ˖i dq vs ⊣⊢
       chunk_cslice l sz i dq (v :: vs).
     Proof.
       assert (v :: vs = [v] ++ vs) as -> by done.
@@ -761,7 +761,7 @@ Section zoo_G.
     Qed.
     Lemma chunk_cslice_cons_1 l sz i dq v vs :
       (l +ₗ i `mod` sz) ↦{dq} v -∗
-      chunk_cslice l sz (S i) dq vs -∗
+      chunk_cslice l sz ˖i dq vs -∗
       chunk_cslice l sz i dq (v :: vs).
     Proof.
       rewrite -chunk_cslice_cons. iSteps.
@@ -769,7 +769,7 @@ Section zoo_G.
     Lemma chunk_cslice_cons_2 l sz i dq v vs :
       chunk_cslice l sz i dq (v :: vs) ⊢
         (l +ₗ i `mod` sz) ↦{dq} v ∗
-        chunk_cslice l sz (S i) dq vs.
+        chunk_cslice l sz ˖i dq vs.
     Proof.
       rewrite chunk_cslice_cons //.
     Qed.
@@ -1220,7 +1220,7 @@ Section zoo_G.
       iDestruct (chunk_cslice_cons with "Hcslice") as "(H↦1 & Hcslice)".
       destruct (lookup_lt_is_Some_2 vs (sz - 1)) as (v2 & Hlookup2); first lia.
       iDestruct (chunk_cslice_lookup with "Hcslice") as "H↦2"; first done.
-      replace (S i + (sz - 1)) with (i + sz) by lia.
+      replace (˖i + (sz - 1)) with (i + sz) by lia.
       rewrite -!Nat2Z.inj_mod -Nat.Div0.add_mod_idemp_r Nat.Div0.mod_same Nat.add_0_r.
       iApply (pointsto_exclusive with "H↦1 H↦2").
     Qed.

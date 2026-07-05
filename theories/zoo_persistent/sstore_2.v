@@ -404,11 +404,11 @@ Module base.
     #[local] Lemma deltas_chain_lookup {src δs dst} i δ :
       δs !! i = Some δ →
       deltas_chain src δs dst ⊢
-        deltas_chain src (take (S i) δs) δ.(delta_node) ∗
-        deltas_chain δ.(delta_node) (drop (S i) δs) dst.
+        deltas_chain src (take ˖i δs) δ.(delta_node) ∗
+        deltas_chain δ.(delta_node) (drop ˖i δs) dst.
     Proof.
       iIntros "%δs_lookup Hδs".
-      rewrite -{1}(take_drop (S i) δs).
+      rewrite -{1}(take_drop ˖i δs).
       iDestruct (deltas_chain_app_1 with "Hδs") as "Hδs".
       rewrite {2 3}(take_S_r δs i δ) // last_snoc //.
     Qed.
@@ -425,7 +425,7 @@ Module base.
         ⌝ ∗
         deltas_chain src (take i δs) node ∗
         node ↦ᵣ ‘Diff( #δ.(delta_ref), #δ.(delta_gen), δ.(delta_val), #δ.(delta_node) ) ∗
-        deltas_chain δ.(delta_node) (drop (S i) δs) dst.
+        deltas_chain δ.(delta_node) (drop ˖i δs) dst.
     Proof.
       iIntros "%Hδs_lookup Hδs".
       iDestruct (deltas_chain_lookup with "Hδs") as "(Hδs1 & Hδs2)"; first done.
@@ -795,7 +795,7 @@ Module base.
           iMod (cnodes_insert root descr_root with "Hauth") as "(Hauth & #Helem_root)"; first done.
           iSplitL; last first.
           { iSteps. iExists descr_root. iSteps. }
-          iExists l, γ, (S g), root, ς. iFrame "#∗". iStep 3.
+          iExists l, γ, ˖g, root, ς. iFrame "#∗". iStep 3.
           iSplitR; first iSteps.
           set ϵ := (root, δ :: δs).
           iExists (<[base := ϵ]> ϵs), []. iSteps; try iPureIntro.
@@ -857,7 +857,7 @@ Module base.
       wp_rec.
       iDestruct (deltas_chain_lookup i δ with "Hδs") as "(Hδs1 & Hδs2)"; first done.
       rewrite Hnode.
-      destruct (drop (S i) δs) as [| δ' δs'] eqn:Hdrop_δs.
+      destruct (drop ˖i δs) as [| δ' δs'] eqn:Hdrop_δs.
 
       - iDestruct (deltas_chain_nil_inv with "Hδs2") as %->.
         iDestruct (deltas_chain_app_2 with "Hδs1 Hδs2") as "Hδs".
@@ -867,15 +867,15 @@ Module base.
 
       - iDestruct (deltas_chain_cons_inv with "Hδs2") as "(Hδ' & Hδs2)".
         wp_load.
-        assert (δs !! S i = Some δ') as Hδs_lookup'.
-        { rewrite -(take_drop (S i) δs) Hdrop_δs lookup_app_r length_take; first lia.
+        assert (δs !! ˖i = Some δ') as Hδs_lookup'.
+        { rewrite -(take_drop ˖i δs) Hdrop_δs lookup_app_r length_take; first lia.
           rewrite Nat.min_l.
           { apply lookup_lt_Some in Hδs_lookup. lia. }
           rewrite Nat.sub_diag //.
         }
-        assert (drop (S (S i)) δs = δs') as Hdrop_δs'.
+        assert (drop ˖˖i δs = δs') as Hdrop_δs'.
         { erewrite drop_S in Hdrop_δs => //. congruence. }
-        wp_apply+ ("HLöb" $! (S i) δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
+        wp_apply+ ("HLöb" $! ˖i δ' with "[//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "Hδ' Hδs2") as "Hδs2".
           iDestruct (deltas_chain_app_2 with "Hδs1 Hδs2") as "Hδs".
           rewrite -Hdrop_δs take_drop. iSteps.
@@ -937,7 +937,7 @@ Module base.
       iDestruct (big_sepM2_lookup_acc with "Hcnodes") as "((%descr_cnode' & %Hcnodes_lookup' & (%Hcnode_store_dom & %Hcnode_store_gen) & #Helem_cnode & %H𝝳s_nodup & %H𝝳s & H𝝳s) & Hcnodes)"; [done.. |].
       iDestruct (deltas_chain_lookup i 𝝳 with "H𝝳s") as "(H𝝳s1 & H𝝳s2)"; first done.
       rewrite Hnode /=.
-      destruct (drop (S i) 𝝳s) as [| 𝝳' 𝝳s'] eqn:Hdrop_𝝳s.
+      destruct (drop ˖i 𝝳s) as [| 𝝳' 𝝳s'] eqn:Hdrop_𝝳s.
 
       - iDestruct (deltas_chain_nil_inv with "H𝝳s2") as %->.
         iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
@@ -947,15 +947,15 @@ Module base.
 
       - iDestruct (deltas_chain_cons_inv with "H𝝳s2") as "(H𝝳' & H𝝳s2)".
         wp_rec. wp_load.
-        assert (𝝳s !! S i = Some 𝝳') as H𝝳s_lookup'.
-        { rewrite -(take_drop (S i) 𝝳s) Hdrop_𝝳s lookup_app_r length_take; first lia.
+        assert (𝝳s !! ˖i = Some 𝝳') as H𝝳s_lookup'.
+        { rewrite -(take_drop ˖i 𝝳s) Hdrop_𝝳s lookup_app_r length_take; first lia.
           rewrite Nat.min_l.
           { apply lookup_lt_Some in H𝝳s_lookup. lia. }
           rewrite Nat.sub_diag //.
         }
-        assert (drop (S (S i)) 𝝳s = 𝝳s') as Hdrop_𝝳s'.
+        assert (drop ˖˖i 𝝳s = 𝝳s') as Hdrop_𝝳s'.
         { erewrite drop_S in Hdrop_𝝳s => //. congruence. }
-        wp_apply+ ("HLöb" $! (S i) 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
+        wp_apply+ ("HLöb" $! ˖i 𝝳' with "[//] [//] [//] [//] [- HΦ]") as (acc') "(Hinv & %Hacc')".
         { iDestruct (deltas_chain_cons with "H𝝳' H𝝳s2") as "H𝝳s2".
           iDestruct (deltas_chain_app_2 with "H𝝳s1 H𝝳s2") as "H𝝳s".
           iFrame "Hspec".
@@ -1477,7 +1477,7 @@ Module base.
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
           iApply "HΦ".
-          iExists l, γ, (S g'), base, descr.(descriptor_store). unshelve iStep 8.
+          iExists l, γ, ˖g', base, descr.(descriptor_store). unshelve iStep 8.
           { iPureIntro. split; first done.
             eapply store_generation_le; last done. naive_solver.
           }
@@ -1503,7 +1503,7 @@ Module base.
           { iFrame "#∗". iSteps. }
           do 2 wp_store.
           iApply "HΦ".
-          iExists l, γ, (S g'), base', descr'.(descriptor_store). unshelve iStep 8.
+          iExists l, γ, ˖g', base', descr'.(descriptor_store). unshelve iStep 8.
           { iPureIntro. split; first done.
             eapply store_generation_le; last done. naive_solver.
           }

@@ -257,7 +257,7 @@ Section zoo_G.
     iDestruct (xdlchain_lookup with "Hnodes") as "(Hnodes1 & Hnode_prev & Hnode_next & Hnodes2)"; first done.
 
     set nodes1 := take i nodes.
-    set nodes2 := drop (S i) nodes.
+    set nodes2 := drop ˖i nodes.
     set nodes' := nodes1 ++ nodes2.
 
     wp_bind (_ <-{xdeque_next} _)%E.
@@ -286,7 +286,7 @@ Section zoo_G.
         wp_store.
         iDestruct (xdlchain_cons_2 with "Hnode2_prev Hnode2_next Hnodes2") as "Hnodes2".
         iSteps. iPureIntro.
-        rewrite -(take_drop (S i) nodes) -/nodes2 /nodes' Hnodes2 !last_app_cons //.
+        rewrite -(take_drop ˖i nodes) -/nodes2 /nodes' Hnodes2 !last_app_cons //.
     }
 
     iDestruct (xdlchain_app_2 with "Hnodes1 Hnodes2") as "Hnodes".
@@ -330,9 +330,9 @@ Section zoo_G.
       { erewrite take_drop_middle => //. }
       wp_load.
       iEval (rewrite from_option_default).
-      wp_apply ("HLöb" $! (S i) with "[%] [HΨ] Hprev Hnext (Hnodes Hnode_prev Hnode_next) HΦ").
+      wp_apply ("HLöb" $! ˖i with "[%] [HΨ] Hprev Hnext (Hnodes Hnode_prev Hnode_next) HΦ").
       { rewrite head_drop.
-        destruct (nodes !! S i) as [node' |] eqn:Hlookup'.
+        destruct (nodes !! ˖i) as [node' |] eqn:Hlookup'.
         - erewrite lookup_app_l_Some => //.
         - apply length_lookup_last in Hlookup'; last done.
           rewrite list_lookup_middle //.

@@ -157,7 +157,7 @@ Section zoo_G.
         ⌜i < ₊sz ∧ i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ (S i) (vs ++ [v])
+          ▷ Ψ ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -205,7 +205,7 @@ Section zoo_G.
         ⌜i = length vs⌝ -∗
         Ψ i vs -∗
         WP fn #i {{ v,
-          ▷ Ψ (S i) (vs ++ [v])
+          ▷ Ψ ˖i (vs ++ [v])
         }}
       )
     }}}
@@ -652,7 +652,7 @@ Section zoo_G.
     rewrite Nat.sub_diag /=.
     wp_store. wp_load.
     iApply "HΦ".
-    iExists l, data, elems, (S extra). iSteps.
+    iExists l, data, elems, ˖extra. iSteps.
   Qed.
 
   Lemma dynarray_2٠fit_capacity𑁒spec t vs :
@@ -707,7 +707,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -751,7 +751,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn #i v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -844,7 +844,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}
@@ -868,7 +868,7 @@ Section zoo_G.
         Ψ i (take i vs) -∗
         WP fn v {{ res,
           ⌜res = ()%V⌝ ∗
-          ▷ Ψ (S i) (take i vs ++ [v])
+          ▷ Ψ ˖i (take i vs ++ [v])
         }}
       )
     }}}

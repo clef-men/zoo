@@ -66,8 +66,8 @@ Section big_unionL.
     apply elem_of_union in Hx as [Hx | Hx].
     - exists 0, x. done.
     - setoid_rewrite Nat.add_succ_r in Hx.
-      specialize (IH (S n) Hx) as (i & x' & ? & ?).
-      exists (S i), x'. split.
+      specialize (IH ˖n Hx) as (i & x' & ? & ?).
+      exists ˖i, x'. split.
       + rewrite lookup_cons //.
       + rewrite Nat.add_succ_r //.
   Qed.

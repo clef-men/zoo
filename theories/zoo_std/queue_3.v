@@ -248,7 +248,7 @@ Section zoo_G.
     wp_apply (array٠unsafe_cset𑁒spec_cell with "Hcell") as "Hcell"; first done.
     iDestruct (array_cslice_app_1 with "Hvs Hcell") as "Hvs"; first done.
     wp_store.
-    replace (back + 1)%Z with ⁺(S back) by lia.
+    replace (back + 1)%Z with ⁺˖back by lia.
     iSteps; iPureIntro; simpl_length/=; lia.
   Qed.
 
@@ -307,7 +307,7 @@ Section zoo_G.
       { simpl_length. lia. }
       rewrite -replicate_S_end.
       wp_apply+ (queue_3٠shrink𑁒spec _ vs with "[-HΦ]") as "Hmodel".
-      { iExists (S extra). iFrameSteps. }
+      { iExists ˖extra. iFrameSteps. }
       wp_pures.
       iApply ("HΦ" with "Hmodel").
   Qed.
@@ -349,7 +349,7 @@ Section zoo_G.
       iDestruct (array_cslice_cons_2' with "Hcell Hextra") as "Hextra"; first lia.
       rewrite -replicate_S.
       wp_apply+ (queue_3٠shrink𑁒spec _ vs with "[-HΦ]") as "Hmodel".
-      { iExists (S extra). iFrameSteps. }
+      { iExists ˖extra. iFrameSteps. }
       wp_pures.
       iApply ("HΦ" $! (Some v)).
       iFrameSteps.
