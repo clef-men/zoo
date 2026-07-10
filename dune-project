@@ -28,56 +28,10 @@
 )
 
 (package
-  (name zoo_persistent)
-  (synopsis "Persistent and semi-persistent data structures")
-  (depends
-    zoo_std
-  )
-)
-
-(package
-  (name zoo_saturn)
-  (synopsis "Saturn")
-  (depends
-    zoo
-    zoo_std
-  )
-)
-
-(package
-  (name zoo_parabs)
-  (synopsis "Parabs")
-  (depends
-    zoo
-    zoo_std
-    zoo_saturn
-    ; benchmark dependencies
-    (domainslib :with-dev-setup)
-    (moonpool :with-dev-setup)
-  )
-)
-
-(package
-  (name zoo_eio)
-  (synopsis "Eio")
-  (depends
-    zoo_std
-  )
-)
-
-(package
   (name zoo_mcas)
   (synopsis "Multi-word compare-and-set")
   (depends
     zoo
-    zoo_std
-  )
-)
-
-(package
-  (name zoo_partition)
-  (synopsis "Partition")
-  (depends
     zoo_std
   )
 )

@@ -1,8 +1,0 @@
-(library
-  (name zoo_partition)
-  (public_name zoo_partition)
-  (libraries
-    zoo_std
-  )
-  (flags (:standard -open Zoo_std))
-)
