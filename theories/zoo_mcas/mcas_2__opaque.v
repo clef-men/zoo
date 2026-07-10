@@ -3,4 +3,4 @@ From zoo_mcas Require Import
 
 #[global] Opaque mcas_2٠make.
 #[global] Opaque mcas_2٠get.
-#[global] Opaque mcas_2٠cas.
+#[global] Opaque mcas_2٠mcas.

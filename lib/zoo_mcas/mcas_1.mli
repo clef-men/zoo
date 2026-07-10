@@ -6,5 +6,5 @@ val make :
 val get :
   'a loc -> 'a
 
-val cas :
+val mcas :
   ('a loc * 'a * 'a) list -> bool

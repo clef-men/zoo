@@ -174,7 +174,7 @@ Definition mcas_2٠get : val :=
   fun: "loc" =>
     mcas_2٠eval !"loc".
 
-Definition mcas_2٠cas_2 : val :=
+Definition mcas_2٠mcas_2 : val :=
   fun: "cmps" "cass" =>
     let: "casn" := { §After, Proph } in
     let: "cass" :=
@@ -188,21 +188,21 @@ Definition mcas_2٠cas_2 : val :=
     "casn" <-{status} ‘Undetermined@[ "cmps", "cass" ] ;;
     mcas_2٠determine_as "casn" "cass".
 
-Definition mcas_2٠cas_1 : val :=
-  rec: "cas_1" "acc" "cmps" "cass" =>
+Definition mcas_2٠mcas_1 : val :=
+  rec: "mcas_1" "acc" "cmps" "cass" =>
     match: "cmps" with
     | [] =>
-        mcas_2٠cas_2 (list٠rev "acc") "cass"
+        mcas_2٠mcas_2 (list٠rev "acc") "cass"
     | "cmp" :: "cmps" =>
         let: "loc", "expected" := "cmp" in
         let: "state" := !"loc" in
         if: mcas_2٠eval "state" == "expected" then (
-          "cas_1" (("loc", "state") :: "acc") "cmps" "cass"
+          "mcas_1" (("loc", "state") :: "acc") "cmps" "cass"
         ) else (
           false
         )
     end.
 
-Definition mcas_2٠cas : val :=
+Definition mcas_2٠mcas : val :=
   fun: "cmps" "cass" =>
-    mcas_2٠cas_1 [] "cmps" "cass".
+    mcas_2٠mcas_1 [] "cmps" "cass".

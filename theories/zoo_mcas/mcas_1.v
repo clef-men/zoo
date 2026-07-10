@@ -2182,7 +2182,7 @@ Section mcas_1_G.
     iApply (lc_fupd_elim_later with "H£2 HΦ").
   Qed.
 
-  Lemma mcas_1٠cas𑁒spec {ι 𝑠𝑝𝑒𝑐} locs befores afters :
+  Lemma mcas_1٠mcas𑁒spec {ι 𝑠𝑝𝑒𝑐} locs befores afters :
     length locs = length befores →
     length locs = length afters →
     NoDup locs →
@@ -2192,7 +2192,7 @@ Section mcas_1_G.
     | ∀∀ vs,
       [∗ list] loc; v ∈ locs; vs, mcas_1_loc_model loc v
     >>>
-      mcas_1٠cas 𝑠𝑝𝑒𝑐 @ ↑ι
+      mcas_1٠mcas 𝑠𝑝𝑒𝑐 @ ↑ι
     <<<
       ∃∃ b,
       if b then

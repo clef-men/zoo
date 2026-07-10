@@ -161,7 +161,7 @@ Definition mcas_1٠get : val :=
   fun: "loc" =>
     mcas_1٠eval !"loc".
 
-Definition mcas_1٠cas : val :=
+Definition mcas_1٠mcas : val :=
   fun: "cass" =>
     let: "casn" := { §After, Proph } in
     let: "cass" :=

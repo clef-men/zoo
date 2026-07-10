@@ -99,7 +99,7 @@ let make v =
 let get loc =
   eval (Atomic.get loc)
 
-let cas cass =
+let mcas cass =
   let casn = { status= After; proph= Zoo.proph () } in
   let cass =
     cass |> List.map @@ fun cas ->

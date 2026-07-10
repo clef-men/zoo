@@ -111,7 +111,7 @@ let make v =
 let get loc =
   eval (Atomic.get loc)
 
-let cas_2 cmps cass =
+let mcas_2 cmps cass =
   let casn = { status= After; proph= Zoo.proph () } in
   let cass =
     cass |> List.map @@ fun cas ->
@@ -121,16 +121,16 @@ let cas_2 cmps cass =
   in
   casn.status <- Undetermined { cmps; cass } ;
   determine_as casn cass
-let rec cas_1 acc cmps cass =
+let rec mcas_1 acc cmps cass =
   match cmps with
   | [] ->
-      cas_2 (List.rev acc) cass
+      mcas_2 (List.rev acc) cass
   | cmp :: cmps ->
       let loc, expected = cmp in
       let state = Atomic.get loc in
       if eval state == expected then
-        cas_1 ({ loc; state } :: acc) cmps cass
+        mcas_1 ({ loc; state } :: acc) cmps cass
       else
         false
-let cas cmps cass =
-  cas_1 [] cmps cass
+let mcas cmps cass =
+  mcas_1 [] cmps cass
