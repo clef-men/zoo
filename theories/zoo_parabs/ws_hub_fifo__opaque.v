@@ -1,3 +1,2 @@
-From zoo_parabs Require Import
-  ws_hub_fifo__code.
+Require Import zoo_parabs.ws_hub_fifo__code.
 

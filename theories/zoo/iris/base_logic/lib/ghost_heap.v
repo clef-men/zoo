@@ -1,23 +1,15 @@
-From stdpp Require Import
-  namespaces.
+Require Import stdpp.namespaces.
 
-From iris.algebra Require Import
-  reservation_map
-  agree
-  frac.
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.algebra.reservation_map.
+Require Import iris.algebra.agree.
+Require Import iris.algebra.frac.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Implicit Types η : gname.
 

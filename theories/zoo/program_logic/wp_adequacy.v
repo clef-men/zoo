@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.iris Require Import
-  diaframe.
-From zoo.program_logic Require Export
-  bwp_adequacy
-  wp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.diaframe.
+Require Export zoo.program_logic.bwp_adequacy.
+Require Export zoo.program_logic.wp.
+Require Import zoo.options.
 
 Implicit Types e : expr.
 Implicit Types v : val.

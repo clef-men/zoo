@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  dynarray_2__code.
+Require Import zoo_std.dynarray_2__code.
 
 #[global] Opaque dynarray_2٠create.
 #[global] Opaque dynarray_2٠make.

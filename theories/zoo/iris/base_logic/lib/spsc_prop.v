@@ -1,19 +1,12 @@
-From iris.base_logic Require Import
-  lib.invariants.
+Require Import iris.base_logic.lib.invariants.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.oneshot.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class SpscPropG Σ `{inv_G : !invGS Σ} :=
   { #[local] spsc_prop_G_state_G :: OneshotG Σ () ()

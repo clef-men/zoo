@@ -1,25 +1,15 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  array.
-From zoo_persistent Require Export
-  base
-  sarray__code.
-From zoo_persistent Require Import
-  sarray__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.array.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.sarray__code.
+Require Import zoo_persistent.sarray__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types l node root : location.
@@ -454,8 +444,7 @@ Section sarray_G.
   Qed.
 End sarray_G.
 
-From zoo_persistent Require
-  sarray__opaque.
+Require zoo_persistent.sarray__opaque.
 
 #[global] Opaque sarray_model.
 #[global] Opaque sarray_snapshot.

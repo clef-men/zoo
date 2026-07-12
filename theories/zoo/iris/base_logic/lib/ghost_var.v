@@ -1,14 +1,9 @@
-From iris.algebra Require Import
-  dfrac_agree.
+Require Import iris.algebra.lib.dfrac_agree.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class GhostVarG Σ F :=
   { #[local] ghost_var_G_inG :: inG Σ (dfrac_agreeR $ oFunctor_apply F $ iPropO Σ)

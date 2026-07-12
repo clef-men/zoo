@@ -1,3 +1,2 @@
-From zoo_std Require Import
-  xtdlchain__code.
+Require Import zoo_std.xtdlchain__code.
 

@@ -1,13 +1,9 @@
-From Stdlib.Logic Require Import
-  FunctionalExtensionality.
+Require Import Stdlib.Logic.FunctionalExtensionality.
 
-From stdpp Require Export
-  functions.
+Require Export stdpp.functions.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Definition funeq {A B} (f1 f2 : A → B) :=
   ∀ x,

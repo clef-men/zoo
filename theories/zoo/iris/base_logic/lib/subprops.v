@@ -1,16 +1,10 @@
-From iris.base_logic Require Import
-  lib.fancy_updates.
+Require Import iris.base_logic.lib.fancy_updates.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.subpreds.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.subpreds.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Implicit Types state : bool.
 

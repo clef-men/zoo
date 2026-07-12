@@ -1,11 +1,8 @@
-From Ltac2 Require Export
-  Array
-  Init.
+Require Export Ltac2.Array.
+Require Export Ltac2.Init.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Ltac2 foldr :=
   fold_right.

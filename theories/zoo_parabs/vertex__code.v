@@ -1,18 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  pool.
-From zoo_saturn Require Import
-  mpmc_stack_2.
-From zoo_std Require Import
-  clist.
-From zoo_parabs Require Import
-  vertex__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.pool.
+Require Import zoo_saturn.mpmc_stack_2.
+Require Import zoo_std.clist.
+Require Import zoo_parabs.vertex__types.
+Require Import zoo.options.
 
 Definition vertex٠create : val :=
   fun: "task" =>

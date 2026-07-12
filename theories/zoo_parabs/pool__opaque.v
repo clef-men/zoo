@@ -1,5 +1,4 @@
-From zoo_parabs Require Import
-  pool__code.
+Require Import zoo_parabs.pool__code.
 
 #[global] Opaque pool٠create.
 #[global] Opaque pool٠run_on.

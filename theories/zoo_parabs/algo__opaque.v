@@ -1,5 +1,4 @@
-From zoo_parabs Require Import
-  algo__code.
+Require Import zoo_parabs.algo__code.
 
 #[global] Opaque algo٠for_.
 #[global] Opaque algo٠for_each.

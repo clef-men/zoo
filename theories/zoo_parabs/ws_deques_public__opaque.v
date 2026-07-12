@@ -1,3 +1,2 @@
-From zoo_parabs Require Import
-  ws_deques_public__code.
+Require Import zoo_parabs.ws_deques_public__code.
 

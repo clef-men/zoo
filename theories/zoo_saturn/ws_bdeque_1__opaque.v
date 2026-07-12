@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  ws_bdeque_1__code.
+Require Import zoo_saturn.ws_bdeque_1__code.
 
 #[global] Opaque ws_bdeque_1٠create.
 #[global] Opaque ws_bdeque_1٠capacity.

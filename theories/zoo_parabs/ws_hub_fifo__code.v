@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  waiters.
-From zoo_saturn Require Import
-  mpmc_queue_1.
-From zoo_parabs Require Import
-  ws_hub_fifo__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.waiters.
+Require Import zoo_saturn.mpmc_queue_1.
+Require Import zoo_parabs.ws_hub_fifo__types.
+Require Import zoo.options.
 
 Definition ws_hub_fifo٠create : val :=
   fun: "sz" =>

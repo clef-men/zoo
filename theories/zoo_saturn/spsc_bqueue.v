@@ -1,28 +1,19 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  relations
-  list.
-From zoo.iris.base_logic Require Import
-  lib.twins
-  lib.auth_twins
-  lib.auth_nat_max
-  lib.mono_list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  array.
-From zoo_saturn Require Export
-  base
-  spsc_bqueue__code.
-From zoo_saturn Require Import
-  spsc_bqueue__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.relations.
+Require Import zoo.common.list.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.auth_twins.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.array.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.spsc_bqueue__code.
+Require Import zoo_saturn.spsc_bqueue__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types i front front_cache back back_cache : nat.
@@ -1119,8 +1110,7 @@ Section spsc_bqueue_G.
   Qed.
 End spsc_bqueue_G.
 
-From zoo_saturn Require
-  spsc_bqueue__opaque.
+Require zoo_saturn.spsc_bqueue__opaque.
 
 #[global] Opaque spsc_bqueue_inv.
 #[global] Opaque spsc_bqueue_model.

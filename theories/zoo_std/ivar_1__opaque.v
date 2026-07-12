@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  ivar_1__code.
+Require Import zoo_std.ivar_1__code.
 
 #[global] Opaque ivar_1٠create.
 #[global] Opaque ivar_1٠make.

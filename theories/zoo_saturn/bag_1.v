@@ -1,25 +1,16 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset
-  list.
-From zoo.iris.base_logic Require Import
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  goption
-  array.
-From zoo_saturn Require Export
-  base
-  bag_1__code.
-From zoo_saturn Require Import
-  bag_1__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.common.list.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.goption.
+Require Import zoo_std.array.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.bag_1__code.
+Require Import zoo_saturn.bag_1__types.
+Require Import zoo.options.
 
 Implicit Types front back : nat.
 Implicit Types l slot : location.
@@ -456,8 +447,7 @@ Section bag_1_G.
   Qed.
 End bag_1_G.
 
-From zoo_saturn Require
-  bag_1__opaque.
+Require zoo_saturn.bag_1__opaque.
 
 #[global] Opaque bag_1_inv.
 #[global] Opaque bag_1_model.

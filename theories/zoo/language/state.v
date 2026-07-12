@@ -1,15 +1,10 @@
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From iris.algebra Require Import
-  ofe.
+Require Import iris.algebra.ofe.
 
-From zoo Require Import
-  prelude.
-From zoo.language Require Export
-  syntax.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.language.syntax.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types v w : val.

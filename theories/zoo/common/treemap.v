@@ -1,10 +1,7 @@
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Section treemap_rooted.
   Context {N} `{Countable N} {E : Type}.

@@ -1,27 +1,17 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.ghost_var.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  for_
-  mvar
-  option.
-From zoo_parabs Require Export
-  base
-  algo__code.
-From zoo_parabs Require Import
-  future
-  pool.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.ghost_var.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.for_.
+Require Import zoo_std.mvar.
+Require Import zoo_std.option.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.algo__code.
+Require Import zoo_parabs.future.
+Require Import zoo_parabs.pool.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v pool ctx task pred found body op zero acc : val.
@@ -1249,5 +1239,4 @@ Section algo_G.
   Qed.
 End algo_G.
 
-From zoo_parabs Require
-  algo__opaque.
+Require zoo_parabs.algo__opaque.

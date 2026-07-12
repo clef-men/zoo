@@ -1,13 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Export
-  typeclasses
-  math
-  list.
-From zoo.language Require Export
-  syntax.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.common.typeclasses.
+Require Export zoo.common.math.
+Require Export zoo.common.list.
+Require Export zoo.language.syntax.
+Require Import zoo.options.
 
 Implicit Types i tag : nat.
 Implicit Types n : Z.

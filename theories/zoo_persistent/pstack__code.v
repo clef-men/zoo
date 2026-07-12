@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  list.
-From zoo_persistent Require Import
-  pstack__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.list.
+Require Import zoo_persistent.pstack__types.
+Require Import zoo.options.
 
 Definition pstack٠empty : val :=
   [].

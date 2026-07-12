@@ -1,22 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.oneshot
-  lib.excl.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  mpsc_waiter__code.
-From zoo_std Require Import
-  condition
-  mpsc_waiter__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.mpsc_waiter__code.
+Require Import zoo_std.condition.
+Require Import zoo_std.mpsc_waiter__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types 𝑡 : location.
@@ -323,8 +315,7 @@ Section mpsc_waiter_G.
   Qed.
 End mpsc_waiter_G.
 
-From zoo_std Require
-  mpsc_waiter__opaque.
+Require zoo_std.mpsc_waiter__opaque.
 
 #[global] Opaque mpsc_waiter_inv.
 #[global] Opaque mpsc_waiter_consumer.

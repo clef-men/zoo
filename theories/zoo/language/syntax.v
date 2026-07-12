@@ -1,20 +1,13 @@
-From stdpp Require Import
-  countable.
+Require Import stdpp.countable.
 
-From iris.algebra Require Import
-  ofe.
+Require Import iris.algebra.ofe.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  list.
-From zoo.common Require Export
-  binder.
-From zoo.language Require Export
-  location.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.list.
+Require Export zoo.common.binder.
+Require Export zoo.language.location.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types i tag : nat.

@@ -1,34 +1,24 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  function
-  relations.
-From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.twins
-  lib.auth_twins
-  lib.auth_nat_max
-  lib.mono_list.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Import
-  identifier
-  prophet_identifier
-  prophet_multi.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  domain
-  inf_array
-  option.
-From zoo_saturn Require Export
-  base
-  inf_ws_deque_1__code.
-From zoo_saturn Require Import
-  inf_ws_deque_1__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.function.
+Require Import zoo.common.relations.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.auth_twins.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.language.notations.
+Require Import zoo.program_logic.identifier.
+Require Import zoo.program_logic.prophet_identifier.
+Require Import zoo.program_logic.prophet_multi.
+Require Import zoo.diaframe.
+Require Import zoo_std.domain.
+Require Import zoo_std.inf_array.
+Require Import zoo_std.option.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.inf_ws_deque_1__code.
+Require Import zoo_saturn.inf_ws_deque_1__types.
+Require Import zoo.options.
 
 Implicit Types front back : nat.
 Implicit Types id : prophet_id.
@@ -1903,8 +1893,7 @@ Module base.
   #[global] Opaque inf_ws_deque_1_owner.
 End base.
 
-From zoo_saturn Require
-  inf_ws_deque_1__opaque.
+Require zoo_saturn.inf_ws_deque_1__opaque.
 
 Section inf_ws_deque_1_G.
   Context `{inf_ws_deque_1_G : InfWsDeque1G Σ}.

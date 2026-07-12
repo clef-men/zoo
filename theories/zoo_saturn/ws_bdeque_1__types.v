@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  array
-  domain.
-From zoo Require Import
-  identifier.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.array.
+Require Import zoo_std.domain.
+Require Import zoo.program_logic.identifier.
+Require Import zoo.options.
 
 Notation "'capacity'" := (
   in_type "zoo_saturn.ws_bdeque_1.t" 0

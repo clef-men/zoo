@@ -1,33 +1,23 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.ghost_var
-  lib.ghost_pred
-  lib.ghost_list
-  lib.oneshot
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  array
-  atomic_array
-  queue_3
-  domain
-  random_round.
-From zoo_parabs Require Export
-  base
-  ws_deques_private__code.
-From zoo_parabs Require Import
-  ws_deques_private__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.ghost_var.
+Require Import zoo.iris.base_logic.lib.ghost_pred.
+Require Import zoo.iris.base_logic.lib.ghost_list.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.array.
+Require Import zoo_std.atomic_array.
+Require Import zoo_std.queue_3.
+Require Import zoo_std.domain.
+Require Import zoo_std.random_round.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.ws_deques_private__code.
+Require Import zoo_parabs.ws_deques_private__types.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types v t queue round : val.
@@ -1489,5 +1479,4 @@ Section ws_deques_private_G.
   Qed.
 End ws_deques_private_G.
 
-From zoo_parabs Require
-  ws_deques_private__opaque.
+Require zoo_parabs.ws_deques_private__opaque.

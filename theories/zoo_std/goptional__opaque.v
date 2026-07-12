@@ -1,3 +1,2 @@
-From zoo_std Require Import
-  goptional__code.
+Require Import zoo_std.goptional__code.
 

@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  goption__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.goption__types.
+Require Import zoo.options.
 
 Implicit Types o : option val.
 Implicit Types v : val.

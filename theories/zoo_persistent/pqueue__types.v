@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  list.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.list.
+Require Import zoo.options.
 
 Notation "'front'" := (
   in_type "zoo_persistent.pqueue.t" 0

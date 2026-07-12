@@ -1,13 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  clist
-  domain.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.clist.
+Require Import zoo_std.domain.
+Require Import zoo.options.
 
 Notation "'front'" := (
   in_type "zoo_saturn.mpsc_queue_3.t" 0

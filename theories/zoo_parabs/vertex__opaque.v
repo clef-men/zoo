@@ -1,5 +1,4 @@
-From zoo_parabs Require Import
-  vertex__code.
+Require Import zoo_parabs.vertex__code.
 
 #[global] Opaque vertex٠create.
 #[global] Opaque vertex٠create'.

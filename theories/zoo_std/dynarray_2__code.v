@@ -1,17 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  diverge
-  array
-  assume
-  int.
-From zoo_std Require Import
-  dynarray_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.diverge.
+Require Import zoo_std.array.
+Require Import zoo_std.assume.
+Require Import zoo_std.int.
+Require Import zoo_std.dynarray_2__types.
+Require Import zoo.options.
 
 Definition dynarray_2٠element : val :=
   fun: "v" =>

@@ -1,28 +1,18 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset
-  relations.
-From zoo.iris.base_logic Require Import
-  lib.auth_gmultiset
-  lib.auth_mono.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  spsc_waiter.
-From unix Require Import
-  unix.
-From zoo_eio Require Export
-  base
-  rcfd__code.
-From zoo_eio Require Import
-  rcfd__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.common.relations.
+Require Import zoo.iris.base_logic.lib.auth_gmultiset.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.spsc_waiter.
+Require Import unix.unix.
+Require Export zoo_eio.base.
+Require Export zoo_eio.rcfd__code.
+Require Import zoo_eio.rcfd__types.
+Require Import zoo.options.
 
 Implicit Types b owned closing : bool.
 Implicit Types ops : Z.
@@ -1638,8 +1628,7 @@ Section rcfd_G.
   Qed.
 End rcfd_G.
 
-From zoo_eio Require
-  rcfd__opaque.
+Require zoo_eio.rcfd__opaque.
 
 #[global] Opaque rcfd_inv.
 #[global] Opaque rcfd_owner.

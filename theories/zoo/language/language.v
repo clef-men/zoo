@@ -1,9 +1,6 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Export
-  semantics.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.language.semantics.
+Require Import zoo.options.
 
 Implicit Types e : expr.
 Implicit Types es : list expr.

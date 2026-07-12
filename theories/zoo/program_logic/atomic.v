@@ -1,13 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.iris Require Import
-  diaframe.
-From zoo.iris.bi Require Export
-  lib.atomic.
-From zoo.program_logic Require Export
-  wp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.diaframe.
+Require Export zoo.iris.bi.lib.atomic.
+Require Export zoo.program_logic.wp.
+Require Import zoo.options.
 
 Section atomic_acc.
   Context `{BiFUpd PROP} {TA TB : tele}.

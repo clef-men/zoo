@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  sarray__code.
+Require Import zoo_persistent.sarray__code.
 
 #[global] Opaque sarray٠make.
 #[global] Opaque sarray٠get.

@@ -1,8 +1,6 @@
-From Stdlib.Program Require Import
-  Tactics.
+Require Import Stdlib.Program.Tactics.
 
-From zoo Require Import
-  prelude.
+Require Import zoo.prelude.
 
 Ltac done :=
   stdpp.tactics.done.

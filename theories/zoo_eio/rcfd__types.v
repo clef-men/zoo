@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From unix Require Import
-  unix.
-From zoo_std Require Import
-  spsc_waiter.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import unix.unix.
+Require Import zoo_std.spsc_waiter.
+Require Import zoo.options.
 
 Notation "'Open'" := (
   in_type "zoo_eio.rcfd.state" 0

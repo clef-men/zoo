@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  mpsc_waiter__code.
+Require Import zoo_std.mpsc_waiter__code.
 
 #[global] Opaque mpsc_waiter٠create.
 #[global] Opaque mpsc_waiter٠notify.

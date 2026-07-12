@@ -1,13 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_boxroot Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_boxroot.base.
+Require Import zoo.options.
 
 Implicit Types ofs : nat.
 Implicit Types l root : location.

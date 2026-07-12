@@ -1,15 +1,10 @@
-From stdpp Require Export
-  strings.
-From stdpp Require Import
-  pretty.
+Require Export stdpp.strings.
+Require Import stdpp.pretty.
 
-From iris.proofmode Require Import
-  base.
-From zoo.iris.proofmode Require Import
-  tokens
-  sel_patterns.
-From iris.prelude Require Import
-  options.
+Require Import iris.proofmode.base.
+Require Import zoo.iris.proofmode.tokens.
+Require Import zoo.iris.proofmode.sel_patterns.
+Require Import iris.prelude.options.
 
 Inductive gallina_ident :=
   | IGallinaNamed : string → gallina_ident

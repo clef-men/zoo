@@ -1,31 +1,23 @@
-From stdpp Require Import
-  namespaces
-  hlist
-  pretty.
+Require Import stdpp.namespaces.
+Require Import stdpp.hlist.
+Require Import stdpp.pretty.
 
-From iris.bi Require Export
-  bi
-  telescopes.
-From iris.proofmode Require Import
-  base
-  spec_patterns
-  reduction
-  string_ident.
-From iris.proofmode Require Export
-  classes
-  notation.
+Require Export iris.bi.bi.
+Require Export iris.bi.telescopes.
+Require Import iris.proofmode.base.
+Require Import iris.proofmode.spec_patterns.
+Require Import iris.proofmode.reduction.
+Require Import iris.proofmode.string_ident.
+Require Export iris.proofmode.classes.
+Require Export iris.proofmode.notation.
 
-From zoo.ltac2 Require
-  Ident.
-From zoo.common Require Import
-  format.
-From zoo.iris.proofmode Require Import
-  coq_tactics
-  intro_patterns
-  sel_patterns.
+Require zoo.ltac2.Ident.
+Require Import zoo.common.format.
+Require Import zoo.iris.proofmode.coq_tactics.
+Require Import zoo.iris.proofmode.intro_patterns.
+Require Import zoo.iris.proofmode.sel_patterns.
 
-From iris.prelude Require Import
-  options.
+Require Import iris.prelude.options.
 
 Export ident.
 

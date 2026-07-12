@@ -1,21 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  list.
-From zoo_persistent Require Export
-  base
-  pqueue__code.
-From zoo_persistent Require Import
-  pqueue__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.list.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.pqueue__code.
+Require Import zoo_persistent.pqueue__types.
+Require Import zoo.options.
 
 Implicit Types v t : val.
 Implicit Types back front : list val.
@@ -116,7 +108,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_persistent Require
-  pqueue__opaque.
+Require zoo_persistent.pqueue__opaque.
 
 #[global] Opaque pqueue_model.

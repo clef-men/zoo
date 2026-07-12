@@ -1,18 +1,11 @@
-From iris.base_logic Require Import
-  lib.invariants.
+Require Import iris.base_logic.lib.invariants.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  wp.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.wp.
+Require Import zoo.diaframe.
+Require Import zoo.options.
 
 Definition zoo_counter٠incr : val :=
   fun: <> =>

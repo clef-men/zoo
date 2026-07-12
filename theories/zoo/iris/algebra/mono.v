@@ -1,12 +1,8 @@
-From iris.algebra Require Export
-  cmra.
-From iris.algebra Require Import
-  local_updates.
+Require Export iris.algebra.cmra.
+Require Import iris.algebra.local_updates.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Definition mono `(R : relation A) : Type :=
   list A.

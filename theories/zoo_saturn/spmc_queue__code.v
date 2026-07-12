@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  domain.
-From zoo_saturn Require Import
-  spmc_queue__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.domain.
+Require Import zoo_saturn.spmc_queue__types.
+Require Import zoo.options.
 
 Definition spmc_queue٠create : val :=
   fun: <> =>

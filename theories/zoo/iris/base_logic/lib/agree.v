@@ -1,14 +1,9 @@
-From iris.algebra Require Import
-  agree.
+Require Import iris.algebra.agree.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class AgreeG Σ F :=
   { #[local] agree_G_inG :: inG Σ (agreeR $ oFunctor_apply F $ iPropO Σ)

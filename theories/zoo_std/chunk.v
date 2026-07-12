@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list
-  math.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.common.math.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Import zoo.options.
 
 Implicit Types i n : nat.
 Implicit Types l : location.

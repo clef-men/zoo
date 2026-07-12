@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  future
-  pool.
-From examples Require Import
-  future_fibonacci__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.future.
+Require Import zoo_parabs.pool.
+Require Import examples.future_fibonacci__types.
+Require Import zoo.options.
 
 Definition future_fibonacci٠main₀ : val :=
   rec: "main" "ctx" "n" =>

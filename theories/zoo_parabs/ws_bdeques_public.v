@@ -1,22 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  array
-  random_round.
-From zoo_saturn Require Import
-  ws_bdeque_2.
-From zoo_parabs Require Export
-  base
-  ws_bdeques_public__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_saturn.ws_bdeque_2.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.ws_bdeques_public__code.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v t queue round : val.
@@ -518,5 +510,4 @@ Section ws_bdeques_public_G.
   Qed.
 End ws_bdeques_public_G.
 
-From zoo_parabs Require
-  ws_bdeques_public__opaque.
+Require zoo_parabs.ws_bdeques_public__opaque.

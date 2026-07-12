@@ -1,18 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  atomic_array
-  queue_3
-  array
-  random_round
-  domain.
-From zoo_parabs Require Import
-  ws_deques_private__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.atomic_array.
+Require Import zoo_std.queue_3.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_std.domain.
+Require Import zoo_parabs.ws_deques_private__types.
+Require Import zoo.options.
 
 Definition ws_deques_private٠create : val :=
   fun: "sz" =>

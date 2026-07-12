@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  spsc_bqueue__code.
+Require Import zoo_saturn.spsc_bqueue__code.
 
 #[global] Opaque spsc_bqueue٠create.
 #[global] Opaque spsc_bqueue٠capacity.

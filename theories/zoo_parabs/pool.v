@@ -1,31 +1,21 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.ghost_list
-  lib.mono_gmultiset
-  lib.saved_prop
-  lib.spsc_prop.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  array
-  domain
-  ivar_4.
-From zoo_parabs Require Export
-  base
-  pool__code.
-From zoo_parabs Require Import
-  pool__types
-  ws_hub_std.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.ghost_list.
+Require Import zoo.iris.base_logic.lib.mono_gmultiset.
+Require Import zoo.iris.base_logic.lib.saved_prop.
+Require Import zoo.iris.base_logic.lib.spsc_prop.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.array.
+Require Import zoo_std.domain.
+Require Import zoo_std.ivar_4.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.pool__code.
+Require Import zoo_parabs.pool__types.
+Require Import zoo_parabs.ws_hub_std.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v ctx hub task notification notify pred ivar waiter : val.
@@ -1234,8 +1224,7 @@ Module base.
   #[global] Opaque pool_finished.
 End base.
 
-From zoo_parabs Require
-  pool__opaque.
+Require zoo_parabs.pool__opaque.
 
 Section pool_G.
   Context `{pool_G : PoolG Σ}.

@@ -1,8 +1,5 @@
-From Ltac2 Require Export
-  Env
-  Init.
+Require Export Ltac2.Env.
+Require Export Ltac2.Init.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.

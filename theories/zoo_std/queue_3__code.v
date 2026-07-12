@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  array
-  int.
-From zoo_std Require Import
-  queue_3__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.array.
+Require Import zoo_std.int.
+Require Import zoo_std.queue_3__types.
+Require Import zoo.options.
 
 Definition queue_3٠min_capacity : val :=
   16.

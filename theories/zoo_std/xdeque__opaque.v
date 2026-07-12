@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  xdeque__code.
+Require Import zoo_std.xdeque__code.
 
 #[global] Opaque xdeque٠create.
 #[global] Opaque xdeque٠is_empty.

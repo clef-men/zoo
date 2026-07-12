@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  assume.
-From zoo_std Require Import
-  array__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.assume.
+Require Import zoo_std.array__types.
+Require Import zoo.options.
 
 Definition array٠unsafe_alloc : val :=
   fun: "sz" =>

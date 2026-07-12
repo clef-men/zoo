@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  bag_1__code.
+Require Import zoo_saturn.bag_1__code.
 
 #[global] Opaque bag_1٠create.
 #[global] Opaque bag_1٠push.

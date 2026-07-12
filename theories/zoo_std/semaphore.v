@@ -1,26 +1,16 @@
-From stdpp Require Import
-  finite.
+Require Import stdpp.finite.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.excl.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  semaphore__code.
-From zoo_std Require Import
-  semaphore__types
-  condition.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.semaphore__code.
+Require Import zoo_std.semaphore__types.
+Require Import zoo_std.condition.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types cnt : nat.
@@ -362,8 +352,7 @@ Section semaphore_G.
   Qed.
 End semaphore_G.
 
-From zoo_std Require
-  semaphore__opaque.
+Require zoo_std.semaphore__opaque.
 
 #[global] Opaque semaphore_inv.
 #[global] Opaque semaphore_locked.

@@ -1,39 +1,28 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  function
-  list
-  relations.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.twins
-  lib.auth_mono
-  lib.mono_list
-  lib.saved_pred
-  lib.oneshot.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Import
-  identifier
-  prophet_identifier
-  prophet_multi
-  prophet_nat.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  domain
-  inf_array
-  int
-  optional.
-From zoo_saturn Require Export
-  base
-  inf_mpmc_queue_2__code.
-From zoo_saturn Require Import
-  inf_mpmc_queue_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.function.
+Require Import zoo.common.list.
+Require Import zoo.common.relations.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.iris.base_logic.lib.saved_pred.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.language.notations.
+Require Import zoo.program_logic.identifier.
+Require Import zoo.program_logic.prophet_identifier.
+Require Import zoo.program_logic.prophet_multi.
+Require Import zoo.program_logic.prophet_nat.
+Require Import zoo.diaframe.
+Require Import zoo_std.domain.
+Require Import zoo_std.inf_array.
+Require Import zoo_std.int.
+Require Import zoo_std.optional.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.inf_mpmc_queue_2__code.
+Require Import zoo_saturn.inf_mpmc_queue_2__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types front back : nat.
@@ -1481,8 +1470,7 @@ Module base.
   #[global] Opaque inf_mpmc_queue_2_model.
 End base.
 
-From zoo_saturn Require
-  inf_mpmc_queue_2__opaque.
+Require zoo_saturn.inf_mpmc_queue_2__opaque.
 
 Section inf_mpmc_queue_2_G.
   Context `{inf_mpmc_queue_2_G : InfMpmcQueue2G Σ}.

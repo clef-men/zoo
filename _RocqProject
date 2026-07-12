@@ -63,11 +63,11 @@ theories/zoo/iris/proofmode/sel_patterns.v
 theories/zoo/iris/proofmode/intro_patterns.v
 theories/zoo/iris/proofmode/coq_tactics.v
 theories/zoo/iris/proofmode/ltac_tactics.v
-theories/zoo/iris/proofmode/proofmode.v
+theories/zoo/iris/proofmode.v
 
 theories/zoo/iris/diaframe/base.v
 theories/zoo/iris/diaframe/tactics.v
-theories/zoo/iris/diaframe/diaframe.v
+theories/zoo/iris/diaframe.v
 
 theories/zoo/iris/bi/big_op/base.v
 theories/zoo/iris/bi/big_op/big_sepL.v
@@ -78,7 +78,7 @@ theories/zoo/iris/bi/big_op/big_sepL3.v
 theories/zoo/iris/bi/big_op/big_sepM.v
 theories/zoo/iris/bi/big_op/big_sepS.v
 theories/zoo/iris/bi/big_op/big_sepMS.v
-theories/zoo/iris/bi/big_op/big_op.v
+theories/zoo/iris/bi/big_op.v
 
 theories/zoo/iris/bi/lib/atomic.v
 
@@ -150,7 +150,7 @@ theories/zoo/diaframe/symb_exec/defs.v
 theories/zoo/diaframe/symb_exec/wp.v
 theories/zoo/diaframe/hints.v
 theories/zoo/diaframe/specs.v
-theories/zoo/diaframe/diaframe.v
+theories/zoo/diaframe.v
 
 #END zoo
 

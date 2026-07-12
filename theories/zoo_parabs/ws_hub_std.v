@@ -1,31 +1,22 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  int
-  option
-  optional
-  array
-  random_round
-  domain.
-From zoo_parabs Require Export
-  base
-  ws_hub_std__code.
-From zoo_parabs Require Import
-  ws_hub_std__types
-  ws_deques_public
-  waiters.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.int.
+Require Import zoo_std.option.
+Require Import zoo_std.optional.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_std.domain.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.ws_hub_std__code.
+Require Import zoo_parabs.ws_hub_std__types.
+Require Import zoo_parabs.ws_deques_public.
+Require Import zoo_parabs.waiters.
+Require Import zoo.options.
 
 Implicit Types b yield closed : bool.
 Implicit Types num_active : Z.
@@ -1162,5 +1153,4 @@ Section ws_hub_std_G.
   Qed.
 End ws_hub_std_G.
 
-From zoo_parabs Require
-  ws_hub_std__opaque.
+Require zoo_parabs.ws_hub_std__opaque.

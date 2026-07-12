@@ -1,25 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  relations.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.auth_twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option.
-From zoo_saturn Require Export
-  base
-  ws_bdeque_2__code.
-From zoo_saturn Require Import
-  ws_bdeque_1.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.relations.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.auth_twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.ws_bdeque_2__code.
+Require Import zoo_saturn.ws_bdeque_1.
+Require Import zoo.options.
 
 Import ws_bdeque_1.base.
 
@@ -488,8 +478,7 @@ Module base.
   #[global] Opaque ws_bdeque_2_owner.
 End base.
 
-From zoo_saturn Require
-  ws_bdeque_2__opaque.
+Require zoo_saturn.ws_bdeque_2__opaque.
 
 Section ws_bdeque_2_G.
   Context `{ws_bdeque_2_G : WsBdeque2G Σ}.

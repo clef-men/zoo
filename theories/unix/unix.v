@@ -1,16 +1,10 @@
-From Stdlib.Strings Require Export
-  Ascii.
+Require Export Stdlib.Strings.Ascii.
 
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  wp.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.wp.
+Require Import zoo.diaframe.
+Require Import zoo.options.
 
 Parameter unix٠close : val.
 

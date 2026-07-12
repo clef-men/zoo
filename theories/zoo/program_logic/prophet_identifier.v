@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  identifier
-  prophet_typed.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.identifier.
+Require Export zoo.program_logic.prophet_typed.
+Require Import zoo.options.
 
 Definition prophet_identifier :=
   {|prophet_typed_type :=

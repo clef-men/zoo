@@ -1,8 +1,5 @@
-From Ltac2 Require Export
-  Init
-  Option.
+Require Export Ltac2.Init.
+Require Export Ltac2.Option.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.

@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  list__code.
+Require Import zoo_std.list__code.
 
 #[global] Opaque list٠singleton.
 #[global] Opaque list٠head.

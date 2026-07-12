@@ -1,13 +1,9 @@
-From stdpp Require
-  list
-  sorting.
+Require stdpp.list.
+Require stdpp.sorting.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  math.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.math.
+Require Import zoo.options.
 
 Export stdpp.list.
 Export stdpp.sorting.

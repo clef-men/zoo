@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  mpsc_queue_2__code.
+Require Import zoo_saturn.mpsc_queue_2__code.
 
 #[global] Opaque mpsc_queue_2٠create.
 #[global] Opaque mpsc_queue_2٠is_empty.

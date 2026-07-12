@@ -1,16 +1,10 @@
-From iris.base_logic Require Import
-  lib.invariants.
+Require Import iris.base_logic.lib.invariants.
 
-From zoo Require Import
-  prelude.
-From zoo.iris Require Import
-  diaframe.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  ghost_state.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.diaframe.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.ghost_state.
+Require Import zoo.options.
 
 Implicit Types cnt ns nt : nat.
 Implicit Type pid : prophet_id.

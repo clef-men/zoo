@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  suf__code.
+Require Import zoo_persistent.suf__code.
 
 #[global] Opaque suf٠create.
 #[global] Opaque suf٠make.

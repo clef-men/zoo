@@ -1,10 +1,7 @@
-From stdpp Require Export
-  relations.
+Require Export stdpp.relations.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Section relation.
   Context {A} (R : relation A).

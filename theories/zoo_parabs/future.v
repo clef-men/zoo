@@ -1,23 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  biglater.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  ivar_4
-  list.
-From zoo_parabs Require Export
-  base
-  future__code.
-From zoo_parabs Require Import
-  pool.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.biglater.
+Require Import zoo.diaframe.
+Require Import zoo_std.ivar_4.
+Require Import zoo_std.list.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.future__code.
+Require Import zoo_parabs.pool.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types depth : nat.
@@ -483,8 +474,7 @@ Section future_G.
   Qed.
 End future_G.
 
-From zoo_parabs Require
-  future__opaque.
+Require zoo_parabs.future__opaque.
 
 #[global] Opaque future_inv.
 #[global] Opaque future_obligation.

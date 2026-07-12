@@ -1,17 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  pool
-  vertex.
-From zoo_std Require Import
-  ivar_4.
-From examples Require Import
-  vertex_fibonacci__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.pool.
+Require Import zoo_parabs.vertex.
+Require Import zoo_std.ivar_4.
+Require Import examples.vertex_fibonacci__types.
+Require Import zoo.options.
 
 Definition vertex_fibonacci٠main₀ : val :=
   rec: "main" "ctx" "vtx" "r" "n" =>

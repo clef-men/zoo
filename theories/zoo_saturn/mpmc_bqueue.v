@@ -1,35 +1,23 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.mono_list
-  lib.auth_nat_max
-  lib.twins
-  lib.saved_pred.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Import
-  prophet_typed.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  domain
-  option
-  xtchain.
-From zoo_saturn Require Export
-  base
-  mpmc_bqueue__code.
-From zoo_saturn Require Import
-  mpmc_bqueue__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.saved_pred.
+Require Import zoo.language.notations.
+Require Import zoo.program_logic.prophet_typed.
+Require Import zoo.diaframe.
+Require Import zoo_std.domain.
+Require Import zoo_std.option.
+Require Import zoo_std.xtchain.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpmc_bqueue__code.
+Require Import zoo_saturn.mpmc_bqueue__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types front node back new_back : location.
@@ -1332,8 +1320,7 @@ Module base.
   #[global] Opaque mpmc_bqueue_model.
 End base.
 
-From zoo_saturn Require
-  mpmc_bqueue__opaque.
+Require zoo_saturn.mpmc_bqueue__opaque.
 
 Section mpmc_bqueue_G.
   Context `{mpmc_bqueue_G : MpmcBqueueG Σ}.

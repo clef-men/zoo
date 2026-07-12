@@ -1,22 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option.
-From zoo_saturn Require Export
-  base
-  mpmc_bstack__code.
-From zoo_saturn Require Import
-  mpmc_bstack__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpmc_bstack__code.
+Require Import zoo_saturn.mpmc_bstack__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types cap sz : nat.
@@ -459,8 +450,7 @@ Section mpmc_bstack_G.
   Qed.
 End mpmc_bstack_G.
 
-From zoo_saturn Require
-  mpmc_bstack__opaque.
+Require zoo_saturn.mpmc_bstack__opaque.
 
 #[global] Opaque mpmc_bstack_inv.
 #[global] Opaque mpmc_bstack_model.

@@ -1,20 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  optional.
-From zoo_saturn Require Export
-  base
-  mpmc_tqueue_2__code.
-From zoo_saturn Require Import
-  mpmc_tqueue_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.optional.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpmc_tqueue_2__code.
+Require Import zoo_saturn.mpmc_tqueue_2__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v : val.
@@ -221,8 +213,7 @@ Module base.
   #[global] Opaque mpmc_tqueue_2_finished.
 End base.
 
-From zoo_saturn Require
-  mpmc_tqueue_2__opaque.
+Require zoo_saturn.mpmc_tqueue_2__opaque.
 
 Section mpmc_tqueue_2_G.
   Context `{mpmc_tqueue_2_G : MpmcTqueue2G Σ}.

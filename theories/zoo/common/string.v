@@ -1,12 +1,8 @@
-From stdpp Require Export
-  strings.
+Require Export stdpp.strings.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Export
-  typeclasses.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.common.typeclasses.
+Require Import zoo.options.
 
 #[local] Fixpoint split_on_go chr str acc :=
   match str with

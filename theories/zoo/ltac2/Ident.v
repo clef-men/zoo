@@ -1,16 +1,11 @@
-From Ltac2 Require Export
-  Ident
-  Init.
-From Ltac2 Require Import
-  Notations.
+Require Export Ltac2.Ident.
+Require Export Ltac2.Init.
+Require Import Ltac2.Notations.
 
-From iris.proofmode Require Import
-  string_ident.
+Require Import iris.proofmode.string_ident.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Ltac2 of_coq_string :=
   StringToIdent.coq_string_to_ident.

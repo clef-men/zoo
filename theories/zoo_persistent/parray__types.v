@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  array.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.array.
+Require Import zoo.options.
 
 Notation "'Root'" := (
   in_type "zoo_persistent.parray.descr" 0

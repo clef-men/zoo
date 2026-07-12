@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  mpmc_bstack__code.
+Require Import zoo_saturn.mpmc_bstack__code.
 
 #[global] Opaque mpmc_bstack٠create.
 #[global] Opaque mpmc_bstack٠size.

@@ -1,17 +1,11 @@
-From iris.algebra Require Import
-  proofmode_classes.
+Require Import iris.algebra.proofmode_classes.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Export
-  relations.
-From zoo.iris.algebra Require Export
-  base.
-From zoo.iris.algebra Require Import
-  auth
-  monopoi.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.common.relations.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.iris.algebra.auth.
+Require Import zoo.iris.algebra.monopoi.
+Require Import zoo.options.
 
 #[local] Hint Resolve monopoi_principal_valid : core.
 

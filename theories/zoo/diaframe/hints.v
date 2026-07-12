@@ -1,22 +1,15 @@
-From iris.base_logic Require Export
-  lib.fancy_updates.
+Require Export iris.base_logic.lib.fancy_updates.
 
-From diaframe Require Import
-  steps.pure_solver
-  lib.persistently
-  lib.intuitionistically
-  lib.iris_hints.
+Require Import diaframe.steps.pure_solver.
+Require Import diaframe.lib.persistently.
+Require Import diaframe.lib.intuitionistically.
+Require Import diaframe.lib.iris_hints.
 
-From zoo Require Import
-  prelude.
-From zoo.iris Require Export
-  diaframe.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  state_interp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.diaframe.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.state_interp.
+Require Import zoo.options.
 
 Section pointsto.
   Context `{zoo_G : !ZooG Σ}.

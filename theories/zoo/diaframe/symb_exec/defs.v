@@ -1,2 +1,1 @@
-From diaframe Require Export
-  symb_exec.defs.
+Require Export diaframe.symb_exec.defs.

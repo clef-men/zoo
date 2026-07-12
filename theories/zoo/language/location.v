@@ -1,15 +1,10 @@
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From iris.algebra Require Import
-  ofe.
+Require Import iris.algebra.ofe.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.options.
 
 #[local] Open Scope Z_scope.
 

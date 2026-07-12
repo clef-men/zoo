@@ -1,25 +1,16 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  list.
-From zoo.iris.base_logic Require Import
-  lib.twins
-  lib.oneshot.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  clist.
-From zoo_saturn Require Export
-  base
-  mpsc_queue_3__code.
-From zoo_saturn Require Import
-  mpsc_queue_3__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.list.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.clist.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpsc_queue_3__code.
+Require Import zoo_saturn.mpsc_queue_3__types.
+Require Import zoo.options.
 
 Implicit Types b closed : bool.
 Implicit Types l : location.
@@ -751,8 +742,7 @@ Section mpsc_queue_3_G.
   Qed.
 End mpsc_queue_3_G.
 
-From zoo_saturn Require
-  mpsc_queue_3__opaque.
+Require zoo_saturn.mpsc_queue_3__opaque.
 
 #[global] Opaque mpsc_queue_3_inv.
 #[global] Opaque mpsc_queue_3_model.

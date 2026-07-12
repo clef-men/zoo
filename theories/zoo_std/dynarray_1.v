@@ -1,18 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  dynarray_1__code.
-From zoo_std Require Import
-  array
-  dynarray_1__types
-  int.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.dynarray_1__code.
+Require Import zoo_std.array.
+Require Import zoo_std.dynarray_1__types.
+Require Import zoo_std.int.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types i : nat.
@@ -773,7 +767,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  dynarray_1__opaque.
+Require zoo_std.dynarray_1__opaque.
 
 #[global] Opaque dynarray_1_model.

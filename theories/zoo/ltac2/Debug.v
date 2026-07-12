@@ -1,10 +1,7 @@
-From zoo Require Import
-  prelude.
-From zoo.ltac2 Require
-  Message
-  Constr.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require zoo.ltac2.Message.
+Require zoo.ltac2.Constr.
+Require Import zoo.options.
 
 Ltac2 rec dump constr :=
   match Constr.Unsafe.kind constr with

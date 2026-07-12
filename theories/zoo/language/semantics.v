@@ -1,14 +1,10 @@
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From zoo Require Import
-  prelude.
-From zoo.language Require Export
-  physical_equality
-  metatheory
-  state.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.language.physical_equality.
+Require Export zoo.language.metatheory.
+Require Export zoo.language.state.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types tag sz : nat.

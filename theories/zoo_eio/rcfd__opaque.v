@@ -1,5 +1,4 @@
-From zoo_eio Require Import
-  rcfd__code.
+Require Import zoo_eio.rcfd__code.
 
 #[global] Opaque rcfd٠make.
 #[global] Opaque rcfd٠use.

@@ -1,23 +1,14 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list
-  fin_maps.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  xdeque.
-From zoo_boxroot Require Export
-  gc.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.common.fin_maps.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.xdeque.
+Require Export zoo_boxroot.gc.
+Require Import zoo.options.
 
 Section list_to_set.
   Lemma list_to_set_delete `{Countable A} {l i} x :

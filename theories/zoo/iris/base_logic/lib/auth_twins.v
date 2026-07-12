@@ -1,17 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris.base_logic Require Import
-  lib.ghost_var
-  lib.auth_mono
-  lib.twins.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.base_logic.lib.ghost_var.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class AuthTwinsG Σ (A : ofe) (R : relation A) :=
   { #[local] auth_twins_G_var_G :: GhostVarG Σ (leibnizO gname)

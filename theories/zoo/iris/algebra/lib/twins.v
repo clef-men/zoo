@@ -1,15 +1,10 @@
-From iris.algebra Require Import
-  excl
-  proofmode_classes.
+Require Import iris.algebra.excl.
+Require Import iris.algebra.proofmode_classes.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Export
-  base.
-From zoo.iris.algebra Require Import
-  lib.auth_option.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.iris.algebra.lib.auth_option.
+Require Import zoo.options.
 
 Definition twins {SI : sidx} A :=
   auth_option (exclR A).

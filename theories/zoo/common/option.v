@@ -1,10 +1,7 @@
-From stdpp Require Export
-  option.
+Require Export stdpp.option.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 #[global] Hint Constructors option_Forall2 : core.
 

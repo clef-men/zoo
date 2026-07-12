@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  lazy__code.
+Require Import zoo_std.lazy__code.
 
 #[global] Opaque lazy٠make.
 #[global] Opaque lazy٠return.

@@ -1,5 +1,4 @@
-From zoo_parabs Require Import
-  waiters__code.
+Require Import zoo_parabs.waiters__code.
 
 #[global] Opaque waiters٠create.
 #[global] Opaque waiters٠notify.

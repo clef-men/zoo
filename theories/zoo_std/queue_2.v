@@ -1,18 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  queue_2__code.
-From zoo_std Require Import
-  option
-  chain
-  queue_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.queue_2__code.
+Require Import zoo_std.option.
+Require Import zoo_std.chain.
+Require Import zoo_std.queue_2__types.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types t v front back : val.
@@ -153,7 +147,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  queue_2__opaque.
+Require zoo_std.queue_2__opaque.
 
 #[global] Opaque queue_2_model.

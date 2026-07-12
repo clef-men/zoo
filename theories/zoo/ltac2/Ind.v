@@ -1,13 +1,9 @@
-From Ltac2 Require Export
-  Ind
-  Init.
+Require Export Ltac2.Ind.
+Require Export Ltac2.Init.
 
-From zoo Require Import
-  prelude.
-From zoo.ltac2 Require Import
-  Constr.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.ltac2.Constr.
+Require Import zoo.options.
 
 Ltac2 nconstructors' t :=
   nconstructors (data t).

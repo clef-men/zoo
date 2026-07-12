@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  inf_mpmc_queue_2__code.
+Require Import zoo_saturn.inf_mpmc_queue_2__code.
 
 #[global] Opaque inf_mpmc_queue_2٠create.
 #[global] Opaque inf_mpmc_queue_2٠size.

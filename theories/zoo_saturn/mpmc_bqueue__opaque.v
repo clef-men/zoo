@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  mpmc_bqueue__code.
+Require Import zoo_saturn.mpmc_bqueue__code.
 
 #[global] Opaque mpmc_bqueue٠create.
 #[global] Opaque mpmc_bqueue٠capacity.

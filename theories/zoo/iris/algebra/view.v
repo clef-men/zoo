@@ -1,12 +1,8 @@
-From iris.algebra Require Export
-  view.
+Require Export iris.algebra.view.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.options.
 
 Section cmra.
   Context {SI : sidx}.

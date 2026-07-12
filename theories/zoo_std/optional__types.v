@@ -1,10 +1,7 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo.options.
 
 Notation "'Nothing'" := (
   in_type "zoo_std.optional.t" 0

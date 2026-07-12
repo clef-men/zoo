@@ -1,23 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.saved_prop.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  ivar_4__code.
-From zoo_std Require Import
-  ivar_3
-  ivar_4__types
-  list
-  option.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.saved_prop.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.ivar_4__code.
+Require Import zoo_std.ivar_3.
+Require Import zoo_std.ivar_4__types.
+Require Import zoo_std.list.
+Require Import zoo_std.option.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v t ctx waiter : val.
@@ -543,8 +535,7 @@ Section ivar_4_G.
   Qed.
 End ivar_4_G.
 
-From zoo_std Require
-  ivar_4__opaque.
+Require zoo_std.ivar_4__opaque.
 
 #[global] Opaque ivar_4_inv.
 #[global] Opaque ivar_4_producer.

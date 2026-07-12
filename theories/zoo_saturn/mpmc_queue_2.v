@@ -1,28 +1,18 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  relations.
-From zoo.iris.base_logic Require Import
-  lib.twins
-  lib.auth_mono
-  lib.auth_nat_max.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Import
-  prophet_bool.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  domain
-  option.
-From zoo_saturn Require Export
-  base
-  mpmc_queue_2__code.
-From zoo_saturn Require Import
-  mpmc_queue_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.relations.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.language.notations.
+Require Import zoo.program_logic.prophet_bool.
+Require Import zoo.diaframe.
+Require Import zoo_std.domain.
+Require Import zoo_std.option.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpmc_queue_2__code.
+Require Import zoo_saturn.mpmc_queue_2__types.
+Require Import zoo.options.
 
 Implicit Types strong : bool.
 Implicit Types l back back_prev : location.
@@ -1798,8 +1788,7 @@ Section mpmc_queue_2_G.
   Qed.
 End mpmc_queue_2_G.
 
-From zoo_saturn Require
-  mpmc_queue_2__opaque.
+Require zoo_saturn.mpmc_queue_2__opaque.
 
 #[global] Opaque mpmc_queue_2_inv.
 #[global] Opaque mpmc_queue_2_model.

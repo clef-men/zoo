@@ -1,18 +1,14 @@
-From stdpp Require Export
-  countable.
+Require Export stdpp.countable.
 
-From zoo Require Import
-  prelude.
-From zoo.ltac2 Require
-  Array
-  Constr
-  Control
-  Ind
-  List
-  String
-  Notations.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require zoo.ltac2.Array.
+Require zoo.ltac2.Constr.
+Require zoo.ltac2.Control.
+Require zoo.ltac2.Ind.
+Require zoo.ltac2.List.
+Require zoo.ltac2.String.
+Require zoo.ltac2.Notations.
+Require Import zoo.options.
 
 Module solve_countable.
   Import Ltac2.Init.

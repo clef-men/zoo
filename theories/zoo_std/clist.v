@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  clist__types
-  clist__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.clist__types.
+Require Export zoo_std.clist__code.
+Require Import zoo.options.
 
 Implicit Types v t fn : val.
 
@@ -252,5 +247,4 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  clist__opaque.
+Require zoo_std.clist__opaque.

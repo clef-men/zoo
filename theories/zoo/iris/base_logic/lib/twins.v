@@ -1,15 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Import
-  lib.twins.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris.base_logic Require Import
-  algebra.twins.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.algebra.lib.twins.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.base_logic.algebra.twins.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class TwinsG Σ F :=
   { #[local] twins_G_inG :: inG Σ (twins_R $ oFunctor_apply F $ iPropO Σ)

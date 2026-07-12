@@ -1,32 +1,21 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.auth_gmultiset
-  lib.mono_gmultiset
-  lib.subprops
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  clist
-  option.
-From zoo_saturn Require Import
-  mpmc_stack_2.
-From zoo_parabs Require Export
-  base
-  vertex__code.
-From zoo_parabs Require Import
-  vertex__types
-  pool.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.auth_gmultiset.
+Require Import zoo.iris.base_logic.lib.mono_gmultiset.
+Require Import zoo.iris.base_logic.lib.subprops.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.clist.
+Require Import zoo_std.option.
+Require Import zoo_saturn.mpmc_stack_2.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.vertex__code.
+Require Import zoo_parabs.vertex__types.
+Require Import zoo_parabs.pool.
+Require Import zoo.options.
 
 Implicit Types b finished : bool.
 Implicit Types preds : nat.
@@ -1184,8 +1173,7 @@ Module base.
   #[global] Opaque vertex_predecessor.
 End base.
 
-From zoo_parabs Require
-  vertex__opaque.
+Require zoo_parabs.vertex__opaque.
 
 Section vertex_G.
   Context `{vertex_G : VertexG Σ}.

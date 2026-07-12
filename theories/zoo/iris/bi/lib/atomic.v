@@ -1,21 +1,15 @@
-From Ltac2 Require
-  Ltac2.
+Require Ltac2.Ltac2.
 
-From stdpp Require Import
-  coPset
-  namespaces.
+Require Import stdpp.coPset.
+Require Import stdpp.namespaces.
 
-From iris.bi Require Export
-  bi
-  updates.
-From iris.bi.lib Require Import
-  fixpoint_mono.
-From iris.proofmode Require Import
-  coq_tactics
-  proofmode
-  reduction.
-From iris.prelude Require Import
-  options.
+Require Export iris.bi.bi.
+Require Export iris.bi.updates.
+Require Import iris.bi.lib.fixpoint_mono.
+Require Import iris.proofmode.coq_tactics.
+Require Import iris.proofmode.proofmode.
+Require Import iris.proofmode.reduction.
+Require Import iris.prelude.options.
 
 (** Conveniently split a conjunction on both assumption and conclusion. *)
 Local Tactic Notation "iSplitWith" constr(H) :=

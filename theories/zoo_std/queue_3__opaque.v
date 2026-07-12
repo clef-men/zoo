@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  queue_3__code.
+Require Import zoo_std.queue_3__code.
 
 #[global] Opaque queue_3٠create.
 #[global] Opaque queue_3٠size.

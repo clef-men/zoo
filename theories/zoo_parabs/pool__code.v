@@ -1,18 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  ws_hub_std.
-From zoo_std Require Import
-  ivar_4
-  array
-  domain.
-From zoo_parabs Require Import
-  pool__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.ws_hub_std.
+Require Import zoo_std.ivar_4.
+Require Import zoo_std.array.
+Require Import zoo_std.domain.
+Require Import zoo_parabs.pool__types.
+Require Import zoo.options.
 
 Definition pool٠max_round_noyield : val :=
   1024.

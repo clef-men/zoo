@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  parray__code.
+Require Import zoo_persistent.parray__code.
 
 #[global] Opaque parray٠make.
 #[global] Opaque parray٠get.

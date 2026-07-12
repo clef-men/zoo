@@ -1,15 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Import zoo.options.
 
 Implicit Types δ : nat.
 Implicit Types body : expr.

@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  stack__code.
+Require Import zoo_std.stack__code.
 
 #[global] Opaque stack٠create.
 #[global] Opaque stack٠is_empty.

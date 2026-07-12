@@ -1,21 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  option
-  list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  xdeque__types
-  xdeque__code.
-From zoo_std Require Import
-  option
-  xdlchain.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.option.
+Require Import zoo.common.list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.xdeque__types.
+Require Export zoo_std.xdeque__code.
+Require Import zoo_std.option.
+Require Import zoo_std.xdlchain.
+Require Import zoo.options.
 
 Implicit Types l node : location.
 Implicit Types nodes : list location.
@@ -373,7 +366,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  xdeque__opaque.
+Require zoo_std.xdeque__opaque.
 
 #[global] Opaque xdeque_model.

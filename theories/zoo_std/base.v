@@ -1,10 +1,6 @@
-From iris.base_logic Require Export
-  lib.invariants.
+Require Export iris.base_logic.lib.invariants.
 
-From zoo Require Import
-  prelude.
-From zoo.program_logic Require Export
-  wp
-  itype.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.program_logic.wp.
+Require Export zoo.program_logic.itype.
+Require Import zoo.options.

@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  xdeque__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.xdeque__types.
+Require Import zoo.options.
 
 Definition xdeque٠create : val :=
   fun: <> =>

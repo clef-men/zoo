@@ -1,21 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.mono_gset.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  assert
-  list.
-From zoo_persistent Require Export
-  base
-  sstore_1__code.
-From zoo_persistent Require Import
-  sstore_1__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.mono_gset.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.assert.
+Require Import zoo_std.list.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.sstore_1__code.
+Require Import zoo_persistent.sstore_1__types.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types v t s : val.
@@ -1650,8 +1642,7 @@ Section sstore_1_G.
   Qed.
 End sstore_1_G.
 
-From zoo_persistent Require
-  sstore_1__opaque.
+Require zoo_persistent.sstore_1__opaque.
 
 #[global] Opaque sstore_1.
 #[global] Opaque sstore_1_snapshot.

@@ -1,17 +1,11 @@
-From iris.base_logic Require Import
-  lib.fancy_updates.
+Require Import iris.base_logic.lib.fancy_updates.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.auth_dgset
-  lib.saved_pred.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.auth_dgset.
+Require Import zoo.iris.base_logic.lib.saved_pred.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class SubpredsG Σ A :=
   { #[local] subpreds_G_auth_dgset_G :: AuthDgsetG Σ gname

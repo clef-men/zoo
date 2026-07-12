@@ -1,3 +1,2 @@
-From zoo_std Require Import
-  xchain__code.
+Require Import zoo_std.xchain__code.
 

@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  atomic_array
-  optional.
-From zoo_saturn Require Import
-  mpmc_tqueue_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.atomic_array.
+Require Import zoo_std.optional.
+Require Import zoo_saturn.mpmc_tqueue_2__types.
+Require Import zoo.options.
 
 Definition mpmc_tqueue_2٠create : val :=
   fun: "cap" =>

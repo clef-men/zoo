@@ -1,19 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.oneshot.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  mpsc_flag__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.mpsc_flag__code.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 
@@ -286,8 +279,7 @@ Module base.
   #[global] Opaque mpsc_flag_resolved.
 End base.
 
-From zoo_std Require
-  mpsc_flag__opaque.
+Require zoo_std.mpsc_flag__opaque.
 
 Section mpsc_flag_G.
   Context `{mpsc_flag_G : MpscFlagG Σ}.

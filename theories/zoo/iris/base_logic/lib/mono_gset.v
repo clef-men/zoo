@@ -1,15 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  relations.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris.base_logic Require Import
-  lib.auth_mono.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.relations.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class MonoGsetG Σ A `{Countable A} :=
   { #[local] mono_gset_G_mono_G :: AuthMonoG Σ (A := leibnizO (gset A)) subseteq

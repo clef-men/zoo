@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  array
-  random_state.
-From zoo_std Require Import
-  random_round__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.array.
+Require Import zoo_std.random_state.
+Require Import zoo_std.random_round__types.
+Require Import zoo.options.
 
 Definition random_round٠create : val :=
   fun: "sz" =>

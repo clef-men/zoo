@@ -1,26 +1,15 @@
-From iris.algebra Require Import
-  numbers.
+Require Import iris.algebra.numbers.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.cinv.
-From zoo.iris.base_logic Require Import
-  lib.auth_frac.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  for_.
-From zoo_parabs Require Import
-  pool.
-From examples Require Export
-  pool_counter__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.cinv.
+Require Import zoo.iris.base_logic.lib.auth_frac.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.for_.
+Require Import zoo_parabs.pool.
+Require Export examples.pool_counter__code.
+Require Import zoo.options.
 
 Implicit Types n cnt contrib : nat.
 Implicit Types r : location.
@@ -190,5 +179,4 @@ Section pool_counter_G.
   Qed.
 End pool_counter_G.
 
-From examples Require
-  pool_counter__opaque.
+Require examples.pool_counter__opaque.

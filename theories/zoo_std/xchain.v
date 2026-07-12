@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  xchain__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.xchain__types.
+Require Import zoo.options.
 
 Implicit Types node : location.
 Implicit Types nodes : list location.
@@ -484,6 +478,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require xchain__opaque.
+Require zoo_std.xchain__opaque.
 
 #[global] Opaque xchain.

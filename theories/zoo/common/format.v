@@ -1,15 +1,10 @@
-From Stdlib.Strings Require Import
-  Ascii.
+Require Import Stdlib.Strings.Ascii.
 
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  string.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.string.
+Require Import zoo.options.
 
 Implicit Types str pref suff var val : string.
 

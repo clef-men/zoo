@@ -1,21 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  ws_bdeques_public
-  waiters.
-From zoo_saturn Require Import
-  mpmc_queue_1.
-From zoo_std Require Import
-  array
-  random_round
-  optional
-  int
-  domain.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.ws_bdeques_public.
+Require Import zoo_parabs.waiters.
+Require Import zoo_saturn.mpmc_queue_1.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_std.optional.
+Require Import zoo_std.int.
+Require Import zoo_std.domain.
+Require Import zoo.options.
 
 Notation "'deques'" := (
   in_type "zoo_parabs.ws_hub_hybrid.t" 0

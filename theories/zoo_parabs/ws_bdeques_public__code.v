@@ -1,17 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_saturn Require Import
-  ws_bdeque_2.
-From zoo_std Require Import
-  array
-  random_round.
-From zoo_parabs Require Import
-  ws_bdeques_public__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_saturn.ws_bdeque_2.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_parabs.ws_bdeques_public__types.
+Require Import zoo.options.
 
 Definition ws_bdeques_public٠capacity : val :=
   256.

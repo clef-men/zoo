@@ -1,7 +1,5 @@
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Class Similar X :=
   similar : X → X → Prop.

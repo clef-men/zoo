@@ -1,24 +1,16 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  dynarray_2__code.
-From zoo_std Require Import
-  array
-  assume
-  diverge
-  dynarray_2__types
-  int.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.dynarray_2__code.
+Require Import zoo_std.array.
+Require Import zoo_std.assume.
+Require Import zoo_std.diverge.
+Require Import zoo_std.dynarray_2__types.
+Require Import zoo_std.int.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types i : nat.
@@ -1475,8 +1467,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  dynarray_2__opaque.
+Require zoo_std.dynarray_2__opaque.
 
 #[global] Opaque dynarray_2_model.
 #[global] Opaque itype_dynarray_2.

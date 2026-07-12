@@ -1,3 +1,2 @@
-From zoo_std Require Import
-  goption__code.
+Require Import zoo_std.goption__code.
 

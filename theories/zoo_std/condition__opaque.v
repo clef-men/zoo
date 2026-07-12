@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  condition__code.
+Require Import zoo_std.condition__code.
 
 #[global] Opaque condition٠create.
 #[global] Opaque condition٠notify.

@@ -1,21 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  ws_deques_public
-  waiters.
-From zoo_std Require Import
-  array
-  random_round
-  optional
-  int
-  domain.
-From zoo_parabs Require Import
-  ws_hub_std__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.ws_deques_public.
+Require Import zoo_parabs.waiters.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_std.optional.
+Require Import zoo_std.int.
+Require Import zoo_std.domain.
+Require Import zoo_parabs.ws_hub_std__types.
+Require Import zoo.options.
 
 Definition ws_hub_std٠create : val :=
   fun: "sz" =>

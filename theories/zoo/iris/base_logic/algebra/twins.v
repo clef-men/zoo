@@ -1,14 +1,9 @@
-From iris.bi Require Import
-  bi.
-From iris.base_logic Require Import
-  bi.
+Require Import iris.bi.bi.
+Require Import iris.base_logic.bi.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Import
-  lib.twins.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.algebra.lib.twins.
+Require Import zoo.options.
 
 Section upred.
   Context {M : ucmra}.

@@ -1,11 +1,6 @@
-From zoo Require Import
-  prelude.
-From zoo_mcas Require Import
-  mcas_2__types.
-From zoo_mcas Require Export
-  mcas_2__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo_mcas.mcas_2__types.
+Require Export zoo_mcas.mcas_2__code.
+Require Import zoo.options.
 
-From zoo_mcas Require
-  mcas_2__opaque.
+Require zoo_mcas.mcas_2__opaque.

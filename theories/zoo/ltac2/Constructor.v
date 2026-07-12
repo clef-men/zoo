@@ -1,14 +1,10 @@
-From Ltac2 Require Export
-  Constructor
-  Init.
+Require Export Ltac2.Constructor.
+Require Export Ltac2.Init.
 
-From zoo Require Import
-  prelude.
-From zoo.ltac2 Require Import
-  Constr
-  Ind.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.ltac2.Constr.
+Require Import zoo.ltac2.Ind.
+Require Import zoo.options.
 
 Ltac2 number_index t inst :=
   Ind.number_index (inductive t) inst.

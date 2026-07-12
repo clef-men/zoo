@@ -1,5 +1,4 @@
-From zoo_partition Require Import
-  partition__code.
+Require Import zoo_partition.partition__code.
 
 #[global] Opaque partition٠make.
 #[global] Opaque partition٠make_same_class.

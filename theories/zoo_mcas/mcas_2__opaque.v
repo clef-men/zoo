@@ -1,5 +1,4 @@
-From zoo_mcas Require Import
-  mcas_2__code.
+Require Import zoo_mcas.mcas_2__code.
 
 #[global] Opaque mcas_2٠make.
 #[global] Opaque mcas_2٠get.

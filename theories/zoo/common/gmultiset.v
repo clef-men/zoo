@@ -1,12 +1,8 @@
-From stdpp Require Export
-  gmultiset.
+Require Export stdpp.gmultiset.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.options.
 
 Section basic.
   Context `{Countable A}.

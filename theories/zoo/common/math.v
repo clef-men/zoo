@@ -1,15 +1,10 @@
-From Stdlib Require Export
-  ZifyNat.
+Require Export Stdlib.micromega.ZifyNat.
 
-From stdpp Require Export
-  numbers.
+Require Export stdpp.numbers.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  relations.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.relations.
+Require Import zoo.options.
 
 Section nat.
   #[global] Instance b2n_inj :

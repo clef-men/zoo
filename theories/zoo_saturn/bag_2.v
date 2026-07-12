@@ -1,28 +1,18 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  fin_maps.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.mono_gmap
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  xtchain.
-From zoo_saturn Require Export
-  base
-  bag_2__code.
-From zoo_saturn Require Import
-  bag_2__types
-  spmc_queue.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.fin_maps.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.mono_gmap.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.xtchain.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.bag_2__code.
+Require Import zoo_saturn.bag_2__types.
+Require Import zoo_saturn.spmc_queue.
+Require Import zoo.options.
 
 Implicit Types l node 𝑐𝑜𝑛𝑠𝑢𝑚𝑒𝑟 : location.
 Implicit Types nodes : list location.
@@ -939,8 +929,7 @@ Section bag_2_G.
   Qed.
 End bag_2_G.
 
-From zoo_saturn Require
-  bag_2__opaque.
+Require zoo_saturn.bag_2__opaque.
 
 #[global] Opaque bag_2_inv.
 #[global] Opaque bag_2_model.

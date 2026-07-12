@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  pqueue__code.
+Require Import zoo_persistent.pqueue__code.
 
 #[global] Opaque pqueue٠empty.
 #[global] Opaque pqueue٠is_empty.

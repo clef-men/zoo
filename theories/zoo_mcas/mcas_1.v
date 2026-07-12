@@ -1,35 +1,23 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.twins
-  lib.auth_mono
-  lib.excl
-  lib.saved_prop
-  lib.saved_pred
-  lib.mono_list.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Import
-  prophet_bool
-  identifier.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  list.
-From zoo_mcas Require Import
-  mcas_1__types.
-From zoo_mcas Require Export
-  mcas_1__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.iris.base_logic.lib.auth_mono.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.saved_prop.
+Require Import zoo.iris.base_logic.lib.saved_pred.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.language.notations.
+Require Import zoo.program_logic.prophet_bool.
+Require Import zoo.program_logic.identifier.
+Require Import zoo.diaframe.
+Require Import zoo_std.list.
+Require Import zoo_mcas.mcas_1__types.
+Require Export zoo_mcas.mcas_1__code.
+Require Import zoo.options.
 
 Implicit Types b full : bool.
 Implicit Types i : nat.
@@ -2378,8 +2366,7 @@ Section mcas_1_G.
   Qed.
 End mcas_1_G.
 
-From zoo_mcas Require
-  mcas_1__opaque.
+Require zoo_mcas.mcas_1__opaque.
 
 #[global] Opaque mcas_1_loc_inv.
 #[global] Opaque mcas_1_loc_model.

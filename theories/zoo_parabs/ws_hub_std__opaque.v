@@ -1,3 +1,2 @@
-From zoo_parabs Require Import
-  ws_hub_std__code.
+Require Import zoo_parabs.ws_hub_std__code.
 

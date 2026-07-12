@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  sstore_2__code.
+Require Import zoo_persistent.sstore_2__code.
 
 #[global] Opaque sstore_2٠create.
 #[global] Opaque sstore_2٠ref.

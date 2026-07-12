@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  deque__code.
+Require Import zoo_std.deque__code.
 
 #[global] Opaque deque٠create.
 #[global] Opaque deque٠is_empty.

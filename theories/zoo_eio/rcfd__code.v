@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From unix Require Import
-  unix.
-From zoo_std Require Import
-  spsc_waiter.
-From zoo_eio Require Import
-  rcfd__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import unix.unix.
+Require Import zoo_std.spsc_waiter.
+Require Import zoo_eio.rcfd__types.
+Require Import zoo.options.
 
 Definition rcfd٠make : val :=
   fun: "fd" =>

@@ -1,14 +1,9 @@
-From iris.base_logic Require Export
-  lib.fancy_updates.
+Require Export iris.base_logic.lib.fancy_updates.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Lemma lc_fupd_elim_laterN `{inv_G : invGS Σ} n P E :
   £ n -∗

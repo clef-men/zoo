@@ -1,8 +1,6 @@
-From Stdlib.ssr Require Import
-  ssreflect.
+Require Import Stdlib.ssr.ssreflect.
 
-From zoo Require Export
-  tactics.
+Require Export zoo.tactics.
 
 #[export] Set Default Proof Using "Type*".
 #[export] Set Suggest Proof Using.

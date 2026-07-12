@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  int__code.
+Require Import zoo_std.int__code.
 
 #[global] Opaque int٠min.
 #[global] Opaque int٠max.

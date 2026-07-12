@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  random__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.random__code.
+Require Import zoo.options.
 
 Axiom random٠init𑁒spec : ∀ `{zoo_G : !ZooG Σ} Φ,
   Φ ()%V ⊢
@@ -73,5 +68,4 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  random__opaque.
+Require zoo_std.random__opaque.

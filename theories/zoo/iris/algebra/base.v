@@ -1,10 +1,7 @@
-From iris.algebra Require Export
-  updates
-  local_updates
-  frac
-  dfrac.
+Require Export iris.algebra.updates.
+Require Export iris.algebra.local_updates.
+Require Export iris.algebra.frac.
+Require Export iris.algebra.dfrac.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.

@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  dynarray_1.
-From zoo_std Require Import
-  stack__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.dynarray_1.
+Require Import zoo_std.stack__types.
+Require Import zoo.options.
 
 Definition stack٠create : val :=
   dynarray_1٠create.

@@ -1,23 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.oneshot
-  lib.subpreds.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  ivar_2__code.
-From zoo_std Require Import
-  ivar_2__types
-  option
-  condition.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.iris.base_logic.lib.subpreds.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.ivar_2__code.
+Require Import zoo_std.ivar_2__types.
+Require Import zoo_std.option.
+Require Import zoo_std.condition.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v : val.
@@ -746,8 +738,7 @@ Module base.
   #[global] Opaque ivar_2_synchronized.
 End base.
 
-From zoo_std Require
-  ivar_2__opaque.
+Require zoo_std.ivar_2__opaque.
 
 Section ivar_2_G.
   Context `{ivar_2_G : Ivar2G Σ}.

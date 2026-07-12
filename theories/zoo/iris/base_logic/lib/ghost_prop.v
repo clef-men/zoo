@@ -1,13 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris.base_logic Require Import
-  ghost_var.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.base_logic.lib.ghost_var.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class GhostPropG Σ :=
   { #[local] ghost_prop_G_ghost_var_G :: GhostVarG Σ (▶ ∙)

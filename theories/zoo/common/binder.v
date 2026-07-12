@@ -1,12 +1,8 @@
-From stdpp Require Export
-  binders.
+Require Export stdpp.binders.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Export
-  string.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.common.string.
+Require Import zoo.options.
 
 #[global] Program Instance binder_beq : Beq binder :=
   {|beq bdr1 bdr2 :=

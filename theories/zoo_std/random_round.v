@@ -1,20 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  random_round__code.
-From zoo_std Require Import
-  array
-  random_state
-  random_round__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.random_round__code.
+Require Import zoo_std.array.
+Require Import zoo_std.random_state.
+Require Import zoo_std.random_round__types.
+Require Import zoo.options.
 
 Implicit Types i n cnt : nat.
 Implicit Types prevs nexts : list nat.
@@ -177,8 +170,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  random_round__opaque.
+Require zoo_std.random_round__opaque.
 
 #[global] Opaque random_round_model.
 

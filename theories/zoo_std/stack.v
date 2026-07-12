@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  stack__code.
-From zoo_std Require Import
-  dynarray_1.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.stack__code.
+Require Import zoo_std.dynarray_1.
+Require Import zoo.options.
 
 Implicit Types v t : val.
 
@@ -87,7 +81,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  stack__opaque.
+Require zoo_std.stack__opaque.
 
 #[global] Opaque stack_model.

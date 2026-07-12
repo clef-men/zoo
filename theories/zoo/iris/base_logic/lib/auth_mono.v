@@ -1,13 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Import
-  lib.auth_mono.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.algebra.lib.auth_mono.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class AuthMonoG Σ {A : ofe} (R : relation A) :=
   { #[local] auth_mono_G_inG :: inG Σ (auth_mono_UR R)

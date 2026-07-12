@@ -1,35 +1,24 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gmultiset
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.ghost_list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  int
-  option
-  optional
-  array
-  random_round
-  domain.
-From zoo_saturn Require Import
-  mpmc_queue_1.
-From zoo_parabs Require Export
-  base
-  ws_hub_hybrid__code.
-From zoo_parabs Require Import
-  ws_hub_hybrid__types
-  ws_bdeques_public
-  waiters.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gmultiset.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.ghost_list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.int.
+Require Import zoo_std.option.
+Require Import zoo_std.optional.
+Require Import zoo_std.array.
+Require Import zoo_std.random_round.
+Require Import zoo_std.domain.
+Require Import zoo_saturn.mpmc_queue_1.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.ws_hub_hybrid__code.
+Require Import zoo_parabs.ws_hub_hybrid__types.
+Require Import zoo_parabs.ws_bdeques_public.
+Require Import zoo_parabs.waiters.
+Require Import zoo.options.
 
 Implicit Types b yield closed : bool.
 Implicit Types num_active : Z.
@@ -1368,5 +1357,4 @@ Section ws_hub_hybrid_G.
   Qed.
 End ws_hub_hybrid_G.
 
-From zoo_parabs Require
-  ws_hub_hybrid__opaque.
+Require zoo_parabs.ws_hub_hybrid__opaque.

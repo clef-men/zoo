@@ -1,19 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  fin_maps.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_persistent Require Export
-  base
-  suf__code.
-From zoo_persistent Require Import
-  suf__types
-  sstore_2.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.fin_maps.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.suf__code.
+Require Import zoo_persistent.suf__types.
+Require Import zoo_persistent.sstore_2.
+Require Import zoo.options.
 
 Implicit Types rank : Z.
 Implicit Types elt repr parent : location.
@@ -517,8 +510,7 @@ Section suf_G.
   Qed.
 End suf_G.
 
-From zoo_persistent Require
-  suf__opaque.
+Require zoo_persistent.suf__opaque.
 
 #[global] Opaque suf_model.
 #[global] Opaque suf_snapshot.

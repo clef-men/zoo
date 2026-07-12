@@ -1,17 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_parabs Require Import
-  future
-  pool.
-From examples Require Export
-  fibonacci
-  future_fibonacci__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_parabs.future.
+Require Import zoo_parabs.pool.
+Require Export examples.fibonacci.
+Require Export examples.future_fibonacci__code.
+Require Import zoo.options.
 
 Section future_G.
   Context `{future_G : FutureG Σ}.
@@ -90,5 +84,4 @@ Section future_G.
   Qed.
 End future_G.
 
-From examples Require
-  future_fibonacci__opaque.
+Require examples.future_fibonacci__opaque.

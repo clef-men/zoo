@@ -1,11 +1,8 @@
-From Ltac2 Require Export
-  Init
-  Message.
+Require Export Ltac2.Init.
+Require Export Ltac2.Message.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Ltac2 print_string str :=
   print (of_string str).

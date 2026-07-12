@@ -1,12 +1,8 @@
-From stdpp Require Import
-  gmap.
+Require Import stdpp.gmap.
 
-From zoo Require Import
-  prelude.
-From zoo.language Require Export
-  syntax.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.language.syntax.
+Require Import zoo.options.
 
 Implicit Types e : expr.
 Implicit Types v : val.

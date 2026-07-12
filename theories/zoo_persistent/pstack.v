@@ -1,17 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  list.
-From zoo_persistent Require Export
-  base
-  pstack__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.list.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.pstack__code.
+Require Import zoo.options.
 
 Implicit Types v t : val.
 
@@ -95,7 +89,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_persistent Require
-  pstack__opaque.
+Require zoo_persistent.pstack__opaque.
 
 #[global] Opaque pstack_model.

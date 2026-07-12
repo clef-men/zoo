@@ -1,16 +1,10 @@
-From iris.algebra Require Import
-  gset.
+Require Import iris.algebra.gset.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Import
-  auth.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.algebra.auth.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class AuthDgsetG Σ A `{Countable A} :=
   { #[local] auth_dgset_G_inG :: inG Σ (authR (gset_disjUR A))

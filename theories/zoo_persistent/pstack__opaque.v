@@ -1,5 +1,4 @@
-From zoo_persistent Require Import
-  pstack__code.
+Require Import zoo_persistent.pstack__code.
 
 #[global] Opaque pstack٠empty.
 #[global] Opaque pstack٠is_empty.

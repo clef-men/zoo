@@ -1,9 +1,6 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.options.
 
 Definition listne A :=
   { x : list A | x ≠ [] }.

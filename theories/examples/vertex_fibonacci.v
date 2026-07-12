@@ -1,22 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.fupd
-  lib.saved_prop.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  ivar_4.
-From zoo_parabs Require Import
-  pool
-  vertex.
-From examples Require Export
-  fibonacci
-  vertex_fibonacci__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.fupd.
+Require Import zoo.iris.base_logic.lib.saved_prop.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.ivar_4.
+Require Import zoo_parabs.pool.
+Require Import zoo_parabs.vertex.
+Require Export examples.fibonacci.
+Require Export examples.vertex_fibonacci__code.
+Require Import zoo.options.
 
 Implicit Types r : location.
 Implicit Types v ctx vtx : val.
@@ -178,5 +170,4 @@ Section vertex_fibonacci_G.
   Qed.
 End vertex_fibonacci_G.
 
-From examples Require
-  vertex_fibonacci__opaque.
+Require examples.vertex_fibonacci__opaque.

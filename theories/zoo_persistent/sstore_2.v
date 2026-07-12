@@ -1,28 +1,18 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  fin_maps
-  list
-  treemap.
-From zoo.iris.base_logic Require Import
-  lib.mono_gmap.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  assert
-  list.
-From zoo_persistent Require Export
-  base
-  sstore_2__code.
-From zoo_persistent Require Import
-  sstore_2__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.fin_maps.
+Require Import zoo.common.list.
+Require Import zoo.common.treemap.
+Require Import zoo.iris.base_logic.lib.mono_gmap.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.assert.
+Require Import zoo_std.list.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.sstore_2__code.
+Require Import zoo_persistent.sstore_2__types.
+Require Import zoo.options.
 
 Implicit Types l r node cnode base root dst : location.
 Implicit Types nodes : list location.
@@ -1515,8 +1505,7 @@ Module base.
   #[global] Opaque sstore_2_snapshot.
 End base.
 
-From zoo_persistent Require
-  sstore_2__opaque.
+Require zoo_persistent.sstore_2__opaque.
 
 Class Sstore2G Σ `{zoo_G : !ZooG Σ} :=
   { #[local] sstore_2_G_raw_G :: base.Sstore2G Σ

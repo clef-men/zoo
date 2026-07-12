@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base.
-From zoo_std Require Export
-  base
-  int__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.base.
+Require Export zoo_std.int__code.
+Require Import zoo.options.
 
 Notation "e1 `min` e2" := (
   (Val int٠min) e1%E e2%E
@@ -178,5 +172,4 @@ Section zoo_G.
   End nat.
 End zoo_G.
 
-From zoo_std Require
-  int__opaque.
+Require zoo_std.int__opaque.

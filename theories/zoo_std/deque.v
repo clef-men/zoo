@@ -1,19 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  deque__code.
-From zoo_std Require Import
-  option
-  xdeque.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.deque__code.
+Require Import zoo_std.option.
+Require Import zoo_std.xdeque.
+Require Import zoo.options.
 
 Implicit Types fn : val.
 
@@ -204,7 +197,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  deque__opaque.
+Require zoo_std.deque__opaque.
 
 #[global] Opaque deque_model.

@@ -1,8 +1,6 @@
-From Stdlib.ssr Require Export
-  ssreflect.
+Require Export Stdlib.ssr.ssreflect.
 
-From stdpp Require Export
-  prelude.
+Require Export stdpp.prelude.
 
 Open Scope general_if_scope.
 

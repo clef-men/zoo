@@ -1,18 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.agree
-  lib.mono_list.
-From zoo.language Require Import
-  notations.
-From zoo.program_logic Require Export
-  prophet_typed.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.agree.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.prophet_typed.
+Require Import zoo.diaframe.
+Require Import zoo.options.
 
 Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet :=
   { #[local] prophet_wise_G_full_G :: AgreeG Σ (leibnizO (list prophet.(prophet_typed_type)))

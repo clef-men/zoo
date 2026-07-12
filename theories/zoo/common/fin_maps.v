@@ -1,13 +1,9 @@
-From stdpp Require Export
-  fin_maps
-  fin_map_dom.
+Require Export stdpp.fin_maps.
+Require Export stdpp.fin_map_dom.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  option.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.option.
+Require Import zoo.options.
 
 Section dom.
   Context `{FinMapDom K M D}.

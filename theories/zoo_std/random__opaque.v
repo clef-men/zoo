@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  random__code.
+Require Import zoo_std.random__code.
 
 #[global] Opaque random٠init.
 #[global] Opaque random٠bits.

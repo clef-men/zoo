@@ -1,7 +1,4 @@
-From zoo Require Import
-  prelude.
-From zoo_std Require Export
-  atomic_array__code
-  array.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo_std.atomic_array__code.
+Require Export zoo_std.array.
+Require Import zoo.options.

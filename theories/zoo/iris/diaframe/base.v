@@ -1,6 +1,3 @@
-From zoo Require Import
-  prelude.
-From zoo.iris Require Export
-  proofmode.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.proofmode.
+Require Import zoo.options.

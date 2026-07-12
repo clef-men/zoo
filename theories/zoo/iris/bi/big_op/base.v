@@ -1,7 +1,4 @@
-From iris.bi Require Export
-  big_op.
+Require Export iris.bi.big_op.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.

@@ -1,11 +1,8 @@
-From Ltac2 Require Export
-  Init
-  List.
+Require Export Ltac2.Init.
+Require Export Ltac2.List.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 #[local] Ltac2 rec init_foldl' fn acc i n :=
   if Int.equal n 0 then

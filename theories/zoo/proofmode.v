@@ -1,22 +1,14 @@
-From iris.proofmode Require Import
-  coq_tactics
-  reduction
-  spec_patterns.
+Require Import iris.proofmode.coq_tactics.
+Require Import iris.proofmode.reduction.
+Require Import iris.proofmode.spec_patterns.
 
-From zoo Require Import
-  prelude.
-From zoo.iris Require Export
-  proofmode.
-From zoo.iris Require Import
-  diaframe.
-From zoo.language Require Import
-  notations.
-From zoo.language Require Export
-  tactics.
-From zoo.program_logic Require Export
-  atomic.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.proofmode.
+Require Import zoo.iris.diaframe.
+Require Import zoo.language.notations.
+Require Export zoo.language.tactics.
+Require Export zoo.program_logic.atomic.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types lit : literal.

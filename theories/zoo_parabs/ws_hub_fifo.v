@@ -1,28 +1,17 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.ghost_list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option.
-From zoo_saturn Require Import
-  mpmc_queue_1.
-From zoo_parabs Require Export
-  base
-  ws_hub_fifo__code.
-From zoo_parabs Require Import
-  ws_hub_fifo__types
-  waiters.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.ghost_list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_saturn.mpmc_queue_1.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.ws_hub_fifo__code.
+Require Import zoo_parabs.ws_hub_fifo__types.
+Require Import zoo_parabs.waiters.
+Require Import zoo.options.
 
 Implicit Types b closed : bool.
 Implicit Types num_active : Z.
@@ -1073,5 +1062,4 @@ Section ws_hub_fifo_G.
   Qed.
 End ws_hub_fifo_G.
 
-From zoo_parabs Require
-  ws_hub_fifo__opaque.
+Require zoo_parabs.ws_hub_fifo__opaque.

@@ -1,22 +1,14 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.oneshot
-  lib.subpreds.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  lazy__code.
-From zoo_std Require Import
-  lazy__types
-  mutex.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.iris.base_logic.lib.subpreds.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.lazy__code.
+Require Import zoo_std.lazy__types.
+Require Import zoo_std.mutex.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v fn mtx : val.
@@ -694,8 +686,7 @@ Module base.
   #[global] Opaque lazy_result.
 End base.
 
-From zoo_std Require
-  lazy__opaque.
+Require zoo_std.lazy__opaque.
 
 Section lazy_G.
   Context `{lazy_G : LazyG Σ}.

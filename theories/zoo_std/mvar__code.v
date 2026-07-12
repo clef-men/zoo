@@ -1,12 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  mvar__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.mvar__types.
+Require Import zoo.options.
 
 Definition mvar٠create : val :=
   fun: <> =>

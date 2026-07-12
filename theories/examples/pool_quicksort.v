@@ -1,21 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  array.
-From zoo_std Require Import
-  for_.
-From zoo_parabs Require Import
-  pool.
-From examples Require Export
-  pool_quicksort__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.array.
+Require Import zoo_std.for_.
+Require Import zoo_parabs.pool.
+Require Export examples.pool_quicksort__code.
+Require Import zoo.options.
 
 Section pool_G.
   Context `{pool_G : PoolG}.
@@ -339,5 +330,4 @@ Section pool_G.
   Qed.
 End pool_G.
 
-From examples Require
-  pool_quicksort__opaque.
+Require examples.pool_quicksort__opaque.

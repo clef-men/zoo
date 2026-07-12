@@ -1,15 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  condition
-  mutex.
-From zoo_parabs Require Import
-  waiter__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.condition.
+Require Import zoo_std.mutex.
+Require Import zoo_parabs.waiter__types.
+Require Import zoo.options.
 
 Definition waiter٠create : val :=
   fun: <> =>

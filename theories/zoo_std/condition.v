@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  mutex
-  condition__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.mutex.
+Require Export zoo_std.condition__code.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types t pred : val.
@@ -285,7 +280,6 @@ Section mutex_G.
   Qed.
 End mutex_G.
 
-From zoo_std Require
-  condition__opaque.
+Require zoo_std.condition__opaque.
 
 #[global] Opaque condition_inv.

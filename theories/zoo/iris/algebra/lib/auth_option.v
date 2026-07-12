@@ -1,13 +1,9 @@
-From iris.algebra Require Import
-  auth
-  proofmode_classes.
+Require Import iris.algebra.auth.
+Require Import iris.algebra.proofmode_classes.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.options.
 
 Definition auth_option {SI : sidx} A :=
   auth (optionUR A).

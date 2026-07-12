@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.iris Require Import
-  diaframe.
-From zoo.language Require Import
-  tactics
-  notations.
-From zoo.language Require Export
-  typeclasses.
-From zoo.program_logic Require Export
-  bwp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.diaframe.
+Require Import zoo.language.tactics.
+Require Import zoo.language.notations.
+Require Export zoo.language.typeclasses.
+Require Export zoo.program_logic.bwp.
+Require Import zoo.options.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

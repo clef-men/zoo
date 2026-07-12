@@ -1,11 +1,7 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Export
-  big_op.big_sepL.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.bi.big_op.big_sepL.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Section bi.
   Context {PROP : bi}.

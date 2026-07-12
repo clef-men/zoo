@@ -1,23 +1,14 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  array.
-From zoo_persistent Require Export
-  base
-  parray__code.
-From zoo_persistent Require Import
-  parray__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.array.
+Require Export zoo_persistent.base.
+Require Export zoo_persistent.parray__code.
+Require Import zoo_persistent.parray__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types node root : location.
@@ -420,8 +411,7 @@ Section parray_G.
   Qed.
 End parray_G.
 
-From zoo_persistent Require
-  parray__opaque.
+Require zoo_persistent.parray__opaque.
 
 #[global] Opaque parray_inv.
 #[global] Opaque parray_model.

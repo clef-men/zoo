@@ -1,21 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.fupd
-  lib.saved_prop.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  ivar_4.
-From zoo_parabs Require Import
-  pool
-  vertex.
-From examples Require Export
-  vertex_simple__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.fupd.
+Require Import zoo.iris.base_logic.lib.saved_prop.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.ivar_4.
+Require Import zoo_parabs.pool.
+Require Import zoo_parabs.vertex.
+Require Export examples.vertex_simple__code.
+Require Import zoo.options.
 
 Implicit Types v ctx a b c d : val.
 
@@ -157,5 +149,4 @@ Section vertex_simple_G.
   Qed.
 End vertex_simple_G.
 
-From examples Require
-  vertex_simple__opaque.
+Require examples.vertex_simple__opaque.

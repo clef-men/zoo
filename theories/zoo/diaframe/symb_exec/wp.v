@@ -1,18 +1,12 @@
-From iris.proofmode Require Import
-  ltac_tactics.
+Require Import iris.proofmode.ltac_tactics.
 
-From diaframe Require Import
-  util_classes
-  solve_defs.
+Require Import diaframe.util_classes.
+Require Import diaframe.solve_defs.
 
-From zoo Require Import
-  prelude.
-From zoo.program_logic Require Import
-  wp.
-From zoo.diaframe Require Export
-  symb_exec.defs.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.program_logic.wp.
+Require Export zoo.diaframe.symb_exec.defs.
+Require Import zoo.options.
 
 Section zoo_G.
   Context `{zoo_G : !ZooG Σ}.

@@ -1,21 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  array.
-From zoo_saturn Require Import
-  mpmc_queue_1.
-From zoo_parabs Require Export
-  base
-  waiters__code.
-From zoo_parabs Require Import
-  waiter
-  waiters__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.array.
+Require Import zoo_saturn.mpmc_queue_1.
+Require Export zoo_parabs.base.
+Require Export zoo_parabs.waiters__code.
+Require Import zoo_parabs.waiter.
+Require Import zoo_parabs.waiters__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v t waiters queue : val.
@@ -256,7 +248,6 @@ Section waiters_G.
   Qed.
 End waiters_G.
 
-From zoo_parabs Require
-  waiters__opaque.
+Require zoo_parabs.waiters__opaque.
 
 #[global] Opaque waiters_inv.

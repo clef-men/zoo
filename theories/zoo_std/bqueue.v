@@ -1,18 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  bqueue__code.
-From zoo_std Require Import
-  bqueue__types
-  option
-  array.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.bqueue__code.
+Require Import zoo_std.bqueue__types.
+Require Import zoo_std.option.
+Require Import zoo_std.array.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
@@ -270,7 +264,6 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  bqueue__opaque.
+Require zoo_std.bqueue__opaque.
 
 #[global] Opaque bqueue_model.

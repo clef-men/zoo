@@ -1,15 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris Require Import
-  diaframe.
-From zoo.program_logic Require Export
-  bwp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.diaframe.
+Require Export zoo.program_logic.bwp.
+Require Import zoo.options.
 
 Implicit Types e : expr.
 Implicit Types es : list expr.

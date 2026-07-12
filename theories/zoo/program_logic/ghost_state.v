@@ -1,26 +1,17 @@
-From iris.bi Require Export
-  lib.fractional.
-From iris.base_logic Require Import
-  lib.ghost_map
-  lib.invariants.
+Require Export iris.bi.lib.fractional.
+Require Import iris.base_logic.lib.ghost_map.
+Require Import iris.base_logic.lib.invariants.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.auth_nat_max
-  lib.ghost_heap
-  lib.ghost_list
-  lib.mono_list.
-From zoo.iris Require Import
-  diaframe.
-From zoo.language Require Export
-  language.
-From zoo.language Require Import
-  notations.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.iris.base_logic.lib.ghost_heap.
+Require Import zoo.iris.base_logic.lib.ghost_list.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.iris.diaframe.
+Require Export zoo.language.language.
+Require Import zoo.language.notations.
+Require Import zoo.options.
 
 Implicit Types cnt ns nt : nat.
 Implicit Type pid : prophet_id.

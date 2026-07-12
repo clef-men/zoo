@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  mvar__code.
+Require Import zoo_std.mvar__code.
 
 #[global] Opaque mvar٠create.
 #[global] Opaque mvar٠make.

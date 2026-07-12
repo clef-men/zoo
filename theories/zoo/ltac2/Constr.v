@@ -1,14 +1,10 @@
-From Ltac2 Require Export
-  Constr
-  Init.
+Require Export Ltac2.Constr.
+Require Export Ltac2.Init.
 
-From zoo Require Import
-  prelude.
-From zoo.ltac2 Require Import
-  Array
-  List.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.ltac2.Array.
+Require Import zoo.ltac2.List.
+Require Import zoo.options.
 
 Module Unsafe.
   Export Unsafe.

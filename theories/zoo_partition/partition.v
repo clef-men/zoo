@@ -1,25 +1,15 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  gset.
-From zoo.iris.algebra Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  mono_gset.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  list
-  xdlchain.
-From zoo_partition Require Import
-  partition__types.
-From zoo_partition Require Export
-  partition__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.gset.
+Require Import zoo.iris.algebra.big_op.
+Require Import zoo.iris.base_logic.lib.mono_gset.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.list.
+Require Import zoo_std.xdlchain.
+Require Import zoo_partition.partition__types.
+Require Export zoo_partition.partition__code.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types sz : nat.
@@ -581,8 +571,7 @@ Section partition_G.
   Admitted.
 End partition_G.
 
-From zoo_partition Require
-  partition__opaque.
+Require zoo_partition.partition__opaque.
 
 #[global] Opaque partition_model.
 #[global] Opaque partition_element.

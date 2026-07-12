@@ -1,15 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.iris Require Export
-  diaframe.
-From zoo.language Require Import
-  notations.
-From zoo Require Import
-  proofmode.
-From zoo.diaframe Require Export
-  symb_exec.wp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.diaframe.
+Require Import zoo.language.notations.
+Require Import zoo.proofmode.
+Require Export zoo.diaframe.symb_exec.wp.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types pid : prophet_id.

@@ -1,5 +1,4 @@
-From zoo_parabs Require Import
-  future__code.
+Require Import zoo_parabs.future__code.
 
 #[global] Opaque future٠return.
 #[global] Opaque future٠async.

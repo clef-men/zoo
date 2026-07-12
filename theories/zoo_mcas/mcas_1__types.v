@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  list.
-From zoo Require Import
-  identifier.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.list.
+Require Import zoo.program_logic.identifier.
+Require Import zoo.options.
 
 Notation "'casn'" := (
   in_type "zoo_mcas.mcas_1.state" 0

@@ -1,9 +1,6 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Export
-  language.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.language.language.
+Require Import zoo.options.
 
 Definition in_type (_ : string) (n : nat) :=
   n.

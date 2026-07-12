@@ -1,5 +1,4 @@
-From zoo_std Require Import
-  array__code.
+Require Import zoo_std.array__code.
 
 #[global] Opaque array٠unsafe_alloc.
 #[global] Opaque array٠alloc.

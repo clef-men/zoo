@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  excl.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  mutex__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.mutex__code.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
@@ -341,8 +335,7 @@ Section mutex_G.
   Qed.
 End mutex_G.
 
-From zoo_std Require
-  mutex__opaque.
+Require zoo_std.mutex__opaque.
 
 #[global] Opaque mutex_init.
 #[global] Opaque mutex_inv.

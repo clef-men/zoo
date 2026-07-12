@@ -1,13 +1,8 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list.
-From zoo.iris.bi Require Export
-  big_op.big_sepL.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Export zoo.iris.bi.big_op.big_sepL.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Fixpoint big_sepL3 {PROP : bi} `(Φ : nat → A1 → A2 → A3 → PROP) l1 l2 l3 : PROP :=
   match l1, l2, l3 with

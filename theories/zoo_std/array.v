@@ -1,26 +1,17 @@
-From Stdlib Require Import
-  ZifyNat.
+Require Import Stdlib.micromega.ZifyNat.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  list
-  math.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  array__code.
-From zoo_std Require Import
-  for_
-  assume
-  chunk.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.list.
+Require Import zoo.common.math.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.array__code.
+Require Import zoo_std.for_.
+Require Import zoo_std.assume.
+Require Import zoo_std.chunk.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types i j k n : nat.
@@ -9309,8 +9300,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_std Require
-  array__opaque.
+Require zoo_std.array__opaque.
 #[global] Opaque array٠unsafe_xchg.
 #[global] Opaque array٠unsafe_cas.
 #[global] Opaque array٠unsafe_faa.

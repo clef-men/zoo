@@ -1,19 +1,12 @@
-From zoo Require Import
-  prelude.
-From zoo.iris.base_logic Require Import
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  glist.
-From zoo_saturn Require Export
-  base
-  mpmc_stack_1__code.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.glist.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.mpmc_stack_1__code.
+Require Import zoo.options.
 
 Implicit Types l : location.
 Implicit Types v t : val.
@@ -276,8 +269,7 @@ Section zoo_G.
   Qed.
 End zoo_G.
 
-From zoo_saturn Require
-  mpmc_stack_1__opaque.
+Require zoo_saturn.mpmc_stack_1__opaque.
 
 #[global] Opaque mpmc_stack_1_inv.
 #[global] Opaque mpmc_stack_1_model.

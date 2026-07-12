@@ -1,33 +1,22 @@
-From iris.base_logic Require Import
-  lib.ghost_map.
+Require Import iris.base_logic.lib.ghost_map.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  relations
-  countable.
-From zoo.iris.bi Require Import
-  big_op.
-From zoo.iris.base_logic Require Import
-  lib.mono_list
-  lib.auth_nat_max
-  lib.auth_twins
-  lib.saved_pred.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Import
-  option
-  xtchain
-  domain.
-From zoo_saturn Require Export
-  base
-  spmc_queue__code.
-From zoo_saturn Require Import
-  spmc_queue__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.relations.
+Require Import zoo.common.countable.
+Require Import zoo.iris.bi.big_op.
+Require Import zoo.iris.base_logic.lib.mono_list.
+Require Import zoo.iris.base_logic.lib.auth_nat_max.
+Require Import zoo.iris.base_logic.lib.auth_twins.
+Require Import zoo.iris.base_logic.lib.saved_pred.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Import zoo_std.option.
+Require Import zoo_std.xtchain.
+Require Import zoo_std.domain.
+Require Export zoo_saturn.base.
+Require Export zoo_saturn.spmc_queue__code.
+Require Import zoo_saturn.spmc_queue__types.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types front node back new_back : location.
@@ -900,8 +889,7 @@ Module base.
   #[global] Opaque spmc_queue_model.
 End base.
 
-From zoo_saturn Require
-  spmc_queue__opaque.
+Require zoo_saturn.spmc_queue__opaque.
 
 Section spmc_queue_G.
   Context `{spmc_queue_G : SpmcQueueG Σ}.

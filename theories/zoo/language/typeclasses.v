@@ -1,14 +1,9 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Export
-  list.
-From zoo.language Require Export
-  language
-  metatheory.
-From zoo.language Require Import
-  tactics.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.common.list.
+Require Export zoo.language.language.
+Require Export zoo.language.metatheory.
+Require Import zoo.language.tactics.
+Require Import zoo.options.
 
 Implicit Types e : expr.
 Implicit Types v : val.

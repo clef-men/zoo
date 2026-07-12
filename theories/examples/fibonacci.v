@@ -1,7 +1,5 @@
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Fixpoint fibonacci n :=
   match n with

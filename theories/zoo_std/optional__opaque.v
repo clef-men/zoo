@@ -1,3 +1,2 @@
-From zoo_std Require Import
-  optional__code.
+Require Import zoo_std.optional__code.
 

@@ -1,10 +1,7 @@
-From stdpp Require Export
-  gmap.
+Require Export stdpp.gmap.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Section list_to_set.
   Context `{Countable K}.

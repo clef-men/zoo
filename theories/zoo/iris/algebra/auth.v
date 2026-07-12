@@ -1,14 +1,9 @@
-From iris.algebra Require Export
-  auth.
+Require Export iris.algebra.auth.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Export
-  base.
-From zoo.iris.algebra Require Import
-  view.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.iris.algebra.view.
+Require Import zoo.options.
 
 Section ucmra.
   Context {SI : sidx}.

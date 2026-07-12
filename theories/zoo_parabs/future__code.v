@@ -1,16 +1,10 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_parabs Require Import
-  pool.
-From zoo_std Require Import
-  ivar_4.
-From zoo_parabs Require Import
-  future__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_parabs.pool.
+Require Import zoo_std.ivar_4.
+Require Import zoo_parabs.future__types.
+Require Import zoo.options.
 
 Definition future٠return : val :=
   ivar_4٠make.

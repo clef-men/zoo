@@ -1,21 +1,13 @@
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable.
-From zoo.iris.base_logic Require Import
-  lib.excl
-  lib.oneshot.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  mvar__code.
-From zoo_std Require Import
-  option.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.iris.base_logic.lib.excl.
+Require Import zoo.iris.base_logic.lib.oneshot.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.mvar__code.
+Require Import zoo_std.option.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types v : val.
@@ -523,8 +515,7 @@ Module base.
   #[global] Opaque mvar_resolved.
 End base.
 
-From zoo_std Require
-  mvar__opaque.
+Require zoo_std.mvar__opaque.
 
 Section mvar_G.
   Context `{mvar_G : MvarG Σ}.

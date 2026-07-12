@@ -1,16 +1,10 @@
-From iris.algebra Require Import
-  lib.frac_auth.
+Require Import iris.algebra.lib.frac_auth.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  math.
-From zoo.iris.base_logic Require Export
-  lib.base.
-From zoo.iris Require Import
-  diaframe.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.math.
+Require Export zoo.iris.base_logic.lib.base.
+Require Import zoo.iris.diaframe.
+Require Import zoo.options.
 
 Class AuthFracG Σ A :=
   { #[local] auth_frac_G_inG :: inG Σ (frac_authUR A)

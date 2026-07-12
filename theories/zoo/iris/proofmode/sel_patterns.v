@@ -1,11 +1,8 @@
-From stdpp Require Export
-  strings.
+Require Export stdpp.strings.
 
-From iris.proofmode Require Import
-  base
-  tokens.
-From iris.prelude Require Import
-  options.
+Require Import iris.proofmode.base.
+Require Import iris.proofmode.tokens.
+Require Import iris.prelude.options.
 
 Inductive sel_pat :=
   | SelPure : list string → sel_pat

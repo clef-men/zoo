@@ -1,17 +1,11 @@
-From iris.base_logic Require Export
-  lib.fancy_updates.
+Require Export iris.base_logic.lib.fancy_updates.
 
-From zoo Require Import
-  prelude.
-From zoo.iris Require Import
-  diaframe.
-From zoo.language Require Import
-  tactics
-  notations.
-From zoo.program_logic Require Export
-  state_interp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.iris.diaframe.
+Require Import zoo.language.tactics.
+Require Import zoo.language.notations.
+Require Export zoo.program_logic.state_interp.
+Require Import zoo.options.
 
 Parameter later_coefficient : nat.
 Axiom later_coefficient_lb :

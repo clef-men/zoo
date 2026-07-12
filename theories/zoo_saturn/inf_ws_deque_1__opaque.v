@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  inf_ws_deque_1__code.
+Require Import zoo_saturn.inf_ws_deque_1__code.
 
 #[global] Opaque inf_ws_deque_1٠create.
 #[global] Opaque inf_ws_deque_1٠size.

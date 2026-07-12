@@ -1,15 +1,10 @@
-From iris.algebra Require Export
-  frac
-  dfrac.
-From iris.bi Require Export
-  lib.fractional.
-From iris.base_logic Require Export
-  lib.own.
+Require Export iris.algebra.frac.
+Require Export iris.algebra.dfrac.
+Require Export iris.bi.lib.fractional.
+Require Export iris.base_logic.lib.own.
 
-From zoo Require Import
-  prelude.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.options.
 
 Ltac solve_inG :=
   intros;

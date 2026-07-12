@@ -1,12 +1,8 @@
-From diaframe Require Import
-  proofmode_base.
+Require Import diaframe.proofmode_base.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.diaframe Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.diaframe.base.
+Require Import zoo.options.
 
 #[local] Ltac iStep_ n_step :=
   let step := ltac2:(n_step |-

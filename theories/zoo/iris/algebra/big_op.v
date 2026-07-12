@@ -1,13 +1,9 @@
-From iris.algebra Require Export
-  big_op
-  gset.
+Require Export iris.algebra.big_op.
+Require Export iris.algebra.gset.
 
-From zoo Require Import
-  prelude.
-From zoo.iris.algebra Require Export
-  base.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.iris.algebra.base.
+Require Import zoo.options.
 
 Section big_opS.
   Context {SI : sidx}.

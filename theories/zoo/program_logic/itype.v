@@ -1,9 +1,6 @@
-From zoo Require Import
-  prelude.
-From zoo.program_logic Require Export
-  wp.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Export zoo.program_logic.wp.
+Require Import zoo.options.
 
 Class iType (PROP : bi) (τ : val → PROP) :=
   { #[global] itype_persistent v :: Persistent (τ v)

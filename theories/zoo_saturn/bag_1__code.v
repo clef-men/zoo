@@ -1,16 +1,11 @@
-From zoo Require Import
-  prelude.
-From zoo.language Require Import
-  typeclasses
-  notations.
-From zoo_std Require Import
-  goption
-  array
-  domain.
-From zoo_saturn Require Import
-  bag_1__types.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.language.typeclasses.
+Require Import zoo.language.notations.
+Require Import zoo_std.goption.
+Require Import zoo_std.array.
+Require Import zoo_std.domain.
+Require Import zoo_saturn.bag_1__types.
+Require Import zoo.options.
 
 Definition bag_1٠create : val :=
   fun: "sz" =>

@@ -1,27 +1,18 @@
-From Stdlib.Logic Require Import
-  FunctionalExtensionality.
+Require Import Stdlib.Logic.FunctionalExtensionality.
 
-From zoo Require Import
-  prelude.
-From zoo.common Require Import
-  countable
-  function.
-From zoo.iris.base_logic Require Import
-  lib.twins.
-From zoo.language Require Import
-  notations.
-From zoo.diaframe Require Import
-  diaframe.
-From zoo_std Require Export
-  base
-  inf_array__code.
-From zoo_std Require Import
-  array
-  inf_array__types
-  int
-  mutex.
-From zoo Require Import
-  options.
+Require Import zoo.prelude.
+Require Import zoo.common.countable.
+Require Import zoo.common.function.
+Require Import zoo.iris.base_logic.lib.twins.
+Require Import zoo.language.notations.
+Require Import zoo.diaframe.
+Require Export zoo_std.base.
+Require Export zoo_std.inf_array__code.
+Require Import zoo_std.array.
+Require Import zoo_std.inf_array__types.
+Require Import zoo_std.int.
+Require Import zoo_std.mutex.
+Require Import zoo.options.
 
 Implicit Types b : bool.
 Implicit Types l : location.
@@ -788,8 +779,7 @@ Section inf_array_G.
   Qed.
 End inf_array_G.
 
-From zoo_std Require
-  inf_array__opaque.
+Require zoo_std.inf_array__opaque.
 
 #[global] Opaque inf_array_inv.
 #[global] Opaque inf_array_model.

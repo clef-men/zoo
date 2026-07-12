@@ -1,5 +1,4 @@
-From zoo_saturn Require Import
-  spmc_queue__code.
+Require Import zoo_saturn.spmc_queue__code.
 
 #[global] Opaque spmc_queue٠create.
 #[global] Opaque spmc_queue٠is_empty.
