@@ -1,8 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.common.function.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Export zoo.program_logic.prophet_wise.
-Require Import zoo.diaframe.
 Require Import zoo.options.
 
 #[local] Definition prophetx prophet :=

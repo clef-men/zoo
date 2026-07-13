@@ -1,8 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.common.fin_maps.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_persistent.base.
+Require Import zoo.base.
 Require Export zoo_persistent.suf__code.
 Require Import zoo_persistent.suf__types.
 Require Import zoo_persistent.sstore_2.

@@ -3,10 +3,8 @@ Require Import zoo.common.countable.
 Require Import zoo.common.relations.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.auth_twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.ws_deque_2__code.
 Require Import zoo_saturn.ws_deque_1.
 Require Import zoo.options.

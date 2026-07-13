@@ -3,12 +3,10 @@ Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
 Require Import zoo_std.domain.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.mpsc_queue_1__code.
 Require Import zoo_saturn.mpsc_queue_1__types.
 Require Import zoo.options.

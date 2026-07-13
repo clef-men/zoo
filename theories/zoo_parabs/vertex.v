@@ -6,8 +6,7 @@ Require Import zoo.iris.base_logic.lib.auth_gmultiset.
 Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.subprops.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.clist.
 Require Import zoo_std.option.
 Require Import zoo_saturn.mpmc_stack_2.

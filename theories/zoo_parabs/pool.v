@@ -6,8 +6,7 @@ Require Import zoo.iris.base_logic.lib.ghost_list.
 Require Import zoo.iris.base_logic.lib.mono_gmultiset.
 Require Import zoo.iris.base_logic.lib.saved_prop.
 Require Import zoo.iris.base_logic.lib.spsc_prop.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.array.
 Require Import zoo_std.domain.
 Require Import zoo_std.ivar_4.

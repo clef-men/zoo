@@ -1,8 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Export zoo.program_logic.biglater.
-Require Import zoo.diaframe.
 Require Import zoo_std.ivar_4.
 Require Import zoo_std.list.
 Require Export zoo_parabs.base.

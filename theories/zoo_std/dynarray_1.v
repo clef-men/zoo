@@ -1,7 +1,5 @@
 Require Import zoo.prelude.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Export zoo_std.dynarray_1__code.
 Require Import zoo_std.array.
 Require Import zoo_std.dynarray_1__types.

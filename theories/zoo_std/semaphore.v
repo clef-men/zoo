@@ -4,9 +4,7 @@ Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.excl.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Export zoo_std.semaphore__code.
 Require Import zoo_std.semaphore__types.
 Require Import zoo_std.condition.

@@ -6,8 +6,7 @@ Require Import zoo.iris.base_logic.lib.ghost_pred.
 Require Import zoo.iris.base_logic.lib.ghost_list.
 Require Import zoo.iris.base_logic.lib.oneshot.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.array.
 Require Import zoo_std.atomic_array.

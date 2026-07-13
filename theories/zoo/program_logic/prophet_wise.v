@@ -2,9 +2,8 @@ Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.agree.
 Require Import zoo.iris.base_logic.lib.mono_list.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Export zoo.program_logic.prophet_typed.
-Require Import zoo.diaframe.
 Require Import zoo.options.
 
 Class ProphetWiseG Σ `{zoo_G : !ZooG Σ} prophet :=

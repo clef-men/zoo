@@ -3,8 +3,7 @@ Require Import zoo.common.countable.
 Require Import zoo.common.gmultiset.
 Require Import zoo.common.list.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.int.
 Require Import zoo_std.option.
 Require Import zoo_std.optional.

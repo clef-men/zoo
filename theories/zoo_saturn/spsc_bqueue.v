@@ -6,11 +6,9 @@ Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.auth_twins.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.iris.base_logic.lib.mono_list.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.array.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.spsc_bqueue__code.
 Require Import zoo_saturn.spsc_bqueue__types.
 Require Import zoo.options.

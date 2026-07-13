@@ -4,8 +4,7 @@ Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.cinv.
 Require Import zoo.iris.base_logic.lib.auth_frac.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.for_.
 Require Import zoo_parabs.pool.
 Require Export examples.pool_counter__code.

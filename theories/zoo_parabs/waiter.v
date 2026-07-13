@@ -1,6 +1,5 @@
 Require Import zoo.prelude.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.condition.
 Require Import zoo_std.mutex.
 Require Import zoo_saturn.mpmc_queue_1.

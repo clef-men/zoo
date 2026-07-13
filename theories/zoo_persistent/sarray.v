@@ -3,10 +3,8 @@ Require Import iris.base_logic.lib.ghost_map.
 Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.array.
-Require Export zoo_persistent.base.
 Require Export zoo_persistent.sarray__code.
 Require Import zoo_persistent.sarray__types.
 Require Import zoo.options.

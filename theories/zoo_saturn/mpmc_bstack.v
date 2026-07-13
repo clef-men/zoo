@@ -1,10 +1,8 @@
 Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.mpmc_bstack__code.
 Require Import zoo_saturn.mpmc_bstack__types.
 Require Import zoo.options.

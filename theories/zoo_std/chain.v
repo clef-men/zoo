@@ -1,7 +1,5 @@
 Require Import zoo.prelude.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Export zoo_std.chain__types.
 Require Import zoo.options.
 

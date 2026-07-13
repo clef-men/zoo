@@ -1,8 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.common.list.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Export zoo_std.random_round__code.
 Require Import zoo_std.array.
 Require Import zoo_std.random_state.

@@ -8,13 +8,11 @@ Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.auth_nat_max.
 Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.saved_pred.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Import zoo.program_logic.prophet_typed.
-Require Import zoo.diaframe.
 Require Import zoo_std.domain.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.mpmc_bqueue__code.
 Require Import zoo_saturn.mpmc_bqueue__types.
 Require Import zoo.options.

@@ -2,9 +2,7 @@ Require Import iris.base_logic.lib.invariants.
 
 Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
-Require Export zoo.program_logic.wp.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo.options.
 
 Definition zoo_counter٠incr : val :=

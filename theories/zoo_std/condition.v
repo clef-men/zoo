@@ -1,6 +1,5 @@
 Require Import zoo.prelude.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Export zoo_std.mutex.
 Require Export zoo_std.condition__code.
 Require Import zoo.options.

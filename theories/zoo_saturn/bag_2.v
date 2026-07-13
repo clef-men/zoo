@@ -4,11 +4,9 @@ Require Import zoo.common.fin_maps.
 Require Import zoo.iris.bi.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gmap.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.xtchain.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.bag_2__code.
 Require Import zoo_saturn.bag_2__types.
 Require Import zoo_saturn.spmc_queue.

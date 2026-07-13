@@ -1,8 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.common.list.
 Require Import zoo.common.math.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Import zoo.options.
 
 Implicit Types i n : nat.

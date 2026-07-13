@@ -3,8 +3,7 @@ Require Import zoo.common.countable.
 Require Import zoo.common.gset.
 Require Import zoo.iris.algebra.big_op.
 Require Import zoo.iris.base_logic.lib.mono_gset.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.list.
 Require Import zoo_std.xdlchain.
 Require Import zoo_partition.partition__types.

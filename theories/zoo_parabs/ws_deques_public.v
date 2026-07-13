@@ -1,7 +1,6 @@
 Require Import zoo.prelude.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.option.
 Require Import zoo_std.array.
 Require Import zoo_std.random_round.

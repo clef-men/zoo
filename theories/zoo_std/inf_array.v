@@ -4,9 +4,7 @@ Require Import zoo.prelude.
 Require Import zoo.common.countable.
 Require Import zoo.common.function.
 Require Import zoo.iris.base_logic.lib.twins.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
+Require Import zoo.base.
 Require Export zoo_std.inf_array__code.
 Require Import zoo_std.array.
 Require Import zoo_std.inf_array__types.

@@ -1,8 +1,7 @@
 Require Import zoo.prelude.
 Require Import zoo.iris.base_logic.lib.fupd.
 Require Import zoo.iris.base_logic.lib.saved_prop.
-Require Import zoo.language.notations.
-Require Import zoo.diaframe.
+Require Import zoo.base.
 Require Import zoo_std.ivar_4.
 Require Import zoo_parabs.pool.
 Require Import zoo_parabs.vertex.

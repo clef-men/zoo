@@ -6,14 +6,12 @@ Require Import zoo.iris.base_logic.lib.twins.
 Require Import zoo.iris.base_logic.lib.mono_list.
 Require Import zoo.iris.base_logic.lib.saved_pred.
 Require Import zoo.iris.base_logic.lib.oneshot.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Import zoo.program_logic.prophet_nat.
-Require Import zoo.diaframe.
 Require Import zoo_std.option.
 Require Import zoo_std.optional.
 Require Import zoo_std.inf_array.
 Require Import zoo_std.int.
-Require Export zoo_saturn.base.
 Require Export zoo_saturn.inf_mpmc_queue_1__code.
 Require Import zoo_saturn.inf_mpmc_queue_1__types.
 Require Import zoo.options.

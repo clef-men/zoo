@@ -10,10 +10,9 @@ Require Import zoo.iris.base_logic.lib.excl.
 Require Import zoo.iris.base_logic.lib.saved_prop.
 Require Import zoo.iris.base_logic.lib.saved_pred.
 Require Import zoo.iris.base_logic.lib.mono_list.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Import zoo.program_logic.prophet_bool.
 Require Import zoo.program_logic.identifier.
-Require Import zoo.diaframe.
 Require Import zoo_std.list.
 Require Import zoo_mcas.mcas_1__types.
 Require Export zoo_mcas.mcas_1__code.

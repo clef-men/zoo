@@ -4,10 +4,8 @@ Require Import zoo.prelude.
 Require Import zoo.common.list.
 Require Import zoo.common.fin_maps.
 Require Import zoo.iris.bi.big_op.
-Require Import zoo.language.notations.
+Require Import zoo.base.
 Require Import zoo.program_logic.counter.
-Require Import zoo.diaframe.
-Require Export zoo_std.base.
 Require Export zoo_std.domain__code.
 Require Import zoo_std.option.
 Require Import zoo_std.ivar_2.
